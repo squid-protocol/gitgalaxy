@@ -506,7 +506,7 @@ def _candidates(groups, max_share: float = 0.5, min_det_loc: float = 20) -> list
     return sorted(out, key=lambda r: -r["saved_loc"])
 
 
-GENERATOR_TODO = ("TODO: [AI AGENT]", "is never tested", "TODO: port ")
+GENERATOR_TODO = ("TODO: [AI AGENT]", "is never tested", "TODO: port ", "COBOL: the RESP of")
 
 
 def _todo_origins(work: Path) -> dict[str, int]:

@@ -424,9 +424,9 @@
     "c/doom": {
       "c/doom/LICENSE.TXT": 0.0,
       "c/doom/README.TXT": 0.0,
-      "c/doom/d_main.c": 10.056,
+      "c/doom/d_main.c": 10.059,
       "c/doom/doomdef.h": 3.244,
-      "c/doom/i_system.c": 6.422,
+      "c/doom/i_system.c": 6.469,
       "c/doom/m_fixed.c": 5.533,
       "c/doom/m_fixed.h": 3.913,
       "c/doom/p_mobj.c": 6.935,
@@ -437,7 +437,7 @@
       "c/doom/z_zone.c": 9.164
     },
     "c/micropython": {
-      "c/micropython/compile.c": 7.597,
+      "c/micropython/compile.c": 7.6,
       "c/micropython/compile.h": 3.839,
       "c/micropython/emitnative.c": 6.855,
       "c/micropython/gc.c": 7.369,
@@ -1048,7 +1048,7 @@
     },
     "cobol/gnucobol_internals": {
       "cobol/gnucobol_internals/COPYING": 0.0,
-      "cobol/gnucobol_internals/codegen.c": 9.536,
+      "cobol/gnucobol_internals/codegen.c": 9.535,
       "cobol/gnucobol_internals/fileio.c": 7.702,
       "cobol/gnucobol_internals/numeric.c": 6.309,
       "cobol/gnucobol_internals/parser.y": 9.636,
@@ -1101,7 +1101,7 @@
       "cpp/godot/main.h": 4.455,
       "cpp/godot/node.cpp": 8.239,
       "cpp/godot/node.h": 7.882,
-      "cpp/godot/object.cpp": 6.246,
+      "cpp/godot/object.cpp": 6.245,
       "cpp/godot/object.h": 7.374,
       "cpp/godot/rendering_server_default.cpp": 6.859,
       "cpp/godot/rendering_server_default.h": 7.582,
@@ -1123,7 +1123,7 @@
       "cpp/powertoys/ImageResizerExt.cpp": 4.762,
       "cpp/powertoys/centralized_kb_hook.cpp": 6.299,
       "cpp/powertoys/logger.cpp": 6.114,
-      "cpp/powertoys/main.cpp": 6.945,
+      "cpp/powertoys/main.cpp": 6.947,
       "cpp/powertoys/powertoy_module.h": 5.472
     },
     "csd": {
@@ -1149,10 +1149,10 @@
       "csharp/SOURCES.md": 0.0
     },
     "csharp/roslyn": {
-      "csharp/roslyn/CSharpCompilation.cs": 8.203,
+      "csharp/roslyn/CSharpCompilation.cs": 8.204,
       "csharp/roslyn/CSharpSyntaxTree.cs": 7.837,
       "csharp/roslyn/DiagnosticAnalyzer.cs": 7.607,
-      "csharp/roslyn/LanguageParser.cs": 7.301,
+      "csharp/roslyn/LanguageParser.cs": 7.302,
       "csharp/roslyn/License.txt": 0.0,
       "csharp/roslyn/MethodCompiler.cs": 7.126,
       "csharp/roslyn/Workspace.cs": 7.584
@@ -1214,7 +1214,7 @@
     "dart/flutter": {
       "dart/flutter/editable_text.dart": 8.026,
       "dart/flutter/events.dart": 8.437,
-      "dart/flutter/framework.dart": 9.931,
+      "dart/flutter/framework.dart": 9.933,
       "dart/flutter/navigator.dart": 8.937,
       "dart/flutter/object.dart": 9.894,
       "dart/flutter/semantics.dart": 9.288,
@@ -1913,7 +1913,7 @@
       "javascript/threejs/GLTFLoader.js": 6.365,
       "javascript/threejs/Matrix4.js": 5.183,
       "javascript/threejs/Nodes.js": 6.469,
-      "javascript/threejs/WebGLProgram.js": 7.61,
+      "javascript/threejs/WebGLProgram.js": 7.639,
       "javascript/threejs/WebGLRenderer.js": 8.813
     },
     "jcl/cash-account-cobol": {
@@ -3691,7 +3691,7 @@
     "typescript/assemblyscript": {
       "typescript/assemblyscript/asconfig.json": 1.993,
       "typescript/assemblyscript/ast.ts": 8.856,
-      "typescript/assemblyscript/compiler.ts": 6.329,
+      "typescript/assemblyscript/compiler.ts": 6.33,
       "typescript/assemblyscript/package.json": 0.0,
       "typescript/assemblyscript/parser.ts": 5.641
     },
@@ -3716,7 +3716,7 @@
       "typescript/playwright/protocol.ts": 3.375
     },
     "typescript/typescript_compiler": {
-      "typescript/typescript_compiler/binder.ts": 7.37,
+      "typescript/typescript_compiler/binder.ts": 7.372,
       "typescript/typescript_compiler/package.json": 0.0
     },
     "typescript/vscode": {
@@ -3725,7 +3725,7 @@
       "typescript/vscode/codeEditorWidget.ts": 8.02,
       "typescript/vscode/eslint.config.js": 6.106,
       "typescript/vscode/extHost.api.impl.ts": 11.375,
-      "typescript/vscode/gulpfile.vscode.ts": 7.755,
+      "typescript/vscode/gulpfile.vscode.ts": 7.756,
       "typescript/vscode/instantiationService.ts": 7.512,
       "typescript/vscode/ipc.ts": 6.483,
       "typescript/vscode/lifecycle.ts": 7.831,

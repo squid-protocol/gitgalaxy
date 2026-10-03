@@ -1,0 +1,20 @@
+{
+ "format": "porting-loop-provenance/1",
+ "program": "LGAPVS01",
+ "written_by": "model (the #4023 follow-up porting loop), not a person",
+ "model": "claude-sonnet-5-5",
+ "backend": "claude-code-headless: claude -p, no tools, only the ticket's prompt",
+ "proposed": "2026-10-02T20:44:17+00:00",
+ "attempt": 1,
+ "attempts": [
+  {
+   "n": 1,
+   "verdict": "proven"
+  }
+ ],
+ "ticket_sha256": "b03177770a3425c101a82dca803aa14e76829123968f8232260b23b6c097af01",
+ "prompt_tokens": 37694,
+ "proof": "tests/tools/equivalence.py run genapp-lgapvs01",
+ "edited_after": "none: the files are the model's answer as the loop stored it",
+ "licence": "derived from the CICS General Insurance Application (EPL-2.0; Copyright IBM Corp.) -- see LICENSE and NOTICE in this case's directory"
+}

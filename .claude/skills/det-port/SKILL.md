@@ -100,7 +100,9 @@ A translator fix is never a hand edit of a port.
 **A new case:**
 - [ ] `tests/equivalence/<case>/case.json`, plus a NOTICE naming the corpus licence and what was derived.
 - [ ] Scenarios that reach the error paths: file statuses, RESP conditions, SQLCODEs (+100, -803, -811,
-      constraints), and faults.
+      constraints), and faults. A Db2 case gets one SQL-fault task per statement it executes by default
+      (`--sql-faults auto`, register M2); declare a scenario's own `sql_faults` (`line`, or `table` + `verb`) for a
+      fault the default does not choose. Read the "not judged" lines: a path into a named hole is no proof.
 - [ ] The coverage claim is quoted with the proof. Live code no scenario reaches is listed, or the case is
       strengthened (`tests/tools/strengthen.py`).
 - [ ] Scenarios written by a model or a subagent are reviewed, then checked by the proof itself.

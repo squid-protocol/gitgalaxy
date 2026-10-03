@@ -5,6 +5,7 @@ import __PACKAGE__.cobolrt.Field;
 import java.math.BigDecimal;
 import java.nio.charset.Charset;
 import java.sql.SQLException;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
@@ -28,9 +29,74 @@ import java.util.function.Supplier;
  *
  * Plain Java: the repository's exceptions are recognised by their class names ("EmptyResultDataAccessException",
  * "IncorrectResultSizeDataAccessException") and their SQLException cause.
+ *
+ * #4173 -- SQL faults. Each statement's call carries its key, "PROGRAM:LINE" (the program and the line of its EXEC
+ * SQL in that program's source). A fault plan -- withFaults, or the file the system property gitgalaxy.sqlfaults.plan
+ * names -- has one fault per line, `PROGRAM LINE NTH|* SQLCODE SQLSTATE`: the nth execution of that statement does
+ * not run; its SQLCA is reset's with that SQLCODE and SQLSTATE, and nothing else changes. Each fault that fires is
+ * appended to the log (gitgalaxy.sqlfaults.log) as `SQL PROGRAM LINE N SQLCODE` -- the line the equivalence harness's
+ * COBOL side (tests/equivalence/db2/ggsql.c) writes for the same fault.
  */
 public final class DetSql {
     private DetSql() {
+    }
+
+    // ---- #4173: SQL faults ------------------------------------------------------------------------------------
+    private static final List<String[]> FAULTS = new ArrayList<>();
+    private static final Map<String, Integer> RUNS = new HashMap<>();
+    private static java.nio.file.Path faultLog;
+
+    static {
+        String plan = System.getProperty("gitgalaxy.sqlfaults.plan", "");
+        String log = System.getProperty("gitgalaxy.sqlfaults.log", "");
+        if (!plan.isEmpty()) {
+            try {
+                withFaults(java.nio.file.Files.readAllLines(java.nio.file.Path.of(plan)),
+                        log.isEmpty() ? null : java.nio.file.Path.of(log));
+            } catch (java.io.IOException e) {
+                throw new java.io.UncheckedIOException(e);
+            }
+        }
+    }
+
+    /** The fault plan from here on (one fault per line, `PROGRAM LINE NTH|* SQLCODE SQLSTATE`), each statement's
+     *  executions counted afresh, each fault that fires appended to `log` (null: not logged). */
+    public static void withFaults(List<String> plan, java.nio.file.Path log) {
+        FAULTS.clear();
+        RUNS.clear();
+        for (String line : plan) {
+            String[] f = line.trim().split("\\s+");
+            if (f.length == 5) {
+                FAULTS.add(f);
+            }
+        }
+        faultLog = log;
+    }
+
+    /** The planned fault of this execution of the statement at `at` ("PROGRAM:LINE"), if any: true, the SQLCA set. */
+    private static boolean injected(Field ca, String at, Charset cs) {
+        if (at == null) {
+            return false;
+        }
+        int n = RUNS.merge(at, 1, Integer::sum);
+        int colon = at.lastIndexOf(':');
+        String program = at.substring(0, colon), line = at.substring(colon + 1);
+        for (String[] f : FAULTS) {
+            if (f[0].equals(program) && f[1].equals(line) && ("*".equals(f[2]) || Integer.parseInt(f[2]) == n)) {
+                code(ca, Integer.parseInt(f[3]), f[4], cs);
+                if (faultLog != null) {
+                    try {
+                        java.nio.file.Files.writeString(faultLog, "SQL " + program + " " + line + " " + n + " " + f[3]
+                                + System.lineSeparator(), java.nio.file.StandardOpenOption.CREATE,
+                                java.nio.file.StandardOpenOption.APPEND);
+                    } catch (java.io.IOException e) {
+                        throw new java.io.UncheckedIOException(e);
+                    }
+                }
+                return true;
+            }
+        }
+        return false;
     }
 
     // ---- the SQLCA (IBM's layout, the binary fields COMP-5) -------------------------------------------------
@@ -154,7 +220,15 @@ public final class DetSql {
     // ---- statements -----------------------------------------------------------------------------------------
     /** INSERT / UPDATE / DELETE: `searched` (an UPDATE or DELETE with a WHERE, or none) that changes no row is +100. */
     public static void update(Field ca, IntSupplier statement, boolean searched, Charset cs) {
+        update(ca, null, statement, searched, cs);
+    }
+
+    /** update, the statement at `at` ("PROGRAM:LINE"; #4173: a planned SQL fault there instead of the statement). */
+    public static void update(Field ca, String at, IntSupplier statement, boolean searched, Charset cs) {
         reset(ca, cs);
+        if (injected(ca, at, cs)) {
+            return;
+        }
         try {
             int rows = statement.getAsInt();
             putInt(ca, SQLERRD + 8, 4, rows);
@@ -168,7 +242,16 @@ public final class DetSql {
 
     /** SELECT INTO: the one row, or null (+100 no row, -811 more than one, or Db2's error). */
     public static Map<String, Object> selectOne(Field ca, Supplier<Map<String, Object>> statement, Charset cs) {
+        return selectOne(ca, null, statement, cs);
+    }
+
+    /** selectOne, the statement at `at` (#4173: a planned SQL fault there: null, the SQLCA set). */
+    public static Map<String, Object> selectOne(Field ca, String at, Supplier<Map<String, Object>> statement,
+                                                Charset cs) {
         reset(ca, cs);
+        if (injected(ca, at, cs)) {
+            return null;
+        }
         try {
             return statement.get();
         } catch (RuntimeException e) {
@@ -269,7 +352,16 @@ public final class DetSql {
 
     /** OPEN: the cursor's query run with the host variables' values now (-502 when it is open). */
     public static void open(Field ca, String cursor, Supplier<List<Map<String, Object>>> query, Charset cs) {
+        open(ca, null, cursor, query, cs);
+    }
+
+    /** open, the OPEN at `at` (#4173: a planned SQL fault there: the cursor not opened, the SQLCA set). */
+    public static void open(Field ca, String at, String cursor, Supplier<List<Map<String, Object>>> query,
+                            Charset cs) {
         reset(ca, cs);
+        if (injected(ca, at, cs)) {
+            return;
+        }
         if (OPEN.containsKey(cursor)) {
             code(ca, -502, "24502", cs);
             return;
@@ -283,7 +375,15 @@ public final class DetSql {
 
     /** FETCH: the next row, or null (+100 at the end, -501 when the cursor is not open). */
     public static Map<String, Object> fetch(Field ca, String cursor, Charset cs) {
+        return fetch(ca, null, cursor, cs);
+    }
+
+    /** fetch, the FETCH at `at` (#4173: a planned SQL fault there: null, the cursor where it was, the SQLCA set). */
+    public static Map<String, Object> fetch(Field ca, String at, String cursor, Charset cs) {
         reset(ca, cs);
+        if (injected(ca, at, cs)) {
+            return null;
+        }
         Iterator<Map<String, Object>> rows = OPEN.get(cursor);
         if (rows == null) {
             code(ca, -501, "24501", cs);
@@ -304,7 +404,16 @@ public final class DetSql {
      *  (before its first FETCH, or after +100). */
     public static void updateCurrent(Field ca, String cursor, java.util.function.Function<Object, Integer> statement,
                                      Charset cs) {
+        updateCurrent(ca, null, cursor, statement, cs);
+    }
+
+    /** updateCurrent, the statement at `at` (#4173: a planned SQL fault there instead, the SQLCA set). */
+    public static void updateCurrent(Field ca, String at, String cursor,
+                                     java.util.function.Function<Object, Integer> statement, Charset cs) {
         reset(ca, cs);
+        if (injected(ca, at, cs)) {
+            return;
+        }
         if (!OPEN.containsKey(cursor)) {
             code(ca, -501, "24501", cs);
             return;
@@ -319,7 +428,15 @@ public final class DetSql {
 
     /** CLOSE (-501 when it is not open). */
     public static void close(Field ca, String cursor, Charset cs) {
+        close(ca, null, cursor, cs);
+    }
+
+    /** close, the CLOSE at `at` (#4173: a planned SQL fault there: the cursor left open, the SQLCA set). */
+    public static void close(Field ca, String at, String cursor, Charset cs) {
         reset(ca, cs);
+        if (injected(ca, at, cs)) {
+            return;
+        }
         CURRENT.remove(cursor);
         if (OPEN.remove(cursor) == null) {
             code(ca, -501, "24501", cs);

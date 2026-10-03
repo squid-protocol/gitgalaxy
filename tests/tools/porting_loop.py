@@ -31,6 +31,7 @@ from __future__ import annotations
 import argparse
 import json
 import os
+import re
 import shlex
 import shutil
 import subprocess
@@ -225,6 +226,90 @@ def loop_md(r: dict[str, Any]) -> str:
     return "\n".join(lines) + "\n"
 
 
+# #4179: comment-only tidying of an adopted port. The generated scaffold asks for each handler to be implemented
+# ("TODO: [AI AGENT] implement ..."); once the model has implemented it, the sentence is stale and reads as debt.
+# The scaffold's per-command "TODO: the RESP of ... is never tested" notes state a fact about the COBOL (which never
+# tests that RESP), not work left in the Java: they become "COBOL: ..." notes. Code is never touched.
+SCAFFOLD_TODO = " TODO: [AI AGENT] implement from the program's business rules."
+RESP_TODO, RESP_NOTE = "TODO: the RESP of ", "COBOL: the RESP of "
+_STUB_BODY = re.compile(r'\s*log\.info\("[^"\n]*"\);\s*(?:return (?:null|request|0);(?:[ \t]*//[^\n]*)?\s*)?')
+
+
+def strip_comments(java: str) -> str:
+    """The code of a Java source without its comments (strings and char literals kept), whitespace collapsed --
+    what a comment-only edit must leave unchanged."""
+    out, i, n = [], 0, len(java)
+    while i < n:
+        c = java[i]
+        if java.startswith("//", i):
+            i = java.find("\n", i)
+            i = n if i < 0 else i
+        elif java.startswith("/*", i):
+            j = java.find("*/", i + 2)
+            i = n if j < 0 else j + 2
+            out.append(" ")
+        elif c in "\"'":
+            j = i + 1
+            while j < n and java[j] != c:
+                j += 2 if java[j] == "\\" else 1
+            out.append(java[i:j + 1])
+            i = j + 1
+        else:
+            out.append(c)
+            i += 1
+    return " ".join("".join(out).split())
+
+
+def _body_after(java: str, pos: int) -> str:
+    """The body of the first method declared after `pos` (between its braces)."""
+    start = java.find("{", pos)
+    depth, i = 0, start
+    while i < len(java):
+        depth += {"{": 1, "}": -1}.get(java[i], 0)
+        if depth == 0:
+            return java[start + 1:i]
+        i += 1
+    return java[start + 1:]
+
+
+def tidy_scaffold(java: str) -> tuple[str, int, int]:
+    """`java` with the scaffold's stale TODOs tidied (#4179): the "implement" sentence dropped from each handler
+    the port implemented (one still the generated stub keeps it), the RESP notes re-tagged. Returns the text and
+    the count of each change; raises if anything but comments changed."""
+    tidied, dropped, pos = java, 0, 0
+    while (k := tidied.find(SCAFFOLD_TODO, pos)) >= 0:
+        end = tidied.find("*/", k)
+        if _STUB_BODY.fullmatch(_body_after(tidied, end)):
+            pos = k + len(SCAFFOLD_TODO)
+            continue
+        tidied, dropped = tidied[:k] + tidied[k + len(SCAFFOLD_TODO):], dropped + 1
+        pos = k
+    retagged = tidied.count(RESP_TODO)
+    tidied = tidied.replace(RESP_TODO, RESP_NOTE)
+    if strip_comments(tidied) != strip_comments(java):
+        raise RuntimeError("tidy_scaffold changed code, not only comments")
+    return tidied, dropped, retagged
+
+
+def tidy_port(port: Path) -> dict[str, int]:
+    """Tidy every Java file of a port in place (comment-only, verified) and note it in port/provenance.json."""
+    dropped = retagged = 0
+    for f in sorted(port.rglob("*.java")):
+        text = f.read_text(encoding="utf-8")
+        new, d, r = tidy_scaffold(text)
+        if new != text:
+            f.write_text(new, encoding="utf-8")
+        dropped, retagged = dropped + d, retagged + r
+    prov = port / "provenance.json"
+    if prov.is_file() and (dropped or retagged):
+        record = json.loads(prov.read_text(encoding="utf-8"))
+        record["comment_edits"] = (f"porting_loop tidy (#4179): {dropped} stale scaffold 'implement' TODO(s) removed, "
+                                   f"{retagged} RESP note(s) re-tagged TODO -> COBOL; comments only, verified "
+                                   "by comparing the code with comments stripped")  # fmt: skip
+        prov.write_text(json.dumps(record, indent=1) + "\n", encoding="utf-8")
+    return {"dropped": dropped, "retagged": retagged}
+
+
 def adopt(case_name: str, work: Path) -> Path:
     """A proven loop's port into the case: the model's files as the loop stored them -- never edited -- and
     port/provenance.json from the loop's own records (model, attempt, ticket hash, prompt tokens). Refused unless the
@@ -254,6 +339,7 @@ def adopt(case_name: str, work: Path) -> Path:
         "licence": case.get("port_licence") or PORT_LICENCE[case["corpus"]],
     }  # fmt: skip
     (dest / "provenance.json").write_text(json.dumps(provenance, indent=1) + "\n", encoding="utf-8")
+    tidy_port(dest)  # #4179: the scaffold's stale TODOs (comments only, verified)
     return dest
 
 
@@ -309,7 +395,15 @@ def main(argv: Optional[list[str]] = None) -> int:
     a = sub.add_parser("adopt")
     a.add_argument("case")
     a.add_argument("work", type=Path)
+    t = sub.add_parser("tidy", help="tidy a committed port's stale scaffold TODOs (comment-only, verified; #4179)")
+    t.add_argument("cases", nargs="+")
     args = ap.parse_args(argv)
+    if args.cmd == "tidy":
+        import equivalence as eq
+
+        for name in args.cases:
+            print(name, tidy_port(eq.CASES / name / "port"))
+        return 0
     if args.cmd == "run-many":
         os.environ.setdefault("PYTHONUTF8", "1")
         results = run_many(args.cases, args.work_root.resolve(), args.jobs, args.attempts, args.model)

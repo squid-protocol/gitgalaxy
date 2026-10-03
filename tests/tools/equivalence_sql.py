@@ -54,6 +54,9 @@ class Statement:
     cursor: str = "-"
     inputs: list[HostVar] = field(default_factory=list)
     outputs: list[HostVar] = field(default_factory=list)
+    program: str = "-"  # #4173: the statement's program and the line of its EXEC SQL in that program's source --
+    line: int = 0  # the key a SQL fault names, the same one the det port's DetSql calls carry (PROGRAM:LINE)
+    verb: str = ""  # the SQL's first word (INSERT, UPDATE, DELETE, SELECT, VALUES, ...): a fault's default SQLCODE
 
 
 def _area(line: str) -> str:
@@ -79,9 +82,16 @@ def _find_member(name: str, dirs: list[Path]) -> Path:
 
 def expand_includes(lines: list[str], dirs: list[Path], depth: int = 0) -> list[str]:
     """The program with every EXEC SQL INCLUDE replaced by its member's lines (SQLCA: IBM's layout)."""
+    return [ln for ln, _ in expand_includes_traced(lines, dirs, depth)]
+
+
+def expand_includes_traced(lines: list[str], dirs: list[Path], depth: int = 0) -> list[tuple[str, int]]:
+    """expand_includes, each line with its line number in the source it is written in (#4173): the program's own,
+    or, for a line an INCLUDE brought in, the member's -- as the det port numbers a statement (its EXEC SQL's line
+    in the file it is written in, under the program that runs it)."""
     if depth > 8:
         raise Unsupported("EXEC SQL INCLUDE nested too deeply")
-    out: list[str] = []
+    out: list[tuple[str, int]] = []
     i = 0
     while i < len(lines):
         area = _area(lines[i]).upper()
@@ -98,10 +108,10 @@ def expand_includes(lines: list[str], dirs: list[Path], depth: int = 0) -> list[
                 name = inc.group(1).upper()
                 member = {"SQLCA": SQLCA, "SQLDA": SQLDA}.get(name) or _find_member(name, dirs)
                 body = member.read_text(encoding="latin-1").split("\n")
-                out += expand_includes(body, dirs, depth + 1)
+                out += expand_includes_traced(body, dirs, depth + 1)
                 i = j + 1
                 continue
-        out.append(lines[i])
+        out.append((lines[i], i + 1))
         i += 1
     return out
 
@@ -301,7 +311,8 @@ class Precompiler:
         """The statement table ggsql.c reads ($GGSQL_STMTS)."""
         out = []
         for s in self.statements:
-            out.append(f"S {s.sid} {s.kind} {len(s.inputs)} {len(s.outputs)} {s.cursor}")
+            # #4173: then the statement's program and source line, the key a SQL fault names
+            out.append(f"S {s.sid} {s.kind} {len(s.inputs)} {len(s.outputs)} {s.cursor} {s.program} {s.line}")
             for tag, vs in (("I", s.inputs), ("O", s.outputs)):
                 for v in vs:
                     out.append(f"{tag} {v.arg} {v.type} {v.length} {v.digits} {v.scale} {v.signed} {v.indicator}")
@@ -342,9 +353,11 @@ def _assignments(text: str) -> tuple[list[str], list[str]]:
     return targets, values
 
 
-def precompile(source: str, dirs: list[Path], path: Path, first_id: int = 1) -> tuple[str, str]:
-    """(the program with its EXEC SQL replaced, the statement table); its statements numbered from `first_id`."""
-    lines = expand_includes(source.split("\n"), dirs)
+def precompile(source: str, dirs: list[Path], path: Path, first_id: int = 1, program: str = "-") -> tuple[str, str]:
+    """(the program with its EXEC SQL replaced, the statement table); its statements numbered from `first_id`, each
+    keyed by `program` and the line of its EXEC SQL in `source` (#4173: what a SQL fault names)."""
+    traced = expand_includes_traced(source.split("\n"), dirs)
+    lines = [ln for ln, _ in traced]
     # the reader takes code areas (columns 8-72): a sequence number in columns 1-6 (COTRTLIC's) is no level number
     pre = Precompiler(Program(_items([_area(ln).upper() for ln in lines if not re.search(r"\bEXEC\s+SQL\b", _area(ln), re.I)],
                                      path)), first_id)  # fmt: skip
@@ -371,6 +384,9 @@ def precompile(source: str, dirs: list[Path], path: Path, first_id: int = 1) -> 
             raise Unsupported("EXEC SQL without END-EXEC")
         before = text[: m.start()]
         done = pre.statement(m.group(1))
+        if done is not None:  # #4173: the key a SQL fault names -- the program and the EXEC SQL's own line
+            done[0].program, done[0].line = program.upper(), traced[i][1]
+            done[0].verb = (_norm(m.group(1)).upper().split() or [""])[0]
         period = "." if m.group(2) else ""
         if before.strip():
             out.append("       " + before.rstrip())

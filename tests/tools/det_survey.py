@@ -68,8 +68,28 @@ def copy_dirs(corpus: Path) -> list[Path]:
 
 
 def classpath(project: Path) -> str:
-    jars = [str(p) for p in Path.home().glob(".m2/repository/**/*.jar") if "-sources" not in p.name]
-    return os.pathsep.join([str(project / "target/classes"), *jars])
+    """The estate's compile classpath: its built classes and the dependencies its pom declares (#4172) --
+    resolved by Maven from the local repository, offline, once per estate. Never every jar under ~/.m2: another
+    project's javac plugins there (built for a newer Java) crash javac."""
+    out = project / "target" / "survey-classpath.txt"
+    if not out.is_file():
+        env = dict(os.environ, JAVA_HOME=jdk())
+        goal = "org.apache.maven.plugins:maven-dependency-plugin:3.6.1:build-classpath"
+        argv = ["mvn", "-q", goal, "-Dmdep.includeScope=compile", f"-Dmdep.outputFile={out}"]
+        res = subprocess.run(["mvn", "-o", *argv[1:]], cwd=project, env=env, capture_output=True, text=True,  # noqa: S603, S607
+                             check=False)  # fmt: skip
+        if res.returncode:  # the plugin not yet in the local repository: fetched once
+            res = subprocess.run(argv, cwd=project, env=env, capture_output=True, text=True, check=False)  # noqa: S603, S607
+        if res.returncode or not out.is_file():
+            raise RuntimeError(f"{project}: mvn dependency:build-classpath failed: {(res.stdout + res.stderr)[-400:]}")
+    deps = out.read_text(encoding="utf-8").strip()
+    return os.pathsep.join(p for p in [str(project / "target/classes"), deps] if p)
+
+
+def work_key(program: str) -> str:
+    """A program's work directory name: its path in the corpus, not its file name -- two members called SAM1 in
+    different folders would otherwise share (and race on) one directory under --jobs (#4172)."""
+    return program.replace("\\", "/").replace("/", "__")
 
 
 def survey_program(program: Path, corpus: Path, project: Path, dirs: list[Path], work: Path) -> dict[str, Any]:
@@ -89,7 +109,7 @@ def survey_program(program: Path, corpus: Path, project: Path, dirs: list[Path],
         row["error"] = f"{type(e).__name__}: {str(e)[:300]}"
         row["where"] = traceback.extract_tb(e.__traceback__)[-1].name
         return row
-    port = work / "ports" / program.stem / "service"
+    port = work / "ports" / work_key(row["program"]) / "service"
     port.mkdir(parents=True, exist_ok=True)
     (port / f"{r.service}.java").write_text(r.java, encoding="utf-8")
     row.update({"statements": r.stats["statements"], "translated": r.stats["translated"],
@@ -100,8 +120,8 @@ def survey_program(program: Path, corpus: Path, project: Path, dirs: list[Path],
 
 
 def compile_port(row: dict[str, Any], work: Path, runtime: Path, cp: str) -> None:
-    src = work / "ports" / Path(row["program"]).stem
-    out = work / "classes" / Path(row["program"]).stem
+    src = work / "ports" / work_key(row["program"])
+    out = work / "classes" / work_key(row["program"])
     shutil.rmtree(out, ignore_errors=True)
     out.mkdir(parents=True)
     files = [str(p) for p in src.rglob("*.java")] + [str(p) for p in runtime.rglob("*.java")]

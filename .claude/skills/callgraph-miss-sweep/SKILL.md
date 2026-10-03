@@ -60,7 +60,7 @@ zod (269 edges) split into:
 | `ambiguous/receiver` | `x.m()` with an untyped receiver | receiver typing (Python has `typed`, #3693) | per language |
 | `wrong` / `confident_other_target`, target in the same file as the reference's | a different overload of the right method (Java: 1,653 of 1,923 wrong on gson) | overload choice by argument count (`calls_out_arities`, resolver `OVERLOAD_LANGS`); ties become `ambiguous/overload` | #3835 (fixed, java; add a language to both lists) |
 | `unmapped_dst` on Java interface / abstract methods | links to bodyless Java declarations | extend #3757's `def_shape` = `signature` beyond TS/JS | #3836 (fixed, java) |
-| `wrong` / `external`: `field.m()` inside a class that also has `m` | the explicit receiver is ignored and the caller's own class wins | resolver: a qualified call must not take the class step | #3837 |
+| `wrong` / `external`: `field.m()` inside a class that also has `m` | the explicit receiver is ignored and the caller's own class wins | resolver: an explicit non-`this` receiver whose `file` answer is the caller's own class becomes an ambiguous `receiver` when another visible class defines `m`; java `->` is a lambda arrow, not a qualifier separator (Kotlin/Groovy/Scala left out: unmeasured) | #3837 (fixed) |
 
 A pattern found in one language usually exists in its neighbours. Bodyless signatures apply to
 Java, C#, Go interfaces and Rust traits. String interpolation applies to Kotlin, Swift and Ruby.

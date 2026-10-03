@@ -79,3 +79,18 @@ def test_walk_is_bounded():
     assert q == "a.a.a.a"
     long_ident = "x" * 100_000 + ".f"
     assert len(_call_qualifier(long_ident, len(long_ident) - 1)) <= 64
+
+
+def test_java_lambda_arrow_is_not_a_receiver_separator():
+    # #3837: in java `->` only ends a lambda's parameters, so `() -> toJson(gson, x)`
+    # is a bare call to toJson, not a call on an `<expr>` receiver.
+    code = "class A {\n  void run(Gson gson, Object x) {\n    Runnable r = () -> toJson(gson, x);\n    this.save();\n  }\n}\n"
+    quals = _quals("java", code, "run")
+    assert quals["toJson"] == [""]
+    assert quals["save"] == ["this"]
+
+
+def test_arrow_stays_a_separator_outside_java():
+    # PHP and C/C++ member access still split on `->`.
+    assert _call_qualifier("$this->save(", len("$this->")) == "this"
+    assert _call_qualifier("p->f(", len("p->")) == "p"

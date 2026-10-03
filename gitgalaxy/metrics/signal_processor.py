@@ -343,47 +343,11 @@ class SignalProcessor:
             ext = f".{filename.split('.')[-1]}" if "." in filename else ""
             ghost_meta = meta.get("metadata", {})
 
-            # ==================================================================
-            # EXTENSION SPOOFING DETECTOR
-            # Punishes files claiming to be inert data but evaluated as executable code
-            # ==================================================================
-            if ext:
-                inert_disguises = {
-                    ".txt",
-                    ".md",
-                    ".csv",
-                    ".json",
-                    ".yaml",
-                    ".yml",
-                    ".xml",
-                    ".log",
-                    ".png",
-                    ".jpg",
-                    ".jpeg",
-                    ".gif",
-                    ".mp4",
-                }
-                executable_langs = {
-                    "shell",
-                    "python",
-                    "javascript",
-                    "typescript",
-                    "ruby",
-                    "perl",
-                    "php",
-                    "c",
-                    "cpp",
-                    "rust",
-                    "go",
-                    "java",
-                    "powershell",
-                }
-
-                if ext in inert_disguises and lang_id.lower() in executable_langs:
-                    self.logger.warning(
-                        f"🚨 SPOOFING DETECTED: {rel_path} claims to be {ext} but executed as {lang_id}!"
-                    )
-                    raw_signals["sec_extension_mismatch"] = 1
+            # #4126: the text-spoof check that stood here (an inert extension whose content was
+            # detected as an executable language) could not fire -- language detection never yields
+            # that pair (a script named .txt/.log/.md comes out `.undeterminable`). Disguised
+            # executables are now caught on the denied-extension path in galaxyscope's worker, by
+            # security_lens.detect_disguised_executable(). sec_extension_mismatch keeps its slot.
 
             # ==================================================================
             # CRITICAL SECRETS EXPOSURE OVERRIDE

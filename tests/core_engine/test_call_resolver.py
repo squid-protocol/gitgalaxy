@@ -940,3 +940,66 @@ def test_a_declaring_interface_counts_as_a_receiver_candidate_3836():
     # with no implementation anywhere, nothing in the repository runs: no target
     row = _site(resolve_calls(files[:2], edges[:1])[0], "postDeserialize")
     assert row["dst_path"] is None
+
+
+# ----------------------------------------------------------------------------- #3837 explicit receivers
+def _json_object_files(lang="java", with_import=True):
+    # gson's JsonObject: `members.entrySet()` inside JsonObject, which has its own
+    # entrySet; LinkedTreeMap (imported) also defines entrySet.
+    files = [
+        _file(
+            "gson/JsonObject.java",
+            lang,
+            [
+                _fn("entrySet", 136, owner="JsonObject"),
+                _fn("deepCopy", 40, owner="JsonObject", calls=["entrySet"], quals={"entrySet": ["members"]}),
+            ],
+            [{"name": "JsonObject", "inheritance": []}],
+        ),
+        _file(
+            "gson/internal/LinkedTreeMap.java",
+            lang,
+            [_fn("entrySet", 600, owner="LinkedTreeMap")],
+            [{"name": "LinkedTreeMap", "inheritance": []}],
+        ),
+    ]
+    edges = (
+        [{"src": "gson/JsonObject.java", "dst": "gson/internal/LinkedTreeMap.java", "edge_kind": "import"}]
+        if with_import
+        else []
+    )
+    return files, edges
+
+
+def test_explicit_receiver_does_not_default_to_the_callers_own_class():
+    # #3837: `members.entrySet()` is a call on ANOTHER object; with an imported class
+    # also defining entrySet, the caller's own class is one candidate, not the answer.
+    files, edges = _json_object_files()
+    row = _site(resolve_calls(files, edges)[0], "entrySet")
+    assert row["step"] == "receiver"
+    assert row["resolution"] not in CONFIDENT_RESOLUTIONS
+
+
+def test_explicit_receiver_keeps_the_file_step_when_no_other_class_is_visible():
+    # Nothing else visible defines entrySet: the caller's own class stays the confident answer.
+    files, _ = _json_object_files(with_import=False)
+    files[1]["path"] = "other/LinkedTreeMap.java"  # not imported, not in the caller's package
+    row = _site(resolve_calls(files)[0], "entrySet")
+    assert (row["step"], row["dst_path"]) == ("file", "gson/JsonObject.java")
+
+
+def test_same_package_class_counts_as_visible_for_the_receiver_rule():
+    # Java sees its package directory without an import.
+    files, _ = _json_object_files(with_import=False)
+    files[1]["path"] = "gson/LinkedTreeMap.java"
+    row = _site(resolve_calls(files)[0], "entrySet")
+    assert row["step"] == "receiver"
+
+
+def test_this_receiver_still_resolves_to_the_own_class():
+    # `this.entrySet()` names the caller's own object: the rule leaves it alone.
+    files, edges = _json_object_files()
+    files[0]["functions"][1]["calls_out_qualifiers"] = {"entrySet": ["this"]}
+    row = _site(resolve_calls(files, edges)[0], "entrySet")
+    assert row["dst_path"] == "gson/JsonObject.java"
+    assert row["resolution"] in CONFIDENT_RESOLUTIONS

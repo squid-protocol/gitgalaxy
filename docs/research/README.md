@@ -7,3 +7,4 @@
 | [devin-carddemo-survey.md](devin-carddemo-survey.md) | Survey of 67 Devin workshop branches porting CardDemo ([inventory](devin-carddemo-inventory.json)) |
 | [devin-carddemo-harness.md](devin-carddemo-harness.md) | Devin's eval arms run through our equivalence harness |
 | [third-party-ports-harness.md](third-party-ports-harness.md) | Lightyear and SENTINEL IDE ports run through our equivalence harness, with the missing-file experiment |
+| [devin-cbact01c-harness.md](devin-cbact01c-harness.md) | Devin CBACT01C ports run through our harness, on the new carddemo-readacct case |

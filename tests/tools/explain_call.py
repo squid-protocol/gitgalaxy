@@ -28,7 +28,6 @@ from __future__ import annotations
 import argparse
 import contextlib
 import io
-import json
 import sqlite3
 import sys
 from pathlib import Path
@@ -62,15 +61,6 @@ def load_inputs(db: Path) -> tuple[list[dict[str, Any]], list[dict[str, str]], s
     if not state:
         raise SystemExit(f"explain_call: {db} holds no restorable state for {repo}")
     parsed = list(state["ram_cache"].values())
-    # A fresh scan hands the resolver each class's parents as `inheritance`; the
-    # rehydrator restores only the DB column `inheritance_parents` (a JSON string),
-    # so a delta scan loses every inherited-method link (#3786). Restore the
-    # fresh-scan shape, so this explains what a scan resolves.
-    for f in parsed:
-        for cls in f.get("classes") or []:
-            if "inheritance" not in cls and cls.get("inheritance_parents"):
-                with contextlib.suppress(TypeError, ValueError):
-                    cls["inheritance"] = json.loads(cls["inheritance_parents"])
     return parsed, edges, repo
 
 

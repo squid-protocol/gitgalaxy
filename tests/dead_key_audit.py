@@ -69,6 +69,7 @@ BASELINE_PATH = Path(__file__).resolve().parent / "dead_key_audit_baseline.json"
 # apart from "the code changed, re-check this."
 # ==============================================================================
 ALLOWLIST = {
+    "inheritance_parents": "class_data DB column, copied into the restored class dict by the rehydrator's generic column loop, then folded into `inheritance` (#3786)",
     "COUNTER": "EXEC CICS option keyword parsed from source (det/cics.py parse_exec: GET COUNTER)",
     # --- Parsed source keywords (not a producer/consumer dict contract) ---
     # cics_tasks.py (#3449) keys `opts` by the option words of the EXEC CICS
@@ -235,6 +236,8 @@ ALLOWLIST = {
     "decimal_point": "Culture dataclass field, written by target_as_dict's vars() (port tickets, #3984)",
     "key_collation": "Culture dataclass field, written by target_as_dict's vars() (port tickets, #3986)",
     "code_page": "Data dataclass field, written by target_as_dict's vars() (port tickets, #3985)",
+    "bidi_layout": "Data dataclass field, written by target_as_dict's vars() (port tickets, #3987)",
+    "record_charset": "Data dataclass field, written by target_as_dict's vars() (port tickets, #3987)",
     # --- External user-provided data ---
     "known_programs": "user-provided IR JSON field, documented as external input (terabyte_log_scanner.py)",
     # --- Regex named-capture-group access, not dict keys ---

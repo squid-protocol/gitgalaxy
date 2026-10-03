@@ -14,6 +14,7 @@ _HERE = os.path.dirname(os.path.abspath(__file__))
 if _HERE not in sys.path:
     sys.path.insert(0, _HERE)
 import golden_db_snapshot
+import golden_outputs_snapshot
 import golden_store
 
 # Parallel file processing means per-language/per-repo float sums (e.g.
@@ -29,12 +30,14 @@ def load_and_sanitize(filepath: str) -> Dict[str, Any]:
     audit file (a fresh scan's output) and strips volatile execution metadata.
 
     A fresh audit whose sibling ``*_master.db`` exists also gets the scan-DB
-    slice the fixtures carry (#4109, golden_db_snapshot), so a fresh scan and a
+    slice the fixtures carry (#4109, golden_db_snapshot), plus the SARIF/SBOM/graph/
+    GPU/LLM-brief snapshots (golden_outputs_snapshot), so a fresh scan and a
     committed fixture always have the same shape."""
     data = sanitize(golden_store.load(filepath))
     db = golden_db_snapshot.db_for_audit(filepath)
     if db is not None:
         golden_db_snapshot.attach(data, db)
+    golden_outputs_snapshot.attach(data, filepath)
     return data
 
 

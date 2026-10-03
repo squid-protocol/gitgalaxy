@@ -145,7 +145,10 @@ A translator fix is never a hand edit of a port.
   11.2%) found the real saving: one-line field declarations (-20.7%). Every rule ships only through the full sweep,
   a 3-run determinism check, and the parity / invariance tests. Typed values (B3) were measured the same way: a
   readability rule, size-neutral (+1.0%); the size lives in byte storage the proof needs, and in per-entry repetition
-  (`initialState()`, −2.3%).
+  (`initialState()`, −2.3%). The next count found that 10,083 of 17,436 byte `Field`s were named nowhere: views of
+  copybook and map items the program never touches. Dropping a view keeps every stored byte, so it is free for the
+  proof: −14.0% code lines, median ×3.21 → ×2.65 of the COBOL. Look for dead code the translator emits before
+  looking for shorter spellings of live code.
 - **A det port declares itself to the scanner.** Its first line is `// gitgalaxy-det-port: COBOL <PROGRAM> ...`.
   GitGalaxy's aperture admits it past the generated-noise gates (wiki 02-03, "Declared ports"); without that line a
   default scan drops most ports as machine output. Keep that line first, and keep emitted lines under 500

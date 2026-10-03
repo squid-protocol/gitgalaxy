@@ -44182,7 +44182,7 @@
         "fromNullable@1363": 3.3e-05,
         "fromNullableK@1421": 2.4e-05,
         "getAltValidation@453": 1.8e-05,
-        "getApplicativeValidation@404": 4e-05,
+        "getApplicativeValidation@404": 5.6e-05,
         "getCompactable@260": 3.4e-05,
         "getEq@228": 1.3e-05,
         "getFilterable@281": 1.8e-05,

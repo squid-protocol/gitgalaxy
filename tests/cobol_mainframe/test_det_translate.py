@@ -172,8 +172,7 @@ class _RbaCics(C.Cics):
                 G.n += 1
                 return f"{base}{G.n}"
 
-        self.g = G()
-        self.stores = {}
+        super().__init__(G(), None, "p")
 
     def field(self, text):
         return f"f_{text}"

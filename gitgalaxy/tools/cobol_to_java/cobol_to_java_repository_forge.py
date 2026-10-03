@@ -187,8 +187,10 @@ import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.math.RoundingMode;
 import java.nio.charset.Charset;
+import java.text.Bidi;
 import java.util.Arrays;
 import java.util.Locale;
+import java.util.Set;
 
 /**
  * #3624: COBOL storage for the entities' record codecs (fromRecord / toRecord) -- DISPLAY text, zoned
@@ -202,12 +204,19 @@ import java.util.Locale;
  * BigInteger, BigDecimal and Integer.parseInt read Arabic-Indic, Devanagari and full-width digits as
  * numbers -- where COBOL's NUMERIC test and NUMVAL reject them, so every parse here checks the
  * characters itself before handing them to BigInteger / BigDecimal.
+ *
+ * #3987: a 3270 had no BiDi engine, so Arabic and Hebrew records hold their text in visual order (left to
+ * right, as the screen showed it). Under such a page text() returns logical (reading-order) Unicode, which
+ * a browser lays out itself, and putText() stores the visual order back.
  */
 public final class CobolRecords {
 
     private static final String POSITIVE = "__POSITIVE__";
     private static final String NEGATIVE = "__NEGATIVE__";
     private static final String RECORD_CHARSET = "__RECORD_CHARSET__";
+    private static final String BIDI_LAYOUT = "__BIDI_LAYOUT__";
+    private static final boolean RTL_SCREEN = "visual_rtl".equals(BIDI_LAYOUT);
+    private static final Set<String> VISUAL_BIDI_PAGES = Set.of("IBM420", "IBM424", "IBM864", "IBM862");
 
     private CobolRecords() {
     }
@@ -227,15 +236,18 @@ public final class CobolRecords {
         return rec;
     }
 
+    /** #3987: a visual page's field comes back in logical order (logical(...)). */
     public static String text(byte[] rec, int offset, int length, Charset text) {
-        return new String(rec, offset, length, text);
+        String s = new String(rec, offset, length, text);
+        return visualOrder(text) ? logical(s) : s;
     }
 
     /** #3985: stores `value` in `length` bytes as fit(...) sizes it: under a mixed DBCS page (IBM930 / 939)
      *  a value too wide loses whole characters, so the record never ends inside a Shift-Out run or half a
      *  double-byte character. */
     public static void putText(byte[] rec, int offset, int length, String value, Charset text) {
-        byte[] v = fit(value, length, text).getBytes(text);
+        String fitted = fit(value, length, text);
+        byte[] v = (visualOrder(text) ? visual(fitted) : fitted).getBytes(text);  // #3987: a permutation, same width
         byte space = " ".getBytes(text)[0];
         for (int i = 0; i < length; i++) {
             rec[offset + i] = i < v.length ? v[i] : space;
@@ -271,6 +283,75 @@ public final class CobolRecords {
             out.append(' ');
         }
         return out.toString();
+    }
+
+    /** #3987: whether `text` keeps right-to-left text in visual order -- the target config's data.bidi_layout
+     *  (here __BIDI_LAYOUT__): visual_ltr / visual_rtl, logical, or auto: visual_ltr under IBM420 / IBM424
+     *  (EBCDIC Arabic / Hebrew) and IBM864 / IBM862 (PC Arabic / Hebrew), as IBM's CDRA defines them. */
+    public static boolean visualOrder(Charset text) {
+        if (!"auto".equals(BIDI_LAYOUT)) {
+            return BIDI_LAYOUT.startsWith("visual_");
+        }
+        return text != null && VISUAL_BIDI_PAGES.contains(text.name());
+    }
+
+    /** #3987: visual-order text (as a 3270 showed it) in logical order: each right-to-left run reversed, a
+     *  number in it kept left to right, its mirrored characters (brackets) swapped. The Unicode Bidirectional
+     *  Algorithm in the screen's direction -- visual_ltr: the first byte at the left; visual_rtl (a
+     *  screen-reverse terminal): at the right, so Arabic or Hebrew is stored in reading order and a number
+     *  or Latin word reversed. On such a line it is its own inverse: `visual(logical(s))` is `s` for words
+     *  and numbers; a punctuation-only cluster between a right-to-left letter and a digit can come back
+     *  reordered. A string with no right-to-left character is returned as it is. Shaped (presentation)
+     *  forms are kept, so the record bytes round-trip. */
+    public static String logical(String visual) {
+        if (RTL_SCREEN) {
+            return reorder(reversed(visual), Bidi.DIRECTION_RIGHT_TO_LEFT);
+        }
+        return reorder(visual, Bidi.DIRECTION_LEFT_TO_RIGHT);
+    }
+
+    /** #3987: logical text in the order a visual record holds it -- the 3270 screen's characters, from the
+     *  first byte's side (left for visual_ltr, right for visual_rtl). */
+    public static String visual(String logical) {
+        if (RTL_SCREEN) {
+            return reversed(reorder(logical, Bidi.DIRECTION_RIGHT_TO_LEFT));
+        }
+        return reorder(logical, Bidi.DIRECTION_LEFT_TO_RIGHT);
+    }
+
+    private static String reversed(String s) {
+        if (s == null || !Bidi.requiresBidi(s.toCharArray(), 0, s.length())) {
+            return s;
+        }
+        return new StringBuilder(s).reverse().toString();
+    }
+
+    /** The screen's characters, left to right, for `s` laid out in a paragraph of direction `flags`. */
+    private static String reorder(String s, int flags) {
+        if (s == null || s.isEmpty() || !Bidi.requiresBidi(s.toCharArray(), 0, s.length())) {
+            return s;
+        }
+        Bidi bidi = new Bidi(s, flags);
+        int n = s.length();
+        byte[] levels = new byte[n];
+        Integer[] order = new Integer[n];
+        for (int i = 0; i < n; i++) {
+            levels[i] = (byte) bidi.getLevelAt(i);
+            order[i] = i;
+        }
+        Bidi.reorderVisually(levels, 0, order, 0, n);
+        StringBuilder out = new StringBuilder(n);
+        for (int i : order) {
+            char c = s.charAt(i);
+            out.append(levels[i] % 2 == 1 ? mirrored(c) : c);
+        }
+        return out.toString();
+    }
+
+    private static char mirrored(char c) {
+        String pairs = "()[]{}<>\\u00ab\\u00bb";
+        int i = pairs.indexOf(c);
+        return i < 0 ? c : pairs.charAt(i ^ 1);
     }
 
     public static BigDecimal zoned(byte[] rec, int offset, int length, int scale, Charset text) {
@@ -474,7 +555,8 @@ public final class CobolRecords {
         if (key == null) {
             return null;
         }
-        byte[] bytes = key.getBytes(Charset.forName(codePage));
+        Charset page = Charset.forName(codePage);
+        byte[] bytes = (visualOrder(page) ? visual(key) : key).getBytes(page);  // #3987: the bytes VSAM holds
         StringBuilder hex = new StringBuilder(bytes.length * 2);
         for (byte b : bytes) {
             hex.append(Character.toUpperCase(Character.forDigit((b >> 4) & 0xF, 16)))
@@ -921,6 +1003,7 @@ class RepositoryForge:
             .replace("__POSITIVE__", escape(pos))
             .replace("__NEGATIVE__", escape(neg))
             .replace("__RECORD_CHARSET__", charset)
+            .replace("__BIDI_LAYOUT__", self.target.data.bidi_layout)
         )
 
     def key_source(self, st: Store) -> str | None:

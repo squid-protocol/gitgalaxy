@@ -1,6 +1,5 @@
 {
   "gitgalaxy/core/detector.py: PERF401 @3682b269e443#0": "Use `list.extend` to create a transformed list",
-  "gitgalaxy/core/guidestar_lens.py: C401 @c173e1643439#0": "Unnecessary generator (rewrite as a set comprehension)",
   "gitgalaxy/metrics/signal_processor.py: PERF401 @fed304c5c5c4#0": "Use `list.extend` to create a transformed list",
   "gitgalaxy/metrics/statistical_auditor.py: PERF401 @486e29d136a6#0": "Use `list.extend` to create a transformed list",
   "gitgalaxy/recorders/audit_recorder.py: C414 @e2de6a02ae7b#0": "Unnecessary `list()` call within `sorted()`",

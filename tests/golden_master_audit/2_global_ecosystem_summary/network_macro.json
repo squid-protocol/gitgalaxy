@@ -4,10 +4,10 @@
     "network_macro"
   ],
   "value": {
-    "articulation_points": 193,
-    "assortativity": -0.1394,
-    "avg_path_length": 1.8115,
-    "cyclic_density": 0.0325,
-    "modularity": 0.8304
+    "articulation_points": 191,
+    "assortativity": -0.1362,
+    "avg_path_length": 1.8098,
+    "cyclic_density": 0.0317,
+    "modularity": 0.8317
   }
 }

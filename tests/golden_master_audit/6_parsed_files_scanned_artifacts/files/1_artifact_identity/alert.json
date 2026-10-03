@@ -35,6 +35,10 @@
     "python/numpy": {
       "python/numpy/core.py": "TYPOSQUATTING THREAT: 'builtins' mimics 'builtin'"
     },
+    "python/tensorflow_model_fixtures": {
+      "python/tensorflow_model_fixtures/lite_testdata_multi_add.pb": "LOCAL MODEL WEIGHTS DETECTED",
+      "python/tensorflow_model_fixtures/python_compiler_mlir_multi_add.tflite": "LOCAL MODEL WEIGHTS DETECTED"
+    },
     "rust/bevy": {
       "rust/bevy/bevy_ecs_macros.rs": "TYPOSQUATTING THREAT: 'proc_macro::TokenStream' mimics 'proc_macro2::TokenStream'"
     },

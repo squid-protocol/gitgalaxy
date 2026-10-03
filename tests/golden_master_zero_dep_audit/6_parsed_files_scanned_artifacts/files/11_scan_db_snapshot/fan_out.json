@@ -3868,6 +3868,11 @@
         "SSMAPP5@606": 0
       }
     },
+    "c/cosmopolitan_intrin": {
+      "c/cosmopolitan_intrin/countbits.c": {
+        "_countbits@30": 0
+      }
+    },
     "c/cpython": {
       "c/cpython/Makefile.pre.in": {
         ".c.o@3196": 0,
@@ -5434,6 +5439,11 @@
         "Z_FreeTags@296": 1,
         "Z_Init@93": 1,
         "Z_Malloc@183": 2
+      }
+    },
+    "c/freebsd_openpam": {
+      "c/freebsd_openpam/pam_acct_mgmt.c": {
+        "pam_acct_mgmt@53": 0
       }
     },
     "c/micropython": {
@@ -19831,6 +19841,23 @@
         "remove_hotkey_records@48": 0
       }
     },
+    "cpp/serenity_ak_siphash_cpu": {
+      "cpp/serenity_ak_siphash_cpu/CPUFeatures.cpp": {
+        "Detail::detect_cpu_features_uncached@30": 1,
+        "cpuid@20": 0
+      },
+      "cpp/serenity_ak_siphash_cpu/SipHash.cpp": {
+        "SipHashKey@138": 0,
+        "do_siphash@46": 1,
+        "operator*@147": 0,
+        "rotate_left@21": 0,
+        "secure_sip_hash@166": 1,
+        "sip_hash_bytes@171": 1,
+        "sip_hash_u64@153": 1,
+        "sipround@26": 1,
+        "standard_sip_hash@161": 1
+      }
+    },
     "csd/carddemo": {
       "csd/carddemo/CARDDEMO.CSD": {
         "CA00@327": 0,
@@ -24569,6 +24596,27 @@
         "verifyNotInHeapPtr@3870": 0
       }
     },
+    "go/go_runtime_rand": {
+      "go/go_runtime_rand/rand.go": {
+        "allZero@112": 0,
+        "bootstrapRand@121": 0,
+        "bootstrapRandReseed@137": 0,
+        "cheaprand64@270": 1,
+        "cheaprand@228": 0,
+        "cheaprandn@316": 1,
+        "cheaprandu64@283": 1,
+        "legacy_fastrand64@339": 1,
+        "legacy_fastrand@329": 1,
+        "legacy_fastrandn@334": 1,
+        "maps_rand@183": 1,
+        "mrandinit@188": 3,
+        "rand32@149": 1,
+        "rand@160": 0,
+        "randinit@38": 2,
+        "randn@204": 1,
+        "readTimeRandom@91": 0
+      }
+    },
     "go/kubernetes": {
       "go/kubernetes/csi_plugin.go": {
         "CanAttach@675": 2,
@@ -24731,6 +24779,13 @@
         "buildQueueingHintMap@466": 0,
         "newPodInformer@649": 0,
         "unionedGVKs@633": 0
+      }
+    },
+    "go/kubernetes_kubectl_tls": {
+      "go/kubernetes_kubectl_tls/create_secret_tls_test.go": {
+        "TestCreateSecretTLS@83": 1,
+        "write@187": 0,
+        "writeKeyPair@199": 1
       }
     },
     "groovy/fineract_gradle_plugin": {
@@ -26534,6 +26589,85 @@
         "start@70": 0
       }
     },
+    "java/flutter_android_editing_tests": {
+      "java/flutter_android_editing_tests/InputConnectionAdaptorTest.java": {
+        "TestImm@1397": 0,
+        "TestTextInputChannel@1355": 0,
+        "inputConnectionAdaptor_ReceivesEnter@100": 0,
+        "isEmoji@1333": 0,
+        "isEmojiModifier@1337": 0,
+        "isEmojiModifierBase@1341": 0,
+        "isRegionalIndicatorSymbol@1345": 0,
+        "isVariationSelector@1349": 0,
+        "resetStates@1419": 0,
+        "sampleEditable@1282": 0,
+        "sampleEditable@1290": 0,
+        "sampleInputConnectionAdaptor@1298": 0,
+        "sampleInputConnectionAdaptor@1303": 5,
+        "setUp@93": 0,
+        "testCleanUpBatchEndsOnCloseConnection@1244": 2,
+        "testCommitContent@199": 2,
+        "testCursorAnchorInfo@1152": 2,
+        "testDoesNotConsumeBackButton@1233": 2,
+        "testExtractedText_monitoring@1100": 2,
+        "testMethod_getExtractedText@1086": 2,
+        "testPerformContextMenuAction_copy@162": 2,
+        "testPerformContextMenuAction_cut@143": 2,
+        "testPerformContextMenuAction_paste@183": 2,
+        "testPerformContextMenuAction_selectAll@130": 2,
+        "testPerformPrivateCommand_dataIsByte@334": 2,
+        "testPerformPrivateCommand_dataIsByteArray@295": 2,
+        "testPerformPrivateCommand_dataIsChar@411": 2,
+        "testPerformPrivateCommand_dataIsCharArray@371": 2,
+        "testPerformPrivateCommand_dataIsCharSequence@489": 2,
+        "testPerformPrivateCommand_dataIsCharSequenceArray@448": 2,
+        "testPerformPrivateCommand_dataIsFloat@528": 2,
+        "testPerformPrivateCommand_dataIsFloatArray@565": 2,
+        "testPerformPrivateCommand_dataIsNull@262": 2,
+        "testSendKeyEvent_MovementKeysAreNopWhenNoSelection@1055": 2,
+        "testSendKeyEvent_delKeyNotConsumed@1219": 2,
+        "testSendKeyEvent_downKeyMovesCaretDown@1040": 2,
+        "testSendKeyEvent_leftKeyExtendsSelectionLeft@776": 2,
+        "testSendKeyEvent_leftKeyMovesCaretLeft@620": 2,
+        "testSendKeyEvent_leftKeyMovesCaretLeftComplexEmoji@634": 2,
+        "testSendKeyEvent_rightKeyExtendsSelectionRight@994": 2,
+        "testSendKeyEvent_rightKeyMovesCaretRight@807": 2,
+        "testSendKeyEvent_rightKeyMovesCaretRightComplexEmoji@859": 2,
+        "testSendKeyEvent_rightKeyMovesCaretRightComplexRegion@821": 2,
+        "testSendKeyEvent_sendHardwareKeyEvents@1205": 2,
+        "testSendKeyEvent_sendSoftKeyEvents@1193": 2,
+        "testSendKeyEvent_shiftKeyUpDoesNotCancelSelection@604": 2,
+        "testSendKeyEvent_shiftLeftKeyStartsSelectionLeft@791": 2,
+        "testSendKeyEvent_shiftRightKeyStartsSelectionRight@1009": 2,
+        "testSendKeyEvent_upKeyMovesCaretUp@1025": 2,
+        "updateCursorAnchorInfo@1399": 0,
+        "updateEditingState@1367": 0,
+        "updateExtractedText@1404": 0,
+        "updateSelection@1410": 0,
+        "verifyMethodCall@79": 0
+      }
+    },
+    "java/jenkins_cli": {
+      "java/jenkins_cli/SetBuildDescriptionCommand.java": {
+        "getShortDescription@16": 0,
+        "run@31": 0
+      }
+    },
+    "java/selenium_grid_session_queue": {
+      "java/selenium_grid_session_queue/RemoteNewSessionQueue.java": {
+        "RemoteNewSessionQueue@72": 0,
+        "addToQueue@105": 0,
+        "clearQueue@184": 0,
+        "complete@162": 0,
+        "create@80": 1,
+        "getNextAvailable@145": 0,
+        "getQueueContents@193": 0,
+        "isReady@202": 0,
+        "peekEmpty@99": 0,
+        "remove@127": 0,
+        "retryAddToQueue@113": 0
+      }
+    },
     "java/springboot": {
       "java/springboot/AutoConfigurationImportSelector.java": {
         "AutoConfigurationEntry@547": 0,
@@ -26868,6 +27002,19 @@
         "welcomePageNotAcceptableHandlerMapping@485": 1
       }
     },
+    "javascript/cesium_particle_emitters": {
+      "javascript/cesium_particle_emitters/CircleEmitter.js": {
+        "CircleEmitter@14": 0,
+        "emit@50": 0,
+        "get@32": 0,
+        "set@35": 0
+      }
+    },
+    "javascript/javascript_algorithms_bits": {
+      "javascript/javascript_algorithms_bits/fullAdder.js": {
+        "fullAdder@37": 0
+      }
+    },
     "javascript/jquery": {
       "javascript/jquery/ajax.js": {
         "abort@517": 1,
@@ -26986,6 +27133,11 @@
       },
       "javascript/jquery/tokenize.js": {
         "tokenize@11": 0
+      }
+    },
+    "javascript/node_tls_security_tests": {
+      "javascript/node_tls_security_tests/regexp-unicode-sets.js": {
+        "check@83": 0
       }
     },
     "javascript/react": {
@@ -27379,6 +27531,11 @@
         "shouldSkipBundle@550": 0,
         "transform@386": 0,
         "transform@428": 0
+      }
+    },
+    "javascript/react_error_codes": {
+      "javascript/react_error_codes/extract-errors.js": {
+        "main@7": 0
       }
     },
     "javascript/threejs": {
@@ -30746,6 +30903,12 @@
         "name@27": 0
       }
     },
+    "perl/ack3_tests": {
+      "perl/ack3_tests/file-permission.t": {
+        "check_with@60": 0,
+        "o@33": 0
+      }
+    },
     "perl/bugzilla": {
       "perl/bugzilla/Auth.pm": {
         "_handle_login_result@143": 0,
@@ -32482,6 +32645,14 @@
         "updateGroupStack@494": 2,
         "uses@1369": 1,
         "view@287": 1
+      }
+    },
+    "php/laravel_validation_rules": {
+      "php/laravel_validation_rules/Can.php": {
+        "__construct@38": 0,
+        "message@65": 0,
+        "passes@51": 0,
+        "setValidator@80": 0
       }
     },
     "php/magento2": {
@@ -34332,6 +34503,106 @@
         "register_signals@325": 3
       }
     },
+    "python/airflow_ai_providers": {
+      "python/airflow_ai_providers/openai_src_airflow_providers_openai_hooks_openai.py": {
+        "__init__@85": 0,
+        "__str__@62": 0,
+        "cancel_batch@483": 0,
+        "conn@106": 1,
+        "create_assistant@144": 0,
+        "create_batch@419": 0,
+        "create_chat_completion@123": 0,
+        "create_embeddings@297": 0,
+        "create_message@209": 0,
+        "create_run@245": 0,
+        "create_run_and_poll@255": 0,
+        "create_thread@185": 0,
+        "create_vector_store@348": 0,
+        "delete_assistant@176": 0,
+        "delete_file@339": 0,
+        "delete_thread@200": 0,
+        "delete_vector_store@376": 0,
+        "delete_vector_store_file@409": 0,
+        "get_assistant@153": 0,
+        "get_assistants@162": 0,
+        "get_batch@440": 0,
+        "get_conn@110": 0,
+        "get_file@325": 0,
+        "get_files@334": 0,
+        "get_messages@224": 0,
+        "get_run@268": 0,
+        "get_runs@278": 0,
+        "get_ui_field_behaviour@90": 0,
+        "get_vector_store@358": 0,
+        "get_vector_store_files@400": 0,
+        "get_vector_stores@353": 0,
+        "is_in_progress@66": 0,
+        "modify_assistant@167": 0,
+        "modify_message@233": 0,
+        "modify_run@287": 0,
+        "modify_thread@190": 0,
+        "modify_vector_store@367": 0,
+        "test_connection@98": 0,
+        "upload_file@313": 0,
+        "upload_files_to_vector_store@385": 0,
+        "wait_for_batch@449": 3
+      },
+      "python/airflow_ai_providers/pinecone_src_airflow_providers_pinecone_hooks_pinecone.py": {
+        "__init__@90": 0,
+        "_chunks@356": 0,
+        "api_key@98": 0,
+        "configure_index@273": 0,
+        "conn@139": 0,
+        "create_collection@285": 0,
+        "create_index@230": 0,
+        "delete_collection@294": 0,
+        "delete_index@264": 0,
+        "describe_collection@302": 0,
+        "describe_index@256": 0,
+        "describe_index_stats@391": 0,
+        "environment@105": 0,
+        "get_connection_form_widgets@63": 0,
+        "get_pod_spec_obj@189": 0,
+        "get_serverless_spec_obj@221": 0,
+        "get_ui_field_behaviour@79": 0,
+        "list_collections@310": 0,
+        "list_indexes@149": 0,
+        "pinecone_client@123": 1,
+        "query_vector@314": 0,
+        "region@114": 0,
+        "test_connection@142": 1,
+        "upsert@153": 0,
+        "upsert_data_async@364": 2
+      },
+      "python/airflow_ai_providers/pinecone_src_airflow_providers_pinecone_operators_pinecone.py": {
+        "__init__@119": 0,
+        "__init__@190": 0,
+        "__init__@57": 0,
+        "execute@154": 0,
+        "execute@215": 0,
+        "execute@84": 0,
+        "hook@151": 0,
+        "hook@212": 0,
+        "hook@80": 0
+      },
+      "python/airflow_ai_providers/pinecone_tests_system_pinecone_example_pinecone_cohere.py": {
+        "delete_index@84": 0,
+        "transform_output@68": 0
+      }
+    },
+    "python/airflow_opsgenie_tests": {
+      "python/airflow_opsgenie_tests/test_opsgenie.py": {
+        "setup_connections@69": 0,
+        "test_close_alert@130": 0,
+        "test_create_alert_api_key_not_set@110": 0,
+        "test_create_alert_create_alert_payload@124": 0,
+        "test_delete_alert@150": 0,
+        "test_get_api_key@79": 0,
+        "test_get_conn_custom_host@88": 0,
+        "test_get_conn_defaults_host@84": 0,
+        "test_verify_api_key_set@102": 0
+      }
+    },
     "python/cython": {
       "python/cython/CodeGeneration.py": {
         "__call__@20": 0,
@@ -34921,6 +35192,27 @@
         "unroll_rhs@6533": 2,
         "use_memview_utilities@1276": 0,
         "write_func_call@78": 1
+      }
+    },
+    "python/django_db_tests": {
+      "python/django_db_tests/test_iterator.py": {
+        "setUpTestData@15": 0,
+        "test_default_iterator_chunk_size@27": 0,
+        "test_iterator_chunk_size@37": 0,
+        "test_iterator_invalid_chunk_size@19": 0,
+        "test_no_chunked_reads@48": 0
+      },
+      "python/django_db_tests/test_utils.py": {
+        "_test_procedure@97": 0,
+        "equal@48": 0,
+        "test_callproc_kparams@124": 1,
+        "test_callproc_with_int_params@114": 1,
+        "test_callproc_without_params@108": 1,
+        "test_format_number@47": 1,
+        "test_split_identifier@37": 0,
+        "test_split_tzname_delta@76": 0,
+        "test_truncate_name@21": 0,
+        "test_unsupported_callproc_kparams_raises_error@133": 0
       }
     },
     "python/fastapi/fastapi": {
@@ -37389,6 +37681,68 @@
         "skip_module_if_py_gte_314@15": 0
       }
     },
+    "python/homeassistant_anthropic": {
+      "python/homeassistant_anthropic/coordinator.py": {
+        "__init__@29": 1,
+        "async_set_updated_data@45": 0,
+        "async_update_data@50": 0,
+        "mark_connection_error@71": 0
+      }
+    },
+    "python/homeassistant_ble_integrations": {
+      "python/homeassistant_ble_integrations/aranet___init__.py": {
+        "_service_info_to_adv@27": 0,
+        "async_setup_entry@33": 1,
+        "async_unload_entry@52": 0
+      },
+      "python/homeassistant_ble_integrations/gardena_bluetooth___init__.py": {
+        "_device_lookup@51": 0,
+        "_update_timestamp@62": 1,
+        "async_setup_entry@71": 2,
+        "async_unload_entry@125": 0,
+        "get_connection@48": 1
+      },
+      "python/homeassistant_ble_integrations/utils.py": {
+        "get_device_macs@17": 0,
+        "non_verifying_requests_session@36": 0
+      }
+    },
+    "python/langchain_agents": {
+      "python/langchain_agents/langchain_agents_middleware_model_fallback.py": {
+        "__init__@50": 0,
+        "awrap_model_call@106": 0,
+        "wrap_model_call@72": 0
+      },
+      "python/langchain_agents/langchain_agents_middleware_tool_emulator.py": {
+        "__init__@66": 0,
+        "awrap_tool_call@159": 0,
+        "wrap_tool_call@109": 0
+      },
+      "python/langchain_agents/tests_integration_tests_chat_models_test_base.py": {
+        "chat_model_class@40": 0,
+        "chat_model_params@44": 0,
+        "has_structured_output@56": 0,
+        "has_tool_calling@52": 0,
+        "supports_image_inputs@48": 0,
+        "test_init_chat_model_chain@22": 0
+      }
+    },
+    "python/micropython_usb_tls": {
+      "python/micropython_usb_tls/ssl_verify_callback.py": {
+        "test@24": 2,
+        "verify_callback@14": 0,
+        "verify_callback_fail@19": 0
+      },
+      "python/micropython_usb_tls/tls_dtls.py": {
+        "__init__@12": 0,
+        "ioctl@24": 0,
+        "readinto@19": 0,
+        "write@16": 0
+      },
+      "python/micropython_usb_tls/usb_simple_host_pyusb.py": {
+        "main@19": 0
+      }
+    },
     "python/numpy": {
       "python/numpy/_linalg.py": {
         "_assert_2d@239": 0,
@@ -38013,6 +38367,39 @@
         "check_api_version@33": 1,
         "get_api_versions@11": 0,
         "main@53": 1
+      }
+    },
+    "python/opencv_dnn_conversion": {
+      "python/opencv_dnn_conversion/py_to_py_resnet50_onnx.py": {
+        "get_pytorch_onnx_model@9": 0,
+        "main@40": 1
+      }
+    },
+    "python/scikit-learn_examples": {
+      "python/scikit-learn_examples/svm_plot_custom_kernel.py": {
+        "my_kernel@27": 0
+      }
+    },
+    "python/tensorflow_ml_ops": {
+      "python/tensorflow_ml_ops/core_tfrt_saved_model_tests_gen_matmul_gpu.py": {
+        "__init__@40": 0,
+        "main@54": 1,
+        "toy@48": 0
+      },
+      "python/tensorflow_ml_ops/lite_testing_op_tests_einsum.py": {
+        "build_graph@61": 0,
+        "build_inputs@74": 1,
+        "make_einsum_tests@25": 0,
+        "set_dynamic_shape@57": 0
+      }
+    },
+    "python/thealgorithms_machine_learning": {
+      "python/thealgorithms_machine_learning/logistic_regression.py": {
+        "cost_function@66": 0,
+        "log_likelihood@106": 0,
+        "logistic_reg@112": 2,
+        "predict_prob@143": 1,
+        "sigmoid_function@31": 0
       }
     },
     "python/twisted": {
@@ -38711,6 +39098,19 @@
         "valid?@26": 0
       }
     },
+    "ruby/rails_http_token_auth": {
+      "ruby/rails_http_token_auth/http_token_authentication_test.rb": {
+        "authenticate@24": 0,
+        "authenticate_long_credentials@38": 0,
+        "authenticate_with_request@30": 0,
+        "display@15": 0,
+        "index@11": 0,
+        "malformed_request@235": 0,
+        "sample_request@228": 0,
+        "sample_request_without_token_key@239": 0,
+        "show@19": 0
+      }
+    },
     "rust/bevy": {
       "rust/bevy/bevy_ecs_macros.rs": {
         "apply@448": 0,
@@ -39027,6 +39427,19 @@
         "next_scc@110": 0,
         "size_hint@241": 0,
         "visit_once@150": 0
+      }
+    },
+    "rust/bevy_asset_examples": {
+      "rust/bevy_asset_examples/image_node.rs": {
+        "main@6": 0,
+        "setup@13": 0
+      },
+      "rust/bevy_asset_examples/rotation.rs": {
+        "main@7": 0,
+        "player_movement_system@112": 0,
+        "rotate_to_player_system@195": 0,
+        "setup@52": 0,
+        "snap_to_player_system@154": 0
       }
     },
     "rust/holylang": {
@@ -39958,6 +40371,17 @@
         "write@2421": 0,
         "write_dac@2133": 0,
         "write_owner@2143": 0
+      }
+    },
+    "rust/tokio_util_rand": {
+      "rust/tokio_util_rand/rand.rs": {
+        "fastrand@83": 0,
+        "fastrand_n@71": 0,
+        "from_pair@52": 0,
+        "from_seed@64": 0,
+        "from_u64@40": 0,
+        "new@36": 0,
+        "new@59": 0
       }
     },
     "rust/wasmtime": {
@@ -42530,6 +42954,12 @@
         "ztest_head@5": 0
       }
     },
+    "shell/freebsd_sysbuild": {
+      "shell/freebsd_sysbuild/sysbuild.sh": {
+        "ports_make@179": 0,
+        "usage@134": 0
+      }
+    },
     "shell/haiku": {
       "shell/haiku/HardwareChecker.sh": {
         "check_all@323": 0,
@@ -43736,6 +44166,33 @@
         "usage@93": 1
       }
     },
+    "typescript/angular_zonejs_mocha": {
+      "typescript/angular_zonejs_mocha/mocha.ts": {
+        "asyncTest@102": 0,
+        "asyncTest@86": 0,
+        "modifyArguments@54": 1,
+        "only@128": 1,
+        "only@146": 1,
+        "patchMocha@13": 0,
+        "run@173": 0,
+        "runTest@167": 0,
+        "setup@162": 1,
+        "skip@123": 1,
+        "skip@141": 1,
+        "suite@117": 1,
+        "suiteSetup@158": 1,
+        "suiteTeardown@150": 1,
+        "syncTest@108": 0,
+        "syncTest@76": 0,
+        "syncTest@92": 0,
+        "teardown@154": 1,
+        "test@134": 1,
+        "toString@66": 0,
+        "wrapDescribeInZone@75": 1,
+        "wrapSuiteInZone@101": 1,
+        "wrapTestInZone@85": 1
+      }
+    },
     "typescript/assemblyscript": {
       "typescript/assemblyscript/ast.ts": {
         "argumentsRange@1249": 0,
@@ -44150,6 +44607,63 @@
         "tryParseTypeArgumentsBeforeArguments@4007": 1
       }
     },
+    "typescript/effect_ai_anthropic": {
+      "typescript/effect_ai_anthropic/AnthropicTokenizer.ts": {
+        "catch@44": 0,
+        "tokenize@18": 0,
+        "try@20": 0
+      }
+    },
+    "typescript/excalibur_math": {
+      "typescript/excalibur_math/collision_colliders_separating-axis.ts": {
+        "findCirclePolygonSeparation@139": 0,
+        "findPolygonPolygonSeparation@72": 1,
+        "findPolygonPolygonSeparationDegenerate@170": 0
+      },
+      "typescript/excalibur_math/math_ray.ts": {
+        "constructor@16": 0,
+        "getPoint@62": 0,
+        "intersect@26": 0,
+        "intersectPoint@51": 2
+      }
+    },
+    "typescript/excalidraw_text_wrapping": {
+      "typescript/excalidraw_text_wrapping/textWrapping.ts": {
+        "After@267": 0,
+        "AfterMany@289": 0,
+        "Before@256": 0,
+        "BeforeMany@278": 0,
+        "Chain@319": 0,
+        "FollowedBy@339": 0,
+        "NotAfter@311": 0,
+        "NotBefore@300": 0,
+        "NotFollowedBy@363": 0,
+        "NotPrecededBy@351": 0,
+        "On@249": 0,
+        "PreceededBy@327": 0,
+        "build@215": 0,
+        "class@237": 0,
+        "containsCJK@30": 0,
+        "getEmojiRegex@50": 1,
+        "getEmojiRegexUnicode@194": 0,
+        "getHardLineBreaks@423": 0,
+        "getLineBreakRegex@38": 2,
+        "getLineBreakRegexAdvanced@151": 1,
+        "getLineBreakRegexSimple@138": 1,
+        "getWrappedTextLines@446": 1,
+        "group@232": 0,
+        "isSingleCharacter@724": 0,
+        "join@219": 0,
+        "or@227": 0,
+        "parseTokens@382": 1,
+        "satisfiesWordInvariant@734": 0,
+        "trimLine@655": 0,
+        "trimLineEndAtSoftBreak@705": 0,
+        "wrapLine@486": 5,
+        "wrapText@397": 1,
+        "wrapWord@578": 2
+      }
+    },
     "typescript/fp-ts": {
       "typescript/fp-ts/Either.ts": {
         "_alt@190": 0,
@@ -44482,6 +44996,22 @@
         "reduceWithIndex@445": 0,
         "reduceWithIndex@448": 0,
         "reduceWithIndex@451": 0
+      }
+    },
+    "typescript/nx_util_ai": {
+      "typescript/nx_util_ai/nx-dev_pages_api_query-ai-handler.ts": {
+        "handler@24": 0
+      },
+      "typescript/nx_util_ai/util-ai_src_lib_moderation.ts": {
+        "moderateContent@4": 0
+      }
+    },
+    "typescript/pixijs_examples": {
+      "typescript/pixijs_examples/events_dragging.ts": {
+        "createBunny@24": 0,
+        "onDragEnd@73": 0,
+        "onDragMove@58": 0,
+        "onDragStart@64": 0
       }
     },
     "typescript/playwright": {
@@ -49475,6 +50005,23 @@
         "wasi_cwd@60": 0,
         "write@7322": 0,
         "writeSimpleTemplateFile@7373": 0
+      }
+    },
+    "zig/zig_std_linux_mips": {
+      "zig/zig_std_linux_mips/mips.zig": {
+        "atime@261": 0,
+        "clone@178": 0,
+        "ctime@269": 0,
+        "mtime@265": 0,
+        "syscall0@5": 0,
+        "syscall1@34": 0,
+        "syscall2@47": 0,
+        "syscall3@61": 0,
+        "syscall4@76": 0,
+        "syscall5@95": 0,
+        "syscall6@115": 0,
+        "syscall7@145": 0,
+        "syscall_pipe@17": 0
       }
     },
     "zig/zls": {

@@ -259,6 +259,19 @@ def trunc_std(program: Path, options: list[str] | None = None) -> bool:
     return str(effective(rows).get("TRUNC") or DEFAULTS["TRUNC"]).upper() == "STD"
 
 
+def numproc_pfd(program: Path, options: list[str] | None = None) -> bool:
+    """Whether the program runs under NUMPROC(PFD) (#4271): the NUMPROC option in effect -- its CBL / PROCESS cards over
+    `options` (the compile step's PARM), else IBM's default, NOPFD. NUMPROC(MIG) is NOPFD: Enterprise COBOL 5 and 6 no
+    longer support it and compile the default instead (Enterprise COBOL 6.4 Migration Guide, GC27-8715-03, Table 18;
+    the equivalence harness refuses MIG for a case built by an earlier compiler: oracle_assumptions.md C5)."""
+    from gitgalaxy.core.compiler_options import compiler_options, effective, parse_options
+    from gitgalaxy.core.source_text import read_source
+
+    rows = [{"option": o, "value": v} for text in options or [] for o, v, _ in parse_options(text)]
+    rows += compiler_options(read_source(program).text)
+    return str(effective(rows).get("NUMPROC") or "").upper() == "PFD"
+
+
 _ENTRIES = re.compile(r"^    public (?:void runTask\(CicsTask task\)|int runBatch\(List<Dd> dds, String parm\)|"
                       r"int handleCall\([^)]*\)) \{$", re.M)  # fmt: skip
 
@@ -283,9 +296,10 @@ def drop_unused_fields(java: str) -> str:
         java = out
 
 
-def with_trunc(java: str, std: bool) -> str:
-    """Each entry (runTask / runBatch / handleCall) run with this program's TRUNC (Cobol.swapTruncBinary), the
-    caller's restored after it -- a LINK or CALL into a program compiled otherwise leaves the caller's as it was."""
+def with_trunc(java: str, std: bool, pfd: bool = False) -> str:
+    """Each entry (runTask / runBatch / handleCall) run with this program's TRUNC (Cobol.swapTruncBinary) and NUMPROC
+    (Cobol.swapNumprocPfd, #4271), the caller's restored after it -- a LINK or CALL into a program compiled otherwise
+    leaves the caller's as it was."""
     out, at = [], 0
     for m in _ENTRIES.finditer(java):
         end = _method_end(java, m.end())
@@ -295,10 +309,15 @@ def with_trunc(java: str, std: bool) -> str:
         out.append(java[at : m.end()])
         out.append(
             f"\n        boolean truncBefore = Cobol.swapTruncBinary({'true' if std else 'false'});  // TRUNC"
-            f"({'STD' if std else 'BIN'})\n        try {{"
+            f"({'STD' if std else 'BIN'})"
+            f"\n        boolean pfdBefore = Cobol.swapNumprocPfd({'true' if pfd else 'false'});  // NUMPROC"
+            f"({'PFD' if pfd else 'NOPFD'})\n        try {{"
         )
         out.append("\n".join(("    " + ln) if ln.strip() else ln for ln in body.split("\n")))
-        out.append("    } finally {\n            Cobol.swapTruncBinary(truncBefore);\n        }\n    ")
+        out.append(
+            "    } finally {\n            Cobol.swapTruncBinary(truncBefore);\n"
+            "            Cobol.swapNumprocPfd(pfdBefore);\n        }\n    "
+        )
         at = end
     out.append(java[at:])
     return "".join(out)
@@ -972,7 +991,8 @@ def _translate(program: Path, copy_dirs: list[Path], stub: str, package: str, es
     stats = dict(gen.stats)
     stats["program"] = prog.name
     stats["inferred"] = inferred
-    return Result(with_trunc(drop_unused_fields("\n".join(out)), trunc_std(program, options)), service, stats)
+    java = drop_unused_fields("\n".join(out))
+    return Result(with_trunc(java, trunc_std(program, options), numproc_pfd(program, options)), service, stats)
 
 
 def _record_io(proc: S.Procedure, fd: G.FileDef, records: list) -> bool:

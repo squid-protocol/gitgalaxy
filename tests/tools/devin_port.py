@@ -50,6 +50,8 @@ import equivalence_java as ej  # noqa: E402
 import mainframe_corpus as mc  # noqa: E402
 from equivalence_common import _fixed, _input_path, data_encoding  # noqa: E402
 
+from gitgalaxy.core.source_text import decode_bytes  # noqa: E402
+
 ADAPTER = TOOLS / "devin" / "adapter"
 COGNITION = "https://github.com/Cognition-Partner-Workshops/uc-legacy-modernization-cobol-to-java"
 CODEV = "https://github.com/codev-workshops/uc-legacy-modernization-cobol-to-java"
@@ -451,7 +453,7 @@ def judge(name: str, program: str, work: Path, envs: list[str], jdk: Optional[Pa
         java = java_outputs(case, port, dds, outdir, proc)
         r = eq.compare_run(case, corpus, cobol, java)
         result["runs"].append({"environment": env_name, "ok": r["ok"], "summary": r["summary"],
-                               "first_difference": first_difference(r), "stderr": proc.stderr.decode(errors="replace")[:600],
+                               "first_difference": first_difference(r), "stderr": decode_bytes(proc.stderr)[:600],
                                "sysout_classes": sysout_classes(case, cobol.get("SYSOUT", b""), java["SYSOUT"]),
                                "result": r})  # fmt: skip
     result["proven"] = all(x["ok"] for x in result["runs"])

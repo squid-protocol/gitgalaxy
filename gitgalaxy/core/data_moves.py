@@ -118,6 +118,11 @@ def _procedure_text(code_stream: str) -> str:
     return text
 
 
+def _is_literal(raw: str) -> bool:
+    """A quoted literal, or one with an X / N / G / Z prefix (`X'00'`)."""
+    return raw[:1] in "'\"" or (len(raw) > 1 and raw[1] in "'\"" and raw[0].upper() in "XNGZ")
+
+
 class _Stream:
     def __init__(self, toks: list[tuple[str, int]], start: int, end: int):
         self.toks, self.i, self.end = toks, start, end
@@ -138,13 +143,14 @@ class _Stream:
         if not t or t == "." or t in _VERBS or t in _STOPS or t in _END_WORDS:
             return None
         raw = self.toks[self.i][0]
-        if raw[:1] in "'\"" or (len(raw) > 1 and raw[1] in "'\"" and raw[0].upper() in "XNGZ"):
+        if _is_literal(raw):
             self.i += 1
             return raw, "literal", False
         if re.fullmatch(_NUMBER, raw):
             self.i += 1
             return raw, "literal", False
-        if t == "ALL" and self.peek(1) and (self.peek(1)[:1] in "'\"" or self.peek(1) in _FIGURATIVE):
+        # `ALL 'x'`, `ALL X'00'` (#4205: a hexadecimal literal, IBM DBB EPSCSMRD) or `ALL SPACES`.
+        if t == "ALL" and self.peek(1) and (_is_literal(self.peek(1)) or self.peek(1) in _FIGURATIVE):
             self.i += 2
             return f"ALL {self.toks[self.i - 1][0]}", "figurative", False
         if t in _FIGURATIVE:

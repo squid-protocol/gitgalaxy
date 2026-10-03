@@ -442,7 +442,7 @@ def run_java(
 
 def run_java_environments(
     case: dict[str, Any], corpus: Path, work: Path, inputs: Path, envs: list[dict[str, str]], port: bool = True,
-    port_dir: Path | None = None, faults: tuple[tuple[str, str], ...] = (),
+    port_dir: Path | None = None, faults: tuple[tuple[str, ...], ...] = (),
     stop: Callable[[str, dict[str, bytes]], bool] | None = None,
 ) -> dict[str, dict[str, bytes]]:  # fmt: skip
     """#3821: the project built once, run in each environment from a fresh work area; {env name: {dd: bytes}}.
@@ -461,11 +461,17 @@ def run_java_environments(
         runs[env["name"]] = _run_area(case, project, area, inputs, env)
         if stop and stop(env["name"], runs[env["name"]]):
             return runs
-    for name, plan in faults:
+    for name, plan, *sql in faults:
         area = work / "faults" / name
         (area / "out").mkdir(parents=True, exist_ok=True)
         (area / "fault.plan").write_text(plan, encoding="ascii")
         props = f"-Dgitgalaxy.faults.plan={area / 'fault.plan'} -Dgitgalaxy.faults.log={area / 'out' / 'FAULTS'}"
+        if sql and sql[0]:  # #4173: the run's SQL faults, to the det runtime's DetSql (the same log)
+            (area / "sqlfaults.plan").write_text(sql[0] + "\n", encoding="ascii")
+            props += (
+                f" -Dgitgalaxy.sqlfaults.plan={area / 'sqlfaults.plan'}"
+                f" -Dgitgalaxy.sqlfaults.log={area / 'out' / 'FAULTS'}"
+            )
         read = _run_area(case, project, area, inputs, envs[0], props)
         read.setdefault("FAULTS", b"")
         runs[f"fault:{name}"] = read

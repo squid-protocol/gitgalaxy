@@ -1025,6 +1025,9 @@ def fault_lines(sc: dict[str, Any]) -> list[str]:
     return out
 
 
+RECOVER: dict[str, Any] = {}  # #4173: a COBOL work area -> its coverage recomputed for the tasks judged
+
+
 def run_cobol_cics(case: dict[str, Any], corpus: Path, work: Path, files: list[dict[str, Any]]) -> dict[str, Any]:
     """Translate, compile and run each scenario; {scenario: its outputs} (see `outputs`)."""
     work.mkdir(parents=True, exist_ok=True)
@@ -1048,7 +1051,9 @@ def run_cobol_cics(case: dict[str, Any], corpus: Path, work: Path, files: list[d
     if db2:  # a Db2 program: its EXEC SQL precompiled into calls of the SQL stub, before the EXEC CICS translation
         dirs = [corpus / d for d in [*case.get("copy_dirs", []), *db2.get("include_dirs", [])]]
         try:
-            source, table = equivalence_sql.precompile(source, dirs, corpus / case["program_source"])
+            source, table = equivalence_sql.precompile(
+                source, dirs, corpus / case["program_source"], program=case["program"]
+            )
         except equivalence_sql.Unsupported as e:
             raise Unsupported(f"EXEC SQL: {e}", ["EXEC SQL"]) from e
         equivalence_db2.create(case, corpus)
@@ -1098,13 +1103,14 @@ def run_cobol_cics(case: dict[str, Any], corpus: Path, work: Path, files: list[d
             x_dirs = [corpus / d for d in [*case.get("copy_dirs", []), *db2.get("include_dirs", [])]]
             try:
                 x_source, x_table = equivalence_sql.precompile(x_source, x_dirs, corpus / extra["program_source"],
-                                                               first_id=1000 * (len(linked) + 1))  # fmt: skip
+                                                               first_id=1000 * (len(linked) + 1),
+                                                               program=extra["program"])  # fmt: skip
             except equivalence_sql.Unsupported as e:
                 raise Unsupported(f"{extra['program']}: EXEC SQL: {e}", ["EXEC SQL"]) from e
             stmts_file = work / "stmts.txt"
             have = stmts_file.read_text(encoding="latin-1")
-            ours = {ln.split()[-1] for ln in have.splitlines() if ln.startswith("S ") and ln.split()[-1] != "-"}
-            theirs = {ln.split()[-1] for ln in x_table.splitlines() if ln.startswith("S ") and ln.split()[-1] != "-"}
+            ours = {ln.split()[5] for ln in have.splitlines() if ln.startswith("S ") and ln.split()[5] != "-"}
+            theirs = {ln.split()[5] for ln in x_table.splitlines() if ln.startswith("S ") and ln.split()[5] != "-"}
             if ours & theirs:
                 raise Unsupported(f"{extra['program']}: cursor {sorted(ours & theirs)[0]} declared by two programs")
             stmts_file.write_text(have + x_table, encoding="latin-1")
@@ -1131,6 +1137,12 @@ def run_cobol_cics(case: dict[str, Any], corpus: Path, work: Path, files: list[d
     if "'APPLID' TO GG-NAME2" in text or "'SYSID' TO GG-NAME2" in text:
         if not (case.get("region") or {}).get("applid") or not case["region"].get("sysid"):
             raise Unsupported('ASSIGN APPLID / SYSID: the case states no region ("region": {"applid", "sysid"})')
+    sql_table = (work / "stmts.txt").read_text(encoding="latin-1") if db2 else ""
+    for sc in case["scenarios"]:  # #4173: each task's SQL faults resolved to the statements they name
+        if sc.get("sql_faults") and not db2:
+            raise Unsupported(f'scenario {sc["name"]}: SQL faults in a case with no "db2" section')
+        sc["sql_plan"] = sql_fault_plan(case, sc, sql_table) if sc.get("sql_faults") else []
+    shutil.rmtree(work / "scenarios", ignore_errors=True)  # a second pass (#4173) starts afresh: the logs append
     for sc in case["scenarios"]:
         d = work / "scenarios" / sc["name"]
         (d / "out").mkdir(parents=True, exist_ok=True)
@@ -1156,6 +1168,8 @@ def run_cobol_cics(case: dict[str, Any], corpus: Path, work: Path, files: list[d
                                           encoding="ascii")  # fmt: skip
         if sc.get("faults"):  # #4023 follow-up: the stub's injected conditions
             (d / "faults.cfg").write_text("".join(x + "\n" for x in fault_lines(sc)), encoding="ascii")
+        if sc.get("sql_plan"):  # #4173: the SQL stub's planned faults (resolved by sql_fault_plan)
+            (d / "sqlfaults.cfg").write_text("".join(x + "\n" for x in sc["sql_plan"]), encoding="ascii")
         y, mo, dd = date.split("/")
         eib_date = f"{int(y) - 1900:03d}{_day_of_year(int(y), int(mo), int(dd)):03d}"[-7:].rjust(7, "0")
         eib_time = "0" + time.replace(":", "")[:6]
@@ -1163,6 +1177,10 @@ def run_cobol_cics(case: dict[str, Any], corpus: Path, work: Path, files: list[d
                                   encoding="ascii")  # fmt: skip
         rel = f"/work/scenarios/{sc['name']}"
         sqlenv = equivalence_db2.cobol_env("/work/stmts.txt") if db2 else ""
+        if db2:  # #4173: each statement the task runs traced; its planned SQL faults, the ones that fire logged
+            sqlenv += f"GGSQL_TRACE={rel}/sqltrace.txt GGSQL_FAULTS_LOG={rel}/out/faults.txt " + (
+                f"GGSQL_FAULTS={rel}/sqlfaults.cfg " if sc.get("sql_plan") else ""
+            )
         if db2:  # the tables as the seed has them, for this task
             script.append(f"{sqlenv}./ggsqlrun -f /work/reset.sql")
         script.append(f"set +e; {cov.trace_env(f'{rel}/{cov.TRACE_NAME}')}GGCICS_DIR={rel} GGCICS_OUT={rel}/out EIBIN={rel}/eib.in "
@@ -1177,9 +1195,13 @@ def run_cobol_cics(case: dict[str, Any], corpus: Path, work: Path, files: list[d
             if db2 else common.run_cobol_step(work))  # fmt: skip
     if proc.returncode != 0:
         raise RuntimeError(f"COBOL side failed:\n{proc.stdout}\n{proc.stderr}")
+    refused: dict[str, str] = {}  # #4173: a derived SQL-fault task that reaches what is not modelled: that task only
     for sc in case["scenarios"]:  # a LINK reached: the program it names is not run here (no port of it)
         log = work / "scenarios" / sc["name"] / "out" / "events.txt"
         hit = re.search(r"\bNOPROGRAM\b.*?\btarget=(\S*)", log.read_text(encoding="latin-1")) if log.is_file() else None
+        if hit and sc.get("derived"):  # #4173: judged up to that LINK only (prefix), its end state not compared
+            sc["prefix_link"] = hit.group(1)
+            continue
         if hit:
             raise Unsupported(f"scenario {sc['name']}: LINK PROGRAM({hit.group(1)}) -- the case runs one program",
                               ["LINK"])  # fmt: skip
@@ -1189,14 +1211,108 @@ def run_cobol_cics(case: dict[str, Any], corpus: Path, work: Path, files: list[d
         said = work / "scenarios" / sc["name"] / "stdout.txt"
         if rc.is_file() and rc.read_text().strip() == "98" and said.is_file():
             why = next((ln for ln in said.read_text(encoding="latin-1").splitlines() if "not modelled" in ln), None)
+            if why and sc.get("derived"):
+                refused[sc["name"]] = why.strip()
+                continue
             if why:
                 raise Unsupported(f"scenario {sc['name']}: {why.strip()}", ["MODEL"])
+    (work / "refused.json").write_text(json.dumps(refused, indent=1) + "\n", encoding="utf-8")
+    kept = [sc for sc in case["scenarios"] if sc["name"] not in refused]
+
     # #4023: how much of the program the scenarios execute, together (work/coverage.json)
-    cov.write_run_coverage(work / "coverage.json", source=corpus / case["program_source"], original=program,
-                           compiled=text, traces=[work / "scenarios" / sc["name"] / cov.TRACE_NAME for sc in case["scenarios"]],
-                           compiled_name="PROGRAM.cbl", copybooks=corpus, encoding=staged)  # fmt: skip
+    def coverage(names: list[str]) -> None:  # (again after the Java side, without tasks it could not judge: #4173)
+        cov.write_run_coverage(work / "coverage.json", source=corpus / case["program_source"], original=program,
+                               compiled=text, traces=[work / "scenarios" / n / cov.TRACE_NAME for n in names],
+                               compiled_name="PROGRAM.cbl", copybooks=corpus, encoding=staged)  # fmt: skip
+
+    coverage([sc["name"] for sc in kept])
+    RECOVER[str(work)] = coverage
     return {sc["name"]: outputs(work / "scenarios" / sc["name"] / "out", case, corpus, ca_fields)
-            for sc in case["scenarios"]}  # fmt: skip
+            for sc in kept}  # fmt: skip
+
+
+# ---- #4173: SQL faults -------------------------------------------------------------------------------------------
+# The SQLSTATE a fault's SQLCODE carries when the case gives none (IBM Db2 for z/OS Codes)
+SQLSTATES = {100: "02000", -803: "23505", -305: "22002", -911: "40001", -913: "57033", -904: "57011", -530: "23503",
+             -532: "23504", -180: "22007", -181: "22007", -302: "22001", -501: "24501", -502: "24502"}  # fmt: skip
+
+
+def sql_statements(table: str) -> list[dict[str, Any]]:
+    """The statement table's statements (equivalence_sql: S / Q lines): sid, kind, cursor, program, line, sql."""
+    out: list[dict[str, Any]] = []
+    for ln in table.splitlines():
+        if ln.startswith("S "):
+            f = ln.split()
+            out.append({"sid": int(f[1]), "kind": f[2], "cursor": f[5], "program": f[6] if len(f) > 6 else "-",
+                        "line": int(f[7]) if len(f) > 7 else 0, "sql": ""})  # fmt: skip
+        elif ln.startswith("Q ") and out:
+            out[-1]["sql"] = ln[2:]
+    return out
+
+
+def sql_fault_plan(case: dict[str, Any], sc: dict[str, Any], table: str) -> list[str]:
+    """A scenario's `sql_faults` as both sides read them: `PROGRAM LINE NTH SQLCODE SQLSTATE` (ggsql.c's
+    $GGSQL_FAULTS, DetSql.withFaults). A fault names its statement by `line` (and `program`, the case's own by
+    default), or by `table` and `verb` (every statement of that kind on that table)."""
+    stmts = sql_statements(table)
+    out = []
+    for f in sc.get("sql_faults") or []:
+        code = int(f["sqlcode"])
+        state = str(f.get("sqlstate") or SQLSTATES.get(code, ""))
+        if not re.fullmatch(r"[0-9A-Z]{5}", state):
+            raise Unsupported(f"scenario {sc['name']}: SQL fault {f}: no SQLSTATE for SQLCODE {code} -- give one")
+        nth = "*" if f.get("nth", 1) == "*" else int(f.get("nth", 1))
+        program = str(f.get("program") or case["program"]).upper()
+        if "line" in f:
+            hits = [x for x in stmts if x["program"] == program and x["line"] == int(f["line"])]
+        else:
+            verb, table_name = str(f.get("verb", "")).upper(), str(f.get("table", "")).upper()
+            hits = [x for x in stmts if x["program"] == program and x["sql"].upper().split()[:1] == [verb]
+                    and re.search(rf"\b{re.escape(table_name)}\b", x["sql"].upper())]  # fmt: skip
+        if not hits:
+            raise Unsupported(f"scenario {sc['name']}: SQL fault {f} names no statement of {program}")
+        out += [f"{x['program']} {x['line']} {nth} {code} {state}" for x in hits]
+    return out
+
+
+# The fault each executed statement is given when the harness enumerates them: the failure the statement's own
+# kind meets in practice -- a duplicate key for an INSERT, no row for a SELECT INTO, a timeout (the statement rolled
+# back, the unit of work kept: -913, not -911's rollback) for the rest. COMMIT, CLOSE and SET :H = VALUES have none.
+def default_fault(stmt: dict[str, Any]) -> Optional[int]:
+    verb = (stmt["sql"].upper().split() or [""])[0]
+    if stmt["kind"] == "EXEC":
+        return -803 if verb == "INSERT" else -913 if verb in ("UPDATE", "DELETE", "MERGE") else None
+    if stmt["kind"] == "SELECT1":
+        return None if verb == "VALUES" else 100
+    if stmt["kind"] in ("OPEN", "FETCH"):
+        return -913
+    return None
+
+
+def enumerated_sql_faults(case: dict[str, Any], work: Path) -> list[dict[str, Any]]:
+    """#4173: one more task per SQL statement the case's tasks executed -- the first task that executed it, its first
+    execution failing with default_fault's SQLCODE (bounded: one per statement)."""
+    table = (work / "stmts.txt").read_text(encoding="latin-1") if (work / "stmts.txt").is_file() else ""
+    stmts = {(x["program"], x["line"]): x for x in sql_statements(table)}
+    seen: set[tuple[str, int]] = set()
+    derived = []
+    for sc in case["scenarios"]:
+        trace = work / "scenarios" / sc["name"] / "sqltrace.txt"
+        lines = trace.read_text(encoding="ascii").split() if trace.is_file() else []
+        for prog, line in zip(lines[::2], lines[1::2]):
+            key = (prog, int(line))
+            if key in seen or key not in stmts:
+                continue
+            seen.add(key)
+            code = default_fault(stmts[key])
+            if code is None:
+                continue
+            fault = {"program": prog, "line": int(line), "nth": 1, "sqlcode": code}
+            derived.append({**sc, "name": f"{sc['name']}--sql-{prog.lower()}-{line}", "derived": True,
+                            "faults": [], "sql_faults": [fault],
+                            "why": f"#4173: {sc['name']} with its first {stmts[key]['kind']} at {prog} line {line} "
+                                   f"failing (SQLCODE {code})"})  # fmt: skip
+    return derived
 
 
 def _day_of_year(y: int, m: int, d: int) -> int:
@@ -1224,6 +1340,8 @@ def outputs(out: Path, case: dict[str, Any], corpus: Path, ca_fields: list[dict[
         res["events"].append(rest)
         blob = out / f"{seq}.bin"
         data = blob.read_bytes() if blob.is_file() else b""
+        if verb == "LINK":  # #4173: the area as issued (a prefix-judged task compares it at a LINK not run)
+            res.setdefault("links", []).append({"target": kv.get("target", ""), "data": data})
         if verb == "SEND-MAP":
             fields = screen_fields(corpus, case, kv["map"], "output")
             vals = decode_record(data, fields, enc)
@@ -1523,7 +1641,7 @@ def cics_equivalence_test(case: dict[str, Any], src: Path, files: list[dict[str,
                      f"                public boolean defined(String program) {{ return {defined}; }}\n"
                      f"                public void run(String program, CicsTask t) {{\n"
                      f"{runs}"
-                     f'                    throw new UnsupportedOperationException("the case does not run " + program);\n'
+                     f'                    throw new NotRun(program);  // #4173: the task ends here (NOPROGRAM)\n'
                      f"                }}\n"
                      f"            }});")  # fmt: skip
     fields, loads, dumps = [], [], []
@@ -1591,6 +1709,28 @@ class EquivalenceRunTest {{
 
     @Autowired org.springframework.transaction.PlatformTransactionManager transactions;
 
+    /** #4173: a LINK to a program the case does not run ends the task there, as the COBOL side's stub does
+     *  (NOPROGRAM) -- only a derived SQL-fault task reaches one; it is judged up to that LINK. */
+    static final class NotRun extends RuntimeException {{
+        NotRun(String program) {{
+            super("the case does not run " + program);
+        }}
+    }}
+
+    /** #4173: the task's SQL fault plan, through the det runtime's DetSql (its statements' executions counted
+     *  afresh): false when a fault is planned and the port has no DetSql to take it (the task is then not run). */
+    static boolean sqlFaultPlan(List<String> plan, Path log) {{
+        try {{
+            Class.forName("{pkg}.cobolrt.sql.DetSql").getMethod("withFaults", List.class, Path.class)
+                    .invoke(null, plan, log);
+            return true;
+        }} catch (ClassNotFoundException e) {{
+            return plan.isEmpty();
+        }} catch (ReflectiveOperationException e) {{
+            throw new IllegalStateException(e);
+        }}
+    }}
+
     @Test
     void run() throws IOException {{
         for (JsonNode sc : json.readTree(in.resolve("scenarios.json").toFile())) {{
@@ -1621,14 +1761,36 @@ class EquivalenceRunTest {{
             if (!faults.isEmpty()) {{
                 task.withFaults(faults, out.resolve(sc.get("name").asText() + ".faults"));
             }}
+            List<String> sqlFaults = new ArrayList<>();  // #4173: the scenario's SQL faults (every task starts afresh)
+            sc.path("sql_faults").forEach(f -> sqlFaults.add(f.asText()));
+            if (!sqlFaultPlan(sqlFaults, out.resolve(sc.get("name").asText() + ".faults"))) {{
+                Files.writeString(out.resolve(sc.get("name").asText() + ".hole"),
+                        "this port has no SQL fault hook (cobolrt.sql.DetSql)");
+                continue;  // not judged: recorded, never run unfaulted
+            }}
             // one unit of work: a SYNCPOINT ROLLBACK, or an abend that ends the task, backs its changes out
             {db2_begin}new org.springframework.transaction.support.TransactionTemplate(transactions).executeWithoutResult(status -> {{
                 task.onRollback(() -> {{ status.setRollbackOnly(); {db2_rollback}}});
                 try {{
                     {var}.runTask(task);
+                }} catch (NotRun e) {{
+                    // #4173: the LINKed program is not run here; the task's events end at its LINK
                 }} catch (CicsAbendException e) {{
                     status.setRollbackOnly();
                     {db2_rollback}task.abend(e.getAbcode());
+                }} catch (RuntimeException e) {{
+                    // #4173: a derived SQL-fault task that reaches a det port's named hole (an untranslated
+                    // statement) is not judged -- recorded, never passed; any other failure stays a failure
+                    if (!sc.path("derived").asBoolean() || !"Hole".equals(e.getClass().getSimpleName())) {{
+                        throw e;
+                    }}
+                    try {{
+                        Files.writeString(out.resolve(sc.get("name").asText() + ".hole"), String.valueOf(e.getMessage()));
+                    }} catch (IOException io) {{
+                        throw new java.io.UncheckedIOException(io);
+                    }}
+                    status.setRollbackOnly();
+                    {db2_rollback}
                 }}
             }});{db2_end}
 {chr(10).join(dumps)}
@@ -1724,7 +1886,8 @@ def run_java_cics(case: dict[str, Any], corpus: Path, work: Path, cobol_work: Pa
             m: {f.removesuffix("I"): v for f, v in typed.items()} for m, typed in (sc.get("receive") or {}).items()
         }
         scenarios.append({"name": sc["name"], "aid": sc.get("aid", "DFHENTER").removeprefix("DFH"),
-                          "commarea": ca, "receive": receive, "faults": fault_lines(sc),
+                          "commarea": ca, "receive": receive, "faults": fault_lines(sc), "sql_faults": sc.get("sql_plan", []),
+                          "derived": bool(sc.get("derived")),
                           "counters": _counters(case, sc)})  # fmt: skip
     (inputs / "scenarios.json").write_text(json.dumps(scenarios, indent=1), encoding="utf-8")
     props = ej.data_charset_arg(case)
@@ -1740,6 +1903,8 @@ def run_java_cics(case: dict[str, Any], corpus: Path, work: Path, cobol_work: Pa
         f = out / f"{sc['name']}.json"
         events = json.loads(f.read_text(encoding="utf-8")) if f.is_file() else []
         for e in events:
+            if e.get("event") == "LINK":  # #4173: the target's DTO as issued, before it is mapped to this program's
+                e["link_area"] = e.get("commarea")
             if "commarea" in e:
                 e["commarea"] = from_java(e["commarea"], shape) if e["commarea"] is not None else None
         result[sc["name"]] = events
@@ -2017,12 +2182,46 @@ def feedback_md(case: dict[str, Any], report: dict[str, Any], limit: int = 6) ->
     return "\n".join(out).strip()
 
 
+def _link_area(case: dict[str, Any], res: dict[str, Any], java: list[dict[str, Any]], program: str) -> dict[str, Any]:
+    """#4173: the COMMAREA a prefix-judged task LINKs to `program`, both sides: the COBOL bytes (as the stub logged
+    the LINK, LENGTH bytes) as text in the data's encoding, the Java target DTO's text fields in order, the same
+    length. A DTO with a typed (non-text) field is not compared here -- said so, never passed."""
+    c = next((x for x in res.get("links", []) if x["target"].strip().upper() == program.upper()), None)
+    j = next((e for e in java if e.get("event") == "LINK"
+              and str(e.get("target", e.get("program", ""))).strip().upper() == program.upper()), None)  # fmt: skip
+    if c is None or j is None:
+        return {"equal": False, "why": f"no LINK to {program} on the {'COBOL' if c is None else 'Java'} side"}
+    if j.get("area") is not None:  # the port passed the area's bytes (a det port): compared byte for byte
+        import base64
+
+        jb = base64.b64decode(j["area"])
+        enc = common.data_encoding(case)
+        return {"equal": jb == c["data"], "length": len(c["data"]), "compared": "bytes",
+                "cobol": common._decode_text(c["data"], enc), "java": common._decode_text(jb, enc)}  # fmt: skip
+    dto = j.get("link_area")
+    values = list(dto.values()) if isinstance(dto, dict) else []
+    if not values or not all(isinstance(v, str) for v in values):
+        return {"equal": None, "why": "the target's DTO has typed fields: the area is not compared as text"}
+    n = len(c["data"])
+    ctext = (common._decode_text(c["data"], common.data_encoding(case)) or "").rstrip(" \x00")
+    jtext = "".join(values)[:n].rstrip(" \x00")
+    return {"equal": ctext == jtext, "length": n, "cobol": ctext, "java": jtext}
+
+
+def _to_link(events: list[dict[str, Any]], program: str) -> list[dict[str, Any]]:
+    """#4173: the events up to and including the first LINK to `program` (a program the case does not run)."""
+    for i, e in enumerate(events):
+        if e.get("event") == "LINK" and str(e.get("program", "")).strip().upper() == program.upper():
+            return events[: i + 1]
+    return events
+
+
 def _fired(log: Path) -> list[str]:
     return sorted(x for x in log.read_text(encoding="ascii").splitlines() if x.strip()) if log.is_file() else []
 
 
 def run_case(case: dict[str, Any], corpus: Path, work: Path, port: bool = True, port_dir: Path | None = None,
-             cobol_only: bool = False) -> int:  # fmt: skip
+             cobol_only: bool = False, sql_faults: str = "auto") -> int:  # fmt: skip
     """A CICS case end to end: facts -> stub files, the COBOL tasks, the Java tasks, the report."""
     import json
 
@@ -2034,7 +2233,20 @@ def run_case(case: dict[str, Any], corpus: Path, work: Path, port: bool = True, 
     for extra in case.get("programs", []):  # the programs the task LINKs to use files of their own
         files += [f for f in stub_files(ir, extra["program_source"], case.get("datasets"))
                   if f["file"] not in {x["file"] for x in files}]  # fmt: skip
+    # #4173: SQL faults -- `auto` adds a task per SQL statement the tasks executed (enumerated_sql_faults), each run
+    # on both sides; `declared` runs only the scenarios' own sql_faults; `none` drops those too
+    if sql_faults == "none":
+        case = {**case, "scenarios": [{**sc, "sql_faults": []} for sc in case["scenarios"]]}
     cobol = run_cobol_cics(case, corpus, work / "cobol", files)
+    if case.get("db2") and sql_faults == "auto":
+        derived = enumerated_sql_faults(case, work / "cobol")
+        if derived:
+            case = {**case, "scenarios": [*case["scenarios"], *derived]}
+            cobol = run_cobol_cics(case, corpus, work / "cobol", files)
+    refused = json.loads((work / "cobol" / "refused.json").read_text(encoding="utf-8"))
+    for name, why in refused.items():
+        print(f"{case['program']} {name}: not run -- {why}")
+    case = {**case, "scenarios": [sc for sc in case["scenarios"] if sc["name"] not in refused]}
     if cobol_only:
         for name, res in cobol.items():
             print(f"{name}: " + "; ".join(res["events"]))
@@ -2046,8 +2258,21 @@ def run_case(case: dict[str, Any], corpus: Path, work: Path, port: bool = True, 
         (work / "report.json").write_text(json.dumps(failed, indent=2) + "\n", encoding="utf-8")
         print(f"{case['program']}: the Java side failed -- see {work / 'report.json'}")
         return 1
+    for sc in [x for x in case["scenarios"] if x.get("derived")]:  # #4173: a fault task that reached a named hole
+        hole = work / "java" / "out" / f"{sc['name']}.hole"
+        if hole.is_file():
+            said = hole.read_text(encoding="utf-8")
+            refused[sc["name"]] = (
+                said if "no SQL fault hook" in said else f"the port reaches a named hole on this path ({said})"
+            )
+            print(f"{case['program']} {sc['name']}: not judged -- {refused[sc['name']]}")
+    case = {**case, "scenarios": [sc for sc in case["scenarios"] if sc["name"] not in refused]}
+    if len(cobol) != len(case["scenarios"]) and str(work / "cobol") in RECOVER:  # coverage of the judged tasks only
+        RECOVER[str(work / "cobol")]([sc["name"] for sc in case["scenarios"]])
+    cobol = {k: v for k, v in cobol.items() if k not in refused}
     report: dict[str, Any] = {"case": case["name"], "program": case["program"], "kind": "cics", "files": files,
-                              "java": "ported" if port else "generated", "outputs": {}}  # fmt: skip
+                              "java": "ported" if port else "generated", "outputs": {},
+                              "refused": refused}  # fmt: skip
     import equivalence_java as ej
 
     linked = work / "java" / ej.LINKED_FILE
@@ -2058,12 +2283,26 @@ def run_case(case: dict[str, Any], corpus: Path, work: Path, port: bool = True, 
         clock = [0]  # the clock fields masked in this scenario (a case's "clock_fields")
         cev = mask_clock_events(case, linked_result(case, cobol_events(res)), clock)
         jev = mask_clock_events(case, linked_result(case, java.get(name, [])), clock)
+        sc = next(x for x in case["scenarios"] if x["name"] == name)
+        if sc.get("prefix_link"):  # #4173: a fault task that LINKs to a program the case does not run -- both
+            cev, jev = _to_link(cev, sc["prefix_link"]), _to_link(jev, sc["prefix_link"])  # sides judged up to it
         d = compare_events(cev, jev)
         report["outputs"][name] = {"equal": d["equal"], "records": d["events"], "diffs": d["diffs"],
                                    "cobol": cev, "java": jev}  # fmt: skip
         ok &= d["equal"] == d["events"]
-        sc = next(x for x in case["scenarios"] if x["name"] == name)
-        if sc.get("faults"):  # #4023 follow-up: the same injected conditions fired on both sides, and at least one
+        if sc.get("derived"):
+            report["outputs"][name]["sql_faults"] = sc["sql_plan"]
+        if sc.get("prefix_link"):
+            report["outputs"][name]["judged_to"] = (
+                f"LINK PROGRAM({sc['prefix_link']}) (not run: its end state is not compared)"
+            )
+            area = _link_area(case, res, java.get(name, []), sc["prefix_link"])
+            report["outputs"][name]["link_area"] = area
+            if area.get("equal") is False:
+                ok = False
+                print(f"{case['program']} {name}: the COMMAREA LINKed to {sc['prefix_link']} differs: {area}")
+        # #4023 follow-up (#4173: SQL faults too): the same injected conditions fired on both sides, and at least one
+        if sc.get("faults") or sc.get("sql_plan"):
             fired = {"cobol": _fired(work / "cobol" / "scenarios" / name / "out" / "faults.txt"),
                      "java": _fired(work / "java" / "out" / f"{name}.faults")}  # fmt: skip
             report["outputs"][name]["fired"] = fired
@@ -2073,8 +2312,10 @@ def run_case(case: dict[str, Any], corpus: Path, work: Path, port: bool = True, 
         print(f"{case['program']} {name}: {d['equal']}/{d['events']} events equal")
         for x in d["diffs"][:6]:
             print(f"   event {x['event']}: {x.get('fields', [])[:3] or (x.get('cobol'), x.get('java'))}")
-        changed = compare_files(case, corpus, files, res.get("files", {}), work / "java" / "out", name)
-        changed.update(compare_db2(case, res.get("db2", {}), work / "java" / "out", name, clock))
+        changed = {} if sc.get("prefix_link") else compare_files(case, corpus, files, res.get("files", {}),
+                                                                  work / "java" / "out", name)  # fmt: skip
+        if not sc.get("prefix_link"):
+            changed.update(compare_db2(case, res.get("db2", {}), work / "java" / "out", name, clock))
         if clock[0]:
             report["outputs"][name]["clock_masked"] = clock[0]
         if changed:  # file updates: what the task left in a file differs

@@ -57,6 +57,8 @@ verdict, but it limits what the proof says about inputs outside the scenarios.
 | X7 | CICS | ASSIGN INVOKINGPROG / PROGRAM; LINKed programs run in one task | MATCHED | yes (GenApp LGUPDB01) |
 | X8 | compiler | A reference modification past its item (no SSRANGE): a storage overlay | not run | no |
 | X9 | CICS | Named counters (GET COUNTER) | MATCHED | yes (GenApp LGACDB01) |
+| X10 | CICS | A LINK target's COMMAREA bytes past the end of the caller's record | DIFFERS | no |
+| X11 | CICS | ASKTIME ABSTIME into a field narrower than S9(15) COMP-3 (GenApp's WS-ABSTIME) | DIFFERS | yes (GenApp error paths, #4173) |
 | L1 | LE | CEEDAYS: documented pictures only | MATCHED / REFUSED | yes |
 | L2 | LE | CEE3ABD abend codes | MATCHED | yes |
 | L3 | LE | WORKING-STORAGE with no VALUE clause: GnuCOBOL's spaces vs LE's STORAGE option on z/OS | ASSUMED | yes (CardDemo READACCT OUTFILE, 2 bytes) |
@@ -72,7 +74,7 @@ verdict, but it limits what the proof says about inputs outside the scenarios.
 | Q9 | Db2 | More host variables than columns: SQLWARN3, the rest untouched | MATCHED | yes (GenApp LGUPDB01) |
 | J1 | Java | VSAM files on H2, not the target database | ASSUMED | — |
 | M1 | method | The scenarios are ours, not production traffic | — | — |
-| M2 | method | A Db2 error after a successful statement cannot be injected yet | — | yes (UPDACC 5/6 branches) |
+| M2 | method | SQL faults: injected on both sides at a statement (#4173), the SQLCA as the stub sets it | MATCHED (ASSUMED SQLCA) | yes (17 Db2 cases) |
 | M3 | method | A LINKed program's COMMAREA result was not compared before 2026-10-02 | fixed | 7 cases re-proven |
 | M4 | method | Clock fields: a value the run takes from the system clock | declared | yes (GenApp LGUPDB01) |
 
@@ -266,6 +268,9 @@ The length READQ TS returns on ITEMERR or QIDERR is not documented, so it is not
 - **Refused.** The translated WRITEQ TD / TS checks its LENGTH against the FROM item and stops the run (98,
   "WRITEQ TD LENGTH > FROM: not modelled"); the case is refused by name, never reported as a difference. GenApp's
   error paths (every GenApp program LINKs LGSTSQ on them) stay out of their cases until z/OS settles it.
+- **#4173.** An SQL-fault task (M2) that reaches the LINK to LGSTSQ is judged up to and including that LINK -- its
+  events and the COMMAREA's bytes as LINKed, byte for byte -- and its end state (tables, files, the final COMMAREA) is
+  not compared: LGSTSQ is not run on either side.
 
 ### X7. ASSIGN INVOKINGPROG / PROGRAM, and several programs in one task — MATCHED
 - ASSIGN PROGRAM is the running program, INVOKINGPROG the program that LINKed or XCTLed to it (blanks for a task's
@@ -285,6 +290,25 @@ The length READQ TS returns on ITEMERR or QIDERR is not documented, so it is not
 - GET COUNTER returns the counter's value and then adds one (IBM CICS TS, GET COUNTER); a counter the region does not
   have is NOTFND. A case (or a scenario) states the region's counters (`"counters": {"POOL/NAME": next}`); both sides
   read the same. Other counter options (INCREMENT, WRAP, MINIMUM / MAXIMUM, RESP2 ...) are refused by name.
+
+### X10. A LINK target's COMMAREA past the caller's record — DIFFERS (#4181)
+- **What.** A LINK passes the COMMAREA by reference: the target sees the caller's storage from the area's first byte,
+  for as long as its own DFHCOMMAREA (or the contract DTO it is typed with) reaches. When that is longer than the
+  caller's record (GenApp's 71-byte ERROR-MSG LINKed to LGSTSQ, typed as the 99-byte CA-ERROR-MSG), z/OS shows the
+  target whatever storage follows the record; so does GnuCOBOL, in its own layout.
+- **The det port.** Gives the target the caller's bytes up to the end of the caller's record and LOW-VALUES past it
+  (`Cobol.commarea`), and writes back as far (`Cobol.commareaBack`); it never reads past the record (before #4181 it
+  failed there). A det caller passes the bytes themselves too (`CicsTask.link(..., area)`), so a det target sees every
+  byte, the ones its contract DTO does not name included (CA-ERROR-MSG's leading FILLER).
+- **Reached.** Not by a proof: no case runs a target that reads past its caller's record.
+
+### X11. ASKTIME ABSTIME into a narrow field — DIFFERS
+- **What.** ABSTIME is an 8-byte packed value (IBM: `PIC S9(15) COMP-3`). GenApp declares `WS-ABSTIME PIC S9(8) COMP`
+  (4 bytes), so on z/OS ASKTIME writes past it into the next item, and FORMATTIME reads 8 bytes back from there.
+- **Here.** Both sides store into the declared 4-byte field and agree (GenApp's error message dates come out as
+  `01011900`); z/OS would not give that. Equal on both sides, so no verdict changes, but the date in GenApp's error
+  messages is not z/OS's.
+- **Reached.** Yes, by GenApp's SQL-fault tasks (M2).
 
 ## Language Environment
 
@@ -394,12 +418,24 @@ The length READQ TS returns on ITEMERR or QIDERR is not documented, so it is not
 - **What a proof covers.** The paths its coverage figure reports, and nothing else. CardDemo, CBSA and GenApp are
   public development estates; a fresh estate is measured through `tests/tools/trial.py`.
 
-### M2. Db2 errors after a successful statement — not injectable yet
-- File statuses and CICS conditions can be injected (F2). A Db2 error cannot: a scenario reaches an SQLCODE only
-  through data that makes Db2 return it (+100, -803, -305, -532 ...).
-- An error that no data can cause on demand stays uncovered, e.g. UPDACC's UPDATE failing after its SELECT succeeded,
-  or DBCRFUN's PROCTRAN INSERT failing (its SYNCPOINT ROLLBACK path).
-- **To settle.** An SQL fault plan for both sides (ggsql.c and DetSql), as ggfault.c does for files.
+### M2. SQL faults — injected since #4173 (the SQLCA ASSUMED)
+- **How.** A statement is named by its program and the line of its EXEC SQL in the file it is written in (an INCLUDEd
+  member's own line); the det port's DetSql calls carry the same key. A fault plan (`PROGRAM LINE NTH SQLCODE
+  SQLSTATE`) makes that execution skip Db2 on both sides (ggsql.c, DetSql) with that SQLCODE and SQLSTATE, and both
+  log it; a run is proven only if the same faults fired on both sides. A scenario declares `sql_faults` (by `line`, or
+  by `table` and `verb`); `equivalence.py run --sql-faults auto` (the default) adds one task per statement the case's
+  tasks executed, its first execution failing: -803 for an INSERT, +100 for a SELECT INTO, -913 for an UPDATE, DELETE,
+  OPEN or FETCH. COMMIT, CLOSE and `SET :H = VALUES` get none.
+- **Assumed.** The SQLCA a fault leaves is reset's: SQLCODE and SQLSTATE set, SQLERRMC empty (SQLERRML 0), SQLERRD
+  zero, no warnings. z/OS sets message tokens (-803's index, -913's resource) a program could DISPLAY. -913 rolls back
+  the statement only; -911's unit-of-work rollback is not used. Nothing else changes: no row, no host variable, a
+  cursor where it was.
+- **Not judged.** A fault task that LINKs to a program the case does not run is judged up to that LINK (X6). One whose
+  path reaches a det port's named hole (COTRTLIC's dynamic CALL) is recorded "not judged" and left out of the proof
+  and of the coverage figure. A port without DetSql (a model port) cannot take a planned SQL fault: such a task is
+  recorded "not judged" (no SQL fault hook), never run unfaulted.
+- **Effect.** Coverage of the 17 Db2 cases before and after is in the #4173 PR, e.g. GenApp LGACDB01 6/14 → 8/14
+  branches, LGUPDB01 17/38 → 26/38, CBSA DELACC 10/14 → 13/14.
 
 ### M3. A LINKed program's COMMAREA — fixed 2026-10-02
 - A LINKed program answers through the COMMAREA it leaves in its caller's storage. Until 2026-10-02 the harness

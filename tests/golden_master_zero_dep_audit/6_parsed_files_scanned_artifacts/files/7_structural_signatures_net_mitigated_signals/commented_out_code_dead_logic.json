@@ -415,7 +415,7 @@
       "c/cpython/Makefile.pre.in": 4,
       "c/cpython/ceval.c": 2,
       "c/cpython/compile.c": 3,
-      "c/cpython/dictobject.c": 5,
+      "c/cpython/dictobject.c": 6,
       "c/cpython/frameobject.c": 1,
       "c/cpython/gc.c": 1,
       "c/cpython/object.c": 5,
@@ -424,9 +424,9 @@
     "c/doom": {
       "c/doom/LICENSE.TXT": 0,
       "c/doom/README.TXT": 0,
-      "c/doom/d_main.c": 4,
+      "c/doom/d_main.c": 5,
       "c/doom/doomdef.h": 2,
-      "c/doom/i_system.c": 1,
+      "c/doom/i_system.c": 2,
       "c/doom/m_fixed.c": 1,
       "c/doom/m_fixed.h": 1,
       "c/doom/p_mobj.c": 3,
@@ -437,7 +437,7 @@
       "c/doom/z_zone.c": 2
     },
     "c/micropython": {
-      "c/micropython/compile.c": 23,
+      "c/micropython/compile.c": 25,
       "c/micropython/compile.h": 0,
       "c/micropython/emitnative.c": 14,
       "c/micropython/gc.c": 6,
@@ -453,7 +453,7 @@
     "c/sqlite": {
       "c/sqlite/LICENSE.md": 0,
       "c/sqlite/README.md": 0,
-      "c/sqlite/lemon.c": 6
+      "c/sqlite/lemon.c": 9
     },
     "cobol/CICS-Cobol": {
       "cobol/CICS-Cobol/CBL0102v01DivisionAmbiente.cbl": 0,
@@ -1048,7 +1048,7 @@
     },
     "cobol/gnucobol_internals": {
       "cobol/gnucobol_internals/COPYING": 0,
-      "cobol/gnucobol_internals/codegen.c": 0,
+      "cobol/gnucobol_internals/codegen.c": 3,
       "cobol/gnucobol_internals/fileio.c": 0,
       "cobol/gnucobol_internals/numeric.c": 0,
       "cobol/gnucobol_internals/parser.y": 3,
@@ -1094,14 +1094,14 @@
       "cpp/godot/AUTHORS.md": 0,
       "cpp/godot/DONORS.md": 0,
       "cpp/godot/LICENSE.txt": 0,
-      "cpp/godot/editor_node.cpp": 4,
+      "cpp/godot/editor_node.cpp": 5,
       "cpp/godot/editor_node.h": 0,
       "cpp/godot/gdscript_vm.cpp": 1,
-      "cpp/godot/main.cpp": 4,
+      "cpp/godot/main.cpp": 7,
       "cpp/godot/main.h": 0,
-      "cpp/godot/node.cpp": 2,
+      "cpp/godot/node.cpp": 6,
       "cpp/godot/node.h": 0,
-      "cpp/godot/object.cpp": 0,
+      "cpp/godot/object.cpp": 2,
       "cpp/godot/object.h": 0,
       "cpp/godot/rendering_server_default.cpp": 0,
       "cpp/godot/rendering_server_default.h": 2,
@@ -1123,7 +1123,7 @@
       "cpp/powertoys/ImageResizerExt.cpp": 0,
       "cpp/powertoys/centralized_kb_hook.cpp": 0,
       "cpp/powertoys/logger.cpp": 0,
-      "cpp/powertoys/main.cpp": 1,
+      "cpp/powertoys/main.cpp": 2,
       "cpp/powertoys/powertoy_module.h": 0
     },
     "csd": {
@@ -1149,10 +1149,10 @@
       "csharp/SOURCES.md": 0
     },
     "csharp/roslyn": {
-      "csharp/roslyn/CSharpCompilation.cs": 7,
+      "csharp/roslyn/CSharpCompilation.cs": 9,
       "csharp/roslyn/CSharpSyntaxTree.cs": 3,
       "csharp/roslyn/DiagnosticAnalyzer.cs": 0,
-      "csharp/roslyn/LanguageParser.cs": 54,
+      "csharp/roslyn/LanguageParser.cs": 61,
       "csharp/roslyn/License.txt": 0,
       "csharp/roslyn/MethodCompiler.cs": 5,
       "csharp/roslyn/Workspace.cs": 3
@@ -1214,7 +1214,7 @@
     "dart/flutter": {
       "dart/flutter/editable_text.dart": 13,
       "dart/flutter/events.dart": 3,
-      "dart/flutter/framework.dart": 73,
+      "dart/flutter/framework.dart": 75,
       "dart/flutter/navigator.dart": 61,
       "dart/flutter/object.dart": 11,
       "dart/flutter/semantics.dart": 6,
@@ -1422,7 +1422,7 @@
     },
     "groovy/gradle": {
       "groovy/gradle/DefaultPluginManager.java": 1,
-      "groovy/gradle/DefaultProject.java": 0,
+      "groovy/gradle/DefaultProject.java": 2,
       "groovy/gradle/DefaultTask.java": 0
     },
     "groovy/gradle_buildlogic_groovy": {
@@ -1913,8 +1913,8 @@
       "javascript/threejs/GLTFLoader.js": 2,
       "javascript/threejs/Matrix4.js": 1,
       "javascript/threejs/Nodes.js": 0,
-      "javascript/threejs/WebGLProgram.js": 0,
-      "javascript/threejs/WebGLRenderer.js": 2
+      "javascript/threejs/WebGLProgram.js": 7,
+      "javascript/threejs/WebGLRenderer.js": 3
     },
     "jcl/cash-account-cobol": {
       "jcl/cash-account-cobol/DB2BIND.jcl": 0,
@@ -3143,8 +3143,8 @@
     "scheme/racket": {
       "scheme/racket/LICENSE.txt": 0,
       "scheme/racket/cpnanopass.ss": 10,
-      "scheme/racket/eval.c": 1,
-      "scheme/racket/fun.c": 3,
+      "scheme/racket/eval.c": 2,
+      "scheme/racket/fun.c": 4,
       "scheme/racket/io.ss": 3,
       "scheme/racket/schemify.rkt": 0,
       "scheme/racket/thread.rkt": 0
@@ -3691,7 +3691,7 @@
     "typescript/assemblyscript": {
       "typescript/assemblyscript/asconfig.json": 0,
       "typescript/assemblyscript/ast.ts": 0,
-      "typescript/assemblyscript/compiler.ts": 26,
+      "typescript/assemblyscript/compiler.ts": 30,
       "typescript/assemblyscript/package.json": 0,
       "typescript/assemblyscript/parser.ts": 8
     },
@@ -3716,7 +3716,7 @@
       "typescript/playwright/protocol.ts": 0
     },
     "typescript/typescript_compiler": {
-      "typescript/typescript_compiler/binder.ts": 10,
+      "typescript/typescript_compiler/binder.ts": 13,
       "typescript/typescript_compiler/package.json": 0
     },
     "typescript/vscode": {
@@ -3725,7 +3725,7 @@
       "typescript/vscode/codeEditorWidget.ts": 0,
       "typescript/vscode/eslint.config.js": 0,
       "typescript/vscode/extHost.api.impl.ts": 0,
-      "typescript/vscode/gulpfile.vscode.ts": 1,
+      "typescript/vscode/gulpfile.vscode.ts": 2,
       "typescript/vscode/instantiationService.ts": 2,
       "typescript/vscode/ipc.ts": 1,
       "typescript/vscode/lifecycle.ts": 0,

@@ -78,9 +78,11 @@ def _pct(a: int, b: int) -> str:
 
 
 def table(results: dict) -> str:
-    rows = ["| port | harness | mutants run / all | raw score | without equivalent + unreachable "
-            "| survivors: case gap / harness gap / equivalent / unreachable / untriaged |",
-            "|---|---|---|---|---|---|"]  # fmt: skip
+    header = (
+        "| port | harness | mutants run / all | raw score | without equivalent + unreachable "
+        "| survivors: case gap / harness gap / equivalent / unreachable / untriaged |"
+    )
+    rows = [header, "|---|---|---|---|---|---|"]
     groups: dict[str, dict[str, int]] = {}
     for p in results["ports"]:
         t = p["total"]

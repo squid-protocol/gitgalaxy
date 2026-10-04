@@ -57,6 +57,27 @@ executed; `--ci` fails when that moves (lost or gained) until `--update-baseline
     python tests/tools/cics_crucible.py --update-baseline       # record today's cells + the report
     python tests/tools/cics_crucible.py --cases pc-wizard --sides engine-facts java --keep /tmp/w
 
+#4049 (the test-strengthening loop): STRENGTHENED scenarios. A crucible case's scenarios and their expected logs
+are the crucible's, written by hand from IBM's documentation. A mutation survivor (#4047) that no scenario reaches
+needs more inputs, and the rule of the loop is that a model proposes INPUTS only: the expected result comes from
+running the COBOL. So tests/cics_crucible/strengthened/<case>/case.json holds extra scenarios for a case (the
+crucible's scenario format, plus a step's `faults`, below), and tests/cics_crucible/strengthened/<case>/expected/
+<scenario>.json each one's log as the COBOL produced it on the stub runtime, written by
+
+    python tests/tools/cics_crucible.py --cases pc-wizard --derive-expected      # never by hand
+
+(the log says so in `derived`). `--strengthened` adds them to their cases, so the java-ported side is proven
+against them too; a derived log is checked like any other (the cobol-stub side must still reproduce it). They are
+held for review: they are not in the baseline or the coverage ledger, and `--ci` / `--update-baseline` refuse
+`--strengthened` until a person has approved them.
+
+A scenario's `faults` (#4049) plans CICS conditions, as the equivalence harness's CICS scenarios do
+(tests/tools/equivalence_cics.py, FAULT_COMMANDS: which commands, and the IBM conditions each may be given), for
+every task of the TRANSID a fault names in `task` -- a terminal step's task or a STARTed one:
+[{"task": "PC03", "cmd": "WRITEQ-TS", "queue": "PCLEDGER", "nth": 1, "resp": "INVREQ"}]. Each task counts its own
+commands; the stub (faults.cfg) and CicsTask.withFaults read the same plan, and the planned command does nothing
+but return the condition. A derived log records the faults that fired; one that never fired refuses the log.
+
 Needs: the crucible checkout (CICS_CRUCIBLE_PATH, else ../cics-crucible beside the main gitgalaxy
 checkout) at the pin; for cobol-stub, Docker and the GnuCOBOL image (tests/equivalence/
 gnucobol.Dockerfile); for forge-compile / java, a JDK 17 and Maven (`--offline` for mvn -o).
@@ -78,6 +99,7 @@ import subprocess
 import sys
 import tempfile
 from collections import Counter, defaultdict
+from decimal import Decimal
 from pathlib import Path
 from collections.abc import Iterator
 from typing import Any, Optional
@@ -408,6 +430,175 @@ def forge(case: cc.Case, work: Path, offline: bool,
 # a tree relative to the generated package root. The committed ones -- proven by this runner, kept as
 # regression evidence with their provenance.json -- live under PORTS_DIR/<case>/<KEY>/.
 PORTS_DIR = LEDGER_DIR / "ports"
+STRENGTHENED_DIR = LEDGER_DIR / "strengthened"  # #4049: scenarios added to a case, their logs from the COBOL
+STRENGTHENED_FORMAT = "gitgalaxy/crucible-strengthened/1"
+
+
+def strengthened_scenarios(case: cc.Case, root: Path = STRENGTHENED_DIR) -> list[dict[str, Any]]:
+    """#4049: the case's strengthened scenarios (tests/cics_crucible/strengthened/<case>/case.json), or none."""
+    path = root / case.id / "case.json"
+    if not path.is_file():
+        return []
+    data = json.loads(path.read_text(encoding="utf-8"))
+    if data.get("format") != STRENGTHENED_FORMAT or data.get("case") != case.id:
+        raise cc.CaseError(f"{path}: not a {STRENGTHENED_FORMAT} file of case {case.id}")
+    taken = {sc["id"] for sc in case.scenarios}
+    for sc in data["scenarios"]:
+        if sc["id"] in taken:
+            raise cc.CaseError(f"{path}: scenario {sc['id']!r} is already one of the case's")
+    return list(data["scenarios"])
+
+
+def add_strengthened(case: cc.Case, root: Path = STRENGTHENED_DIR, expected: bool = True) -> list[str]:
+    """#4049: the case with its strengthened scenarios added (and, with `expected`, their derived logs, which must
+    exist); their ids."""
+    added = strengthened_scenarios(case, root)
+    for sc in added:
+        if expected:
+            ep = root / case.id / "expected" / f"{sc['id']}.json"
+            if not ep.is_file():
+                raise cc.CaseError(f"{ep}: no derived log; run --derive-expected --cases {case.id}")
+            case.expected[sc["id"]] = json.loads(ep.read_text(encoding="utf-8"))
+    case.data = {**case.data, "scenarios": [*case.data["scenarios"], *added]}
+    return [sc["id"] for sc in added]
+
+
+def task_faults(sc: dict[str, Any], transid: str) -> list[str]:
+    """#4049: the conditions a scenario plans for a task of `transid`, as faults.cfg lines (the equivalence
+    harness's format and checks)."""
+    import equivalence_cics as ec
+
+    mine = [f for f in sc.get("faults") or [] if f.get("task") == transid]
+    return ec.fault_lines({"name": sc["id"], "faults": mine}) if mine else []
+
+
+def fault_plans(sc: dict[str, Any]) -> dict[str, list[str]]:
+    """#4049: {TRANSID: its faults.cfg lines} of a scenario (every fault must name its task)."""
+    if any(not f.get("task") for f in sc.get("faults") or []):
+        raise cc.CaseError(f"scenario {sc['id']}: every fault names the TRANSID of its `task`")
+    return {t: task_faults(sc, t) for t in dict.fromkeys(f["task"] for f in sc.get("faults") or [])}
+
+
+def _derived(value: Any) -> Any:
+    """A cobol-stub actual value as an expected log spells it (SPEC 6.1): an area {length, text | hex}, bytes as
+    text when they are printable EBCDIC (blank-padded the same), else {hex}. A value the stub does not model
+    cannot be an expectation: refused."""
+    if isinstance(value, cc.Unmodelled):
+        raise RuntimeError(f"the COBOL side does not model {value.feature}: no expected value can be derived")
+    if isinstance(value, cc.RawArea):
+        data = cc.to_ebcdic(value)
+        return {"length": len(data), **_spelled(data)}
+    if isinstance(value, (bytes, bytearray)):
+        spelled = _spelled(bytes(value))
+        return spelled.get("text", spelled)
+    if isinstance(value, dict):
+        return {k: _derived(v) for k, v in value.items()}
+    if isinstance(value, list):
+        return [_derived(v) for v in value]
+    return value
+
+
+def _spelled(data: bytes) -> dict[str, Any]:
+    text = data.decode(cc.EBCDIC)
+    if text.isprintable() and cc.expected_bytes(text.rstrip(" "), len(data)) == data:
+        return {"text": text.rstrip(" ")}
+    return {"hex": data.hex().upper()}
+
+
+def area_layout(case: cc.Case, program: Optional[str]) -> Optional[str]:
+    """#4049: the layout a derived COMMAREA is spelled by: the case's layout of the program that holds the area
+    (the event's issuer, the task's program), else the case's only layout, else none. A COMP / COMP-3 field's bytes
+    are not text: spelled without its layout, the stub's bytes would be transcoded as if they were."""
+    layouts = case.data.get("layouts") or {}
+    mine = [n for n, spec in layouts.items() if program and Path(spec["source"]).stem.upper() == program]
+    return mine[0] if len(mine) == 1 else (next(iter(layouts)) if len(layouts) == 1 else None)
+
+
+def _derived_area(value: Any, layout: Optional[str], ctx: cc.Context) -> Any:
+    """A COMMAREA as an expected log spells it: by `layout`'s fields where it has one (numbers as numbers, the
+    binary ones decoded), else as _derived does."""
+    if not isinstance(value, cc.RawArea) or layout is None:
+        return _derived(value)
+    fields = ctx.layouts[layout]
+    data = cc.to_ebcdic(value, fields)
+    if max(f["offset"] + f["bytes"] for f in fields) < len(data):
+        return _derived(value)  # bytes past the record: no field names them
+    out: dict[str, Any] = {}
+    for f in fields:
+        if f["offset"] + f["bytes"] > len(data):
+            continue
+        raw = data[f["offset"] : f["offset"] + f["bytes"]]
+        if cc._numeric_pic(f.get("pic")):
+            num = cc._decode_number(raw, f)
+            if not isinstance(num, Decimal):
+                return {"length": len(data), "hex": data.hex().upper()}
+            out[f["name"]] = str(num)
+        else:
+            out[f["name"]] = _derived(raw)
+    return {"length": len(data), "layout": layout, "fields": out}
+
+
+def _derived_event(case: cc.Case, e: dict[str, Any], ctx: cc.Context) -> dict[str, Any]:
+    lay = area_layout(case, e.get("program"))
+    return {
+        k: _derived_area(v, lay, ctx) if k in ("commarea", "caller_commarea") else _derived(v) for k, v in e.items()
+    }
+
+
+def derive_expected(case: cc.Case, actual: dict[str, Any], sid: str, fired: dict[str, list[str]],
+                    ctx: Optional[cc.Context] = None) -> dict[str, Any]:  # fmt: skip
+    """#4049: the expected log of strengthened scenario `sid`: what the COBOL did on the stub runtime."""
+    if actual.get("stopped"):
+        raise RuntimeError(f"{sid}: the scenario stopped early ({actual['stopped']})")
+    ctx = ctx or case_context(case)
+    tasks = []
+    for n, t in enumerate(actual["tasks"], 1):
+        if any(e["event"] == "DRIVER-ERROR" for e in t["events"]):
+            raise RuntimeError(f"{sid}: task {n} hit a driver error: the harness cannot run it")
+        task = {"seq": n, **{k: _derived(t.get(k)) for k in (*cc.TASK_KEYS, "end")}}
+        task["commarea"] = _derived_area(t.get("commarea"), area_layout(case, t.get("program")), ctx)
+        task["events"] = [_derived_event(case, e, ctx) for e in t["events"]]
+        tasks.append({k: task[k] for k in ("seq", *cc.TASK_KEYS, "events", "end")})
+    sc = next(s for s in case.scenarios if s["id"] == sid)
+    planned = {ln.split()[0] + " " + ln.split()[1] for lines in fault_plans(sc).values() for ln in lines}
+    missing = sorted(planned - {ln.split()[0] + " " + ln.split()[1] for ln in fired.get(sid, [])})
+    if missing:
+        raise RuntimeError(f"{sid}: planned fault(s) {missing} never fired on the COBOL side")
+    log: dict[str, Any] = {
+        "format": cc.EXPECTED_FORMAT, "case": case.id, "scenario": sid,
+        "derived": {"from": "cobol-stub", "issue": "#4049",
+                    "note": "the COBOL program's own run on the stub runtime (tests/equivalence/cics/ggcics.c), "
+                    "written by cics_crucible.py --derive-expected; never edited by hand",
+                    "faults_fired": fired.get(sid, [])},
+        "tasks": tasks,
+    }  # fmt: skip
+    final = (actual.get("final") or {}).get("ts_queues")
+    if final:
+        log["final"] = {"ts_queues": {q: [_derived(i) for i in items] for q, items in final.items()}}
+    return log
+
+
+def derive_case(case: cc.Case, work: Path, root: Path = STRENGTHENED_DIR) -> list[str]:
+    """#4049: run the case's strengthened scenarios on the COBOL side and write their expected logs; their ids."""
+    ids = add_strengthened(case, root, expected=False)
+    if not ids:
+        return []
+    translated = translate_programs(case)
+    bad = {p: t for p, t in translated.items() if isinstance(t, Exception)}
+    if bad:
+        raise RuntimeError(f"{case.id}: the translator refuses {sorted(bad)}: no log can be derived")
+    actual = run_cobol(case, translated, ids, case_context(case), work / "cobol")
+    fired = {sid: _fired_faults(work / "cobol" / "runs" / sid) for sid in ids}
+    out = root / case.id / "expected"
+    out.mkdir(parents=True, exist_ok=True)
+    for sid in ids:
+        log = derive_expected(case, actual[sid], sid, fired, case_context(case))
+        (out / f"{sid}.json").write_text(json.dumps(log, indent=1, ensure_ascii=False) + "\n", encoding="utf-8")
+    return ids
+
+
+def _fired_faults(runs: Path) -> list[str]:
+    return [ln for f in sorted(runs.glob("*/out/faults.txt")) for ln in f.read_text(encoding="ascii").splitlines()]
 
 
 def lay_overlay(overlay: Path, project: Path) -> list[str]:
@@ -668,6 +859,11 @@ class EquivalenceRunTest {
                 if (step != null && step.has("text")) {
                     t.withTerminalInput(step.get("text").asText());
                 }
+                if (sc.path("fault_plans").has(transid)) {  // #4049: the conditions planned for this TRANSID's tasks
+                    List<String> faults = new ArrayList<>();
+                    sc.get("fault_plans").get(transid).forEach(f -> faults.add(f.asText()));
+                    t.withFaults(faults, null);
+                }
                 String thrown = null;
                 try {
                     t.run(program);
@@ -860,7 +1056,7 @@ def java_plan(case: cc.Case, src: Path) -> dict[str, Any]:
             cls = ec._generated_class(src, 'String MAP = "' + re.escape(m) + '";')
             screens[m] = f"{ej.PKG}.dto.screen.{cls}"
     # #4002: seeds as EBCDIC hex (SPEC 2: the region's page); #4006: `until` for the scheduler
-    scenarios = [{"id": sc["id"], "steps": sc["steps"], "until": sc.get("until"),
+    scenarios = [{"id": sc["id"], "steps": sc["steps"], "until": sc.get("until"), "fault_plans": fault_plans(sc),
                   "ts_queues": {q: [cc.expected_bytes(i).hex() for i in items]
                                 for q, items in ((sc.get("initial") or {}).get("ts_queues") or {}).items()}}
                  for sc in case.scenarios]  # fmt: skip
@@ -1488,7 +1684,9 @@ def run_scenario(case: cc.Case, sc: dict[str, Any], box: "Container", work: Path
     def run_one(frame: dict[str, Any], transid: str, commarea: Optional[bytes], step: Optional[dict[str, Any]],
                 data: list[bytes], requests: list[tuple[str, int]]) -> dict[str, Any]:  # fmt: skip
         rel = f"runs/{sc['id']}/{next(count):02d}"
-        return run_task(case, box, work, rel, ts, transid, frame, commarea, step, data, requests)
+        return run_task(
+            case, box, work, rel, ts, transid, frame, commarea, step, data, requests, task_faults(sc, transid)
+        )
 
     tasks, stopped = drive_scenario(case, sc, run_one)
     return {"tasks": tasks, "stopped": stopped, "final": {"ts_queues": read_ts(work / ts)}}
@@ -1496,7 +1694,8 @@ def run_scenario(case: cc.Case, sc: dict[str, Any], box: "Container", work: Path
 
 def run_task(case: cc.Case, box: "Container", work: Path, rel: str, ts: str, transid: str, frame: dict[str, Any],
              commarea: Optional[bytes], step: Optional[dict[str, Any]], data: Optional[list[bytes]] = None,
-             requests: Optional[list[tuple[str, int]]] = None) -> dict[str, Any]:  # fmt: skip
+             requests: Optional[list[tuple[str, int]]] = None,
+             faults: Optional[list[str]] = None) -> dict[str, Any]:  # fmt: skip
     """One task in one process: its inputs in `rel` (the COMMAREA, the terminal's input -- a step's text or
     map fields -- the EIB, the CSD's programs and transactions, #4006: the START data it RETRIEVEs and the
     unexpired requests a CANCEL searches, the virtual clock), then the stub's events as the task's."""
@@ -1521,6 +1720,8 @@ def run_task(case: cc.Case, box: "Container", work: Path, rel: str, ts: str, tra
     if commarea:
         (d / "commarea.in").write_bytes(commarea)
     step = step or {}
+    if faults:  # #4049: the conditions the scenario plans for this task's TRANSID
+        (d / "faults.cfg").write_text("".join(x + "\n" for x in faults), encoding="ascii")
     if step.get("text") is not None:  # SPEC 5: typed on a cleared screen, read from position 0
         (d / "terminal.in").write_bytes(step["text"].encode("latin-1"))
     screens = case_screens(case)
@@ -1736,7 +1937,7 @@ def _kind_java(v: cc.Verdict, actual: dict[str, Any]) -> cc.Verdict:
 
 
 def measure(crucible: Path, only: Optional[set[str]], sides: set[str], work: Path, offline: bool,
-            ports: Optional[PortOptions] = None) -> dict[str, Any]:  # fmt: skip
+            ports: Optional[PortOptions] = None, strengthened: bool = False) -> dict[str, Any]:  # fmt: skip
     cells: dict[str, dict[str, Any]] = {}
     coverage: dict[str, Any] = {}
     dirs = cc.discover(crucible, only)
@@ -1744,6 +1945,8 @@ def measure(crucible: Path, only: Optional[set[str]], sides: set[str], work: Pat
         raise SystemExit(f"no cases under {crucible}/cases" + (f" matching {sorted(only)}" if only else ""))
     for d in dirs:
         case = cc.load_case(d)
+        if strengthened:  # #4049
+            add_strengthened(case)
         print(f"{case.id} ...", flush=True)
         got = measure_case(case, sides, work / case.id, offline, ports, coverage)
         cells.update(got)
@@ -2173,6 +2376,10 @@ def main(argv: Optional[list[str]] = None) -> int:
     ap.add_argument("--program", help="java-ported: only the scenarios that run this program (a proof of its port)")
     ap.add_argument("--report-dir", type=Path, help="write a proof report.json here (port_runner prove's "
                     "{report_dir}); the exit status is then whether every java-ported cell passes")  # fmt: skip
+    ap.add_argument("--strengthened", action="store_true",
+                    help="#4049: add each case's strengthened scenarios (tests/cics_crucible/strengthened)")  # fmt: skip
+    ap.add_argument("--derive-expected", action="store_true", help="#4049: run the strengthened scenarios of the "
+                    "--cases on the COBOL side and write their expected logs (the COBOL decides them)")  # fmt: skip
     args = ap.parse_args(argv)
     crucible = crucible_path(args.crucible).resolve()
     if not (crucible / "SPEC.md").is_file():
@@ -2181,6 +2388,16 @@ def main(argv: Optional[list[str]] = None) -> int:
     problem = pin_mismatch(crucible)
     if problem:
         print(problem, file=sys.stderr)
+        return 2
+    if args.derive_expected:
+        work = (args.keep or Path(tempfile.mkdtemp(prefix="cics_crucible_derive_"))).resolve()
+        for d in cc.discover(crucible, set(args.cases) if args.cases else None):
+            case = cc.load_case(d)
+            ids = derive_case(case, work / case.id)
+            print(f"{case.id}: {len(ids)} expected log(s) derived from the COBOL: {', '.join(ids) or '-'}")
+        return 0
+    if args.strengthened and (args.ci or args.update_baseline):
+        print("--strengthened scenarios are held for review: not in the baseline or the --ci ratchet", file=sys.stderr)
         return 2
     ported = PortOptions(ports=args.ports.resolve() if args.ports else None,
                          overlays=[o.resolve() for o in args.overlay], program=args.program)  # fmt: skip
@@ -2197,7 +2414,7 @@ def main(argv: Optional[list[str]] = None) -> int:
         return 2
     work = args.keep or Path(tempfile.mkdtemp(prefix="cics_crucible_"))
     results = measure(crucible, set(args.cases) if args.cases else None, set(args.sides), work.resolve(), args.offline,
-                      ported)  # fmt: skip
+                      ported, args.strengthened)  # fmt: skip
     n = Counter(c["status"] for c in results["cells"].values())
     print(f"CICS crucible: {n['pass']} pass, {n['fail']} fail, {n['unsupported']} unsupported "
           f"({len(results['cells'])} cells)")  # fmt: skip
@@ -2207,6 +2424,8 @@ def main(argv: Optional[list[str]] = None) -> int:
         (args.out / "report.md").write_text(report_md(results), encoding="utf-8")
     if args.report_dir:
         case = cc.load_case(cc.discover(crucible, set(args.cases))[0])
+        if args.strengthened:
+            add_strengthened(case)
         proven = write_proof(args.report_dir, case, results, ported)
         print(f"proof: {'PROVEN' if proven else 'not proven'} ({args.report_dir / 'report.json'})")
         return 0 if proven else 1

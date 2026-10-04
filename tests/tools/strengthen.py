@@ -7,8 +7,8 @@ COBOL coverage (#4023) says which branches no run reaches. This loop asks a mode
 a CALL's arguments, a CICS scenario -- and never for an expected result: the expected result always comes from
 running the COBOL (the oracle), so the model cannot write a wrong expectation.
 
-    python tests/tools/strengthen.py run <case> --work DIR [--mutation MDIR] [--rounds 2] [--model M]
-                                     [--backend-command "..."] [--jobs 3] [--no-mutation]
+    python tests/tools/strengthen.py run <case> --work DIR [--mutation MDIR] [--case-gaps [RESULTS]] [--rounds 2]
+                                     [--model M] [--backend-command "..."] [--jobs 3] [--no-mutation]
     python tests/tools/strengthen.py report DIR
 
 Per round:
@@ -20,6 +20,12 @@ Per round:
      and the port is equal on it or not -- a port that differs on a new input is a port gap found, kept;
   4. the case with every useful proposal is proven together: coverage before and after.
 Then the surviving mutants are judged again against the strengthened case (mutation.py --only --case-file).
+
+`--case-gaps` (#4049, the mutation scores of #4047): only the survivors docs/language_status/mutation_scores.json
+triaged as case gaps are targets (an equivalent or unreachable mutant no input can kill), and a call or CICS case is
+driven by them as well as by its uncovered branches: every round shows the remaining survivors, a proposal aimed at
+one is kept when the port is equal on it, the survivors are judged again after the round, and at the end a proposal
+that reached no new branch and killed no mutant is dropped.
 
 Nothing is committed: DIR/candidate_case.json is the strengthened case for a person to review (and copy over
 tests/equivalence/<case>/case.json), DIR/strengthen.md the report. A gap no proposal reaches is reported as such:
@@ -76,11 +82,23 @@ def source_lines(case: dict[str, Any], corpus: Path) -> list[str]:
     return text.splitlines()
 
 
-def survivors(mutation_dir: Path | None) -> list[dict[str, Any]]:
+def survivors(mutation_dir: Path | None, only: set[str] | None = None) -> list[dict[str, Any]]:
+    """The surviving mutants of a mutation run, or only those whose id is in `only`."""
     if mutation_dir is None or not (mutation_dir / "mutation.json").is_file():
         return []
     data = json.loads((mutation_dir / "mutation.json").read_text(encoding="utf-8"))
-    return [r for r in data["results"] if r["verdict"] == "survived"]
+    return [r for r in data["results"] if r["verdict"] == "survived" and (only is None or r["id"] in only)]
+
+
+SCORES = REPO_ROOT / "docs" / "language_status" / "mutation_scores.json"
+
+
+def case_gaps(results: Path, case_name: str, program: str | None = None) -> set[str]:
+    """The ids of the survivors the committed mutation scores (#4047) triaged as case gaps: inputs the case lacks.
+    `case_name` is an equivalence case, or `crucible:<case>` with the crucible port's `program`."""
+    data = json.loads(results.read_text(encoding="utf-8"))
+    return {s["id"] for p in data["ports"] if p["case"] == case_name and (program is None or p["program"] == program)
+            for s in p.get("survivors") or [] if s.get("verdict") == "case_gap"}  # fmt: skip
 
 
 # ---- the prompt ----------------------------------------------------------------------------------------------
@@ -94,7 +112,11 @@ INPUT_FORMAT = {
         'Each input is one CICS task (a scenario): {"name": "kebab-case-name", "aid": "DFHENTER" or another '
         'DFH AID, "commarea": {COBOL field name: value} or null (no COMMAREA), "receive": {map name: {input '
         'field name: typed text}} (optional), "targets": ["UNIT:LINE:OUTCOME", ...], "why": "one sentence"}. '
-        "Use only COMMAREA and screen field names the existing scenarios use."
+        "Use only COMMAREA fields of the case's COMMAREA layout and screen field names the existing scenarios "
+        'use. A scenario may also plan CICS conditions: "faults": [{"cmd": COMMAND, "file" or "program" or "queue": '
+        'NAME, "nth": 1, "resp": CONDITION}] (see the notes on the test environment), and add records to the '
+        'files every scenario reads: "records": [{"dataset": DSN, "based_on": the number of an existing record '
+        'to copy, "set": {FIELD: value}}] -- a record keyed like no other, of a dataset with a layout.'
     ),
 }
 
@@ -127,8 +149,11 @@ def prompt(case: dict[str, Any], src: list[str], gaps: list[dict[str, Any]], hin
         "```",
     ]
     if hints:
-        parts += ["", "## Hints: small changes to the Java port that no current input notices",
-                  *[f"- {h['file']}:{h['line']}: `{h['before']}` -> `{h['after']}`" for h in hints[:40]]]  # fmt: skip
+        parts += ["", "## Mistakes no current input exposes: small changes to the Java port that every run still "
+                  "passes. An input on which the original and the changed code behave differently kills one; name "
+                  "the ids you aim at in `targets`.",
+                  *[f"- {'`' + h['id'] + '` ' if h.get('id') else ''}{h['file']}:{h['line']}: `{h['before']}` -> `{h['after']}`"
+                    for h in hints[:40]]]  # fmt: skip
     if oracle_notes:
         parts += ["", "## What the test environment can and cannot run", oracle_notes]
     if feedback:
@@ -137,7 +162,7 @@ def prompt(case: dict[str, Any], src: list[str], gaps: list[dict[str, Any]], hin
         "",
         "## Answer",
         fmt,
-        "Propose at most 8 inputs, each aimed at one or more of the branches above. If you conclude that a branch "
+        "Propose at most 8 inputs, each aimed at one or more of the branches or mistakes above. If you conclude that a branch "
         "cannot be reached through this program (for example because the program always passes a fixed length), "
         'say so instead of proposing an input for it: {"name": "unreachable", "targets": [...], "why": '
         '"..."}. Answer with one JSON array in a ```json block and nothing else.',
@@ -182,8 +207,9 @@ def parse(response: str) -> list[dict[str, Any]]:
     return [d for d in data if isinstance(d, dict)] if isinstance(data, list) else []
 
 
-def validate(case: dict[str, Any], p: dict[str, Any], taken: set[str]) -> str | None:
-    """Why a proposal is malformed, or None."""
+def validate(case: dict[str, Any], p: dict[str, Any], taken: set[str], ca_names: set[str] | None = None) -> str | None:
+    """Why a proposal is malformed, or None. `ca_names`: the COMMAREA layout's field names (a CICS case), else the
+    fields the existing scenarios use."""
     name = str(p.get("name", ""))
     if not re.fullmatch(r"[a-z0-9][a-z0-9-]{0,40}", name) or name in taken:
         return f"name {name!r} is not a new kebab-case name"
@@ -196,12 +222,17 @@ def validate(case: dict[str, Any], p: dict[str, Any], taken: set[str]) -> str | 
             if not isinstance(a, str) or len(a) > u["size"]:
                 return f"{u['name']}: {a!r} is not a string of at most {u['size']}"
     if case["kind"] == "cics":
-        known_ca = {k for sc in case["scenarios"] for k in (sc.get("commarea") or {})}
+        known_ca = ca_names or {k for sc in case["scenarios"] for k in (sc.get("commarea") or {})}
         ca = p.get("commarea")
         if ca is not None and (not isinstance(ca, dict) or set(ca) - known_ca):
-            return f"commarea fields not in the existing scenarios: {sorted(set(ca or {}) - known_ca)}"
+            where = "the COMMAREA layout" if ca_names else "the existing scenarios"
+            return f"commarea fields not in {where}: {sorted(set(ca or {}) - known_ca)}"
         if not isinstance(p.get("aid", "DFHENTER"), str) or not str(p.get("aid", "DFHENTER")).startswith("DFH"):
             return "aid must be a DFH AID name"
+        try:
+            eq_cics().fault_lines({"name": name, "faults": p.get("faults")})
+        except eq_cics().Unsupported as e:
+            return str(e)
     return None
 
 
@@ -210,6 +241,78 @@ def as_entry(case: dict[str, Any], p: dict[str, Any]) -> dict[str, Any]:
     e = {k: p[k] for k in keep if k in p}
     e["why"] = f"#4049 (proposed for {', '.join(p.get('targets') or []) or 'a gap'}): {p.get('why', '')}".strip()
     return e
+
+
+def eq_cics() -> Any:
+    import equivalence_cics as ec
+
+    return ec
+
+
+def commarea_names(case: dict[str, Any], corpus: Path) -> set[str] | None:
+    if case.get("kind") != "cics" or not case.get("commarea"):
+        return None
+    return {f["name"] for f in eq_cics().commarea_fields(corpus, case)}
+
+
+def cics_inputs(case: dict[str, Any], corpus: Path) -> dict[str, dict[str, Any]]:
+    """#4049: the CICS case's files with a layout (a dataset's `copybook` and `record`): fields, record length and
+    records, so a proposal can add a record the way a batch one does."""
+    import equivalence_common as common
+
+    out = {}
+    for dd, spec in (case.get("datasets") or {}).items():
+        if not spec.get("copybook") or not spec.get("input"):
+            continue
+        src = corpus / spec["copybook"]
+        dirs = [src.parent, *(corpus / d for d in case.get("copy_dirs", [])), corpus]
+        fields = common.layout_fields(corpus, spec["copybook"], spec.get("record"), dirs)
+        reclen = max(f["offset"] + f["bytes"] for f in fields)
+        data = eq_cics().case_file_records(case, corpus, spec, reclen, common.data_encoding(case))
+        recs = [data[i : i + reclen] for i in range(0, len(data), reclen)]
+        out[dd] = {"fields": fields, "records": recs, "spec": {**spec, "reclen": reclen}}
+    return out
+
+
+def cics_with_records(case: dict[str, Any], inputs: dict[str, Any], added: dict[str, list[bytes]],
+                      work: Path) -> dict[str, Any]:  # fmt: skip
+    """#4049: the CICS case with `added` records after each file's own: the dataset's `append` file (a text file
+    under `work`) holds them, after any the case already appends."""
+    import equivalence_common as common
+
+    out = copy.deepcopy(case)
+    enc = common.data_encoding(case)
+    for dd, new in added.items():
+        if not new:
+            continue
+        spec = case["datasets"][dd]
+        reclen = inputs[dd]["spec"]["reclen"]
+        had = common._fixed(common._input_path(case, Path("/"), spec["append"]), reclen, enc) if spec.get("append") else b""
+        old = [had[i : i + reclen] for i in range(0, len(had), reclen)]
+        lines = [r.decode(enc).rstrip(" ") for r in old + new]
+        path = work / "inputs" / Path(spec["input"]).name
+        path.parent.mkdir(parents=True, exist_ok=True)
+        path.write_bytes(("\n".join(lines) + "\n").encode(enc))
+        out["datasets"][dd]["append"] = str(path)
+    return out
+
+
+def proposal_records(case: dict[str, Any], inputs: dict[str, Any], p: dict[str, Any]
+                     ) -> tuple[dict[str, list[bytes]], str | None]:  # fmt: skip
+    """#4049: a CICS proposal's new records by dataset, or why one cannot be built (its key is taken: a keyed
+    file holds a key once, and the first field of each layout is the file's key here)."""
+    out: dict[str, list[bytes]] = {}
+    for r in p.get("records") or []:
+        rec, bad = build_record(case, inputs, r)
+        if bad:
+            return {}, bad
+        assert rec is not None
+        f0 = inputs[r["dataset"]]["fields"][0]
+        key = rec[f0["offset"] : f0["offset"] + f0["bytes"]]
+        if any(x[f0["offset"] : f0["offset"] + f0["bytes"]] == key for x in inputs[r["dataset"]]["records"]):
+            return {}, f"{r['dataset']}: a record with {f0['name']} {key!r} is already there"
+        out.setdefault(r["dataset"], []).append(rec)
+    return out, None
 
 
 # ---- proving -------------------------------------------------------------------------------------------------
@@ -241,14 +344,15 @@ def failing_entries(case: dict[str, Any], report: dict[str, Any]) -> list[str]:
 
 # ---- the loop ------------------------------------------------------------------------------------------------
 def run(case_name: str, work: Path, rounds: int, model: str, command: str | None, mutation_dir: Path | None,
-        jobs: int, judge: bool) -> dict[str, Any]:  # fmt: skip
+        jobs: int, judge: bool, gap_ids: set[str] | None = None) -> dict[str, Any]:  # fmt: skip
+    """`gap_ids` (--case-gaps): the survivors to aim at, and drive the rounds with (see the module docstring)."""
     import mainframe_corpus as mc
 
     work.mkdir(parents=True, exist_ok=True)
     started = time.time()
     case = eq.load_case(case_name)
     if case.get("kind", "batch") == "batch":
-        return run_batch(case_name, work, rounds, model, command, mutation_dir, jobs)
+        return run_batch(case_name, work, rounds, model, command, mutation_dir, jobs, gap_ids)
     (corpus_entry,) = mc.select([case["corpus"]])
     corpus = mc.require_clone(corpus_entry)
     src = source_lines(case, corpus)
@@ -257,7 +361,28 @@ def run(case_name: str, work: Path, rounds: int, model: str, command: str | None
     if not base.get("proven"):
         raise SystemExit(f"{case_name}: the committed case is not proven; nothing to strengthen")
     gaps_before = uncovered(base)
-    hints = survivors(mutation_dir)
+    hints = survivors(mutation_dir, gap_ids)
+    driven = gap_ids is not None and mutation_dir is not None  # the survivors drive the rounds too
+    targets = list(hints) if driven else []
+    killed_ids: list[str] = []
+    killers: set[str] = set()  # the accepted inputs some re-judged mutant was killed by
+    ca_names = commarea_names(case, corpus)
+    inputs = cics_inputs(case, corpus) if case["kind"] == "cics" else {}
+    added: dict[str, list[bytes]] = {}  # the accepted proposals' new records, by dataset
+    brought: dict[str, dict[str, list[bytes]]] = {}  # each accepted proposal's own new records
+
+    def with_entries(ents: list[dict[str, Any]], tag: str) -> dict[str, Any]:
+        """The committed case plus `ents`, and the records those entries brought."""
+        out = copy.deepcopy(case)
+        recs: dict[str, list[bytes]] = {}
+        for e in ents:
+            for dd, rs in brought.get(e["name"], {}).items():
+                recs.setdefault(dd, []).extend(rs)
+        if recs:
+            out = cics_with_records(out, inputs, recs, work / tag)
+        out[KINDS[case["kind"]]] = [*entries(case), *ents]
+        return out
+
     current = copy.deepcopy(case)
     accepted: list[dict[str, Any]] = []
     port_equal: list[str] = []  # the accepted inputs the port is equal on: the mutants are judged on these
@@ -265,16 +390,20 @@ def run(case_name: str, work: Path, rounds: int, model: str, command: str | None
     feedback: list[str] = []
     gaps = list(gaps_before)
     for rnd in range(1, rounds + 1):
-        if not gaps:
+        if not gaps and not targets:
             break
         rw = work / f"round{rnd}"
-        text = prompt(current, src, gaps, hints if rnd == 1 else [], feedback, oracle_notes(case))
-        print(f"round {rnd}: {len(gaps)} uncovered branches; asking {model}", flush=True)
+        text = prompt(
+            current, src, gaps, targets if driven else hints if rnd == 1 else [], feedback, oracle_notes(case)
+        )
+        print(f"round {rnd}: {len(gaps)} uncovered branches, {len(targets)} survivors; asking {model}", flush=True)
         response, secs = ask(text, rw, model, command)
         proposals = parse(response)
         taken = {e["name"] for e in entries(current)}
         feedback = []
         gap_keys = {branch_key(b) for b in gaps}
+        target_ids = {t["id"] for t in targets}
+        round_aimed: list[str] = []
         for p in proposals:
             item: dict[str, Any] = {"round": rnd, "name": p.get("name"), "targets": p.get("targets") or [],
                                     "why": p.get("why", "")}  # fmt: skip
@@ -282,18 +411,26 @@ def run(case_name: str, work: Path, rounds: int, model: str, command: str | None
                 item["verdict"] = "declared unreachable"
                 log.append(item)
                 continue
-            bad = validate(current, p, taken)
+            bad = validate(current, p, taken, ca_names)
             if bad:
                 item["verdict"], item["detail"] = "malformed", bad
                 log.append(item)
                 feedback.append(f"- `{p.get('name')}`: malformed -- {bad}")
                 continue
             entry = as_entry(current, p)
-            alone = copy.deepcopy(current)
+            recs, bad = proposal_records(case, inputs, p) if p.get("records") else ({}, None)
+            if bad:
+                item["verdict"], item["detail"] = "malformed", bad
+                log.append(item)
+                feedback.append(f"- `{p.get('name')}`: malformed -- {bad}")
+                continue
+            trial = {dd: [*added.get(dd, []), *recs.get(dd, [])] for dd in {*added, *recs}}
+            base_case = cics_with_records(current, inputs, trial, rw / entry["name"]) if trial else current
+            alone = copy.deepcopy(base_case)
             alone[KINDS[current["kind"]]] = [entry]
             print(f"  {entry['name']}: proving it alone", flush=True)
             r = prove(case_name, alone, rw / entry["name"])
-            if "refused" in r:
+            if r.get("refused"):  # a report carries `refused: {}` when nothing was refused
                 item["verdict"], item["detail"] = "refused by the oracle", r["refused"]
                 feedback.append(f"- `{entry['name']}`: the COBOL side refused it: {r['refused']}")
             else:
@@ -302,13 +439,19 @@ def run(case_name: str, work: Path, rounds: int, model: str, command: str | None
                 item["port_equal"] = bool(r.get("proven"))
                 if not r.get("proven"):
                     item["port_differs_on"] = failing_entries(alone, r)
-                if covered or not r.get("proven"):
+                aimed = bool(target_ids & {str(t) for t in item["targets"]}) and bool(r.get("proven"))
+                if covered or not r.get("proven") or aimed:
                     item["verdict"] = "accepted"
+                    if aimed:
+                        round_aimed.append(entry["name"])
                     accepted.append(entry)
                     if r.get("proven"):
                         port_equal.append(entry["name"])
                     taken.add(entry["name"])
-                    current[KINDS[current["kind"]]] = [*entries(current), entry]
+                    if recs:
+                        added = trial
+                        brought[entry["name"]] = recs
+                    current = with_entries(accepted, "current-data")
                     gap_keys -= set(covered)
                     feedback.append(f"- `{entry['name']}`: accepted, reaches {covered or 'no new branch'}")
                 else:
@@ -317,6 +460,32 @@ def run(case_name: str, work: Path, rounds: int, model: str, command: str | None
             log.append(item)
         log.append({"round": rnd, "model_seconds": round(secs), "proposals": len(proposals)})
         gaps = [b for b in gaps if branch_key(b) in gap_keys]
+        if driven and round_aimed and targets:
+            jc = with_entries([e for e in accepted if e["name"] in port_equal], f"round{rnd}-judge-data")
+            cf = work / f"round{rnd}-judge.case.json"
+            cf.write_text(json.dumps({k: v for k, v in jc.items() if k != "name"}, indent=2) + "\n", encoding="utf-8")
+            judged_now = rejudge(case_name, work / f"round{rnd}-judge", cf, targets, mutation_dir, jobs)
+            if judged_now:
+                killed = set(judged_now["killed_ids"])
+                killed_ids += sorted(killed)
+                for k in judged_now.get("killed_by") or []:  # a call case's runs are `call N`: its Nth call
+                    n = re.fullmatch(r"call (\d+)", k)
+                    killers.add(jc["calls"][int(n.group(1)) - 1]["name"] if n and case["kind"] == "call" else k)
+                targets = [t for t in targets if t["id"] not in killed]
+                feedback.append(f"- after this round, {len(killed)} of the mutants were killed; {len(targets)} survive")
+    if driven:
+        # An input that reached no new branch and killed nothing adds runs to the proof for nothing: dropped (a
+        # mutant the Java side crashed on, killed_by `java`, names no input: every input is kept then).
+        keep_all = "java" in killers
+        useful = {e["name"] for e in accepted if keep_all or e["name"] in killers or e["name"] not in port_equal}
+        useful |= {i["name"] for i in log if i.get("covers")}
+        dropped = [e["name"] for e in accepted if e["name"] not in useful]
+        for i in log:
+            if i.get("name") in dropped:
+                i["verdict"], i["detail"] = "dropped", "reached no new branch and killed no surviving mutant"
+        accepted = [e for e in accepted if e["name"] in useful]
+        port_equal = [n for n in port_equal if n in useful]
+        current = with_entries(accepted, "current-data")
     print(f"{case_name}: proving the strengthened case ({len(accepted)} new inputs)", flush=True)
     after = prove(case_name, current, work / "strengthened") if accepted else base
     (work / "candidate_case.json").write_text(
@@ -324,22 +493,30 @@ def run(case_name: str, work: Path, rounds: int, model: str, command: str | None
     )
     # The mutants are judged against the case plus the new inputs the port is equal on: a mutation proof needs a
     # proven baseline, and an input the port differs on is a port gap to fix first, not a test to score with.
-    judge_case = copy.deepcopy(case)
-    judge_case[KINDS[case["kind"]]] = [*entries(case), *[e for e in accepted if e["name"] in port_equal]]
+    judge_case = with_entries([e for e in accepted if e["name"] in port_equal], "judge-data")
     (work / "judge_case.json").write_text(
         json.dumps({k: v for k, v in judge_case.items() if k != "name"}, indent=2) + "\n", encoding="utf-8"
     )
-    judged = judge_survivors(case_name, work, mutation_dir, jobs) if judge and port_equal and hints else None
+    if driven:
+        judged = {"judged": len(hints), "killed": len(killed_ids), "still_surviving": len(hints) - len(killed_ids),
+                  "killed_ids": killed_ids} if killed_ids or round_count(log) else None  # fmt: skip
+    else:
+        judged = judge_survivors(case_name, work, mutation_dir, jobs) if judge and port_equal and hints else None
     result = {"case": case_name, "program": case["program"], "model": model, "seconds": round(time.time() - started),
               "coverage_before": (base.get("coverage") or {}).get("branches", {}),
               "coverage_after": (after.get("coverage") or {}).get("branches", {}),
               "proven_after": bool(after.get("proven")), "differs_on": failing_entries(current, after)
               if not after.get("proven") else [], "accepted": [e["name"] for e in accepted],
               "proposals": log, "unreached": [branch_key(b) for b in uncovered(after)],
-              "survivors_before": len(hints), "mutants": judged, "port_equal": port_equal}  # fmt: skip
+              "survivors_before": len(hints), "mutants": judged, "port_equal": port_equal,
+              "still_surviving": [t["id"] for t in targets] if driven else None}  # fmt: skip
     (work / "strengthen.json").write_text(json.dumps(result, indent=2) + "\n", encoding="utf-8")
     (work / "strengthen.md").write_text(report_md(result), encoding="utf-8")
     return result
+
+
+def round_count(log: list[dict[str, Any]]) -> int:
+    return sum(1 for i in log if "model_seconds" in i)
 
 
 def judge_survivors(case_name: str, work: Path, mutation_dir: Path, jobs: int) -> dict[str, Any] | None:
@@ -404,6 +581,9 @@ def main(argv: list[str] | None = None) -> int:
     r.add_argument("--mutation", type=Path, help="a mutation.py run directory of this case: its survivors")
     r.add_argument("--jobs", type=int, default=3)
     r.add_argument("--no-mutation", action="store_true", help="do not re-judge the survivors")
+    r.add_argument("--case-gaps", type=Path, nargs="?", const=SCORES, metavar="RESULTS",
+                   help="aim only at the survivors a mutation results file triaged as case gaps, and let them drive "
+                   f"the rounds (default file: {SCORES.relative_to(REPO_ROOT)})")  # fmt: skip
     rp = sub.add_parser("report")
     rp.add_argument("work", type=Path)
     args = ap.parse_args(argv)
@@ -412,8 +592,9 @@ def main(argv: list[str] | None = None) -> int:
         print(report_md(data))
         return 0
     os.environ.setdefault("PYTHONUNBUFFERED", "1")
+    gap_ids = case_gaps(args.case_gaps, args.case) if args.case_gaps else None
     result = run(args.case, args.work, args.rounds, args.model, args.backend_command, args.mutation, args.jobs,
-                 not args.no_mutation)  # fmt: skip
+                 not args.no_mutation, gap_ids)  # fmt: skip
     print(report_md(result))
     return 0
 
@@ -576,7 +757,7 @@ def batch_prompt(case: dict[str, Any], src: list[str], inputs: dict[str, Any], t
 
 
 def run_batch(case_name: str, work: Path, rounds: int, model: str, command: str | None, mutation_dir: Path | None,
-              jobs: int) -> dict[str, Any]:  # fmt: skip
+              jobs: int, gap_ids: set[str] | None = None) -> dict[str, Any]:  # fmt: skip
     """The loop for a batch case: driven by the surviving mutants (a batch proof's branches are mostly covered;
     its survivors are boundaries), judged again after each round."""
     import mainframe_corpus as mc
@@ -593,7 +774,7 @@ def run_batch(case_name: str, work: Path, rounds: int, model: str, command: str 
     base = prove(case_name, case, work / "baseline")
     if not base.get("proven"):
         raise SystemExit(f"{case_name}: the committed case is not proven; nothing to strengthen")
-    targets = survivors(mutation_dir)
+    targets = survivors(mutation_dir, gap_ids)
     survivors_before = len(targets)
     added: dict[str, list[bytes]] = {}
     accepted: list[dict[str, Any]] = []
@@ -626,7 +807,7 @@ def run_batch(case_name: str, work: Path, rounds: int, model: str, command: str 
             r = prove(case_name, with_records(case, corpus, trial, rw / str(p.get("name"))), rw / str(p.get("name")),
                       extra=("--faults", "none"))  # fmt: skip
             ends = (r.get("abend") or {}).get("cobol")
-            if "refused" in r:
+            if r.get("refused"):  # a report carries `refused: {}` when nothing was refused
                 item["verdict"], item["detail"] = "refused by the COBOL side", r["refused"]
                 feedback.append(f"- `{p.get('name')}`: the COBOL side failed on it: {r['refused'][:200]}")
             elif ends and ends != (base.get("abend") or {}).get("cobol"):
@@ -700,7 +881,9 @@ def rejudge(case_name: str, work: Path, case_file: Path, targets: list[dict[str,
     if not out.is_file():
         return None
     res = json.loads(out.read_text(encoding="utf-8"))["results"]
-    return {"killed_ids": [r["id"] for r in res if r["verdict"] in ("killed", "timeout")]}
+    killed = [r for r in res if r["verdict"] in ("killed", "timeout")]
+    return {"killed_ids": [r["id"] for r in killed],
+            "killed_by": sorted({k for r in killed for k in r.get("killed_by") or ["java"]})}  # fmt: skip
 
 
 if __name__ == "__main__":

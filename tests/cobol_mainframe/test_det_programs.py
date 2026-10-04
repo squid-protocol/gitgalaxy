@@ -30,7 +30,102 @@ def program(name: str, data: list[str], proc: list[str]) -> str:
     return "\n".join(lines) + "\n"
 
 
+def fprogram(
+    name: str, special: list[str], selects: list[str], files: list[str], data: list[str], proc: list[str]
+) -> str:
+    """A program with files: SPECIAL-NAMES, FILE-CONTROL, FILE SECTION, WORKING-STORAGE and a PROCEDURE DIVISION
+    of paragraphs (each line from column 8: a paragraph name, or a statement indented four more)."""
+    lines = ["IDENTIFICATION DIVISION.", f"PROGRAM-ID. {name}.", "ENVIRONMENT DIVISION."]
+    if special:
+        lines += ["CONFIGURATION SECTION.", "SPECIAL-NAMES.", *[f"    {x}" for x in special]]
+    lines += ["INPUT-OUTPUT SECTION.", "FILE-CONTROL.", *[f"    {x}" for x in selects], "DATA DIVISION.",
+              "FILE SECTION.", *files, "WORKING-STORAGE SECTION.", *data, "PROCEDURE DIVISION.", *proc]  # fmt: skip
+    return "\n".join(f"       {x}" for x in lines) + "\n"
+
+
+# SORT / MERGE (IBM Enterprise COBOL 6.4 Language Reference, SORT / MERGE / RELEASE / RETURN statements): an SD
+# record with a zoned, a packed and an alphanumeric key; eight records, three with equal major and minor keys
+SORT_SD = ["SD  SORT-FILE.", "01  SORT-REC.", "    05 SR-NAME  PIC X(6).", "    05 SR-DEPT  PIC 9(2).",
+           "    05 SR-AMT   PIC S9(5) COMP-3.", "    05 SR-SEQ   PIC 9(2)."]  # fmt: skip
+SORT_DATA = [
+    "01  WS-DATA.",
+    *[f"    05 FILLER PIC X(14) VALUE '{v}'." for v in ("DELTA 10-00050", "alpha 20+00300", "Bravo 10+00050",
+      "ECHO  10+00700", "9LIVES20+00300", "ZULU  05-01000", "ALPHA 10-00050", "KILO  20+00300")],
+    "01  WS-TABLE REDEFINES WS-DATA.",
+    "    05 ENT OCCURS 8 TIMES.",
+    "       10 E-NAME PIC X(6).",
+    "       10 E-DEPT PIC 9(2).",
+    "       10 E-AMT  PIC S9(5) SIGN LEADING SEPARATE.",
+    "01  I       PIC 9(2) VALUE 0.",
+    "01  EOF     PIC X VALUE 'N'.",
+    "01  AMT-ED  PIC -ZZZZ9.",
+    "01  WS-OUT  PIC X(8).",
+    "01  RC-OUT  PIC 9(4).",
+]  # fmt: skip
+SORT_LOAD = [
+    "LOAD-RECS.",
+    "    PERFORM VARYING I FROM 1 BY 1 UNTIL I > 8",
+    "        MOVE E-NAME(I) TO SR-NAME",
+    "        MOVE E-DEPT(I) TO SR-DEPT",
+    "        MOVE E-AMT(I) TO SR-AMT",
+    "        MOVE I TO SR-SEQ",
+    "        RELEASE SORT-REC",
+    "    END-PERFORM.",
+    "SHOW-RECS.",
+    "    PERFORM UNTIL EOF = 'Y'",
+    "        RETURN SORT-FILE",
+    "            AT END MOVE 'Y' TO EOF",
+    "            NOT AT END",
+    "                MOVE SR-AMT TO AMT-ED",
+    "                DISPLAY SR-DEPT ' ' AMT-ED ' ' SR-NAME ' ' SR-SEQ",
+    "        END-RETURN",
+    "    END-PERFORM.",
+    "SHOW-INTO.",
+    "    PERFORM UNTIL EOF = 'Y'",
+    "        RETURN SORT-FILE INTO WS-OUT",
+    "            AT END MOVE 'Y' TO EOF",
+    "        END-RETURN",
+    "        IF EOF = 'N'",
+    "            DISPLAY '[' WS-OUT ']'",
+    "        END-IF",
+    "    END-PERFORM.",
+    "SHOW-INTO-X.",
+    "    EXIT.",
+]  # fmt: skip
+
 PROGRAMS = {
+    # SORT with INPUT / OUTPUT PROCEDUREs: an ascending zoned major key and a descending packed minor key WITH
+    # DUPLICATES IN ORDER (three records tie: they come back in RELEASE order), RETURN with and without INTO, a
+    # THRU range, a descending and an ascending alphanumeric key (unique: no DUPLICATES needed), COLLATING
+    # SEQUENCE STANDARD-1, SORT-RETURN
+    "SORTIP": fprogram(
+        "SORTIP",
+        ["ALPHABET ASCII-SEQ IS STANDARD-1."],
+        ["SELECT SORT-FILE ASSIGN TO SORTWK1."],
+        SORT_SD,
+        SORT_DATA,
+        [
+            "MAIN-PARA.",
+            "    SORT SORT-FILE ON ASCENDING KEY SR-DEPT",
+            "         DESCENDING KEY SR-AMT",
+            "         WITH DUPLICATES IN ORDER",
+            "         INPUT PROCEDURE IS LOAD-RECS",
+            "         OUTPUT PROCEDURE IS SHOW-RECS",
+            "    MOVE SORT-RETURN TO RC-OUT",
+            "    DISPLAY 'SORT-RETURN ' RC-OUT",
+            "    MOVE 'N' TO EOF",
+            "    SORT SORT-FILE DESCENDING SR-NAME",
+            "         INPUT PROCEDURE LOAD-RECS",
+            "         OUTPUT PROCEDURE SHOW-INTO THRU SHOW-INTO-X",
+            "    MOVE 'N' TO EOF",
+            "    SORT SORT-FILE ON ASCENDING KEY SR-NAME",
+            "         COLLATING SEQUENCE IS ASCII-SEQ",
+            "         INPUT PROCEDURE LOAD-RECS",
+            "         OUTPUT PROCEDURE SHOW-INTO THRU SHOW-INTO-X",
+            "    GOBACK.",
+            *SORT_LOAD,
+        ],
+    ),
     # FUNCTION TRIM: spaces only, an all-space argument zero-length (COACTUPC's alphabetic-field check)
     "TRIMS": program(
         "TRIMS",
@@ -307,6 +402,115 @@ PROGRAMS = {
 }
 
 
+def _put(rec: str, k1: str, k2: int, b: int, tag: str) -> list[str]:
+    """One record written from W-REC: SORTUG's layout (K1 X(3), K2 S9(3), B S9(4) COMP, TAG X(4))."""
+    return [f"    MOVE '{k1}' TO W-K1", f"    MOVE {k2} TO W-K2", f"    MOVE {b} TO W-B", f"    MOVE '{tag}' TO W-TAG",
+            f"    WRITE {rec} FROM W-REC"]  # fmt: skip
+
+
+def _show(f: str) -> list[str]:
+    return [f"SHOW-{f}.", f"    OPEN INPUT {f}-FILE", "    MOVE 'N' TO EOF", "    PERFORM UNTIL EOF = 'Y'",
+            f"        READ {f}-FILE INTO W-REC", "            AT END MOVE 'Y' TO EOF",
+            "            NOT AT END PERFORM SHOW-W", "        END-READ", "    END-PERFORM", f"    CLOSE {f}-FILE."]  # fmt: skip
+
+
+# files a test program's DDs name: each ASSIGN TO name is a dataset of that name (GnuCOBOL: a file in the working
+# directory; the port: DatasetResolver's directory)
+FILE_PROGRAMS = {
+    # SORT USING / GIVING: a multi-key sort (ascending alphanumeric, descending signed zoned, ascending signed
+    # binary), a second sort on the binary key alone WITH DUPLICATES, the GIVING file's FILE STATUS; MERGE of two
+    # ordered files USING / GIVING and USING / OUTPUT PROCEDURE, equal keys across the files in USING order
+    "SORTUG": fprogram(
+        "SORTUG",
+        [],
+        [
+            "SELECT IN-FILE ASSIGN TO INFILE.",
+            "SELECT OUT-FILE ASSIGN TO OUTFILE FILE STATUS IS OUT-ST.",
+            "SELECT M1-FILE ASSIGN TO M1FILE.",
+            "SELECT M2-FILE ASSIGN TO M2FILE.",
+            "SELECT MG-FILE ASSIGN TO MGFILE.",
+            "SELECT SORT-FILE ASSIGN TO SORTWK1.",
+        ],
+        [
+            *[x for f in ("IN", "OUT", "M1", "M2", "MG") for x in (f"FD  {f}-FILE.", f"01  {f}-REC PIC X(12).")],
+            "SD  SORT-FILE.",
+            "01  SR.",
+            "    05 SR-K1  PIC X(3).",
+            "    05 SR-K2  PIC S9(3).",
+            "    05 SR-B   PIC S9(4) COMP.",
+            "    05 SR-TAG PIC X(4).",
+        ],
+        [
+            "01  W-REC.",
+            "    05 W-K1  PIC X(3).",
+            "    05 W-K2  PIC S9(3).",
+            "    05 W-B   PIC S9(4) COMP.",
+            "    05 W-TAG PIC X(4).",
+            "01  EOF     PIC X VALUE 'N'.",
+            "01  K2-ED   PIC -ZZ9.",
+            "01  B-ED    PIC -ZZZ9.",
+            "01  RC-OUT  PIC 9(4).",
+            "01  OUT-ST  PIC X(2) VALUE SPACES.",
+        ],
+        [
+            "MAIN-PARA.",
+            "    OPEN OUTPUT IN-FILE",
+            *_put("IN-REC", "BBB", 5, -7, "T01"),
+            *_put("IN-REC", "AAA", 5, 300, "T02"),
+            *_put("IN-REC", "BBB", -12, 40, "T03"),
+            *_put("IN-REC", "B1B", 0, -7, "T04"),
+            *_put("IN-REC", "AAA", 17, -2, "T05"),
+            *_put("IN-REC", "BBB", 5, -9, "T06"),
+            *_put("IN-REC", "aaa", 5, 300, "T07"),
+            *_put("IN-REC", "AAA", 17, 300, "T08"),
+            "    CLOSE IN-FILE",
+            "    SORT SORT-FILE ON ASCENDING KEY SR-K1 DESCENDING KEY SR-K2",
+            "         ASCENDING KEY SR-B",
+            "         USING IN-FILE GIVING OUT-FILE",
+            "    MOVE SORT-RETURN TO RC-OUT",
+            "    DISPLAY 'SORT-RETURN ' RC-OUT ' OUT-ST ' OUT-ST",
+            "    PERFORM SHOW-OUT",
+            "    SORT SORT-FILE ON DESCENDING KEY SR-B WITH DUPLICATES",
+            "         USING IN-FILE GIVING OUT-FILE",
+            "    DISPLAY '--'",
+            "    PERFORM SHOW-OUT",
+            "    OPEN OUTPUT M1-FILE M2-FILE",
+            *_put("M1-REC", "AAA", 1, 1, "M11"),
+            *_put("M1-REC", "CCC", 2, 2, "M12"),
+            *_put("M1-REC", "CCC", 3, 3, "M13"),
+            *_put("M1-REC", "EEE", 4, 4, "M14"),
+            *_put("M2-REC", "BBB", 5, 5, "M21"),
+            *_put("M2-REC", "CCC", 6, 6, "M22"),
+            *_put("M2-REC", "FFF", 7, 7, "M23"),
+            "    CLOSE M1-FILE M2-FILE",
+            "    MERGE SORT-FILE ON ASCENDING KEY SR-K1",
+            "          USING M1-FILE M2-FILE GIVING MG-FILE",
+            "    DISPLAY '--'",
+            "    PERFORM SHOW-MG",
+            "    MERGE SORT-FILE ON ASCENDING KEY SR-K1",
+            "          USING M2-FILE M1-FILE OUTPUT PROCEDURE SHOW-SORT",
+            "    GOBACK.",
+            "SHOW-W.",
+            "    MOVE W-K2 TO K2-ED",
+            "    MOVE W-B TO B-ED",
+            "    DISPLAY W-K1 ' ' K2-ED ' ' B-ED ' ' W-TAG.",
+            *_show("OUT"),
+            *_show("MG"),
+            "SHOW-SORT.",
+            "    DISPLAY '--'",
+            "    MOVE 'N' TO EOF",
+            "    PERFORM UNTIL EOF = 'Y'",
+            "        RETURN SORT-FILE INTO W-REC",
+            "            AT END MOVE 'Y' TO EOF",
+            "            NOT AT END PERFORM SHOW-W",
+            "        END-RETURN",
+            "    END-PERFORM.",
+        ],
+    ),
+}
+FILE_DDS = {"SORTUG": ["INFILE", "OUTFILE", "M1FILE", "M2FILE", "MGFILE"]}
+
+
 def _java() -> Path | None:
     home = os.environ.get("JDK_17") or os.environ.get("JAVA_HOME")
     return Path(home) / "bin" if home and (Path(home) / "bin/javac").is_file() else None
@@ -349,6 +553,72 @@ def _java_run(name: str, src: str, work: Path, typed: bool = False, groups: bool
     subprocess.run([str(jdk / "javac"), "-nowarn", "-d", str(work / "classes"), *files], check=True)  # noqa: S603
     return subprocess.run([str(jdk / "java"), "-cp", str(work / "classes"), "Main"], capture_output=True, text=True,  # noqa: S603
                           check=True).stdout  # fmt: skip
+
+
+def _batch_package(srcdir: Path) -> None:
+    """The generated project's batch package (CobolFiles, DatasetResolver, Dd, MainframeClock, Sysout, CobolAbend)
+    from the batch forge's own templates, without Spring: what a det port with files runs on."""
+    from gitgalaxy.tools.cobol_to_java.cobol_to_java_batch_forge import _RUNTIME
+
+    for cls in ("CobolFiles", "DatasetResolver", "Dd", "MainframeClock", "Sysout", "CobolAbend"):
+        text = _RUNTIME[cls].replace("{pkg}", f"{PKG}.batch").replace("{zone}", "UTC")
+        text = re.sub(r"^import org\.springframework\..*\n|^@Component\n", "", text, flags=re.M)
+        text = re.sub(r'@Value\("(?:[^"\\]|\\.)*"\)\s*', "", text)
+        (srcdir / PKG / "batch" / f"{cls}.java").parent.mkdir(parents=True, exist_ok=True)
+        (srcdir / PKG / "batch" / f"{cls}.java").write_text(text)
+
+
+def _java_run_batch(name: str, src: str, work: Path, dds: list[str], typed: bool = False, groups: bool = False) -> str:
+    """As _java_run, on the batch runtime (DetFiles): runBatch with one DD per dataset, each a file of its name in
+    a datasets directory."""
+    from gitgalaxy.tools.cobol_to_java.det import program as P
+
+    (work / f"{name}.cbl").write_text(src)
+    srcdir = work / "java"
+    project = work / "project"
+    _batch_package(project / "src/main/java")  # has_batch: the project has its batch package
+    r = P.translate(work / f"{name}.cbl", [], f"public class {name.title()}Service {{\n}}\n", PKG, None, project,
+                    typed=typed, groups=groups)  # fmt: skip
+    assert not r.stats["holes"], r.stats["holes"]
+    java = r.java.replace("import org.springframework.stereotype.Service;\n", "").replace("@Service\n", "")
+    runtime = {k: v for k, v in P.runtime_files(PKG, batch=True).items() if not k.startswith("cobolrt/cics/")}
+    runtime = {k: v for k, v in runtime.items() if not k.startswith("cobolrt/sql/")}
+    for rel, text in [(f"service/{r.service}.java", java), *runtime.items()]:
+        (srcdir / PKG / rel).parent.mkdir(parents=True, exist_ok=True)
+        (srcdir / PKG / rel).write_text(text)
+    _batch_package(srcdir)
+    rec = srcdir / PKG / "entity/vsam/CobolRecords.java"
+    rec.parent.mkdir(parents=True, exist_ok=True)
+    rec.write_text(f"package {PKG}.entity.vsam;\npublic final class CobolRecords {{\n    public static java.nio.charset."
+                   "Charset charset() {\n        return java.nio.charset.StandardCharsets.ISO_8859_1;\n    }\n}\n")  # fmt: skip
+    data = work / "datasets"
+    data.mkdir()
+    b = f"{PKG}.batch"
+    dd_list = ", ".join(f'new {b}.Dd("{d}", "{d}", "NEW", "CATLG", null)' for d in dds)
+    (srcdir / "Main.java").write_text(
+        f"public class Main {{ public static void main(String[] a) {{ new {PKG}.service.{r.service}("
+        f'new {b}.DatasetResolver("{data}"), new {b}.CobolFiles("", ""), new {b}.MainframeClock("", "UTC"))'
+        f".runBatch(java.util.List.of({dd_list}), null); }} }}\n"
+    )
+    jdk = _java()
+    files = [str(f) for f in srcdir.rglob("*.java")]
+    subprocess.run([str(jdk / "javac"), "-nowarn", "-d", str(work / "classes"), *files], check=True)  # noqa: S603
+    return subprocess.run([str(jdk / "java"), "-cp", str(work / "classes"), "Main"], capture_output=True, text=True,  # noqa: S603
+                          check=True).stdout  # fmt: skip
+
+
+@pytest.mark.skipif(os.environ.get("EQUIVALENCE_E2E") != "1" or not shutil.which("docker") or _java() is None,
+                    reason="needs Docker and a JDK 17 (JAVA_HOME / JDK_17)")  # fmt: skip
+@pytest.mark.parametrize("mode", ["bytes", "typed", "groups"])
+@pytest.mark.parametrize("name", sorted(FILE_PROGRAMS))
+def test_file_program_output_is_gnucobols(name, mode, tmp_path):
+    """Programs with files (SORT USING / GIVING, MERGE): GnuCOBOL's files are in its working directory, the port's
+    in a datasets directory; the DISPLAY output must be equal."""
+    cob = tmp_path / "cobol"
+    cob.mkdir()
+    want = _cobol(FILE_PROGRAMS[name], cob)
+    got = _java_run_batch(name, FILE_PROGRAMS[name], tmp_path, FILE_DDS[name], mode != "bytes", mode == "groups")
+    assert got == want, f"java {got!r} != cobol {want!r}"
 
 
 @pytest.mark.skipif(os.environ.get("EQUIVALENCE_E2E") != "1" or not shutil.which("docker") or _java() is None,
@@ -427,3 +697,83 @@ def test_typed_groups_sync_a_groups_bytes_around_its_whole_uses(tmp_path):
     assert "pack_dstg()." not in init  # inside the statement: the plain field, no second pack
     unpack_src = r.java[r.java.index("private void unpack_srcg()") :].split("    }", 1)[0]
     assert "sAmt" not in unpack_src  # a read-only group's number is never read back from bytes
+
+
+def _sort_variant(proc: list[str], special: list[str] | None = None) -> str:
+    return fprogram("SORTX", special or [], ["SELECT SORT-FILE ASSIGN TO SORTWK1."], SORT_SD, SORT_DATA,
+                    ["MAIN-PARA.", *proc, "    GOBACK.", *SORT_LOAD])  # fmt: skip
+
+
+def _holes(tmp_path: Path, src: str) -> list[str]:
+    from gitgalaxy.tools.cobol_to_java.det import program as P
+
+    (tmp_path / "SORTX.cbl").write_text(src)
+    (tmp_path / "project").mkdir(exist_ok=True)
+    return P.translate(tmp_path / "SORTX.cbl", [], "public class SortxService {\n}\n", PKG, None,
+                       tmp_path / "project").stats["holes"]  # fmt: skip
+
+
+@pytest.mark.parametrize(
+    ("proc", "special", "why"),
+    [
+        # IBM: an alphabet other than NATIVE / STANDARD-1 orders text in a sequence the harness does not model
+        (["    SORT SORT-FILE ASCENDING SR-NAME COLLATING SEQUENCE EB", "         INPUT PROCEDURE LOAD-RECS",
+          "         OUTPUT PROCEDURE SHOW-RECS"], ["ALPHABET EB IS EBCDIC."], "COLLATING SEQUENCE EB (EBCDIC)"),
+        # IBM: 16 in SORT-RETURN ends the sort at the next RELEASE / RETURN
+        (["    MOVE 16 TO SORT-RETURN"], None, "SORT-RETURN set by the program"),
+        # format 2: a table, not an SD file
+        (["    SORT ENT ON ASCENDING KEY E-NAME"], None, "SORT of a table (format 2) not modelled"),
+        # a key outside the SD's record
+        (["    SORT SORT-FILE ASCENDING E-DEPT INPUT PROCEDURE LOAD-RECS", "         OUTPUT PROCEDURE SHOW-RECS"],
+         None, "not in a record of SORT-FILE"),
+    ],
+)  # fmt: skip
+def test_sort_refuses_by_name_what_ibm_leaves_open(proc, special, why, tmp_path):
+    pytest.importorskip("tree_sitter_language_pack")
+    holes = _holes(tmp_path, _sort_variant(proc, special))
+    assert any(why in h for h in holes), holes
+
+
+def test_sort_translates_every_phrase(tmp_path):
+    """The grammar drops a SORT's later phrases (WITH DUPLICATES, OUTPUT PROCEDURE); the placeholder pass keeps
+    them: SORTIP and SORTUG translate whole, and a SORT followed by another statement on its line ends there."""
+    pytest.importorskip("tree_sitter_language_pack")
+    assert not _holes(tmp_path, PROGRAMS["SORTIP"])
+    src = _sort_variant(["    SORT SORT-FILE ON DESCENDING KEY SR-AMT WITH DUPLICATES",
+                         "         INPUT PROCEDURE LOAD-RECS", "         OUTPUT PROCEDURE SHOW-RECS DISPLAY 'X'"])  # fmt: skip
+    from gitgalaxy.tools.cobol_to_java.det import stmt as S
+    from gitgalaxy.tools.cobol_to_java.det.source import logical_lines
+
+    (tmp_path / "s.cbl").write_text(src)
+    proc = S.parse(logical_lines(src.splitlines(), "s.cbl"))
+    main = proc.paragraphs[0].body
+    assert [s.kind for s in main[:2]] == ["SORT", "DISPLAY"]
+    assert main[0].data["duplicates"] and main[0].data["output"] == ("SHOW-RECS", None)
+    assert [(k.name, a) for k, a in main[0].data["keys"]] == [("SR-AMT", False)]
+
+
+@pytest.mark.skipif(not shutil.which("javac") and _java() is None, reason="needs a JDK 17 (JAVA_HOME / JDK_17)")
+def test_sort_without_duplicates_refuses_equal_keys(tmp_path):
+    """IBM: without DUPLICATES the order of records with equal keys is undefined. Records whose keys tie and whose
+    bytes differ stop the run by name; GnuCOBOL's order is not taken as IBM's."""
+    pytest.importorskip("tree_sitter_language_pack")
+    if _java() is None:
+        pytest.skip("needs JAVA_HOME / JDK_17")
+    src = _sort_variant(["    SORT SORT-FILE ON ASCENDING KEY SR-DEPT", "         INPUT PROCEDURE LOAD-RECS",
+                         "         OUTPUT PROCEDURE SHOW-RECS"])  # fmt: skip
+    with pytest.raises(subprocess.CalledProcessError) as e:
+        _java_run("SORTX", src, tmp_path)
+    assert "without DUPLICATES: records with equal keys" in e.value.stderr
+    assert "not modelled" in e.value.stderr
+
+
+def test_merge_refuses_an_input_out_of_order(tmp_path):
+    """IBM: a MERGE's result is predictable only when every USING file is in key order. SORTUG with M1FILE's last
+    record moved first in key order: the run stops by name at the MERGE."""
+    pytest.importorskip("tree_sitter_language_pack")
+    if _java() is None:
+        pytest.skip("needs JAVA_HOME / JDK_17")
+    src = FILE_PROGRAMS["SORTUG"].replace("'EEE'", "'@@@'")
+    with pytest.raises(subprocess.CalledProcessError) as e:
+        _java_run_batch("SORTUG", src, tmp_path, FILE_DDS["SORTUG"])
+    assert "MERGE SORT-FILE: an input file out of key order" in e.value.stderr

@@ -32,15 +32,16 @@ verdict, but it limits what the proof says about inputs outside the scenarios.
 | id | area | entry | status | reached by a proof? |
 |---|---|---|---|---|
 | C1 | compiler | Binary truncation: `TRUNC(STD)` (IBM's default) on both sides (#4102, fixed) | MATCHED | reachable (GenApp LGICDB01) |
-| C2 | compiler | Arithmetic intermediates: exact decimal vs IBM's precision rules | ASSUMED | yes (INTCALC, POSTTRAN …) |
+| C2 | compiler | Arithmetic intermediates: the oracle truncates them (ARITHMETIC-OSVS, IBM's decimal places), the det runtime does not (#4287) | DIFFERS (det runtime) / ASSUMED (oracle) | yes (INTCALC, POSTTRAN …); the difference: not by a proof |
 | C3 | compiler | An integer literal truncated to zero keeps no sign | DIFFERS | no |
 | C4 | compiler | An unsigned binary taken below zero by ADD/SUBTRACT wraps | DIFFERS | no |
-| C5 | compiler | `INTDATE(LILIAN)`, `ARITH(EXTEND)`, `NUMPROC(PFD)`, `NUMPROC(MIG)`, `TRUNC(OPT)` | REFUSED | — |
-| C6 | compiler | COMP-1 / COMP-2: IEEE vs IBM hexadecimal floating point | DIFFERS | no (CBSA uses them) |
+| C5 | compiler | `NUMPROC(MIG)` as Enterprise COBOL 5+ compiles it (NOPFD), `NUMPROC(PFD)` with preferred signs (#4271); `INTDATE(LILIAN)`, `ARITH(EXTEND)`, `TRUNC(OPT)` | MATCHED (NUMPROC) / REFUSED (the rest) | NUMPROC: no |
+| C6 | compiler | COMP-1 / COMP-2: IBM hexadecimal floating point, and float-mode evaluation of the whole expression | DIFFERS; the det translator refuses float items (#4271) | no (CBSA, DBB EPSMPMT use them) |
 | C7 | compiler | COMP-5 byte order: little-endian vs z/OS big-endian | DIFFERS | read as numbers only |
 | C8 | compiler | DISPLAY of signed zoned, binary and packed items | MATCHED | yes |
 | C9 | compiler | POINTER is 8 bytes in GnuCOBOL (x86-64), 4 on z/OS | DIFFERS | only NULL, trailing (CBSA) |
 | C10 | compiler | INITIALIZE / VALUE ZERO zoned items: unsigned F zone (GnuCOBOL) vs preferred C sign (z/OS) | DIFFERS (tolerated where a case declares it) | yes (CardDemo READACCT ARRYFILE) |
+| C11 | compiler | MOVE of an alphanumeric item holding a non-digit to a numeric DISPLAY item (#4049) | DIFFERS (inputs kept out of the cases) | yes (COMEN01C option `1!`) |
 | D1 | data | Text order is ASCII (Latin-1), not EBCDIC | DIFFERS | keys: no; comparisons: not audited |
 | D2 | data | Hex literals that name EBCDIC characters (`X'40'`) | DIFFERS | no |
 | D3 | data | Zoned signs in ASCII data (`{`, `}`, A–R overpunch) | MATCHED | yes |
@@ -94,15 +95,21 @@ verdict, but it limits what the proof says about inputs outside the scenarios.
 - **Reach.** GenApp's LGICDB01 moves the 10-digit CA-CUSTOMER-NUM into an `S9(9) COMP`: a customer number of 10 digits
   would now behave as on z/OS.
 
-### C2. Arithmetic intermediates — ASSUMED
-- **What.** GnuCOBOL computes arithmetic in exact decimal, and DIVIDE follows `cob_decimal_div` (the dividend
-  shifted 38 digits, truncated). The det runtime does the same in `BigDecimal`. IBM sizes each intermediate result
-  by compile-time rules from the operands' digits (`ARITH(COMPAT)`: at most 30 digits). Those rules can truncate an
-  intermediate that GnuCOBOL keeps.
-- **Reached.** Yes: every COMPUTE with a division or a multiplication of large items, among them INTCALC's interest
-  computation.
-- **To settle.** Run a table of division and multiply-then-divide cases on z/OS, then compare against
-  `tests/equivalence/rounding/RND.cbl`.
+### C2. Arithmetic intermediates — the oracle ASSUMED, the det runtime DIFFERS (#4287)
+- **The oracle.** `cobc -std=ibm` turns on GnuCOBOL's `arithmetic-osvs` (`ibm-strict.conf`), so cobc truncates each
+  intermediate result to a number of decimal places (`cob_decimal_align`): IBM's fixed-point rules (Enterprise COBOL
+  6.4 Programming Guide, SC27-8714-03, Appendix A, "Fixed-point data and intermediate results": `+ -` the larger of
+  d1, d2; `*` d1 + d2; `/` the larger of the operands' difference and dmax, the most decimal places of any operand or
+  receiver). DIVIDE's quotient follows `cob_decimal_div` (the dividend shifted 38 digits, truncated). IBM's other
+  limit, at most 30 digits for an intermediate under `ARITH(COMPAT)`, GnuCOBOL does not apply: ASSUMED that no
+  proven intermediate is that long.
+- **The det runtime** computes in exact `BigDecimal` and does not truncate intermediates: `COMPUTE R = A / B * C` with
+  A = 1, B = 3, C = 300 and R `PIC 999V99` gives 099.00 on the oracle (and by IBM's rule) and 099.99 on the det port
+  (measured 2026-10-03, #4287). No proven scenario reaches such an expression; IBM DBB EPSMPMT's would.
+- **Reached.** Every COMPUTE with a division or a multiplication of large items, among them INTCALC's interest
+  computation; the det runtime's difference: not by a proof.
+- **To settle.** #4287 (model the aligns in the det translator), then a table of division and multiply-then-divide
+  cases on z/OS against `tests/equivalence/rounding/RND.cbl`.
 
 ### C3. An integer literal truncated to zero — DIFFERS
 - **What.** GnuCOBOL folds `MOVE -1000 TO PIC S9(3)` at compile time to +0 (`00{`). Every other truncating MOVE keeps
@@ -114,19 +121,83 @@ verdict, but it limits what the proof says about inputs outside the scenarios.
   compilers and the det runtime store the absolute value, 3.
 - **Reached.** No case reaches it. `test_det_programs.py` keeps its unsigned item above zero.
 
-### C5. Options GnuCOBOL cannot honour — REFUSED
-- **What.** `INTDATE(LILIAN)`, `ARITH(EXTEND)`, `NUMPROC(PFD)`, `NUMPROC(MIG)` and `TRUNC(OPT)`, from a CBL/PROCESS
-  card or a case's `compiler_options`, stop the run (`UnsupportedOption`).
-- **NUMPROC(MIG)** (OS/VS COBOL migration sign processing): IBM DBB MortgageApplication's EPSMPMT and EPSCSMRT carry
-  `CBL NUMPROC(MIG)`. Their cases (`mortgage-mpmt`) are written and listed in KNOWN_UNPROVEN until an oracle models it.
-- **Note.** CBSA's build JCL passes `TRUNC(OPT)`, but its programs' PROCESS cards override it with `TRUNC(STD)` (C1).
-- `TRUNC(OPT)` is undefined for out-of-range values by IBM's own description, so no oracle could be faithful to it.
+### C5. Compiler options: NUMPROC MATCHED where IBM pins it (#4271); INTDATE(LILIAN), ARITH(EXTEND), TRUNC(OPT) REFUSED
+- **NUMPROC(MIG): MATCHED for Enterprise COBOL 5 and later.** "Enterprise COBOL 5 and 6 does not support the
+  NUMPROC(MIG) option. If NUMPROC(MIG) is specified, Enterprise COBOL 5 or 6 issues a warning message and the
+  compilation will get the default setting for NUMPROC. This is either the user-customized default or the IBM default,
+  which is NUMPROC(NOPFD)" (Enterprise COBOL for z/OS 6.4 Migration Guide, GC27-8715-03, Table 18; the same in the 5.2
+  Migration Guide, GC14-7383-03). A case states the compiler its estate builds with (`"compiler": {"product":
+  "Enterprise COBOL", "version": "6.1", "evidence": ...}`); MIG then compiles as NOPFD on both sides
+  (`equivalence_common.numproc_mig`; the det translator's `program.numproc_pfd`). The installation default is ASSUMED
+  to be IBM's. **Refused:** MIG for a case that states no compiler or one before version 5, whose MIG was OS/VS
+  COBOL's sign processing, documented only as "similar to" it.
+  - IBM DBB MortgageApplication's EPSMPMT and EPSCSMRT carry `CBL NUMPROC(MIG)`, and the estate's build JCL
+    (`Migration/jclToZBuilder/samples/BLDMORT.jcl`) compiles them with `IGY.V6R1M0.SIGYCOMP`, Enterprise COBOL 6.1.
+    `mortgage-mpmt` states it. Its proof still waits on C6, not on NUMPROC.
+- **NUMPROC(PFD): MATCHED with preferred signs, REFUSED otherwise.** Under PFD "the compiler assumes that the sign in
+  your data is one of three preferred signs": C signed positive or zero, D signed negative, F unsigned; "the compiler
+  uses whatever sign it is given to process data. The preferred sign is generated only where necessary". NOPFD
+  "accepts any valid sign configuration. The preferred sign is always generated in the receiver" (6.4 Programming
+  Guide, SC27-8714-03, "Sign representation of zoned and packed-decimal data"). With preferred signs in every value
+  read, the two compute the same, so:
+  - the oracle compiles PFD as GnuCOBOL's own sign processing (no flag);
+  - each det entry point runs with its program's NUMPROC (`Cobol.swapNumprocPfd`, the caller's restored, as TRUNC);
+    under PFD the runtime reads a zoned or packed value only with a preferred sign and stops by name ("NUMPROC(PFD):
+    ... non-preferred sign ... is not modelled") on any other: F in a signed item, C or D in an unsigned one, D on
+    zero. The class test of a signed item with an F sign stops too: Table 7 (NUMCLS(PRIM)) takes C, D, F under NOPFD
+    and C, D, "+0" under PFD;
+  - a PFD program is proven only through a det port (`equivalence_common.numproc_guard`): a model port or the
+    generated service has no such guard and is refused.
+  - GnuCOBOL leaves an F sign in a signed item after VALUE ZERO and INITIALIZE (C10) where z/OS writes C, so a PFD
+    program that reads one is refused, never misjudged.
+  - **Reached.** No case compiles with PFD. Pinned by `tests/cobol_mainframe/test_numproc.py`.
+- **REFUSED:** `INTDATE(LILIAN)`, `ARITH(EXTEND)` and `TRUNC(OPT)`, from a CBL/PROCESS card or a case's
+  `compiler_options`, stop the run (`UnsupportedOption`).
+  - `TRUNC(OPT)` is undefined for out-of-range values by IBM's own description, so no oracle could be faithful to it.
+    CBSA's build JCL passes `TRUNC(OPT)`, but its programs' PROCESS cards override it with `TRUNC(STD)` (C1).
+  - `ARITH(EXTEND)` changes only intermediates past 30 digits (31 instead) and float-mode precision (extended instead
+    of long). GnuCOBOL caps neither (C2), so the oracle would compute COMPAT and EXTEND the same; a model needs a
+    guard on both sides that stops an intermediate past 30 digits, after #4287.
+  - `INTDATE(LILIAN)` is pinned by IBM (day 1 is 15 October 1582 instead of 1 January 1601), and could be modelled
+    by the documented offset of the integer-date functions. Dates before 1601 cannot run on GnuCOBOL and would be
+    refused. No case needs it yet.
 
-### C6. Floating point — DIFFERS
-- **What.** COMP-1 and COMP-2 are IEEE binary floating point in GnuCOBOL. On z/OS they are IBM hexadecimal floating
-  point by default, so results differ in the low digits.
-- **Reach.** The det translator does not lift float items, and DISPLAY of a float is refused (C8). No proven program
-  uses floats. CBSA uses them in 6 programs (CRECUST, BANKDATA, BNK1CAC, BNK1CRA, BNK1TFN, BNK1UAC).
+### C6. Floating point — DIFFERS; the det translator refuses float items (#4271)
+- **What z/OS does.** COMP-1 and COMP-2 are IBM hexadecimal floating point (HFP): a short item keeps 6 hexadecimal
+  digits, so between 21 and 24 bits of precision against IEEE single's 24. More important, "If any operation in an
+  arithmetic expression is computed in floating-point arithmetic, the entire expression is computed as if all
+  operands were converted to floating point", and that happens when "a receiver or operand is COMP-1, COMP-2,
+  external floating point, or a floating-point literal" or "an exponent contains decimal places". Under ARITH(COMPAT)
+  this is long precision unless every item is COMP-1 with no multiplication or exponentiation (6.4 Programming
+  Guide, SC27-8714-03, Appendix A, "Floating-point data and intermediate results"; Chapter 3, "Fixed-point contrasted
+  with floating-point arithmetic").
+- **What the oracle does.** GnuCOBOL stores IEEE binary floats in machine (little-endian) order. It still evaluates the
+  expression in decimal: each float is read exactly (`cob_decimal_set_double`), each intermediate is truncated by
+  ARITHMETIC-OSVS as fixed point (C2), and the result is stored through a truncation to double and a rounding to float
+  (`cob_decimal_get_double`, then `(float)`). The oracle departs from z/OS in the evaluation mode, not only in the
+  low-order bits.
+- **Measured on IBM DBB EPSMPMT** (the payment `P * (C * (1 + C) ** N) / (((1 + C) ** N) - 1)`, C COMP-1, N
+  `9(9)V99 COMP`): GnuCOBOL's payment for a principal of 100,000,000.01 at 5.25% over 30 years is 599,550.79. The same
+  expression evaluated in exact arithmetic on the same IEEE C gives 599,550.51, which long HFP (about 16 digits) would
+  approach. The other five computed scenarios agree. On z/OS, N's decimal places also make the exponentiation a
+  floating-point one (Appendix A), computed by a run-time routine IBM does not specify bit for bit.
+- **Decision (2026-10-03, #4271): a declared difference, not an emulation.**
+  - HFP add, multiply and divide are architected (z/Architecture Principles of Operation), but four things are not
+    documented at the level a proof needs: which conversions the compiler generates between fixed point and HFP
+    (rounding or truncation), the exponentiation routine, and the floating-point intrinsic functions.
+  - No oracle here runs HFP: GnuCOBOL has none. An HFP Java port could be checked only against captured z/OS outputs
+    (#4050), and an IEEE one that copies GnuCOBOL's decimal evaluation would prove agreement with an evaluation IBM
+    documents differently.
+  - So the det translator refuses a COMP-1 / COMP-2 item by name: each statement that names one is a Hole ("COMP-1
+    floating point (IBM hexadecimal on z/OS, oracle_assumptions.md C6)"). Before #4271 it emitted a reference to a
+    Field it never declared, and the port did not compile.
+  - Model ports are not changed. No proven program uses floats.
+- **Waiting on it.**
+  - `mortgage-mpmt` (EPSMPMT: both of its COMPUTEs involve its COMP-1 item; KNOWN_UNPROVEN).
+  - CBSA's CRECUST, BANKDATA, BNK1CAC, BNK1CRA, BNK1TFN and BNK1UAC.
+  - DISPLAY of a float is refused by `ggdisplay.c` too (C8).
+- **What would settle it.** A z/OS run of EPSMPMT's scenarios (#4050). With those outputs, an HFP model of the
+  runtime could be checked where the oracle cannot.
 
 ### C7. COMP-5 byte order — DIFFERS
 - **What.** GnuCOBOL stores COMP-5 in the machine's order, little-endian on x86; z/OS is big-endian. COMP, COMP-4
@@ -157,6 +228,18 @@ verdict, but it limits what the proof says about inputs outside the scenarios.
   Everywhere else, signs are compared byte for byte.
 - **Not tolerated.** A negative overpunch (`}`, `J`–`R`) against either form, a different digit, or any byte in an
   undeclared dataset.
+
+### C11. A non-digit moved to a numeric DISPLAY item — DIFFERS (inputs kept out of the cases)
+- **What.** COMEN01C moves the typed option (`WS-OPTION-X`, PIC X(2) JUST RIGHT) to `WS-OPTION` (PIC 9(2)) and then
+  tests `WS-OPTION IS NOT NUMERIC`. With a non-digit typed, GnuCOBOL 3 (`-std=ibm`) gives `1!` -> `01` and `!1` ->
+  `00`, both NUMERIC (measured 2026-10-03), so `1!` is option 1 and XCTLs. IBM treats an alphanumeric sender of a
+  numeric MOVE as an unsigned integer and moves its bytes; a non-digit's digit nibble (`!` is X'5A') is not a digit,
+  so on z/OS the item is not NUMERIC and the menu says the option is invalid -- IBM documents no result for such
+  data.
+- **Found by.** The test-strengthening loop (#4049): the model-written port treats `1!` and `!1` as invalid options,
+  GnuCOBOL does not; the proofs differ on both inputs.
+- **Now.** Those inputs are not in the case, so the three COMEN01C survivors in the port's own digit test stay case
+  gaps. A z/OS run (#4050) settles which side is right.
 
 ### C8. DISPLAY text — MATCHED
 - **What.** GnuCOBOL writes a signed zoned item as `012-` and a binary item as `-00007`. IBM writes their external
@@ -208,6 +291,15 @@ verdict, but it limits what the proof says about inputs outside the scenarios.
 - Fault runs (`ggfault.c`, CICS `faults.cfg`) give a statement the same status or RESP on both sides, and say which
   faults fired.
 - The values are the ones IBM documents for the condition. What a real device failure would give is not modelled.
+- **CICS commands beyond files (#4049).** XCTL, WRITEQ TS, START, RETRIEVE and CANCEL take a plan too (named by the
+  program, queue, TRANSID, `-` and REQID), in the equivalence harness and in the CICS crucible's strengthened
+  scenarios. A planned command does nothing but return its RESP / RESP2: the XCTL does not transfer, the WRITEQ TS
+  writes no item, the START schedules nothing, the RETRIEVE moves no data, the CANCEL cancels nothing. IBM's
+  descriptions of these conditions say the request was not performed; a partial effect is not modelled. Only
+  conditions IBM lists for the command are planned (CICS TS, each command's "Conditions"): XCTL PGMIDERR (RESP2 3,
+  the program could not be loaded); WRITEQ TS INVREQ; START INVREQ (RESP2 17); RETRIEVE IOERR. An unhandled one
+  abends with the code the stub and CicsTask already give it (AEI0, AEIP). CANCEL has no INVREQ, so a port's
+  `INVREQ` branch after CANCEL stays unreachable.
 
 ### F3. Record formats — ASSUMED
 - Most cases' datasets are fixed-length records.

@@ -33,8 +33,9 @@ KNOWN_UNPROVEN = {
     ("det", "carddemo-cardupdate"): "COCRDUPC writes blanks into a PIC 9(3) CVV a typed DTO field cannot hold (#4085)",
     ("det", "carddemo-intcalc-generated"): "generated card numbers mix letters and digits: ASCII vs EBCDIC key order "
     "picks different duplicates (oracle_assumptions.md D1)",
-    ("det", "mortgage-mpmt"): "IBM DBB EPSMPMT compiles with CBL NUMPROC(MIG), which GnuCOBOL cannot honour "
-    "(oracle_assumptions.md C5)",
+    ("det", "mortgage-mpmt"): "IBM DBB EPSMPMT computes its payment through a COMP-1 item: z/OS evaluates both "
+    "COMPUTEs in hexadecimal floating point, GnuCOBOL in truncated decimal, so the det translator refuses float items "
+    "by name (oracle_assumptions.md C6, #4271; its CBL NUMPROC(MIG) is now modelled, C5)",
 }
 
 

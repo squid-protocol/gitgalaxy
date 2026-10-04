@@ -85,6 +85,8 @@ ALLOWLIST = {
     "ABCODE": "EXEC CICS option keyword parsed from source (uow_handlers.py, #3453)",
     "KEYS": "IDCAMS DEFINE parameter parsed from JCL in-stream data (file_control.py, #3455)",
     "NSYMBOL": "CBL / PROCESS compiler option parsed from source (compiler_options.py; read by mainframe_boundary, #3816)",
+    "SORT-RETURN": "COBOL data name looked up in det/gen.py's Gen.items, which is keyed by the program's own parsed "
+    "data items: a program may declare an item named SORT-RETURN, shadowing the special register (#4268)",
     # --- Written by an external producer ---
     # archetype_validation.json (#4100) is written by tests/tools/archetype_drift.py,
     # outside gitgalaxy/, and read back by archetype_parity.validation_status.

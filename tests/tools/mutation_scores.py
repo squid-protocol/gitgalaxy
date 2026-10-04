@@ -14,10 +14,16 @@ A survivor's verdict is one of
   unreachable  dead code: no input reaches it, given the program's own data or the oracle's limits (with evidence)
 
     python tests/tools/mutation_scores.py build --runs DIR [DIR ...] --triage T.json --commit SHA [--out FILE]
+                                                [--rejudged DIR ... --rejudged-commit SHA]
     python tests/tools/mutation_scores.py table [--results FILE] [--doc FILE]     # re-render the doc's table
 
 `build` writes the compact results file (default docs/language_status/mutation_scores.json) and the table;
 `table` re-renders the table between the doc's `<!-- mutation-scores -->` markers from the committed file.
+
+#4049: `--rejudged` takes runs that judged some of the same mutants again against a strengthened case (mutation.py
+--only, mutation_crucible.py --case-gaps): their verdicts replace the base runs' for those ids, and the port records
+`rejudged` (the commit, how many were judged again and how many are now killed). A new input can only add kills (a
+mutant killed by the old runs is still killed by them), so this equals a full re-run of the same sample.
 
 Scores: raw = caught / (caught + survived); adjusted = caught / (caught + survived - equivalent - unreachable).
 Stillborn mutants (javac refused them) count for nothing. A timeout counts as caught.
@@ -150,6 +156,8 @@ def main(argv: list[str] | None = None) -> int:
     b.add_argument("--commit", required=True, help="the gitgalaxy commit the mutants ran on")
     b.add_argument("--out", type=Path, default=RESULTS)
     b.add_argument("--doc", type=Path, default=DOC)
+    b.add_argument("--rejudged", nargs="*", type=Path, default=[], help="#4049: runs judging some mutants again")
+    b.add_argument("--rejudged-commit", help="the gitgalaxy commit the --rejudged runs ran on")
     t = sub.add_parser("table")
     t.add_argument("--results", type=Path, default=RESULTS)
     t.add_argument("--doc", type=Path, default=DOC)
@@ -157,7 +165,21 @@ def main(argv: list[str] | None = None) -> int:
     if args.cmd == "build":
         triage = load_triage(args.triage)
         runs = [json.loads(p.read_text(encoding="utf-8")) for d in args.runs for p in runs_in(d)]
-        ports = [port_entry(r, triage, args.commit) for r in runs]
+        again: dict[str, dict] = {}
+        for d in args.rejudged:
+            for p in runs_in(d):
+                r = json.loads(p.read_text(encoding="utf-8"))
+                again.setdefault(_key(r), {}).update({x["id"]: x for x in r["results"]})
+        ports = []
+        for r in runs:
+            redo = again.get(_key(r), {})
+            if redo:
+                r = {**r, "results": [redo.get(x["id"], x) for x in r["results"]]}
+            entry = port_entry(r, triage, args.commit)
+            if redo:
+                entry["rejudged"] = {"commit": args.rejudged_commit, "issue": "#4049", "mutants": len(redo),
+                                     "killed": sum(x["verdict"] in ("killed", "timeout") for x in redo.values())}  # fmt: skip
+            ports.append(entry)
         results = {"format": "gitgalaxy-mutation-scores/1", "issue": "#4047",
                    "ports": sorted(ports, key=lambda p: (p["case"].startswith("crucible:"), p["case"], p["program"]))}  # fmt: skip
         args.out.write_text(json.dumps(results, indent=None, separators=(",", ":")).replace(',{"case"', ',\n{"case"')

@@ -18,6 +18,11 @@ Verdicts, as in mutation.py:
     python tests/tools/mutation_crucible.py run --work DIR [--only CASE/PROG,...] [--sample 40] [--seed 0] [--jobs 4]
     python tests/tools/mutation_crucible.py report DIR      # DIR/<case>/<PROG>/mutation.md again
 
+#4049, the test-strengthening loop: `--strengthened` proves every mutant against the case's strengthened scenarios
+too (tests/cics_crucible/strengthened, their logs derived from the COBOL), and `--case-gaps [RESULTS]` runs only
+the survivors the committed results (docs/language_status/mutation_scores.json) triaged as case gaps -- the
+mutants the new scenarios are meant to kill (`mutation_scores.py build --rejudged` folds their verdicts back in).
+
 Each port's DIR/<case>/<PROG>/mutation.json has mutation.py's shape, so `mutation_scores.py` reads both.
 Needs CICS_CRUCIBLE_PATH (a checkout at the pin, tests/_cics_crucible_pin.py).
 """
@@ -69,10 +74,13 @@ def verdict(rc: int | None, report: dict | None) -> tuple[str, list[str]]:
     return "killed", failed or ["runner"]
 
 
+STRENGTHENED = False  # #4049: --strengthened
+
+
 def prove(case: str, prog: str, overlay: Path, out: Path, timeout: float) -> tuple[str, list[str], float]:
     out.mkdir(parents=True, exist_ok=True)
     cmd = [sys.executable, str(RUNNER), "--cases", case, "--sides", "java-ported", "--overlay", str(overlay),
-           "--program", prog, "--report-dir", str(out)]  # fmt: skip
+           "--program", prog, "--report-dir", str(out), *(["--strengthened"] if STRENGTHENED else [])]  # fmt: skip
     t0 = time.monotonic()
     with open(out / "log.txt", "w", encoding="utf-8") as log:
         try:
@@ -96,6 +104,11 @@ def run_port(case: str, prog: str, overlay: Path, work: Path, args) -> dict:
         raise SystemExit(f"{case}/{prog}: the committed port is not proven ({pw / 'baseline'}); nothing to measure")
     every = mu.all_mutants(overlay, args.ops)
     chosen = mu.sample(every, args.sample, args.seed)
+    if args.case_gaps:  # #4049: only the case-gap survivors of the committed results
+        import strengthen
+
+        ids = strengthen.case_gaps(args.case_gaps, f"crucible:{case}", prog)
+        chosen = [m for m in every if m.id in ids]
     limit = max(120.0, 3 * base_s)
     print(f"{case}/{prog}: {len(every)} mutants, {len(chosen)} chosen; baseline {base_s:.0f} s", flush=True)
 
@@ -131,6 +144,9 @@ def main(argv: list[str] | None = None) -> int:
     r.add_argument("--jobs", type=int, default=4)
     r.add_argument("--ops", default=",".join(mu.OPERATORS))
     r.add_argument("--keep", action="store_true", help="keep killed mutants' proof directories too")
+    r.add_argument("--strengthened", action="store_true", help="#4049: prove against the strengthened scenarios too")
+    r.add_argument("--case-gaps", type=Path, nargs="?", const=REPO / "docs" / "language_status" / "mutation_scores.json",
+                   metavar="RESULTS", help="#4049: run only the survivors RESULTS triaged as case gaps")  # fmt: skip
     rep = sub.add_parser("report")
     rep.add_argument("work", type=Path)
     args = ap.parse_args(argv)
@@ -141,6 +157,8 @@ def main(argv: list[str] | None = None) -> int:
     if not os.environ.get("CICS_CRUCIBLE_PATH"):
         raise SystemExit("set CICS_CRUCIBLE_PATH to a cics-crucible checkout at the pin (tests/_cics_crucible_pin.py)")
     args.ops = {o.strip().upper() for o in args.ops.split(",") if o.strip()}
+    global STRENGTHENED
+    STRENGTHENED = args.strengthened
     only = [x.strip() for x in args.only.split(",")] if args.only else None
     for case, prog, overlay in ports(only):
         res = run_port(case, prog, overlay, args.work, args)

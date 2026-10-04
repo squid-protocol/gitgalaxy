@@ -154,7 +154,9 @@ def test_a_log_derived_from_the_cobol_run_is_what_that_run_did():
     other = copy.deepcopy(act)
     other["tasks"][1]["commarea"] = _raw("009FIRST   ")
     assert cc.compare(log, other, ALL, _ctx()).status == "fail"
-    assert log["tasks"][1]["commarea"] == {"length": 11, "text": "001FIRST"}  # text where it is printable
+    # a COMMAREA is written by its layout's fields, the same as the hand-written log
+    assert log["tasks"][1]["commarea"] == case.expected["three-visits"]["tasks"][1]["commarea"]
+    assert log["tasks"][1]["commarea"]["fields"] == {"WS-COUNT": "1", "WS-NAME": "FIRST"}
 
 
 def test_no_log_is_derived_from_what_the_cobol_side_does_not_model_or_could_not_run():

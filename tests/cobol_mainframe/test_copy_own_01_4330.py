@@ -60,7 +60,8 @@ def test_unresolved_members_after_the_first_are_section_level(ir):
     ef, root = _root(ir, "WS-LINK")
     assert root.copy_members == "CPYAREA"
     assert ir.record_layout(ef, root)["bytes"] == 24
-    assert ef.section_copies.count("CPYREC") == 1 and {"DFHAID", "NOTHERE"} <= set(ef.section_copies)
+    moved = [m for m, _ in ef.section_copies]
+    assert moved.count("CPYREC") == 1 and {"DFHAID", "NOTHERE"} <= set(moved)
 
 
 def test_a_first_unresolved_member_stays_a_gap_of_the_entry(ir):

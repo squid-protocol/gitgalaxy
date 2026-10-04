@@ -1,3 +1,6 @@
+---
+description: "If I have an engine that can scan and compare codebases across time and language, independent of compilation, I don't know about you, but I want to..."
+---
 # Claim 4 (Comparing Languages)
 
 If I have an engine that can scan and compare codebases across time and language, independent of compilation, I don't know about you, but I want to take it for a spin! What patterns will emerge as we compare repositories of Python, COBOL, and TypeScript at a massive scale? 

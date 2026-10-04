@@ -1,3 +1,6 @@
+---
+description: "You are operating within `ghostty`, a high-performance terminal emulator. The codebase is a cross-platform, multi-language system dominated by Zig..."
+---
 # AGENTS.md: ghostty Architectural Context & Engagement Rules
 
 ## 1. System Context & Paradigm

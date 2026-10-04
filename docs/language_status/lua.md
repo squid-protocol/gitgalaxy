@@ -1,3 +1,6 @@
+---
+description: "Snapshot generated 2026-08-29 against `main`. Source: `LANGUAGE_DEFINITIONS['lua']` in"
+---
 # Lua — Structural Signature Coverage
 
 Snapshot generated 2026-08-29 against `main`. Source: `LANGUAGE_DEFINITIONS["lua"]` in

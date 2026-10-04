@@ -1,3 +1,6 @@
+---
+description: "The `bitcoin-0.1.0` repository is the original release of the Bitcoin reference client, implemented almost entirely in C++ (78.8%). The primary..."
+---
 # Architectural Brief: bitcoin-0.1.0
 
 ## 1. Information Flow & Purpose (The Executive Summary)

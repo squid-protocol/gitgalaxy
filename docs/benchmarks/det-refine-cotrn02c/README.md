@@ -1,3 +1,6 @@
+---
+description: "COTRN02C is CardDemo's 'add a transaction' screen. It is the largest CardDemo CICS program with no GO TO, so it takes the structured style. That makes..."
+---
 # Benchmark: COTRN02C, typed then refined, every step proven (B3 + B2)
 
 COTRN02C is CardDemo's "add a transaction" screen. It is the largest CardDemo CICS program with no GO TO, so it takes the structured style. That makes it the first program where all three readability layers stack:

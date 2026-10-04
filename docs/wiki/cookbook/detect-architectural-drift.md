@@ -1,3 +1,6 @@
+---
+description: "Codebases do not break overnight; they degrade slowly. Over years of development, a clean microservice architecture will naturally drift back into a..."
+---
 # How to Detect Architectural Drift and Trojan Files
 
 Codebases do not break overnight; they degrade slowly. Over years of development, a clean microservice architecture will naturally drift back into a monolithic "Big Ball of Mud" as developers cut corners to meet deadlines. 

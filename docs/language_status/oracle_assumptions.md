@@ -1,3 +1,6 @@
+---
+description: "A proof here says one thing: **on these scenarios, the Java port gave the same outputs as the COBOL program run by"
+---
 # The oracle and its assumptions: where our COBOL side may differ from IBM z/OS
 
 A proof here says one thing: **on these scenarios, the Java port gave the same outputs as the COBOL program run by

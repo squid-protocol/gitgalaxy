@@ -1,3 +1,6 @@
+---
+description: "Onboarding a new developer—or an AI coding agent (like SWE-agent or Claude)—onto a massive, monolithic codebase takes weeks."
+---
 # Recipe: Generate LLM-Optimized Architecture Briefs
 
 Onboarding a new developer—or an AI coding agent (like SWE-agent or Claude)—onto a massive, monolithic codebase takes weeks. 

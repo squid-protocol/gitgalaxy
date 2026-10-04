@@ -1,3 +1,6 @@
+---
+description: "> **One hit is the syntax that opens an executable block of logic under its own"
+---
 # The `func_start` rule contract (#2856)
 
 > **One hit is the syntax that opens an executable block of logic under its own

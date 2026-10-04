@@ -1,3 +1,6 @@
+---
+description: "**Executive Summary:** We performed a deep **static code analysis** on the Kubernetes repository. By mapping its structural physics, we uncover the..."
+---
 # The Architecture of Kubernetes: A Structural Physics Teardown of the Cloud's Operating System
 
 **Executive Summary:** We performed a deep **static code analysis** on the Kubernetes repository. By mapping its structural physics, we uncover the hidden **technical debt**, massive verification scaffolding, and heavily centralized "God Nodes" that power the de facto operating system of the cloud-native world. This teardown exposes the **software architecture**, structural coupling, and zero-trust security perimeter of a 2-million-line Go monolith.

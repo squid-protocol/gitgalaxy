@@ -1,3 +1,6 @@
+---
+description: "You are operating within `Apollo-11`, a historically significant repository containing the original Apollo Guidance Computer (AGC) source code for the..."
+---
 # AGENTS.md: Apollo-11 Architectural Context & Engagement Rules
 
 ## 1. System Context & Paradigm

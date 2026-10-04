@@ -1,3 +1,6 @@
+---
+description: "When refactoring legacy COBOL into modern Java, the greatest architectural threat is the creation of 'God Classes.' COBOL naturally encourages..."
+---
 # Cookbook: Spring Boot Service Forge via Deterministic RAG Pipelines
 
 ## 1. The Domain Boundary Crisis in Legacy Modernization

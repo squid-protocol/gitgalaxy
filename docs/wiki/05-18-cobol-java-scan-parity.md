@@ -1,3 +1,6 @@
+---
+description: "> **Related:** [`tests/tools/det_port.py`](https://github.com/squid-protocol/gitgalaxy/blob/main/tests/tools/det_port.py) ·..."
+---
 # COBOL ↔ Java Scan Parity
 
 > **Related:** [`tests/tools/det_port.py`](https://github.com/squid-protocol/gitgalaxy/blob/main/tests/tools/det_port.py) · [`tests/tools/proof_sweep.py`](https://github.com/squid-protocol/gitgalaxy/blob/main/tests/tools/proof_sweep.py) · [`docs/language_status/oracle_assumptions.md`](https://github.com/squid-protocol/gitgalaxy/blob/main/docs/language_status/oracle_assumptions.md) · [`gitgalaxy/core/aperture.py`](https://github.com/squid-protocol/gitgalaxy/blob/main/gitgalaxy/core/aperture.py)

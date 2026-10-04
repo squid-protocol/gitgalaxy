@@ -1,3 +1,6 @@
+---
+description: "The `catalyst-runtime` repository forms the core of the Catalyst web framework for Perl (98.1% of the codebase). Information flows from HTTP request..."
+---
 # Architectural Brief: Catalyst-Runtime
 
 ## 1. Information Flow & Purpose (The Executive Summary)

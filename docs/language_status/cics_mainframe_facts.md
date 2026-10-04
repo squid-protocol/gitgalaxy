@@ -1,3 +1,6 @@
+---
+description: "Snapshot 2026-09-25, against `main` at the close of epics"
+---
 # CICS / mainframe system facts — what GitGalaxy extracts, and how sure we are
 
 Snapshot 2026-09-25, against `main` at the close of epics

@@ -1,3 +1,6 @@
+---
+description: "You are operating within `berry`, the repository for Yarn v2+ (Plug'n'Play), primarily composed of TypeScript (41.3%) and JavaScript (19.6%)."
+---
 # AGENTS.md: berry (Yarn v2+) Architectural Context & Engagement Rules
 
 ## 1. System Context & Paradigm

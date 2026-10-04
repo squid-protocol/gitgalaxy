@@ -1,3 +1,6 @@
+---
+description: "The `cpython` repository contains the reference implementation of the Python programming language. Composed primarily of C (64.1%) for the core..."
+---
 # Architectural Brief: cpython
 
 ## 1. Information Flow & Purpose (The Executive Summary)

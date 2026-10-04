@@ -1,3 +1,6 @@
+---
+description: "In massive legacy systems (like COBOL mainframes or decade-old Java monoliths), developers are terrified to delete code. Even if a function looks..."
+---
 # How to Prove Dead Code with Terabyte Log Scanning
 
 In massive legacy systems (like COBOL mainframes or decade-old Java monoliths), developers are terrified to delete code. Even if a function looks unused in the repository, no one knows if a critical end-of-year batch job relies on it via a dynamic call.

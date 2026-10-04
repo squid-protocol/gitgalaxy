@@ -1,3 +1,6 @@
+---
+description: "Enterprise migrations from legacy IBM Mainframes to the cloud are notoriously dangerous. Decades of technical debt result in millions of lines of code..."
+---
 # How to Map and Refactor Legacy COBOL Monoliths
 
 Enterprise migrations from legacy IBM Mainframes to the cloud are notoriously dangerous. Decades of technical debt result in millions of lines of code where no one knows what is actually executing, what is dead "Graveyard" memory, and how data physically flows between batch jobs.

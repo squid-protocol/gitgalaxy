@@ -1,3 +1,6 @@
+---
+description: "> **The Illusion of the SBOM**"
+---
 # 01-07: The SHBOM Standard (Structural Health Bill of Materials)
 
 > **The Illusion of the SBOM**

@@ -1,3 +1,6 @@
+---
+description: "Phase 3 of the contract roadmap (`docs/contract_roadmap.md`, epic #2812): the sheet row"
+---
 # The `ownership` rule contract (#2882)
 
 Phase 3 of the contract roadmap (`docs/contract_roadmap.md`, epic #2812): the sheet row

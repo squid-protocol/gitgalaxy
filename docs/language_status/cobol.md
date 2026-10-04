@@ -1,3 +1,6 @@
+---
+description: "Snapshot generated 2026-08-19 against `main`. Source: `LANGUAGE_DEFINITIONS['cobol']` in"
+---
 # COBOL — Structural Signature Coverage
 
 Snapshot generated 2026-08-19 against `main`. Source: `LANGUAGE_DEFINITIONS["cobol"]` in

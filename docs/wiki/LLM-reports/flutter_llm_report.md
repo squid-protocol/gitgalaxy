@@ -1,3 +1,8 @@
+---
+description: "The `flutter` repository encompasses both the high-level Dart UI framework (30.7%) and the low-level C++ rendering engine/embedder (33.7%), supported..."
+title: "Flutter Architectural Brief & LLM Report"
+
+---
 # Architectural Brief: Flutter
 
 ## 1. Information Flow & Purpose (The Executive Summary)

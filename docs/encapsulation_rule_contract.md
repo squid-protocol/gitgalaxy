@@ -1,3 +1,6 @@
+---
+description: "Phase 3 of the contract roadmap (`docs/contract_roadmap.md`, epic #2812): the sheet row"
+---
 # The `encapsulation` rule contract (#2766)
 
 Phase 3 of the contract roadmap (`docs/contract_roadmap.md`, epic #2812): the sheet row

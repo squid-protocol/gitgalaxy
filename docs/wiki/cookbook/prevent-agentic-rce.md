@@ -1,3 +1,6 @@
+---
+description: "If you are building autonomous coding agents or integrating LLMs into your CI/CD pipeline, your greatest security threat is **Agentic RCE** (Remote..."
+---
 # How to Block Autonomous LLM Agents from Executing RCE
 
 If you are building autonomous coding agents or integrating LLMs into your CI/CD pipeline, your greatest security threat is **Agentic RCE** (Remote Code Execution) via Prompt Injection.

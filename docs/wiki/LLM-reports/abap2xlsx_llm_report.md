@@ -1,3 +1,6 @@
+---
+description: "The `abap2xlsx` repository is a data serialization and translation layer designed to convert SAP/ABAP data structures into Microsoft Excel formats..."
+---
 # Architectural Brief: abap2xlsx
 
 ## 1. Information Flow & Purpose (The Executive Summary)

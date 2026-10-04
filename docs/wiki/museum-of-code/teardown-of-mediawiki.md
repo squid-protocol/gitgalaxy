@@ -1,3 +1,6 @@
+---
+description: "**Executive Summary:** MediaWiki is the lifeblood of Wikipedia, operating at massive global scale. Our structural physics audit reveals a highly..."
+---
 # The Architecture of MediaWiki: A Structural Physics Teardown
 
 **Executive Summary:** MediaWiki is the lifeblood of Wikipedia, operating at massive global scale. Our structural physics audit reveals a highly decoupled, modular architecture (Modularity: 0.7819) built primarily in PHP and JavaScript. While generally robust, the GitGalaxy static code analysis identified specific technical debt hotspots, 65 critical articulation points, and heavily weighted "God Nodes" locked in single-developer silos.

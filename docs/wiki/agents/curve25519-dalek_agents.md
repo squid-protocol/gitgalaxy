@@ -1,3 +1,6 @@
+---
+description: "You are operating within `curve25519-dalek`, a pure-Rust (82.8%) implementation of group operations on the Ristretto and Curve25519 elliptic curves."
+---
 # AGENTS.md: curve25519-dalek Architectural Context & Engagement Rules
 
 ## 1. System Context & Paradigm

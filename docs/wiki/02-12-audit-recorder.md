@@ -1,3 +1,6 @@
+---
+description: "> **File Reference:** [`gitgalaxy/recorders/audit_recorder.py`](https://github.com/squid-protocol/gitgalaxy/blob/main/gitgalaxy/recorders/audit_recorder..."
+---
 # Audit Recorder
 
 > **File Reference:** [`gitgalaxy/recorders/audit_recorder.py`](https://github.com/squid-protocol/gitgalaxy/blob/main/gitgalaxy/recorders/audit_recorder.py)

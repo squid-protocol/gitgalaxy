@@ -1,3 +1,6 @@
+---
+description: "You are operating within `cics-banking-sample-application-cbsa`, a heterogeneous CICS banking application combining a legacy COBOL backend (17.3%) with..."
+---
 # AGENTS.md: cics-banking-sample-application-cbsa Architectural Context & Engagement Rules
 
 ## 1. System Context & Paradigm

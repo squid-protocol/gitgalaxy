@@ -1,3 +1,6 @@
+---
+description: "| Field | Value |"
+---
 # Dockerfile — Structural Signature Coverage
 
 ## 1. At a glance

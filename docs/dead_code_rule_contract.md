@@ -1,3 +1,6 @@
+---
+description: "> **One hit is a comment that holds code: a keyword-led line (the original"
+---
 # The `dead_code` rule: commented-out statements (#4171)
 
 > **One hit is a comment that holds code: a keyword-led line (the original

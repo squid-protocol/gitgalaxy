@@ -1,3 +1,6 @@
+---
+description: "Run 2026-10-03 with `tests/tools/thirdparty_port.py`. The pattern is that of the IBM WCA4Z experiment"
+---
 # Third-party CardDemo ports through the equivalence harness: Lightyear and SENTINEL IDE
 
 Run 2026-10-03 with `tests/tools/thirdparty_port.py`. The pattern is that of the IBM WCA4Z experiment

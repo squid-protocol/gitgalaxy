@@ -1,3 +1,6 @@
+---
+description: "**Executive Summary:** We performed a deep **static code analysis** on the TensorFlow repository. By mapping its structural physics, we uncover the..."
+---
 # The Architecture of TensorFlow: A Structural Physics Teardown of an AI Monolith
 
 **Executive Summary:** We performed a deep **static code analysis** on the TensorFlow repository. By mapping its structural physics, we uncover the extreme **technical debt**, zero-modularity **software architecture**, and massive "God Nodes" that power the world's most dominant machine learning ecosystem. This teardown exposes the raw **code smells**, tight coupling, and structural realities hiding within nearly 3 million lines of code, revealing why modern **microservices** struggle to contain complex tensor mathematics.

@@ -1,3 +1,6 @@
+---
+description: "Most gaps in a scanned mainframe estate come from inputs that were not handed"
+---
 # Mainframe estate ingestion checklist
 
 Most gaps in a scanned mainframe estate come from inputs that were not handed

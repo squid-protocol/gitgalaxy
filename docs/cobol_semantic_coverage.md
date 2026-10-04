@@ -1,3 +1,6 @@
+---
+description: "An audit of four new CICS sample repos in `data/corpus_cobol/` found that every `EXEC CICS`/`EXEC SQL`"
+---
 # COBOL/JCL semantic-coverage assessment (#2990)
 
 An audit of four new CICS sample repos in `data/corpus_cobol/` found that every `EXEC CICS`/`EXEC SQL`

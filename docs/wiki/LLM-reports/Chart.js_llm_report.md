@@ -1,3 +1,6 @@
+---
+description: "The `Chart.js` repository serves as a versatile, canvas-based charting library for the web. Composed of JavaScript (52.0%) and TypeScript (32.5%), the..."
+---
 # Architectural Brief: Chart.js
 
 ## 1. Information Flow & Purpose (The Executive Summary)

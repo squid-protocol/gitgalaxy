@@ -1,3 +1,6 @@
+---
+description: "> **File Reference:** [`gitgalaxy/core/aperture.py`](https://github.com/squid-protocol/gitgalaxy/blob/main/gitgalaxy/core/aperture.py)"
+---
 # File Filtering and Ingestion Shield
 
 > **File Reference:** [`gitgalaxy/core/aperture.py`](https://github.com/squid-protocol/gitgalaxy/blob/main/gitgalaxy/core/aperture.py)

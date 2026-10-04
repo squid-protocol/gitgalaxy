@@ -1,3 +1,6 @@
+---
+description: "Appendix to [`vectors.md`](vectors.md) — gitgalaxy#2991. A mechanical, per-calculator"
+---
 # Vector calculator formula facts (mechanical audit)
 
 Appendix to [`vectors.md`](vectors.md) — gitgalaxy#2991. A mechanical, per-calculator

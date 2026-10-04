@@ -1,3 +1,6 @@
+---
+description: "You are operating within the `react` repository (`facebook/react`), the foundational library for building user interfaces. The codebase encompasses the..."
+---
 # AGENTS.md: react Architectural Context & Engagement Rules
 
 ## 1. Information Flow & Purpose (The Executive Summary)

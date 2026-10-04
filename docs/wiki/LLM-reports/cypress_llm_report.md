@@ -1,3 +1,6 @@
+---
+description: "The `cypress` repository contains a modern, widely-adopted end-to-end testing framework for web applications. The language composition is heavily..."
+---
 # Architectural Brief: Cypress
 
 ## 1. Information Flow & Purpose (The Executive Summary)

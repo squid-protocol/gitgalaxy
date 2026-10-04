@@ -1,3 +1,6 @@
+---
+description: "Snapshot generated 2026-08-30 against `feature/tri-comparison-css-precision-recall`, amended"
+---
 # CSS — Structural Signature Coverage
 
 Snapshot generated 2026-08-30 against `feature/tri-comparison-css-precision-recall`, amended

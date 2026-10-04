@@ -1,3 +1,6 @@
+---
+description: "- `Cbact02cService.structured.java` -- the deterministic port (`tests/tools/det_port.py --style structured`), proven"
+---
 # CBACT02C: a deterministic port, refactored by a model under proof
 
 - `Cbact02cService.structured.java` -- the deterministic port (`tests/tools/det_port.py --style structured`), proven

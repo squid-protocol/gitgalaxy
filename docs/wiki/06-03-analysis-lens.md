@@ -1,3 +1,6 @@
+---
+description: "> **File Reference:** [`gitgalaxy/standards/analysis_lens.py`](https://github.com/squid-protocol/gitgalaxy/blob/main/gitgalaxy/standards/analysis_lens.py)"
+---
 # Analysis Lens & Schema Registry
 
 > **File Reference:** [`gitgalaxy/standards/analysis_lens.py`](https://github.com/squid-protocol/gitgalaxy/blob/main/gitgalaxy/standards/analysis_lens.py)

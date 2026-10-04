@@ -1,3 +1,6 @@
+---
+description: "`README.md`'s ['One Graph, Not Five Separate Tools'](../README.md#one-graph-not-five-separate-tools)"
+---
 # Where GitGalaxy's Signal Beats a Plain AST — and Where It Doesn't
 
 `README.md`'s ["One Graph, Not Five Separate Tools"](../README.md#one-graph-not-five-separate-tools)

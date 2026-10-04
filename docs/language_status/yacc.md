@@ -1,3 +1,6 @@
+---
+description: "Snapshot generated 2026-08-27 against `main`. Source: `LANGUAGE_DEFINITIONS['yacc']` in"
+---
 # YACC / Bison / Lex — Structural Signature Coverage
 
 Snapshot generated 2026-08-27 against `main`. Source: `LANGUAGE_DEFINITIONS["yacc"]` in

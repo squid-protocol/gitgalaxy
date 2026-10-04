@@ -1,3 +1,6 @@
+---
+description: "engine's `<repo>_galaxy_master.db` as its IR instead of its own COBOL parsers. The issue"
+---
 # Refraction pipeline vs. engine DB: the #3120 differential
 
 #3120 asked the COBOL refraction pipeline (`cobol-refractor` → `cobol-to-java`) to use the

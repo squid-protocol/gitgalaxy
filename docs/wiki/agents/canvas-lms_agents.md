@@ -1,3 +1,6 @@
+---
+description: "You are operating within `canvas-lms`, a massive Learning Management System monolith comprising over 1 million lines of code. The architecture is a..."
+---
 # AGENTS.md: canvas-lms Architectural Context & Engagement Rules
 
 ## 1. System Context & Paradigm

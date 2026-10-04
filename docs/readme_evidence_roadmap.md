@@ -1,3 +1,6 @@
+---
+description: "A living list of claims a skeptical reviewer would want that GitGalaxy doesn't have the"
+---
 # README Evidence Staging Roadmap
 
 A living list of claims a skeptical reviewer would want that GitGalaxy doesn't have the

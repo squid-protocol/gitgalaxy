@@ -1,3 +1,6 @@
+---
+description: "You are operating within `jenkins`, a massive (1.25M+ LOC), highly mature continuous integration and delivery server. The repository is heavily..."
+---
 # AGENTS.md: jenkins Architectural Context & Engagement Rules
 
 ## 1. System Context & Paradigm

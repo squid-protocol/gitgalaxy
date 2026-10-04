@@ -1,3 +1,6 @@
+---
+description: "The `fineract` repository is the core backend for the Apache Fineract financial services platform. Heavily dominated by Java (91.6%), the architecture..."
+---
 # Architectural Brief: Fineract
 
 ## 1. Information Flow & Purpose (The Executive Summary)

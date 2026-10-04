@@ -1,3 +1,6 @@
+---
+description: "The `AssemblyScript` repository is a specialized compiler infrastructure designed to compile a strict subset of TypeScript directly to WebAssembly. The..."
+---
 # Architectural Brief: AssemblyScript
 
 ## 1. Information Flow & Purpose (The Executive Summary)

@@ -1,3 +1,6 @@
+---
+description: "You are operating within the `Dancer2` repository, a lightweight yet powerful web application framework for Perl (79.2%). It is the successor to..."
+---
 # AGENTS.md: Dancer2 Architectural Context & Engagement Rules
 
 ## 1. System Context & Paradigm

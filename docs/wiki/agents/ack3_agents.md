@@ -1,3 +1,6 @@
+---
+description: "You are operating within `ack3`, an ecosystem primarily composed of Perl logic (56.6%) and heavily reliant on an extensive testing framework (the `t/`..."
+---
 # AGENTS.md
 
 ## 1. System Context & Paradigm

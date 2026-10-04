@@ -1,3 +1,6 @@
+---
+description: "The `freeCodeCamp` repository constitutes an expansive educational platform, combining curriculum content with a custom learning environment and..."
+---
 # Architectural Brief: freeCodeCamp
 
 ## 1. Information Flow & Purpose (The Executive Summary)

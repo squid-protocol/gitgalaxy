@@ -1,3 +1,6 @@
+---
+description: "The `cargo` repository acts as the official package manager and build system for Rust, implemented almost entirely in Rust (63.5% LOC) alongside a..."
+---
 # Architectural Brief: cargo
 
 ## 1. Information Flow & Purpose (The Executive Summary)

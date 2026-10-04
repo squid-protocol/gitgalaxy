@@ -1,3 +1,6 @@
+---
+description: "> Epic [#3313](https://github.com/squid-protocol/gitgalaxy/issues/3313), step 4. Same shape as"
+---
 # The wrapper-aware count contract (`wrapped_<rule>`)
 
 > Epic [#3313](https://github.com/squid-protocol/gitgalaxy/issues/3313), step 4. Same shape as

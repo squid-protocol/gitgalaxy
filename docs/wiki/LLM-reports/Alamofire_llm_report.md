@@ -1,3 +1,6 @@
+---
+description: "The `Alamofire` repository is a robust, protocol-oriented HTTP networking library for Apple platforms, written predominantly in Swift (67.4% of the..."
+---
 # Architectural Brief: Alamofire
 
 ## 1. Information Flow & Purpose (The Executive Summary)

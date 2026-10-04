@@ -1,3 +1,6 @@
+---
+description: "*Phase 2 of the Devin benchmark (phase 1: [`devin-carddemo-survey.md`](devin-carddemo-survey.md)). Run 2026-10-02 with `tests/tools/devin_port.py`...."
+---
 # Devin's CardDemo ports through our equivalence harness
 
 *Phase 2 of the Devin benchmark (phase 1: [`devin-carddemo-survey.md`](devin-carddemo-survey.md)). Run 2026-10-02 with `tests/tools/devin_port.py`. **Partial:** this covers item 1 of the plan, the two `eval/` arms on CBACT04C and CBTRN02C. CBACT01C across all its ports (item 2) is deferred; it needs a new case and a model of the assembler routine COBDATFT.*

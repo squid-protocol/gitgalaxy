@@ -1,3 +1,6 @@
+---
+description: "The `curl` repository is the ubiquitous command-line tool and library (libcurl) for transferring data with URLs. Written predominantly in C (69.8%)..."
+---
 # Architectural Brief: curl
 
 ## 1. Information Flow & Purpose (The Executive Summary)

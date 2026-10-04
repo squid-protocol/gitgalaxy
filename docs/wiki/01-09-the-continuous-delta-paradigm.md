@@ -1,3 +1,6 @@
+---
+description: "> **The Flaw of 'Perfect' Parsing**"
+---
 # 01-09: The Continuous Delta Paradigm (Temporal Physics & CI/CD)
 
 > **The Flaw of "Perfect" Parsing**

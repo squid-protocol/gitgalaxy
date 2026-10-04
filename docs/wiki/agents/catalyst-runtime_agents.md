@@ -1,3 +1,6 @@
+---
+description: "You are operating within `catalyst-runtime`, the core execution engine of the Perl Catalyst MVC web framework. The repository is overwhelmingly..."
+---
 # AGENTS.md: catalyst-runtime Architectural Context & Engagement Rules
 
 ## 1. System Context & Paradigm

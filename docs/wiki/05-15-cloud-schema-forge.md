@@ -1,3 +1,6 @@
+---
+description: "> **File Reference:** [gitgalaxy/tools/cobol_to_cobol/cobol_schema_forge.py](https://github.com/squid-protocol/gitgalaxy/blob/main/gitgalaxy/tools/cobol..."
+---
 # Relational Database & JSON Schema Generator
 
 > **File Reference:** [gitgalaxy/tools/cobol_to_cobol/cobol_schema_forge.py](https://github.com/squid-protocol/gitgalaxy/blob/main/gitgalaxy/tools/cobol_to_cobol/cobol_schema_forge.py)

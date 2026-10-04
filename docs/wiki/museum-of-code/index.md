@@ -1,3 +1,6 @@
+---
+description: "Welcome to the Museum of Code. Software is often judged by its UI or its documentation, but here, we look at the raw physical reality of the code itself."
+---
 # 🏛️ The Museum of Code
 
 Welcome to the Museum of Code. Software is often judged by its UI or its documentation, but here, we look at the raw physical reality of the code itself. 

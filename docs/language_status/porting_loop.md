@@ -1,3 +1,6 @@
+---
+description: "The porting loop (#3753, `gitgalaxy.tools.cobol_to_java.port_runner`) gives a model one program's porting ticket."
+---
 # The porting loop on CardDemo: what an unattended model proves, and what it taught us
 
 The porting loop (#3753, `gitgalaxy.tools.cobol_to_java.port_runner`) gives a model one program's porting ticket.

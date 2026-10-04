@@ -1,3 +1,6 @@
+---
+description: "You are operating within the `flutter` repository, a massive (1.3M+ LOC) UI toolkit and rendering engine. The codebase is heavily bifurcated between..."
+---
 # AGENTS.md: flutter Architectural Context & Engagement Rules
 
 ## 1. System Context & Paradigm

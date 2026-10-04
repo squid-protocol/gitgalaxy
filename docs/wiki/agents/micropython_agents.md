@@ -1,3 +1,6 @@
+---
+description: "You are operating within `micropython`, a lean and efficient implementation of the Python 3 programming language optimized to run on microcontrollers..."
+---
 # AGENTS.md: micropython Architectural Context & Engagement Rules
 
 ## 1. System Context & Paradigm

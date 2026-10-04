@@ -1,3 +1,6 @@
+---
+description: "You are operating within `blst`, a highly optimized cryptography library (BLS12-381 signatures) primarily composed of C (37.6%), Perl-based Assembly..."
+---
 # AGENTS.md: blst Architectural Context & Engagement Rules
 
 ## 1. System Context & Paradigm

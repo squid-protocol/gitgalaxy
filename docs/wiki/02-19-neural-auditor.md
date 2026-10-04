@@ -1,3 +1,6 @@
+---
+description: "> **File Reference:** [`gitgalaxy/metrics/tensor_scanner.py`](https://github.com/squid-protocol/gitgalaxy/blob/main/gitgalaxy/metrics/tensor_scanner.py)"
+---
 # Tensor Model Scanner
 
 > **File Reference:** [`gitgalaxy/metrics/tensor_scanner.py`](https://github.com/squid-protocol/gitgalaxy/blob/main/gitgalaxy/metrics/tensor_scanner.py)

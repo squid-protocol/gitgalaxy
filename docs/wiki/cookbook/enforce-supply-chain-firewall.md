@@ -1,3 +1,6 @@
+---
+description: "Modern applications are assembled, not written. A typical enterprise project contains thousands of transitive dependencies pulled from `npm`, `PyPI`,..."
+---
 # How to Enforce a Zero-Trust Supply Chain Firewall
 
 Modern applications are assembled, not written. A typical enterprise project contains thousands of transitive dependencies pulled from `npm`, `PyPI`, or `Maven`. 

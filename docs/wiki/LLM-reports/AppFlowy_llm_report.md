@@ -1,3 +1,6 @@
+---
+description: "The `AppFlowy` repository acts as a privacy-first, open-source alternative to Notion. The architecture is a hybrid system utilizing a Rust backend..."
+---
 # Architectural Brief: AppFlowy
 
 ## 1. Information Flow & Purpose (The Executive Summary)

@@ -1,3 +1,6 @@
+---
+description: "Snapshot generated 2026-08-30 against `main`. Source: `LANGUAGE_DEFINITIONS['tcl']` in"
+---
 # Tcl — Structural Signature Coverage
 
 Snapshot generated 2026-08-30 against `main`. Source: `LANGUAGE_DEFINITIONS["tcl"]` in

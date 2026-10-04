@@ -1,3 +1,6 @@
+---
+description: "Phase 3 of the contract roadmap (`docs/contract_roadmap.md`, epic #2812): the sheet row"
+---
 # The `high_risk_execution` rule contract (#2878)
 
 Phase 3 of the contract roadmap (`docs/contract_roadmap.md`, epic #2812): the sheet row

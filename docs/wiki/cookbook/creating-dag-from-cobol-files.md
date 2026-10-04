@@ -1,3 +1,6 @@
+---
+description: "In enterprise legacy modernization, migrating isolated COBOL programs is a relatively solved problem. The true operational risk lies in migrating the..."
+---
 # Cookbook: Data Lineage & DAG Architecture via Deterministic RAG Pipelines
 
 ## 1. Architecture of a Deterministic RAG Engine

@@ -1,3 +1,6 @@
+---
+description: "The `fastapi` repository contains the source code for the high-performance Python web framework of the same name. Written predominantly in Python..."
+---
 # Architectural Brief: fastapi
 
 ## 1. Information Flow & Purpose (The Executive Summary)

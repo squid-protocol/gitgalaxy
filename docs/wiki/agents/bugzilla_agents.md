@@ -1,3 +1,6 @@
+---
+description: "You are operating within `bugzilla`, a legacy, monolithic defect-tracking system. The repository is heavily reliant on Perl (41.6%) for backend logic..."
+---
 # AGENTS.md: bugzilla Architectural Context & Engagement Rules
 
 ## 1. System Context & Paradigm

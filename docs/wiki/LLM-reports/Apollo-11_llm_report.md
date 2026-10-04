@@ -1,3 +1,6 @@
+---
+description: "The `Apollo-11` repository is a historical digitization of the original Apollo Guidance Computer (AGC) source code for both the Command Module..."
+---
 # Architectural Brief: Apollo-11
 
 ## 1. Information Flow & Purpose (The Executive Summary)

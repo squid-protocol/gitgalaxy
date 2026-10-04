@@ -1,3 +1,6 @@
+---
+description: "If we have lists of keywords per file we can do something very similar to DNA finger print matching. This implementation took the lowest hanging fruit..."
+---
 # Claim 6 -- DNA/Keyword Fingerprinting: An "NCBI BLAST" for Code
 
 If we have lists of keywords per file we can do something very similar to DNA finger print matching. This implementation took the lowest hanging fruit method and just used a ratiometric DNA fingerprint system to attempt to normalize out LOC. What the data suggests is wild. 

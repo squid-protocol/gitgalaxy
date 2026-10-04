@@ -1,3 +1,6 @@
+---
+description: "The `cash-account-cobol` repository represents a highly localized, monolithic financial transaction processor. Composed predominantly of COBOL (75%),..."
+---
 # AGENTS.md: cash-account-cobol Architectural Context & Engagement Rules
 
 ## 1. Information Flow & Purpose (The Executive Summary)

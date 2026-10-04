@@ -1,3 +1,6 @@
+---
+description: "You are operating within `elasticsearch`, a highly complex, distributed search and analytics engine. The repository is massively scaled (4.4M+ LOC) and..."
+---
 # AGENTS.md: elasticsearch Architectural Context & Engagement Rules
 
 ## 1. System Context & Paradigm

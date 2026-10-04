@@ -1,3 +1,6 @@
+---
+description: "GitGalaxy work routinely spans four or five intermingled repositories, and most of the recurring"
+---
 # The GitGalaxy repo constellation
 
 GitGalaxy work routinely spans four or five intermingled repositories, and most of the recurring

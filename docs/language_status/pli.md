@@ -1,3 +1,6 @@
+---
+description: "Snapshot written 2026-09-15 with the language's addition (#2502, which also closes the earlier"
+---
 # PL/I — Structural Signature Coverage
 
 Snapshot written 2026-09-15 with the language's addition (#2502, which also closes the earlier

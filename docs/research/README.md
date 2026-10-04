@@ -1,3 +1,6 @@
+---
+description: "| Document | What it is |"
+---
 # Research notes
 
 | Document | What it is |

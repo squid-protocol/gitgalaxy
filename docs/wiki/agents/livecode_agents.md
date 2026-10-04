@@ -1,3 +1,6 @@
+---
+description: "You are operating within the `livecode` repository, a cross-platform rapid application development environment. The codebase is heavily bifurcated..."
+---
 # AGENTS.md: livecode Architectural Context & Engagement Rules
 
 ## 1. Information Flow & Purpose (The Executive Summary)

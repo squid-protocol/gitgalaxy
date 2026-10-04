@@ -1,3 +1,6 @@
+---
+description: "You are operating within the `zig` repository, the core compiler and standard library for the Zig programming language. The codebase is overwhelmingly..."
+---
 # AGENTS.md: zig Architectural Context & Engagement Rules
 
 ## 1. System Context & Paradigm

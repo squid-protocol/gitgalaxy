@@ -1,3 +1,6 @@
+---
+description: "The `cli` repository constitutes the core of npm, the default package manager for Node.js. Written predominantly in JavaScript, the system's primary..."
+---
 # Architectural Brief: npm/cli
 
 ## 1. Information Flow & Purpose (The Executive Summary)

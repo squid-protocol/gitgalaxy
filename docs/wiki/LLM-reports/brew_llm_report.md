@@ -1,3 +1,6 @@
+---
+description: "The `brew` repository acts as the core package manager logic for Homebrew, predominantly written in Ruby (65.0%) with emerging components in Rust..."
+---
 # Architectural Brief: brew
 
 ## 1. Information Flow & Purpose (The Executive Summary)

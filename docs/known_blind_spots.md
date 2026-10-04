@@ -1,3 +1,6 @@
+---
+description: "The counterpart to [`why_gitgalaxy_beats_ast_here.md`](why_gitgalaxy_beats_ast_here.md). That doc"
+---
 # Known Blind Spots — Where GitGalaxy's Signal Goes Quiet
 
 The counterpart to [`why_gitgalaxy_beats_ast_here.md`](why_gitgalaxy_beats_ast_here.md). That doc

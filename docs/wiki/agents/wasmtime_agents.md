@@ -1,3 +1,6 @@
+---
+description: "You are operating within the `wasmtime` repository, a fast and secure standalone WebAssembly (Wasm) runtime that includes the Cranelift code generator...."
+---
 # AGENTS.md: wasmtime Architectural Context & Engagement Rules
 
 ## 1. Information Flow & Purpose (The Executive Summary)

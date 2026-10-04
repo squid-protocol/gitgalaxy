@@ -1,3 +1,6 @@
+---
+description: "**Executive Summary:** OpenCV is the undisputed backbone of modern computer vision. Our **Static Code Analysis** reveals a massive 1.27 million line..."
+---
 # The Architecture of OpenCV: A Structural Physics Teardown
 
 **Executive Summary:** OpenCV is the undisputed backbone of modern computer vision. Our **Static Code Analysis** reveals a massive 1.27 million line C/C++ monolith that maintains surprisingly high modularity (0.7768). However, the GitGalaxy engine uncovered 287 critical articulation points, extreme **Technical Debt** hidden within highly localized "God Nodes," and massive algorithmic logic blocks isolated to single-developer silos.

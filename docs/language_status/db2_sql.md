@@ -1,3 +1,6 @@
+---
+description: "Snapshot written 2026-09-16 with the language's addition (#2511, under the legacy-mainframe"
+---
 # IBM DB2 SQL / SQL PL — Structural Signature Coverage
 
 Snapshot written 2026-09-16 with the language's addition (#2511, under the legacy-mainframe

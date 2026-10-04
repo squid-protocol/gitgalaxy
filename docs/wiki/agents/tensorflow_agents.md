@@ -1,3 +1,6 @@
+---
+description: "You are operating within the `tensorflow` repository, an industry-standard, massive-scale machine learning and numerical computation framework. The..."
+---
 # AGENTS.md: tensorflow Architectural Context & Engagement Rules
 
 ## 1. System Context & Paradigm

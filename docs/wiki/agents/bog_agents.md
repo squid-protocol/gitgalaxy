@@ -1,3 +1,6 @@
+---
+description: "You are operating within `bog`, a small, embeddable language interpreted virtual machine and compiler written overwhelmingly in Zig (90.6%) and C (6.2%)."
+---
 # AGENTS.md: bog Architectural Context & Engagement Rules
 
 ## 1. System Context & Paradigm

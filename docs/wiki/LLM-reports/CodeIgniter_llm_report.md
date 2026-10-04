@@ -1,3 +1,6 @@
+---
+description: "The `CodeIgniter` repository contains a lightweight, legacy-compatible PHP web framework. The codebase is heavily dominated by PHP (74.0%) and HTML..."
+---
 # Architectural Brief: CodeIgniter
 
 ## 1. Information Flow & Purpose (The Executive Summary)

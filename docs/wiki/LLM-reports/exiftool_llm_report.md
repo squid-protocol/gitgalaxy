@@ -1,3 +1,6 @@
+---
+description: "The `exiftool` repository is a comprehensive library and command-line application for reading, writing, and editing meta information across a vast..."
+---
 # Architectural Brief: exiftool
 
 ## 1. Information Flow & Purpose (The Executive Summary)

@@ -1,3 +1,6 @@
+---
+description: "Hardcoded secrets (AWS keys, database passwords, API tokens) are the leading cause of enterprise data breaches. If a developer accidentally commits a..."
+---
 # How to Block Hardcoded Secrets in CI/CD
 
 Hardcoded secrets (AWS keys, database passwords, API tokens) are the leading cause of enterprise data breaches. If a developer accidentally commits a credential, it becomes permanently etched into the Git history. 

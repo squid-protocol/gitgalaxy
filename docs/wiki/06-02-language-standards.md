@@ -1,3 +1,6 @@
+---
+description: "> **File Reference:** [`gitgalaxy/standards/language_standards.py`](https://github.com/squid-protocol/gitgalaxy/blob/main/gitgalaxy/standards/language_s..."
+---
 # Language Standards Registry
 
 > **File Reference:** [`gitgalaxy/standards/language_standards.py`](https://github.com/squid-protocol/gitgalaxy/blob/main/gitgalaxy/standards/language_standards.py)

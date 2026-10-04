@@ -1,3 +1,6 @@
+---
+description: "You are operating within `cosmopolitan`, a build-once-run-anywhere C library and toolchain. The repository is predominantly C (52.2%) and Assembly..."
+---
 # AGENTS.md: cosmopolitan Architectural Context & Engagement Rules
 
 ## 1. System Context & Paradigm

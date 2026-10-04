@@ -1,3 +1,6 @@
+---
+description: "You are operating within the `gnucobol` repository, a free, modern COBOL compiler. Based on the current visibility scope, the scanned architecture is..."
+---
 # AGENTS.md: gnucobol Architectural Context & Engagement Rules
 
 ## 1. System Context & Paradigm

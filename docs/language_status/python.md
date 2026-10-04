@@ -1,3 +1,6 @@
+---
+description: "Snapshot generated 2026-08-09 against `main`. Source: `LANGUAGE_DEFINITIONS['python']` in"
+---
 # Python — Structural Signature Coverage
 
 Snapshot generated 2026-08-09 against `main`. Source: `LANGUAGE_DEFINITIONS["python"]` in

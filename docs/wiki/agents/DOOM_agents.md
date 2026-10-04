@@ -1,3 +1,6 @@
+---
+description: "You are operating within the `DOOM` repository, the foundational 1993 source code for id Software's Doom engine. The codebase is almost exclusively C..."
+---
 # AGENTS.md: DOOM Architectural Context & Engagement Rules
 
 ## 1. System Context & Paradigm

@@ -1,3 +1,6 @@
+---
+description: "This folder holds two unrelated things that happen to share a name and a path. This README is"
+---
 # Self-Scan: Tree-sitter Accuracy Data
 
 This folder holds two unrelated things that happen to share a name and a path. This README is

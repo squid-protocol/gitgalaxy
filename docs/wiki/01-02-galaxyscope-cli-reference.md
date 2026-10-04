@@ -1,3 +1,6 @@
+---
+description: "> **Architecture: Hyper-Scale Static Analysis Wrapper**"
+---
 # GalaxyScope CLI Reference
 
 > **Architecture: Hyper-Scale Static Analysis Wrapper**

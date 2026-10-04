@@ -1,3 +1,6 @@
+---
+description: "You are operating within the `roslyn` repository, the core .NET compiler platform containing the C# and Visual Basic compilers, alongside robust APIs..."
+---
 # AGENTS.md: roslyn Architectural Context & Engagement Rules
 
 ## 1. Information Flow & Purpose (The Executive Summary)

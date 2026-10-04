@@ -1,3 +1,6 @@
+---
+description: "**Executive Summary:** We performed a deep **static code analysis** on the original DOOM (linuxdoom-1.10) source code. By mapping its structural..."
+---
 # The Architecture of DOOM: A Structural Physics Teardown of a Gaming Legend
 
 **Executive Summary:** We performed a deep **static code analysis** on the original DOOM (linuxdoom-1.10) source code. By mapping its structural physics, we uncover the low-level **software architecture**, tight C coupling, and foundational "God Nodes" that revolutionized real-time 3D rendering. This teardown exposes the **technical debt**, memory mechanics, and raw procedural efficiency of a 29,000-line masterpiece that defined an entire industry long before modern **microservices** or object-oriented frameworks.

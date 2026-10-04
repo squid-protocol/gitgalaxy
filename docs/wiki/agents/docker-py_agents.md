@@ -1,3 +1,6 @@
+---
+description: "You are operating within `docker-py`, the official Python library for the Docker Engine API. The repository is predominantly Python (81.1%), focusing..."
+---
 # AGENTS.md: docker-py Architectural Context & Engagement Rules
 
 ## 1. System Context & Paradigm

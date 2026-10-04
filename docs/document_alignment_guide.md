@@ -1,3 +1,6 @@
+---
+description: "GitGalaxy's documentation is large enough that no single person reads all of it before"
+---
 # Document Alignment Guide
 
 GitGalaxy's documentation is large enough that no single person reads all of it before

@@ -1,3 +1,6 @@
+---
+description: "Most language detectors answer one question — *'what language is this file?'* — and return one thing: a label. GitGalaxy answers a different question —..."
+---
 # Claim 11: Multi-Signal Language Detection (Inference With Provenance, Not a Waterfall)
 
 Most language detectors answer one question — *"what language is this file?"* — and return one thing: a label. GitGalaxy answers a different question — *"what language is this file, how do we know, and how much should you trust that?"* — and returns three things: a language, a **trust tier**, and a human-readable **proof of how it was reached**.

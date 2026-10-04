@@ -1,3 +1,6 @@
+---
+description: "You are operating within `jellyfin`, a sprawling, high-performance media server ecosystem. The repository is overwhelmingly dominated by C# (91.2%) and..."
+---
 # AGENTS.md: jellyfin Architectural Context & Engagement Rules
 
 ## 1. System Context & Paradigm

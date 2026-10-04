@@ -1,3 +1,6 @@
+---
+description: "You are operating within the `go` repository, the core compiler, runtime, and standard library for the Go programming language. The codebase is..."
+---
 # AGENTS.md: go Architectural Context & Engagement Rules
 
 ## 1. System Context & Paradigm

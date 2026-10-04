@@ -1,3 +1,6 @@
+---
+description: "Modernizing a 40-year-old Mainframe monolith is one of the most high-risk engineering operations an enterprise can undertake. The failure rate is..."
+---
 # 01-04: The Legacy Bridge (Mainframe Modernization Philosophy)
 
 Modernizing a 40-year-old Mainframe monolith is one of the most high-risk engineering operations an enterprise can undertake. The failure rate is exceptionally high, and the root cause is almost always the same: **the tooling relies on strict compilation.**

@@ -1,3 +1,6 @@
+---
+description: "Snapshot generated 2026-08-22 against `main`. Source: `LANGUAGE_DEFINITIONS['kotlin']` in"
+---
 # Kotlin — Structural Signature Coverage
 
 Snapshot generated 2026-08-22 against `main`. Source: `LANGUAGE_DEFINITIONS["kotlin"]` in

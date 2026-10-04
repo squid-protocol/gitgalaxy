@@ -1,3 +1,6 @@
+---
+description: "Traditional computer science treats different programming languages as isolated, incomparable islands. An Abstract Syntax Tree (AST) generated for Java..."
+---
 ## 2.4.2. Claim 3 -- Intent Scales Across Syntax (The Taxonomical Equivalence Map)
 
 ### The Premise

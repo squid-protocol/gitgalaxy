@@ -1,3 +1,6 @@
+---
+description: "**Executive Summary:** We performed a deep **static code analysis** on the FreeBSD operating system source code. By mapping its structural physics, we..."
+---
 # The Architecture of FreeBSD: A Structural Physics Teardown of an OS Monolith
 
 **Executive Summary:** We performed a deep **static code analysis** on the FreeBSD operating system source code. By mapping its structural physics, we uncover the extreme **technical debt**, massive **code smells**, and deeply embedded "God Nodes" that power one of the most robust operating systems on the planet. This teardown exposes the physical realities and **software architecture** of a 13.8-million-line C monolith, demonstrating how legendary software survives without modern **microservices** paradigms.

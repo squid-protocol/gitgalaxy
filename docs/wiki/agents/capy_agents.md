@@ -1,3 +1,6 @@
+---
+description: "You are operating within `capy`, a cross-platform GUI framework primarily composed of Zig (87.4%), alongside native backend bindings in C, Java, and..."
+---
 # AGENTS.md: capy Architectural Context & Engagement Rules
 
 ## 1. System Context & Paradigm

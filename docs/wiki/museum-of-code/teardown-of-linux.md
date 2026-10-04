@@ -1,3 +1,6 @@
+---
+description: "**Executive Summary:** We performed a deep **static code analysis** on the Linux kernel repository. By mapping its structural physics, we uncover the..."
+---
 # The Architecture of Linux: A Structural Physics Teardown of the Kernel Monolith
 
 **Executive Summary:** We performed a deep **static code analysis** on the Linux kernel repository. By mapping its structural physics, we uncover the extreme **technical debt**, heavily coupled **software architecture**, and massive "God Nodes" that power the most dominant operating system on earth. This teardown exposes the raw **code smells**, memory mechanics, and zero-trust security perimeter of a 24-million-line C monolith, demonstrating how global open-source infrastructure survives without modern **microservices** paradigms.

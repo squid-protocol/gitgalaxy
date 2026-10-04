@@ -1,0 +1,168 @@
+name: Evidence Refresh
+
+# #4048: re-prove every evidence record that has gone stale, and open a PR with the refreshed records.
+#
+# The staleness policy (owner decision, #4048 Q1): a change to a port, its case, its corpus pin or its declared
+# differences fails the PR that makes it (tests/cobol_mainframe/test_evidence.py), so that PR re-proves the record.
+# A change to the harness, the oracle or the generator stales EVERY record at once; the record then shows as stale
+# (never as proven), and this job re-proves it: `evidence.py refresh --stale` runs each stale record's proof on the
+# committed port and case, writes the new proof (proven or not) and re-renders docs/language_status/evidence/.
+#
+# The PR it opens is a draft and is never merged automatically: a refreshed record is tool-written evidence, and a
+# proof that now fails needs a person. Approvals are never touched (only `evidence.py approve`, run by a person at a
+# terminal, writes one). Db2 cases need IBM's Db2 container; they run only on a manual dispatch with db2 = true.
+
+on:
+  schedule:
+    - cron: "17 3 * * *"  # nightly
+  workflow_dispatch:
+    inputs:
+      db2:
+        description: "also re-prove the Db2 cases (starts IBM's Db2 container: slow)"
+        type: boolean
+        default: false
+      keys:
+        description: "only these records (space-separated keys, e.g. carddemo-dateutil crucible:pc-wizard/PCWIZ)"
+        type: string
+        default: ""
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ${{ github.workflow }}
+  cancel-in-progress: false
+
+jobs:
+  refresh:
+    runs-on: ubuntu-latest
+    timeout-minutes: 300
+    permissions:
+      contents: write
+      pull-requests: write
+    env:
+      GITGALAXY_LICENSE_KEY: COMMUNITY_FREE_TIER
+      PYTHONUTF8: "1"
+      GITGALAXY_ORACLE_STRICT: "1"
+      GITGALAXY_MAINFRAME_CORPORA: ${{ github.workspace }}/.mainframe_corpora
+    steps:
+      - name: Checkout GitGalaxy
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          path: gitgalaxy
+          fetch-depth: 0  # a record's mutation section is judged against its commit's inputs (git history)
+          persist-credentials: false
+
+      - name: Clone cics-crucible at the pin
+        run: |
+          ref=$(sed -n 's/^PINNED_REF = "\(.*\)"/\1/p' gitgalaxy/tests/_cics_crucible_pin.py)
+          if [ -z "$ref" ]; then
+            echo "::error title=CICS crucible pin unavailable::No PINNED_REF in gitgalaxy/tests/_cics_crucible_pin.py."
+            exit 1
+          fi
+          git init -q cics-crucible
+          git -C cics-crucible remote add origin https://github.com/squid-protocol/cics-crucible.git
+          if echo "$ref" | grep -Eq '^[0-9a-f]{40}$'; then
+            git -C cics-crucible fetch -q --depth 1 origin "$ref"
+          else
+            git -C cics-crucible fetch -q --depth 1 origin "+refs/tags/$ref:refs/tags/$ref"
+          fi
+          git -C cics-crucible checkout -q --detach FETCH_HEAD
+
+      - name: Setup Python
+        uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97 # v7.0.0
+        with:
+          python-version: "3.12"
+          cache: "pip"
+
+      - name: Install GitGalaxy
+        run: |
+          python -m pip install --upgrade pip
+          pip install -e ./gitgalaxy
+
+      - name: Setup JDK 17
+        uses: actions/setup-java@de7274f081f381c8f8158605e0321c36c376e2e6 # v6.0.1
+        with:
+          distribution: temurin
+          java-version: "17"
+
+      - name: Cache Maven dependencies
+        uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
+        with:
+          path: ~/.m2/repository
+          key: evidence-m2-${{ hashFiles('gitgalaxy/gitgalaxy/tools/cobol_to_java/cobol_to_java_build_forge.py') }}
+          restore-keys: |
+            evidence-m2-
+            cics-crucible-m2-
+            java-compile-m2-
+
+      - name: Cache the pinned corpora
+        uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
+        with:
+          path: .mainframe_corpora
+          key: mainframe-corpora-${{ hashFiles('gitgalaxy/tests/cobol_mainframe/corpora.json') }}
+
+      - name: Fetch the pinned corpora
+        run: |
+          cd gitgalaxy
+          rm -rf "$GITGALAXY_MAINFRAME_CORPORA/_scans"
+          PYTHONPATH="$PWD" python tests/tools/mainframe_corpus.py fetch
+
+      - name: Build the oracle image and check it against its pin (#4309)
+        run: |
+          docker build -q -t gitgalaxy-gnucobol:3 -f gitgalaxy/tests/equivalence/gnucobol.Dockerfile gitgalaxy/tests/equivalence
+          python gitgalaxy/tests/tools/equivalence_oracle.py --strict
+
+      - name: Re-prove the stale records
+        id: refresh
+        continue-on-error: true
+        shell: bash  # -eo pipefail: the refresh's exit status, not tee's
+        env:
+          KEYS: ${{ github.event.inputs.keys }}
+          DB2: ${{ github.event.inputs.db2 }}
+        run: |
+          cd gitgalaxy
+          skip=""
+          if [ "$DB2" != "true" ]; then skip="--skip-db2"; fi
+          # shellcheck disable=SC2086 -- KEYS is a space-separated list on purpose
+          python tests/tools/evidence.py refresh --stale $skip --crucible ../cics-crucible --work "$RUNNER_TEMP/evidence" $KEYS \
+            | tee "$RUNNER_TEMP/refresh.txt"
+
+      - name: Summary
+        if: always()
+        run: |
+          {
+            echo "## Evidence refresh"
+            echo '```'
+            cat "$RUNNER_TEMP/refresh.txt" 2>/dev/null || echo "(no output)"
+            echo '```'
+            echo '```'
+            (cd gitgalaxy && python tests/tools/evidence.py status) || true
+            echo '```'
+          } >> "$GITHUB_STEP_SUMMARY"
+
+      - name: Open a draft PR with the refreshed records
+        uses: squid-protocol/create-pull-request@5f6978faf089d4d20b00c7766989d076bb2fc7f1 # forked from peter-evans/create-pull-request v8.1.1
+        with:
+          token: ${{ secrets.AUTOMATION_PAT }}
+          path: gitgalaxy
+          commit-message: "evidence: nightly re-proof of stale records"
+          title: "evidence: nightly re-proof of stale records"
+          draft: true
+          body: |
+            Automated re-proof of the evidence records (#4048) that a harness, oracle or generator change made stale.
+            Each record's proof was run again on the committed port and case; the records and
+            docs/language_status/evidence/ are rewritten from those runs. A proof that now fails is recorded as
+            not proven -- review it before merging. Approvals are never written by this job.
+          branch: auto/evidence-refresh
+          delete-branch: true
+          add-paths: |
+            tests/equivalence/*/evidence.json
+            tests/cics_crucible/ports/*/*/evidence.json
+            docs/language_status/evidence/*.md
+
+      - name: Fail when a re-proof failed
+        if: steps.refresh.outcome == 'failure'
+        run: |
+          echo "::error title=Evidence refresh::a record's proof failed or could not run -- see the summary"
+          exit 1

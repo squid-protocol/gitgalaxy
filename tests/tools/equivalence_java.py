@@ -222,6 +222,7 @@ def prepare_project(case: dict[str, Any], corpus: Path, work: Path, test_source:
     for rel in overlay:
         dest = project / "src/main/java" / PKG_DIR / rel
         dest.parent.mkdir(parents=True, exist_ok=True)
+        keep_generated(dest, project, rel)
         shutil.copy(sources[rel], dest)
     if earlier is not None and overlay:
         _compile_overlay(project, earlier, overlay, work)
@@ -233,6 +234,19 @@ def prepare_project(case: dict[str, Any], corpus: Path, work: Path, test_source:
     test.parent.mkdir(parents=True, exist_ok=True)
     test.write_text(test_source, encoding="utf-8")
     return project
+
+
+# #4048: the generated file each overlay file replaced, kept beside the project, so the evidence record can tell a
+# method the port left as generated from one it ported (proof_reach's `generated`)
+GENERATED_KEEP = "generated_before_overlay"
+
+
+def keep_generated(dest: Path, project: Path, rel: str) -> None:
+    """Before an overlay file replaces `dest`, keep the generated one (once) under ../generated_before_overlay/rel."""
+    kept = project.parent / GENERATED_KEEP / rel
+    if dest.is_file() and not kept.exists():
+        kept.parent.mkdir(parents=True, exist_ok=True)
+        shutil.copyfile(dest, kept)
 
 
 OVERLAY_FILE = "equivalence_overlay.json"  # the port files laid over the generated project, for --reuse

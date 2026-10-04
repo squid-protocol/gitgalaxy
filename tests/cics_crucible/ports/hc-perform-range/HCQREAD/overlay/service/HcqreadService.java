@@ -82,7 +82,8 @@ public class HcqreadService {
     public void onConditionQiderrL25(CicsConditionException e) {
         log.info("HANDLE CONDITION QIDERR LABEL NO-QUEUE at line 25", e);
         // GO TO NO-QUEUE: falls through PAST-END to READ-ITEMS-EXIT
-        runFrom(current(), Label.NO_QUEUE);
+        Run run = current();
+        run.resumed = runFrom(run, Label.NO_QUEUE);
     }
 
     /**
@@ -92,7 +93,8 @@ public class HcqreadService {
     public void onConditionItemerrL25(CicsConditionException e) {
         log.info("HANDLE CONDITION ITEMERR LABEL PAST-END at line 25", e);
         // GO TO PAST-END: falls through to READ-ITEMS-EXIT
-        runFrom(current(), Label.PAST_END);
+        Run run = current();
+        run.resumed = runFrom(run, Label.PAST_END);
     }
 
     /**
@@ -102,7 +104,8 @@ public class HcqreadService {
     public void onConditionErrorL25(CicsConditionException e) {
         log.info("HANDLE CONDITION ERROR LABEL ANY-ERROR at line 25", e);
         // GO TO ANY-ERROR: falls through to SEND-TRAIL, which ends the task
-        runFrom(current(), Label.ANY_ERROR);
+        Run run = current();
+        run.resumed = runFrom(run, Label.ANY_ERROR);
     }
 
     /**
@@ -112,7 +115,8 @@ public class HcqreadService {
     public void onConditionItemerrL56(CicsConditionException e) {
         log.info("HANDLE CONDITION ITEMERR LABEL LATE-ITEM at line 56", e);
         // GO TO LATE-ITEM: then GO TO SEND-TRAIL, which ends the task
-        runFrom(current(), Label.LATE_ITEM);
+        Run run = current();
+        run.resumed = runFrom(run, Label.LATE_ITEM);
     }
 
     /** EXEC CICS WRITEQ TS QUEUE('HCWORK') FROM(WS-ONE) at src/HCQREAD.cbl:37 (#3620).
@@ -180,7 +184,7 @@ public class HcqreadService {
         CicsTask.TsResult written = task.writeqTs("HCWORK", Arrays.copyOf(ws.one, 1));
         Label to = run.raise(written.resp());
         if (to != null) {
-            runFrom(run, to);
+            goTo(run, to, written.resp());
             return;
         }
 
@@ -205,7 +209,7 @@ public class HcqreadService {
         readInto(ws, r3);
         to = run.raise(r3.resp());
         if (to != null) {
-            runFrom(run, to);
+            goTo(run, to, r3.resp());
             return;
         }
 
@@ -222,7 +226,7 @@ public class HcqreadService {
         readInto(ws, r4);
         to = run.raise(r4.resp());
         if (to != null) {
-            runFrom(run, to);
+            goTo(run, to, r4.resp());
             return;
         }
 
@@ -256,7 +260,7 @@ public class HcqreadService {
             readInto(ws, r);
             Label to = run.raise(r.resp());
             if (to != null) {
-                return runFrom(run, to); // GO TO the handler's label, out of the inline PERFORM
+                return goTo(run, to, r.resp()); // GO TO the handler's label, out of the inline PERFORM
             }
             // STRING WS-ITEM(1:1) DELIMITED BY SIZE INTO WS-TRAIL WITH POINTER WS-PTR (line 68)
             string(ws, new String(ws.item, 0, 1, EBCDIC));
@@ -267,6 +271,25 @@ public class HcqreadService {
         // leaves "lqp" in the trail though no condition was raised.
         // Fix: GO TO READ-ITEMS-EXIT after the STRING 'l'.
         return runFrom(run, Label.NO_QUEUE);
+    }
+
+    /**
+     * A condition raised under the handlers in force (Run.raise): a HANDLE CONDITION's label is taken
+     * through that handler (the four routes of lines 25 and 56), CICS's default action otherwise. Same
+     * result as runFrom: true when control returns to the active PERFORM, false when the task ended.
+     */
+    private boolean goTo(Run run, Label to, String resp) {
+        CicsConditionException e = new CicsConditionException(resp, "HCQREAD", "src/HCQREAD.cbl");
+        switch (to) {
+            case NO_QUEUE -> onConditionQiderrL25(e);
+            case PAST_END -> onConditionItemerrL25(e);
+            case ANY_ERROR -> onConditionErrorL25(e);
+            case LATE_ITEM -> onConditionItemerrL56(e);
+            default -> {
+                return runFrom(run, to); // ABENDED: CICS's default action took the condition
+            }
+        }
+        return run.resumed;
     }
 
     /**
@@ -442,6 +465,7 @@ public class HcqreadService {
         final Map<String, Label> handlers = new HashMap<>();
         final Set<String> ignored = new HashSet<>();
         boolean performActive;
+        boolean resumed;                                 // what the last handler's runFrom returned
 
         Run(CicsTask task) {
             this.task = task;

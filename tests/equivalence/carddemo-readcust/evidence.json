@@ -9,6 +9,7 @@
   ],
   "sha256": "08e0f3f6376b904e4a61a73410f47dc91bdb4e90f7152ec8afa4aff8d26a681b",
   "entry_points": [
+   "executeCbcus01c",
    "runBatch"
   ]
  },
@@ -25,7 +26,7 @@
     "tests/equivalence/carddemo-readcust/**"
    ],
    "files": 1,
-   "sha256": "c5d88c56402423302f924d4d1ebe82577f6aeefb8630abf6b542fb37d8719f48"
+   "sha256": "adea608b266488330afc468e7967d49ea30ee31884548d6c3f0ca01d92af5767"
   },
   "harness": {
    "paths": [
@@ -42,7 +43,7 @@
     "tests/tools/java_target_matrix.py"
    ],
    "files": 11,
-   "sha256": "66f1d285d03116d862dceca3c6e19905152139abc1d6f4b2b504e30cfdd8f6c6"
+   "sha256": "609073a350a3120d63bf3cb3e7f6a1050a9fc8a91964ac548b2826356f319cbc"
   },
   "oracle": {
    "paths": [
@@ -72,21 +73,24 @@
   "differences": {
    "sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
   },
-  "digest": "ca6f02153e07c595a6fac15c8fb8b2110325289375168e9301e84b0ac83926ee"
+  "digest": "b1fbf958b1842074dd75ab2a804a50d98c5c9c5f4a80101fa94858e3372a14b6"
  },
  "proof": {
-  "at": "2026-10-04T14:43:53Z",
+  "at": "2026-10-04T15:32:37Z",
   "verdict": "proven",
   "runs": 7,
   "fault_runs": 6,
+  "entry_runs": [
+   "executeCbcus01c"
+  ],
   "environments": null,
   "outputs": {},
   "return_code_equal": true,
   "sysout_compared": true,
   "attributes_compared": null,
   "java_failed": false,
-  "harness_commit": "2f770970f1ec1c5698343c3362a1dea11de3ffad",
-  "inputs_digest": "ca6f02153e07c595a6fac15c8fb8b2110325289375168e9301e84b0ac83926ee"
+  "harness_commit": "b2054a86377f7ca2f42496e4c64cad8091ae4818+uncommitted",
+  "inputs_digest": "b1fbf958b1842074dd75ab2a804a50d98c5c9c5f4a80101fa94858e3372a14b6"
  },
  "coverage": {
   "paragraphs": {
@@ -110,24 +114,18 @@
    "total": 0
   },
   "source": "the proof's own traced COBOL runs (cobol_coverage.py)",
-  "inputs_digest": "ca6f02153e07c595a6fac15c8fb8b2110325289375168e9301e84b0ac83926ee"
+  "inputs_digest": "b1fbf958b1842074dd75ab2a804a50d98c5c9c5f4a80101fa94858e3372a14b6"
  },
  "reach": {
   "entry_points": [
+   "executeCbcus01c",
    "runBatch"
   ],
-  "unproven": [
-   {
-    "class": "Cbcus01cService",
-    "method": "executeCbcus01c",
-    "line": 31,
-    "kind": "ported_unproven"
-   }
-  ],
+  "unproven": [],
   "counts": {
    "stub": 0,
    "left_as_generated": 0,
-   "ported_unproven": 1
+   "ported_unproven": 0
   },
   "generated_compared": true,
   "port_sha256": "08e0f3f6376b904e4a61a73410f47dc91bdb4e90f7152ec8afa4aff8d26a681b"

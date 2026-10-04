@@ -22,6 +22,7 @@ from __future__ import annotations
 
 import json
 import os
+import re
 import shutil
 import subprocess
 from pathlib import Path
@@ -83,6 +84,21 @@ def _clock(case: dict[str, Any]) -> str:
     return f"{date.replace('/', '-')}T{time}"
 
 
+def entry_names(case: dict[str, Any]) -> list[str]:
+    """#4048 follow-up: the case's `entries` -- each a no-argument method of the service (a controller's entry,
+    executeX) that runs the whole step. Each is an entry run: the step once more through that method instead of
+    runBatch, compared with the same COBOL run, every output and the RETURN-CODE (0 when the method returns
+    normally, since it returns none). The method passes no PARM, so a case with one cannot have entries."""
+    names = [e["method"] for e in case.get("entries", [])]
+    if names and case.get("parm") is not None:
+        raise SystemExit(f"{case['name']}: an entry method passes no PARM, so it is not the step the COBOL ran "
+                         f"(PARM={case['parm']!r}): drop `entries`")
+    bad = [n for n in names if not re.fullmatch(r"[a-z][A-Za-z0-9_]*", n)]
+    if bad:
+        raise SystemExit(f"{case['name']}: entries {bad} are not Java method names")
+    return names
+
+
 def equivalence_test(case: dict[str, Any]) -> str:
     """The generated JUnit test that loads, runs and dumps one case (see the module docstring)."""
     svc = _service_class(case["program"])
@@ -108,6 +124,18 @@ def equivalence_test(case: dict[str, Any]) -> str:
     imports = "".join(
         f"import {PKG}.entity.vsam.{s['entity']};\n" for s in case["datasets"].values() if s.get("entity")
     )
+    entry_call = f"            rc = {var}.runBatch(List.of({dds}), {parm});\n"
+    if case.get("entries"):  # an entry run (equivalence.entry): the step through the program's no-argument method
+        arms = "".join(f'                case "{e}" -> {var}.{e}();\n' for e in entry_names(case))
+        entry_call = (
+            '            String entry = System.getProperty("equivalence.entry", "");\n'
+            "            if (entry.isEmpty()) {\n    " + entry_call + "            } else {\n"
+            "                switch (entry) {\n" + arms
+            + '                    default -> throw new IllegalStateException("no entry " + entry);\n'
+            "                }\n"
+            "                rc = 0;  // the method returned normally: the step ends RETURN-CODE 0 (it returns none)\n"
+            "            }\n"
+        )
     return f"""package {PKG};
 
 import {PKG}.batch.CobolAbend;
@@ -148,8 +176,7 @@ class EquivalenceRunTest {{
 {chr(10).join(loads)}
         int rc;
         try {{
-            rc = {var}.runBatch(List.of({dds}), {parm});
-        }} catch (CobolAbend abend) {{  // the step ends ABEND Unnnn, with no return code
+{entry_call}        }} catch (CobolAbend abend) {{  // the step ends ABEND Unnnn, with no return code
             Files.writeString(out.resolve("ABEND"), abend.code());
             return;
         }} catch (RuntimeException e) {{  // an abend the port did not code as one: never equal to the COBOL's
@@ -457,12 +484,14 @@ def run_java(
 def run_java_environments(
     case: dict[str, Any], corpus: Path, work: Path, inputs: Path, envs: list[dict[str, str]], port: bool = True,
     port_dir: Path | None = None, faults: tuple[tuple[str, ...], ...] = (),
-    stop: Callable[[str, dict[str, bytes]], bool] | None = None,
+    stop: Callable[[str, dict[str, bytes]], bool] | None = None, entries: tuple[str, ...] = (),
 ) -> dict[str, dict[str, bytes]]:  # fmt: skip
     """#3821: the project built once, run in each environment from a fresh work area; {env name: {dd: bytes}}.
     #4023 follow-up: each of `faults` ((name, plan text)) runs once more in the first environment with the
     plan as gitgalaxy.faults.plan, as `fault:<name>` -- its outputs, and ABEND / FAULTS (the faults that fired).
-    `stop(name, outputs)` True after a run ends there: the runs not made are missing from the result."""
+    `stop(name, outputs)` True after a run ends there: the runs not made are missing from the result.
+    #4048 follow-up: each of `entries` (entry_names) runs once more in the first environment through that
+    method, as `entry:<name>`."""
     project = prepare_project(case, corpus, work, equivalence_test(case), port, port_dir)
     runs: dict[str, dict[str, bytes]] = {}
     for env in envs:
@@ -490,6 +519,12 @@ def run_java_environments(
         read.setdefault("FAULTS", b"")
         runs[f"fault:{name}"] = read
         if stop and stop(f"fault:{name}", read):
+            return runs
+    for name in entries:
+        area = work / "entries" / name
+        (area / "out").mkdir(parents=True, exist_ok=True)
+        runs[f"entry:{name}"] = _run_area(case, project, area, inputs, envs[0], f"-Dequivalence.entry={name}")
+        if stop and stop(f"entry:{name}", runs[f"entry:{name}"]):
             return runs
     return runs
 

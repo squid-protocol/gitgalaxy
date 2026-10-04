@@ -41,7 +41,9 @@ counted in it (their fact counts are not recorded here).
 | IMS access check | 2 | 0 | 1 | 15 | 0 | 0 | 1 | 1 | - | open | 1 more clean fresh round(s), 299 more clean fresh facts |
 | IMS segment access | 2 | 0 | 1 | 21 | 0 | 0 | 1 | 1 | - | open | 1 more clean fresh round(s), 299 more clean fresh facts |
 | async children | 2 | 0 | 1 | 6 | 0 | 0 | 1 | 1 | - | open | 1 more clean fresh round(s), 299 more clean fresh facts |
+| intra-program edges | 7 | 0 | 0 | 1,945 | 0 | 0 | 0 | 0 | - | open | 2 more clean fresh round(s), 300 more clean fresh facts |
 | program_id | 7 | 0 | 4 | 128 | 3 | 0 | 0 | 0 | - | open | 2 more clean fresh round(s), 300 more clean fresh facts |
+| unit extents | 7 | 0 | 0 | 2,197 | 0 | 0 | 0 | 0 | - | open | 2 more clean fresh round(s), 300 more clean fresh facts |
 | units | 7 | 0 | 4 | 2,058 | 7 | 4 | 0 | 0 | - | open | 2 more clean fresh round(s), 300 more clean fresh facts |
 | MOVE truncation | 6 | 0 | 3 | 165 | 1 | 0 | 0 | 0 | - | open | 2 more clean fresh round(s), 300 more clean fresh facts |
 | data moves | 6 | 0 | 3 | 12,583 | 4 | 0 | 0 | 0 | - | open | 2 more clean fresh round(s), 300 more clean fresh facts |

@@ -44,7 +44,7 @@
     "tests/tools/cics_crucible_compare.py"
    ],
    "files": 13,
-   "sha256": "e6f3db91ce0ad417535c68f4828c38c4cf080a39495e11eee9ba6a8e7e6f1a3a"
+   "sha256": "1549c810f2072e5323782c43f34191fb370d080880f2f2e0e09bc6897faaf3c6"
   },
   "oracle": {
    "paths": [],
@@ -66,10 +66,10 @@
   "differences": {
    "sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
   },
-  "digest": "7b6c69275a4d322d03a2e27a8c820d3bc6f6a528380688e4bb88d2bb615e82d9"
+  "digest": "c6dd72bb94c4c488ef7dab165946118bd887442a0f4394d3a94bff4ce4a6dc89"
  },
  "proof": {
-  "at": "2026-10-04T14:38:36Z",
+  "at": "2026-10-04T15:46:07Z",
   "verdict": "proven",
   "runs": 4,
   "fault_runs": 0,
@@ -96,8 +96,8 @@
   "sysout_compared": null,
   "attributes_compared": null,
   "java_failed": false,
-  "harness_commit": "2f770970f1ec1c5698343c3362a1dea11de3ffad",
-  "inputs_digest": "7b6c69275a4d322d03a2e27a8c820d3bc6f6a528380688e4bb88d2bb615e82d9"
+  "harness_commit": "cdad33370dc73ea44e5bf1348d88c9404a14c2d2+uncommitted",
+  "inputs_digest": "c6dd72bb94c4c488ef7dab165946118bd887442a0f4394d3a94bff4ce4a6dc89"
  },
  "coverage": {
   "paragraphs": {
@@ -112,7 +112,7 @@
   "handler_labels": null,
   "source": "tests/cics_crucible/coverage.json#programs/hx-attr-bytes/HXATTR",
   "ledger_sha256": "bb7ee89941298c8a93bde34eefdc5bb79e0c7eae176731f6cfc684f2b6b8a71b",
-  "inputs_digest": "7b6c69275a4d322d03a2e27a8c820d3bc6f6a528380688e4bb88d2bb615e82d9"
+  "inputs_digest": "c6dd72bb94c4c488ef7dab165946118bd887442a0f4394d3a94bff4ce4a6dc89"
  },
  "reach": {
   "entry_points": [

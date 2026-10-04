@@ -7,7 +7,7 @@
   "paths": [
    "tests/equivalence/carddemo-cardview/port/service/CocrdslcService.java"
   ],
-  "sha256": "a5c25605d86f5696b9dfeab5e80fa95d8dc73edb6c98247865201a0600591495",
+  "sha256": "f97363e815ff91b3794a2fca68f8ca079f85c1569938b5a0cf96c6709713c98d",
   "entry_points": [
    "runTask"
   ]
@@ -18,14 +18,14 @@
     "tests/equivalence/carddemo-cardview/port/**"
    ],
    "files": 1,
-   "sha256": "a5c25605d86f5696b9dfeab5e80fa95d8dc73edb6c98247865201a0600591495"
+   "sha256": "f97363e815ff91b3794a2fca68f8ca079f85c1569938b5a0cf96c6709713c98d"
   },
   "case": {
    "paths": [
     "tests/equivalence/carddemo-cardview/**"
    ],
    "files": 1,
-   "sha256": "0b8526571853eb6cddf06f3f922cfbb9327428ed383757eaa46d3e57e2efdbd4"
+   "sha256": "5f78c9f0661482ecf5d7eb5ebe0cc5ab4bde2eee305f707ef4f86c9a609eed18"
   },
   "harness": {
    "paths": [
@@ -42,7 +42,7 @@
     "tests/tools/java_target_matrix.py"
    ],
    "files": 11,
-   "sha256": "66f1d285d03116d862dceca3c6e19905152139abc1d6f4b2b504e30cfdd8f6c6"
+   "sha256": "609073a350a3120d63bf3cb3e7f6a1050a9fc8a91964ac548b2826356f319cbc"
   },
   "oracle": {
    "paths": [
@@ -72,13 +72,13 @@
   "differences": {
    "sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
   },
-  "digest": "9957ed0ff05194d1e61e4f035d0ec966c7cc2140dbd5068e971dc49c308f395e"
+  "digest": "043cf9b428c462b9ebd79ee983f30e103f269a2752d7397b364e287eba72e64b"
  },
  "proof": {
-  "at": "2026-10-04T14:37:38Z",
+  "at": "2026-10-04T15:31:08Z",
   "verdict": "proven",
-  "runs": 21,
-  "fault_runs": 2,
+  "runs": 22,
+  "fault_runs": 3,
   "environments": null,
   "outputs": {
    "enter-from-menu": {
@@ -164,22 +164,26 @@
    "card-file-not-open": {
     "equal": 3,
     "records": 3
+   },
+   "pf3-xctl-fails-abend-routine": {
+    "equal": 4,
+    "records": 4
    }
   },
   "return_code_equal": null,
   "sysout_compared": null,
   "attributes_compared": null,
   "java_failed": false,
-  "harness_commit": "2f770970f1ec1c5698343c3362a1dea11de3ffad",
-  "inputs_digest": "9957ed0ff05194d1e61e4f035d0ec966c7cc2140dbd5068e971dc49c308f395e"
+  "harness_commit": "b2054a86377f7ca2f42496e4c64cad8091ae4818+uncommitted",
+  "inputs_digest": "043cf9b428c462b9ebd79ee983f30e103f269a2752d7397b364e287eba72e64b"
  },
  "coverage": {
   "paragraphs": {
-   "covered": 29,
+   "covered": 30,
    "live": 30
   },
   "branches": {
-   "covered": 66,
+   "covered": 67,
    "total": 77
   },
   "uncovered_branches": [
@@ -242,20 +246,14 @@
     "kind": "IF",
     "outcome": "true",
     "unit": "ABEND-ROUTINE"
-   },
-   {
-    "line": 859,
-    "kind": "IF",
-    "outcome": "false",
-    "unit": "ABEND-ROUTINE"
    }
   ],
   "handler_labels": {
-   "covered": 0,
+   "covered": 1,
    "total": 1
   },
   "source": "the proof's own traced COBOL runs (cobol_coverage.py)",
-  "inputs_digest": "9957ed0ff05194d1e61e4f035d0ec966c7cc2140dbd5068e971dc49c308f395e"
+  "inputs_digest": "043cf9b428c462b9ebd79ee983f30e103f269a2752d7397b364e287eba72e64b"
  },
  "reach": {
   "entry_points": [
@@ -277,59 +275,53 @@
    {
     "class": "CocrdslcService",
     "method": "handleLink",
-    "line": 579,
+    "line": 581,
     "kind": "stub"
    },
    {
     "class": "CocrdslcService",
     "method": "dispatchCdemoToProgramL331",
-    "line": 587,
+    "line": 589,
     "kind": "left_as_generated"
    },
    {
     "class": "CocrdslcService",
     "method": "readCardaix",
-    "line": 597,
+    "line": 599,
     "kind": "left_as_generated"
    },
    {
     "class": "CocrdslcService",
-    "method": "onAbendL250",
-    "line": 610,
-    "kind": "ported_unproven"
-   },
-   {
-    "class": "CocrdslcService",
     "method": "onAbendL871",
-    "line": 623,
+    "line": 625,
     "kind": "ported_unproven"
    },
    {
     "class": "CocrdslcService",
     "method": "abendLegacy9999L875",
-    "line": 637,
+    "line": 639,
     "kind": "left_as_generated"
    },
    {
     "class": "CocrdslcService",
     "method": "renderCcrdsla",
-    "line": 643,
+    "line": 645,
     "kind": "left_as_generated"
    },
    {
     "class": "CocrdslcService",
     "method": "submitCcrdsla",
-    "line": 649,
+    "line": 651,
     "kind": "left_as_generated"
    }
   ],
   "counts": {
    "stub": 3,
    "left_as_generated": 5,
-   "ported_unproven": 2
+   "ported_unproven": 1
   },
   "generated_compared": true,
-  "port_sha256": "a5c25605d86f5696b9dfeab5e80fa95d8dc73edb6c98247865201a0600591495"
+  "port_sha256": "f97363e815ff91b3794a2fca68f8ca079f85c1569938b5a0cf96c6709713c98d"
  },
  "mutation": null,
  "differences": [],

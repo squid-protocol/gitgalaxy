@@ -352,6 +352,15 @@
       "tested_on_private": 0,
       "tested_on_public": 3
     },
+    "intra-program edges": {
+      "clean_fresh_facts": 0,
+      "clean_fresh_rounds": 0,
+      "engine_defects": 0,
+      "fresh_rounds": 0,
+      "status": "open",
+      "tested_on_private": 0,
+      "tested_on_public": 7
+    },
     "job submissions": {
       "clean_fresh_facts": 0,
       "clean_fresh_rounds": 0,
@@ -405,6 +414,15 @@
       "status": "open",
       "tested_on_private": 0,
       "tested_on_public": 1
+    },
+    "unit extents": {
+      "clean_fresh_facts": 0,
+      "clean_fresh_rounds": 0,
+      "engine_defects": 0,
+      "fresh_rounds": 0,
+      "status": "open",
+      "tested_on_private": 0,
+      "tested_on_public": 7
     },
     "units": {
       "clean_fresh_facts": 0,

@@ -296,3 +296,28 @@ def test_a_tree_digest_is_path_and_bytes_and_order_free():
     assert a == ev.tree_sha256(["tests/tools/equivalence.py", "tests/tools/evidence.py"])
     assert a != ev.tree_sha256(["tests/tools/evidence.py"])
     assert ev.tree_sha256([]) == ev.EMPTY_SHA
+
+
+# ---- entry runs: a batch step proven through its controller's no-argument method too ------------------------------
+def test_an_entry_method_is_reached_only_when_the_proof_ran_it():
+    t = ev.equivalence_target("carddemo-readcard")
+    without = ev.reach_section(t)
+    assert [m["method"] for m in without["unproven"] if m["kind"] == "ported_unproven"] == ["executeCbact02c"]
+    run = ev.reach_section(t, entries=["executeCbact02c"])
+    assert run["counts"]["ported_unproven"] == 0 and "executeCbact02c" in run["entry_points"], run
+
+
+def test_the_generated_test_drives_each_entry_and_refuses_a_parm():
+    import equivalence_java as ej  # noqa: PLC0415
+
+    case = json.loads((REPO / "tests/equivalence/carddemo-readcard/case.json").read_text(encoding="utf-8"))
+    case["name"] = "carddemo-readcard"
+    src = ej.equivalence_test(case)
+    assert 'System.getProperty("equivalence.entry", "")' in src
+    assert 'case "executeCbact02c" -> cbact02cService.executeCbact02c();' in src
+    assert "rc = 0;" in src and "runBatch(List.of(" in src
+    assert "equivalence.entry" not in ej.equivalence_test({**case, "entries": []})
+    with pytest.raises(SystemExit, match="passes no PARM"):
+        ej.entry_names({**case, "parm": "2022071800"})
+    with pytest.raises(SystemExit, match="not Java method names"):
+        ej.entry_names({**case, "entries": [{"method": "x(); evil"}]})

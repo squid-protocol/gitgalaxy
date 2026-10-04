@@ -7,7 +7,7 @@
   "paths": [
    "tests/equivalence/carddemo-intcalc/port/service/Cbact04cService.java"
   ],
-  "sha256": "e4740ae8b9e74f666ee178ec6c6a9e7a99aafa329f4f1d7ff65f6a03152e72df",
+  "sha256": "c47deb88dc1a5b9f997323fc4d13a693714758009b000fd33f4919c2e529016d",
   "entry_points": [
    "runBatch"
   ]
@@ -18,7 +18,7 @@
     "tests/equivalence/carddemo-intcalc/port/**"
    ],
    "files": 1,
-   "sha256": "e4740ae8b9e74f666ee178ec6c6a9e7a99aafa329f4f1d7ff65f6a03152e72df"
+   "sha256": "c47deb88dc1a5b9f997323fc4d13a693714758009b000fd33f4919c2e529016d"
   },
   "case": {
    "paths": [
@@ -42,7 +42,7 @@
     "tests/tools/java_target_matrix.py"
    ],
    "files": 11,
-   "sha256": "66f1d285d03116d862dceca3c6e19905152139abc1d6f4b2b504e30cfdd8f6c6"
+   "sha256": "609073a350a3120d63bf3cb3e7f6a1050a9fc8a91964ac548b2826356f319cbc"
   },
   "oracle": {
    "paths": [
@@ -72,10 +72,10 @@
   "differences": {
    "sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
   },
-  "digest": "18f5f3cb696f43102c0d19d080bbd6a77b7a0f7ee7a0da7710495572e711c879"
+  "digest": "f2df77e879f5d5c843b96218bf2e7db4e0a70c202c0f5e74ec7cdaaadc3fdae7"
  },
  "proof": {
-  "at": "2026-10-04T14:40:04Z",
+  "at": "2026-10-04T15:30:58Z",
   "verdict": "proven",
   "runs": 20,
   "fault_runs": 19,
@@ -94,8 +94,8 @@
   "sysout_compared": true,
   "attributes_compared": null,
   "java_failed": false,
-  "harness_commit": "2f770970f1ec1c5698343c3362a1dea11de3ffad",
-  "inputs_digest": "18f5f3cb696f43102c0d19d080bbd6a77b7a0f7ee7a0da7710495572e711c879"
+  "harness_commit": "b2054a86377f7ca2f42496e4c64cad8091ae4818",
+  "inputs_digest": "f2df77e879f5d5c843b96218bf2e7db4e0a70c202c0f5e74ec7cdaaadc3fdae7"
  },
  "coverage": {
   "paragraphs": {
@@ -119,7 +119,7 @@
    "total": 0
   },
   "source": "the proof's own traced COBOL runs (cobol_coverage.py)",
-  "inputs_digest": "18f5f3cb696f43102c0d19d080bbd6a77b7a0f7ee7a0da7710495572e711c879"
+  "inputs_digest": "f2df77e879f5d5c843b96218bf2e7db4e0a70c202c0f5e74ec7cdaaadc3fdae7"
  },
  "reach": {
   "entry_points": [
@@ -155,21 +155,15 @@
     "method": "readDiscgrpFile",
     "line": 103,
     "kind": "left_as_generated"
-   },
-   {
-    "class": "Cbact04cService",
-    "method": "readAllTcatbalFile",
-    "line": 107,
-    "kind": "ported_unproven"
    }
   ],
   "counts": {
    "stub": 1,
    "left_as_generated": 4,
-   "ported_unproven": 1
+   "ported_unproven": 0
   },
   "generated_compared": true,
-  "port_sha256": "e4740ae8b9e74f666ee178ec6c6a9e7a99aafa329f4f1d7ff65f6a03152e72df"
+  "port_sha256": "c47deb88dc1a5b9f997323fc4d13a693714758009b000fd33f4919c2e529016d"
  },
  "mutation": null,
  "differences": [],

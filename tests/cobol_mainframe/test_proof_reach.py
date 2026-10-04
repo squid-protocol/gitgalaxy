@@ -156,9 +156,17 @@ NAMED = {
     ("carddemo-acctview", "COACTVWC"): {"dispatchCdemoToProgramL349"},
     ("carddemo-dateutil", "CSUTLDTC"): {"executeCsutldtc"},
     ("ca-link-lengths", "CASUB"): {"executeCasub", "handleLink", "writeqTsCatraceL22"},
-    ("hc-abend-link", "HCMAIN"): {"executeHcmain", "onAbendL26", "onConditionQiderrL25", "bridgeHcsub"},
-    ("hc-abend-link", "HCSUB"): {"onAbendL32", "readqTsHcnoneL37"},
+    ("hc-abend-link", "HCMAIN"): {"executeHcmain", "bridgeHcsub"},
+    ("hc-abend-link", "HCSUB"): {"readqTsHcnoneL37"},
     ("gt-start-retrieve", "GTWORK"): {"executeGtwork"},
+}
+# Named by #4255 too, and run by the proof since: runTask takes each handled condition / abend through the handler
+# the port defines for it (the evidence records' ported_unproven methods, #4316 follow-up).
+NOW_REACHED = {
+    ("hc-abend-link", "HCMAIN"): {"onAbendL26", "onConditionQiderrL25"},
+    ("hc-abend-link", "HCSUB"): {"onAbendL32"},
+    ("hc-perform-range", "HCQREAD"): {"onConditionQiderrL25", "onConditionItemerrL25", "onConditionErrorL25",
+                                      "onConditionItemerrL56", "current"},
 }
 
 
@@ -171,9 +179,30 @@ def test_the_committed_ports_keep_the_entry_points_the_issue_names(case, program
     assert "runTask" not in unproven and "handleCall" not in unproven
 
 
+@pytest.mark.parametrize("case,program", sorted(NOW_REACHED))
+def test_the_ports_handlers_are_run_by_the_proof(case, program):
+    report = R.analyse([_port_dir(case, program)])
+    (cls,) = report
+    assert not NOW_REACHED[(case, program)] & {m["method"] for m in report[cls]["unproven"]}
+
+
+def _mutated_port_is_current(case: str, program: str) -> bool:
+    """Whether the port is still the one #4047's mutation run judged: the evidence record's `mutation.inputs.port`
+    (the port digest at the run's commit) against the port its proof ran on (`inputs.port`). A survivor's line and its
+    triage describe the mutated code; once the port changed, the next mutation run triages it again."""
+    case = case.split(":")[-1]
+    eq = REPO / "tests" / "equivalence" / case / "evidence.json"
+    rec_path = eq if eq.is_file() else REPO / "tests" / "cics_crucible" / "ports" / case / program / "evidence.json"
+    rec = json.loads(rec_path.read_text(encoding="utf-8"))
+    judged = ((rec.get("mutation") or {}).get("inputs") or {}).get("port", {}).get("sha256")
+    return judged is None or judged == rec["inputs"]["port"]["sha256"]
+
+
 def _flagged_survivors() -> list[tuple[str, dict]]:
     out = []
     for p in json.loads(SCORES.read_text(encoding="utf-8"))["ports"]:
+        if not _mutated_port_is_current(p["case"], p["program"]):
+            continue
         report = R.analyse([_port_dir(p["case"], p["program"])])
         spans = [(Path(r["files"][0]).name, m) for r in report.values() for m in r["unproven"]]
         for s in p["survivors"]:
@@ -189,4 +218,6 @@ def test_every_survivor_in_code_no_proof_runs_was_triaged_as_out_of_the_proofs_r
     flagged = _flagged_survivors()
     verdicts = [s["verdict"] for _, s in flagged]
     assert "case_gap" not in verdicts and "harness_gap" not in verdicts
-    assert verdicts.count("unreachable") >= 37
+    # 37 when #4255 counted them; the 8 in hc-abend-link and hc-perform-range left with their ports' changes (their
+    # handlers now run), until the next mutation run judges those ports again
+    assert verdicts.count("unreachable") >= 29

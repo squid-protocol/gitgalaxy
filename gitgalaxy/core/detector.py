@@ -22,6 +22,7 @@ import re
 import time
 from typing import Any, ClassVar, Optional, TypedDict, cast
 
+from gitgalaxy.core.cobol_source_format import FIXED, line_formats
 from gitgalaxy.core.network_risk_sensor import CASE_INSENSITIVE_IMPORT_LANGS
 from gitgalaxy.core.prism import CPP_CHAR_LITERAL_PATTERN, CPP_DIGIT_SEPARATED_NUMBER_PATTERN, CPP_LANG_IDS
 from gitgalaxy.core.rule_prefilter import (
@@ -8881,8 +8882,9 @@ class StructuralExtractor:
         sentence has ended, which is what separates a real one from the last
         line of a multi-line statement or data description (#3197). The scan is
         format-independent: it reads each line's content area (dropping a
-        fixed-format sequence area and anything past column 72, the
-        identification area) and asks whether it ends in a period.
+        fixed-format sequence area and, on a fixed-format line, anything past
+        column 72, the identification area -- #4264) and asks whether it ends
+        in a period.
 
         `func_start` is `^`-anchored under re.M, so a match starts exactly at
         one of these line offsets.
@@ -8894,9 +8896,13 @@ class StructuralExtractor:
         starts: set[int] = set()
         opens_sentence = True  # the first line of the stream
         pos = 0
-        for line in code.splitlines(keepends=True):
+        # #4264: only a fixed-format line ends at column 72; a free-format one runs on, and its
+        # sentence-ending period may sit past column 72.
+        formats = line_formats(code)
+        for idx, line in enumerate(code.splitlines(keepends=True)):
             stripped = line.rstrip("\r\n")
-            content = stripped[:72] if len(stripped) > 72 else stripped
+            fixed = idx >= len(formats) or formats[idx] == FIXED
+            content = stripped[:72] if fixed and len(stripped) > 72 else stripped
             free_data_entry = not self._COBOL_SEQUENCE_AREA.match(content) and self._COBOL_FREE_DATA_ENTRY.match(
                 content
             )

@@ -15,12 +15,12 @@
     },
     "batch entry": {
       "Gaps": {
-        "batch program no JCL step runs": 280
+        "batch program no JCL step runs": 258
       },
-      "Ratio": "2.8%",
+      "Ratio": "3.0%",
       "Resolved": 8,
       "System Names (Not Gaps)": 0,
-      "Total": 288
+      "Total": 266
     },
     "copybooks": {
       "Gaps": {
@@ -33,21 +33,21 @@
     },
     "data flows": {
       "Gaps": {
-        "unresolved operand": 3702
+        "unresolved operand": 1160
       },
-      "Ratio": "87.5%",
-      "Resolved": 25906,
+      "Ratio": "95.7%",
+      "Resolved": 25983,
       "System Names (Not Gaps)": 750,
-      "Total": 29608
+      "Total": 27143
     },
     "program calls": {
       "Gaps": {
-        "dynamic target": 15,
-        "missing program": 260,
+        "dynamic target": 11,
+        "missing program": 207,
         "non-COBOL program not linked": 0
       },
-      "Ratio": "52.3%",
-      "Resolved": 301,
+      "Ratio": "62.2%",
+      "Resolved": 358,
       "System Names (Not Gaps)": 220,
       "Total": 576
     },

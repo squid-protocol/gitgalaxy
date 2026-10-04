@@ -11,6 +11,7 @@ import logging
 import re
 from typing import Any, Optional, TypedDict
 
+from gitgalaxy.core.cobol_source_format import blank_identification_area, line_formats
 from gitgalaxy.standards.language_standards import COMPILED_HANDSHAKE_REGISTRY, LENS_CONFIG, PRISM_CONFIG
 
 # ==============================================================================
@@ -865,6 +866,12 @@ class Prism:
                 # ('*'/'.*' in column 1, no inline marker).
                 bms_mode=(lang_id in ("bms", "hlasm")),
             )
+            if lang_id == "cobol":
+                # #4264: columns 73-80 of a fixed-format line are the identification area, which
+                # the compiler ignores -- blanked for every COBOL rule and reader downstream. A
+                # free-format line keeps its text past column 72; the format is detected per file
+                # and switched by >>SOURCE FORMAT / $SET SOURCEFORMAT directives.
+                code = blank_identification_area(code, line_formats(text))
             if pos_lits:
                 lits.extend(pos_lits.splitlines())
             return code, "\n".join(lits)

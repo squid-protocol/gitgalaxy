@@ -43,6 +43,8 @@
 import re
 from typing import Any, Optional
 
+from gitgalaxy.core.cobol_source_format import FIXED, line_formats
+
 # An SQL identifier: a delimited "..." name (kept verbatim) or an ordinary one
 # (folded to upper case, as DB2 does). DB2 names carry `_`; `@#$` appear in
 # older mainframe naming. A COBOL hyphen is NOT an SQL name character.
@@ -115,9 +117,15 @@ _WS = re.compile(r"[ \t\r\n]+")
 
 
 def _blank_sequence_fields(code_stream: str, dialect: str) -> str:
-    """The code stream with fixed-format sequence fields blanked, offsets unchanged."""
+    """The code stream with fixed-format sequence fields blanked, offsets unchanged.
+
+    #4264: under COBOL a free-format line (detected per file, switched by >>SOURCE FORMAT) has no
+    sequence area or identification area -- its columns 1-6 and 73+ are program text, left alone."""
     lines = code_stream.split("\n")
+    formats = line_formats(code_stream) if dialect == "cobol" else None
     for idx, line in enumerate(lines):
+        if formats is not None and formats[idx] != FIXED:
+            continue
         body = line.rstrip("\r")
         if 72 < len(body.rstrip()) <= 80 and _TRAILING_SEQ.fullmatch(body[72:]):
             body = body[:72] + " " * (len(body) - 72)

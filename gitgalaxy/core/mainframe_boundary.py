@@ -87,7 +87,7 @@ from gitgalaxy.core.cics_resources import cobol_move_literals, extract_cics_reso
 from gitgalaxy.core.cics_tasks import extract_cics_tasks
 from gitgalaxy.core.compiler_options import compiler_options, effective
 from gitgalaxy.core.data_moves import data_moves
-from gitgalaxy.core.db2_declare_table import extract_sql_tables
+from gitgalaxy.core.db2_declare_table import _blank_sequence_fields, extract_sql_tables
 from gitgalaxy.core.db2_sql_statements import extract_sql_statements
 from gitgalaxy.core.dli_calls import extract_dli_calls
 from gitgalaxy.core.file_control import cobol_file_control, jcl_vsam_defines
@@ -848,12 +848,17 @@ def cobol_select_assigns(code_stream: str) -> dict[str, str]:
     carry its literals (`ASSIGN TO "./IN-FILE"`); comments should be gone. The
     refractor's no-scan lineage (cobol_dag_architect) reads it so it maps files
     exactly as the scan does."""
-    return {k: v["dd_name"] for k, v in _select_assigns(_cobol_sentences(code_stream)).items()}
+    return {
+        k: v["dd_name"]
+        for k, v in _select_assigns(_cobol_sentences(_blank_sequence_fields(code_stream, "cobol"))).items()
+    }
 
 
 def _cobol_datasets(code_stream: str) -> list[dict[str, Any]]:
     """`SELECT ... ASSIGN TO <dd>` with the OPEN modes each file is actually opened in."""
-    sentences = _cobol_sentences(code_stream)
+    # #4264: sequence fields blanked, as file_control reads them -- `ASSIGN TO` at a line's end,
+    # its name on the next line behind a `003400` sequence area, otherwise captured `TO`.
+    sentences = _cobol_sentences(_blank_sequence_fields(code_stream, "cobol"))
     records: dict[str, dict[str, Any]] = {}
     for internal, sel in _select_assigns(sentences).items():
         # #3348: every OPEN of the file, (mode, line), so a consumer can drop the

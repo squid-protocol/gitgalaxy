@@ -636,14 +636,18 @@ DEFINITION: dict[str, Any] = {
         # (`EXEC SQL` / `INCLUDE X`, CBSA's style) satisfies. CardDemo's
         # app-transaction-type-db2 programs use the one-line form, so 6 copybook
         # edges (CSDB2RWY, CSDB2RPY and the DCLGEN .dcl members) were lost.
+        # #4303: a COPY / EXEC SQL INCLUDE also opens a statement after a separator period on the
+        # same line (`01  WS-REC.  COPY CPYB.`, `01 PARENT. COPY A. COPY B. COPY C.` -- lsp fixtures
+        # TEST.CBL:18), each occurrence its own match. After a period only `COPY` and the full
+        # `EXEC SQL INCLUDE` count: a bare INCLUDE is the second line of the two-line EXEC SQL form.
         "import": re.compile(
-            r"^(?:[0-9a-zA-Z" + NATIONAL + r" \t]{6}[ \-]?)?[ \t]*(?:EXEC[ \t]+SQL[ \t]+)?(?:COPY|INCLUDE)\b",
+            r"(?:^(?:[0-9a-zA-Z" + NATIONAL + r" \t]{6}[ \-]?)?[ \t]*(?:EXEC[ \t]+SQL[ \t]+)?(?:COPY|INCLUDE)"
+            r"|(?<=\.)[ \t]+(?:COPY|EXEC[ \t]+SQL[ \t]+INCLUDE))\b",
             re.I | re.M,
         ),
         "_dependency_capture": re.compile(
-            r"^(?:[0-9a-zA-Z"
-            + NATIONAL
-            + r" \t]{6}[ \-]?)?[ \t]*(?:EXEC[ \t]+SQL[ \t]+)?(?:COPY|INCLUDE)[ \t\n]+['\"]?([A-Z"
+            r"(?:^(?:[0-9a-zA-Z" + NATIONAL + r" \t]{6}[ \-]?)?[ \t]*(?:EXEC[ \t]+SQL[ \t]+)?(?:COPY|INCLUDE)"
+            r"|(?<=\.)[ \t]+(?:COPY|EXEC[ \t]+SQL[ \t]+INCLUDE))[ \t\n]+['\"]?([A-Z"
             + NATIONAL
             + WIDE_DIGITS
             + WIDE_HYPHENS

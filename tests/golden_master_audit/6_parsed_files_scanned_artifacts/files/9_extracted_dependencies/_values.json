@@ -1885,7 +1885,11 @@
       "cobol/che-che4z_lsp_project_fixtures/SNIPPET.cbl": [],
       "cobol/che-che4z_lsp_project_fixtures/SNIPPET2.cbl": [],
       "cobol/che-che4z_lsp_project_fixtures/SNIPPET_IDMS.cbl": [],
-      "cobol/che-che4z_lsp_project_fixtures/TEST.CBL": [],
+      "cobol/che-che4z_lsp_project_fixtures/TEST.CBL": [
+        "A",
+        "B",
+        "C"
+      ],
       "cobol/che-che4z_lsp_project_fixtures/TEST1.CBL": [
         "REPL"
       ],
@@ -1971,7 +1975,9 @@
       "cobol/che-che4z_lsp_project_fixtures/copybook-analysis_mainfile2.cbl": [
         "COPYBOOK"
       ],
-      "cobol/che-che4z_lsp_project_fixtures/outline.cbl": [],
+      "cobol/che-che4z_lsp_project_fixtures/outline.cbl": [
+        "AST"
+      ],
       "cobol/che-che4z_lsp_project_fixtures/special_schema.cbl": [],
       "cobol/che-che4z_lsp_project_fixtures/subroutines_SUB1.cob": [],
       "cobol/che-che4z_lsp_project_fixtures/testing_A.cpy": [

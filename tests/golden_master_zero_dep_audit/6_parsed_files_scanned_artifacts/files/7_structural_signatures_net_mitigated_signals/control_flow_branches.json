@@ -93,7 +93,7 @@
     "apex/apex-recipes": {
       "apex/apex-recipes/AuraEnabledRecipes_Tests.cls": 0,
       "apex/apex-recipes/LICENSE.md": 0,
-      "apex/apex-recipes/QueueableRecipes.cls": 2,
+      "apex/apex-recipes/QueueableRecipes.cls": 1,
       "apex/apex-recipes/SOQLRecipes.cls": 2,
       "apex/apex-recipes/SOQLRecipes.cls-meta.xml": 0,
       "apex/apex-recipes/SOQLRecipes_Tests.cls": 8,
@@ -126,7 +126,7 @@
     "assembly/cosmopolitan": {
       "assembly/cosmopolitan/BUILD.mk": 4,
       "assembly/cosmopolitan/ape.S": 31,
-      "assembly/cosmopolitan/loader.c": 267,
+      "assembly/cosmopolitan/loader.c": 254,
       "assembly/cosmopolitan/notice.inc": 0,
       "assembly/cosmopolitan/start.S": 0
     },
@@ -416,50 +416,50 @@
     },
     "c/cpython": {
       "c/cpython/Makefile.pre.in": 148,
-      "c/cpython/ceval.c": 606,
-      "c/cpython/compile.c": 278,
-      "c/cpython/dictobject.c": 1108,
-      "c/cpython/frameobject.c": 364,
-      "c/cpython/gc.c": 227,
-      "c/cpython/object.c": 451,
-      "c/cpython/typeobject.c": 1866
+      "c/cpython/ceval.c": 538,
+      "c/cpython/compile.c": 269,
+      "c/cpython/dictobject.c": 1061,
+      "c/cpython/frameobject.c": 358,
+      "c/cpython/gc.c": 211,
+      "c/cpython/object.c": 429,
+      "c/cpython/typeobject.c": 1793
     },
     "c/doom": {
       "c/doom/LICENSE.TXT": 0,
       "c/doom/README.TXT": 0,
-      "c/doom/d_main.c": 178,
+      "c/doom/d_main.c": 172,
       "c/doom/doomdef.h": 0,
-      "c/doom/i_system.c": 4,
-      "c/doom/m_fixed.c": 5,
+      "c/doom/i_system.c": 2,
+      "c/doom/m_fixed.c": 4,
       "c/doom/m_fixed.h": 0,
       "c/doom/p_mobj.c": 160,
       "c/doom/p_mobj.h": 0,
       "c/doom/r_bsp.c": 59,
       "c/doom/r_defs.h": 0,
       "c/doom/w_wad.c": 49,
-      "c/doom/z_zone.c": 51
+      "c/doom/z_zone.c": 49
     },
     "c/freebsd_openpam": {
       "c/freebsd_openpam/pam_acct_mgmt.c": 0
     },
     "c/micropython": {
-      "c/micropython/compile.c": 781,
-      "c/micropython/compile.h": 3,
-      "c/micropython/emitnative.c": 492,
-      "c/micropython/gc.c": 285,
-      "c/micropython/gc.h": 3,
-      "c/micropython/modmachine.c": 37,
-      "c/micropython/modmachine.h": 33,
-      "c/micropython/objtype.c": 287,
-      "c/micropython/objtype.h": 1,
-      "c/micropython/vfs.c": 99,
-      "c/micropython/vfs.h": 5,
-      "c/micropython/vm.c": 222
+      "c/micropython/compile.c": 683,
+      "c/micropython/compile.h": 0,
+      "c/micropython/emitnative.c": 400,
+      "c/micropython/gc.c": 153,
+      "c/micropython/gc.h": 0,
+      "c/micropython/modmachine.c": 2,
+      "c/micropython/modmachine.h": 0,
+      "c/micropython/objtype.c": 230,
+      "c/micropython/objtype.h": 0,
+      "c/micropython/vfs.c": 82,
+      "c/micropython/vfs.h": 0,
+      "c/micropython/vm.c": 119
     },
     "c/sqlite": {
       "c/sqlite/LICENSE.md": 0,
       "c/sqlite/README.md": 0,
-      "c/sqlite/lemon.c": 1443
+      "c/sqlite/lemon.c": 1396
     },
     "cobol/CICS-Cobol": {
       "cobol/CICS-Cobol/CBL0102v01DivisionAmbiente.cbl": 0,
@@ -1054,9 +1054,9 @@
     },
     "cobol/gnucobol_internals": {
       "cobol/gnucobol_internals/COPYING": 0,
-      "cobol/gnucobol_internals/codegen.c": 3379,
-      "cobol/gnucobol_internals/fileio.c": 1959,
-      "cobol/gnucobol_internals/numeric.c": 454,
+      "cobol/gnucobol_internals/codegen.c": 3196,
+      "cobol/gnucobol_internals/fileio.c": 1893,
+      "cobol/gnucobol_internals/numeric.c": 408,
       "cobol/gnucobol_internals/parser.y": 3495,
       "cobol/gnucobol_internals/scanner.l": 372,
       "cobol/gnucobol_internals/syn_misc.at": 0
@@ -1091,31 +1091,31 @@
       "cpp/NVDA/core.py": 117,
       "cpp/NVDA/ensureuv.ps1": 21,
       "cpp/NVDA/espeak.py": 48,
-      "cpp/NVDA/inProcess.cpp": 28,
+      "cpp/NVDA/inProcess.cpp": 27,
       "cpp/NVDA/nvdaControllerInternal.cpp": 0,
       "cpp/NVDA/readme.md": 0,
-      "cpp/NVDA/storage.cpp": 314
+      "cpp/NVDA/storage.cpp": 309
     },
     "cpp/godot": {
       "cpp/godot/AUTHORS.md": 0,
       "cpp/godot/DONORS.md": 0,
       "cpp/godot/LICENSE.txt": 0,
-      "cpp/godot/editor_node.cpp": 2055,
+      "cpp/godot/editor_node.cpp": 2000,
       "cpp/godot/editor_node.h": 4,
-      "cpp/godot/gdscript_vm.cpp": 790,
-      "cpp/godot/main.cpp": 1335,
-      "cpp/godot/main.h": 2,
-      "cpp/godot/node.cpp": 786,
-      "cpp/godot/node.h": 39,
-      "cpp/godot/object.cpp": 483,
-      "cpp/godot/object.h": 75,
+      "cpp/godot/gdscript_vm.cpp": 582,
+      "cpp/godot/main.cpp": 1155,
+      "cpp/godot/main.h": 0,
+      "cpp/godot/node.cpp": 781,
+      "cpp/godot/node.h": 33,
+      "cpp/godot/object.cpp": 476,
+      "cpp/godot/object.h": 50,
       "cpp/godot/rendering_server_default.cpp": 60,
-      "cpp/godot/rendering_server_default.h": 44,
-      "cpp/godot/variant.cpp": 1065,
+      "cpp/godot/rendering_server_default.h": 20,
+      "cpp/godot/variant.cpp": 1056,
       "cpp/godot/variant.h": 42
     },
     "cpp/mlir": {
-      "cpp/mlir/flatbuffer_export.cc": 660,
+      "cpp/mlir/flatbuffer_export.cc": 650,
       "cpp/mlir/glob_lit_test.bzl": 5,
       "cpp/mlir/mlir_bridge_rollout_policy.cc": 4,
       "cpp/mlir/mlir_graph_optimization_pass.cc": 55,
@@ -1124,17 +1124,17 @@
       "cpp/mlir/tf_tfl_translate.cc": 31
     },
     "cpp/powertoys": {
-      "cpp/powertoys/FancyZones.cpp": 244,
+      "cpp/powertoys/FancyZones.cpp": 241,
       "cpp/powertoys/FancyZones.h": 0,
       "cpp/powertoys/ImageResizerExt.cpp": 5,
-      "cpp/powertoys/centralized_kb_hook.cpp": 39,
+      "cpp/powertoys/centralized_kb_hook.cpp": 35,
       "cpp/powertoys/logger.cpp": 8,
-      "cpp/powertoys/main.cpp": 86,
+      "cpp/powertoys/main.cpp": 80,
       "cpp/powertoys/powertoy_module.h": 1
     },
     "cpp/serenity_ak_siphash_cpu": {
-      "cpp/serenity_ak_siphash_cpu/CPUFeatures.cpp": 12,
-      "cpp/serenity_ak_siphash_cpu/SipHash.cpp": 23
+      "cpp/serenity_ak_siphash_cpu/CPUFeatures.cpp": 5,
+      "cpp/serenity_ak_siphash_cpu/SipHash.cpp": 21
     },
     "csd": {
       "csd/SOURCES.md": 0
@@ -1159,13 +1159,13 @@
       "csharp/SOURCES.md": 0
     },
     "csharp/roslyn": {
-      "csharp/roslyn/CSharpCompilation.cs": 578,
-      "csharp/roslyn/CSharpSyntaxTree.cs": 92,
+      "csharp/roslyn/CSharpCompilation.cs": 574,
+      "csharp/roslyn/CSharpSyntaxTree.cs": 83,
       "csharp/roslyn/DiagnosticAnalyzer.cs": 0,
-      "csharp/roslyn/LanguageParser.cs": 2694,
+      "csharp/roslyn/LanguageParser.cs": 2689,
       "csharp/roslyn/License.txt": 0,
-      "csharp/roslyn/MethodCompiler.cs": 324,
-      "csharp/roslyn/Workspace.cs": 161
+      "csharp/roslyn/MethodCompiler.cs": 323,
+      "csharp/roslyn/Workspace.cs": 153
     },
     "css": {
       "css/SOURCES.md": 0
@@ -1222,13 +1222,13 @@
       "dart/SOURCES.md": 0
     },
     "dart/flutter": {
-      "dart/flutter/editable_text.dart": 1241,
-      "dart/flutter/events.dart": 954,
-      "dart/flutter/framework.dart": 688,
-      "dart/flutter/navigator.dart": 798,
-      "dart/flutter/object.dart": 1013,
-      "dart/flutter/semantics.dart": 1250,
-      "dart/flutter/theme_data.dart": 785
+      "dart/flutter/editable_text.dart": 1150,
+      "dart/flutter/events.dart": 724,
+      "dart/flutter/framework.dart": 597,
+      "dart/flutter/navigator.dart": 768,
+      "dart/flutter/object.dart": 927,
+      "dart/flutter/semantics.dart": 1170,
+      "dart/flutter/theme_data.dart": 594
     },
     "db2_sql": {
       "db2_sql/SOURCES.md": 0
@@ -1255,24 +1255,24 @@
       "dockerfile/moby/builder/dockerfile/builder_unix.go": 0,
       "dockerfile/moby/builder/dockerfile/builder_windows.go": 2,
       "dockerfile/moby/builder/dockerfile/containerbackend.go": 17,
-      "dockerfile/moby/builder/dockerfile/copy.go": 95,
+      "dockerfile/moby/builder/dockerfile/copy.go": 92,
       "dockerfile/moby/builder/dockerfile/copy_test.go": 4,
       "dockerfile/moby/builder/dockerfile/copy_unix.go": 11,
-      "dockerfile/moby/builder/dockerfile/copy_windows.go": 29,
-      "dockerfile/moby/builder/dockerfile/dispatchers.go": 119,
-      "dockerfile/moby/builder/dockerfile/dispatchers_test.go": 131,
+      "dockerfile/moby/builder/dockerfile/copy_windows.go": 0,
+      "dockerfile/moby/builder/dockerfile/dispatchers.go": 117,
+      "dockerfile/moby/builder/dockerfile/dispatchers_test.go": 117,
       "dockerfile/moby/builder/dockerfile/dispatchers_unix.go": 4,
-      "dockerfile/moby/builder/dockerfile/dispatchers_unix_test.go": 7,
-      "dockerfile/moby/builder/dockerfile/dispatchers_windows.go": 23,
-      "dockerfile/moby/builder/dockerfile/dispatchers_windows_test.go": 9,
+      "dockerfile/moby/builder/dockerfile/dispatchers_unix_test.go": 6,
+      "dockerfile/moby/builder/dockerfile/dispatchers_windows.go": 17,
+      "dockerfile/moby/builder/dockerfile/dispatchers_windows_test.go": 6,
       "dockerfile/moby/builder/dockerfile/evaluator.go": 42,
-      "dockerfile/moby/builder/dockerfile/evaluator_test.go": 9,
+      "dockerfile/moby/builder/dockerfile/evaluator_test.go": 8,
       "dockerfile/moby/builder/dockerfile/imagecontext.go": 14,
       "dockerfile/moby/builder/dockerfile/imagecontext_test.go": 2,
       "dockerfile/moby/builder/dockerfile/imageprobe.go": 6,
       "dockerfile/moby/builder/dockerfile/internals.go": 37,
-      "dockerfile/moby/builder/dockerfile/internals_linux.go": 16,
-      "dockerfile/moby/builder/dockerfile/internals_linux_test.go": 6,
+      "dockerfile/moby/builder/dockerfile/internals_linux.go": 14,
+      "dockerfile/moby/builder/dockerfile/internals_linux_test.go": 4,
       "dockerfile/moby/builder/dockerfile/internals_test.go": 5,
       "dockerfile/moby/builder/dockerfile/internals_windows.go": 14,
       "dockerfile/moby/builder/dockerfile/internals_windows_test.go": 4,
@@ -1286,11 +1286,11 @@
       "dockerfile/moby/builder/remotecontext/detect_test.go": 6,
       "dockerfile/moby/builder/remotecontext/filehash.go": 4,
       "dockerfile/moby/builder/remotecontext/git.go": 4,
-      "dockerfile/moby/builder/remotecontext/lazycontext.go": 12,
+      "dockerfile/moby/builder/remotecontext/lazycontext.go": 10,
       "dockerfile/moby/builder/remotecontext/mimetype.go": 1,
       "dockerfile/moby/builder/remotecontext/mimetype_test.go": 0,
-      "dockerfile/moby/builder/remotecontext/remote.go": 24,
-      "dockerfile/moby/builder/remotecontext/remote_test.go": 34,
+      "dockerfile/moby/builder/remotecontext/remote.go": 23,
+      "dockerfile/moby/builder/remotecontext/remote_test.go": 33,
       "dockerfile/moby/builder/remotecontext/tarsum_test.go": 18,
       "dockerfile/moby/builder/remotecontext/utils_test.go": 1
     },
@@ -1302,7 +1302,7 @@
       "dockerfile/moby/builder/remotecontext/internal/tarsum/builder_context.go": 2,
       "dockerfile/moby/builder/remotecontext/internal/tarsum/builder_context_test.go": 8,
       "dockerfile/moby/builder/remotecontext/internal/tarsum/fileinfosums.go": 15,
-      "dockerfile/moby/builder/remotecontext/internal/tarsum/fileinfosums_test.go": 9,
+      "dockerfile/moby/builder/remotecontext/internal/tarsum/fileinfosums_test.go": 8,
       "dockerfile/moby/builder/remotecontext/internal/tarsum/tarsum.go": 37,
       "dockerfile/moby/builder/remotecontext/internal/tarsum/tarsum_spec.md": 0,
       "dockerfile/moby/builder/remotecontext/internal/tarsum/tarsum_test.go": 69,
@@ -1364,24 +1364,24 @@
     },
     "go/core": {
       "go/core/PATENTS": 0,
-      "go/core/main.go": 52,
-      "go/core/mgc.go": 188,
+      "go/core/main.go": 51,
+      "go/core/mgc.go": 186,
       "go/core/mutex.go": 0,
-      "go/core/proc.go": 981,
+      "go/core/proc.go": 975,
       "go/core/server.go": 525,
       "go/core/syscall_linux.go": 157,
-      "go/core/value.go": 707
+      "go/core/value.go": 698
     },
     "go/go_runtime_rand": {
       "go/go_runtime_rand/rand.go": 25
     },
     "go/kubernetes": {
-      "go/kubernetes/csi_plugin.go": 134,
-      "go/kubernetes/generic.go": 99,
-      "go/kubernetes/kubelet.go": 26,
+      "go/kubernetes/csi_plugin.go": 118,
+      "go/kubernetes/generic.go": 97,
+      "go/kubernetes/kubelet.go": 24,
       "go/kubernetes/options.go": 0,
-      "go/kubernetes/proxier.go": 227,
-      "go/kubernetes/replica_set.go": 120,
+      "go/kubernetes/proxier.go": 222,
+      "go/kubernetes/replica_set.go": 112,
       "go/kubernetes/scheduler.go": 55
     },
     "go/kubernetes_kubectl_tls": {
@@ -1390,59 +1390,59 @@
     "groovy/fineract_gradle_plugin": {
       "groovy/fineract_gradle_plugin/LICENSE_RELEASE": 0,
       "groovy/fineract_gradle_plugin/org_apache_fineract_gradle_FineractPluginExtension.groovy": 0,
-      "groovy/fineract_gradle_plugin/org_apache_fineract_gradle_service_ConfluenceService.groovy": 2,
+      "groovy/fineract_gradle_plugin/org_apache_fineract_gradle_service_ConfluenceService.groovy": 1,
       "groovy/fineract_gradle_plugin/org_apache_fineract_gradle_service_EmailService.groovy": 4,
       "groovy/fineract_gradle_plugin/org_apache_fineract_gradle_service_GitService.groovy": 1,
       "groovy/fineract_gradle_plugin/org_apache_fineract_gradle_service_GpgService.groovy": 15,
-      "groovy/fineract_gradle_plugin/org_apache_fineract_gradle_service_JiraService.groovy": 14,
-      "groovy/fineract_gradle_plugin/org_apache_fineract_gradle_service_SubversionService.groovy": 3,
+      "groovy/fineract_gradle_plugin/org_apache_fineract_gradle_service_JiraService.groovy": 12,
+      "groovy/fineract_gradle_plugin/org_apache_fineract_gradle_service_SubversionService.groovy": 2,
       "groovy/fineract_gradle_plugin/org_apache_fineract_gradle_service_TemplateService.groovy": 7
     },
     "groovy/flutter_android_gradle": {
       "groovy/flutter_android_gradle/dev_a11y_assessments_android_app_build.gradle": 5,
       "groovy/flutter_android_gradle/dev_a11y_assessments_android_build.gradle": 1,
-      "groovy/flutter_android_gradle/dev_a11y_assessments_android_settings.gradle": 1,
+      "groovy/flutter_android_gradle/dev_a11y_assessments_android_settings.gradle": 0,
       "groovy/flutter_android_gradle/dev_benchmarks_complex_layout_android_app_build.gradle": 3,
       "groovy/flutter_android_gradle/dev_benchmarks_complex_layout_android_build.gradle": 1,
-      "groovy/flutter_android_gradle/dev_benchmarks_complex_layout_android_settings.gradle": 1,
+      "groovy/flutter_android_gradle/dev_benchmarks_complex_layout_android_settings.gradle": 0,
       "groovy/flutter_android_gradle/dev_benchmarks_macrobenchmarks_android_app_build.gradle": 3,
       "groovy/flutter_android_gradle/dev_benchmarks_macrobenchmarks_android_build.gradle": 1,
-      "groovy/flutter_android_gradle/dev_benchmarks_macrobenchmarks_android_settings.gradle": 1,
+      "groovy/flutter_android_gradle/dev_benchmarks_macrobenchmarks_android_settings.gradle": 0,
       "groovy/flutter_android_gradle/dev_benchmarks_microbenchmarks_android_app_build.gradle": 3,
       "groovy/flutter_android_gradle/dev_benchmarks_microbenchmarks_android_build.gradle": 0,
-      "groovy/flutter_android_gradle/dev_benchmarks_microbenchmarks_android_settings.gradle": 1,
+      "groovy/flutter_android_gradle/dev_benchmarks_microbenchmarks_android_settings.gradle": 0,
       "groovy/flutter_android_gradle/dev_benchmarks_multiple_flutters_android_app_build.gradle": 0,
       "groovy/flutter_android_gradle/dev_benchmarks_multiple_flutters_android_build.gradle": 0,
       "groovy/flutter_android_gradle/dev_benchmarks_multiple_flutters_android_settings.gradle": 0,
       "groovy/flutter_android_gradle/dev_benchmarks_platform_views_layout_android_app_build.gradle": 3,
       "groovy/flutter_android_gradle/dev_benchmarks_platform_views_layout_android_build.gradle": 1,
-      "groovy/flutter_android_gradle/dev_benchmarks_platform_views_layout_android_settings.gradle": 1,
+      "groovy/flutter_android_gradle/dev_benchmarks_platform_views_layout_android_settings.gradle": 0,
       "groovy/flutter_android_gradle/dev_benchmarks_platform_views_layout_hybrid_composition_android_app_build.gradle": 3,
       "groovy/flutter_android_gradle/dev_benchmarks_platform_views_layout_hybrid_composition_android_build.gradle": 1,
-      "groovy/flutter_android_gradle/dev_benchmarks_platform_views_layout_hybrid_composition_android_settings.gradle": 1,
+      "groovy/flutter_android_gradle/dev_benchmarks_platform_views_layout_hybrid_composition_android_settings.gradle": 0,
       "groovy/flutter_android_gradle/dev_benchmarks_test_apps_stocks_android_app_build.gradle": 3,
       "groovy/flutter_android_gradle/dev_benchmarks_test_apps_stocks_android_build.gradle": 1,
-      "groovy/flutter_android_gradle/dev_benchmarks_test_apps_stocks_android_settings.gradle": 1
+      "groovy/flutter_android_gradle/dev_benchmarks_test_apps_stocks_android_settings.gradle": 0
     },
     "groovy/godot_android_gradle": {
       "groovy/godot_android_gradle/LICENSE.txt": 0,
       "groovy/godot_android_gradle/java_app_assetPackInstallTime_build.gradle": 0,
-      "groovy/godot_android_gradle/java_app_build.gradle": 55,
+      "groovy/godot_android_gradle/java_app_build.gradle": 10,
       "groovy/godot_android_gradle/java_app_settings.gradle": 0,
       "groovy/godot_android_gradle/java_editor_build.gradle": 9,
-      "groovy/godot_android_gradle/java_lib_build.gradle": 20,
+      "groovy/godot_android_gradle/java_lib_build.gradle": 17,
       "groovy/godot_android_gradle/java_nativeSrcsConfigs_build.gradle": 1,
       "groovy/godot_android_gradle/java_scripts_publish-module.gradle": 0,
       "groovy/godot_android_gradle/java_scripts_publish-root.gradle": 2,
       "groovy/godot_android_gradle/java_settings.gradle": 0
     },
     "groovy/gradle": {
-      "groovy/gradle/DefaultPluginManager.java": 57,
-      "groovy/gradle/DefaultProject.java": 77,
-      "groovy/gradle/DefaultTask.java": 16
+      "groovy/gradle/DefaultPluginManager.java": 23,
+      "groovy/gradle/DefaultProject.java": 34,
+      "groovy/gradle/DefaultTask.java": 0
     },
     "groovy/gradle_buildlogic_groovy": {
-      "groovy/gradle_buildlogic_groovy/binary-compatibility_src_main_groovy_gradlebuild_EnrichedReportRenderer.groovy": 8,
+      "groovy/gradle_buildlogic_groovy/binary-compatibility_src_main_groovy_gradlebuild_EnrichedReportRenderer.groovy": 6,
       "groovy/gradle_buildlogic_groovy/binary-compatibility_src_main_groovy_gradlebuild_binarycompatibility_AcceptedApiChange.groovy": 1,
       "groovy/gradle_buildlogic_groovy/binary-compatibility_src_main_groovy_gradlebuild_binarycompatibility_AcceptedApiChanges.groovy": 1,
       "groovy/gradle_buildlogic_groovy/binary-compatibility_src_main_groovy_gradlebuild_binarycompatibility_AcceptedApiChangesJsonFileManager.groovy": 0,
@@ -1454,12 +1454,12 @@
       "groovy/gradle_buildlogic_groovy/binary-compatibility_src_main_groovy_gradlebuild_binarycompatibility_filters_BridgeForBytecodeUpgradeAdapterClassFilter.groovy": 0,
       "groovy/gradle_buildlogic_groovy/binary-compatibility_src_main_groovy_gradlebuild_binarycompatibility_filters_KotlinInternalFilter.groovy": 0,
       "groovy/gradle_buildlogic_groovy/binary-compatibility_src_main_groovy_gradlebuild_binarycompatibility_filters_KotlinInvokeDefaultBridgeFilter.groovy": 0,
-      "groovy/gradle_buildlogic_groovy/binary-compatibility_src_main_groovy_gradlebuild_binarycompatibility_rules_AbstractGradleViolationRule.groovy": 17,
+      "groovy/gradle_buildlogic_groovy/binary-compatibility_src_main_groovy_gradlebuild_binarycompatibility_rules_AbstractGradleViolationRule.groovy": 15,
       "groovy/gradle_buildlogic_groovy/binary-compatibility_src_main_groovy_gradlebuild_binarycompatibility_rules_AbstractSuperClassChangesRule.groovy": 7,
       "groovy/gradle_buildlogic_groovy/binary-compatibility_src_main_groovy_gradlebuild_binarycompatibility_rules_BinaryBreakingSuperclassChangeRule.groovy": 0,
       "groovy/gradle_buildlogic_groovy/binary-compatibility_src_main_groovy_gradlebuild_binarycompatibility_rules_IncubatingInternalInterfaceAddedRule.groovy": 3,
-      "groovy/gradle_buildlogic_groovy/binary-compatibility_src_main_groovy_gradlebuild_binarycompatibility_rules_KotlinModifiersBreakingChangeRule.groovy": 5,
-      "groovy/gradle_buildlogic_groovy/binary-compatibility_src_main_groovy_gradlebuild_binarycompatibility_rules_MethodsRemovedInInternalSuperClassRule.groovy": 9,
+      "groovy/gradle_buildlogic_groovy/binary-compatibility_src_main_groovy_gradlebuild_binarycompatibility_rules_KotlinModifiersBreakingChangeRule.groovy": 4,
+      "groovy/gradle_buildlogic_groovy/binary-compatibility_src_main_groovy_gradlebuild_binarycompatibility_rules_MethodsRemovedInInternalSuperClassRule.groovy": 8,
       "groovy/gradle_buildlogic_groovy/binary-compatibility_src_main_groovy_gradlebuild_binarycompatibility_transforms_ExplodeZipAndFindJars.groovy": 4,
       "groovy/gradle_buildlogic_groovy/binary-compatibility_src_main_groovy_gradlebuild_binarycompatibility_transforms_FindGradleClasspath.groovy": 1,
       "groovy/gradle_buildlogic_groovy/binary-compatibility_src_main_groovy_gradlebuild_binarycompatibility_transforms_FindGradleJars.groovy": 1,
@@ -1500,19 +1500,19 @@
       "groovy/gradle_integtest_specs/core-configuration_configuration-cache_src_integTest_groovy_org_gradle_internal_cc_impl_AbstractConfigurationCacheIntegrationTest.groovy": 0,
       "groovy/gradle_integtest_specs/core-configuration_configuration-cache_src_integTest_groovy_org_gradle_internal_cc_impl_CacheableComputationIntegrationTest.groovy": 0,
       "groovy/gradle_integtest_specs/core-configuration_configuration-cache_src_integTest_groovy_org_gradle_internal_cc_impl_ConfigurationCacheAllowedStartParametersIntegrationTest.groovy": 0,
-      "groovy/gradle_integtest_specs/core-configuration_configuration-cache_src_integTest_groovy_org_gradle_internal_cc_impl_ConfigurationCacheBuildEventsListenerIntegrationTest.groovy": 2,
+      "groovy/gradle_integtest_specs/core-configuration_configuration-cache_src_integTest_groovy_org_gradle_internal_cc_impl_ConfigurationCacheBuildEventsListenerIntegrationTest.groovy": 1,
       "groovy/gradle_integtest_specs/core-configuration_configuration-cache_src_integTest_groovy_org_gradle_internal_cc_impl_ConfigurationCacheBuildFeatureIntegrationTest.groovy": 1,
       "groovy/gradle_integtest_specs/core-configuration_configuration-cache_src_integTest_groovy_org_gradle_internal_cc_impl_ConfigurationCacheBuildSrcChangesIntegrationTest.groovy": 7,
       "groovy/gradle_integtest_specs/core-configuration_configuration-cache_src_integTest_groovy_org_gradle_internal_cc_impl_ConfigurationCacheBuildSrcIntegrationTest.groovy": 1,
-      "groovy/gradle_integtest_specs/core-configuration_configuration-cache_src_integTest_groovy_org_gradle_internal_cc_impl_ConfigurationCacheBuildSrcProblemReportingIntegrationTest.groovy": 5,
-      "groovy/gradle_integtest_specs/core-configuration_configuration-cache_src_integTest_groovy_org_gradle_internal_cc_impl_ConfigurationCacheCircularReferenceIntegrationTest.groovy": 9,
+      "groovy/gradle_integtest_specs/core-configuration_configuration-cache_src_integTest_groovy_org_gradle_internal_cc_impl_ConfigurationCacheBuildSrcProblemReportingIntegrationTest.groovy": 3,
+      "groovy/gradle_integtest_specs/core-configuration_configuration-cache_src_integTest_groovy_org_gradle_internal_cc_impl_ConfigurationCacheCircularReferenceIntegrationTest.groovy": 1,
       "groovy/gradle_integtest_specs/core-configuration_configuration-cache_src_integTest_groovy_org_gradle_internal_cc_impl_ConfigurationCacheClassLoaderCachingIntegrationTest.groovy": 4,
       "groovy/gradle_integtest_specs/core-configuration_configuration-cache_src_integTest_groovy_org_gradle_internal_cc_impl_ConfigurationCacheClassLoaderValidationIntegrationTest.groovy": 0,
-      "groovy/gradle_integtest_specs/core-configuration_configuration-cache_src_integTest_groovy_org_gradle_internal_cc_impl_ConfigurationCacheCleanupIntegrationTest.groovy": 1,
-      "groovy/gradle_integtest_specs/core-configuration_configuration-cache_src_integTest_groovy_org_gradle_internal_cc_impl_ConfigurationCacheCompositeBuildProblemReportingIntegrationTest.groovy": 6,
+      "groovy/gradle_integtest_specs/core-configuration_configuration-cache_src_integTest_groovy_org_gradle_internal_cc_impl_ConfigurationCacheCleanupIntegrationTest.groovy": 0,
+      "groovy/gradle_integtest_specs/core-configuration_configuration-cache_src_integTest_groovy_org_gradle_internal_cc_impl_ConfigurationCacheCompositeBuildProblemReportingIntegrationTest.groovy": 3,
       "groovy/gradle_integtest_specs/core-configuration_configuration-cache_src_integTest_groovy_org_gradle_internal_cc_impl_ConfigurationCacheConventionMappingIntegrationTest.groovy": 0,
       "groovy/gradle_integtest_specs/core-configuration_configuration-cache_src_integTest_groovy_org_gradle_internal_cc_impl_ConfigurationCacheCustomClassLoaderErrorIntegrationTest.groovy": 1,
-      "groovy/gradle_integtest_specs/core-configuration_configuration-cache_src_integTest_groovy_org_gradle_internal_cc_impl_ConfigurationCacheDebugLogIntegrationTest.groovy": 12,
+      "groovy/gradle_integtest_specs/core-configuration_configuration-cache_src_integTest_groovy_org_gradle_internal_cc_impl_ConfigurationCacheDebugLogIntegrationTest.groovy": 8,
       "groovy/gradle_integtest_specs/core-configuration_configuration-cache_src_integTest_groovy_org_gradle_internal_cc_impl_ConfigurationCacheDirIntegrationTest.groovy": 0,
       "groovy/gradle_integtest_specs/core-configuration_configuration-cache_src_integTest_groovy_org_gradle_internal_cc_impl_ConfigurationCacheDirectoryPluginIntegrationTest.groovy": 0,
       "groovy/gradle_integtest_specs/core-configuration_configuration-cache_src_integTest_groovy_org_gradle_internal_cc_impl_ConfigurationCacheEnablementIntegrationTest.groovy": 4,
@@ -1549,14 +1549,14 @@
       "groovy/gradle_sample_task_classes/testKit_testKitFunctionalTestSpockBuildCache_groovy_src_main_groovy_org_gradle_sample_MyCacheableTask.groovy": 0
     },
     "groovy/jenkins_view_groovy": {
-      "groovy/jenkins_view_groovy/Jenkinsfile": 16,
+      "groovy/jenkins_view_groovy/Jenkinsfile": 15,
       "groovy/jenkins_view_groovy/LICENSE.txt": 0,
       "groovy/jenkins_view_groovy/hudson_PluginWrapper_uninstall.groovy": 0,
-      "groovy/jenkins_view_groovy/hudson_model_AllView_noJob.groovy": 13,
+      "groovy/jenkins_view_groovy/hudson_model_AllView_noJob.groovy": 10,
       "groovy/jenkins_view_groovy/hudson_model_EnvironmentContributor_EnvVarsHtml_index.groovy": 0,
       "groovy/jenkins_view_groovy/hudson_model_UpdateCenter_DownloadJob_SuccessButRequiresRestart_status.groovy": 0,
       "groovy/jenkins_view_groovy/hudson_model_UsageStatistics_global.groovy": 4,
-      "groovy/jenkins_view_groovy/hudson_security_GlobalSecurityConfiguration_index.groovy": 7,
+      "groovy/jenkins_view_groovy/hudson_security_GlobalSecurityConfiguration_index.groovy": 6,
       "groovy/jenkins_view_groovy/hudson_security_LegacySecurityRealm_config.groovy": 4,
       "groovy/jenkins_view_groovy/hudson_security_csrf_GlobalCrumbIssuerConfiguration_config.groovy": 3,
       "groovy/jenkins_view_groovy/hudson_tasks_ArtifactArchiver_help-defaultExcludes.groovy": 0,
@@ -1568,7 +1568,7 @@
       "groovy/jenkins_view_groovy/jenkins_management_AdministrativeMonitorsConfiguration_config.groovy": 2,
       "groovy/jenkins_view_groovy/jenkins_management_AsynchronousAdministrativeMonitor_log.groovy": 2,
       "groovy/jenkins_view_groovy/jenkins_management_ShutdownLink_index.groovy": 3,
-      "groovy/jenkins_view_groovy/jenkins_model_ArtifactManagerConfiguration_config.groovy": 2,
+      "groovy/jenkins_view_groovy/jenkins_model_ArtifactManagerConfiguration_config.groovy": 1,
       "groovy/jenkins_view_groovy/jenkins_model_CauseOfInterruption_UserInterruption_summary.groovy": 2,
       "groovy/jenkins_view_groovy/jenkins_model_CauseOfInterruption_summary.groovy": 0,
       "groovy/jenkins_view_groovy/jenkins_model_CoreEnvironmentContributor_buildEnv.groovy": 0,
@@ -1588,11 +1588,11 @@
       "groovy/kotlin_build_gradle/kotlin-native_backend.native_tests_build.gradle": 0,
       "groovy/kotlin_build_gradle/kotlin-native_gradle_kotlinGradlePlugin.gradle": 4,
       "groovy/kotlin_build_gradle/kotlin-native_gradle_loadRootProperties.gradle": 2,
-      "groovy/kotlin_build_gradle/libraries_examples_kotlin-gradle-subplugin-example_build.gradle": 4,
+      "groovy/kotlin_build_gradle/libraries_examples_kotlin-gradle-subplugin-example_build.gradle": 3,
       "groovy/kotlin_build_gradle/libraries_stdlib_common_build.gradle": 0,
       "groovy/kotlin_build_gradle/libraries_stdlib_jdk7_build.gradle": 0,
       "groovy/kotlin_build_gradle/libraries_stdlib_jdk8_build.gradle": 0,
-      "groovy/kotlin_build_gradle/libraries_tools_kotlin-annotations-jvm_build.gradle": 1,
+      "groovy/kotlin_build_gradle/libraries_tools_kotlin-annotations-jvm_build.gradle": 0,
       "groovy/kotlin_build_gradle/libraries_tools_kotlin-gradle-plugin-integration-tests_src_test_resources_testProject_AndroidDaggerProject_app_build.gradle": 0,
       "groovy/kotlin_build_gradle/libraries_tools_kotlin-gradle-plugin-integration-tests_src_test_resources_testProject_AndroidDaggerProject_build.gradle": 0,
       "groovy/kotlin_build_gradle/libraries_tools_kotlin-gradle-plugin-integration-tests_src_test_resources_testProject_AndroidDaggerProject_settings.gradle": 0,
@@ -1625,13 +1625,13 @@
       "groovy/retrofit_gradle/retrofit-converters_jaxb_build.gradle": 0
     },
     "groovy/spock": {
-      "groovy/spock/DeepBlockRewriter.java": 46,
-      "groovy/spock/SpecParser.java": 50,
-      "groovy/spock/SpecRewriter.java": 77,
-      "groovy/spock/SpockTransform.java": 6
+      "groovy/spock/DeepBlockRewriter.java": 43,
+      "groovy/spock/SpecParser.java": 37,
+      "groovy/spock/SpecRewriter.java": 68,
+      "groovy/spock/SpockTransform.java": 3
     },
     "groovy/spock_core_groovy": {
-      "groovy/spock_core_groovy/build-logic_base_src_main_groovy_org_spockframework_gradle_AsciiDocLinkVerifier.groovy": 7,
+      "groovy/spock_core_groovy/build-logic_base_src_main_groovy_org_spockframework_gradle_AsciiDocLinkVerifier.groovy": 6,
       "groovy/spock_core_groovy/build-logic_base_src_main_groovy_org_spockframework_gradle_JacocoJavaagentProvider.groovy": 0,
       "groovy/spock_core_groovy/build-logic_base_src_main_groovy_org_spockframework_gradle_SpockBasePlugin.groovy": 3,
       "groovy/spock_core_groovy/build-logic_base_src_main_groovy_org_spockframework_gradle_SpockConfigArgumentProvider.groovy": 0,
@@ -1656,11 +1656,11 @@
       "groovy/spock_smoke_specs/Blocks.groovy": 0,
       "groovy/spock_smoke_specs/BuiltInMembersOfClassSpecification.groovy": 1,
       "groovy/spock_smoke_specs/CleanupBlocks.groovy": 8,
-      "groovy/spock_smoke_specs/CompileTimeErrorReporting.groovy": 3,
+      "groovy/spock_smoke_specs/CompileTimeErrorReporting.groovy": 1,
       "groovy/spock_smoke_specs/DisambiguationInConditions.groovy": 0,
       "groovy/spock_smoke_specs/ExpectBlocks.groovy": 0,
       "groovy/spock_smoke_specs/FeatureFiltering.groovy": 1,
-      "groovy/spock_smoke_specs/FeatureMethods.groovy": 7,
+      "groovy/spock_smoke_specs/FeatureMethods.groovy": 3,
       "groovy/spock_smoke_specs/FinalFields.groovy": 4,
       "groovy/spock_smoke_specs/FixtureMethods.groovy": 2,
       "groovy/spock_smoke_specs/GroovyCallChain.groovy": 0,
@@ -1679,7 +1679,7 @@
       "groovy/spock_specs/org_spockframework_builder_PojoBuilderSpec.groovy": 0,
       "groovy/spock_specs/org_spockframework_buildsupport_SpecClassFileFinderSpec.groovy": 0,
       "groovy/spock_specs/org_spockframework_datapipes_DataPipesIteratorSpec.groovy": 3,
-      "groovy/spock_specs/org_spockframework_docs_datadriven_DataSpec.groovy": 18,
+      "groovy/spock_specs/org_spockframework_docs_datadriven_DataSpec.groovy": 16,
       "groovy/spock_specs/org_spockframework_docs_datadriven_v1_MathSpec.groovy": 0,
       "groovy/spock_specs/org_spockframework_docs_datadriven_v2_MathSpec.groovy": 0,
       "groovy/spock_specs/org_spockframework_docs_datadriven_v3_MathSpec.groovy": 0,
@@ -1689,7 +1689,7 @@
       "groovy/spock_specs/org_spockframework_docs_datadriven_v7_MathSpec.groovy": 0,
       "groovy/spock_specs/org_spockframework_docs_extension_ConfineMetaClassChangesDocSpec.groovy": 0,
       "groovy/spock_specs/org_spockframework_docs_extension_ExtensionStoreSpec.groovy": 1,
-      "groovy/spock_specs/org_spockframework_docs_extension_FancyMockMakerDocSpec.groovy": 1,
+      "groovy/spock_specs/org_spockframework_docs_extension_FancyMockMakerDocSpec.groovy": 0,
       "groovy/spock_specs/org_spockframework_docs_extension_IgnoreIfDocSpec.groovy": 1,
       "groovy/spock_specs/org_spockframework_docs_extension_InterceptorSpec.groovy": 0,
       "groovy/spock_specs/org_spockframework_docs_extension_IssueDocSpec.groovy": 0,
@@ -1878,8 +1878,8 @@
     "html/vscode_webviews": {
       "html/vscode_webviews/LICENSE.txt": 0,
       "html/vscode_webviews/build_builtin_index.html": 0,
-      "html/vscode_webviews/github_auth_media_index.html": 9,
-      "html/vscode_webviews/webWorkerExtensionHostIframe.html": 22,
+      "html/vscode_webviews/github_auth_media_index.html": 8,
+      "html/vscode_webviews/webWorkerExtensionHostIframe.html": 21,
       "html/vscode_webviews/webview_pre_index.html": 0,
       "html/vscode_webviews/workbench.html": 0
     },
@@ -1893,31 +1893,31 @@
       "java/SOURCES.md": 0
     },
     "java/flutter_android_editing_tests": {
-      "java/flutter_android_editing_tests/InputConnectionAdaptorTest.java": 46
+      "java/flutter_android_editing_tests/InputConnectionAdaptorTest.java": 16
     },
     "java/jenkins_cli": {
       "java/jenkins_cli/LICENSE.txt": 0,
-      "java/jenkins_cli/SetBuildDescriptionCommand.java": 4
+      "java/jenkins_cli/SetBuildDescriptionCommand.java": 2
     },
     "java/selenium_grid_session_queue": {
       "java/selenium_grid_session_queue/NOTICE": 0,
       "java/selenium_grid_session_queue/RemoteNewSessionQueue.java": 4
     },
     "java/springboot": {
-      "java/springboot/AutoConfigurationImportSelector.java": 50,
-      "java/springboot/Binder.java": 58,
+      "java/springboot/AutoConfigurationImportSelector.java": 33,
+      "java/springboot/Binder.java": 32,
       "java/springboot/JarLauncher.java": 0,
       "java/springboot/LICENSE.txt": 0,
-      "java/springboot/OnClassCondition.java": 23,
-      "java/springboot/ServletWebServerApplicationContext.java": 14,
-      "java/springboot/SpringApplication.java": 164,
-      "java/springboot/WebMvcAutoConfiguration.java": 42
+      "java/springboot/OnClassCondition.java": 19,
+      "java/springboot/ServletWebServerApplicationContext.java": 12,
+      "java/springboot/SpringApplication.java": 97,
+      "java/springboot/WebMvcAutoConfiguration.java": 34
     },
     "javascript": {
       "javascript/SOURCES.md": 0
     },
     "javascript/cesium_particle_emitters": {
-      "javascript/cesium_particle_emitters/CircleEmitter.js": 5,
+      "javascript/cesium_particle_emitters/CircleEmitter.js": 3,
       "javascript/cesium_particle_emitters/LICENSE.md": 0
     },
     "javascript/javascript_algorithms_bits": {
@@ -1925,42 +1925,42 @@
     },
     "javascript/jquery": {
       "javascript/jquery/LICENSE.txt": 0,
-      "javascript/jquery/ajax.js": 181,
+      "javascript/jquery/ajax.js": 179,
       "javascript/jquery/buildFragment.js": 24,
       "javascript/jquery/core.js": 77,
       "javascript/jquery/css.js": 89,
       "javascript/jquery/deferred.js": 44,
-      "javascript/jquery/event.js": 171,
+      "javascript/jquery/event.js": 170,
       "javascript/jquery/tokenize.js": 15
     },
     "javascript/node_tls_security_tests": {
-      "javascript/node_tls_security_tests/regexp-unicode-sets.js": 46,
+      "javascript/node_tls_security_tests/regexp-unicode-sets.js": 35,
       "javascript/node_tls_security_tests/test-crypto-dh-modp2.js": 1,
       "javascript/node_tls_security_tests/test-fs-lchown.js": 1,
-      "javascript/node_tls_security_tests/test-https-host-headers.js": 5,
+      "javascript/node_tls_security_tests/test-https-host-headers.js": 4,
       "javascript/node_tls_security_tests/test-tls-cert-ext-encoding.js": 2,
       "javascript/node_tls_security_tests/test-tls-psk-server.js": 7,
       "javascript/node_tls_security_tests/test-tls-use-after-free-regression.js": 1
     },
     "javascript/react": {
-      "javascript/react/BabelPlugin.ts": 21,
-      "javascript/react/ReactFiberBeginWork.js": 573,
-      "javascript/react/ReactFiberWorkLoop.js": 830,
-      "javascript/react/ReactFlightServer.js": 1098,
+      "javascript/react/BabelPlugin.ts": 17,
+      "javascript/react/ReactFiberBeginWork.js": 555,
+      "javascript/react/ReactFiberWorkLoop.js": 826,
+      "javascript/react/ReactFlightServer.js": 1088,
       "javascript/react/ReactSymbols.js": 28,
-      "javascript/react/build.js": 179
+      "javascript/react/build.js": 171
     },
     "javascript/react_error_codes": {
-      "javascript/react_error_codes/extract-errors.js": 13
+      "javascript/react_error_codes/extract-errors.js": 11
     },
     "javascript/threejs": {
-      "javascript/threejs/BufferGeometry.js": 93,
-      "javascript/threejs/Editor.js": 62,
-      "javascript/threejs/GLTFLoader.js": 578,
+      "javascript/threejs/BufferGeometry.js": 92,
+      "javascript/threejs/Editor.js": 61,
+      "javascript/threejs/GLTFLoader.js": 576,
       "javascript/threejs/Matrix4.js": 40,
       "javascript/threejs/Nodes.js": 137,
-      "javascript/threejs/WebGLProgram.js": 228,
-      "javascript/threejs/WebGLRenderer.js": 510
+      "javascript/threejs/WebGLProgram.js": 226,
+      "javascript/threejs/WebGLRenderer.js": 508
     },
     "jcl/cash-account-cobol": {
       "jcl/cash-account-cobol/DB2BIND.jcl": 0,
@@ -2480,7 +2480,7 @@
       "nix/bun/shell.nix": 0
     },
     "nix/ghostty": {
-      "nix/ghostty/build.zig": 43,
+      "nix/ghostty/build.zig": 42,
       "nix/ghostty/default.nix": 0,
       "nix/ghostty/flake.nix": 0,
       "nix/ghostty/shell.nix": 0
@@ -2490,11 +2490,11 @@
     },
     "objective-c/worldwideweb": {
       "objective-c/worldwideweb/Anchor.m": 40,
-      "objective-c/worldwideweb/HText.c": 110,
-      "objective-c/worldwideweb/HyperManager.m": 46,
+      "objective-c/worldwideweb/HText.c": 107,
+      "objective-c/worldwideweb/HyperManager.m": 40,
       "objective-c/worldwideweb/HyperText.h": 0,
-      "objective-c/worldwideweb/HyperText.m": 212,
-      "objective-c/worldwideweb/TcpAccess.m": 8
+      "objective-c/worldwideweb/HyperText.m": 205,
+      "objective-c/worldwideweb/TcpAccess.m": 7
     },
     "perl": {
       "perl/SOURCES.md": 0
@@ -2539,22 +2539,22 @@
       "php/SOURCES.md": 0
     },
     "php/guzzle": {
-      "php/guzzle/Client.php": 66,
-      "php/guzzle/CurlFactory.php": 143,
+      "php/guzzle/Client.php": 65,
+      "php/guzzle/CurlFactory.php": 137,
       "php/guzzle/CurlMultiHandler.php": 32,
       "php/guzzle/Middleware.php": 15,
       "php/guzzle/Pool.php": 9,
       "php/guzzle/RequestException.php": 14,
-      "php/guzzle/StreamHandler.php": 104
+      "php/guzzle/StreamHandler.php": 99
     },
     "php/laravel_core": {
       "php/laravel_core/Application.php": 71,
-      "php/laravel_core/BladeCompiler.php": 95,
+      "php/laravel_core/BladeCompiler.php": 77,
       "php/laravel_core/Collection.php": 146,
-      "php/laravel_core/Container.php": 164,
+      "php/laravel_core/Container.php": 162,
       "php/laravel_core/Facade.php": 16,
       "php/laravel_core/LICENSE.md": 0,
-      "php/laravel_core/Model.php": 180,
+      "php/laravel_core/Model.php": 179,
       "php/laravel_core/Router.php": 92
     },
     "php/laravel_validation_rules": {
@@ -2563,21 +2563,21 @@
     },
     "php/magento2": {
       "php/magento2/AbstractBlock.php": 67,
-      "php/magento2/AbstractModel.php": 62,
+      "php/magento2/AbstractModel.php": 60,
       "php/magento2/Application.php": 4,
       "php/magento2/Http.php": 7,
       "php/magento2/Interceptor.php": 11,
       "php/magento2/LICENSE.txt": 0,
-      "php/magento2/Mysql.php": 599,
+      "php/magento2/Mysql.php": 560,
       "php/magento2/ObjectManager.php": 1
     },
     "php/symfony": {
-      "php/symfony/Application.php": 290,
-      "php/symfony/ContainerBuilder.php": 368,
+      "php/symfony/Application.php": 274,
+      "php/symfony/ContainerBuilder.php": 363,
       "php/symfony/EventDispatcher.php": 88,
-      "php/symfony/HttpKernel.php": 46,
-      "php/symfony/Parser.php": 78,
-      "php/symfony/Request.php": 371,
+      "php/symfony/HttpKernel.php": 44,
+      "php/symfony/Parser.php": 71,
+      "php/symfony/Request.php": 352,
       "php/symfony/Router.php": 36
     },
     "php/symfony_emoji_data": {
@@ -2585,13 +2585,13 @@
     },
     "php/wordpress": {
       "php/wordpress/admin-ajax.php": 11,
-      "php/wordpress/class-wp-query.php": 847,
-      "php/wordpress/formatting.php": 748,
-      "php/wordpress/functions.php": 1112,
+      "php/wordpress/class-wp-query.php": 842,
+      "php/wordpress/formatting.php": 606,
+      "php/wordpress/functions.php": 1036,
       "php/wordpress/license.txt": 0,
       "php/wordpress/plugin.php": 60,
-      "php/wordpress/wp-login.php": 259,
-      "php/wordpress/wp-settings.php": 33
+      "php/wordpress/wp-login.php": 228,
+      "php/wordpress/wp-settings.php": 30
     },
     "plaintext": {
       "plaintext/SOURCES.md": 0
@@ -3091,7 +3091,7 @@
       "python/numpy/generate_numpy_api.py": 11,
       "python/numpy/generate_ufunc_api.py": 5,
       "python/numpy/generate_umath_doc.py": 2,
-      "python/numpy/lapack_litemodule.c": 27,
+      "python/numpy/lapack_litemodule.c": 17,
       "python/numpy/numpy_api.py": 0,
       "python/numpy/symbolic.py": 426,
       "python/numpy/testutils.py": 44,
@@ -3198,11 +3198,11 @@
     "rust/bevy": {
       "rust/bevy/LICENSE-APACHE": 0,
       "rust/bevy/LICENSE-MIT": 0,
-      "rust/bevy/bevy_ecs_macros.rs": 58,
-      "rust/bevy/bevy_ecs_query.rs": 26,
+      "rust/bevy/bevy_ecs_macros.rs": 57,
+      "rust/bevy/bevy_ecs_query.rs": 25,
       "rust/bevy/bevy_ecs_table.rs": 4,
-      "rust/bevy/bevy_ecs_world.rs": 116,
-      "rust/bevy/bevy_reflect_path.rs": 17,
+      "rust/bevy/bevy_ecs_world.rs": 108,
+      "rust/bevy/bevy_reflect_path.rs": 16,
       "rust/bevy/bevy_render_phase.rs": 0,
       "rust/bevy/bevy_schedule_graph.rs": 19
     },
@@ -3217,18 +3217,18 @@
       "rust/holylang/compile.rs": 1,
       "rust/holylang/error.rs": 3,
       "rust/holylang/main.rs": 0,
-      "rust/holylang/parser.rs": 201,
-      "rust/holylang/semantic.rs": 171,
-      "rust/holylang/transpiler.rs": 68
+      "rust/holylang/parser.rs": 176,
+      "rust/holylang/semantic.rs": 154,
+      "rust/holylang/transpiler.rs": 50
     },
     "rust/serde": {
       "rust/serde/LICENSE-APACHE": 0,
       "rust/serde/LICENSE-MIT": 0,
-      "rust/serde/serde_core_de_impls.rs": 226,
-      "rust/serde/serde_core_de_mod.rs": 27,
+      "rust/serde/serde_core_de_impls.rs": 224,
+      "rust/serde/serde_core_de_mod.rs": 25,
       "rust/serde/serde_core_macros.rs": 0,
       "rust/serde/serde_derive_de.rs": 93,
-      "rust/serde/serde_internals_ast.rs": 14,
+      "rust/serde/serde_internals_ast.rs": 13,
       "rust/serde/serde_internals_attr.rs": 328,
       "rust/serde/test_annotations.rs": 36
     },
@@ -3244,12 +3244,12 @@
     },
     "rust/tokio": {
       "rust/tokio/addr_of.rs": 0,
-      "rust/tokio/block_on.rs": 1,
+      "rust/tokio/block_on.rs": 0,
       "rust/tokio/blocking.rs": 4,
-      "rust/tokio/builder.rs": 18,
+      "rust/tokio/builder.rs": 17,
       "rust/tokio/config.rs": 0,
       "rust/tokio/fuzz.rs": 0,
-      "rust/tokio/interval.rs": 7,
+      "rust/tokio/interval.rs": 6,
       "rust/tokio/lib.rs": 0,
       "rust/tokio/maybe_done.rs": 8,
       "rust/tokio/tests.rs": 9,
@@ -3261,21 +3261,21 @@
     },
     "rust/wasmtime": {
       "rust/wasmtime/wasmtime_component_macro.rs": 0,
-      "rust/wasmtime/wasmtime_instance.rs": 66,
-      "rust/wasmtime/wasmtime_isle_parser.rs": 358,
+      "rust/wasmtime/wasmtime_instance.rs": 65,
+      "rust/wasmtime/wasmtime_isle_parser.rs": 355,
       "rust/wasmtime/wasmtime_pulley_interp.rs": 411
     },
     "scala": {
       "scala/SOURCES.md": 0
     },
     "scala/kafka": {
-      "scala/kafka/Kafka.scala": 12,
-      "scala/kafka/KafkaApis.scala": 782,
+      "scala/kafka/Kafka.scala": 11,
+      "scala/kafka/KafkaApis.scala": 768,
       "scala/kafka/KafkaRaftManager.scala": 4,
-      "scala/kafka/LogManager.scala": 228,
-      "scala/kafka/Partition.scala": 263,
-      "scala/kafka/ReplicaManager.scala": 355,
-      "scala/kafka/SocketServer.scala": 206
+      "scala/kafka/LogManager.scala": 185,
+      "scala/kafka/Partition.scala": 234,
+      "scala/kafka/ReplicaManager.scala": 331,
+      "scala/kafka/SocketServer.scala": 170
     },
     "scheme": {
       "scheme/SOURCES.md": 0
@@ -3283,8 +3283,8 @@
     "scheme/racket": {
       "scheme/racket/LICENSE.txt": 0,
       "scheme/racket/cpnanopass.ss": 1226,
-      "scheme/racket/eval.c": 634,
-      "scheme/racket/fun.c": 2206,
+      "scheme/racket/eval.c": 597,
+      "scheme/racket/fun.c": 2086,
       "scheme/racket/io.ss": 1165,
       "scheme/racket/schemify.rkt": 165,
       "scheme/racket/thread.rkt": 148
@@ -3601,7 +3601,7 @@
       "sql/SOURCES.md": 0
     },
     "sql/baseline": {
-      "sql/baseline/schema.php": 210
+      "sql/baseline/schema.php": 99
     },
     "sql/mediawiki_mysql": {
       "sql/mediawiki_mysql/COPYING": 0,
@@ -3728,13 +3728,13 @@
       "swift/SOURCES.md": 0
     },
     "swift/alamofire": {
-      "swift/alamofire/AFError.swift": 303,
+      "swift/alamofire/AFError.swift": 272,
       "swift/alamofire/Alamofire.podspec": 1,
       "swift/alamofire/Package.swift": 0,
-      "swift/alamofire/ParameterEncoder.swift": 27,
-      "swift/alamofire/Request.swift": 171,
-      "swift/alamofire/Response.swift": 48,
-      "swift/alamofire/Session.swift": 210
+      "swift/alamofire/ParameterEncoder.swift": 24,
+      "swift/alamofire/Request.swift": 165,
+      "swift/alamofire/Response.swift": 39,
+      "swift/alamofire/Session.swift": 195
     },
     "tabular": {
       "tabular/SOURCES.md": 0
@@ -3838,9 +3838,9 @@
     "typescript/assemblyscript": {
       "typescript/assemblyscript/asconfig.json": 0,
       "typescript/assemblyscript/ast.ts": 107,
-      "typescript/assemblyscript/compiler.ts": 2176,
+      "typescript/assemblyscript/compiler.ts": 2162,
       "typescript/assemblyscript/package.json": 0,
-      "typescript/assemblyscript/parser.ts": 1060
+      "typescript/assemblyscript/parser.ts": 1055
     },
     "typescript/effect_ai_anthropic": {
       "typescript/effect_ai_anthropic/AnthropicTokenizer.ts": 4
@@ -3851,7 +3851,7 @@
       "typescript/excalibur_math/math_ray.ts": 7
     },
     "typescript/excalidraw_text_wrapping": {
-      "typescript/excalidraw_text_wrapping/textWrapping.ts": 48
+      "typescript/excalidraw_text_wrapping/textWrapping.ts": 36
     },
     "typescript/fp-ts": {
       "typescript/fp-ts/Either.ts": 57,
@@ -3874,26 +3874,26 @@
       "typescript/playwright/SUPPORT.md": 0,
       "typescript/playwright/api.ts": 0,
       "typescript/playwright/bidiConnection.ts": 56,
-      "typescript/playwright/connection.ts": 83,
+      "typescript/playwright/connection.ts": 82,
       "typescript/playwright/crConnection.ts": 37,
-      "typescript/playwright/dispatcher.ts": 73,
-      "typescript/playwright/frames.ts": 416,
+      "typescript/playwright/dispatcher.ts": 69,
+      "typescript/playwright/frames.ts": 392,
       "typescript/playwright/protocol.ts": 4
     },
     "typescript/typescript_compiler": {
-      "typescript/typescript_compiler/binder.ts": 1056,
+      "typescript/typescript_compiler/binder.ts": 1053,
       "typescript/typescript_compiler/package.json": 0
     },
     "typescript/vscode": {
       "typescript/vscode/LICENSE.txt": 0,
-      "typescript/vscode/async.ts": 256,
-      "typescript/vscode/codeEditorWidget.ts": 349,
-      "typescript/vscode/eslint.config.js": 9,
-      "typescript/vscode/extHost.api.impl.ts": 329,
-      "typescript/vscode/gulpfile.vscode.ts": 75,
-      "typescript/vscode/instantiationService.ts": 83,
+      "typescript/vscode/async.ts": 253,
+      "typescript/vscode/codeEditorWidget.ts": 345,
+      "typescript/vscode/eslint.config.js": 2,
+      "typescript/vscode/extHost.api.impl.ts": 321,
+      "typescript/vscode/gulpfile.vscode.ts": 72,
+      "typescript/vscode/instantiationService.ts": 80,
       "typescript/vscode/ipc.ts": 190,
-      "typescript/vscode/lifecycle.ts": 94,
+      "typescript/vscode/lifecycle.ts": 93,
       "typescript/vscode/package.json": 0,
       "typescript/vscode/vscode.d.ts": 809
     },
@@ -4024,11 +4024,11 @@
       "zig/bun/LICENSE.md": 0,
       "zig/bun/MimallocArena.zig": 29,
       "zig/bun/Parser.zig": 201,
-      "zig/bun/comptime_string_map.zig": 53,
+      "zig/bun/comptime_string_map.zig": 52,
       "zig/bun/napi.zig": 243
     },
     "zig/mach": {
-      "zig/mach/Core.zig": 38,
+      "zig/mach/Core.zig": 37,
       "zig/mach/StringTable.zig": 2,
       "zig/mach/collision.zig": 83,
       "zig/mach/graph.zig": 40,
@@ -4038,8 +4038,8 @@
       "zig/mach/win32.zig": 85
     },
     "zig/tigerbeetle": {
-      "zig/tigerbeetle/aof.zig": 60,
-      "zig/tigerbeetle/build.zig": 143,
+      "zig/tigerbeetle/aof.zig": 57,
+      "zig/tigerbeetle/build.zig": 138,
       "zig/tigerbeetle/build_multiversion.zig": 33,
       "zig/tigerbeetle/cluster.zig": 88,
       "zig/tigerbeetle/config.zig": 10,
@@ -4049,25 +4049,25 @@
       "zig/tigerbeetle/direction.zig": 15,
       "zig/tigerbeetle/download.sh": 16,
       "zig/tigerbeetle/download.win.ps1": 9,
-      "zig/tigerbeetle/state_machine.zig": 406
+      "zig/tigerbeetle/state_machine.zig": 402
     },
     "zig/zig": {
-      "zig/zig/Compilation.zig": 1011,
+      "zig/zig/Compilation.zig": 998,
       "zig/zig/InternPool.zig": 907,
       "zig/zig/Type.zig": 589,
       "zig/zig/Zcu.zig": 473,
-      "zig/zig/main.zig": 1798
+      "zig/zig/main.zig": 1777
     },
     "zig/zig_std_linux_mips": {
       "zig/zig_std_linux_mips/mips.zig": 1
     },
     "zig/zls": {
       "zig/zls/DocumentScope.zig": 109,
-      "zig/zls/DocumentStore.zig": 275,
-      "zig/zls/Server.zig": 376,
+      "zig/zls/DocumentStore.zig": 274,
+      "zig/zls/Server.zig": 371,
       "zig/zls/analysis.zig": 1357,
       "zig/zls/ast.zig": 226,
-      "zig/zls/config_gen.zig": 181,
+      "zig/zls/config_gen.zig": 180,
       "zig/zls/print_ast.zig": 43
     }
   },

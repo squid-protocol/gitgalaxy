@@ -10,12 +10,12 @@
       "Structural Posture: The primary AI integration acts as a 'Isolated/Orphan' within the repository."
     ],
     "signal_mass": {
-      "Cloud APIs": 13,
+      "Cloud APIs": 12,
       "Deep Learning": 21,
       "Local Compute": 200,
-      "Orchestrators": 7,
+      "Orchestrators": 16,
       "Traditional ML": 7,
-      "Vector Stores": 12
+      "Vector Stores": 9
     }
   }
 }

@@ -3,6 +3,7 @@
   "zero_coverage": {
     "Agentic Rce": "placeholder: detector removed in #1020; key kept for SIGNAL_SCHEMA positions",
     "Feature Flags": "NO DETECTOR: no rule writes feature_flags anywhere, though it feeds the debt family; the crucible has real flag usage (React's ReactFeatureFlags)",
+    "Invisible Unicode Payload Smuggling": "no real public file carries a variation-selector/tag-character payload; the crucible's Unicode examples are negative controls (#4135) and do not trigger. Needs a planted case in keyword-rosetta, not real code",
     "Prompt Injection": "placeholder: detector removed in #1020; key kept for SIGNAL_SCHEMA positions",
     "Sec Extension Mismatch": "no inert-extension file (.txt/.md/.json) parsed as an executable language; real public repos do not ship these, so this needs a planted case in keyword-rosetta",
     "Sec Tainted Injection": "placeholder: computation removed in #3101; key kept for SIGNAL_SCHEMA positions"

@@ -1893,7 +1893,7 @@
       "java/SOURCES.md": 0
     },
     "java/flutter_android_editing_tests": {
-      "java/flutter_android_editing_tests/InputConnectionAdaptorTest.java": 2
+      "java/flutter_android_editing_tests/InputConnectionAdaptorTest.java": 0
     },
     "java/jenkins_cli": {
       "java/jenkins_cli/LICENSE.txt": 0,
@@ -1934,7 +1934,7 @@
       "javascript/jquery/tokenize.js": 0
     },
     "javascript/node_tls_security_tests": {
-      "javascript/node_tls_security_tests/regexp-unicode-sets.js": 5,
+      "javascript/node_tls_security_tests/regexp-unicode-sets.js": 0,
       "javascript/node_tls_security_tests/test-crypto-dh-modp2.js": 0,
       "javascript/node_tls_security_tests/test-fs-lchown.js": 0,
       "javascript/node_tls_security_tests/test-https-host-headers.js": 0,
@@ -2581,7 +2581,7 @@
       "php/symfony/Router.php": 0
     },
     "php/symfony_emoji_data": {
-      "php/symfony_emoji_data/emoji-ccp.php": 3
+      "php/symfony_emoji_data/emoji-ccp.php": 0
     },
     "php/wordpress": {
       "php/wordpress/admin-ajax.php": 0,
@@ -3851,7 +3851,7 @@
       "typescript/excalibur_math/math_ray.ts": 0
     },
     "typescript/excalidraw_text_wrapping": {
-      "typescript/excalidraw_text_wrapping/textWrapping.ts": 1
+      "typescript/excalidraw_text_wrapping/textWrapping.ts": 0
     },
     "typescript/fp-ts": {
       "typescript/fp-ts/Either.ts": 0,

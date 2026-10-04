@@ -1056,14 +1056,16 @@ def _cobol_records(code_stream: str, decimal_comma: Optional[bool] = None) -> li
         pic = pic_match.group(1).rstrip(".") if pic_match else None
         # #3816: NATIONAL counts only in this entry's own text -- before the period that ends it and outside
         # quoted literals: it is also prose (NIST's `VALUE "... NATIONAL INSTITUTE ..."`) and a verb option
-        # (`XML PARSE ... RETURNING NATIONAL`, which the last item's window runs on into). Every other usage
-        # is found exactly as before.
+        # (`XML PARSE ... RETURNING NATIONAL`, which the last item's window runs on into).
+        # #4329: so does every other usage -- the last DATA DIVISION entry's window runs into the PROCEDURE
+        # DIVISION, where a `DISPLAY` verb or a `'BINARY'` literal became its USAGE (and `PIC 9(4)` sized
+        # as 2 bytes). A usage is read only from the entry's own text too.
         entry = _ENTRY_END.split(_QUOTED.sub(lambda q: " " * len(q.group(0)), window), maxsplit=1)[0]
         usage: Optional[str]
         if _NATIONAL_USAGE.search(entry):
             usage = "NATIONAL"
         else:
-            usage_match = _USAGE_CLAUSE.search(window)
+            usage_match = _USAGE_CLAUSE.search(entry)
             usage = usage_match.group(1).upper() if usage_match else None
 
         # #3816: PIC G is always DISPLAY-1 (DBCS); PIC N is NATIONAL unless NSYMBOL(DBCS); a group's

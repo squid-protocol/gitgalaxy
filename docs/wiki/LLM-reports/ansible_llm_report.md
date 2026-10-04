@@ -1,5 +1,7 @@
 ---
 description: "The analyzed subset of the `ansible` repository reveals an automation and configuration management system heavily dependent on YAML definitions (41.5%)..."
+title: "Ansible Architectural Brief & LLM Report"
+
 ---
 # Architectural Brief: ansible
 

@@ -1,5 +1,7 @@
 ---
 description: "You are operating within `bevy`, a data-driven, massively parallel game engine primarily composed of Rust (84.5%)."
+title: "Bevy Agent Context & Architecture Rules"
+
 ---
 # AGENTS.md: bevy Architectural Context & Engagement Rules
 

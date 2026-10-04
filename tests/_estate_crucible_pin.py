@@ -23,7 +23,7 @@ Local runs find the checkout through the `ESTATE_CRUCIBLE_PATH` environment vari
 `../estate-crucible` beside the main gitgalaxy checkout.
 """
 
-PINNED_REF = "v0.1.0"
+PINNED_REF = "v0.2.0"
 
 # Where a local checkout lives when not beside the main gitgalaxy checkout.
 PATH_ENV = "ESTATE_CRUCIBLE_PATH"

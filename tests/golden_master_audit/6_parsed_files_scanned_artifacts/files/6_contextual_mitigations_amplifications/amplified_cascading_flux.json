@@ -185,7 +185,7 @@
       "cobol/aws-mainframe-modernization-carddemo/CSUTLDTC.cbl": "12 instances"
     },
     "cobol/cash-account-cobol": {
-      "cobol/cash-account-cobol/CASH00.cbl": "23 instances"
+      "cobol/cash-account-cobol/CASH00.cbl": "22 instances"
     },
     "cobol/che-che4z_lsp_project_fixtures": {
       "cobol/che-che4z_lsp_project_fixtures/ADSORT.cbl": "3 instances",

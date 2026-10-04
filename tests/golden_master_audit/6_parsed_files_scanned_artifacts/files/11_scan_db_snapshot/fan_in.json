@@ -6096,72 +6096,72 @@
     },
     "cobol/Z-SMS-Gateway": {
       "cobol/Z-SMS-Gateway/BALANCE.cbl": {
-        "SEND-JSON-ERROR@457": 0,
-        "SEND-JSON-RESPONSE@492": 0
+        "SEND-JSON-ERROR@457": 1,
+        "SEND-JSON-RESPONSE@492": 1
       },
       "cobol/Z-SMS-Gateway/HISTORY.cbl": {
-        "SEND-JSON-ERROR@404": 0,
-        "SEND-JSON-RESPONSE@439": 0
+        "SEND-JSON-ERROR@404": 1,
+        "SEND-JSON-RESPONSE@439": 1
       },
       "cobol/Z-SMS-Gateway/MESSAGES.cbl": {
-        "8000-DUMP-HEXA@323": 0,
-        "CHECK-USER-CREDIT@354": 0,
-        "SAVE-SMS-HISTORY@419": 0,
-        "SEND-JSON-ERROR@469": 1,
-        "SEND-JSON-RESPONSE@502": 0
+        "8000-DUMP-HEXA@323": 1,
+        "CHECK-USER-CREDIT@354": 1,
+        "SAVE-SMS-HISTORY@419": 1,
+        "SEND-JSON-ERROR@469": 2,
+        "SEND-JSON-RESPONSE@502": 1
       }
     },
     "cobol/aws-mainframe-modernization-carddemo": {
       "cobol/aws-mainframe-modernization-carddemo/CBACT01C.cbl": {
-        "0000-ACCTFILE-OPEN@133": 0,
-        "1000-ACCTFILE-GET-NEXT@92": 0,
+        "0000-ACCTFILE-OPEN@133": 1,
+        "1000-ACCTFILE-GET-NEXT@92": 1,
         "1100-DISPLAY-ACCT-RECORD@118": 1,
-        "9000-ACCTFILE-CLOSE@151": 0,
+        "9000-ACCTFILE-CLOSE@151": 1,
         "9910-DISPLAY-IO-STATUS@176": 3,
         "9999-ABEND-PROGRAM@169": 3
       },
       "cobol/aws-mainframe-modernization-carddemo/CBACT02C.cbl": {
-        "0000-CARDFILE-OPEN@118": 0,
-        "1000-CARDFILE-GET-NEXT@92": 0,
-        "9000-CARDFILE-CLOSE@136": 0,
+        "0000-CARDFILE-OPEN@118": 1,
+        "1000-CARDFILE-GET-NEXT@92": 1,
+        "9000-CARDFILE-CLOSE@136": 1,
         "9910-DISPLAY-IO-STATUS@161": 3,
         "9999-ABEND-PROGRAM@154": 3
       },
       "cobol/aws-mainframe-modernization-carddemo/CBACT03C.cbl": {
-        "0000-XREFFILE-OPEN@118": 0,
-        "1000-XREFFILE-GET-NEXT@92": 0,
-        "9000-XREFFILE-CLOSE@136": 0,
+        "0000-XREFFILE-OPEN@118": 1,
+        "1000-XREFFILE-GET-NEXT@92": 1,
+        "9000-XREFFILE-CLOSE@136": 1,
         "9910-DISPLAY-IO-STATUS@161": 3,
         "9999-ABEND-PROGRAM@154": 3
       },
       "cobol/aws-mainframe-modernization-carddemo/CBACT04C.cbl": {
-        "0000-TCATBALF-OPEN@234": 0,
-        "0100-XREFFILE-OPEN@252": 0,
-        "0200-DISCGRP-OPEN@270": 0,
-        "0300-ACCTFILE-OPEN@289": 0,
-        "0400-TRANFILE-OPEN@307": 0,
-        "1000-TCATBALF-GET-NEXT@325": 0,
-        "1050-UPDATE-ACCOUNT@350": 0,
-        "1100-GET-ACCT-DATA@372": 0,
-        "1110-GET-XREF-DATA@393": 0,
+        "0000-TCATBALF-OPEN@234": 1,
+        "0100-XREFFILE-OPEN@252": 1,
+        "0200-DISCGRP-OPEN@270": 1,
+        "0300-ACCTFILE-OPEN@289": 1,
+        "0400-TRANFILE-OPEN@307": 1,
+        "1000-TCATBALF-GET-NEXT@325": 1,
+        "1050-UPDATE-ACCOUNT@350": 1,
+        "1100-GET-ACCT-DATA@372": 1,
+        "1110-GET-XREF-DATA@393": 1,
         "1200-A-GET-DEFAULT-INT-RATE@443": 1,
-        "1200-GET-INTEREST-RATE@415": 0,
+        "1200-GET-INTEREST-RATE@415": 1,
         "1300-B-WRITE-TX@473": 1,
-        "1300-COMPUTE-INTEREST@462": 0,
-        "1400-COMPUTE-FEES@518": 0,
-        "9000-TCATBALF-CLOSE@522": 0,
-        "9100-XREFFILE-CLOSE@541": 0,
-        "9200-DISCGRP-CLOSE@559": 0,
-        "9300-ACCTFILE-CLOSE@577": 0,
-        "9400-TRANFILE-CLOSE@595": 0,
+        "1300-COMPUTE-INTEREST@462": 1,
+        "1400-COMPUTE-FEES@518": 1,
+        "9000-TCATBALF-CLOSE@522": 1,
+        "9100-XREFFILE-CLOSE@541": 1,
+        "9200-DISCGRP-CLOSE@559": 1,
+        "9300-ACCTFILE-CLOSE@577": 1,
+        "9400-TRANFILE-CLOSE@595": 1,
         "9910-DISPLAY-IO-STATUS@635": 17,
         "9999-ABEND-PROGRAM@628": 17,
         "Z-GET-DB2-FORMAT-TIMESTAMP@613": 1
       },
       "cobol/aws-mainframe-modernization-carddemo/CBCUS01C.cbl": {
-        "0000-CUSTFILE-OPEN@118": 0,
-        "1000-CUSTFILE-GET-NEXT@92": 0,
-        "9000-CUSTFILE-CLOSE@136": 0,
+        "0000-CUSTFILE-OPEN@118": 1,
+        "1000-CUSTFILE-GET-NEXT@92": 1,
+        "9000-CUSTFILE-CLOSE@136": 1,
         "Z-ABEND-PROGRAM@154": 3,
         "Z-DISPLAY-IO-STATUS@161": 3
       },
@@ -6186,58 +6186,58 @@
         "Z-DISPLAY-IO-STATUS@474": 13
       },
       "cobol/aws-mainframe-modernization-carddemo/CBTRN02C.cbl": {
-        "0000-DALYTRAN-OPEN@236": 0,
-        "0100-TRANFILE-OPEN@254": 0,
-        "0200-XREFFILE-OPEN@273": 0,
-        "0300-DALYREJS-OPEN@291": 0,
-        "0400-ACCTFILE-OPEN@309": 0,
-        "0500-TCATBALF-OPEN@327": 0,
-        "1000-DALYTRAN-GET-NEXT@345": 0,
+        "0000-DALYTRAN-OPEN@236": 1,
+        "0100-TRANFILE-OPEN@254": 1,
+        "0200-XREFFILE-OPEN@273": 1,
+        "0300-DALYREJS-OPEN@291": 1,
+        "0400-ACCTFILE-OPEN@309": 1,
+        "0500-TCATBALF-OPEN@327": 1,
+        "1000-DALYTRAN-GET-NEXT@345": 1,
         "1500-A-LOOKUP-XREF@380": 1,
         "1500-B-LOOKUP-ACCT@393": 1,
-        "1500-VALIDATE-TRAN@370": 0,
-        "2000-POST-TRANSACTION@424": 0,
-        "2500-WRITE-REJECT-REC@446": 0,
+        "1500-VALIDATE-TRAN@370": 1,
+        "2000-POST-TRANSACTION@424": 1,
+        "2500-WRITE-REJECT-REC@446": 1,
         "2700-A-CREATE-TCATBAL-REC@503": 1,
         "2700-B-UPDATE-TCATBAL-REC@526": 1,
         "2700-UPDATE-TCATBAL@467": 1,
         "2800-UPDATE-ACCOUNT-REC@545": 1,
         "2900-WRITE-TRANSACTION-FILE@562": 1,
-        "9000-DALYTRAN-CLOSE@582": 0,
-        "9100-TRANFILE-CLOSE@600": 0,
-        "9200-XREFFILE-CLOSE@619": 0,
-        "9300-DALYREJS-CLOSE@637": 0,
-        "9400-ACCTFILE-CLOSE@655": 0,
-        "9500-TCATBALF-CLOSE@674": 0,
+        "9000-DALYTRAN-CLOSE@582": 1,
+        "9100-TRANFILE-CLOSE@600": 1,
+        "9200-XREFFILE-CLOSE@619": 1,
+        "9300-DALYREJS-CLOSE@637": 1,
+        "9400-ACCTFILE-CLOSE@655": 1,
+        "9500-TCATBALF-CLOSE@674": 1,
         "9910-DISPLAY-IO-STATUS@714": 18,
         "9999-ABEND-PROGRAM@707": 18,
         "Z-GET-DB2-FORMAT-TIMESTAMP@692": 1
       },
       "cobol/aws-mainframe-modernization-carddemo/CBTRN03C.cbl": {
-        "0000-TRANFILE-OPEN@376": 0,
-        "0100-REPTFILE-OPEN@394": 0,
-        "0200-CARDXREF-OPEN@412": 0,
-        "0300-TRANTYPE-OPEN@430": 0,
-        "0400-TRANCATG-OPEN@448": 0,
-        "0500-DATEPARM-OPEN@466": 0,
-        "0550-DATEPARM-READ@220": 0,
-        "1000-TRANFILE-GET-NEXT@248": 0,
-        "1100-WRITE-TRANSACTION-REPORT@274": 0,
-        "1110-WRITE-GRAND-TOTALS@318": 0,
-        "1110-WRITE-PAGE-TOTALS@293": 1,
+        "0000-TRANFILE-OPEN@376": 1,
+        "0100-REPTFILE-OPEN@394": 1,
+        "0200-CARDXREF-OPEN@412": 1,
+        "0300-TRANTYPE-OPEN@430": 1,
+        "0400-TRANCATG-OPEN@448": 1,
+        "0500-DATEPARM-OPEN@466": 1,
+        "0550-DATEPARM-READ@220": 1,
+        "1000-TRANFILE-GET-NEXT@248": 1,
+        "1100-WRITE-TRANSACTION-REPORT@274": 1,
+        "1110-WRITE-GRAND-TOTALS@318": 1,
+        "1110-WRITE-PAGE-TOTALS@293": 2,
         "1111-WRITE-REPORT-REC@343": 5,
-        "1120-WRITE-ACCOUNT-TOTALS@306": 0,
+        "1120-WRITE-ACCOUNT-TOTALS@306": 1,
         "1120-WRITE-DETAIL@361": 1,
         "1120-WRITE-HEADERS@324": 1,
-        "1500-A-LOOKUP-XREF@484": 0,
-        "1500-B-LOOKUP-TRANTYPE@494": 0,
-        "1500-C-LOOKUP-TRANCATG@504": 0,
-        "9000-TRANFILE-CLOSE@514": 0,
-        "9100-REPTFILE-CLOSE@532": 0,
-        "9200-CARDXREF-CLOSE@551": 0,
-        "9300-TRANTYPE-CLOSE@569": 0,
-        "9400-TRANCATG-CLOSE@587": 0,
-        "9500-DATEPARM-CLOSE@605": 0,
+        "1500-A-LOOKUP-XREF@484": 1,
+        "1500-B-LOOKUP-TRANTYPE@494": 1,
+        "1500-C-LOOKUP-TRANCATG@504": 1,
+        "9000-TRANFILE-CLOSE@514": 1,
+        "9100-REPTFILE-CLOSE@532": 1,
+        "9200-CARDXREF-CLOSE@551": 1,
+        "9300-TRANTYPE-CLOSE@569": 1,
+        "9400-TRANCATG-CLOSE@587": 1,
+        "9500-DATEPARM-CLOSE@605": 1,
         "9910-DISPLAY-IO-STATUS@633": 18,
         "9999-ABEND-PROGRAM@626": 18
       },
@@ -6671,17 +6671,17 @@
       },
       "cobol/aws-mainframe-modernization-carddemo/CSUTLDTC.cbl": {
         "A000-MAIN-EXIT@152": 0,
-        "A000-MAIN@103": 0
+        "A000-MAIN@103": 1
       }
     },
     "cobol/cash-account-cobol": {
       "cobol/cash-account-cobol/CASH00.cbl": {
-        "CASH-ACCT-ADD@151": 0,
-        "CASH-ACCT-CREDIT@204": 0,
-        "CASH-ACCT-DEBIT@238": 0,
-        "CASH-ACCT-DELETE@185": 0,
-        "CASH-ACCT-READ@136": 0,
-        "CASH-ACCT-UPDATE@164": 0
+        "CASH-ACCT-ADD@151": 1,
+        "CASH-ACCT-CREDIT@204": 1,
+        "CASH-ACCT-DEBIT@238": 1,
+        "CASH-ACCT-DELETE@185": 1,
+        "CASH-ACCT-READ@136": 1,
+        "CASH-ACCT-UPDATE@164": 1
       }
     },
     "cobol/che-che4z_lsp_project_fixtures": {
@@ -6690,7 +6690,7 @@
         "100-Print-User@32": 1
       },
       "cobol/che-che4z_lsp_project_fixtures/HOVER_PARA.CBL": {
-        "PARAG1@6": 0,
+        "PARAG1@6": 1,
         "S010@12": 0,
         "S090@14": 0
       },
@@ -16187,17 +16187,17 @@
     },
     "cobol/cobol-check": {
       "cobol/cobol-check/TESTPRG.CBL": {
-        "2000-SPEAK@451": 0,
+        "2000-SPEAK@451": 1,
         "9999-END@468": 0,
-        "UT-AFTER@438": 0,
+        "UT-AFTER@438": 1,
         "UT-ASSERT-ACCESSES@228": 0,
-        "UT-ASSERT-EQUAL@169": 0,
-        "UT-BEFORE@435": 0,
+        "UT-ASSERT-EQUAL@169": 1,
+        "UT-BEFORE@435": 1,
         "UT-COMPARE@182": 1,
         "UT-DISPLAY-FAILED@213": 1,
         "UT-DISPLAY-PASSED@206": 1,
         "UT-END@445": 0,
-        "UT-INITIALIZE@441": 0,
+        "UT-INITIALIZE@441": 1,
         "UT-LOOKUP-FILE@423": 0,
         "UT-LOOKUP-MOCK@383": 4,
         "UT-REVERSE-RESULT@196": 1,
@@ -16222,11 +16222,11 @@
         "999-END@24": 0
       },
       "cobol/cobol-check/src_main_cobol_FileCopy.cbl": {
-        "1000-INITIALIZE@59": 0,
-        "5000-PROCESS@92": 0,
+        "1000-INITIALIZE@59": 1,
+        "5000-PROCESS@92": 1,
         "5200-PREPARE-OUTPUT-RECORD@102": 1,
         "5400-WRITE-OUTPUT-RECORD@109": 1,
-        "8000-HOUSEKEEPING@122": 0,
+        "8000-HOUSEKEEPING@122": 1,
         "9999-ABORT@128": 2
       },
       "cobol/cobol-check/src_main_cobol_GREETING.CBL": {
@@ -16289,7 +16289,7 @@
         "MOCK-SECTION-WITH-ERROR@13": 0
       },
       "cobol/cobol-check/src_main_cobol_WS88LEVEL.CBL": {
-        "001-INITIALIZE@108": 0
+        "001-INITIALIZE@108": 1
       }
     },
     "cobol/cobol-programming-course": {
@@ -16346,14 +16346,14 @@
         "SQL-ERROR-HANDLING@176": 2
       },
       "cobol/cobol-programming-course/DEPTPAY.CBL": {
-        "AVERAGE-SALARY@19": 0,
-        "DISPLAY-DETAILS@29": 0
+        "AVERAGE-SALARY@19": 1,
+        "DISPLAY-DETAILS@29": 1
       },
       "cobol/cobol-programming-course/EMPPAY.CBL": {
-        "INITIALIZATION@25": 0,
-        "PAYMENT-MONTHLY@40": 0,
-        "PAYMENT-WEEKLY@30": 0,
-        "SHOW-OUTPUT@48": 0
+        "INITIALIZATION@25": 1,
+        "PAYMENT-MONTHLY@40": 1,
+        "PAYMENT-WEEKLY@30": 1,
+        "SHOW-OUTPUT@48": 1
       }
     },
     "cobol/gnucobol": {
@@ -16362,11 +16362,11 @@
         "MAIN@100": 0
       },
       "cobol/gnucobol/tutorial.cob": {
-        "call-file-handler@188": 2,
-        "display-file-status@192": 0,
-        "read-all-records@204": 0,
-        "rewrite-first-record@231": 0,
-        "set-fcd@156": 0,
+        "call-file-handler@188": 3,
+        "display-file-status@192": 1,
+        "read-all-records@204": 1,
+        "rewrite-first-record@231": 1,
+        "set-fcd@156": 1,
         "set-keydefinitions@177": 1
       }
     },
@@ -17940,25 +17940,25 @@
     "cobol/zECS": {
       "cobol/zECS/ECS001.cbl": {
         "A1000-EXIT@121": 1,
-        "A1000-GET-INPUT-REQUEST@95": 0,
+        "A1000-GET-INPUT-REQUEST@95": 1,
         "A2000-EXIT@174": 0,
-        "A2000-SETUP-ECS-REQUEST@128": 0,
+        "A2000-SETUP-ECS-REQUEST@128": 1,
         "A3000-EXIT@212": 1,
-        "A3000-OPEN-CONNECTION@181": 0,
-        "A4000-EXECUTE-SERVICE@219": 0,
+        "A3000-OPEN-CONNECTION@181": 1,
+        "A4000-EXECUTE-SERVICE@219": 1,
         "A4000-EXIT@295": 1,
         "A4100-EXIT@336": 0,
         "A4100-GET-EXISTING-PATH@302": 1,
-        "A5000-CLOSE-CONNECTION@343": 0,
+        "A5000-CLOSE-CONNECTION@343": 1,
         "A5000-EXIT@368": 1,
-        "A6000-DISPLAY-RESULTS@375": 0,
+        "A6000-DISPLAY-RESULTS@375": 1,
         "A6000-EXIT@399": 0,
-        "Z1000-EXIT-PROGRAM@406": 6,
+        "Z1000-EXIT-PROGRAM@406": 7,
         "Z1000-EXIT@421": 0
       },
       "cobol/zECS/ZECS000.cbl": {
         "1000-EXIT@275": 0,
-        "1000-RETRIEVE@248": 0,
+        "1000-RETRIEVE@248": 1,
         "1100-CONTROL@283": 1,
         "1100-EXIT@305": 0,
         "1200-ENQ@311": 1,
@@ -17968,7 +17968,7 @@
         "1400-EXIT@396": 0,
         "1400-UPDATE@364": 1,
         "2000-EXIT@433": 0,
-        "2000-READ-FILE@408": 0,
+        "2000-READ-FILE@408": 1,
         "3000-DEPLICATE@442": 1,
         "3000-EXIT@469": 0,
         "3100-EXIT@489": 0,
@@ -17990,11 +17990,11 @@
         "7300-EXIT@701": 0,
         "7300-WEB-CLOSE@694": 1,
         "8000-EXIT@720": 0,
-        "8000-RESTART@708": 5,
+        "8000-RESTART@708": 6,
         "8100-EXIT@739": 0,
         "8100-RESTART@727": 2,
         "9000-EXIT@750": 0,
-        "9000-RETURN@745": 7,
+        "9000-RETURN@745": 8,
         "9100-ABEND@757": 0,
         "9100-EXIT@761": 0,
         "9900-EXIT@786": 0,
@@ -18006,14 +18006,14 @@
       },
       "cobol/zECS/ZECS003.cbl": {
         "1000-EXIT@203": 0,
-        "1000-INITIALIZE@191": 0,
+        "1000-INITIALIZE@191": 1,
         "2000-EXIT@237": 0,
-        "2000-REPLICATE@215": 0,
+        "2000-REPLICATE@215": 1,
         "3000-EXIT@265": 0,
-        "3000-READ-ZF@246": 0,
+        "3000-READ-ZF@246": 1,
         "3100-DELETE@271": 1,
         "3100-EXIT@284": 0,
-        "4000-CLEAR-COMPLETE@292": 0,
+        "4000-CLEAR-COMPLETE@292": 1,
         "4000-EXIT@297": 0,
         "7000-EXIT@343": 0,
         "7000-GET-URL@305": 1,
@@ -18026,21 +18026,21 @@
         "8000-EXIT@451": 0,
         "8000-SEND-RESPONSE@437": 2,
         "9000-EXIT@462": 0,
-        "9000-RETURN@457": 0
+        "9000-RETURN@457": 1
       },
       "cobol/zECS/ZECSPLT.cbl": {
         "1000-EXIT@81": 0,
-        "1000-INQUIRE-START@76": 0,
+        "1000-INQUIRE-START@76": 1,
         "2000-EXIT@101": 0,
-        "2000-INQUIRE-NEXT@87": 0,
+        "2000-INQUIRE-NEXT@87": 1,
         "2100-CHECK-URIMAP@107": 1,
         "2100-EXIT@112": 0,
         "2200-EXIT@146": 0,
         "2200-START@120": 1,
         "3000-EXIT@157": 0,
-        "3000-INQUIRE-END@152": 0,
+        "3000-INQUIRE-END@152": 1,
         "9000-EXIT@168": 0,
-        "9000-RETURN@163": 0
+        "9000-RETURN@163": 1
       }
     },
     "cobol/zopeneditor-sample": {

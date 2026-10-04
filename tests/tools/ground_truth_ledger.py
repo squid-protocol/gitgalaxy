@@ -77,7 +77,7 @@ SIDES = ("engine", "forge")
 # field -> (key section, per-entry sign-off flag). Fields not listed are backed by
 # the program blocks' `verification.status`, which test_key_integrity requires to
 # be `validated`.
-TRUTH_FLAGS: dict[str, tuple[str, str]] = {
+TRUTH_FLAGS: dict[str, tuple[Any, str]] = {
     "record fields": ("programs", "records_validated"),
     "entry transactions": ("programs", "transactions_validated"),
     "PL/I record fields": ("pli_programs", "records_validated"),
@@ -115,6 +115,9 @@ TRUTH_FLAGS: dict[str, tuple[str, str]] = {
     "PL/I call sites": ("pli_calls", "pli_calls_validated"),
     "PL/I data moves": ("pli_moves", "pli_moves_validated"),
     "file I/O moves": ("io_moves", "io_moves_validated"),
+    # #4318: one sign-off covers a program's (or PL/I source's) extents and edges.
+    "unit extents": (("programs", "pli_units"), "extents_validated"),
+    "intra-program edges": (("programs", "pli_units"), "extents_validated"),
 }
 
 
@@ -138,8 +141,11 @@ def truth_tier(key: dict[str, Any], field: str) -> str:
         if not vs or any(v["status"] != "validated" for v in vs):
             return "draft"
         return _weakest([v.get("tier", "llm_verified") for v in vs])
-    section, flag = TRUTH_FLAGS[field]
-    entries = list(key.get(section, {}).values())
+    sections, flag = TRUTH_FLAGS[field]
+    # A field drawn from several key sections (#4318: COBOL programs and PL/I
+    # sources) is signed off only when every entry of every one of them is.
+    entries = [e for section in ((sections,) if isinstance(sections, str) else sections)
+               for e in key.get(section, {}).values()]  # fmt: skip
     if not entries or any(e.get(flag) is not True for e in entries):
         return "draft"
     # A section sign-off flag carries no tier of its own: it inherits the entry's
@@ -169,6 +175,8 @@ def measure(corpus: dict[str, Any]) -> tuple[dict[str, Any], set[str]]:
                 row[side] = None
                 continue
             row[side] = {"tp": s["tp"], "got": s["got"], "truth": s["truth"]}
+            if "outside" in s:  # #4318: code lines inside no unit, pinned with the counts
+                row[side]["outside"] = s["outside"]
             for kind in ("fp", "fn"):
                 entries.update(entry_key(side, field, pair, kind) for pair in s[kind])
         board[field] = row
@@ -203,7 +211,8 @@ ABOUT = (
 def _pr(s: Optional[dict[str, int]]) -> str:
     if s is None:
         return "n/a"
-    return f"P {s['tp']}/{s['got']} · R {s['tp']}/{s['truth']}"
+    text = f"P {s['tp']}/{s['got']} · R {s['tp']}/{s['truth']}"
+    return text + (f" · {s['outside']} lines outside" if "outside" in s else "")
 
 
 def check(

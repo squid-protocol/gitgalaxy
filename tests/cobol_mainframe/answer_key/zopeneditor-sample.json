@@ -1,5 +1,5 @@
 {
-  "schema_version": 1,
+  "schema_version": 2,
   "corpus": "zopeneditor-sample",
   "url": "https://github.com/IBM/zopeneditor-sample",
   "ref": "8f9835308de6159eb54f226041d5f81a780cb8eb",
@@ -10,82 +10,269 @@
         {
           "name": "000-MAIN",
           "kind": "paragraph",
-          "line": 217
+          "line": 217,
+          "end": 259,
+          "edges": [
+            {
+              "verb": "PERFORM",
+              "target": "700-OPEN-FILES",
+              "line": 234
+            },
+            {
+              "verb": "PERFORM",
+              "target": "800-INIT-REPORT",
+              "line": 235
+            },
+            {
+              "verb": "PERFORM",
+              "target": "730-READ-CUSTOMER-FILE",
+              "line": 237
+            },
+            {
+              "verb": "PERFORM",
+              "target": "100-PROCESS-TRANSACTIONS",
+              "line": 238
+            },
+            {
+              "verb": "PERFORM",
+              "target": "850-REPORT-TRAN-STATS",
+              "line": 241
+            },
+            {
+              "verb": "PERFORM",
+              "target": "790-CLOSE-FILES",
+              "line": 242
+            }
+          ]
         },
         {
           "name": "100-PROCESS-TRANSACTIONS",
           "kind": "paragraph",
-          "line": 261
+          "line": 261,
+          "end": 291,
+          "edges": [
+            {
+              "verb": "PERFORM",
+              "target": "710-READ-TRAN-FILE",
+              "line": 262
+            },
+            {
+              "verb": "PERFORM",
+              "target": "299-REPORT-BAD-TRAN",
+              "line": 270
+            },
+            {
+              "verb": "PERFORM",
+              "target": "200-PROCESS-UPDATE-TRAN",
+              "line": 274
+            },
+            {
+              "verb": "PERFORM",
+              "target": "210-PROCESS-ADD-TRAN",
+              "line": 276
+            },
+            {
+              "verb": "PERFORM",
+              "target": "220-PROCESS-DELETE-TRAN",
+              "line": 278
+            },
+            {
+              "verb": "PERFORM",
+              "target": "299-REPORT-BAD-TRAN",
+              "line": 283
+            },
+            {
+              "verb": "PERFORM",
+              "target": "830-REPORT-TRAN-PROCESSED",
+              "line": 289
+            }
+          ]
         },
         {
           "name": "200-PROCESS-UPDATE-TRAN",
           "kind": "paragraph",
-          "line": 293
+          "line": 293,
+          "end": 313,
+          "edges": [
+            {
+              "verb": "PERFORM",
+              "target": "720-POSITION-CUST-FILE",
+              "line": 295
+            },
+            {
+              "verb": "PERFORM",
+              "target": "299-REPORT-BAD-TRAN",
+              "line": 299
+            },
+            {
+              "verb": "PERFORM",
+              "target": "299-REPORT-BAD-TRAN",
+              "line": 309
+            }
+          ]
         },
         {
           "name": "210-PROCESS-ADD-TRAN",
           "kind": "paragraph",
-          "line": 315
+          "line": 315,
+          "end": 333,
+          "edges": [
+            {
+              "verb": "PERFORM",
+              "target": "720-POSITION-CUST-FILE",
+              "line": 317
+            },
+            {
+              "verb": "PERFORM",
+              "target": "299-REPORT-BAD-TRAN",
+              "line": 321
+            },
+            {
+              "verb": "PERFORM",
+              "target": "740-WRITE-CUSTOUT-FILE",
+              "line": 331
+            }
+          ]
         },
         {
           "name": "220-PROCESS-DELETE-TRAN",
           "kind": "paragraph",
-          "line": 335
+          "line": 335,
+          "end": 345,
+          "edges": [
+            {
+              "verb": "PERFORM",
+              "target": "720-POSITION-CUST-FILE",
+              "line": 337
+            },
+            {
+              "verb": "PERFORM",
+              "target": "299-REPORT-BAD-TRAN",
+              "line": 341
+            },
+            {
+              "verb": "PERFORM",
+              "target": "730-READ-CUSTOMER-FILE",
+              "line": 344
+            }
+          ]
         },
         {
           "name": "299-REPORT-BAD-TRAN",
           "kind": "paragraph",
-          "line": 347
+          "line": 347,
+          "end": 354,
+          "edges": []
         },
         {
           "name": "700-OPEN-FILES",
           "kind": "paragraph",
-          "line": 356
+          "line": 356,
+          "end": 386,
+          "edges": []
         },
         {
           "name": "710-READ-TRAN-FILE",
           "kind": "paragraph",
-          "line": 388
+          "line": 388,
+          "end": 407,
+          "edges": [
+            {
+              "verb": "PERFORM",
+              "target": "299-REPORT-BAD-TRAN",
+              "line": 401
+            },
+            {
+              "verb": "PERFORM",
+              "target": "721-COPY-RECORDS",
+              "line": 405
+            }
+          ]
         },
         {
           "name": "720-POSITION-CUST-FILE",
           "kind": "paragraph",
-          "line": 409
+          "line": 409,
+          "end": 416,
+          "edges": [
+            {
+              "verb": "PERFORM",
+              "target": "721-COPY-RECORDS",
+              "line": 412
+            }
+          ]
         },
         {
           "name": "721-COPY-RECORDS",
           "kind": "paragraph",
-          "line": 418
+          "line": 418,
+          "end": 421,
+          "edges": [
+            {
+              "verb": "PERFORM",
+              "target": "740-WRITE-CUSTOUT-FILE",
+              "line": 420
+            },
+            {
+              "verb": "PERFORM",
+              "target": "730-READ-CUSTOMER-FILE",
+              "line": 421
+            }
+          ]
         },
         {
           "name": "730-READ-CUSTOMER-FILE",
           "kind": "paragraph",
-          "line": 423
+          "line": 423,
+          "end": 438,
+          "edges": [
+            {
+              "verb": "PERFORM",
+              "target": "299-REPORT-BAD-TRAN",
+              "line": 437
+            }
+          ]
         },
         {
           "name": "740-WRITE-CUSTOUT-FILE",
           "kind": "paragraph",
-          "line": 440
+          "line": 440,
+          "end": 455,
+          "edges": [
+            {
+              "verb": "PERFORM",
+              "target": "299-REPORT-BAD-TRAN",
+              "line": 454
+            }
+          ]
         },
         {
           "name": "790-CLOSE-FILES",
           "kind": "paragraph",
-          "line": 457
+          "line": 457,
+          "end": 460,
+          "edges": []
         },
         {
           "name": "800-INIT-REPORT",
           "kind": "paragraph",
-          "line": 462
+          "line": 462,
+          "end": 469,
+          "edges": []
         },
         {
           "name": "830-REPORT-TRAN-PROCESSED",
           "kind": "paragraph",
-          "line": 471
+          "line": 471,
+          "end": 478,
+          "edges": []
         },
         {
           "name": "850-REPORT-TRAN-STATS",
           "kind": "paragraph",
-          "line": 480
+          "line": 480,
+          "end": 505,
+          "edges": []
         }
       ],
       "dead": {},
@@ -1858,7 +2045,10 @@
       "commareas": [],
       "commareas_validated": false,
       "records_validated": true,
-      "records_validated_tier": "sample_verified"
+      "records_validated_tier": "sample_verified",
+      "main_line": null,
+      "extents_validated": true,
+      "extents_validated_tier": "llm_verified"
     },
     "COBOL/SAM1LIB.cbl": {
       "program_id": "SAM1",
@@ -1866,82 +2056,269 @@
         {
           "name": "000-MAIN",
           "kind": "paragraph",
-          "line": 200
+          "line": 200,
+          "end": 242,
+          "edges": [
+            {
+              "verb": "PERFORM",
+              "target": "700-OPEN-FILES",
+              "line": 217
+            },
+            {
+              "verb": "PERFORM",
+              "target": "800-INIT-REPORT",
+              "line": 218
+            },
+            {
+              "verb": "PERFORM",
+              "target": "730-READ-CUSTOMER-FILE",
+              "line": 220
+            },
+            {
+              "verb": "PERFORM",
+              "target": "100-PROCESS-TRANSACTIONS",
+              "line": 221
+            },
+            {
+              "verb": "PERFORM",
+              "target": "850-REPORT-TRAN-STATS",
+              "line": 224
+            },
+            {
+              "verb": "PERFORM",
+              "target": "790-CLOSE-FILES",
+              "line": 225
+            }
+          ]
         },
         {
           "name": "100-PROCESS-TRANSACTIONS",
           "kind": "paragraph",
-          "line": 244
+          "line": 244,
+          "end": 274,
+          "edges": [
+            {
+              "verb": "PERFORM",
+              "target": "710-READ-TRAN-FILE",
+              "line": 245
+            },
+            {
+              "verb": "PERFORM",
+              "target": "299-REPORT-BAD-TRAN",
+              "line": 253
+            },
+            {
+              "verb": "PERFORM",
+              "target": "200-PROCESS-UPDATE-TRAN",
+              "line": 257
+            },
+            {
+              "verb": "PERFORM",
+              "target": "210-PROCESS-ADD-TRAN",
+              "line": 259
+            },
+            {
+              "verb": "PERFORM",
+              "target": "220-PROCESS-DELETE-TRAN",
+              "line": 261
+            },
+            {
+              "verb": "PERFORM",
+              "target": "299-REPORT-BAD-TRAN",
+              "line": 266
+            },
+            {
+              "verb": "PERFORM",
+              "target": "830-REPORT-TRAN-PROCESSED",
+              "line": 272
+            }
+          ]
         },
         {
           "name": "200-PROCESS-UPDATE-TRAN",
           "kind": "paragraph",
-          "line": 276
+          "line": 276,
+          "end": 296,
+          "edges": [
+            {
+              "verb": "PERFORM",
+              "target": "720-POSITION-CUST-FILE",
+              "line": 278
+            },
+            {
+              "verb": "PERFORM",
+              "target": "299-REPORT-BAD-TRAN",
+              "line": 282
+            },
+            {
+              "verb": "PERFORM",
+              "target": "299-REPORT-BAD-TRAN",
+              "line": 292
+            }
+          ]
         },
         {
           "name": "210-PROCESS-ADD-TRAN",
           "kind": "paragraph",
-          "line": 298
+          "line": 298,
+          "end": 316,
+          "edges": [
+            {
+              "verb": "PERFORM",
+              "target": "720-POSITION-CUST-FILE",
+              "line": 300
+            },
+            {
+              "verb": "PERFORM",
+              "target": "299-REPORT-BAD-TRAN",
+              "line": 304
+            },
+            {
+              "verb": "PERFORM",
+              "target": "740-WRITE-CUSTOUT-FILE",
+              "line": 314
+            }
+          ]
         },
         {
           "name": "220-PROCESS-DELETE-TRAN",
           "kind": "paragraph",
-          "line": 318
+          "line": 318,
+          "end": 328,
+          "edges": [
+            {
+              "verb": "PERFORM",
+              "target": "720-POSITION-CUST-FILE",
+              "line": 320
+            },
+            {
+              "verb": "PERFORM",
+              "target": "299-REPORT-BAD-TRAN",
+              "line": 324
+            },
+            {
+              "verb": "PERFORM",
+              "target": "730-READ-CUSTOMER-FILE",
+              "line": 327
+            }
+          ]
         },
         {
           "name": "299-REPORT-BAD-TRAN",
           "kind": "paragraph",
-          "line": 330
+          "line": 330,
+          "end": 337,
+          "edges": []
         },
         {
           "name": "700-OPEN-FILES",
           "kind": "paragraph",
-          "line": 339
+          "line": 339,
+          "end": 369,
+          "edges": []
         },
         {
           "name": "710-READ-TRAN-FILE",
           "kind": "paragraph",
-          "line": 371
+          "line": 371,
+          "end": 390,
+          "edges": [
+            {
+              "verb": "PERFORM",
+              "target": "299-REPORT-BAD-TRAN",
+              "line": 384
+            },
+            {
+              "verb": "PERFORM",
+              "target": "721-COPY-RECORDS",
+              "line": 388
+            }
+          ]
         },
         {
           "name": "720-POSITION-CUST-FILE",
           "kind": "paragraph",
-          "line": 392
+          "line": 392,
+          "end": 399,
+          "edges": [
+            {
+              "verb": "PERFORM",
+              "target": "721-COPY-RECORDS",
+              "line": 395
+            }
+          ]
         },
         {
           "name": "721-COPY-RECORDS",
           "kind": "paragraph",
-          "line": 401
+          "line": 401,
+          "end": 404,
+          "edges": [
+            {
+              "verb": "PERFORM",
+              "target": "740-WRITE-CUSTOUT-FILE",
+              "line": 403
+            },
+            {
+              "verb": "PERFORM",
+              "target": "730-READ-CUSTOMER-FILE",
+              "line": 404
+            }
+          ]
         },
         {
           "name": "730-READ-CUSTOMER-FILE",
           "kind": "paragraph",
-          "line": 406
+          "line": 406,
+          "end": 421,
+          "edges": [
+            {
+              "verb": "PERFORM",
+              "target": "299-REPORT-BAD-TRAN",
+              "line": 420
+            }
+          ]
         },
         {
           "name": "740-WRITE-CUSTOUT-FILE",
           "kind": "paragraph",
-          "line": 423
+          "line": 423,
+          "end": 438,
+          "edges": [
+            {
+              "verb": "PERFORM",
+              "target": "299-REPORT-BAD-TRAN",
+              "line": 437
+            }
+          ]
         },
         {
           "name": "790-CLOSE-FILES",
           "kind": "paragraph",
-          "line": 440
+          "line": 440,
+          "end": 443,
+          "edges": []
         },
         {
           "name": "800-INIT-REPORT",
           "kind": "paragraph",
-          "line": 445
+          "line": 445,
+          "end": 452,
+          "edges": []
         },
         {
           "name": "830-REPORT-TRAN-PROCESSED",
           "kind": "paragraph",
-          "line": 454
+          "line": 454,
+          "end": 461,
+          "edges": []
         },
         {
           "name": "850-REPORT-TRAN-STATS",
           "kind": "paragraph",
-          "line": 463
+          "line": 463,
+          "end": 488,
+          "edges": []
         }
       ],
       "dead": {},
@@ -3329,7 +3706,10 @@
       "commareas": [],
       "commareas_validated": false,
       "records_validated": true,
-      "records_validated_tier": "sample_verified"
+      "records_validated_tier": "sample_verified",
+      "main_line": null,
+      "extents_validated": true,
+      "extents_validated_tier": "llm_verified"
     },
     "COBOL/SAM2.cbl": {
       "program_id": "SAM2",
@@ -3337,27 +3717,59 @@
         {
           "name": "000-MAIN",
           "kind": "paragraph",
-          "line": 57
+          "line": 57,
+          "end": 70,
+          "edges": [
+            {
+              "verb": "PERFORM",
+              "target": "300-PROCESS-CPU-CRUNCH",
+              "line": 62
+            },
+            {
+              "verb": "PERFORM",
+              "target": "100-VALIDATE-TRAN",
+              "line": 64
+            },
+            {
+              "verb": "PERFORM",
+              "target": "200-PROCESS-TRAN",
+              "line": 66
+            }
+          ]
         },
         {
           "name": "100-VALIDATE-TRAN",
           "kind": "paragraph",
-          "line": 72
+          "line": 72,
+          "end": 111,
+          "edges": []
         },
         {
           "name": "200-PROCESS-TRAN",
           "kind": "paragraph",
-          "line": 113
+          "line": 113,
+          "end": 141,
+          "edges": []
         },
         {
           "name": "300-PROCESS-CPU-CRUNCH",
           "kind": "paragraph",
-          "line": 143
+          "line": 143,
+          "end": 146,
+          "edges": [
+            {
+              "verb": "PERFORM",
+              "target": "310-CRUNCH-LOOP",
+              "line": 145
+            }
+          ]
         },
         {
           "name": "310-CRUNCH-LOOP",
           "kind": "paragraph",
-          "line": 148
+          "line": 148,
+          "end": 159,
+          "edges": []
         }
       ],
       "dead": {},
@@ -3563,7 +3975,10 @@
       "commareas": [],
       "commareas_validated": false,
       "records_validated": true,
-      "records_validated_tier": "sample_verified"
+      "records_validated_tier": "sample_verified",
+      "main_line": null,
+      "extents_validated": true,
+      "extents_validated_tier": "llm_verified"
     },
     "multiroot/sam/SAM1.cbl": {
       "program_id": "SAM1",
@@ -3571,82 +3986,269 @@
         {
           "name": "000-MAIN",
           "kind": "paragraph",
-          "line": 244
+          "line": 244,
+          "end": 286,
+          "edges": [
+            {
+              "verb": "PERFORM",
+              "target": "700-OPEN-FILES",
+              "line": 261
+            },
+            {
+              "verb": "PERFORM",
+              "target": "800-INIT-REPORT",
+              "line": 262
+            },
+            {
+              "verb": "PERFORM",
+              "target": "730-READ-CUSTOMER-FILE",
+              "line": 264
+            },
+            {
+              "verb": "PERFORM",
+              "target": "100-PROCESS-TRANSACTIONS",
+              "line": 265
+            },
+            {
+              "verb": "PERFORM",
+              "target": "850-REPORT-TRAN-STATS",
+              "line": 268
+            },
+            {
+              "verb": "PERFORM",
+              "target": "790-CLOSE-FILES",
+              "line": 269
+            }
+          ]
         },
         {
           "name": "100-PROCESS-TRANSACTIONS",
           "kind": "paragraph",
-          "line": 288
+          "line": 288,
+          "end": 319,
+          "edges": [
+            {
+              "verb": "PERFORM",
+              "target": "710-READ-TRAN-FILE",
+              "line": 289
+            },
+            {
+              "verb": "PERFORM",
+              "target": "299-REPORT-BAD-TRAN",
+              "line": 297
+            },
+            {
+              "verb": "PERFORM",
+              "target": "200-PROCESS-UPDATE-TRAN",
+              "line": 302
+            },
+            {
+              "verb": "PERFORM",
+              "target": "210-PROCESS-ADD-TRAN",
+              "line": 304
+            },
+            {
+              "verb": "PERFORM",
+              "target": "220-PROCESS-DELETE-TRAN",
+              "line": 306
+            },
+            {
+              "verb": "PERFORM",
+              "target": "299-REPORT-BAD-TRAN",
+              "line": 311
+            },
+            {
+              "verb": "PERFORM",
+              "target": "830-REPORT-TRAN-PROCESSED",
+              "line": 317
+            }
+          ]
         },
         {
           "name": "200-PROCESS-UPDATE-TRAN",
           "kind": "paragraph",
-          "line": 322
+          "line": 322,
+          "end": 352,
+          "edges": [
+            {
+              "verb": "PERFORM",
+              "target": "720-POSITION-CUST-FILE",
+              "line": 329
+            },
+            {
+              "verb": "PERFORM",
+              "target": "299-REPORT-BAD-TRAN",
+              "line": 333
+            },
+            {
+              "verb": "PERFORM",
+              "target": "299-REPORT-BAD-TRAN",
+              "line": 344
+            }
+          ]
         },
         {
           "name": "210-PROCESS-ADD-TRAN",
           "kind": "paragraph",
-          "line": 354
+          "line": 354,
+          "end": 372,
+          "edges": [
+            {
+              "verb": "PERFORM",
+              "target": "720-POSITION-CUST-FILE",
+              "line": 356
+            },
+            {
+              "verb": "PERFORM",
+              "target": "299-REPORT-BAD-TRAN",
+              "line": 360
+            },
+            {
+              "verb": "PERFORM",
+              "target": "740-WRITE-CUSTOUT-FILE",
+              "line": 370
+            }
+          ]
         },
         {
           "name": "220-PROCESS-DELETE-TRAN",
           "kind": "paragraph",
-          "line": 374
+          "line": 374,
+          "end": 384,
+          "edges": [
+            {
+              "verb": "PERFORM",
+              "target": "720-POSITION-CUST-FILE",
+              "line": 376
+            },
+            {
+              "verb": "PERFORM",
+              "target": "299-REPORT-BAD-TRAN",
+              "line": 380
+            },
+            {
+              "verb": "PERFORM",
+              "target": "730-READ-CUSTOMER-FILE",
+              "line": 383
+            }
+          ]
         },
         {
           "name": "299-REPORT-BAD-TRAN",
           "kind": "paragraph",
-          "line": 386
+          "line": 386,
+          "end": 393,
+          "edges": []
         },
         {
           "name": "700-OPEN-FILES",
           "kind": "paragraph",
-          "line": 395
+          "line": 395,
+          "end": 425,
+          "edges": []
         },
         {
           "name": "710-READ-TRAN-FILE",
           "kind": "paragraph",
-          "line": 427
+          "line": 427,
+          "end": 446,
+          "edges": [
+            {
+              "verb": "PERFORM",
+              "target": "299-REPORT-BAD-TRAN",
+              "line": 440
+            },
+            {
+              "verb": "PERFORM",
+              "target": "721-COPY-RECORDS",
+              "line": 444
+            }
+          ]
         },
         {
           "name": "720-POSITION-CUST-FILE",
           "kind": "paragraph",
-          "line": 448
+          "line": 448,
+          "end": 455,
+          "edges": [
+            {
+              "verb": "PERFORM",
+              "target": "721-COPY-RECORDS",
+              "line": 451
+            }
+          ]
         },
         {
           "name": "721-COPY-RECORDS",
           "kind": "paragraph",
-          "line": 457
+          "line": 457,
+          "end": 460,
+          "edges": [
+            {
+              "verb": "PERFORM",
+              "target": "740-WRITE-CUSTOUT-FILE",
+              "line": 459
+            },
+            {
+              "verb": "PERFORM",
+              "target": "730-READ-CUSTOMER-FILE",
+              "line": 460
+            }
+          ]
         },
         {
           "name": "730-READ-CUSTOMER-FILE",
           "kind": "paragraph",
-          "line": 462
+          "line": 462,
+          "end": 477,
+          "edges": [
+            {
+              "verb": "PERFORM",
+              "target": "299-REPORT-BAD-TRAN",
+              "line": 476
+            }
+          ]
         },
         {
           "name": "740-WRITE-CUSTOUT-FILE",
           "kind": "paragraph",
-          "line": 479
+          "line": 479,
+          "end": 494,
+          "edges": [
+            {
+              "verb": "PERFORM",
+              "target": "299-REPORT-BAD-TRAN",
+              "line": 493
+            }
+          ]
         },
         {
           "name": "790-CLOSE-FILES",
           "kind": "paragraph",
-          "line": 496
+          "line": 496,
+          "end": 499,
+          "edges": []
         },
         {
           "name": "800-INIT-REPORT",
           "kind": "paragraph",
-          "line": 501
+          "line": 501,
+          "end": 508,
+          "edges": []
         },
         {
           "name": "830-REPORT-TRAN-PROCESSED",
           "kind": "paragraph",
-          "line": 510
+          "line": 510,
+          "end": 525,
+          "edges": []
         },
         {
           "name": "850-REPORT-TRAN-STATS",
           "kind": "paragraph",
-          "line": 527
+          "line": 527,
+          "end": 576,
+          "edges": []
         }
       ],
       "dead": {},
@@ -5697,7 +6299,10 @@
       "commareas": [],
       "commareas_validated": false,
       "records_validated": true,
-      "records_validated_tier": "sample_verified"
+      "records_validated_tier": "sample_verified",
+      "main_line": null,
+      "extents_validated": true,
+      "extents_validated_tier": "llm_verified"
     },
     "multiroot/sam/SAM2.cbl": {
       "program_id": "SAM2",
@@ -5705,27 +6310,59 @@
         {
           "name": "000-MAIN",
           "kind": "paragraph",
-          "line": 60
+          "line": 60,
+          "end": 73,
+          "edges": [
+            {
+              "verb": "PERFORM",
+              "target": "300-PROCESS-CPU-CRUNCH",
+              "line": 65
+            },
+            {
+              "verb": "PERFORM",
+              "target": "100-VALIDATE-TRAN",
+              "line": 67
+            },
+            {
+              "verb": "PERFORM",
+              "target": "200-PROCESS-TRAN",
+              "line": 69
+            }
+          ]
         },
         {
           "name": "100-VALIDATE-TRAN",
           "kind": "paragraph",
-          "line": 75
+          "line": 75,
+          "end": 114,
+          "edges": []
         },
         {
           "name": "200-PROCESS-TRAN",
           "kind": "paragraph",
-          "line": 116
+          "line": 116,
+          "end": 144,
+          "edges": []
         },
         {
           "name": "300-PROCESS-CPU-CRUNCH",
           "kind": "paragraph",
-          "line": 146
+          "line": 146,
+          "end": 151,
+          "edges": [
+            {
+              "verb": "PERFORM",
+              "target": "310-CRUNCH-LOOP",
+              "line": 148
+            }
+          ]
         },
         {
           "name": "310-CRUNCH-LOOP",
           "kind": "paragraph",
-          "line": 153
+          "line": 153,
+          "end": 164,
+          "edges": []
         }
       ],
       "dead": {},
@@ -5939,7 +6576,10 @@
       "commareas": [],
       "commareas_validated": false,
       "records_validated": true,
-      "records_validated_tier": "sample_verified"
+      "records_validated_tier": "sample_verified",
+      "main_line": null,
+      "extents_validated": true,
+      "extents_validated_tier": "llm_verified"
     }
   },
   "method": {
@@ -12488,5 +13128,165 @@
       }
     }
   },
-  "runner_steps": {}
+  "runner_steps": {},
+  "pli_units": {
+    "PLI/MACSAMP.pli": {
+      "units": [
+        {
+          "name": "MACROFEATURES",
+          "kind": "procedure",
+          "line": 52,
+          "end": 174,
+          "block_end": 174,
+          "nested_in": null,
+          "edges": []
+        }
+      ],
+      "extents_validated": true,
+      "extents_validated_tier": "llm_verified"
+    },
+    "PLI/PSAM1.pli": {
+      "units": [
+        {
+          "name": "PSAM1",
+          "kind": "procedure",
+          "line": 1,
+          "end": 260,
+          "block_end": 314,
+          "nested_in": null,
+          "edges": [
+            {
+              "verb": "CALL",
+              "target": "PRTHDG1",
+              "line": 170
+            },
+            {
+              "verb": "CALL",
+              "target": "PRTHDG1",
+              "line": 220
+            },
+            {
+              "verb": "CALL",
+              "target": "TRANTOT",
+              "line": 249
+            }
+          ]
+        },
+        {
+          "name": "TRANTOT",
+          "kind": "procedure",
+          "line": 262,
+          "end": 302,
+          "block_end": 302,
+          "nested_in": "PSAM1",
+          "edges": []
+        },
+        {
+          "name": "PRTHDG1",
+          "kind": "procedure",
+          "line": 305,
+          "end": 308,
+          "block_end": 308,
+          "nested_in": "PSAM1",
+          "edges": []
+        }
+      ],
+      "extents_validated": true,
+      "extents_validated_tier": "llm_verified"
+    },
+    "PLI/PSAM1LIB.pli": {
+      "units": [
+        {
+          "name": "PSAM1",
+          "kind": "procedure",
+          "line": 1,
+          "end": 250,
+          "block_end": 304,
+          "nested_in": null,
+          "edges": [
+            {
+              "verb": "CALL",
+              "target": "PRTHDG1",
+              "line": 160
+            },
+            {
+              "verb": "CALL",
+              "target": "PRTHDG1",
+              "line": 210
+            },
+            {
+              "verb": "CALL",
+              "target": "TRANTOT",
+              "line": 239
+            }
+          ]
+        },
+        {
+          "name": "TRANTOT",
+          "kind": "procedure",
+          "line": 252,
+          "end": 292,
+          "block_end": 292,
+          "nested_in": "PSAM1",
+          "edges": []
+        },
+        {
+          "name": "PRTHDG1",
+          "kind": "procedure",
+          "line": 295,
+          "end": 298,
+          "block_end": 298,
+          "nested_in": "PSAM1",
+          "edges": []
+        }
+      ],
+      "extents_validated": true,
+      "extents_validated_tier": "llm_verified"
+    },
+    "PLI/PSAM2.pli": {
+      "units": [
+        {
+          "name": "PSAM2",
+          "kind": "procedure",
+          "line": 2,
+          "end": 85,
+          "block_end": 85,
+          "nested_in": null,
+          "edges": []
+        }
+      ],
+      "extents_validated": true,
+      "extents_validated_tier": "llm_verified"
+    }
+  },
+  "extents_verification": {
+    "issue": 4318,
+    "at": "2026-10-04",
+    "by": "claude-opus-5.5 (author pass)",
+    "method": "Drafted by this tool's own reader (cobol_answer_key.py add-extents), never from engine output. Edges cross-checked against the forge's independent reading (cobol_graveyard_finder units + PERFORM/GO TO): every COBOL edge agrees. Extents and edges compared with the engine at main 0d64632e: every disagreement settled against the source (trailing sequence-number-only / D lines the engine counts; the main line, #4302; self GO TO dropped by the engine, #3362; PERFORM TEST phantom, #4305) -- no key error found.",
+    "blind_sample": {
+      "seed": 4318,
+      "claims": 16,
+      "agree": 16,
+      "reviewers": "4 fresh-context claude-opus-5.5 subagents, staged source copy and definitions only, no answers (same model family as the author)",
+      "questions": [
+        "Q001 COBOL/SAM2.cbl 100-VALIDATE-TRAN",
+        "Q012 COBOL/SAM1LIB.cbl 220-PROCESS-DELETE-TRAN",
+        "Q013 PLI/PSAM1.pli PSAM1",
+        "Q037 PLI/PSAM1LIB.pli PRTHDG1",
+        "Q052 multiroot/sam/SAM2.cbl 200-PROCESS-TRAN",
+        "Q060 COBOL/SAM1LIB.cbl 299-REPORT-BAD-TRAN",
+        "Q063 multiroot/sam/SAM1.cbl 730-READ-CUSTOMER-FILE",
+        "Q064 multiroot/sam/SAM2.cbl 300-PROCESS-CPU-CRUNCH",
+        "Q068 PLI/PSAM1.pli TRANTOT",
+        "Q075 PLI/PSAM2.pli PSAM2",
+        "Q078 COBOL/SAM1LIB.cbl 100-PROCESS-TRANSACTIONS",
+        "Q083 COBOL/SAM2.cbl 310-CRUNCH-LOOP",
+        "Q085 PLI/PSAM1LIB.pli PSAM1",
+        "Q087 COBOL/SAM1LIB.cbl 720-POSITION-CUST-FILE",
+        "Q099 multiroot/sam/SAM2.cbl 100-VALIDATE-TRAN",
+        "Q100 PLI/MACSAMP.pli MACROFEATURES"
+      ]
+    }
+  }
 }

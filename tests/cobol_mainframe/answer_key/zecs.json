@@ -1,5 +1,5 @@
 {
-  "schema_version": 1,
+  "schema_version": 2,
   "corpus": "zecs",
   "url": "https://github.com/walmartlabs/zECS",
   "ref": "6d6bcbbc89c9be086a58cb7ad2ff4d702e873d02",
@@ -10,82 +10,182 @@
         {
           "name": "A1000-GET-INPUT-REQUEST",
           "kind": "paragraph",
-          "line": 95
+          "line": 95,
+          "end": 119,
+          "edges": [
+            {
+              "verb": "GO_TO",
+              "target": "A1000-EXIT",
+              "line": 107
+            },
+            {
+              "verb": "PERFORM_THRU",
+              "target": "Z1000-EXIT-PROGRAM",
+              "thru": "Z1000-EXIT",
+              "line": 119
+            }
+          ]
         },
         {
           "name": "A1000-EXIT",
           "kind": "paragraph",
-          "line": 121
+          "line": 121,
+          "end": 122,
+          "edges": []
         },
         {
           "name": "A2000-SETUP-ECS-REQUEST",
           "kind": "paragraph",
-          "line": 128
+          "line": 128,
+          "end": 172,
+          "edges": [
+            {
+              "verb": "PERFORM_THRU",
+              "target": "Z1000-EXIT-PROGRAM",
+              "thru": "Z1000-EXIT",
+              "line": 153
+            }
+          ]
         },
         {
           "name": "A2000-EXIT",
           "kind": "paragraph",
-          "line": 174
+          "line": 174,
+          "end": 175,
+          "edges": []
         },
         {
           "name": "A3000-OPEN-CONNECTION",
           "kind": "paragraph",
-          "line": 181
+          "line": 181,
+          "end": 210,
+          "edges": [
+            {
+              "verb": "GO_TO",
+              "target": "A3000-EXIT",
+              "line": 198
+            },
+            {
+              "verb": "PERFORM_THRU",
+              "target": "Z1000-EXIT-PROGRAM",
+              "thru": "Z1000-EXIT",
+              "line": 210
+            }
+          ]
         },
         {
           "name": "A3000-EXIT",
           "kind": "paragraph",
-          "line": 212
+          "line": 212,
+          "end": 213,
+          "edges": []
         },
         {
           "name": "A4000-EXECUTE-SERVICE",
           "kind": "paragraph",
-          "line": 219
+          "line": 219,
+          "end": 293,
+          "edges": [
+            {
+              "verb": "PERFORM_THRU",
+              "target": "A4100-GET-EXISTING-PATH",
+              "thru": "A4100-EXIT",
+              "line": 234
+            },
+            {
+              "verb": "GO_TO",
+              "target": "A4000-EXIT",
+              "line": 274
+            },
+            {
+              "verb": "PERFORM_THRU",
+              "target": "Z1000-EXIT-PROGRAM",
+              "thru": "Z1000-EXIT",
+              "line": 293
+            }
+          ]
         },
         {
           "name": "A4000-EXIT",
           "kind": "paragraph",
-          "line": 295
+          "line": 295,
+          "end": 296,
+          "edges": []
         },
         {
           "name": "A4100-GET-EXISTING-PATH",
           "kind": "paragraph",
-          "line": 302
+          "line": 302,
+          "end": 334,
+          "edges": [
+            {
+              "verb": "PERFORM_THRU",
+              "target": "Z1000-EXIT-PROGRAM",
+              "thru": "Z1000-EXIT",
+              "line": 321
+            }
+          ]
         },
         {
           "name": "A4100-EXIT",
           "kind": "paragraph",
-          "line": 336
+          "line": 336,
+          "end": 337,
+          "edges": []
         },
         {
           "name": "A5000-CLOSE-CONNECTION",
           "kind": "paragraph",
-          "line": 343
+          "line": 343,
+          "end": 366,
+          "edges": [
+            {
+              "verb": "GO_TO",
+              "target": "A5000-EXIT",
+              "line": 354
+            },
+            {
+              "verb": "PERFORM_THRU",
+              "target": "Z1000-EXIT-PROGRAM",
+              "thru": "Z1000-EXIT",
+              "line": 366
+            }
+          ]
         },
         {
           "name": "A5000-EXIT",
           "kind": "paragraph",
-          "line": 368
+          "line": 368,
+          "end": 369,
+          "edges": []
         },
         {
           "name": "A6000-DISPLAY-RESULTS",
           "kind": "paragraph",
-          "line": 375
+          "line": 375,
+          "end": 397,
+          "edges": []
         },
         {
           "name": "A6000-EXIT",
           "kind": "paragraph",
-          "line": 399
+          "line": 399,
+          "end": 400,
+          "edges": []
         },
         {
           "name": "Z1000-EXIT-PROGRAM",
           "kind": "paragraph",
-          "line": 406
+          "line": 406,
+          "end": 419,
+          "edges": []
         },
         {
           "name": "Z1000-EXIT",
           "kind": "paragraph",
-          "line": 421
+          "line": 421,
+          "end": 422,
+          "edges": []
         }
       ],
       "dead": {
@@ -668,7 +768,57 @@
         "derived": "censused CSD TRANSACTION -> PROGRAM rows joined to the cross-verified PROGRAM-ID (#3575)"
       },
       "records_validated": true,
-      "records_validated_tier": "sample_verified"
+      "records_validated_tier": "sample_verified",
+      "main_line": {
+        "line": 79,
+        "end": 89,
+        "edges": [
+          {
+            "verb": "PERFORM_THRU",
+            "target": "A1000-GET-INPUT-REQUEST",
+            "thru": "A1000-EXIT",
+            "line": 82
+          },
+          {
+            "verb": "PERFORM_THRU",
+            "target": "A2000-SETUP-ECS-REQUEST",
+            "thru": "A2000-EXIT",
+            "line": 83
+          },
+          {
+            "verb": "PERFORM_THRU",
+            "target": "A3000-OPEN-CONNECTION",
+            "thru": "A3000-EXIT",
+            "line": 84
+          },
+          {
+            "verb": "PERFORM_THRU",
+            "target": "A4000-EXECUTE-SERVICE",
+            "thru": "A4000-EXIT",
+            "line": 85
+          },
+          {
+            "verb": "PERFORM_THRU",
+            "target": "A5000-CLOSE-CONNECTION",
+            "thru": "A5000-EXIT",
+            "line": 86
+          },
+          {
+            "verb": "PERFORM_THRU",
+            "target": "A6000-DISPLAY-RESULTS",
+            "thru": "A6000-EXIT",
+            "line": 87
+          },
+          {
+            "verb": "PERFORM_THRU",
+            "target": "Z1000-EXIT-PROGRAM",
+            "thru": "Z1000-EXIT",
+            "line": 89
+          }
+        ]
+      },
+      "extents_validated": true,
+      "extents_validated_tier": "llm_verified"
     },
     "Source/ZECS000.cbl": {
       "program_id": "ZECS000",
@@ -676,232 +826,510 @@
         {
           "name": "1000-RETRIEVE",
           "kind": "paragraph",
-          "line": 248
+          "line": 248,
+          "end": 273,
+          "edges": [
+            {
+              "verb": "PERFORM_THRU",
+              "target": "1100-CONTROL",
+              "thru": "1100-EXIT",
+              "line": 273
+            }
+          ]
         },
         {
           "name": "1000-EXIT",
           "kind": "paragraph",
-          "line": 275
+          "line": 275,
+          "end": 276,
+          "edges": []
         },
         {
           "name": "1100-CONTROL",
           "kind": "paragraph",
-          "line": 283
+          "line": 283,
+          "end": 303,
+          "edges": [
+            {
+              "verb": "PERFORM_THRU",
+              "target": "1200-ENQ",
+              "thru": "1200-EXIT",
+              "line": 284
+            },
+            {
+              "verb": "PERFORM_THRU",
+              "target": "1300-WRITE",
+              "thru": "1300-EXIT",
+              "line": 300
+            },
+            {
+              "verb": "PERFORM_THRU",
+              "target": "1400-UPDATE",
+              "thru": "1400-EXIT",
+              "line": 303
+            }
+          ]
         },
         {
           "name": "1100-EXIT",
           "kind": "paragraph",
-          "line": 305
+          "line": 305,
+          "end": 306,
+          "edges": []
         },
         {
           "name": "1200-ENQ",
           "kind": "paragraph",
-          "line": 311
+          "line": 311,
+          "end": 321,
+          "edges": [
+            {
+              "verb": "PERFORM_THRU",
+              "target": "8000-RESTART",
+              "thru": "8000-EXIT",
+              "line": 320
+            },
+            {
+              "verb": "PERFORM_THRU",
+              "target": "9000-RETURN",
+              "thru": "9000-EXIT",
+              "line": 321
+            }
+          ]
         },
         {
           "name": "1200-EXIT",
           "kind": "paragraph",
-          "line": 323
+          "line": 323,
+          "end": 324,
+          "edges": []
         },
         {
           "name": "1300-WRITE",
           "kind": "paragraph",
-          "line": 329
+          "line": 329,
+          "end": 356,
+          "edges": [
+            {
+              "verb": "PERFORM_THRU",
+              "target": "8000-RESTART",
+              "thru": "8000-EXIT",
+              "line": 355
+            },
+            {
+              "verb": "PERFORM_THRU",
+              "target": "9000-RETURN",
+              "thru": "9000-EXIT",
+              "line": 356
+            }
+          ]
         },
         {
           "name": "1300-EXIT",
           "kind": "paragraph",
-          "line": 358
+          "line": 358,
+          "end": 359,
+          "edges": []
         },
         {
           "name": "1400-UPDATE",
           "kind": "paragraph",
-          "line": 364
+          "line": 364,
+          "end": 394,
+          "edges": [
+            {
+              "verb": "PERFORM_THRU",
+              "target": "8000-RESTART",
+              "thru": "8000-EXIT",
+              "line": 382
+            },
+            {
+              "verb": "PERFORM_THRU",
+              "target": "9000-RETURN",
+              "thru": "9000-EXIT",
+              "line": 383
+            }
+          ]
         },
         {
           "name": "1400-EXIT",
           "kind": "paragraph",
-          "line": 396
+          "line": 396,
+          "end": 397,
+          "edges": []
         },
         {
           "name": "2000-READ-FILE",
           "kind": "paragraph",
-          "line": 408
+          "line": 408,
+          "end": 431,
+          "edges": [
+            {
+              "verb": "PERFORM_THRU",
+              "target": "8000-RESTART",
+              "thru": "8000-EXIT",
+              "line": 421
+            },
+            {
+              "verb": "PERFORM_THRU",
+              "target": "9000-RETURN",
+              "thru": "9000-EXIT",
+              "line": 422
+            },
+            {
+              "verb": "PERFORM_THRU",
+              "target": "3000-DEPLICATE",
+              "thru": "3000-EXIT",
+              "line": 429
+            }
+          ]
         },
         {
           "name": "2000-EXIT",
           "kind": "paragraph",
-          "line": 433
+          "line": 433,
+          "end": 434,
+          "edges": []
         },
         {
           "name": "3000-DEPLICATE",
           "kind": "paragraph",
-          "line": 442
+          "line": 442,
+          "end": 467,
+          "edges": [
+            {
+              "verb": "PERFORM_THRU",
+              "target": "7000-GET-URL",
+              "thru": "7000-EXIT",
+              "line": 443
+            },
+            {
+              "verb": "PERFORM_THRU",
+              "target": "7100-WEB-OPEN",
+              "thru": "7100-EXIT",
+              "line": 448
+            },
+            {
+              "verb": "PERFORM_THRU",
+              "target": "7200-WEB-CONVERSE",
+              "thru": "7200-EXIT",
+              "line": 454
+            },
+            {
+              "verb": "PERFORM_THRU",
+              "target": "7300-WEB-CLOSE",
+              "thru": "7300-EXIT",
+              "line": 459
+            },
+            {
+              "verb": "PERFORM_THRU",
+              "target": "3100-UPDATE-ABS",
+              "thru": "3100-EXIT",
+              "line": 465
+            },
+            {
+              "verb": "PERFORM_THRU",
+              "target": "3200-DELETE",
+              "thru": "3200-EXIT",
+              "line": 467
+            }
+          ]
         },
         {
           "name": "3000-EXIT",
           "kind": "paragraph",
-          "line": 469
+          "line": 469,
+          "end": 470,
+          "edges": []
         },
         {
           "name": "3100-UPDATE-ABS",
           "kind": "paragraph",
-          "line": 475
+          "line": 475,
+          "end": 487,
+          "edges": [
+            {
+              "verb": "PERFORM_THRU",
+              "target": "3110-REWRITE",
+              "thru": "3110-EXIT",
+              "line": 487
+            }
+          ]
         },
         {
           "name": "3100-EXIT",
           "kind": "paragraph",
-          "line": 489
+          "line": 489,
+          "end": 490,
+          "edges": []
         },
         {
           "name": "3110-REWRITE",
           "kind": "paragraph",
-          "line": 495
+          "line": 495,
+          "end": 510,
+          "edges": [
+            {
+              "verb": "PERFORM_THRU",
+              "target": "8100-RESTART",
+              "thru": "8100-EXIT",
+              "line": 509
+            },
+            {
+              "verb": "PERFORM_THRU",
+              "target": "9000-RETURN",
+              "thru": "9000-EXIT",
+              "line": 510
+            }
+          ]
         },
         {
           "name": "3110-EXIT",
           "kind": "paragraph",
-          "line": 512
+          "line": 512,
+          "end": 513,
+          "edges": []
         },
         {
           "name": "3200-DELETE",
           "kind": "paragraph",
-          "line": 518
+          "line": 518,
+          "end": 537,
+          "edges": [
+            {
+              "verb": "PERFORM_THRU",
+              "target": "3210-DELETE",
+              "thru": "3210-EXIT",
+              "line": 519
+            },
+            {
+              "verb": "PERFORM_THRU",
+              "target": "3220-SYNCPOINT",
+              "thru": "3220-EXIT",
+              "line": 532
+            },
+            {
+              "verb": "PERFORM_THRU",
+              "target": "8100-RESTART",
+              "thru": "8100-EXIT",
+              "line": 536
+            },
+            {
+              "verb": "PERFORM_THRU",
+              "target": "9000-RETURN",
+              "thru": "9000-EXIT",
+              "line": 537
+            }
+          ]
         },
         {
           "name": "3200-EXIT",
           "kind": "paragraph",
-          "line": 539
+          "line": 539,
+          "end": 540,
+          "edges": []
         },
         {
           "name": "3210-DELETE",
           "kind": "paragraph",
-          "line": 545
+          "line": 545,
+          "end": 549,
+          "edges": []
         },
         {
           "name": "3210-EXIT",
           "kind": "paragraph",
-          "line": 551
+          "line": 551,
+          "end": 552,
+          "edges": []
         },
         {
           "name": "3220-SYNCPOINT",
           "kind": "paragraph",
-          "line": 557
+          "line": 557,
+          "end": 564,
+          "edges": []
         },
         {
           "name": "3220-EXIT",
           "kind": "paragraph",
-          "line": 566
+          "line": 566,
+          "end": 567,
+          "edges": []
         },
         {
           "name": "7000-GET-URL",
           "kind": "paragraph",
-          "line": 574
+          "line": 574,
+          "end": 610,
+          "edges": []
         },
         {
           "name": "7000-EXIT",
           "kind": "paragraph",
-          "line": 612
+          "line": 612,
+          "end": 613,
+          "edges": []
         },
         {
           "name": "7100-WEB-OPEN",
           "kind": "paragraph",
-          "line": 619
+          "line": 619,
+          "end": 632,
+          "edges": []
         },
         {
           "name": "7100-EXIT",
           "kind": "paragraph",
-          "line": 634
+          "line": 634,
+          "end": 635,
+          "edges": []
         },
         {
           "name": "7200-WEB-CONVERSE",
           "kind": "paragraph",
-          "line": 642
+          "line": 642,
+          "end": 686,
+          "edges": []
         },
         {
           "name": "7200-EXIT",
           "kind": "paragraph",
-          "line": 688
+          "line": 688,
+          "end": 689,
+          "edges": []
         },
         {
           "name": "7300-WEB-CLOSE",
           "kind": "paragraph",
-          "line": 694
+          "line": 694,
+          "end": 699,
+          "edges": []
         },
         {
           "name": "7300-EXIT",
           "kind": "paragraph",
-          "line": 701
+          "line": 701,
+          "end": 702,
+          "edges": []
         },
         {
           "name": "8000-RESTART",
           "kind": "paragraph",
-          "line": 708
+          "line": 708,
+          "end": 718,
+          "edges": []
         },
         {
           "name": "8000-EXIT",
           "kind": "paragraph",
-          "line": 720
+          "line": 720,
+          "end": 721,
+          "edges": []
         },
         {
           "name": "8100-RESTART",
           "kind": "paragraph",
-          "line": 727
+          "line": 727,
+          "end": 737,
+          "edges": []
         },
         {
           "name": "8100-EXIT",
           "kind": "paragraph",
-          "line": 739
+          "line": 739,
+          "end": 740,
+          "edges": []
         },
         {
           "name": "9000-RETURN",
           "kind": "paragraph",
-          "line": 745
+          "line": 745,
+          "end": 748,
+          "edges": []
         },
         {
           "name": "9000-EXIT",
           "kind": "paragraph",
-          "line": 750
+          "line": 750,
+          "end": 751,
+          "edges": []
         },
         {
           "name": "9100-ABEND",
           "kind": "paragraph",
-          "line": 757
+          "line": 757,
+          "end": 759,
+          "edges": [
+            {
+              "verb": "PERFORM_THRU",
+              "target": "8000-RESTART",
+              "thru": "8000-EXIT",
+              "line": 758
+            },
+            {
+              "verb": "PERFORM_THRU",
+              "target": "9000-RETURN",
+              "thru": "9000-EXIT",
+              "line": 759
+            }
+          ]
         },
         {
           "name": "9100-EXIT",
           "kind": "paragraph",
-          "line": 761
+          "line": 761,
+          "end": 762,
+          "edges": []
         },
         {
           "name": "9900-WRITE-CSSL",
           "kind": "paragraph",
-          "line": 768
+          "line": 768,
+          "end": 784,
+          "edges": [
+            {
+              "verb": "PERFORM_THRU",
+              "target": "9950-ABS",
+              "thru": "9950-EXIT",
+              "line": 769
+            }
+          ]
         },
         {
           "name": "9900-EXIT",
           "kind": "paragraph",
-          "line": 786
+          "line": 786,
+          "end": 787,
+          "edges": []
         },
         {
           "name": "9950-ABS",
           "kind": "paragraph",
-          "line": 792
+          "line": 792,
+          "end": 794,
+          "edges": []
         },
         {
           "name": "9950-EXIT",
           "kind": "paragraph",
-          "line": 796
+          "line": 796,
+          "end": 797,
+          "edges": []
         },
         {
           "name": "9999-GET-URL",
           "kind": "paragraph",
-          "line": 806
+          "line": 806,
+          "end": 835,
+          "edges": []
         },
         {
           "name": "9999-EXIT",
           "kind": "paragraph",
-          "line": 837
+          "line": 837,
+          "end": 838,
+          "edges": []
         }
       ],
       "dead": {
@@ -3435,7 +3863,39 @@
         "derived": "censused CSD TRANSACTION -> PROGRAM rows joined to the cross-verified PROGRAM-ID (#3575)"
       },
       "records_validated": true,
-      "records_validated_tier": "sample_verified"
+      "records_validated_tier": "sample_verified",
+      "main_line": {
+        "line": 233,
+        "end": 243,
+        "edges": [
+          {
+            "verb": "PERFORM_THRU",
+            "target": "1000-RETRIEVE",
+            "thru": "1000-EXIT",
+            "line": 238
+          },
+          {
+            "verb": "PERFORM_THRU",
+            "target": "2000-READ-FILE",
+            "thru": "2000-EXIT",
+            "line": 239
+          },
+          {
+            "verb": "PERFORM_THRU",
+            "target": "8000-RESTART",
+            "thru": "8000-EXIT",
+            "line": 242
+          },
+          {
+            "verb": "PERFORM_THRU",
+            "target": "9000-RETURN",
+            "thru": "9000-EXIT",
+            "line": 243
+          }
+        ]
+      },
+      "extents_validated": true,
+      "extents_validated_tier": "llm_verified"
     },
     "Source/ZECS001.cbl": {
       "program_id": "ZECS001",
@@ -3443,602 +3903,1615 @@
         {
           "name": "1000-ACCESS-PARMS",
           "kind": "paragraph",
-          "line": 465
+          "line": 465,
+          "end": 562,
+          "edges": [
+            {
+              "verb": "PERFORM_THRU",
+              "target": "1200-VALIDATION",
+              "thru": "1200-EXIT",
+              "line": 485
+            },
+            {
+              "verb": "PERFORM_THRU",
+              "target": "1500-AUTHENTICATE",
+              "thru": "1500-EXIT",
+              "line": 487
+            },
+            {
+              "verb": "PERFORM_THRU",
+              "target": "1600-USER-ACCESS",
+              "thru": "1600-EXIT",
+              "line": 488
+            },
+            {
+              "verb": "PERFORM_THRU",
+              "target": "1100-PARSE-URI",
+              "thru": "1100-EXIT",
+              "line": 493
+            },
+            {
+              "verb": "PERFORM_THRU",
+              "target": "1150-CHECK-URI",
+              "thru": "1150-EXIT",
+              "line": 499
+            },
+            {
+              "verb": "PERFORM_THRU",
+              "target": "1160-MOVE-URI",
+              "thru": "1160-EXIT",
+              "line": 500
+            },
+            {
+              "verb": "PERFORM_THRU",
+              "target": "1300-QUERY-STRING",
+              "thru": "1300-EXIT",
+              "line": 510
+            },
+            {
+              "verb": "PERFORM_THRU",
+              "target": "9300-WEB-ERROR",
+              "thru": "9300-EXIT",
+              "line": 554
+            },
+            {
+              "verb": "PERFORM_THRU",
+              "target": "9400-STATUS-400",
+              "thru": "9400-EXIT",
+              "line": 556
+            },
+            {
+              "verb": "PERFORM_THRU",
+              "target": "9000-RETURN",
+              "thru": "9000-EXIT",
+              "line": 557
+            }
+          ]
         },
         {
           "name": "1000-EXIT",
           "kind": "paragraph",
-          "line": 564
+          "line": 564,
+          "end": 565,
+          "edges": []
         },
         {
           "name": "1100-PARSE-URI",
           "kind": "paragraph",
-          "line": 575
+          "line": 575,
+          "end": 578,
+          "edges": []
         },
         {
           "name": "1100-EXIT",
           "kind": "paragraph",
-          "line": 580
+          "line": 580,
+          "end": 581,
+          "edges": []
         },
         {
           "name": "1150-CHECK-URI",
           "kind": "paragraph",
-          "line": 588
+          "line": 588,
+          "end": 592,
+          "edges": [
+            {
+              "verb": "PERFORM_THRU",
+              "target": "9400-STATUS-400",
+              "thru": "9400-EXIT",
+              "line": 591
+            },
+            {
+              "verb": "PERFORM_THRU",
+              "target": "9000-RETURN",
+              "thru": "9000-EXIT",
+              "line": 592
+            }
+          ]
         },
         {
           "name": "1150-EXIT",
           "kind": "paragraph",
-          "line": 594
+          "line": 594,
+          "end": 595,
+          "edges": []
         },
         {
           "name": "1160-MOVE-URI",
           "kind": "paragraph",
-          "line": 602
+          "line": 602,
+          "end": 614,
+          "edges": [
+            {
+              "verb": "PERFORM_THRU",
+              "target": "9400-STATUS-400",
+              "thru": "9400-EXIT",
+              "line": 608
+            },
+            {
+              "verb": "PERFORM_THRU",
+              "target": "9000-RETURN",
+              "thru": "9000-EXIT",
+              "line": 609
+            }
+          ]
         },
         {
           "name": "1160-EXIT",
           "kind": "paragraph",
-          "line": 616
+          "line": 616,
+          "end": 617,
+          "edges": []
         },
         {
           "name": "1200-VALIDATION",
           "kind": "paragraph",
-          "line": 625
+          "line": 625,
+          "end": 632,
+          "edges": [
+            {
+              "verb": "PERFORM_THRU",
+              "target": "1210-ZCXXSD",
+              "thru": "1210-EXIT",
+              "line": 632
+            }
+          ]
         },
         {
           "name": "1200-EXIT",
           "kind": "paragraph",
-          "line": 634
+          "line": 634,
+          "end": 635,
+          "edges": []
         },
         {
           "name": "1210-ZCXXSD",
           "kind": "paragraph",
-          "line": 640
+          "line": 640,
+          "end": 661,
+          "edges": []
         },
         {
           "name": "1210-EXIT",
           "kind": "paragraph",
-          "line": 663
+          "line": 663,
+          "end": 664,
+          "edges": []
         },
         {
           "name": "1300-QUERY-STRING",
           "kind": "paragraph",
-          "line": 677
+          "line": 677,
+          "end": 688,
+          "edges": [
+            {
+              "verb": "PERFORM_THRU",
+              "target": "1310-TTL",
+              "thru": "1310-EXIT",
+              "line": 680
+            },
+            {
+              "verb": "PERFORM_THRU",
+              "target": "1320-CLEAR",
+              "thru": "1320-EXIT",
+              "line": 683
+            },
+            {
+              "verb": "PERFORM_THRU",
+              "target": "9400-STATUS-400",
+              "thru": "9400-EXIT",
+              "line": 687
+            },
+            {
+              "verb": "PERFORM_THRU",
+              "target": "9000-RETURN",
+              "thru": "9000-EXIT",
+              "line": 688
+            }
+          ]
         },
         {
           "name": "1300-EXIT",
           "kind": "paragraph",
-          "line": 690
+          "line": 690,
+          "end": 691,
+          "edges": []
         },
         {
           "name": "1310-TTL",
           "kind": "paragraph",
-          "line": 696
+          "line": 696,
+          "end": 720,
+          "edges": [
+            {
+              "verb": "PERFORM_THRU",
+              "target": "1312-CHECK-ETTL",
+              "thru": "1312-EXIT",
+              "line": 710
+            }
+          ]
         },
         {
           "name": "1310-EXIT",
           "kind": "paragraph",
-          "line": 722
+          "line": 722,
+          "end": 723,
+          "edges": []
         },
         {
           "name": "1312-CHECK-ETTL",
           "kind": "paragraph",
-          "line": 729
+          "line": 729,
+          "end": 736,
+          "edges": []
         },
         {
           "name": "1312-EXIT",
           "kind": "paragraph",
-          "line": 738
+          "line": 738,
+          "end": 739,
+          "edges": []
         },
         {
           "name": "1320-CLEAR",
           "kind": "paragraph",
-          "line": 745
+          "line": 745,
+          "end": 756,
+          "edges": [
+            {
+              "verb": "PERFORM_THRU",
+              "target": "1325-CLEAR-TYPE",
+              "thru": "1325-EXIT",
+              "line": 751
+            }
+          ]
         },
         {
           "name": "1320-EXIT",
           "kind": "paragraph",
-          "line": 758
+          "line": 758,
+          "end": 759,
+          "edges": []
         },
         {
           "name": "1325-CLEAR-TYPE",
           "kind": "paragraph",
-          "line": 764
+          "line": 764,
+          "end": 770,
+          "edges": []
         },
         {
           "name": "1325-EXIT",
           "kind": "paragraph",
-          "line": 772
+          "line": 772,
+          "end": 773,
+          "edges": []
         },
         {
           "name": "1500-AUTHENTICATE",
           "kind": "paragraph",
-          "line": 778
+          "line": 778,
+          "end": 807,
+          "edges": [
+            {
+              "verb": "PERFORM_THRU",
+              "target": "9600-AUTH-ERROR",
+              "thru": "9600-EXIT",
+              "line": 790
+            },
+            {
+              "verb": "PERFORM_THRU",
+              "target": "9000-RETURN",
+              "thru": "9000-EXIT",
+              "line": 791
+            },
+            {
+              "verb": "PERFORM_THRU",
+              "target": "9600-AUTH-ERROR",
+              "thru": "9600-EXIT",
+              "line": 801
+            },
+            {
+              "verb": "PERFORM_THRU",
+              "target": "9000-RETURN",
+              "thru": "9000-EXIT",
+              "line": 802
+            },
+            {
+              "verb": "PERFORM_THRU",
+              "target": "9600-AUTH-ERROR",
+              "thru": "9600-EXIT",
+              "line": 806
+            },
+            {
+              "verb": "PERFORM_THRU",
+              "target": "9000-RETURN",
+              "thru": "9000-EXIT",
+              "line": 807
+            }
+          ]
         },
         {
           "name": "1500-EXIT",
           "kind": "paragraph",
-          "line": 809
+          "line": 809,
+          "end": 810,
+          "edges": []
         },
         {
           "name": "1600-USER-ACCESS",
           "kind": "paragraph",
-          "line": 816
+          "line": 816,
+          "end": 828,
+          "edges": [
+            {
+              "verb": "PERFORM_THRU",
+              "target": "1610-SCAN-ZCXXSD",
+              "thru": "1610-EXIT",
+              "line": 819
+            },
+            {
+              "verb": "PERFORM_THRU",
+              "target": "9600-AUTH-ERROR",
+              "thru": "9600-EXIT",
+              "line": 827
+            },
+            {
+              "verb": "PERFORM_THRU",
+              "target": "9000-RETURN",
+              "thru": "9000-EXIT",
+              "line": 828
+            }
+          ]
         },
         {
           "name": "1600-EXIT",
           "kind": "paragraph",
-          "line": 830
+          "line": 830,
+          "end": 831,
+          "edges": []
         },
         {
           "name": "1610-SCAN-ZCXXSD",
           "kind": "paragraph",
-          "line": 836
+          "line": 836,
+          "end": 857,
+          "edges": []
         },
         {
           "name": "1610-EXIT",
           "kind": "paragraph",
-          "line": 859
+          "line": 859,
+          "end": 860,
+          "edges": []
         },
         {
           "name": "2000-PROCESS-REQUEST",
           "kind": "paragraph",
-          "line": 865
+          "line": 865,
+          "end": 884,
+          "edges": [
+            {
+              "verb": "PERFORM_THRU",
+              "target": "3000-READ-CACHE",
+              "thru": "3000-EXIT",
+              "line": 867
+            },
+            {
+              "verb": "PERFORM_THRU",
+              "target": "3600-SEND-RESPONSE",
+              "thru": "3600-EXIT",
+              "line": 868
+            },
+            {
+              "verb": "PERFORM_THRU",
+              "target": "4000-GET-COUNTER",
+              "thru": "4000-EXIT",
+              "line": 872
+            },
+            {
+              "verb": "PERFORM_THRU",
+              "target": "4100-READ-KEY",
+              "thru": "4100-EXIT",
+              "line": 873
+            },
+            {
+              "verb": "PERFORM_THRU",
+              "target": "4200-PROCESS-FILE",
+              "thru": "4200-EXIT",
+              "line": 874
+            },
+            {
+              "verb": "PERFORM_THRU",
+              "target": "4300-SEND-RESPONSE",
+              "thru": "4300-EXIT",
+              "line": 875
+            },
+            {
+              "verb": "PERFORM_THRU",
+              "target": "5000-READ-KEY",
+              "thru": "5000-EXIT",
+              "line": 878
+            },
+            {
+              "verb": "PERFORM_THRU",
+              "target": "5100-DELETE-KEY",
+              "thru": "5100-EXIT",
+              "line": 879
+            },
+            {
+              "verb": "PERFORM_THRU",
+              "target": "5200-DELETE-FILE",
+              "thru": "5200-EXIT",
+              "line": 880
+            },
+            {
+              "verb": "PERFORM_THRU",
+              "target": "5300-SEND-RESPONSE",
+              "thru": "5300-EXIT",
+              "line": 884
+            }
+          ]
         },
         {
           "name": "2000-EXIT",
           "kind": "paragraph",
-          "line": 886
+          "line": 886,
+          "end": 887,
+          "edges": []
         },
         {
           "name": "3000-READ-CACHE",
           "kind": "paragraph",
-          "line": 893
+          "line": 893,
+          "end": 896,
+          "edges": [
+            {
+              "verb": "PERFORM_THRU",
+              "target": "3100-READ-PROCESS",
+              "thru": "3100-EXIT",
+              "line": 894
+            }
+          ]
         },
         {
           "name": "3000-EXIT",
           "kind": "paragraph",
-          "line": 897
+          "line": 897,
+          "end": 898,
+          "edges": []
         },
         {
           "name": "3100-READ-PROCESS",
           "kind": "paragraph",
-          "line": 909
+          "line": 909,
+          "end": 914,
+          "edges": [
+            {
+              "verb": "PERFORM_THRU",
+              "target": "3200-READ-KEY",
+              "thru": "3200-EXIT",
+              "line": 911
+            },
+            {
+              "verb": "PERFORM_THRU",
+              "target": "3300-READ-FILE",
+              "thru": "3300-EXIT",
+              "line": 912
+            },
+            {
+              "verb": "PERFORM_THRU",
+              "target": "3400-STAGE",
+              "thru": "3400-EXIT",
+              "line": 914
+            }
+          ]
         },
         {
           "name": "3100-EXIT",
           "kind": "paragraph",
-          "line": 915
+          "line": 915,
+          "end": 916,
+          "edges": []
         },
         {
           "name": "3200-READ-KEY",
           "kind": "paragraph",
-          "line": 922
+          "line": 922,
+          "end": 976,
+          "edges": [
+            {
+              "verb": "PERFORM_THRU",
+              "target": "9700-STATUS-204",
+              "thru": "9700-EXIT",
+              "line": 937
+            },
+            {
+              "verb": "PERFORM_THRU",
+              "target": "9000-RETURN",
+              "thru": "9000-EXIT",
+              "line": 938
+            },
+            {
+              "verb": "PERFORM_THRU",
+              "target": "9200-KEY-ERROR",
+              "thru": "9200-EXIT",
+              "line": 943
+            },
+            {
+              "verb": "PERFORM_THRU",
+              "target": "9800-STATUS-507",
+              "thru": "9800-EXIT",
+              "line": 947
+            },
+            {
+              "verb": "PERFORM_THRU",
+              "target": "9000-RETURN",
+              "thru": "9000-EXIT",
+              "line": 948
+            },
+            {
+              "verb": "PERFORM_THRU",
+              "target": "9700-STATUS-204",
+              "thru": "9700-EXIT",
+              "line": 975
+            },
+            {
+              "verb": "PERFORM_THRU",
+              "target": "9000-RETURN",
+              "thru": "9000-EXIT",
+              "line": 976
+            }
+          ]
         },
         {
           "name": "3200-EXIT",
           "kind": "paragraph",
-          "line": 978
+          "line": 978,
+          "end": 979,
+          "edges": []
         },
         {
           "name": "3300-READ-FILE",
           "kind": "paragraph",
-          "line": 987
+          "line": 987,
+          "end": 1056,
+          "edges": [
+            {
+              "verb": "PERFORM_THRU",
+              "target": "9950-ABS",
+              "thru": "9950-EXIT",
+              "line": 1019
+            },
+            {
+              "verb": "PERFORM_THRU",
+              "target": "9100-FILE-ERROR",
+              "thru": "9100-EXIT",
+              "line": 1048
+            },
+            {
+              "verb": "PERFORM_THRU",
+              "target": "9800-STATUS-507",
+              "thru": "9800-EXIT",
+              "line": 1052
+            },
+            {
+              "verb": "PERFORM_THRU",
+              "target": "9000-RETURN",
+              "thru": "9000-EXIT",
+              "line": 1053
+            },
+            {
+              "verb": "PERFORM_THRU",
+              "target": "3310-CHECK-TTL",
+              "thru": "3310-EXIT",
+              "line": 1056
+            }
+          ]
         },
         {
           "name": "3300-EXIT",
           "kind": "paragraph",
-          "line": 1058
+          "line": 1058,
+          "end": 1059,
+          "edges": []
         },
         {
           "name": "3310-CHECK-TTL",
           "kind": "paragraph",
-          "line": 1064
+          "line": 1064,
+          "end": 1081,
+          "edges": [
+            {
+              "verb": "PERFORM_THRU",
+              "target": "9700-STATUS-204",
+              "thru": "9700-EXIT",
+              "line": 1075
+            },
+            {
+              "verb": "PERFORM_THRU",
+              "target": "5100-DELETE-KEY",
+              "thru": "5100-EXIT",
+              "line": 1076
+            },
+            {
+              "verb": "PERFORM_THRU",
+              "target": "5200-DELETE-FILE",
+              "thru": "5200-EXIT",
+              "line": 1077
+            },
+            {
+              "verb": "PERFORM_THRU",
+              "target": "9000-RETURN",
+              "thru": "9000-EXIT",
+              "line": 1081
+            }
+          ]
         },
         {
           "name": "3310-EXIT",
           "kind": "paragraph",
-          "line": 1083
+          "line": 1083,
+          "end": 1084,
+          "edges": []
         },
         {
           "name": "3400-STAGE",
           "kind": "paragraph",
-          "line": 1092
+          "line": 1092,
+          "end": 1124,
+          "edges": [
+            {
+              "verb": "PERFORM_THRU",
+              "target": "3500-READ-SEGMENTS",
+              "thru": "3500-EXIT",
+              "line": 1121
+            }
+          ]
         },
         {
           "name": "3400-EXIT",
           "kind": "paragraph",
-          "line": 1126
+          "line": 1126,
+          "end": 1127,
+          "edges": []
         },
         {
           "name": "3500-READ-SEGMENTS",
           "kind": "paragraph",
-          "line": 1133
+          "line": 1133,
+          "end": 1169,
+          "edges": [
+            {
+              "verb": "PERFORM_THRU",
+              "target": "3510-FREEMAIN",
+              "thru": "3510-EXIT",
+              "line": 1155
+            },
+            {
+              "verb": "PERFORM_THRU",
+              "target": "9100-FILE-ERROR",
+              "thru": "9100-EXIT",
+              "line": 1164
+            },
+            {
+              "verb": "PERFORM_THRU",
+              "target": "9800-STATUS-507",
+              "thru": "9800-EXIT",
+              "line": 1168
+            },
+            {
+              "verb": "PERFORM_THRU",
+              "target": "9000-RETURN",
+              "thru": "9000-EXIT",
+              "line": 1169
+            }
+          ]
         },
         {
           "name": "3500-EXIT",
           "kind": "paragraph",
-          "line": 1171
+          "line": 1171,
+          "end": 1172,
+          "edges": []
         },
         {
           "name": "3510-FREEMAIN",
           "kind": "paragraph",
-          "line": 1179
+          "line": 1179,
+          "end": 1183,
+          "edges": []
         },
         {
           "name": "3510-EXIT",
           "kind": "paragraph",
-          "line": 1185
+          "line": 1185,
+          "end": 1186,
+          "edges": []
         },
         {
           "name": "3600-SEND-RESPONSE",
           "kind": "paragraph",
-          "line": 1192
+          "line": 1192,
+          "end": 1234,
+          "edges": [
+            {
+              "verb": "PERFORM_THRU",
+              "target": "9001-ACAO",
+              "thru": "9001-EXIT",
+              "line": 1210
+            }
+          ]
         },
         {
           "name": "3600-EXIT",
           "kind": "paragraph",
-          "line": 1236
+          "line": 1236,
+          "end": 1237,
+          "edges": []
         },
         {
           "name": "4000-GET-COUNTER",
           "kind": "paragraph",
-          "line": 1243
+          "line": 1243,
+          "end": 1251,
+          "edges": []
         },
         {
           "name": "4000-EXIT",
           "kind": "paragraph",
-          "line": 1253
+          "line": 1253,
+          "end": 1254,
+          "edges": []
         },
         {
           "name": "4100-READ-KEY",
           "kind": "paragraph",
-          "line": 1261
+          "line": 1261,
+          "end": 1290,
+          "edges": [
+            {
+              "verb": "PERFORM_THRU",
+              "target": "4110-PRIME-KEY",
+              "thru": "4110-EXIT",
+              "line": 1276
+            },
+            {
+              "verb": "PERFORM_THRU",
+              "target": "4120-WRITE-KEY",
+              "thru": "4120-EXIT",
+              "line": 1279
+            },
+            {
+              "verb": "PERFORM_THRU",
+              "target": "9200-KEY-ERROR",
+              "thru": "9200-EXIT",
+              "line": 1285
+            },
+            {
+              "verb": "PERFORM_THRU",
+              "target": "9800-STATUS-507",
+              "thru": "9800-EXIT",
+              "line": 1289
+            },
+            {
+              "verb": "PERFORM_THRU",
+              "target": "9000-RETURN",
+              "thru": "9000-EXIT",
+              "line": 1290
+            }
+          ]
         },
         {
           "name": "4100-EXIT",
           "kind": "paragraph",
-          "line": 1292
+          "line": 1292,
+          "end": 1293,
+          "edges": []
         },
         {
           "name": "4110-PRIME-KEY",
           "kind": "paragraph",
-          "line": 1299
+          "line": 1299,
+          "end": 1307,
+          "edges": []
         },
         {
           "name": "4110-EXIT",
           "kind": "paragraph",
-          "line": 1309
+          "line": 1309,
+          "end": 1310,
+          "edges": []
         },
         {
           "name": "4120-WRITE-KEY",
           "kind": "paragraph",
-          "line": 1320
+          "line": 1320,
+          "end": 1350,
+          "edges": [
+            {
+              "verb": "PERFORM_THRU",
+              "target": "4130-READ-KEY",
+              "thru": "4130-EXIT",
+              "line": 1339
+            },
+            {
+              "verb": "PERFORM_THRU",
+              "target": "9200-KEY-ERROR",
+              "thru": "9200-EXIT",
+              "line": 1345
+            },
+            {
+              "verb": "PERFORM_THRU",
+              "target": "9800-STATUS-507",
+              "thru": "9800-EXIT",
+              "line": 1349
+            },
+            {
+              "verb": "PERFORM_THRU",
+              "target": "9000-RETURN",
+              "thru": "9000-EXIT",
+              "line": 1350
+            }
+          ]
         },
         {
           "name": "4120-EXIT",
           "kind": "paragraph",
-          "line": 1352
+          "line": 1352,
+          "end": 1353,
+          "edges": []
         },
         {
           "name": "4130-READ-KEY",
           "kind": "paragraph",
-          "line": 1361
+          "line": 1361,
+          "end": 1390,
+          "edges": [
+            {
+              "verb": "PERFORM_THRU",
+              "target": "9500-STATUS-409",
+              "thru": "9500-EXIT",
+              "line": 1377
+            },
+            {
+              "verb": "PERFORM_THRU",
+              "target": "9000-RETURN",
+              "thru": "9000-EXIT",
+              "line": 1378
+            },
+            {
+              "verb": "PERFORM_THRU",
+              "target": "9200-KEY-ERROR",
+              "thru": "9200-EXIT",
+              "line": 1383
+            },
+            {
+              "verb": "PERFORM_THRU",
+              "target": "9800-STATUS-507",
+              "thru": "9800-EXIT",
+              "line": 1387
+            },
+            {
+              "verb": "PERFORM_THRU",
+              "target": "9000-RETURN",
+              "thru": "9000-EXIT",
+              "line": 1388
+            },
+            {
+              "verb": "PERFORM_THRU",
+              "target": "4110-PRIME-KEY",
+              "thru": "4110-EXIT",
+              "line": 1390
+            }
+          ]
         },
         {
           "name": "4130-EXIT",
           "kind": "paragraph",
-          "line": 1392
+          "line": 1392,
+          "end": 1393,
+          "edges": []
         },
         {
           "name": "4200-PROCESS-FILE",
           "kind": "paragraph",
-          "line": 1399
+          "line": 1399,
+          "end": 1426,
+          "edges": [
+            {
+              "verb": "PERFORM_THRU",
+              "target": "9950-ABS",
+              "thru": "9950-EXIT",
+              "line": 1418
+            },
+            {
+              "verb": "PERFORM_THRU",
+              "target": "4400-WRITE-FILE",
+              "thru": "4400-EXIT",
+              "line": 1420
+            },
+            {
+              "verb": "PERFORM_THRU",
+              "target": "4500-UPDATE-KEY",
+              "thru": "4500-EXIT",
+              "line": 1426
+            }
+          ]
         },
         {
           "name": "4200-EXIT",
           "kind": "paragraph",
-          "line": 1428
+          "line": 1428,
+          "end": 1429,
+          "edges": []
         },
         {
           "name": "4300-SEND-RESPONSE",
           "kind": "paragraph",
-          "line": 1443
+          "line": 1443,
+          "end": 1476,
+          "edges": [
+            {
+              "verb": "PERFORM_THRU",
+              "target": "8000-GET-URL",
+              "thru": "8000-EXIT",
+              "line": 1447
+            },
+            {
+              "verb": "PERFORM_THRU",
+              "target": "4600-REPLICATE",
+              "thru": "4600-EXIT",
+              "line": 1451
+            },
+            {
+              "verb": "PERFORM_THRU",
+              "target": "9001-ACAO",
+              "thru": "9001-EXIT",
+              "line": 1455
+            },
+            {
+              "verb": "PERFORM_THRU",
+              "target": "4600-REPLICATE",
+              "thru": "4600-EXIT",
+              "line": 1470
+            },
+            {
+              "verb": "PERFORM_THRU",
+              "target": "4700-DELETE",
+              "thru": "4700-EXIT",
+              "line": 1473
+            }
+          ]
         },
         {
           "name": "4300-EXIT",
           "kind": "paragraph",
-          "line": 1478
+          "line": 1478,
+          "end": 1479,
+          "edges": []
         },
         {
           "name": "4400-WRITE-FILE",
           "kind": "paragraph",
-          "line": 1486
+          "line": 1486,
+          "end": 1519,
+          "edges": [
+            {
+              "verb": "PERFORM_THRU",
+              "target": "9100-FILE-ERROR",
+              "thru": "9100-EXIT",
+              "line": 1509
+            },
+            {
+              "verb": "PERFORM_THRU",
+              "target": "9999-ROLLBACK",
+              "thru": "9999-EXIT",
+              "line": 1510
+            },
+            {
+              "verb": "PERFORM_THRU",
+              "target": "9800-STATUS-507",
+              "thru": "9800-EXIT",
+              "line": 1514
+            },
+            {
+              "verb": "PERFORM_THRU",
+              "target": "9000-RETURN",
+              "thru": "9000-EXIT",
+              "line": 1515
+            }
+          ]
         },
         {
           "name": "4400-EXIT",
           "kind": "paragraph",
-          "line": 1521
+          "line": 1521,
+          "end": 1522,
+          "edges": []
         },
         {
           "name": "4500-UPDATE-KEY",
           "kind": "paragraph",
-          "line": 1528
+          "line": 1528,
+          "end": 1545,
+          "edges": [
+            {
+              "verb": "PERFORM_THRU",
+              "target": "9200-KEY-ERROR",
+              "thru": "9200-EXIT",
+              "line": 1538
+            },
+            {
+              "verb": "PERFORM_THRU",
+              "target": "9800-STATUS-507",
+              "thru": "9800-EXIT",
+              "line": 1542
+            },
+            {
+              "verb": "PERFORM_THRU",
+              "target": "9000-RETURN",
+              "thru": "9000-EXIT",
+              "line": 1543
+            }
+          ]
         },
         {
           "name": "4500-EXIT",
           "kind": "paragraph",
-          "line": 1547
+          "line": 1547,
+          "end": 1548,
+          "edges": []
         },
         {
           "name": "4600-REPLICATE",
           "kind": "paragraph",
-          "line": 1554
+          "line": 1554,
+          "end": 1561,
+          "edges": [
+            {
+              "verb": "PERFORM_THRU",
+              "target": "8100-WEB-OPEN",
+              "thru": "8100-EXIT",
+              "line": 1556
+            },
+            {
+              "verb": "PERFORM_THRU",
+              "target": "8200-WEB-CONVERSE",
+              "thru": "8200-EXIT",
+              "line": 1559
+            },
+            {
+              "verb": "PERFORM_THRU",
+              "target": "8300-WEB-CLOSE",
+              "thru": "8300-EXIT",
+              "line": 1561
+            }
+          ]
         },
         {
           "name": "4600-EXIT",
           "kind": "paragraph",
-          "line": 1563
+          "line": 1563,
+          "end": 1564,
+          "edges": []
         },
         {
           "name": "4700-DELETE",
           "kind": "paragraph",
-          "line": 1570
+          "line": 1570,
+          "end": 1575,
+          "edges": []
         },
         {
           "name": "4700-EXIT",
           "kind": "paragraph",
-          "line": 1577
+          "line": 1577,
+          "end": 1578,
+          "edges": []
         },
         {
           "name": "5000-READ-KEY",
           "kind": "paragraph",
-          "line": 1584
+          "line": 1584,
+          "end": 1603,
+          "edges": [
+            {
+              "verb": "PERFORM_THRU",
+              "target": "9700-STATUS-204",
+              "thru": "9700-EXIT",
+              "line": 1599
+            },
+            {
+              "verb": "PERFORM_THRU",
+              "target": "9000-RETURN",
+              "thru": "9000-EXIT",
+              "line": 1600
+            },
+            {
+              "verb": "PERFORM_THRU",
+              "target": "5500-DEPLICATE-DELETE",
+              "thru": "5500-EXIT",
+              "line": 1603
+            }
+          ]
         },
         {
           "name": "5000-EXIT",
           "kind": "paragraph",
-          "line": 1605
+          "line": 1605,
+          "end": 1606,
+          "edges": []
         },
         {
           "name": "5100-DELETE-KEY",
           "kind": "paragraph",
-          "line": 1612
+          "line": 1612,
+          "end": 1617,
+          "edges": []
         },
         {
           "name": "5100-EXIT",
           "kind": "paragraph",
-          "line": 1619
+          "line": 1619,
+          "end": 1620,
+          "edges": []
         },
         {
           "name": "5200-DELETE-FILE",
           "kind": "paragraph",
-          "line": 1626
+          "line": 1626,
+          "end": 1634,
+          "edges": []
         },
         {
           "name": "5200-EXIT",
           "kind": "paragraph",
-          "line": 1636
+          "line": 1636,
+          "end": 1637,
+          "edges": []
         },
         {
           "name": "5300-SEND-RESPONSE",
           "kind": "paragraph",
-          "line": 1648
+          "line": 1648,
+          "end": 1672,
+          "edges": [
+            {
+              "verb": "PERFORM_THRU",
+              "target": "8000-GET-URL",
+              "thru": "8000-EXIT",
+              "line": 1649
+            },
+            {
+              "verb": "PERFORM_THRU",
+              "target": "5400-REPLICATE",
+              "thru": "5400-EXIT",
+              "line": 1653
+            },
+            {
+              "verb": "PERFORM_THRU",
+              "target": "9001-ACAO",
+              "thru": "9001-EXIT",
+              "line": 1657
+            },
+            {
+              "verb": "PERFORM_THRU",
+              "target": "5400-REPLICATE",
+              "thru": "5400-EXIT",
+              "line": 1672
+            }
+          ]
         },
         {
           "name": "5300-EXIT",
           "kind": "paragraph",
-          "line": 1674
+          "line": 1674,
+          "end": 1675,
+          "edges": []
         },
         {
           "name": "5400-REPLICATE",
           "kind": "paragraph",
-          "line": 1681
+          "line": 1681,
+          "end": 1688,
+          "edges": [
+            {
+              "verb": "PERFORM_THRU",
+              "target": "8100-WEB-OPEN",
+              "thru": "8100-EXIT",
+              "line": 1683
+            },
+            {
+              "verb": "PERFORM_THRU",
+              "target": "8200-WEB-CONVERSE",
+              "thru": "8200-EXIT",
+              "line": 1686
+            },
+            {
+              "verb": "PERFORM_THRU",
+              "target": "8300-WEB-CLOSE",
+              "thru": "8300-EXIT",
+              "line": 1688
+            }
+          ]
         },
         {
           "name": "5400-EXIT",
           "kind": "paragraph",
-          "line": 1691
+          "line": 1691,
+          "end": 1692,
+          "edges": []
         },
         {
           "name": "5500-DEPLICATE-DELETE",
           "kind": "paragraph",
-          "line": 1704
+          "line": 1704,
+          "end": 1720,
+          "edges": [
+            {
+              "verb": "PERFORM_THRU",
+              "target": "5600-CHECK-TTL",
+              "thru": "5600-EXIT",
+              "line": 1720
+            }
+          ]
         },
         {
           "name": "5500-EXIT",
           "kind": "paragraph",
-          "line": 1722
+          "line": 1722,
+          "end": 1723,
+          "edges": []
         },
         {
           "name": "5600-CHECK-TTL",
           "kind": "paragraph",
-          "line": 1729
+          "line": 1729,
+          "end": 1740,
+          "edges": [
+            {
+              "verb": "PERFORM_THRU",
+              "target": "5700-SEND-ABS",
+              "thru": "5700-EXIT",
+              "line": 1739
+            },
+            {
+              "verb": "PERFORM_THRU",
+              "target": "9000-RETURN",
+              "thru": "9000-EXIT",
+              "line": 1740
+            }
+          ]
         },
         {
           "name": "5600-EXIT",
           "kind": "paragraph",
-          "line": 1742
+          "line": 1742,
+          "end": 1743,
+          "edges": []
         },
         {
           "name": "5700-SEND-ABS",
           "kind": "paragraph",
-          "line": 1752
+          "line": 1752,
+          "end": 1769,
+          "edges": [
+            {
+              "verb": "PERFORM_THRU",
+              "target": "9001-ACAO",
+              "thru": "9001-EXIT",
+              "line": 1753
+            }
+          ]
         },
         {
           "name": "5700-EXIT",
           "kind": "paragraph",
-          "line": 1771
+          "line": 1771,
+          "end": 1772,
+          "edges": []
         },
         {
           "name": "8000-GET-URL",
           "kind": "paragraph",
-          "line": 1779
+          "line": 1779,
+          "end": 1815,
+          "edges": []
         },
         {
           "name": "8000-EXIT",
           "kind": "paragraph",
-          "line": 1817
+          "line": 1817,
+          "end": 1818,
+          "edges": []
         },
         {
           "name": "8100-WEB-OPEN",
           "kind": "paragraph",
-          "line": 1824
+          "line": 1824,
+          "end": 1837,
+          "edges": []
         },
         {
           "name": "8100-EXIT",
           "kind": "paragraph",
-          "line": 1839
+          "line": 1839,
+          "end": 1840,
+          "edges": []
         },
         {
           "name": "8200-WEB-CONVERSE",
           "kind": "paragraph",
-          "line": 1847
+          "line": 1847,
+          "end": 1917,
+          "edges": []
         },
         {
           "name": "8200-EXIT",
           "kind": "paragraph",
-          "line": 1919
+          "line": 1919,
+          "end": 1920,
+          "edges": []
         },
         {
           "name": "8300-WEB-CLOSE",
           "kind": "paragraph",
-          "line": 1925
+          "line": 1925,
+          "end": 1930,
+          "edges": []
         },
         {
           "name": "8300-EXIT",
           "kind": "paragraph",
-          "line": 1932
+          "line": 1932,
+          "end": 1933,
+          "edges": []
         },
         {
           "name": "9000-RETURN",
           "kind": "paragraph",
-          "line": 1938
+          "line": 1938,
+          "end": 1941,
+          "edges": []
         },
         {
           "name": "9000-EXIT",
           "kind": "paragraph",
-          "line": 1943
+          "line": 1943,
+          "end": 1944,
+          "edges": []
         },
         {
           "name": "9001-ACAO",
           "kind": "paragraph",
-          "line": 1950
+          "line": 1950,
+          "end": 1957,
+          "edges": []
         },
         {
           "name": "9001-EXIT",
           "kind": "paragraph",
-          "line": 1959
+          "line": 1959,
+          "end": 1960,
+          "edges": []
         },
         {
           "name": "9100-FILE-ERROR",
           "kind": "paragraph",
-          "line": 1965
+          "line": 1965,
+          "end": 1975,
+          "edges": [
+            {
+              "verb": "PERFORM_THRU",
+              "target": "9900-WRITE-CSSL",
+              "thru": "9900-EXIT",
+              "line": 1975
+            }
+          ]
         },
         {
           "name": "9100-EXIT",
           "kind": "paragraph",
-          "line": 1977
+          "line": 1977,
+          "end": 1978,
+          "edges": []
         },
         {
           "name": "9200-KEY-ERROR",
           "kind": "paragraph",
-          "line": 1983
+          "line": 1983,
+          "end": 1991,
+          "edges": [
+            {
+              "verb": "PERFORM_THRU",
+              "target": "9900-WRITE-CSSL",
+              "thru": "9900-EXIT",
+              "line": 1991
+            }
+          ]
         },
         {
           "name": "9200-EXIT",
           "kind": "paragraph",
-          "line": 1993
+          "line": 1993,
+          "end": 1994,
+          "edges": []
         },
         {
           "name": "9300-WEB-ERROR",
           "kind": "paragraph",
-          "line": 1999
+          "line": 1999,
+          "end": 2003,
+          "edges": [
+            {
+              "verb": "PERFORM_THRU",
+              "target": "9900-WRITE-CSSL",
+              "thru": "9900-EXIT",
+              "line": 2003
+            }
+          ]
         },
         {
           "name": "9300-EXIT",
           "kind": "paragraph",
-          "line": 2005
+          "line": 2005,
+          "end": 2006,
+          "edges": []
         },
         {
           "name": "9400-STATUS-400",
           "kind": "paragraph",
-          "line": 2011
+          "line": 2011,
+          "end": 2027,
+          "edges": [
+            {
+              "verb": "PERFORM_THRU",
+              "target": "9001-ACAO",
+              "thru": "9001-EXIT",
+              "line": 2013
+            }
+          ]
         },
         {
           "name": "9400-EXIT",
           "kind": "paragraph",
-          "line": 2028
+          "line": 2028,
+          "end": 2029,
+          "edges": []
         },
         {
           "name": "9500-STATUS-409",
           "kind": "paragraph",
-          "line": 2034
+          "line": 2034,
+          "end": 2050,
+          "edges": [
+            {
+              "verb": "PERFORM_THRU",
+              "target": "9001-ACAO",
+              "thru": "9001-EXIT",
+              "line": 2036
+            }
+          ]
         },
         {
           "name": "9500-EXIT",
           "kind": "paragraph",
-          "line": 2052
+          "line": 2052,
+          "end": 2053,
+          "edges": []
         },
         {
           "name": "9600-AUTH-ERROR",
           "kind": "paragraph",
-          "line": 2058
+          "line": 2058,
+          "end": 2070,
+          "edges": [
+            {
+              "verb": "PERFORM_THRU",
+              "target": "9001-ACAO",
+              "thru": "9001-EXIT",
+              "line": 2060
+            }
+          ]
         },
         {
           "name": "9600-EXIT",
           "kind": "paragraph",
-          "line": 2072
+          "line": 2072,
+          "end": 2073,
+          "edges": []
         },
         {
           "name": "9700-STATUS-204",
           "kind": "paragraph",
-          "line": 2078
+          "line": 2078,
+          "end": 2096,
+          "edges": [
+            {
+              "verb": "PERFORM_THRU",
+              "target": "9001-ACAO",
+              "thru": "9001-EXIT",
+              "line": 2079
+            }
+          ]
         },
         {
           "name": "9700-EXIT",
           "kind": "paragraph",
-          "line": 2099
+          "line": 2099,
+          "end": 2100,
+          "edges": []
         },
         {
           "name": "9800-STATUS-507",
           "kind": "paragraph",
-          "line": 2105
+          "line": 2105,
+          "end": 2117,
+          "edges": [
+            {
+              "verb": "PERFORM_THRU",
+              "target": "9001-ACAO",
+              "thru": "9001-EXIT",
+              "line": 2106
+            }
+          ]
         },
         {
           "name": "9800-EXIT",
           "kind": "paragraph",
-          "line": 2119
+          "line": 2119,
+          "end": 2120,
+          "edges": []
         },
         {
           "name": "9900-WRITE-CSSL",
           "kind": "paragraph",
-          "line": 2125
+          "line": 2125,
+          "end": 2141,
+          "edges": [
+            {
+              "verb": "PERFORM_THRU",
+              "target": "9950-ABS",
+              "thru": "9950-EXIT",
+              "line": 2126
+            }
+          ]
         },
         {
           "name": "9900-EXIT",
           "kind": "paragraph",
-          "line": 2143
+          "line": 2143,
+          "end": 2144,
+          "edges": []
         },
         {
           "name": "9950-ABS",
           "kind": "paragraph",
-          "line": 2149
+          "line": 2149,
+          "end": 2151,
+          "edges": []
         },
         {
           "name": "9950-EXIT",
           "kind": "paragraph",
-          "line": 2153
+          "line": 2153,
+          "end": 2154,
+          "edges": []
         },
         {
           "name": "9999-ROLLBACK",
           "kind": "paragraph",
-          "line": 2159
+          "line": 2159,
+          "end": 2161,
+          "edges": []
         },
         {
           "name": "9999-EXIT",
           "kind": "paragraph",
-          "line": 2163
+          "line": 2163,
+          "end": 2164,
+          "edges": []
         }
       ],
       "dead": {
@@ -9274,7 +10747,33 @@
         "derived": "censused CSD TRANSACTION -> PROGRAM rows joined to the cross-verified PROGRAM-ID (#3575)"
       },
       "records_validated": true,
-      "records_validated_tier": "sample_verified"
+      "records_validated_tier": "sample_verified",
+      "main_line": {
+        "line": 453,
+        "end": 460,
+        "edges": [
+          {
+            "verb": "PERFORM_THRU",
+            "target": "1000-ACCESS-PARMS",
+            "thru": "1000-EXIT",
+            "line": 458
+          },
+          {
+            "verb": "PERFORM_THRU",
+            "target": "2000-PROCESS-REQUEST",
+            "thru": "2000-EXIT",
+            "line": 459
+          },
+          {
+            "verb": "PERFORM_THRU",
+            "target": "9000-RETURN",
+            "thru": "9000-EXIT",
+            "line": 460
+          }
+        ]
+      },
+      "extents_validated": true,
+      "extents_validated_tier": "llm_verified"
     },
     "Source/ZECS003.cbl": {
       "program_id": "ZECS003",
@@ -9282,112 +10781,202 @@
         {
           "name": "1000-INITIALIZE",
           "kind": "paragraph",
-          "line": 191
+          "line": 191,
+          "end": 201,
+          "edges": [
+            {
+              "verb": "PERFORM_THRU",
+              "target": "8000-SEND-RESPONSE",
+              "thru": "8000-EXIT",
+              "line": 201
+            }
+          ]
         },
         {
           "name": "1000-EXIT",
           "kind": "paragraph",
-          "line": 203
+          "line": 203,
+          "end": 204,
+          "edges": []
         },
         {
           "name": "2000-REPLICATE",
           "kind": "paragraph",
-          "line": 215
+          "line": 215,
+          "end": 235,
+          "edges": [
+            {
+              "verb": "PERFORM_THRU",
+              "target": "7000-GET-URL",
+              "thru": "7000-EXIT",
+              "line": 216
+            },
+            {
+              "verb": "PERFORM_THRU",
+              "target": "7100-WEB-OPEN",
+              "thru": "7100-EXIT",
+              "line": 224
+            },
+            {
+              "verb": "PERFORM_THRU",
+              "target": "7200-WEB-CONVERSE",
+              "thru": "7200-EXIT",
+              "line": 230
+            },
+            {
+              "verb": "PERFORM_THRU",
+              "target": "7300-WEB-CLOSE",
+              "thru": "7300-EXIT",
+              "line": 235
+            }
+          ]
         },
         {
           "name": "2000-EXIT",
           "kind": "paragraph",
-          "line": 237
+          "line": 237,
+          "end": 238,
+          "edges": []
         },
         {
           "name": "3000-READ-ZF",
           "kind": "paragraph",
-          "line": 246
+          "line": 246,
+          "end": 263,
+          "edges": [
+            {
+              "verb": "PERFORM_THRU",
+              "target": "3100-DELETE",
+              "thru": "3100-EXIT",
+              "line": 261
+            }
+          ]
         },
         {
           "name": "3000-EXIT",
           "kind": "paragraph",
-          "line": 265
+          "line": 265,
+          "end": 266,
+          "edges": []
         },
         {
           "name": "3100-DELETE",
           "kind": "paragraph",
-          "line": 271
+          "line": 271,
+          "end": 282,
+          "edges": []
         },
         {
           "name": "3100-EXIT",
           "kind": "paragraph",
-          "line": 284
+          "line": 284,
+          "end": 285,
+          "edges": []
         },
         {
           "name": "4000-CLEAR-COMPLETE",
           "kind": "paragraph",
-          "line": 292
+          "line": 292,
+          "end": 295,
+          "edges": [
+            {
+              "verb": "PERFORM_THRU",
+              "target": "8000-SEND-RESPONSE",
+              "thru": "8000-EXIT",
+              "line": 295
+            }
+          ]
         },
         {
           "name": "4000-EXIT",
           "kind": "paragraph",
-          "line": 297
+          "line": 297,
+          "end": 298,
+          "edges": []
         },
         {
           "name": "7000-GET-URL",
           "kind": "paragraph",
-          "line": 305
+          "line": 305,
+          "end": 341,
+          "edges": []
         },
         {
           "name": "7000-EXIT",
           "kind": "paragraph",
-          "line": 343
+          "line": 343,
+          "end": 344,
+          "edges": []
         },
         {
           "name": "7100-WEB-OPEN",
           "kind": "paragraph",
-          "line": 349
+          "line": 349,
+          "end": 362,
+          "edges": []
         },
         {
           "name": "7100-EXIT",
           "kind": "paragraph",
-          "line": 364
+          "line": 364,
+          "end": 365,
+          "edges": []
         },
         {
           "name": "7200-WEB-CONVERSE",
           "kind": "paragraph",
-          "line": 372
+          "line": 372,
+          "end": 416,
+          "edges": []
         },
         {
           "name": "7200-EXIT",
           "kind": "paragraph",
-          "line": 418
+          "line": 418,
+          "end": 419,
+          "edges": []
         },
         {
           "name": "7300-WEB-CLOSE",
           "kind": "paragraph",
-          "line": 424
+          "line": 424,
+          "end": 429,
+          "edges": []
         },
         {
           "name": "7300-EXIT",
           "kind": "paragraph",
-          "line": 431
+          "line": 431,
+          "end": 432,
+          "edges": []
         },
         {
           "name": "8000-SEND-RESPONSE",
           "kind": "paragraph",
-          "line": 437
+          "line": 437,
+          "end": 449,
+          "edges": []
         },
         {
           "name": "8000-EXIT",
           "kind": "paragraph",
-          "line": 451
+          "line": 451,
+          "end": 452,
+          "edges": []
         },
         {
           "name": "9000-RETURN",
           "kind": "paragraph",
-          "line": 457
+          "line": 457,
+          "end": 460,
+          "edges": []
         },
         {
           "name": "9000-EXIT",
           "kind": "paragraph",
-          "line": 462
+          "line": 462,
+          "end": 463,
+          "edges": []
         }
       ],
       "dead": {
@@ -11043,7 +12632,45 @@
         "derived": "censused CSD TRANSACTION -> PROGRAM rows joined to the cross-verified PROGRAM-ID (#3575)"
       },
       "records_validated": true,
-      "records_validated_tier": "sample_verified"
+      "records_validated_tier": "sample_verified",
+      "main_line": {
+        "line": 172,
+        "end": 183,
+        "edges": [
+          {
+            "verb": "PERFORM_THRU",
+            "target": "1000-INITIALIZE",
+            "thru": "1000-EXIT",
+            "line": 177
+          },
+          {
+            "verb": "PERFORM_THRU",
+            "target": "2000-REPLICATE",
+            "thru": "2000-EXIT",
+            "line": 178
+          },
+          {
+            "verb": "PERFORM_THRU",
+            "target": "3000-READ-ZF",
+            "thru": "3000-EXIT",
+            "line": 179
+          },
+          {
+            "verb": "PERFORM_THRU",
+            "target": "4000-CLEAR-COMPLETE",
+            "thru": "4000-EXIT",
+            "line": 182
+          },
+          {
+            "verb": "PERFORM_THRU",
+            "target": "9000-RETURN",
+            "thru": "9000-EXIT",
+            "line": 183
+          }
+        ]
+      },
+      "extents_validated": true,
+      "extents_validated_tier": "llm_verified"
     },
     "Source/ZECSPLT.cbl": {
       "program_id": "ZECSPLT",
@@ -11051,62 +12678,100 @@
         {
           "name": "1000-INQUIRE-START",
           "kind": "paragraph",
-          "line": 76
+          "line": 76,
+          "end": 79,
+          "edges": []
         },
         {
           "name": "1000-EXIT",
           "kind": "paragraph",
-          "line": 81
+          "line": 81,
+          "end": 82,
+          "edges": []
         },
         {
           "name": "2000-INQUIRE-NEXT",
           "kind": "paragraph",
-          "line": 87
+          "line": 87,
+          "end": 99,
+          "edges": [
+            {
+              "verb": "PERFORM_THRU",
+              "target": "2100-CHECK-URIMAP",
+              "thru": "2100-EXIT",
+              "line": 99
+            }
+          ]
         },
         {
           "name": "2000-EXIT",
           "kind": "paragraph",
-          "line": 101
+          "line": 101,
+          "end": 102,
+          "edges": []
         },
         {
           "name": "2100-CHECK-URIMAP",
           "kind": "paragraph",
-          "line": 107
+          "line": 107,
+          "end": 110,
+          "edges": [
+            {
+              "verb": "PERFORM_THRU",
+              "target": "2200-START",
+              "thru": "2200-EXIT",
+              "line": 110
+            }
+          ]
         },
         {
           "name": "2100-EXIT",
           "kind": "paragraph",
-          "line": 112
+          "line": 112,
+          "end": 113,
+          "edges": []
         },
         {
           "name": "2200-START",
           "kind": "paragraph",
-          "line": 120
+          "line": 120,
+          "end": 144,
+          "edges": []
         },
         {
           "name": "2200-EXIT",
           "kind": "paragraph",
-          "line": 146
+          "line": 146,
+          "end": 147,
+          "edges": []
         },
         {
           "name": "3000-INQUIRE-END",
           "kind": "paragraph",
-          "line": 152
+          "line": 152,
+          "end": 155,
+          "edges": []
         },
         {
           "name": "3000-EXIT",
           "kind": "paragraph",
-          "line": 157
+          "line": 157,
+          "end": 158,
+          "edges": []
         },
         {
           "name": "9000-RETURN",
           "kind": "paragraph",
-          "line": 163
+          "line": 163,
+          "end": 166,
+          "edges": []
         },
         {
           "name": "9000-EXIT",
           "kind": "paragraph",
-          "line": 168
+          "line": 168,
+          "end": 169,
+          "edges": []
         }
       ],
       "dead": {
@@ -11515,7 +13180,39 @@
         "derived": "censused CSD TRANSACTION -> PROGRAM rows joined to the cross-verified PROGRAM-ID (#3575)"
       },
       "records_validated": true,
-      "records_validated_tier": "sample_verified"
+      "records_validated_tier": "sample_verified",
+      "main_line": {
+        "line": 61,
+        "end": 71,
+        "edges": [
+          {
+            "verb": "PERFORM_THRU",
+            "target": "1000-INQUIRE-START",
+            "thru": "1000-EXIT",
+            "line": 66
+          },
+          {
+            "verb": "PERFORM_THRU",
+            "target": "2000-INQUIRE-NEXT",
+            "thru": "2000-EXIT",
+            "line": 67
+          },
+          {
+            "verb": "PERFORM_THRU",
+            "target": "3000-INQUIRE-END",
+            "thru": "3000-EXIT",
+            "line": 70
+          },
+          {
+            "verb": "PERFORM_THRU",
+            "target": "9000-RETURN",
+            "thru": "9000-EXIT",
+            "line": 71
+          }
+        ]
+      },
+      "extents_validated": true,
+      "extents_validated_tier": "llm_verified"
     }
   },
   "pli_programs": {},
@@ -21203,6 +22900,35 @@
           "at": "2026-09-26"
         }
       }
+    }
+  },
+  "extents_verification": {
+    "issue": 4318,
+    "at": "2026-10-04",
+    "by": "claude-opus-5.5 (author pass)",
+    "method": "Drafted by this tool's own reader (cobol_answer_key.py add-extents), never from engine output. Edges cross-checked against the forge's independent reading (cobol_graveyard_finder units + PERFORM/GO TO): every COBOL edge agrees. Extents and edges compared with the engine at main 0d64632e: every disagreement settled against the source (trailing sequence-number-only / D lines the engine counts; the main line, #4302; self GO TO dropped by the engine, #3362; PERFORM TEST phantom, #4305) -- no key error found.",
+    "blind_sample": {
+      "seed": 4318,
+      "claims": 15,
+      "agree": 15,
+      "reviewers": "4 fresh-context claude-opus-5.5 subagents, staged source copy and definitions only, no answers (same model family as the author)",
+      "questions": [
+        "Q004 Source/ZECS000.cbl 9950-EXIT",
+        "Q005 Source/ZECS003.cbl MAIN LINE",
+        "Q007 Source/ZECS000.cbl 3200-EXIT",
+        "Q015 Source/ZECS001.cbl 1610-SCAN-ZCXXSD",
+        "Q018 Source/ZECS001.cbl 1300-EXIT",
+        "Q036 Source/ZECS000.cbl 9900-EXIT",
+        "Q041 Source/ZECS000.cbl 1000-RETRIEVE",
+        "Q043 Source/ZECS001.cbl 3500-EXIT",
+        "Q065 Source/ZECSPLT.cbl MAIN LINE",
+        "Q069 Source/ZECS001.cbl 4000-EXIT",
+        "Q080 Source/ZECS000.cbl MAIN LINE",
+        "Q088 Source/ZECS001.cbl MAIN LINE",
+        "Q090 Source/ECS001.cbl MAIN LINE",
+        "Q094 Source/ZECS001.cbl 1320-CLEAR",
+        "Q098 Source/ZECS001.cbl 3510-EXIT"
+      ]
     }
   }
 }

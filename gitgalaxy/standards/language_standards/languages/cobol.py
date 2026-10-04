@@ -52,6 +52,11 @@ DEFINITION: dict[str, Any] = {
     # map's own build JCL. Every other language keeps unconstrained
     # cross-language resolution (an HTML page importing a .css file).
     "imports_are_source_members": True,
+    # #4265: the one other language a COBOL member can come from. A BMS mapset's symbolic map is a
+    # COBOL copybook GENERATED from the .bms source at build time (`COPY CUSTMS` in a CICS program);
+    # when the repository's only `CUSTMS` is the mapset, the COPY names it -- the edge estate-crucible's
+    # key accepts (`alternatives`). Any other language (an HLASM `A.hlasm` for `COPY A`) is not.
+    "source_members_generated_from": ("bms",),
     # #3198: COBOL's own identifier lexicon, for the `unreferenced_by_name`
     # census. Names are case-insensitive (`perform a-para` reaches `A-PARA`),
     # and `-` is a name character -- without that, `B-PARA-EXIT` counted as a

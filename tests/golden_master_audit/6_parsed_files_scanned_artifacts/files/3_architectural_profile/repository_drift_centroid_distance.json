@@ -629,7 +629,7 @@
       "cobol/che-che4z_lsp_project_fixtures/SNIPPET.cbl": 0.0,
       "cobol/che-che4z_lsp_project_fixtures/SNIPPET2.cbl": 0.0,
       "cobol/che-che4z_lsp_project_fixtures/SNIPPET_IDMS.cbl": 0.0,
-      "cobol/che-che4z_lsp_project_fixtures/TEST.CBL": 4.354,
+      "cobol/che-che4z_lsp_project_fixtures/TEST.CBL": 4.352,
       "cobol/che-che4z_lsp_project_fixtures/TEST1.CBL": 4.269,
       "cobol/che-che4z_lsp_project_fixtures/TEST10.CBL": 5.363,
       "cobol/che-che4z_lsp_project_fixtures/TEST14.CBL": 4.603,
@@ -673,7 +673,7 @@
       "cobol/che-che4z_lsp_project_fixtures/outline.cbl": 4.375,
       "cobol/che-che4z_lsp_project_fixtures/special_schema.cbl": 6.489,
       "cobol/che-che4z_lsp_project_fixtures/subroutines_SUB1.cob": 3.383,
-      "cobol/che-che4z_lsp_project_fixtures/testing_A.cpy": 3.202,
+      "cobol/che-che4z_lsp_project_fixtures/testing_A.cpy": 3.15,
       "cobol/che-che4z_lsp_project_fixtures/testing_ASTRO.cpy": 3.652,
       "cobol/che-che4z_lsp_project_fixtures/testing_CHOPIN.CPY": 3.652,
       "cobol/che-che4z_lsp_project_fixtures/testing_CHOPIN1.CPY": 2.941,
@@ -2618,21 +2618,21 @@
     "pli/dsf_cics_admin": {
       "pli/dsf_cics_admin/LICENSE.md": 0.0,
       "pli/dsf_cics_admin/PROVENANCE.md": 0.0,
-      "pli/dsf_cics_admin/R0010301.pli": 7.231,
+      "pli/dsf_cics_admin/R0010301.pli": 7.239,
       "pli/dsf_cics_admin/R0010420.pli": 6.81,
       "pli/dsf_cics_admin/R0010421.pli": 5.723,
-      "pli/dsf_cics_admin/R0010422.pli": 7.46,
-      "pli/dsf_cics_admin/R0010423.pli": 6.293,
-      "pli/dsf_cics_admin/R0010424.pli": 6.3,
-      "pli/dsf_cics_admin/R0010425.pli": 6.242,
+      "pli/dsf_cics_admin/R0010422.pli": 7.475,
+      "pli/dsf_cics_admin/R0010423.pli": 6.313,
+      "pli/dsf_cics_admin/R0010424.pli": 6.321,
+      "pli/dsf_cics_admin/R0010425.pli": 6.262,
       "pli/dsf_cics_admin/R0010426.pli": 6.521,
       "pli/dsf_cics_admin/R0010427.pli": 6.227,
-      "pli/dsf_cics_admin/R001TK62.pli": 7.318
+      "pli/dsf_cics_admin/R001TK62.pli": 7.345
     },
     "pli/zopeneditor_sample": {
       "pli/zopeneditor_sample/PROVENANCE.md": 0.0,
       "pli/zopeneditor_sample/PSAM1.pli": 7.075,
-      "pli/zopeneditor_sample/PSAM1LIB.pli": 7.109,
+      "pli/zopeneditor_sample/PSAM1LIB.pli": 7.14,
       "pli/zopeneditor_sample/PSAM2.pli": 5.984
     },
     "powershell": {

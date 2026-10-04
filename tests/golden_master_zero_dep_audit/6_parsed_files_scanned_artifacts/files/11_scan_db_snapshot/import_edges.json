@@ -532,10 +532,6 @@
       "cobol/che-che4z_lsp_project_fixtures/HOVER_PARA.CBL": [
         "fcall:cobol/che-che4z_lsp_project_fixtures/testing_CPY1.cpy"
       ],
-      "cobol/che-che4z_lsp_project_fixtures/TEST.CBL": [
-        "import:hlasm/che4z_hlasm/A.hlasm",
-        "import:hlasm/che4z_hlasm/B.hlasm"
-      ],
       "cobol/che-che4z_lsp_project_fixtures/TEST6.CBL": [
         "import:cobol/che-che4z_lsp_project_fixtures/PAYLIB.CBL"
       ],
@@ -547,9 +543,6 @@
       ],
       "cobol/che-che4z_lsp_project_fixtures/copybook-analysis_mainfile2.cbl": [
         "import:cobol/cobrix/copybook.cpy"
-      ],
-      "cobol/che-che4z_lsp_project_fixtures/testing_A.cpy": [
-        "import:hlasm/che4z_hlasm/B.hlasm"
       ]
     },
     "cobol/che-che4z_nist_ccvs85": {
@@ -2841,8 +2834,7 @@
     "pli/dsf_cics_admin": {
       "pli/dsf_cics_admin/R0010301.pli": [
         "call:pli/dsf_cics_admin/R0010420.pli",
-        "call:pli/dsf_cics_admin/R0010426.pli",
-        "import:cobol/aws-mainframe-modernization-carddemo/DFHBMSCA.cpy"
+        "call:pli/dsf_cics_admin/R0010426.pli"
       ],
       "pli/dsf_cics_admin/R0010420.pli": [
         "call:pli/dsf_cics_admin/R0010422.pli",
@@ -2857,29 +2849,22 @@
       ],
       "pli/dsf_cics_admin/R0010422.pli": [
         "call:pli/dsf_cics_admin/R0010301.pli",
-        "call:pli/dsf_cics_admin/R0010420.pli",
-        "import:cobol/aws-mainframe-modernization-carddemo/DFHBMSCA.cpy"
+        "call:pli/dsf_cics_admin/R0010420.pli"
       ],
       "pli/dsf_cics_admin/R0010423.pli": [
         "call:pli/dsf_cics_admin/R0010301.pli",
-        "call:pli/dsf_cics_admin/R0010420.pli",
-        "import:cobol/aws-mainframe-modernization-carddemo/DFHBMSCA.cpy"
+        "call:pli/dsf_cics_admin/R0010420.pli"
       ],
       "pli/dsf_cics_admin/R0010424.pli": [
         "call:pli/dsf_cics_admin/R0010301.pli",
-        "call:pli/dsf_cics_admin/R0010420.pli",
-        "import:cobol/aws-mainframe-modernization-carddemo/DFHBMSCA.cpy"
+        "call:pli/dsf_cics_admin/R0010420.pli"
       ],
       "pli/dsf_cics_admin/R0010425.pli": [
         "call:pli/dsf_cics_admin/R0010301.pli",
-        "call:pli/dsf_cics_admin/R0010420.pli",
-        "import:cobol/aws-mainframe-modernization-carddemo/DFHBMSCA.cpy"
+        "call:pli/dsf_cics_admin/R0010420.pli"
       ],
       "pli/dsf_cics_admin/R0010426.pli": [
         "call:pli/dsf_cics_admin/R0010301.pli"
-      ],
-      "pli/dsf_cics_admin/R001TK62.pli": [
-        "import:cobol/aws-mainframe-modernization-carddemo/DFHBMSCA.cpy"
       ]
     },
     "pli/zopeneditor_sample": {
@@ -2889,9 +2874,7 @@
       ],
       "pli/zopeneditor_sample/PSAM1LIB.pli": [
         "call:pli/zopeneditor_sample/PSAM2.pli",
-        "fcall:pli/zopeneditor_sample/PSAM2.pli",
-        "import:cobol/zopeneditor-sample/DATETIME.cpy",
-        "import:cobol/zopeneditor-sample/REPTTOTL.cpy"
+        "fcall:pli/zopeneditor_sample/PSAM2.pli"
       ]
     },
     "powershell/PowerToys": {

@@ -15,7 +15,9 @@ Neither parser is the oracle for the other. Before this key existed, every quest
 | field | content |
 |---|---|
 | `program_id` | the PROGRAM-ID |
-| `units` | real paragraph and section headers (Area A of the PROCEDURE DIVISION): name, kind, line |
+| `units` | real paragraph and section headers (Area A of the PROCEDURE DIVISION): name, kind, line, `end` and `edges` (schema 2, #4318; see **Unit extents and edges** below) |
+| `main_line` | the statements between the PROCEDURE DIVISION header and the first header (#4302) as a pseudo-unit `{line, end, edges}`, or `null` when the first header follows the division header directly (#4318) |
+| `extents_validated` | sign-off of `units[].end`, `units[].edges` and `main_line` (#4318), with `extents_validated_tier` |
 | `dead` | units unreachable from the entry, each with a `reason`. `trivial: true` marks an `EXIT.`-only paragraph: dead, but carrying no logic |
 | `siblings` | only in a source that holds several programs (#4206): every program after the first, by PROGRAM-ID, with `line` (its IDENTIFICATION DIVISION), `end_line` (its END PROGRAM), `nested_in` (the containing program, or null for a batch-compiled sibling), and its own `units` and `dead`, read from that program's PROCEDURE DIVISION only. The fields above and below describe the first program; the rest stay file-wide, as the parsers they grade read them |
 | `copybooks` | every `COPY` / `EXEC SQL INCLUDE`, with the library (`IN MYLIB`), `resolves_to` (a member path, never a program) or `null` plus `why` (CICS-, LE- or DB2-supplied; BMS-generated symbolic map) |
@@ -358,3 +360,104 @@ A source can hold several programs: batch-compiled siblings, each `IDENTIFICATIO
 - **Reader fixes found on the same file.** A run of GO TO target names also spans the statements after it, so a consuming match swallowed every later `GO TO` in that run. EPSCSMRI's `GO TO X000000CC ... X000000D8 DEPENDING ON ELE-CON-LEN` targets all read as dead. And `GO TO a b DEPENDING ON x GO TO y .` ends its unit: the DEPENDING exclusion now applies only when the final transfer is the DEPENDING one. `XML PARSE ... PROCESSING PROCEDURE A THRU B` now reaches A..B like a PERFORM, and END-XML / END-JSON / END-INVOKE close an ON EXCEPTION phrase. Before, EPSCSMRI's MAINLINE (`... END-XML GOBACK.`) read as falling through, and its XML handler was live only through that phantom fall-through. No program in the other six corpora drafts differently.
 
 `epscsmrd.cbl` itself is still in `excluded_programs`. Its draft has six dead verdicts, all EPSCSMRI section headers whose paragraphs are entered only by `GO TO` or `PERFORM` of the paragraph, and each one was checked against the source. On units and dead code the engine agrees with the draft exactly: its `usage_status` marks the same six headers. Since #4242 it records all thirteen PROGRAM-IDs, which are quoted (`PROGRAM-ID. 'EPSCSMRD'.`) and start in column 9. The forge used to read the file as one program: about 1,000 forge mismatches against the draft (bare sibling names, reachability across programs, and the same GO TO, DEPENDING ON and XML PARSE reader gaps the draft had). Since #4243 it reads each program on its own and matches the draft exactly on units (269 / 269) and dead code (6 / 6). What remains before the program lands is its census.
+
+## Unit extents and edges (#4318), 2026-10-04
+
+The key used to record a unit's name, kind and start line only. A unit whose body was cut off still scored as right. #4301 hid that way for months in two keyed corpora: in CBSA, A010 of UPDCUST, BANKDATA and the nine BNK1*/BNKMENU programs stopped at a conditional `GOBACK` or a `RETURN TRANSID` line, and in CardDemo, 14 `RETURN-TO-*` paragraphs were cut to their header line. Schema 2 records each unit's extent and the control edges between a program's units.
+
+One unit, as the key stores it:
+
+```json
+{"name": "A010", "kind": "paragraph", "line": 138, "end": 205, "edges": [
+  {"verb": "PERFORM", "target": "UPDATE-CUSTOMER-VSAM", "line": 200},
+  {"verb": "PERFORM", "target": "GET-ME-OUT-OF-HERE", "line": 205}]}
+```
+
+**Extent.** `line` is the header line. `end` (inclusive) is the unit's last *code* line before the next paragraph or section header, `END PROGRAM`, or the next program's IDENTIFICATION DIVISION. Code lines exclude:
+- blank lines;
+- comment lines (`*` or `/` in column 7);
+- debugging lines (`D` in column 7, since no keyed program has an active `WITH DEBUGGING MODE`);
+- lines holding only a sequence number in columns 1-6 or 73-80.
+
+A unit is never cut at a `GOBACK`, `EXIT`, `RETURN` or `STOP RUN`, however conditional, because the next header ends it. A section's own extent stops at its first paragraph, so the extents partition the PROCEDURE DIVISION. `DECLARATIVES.` / `END DECLARATIVES.` belong to no unit.
+
+**Main line.** `main_line` is the code between the PROCEDURE DIVISION header and the first header. It starts on the division header's line. Each sibling program (#4206) has its own.
+
+**Edges.** `{verb, target, line}` per site, in source order, with `line` the verb's line:
+- `PERFORM` is an out-of-line PERFORM. `PERFORM_THRU` adds `thru`.
+- `GO_TO` is one edge per target. Each target of `GO TO a b c DEPENDING ON x` is marked `depending: true`.
+
+The target must be a unit of the same program, or a paragraph that a procedure copybook COPYed into its PROCEDURE DIVISION brings in (CardDemo COTRTLIC's `9999-FORMAT-DB2-MESSAGE` comes from `EXEC SQL INCLUDE CSDB2RPY`). That rule drops the inline forms without a keyword list: `PERFORM UNTIL / VARYING / WITH TEST / TEST / n TIMES / WS-N TIMES`. The following are not edges either:
+- `EXIT PERFORM` (#4305);
+- `CALL`, CICS `LINK` / `XCTL`, which are program calls, scored as `call targets`;
+- `ALTER`;
+- CICS HANDLE labels;
+- `XML PARSE ... PROCESSING PROCEDURE`;
+- SQL `WHENEVER ... GO TO`.
+
+A GO TO back into its own paragraph (a read loop) is an edge. A PERFORM whose target is on the next line (#4300) is read across the line break.
+
+**PL/I** (`pli_units`, per source): each `label: PROC` is `{name, kind: "procedure", line, end, block_end, nested_in, edges}`. This tool's own block reader matches `DO` / `BEGIN` / `SELECT` / `PROC` against `END`. An `END name;` closes every block up to the named one, so a procedure ends at its own END however it is written (#4301's `ELSE RETURN;` ends nothing).
+- `block_end` is that END.
+- `end` is the procedure's *own* extent: `block_end`, or the last statement before its first nested procedure.
+- `edges` are `CALL`s of a procedure compiled into the same program: one of this source, or an include-internal one (`pli_included_procedures`). These are the calls `pli_call_rows` leaves out of the program call sites.
+
+The keyed sources are the `pli_moves` set (every PL/I file of a small corpus, DSF's seeded sample of 25), plus the eight `R00104{22..25}.pli` copies #4301 names. Together: zopeneditor 4 files and 8 procedures, DSF 33 files and 112 procedures.
+
+**Scoring.** `score` adds two rows. Neither has a forge column:
+- `unit extents`: `NAME L<start>-<end>`, exact on both ends. The main line is `(procedure division)`, and a sibling's units are `PROG:NAME`. The engine side is `function_data` (`start_line`, `start_line + loc - 1`). The row also reports **code lines outside any unit**: the key's code lines that no engine unit covers. The ledger pins that count in the scoreboard.
+- `intra-program edges`: `FROM -> PERFORM|GO TO|CALL TARGET`, one pair per distinct edge. PERFORM and PERFORM THRU score alike, because the engine keeps a range's first paragraph only. The engine side is:
+  - `transfers_to` (GO TO);
+  - `calls_out_to`, less every CALL / LINK / XCTL operand and target of the file (`call_site_data`);
+  - the main line's `synthetic_unit_data` row (#4323), which has edges but no end, so it claims no extent.
+
+  A leftover that names no unit (#4305's `TEST`) scores as a false edge.
+
+```sh
+python tests/tools/cobol_answer_key.py add-extents <clone> --key <key>   # (re)draft; refuses if the unit list moved
+```
+
+**Verification.** All 7 keys: 2,059 COBOL units and 18 main lines with 2,593 PERFORM / GO TO sites (1,880 distinct edges), and 120 PL/I procedures with 146 CALL sites:
+- **The forge.** The forge (`cobol_graveyard_finder`) reads every keyed program's units and copybooks its own way. It agrees with every COBOL edge, 1,880 of 1,880, including the main lines and the self-loops.
+- **The engine.** Every disagreement with the engine at main `0d64632e` was settled against the source. All of them fall into the four causes listed under the scores below, and none is a key error.
+- **Blind sample.** A blind, seeded sample of 100 claims went to four fresh-context reviewers. It held every main line, 10 COBOL units per corpus and 6 PL/I procedures from each PL/I corpus. The reviewers worked from a staged source copy and a brief that stated the definitions above, with no answers. They agreed on every extent and every edge list, 100 of 100 (`extents_verification` in each key). One reviewer independently excluded CALLs inside a `/* */` block in DSF R0010423, as the key does.
+
+On that evidence every program and PL/I source is `extents_validated: true` with `extents_validated_tier: llm_verified`.
+
+**Proof that the gap is closed.** The keys were scored on the engine just before #4315 (`c136f46b`) and on current main:
+
+| corpus | unit extents, `c136f46b` | unit extents, main | intra-program edges, `c136f46b` | intra-program edges, main |
+|---|---|---|---|---|
+| zopeneditor-sample | 62/66 · 43 outside | 66/66 · 0 outside | P 93/96 · R 93/93 | P 93/96 · R 93/93 |
+| cics-banking-sample-application-cbsa | 668/680 · 593 outside | 679/680 · 0 outside | P 349/349 · R 349/373 | P 373/374 · R 373/373 |
+| aws-mainframe-modernization-carddemo | 649/881 · 490 outside | 780/881 · 237 outside | P 953/953 · R 953/1024 | P 1023/1023 · R 1023/1024 |
+| cics-genapp | 162/162 · 0 outside | 162/162 · 0 outside | P 131/131 · R 131/131 | P 131/131 · R 131/131 |
+| zecs | 216/221 · 34 outside | 216/221 · 34 outside | P 161/161 · R 161/184 | P 184/184 · R 184/184 |
+| dsf | 86/166 · 44 outside | 155/166 · 14 outside | P 106/106 · R 106/123 | P 116/116 · R 116/123 |
+| dbb-mortgage-application | 15/21 · 16 outside | 21/21 · 0 outside | P 17/17 · R 17/17 | P 17/17 · R 17/17 |
+
+Extents are exact matches over the key's units (R); "outside" is the key's code lines no engine unit covers. Main is `0d64632e` (#4323 merged).
+
+The old engine shows every #4301 shape the keyed corpora hold:
+- CBSA `UPDCUST` A010 `L138-194` against the key's `L138-205`, with `UPDATE-CUSTOMER-VSAM` and `GET-ME-OUT-OF-HERE` lost.
+- `BANKDATA` A010 `L370-406` against `L370-673`.
+- `BNK1CAC/CCA/CCS/CRA/DAC/DCS/TFN/UAC` and `BNKMENU` A010, each losing `POPULATE-TIME-DATE` and `ABEND-THIS-TASK`.
+- CardDemo's 14 `RETURN-TO-*` paragraphs at one line each.
+- DBB `A000-MAINLINE` / `EPSCMORT-MAINLINE` / `A999-RETURN-ERROR-TEXT` (6 units) and zopeneditor's PL/I `PSAM2`, `MACROFEATURES`, `PRTHDG1`, each cut at a `GOBACK` / `RETURN`.
+- DSF `KONTROLL_AV_INPUT` `L265-316` against `L265-326` (all 8 copies), with `CALL SEND_MAP` lost.
+
+`CRECUST` is not among them. At CBSA's pinned ref, P010 has no conditional `GOBACK`; that shape is in the crucible's copy only. On main, none of these remains.
+
+What remains on main, by cause:
+
+| cause | kind | issue | mismatches |
+|---|---|---|---|
+| `engine_unit_end_counts_noncode_lines` | defect | #4300 | 200 |
+| `engine_main_line_in_no_unit` | defect | #4302 | 18 |
+| `engine_drops_self_transfer` | deliberate | #3362 | 8 |
+| `engine_inline_perform_phantom_callee` | defect | #4305 | 4 |
+
+- `engine_unit_end_counts_noncode_lines`: a unit that ends at the next header runs over trailing lines that hold only a sequence number, or a `D` line. That covers CardDemo (cols 1-6), DSF PL/I outer procedures (cols 73-80) and CBSA BANKDATA CDW010. It has the same root as #4300.
+- `engine_main_line_in_no_unit`: since #4323 the main line's edges are recorded, but it has no extent.
+- `engine_drops_self_transfer`: a GO TO into its own paragraph is dropped like recursion.
+- `engine_inline_perform_phantom_callee`: `PERFORM TEST AFTER`.

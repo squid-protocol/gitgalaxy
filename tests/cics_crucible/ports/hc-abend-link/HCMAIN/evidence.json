@@ -1,0 +1,261 @@
+{
+ "format": "gitgalaxy-evidence/1",
+ "case": "crucible:hc-abend-link",
+ "program": "HCMAIN",
+ "kind": "crucible",
+ "port": {
+  "paths": [
+   "tests/cics_crucible/ports/hc-abend-link/HCMAIN/overlay/service/HcmainService.java"
+  ],
+  "sha256": "88ede908ceb4b87b78b2fc80211f949f78c287fd1736a20236f0513b6692708e",
+  "entry_points": [
+   "runTask"
+  ]
+ },
+ "inputs": {
+  "port": {
+   "paths": [
+    "tests/cics_crucible/ports/hc-abend-link/*/overlay/**"
+   ],
+   "files": 2,
+   "sha256": "4ca82a76c8f2eb704ab391f9178968aa48542b39206ce7f94f6db49388650498"
+  },
+  "case": {
+   "paths": [
+    "tests/cics_crucible/strengthened/hc-abend-link/**"
+   ],
+   "files": 0,
+   "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  "harness": {
+   "paths": [
+    "tests/tools/equivalence.py",
+    "tests/tools/equivalence_common.py",
+    "tests/tools/equivalence_java.py",
+    "tests/tools/equivalence_inputs.py",
+    "tests/tools/equivalence_cics.py",
+    "tests/tools/equivalence_call.py",
+    "tests/tools/equivalence_cache.py",
+    "tests/tools/equivalence_db2.py",
+    "tests/tools/equivalence_oracle.py",
+    "tests/tools/cobol_coverage.py",
+    "tests/tools/java_target_matrix.py",
+    "tests/tools/cics_crucible.py",
+    "tests/tools/cics_crucible_compare.py"
+   ],
+   "files": 13,
+   "sha256": "e6f3db91ce0ad417535c68f4828c38c4cf080a39495e11eee9ba6a8e7e6f1a3a"
+  },
+  "oracle": {
+   "paths": [],
+   "files": 0,
+   "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  "generator": {
+   "paths": [
+    "gitgalaxy/tools/cobol_to_java/**"
+   ],
+   "files": 60,
+   "sha256": "880250850d919c29f8ace3eb0d7183156a05354438ea79f72a417febb9e57e68"
+  },
+  "corpus": {
+   "name": "cics-crucible",
+   "ref": "v0.2.0",
+   "sha256": "085be5a9f372ecb979d4f8dda1d8c749e85d01abb85e227fca4127844db9c5b6"
+  },
+  "differences": {
+   "sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+  },
+  "digest": "624bd9c366795b2ea27c1c15eab1f0c1567c7cc0eb3fa0cafeaabc1926a92310"
+ },
+ "proof": {
+  "at": "2026-10-04T14:38:02Z",
+  "verdict": "proven",
+  "runs": 5,
+  "fault_runs": 0,
+  "environments": null,
+  "outputs": {
+   "push-pop": {
+    "equal": 1,
+    "records": 1
+   },
+   "pushed-abend": {
+    "equal": 1,
+    "records": 1
+   },
+   "sub-own-exit": {
+    "equal": 1,
+    "records": 1
+   },
+   "sub-resp": {
+    "equal": 1,
+    "records": 1
+   },
+   "sub-unhandled": {
+    "equal": 1,
+    "records": 1
+   }
+  },
+  "return_code_equal": null,
+  "sysout_compared": null,
+  "attributes_compared": null,
+  "java_failed": false,
+  "harness_commit": "2f770970f1ec1c5698343c3362a1dea11de3ffad",
+  "inputs_digest": "624bd9c366795b2ea27c1c15eab1f0c1567c7cc0eb3fa0cafeaabc1926a92310"
+ },
+ "coverage": {
+  "paragraphs": {
+   "covered": 4,
+   "live": 4
+  },
+  "branches": {
+   "covered": 4,
+   "total": 4
+  },
+  "uncovered_branches": null,
+  "handler_labels": null,
+  "source": "tests/cics_crucible/coverage.json#programs/hc-abend-link/HCMAIN",
+  "ledger_sha256": "95f8d57261c6f6b47c207fc37718c23892eae9644f6e7c73974ae1a61e779575",
+  "inputs_digest": "624bd9c366795b2ea27c1c15eab1f0c1567c7cc0eb3fa0cafeaabc1926a92310"
+ },
+ "reach": {
+  "entry_points": [
+   "runTask"
+  ],
+  "unproven": [
+   {
+    "class": "HcmainService",
+    "method": "executeHcmain",
+    "line": 96,
+    "kind": "ported_unproven"
+   },
+   {
+    "class": "HcmainService",
+    "method": "handleTransaction",
+    "line": 129,
+    "kind": "stub"
+   },
+   {
+    "class": "HcmainService",
+    "method": "linkHcsub",
+    "line": 160,
+    "kind": "left_as_generated"
+   },
+   {
+    "class": "HcmainService",
+    "method": "onConditionQiderrL25",
+    "line": 170,
+    "kind": "ported_unproven"
+   },
+   {
+    "class": "HcmainService",
+    "method": "onAbendL26",
+    "line": 187,
+    "kind": "ported_unproven"
+   },
+   {
+    "class": "HcmainService",
+    "method": "readqTsHcmodeL27",
+    "line": 200,
+    "kind": "left_as_generated"
+   },
+   {
+    "class": "HcmainService",
+    "method": "readqTsHcnoneL37",
+    "line": 206,
+    "kind": "left_as_generated"
+   },
+   {
+    "class": "HcmainService",
+    "method": "readqTsHcnoneL54",
+    "line": 212,
+    "kind": "left_as_generated"
+   },
+   {
+    "class": "HcmainService",
+    "method": "seed",
+    "line": 432,
+    "kind": "ported_unproven"
+   },
+   {
+    "class": "HcmainService",
+    "method": "bridgeHcsub",
+    "line": 437,
+    "kind": "ported_unproven"
+   }
+  ],
+  "counts": {
+   "stub": 1,
+   "left_as_generated": 4,
+   "ported_unproven": 5
+  },
+  "generated_compared": true,
+  "port_sha256": "88ede908ceb4b87b78b2fc80211f949f78c287fd1736a20236f0513b6692708e"
+ },
+ "mutation": {
+  "commit": "be2561306",
+  "rejudged": null,
+  "seed": 0,
+  "mode": null,
+  "mutants": 196,
+  "chosen": 24,
+  "killed": 12,
+  "survived": 12,
+  "stillborn": 0,
+  "survivors": {
+   "case_gap": 2,
+   "harness_gap": 0,
+   "equivalent": 4,
+   "unreachable": 6,
+   "untriaged": 0
+  },
+  "score_raw": "12/24",
+  "score_adjusted": "12/14",
+  "source": "docs/language_status/mutation_scores.json#crucible:hc-abend-link/HCMAIN",
+  "inputs": {
+   "port": {
+    "sha256": "4ca82a76c8f2eb704ab391f9178968aa48542b39206ce7f94f6db49388650498"
+   },
+   "case": {
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+   },
+   "corpus": {
+    "sha256": "085be5a9f372ecb979d4f8dda1d8c749e85d01abb85e227fca4127844db9c5b6"
+   },
+   "harness": {
+    "sha256": "e67f03b7e18455d8d525349b25ec5e46d20bc2fb812f2c84299141fe89296d36"
+   },
+   "oracle": {
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+   }
+  }
+ },
+ "differences": [],
+ "oracle": {
+  "kind": "crucible-expected-logs",
+  "source": "cics-crucible v0.2.0: each scenario's hand-written expected event log, derived from IBM's documentation (its SPEC.md); the java-ported side is compared with it exactly",
+  "compiler": null,
+  "image": null,
+  "models": [],
+  "assumptions": null
+ },
+ "provenance": {
+  "written_by": "model",
+  "model": "claude-opus-5-5",
+  "backend": "claude CLI 2.1.285 print mode (claude -p --model claude-opus-5-5 --effort high --tools '' --strict-mcp-config --mcp-config '{\"mcpServers\":{}}' --no-session-persistence --system-prompt <porting system prompt>, prompt file on stdin, run from an empty directory)",
+  "attempt": 2,
+  "attempts": null,
+  "ticket_sha256": "6ea64c009b09cab754e4aec123597890e743fcd869a36ee8669610b7cb92e738",
+  "porting_rules_sha256": null,
+  "proposed_at": "2026-09-29T22:01:48+00:00",
+  "generator_version": null,
+  "edited_after": null,
+  "provenance_file": {
+   "path": "tests/cics_crucible/ports/hc-abend-link/HCMAIN/provenance.json",
+   "format": "cics-crucible-port/1",
+   "sha256": "60941e838de5988b2a1587d2f3c7695f0503d171aacbb9003cfc1a7226cf81fb"
+  },
+  "crucible_ref_proven": "v0.2.0 (94f2afcb)"
+ },
+ "approvals": []
+}

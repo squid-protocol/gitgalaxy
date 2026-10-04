@@ -653,6 +653,9 @@ def main() -> int:
                    "verdict is the same, the report names only that run (mutation testing)")  # fmt: skip
     r.add_argument("--generated-only", action="store_true",
                    help="run the generated service as generated (no port): the generator's own baseline")  # fmt: skip
+    r.add_argument("--record", action="store_true", help="#4048: write the case's evidence record "
+                   "(tests/equivalence/CASE/evidence.json) from this run -- the committed port on the committed case "
+                   "only")  # fmt: skip
     sub.add_parser("list")
     args = ap.parse_args()
     if args.cmd == "list":
@@ -661,6 +664,11 @@ def main() -> int:
         return 0
     import mainframe_corpus as mc
 
+    if args.record and (args.port or args.case_file or args.reuse or args.first_difference or args.generated_only
+                        or args.cobol_only or args.faults not in (None, "all") or args.environments
+                        or args.sql_faults != "auto" or args.source_encoding or args.data_encoding):  # fmt: skip
+        raise SystemExit("--record proves the committed port on the committed case as it is: drop --port / "
+                         "--case-file / --reuse / --first-difference / --generated-only / --cobol-only and the overrides")
     case = load_case(args.case, args.case_file)
     for key in ("source_encoding", "data_encoding"):  # #3815: the CLI overrides the case
         if getattr(args, key):
@@ -682,13 +690,14 @@ def main() -> int:
     if case.get("kind") == "call":  # #4023 follow-up: a CALLed subprogram, driven through its USING items
         import equivalence_call as ecall
 
-        return ecall.run_case(case, corpus, work, port=not args.generated_only, port_dir=args.port,
-                              cobol_only=args.cobol_only)  # fmt: skip
+        return _recorded(args, work, ecall.run_case(case, corpus, work, port=not args.generated_only,
+                                                    port_dir=args.port, cobol_only=args.cobol_only))  # fmt: skip
     if case.get("kind") == "cics":  # #3754: an online program, run as tasks under the stub CICS runtime
         import equivalence_cics as ec
 
-        return ec.run_case(case, corpus, work, port=not args.generated_only, port_dir=args.port,
-                           cobol_only=args.cobol_only, sql_faults=args.sql_faults)  # fmt: skip
+        return _recorded(args, work, ec.run_case(case, corpus, work, port=not args.generated_only,
+                                                 port_dir=args.port, cobol_only=args.cobol_only,
+                                                 sql_faults=args.sql_faults))  # fmt: skip
     faults = selected_faults(case, args.faults)
     if case.get("db2"):  # the case's tables, created from its DDL on the harness's Db2 (equivalence_db2.py)
         equivalence_db2.create(case, corpus)
@@ -734,7 +743,7 @@ def main() -> int:
         failed = java_failure_report(case, work, str(e))
         (work / "report.json").write_text(json.dumps(failed, indent=2) + "\n", encoding="utf-8")
         print(f"{case['program']}: the Java side failed -- see {work / 'report.json'}")
-        return 1
+        return _recorded(args, work, 1)
     report: dict[str, Any] = {"case": args.case, "program": case["program"], "outputs": {},
                               "java": "generated" if args.generated_only else "ported", "collation": COLLATION,
                               "port": str(args.port) if args.port else f"tests/equivalence/{args.case}/port"}  # fmt: skip
@@ -792,7 +801,19 @@ def main() -> int:
     if report["coverage"]:
         print(f"{case['program']} COBOL coverage: {cov.headline(report['coverage'], report['runs'], ok)}")
     print(f"report: {work / 'report.json'}")
-    return 0 if ok else 1
+    return _recorded(args, work, 0 if ok else 1)
+
+
+def _recorded(args: argparse.Namespace, work: Path, rc: int) -> int:
+    """#4048 `--record`: the evidence record of the run just made (report.json in `work`), proven or not."""
+    if getattr(args, "record", False) and (work / "report.json").is_file():
+        import evidence
+
+        rec = evidence.record_equivalence_run(args.case, work)
+        st = evidence.status(rec, evidence.equivalence_target(args.case))
+        print(f"evidence: {evidence.rel_path(evidence.equivalence_target(args.case).record)} -- {st['status']}"
+              + (f" ({'; '.join(st['reasons'])})" if st["reasons"] else ""))  # fmt: skip
+    return rc
 
 
 if __name__ == "__main__":

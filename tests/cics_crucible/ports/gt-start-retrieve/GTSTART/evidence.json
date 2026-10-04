@@ -1,0 +1,223 @@
+{
+ "format": "gitgalaxy-evidence/1",
+ "case": "crucible:gt-start-retrieve",
+ "program": "GTSTART",
+ "kind": "crucible",
+ "port": {
+  "paths": [
+   "tests/cics_crucible/ports/gt-start-retrieve/GTSTART/overlay/service/GtstartService.java"
+  ],
+  "sha256": "3e53fca33ac67a4de689eaec0f975c26dc667e78f5f1c2cde9e2c192f2e11b32",
+  "entry_points": [
+   "runTask"
+  ]
+ },
+ "inputs": {
+  "port": {
+   "paths": [
+    "tests/cics_crucible/ports/gt-start-retrieve/*/overlay/**"
+   ],
+   "files": 2,
+   "sha256": "6f3d70972099c4fb3a99a31b77fcd0f3fb6c24f4dbcde1d924f470c3f1e15d89"
+  },
+  "case": {
+   "paths": [
+    "tests/cics_crucible/strengthened/gt-start-retrieve/**"
+   ],
+   "files": 0,
+   "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  "harness": {
+   "paths": [
+    "tests/tools/equivalence.py",
+    "tests/tools/equivalence_common.py",
+    "tests/tools/equivalence_java.py",
+    "tests/tools/equivalence_inputs.py",
+    "tests/tools/equivalence_cics.py",
+    "tests/tools/equivalence_call.py",
+    "tests/tools/equivalence_cache.py",
+    "tests/tools/equivalence_db2.py",
+    "tests/tools/equivalence_oracle.py",
+    "tests/tools/cobol_coverage.py",
+    "tests/tools/java_target_matrix.py",
+    "tests/tools/cics_crucible.py",
+    "tests/tools/cics_crucible_compare.py"
+   ],
+   "files": 13,
+   "sha256": "e6f3db91ce0ad417535c68f4828c38c4cf080a39495e11eee9ba6a8e7e6f1a3a"
+  },
+  "oracle": {
+   "paths": [],
+   "files": 0,
+   "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  "generator": {
+   "paths": [
+    "gitgalaxy/tools/cobol_to_java/**"
+   ],
+   "files": 60,
+   "sha256": "880250850d919c29f8ace3eb0d7183156a05354438ea79f72a417febb9e57e68"
+  },
+  "corpus": {
+   "name": "cics-crucible",
+   "ref": "v0.2.0",
+   "sha256": "085be5a9f372ecb979d4f8dda1d8c749e85d01abb85e227fca4127844db9c5b6"
+  },
+  "differences": {
+   "sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+  },
+  "digest": "f9ce14c22f66d2154708d3baa48c8b3e0592dfbb3eacdd53ffc5d3e29a6445e7"
+ },
+ "proof": {
+  "at": "2026-10-04T14:37:27Z",
+  "verdict": "proven",
+  "runs": 6,
+  "fault_runs": 0,
+  "environments": null,
+  "outputs": {
+   "interval-data": {
+    "equal": 1,
+    "records": 1
+   },
+   "no-data": {
+    "equal": 1,
+    "records": 1
+   },
+   "protect-abend": {
+    "equal": 1,
+    "records": 1
+   },
+   "retrieve-lengerr": {
+    "equal": 1,
+    "records": 1
+   },
+   "time-six-hours": {
+    "equal": 1,
+    "records": 1
+   },
+   "unknown-mode": {
+    "equal": 1,
+    "records": 1
+   }
+  },
+  "return_code_equal": null,
+  "sysout_compared": null,
+  "attributes_compared": null,
+  "java_failed": false,
+  "harness_commit": "2f770970f1ec1c5698343c3362a1dea11de3ffad",
+  "inputs_digest": "f9ce14c22f66d2154708d3baa48c8b3e0592dfbb3eacdd53ffc5d3e29a6445e7"
+ },
+ "coverage": {
+  "paragraphs": {
+   "covered": 1,
+   "live": 1
+  },
+  "branches": {
+   "covered": 6,
+   "total": 6
+  },
+  "uncovered_branches": null,
+  "handler_labels": null,
+  "source": "tests/cics_crucible/coverage.json#programs/gt-start-retrieve/GTSTART",
+  "ledger_sha256": "44b30f0ab3988e9222a5bf43a34ffa5d0591a7ca425a77f39bf131ee15aa47f6",
+  "inputs_digest": "f9ce14c22f66d2154708d3baa48c8b3e0592dfbb3eacdd53ffc5d3e29a6445e7"
+ },
+ "reach": {
+  "entry_points": [
+   "runTask"
+  ],
+  "unproven": [
+   {
+    "class": "GtstartService",
+    "method": "executeGtstart",
+    "line": 51,
+    "kind": "stub"
+   },
+   {
+    "class": "GtstartService",
+    "method": "handleTransaction",
+    "line": 57,
+    "kind": "stub"
+   },
+   {
+    "class": "GtstartService",
+    "method": "abendGtabL58",
+    "line": 188,
+    "kind": "left_as_generated"
+   }
+  ],
+  "counts": {
+   "stub": 2,
+   "left_as_generated": 1,
+   "ported_unproven": 0
+  },
+  "generated_compared": true,
+  "port_sha256": "3e53fca33ac67a4de689eaec0f975c26dc667e78f5f1c2cde9e2c192f2e11b32"
+ },
+ "mutation": {
+  "commit": "be2561306",
+  "rejudged": null,
+  "seed": 0,
+  "mode": null,
+  "mutants": 87,
+  "chosen": 24,
+  "killed": 14,
+  "survived": 8,
+  "stillborn": 2,
+  "survivors": {
+   "case_gap": 4,
+   "harness_gap": 0,
+   "equivalent": 4,
+   "unreachable": 0,
+   "untriaged": 0
+  },
+  "score_raw": "14/22",
+  "score_adjusted": "14/18",
+  "source": "docs/language_status/mutation_scores.json#crucible:gt-start-retrieve/GTSTART",
+  "inputs": {
+   "port": {
+    "sha256": "6f3d70972099c4fb3a99a31b77fcd0f3fb6c24f4dbcde1d924f470c3f1e15d89"
+   },
+   "case": {
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+   },
+   "corpus": {
+    "sha256": "085be5a9f372ecb979d4f8dda1d8c749e85d01abb85e227fca4127844db9c5b6"
+   },
+   "harness": {
+    "sha256": "e67f03b7e18455d8d525349b25ec5e46d20bc2fb812f2c84299141fe89296d36"
+   },
+   "oracle": {
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+   }
+  }
+ },
+ "differences": [],
+ "oracle": {
+  "kind": "crucible-expected-logs",
+  "source": "cics-crucible v0.2.0: each scenario's hand-written expected event log, derived from IBM's documentation (its SPEC.md); the java-ported side is compared with it exactly",
+  "compiler": null,
+  "image": null,
+  "models": [],
+  "assumptions": null
+ },
+ "provenance": {
+  "written_by": "model",
+  "model": "claude-opus-5-5",
+  "backend": "claude CLI 2.1.285 print mode (claude -p --model claude-opus-5-5 --effort high --tools '' --strict-mcp-config --mcp-config '{\"mcpServers\":{}}' --no-session-persistence --system-prompt <porting system prompt>, prompt file on stdin, run from an empty directory)",
+  "attempt": 1,
+  "attempts": null,
+  "ticket_sha256": "a2c3151275a921e20dda2d43e98097e95b8d37733aae7a6306ea60b20b9c7533",
+  "porting_rules_sha256": null,
+  "proposed_at": "2026-09-29T21:46:55+00:00",
+  "generator_version": null,
+  "edited_after": null,
+  "provenance_file": {
+   "path": "tests/cics_crucible/ports/gt-start-retrieve/GTSTART/provenance.json",
+   "format": "cics-crucible-port/1",
+   "sha256": "fc570f07cb50266db85e45eb856a67526a75027aae4438018b5ce8cd881a5a55"
+  },
+  "crucible_ref_proven": "v0.2.0 (94f2afcb)"
+ },
+ "approvals": []
+}

@@ -609,6 +609,7 @@ def lay_overlay(overlay: Path, project: Path) -> list[str]:
     for f in sorted(overlay.rglob("*.java")):
         dest = project / "src/main/java" / ej.PKG_DIR / f.relative_to(overlay)
         dest.parent.mkdir(parents=True, exist_ok=True)
+        ej.keep_generated(dest, project, f.relative_to(overlay).as_posix())  # #4048: proof_reach's `generated`
         shutil.copyfile(f, dest)
         laid.append(dest.relative_to(project).as_posix())
     return laid

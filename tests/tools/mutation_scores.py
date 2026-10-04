@@ -184,6 +184,11 @@ def main(argv: list[str] | None = None) -> int:
                    "ports": sorted(ports, key=lambda p: (p["case"].startswith("crucible:"), p["case"], p["program"]))}  # fmt: skip
         args.out.write_text(json.dumps(results, indent=None, separators=(",", ":")).replace(',{"case"', ',\n{"case"')
                             + "\n", encoding="utf-8")  # fmt: skip
+        if args.out.resolve() == RESULTS.resolve():  # #4048: each port's evidence record carries its score
+            import evidence
+
+            print(f"evidence records: mutation refreshed for {len(evidence.refresh_mutation())}")
+            evidence.write_pages()
     else:
         results = json.loads(args.results.read_text(encoding="utf-8"))
     render(results, args.doc)

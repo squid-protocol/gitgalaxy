@@ -724,7 +724,7 @@ def render_index(recs: list[tuple[Target, Optional[dict[str, Any]]]]) -> str:
              "One record per ported program (#4048): docs/language_status/evidence_records.md explains them. The "
              f"status column judges each record alone (policy: ported_unproven = {PORTED_UNPROVEN_POLICY}); run "
              "`python tests/tools/evidence.py status` for staleness against the tree.", "",
-             "| program | case | kind | status | why | runs | coverage (para / branch) | mutation (raw / adj) | "
+             "| program | case | kind | status | why | runs | coverage (para / branch) | mutation (raw / adj) | " +
              "ported unproven | approved |", "|---|---|---|---|---|---|---|---|---|---|"]  # fmt: skip
     for t, rec in recs:
         if rec is None:

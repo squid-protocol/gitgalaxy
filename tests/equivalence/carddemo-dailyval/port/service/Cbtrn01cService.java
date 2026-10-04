@@ -49,12 +49,6 @@ public class Cbtrn01cService {
     private final CobolFiles files;
     private final ApplicationContext ctx;
 
-    /** The program run as a batch step with no DD overrides and no PARM (#4342): runBatch's DD
-     *  names resolved as the program declares them; returns the step's RETURN-CODE. */
-    public int executeCbtrn01c() {
-        return runBatch(List.of(), null);
-    }
-
     /** Working storage of one run. */
     private static final class Run {
         final Charset cs = CobolRecords.charset();

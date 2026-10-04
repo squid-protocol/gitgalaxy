@@ -120,9 +120,9 @@ class SkeletonForges:
         return self.cics.programs.get(key)
 
     def entry(self, key: str) -> str | None:
-        """#4342: how the program is entered, which decides its generated entry points: "batch" (runBatch -- and the
-        generic controller's executeX, which runs it), "cics" (runTask, through its CICS endpoints), "call"
-        (handleCall, from its callers), or None when no forge gives it an entry (the generic executeX alone)."""
+        """#4342: how the program is entered, which decides its generated entry points: "batch" (runBatch, run by its
+        JCL step), "cics" (runTask, through its CICS endpoints), "call" (handleCall, from its callers), or None when no
+        forge gives it an entry (then, and only then, the generic executeX and its controller)."""
         if self.batch.has_entry(key):
             return "batch"
         if key in self.cics.programs:

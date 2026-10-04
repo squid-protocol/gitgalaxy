@@ -33,12 +33,6 @@ public class Cbact02cService {
         Iterator<CardRecord> cursor;          // sequential position in CARDFILE-FILE
     }
 
-    /** The program run as a batch step with no DD overrides and no PARM (#4342): runBatch's DD
-     *  names resolved as the program declares them; returns the step's RETURN-CODE. */
-    public int executeCbact02c() {
-        return runBatch(List.of(), null);
-    }
-
     /** AWS.M2.CARDDEMO.CARDDATA.VSAM.KSDS as BATCH SELECT CARDFILE-FILE at app/cbl/CBACT02C.cbl (SELECT CARDFILE-FILE); VSAM defines field testing: open (3 public / 0 private estates). */
     // The program reads FD-CARDFILE-REC (150 bytes) INTO CARD-RECORD (150 bytes): same layout, mapped by fromRecord / toRecord.
     // Sequential READ: in key order, CARD-NUM as cp037 bytes (#3945, #3822).

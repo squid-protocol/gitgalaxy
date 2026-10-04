@@ -300,11 +300,11 @@ def test_a_tree_digest_is_path_and_bytes_and_order_free():
 
 # ---- entry runs: a batch step proven through its controller's no-argument method too ------------------------------
 def test_an_entry_method_is_reached_only_when_the_proof_ran_it():
-    t = ev.equivalence_target("carddemo-readcard")
+    t = ev.equivalence_target("carddemo-acctview")
     without = ev.reach_section(t)
-    assert [m["method"] for m in without["unproven"] if m["kind"] == "ported_unproven"] == ["executeCbact02c"]
-    run = ev.reach_section(t, entries=["executeCbact02c"])
-    assert run["counts"]["ported_unproven"] == 0 and "executeCbact02c" in run["entry_points"], run
+    assert "handleTransaction" in {m["method"] for m in without["unproven"]}
+    run = ev.reach_section(t, entries=["handleTransaction"])
+    assert "handleTransaction" not in {m["method"] for m in run["unproven"]} and "handleTransaction" in run["entry_points"]
 
 
 def test_the_generated_test_drives_each_entry_and_refuses_a_parm(monkeypatch):
@@ -312,6 +312,8 @@ def test_the_generated_test_drives_each_entry_and_refuses_a_parm(monkeypatch):
 
     case = json.loads((REPO / "tests/equivalence/carddemo-readcard/case.json").read_text(encoding="utf-8"))
     case["name"] = "carddemo-readcard"
+    case["entries"] = [{"method": "executeCbact02c", "why": "a test"}]
+    monkeypatch.setattr(ej, "_entry_returns", lambda case, svc: {"executeCbact02c": "int"})
     src = ej.equivalence_test(case)
     assert 'System.getProperty("equivalence.entry", "")' in src
     # #4342: the generated executeX returns runBatch's RETURN-CODE, and the entry run compares that one

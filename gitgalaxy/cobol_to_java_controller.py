@@ -65,7 +65,7 @@ from gitgalaxy.tools.cobol_to_java.cobol_to_java_names import (
 from gitgalaxy.tools.cobol_to_java.cobol_to_java_port_tickets import write_port_tickets
 from gitgalaxy.tools.cobol_to_java.cobol_to_java_service_forge import (
     generate_service_skeleton,
-    has_execute,
+    has_generic_execute,
 )
 from gitgalaxy.tools.cobol_to_java.cobol_to_java_skeleton_forges import SkeletonForges
 from gitgalaxy.tools.cobol_to_java.cobol_to_java_spring_forge import (
@@ -400,8 +400,8 @@ def main():
                     )
                     stats["controllers"] += 1
                     print(f"  [+] Generated CICS API: {safe_file_name}Controller.java")
-                # #4342: the generic controller calls the service's executeX, which a CICS or CALLed program has not
-                elif target.features.rest_controllers and lineage and wants_api and has_execute(extras):
+                # #4342: the generic controller calls the service's executeX, which a program with a forge entry has not
+                elif target.features.rest_controllers and lineage and wants_api and has_generic_execute(extras):
                     java_code = generate_rest_controller(ir_state, args.pkg, unit_key=raw_prog_id, target=target)
                     if java_header:
                         java_code = java_header + java_code

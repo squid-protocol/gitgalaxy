@@ -35,12 +35,6 @@ public class Cbact03cService {
         Iterator<CardXrefRecord> cursor;        // the sequential cursor of XREFFILE-FILE
     }
 
-    /** The program run as a batch step with no DD overrides and no PARM (#4342): runBatch's DD
-     *  names resolved as the program declares them; returns the step's RETURN-CODE. */
-    public int executeCbact03c() {
-        return runBatch(List.of(), null);
-    }
-
     /** AWS.M2.CARDDEMO.CARDXREF.VSAM.KSDS as BATCH SELECT XREFFILE-FILE at app/cbl/CBACT03C.cbl (SELECT XREFFILE-FILE); VSAM defines field testing: open (3 public / 0 private estates). */
     // FD-XREFFILE-REC (50 bytes) is mapped onto CARD-XREF-RECORD by CardXrefRecord.fromRecord / toRecord.
     // Sequential READ: in key order, XREF-CARD-NUM as cp037 bytes (#3945, #3822).

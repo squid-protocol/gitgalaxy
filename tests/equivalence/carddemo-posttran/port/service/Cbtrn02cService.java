@@ -90,12 +90,6 @@ public class Cbtrn02cService {
         this.files = files;
     }
 
-    /** The program run as a batch step with no DD overrides and no PARM (#4342): runBatch's DD
-     *  names resolved as the program declares them; returns the step's RETURN-CODE. */
-    public int executeCbtrn02c() {
-        return runBatch(List.of(), null);
-    }
-
     /** The program's working storage between statements (CARD-XREF-RECORD, ACCOUNT-RECORD, the counters). */
     private static final class Work {
         CardXrefRecord xref = new CardXrefRecord();   // WS, never set before the first good READ: ACCT-ID 0

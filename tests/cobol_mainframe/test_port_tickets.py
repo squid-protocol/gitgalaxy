@@ -152,10 +152,10 @@ def test_a_ticket_asks_only_for_what_the_proof_runs(generated):
     t = json.loads((java / "ai_agent_jobs/POSTIT_port_ticket.json").read_text())
     tg = t["target"]
     assert tg["methods_to_port"] == tg["proof_entry_points"] == ["public int runBatch(List<Dd> dds, String parm)"]
-    # #4342: a batch program's executeX is generated whole -- it runs runBatch -- so it is not a method to port
-    assert not any("executePostit" in s for s in tg["left_as_generated"])
-    svc = next(java.rglob("PostitService.java")).read_text()
-    assert "    public int executePostit() {\n        return runBatch(List.of(), null);\n    }" in svc
+    # #4342: a batch program's entry is its JCL step (runBatch, with the step's DDs and PARM): no executeX, which
+    # would run it with no DD statements -- not the step its COBOL runs -- and no generic controller calling one
+    assert "executePostit" not in next(java.rglob("PostitService.java")).read_text()
+    assert not list(java.rglob("PostitController.java"))
     assert "runBatch ported -- what the proof runs" in t["deliverable"]["return"]
     assert any("keep no second entry point" in r for r in t["rules"])
     md = (java / "ai_agent_jobs/POSTIT_port_ticket.md").read_text()

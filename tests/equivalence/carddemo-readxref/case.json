@@ -97,11 +97,5 @@
    ],
    "why": "30: permanent I/O error (IBM Enterprise COBOL for z/OS Language Reference, File status key values) closing XREFFILE after every record is displayed: 'ERROR CLOSING ...' from 9000-XREFFILE-CLOSE, 9910-DISPLAY-IO-STATUS, then 9999-ABEND-PROGRAM -> ABEND U0999"
   }
- ],
- "entries": [
-  {
-   "method": "executeCbact03c",
-   "why": "#4316 unproven ports: reaches executeCbact03c, the service's no-argument entry (the generated controller's), which runs the step as runBatch(List.of(), null) and returns its RETURN-CODE (#4342): CBACT03C takes no PARM and opens its files through the DD names it declares, so the step it runs is the COBOL's"
-  }
  ]
 }

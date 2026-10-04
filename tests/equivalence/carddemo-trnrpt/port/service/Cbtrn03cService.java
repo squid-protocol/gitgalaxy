@@ -60,12 +60,6 @@ public class Cbtrn03cService {
     private final CobolFiles files;
     private final DatasetResolver datasetResolver;
 
-    /** The program run as a batch step with no DD overrides and no PARM (#4342): runBatch's DD
-     *  names resolved as the program declares them; returns the step's RETURN-CODE. */
-    public int executeCbtrn03c() {
-        return runBatch(List.of(), null);
-    }
-
     /** AWS.M2.CARDDEMO.CARDXREF.VSAM.KSDS as BATCH SELECT XREF-FILE at app/cbl/CBTRN03C.cbl (SELECT XREF-FILE); VSAM defines field testing: open (3 public / 0 private estates). */
     // FD-CARDXREF-REC (key 16 + data 34) is read INTO CARD-XREF-RECORD: the entity follows CARD-XREF-RECORD.
     public Optional<CardXrefRecord> readXrefFile(String key) {

@@ -84,12 +84,6 @@ public class Cbact04cService {
         this.files = files;
     }
 
-    /** The program run as a batch step with no DD overrides and no PARM (#4342): runBatch's DD
-     *  names resolved as the program declares them; returns the step's RETURN-CODE. */
-    public int executeCbact04c() {
-        return runBatch(List.of(), null);
-    }
-
     public Optional<AccountRecord> readAccountFile(Long key) {
         return accountRecordRepository.findById(key);
     }

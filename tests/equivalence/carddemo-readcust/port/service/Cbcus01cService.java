@@ -27,12 +27,6 @@ public class Cbcus01cService {
     private final CustomerRecordRepository customerRecordRepository;
     private final CobolFiles cobolFiles;
 
-    /** The program run as a batch step with no DD overrides and no PARM (#4342): runBatch's DD
-     *  names resolved as the program declares them; returns the step's RETURN-CODE. */
-    public int executeCbcus01c() {
-        return runBatch(List.of(), null);
-    }
-
     /** AWS.M2.CARDDEMO.CUSTDATA.VSAM.KSDS as BATCH SELECT CUSTFILE-FILE at app/cbl/CBCUS01C.cbl (SELECT CUSTFILE-FILE); VSAM defines field testing: open (3 public / 0 private estates). */
     // The program's FD-CUSTFILE-REC (500 bytes) is read INTO CUSTOMER-RECORD (500 bytes): the entity codec
     // (fromRecord / toRecord) maps one onto the other; FILLER is not kept and displays as spaces.

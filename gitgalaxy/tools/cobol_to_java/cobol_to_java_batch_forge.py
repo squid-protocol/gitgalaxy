@@ -365,12 +365,6 @@ class BatchForge:
             methods += [f"     *  DD {d}." for d in dd_doc[:12]]
             methods += [f"     *  {todo}.", f"     *  JCL job flow field testing: {self.status}. */",
                         "    public int runBatch(List<Dd> dds, String parm) {", "        return 0;", "    }\n"]  # fmt: skip
-            # #4342: the generic controller's entry, comparable with the COBOL: the step with the DD names the program
-            # declares (DatasetResolver resolves each) and no PARM -- an entry run (equivalence.py) proves it
-            methods += ["    /** The program run as a batch step with no DD overrides and no PARM (#4342): runBatch's DD",
-                        "     *  names resolved as the program declares them; returns the step's RETURN-CODE. */",
-                        f"    public int execute{java_class_base(key)}() {{", "        return runBatch(List.of(), null);",
-                        "    }\n"]  # fmt: skip
             if self.trace:
                 self.trace.record(java_path(self.package, "service", f"{java_class_base(key)}Service"),
                                   f"{java_class_base(key)}Service#runBatch", "batch-entry",

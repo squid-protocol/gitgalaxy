@@ -52,6 +52,5 @@
     {"name": "close-dalyrejs", "plan": [{"dd": "DALYREJS", "op": "CLOSE", "nth": 1, "status": "30"}], "why": "30: permanent I/O error (IBM Enterprise COBOL for z/OS Language Reference, File status key values) closing DALYREJS: its 9x00 CLOSE paragraph -> ABEND U0999"},
     {"name": "close-acctfile", "plan": [{"dd": "ACCTFILE", "op": "CLOSE", "nth": 1, "status": "30"}], "why": "30: permanent I/O error (IBM Enterprise COBOL for z/OS Language Reference, File status key values) closing ACCTFILE: its 9x00 CLOSE paragraph -> ABEND U0999"},
     {"name": "close-tcatbalf", "plan": [{"dd": "TCATBALF", "op": "CLOSE", "nth": 1, "status": "30"}], "why": "30: permanent I/O error (IBM Enterprise COBOL for z/OS Language Reference, File status key values) closing TCATBALF: its 9x00 CLOSE paragraph -> ABEND U0999"}
-  ],
-  "entries": [{"method": "executeCbtrn02c", "why": "#4342: reaches executeCbtrn02c, the generated controller's no-argument entry, which runs the step as runBatch(List.of(), null) and returns its RETURN-CODE: CBTRN02C takes no PARM and opens its files through the DD names it declares, so the step it runs is the COBOL's"}]
+  ]
 }

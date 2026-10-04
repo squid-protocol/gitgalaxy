@@ -110,14 +110,14 @@
         "bms_symbolic_map": 2,
         "entry_point": 5,
         "exec_sql_include": 1,
-        "forge_flat_schema": 26,
+        "forge_first_program": 198,
+        "forge_flat_schema": 219,
         "stated_absence": 9,
         "system_copybook": 2,
-        "unexplained": 33,
-        "usage_status_not_reachability": 231
+        "unexplained": 26
       },
-      "note": "33 unexplained, all in epscsmrd.cbl, compared since #4242 (its quoted PROGRAM-IDs now record; before, the file had no program and was skipped). 7 paragraph/old (AUTHOR, DATE-WRITTEN, INSTALLATION, PROGRAM-ID, WORKING-STORAGE, LOCAL-STORAGE, LINKAGE): the forge reads the 12 sibling programs' IDENTIFICATION / DATA DIVISION headers as units of the first. 26 schema_column/db: the same 26 names as this file's forge_flat_schema record deltas -- the refractor's schema comes from the DB, the forge's flat reader drops these items. Both are the one-program reading of a multi-program source, owned by #4243 (and #4245 for the DATA DIVISIONs); re-bless when it lands.",
-      "unexplained": 33
+      "note": "26 unexplained, all in epscsmrd.cbl (13 PROGRAM-IDs), compared since #4242: 26 schema_column/db, the same 26 names as this file's forge_flat_schema record deltas in its FIRST program -- the refractor's schema comes from the DB, the forge's flat reader drops these items. #4245: the engine now reads all 13 programs' DATA DIVISIONs; the forge still renders the first program's only, so every schema delta that the engine's first-program schema does not show is forge_first_program. The 7 paragraph/old deltas (sibling programs' division headers read as units of the first) were already gone on main before #4245 (a re-run of 8be548a51 shows only the 26).",
+      "unexplained": 26
     },
     "dsf": {
       "by_cause": {

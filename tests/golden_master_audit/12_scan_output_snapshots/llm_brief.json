@@ -1310,7 +1310,7 @@
     "## 13. MAINFRAME SYSTEM FACTS (Named Relations & Record Layouts)",
     "> **AI CONTEXT:** Named mainframe relations the structural signal counts flatten -- the call graph (`CALL`/CICS `LINK`·`XCTL`/JCL `EXEC PGM=`), the dataset boundary (`SELECT…ASSIGN` + `OPEN` modes, JCL `DD`→dataset), and record layouts (COBOL DATA DIVISION items, PL/I `DECLARE`d structures). BMS screen maps (every field's position, length and attributes, `screen_field_data`) are the 3270 UI surface. These are the schema of the system: use them to trace which program runs which, which dataset a job binds, and the shape of the records that flow between them. Extracted by the engine (`core/mainframe_boundary.py`) and carried in the master DB (`call_site_data`/`dataset_data`/`record_data`); resolution to files is redone per scan.",
     "",
-    "- **Coverage:** `755` files carry mainframe facts -- `867` call sites, `711` dataset bindings, `33019` record items.",
+    "- **Coverage:** `755` files carry mainframe facts -- `867` call sites, `711` dataset bindings, `33039` record items.",
     "",
     "- **DB2 schemas:** `62` columns of `EXEC SQL DECLARE ... TABLE` (inline or DCLGEN members), full shape in `sql_table_data`.",
     "",

@@ -1,3 +1,6 @@
+---
+description: "You are operating within `angular`, a massive web framework ecosystem primarily composed of TypeScript (59.5%)."
+---
 # AGENTS.md: angular Architectural Context & Engagement Rules
 
 ## 1. System Context & Paradigm

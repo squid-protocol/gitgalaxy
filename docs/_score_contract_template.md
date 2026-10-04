@@ -1,3 +1,6 @@
+---
+description: "docs/risk_documentation_contract.md (#2908). One file per gated metric; every"
+---
 # The `risk_<metric>` score contract (#<N>)
 
 <!-- Template (#2916): the score-layer twin of a rule-contract doc, mirroring

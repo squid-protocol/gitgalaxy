@@ -1,3 +1,6 @@
+---
+description: "You are operating within `alacritty`, a high-performance, OpenGL-accelerated terminal emulator primarily composed of Rust (33.6% by file size, but..."
+---
 # AGENTS.md: alacritty Architectural Context & Engagement Rules
 
 ## 1. System Context & Paradigm

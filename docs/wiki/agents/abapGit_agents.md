@@ -1,3 +1,6 @@
+---
+description: "You are operating within `abapGit`, an ecosystem primarily composed of ABAP logic (52.5%) and XML structural definitions (45.9%)."
+---
 # AGENTS.md
 
 ## 1. System Context & Paradigm

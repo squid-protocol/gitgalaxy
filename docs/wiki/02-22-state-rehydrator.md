@@ -1,3 +1,6 @@
+---
+description: "> **File Reference:** [`gitgalaxy/core/state_rehydrator.py`](https://github.com/squid-protocol/gitgalaxy/blob/main/gitgalaxy/core/state_rehydrator.py)"
+---
 # State Rehydrator
 
 > **File Reference:** [`gitgalaxy/core/state_rehydrator.py`](https://github.com/squid-protocol/gitgalaxy/blob/main/gitgalaxy/core/state_rehydrator.py)

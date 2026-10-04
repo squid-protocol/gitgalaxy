@@ -1,3 +1,6 @@
+---
+description: "The `cpm65` repository implements an operating system designed for the 6502 microprocessor architecture, heavily inspired by CP/M. The codebase is..."
+---
 # Architectural Brief: cpm65
 
 ## 1. Information Flow & Purpose (The Executive Summary)

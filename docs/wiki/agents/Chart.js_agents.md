@@ -1,3 +1,6 @@
+---
+description: "You are operating within `Chart.js`, a highly popular HTML5 Canvas-based charting library. The repository is predominantly JavaScript (52.0%) and..."
+---
 # AGENTS.md: Chart.js Architectural Context & Engagement Rules
 
 ## 1. System Context & Paradigm

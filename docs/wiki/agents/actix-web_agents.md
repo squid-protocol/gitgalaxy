@@ -1,3 +1,6 @@
+---
+description: "You are operating within `actix-web`, a high-performance web framework ecosystem overwhelmingly composed of Rust (84.4%)."
+---
 # AGENTS.md
 
 ## 1. System Context & Paradigm

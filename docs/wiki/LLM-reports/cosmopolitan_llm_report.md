@@ -1,3 +1,6 @@
+---
+description: "The `cosmopolitan` repository is a build-once-run-anywhere C library (libc) implementation. Dominated by C (52.2%) and Assembly (38.8%), the system's..."
+---
 # Architectural Brief: cosmopolitan
 
 ## 1. Information Flow & Purpose (The Executive Summary)

@@ -1,3 +1,6 @@
+---
+description: "does this file's syntax physically resemble?' This page describes a second, complementary lens:"
+---
 # Claim 5b — Composition Archetypes (the function → file → repo tower)
 
 [Claim 5](03-05-claim-5-file-archetypes.md) clusters a file by its raw **structural DNA** — "what

@@ -1,3 +1,6 @@
+---
+description: "You are operating within the `sqlite` repository, the definitive, self-contained, high-reliability SQL database engine. The codebase is heavily..."
+---
 # AGENTS.md: sqlite Architectural Context & Engagement Rules
 
 ## 1. System Context & Paradigm

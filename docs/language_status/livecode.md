@@ -1,3 +1,6 @@
+---
+description: "| Metric | Value |"
+---
 # LiveCode (LiveCode Script + LiveCode Builder)
 
 ## 1. At a glance

@@ -1,3 +1,6 @@
+---
+description: "The `biopython` repository provides a comprehensive suite of computational biology tools, primarily written in Python (60.6%) with performance-critical..."
+---
 # Architectural Brief: biopython
 
 ## 1. Information Flow & Purpose (The Executive Summary)

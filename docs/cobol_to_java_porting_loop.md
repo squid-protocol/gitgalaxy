@@ -1,3 +1,6 @@
+---
+description: "GitGalaxy's COBOL-to-Java conversion generates the structure of the Java system: entities with"
+---
 # COBOL to Java: the porting loop
 
 GitGalaxy's COBOL-to-Java conversion generates the structure of the Java system: entities with

@@ -1,3 +1,6 @@
+---
+description: "The `cesium` repository is a high-performance 3D geospatial visualization engine for the web. The codebase is heavily dominated by JavaScript (44.5%),..."
+---
 # Architectural Brief: Cesium
 
 ## 1. Information Flow & Purpose (The Executive Summary)

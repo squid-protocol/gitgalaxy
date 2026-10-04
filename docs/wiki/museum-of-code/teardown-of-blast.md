@@ -1,3 +1,6 @@
+---
+description: "**Executive Summary:** We performed a deep **static code analysis** on the NCBI BLAST (Basic Local Alignment Search Tool) repository. By mapping its..."
+---
 # The Architecture of BLAST: A Structural Physics Teardown of Bioinformatics' Core Engine
 
 **Executive Summary:** We performed a deep **static code analysis** on the NCBI BLAST (Basic Local Alignment Search Tool) repository. By mapping its structural physics, we uncover the **technical debt**, highly modular **software architecture**, and centralized "God Nodes" that power the backbone of modern genomics. This teardown exposes the physical realities, memory-level coupling, and security perimeter of a legacy C/C++ monolith that decodes the building blocks of life.

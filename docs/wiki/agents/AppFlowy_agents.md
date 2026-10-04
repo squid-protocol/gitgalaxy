@@ -1,3 +1,6 @@
+---
+description: "You are operating within `AppFlowy`, a hybrid local-first workspace application. The architecture is distinctly bifurcated: a high-performance Rust..."
+---
 # AGENTS.md: AppFlowy Architectural Context & Engagement Rules
 
 ## 1. System Context & Paradigm

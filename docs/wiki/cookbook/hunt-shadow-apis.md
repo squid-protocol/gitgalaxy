@@ -1,3 +1,6 @@
+---
+description: "In modern microservice architectures, documentation drift is inevitable. Developers rapidly add endpoints to Express, FastAPI, or Spring Boot..."
+---
 # How to Hunt Shadow APIs and Undocumented Endpoints
 
 In modern microservice architectures, documentation drift is inevitable. Developers rapidly add endpoints to Express, FastAPI, or Spring Boot controllers, but forget to update the official OpenAPI/Swagger specifications. 

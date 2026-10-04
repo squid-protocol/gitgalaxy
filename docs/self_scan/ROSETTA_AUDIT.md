@@ -1,3 +1,6 @@
+---
+description: "`rosetta-audit` (`.github/workflows/rosetta-audit.yml`, #2557, redesigned in #2682) runs the"
+---
 # The rosetta-audit check (keyword-rosetta, no pins)
 
 `rosetta-audit` (`.github/workflows/rosetta-audit.yml`, #2557, redesigned in #2682) runs the

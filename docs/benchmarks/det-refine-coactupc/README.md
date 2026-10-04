@@ -1,3 +1,6 @@
+---
+description: "COACTUPC is CardDemo's account update. It is the largest CICS program in CardDemo: 66 GO TOs, a PERFORM … THRU dispatcher, and 4,200 lines of COBOL...."
+---
 # Benchmark: COACTUPC, the deterministic port refined by a model under proof (B2)
 
 COACTUPC is CardDemo's account update. It is the largest CICS program in CardDemo: 66 GO TOs, a PERFORM … THRU dispatcher, and 4,200 lines of COBOL. `det_port.py` translated it with no model and the translation proved. Then `det_refine.py` gave each of its 109 paragraph methods to a model (claude-sonnet-5-5, through the command backend) to rewrite for a reader. Every rewrite was proven against GnuCOBOL before it was kept.

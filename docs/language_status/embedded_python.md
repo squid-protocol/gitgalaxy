@@ -1,3 +1,6 @@
+---
+description: "| Metric | Value |"
+---
 # Embedded Python (MicroPython / CircuitPython / Bare-Metal)
 
 ## 1. At a glance

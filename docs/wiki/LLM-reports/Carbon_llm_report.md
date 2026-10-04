@@ -1,3 +1,6 @@
+---
+description: "The `Carbon` repository is a specialized PHP extension (99.1% of the codebase) for the native `DateTime` object. The information flow is highly..."
+---
 # Architectural Brief: Carbon
 
 ## 1. Information Flow & Purpose (The Executive Summary)

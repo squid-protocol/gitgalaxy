@@ -1,3 +1,6 @@
+---
+description: "Snapshot written 2026-09-16 with the language's addition (#2503, under the legacy-mainframe"
+---
 # HLASM / IBM Z Assembly — Structural Signature Coverage
 
 Snapshot written 2026-09-16 with the language's addition (#2503, under the legacy-mainframe

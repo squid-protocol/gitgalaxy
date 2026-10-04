@@ -1,3 +1,6 @@
+---
+description: "When an application accidentally logs Personally Identifiable Information (PII) like Credit Cards, SSNs, or AWS API Keys, the Incident Response team..."
+---
 # How to Hunt PII Leaks in Terabyte Log Dumps
 
 When an application accidentally logs Personally Identifiable Information (PII) like Credit Cards, SSNs, or AWS API Keys, the Incident Response team faces a massive logistical problem. 

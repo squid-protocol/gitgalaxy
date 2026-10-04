@@ -1,3 +1,6 @@
+---
+description: "> **One hit is a site that engages a testing framework — a test-case or"
+---
 # The `test` rule contract (#2852)
 
 > **One hit is a site that engages a testing framework — a test-case or

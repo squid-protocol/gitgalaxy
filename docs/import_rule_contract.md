@@ -1,3 +1,6 @@
+---
+description: "> **One hit is a statement or directive that binds an external unit — a"
+---
 # The `import` rule contract (#2875)
 
 > **One hit is a statement or directive that binds an external unit — a

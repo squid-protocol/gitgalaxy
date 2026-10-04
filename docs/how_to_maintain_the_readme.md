@@ -1,3 +1,6 @@
+---
+description: "The README has two sections that already do this right: **'Risk exposure: what GitGalaxy"
+---
 # How to Maintain the GitGalaxy README
 
 The README has two sections that already do this right: **"Risk exposure: what GitGalaxy

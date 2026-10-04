@@ -1,3 +1,6 @@
+---
+description: "> **One entry is one distinct callable unit, by name, that the function's own body invokes -- a"
+---
 # The `calls_out` rule contract (#3327)
 
 > **One entry is one distinct callable unit, by name, that the function's own body invokes -- a

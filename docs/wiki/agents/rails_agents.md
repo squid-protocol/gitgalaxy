@@ -1,3 +1,6 @@
+---
+description: "You are operating within the `rails` repository, the core codebase for the Ruby on Rails web-application framework. The architecture is primarily..."
+---
 # AGENTS.md: rails Architectural Context & Engagement Rules
 
 ## 1. Information Flow & Purpose (The Executive Summary)

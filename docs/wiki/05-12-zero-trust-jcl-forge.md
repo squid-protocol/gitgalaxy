@@ -1,3 +1,6 @@
+---
+description: "> **File Reference:** [gitgalaxy/tools/cobol_to_cobol/cobol_jcl_forge.py](https://github.com/squid-protocol/gitgalaxy/blob/main/gitgalaxy/tools/cobol_to..."
+---
 # Job Control Language (JCL) Generator
 
 > **File Reference:** [gitgalaxy/tools/cobol_to_cobol/cobol_jcl_forge.py](https://github.com/squid-protocol/gitgalaxy/blob/main/gitgalaxy/tools/cobol_to_cobol/cobol_jcl_forge.py)

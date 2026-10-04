@@ -1,3 +1,6 @@
+---
+description: "The `fp-ts` repository provides a comprehensive functional programming library for TypeScript. Composed almost entirely of TypeScript (95.0%), the..."
+---
 # Architectural Brief: fp-ts
 
 ## 1. Information Flow & Purpose (The Executive Summary)

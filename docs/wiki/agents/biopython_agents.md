@@ -1,3 +1,6 @@
+---
+description: "You are operating within `biopython`, a massive computational biology and bioinformatics framework composed primarily of Python (60.6%) backed by..."
+---
 # AGENTS.md: biopython Architectural Context & Engagement Rules
 
 ## 1. System Context & Paradigm

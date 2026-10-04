@@ -1,3 +1,6 @@
+---
+description: "The primary goal of enterprise legacy modernization is rarely a direct 1-to-1 lift-and-shift; it is the decomposition of monolithic COBOL applications..."
+---
 # Cookbook: Microservice Slicing via Deterministic RAG Pipelines
 
 ## 1. The Microservice Extraction Challenge

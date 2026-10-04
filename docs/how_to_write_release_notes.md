@@ -1,3 +1,6 @@
+---
+description: "Every GitHub release under squid-protocol/gitgalaxy gets read by two very different"
+---
 # How to Write a GitGalaxy Release Note
 
 Every GitHub release under squid-protocol/gitgalaxy gets read by two very different

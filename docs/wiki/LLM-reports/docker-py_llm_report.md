@@ -1,3 +1,6 @@
+---
+description: "The `docker-py` repository serves as the official Python library for the Docker Engine API. Written predominantly in Python (81.1%), the system's..."
+---
 # Architectural Brief: docker-py
 
 ## 1. Information Flow & Purpose (The Executive Summary)

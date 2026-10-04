@@ -1,3 +1,6 @@
+---
+description: "You are operating within `django`, a massive, high-level Python web framework. The repository is heavily dominated by Python (82.9%), supported by HTML..."
+---
 # AGENTS.md: django Architectural Context & Engagement Rules
 
 ## 1. System Context & Paradigm

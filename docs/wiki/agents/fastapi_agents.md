@@ -1,3 +1,6 @@
+---
+description: "You are operating within `fastapi`, a modern, high-performance web framework for building APIs with Python (96.4%). It is heavily reliant on Python..."
+---
 # AGENTS.md: fastapi Architectural Context & Engagement Rules
 
 ## 1. System Context & Paradigm

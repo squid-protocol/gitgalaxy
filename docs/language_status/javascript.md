@@ -1,3 +1,6 @@
+---
+description: "Snapshot generated 2026-08-10 against `main`. Source: `LANGUAGE_DEFINITIONS['javascript']` in"
+---
 # JavaScript — Structural Signature Coverage
 
 Snapshot generated 2026-08-10 against `main`. Source: `LANGUAGE_DEFINITIONS["javascript"]` in

@@ -1,3 +1,6 @@
+---
+description: "**Status: current.** [gitgalaxy#2991](https://github.com/squid-protocol/gitgalaxy/issues/2991)"
+---
 # The 13 per-file vectors: names, meaning, and the validation record
 
 **Status: current.** [gitgalaxy#2991](https://github.com/squid-protocol/gitgalaxy/issues/2991)

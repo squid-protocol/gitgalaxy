@@ -1,3 +1,6 @@
+---
+description: "> **File Reference:** [`gitgalaxy/tools/cobol_to_cobol/cobol_etl_unpacker.py`](https://github.com/squid-protocol/gitgalaxy/blob/main/gitgalaxy/tools/cob..."
+---
 # ETL Unpacker (EBCDIC to CSV)
 
 > **File Reference:** [`gitgalaxy/tools/cobol_to_cobol/cobol_etl_unpacker.py`](https://github.com/squid-protocol/gitgalaxy/blob/main/gitgalaxy/tools/cobol_to_cobol/cobol_etl_unpacker.py)

@@ -1,3 +1,6 @@
+---
+description: "**Executive Summary:** Platform_dalvik represents the legacy engine that powered the early Android ecosystem. Our static code analysis reveals a dense,..."
+---
 # X-Raying Android's Dalvik: A Structural Physics Teardown of the Legacy Dexer
 
 **Executive Summary:** Platform_dalvik represents the legacy engine that powered the early Android ecosystem. Our static code analysis reveals a dense, monolithic software architecture (Modularity: 0.0) built heavily in Java. While completely free of malware and secure against modern supply chain threats, the GitGalaxy engine identified severe technical debt hotspots, massive "God Nodes," and extreme cognitive load within its bytecode translation pipeline. 

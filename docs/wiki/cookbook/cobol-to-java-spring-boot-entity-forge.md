@@ -1,3 +1,6 @@
+---
+description: "Migrating the business logic of a legacy COBOL application is secondary to the challenge of migrating its memory model. COBOL utilizes a contiguous,..."
+---
 # Cookbook: Spring Boot Entity Forge via Deterministic RAG Pipelines
 
 ## 1. The Memory Paradigm Crisis in Legacy Modernization

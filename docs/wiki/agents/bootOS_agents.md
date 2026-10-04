@@ -1,3 +1,6 @@
+---
+description: "You are operating within `bootOS`, a monolithic 512-byte operating system written entirely in x86 Assembly language (62.5% of scanned matter)."
+---
 # AGENTS.md: bootOS Architectural Context & Engagement Rules
 
 ## 1. System Context & Paradigm

@@ -1,3 +1,6 @@
+---
+description: "**Executive Summary:** WordPress powers over 40% of the web. Our **Static Code Analysis** reveals a highly modular PHP backend wrapped in a dense..."
+---
 # The Architecture of WordPress: A Structural Physics Teardown
 
 **Executive Summary:** WordPress powers over 40% of the web. Our **Static Code Analysis** reveals a highly modular PHP backend wrapped in a dense JavaScript frontend, alongside a surprising structural pivot toward AI-agentic frameworks. While the repository is secure from malware, the GitGalaxy engine identified intense **Technical Debt** in legacy JavaScript libraries, extreme "Bus Factor" silos, and several massive "God Nodes" acting as blind architectural bottlenecks.

@@ -1,3 +1,6 @@
+---
+description: "You are operating within `cpm65`, an operating system implementation of CP/M designed specifically for 6502 microprocessors. The codebase is heavily..."
+---
 # AGENTS.md: cpm65 Architectural Context & Engagement Rules
 
 ## 1. System Context & Paradigm

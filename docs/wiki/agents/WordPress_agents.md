@@ -1,3 +1,6 @@
+---
+description: "You are operating within `WordPress`, the highly mature, massive (960k+ LOC) PHP-based content management system. The codebase is heavily dominated by..."
+---
 # AGENTS.md: WordPress Architectural Context & Engagement Rules
 
 ## 1. System Context & Paradigm

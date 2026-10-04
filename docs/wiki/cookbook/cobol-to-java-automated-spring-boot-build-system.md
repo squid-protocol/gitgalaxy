@@ -1,3 +1,6 @@
+---
+description: "Translating legacy COBOL logic into modern Java syntax solves only a fraction of the mainframe modernization challenge. An isolated `.java` file..."
+---
 # Cookbook: Spring Boot Build System Forge via Deterministic RAG Pipelines
 
 ## 1. The Compilation Crisis in Legacy Modernization

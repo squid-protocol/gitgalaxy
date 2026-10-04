@@ -1,3 +1,6 @@
+---
+description: "> **File Reference:** [gitgalaxy/tools/network_auditing/full_api_network_map.py](https://github.com/squid-protocol/gitgalaxy/blob/main/gitgalaxy/tools/n..."
+---
 # Full API Network Map (Shadow & Ghost API Audit)
 
 > **File Reference:** [gitgalaxy/tools/network_auditing/full_api_network_map.py](https://github.com/squid-protocol/gitgalaxy/blob/main/gitgalaxy/tools/network_auditing/full_api_network_map.py)

@@ -1,3 +1,6 @@
+---
+description: "You are operating within `cobrix`, a specialized data source and parser that allows Apache Spark to read mainframe COBOL data files (EBCDIC/ASCII). The..."
+---
 # AGENTS.md: cobrix Architectural Context & Engagement Rules
 
 ## 1. System Context & Paradigm

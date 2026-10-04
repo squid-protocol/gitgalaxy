@@ -1,3 +1,6 @@
+---
+description: "The analyzed subset of the `ansible` repository reveals an automation and configuration management system heavily dependent on YAML definitions (41.5%)..."
+---
 # Architectural Brief: ansible
 
 ## 1. Information Flow & Purpose (The Executive Summary)

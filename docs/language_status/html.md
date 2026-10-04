@@ -1,3 +1,6 @@
+---
+description: "Snapshot generated 2026-08-30 against `main` (branch `fix/html-audit-nonexec-script-type`)."
+---
 # HTML — Structural Signature Coverage
 
 Snapshot generated 2026-08-30 against `main` (branch `fix/html-audit-nonexec-script-type`).

@@ -1,3 +1,6 @@
+---
+description: "397/934 cells pass. A cell is one (language, script, encoding) variant of a trusted seed; it passes when its scanned facts equal the seed's with the..."
+---
 # Unicode Gauntlet
 
 397/934 cells pass. A cell is one (language, script, encoding) variant of a trusted seed; it passes when its scanned facts equal the seed's with the same renaming applied.

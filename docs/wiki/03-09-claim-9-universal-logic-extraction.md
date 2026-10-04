@@ -1,3 +1,6 @@
+---
+description: "In software engineering, the concept of a 'function' or 'executable logic block' is universal. It is the fundamental atom of computation. However, the..."
+---
 # Claim 9: Universal Logic Extraction Across Any Language
 
 In software engineering, the concept of a "function" or "executable logic block" is universal. It is the fundamental atom of computation. However, the physical representation of that atom is fractured across decades of evolving language design, shifting paradigms, and historical formatting constraints.

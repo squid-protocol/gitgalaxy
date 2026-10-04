@@ -1,3 +1,6 @@
+---
+description: "Enterprise adoption of autonomous coding agents (like Cursor, Devin, or SWE-agent) is accelerating, but these agents introduce massive architectural risk."
+---
 # How to Sandbox Autonomous Coding Agents (Dev Agent Firewall)
 
 Enterprise adoption of autonomous coding agents (like Cursor, Devin, or SWE-agent) is accelerating, but these agents introduce massive architectural risk. 

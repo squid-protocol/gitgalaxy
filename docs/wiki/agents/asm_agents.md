@@ -1,3 +1,6 @@
+---
+description: "You are operating within `asm`, a highly concentrated repository consisting of x86 Assembly language routines (19.4%), C wrappers (5.6%), and Makefiles..."
+---
 # AGENTS.md: asm Architectural Context & Engagement Rules
 
 ## 1. System Context & Paradigm

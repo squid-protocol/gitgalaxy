@@ -1,3 +1,6 @@
+---
+description: "The `discourse` repository is a robust, open-source discussion platform functioning as both a mailing list and a modern forum. The codebase is a..."
+---
 # Architectural Brief: Discourse
 
 ## 1. Information Flow & Purpose (The Executive Summary)

@@ -1,3 +1,6 @@
+---
+description: "You are operating within `discourse`, a massive, widely-adopted community discussion platform. The repository is a heavily intertwined monolith..."
+---
 # AGENTS.md: discourse Architectural Context & Engagement Rules
 
 ## 1. System Context & Paradigm

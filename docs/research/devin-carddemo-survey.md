@@ -1,3 +1,6 @@
+---
+description: "*Phase 1 of a benchmark. We read, built and scanned these ports; none has been run through our equivalence harness yet. Surveyed 2026-10-02.*"
+---
 # Devin's CardDemo ports: a survey before benchmarking
 
 *Phase 1 of a benchmark. We read, built and scanned these ports; none has been run through our equivalence harness yet. Surveyed 2026-10-02.*

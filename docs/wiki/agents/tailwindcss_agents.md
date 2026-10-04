@@ -1,3 +1,6 @@
+---
+description: "You are operating within `tailwindcss`, a highly adopted, utility-first CSS framework. The codebase is heavily dominated by TypeScript (78.8%) and CSS..."
+---
 # AGENTS.md: tailwindcss Architectural Context & Engagement Rules
 
 ## 1. System Context & Paradigm

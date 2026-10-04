@@ -1,3 +1,6 @@
+---
+description: "You are operating within the `trpc` repository, an end-to-end typesafe API framework. The codebase is heavily dominated by TypeScript (70.1%),..."
+---
 # AGENTS.md: trpc Architectural Context & Engagement Rules
 
 ## 1. System Context & Paradigm

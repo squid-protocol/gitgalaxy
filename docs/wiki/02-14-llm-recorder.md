@@ -1,3 +1,6 @@
+---
+description: "> **File Reference:** [`gitgalaxy/recorders/llm_recorder.py`](https://github.com/squid-protocol/gitgalaxy/blob/main/gitgalaxy/recorders/llm_recorder.py)"
+---
 # LLM Recorder
 
 > **File Reference:** [`gitgalaxy/recorders/llm_recorder.py`](https://github.com/squid-protocol/gitgalaxy/blob/main/gitgalaxy/recorders/llm_recorder.py)

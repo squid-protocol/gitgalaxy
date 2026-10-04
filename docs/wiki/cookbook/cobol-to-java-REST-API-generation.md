@@ -1,3 +1,6 @@
+---
+description: "When translating legacy COBOL monoliths into modern Java microservices, the most significant architectural friction occurs at the system boundary...."
+---
 # Cookbook: Spring Boot API Contract Forge via Deterministic RAG Pipelines
 
 ## 1. The API Boundary Crisis in Legacy Modernization

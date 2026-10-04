@@ -1,3 +1,6 @@
+---
+description: "> **File Reference:** [`gitgalaxy/core/spatial_mapper.py`](https://github.com/squid-protocol/gitgalaxy/blob/main/gitgalaxy/core/spatial_mapper.py)"
+---
 # Angular Positioning of Child Nodes
 
 > **File Reference:** [`gitgalaxy/core/spatial_mapper.py`](https://github.com/squid-protocol/gitgalaxy/blob/main/gitgalaxy/core/spatial_mapper.py)

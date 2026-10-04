@@ -1,3 +1,6 @@
+---
+description: "You are operating within `awesome-cobol`, a static curation repository consisting entirely of Markdown documentation (100% composition)."
+---
 # AGENTS.md: awesome-cobol Architectural Context & Engagement Rules
 
 ## 1. System Context & Paradigm

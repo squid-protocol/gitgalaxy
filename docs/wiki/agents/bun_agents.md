@@ -1,3 +1,6 @@
+---
+description: "You are operating within `bun`, an ultra-fast JavaScript runtime, bundler, transpiler, and package manager. The repository is a massive hybrid of Zig..."
+---
 # AGENTS.md: bun Architectural Context & Engagement Rules
 
 ## 1. System Context & Paradigm

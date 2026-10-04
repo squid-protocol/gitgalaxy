@@ -1,3 +1,6 @@
+---
+description: "You are operating within the `nvda` repository, the core codebase for the NonVisual Desktop Access screen reader for Windows. The repository operates..."
+---
 # AGENTS.md: nvda Architectural Context & Engagement Rules
 
 ## 1. Information Flow & Purpose (The Executive Summary)

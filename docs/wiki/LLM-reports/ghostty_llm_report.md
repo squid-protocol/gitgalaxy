@@ -1,3 +1,6 @@
+---
+description: "The `ghostty` repository is a high-performance terminal emulator written predominantly in Zig (86.4%). The system's information flow originates at..."
+---
 # Architectural Brief: Ghostty
 
 ## 1. Information Flow & Purpose (The Executive Summary)

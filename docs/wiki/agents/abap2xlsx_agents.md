@@ -1,3 +1,6 @@
+---
+description: "You are operating within `abap2xlsx`, a heavily coupled ecosystem designed for Excel document generation and parsing."
+---
 # AGENTS.md
 
 ## 1. System Context & Paradigm

@@ -1,3 +1,6 @@
+---
+description: "The scanned perimeter of the `BareMetal-OS` repository indicates a minimalist, highly specialized operating system environment. The visible operational..."
+---
 # Architectural Brief: BareMetal-OS
 
 ## 1. Information Flow & Purpose (The Executive Summary)

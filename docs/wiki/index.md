@@ -1,3 +1,6 @@
+---
+description: "**Code is art. Logic is art. Systems engineering is art.**"
+---
 # 🌌 GitGalaxy Documentation
 
 **Code is art. Logic is art. Systems engineering is art.**

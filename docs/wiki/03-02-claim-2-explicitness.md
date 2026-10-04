@@ -1,3 +1,6 @@
+---
+description: "Claim 2 -- Coding Languages Evolve Towards Explicitness"
+---
 Claim 2 -- Coding Languages Evolve Towards Explicitness
 
 After subjecting 40+ distinct programming languages to the blAST engine, the evidence suggests an inarguable pattern: the history of software language development is a trend towards explicitness. This correlation directly scales the ability for heuristic regex to scan for "Intent" rather than mere "Syntax."

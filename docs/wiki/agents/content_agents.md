@@ -1,3 +1,6 @@
+---
+description: "You are operating within the `content` repository (MDN Web Docs), which is fundamentally a massive static content hub. The repository is overwhelmingly..."
+---
 # AGENTS.md: content Architectural Context & Engagement Rules
 
 ## 1. System Context & Paradigm

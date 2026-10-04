@@ -1,3 +1,6 @@
+---
+description: "> ### === EXHIBIT: APOLLO ==="
+---
 # THE ARCHITECTURE OF APOLLO: A STATIC ANALYSIS RETROSPECTIVE
 
 > ### === EXHIBIT: APOLLO ===

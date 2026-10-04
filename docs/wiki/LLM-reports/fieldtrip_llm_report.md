@@ -1,3 +1,6 @@
+---
+description: "The `fieldtrip` repository contains a comprehensive, open-source MATLAB toolbox for advanced analysis of MEG, EEG, iEEG, and NIRS data. The language..."
+---
 # Architectural Brief: FieldTrip
 
 ## 1. Information Flow & Purpose (The Executive Summary)

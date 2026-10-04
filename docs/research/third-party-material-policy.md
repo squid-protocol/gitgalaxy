@@ -1,3 +1,6 @@
+---
+description: "GitGalaxy's research compares COBOL→Java translations made by others: IBM WCA4Z, Devin (Cognition) workshops, SENTINEL IDE (NOAH Labs), Lightyear,..."
+---
 # Third-party material policy
 
 GitGalaxy's research compares COBOL→Java translations made by others: IBM WCA4Z, Devin (Cognition) workshops, SENTINEL IDE (NOAH Labs), Lightyear, lasserre-consulting, and more. This policy keeps that work conservative and clearly lawful. It applies to people and agents alike. It is a working practice, not legal advice. Anything commercial, or any doubt, goes to a lawyer.

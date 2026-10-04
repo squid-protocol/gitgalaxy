@@ -1,3 +1,6 @@
+---
+description: "GitGalaxy is, fundamentally, a high-velocity, **deterministic function-level knowledge graph engine** designed for planetary-scale codebases."
+---
 ## 1. Foundation & Architecture
 
 ### 1.1 Project Overview: The Deterministic Knowledge Graph

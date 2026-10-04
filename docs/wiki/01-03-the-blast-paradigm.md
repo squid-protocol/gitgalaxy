@@ -1,3 +1,6 @@
+---
+description: "When tasked with mapping the architecture, dependencies, and risk of a massive software repository, the industry traditionally relies on two..."
+---
 # The blAST Paradigm: Heuristics vs. ASTs vs. LLMs
 
 When tasked with mapping the architecture, dependencies, and risk of a massive software repository, the industry traditionally relies on two approaches: **Abstract Syntax Trees (ASTs)** or **Large Language Models (LLMs)**. 

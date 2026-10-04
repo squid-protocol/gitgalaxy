@@ -1,3 +1,6 @@
+---
+description: "You are operating within the `linux` repository, the core source tree of the Linux operating system kernel. The codebase is staggering in scale (24.2M+..."
+---
 # AGENTS.md: linux Architectural Context & Engagement Rules
 
 ## 1. Information Flow & Purpose (The Executive Summary)

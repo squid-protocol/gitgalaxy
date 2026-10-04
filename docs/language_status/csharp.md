@@ -1,3 +1,6 @@
+---
+description: "Snapshot generated 2026-08-21 against `main`. Source: `LANGUAGE_DEFINITIONS['csharp']` in"
+---
 # C# — Structural Signature Coverage
 
 Snapshot generated 2026-08-21 against `main`. Source: `LANGUAGE_DEFINITIONS["csharp"]` in

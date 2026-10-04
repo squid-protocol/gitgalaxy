@@ -1,3 +1,6 @@
+---
+description: "When translating legacy COBOL monoliths into modern Java microservices, translating the procedural business logic is only half of the architectural..."
+---
 # Cookbook: Mainframe Data Serialization Forge via Deterministic RAG Pipelines
 
 ## 1. The Mainframe Serialization Crisis in Legacy Modernization

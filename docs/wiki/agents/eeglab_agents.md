@@ -1,3 +1,6 @@
+---
+description: "You are operating within `eeglab`, a widely used open-source environment for electrophysiological signal processing. The repository is overwhelmingly..."
+---
 # AGENTS.md: eeglab Architectural Context & Engagement Rules
 
 ## 1. System Context & Paradigm

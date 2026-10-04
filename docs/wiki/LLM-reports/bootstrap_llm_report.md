@@ -1,3 +1,6 @@
+---
+description: "The `bootstrap` repository houses the core styling and interaction logic for the widely used Bootstrap frontend framework. The codebase is heavily..."
+---
 # Architectural Brief: Bootstrap
 
 ## 1. Information Flow & Purpose (The Executive Summary)

@@ -1,3 +1,6 @@
+---
+description: "You are operating within `cython`, a highly complex compiler that translates Python-like code into highly optimized C/C++ extensions. The repository is..."
+---
 # AGENTS.md: cython Architectural Context & Engagement Rules
 
 ## 1. System Context & Paradigm

@@ -1,3 +1,6 @@
+---
+description: "> **Two complementary lenses.** This page describes the **structural DNA** lens: files clustered by"
+---
 # Claim 5 (K-means clusters on structural DNA per file)
 
 > **Two complementary lenses.** This page describes the **structural DNA** lens: files clustered by

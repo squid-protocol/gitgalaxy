@@ -1,3 +1,6 @@
+---
+description: "**Executive Summary:** We performed a deep **static code analysis** on the original source code of Bitcoin v0.1.0. By mapping its structural physics,..."
+---
 # X-Raying Bitcoin 0.1.0: Technical Debt, God Nodes, and the Architecture of the Genesis Block
 
 **Executive Summary:** We performed a deep **static code analysis** on the original source code of Bitcoin v0.1.0. By mapping its structural physics, we uncover the extreme **technical debt**, tightly coupled **software architecture**, and monolithic "God Nodes" that launched a multi-trillion dollar financial ecosystem. This teardown exposes the raw **code smells** and structural realities of Satoshi Nakamoto's original prototype.

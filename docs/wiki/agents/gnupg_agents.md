@@ -1,3 +1,6 @@
+---
+description: "You are operating within `gnupg`, the GNU Privacy Guard, a complete and free implementation of the OpenPGP standard. The execution logic is heavily..."
+---
 # AGENTS.md: gnupg Architectural Context & Engagement Rules
 
 ## 1. System Context & Paradigm

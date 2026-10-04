@@ -1,3 +1,6 @@
+---
+description: "You are operating within `flask`, a lightweight but deeply established WSGI web application framework. The repository is heavily dominated by Python..."
+---
 # AGENTS.md: flask Architectural Context & Engagement Rules
 
 ## 1. System Context & Paradigm

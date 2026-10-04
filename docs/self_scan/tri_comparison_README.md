@@ -1,3 +1,6 @@
+---
+description: "This is the system `docs/self_scan/README.md` promised and never delivered — that file's"
+---
 # Tri-comparison: GitGalaxy vs. tree-sitter vs. ctags
 
 This is the system `docs/self_scan/README.md` promised and never delivered — that file's

@@ -1,3 +1,6 @@
+---
+description: "The `angr` repository is a massive, multi-architecture binary analysis platform suite, predominantly written in Python (78.7% / ~187k LOC). The..."
+---
 # Architectural Brief: angr
 
 ## 1. Information Flow & Purpose (The Executive Summary)

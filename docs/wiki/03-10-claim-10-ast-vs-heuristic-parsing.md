@@ -1,3 +1,6 @@
+---
+description: "In the domain of static code analysis, the Abstract Syntax Tree (AST) has long been the gold standard. Compilers use ASTs to guarantee absolute..."
+---
 # Claim 10: The Heuristic vs. AST Paradigm (An Objective Comparison)
 
 In the domain of static code analysis, the Abstract Syntax Tree (AST) has long been the gold standard. Compilers use ASTs to guarantee absolute semantic correctness before execution. 

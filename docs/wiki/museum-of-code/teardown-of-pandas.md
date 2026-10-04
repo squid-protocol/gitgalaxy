@@ -1,3 +1,6 @@
+---
+description: "**Executive Summary:** We performed a deep **static code analysis** on the Pandas repository. By mapping its structural physics, we uncover the hidden..."
+---
 # X-Raying Pandas: Technical Debt and God Nodes in the Data Science Monolith
 
 **Executive Summary:** We performed a deep **static code analysis** on the Pandas repository. By mapping its structural physics, we uncover the hidden **technical debt**, tightly coupled **software architecture**, and centralized "God Nodes" that power the Python data science ecosystem. This teardown exposes the raw **code smells**, domain coupling, and zero-trust security perimeter of a half-million-line data manipulation powerhouse.

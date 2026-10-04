@@ -1,3 +1,6 @@
+---
+description: "> **File Reference:** [gitgalaxy/tools/cobol_to_cobol/cobol_microservice_slicer.py](https://github.com/squid-protocol/gitgalaxy/blob/main/gitgalaxy/tool..."
+---
 # Microservice Business Logic Extractor
 
 > **File Reference:** [gitgalaxy/tools/cobol_to_cobol/cobol_microservice_slicer.py](https://github.com/squid-protocol/gitgalaxy/blob/main/gitgalaxy/tools/cobol_to_cobol/cobol_microservice_slicer.py)

@@ -1,3 +1,6 @@
+---
+description: "You are operating within the `deno` repository, a secure, high-performance JavaScript and TypeScript runtime built on V8. The codebase is a..."
+---
 # AGENTS.md: deno Architectural Context & Engagement Rules
 
 ## 1. System Context & Paradigm

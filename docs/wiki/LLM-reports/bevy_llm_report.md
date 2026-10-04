@@ -1,3 +1,6 @@
+---
+description: "The `bevy` repository is a data-driven game engine written predominantly in Rust (84.5% of the codebase). The system relies heavily on an Entity..."
+---
 # Architectural Brief: bevy
 
 ## 1. Information Flow & Purpose (The Executive Summary)

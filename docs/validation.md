@@ -1,3 +1,6 @@
+---
+description: "This is the full narrative of how GitGalaxy's claims get tested — the thesis, the"
+---
 # The GitGalaxy Validation Program
 
 This is the full narrative of how GitGalaxy's claims get tested — the thesis, the

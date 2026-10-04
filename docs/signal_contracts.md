@@ -1,3 +1,6 @@
+---
+description: "> Rendered from `gitgalaxy/standards/signal_contracts.py` by `tests/signal_contract_audit.py --render`."
+---
 # Signal contracts
 
 > Rendered from `gitgalaxy/standards/signal_contracts.py` by `tests/signal_contract_audit.py --render`.

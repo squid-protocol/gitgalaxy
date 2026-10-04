@@ -1,3 +1,6 @@
+---
+description: "**Executive Summary:** We performed a deep **static code analysis** on the GnuPG (GNU Privacy Guard) repository. By mapping its structural physics, we..."
+---
 # The Architecture of GnuPG: A Structural Physics Teardown of the Internet's Cryptographic Core
 
 **Executive Summary:** We performed a deep **static code analysis** on the GnuPG (GNU Privacy Guard) repository. By mapping its structural physics, we uncover the hidden **technical debt**, highly modular **software architecture**, and centralized "God Nodes" that secure the open-source world. This teardown exposes the raw **code smells**, strict structural boundaries, and security perimeter of a 300,000-line C monolith that handles the world's most sensitive cryptographic operations without relying on modern **microservices**.

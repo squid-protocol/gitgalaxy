@@ -1,3 +1,6 @@
+---
+description: "The `abap-cleaner` repository is a static analysis and code formatting engine built to parse, standardize, and clean ABAP source code. While it targets..."
+---
 # Architectural Brief: abap-cleaner
 
 ## 1. Information Flow & Purpose (The Executive Summary)

@@ -1,3 +1,6 @@
+---
+description: "You are operating within `black`, the uncompromising Python code formatter, primarily composed of Python (95.1%)."
+---
 # AGENTS.md: black Architectural Context & Engagement Rules
 
 ## 1. System Context & Paradigm

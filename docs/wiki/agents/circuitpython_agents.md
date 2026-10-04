@@ -1,3 +1,6 @@
+---
+description: "You are operating within `circuitpython`, an implementation of Python designed to run on microcontrollers. The repository is predominantly composed of..."
+---
 # AGENTS.md: circuitpython Architectural Context & Engagement Rules
 
 ## 1. System Context & Paradigm

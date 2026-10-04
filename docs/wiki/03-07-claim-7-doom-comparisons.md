@@ -1,3 +1,6 @@
+---
+description: "Building a multi-language static analysis engine is notoriously difficult. Every programming language operates on its own unique physical laws. C..."
+---
 # Tracking the Genetic Drift of DOOM: A GitGalaxy Stress Test
 
 Building a multi-language static analysis engine is notoriously difficult. Every programming language operates on its own unique physical laws. C relies on raw memory and macro expansion, C# forces strict object-oriented hierarchies, and JavaScript lives and dies by event-driven closures.

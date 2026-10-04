@@ -1,3 +1,6 @@
+---
+description: "The `cobrix` repository acts as an enterprise data bridge, parsing legacy COBOL data files (EBCDIC, variable length records) and translating them into..."
+---
 # Architectural Brief: cobrix
 
 ## 1. Information Flow & Purpose (The Executive Summary)

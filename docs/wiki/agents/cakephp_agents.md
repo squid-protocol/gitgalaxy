@@ -1,3 +1,6 @@
+---
+description: "You are operating within `cakephp`, a mature, full-stack PHP web framework. The repository is predominantly PHP (94.1%) with heavy use of traits for..."
+---
 # AGENTS.md: cakephp Architectural Context & Engagement Rules
 
 ## 1. System Context & Paradigm

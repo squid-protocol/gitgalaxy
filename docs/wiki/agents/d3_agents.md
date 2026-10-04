@@ -1,3 +1,6 @@
+---
+description: "You are operating within the `d3` repository, which serves as the core aggregator for the D3.js visualization ecosystem. This specific repository is..."
+---
 # AGENTS.md: d3 Architectural Context & Engagement Rules
 
 ## 1. System Context & Paradigm

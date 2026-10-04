@@ -1,3 +1,6 @@
+---
+description: "You are operating within `BareMetal-OS`, an operating system repository. Based on the visible architectural scan, the structural footprint is entirely..."
+---
 # AGENTS.md: BareMetal-OS Architectural Context & Engagement Rules
 
 ## 1. System Context & Paradigm

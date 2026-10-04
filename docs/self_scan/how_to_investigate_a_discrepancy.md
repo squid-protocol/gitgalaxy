@@ -1,3 +1,6 @@
+---
+description: "This is the workflow behind the tri-comparison tool's gray-vs-colored bars: how a raw"
+---
 # How to Investigate a Tri-Comparison Discrepancy
 
 This is the workflow behind the tri-comparison tool's gray-vs-colored bars: how a raw

@@ -1,3 +1,6 @@
+---
+description: "You are operating within the `rust` repository (`https://github.com/rust-lang/rust`). Based on the current GitGalaxy telemetry, the repository scan..."
+---
 # AGENTS.md: rust Architectural Context & Engagement Rules
 
 ## 1. Information Flow & Purpose (The Executive Summary)

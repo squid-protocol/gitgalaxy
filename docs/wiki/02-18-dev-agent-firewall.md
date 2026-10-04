@@ -1,3 +1,6 @@
+---
+description: "> **File Reference:** [`gitgalaxy/security/dev_agent_firewall.py`](https://github.com/squid-protocol/gitgalaxy/blob/main/gitgalaxy/security/dev_agent_fi..."
+---
 # Dev Agent Firewall
 
 > **File Reference:** [`gitgalaxy/security/dev_agent_firewall.py`](https://github.com/squid-protocol/gitgalaxy/blob/main/gitgalaxy/security/dev_agent_firewall.py)

@@ -1,3 +1,6 @@
+---
+description: "You are operating within `ant-design`, a massive React UI component library primarily composed of TypeScript (63.5%) and Markdown documentation (35.6%)."
+---
 # AGENTS.md: ant-design Architectural Context & Engagement Rules
 
 ## 1. System Context & Paradigm

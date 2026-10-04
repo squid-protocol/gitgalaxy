@@ -1,3 +1,6 @@
+---
+description: "Snapshot generated 2026-08-20 against `main`; §3 `func_start` note and §9 tri-comparison section"
+---
 # Assembly (x86/ARM) — Structural Signature Coverage
 
 Snapshot generated 2026-08-20 against `main`; §3 `func_start` note and §9 tri-comparison section

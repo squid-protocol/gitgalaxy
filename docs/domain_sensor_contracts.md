@@ -1,3 +1,6 @@
+---
+description: "Phase 3 of the contract roadmap (`docs/contract_roadmap.md`, epic #2812): the sheet's last"
+---
 # The domain-sensor contracts, declared in one batch (#2897)
 
 Phase 3 of the contract roadmap (`docs/contract_roadmap.md`, epic #2812): the sheet's last

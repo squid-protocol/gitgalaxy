@@ -1,3 +1,6 @@
+---
+description: "You are operating within `darwin-xnu`, the core kernel for Apple's macOS, iOS, and related operating systems. This is an immense, deeply complex..."
+---
 # AGENTS.md: darwin-xnu Architectural Context & Engagement Rules
 
 ## 1. System Context & Paradigm

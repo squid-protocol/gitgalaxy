@@ -1,3 +1,6 @@
+---
+description: "The `AFNetworking` repository serves as a robust networking infrastructure layer for Apple platforms, heavily utilizing Objective-C (57.8% of the..."
+---
 # Architectural Brief: AFNetworking
 
 ## 1. Information Flow & Purpose (The Executive Summary)

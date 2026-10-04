@@ -1,3 +1,6 @@
+---
+description: "Run 2026-10-02 with `tests/tools/ibm_wca4z_port.py`. This is the detailed record. The comparison of the four"
+---
 # IBM watsonx Code Assistant for Z's LGACDB01 translation, through our equivalence harness
 
 Run 2026-10-02 with `tests/tools/ibm_wca4z_port.py`. This is the detailed record. The comparison of the four

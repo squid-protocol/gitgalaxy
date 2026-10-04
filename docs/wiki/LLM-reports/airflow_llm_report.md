@@ -1,3 +1,6 @@
+---
+description: "The `airflow` repository is a massive, enterprise-grade data orchestration and pipeline execution platform. Comprising over 1 million lines of code..."
+---
 # Architectural Brief: airflow
 
 ## 1. Information Flow & Purpose (The Executive Summary)

@@ -1,3 +1,6 @@
+---
+description: "You are operating within the `kotlin` repository, the core compiler, standard library, and multi-platform tooling for the Kotlin programming language...."
+---
 # AGENTS.md: kotlin Architectural Context & Engagement Rules
 
 ## 1. Information Flow & Purpose (The Executive Summary)

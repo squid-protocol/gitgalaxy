@@ -1,3 +1,6 @@
+---
+description: "You are operating within `cargo`, the official package manager and build system for Rust. The repository is predominantly written in Rust (63.5%) with..."
+---
 # AGENTS.md: cargo Architectural Context & Engagement Rules
 
 ## 1. System Context & Paradigm

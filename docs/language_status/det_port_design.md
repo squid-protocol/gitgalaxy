@@ -1,3 +1,6 @@
+---
+description: "**Status (2026-10-02): 48 programs are translated with no model and proven.** That is 27 from CardDemo, 8 from"
+---
 # Deterministic port (det-port): design and the runtime contract
 
 **Status (2026-10-02): 48 programs are translated with no model and proven.** That is 27 from CardDemo, 8 from

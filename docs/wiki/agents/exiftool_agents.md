@@ -1,3 +1,6 @@
+---
+description: "You are operating within `exiftool`, the industry-standard Perl library and command-line application for reading, writing, and editing meta information..."
+---
 # AGENTS.md: exiftool Architectural Context & Engagement Rules
 
 ## 1. System Context & Paradigm

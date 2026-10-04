@@ -1,3 +1,6 @@
+---
+description: "You are operating within `mediawiki`, the massive, foundational PHP application that powers Wikipedia and its sister projects. The repository is..."
+---
 # AGENTS.md: mediawiki Architectural Context & Engagement Rules
 
 ## 1. System Context & Paradigm

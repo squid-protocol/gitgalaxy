@@ -1,3 +1,6 @@
+---
+description: "The `elasticsearch` repository contains the source code for the distributed, RESTful search and analytics engine. The codebase is heavily dominated by..."
+---
 # Architectural Brief: elasticsearch
 
 ## 1. Information Flow & Purpose (The Executive Summary)

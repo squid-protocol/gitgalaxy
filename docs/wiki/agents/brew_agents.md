@@ -1,3 +1,6 @@
+---
+description: "You are operating within `brew`, the Homebrew package manager for macOS and Linux. The repository is a hybrid architecture consisting primarily of Ruby..."
+---
 # AGENTS.md: brew Architectural Context & Engagement Rules
 
 ## 1. System Context & Paradigm

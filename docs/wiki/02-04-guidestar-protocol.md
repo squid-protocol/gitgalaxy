@@ -1,3 +1,6 @@
+---
+description: "> **File Reference:** [`gitgalaxy/core/guidestar_lens.py`](https://github.com/squid-protocol/gitgalaxy/blob/main/gitgalaxy/core/guidestar_lens.py)"
+---
 # Project Manifest and Metadata Resolution
 
 > **File Reference:** [`gitgalaxy/core/guidestar_lens.py`](https://github.com/squid-protocol/gitgalaxy/blob/main/gitgalaxy/core/guidestar_lens.py)

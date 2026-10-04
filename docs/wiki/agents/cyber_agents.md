@@ -1,3 +1,6 @@
+---
+description: "You are operating within `cyber`, a fast, concurrent, and embeddable programming language. The repository is heavily dominated by Zig (52.8%) for the..."
+---
 # AGENTS.md: cyber Architectural Context & Engagement Rules
 
 ## 1. System Context & Paradigm

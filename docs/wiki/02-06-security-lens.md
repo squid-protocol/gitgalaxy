@@ -1,3 +1,6 @@
+---
+description: "> **File Reference:** [`gitgalaxy/security/security_lens.py`](https://github.com/squid-protocol/gitgalaxy/blob/main/gitgalaxy/security/security_lens.py)"
+---
 # Vulnerability & Threat Scanner
 
 > **File Reference:** [`gitgalaxy/security/security_lens.py`](https://github.com/squid-protocol/gitgalaxy/blob/main/gitgalaxy/security/security_lens.py)

@@ -1,3 +1,6 @@
+---
+description: "Enterprise mainframe modernization initiatives routinely collapse not at the application layer, but at the orchestration layer. Decades of COBOL batch..."
+---
 # Cookbook: Zero-Trust JCL Forge for COBOL Modernization
 
 ## 1. The Legacy Batch Orchestration Crisis

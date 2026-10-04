@@ -244,3 +244,23 @@ def test_a_refinement_that_fails_its_proof_is_reverted(project, tmp_path):
     steps = [e for e in pr.events(proj) if e["event"] == "refine-step"]
     assert steps and all(s["verdict"] == "reverted" and s["attempts"] == 2 for s in steps)
     assert (proj / "ai_agent_jobs/ports/POSTIT/overlay/service/PostitService.java").read_text() == before
+
+
+def test_prove_logs_the_ported_methods_no_proof_runs(project, tmp_path, capsys):
+    """#4255: a port that keeps behaviour beside runBatch is proven through runBatch only; prove names the rest."""
+    proj = tmp_path / "proj"
+    shutil.copytree(project, proj)
+    mine = tmp_path / "PostitService.java"
+    mine.write_text("package com.gitgalaxy.modernized.service;\npublic class PostitService {\n"
+                    "    public int runBatch(List<Dd> dds, String parm) { return step(); }\n"
+                    "    private int step() { return 0; }\n"
+                    "    public void executePostit() { step(); System.out.println(\"kept\"); }\n}\n")  # fmt: skip
+    assert pr.main(["submit", str(proj), "--ticket", "POSTIT", "--file", str(mine), "--by", "dev"]) == 0
+    cmd = f"{shlex.quote(sys.executable)} -c pass"
+    assert pr.main(["prove", str(proj), "--ticket", "POSTIT", "--command", cmd]) == 0
+    assert "1 ported method(s) no proof runs (#4255): PostitService.executePostit" in capsys.readouterr().out
+    log = [json.loads(line) for line in (proj / "ai_agent_jobs/ports/port_log.jsonl").read_text().splitlines()]
+    assert log[-1]["event"] == "proven" and log[-1]["unproven"] == ["PostitService.executePostit"]
+    assert pr.status(proj)["tickets"]["POSTIT"]["unproven"] == ["PostitService.executePostit"]
+    assert pr.main(["status", str(proj)]) == 0
+    assert "not run by the proof (#4255): PostitService.executePostit" in capsys.readouterr().out

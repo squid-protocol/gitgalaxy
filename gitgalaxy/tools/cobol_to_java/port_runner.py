@@ -53,6 +53,7 @@ from pathlib import Path
 from typing import Any
 
 from gitgalaxy.core.source_text import decode_bytes, read_source
+from gitgalaxy.tools.cobol_to_java import proof_reach
 from gitgalaxy.tools.cobol_to_java.cobol_to_java_port_tickets import count_tokens
 
 PORTS = Path("ai_agent_jobs") / "ports"
@@ -97,6 +98,11 @@ def build_prompt(project: Path, ticket: dict[str, Any]) -> tuple[str, str]:
         "",
         f"Deliverable: {ticket['deliverable']['return']}",
         f"Methods to port: {', '.join(tg['methods_to_port']) or '(see the worklist)'}",
+        *(
+            [f"Leave as generated (no proof runs them, #4255): {', '.join(tg['left_as_generated'])}"]
+            if tg.get("left_as_generated")
+            else []
+        ),
         f"Target stack: {json.dumps(tg['config'], sort_keys=True)}",
         "",
         f"## The generated service to fill: {tg['file']}",
@@ -431,7 +437,7 @@ def cmd_prove(opts: argparse.Namespace) -> int:
     """Run the proof command on the latest proposed port; {port_dir} and {report_dir} are filled in. A
     report.json the command writes (the equivalence harness's) is summarised into the log."""
     project = opts.project.resolve()
-    load_ticket(project, opts.ticket)
+    ticket = load_ticket(project, opts.ticket)
     port_dir = project / PORTS / opts.ticket
     overlay = port_dir / "overlay"
     attempt = _attempt(project, opts.ticket) - 1
@@ -449,10 +455,23 @@ def cmd_prove(opts: argparse.Namespace) -> int:
         r = json.loads(report.read_text(encoding="utf-8"))
         summary = {dd: f"{o['equal']}/{o['records']}" for dd, o in r.get("outputs", {}).items()}
     proven = proc.returncode == 0
+    unproven = unproven_methods(project, ticket, overlay)
     log_event(project, {"event": "proven" if proven else "proof-failed", "ticket": opts.ticket, "attempt": attempt,
-                        "summary": summary, "exit": proc.returncode})  # fmt: skip
+                        "summary": summary, "exit": proc.returncode, "unproven": unproven})  # fmt: skip
     print(f"{opts.ticket} attempt {attempt}: {'PROVEN' if proven else 'NOT proven'} {summary or ''}")
+    if unproven:
+        print(f"{opts.ticket}: proven through {' / '.join(proof_reach.PROOF_ROOTS)} only -- {len(unproven)} ported "
+              f"method(s) no proof runs (#4255): {', '.join(unproven)}")  # fmt: skip
     return 0 if proven else 1
+
+
+def unproven_methods(project: Path, ticket: dict[str, Any], overlay: Path) -> list[str]:
+    """#4255: the methods of the port the proof never runs that the port changed from the generated service
+    (proof_reach): behaviour that would ship in the Java with no proof behind it."""
+    if not overlay.is_dir():
+        return []
+    report = proof_reach.analyse([overlay], generated=[project / ticket["target"]["file"]])
+    return sorted({f"{cls}.{m}" for cls, r in report.items() for m in r["ported_unproven"]})
 
 
 def _latest_state(project: Path, key: str) -> tuple[int, str | None]:
@@ -561,6 +580,8 @@ def status(project: Path) -> dict[str, Any]:
             s["state"] = e["event"]
             if e.get("summary"):
                 s["summary"] = e["summary"]
+            if "unproven" in e:  # #4255: what the latest proof of this attempt cannot reach
+                s["unproven"] = e["unproven"]
             m = model_of.get((t, e["attempt"]), "?")
             if e["event"] in ("proven", "approved", "rejected"):
                 models.setdefault(m, {"proposed": 0, "proven": 0, "approved": 0, "rejected": 0})[e["event"]] += 1
@@ -584,6 +605,8 @@ def cmd_status(opts: argparse.Namespace) -> int:
     for t, s in st["tickets"].items():
         if s["state"] != "open":
             print(f"  {t}: {s['state']} (attempt {s['attempts']}, {s['model']}) {s.get('summary') or ''}")
+            if s.get("unproven"):
+                print(f"    not run by the proof (#4255): {', '.join(s['unproven'])}")
     return 0
 
 

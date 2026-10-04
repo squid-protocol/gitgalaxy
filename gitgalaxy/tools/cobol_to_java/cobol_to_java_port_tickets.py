@@ -45,6 +45,7 @@ from gitgalaxy.tools.cobol_to_java.cobol_to_java_agent_forge import ticket_skele
 from gitgalaxy.tools.cobol_to_java.cobol_to_java_names import java_class_base
 from gitgalaxy.tools.cobol_to_java.cobol_to_java_transaction_forge import DTO_SUBPACKAGE
 from gitgalaxy.tools.cobol_to_java.java_target import visual_bidi
+from gitgalaxy.tools.cobol_to_java.proof_reach import PROOF_ROOTS as PROOF_ENTRY_POINTS
 
 TICKET_VERSION = 1
 PORTING_RULES = [
@@ -251,6 +252,16 @@ PORTING_RULES = [
     (
         "A fact whose field testing is not 'field-tested' is verified on reference estates but still being "
         "field-tested: where the source contradicts it, follow the source and say so in the port's notes."
+    ),
+    (
+        "The proof calls one method per program: runTask(CicsTask) for a CICS program, handleCall(...) for a "
+        "CALLed one, runBatch(dds, parm) for a batch one -- the ticket's methods to port. Port all of the "
+        "program's behaviour into that method and the private helpers it calls. Port nothing into the other "
+        "generated methods -- execute<Program>, handleTransaction, handleLink, handleChannel, onAbendL<n>, "
+        "onCondition<C>L<n>, dispatch<X>L<n>, submit<Map> / render<Map>, xctl<P> / link<P>, the generated "
+        "readqTs / writeqTs / read / browse helpers -- even where their TODO asks: leave each body as generated "
+        "and keep no second entry point. Code the proof never runs is not proven, and the porting loop lists "
+        "every method the proof cannot reach that the port changed (#4255)."
     ),
 ]
 
@@ -612,6 +623,11 @@ def _public_methods(java: str) -> list[dict[str, Any]]:
     return out
 
 
+def _method_name(signature: str) -> str:
+    """`public int runBatch(List<Dd> dds, String parm)` -> runBatch."""
+    return signature.split("(", 1)[0].split()[-1]
+
+
 def _imports(java: str, package: str) -> list[str]:
     """The project classes a generated file imports (entities, repositories, DTOs, batch runtime)."""
     return sorted(re.findall(rf"^import ({re.escape(package)}\.[\w.]+);", java, re.M))
@@ -647,6 +663,10 @@ def build_ticket(key: str, skeleton: dict[str, Any], java_dir: Path, package: st
         "traced_to_this_program": [{"file": f, "symbol": s} for f, s in tied],
     }
     methods = _public_methods(java)
+    # #4255: port only what the proof drives; the other TODO methods are left as generated
+    entry = [m["signature"] for m in methods if _method_name(m["signature"]) in PROOF_ENTRY_POINTS]
+    todo = [m["signature"] for m in methods if m["todo"]]
+    to_port = [s for s in todo if s in entry] if entry else todo
     text = read_source(on_disk(source_root, prog["file"]), declared=declared).text if readable and source_root else ""
     rounding = rounding_facts(text) if readable else []  # #3825
     options = compiler_options(text)  # #3828
@@ -677,7 +697,9 @@ def build_ticket(key: str, skeleton: dict[str, Any], java_dir: Path, package: st
             "file": service_rel,
             "overlay": f"port/service/{service}.java",
             "methods": methods,
-            "methods_to_port": [m["signature"] for m in methods if m["todo"]],
+            "methods_to_port": to_port,
+            "proof_entry_points": entry,
+            "left_as_generated": [s for s in todo if s not in to_port],
             "config": target,
         },
         "source": source,
@@ -692,6 +714,10 @@ def build_ticket(key: str, skeleton: dict[str, Any], java_dir: Path, package: st
             "return": (
                 f"One complete Java file for {service_rel}: the same package, class name and public method "
                 "signatures, with the TODO bodies ported (helper methods may be added)."
+                if not entry
+                else f"One complete Java file for {service_rel}: the same package, class name and public method "
+                f"signatures, with {' and '.join(_method_name(e) for e in entry)} ported -- what the proof runs -- "
+                "and helper methods it calls added; every other generated method left as generated (#4255)."
             ),
             "proof": (
                 "The port is laid over the generated project as an overlay and proven by the equivalence "
@@ -713,6 +739,11 @@ def ticket_markdown(t: dict[str, Any]) -> str:
     md += [f"Fill `{tg['file']}` ({tg['service']}); return it as `{tg['overlay']}`.", "",
           "## Methods to port", ""]  # fmt: skip
     md += [f"- `{m}`" for m in tg["methods_to_port"]] or ["- (no method is marked as a TODO; see the worklist)"]
+    if tg.get("proof_entry_points"):  # #4255
+        md += ["", f"The proof runs the port through {', '.join(f'`{e}`' for e in tg['proof_entry_points'])} only."]
+    if tg.get("left_as_generated"):
+        md += ["", "Leave as generated (no proof runs them; port nothing into them):", ""]
+        md += [f"- `{m}`" for m in tg["left_as_generated"]]
     md += ["", "## Target configuration", "", "```json", json.dumps(tg["config"], indent=2, sort_keys=True), "```"]
     md += ["", "## Porting rules", ""] + [f"{i}. {r}" for i, r in enumerate(t["rules"], 1)]
     if t.get("rounding"):  # #3825: every statement whose rounding or SIZE ERROR the port must keep

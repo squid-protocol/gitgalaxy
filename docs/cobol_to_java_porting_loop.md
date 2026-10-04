@@ -54,6 +54,13 @@ who approved them. Here every step is on the record:
 3. **Prove** (`port_runner prove`). The equivalence harness runs the original COBOL (GnuCOBOL,
    IBM dialect) and the port on the same inputs, then compares every output record field by field,
    along with the RETURN-CODE.
+
+   The harness drives a port through one method: `runTask` (CICS), `handleCall` (a CALLed
+   program) or `runBatch` (batch). Code outside that path is not proven, so the ticket asks for
+   that method only and lists the other generated methods (`execute<Program>`, `handleTransaction`,
+   `handleLink`, `onAbendL<n>`, `dispatch<X>L<n>`, ...) as left as generated. `prove` then logs as
+   `unproven` every method the proof cannot reach whose body the port changed (#4255;
+   `python -m gitgalaxy.tools.cobol_to_java.proof_reach PORT_DIR` gives the same report for any port).
 4. **Review** (`port_runner review --approve|--reject --by NAME`). A person decides. Nothing is
    accepted without one.
 5. **Status** (`port_runner status`). It counts per ticket and per model what was proposed,

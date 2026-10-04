@@ -419,27 +419,14 @@
         }
       ]
     },
-    "cobol/che-che4z_lsp_project_fixtures": {
-      "cobol/che-che4z_lsp_project_fixtures/HOVER.CBL": [
-        {
-          "Access Modes": [],
-          "Assign Name": "SOMETHING-ELSE",
-          "DD Name": "SOMETHING-ELSE",
-          "DSN": null,
-          "Internal Name": "TRANS-FILE-IN",
-          "Line": 21,
-          "Step": null
-        }
-      ]
-    },
     "cobol/che-che4z_nist_ccvs85": {
       "cobol/che-che4z_nist_ccvs85/DB1024.2.cbl": [
         {
           "Access Modes": [
             "OUTPUT"
           ],
-          "Assign Name": "XXXXX055",
-          "DD Name": "XXXXX055",
+          "Assign Name": "DB1024",
+          "DD Name": "DB1024",
           "DSN": null,
           "Internal Name": "PRINT-FILE",
           "Line": 52,
@@ -451,8 +438,8 @@
           "Access Modes": [
             "OUTPUT"
           ],
-          "Assign Name": "XXXXX055",
-          "DD Name": "XXXXX055",
+          "Assign Name": "DB1034",
+          "DD Name": "DB1034",
           "DSN": null,
           "Internal Name": "PRINT-FILE",
           "Line": 50,
@@ -464,8 +451,8 @@
           "Access Modes": [
             "OUTPUT"
           ],
-          "Assign Name": "XXXXX055",
-          "DD Name": "XXXXX055",
+          "Assign Name": "DB1044",
+          "DD Name": "DB1044",
           "DSN": null,
           "Internal Name": "PRINT-FILE",
           "Line": 61,
@@ -476,8 +463,8 @@
             "INPUT",
             "OUTPUT"
           ],
-          "Assign Name": "XXXXX014",
-          "DD Name": "XXXXX014",
+          "Assign Name": "DB1044",
+          "DD Name": "DB1044",
           "DSN": null,
           "Internal Name": "GEN-FILE",
           "Line": 63,
@@ -485,8 +472,8 @@
         },
         {
           "Access Modes": [],
-          "Assign Name": "XXXXX027",
-          "DD Name": "XXXXX027",
+          "Assign Name": "DB1044",
+          "DD Name": "DB1044",
           "DSN": null,
           "Internal Name": "SORT-FILE",
           "Line": 66,
@@ -496,8 +483,8 @@
       "cobol/che-che4z_nist_ccvs85/DB3014.2.cbl": [
         {
           "Access Modes": [],
-          "Assign Name": "XXXXX014",
-          "DD Name": "XXXXX014",
+          "Assign Name": "DB3014",
+          "DD Name": "DB3014",
           "DSN": null,
           "Internal Name": "TFIL",
           "Line": 15,
@@ -507,8 +494,8 @@
       "cobol/che-che4z_nist_ccvs85/DB3024.2.cbl": [
         {
           "Access Modes": [],
-          "Assign Name": "XXXXX014",
-          "DD Name": "XXXXX014",
+          "Assign Name": "DB3024",
+          "DD Name": "DB3024",
           "DSN": null,
           "Internal Name": "TFIL",
           "Line": 16,
@@ -518,8 +505,8 @@
       "cobol/che-che4z_nist_ccvs85/DB3054.2.cbl": [
         {
           "Access Modes": [],
-          "Assign Name": "XXXXX014",
-          "DD Name": "XXXXX014",
+          "Assign Name": "DB3054",
+          "DD Name": "DB3054",
           "DSN": null,
           "Internal Name": "TFIL",
           "Line": 16,
@@ -531,8 +518,8 @@
           "Access Modes": [
             "OUTPUT"
           ],
-          "Assign Name": "XXXXX055",
-          "DD Name": "XXXXX055",
+          "Assign Name": "IC1014",
+          "DD Name": "IC1014",
           "DSN": null,
           "Internal Name": "PRINT-FILE",
           "Line": 39,
@@ -542,8 +529,8 @@
       "cobol/che-che4z_nist_ccvs85/IC1024.2.cbl": [
         {
           "Access Modes": [],
-          "Assign Name": "XXXXX055",
-          "DD Name": "XXXXX055",
+          "Assign Name": "IC1024",
+          "DD Name": "IC1024",
           "DSN": null,
           "Internal Name": "PRINT-FILE",
           "Line": 28,
@@ -555,8 +542,8 @@
           "Access Modes": [
             "OUTPUT"
           ],
-          "Assign Name": "XXXXX055",
-          "DD Name": "XXXXX055",
+          "Assign Name": "IC1034",
+          "DD Name": "IC1034",
           "DSN": null,
           "Internal Name": "PRINT-FILE",
           "Line": 34,
@@ -566,8 +553,8 @@
       "cobol/che-che4z_nist_ccvs85/IC1044.2.cbl": [
         {
           "Access Modes": [],
-          "Assign Name": "XXXXX055",
-          "DD Name": "XXXXX055",
+          "Assign Name": "IC1044",
+          "DD Name": "IC1044",
           "DSN": null,
           "Internal Name": "PRINT-FILE",
           "Line": 34,
@@ -579,8 +566,8 @@
           "Access Modes": [
             "OUTPUT"
           ],
-          "Assign Name": "XXXXX055",
-          "DD Name": "XXXXX055",
+          "Assign Name": "IC1064",
+          "DD Name": "IC1064",
           "DSN": null,
           "Internal Name": "PRINT-FILE",
           "Line": 38,
@@ -590,8 +577,8 @@
       "cobol/che-che4z_nist_ccvs85/IC1074.2.cbl": [
         {
           "Access Modes": [],
-          "Assign Name": "XXXXX055",
-          "DD Name": "XXXXX055",
+          "Assign Name": "IC1074",
+          "DD Name": "IC1074",
           "DSN": null,
           "Internal Name": "PRINT-FILE",
           "Line": 37,
@@ -603,8 +590,8 @@
           "Access Modes": [
             "OUTPUT"
           ],
-          "Assign Name": "XXXXX055",
-          "DD Name": "XXXXX055",
+          "Assign Name": "IC1084",
+          "DD Name": "IC1084",
           "DSN": null,
           "Internal Name": "PRINT-FILE",
           "Line": 30,
@@ -614,8 +601,8 @@
       "cobol/che-che4z_nist_ccvs85/IC1094.2.cbl": [
         {
           "Access Modes": [],
-          "Assign Name": "XXXXX055",
-          "DD Name": "XXXXX055",
+          "Assign Name": "IC1094",
+          "DD Name": "IC1094",
           "DSN": null,
           "Internal Name": "PRINT-FILE",
           "Line": 30,
@@ -625,8 +612,8 @@
       "cobol/che-che4z_nist_ccvs85/IC1104.2.cbl": [
         {
           "Access Modes": [],
-          "Assign Name": "XXXXX055",
-          "DD Name": "XXXXX055",
+          "Assign Name": "IC1104",
+          "DD Name": "IC1104",
           "DSN": null,
           "Internal Name": "PRINT-FILE",
           "Line": 31,
@@ -638,8 +625,8 @@
           "Access Modes": [
             "OUTPUT"
           ],
-          "Assign Name": "XXXXX055",
-          "DD Name": "XXXXX055",
+          "Assign Name": "IC1144",
+          "DD Name": "IC1144",
           "DSN": null,
           "Internal Name": "PRINT-FILE",
           "Line": 42,
@@ -651,8 +638,8 @@
           "Access Modes": [
             "OUTPUT"
           ],
-          "Assign Name": "XXXXX055",
-          "DD Name": "XXXXX055",
+          "Assign Name": "IC1164",
+          "DD Name": "IC1164",
           "DSN": null,
           "Internal Name": "PRINT-FILE",
           "Line": 39,
@@ -664,8 +651,8 @@
           "Access Modes": [
             "OUTPUT"
           ],
-          "Assign Name": "XXXXX055",
-          "DD Name": "XXXXX055",
+          "Assign Name": "IC2014",
+          "DD Name": "IC2014",
           "DSN": null,
           "Internal Name": "PRINT-FILE",
           "Line": 32,
@@ -675,8 +662,8 @@
       "cobol/che-che4z_nist_ccvs85/IC2024.2.cbl": [
         {
           "Access Modes": [],
-          "Assign Name": "XXXXX055",
-          "DD Name": "XXXXX055",
+          "Assign Name": "IC2024",
+          "DD Name": "IC2024",
           "DSN": null,
           "Internal Name": "PRINT-FILE",
           "Line": 29,
@@ -688,8 +675,8 @@
           "Access Modes": [
             "OUTPUT"
           ],
-          "Assign Name": "XXXXX055",
-          "DD Name": "XXXXX055",
+          "Assign Name": "IC2034",
+          "DD Name": "IC2034",
           "DSN": null,
           "Internal Name": "PRINT-FILE",
           "Line": 33,
@@ -699,8 +686,8 @@
       "cobol/che-che4z_nist_ccvs85/IC2044.2.cbl": [
         {
           "Access Modes": [],
-          "Assign Name": "XXXXX055",
-          "DD Name": "XXXXX055",
+          "Assign Name": "IC2044",
+          "DD Name": "IC2044",
           "DSN": null,
           "Internal Name": "PRINT-FILE",
           "Line": 34,
@@ -710,8 +697,8 @@
       "cobol/che-che4z_nist_ccvs85/IC2054.2.cbl": [
         {
           "Access Modes": [],
-          "Assign Name": "XXXXX055",
-          "DD Name": "XXXXX055",
+          "Assign Name": "IC2054",
+          "DD Name": "IC2054",
           "DSN": null,
           "Internal Name": "PRINT-FILE",
           "Line": 29,
@@ -721,8 +708,8 @@
       "cobol/che-che4z_nist_ccvs85/IC2064.2.cbl": [
         {
           "Access Modes": [],
-          "Assign Name": "XXXXX055",
-          "DD Name": "XXXXX055",
+          "Assign Name": "IC2064",
+          "DD Name": "IC2064",
           "DSN": null,
           "Internal Name": "PRINT-FILE",
           "Line": 34,
@@ -734,8 +721,8 @@
           "Access Modes": [
             "OUTPUT"
           ],
-          "Assign Name": "XXXXX055",
-          "DD Name": "XXXXX055",
+          "Assign Name": "IC2074",
+          "DD Name": "IC2074",
           "DSN": null,
           "Internal Name": "PRINT-FILE",
           "Line": 32,
@@ -747,8 +734,8 @@
           "Access Modes": [
             "OUTPUT"
           ],
-          "Assign Name": "XXXXX055",
-          "DD Name": "XXXXX055",
+          "Assign Name": "IC2094",
+          "DD Name": "IC2094",
           "DSN": null,
           "Internal Name": "PRINT-FILE",
           "Line": 27,
@@ -760,8 +747,8 @@
           "Access Modes": [
             "OUTPUT"
           ],
-          "Assign Name": "XXXXX055",
-          "DD Name": "XXXXX055",
+          "Assign Name": "IC2134",
+          "DD Name": "IC2134",
           "DSN": null,
           "Internal Name": "PRINT-FILE",
           "Line": 27,
@@ -773,8 +760,8 @@
           "Access Modes": [
             "OUTPUT"
           ],
-          "Assign Name": "XXXXX055",
-          "DD Name": "XXXXX055",
+          "Assign Name": "IC2164",
+          "DD Name": "IC2164",
           "DSN": null,
           "Internal Name": "PRINT-FILE",
           "Line": 27,
@@ -786,8 +773,8 @@
           "Access Modes": [
             "OUTPUT"
           ],
-          "Assign Name": "XXXXX055",
-          "DD Name": "XXXXX055",
+          "Assign Name": "IC2244",
+          "DD Name": "IC2244",
           "DSN": null,
           "Internal Name": "PRINT-FILE",
           "Line": 44,
@@ -799,8 +786,8 @@
           "Access Modes": [
             "OUTPUT"
           ],
-          "Assign Name": "XXXXX055",
-          "DD Name": "XXXXX055",
+          "Assign Name": "IC2264",
+          "DD Name": "IC2264",
           "DSN": null,
           "Internal Name": "PRINT-FILE",
           "Line": 44,
@@ -812,8 +799,8 @@
           "Access Modes": [
             "OUTPUT"
           ],
-          "Assign Name": "XXXXX055",
-          "DD Name": "XXXXX055",
+          "Assign Name": "IC2284",
+          "DD Name": "IC2284",
           "DSN": null,
           "Internal Name": "PRINT-FILE",
           "Line": 46,
@@ -825,8 +812,8 @@
           "Access Modes": [
             "OUTPUT"
           ],
-          "Assign Name": "XXXXX055",
-          "DD Name": "XXXXX055",
+          "Assign Name": "IC2334",
+          "DD Name": "IC2334",
           "DSN": null,
           "Internal Name": "PRINT-FILE",
           "Line": 44,
@@ -836,8 +823,8 @@
           "Access Modes": [
             "INPUT"
           ],
-          "Assign Name": "XXXXX018",
-          "DD Name": "XXXXX018",
+          "Assign Name": "IC2334",
+          "DD Name": "IC2334",
           "DSN": null,
           "Internal Name": "TEST-FILE",
           "Line": 46,
@@ -849,8 +836,8 @@
           "Access Modes": [
             "OUTPUT"
           ],
-          "Assign Name": "XXXXX055",
-          "DD Name": "XXXXX055",
+          "Assign Name": "IC2344",
+          "DD Name": "IC2344",
           "DSN": null,
           "Internal Name": "PRINT-FILE",
           "Line": 57,
@@ -861,8 +848,8 @@
             "INPUT",
             "OUTPUT"
           ],
-          "Assign Name": "XXXXX014",
-          "DD Name": "XXXXX014",
+          "Assign Name": "IC2344",
+          "DD Name": "IC2344",
           "DSN": null,
           "Internal Name": "TEST-FILE",
           "Line": 59,
@@ -874,8 +861,8 @@
           "Access Modes": [
             "OUTPUT"
           ],
-          "Assign Name": "XXXXX055",
-          "DD Name": "XXXXX055",
+          "Assign Name": "IC2374",
+          "DD Name": "IC2374",
           "DSN": null,
           "Internal Name": "PRINT-FILE",
           "Line": 30,
@@ -887,8 +874,8 @@
           "Access Modes": [
             "OUTPUT"
           ],
-          "Assign Name": "XXXXX055",
-          "DD Name": "XXXXX055",
+          "Assign Name": "IF1024",
+          "DD Name": "IF1024",
           "DSN": null,
           "Internal Name": "PRINT-FILE",
           "Line": 18,
@@ -900,8 +887,8 @@
           "Access Modes": [
             "OUTPUT"
           ],
-          "Assign Name": "XXXXX055",
-          "DD Name": "XXXXX055",
+          "Assign Name": "IF1054",
+          "DD Name": "IF1054",
           "DSN": null,
           "Internal Name": "PRINT-FILE",
           "Line": 22,
@@ -913,8 +900,8 @@
           "Access Modes": [
             "OUTPUT"
           ],
-          "Assign Name": "XXXXX055",
-          "DD Name": "XXXXX055",
+          "Assign Name": "IF1074",
+          "DD Name": "IF1074",
           "DSN": null,
           "Internal Name": "PRINT-FILE",
           "Line": 18,
@@ -926,8 +913,8 @@
           "Access Modes": [
             "OUTPUT"
           ],
-          "Assign Name": "XXXXX055",
-          "DD Name": "XXXXX055",
+          "Assign Name": "IF1084",
+          "DD Name": "IF1084",
           "DSN": null,
           "Internal Name": "PRINT-FILE",
           "Line": 18,
@@ -939,8 +926,8 @@
           "Access Modes": [
             "OUTPUT"
           ],
-          "Assign Name": "XXXXX055",
-          "DD Name": "XXXXX055",
+          "Assign Name": "IF1094",
+          "DD Name": "IF1094",
           "DSN": null,
           "Internal Name": "PRINT-FILE",
           "Line": 18,
@@ -952,8 +939,8 @@
           "Access Modes": [
             "OUTPUT"
           ],
-          "Assign Name": "XXXXX055",
-          "DD Name": "XXXXX055",
+          "Assign Name": "IF1104",
+          "DD Name": "IF1104",
           "DSN": null,
           "Internal Name": "PRINT-FILE",
           "Line": 18,
@@ -965,8 +952,8 @@
           "Access Modes": [
             "OUTPUT"
           ],
-          "Assign Name": "XXXXX055",
-          "DD Name": "XXXXX055",
+          "Assign Name": "IF1114",
+          "DD Name": "IF1114",
           "DSN": null,
           "Internal Name": "PRINT-FILE",
           "Line": 18,
@@ -978,8 +965,8 @@
           "Access Modes": [
             "OUTPUT"
           ],
-          "Assign Name": "XXXXX055",
-          "DD Name": "XXXXX055",
+          "Assign Name": "IF1124",
+          "DD Name": "IF1124",
           "DSN": null,
           "Internal Name": "PRINT-FILE",
           "Line": 18,
@@ -991,8 +978,8 @@
           "Access Modes": [
             "OUTPUT"
           ],
-          "Assign Name": "XXXXX055",
-          "DD Name": "XXXXX055",
+          "Assign Name": "IF1134",
+          "DD Name": "IF1134",
           "DSN": null,
           "Internal Name": "PRINT-FILE",
           "Line": 18,
@@ -1004,8 +991,8 @@
           "Access Modes": [
             "OUTPUT"
           ],
-          "Assign Name": "XXXXX055",
-          "DD Name": "XXXXX055",
+          "Assign Name": "IF1144",
+          "DD Name": "IF1144",
           "DSN": null,
           "Internal Name": "PRINT-FILE",
           "Line": 18,
@@ -1017,8 +1004,8 @@
           "Access Modes": [
             "OUTPUT"
           ],
-          "Assign Name": "XXXXX055",
-          "DD Name": "XXXXX055",
+          "Assign Name": "IF1154",
+          "DD Name": "IF1154",
           "DSN": null,
           "Internal Name": "PRINT-FILE",
           "Line": 18,
@@ -1030,8 +1017,8 @@
           "Access Modes": [
             "OUTPUT"
           ],
-          "Assign Name": "XXXXX055",
-          "DD Name": "XXXXX055",
+          "Assign Name": "IF1184",
+          "DD Name": "IF1184",
           "DSN": null,
           "Internal Name": "PRINT-FILE",
           "Line": 18,
@@ -1043,8 +1030,8 @@
           "Access Modes": [
             "OUTPUT"
           ],
-          "Assign Name": "XXXXX055",
-          "DD Name": "XXXXX055",
+          "Assign Name": "IF1204",
+          "DD Name": "IF1204",
           "DSN": null,
           "Internal Name": "PRINT-FILE",
           "Line": 17,
@@ -1056,8 +1043,8 @@
           "Access Modes": [
             "OUTPUT"
           ],
-          "Assign Name": "XXXXX055",
-          "DD Name": "XXXXX055",
+          "Assign Name": "IF1214",
+          "DD Name": "IF1214",
           "DSN": null,
           "Internal Name": "PRINT-FILE",
           "Line": 17,
@@ -1069,8 +1056,8 @@
           "Access Modes": [
             "OUTPUT"
           ],
-          "Assign Name": "XXXXX055",
-          "DD Name": "XXXXX055",
+          "Assign Name": "IF1224",
+          "DD Name": "IF1224",
           "DSN": null,
           "Internal Name": "PRINT-FILE",
           "Line": 17,
@@ -1082,8 +1069,8 @@
           "Access Modes": [
             "OUTPUT"
           ],
-          "Assign Name": "XXXXX055",
-          "DD Name": "XXXXX055",
+          "Assign Name": "IF1244",
+          "DD Name": "IF1244",
           "DSN": null,
           "Internal Name": "PRINT-FILE",
           "Line": 18,
@@ -1095,8 +1082,8 @@
           "Access Modes": [
             "OUTPUT"
           ],
-          "Assign Name": "XXXXX055",
-          "DD Name": "XXXXX055",
+          "Assign Name": "IF1254",
+          "DD Name": "IF1254",
           "DSN": null,
           "Internal Name": "PRINT-FILE",
           "Line": 18,
@@ -1108,8 +1095,8 @@
           "Access Modes": [
             "OUTPUT"
           ],
-          "Assign Name": "XXXXX055",
-          "DD Name": "XXXXX055",
+          "Assign Name": "IF1274",
+          "DD Name": "IF1274",
           "DSN": null,
           "Internal Name": "PRINT-FILE",
           "Line": 22,
@@ -1121,8 +1108,8 @@
           "Access Modes": [
             "OUTPUT"
           ],
-          "Assign Name": "XXXXX055",
-          "DD Name": "XXXXX055",
+          "Assign Name": "IF1284",
+          "DD Name": "IF1284",
           "DSN": null,
           "Internal Name": "PRINT-FILE",
           "Line": 22,
@@ -1134,8 +1121,8 @@
           "Access Modes": [
             "OUTPUT"
           ],
-          "Assign Name": "XXXXX055",
-          "DD Name": "XXXXX055",
+          "Assign Name": "IF1294",
+          "DD Name": "IF1294",
           "DSN": null,
           "Internal Name": "PRINT-FILE",
           "Line": 22,
@@ -1147,8 +1134,8 @@
           "Access Modes": [
             "OUTPUT"
           ],
-          "Assign Name": "XXXXX055",
-          "DD Name": "XXXXX055",
+          "Assign Name": "IF1314",
+          "DD Name": "IF1314",
           "DSN": null,
           "Internal Name": "PRINT-FILE",
           "Line": 18,
@@ -1160,8 +1147,8 @@
           "Access Modes": [
             "OUTPUT"
           ],
-          "Assign Name": "XXXXX055",
-          "DD Name": "XXXXX055",
+          "Assign Name": "IF1324",
+          "DD Name": "IF1324",
           "DSN": null,
           "Internal Name": "PRINT-FILE",
           "Line": 17,
@@ -1173,8 +1160,8 @@
           "Access Modes": [
             "OUTPUT"
           ],
-          "Assign Name": "XXXXX055",
-          "DD Name": "XXXXX055",
+          "Assign Name": "IF1334",
+          "DD Name": "IF1334",
           "DSN": null,
           "Internal Name": "PRINT-FILE",
           "Line": 18,
@@ -1186,8 +1173,8 @@
           "Access Modes": [
             "OUTPUT"
           ],
-          "Assign Name": "XXXXX055",
-          "DD Name": "XXXXX055",
+          "Assign Name": "IF1344",
+          "DD Name": "IF1344",
           "DSN": null,
           "Internal Name": "PRINT-FILE",
           "Line": 17,
@@ -1199,8 +1186,8 @@
           "Access Modes": [
             "OUTPUT"
           ],
-          "Assign Name": "XXXXX055",
-          "DD Name": "XXXXX055",
+          "Assign Name": "IF1374",
+          "DD Name": "IF1374",
           "DSN": null,
           "Internal Name": "PRINT-FILE",
           "Line": 18,
@@ -1212,8 +1199,8 @@
           "Access Modes": [
             "OUTPUT"
           ],
-          "Assign Name": "XXXXX055",
-          "DD Name": "XXXXX055",
+          "Assign Name": "IF1384",
+          "DD Name": "IF1384",
           "DSN": null,
           "Internal Name": "PRINT-FILE",
           "Line": 17,
@@ -1225,8 +1212,8 @@
           "Access Modes": [
             "OUTPUT"
           ],
-          "Assign Name": "XXXXX055",
-          "DD Name": "XXXXX055",
+          "Assign Name": "IF1404",
+          "DD Name": "IF1404",
           "DSN": null,
           "Internal Name": "PRINT-FILE",
           "Line": 18,
@@ -1238,8 +1225,8 @@
           "Access Modes": [
             "OUTPUT"
           ],
-          "Assign Name": "XXXXX055",
-          "DD Name": "XXXXX055",
+          "Assign Name": "IF1414",
+          "DD Name": "IF1414",
           "DSN": null,
           "Internal Name": "PRINT-FILE",
           "Line": 16,
@@ -1251,8 +1238,8 @@
           "Access Modes": [
             "OUTPUT"
           ],
-          "Assign Name": "XXXXX055",
-          "DD Name": "XXXXX055",
+          "Assign Name": "IF1424",
+          "DD Name": "IF1424",
           "DSN": null,
           "Internal Name": "PRINT-FILE",
           "Line": 18,
@@ -1264,8 +1251,8 @@
           "Access Modes": [
             "I-O"
           ],
-          "Assign Name": "XXXXX062",
-          "DD Name": "XXXXX062",
+          "Assign Name": "IX1014",
+          "DD Name": "IX1014",
           "DSN": null,
           "Internal Name": "RAW-DATA",
           "Line": 50,
@@ -1275,8 +1262,8 @@
           "Access Modes": [
             "OUTPUT"
           ],
-          "Assign Name": "XXXXX055",
-          "DD Name": "XXXXX055",
+          "Assign Name": "IX1014",
+          "DD Name": "IX1014",
           "DSN": null,
           "Internal Name": "PRINT-FILE",
           "Line": 55,
@@ -1287,8 +1274,8 @@
             "INPUT",
             "OUTPUT"
           ],
-          "Assign Name": "XXXXP024",
-          "DD Name": "XXXXP024",
+          "Assign Name": "IX1014",
+          "DD Name": "IX1014",
           "DSN": null,
           "Internal Name": "IX-FS1",
           "Line": 57,
@@ -1300,8 +1287,8 @@
           "Access Modes": [
             "I-O"
           ],
-          "Assign Name": "XXXXX062",
-          "DD Name": "XXXXX062",
+          "Assign Name": "IX1024",
+          "DD Name": "IX1024",
           "DSN": null,
           "Internal Name": "RAW-DATA",
           "Line": 62,
@@ -1311,8 +1298,8 @@
           "Access Modes": [
             "OUTPUT"
           ],
-          "Assign Name": "XXXXX055",
-          "DD Name": "XXXXX055",
+          "Assign Name": "IX1024",
+          "DD Name": "IX1024",
           "DSN": null,
           "Internal Name": "PRINT-FILE",
           "Line": 67,
@@ -1323,8 +1310,8 @@
             "I-O",
             "INPUT"
           ],
-          "Assign Name": "XXXXP024",
-          "DD Name": "XXXXP024",
+          "Assign Name": "IX1024",
+          "DD Name": "IX1024",
           "DSN": null,
           "Internal Name": "IX-FS1",
           "Line": 69,
@@ -1336,8 +1323,8 @@
           "Access Modes": [
             "I-O"
           ],
-          "Assign Name": "XXXXX062",
-          "DD Name": "XXXXX062",
+          "Assign Name": "IX1034",
+          "DD Name": "IX1034",
           "DSN": null,
           "Internal Name": "RAW-DATA",
           "Line": 59,
@@ -1347,8 +1334,8 @@
           "Access Modes": [
             "OUTPUT"
           ],
-          "Assign Name": "XXXXX055",
-          "DD Name": "XXXXX055",
+          "Assign Name": "IX1034",
+          "DD Name": "IX1034",
           "DSN": null,
           "Internal Name": "PRINT-FILE",
           "Line": 64,
@@ -1359,8 +1346,8 @@
             "I-O",
             "INPUT"
           ],
-          "Assign Name": "XXXXD024",
-          "DD Name": "XXXXD024",
+          "Assign Name": "IX1034",
+          "DD Name": "IX1034",
           "DSN": null,
           "Internal Name": "IX-FS1",
           "Line": 66,
@@ -1372,8 +1359,8 @@
           "Access Modes": [
             "I-O"
           ],
-          "Assign Name": "XXXXX062",
-          "DD Name": "XXXXX062",
+          "Assign Name": "IX1044",
+          "DD Name": "IX1044",
           "DSN": null,
           "Internal Name": "RAW-DATA",
           "Line": 64,
@@ -1383,8 +1370,8 @@
           "Access Modes": [
             "OUTPUT"
           ],
-          "Assign Name": "XXXXX055",
-          "DD Name": "XXXXX055",
+          "Assign Name": "IX1044",
+          "DD Name": "IX1044",
           "DSN": null,
           "Internal Name": "PRINT-FILE",
           "Line": 69,
@@ -1395,8 +1382,8 @@
             "I-O",
             "OUTPUT"
           ],
-          "Assign Name": "XXXXX025",
-          "DD Name": "XXXXX025",
+          "Assign Name": "IX1044",
+          "DD Name": "IX1044",
           "DSN": null,
           "Internal Name": "IX-FS2",
           "Line": 71,
@@ -1408,19 +1395,17 @@
           "Access Modes": [
             "OUTPUT"
           ],
-          "Assign Name": "XXXXX055",
-          "DD Name": "XXXXX055",
+          "Assign Name": "IX1114",
+          "DD Name": "IX1114",
           "DSN": null,
           "Internal Name": "PRINT-FILE",
           "Line": 36,
           "Step": null
         },
         {
-          "Access Modes": [
-            "INPUT"
-          ],
-          "Assign Name": "XXXXX025",
-          "DD Name": "XXXXX025",
+          "Access Modes": [],
+          "Assign Name": "IX1114",
+          "DD Name": "IX1114",
           "DSN": null,
           "Internal Name": "IX-NOP",
           "Line": 38,
@@ -1432,8 +1417,8 @@
           "Access Modes": [
             "I-O"
           ],
-          "Assign Name": "XXXXX062",
-          "DD Name": "XXXXX062",
+          "Assign Name": "IX1134",
+          "DD Name": "IX1134",
           "DSN": null,
           "Internal Name": "RAW-DATA",
           "Line": 42,
@@ -1443,19 +1428,17 @@
           "Access Modes": [
             "OUTPUT"
           ],
-          "Assign Name": "XXXXX055",
-          "DD Name": "XXXXX055",
+          "Assign Name": "IX1134",
+          "DD Name": "IX1134",
           "DSN": null,
           "Internal Name": "PRINT-FILE",
           "Line": 47,
           "Step": null
         },
         {
-          "Access Modes": [
-            "OUTPUT"
-          ],
-          "Assign Name": "XXXXX024",
-          "DD Name": "XXXXX024",
+          "Access Modes": [],
+          "Assign Name": "IX1134",
+          "DD Name": "IX1134",
           "DSN": null,
           "Internal Name": "IX-FS3",
           "Line": 50,
@@ -1467,8 +1450,8 @@
           "Access Modes": [
             "I-O"
           ],
-          "Assign Name": "XXXXX062",
-          "DD Name": "XXXXX062",
+          "Assign Name": "IX1144",
+          "DD Name": "IX1144",
           "DSN": null,
           "Internal Name": "RAW-DATA",
           "Line": 38,
@@ -1478,19 +1461,17 @@
           "Access Modes": [
             "OUTPUT"
           ],
-          "Assign Name": "XXXXX055",
-          "DD Name": "XXXXX055",
+          "Assign Name": "IX1144",
+          "DD Name": "IX1144",
           "DSN": null,
           "Internal Name": "PRINT-FILE",
           "Line": 43,
           "Step": null
         },
         {
-          "Access Modes": [
-            "I-O"
-          ],
-          "Assign Name": "XXXXX024",
-          "DD Name": "XXXXX024",
+          "Access Modes": [],
+          "Assign Name": "IX1144",
+          "DD Name": "IX1144",
           "DSN": null,
           "Internal Name": "IX-FS3",
           "Line": 46,
@@ -1502,8 +1483,8 @@
           "Access Modes": [
             "I-O"
           ],
-          "Assign Name": "XXXXX062",
-          "DD Name": "XXXXX062",
+          "Assign Name": "IX1154",
+          "DD Name": "IX1154",
           "DSN": null,
           "Internal Name": "RAW-DATA",
           "Line": 39,
@@ -1513,19 +1494,17 @@
           "Access Modes": [
             "OUTPUT"
           ],
-          "Assign Name": "XXXXX055",
-          "DD Name": "XXXXX055",
+          "Assign Name": "IX1154",
+          "DD Name": "IX1154",
           "DSN": null,
           "Internal Name": "PRINT-FILE",
           "Line": 44,
           "Step": null
         },
         {
-          "Access Modes": [
-            "I-O"
-          ],
-          "Assign Name": "XXXXX024",
-          "DD Name": "XXXXX024",
+          "Access Modes": [],
+          "Assign Name": "IX1154",
+          "DD Name": "IX1154",
           "DSN": null,
           "Internal Name": "IX-FS3",
           "Line": 47,
@@ -1537,8 +1516,8 @@
           "Access Modes": [
             "I-O"
           ],
-          "Assign Name": "XXXXX062",
-          "DD Name": "XXXXX062",
+          "Assign Name": "IX1164",
+          "DD Name": "IX1164",
           "DSN": null,
           "Internal Name": "RAW-DATA",
           "Line": 39,
@@ -1548,19 +1527,17 @@
           "Access Modes": [
             "OUTPUT"
           ],
-          "Assign Name": "XXXXX055",
-          "DD Name": "XXXXX055",
+          "Assign Name": "IX1164",
+          "DD Name": "IX1164",
           "DSN": null,
           "Internal Name": "PRINT-FILE",
           "Line": 44,
           "Step": null
         },
         {
-          "Access Modes": [
-            "I-O"
-          ],
-          "Assign Name": "XXXXX024",
-          "DD Name": "XXXXX024",
+          "Access Modes": [],
+          "Assign Name": "IX1164",
+          "DD Name": "IX1164",
           "DSN": null,
           "Internal Name": "IX-FS3",
           "Line": 47,
@@ -1572,8 +1549,8 @@
           "Access Modes": [
             "I-O"
           ],
-          "Assign Name": "XXXXX062",
-          "DD Name": "XXXXX062",
+          "Assign Name": "IX1174",
+          "DD Name": "IX1174",
           "DSN": null,
           "Internal Name": "RAW-DATA",
           "Line": 38,
@@ -1583,19 +1560,17 @@
           "Access Modes": [
             "OUTPUT"
           ],
-          "Assign Name": "XXXXX055",
-          "DD Name": "XXXXX055",
+          "Assign Name": "IX1174",
+          "DD Name": "IX1174",
           "DSN": null,
           "Internal Name": "PRINT-FILE",
           "Line": 43,
           "Step": null
         },
         {
-          "Access Modes": [
-            "I-O"
-          ],
-          "Assign Name": "XXXXX024",
-          "DD Name": "XXXXX024",
+          "Access Modes": [],
+          "Assign Name": "IX1174",
+          "DD Name": "IX1174",
           "DSN": null,
           "Internal Name": "IX-FS3",
           "Line": 46,
@@ -1607,8 +1582,8 @@
           "Access Modes": [
             "I-O"
           ],
-          "Assign Name": "XXXXX062",
-          "DD Name": "XXXXX062",
+          "Assign Name": "IX1184",
+          "DD Name": "IX1184",
           "DSN": null,
           "Internal Name": "RAW-DATA",
           "Line": 38,
@@ -1618,8 +1593,8 @@
           "Access Modes": [
             "OUTPUT"
           ],
-          "Assign Name": "XXXXX055",
-          "DD Name": "XXXXX055",
+          "Assign Name": "IX1184",
+          "DD Name": "IX1184",
           "DSN": null,
           "Internal Name": "PRINT-FILE",
           "Line": 43,
@@ -1627,11 +1602,10 @@
         },
         {
           "Access Modes": [
-            "I-O",
             "INPUT"
           ],
-          "Assign Name": "XXXXX024",
-          "DD Name": "XXXXX024",
+          "Assign Name": "IX1184",
+          "DD Name": "IX1184",
           "DSN": null,
           "Internal Name": "IX-FS3",
           "Line": 46,
@@ -1643,8 +1617,8 @@
           "Access Modes": [
             "I-O"
           ],
-          "Assign Name": "XXXXX062",
-          "DD Name": "XXXXX062",
+          "Assign Name": "IX1194",
+          "DD Name": "IX1194",
           "DSN": null,
           "Internal Name": "RAW-DATA",
           "Line": 41,
@@ -1654,19 +1628,17 @@
           "Access Modes": [
             "OUTPUT"
           ],
-          "Assign Name": "XXXXX055",
-          "DD Name": "XXXXX055",
+          "Assign Name": "IX1194",
+          "DD Name": "IX1194",
           "DSN": null,
           "Internal Name": "PRINT-FILE",
           "Line": 46,
           "Step": null
         },
         {
-          "Access Modes": [
-            "I-O"
-          ],
-          "Assign Name": "XXXXX024",
-          "DD Name": "XXXXX024",
+          "Access Modes": [],
+          "Assign Name": "IX1194",
+          "DD Name": "IX1194",
           "DSN": null,
           "Internal Name": "IX-FS3",
           "Line": 49,
@@ -1678,8 +1650,8 @@
           "Access Modes": [
             "I-O"
           ],
-          "Assign Name": "XXXXX062",
-          "DD Name": "XXXXX062",
+          "Assign Name": "IX1204",
+          "DD Name": "IX1204",
           "DSN": null,
           "Internal Name": "RAW-DATA",
           "Line": 40,
@@ -1689,19 +1661,17 @@
           "Access Modes": [
             "OUTPUT"
           ],
-          "Assign Name": "XXXXX055",
-          "DD Name": "XXXXX055",
+          "Assign Name": "IX1204",
+          "DD Name": "IX1204",
           "DSN": null,
           "Internal Name": "PRINT-FILE",
           "Line": 45,
           "Step": null
         },
         {
-          "Access Modes": [
-            "I-O"
-          ],
-          "Assign Name": "XXXXX024",
-          "DD Name": "XXXXX024",
+          "Access Modes": [],
+          "Assign Name": "IX1204",
+          "DD Name": "IX1204",
           "DSN": null,
           "Internal Name": "IX-FS3",
           "Line": 48,
@@ -1713,8 +1683,8 @@
           "Access Modes": [
             "I-O"
           ],
-          "Assign Name": "XXXXX062",
-          "DD Name": "XXXXX062",
+          "Assign Name": "IX1214",
+          "DD Name": "IX1214",
           "DSN": null,
           "Internal Name": "RAW-DATA",
           "Line": 45,
@@ -1724,8 +1694,8 @@
           "Access Modes": [
             "OUTPUT"
           ],
-          "Assign Name": "XXXXX055",
-          "DD Name": "XXXXX055",
+          "Assign Name": "IX1214",
+          "DD Name": "IX1214",
           "DSN": null,
           "Internal Name": "PRINT-FILE",
           "Line": 50,
@@ -1733,11 +1703,10 @@
         },
         {
           "Access Modes": [
-            "I-O",
-            "OUTPUT"
+            "I-O"
           ],
-          "Assign Name": "XXXXX024",
-          "DD Name": "XXXXX024",
+          "Assign Name": "IX1214",
+          "DD Name": "IX1214",
           "DSN": null,
           "Internal Name": "IX-VS2",
           "Line": 53,
@@ -1749,8 +1718,8 @@
           "Access Modes": [
             "I-O"
           ],
-          "Assign Name": "XXXXX062",
-          "DD Name": "XXXXX062",
+          "Assign Name": "IX2014",
+          "DD Name": "IX2014",
           "DSN": null,
           "Internal Name": "RAW-DATA",
           "Line": 51,
@@ -1760,8 +1729,8 @@
           "Access Modes": [
             "OUTPUT"
           ],
-          "Assign Name": "XXXXX055",
-          "DD Name": "XXXXX055",
+          "Assign Name": "IX2014",
+          "DD Name": "IX2014",
           "DSN": null,
           "Internal Name": "PRINT-FILE",
           "Line": 56,
@@ -1772,8 +1741,8 @@
             "INPUT",
             "OUTPUT"
           ],
-          "Assign Name": "XXXXP024",
-          "DD Name": "XXXXP024",
+          "Assign Name": "IX2014",
+          "DD Name": "IX2014",
           "DSN": null,
           "Internal Name": "IX-FS1",
           "Line": 58,
@@ -1785,8 +1754,8 @@
           "Access Modes": [
             "I-O"
           ],
-          "Assign Name": "XXXXX062",
-          "DD Name": "XXXXX062",
+          "Assign Name": "IX2034",
+          "DD Name": "IX2034",
           "DSN": null,
           "Internal Name": "RAW-DATA",
           "Line": 55,
@@ -1796,8 +1765,8 @@
           "Access Modes": [
             "OUTPUT"
           ],
-          "Assign Name": "XXXXX055",
-          "DD Name": "XXXXX055",
+          "Assign Name": "IX2034",
+          "DD Name": "IX2034",
           "DSN": null,
           "Internal Name": "PRINT-FILE",
           "Line": 60,
@@ -1808,8 +1777,8 @@
             "I-O",
             "INPUT"
           ],
-          "Assign Name": "XXXXD024",
-          "DD Name": "XXXXD024",
+          "Assign Name": "IX2034",
+          "DD Name": "IX2034",
           "DSN": null,
           "Internal Name": "IX-FD1",
           "Line": 62,
@@ -1821,8 +1790,8 @@
           "Access Modes": [
             "I-O"
           ],
-          "Assign Name": "XXXXX062",
-          "DD Name": "XXXXX062",
+          "Assign Name": "IX2044",
+          "DD Name": "IX2044",
           "DSN": null,
           "Internal Name": "RAW-DATA",
           "Line": 73,
@@ -1832,8 +1801,8 @@
           "Access Modes": [
             "OUTPUT"
           ],
-          "Assign Name": "XXXXX055",
-          "DD Name": "XXXXX055",
+          "Assign Name": "IX2044",
+          "DD Name": "IX2044",
           "DSN": null,
           "Internal Name": "PRINT-FILE",
           "Line": 78,
@@ -1844,8 +1813,8 @@
             "I-O",
             "OUTPUT"
           ],
-          "Assign Name": "XXXXX025",
-          "DD Name": "XXXXX025",
+          "Assign Name": "IX2044",
+          "DD Name": "IX2044",
           "DSN": null,
           "Internal Name": "IX-FD2",
           "Line": 80,
@@ -1857,8 +1826,8 @@
           "Access Modes": [
             "OUTPUT"
           ],
-          "Assign Name": "XXXXX055",
-          "DD Name": "XXXXX055",
+          "Assign Name": "IX2174",
+          "DD Name": "IX2174",
           "DSN": null,
           "Internal Name": "PRINT-FILE",
           "Line": 58,
@@ -1866,26 +1835,24 @@
         },
         {
           "Access Modes": [
-            "I-O",
             "INPUT"
           ],
-          "Assign Name": "XXXXP024",
-          "DD Name": "XXXXP024",
+          "Assign Name": "IX2174",
+          "DD Name": "IX2174",
           "DSN": null,
           "Internal Name": "IX-FS1",
-          "Line": 60,
+          "Line": 61,
           "Step": null
         },
         {
           "Access Modes": [
-            "EXTEND",
             "INPUT"
           ],
-          "Assign Name": "XXXXP025",
-          "DD Name": "XXXXP025",
+          "Assign Name": "IX2174",
+          "DD Name": "IX2174",
           "DSN": null,
           "Internal Name": "IX-VS1",
-          "Line": 68,
+          "Line": 69,
           "Step": null
         }
       ],
@@ -1894,8 +1861,8 @@
           "Access Modes": [
             "I-O"
           ],
-          "Assign Name": "XXXXX062",
-          "DD Name": "XXXXX062",
+          "Assign Name": "IX2184",
+          "DD Name": "IX2184",
           "DSN": null,
           "Internal Name": "RAW-DATA",
           "Line": 66,
@@ -1905,8 +1872,8 @@
           "Access Modes": [
             "OUTPUT"
           ],
-          "Assign Name": "XXXXX055",
-          "DD Name": "XXXXX055",
+          "Assign Name": "IX2184",
+          "DD Name": "IX2184",
           "DSN": null,
           "Internal Name": "PRINT-FILE",
           "Line": 71,
@@ -1916,22 +1883,22 @@
           "Access Modes": [
             "INPUT"
           ],
-          "Assign Name": "XXXXP024",
-          "DD Name": "XXXXP024",
+          "Assign Name": "IX2184",
+          "DD Name": "IX2184",
           "DSN": null,
           "Internal Name": "IX-FS1",
-          "Line": 73,
+          "Line": 74,
           "Step": null
         },
         {
           "Access Modes": [
             "INPUT"
           ],
-          "Assign Name": "XXXXP025",
-          "DD Name": "XXXXP025",
+          "Assign Name": "IX2184",
+          "DD Name": "IX2184",
           "DSN": null,
           "Internal Name": "IX-FS2",
-          "Line": 82,
+          "Line": 83,
           "Step": null
         }
       ],
@@ -1940,8 +1907,8 @@
           "Access Modes": [
             "I-O"
           ],
-          "Assign Name": "XXXXX024",
-          "DD Name": "XXXXX024",
+          "Assign Name": "IX3014",
+          "DD Name": "IX3014",
           "DSN": null,
           "Internal Name": "TFIL",
           "Line": 15,
@@ -1953,8 +1920,8 @@
           "Access Modes": [
             "INPUT"
           ],
-          "Assign Name": "XXXXX025",
-          "DD Name": "XXXXX025",
+          "Assign Name": "IX4014",
+          "DD Name": "IX4014",
           "DSN": null,
           "Internal Name": "TFIL",
           "Line": 15,
@@ -1964,11 +1931,11 @@
           "Access Modes": [
             "EXTEND"
           ],
-          "Assign Name": "XXXXX026",
-          "DD Name": "XXXXX026",
+          "Assign Name": "IX4014",
+          "DD Name": "IX4014",
           "DSN": null,
           "Internal Name": "TFIL2",
-          "Line": 28,
+          "Line": 30,
           "Step": null
         }
       ],
@@ -1977,8 +1944,8 @@
           "Access Modes": [
             "OUTPUT"
           ],
-          "Assign Name": "XXXXX055",
-          "DD Name": "XXXXX055",
+          "Assign Name": "NC1114",
+          "DD Name": "NC1114",
           "DSN": null,
           "Internal Name": "PRINT-FILE",
           "Line": 32,
@@ -1990,8 +1957,8 @@
           "Access Modes": [
             "OUTPUT"
           ],
-          "Assign Name": "XXXXX055",
-          "DD Name": "XXXXX055",
+          "Assign Name": "NC1134",
+          "DD Name": "NC1134",
           "DSN": null,
           "Internal Name": "PRINT-FILE",
           "Line": 31,
@@ -2003,8 +1970,8 @@
           "Access Modes": [
             "OUTPUT"
           ],
-          "Assign Name": "XXXXX055",
-          "DD Name": "XXXXX055",
+          "Assign Name": "NC1254",
+          "DD Name": "NC1254",
           "DSN": null,
           "Internal Name": "PRINT-FILE",
           "Line": 31,
@@ -2016,8 +1983,8 @@
           "Access Modes": [
             "OUTPUT"
           ],
-          "Assign Name": "XXXXX055",
-          "DD Name": "XXXXX055",
+          "Assign Name": "NC1274",
+          "DD Name": "NC1274",
           "DSN": null,
           "Internal Name": "PRINT-FILE",
           "Line": 32,
@@ -2029,8 +1996,8 @@
           "Access Modes": [
             "OUTPUT"
           ],
-          "Assign Name": "XXXXX055",
-          "DD Name": "XXXXX055",
+          "Assign Name": "NC1314",
+          "DD Name": "NC1314",
           "DSN": null,
           "Internal Name": "PRINT-FILE",
           "Line": 30,
@@ -2042,8 +2009,8 @@
           "Access Modes": [
             "OUTPUT"
           ],
-          "Assign Name": "XXXXX055",
-          "DD Name": "XXXXX055",
+          "Assign Name": "NC1334",
+          "DD Name": "NC1334",
           "DSN": null,
           "Internal Name": "PRINT-FILE",
           "Line": 32,
@@ -2055,8 +2022,8 @@
           "Access Modes": [
             "OUTPUT"
           ],
-          "Assign Name": "XXXXX055",
-          "DD Name": "XXXXX055",
+          "Assign Name": "NC1344",
+          "DD Name": "NC1344",
           "DSN": null,
           "Internal Name": "PRINT-FILE",
           "Line": 31,
@@ -2068,8 +2035,8 @@
           "Access Modes": [
             "OUTPUT"
           ],
-          "Assign Name": "XXXXX055",
-          "DD Name": "XXXXX055",
+          "Assign Name": "NC1354",
+          "DD Name": "NC1354",
           "DSN": null,
           "Internal Name": "PRINT-FILE",
           "Line": 32,
@@ -2081,8 +2048,8 @@
           "Access Modes": [
             "OUTPUT"
           ],
-          "Assign Name": "XXXXX055",
-          "DD Name": "XXXXX055",
+          "Assign Name": "NC1364",
+          "DD Name": "NC1364",
           "DSN": null,
           "Internal Name": "PRINT-FILE",
           "Line": 31,
@@ -2094,8 +2061,8 @@
           "Access Modes": [
             "OUTPUT"
           ],
-          "Assign Name": "XXXXX055",
-          "DD Name": "XXXXX055",
+          "Assign Name": "NC1374",
+          "DD Name": "NC1374",
           "DSN": null,
           "Internal Name": "PRINT-FILE",
           "Line": 30,
@@ -2107,8 +2074,8 @@
           "Access Modes": [
             "OUTPUT"
           ],
-          "Assign Name": "XXXXX055",
-          "DD Name": "XXXXX055",
+          "Assign Name": "NC1384",
+          "DD Name": "NC1384",
           "DSN": null,
           "Internal Name": "PRINT-FILE",
           "Line": 31,
@@ -2120,8 +2087,8 @@
           "Access Modes": [
             "OUTPUT"
           ],
-          "Assign Name": "XXXXX055",
-          "DD Name": "XXXXX055",
+          "Assign Name": "NC1394",
+          "DD Name": "NC1394",
           "DSN": null,
           "Internal Name": "PRINT-FILE",
           "Line": 32,
@@ -2133,8 +2100,8 @@
           "Access Modes": [
             "OUTPUT"
           ],
-          "Assign Name": "XXXXX055",
-          "DD Name": "XXXXX055",
+          "Assign Name": "NC1404",
+          "DD Name": "NC1404",
           "DSN": null,
           "Internal Name": "PRINT-FILE",
           "Line": 31,
@@ -2146,8 +2113,8 @@
           "Access Modes": [
             "OUTPUT"
           ],
-          "Assign Name": "XXXXX055",
-          "DD Name": "XXXXX055",
+          "Assign Name": "NC1414",
+          "DD Name": "NC1414",
           "DSN": null,
           "Internal Name": "PRINT-FILE",
           "Line": 31,
@@ -2159,8 +2126,8 @@
           "Access Modes": [
             "OUTPUT"
           ],
-          "Assign Name": "XXXXX055",
-          "DD Name": "XXXXX055",
+          "Assign Name": "NC2104",
+          "DD Name": "NC2104",
           "DSN": null,
           "Internal Name": "PRINT-FILE",
           "Line": 30,
@@ -2172,8 +2139,8 @@
           "Access Modes": [
             "OUTPUT"
           ],
-          "Assign Name": "XXXXX055",
-          "DD Name": "XXXXX055",
+          "Assign Name": "NC2144",
+          "DD Name": "NC2144",
           "DSN": null,
           "Internal Name": "PRINT-FILE",
           "Line": 54,
@@ -2185,8 +2152,8 @@
           "Access Modes": [
             "OUTPUT"
           ],
-          "Assign Name": "XXXXX055",
-          "DD Name": "XXXXX055",
+          "Assign Name": "NC2154",
+          "DD Name": "NC2154",
           "DSN": null,
           "Internal Name": "PRINT-FILE",
           "Line": 51,
@@ -2198,8 +2165,8 @@
           "Access Modes": [
             "OUTPUT"
           ],
-          "Assign Name": "XXXXX055",
-          "DD Name": "XXXXX055",
+          "Assign Name": "NC2194",
+          "DD Name": "NC2194",
           "DSN": null,
           "Internal Name": "PRINT-FILE",
           "Line": 69,
@@ -2211,8 +2178,8 @@
           "Access Modes": [
             "OUTPUT"
           ],
-          "Assign Name": "XXXXX055",
-          "DD Name": "XXXXX055",
+          "Assign Name": "NC2224",
+          "DD Name": "NC2224",
           "DSN": null,
           "Internal Name": "PRINT-FILE",
           "Line": 31,
@@ -2224,8 +2191,8 @@
           "Access Modes": [
             "OUTPUT"
           ],
-          "Assign Name": "XXXXX055",
-          "DD Name": "XXXXX055",
+          "Assign Name": "NC2244",
+          "DD Name": "NC2244",
           "DSN": null,
           "Internal Name": "PRINT-FILE",
           "Line": 31,
@@ -2237,8 +2204,8 @@
           "Access Modes": [
             "OUTPUT"
           ],
-          "Assign Name": "XXXXX055",
-          "DD Name": "XXXXX055",
+          "Assign Name": "NC2354",
+          "DD Name": "NC2354",
           "DSN": null,
           "Internal Name": "PRINT-FILE",
           "Line": 32,
@@ -2250,8 +2217,8 @@
           "Access Modes": [
             "OUTPUT"
           ],
-          "Assign Name": "XXXXX055",
-          "DD Name": "XXXXX055",
+          "Assign Name": "NC2364",
+          "DD Name": "NC2364",
           "DSN": null,
           "Internal Name": "PRINT-FILE",
           "Line": 32,
@@ -2263,8 +2230,8 @@
           "Access Modes": [
             "OUTPUT"
           ],
-          "Assign Name": "XXXXX055",
-          "DD Name": "XXXXX055",
+          "Assign Name": "NC2374",
+          "DD Name": "NC2374",
           "DSN": null,
           "Internal Name": "PRINT-FILE",
           "Line": 32,
@@ -2276,8 +2243,8 @@
           "Access Modes": [
             "OUTPUT"
           ],
-          "Assign Name": "XXXXX055",
-          "DD Name": "XXXXX055",
+          "Assign Name": "NC2384",
+          "DD Name": "NC2384",
           "DSN": null,
           "Internal Name": "PRINT-FILE",
           "Line": 32,
@@ -2289,8 +2256,8 @@
           "Access Modes": [
             "OUTPUT"
           ],
-          "Assign Name": "XXXXX055",
-          "DD Name": "XXXXX055",
+          "Assign Name": "NC2394",
+          "DD Name": "NC2394",
           "DSN": null,
           "Internal Name": "PRINT-FILE",
           "Line": 31,
@@ -2302,8 +2269,8 @@
           "Access Modes": [
             "OUTPUT"
           ],
-          "Assign Name": "XXXXX055",
-          "DD Name": "XXXXX055",
+          "Assign Name": "NC2404",
+          "DD Name": "NC2404",
           "DSN": null,
           "Internal Name": "PRINT-FILE",
           "Line": 34,
@@ -2315,8 +2282,8 @@
           "Access Modes": [
             "OUTPUT"
           ],
-          "Assign Name": "XXXXX055",
-          "DD Name": "XXXXX055",
+          "Assign Name": "NC2414",
+          "DD Name": "NC2414",
           "DSN": null,
           "Internal Name": "PRINT-FILE",
           "Line": 33,
@@ -2328,8 +2295,8 @@
           "Access Modes": [
             "OUTPUT"
           ],
-          "Assign Name": "XXXXX055",
-          "DD Name": "XXXXX055",
+          "Assign Name": "NC2424",
+          "DD Name": "NC2424",
           "DSN": null,
           "Internal Name": "PRINT-FILE",
           "Line": 35,
@@ -2341,8 +2308,8 @@
           "Access Modes": [
             "OUTPUT"
           ],
-          "Assign Name": "XXXXX055",
-          "DD Name": "XXXXX055",
+          "Assign Name": "NC2434",
+          "DD Name": "NC2434",
           "DSN": null,
           "Internal Name": "PRINT-FILE",
           "Line": 33,
@@ -2354,8 +2321,8 @@
           "Access Modes": [
             "OUTPUT"
           ],
-          "Assign Name": "XXXXX055",
-          "DD Name": "XXXXX055",
+          "Assign Name": "NC2444",
+          "DD Name": "NC2444",
           "DSN": null,
           "Internal Name": "PRINT-FILE",
           "Line": 32,
@@ -2367,8 +2334,8 @@
           "Access Modes": [
             "OUTPUT"
           ],
-          "Assign Name": "XXXXX055",
-          "DD Name": "XXXXX055",
+          "Assign Name": "NC2454",
+          "DD Name": "NC2454",
           "DSN": null,
           "Internal Name": "PRINT-FILE",
           "Line": 32,
@@ -2380,8 +2347,8 @@
           "Access Modes": [
             "OUTPUT"
           ],
-          "Assign Name": "XXXXX055",
-          "DD Name": "XXXXX055",
+          "Assign Name": "NC2484",
+          "DD Name": "NC2484",
           "DSN": null,
           "Internal Name": "PRINT-FILE",
           "Line": 32,
@@ -2391,8 +2358,8 @@
       "cobol/che-che4z_nist_ccvs85/OBIC24.2.cbl": [
         {
           "Access Modes": [],
-          "Assign Name": "XXXXX027",
-          "DD Name": "XXXXX027",
+          "Assign Name": "OBIC24",
+          "DD Name": "OBIC24",
           "DSN": null,
           "Internal Name": "ST-FS1",
           "Line": 36,
@@ -2404,8 +2371,8 @@
           "Access Modes": [
             "OUTPUT"
           ],
-          "Assign Name": "XXXXX055",
-          "DD Name": "XXXXX055",
+          "Assign Name": "OBIC34",
+          "DD Name": "OBIC34",
           "DSN": null,
           "Internal Name": "PRINT-FILE",
           "Line": 34,
@@ -2417,8 +2384,8 @@
           "Access Modes": [
             "I-O"
           ],
-          "Assign Name": "XXXXX062",
-          "DD Name": "XXXXX062",
+          "Assign Name": "OBSQ34",
+          "DD Name": "OBSQ34",
           "DSN": null,
           "Internal Name": "RAW-DATA",
           "Line": 30,
@@ -2428,8 +2395,8 @@
           "Access Modes": [
             "OUTPUT"
           ],
-          "Assign Name": "XXXXX055",
-          "DD Name": "XXXXX055",
+          "Assign Name": "OBSQ34",
+          "DD Name": "OBSQ34",
           "DSN": null,
           "Internal Name": "PRINT-FILE",
           "Line": 35,
@@ -2439,8 +2406,8 @@
           "Access Modes": [
             "OUTPUT"
           ],
-          "Assign Name": "XXXXP004",
-          "DD Name": "XXXXP004",
+          "Assign Name": "OBSQ34",
+          "DD Name": "OBSQ34",
           "DSN": null,
           "Internal Name": "SQ-FS1",
           "Line": 37,
@@ -2450,8 +2417,8 @@
           "Access Modes": [
             "OUTPUT"
           ],
-          "Assign Name": "XXXXP008",
-          "DD Name": "XXXXP008",
+          "Assign Name": "OBSQ34",
+          "DD Name": "OBSQ34",
           "DSN": null,
           "Internal Name": "SQ-FS2",
           "Line": 40,
@@ -2461,8 +2428,8 @@
           "Access Modes": [
             "OUTPUT"
           ],
-          "Assign Name": "XXXXP009",
-          "DD Name": "XXXXP009",
+          "Assign Name": "OBSQ34",
+          "DD Name": "OBSQ34",
           "DSN": null,
           "Internal Name": "SQ-FS3",
           "Line": 43,
@@ -2472,8 +2439,8 @@
           "Access Modes": [
             "OUTPUT"
           ],
-          "Assign Name": "XXXXP010",
-          "DD Name": "XXXXP010",
+          "Assign Name": "OBSQ34",
+          "DD Name": "OBSQ34",
           "DSN": null,
           "Internal Name": "SQ-FS4",
           "Line": 46,
@@ -2483,8 +2450,8 @@
           "Access Modes": [
             "OUTPUT"
           ],
-          "Assign Name": "XXXXP005",
-          "DD Name": "XXXXP005",
+          "Assign Name": "OBSQ34",
+          "DD Name": "OBSQ34",
           "DSN": null,
           "Internal Name": "SQ-FS5",
           "Line": 49,
@@ -2494,8 +2461,8 @@
           "Access Modes": [
             "OUTPUT"
           ],
-          "Assign Name": "XXXXP011",
-          "DD Name": "XXXXP011",
+          "Assign Name": "OBSQ34",
+          "DD Name": "OBSQ34",
           "DSN": null,
           "Internal Name": "SQ-FS6",
           "Line": 51,
@@ -2505,8 +2472,8 @@
           "Access Modes": [
             "OUTPUT"
           ],
-          "Assign Name": "XXXXP012",
-          "DD Name": "XXXXP012",
+          "Assign Name": "OBSQ34",
+          "DD Name": "OBSQ34",
           "DSN": null,
           "Internal Name": "SQ-FS7",
           "Line": 54,
@@ -2516,8 +2483,8 @@
           "Access Modes": [
             "OUTPUT"
           ],
-          "Assign Name": "XXXXP013",
-          "DD Name": "XXXXP013",
+          "Assign Name": "OBSQ34",
+          "DD Name": "OBSQ34",
           "DSN": null,
           "Internal Name": "SQ-FS8",
           "Line": 58,
@@ -2529,8 +2496,8 @@
           "Access Modes": [
             "I-O"
           ],
-          "Assign Name": "XXXXX062",
-          "DD Name": "XXXXX062",
+          "Assign Name": "OBSQ44",
+          "DD Name": "OBSQ44",
           "DSN": null,
           "Internal Name": "RAW-DATA",
           "Line": 27,
@@ -2540,8 +2507,8 @@
           "Access Modes": [
             "OUTPUT"
           ],
-          "Assign Name": "XXXXX055",
-          "DD Name": "XXXXX055",
+          "Assign Name": "OBSQ44",
+          "DD Name": "OBSQ44",
           "DSN": null,
           "Internal Name": "PRINT-FILE",
           "Line": 32,
@@ -2551,8 +2518,8 @@
           "Access Modes": [
             "INPUT"
           ],
-          "Assign Name": "XXXXP004",
-          "DD Name": "XXXXP004",
+          "Assign Name": "OBSQ44",
+          "DD Name": "OBSQ44",
           "DSN": null,
           "Internal Name": "SQ-FS1",
           "Line": 34,
@@ -2562,8 +2529,8 @@
           "Access Modes": [
             "INPUT"
           ],
-          "Assign Name": "XXXXP008",
-          "DD Name": "XXXXP008",
+          "Assign Name": "OBSQ44",
+          "DD Name": "OBSQ44",
           "DSN": null,
           "Internal Name": "SQ-FS2",
           "Line": 36,
@@ -2573,8 +2540,8 @@
           "Access Modes": [
             "INPUT"
           ],
-          "Assign Name": "XXXXP009",
-          "DD Name": "XXXXP009",
+          "Assign Name": "OBSQ44",
+          "DD Name": "OBSQ44",
           "DSN": null,
           "Internal Name": "SQ-FS3",
           "Line": 38,
@@ -2584,8 +2551,8 @@
           "Access Modes": [
             "INPUT"
           ],
-          "Assign Name": "XXXXP010",
-          "DD Name": "XXXXP010",
+          "Assign Name": "OBSQ44",
+          "DD Name": "OBSQ44",
           "DSN": null,
           "Internal Name": "SQ-FS4",
           "Line": 40,
@@ -2597,8 +2564,8 @@
           "Access Modes": [
             "I-O"
           ],
-          "Assign Name": "XXXXX062",
-          "DD Name": "XXXXX062",
+          "Assign Name": "OBSQ54",
+          "DD Name": "OBSQ54",
           "DSN": null,
           "Internal Name": "RAW-DATA",
           "Line": 29,
@@ -2608,8 +2575,8 @@
           "Access Modes": [
             "OUTPUT"
           ],
-          "Assign Name": "XXXXX055",
-          "DD Name": "XXXXX055",
+          "Assign Name": "OBSQ54",
+          "DD Name": "OBSQ54",
           "DSN": null,
           "Internal Name": "PRINT-FILE",
           "Line": 34,
@@ -2619,8 +2586,8 @@
           "Access Modes": [
             "INPUT"
           ],
-          "Assign Name": "XXXXD009",
-          "DD Name": "XXXXD009",
+          "Assign Name": "OBSQ54",
+          "DD Name": "OBSQ54",
           "DSN": null,
           "Internal Name": "SQ-FS3",
           "Line": 36,
@@ -2630,8 +2597,8 @@
           "Access Modes": [
             "INPUT"
           ],
-          "Assign Name": "XXXXD005",
-          "DD Name": "XXXXD005",
+          "Assign Name": "OBSQ54",
+          "DD Name": "OBSQ54",
           "DSN": null,
           "Internal Name": "SQ-FS5",
           "Line": 38,
@@ -2641,8 +2608,8 @@
           "Access Modes": [
             "INPUT"
           ],
-          "Assign Name": "XXXXD011",
-          "DD Name": "XXXXD011",
+          "Assign Name": "OBSQ54",
+          "DD Name": "OBSQ54",
           "DSN": null,
           "Internal Name": "SQ-FS6",
           "Line": 40,
@@ -2652,8 +2619,8 @@
           "Access Modes": [
             "INPUT"
           ],
-          "Assign Name": "XXXXD012",
-          "DD Name": "XXXXD012",
+          "Assign Name": "OBSQ54",
+          "DD Name": "OBSQ54",
           "DSN": null,
           "Internal Name": "SQ-FS7",
           "Line": 42,
@@ -2663,8 +2630,8 @@
           "Access Modes": [
             "INPUT"
           ],
-          "Assign Name": "XXXXD013",
-          "DD Name": "XXXXD013",
+          "Assign Name": "OBSQ54",
+          "DD Name": "OBSQ54",
           "DSN": null,
           "Internal Name": "SQ-FS8",
           "Line": 44,
@@ -2676,8 +2643,8 @@
           "Access Modes": [
             "I-O"
           ],
-          "Assign Name": "XXXXX021",
-          "DD Name": "XXXXX021",
+          "Assign Name": "RL3014",
+          "DD Name": "RL3014",
           "DSN": null,
           "Internal Name": "TFIL",
           "Line": 15,
@@ -2689,8 +2656,8 @@
           "Access Modes": [
             "INPUT"
           ],
-          "Assign Name": "XXXXX021",
-          "DD Name": "XXXXX021",
+          "Assign Name": "RL4014",
+          "DD Name": "RL4014",
           "DSN": null,
           "Internal Name": "TFIL",
           "Line": 15,
@@ -2700,11 +2667,11 @@
           "Access Modes": [
             "EXTEND"
           ],
-          "Assign Name": "XXXXX022",
-          "DD Name": "XXXXX022",
+          "Assign Name": "RL4014",
+          "DD Name": "RL4014",
           "DSN": null,
           "Internal Name": "TFIL2",
-          "Line": 24,
+          "Line": 25,
           "Step": null
         }
       ],
@@ -2713,8 +2680,8 @@
           "Access Modes": [
             "OUTPUT"
           ],
-          "Assign Name": "XXXXX055",
-          "DD Name": "XXXXX055",
+          "Assign Name": "SM1074",
+          "DD Name": "SM1074",
           "DSN": null,
           "Internal Name": "PRINT-FILE",
           "Line": 30,
@@ -2726,8 +2693,8 @@
           "Access Modes": [
             "INPUT"
           ],
-          "Assign Name": "XXXXX014",
-          "DD Name": "XXXXX014",
+          "Assign Name": "SQ3034",
+          "DD Name": "SQ3034",
           "DSN": null,
           "Internal Name": "TFIL",
           "Line": 15,
@@ -2735,11 +2702,11 @@
         },
         {
           "Access Modes": [],
-          "Assign Name": "XXXXX008",
-          "DD Name": "XXXXX008",
+          "Assign Name": "SQ3034",
+          "DD Name": "SQ3034",
           "DSN": null,
           "Internal Name": "TFIL2",
-          "Line": 19,
+          "Line": 20,
           "Step": null
         }
       ],
@@ -2748,8 +2715,8 @@
           "Access Modes": [
             "OUTPUT"
           ],
-          "Assign Name": "XXXXX055",
-          "DD Name": "XXXXX055",
+          "Assign Name": "ST1084",
+          "DD Name": "ST1084",
           "DSN": null,
           "Internal Name": "PRINT-FILE",
           "Line": 48,
@@ -2757,8 +2724,8 @@
         },
         {
           "Access Modes": [],
-          "Assign Name": "XXXXX027",
-          "DD Name": "XXXXX027",
+          "Assign Name": "ST1084",
+          "DD Name": "ST1084",
           "DSN": null,
           "Internal Name": "SORTFILE-1H",
           "Line": 50,
@@ -2770,8 +2737,8 @@
           "Access Modes": [
             "OUTPUT"
           ],
-          "Assign Name": "XXXXX055",
-          "DD Name": "XXXXX055",
+          "Assign Name": "ST1184",
+          "DD Name": "ST1184",
           "DSN": null,
           "Internal Name": "PRINT-FILE",
           "Line": 58,
@@ -2779,8 +2746,8 @@
         },
         {
           "Access Modes": [],
-          "Assign Name": "XXXXX027",
-          "DD Name": "XXXXX027",
+          "Assign Name": "ST1184",
+          "DD Name": "ST1184",
           "DSN": null,
           "Internal Name": "SORTFILE-1H",
           "Line": 60,
@@ -2790,8 +2757,8 @@
       "cobol/che-che4z_nist_ccvs85/ST3014.2.cbl": [
         {
           "Access Modes": [],
-          "Assign Name": "XXXXX027",
-          "DD Name": "XXXXX027",
+          "Assign Name": "ST3014",
+          "DD Name": "ST3014",
           "DSN": null,
           "Internal Name": "TFIL",
           "Line": 14,
@@ -2799,8 +2766,8 @@
         },
         {
           "Access Modes": [],
-          "Assign Name": "XXXXX001",
-          "DD Name": "XXXXX001",
+          "Assign Name": "ST3014",
+          "DD Name": "ST3014",
           "DSN": null,
           "Internal Name": "TFIL-2",
           "Line": 16,
@@ -2808,8 +2775,8 @@
         },
         {
           "Access Modes": [],
-          "Assign Name": "XXXXX002",
-          "DD Name": "XXXXX002",
+          "Assign Name": "ST3014",
+          "DD Name": "ST3014",
           "DSN": null,
           "Internal Name": "TFIL-3",
           "Line": 19,
@@ -2817,8 +2784,8 @@
         },
         {
           "Access Modes": [],
-          "Assign Name": "XXXXX003",
-          "DD Name": "XXXXX003",
+          "Assign Name": "ST3014",
+          "DD Name": "ST3014",
           "DSN": null,
           "Internal Name": "TFIL-4",
           "Line": 22,
@@ -2826,8 +2793,8 @@
         },
         {
           "Access Modes": [],
-          "Assign Name": "XXXXX004",
-          "DD Name": "XXXXX004",
+          "Assign Name": "ST3014",
+          "DD Name": "ST3014",
           "DSN": null,
           "Internal Name": "TFIL-5",
           "Line": 25,

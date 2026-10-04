@@ -411,6 +411,9 @@
     "c": {
       "c/SOURCES.md": 1.0
     },
+    "c/cosmopolitan_intrin": {
+      "c/cosmopolitan_intrin/countbits.c": 77.9
+    },
     "c/cpython": {
       "c/cpython/Makefile.pre.in": 643.0,
       "c/cpython/ceval.c": 4160.18,
@@ -435,6 +438,9 @@
       "c/doom/r_defs.h": 36.58,
       "c/doom/w_wad.c": 357.46,
       "c/doom/z_zone.c": 328.22
+    },
+    "c/freebsd_openpam": {
+      "c/freebsd_openpam/pam_acct_mgmt.c": 4.5
     },
     "c/micropython": {
       "c/micropython/compile.c": 2665.92,
@@ -1126,6 +1132,10 @@
       "cpp/powertoys/main.cpp": 294.48,
       "cpp/powertoys/powertoy_module.h": 11.18
     },
+    "cpp/serenity_ak_siphash_cpu": {
+      "cpp/serenity_ak_siphash_cpu/CPUFeatures.cpp": 24.16,
+      "cpp/serenity_ak_siphash_cpu/SipHash.cpp": 167.88
+    },
     "csd": {
       "csd/SOURCES.md": 1.0
     },
@@ -1362,6 +1372,9 @@
       "go/core/syscall_linux.go": 980.34,
       "go/core/value.go": 2133.74
     },
+    "go/go_runtime_rand": {
+      "go/go_runtime_rand/rand.go": 114.3
+    },
     "go/kubernetes": {
       "go/kubernetes/csi_plugin.go": 494.18,
       "go/kubernetes/generic.go": 354.16,
@@ -1370,6 +1383,9 @@
       "go/kubernetes/proxier.go": 731.7,
       "go/kubernetes/replica_set.go": 446.6,
       "go/kubernetes/scheduler.go": 316.76
+    },
+    "go/kubernetes_kubectl_tls": {
+      "go/kubernetes_kubectl_tls/create_secret_tls_test.go": 39.58
     },
     "groovy/fineract_gradle_plugin": {
       "groovy/fineract_gradle_plugin/LICENSE_RELEASE": 4.5,
@@ -1876,6 +1892,17 @@
     "java": {
       "java/SOURCES.md": 1.0
     },
+    "java/flutter_android_editing_tests": {
+      "java/flutter_android_editing_tests/InputConnectionAdaptorTest.java": 405.32
+    },
+    "java/jenkins_cli": {
+      "java/jenkins_cli/LICENSE.txt": 1.0,
+      "java/jenkins_cli/SetBuildDescriptionCommand.java": 17.7
+    },
+    "java/selenium_grid_session_queue": {
+      "java/selenium_grid_session_queue/NOTICE": 1.0,
+      "java/selenium_grid_session_queue/RemoteNewSessionQueue.java": 60.74
+    },
     "java/springboot": {
       "java/springboot/AutoConfigurationImportSelector.java": 260.66,
       "java/springboot/Binder.java": 314.18,
@@ -1889,6 +1916,13 @@
     "javascript": {
       "javascript/SOURCES.md": 1.0
     },
+    "javascript/cesium_particle_emitters": {
+      "javascript/cesium_particle_emitters/CircleEmitter.js": 23.88,
+      "javascript/cesium_particle_emitters/LICENSE.md": 22.52
+    },
+    "javascript/javascript_algorithms_bits": {
+      "javascript/javascript_algorithms_bits/fullAdder.js": 11.52
+    },
     "javascript/jquery": {
       "javascript/jquery/LICENSE.txt": 1.0,
       "javascript/jquery/ajax.js": 888.2,
@@ -1899,6 +1933,15 @@
       "javascript/jquery/event.js": 823.44,
       "javascript/jquery/tokenize.js": 78.44
     },
+    "javascript/node_tls_security_tests": {
+      "javascript/node_tls_security_tests/regexp-unicode-sets.js": 101.0,
+      "javascript/node_tls_security_tests/test-crypto-dh-modp2.js": 15.72,
+      "javascript/node_tls_security_tests/test-fs-lchown.js": 24.02,
+      "javascript/node_tls_security_tests/test-https-host-headers.js": 29.06,
+      "javascript/node_tls_security_tests/test-tls-cert-ext-encoding.js": 29.42,
+      "javascript/node_tls_security_tests/test-tls-psk-server.js": 28.3,
+      "javascript/node_tls_security_tests/test-tls-use-after-free-regression.js": 28.98
+    },
     "javascript/react": {
       "javascript/react/BabelPlugin.ts": 83.7,
       "javascript/react/ReactFiberBeginWork.js": 2413.84,
@@ -1906,6 +1949,9 @@
       "javascript/react/ReactFlightServer.js": 4501.9,
       "javascript/react/ReactSymbols.js": 37.4,
       "javascript/react/build.js": 482.88
+    },
+    "javascript/react_error_codes": {
+      "javascript/react_error_codes/extract-errors.js": 56.36
     },
     "javascript/threejs": {
       "javascript/threejs/BufferGeometry.js": 492.46,
@@ -2393,6 +2439,16 @@
       "makefile/freebsd/COPYRIGHT": 2.5,
       "makefile/freebsd/Makefile": 6.32
     },
+    "markdown": {
+      "markdown/SOURCES.md": 1.0
+    },
+    "markdown/airflow_job_lifecycle": {
+      "markdown/airflow_job_lifecycle/JOB_LIFECYCLE.md": 3.18,
+      "markdown/airflow_job_lifecycle/NOTICE": 1.0
+    },
+    "markdown/kubernetes_client_go": {
+      "markdown/kubernetes_client_go/ARCHITECTURE.md": 3.26
+    },
     "matlab": {
       "matlab/SOURCES.md": 1.0
     },
@@ -2442,6 +2498,10 @@
     },
     "perl": {
       "perl/SOURCES.md": 1.0
+    },
+    "perl/ack3_tests": {
+      "perl/ack3_tests/LICENSE.md": 4.0,
+      "perl/ack3_tests/file-permission.t": 21.86
     },
     "perl/bugzilla": {
       "perl/bugzilla/Auth.pm": 156.3,
@@ -2497,6 +2557,10 @@
       "php/laravel_core/Model.php": 1116.64,
       "php/laravel_core/Router.php": 627.48
     },
+    "php/laravel_validation_rules": {
+      "php/laravel_validation_rules/Can.php": 22.88,
+      "php/laravel_validation_rules/LICENSE.md": 1.0
+    },
     "php/magento2": {
       "php/magento2/AbstractBlock.php": 600.64,
       "php/magento2/AbstractModel.php": 413.18,
@@ -2515,6 +2579,9 @@
       "php/symfony/Parser.php": 313.02,
       "php/symfony/Request.php": 1764.88,
       "php/symfony/Router.php": 193.38
+    },
+    "php/symfony_emoji_data": {
+      "php/symfony_emoji_data/emoji-ccp.php": 24.92
     },
     "php/wordpress": {
       "php/wordpress/admin-ajax.php": 26.94,
@@ -2731,6 +2798,17 @@
       "python/airflow/s3.py": 1499.82,
       "python/airflow/scheduler_job_runner.py": 1950.72
     },
+    "python/airflow_ai_providers": {
+      "python/airflow_ai_providers/NOTICE": 1.0,
+      "python/airflow_ai_providers/openai_src_airflow_providers_openai_hooks_openai.py": 237.32,
+      "python/airflow_ai_providers/pinecone_src_airflow_providers_pinecone_hooks_pinecone.py": 183.34,
+      "python/airflow_ai_providers/pinecone_src_airflow_providers_pinecone_operators_pinecone.py": 76.96,
+      "python/airflow_ai_providers/pinecone_tests_system_pinecone_example_pinecone_cohere.py": 24.28
+    },
+    "python/airflow_opsgenie_tests": {
+      "python/airflow_opsgenie_tests/NOTICE": 1.0,
+      "python/airflow_opsgenie_tests/test_opsgenie.py": 56.44
+    },
     "python/cython": {
       "python/cython/COPYING.txt": 1.0,
       "python/cython/CodeGeneration.py": 11.06,
@@ -2738,6 +2816,10 @@
       "python/cython/MemoryView.pxd": 48.08,
       "python/cython/MemoryView.pyx": 1233.38,
       "python/cython/Nodes.py": 12177.16
+    },
+    "python/django_db_tests": {
+      "python/django_db_tests/test_iterator.py": 25.5,
+      "python/django_db_tests/test_utils.py": 42.4
     },
     "python/fastapi": {
       "python/fastapi/CONTRIBUTING.md": 1.0,
@@ -2976,6 +3058,26 @@
       "python/fastapi/tests/test_ws_router.py": 199.44,
       "python/fastapi/tests/utils.py": 8.44
     },
+    "python/homeassistant_anthropic": {
+      "python/homeassistant_anthropic/LICENSE.md": 4.04,
+      "python/homeassistant_anthropic/coordinator.py": 44.66
+    },
+    "python/homeassistant_ble_integrations": {
+      "python/homeassistant_ble_integrations/LICENSE.md": 4.04,
+      "python/homeassistant_ble_integrations/aranet___init__.py": 26.82,
+      "python/homeassistant_ble_integrations/gardena_bluetooth___init__.py": 144.8,
+      "python/homeassistant_ble_integrations/utils.py": 23.22
+    },
+    "python/langchain_agents": {
+      "python/langchain_agents/langchain_agents_middleware_model_fallback.py": 54.76,
+      "python/langchain_agents/langchain_agents_middleware_tool_emulator.py": 118.84,
+      "python/langchain_agents/tests_integration_tests_chat_models_test_base.py": 44.04
+    },
+    "python/micropython_usb_tls": {
+      "python/micropython_usb_tls/ssl_verify_callback.py": 19.58,
+      "python/micropython_usb_tls/tls_dtls.py": 36.3,
+      "python/micropython_usb_tls/usb_simple_host_pyusb.py": 23.66
+    },
     "python/numpy": {
       "python/numpy/LICENSE.txt": 1.0,
       "python/numpy/__init__.py": 10.52,
@@ -2995,6 +3097,31 @@
       "python/numpy/testutils.py": 228.62,
       "python/numpy/ufunc_docstrings.py": 37.7,
       "python/numpy/verify_c_api_version.py": 22.36
+    },
+    "python/opencv_dnn_conversion": {
+      "python/opencv_dnn_conversion/py_to_py_resnet50_onnx.py": 12.88
+    },
+    "python/pip_vendored_requests": {
+      "python/pip_vendored_requests/LICENSE.txt": 1.0,
+      "python/pip_vendored_requests/packages.py": 37.34
+    },
+    "python/scikit-learn_examples": {
+      "python/scikit-learn_examples/COPYING": 1.0,
+      "python/scikit-learn_examples/linear_model_plot_nnls.py": 27.6,
+      "python/scikit-learn_examples/svm_plot_custom_kernel.py": 10.74
+    },
+    "python/tensorflow_ml_ops": {
+      "python/tensorflow_ml_ops/core_tfrt_saved_model_tests_gen_matmul_gpu.py": 13.68,
+      "python/tensorflow_ml_ops/lite_testing_op_tests_einsum.py": 36.64
+    },
+    "python/tensorflow_model_fixtures": {
+      "python/tensorflow_model_fixtures/lite_testdata_multi_add.pb": 500.0,
+      "python/tensorflow_model_fixtures/python_compiler_mlir_multi_add.tflite": 500.0
+    },
+    "python/thealgorithms_machine_learning": {
+      "python/thealgorithms_machine_learning/LICENSE.md": 1.0,
+      "python/thealgorithms_machine_learning/logistic_regression.py": 61.76,
+      "python/thealgorithms_machine_learning/lstm_lstm_prediction.py": 63.76
     },
     "python/twisted": {
       "python/twisted/defer.py": 1146.82,
@@ -3061,6 +3188,10 @@
       "ruby/rails/metal.rb": 146.82,
       "ruby/rails/routing.rb": 15.28
     },
+    "ruby/rails_http_token_auth": {
+      "ruby/rails_http_token_auth/MIT-LICENSE": 1.0,
+      "ruby/rails_http_token_auth/http_token_authentication_test.rb": 98.32
+    },
     "rust": {
       "rust/SOURCES.md": 1.0
     },
@@ -3074,6 +3205,12 @@
       "rust/bevy/bevy_reflect_path.rs": 59.48,
       "rust/bevy/bevy_render_phase.rs": 9.76,
       "rust/bevy/bevy_schedule_graph.rs": 106.54
+    },
+    "rust/bevy_asset_examples": {
+      "rust/bevy_asset_examples/LICENSE-APACHE": 3.54,
+      "rust/bevy_asset_examples/LICENSE-MIT": 1.0,
+      "rust/bevy_asset_examples/image_node.rs": 7.1,
+      "rust/bevy_asset_examples/rotation.rs": 53.78
     },
     "rust/holylang": {
       "rust/holylang/ast.rs": 24.56,
@@ -3119,6 +3256,9 @@
       "rust/tokio/tokio_mpsc_bounded.rs": 232.64,
       "rust/tokio/tokio_named_pipe.rs": 363.94
     },
+    "rust/tokio_util_rand": {
+      "rust/tokio_util_rand/rand.rs": 28.76
+    },
     "rust/wasmtime": {
       "rust/wasmtime/wasmtime_component_macro.rs": 14.94,
       "rust/wasmtime/wasmtime_instance.rs": 333.3,
@@ -3150,7 +3290,7 @@
       "scheme/racket/thread.rkt": 497.58
     },
     "shell": {
-      "shell/SOURCES.md": 1.0
+      "shell/SOURCES.md": 1.02
     },
     "shell/ansible": {
       "shell/ansible/COPYING": 13.5,
@@ -3260,6 +3400,10 @@
       "shell/freebsd-src/runulp.sh": 89.98,
       "shell/freebsd-src/timeout_test.sh": 40.16,
       "shell/freebsd-src/ztest.sh": 30.1
+    },
+    "shell/freebsd_sysbuild": {
+      "shell/freebsd_sysbuild/COPYRIGHT": 2.5,
+      "shell/freebsd_sysbuild/sysbuild.sh": 362.12
     },
     "shell/haiku": {
       "shell/haiku/HardwareChecker.sh": 145.98,
@@ -3688,6 +3832,9 @@
     "typescript": {
       "typescript/SOURCES.md": 1.0
     },
+    "typescript/angular_zonejs_mocha": {
+      "typescript/angular_zonejs_mocha/mocha.ts": 110.2
+    },
     "typescript/assemblyscript": {
       "typescript/assemblyscript/asconfig.json": 15.94,
       "typescript/assemblyscript/ast.ts": 1030.82,
@@ -3695,12 +3842,30 @@
       "typescript/assemblyscript/package.json": 2.3,
       "typescript/assemblyscript/parser.ts": 3325.18
     },
+    "typescript/effect_ai_anthropic": {
+      "typescript/effect_ai_anthropic/AnthropicTokenizer.ts": 19.72
+    },
+    "typescript/excalibur_math": {
+      "typescript/excalibur_math/LICENSE.md": 1.0,
+      "typescript/excalibur_math/collision_colliders_separating-axis.ts": 104.6,
+      "typescript/excalibur_math/math_ray.ts": 27.56
+    },
+    "typescript/excalidraw_text_wrapping": {
+      "typescript/excalidraw_text_wrapping/textWrapping.ts": 281.34
+    },
     "typescript/fp-ts": {
       "typescript/fp-ts/Either.ts": 347.76,
       "typescript/fp-ts/HKT.ts": 31.5,
       "typescript/fp-ts/TaskEither.ts": 262.64,
       "typescript/fp-ts/package.json": 1.52,
       "typescript/fp-ts/pipeable.ts": 1022.64
+    },
+    "typescript/nx_util_ai": {
+      "typescript/nx_util_ai/nx-dev_pages_api_query-ai-handler.ts": 14.22,
+      "typescript/nx_util_ai/util-ai_src_lib_moderation.ts": 7.76
+    },
+    "typescript/pixijs_examples": {
+      "typescript/pixijs_examples/events_dragging.ts": 41.18
     },
     "typescript/playwright": {
       "typescript/playwright/NOTICE": 1.0,
@@ -3892,6 +4057,9 @@
       "zig/zig/Type.zig": 2114.3,
       "zig/zig/Zcu.zig": 1591.28,
       "zig/zig/main.zig": 5023.08
+    },
+    "zig/zig_std_linux_mips": {
+      "zig/zig_std_linux_mips/mips.zig": 65.44
     },
     "zig/zls": {
       "zig/zls/DocumentScope.zig": 223.9,

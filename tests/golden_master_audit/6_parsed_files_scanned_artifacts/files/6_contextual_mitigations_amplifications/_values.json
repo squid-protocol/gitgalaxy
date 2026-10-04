@@ -354,7 +354,6 @@
       "c/micropython/compile.h": "None Detected",
       "c/micropython/gc.h": "None Detected",
       "c/micropython/modmachine.c": "None Detected",
-      "c/micropython/modmachine.h": "None Detected",
       "c/micropython/objtype.h": "None Detected",
       "c/micropython/vfs.h": "None Detected"
     },
@@ -899,27 +898,19 @@
     "groovy/fineract_gradle_plugin": {
       "groovy/fineract_gradle_plugin/LICENSE_RELEASE": "None Detected",
       "groovy/fineract_gradle_plugin/org_apache_fineract_gradle_FineractPluginExtension.groovy": "None Detected",
-      "groovy/fineract_gradle_plugin/org_apache_fineract_gradle_service_ConfluenceService.groovy": "None Detected",
-      "groovy/fineract_gradle_plugin/org_apache_fineract_gradle_service_SubversionService.groovy": "None Detected"
+      "groovy/fineract_gradle_plugin/org_apache_fineract_gradle_service_ConfluenceService.groovy": "None Detected"
     },
     "groovy/flutter_android_gradle": {
       "groovy/flutter_android_gradle/dev_a11y_assessments_android_build.gradle": "None Detected",
-      "groovy/flutter_android_gradle/dev_a11y_assessments_android_settings.gradle": "None Detected",
       "groovy/flutter_android_gradle/dev_benchmarks_complex_layout_android_build.gradle": "None Detected",
-      "groovy/flutter_android_gradle/dev_benchmarks_complex_layout_android_settings.gradle": "None Detected",
       "groovy/flutter_android_gradle/dev_benchmarks_macrobenchmarks_android_build.gradle": "None Detected",
-      "groovy/flutter_android_gradle/dev_benchmarks_macrobenchmarks_android_settings.gradle": "None Detected",
       "groovy/flutter_android_gradle/dev_benchmarks_microbenchmarks_android_build.gradle": "None Detected",
-      "groovy/flutter_android_gradle/dev_benchmarks_microbenchmarks_android_settings.gradle": "None Detected",
       "groovy/flutter_android_gradle/dev_benchmarks_multiple_flutters_android_app_build.gradle": "None Detected",
       "groovy/flutter_android_gradle/dev_benchmarks_multiple_flutters_android_build.gradle": "None Detected",
       "groovy/flutter_android_gradle/dev_benchmarks_multiple_flutters_android_settings.gradle": "None Detected",
       "groovy/flutter_android_gradle/dev_benchmarks_platform_views_layout_android_build.gradle": "None Detected",
-      "groovy/flutter_android_gradle/dev_benchmarks_platform_views_layout_android_settings.gradle": "None Detected",
       "groovy/flutter_android_gradle/dev_benchmarks_platform_views_layout_hybrid_composition_android_build.gradle": "None Detected",
-      "groovy/flutter_android_gradle/dev_benchmarks_platform_views_layout_hybrid_composition_android_settings.gradle": "None Detected",
-      "groovy/flutter_android_gradle/dev_benchmarks_test_apps_stocks_android_build.gradle": "None Detected",
-      "groovy/flutter_android_gradle/dev_benchmarks_test_apps_stocks_android_settings.gradle": "None Detected"
+      "groovy/flutter_android_gradle/dev_benchmarks_test_apps_stocks_android_build.gradle": "None Detected"
     },
     "groovy/godot_android_gradle": {
       "groovy/godot_android_gradle/LICENSE.txt": "None Detected",
@@ -927,9 +918,6 @@
       "groovy/godot_android_gradle/java_app_settings.gradle": "None Detected",
       "groovy/godot_android_gradle/java_scripts_publish-module.gradle": "None Detected",
       "groovy/godot_android_gradle/java_settings.gradle": "None Detected"
-    },
-    "groovy/gradle": {
-      "groovy/gradle/DefaultTask.java": "None Detected"
     },
     "groovy/gradle_buildlogic_groovy": {
       "groovy/gradle_buildlogic_groovy/binary-compatibility_src_main_groovy_gradlebuild_binarycompatibility_AcceptedApiChange.groovy": "None Detected",
@@ -1059,7 +1047,6 @@
       "groovy/kotlin_build_gradle/libraries_stdlib_common_build.gradle": "None Detected",
       "groovy/kotlin_build_gradle/libraries_stdlib_jdk7_build.gradle": "None Detected",
       "groovy/kotlin_build_gradle/libraries_stdlib_jdk8_build.gradle": "None Detected",
-      "groovy/kotlin_build_gradle/libraries_tools_kotlin-annotations-jvm_build.gradle": "None Detected",
       "groovy/kotlin_build_gradle/libraries_tools_kotlin-gradle-plugin-integration-tests_src_test_resources_testProject_AndroidDaggerProject_app_build.gradle": "None Detected",
       "groovy/kotlin_build_gradle/libraries_tools_kotlin-gradle-plugin-integration-tests_src_test_resources_testProject_AndroidDaggerProject_build.gradle": "None Detected",
       "groovy/kotlin_build_gradle/libraries_tools_kotlin-gradle-plugin-integration-tests_src_test_resources_testProject_AndroidDaggerProject_settings.gradle": "None Detected",
@@ -2159,7 +2146,6 @@
     "rust/serde": {
       "rust/serde/LICENSE-APACHE": "None Detected",
       "rust/serde/LICENSE-MIT": "None Detected",
-      "rust/serde/serde_core_de_mod.rs": "None Detected",
       "rust/serde/serde_core_macros.rs": "None Detected",
       "rust/serde/test_annotations.rs": "None Detected"
     },

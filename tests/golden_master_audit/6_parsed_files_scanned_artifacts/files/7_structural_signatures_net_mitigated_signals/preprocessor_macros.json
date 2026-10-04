@@ -126,7 +126,7 @@
     "assembly/cosmopolitan": {
       "assembly/cosmopolitan/BUILD.mk": 0,
       "assembly/cosmopolitan/ape.S": 5,
-      "assembly/cosmopolitan/loader.c": 72,
+      "assembly/cosmopolitan/loader.c": 71,
       "assembly/cosmopolitan/notice.inc": 0,
       "assembly/cosmopolitan/start.S": 0
     },
@@ -418,8 +418,8 @@
       "c/cpython/Makefile.pre.in": 0,
       "c/cpython/ceval.c": 126,
       "c/cpython/compile.c": 8,
-      "c/cpython/dictobject.c": 151,
-      "c/cpython/frameobject.c": 16,
+      "c/cpython/dictobject.c": 150,
+      "c/cpython/frameobject.c": 15,
       "c/cpython/gc.c": 26,
       "c/cpython/object.c": 78,
       "c/cpython/typeobject.c": 144
@@ -430,7 +430,7 @@
       "c/doom/d_main.c": 7,
       "c/doom/doomdef.h": 42,
       "c/doom/i_system.c": 6,
-      "c/doom/m_fixed.c": 4,
+      "c/doom/m_fixed.c": 3,
       "c/doom/m_fixed.h": 6,
       "c/doom/p_mobj.c": 2,
       "c/doom/p_mobj.h": 4,
@@ -446,7 +446,7 @@
       "c/micropython/compile.c": 216,
       "c/micropython/compile.h": 7,
       "c/micropython/emitnative.c": 185,
-      "c/micropython/gc.c": 245,
+      "c/micropython/gc.c": 244,
       "c/micropython/gc.h": 8,
       "c/micropython/modmachine.c": 73,
       "c/micropython/modmachine.h": 59,
@@ -454,12 +454,12 @@
       "c/micropython/objtype.h": 6,
       "c/micropython/vfs.c": 27,
       "c/micropython/vfs.h": 29,
-      "c/micropython/vm.c": 153
+      "c/micropython/vm.c": 152
     },
     "c/sqlite": {
       "c/sqlite/LICENSE.md": 0,
       "c/sqlite/README.md": 0,
-      "c/sqlite/lemon.c": 44
+      "c/sqlite/lemon.c": 39
     },
     "cobol/CICS-Cobol": {
       "cobol/CICS-Cobol/CBL0102v01DivisionAmbiente.cbl": 0,
@@ -1054,9 +1054,9 @@
     },
     "cobol/gnucobol_internals": {
       "cobol/gnucobol_internals/COPYING": 0,
-      "cobol/gnucobol_internals/codegen.c": 107,
-      "cobol/gnucobol_internals/fileio.c": 117,
-      "cobol/gnucobol_internals/numeric.c": 102,
+      "cobol/gnucobol_internals/codegen.c": 101,
+      "cobol/gnucobol_internals/fileio.c": 112,
+      "cobol/gnucobol_internals/numeric.c": 88,
       "cobol/gnucobol_internals/parser.y": 142,
       "cobol/gnucobol_internals/scanner.l": 40,
       "cobol/gnucobol_internals/syn_misc.at": 0
@@ -1102,7 +1102,7 @@
       "cpp/godot/LICENSE.txt": 0,
       "cpp/godot/editor_node.cpp": 50,
       "cpp/godot/editor_node.h": 3,
-      "cpp/godot/gdscript_vm.cpp": 191,
+      "cpp/godot/gdscript_vm.cpp": 190,
       "cpp/godot/main.cpp": 289,
       "cpp/godot/main.h": 4,
       "cpp/godot/node.cpp": 28,
@@ -1110,7 +1110,7 @@
       "cpp/godot/object.cpp": 32,
       "cpp/godot/object.h": 59,
       "cpp/godot/rendering_server_default.cpp": 4,
-      "cpp/godot/rendering_server_default.h": 100,
+      "cpp/godot/rendering_server_default.h": 99,
       "cpp/godot/variant.cpp": 9,
       "cpp/godot/variant.h": 1
     },
@@ -3283,8 +3283,8 @@
     "scheme/racket": {
       "scheme/racket/LICENSE.txt": 0,
       "scheme/racket/cpnanopass.ss": 90,
-      "scheme/racket/eval.c": 144,
-      "scheme/racket/fun.c": 79,
+      "scheme/racket/eval.c": 142,
+      "scheme/racket/fun.c": 78,
       "scheme/racket/io.ss": 74,
       "scheme/racket/schemify.rkt": 0,
       "scheme/racket/thread.rkt": 0

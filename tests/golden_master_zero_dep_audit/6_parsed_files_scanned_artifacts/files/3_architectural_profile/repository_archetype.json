@@ -411,6 +411,9 @@
     "c": {
       "c/SOURCES.md": "Static: Literature & Documentation"
     },
+    "c/cosmopolitan_intrin": {
+      "c/cosmopolitan_intrin/countbits.c": "file_cluster_9"
+    },
     "c/cpython": {
       "c/cpython/Makefile.pre.in": "file_cluster_7",
       "c/cpython/ceval.c": "file_cluster_4",
@@ -435,6 +438,9 @@
       "c/doom/r_defs.h": "file_cluster_17",
       "c/doom/w_wad.c": "file_cluster_12",
       "c/doom/z_zone.c": "file_cluster_7"
+    },
+    "c/freebsd_openpam": {
+      "c/freebsd_openpam/pam_acct_mgmt.c": "file_cluster_2"
     },
     "c/micropython": {
       "c/micropython/compile.c": "file_cluster_6",
@@ -1126,6 +1132,10 @@
       "cpp/powertoys/main.cpp": "file_cluster_6",
       "cpp/powertoys/powertoy_module.h": "file_cluster_11"
     },
+    "cpp/serenity_ak_siphash_cpu": {
+      "cpp/serenity_ak_siphash_cpu/CPUFeatures.cpp": "file_cluster_15",
+      "cpp/serenity_ak_siphash_cpu/SipHash.cpp": "file_cluster_4"
+    },
     "csd": {
       "csd/SOURCES.md": "Static: Literature & Documentation"
     },
@@ -1362,6 +1372,9 @@
       "go/core/syscall_linux.go": "file_cluster_15",
       "go/core/value.go": "file_cluster_4"
     },
+    "go/go_runtime_rand": {
+      "go/go_runtime_rand/rand.go": "file_cluster_16"
+    },
     "go/kubernetes": {
       "go/kubernetes/csi_plugin.go": "file_cluster_16",
       "go/kubernetes/generic.go": "file_cluster_16",
@@ -1370,6 +1383,9 @@
       "go/kubernetes/proxier.go": "file_cluster_6",
       "go/kubernetes/replica_set.go": "file_cluster_4",
       "go/kubernetes/scheduler.go": "file_cluster_4"
+    },
+    "go/kubernetes_kubectl_tls": {
+      "go/kubernetes_kubectl_tls/create_secret_tls_test.go": "file_cluster_16"
     },
     "groovy/fineract_gradle_plugin": {
       "groovy/fineract_gradle_plugin/LICENSE_RELEASE": "Static: Literature & Documentation",
@@ -1876,6 +1892,17 @@
     "java": {
       "java/SOURCES.md": "Static: Literature & Documentation"
     },
+    "java/flutter_android_editing_tests": {
+      "java/flutter_android_editing_tests/InputConnectionAdaptorTest.java": "file_cluster_12"
+    },
+    "java/jenkins_cli": {
+      "java/jenkins_cli/LICENSE.txt": "Static: Literature & Documentation",
+      "java/jenkins_cli/SetBuildDescriptionCommand.java": "file_cluster_5"
+    },
+    "java/selenium_grid_session_queue": {
+      "java/selenium_grid_session_queue/NOTICE": "Static: Literature & Documentation",
+      "java/selenium_grid_session_queue/RemoteNewSessionQueue.java": "file_cluster_0"
+    },
     "java/springboot": {
       "java/springboot/AutoConfigurationImportSelector.java": "file_cluster_5",
       "java/springboot/Binder.java": "file_cluster_5",
@@ -1889,6 +1916,13 @@
     "javascript": {
       "javascript/SOURCES.md": "Static: Literature & Documentation"
     },
+    "javascript/cesium_particle_emitters": {
+      "javascript/cesium_particle_emitters/CircleEmitter.js": "file_cluster_10",
+      "javascript/cesium_particle_emitters/LICENSE.md": "Static: Literature & Documentation"
+    },
+    "javascript/javascript_algorithms_bits": {
+      "javascript/javascript_algorithms_bits/fullAdder.js": "file_cluster_15"
+    },
     "javascript/jquery": {
       "javascript/jquery/LICENSE.txt": "Static: Literature & Documentation",
       "javascript/jquery/ajax.js": "file_cluster_6",
@@ -1899,6 +1933,15 @@
       "javascript/jquery/event.js": "file_cluster_4",
       "javascript/jquery/tokenize.js": "file_cluster_1"
     },
+    "javascript/node_tls_security_tests": {
+      "javascript/node_tls_security_tests/regexp-unicode-sets.js": "file_cluster_9",
+      "javascript/node_tls_security_tests/test-crypto-dh-modp2.js": "file_cluster_2",
+      "javascript/node_tls_security_tests/test-fs-lchown.js": "file_cluster_10",
+      "javascript/node_tls_security_tests/test-https-host-headers.js": "file_cluster_2",
+      "javascript/node_tls_security_tests/test-tls-cert-ext-encoding.js": "file_cluster_2",
+      "javascript/node_tls_security_tests/test-tls-psk-server.js": "file_cluster_10",
+      "javascript/node_tls_security_tests/test-tls-use-after-free-regression.js": "file_cluster_7"
+    },
     "javascript/react": {
       "javascript/react/BabelPlugin.ts": "file_cluster_3",
       "javascript/react/ReactFiberBeginWork.js": "file_cluster_6",
@@ -1906,6 +1949,9 @@
       "javascript/react/ReactFlightServer.js": "file_cluster_4",
       "javascript/react/ReactSymbols.js": "file_cluster_9",
       "javascript/react/build.js": "file_cluster_6"
+    },
+    "javascript/react_error_codes": {
+      "javascript/react_error_codes/extract-errors.js": "file_cluster_9"
     },
     "javascript/threejs": {
       "javascript/threejs/BufferGeometry.js": "file_cluster_15",
@@ -2393,6 +2439,16 @@
       "makefile/freebsd/COPYRIGHT": "Static: Literature & Documentation",
       "makefile/freebsd/Makefile": "file_cluster_2"
     },
+    "markdown": {
+      "markdown/SOURCES.md": "Static: Literature & Documentation"
+    },
+    "markdown/airflow_job_lifecycle": {
+      "markdown/airflow_job_lifecycle/JOB_LIFECYCLE.md": "Static: Literature & Documentation",
+      "markdown/airflow_job_lifecycle/NOTICE": "Static: Literature & Documentation"
+    },
+    "markdown/kubernetes_client_go": {
+      "markdown/kubernetes_client_go/ARCHITECTURE.md": "Static: Literature & Documentation"
+    },
     "matlab": {
       "matlab/SOURCES.md": "Static: Literature & Documentation"
     },
@@ -2442,6 +2498,10 @@
     },
     "perl": {
       "perl/SOURCES.md": "Static: Literature & Documentation"
+    },
+    "perl/ack3_tests": {
+      "perl/ack3_tests/LICENSE.md": "Static: Literature & Documentation",
+      "perl/ack3_tests/file-permission.t": "file_cluster_15"
     },
     "perl/bugzilla": {
       "perl/bugzilla/Auth.pm": "file_cluster_4",
@@ -2497,6 +2557,10 @@
       "php/laravel_core/Model.php": "file_cluster_15",
       "php/laravel_core/Router.php": "file_cluster_15"
     },
+    "php/laravel_validation_rules": {
+      "php/laravel_validation_rules/Can.php": "file_cluster_11",
+      "php/laravel_validation_rules/LICENSE.md": "Static: Literature & Documentation"
+    },
     "php/magento2": {
       "php/magento2/AbstractBlock.php": "file_cluster_15",
       "php/magento2/AbstractModel.php": "file_cluster_16",
@@ -2515,6 +2579,9 @@
       "php/symfony/Parser.php": "file_cluster_6",
       "php/symfony/Request.php": "file_cluster_4",
       "php/symfony/Router.php": "file_cluster_15"
+    },
+    "php/symfony_emoji_data": {
+      "php/symfony_emoji_data/emoji-ccp.php": "file_cluster_2"
     },
     "php/wordpress": {
       "php/wordpress/admin-ajax.php": "file_cluster_2",
@@ -2731,6 +2798,17 @@
       "python/airflow/s3.py": "file_cluster_5",
       "python/airflow/scheduler_job_runner.py": "file_cluster_4"
     },
+    "python/airflow_ai_providers": {
+      "python/airflow_ai_providers/NOTICE": "Static: Literature & Documentation",
+      "python/airflow_ai_providers/openai_src_airflow_providers_openai_hooks_openai.py": "file_cluster_5",
+      "python/airflow_ai_providers/pinecone_src_airflow_providers_pinecone_hooks_pinecone.py": "file_cluster_5",
+      "python/airflow_ai_providers/pinecone_src_airflow_providers_pinecone_operators_pinecone.py": "file_cluster_5",
+      "python/airflow_ai_providers/pinecone_tests_system_pinecone_example_pinecone_cohere.py": "file_cluster_11"
+    },
+    "python/airflow_opsgenie_tests": {
+      "python/airflow_opsgenie_tests/NOTICE": "Static: Literature & Documentation",
+      "python/airflow_opsgenie_tests/test_opsgenie.py": "file_cluster_15"
+    },
     "python/cython": {
       "python/cython/COPYING.txt": "Static: Literature & Documentation",
       "python/cython/CodeGeneration.py": "file_cluster_7",
@@ -2738,6 +2816,10 @@
       "python/cython/MemoryView.pxd": "file_cluster_7",
       "python/cython/MemoryView.pyx": "file_cluster_12",
       "python/cython/Nodes.py": "file_cluster_4"
+    },
+    "python/django_db_tests": {
+      "python/django_db_tests/test_iterator.py": "file_cluster_15",
+      "python/django_db_tests/test_utils.py": "file_cluster_15"
     },
     "python/fastapi": {
       "python/fastapi/CONTRIBUTING.md": "Static: Literature & Documentation",
@@ -2976,6 +3058,26 @@
       "python/fastapi/tests/test_ws_router.py": "file_cluster_7",
       "python/fastapi/tests/utils.py": "file_cluster_11"
     },
+    "python/homeassistant_anthropic": {
+      "python/homeassistant_anthropic/LICENSE.md": "Static: Literature & Documentation",
+      "python/homeassistant_anthropic/coordinator.py": "file_cluster_0"
+    },
+    "python/homeassistant_ble_integrations": {
+      "python/homeassistant_ble_integrations/LICENSE.md": "Static: Literature & Documentation",
+      "python/homeassistant_ble_integrations/aranet___init__.py": "file_cluster_0",
+      "python/homeassistant_ble_integrations/gardena_bluetooth___init__.py": "file_cluster_5",
+      "python/homeassistant_ble_integrations/utils.py": "file_cluster_0"
+    },
+    "python/langchain_agents": {
+      "python/langchain_agents/langchain_agents_middleware_model_fallback.py": "file_cluster_5",
+      "python/langchain_agents/langchain_agents_middleware_tool_emulator.py": "file_cluster_9",
+      "python/langchain_agents/tests_integration_tests_chat_models_test_base.py": "file_cluster_5"
+    },
+    "python/micropython_usb_tls": {
+      "python/micropython_usb_tls/ssl_verify_callback.py": "file_cluster_15",
+      "python/micropython_usb_tls/tls_dtls.py": "file_cluster_15",
+      "python/micropython_usb_tls/usb_simple_host_pyusb.py": "file_cluster_2"
+    },
     "python/numpy": {
       "python/numpy/LICENSE.txt": "Static: Literature & Documentation",
       "python/numpy/__init__.py": "Unclassified",
@@ -2995,6 +3097,31 @@
       "python/numpy/testutils.py": "file_cluster_4",
       "python/numpy/ufunc_docstrings.py": "file_cluster_9",
       "python/numpy/verify_c_api_version.py": "file_cluster_12"
+    },
+    "python/opencv_dnn_conversion": {
+      "python/opencv_dnn_conversion/py_to_py_resnet50_onnx.py": "file_cluster_11"
+    },
+    "python/pip_vendored_requests": {
+      "python/pip_vendored_requests/LICENSE.txt": "Static: Literature & Documentation",
+      "python/pip_vendored_requests/packages.py": "file_cluster_2"
+    },
+    "python/scikit-learn_examples": {
+      "python/scikit-learn_examples/COPYING": "Static: Literature & Documentation",
+      "python/scikit-learn_examples/linear_model_plot_nnls.py": "file_cluster_2",
+      "python/scikit-learn_examples/svm_plot_custom_kernel.py": "file_cluster_15"
+    },
+    "python/tensorflow_ml_ops": {
+      "python/tensorflow_ml_ops/core_tfrt_saved_model_tests_gen_matmul_gpu.py": "file_cluster_15",
+      "python/tensorflow_ml_ops/lite_testing_op_tests_einsum.py": "file_cluster_0"
+    },
+    "python/tensorflow_model_fixtures": {
+      "python/tensorflow_model_fixtures/lite_testdata_multi_add.pb": "file_cluster_2",
+      "python/tensorflow_model_fixtures/python_compiler_mlir_multi_add.tflite": "file_cluster_2"
+    },
+    "python/thealgorithms_machine_learning": {
+      "python/thealgorithms_machine_learning/LICENSE.md": "Static: Literature & Documentation",
+      "python/thealgorithms_machine_learning/logistic_regression.py": "file_cluster_15",
+      "python/thealgorithms_machine_learning/lstm_lstm_prediction.py": "file_cluster_7"
     },
     "python/twisted": {
       "python/twisted/defer.py": "file_cluster_5",
@@ -3061,6 +3188,10 @@
       "ruby/rails/metal.rb": "file_cluster_15",
       "ruby/rails/routing.rb": "file_cluster_10"
     },
+    "ruby/rails_http_token_auth": {
+      "ruby/rails_http_token_auth/MIT-LICENSE": "Static: Literature & Documentation",
+      "ruby/rails_http_token_auth/http_token_authentication_test.rb": "file_cluster_10"
+    },
     "rust": {
       "rust/SOURCES.md": "Static: Literature & Documentation"
     },
@@ -3074,6 +3205,12 @@
       "rust/bevy/bevy_reflect_path.rs": "file_cluster_0",
       "rust/bevy/bevy_render_phase.rs": "file_cluster_13",
       "rust/bevy/bevy_schedule_graph.rs": "file_cluster_0"
+    },
+    "rust/bevy_asset_examples": {
+      "rust/bevy_asset_examples/LICENSE-APACHE": "Static: Literature & Documentation",
+      "rust/bevy_asset_examples/LICENSE-MIT": "Static: Literature & Documentation",
+      "rust/bevy_asset_examples/image_node.rs": "file_cluster_0",
+      "rust/bevy_asset_examples/rotation.rs": "file_cluster_0"
     },
     "rust/holylang": {
       "rust/holylang/ast.rs": "file_cluster_0",
@@ -3118,6 +3255,9 @@
       "rust/tokio/tests.rs": "file_cluster_13",
       "rust/tokio/tokio_mpsc_bounded.rs": "file_cluster_0",
       "rust/tokio/tokio_named_pipe.rs": "file_cluster_0"
+    },
+    "rust/tokio_util_rand": {
+      "rust/tokio_util_rand/rand.rs": "file_cluster_16"
     },
     "rust/wasmtime": {
       "rust/wasmtime/wasmtime_component_macro.rs": "file_cluster_13",
@@ -3260,6 +3400,10 @@
       "shell/freebsd-src/runulp.sh": "file_cluster_14",
       "shell/freebsd-src/timeout_test.sh": "file_cluster_2",
       "shell/freebsd-src/ztest.sh": "file_cluster_7"
+    },
+    "shell/freebsd_sysbuild": {
+      "shell/freebsd_sysbuild/COPYRIGHT": "Static: Literature & Documentation",
+      "shell/freebsd_sysbuild/sysbuild.sh": "file_cluster_14"
     },
     "shell/haiku": {
       "shell/haiku/HardwareChecker.sh": "file_cluster_14",
@@ -3688,6 +3832,9 @@
     "typescript": {
       "typescript/SOURCES.md": "Static: Literature & Documentation"
     },
+    "typescript/angular_zonejs_mocha": {
+      "typescript/angular_zonejs_mocha/mocha.ts": "file_cluster_7"
+    },
     "typescript/assemblyscript": {
       "typescript/assemblyscript/asconfig.json": "file_cluster_2",
       "typescript/assemblyscript/ast.ts": "file_cluster_15",
@@ -3695,12 +3842,30 @@
       "typescript/assemblyscript/package.json": "Static: Literature & Documentation",
       "typescript/assemblyscript/parser.ts": "file_cluster_8"
     },
+    "typescript/effect_ai_anthropic": {
+      "typescript/effect_ai_anthropic/AnthropicTokenizer.ts": "file_cluster_10"
+    },
+    "typescript/excalibur_math": {
+      "typescript/excalibur_math/LICENSE.md": "Static: Literature & Documentation",
+      "typescript/excalibur_math/collision_colliders_separating-axis.ts": "file_cluster_9",
+      "typescript/excalibur_math/math_ray.ts": "file_cluster_15"
+    },
+    "typescript/excalidraw_text_wrapping": {
+      "typescript/excalidraw_text_wrapping/textWrapping.ts": "file_cluster_10"
+    },
     "typescript/fp-ts": {
       "typescript/fp-ts/Either.ts": "file_cluster_0",
       "typescript/fp-ts/HKT.ts": "file_cluster_14",
       "typescript/fp-ts/TaskEither.ts": "file_cluster_5",
       "typescript/fp-ts/package.json": "Static: Literature & Documentation",
       "typescript/fp-ts/pipeable.ts": "file_cluster_0"
+    },
+    "typescript/nx_util_ai": {
+      "typescript/nx_util_ai/nx-dev_pages_api_query-ai-handler.ts": "file_cluster_12",
+      "typescript/nx_util_ai/util-ai_src_lib_moderation.ts": "file_cluster_2"
+    },
+    "typescript/pixijs_examples": {
+      "typescript/pixijs_examples/events_dragging.ts": "file_cluster_12"
     },
     "typescript/playwright": {
       "typescript/playwright/NOTICE": "Static: Literature & Documentation",
@@ -3892,6 +4057,9 @@
       "zig/zig/Type.zig": "file_cluster_12",
       "zig/zig/Zcu.zig": "file_cluster_12",
       "zig/zig/main.zig": "file_cluster_6"
+    },
+    "zig/zig_std_linux_mips": {
+      "zig/zig_std_linux_mips/mips.zig": "file_cluster_15"
     },
     "zig/zls": {
       "zig/zls/DocumentScope.zig": "file_cluster_12",

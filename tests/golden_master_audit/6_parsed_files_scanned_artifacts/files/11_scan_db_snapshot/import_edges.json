@@ -253,7 +253,6 @@
       ],
       "cobol/Z-SMS-Gateway/MESSAGES.cbl": [
         "call:cobol/Z-SMS-Gateway/SENDSMS.cbl",
-        "fcall:cobol/Z-SMS-Gateway/SENDSMS.cbl",
         "import:cobol/gnucobol/sqlca.cpy"
       ]
     },
@@ -526,15 +525,10 @@
     },
     "cobol/che-che4z_lsp_project_fixtures": {
       "cobol/che-che4z_lsp_project_fixtures/CALL.cbl": [
-        "call:cobol/che-che4z_lsp_project_fixtures/subroutines_SUB1.cob",
-        "fcall:cobol/che-che4z_lsp_project_fixtures/subroutines_SUB1.cob"
+        "call:cobol/che-che4z_lsp_project_fixtures/subroutines_SUB1.cob"
       ],
       "cobol/che-che4z_lsp_project_fixtures/HOVER_PARA.CBL": [
         "fcall:cobol/che-che4z_lsp_project_fixtures/testing_CPY1.cpy"
-      ],
-      "cobol/che-che4z_lsp_project_fixtures/TEST.CBL": [
-        "import:hlasm/che4z_hlasm/A.hlasm",
-        "import:hlasm/che4z_hlasm/B.hlasm"
       ],
       "cobol/che-che4z_lsp_project_fixtures/TEST6.CBL": [
         "import:cobol/che-che4z_lsp_project_fixtures/PAYLIB.CBL"
@@ -553,87 +547,6 @@
       ]
     },
     "cobol/che-che4z_nist_ccvs85": {
-      "cobol/che-che4z_nist_ccvs85/IC1014.2.cbl": [
-        "call:cobol/che-che4z_nist_ccvs85/IC1024.2.cbl",
-        "fcall:cobol/che-che4z_nist_ccvs85/IC1024.2.cbl"
-      ],
-      "cobol/che-che4z_nist_ccvs85/IC1034.2.cbl": [
-        "call:cobol/che-che4z_nist_ccvs85/IC1044.2.cbl",
-        "call:cobol/che-che4z_nist_ccvs85/IC1054.2.cbl",
-        "fcall:cobol/che-che4z_nist_ccvs85/IC1044.2.cbl",
-        "fcall:cobol/che-che4z_nist_ccvs85/IC1054.2.cbl"
-      ],
-      "cobol/che-che4z_nist_ccvs85/IC1064.2.cbl": [
-        "call:cobol/che-che4z_nist_ccvs85/IC1074.2.cbl",
-        "fcall:cobol/che-che4z_nist_ccvs85/IC1074.2.cbl"
-      ],
-      "cobol/che-che4z_nist_ccvs85/IC1084.2.cbl": [
-        "call:cobol/che-che4z_nist_ccvs85/IC1094.2.cbl",
-        "fcall:cobol/che-che4z_nist_ccvs85/IC1094.2.cbl"
-      ],
-      "cobol/che-che4z_nist_ccvs85/IC1094.2.cbl": [
-        "call:cobol/che-che4z_nist_ccvs85/IC1104.2.cbl",
-        "fcall:cobol/che-che4z_nist_ccvs85/IC1104.2.cbl"
-      ],
-      "cobol/che-che4z_nist_ccvs85/IC1104.2.cbl": [
-        "call:cobol/che-che4z_nist_ccvs85/IC1114.2.cbl",
-        "fcall:cobol/che-che4z_nist_ccvs85/IC1114.2.cbl"
-      ],
-      "cobol/che-che4z_nist_ccvs85/IC1164.2.cbl": [
-        "call:cobol/che-che4z_nist_ccvs85/IC1174.2.cbl",
-        "fcall:cobol/che-che4z_nist_ccvs85/IC1174.2.cbl"
-      ],
-      "cobol/che-che4z_nist_ccvs85/IC1174.2.cbl": [
-        "call:cobol/che-che4z_nist_ccvs85/IC1184.2.cbl",
-        "fcall:cobol/che-che4z_nist_ccvs85/IC1184.2.cbl"
-      ],
-      "cobol/che-che4z_nist_ccvs85/IC2014.2.cbl": [
-        "call:cobol/che-che4z_nist_ccvs85/IC2024.2.cbl",
-        "fcall:cobol/che-che4z_nist_ccvs85/IC2024.2.cbl"
-      ],
-      "cobol/che-che4z_nist_ccvs85/IC2034.2.cbl": [
-        "call:cobol/che-che4z_nist_ccvs85/IC2044.2.cbl",
-        "call:cobol/che-che4z_nist_ccvs85/IC2054.2.cbl",
-        "fcall:cobol/che-che4z_nist_ccvs85/IC2044.2.cbl",
-        "fcall:cobol/che-che4z_nist_ccvs85/IC2054.2.cbl"
-      ],
-      "cobol/che-che4z_nist_ccvs85/IC2054.2.cbl": [
-        "call:cobol/che-che4z_nist_ccvs85/IC2064.2.cbl",
-        "fcall:cobol/che-che4z_nist_ccvs85/IC2064.2.cbl"
-      ],
-      "cobol/che-che4z_nist_ccvs85/IC2074.2.cbl": [
-        "call:cobol/che-che4z_nist_ccvs85/IC2084.2.cbl"
-      ],
-      "cobol/che-che4z_nist_ccvs85/IC2094.2.cbl": [
-        "call:cobol/che-che4z_nist_ccvs85/IC2104.2.cbl",
-        "fcall:cobol/che-che4z_nist_ccvs85/IC2104.2.cbl"
-      ],
-      "cobol/che-che4z_nist_ccvs85/IC2104.2.cbl": [
-        "call:cobol/che-che4z_nist_ccvs85/IC2114.2.cbl",
-        "call:cobol/che-che4z_nist_ccvs85/IC2124.2.cbl",
-        "fcall:cobol/che-che4z_nist_ccvs85/IC2114.2.cbl",
-        "fcall:cobol/che-che4z_nist_ccvs85/IC2124.2.cbl"
-      ],
-      "cobol/che-che4z_nist_ccvs85/IC2134.2.cbl": [
-        "call:cobol/che-che4z_nist_ccvs85/IC2144.2.cbl",
-        "call:cobol/che-che4z_nist_ccvs85/IC2154.2.cbl",
-        "fcall:cobol/che-che4z_nist_ccvs85/IC2144.2.cbl",
-        "fcall:cobol/che-che4z_nist_ccvs85/IC2154.2.cbl"
-      ],
-      "cobol/che-che4z_nist_ccvs85/IC2164.2.cbl": [
-        "call:cobol/che-che4z_nist_ccvs85/IC2174.2.cbl",
-        "fcall:cobol/che-che4z_nist_ccvs85/IC2174.2.cbl"
-      ],
-      "cobol/che-che4z_nist_ccvs85/OBIC14.2.cbl": [
-        "call:cobol/che-che4z_nist_ccvs85/OBIC24.2.cbl",
-        "call:cobol/che-che4z_nist_ccvs85/OBIC34.2.cbl",
-        "fcall:cobol/che-che4z_nist_ccvs85/OBIC24.2.cbl",
-        "fcall:cobol/che-che4z_nist_ccvs85/OBIC34.2.cbl"
-      ],
-      "cobol/che-che4z_nist_ccvs85/OBIC24.2.cbl": [
-        "call:cobol/che-che4z_nist_ccvs85/OBIC34.2.cbl",
-        "fcall:cobol/che-che4z_nist_ccvs85/OBIC34.2.cbl"
-      ],
       "cobol/che-che4z_nist_ccvs85/PDC0001.cbl": [
         "import:cobol/gnucobol/sqlca.cpy"
       ]
@@ -1994,8 +1907,7 @@
         "fcall:java/springboot/SpringApplication.java"
       ],
       "java/springboot/Binder.java": [
-        "fcall:java/springboot/AutoConfigurationImportSelector.java",
-        "fcall:java/springboot/SpringApplication.java"
+        "fcall:java/springboot/AutoConfigurationImportSelector.java"
       ],
       "java/springboot/OnClassCondition.java": [
         "fcall:java/springboot/Binder.java",

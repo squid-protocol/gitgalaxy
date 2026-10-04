@@ -2807,7 +2807,7 @@
     },
     "python/airflow_opsgenie_tests": {
       "python/airflow_opsgenie_tests/NOTICE": 0,
-      "python/airflow_opsgenie_tests/test_opsgenie.py": 0
+      "python/airflow_opsgenie_tests/test_opsgenie.py": 2
     },
     "python/cython": {
       "python/cython/COPYING.txt": 0,
@@ -2815,7 +2815,7 @@
       "python/cython/LICENSE.txt": 0,
       "python/cython/MemoryView.pxd": 0,
       "python/cython/MemoryView.pyx": 0,
-      "python/cython/Nodes.py": 0
+      "python/cython/Nodes.py": 1
     },
     "python/django_db_tests": {
       "python/django_db_tests/test_iterator.py": 0,
@@ -2867,7 +2867,7 @@
       "python/fastapi/tests/test_allow_inf_nan_in_enforcing.py": 0,
       "python/fastapi/tests/test_ambiguous_params.py": 0,
       "python/fastapi/tests/test_annotated.py": 0,
-      "python/fastapi/tests/test_application.py": 0,
+      "python/fastapi/tests/test_application.py": 1,
       "python/fastapi/tests/test_arbitrary_types.py": 0,
       "python/fastapi/tests/test_callable_endpoint.py": 0,
       "python/fastapi/tests/test_compat.py": 0,
@@ -2971,8 +2971,8 @@
       "python/fastapi/tests/test_response_code_no_body.py": 0,
       "python/fastapi/tests/test_response_dependency.py": 0,
       "python/fastapi/tests/test_response_model_as_return_annotation.py": 0,
-      "python/fastapi/tests/test_response_model_data_filter.py": 0,
-      "python/fastapi/tests/test_response_model_data_filter_no_inheritance.py": 0,
+      "python/fastapi/tests/test_response_model_data_filter.py": 7,
+      "python/fastapi/tests/test_response_model_data_filter_no_inheritance.py": 7,
       "python/fastapi/tests/test_response_model_default_factory.py": 0,
       "python/fastapi/tests/test_response_model_include_exclude.py": 0,
       "python/fastapi/tests/test_response_model_invalid.py": 0,
@@ -3046,7 +3046,7 @@
       "python/fastapi/tests/test_union_body.py": 0,
       "python/fastapi/tests/test_union_body_discriminator.py": 0,
       "python/fastapi/tests/test_union_body_discriminator_annotated.py": 0,
-      "python/fastapi/tests/test_union_forms.py": 0,
+      "python/fastapi/tests/test_union_forms.py": 2,
       "python/fastapi/tests/test_union_inherited_body.py": 0,
       "python/fastapi/tests/test_validate_response.py": 0,
       "python/fastapi/tests/test_validate_response_dataclass.py": 0,
@@ -3081,13 +3081,13 @@
     "python/numpy": {
       "python/numpy/LICENSE.txt": 0,
       "python/numpy/__init__.py": 0,
-      "python/numpy/_linalg.py": 10,
+      "python/numpy/_linalg.py": 12,
       "python/numpy/cfuncs.py": 0,
       "python/numpy/core.py": 4,
       "python/numpy/crackfortran.py": 0,
       "python/numpy/cversions.txt": 0,
       "python/numpy/func2subr.py": 0,
-      "python/numpy/genapi.py": 0,
+      "python/numpy/genapi.py": 1,
       "python/numpy/generate_numpy_api.py": 0,
       "python/numpy/generate_ufunc_api.py": 0,
       "python/numpy/generate_umath_doc.py": 0,
@@ -3095,7 +3095,7 @@
       "python/numpy/numpy_api.py": 0,
       "python/numpy/symbolic.py": 0,
       "python/numpy/testutils.py": 0,
-      "python/numpy/ufunc_docstrings.py": 0,
+      "python/numpy/ufunc_docstrings.py": 2,
       "python/numpy/verify_c_api_version.py": 0
     },
     "python/opencv_dnn_conversion": {
@@ -3127,7 +3127,7 @@
       "python/twisted/defer.py": 0,
       "python/twisted/http.py": 0,
       "python/twisted/reflect.py": 0,
-      "python/twisted/transport.py": 0
+      "python/twisted/transport.py": 3
     },
     "python/wtfpython": {
       "python/wtfpython/2_tricky_strings.py": 0,

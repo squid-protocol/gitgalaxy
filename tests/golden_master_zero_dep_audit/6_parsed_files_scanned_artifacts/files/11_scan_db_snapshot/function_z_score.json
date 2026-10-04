@@ -3868,6 +3868,11 @@
         "SSMAPP5@606": 0.0
       }
     },
+    "c/cosmopolitan_intrin": {
+      "c/cosmopolitan_intrin/countbits.c": {
+        "_countbits@30": 0.0
+      }
+    },
     "c/cpython": {
       "c/cpython/Makefile.pre.in": {
         ".c.o@3196": -0.231,
@@ -5434,6 +5439,11 @@
         "Z_FreeTags@296": -0.285,
         "Z_Init@93": -1.322,
         "Z_Malloc@183": 2.306
+      }
+    },
+    "c/freebsd_openpam": {
+      "c/freebsd_openpam/pam_acct_mgmt.c": {
+        "pam_acct_mgmt@53": 0.0
       }
     },
     "c/micropython": {
@@ -19229,6 +19239,23 @@
         "remove_hotkey_records@48": -0.577
       }
     },
+    "cpp/serenity_ak_siphash_cpu": {
+      "cpp/serenity_ak_siphash_cpu/CPUFeatures.cpp": {
+        "Detail::detect_cpu_features_uncached@30": 1.0,
+        "cpuid@20": -1.0
+      },
+      "cpp/serenity_ak_siphash_cpu/SipHash.cpp": {
+        "SipHashKey@138": -0.22,
+        "do_siphash@46": 2.825,
+        "operator*@147": -0.372,
+        "rotate_left@21": -0.372,
+        "secure_sip_hash@166": -0.372,
+        "sip_hash_bytes@171": -0.372,
+        "sip_hash_u64@153": -0.372,
+        "sipround@26": -0.372,
+        "standard_sip_hash@161": -0.372
+      }
+    },
     "csd/carddemo": {
       "csd/carddemo/CARDDEMO.CSD": {
         "CA00@327": 0.0,
@@ -23967,6 +23994,27 @@
         "verifyNotInHeapPtr@3870": -0.444
       }
     },
+    "go/go_runtime_rand": {
+      "go/go_runtime_rand/rand.go": {
+        "allZero@112": -0.167,
+        "bootstrapRand@121": 0.544,
+        "bootstrapRandReseed@137": -0.167,
+        "cheaprand64@270": -0.523,
+        "cheaprand@228": -0.167,
+        "cheaprandn@316": -0.523,
+        "cheaprandu64@283": -0.167,
+        "legacy_fastrand64@339": -0.523,
+        "legacy_fastrand@329": -0.523,
+        "legacy_fastrandn@334": -0.523,
+        "maps_rand@183": -0.523,
+        "mrandinit@188": -0.167,
+        "rand32@149": -0.523,
+        "rand@160": 0.188,
+        "randinit@38": 3.747,
+        "randn@204": -0.523,
+        "readTimeRandom@91": 0.544
+      }
+    },
     "go/kubernetes": {
       "go/kubernetes/csi_plugin.go": {
         "CanAttach@675": 0.458,
@@ -24129,6 +24177,13 @@
         "buildQueueingHintMap@466": 1.815,
         "newPodInformer@649": -0.12,
         "unionedGVKs@633": 0.267
+      }
+    },
+    "go/kubernetes_kubectl_tls": {
+      "go/kubernetes_kubectl_tls/create_secret_tls_test.go": {
+        "TestCreateSecretTLS@83": 1.336,
+        "write@187": -0.267,
+        "writeKeyPair@199": -1.069
       }
     },
     "groovy/fineract_gradle_plugin": {
@@ -25932,6 +25987,85 @@
         "start@70": -0.472
       }
     },
+    "java/flutter_android_editing_tests": {
+      "java/flutter_android_editing_tests/InputConnectionAdaptorTest.java": {
+        "TestImm@1397": -0.556,
+        "TestTextInputChannel@1355": -0.556,
+        "inputConnectionAdaptor_ReceivesEnter@100": -0.556,
+        "isEmoji@1333": -0.556,
+        "isEmojiModifier@1337": -0.556,
+        "isEmojiModifierBase@1341": -0.556,
+        "isRegionalIndicatorSymbol@1345": -0.556,
+        "isVariationSelector@1349": -0.556,
+        "resetStates@1419": -0.556,
+        "sampleEditable@1282": -0.556,
+        "sampleEditable@1290": -0.556,
+        "sampleInputConnectionAdaptor@1298": -0.556,
+        "sampleInputConnectionAdaptor@1303": 2.778,
+        "setUp@93": -0.556,
+        "testCleanUpBatchEndsOnCloseConnection@1244": 0.111,
+        "testCommitContent@199": 4.111,
+        "testCursorAnchorInfo@1152": -0.556,
+        "testDoesNotConsumeBackButton@1233": -0.556,
+        "testExtractedText_monitoring@1100": -0.556,
+        "testMethod_getExtractedText@1086": -0.556,
+        "testPerformContextMenuAction_copy@162": -0.556,
+        "testPerformContextMenuAction_cut@143": -0.556,
+        "testPerformContextMenuAction_paste@183": -0.556,
+        "testPerformContextMenuAction_selectAll@130": -0.556,
+        "testPerformPrivateCommand_dataIsByte@334": 1.444,
+        "testPerformPrivateCommand_dataIsByteArray@295": 1.444,
+        "testPerformPrivateCommand_dataIsChar@411": 1.444,
+        "testPerformPrivateCommand_dataIsCharArray@371": 1.444,
+        "testPerformPrivateCommand_dataIsCharSequence@489": 1.444,
+        "testPerformPrivateCommand_dataIsCharSequenceArray@448": 1.444,
+        "testPerformPrivateCommand_dataIsFloat@528": 1.444,
+        "testPerformPrivateCommand_dataIsFloatArray@565": 1.444,
+        "testPerformPrivateCommand_dataIsNull@262": 0.111,
+        "testSendKeyEvent_MovementKeysAreNopWhenNoSelection@1055": -0.556,
+        "testSendKeyEvent_delKeyNotConsumed@1219": 0.111,
+        "testSendKeyEvent_downKeyMovesCaretDown@1040": -0.556,
+        "testSendKeyEvent_leftKeyExtendsSelectionLeft@776": -0.556,
+        "testSendKeyEvent_leftKeyMovesCaretLeft@620": -0.556,
+        "testSendKeyEvent_leftKeyMovesCaretLeftComplexEmoji@634": 0.111,
+        "testSendKeyEvent_rightKeyExtendsSelectionRight@994": -0.556,
+        "testSendKeyEvent_rightKeyMovesCaretRight@807": -0.556,
+        "testSendKeyEvent_rightKeyMovesCaretRightComplexEmoji@859": 0.778,
+        "testSendKeyEvent_rightKeyMovesCaretRightComplexRegion@821": -0.556,
+        "testSendKeyEvent_sendHardwareKeyEvents@1205": 0.111,
+        "testSendKeyEvent_sendSoftKeyEvents@1193": -0.556,
+        "testSendKeyEvent_shiftKeyUpDoesNotCancelSelection@604": -0.556,
+        "testSendKeyEvent_shiftLeftKeyStartsSelectionLeft@791": -0.556,
+        "testSendKeyEvent_shiftRightKeyStartsSelectionRight@1009": -0.556,
+        "testSendKeyEvent_upKeyMovesCaretUp@1025": -0.556,
+        "updateCursorAnchorInfo@1399": -0.556,
+        "updateEditingState@1367": -0.556,
+        "updateExtractedText@1404": -0.556,
+        "updateSelection@1410": -0.556,
+        "verifyMethodCall@79": 0.778
+      }
+    },
+    "java/jenkins_cli": {
+      "java/jenkins_cli/SetBuildDescriptionCommand.java": {
+        "getShortDescription@16": -1.0,
+        "run@31": 1.0
+      }
+    },
+    "java/selenium_grid_session_queue": {
+      "java/selenium_grid_session_queue/RemoteNewSessionQueue.java": {
+        "RemoteNewSessionQueue@72": -0.471,
+        "addToQueue@105": -0.471,
+        "clearQueue@184": -0.471,
+        "complete@162": 2.121,
+        "create@80": -0.471,
+        "getNextAvailable@145": -0.471,
+        "getQueueContents@193": -0.471,
+        "isReady@202": -0.471,
+        "peekEmpty@99": -0.471,
+        "remove@127": 2.121,
+        "retryAddToQueue@113": -0.471
+      }
+    },
     "java/springboot": {
       "java/springboot/AutoConfigurationImportSelector.java": {
         "AutoConfigurationEntry@547": -0.562,
@@ -26266,6 +26400,19 @@
         "welcomePageNotAcceptableHandlerMapping@485": -0.686
       }
     },
+    "javascript/cesium_particle_emitters": {
+      "javascript/cesium_particle_emitters/CircleEmitter.js": {
+        "CircleEmitter@14": 1.732,
+        "emit@50": -0.577,
+        "get@32": -0.577,
+        "set@35": -0.577
+      }
+    },
+    "javascript/javascript_algorithms_bits": {
+      "javascript/javascript_algorithms_bits/fullAdder.js": {
+        "fullAdder@37": 0.0
+      }
+    },
     "javascript/jquery": {
       "javascript/jquery/ajax.js": {
         "abort@517": -0.426,
@@ -26384,6 +26531,11 @@
       },
       "javascript/jquery/tokenize.js": {
         "tokenize@11": 0.0
+      }
+    },
+    "javascript/node_tls_security_tests": {
+      "javascript/node_tls_security_tests/regexp-unicode-sets.js": {
+        "check@83": 0.0
       }
     },
     "javascript/react": {
@@ -26777,6 +26929,11 @@
         "shouldSkipBundle@550": -0.005,
         "transform@386": -0.664,
         "transform@428": -0.928
+      }
+    },
+    "javascript/react_error_codes": {
+      "javascript/react_error_codes/extract-errors.js": {
+        "main@7": 0.0
       }
     },
     "javascript/threejs": {
@@ -30144,6 +30301,12 @@
         "name@27": -1.298
       }
     },
+    "perl/ack3_tests": {
+      "perl/ack3_tests/file-permission.t": {
+        "check_with@60": 1.0,
+        "o@33": -1.0
+      }
+    },
     "perl/bugzilla": {
       "perl/bugzilla/Auth.pm": {
         "_handle_login_result@143": 2.736,
@@ -31880,6 +32043,14 @@
         "updateGroupStack@494": -0.012,
         "uses@1369": 0.527,
         "view@287": 0.527
+      }
+    },
+    "php/laravel_validation_rules": {
+      "php/laravel_validation_rules/Can.php": {
+        "__construct@38": -0.577,
+        "message@65": 1.732,
+        "passes@51": -0.577,
+        "setValidator@80": -0.577
       }
     },
     "php/magento2": {
@@ -33730,6 +33901,106 @@
         "register_signals@325": -0.526
       }
     },
+    "python/airflow_ai_providers": {
+      "python/airflow_ai_providers/openai_src_airflow_providers_openai_hooks_openai.py": {
+        "__init__@85": -0.205,
+        "__str__@62": -0.205,
+        "cancel_batch@483": -0.205,
+        "conn@106": -0.205,
+        "create_assistant@144": -0.205,
+        "create_batch@419": -0.205,
+        "create_chat_completion@123": -0.205,
+        "create_embeddings@297": -0.205,
+        "create_message@209": -0.205,
+        "create_run@245": -0.205,
+        "create_run_and_poll@255": -0.205,
+        "create_thread@185": -0.205,
+        "create_vector_store@348": -0.205,
+        "delete_assistant@176": -0.205,
+        "delete_file@339": -0.205,
+        "delete_thread@200": -0.205,
+        "delete_vector_store@376": -0.205,
+        "delete_vector_store_file@409": -0.205,
+        "get_assistant@153": -0.205,
+        "get_assistants@162": -0.205,
+        "get_batch@440": -0.205,
+        "get_conn@110": 2.09,
+        "get_file@325": -0.205,
+        "get_files@334": -0.205,
+        "get_messages@224": -0.205,
+        "get_run@268": -0.205,
+        "get_runs@278": -0.205,
+        "get_ui_field_behaviour@90": -0.205,
+        "get_vector_store@358": -0.205,
+        "get_vector_store_files@400": -0.205,
+        "get_vector_stores@353": -0.205,
+        "is_in_progress@66": -0.205,
+        "modify_assistant@167": -0.205,
+        "modify_message@233": -0.205,
+        "modify_run@287": -0.205,
+        "modify_thread@190": -0.205,
+        "modify_vector_store@367": -0.205,
+        "test_connection@98": -0.205,
+        "upload_file@313": -0.205,
+        "upload_files_to_vector_store@385": -0.205,
+        "wait_for_batch@449": 5.915
+      },
+      "python/airflow_ai_providers/pinecone_src_airflow_providers_pinecone_hooks_pinecone.py": {
+        "__init__@90": -0.504,
+        "_chunks@356": 0.237,
+        "api_key@98": 0.237,
+        "configure_index@273": -0.504,
+        "conn@139": -0.504,
+        "create_collection@285": -0.504,
+        "create_index@230": -0.504,
+        "delete_collection@294": -0.504,
+        "delete_index@264": -0.504,
+        "describe_collection@302": -0.504,
+        "describe_index@256": -0.504,
+        "describe_index_stats@391": -0.504,
+        "environment@105": 0.979,
+        "get_connection_form_widgets@63": -0.504,
+        "get_pod_spec_obj@189": 1.721,
+        "get_serverless_spec_obj@221": 0.237,
+        "get_ui_field_behaviour@79": -0.504,
+        "list_collections@310": -0.504,
+        "list_indexes@149": -0.504,
+        "pinecone_client@123": 0.237,
+        "query_vector@314": -0.504,
+        "region@114": 0.979,
+        "test_connection@142": -0.504,
+        "upsert@153": -0.504,
+        "upsert_data_async@364": 3.946
+      },
+      "python/airflow_ai_providers/pinecone_src_airflow_providers_pinecone_operators_pinecone.py": {
+        "__init__@119": -0.354,
+        "__init__@190": -0.354,
+        "__init__@57": 2.828,
+        "execute@154": -0.354,
+        "execute@215": -0.354,
+        "execute@84": -0.354,
+        "hook@151": -0.354,
+        "hook@212": -0.354,
+        "hook@80": -0.354
+      },
+      "python/airflow_ai_providers/pinecone_tests_system_pinecone_example_pinecone_cohere.py": {
+        "delete_index@84": -1.0,
+        "transform_output@68": 1.0
+      }
+    },
+    "python/airflow_opsgenie_tests": {
+      "python/airflow_opsgenie_tests/test_opsgenie.py": {
+        "setup_connections@69": 0.0,
+        "test_close_alert@130": 0.0,
+        "test_create_alert_api_key_not_set@110": 0.0,
+        "test_create_alert_create_alert_payload@124": 0.0,
+        "test_delete_alert@150": 0.0,
+        "test_get_api_key@79": 0.0,
+        "test_get_conn_custom_host@88": 0.0,
+        "test_get_conn_defaults_host@84": 0.0,
+        "test_verify_api_key_set@102": 0.0
+      }
+    },
     "python/cython": {
       "python/cython/CodeGeneration.py": {
         "__call__@20": 0.0,
@@ -34319,6 +34590,27 @@
         "unroll_rhs@6533": -0.122,
         "use_memview_utilities@1276": -0.452,
         "write_func_call@78": -0.122
+      }
+    },
+    "python/django_db_tests": {
+      "python/django_db_tests/test_iterator.py": {
+        "setUpTestData@15": -0.5,
+        "test_default_iterator_chunk_size@27": -0.5,
+        "test_iterator_chunk_size@37": -0.5,
+        "test_iterator_invalid_chunk_size@19": 2.0,
+        "test_no_chunked_reads@48": -0.5
+      },
+      "python/django_db_tests/test_utils.py": {
+        "_test_procedure@97": -0.5,
+        "equal@48": -0.5,
+        "test_callproc_kparams@124": -0.5,
+        "test_callproc_with_int_params@114": -0.5,
+        "test_callproc_without_params@108": -0.5,
+        "test_format_number@47": -0.5,
+        "test_split_identifier@37": -0.5,
+        "test_split_tzname_delta@76": 2.0,
+        "test_truncate_name@21": -0.5,
+        "test_unsupported_callproc_kparams_raises_error@133": 2.0
       }
     },
     "python/fastapi/fastapi": {
@@ -36787,6 +37079,68 @@
         "skip_module_if_py_gte_314@15": 0.0
       }
     },
+    "python/homeassistant_anthropic": {
+      "python/homeassistant_anthropic/coordinator.py": {
+        "__init__@29": -0.816,
+        "async_set_updated_data@45": -0.816,
+        "async_update_data@50": 0.0,
+        "mark_connection_error@71": 1.633
+      }
+    },
+    "python/homeassistant_ble_integrations": {
+      "python/homeassistant_ble_integrations/aranet___init__.py": {
+        "_service_info_to_adv@27": 0.0,
+        "async_setup_entry@33": 0.0,
+        "async_unload_entry@52": 0.0
+      },
+      "python/homeassistant_ble_integrations/gardena_bluetooth___init__.py": {
+        "_device_lookup@51": 0.816,
+        "_update_timestamp@62": -1.225,
+        "async_setup_entry@71": -1.225,
+        "async_unload_entry@125": 0.816,
+        "get_connection@48": 0.816
+      },
+      "python/homeassistant_ble_integrations/utils.py": {
+        "get_device_macs@17": 1.0,
+        "non_verifying_requests_session@36": -1.0
+      }
+    },
+    "python/langchain_agents": {
+      "python/langchain_agents/langchain_agents_middleware_model_fallback.py": {
+        "__init__@50": 1.414,
+        "awrap_model_call@106": -0.707,
+        "wrap_model_call@72": -0.707
+      },
+      "python/langchain_agents/langchain_agents_middleware_tool_emulator.py": {
+        "__init__@66": 1.414,
+        "awrap_tool_call@159": -0.707,
+        "wrap_tool_call@109": -0.707
+      },
+      "python/langchain_agents/tests_integration_tests_chat_models_test_base.py": {
+        "chat_model_class@40": -0.447,
+        "chat_model_params@44": -0.447,
+        "has_structured_output@56": -0.447,
+        "has_tool_calling@52": -0.447,
+        "supports_image_inputs@48": -0.447,
+        "test_init_chat_model_chain@22": 2.236
+      }
+    },
+    "python/micropython_usb_tls": {
+      "python/micropython_usb_tls/ssl_verify_callback.py": {
+        "test@24": 0.0,
+        "verify_callback@14": 0.0,
+        "verify_callback_fail@19": 0.0
+      },
+      "python/micropython_usb_tls/tls_dtls.py": {
+        "__init__@12": -0.577,
+        "ioctl@24": 1.732,
+        "readinto@19": -0.577,
+        "write@16": -0.577
+      },
+      "python/micropython_usb_tls/usb_simple_host_pyusb.py": {
+        "main@19": 0.0
+      }
+    },
     "python/numpy": {
       "python/numpy/_linalg.py": {
         "_assert_2d@239": -0.132,
@@ -37411,6 +37765,39 @@
         "check_api_version@33": 1.414,
         "get_api_versions@11": -0.707,
         "main@53": -0.707
+      }
+    },
+    "python/opencv_dnn_conversion": {
+      "python/opencv_dnn_conversion/py_to_py_resnet50_onnx.py": {
+        "get_pytorch_onnx_model@9": 0.0,
+        "main@40": 0.0
+      }
+    },
+    "python/scikit-learn_examples": {
+      "python/scikit-learn_examples/svm_plot_custom_kernel.py": {
+        "my_kernel@27": 0.0
+      }
+    },
+    "python/tensorflow_ml_ops": {
+      "python/tensorflow_ml_ops/core_tfrt_saved_model_tests_gen_matmul_gpu.py": {
+        "__init__@40": -0.707,
+        "main@54": 1.414,
+        "toy@48": -0.707
+      },
+      "python/tensorflow_ml_ops/lite_testing_op_tests_einsum.py": {
+        "build_graph@61": -1.0,
+        "build_inputs@74": -1.0,
+        "make_einsum_tests@25": 1.0,
+        "set_dynamic_shape@57": 1.0
+      }
+    },
+    "python/thealgorithms_machine_learning": {
+      "python/thealgorithms_machine_learning/logistic_regression.py": {
+        "cost_function@66": -0.5,
+        "log_likelihood@106": -0.5,
+        "logistic_reg@112": 2.0,
+        "predict_prob@143": -0.5,
+        "sigmoid_function@31": -0.5
       }
     },
     "python/twisted": {
@@ -38109,6 +38496,19 @@
         "valid?@26": -0.692
       }
     },
+    "ruby/rails_http_token_auth": {
+      "ruby/rails_http_token_auth/http_token_authentication_test.rb": {
+        "authenticate@24": -0.581,
+        "authenticate_long_credentials@38": 0.465,
+        "authenticate_with_request@30": 2.557,
+        "display@15": -0.581,
+        "index@11": -0.581,
+        "malformed_request@235": -0.581,
+        "sample_request@228": -0.581,
+        "sample_request_without_token_key@239": -0.581,
+        "show@19": 0.465
+      }
+    },
     "rust/bevy": {
       "rust/bevy/bevy_ecs_macros.rs": {
         "apply@448": -0.326,
@@ -38425,6 +38825,19 @@
         "next_scc@110": 1.277,
         "size_hint@241": -0.678,
         "visit_once@150": 1.836
+      }
+    },
+    "rust/bevy_asset_examples": {
+      "rust/bevy_asset_examples/image_node.rs": {
+        "main@6": 0.0,
+        "setup@13": 0.0
+      },
+      "rust/bevy_asset_examples/rotation.rs": {
+        "main@7": -1.032,
+        "player_movement_system@112": 1.18,
+        "rotate_to_player_system@195": 1.18,
+        "setup@52": -1.032,
+        "snap_to_player_system@154": -0.295
       }
     },
     "rust/holylang": {
@@ -39356,6 +39769,17 @@
         "write@2421": -0.4,
         "write_dac@2133": -0.4,
         "write_owner@2143": -0.4
+      }
+    },
+    "rust/tokio_util_rand": {
+      "rust/tokio_util_rand/rand.rs": {
+        "fastrand@83": -0.408,
+        "fastrand_n@71": -0.408,
+        "from_pair@52": -0.408,
+        "from_seed@64": -0.408,
+        "from_u64@40": 2.449,
+        "new@36": -0.408,
+        "new@59": -0.408
       }
     },
     "rust/wasmtime": {
@@ -41928,6 +42352,12 @@
         "ztest_head@5": -0.98
       }
     },
+    "shell/freebsd_sysbuild": {
+      "shell/freebsd_sysbuild/sysbuild.sh": {
+        "ports_make@179": 0.0,
+        "usage@134": 0.0
+      }
+    },
     "shell/haiku": {
       "shell/haiku/HardwareChecker.sh": {
         "check_all@323": 0.806,
@@ -43134,6 +43564,33 @@
         "usage@93": 1.048
       }
     },
+    "typescript/angular_zonejs_mocha": {
+      "typescript/angular_zonejs_mocha/mocha.ts": {
+        "asyncTest@102": -0.327,
+        "asyncTest@86": -0.327,
+        "modifyArguments@54": 1.343,
+        "only@128": -0.327,
+        "only@146": -0.327,
+        "patchMocha@13": 4.266,
+        "run@173": 0.926,
+        "runTest@167": -0.327,
+        "setup@162": -0.327,
+        "skip@123": -0.327,
+        "skip@141": -0.327,
+        "suite@117": -0.327,
+        "suiteSetup@158": -0.327,
+        "suiteTeardown@150": -0.327,
+        "syncTest@108": -0.327,
+        "syncTest@76": -0.327,
+        "syncTest@92": -0.327,
+        "teardown@154": -0.327,
+        "test@134": -0.327,
+        "toString@66": -0.327,
+        "wrapDescribeInZone@75": -0.327,
+        "wrapSuiteInZone@101": -0.327,
+        "wrapTestInZone@85": -0.327
+      }
+    },
     "typescript/assemblyscript": {
       "typescript/assemblyscript/ast.ts": {
         "argumentsRange@1249": 0.144,
@@ -43548,6 +44005,63 @@
         "tryParseTypeArgumentsBeforeArguments@4007": -0.264
       }
     },
+    "typescript/effect_ai_anthropic": {
+      "typescript/effect_ai_anthropic/AnthropicTokenizer.ts": {
+        "catch@44": -1.414,
+        "tokenize@18": 0.707,
+        "try@20": 0.707
+      }
+    },
+    "typescript/excalibur_math": {
+      "typescript/excalibur_math/collision_colliders_separating-axis.ts": {
+        "findCirclePolygonSeparation@139": 0.0,
+        "findPolygonPolygonSeparation@72": 1.225,
+        "findPolygonPolygonSeparationDegenerate@170": -1.225
+      },
+      "typescript/excalibur_math/math_ray.ts": {
+        "constructor@16": -0.704,
+        "getPoint@62": -0.704,
+        "intersect@26": 1.709,
+        "intersectPoint@51": -0.302
+      }
+    },
+    "typescript/excalidraw_text_wrapping": {
+      "typescript/excalidraw_text_wrapping/textWrapping.ts": {
+        "After@267": -0.148,
+        "AfterMany@289": 0.296,
+        "Before@256": -0.148,
+        "BeforeMany@278": 0.296,
+        "Chain@319": -0.592,
+        "FollowedBy@339": -0.592,
+        "NotAfter@311": -0.148,
+        "NotBefore@300": -0.148,
+        "NotFollowedBy@363": -0.592,
+        "NotPrecededBy@351": -0.592,
+        "On@249": -0.592,
+        "PreceededBy@327": -0.592,
+        "build@215": -0.592,
+        "class@237": -0.592,
+        "containsCJK@30": -0.148,
+        "getEmojiRegex@50": -0.148,
+        "getEmojiRegexUnicode@194": 0.296,
+        "getHardLineBreaks@423": -0.592,
+        "getLineBreakRegex@38": -0.148,
+        "getLineBreakRegexAdvanced@151": -0.592,
+        "getLineBreakRegexSimple@138": -0.592,
+        "getWrappedTextLines@446": 1.628,
+        "group@232": -0.592,
+        "isSingleCharacter@724": -0.148,
+        "join@219": -0.592,
+        "or@227": -0.592,
+        "parseTokens@382": -0.592,
+        "satisfiesWordInvariant@734": 0.74,
+        "trimLine@655": 2.072,
+        "trimLineEndAtSoftBreak@705": -0.592,
+        "wrapLine@486": 3.849,
+        "wrapText@397": -0.592,
+        "wrapWord@578": 2.072
+      }
+    },
     "typescript/fp-ts": {
       "typescript/fp-ts/Either.ts": {
         "_alt@190": -0.762,
@@ -43880,6 +44394,22 @@
         "reduceWithIndex@445": -0.197,
         "reduceWithIndex@448": -0.197,
         "reduceWithIndex@451": -0.197
+      }
+    },
+    "typescript/nx_util_ai": {
+      "typescript/nx_util_ai/nx-dev_pages_api_query-ai-handler.ts": {
+        "handler@24": 0.0
+      },
+      "typescript/nx_util_ai/util-ai_src_lib_moderation.ts": {
+        "moderateContent@4": 0.0
+      }
+    },
+    "typescript/pixijs_examples": {
+      "typescript/pixijs_examples/events_dragging.ts": {
+        "createBunny@24": -1.0,
+        "onDragEnd@73": 1.0,
+        "onDragMove@58": 1.0,
+        "onDragStart@64": -1.0
       }
     },
     "typescript/playwright": {
@@ -48873,6 +49403,23 @@
         "wasi_cwd@60": -0.271,
         "write@7322": -0.144,
         "writeSimpleTemplateFile@7373": -0.271
+      }
+    },
+    "zig/zig_std_linux_mips": {
+      "zig/zig_std_linux_mips/mips.zig": {
+        "atime@261": -0.289,
+        "clone@178": 3.464,
+        "ctime@269": -0.289,
+        "mtime@265": -0.289,
+        "syscall0@5": -0.289,
+        "syscall1@34": -0.289,
+        "syscall2@47": -0.289,
+        "syscall3@61": -0.289,
+        "syscall4@76": -0.289,
+        "syscall5@95": -0.289,
+        "syscall6@115": -0.289,
+        "syscall7@145": -0.289,
+        "syscall_pipe@17": -0.289
       }
     },
     "zig/zls": {

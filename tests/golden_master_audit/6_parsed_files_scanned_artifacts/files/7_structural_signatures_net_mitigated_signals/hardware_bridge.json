@@ -3064,8 +3064,8 @@
     },
     "python/homeassistant_ble_integrations": {
       "python/homeassistant_ble_integrations/LICENSE.md": 0,
-      "python/homeassistant_ble_integrations/aranet___init__.py": 0,
-      "python/homeassistant_ble_integrations/gardena_bluetooth___init__.py": 0,
+      "python/homeassistant_ble_integrations/aranet___init__.py": 3,
+      "python/homeassistant_ble_integrations/gardena_bluetooth___init__.py": 5,
       "python/homeassistant_ble_integrations/utils.py": 0
     },
     "python/langchain_agents": {

@@ -777,7 +777,7 @@
           "Line": 333,
           "Operand": "IC115A",
           "Target": "IC115A",
-          "USING": "GROUP-LINKAGE-VARIABLES,FILE-REC-SQ-FS3",
+          "USING": "GROUP-LINKAGE-VARIABLES,IC1144",
           "Verb": "CALL"
         },
         {
@@ -785,7 +785,7 @@
           "Line": 354,
           "Operand": "IC115A",
           "Target": "IC115A",
-          "USING": "GROUP-LINKAGE-VARIABLES,FILE-REC-SQ-FS3",
+          "USING": "GROUP-LINKAGE-VARIABLES,IC1144",
           "Verb": "CALL"
         },
         {
@@ -793,7 +793,7 @@
           "Line": 378,
           "Operand": "IC115A",
           "Target": "IC115A",
-          "USING": "GROUP-LINKAGE-VARIABLES,FILE-REC-SQ-FS3",
+          "USING": "GROUP-LINKAGE-VARIABLES,IC1144",
           "Verb": "CALL"
         },
         {
@@ -801,7 +801,7 @@
           "Line": 383,
           "Operand": "IC115A",
           "Target": "IC115A",
-          "USING": "GROUP-LINKAGE-VARIABLES,FILE-REC-SQ-FS3",
+          "USING": "GROUP-LINKAGE-VARIABLES,IC1144",
           "Verb": "CALL"
         },
         {
@@ -809,7 +809,7 @@
           "Line": 436,
           "Operand": "IC115A",
           "Target": "IC115A",
-          "USING": "GROUP-LINKAGE-VARIABLES,FILE-REC-SQ-FS3",
+          "USING": "GROUP-LINKAGE-VARIABLES,IC1144",
           "Verb": "CALL"
         },
         {
@@ -817,7 +817,7 @@
           "Line": 444,
           "Operand": "IC115A",
           "Target": "IC115A",
-          "USING": "GROUP-LINKAGE-VARIABLES,FILE-REC-SQ-FS3",
+          "USING": "GROUP-LINKAGE-VARIABLES,IC1144",
           "Verb": "CALL"
         },
         {
@@ -825,7 +825,7 @@
           "Line": 448,
           "Operand": "IC115A",
           "Target": "IC115A",
-          "USING": "GROUP-LINKAGE-VARIABLES,FILE-REC-SQ-FS3",
+          "USING": "GROUP-LINKAGE-VARIABLES,IC1144",
           "Verb": "CALL"
         },
         {
@@ -833,7 +833,7 @@
           "Line": 461,
           "Operand": "IC115A",
           "Target": "IC115A",
-          "USING": "GROUP-LINKAGE-VARIABLES,FILE-REC-SQ-FS3",
+          "USING": "GROUP-LINKAGE-VARIABLES,IC1144",
           "Verb": "CALL"
         }
       ],
@@ -917,7 +917,7 @@
           "Line": 522,
           "Operand": "IC202A",
           "Target": "IC202A",
-          "USING": "DN1,DN2,DN3,DN4",
+          "USING": "DN1,DN2,DN3,DN4,IC2014",
           "Verb": "CALL"
         },
         {
@@ -925,7 +925,7 @@
           "Line": 537,
           "Operand": "IC202A",
           "Target": "IC202A",
-          "USING": "DN1,DN2,DN3,DN4",
+          "USING": "DN1,DN2,DN3,DN4,IC2014",
           "Verb": "CALL"
         },
         {
@@ -933,7 +933,7 @@
           "Line": 552,
           "Operand": "ID1",
           "Target": "IC202A",
-          "USING": "DN1,DN2,DN3,DN4",
+          "USING": "DN1,DN2,DN3,DN4,IC2014",
           "Verb": "CALL"
         },
         {
@@ -941,7 +941,7 @@
           "Line": 567,
           "Operand": "ID1",
           "Target": "IC202A",
-          "USING": "DN1,DN2,DN3,DN4",
+          "USING": "DN1,DN2,DN3,DN4,IC2014",
           "Verb": "CALL"
         }
       ],
@@ -1133,7 +1133,7 @@
           "Line": 341,
           "Operand": "IC224A-1",
           "Target": "IC224A-1",
-          "USING": "CONTENT:DN1,CONTENT:DN2,CONTENT:DN3,CONTENT:DN4",
+          "USING": "CONTENT:DN1,CONTENT:DN2,CONTENT:DN3,CONTENT:DN4,CONTENT:IC2244",
           "Verb": "CALL"
         },
         {
@@ -1141,7 +1141,7 @@
           "Line": 352,
           "Operand": "ID1",
           "Target": "IC224A-1",
-          "USING": "CONTENT:DN1,CONTENT:DN2,CONTENT:DN3,CONTENT:DN4",
+          "USING": "CONTENT:DN1,CONTENT:DN2,CONTENT:DN3,CONTENT:DN4,CONTENT:IC2244",
           "Verb": "CALL"
         },
         {
@@ -1149,7 +1149,7 @@
           "Line": 363,
           "Operand": "ID2",
           "Target": null,
-          "USING": "CONTENT:DN1,CONTENT:DN2,CONTENT:DN3,CONTENT:DN4",
+          "USING": "CONTENT:DN1,CONTENT:DN2,CONTENT:DN3,CONTENT:DN4,CONTENT:IC2244",
           "Verb": "CALL"
         },
         {
@@ -1157,7 +1157,7 @@
           "Line": 374,
           "Operand": "ID2",
           "Target": null,
-          "USING": "CONTENT:DN1,CONTENT:DN2,CONTENT:DN3,CONTENT:DN4",
+          "USING": "CONTENT:DN1,CONTENT:DN2,CONTENT:DN3,CONTENT:DN4,CONTENT:IC2244",
           "Verb": "CALL"
         },
         {
@@ -1165,7 +1165,7 @@
           "Line": 396,
           "Operand": "IC224A-1",
           "Target": "IC224A-1",
-          "USING": "CONTENT:DN1,CONTENT:DN2,CONTENT:DN1,CONTENT:DN4",
+          "USING": "CONTENT:DN1,CONTENT:DN2,CONTENT:DN1,CONTENT:DN4,CONTENT:IC2244",
           "Verb": "CALL"
         },
         {
@@ -1173,7 +1173,7 @@
           "Line": 412,
           "Operand": "IC224A-1",
           "Target": "IC224A-1",
-          "USING": "CONTENT:DN1,CONTENT:DN2,CONTENT:DN3,CONTENT:DN2",
+          "USING": "CONTENT:DN1,CONTENT:DN2,CONTENT:DN3,CONTENT:DN2,CONTENT:IC2244",
           "Verb": "CALL"
         },
         {
@@ -1181,7 +1181,7 @@
           "Line": 430,
           "Operand": "ID1",
           "Target": "IC224A-1",
-          "USING": "CONTENT:DN1,CONTENT:DN2,CONTENT:DN1,CONTENT:DN2",
+          "USING": "CONTENT:DN1,CONTENT:DN2,CONTENT:DN1,CONTENT:DN2,CONTENT:IC2244",
           "Verb": "CALL"
         },
         {
@@ -1189,7 +1189,7 @@
           "Line": 453,
           "Operand": "IC224A-1",
           "Target": "IC224A-1",
-          "USING": "CONTENT:DN1,CONTENT:DN2,CONTENT:DN3,CONTENT:DN4",
+          "USING": "CONTENT:DN1,CONTENT:DN2,CONTENT:DN3,CONTENT:DN4,CONTENT:IC2244",
           "Verb": "CALL"
         },
         {
@@ -1197,7 +1197,7 @@
           "Line": 472,
           "Operand": "IC224A-1",
           "Target": "IC224A-1",
-          "USING": "CONTENT:DN1,CONTENT:DN2,CONTENT:DN3,CONTENT:DN4",
+          "USING": "CONTENT:DN1,CONTENT:DN2,CONTENT:DN3,CONTENT:DN4,CONTENT:IC2244",
           "Verb": "CALL"
         },
         {
@@ -1205,7 +1205,7 @@
           "Line": 490,
           "Operand": "ID1",
           "Target": "IC224A-1",
-          "USING": "CONTENT:DN1,CONTENT:DN2,CONTENT:DN3,CONTENT:DN4",
+          "USING": "CONTENT:DN1,CONTENT:DN2,CONTENT:DN3,CONTENT:DN4,CONTENT:IC2244",
           "Verb": "CALL"
         },
         {
@@ -1213,7 +1213,7 @@
           "Line": 508,
           "Operand": "ID1",
           "Target": "IC224A-1",
-          "USING": "CONTENT:DN1,CONTENT:DN2,CONTENT:DN3,CONTENT:DN4",
+          "USING": "CONTENT:DN1,CONTENT:DN2,CONTENT:DN3,CONTENT:DN4,CONTENT:IC2244",
           "Verb": "CALL"
         }
       ],

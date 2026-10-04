@@ -100,7 +100,7 @@
           "Entry": null,
           "Kind": "PROCEDURE",
           "Line": 54,
-          "Params": "RECORDS-IN-ERROR,SQ-FS3-R1-G-120,ERROR-FLAG,COUNT-OF-RECORDS"
+          "Params": "RECORDS-IN-ERROR,SQ-FS3-R1-G-120,IC1134"
         }
       ],
       "cobol/che-che4z_nist_ccvs85/IC2024.2.cbl": [

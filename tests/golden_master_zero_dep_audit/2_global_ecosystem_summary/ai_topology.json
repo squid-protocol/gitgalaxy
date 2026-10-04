@@ -4,7 +4,18 @@
     "ai_topology"
   ],
   "value": {
-    "classification": "Non-AI / Traditional",
-    "insights": []
+    "classification": "Local Sovereignty (Heavy Compute)",
+    "insights": [
+      "Repository contains local model execution or tensor math. Expect heavy GPU memory allocation.",
+      "Structural Posture: The primary AI integration acts as a 'Isolated/Orphan' within the repository."
+    ],
+    "signal_mass": {
+      "Cloud APIs": 13,
+      "Deep Learning": 21,
+      "Local Compute": 200,
+      "Orchestrators": 7,
+      "Traditional ML": 7,
+      "Vector Stores": 12
+    }
   }
 }

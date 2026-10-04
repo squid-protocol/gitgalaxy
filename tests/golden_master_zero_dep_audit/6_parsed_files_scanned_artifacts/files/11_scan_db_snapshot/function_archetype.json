@@ -3868,6 +3868,11 @@
         "SSMAPP5@606": "I/O & Config Routines"
       }
     },
+    "c/cosmopolitan_intrin": {
+      "c/cosmopolitan_intrin/countbits.c": {
+        "_countbits@30": "Many-Argument Workhorses"
+      }
+    },
     "c/cpython": {
       "c/cpython/Makefile.pre.in": {
         ".c.o@3196": "I/O & Config Routines",
@@ -5434,6 +5439,11 @@
         "Z_FreeTags@296": "Compute Cores",
         "Z_Init@93": "I/O & Config Routines",
         "Z_Malloc@183": "Many-Argument Workhorses"
+      }
+    },
+    "c/freebsd_openpam": {
+      "c/freebsd_openpam/pam_acct_mgmt.c": {
+        "pam_acct_mgmt@53": "State Mutators"
       }
     },
     "c/micropython": {
@@ -19229,6 +19239,23 @@
         "remove_hotkey_records@48": "Interface Declarations"
       }
     },
+    "cpp/serenity_ak_siphash_cpu": {
+      "cpp/serenity_ak_siphash_cpu/CPUFeatures.cpp": {
+        "Detail::detect_cpu_features_uncached@30": "I/O & Config Routines",
+        "cpuid@20": "Parameter Forwarders"
+      },
+      "cpp/serenity_ak_siphash_cpu/SipHash.cpp": {
+        "SipHashKey@138": "I/O & Config Routines",
+        "do_siphash@46": "Many-Argument Workhorses",
+        "operator*@147": "Interface Declarations",
+        "rotate_left@21": "Type Conversions",
+        "secure_sip_hash@166": "Parameter Forwarders",
+        "sip_hash_bytes@171": "Generic / Templated Code",
+        "sip_hash_u64@153": "Type Conversions",
+        "sipround@26": "Many-Argument Workhorses",
+        "standard_sip_hash@161": "Parameter Forwarders"
+      }
+    },
     "csd/carddemo": {
       "csd/carddemo/CARDDEMO.CSD": {
         "CA00@327": "State Mutators",
@@ -23967,6 +23994,27 @@
         "verifyNotInHeapPtr@3870": "Encapsulated Accessors"
       }
     },
+    "go/go_runtime_rand": {
+      "go/go_runtime_rand/rand.go": {
+        "allZero@112": "Encapsulated Accessors",
+        "bootstrapRand@121": "Stateful Encapsulated Methods",
+        "bootstrapRandReseed@137": "Encapsulated Accessors",
+        "cheaprand64@270": "Encapsulated Accessors",
+        "cheaprand@228": "Stateful Encapsulated Methods",
+        "cheaprandn@316": "Encapsulated Accessors",
+        "cheaprandu64@283": "Stateful Encapsulated Methods",
+        "legacy_fastrand64@339": "Encapsulated Accessors",
+        "legacy_fastrand@329": "Encapsulated Accessors",
+        "legacy_fastrandn@334": "Encapsulated Accessors",
+        "maps_rand@183": "Encapsulated Accessors",
+        "mrandinit@188": "Stateful Encapsulated Methods",
+        "rand32@149": "Encapsulated Accessors",
+        "rand@160": "Stateful Encapsulated Methods",
+        "randinit@38": "I/O & Config Routines",
+        "randn@204": "Encapsulated Accessors",
+        "readTimeRandom@91": "Stateful Encapsulated Methods"
+      }
+    },
     "go/kubernetes": {
       "go/kubernetes/csi_plugin.go": {
         "CanAttach@675": "Defensive Guards",
@@ -24129,6 +24177,13 @@
         "buildQueueingHintMap@466": "Many-Argument Workhorses",
         "newPodInformer@649": "Stateful Encapsulated Methods",
         "unionedGVKs@633": "Stateful Encapsulated Methods"
+      }
+    },
+    "go/kubernetes_kubectl_tls": {
+      "go/kubernetes_kubectl_tls/create_secret_tls_test.go": {
+        "TestCreateSecretTLS@83": "I/O & Config Routines",
+        "write@187": "Stateful Encapsulated Methods",
+        "writeKeyPair@199": "Encapsulated Accessors"
       }
     },
     "groovy/fineract_gradle_plugin": {
@@ -25932,6 +25987,85 @@
         "start@70": "Defensive Guards"
       }
     },
+    "java/flutter_android_editing_tests": {
+      "java/flutter_android_editing_tests/InputConnectionAdaptorTest.java": {
+        "TestImm@1397": "State Mutators",
+        "TestTextInputChannel@1355": "State Mutators",
+        "inputConnectionAdaptor_ReceivesEnter@100": "Annotated & Test Methods",
+        "isEmoji@1333": "Parameter Forwarders",
+        "isEmojiModifier@1337": "Parameter Forwarders",
+        "isEmojiModifierBase@1341": "Parameter Forwarders",
+        "isRegionalIndicatorSymbol@1345": "Parameter Forwarders",
+        "isVariationSelector@1349": "Parameter Forwarders",
+        "resetStates@1419": "Interface Declarations",
+        "sampleEditable@1282": "Encapsulated Accessors",
+        "sampleEditable@1290": "Encapsulated Accessors",
+        "sampleInputConnectionAdaptor@1298": "Encapsulated Accessors",
+        "sampleInputConnectionAdaptor@1303": "Stateful Encapsulated Methods",
+        "setUp@93": "Annotated & Test Methods",
+        "testCleanUpBatchEndsOnCloseConnection@1244": "Annotated & Test Methods",
+        "testCommitContent@199": "I/O & Config Routines",
+        "testCursorAnchorInfo@1152": "Annotated & Test Methods",
+        "testDoesNotConsumeBackButton@1233": "Annotated & Test Methods",
+        "testExtractedText_monitoring@1100": "Annotated & Test Methods",
+        "testMethod_getExtractedText@1086": "Annotated & Test Methods",
+        "testPerformContextMenuAction_copy@162": "Annotated & Test Methods",
+        "testPerformContextMenuAction_cut@143": "Annotated & Test Methods",
+        "testPerformContextMenuAction_paste@183": "Annotated & Test Methods",
+        "testPerformContextMenuAction_selectAll@130": "Annotated & Test Methods",
+        "testPerformPrivateCommand_dataIsByte@334": "Annotated & Test Methods",
+        "testPerformPrivateCommand_dataIsByteArray@295": "Annotated & Test Methods",
+        "testPerformPrivateCommand_dataIsChar@411": "Annotated & Test Methods",
+        "testPerformPrivateCommand_dataIsCharArray@371": "Annotated & Test Methods",
+        "testPerformPrivateCommand_dataIsCharSequence@489": "Annotated & Test Methods",
+        "testPerformPrivateCommand_dataIsCharSequenceArray@448": "Annotated & Test Methods",
+        "testPerformPrivateCommand_dataIsFloat@528": "Annotated & Test Methods",
+        "testPerformPrivateCommand_dataIsFloatArray@565": "Annotated & Test Methods",
+        "testPerformPrivateCommand_dataIsNull@262": "Annotated & Test Methods",
+        "testSendKeyEvent_MovementKeysAreNopWhenNoSelection@1055": "Annotated & Test Methods",
+        "testSendKeyEvent_delKeyNotConsumed@1219": "Annotated & Test Methods",
+        "testSendKeyEvent_downKeyMovesCaretDown@1040": "Annotated & Test Methods",
+        "testSendKeyEvent_leftKeyExtendsSelectionLeft@776": "Annotated & Test Methods",
+        "testSendKeyEvent_leftKeyMovesCaretLeft@620": "Annotated & Test Methods",
+        "testSendKeyEvent_leftKeyMovesCaretLeftComplexEmoji@634": "I/O & Config Routines",
+        "testSendKeyEvent_rightKeyExtendsSelectionRight@994": "Annotated & Test Methods",
+        "testSendKeyEvent_rightKeyMovesCaretRight@807": "Annotated & Test Methods",
+        "testSendKeyEvent_rightKeyMovesCaretRightComplexEmoji@859": "I/O & Config Routines",
+        "testSendKeyEvent_rightKeyMovesCaretRightComplexRegion@821": "Annotated & Test Methods",
+        "testSendKeyEvent_sendHardwareKeyEvents@1205": "Annotated & Test Methods",
+        "testSendKeyEvent_sendSoftKeyEvents@1193": "Annotated & Test Methods",
+        "testSendKeyEvent_shiftKeyUpDoesNotCancelSelection@604": "Annotated & Test Methods",
+        "testSendKeyEvent_shiftLeftKeyStartsSelectionLeft@791": "Annotated & Test Methods",
+        "testSendKeyEvent_shiftRightKeyStartsSelectionRight@1009": "Annotated & Test Methods",
+        "testSendKeyEvent_upKeyMovesCaretUp@1025": "Annotated & Test Methods",
+        "updateCursorAnchorInfo@1399": "Annotated & Test Methods",
+        "updateEditingState@1367": "Many-Argument Workhorses",
+        "updateExtractedText@1404": "Parameter Forwarders",
+        "updateSelection@1410": "Parameter Forwarders",
+        "verifyMethodCall@79": "Stateful Encapsulated Methods"
+      }
+    },
+    "java/jenkins_cli": {
+      "java/jenkins_cli/SetBuildDescriptionCommand.java": {
+        "getShortDescription@16": "Annotated & Test Methods",
+        "run@31": "Stateful Encapsulated Methods"
+      }
+    },
+    "java/selenium_grid_session_queue": {
+      "java/selenium_grid_session_queue/RemoteNewSessionQueue.java": {
+        "RemoteNewSessionQueue@72": "Parameter Forwarders",
+        "addToQueue@105": "Annotated & Test Methods",
+        "clearQueue@184": "Annotated & Test Methods",
+        "complete@162": "Generic / Templated Code",
+        "create@80": "Defensive Guards",
+        "getNextAvailable@145": "Generic / Templated Code",
+        "getQueueContents@193": "Annotated & Test Methods",
+        "isReady@202": "Annotated & Test Methods",
+        "peekEmpty@99": "Annotated & Test Methods",
+        "remove@127": "Generic / Templated Code",
+        "retryAddToQueue@113": "Annotated & Test Methods"
+      }
+    },
     "java/springboot": {
       "java/springboot/AutoConfigurationImportSelector.java": {
         "AutoConfigurationEntry@547": "Encapsulated Accessors",
@@ -26266,6 +26400,19 @@
         "welcomePageNotAcceptableHandlerMapping@485": "Callbacks & Closures"
       }
     },
+    "javascript/cesium_particle_emitters": {
+      "javascript/cesium_particle_emitters/CircleEmitter.js": {
+        "CircleEmitter@14": "Defensive Guards",
+        "emit@50": "State Mutators",
+        "get@32": "Callbacks & Closures",
+        "set@35": "Callbacks & Closures"
+      }
+    },
+    "javascript/javascript_algorithms_bits": {
+      "javascript/javascript_algorithms_bits/fullAdder.js": {
+        "fullAdder@37": "Compute Cores"
+      }
+    },
     "javascript/jquery": {
       "javascript/jquery/ajax.js": {
         "abort@517": "Callbacks & Closures",
@@ -26384,6 +26531,11 @@
       },
       "javascript/jquery/tokenize.js": {
         "tokenize@11": "Many-Argument Workhorses"
+      }
+    },
+    "javascript/node_tls_security_tests": {
+      "javascript/node_tls_security_tests/regexp-unicode-sets.js": {
+        "check@83": "Many-Argument Workhorses"
       }
     },
     "javascript/react": {
@@ -26777,6 +26929,11 @@
         "shouldSkipBundle@550": "Defensive Guards",
         "transform@386": "Compute Cores",
         "transform@428": "Parameter Forwarders"
+      }
+    },
+    "javascript/react_error_codes": {
+      "javascript/react_error_codes/extract-errors.js": {
+        "main@7": "I/O & Config Routines"
       }
     },
     "javascript/threejs": {
@@ -30144,6 +30301,12 @@
         "name@27": "Interface Declarations"
       }
     },
+    "perl/ack3_tests": {
+      "perl/ack3_tests/file-permission.t": {
+        "check_with@60": "Type Conversions",
+        "o@33": "Parameter Forwarders"
+      }
+    },
     "perl/bugzilla": {
       "perl/bugzilla/Auth.pm": {
         "_handle_login_result@143": "Many-Argument Workhorses",
@@ -31880,6 +32043,14 @@
         "updateGroupStack@494": "Encapsulated Accessors",
         "uses@1369": "Compute Cores",
         "view@287": "Many-Argument Workhorses"
+      }
+    },
+    "php/laravel_validation_rules": {
+      "php/laravel_validation_rules/Can.php": {
+        "__construct@38": "Parameter Forwarders",
+        "message@65": "Interface Declarations",
+        "passes@51": "Parameter Forwarders",
+        "setValidator@80": "Parameter Forwarders"
       }
     },
     "php/magento2": {
@@ -33730,6 +33901,106 @@
         "register_signals@325": "Generic / Templated Code"
       }
     },
+    "python/airflow_ai_providers": {
+      "python/airflow_ai_providers/openai_src_airflow_providers_openai_hooks_openai.py": {
+        "__init__@85": "Generic / Templated Code",
+        "__str__@62": "Type Conversions",
+        "cancel_batch@483": "Generic / Templated Code",
+        "conn@106": "Generic / Templated Code",
+        "create_assistant@144": "Generic / Templated Code",
+        "create_batch@419": "Generic / Templated Code",
+        "create_chat_completion@123": "Generic / Templated Code",
+        "create_embeddings@297": "Generic / Templated Code",
+        "create_message@209": "Generic / Templated Code",
+        "create_run@245": "Generic / Templated Code",
+        "create_run_and_poll@255": "Generic / Templated Code",
+        "create_thread@185": "Generic / Templated Code",
+        "create_vector_store@348": "Generic / Templated Code",
+        "delete_assistant@176": "Generic / Templated Code",
+        "delete_file@339": "Generic / Templated Code",
+        "delete_thread@200": "Generic / Templated Code",
+        "delete_vector_store@376": "Generic / Templated Code",
+        "delete_vector_store_file@409": "Generic / Templated Code",
+        "get_assistant@153": "Generic / Templated Code",
+        "get_assistants@162": "Generic / Templated Code",
+        "get_batch@440": "Generic / Templated Code",
+        "get_conn@110": "Generic / Templated Code",
+        "get_file@325": "Generic / Templated Code",
+        "get_files@334": "Generic / Templated Code",
+        "get_messages@224": "Generic / Templated Code",
+        "get_run@268": "Generic / Templated Code",
+        "get_runs@278": "Generic / Templated Code",
+        "get_ui_field_behaviour@90": "Generic / Templated Code",
+        "get_vector_store@358": "Generic / Templated Code",
+        "get_vector_store_files@400": "Generic / Templated Code",
+        "get_vector_stores@353": "Generic / Templated Code",
+        "is_in_progress@66": "Generic / Templated Code",
+        "modify_assistant@167": "Generic / Templated Code",
+        "modify_message@233": "Generic / Templated Code",
+        "modify_run@287": "Generic / Templated Code",
+        "modify_thread@190": "Generic / Templated Code",
+        "modify_vector_store@367": "Generic / Templated Code",
+        "test_connection@98": "Type Conversions",
+        "upload_file@313": "Generic / Templated Code",
+        "upload_files_to_vector_store@385": "Generic / Templated Code",
+        "wait_for_batch@449": "Many-Argument Workhorses"
+      },
+      "python/airflow_ai_providers/pinecone_src_airflow_providers_pinecone_hooks_pinecone.py": {
+        "__init__@90": "Encapsulated Accessors",
+        "_chunks@356": "Stateful Encapsulated Methods",
+        "api_key@98": "Generic / Templated Code",
+        "configure_index@273": "Generic / Templated Code",
+        "conn@139": "Generic / Templated Code",
+        "create_collection@285": "Generic / Templated Code",
+        "create_index@230": "Many-Argument Workhorses",
+        "delete_collection@294": "Generic / Templated Code",
+        "delete_index@264": "Generic / Templated Code",
+        "describe_collection@302": "Generic / Templated Code",
+        "describe_index@256": "Generic / Templated Code",
+        "describe_index_stats@391": "Generic / Templated Code",
+        "environment@105": "Generic / Templated Code",
+        "get_connection_form_widgets@63": "Generic / Templated Code",
+        "get_pod_spec_obj@189": "Many-Argument Workhorses",
+        "get_serverless_spec_obj@221": "Generic / Templated Code",
+        "get_ui_field_behaviour@79": "Generic / Templated Code",
+        "list_collections@310": "Generic / Templated Code",
+        "list_indexes@149": "Generic / Templated Code",
+        "pinecone_client@123": "Generic / Templated Code",
+        "query_vector@314": "Many-Argument Workhorses",
+        "region@114": "Generic / Templated Code",
+        "test_connection@142": "Type Conversions",
+        "upsert@153": "Many-Argument Workhorses",
+        "upsert_data_async@364": "Many-Argument Workhorses"
+      },
+      "python/airflow_ai_providers/pinecone_src_airflow_providers_pinecone_operators_pinecone.py": {
+        "__init__@119": "Many-Argument Workhorses",
+        "__init__@190": "Many-Argument Workhorses",
+        "__init__@57": "Many-Argument Workhorses",
+        "execute@154": "Generic / Templated Code",
+        "execute@215": "Generic / Templated Code",
+        "execute@84": "Generic / Templated Code",
+        "hook@151": "Generic / Templated Code",
+        "hook@212": "Generic / Templated Code",
+        "hook@80": "Generic / Templated Code"
+      },
+      "python/airflow_ai_providers/pinecone_tests_system_pinecone_example_pinecone_cohere.py": {
+        "delete_index@84": "Interface Declarations",
+        "transform_output@68": "Type Conversions"
+      }
+    },
+    "python/airflow_opsgenie_tests": {
+      "python/airflow_opsgenie_tests/test_opsgenie.py": {
+        "setup_connections@69": "Parameter Forwarders",
+        "test_close_alert@130": "Parameter Forwarders",
+        "test_create_alert_api_key_not_set@110": "Parameter Forwarders",
+        "test_create_alert_create_alert_payload@124": "Parameter Forwarders",
+        "test_delete_alert@150": "Parameter Forwarders",
+        "test_get_api_key@79": "Defensive Guards",
+        "test_get_conn_custom_host@88": "Defensive Guards",
+        "test_get_conn_defaults_host@84": "Defensive Guards",
+        "test_verify_api_key_set@102": "Defensive Guards"
+      }
+    },
     "python/cython": {
       "python/cython/CodeGeneration.py": {
         "__call__@20": "Parameter Forwarders",
@@ -34319,6 +34590,27 @@
         "unroll_rhs@6533": "Defensive Guards",
         "use_memview_utilities@1276": "Parameter Forwarders",
         "write_func_call@78": "Generic / Templated Code"
+      }
+    },
+    "python/django_db_tests": {
+      "python/django_db_tests/test_iterator.py": {
+        "setUpTestData@15": "Parameter Forwarders",
+        "test_default_iterator_chunk_size@27": "Parameter Forwarders",
+        "test_iterator_chunk_size@37": "Parameter Forwarders",
+        "test_iterator_invalid_chunk_size@19": "Parameter Forwarders",
+        "test_no_chunked_reads@48": "Parameter Forwarders"
+      },
+      "python/django_db_tests/test_utils.py": {
+        "_test_procedure@97": "Encapsulated Accessors",
+        "equal@48": "Parameter Forwarders",
+        "test_callproc_kparams@124": "Parameter Forwarders",
+        "test_callproc_with_int_params@114": "Parameter Forwarders",
+        "test_callproc_without_params@108": "Parameter Forwarders",
+        "test_format_number@47": "Parameter Forwarders",
+        "test_split_identifier@37": "Parameter Forwarders",
+        "test_split_tzname_delta@76": "Compute Cores",
+        "test_truncate_name@21": "Parameter Forwarders",
+        "test_unsupported_callproc_kparams_raises_error@133": "Parameter Forwarders"
       }
     },
     "python/fastapi/fastapi": {
@@ -36787,6 +37079,68 @@
         "skip_module_if_py_gte_314@15": "Interface Declarations"
       }
     },
+    "python/homeassistant_anthropic": {
+      "python/homeassistant_anthropic/coordinator.py": {
+        "__init__@29": "Generic / Templated Code",
+        "async_set_updated_data@45": "Generic / Templated Code",
+        "async_update_data@50": "Defensive Guards",
+        "mark_connection_error@71": "Generic / Templated Code"
+      }
+    },
+    "python/homeassistant_ble_integrations": {
+      "python/homeassistant_ble_integrations/aranet___init__.py": {
+        "_service_info_to_adv@27": "Encapsulated Accessors",
+        "async_setup_entry@33": "Generic / Templated Code",
+        "async_unload_entry@52": "Generic / Templated Code"
+      },
+      "python/homeassistant_ble_integrations/gardena_bluetooth___init__.py": {
+        "_device_lookup@51": "Encapsulated Accessors",
+        "_update_timestamp@62": "Encapsulated Accessors",
+        "async_setup_entry@71": "Defensive Guards",
+        "async_unload_entry@125": "Generic / Templated Code",
+        "get_connection@48": "Stateful Encapsulated Methods"
+      },
+      "python/homeassistant_ble_integrations/utils.py": {
+        "get_device_macs@17": "Generic / Templated Code",
+        "non_verifying_requests_session@36": "Generic / Templated Code"
+      }
+    },
+    "python/langchain_agents": {
+      "python/langchain_agents/langchain_agents_middleware_model_fallback.py": {
+        "__init__@50": "Many-Argument Workhorses",
+        "awrap_model_call@106": "Defensive Guards",
+        "wrap_model_call@72": "Defensive Guards"
+      },
+      "python/langchain_agents/langchain_agents_middleware_tool_emulator.py": {
+        "__init__@66": "Many-Argument Workhorses",
+        "awrap_tool_call@159": "Many-Argument Workhorses",
+        "wrap_tool_call@109": "Many-Argument Workhorses"
+      },
+      "python/langchain_agents/tests_integration_tests_chat_models_test_base.py": {
+        "chat_model_class@40": "Generic / Templated Code",
+        "chat_model_params@44": "Generic / Templated Code",
+        "has_structured_output@56": "Generic / Templated Code",
+        "has_tool_calling@52": "Generic / Templated Code",
+        "supports_image_inputs@48": "Generic / Templated Code",
+        "test_init_chat_model_chain@22": "Defensive Guards"
+      }
+    },
+    "python/micropython_usb_tls": {
+      "python/micropython_usb_tls/ssl_verify_callback.py": {
+        "test@24": "Defensive Guards",
+        "verify_callback@14": "Parameter Forwarders",
+        "verify_callback_fail@19": "Parameter Forwarders"
+      },
+      "python/micropython_usb_tls/tls_dtls.py": {
+        "__init__@12": "Parameter Forwarders",
+        "ioctl@24": "Parameter Forwarders",
+        "readinto@19": "Parameter Forwarders",
+        "write@16": "Parameter Forwarders"
+      },
+      "python/micropython_usb_tls/usb_simple_host_pyusb.py": {
+        "main@19": "I/O & Config Routines"
+      }
+    },
     "python/numpy": {
       "python/numpy/_linalg.py": {
         "_assert_2d@239": "Encapsulated Accessors",
@@ -37411,6 +37765,39 @@
         "check_api_version@33": "Compute Cores",
         "get_api_versions@11": "Defensive Guards",
         "main@53": "Type Conversions"
+      }
+    },
+    "python/opencv_dnn_conversion": {
+      "python/opencv_dnn_conversion/py_to_py_resnet50_onnx.py": {
+        "get_pytorch_onnx_model@9": "I/O & Config Routines",
+        "main@40": "Interface Declarations"
+      }
+    },
+    "python/scikit-learn_examples": {
+      "python/scikit-learn_examples/svm_plot_custom_kernel.py": {
+        "my_kernel@27": "Parameter Forwarders"
+      }
+    },
+    "python/tensorflow_ml_ops": {
+      "python/tensorflow_ml_ops/core_tfrt_saved_model_tests_gen_matmul_gpu.py": {
+        "__init__@40": "Parameter Forwarders",
+        "main@54": "Compute Cores",
+        "toy@48": "Parameter Forwarders"
+      },
+      "python/tensorflow_ml_ops/lite_testing_op_tests_einsum.py": {
+        "build_graph@61": "Parameter Forwarders",
+        "build_inputs@74": "Type Conversions",
+        "make_einsum_tests@25": "Generic / Templated Code",
+        "set_dynamic_shape@57": "Compute Cores"
+      }
+    },
+    "python/thealgorithms_machine_learning": {
+      "python/thealgorithms_machine_learning/logistic_regression.py": {
+        "cost_function@66": "Many-Argument Workhorses",
+        "log_likelihood@106": "Parameter Forwarders",
+        "logistic_reg@112": "Many-Argument Workhorses",
+        "predict_prob@143": "Parameter Forwarders",
+        "sigmoid_function@31": "I/O & Config Routines"
       }
     },
     "python/twisted": {
@@ -38109,6 +38496,19 @@
         "valid?@26": "Parameter Forwarders"
       }
     },
+    "ruby/rails_http_token_auth": {
+      "ruby/rails_http_token_auth/http_token_authentication_test.rb": {
+        "authenticate@24": "Callbacks & Closures",
+        "authenticate_long_credentials@38": "Callbacks & Closures",
+        "authenticate_with_request@30": "Callbacks & Closures",
+        "display@15": "Interface Declarations",
+        "index@11": "Interface Declarations",
+        "malformed_request@235": "Interface Declarations",
+        "sample_request@228": "Callbacks & Closures",
+        "sample_request_without_token_key@239": "Parameter Forwarders",
+        "show@19": "Interface Declarations"
+      }
+    },
     "rust/bevy": {
       "rust/bevy/bevy_ecs_macros.rs": {
         "apply@448": "Generic / Templated Code",
@@ -38425,6 +38825,19 @@
         "next_scc@110": "Defensive Guards",
         "size_hint@241": "State Mutators",
         "visit_once@150": "Many-Argument Workhorses"
+      }
+    },
+    "rust/bevy_asset_examples": {
+      "rust/bevy_asset_examples/image_node.rs": {
+        "main@6": "State Mutators",
+        "setup@13": "Generic / Templated Code"
+      },
+      "rust/bevy_asset_examples/rotation.rs": {
+        "main@7": "I/O & Config Routines",
+        "player_movement_system@112": "Many-Argument Workhorses",
+        "rotate_to_player_system@195": "Many-Argument Workhorses",
+        "setup@52": "Many-Argument Workhorses",
+        "snap_to_player_system@154": "Generic / Templated Code"
       }
     },
     "rust/holylang": {
@@ -39356,6 +39769,17 @@
         "write@2421": "Parameter Forwarders",
         "write_dac@2133": "Parameter Forwarders",
         "write_owner@2143": "Parameter Forwarders"
+      }
+    },
+    "rust/tokio_util_rand": {
+      "rust/tokio_util_rand/rand.rs": {
+        "fastrand@83": "Parameter Forwarders",
+        "fastrand_n@71": "Encapsulated Accessors",
+        "from_pair@52": "State Mutators",
+        "from_seed@64": "Encapsulated Accessors",
+        "from_u64@40": "Type Conversions",
+        "new@36": "Encapsulated Accessors",
+        "new@59": "Encapsulated Accessors"
       }
     },
     "rust/wasmtime": {
@@ -41928,6 +42352,12 @@
         "ztest_head@5": "I/O & Config Routines"
       }
     },
+    "shell/freebsd_sysbuild": {
+      "shell/freebsd_sysbuild/sysbuild.sh": {
+        "ports_make@179": "State Mutators",
+        "usage@134": "I/O & Config Routines"
+      }
+    },
     "shell/haiku": {
       "shell/haiku/HardwareChecker.sh": {
         "check_all@323": "I/O & Config Routines",
@@ -43134,6 +43564,33 @@
         "usage@93": "I/O & Config Routines"
       }
     },
+    "typescript/angular_zonejs_mocha": {
+      "typescript/angular_zonejs_mocha/mocha.ts": {
+        "asyncTest@102": "Callbacks & Closures",
+        "asyncTest@86": "Callbacks & Closures",
+        "modifyArguments@54": "Compute Cores",
+        "only@128": "Callbacks & Closures",
+        "only@146": "Callbacks & Closures",
+        "patchMocha@13": "Callbacks & Closures",
+        "run@173": "Defensive Guards",
+        "runTest@167": "Callbacks & Closures",
+        "setup@162": "Callbacks & Closures",
+        "skip@123": "Callbacks & Closures",
+        "skip@141": "Callbacks & Closures",
+        "suite@117": "Callbacks & Closures",
+        "suiteSetup@158": "Callbacks & Closures",
+        "suiteTeardown@150": "Callbacks & Closures",
+        "syncTest@108": "Callbacks & Closures",
+        "syncTest@76": "Callbacks & Closures",
+        "syncTest@92": "Callbacks & Closures",
+        "teardown@154": "Callbacks & Closures",
+        "test@134": "Callbacks & Closures",
+        "toString@66": "Callbacks & Closures",
+        "wrapDescribeInZone@75": "Callbacks & Closures",
+        "wrapSuiteInZone@101": "Callbacks & Closures",
+        "wrapTestInZone@85": "Callbacks & Closures"
+      }
+    },
     "typescript/assemblyscript": {
       "typescript/assemblyscript/ast.ts": {
         "argumentsRange@1249": "Interface Declarations",
@@ -43548,6 +44005,63 @@
         "tryParseTypeArgumentsBeforeArguments@4007": "Compute Cores"
       }
     },
+    "typescript/effect_ai_anthropic": {
+      "typescript/effect_ai_anthropic/AnthropicTokenizer.ts": {
+        "catch@44": "Defensive Guards",
+        "tokenize@18": "Defensive Guards",
+        "try@20": "Callbacks & Closures"
+      }
+    },
+    "typescript/excalibur_math": {
+      "typescript/excalibur_math/collision_colliders_separating-axis.ts": {
+        "findCirclePolygonSeparation@139": "Compute Cores",
+        "findPolygonPolygonSeparation@72": "Many-Argument Workhorses",
+        "findPolygonPolygonSeparationDegenerate@170": "Many-Argument Workhorses"
+      },
+      "typescript/excalibur_math/math_ray.ts": {
+        "constructor@16": "State Mutators",
+        "getPoint@62": "Parameter Forwarders",
+        "intersect@26": "Compute Cores",
+        "intersectPoint@51": "Parameter Forwarders"
+      }
+    },
+    "typescript/excalidraw_text_wrapping": {
+      "typescript/excalidraw_text_wrapping/textWrapping.ts": {
+        "After@267": "Callbacks & Closures",
+        "AfterMany@289": "Callbacks & Closures",
+        "Before@256": "Callbacks & Closures",
+        "BeforeMany@278": "Callbacks & Closures",
+        "Chain@319": "Callbacks & Closures",
+        "FollowedBy@339": "Callbacks & Closures",
+        "NotAfter@311": "Callbacks & Closures",
+        "NotBefore@300": "Callbacks & Closures",
+        "NotFollowedBy@363": "Callbacks & Closures",
+        "NotPrecededBy@351": "Callbacks & Closures",
+        "On@249": "Callbacks & Closures",
+        "PreceededBy@327": "Callbacks & Closures",
+        "build@215": "Parameter Forwarders",
+        "class@237": "Parameter Forwarders",
+        "containsCJK@30": "Callbacks & Closures",
+        "getEmojiRegex@50": "Callbacks & Closures",
+        "getEmojiRegexUnicode@194": "Callbacks & Closures",
+        "getHardLineBreaks@423": "Callbacks & Closures",
+        "getLineBreakRegex@38": "Defensive Guards",
+        "getLineBreakRegexAdvanced@151": "I/O & Config Routines",
+        "getLineBreakRegexSimple@138": "Callbacks & Closures",
+        "getWrappedTextLines@446": "Many-Argument Workhorses",
+        "group@232": "Parameter Forwarders",
+        "isSingleCharacter@724": "Callbacks & Closures",
+        "join@219": "Parameter Forwarders",
+        "or@227": "Parameter Forwarders",
+        "parseTokens@382": "Callbacks & Closures",
+        "satisfiesWordInvariant@734": "Callbacks & Closures",
+        "trimLine@655": "Many-Argument Workhorses",
+        "trimLineEndAtSoftBreak@705": "Callbacks & Closures",
+        "wrapLine@486": "Many-Argument Workhorses",
+        "wrapText@397": "Callbacks & Closures",
+        "wrapWord@578": "Many-Argument Workhorses"
+      }
+    },
     "typescript/fp-ts": {
       "typescript/fp-ts/Either.ts": {
         "_alt@190": "Generic / Templated Code",
@@ -43880,6 +44394,22 @@
         "reduceWithIndex@445": "Generic / Templated Code",
         "reduceWithIndex@448": "Generic / Templated Code",
         "reduceWithIndex@451": "Generic / Templated Code"
+      }
+    },
+    "typescript/nx_util_ai": {
+      "typescript/nx_util_ai/nx-dev_pages_api_query-ai-handler.ts": {
+        "handler@24": "Defensive Guards"
+      },
+      "typescript/nx_util_ai/util-ai_src_lib_moderation.ts": {
+        "moderateContent@4": "Defensive Guards"
+      }
+    },
+    "typescript/pixijs_examples": {
+      "typescript/pixijs_examples/events_dragging.ts": {
+        "createBunny@24": "State Mutators",
+        "onDragEnd@73": "I/O & Config Routines",
+        "onDragMove@58": "State Mutators",
+        "onDragStart@64": "State Mutators"
       }
     },
     "typescript/playwright": {
@@ -48873,6 +49403,23 @@
         "wasi_cwd@60": "Interface Declarations",
         "write@7322": "Many-Argument Workhorses",
         "writeSimpleTemplateFile@7373": "Defensive Guards"
+      }
+    },
+    "zig/zig_std_linux_mips": {
+      "zig/zig_std_linux_mips/mips.zig": {
+        "atime@261": "Parameter Forwarders",
+        "clone@178": "I/O & Config Routines",
+        "ctime@269": "Parameter Forwarders",
+        "mtime@265": "Parameter Forwarders",
+        "syscall0@5": "Parameter Forwarders",
+        "syscall1@34": "Parameter Forwarders",
+        "syscall2@47": "Parameter Forwarders",
+        "syscall3@61": "Parameter Forwarders",
+        "syscall4@76": "Many-Argument Workhorses",
+        "syscall5@95": "Many-Argument Workhorses",
+        "syscall6@115": "Many-Argument Workhorses",
+        "syscall7@145": "Many-Argument Workhorses",
+        "syscall_pipe@17": "Parameter Forwarders"
       }
     },
     "zig/zls": {

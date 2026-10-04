@@ -8860,6 +8860,16 @@
         "SSMAPP5@606": []
       }
     },
+    "c/cosmopolitan_intrin": {
+      "c/cosmopolitan_intrin/countbits.c": {
+        "_countbits@30": [
+          "IsTiny",
+          "X86_HAVE",
+          "__builtin_memcpy",
+          "asm"
+        ]
+      }
+    },
     "c/cpython": {
       "c/cpython/Makefile.pre.in": {
         ".c.o@3196": [],
@@ -18339,6 +18349,15 @@
         "Z_Malloc@183": [
           "I_Error",
           "Z_Free"
+        ]
+      }
+    },
+    "c/freebsd_openpam": {
+      "c/freebsd_openpam/pam_acct_mgmt.c": {
+        "pam_acct_mgmt@53": [
+          "ENTER",
+          "openpam_dispatch",
+          "RETURNC"
         ]
       }
     },
@@ -63002,6 +63021,55 @@
         ]
       }
     },
+    "cpp/serenity_ak_siphash_cpu": {
+      "cpp/serenity_ak_siphash_cpu/CPUFeatures.cpp": {
+        "Detail::detect_cpu_features_uncached@30": [
+          "cpuid"
+        ],
+        "cpuid@20": [
+          "asm"
+        ]
+      },
+      "cpp/serenity_ak_siphash_cpu/SipHash.cpp": {
+        "SipHashKey@138": [
+          "get_good_random",
+          "get_random"
+        ],
+        "do_siphash@46": [
+          "VERIFY",
+          "size",
+          "high",
+          "low",
+          "bit_cast",
+          "load64",
+          "slice",
+          "data",
+          "sipround",
+          "static_cast",
+          "overwrite"
+        ],
+        "operator*@147": [],
+        "rotate_left@21": [
+          "static_cast"
+        ],
+        "secure_sip_hash@166": [
+          "sip_hash_u64"
+        ],
+        "sip_hash_bytes@171": [
+          "do_siphash"
+        ],
+        "sip_hash_u64@153": [
+          "sip_hash_bytes",
+          "static_cast"
+        ],
+        "sipround@26": [
+          "rotate_left"
+        ],
+        "standard_sip_hash@161": [
+          "sip_hash_u64"
+        ]
+      }
+    },
     "csd/carddemo": {
       "csd/carddemo/CARDDEMO.CSD": {
         "CA00@327": [],
@@ -84318,6 +84386,102 @@
         "verifyNotInHeapPtr@3870": []
       }
     },
+    "go/go_runtime_rand": {
+      "go/go_runtime_rand/rand.go": {
+        "allZero@112": [],
+        "bootstrapRand@121": [
+          "lock",
+          "fatal",
+          "Next",
+          "unlock",
+          "Refill"
+        ],
+        "bootstrapRandReseed@137": [
+          "lock",
+          "fatal",
+          "Reseed",
+          "unlock"
+        ],
+        "cheaprand64@270": [
+          "int64",
+          "cheaprandu64",
+          "uint64"
+        ],
+        "cheaprand@228": [
+          "getg",
+          "Mul32",
+          "uint32",
+          "Pointer"
+        ],
+        "cheaprandn@316": [
+          "uint32",
+          "uint64",
+          "cheaprand"
+        ],
+        "cheaprandu64@283": [
+          "getg",
+          "Mul64",
+          "uint64",
+          "cheaprand"
+        ],
+        "legacy_fastrand64@339": [
+          "rand"
+        ],
+        "legacy_fastrand@329": [
+          "uint32",
+          "rand"
+        ],
+        "legacy_fastrandn@334": [
+          "randn"
+        ],
+        "maps_rand@183": [
+          "rand"
+        ],
+        "mrandinit@188": [
+          "bootstrapRand",
+          "bootstrapRandReseed",
+          "Init64",
+          "uint32",
+          "rand"
+        ],
+        "rand32@149": [
+          "uint32",
+          "rand"
+        ],
+        "rand@160": [
+          "getg",
+          "Next",
+          "Refill"
+        ],
+        "randinit@38": [
+          "lock",
+          "fatal",
+          "len",
+          "allZero",
+          "readRandom",
+          "readTimeRandom",
+          "Init",
+          "clear",
+          "make",
+          "Next",
+          "BEPutUint64",
+          "Refill",
+          "copy",
+          "unlock"
+        ],
+        "randn@204": [
+          "uint32",
+          "uint64",
+          "rand"
+        ],
+        "readTimeRandom@91": [
+          "uint64",
+          "nanotime",
+          "len",
+          "byte"
+        ]
+      }
+    },
     "go/kubernetes": {
       "go/kubernetes/csi_plugin.go": {
         "CanAttach@675": [
@@ -85552,6 +85716,30 @@
         ],
         "unionedGVKs@633": [
           "make"
+        ]
+      }
+    },
+    "go/kubernetes_kubectl_tls": {
+      "go/kubernetes_kubectl_tls/create_secret_tls_test.go": {
+        "TestCreateSecretTLS@83": [
+          "TempDir",
+          "writeKeyPair",
+          "String",
+          "byte",
+          "Run",
+          "createSecretTLS",
+          "Errorf",
+          "DeepEqual"
+        ],
+        "write@187": [
+          "Create",
+          "Fatalf",
+          "Close",
+          "WriteString"
+        ],
+        "writeKeyPair@199": [
+          "Join",
+          "write"
         ]
       }
     },
@@ -91437,6 +91625,721 @@
         ]
       }
     },
+    "java/flutter_android_editing_tests": {
+      "java/flutter_android_editing_tests/InputConnectionAdaptorTest.java": {
+        "TestImm@1397": [],
+        "TestTextInputChannel@1355": [],
+        "inputConnectionAdaptor_ReceivesEnter@100": [
+          "View",
+          "mock",
+          "spy",
+          "DartExecutor",
+          "TextInputChannel",
+          "ScribeChannel",
+          "ListenableEditingState",
+          "setSelection",
+          "EditorInfo",
+          "InputConnectionAdaptor",
+          "FakeKeyEvent",
+          "handleKeyEvent",
+          "verify",
+          "times",
+          "insert",
+          "eq",
+          "anyString"
+        ],
+        "isEmoji@1333": [
+          "hasBinaryProperty"
+        ],
+        "isEmojiModifier@1337": [
+          "hasBinaryProperty"
+        ],
+        "isEmojiModifierBase@1341": [
+          "hasBinaryProperty"
+        ],
+        "isRegionalIndicatorSymbol@1345": [
+          "hasBinaryProperty"
+        ],
+        "isVariationSelector@1349": [
+          "hasBinaryProperty"
+        ],
+        "resetStates@1419": [],
+        "sampleEditable@1282": [
+          "ListenableEditingState",
+          "View",
+          "getApplicationContext",
+          "replace",
+          "setSelection"
+        ],
+        "sampleEditable@1290": [
+          "ListenableEditingState",
+          "View",
+          "getApplicationContext",
+          "replace",
+          "setSelection"
+        ],
+        "sampleInputConnectionAdaptor@1298": [
+          "mock"
+        ],
+        "sampleInputConnectionAdaptor@1303": [
+          "View",
+          "getApplicationContext",
+          "mock",
+          "when",
+          "isCodePointEmoji",
+          "anyInt",
+          "thenAnswer",
+          "isEmoji",
+          "getArguments",
+          "isCodePointEmojiModifier",
+          "isEmojiModifier",
+          "isCodePointEmojiModifierBase",
+          "isEmojiModifierBase",
+          "isCodePointVariantSelector",
+          "isVariationSelector",
+          "isCodePointRegionalIndicator",
+          "isRegionalIndicatorSymbol",
+          "InputConnectionAdaptor"
+        ],
+        "setUp@93": [
+          "openMocks",
+          "getContentResolver",
+          "shadowOf"
+        ],
+        "testCleanUpBatchEndsOnCloseConnection@1244": [
+          "sampleEditable",
+          "spy",
+          "sampleInputConnectionAdaptor",
+          "beginBatchEdit",
+          "endBatchEdit",
+          "verify",
+          "times",
+          "closeConnection"
+        ],
+        "testCommitContent@199": [
+          "View",
+          "mock",
+          "spy",
+          "DartExecutor",
+          "TextInputChannel",
+          "ScribeChannel",
+          "sampleEditable",
+          "InputConnectionAdaptor",
+          "forName",
+          "getBytes",
+          "registerInputStream",
+          "parse",
+          "ByteArrayInputStream",
+          "commitContent",
+          "InputContentInfo",
+          "ClipDescription",
+          "assertTrue",
+          "forClass",
+          "verify",
+          "times",
+          "send",
+          "capture",
+          "isNull",
+          "assertEquals",
+          "getValue",
+          "verifyMethodCall"
+        ],
+        "testCursorAnchorInfo@1152": [
+          "sampleEditable",
+          "View",
+          "InputConnectionAdaptor",
+          "mock",
+          "EditorInfo",
+          "extract",
+          "getSystemService",
+          "resetStates",
+          "requestCursorUpdates",
+          "assertNull",
+          "setSelection",
+          "assertEquals",
+          "getSelectionStart",
+          "getSelectionEnd"
+        ],
+        "testDoesNotConsumeBackButton@1233": [
+          "sampleEditable",
+          "sampleInputConnectionAdaptor",
+          "FakeKeyEvent",
+          "handleKeyEvent",
+          "assertFalse"
+        ],
+        "testExtractedText_monitoring@1100": [
+          "sampleEditable",
+          "View",
+          "InputConnectionAdaptor",
+          "mock",
+          "EditorInfo",
+          "extract",
+          "getSystemService",
+          "resetStates",
+          "ExtractedTextRequest",
+          "getExtractedText",
+          "assertEquals",
+          "assertFalse",
+          "setSelection",
+          "assertNull",
+          "assertTrue"
+        ],
+        "testMethod_getExtractedText@1086": [
+          "sampleEditable",
+          "sampleInputConnectionAdaptor",
+          "getExtractedText",
+          "assertEquals"
+        ],
+        "testPerformContextMenuAction_copy@162": [
+          "getSystemService",
+          "sampleEditable",
+          "sampleInputConnectionAdaptor",
+          "assertFalse",
+          "hasText",
+          "performContextMenuAction",
+          "assertTrue",
+          "assertEquals",
+          "subSequence",
+          "getPrimaryClip",
+          "getItemAt",
+          "getText"
+        ],
+        "testPerformContextMenuAction_cut@143": [
+          "getSystemService",
+          "sampleEditable",
+          "subSequence",
+          "sampleInputConnectionAdaptor",
+          "performContextMenuAction",
+          "assertTrue",
+          "hasText",
+          "assertEquals",
+          "getPrimaryClip",
+          "getItemAt",
+          "getText",
+          "assertFalse",
+          "toString",
+          "contains"
+        ],
+        "testPerformContextMenuAction_paste@183": [
+          "getSystemService",
+          "setText",
+          "sampleEditable",
+          "sampleInputConnectionAdaptor",
+          "performContextMenuAction",
+          "assertTrue",
+          "toString",
+          "startsWith"
+        ],
+        "testPerformContextMenuAction_selectAll@130": [
+          "sampleEditable",
+          "sampleInputConnectionAdaptor",
+          "performContextMenuAction",
+          "assertTrue",
+          "assertEquals",
+          "getSelectionStart",
+          "length",
+          "getSelectionEnd"
+        ],
+        "testPerformPrivateCommand_dataIsByte@334": [
+          "View",
+          "mock",
+          "spy",
+          "DartExecutor",
+          "TextInputChannel",
+          "ScribeChannel",
+          "sampleEditable",
+          "InputConnectionAdaptor",
+          "Bundle",
+          "putByte",
+          "performPrivateCommand",
+          "forClass",
+          "verify",
+          "times",
+          "send",
+          "capture",
+          "isNull",
+          "assertEquals",
+          "getValue",
+          "verifyMethodCall"
+        ],
+        "testPerformPrivateCommand_dataIsByteArray@295": [
+          "View",
+          "mock",
+          "spy",
+          "DartExecutor",
+          "TextInputChannel",
+          "ScribeChannel",
+          "sampleEditable",
+          "InputConnectionAdaptor",
+          "Bundle",
+          "putByteArray",
+          "performPrivateCommand",
+          "forClass",
+          "verify",
+          "times",
+          "send",
+          "capture",
+          "isNull",
+          "assertEquals",
+          "getValue",
+          "verifyMethodCall"
+        ],
+        "testPerformPrivateCommand_dataIsChar@411": [
+          "View",
+          "mock",
+          "spy",
+          "DartExecutor",
+          "TextInputChannel",
+          "ScribeChannel",
+          "sampleEditable",
+          "InputConnectionAdaptor",
+          "Bundle",
+          "putChar",
+          "performPrivateCommand",
+          "forClass",
+          "verify",
+          "times",
+          "send",
+          "capture",
+          "isNull",
+          "assertEquals",
+          "getValue",
+          "verifyMethodCall"
+        ],
+        "testPerformPrivateCommand_dataIsCharArray@371": [
+          "View",
+          "mock",
+          "spy",
+          "DartExecutor",
+          "TextInputChannel",
+          "ScribeChannel",
+          "sampleEditable",
+          "InputConnectionAdaptor",
+          "Bundle",
+          "putCharArray",
+          "performPrivateCommand",
+          "forClass",
+          "verify",
+          "times",
+          "send",
+          "capture",
+          "isNull",
+          "assertEquals",
+          "getValue",
+          "verifyMethodCall"
+        ],
+        "testPerformPrivateCommand_dataIsCharSequence@489": [
+          "View",
+          "mock",
+          "spy",
+          "DartExecutor",
+          "TextInputChannel",
+          "ScribeChannel",
+          "sampleEditable",
+          "InputConnectionAdaptor",
+          "Bundle",
+          "StringBuffer",
+          "putCharSequence",
+          "performPrivateCommand",
+          "forClass",
+          "verify",
+          "times",
+          "send",
+          "capture",
+          "isNull",
+          "assertEquals",
+          "getValue",
+          "verifyMethodCall"
+        ],
+        "testPerformPrivateCommand_dataIsCharSequenceArray@448": [
+          "View",
+          "mock",
+          "spy",
+          "DartExecutor",
+          "TextInputChannel",
+          "ScribeChannel",
+          "sampleEditable",
+          "InputConnectionAdaptor",
+          "Bundle",
+          "StringBuffer",
+          "putCharSequenceArray",
+          "performPrivateCommand",
+          "forClass",
+          "verify",
+          "times",
+          "send",
+          "capture",
+          "isNull",
+          "assertEquals",
+          "getValue",
+          "verifyMethodCall"
+        ],
+        "testPerformPrivateCommand_dataIsFloat@528": [
+          "View",
+          "mock",
+          "spy",
+          "DartExecutor",
+          "TextInputChannel",
+          "ScribeChannel",
+          "sampleEditable",
+          "InputConnectionAdaptor",
+          "Bundle",
+          "putFloat",
+          "performPrivateCommand",
+          "forClass",
+          "verify",
+          "times",
+          "send",
+          "capture",
+          "isNull",
+          "assertEquals",
+          "getValue",
+          "verifyMethodCall"
+        ],
+        "testPerformPrivateCommand_dataIsFloatArray@565": [
+          "View",
+          "mock",
+          "spy",
+          "DartExecutor",
+          "TextInputChannel",
+          "ScribeChannel",
+          "sampleEditable",
+          "InputConnectionAdaptor",
+          "Bundle",
+          "putFloatArray",
+          "performPrivateCommand",
+          "forClass",
+          "verify",
+          "times",
+          "send",
+          "capture",
+          "isNull",
+          "assertEquals",
+          "getValue",
+          "verifyMethodCall"
+        ],
+        "testPerformPrivateCommand_dataIsNull@262": [
+          "View",
+          "mock",
+          "spy",
+          "DartExecutor",
+          "TextInputChannel",
+          "ScribeChannel",
+          "sampleEditable",
+          "InputConnectionAdaptor",
+          "performPrivateCommand",
+          "forClass",
+          "verify",
+          "times",
+          "send",
+          "capture",
+          "isNull",
+          "assertEquals",
+          "getValue",
+          "verifyMethodCall"
+        ],
+        "testSendKeyEvent_MovementKeysAreNopWhenNoSelection@1055": [
+          "sampleEditable",
+          "sampleInputConnectionAdaptor",
+          "KeyEvent",
+          "handleKeyEvent",
+          "assertFalse",
+          "assertEquals",
+          "getSelectionStart",
+          "getSelectionEnd"
+        ],
+        "testSendKeyEvent_delKeyNotConsumed@1219": [
+          "sampleEditable",
+          "sampleInputConnectionAdaptor",
+          "KeyEvent",
+          "handleKeyEvent",
+          "assertFalse",
+          "assertEquals",
+          "getSelectionStart"
+        ],
+        "testSendKeyEvent_downKeyMovesCaretDown@1040": [
+          "sampleEditable",
+          "sampleInputConnectionAdaptor",
+          "KeyEvent",
+          "handleKeyEvent",
+          "assertTrue",
+          "getSelectionStart"
+        ],
+        "testSendKeyEvent_leftKeyExtendsSelectionLeft@776": [
+          "sampleEditable",
+          "sampleInputConnectionAdaptor",
+          "KeyEvent",
+          "handleKeyEvent",
+          "assertTrue",
+          "assertEquals",
+          "getSelectionStart",
+          "getSelectionEnd"
+        ],
+        "testSendKeyEvent_leftKeyMovesCaretLeft@620": [
+          "sampleEditable",
+          "sampleInputConnectionAdaptor",
+          "KeyEvent",
+          "handleKeyEvent",
+          "assertTrue",
+          "assertEquals",
+          "getSelectionStart",
+          "getSelectionEnd"
+        ],
+        "testSendKeyEvent_leftKeyMovesCaretLeftComplexEmoji@634": [
+          "sampleEditable",
+          "sampleInputConnectionAdaptor",
+          "KeyEvent",
+          "handleKeyEvent",
+          "assertTrue",
+          "assertEquals",
+          "getSelectionStart",
+          "setSelection"
+        ],
+        "testSendKeyEvent_rightKeyExtendsSelectionRight@994": [
+          "sampleEditable",
+          "sampleInputConnectionAdaptor",
+          "KeyEvent",
+          "handleKeyEvent",
+          "assertTrue",
+          "assertEquals",
+          "getSelectionStart",
+          "getSelectionEnd"
+        ],
+        "testSendKeyEvent_rightKeyMovesCaretRight@807": [
+          "sampleEditable",
+          "sampleInputConnectionAdaptor",
+          "KeyEvent",
+          "handleKeyEvent",
+          "assertTrue",
+          "assertEquals",
+          "getSelectionStart",
+          "getSelectionEnd"
+        ],
+        "testSendKeyEvent_rightKeyMovesCaretRightComplexEmoji@859": [
+          "sampleEditable",
+          "sampleInputConnectionAdaptor",
+          "KeyEvent",
+          "handleKeyEvent",
+          "assertTrue",
+          "assertEquals",
+          "getSelectionStart",
+          "setSelection"
+        ],
+        "testSendKeyEvent_rightKeyMovesCaretRightComplexRegion@821": [
+          "sampleEditable",
+          "sampleInputConnectionAdaptor",
+          "KeyEvent",
+          "handleKeyEvent",
+          "assertTrue",
+          "assertEquals",
+          "getSelectionStart",
+          "setSelection"
+        ],
+        "testSendKeyEvent_sendHardwareKeyEvents@1205": [
+          "sampleEditable",
+          "when",
+          "handleEvent",
+          "any",
+          "thenReturn",
+          "sampleInputConnectionAdaptor",
+          "KeyEvent",
+          "sendKeyEvent",
+          "assertTrue",
+          "verify",
+          "times"
+        ],
+        "testSendKeyEvent_sendSoftKeyEvents@1193": [
+          "sampleEditable",
+          "sampleInputConnectionAdaptor",
+          "KeyEvent",
+          "handleKeyEvent",
+          "assertFalse",
+          "verify",
+          "never",
+          "handleEvent"
+        ],
+        "testSendKeyEvent_shiftKeyUpDoesNotCancelSelection@604": [
+          "sampleEditable",
+          "sampleInputConnectionAdaptor",
+          "KeyEvent",
+          "handleKeyEvent",
+          "assertFalse",
+          "assertEquals",
+          "getSelectionStart",
+          "getSelectionEnd"
+        ],
+        "testSendKeyEvent_shiftLeftKeyStartsSelectionLeft@791": [
+          "sampleEditable",
+          "sampleInputConnectionAdaptor",
+          "KeyEvent",
+          "handleKeyEvent",
+          "assertTrue",
+          "assertEquals",
+          "getSelectionStart",
+          "getSelectionEnd"
+        ],
+        "testSendKeyEvent_shiftRightKeyStartsSelectionRight@1009": [
+          "sampleEditable",
+          "sampleInputConnectionAdaptor",
+          "KeyEvent",
+          "handleKeyEvent",
+          "assertTrue",
+          "assertEquals",
+          "getSelectionStart",
+          "getSelectionEnd"
+        ],
+        "testSendKeyEvent_upKeyMovesCaretUp@1025": [
+          "indexOf",
+          "sampleEditable",
+          "sampleInputConnectionAdaptor",
+          "KeyEvent",
+          "handleKeyEvent",
+          "assertTrue",
+          "getSelectionStart"
+        ],
+        "updateCursorAnchorInfo@1399": [],
+        "updateEditingState@1367": [],
+        "updateExtractedText@1404": [],
+        "updateSelection@1410": [],
+        "verifyMethodCall@79": [
+          "rewind",
+          "decodeMethodCall",
+          "assertEquals",
+          "arguments",
+          "length",
+          "get",
+          "toString"
+        ]
+      }
+    },
+    "java/jenkins_cli": {
+      "java/jenkins_cli/SetBuildDescriptionCommand.java": {
+        "getShortDescription@16": [
+          "SetBuildDescriptionCommand_ShortDescription"
+        ],
+        "run@31": [
+          "getBuildByNumber",
+          "IllegalArgumentException",
+          "checkPermission",
+          "equals",
+          "toString",
+          "setDescription"
+        ]
+      }
+    },
+    "java/selenium_grid_session_queue": {
+      "java/selenium_grid_session_queue/RemoteNewSessionQueue.java": {
+        "RemoteNewSessionQueue@72": [
+          "nonNull",
+          "AddSecretFilter"
+        ],
+        "addToQueue@105": [
+          "HttpRequest",
+          "inject",
+          "getCurrentContext",
+          "setContent",
+          "asJson",
+          "with",
+          "execute"
+        ],
+        "clearQueue@184": [
+          "HttpRequest",
+          "inject",
+          "getCurrentContext",
+          "with",
+          "execute",
+          "get"
+        ],
+        "complete@162": [
+          "nonNull",
+          "isRight",
+          "HttpRequest",
+          "format",
+          "setContent",
+          "asJson",
+          "right",
+          "left",
+          "getRawMessage",
+          "inject",
+          "getCurrentContext",
+          "with",
+          "execute",
+          "get"
+        ],
+        "create@80": [
+          "LoggingOptions",
+          "getTracer",
+          "NewSessionQueueOptions",
+          "getSessionQueueUri",
+          "getSessionRequestTimeout",
+          "NetworkOptions",
+          "getHttpClientFactory",
+          "SecretOptions",
+          "getRegistrationSecret",
+          "defaultConfig",
+          "readTimeout",
+          "baseUrl",
+          "toURL",
+          "RemoteNewSessionQueue",
+          "createClient",
+          "UncheckedIOException"
+        ],
+        "getNextAvailable@145": [
+          "nonNull",
+          "forEach",
+          "put",
+          "toJson",
+          "HttpRequest",
+          "setContent",
+          "asJson",
+          "inject",
+          "getCurrentContext",
+          "with",
+          "execute",
+          "get"
+        ],
+        "getQueueContents@193": [
+          "HttpRequest",
+          "inject",
+          "getCurrentContext",
+          "execute",
+          "get"
+        ],
+        "isReady@202": [
+          "execute",
+          "HttpRequest",
+          "isSuccessful"
+        ],
+        "peekEmpty@99": [],
+        "remove@127": [
+          "HttpRequest",
+          "inject",
+          "getCurrentContext",
+          "with",
+          "execute",
+          "isSuccessful",
+          "string",
+          "trim",
+          "isEmpty",
+          "empty",
+          "of",
+          "toType"
+        ],
+        "retryAddToQueue@113": [
+          "nonNull",
+          "HttpRequest",
+          "format",
+          "getRequestId",
+          "inject",
+          "getCurrentContext",
+          "setContent",
+          "asJson",
+          "with",
+          "execute",
+          "get"
+        ]
+      }
+    },
     "java/springboot": {
       "java/springboot/AutoConfigurationImportSelector.java": {
         "AutoConfigurationEntry@547": [
@@ -92845,6 +93748,31 @@
         ]
       }
     },
+    "javascript/cesium_particle_emitters": {
+      "javascript/cesium_particle_emitters/CircleEmitter.js": {
+        "CircleEmitter@14": [
+          "greaterThan"
+        ],
+        "emit@50": [
+          "randomBetween",
+          "cos",
+          "sin",
+          "fromElements",
+          "clone"
+        ],
+        "get@32": [],
+        "set@35": [
+          "greaterThan"
+        ]
+      }
+    },
+    "javascript/javascript_algorithms_bits": {
+      "javascript/javascript_algorithms_bits/fullAdder.js": {
+        "fullAdder@37": [
+          "getBit"
+        ]
+      }
+    },
     "javascript/jquery": {
       "javascript/jquery/ajax.js": {
         "abort@517": [
@@ -93368,6 +94296,22 @@
           "replace",
           "selectorError",
           "tokenCache"
+        ]
+      }
+    },
+    "javascript/node_tls_security_tests": {
+      "javascript/node_tls_security_tests/regexp-unicode-sets.js": {
+        "check@83": [
+          "Set",
+          "map",
+          "String",
+          "filter",
+          "has",
+          "assertTrue",
+          "test",
+          "assertFalse",
+          "assertThrows",
+          "RegExp"
         ]
       }
     },
@@ -95830,6 +96774,28 @@
         ],
         "transform@428": [
           "replace"
+        ]
+      }
+    },
+    "javascript/react_error_codes": {
+      "javascript/react_error_codes/extract-errors.js": {
+        "main@7": [
+          "parse",
+          "readFileSync",
+          "resolve",
+          "Set",
+          "keys",
+          "parseInt",
+          "add",
+          "log",
+          "execSync",
+          "toString",
+          "exec",
+          "trim",
+          "has",
+          "assign",
+          "writeFileSync",
+          "stringify"
         ]
       }
     },
@@ -107523,6 +108489,22 @@
         "name@27": []
       }
     },
+    "perl/ack3_tests": {
+      "perl/ack3_tests/file-permission.t": {
+        "check_with@60": [
+          "subtest_name",
+          "arg",
+          "ref",
+          "run_ack_with_stderr",
+          "is",
+          "get_rc",
+          "diag",
+          "explain",
+          "like"
+        ],
+        "o@33": []
+      }
+    },
     "perl/bugzilla": {
       "perl/bugzilla/Auth.pm": {
         "_handle_login_result@143": [
@@ -115512,6 +116494,21 @@
           "setDefaults",
           "is_array"
         ]
+      }
+    },
+    "php/laravel_validation_rules": {
+      "php/laravel_validation_rules/Can.php": {
+        "__construct@38": [],
+        "message@65": [
+          "getTranslator",
+          "get"
+        ],
+        "passes@51": [
+          "array_shift",
+          "allows",
+          "array_filter"
+        ],
+        "setValidator@80": []
       }
     },
     "php/magento2": {
@@ -125226,6 +126223,302 @@
         ]
       }
     },
+    "python/airflow_ai_providers": {
+      "python/airflow_ai_providers/openai_src_airflow_providers_openai_hooks_openai.py": {
+        "__init__@85": [
+          "super"
+        ],
+        "__str__@62": [
+          "str"
+        ],
+        "cancel_batch@483": [
+          "cancel"
+        ],
+        "conn@106": [
+          "get_conn"
+        ],
+        "create_assistant@144": [
+          "create"
+        ],
+        "create_batch@419": [
+          "create"
+        ],
+        "create_chat_completion@123": [
+          "create"
+        ],
+        "create_embeddings@297": [
+          "create"
+        ],
+        "create_message@209": [
+          "create"
+        ],
+        "create_run@245": [
+          "create"
+        ],
+        "create_run_and_poll@255": [
+          "create_and_poll"
+        ],
+        "create_thread@185": [
+          "create"
+        ],
+        "create_vector_store@348": [
+          "create"
+        ],
+        "delete_assistant@176": [
+          "delete"
+        ],
+        "delete_file@339": [
+          "delete"
+        ],
+        "delete_thread@200": [
+          "delete"
+        ],
+        "delete_vector_store@376": [
+          "delete"
+        ],
+        "delete_vector_store_file@409": [
+          "delete"
+        ],
+        "get_assistant@153": [
+          "retrieve"
+        ],
+        "get_assistants@162": [
+          "list"
+        ],
+        "get_batch@440": [
+          "retrieve"
+        ],
+        "get_conn@110": [
+          "get_connection",
+          "get",
+          "pop",
+          "OpenAI"
+        ],
+        "get_file@325": [
+          "retrieve"
+        ],
+        "get_files@334": [
+          "list"
+        ],
+        "get_messages@224": [
+          "list"
+        ],
+        "get_run@268": [
+          "retrieve"
+        ],
+        "get_runs@278": [
+          "list"
+        ],
+        "get_ui_field_behaviour@90": [],
+        "get_vector_store@358": [
+          "retrieve"
+        ],
+        "get_vector_store_files@400": [
+          "list"
+        ],
+        "get_vector_stores@353": [
+          "list"
+        ],
+        "is_in_progress@66": [],
+        "modify_assistant@167": [
+          "update"
+        ],
+        "modify_message@233": [
+          "update"
+        ],
+        "modify_run@287": [
+          "update"
+        ],
+        "modify_thread@190": [
+          "update"
+        ],
+        "modify_vector_store@367": [
+          "update"
+        ],
+        "test_connection@98": [
+          "list",
+          "str"
+        ],
+        "upload_file@313": [
+          "open",
+          "create"
+        ],
+        "upload_files_to_vector_store@385": [
+          "upload_and_poll"
+        ],
+        "wait_for_batch@449": [
+          "monotonic",
+          "cancel_batch",
+          "OpenAIBatchTimeout",
+          "get_batch",
+          "is_in_progress",
+          "sleep",
+          "OpenAIBatchJobException"
+        ]
+      },
+      "python/airflow_ai_providers/pinecone_src_airflow_providers_pinecone_hooks_pinecone.py": {
+        "__init__@90": [],
+        "_chunks@356": [
+          "iter",
+          "tuple",
+          "islice"
+        ],
+        "api_key@98": [
+          "LookupError"
+        ],
+        "configure_index@273": [],
+        "conn@139": [
+          "get_connection"
+        ],
+        "create_collection@285": [],
+        "create_index@230": [],
+        "delete_collection@294": [],
+        "delete_index@264": [],
+        "describe_collection@302": [],
+        "describe_index@256": [],
+        "describe_index_stats@391": [
+          "Index"
+        ],
+        "environment@105": [
+          "LookupError"
+        ],
+        "get_connection_form_widgets@63": [
+          "StringField",
+          "lazy_gettext",
+          "BS3TextFieldWidget",
+          "BooleanField"
+        ],
+        "get_pod_spec_obj@189": [
+          "PodSpec",
+          "isinstance",
+          "PodType"
+        ],
+        "get_serverless_spec_obj@221": [
+          "ServerlessSpec"
+        ],
+        "get_ui_field_behaviour@79": [],
+        "list_collections@310": [],
+        "list_indexes@149": [],
+        "pinecone_client@123": [
+          "get",
+          "Pinecone"
+        ],
+        "query_vector@314": [
+          "Index",
+          "query"
+        ],
+        "region@114": [
+          "get",
+          "LookupError"
+        ],
+        "test_connection@142": [
+          "list_indexes",
+          "str"
+        ],
+        "upsert@153": [
+          "Index"
+        ],
+        "upsert_data_async@364": [
+          "Index",
+          "upsert",
+          "_chunks",
+          "get",
+          "append"
+        ]
+      },
+      "python/airflow_ai_providers/pinecone_src_airflow_providers_pinecone_operators_pinecone.py": {
+        "__init__@119": [
+          "super"
+        ],
+        "__init__@190": [
+          "super"
+        ],
+        "__init__@57": [
+          "super"
+        ],
+        "execute@154": [
+          "get_pod_spec_obj",
+          "create_index"
+        ],
+        "execute@215": [
+          "get_serverless_spec_obj",
+          "create_index"
+        ],
+        "execute@84": [
+          "upsert",
+          "info"
+        ],
+        "hook@151": [
+          "PineconeHook"
+        ],
+        "hook@212": [
+          "PineconeHook"
+        ],
+        "hook@80": [
+          "PineconeHook"
+        ]
+      },
+      "python/airflow_ai_providers/pinecone_tests_system_pinecone_example_pinecone_cohere.py": {
+        "delete_index@84": [
+          "PineconeHook"
+        ],
+        "transform_output@68": [
+          "dict",
+          "str",
+          "enumerate"
+        ]
+      }
+    },
+    "python/airflow_opsgenie_tests": {
+      "python/airflow_opsgenie_tests/test_opsgenie.py": {
+        "setup_connections@69": [
+          "create_connection_without_db",
+          "Connection"
+        ],
+        "test_close_alert@130": [
+          "OpsgenieAlertHook",
+          "close_alert",
+          "assert_called_once_with",
+          "CloseAlertPayload"
+        ],
+        "test_create_alert_api_key_not_set@110": [
+          "create_connection_without_db",
+          "Connection",
+          "OpsgenieAlertHook",
+          "raises",
+          "create_alert"
+        ],
+        "test_create_alert_create_alert_payload@124": [
+          "OpsgenieAlertHook",
+          "create_alert",
+          "assert_called_once_with",
+          "CreateAlertPayload"
+        ],
+        "test_delete_alert@150": [
+          "OpsgenieAlertHook",
+          "delete_alert",
+          "assert_called_once_with"
+        ],
+        "test_get_api_key@79": [
+          "OpsgenieAlertHook",
+          "_get_api_key"
+        ],
+        "test_get_conn_custom_host@88": [
+          "create_connection_without_db",
+          "Connection",
+          "OpsgenieAlertHook",
+          "get_conn"
+        ],
+        "test_get_conn_defaults_host@84": [
+          "OpsgenieAlertHook",
+          "get_conn"
+        ],
+        "test_verify_api_key_set@102": [
+          "OpsgenieAlertHook",
+          "get"
+        ]
+      }
+    },
     "python/cython": {
       "python/cython/CodeGeneration.py": {
         "__call__@20": [
@@ -128239,6 +129532,83 @@
           "get_view_utility_code"
         ],
         "write_func_call@78": []
+      }
+    },
+    "python/django_db_tests": {
+      "python/django_db_tests/test_iterator.py": {
+        "setUpTestData@15": [
+          "create",
+          "now"
+        ],
+        "test_default_iterator_chunk_size@27": [
+          "iterator",
+          "patch",
+          "next",
+          "assertEqual"
+        ],
+        "test_iterator_chunk_size@37": [
+          "iterator",
+          "patch",
+          "next",
+          "assertEqual"
+        ],
+        "test_iterator_invalid_chunk_size@19": [
+          "subTest",
+          "assertRaisesMessage",
+          "iterator"
+        ],
+        "test_no_chunked_reads@48": [
+          "all",
+          "get_compiler",
+          "object",
+          "execute_sql",
+          "assertIsInstance"
+        ]
+      },
+      "python/django_db_tests/test_utils.py": {
+        "_test_procedure@97": [
+          "cursor",
+          "execute",
+          "callproc",
+          "schema_editor",
+          "remove_procedure"
+        ],
+        "equal@48": [
+          "assertEqual",
+          "format_number",
+          "Decimal"
+        ],
+        "test_callproc_kparams@124": [
+          "_test_procedure"
+        ],
+        "test_callproc_with_int_params@114": [
+          "_test_procedure"
+        ],
+        "test_callproc_without_params@108": [
+          "_test_procedure"
+        ],
+        "test_format_number@47": [
+          "equal",
+          "assertRaises"
+        ],
+        "test_split_identifier@37": [
+          "assertEqual",
+          "split_identifier"
+        ],
+        "test_split_tzname_delta@76": [
+          "subTest",
+          "assertEqual",
+          "split_tzname_delta"
+        ],
+        "test_truncate_name@21": [
+          "assertEqual",
+          "truncate_name"
+        ],
+        "test_unsupported_callproc_kparams_raises_error@133": [
+          "assertRaisesMessage",
+          "cursor",
+          "callproc"
+        ]
       }
     },
     "python/fastapi/fastapi": {
@@ -135913,6 +137283,198 @@
         ]
       }
     },
+    "python/homeassistant_anthropic": {
+      "python/homeassistant_anthropic/coordinator.py": {
+        "__init__@29": [
+          "super",
+          "AsyncAnthropic",
+          "get_async_client"
+        ],
+        "async_set_updated_data@45": [
+          "super"
+        ],
+        "async_update_data@50": [
+          "list",
+          "TimeoutError",
+          "str",
+          "ConfigEntryAuthFailed",
+          "UpdateFailed"
+        ],
+        "mark_connection_error@71": [
+          "async_update_listeners",
+          "_schedule_refresh"
+        ]
+      }
+    },
+    "python/homeassistant_ble_integrations": {
+      "python/homeassistant_ble_integrations/aranet___init__.py": {
+        "_service_info_to_adv@27": [
+          "Aranet4Advertisement"
+        ],
+        "async_setup_entry@33": [
+          "PassiveBluetoothProcessorCoordinator",
+          "async_forward_entry_setups",
+          "async_on_unload",
+          "async_start"
+        ],
+        "async_unload_entry@52": [
+          "async_unload_platforms"
+        ]
+      },
+      "python/homeassistant_ble_integrations/gardena_bluetooth___init__.py": {
+        "_device_lookup@51": [
+          "async_ble_device_from_address",
+          "DeviceUnavailable"
+        ],
+        "_update_timestamp@62": [
+          "update_timestamp",
+          "now",
+          "debug"
+        ],
+        "async_setup_entry@71": [
+          "timeout",
+          "async_get_product_type",
+          "ConfigEntryNotReady",
+          "Client",
+          "get_connection",
+          "get_all_characteristics",
+          "read_char",
+          "_update_timestamp",
+          "disconnect",
+          "DeviceInfo",
+          "GardenaBluetoothCoordinator",
+          "set",
+          "keys",
+          "async_forward_entry_setups",
+          "async_refresh"
+        ],
+        "async_unload_entry@125": [
+          "async_unload_platforms",
+          "async_shutdown"
+        ],
+        "get_connection@48": [
+          "CachedConnection"
+        ]
+      },
+      "python/homeassistant_ble_integrations/utils.py": {
+        "get_device_macs@17": [
+          "get",
+          "suppress",
+          "extend",
+          "sorted",
+          "format_mac",
+          "str"
+        ],
+        "non_verifying_requests_session@36": [
+          "urlparse",
+          "Session",
+          "filterwarnings"
+        ]
+      }
+    },
+    "python/langchain_agents": {
+      "python/langchain_agents/langchain_agents_middleware_model_fallback.py": {
+        "__init__@50": [
+          "super",
+          "isinstance",
+          "append",
+          "init_chat_model"
+        ],
+        "awrap_model_call@106": [
+          "handler",
+          "override"
+        ],
+        "wrap_model_call@72": [
+          "handler",
+          "override"
+        ]
+      },
+      "python/langchain_agents/langchain_agents_middleware_tool_emulator.py": {
+        "__init__@66": [
+          "super",
+          "set",
+          "isinstance",
+          "add",
+          "init_chat_model"
+        ],
+        "awrap_tool_call@159": [
+          "handler",
+          "ainvoke",
+          "HumanMessage",
+          "ToolMessage"
+        ],
+        "wrap_tool_call@109": [
+          "handler",
+          "invoke",
+          "HumanMessage",
+          "ToolMessage"
+        ]
+      },
+      "python/langchain_agents/tests_integration_tests_chat_models_test_base.py": {
+        "chat_model_class@40": [
+          "cast"
+        ],
+        "chat_model_params@44": [],
+        "has_structured_output@56": [],
+        "has_tool_calling@52": [],
+        "supports_image_inputs@48": [],
+        "test_init_chat_model_chain@22": [
+          "init_chat_model",
+          "bind_tools",
+          "with_config",
+          "RunnableConfig",
+          "from_messages",
+          "invoke",
+          "isinstance",
+          "astream_events"
+        ]
+      }
+    },
+    "python/micropython_usb_tls": {
+      "python/micropython_usb_tls/ssl_verify_callback.py": {
+        "test@24": [
+          "socket",
+          "connect",
+          "wrap_socket",
+          "close",
+          "print"
+        ],
+        "verify_callback@14": [
+          "print",
+          "type",
+          "len"
+        ],
+        "verify_callback_fail@19": [
+          "print",
+          "type",
+          "len"
+        ]
+      },
+      "python/micropython_usb_tls/tls_dtls.py": {
+        "__init__@12": [
+          "bytearray"
+        ],
+        "ioctl@24": [],
+        "readinto@19": [],
+        "write@16": [
+          "len"
+        ]
+      },
+      "python/micropython_usb_tls/usb_simple_host_pyusb.py": {
+        "main@19": [
+          "find",
+          "print",
+          "exit",
+          "claim_interface",
+          "range",
+          "get_string",
+          "write",
+          "read",
+          "release_interface",
+          "dispose_resources"
+        ]
+      }
+    },
     "python/numpy": {
       "python/numpy/_linalg.py": {
         "_assert_2d@239": [
@@ -139393,6 +140955,99 @@
         ]
       }
     },
+    "python/opencv_dnn_conversion": {
+      "python/opencv_dnn_conversion/py_to_py_resnet50_onnx.py": {
+        "get_pytorch_onnx_model@9": [
+          "makedirs",
+          "join",
+          "Variable",
+          "randn",
+          "export"
+        ],
+        "main@40": [
+          "resnet50",
+          "get_pytorch_onnx_model",
+          "print"
+        ]
+      }
+    },
+    "python/scikit-learn_examples": {
+      "python/scikit-learn_examples/svm_plot_custom_kernel.py": {
+        "my_kernel@27": [
+          "array",
+          "dot"
+        ]
+      }
+    },
+    "python/tensorflow_ml_ops": {
+      "python/tensorflow_ml_ops/core_tfrt_saved_model_tests_gen_matmul_gpu.py": {
+        "__init__@40": [
+          "super",
+          "Variable",
+          "constant"
+        ],
+        "main@54": [
+          "len",
+          "UsageError",
+          "enable_v2_behavior",
+          "save",
+          "ToyModule",
+          "SaveOptions",
+          "info"
+        ],
+        "toy@48": [
+          "device",
+          "matmul"
+        ]
+      },
+      "python/tensorflow_ml_ops/lite_testing_op_tests_einsum.py": {
+        "build_graph@61": [
+          "placeholder",
+          "einsum"
+        ],
+        "build_inputs@74": [
+          "set_dynamic_shape",
+          "create_tensor_data",
+          "run",
+          "dict",
+          "zip"
+        ],
+        "make_einsum_tests@25": [
+          "make_zip_of_tests"
+        ],
+        "set_dynamic_shape@57": []
+      }
+    },
+    "python/thealgorithms_machine_learning": {
+      "python/thealgorithms_machine_learning/logistic_regression.py": {
+        "cost_function@66": [
+          "float",
+          "log",
+          "mean"
+        ],
+        "log_likelihood@106": [
+          "dot",
+          "sum",
+          "log",
+          "exp"
+        ],
+        "logistic_reg@112": [
+          "zeros",
+          "range",
+          "dot",
+          "sigmoid_function",
+          "cost_function",
+          "print"
+        ],
+        "predict_prob@143": [
+          "sigmoid_function",
+          "dot"
+        ],
+        "sigmoid_function@31": [
+          "exp"
+        ]
+      }
+    },
     "python/twisted": {
       "python/twisted/defer.py": {
         "_DeferredList@1425": [],
@@ -141879,6 +143534,36 @@
         ]
       }
     },
+    "ruby/rails_http_token_auth": {
+      "ruby/rails_http_token_auth/http_token_authentication_test.rb": {
+        "authenticate@24": [],
+        "authenticate_long_credentials@38": [],
+        "authenticate_with_request@30": [
+          "request_http_token_authentication"
+        ],
+        "display@15": [
+          "render"
+        ],
+        "index@11": [
+          "render"
+        ],
+        "malformed_request@235": [
+          "mock_authorization_request"
+        ],
+        "sample_request@228": [
+          "inject",
+          "join",
+          "mock_authorization_request"
+        ],
+        "sample_request_without_token_key@239": [
+          "mock_authorization_request",
+          "encode_credentials"
+        ],
+        "show@19": [
+          "render"
+        ]
+      }
+    },
     "rust/bevy": {
       "rust/bevy/bevy_ecs_macros.rs": {
         "apply@448": [],
@@ -143722,6 +145407,74 @@
           "rposition",
           "map",
           "unwrap_or_default"
+        ]
+      }
+    },
+    "rust/bevy_asset_examples": {
+      "rust/bevy_asset_examples/image_node.rs": {
+        "main@6": [
+          "new",
+          "add_plugins",
+          "add_systems",
+          "run"
+        ],
+        "setup@13": [
+          "spawn",
+          "percent",
+          "default",
+          "children",
+          "new",
+          "load",
+          "px",
+          "all"
+        ]
+      },
+      "rust/bevy_asset_examples/rotation.rs": {
+        "main@7": [
+          "new",
+          "add_plugins",
+          "insert_resource",
+          "from_hz",
+          "add_systems",
+          "run"
+        ],
+        "player_movement_system@112": [
+          "into_inner",
+          "pressed",
+          "rotate_z",
+          "delta_secs",
+          "from",
+          "min",
+          "max"
+        ],
+        "rotate_to_player_system@195": [
+          "xy",
+          "normalize",
+          "dot",
+          "abs",
+          "copysign",
+          "acos",
+          "clamp",
+          "delta_secs",
+          "min",
+          "rotate_z"
+        ],
+        "setup@52": [
+          "load",
+          "spawn",
+          "new",
+          "px",
+          "default",
+          "from_image",
+          "to_radians",
+          "clone",
+          "from_xyz"
+        ],
+        "snap_to_player_system@154": [
+          "xy",
+          "normalize",
+          "from_rotation_arc",
+          "extend"
         ]
       }
     },
@@ -148551,6 +150304,30 @@
         "write@2421": [],
         "write_dac@2133": [],
         "write_owner@2143": []
+      }
+    },
+    "rust/tokio_util_rand": {
+      "rust/tokio_util_rand/rand.rs": {
+        "fastrand@83": [
+          "wrapping_add"
+        ],
+        "fastrand_n@71": [
+          "all",
+          "fastrand",
+          "wrapping_mul"
+        ],
+        "from_pair@52": [],
+        "from_seed@64": [],
+        "from_u64@40": [
+          "from_pair"
+        ],
+        "new@36": [
+          "from_u64",
+          "seed"
+        ],
+        "new@59": [
+          "from_seed"
+        ]
       }
     },
     "rust/wasmtime": {
@@ -163906,6 +165683,12 @@
         "ztest_head@5": []
       }
     },
+    "shell/freebsd_sysbuild": {
+      "shell/freebsd_sysbuild/sysbuild.sh": {
+        "ports_make@179": [],
+        "usage@134": []
+      }
+    },
     "shell/haiku": {
       "shell/haiku/HardwareChecker.sh": {
         "check_all@323": [],
@@ -167671,6 +169454,97 @@
         ]
       }
     },
+    "typescript/angular_zonejs_mocha": {
+      "typescript/angular_zonejs_mocha/mocha.ts": {
+        "asyncTest@102": [
+          "run"
+        ],
+        "asyncTest@86": [
+          "run"
+        ],
+        "modifyArguments@54": [
+          "syncTest"
+        ],
+        "only@128": [
+          "apply",
+          "wrapDescribeInZone"
+        ],
+        "only@146": [
+          "apply",
+          "wrapTestInZone"
+        ],
+        "patchMocha@13": [
+          "__load_patch",
+          "Error",
+          "fork",
+          "SyncTestZoneSpec",
+          "ProxyZoneSpec"
+        ],
+        "run@173": [
+          "on",
+          "fork",
+          "ProxyZoneSpec",
+          "get",
+          "getAndClearPendingTasksInfo",
+          "call"
+        ],
+        "runTest@167": [
+          "scheduleMicroTask",
+          "call"
+        ],
+        "setup@162": [
+          "apply",
+          "wrapTestInZone"
+        ],
+        "skip@123": [
+          "apply",
+          "wrapDescribeInZone"
+        ],
+        "skip@141": [
+          "apply",
+          "wrapTestInZone"
+        ],
+        "suite@117": [
+          "apply",
+          "wrapDescribeInZone"
+        ],
+        "suiteSetup@158": [
+          "apply",
+          "wrapSuiteInZone"
+        ],
+        "suiteTeardown@150": [
+          "apply",
+          "wrapSuiteInZone"
+        ],
+        "syncTest@108": [
+          "run"
+        ],
+        "syncTest@76": [
+          "run"
+        ],
+        "syncTest@92": [
+          "run"
+        ],
+        "teardown@154": [
+          "apply",
+          "wrapTestInZone"
+        ],
+        "test@134": [
+          "apply",
+          "wrapTestInZone"
+        ],
+        "toString@66": [],
+        "wrapDescribeInZone@75": [
+          "modifyArguments"
+        ],
+        "wrapSuiteInZone@101": [
+          "modifyArguments"
+        ],
+        "wrapTestInZone@85": [
+          "modifyArguments"
+        ]
+      }
+    },
     "typescript/assemblyscript": {
       "typescript/assemblyscript/ast.ts": {
         "argumentsRange@1249": [
@@ -170810,6 +172684,260 @@
         ]
       }
     },
+    "typescript/effect_ai_anthropic": {
+      "typescript/effect_ai_anthropic/AnthropicTokenizer.ts": {
+        "catch@44": [
+          "UnknownError"
+        ],
+        "tokenize@18": [],
+        "try@20": [
+          "getTokenizer",
+          "flatMap",
+          "filterMap",
+          "none",
+          "some",
+          "stringify",
+          "join",
+          "encode",
+          "normalize",
+          "free",
+          "from"
+        ]
+      }
+    },
+    "typescript/excalibur_math": {
+      "typescript/excalibur_math/collision_colliders_separating-axis.ts": {
+        "findCirclePolygonSeparation@139": [
+          "sub",
+          "getFurthestPoint",
+          "negate",
+          "push",
+          "normalize",
+          "project",
+          "getOverlap",
+          "scale"
+        ],
+        "findPolygonPolygonSeparation@72": [
+          "determinant",
+          "findPolygonPolygonSeparationDegenerate",
+          "multiply",
+          "getRotation",
+          "rotate",
+          "dot",
+          "sub",
+          "get",
+          "clone"
+        ],
+        "findPolygonPolygonSeparationDegenerate@170": [
+          "getSides",
+          "getLocalSides",
+          "normal",
+          "getFurthestPoint",
+          "negate",
+          "distanceToPoint",
+          "getFurthestLocalPoint"
+        ]
+      },
+      "typescript/excalibur_math/math_ray.ts": {
+        "constructor@16": [
+          "normalize"
+        ],
+        "getPoint@62": [
+          "add",
+          "scale"
+        ],
+        "intersect@26": [
+          "sub",
+          "cross",
+          "getSlope",
+          "getLength"
+        ],
+        "intersectPoint@51": [
+          "intersect",
+          "getPoint"
+        ]
+      }
+    },
+    "typescript/excalidraw_text_wrapping": {
+      "typescript/excalidraw_text_wrapping/textWrapping.ts": {
+        "After@267": [
+          "join",
+          "build",
+          "Chain"
+        ],
+        "AfterMany@289": [
+          "join",
+          "build",
+          "Chain"
+        ],
+        "Before@256": [
+          "join",
+          "build",
+          "Chain"
+        ],
+        "BeforeMany@278": [
+          "join",
+          "build",
+          "Chain"
+        ],
+        "Chain@319": [],
+        "FollowedBy@339": [
+          "rootBuilder",
+          "Before",
+          "Build",
+          "and",
+          "Chain"
+        ],
+        "NotAfter@311": [
+          "join",
+          "build",
+          "Chain"
+        ],
+        "NotBefore@300": [
+          "join",
+          "build",
+          "Chain"
+        ],
+        "NotFollowedBy@363": [
+          "rootBuilder",
+          "NotBefore",
+          "Build",
+          "and",
+          "Chain"
+        ],
+        "NotPrecededBy@351": [
+          "rootBuilder",
+          "NotAfter",
+          "Build",
+          "and",
+          "Chain"
+        ],
+        "On@249": [
+          "join",
+          "build"
+        ],
+        "PreceededBy@327": [
+          "rootBuilder",
+          "After",
+          "Build",
+          "and",
+          "Chain"
+        ],
+        "build@215": [
+          "RegExp"
+        ],
+        "class@237": [
+          "build"
+        ],
+        "containsCJK@30": [
+          "values",
+          "test"
+        ],
+        "getEmojiRegex@50": [
+          "getEmojiRegexUnicode"
+        ],
+        "getEmojiRegexUnicode@194": [
+          "group",
+          "or",
+          "and",
+          "build"
+        ],
+        "getHardLineBreaks@423": [
+          "split",
+          "map"
+        ],
+        "getLineBreakRegex@38": [
+          "getLineBreakRegexAdvanced",
+          "getLineBreakRegexSimple"
+        ],
+        "getLineBreakRegexAdvanced@151": [
+          "or",
+          "getEmojiRegex",
+          "Before",
+          "Build",
+          "After",
+          "NotPrecededBy",
+          "NotFollowedBy",
+          "BeforeMany",
+          "AfterMany",
+          "FollowedBy"
+        ],
+        "getLineBreakRegexSimple@138": [
+          "or",
+          "getEmojiRegex",
+          "On"
+        ],
+        "getWrappedTextLines@446": [
+          "isFinite",
+          "getHardLineBreaks",
+          "split",
+          "getLineWidth",
+          "push",
+          "wrapLine"
+        ],
+        "group@232": [
+          "build"
+        ],
+        "isSingleCharacter@724": [
+          "codePointAt"
+        ],
+        "join@219": [
+          "map"
+        ],
+        "or@227": [
+          "build",
+          "map",
+          "join"
+        ],
+        "parseTokens@382": [
+          "getLineBreakRegex",
+          "normalize",
+          "split",
+          "filter"
+        ],
+        "satisfiesWordInvariant@734": [
+          "isTestEnv",
+          "isDevEnv",
+          "test",
+          "Error"
+        ],
+        "trimLine@655": [
+          "getLineWidth",
+          "match",
+          "trimEnd",
+          "from",
+          "calculate"
+        ],
+        "trimLineEndAtSoftBreak@705": [
+          "trimEnd"
+        ],
+        "wrapLine@486": [
+          "parseTokens",
+          "isSingleCharacter",
+          "calculate",
+          "getLineWidth",
+          "test",
+          "wrapWord",
+          "slice",
+          "push",
+          "trimLineEndAtSoftBreak",
+          "trimLine"
+        ],
+        "wrapText@397": [
+          "getWrappedTextLines",
+          "map",
+          "join"
+        ],
+        "wrapWord@578": [
+          "getEmojiRegex",
+          "test",
+          "satisfiesWordInvariant",
+          "from",
+          "calculate",
+          "push"
+        ]
+      }
+    },
     "typescript/fp-ts": {
       "typescript/fp-ts/Either.ts": {
         "_alt@190": [
@@ -171486,6 +173614,54 @@
         "reduceWithIndex@445": [],
         "reduceWithIndex@448": [],
         "reduceWithIndex@451": []
+      }
+    },
+    "typescript/nx_util_ai": {
+      "typescript/nx_util_ai/nx-dev_pages_api_query-ai-handler.ts": {
+        "handler@24": [
+          "includes",
+          "CustomError",
+          "getOpenAI",
+          "json",
+          "getUserQuery",
+          "getTokenizedContext",
+          "initializeChat",
+          "create",
+          "formatMarkdownSources",
+          "OpenAIStream",
+          "appendToStream",
+          "StreamingTextResponse",
+          "error",
+          "extractErrorMessage",
+          "Response",
+          "stringify"
+        ]
+      },
+      "typescript/nx_util_ai/util-ai_src_lib_moderation.ts": {
+        "moderateContent@4": [
+          "create",
+          "CustomError",
+          "error"
+        ]
+      }
+    },
+    "typescript/pixijs_examples": {
+      "typescript/pixijs_examples/events_dragging.ts": {
+        "createBunny@24": [
+          "Sprite",
+          "set",
+          "on",
+          "addChild"
+        ],
+        "onDragEnd@73": [
+          "off"
+        ],
+        "onDragMove@58": [
+          "toLocal"
+        ],
+        "onDragStart@64": [
+          "on"
+        ]
       }
     },
     "typescript/playwright": {
@@ -191279,6 +193455,58 @@
           "writer",
           "print",
           "flush"
+        ]
+      }
+    },
+    "zig/zig_std_linux_mips": {
+      "zig/zig_std_linux_mips/mips.zig": {
+        "atime@261": [
+          "This"
+        ],
+        "clone@178": [
+          "volatile"
+        ],
+        "ctime@269": [
+          "This"
+        ],
+        "mtime@265": [
+          "This"
+        ],
+        "syscall0@5": [
+          "volatile",
+          "intFromEnum"
+        ],
+        "syscall1@34": [
+          "volatile",
+          "intFromEnum"
+        ],
+        "syscall2@47": [
+          "volatile",
+          "intFromEnum"
+        ],
+        "syscall3@61": [
+          "volatile",
+          "intFromEnum"
+        ],
+        "syscall4@76": [
+          "volatile",
+          "intFromEnum"
+        ],
+        "syscall5@95": [
+          "volatile",
+          "intFromEnum"
+        ],
+        "syscall6@115": [
+          "volatile",
+          "intFromEnum"
+        ],
+        "syscall7@145": [
+          "volatile",
+          "intFromEnum"
+        ],
+        "syscall_pipe@17": [
+          "volatile",
+          "intFromEnum"
         ]
       }
     },

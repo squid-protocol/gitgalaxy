@@ -109,7 +109,7 @@
     "scheme/racket": {
       "scheme/racket/fun.c": {
         "Literal Sites": 13,
-        "Wrapped Sites": 8
+        "Wrapped Sites": 2
       }
     }
   },

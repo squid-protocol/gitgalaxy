@@ -2800,7 +2800,7 @@
     },
     "python/airflow_ai_providers": {
       "python/airflow_ai_providers/NOTICE": 0,
-      "python/airflow_ai_providers/openai_src_airflow_providers_openai_hooks_openai.py": 7,
+      "python/airflow_ai_providers/openai_src_airflow_providers_openai_hooks_openai.py": 8,
       "python/airflow_ai_providers/pinecone_src_airflow_providers_pinecone_hooks_pinecone.py": 0,
       "python/airflow_ai_providers/pinecone_src_airflow_providers_pinecone_operators_pinecone.py": 0,
       "python/airflow_ai_providers/pinecone_tests_system_pinecone_example_pinecone_cohere.py": 0

@@ -10,7 +10,7 @@
       "pandas": false,
       "pyyaml": false,
       "tiktoken": true,
-      "xgboost": true
+      "xgboost": false
     },
     "Target Root Name": "data",
     "Zero-Dependency Mode Active": true

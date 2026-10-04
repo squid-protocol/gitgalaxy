@@ -23436,16 +23436,16 @@
           "PASS"
         ],
         "DEBUG-LINE-TEST-03-A@640": [
-          "FAIL"
+          "DB1024"
         ],
         "DEBUG-LINE-TEST-03@636": [
-          "PASS"
+          "DB1024"
         ],
         "DEBUG-LINE-TEST-04-B@654": [
           "FAIL"
         ],
         "DEBUG-LINE-TEST-04@648": [
-          "PASS"
+          "DB1024"
         ],
         "DEBUG-LINE-TEST-05-C@673": [
           "FAIL"
@@ -23471,21 +23471,6 @@
         ],
         "DO-NOTHING-1@557": [],
         "DO-NOTHING@555": [],
-        "END-ROUTINE-12@301": [
-          "WRITE-LINE"
-        ],
-        "END-ROUTINE-13@309": [
-          "WRITE-LINE"
-        ],
-        "END-ROUTINE-1@292": [
-          "WRITE-LINE"
-        ],
-        "END-ROUTINE@288": [
-          "WRITE-LINE"
-        ],
-        "END-RTN-EXIT@290": [
-          "WRITE-LINE"
-        ],
         "FAIL-ROUTINE-EX@347": [],
         "FAIL-ROUTINE-WRITE@344": [
           "WRITE-LINE"
@@ -23693,10 +23678,10 @@
           "FAIL"
         ],
         "DEBUG-LINE-TEST-03@634": [
-          "FAIL"
+          "DB1034"
         ],
         "DEBUG-LINE-TEST-03A@638": [
-          "PASS"
+          "DB1034"
         ],
         "DEBUG-LINE-TEST-04-B@653": [
           "PASS"
@@ -23729,21 +23714,6 @@
         ],
         "DO-NOTHING-1@555": [],
         "DO-NOTHING@553": [],
-        "END-ROUTINE-12@299": [
-          "WRITE-LINE"
-        ],
-        "END-ROUTINE-13@307": [
-          "WRITE-LINE"
-        ],
-        "END-ROUTINE-1@290": [
-          "WRITE-LINE"
-        ],
-        "END-ROUTINE@286": [
-          "WRITE-LINE"
-        ],
-        "END-RTN-EXIT@288": [
-          "WRITE-LINE"
-        ],
         "FAIL-ROUTINE-EX@345": [],
         "FAIL-ROUTINE-WRITE@342": [
           "WRITE-LINE"
@@ -23924,25 +23894,6 @@
           "WRITE-LINE"
         ],
         "DUMP-FILE-2@740": [],
-        "END-OF-GEN-LOOP@430": [
-          "GEN-LOOP"
-        ],
-        "END-OF-SORT@726": [],
-        "END-ROUTINE-12@360": [
-          "WRITE-LINE"
-        ],
-        "END-ROUTINE-13@368": [
-          "WRITE-LINE"
-        ],
-        "END-ROUTINE-1@351": [
-          "WRITE-LINE"
-        ],
-        "END-ROUTINE@347": [
-          "WRITE-LINE"
-        ],
-        "END-RTN-EXIT@349": [
-          "WRITE-LINE"
-        ],
         "FAIL-1@571": [],
         "FAIL-2@674": [],
         "FAIL-ROUTINE-1@603": [
@@ -24186,21 +24137,6 @@
           "WRITE-LINE"
         ],
         "DE-LETE@207": [],
-        "END-ROUTINE-12@243": [
-          "WRITE-LINE"
-        ],
-        "END-ROUTINE-13@251": [
-          "WRITE-LINE"
-        ],
-        "END-ROUTINE-1@234": [
-          "WRITE-LINE"
-        ],
-        "END-ROUTINE@230": [
-          "WRITE-LINE"
-        ],
-        "END-RTN-EXIT@232": [
-          "WRITE-LINE"
-        ],
         "FAIL-ROUTINE-EX@293": [],
         "FAIL-ROUTINE-WRITE@288": [
           "WRITE-LINE"
@@ -24317,21 +24253,6 @@
           "WRITE-LINE"
         ],
         "DE-LETE@211": [],
-        "END-ROUTINE-12@247": [
-          "WRITE-LINE"
-        ],
-        "END-ROUTINE-13@255": [
-          "WRITE-LINE"
-        ],
-        "END-ROUTINE-1@238": [
-          "WRITE-LINE"
-        ],
-        "END-ROUTINE@234": [
-          "WRITE-LINE"
-        ],
-        "END-RTN-EXIT@236": [
-          "WRITE-LINE"
-        ],
         "EXIT-DELETES@382": [
           "DE-LETE",
           "PRINT-DETAIL"
@@ -24448,21 +24369,6 @@
           "WRITE-LINE"
         ],
         "DE-LETE@214": [],
-        "END-ROUTINE-12@250": [
-          "WRITE-LINE"
-        ],
-        "END-ROUTINE-13@258": [
-          "WRITE-LINE"
-        ],
-        "END-ROUTINE-1@241": [
-          "WRITE-LINE"
-        ],
-        "END-ROUTINE@237": [
-          "WRITE-LINE"
-        ],
-        "END-RTN-EXIT@239": [
-          "WRITE-LINE"
-        ],
         "FAIL-ROUTINE-EX@300": [],
         "FAIL-ROUTINE-WRITE@295": [
           "WRITE-LINE"
@@ -24720,21 +24626,6 @@
           "WRITE-LINE"
         ],
         "DE-LETE@209": [],
-        "END-ROUTINE-12@245": [
-          "WRITE-LINE"
-        ],
-        "END-ROUTINE-13@253": [
-          "WRITE-LINE"
-        ],
-        "END-ROUTINE-1@236": [
-          "WRITE-LINE"
-        ],
-        "END-ROUTINE@232": [
-          "WRITE-LINE"
-        ],
-        "END-RTN-EXIT@234": [
-          "WRITE-LINE"
-        ],
         "FAIL-ROUTINE-EX@295": [],
         "FAIL-ROUTINE-WRITE@290": [
           "WRITE-LINE"
@@ -24837,21 +24728,6 @@
           "WRITE-LINE"
         ],
         "DE-LETE@228": [],
-        "END-ROUTINE-12@264": [
-          "WRITE-LINE"
-        ],
-        "END-ROUTINE-13@272": [
-          "WRITE-LINE"
-        ],
-        "END-ROUTINE-1@255": [
-          "WRITE-LINE"
-        ],
-        "END-ROUTINE@251": [
-          "WRITE-LINE"
-        ],
-        "END-RTN-EXIT@253": [
-          "WRITE-LINE"
-        ],
         "FAIL-ROUTINE-EX@314": [],
         "FAIL-ROUTINE-WRITE@309": [
           "WRITE-LINE"
@@ -24959,21 +24835,6 @@
           "WRITE-LINE"
         ],
         "DE-LETE@217": [],
-        "END-ROUTINE-12@253": [
-          "WRITE-LINE"
-        ],
-        "END-ROUTINE-13@261": [
-          "WRITE-LINE"
-        ],
-        "END-ROUTINE-1@244": [
-          "WRITE-LINE"
-        ],
-        "END-ROUTINE@240": [
-          "WRITE-LINE"
-        ],
-        "END-RTN-EXIT@242": [
-          "WRITE-LINE"
-        ],
         "FAIL-ROUTINE-EX@303": [],
         "FAIL-ROUTINE-WRITE@298": [
           "WRITE-LINE"
@@ -25207,21 +25068,6 @@
           "WRITE-LINE"
         ],
         "DE-LETE@208": [],
-        "END-ROUTINE-12@244": [
-          "WRITE-LINE"
-        ],
-        "END-ROUTINE-13@252": [
-          "WRITE-LINE"
-        ],
-        "END-ROUTINE-1@235": [
-          "WRITE-LINE"
-        ],
-        "END-ROUTINE@231": [
-          "WRITE-LINE"
-        ],
-        "END-RTN-EXIT@233": [
-          "WRITE-LINE"
-        ],
         "EXIT-IC201@587": [],
         "FAIL-ROUTINE-EX@294": [],
         "FAIL-ROUTINE-WRITE@289": [
@@ -25520,21 +25366,6 @@
           "WRITE-LINE"
         ],
         "DE-LETE@210": [],
-        "END-ROUTINE-12@246": [
-          "WRITE-LINE"
-        ],
-        "END-ROUTINE-13@254": [
-          "WRITE-LINE"
-        ],
-        "END-ROUTINE-1@237": [
-          "WRITE-LINE"
-        ],
-        "END-ROUTINE@233": [
-          "WRITE-LINE"
-        ],
-        "END-RTN-EXIT@235": [
-          "WRITE-LINE"
-        ],
         "FAIL-ROUTINE-EX@296": [],
         "FAIL-ROUTINE-WRITE@291": [
           "WRITE-LINE"
@@ -25603,21 +25434,6 @@
           "WRITE-LINE"
         ],
         "DE-LETE@210": [],
-        "END-ROUTINE-12@246": [
-          "WRITE-LINE"
-        ],
-        "END-ROUTINE-13@254": [
-          "WRITE-LINE"
-        ],
-        "END-ROUTINE-1@237": [
-          "WRITE-LINE"
-        ],
-        "END-ROUTINE@233": [
-          "WRITE-LINE"
-        ],
-        "END-RTN-EXIT@235": [
-          "WRITE-LINE"
-        ],
         "EXIT-IC207@471": [],
         "FAIL-ROUTINE-EX@296": [],
         "FAIL-ROUTINE-WRITE@291": [
@@ -25822,21 +25638,6 @@
           "WRITE-LINE"
         ],
         "DE-LETE@198": [],
-        "END-ROUTINE-12@234": [
-          "WRITE-LINE"
-        ],
-        "END-ROUTINE-13@242": [
-          "WRITE-LINE"
-        ],
-        "END-ROUTINE-1@225": [
-          "WRITE-LINE"
-        ],
-        "END-ROUTINE@221": [
-          "WRITE-LINE"
-        ],
-        "END-RTN-EXIT@223": [
-          "WRITE-LINE"
-        ],
         "FAIL-ROUTINE-EX@284": [],
         "FAIL-ROUTINE-WRITE@279": [
           "WRITE-LINE"
@@ -25932,21 +25733,6 @@
           "WRITE-LINE"
         ],
         "DE-LETE@196": [],
-        "END-ROUTINE-12@232": [
-          "WRITE-LINE"
-        ],
-        "END-ROUTINE-13@240": [
-          "WRITE-LINE"
-        ],
-        "END-ROUTINE-1@223": [
-          "WRITE-LINE"
-        ],
-        "END-ROUTINE@219": [
-          "WRITE-LINE"
-        ],
-        "END-RTN-EXIT@221": [
-          "WRITE-LINE"
-        ],
         "FAIL-ROUTINE-EX@282": [],
         "FAIL-ROUTINE-WRITE@277": [
           "WRITE-LINE"
@@ -26023,21 +25809,6 @@
           "WRITE-LINE"
         ],
         "DE-LETE@202": [],
-        "END-ROUTINE-12@238": [
-          "WRITE-LINE"
-        ],
-        "END-ROUTINE-13@246": [
-          "WRITE-LINE"
-        ],
-        "END-ROUTINE-1@229": [
-          "WRITE-LINE"
-        ],
-        "END-ROUTINE@225": [
-          "WRITE-LINE"
-        ],
-        "END-RTN-EXIT@227": [
-          "WRITE-LINE"
-        ],
         "FAIL-ROUTINE-EX@288": [],
         "FAIL-ROUTINE-WRITE@283": [
           "WRITE-LINE"
@@ -26192,21 +25963,6 @@
           "WRITE-LINE"
         ],
         "DE-LETE@226": [],
-        "END-ROUTINE-12@262": [
-          "WRITE-LINE"
-        ],
-        "END-ROUTINE-13@270": [
-          "WRITE-LINE"
-        ],
-        "END-ROUTINE-1@253": [
-          "WRITE-LINE"
-        ],
-        "END-ROUTINE@249": [
-          "WRITE-LINE"
-        ],
-        "END-RTN-EXIT@251": [
-          "WRITE-LINE"
-        ],
         "EXIT-IC224A@520": [],
         "FAIL-ROUTINE-EX@312": [],
         "FAIL-ROUTINE-WRITE@307": [
@@ -26274,21 +26030,6 @@
           "WRITE-LINE"
         ],
         "DE-LETE@217": [],
-        "END-ROUTINE-12@253": [
-          "WRITE-LINE"
-        ],
-        "END-ROUTINE-13@261": [
-          "WRITE-LINE"
-        ],
-        "END-ROUTINE-1@244": [
-          "WRITE-LINE"
-        ],
-        "END-ROUTINE@240": [
-          "WRITE-LINE"
-        ],
-        "END-RTN-EXIT@242": [
-          "WRITE-LINE"
-        ],
         "EXT-DELETE-01-01@328": [
           "DE-LETE",
           "PRINT-DETAIL"
@@ -26369,21 +26110,6 @@
           "WRITE-LINE"
         ],
         "DE-LETE@220": [],
-        "END-ROUTINE-12@256": [
-          "WRITE-LINE"
-        ],
-        "END-ROUTINE-13@264": [
-          "WRITE-LINE"
-        ],
-        "END-ROUTINE-1@247": [
-          "WRITE-LINE"
-        ],
-        "END-ROUTINE@243": [
-          "WRITE-LINE"
-        ],
-        "END-RTN-EXIT@245": [
-          "WRITE-LINE"
-        ],
         "FAIL-ROUTINE-EX@306": [],
         "FAIL-ROUTINE-WRITE@301": [
           "WRITE-LINE"
@@ -26471,22 +26197,6 @@
         ],
         "D1-WRT-LN@232": [],
         "DE-LETE@278": [],
-        "END-PROG@501": [],
-        "END-ROUTINE-12@314": [
-          "WRITE-LINE"
-        ],
-        "END-ROUTINE-13@322": [
-          "WRITE-LINE"
-        ],
-        "END-ROUTINE-1@305": [
-          "WRITE-LINE"
-        ],
-        "END-ROUTINE@301": [
-          "WRITE-LINE"
-        ],
-        "END-RTN-EXIT@303": [
-          "WRITE-LINE"
-        ],
         "EXIT-USE-TEST-2@259": [],
         "FAIL-ROUTINE-EX@364": [],
         "FAIL-ROUTINE-WRITE@359": [
@@ -26557,21 +26267,6 @@
           "WRITE-LINE"
         ],
         "DE-LETE@234": [],
-        "END-ROUTINE-12@270": [
-          "WRITE-LINE"
-        ],
-        "END-ROUTINE-13@278": [
-          "WRITE-LINE"
-        ],
-        "END-ROUTINE-1@261": [
-          "WRITE-LINE"
-        ],
-        "END-ROUTINE@257": [
-          "WRITE-LINE"
-        ],
-        "END-RTN-EXIT@259": [
-          "WRITE-LINE"
-        ],
         "FAIL-ROUTINE-EX@320": [],
         "FAIL-ROUTINE-WRITE@315": [
           "WRITE-LINE"
@@ -26661,22 +26356,6 @@
           "WRITE-LINE"
         ],
         "DE-LETE@200": [],
-        "END-OF-PROGRAM@424": [],
-        "END-ROUTINE-12@236": [
-          "WRITE-LINE"
-        ],
-        "END-ROUTINE-13@244": [
-          "WRITE-LINE"
-        ],
-        "END-ROUTINE-1@227": [
-          "WRITE-LINE"
-        ],
-        "END-ROUTINE@223": [
-          "WRITE-LINE"
-        ],
-        "END-RTN-EXIT@225": [
-          "WRITE-LINE"
-        ],
         "FAIL-ROUTINE-EX@286": [],
         "FAIL-ROUTINE-WRITE@281": [
           "WRITE-LINE"
@@ -26710,7 +26389,6 @@
       },
       "cobol/che-che4z_nist_ccvs85/IC4014.2.cbl": {
         "DUMMY-PARA@66": [],
-        "END-PARA@69": [],
         "IC401M-BYCONT@48": [
           "FIC401M"
         ],
@@ -26744,21 +26422,6 @@
           "WRITE-LINE"
         ],
         "DE-LETE@224": [],
-        "END-ROUTINE-12@259": [
-          "WRITE-LINE"
-        ],
-        "END-ROUTINE-13@267": [
-          "WRITE-LINE"
-        ],
-        "END-ROUTINE-1@251": [
-          "WRITE-LINE"
-        ],
-        "END-ROUTINE@247": [
-          "WRITE-LINE"
-        ],
-        "END-RTN-EXIT@249": [
-          "WRITE-LINE"
-        ],
         "F-ANNUITY-01@340": [],
         "F-ANNUITY-02@361": [
           "PASS",
@@ -26950,21 +26613,6 @@
           "WRITE-LINE"
         ],
         "DE-LETE@224": [],
-        "END-ROUTINE-12@259": [
-          "WRITE-LINE"
-        ],
-        "END-ROUTINE-13@267": [
-          "WRITE-LINE"
-        ],
-        "END-ROUTINE-1@251": [
-          "WRITE-LINE"
-        ],
-        "END-ROUTINE@247": [
-          "WRITE-LINE"
-        ],
-        "END-RTN-EXIT@249": [
-          "WRITE-LINE"
-        ],
         "F-CHAR-01@340": [],
         "F-CHAR-03@369": [],
         "F-CHAR-04@386": [],
@@ -27101,21 +26749,6 @@
           "WRITE-LINE"
         ],
         "DE-LETE@216": [],
-        "END-ROUTINE-12@252": [
-          "WRITE-LINE"
-        ],
-        "END-ROUTINE-13@260": [
-          "WRITE-LINE"
-        ],
-        "END-ROUTINE-1@244": [
-          "WRITE-LINE"
-        ],
-        "END-ROUTINE@239": [
-          "WRITE-LINE"
-        ],
-        "END-RTN-EXIT@242": [
-          "WRITE-LINE"
-        ],
         "F-WHENCOMP-01@327": [],
         "F-WHENCOMP-DELETE-01@349": [
           "DE-LETE"
@@ -27186,21 +26819,6 @@
           "WRITE-LINE"
         ],
         "DE-LETE@193": [],
-        "END-ROUTINE-12@228": [
-          "WRITE-LINE"
-        ],
-        "END-ROUTINE-13@236": [
-          "WRITE-LINE"
-        ],
-        "END-ROUTINE-1@220": [
-          "WRITE-LINE"
-        ],
-        "END-ROUTINE@216": [
-          "WRITE-LINE"
-        ],
-        "END-RTN-EXIT@218": [
-          "WRITE-LINE"
-        ],
         "F-DATEOFINT-01@303": [],
         "F-DATEOFINT-04@345": [],
         "F-DATEOFINT-05@362": [],
@@ -27359,21 +26977,6 @@
           "WRITE-LINE"
         ],
         "DE-LETE@193": [],
-        "END-ROUTINE-12@228": [
-          "WRITE-LINE"
-        ],
-        "END-ROUTINE-13@236": [
-          "WRITE-LINE"
-        ],
-        "END-ROUTINE-1@220": [
-          "WRITE-LINE"
-        ],
-        "END-ROUTINE@216": [
-          "WRITE-LINE"
-        ],
-        "END-RTN-EXIT@218": [
-          "WRITE-LINE"
-        ],
         "F-DAYOFINT-01@303": [],
         "F-DAYOFINT-04@345": [],
         "F-DAYOFINT-05@362": [],
@@ -27510,21 +27113,6 @@
           "WRITE-LINE"
         ],
         "DE-LETE@222": [],
-        "END-ROUTINE-12@257": [
-          "WRITE-LINE"
-        ],
-        "END-ROUTINE-13@265": [
-          "WRITE-LINE"
-        ],
-        "END-ROUTINE-1@249": [
-          "WRITE-LINE"
-        ],
-        "END-ROUTINE@245": [
-          "WRITE-LINE"
-        ],
-        "END-RTN-EXIT@247": [
-          "WRITE-LINE"
-        ],
         "F-FACTORIAL-01@338": [],
         "F-FACTORIAL-02@355": [
           "PASS",
@@ -27671,21 +27259,6 @@
           "WRITE-LINE"
         ],
         "DE-LETE@197": [],
-        "END-ROUTINE-12@232": [
-          "WRITE-LINE"
-        ],
-        "END-ROUTINE-13@240": [
-          "WRITE-LINE"
-        ],
-        "END-ROUTINE-1@224": [
-          "WRITE-LINE"
-        ],
-        "END-ROUTINE@220": [
-          "WRITE-LINE"
-        ],
-        "END-RTN-EXIT@222": [
-          "WRITE-LINE"
-        ],
         "F-DATEOFINT-23@679": [
           "F-DATEOFINT-TEST-23",
           "PASS",
@@ -27989,21 +27562,6 @@
           "WRITE-LINE"
         ],
         "DE-LETE@192": [],
-        "END-ROUTINE-12@227": [
-          "WRITE-LINE"
-        ],
-        "END-ROUTINE-13@235": [
-          "WRITE-LINE"
-        ],
-        "END-ROUTINE-1@219": [
-          "WRITE-LINE"
-        ],
-        "END-ROUTINE@215": [
-          "WRITE-LINE"
-        ],
-        "END-RTN-EXIT@217": [
-          "WRITE-LINE"
-        ],
         "F-DATEOFINT-01@302": [],
         "F-DATEOFINT-04@344": [],
         "F-DATEOFINT-05@361": [],
@@ -28140,21 +27698,6 @@
           "WRITE-LINE"
         ],
         "DE-LETE@193": [],
-        "END-ROUTINE-12@228": [
-          "WRITE-LINE"
-        ],
-        "END-ROUTINE-13@236": [
-          "WRITE-LINE"
-        ],
-        "END-ROUTINE-1@220": [
-          "WRITE-LINE"
-        ],
-        "END-ROUTINE@216": [
-          "WRITE-LINE"
-        ],
-        "END-RTN-EXIT@218": [
-          "WRITE-LINE"
-        ],
         "F-INTOFDAY-01@303": [],
         "F-INTOFDAY-04@345": [],
         "F-INTOFDAY-05@362": [],
@@ -28291,21 +27834,6 @@
           "WRITE-LINE"
         ],
         "DE-LETE@197": [],
-        "END-ROUTINE-12@232": [
-          "WRITE-LINE"
-        ],
-        "END-ROUTINE-13@240": [
-          "WRITE-LINE"
-        ],
-        "END-ROUTINE-1@224": [
-          "WRITE-LINE"
-        ],
-        "END-ROUTINE@220": [
-          "WRITE-LINE"
-        ],
-        "END-RTN-EXIT@222": [
-          "WRITE-LINE"
-        ],
         "F-INTPART-01@307": [],
         "F-INTPART-02@324": [],
         "F-INTPART-03@339": [],
@@ -28609,21 +28137,6 @@
           "WRITE-LINE"
         ],
         "DE-LETE@190": [],
-        "END-ROUTINE-12@225": [
-          "WRITE-LINE"
-        ],
-        "END-ROUTINE-13@233": [
-          "WRITE-LINE"
-        ],
-        "END-ROUTINE-1@217": [
-          "WRITE-LINE"
-        ],
-        "END-ROUTINE@213": [
-          "WRITE-LINE"
-        ],
-        "END-RTN-EXIT@215": [
-          "WRITE-LINE"
-        ],
         "F-LENGTH-01@300": [],
         "F-LENGTH-03@330": [],
         "F-LENGTH-04@346": [],
@@ -28760,21 +28273,6 @@
           "WRITE-LINE"
         ],
         "DE-LETE@192": [],
-        "END-ROUTINE-12@227": [
-          "WRITE-LINE"
-        ],
-        "END-ROUTINE-13@235": [
-          "WRITE-LINE"
-        ],
-        "END-ROUTINE-1@219": [
-          "WRITE-LINE"
-        ],
-        "END-ROUTINE@215": [
-          "WRITE-LINE"
-        ],
-        "END-RTN-EXIT@217": [
-          "WRITE-LINE"
-        ],
         "F-LOWCASE-01@302": [],
         "F-LOWCASE-03@332": [],
         "F-LOWCASE-04@348": [],
@@ -28966,21 +28464,6 @@
           "WRITE-LINE"
         ],
         "DE-LETE@234": [],
-        "END-ROUTINE-12@269": [
-          "WRITE-LINE"
-        ],
-        "END-ROUTINE-13@277": [
-          "WRITE-LINE"
-        ],
-        "END-ROUTINE-1@261": [
-          "WRITE-LINE"
-        ],
-        "END-ROUTINE@257": [
-          "WRITE-LINE"
-        ],
-        "END-RTN-EXIT@259": [
-          "WRITE-LINE"
-        ],
         "F-MEAN-01@350": [],
         "F-MEAN-02@368": [
           "PASS",
@@ -29215,21 +28698,6 @@
           "WRITE-LINE"
         ],
         "DE-LETE@234": [],
-        "END-ROUTINE-12@269": [
-          "WRITE-LINE"
-        ],
-        "END-ROUTINE-13@277": [
-          "WRITE-LINE"
-        ],
-        "END-ROUTINE-1@261": [
-          "WRITE-LINE"
-        ],
-        "END-ROUTINE@257": [
-          "WRITE-LINE"
-        ],
-        "END-RTN-EXIT@259": [
-          "WRITE-LINE"
-        ],
         "F-MEDIAN-01@350": [],
         "F-MEDIAN-02@367": [
           "PASS",
@@ -29464,21 +28932,6 @@
           "WRITE-LINE"
         ],
         "DE-LETE@233": [],
-        "END-ROUTINE-12@268": [
-          "WRITE-LINE"
-        ],
-        "END-ROUTINE-13@276": [
-          "WRITE-LINE"
-        ],
-        "END-ROUTINE-1@260": [
-          "WRITE-LINE"
-        ],
-        "END-ROUTINE@256": [
-          "WRITE-LINE"
-        ],
-        "END-RTN-EXIT@258": [
-          "WRITE-LINE"
-        ],
         "F-MIDRANGE-01@349": [],
         "F-MIDRANGE-02@367": [
           "PASS",
@@ -29713,21 +29166,6 @@
           "WRITE-LINE"
         ],
         "DE-LETE@221": [],
-        "END-ROUTINE-12@256": [
-          "WRITE-LINE"
-        ],
-        "END-ROUTINE-13@264": [
-          "WRITE-LINE"
-        ],
-        "END-ROUTINE-1@248": [
-          "WRITE-LINE"
-        ],
-        "END-ROUTINE@244": [
-          "WRITE-LINE"
-        ],
-        "END-RTN-EXIT@246": [
-          "WRITE-LINE"
-        ],
         "F-MOD-01@337": [],
         "F-MOD-02@354": [
           "PASS",
@@ -30006,21 +29444,6 @@
           "WRITE-LINE"
         ],
         "DE-LETE@196": [],
-        "END-ROUTINE-12@231": [
-          "WRITE-LINE"
-        ],
-        "END-ROUTINE-13@239": [
-          "WRITE-LINE"
-        ],
-        "END-ROUTINE-1@223": [
-          "WRITE-LINE"
-        ],
-        "END-ROUTINE@219": [
-          "WRITE-LINE"
-        ],
-        "END-RTN-EXIT@221": [
-          "WRITE-LINE"
-        ],
         "F-NUMVAL-01@306": [],
         "F-NUMVAL-02@323": [],
         "F-NUMVAL-04@353": [],
@@ -30289,21 +29712,6 @@
           "WRITE-LINE"
         ],
         "DE-LETE@223": [],
-        "END-ROUTINE-12@258": [
-          "WRITE-LINE"
-        ],
-        "END-ROUTINE-13@266": [
-          "WRITE-LINE"
-        ],
-        "END-ROUTINE-1@250": [
-          "WRITE-LINE"
-        ],
-        "END-ROUTINE@246": [
-          "WRITE-LINE"
-        ],
-        "END-RTN-EXIT@248": [
-          "WRITE-LINE"
-        ],
         "F-ORD-01@339": [],
         "F-ORD-03@369": [],
         "F-ORD-04@383": [],
@@ -30452,21 +29860,6 @@
           "WRITE-LINE"
         ],
         "DE-LETE@231": [],
-        "END-ROUTINE-12@266": [
-          "WRITE-LINE"
-        ],
-        "END-ROUTINE-13@274": [
-          "WRITE-LINE"
-        ],
-        "END-ROUTINE-1@258": [
-          "WRITE-LINE"
-        ],
-        "END-ROUTINE@254": [
-          "WRITE-LINE"
-        ],
-        "END-RTN-EXIT@256": [
-          "WRITE-LINE"
-        ],
         "F-ORD-MAX-01@347": [],
         "F-ORD-MAX-03@377": [],
         "F-ORD-MAX-04@391": [],
@@ -30692,21 +30085,6 @@
           "WRITE-LINE"
         ],
         "DE-LETE@203": [],
-        "END-ROUTINE-12@238": [
-          "WRITE-LINE"
-        ],
-        "END-ROUTINE-13@246": [
-          "WRITE-LINE"
-        ],
-        "END-ROUTINE-1@230": [
-          "WRITE-LINE"
-        ],
-        "END-ROUTINE@226": [
-          "WRITE-LINE"
-        ],
-        "END-RTN-EXIT@228": [
-          "WRITE-LINE"
-        ],
         "F-ORD-MIN-01@313": [],
         "F-ORD-MIN-03@343": [],
         "F-ORD-MIN-04@357": [],
@@ -30943,21 +30321,6 @@
           "WRITE-LINE"
         ],
         "DE-LETE@221": [],
-        "END-ROUTINE-12@256": [
-          "WRITE-LINE"
-        ],
-        "END-ROUTINE-13@264": [
-          "WRITE-LINE"
-        ],
-        "END-ROUTINE-1@248": [
-          "WRITE-LINE"
-        ],
-        "END-ROUTINE@244": [
-          "WRITE-LINE"
-        ],
-        "END-RTN-EXIT@246": [
-          "WRITE-LINE"
-        ],
         "F-RANDOM-01@337": [],
         "F-RANDOM-02@358": [
           "PASS",
@@ -31094,21 +30457,6 @@
           "WRITE-LINE"
         ],
         "DE-LETE@233": [],
-        "END-ROUTINE-12@268": [
-          "WRITE-LINE"
-        ],
-        "END-ROUTINE-13@276": [
-          "WRITE-LINE"
-        ],
-        "END-ROUTINE-1@260": [
-          "WRITE-LINE"
-        ],
-        "END-ROUTINE@256": [
-          "WRITE-LINE"
-        ],
-        "END-RTN-EXIT@258": [
-          "WRITE-LINE"
-        ],
         "F-RANGE-01@349": [],
         "F-RANGE-02@366": [
           "PASS",
@@ -31321,21 +30669,6 @@
           "WRITE-LINE"
         ],
         "DE-LETE@222": [],
-        "END-ROUTINE-12@257": [
-          "WRITE-LINE"
-        ],
-        "END-ROUTINE-13@265": [
-          "WRITE-LINE"
-        ],
-        "END-ROUTINE-1@249": [
-          "WRITE-LINE"
-        ],
-        "END-ROUTINE@245": [
-          "WRITE-LINE"
-        ],
-        "END-RTN-EXIT@247": [
-          "WRITE-LINE"
-        ],
         "F-REM-01@338": [],
         "F-REM-02@355": [
           "PASS",
@@ -31570,21 +30903,6 @@
           "WRITE-LINE"
         ],
         "DE-LETE@192": [],
-        "END-ROUTINE-12@227": [
-          "WRITE-LINE"
-        ],
-        "END-ROUTINE-13@235": [
-          "WRITE-LINE"
-        ],
-        "END-ROUTINE-1@219": [
-          "WRITE-LINE"
-        ],
-        "END-ROUTINE@215": [
-          "WRITE-LINE"
-        ],
-        "END-RTN-EXIT@217": [
-          "WRITE-LINE"
-        ],
         "F-REVERSE-01@302": [],
         "F-REVERSE-02@319": [],
         "F-REVERSE-03@334": [],
@@ -31777,21 +31095,6 @@
           "WRITE-LINE"
         ],
         "DE-LETE@231": [],
-        "END-ROUTINE-12@266": [
-          "WRITE-LINE"
-        ],
-        "END-ROUTINE-13@274": [
-          "WRITE-LINE"
-        ],
-        "END-ROUTINE-1@258": [
-          "WRITE-LINE"
-        ],
-        "END-ROUTINE@254": [
-          "WRITE-LINE"
-        ],
-        "END-RTN-EXIT@256": [
-          "WRITE-LINE"
-        ],
         "F-STD-DEV-01@347": [],
         "F-STD-DEV-02@369": [
           "PASS",
@@ -32027,21 +31330,6 @@
           "WRITE-LINE"
         ],
         "DE-LETE@233": [],
-        "END-ROUTINE-12@268": [
-          "WRITE-LINE"
-        ],
-        "END-ROUTINE-13@276": [
-          "WRITE-LINE"
-        ],
-        "END-ROUTINE-1@260": [
-          "WRITE-LINE"
-        ],
-        "END-ROUTINE@256": [
-          "WRITE-LINE"
-        ],
-        "END-RTN-EXIT@258": [
-          "WRITE-LINE"
-        ],
         "F-SUM-01@349": [],
         "F-SUM-02@366": [
           "PASS",
@@ -32265,21 +31553,6 @@
           "WRITE-LINE"
         ],
         "DE-LETE@192": [],
-        "END-ROUTINE-12@227": [
-          "WRITE-LINE"
-        ],
-        "END-ROUTINE-13@235": [
-          "WRITE-LINE"
-        ],
-        "END-ROUTINE-1@219": [
-          "WRITE-LINE"
-        ],
-        "END-ROUTINE@215": [
-          "WRITE-LINE"
-        ],
-        "END-RTN-EXIT@217": [
-          "WRITE-LINE"
-        ],
         "F-UPCASE-01@302": [],
         "F-UPCASE-03@331": [],
         "F-UPCASE-04@348": [],
@@ -32471,21 +31744,6 @@
           "WRITE-LINE"
         ],
         "DE-LETE@229": [],
-        "END-ROUTINE-12@264": [
-          "WRITE-LINE"
-        ],
-        "END-ROUTINE-13@272": [
-          "WRITE-LINE"
-        ],
-        "END-ROUTINE-1@256": [
-          "WRITE-LINE"
-        ],
-        "END-ROUTINE@252": [
-          "WRITE-LINE"
-        ],
-        "END-RTN-EXIT@254": [
-          "WRITE-LINE"
-        ],
         "F-VARIANCE-01@345": [],
         "F-VARIANCE-02@366": [
           "PASS",
@@ -32710,21 +31968,6 @@
           "WRITE-LINE"
         ],
         "DE-LETE@205": [],
-        "END-ROUTINE-12@241": [
-          "WRITE-LINE"
-        ],
-        "END-ROUTINE-13@249": [
-          "WRITE-LINE"
-        ],
-        "END-ROUTINE-1@233": [
-          "WRITE-LINE"
-        ],
-        "END-ROUTINE@228": [
-          "WRITE-LINE"
-        ],
-        "END-RTN-EXIT@231": [
-          "WRITE-LINE"
-        ],
         "F-WHENCOMP-01@316": [],
         "F-WHENCOMP-DELETE-01@337": [
           "DE-LETE"
@@ -32841,33 +32084,13 @@
         "CCVS-INIT-FILE@311": [],
         "CCVS1-EXIT@439": [],
         "CCVS1@293": [],
-        "CLOSE-FILES@317": [],
+        "CLOSE-FILES@317": [
+          "END-ROUTINE"
+        ],
         "COLUMN-NAMES-ROUTINE@357": [
           "WRITE-LINE"
         ],
         "DE-LETE@338": [],
-        "END-E-1@303": [
-          "HEAD-ROUTINE",
-          "CCVS-INIT-FILE"
-        ],
-        "END-E-2@328": [
-          "END-ROUTINE"
-        ],
-        "END-ROUTINE-12@374": [
-          "WRITE-LINE"
-        ],
-        "END-ROUTINE-13@382": [
-          "WRITE-LINE"
-        ],
-        "END-ROUTINE-1@365": [
-          "WRITE-LINE"
-        ],
-        "END-ROUTINE@361": [
-          "WRITE-LINE"
-        ],
-        "END-RTN-EXIT@363": [
-          "WRITE-LINE"
-        ],
         "FAIL-ROUTINE-EX@429": [],
         "FAIL-ROUTINE-WRITE@424": [
           "WRITE-LINE"
@@ -32880,7 +32103,10 @@
           "WRITE-LINE"
         ],
         "INSPT@335": [],
-        "OPEN-FILES@294": [],
+        "OPEN-FILES@294": [
+          "HEAD-ROUTINE",
+          "CCVS-INIT-FILE"
+        ],
         "PASS@336": [],
         "PRINT-DETAIL@340": [
           "WRITE-LINE",
@@ -32930,33 +32156,13 @@
         "CCVS-INIT-FILE@335": [],
         "CCVS1-EXIT@463": [],
         "CCVS1@317": [],
-        "CLOSE-FILES@341": [],
+        "CLOSE-FILES@341": [
+          "END-ROUTINE"
+        ],
         "COLUMN-NAMES-ROUTINE@381": [
           "WRITE-LINE"
         ],
         "DE-LETE@362": [],
-        "END-E-1@327": [
-          "HEAD-ROUTINE",
-          "CCVS-INIT-FILE"
-        ],
-        "END-E-2@352": [
-          "END-ROUTINE"
-        ],
-        "END-ROUTINE-12@398": [
-          "WRITE-LINE"
-        ],
-        "END-ROUTINE-13@406": [
-          "WRITE-LINE"
-        ],
-        "END-ROUTINE-1@389": [
-          "WRITE-LINE"
-        ],
-        "END-ROUTINE@385": [
-          "WRITE-LINE"
-        ],
-        "END-RTN-EXIT@387": [
-          "WRITE-LINE"
-        ],
         "FAIL-ROUTINE-EX@453": [],
         "FAIL-ROUTINE-WRITE@448": [
           "WRITE-LINE"
@@ -32969,7 +32175,10 @@
           "WRITE-LINE"
         ],
         "INSPT@359": [],
-        "OPEN-FILES@318": [],
+        "OPEN-FILES@318": [
+          "HEAD-ROUTINE",
+          "CCVS-INIT-FILE"
+        ],
         "PASS@360": [],
         "PRINT-DETAIL@364": [
           "WRITE-LINE",
@@ -33069,7 +32278,9 @@
         "CCVS-INIT-FILE@342": [],
         "CCVS1-EXIT@470": [],
         "CCVS1@324": [],
-        "CLOSE-FILES@348": [],
+        "CLOSE-FILES@348": [
+          "END-ROUTINE"
+        ],
         "COLUMN-NAMES-ROUTINE@388": [
           "WRITE-LINE"
         ],
@@ -33114,28 +32325,6 @@
           "PASS",
           "PRINT-DETAIL"
         ],
-        "END-E-1@334": [
-          "HEAD-ROUTINE",
-          "CCVS-INIT-FILE"
-        ],
-        "END-E-2@359": [
-          "END-ROUTINE"
-        ],
-        "END-ROUTINE-12@405": [
-          "WRITE-LINE"
-        ],
-        "END-ROUTINE-13@413": [
-          "WRITE-LINE"
-        ],
-        "END-ROUTINE-1@396": [
-          "WRITE-LINE"
-        ],
-        "END-ROUTINE@392": [
-          "WRITE-LINE"
-        ],
-        "END-RTN-EXIT@394": [
-          "WRITE-LINE"
-        ],
         "FAIL-ROUTINE-EX@460": [],
         "FAIL-ROUTINE-WRITE@455": [
           "WRITE-LINE"
@@ -33153,7 +32342,10 @@
         ],
         "INX-TEST-006-2@507": [],
         "INX-TEST-006-R@495": [],
-        "OPEN-FILES@325": [],
+        "OPEN-FILES@325": [
+          "HEAD-ROUTINE",
+          "CCVS-INIT-FILE"
+        ],
         "PASS@367": [],
         "PRINT-DETAIL@371": [
           "WRITE-LINE",
@@ -33211,33 +32403,13 @@
         "CCVS-INIT-FILE@370": [],
         "CCVS1-EXIT@498": [],
         "CCVS1@352": [],
-        "CLOSE-FILES@376": [],
+        "CLOSE-FILES@376": [
+          "END-ROUTINE"
+        ],
         "COLUMN-NAMES-ROUTINE@416": [
           "WRITE-LINE"
         ],
         "DE-LETE@397": [],
-        "END-E-1@362": [
-          "HEAD-ROUTINE",
-          "CCVS-INIT-FILE"
-        ],
-        "END-E-2@387": [
-          "END-ROUTINE"
-        ],
-        "END-ROUTINE-12@433": [
-          "WRITE-LINE"
-        ],
-        "END-ROUTINE-13@441": [
-          "WRITE-LINE"
-        ],
-        "END-ROUTINE-1@424": [
-          "WRITE-LINE"
-        ],
-        "END-ROUTINE@420": [
-          "WRITE-LINE"
-        ],
-        "END-RTN-EXIT@422": [
-          "WRITE-LINE"
-        ],
         "FAIL-ROUTINE-EX@488": [],
         "FAIL-ROUTINE-WRITE@483": [
           "WRITE-LINE"
@@ -33255,7 +32427,10 @@
         "IX-FS2-01-05@344": [],
         "IX-FS2-01-EXIT@349": [],
         "IX-FS2-01@332": [],
-        "OPEN-FILES@353": [],
+        "OPEN-FILES@353": [
+          "HEAD-ROUTINE",
+          "CCVS-INIT-FILE"
+        ],
         "PASS@395": [],
         "PRINT-DETAIL@399": [
           "WRITE-LINE",
@@ -33374,21 +32549,6 @@
         "COLUMN-NAMES-ROUTINE@336": [
           "WRITE-LINE"
         ],
-        "END-ROUTINE-12@353": [
-          "WRITE-LINE"
-        ],
-        "END-ROUTINE-13@361": [
-          "WRITE-LINE"
-        ],
-        "END-ROUTINE-1@344": [
-          "WRITE-LINE"
-        ],
-        "END-ROUTINE@340": [
-          "WRITE-LINE"
-        ],
-        "END-RTN-EXIT@342": [
-          "WRITE-LINE"
-        ],
         "EXIT-DECL@313": [],
         "FAIL-DECL@242": [
           "PRINT-DETAIL-DECL"
@@ -33474,7 +32634,9 @@
           "FAIL",
           "PRINT-DETAIL"
         ],
-        "CLOSE-FILES@499": [],
+        "CLOSE-FILES@499": [
+          "END-ROUTINE"
+        ],
         "COLUMN-NAMES-ROUTINE@539": [
           "WRITE-LINE"
         ],
@@ -33534,28 +32696,6 @@
         "D-WRT-LN@444": [],
         "DE-LETE@520": [],
         "DECL-EXIT@471": [],
-        "END-E-1@485": [
-          "HEAD-ROUTINE",
-          "CCVS-INIT-FILE"
-        ],
-        "END-E-2@510": [
-          "END-ROUTINE"
-        ],
-        "END-ROUTINE-12@556": [
-          "WRITE-LINE"
-        ],
-        "END-ROUTINE-13@564": [
-          "WRITE-LINE"
-        ],
-        "END-ROUTINE-1@547": [
-          "WRITE-LINE"
-        ],
-        "END-ROUTINE@543": [
-          "WRITE-LINE"
-        ],
-        "END-RTN-EXIT@545": [
-          "WRITE-LINE"
-        ],
         "FAIL-ROUTINE-EX@611": [],
         "FAIL-ROUTINE-WRITE@606": [
           "WRITE-LINE"
@@ -33569,7 +32709,10 @@
         ],
         "INPUT-PROCESS@334": [],
         "INSPT@517": [],
-        "OPEN-FILES@476": [],
+        "OPEN-FILES@476": [
+          "HEAD-ROUTINE",
+          "CCVS-INIT-FILE"
+        ],
         "OPN-FAIL-GF-01-0@653": [
           "FAIL"
         ],
@@ -33635,7 +32778,9 @@
         "CLO-WRITE-GF-01-0@678": [
           "PRINT-DETAIL"
         ],
-        "CLOSE-FILES@495": [],
+        "CLOSE-FILES@495": [
+          "END-ROUTINE"
+        ],
         "COLUMN-NAMES-ROUTINE@535": [
           "WRITE-LINE"
         ],
@@ -33695,28 +32840,6 @@
         "D-WRT-LN@440": [],
         "DE-LETE@516": [],
         "DECL-EXIT@467": [],
-        "END-E-1@481": [
-          "HEAD-ROUTINE",
-          "CCVS-INIT-FILE"
-        ],
-        "END-E-2@506": [
-          "END-ROUTINE"
-        ],
-        "END-ROUTINE-12@552": [
-          "WRITE-LINE"
-        ],
-        "END-ROUTINE-13@560": [
-          "WRITE-LINE"
-        ],
-        "END-ROUTINE-1@543": [
-          "WRITE-LINE"
-        ],
-        "END-ROUTINE@539": [
-          "WRITE-LINE"
-        ],
-        "END-RTN-EXIT@541": [
-          "WRITE-LINE"
-        ],
         "FAIL-ROUTINE-EX@607": [],
         "FAIL-ROUTINE-WRITE@602": [
           "WRITE-LINE"
@@ -33730,7 +32853,10 @@
         ],
         "INPUT-PROCESS@330": [],
         "INSPT@513": [],
-        "OPEN-FILES@472": [],
+        "OPEN-FILES@472": [
+          "HEAD-ROUTINE",
+          "CCVS-INIT-FILE"
+        ],
         "OPN-FAIL-GF-01-0@649": [
           "FAIL"
         ],
@@ -33791,7 +32917,9 @@
         "CLO-WRITE-GF-01-0@679": [
           "PRINT-DETAIL"
         ],
-        "CLOSE-FILES@496": [],
+        "CLOSE-FILES@496": [
+          "END-ROUTINE"
+        ],
         "COLUMN-NAMES-ROUTINE@536": [
           "WRITE-LINE"
         ],
@@ -33851,28 +32979,6 @@
         "D-WRT-LN@441": [],
         "DE-LETE@517": [],
         "DECL-EXIT@468": [],
-        "END-E-1@482": [
-          "HEAD-ROUTINE",
-          "CCVS-INIT-FILE"
-        ],
-        "END-E-2@507": [
-          "END-ROUTINE"
-        ],
-        "END-ROUTINE-12@553": [
-          "WRITE-LINE"
-        ],
-        "END-ROUTINE-13@561": [
-          "WRITE-LINE"
-        ],
-        "END-ROUTINE-1@544": [
-          "WRITE-LINE"
-        ],
-        "END-ROUTINE@540": [
-          "WRITE-LINE"
-        ],
-        "END-RTN-EXIT@542": [
-          "WRITE-LINE"
-        ],
         "FAIL-ROUTINE-EX@608": [],
         "FAIL-ROUTINE-WRITE@603": [
           "WRITE-LINE"
@@ -33886,7 +32992,10 @@
         ],
         "INPUT-PROCESS@331": [],
         "INSPT@514": [],
-        "OPEN-FILES@473": [],
+        "OPEN-FILES@473": [
+          "HEAD-ROUTINE",
+          "CCVS-INIT-FILE"
+        ],
         "OPN-FAIL-GF-01-0@650": [
           "FAIL"
         ],
@@ -33947,7 +33056,9 @@
         "CLO-WRITE-GF-01-0@679": [
           "PRINT-DETAIL"
         ],
-        "CLOSE-FILES@496": [],
+        "CLOSE-FILES@496": [
+          "END-ROUTINE"
+        ],
         "COLUMN-NAMES-ROUTINE@536": [
           "WRITE-LINE"
         ],
@@ -34014,28 +33125,6 @@
           "FAIL",
           "PRINT-DETAIL"
         ],
-        "END-E-1@482": [
-          "HEAD-ROUTINE",
-          "CCVS-INIT-FILE"
-        ],
-        "END-E-2@507": [
-          "END-ROUTINE"
-        ],
-        "END-ROUTINE-12@553": [
-          "WRITE-LINE"
-        ],
-        "END-ROUTINE-13@561": [
-          "WRITE-LINE"
-        ],
-        "END-ROUTINE-1@544": [
-          "WRITE-LINE"
-        ],
-        "END-ROUTINE@540": [
-          "WRITE-LINE"
-        ],
-        "END-RTN-EXIT@542": [
-          "WRITE-LINE"
-        ],
         "FAIL-ROUTINE-EX@608": [],
         "FAIL-ROUTINE-WRITE@603": [
           "WRITE-LINE"
@@ -34049,7 +33138,10 @@
         ],
         "INPUT-PROCESS@331": [],
         "INSPT@514": [],
-        "OPEN-FILES@473": [],
+        "OPEN-FILES@473": [
+          "HEAD-ROUTINE",
+          "CCVS-INIT-FILE"
+        ],
         "OPN-FAIL-GF-01-0@650": [
           "FAIL"
         ],
@@ -34103,7 +33195,9 @@
         "CLO-WRITE-GF-01-0@678": [
           "PRINT-DETAIL"
         ],
-        "CLOSE-FILES@495": [],
+        "CLOSE-FILES@495": [
+          "END-ROUTINE"
+        ],
         "COLUMN-NAMES-ROUTINE@535": [
           "WRITE-LINE"
         ],
@@ -34163,28 +33257,6 @@
         "D-WRT-LN@440": [],
         "DE-LETE@516": [],
         "DECL-EXIT@467": [],
-        "END-E-1@481": [
-          "HEAD-ROUTINE",
-          "CCVS-INIT-FILE"
-        ],
-        "END-E-2@506": [
-          "END-ROUTINE"
-        ],
-        "END-ROUTINE-12@552": [
-          "WRITE-LINE"
-        ],
-        "END-ROUTINE-13@560": [
-          "WRITE-LINE"
-        ],
-        "END-ROUTINE-1@543": [
-          "WRITE-LINE"
-        ],
-        "END-ROUTINE@539": [
-          "WRITE-LINE"
-        ],
-        "END-RTN-EXIT@541": [
-          "WRITE-LINE"
-        ],
         "FAIL-ROUTINE-EX@607": [],
         "FAIL-ROUTINE-WRITE@602": [
           "WRITE-LINE"
@@ -34198,7 +33270,10 @@
         ],
         "INPUT-PROCESS@330": [],
         "INSPT@513": [],
-        "OPEN-FILES@472": [],
+        "OPEN-FILES@472": [
+          "HEAD-ROUTINE",
+          "CCVS-INIT-FILE"
+        ],
         "OPN-FAIL-GF-01-0@649": [
           "FAIL"
         ],
@@ -34259,7 +33334,9 @@
         "CLO-WRITE-GF-01-0@678": [
           "PRINT-DETAIL"
         ],
-        "CLOSE-FILES@495": [],
+        "CLOSE-FILES@495": [
+          "END-ROUTINE"
+        ],
         "COLUMN-NAMES-ROUTINE@535": [
           "WRITE-LINE"
         ],
@@ -34319,28 +33396,6 @@
         "D-WRT-LN@440": [],
         "DE-LETE@516": [],
         "DECL-EXIT@467": [],
-        "END-E-1@481": [
-          "HEAD-ROUTINE",
-          "CCVS-INIT-FILE"
-        ],
-        "END-E-2@506": [
-          "END-ROUTINE"
-        ],
-        "END-ROUTINE-12@552": [
-          "WRITE-LINE"
-        ],
-        "END-ROUTINE-13@560": [
-          "WRITE-LINE"
-        ],
-        "END-ROUTINE-1@543": [
-          "WRITE-LINE"
-        ],
-        "END-ROUTINE@539": [
-          "WRITE-LINE"
-        ],
-        "END-RTN-EXIT@541": [
-          "WRITE-LINE"
-        ],
         "FAIL-ROUTINE-EX@607": [],
         "FAIL-ROUTINE-WRITE@602": [
           "WRITE-LINE"
@@ -34354,7 +33409,10 @@
         ],
         "INPUT-PROCESS@330": [],
         "INSPT@513": [],
-        "OPEN-FILES@472": [],
+        "OPEN-FILES@472": [
+          "HEAD-ROUTINE",
+          "CCVS-INIT-FILE"
+        ],
         "OPN-FAIL-GF-01-0@649": [
           "FAIL"
         ],
@@ -34404,7 +33462,9 @@
         "CCVS-INIT-FILE@493": [],
         "CCVS1-EXIT@621": [],
         "CCVS1@475": [],
-        "CLOSE-FILES@499": [],
+        "CLOSE-FILES@499": [
+          "END-ROUTINE"
+        ],
         "COLUMN-NAMES-ROUTINE@539": [
           "WRITE-LINE"
         ],
@@ -34471,28 +33531,6 @@
           "FAIL",
           "PRINT-DETAIL"
         ],
-        "END-E-1@485": [
-          "HEAD-ROUTINE",
-          "CCVS-INIT-FILE"
-        ],
-        "END-E-2@510": [
-          "END-ROUTINE"
-        ],
-        "END-ROUTINE-12@556": [
-          "WRITE-LINE"
-        ],
-        "END-ROUTINE-13@564": [
-          "WRITE-LINE"
-        ],
-        "END-ROUTINE-1@547": [
-          "WRITE-LINE"
-        ],
-        "END-ROUTINE@543": [
-          "WRITE-LINE"
-        ],
-        "END-RTN-EXIT@545": [
-          "WRITE-LINE"
-        ],
         "FAIL-ROUTINE-EX@611": [],
         "FAIL-ROUTINE-WRITE@606": [
           "WRITE-LINE"
@@ -34506,7 +33544,10 @@
         ],
         "INPUT-PROCESS@333": [],
         "INSPT@517": [],
-        "OPEN-FILES@476": [],
+        "OPEN-FILES@476": [
+          "HEAD-ROUTINE",
+          "CCVS-INIT-FILE"
+        ],
         "OPN-FAIL-GF-01-0@653": [
           "FAIL"
         ],
@@ -34561,7 +33602,9 @@
         "CCVS-INIT-FILE@492": [],
         "CCVS1-EXIT@620": [],
         "CCVS1@474": [],
-        "CLOSE-FILES@498": [],
+        "CLOSE-FILES@498": [
+          "END-ROUTINE"
+        ],
         "COLUMN-NAMES-ROUTINE@538": [
           "WRITE-LINE"
         ],
@@ -34621,28 +33664,6 @@
         "D-WRT-LN@443": [],
         "DE-LETE@519": [],
         "DECL-EXIT@470": [],
-        "END-E-1@484": [
-          "HEAD-ROUTINE",
-          "CCVS-INIT-FILE"
-        ],
-        "END-E-2@509": [
-          "END-ROUTINE"
-        ],
-        "END-ROUTINE-12@555": [
-          "WRITE-LINE"
-        ],
-        "END-ROUTINE-13@563": [
-          "WRITE-LINE"
-        ],
-        "END-ROUTINE-1@546": [
-          "WRITE-LINE"
-        ],
-        "END-ROUTINE@542": [
-          "WRITE-LINE"
-        ],
-        "END-RTN-EXIT@544": [
-          "WRITE-LINE"
-        ],
         "FAIL-ROUTINE-EX@610": [],
         "FAIL-ROUTINE-WRITE@605": [
           "WRITE-LINE"
@@ -34656,7 +33677,10 @@
         ],
         "INPUT-PROCESS@332": [],
         "INSPT@516": [],
-        "OPEN-FILES@475": [],
+        "OPEN-FILES@475": [
+          "HEAD-ROUTINE",
+          "CCVS-INIT-FILE"
+        ],
         "OPN-FAIL-GF-01-0@652": [
           "FAIL"
         ],
@@ -34706,7 +33730,9 @@
         "CCVS-INIT-FILE@499": [],
         "CCVS1-EXIT@627": [],
         "CCVS1@481": [],
-        "CLOSE-FILES@505": [],
+        "CLOSE-FILES@505": [
+          "END-ROUTINE"
+        ],
         "COLUMN-NAMES-ROUTINE@545": [
           "WRITE-LINE"
         ],
@@ -34768,29 +33794,6 @@
         ],
         "D-WRT-LN@447": [],
         "DE-LETE@526": [],
-        "END-DECL@477": [],
-        "END-E-1@491": [
-          "HEAD-ROUTINE",
-          "CCVS-INIT-FILE"
-        ],
-        "END-E-2@516": [
-          "END-ROUTINE"
-        ],
-        "END-ROUTINE-12@562": [
-          "WRITE-LINE"
-        ],
-        "END-ROUTINE-13@570": [
-          "WRITE-LINE"
-        ],
-        "END-ROUTINE-1@553": [
-          "WRITE-LINE"
-        ],
-        "END-ROUTINE@549": [
-          "WRITE-LINE"
-        ],
-        "END-RTN-EXIT@551": [
-          "WRITE-LINE"
-        ],
         "FAIL-ROUTINE-EX@617": [],
         "FAIL-ROUTINE-WRITE@612": [
           "WRITE-LINE"
@@ -34804,7 +33807,10 @@
         ],
         "INPUT-PROCESS@347": [],
         "INSPT@523": [],
-        "OPEN-FILES@482": [],
+        "OPEN-FILES@482": [
+          "HEAD-ROUTINE",
+          "CCVS-INIT-FILE"
+        ],
         "OPN-FAIL-GF-01-0@659": [
           "FAIL"
         ],
@@ -34871,33 +33877,13 @@
         "CCVS-INIT-FILE@312": [],
         "CCVS1-EXIT@440": [],
         "CCVS1@294": [],
-        "CLOSE-FILES@318": [],
+        "CLOSE-FILES@318": [
+          "END-ROUTINE"
+        ],
         "COLUMN-NAMES-ROUTINE@358": [
           "WRITE-LINE"
         ],
         "DE-LETE@339": [],
-        "END-E-1@304": [
-          "HEAD-ROUTINE",
-          "CCVS-INIT-FILE"
-        ],
-        "END-E-2@329": [
-          "END-ROUTINE"
-        ],
-        "END-ROUTINE-12@375": [
-          "WRITE-LINE"
-        ],
-        "END-ROUTINE-13@383": [
-          "WRITE-LINE"
-        ],
-        "END-ROUTINE-1@366": [
-          "WRITE-LINE"
-        ],
-        "END-ROUTINE@362": [
-          "WRITE-LINE"
-        ],
-        "END-RTN-EXIT@364": [
-          "WRITE-LINE"
-        ],
         "FAIL-ROUTINE-EX@430": [],
         "FAIL-ROUTINE-WRITE@425": [
           "WRITE-LINE"
@@ -34910,7 +33896,10 @@
           "WRITE-LINE"
         ],
         "INSPT@336": [],
-        "OPEN-FILES@295": [],
+        "OPEN-FILES@295": [
+          "HEAD-ROUTINE",
+          "CCVS-INIT-FILE"
+        ],
         "PASS@337": [],
         "PRINT-DETAIL@341": [
           "WRITE-LINE",
@@ -34958,7 +33947,9 @@
         "CCVS-INIT-FILE@328": [],
         "CCVS1-EXIT@456": [],
         "CCVS1@310": [],
-        "CLOSE-FILES@334": [],
+        "CLOSE-FILES@334": [
+          "END-ROUTINE"
+        ],
         "COLUMN-NAMES-ROUTINE@374": [
           "WRITE-LINE"
         ],
@@ -35003,28 +33994,6 @@
           "PASS",
           "PRINT-DETAIL"
         ],
-        "END-E-1@320": [
-          "HEAD-ROUTINE",
-          "CCVS-INIT-FILE"
-        ],
-        "END-E-2@345": [
-          "END-ROUTINE"
-        ],
-        "END-ROUTINE-12@391": [
-          "WRITE-LINE"
-        ],
-        "END-ROUTINE-13@399": [
-          "WRITE-LINE"
-        ],
-        "END-ROUTINE-1@382": [
-          "WRITE-LINE"
-        ],
-        "END-ROUTINE@378": [
-          "WRITE-LINE"
-        ],
-        "END-RTN-EXIT@380": [
-          "WRITE-LINE"
-        ],
         "FAIL-ROUTINE-EX@446": [],
         "FAIL-ROUTINE-WRITE@441": [
           "WRITE-LINE"
@@ -35037,7 +34006,10 @@
           "WRITE-LINE"
         ],
         "INSPT@352": [],
-        "OPEN-FILES@311": [],
+        "OPEN-FILES@311": [
+          "HEAD-ROUTINE",
+          "CCVS-INIT-FILE"
+        ],
         "PASS@353": [],
         "PRINT-DETAIL@357": [
           "WRITE-LINE",
@@ -35098,33 +34070,13 @@
         "CCVS-INIT-FILE@379": [],
         "CCVS1-EXIT@507": [],
         "CCVS1@361": [],
-        "CLOSE-FILES@385": [],
+        "CLOSE-FILES@385": [
+          "END-ROUTINE"
+        ],
         "COLUMN-NAMES-ROUTINE@425": [
           "WRITE-LINE"
         ],
         "DE-LETE@406": [],
-        "END-E-1@371": [
-          "HEAD-ROUTINE",
-          "CCVS-INIT-FILE"
-        ],
-        "END-E-2@396": [
-          "END-ROUTINE"
-        ],
-        "END-ROUTINE-12@442": [
-          "WRITE-LINE"
-        ],
-        "END-ROUTINE-13@450": [
-          "WRITE-LINE"
-        ],
-        "END-ROUTINE-1@433": [
-          "WRITE-LINE"
-        ],
-        "END-ROUTINE@429": [
-          "WRITE-LINE"
-        ],
-        "END-RTN-EXIT@431": [
-          "WRITE-LINE"
-        ],
         "FAIL-ROUTINE-EX@497": [],
         "FAIL-ROUTINE-WRITE@492": [
           "WRITE-LINE"
@@ -35142,7 +34094,10 @@
         "IX-FD2-01-05@353": [],
         "IX-FD2-01-EXIT@358": [],
         "IX-FD2-01@341": [],
-        "OPEN-FILES@362": [],
+        "OPEN-FILES@362": [
+          "HEAD-ROUTINE",
+          "CCVS-INIT-FILE"
+        ],
         "PASS@404": [],
         "PRINT-DETAIL@408": [
           "WRITE-LINE",
@@ -35252,21 +34207,6 @@
           "WRITE-LINE"
         ],
         "DE-LETE@345": [],
-        "END-ROUTINE-12@381": [
-          "WRITE-LINE"
-        ],
-        "END-ROUTINE-13@389": [
-          "WRITE-LINE"
-        ],
-        "END-ROUTINE-1@372": [
-          "WRITE-LINE"
-        ],
-        "END-ROUTINE@368": [
-          "WRITE-LINE"
-        ],
-        "END-RTN-EXIT@370": [
-          "WRITE-LINE"
-        ],
         "FAIL-ROUTINE-EX@436": [],
         "FAIL-ROUTINE-WRITE@431": [
           "WRITE-LINE"
@@ -35381,32 +34321,13 @@
         "CCVS-EXIT@596": [],
         "CCVS1-EXIT@444": [],
         "CCVS1@305": [],
-        "CLOSE-FILES@322": [],
+        "CLOSE-FILES@322": [
+          "END-ROUTINE"
+        ],
         "COLUMN-NAMES-ROUTINE@362": [
           "WRITE-LINE"
         ],
         "DE-LETE@343": [],
-        "END-E-1@315": [
-          "HEAD-ROUTINE"
-        ],
-        "END-E-2@333": [
-          "END-ROUTINE"
-        ],
-        "END-ROUTINE-12@379": [
-          "WRITE-LINE"
-        ],
-        "END-ROUTINE-13@387": [
-          "WRITE-LINE"
-        ],
-        "END-ROUTINE-1@370": [
-          "WRITE-LINE"
-        ],
-        "END-ROUTINE@366": [
-          "WRITE-LINE"
-        ],
-        "END-RTN-EXIT@368": [
-          "WRITE-LINE"
-        ],
         "FAIL-ROUTINE-EX@434": [],
         "FAIL-ROUTINE-WRITE@429": [
           "WRITE-LINE"
@@ -35421,7 +34342,9 @@
         "INPUT-PROCESS@295": [],
         "INPUT-PROCESS@300": [],
         "INSPT@340": [],
-        "OPEN-FILES@306": [],
+        "OPEN-FILES@306": [
+          "HEAD-ROUTINE"
+        ],
         "PASS@341": [],
         "PRINT-DETAIL@345": [
           "WRITE-LINE",
@@ -35573,21 +34496,6 @@
           "WRITE-LINE"
         ],
         "DE-LETE@209": [],
-        "END-ROUTINE-12@245": [
-          "WRITE-LINE"
-        ],
-        "END-ROUTINE-13@253": [
-          "WRITE-LINE"
-        ],
-        "END-ROUTINE-1@236": [
-          "WRITE-LINE"
-        ],
-        "END-ROUTINE@232": [
-          "WRITE-LINE"
-        ],
-        "END-RTN-EXIT@234": [
-          "WRITE-LINE"
-        ],
         "FAIL-ROUTINE-EX@300": [],
         "FAIL-ROUTINE-WRITE@295": [
           "WRITE-LINE"
@@ -35724,12 +34632,6 @@
           "BLANK-LINE-PRINT"
         ],
         "DE-LETE@200": [],
-        "END-ROUTINE-1@241": [
-          "BLANK-LINE-PRINT"
-        ],
-        "END-ROUTINE-2@244": [],
-        "END-ROUTINE-3@246": [],
-        "END-ROUTINE@234": [],
         "FAIL@197": [],
         "HEAD-ROUTINE@214": [
           "BLANK-LINE-PRINT"
@@ -35999,21 +34901,6 @@
         "EDI-WRITE-GF-14@742": [
           "PRINT-DETAIL"
         ],
-        "END-ROUTINE-12@320": [
-          "WRITE-LINE"
-        ],
-        "END-ROUTINE-13@328": [
-          "WRITE-LINE"
-        ],
-        "END-ROUTINE-1@311": [
-          "WRITE-LINE"
-        ],
-        "END-ROUTINE@307": [
-          "WRITE-LINE"
-        ],
-        "END-RTN-EXIT@309": [
-          "WRITE-LINE"
-        ],
         "FAIL-ROUTINE-EX@375": [],
         "FAIL-ROUTINE-WRITE@370": [
           "WRITE-LINE"
@@ -36063,21 +34950,6 @@
           "WRITE-LINE"
         ],
         "DE-LETE@201": [],
-        "END-ROUTINE-12@237": [
-          "WRITE-LINE"
-        ],
-        "END-ROUTINE-13@245": [
-          "WRITE-LINE"
-        ],
-        "END-ROUTINE-1@228": [
-          "WRITE-LINE"
-        ],
-        "END-ROUTINE@224": [
-          "WRITE-LINE"
-        ],
-        "END-RTN-EXIT@226": [
-          "WRITE-LINE"
-        ],
         "FAIL-ROUTINE-EX@292": [],
         "FAIL-ROUTINE-WRITE@287": [
           "WRITE-LINE"
@@ -36157,25 +35029,6 @@
           "WRITE-LINE"
         ],
         "DE-LETE@211": [],
-        "END-ROUTINE-12@247": [
-          "WRITE-LINE"
-        ],
-        "END-ROUTINE-13@255": [
-          "WRITE-LINE"
-        ],
-        "END-ROUTINE-1@238": [
-          "WRITE-LINE"
-        ],
-        "END-ROUTINE@234": [
-          "WRITE-LINE"
-        ],
-        "END-RTN-EXIT@236": [
-          "WRITE-LINE"
-        ],
-        "END-TEST@388": [
-          "BLANK-LINE-PRINT",
-          "PRINT-DETAIL"
-        ],
         "FAIL-ROUTINE-EX@302": [],
         "FAIL-ROUTINE-WRITE@297": [
           "WRITE-LINE"
@@ -36228,7 +35081,8 @@
           "PRINT-DETAIL"
         ],
         "OK6@383": [
-          "PRINT-DETAIL"
+          "PRINT-DETAIL",
+          "BLANK-LINE-PRINT"
         ],
         "OK8-1@426": [
           "PRINT-DETAIL"
@@ -36304,21 +35158,6 @@
           "WRITE-LINE"
         ],
         "DE-LETE@221": [],
-        "END-ROUTINE-12@257": [
-          "WRITE-LINE"
-        ],
-        "END-ROUTINE-13@265": [
-          "WRITE-LINE"
-        ],
-        "END-ROUTINE-1@248": [
-          "WRITE-LINE"
-        ],
-        "END-ROUTINE@244": [
-          "WRITE-LINE"
-        ],
-        "END-RTN-EXIT@246": [
-          "WRITE-LINE"
-        ],
         "FAIL-ROUTINE-EX@312": [],
         "FAIL-ROUTINE-WRITE@307": [
           "WRITE-LINE"
@@ -36625,24 +35464,6 @@
         ],
         "DDD@684": [],
         "DE-LETE@254": [],
-        "END-JOB@707": [],
-        "END-OF@411": [],
-        "END-ROUTINE-12@290": [
-          "WRITE-LINE"
-        ],
-        "END-ROUTINE-13@298": [
-          "WRITE-LINE"
-        ],
-        "END-ROUTINE-1@281": [
-          "WRITE-LINE"
-        ],
-        "END-ROUTINE@277": [
-          "WRITE-LINE"
-        ],
-        "END-RTN-EXIT@279": [
-          "WRITE-LINE"
-        ],
-        "END-TAB@687": [],
         "EXIT-NOTE@671": [],
         "FAIL-ROUTINE-EX@345": [],
         "FAIL-ROUTINE-WRITE@340": [
@@ -36923,21 +35744,6 @@
         "DELETE-7@463": [
           "DE-LETE"
         ],
-        "END-ROUTINE-12@255": [
-          "WRITE-LINE"
-        ],
-        "END-ROUTINE-13@263": [
-          "WRITE-LINE"
-        ],
-        "END-ROUTINE-1@246": [
-          "WRITE-LINE"
-        ],
-        "END-ROUTINE@242": [
-          "WRITE-LINE"
-        ],
-        "END-RTN-EXIT@244": [
-          "WRITE-LINE"
-        ],
         "FAIL-ROUTINE-EX@310": [],
         "FAIL-ROUTINE-WRITE@305": [
           "WRITE-LINE"
@@ -37063,24 +35869,6 @@
           "WRITE-LINE"
         ],
         "DE-LETE@232": [],
-        "END-3LEVEL-SUBSCRPT-TEST@482": [
-          "PRINT-DETAIL"
-        ],
-        "END-ROUTINE-12@268": [
-          "WRITE-LINE"
-        ],
-        "END-ROUTINE-13@276": [
-          "WRITE-LINE"
-        ],
-        "END-ROUTINE-1@259": [
-          "WRITE-LINE"
-        ],
-        "END-ROUTINE@255": [
-          "WRITE-LINE"
-        ],
-        "END-RTN-EXIT@257": [
-          "WRITE-LINE"
-        ],
         "FAIL-ROUTINE-EX@323": [],
         "FAIL-ROUTINE-WRITE@318": [
           "WRITE-LINE"
@@ -37146,7 +35934,8 @@
         ],
         "TEST-3-3@469": [
           "FAIL",
-          "PASS"
+          "PASS",
+          "PRINT-DETAIL"
         ],
         "TEST-3-WRITE@451": [
           "PRINT-DETAIL"
@@ -37187,24 +35976,6 @@
           "WRITE-LINE"
         ],
         "DE-LETE@231": [],
-        "END-3LEVEL-SUBSCRPT-TEST@496": [
-          "PRINT-DETAIL"
-        ],
-        "END-ROUTINE-12@267": [
-          "WRITE-LINE"
-        ],
-        "END-ROUTINE-13@275": [
-          "WRITE-LINE"
-        ],
-        "END-ROUTINE-1@258": [
-          "WRITE-LINE"
-        ],
-        "END-ROUTINE@254": [
-          "WRITE-LINE"
-        ],
-        "END-RTN-EXIT@256": [
-          "WRITE-LINE"
-        ],
         "FAIL-ROUTINE-EX@322": [],
         "FAIL-ROUTINE-WRITE@317": [
           "WRITE-LINE"
@@ -37270,7 +36041,8 @@
         ],
         "TEST-3-3@480": [
           "FAIL",
-          "PASS"
+          "PASS",
+          "PRINT-DETAIL"
         ],
         "TEST-3-WRITE@461": [
           "PRINT-DETAIL"
@@ -37304,21 +36076,6 @@
           "WRITE-LINE"
         ],
         "DE-LETE@226": [],
-        "END-ROUTINE-12@262": [
-          "WRITE-LINE"
-        ],
-        "END-ROUTINE-13@270": [
-          "WRITE-LINE"
-        ],
-        "END-ROUTINE-1@253": [
-          "WRITE-LINE"
-        ],
-        "END-ROUTINE@249": [
-          "WRITE-LINE"
-        ],
-        "END-RTN-EXIT@251": [
-          "WRITE-LINE"
-        ],
         "FAIL-ROUTINE-EX@317": [],
         "FAIL-ROUTINE-WRITE@312": [
           "WRITE-LINE"
@@ -37565,21 +36322,6 @@
           "WRITE-LINE"
         ],
         "DE-LETE@237": [],
-        "END-ROUTINE-12@273": [
-          "WRITE-LINE"
-        ],
-        "END-ROUTINE-13@281": [
-          "WRITE-LINE"
-        ],
-        "END-ROUTINE-1@264": [
-          "WRITE-LINE"
-        ],
-        "END-ROUTINE@260": [
-          "WRITE-LINE"
-        ],
-        "END-RTN-EXIT@262": [
-          "WRITE-LINE"
-        ],
         "FAIL-ROUTINE-EX@328": [],
         "FAIL-ROUTINE-WRITE@323": [
           "WRITE-LINE"
@@ -37809,21 +36551,6 @@
           "WRITE-LINE"
         ],
         "DE-LETE@225": [],
-        "END-ROUTINE-12@261": [
-          "WRITE-LINE"
-        ],
-        "END-ROUTINE-13@269": [
-          "WRITE-LINE"
-        ],
-        "END-ROUTINE-1@252": [
-          "WRITE-LINE"
-        ],
-        "END-ROUTINE@248": [
-          "WRITE-LINE"
-        ],
-        "END-RTN-EXIT@250": [
-          "WRITE-LINE"
-        ],
         "FAIL-ROUTINE-EX@316": [],
         "FAIL-ROUTINE-WRITE@311": [
           "WRITE-LINE"
@@ -38120,21 +36847,6 @@
           "WRITE-LINE"
         ],
         "DE-LETE@206": [],
-        "END-ROUTINE-12@242": [
-          "WRITE-LINE"
-        ],
-        "END-ROUTINE-13@250": [
-          "WRITE-LINE"
-        ],
-        "END-ROUTINE-1@233": [
-          "WRITE-LINE"
-        ],
-        "END-ROUTINE@229": [
-          "WRITE-LINE"
-        ],
-        "END-RTN-EXIT@231": [
-          "WRITE-LINE"
-        ],
         "FAIL-ROUTINE-EX@297": [],
         "FAIL-ROUTINE-WRITE@292": [
           "WRITE-LINE"
@@ -38293,21 +37005,6 @@
           "WRITE-LINE"
         ],
         "DE-LETE@292": [],
-        "END-ROUTINE-12@328": [
-          "WRITE-LINE"
-        ],
-        "END-ROUTINE-13@336": [
-          "WRITE-LINE"
-        ],
-        "END-ROUTINE-1@319": [
-          "WRITE-LINE"
-        ],
-        "END-ROUTINE@315": [
-          "WRITE-LINE"
-        ],
-        "END-RTN-EXIT@317": [
-          "WRITE-LINE"
-        ],
         "FAIL-ROUTINE-EX@378": [],
         "FAIL-ROUTINE-WRITE@373": [
           "WRITE-LINE"
@@ -38417,21 +37114,6 @@
           "WRITE-LINE"
         ],
         "DE-LETE@241": [],
-        "END-ROUTINE-12@277": [
-          "WRITE-LINE"
-        ],
-        "END-ROUTINE-13@285": [
-          "WRITE-LINE"
-        ],
-        "END-ROUTINE-1@268": [
-          "WRITE-LINE"
-        ],
-        "END-ROUTINE@264": [
-          "WRITE-LINE"
-        ],
-        "END-RTN-EXIT@266": [
-          "WRITE-LINE"
-        ],
         "FAIL-ROUTINE-EX@327": [],
         "FAIL-ROUTINE-WRITE@322": [
           "WRITE-LINE"
@@ -38485,21 +37167,6 @@
           "WRITE-LINE"
         ],
         "DE-LETE@229": [],
-        "END-ROUTINE-12@265": [
-          "WRITE-LINE"
-        ],
-        "END-ROUTINE-13@273": [
-          "WRITE-LINE"
-        ],
-        "END-ROUTINE-1@256": [
-          "WRITE-LINE"
-        ],
-        "END-ROUTINE@252": [
-          "WRITE-LINE"
-        ],
-        "END-RTN-EXIT@254": [
-          "WRITE-LINE"
-        ],
         "FAIL-ROUTINE-EX@315": [],
         "FAIL-ROUTINE-WRITE@310": [
           "WRITE-LINE"
@@ -38640,21 +37307,6 @@
           "WRITE-LINE"
         ],
         "DE-LETE@241": [],
-        "END-ROUTINE-12@277": [
-          "WRITE-LINE"
-        ],
-        "END-ROUTINE-13@285": [
-          "WRITE-LINE"
-        ],
-        "END-ROUTINE-1@268": [
-          "WRITE-LINE"
-        ],
-        "END-ROUTINE@264": [
-          "WRITE-LINE"
-        ],
-        "END-RTN-EXIT@266": [
-          "WRITE-LINE"
-        ],
         "FAIL-ROUTINE-EX@327": [],
         "FAIL-ROUTINE-WRITE@322": [
           "WRITE-LINE"
@@ -38837,21 +37489,6 @@
           "WRITE-LINE"
         ],
         "DE-LETE@225": [],
-        "END-ROUTINE-12@261": [
-          "WRITE-LINE"
-        ],
-        "END-ROUTINE-13@269": [
-          "WRITE-LINE"
-        ],
-        "END-ROUTINE-1@252": [
-          "WRITE-LINE"
-        ],
-        "END-ROUTINE@248": [
-          "WRITE-LINE"
-        ],
-        "END-RTN-EXIT@250": [
-          "WRITE-LINE"
-        ],
         "FAIL-ROUTINE-EX@311": [],
         "FAIL-ROUTINE-WRITE@306": [
           "WRITE-LINE"
@@ -39011,21 +37648,6 @@
           "WRITE-LINE"
         ],
         "DE-LETE@215": [],
-        "END-ROUTINE-12@252": [
-          "WRITE-LINE"
-        ],
-        "END-ROUTINE-13@260": [
-          "WRITE-LINE"
-        ],
-        "END-ROUTINE-1@242": [
-          "WRITE-LINE"
-        ],
-        "END-ROUTINE@238": [
-          "WRITE-LINE"
-        ],
-        "END-RTN-EXIT@240": [
-          "WRITE-LINE"
-        ],
         "FAIL-ROUTINE-EX@303": [],
         "FAIL-ROUTINE-WRITE@298": [
           "WRITE-LINE"
@@ -39273,21 +37895,6 @@
           "WRITE-LINE"
         ],
         "DE-LETE@217": [],
-        "END-ROUTINE-12@253": [
-          "WRITE-LINE"
-        ],
-        "END-ROUTINE-13@261": [
-          "WRITE-LINE"
-        ],
-        "END-ROUTINE-1@244": [
-          "WRITE-LINE"
-        ],
-        "END-ROUTINE@240": [
-          "WRITE-LINE"
-        ],
-        "END-RTN-EXIT@242": [
-          "WRITE-LINE"
-        ],
         "FAIL-ROUTINE-EX@303": [],
         "FAIL-ROUTINE-WRITE@298": [
           "WRITE-LINE"
@@ -39517,21 +38124,6 @@
           "WRITE-LINE"
         ],
         "DE-LETE@218": [],
-        "END-ROUTINE-12@254": [
-          "WRITE-LINE"
-        ],
-        "END-ROUTINE-13@262": [
-          "WRITE-LINE"
-        ],
-        "END-ROUTINE-1@245": [
-          "WRITE-LINE"
-        ],
-        "END-ROUTINE@241": [
-          "WRITE-LINE"
-        ],
-        "END-RTN-EXIT@243": [
-          "WRITE-LINE"
-        ],
         "FAIL-ROUTINE-EX@304": [],
         "FAIL-ROUTINE-WRITE@299": [
           "WRITE-LINE"
@@ -39717,21 +38309,6 @@
           "WRITE-LINE"
         ],
         "DE-LETE@232": [],
-        "END-ROUTINE-12@268": [
-          "WRITE-LINE"
-        ],
-        "END-ROUTINE-13@276": [
-          "WRITE-LINE"
-        ],
-        "END-ROUTINE-1@259": [
-          "WRITE-LINE"
-        ],
-        "END-ROUTINE@255": [
-          "WRITE-LINE"
-        ],
-        "END-RTN-EXIT@257": [
-          "WRITE-LINE"
-        ],
         "FAIL-ROUTINE-EX@318": [],
         "FAIL-ROUTINE-WRITE@313": [
           "WRITE-LINE"
@@ -39956,21 +38533,6 @@
           "WRITE-LINE"
         ],
         "DE-LETE@263": [],
-        "END-ROUTINE-12@299": [
-          "WRITE-LINE"
-        ],
-        "END-ROUTINE-13@307": [
-          "WRITE-LINE"
-        ],
-        "END-ROUTINE-1@290": [
-          "WRITE-LINE"
-        ],
-        "END-ROUTINE@286": [
-          "WRITE-LINE"
-        ],
-        "END-RTN-EXIT@288": [
-          "WRITE-LINE"
-        ],
         "ENTRY-2-EXIT@382": [],
         "FAIL-ROUTINE-EX@349": [],
         "FAIL-ROUTINE-WRITE@344": [
@@ -40152,21 +38714,6 @@
           "WRITE-LINE"
         ],
         "DE-LETE@232": [],
-        "END-ROUTINE-12@268": [
-          "WRITE-LINE"
-        ],
-        "END-ROUTINE-13@276": [
-          "WRITE-LINE"
-        ],
-        "END-ROUTINE-1@259": [
-          "WRITE-LINE"
-        ],
-        "END-ROUTINE@255": [
-          "WRITE-LINE"
-        ],
-        "END-RTN-EXIT@257": [
-          "WRITE-LINE"
-        ],
         "FAIL-ROUTINE-EX@318": [],
         "FAIL-ROUTINE-WRITE@313": [
           "WRITE-LINE"
@@ -40329,22 +38876,6 @@
           "WRITE-LINE"
         ],
         "DE-LETE@238": [],
-        "END-3LEVEL-TEST@685": [],
-        "END-ROUTINE-12@274": [
-          "WRITE-LINE"
-        ],
-        "END-ROUTINE-13@282": [
-          "WRITE-LINE"
-        ],
-        "END-ROUTINE-1@265": [
-          "WRITE-LINE"
-        ],
-        "END-ROUTINE@261": [
-          "WRITE-LINE"
-        ],
-        "END-RTN-EXIT@263": [
-          "WRITE-LINE"
-        ],
         "FAIL-ROUTINE-EX@324": [],
         "FAIL-ROUTINE-WRITE@319": [
           "WRITE-LINE"
@@ -40557,22 +39088,6 @@
           "WRITE-LINE"
         ],
         "DE-LETE@238": [],
-        "END-3LEVEL-TEST@663": [],
-        "END-ROUTINE-12@274": [
-          "WRITE-LINE"
-        ],
-        "END-ROUTINE-13@282": [
-          "WRITE-LINE"
-        ],
-        "END-ROUTINE-1@265": [
-          "WRITE-LINE"
-        ],
-        "END-ROUTINE@261": [
-          "WRITE-LINE"
-        ],
-        "END-RTN-EXIT@263": [
-          "WRITE-LINE"
-        ],
         "FAIL-ROUTINE-EX@324": [],
         "FAIL-ROUTINE-WRITE@319": [
           "WRITE-LINE"
@@ -40787,24 +39302,6 @@
           "WRITE-LINE"
         ],
         "DE-LETE@269": [],
-        "END-3LEVEL-SUBSCRPT-TEST@501": [
-          "PRINT-DETAIL"
-        ],
-        "END-ROUTINE-12@305": [
-          "WRITE-LINE"
-        ],
-        "END-ROUTINE-13@313": [
-          "WRITE-LINE"
-        ],
-        "END-ROUTINE-1@296": [
-          "WRITE-LINE"
-        ],
-        "END-ROUTINE@292": [
-          "WRITE-LINE"
-        ],
-        "END-RTN-EXIT@294": [
-          "WRITE-LINE"
-        ],
         "FAIL-ROUTINE-EX@355": [],
         "FAIL-ROUTINE-WRITE@350": [
           "WRITE-LINE"
@@ -40870,7 +39367,8 @@
         ],
         "TEST-3-3@488": [
           "FAIL",
-          "PASS"
+          "PASS",
+          "PRINT-DETAIL"
         ],
         "TEST-3-WRITE@470": [
           "PRINT-DETAIL"
@@ -40939,22 +39437,6 @@
           "WRITE-LINE"
         ],
         "DE-LETE@266": [],
-        "END-3LEVEL-TEST@585": [],
-        "END-ROUTINE-12@302": [
-          "WRITE-LINE"
-        ],
-        "END-ROUTINE-13@310": [
-          "WRITE-LINE"
-        ],
-        "END-ROUTINE-1@293": [
-          "WRITE-LINE"
-        ],
-        "END-ROUTINE@289": [
-          "WRITE-LINE"
-        ],
-        "END-RTN-EXIT@291": [
-          "WRITE-LINE"
-        ],
         "FAIL-ROUTINE-EX@352": [],
         "FAIL-ROUTINE-WRITE@347": [
           "WRITE-LINE"
@@ -41111,21 +39593,6 @@
           "WRITE-LINE"
         ],
         "DE-LETE@221": [],
-        "END-ROUTINE-12@257": [
-          "WRITE-LINE"
-        ],
-        "END-ROUTINE-13@265": [
-          "WRITE-LINE"
-        ],
-        "END-ROUTINE-1@248": [
-          "WRITE-LINE"
-        ],
-        "END-ROUTINE@244": [
-          "WRITE-LINE"
-        ],
-        "END-RTN-EXIT@246": [
-          "WRITE-LINE"
-        ],
         "FAIL-ROUTINE-EX@307": [],
         "FAIL-ROUTINE-WRITE@302": [
           "WRITE-LINE"
@@ -41260,21 +39727,6 @@
           "WRITE-LINE"
         ],
         "DE-LETE@224": [],
-        "END-ROUTINE-12@260": [
-          "WRITE-LINE"
-        ],
-        "END-ROUTINE-13@268": [
-          "WRITE-LINE"
-        ],
-        "END-ROUTINE-1@251": [
-          "WRITE-LINE"
-        ],
-        "END-ROUTINE@247": [
-          "WRITE-LINE"
-        ],
-        "END-RTN-EXIT@249": [
-          "WRITE-LINE"
-        ],
         "FAIL-ROUTINE-EX@310": [],
         "FAIL-ROUTINE-WRITE@305": [
           "WRITE-LINE"
@@ -41446,21 +39898,6 @@
           "WRITE-LINE"
         ],
         "DE-LETE@226": [],
-        "END-ROUTINE-12@262": [
-          "WRITE-LINE"
-        ],
-        "END-ROUTINE-13@270": [
-          "WRITE-LINE"
-        ],
-        "END-ROUTINE-1@253": [
-          "WRITE-LINE"
-        ],
-        "END-ROUTINE@249": [
-          "WRITE-LINE"
-        ],
-        "END-RTN-EXIT@251": [
-          "WRITE-LINE"
-        ],
         "FAIL-ROUTINE-EX@312": [],
         "FAIL-ROUTINE-WRITE@307": [
           "WRITE-LINE"
@@ -41664,7 +40101,6 @@
         "CALL-IC219@54": [
           "OBIC2A"
         ],
-        "END-OF-PROGRAM@75": [],
         "SECT-IC218-0001@53": []
       },
       "cobol/che-che4z_nist_ccvs85/OBIC24.2.cbl": {
@@ -41732,21 +40168,6 @@
           "WRITE-LINE"
         ],
         "DE-LETE@205": [],
-        "END-ROUTINE-12@241": [
-          "WRITE-LINE"
-        ],
-        "END-ROUTINE-13@249": [
-          "WRITE-LINE"
-        ],
-        "END-ROUTINE-1@232": [
-          "WRITE-LINE"
-        ],
-        "END-ROUTINE@228": [
-          "WRITE-LINE"
-        ],
-        "END-RTN-EXIT@230": [
-          "WRITE-LINE"
-        ],
         "FAIL-ROUTINE-EX@291": [],
         "FAIL-ROUTINE-WRITE@286": [
           "WRITE-LINE"
@@ -41810,26 +40231,6 @@
           "WRITE-LINE"
         ],
         "DE-LETE@347": [],
-        "END-E-1@312": [
-          "HEAD-ROUTINE",
-          "CCVS-INIT-FILE"
-        ],
-        "END-E-2@338": [],
-        "END-ROUTINE-12@382": [
-          "WRITE-LINE"
-        ],
-        "END-ROUTINE-13@390": [
-          "WRITE-LINE"
-        ],
-        "END-ROUTINE-1@373": [
-          "WRITE-LINE"
-        ],
-        "END-ROUTINE@369": [
-          "WRITE-LINE"
-        ],
-        "END-RTN-EXIT@371": [
-          "WRITE-LINE"
-        ],
         "FAIL-ROUTINE-EX@428": [],
         "FAIL-ROUTINE-WRITE@425": [
           "WRITE-LINE"
@@ -41843,7 +40244,10 @@
         ],
         "INSPT@344": [],
         "OBSQ3A-END-ROUTINE@631": [],
-        "OPEN-FILES@303": [],
+        "OPEN-FILES@303": [
+          "HEAD-ROUTINE",
+          "CCVS-INIT-FILE"
+        ],
         "PASS@345": [],
         "PRINT-DETAIL@349": [
           "WRITE-LINE",
@@ -41945,26 +40349,6 @@
           "WRITE-LINE"
         ],
         "DE-LETE@308": [],
-        "END-E-1@273": [
-          "HEAD-ROUTINE",
-          "CCVS-INIT-FILE"
-        ],
-        "END-E-2@299": [],
-        "END-ROUTINE-12@343": [
-          "WRITE-LINE"
-        ],
-        "END-ROUTINE-13@351": [
-          "WRITE-LINE"
-        ],
-        "END-ROUTINE-1@334": [
-          "WRITE-LINE"
-        ],
-        "END-ROUTINE@330": [
-          "WRITE-LINE"
-        ],
-        "END-RTN-EXIT@332": [
-          "WRITE-LINE"
-        ],
         "FAIL-ROUTINE-EX@389": [],
         "FAIL-ROUTINE-WRITE@386": [
           "WRITE-LINE"
@@ -41978,7 +40362,10 @@
         ],
         "INSPT@305": [],
         "OBSQ4A-END-ROUTINE@567": [],
-        "OPEN-FILES@264": [],
+        "OPEN-FILES@264": [
+          "HEAD-ROUTINE",
+          "CCVS-INIT-FILE"
+        ],
         "PASS@306": [],
         "PRINT-DETAIL@310": [
           "WRITE-LINE",
@@ -42067,26 +40454,6 @@
           "WRITE-LINE"
         ],
         "DE-LETE@318": [],
-        "END-E-1@283": [
-          "HEAD-ROUTINE",
-          "CCVS-INIT-FILE"
-        ],
-        "END-E-2@309": [],
-        "END-ROUTINE-12@353": [
-          "WRITE-LINE"
-        ],
-        "END-ROUTINE-13@361": [
-          "WRITE-LINE"
-        ],
-        "END-ROUTINE-1@344": [
-          "WRITE-LINE"
-        ],
-        "END-ROUTINE@340": [
-          "WRITE-LINE"
-        ],
-        "END-RTN-EXIT@342": [
-          "WRITE-LINE"
-        ],
         "FAIL-ROUTINE-EX@399": [],
         "FAIL-ROUTINE-WRITE@396": [
           "WRITE-LINE"
@@ -42100,7 +40467,10 @@
         ],
         "INSPT@315": [],
         "OBSQ5A-END-ROUTINE@619": [],
-        "OPEN-FILES@274": [],
+        "OPEN-FILES@274": [
+          "HEAD-ROUTINE",
+          "CCVS-INIT-FILE"
+        ],
         "PASS@316": [],
         "PRINT-DETAIL@320": [
           "WRITE-LINE",
@@ -42251,21 +40621,6 @@
           "WRITE-LINE"
         ],
         "DE-LETE@196": [],
-        "END-ROUTINE-12@232": [
-          "WRITE-LINE"
-        ],
-        "END-ROUTINE-13@240": [
-          "WRITE-LINE"
-        ],
-        "END-ROUTINE-1@223": [
-          "WRITE-LINE"
-        ],
-        "END-ROUTINE@219": [
-          "WRITE-LINE"
-        ],
-        "END-RTN-EXIT@221": [
-          "WRITE-LINE"
-        ],
         "FAIL-ROUTINE-EX@282": [],
         "FAIL-ROUTINE-WRITE@277": [
           "WRITE-LINE"
@@ -42325,21 +40680,6 @@
         ],
         "CONTINUE-TESTING@485": [],
         "DE-LETE@511": [],
-        "END-ROUTINE-12@547": [
-          "WRITE-LINE"
-        ],
-        "END-ROUTINE-13@555": [
-          "WRITE-LINE"
-        ],
-        "END-ROUTINE-1@538": [
-          "WRITE-LINE"
-        ],
-        "END-ROUTINE@534": [
-          "WRITE-LINE"
-        ],
-        "END-RTN-EXIT@536": [
-          "WRITE-LINE"
-        ],
         "EXIT-ONLY@615": [
           "CLOSE-FILES"
         ],
@@ -42567,21 +40907,6 @@
         ],
         "CONTINUE-TESTING@495": [],
         "DE-LETE@521": [],
-        "END-ROUTINE-12@557": [
-          "WRITE-LINE"
-        ],
-        "END-ROUTINE-13@565": [
-          "WRITE-LINE"
-        ],
-        "END-ROUTINE-1@548": [
-          "WRITE-LINE"
-        ],
-        "END-ROUTINE@544": [
-          "WRITE-LINE"
-        ],
-        "END-RTN-EXIT@546": [
-          "WRITE-LINE"
-        ],
         "EXIT-ONLY@625": [
           "CLOSE-FILES"
         ],
@@ -42808,12 +41133,7 @@
       "cobol/cics-banking-sample-application-cbsa/BANKDATA.cbl": {
         "A010@370": [
           "TIMESTAMP",
-          "INITIALISE-ARRAYS",
-          "GET-TODAYS-DATE",
-          "DELETE-DB2-ROWS",
-          "PROGRAM-DONE",
-          "TEST",
-          "DEFINE-ACC"
+          "INITIALISE-ARRAYS"
         ],
         "A999@675": [],
         "CALC-DAY-OF-WEEK@1406": [],
@@ -42858,9 +41178,7 @@
         "A010@161": [
           "SEND-MAP",
           "SEND-TERMINATION-MSG",
-          "PROCESS-MAP",
-          "POPULATE-TIME-DATE",
-          "ABEND-THIS-TASK"
+          "PROCESS-MAP"
         ],
         "A999@316": [],
         "ABEND-THIS-TASK@1272": [],
@@ -42910,9 +41228,7 @@
         "A010@154": [
           "SEND-MAP",
           "SEND-TERMINATION-MSG",
-          "PROCESS-MAP",
-          "POPULATE-TIME-DATE",
-          "ABEND-THIS-TASK"
+          "PROCESS-MAP"
         ],
         "A999@292": [],
         "ABEND-THIS-TASK@928": [],
@@ -42964,9 +41280,7 @@
           "SEND-MAP",
           "RESTORE-TERM-DEF",
           "SEND-TERMINATION-MSG",
-          "PROCESS-MAP",
-          "POPULATE-TIME-DATE",
-          "ABEND-THIS-TASK"
+          "PROCESS-MAP"
         ],
         "A999@345": [],
         "ABEND-THIS-TASK@1599": [],
@@ -43038,9 +41352,7 @@
         "A010@178": [
           "SEND-MAP",
           "SEND-TERMINATION-MSG",
-          "PROCESS-MAP",
-          "POPULATE-TIME-DATE",
-          "ABEND-THIS-TASK"
+          "PROCESS-MAP"
         ],
         "A999@330": [],
         "ABEND-THIS-TASK@950": [],
@@ -43095,9 +41407,7 @@
         "A010@189": [
           "SEND-MAP",
           "PROCESS-MAP",
-          "SEND-TERMINATION-MSG",
-          "POPULATE-TIME-DATE",
-          "ABEND-THIS-TASK"
+          "SEND-TERMINATION-MSG"
         ],
         "A999@362": [],
         "ABEND-THIS-TASK@1134": [],
@@ -43159,9 +41469,7 @@
           "SEND-MAP",
           "RESTORE-TERM-DEF",
           "PROCESS-MAP",
-          "SEND-TERMINATION-MSG",
-          "POPULATE-TIME-DATE",
-          "ABEND-THIS-TASK"
+          "SEND-TERMINATION-MSG"
         ],
         "A999@396": [],
         "ABEND-HANDLING@2044": [],
@@ -43266,9 +41574,7 @@
         "A010@175": [
           "SEND-MAP",
           "SEND-TERMINATION-MSG",
-          "PROCESS-MAP",
-          "POPULATE-TIME-DATE",
-          "ABEND-THIS-TASK"
+          "PROCESS-MAP"
         ],
         "A999@315": [],
         "ABEND-THIS-TASK@973": [],
@@ -43323,9 +41629,7 @@
         "A010@198": [
           "SEND-MAP",
           "SEND-TERMINATION-MSG",
-          "PROCESS-MAP",
-          "POPULATE-TIME-DATE",
-          "ABEND-THIS-TASK"
+          "PROCESS-MAP"
         ],
         "A999@362": [],
         "ABEND-THIS-TASK@1381": [],
@@ -43386,9 +41690,7 @@
         "A010@109": [
           "SEND-MAP",
           "SEND-TERMINATION-MSG",
-          "PROCESS-MENU-MAP",
-          "POPULATE-TIME-DATE",
-          "ABEND-THIS-TASK"
+          "PROCESS-MENU-MAP"
         ],
         "A999@237": [],
         "ABEND-THIS-TASK@1285": [],
@@ -43597,15 +41899,7 @@
         "GLCV999@1418": [],
         "GMOFH010@1330": [],
         "GMOFH999@1337": [],
-        "P010@358": [
-          "POPULATE-TIME-DATE",
-          "CREDIT-CHECK",
-          "GET-ME-OUT-OF-HERE",
-          "DATE-OF-BIRTH-CHECK",
-          "ENQ-NAMED-COUNTER",
-          "UPD-NCS",
-          "WRITE-CUSTOMER-VSAM"
-        ],
+        "P010@358": [],
         "P999@477": [],
         "POPULATE-TIME-DATE2@1481": [],
         "POPULATE-TIME-DATE@481": [],
@@ -43906,10 +42200,7 @@
         "UPDATE-ACCOUNT-DB2@180": []
       },
       "cobol/cics-banking-sample-application-cbsa/UPDCUST.cbl": {
-        "A010@138": [
-          "UPDATE-CUSTOMER-VSAM",
-          "GET-ME-OUT-OF-HERE"
-        ],
+        "A010@138": [],
         "A999@207": [],
         "GET-ME-OUT-OF-HERE@339": [],
         "GMOOH010@340": [],
@@ -44115,7 +42406,6 @@
         "MAINLINE@93": []
       },
       "cobol/cics-genapp/lgipdb01.cbl": {
-        "End-Program@312": [],
         "GET-Commercial-DB2-INFO-1@627": [
           "WRITE-ERROR-MESSAGE"
         ],
@@ -44238,7 +42528,6 @@
         "NO-UPD@296": []
       },
       "cobol/cics-genapp/lgucdb01.cbl": {
-        "END-PROGRAM@142": [],
         "MAINLINE-EXIT@145": [],
         "MAINLINE@101": [
           "WRITE-ERROR-MESSAGE",
@@ -44250,7 +42539,6 @@
         "WRITE-ERROR-MESSAGE@189": []
       },
       "cobol/cics-genapp/lgucus01.cbl": {
-        "END-PROGRAM@119": [],
         "MAINLINE-EXIT@122": [],
         "MAINLINE@83": [
           "WRITE-ERROR-MESSAGE",
@@ -44270,7 +42558,6 @@
         "CLOSE-PCURSOR@362": [
           "WRITE-ERROR-MESSAGE"
         ],
-        "END-PROGRAM@215": [],
         "FETCH-DB2-POLICY-ROW@228": [],
         "MAINLINE-EXIT@218": [],
         "MAINLINE@162": [
@@ -44297,7 +42584,6 @@
         "WRITE-ERROR-MESSAGE@502": []
       },
       "cobol/cics-genapp/lgupol01.cbl": {
-        "END-PROGRAM@146": [],
         "MAINLINE-EXIT@149": [],
         "MAINLINE@83": [
           "WRITE-ERROR-MESSAGE",
@@ -44333,7 +42619,6 @@
       },
       "cobol/cics-java-jcics-samples/EDUCHAN.cbl": {
         "ABEND-ROUTINE@164": [],
-        "END-PGM@170": [],
         "MAIN-PROCESSING@66": [
           "ABEND-ROUTINE",
           "RESP-ERROR",
@@ -87986,7 +86271,6 @@
         ],
         "getBuildPath@343": [],
         "getCustomOperationTraceSerializableModel@353": [
-          "HashMap",
           "put",
           "getPluginId",
           "getPluginClass",
@@ -88044,7 +86328,6 @@
           "setResult"
         ],
         "withPlugin@256": [
-          "Action",
           "pluginsForId",
           "all"
         ]
@@ -88219,7 +86502,6 @@
         ],
         "defaultTasks@815": [
           "InvalidUserDataException",
-          "ArrayList",
           "add"
         ],
         "delete@1043": [
@@ -88269,7 +86551,6 @@
           "getOwner",
           "ensureTasksDiscovered",
           "put",
-          "TreeSet",
           "getTasks"
         ],
         "execute@924": [
@@ -88330,8 +86611,6 @@
           "fire"
         ],
         "getAllTasks@897": [
-          "TreeMap",
-          "Action",
           "execute",
           "allprojects"
         ],
@@ -88501,8 +86780,6 @@
         "getTasksByName@917": [
           "isNullOrEmpty",
           "InvalidUserDataException",
-          "HashSet",
-          "Action",
           "execute",
           "allprojects"
         ],
@@ -88544,9 +86821,7 @@
           "detachedFrom",
           "LocalDetachedResolver"
         ],
-        "newProjectEvaluationListenerBroadcast@325": [
-          "ListenerBroadcast"
-        ],
+        "newProjectEvaluationListenerBroadcast@325": [],
         "nodeInitializerRegistry@306": [
           "DefaultNodeInitializerRegistry"
         ],
@@ -90583,7 +88858,6 @@
           "ConstantExpression"
         ],
         "createCleanupTryCatch@614": [
-          "ArrayList",
           "getAst",
           "TryCatchStatement",
           "BlockStatement",
@@ -90850,7 +89124,6 @@
         ],
         "rewriteWhenBlockForExceptionCondition@770": [
           "getAst",
-          "ArrayList",
           "setAst",
           "add",
           "ExpressionStatement",
@@ -90925,7 +89198,6 @@
           "VariableExpression",
           "add",
           "createVariableDeclarationStatement",
-          "ArrayList",
           "addAll",
           "createThrowableAssignmentAndRethrowCatchStatement",
           "asList",
@@ -94014,7 +92286,6 @@
         ],
         "getNextAvailable@145": [
           "nonNull",
-          "HashMap",
           "forEach",
           "put",
           "toJson",
@@ -94075,10 +92346,7 @@
           "emptyList",
           "emptySet"
         ],
-        "AutoConfigurationEntry@558": [
-          "ArrayList",
-          "HashSet"
-        ],
+        "AutoConfigurationEntry@558": [],
         "AutoConfigurationImportSelector@109": [],
         "AutoConfigurationImportSelector@113": [],
         "ConfigurationClassFilter@394": [
@@ -94088,7 +92356,6 @@
           "getStringArray"
         ],
         "checkExcludedClasses@212": [
-          "ArrayList",
           "size",
           "getClass",
           "getClassLoader",
@@ -94102,7 +92369,6 @@
           "nanoTime",
           "toStringArray",
           "match",
-          "ArrayList",
           "add",
           "isTraceEnabled",
           "size",
@@ -94185,7 +92451,6 @@
         ],
         "getExclusionFilter@127": [],
         "getExclusions@247": [
-          "LinkedHashSet",
           "addAll",
           "asList",
           "getExcludeAutoConfigurationsProperty",
@@ -94230,10 +92495,7 @@
           "getConfigurations",
           "putIfAbsent"
         ],
-        "removeDuplicates@305": [
-          "ArrayList",
-          "LinkedHashSet"
-        ],
+        "removeDuplicates@305": [],
         "selectImports@118": [
           "isEnabled",
           "getAutoConfigurationEntry",
@@ -94289,7 +92551,6 @@
           "notNull",
           "get",
           "ValueObjectBinder",
-          "HashMap",
           "put",
           "of",
           "unmodifiableMap"
@@ -94495,7 +92756,6 @@
         "getCandidates@117": [
           "getAllAnnotationAttributes",
           "getName",
-          "ArrayList",
           "addAll",
           "get"
         ],
@@ -94648,11 +92908,9 @@
         "SpringApplication@259": [],
         "SpringApplication@273": [
           "notNull",
-          "LinkedHashSet",
           "asList",
           "setWebApplicationType",
           "deduce",
-          "ArrayList",
           "getSpringFactoriesInstances",
           "setInitializers",
           "setListeners",
@@ -94665,7 +92923,6 @@
         ],
         "addAotGeneratedInitializerIfNecessary@421": [
           "useGeneratedArtifacts",
-          "ArrayList",
           "stream",
           "filter",
           "toList",
@@ -94708,9 +92965,7 @@
           "initialize"
         ],
         "asUnmodifiableOrderedSet@1478": [
-          "ArrayList",
-          "sort",
-          "LinkedHashSet"
+          "sort"
         ],
         "bindToSpringApplication@550": [
           "get",
@@ -94731,7 +92986,6 @@
         "callRunners@767": [
           "getBeanFactory",
           "getBeanNamesForType",
-          "IdentityHashMap",
           "put",
           "getBean",
           "getOrderComparator",
@@ -94826,7 +93080,6 @@
         ],
         "getAdditionalProfiles@1114": [],
         "getAllSources@1189": [
-          "LinkedHashSet",
           "isEmpty",
           "addAll",
           "getSources",
@@ -94917,7 +93170,6 @@
           "getSpringFactoriesInstances",
           "get",
           "getRunListener",
-          "ArrayList",
           "add",
           "SpringApplicationRunListeners"
         ],
@@ -95147,7 +93399,6 @@
         "setAddConversionService@1066": [],
         "setAdditionalProfiles@1106": [
           "unmodifiableSet",
-          "LinkedHashSet",
           "asList"
         ],
         "setAllowBeanDefinitionOverriding@979": [],
@@ -95159,7 +93410,6 @@
         "setBeanNameGenerator@1122": [],
         "setDefaultProperties@1086": [],
         "setDefaultProperties@1094": [
-          "HashMap",
           "list",
           "propertyNames",
           "put",
@@ -95168,14 +93418,10 @@
         "setEnvironment@1131": [],
         "setEnvironmentPrefix@1225": [],
         "setHeadless@1009": [],
-        "setInitializers@1247": [
-          "ArrayList"
-        ],
+        "setInitializers@1247": [],
         "setKeepAlive@1332": [],
         "setLazyInitialization@1000": [],
-        "setListeners@1274": [
-          "ArrayList"
-        ],
+        "setListeners@1274": [],
         "setLogStartupInfo@1047": [],
         "setMainApplicationClass@948": [],
         "setRegisterShutdownHook@1020": [],
@@ -95219,13 +93465,11 @@
           "state"
         ],
         "with@1510": [
-          "LinkedHashSet",
           "addAll",
           "asList",
           "Augmented"
         ],
         "withAdditionalProfiles@1523": [
-          "LinkedHashSet",
           "addAll",
           "asList",
           "Augmented"
@@ -101955,7 +100199,6 @@
           "isEmpty",
           "toList",
           "clear",
-          "mutableListOf",
           "iterator",
           "hasNext",
           "next",
@@ -124293,9 +122536,7 @@
       },
       "pli/dsf_cics_admin/R0010422.pli": {
         "BLANK_TEKST@186": [],
-        "KONTROLL_AV_INPUT@265": [
-          "SEND_MAP"
-        ],
+        "KONTROLL_AV_INPUT@265": [],
         "OVERFØR_FRA_MAP@240": [],
         "OVERFØR_TIL_MAP@225": [],
         "R001B1@21": [
@@ -124310,9 +122551,7 @@
       },
       "pli/dsf_cics_admin/R0010423.pli": {
         "BLANK_TEKST@263": [],
-        "KONTROLL_AV_INPUT@315": [
-          "SEND_MAP"
-        ],
+        "KONTROLL_AV_INPUT@315": [],
         "OVERFØR_FRA_MAP@298": [],
         "OVERFØR_TIL_MAP@290": [],
         "R001B1@23": [
@@ -124328,9 +122567,7 @@
       },
       "pli/dsf_cics_admin/R0010424.pli": {
         "BLANK_TEKST@262": [],
-        "KONTROLL_AV_INPUT@302": [
-          "SEND_MAP"
-        ],
+        "KONTROLL_AV_INPUT@302": [],
         "OVERFØR_FRA_MAP@289": [],
         "OVERFØR_TIL_MAP@283": [],
         "R001B1@21": [
@@ -124346,9 +122583,7 @@
       },
       "pli/dsf_cics_admin/R0010425.pli": {
         "BLANK_TEKST@274": [],
-        "KONTROLL_AV_INPUT@311": [
-          "SEND_MAP"
-        ],
+        "KONTROLL_AV_INPUT@311": [],
         "OVERFØR_FRA_MAP@302": [],
         "OVERFØR_TIL_MAP@295": [],
         "R001B1@22": [

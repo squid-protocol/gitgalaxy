@@ -101,6 +101,9 @@
       "assembly/x86_bare_metal/bios_pixel_line.S": "2 instances",
       "assembly/x86_bare_metal/bios_sleep.S": "1 instances"
     },
+    "c/cosmopolitan_intrin": {
+      "c/cosmopolitan_intrin/countbits.c": "19 instances"
+    },
     "c/cpython": {
       "c/cpython/ceval.c": "273 instances",
       "c/cpython/compile.c": "159 instances",
@@ -458,6 +461,10 @@
       "cpp/powertoys/logger.cpp": "5 instances",
       "cpp/powertoys/main.cpp": "19 instances"
     },
+    "cpp/serenity_ak_siphash_cpu": {
+      "cpp/serenity_ak_siphash_cpu/CPUFeatures.cpp": "3 instances",
+      "cpp/serenity_ak_siphash_cpu/SipHash.cpp": "29 instances"
+    },
     "csharp/roslyn": {
       "csharp/roslyn/CSharpCompilation.cs": "143 instances",
       "csharp/roslyn/CSharpSyntaxTree.cs": "23 instances",
@@ -558,6 +565,9 @@
       "go/core/syscall_linux.go": "110 instances",
       "go/core/value.go": "155 instances"
     },
+    "go/go_runtime_rand": {
+      "go/go_runtime_rand/rand.go": "16 instances"
+    },
     "go/kubernetes": {
       "go/kubernetes/csi_plugin.go": "32 instances",
       "go/kubernetes/generic.go": "33 instances",
@@ -565,6 +575,9 @@
       "go/kubernetes/proxier.go": "60 instances",
       "go/kubernetes/replica_set.go": "27 instances",
       "go/kubernetes/scheduler.go": "27 instances"
+    },
+    "go/kubernetes_kubectl_tls": {
+      "go/kubernetes_kubectl_tls/create_secret_tls_test.go": "1 instances"
     },
     "groovy/fineract_gradle_plugin": {
       "groovy/fineract_gradle_plugin/org_apache_fineract_gradle_service_EmailService.groovy": "6 instances",
@@ -691,6 +704,15 @@
       "html/vscode_webviews/github_auth_media_index.html": "7 instances",
       "html/vscode_webviews/webWorkerExtensionHostIframe.html": "10 instances"
     },
+    "java/flutter_android_editing_tests": {
+      "java/flutter_android_editing_tests/InputConnectionAdaptorTest.java": "14 instances"
+    },
+    "java/jenkins_cli": {
+      "java/jenkins_cli/SetBuildDescriptionCommand.java": "2 instances"
+    },
+    "java/selenium_grid_session_queue": {
+      "java/selenium_grid_session_queue/RemoteNewSessionQueue.java": "4 instances"
+    },
     "java/springboot": {
       "java/springboot/AutoConfigurationImportSelector.java": "19 instances",
       "java/springboot/Binder.java": "13 instances",
@@ -698,6 +720,12 @@
       "java/springboot/ServletWebServerApplicationContext.java": "2 instances",
       "java/springboot/SpringApplication.java": "48 instances",
       "java/springboot/WebMvcAutoConfiguration.java": "9 instances"
+    },
+    "javascript/cesium_particle_emitters": {
+      "javascript/cesium_particle_emitters/CircleEmitter.js": "2 instances"
+    },
+    "javascript/javascript_algorithms_bits": {
+      "javascript/javascript_algorithms_bits/fullAdder.js": "1 instances"
     },
     "javascript/jquery": {
       "javascript/jquery/ajax.js": "120 instances",
@@ -708,12 +736,21 @@
       "javascript/jquery/event.js": "120 instances",
       "javascript/jquery/tokenize.js": "15 instances"
     },
+    "javascript/node_tls_security_tests": {
+      "javascript/node_tls_security_tests/regexp-unicode-sets.js": "13 instances",
+      "javascript/node_tls_security_tests/test-https-host-headers.js": "1 instances",
+      "javascript/node_tls_security_tests/test-tls-cert-ext-encoding.js": "2 instances",
+      "javascript/node_tls_security_tests/test-tls-psk-server.js": "4 instances"
+    },
     "javascript/react": {
       "javascript/react/BabelPlugin.ts": "2 instances",
       "javascript/react/ReactFiberBeginWork.js": "235 instances",
       "javascript/react/ReactFiberWorkLoop.js": "315 instances",
       "javascript/react/ReactFlightServer.js": "424 instances",
       "javascript/react/build.js": "15 instances"
+    },
+    "javascript/react_error_codes": {
+      "javascript/react_error_codes/extract-errors.js": "12 instances"
     },
     "javascript/threejs": {
       "javascript/threejs/BufferGeometry.js": "72 instances",
@@ -874,6 +911,9 @@
       "objective-c/worldwideweb/HyperText.m": "274 instances",
       "objective-c/worldwideweb/TcpAccess.m": "4 instances"
     },
+    "perl/ack3_tests": {
+      "perl/ack3_tests/file-permission.t": "2 instances"
+    },
     "perl/bugzilla": {
       "perl/bugzilla/Auth.pm": "16 instances",
       "perl/bugzilla/Bug.pm": "437 instances",
@@ -919,6 +959,9 @@
       "php/laravel_core/Facade.php": "17 instances",
       "php/laravel_core/Model.php": "103 instances",
       "php/laravel_core/Router.php": "58 instances"
+    },
+    "php/laravel_validation_rules": {
+      "php/laravel_validation_rules/Can.php": "1 instances"
     },
     "php/magento2": {
       "php/magento2/AbstractBlock.php": "86 instances",
@@ -1068,9 +1111,21 @@
       "python/airflow/s3.py": "182 instances",
       "python/airflow/scheduler_job_runner.py": "223 instances"
     },
+    "python/airflow_ai_providers": {
+      "python/airflow_ai_providers/openai_src_airflow_providers_openai_hooks_openai.py": "7 instances",
+      "python/airflow_ai_providers/pinecone_src_airflow_providers_pinecone_hooks_pinecone.py": "14 instances",
+      "python/airflow_ai_providers/pinecone_src_airflow_providers_pinecone_operators_pinecone.py": "5 instances",
+      "python/airflow_ai_providers/pinecone_tests_system_pinecone_example_pinecone_cohere.py": "4 instances"
+    },
+    "python/airflow_opsgenie_tests": {
+      "python/airflow_opsgenie_tests/test_opsgenie.py": "1 instances"
+    },
     "python/cython": {
       "python/cython/MemoryView.pyx": "176 instances",
       "python/cython/Nodes.py": "1504 instances"
+    },
+    "python/django_db_tests": {
+      "python/django_db_tests/test_utils.py": "1 instances"
     },
     "python/fastapi/fastapi": {
       "python/fastapi/fastapi/applications.py": "24 instances",
@@ -1122,6 +1177,23 @@
       "python/fastapi/tests/test_ws_router.py": "1 instances",
       "python/fastapi/tests/utils.py": "1 instances"
     },
+    "python/homeassistant_anthropic": {
+      "python/homeassistant_anthropic/coordinator.py": "2 instances"
+    },
+    "python/homeassistant_ble_integrations": {
+      "python/homeassistant_ble_integrations/gardena_bluetooth___init__.py": "2 instances",
+      "python/homeassistant_ble_integrations/utils.py": "2 instances"
+    },
+    "python/langchain_agents": {
+      "python/langchain_agents/langchain_agents_middleware_model_fallback.py": "5 instances",
+      "python/langchain_agents/langchain_agents_middleware_tool_emulator.py": "16 instances",
+      "python/langchain_agents/tests_integration_tests_chat_models_test_base.py": "3 instances"
+    },
+    "python/micropython_usb_tls": {
+      "python/micropython_usb_tls/ssl_verify_callback.py": "1 instances",
+      "python/micropython_usb_tls/tls_dtls.py": "5 instances",
+      "python/micropython_usb_tls/usb_simple_host_pyusb.py": "6 instances"
+    },
     "python/numpy": {
       "python/numpy/_linalg.py": "201 instances",
       "python/numpy/cfuncs.py": "35 instances",
@@ -1137,6 +1209,13 @@
       "python/numpy/testutils.py": "18 instances",
       "python/numpy/ufunc_docstrings.py": "4 instances",
       "python/numpy/verify_c_api_version.py": "1 instances"
+    },
+    "python/pip_vendored_requests": {
+      "python/pip_vendored_requests/packages.py": "7 instances"
+    },
+    "python/thealgorithms_machine_learning": {
+      "python/thealgorithms_machine_learning/logistic_regression.py": "11 instances",
+      "python/thealgorithms_machine_learning/lstm_lstm_prediction.py": "13 instances"
     },
     "python/twisted": {
       "python/twisted/defer.py": "120 instances",
@@ -1188,12 +1267,18 @@
       "ruby/rails/inbound_emails_controller.rb": "1 instances",
       "ruby/rails/metal.rb": "19 instances"
     },
+    "ruby/rails_http_token_auth": {
+      "ruby/rails_http_token_auth/http_token_authentication_test.rb": "13 instances"
+    },
     "rust/bevy": {
       "rust/bevy/bevy_ecs_macros.rs": "14 instances",
       "rust/bevy/bevy_ecs_table.rs": "1 instances",
       "rust/bevy/bevy_ecs_world.rs": "12 instances",
       "rust/bevy/bevy_reflect_path.rs": "2 instances",
       "rust/bevy/bevy_schedule_graph.rs": "16 instances"
+    },
+    "rust/bevy_asset_examples": {
+      "rust/bevy_asset_examples/rotation.rs": "3 instances"
     },
     "rust/holylang": {
       "rust/holylang/compile.rs": "3 instances",
@@ -1219,6 +1304,9 @@
       "rust/tokio/tests.rs": "3 instances",
       "rust/tokio/tokio_mpsc_bounded.rs": "1 instances",
       "rust/tokio/tokio_named_pipe.rs": "12 instances"
+    },
+    "rust/tokio_util_rand": {
+      "rust/tokio_util_rand/rand.rs": "1 instances"
     },
     "rust/wasmtime": {
       "rust/wasmtime/wasmtime_instance.rs": "4 instances",
@@ -1304,6 +1392,9 @@
       "shell/freebsd-src/runulp.sh": "12 instances",
       "shell/freebsd-src/timeout_test.sh": "2 instances",
       "shell/freebsd-src/ztest.sh": "5 instances"
+    },
+    "shell/freebsd_sysbuild": {
+      "shell/freebsd_sysbuild/sysbuild.sh": "50 instances"
     },
     "shell/haiku": {
       "shell/haiku/HardwareChecker.sh": "14 instances",
@@ -1470,15 +1561,27 @@
       "tcl/sqlite/tester.tcl": "401 instances",
       "tcl/sqlite/testrunner.tcl": "345 instances"
     },
+    "typescript/angular_zonejs_mocha": {
+      "typescript/angular_zonejs_mocha/mocha.ts": "5 instances"
+    },
     "typescript/assemblyscript": {
       "typescript/assemblyscript/ast.ts": "27 instances",
       "typescript/assemblyscript/compiler.ts": "991 instances",
       "typescript/assemblyscript/parser.ts": "367 instances"
     },
+    "typescript/excalibur_math": {
+      "typescript/excalibur_math/collision_colliders_separating-axis.ts": "20 instances"
+    },
+    "typescript/excalidraw_text_wrapping": {
+      "typescript/excalidraw_text_wrapping/textWrapping.ts": "36 instances"
+    },
     "typescript/fp-ts": {
       "typescript/fp-ts/Either.ts": "2 instances",
       "typescript/fp-ts/TaskEither.ts": "1 instances",
       "typescript/fp-ts/pipeable.ts": "36 instances"
+    },
+    "typescript/pixijs_examples": {
+      "typescript/pixijs_examples/events_dragging.ts": "4 instances"
     },
     "typescript/playwright": {
       "typescript/playwright/bidiConnection.ts": "21 instances",

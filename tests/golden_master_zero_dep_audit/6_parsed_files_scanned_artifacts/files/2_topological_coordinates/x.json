@@ -1,7 +1,7 @@
 {
   "groups": {
     "abap": {
-      "abap/SOURCES.md": -1073.1
+      "abap/SOURCES.md": -10954.06
     },
     "abap/abapGit": {
       "abap/abapGit/package.devc.xml": -1906.03,
@@ -14,8 +14,8 @@
       "abap/abapGit/zcl_abapgit_xml_output.clas.abap": -1255.86
     },
     "ada": {
-      "ada/PROVENANCE.md": 11719.33,
-      "ada/SOURCES.md": 11567.58
+      "ada/PROVENANCE.md": -9128.16,
+      "ada/SOURCES.md": -9279.91
     },
     "ada/alire": {
       "ada/alire/LICENSE.txt": 3703.75,
@@ -71,7 +71,7 @@
       "ada/functional/test_try_map_to_result.adb": 356.51
     },
     "agc_assembly": {
-      "agc_assembly/SOURCES.md": 10567.91
+      "agc_assembly/SOURCES.md": 1329.22
     },
     "agc_assembly/apollo-11": {
       "agc_assembly/apollo-11/AGC_BLOCK_TWO_SELF-CHECK.agc": 8619.89,
@@ -88,7 +88,7 @@
       "agc_assembly/apollo-11/WAITLIST.agc": 7967.97
     },
     "apex": {
-      "apex/SOURCES.md": 232.08
+      "apex/SOURCES.md": 12922.63
     },
     "apex/apex-recipes": {
       "apex/apex-recipes/AuraEnabledRecipes_Tests.cls": -4622.07,
@@ -101,7 +101,7 @@
       "apex/apex-recipes/sfdx-project.json": -4226.41
     },
     "assembly": {
-      "assembly/SOURCES.md": -10378.35
+      "assembly/SOURCES.md": -2602.18
     },
     "assembly/blst_generated_asm": {
       "assembly/blst_generated_asm/add_mod_256-x86_64.s": -929.63,
@@ -119,16 +119,16 @@
       "assembly/blst_generated_asm/sha256-x86_64.s": -649.79
     },
     "assembly/bootos": {
-      "assembly/bootos/Makefile": -2207.47,
-      "assembly/bootos/counter.asm": -2430.68,
-      "assembly/bootos/os.asm": -2261.8
+      "assembly/bootos/Makefile": -603.91,
+      "assembly/bootos/counter.asm": -827.12,
+      "assembly/bootos/os.asm": -658.25
     },
     "assembly/cosmopolitan": {
-      "assembly/cosmopolitan/BUILD.mk": 2127.81,
-      "assembly/cosmopolitan/ape.S": 1854.23,
-      "assembly/cosmopolitan/loader.c": 2132.92,
-      "assembly/cosmopolitan/notice.inc": 2397.67,
-      "assembly/cosmopolitan/start.S": 1588.8
+      "assembly/cosmopolitan/BUILD.mk": -9673.39,
+      "assembly/cosmopolitan/ape.S": -9946.97,
+      "assembly/cosmopolitan/loader.c": -9668.28,
+      "assembly/cosmopolitan/notice.inc": -9403.53,
+      "assembly/cosmopolitan/start.S": -10212.4
     },
     "assembly/cosmopolitan_runtime": {
       "assembly/cosmopolitan_runtime/argc.S": 7175.55,
@@ -232,10 +232,10 @@
       "assembly/freebsd_libc_string/string_strncmp.S": -6119.1
     },
     "assembly/hellosilicon": {
-      "assembly/hellosilicon/fileio.S": 4506.88,
-      "assembly/hellosilicon/mainpie.s": 4700.21,
-      "assembly/hellosilicon/makefile": 4938.92,
-      "assembly/hellosilicon/matrixmultneon.s": 4685.88
+      "assembly/hellosilicon/fileio.S": 3004.6,
+      "assembly/hellosilicon/mainpie.s": 3197.93,
+      "assembly/hellosilicon/makefile": 3436.63,
+      "assembly/hellosilicon/matrixmultneon.s": 3183.59
     },
     "assembly/hellosilicon_aarch64": {
       "assembly/hellosilicon_aarch64/Chapter_01_HelloWorld.s": 7943.29,
@@ -362,36 +362,36 @@
       "assembly/x86_bare_metal/c_hello_world_entry.S": -303.82
     },
     "assembly/xv6_x86_kernel": {
-      "assembly/xv6_x86_kernel/bootasm.S": -9185.79,
-      "assembly/xv6_x86_kernel/entry.S": -8969.47,
-      "assembly/xv6_x86_kernel/entryother.S": -9418.66,
-      "assembly/xv6_x86_kernel/initcode.S": -8802.07,
-      "assembly/xv6_x86_kernel/swtch.S": -9588.42,
-      "assembly/xv6_x86_kernel/trapasm.S": -9110.73,
-      "assembly/xv6_x86_kernel/usys.S": -9346.76
+      "assembly/xv6_x86_kernel/bootasm.S": -2599.07,
+      "assembly/xv6_x86_kernel/entry.S": -2382.75,
+      "assembly/xv6_x86_kernel/entryother.S": -2831.94,
+      "assembly/xv6_x86_kernel/initcode.S": -2215.35,
+      "assembly/xv6_x86_kernel/swtch.S": -3001.7,
+      "assembly/xv6_x86_kernel/trapasm.S": -2524.02,
+      "assembly/xv6_x86_kernel/usys.S": -2760.04
     },
     "batch": {
-      "batch/SOURCES.md": 654.9
+      "batch/SOURCES.md": -11631.12
     },
     "batch/cpython/Tools/buildbot": {
-      "batch/cpython/Tools/buildbot/clean.bat": -6902.11
+      "batch/cpython/Tools/buildbot/clean.bat": -9542.92
     },
     "batch/cpython/Tools/msi": {
-      "batch/cpython/Tools/msi/build.bat": 12439.21,
-      "batch/cpython/Tools/msi/buildrelease.bat": 12298.98
+      "batch/cpython/Tools/msi/build.bat": -9993.24,
+      "batch/cpython/Tools/msi/buildrelease.bat": -10133.47
     },
     "blueprint": {
-      "blueprint/SOURCES.md": 11949.06
+      "blueprint/SOURCES.md": 3298.22
     },
     "blueprint/ghostty": {
-      "blueprint/ghostty/command-palette.blp": 11532.79,
-      "blueprint/ghostty/imgui-widget.blp": 11802.5,
-      "blueprint/ghostty/split-tree-split.blp": 11270.32,
-      "blueprint/ghostty/split-tree.blp": 12013.67,
-      "blueprint/ghostty/window.blp": 11702.02
+      "blueprint/ghostty/command-palette.blp": -10477.72,
+      "blueprint/ghostty/imgui-widget.blp": -10208.02,
+      "blueprint/ghostty/split-tree-split.blp": -10740.19,
+      "blueprint/ghostty/split-tree.blp": -9996.85,
+      "blueprint/ghostty/window.blp": -10308.49
     },
     "bms": {
-      "bms/SOURCES.md": -1653.99
+      "bms/SOURCES.md": 12551.27
     },
     "bms/cbsa": {
       "bms/cbsa/BNK1ACC.bms": -730.87,
@@ -406,10 +406,13 @@
       "bms/cbsa/PROVENANCE.md": -225.3
     },
     "bms/genapp": {
-      "bms/genapp/ssmap.bms": -10396.31
+      "bms/genapp/ssmap.bms": 11738.1
     },
     "c": {
-      "c/SOURCES.md": -10530.8
+      "c/SOURCES.md": -4668.59
+    },
+    "c/cosmopolitan_intrin": {
+      "c/cosmopolitan_intrin/countbits.c": 658.27
     },
     "c/cpython": {
       "c/cpython/Makefile.pre.in": -5825.84,
@@ -436,6 +439,9 @@
       "c/doom/w_wad.c": -7458.73,
       "c/doom/z_zone.c": -8278.8
     },
+    "c/freebsd_openpam": {
+      "c/freebsd_openpam/pam_acct_mgmt.c": 4800.75
+    },
     "c/micropython": {
       "c/micropython/compile.c": 8031.2,
       "c/micropython/compile.h": 8180.74,
@@ -451,9 +457,9 @@
       "c/micropython/vm.c": 7515.1
     },
     "c/sqlite": {
-      "c/sqlite/LICENSE.md": -10254.52,
-      "c/sqlite/README.md": -10499.04,
-      "c/sqlite/lemon.c": -10283.12
+      "c/sqlite/LICENSE.md": 9057.13,
+      "c/sqlite/README.md": 8812.61,
+      "c/sqlite/lemon.c": 9028.53
     },
     "cobol/CICS-Cobol": {
       "cobol/CICS-Cobol/CBL0102v01DivisionAmbiente.cbl": 1226.3,
@@ -508,10 +514,10 @@
       "cobol/CICS-Cobol/CBL1001v01ManejoCICS.cbl": 1220.07
     },
     "cobol/Z-SMS-Gateway": {
-      "cobol/Z-SMS-Gateway/BALANCE.cbl": -6307.21,
-      "cobol/Z-SMS-Gateway/HISTORY.cbl": -6002.81,
-      "cobol/Z-SMS-Gateway/MESSAGES.cbl": -6035.16,
-      "cobol/Z-SMS-Gateway/SENDSMS.cbl": -5752.89
+      "cobol/Z-SMS-Gateway/BALANCE.cbl": 7445.16,
+      "cobol/Z-SMS-Gateway/HISTORY.cbl": 7749.56,
+      "cobol/Z-SMS-Gateway/MESSAGES.cbl": 7717.21,
+      "cobol/Z-SMS-Gateway/SENDSMS.cbl": 7999.49
     },
     "cobol/aws-mainframe-modernization-carddemo": {
       "cobol/aws-mainframe-modernization-carddemo/CBACT01C.cbl": 5970.43,
@@ -591,16 +597,16 @@
       "cobol/aws-mainframe-modernization-carddemo/UNUSED1Y.cpy": 6591.99
     },
     "cobol/cash-account-cobol": {
-      "cobol/cash-account-cobol/CASH00.cbl": 9907.5,
-      "cobol/cash-account-cobol/DCLCASH.cpy": 9949.84,
-      "cobol/cash-account-cobol/DCLFRANK.cpy": 9720.29
+      "cobol/cash-account-cobol/CASH00.cbl": 11177.09,
+      "cobol/cash-account-cobol/DCLCASH.cpy": 11219.43,
+      "cobol/cash-account-cobol/DCLFRANK.cpy": 10989.88
     },
     "cobol/che-che4z-lsp-for-cobol": {
-      "cobol/che-che4z-lsp-for-cobol/LICENSE.md": 5976.15,
-      "cobol/che-che4z-lsp-for-cobol/NOTICE.md": 5756.79,
-      "cobol/che-che4z-lsp-for-cobol/SQLCA_DATACOM.cpy": 6028.56,
-      "cobol/che-che4z-lsp-for-cobol/SQLCA_DB2.cpy": 5587.69,
-      "cobol/che-che4z-lsp-for-cobol/SQLDA.cpy": 6269.83
+      "cobol/che-che4z-lsp-for-cobol/LICENSE.md": -6073.28,
+      "cobol/che-che4z-lsp-for-cobol/NOTICE.md": -6292.64,
+      "cobol/che-che4z-lsp-for-cobol/SQLCA_DATACOM.cpy": -6020.86,
+      "cobol/che-che4z-lsp-for-cobol/SQLCA_DB2.cpy": -6461.73,
+      "cobol/che-che4z-lsp-for-cobol/SQLDA.cpy": -5779.6
     },
     "cobol/che-che4z_lsp_project_fixtures": {
       "cobol/che-che4z_lsp_project_fixtures/ABCD.cbl": -1058.67,
@@ -943,8 +949,8 @@
       "cobol/cics-genapp/soavpio.cpy": 9408.55
     },
     "cobol/cics-java-jcics-samples": {
-      "cobol/cics-java-jcics-samples/EC01.cbl": -7943.58,
-      "cobol/cics-java-jcics-samples/EDUCHAN.cbl": -7732.84
+      "cobol/cics-java-jcics-samples/EC01.cbl": -10499.89,
+      "cobol/cics-java-jcics-samples/EDUCHAN.cbl": -10289.15
     },
     "cobol/cobol-check": {
       "cobol/cobol-check/TESTPRG.CBL": -7074.38,
@@ -994,13 +1000,13 @@
       "cobol/cobol-check/src_main_cobol_copy_EXR001.CBL": -7418.16
     },
     "cobol/cobol-programming-course": {
-      "cobol/cobol-programming-course/CBL0106.cbl": 5100.58,
-      "cobol/cobol-programming-course/CBL0106C.cbl": 4904.18,
-      "cobol/cobol-programming-course/CBLDB21.cbl": 5221.34,
-      "cobol/cobol-programming-course/CBLDB22.cbl": 4820.89,
-      "cobol/cobol-programming-course/CBLDB23.cbl": 4605.82,
-      "cobol/cobol-programming-course/DEPTPAY.CBL": 4681.69,
-      "cobol/cobol-programming-course/EMPPAY.CBL": 4377.54
+      "cobol/cobol-programming-course/CBL0106.cbl": -7659.8,
+      "cobol/cobol-programming-course/CBL0106C.cbl": -7856.21,
+      "cobol/cobol-programming-course/CBLDB21.cbl": -7539.05,
+      "cobol/cobol-programming-course/CBLDB22.cbl": -7939.5,
+      "cobol/cobol-programming-course/CBLDB23.cbl": -8154.56,
+      "cobol/cobol-programming-course/DEPTPAY.CBL": -8078.7,
+      "cobol/cobol-programming-course/EMPPAY.CBL": -8382.85
     },
     "cobol/cobrix": {
       "cobol/cobrix/companies_copybook.cpy": 5386.24,
@@ -1056,12 +1062,12 @@
       "cobol/gnucobol_internals/syn_misc.at": -4397.0
     },
     "cobol/zECS": {
-      "cobol/zECS/ECS001.cbl": -2852.88,
-      "cobol/zECS/ZECS000.cbl": -2553.27,
-      "cobol/zECS/ZECS003.cbl": -2577.72,
-      "cobol/zECS/ZECSPLT.cbl": -2291.32,
-      "cobol/zECS/ZECSZFC.cpy": -3000.38,
-      "cobol/zECS/ZECSZKC.cpy": -2207.48
+      "cobol/zECS/ECS001.cbl": 9199.51,
+      "cobol/zECS/ZECS000.cbl": 9499.11,
+      "cobol/zECS/ZECS003.cbl": 9474.66,
+      "cobol/zECS/ZECSPLT.cbl": 9761.06,
+      "cobol/zECS/ZECSZFC.cpy": 9052.0,
+      "cobol/zECS/ZECSZKC.cpy": 9844.9
     },
     "cobol/zopeneditor-sample": {
       "cobol/zopeneditor-sample/CUSTCOPY.cpy": 1412.64,
@@ -1074,7 +1080,7 @@
       "cobol/zopeneditor-sample/TRANREC.cpy": 1601.78
     },
     "cpp": {
-      "cpp/SOURCES.md": 2390.26
+      "cpp/SOURCES.md": -11094.81
     },
     "cpp/NVDA": {
       "cpp/NVDA/CODE_OF_CONDUCT.md": 3016.41,
@@ -1126,27 +1132,31 @@
       "cpp/powertoys/main.cpp": -7526.63,
       "cpp/powertoys/powertoy_module.h": -7382.61
     },
+    "cpp/serenity_ak_siphash_cpu": {
+      "cpp/serenity_ak_siphash_cpu/CPUFeatures.cpp": 5348.96,
+      "cpp/serenity_ak_siphash_cpu/SipHash.cpp": 5592.42
+    },
     "csd": {
-      "csd/SOURCES.md": 12825.05
+      "csd/SOURCES.md": 5338.85
     },
     "csd/carddemo": {
-      "csd/carddemo/CARDDEMO.CSD": -9682.48,
-      "csd/carddemo/CRDDEMO2.csd": -9911.89,
-      "csd/carddemo/CRDDEMOD.csd": -9691.69,
-      "csd/carddemo/CRDDEMOM.csd": -9412.55,
-      "csd/carddemo/NOTICE": -9260.44,
-      "csd/carddemo/PROVENANCE.md": -10178.01
+      "csd/carddemo/CARDDEMO.CSD": -1184.66,
+      "csd/carddemo/CRDDEMO2.csd": -1414.07,
+      "csd/carddemo/CRDDEMOD.csd": -1193.86,
+      "csd/carddemo/CRDDEMOM.csd": -914.73,
+      "csd/carddemo/NOTICE": -762.62,
+      "csd/carddemo/PROVENANCE.md": -1680.19
     },
     "csd/cbsa": {
-      "csd/cbsa/BANK.csd": 6705.02,
-      "csd/cbsa/PROVENANCE.md": 6424.64
+      "csd/cbsa/BANK.csd": 4340.55,
+      "csd/cbsa/PROVENANCE.md": 4060.17
     },
     "csd/z_sms_gateway": {
-      "csd/z_sms_gateway/PROVENANCE.md": 9714.33,
-      "csd/z_sms_gateway/ZSMSCSD.csd": 9961.79
+      "csd/z_sms_gateway/PROVENANCE.md": 8429.16,
+      "csd/z_sms_gateway/ZSMSCSD.csd": 8676.62
     },
     "csharp": {
-      "csharp/SOURCES.md": -3930.53
+      "csharp/SOURCES.md": 11779.0
     },
     "csharp/roslyn": {
       "csharp/roslyn/CSharpCompilation.cs": 7562.15,
@@ -1158,58 +1168,58 @@
       "csharp/roslyn/Workspace.cs": 8138.42
     },
     "css": {
-      "css/SOURCES.md": -11427.71
+      "css/SOURCES.md": -6641.69
     },
     "css/bootstrap_dist": {
-      "css/bootstrap_dist/bootstrap-grid.css": 1202.63,
-      "css/bootstrap_dist/bootstrap-reboot.css": 1485.87,
-      "css/bootstrap_dist/bootstrap.rtl.css": 1378.7
+      "css/bootstrap_dist/bootstrap-grid.css": 834.36,
+      "css/bootstrap_dist/bootstrap-reboot.css": 1117.6,
+      "css/bootstrap_dist/bootstrap.rtl.css": 1010.43
     },
     "css/cytoscape_docs": {
-      "css/cytoscape_docs/reset.css": -10683.81,
-      "css/cytoscape_docs/solarized_dark.css": -10880.41,
-      "css/cytoscape_docs/style.css": -10746.99
+      "css/cytoscape_docs/reset.css": -8223.2,
+      "css/cytoscape_docs/solarized_dark.css": -8419.8,
+      "css/cytoscape_docs/style.css": -8286.38
     },
     "css/element": {
-      "css/element/common.css": -3249.29,
-      "css/element/fonts-baseline.css": -3051.92
+      "css/element/common.css": -2958.61,
+      "css/element/fonts-baseline.css": -2761.25
     },
     "css/gutenberg_css_modules": {
-      "css/gutenberg_css_modules/LICENSE.md": -5467.26,
-      "css/gutenberg_css_modules/block-theme-style.css": -5250.2,
-      "css/gutenberg_css_modules/button.module.css": -5646.02,
-      "css/gutenberg_css_modules/card.module.css": -5882.24,
-      "css/gutenberg_css_modules/tabs.module.css": -5382.59
+      "css/gutenberg_css_modules/LICENSE.md": 5977.11,
+      "css/gutenberg_css_modules/block-theme-style.css": 6194.16,
+      "css/gutenberg_css_modules/button.module.css": 5798.34,
+      "css/gutenberg_css_modules/card.module.css": 5562.13,
+      "css/gutenberg_css_modules/tabs.module.css": 6061.77
     },
     "css/mediawiki_resources": {
-      "css/mediawiki_resources/COPYING": -9750.69,
-      "css/mediawiki_resources/apihelp.css": -9352.49,
-      "css/mediawiki_resources/apisandbox.css": -10142.19,
-      "css/mediawiki_resources/diff.styles.print.css": -9898.7,
-      "css/mediawiki_resources/mediawiki.action.history.css": -9497.14,
-      "css/mediawiki_resources/toc.css": -9722.7
+      "css/mediawiki_resources/COPYING": 11310.81,
+      "css/mediawiki_resources/apihelp.css": 11709.0,
+      "css/mediawiki_resources/apisandbox.css": 10919.31,
+      "css/mediawiki_resources/diff.styles.print.css": 11162.8,
+      "css/mediawiki_resources/mediawiki.action.history.css": 11564.35,
+      "css/mediawiki_resources/toc.css": 11338.79
     },
     "css/odoo": {
-      "css/odoo/control_panel_mobile.css": -11269.17,
-      "css/odoo/icons-baseline.css": -11136.64
+      "css/odoo/control_panel_mobile.css": 10085.41,
+      "css/odoo/icons-baseline.css": 10217.94
     },
     "css/tailwindcss_atrules": {
-      "css/tailwindcss_atrules/index.css": 3791.55,
-      "css/tailwindcss_atrules/playground_vite_index.css": 4049.55,
-      "css/tailwindcss_atrules/preflight.css": 3637.77,
-      "css/tailwindcss_atrules/theme.css": 4037.19,
-      "css/tailwindcss_atrules/utilities.css": 4258.78
+      "css/tailwindcss_atrules/index.css": -5699.02,
+      "css/tailwindcss_atrules/playground_vite_index.css": -5441.02,
+      "css/tailwindcss_atrules/preflight.css": -5852.8,
+      "css/tailwindcss_atrules/theme.css": -5453.38,
+      "css/tailwindcss_atrules/utilities.css": -5231.79
     },
     "css/threejs_app_ui": {
-      "css/threejs_app_ui/editor_main.css": 4915.76,
-      "css/threejs_app_ui/examples_main.css": 4936.76,
-      "css/threejs_app_ui/threejs-lessons.css": 4708.8
+      "css/threejs_app_ui/editor_main.css": -6832.1,
+      "css/threejs_app_ui/examples_main.css": -6811.1,
+      "css/threejs_app_ui/threejs-lessons.css": -7039.06
     },
     "css/wordpress": {
-      "css/wordpress/LICENSE.txt": -6383.1
+      "css/wordpress/LICENSE.txt": -5880.34
     },
     "dart": {
-      "dart/SOURCES.md": 4500.52
+      "dart/SOURCES.md": -10234.9
     },
     "dart/flutter": {
       "dart/flutter/editable_text.dart": -7971.74,
@@ -1221,7 +1231,7 @@
       "dart/flutter/theme_data.dart": -8322.22
     },
     "db2_sql": {
-      "db2_sql/SOURCES.md": 12167.57
+      "db2_sql/SOURCES.md": 7189.7
     },
     "db2_sql/db2unit": {
       "db2_sql/db2unit/00-Prereqs.sql": -9259.47,
@@ -1236,7 +1246,7 @@
       "db2_sql/db2unit/PROVENANCE.md": -9860.31
     },
     "dockerfile": {
-      "dockerfile/SOURCES.md": -5948.89
+      "dockerfile/SOURCES.md": 9276.09
     },
     "dockerfile/moby/builder/dockerfile": {
       "dockerfile/moby/builder/dockerfile/buildargs.go": -2026.91,
@@ -1285,8 +1295,8 @@
       "dockerfile/moby/builder/remotecontext/utils_test.go": -9386.11
     },
     "dockerfile/moby/builder/remotecontext/git": {
-      "dockerfile/moby/builder/remotecontext/git/gitutils.go": -6177.44,
-      "dockerfile/moby/builder/remotecontext/git/gitutils_test.go": -6416.38
+      "dockerfile/moby/builder/remotecontext/git/gitutils.go": -8356.94,
+      "dockerfile/moby/builder/remotecontext/git/gitutils_test.go": -8595.88
     },
     "dockerfile/moby/builder/remotecontext/internal/tarsum": {
       "dockerfile/moby/builder/remotecontext/internal/tarsum/builder_context.go": 3857.12,
@@ -1301,17 +1311,17 @@
       "dockerfile/moby/builder/remotecontext/internal/tarsum/writercloser.go": 3553.24
     },
     "dockerfile/moby/builder/remotecontext/urlutil": {
-      "dockerfile/moby/builder/remotecontext/urlutil/urlutil.go": 8964.48,
-      "dockerfile/moby/builder/remotecontext/urlutil/urlutil_test.go": 9231.97
+      "dockerfile/moby/builder/remotecontext/urlutil/urlutil.go": 5360.94,
+      "dockerfile/moby/builder/remotecontext/urlutil/urlutil_test.go": 5628.43
     },
     "dockerfile/moby/test_targets": {
-      "dockerfile/moby/test_targets/daemon.Dockerfile": -7633.74,
-      "dockerfile/moby/test_targets/generate-files.Dockerfile": -7895.51,
-      "dockerfile/moby/test_targets/syscall.Dockerfile": -7608.41,
-      "dockerfile/moby/test_targets/windows.Dockerfile": -7392.58
+      "dockerfile/moby/test_targets/daemon.Dockerfile": 8046.5,
+      "dockerfile/moby/test_targets/generate-files.Dockerfile": 7784.73,
+      "dockerfile/moby/test_targets/syscall.Dockerfile": 8071.82,
+      "dockerfile/moby/test_targets/windows.Dockerfile": 8287.65
     },
     "embedded_python": {
-      "embedded_python/SOURCES.md": -10671.8
+      "embedded_python/SOURCES.md": -7426.46
     },
     "embedded_python/meow_turtle": {
       "embedded_python/meow_turtle/actuators.py": -5110.07,
@@ -1330,7 +1340,7 @@
       "embedded_python/meow_turtle/vibration_driver.py": -5415.39
     },
     "fortran": {
-      "fortran/SOURCES.md": 6532.45
+      "fortran/SOURCES.md": -7999.7
     },
     "fortran/wrf": {
       "fortran/wrf/LICENSE.txt": 5775.84,
@@ -1350,7 +1360,7 @@
       "fortran/wrf/wrf_timeseries.F": 5931.81
     },
     "go": {
-      "go/SOURCES.md": 9420.46
+      "go/SOURCES.md": 8827.93
     },
     "go/core": {
       "go/core/PATENTS": -7330.02,
@@ -1362,6 +1372,9 @@
       "go/core/syscall_linux.go": -6746.38,
       "go/core/value.go": -7339.87
     },
+    "go/go_runtime_rand": {
+      "go/go_runtime_rand/rand.go": 187.64
+    },
     "go/kubernetes": {
       "go/kubernetes/csi_plugin.go": 4724.53,
       "go/kubernetes/generic.go": 5321.64,
@@ -1370,6 +1383,9 @@
       "go/kubernetes/proxier.go": 4973.61,
       "go/kubernetes/replica_set.go": 5036.41,
       "go/kubernetes/scheduler.go": 4532.14
+    },
+    "go/kubernetes_kubectl_tls": {
+      "go/kubernetes_kubectl_tls/create_secret_tls_test.go": 2422.76
     },
     "groovy/fineract_gradle_plugin": {
       "groovy/fineract_gradle_plugin/LICENSE_RELEASE": 9729.51,
@@ -1421,9 +1437,9 @@
       "groovy/godot_android_gradle/java_settings.gradle": -6049.39
     },
     "groovy/gradle": {
-      "groovy/gradle/DefaultPluginManager.java": -5965.74,
-      "groovy/gradle/DefaultProject.java": -5712.46,
-      "groovy/gradle/DefaultTask.java": -5627.18
+      "groovy/gradle/DefaultPluginManager.java": -3723.62,
+      "groovy/gradle/DefaultProject.java": -3470.35,
+      "groovy/gradle/DefaultTask.java": -3385.07
     },
     "groovy/gradle_buildlogic_groovy": {
       "groovy/gradle_buildlogic_groovy/binary-compatibility_src_main_groovy_gradlebuild_EnrichedReportRenderer.groovy": -897.8,
@@ -1609,10 +1625,10 @@
       "groovy/retrofit_gradle/retrofit-converters_jaxb_build.gradle": -7183.57
     },
     "groovy/spock": {
-      "groovy/spock/DeepBlockRewriter.java": 9100.66,
-      "groovy/spock/SpecParser.java": 8816.98,
-      "groovy/spock/SpecRewriter.java": 9010.99,
-      "groovy/spock/SpockTransform.java": 9272.76
+      "groovy/spock/DeepBlockRewriter.java": -7601.77,
+      "groovy/spock/SpecParser.java": -7885.45,
+      "groovy/spock/SpecRewriter.java": -7691.45,
+      "groovy/spock/SpockTransform.java": -7429.67
     },
     "groovy/spock_core_groovy": {
       "groovy/spock_core_groovy/build-logic_base_src_main_groovy_org_spockframework_gradle_AsciiDocLinkVerifier.groovy": 5316.18,
@@ -1722,7 +1738,7 @@
       "groovy/spring_boot_gradle/integration-test_spring-boot-server-integration-tests_build.gradle": 3555.42
     },
     "haskell": {
-      "haskell/SOURCES.md": -6583.78
+      "haskell/SOURCES.md": 7965.73
     },
     "haskell/pandoc": {
       "haskell/pandoc/AUTHORS.md": 11031.4,
@@ -1738,8 +1754,8 @@
       "haskell/pandoc/Shared.hs": 11344.54
     },
     "hlasm": {
-      "hlasm/PROVENANCE.md": -969.53,
-      "hlasm/SOURCES.md": -1126.81
+      "hlasm/PROVENANCE.md": -4792.23,
+      "hlasm/SOURCES.md": -4949.51
     },
     "hlasm/che4z_hlasm": {
       "hlasm/che4z_hlasm/A.hlasm": -6124.29,
@@ -1761,120 +1777,131 @@
       "hlasm/che4z_hlasm/virtual_file.hlasm": -5555.0
     },
     "hlasm/zecs": {
-      "hlasm/zecs/ZECS002.asm": -6917.87,
-      "hlasm/zecs/ZECSNC.asm": -7164.71
+      "hlasm/zecs/ZECS002.asm": 2650.93,
+      "hlasm/zecs/ZECSNC.asm": 2404.08
     },
     "hlasm/zopeneditor_sample": {
-      "hlasm/zopeneditor_sample/ASAM1.asm": 8355.0,
-      "hlasm/zopeneditor_sample/REGISTRS.asm": 8074.21
+      "hlasm/zopeneditor_sample/ASAM1.asm": -11068.71,
+      "hlasm/zopeneditor_sample/REGISTRS.asm": -11349.49
     },
     "hlo": {
-      "hlo/SOURCES.md": -7996.31
+      "hlo/SOURCES.md": -8777.55
     },
     "hlo/xla/gpu_emitters": {
-      "hlo/xla/gpu_emitters/f4e2m1fn_intrinsics.hlo": -2256.83,
-      "hlo/xla/gpu_emitters/reduction_groups_two_in_same_group.hlo": -2244.17,
-      "hlo/xla/gpu_emitters/side_output.hlo": -2480.76
+      "hlo/xla/gpu_emitters/f4e2m1fn_intrinsics.hlo": -9964.24,
+      "hlo/xla/gpu_emitters/reduction_groups_two_in_same_group.hlo": -9951.58,
+      "hlo/xla/gpu_emitters/side_output.hlo": -10188.17
     },
     "html": {
-      "html/SOURCES.md": 8282.33
+      "html/SOURCES.md": -6969.77
     },
     "html/angular_adev_templates": {
-      "html/angular_adev_templates/api-reference-list.component.html": -7605.0,
-      "html/angular_adev_templates/app.component.html": -7415.07,
-      "html/angular_adev_templates/navigation.component.html": -7443.75,
-      "html/angular_adev_templates/playground.component.html": -7204.7,
-      "html/angular_adev_templates/update.component.html": -7799.1
+      "html/angular_adev_templates/api-reference-list.component.html": 5540.43,
+      "html/angular_adev_templates/app.component.html": 5730.37,
+      "html/angular_adev_templates/navigation.component.html": 5701.69,
+      "html/angular_adev_templates/playground.component.html": 5940.73,
+      "html/angular_adev_templates/update.component.html": 5346.34
     },
     "html/baseline": {
-      "html/baseline/control_polyglot.html": 3756.32,
-      "html/baseline/control_standard.html": 3499.07
+      "html/baseline/control_polyglot.html": 2055.02,
+      "html/baseline/control_standard.html": 1797.78
     },
     "html/cesium_sandcastle": {
-      "html/cesium_sandcastle/CesiumViewer_index.html": -3441.29,
-      "html/cesium_sandcastle/HelloWorld.html": -3745.09,
-      "html/cesium_sandcastle/LICENSE.md": -3525.91,
-      "html/cesium_sandcastle/bucket.html": -3263.19,
-      "html/cesium_sandcastle/gallery_cylinders_and_cones.html": -3939.42
+      "html/cesium_sandcastle/CesiumViewer_index.html": 4106.79,
+      "html/cesium_sandcastle/HelloWorld.html": 3802.99,
+      "html/cesium_sandcastle/LICENSE.md": 4022.17,
+      "html/cesium_sandcastle/bucket.html": 4284.89,
+      "html/cesium_sandcastle/gallery_cylinders_and_cones.html": 3608.66
     },
     "html/cpython_jinja": {
-      "html/cpython_jinja/LICENSE.txt": 9257.36,
-      "html/cpython_jinja/download.html": 9354.03,
-      "html/cpython_jinja/layout.html": 9481.3,
-      "html/cpython_jinja/search.html": 9063.83
+      "html/cpython_jinja/LICENSE.txt": 9878.39,
+      "html/cpython_jinja/download.html": 9975.07,
+      "html/cpython_jinja/layout.html": 10102.33,
+      "html/cpython_jinja/search.html": 9684.87
     },
     "html/html5_boilerplate": {
-      "html/html5_boilerplate/LICENSE.txt": 7982.44,
-      "html/html5_boilerplate/dist_404.html": 8259.0,
-      "html/html5_boilerplate/dist_index.html": 7820.72,
-      "html/html5_boilerplate/src_404.html": 7599.27,
-      "html/html5_boilerplate/src_index.html": 8021.31
+      "html/html5_boilerplate/LICENSE.txt": 7449.41,
+      "html/html5_boilerplate/dist_404.html": 7725.97,
+      "html/html5_boilerplate/dist_index.html": 7287.69,
+      "html/html5_boilerplate/src_404.html": 7066.23,
+      "html/html5_boilerplate/src_index.html": 7488.28
     },
     "html/jquery_test_fixtures": {
-      "html/jquery_test_fixtures/LICENSE.txt": 9828.22,
-      "html/jquery_test_fixtures/csp-nonce.html": 9438.19,
-      "html/jquery_test_fixtures/iframe.html": 10248.39,
-      "html/jquery_test_fixtures/name.html": 9768.8,
-      "html/jquery_test_fixtures/qunit-fixture.html": 9707.57,
-      "html/jquery_test_fixtures/table.html": 9895.07,
-      "html/jquery_test_fixtures/trusted-html.html": 10119.12
+      "html/jquery_test_fixtures/LICENSE.txt": 391.17,
+      "html/jquery_test_fixtures/csp-nonce.html": 1.14,
+      "html/jquery_test_fixtures/iframe.html": 811.35,
+      "html/jquery_test_fixtures/name.html": 331.75,
+      "html/jquery_test_fixtures/qunit-fixture.html": 270.53,
+      "html/jquery_test_fixtures/table.html": 458.03,
+      "html/jquery_test_fixtures/trusted-html.html": 682.08
     },
     "html/odoo_mako": {
-      "html/odoo_mako/LICENSE.txt": 8401.82,
-      "html/odoo_mako/mako_footer.html": 8212.24,
-      "html/odoo_mako/mako_header.html": 8512.31,
-      "html/odoo_mako/status_display.html": 8664.65
+      "html/odoo_mako/LICENSE.txt": 9266.5,
+      "html/odoo_mako/mako_footer.html": 9076.92,
+      "html/odoo_mako/mako_header.html": 9376.99,
+      "html/odoo_mako/status_display.html": 9529.33
     },
     "html/playwright_dom_fixtures": {
-      "html/playwright_dom_fixtures/csp.html": 2424.29,
-      "html/playwright_dom_fixtures/dynamic-oopif.html": 1884.74,
-      "html/playwright_dom_fixtures/headings.html": 2032.95,
-      "html/playwright_dom_fixtures/historyapi.html": 2274.81,
-      "html/playwright_dom_fixtures/overflow-large.html": 2001.63,
-      "html/playwright_dom_fixtures/window-stop.html": 1609.11
+      "html/playwright_dom_fixtures/csp.html": -3121.65,
+      "html/playwright_dom_fixtures/dynamic-oopif.html": -3661.2,
+      "html/playwright_dom_fixtures/headings.html": -3512.99,
+      "html/playwright_dom_fixtures/historyapi.html": -3271.12,
+      "html/playwright_dom_fixtures/overflow-large.html": -3544.31,
+      "html/playwright_dom_fixtures/window-stop.html": -3936.83
     },
     "html/polyglot_emscripten": {
-      "html/polyglot_emscripten/LICENSE.txt": 865.37,
-      "html/polyglot_emscripten/pyrepl_index.html": 732.83
+      "html/polyglot_emscripten/LICENSE.txt": -8824.32,
+      "html/polyglot_emscripten/pyrepl_index.html": -8956.87
     },
     "html/polyglot_odoo": {
-      "html/polyglot_odoo/LICENSE.txt": 5509.76,
-      "html/polyglot_odoo/database_manager.qweb.html": 5322.07
+      "html/polyglot_odoo/LICENSE.txt": 12040.69,
+      "html/polyglot_odoo/database_manager.qweb.html": 11853.0
     },
     "html/polyglot_vscode": {
-      "html/polyglot_vscode/LICENSE.txt": 1683.92,
-      "html/polyglot_vscode/vscode_builtin.html": 1539.45
+      "html/polyglot_vscode/LICENSE.txt": 3701.32,
+      "html/polyglot_vscode/vscode_builtin.html": 3556.86
     },
     "html/revealjs_decks": {
-      "html/revealjs_decks/500-slides.html": -6882.67,
-      "html/revealjs_decks/auto-animate.html": -7259.66,
-      "html/revealjs_decks/barebones.html": -7439.35,
-      "html/revealjs_decks/demo.html": -7113.99,
-      "html/revealjs_decks/math.html": -7024.25
+      "html/revealjs_decks/500-slides.html": -7188.58,
+      "html/revealjs_decks/auto-animate.html": -7565.57,
+      "html/revealjs_decks/barebones.html": -7745.26,
+      "html/revealjs_decks/demo.html": -7419.9,
+      "html/revealjs_decks/math.html": -7330.16
     },
     "html/threejs_shader_examples": {
-      "html/threejs_shader_examples/webgl_buffergeometry_custom_attributes_particles.html": 7503.73,
-      "html/threejs_shader_examples/webgl_buffergeometry_instancing_billboards.html": 7709.8,
-      "html/threejs_shader_examples/webgl_buffergeometry_rawshader.html": 7064.41,
-      "html/threejs_shader_examples/webgl_buffergeometry_selective_draw.html": 7498.19,
-      "html/threejs_shader_examples/webgl_custom_attributes.html": 7301.75
+      "html/threejs_shader_examples/webgl_buffergeometry_custom_attributes_particles.html": -5700.73,
+      "html/threejs_shader_examples/webgl_buffergeometry_instancing_billboards.html": -5494.66,
+      "html/threejs_shader_examples/webgl_buffergeometry_rawshader.html": -6140.04,
+      "html/threejs_shader_examples/webgl_buffergeometry_selective_draw.html": -5706.27,
+      "html/threejs_shader_examples/webgl_custom_attributes.html": -5902.7
     },
     "html/vscode_webviews": {
-      "html/vscode_webviews/LICENSE.txt": -9976.78,
-      "html/vscode_webviews/build_builtin_index.html": -10371.82,
-      "html/vscode_webviews/github_auth_media_index.html": -10087.62,
-      "html/vscode_webviews/webWorkerExtensionHostIframe.html": -9948.09,
-      "html/vscode_webviews/webview_pre_index.html": -9561.96,
-      "html/vscode_webviews/workbench.html": -9687.47
+      "html/vscode_webviews/LICENSE.txt": 12272.38,
+      "html/vscode_webviews/build_builtin_index.html": 11877.33,
+      "html/vscode_webviews/github_auth_media_index.html": 12161.54,
+      "html/vscode_webviews/webWorkerExtensionHostIframe.html": 12301.07,
+      "html/vscode_webviews/webview_pre_index.html": 12687.19,
+      "html/vscode_webviews/workbench.html": 12561.68
     },
     "html/wordpress_blocks": {
-      "html/wordpress_blocks/LICENSE.txt": -3501.33,
-      "html/wordpress_blocks/index.html": -3644.16,
-      "html/wordpress_blocks/page.html": -3389.61,
-      "html/wordpress_blocks/search.html": -3263.88
+      "html/wordpress_blocks/LICENSE.txt": -2267.29,
+      "html/wordpress_blocks/index.html": -2410.12,
+      "html/wordpress_blocks/page.html": -2155.58,
+      "html/wordpress_blocks/search.html": -2029.84
     },
     "java": {
-      "java/SOURCES.md": 8288.36
+      "java/SOURCES.md": 8875.65
+    },
+    "java/flutter_android_editing_tests": {
+      "java/flutter_android_editing_tests/InputConnectionAdaptorTest.java": -1045.17
+    },
+    "java/jenkins_cli": {
+      "java/jenkins_cli/LICENSE.txt": 3497.63,
+      "java/jenkins_cli/SetBuildDescriptionCommand.java": 3733.42
+    },
+    "java/selenium_grid_session_queue": {
+      "java/selenium_grid_session_queue/NOTICE": -9824.75,
+      "java/selenium_grid_session_queue/RemoteNewSessionQueue.java": -9670.93
     },
     "java/springboot": {
       "java/springboot/AutoConfigurationImportSelector.java": -8859.93,
@@ -1887,7 +1914,14 @@
       "java/springboot/WebMvcAutoConfiguration.java": -8638.2
     },
     "javascript": {
-      "javascript/SOURCES.md": -8015.44
+      "javascript/SOURCES.md": 5652.13
+    },
+    "javascript/cesium_particle_emitters": {
+      "javascript/cesium_particle_emitters/CircleEmitter.js": -10517.67,
+      "javascript/cesium_particle_emitters/LICENSE.md": -10787.1
+    },
+    "javascript/javascript_algorithms_bits": {
+      "javascript/javascript_algorithms_bits/fullAdder.js": -8034.49
     },
     "javascript/jquery": {
       "javascript/jquery/LICENSE.txt": 2242.15,
@@ -1899,6 +1933,15 @@
       "javascript/jquery/event.js": 2227.98,
       "javascript/jquery/tokenize.js": 2430.09
     },
+    "javascript/node_tls_security_tests": {
+      "javascript/node_tls_security_tests/regexp-unicode-sets.js": 8021.34,
+      "javascript/node_tls_security_tests/test-crypto-dh-modp2.js": 7857.22,
+      "javascript/node_tls_security_tests/test-fs-lchown.js": 8386.42,
+      "javascript/node_tls_security_tests/test-https-host-headers.js": 8070.95,
+      "javascript/node_tls_security_tests/test-tls-cert-ext-encoding.js": 7732.29,
+      "javascript/node_tls_security_tests/test-tls-psk-server.js": 7504.72,
+      "javascript/node_tls_security_tests/test-tls-use-after-free-regression.js": 8303.77
+    },
     "javascript/react": {
       "javascript/react/BabelPlugin.ts": -5581.47,
       "javascript/react/ReactFiberBeginWork.js": -5032.68,
@@ -1906,6 +1949,9 @@
       "javascript/react/ReactFlightServer.js": -5061.72,
       "javascript/react/ReactSymbols.js": -4595.42,
       "javascript/react/build.js": -4765.91
+    },
+    "javascript/react_error_codes": {
+      "javascript/react_error_codes/extract-errors.js": -1668.35
     },
     "javascript/threejs": {
       "javascript/threejs/BufferGeometry.js": -9337.82,
@@ -1917,9 +1963,9 @@
       "javascript/threejs/WebGLRenderer.js": -9176.94
     },
     "jcl/cash-account-cobol": {
-      "jcl/cash-account-cobol/DB2BIND.jcl": 11975.9,
-      "jcl/cash-account-cobol/DB2DDL.jcl": 12201.57,
-      "jcl/cash-account-cobol/DEFKSDS.jcl": 12207.36
+      "jcl/cash-account-cobol/DB2BIND.jcl": -7117.16,
+      "jcl/cash-account-cobol/DB2DDL.jcl": -6891.49,
+      "jcl/cash-account-cobol/DEFKSDS.jcl": -6885.69
     },
     "jcl/cics-banking-sample-application-cbsa": {
       "jcl/cics-banking-sample-application-cbsa/ABNDPROC.jcl": 1686.88,
@@ -2055,7 +2101,7 @@
       "jcl/cics-genapp/wsavp01.jcl": -4747.93
     },
     "jcl/cics-java-jcics-samples": {
-      "jcl/cics-java-jcics-samples/etc_VSAM_DEFVSAM.jcl": -4737.95
+      "jcl/cics-java-jcics-samples/etc_VSAM_DEFVSAM.jcl": 3139.57
     },
     "jcl/cobol-programming-course": {
       "jcl/cobol-programming-course/ADDAMT.jcl": 2781.28,
@@ -2115,18 +2161,18 @@
       "jcl/zopeneditor-sample/RUNPSAM1.jcl": 5111.28
     },
     "json": {
-      "json/SOURCES.md": -7298.19
+      "json/SOURCES.md": -8863.25
     },
     "json/baseline": {
-      "json/baseline/control-package.json": -10477.12
+      "json/baseline/control-package.json": 12189.02
     },
     "json/kafka/message": {
-      "json/kafka/message/DescribeTransactionsResponse.json": 816.96,
-      "json/kafka/message/SaslAuthenticateRequest.json": 1063.92,
-      "json/kafka/message/VoteRequest.json": 1069.11
+      "json/kafka/message/DescribeTransactionsResponse.json": 11256.09,
+      "json/kafka/message/SaslAuthenticateRequest.json": 11503.05,
+      "json/kafka/message/VoteRequest.json": 11508.24
     },
     "kotlin": {
-      "kotlin/SOURCES.md": 8095.74
+      "kotlin/SOURCES.md": -5328.34
     },
     "kotlin/okhttp": {
       "kotlin/okhttp/Call.kt": -7955.61,
@@ -2138,7 +2184,7 @@
       "kotlin/okhttp/build.gradle.kts": -8250.48
     },
     "livecode": {
-      "livecode/SOURCES.md": 5916.54
+      "livecode/SOURCES.md": 9749.88
     },
     "livecode/livecode": {
       "livecode/livecode/_clipboard_private_setter.livecodescript": -3564.51,
@@ -2241,7 +2287,7 @@
       "livecode/livecode/trivial.livecodescript": -898.4
     },
     "lua": {
-      "lua/SOURCES.md": -7974.0
+      "lua/SOURCES.md": 4296.47
     },
     "lua/cosmopolitan": {
       "lua/cosmopolitan/all.lua": -2448.03,
@@ -2369,32 +2415,42 @@
       "lua/redis/xd.lua": -3233.51
     },
     "m4": {
-      "m4/SOURCES.md": -5812.71
+      "m4/SOURCES.md": -10159.1
     },
     "m4/curl": {
-      "m4/curl/COPYING": 11210.89,
-      "m4/curl/configure.ac": 11452.43
+      "m4/curl/COPYING": 8083.12,
+      "m4/curl/configure.ac": 8324.66
     },
     "m4/curl/m4": {
-      "m4/curl/m4/curl-confopts.m4": 12094.43,
-      "m4/curl/m4/curl-mbedtls.m4": 12378.84,
-      "m4/curl/m4/curl-sysconfig.m4": 11852.35,
-      "m4/curl/m4/xc-am-iface.m4": 12587.7,
-      "m4/curl/m4/zz40-xc-ovr.m4": 12321.21
+      "m4/curl/m4/curl-confopts.m4": -11155.94,
+      "m4/curl/m4/curl-mbedtls.m4": -10871.54,
+      "m4/curl/m4/curl-sysconfig.m4": -11398.03,
+      "m4/curl/m4/xc-am-iface.m4": -10662.68,
+      "m4/curl/m4/zz40-xc-ovr.m4": -10929.17
     },
     "m4/gnucobol": {
-      "m4/gnucobol/COPYING": -10198.11,
-      "m4/gnucobol/configure.ac": -9949.06
+      "m4/gnucobol/COPYING": -5581.79,
+      "m4/gnucobol/configure.ac": -5332.74
     },
     "makefile": {
-      "makefile/SOURCES.md": 9057.26
+      "makefile/SOURCES.md": -3123.63
     },
     "makefile/freebsd": {
-      "makefile/freebsd/COPYRIGHT": 10172.09,
-      "makefile/freebsd/Makefile": 10391.51
+      "makefile/freebsd/COPYRIGHT": 7132.54,
+      "makefile/freebsd/Makefile": 7351.96
+    },
+    "markdown": {
+      "markdown/SOURCES.md": 10486.5
+    },
+    "markdown/airflow_job_lifecycle": {
+      "markdown/airflow_job_lifecycle/JOB_LIFECYCLE.md": -6385.47,
+      "markdown/airflow_job_lifecycle/NOTICE": -6538.99
+    },
+    "markdown/kubernetes_client_go": {
+      "markdown/kubernetes_client_go/ARCHITECTURE.md": 9925.05
     },
     "matlab": {
-      "matlab/SOURCES.md": 4761.54
+      "matlab/SOURCES.md": 2557.69
     },
     "matlab/eeglab": {
       "matlab/eeglab/README.md": -9707.24,
@@ -2406,31 +2462,31 @@
       "matlab/eeglab/supergui.m": -9589.87
     },
     "mlir": {
-      "mlir/SOURCES.md": -9523.2
+      "mlir/SOURCES.md": -10727.65
     },
     "mlir/tensorflow/compiler/mlir/tfrt/tests": {
-      "mlir/tensorflow/compiler/mlir/tfrt/tests/runtime_lowering_gpu.mlir": 4121.12,
-      "mlir/tensorflow/compiler/mlir/tfrt/tests/xla_rewrite.mlir": 4310.49
+      "mlir/tensorflow/compiler/mlir/tfrt/tests/runtime_lowering_gpu.mlir": 9445.48,
+      "mlir/tensorflow/compiler/mlir/tfrt/tests/xla_rewrite.mlir": 9634.84
     },
     "mlir/tensorflow/compiler/mlir/tfrt/tests/mlrt": {
-      "mlir/tensorflow/compiler/mlir/tfrt/tests/mlrt/tpu_conversions.mlir": 5572.96
+      "mlir/tensorflow/compiler/mlir/tfrt/tests/mlrt/tpu_conversions.mlir": -5958.53
     },
     "nix": {
-      "nix/SOURCES.md": -3501.55
+      "nix/SOURCES.md": -1561.17
     },
     "nix/bun": {
-      "nix/bun/LICENSE.md": -219.71,
-      "nix/bun/flake.nix": -258.38,
-      "nix/bun/shell.nix": -475.51
+      "nix/bun/LICENSE.md": -10725.72,
+      "nix/bun/flake.nix": -10764.39,
+      "nix/bun/shell.nix": -10981.51
     },
     "nix/ghostty": {
-      "nix/ghostty/build.zig": 5735.5,
-      "nix/ghostty/default.nix": 5781.13,
-      "nix/ghostty/flake.nix": 5450.16,
-      "nix/ghostty/shell.nix": 5945.93
+      "nix/ghostty/build.zig": 8475.47,
+      "nix/ghostty/default.nix": 8521.11,
+      "nix/ghostty/flake.nix": 8190.13,
+      "nix/ghostty/shell.nix": 8685.9
     },
     "objective-c": {
-      "objective-c/SOURCES.md": 9908.81
+      "objective-c/SOURCES.md": 10915.66
     },
     "objective-c/worldwideweb": {
       "objective-c/worldwideweb/Anchor.m": -5763.56,
@@ -2441,14 +2497,18 @@
       "objective-c/worldwideweb/TcpAccess.m": -5654.48
     },
     "perl": {
-      "perl/SOURCES.md": 3141.43
+      "perl/SOURCES.md": 713.14
+    },
+    "perl/ack3_tests": {
+      "perl/ack3_tests/LICENSE.md": -3253.0,
+      "perl/ack3_tests/file-permission.t": -3027.52
     },
     "perl/bugzilla": {
-      "perl/bugzilla/Auth.pm": -5178.0,
-      "perl/bugzilla/Bug.pm": -4644.43,
-      "perl/bugzilla/CGI.pm": -4563.34,
-      "perl/bugzilla/DB.pm": -4950.02,
-      "perl/bugzilla/Requirements.pm": -4297.73
+      "perl/bugzilla/Auth.pm": 8233.95,
+      "perl/bugzilla/Bug.pm": 8767.52,
+      "perl/bugzilla/CGI.pm": 8848.6,
+      "perl/bugzilla/DB.pm": 8461.92,
+      "perl/bugzilla/Requirements.pm": 9114.21
     },
     "perl/exiftool": {
       "perl/exiftool/ExifTool.pm": 3162.11,
@@ -2459,11 +2519,11 @@
       "perl/exiftool/exiftool": 2840.28
     },
     "perl/mojo": {
-      "perl/mojo/IOLoop.pm": 448.47,
-      "perl/mojo/Makefile.PL": -62.44,
-      "perl/mojo/Promise.pm": 147.53,
-      "perl/mojo/Template.pm": 452.37,
-      "perl/mojo/WebSocket.pm": 759.32
+      "perl/mojo/IOLoop.pm": -9710.65,
+      "perl/mojo/Makefile.PL": -10221.56,
+      "perl/mojo/Promise.pm": -10011.59,
+      "perl/mojo/Template.pm": -9706.75,
+      "perl/mojo/WebSocket.pm": -9399.8
     },
     "perl/spamassassin": {
       "perl/spamassassin/AsyncLoop.pm": 7507.68,
@@ -2476,7 +2536,7 @@
       "perl/spamassassin/SpamAssassin.pm": 7346.06
     },
     "php": {
-      "php/SOURCES.md": -10224.92
+      "php/SOURCES.md": -10781.73
     },
     "php/guzzle": {
       "php/guzzle/Client.php": 8706.51,
@@ -2497,6 +2557,10 @@
       "php/laravel_core/Model.php": -3069.71,
       "php/laravel_core/Router.php": -2485.07
     },
+    "php/laravel_validation_rules": {
+      "php/laravel_validation_rules/Can.php": 12504.77,
+      "php/laravel_validation_rules/LICENSE.md": 12246.97
+    },
     "php/magento2": {
       "php/magento2/AbstractBlock.php": -6486.37,
       "php/magento2/AbstractModel.php": -6120.92,
@@ -2516,6 +2580,9 @@
       "php/symfony/Request.php": -2620.27,
       "php/symfony/Router.php": -2711.44
     },
+    "php/symfony_emoji_data": {
+      "php/symfony_emoji_data/emoji-ccp.php": -3991.83
+    },
     "php/wordpress": {
       "php/wordpress/admin-ajax.php": 5790.89,
       "php/wordpress/class-wp-query.php": 5960.22,
@@ -2527,26 +2594,26 @@
       "php/wordpress/wp-settings.php": 6367.72
     },
     "plaintext": {
-      "plaintext/SOURCES.md": -2139.65
+      "plaintext/SOURCES.md": 228.62
     },
     "plaintext/ansible": {
-      "plaintext/ansible/COPYING": 2627.53,
-      "plaintext/ansible/requirements.txt": 2432.35
+      "plaintext/ansible/COPYING": -7537.74,
+      "plaintext/ansible/requirements.txt": -7732.93
     },
     "plaintext/cpython/Lib/test/tokenizedata": {
-      "plaintext/cpython/Lib/test/tokenizedata/tokenize_tests-utf8-coding-cookie-and-no-utf8-bom-sig.txt": -7987.51
+      "plaintext/cpython/Lib/test/tokenizedata/tokenize_tests-utf8-coding-cookie-and-no-utf8-bom-sig.txt": -9308.41
     },
     "plaintext/cpython/Tools/unittestgui": {
-      "plaintext/cpython/Tools/unittestgui/README.txt": 8793.2
+      "plaintext/cpython/Tools/unittestgui/README.txt": -6387.69
     },
     "plaintext/opencv/data": {
-      "plaintext/opencv/data/CMakeLists.txt": 7924.0
+      "plaintext/opencv/data/CMakeLists.txt": 9277.26
     },
     "plaintext/opencv/include": {
-      "plaintext/opencv/include/CMakeLists.txt": -8725.09
+      "plaintext/opencv/include/CMakeLists.txt": 5285.36
     },
     "pli": {
-      "pli/SOURCES.md": 10492.24
+      "pli/SOURCES.md": 12228.98
     },
     "pli/dsf_cics_admin": {
       "pli/dsf_cics_admin/LICENSE.md": -1368.23,
@@ -2563,13 +2630,13 @@
       "pli/dsf_cics_admin/R001TK62.pli": -1188.07
     },
     "pli/zopeneditor_sample": {
-      "pli/zopeneditor_sample/PROVENANCE.md": 7917.33,
-      "pli/zopeneditor_sample/PSAM1.pli": 7704.01,
-      "pli/zopeneditor_sample/PSAM1LIB.pli": 7443.2,
-      "pli/zopeneditor_sample/PSAM2.pli": 7722.08
+      "pli/zopeneditor_sample/PROVENANCE.md": -6863.68,
+      "pli/zopeneditor_sample/PSAM1.pli": -7077.0,
+      "pli/zopeneditor_sample/PSAM1LIB.pli": -7337.82,
+      "pli/zopeneditor_sample/PSAM2.pli": -7058.94
     },
     "powershell": {
-      "powershell/SOURCES.md": 1288.1
+      "powershell/SOURCES.md": -1214.89
     },
     "powershell/PowerToys": {
       "powershell/PowerToys/Build-Awake.ps1": -4613.81,
@@ -2709,27 +2776,38 @@
       "powershell/runtime/update-machine-certs.ps1": -2527.97
     },
     "proto": {
-      "proto/SOURCES.md": -10199.31
+      "proto/SOURCES.md": -10955.03
     },
     "proto/tensorflow/framework": {
-      "proto/tensorflow/framework/dataset.proto": 12217.26,
-      "proto/tensorflow/framework/graph.proto": 12440.08,
-      "proto/tensorflow/framework/tensor.proto": 12418.96
+      "proto/tensorflow/framework/dataset.proto": -6399.78,
+      "proto/tensorflow/framework/graph.proto": -6176.96,
+      "proto/tensorflow/framework/tensor.proto": -6198.08
     },
     "protobuf": {
-      "protobuf/SOURCES.md": -433.16
+      "protobuf/SOURCES.md": 2031.55
     },
     "protobuf/baseline": {
-      "protobuf/baseline/control.proto": -5925.25
+      "protobuf/baseline/control.proto": 6513.74
     },
     "python": {
-      "python/SOURCES.md": 11675.0
+      "python/SOURCES.md": 12975.04
     },
     "python/airflow": {
-      "python/airflow/NOTICE": 11636.68,
-      "python/airflow/dag.py": 11395.47,
-      "python/airflow/s3.py": 11055.74,
-      "python/airflow/scheduler_job_runner.py": 11326.35
+      "python/airflow/NOTICE": -9640.79,
+      "python/airflow/dag.py": -9882.0,
+      "python/airflow/s3.py": -10221.73,
+      "python/airflow/scheduler_job_runner.py": -9951.12
+    },
+    "python/airflow_ai_providers": {
+      "python/airflow_ai_providers/NOTICE": 1.03,
+      "python/airflow_ai_providers/openai_src_airflow_providers_openai_hooks_openai.py": 445.93,
+      "python/airflow_ai_providers/pinecone_src_airflow_providers_pinecone_hooks_pinecone.py": 180.73,
+      "python/airflow_ai_providers/pinecone_src_airflow_providers_pinecone_operators_pinecone.py": 406.55,
+      "python/airflow_ai_providers/pinecone_tests_system_pinecone_example_pinecone_cohere.py": 680.17
+    },
+    "python/airflow_opsgenie_tests": {
+      "python/airflow_opsgenie_tests/NOTICE": -3348.91,
+      "python/airflow_opsgenie_tests/test_opsgenie.py": -3180.77
     },
     "python/cython": {
       "python/cython/COPYING.txt": 11828.92,
@@ -2739,10 +2817,14 @@
       "python/cython/MemoryView.pyx": 11121.05,
       "python/cython/Nodes.py": 11430.66
     },
+    "python/django_db_tests": {
+      "python/django_db_tests/test_iterator.py": -1954.86,
+      "python/django_db_tests/test_utils.py": -1664.8
+    },
     "python/fastapi": {
-      "python/fastapi/CONTRIBUTING.md": -11340.28,
-      "python/fastapi/README.md": -11138.82,
-      "python/fastapi/SECURITY.md": -11195.02
+      "python/fastapi/CONTRIBUTING.md": 6535.88,
+      "python/fastapi/README.md": 6737.35,
+      "python/fastapi/SECURITY.md": 6681.15
     },
     "python/fastapi/fastapi": {
       "python/fastapi/fastapi/__init__.py": 4560.35,
@@ -2976,6 +3058,26 @@
       "python/fastapi/tests/test_ws_router.py": 3419.89,
       "python/fastapi/tests/utils.py": 1086.64
     },
+    "python/homeassistant_anthropic": {
+      "python/homeassistant_anthropic/LICENSE.md": -10468.98,
+      "python/homeassistant_anthropic/coordinator.py": -10272.37
+    },
+    "python/homeassistant_ble_integrations": {
+      "python/homeassistant_ble_integrations/LICENSE.md": -7200.05,
+      "python/homeassistant_ble_integrations/aranet___init__.py": -7688.98,
+      "python/homeassistant_ble_integrations/gardena_bluetooth___init__.py": -7466.39,
+      "python/homeassistant_ble_integrations/utils.py": -7381.77
+    },
+    "python/langchain_agents": {
+      "python/langchain_agents/langchain_agents_middleware_model_fallback.py": -484.55,
+      "python/langchain_agents/langchain_agents_middleware_tool_emulator.py": -254.19,
+      "python/langchain_agents/tests_integration_tests_chat_models_test_base.py": -198.15
+    },
+    "python/micropython_usb_tls": {
+      "python/micropython_usb_tls/ssl_verify_callback.py": -11158.4,
+      "python/micropython_usb_tls/tls_dtls.py": -11198.33,
+      "python/micropython_usb_tls/usb_simple_host_pyusb.py": -11450.19
+    },
     "python/numpy": {
       "python/numpy/LICENSE.txt": 468.87,
       "python/numpy/__init__.py": 1229.21,
@@ -2996,27 +3098,52 @@
       "python/numpy/ufunc_docstrings.py": 1557.02,
       "python/numpy/verify_c_api_version.py": 2042.72
     },
+    "python/opencv_dnn_conversion": {
+      "python/opencv_dnn_conversion/py_to_py_resnet50_onnx.py": -8017.25
+    },
+    "python/pip_vendored_requests": {
+      "python/pip_vendored_requests/LICENSE.txt": 10174.3,
+      "python/pip_vendored_requests/packages.py": 10403.38
+    },
+    "python/scikit-learn_examples": {
+      "python/scikit-learn_examples/COPYING": 2925.08,
+      "python/scikit-learn_examples/linear_model_plot_nnls.py": 2880.54,
+      "python/scikit-learn_examples/svm_plot_custom_kernel.py": 2735.42
+    },
+    "python/tensorflow_ml_ops": {
+      "python/tensorflow_ml_ops/core_tfrt_saved_model_tests_gen_matmul_gpu.py": 682.07,
+      "python/tensorflow_ml_ops/lite_testing_op_tests_einsum.py": 932.13
+    },
+    "python/tensorflow_model_fixtures": {
+      "python/tensorflow_model_fixtures/lite_testdata_multi_add.pb": 8350.76,
+      "python/tensorflow_model_fixtures/python_compiler_mlir_multi_add.tflite": 8019.1
+    },
+    "python/thealgorithms_machine_learning": {
+      "python/thealgorithms_machine_learning/LICENSE.md": -2243.12,
+      "python/thealgorithms_machine_learning/logistic_regression.py": -2513.76,
+      "python/thealgorithms_machine_learning/lstm_lstm_prediction.py": -2271.67
+    },
     "python/twisted": {
-      "python/twisted/defer.py": -1643.64,
-      "python/twisted/http.py": -1322.2,
-      "python/twisted/reflect.py": -1037.74,
-      "python/twisted/transport.py": -1310.74
+      "python/twisted/defer.py": 1737.14,
+      "python/twisted/http.py": 2058.58,
+      "python/twisted/reflect.py": 2343.03,
+      "python/twisted/transport.py": 2070.04
     },
     "python/wtfpython": {
-      "python/wtfpython/2_tricky_strings.py": 3720.89,
-      "python/wtfpython/README.md": 3452.66,
-      "python/wtfpython/insert_ids.py": 3971.52,
-      "python/wtfpython/mixed_tabs_and_spaces.py": 3215.57,
-      "python/wtfpython/notebook_generator.py": 3643.66,
-      "python/wtfpython/noxfile.py": 4068.44
+      "python/wtfpython/2_tricky_strings.py": -9119.06,
+      "python/wtfpython/README.md": -9387.3,
+      "python/wtfpython/insert_ids.py": -8868.44,
+      "python/wtfpython/mixed_tabs_and_spaces.py": -9624.39,
+      "python/wtfpython/notebook_generator.py": -9196.3,
+      "python/wtfpython/noxfile.py": -8771.52
     },
     "rexx": {
-      "rexx/PROVENANCE.md": -10536.18,
-      "rexx/SOURCES.md": -10692.5
+      "rexx/PROVENANCE.md": 9552.33,
+      "rexx/SOURCES.md": 9396.02
     },
     "rexx/hercules_390_hyperion": {
-      "rexx/hercules_390_hyperion/COPYRIGHT": 7554.68,
-      "rexx/hercules_390_hyperion/sample.rexx": 7804.74
+      "rexx/hercules_390_hyperion/COPYRIGHT": 11565.42,
+      "rexx/hercules_390_hyperion/sample.rexx": 11815.49
     },
     "rexx/hercules_hyperion": {
       "rexx/hercules_hyperion/COPYRIGHT": 8021.23,
@@ -3049,7 +3176,7 @@
       "rexx/ibm_z_zos/wjsst92.rexx": -8990.7
     },
     "ruby": {
-      "ruby/SOURCES.md": -475.69
+      "ruby/SOURCES.md": -3426.95
     },
     "ruby/rails": {
       "ruby/rails/MIT-LICENSE": 11463.42,
@@ -3061,8 +3188,12 @@
       "ruby/rails/metal.rb": 11446.42,
       "ruby/rails/routing.rb": 11589.23
     },
+    "ruby/rails_http_token_auth": {
+      "ruby/rails_http_token_auth/MIT-LICENSE": 9010.47,
+      "ruby/rails_http_token_auth/http_token_authentication_test.rb": 9256.46
+    },
     "rust": {
-      "rust/SOURCES.md": -10913.29
+      "rust/SOURCES.md": -11609.12
     },
     "rust/bevy": {
       "rust/bevy/LICENSE-APACHE": 6785.26,
@@ -3074,6 +3205,12 @@
       "rust/bevy/bevy_reflect_path.rs": 7516.44,
       "rust/bevy/bevy_render_phase.rs": 6888.42,
       "rust/bevy/bevy_schedule_graph.rs": 7323.25
+    },
+    "rust/bevy_asset_examples": {
+      "rust/bevy_asset_examples/LICENSE-APACHE": 4690.23,
+      "rust/bevy_asset_examples/LICENSE-MIT": 4896.1,
+      "rust/bevy_asset_examples/image_node.rs": 4453.97,
+      "rust/bevy_asset_examples/rotation.rs": 4707.28
     },
     "rust/holylang": {
       "rust/holylang/ast.rs": 6972.86,
@@ -3119,14 +3256,17 @@
       "rust/tokio/tokio_mpsc_bounded.rs": 10289.66,
       "rust/tokio/tokio_named_pipe.rs": 10270.56
     },
+    "rust/tokio_util_rand": {
+      "rust/tokio_util_rand/rand.rs": 12869.23
+    },
     "rust/wasmtime": {
-      "rust/wasmtime/wasmtime_component_macro.rs": 704.13,
-      "rust/wasmtime/wasmtime_instance.rs": 459.26,
-      "rust/wasmtime/wasmtime_isle_parser.rs": 81.84,
-      "rust/wasmtime/wasmtime_pulley_interp.rs": 391.76
+      "rust/wasmtime/wasmtime_component_macro.rs": -1044.52,
+      "rust/wasmtime/wasmtime_instance.rs": -1289.39,
+      "rust/wasmtime/wasmtime_isle_parser.rs": -1666.81,
+      "rust/wasmtime/wasmtime_pulley_interp.rs": -1356.89
     },
     "scala": {
-      "scala/SOURCES.md": 1324.5
+      "scala/SOURCES.md": 4122.98
     },
     "scala/kafka": {
       "scala/kafka/Kafka.scala": 10288.64,
@@ -3138,7 +3278,7 @@
       "scala/kafka/SocketServer.scala": 9883.64
     },
     "scheme": {
-      "scheme/SOURCES.md": 12888.11
+      "scheme/SOURCES.md": 12398.48
     },
     "scheme/racket": {
       "scheme/racket/LICENSE.txt": 3751.91,
@@ -3150,7 +3290,7 @@
       "scheme/racket/thread.rkt": 4483.7
     },
     "shell": {
-      "shell/SOURCES.md": -2595.4
+      "shell/SOURCES.md": -477.53
     },
     "shell/ansible": {
       "shell/ansible/COPYING": 9853.41,
@@ -3260,6 +3400,10 @@
       "shell/freebsd-src/runulp.sh": -3876.84,
       "shell/freebsd-src/timeout_test.sh": -4018.92,
       "shell/freebsd-src/ztest.sh": -4902.13
+    },
+    "shell/freebsd_sysbuild": {
+      "shell/freebsd_sysbuild/COPYRIGHT": 7553.82,
+      "shell/freebsd_sysbuild/sysbuild.sh": 7813.88
     },
     "shell/haiku": {
       "shell/haiku/HardwareChecker.sh": 9068.53,
@@ -3442,7 +3586,7 @@
       "shell/sqlite/warnings-clang.sh": -1730.21
     },
     "solidity": {
-      "solidity/SOURCES.md": -11605.48
+      "solidity/SOURCES.md": -5469.76
     },
     "solidity/openzeppelin": {
       "solidity/openzeppelin/AccessControl.sol": -6962.2,
@@ -3454,43 +3598,43 @@
       "solidity/openzeppelin/StorageSlot.sol": -7413.28
     },
     "sql": {
-      "sql/SOURCES.md": 3292.22
+      "sql/SOURCES.md": -10926.22
     },
     "sql/baseline": {
-      "sql/baseline/schema.php": 12035.41
+      "sql/baseline/schema.php": -10502.3
     },
     "sql/mediawiki_mysql": {
-      "sql/mediawiki_mysql/COPYING": -1733.59,
-      "sql/mediawiki_mysql/blobs.sql": -1945.86
+      "sql/mediawiki_mysql/COPYING": 7539.53,
+      "sql/mediawiki_mysql/blobs.sql": 7327.27
     },
     "sql/mediawiki_postgresql": {
-      "sql/mediawiki_postgresql/COPYING": -8485.98,
-      "sql/mediawiki_postgresql/tables.sql": -8235.56
+      "sql/mediawiki_postgresql/COPYING": -1186.16,
+      "sql/mediawiki_postgresql/tables.sql": -935.74
     },
     "sql/spamassassin_mysql": {
-      "sql/spamassassin_mysql/NOTICE": -10433.16,
-      "sql/spamassassin_mysql/neural_mysql.sql": -10229.08
+      "sql/spamassassin_mysql/NOTICE": 8622.46,
+      "sql/spamassassin_mysql/neural_mysql.sql": 8826.54
     },
     "sql/sqlite": {
-      "sql/sqlite/000-mandelbrot.sql": -7324.96,
-      "sql/sqlite/001-sudoku.sql": -7588.86,
-      "sql/sqlite/LICENSE.md": -7153.06,
-      "sql/sqlite/dotcmd01.sql": -7402.64
+      "sql/sqlite/000-mandelbrot.sql": -8871.93,
+      "sql/sqlite/001-sudoku.sql": -9135.83,
+      "sql/sqlite/LICENSE.md": -8700.03,
+      "sql/sqlite/dotcmd01.sql": -8949.61
     },
     "sql/sqlmap_postgresql": {
-      "sql/sqlmap_postgresql/dns_request.sql": 5168.74
+      "sql/sqlmap_postgresql/dns_request.sql": -9585.26
     },
     "sqlite": {
-      "sqlite/SOURCES.md": 12535.36
+      "sqlite/SOURCES.md": 6098.04
     },
     "sqlite/dancer2_sqlite": {
-      "sqlite/dancer2_sqlite/entries.sql": -187.62,
-      "sqlite/dancer2_sqlite/users.sql": 34.54
+      "sqlite/dancer2_sqlite/entries.sql": 5076.09,
+      "sqlite/dancer2_sqlite/users.sql": 5298.25
     },
     "sqlite/flask_tutorial_sqlite": {
-      "sqlite/flask_tutorial_sqlite/LICENSE.txt": -4253.94,
-      "sqlite/flask_tutorial_sqlite/data.sql": -4415.47,
-      "sqlite/flask_tutorial_sqlite/schema.sql": -4254.88
+      "sqlite/flask_tutorial_sqlite/LICENSE.txt": -7787.88,
+      "sqlite/flask_tutorial_sqlite/data.sql": -7949.42,
+      "sqlite/flask_tutorial_sqlite/schema.sql": -7788.83
     },
     "sqlite/mediawiki_sqlite_alterpatches": {
       "sqlite/mediawiki_sqlite_alterpatches/COPYING": 7173.53,
@@ -3527,10 +3671,10 @@
       "sqlite/mediawiki_sqlite_tables/tables-generated.sql": -3644.39
     },
     "sqlite/prisma_sqlite_migrations": {
-      "sqlite/prisma_sqlite_migrations/provider-switch-postgresql-to-sqlite__20210215145936_hello.sql": -9635.32,
-      "sqlite/prisma_sqlite_migrations/schema-folder-sqlite-db-exists__20240527130802_init.sql": -9830.7,
-      "sqlite/prisma_sqlite_migrations/schema-folder-sqlite-migration-exists__20240527130802_init.sql": -9648.67,
-      "sqlite/prisma_sqlite_migrations/schema-folder-sqlite-migration-failed__20240527130802_init.sql": -9384.29
+      "sqlite/prisma_sqlite_migrations/provider-switch-postgresql-to-sqlite__20210215145936_hello.sql": -9645.08,
+      "sqlite/prisma_sqlite_migrations/schema-folder-sqlite-db-exists__20240527130802_init.sql": -9840.46,
+      "sqlite/prisma_sqlite_migrations/schema-folder-sqlite-migration-exists__20240527130802_init.sql": -9658.43,
+      "sqlite/prisma_sqlite_migrations/schema-folder-sqlite-migration-failed__20240527130802_init.sql": -9394.05
     },
     "sqlite/prisma_typed_sql": {
       "sqlite/prisma_typed_sql/findBigInt.sql": -2793.26,
@@ -3551,11 +3695,11 @@
       "sqlite/prisma_typed_sql/getString.sql": -2902.84
     },
     "sqlite/sqitch_sqlite_engine": {
-      "sqlite/sqitch_sqlite_engine/LICENSE.md": -11382.64,
-      "sqlite/sqitch_sqlite_engine/engine_sqlite.sql": -11122.32,
-      "sqlite/sqitch_sqlite_engine/t_upgradable_registry.sql": -10943.09,
-      "sqlite/sqitch_sqlite_engine/upgrade_sqlite-1.0.sql": -10961.24,
-      "sqlite/sqitch_sqlite_engine/upgrade_sqlite-1.1.sql": -10658.05
+      "sqlite/sqitch_sqlite_engine/LICENSE.md": 11294.4,
+      "sqlite/sqitch_sqlite_engine/engine_sqlite.sql": 11554.72,
+      "sqlite/sqitch_sqlite_engine/t_upgradable_registry.sql": 11733.95,
+      "sqlite/sqitch_sqlite_engine/upgrade_sqlite-1.0.sql": 11715.81,
+      "sqlite/sqitch_sqlite_engine/upgrade_sqlite-1.1.sql": 12018.99
     },
     "sqlite/sqlite_cli_scripts": {
       "sqlite/sqlite_cli_scripts/LICENSE.md": 2282.65,
@@ -3581,7 +3725,7 @@
       "sqlite/yii2_sqlite_schema/tests_data_sqlite.sql": 7056.65
     },
     "swift": {
-      "swift/SOURCES.md": -4658.35
+      "swift/SOURCES.md": 9875.43
     },
     "swift/alamofire": {
       "swift/alamofire/AFError.swift": -10394.82,
@@ -3593,22 +3737,22 @@
       "swift/alamofire/Session.swift": -9900.31
     },
     "tabular": {
-      "tabular/SOURCES.md": -11052.07
+      "tabular/SOURCES.md": -6391.56
     },
     "tabular/baseline": {
-      "tabular/baseline/control_standard.csv": -10210.21,
-      "tabular/baseline/control_standard.tsv": -10450.37
+      "tabular/baseline/control_standard.csv": -7651.14,
+      "tabular/baseline/control_standard.tsv": -7891.3
     },
     "tabular/csv_erp": {
-      "tabular/csv_erp/LICENSE.txt": -10450.47,
-      "tabular/csv_erp/ir.model.access.csv": -10654.76,
-      "tabular/csv_erp/test.translation.import.model1-translated.csv": -10379.01
+      "tabular/csv_erp/LICENSE.txt": 4855.1,
+      "tabular/csv_erp/ir.model.access.csv": 4650.81,
+      "tabular/csv_erp/test.translation.import.model1-translated.csv": 4926.56
     },
     "tabular/devsecops_payloads": {
-      "tabular/devsecops_payloads/weaponized_export.csv": 8613.08
+      "tabular/devsecops_payloads/weaponized_export.csv": 8287.29
     },
     "tabular/tsv_genomics": {
-      "tabular/tsv_genomics/B.cell_eQTL.tsv": -8232.31
+      "tabular/tsv_genomics/B.cell_eQTL.tsv": 9446.35
     },
     "tcl/macports_port_api": {
       "tcl/macports_port_api/fetch_common.tcl": 2924.73,
@@ -3651,56 +3795,77 @@
       "tcl/sqlite/testrunner.tcl": -7118.19
     },
     "tcl/sqlite_core_dml": {
-      "tcl/sqlite_core_dml/LICENSE.md": 9507.47
+      "tcl/sqlite_core_dml/LICENSE.md": -10282.59
     },
     "tcl/sqlite_cte_window": {
-      "tcl/sqlite_cte_window/LICENSE.md": 3694.79
+      "tcl/sqlite_cte_window/LICENSE.md": -2170.76
     },
     "tcl/sqlite_fts5": {
-      "tcl/sqlite_fts5/LICENSE.md": -9934.78
+      "tcl/sqlite_fts5/LICENSE.md": 10493.85
     },
     "tcl/sqlite_json_triggers": {
-      "tcl/sqlite_json_triggers/LICENSE.md": -2705.95
+      "tcl/sqlite_json_triggers/LICENSE.md": 1266.15
     },
     "tcl/sqlite_query_planner": {
-      "tcl/sqlite_query_planner/LICENSE.md": 10177.76
+      "tcl/sqlite_query_planner/LICENSE.md": -10244.39
     },
     "tcl/sqlite_rtree": {
-      "tcl/sqlite_rtree/LICENSE.md": 1998.41
+      "tcl/sqlite_rtree/LICENSE.md": -460.11
     },
     "td": {
-      "td/SOURCES.md": 5318.4
+      "td/SOURCES.md": -8549.38
     },
     "td/tensorflow/compiler/mlir/tfrt": {
-      "td/tensorflow/compiler/mlir/tfrt/tf_mlrt_ops.td": -6811.19,
-      "td/tensorflow/compiler/mlir/tfrt/tf_mlrt_tpu_ops.td": -7021.49
+      "td/tensorflow/compiler/mlir/tfrt/tf_mlrt_ops.td": 1762.92,
+      "td/tensorflow/compiler/mlir/tfrt/tf_mlrt_tpu_ops.td": 1552.62
     },
     "td/tensorflow/core/ir": {
-      "td/tensorflow/core/ir/dialect.td": 8028.34,
-      "td/tensorflow/core/ir/ops.td": 8296.49
+      "td/tensorflow/core/ir/dialect.td": -256.67,
+      "td/tensorflow/core/ir/ops.td": 11.48
     },
     "text": {
-      "text/SOURCES.md": 11732.79
+      "text/SOURCES.md": 7897.74
     },
     "text/baseline": {
-      "text/baseline/control-readme.md": 8706.48
+      "text/baseline/control-readme.md": 9069.35
     },
     "typescript": {
-      "typescript/SOURCES.md": -6605.44
+      "typescript/SOURCES.md": 8834.53
+    },
+    "typescript/angular_zonejs_mocha": {
+      "typescript/angular_zonejs_mocha/mocha.ts": -10419.05
     },
     "typescript/assemblyscript": {
-      "typescript/assemblyscript/asconfig.json": 8320.82,
-      "typescript/assemblyscript/ast.ts": 8014.17,
-      "typescript/assemblyscript/compiler.ts": 8015.65,
-      "typescript/assemblyscript/package.json": 7485.0,
-      "typescript/assemblyscript/parser.ts": 7674.13
+      "typescript/assemblyscript/asconfig.json": 5163.78,
+      "typescript/assemblyscript/ast.ts": 4857.14,
+      "typescript/assemblyscript/compiler.ts": 4858.61,
+      "typescript/assemblyscript/package.json": 4327.96,
+      "typescript/assemblyscript/parser.ts": 4517.09
+    },
+    "typescript/effect_ai_anthropic": {
+      "typescript/effect_ai_anthropic/AnthropicTokenizer.ts": 4545.73
+    },
+    "typescript/excalibur_math": {
+      "typescript/excalibur_math/LICENSE.md": -10418.47,
+      "typescript/excalibur_math/collision_colliders_separating-axis.ts": -10421.41,
+      "typescript/excalibur_math/math_ray.ts": -10669.24
+    },
+    "typescript/excalidraw_text_wrapping": {
+      "typescript/excalidraw_text_wrapping/textWrapping.ts": 10659.4
     },
     "typescript/fp-ts": {
-      "typescript/fp-ts/Either.ts": -1455.21,
-      "typescript/fp-ts/HKT.ts": -898.13,
-      "typescript/fp-ts/TaskEither.ts": -1177.84,
-      "typescript/fp-ts/package.json": -1689.07,
-      "typescript/fp-ts/pipeable.ts": -1185.8
+      "typescript/fp-ts/Either.ts": 9617.75,
+      "typescript/fp-ts/HKT.ts": 10174.84,
+      "typescript/fp-ts/TaskEither.ts": 9895.12,
+      "typescript/fp-ts/package.json": 9383.89,
+      "typescript/fp-ts/pipeable.ts": 9887.17
+    },
+    "typescript/nx_util_ai": {
+      "typescript/nx_util_ai/nx-dev_pages_api_query-ai-handler.ts": -8286.41,
+      "typescript/nx_util_ai/util-ai_src_lib_moderation.ts": -8543.25
+    },
+    "typescript/pixijs_examples": {
+      "typescript/pixijs_examples/events_dragging.ts": -10541.55
     },
     "typescript/playwright": {
       "typescript/playwright/NOTICE": -8343.74,
@@ -3716,8 +3881,8 @@
       "typescript/playwright/protocol.ts": -8810.51
     },
     "typescript/typescript_compiler": {
-      "typescript/typescript_compiler/binder.ts": -9677.1,
-      "typescript/typescript_compiler/package.json": -9905.04
+      "typescript/typescript_compiler/binder.ts": 12419.58,
+      "typescript/typescript_compiler/package.json": 12191.65
     },
     "typescript/vscode": {
       "typescript/vscode/LICENSE.txt": 930.45,
@@ -3733,87 +3898,87 @@
       "typescript/vscode/vscode.d.ts": 420.23
     },
     "typescript/zod": {
-      "typescript/zod/package.json": -9846.92,
-      "typescript/zod/tsconfig.json": -9630.85
+      "typescript/zod/package.json": -6175.91,
+      "typescript/zod/tsconfig.json": -5959.84
     },
     "xml": {
-      "xml/SOURCES.md": -10176.61
+      "xml/SOURCES.md": -7977.92
     },
     "xml/apex": {
-      "xml/apex/CanTheUser_Tests.cls": 8769.68,
-      "xml/apex/CanTheUser_Tests.cls-meta.xml": 8849.07,
-      "xml/apex/IterationRecipes_Tests.cls": 9148.08,
-      "xml/apex/IterationRecipes_Tests.cls-meta.xml": 9066.4,
-      "xml/apex/LICENSE.md": 8641.72,
-      "xml/apex/ListSortingRecipes_Tests.cls": 8531.26,
-      "xml/apex/ListSortingRecipes_Tests.cls-meta.xml": 8369.53
+      "xml/apex/CanTheUser_Tests.cls": 3644.58,
+      "xml/apex/CanTheUser_Tests.cls-meta.xml": 3723.96,
+      "xml/apex/IterationRecipes_Tests.cls": 4022.97,
+      "xml/apex/IterationRecipes_Tests.cls-meta.xml": 3941.29,
+      "xml/apex/LICENSE.md": 3516.61,
+      "xml/apex/ListSortingRecipes_Tests.cls": 3406.15,
+      "xml/apex/ListSortingRecipes_Tests.cls-meta.xml": 3244.42
     },
     "xml/jenkins": {
-      "xml/jenkins/LICENSE.txt": -8714.04,
-      "xml/jenkins/XStreamDOMTest.data1.xml": -8885.25,
-      "xml/jenkins/XStreamDOMTest.data2.xml": -9163.08,
-      "xml/jenkins/excludesFilter.xml": -8842.27
+      "xml/jenkins/LICENSE.txt": -9449.61,
+      "xml/jenkins/XStreamDOMTest.data1.xml": -9620.83,
+      "xml/jenkins/XStreamDOMTest.data2.xml": -9898.66,
+      "xml/jenkins/excludesFilter.xml": -9577.85
     },
     "xml/odoo": {
-      "xml/odoo/__manifest__.py": 9596.28
+      "xml/odoo/__manifest__.py": -10666.68
     },
     "xml/odoo/views": {
-      "xml/odoo/views/menu.xml": 2953.03,
-      "xml/odoo/views/test_orm_views.xml": 2679.96,
-      "xml/odoo/views/views.xml": 2921.19
+      "xml/odoo/views/menu.xml": 9054.61,
+      "xml/odoo/views/test_orm_views.xml": 8781.53,
+      "xml/odoo/views/views.xml": 9022.77
     },
     "xml/powertoys": {
-      "xml/powertoys/App.xaml.cs": 8747.65,
-      "xml/powertoys/MainWindow.xaml.cs": 8961.87
+      "xml/powertoys/App.xaml.cs": 9718.21,
+      "xml/powertoys/MainWindow.xaml.cs": 9932.43
     },
     "xml/springboot": {
-      "xml/springboot/LICENSE.txt": -9046.72
+      "xml/springboot/LICENSE.txt": -3552.15
     },
     "xml/springboot/build-info": {
-      "xml/springboot/build-info/pom.xml": -7638.67
+      "xml/springboot/build-info/pom.xml": -7342.28
     },
     "xml/springboot/getting-started": {
-      "xml/springboot/getting-started/pom.xml": 7495.45
+      "xml/springboot/getting-started/pom.xml": 8073.9
     },
     "xml/springboot/resources": {
-      "xml/springboot/resources/pom.xml": 7300.26
+      "xml/springboot/resources/pom.xml": 5893.33
     },
     "yacc": {
-      "yacc/SOURCES.md": 7146.92
+      "yacc/SOURCES.md": -7790.09
     },
     "yacc/freebsd": {
-      "yacc/freebsd/COPYRIGHT": 3184.89,
-      "yacc/freebsd/config.y": 3169.04,
-      "yacc/freebsd/jailparse.y": 2949.83
+      "yacc/freebsd/COPYRIGHT": 1421.06,
+      "yacc/freebsd/config.y": 1405.21,
+      "yacc/freebsd/jailparse.y": 1185.99
     },
     "yaml": {
-      "yaml/SOURCES.md": 9212.69
+      "yaml/SOURCES.md": 8052.08
     },
     "yaml/ansible": {
-      "yaml/ansible/COPYING": 7304.96
+      "yaml/ansible/COPYING": -6640.52
     },
     "yaml/ansible/blocks": {
-      "yaml/ansible/blocks/block_fail_tasks.yml": -5492.12,
-      "yaml/ansible/blocks/block_in_rescue.yml": -5272.94
+      "yaml/ansible/blocks/block_fail_tasks.yml": -10727.48,
+      "yaml/ansible/blocks/block_in_rescue.yml": -10508.3
     },
     "yaml/ansible/include_import_tasks/tasks": {
-      "yaml/ansible/include_import_tasks/tasks/test_include_dupe_loop.yml": -3138.92,
-      "yaml/ansible/include_import_tasks/tasks/test_recursion.yml": -3412.14
+      "yaml/ansible/include_import_tasks/tasks/test_include_dupe_loop.yml": 7396.32,
+      "yaml/ansible/include_import_tasks/tasks/test_recursion.yml": 7123.1
     },
     "yaml/ansible/yaml_parsing": {
-      "yaml/ansible/yaml_parsing/playbook.yml": -7472.2
+      "yaml/ansible/yaml_parsing/playbook.yml": 8298.8
     },
     "yaml/ansible/yaml_parsing/tasks": {
-      "yaml/ansible/yaml_parsing/tasks/main.yml": -8533.33,
-      "yaml/ansible/yaml_parsing/tasks/unsafe.yml": -8298.85
+      "yaml/ansible/yaml_parsing/tasks/main.yml": -5243.85,
+      "yaml/ansible/yaml_parsing/tasks/unsafe.yml": -5009.37
     },
     "yaml/black_action": {
-      "yaml/black_action/action.yml": -8724.55
+      "yaml/black_action/action.yml": -7997.13
     },
     "yaml/grafana_compose": {
-      "yaml/grafana_compose/docker_ha-test-unified-alerting_docker-compose.yaml": 10916.24,
-      "yaml/grafana_compose/frontend-service_docker-compose.yaml": 11190.76,
-      "yaml/grafana_compose/local_cdn_docker-compose.yaml": 11229.4
+      "yaml/grafana_compose/docker_ha-test-unified-alerting_docker-compose.yaml": -4492.24,
+      "yaml/grafana_compose/frontend-service_docker-compose.yaml": -4217.72,
+      "yaml/grafana_compose/local_cdn_docker-compose.yaml": -4179.08
     },
     "yaml/moby_workflows": {
       "yaml/moby_workflows/arm64.yml": -9854.33,
@@ -3829,12 +3994,12 @@
       "yaml/moby_workflows/windows-2025.yml": -10457.58
     },
     "yaml/serenity_composite_actions": {
-      "yaml/serenity_composite_actions/cache-restore_action.yml": -834.94,
-      "yaml/serenity_composite_actions/cache-save_action.yml": -626.29,
-      "yaml/serenity_composite_actions/setup_action.yml": -662.79
+      "yaml/serenity_composite_actions/cache-restore_action.yml": 11962.11,
+      "yaml/serenity_composite_actions/cache-save_action.yml": 12170.75,
+      "yaml/serenity_composite_actions/setup_action.yml": 12134.26
     },
     "yaml/sqlmap_openapi": {
-      "yaml/sqlmap_openapi/sqlmapapi.yaml": -4963.49
+      "yaml/sqlmap_openapi/sqlmapapi.yaml": -11431.82
     },
     "yaml/vscode_workflows": {
       "yaml/vscode_workflows/LICENSE.txt": 1930.6,
@@ -3853,14 +4018,14 @@
       "yaml/vscode_workflows/telemetry.yml": 694.07
     },
     "zig": {
-      "zig/SOURCES.md": -7372.67
+      "zig/SOURCES.md": 7440.04
     },
     "zig/bun": {
-      "zig/bun/LICENSE.md": 8961.52,
-      "zig/bun/MimallocArena.zig": 9791.21,
-      "zig/bun/Parser.zig": 9169.3,
-      "zig/bun/comptime_string_map.zig": 9467.57,
-      "zig/bun/napi.zig": 9484.66
+      "zig/bun/LICENSE.md": 1596.0,
+      "zig/bun/MimallocArena.zig": 2425.69,
+      "zig/bun/Parser.zig": 1803.78,
+      "zig/bun/comptime_string_map.zig": 2102.05,
+      "zig/bun/napi.zig": 2119.14
     },
     "zig/mach": {
       "zig/mach/Core.zig": -7305.09,
@@ -3887,11 +4052,14 @@
       "zig/tigerbeetle/state_machine.zig": -7739.69
     },
     "zig/zig": {
-      "zig/zig/Compilation.zig": -7859.69,
-      "zig/zig/InternPool.zig": -8281.66,
-      "zig/zig/Type.zig": -7561.39,
-      "zig/zig/Zcu.zig": -8431.89,
-      "zig/zig/main.zig": -7940.1
+      "zig/zig/Compilation.zig": -4569.02,
+      "zig/zig/InternPool.zig": -4991.0,
+      "zig/zig/Type.zig": -4270.73,
+      "zig/zig/Zcu.zig": -5141.22,
+      "zig/zig/main.zig": -4649.43
+    },
+    "zig/zig_std_linux_mips": {
+      "zig/zig_std_linux_mips/mips.zig": 12016.99
     },
     "zig/zls": {
       "zig/zls/DocumentScope.zig": 1410.58,

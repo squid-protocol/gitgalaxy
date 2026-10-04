@@ -22,6 +22,20 @@
   "sibling_ports": [
    "PCDETL",
    "PCMENU"
+  ],
+  "reproven": [
+   {
+    "at": "2026-10-04T14:22:18+00:00",
+    "crucible_ref": "v0.2.0 (94f2afcb)",
+    "summary": {
+     "aid-keys": "1/1",
+     "option1-xctl": "1/1",
+     "option2-next-transid": "1/1"
+    },
+    "port_sha256": "db446c6f55fe8752de1b7f98f58cb9bb110ead23a8ad74b37dff52e0bb0be6ae",
+    "harness_commit": "16ae9e01515581be224b32982ceae54bc73e68fb",
+    "by": "tests/tools/crucible_port_provenance.py reprove (cics_crucible.py --sides java-ported --program PCDETL --report-dir)"
+   }
   ]
  },
  "approved": false,

@@ -13,3 +13,8 @@ every scenario that runs the program matches the crucible's hand-written expecte
 
 tests/tools/cics_crucible.py's java-ported side lays these overlays over the freshly generated services
 and re-proves them on every change (tests/cics_crucible/baseline.json holds the ratchet).
+
+#4308: each provenance.json's `proof` is the loop's proof, at the crucible version of that day. When the pin moves,
+tests/tools/crucible_port_provenance.py reprove runs the proof again at the new pin and APPENDS a `proof.reproven`
+entry (or marks the record `proof.stale` with the reason); tests/cics_crucible/test_port_provenance.py fails while a
+record names another version than the pin and says nothing. All 17 were re-proven at v0.2.0 on 2026-10-04.

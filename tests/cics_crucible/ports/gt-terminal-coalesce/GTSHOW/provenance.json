@@ -22,6 +22,20 @@
   "sibling_ports": [
    "GTSHOW",
    "GTTERM"
+  ],
+  "reproven": [
+   {
+    "at": "2026-10-04T14:21:26+00:00",
+    "crucible_ref": "v0.2.0 (94f2afcb)",
+    "summary": {
+     "cancel-too-late": "1/1",
+     "staggered": "1/1",
+     "three-in-one": "1/1"
+    },
+    "port_sha256": "82edcbebdd3141a76be612591e8e40319c9d877efca36786f32935c65b7374b0",
+    "harness_commit": "16ae9e01515581be224b32982ceae54bc73e68fb",
+    "by": "tests/tools/crucible_port_provenance.py reprove (cics_crucible.py --sides java-ported --program GTSHOW --report-dir)"
+   }
   ]
  },
  "approved": false,

@@ -22,6 +22,22 @@
   "sibling_ports": [
    "PCCONF",
    "PCWIZ"
+  ],
+  "reproven": [
+   {
+    "at": "2026-10-04T14:22:34+00:00",
+    "crucible_ref": "v0.2.0 (94f2afcb)",
+    "summary": {
+     "back-and-fix": "1/1",
+     "back-clear-keeps-amount": "1/1",
+     "clear-and-bad-amount": "1/1",
+     "happy-post": "1/1",
+     "mapfail-clear-cancel": "1/1"
+    },
+    "port_sha256": "3eb72b4cded23d93e5eb4722ca56c26462020a2fd5389e74b55fb673b62ca824",
+    "harness_commit": "16ae9e01515581be224b32982ceae54bc73e68fb",
+    "by": "tests/tools/crucible_port_provenance.py reprove (cics_crucible.py --sides java-ported --program PCCONF --report-dir)"
+   }
   ]
  },
  "approved": false,

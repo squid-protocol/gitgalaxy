@@ -21,6 +21,21 @@
   },
   "sibling_ports": [
    "HXATTR"
+  ],
+  "reproven": [
+   {
+    "at": "2026-10-04T14:22:04+00:00",
+    "crucible_ref": "v0.2.0 (94f2afcb)",
+    "summary": {
+     "clear-maponly": "1/1",
+     "echo-dataonly": "1/1",
+     "first-display": "1/1",
+     "pa-key-mapfail": "1/1"
+    },
+    "port_sha256": "afe83be45184f98ee53a54f4bdc90269d9c4777917ac3d69d870144633ae3938",
+    "harness_commit": "16ae9e01515581be224b32982ceae54bc73e68fb",
+    "by": "tests/tools/crucible_port_provenance.py reprove (cics_crucible.py --sides java-ported --program HXATTR --report-dir)"
+   }
   ]
  },
  "approved": false,

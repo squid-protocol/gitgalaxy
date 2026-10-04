@@ -48,3 +48,18 @@ When working with other people's code, tools, papers or artifacts (IBM, Devin, S
 2. **Borrow ideas, not code:** implement techniques yourself and record where each idea came from. Never commit third-party code without explicit maintainer approval for that specific case.
 3. **Unlicensed sources:** run them locally from pinned commits, never commit them, and quote briefly with attribution.
 4. **Scanning others' code:** scan only what we may lawfully see; check product terms for benchmark or reverse-engineering clauses before publishing comparisons; publish measurements, not reconstructions; disclose security findings privately first.
+
+# Agent Tooling & Native File Operations Guardrails
+
+You **MUST** prioritize native API tools for file and text manipulation. 
+1. **File Editing**: NEVER use bash commands like `cat << 'EOF' > ...`, `echo "..." >> file`, or `sed` to edit files. These commands trigger strict terminal permission guardrails and interrupt the user. Instead, ALWAYS use your native tools (`write_to_file` and `replace_file_content`).
+2. **File Searching**: Avoid using bash `grep` or `find` when native tools like `grep_search` are available and more appropriate for the task.
+
+# Documentation SEO & Frontmatter
+
+Whenever you create a new markdown file in the `docs/` directory (or edit one that lacks frontmatter), you **MUST** include a YAML frontmatter block at the very top of the file containing a unique, 150-160 character `description`. 
+Example:
+---
+description: "A concise summary of the page's specific content for SEO..."
+---
+Never rely on the global `mkdocs.yml` site description for individual pages.

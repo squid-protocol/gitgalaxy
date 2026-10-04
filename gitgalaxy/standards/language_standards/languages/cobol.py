@@ -900,6 +900,13 @@ DEFINITION: dict[str, Any] = {
         # `CALL WS-PGM` and PERFORM reached calls_out_to. A literal right after
         # this verb is kept (detector._blank_literals_except_callee).
         "_calls_out_literal_callee": re.compile(r"(?i)(?<![\w-])CALL\s+$"),
+        # #4304: an `EXEC SQL CALL MYSCHEMA.GETCUST (...)` / `EXEC SQL CALL UPDPROC END-EXEC` is a DB2
+        # stored-procedure call, not a COBOL CALL -- read as one, the schema qualifier became a callee.
+        # Every EXEC ... END-EXEC block (SQL, CICS, DLI, ...) is blanked before calls_out scans the unit.
+        # A block never runs across another EXEC, so a missing END-EXEC masks nothing beyond it.
+        "_calls_out_masked_blocks": re.compile(
+            r"(?i)(?<![\w-])EXEC\s+\w+(?:(?!(?<![\w-])EXEC\s)[\s\S])*?(?<![\w-])END-EXEC(?![\w-])"
+        ),
         # #3359 (contract C2): the inline PERFORM forms (`PERFORM VARYING ...`,
         # `PERFORM UNTIL ...`, `PERFORM WITH TEST ...`) name no paragraph.
         "_calls_out_ignore": frozenset(

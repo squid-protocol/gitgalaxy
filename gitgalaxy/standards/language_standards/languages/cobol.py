@@ -375,10 +375,14 @@ DEFINITION: dict[str, Any] = {
         #    already allows at line start. The `\b` before the name is func_start's
         #    greedy-margin guard: without it that 6-char prefix ate `    My` of an
         #    indented `MyProgram` and captured `Program`.
+        # 4. #4242: the name may be a literal -- `PROGRAM-ID. 'EPSCSMRD'.` (DBB
+        #    MortgageApplication) or `"NAME"`. A quote is no word character, so
+        #    `\b` refused it and the program recorded no class. An optional quote
+        #    on each side; the capture stays the bare name.
         "class_start": re.compile(
             r"^(?:[0-9a-zA-Z" + NATIONAL + r" \t]{6}[ \-]?)?[ \t]*(?:PROGRAM-ID|CLASS-ID|INTERFACE-ID|FACTORY|OBJECT)\."
             r"(?:[ \t]+|(?:[ \t]+\S{1,8})?[ \t]*\n(?:[0-9a-zA-Z" + NATIONAL + r" \t]{6}[ \-]?)?[ \t]*)"
-            r"\b([0-9_"
+            r"['\"]?\b([0-9_"
             + WIDE_DIGITS
             + WIDE_HYPHENS
             + r"-]*[A-Z"
@@ -387,7 +391,7 @@ DEFINITION: dict[str, Any] = {
             + NATIONAL
             + WIDE_DIGITS
             + WIDE_HYPHENS
-            + r"a-z0-9_-]*)(?:[ \t\n]+(?!DIVISION\b)[A-Z"
+            + r"a-z0-9_-]*)['\"]?(?:[ \t\n]+(?!DIVISION\b)[A-Z"
             + NATIONAL
             + WIDE_DIGITS
             + WIDE_HYPHENS

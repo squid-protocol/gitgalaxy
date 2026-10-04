@@ -116,9 +116,10 @@ PINNED = {
     # repository does not ship; one is EPSCSMRT's dynamic CALL WS-CALLED-PROGRAM. Most
     # unresolved data-flow operands are in that generated web-service wrapper. EPSMLIST
     # is reached by no transaction in the repository (no CSD), and EPSCSMRT is a batch
-    # driver no JCL step runs.
+    # driver no JCL step runs. #4242: EPSCSMRD (the web-service wrapper, `PROGRAM-ID. 'EPSCSMRD'.`) records
+    # its program since the quoted name is read; it is a CICS program no transaction here reaches.
     "dbb-mortgage-application": {
-        "program calls": (7, 19), "copybooks": (11, 11), "transactions": (2, 3), "screens": (7, 7),
+        "program calls": (7, 19), "copybooks": (11, 11), "transactions": (2, 4), "screens": (7, 7),
         "data flows": (141, 568), "IMS PSBs": (0, 0), "batch entry": (0, 1),
     },
     # #3512: ECS001 ("Sample CICS program initiated via a terminal") issues only

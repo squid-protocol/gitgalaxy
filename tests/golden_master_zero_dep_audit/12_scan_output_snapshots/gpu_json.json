@@ -5,7 +5,7 @@
   ],
   "value": {
     "Galaxy Column Digests": {
-      "a_dists": "ffaba1d23d31",
+      "a_dists": "545b74ecf469",
       "a_ids": "5ddb6d8e450f",
       "ai_threats": "261624228b1c",
       "author_distribution": "261624228b1c",
@@ -13,7 +13,7 @@
       "cog_raw": "3a0348f763c1",
       "d_locs": "0863af3ca74c",
       "edges": "24aeff838e6f",
-      "hits_flat": "5c7c08c13653",
+      "hits_flat": "6b5669b18de4",
       "imports": "97e6c2042ad0",
       "lang_ids": "e9946b17cedc",
       "locs": "a1cabf0cd7cf",
@@ -759,7 +759,7 @@
       "cobol/che-che4z_nist_ccvs85/OBSQ34.2.cbl": "689ad68b0668",
       "cobol/che-che4z_nist_ccvs85/OBSQ44.2.cbl": "4bb3ced9db4d",
       "cobol/che-che4z_nist_ccvs85/OBSQ54.2.cbl": "5c8f045b16bc",
-      "cobol/che-che4z_nist_ccvs85/PDC0001.cbl": "1260a679c0c7",
+      "cobol/che-che4z_nist_ccvs85/PDC0001.cbl": "0717fa8cf81a",
       "cobol/che-che4z_nist_ccvs85/RL3014.2.cbl": "be08733f23a3",
       "cobol/che-che4z_nist_ccvs85/RL4014.2.cbl": "d6ad8d5f117b",
       "cobol/che-che4z_nist_ccvs85/SG3034.2.cbl": "ac5247b3e18c",

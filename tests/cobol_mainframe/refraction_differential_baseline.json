@@ -105,6 +105,20 @@
       "note": "5 unexplained: GENAPP's End-Program. paragraph (lgipdb01, lgucdb01, lgucus01, lgupdb01, lgupol01), which the forge reads since #4028 and the engine does not -- its COBOL function-start rule excludes every END- word. Owned by #4031; re-bless to 0 when it lands.",
       "unexplained": 5
     },
+    "dbb-mortgage-application": {
+      "by_cause": {
+        "bms_symbolic_map": 2,
+        "entry_point": 5,
+        "exec_sql_include": 1,
+        "forge_flat_schema": 26,
+        "stated_absence": 9,
+        "system_copybook": 2,
+        "unexplained": 33,
+        "usage_status_not_reachability": 231
+      },
+      "note": "33 unexplained, all in epscsmrd.cbl, compared since #4242 (its quoted PROGRAM-IDs now record; before, the file had no program and was skipped). 7 paragraph/old (AUTHOR, DATE-WRITTEN, INSTALLATION, PROGRAM-ID, WORKING-STORAGE, LOCAL-STORAGE, LINKAGE): the forge reads the 12 sibling programs' IDENTIFICATION / DATA DIVISION headers as units of the first. 26 schema_column/db: the same 26 names as this file's forge_flat_schema record deltas -- the refractor's schema comes from the DB, the forge's flat reader drops these items. Both are the one-program reading of a multi-program source, owned by #4243 (and #4245 for the DATA DIVISIONs); re-bless when it lands.",
+      "unexplained": 33
+    },
     "dsf": {
       "by_cause": {
         "entry_point": 12,

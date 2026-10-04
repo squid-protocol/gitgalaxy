@@ -35,6 +35,7 @@ from collections.abc import Iterator
 import cobol_coverage as cov  # #4023
 import equivalence_common as common
 import equivalence_db2
+import equivalence_oracle
 import equivalence_sql
 
 STUB = common.CASES / "cics"
@@ -2474,6 +2475,7 @@ def run_case(case: dict[str, Any], corpus: Path, work: Path, port: bool = True, 
             for base, fd in changed.items():
                 print(f"{case['program']} {name}: file {base}: {fd['equal']}/{fd['records']} records equal")
     report["proven"] = ok
+    report["oracle"] = equivalence_oracle.for_case(case)  # #4309: which GnuCOBOL produced the expected outputs
     report["feedback"] = feedback_md(case, report) if not ok else ""
     covered = work / "cobol" / "coverage.json"  # #4023
     report["coverage"] = json.loads(covered.read_text(encoding="utf-8")) if covered.is_file() else None

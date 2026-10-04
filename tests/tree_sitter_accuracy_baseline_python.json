@@ -1,12 +1,12 @@
 {
-  "args_comparable": 3630,
-  "args_exact_match": 3630,
+  "args_comparable": 3780,
+  "args_exact_match": 3780,
   "corpus_path": "language-crucible/data/python",
   "extra_classes": 0,
   "extra_functions": 16,
-  "files_scanned": 259,
-  "found_classes": 459,
-  "found_functions": 3630,
-  "real_classes": 459,
-  "real_functions": 3630
+  "files_scanned": 284,
+  "found_classes": 476,
+  "found_functions": 3780,
+  "real_classes": 476,
+  "real_functions": 3780
 }

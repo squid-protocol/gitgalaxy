@@ -1217,6 +1217,11 @@
     "c": {
       "c/SOURCES.md": {}
     },
+    "c/cosmopolitan_intrin": {
+      "c/cosmopolitan_intrin/countbits.c": {
+        "Many-Argument Workhorses": 1
+      }
+    },
     "c/cpython": {
       "c/cpython/Makefile.pre.in": {
         "I/O & Config Routines": 205,
@@ -1342,6 +1347,11 @@
         "I/O & Config Routines": 3,
         "Many-Argument Workhorses": 1,
         "Type Conversions": 2
+      }
+    },
+    "c/freebsd_openpam": {
+      "c/freebsd_openpam/pam_acct_mgmt.c": {
+        "State Mutators": 1
       }
     },
     "c/micropython": {
@@ -3575,6 +3585,20 @@
         "Parameter Forwarders": 1
       }
     },
+    "cpp/serenity_ak_siphash_cpu": {
+      "cpp/serenity_ak_siphash_cpu/CPUFeatures.cpp": {
+        "I/O & Config Routines": 1,
+        "Parameter Forwarders": 1
+      },
+      "cpp/serenity_ak_siphash_cpu/SipHash.cpp": {
+        "Generic / Templated Code": 1,
+        "I/O & Config Routines": 1,
+        "Interface Declarations": 1,
+        "Many-Argument Workhorses": 2,
+        "Parameter Forwarders": 2,
+        "Type Conversions": 2
+      }
+    },
     "csd": {
       "csd/SOURCES.md": {}
     },
@@ -4390,6 +4414,13 @@
         "Type Conversions": 8
       }
     },
+    "go/go_runtime_rand": {
+      "go/go_runtime_rand/rand.go": {
+        "Encapsulated Accessors": 10,
+        "I/O & Config Routines": 1,
+        "Stateful Encapsulated Methods": 6
+      }
+    },
     "go/kubernetes": {
       "go/kubernetes/csi_plugin.go": {
         "Callbacks & Closures": 8,
@@ -4435,6 +4466,13 @@
         "Many-Argument Workhorses": 3,
         "Parameter Forwarders": 1,
         "Stateful Encapsulated Methods": 2
+      }
+    },
+    "go/kubernetes_kubectl_tls": {
+      "go/kubernetes_kubectl_tls/create_secret_tls_test.go": {
+        "Encapsulated Accessors": 1,
+        "I/O & Config Routines": 1,
+        "Stateful Encapsulated Methods": 1
       }
     },
     "groovy/fineract_gradle_plugin": {
@@ -5581,6 +5619,34 @@
     "java": {
       "java/SOURCES.md": {}
     },
+    "java/flutter_android_editing_tests": {
+      "java/flutter_android_editing_tests/InputConnectionAdaptorTest.java": {
+        "Annotated & Test Methods": 36,
+        "Encapsulated Accessors": 3,
+        "I/O & Config Routines": 2,
+        "Interface Declarations": 1,
+        "Many-Argument Workhorses": 1,
+        "Parameter Forwarders": 7,
+        "State Mutators": 2,
+        "Stateful Encapsulated Methods": 2
+      }
+    },
+    "java/jenkins_cli": {
+      "java/jenkins_cli/LICENSE.txt": {},
+      "java/jenkins_cli/SetBuildDescriptionCommand.java": {
+        "Annotated & Test Methods": 1,
+        "Stateful Encapsulated Methods": 1
+      }
+    },
+    "java/selenium_grid_session_queue": {
+      "java/selenium_grid_session_queue/NOTICE": {},
+      "java/selenium_grid_session_queue/RemoteNewSessionQueue.java": {
+        "Annotated & Test Methods": 6,
+        "Defensive Guards": 1,
+        "Generic / Templated Code": 3,
+        "Parameter Forwarders": 1
+      }
+    },
     "java/springboot": {
       "java/springboot/AutoConfigurationImportSelector.java": {
         "Annotated & Test Methods": 10,
@@ -5648,6 +5714,19 @@
     "javascript": {
       "javascript/SOURCES.md": {}
     },
+    "javascript/cesium_particle_emitters": {
+      "javascript/cesium_particle_emitters/CircleEmitter.js": {
+        "Callbacks & Closures": 2,
+        "Defensive Guards": 1,
+        "State Mutators": 1
+      },
+      "javascript/cesium_particle_emitters/LICENSE.md": {}
+    },
+    "javascript/javascript_algorithms_bits": {
+      "javascript/javascript_algorithms_bits/fullAdder.js": {
+        "Compute Cores": 1
+      }
+    },
     "javascript/jquery": {
       "javascript/jquery/LICENSE.txt": {},
       "javascript/jquery/ajax.js": {
@@ -5691,6 +5770,17 @@
         "Many-Argument Workhorses": 1
       }
     },
+    "javascript/node_tls_security_tests": {
+      "javascript/node_tls_security_tests/regexp-unicode-sets.js": {
+        "Many-Argument Workhorses": 1
+      },
+      "javascript/node_tls_security_tests/test-crypto-dh-modp2.js": {},
+      "javascript/node_tls_security_tests/test-fs-lchown.js": {},
+      "javascript/node_tls_security_tests/test-https-host-headers.js": {},
+      "javascript/node_tls_security_tests/test-tls-cert-ext-encoding.js": {},
+      "javascript/node_tls_security_tests/test-tls-psk-server.js": {},
+      "javascript/node_tls_security_tests/test-tls-use-after-free-regression.js": {}
+    },
     "javascript/react": {
       "javascript/react/BabelPlugin.ts": {
         "Defensive Guards": 3
@@ -5732,6 +5822,11 @@
         "Many-Argument Workhorses": 5,
         "Parameter Forwarders": 5,
         "State Mutators": 1
+      }
+    },
+    "javascript/react_error_codes": {
+      "javascript/react_error_codes/extract-errors.js": {
+        "I/O & Config Routines": 1
       }
     },
     "javascript/threejs": {
@@ -7270,6 +7365,16 @@
         "I/O & Config Routines": 1
       }
     },
+    "markdown": {
+      "markdown/SOURCES.md": {}
+    },
+    "markdown/airflow_job_lifecycle": {
+      "markdown/airflow_job_lifecycle/JOB_LIFECYCLE.md": {},
+      "markdown/airflow_job_lifecycle/NOTICE": {}
+    },
+    "markdown/kubernetes_client_go": {
+      "markdown/kubernetes_client_go/ARCHITECTURE.md": {}
+    },
     "matlab": {
       "matlab/SOURCES.md": {}
     },
@@ -7371,6 +7476,13 @@
     },
     "perl": {
       "perl/SOURCES.md": {}
+    },
+    "perl/ack3_tests": {
+      "perl/ack3_tests/LICENSE.md": {},
+      "perl/ack3_tests/file-permission.t": {
+        "Parameter Forwarders": 1,
+        "Type Conversions": 1
+      }
     },
     "perl/bugzilla": {
       "perl/bugzilla/Auth.pm": {
@@ -7656,6 +7768,13 @@
         "Type Conversions": 3
       }
     },
+    "php/laravel_validation_rules": {
+      "php/laravel_validation_rules/Can.php": {
+        "Interface Declarations": 1,
+        "Parameter Forwarders": 3
+      },
+      "php/laravel_validation_rules/LICENSE.md": {}
+    },
     "php/magento2": {
       "php/magento2/AbstractBlock.php": {
         "Callbacks & Closures": 1,
@@ -7774,6 +7893,9 @@
         "Parameter Forwarders": 6,
         "Stateful Encapsulated Methods": 2
       }
+    },
+    "php/symfony_emoji_data": {
+      "php/symfony_emoji_data/emoji-ccp.php": {}
     },
     "php/wordpress": {
       "php/wordpress/admin-ajax.php": {},
@@ -8260,6 +8382,36 @@
         "Stateful Encapsulated Methods": 36
       }
     },
+    "python/airflow_ai_providers": {
+      "python/airflow_ai_providers/NOTICE": {},
+      "python/airflow_ai_providers/openai_src_airflow_providers_openai_hooks_openai.py": {
+        "Generic / Templated Code": 38,
+        "Many-Argument Workhorses": 1,
+        "Type Conversions": 2
+      },
+      "python/airflow_ai_providers/pinecone_src_airflow_providers_pinecone_hooks_pinecone.py": {
+        "Encapsulated Accessors": 1,
+        "Generic / Templated Code": 17,
+        "Many-Argument Workhorses": 5,
+        "Stateful Encapsulated Methods": 1,
+        "Type Conversions": 1
+      },
+      "python/airflow_ai_providers/pinecone_src_airflow_providers_pinecone_operators_pinecone.py": {
+        "Generic / Templated Code": 6,
+        "Many-Argument Workhorses": 3
+      },
+      "python/airflow_ai_providers/pinecone_tests_system_pinecone_example_pinecone_cohere.py": {
+        "Interface Declarations": 1,
+        "Type Conversions": 1
+      }
+    },
+    "python/airflow_opsgenie_tests": {
+      "python/airflow_opsgenie_tests/NOTICE": {},
+      "python/airflow_opsgenie_tests/test_opsgenie.py": {
+        "Defensive Guards": 4,
+        "Parameter Forwarders": 5
+      }
+    },
     "python/cython": {
       "python/cython/COPYING.txt": {},
       "python/cython/CodeGeneration.py": {
@@ -8290,6 +8442,16 @@
         "Parameter Forwarders": 210,
         "Stateful Encapsulated Methods": 7,
         "Type Conversions": 3
+      }
+    },
+    "python/django_db_tests": {
+      "python/django_db_tests/test_iterator.py": {
+        "Parameter Forwarders": 5
+      },
+      "python/django_db_tests/test_utils.py": {
+        "Compute Cores": 1,
+        "Encapsulated Accessors": 1,
+        "Parameter Forwarders": 8
       }
     },
     "python/fastapi": {
@@ -9372,6 +9534,54 @@
         "Interface Declarations": 1
       }
     },
+    "python/homeassistant_anthropic": {
+      "python/homeassistant_anthropic/LICENSE.md": {},
+      "python/homeassistant_anthropic/coordinator.py": {
+        "Defensive Guards": 1,
+        "Generic / Templated Code": 3
+      }
+    },
+    "python/homeassistant_ble_integrations": {
+      "python/homeassistant_ble_integrations/LICENSE.md": {},
+      "python/homeassistant_ble_integrations/aranet___init__.py": {
+        "Encapsulated Accessors": 1,
+        "Generic / Templated Code": 2
+      },
+      "python/homeassistant_ble_integrations/gardena_bluetooth___init__.py": {
+        "Defensive Guards": 1,
+        "Encapsulated Accessors": 2,
+        "Generic / Templated Code": 1,
+        "Stateful Encapsulated Methods": 1
+      },
+      "python/homeassistant_ble_integrations/utils.py": {
+        "Generic / Templated Code": 2
+      }
+    },
+    "python/langchain_agents": {
+      "python/langchain_agents/langchain_agents_middleware_model_fallback.py": {
+        "Defensive Guards": 2,
+        "Many-Argument Workhorses": 1
+      },
+      "python/langchain_agents/langchain_agents_middleware_tool_emulator.py": {
+        "Many-Argument Workhorses": 3
+      },
+      "python/langchain_agents/tests_integration_tests_chat_models_test_base.py": {
+        "Defensive Guards": 1,
+        "Generic / Templated Code": 5
+      }
+    },
+    "python/micropython_usb_tls": {
+      "python/micropython_usb_tls/ssl_verify_callback.py": {
+        "Defensive Guards": 1,
+        "Parameter Forwarders": 2
+      },
+      "python/micropython_usb_tls/tls_dtls.py": {
+        "Parameter Forwarders": 4
+      },
+      "python/micropython_usb_tls/usb_simple_host_pyusb.py": {
+        "I/O & Config Routines": 1
+      }
+    },
     "python/numpy": {
       "python/numpy/LICENSE.txt": {},
       "python/numpy/__init__.py": {},
@@ -9468,6 +9678,48 @@
         "Defensive Guards": 1,
         "Type Conversions": 1
       }
+    },
+    "python/opencv_dnn_conversion": {
+      "python/opencv_dnn_conversion/py_to_py_resnet50_onnx.py": {
+        "I/O & Config Routines": 1,
+        "Interface Declarations": 1
+      }
+    },
+    "python/pip_vendored_requests": {
+      "python/pip_vendored_requests/LICENSE.txt": {},
+      "python/pip_vendored_requests/packages.py": {}
+    },
+    "python/scikit-learn_examples": {
+      "python/scikit-learn_examples/COPYING": {},
+      "python/scikit-learn_examples/linear_model_plot_nnls.py": {},
+      "python/scikit-learn_examples/svm_plot_custom_kernel.py": {
+        "Parameter Forwarders": 1
+      }
+    },
+    "python/tensorflow_ml_ops": {
+      "python/tensorflow_ml_ops/core_tfrt_saved_model_tests_gen_matmul_gpu.py": {
+        "Compute Cores": 1,
+        "Parameter Forwarders": 2
+      },
+      "python/tensorflow_ml_ops/lite_testing_op_tests_einsum.py": {
+        "Compute Cores": 1,
+        "Generic / Templated Code": 1,
+        "Parameter Forwarders": 1,
+        "Type Conversions": 1
+      }
+    },
+    "python/tensorflow_model_fixtures": {
+      "python/tensorflow_model_fixtures/lite_testdata_multi_add.pb": {},
+      "python/tensorflow_model_fixtures/python_compiler_mlir_multi_add.tflite": {}
+    },
+    "python/thealgorithms_machine_learning": {
+      "python/thealgorithms_machine_learning/LICENSE.md": {},
+      "python/thealgorithms_machine_learning/logistic_regression.py": {
+        "I/O & Config Routines": 1,
+        "Many-Argument Workhorses": 2,
+        "Parameter Forwarders": 2
+      },
+      "python/thealgorithms_machine_learning/lstm_lstm_prediction.py": {}
     },
     "python/twisted": {
       "python/twisted/defer.py": {
@@ -9685,6 +9937,14 @@
       },
       "ruby/rails/routing.rb": {}
     },
+    "ruby/rails_http_token_auth": {
+      "ruby/rails_http_token_auth/MIT-LICENSE": {},
+      "ruby/rails_http_token_auth/http_token_authentication_test.rb": {
+        "Callbacks & Closures": 4,
+        "Interface Declarations": 4,
+        "Parameter Forwarders": 1
+      }
+    },
     "rust": {
       "rust/SOURCES.md": {}
     },
@@ -9748,6 +10008,19 @@
         "Generic / Templated Code": 3,
         "Many-Argument Workhorses": 1,
         "State Mutators": 1
+      }
+    },
+    "rust/bevy_asset_examples": {
+      "rust/bevy_asset_examples/LICENSE-APACHE": {},
+      "rust/bevy_asset_examples/LICENSE-MIT": {},
+      "rust/bevy_asset_examples/image_node.rs": {
+        "Generic / Templated Code": 1,
+        "State Mutators": 1
+      },
+      "rust/bevy_asset_examples/rotation.rs": {
+        "Generic / Templated Code": 1,
+        "I/O & Config Routines": 1,
+        "Many-Argument Workhorses": 3
       }
     },
     "rust/holylang": {
@@ -9933,6 +10206,14 @@
         "Many-Argument Workhorses": 2,
         "Parameter Forwarders": 20,
         "State Mutators": 7
+      }
+    },
+    "rust/tokio_util_rand": {
+      "rust/tokio_util_rand/rand.rs": {
+        "Encapsulated Accessors": 4,
+        "Parameter Forwarders": 1,
+        "State Mutators": 1,
+        "Type Conversions": 1
       }
     },
     "rust/wasmtime": {
@@ -10348,6 +10629,13 @@
       },
       "shell/freebsd-src/ztest.sh": {
         "I/O & Config Routines": 4
+      }
+    },
+    "shell/freebsd_sysbuild": {
+      "shell/freebsd_sysbuild/COPYRIGHT": {},
+      "shell/freebsd_sysbuild/sysbuild.sh": {
+        "I/O & Config Routines": 1,
+        "State Mutators": 1
       }
     },
     "shell/haiku": {
@@ -11150,6 +11438,13 @@
     "typescript": {
       "typescript/SOURCES.md": {}
     },
+    "typescript/angular_zonejs_mocha": {
+      "typescript/angular_zonejs_mocha/mocha.ts": {
+        "Callbacks & Closures": 21,
+        "Compute Cores": 1,
+        "Defensive Guards": 1
+      }
+    },
     "typescript/assemblyscript": {
       "typescript/assemblyscript/asconfig.json": {},
       "typescript/assemblyscript/ast.ts": {
@@ -11185,6 +11480,33 @@
         "Type Conversions": 1
       }
     },
+    "typescript/effect_ai_anthropic": {
+      "typescript/effect_ai_anthropic/AnthropicTokenizer.ts": {
+        "Callbacks & Closures": 1,
+        "Defensive Guards": 2
+      }
+    },
+    "typescript/excalibur_math": {
+      "typescript/excalibur_math/LICENSE.md": {},
+      "typescript/excalibur_math/collision_colliders_separating-axis.ts": {
+        "Compute Cores": 1,
+        "Many-Argument Workhorses": 2
+      },
+      "typescript/excalibur_math/math_ray.ts": {
+        "Compute Cores": 1,
+        "Parameter Forwarders": 2,
+        "State Mutators": 1
+      }
+    },
+    "typescript/excalidraw_text_wrapping": {
+      "typescript/excalidraw_text_wrapping/textWrapping.ts": {
+        "Callbacks & Closures": 22,
+        "Defensive Guards": 1,
+        "I/O & Config Routines": 1,
+        "Many-Argument Workhorses": 4,
+        "Parameter Forwarders": 5
+      }
+    },
     "typescript/fp-ts": {
       "typescript/fp-ts/Either.ts": {
         "Callbacks & Closures": 4,
@@ -11200,6 +11522,20 @@
       "typescript/fp-ts/package.json": {},
       "typescript/fp-ts/pipeable.ts": {
         "Generic / Templated Code": 224
+      }
+    },
+    "typescript/nx_util_ai": {
+      "typescript/nx_util_ai/nx-dev_pages_api_query-ai-handler.ts": {
+        "Defensive Guards": 1
+      },
+      "typescript/nx_util_ai/util-ai_src_lib_moderation.ts": {
+        "Defensive Guards": 1
+      }
+    },
+    "typescript/pixijs_examples": {
+      "typescript/pixijs_examples/events_dragging.ts": {
+        "I/O & Config Routines": 1,
+        "State Mutators": 3
       }
     },
     "typescript/playwright": {
@@ -11793,6 +12129,13 @@
         "Many-Argument Workhorses": 20,
         "Parameter Forwarders": 2,
         "State Mutators": 13
+      }
+    },
+    "zig/zig_std_linux_mips": {
+      "zig/zig_std_linux_mips/mips.zig": {
+        "I/O & Config Routines": 1,
+        "Many-Argument Workhorses": 4,
+        "Parameter Forwarders": 8
       }
     },
     "zig/zls": {

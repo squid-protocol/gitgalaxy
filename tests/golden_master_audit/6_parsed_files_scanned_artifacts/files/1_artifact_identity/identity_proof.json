@@ -411,6 +411,9 @@
     "c": {
       "c/SOURCES.md": "Prose Extension (.md)"
     },
+    "c/cosmopolitan_intrin": {
+      "c/cosmopolitan_intrin/countbits.c": "Ecosystem Consensus Lock (100% Local Dominance)"
+    },
     "c/cpython": {
       "c/cpython/Makefile.pre.in": "Prefix Anchor (Makefile)",
       "c/cpython/ceval.c": "Ecosystem Consensus Lock (100% Local Dominance)",
@@ -435,6 +438,9 @@
       "c/doom/r_defs.h": "Ecosystem Consensus Lock (70% Local Dominance)",
       "c/doom/w_wad.c": "Ecosystem Consensus Lock (100% Local Dominance)",
       "c/doom/z_zone.c": "Ecosystem Consensus Lock (100% Local Dominance)"
+    },
+    "c/freebsd_openpam": {
+      "c/freebsd_openpam/pam_acct_mgmt.c": "Ecosystem Consensus Lock (100% Local Dominance)"
     },
     "c/micropython": {
       "c/micropython/compile.c": "Ecosystem Consensus Lock (100% Local Dominance)",
@@ -1126,6 +1132,10 @@
       "cpp/powertoys/main.cpp": "Single Indicator (Ext: .cpp)",
       "cpp/powertoys/powertoy_module.h": "Ecosystem Consensus Lock (81% Local Dominance)"
     },
+    "cpp/serenity_ak_siphash_cpu": {
+      "cpp/serenity_ak_siphash_cpu/CPUFeatures.cpp": "Single Indicator (Ext: .cpp)",
+      "cpp/serenity_ak_siphash_cpu/SipHash.cpp": "Single Indicator (Ext: .cpp)"
+    },
     "csd": {
       "csd/SOURCES.md": "Prose Extension (.md)"
     },
@@ -1362,6 +1372,9 @@
       "go/core/syscall_linux.go": "Single Indicator (Ext: .go)",
       "go/core/value.go": "Single Indicator (Ext: .go)"
     },
+    "go/go_runtime_rand": {
+      "go/go_runtime_rand/rand.go": "Single Indicator (Ext: .go)"
+    },
     "go/kubernetes": {
       "go/kubernetes/csi_plugin.go": "Single Indicator (Ext: .go)",
       "go/kubernetes/generic.go": "Single Indicator (Ext: .go)",
@@ -1370,6 +1383,9 @@
       "go/kubernetes/proxier.go": "Single Indicator (Ext: .go)",
       "go/kubernetes/replica_set.go": "Single Indicator (Ext: .go)",
       "go/kubernetes/scheduler.go": "Single Indicator (Ext: .go)"
+    },
+    "go/kubernetes_kubectl_tls": {
+      "go/kubernetes_kubectl_tls/create_secret_tls_test.go": "Single Indicator (Ext: .go)"
     },
     "groovy/fineract_gradle_plugin": {
       "groovy/fineract_gradle_plugin/LICENSE_RELEASE": "Prose Anchor (LICENSE_RELEASE)",
@@ -1876,6 +1892,17 @@
     "java": {
       "java/SOURCES.md": "Prose Extension (.md)"
     },
+    "java/flutter_android_editing_tests": {
+      "java/flutter_android_editing_tests/InputConnectionAdaptorTest.java": "Single Indicator (Ext: .java)"
+    },
+    "java/jenkins_cli": {
+      "java/jenkins_cli/LICENSE.txt": "Prose Extension (.txt)",
+      "java/jenkins_cli/SetBuildDescriptionCommand.java": "Single Indicator (Ext: .java)"
+    },
+    "java/selenium_grid_session_queue": {
+      "java/selenium_grid_session_queue/NOTICE": "Metadata Anchor (NOTICE)",
+      "java/selenium_grid_session_queue/RemoteNewSessionQueue.java": "Single Indicator (Ext: .java)"
+    },
     "java/springboot": {
       "java/springboot/AutoConfigurationImportSelector.java": "Single Indicator (Ext: .java)",
       "java/springboot/Binder.java": "Single Indicator (Ext: .java)",
@@ -1889,6 +1916,13 @@
     "javascript": {
       "javascript/SOURCES.md": "Prose Extension (.md)"
     },
+    "javascript/cesium_particle_emitters": {
+      "javascript/cesium_particle_emitters/CircleEmitter.js": "Single Indicator (Ext: .js)",
+      "javascript/cesium_particle_emitters/LICENSE.md": "Prose Extension (.md)"
+    },
+    "javascript/javascript_algorithms_bits": {
+      "javascript/javascript_algorithms_bits/fullAdder.js": "Single Indicator (Ext: .js)"
+    },
     "javascript/jquery": {
       "javascript/jquery/LICENSE.txt": "Prose Extension (.txt)",
       "javascript/jquery/ajax.js": "Single Indicator (Ext: .js)",
@@ -1899,6 +1933,15 @@
       "javascript/jquery/event.js": "Single Indicator (Ext: .js)",
       "javascript/jquery/tokenize.js": "Single Indicator (Ext: .js)"
     },
+    "javascript/node_tls_security_tests": {
+      "javascript/node_tls_security_tests/regexp-unicode-sets.js": "Single Indicator (Ext: .js)",
+      "javascript/node_tls_security_tests/test-crypto-dh-modp2.js": "Single Indicator (Ext: .js)",
+      "javascript/node_tls_security_tests/test-fs-lchown.js": "Single Indicator (Ext: .js)",
+      "javascript/node_tls_security_tests/test-https-host-headers.js": "Single Indicator (Ext: .js)",
+      "javascript/node_tls_security_tests/test-tls-cert-ext-encoding.js": "Single Indicator (Ext: .js)",
+      "javascript/node_tls_security_tests/test-tls-psk-server.js": "Single Indicator (Ext: .js)",
+      "javascript/node_tls_security_tests/test-tls-use-after-free-regression.js": "Single Indicator (Ext: .js)"
+    },
     "javascript/react": {
       "javascript/react/BabelPlugin.ts": "Single Indicator (Ext: .ts)",
       "javascript/react/ReactFiberBeginWork.js": "Single Indicator (Ext: .js)",
@@ -1906,6 +1949,9 @@
       "javascript/react/ReactFlightServer.js": "Single Indicator (Ext: .js)",
       "javascript/react/ReactSymbols.js": "Single Indicator (Ext: .js)",
       "javascript/react/build.js": "Single Indicator (Ext: .js)"
+    },
+    "javascript/react_error_codes": {
+      "javascript/react_error_codes/extract-errors.js": "Single Indicator (Ext: .js)"
     },
     "javascript/threejs": {
       "javascript/threejs/BufferGeometry.js": "Single Indicator (Ext: .js)",
@@ -2393,6 +2439,16 @@
       "makefile/freebsd/COPYRIGHT": "Metadata Anchor (COPYRIGHT)",
       "makefile/freebsd/Makefile": "Single Indicator (Exact Match)"
     },
+    "markdown": {
+      "markdown/SOURCES.md": "Prose Extension (.md)"
+    },
+    "markdown/airflow_job_lifecycle": {
+      "markdown/airflow_job_lifecycle/JOB_LIFECYCLE.md": "Prose Extension (.md)",
+      "markdown/airflow_job_lifecycle/NOTICE": "Metadata Anchor (NOTICE)"
+    },
+    "markdown/kubernetes_client_go": {
+      "markdown/kubernetes_client_go/ARCHITECTURE.md": "Prose Extension (.md)"
+    },
     "matlab": {
       "matlab/SOURCES.md": "Prose Extension (.md)"
     },
@@ -2442,6 +2498,10 @@
     },
     "perl": {
       "perl/SOURCES.md": "Prose Extension (.md)"
+    },
+    "perl/ack3_tests": {
+      "perl/ack3_tests/LICENSE.md": "Prose Extension (.md)",
+      "perl/ack3_tests/file-permission.t": "Absolute Consensus (Ext + Shebang)"
     },
     "perl/bugzilla": {
       "perl/bugzilla/Auth.pm": "Single Indicator (Ext: .pm)",
@@ -2497,6 +2557,10 @@
       "php/laravel_core/Model.php": "Single Indicator (Ext: .php)",
       "php/laravel_core/Router.php": "Single Indicator (Ext: .php)"
     },
+    "php/laravel_validation_rules": {
+      "php/laravel_validation_rules/Can.php": "Single Indicator (Ext: .php)",
+      "php/laravel_validation_rules/LICENSE.md": "Prose Extension (.md)"
+    },
     "php/magento2": {
       "php/magento2/AbstractBlock.php": "Single Indicator (Ext: .php)",
       "php/magento2/AbstractModel.php": "Single Indicator (Ext: .php)",
@@ -2515,6 +2579,9 @@
       "php/symfony/Parser.php": "Single Indicator (Ext: .php)",
       "php/symfony/Request.php": "Single Indicator (Ext: .php)",
       "php/symfony/Router.php": "Single Indicator (Ext: .php)"
+    },
+    "php/symfony_emoji_data": {
+      "php/symfony_emoji_data/emoji-ccp.php": "Single Indicator (Ext: .php)"
     },
     "php/wordpress": {
       "php/wordpress/admin-ajax.php": "Single Indicator (Ext: .php)",
@@ -2731,6 +2798,17 @@
       "python/airflow/s3.py": "Single Indicator (Internal Signature)",
       "python/airflow/scheduler_job_runner.py": "Single Indicator (Internal Signature)"
     },
+    "python/airflow_ai_providers": {
+      "python/airflow_ai_providers/NOTICE": "Metadata Anchor (NOTICE)",
+      "python/airflow_ai_providers/openai_src_airflow_providers_openai_hooks_openai.py": "Ecosystem Consensus Lock (100% Local Dominance)",
+      "python/airflow_ai_providers/pinecone_src_airflow_providers_pinecone_hooks_pinecone.py": "Single Indicator (Internal Signature)",
+      "python/airflow_ai_providers/pinecone_src_airflow_providers_pinecone_operators_pinecone.py": "Ecosystem Consensus Lock (100% Local Dominance)",
+      "python/airflow_ai_providers/pinecone_tests_system_pinecone_example_pinecone_cohere.py": "Ecosystem Consensus Lock (100% Local Dominance)"
+    },
+    "python/airflow_opsgenie_tests": {
+      "python/airflow_opsgenie_tests/NOTICE": "Metadata Anchor (NOTICE)",
+      "python/airflow_opsgenie_tests/test_opsgenie.py": "Ecosystem Consensus Lock (75% Local Dominance)"
+    },
     "python/cython": {
       "python/cython/COPYING.txt": "Prose Extension (.txt)",
       "python/cython/CodeGeneration.py": "Ecosystem Consensus Lock (75% Local Dominance)",
@@ -2738,6 +2816,10 @@
       "python/cython/MemoryView.pxd": "Single Indicator (Ext: .pxd)",
       "python/cython/MemoryView.pyx": "Single Indicator (Ext: .pyx)",
       "python/cython/Nodes.py": "Ecosystem Consensus Lock (75% Local Dominance)"
+    },
+    "python/django_db_tests": {
+      "python/django_db_tests/test_iterator.py": "Single Indicator (Internal Signature)",
+      "python/django_db_tests/test_utils.py": "Single Indicator (Internal Signature)"
     },
     "python/fastapi": {
       "python/fastapi/CONTRIBUTING.md": "Prose Extension (.md)",
@@ -2976,6 +3058,26 @@
       "python/fastapi/tests/test_ws_router.py": "Single Indicator (Internal Signature)",
       "python/fastapi/tests/utils.py": "Ecosystem Consensus Lock (100% Local Dominance)"
     },
+    "python/homeassistant_anthropic": {
+      "python/homeassistant_anthropic/LICENSE.md": "Prose Extension (.md)",
+      "python/homeassistant_anthropic/coordinator.py": "Ecosystem Consensus Lock (75% Local Dominance)"
+    },
+    "python/homeassistant_ble_integrations": {
+      "python/homeassistant_ble_integrations/LICENSE.md": "Prose Extension (.md)",
+      "python/homeassistant_ble_integrations/aranet___init__.py": "Ecosystem Consensus Lock (100% Local Dominance)",
+      "python/homeassistant_ble_integrations/gardena_bluetooth___init__.py": "Ecosystem Consensus Lock (100% Local Dominance)",
+      "python/homeassistant_ble_integrations/utils.py": "Single Indicator (Internal Signature)"
+    },
+    "python/langchain_agents": {
+      "python/langchain_agents/langchain_agents_middleware_model_fallback.py": "Ecosystem Consensus Lock (75% Local Dominance)",
+      "python/langchain_agents/langchain_agents_middleware_tool_emulator.py": "Ecosystem Consensus Lock (75% Local Dominance)",
+      "python/langchain_agents/tests_integration_tests_chat_models_test_base.py": "Ecosystem Consensus Lock (75% Local Dominance)"
+    },
+    "python/micropython_usb_tls": {
+      "python/micropython_usb_tls/ssl_verify_callback.py": "Ecosystem Consensus Lock (100% Local Dominance)",
+      "python/micropython_usb_tls/tls_dtls.py": "Ecosystem Consensus Lock (100% Local Dominance)",
+      "python/micropython_usb_tls/usb_simple_host_pyusb.py": "Single Indicator (Shebang)"
+    },
     "python/numpy": {
       "python/numpy/LICENSE.txt": "Prose Extension (.txt)",
       "python/numpy/__init__.py": "Ecosystem Consensus Lock (100% Local Dominance)",
@@ -2995,6 +3097,31 @@
       "python/numpy/testutils.py": "Single Indicator (Internal Signature)",
       "python/numpy/ufunc_docstrings.py": "Ecosystem Consensus Lock (100% Local Dominance)",
       "python/numpy/verify_c_api_version.py": "Single Indicator (Shebang)"
+    },
+    "python/opencv_dnn_conversion": {
+      "python/opencv_dnn_conversion/py_to_py_resnet50_onnx.py": "Single Indicator (Internal Signature)"
+    },
+    "python/pip_vendored_requests": {
+      "python/pip_vendored_requests/LICENSE.txt": "Prose Extension (.txt)",
+      "python/pip_vendored_requests/packages.py": "Ecosystem Consensus Lock (75% Local Dominance)"
+    },
+    "python/scikit-learn_examples": {
+      "python/scikit-learn_examples/COPYING": "Metadata Anchor (COPYING)",
+      "python/scikit-learn_examples/linear_model_plot_nnls.py": "Single Indicator (Internal Signature)",
+      "python/scikit-learn_examples/svm_plot_custom_kernel.py": "Single Indicator (Internal Signature)"
+    },
+    "python/tensorflow_ml_ops": {
+      "python/tensorflow_ml_ops/core_tfrt_saved_model_tests_gen_matmul_gpu.py": "Single Indicator (Internal Signature)",
+      "python/tensorflow_ml_ops/lite_testing_op_tests_einsum.py": "Single Indicator (Internal Signature)"
+    },
+    "python/tensorflow_model_fixtures": {
+      "python/tensorflow_model_fixtures/lite_testdata_multi_add.pb": "Tensor Scanner Header Extraction",
+      "python/tensorflow_model_fixtures/python_compiler_mlir_multi_add.tflite": "Tensor Scanner Header Extraction"
+    },
+    "python/thealgorithms_machine_learning": {
+      "python/thealgorithms_machine_learning/LICENSE.md": "Prose Extension (.md)",
+      "python/thealgorithms_machine_learning/logistic_regression.py": "Single Indicator (Shebang)",
+      "python/thealgorithms_machine_learning/lstm_lstm_prediction.py": "Single Indicator (Internal Signature)"
     },
     "python/twisted": {
       "python/twisted/defer.py": "Ecosystem Consensus Lock (75% Local Dominance)",
@@ -3061,6 +3188,10 @@
       "ruby/rails/metal.rb": "Single Indicator (Ext: .rb)",
       "ruby/rails/routing.rb": "Single Indicator (Ext: .rb)"
     },
+    "ruby/rails_http_token_auth": {
+      "ruby/rails_http_token_auth/MIT-LICENSE": "Prose Anchor (MIT-LICENSE)",
+      "ruby/rails_http_token_auth/http_token_authentication_test.rb": "Single Indicator (Ext: .rb)"
+    },
     "rust": {
       "rust/SOURCES.md": "Prose Extension (.md)"
     },
@@ -3074,6 +3205,12 @@
       "rust/bevy/bevy_reflect_path.rs": "Single Indicator (Ext: .rs)",
       "rust/bevy/bevy_render_phase.rs": "Single Indicator (Ext: .rs)",
       "rust/bevy/bevy_schedule_graph.rs": "Single Indicator (Ext: .rs)"
+    },
+    "rust/bevy_asset_examples": {
+      "rust/bevy_asset_examples/LICENSE-APACHE": "Prose Anchor (LICENSE-APACHE)",
+      "rust/bevy_asset_examples/LICENSE-MIT": "Prose Anchor (LICENSE-MIT)",
+      "rust/bevy_asset_examples/image_node.rs": "Single Indicator (Ext: .rs)",
+      "rust/bevy_asset_examples/rotation.rs": "Single Indicator (Ext: .rs)"
     },
     "rust/holylang": {
       "rust/holylang/ast.rs": "Single Indicator (Ext: .rs)",
@@ -3118,6 +3255,9 @@
       "rust/tokio/tests.rs": "Single Indicator (Ext: .rs)",
       "rust/tokio/tokio_mpsc_bounded.rs": "Single Indicator (Ext: .rs)",
       "rust/tokio/tokio_named_pipe.rs": "Single Indicator (Ext: .rs)"
+    },
+    "rust/tokio_util_rand": {
+      "rust/tokio_util_rand/rand.rs": "Single Indicator (Ext: .rs)"
     },
     "rust/wasmtime": {
       "rust/wasmtime/wasmtime_component_macro.rs": "Single Indicator (Ext: .rs)",
@@ -3260,6 +3400,10 @@
       "shell/freebsd-src/runulp.sh": "Absolute Consensus (Ext + Shebang)",
       "shell/freebsd-src/timeout_test.sh": "Single Indicator (Ext: .sh)",
       "shell/freebsd-src/ztest.sh": "Single Indicator (Ext: .sh)"
+    },
+    "shell/freebsd_sysbuild": {
+      "shell/freebsd_sysbuild/COPYRIGHT": "Metadata Anchor (COPYRIGHT)",
+      "shell/freebsd_sysbuild/sysbuild.sh": "Absolute Consensus (Ext + Shebang)"
     },
     "shell/haiku": {
       "shell/haiku/HardwareChecker.sh": "Absolute Consensus (Ext + Shebang)",
@@ -3688,6 +3832,9 @@
     "typescript": {
       "typescript/SOURCES.md": "Prose Extension (.md)"
     },
+    "typescript/angular_zonejs_mocha": {
+      "typescript/angular_zonejs_mocha/mocha.ts": "Single Indicator (Ext: .ts)"
+    },
     "typescript/assemblyscript": {
       "typescript/assemblyscript/asconfig.json": "Single Indicator (Ext: .json)",
       "typescript/assemblyscript/ast.ts": "Single Indicator (Ext: .ts)",
@@ -3695,12 +3842,30 @@
       "typescript/assemblyscript/package.json": "Single Indicator (Exact Match)",
       "typescript/assemblyscript/parser.ts": "Single Indicator (Ext: .ts)"
     },
+    "typescript/effect_ai_anthropic": {
+      "typescript/effect_ai_anthropic/AnthropicTokenizer.ts": "Single Indicator (Ext: .ts)"
+    },
+    "typescript/excalibur_math": {
+      "typescript/excalibur_math/LICENSE.md": "Prose Extension (.md)",
+      "typescript/excalibur_math/collision_colliders_separating-axis.ts": "Single Indicator (Ext: .ts)",
+      "typescript/excalibur_math/math_ray.ts": "Single Indicator (Ext: .ts)"
+    },
+    "typescript/excalidraw_text_wrapping": {
+      "typescript/excalidraw_text_wrapping/textWrapping.ts": "Single Indicator (Ext: .ts)"
+    },
     "typescript/fp-ts": {
       "typescript/fp-ts/Either.ts": "Single Indicator (Ext: .ts)",
       "typescript/fp-ts/HKT.ts": "Single Indicator (Ext: .ts)",
       "typescript/fp-ts/TaskEither.ts": "Single Indicator (Ext: .ts)",
       "typescript/fp-ts/package.json": "Single Indicator (Exact Match)",
       "typescript/fp-ts/pipeable.ts": "Single Indicator (Ext: .ts)"
+    },
+    "typescript/nx_util_ai": {
+      "typescript/nx_util_ai/nx-dev_pages_api_query-ai-handler.ts": "Single Indicator (Ext: .ts)",
+      "typescript/nx_util_ai/util-ai_src_lib_moderation.ts": "Single Indicator (Ext: .ts)"
+    },
+    "typescript/pixijs_examples": {
+      "typescript/pixijs_examples/events_dragging.ts": "Single Indicator (Ext: .ts)"
     },
     "typescript/playwright": {
       "typescript/playwright/NOTICE": "Metadata Anchor (NOTICE)",
@@ -3892,6 +4057,9 @@
       "zig/zig/Type.zig": "Single Indicator (Ext: .zig)",
       "zig/zig/Zcu.zig": "Single Indicator (Ext: .zig)",
       "zig/zig/main.zig": "Single Indicator (Ext: .zig)"
+    },
+    "zig/zig_std_linux_mips": {
+      "zig/zig_std_linux_mips/mips.zig": "Single Indicator (Ext: .zig)"
     },
     "zig/zls": {
       "zig/zls/DocumentScope.zig": "Single Indicator (Ext: .zig)",

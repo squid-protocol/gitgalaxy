@@ -1,0 +1,13 @@
+{
+  "groups": {
+    "python/tensorflow_model_fixtures": {
+      "python/tensorflow_model_fixtures/lite_testdata_multi_add.pb": "0.00 GB",
+      "python/tensorflow_model_fixtures/python_compiler_mlir_multi_add.tflite": "0.00 GB"
+    }
+  },
+  "path": [
+    "6. Parsed Files (Scanned Artifacts)",
+    "1. Artifact Identity",
+    "Size Gb"
+  ]
+}

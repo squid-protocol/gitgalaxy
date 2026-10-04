@@ -145,7 +145,7 @@ def test_no_tool_writes_an_approval():
     for path in [*(REPO / "tests" / "tools").glob("*.py"), *(REPO / "gitgalaxy").rglob("*.py")]:
         if path.name == "evidence.py":
             continue
-        text = path.read_text(encoding="utf-8", errors="replace")
+        text = path.read_text(encoding="utf-8")  # our own source: UTF-8, read strictly
         assert '"approvals"' not in text and "'approvals'" not in text, f"{path.relative_to(REPO)} names `approvals`"
         if path.name in _TOOLS_WITHOUT_APPROVALS:  # the proof and mutation tools: not even through a variable
             assert "_append_approval" not in text and "evidence.sign" not in text, path.relative_to(REPO)

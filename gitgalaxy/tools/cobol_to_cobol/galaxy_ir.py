@@ -1733,8 +1733,13 @@ class GalaxyIR:
                     continue
                 cb, roots = self._copy_roots(member, owner_ef, origin, d)
                 if cb is None:
-                    if owner is item:
-                        kids.append((None, member))
+                    if owner is not item and _SYSTEM_COPYBOOK.match(nfc(member)):
+                        # #4278: a runtime member after an entry (`EXEC SQL INCLUDE SQLCA`,
+                        # `COPY DFHAID`) is its own 01 record: it closes `item`.
+                        return True
+                    # #4278: any other member that did not resolve is a gap in `item` --
+                    # reported, never silently skipped (the fields after it would sit early).
+                    kids.append((None, member))
                     continue
                 if roots and all(r.level > item.level for r in roots):
                     for root in roots:
@@ -1749,9 +1754,38 @@ class GalaxyIR:
             return kids
         for child in item.children:
             kids.append((ef, child))
-            if _is_elementary(child) and _copies(child, ef, depth):
+            if _is_elementary(child):
+                # #4278: a COPY after the item's 88 conditions is recorded on the last 88.
+                cond = _last_entry(child)
+                if _copies(child, ef, depth) or (cond is not child and _copies(cond, ef, depth)):
+                    break
+                continue
+            # #4278: a COPY after the LAST entry of a group child's subtree (carddemo COTRTLIC:
+            # `15 FILLER ... VALUE ')'.` then `EXEC SQL INCLUDE CSDB2RWY` of `05` roots) closes
+            # every group deeper than its roots, so the child's own expansion stops there. Its
+            # roots land at the first level that holds them: here, as `item`'s children after
+            # `child` -- or, when they are no deeper than `item`, they close `item` too.
+            leaf = _last_entry(child)
+            if (
+                leaf is not child
+                and leaf.copy_members
+                and self._copy_closes(leaf, child, ef, origin, depth)
+                and _copies(leaf, ef, depth)
+            ):
                 break
         return kids
+
+    def _copy_closes(
+        self, leaf: EngineDataItem, group: EngineDataItem, ef: EngineFile, origin: EngineFile, depth: int
+    ) -> bool:
+        """Whether a resolved COPY recorded on `leaf` (the last entry of `group`'s subtree) has
+        roots no deeper than `group` -- the copybook opened entries at `group`'s level or above."""
+        for member in (leaf.copy_members or "").split(","):
+            if member:
+                _, roots = self._copy_roots(member, ef, origin, depth)
+                if roots and not all(r.level > group.level for r in roots):
+                    return True
+        return False
 
     def _copy_extension(self, ef: EngineFile, cb: EngineFile) -> list:
         """The entries of program `ef` that continue copybook `cb`'s LAST record.
@@ -5162,6 +5196,14 @@ def _in_order(wanted: list, path: tuple) -> bool:
         if at < len(wanted) and name == wanted[at]:
             at += 1
     return at == len(wanted)
+
+
+def _last_entry(item: EngineDataItem) -> EngineDataItem:
+    """The last entry in `item`'s subtree in source order (88 / 66 conditions included: a
+    COPY after an `88` is recorded on it)."""
+    while item.children:
+        item = item.children[-1]
+    return item
 
 
 def _is_elementary(item: EngineDataItem) -> bool:

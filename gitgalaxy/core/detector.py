@@ -10146,6 +10146,11 @@ class StructuralExtractor:
                 literal_callee = rules.get("_calls_out_literal_callee")
                 if isinstance(literal_callee, re.Pattern):
                     safe_block = _blank_literals_except_callee(block, literal_callee)
+                # #4304: blocks of another language embedded in this one (COBOL EXEC ... END-EXEC)
+                # hold no call of this language; blanked with their line breaks kept.
+                masked = rules.get("_calls_out_masked_blocks")
+                if isinstance(masked, re.Pattern):
+                    safe_block = masked.sub(lambda m: re.sub(r"[^\n]", " ", m.group(0)), safe_block)
                 raw_calls = invocation_pattern.findall(safe_block)
 
         # Per-language additions to the global ignore set (Epic #3264 Phase 3).

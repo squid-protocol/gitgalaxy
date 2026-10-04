@@ -1025,7 +1025,7 @@ def _bless_leg(kit: Kit, leg: str, verify: bool, wt: Path | None = None) -> tupl
     tool = str(wt / "tests" / "tools" / "crucible_check.py")
     log = kit.log(f"bless-{leg}")
     rc = kit.run([sys.executable, tool, "--mode", leg, "--update", "--yes"], log, cwd=wt, env=env)
-    text = log.read_text(encoding="utf-8", errors="replace")
+    text = log.read_text(encoding="utf-8", errors="backslashreplace")
     # crucible_check --update exits 0 even when the update crashed: verify the artifact message.
     if rc != 0 or not ("✅ Updated" in text or "No drift detected" in text):
         return False, f"crucible_check --update failed (exit {rc}), see {log}"
@@ -1036,7 +1036,7 @@ def _bless_leg(kit: Kit, leg: str, verify: bool, wt: Path | None = None) -> tupl
     _git(corpus, "clean", "-fdxq")
     vlog = kit.log(f"verify-{leg}")
     rc = kit.run([sys.executable, tool, "--mode", leg], vlog, cwd=wt, env=env)
-    vtext = vlog.read_text(encoding="utf-8", errors="replace")
+    vtext = vlog.read_text(encoding="utf-8", errors="backslashreplace")
     if rc != 0 or ": PASS" not in vtext:
         return False, f"crucible_check --mode {leg} FAILED after the bless, see {vlog}"
     return True, "crucible_check PASS"
@@ -1053,7 +1053,7 @@ def cmd_scope(kit: Kit, base: str, expect: str | None, mode: str) -> bool:
         cmd += ["--expect", expect]
     log = kit.log("scope")
     rc = kit.run(cmd, log, env=env)
-    for ln in log.read_text(encoding="utf-8", errors="replace").splitlines():
+    for ln in log.read_text(encoding="utf-8", errors="backslashreplace").splitlines():
         if ln.startswith(("===", "Total differences", "  ", "✅", "❌")) and len(ln) < 200:
             kit.say("  " + ln.strip())
     return rc == 0
@@ -1292,7 +1292,7 @@ def cmd_audit(kit: Kit, base: str, keyword: str | None, tests: list[str], run_te
         cmd += ["-k", keyword]
     log = kit.log("tests")
     rc = kit.run(cmd, log, env=kit.env_for("audit"))
-    lines = [ln for ln in log.read_text(encoding="utf-8", errors="replace").splitlines() if " in " in ln]
+    lines = [ln for ln in log.read_text(encoding="utf-8", errors="backslashreplace").splitlines() if " in " in ln]
     kit.say(
         f"  tests ({len(tests)} path(s){', -k ' + keyword if keyword else ''}): {lines[-1].strip('= ') if lines else rc}"
     )

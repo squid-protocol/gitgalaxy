@@ -21,6 +21,20 @@
   "sibling_ports": [
    "CAXA",
    "CAXB"
+  ],
+  "reproven": [
+   {
+    "at": "2026-10-04T14:21:04+00:00",
+    "crucible_ref": "v0.2.0 (94f2afcb)",
+    "summary": {
+     "direct-entry": "1/1",
+     "long-overread": "1/1",
+     "short-upgrade": "1/1"
+    },
+    "port_sha256": "e820f6a144ed2505f6c990cdc99b905c0e0a5aecbe897d1c9a4b99c437c111af",
+    "harness_commit": "16ae9e01515581be224b32982ceae54bc73e68fb",
+    "by": "tests/tools/crucible_port_provenance.py reprove (cics_crucible.py --sides java-ported --program CAXB --report-dir)"
+   }
   ]
  },
  "approved": false,

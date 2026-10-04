@@ -24,6 +24,23 @@
   "sibling_ports": [
    "GTSTART",
    "GTWORK"
+  ],
+  "reproven": [
+   {
+    "at": "2026-10-04T14:21:11+00:00",
+    "crucible_ref": "v0.2.0 (94f2afcb)",
+    "summary": {
+     "interval-data": "1/1",
+     "no-data": "1/1",
+     "protect-abend": "1/1",
+     "retrieve-lengerr": "1/1",
+     "time-six-hours": "1/1",
+     "unknown-mode": "1/1"
+    },
+    "port_sha256": "4fef1e45bdbf2feef91a2e0a27eaf1ded061c9520bfeb247bdf5edef23c3e840",
+    "harness_commit": "16ae9e01515581be224b32982ceae54bc73e68fb",
+    "by": "tests/tools/crucible_port_provenance.py reprove (cics_crucible.py --sides java-ported --program GTSTART --report-dir)"
+   }
   ]
  },
  "approved": false,

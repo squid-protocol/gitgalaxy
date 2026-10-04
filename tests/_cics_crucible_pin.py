@@ -25,7 +25,9 @@ The ref is a release tag of the crucible (its RELEASING.md); a commit SHA also w
 fetches either with `git fetch --depth 1 origin <ref>`. To move it: check the crucible out at the
 new tag, run `python tests/tools/cics_crucible.py --update-baseline`, and commit this pin,
 tests/cics_crucible/baseline.json and docs/language_status/cics_crucible.md in one PR (docs/
-ecosystem.md, "CICS crucible release -> pin bump").
+ecosystem.md, "CICS crucible release -> pin bump"). In the same PR, re-prove the committed ports
+(`python tests/tools/crucible_port_provenance.py reprove`, #4308): each port's provenance.json must
+name the pinned ref or say it is stale against it (tests/cics_crucible/test_port_provenance.py).
 
 Local runs find the checkout through the `CICS_CRUCIBLE_PATH` environment variable (like
 LANGUAGE_CRUCIBLE_PATH), else `../cics-crucible` beside the main gitgalaxy checkout.

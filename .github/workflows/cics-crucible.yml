@@ -34,6 +34,7 @@ on:
       - "tests/tools/cobol_answer_key.py"
       - "tests/equivalence/cics/**"
       - "tests/equivalence/gnucobol.Dockerfile"
+      - "tests/tools/equivalence_oracle.py"
       - "tests/cics_crucible/**"
       - "tests/_cics_crucible_pin.py"
       - ".github/workflows/cics-crucible.yml"
@@ -45,11 +46,15 @@ on:
       - "tests/tools/equivalence_cics.py"
       - "tests/tools/cobol_coverage.py"
       - "tests/equivalence/cics/**"
+      - "tests/equivalence/gnucobol.Dockerfile"
+      - "tests/tools/equivalence_oracle.py"
       - "tests/cics_crucible/**"
       - "tests/_cics_crucible_pin.py"
       - ".github/workflows/cics-crucible.yml"
   schedule:
-    - cron: "41 5 * * 1"  # weekly: Maven Central and the Debian GnuCOBOL package drift
+    # weekly: Maven Central drift, and (#4309) whether the pinned GnuCOBOL package still installs -- Debian drops a
+    # superseded version from deb.debian.org at a point release; the pinned build then fails here, loudly
+    - cron: "41 5 * * 1"
   workflow_dispatch:
 
 permissions:
@@ -120,14 +125,22 @@ jobs:
       - name: Build the GnuCOBOL image
         run: docker build -q -t gitgalaxy-gnucobol:3 -f gitgalaxy/tests/equivalence/gnucobol.Dockerfile gitgalaxy/tests/equivalence
 
+      # #4309: the image is the pinned oracle (base digest, gnucobol3 package, cobc --version), or the run stops here;
+      # GITGALAXY_ORACLE_STRICT below makes every later proof refuse a mismatched image too
+      - name: Check the oracle against its pin
+        run: python gitgalaxy/tests/tools/equivalence_oracle.py --strict
+
       - name: The runner's own tests (the fixture end to end)
         env:
           EQUIVALENCE_E2E: "1"
+          GITGALAXY_ORACLE_STRICT: "1"
         run: |
           cd gitgalaxy
           python -m pytest -q -p no:cacheprovider tests/cics_crucible
 
       - name: Measure the crucible against the baseline
+        env:
+          GITGALAXY_ORACLE_STRICT: "1"
         run: |
           cd gitgalaxy
           python tests/tools/cics_crucible.py --crucible ../cics-crucible --ci --out "$RUNNER_TEMP/cics_crucible"

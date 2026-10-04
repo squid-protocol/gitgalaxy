@@ -1952,7 +1952,12 @@ def measure(crucible: Path, only: Optional[set[str]], sides: set[str], work: Pat
         cells.update(got)
         by = Counter(f"{c['side']}:{c['status']}" for c in got.values())
         print("   " + ", ".join(f"{k} {n}" for k, n in sorted(by.items())), flush=True)
-    return {"crucible_ref": crucible_ref(crucible), "cells": dict(sorted(cells.items())),
+    oracle = None
+    if "cobol-stub" in sides:  # #4309: the GnuCOBOL the COBOL side ran on, checked against the pin
+        import equivalence_oracle  # noqa: PLC0415 -- beside equivalence_common, imported as it is
+
+        oracle = equivalence_oracle.checked()
+    return {"crucible_ref": crucible_ref(crucible), "oracle": oracle, "cells": dict(sorted(cells.items())),
             "coverage": dict(sorted(coverage.items()))}  # fmt: skip
 
 
@@ -2342,7 +2347,7 @@ def write_proof(report_dir: Path, case: cc.Case, results: dict[str, Any], opts: 
     proven = bool(cells) and all(c["status"] == "pass" for c in cells.values())
     ported = sorted(case_overlays(opts.ports if opts.ports is not None else opts.root / case.id))
     report = {"format": "cics-crucible-proof/1", "case": case.id, "program": opts.program,
-              "crucible_ref": results.get("crucible_ref"), "ports": ported,
+              "crucible_ref": results.get("crucible_ref"), "oracle": results.get("oracle"), "ports": ported,
               "overlays": [str(o) for o in opts.overlays], "proven": proven,
               "outputs": {c["scenario"]: {"equal": int(c["status"] == "pass"), "records": 1} for c in cells.values()},
               "cells": {cid: {k: c.get(k) for k in ("status", "reason", "kind")} for cid, c in cells.items()},

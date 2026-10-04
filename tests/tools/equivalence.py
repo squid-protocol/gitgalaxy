@@ -84,6 +84,7 @@ import cobol_coverage as cov  # noqa: E402 -- #4023
 
 # The primitives every harness module shares live in a leaf module (no cycle); re-exported here.
 import equivalence_db2
+import equivalence_oracle
 import equivalence_sql
 from equivalence_common import (
     CASES,
@@ -675,6 +676,7 @@ def main() -> int:
     work = args.keep or Path(tempfile.mkdtemp(prefix=f"equiv_{args.case}_"))
     if args.reuse:
         reuse(work, args.reuse)
+        equivalence_oracle.adopt_from(case, args.reuse)  # #4309: the COBOL outputs, and so the oracle, are EARLIER's
     else:
         build_image()
     if case.get("kind") == "call":  # #4023 follow-up: a CALLed subprogram, driven through its USING items
@@ -761,6 +763,7 @@ def main() -> int:
     ]
     report["coverage"] = cobol_coverage(case, corpus, traces, work / "coverage.json")  # #4023, every run together
     report["runs"] = 1 + len(faults)
+    report["oracle"] = equivalence_oracle.for_case(case)  # #4309: which GnuCOBOL produced the expected outputs
     report["feedback"] = feedback_md(report) if not ok else ""
     (work / "report.json").write_text(json.dumps(report, indent=2) + "\n", encoding="utf-8")
     (work / "report.md").write_text(report_markdown(case, report), encoding="utf-8")

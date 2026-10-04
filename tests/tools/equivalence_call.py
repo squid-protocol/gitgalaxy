@@ -38,6 +38,7 @@ from typing import Any, Optional
 
 import cobol_coverage as cov
 import equivalence_common as common
+import equivalence_oracle
 
 from gitgalaxy.core.source_text import decode_bytes
 
@@ -469,6 +470,7 @@ def run_case(case: dict[str, Any], corpus: Path, work: Path, port: bool = True, 
                                       compiled_name="PROGRAM.cbl", copybooks=corpus, encoding=staged)  # fmt: skip
     report = {"case": case["name"], "program": case["program"], "kind": "call", "proven": ok,
               "outputs": {"CALLS": diff}, "coverage": coverage,
+              "oracle": equivalence_oracle.for_case(case),  # #4309
               "feedback": "" if ok else feedback_md(case, diff)}  # fmt: skip
     (work / "report.json").write_text(json.dumps(report, indent=2, default=str) + "\n", encoding="utf-8")
     print(f"{case['program']} CALLS: {diff['equal']}/{diff['records']} calls equal")

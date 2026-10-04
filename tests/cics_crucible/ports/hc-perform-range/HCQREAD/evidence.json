@@ -69,7 +69,7 @@
   "digest": "1f4ff4cf56eacb81aaca4193b9df5527a1163dcaa2d8fb2d16c89ecc5412f54c"
  },
  "proof": {
-  "at": "2026-10-04T15:36:11Z",
+  "at": "2026-10-04T15:39:53Z",
   "verdict": "proven",
   "runs": 4,
   "fault_runs": 0,
@@ -96,7 +96,7 @@
   "sysout_compared": null,
   "attributes_compared": null,
   "java_failed": false,
-  "harness_commit": "d8fb3481788213abd823f92465f6787573137024",
+  "harness_commit": "589711e1582d7a676408eec1793635a67352175d",
   "inputs_digest": "1f4ff4cf56eacb81aaca4193b9df5527a1163dcaa2d8fb2d16c89ecc5412f54c"
  },
  "coverage": {
@@ -231,7 +231,7 @@
   "provenance_file": {
    "path": "tests/cics_crucible/ports/hc-perform-range/HCQREAD/provenance.json",
    "format": "cics-crucible-port/1",
-   "sha256": "af1ad78c217ae95b77765666555e80701b92b9f106ed603b55fffd529042e617"
+   "sha256": "f0436dc6599ea78f983df0cd1bd4270a7411b2abbce99fd928aa1cdda53f73c3"
   },
   "crucible_ref_proven": "v0.2.0 (94f2afcb)"
  },

@@ -69,7 +69,7 @@
   "digest": "fcfdee984e4193216758c488525ce639e3e8717ad2eab9ceba406fc0beaa3d76"
  },
  "proof": {
-  "at": "2026-10-04T15:36:20Z",
+  "at": "2026-10-04T15:40:01Z",
   "verdict": "proven",
   "runs": 5,
   "fault_runs": 0,
@@ -100,7 +100,7 @@
   "sysout_compared": null,
   "attributes_compared": null,
   "java_failed": false,
-  "harness_commit": "d8fb3481788213abd823f92465f6787573137024+uncommitted",
+  "harness_commit": "589711e1582d7a676408eec1793635a67352175d+uncommitted",
   "inputs_digest": "fcfdee984e4193216758c488525ce639e3e8717ad2eab9ceba406fc0beaa3d76"
  },
  "coverage": {
@@ -241,7 +241,7 @@
   "provenance_file": {
    "path": "tests/cics_crucible/ports/hc-abend-link/HCMAIN/provenance.json",
    "format": "cics-crucible-port/1",
-   "sha256": "60941e838de5988b2a1587d2f3c7695f0503d171aacbb9003cfc1a7226cf81fb"
+   "sha256": "8d770d47c6b8628d1a77f0af7daaab4ba16b79b8a0f6ecfc0872ef9aab1fc1f5"
   },
   "crucible_ref_proven": "v0.2.0 (94f2afcb)"
  },

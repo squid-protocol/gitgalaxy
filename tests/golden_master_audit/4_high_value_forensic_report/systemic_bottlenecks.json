@@ -38,66 +38,66 @@
     ],
     "fragile_dependency_chain": [
       {
-        "close": 0.058,
+        "close": 0.0566,
         "err": 66.2775,
         "path": "python/fastapi/fastapi/applications.py",
-        "score": 3.846
+        "score": 3.75
       },
       {
-        "close": 0.0611,
+        "close": 0.0595,
         "err": 60.143,
         "path": "python/fastapi/fastapi/__init__.py",
-        "score": 3.672
+        "score": 3.58
       },
       {
-        "close": 0.0341,
+        "close": 0.0333,
         "err": 91.4708,
         "path": "python/fastapi/fastapi/exceptions.py",
-        "score": 3.121
+        "score": 3.043
       },
       {
-        "close": 0.0321,
+        "close": 0.0313,
         "err": 90.4651,
         "path": "python/fastapi/fastapi/datastructures.py",
-        "score": 2.906
+        "score": 2.833
       },
       {
-        "close": 0.0335,
+        "close": 0.0326,
         "err": 84.3093,
         "path": "python/fastapi/fastapi/routing.py",
-        "score": 2.821
+        "score": 2.75
       }
     ],
     "undocumented_critical_path": [
       {
         "doc": 100.0,
         "path": "jcl/cics-banking-sample-application-cbsa/CRELIBS.jcl",
-        "pr": 13.109,
-        "score": 1310.9
+        "pr": 12.85,
+        "score": 1285.0
       },
       {
         "doc": 96.9697,
         "path": "python/fastapi/fastapi/applications.py",
-        "pr": 10.646,
-        "score": 1032.339
+        "pr": 10.439,
+        "score": 1012.267
       },
       {
         "doc": 100.0,
         "path": "python/fastapi/fastapi/exceptions.py",
-        "pr": 6.408,
-        "score": 640.8
+        "pr": 6.283,
+        "score": 628.3
       },
       {
         "doc": 100.0,
         "path": "python/fastapi/fastapi/param_functions.py",
-        "pr": 6.05,
-        "score": 605.0
+        "pr": 5.932,
+        "score": 593.2
       },
       {
         "doc": 80.9524,
         "path": "python/fastapi/fastapi/datastructures.py",
-        "pr": 6.625,
-        "score": 536.31
+        "pr": 6.496,
+        "score": 525.867
       }
     ]
   }

@@ -4,7 +4,7 @@
     "unparsable_files"
   ],
   "value": {
-    "ambig_file_count": 369,
+    "ambig_file_count": 397,
     "binary": 0,
     "composition_by_extension_and_reason": {
       ".ads": {
@@ -58,7 +58,7 @@
         "Zero-Density Threshold (LOC: 57, Signals: 0)": 1
       },
       ".json": {
-        "Blocked (Massive Static Asset Blob: 2705 LOC)": 1
+        "Blocked (Massive Static Asset Blob: 3156 LOC)": 1
       },
       ".lds": {
         "Blocked (Unsupported Extension: '.lds')": 1
@@ -177,7 +177,7 @@
       "no_extension": {
         "Blocked (Monolithic Amalgamation: 36288 LOC exceeds safe regex boundaries)": 1,
         "Blocked (Saturation: Line 1 exceeds 500 chars)": 3,
-        "Blocked (System Exclusion, Hidden Directory, or Dynamic Ignored Dir)": 135,
+        "Blocked (System Exclusion, Hidden Directory, or Dynamic Ignored Dir)": 163,
         "Unsupported Format (.undeterminable)": 3
       }
     },

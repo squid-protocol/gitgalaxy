@@ -1,12 +1,12 @@
 {
-  "args_comparable": 1713,
-  "args_exact_match": 1713,
+  "args_comparable": 1715,
+  "args_exact_match": 1715,
   "corpus_path": "language-crucible/data/c",
   "extra_classes": 0,
   "extra_functions": 9,
-  "files_scanned": 31,
+  "files_scanned": 33,
   "found_classes": 61,
-  "found_functions": 1713,
+  "found_functions": 1715,
   "real_classes": 61,
-  "real_functions": 1713
+  "real_functions": 1715
 }

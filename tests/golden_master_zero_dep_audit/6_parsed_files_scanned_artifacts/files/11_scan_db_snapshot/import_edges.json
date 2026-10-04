@@ -1071,6 +1071,9 @@
       ]
     },
     "cpp/NVDA": {
+      "cpp/NVDA/core.py": [
+        "import:python/homeassistant_ble_integrations/utils.py"
+      ],
       "cpp/NVDA/espeak.py": [
         "import:cpp/NVDA/__init__.py"
       ],
@@ -1683,6 +1686,11 @@
         "import:yaml/ansible/yaml_parsing/tasks/unsafe.yml"
       ]
     },
+    "go/go_runtime_rand": {
+      "go/go_runtime_rand/rand.go": [
+        "import:yaml/ansible/yaml_parsing/tasks/unsafe.yml"
+      ]
+    },
     "go/kubernetes": {
       "go/kubernetes/csi_plugin.go": [
         "fcall:go/kubernetes/scheduler.go",
@@ -1721,6 +1729,12 @@
         "import:dart/flutter/framework.dart",
         "import:dockerfile/moby/builder/dockerfile/metrics.go",
         "import:lua/cosmopolitan/errors.lua"
+      ]
+    },
+    "go/kubernetes_kubectl_tls": {
+      "go/kubernetes_kubectl_tls/create_secret_tls_test.go": [
+        "import:assembly/bootos/os.asm",
+        "import:zig/mach/testing.zig"
       ]
     },
     "groovy/fineract_gradle_plugin": {
@@ -2642,6 +2656,13 @@
       "objective-c/worldwideweb/TcpAccess.m": [
         "fcall:objective-c/worldwideweb/HyperText.h",
         "fcall:objective-c/worldwideweb/HyperText.m"
+      ]
+    },
+    "perl/ack3_tests": {
+      "perl/ack3_tests/file-permission.t": [
+        "import:hlasm/che4z_hlasm/output.hlasm",
+        "import:lua/redis/strict.lua",
+        "import:rust/tokio/lib.rs"
       ]
     },
     "perl/bugzilla": {
@@ -4153,6 +4174,14 @@
         "import:python/fastapi/fastapi/testclient.py"
       ]
     },
+    "python/homeassistant_ble_integrations": {
+      "python/homeassistant_ble_integrations/aranet___init__.py": [
+        "import:embedded_python/meow_turtle/logging.py"
+      ],
+      "python/homeassistant_ble_integrations/gardena_bluetooth___init__.py": [
+        "import:embedded_python/meow_turtle/logging.py"
+      ]
+    },
     "python/numpy": {
       "python/numpy/_linalg.py": [
         "import:python/numpy/__init__.py"
@@ -4176,6 +4205,22 @@
       "python/numpy/testutils.py": [
         "import:python/numpy/__init__.py",
         "import:python/numpy/core.py"
+      ]
+    },
+    "python/scikit-learn_examples": {
+      "python/scikit-learn_examples/linear_model_plot_nnls.py": [
+        "import:python/numpy/__init__.py"
+      ],
+      "python/scikit-learn_examples/svm_plot_custom_kernel.py": [
+        "import:python/numpy/__init__.py"
+      ]
+    },
+    "python/thealgorithms_machine_learning": {
+      "python/thealgorithms_machine_learning/logistic_regression.py": [
+        "import:python/numpy/__init__.py"
+      ],
+      "python/thealgorithms_machine_learning/lstm_lstm_prediction.py": [
+        "import:python/numpy/__init__.py"
       ]
     },
     "python/wtfpython": {
@@ -4412,6 +4457,11 @@
         "import:typescript/assemblyscript/ast.ts"
       ]
     },
+    "typescript/excalidraw_text_wrapping": {
+      "typescript/excalidraw_text_wrapping/textWrapping.ts": [
+        "import:python/fastapi/fastapi/types.py"
+      ]
+    },
     "typescript/fp-ts": {
       "typescript/fp-ts/Either.ts": [
         "import:typescript/fp-ts/HKT.ts"
@@ -4566,6 +4616,11 @@
         "import:shell/serenity/builtin.sh",
         "import:zig/zig/Compilation.zig",
         "import:zig/zig/Zcu.zig"
+      ]
+    },
+    "zig/zig_std_linux_mips": {
+      "zig/zig_std_linux_mips/mips.zig": [
+        "import:shell/serenity/builtin.sh"
       ]
     },
     "zig/zls": {

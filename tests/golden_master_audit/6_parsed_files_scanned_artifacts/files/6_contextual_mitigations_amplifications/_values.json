@@ -347,6 +347,9 @@
       "c/doom/p_mobj.h": "None Detected",
       "c/doom/r_defs.h": "None Detected"
     },
+    "c/freebsd_openpam": {
+      "c/freebsd_openpam/pam_acct_mgmt.c": "None Detected"
+    },
     "c/micropython": {
       "c/micropython/compile.h": "None Detected",
       "c/micropython/gc.h": "None Detected",
@@ -1321,6 +1324,12 @@
     "java": {
       "java/SOURCES.md": "None Detected"
     },
+    "java/jenkins_cli": {
+      "java/jenkins_cli/LICENSE.txt": "None Detected"
+    },
+    "java/selenium_grid_session_queue": {
+      "java/selenium_grid_session_queue/NOTICE": "None Detected"
+    },
     "java/springboot": {
       "java/springboot/JarLauncher.java": "None Detected",
       "java/springboot/LICENSE.txt": "None Detected"
@@ -1328,8 +1337,16 @@
     "javascript": {
       "javascript/SOURCES.md": "None Detected"
     },
+    "javascript/cesium_particle_emitters": {
+      "javascript/cesium_particle_emitters/LICENSE.md": "None Detected"
+    },
     "javascript/jquery": {
       "javascript/jquery/LICENSE.txt": "None Detected"
+    },
+    "javascript/node_tls_security_tests": {
+      "javascript/node_tls_security_tests/test-crypto-dh-modp2.js": "None Detected",
+      "javascript/node_tls_security_tests/test-fs-lchown.js": "None Detected",
+      "javascript/node_tls_security_tests/test-tls-use-after-free-regression.js": "None Detected"
     },
     "javascript/react": {
       "javascript/react/ReactSymbols.js": "None Detected"
@@ -1693,6 +1710,16 @@
       "makefile/freebsd/COPYRIGHT": "None Detected",
       "makefile/freebsd/Makefile": "None Detected"
     },
+    "markdown": {
+      "markdown/SOURCES.md": "None Detected"
+    },
+    "markdown/airflow_job_lifecycle": {
+      "markdown/airflow_job_lifecycle/JOB_LIFECYCLE.md": "None Detected",
+      "markdown/airflow_job_lifecycle/NOTICE": "None Detected"
+    },
+    "markdown/kubernetes_client_go": {
+      "markdown/kubernetes_client_go/ARCHITECTURE.md": "None Detected"
+    },
     "matlab": {
       "matlab/SOURCES.md": "None Detected"
     },
@@ -1731,6 +1758,9 @@
     "perl": {
       "perl/SOURCES.md": "None Detected"
     },
+    "perl/ack3_tests": {
+      "perl/ack3_tests/LICENSE.md": "None Detected"
+    },
     "perl/exiftool": {
       "perl/exiftool/META.json": "None Detected",
       "perl/exiftool/Makefile.PL": "None Detected",
@@ -1745,8 +1775,14 @@
     "php/laravel_core": {
       "php/laravel_core/LICENSE.md": "None Detected"
     },
+    "php/laravel_validation_rules": {
+      "php/laravel_validation_rules/LICENSE.md": "None Detected"
+    },
     "php/magento2": {
       "php/magento2/LICENSE.txt": "None Detected"
+    },
+    "php/symfony_emoji_data": {
+      "php/symfony_emoji_data/emoji-ccp.php": "None Detected"
     },
     "php/wordpress": {
       "php/wordpress/license.txt": "None Detected"
@@ -1849,6 +1885,12 @@
     },
     "python/airflow": {
       "python/airflow/NOTICE": "None Detected"
+    },
+    "python/airflow_ai_providers": {
+      "python/airflow_ai_providers/NOTICE": "None Detected"
+    },
+    "python/airflow_opsgenie_tests": {
+      "python/airflow_opsgenie_tests/NOTICE": "None Detected"
     },
     "python/cython": {
       "python/cython/COPYING.txt": "None Detected",
@@ -2035,11 +2077,39 @@
       "python/fastapi/tests/test_wrapped_method_forward_reference.py": "None Detected",
       "python/fastapi/tests/test_ws_dependencies.py": "None Detected"
     },
+    "python/homeassistant_anthropic": {
+      "python/homeassistant_anthropic/LICENSE.md": "None Detected"
+    },
+    "python/homeassistant_ble_integrations": {
+      "python/homeassistant_ble_integrations/LICENSE.md": "None Detected"
+    },
     "python/numpy": {
       "python/numpy/LICENSE.txt": "None Detected",
       "python/numpy/__init__.py": "None Detected",
       "python/numpy/cversions.txt": "None Detected",
       "python/numpy/numpy_api.py": "None Detected"
+    },
+    "python/opencv_dnn_conversion": {
+      "python/opencv_dnn_conversion/py_to_py_resnet50_onnx.py": "None Detected"
+    },
+    "python/pip_vendored_requests": {
+      "python/pip_vendored_requests/LICENSE.txt": "None Detected"
+    },
+    "python/scikit-learn_examples": {
+      "python/scikit-learn_examples/COPYING": "None Detected",
+      "python/scikit-learn_examples/linear_model_plot_nnls.py": "None Detected",
+      "python/scikit-learn_examples/svm_plot_custom_kernel.py": "None Detected"
+    },
+    "python/tensorflow_ml_ops": {
+      "python/tensorflow_ml_ops/core_tfrt_saved_model_tests_gen_matmul_gpu.py": "None Detected",
+      "python/tensorflow_ml_ops/lite_testing_op_tests_einsum.py": "None Detected"
+    },
+    "python/tensorflow_model_fixtures": {
+      "python/tensorflow_model_fixtures/lite_testdata_multi_add.pb": "None Detected",
+      "python/tensorflow_model_fixtures/python_compiler_mlir_multi_add.tflite": "None Detected"
+    },
+    "python/thealgorithms_machine_learning": {
+      "python/thealgorithms_machine_learning/LICENSE.md": "None Detected"
     },
     "python/wtfpython": {
       "python/wtfpython/2_tricky_strings.py": "None Detected",
@@ -2065,6 +2135,9 @@
       "ruby/rails/MIT-LICENSE": "None Detected",
       "ruby/rails/routing.rb": "None Detected"
     },
+    "ruby/rails_http_token_auth": {
+      "ruby/rails_http_token_auth/MIT-LICENSE": "None Detected"
+    },
     "rust": {
       "rust/SOURCES.md": "None Detected"
     },
@@ -2072,6 +2145,11 @@
       "rust/bevy/LICENSE-APACHE": "None Detected",
       "rust/bevy/LICENSE-MIT": "None Detected",
       "rust/bevy/bevy_render_phase.rs": "None Detected"
+    },
+    "rust/bevy_asset_examples": {
+      "rust/bevy_asset_examples/LICENSE-APACHE": "None Detected",
+      "rust/bevy_asset_examples/LICENSE-MIT": "None Detected",
+      "rust/bevy_asset_examples/image_node.rs": "None Detected"
     },
     "rust/holylang": {
       "rust/holylang/ast.rs": "None Detected",
@@ -2171,6 +2249,9 @@
       "shell/freebsd-src/mv_test.sh": "None Detected",
       "shell/freebsd-src/rm_test.sh": "None Detected",
       "shell/freebsd-src/rmdir_test.sh": "None Detected"
+    },
+    "shell/freebsd_sysbuild": {
+      "shell/freebsd_sysbuild/COPYRIGHT": "None Detected"
     },
     "shell/haiku": {
       "shell/haiku/License.md": "None Detected",
@@ -2462,9 +2543,20 @@
       "typescript/assemblyscript/asconfig.json": "None Detected",
       "typescript/assemblyscript/package.json": "None Detected"
     },
+    "typescript/effect_ai_anthropic": {
+      "typescript/effect_ai_anthropic/AnthropicTokenizer.ts": "None Detected"
+    },
+    "typescript/excalibur_math": {
+      "typescript/excalibur_math/LICENSE.md": "None Detected",
+      "typescript/excalibur_math/math_ray.ts": "None Detected"
+    },
     "typescript/fp-ts": {
       "typescript/fp-ts/HKT.ts": "None Detected",
       "typescript/fp-ts/package.json": "None Detected"
+    },
+    "typescript/nx_util_ai": {
+      "typescript/nx_util_ai/nx-dev_pages_api_query-ai-handler.ts": "None Detected",
+      "typescript/nx_util_ai/util-ai_src_lib_moderation.ts": "None Detected"
     },
     "typescript/playwright": {
       "typescript/playwright/NOTICE": "None Detected",
@@ -2600,6 +2692,9 @@
       "zig/tigerbeetle/config.zig": "None Detected",
       "zig/tigerbeetle/constants.zig": "None Detected",
       "zig/tigerbeetle/direction.zig": "None Detected"
+    },
+    "zig/zig_std_linux_mips": {
+      "zig/zig_std_linux_mips/mips.zig": "None Detected"
     }
   },
   "path": [

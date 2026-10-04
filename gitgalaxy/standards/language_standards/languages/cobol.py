@@ -307,7 +307,14 @@ DEFINITION: dict[str, Any] = {
             # or 8-digit (cols 73-80) sequence field before a lone period (CardDemo
             # `045100 .`) is never one. A continued numeric VALUE line (`1000.`) does
             # not begin a sentence, so the cobol_sentence_start filter drops it.
-            r"(?:\b|(?<=[0-9]{6}[ \-Dd]))([0-9_"
+            # #4203: `\b` is not a NAME boundary -- a hyphen is a name character, so the margin-eater
+            # could still split `LOOKUP-RATE` before `-RATE`. The name must start where no name
+            # character precedes it.
+            r"(?:(?<![A-Z"
+            + NATIONAL
+            + WIDE_DIGITS
+            + WIDE_HYPHENS
+            + r"a-z0-9_-])|(?<=[0-9]{6}[ \-Dd]))([0-9_"
             + WIDE_DIGITS
             + WIDE_HYPHENS
             + r"-]*[A-Z"

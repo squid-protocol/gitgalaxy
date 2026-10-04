@@ -14,9 +14,11 @@
       "abap/abapGit/zcl_abapgit_xml_output.clas.abap": 53.69
     },
     "ada": {
-      "ada/PROVENANCE.md": 40.32
+      "ada/PROVENANCE.md": 40.32,
+      "ada/SOURCES.md": 10.03
     },
     "ada/alire": {
+      "ada/alire/LICENSE.txt": 100.68,
       "ada/alire/alire-conditional_trees.adb": 263.49,
       "ada/alire/alire-crate_configuration.adb": 19.29,
       "ada/alire/alire-dependencies-states.ads": -47.28,
@@ -322,22 +324,17 @@
       "assembly/os_tutorial_x86/14-checkpoint_boot_gdt.asm": 161.26,
       "assembly/os_tutorial_x86/14-checkpoint_boot_kernel_entry.asm": -97.31
     },
-    "assembly/raspberrypi_baremetal": {
-      "assembly/raspberrypi_baremetal/Compress_HUFFMAN_HUFFMANDecode_kernel.asm": -223.68,
-      "assembly/raspberrypi_baremetal/Compress_HUFFMAN_HUFFMANDecode_kernel7.asm": -282.58,
-      "assembly/raspberrypi_baremetal/Compress_HUFFMAN_HUFFMANDecode_kernel8.asm": -341.17,
-      "assembly/raspberrypi_baremetal/Compress_HUFFMAN_HUFFMANGFX_kernel.asm": -138.32,
-      "assembly/raspberrypi_baremetal/Compress_HUFFMAN_HUFFMANGFX_kernel7.asm": -254.68,
-      "assembly/raspberrypi_baremetal/Compress_HUFFMAN_HUFFMANGFX_kernel8.asm": -180.64,
-      "assembly/raspberrypi_baremetal/Compress_LZ77_LZ77Decode_kernel.asm": -197.46,
-      "assembly/raspberrypi_baremetal/Compress_LZ77_LZ77Decode_kernel7.asm": -262.34,
-      "assembly/raspberrypi_baremetal/Compress_LZ77_LZ77Decode_kernel8.asm": -82.53,
-      "assembly/raspberrypi_baremetal/Compress_LZ77_LZ77GFX_kernel.asm": -189.95,
-      "assembly/raspberrypi_baremetal/Compress_LZ77_LZ77GFX_kernel7.asm": -250.84,
-      "assembly/raspberrypi_baremetal/Compress_LZ77_LZ77GFX_kernel8.asm": -256.23,
-      "assembly/raspberrypi_baremetal/EMU_GameBoy_kernel.asm": -156.77,
-      "assembly/raspberrypi_baremetal/HelloWorld_CPU_kernel7.asm": -108.72,
-      "assembly/raspberrypi_baremetal/HelloWorld_CPU_kernel8.asm": -249.25
+    "assembly/rpi_smartstart_baremetal": {
+      "assembly/rpi_smartstart_baremetal/10_virtualmemory_SmartStart32.S": 248.24,
+      "assembly/rpi_smartstart_baremetal/10_virtualmemory_SmartStart64.S": 350.78,
+      "assembly/rpi_smartstart_baremetal/Arm32_64_USB_SmartStart32.S": 168.74,
+      "assembly/rpi_smartstart_baremetal/Arm32_64_USB_SmartStart64.S": 159.81,
+      "assembly/rpi_smartstart_baremetal/Core3Interrupt_SmartStart64.S": 349.73,
+      "assembly/rpi_smartstart_baremetal/FreeRTOSv10.1.1_loader_RaspberryPi_SmartStart32.S": 223.6,
+      "assembly/rpi_smartstart_baremetal/FreeRTOSv10.1.1_loader_RaspberryPi_SmartStart64.S": 212.89,
+      "assembly/rpi_smartstart_baremetal/Multicore_SmartStart32.S": 261.36,
+      "assembly/rpi_smartstart_baremetal/Multicore_SmartStart64.S": 264.57,
+      "assembly/rpi_smartstart_baremetal/SimpleSched_SmartStart32.S": 269.96
     },
     "assembly/x86_bare_metal": {
       "assembly/x86_bare_metal/LICENSE.adoc": 5.0,
@@ -393,18 +390,23 @@
       "blueprint/ghostty/split-tree.blp": 218.44,
       "blueprint/ghostty/window.blp": 184.72
     },
+    "bms": {
+      "bms/SOURCES.md": -3.54
+    },
     "bms/cbsa": {
-      "bms/cbsa/BNK1ACC.bms": -151.75,
-      "bms/cbsa/BNK1CAM.bms": 64.36,
-      "bms/cbsa/BNK1CCM.bms": -87.15,
-      "bms/cbsa/BNK1CDM.bms": -38.65,
-      "bms/cbsa/BNK1DAM.bms": -85.86,
-      "bms/cbsa/BNK1DCM.bms": 61.84,
-      "bms/cbsa/BNK1MAI.bms": 107.9,
-      "bms/cbsa/BNK1TFM.bms": -77.79,
-      "bms/cbsa/BNK1UAM.bms": -6.88,
-      "bms/cbsa/PROVENANCE.md": 70.2,
-      "bms/cbsa/ssmap.bms": 2.1
+      "bms/cbsa/BNK1ACC.bms": 58.43,
+      "bms/cbsa/BNK1CAM.bms": 45.09,
+      "bms/cbsa/BNK1CCM.bms": 18.52,
+      "bms/cbsa/BNK1CDM.bms": -48.63,
+      "bms/cbsa/BNK1DAM.bms": 35.83,
+      "bms/cbsa/BNK1DCM.bms": -109.54,
+      "bms/cbsa/BNK1MAI.bms": -21.19,
+      "bms/cbsa/BNK1TFM.bms": 52.32,
+      "bms/cbsa/BNK1UAM.bms": -79.92,
+      "bms/cbsa/PROVENANCE.md": 18.71
+    },
+    "bms/genapp": {
+      "bms/genapp/ssmap.bms": 77.56
     },
     "c": {
       "c/SOURCES.md": -80.09
@@ -449,6 +451,7 @@
       "c/micropython/vm.c": -113.52
     },
     "c/sqlite": {
+      "c/sqlite/LICENSE.md": -83.93,
       "c/sqlite/README.md": -99.62,
       "c/sqlite/lemon.c": -86.54
     },
@@ -519,70 +522,73 @@
       "cobol/aws-mainframe-modernization-carddemo/CBTRN01C.cbl": 100.32,
       "cobol/aws-mainframe-modernization-carddemo/CBTRN02C.cbl": 212.07,
       "cobol/aws-mainframe-modernization-carddemo/CBTRN03C.cbl": 252.53,
-      "cobol/aws-mainframe-modernization-carddemo/COACTUP.CPY": 130.95,
+      "cobol/aws-mainframe-modernization-carddemo/COACTUP.CPY": 227.33,
       "cobol/aws-mainframe-modernization-carddemo/COACTUPC.cbl": 213.66,
-      "cobol/aws-mainframe-modernization-carddemo/COACTVW.CPY": 224.68,
+      "cobol/aws-mainframe-modernization-carddemo/COACTVW.CPY": 290.24,
       "cobol/aws-mainframe-modernization-carddemo/COACTVWC.cbl": 137.83,
-      "cobol/aws-mainframe-modernization-carddemo/COADM01.CPY": 229.98,
+      "cobol/aws-mainframe-modernization-carddemo/COADM01.CPY": 303.4,
       "cobol/aws-mainframe-modernization-carddemo/COADM01C.cbl": 262.18,
-      "cobol/aws-mainframe-modernization-carddemo/COADM02Y.cpy": 127.78,
-      "cobol/aws-mainframe-modernization-carddemo/COBIL00.CPY": 197.99,
+      "cobol/aws-mainframe-modernization-carddemo/COADM02Y.cpy": 215.62,
+      "cobol/aws-mainframe-modernization-carddemo/COBIL00.CPY": 112.01,
       "cobol/aws-mainframe-modernization-carddemo/COBIL00C.cbl": 180.83,
-      "cobol/aws-mainframe-modernization-carddemo/COCOM01Y.cpy": 163.66,
-      "cobol/aws-mainframe-modernization-carddemo/COCRDLI.CPY": 245.37,
+      "cobol/aws-mainframe-modernization-carddemo/COCOM01Y.cpy": 76.98,
+      "cobol/aws-mainframe-modernization-carddemo/COCRDLI.CPY": 135.24,
       "cobol/aws-mainframe-modernization-carddemo/COCRDLIC.cbl": 175.91,
-      "cobol/aws-mainframe-modernization-carddemo/COCRDSL.CPY": 190.07,
+      "cobol/aws-mainframe-modernization-carddemo/COCRDSL.CPY": 120.02,
       "cobol/aws-mainframe-modernization-carddemo/COCRDSLC.cbl": 156.88,
-      "cobol/aws-mainframe-modernization-carddemo/COCRDUP.CPY": 63.04,
+      "cobol/aws-mainframe-modernization-carddemo/COCRDUP.CPY": 98.67,
       "cobol/aws-mainframe-modernization-carddemo/COCRDUPC.cbl": 224.85,
-      "cobol/aws-mainframe-modernization-carddemo/COMEN01.CPY": 288.67,
+      "cobol/aws-mainframe-modernization-carddemo/COMEN01.CPY": 214.48,
       "cobol/aws-mainframe-modernization-carddemo/COMEN01C.cbl": 255.05,
-      "cobol/aws-mainframe-modernization-carddemo/COMEN02Y.cpy": 80.32,
-      "cobol/aws-mainframe-modernization-carddemo/CORPT00.CPY": 286.41,
+      "cobol/aws-mainframe-modernization-carddemo/COMEN02Y.cpy": 143.39,
+      "cobol/aws-mainframe-modernization-carddemo/CORPT00.CPY": 309.02,
       "cobol/aws-mainframe-modernization-carddemo/CORPT00C.cbl": 203.57,
-      "cobol/aws-mainframe-modernization-carddemo/COSGN00.CPY": 76.95,
+      "cobol/aws-mainframe-modernization-carddemo/COSGN00.CPY": 68.15,
       "cobol/aws-mainframe-modernization-carddemo/COSGN00C.cbl": 190.91,
-      "cobol/aws-mainframe-modernization-carddemo/COTRN00.CPY": 120.97,
+      "cobol/aws-mainframe-modernization-carddemo/COTRN00.CPY": 74.94,
       "cobol/aws-mainframe-modernization-carddemo/COTRN00C.cbl": 186.47,
-      "cobol/aws-mainframe-modernization-carddemo/COTRN01.CPY": 303.57,
+      "cobol/aws-mainframe-modernization-carddemo/COTRN01.CPY": 214.07,
       "cobol/aws-mainframe-modernization-carddemo/COTRN01C.cbl": 81.68,
-      "cobol/aws-mainframe-modernization-carddemo/COTRN02.CPY": 136.88,
+      "cobol/aws-mainframe-modernization-carddemo/COTRN02.CPY": 254.98,
       "cobol/aws-mainframe-modernization-carddemo/COTRN02C.cbl": 184.08,
-      "cobol/aws-mainframe-modernization-carddemo/COTTL01Y.cpy": 138.42,
-      "cobol/aws-mainframe-modernization-carddemo/COUSR00.CPY": 272.26,
+      "cobol/aws-mainframe-modernization-carddemo/COTTL01Y.cpy": 236.3,
+      "cobol/aws-mainframe-modernization-carddemo/COUSR00.CPY": 239.37,
       "cobol/aws-mainframe-modernization-carddemo/COUSR00C.cbl": 220.03,
-      "cobol/aws-mainframe-modernization-carddemo/COUSR01.CPY": 173.79,
+      "cobol/aws-mainframe-modernization-carddemo/COUSR01.CPY": 255.12,
       "cobol/aws-mainframe-modernization-carddemo/COUSR01C.cbl": 221.12,
-      "cobol/aws-mainframe-modernization-carddemo/COUSR02.CPY": 263.8,
+      "cobol/aws-mainframe-modernization-carddemo/COUSR02.CPY": 214.06,
       "cobol/aws-mainframe-modernization-carddemo/COUSR02C.cbl": 251.9,
-      "cobol/aws-mainframe-modernization-carddemo/COUSR03.CPY": 231.36,
+      "cobol/aws-mainframe-modernization-carddemo/COUSR03.CPY": 295.13,
       "cobol/aws-mainframe-modernization-carddemo/COUSR03C.cbl": 124.23,
-      "cobol/aws-mainframe-modernization-carddemo/CSDAT01Y.cpy": 135.06,
-      "cobol/aws-mainframe-modernization-carddemo/CSLKPCDY.cpy": 135.93,
-      "cobol/aws-mainframe-modernization-carddemo/CSMSG01Y.cpy": 296.73,
-      "cobol/aws-mainframe-modernization-carddemo/CSMSG02Y.cpy": 314.49,
-      "cobol/aws-mainframe-modernization-carddemo/CSSETATY.cpy": 82.71,
-      "cobol/aws-mainframe-modernization-carddemo/CSSTRPFY.cpy": 236.13,
-      "cobol/aws-mainframe-modernization-carddemo/CSUSR01Y.cpy": 256.41,
+      "cobol/aws-mainframe-modernization-carddemo/CSDAT01Y.cpy": 157.41,
+      "cobol/aws-mainframe-modernization-carddemo/CSLKPCDY.cpy": 234.92,
+      "cobol/aws-mainframe-modernization-carddemo/CSMSG01Y.cpy": 275.12,
+      "cobol/aws-mainframe-modernization-carddemo/CSMSG02Y.cpy": 327.84,
+      "cobol/aws-mainframe-modernization-carddemo/CSSETATY.cpy": 97.71,
+      "cobol/aws-mainframe-modernization-carddemo/CSSTRPFY.cpy": 136.14,
+      "cobol/aws-mainframe-modernization-carddemo/CSUSR01Y.cpy": 187.08,
       "cobol/aws-mainframe-modernization-carddemo/CSUTLDPY.cpy": 136.62,
       "cobol/aws-mainframe-modernization-carddemo/CSUTLDTC.cbl": 252.4,
-      "cobol/aws-mainframe-modernization-carddemo/CSUTLDWY.cpy": 305.68,
-      "cobol/aws-mainframe-modernization-carddemo/CUSTREC.cpy": 326.37,
-      "cobol/aws-mainframe-modernization-carddemo/CVACT01Y.cpy": 45.46,
-      "cobol/aws-mainframe-modernization-carddemo/CVACT02Y.cpy": 194.09,
-      "cobol/aws-mainframe-modernization-carddemo/CVACT03Y.cpy": 95.03,
-      "cobol/aws-mainframe-modernization-carddemo/CVCRD01Y.cpy": 110.76,
-      "cobol/aws-mainframe-modernization-carddemo/CVCUS01Y.cpy": 154.36,
-      "cobol/aws-mainframe-modernization-carddemo/CVTRA01Y.cpy": 77.71,
-      "cobol/aws-mainframe-modernization-carddemo/CVTRA02Y.cpy": 208.64,
-      "cobol/aws-mainframe-modernization-carddemo/CVTRA03Y.cpy": 166.22,
-      "cobol/aws-mainframe-modernization-carddemo/CVTRA04Y.cpy": 101.96,
-      "cobol/aws-mainframe-modernization-carddemo/CVTRA05Y.cpy": 220.74,
-      "cobol/aws-mainframe-modernization-carddemo/CVTRA06Y.cpy": 263.89,
-      "cobol/aws-mainframe-modernization-carddemo/CVTRA07Y.cpy": 272.66,
-      "cobol/aws-mainframe-modernization-carddemo/DFHAID.cpy": 226.51,
-      "cobol/aws-mainframe-modernization-carddemo/DFHBMSCA.cpy": 131.62,
-      "cobol/aws-mainframe-modernization-carddemo/UNUSED1Y.cpy": 195.38
+      "cobol/aws-mainframe-modernization-carddemo/CSUTLDWY.cpy": 299.32,
+      "cobol/aws-mainframe-modernization-carddemo/CUSTREC.cpy": 287.8,
+      "cobol/aws-mainframe-modernization-carddemo/CVACT01Y.cpy": 99.89,
+      "cobol/aws-mainframe-modernization-carddemo/CVACT02Y.cpy": 119.07,
+      "cobol/aws-mainframe-modernization-carddemo/CVACT03Y.cpy": 43.44,
+      "cobol/aws-mainframe-modernization-carddemo/CVCRD01Y.cpy": 195.92,
+      "cobol/aws-mainframe-modernization-carddemo/CVCUS01Y.cpy": 125.25,
+      "cobol/aws-mainframe-modernization-carddemo/CVTRA01Y.cpy": 81.46,
+      "cobol/aws-mainframe-modernization-carddemo/CVTRA02Y.cpy": 273.32,
+      "cobol/aws-mainframe-modernization-carddemo/CVTRA03Y.cpy": 264.67,
+      "cobol/aws-mainframe-modernization-carddemo/CVTRA04Y.cpy": 184.61,
+      "cobol/aws-mainframe-modernization-carddemo/CVTRA05Y.cpy": 303.14,
+      "cobol/aws-mainframe-modernization-carddemo/CVTRA06Y.cpy": 170.99,
+      "cobol/aws-mainframe-modernization-carddemo/CVTRA07Y.cpy": 197.61,
+      "cobol/aws-mainframe-modernization-carddemo/DFHAID.cpy": 269.54,
+      "cobol/aws-mainframe-modernization-carddemo/DFHBMSCA.cpy": 76.93,
+      "cobol/aws-mainframe-modernization-carddemo/LICENSE.md": 243.84,
+      "cobol/aws-mainframe-modernization-carddemo/NOTICE.md": 154.77,
+      "cobol/aws-mainframe-modernization-carddemo/README.md": 67.48,
+      "cobol/aws-mainframe-modernization-carddemo/UNUSED1Y.cpy": 95.58
     },
     "cobol/cash-account-cobol": {
       "cobol/cash-account-cobol/CASH00.cbl": 11.0,
@@ -590,9 +596,11 @@
       "cobol/cash-account-cobol/DCLFRANK.cpy": -70.22
     },
     "cobol/che-che4z-lsp-for-cobol": {
-      "cobol/che-che4z-lsp-for-cobol/SQLCA_DATACOM.cpy": -212.86,
-      "cobol/che-che4z-lsp-for-cobol/SQLCA_DB2.cpy": -140.83,
-      "cobol/che-che4z-lsp-for-cobol/SQLDA.cpy": -318.03
+      "cobol/che-che4z-lsp-for-cobol/LICENSE.md": -261.74,
+      "cobol/che-che4z-lsp-for-cobol/NOTICE.md": -308.72,
+      "cobol/che-che4z-lsp-for-cobol/SQLCA_DATACOM.cpy": -152.35,
+      "cobol/che-che4z-lsp-for-cobol/SQLCA_DB2.cpy": -223.46,
+      "cobol/che-che4z-lsp-for-cobol/SQLDA.cpy": -301.85
     },
     "cobol/che-che4z_lsp_project_fixtures": {
       "cobol/che-che4z_lsp_project_fixtures/ABCD.cbl": -18.68,
@@ -1039,6 +1047,7 @@
       "cobol/gnucobol/xfhfcd3.cpy": -190.88
     },
     "cobol/gnucobol_internals": {
+      "cobol/gnucobol_internals/COPYING": -59.58,
       "cobol/gnucobol_internals/codegen.c": -5.44,
       "cobol/gnucobol_internals/fileio.c": 39.66,
       "cobol/gnucobol_internals/numeric.c": 37.19,
@@ -1117,11 +1126,15 @@
       "cpp/powertoys/main.cpp": -170.83,
       "cpp/powertoys/powertoy_module.h": -219.99
     },
+    "csd": {
+      "csd/SOURCES.md": 243.24
+    },
     "csd/carddemo": {
       "csd/carddemo/CARDDEMO.CSD": -39.78,
       "csd/carddemo/CRDDEMO2.csd": -7.02,
       "csd/carddemo/CRDDEMOD.csd": -65.16,
       "csd/carddemo/CRDDEMOM.csd": -73.76,
+      "csd/carddemo/NOTICE": -74.1,
       "csd/carddemo/PROVENANCE.md": -1.39
     },
     "csd/cbsa": {
@@ -1207,16 +1220,20 @@
       "dart/flutter/semantics.dart": 225.5,
       "dart/flutter/theme_data.dart": 123.59
     },
+    "db2_sql": {
+      "db2_sql/SOURCES.md": 134.6
+    },
     "db2_sql/db2unit": {
       "db2_sql/db2unit/00-Prereqs.sql": 273.11,
-      "db2_sql/db2unit/01-ObjectsAdmin.sql": 181.94,
+      "db2_sql/db2unit/01-ObjectsAdmin.sql": 279.56,
       "db2_sql/db2unit/02-Objects.sql": 258.37,
       "db2_sql/db2unit/03-Headers.sql": 202.42,
       "db2_sql/db2unit/06-AssertsNoMessage.sql": 286.18,
-      "db2_sql/db2unit/07-Version.sql": 353.9,
+      "db2_sql/db2unit/07-Version.sql": 182.76,
       "db2_sql/db2unit/98-Clean.sql": 142.83,
-      "db2_sql/db2unit/99-CleanAdmin.sql": 254.92,
-      "db2_sql/db2unit/PROVENANCE.md": 318.43
+      "db2_sql/db2unit/99-CleanAdmin.sql": 293.45,
+      "db2_sql/db2unit/LICENSE.txt": 318.46,
+      "db2_sql/db2unit/PROVENANCE.md": 154.1
     },
     "dockerfile": {
       "dockerfile/SOURCES.md": -36.3
@@ -1721,7 +1738,8 @@
       "haskell/pandoc/Shared.hs": -149.19
     },
     "hlasm": {
-      "hlasm/PROVENANCE.md": -1.35
+      "hlasm/PROVENANCE.md": -1.35,
+      "hlasm/SOURCES.md": -14.42
     },
     "hlasm/che4z_hlasm": {
       "hlasm/che4z_hlasm/A.hlasm": 111.49,
@@ -1729,6 +1747,7 @@
       "hlasm/che4z_hlasm/B.hlasm": -220.47,
       "hlasm/che4z_hlasm/BBBBB.hlasm": -61.85,
       "hlasm/che4z_hlasm/CCCCC.hlasm": -105.59,
+      "hlasm/che4z_hlasm/NOTICE.md": -266.19,
       "hlasm/che4z_hlasm/code_action_1.hlasm": 75.44,
       "hlasm/che4z_hlasm/code_action_2.hlasm": -150.01,
       "hlasm/che4z_hlasm/comments.hlasm": -171.23,
@@ -1823,7 +1842,8 @@
       "html/polyglot_odoo/database_manager.qweb.html": 183.94
     },
     "html/polyglot_vscode": {
-      "html/polyglot_vscode/vscode_builtin.html": 14.4
+      "html/polyglot_vscode/LICENSE.txt": 14.34,
+      "html/polyglot_vscode/vscode_builtin.html": 0.64
     },
     "html/revealjs_decks": {
       "html/revealjs_decks/500-slides.html": 148.92,
@@ -2278,6 +2298,7 @@
       "lua/darwin-xnu/wqtrace.lua": 214.14
     },
     "lua/freebsd-src": {
+      "lua/freebsd-src/COPYRIGHT": -31.19,
       "lua/freebsd-src/cli.lua": -9.21,
       "lua/freebsd-src/color.lua": 13.25,
       "lua/freebsd-src/config.lua": -47.99,
@@ -2398,6 +2419,7 @@
       "nix/SOURCES.md": -113.89
     },
     "nix/bun": {
+      "nix/bun/LICENSE.md": 111.29,
       "nix/bun/flake.nix": 96.0,
       "nix/bun/shell.nix": 86.12
     },
@@ -2508,7 +2530,8 @@
       "plaintext/SOURCES.md": 248.42
     },
     "plaintext/ansible": {
-      "plaintext/ansible/requirements.txt": 29.45
+      "plaintext/ansible/COPYING": 69.19,
+      "plaintext/ansible/requirements.txt": 67.36
     },
     "plaintext/cpython/Lib/test/tokenizedata": {
       "plaintext/cpython/Lib/test/tokenizedata/tokenize_tests-utf8-coding-cookie-and-no-utf8-bom-sig.txt": 216.87
@@ -2521,6 +2544,9 @@
     },
     "plaintext/opencv/include": {
       "plaintext/opencv/include/CMakeLists.txt": 141.51
+    },
+    "pli": {
+      "pli/SOURCES.md": -178.1
     },
     "pli/dsf_cics_admin": {
       "pli/dsf_cics_admin/LICENSE.md": -135.91,
@@ -2700,12 +2726,15 @@
       "python/SOURCES.md": -155.49
     },
     "python/airflow": {
+      "python/airflow/NOTICE": 66.99,
       "python/airflow/dag.py": 260.67,
       "python/airflow/s3.py": 117.77,
       "python/airflow/scheduler_job_runner.py": 157.88
     },
     "python/cython": {
+      "python/cython/COPYING.txt": 36.39,
       "python/cython/CodeGeneration.py": -18.75,
+      "python/cython/LICENSE.txt": -7.57,
       "python/cython/MemoryView.pxd": 2.39,
       "python/cython/MemoryView.pyx": 23.66,
       "python/cython/Nodes.py": 32.59
@@ -2982,18 +3011,24 @@
       "python/wtfpython/noxfile.py": 254.95
     },
     "rexx": {
-      "rexx/PROVENANCE.md": -198.26
+      "rexx/PROVENANCE.md": -198.26,
+      "rexx/SOURCES.md": -191.62
+    },
+    "rexx/hercules_390_hyperion": {
+      "rexx/hercules_390_hyperion/COPYRIGHT": 28.4,
+      "rexx/hercules_390_hyperion/sample.rexx": -27.84
     },
     "rexx/hercules_hyperion": {
+      "rexx/hercules_hyperion/COPYRIGHT": 331.85,
       "rexx/hercules_hyperion/cmpsc.rexx": 181.76,
-      "rexx/hercules_hyperion/hbasic1.rexx": 117.2,
+      "rexx/hercules_hyperion/hbasic1.rexx": 278.88,
       "rexx/hercules_hyperion/hcommand.rexx": 220.11,
-      "rexx/hercules_hyperion/hexecio.rexx": 311.98,
-      "rexx/hercules_hyperion/hlinein.rexx": 181.93,
-      "rexx/hercules_hyperion/hrecurs.rexx": 182.72,
-      "rexx/hercules_hyperion/sample.rexx": 302.1
+      "rexx/hercules_hyperion/hexecio.rexx": 193.51,
+      "rexx/hercules_hyperion/hlinein.rexx": 139.17,
+      "rexx/hercules_hyperion/hrecurs.rexx": 182.72
     },
     "rexx/ibm_z_zos": {
+      "rexx/ibm_z_zos/LICENSE.md": -23.64,
       "rexx/ibm_z_zos/bpxget.rexx": -26.33,
       "rexx/ibm_z_zos/bpxput.rexx": -169.46,
       "rexx/ibm_z_zos/bpxwtabs.rexx": -207.87,
@@ -3030,6 +3065,8 @@
       "rust/SOURCES.md": -2.03
     },
     "rust/bevy": {
+      "rust/bevy/LICENSE-APACHE": 135.7,
+      "rust/bevy/LICENSE-MIT": -84.69,
       "rust/bevy/bevy_ecs_macros.rs": -19.58,
       "rust/bevy/bevy_ecs_query.rs": 63.73,
       "rust/bevy/bevy_ecs_table.rs": 60.31,
@@ -3048,6 +3085,8 @@
       "rust/holylang/transpiler.rs": -172.58
     },
     "rust/serde": {
+      "rust/serde/LICENSE-APACHE": 109.48,
+      "rust/serde/LICENSE-MIT": 93.44,
       "rust/serde/serde_core_de_impls.rs": 25.84,
       "rust/serde/serde_core_de_mod.rs": 50.28,
       "rust/serde/serde_core_macros.rs": 44.21,
@@ -3194,6 +3233,7 @@
       "shell/darwin-xnu/xcrun_cache.sh": 219.68
     },
     "shell/freebsd-src": {
+      "shell/freebsd-src/COPYRIGHT": -76.6,
       "shell/freebsd-src/chflags_test.sh": -22.88,
       "shell/freebsd-src/chmod_test.sh": 191.1,
       "shell/freebsd-src/cp_test.sh": 101.44,
@@ -3419,23 +3459,26 @@
     "sql/baseline": {
       "sql/baseline/schema.php": 4.24
     },
-    "sql/mysql/mediawiki": {
-      "sql/mysql/mediawiki/COPYING": 146.31,
-      "sql/mysql/mediawiki/blobs.sql": 104.96
+    "sql/mediawiki_mysql": {
+      "sql/mediawiki_mysql/COPYING": 70.48,
+      "sql/mediawiki_mysql/blobs.sql": 43.13
     },
-    "sql/mysql/spamassassin": {
-      "sql/mysql/spamassassin/neural_mysql.sql": -179.88
+    "sql/mediawiki_postgresql": {
+      "sql/mediawiki_postgresql/COPYING": 200.89,
+      "sql/mediawiki_postgresql/tables.sql": 132.22
     },
-    "sql/postgresql/mediawiki": {
-      "sql/postgresql/mediawiki/tables.sql": -241.05
-    },
-    "sql/postgresql/sqlmap": {
-      "sql/postgresql/sqlmap/dns_request.sql": 104.77
+    "sql/spamassassin_mysql": {
+      "sql/spamassassin_mysql/NOTICE": -176.18,
+      "sql/spamassassin_mysql/neural_mysql.sql": -203.5
     },
     "sql/sqlite": {
       "sql/sqlite/000-mandelbrot.sql": -300.22,
       "sql/sqlite/001-sudoku.sql": -225.74,
+      "sql/sqlite/LICENSE.md": -274.59,
       "sql/sqlite/dotcmd01.sql": -210.37
+    },
+    "sql/sqlmap_postgresql": {
+      "sql/sqlmap_postgresql/dns_request.sql": 200.91
     },
     "sqlite": {
       "sqlite/SOURCES.md": 9.54
@@ -3600,6 +3643,7 @@
       "tcl/macports_registry/registry_util.tcl": 174.43
     },
     "tcl/sqlite": {
+      "tcl/sqlite/LICENSE.md": -126.87,
       "tcl/sqlite/README.md": -195.92,
       "tcl/sqlite/malloc_common.tcl": -188.16,
       "tcl/sqlite/speedtest.tcl": -6.51,
@@ -3700,10 +3744,12 @@
       "xml/apex/CanTheUser_Tests.cls-meta.xml": 112.92,
       "xml/apex/IterationRecipes_Tests.cls": 95.55,
       "xml/apex/IterationRecipes_Tests.cls-meta.xml": 160.68,
+      "xml/apex/LICENSE.md": 190.43,
       "xml/apex/ListSortingRecipes_Tests.cls": 230.91,
       "xml/apex/ListSortingRecipes_Tests.cls-meta.xml": 251.9
     },
     "xml/jenkins": {
+      "xml/jenkins/LICENSE.txt": -39.44,
       "xml/jenkins/XStreamDOMTest.data1.xml": -5.53,
       "xml/jenkins/XStreamDOMTest.data2.xml": 17.77,
       "xml/jenkins/excludesFilter.xml": -57.16
@@ -3810,10 +3856,21 @@
       "zig/SOURCES.md": -156.25
     },
     "zig/bun": {
+      "zig/bun/LICENSE.md": 125.07,
       "zig/bun/MimallocArena.zig": 204.35,
       "zig/bun/Parser.zig": 205.47,
       "zig/bun/comptime_string_map.zig": 55.07,
       "zig/bun/napi.zig": 177.39
+    },
+    "zig/mach": {
+      "zig/mach/Core.zig": -95.98,
+      "zig/mach/StringTable.zig": -95.63,
+      "zig/mach/collision.zig": -142.49,
+      "zig/mach/graph.zig": -104.12,
+      "zig/mach/main.zig": -122.86,
+      "zig/mach/module.zig": -128.14,
+      "zig/mach/testing.zig": -102.85,
+      "zig/mach/win32.zig": -75.89
     },
     "zig/tigerbeetle": {
       "zig/tigerbeetle/aof.zig": 33.34,
@@ -3844,16 +3901,6 @@
       "zig/zls/ast.zig": -143.47,
       "zig/zls/config_gen.zig": -145.8,
       "zig/zls/print_ast.zig": -146.97
-    },
-    "zig/zls/mach": {
-      "zig/zls/mach/Core.zig": 209.64,
-      "zig/zls/mach/StringTable.zig": 316.23,
-      "zig/zls/mach/collision.zig": 165.11,
-      "zig/zls/mach/graph.zig": 322.64,
-      "zig/zls/mach/main.zig": 149.33,
-      "zig/zls/mach/module.zig": 237.94,
-      "zig/zls/mach/testing.zig": 255.86,
-      "zig/zls/mach/win32.zig": 281.46
     }
   },
   "path": [

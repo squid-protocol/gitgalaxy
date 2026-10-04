@@ -123,6 +123,12 @@
       "zig/bun/MimallocArena.zig": 7,
       "zig/bun/Parser.zig": 15
     },
+    "zig/mach": {
+      "zig/mach/Core.zig": 2,
+      "zig/mach/StringTable.zig": 1,
+      "zig/mach/graph.zig": 9,
+      "zig/mach/module.zig": 4
+    },
     "zig/tigerbeetle": {
       "zig/tigerbeetle/aof.zig": 0,
       "zig/tigerbeetle/build.zig": 3,
@@ -145,12 +151,6 @@
       "zig/zls/ast.zig": 6,
       "zig/zls/config_gen.zig": 4,
       "zig/zls/print_ast.zig": 1
-    },
-    "zig/zls/mach": {
-      "zig/zls/mach/Core.zig": 2,
-      "zig/zls/mach/StringTable.zig": 1,
-      "zig/zls/mach/graph.zig": 9,
-      "zig/zls/mach/module.zig": 4
     }
   },
   "path": [

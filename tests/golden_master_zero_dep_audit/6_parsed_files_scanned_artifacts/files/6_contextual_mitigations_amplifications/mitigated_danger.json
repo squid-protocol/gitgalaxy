@@ -232,6 +232,10 @@
       "zig/bun/Parser.zig": "1 instances",
       "zig/bun/napi.zig": "2 instances"
     },
+    "zig/mach": {
+      "zig/mach/Core.zig": "7 instances",
+      "zig/mach/module.zig": "1 instances"
+    },
     "zig/tigerbeetle": {
       "zig/tigerbeetle/aof.zig": "6 instances",
       "zig/tigerbeetle/build.zig": "9 instances",
@@ -242,10 +246,6 @@
       "zig/zig/Compilation.zig": "8 instances",
       "zig/zig/InternPool.zig": "1 instances",
       "zig/zig/main.zig": "5 instances"
-    },
-    "zig/zls/mach": {
-      "zig/zls/mach/Core.zig": "7 instances",
-      "zig/zls/mach/module.zig": "1 instances"
     }
   },
   "path": [

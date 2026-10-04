@@ -42,9 +42,11 @@
       }
     },
     "ada": {
-      "ada/PROVENANCE.md": {}
+      "ada/PROVENANCE.md": {},
+      "ada/SOURCES.md": {}
     },
     "ada/alire": {
+      "ada/alire/LICENSE.txt": {},
       "ada/alire/alire-conditional_trees.adb": {
         "Compute Cores": 16,
         "Interface Declarations": 1,
@@ -988,99 +990,79 @@
       },
       "assembly/os_tutorial_x86/14-checkpoint_boot_kernel_entry.asm": {}
     },
-    "assembly/raspberrypi_baremetal": {
-      "assembly/raspberrypi_baremetal/Compress_HUFFMAN_HUFFMANDecode_kernel.asm": {
+    "assembly/rpi_smartstart_baremetal": {
+      "assembly/rpi_smartstart_baremetal/10_virtualmemory_SmartStart32.S": {
+        "Compute Cores": 2,
+        "I/O & Config Routines": 13,
+        "Many-Argument Workhorses": 9,
+        "Parameter Forwarders": 29,
+        "State Mutators": 2
+      },
+      "assembly/rpi_smartstart_baremetal/10_virtualmemory_SmartStart64.S": {
+        "I/O & Config Routines": 10,
+        "Interface Declarations": 5,
+        "Many-Argument Workhorses": 3,
+        "Parameter Forwarders": 28,
+        "State Mutators": 2
+      },
+      "assembly/rpi_smartstart_baremetal/Arm32_64_USB_SmartStart32.S": {
+        "Compute Cores": 2,
+        "I/O & Config Routines": 12,
         "Interface Declarations": 1,
-        "Many-Argument Workhorses": 1,
-        "Parameter Forwarders": 1,
+        "Many-Argument Workhorses": 4,
+        "Parameter Forwarders": 22,
         "State Mutators": 3
       },
-      "assembly/raspberrypi_baremetal/Compress_HUFFMAN_HUFFMANDecode_kernel7.asm": {
-        "Compute Cores": 1,
-        "Interface Declarations": 1,
-        "Many-Argument Workhorses": 1,
-        "Parameter Forwarders": 1,
+      "assembly/rpi_smartstart_baremetal/Arm32_64_USB_SmartStart64.S": {
+        "I/O & Config Routines": 8,
+        "Interface Declarations": 3,
+        "Many-Argument Workhorses": 5,
+        "Parameter Forwarders": 16,
         "State Mutators": 3
       },
-      "assembly/raspberrypi_baremetal/Compress_HUFFMAN_HUFFMANDecode_kernel8.asm": {
+      "assembly/rpi_smartstart_baremetal/Core3Interrupt_SmartStart64.S": {
+        "I/O & Config Routines": 8,
+        "Interface Declarations": 3,
+        "Many-Argument Workhorses": 5,
+        "Parameter Forwarders": 17,
+        "State Mutators": 3
+      },
+      "assembly/rpi_smartstart_baremetal/FreeRTOSv10.1.1_loader_RaspberryPi_SmartStart32.S": {
+        "Compute Cores": 3,
+        "I/O & Config Routines": 12,
+        "Many-Argument Workhorses": 4,
+        "Parameter Forwarders": 29,
+        "State Mutators": 3
+      },
+      "assembly/rpi_smartstart_baremetal/FreeRTOSv10.1.1_loader_RaspberryPi_SmartStart64.S": {
+        "I/O & Config Routines": 9,
+        "Interface Declarations": 5,
+        "Many-Argument Workhorses": 3,
+        "Parameter Forwarders": 21,
+        "State Mutators": 2
+      },
+      "assembly/rpi_smartstart_baremetal/Multicore_SmartStart32.S": {
         "Compute Cores": 1,
+        "I/O & Config Routines": 10,
         "Interface Declarations": 2,
-        "Parameter Forwarders": 4,
-        "State Mutators": 3
+        "Many-Argument Workhorses": 1,
+        "Parameter Forwarders": 25,
+        "State Mutators": 5
       },
-      "assembly/raspberrypi_baremetal/Compress_HUFFMAN_HUFFMANGFX_kernel.asm": {
-        "I/O & Config Routines": 2,
+      "assembly/rpi_smartstart_baremetal/Multicore_SmartStart64.S": {
+        "I/O & Config Routines": 7,
+        "Interface Declarations": 2,
+        "Many-Argument Workhorses": 3,
+        "Parameter Forwarders": 15,
+        "State Mutators": 2
+      },
+      "assembly/rpi_smartstart_baremetal/SimpleSched_SmartStart32.S": {
+        "Compute Cores": 1,
+        "I/O & Config Routines": 10,
+        "Interface Declarations": 2,
         "Many-Argument Workhorses": 2,
-        "Parameter Forwarders": 1,
-        "State Mutators": 2
-      },
-      "assembly/raspberrypi_baremetal/Compress_HUFFMAN_HUFFMANGFX_kernel7.asm": {
-        "Compute Cores": 1,
-        "I/O & Config Routines": 2,
-        "Many-Argument Workhorses": 2,
-        "Parameter Forwarders": 1,
-        "State Mutators": 2
-      },
-      "assembly/raspberrypi_baremetal/Compress_HUFFMAN_HUFFMANGFX_kernel8.asm": {
-        "Compute Cores": 1,
-        "I/O & Config Routines": 2,
-        "Interface Declarations": 1,
-        "Parameter Forwarders": 5,
-        "State Mutators": 2
-      },
-      "assembly/raspberrypi_baremetal/Compress_LZ77_LZ77Decode_kernel.asm": {
-        "Interface Declarations": 1,
-        "Many-Argument Workhorses": 1,
-        "Parameter Forwarders": 3,
-        "State Mutators": 3
-      },
-      "assembly/raspberrypi_baremetal/Compress_LZ77_LZ77Decode_kernel7.asm": {
-        "Compute Cores": 1,
-        "Interface Declarations": 1,
-        "Many-Argument Workhorses": 1,
-        "Parameter Forwarders": 3,
-        "State Mutators": 3
-      },
-      "assembly/raspberrypi_baremetal/Compress_LZ77_LZ77Decode_kernel8.asm": {
-        "Compute Cores": 1,
-        "Interface Declarations": 1,
-        "Parameter Forwarders": 4,
-        "State Mutators": 3
-      },
-      "assembly/raspberrypi_baremetal/Compress_LZ77_LZ77GFX_kernel.asm": {
-        "I/O & Config Routines": 2,
-        "Many-Argument Workhorses": 1,
-        "Parameter Forwarders": 4,
-        "State Mutators": 2
-      },
-      "assembly/raspberrypi_baremetal/Compress_LZ77_LZ77GFX_kernel7.asm": {
-        "Compute Cores": 1,
-        "I/O & Config Routines": 2,
-        "Many-Argument Workhorses": 1,
-        "Parameter Forwarders": 4,
-        "State Mutators": 2
-      },
-      "assembly/raspberrypi_baremetal/Compress_LZ77_LZ77GFX_kernel8.asm": {
-        "Compute Cores": 1,
-        "I/O & Config Routines": 2,
-        "Parameter Forwarders": 5,
-        "State Mutators": 2
-      },
-      "assembly/raspberrypi_baremetal/EMU_GameBoy_kernel.asm": {
-        "I/O & Config Routines": 2,
-        "Many-Argument Workhorses": 1,
-        "Parameter Forwarders": 3,
-        "State Mutators": 3
-      },
-      "assembly/raspberrypi_baremetal/HelloWorld_CPU_kernel7.asm": {
-        "Compute Cores": 1,
-        "I/O & Config Routines": 3,
-        "Parameter Forwarders": 3
-      },
-      "assembly/raspberrypi_baremetal/HelloWorld_CPU_kernel8.asm": {
-        "Compute Cores": 1,
-        "I/O & Config Routines": 3,
-        "Parameter Forwarders": 3
+        "Parameter Forwarders": 27,
+        "State Mutators": 4
       }
     },
     "assembly/x86_bare_metal": {
@@ -1193,6 +1175,9 @@
       "blueprint/ghostty/split-tree.blp": {},
       "blueprint/ghostty/window.blp": {}
     },
+    "bms": {
+      "bms/SOURCES.md": {}
+    },
     "bms/cbsa": {
       "bms/cbsa/BNK1ACC.bms": {
         "I/O & Config Routines": 1
@@ -1221,8 +1206,10 @@
       "bms/cbsa/BNK1UAM.bms": {
         "I/O & Config Routines": 1
       },
-      "bms/cbsa/PROVENANCE.md": {},
-      "bms/cbsa/ssmap.bms": {
+      "bms/cbsa/PROVENANCE.md": {}
+    },
+    "bms/genapp": {
+      "bms/genapp/ssmap.bms": {
         "I/O & Config Routines": 5,
         "State Mutators": 1
       }
@@ -1416,6 +1403,7 @@
       }
     },
     "c/sqlite": {
+      "c/sqlite/LICENSE.md": {},
       "c/sqlite/README.md": {},
       "c/sqlite/lemon.c": {
         "C Struct Operations": 7,
@@ -1762,6 +1750,9 @@
       "cobol/aws-mainframe-modernization-carddemo/CVTRA07Y.cpy": {},
       "cobol/aws-mainframe-modernization-carddemo/DFHAID.cpy": {},
       "cobol/aws-mainframe-modernization-carddemo/DFHBMSCA.cpy": {},
+      "cobol/aws-mainframe-modernization-carddemo/LICENSE.md": {},
+      "cobol/aws-mainframe-modernization-carddemo/NOTICE.md": {},
+      "cobol/aws-mainframe-modernization-carddemo/README.md": {},
       "cobol/aws-mainframe-modernization-carddemo/UNUSED1Y.cpy": {}
     },
     "cobol/cash-account-cobol": {
@@ -1772,6 +1763,8 @@
       "cobol/cash-account-cobol/DCLFRANK.cpy": {}
     },
     "cobol/che-che4z-lsp-for-cobol": {
+      "cobol/che-che4z-lsp-for-cobol/LICENSE.md": {},
+      "cobol/che-che4z-lsp-for-cobol/NOTICE.md": {},
       "cobol/che-che4z-lsp-for-cobol/SQLCA_DATACOM.cpy": {},
       "cobol/che-che4z-lsp-for-cobol/SQLCA_DB2.cpy": {},
       "cobol/che-che4z-lsp-for-cobol/SQLDA.cpy": {}
@@ -3252,6 +3245,7 @@
       "cobol/gnucobol/xfhfcd3.cpy": {}
     },
     "cobol/gnucobol_internals": {
+      "cobol/gnucobol_internals/COPYING": {},
       "cobol/gnucobol_internals/codegen.c": {
         "C Struct Operations": 41,
         "Compute Cores": 25,
@@ -3580,6 +3574,9 @@
         "Parameter Forwarders": 1
       }
     },
+    "csd": {
+      "csd/SOURCES.md": {}
+    },
     "csd/carddemo": {
       "csd/carddemo/CARDDEMO.CSD": {
         "State Mutators": 18
@@ -3593,6 +3590,7 @@
       "csd/carddemo/CRDDEMOM.csd": {
         "State Mutators": 2
       },
+      "csd/carddemo/NOTICE": {},
       "csd/carddemo/PROVENANCE.md": {}
     },
     "csd/cbsa": {
@@ -3858,6 +3856,9 @@
         "Stateful Encapsulated Methods": 1
       }
     },
+    "db2_sql": {
+      "db2_sql/SOURCES.md": {}
+    },
     "db2_sql/db2unit": {
       "db2_sql/db2unit/00-Prereqs.sql": {},
       "db2_sql/db2unit/01-ObjectsAdmin.sql": {},
@@ -3867,6 +3868,7 @@
       "db2_sql/db2unit/07-Version.sql": {},
       "db2_sql/db2unit/98-Clean.sql": {},
       "db2_sql/db2unit/99-CleanAdmin.sql": {},
+      "db2_sql/db2unit/LICENSE.txt": {},
       "db2_sql/db2unit/PROVENANCE.md": {}
     },
     "dockerfile": {
@@ -5399,7 +5401,8 @@
       }
     },
     "hlasm": {
-      "hlasm/PROVENANCE.md": {}
+      "hlasm/PROVENANCE.md": {},
+      "hlasm/SOURCES.md": {}
     },
     "hlasm/che4z_hlasm": {
       "hlasm/che4z_hlasm/A.hlasm": {},
@@ -5407,6 +5410,7 @@
       "hlasm/che4z_hlasm/B.hlasm": {},
       "hlasm/che4z_hlasm/BBBBB.hlasm": {},
       "hlasm/che4z_hlasm/CCCCC.hlasm": {},
+      "hlasm/che4z_hlasm/NOTICE.md": {},
       "hlasm/che4z_hlasm/code_action_1.hlasm": {},
       "hlasm/che4z_hlasm/code_action_2.hlasm": {},
       "hlasm/che4z_hlasm/comments.hlasm": {},
@@ -5523,6 +5527,7 @@
       "html/polyglot_odoo/database_manager.qweb.html": {}
     },
     "html/polyglot_vscode": {
+      "html/polyglot_vscode/LICENSE.txt": {},
       "html/polyglot_vscode/vscode_builtin.html": {}
     },
     "html/revealjs_decks": {
@@ -7061,6 +7066,7 @@
       "lua/darwin-xnu/wqtrace.lua": {}
     },
     "lua/freebsd-src": {
+      "lua/freebsd-src/COPYRIGHT": {},
       "lua/freebsd-src/cli.lua": {
         "Compute Cores": 3,
         "Parameter Forwarders": 4
@@ -7312,6 +7318,7 @@
       "nix/SOURCES.md": {}
     },
     "nix/bun": {
+      "nix/bun/LICENSE.md": {},
       "nix/bun/flake.nix": {},
       "nix/bun/shell.nix": {}
     },
@@ -7826,6 +7833,7 @@
       "plaintext/SOURCES.md": {}
     },
     "plaintext/ansible": {
+      "plaintext/ansible/COPYING": {},
       "plaintext/ansible/requirements.txt": {}
     },
     "plaintext/cpython/Lib/test/tokenizedata": {
@@ -7839,6 +7847,9 @@
     },
     "plaintext/opencv/include": {
       "plaintext/opencv/include/CMakeLists.txt": {}
+    },
+    "pli": {
+      "pli/SOURCES.md": {}
     },
     "pli/dsf_cics_admin": {
       "pli/dsf_cics_admin/LICENSE.md": {},
@@ -8227,6 +8238,7 @@
       "python/SOURCES.md": {}
     },
     "python/airflow": {
+      "python/airflow/NOTICE": {},
       "python/airflow/dag.py": {
         "Compute Cores": 4,
         "Defensive Guards": 1,
@@ -8254,9 +8266,11 @@
       }
     },
     "python/cython": {
+      "python/cython/COPYING.txt": {},
       "python/cython/CodeGeneration.py": {
         "Parameter Forwarders": 3
       },
+      "python/cython/LICENSE.txt": {},
       "python/cython/MemoryView.pxd": {
         "Defensive Guards": 2,
         "State Mutators": 14
@@ -9525,9 +9539,15 @@
       }
     },
     "rexx": {
-      "rexx/PROVENANCE.md": {}
+      "rexx/PROVENANCE.md": {},
+      "rexx/SOURCES.md": {}
+    },
+    "rexx/hercules_390_hyperion": {
+      "rexx/hercules_390_hyperion/COPYRIGHT": {},
+      "rexx/hercules_390_hyperion/sample.rexx": {}
     },
     "rexx/hercules_hyperion": {
+      "rexx/hercules_hyperion/COPYRIGHT": {},
       "rexx/hercules_hyperion/cmpsc.rexx": {
         "Defensive Guards": 2,
         "I/O & Config Routines": 6,
@@ -9541,10 +9561,10 @@
       },
       "rexx/hercules_hyperion/hexecio.rexx": {},
       "rexx/hercules_hyperion/hlinein.rexx": {},
-      "rexx/hercules_hyperion/hrecurs.rexx": {},
-      "rexx/hercules_hyperion/sample.rexx": {}
+      "rexx/hercules_hyperion/hrecurs.rexx": {}
     },
     "rexx/ibm_z_zos": {
+      "rexx/ibm_z_zos/LICENSE.md": {},
       "rexx/ibm_z_zos/bpxget.rexx": {
         "Compute Cores": 1,
         "I/O & Config Routines": 1,
@@ -9674,6 +9694,8 @@
       "rust/SOURCES.md": {}
     },
     "rust/bevy": {
+      "rust/bevy/LICENSE-APACHE": {},
+      "rust/bevy/LICENSE-MIT": {},
       "rust/bevy/bevy_ecs_macros.rs": {
         "Annotated & Test Methods": 3,
         "Compute Cores": 1,
@@ -9762,6 +9784,8 @@
       }
     },
     "rust/serde": {
+      "rust/serde/LICENSE-APACHE": {},
+      "rust/serde/LICENSE-MIT": {},
       "rust/serde/serde_core_de_impls.rs": {
         "Generic / Templated Code": 136,
         "Parameter Forwarders": 43,
@@ -10234,6 +10258,7 @@
       }
     },
     "shell/freebsd-src": {
+      "shell/freebsd-src/COPYRIGHT": {},
       "shell/freebsd-src/chflags_test.sh": {
         "I/O & Config Routines": 4,
         "Interface Declarations": 1
@@ -10739,23 +10764,26 @@
         "Many-Argument Workhorses": 4
       }
     },
-    "sql/mysql/mediawiki": {
-      "sql/mysql/mediawiki/COPYING": {},
-      "sql/mysql/mediawiki/blobs.sql": {}
+    "sql/mediawiki_mysql": {
+      "sql/mediawiki_mysql/COPYING": {},
+      "sql/mediawiki_mysql/blobs.sql": {}
     },
-    "sql/mysql/spamassassin": {
-      "sql/mysql/spamassassin/neural_mysql.sql": {}
+    "sql/mediawiki_postgresql": {
+      "sql/mediawiki_postgresql/COPYING": {},
+      "sql/mediawiki_postgresql/tables.sql": {}
     },
-    "sql/postgresql/mediawiki": {
-      "sql/postgresql/mediawiki/tables.sql": {}
-    },
-    "sql/postgresql/sqlmap": {
-      "sql/postgresql/sqlmap/dns_request.sql": {}
+    "sql/spamassassin_mysql": {
+      "sql/spamassassin_mysql/NOTICE": {},
+      "sql/spamassassin_mysql/neural_mysql.sql": {}
     },
     "sql/sqlite": {
       "sql/sqlite/000-mandelbrot.sql": {},
       "sql/sqlite/001-sudoku.sql": {},
+      "sql/sqlite/LICENSE.md": {},
       "sql/sqlite/dotcmd01.sql": {}
+    },
+    "sql/sqlmap_postgresql": {
+      "sql/sqlmap_postgresql/dns_request.sql": {}
     },
     "sqlite": {
       "sqlite/SOURCES.md": {}
@@ -11062,6 +11090,7 @@
       }
     },
     "tcl/sqlite": {
+      "tcl/sqlite/LICENSE.md": {},
       "tcl/sqlite/README.md": {},
       "tcl/sqlite/malloc_common.tcl": {
         "Compute Cores": 2,
@@ -11378,6 +11407,7 @@
         "Annotated & Test Methods": 3
       },
       "xml/apex/IterationRecipes_Tests.cls-meta.xml": {},
+      "xml/apex/LICENSE.md": {},
       "xml/apex/ListSortingRecipes_Tests.cls": {
         "Annotated & Test Methods": 3,
         "I/O & Config Routines": 1
@@ -11385,6 +11415,7 @@
       "xml/apex/ListSortingRecipes_Tests.cls-meta.xml": {}
     },
     "xml/jenkins": {
+      "xml/jenkins/LICENSE.txt": {},
       "xml/jenkins/XStreamDOMTest.data1.xml": {},
       "xml/jenkins/XStreamDOMTest.data2.xml": {},
       "xml/jenkins/excludesFilter.xml": {}
@@ -11562,6 +11593,7 @@
       "zig/SOURCES.md": {}
     },
     "zig/bun": {
+      "zig/bun/LICENSE.md": {},
       "zig/bun/MimallocArena.zig": {
         "Compute Cores": 2,
         "Defensive Guards": 3,
@@ -11595,6 +11627,55 @@
         "Parameter Forwarders": 26,
         "State Mutators": 587,
         "Type Conversions": 3
+      }
+    },
+    "zig/mach": {
+      "zig/mach/Core.zig": {
+        "Compute Cores": 1,
+        "Defensive Guards": 7,
+        "Generic / Templated Code": 2,
+        "Many-Argument Workhorses": 1,
+        "Parameter Forwarders": 12,
+        "State Mutators": 4
+      },
+      "zig/mach/StringTable.zig": {
+        "Defensive Guards": 2,
+        "Parameter Forwarders": 2,
+        "State Mutators": 1,
+        "Type Conversions": 3
+      },
+      "zig/mach/collision.zig": {
+        "Compute Cores": 5,
+        "Defensive Guards": 4,
+        "Many-Argument Workhorses": 2,
+        "Parameter Forwarders": 6
+      },
+      "zig/mach/graph.zig": {
+        "Defensive Guards": 14,
+        "Parameter Forwarders": 3,
+        "State Mutators": 2
+      },
+      "zig/mach/main.zig": {},
+      "zig/mach/module.zig": {
+        "Defensive Guards": 14,
+        "Generic / Templated Code": 15,
+        "Many-Argument Workhorses": 1,
+        "Parameter Forwarders": 11,
+        "State Mutators": 9,
+        "Type Conversions": 5
+      },
+      "zig/mach/testing.zig": {
+        "Compute Cores": 2,
+        "Defensive Guards": 13,
+        "Generic / Templated Code": 4,
+        "Parameter Forwarders": 1
+      },
+      "zig/mach/win32.zig": {
+        "Generic / Templated Code": 2,
+        "Many-Argument Workhorses": 1,
+        "Parameter Forwarders": 36,
+        "State Mutators": 49,
+        "Type Conversions": 93
       }
     },
     "zig/tigerbeetle": {
@@ -11769,55 +11850,6 @@
         "Defensive Guards": 18,
         "I/O & Config Routines": 1,
         "Parameter Forwarders": 1
-      }
-    },
-    "zig/zls/mach": {
-      "zig/zls/mach/Core.zig": {
-        "Compute Cores": 1,
-        "Defensive Guards": 7,
-        "Generic / Templated Code": 2,
-        "Many-Argument Workhorses": 1,
-        "Parameter Forwarders": 12,
-        "State Mutators": 4
-      },
-      "zig/zls/mach/StringTable.zig": {
-        "Defensive Guards": 2,
-        "Parameter Forwarders": 2,
-        "State Mutators": 1,
-        "Type Conversions": 3
-      },
-      "zig/zls/mach/collision.zig": {
-        "Compute Cores": 5,
-        "Defensive Guards": 4,
-        "Many-Argument Workhorses": 2,
-        "Parameter Forwarders": 6
-      },
-      "zig/zls/mach/graph.zig": {
-        "Defensive Guards": 14,
-        "Parameter Forwarders": 3,
-        "State Mutators": 2
-      },
-      "zig/zls/mach/main.zig": {},
-      "zig/zls/mach/module.zig": {
-        "Defensive Guards": 14,
-        "Generic / Templated Code": 15,
-        "Many-Argument Workhorses": 1,
-        "Parameter Forwarders": 11,
-        "State Mutators": 9,
-        "Type Conversions": 5
-      },
-      "zig/zls/mach/testing.zig": {
-        "Compute Cores": 2,
-        "Defensive Guards": 13,
-        "Generic / Templated Code": 4,
-        "Parameter Forwarders": 1
-      },
-      "zig/zls/mach/win32.zig": {
-        "Generic / Templated Code": 2,
-        "Many-Argument Workhorses": 1,
-        "Parameter Forwarders": 36,
-        "State Mutators": 49,
-        "Type Conversions": 93
       }
     }
   },

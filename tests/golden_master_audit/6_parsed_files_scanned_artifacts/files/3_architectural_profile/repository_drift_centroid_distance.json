@@ -520,14 +520,14 @@
       "cobol/Z-SMS-Gateway/SENDSMS.cbl": 4.435
     },
     "cobol/aws-mainframe-modernization-carddemo": {
-      "cobol/aws-mainframe-modernization-carddemo/CBACT01C.cbl": 6.399,
-      "cobol/aws-mainframe-modernization-carddemo/CBACT02C.cbl": 6.547,
-      "cobol/aws-mainframe-modernization-carddemo/CBACT03C.cbl": 6.571,
-      "cobol/aws-mainframe-modernization-carddemo/CBACT04C.cbl": 6.509,
-      "cobol/aws-mainframe-modernization-carddemo/CBCUS01C.cbl": 6.571,
+      "cobol/aws-mainframe-modernization-carddemo/CBACT01C.cbl": 6.451,
+      "cobol/aws-mainframe-modernization-carddemo/CBACT02C.cbl": 6.6,
+      "cobol/aws-mainframe-modernization-carddemo/CBACT03C.cbl": 6.623,
+      "cobol/aws-mainframe-modernization-carddemo/CBACT04C.cbl": 6.522,
+      "cobol/aws-mainframe-modernization-carddemo/CBCUS01C.cbl": 6.623,
       "cobol/aws-mainframe-modernization-carddemo/CBTRN01C.cbl": 6.518,
-      "cobol/aws-mainframe-modernization-carddemo/CBTRN02C.cbl": 6.417,
-      "cobol/aws-mainframe-modernization-carddemo/CBTRN03C.cbl": 6.12,
+      "cobol/aws-mainframe-modernization-carddemo/CBTRN02C.cbl": 6.408,
+      "cobol/aws-mainframe-modernization-carddemo/CBTRN03C.cbl": 6.132,
       "cobol/aws-mainframe-modernization-carddemo/COACTUP.CPY": 3.927,
       "cobol/aws-mainframe-modernization-carddemo/COACTUPC.cbl": 8.699,
       "cobol/aws-mainframe-modernization-carddemo/COACTVW.CPY": 3.864,
@@ -574,7 +574,7 @@
       "cobol/aws-mainframe-modernization-carddemo/CSSTRPFY.cpy": 7.969,
       "cobol/aws-mainframe-modernization-carddemo/CSUSR01Y.cpy": 2.197,
       "cobol/aws-mainframe-modernization-carddemo/CSUTLDPY.cpy": 7.367,
-      "cobol/aws-mainframe-modernization-carddemo/CSUTLDTC.cbl": 7.557,
+      "cobol/aws-mainframe-modernization-carddemo/CSUTLDTC.cbl": 7.499,
       "cobol/aws-mainframe-modernization-carddemo/CSUTLDWY.cpy": 3.958,
       "cobol/aws-mainframe-modernization-carddemo/CUSTREC.cpy": 2.034,
       "cobol/aws-mainframe-modernization-carddemo/CVACT01Y.cpy": 2.078,
@@ -620,7 +620,7 @@
       "cobol/che-che4z_lsp_project_fixtures/HELLO-WORLD.cbl": 4.966,
       "cobol/che-che4z_lsp_project_fixtures/HOVER.CBL": 2.168,
       "cobol/che-che4z_lsp_project_fixtures/HOVER_COPYBOOK_NESTED.CBL": 2.862,
-      "cobol/che-che4z_lsp_project_fixtures/HOVER_PARA.CBL": 7.14,
+      "cobol/che-che4z_lsp_project_fixtures/HOVER_PARA.CBL": 7.54,
       "cobol/che-che4z_lsp_project_fixtures/LICENSE.md": 0.0,
       "cobol/che-che4z_lsp_project_fixtures/PAYLIB.CBL": 4.657,
       "cobol/che-che4z_lsp_project_fixtures/REPLA.CBL": 5.092,
@@ -953,7 +953,7 @@
       "cobol/cics-java-jcics-samples/EDUCHAN.cbl": 6.643
     },
     "cobol/cobol-check": {
-      "cobol/cobol-check/TESTPRG.CBL": 6.699,
+      "cobol/cobol-check/TESTPRG.CBL": 6.685,
       "cobol/cobol-check/copybooks_CCHECKPD.CPY": 3.206,
       "cobol/cobol-check/copybooks_CCHECKWS.CPY": 3.071,
       "cobol/cobol-check/copybooks_DFHEIBLK.CPY": 2.0,
@@ -961,7 +961,7 @@
       "cobol/cobol-check/src_main_cobol_BIPM012.CBL": 3.482,
       "cobol/cobol-check/src_main_cobol_DB2PROG.cbl": 6.955,
       "cobol/cobol-check/src_main_cobol_DPICNUMBERS.CBL": 5.031,
-      "cobol/cobol-check/src_main_cobol_FileCopy.cbl": 5.985,
+      "cobol/cobol-check/src_main_cobol_FileCopy.cbl": 6.063,
       "cobol/cobol-check/src_main_cobol_GREETING.CBL": 6.834,
       "cobol/cobol-check/src_main_cobol_LONGLINESANDNUMBERS.CBL": 7.45,
       "cobol/cobol-check/src_main_cobol_MOCK.CBL": 5.545,
@@ -971,7 +971,7 @@
       "cobol/cobol-check/src_main_cobol_REPLAC.CBL": 6.562,
       "cobol/cobol-check/src_main_cobol_RETURNCODE.CBL": 5.359,
       "cobol/cobol-check/src_main_cobol_TESTNESTED.CBL": 5.931,
-      "cobol/cobol-check/src_main_cobol_WS88LEVEL.CBL": 4.063,
+      "cobol/cobol-check/src_main_cobol_WS88LEVEL.CBL": 5.139,
       "cobol/cobol-check/src_main_cobol_copy_BADCOPY-padded.CBL": 2.861,
       "cobol/cobol-check/src_main_cobol_copy_BADCOPY.CBL": 2.861,
       "cobol/cobol-check/src_main_cobol_copy_BIPM012I.CBL": 2.197,
@@ -1005,8 +1005,8 @@
       "cobol/cobol-programming-course/CBLDB21.cbl": 7.128,
       "cobol/cobol-programming-course/CBLDB22.cbl": 7.349,
       "cobol/cobol-programming-course/CBLDB23.cbl": 7.337,
-      "cobol/cobol-programming-course/DEPTPAY.CBL": 5.83,
-      "cobol/cobol-programming-course/EMPPAY.CBL": 6.009
+      "cobol/cobol-programming-course/DEPTPAY.CBL": 6.016,
+      "cobol/cobol-programming-course/EMPPAY.CBL": 6.081
     },
     "cobol/cobrix": {
       "cobol/cobrix/companies_copybook.cpy": 4.202,
@@ -1048,7 +1048,7 @@
       "cobol/gnucobol/numeric-dump.cob": 4.326,
       "cobol/gnucobol/sqlca.cpy": 2.995,
       "cobol/gnucobol/sqlda.cpy": 2.125,
-      "cobol/gnucobol/tutorial.cob": 6.647,
+      "cobol/gnucobol/tutorial.cob": 6.697,
       "cobol/gnucobol/xfhfcd.cpy": 3.202,
       "cobol/gnucobol/xfhfcd3.cpy": 3.52
     },
@@ -1062,10 +1062,10 @@
       "cobol/gnucobol_internals/syn_misc.at": 4.14
     },
     "cobol/zECS": {
-      "cobol/zECS/ECS001.cbl": 6.727,
+      "cobol/zECS/ECS001.cbl": 6.729,
       "cobol/zECS/ZECS000.cbl": 7.157,
-      "cobol/zECS/ZECS003.cbl": 6.768,
-      "cobol/zECS/ZECSPLT.cbl": 6.664,
+      "cobol/zECS/ZECS003.cbl": 6.774,
+      "cobol/zECS/ZECSPLT.cbl": 6.671,
       "cobol/zECS/ZECSZFC.cpy": 2.052,
       "cobol/zECS/ZECSZKC.cpy": 2.171
     },

@@ -848,7 +848,7 @@
         "concurrency": 0.0,
         "dead_code": 0.0,
         "documentation": 33.33,
-        "safety_score": 30.12,
+        "safety_score": 29.97,
         "secrets_risk": 0.0,
         "spec_match": 0.0,
         "stability": 50.0,
@@ -857,7 +857,7 @@
         "verification": 2.31
       },
       "file_count": 3,
-      "total_mass": 124.27
+      "total_mass": 122.27
     },
     "cobol/che-che4z-lsp-for-cobol": {
       "avg_exposures": {

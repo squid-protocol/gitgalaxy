@@ -35,10 +35,14 @@ public class Lgapvs01Service {
     private final ObjectProvider<LgstsqService> lgstsqService;
     private final WfPolicyInfoRepository wfPolicyInfoRepository;
 
-    /** A CICS transaction entered the program. TODO: [AI AGENT] implement from the program's business rules. */
+    /** A CICS transaction entered the program (#4343): one task of it in the region (CicsTask.region()),
+     *  ENTER pressed -- `request` its COMMAREA, null when started from a cleared screen -- run through runTask. Returns the COMMAREA its RETURN passes on (null: none). */
     public Lgapvs01Dfhcommarea handleTransaction(String transid, Lgapvs01Dfhcommarea request) {
         log.info("Lgapvs01: handleTransaction");
-        return request;
+        CicsTask.Region region = CicsTask.region();
+        CicsTask task = region.transaction(transid, request);
+        region.run(task, "LGAPVS01", this::runTask);
+        return task.returned(Lgapvs01Dfhcommarea.class);
     }
 
     /** One task of LGAPVS01 (VSAM KSDS policy record ADD). */
@@ -190,9 +194,13 @@ public class Lgapvs01Service {
         return s.length() > n ? s.substring(s.length() - n) : "0".repeat(n - s.length()) + s;
     }
 
-    /** Another program LINKed / XCTLed to this one. TODO: [AI AGENT] implement from the program's business rules. */
+    /** Another program LINKed / XCTLed to this one (#4343): the program at that level in the region
+     *  (CicsTask.region()), run through runTask on `request`, passed by reference -- what it changes, the caller sees. */
     public Lgapvs01Dfhcommarea handleLink(Lgapvs01Dfhcommarea request) {
         log.info("Lgapvs01: handleLink");
+        CicsTask.Region region = CicsTask.region();
+        CicsTask task = region.linked("LGAPVS01", request);
+        region.run(task, "LGAPVS01", this::runTask);
         return request;
     }
 

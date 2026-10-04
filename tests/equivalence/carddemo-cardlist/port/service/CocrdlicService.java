@@ -147,10 +147,14 @@ public class CocrdlicService {
         }
     }
 
-    /** A CICS transaction entered the program. TODO: [AI AGENT] implement from the program's business rules. */
+    /** A CICS transaction entered the program (#4343): one task of it in the region (CicsTask.region()),
+     *  ENTER pressed -- `request` its COMMAREA, null when started from a cleared screen -- run through runTask. Returns the COMMAREA its RETURN passes on (null: none). */
     public CocrdlicCommarea handleTransaction(String transid, CocrdlicCommarea request) {
         log.info("Cocrdlic: handleTransaction");
-        return request;
+        CicsTask.Region region = CicsTask.region();
+        CicsTask task = region.transaction(transid, request);
+        region.run(task, "COCRDLIC", this::runTask);
+        return task.returned(CocrdlicCommarea.class);
     }
 
     /** One pseudo-conversational task of this program (#3754): paragraph 0000-MAIN through COMMON-RETURN. */
@@ -949,9 +953,13 @@ public class CocrdlicService {
         return v;
     }
 
-    /** Another program LINKed / XCTLed to this one. TODO: [AI AGENT] implement from the program's business rules. */
+    /** Another program LINKed / XCTLed to this one (#4343): the program at that level in the region
+     *  (CicsTask.region()), run through runTask on `request`, passed by reference -- what it changes, the caller sees. */
     public CocrdlicCommarea handleLink(CocrdlicCommarea request) {
         log.info("Cocrdlic: handleLink");
+        CicsTask.Region region = CicsTask.region();
+        CicsTask task = region.linked("COCRDLIC", request);
+        region.run(task, "COCRDLIC", this::runTask);
         return request;
     }
 

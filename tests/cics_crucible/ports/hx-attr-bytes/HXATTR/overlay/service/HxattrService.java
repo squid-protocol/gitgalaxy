@@ -7,6 +7,7 @@ import org.slf4j.LoggerFactory;
 import com.gitgalaxy.modernized.cics.CicsTask;
 import com.gitgalaxy.modernized.dto.contract.HxattrWsCa;
 import com.gitgalaxy.modernized.dto.screen.Hxm1Screen;
+import com.gitgalaxy.modernized.dto.screen.ScreenModel;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.LinkedHashMap;
@@ -56,6 +57,13 @@ public class HxattrService {
     private static final int NULATR_LEN = 8;
     private static final int FSETF_LEN = 8;
 
+    public void executeHxattr(/* Parameters mapped from Controller */) {
+        log.info("Executing modernized business logic for HXATTR");
+        // HXATTR is a CICS transaction (HX01) with no batch entry: its whole PROCEDURE DIVISION is
+        // ported into runTask(CicsTask); there is no business logic to run outside a CICS task.
+        log.info("HXATTR runs as CICS transaction {}: use runTask(CicsTask)", TRANSID);
+    }
+
     /** A CICS transaction entered the program with a COMMAREA and no terminal input: the task is run through
      *  runTask with ENTER, and the COMMAREA the program passes on its RETURN (null when none) is returned. */
     public HxattrWsCa handleTransaction(String transid, HxattrWsCa request) {
@@ -94,6 +102,27 @@ public class HxattrService {
         // pseudo-conversation ends and the next key the operator presses does not start HX01.
         // Fix: EXEC CICS RETURN TRANSID('HX01') COMMAREA(WS-CA) LENGTH(1) at the end of ECHO-SCREEN.
         task.returnTransid(null, null);
+    }
+
+    /** SEND MAP(HXM1) MAPSET(HXSET1) FROM(HXM1O) at src/HXATTR.cbl:66, src/HXATTR.cbl:83, src/HXATTR.cbl:87 (#3619).
+     *  Fills HXM1O as FIRST-SCREEN does before its SEND (line 66); MOVE LOW-VALUES TO HXM1O discards whatever
+     *  the screen held. */
+    public Hxm1Screen renderHxm1(Hxm1Screen screen) {
+        Hxm1Screen hxm1o = screen == null ? new Hxm1Screen() : screen;
+        fillFirstScreen(hxm1o, new LinkedHashMap<>());
+        return hxm1o;
+    }
+
+    /** RECEIVE MAP(HXM1) MAPSET(HXSET1) INTO(HXM1I) at src/HXATTR.cbl:74 (#3619).
+     *  CLEAR: RESET-SCREEN resends the bare map (MAPONLY: no program data). Any other key: ECHO-SCREEN,
+     *  the received map echoed back with STAT set ('NO INPUT' when nothing was received, MAPFAIL). */
+    public ScreenModel submitHxm1(Hxm1Screen input, String aid) {
+        if ("CLEAR".equals(aid)) {
+            return new Hxm1Screen();                    // RESET-SCREEN: MAPONLY, the map's own INITIAL values
+        }
+        Hxm1Screen hxm1i = new Hxm1Screen();
+        fillEchoScreen(hxm1i, new LinkedHashMap<>(), Optional.ofNullable(input));
+        return hxm1i;
     }
 
     // ------------------------------------------------------------------------------------------------

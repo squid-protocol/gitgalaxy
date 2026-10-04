@@ -46,6 +46,12 @@ public class CaxaService {
 
     private final ObjectProvider<CaxbService> caxbService;
 
+    public void executeCaxa(/* Parameters mapped from Controller */) {
+        log.info("Executing modernized business logic for CAXA");
+        // CAXA is a CICS-only program (transaction CA02). It has no batch or controller behaviour.
+        // Its whole PROCEDURE DIVISION (MAIN-PARA) is ported into runTask(CicsTask).
+    }
+
     /** A CICS transaction entered the program. */
     public void handleTransaction(String transid) {
         // Transaction CA02 enters CAXA. The task itself (terminal RECEIVE, XCTL, SEND TEXT, RETURN)
@@ -213,4 +219,5 @@ public class CaxaService {
     public CaxbDfhcommarea xctlCaxb(CaxbDfhcommarea request) {
         return caxbService.getObject().handleLink(request);
     }
+
 }

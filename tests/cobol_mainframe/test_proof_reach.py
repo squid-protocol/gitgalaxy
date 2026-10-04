@@ -151,10 +151,13 @@ def _port_dir(case: str, program: str) -> Path:
     return eq if eq.is_dir() else REPO / "tests" / "cics_crucible" / "ports" / case / program / "overlay"
 
 
-# The examples #4255 names that the proof still never runs, and the port each sits in.
+# The examples #4255 names that the proof still never runs, and the port each sits in (the crucible ports' are
+# regenerated with their facade proofs, #4343).
 NAMED = {
-    ("ca-link-lengths", "CASUB"): {"handleLink", "writeqTsCatraceL22"},
+    ("ca-link-lengths", "CASUB"): {"executeCasub", "handleLink", "writeqTsCatraceL22"},
+    ("hc-abend-link", "HCMAIN"): {"executeHcmain", "bridgeHcsub"},
     ("hc-abend-link", "HCSUB"): {"readqTsHcnoneL37"},
+    ("gt-start-retrieve", "GTWORK"): {"executeGtwork"},
 }
 # Named by #4255 too, and run by the proof since: runTask takes each handled condition / abend through the handler
 # the port defines for it (the evidence records' ported_unproven methods, #4316 follow-up), and (#4342) its
@@ -167,18 +170,12 @@ NOW_REACHED = {
                                       "onConditionItemerrL56", "current"},
 }
 # #4342: methods with no COBOL behaviour behind them, which the generator no longer writes: gone from the ports. A batch
-# executeX of a CICS / CALLed program (and what only it used), the handler of a HANDLE ABEND CANCEL, and a screen's
-# render / submit that no controller calls (ui.flavour none).
+# executeX of a CICS / CALLed program, the handler of a HANDLE ABEND CANCEL, and a screen's render / submit that no
+# controller calls (ui.flavour none).
 REMOVED = {
     ("carddemo-dateutil", "CSUTLDTC"): {"executeCsutldtc"},
     ("carddemo-cardview", "COCRDSLC"): {"executeCocrdslc", "onAbendL871", "renderCcrdsla", "submitCcrdsla"},
     ("carddemo-acctview", "COACTVWC"): {"executeCoactvwc", "onAbendL930", "renderCactvwa", "submitCactvwa"},
-    ("ca-link-lengths", "CALINK"): {"executeCalink"},
-    ("ca-link-lengths", "CASUB"): {"executeCasub"},
-    ("hc-abend-link", "HCMAIN"): {"executeHcmain", "bridgeHcsub", "seed"},
-    ("gt-start-retrieve", "GTWORK"): {"executeGtwork"},
-    ("hx-attr-bytes", "HXATTR"): {"executeHxattr", "renderHxm1", "submitHxm1"},
-    ("pc-wizard", "PCWIZ"): {"executePcwiz", "renderPcm1", "submitPcm1", "renderPcm2"},
 }
 
 

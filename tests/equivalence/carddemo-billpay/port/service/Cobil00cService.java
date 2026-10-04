@@ -61,10 +61,14 @@ public class Cobil00cService {
     private final CardXrefRecordRepository cardXrefRecordRepository;
     private final TranRecordRepository tranRecordRepository;
 
-    /** A CICS transaction entered the program. */
+    /** A CICS transaction entered the program (#4343): one task of it in the region (CicsTask.region()),
+     *  ENTER pressed -- `request` its COMMAREA, null when started from a cleared screen -- run through runTask. Returns the COMMAREA its RETURN passes on (null: none). */
     public Cobil00cCarddemoCommarea handleTransaction(String transid, Cobil00cCarddemoCommarea request) {
         log.info("Cobil00c: handleTransaction");
-        return request;
+        CicsTask.Region region = CicsTask.region();
+        CicsTask task = region.transaction(transid, request);
+        region.run(task, "COBIL00C", this::runTask);
+        return task.returned(Cobil00cCarddemoCommarea.class);
     }
 
     /** One pseudo-conversational task of this program (#3754): MAIN-PARA and the paragraphs it performs. */
@@ -72,9 +76,13 @@ public class Cobil00cService {
         new Run(task).main();
     }
 
-    /** Another program LINKed / XCTLed to this one. */
+    /** Another program LINKed / XCTLed to this one (#4343): the program at that level in the region
+     *  (CicsTask.region()), run through runTask on `request`, passed by reference -- what it changes, the caller sees. */
     public Cobil00cCarddemoCommarea handleLink(Cobil00cCarddemoCommarea request) {
         log.info("Cobil00c: handleLink");
+        CicsTask.Region region = CicsTask.region();
+        CicsTask task = region.linked("COBIL00C", request);
+        region.run(task, "COBIL00C", this::runTask);
         return request;
     }
 

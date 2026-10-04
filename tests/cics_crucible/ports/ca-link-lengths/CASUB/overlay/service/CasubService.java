@@ -37,6 +37,18 @@ public class CasubService {
 
     private final TempStorage tempStorage;
 
+    /**
+     * Entry from the controller: it passes no COMMAREA, so this is CASUB's EIBCALEN = 0 path
+     * (SUB-MAIN lines 21-25): the 'NO COMMAREA' trace item is written to CATRACE and the program returns.
+     */
+    public void executeCasub(/* Parameters mapped from Controller */) {
+        log.info("Executing modernized business logic for CASUB");
+        // SUB-MAIN, IF EIBCALEN = 0 (line 21)
+        //   EXEC CICS WRITEQ TS QUEUE('CATRACE') FROM(WS-MSG) LENGTH(11) (line 22)
+        writeqTsCatraceL22(pad(WS_MSG, WS_MSG_LENGTH));
+        //   EXEC CICS RETURN (line 25)
+    }
+
     /** This program's run at a LINK / XCTL level (#4004): task.level(), task.eibcalen(). */
     public void runTask(CicsTask task) {
         log.info("Casub: runTask");
@@ -136,4 +148,5 @@ public class CasubService {
     protected int writeqTsCatraceL22(String record) {
         return tempStorage.writeItem("CATRACE", record);
     }
+
 }

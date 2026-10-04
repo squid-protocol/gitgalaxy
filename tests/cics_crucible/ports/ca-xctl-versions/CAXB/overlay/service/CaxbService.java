@@ -46,6 +46,15 @@ public class CaxbService {
     /** WS-REPORT PIC X(80). */
     private static final int REPORT_LENGTH = 80;
 
+    /**
+     * CAXB is a CICS program (transaction CA03); it has no batch step. The business logic lives in
+     * runTask(CicsTask); this entry only records that it was called.
+     */
+    public void executeCaxb(/* Parameters mapped from Controller */) {
+        log.info("Executing modernized business logic for CAXB");
+        log.info("CAXB is a pseudo-conversational CICS program (transaction CA03); run it through runTask(CicsTask)");
+    }
+
     /** A CICS transaction entered the program: one task on `request` (its whole record), ENTER pressed. */
     public CaxbDfhcommarea handleTransaction(String transid, CaxbDfhcommarea request) {
         log.info("Caxb: handleTransaction");

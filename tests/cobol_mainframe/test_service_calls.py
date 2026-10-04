@@ -11,6 +11,7 @@ Compiling the generated Java is the compile matrix's job (java_target_matrix.py 
 """
 
 import json
+import re
 import shutil
 from unittest.mock import patch
 
@@ -202,6 +203,16 @@ def test_calls_become_service_calls(scanned, tmp_path):
     # executeX, and SUBPGM gets no generic controller calling one (its entry is handleCall)
     assert "executeMenu" not in menu and "executeCblSubpgm" not in sub
     assert not list(src.glob("controller/*Subpgm*Controller.java"))
+    # #4342 / #4343: the CICS entry points run the program -- one task of it in the region -- never a log line alone
+    assert ('        CicsTask task = region.transaction(transid, null);\n        region.run(task, "MENU", this::runTask);'
+            in menu)
+    inq = (src / "service/AcctinqService.java").read_text(encoding="utf-8")
+    assert re.search(r"public (\w+) handleLink\(\1 request\) \{", inq), inq
+    assert ('CicsTask task = region.linked("ACCTINQ", request);\n        region.run(task, "ACCTINQ", this::runTask);\n'
+            "        return request;") in inq
+    region = (src / "cics/CicsRegion.java").read_text(encoding="utf-8")
+    assert 'case "ACCTINQ" -> context.getBean(AcctinqService.class).runTask(task);' in region
+    assert "CicsTask.deploy(new CicsTask.LocalRegion(this, null));" in region
     audit = (java / "java_migration_audit.txt").read_text(encoding="utf-8")
     assert "Service calls (#3616)    : 1 LINK, 0 XCTL, 1 CALL, 1 data-driven dispatch, 1 remote; 1 remote" in audit
 

@@ -86,10 +86,14 @@ public class CocrdslcService {
         int reasCd;
     }
 
-    /** A CICS transaction entered the program. The logic is in runTask (one task per call). */
+    /** A CICS transaction entered the program (#4343): one task of it in the region (CicsTask.region()),
+     *  ENTER pressed -- `request` its COMMAREA, null when started from a cleared screen -- run through runTask. Returns the COMMAREA its RETURN passes on (null: none). */
     public CocrdslcCommarea handleTransaction(String transid, CocrdslcCommarea request) {
         log.info("Cocrdslc: handleTransaction");
-        return request;
+        CicsTask.Region region = CicsTask.region();
+        CicsTask task = region.transaction(transid, request);
+        region.run(task, "COCRDSLC", this::runTask);
+        return task.returned(CocrdslcCommarea.class);
     }
 
     /** One pseudo-conversational task of this program (#3754): paragraph 0000-MAIN. */
@@ -568,9 +572,13 @@ public class CocrdslcService {
         return !s.isEmpty();
     }
 
-    /** Another program LINKed / XCTLed to this one. The logic is in runTask. */
+    /** Another program LINKed / XCTLed to this one (#4343): the program at that level in the region
+     *  (CicsTask.region()), run through runTask on `request`, passed by reference -- what it changes, the caller sees. */
     public CocrdslcCommarea handleLink(CocrdslcCommarea request) {
         log.info("Cocrdslc: handleLink");
+        CicsTask.Region region = CicsTask.region();
+        CicsTask task = region.linked("COCRDSLC", request);
+        region.run(task, "COCRDSLC", this::runTask);
         return request;
     }
 

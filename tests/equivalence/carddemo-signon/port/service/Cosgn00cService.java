@@ -50,9 +50,13 @@ public class Cosgn00cService {
     private final ObjectProvider<Comen01cService> comen01cService;
     private final SecUserDataRepository secUserDataRepository;
 
-    /** A CICS transaction entered the program: handled by runTask. */
+    /** A CICS transaction entered the program (#4343): one task of it in the region (CicsTask.region()),
+     *  ENTER pressed, started from a cleared screen, run through runTask. */
     public void handleTransaction(String transid) {
         log.info("Cosgn00c: handleTransaction");
+        CicsTask.Region region = CicsTask.region();
+        CicsTask task = region.transaction(transid, null);
+        region.run(task, "COSGN00C", this::runTask);
     }
 
     /** The program's working storage for one task. */
@@ -280,9 +284,13 @@ public class Cosgn00cService {
         return b.toString();
     }
 
-    /** Another program LINKed / XCTLed to this one: COSGN00C reads no COMMAREA, nothing to do. */
+    /** Another program LINKed / XCTLed to this one (#4343): the program at that level in the region
+     *  (CicsTask.region()), run through runTask on no COMMAREA. */
     public void handleLink() {
         log.info("Cosgn00c: handleLink");
+        CicsTask.Region region = CicsTask.region();
+        CicsTask task = region.linked("COSGN00C", null);
+        region.run(task, "COSGN00C", this::runTask);
     }
 
     /** EXEC CICS XCTL PROGRAM(COADM01C) at app/cbl/COSGN00C.cbl:231. XCTL transfers control: nothing after it runs in the caller.

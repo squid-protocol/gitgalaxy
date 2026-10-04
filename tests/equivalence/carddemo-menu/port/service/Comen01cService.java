@@ -54,10 +54,14 @@ public class Comen01cService {
     private static final String[] OPT_USRTYPE = {"U", "U", "U", "U", "U", "U", "U", "U", "U", "U", "U"};
 
 
-    /** A CICS transaction entered the program. TODO: [AI AGENT] implement from the program's business rules. */
+    /** A CICS transaction entered the program (#4343): one task of it in the region (CicsTask.region()),
+     *  ENTER pressed -- `request` its COMMAREA, null when started from a cleared screen -- run through runTask. Returns the COMMAREA its RETURN passes on (null: none). */
     public CarddemoCommarea handleTransaction(String transid, CarddemoCommarea request) {
         log.info("Comen01c: handleTransaction");
-        return request;
+        CicsTask.Region region = CicsTask.region();
+        CicsTask task = region.transaction(transid, request);
+        region.run(task, "COMEN01C", this::runTask);
+        return task.returned(CarddemoCommarea.class);
     }
 
     /** One pseudo-conversational task of this program (#3754): MAIN-PARA and the paragraphs it performs. */
@@ -65,9 +69,13 @@ public class Comen01cService {
         new Run(task).mainPara();
     }
 
-    /** Another program LINKed / XCTLed to this one. TODO: [AI AGENT] implement from the program's business rules. */
+    /** Another program LINKed / XCTLed to this one (#4343): the program at that level in the region
+     *  (CicsTask.region()), run through runTask on `request`, passed by reference -- what it changes, the caller sees. */
     public CarddemoCommarea handleLink(CarddemoCommarea request) {
         log.info("Comen01c: handleLink");
+        CicsTask.Region region = CicsTask.region();
+        CicsTask task = region.linked("COMEN01C", request);
+        region.run(task, "COMEN01C", this::runTask);
         return request;
     }
 

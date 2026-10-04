@@ -875,7 +875,7 @@ _ANGLE_BRACKET_GENERIC_LANGUAGES = frozenset(
 # `language-crucible/data/abap/abapGit/zcl_abapgit_ajson.clas.abap:192,307`).
 # Excluded per-language rather than dropped from the shared pattern outright,
 # since the same keyword IS a valid terminator in other Mode A languages (e.g.
-# COBOL's own `RETURN`/`EXIT`).
+# REXX's own `RETURN`/`EXIT`; COBOL and PL/I opt out of the cut wholesale, #4301).
 # #3338: a batch `call :label` site, anywhere on its line (`if ... call :x`,
 # `... && call :x` are common). The `:` is required -- `call other.bat` runs
 # another script, not a label. Same name class as batch's func_start, bounded.
@@ -895,6 +895,34 @@ _NON_TERMINATING_KEYWORDS_BY_LANG: dict[str, frozenset[str]] = {
     "fortran": frozenset({"EXIT"}),
     "abap": frozenset({"RETURN", "EXIT"}),
 }
+
+# #4301: COBOL and PL/I take no `assembly_returns` cut at all. Their GOBACK / EXIT /
+# RETURN are statements, not the end of the paragraph or procedure: they sit inside
+# an `IF ... END-IF` or after `ELSE` (cics-banking-sample-application-cbsa
+# UPDCUST.cbl:194, pli/dsf_cics_admin/R0010422.pli:315), `EXIT PERFORM` /
+# `EXIT PARAGRAPH` leave a loop or paragraph from mid-body
+# (gnucobol/CBL_OC_DUMP.cob:239), and `\bRETURN\b` even matches the paragraph's own
+# header `RETURN-TO-PREV-SCREEN.` (carddemo COBIL00C.cbl:273). Cutting at the last
+# such line threw everything after it -- PERFORM/CALL edges, LOC, complexity -- out of
+# every unit. A unit in these languages runs to the next unit header, or to the
+# structural end found by `_STRUCTURAL_UNIT_END_LANGS`' own marker, whichever is first.
+#
+# COBOL: a paragraph or section never runs past its program's end -- `END PROGRAM`
+# (and the OO/function siblings), `END DECLARATIVES`, or the header of a nested or
+# sibling program (a DIVISION header or a `*-ID` paragraph). Line-leading only,
+# modulo the columns 1-6 sequence area the code stream keeps, and whole words
+# (`(?![\w-])`, as `\b` passes a hyphen), so a literal or a hyphenated name
+# (`PERFORM END-PROGRAM-RTN`, `PROGRAM-ID-CHECK.`) can't end a unit. The
+# marker's line is not part of the unit.
+_COBOL_UNIT_END_RE = re.compile(
+    r"^(?:[^\n]{6})?[ \t]*(?:"
+    r"END[ \t]+(?:PROGRAM|FUNCTION|METHOD|CLASS|FACTORY|OBJECT|DECLARATIVES)"
+    r"|(?:IDENTIFICATION|ID|ENVIRONMENT|DATA|PROCEDURE)[ \t]+DIVISION"
+    r"|(?:PROGRAM|FUNCTION|CLASS|METHOD)-ID"
+    r")(?![\w-])",
+    re.I | re.M,
+)
+_STRUCTURAL_UNIT_END_LANGS = frozenset({"cobol", "pli"})
 
 # #1949 follow-up: a Mode A "function" can be a bare data/constant definition
 # rather than real code -- confirmed against real corpus source. NASM's `equ`
@@ -5133,6 +5161,27 @@ class StructuralExtractor:
             break
         return min(window_end, hard_limit_idx)
 
+    def _structural_unit_end(self, sandbox: str, header_end: int, match: re.Match[str]) -> int:
+        """#4301: where a COBOL / PL/I unit really ends inside its greedy sandbox.
+
+        `sandbox` runs from the unit's header to the next header (or EOF). COBOL stops
+        at the start of the first line-leading program-end / program-header marker
+        (`_COBOL_UNIT_END_RE`). PL/I stops after the procedure's own `END name;` -- the
+        labelled END closes exactly this procedure, while a bare `END;` may close a DO
+        group or BEGIN block and so can't be used. Without a marker the unit keeps the
+        whole sandbox.
+        """
+        if self.primary_lang_id == "cobol":
+            m = _COBOL_UNIT_END_RE.search(sandbox, header_end)
+            return m.start() if m else len(sandbox)
+        raw_name = match.group(match.lastindex) if match.lastindex else None
+        if raw_name:
+            end_re = re.compile(r"(?<![\w@#$%])END[ \t\r\n]+" + re.escape(raw_name) + r"[ \t\r\n]*;", re.I)
+            m = end_re.search(sandbox, header_end)
+            if m:
+                return m.end()
+        return len(sandbox)
+
     def _slice_by_labels(
         self,
         code: str,
@@ -5181,7 +5230,9 @@ class StructuralExtractor:
             sandbox = code[start_idx:greedy_end_idx]
             end_offset = len(sandbox)
 
-            if self.assembly_returns:
+            if self.primary_lang_id in _STRUCTURAL_UNIT_END_LANGS:
+                end_offset = self._structural_unit_end(sandbox, match.end() - start_idx, match)
+            elif self.assembly_returns:
                 excluded_keywords = _NON_TERMINATING_KEYWORDS_BY_LANG.get(self.primary_lang_id, frozenset())
                 ret_matches = [
                     m

@@ -800,7 +800,7 @@
         "verification": 2.35
       },
       "file_count": 50,
-      "total_mass": 392.28
+      "total_mass": 389.38
     },
     "cobol/Z-SMS-Gateway": {
       "avg_exposures": {
@@ -825,7 +825,7 @@
       "avg_exposures": {
         "api_exposure": 1.57,
         "churn": 0.0,
-        "cognitive_load": 28.91,
+        "cognitive_load": 28.67,
         "concurrency": 0.0,
         "dead_code": 0.91,
         "documentation": 18.67,
@@ -838,7 +838,7 @@
         "verification": 19.84
       },
       "file_count": 75,
-      "total_mass": 10127.46
+      "total_mass": 10145.87
     },
     "cobol/cash-account-cobol": {
       "avg_exposures": {
@@ -892,10 +892,10 @@
         "stability": 49.29,
         "state_flux": 31.89,
         "tech_debt": 40.18,
-        "verification": 1.71
+        "verification": 1.7
       },
       "file_count": 70,
-      "total_mass": 798.83
+      "total_mass": 789.93
     },
     "cobol/che-che4z_nist_ccvs85": {
       "avg_exposures": {
@@ -914,7 +914,7 @@
         "verification": 57.37
       },
       "file_count": 151,
-      "total_mass": 47447.16
+      "total_mass": 47415.86
     },
     "cobol/cics-banking-sample-application-cbsa": {
       "avg_exposures": {
@@ -929,11 +929,11 @@
         "spec_match": 0.0,
         "stability": 50.0,
         "state_flux": 41.39,
-        "tech_debt": 15.54,
+        "tech_debt": 15.91,
         "verification": 22.33
       },
       "file_count": 66,
-      "total_mass": 9661.57
+      "total_mass": 9726.77
     },
     "cobol/cics-genapp": {
       "avg_exposures": {
@@ -990,7 +990,7 @@
         "verification": 2.22
       },
       "file_count": 45,
-      "total_mass": 946.58
+      "total_mass": 947.08
     },
     "cobol/cobol-programming-course": {
       "avg_exposures": {
@@ -1047,7 +1047,7 @@
         "verification": 2.06
       },
       "file_count": 9,
-      "total_mass": 331.62
+      "total_mass": 331.92
     },
     "cobol/gnucobol_internals": {
       "avg_exposures": {
@@ -4045,11 +4045,11 @@
         "spec_match": 0.0,
         "stability": 41.67,
         "state_flux": 79.75,
-        "tech_debt": 19.5,
+        "tech_debt": 22.06,
         "verification": 14.95
       },
       "file_count": 12,
-      "total_mass": 979.22
+      "total_mass": 980.02
     },
     "pli/zopeneditor_sample": {
       "avg_exposures": {
@@ -4064,11 +4064,11 @@
         "spec_match": 0.0,
         "stability": 37.5,
         "state_flux": 75.0,
-        "tech_debt": 0.0,
+        "tech_debt": 18.28,
         "verification": 1.81
       },
       "file_count": 4,
-      "total_mass": 279.28
+      "total_mass": 279.08
     },
     "powershell": {
       "avg_exposures": {

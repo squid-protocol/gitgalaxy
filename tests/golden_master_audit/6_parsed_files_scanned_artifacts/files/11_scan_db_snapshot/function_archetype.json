@@ -6031,7 +6031,7 @@
         "0000-MAIN@20": "I/O & Config Routines"
       },
       "cobol/CICS-Cobol/CBL0704v01StatementNotString.cbl": {
-        "0000-MAIN@22": "I/O & Config Routines"
+        "0000-MAIN@22": "Interface Declarations"
       },
       "cobol/CICS-Cobol/CBL0801v01TableOneDimention.cbl": {
         "0000-MAIN@19": "Interface Declarations"
@@ -6040,7 +6040,7 @@
         "0000-MAIN@23": "Interface Declarations"
       },
       "cobol/CICS-Cobol/CBL0803v01TableUseSubIndice.cbl": {
-        "0000-MAIN@23": "I/O & Config Routines"
+        "0000-MAIN@23": "Interface Declarations"
       },
       "cobol/CICS-Cobol/CBL0804v01TableUseIndice.cbl": {
         "0000-MAIN@31": "I/O & Config Routines",
@@ -6056,7 +6056,7 @@
       },
       "cobol/CICS-Cobol/CBL0806v01TableSearch.cbl": {
         "0000-MAIN@32": "Interface Declarations",
-        "100-ONE-DIMENSION@46": "I/O & Config Routines"
+        "100-ONE-DIMENSION@46": "Interface Declarations"
       },
       "cobol/CICS-Cobol/CBL0807v01TableSearchAll.cbl": {
         "0000-MAIN@33": "Interface Declarations",
@@ -6371,7 +6371,7 @@
         "POPULATE-HEADER-INFO@202": "I/O & Config Routines",
         "PROCESS-ENTER-KEY@115": "I/O & Config Routines",
         "RECEIVE-MENU-SCREEN@189": "I/O & Config Routines",
-        "RETURN-TO-SIGNON-SCREEN@160": "State Mutators",
+        "RETURN-TO-SIGNON-SCREEN@160": "I/O & Config Routines",
         "SEND-MENU-SCREEN@172": "I/O & Config Routines"
       },
       "cobol/aws-mainframe-modernization-carddemo/COBIL00C.cbl": {
@@ -6386,7 +6386,7 @@
         "READ-CXACAIX-FILE@408": "I/O & Config Routines",
         "READPREV-TRANSACT-FILE@472": "I/O & Config Routines",
         "RECEIVE-BILLPAY-SCREEN@306": "I/O & Config Routines",
-        "RETURN-TO-PREV-SCREEN@273": "State Mutators",
+        "RETURN-TO-PREV-SCREEN@273": "I/O & Config Routines",
         "SEND-BILLPAY-SCREEN@289": "I/O & Config Routines",
         "STARTBR-TRANSACT-FILE@441": "I/O & Config Routines",
         "UPDATE-ACCTDAT-FILE@377": "I/O & Config Routines",
@@ -6423,9 +6423,9 @@
         "2250-EDIT-ARRAY@1073": "I/O & Config Routines",
         "9000-READ-FORWARD-EXIT@1261": "Interface Declarations",
         "9000-READ-FORWARD@1123": "I/O & Config Routines",
-        "9100-READ-BACKWARDS-EXIT@1374": "Interface Declarations",
+        "9100-READ-BACKWARDS-EXIT@1374": "I/O & Config Routines",
         "9100-READ-BACKWARDS@1264": "I/O & Config Routines",
-        "9500-FILTER-RECORDS-EXIT@1409": "Interface Declarations",
+        "9500-FILTER-RECORDS-EXIT@1409": "I/O & Config Routines",
         "9500-FILTER-RECORDS@1382": "I/O & Config Routines",
         "COMMON-RETURN@604": "I/O & Config Routines",
         "SEND-LONG-TEXT-EXIT@1452": "Interface Declarations",
@@ -6510,7 +6510,7 @@
         "9100-GETCARD-BYACCTCARD@1376": "I/O & Config Routines",
         "9200-WRITE-PROCESSING-EXIT@1494": "Interface Declarations",
         "9200-WRITE-PROCESSING@1420": "I/O & Config Routines",
-        "9300-CHECK-CHANGE-IN-REC-EXIT@1521": "Interface Declarations",
+        "9300-CHECK-CHANGE-IN-REC-EXIT@1521": "I/O & Config Routines",
         "9300-CHECK-CHANGE-IN-REC@1498": "I/O & Config Routines",
         "ABEND-ROUTINE-EXIT@1554": "Interface Declarations",
         "ABEND-ROUTINE@1531": "I/O & Config Routines",
@@ -6522,7 +6522,7 @@
         "POPULATE-HEADER-INFO@212": "I/O & Config Routines",
         "PROCESS-ENTER-KEY@115": "I/O & Config Routines",
         "RECEIVE-MENU-SCREEN@199": "I/O & Config Routines",
-        "RETURN-TO-SIGNON-SCREEN@170": "State Mutators",
+        "RETURN-TO-SIGNON-SCREEN@170": "I/O & Config Routines",
         "SEND-MENU-SCREEN@182": "I/O & Config Routines"
       },
       "cobol/aws-mainframe-modernization-carddemo/CORPT00C.cbl": {
@@ -6531,8 +6531,8 @@
         "POPULATE-HEADER-INFO@609": "I/O & Config Routines",
         "PROCESS-ENTER-KEY@208": "I/O & Config Routines",
         "RECEIVE-TRNRPT-SCREEN@596": "I/O & Config Routines",
-        "RETURN-TO-CICS@585": "State Mutators",
-        "RETURN-TO-PREV-SCREEN@540": "State Mutators",
+        "RETURN-TO-CICS@585": "I/O & Config Routines",
+        "RETURN-TO-PREV-SCREEN@540": "I/O & Config Routines",
         "SEND-TRNRPT-SCREEN@556": "I/O & Config Routines",
         "SUBMIT-JOB-TO-INTRDR@462": "I/O & Config Routines",
         "WIRTE-JOBSUB-TDQ@515": "I/O & Config Routines"
@@ -6559,7 +6559,7 @@
         "READNEXT-TRANSACT-FILE@624": "I/O & Config Routines",
         "READPREV-TRANSACT-FILE@658": "I/O & Config Routines",
         "RECEIVE-TRNLST-SCREEN@554": "I/O & Config Routines",
-        "RETURN-TO-PREV-SCREEN@510": "State Mutators",
+        "RETURN-TO-PREV-SCREEN@510": "I/O & Config Routines",
         "SEND-TRNLST-SCREEN@527": "I/O & Config Routines",
         "STARTBR-TRANSACT-FILE@591": "I/O & Config Routines"
       },
@@ -6571,7 +6571,7 @@
         "PROCESS-ENTER-KEY@144": "I/O & Config Routines",
         "READ-TRANSACT-FILE@267": "I/O & Config Routines",
         "RECEIVE-TRNVIEW-SCREEN@230": "I/O & Config Routines",
-        "RETURN-TO-PREV-SCREEN@197": "State Mutators",
+        "RETURN-TO-PREV-SCREEN@197": "I/O & Config Routines",
         "SEND-TRNVIEW-SCREEN@213": "I/O & Config Routines"
       },
       "cobol/aws-mainframe-modernization-carddemo/COTRN02C.cbl": {
@@ -6587,7 +6587,7 @@
         "READ-CXACAIX-FILE@576": "I/O & Config Routines",
         "READPREV-TRANSACT-FILE@673": "I/O & Config Routines",
         "RECEIVE-TRNADD-SCREEN@539": "I/O & Config Routines",
-        "RETURN-TO-PREV-SCREEN@500": "State Mutators",
+        "RETURN-TO-PREV-SCREEN@500": "I/O & Config Routines",
         "SEND-TRNADD-SCREEN@516": "I/O & Config Routines",
         "STARTBR-TRANSACT-FILE@642": "I/O & Config Routines",
         "VALIDATE-INPUT-DATA-FIELDS@235": "I/O & Config Routines",
@@ -6608,7 +6608,7 @@
         "READNEXT-USER-SEC-FILE@619": "I/O & Config Routines",
         "READPREV-USER-SEC-FILE@653": "I/O & Config Routines",
         "RECEIVE-USRLST-SCREEN@549": "I/O & Config Routines",
-        "RETURN-TO-PREV-SCREEN@506": "State Mutators",
+        "RETURN-TO-PREV-SCREEN@506": "I/O & Config Routines",
         "SEND-USRLST-SCREEN@522": "I/O & Config Routines",
         "STARTBR-USER-SEC-FILE@586": "I/O & Config Routines"
       },
@@ -6619,7 +6619,7 @@
         "POPULATE-HEADER-INFO@214": "I/O & Config Routines",
         "PROCESS-ENTER-KEY@115": "I/O & Config Routines",
         "RECEIVE-USRADD-SCREEN@201": "I/O & Config Routines",
-        "RETURN-TO-PREV-SCREEN@165": "State Mutators",
+        "RETURN-TO-PREV-SCREEN@165": "I/O & Config Routines",
         "SEND-USRADD-SCREEN@184": "I/O & Config Routines",
         "WRITE-USER-SEC-FILE@238": "I/O & Config Routines"
       },
@@ -6631,7 +6631,7 @@
         "PROCESS-ENTER-KEY@143": "I/O & Config Routines",
         "READ-USER-SEC-FILE@320": "I/O & Config Routines",
         "RECEIVE-USRUPD-SCREEN@283": "I/O & Config Routines",
-        "RETURN-TO-PREV-SCREEN@250": "State Mutators",
+        "RETURN-TO-PREV-SCREEN@250": "I/O & Config Routines",
         "SEND-USRUPD-SCREEN@266": "I/O & Config Routines",
         "UPDATE-USER-INFO@177": "I/O & Config Routines",
         "UPDATE-USER-SEC-FILE@358": "I/O & Config Routines"
@@ -6646,7 +6646,7 @@
         "PROCESS-ENTER-KEY@142": "I/O & Config Routines",
         "READ-USER-SEC-FILE@267": "I/O & Config Routines",
         "RECEIVE-USRDEL-SCREEN@230": "I/O & Config Routines",
-        "RETURN-TO-PREV-SCREEN@197": "State Mutators",
+        "RETURN-TO-PREV-SCREEN@197": "I/O & Config Routines",
         "SEND-USRDEL-SCREEN@213": "I/O & Config Routines"
       },
       "cobol/aws-mainframe-modernization-carddemo/CSSTRPFY.cpy": {
@@ -6749,12 +6749,12 @@
       },
       "cobol/che-che4z_lsp_project_fixtures/USER2.cbl": {
         "000-Main-Logic@28": "Interface Declarations",
-        "100-Print-User@32": "I/O & Config Routines",
-        "Program1-id@15": "Interface Declarations"
+        "100-Print-User@32": "Interface Declarations",
+        "Program1-id@15": "State Mutators"
       },
       "cobol/che-che4z_lsp_project_fixtures/USERC1F.cbl": {
         "000-Main-Logic@30": "Interface Declarations",
-        "100-Print-User@34": "I/O & Config Routines"
+        "100-Print-User@34": "Interface Declarations"
       },
       "cobol/che-che4z_lsp_project_fixtures/USERC1N1.cbl": {
         "000-Main-Logic@30": "Interface Declarations",
@@ -6785,7 +6785,7 @@
       },
       "cobol/che-che4z_lsp_project_fixtures/cobol-daco_DACOSMPL.cbl": {
         "IDMS-CONTROL@7": "Interface Declarations",
-        "PROTOCOL@8": "I/O & Config Routines",
+        "PROTOCOL@8": "Interface Declarations",
         "S310-000@41": "I/O & Config Routines",
         "S310-500@45": "Interface Declarations",
         "S310-999@51": "Interface Declarations",
@@ -6802,11 +6802,11 @@
       },
       "cobol/che-che4z_lsp_project_fixtures/cobol-dc_ABCD.cbl": {
         "IDMS-CONTROL@7": "Interface Declarations",
-        "PROTOCOL@8": "I/O & Config Routines"
+        "PROTOCOL@8": "Interface Declarations"
       },
       "cobol/che-che4z_lsp_project_fixtures/cobol-idms_DACOSMPL.cbl": {
         "IDMS-CONTROL@7": "Interface Declarations",
-        "PROTOCOL@8": "I/O & Config Routines",
+        "PROTOCOL@8": "Interface Declarations",
         "S310-000@41": "I/O & Config Routines",
         "S310-500@45": "Interface Declarations",
         "S310-999@51": "Interface Declarations",
@@ -6823,7 +6823,7 @@
       },
       "cobol/che-che4z_lsp_project_fixtures/cobol-idms_IDMSSMPL.cbl": {
         "IDMS-CONTROL@6": "Interface Declarations",
-        "PROTOCOL@7": "I/O & Config Routines",
+        "PROTOCOL@7": "Interface Declarations",
         "S410-000@33": "I/O & Config Routines",
         "S410-999@48": "Interface Declarations",
         "S410@32": "Interface Declarations",
@@ -6844,7 +6844,7 @@
       },
       "cobol/che-che4z_lsp_project_fixtures/cobol-vanila_DACOSMPL.cbl": {
         "IDMS-CONTROL@7": "Interface Declarations",
-        "PROTOCOL@8": "I/O & Config Routines",
+        "PROTOCOL@8": "Interface Declarations",
         "S310-000@40": "I/O & Config Routines",
         "S310-500@44": "Interface Declarations",
         "S310-999@50": "Interface Declarations",
@@ -6861,7 +6861,7 @@
       },
       "cobol/che-che4z_lsp_project_fixtures/cobol-vanila_IDMSSMPL.cbl": {
         "IDMS-CONTROL@6": "Interface Declarations",
-        "PROTOCOL@7": "I/O & Config Routines",
+        "PROTOCOL@7": "Interface Declarations",
         "S410-000@33": "I/O & Config Routines",
         "S410-999@48": "Interface Declarations",
         "S410@32": "Interface Declarations",
@@ -6914,7 +6914,7 @@
         "BEGIN-FALL-THROUGH-AND-SERIES@226": "Interface Declarations",
         "BEGIN-GO-TO@231": "Interface Declarations",
         "BEGIN-LOOP-ITERATION@241": "Interface Declarations",
-        "BEGIN-PERFORM-THRU@246": "Defensive Guards",
+        "BEGIN-PERFORM-THRU@246": "Interface Declarations",
         "BEGIN-START-UP@217": "I/O & Config Routines",
         "BLANK-LINE-PRINT@336": "Interface Declarations",
         "CCVS-999999@682": "I/O & Config Routines",
@@ -7012,7 +7012,7 @@
         "BEGIN-FALL-THROUGH-AND-SERIES@224": "Interface Declarations",
         "BEGIN-GO-TO@229": "Interface Declarations",
         "BEGIN-LOOP-ITERATION@239": "Interface Declarations",
-        "BEGIN-PERFORM-THRU@244": "Defensive Guards",
+        "BEGIN-PERFORM-THRU@244": "Interface Declarations",
         "BEGIN-START-UP@215": "I/O & Config Routines",
         "BLANK-LINE-PRINT@334": "Interface Declarations",
         "CCVS-999999@680": "I/O & Config Routines",
@@ -7105,7 +7105,7 @@
         "BAIL-OUT-WRITE-2@719": "Interface Declarations",
         "BAIL-OUT-WRITE@410": "Interface Declarations",
         "BAIL-OUT@407": "I/O & Config Routines",
-        "BEGIN-AT-END-PROC@306": "Defensive Guards",
+        "BEGIN-AT-END-PROC@306": "I/O & Config Routines",
         "BEGIN-DUMP@730": "Interface Declarations",
         "BEGIN-FILE-GENERATION@416": "I/O & Config Routines",
         "BEGIN-SORT-IN-PROC@288": "I/O & Config Routines",
@@ -7199,7 +7199,7 @@
         "WRT-LN@392": "I/O & Config Routines"
       },
       "cobol/che-che4z_nist_ccvs85/DB3014.2.cbl": {
-        "BUGGING-2@30": "I/O & Config Routines",
+        "BUGGING-2@30": "Interface Declarations",
         "DB301M-CONTROL@40": "Interface Declarations",
         "DB301M-FLAGS@39": "Interface Declarations"
       },
@@ -8282,7 +8282,7 @@
         "END-ROUTINE-1@305": "I/O & Config Routines",
         "END-ROUTINE@301": "Interface Declarations",
         "END-RTN-EXIT@303": "Interface Declarations",
-        "EXIT-USE-TEST-2@259": "Defensive Guards",
+        "EXIT-USE-TEST-2@259": "Interface Declarations",
         "FAIL-ROUTINE-EX@364": "Interface Declarations",
         "FAIL-ROUTINE-WRITE@359": "Interface Declarations",
         "FAIL-ROUTINE@351": "I/O & Config Routines",
@@ -8344,13 +8344,13 @@
         "USE-DELETE-1@354": "Interface Declarations",
         "USE-FAIL-1@346": "I/O & Config Routines",
         "USE-INIT-1@333": "I/O & Config Routines",
-        "USE-INIT-1@478": "I/O & Config Routines",
-        "USE-INIT-1@597": "I/O & Config Routines",
-        "USE-INIT-1@710": "I/O & Config Routines",
-        "USE-PARA@474": "Defensive Guards",
+        "USE-INIT-1@478": "Interface Declarations",
+        "USE-INIT-1@597": "Interface Declarations",
+        "USE-INIT-1@710": "Interface Declarations",
+        "USE-PARA@474": "I/O & Config Routines",
         "USE-TEST-0@341": "Interface Declarations",
-        "USE-TEST-1@593": "Defensive Guards",
-        "USE-TEST-2@215": "Defensive Guards",
+        "USE-TEST-1@593": "I/O & Config Routines",
+        "USE-TEST-2@215": "I/O & Config Routines",
         "USE-TEST@591": "Interface Declarations",
         "USE-WRITE-1@356": "Interface Declarations",
         "WRITE-LINE@290": "I/O & Config Routines",
@@ -8372,7 +8372,7 @@
         "CLOSE-FILES@191": "Interface Declarations",
         "COLUMN-NAMES-ROUTINE@219": "Interface Declarations",
         "DE-LETE@200": "I/O & Config Routines",
-        "END-OF-PROGRAM@424": "I/O & Config Routines",
+        "END-OF-PROGRAM@424": "State Mutators",
         "END-ROUTINE-12@236": "I/O & Config Routines",
         "END-ROUTINE-13@244": "I/O & Config Routines",
         "END-ROUTINE-1@227": "I/O & Config Routines",
@@ -8397,13 +8397,13 @@
       },
       "cobol/che-che4z_nist_ccvs85/IC4014.2.cbl": {
         "DUMMY-PARA@66": "Interface Declarations",
-        "END-PARA@69": "I/O & Config Routines",
-        "IC401M-BYCONT@48": "Interface Declarations",
+        "END-PARA@69": "State Mutators",
+        "IC401M-BYCONT@48": "State Mutators",
         "IC401M-BYREF@43": "State Mutators",
         "IC401M-CANCEL@38": "I/O & Config Routines",
         "IC401M-CONTROL@34": "Interface Declarations",
         "IC401M-NONDECL@33": "Interface Declarations",
-        "IC401M-USE@28": "Defensive Guards"
+        "IC401M-USE@28": "Interface Declarations"
       },
       "cobol/che-che4z_nist_ccvs85/IF1024.2.cbl": {
         "BAIL-OUT-EX@330": "Interface Declarations",
@@ -11037,7 +11037,7 @@
         "TERMINATE-CCVS@362": "Interface Declarations",
         "USE-IX103-TEST@316": "Interface Declarations",
         "USE-PAR-001@319": "I/O & Config Routines",
-        "USE-PAR-EXIT@321": "Defensive Guards",
+        "USE-PAR-EXIT@321": "Interface Declarations",
         "WRITE-LINE@425": "I/O & Config Routines",
         "WRT-LN@441": "I/O & Config Routines"
       },
@@ -11071,7 +11071,7 @@
         "IX-FS2-01-01@334": "I/O & Config Routines",
         "IX-FS2-01-03@340": "I/O & Config Routines",
         "IX-FS2-01-05@344": "I/O & Config Routines",
-        "IX-FS2-01-EXIT@349": "Defensive Guards",
+        "IX-FS2-01-EXIT@349": "Interface Declarations",
         "IX-FS2-01@332": "Interface Declarations",
         "OPEN-FILES@353": "I/O & Config Routines",
         "PASS@395": "State Mutators",
@@ -11123,7 +11123,7 @@
         "END-ROUTINE-1@344": "I/O & Config Routines",
         "END-ROUTINE@340": "Interface Declarations",
         "END-RTN-EXIT@342": "Interface Declarations",
-        "EXIT-DECL@313": "Defensive Guards",
+        "EXIT-DECL@313": "Interface Declarations",
         "FAIL-DECL@242": "Interface Declarations",
         "FAIL-ROUTINE-DECL@273": "I/O & Config Routines",
         "FAIL-ROUTINE-EX-DECL@291": "Interface Declarations",
@@ -11195,7 +11195,7 @@
         "D-WRITE-LINE@428": "I/O & Config Routines",
         "D-WRT-LN@444": "I/O & Config Routines",
         "DE-LETE@520": "I/O & Config Routines",
-        "DECL-EXIT@471": "Defensive Guards",
+        "DECL-EXIT@471": "Interface Declarations",
         "END-E-1@485": "I/O & Config Routines",
         "END-E-2@510": "Interface Declarations",
         "END-ROUTINE-12@556": "I/O & Config Routines",
@@ -11275,7 +11275,7 @@
         "D-WRITE-LINE@424": "I/O & Config Routines",
         "D-WRT-LN@440": "I/O & Config Routines",
         "DE-LETE@516": "I/O & Config Routines",
-        "DECL-EXIT@467": "Defensive Guards",
+        "DECL-EXIT@467": "Interface Declarations",
         "END-E-1@481": "I/O & Config Routines",
         "END-E-2@506": "Interface Declarations",
         "END-ROUTINE-12@552": "I/O & Config Routines",
@@ -11353,7 +11353,7 @@
         "D-WRITE-LINE@425": "I/O & Config Routines",
         "D-WRT-LN@441": "I/O & Config Routines",
         "DE-LETE@517": "I/O & Config Routines",
-        "DECL-EXIT@468": "Defensive Guards",
+        "DECL-EXIT@468": "Interface Declarations",
         "END-E-1@482": "I/O & Config Routines",
         "END-E-2@507": "Interface Declarations",
         "END-ROUTINE-12@553": "I/O & Config Routines",
@@ -11431,7 +11431,7 @@
         "D-WRITE-LINE@425": "I/O & Config Routines",
         "D-WRT-LN@441": "I/O & Config Routines",
         "DE-LETE@517": "I/O & Config Routines",
-        "DECL-EXIT@468": "Defensive Guards",
+        "DECL-EXIT@468": "Interface Declarations",
         "DEL-FAIL-GF-01-0@698": "I/O & Config Routines",
         "DEL-TEST-GF-01-0@687": "I/O & Config Routines",
         "DEL-TEST-GF-01-1@693": "Defensive Guards",
@@ -11509,7 +11509,7 @@
         "D-WRITE-LINE@424": "I/O & Config Routines",
         "D-WRT-LN@440": "I/O & Config Routines",
         "DE-LETE@516": "I/O & Config Routines",
-        "DECL-EXIT@467": "Defensive Guards",
+        "DECL-EXIT@467": "Interface Declarations",
         "END-E-1@481": "I/O & Config Routines",
         "END-E-2@506": "Interface Declarations",
         "END-ROUTINE-12@552": "I/O & Config Routines",
@@ -11587,7 +11587,7 @@
         "D-WRITE-LINE@424": "I/O & Config Routines",
         "D-WRT-LN@440": "I/O & Config Routines",
         "DE-LETE@516": "I/O & Config Routines",
-        "DECL-EXIT@467": "Defensive Guards",
+        "DECL-EXIT@467": "Interface Declarations",
         "END-E-1@481": "I/O & Config Routines",
         "END-E-2@506": "Interface Declarations",
         "END-ROUTINE-12@552": "I/O & Config Routines",
@@ -11660,7 +11660,7 @@
         "D-WRITE-LINE@428": "I/O & Config Routines",
         "D-WRT-LN@444": "I/O & Config Routines",
         "DE-LETE@520": "I/O & Config Routines",
-        "DECL-EXIT@471": "Defensive Guards",
+        "DECL-EXIT@471": "Interface Declarations",
         "DEL-FAIL-GF-01-0@709": "I/O & Config Routines",
         "DEL-TEST-GF-01-0@698": "I/O & Config Routines",
         "DEL-TEST-GF-01-1@704": "Defensive Guards",
@@ -11739,7 +11739,7 @@
         "D-WRITE-LINE@427": "I/O & Config Routines",
         "D-WRT-LN@443": "I/O & Config Routines",
         "DE-LETE@519": "I/O & Config Routines",
-        "DECL-EXIT@470": "Defensive Guards",
+        "DECL-EXIT@470": "Interface Declarations",
         "END-E-1@484": "I/O & Config Routines",
         "END-E-2@509": "Interface Declarations",
         "END-ROUTINE-12@555": "I/O & Config Routines",
@@ -11813,7 +11813,7 @@
         "D-WRITE-LINE@431": "I/O & Config Routines",
         "D-WRT-LN@447": "I/O & Config Routines",
         "DE-LETE@526": "I/O & Config Routines",
-        "END-DECL@477": "I/O & Config Routines",
+        "END-DECL@477": "State Mutators",
         "END-E-1@491": "I/O & Config Routines",
         "END-E-2@516": "Interface Declarations",
         "END-ROUTINE-12@562": "I/O & Config Routines",
@@ -11986,7 +11986,7 @@
         "IX-FD2-01-01@343": "I/O & Config Routines",
         "IX-FD2-01-03@349": "I/O & Config Routines",
         "IX-FD2-01-05@353": "I/O & Config Routines",
-        "IX-FD2-01-EXIT@358": "Defensive Guards",
+        "IX-FD2-01-EXIT@358": "Interface Declarations",
         "IX-FD2-01@341": "Interface Declarations",
         "OPEN-FILES@362": "I/O & Config Routines",
         "PASS@404": "State Mutators",
@@ -16241,7 +16241,7 @@
         "000-START@24": "Interface Declarations",
         "100-WELCOME@37": "Interface Declarations",
         "200-GOODBYE@46": "I/O & Config Routines",
-        "400-CHANGE-2@68": "Interface Declarations",
+        "400-CHANGE-2@68": "I/O & Config Routines",
         "410-PLACEHOLDER@83": "Interface Declarations",
         "500-SWITCH@87": "I/O & Config Routines",
         "600-MAKE-CALL@92": "I/O & Config Routines",
@@ -16267,7 +16267,7 @@
         "1200-MAKE-CALL@141": "Interface Declarations",
         "1300-MAKE-CALL@149": "Interface Declarations",
         "200-GOODBYE@42": "I/O & Config Routines",
-        "400-CHANGE-2@61": "Interface Declarations",
+        "400-CHANGE-2@61": "I/O & Config Routines",
         "410-PLACEHOLDER@73": "Interface Declarations",
         "500-SWITCH@77": "I/O & Config Routines",
         "600-MAKE-CALL@82": "I/O & Config Routines",
@@ -33697,7 +33697,7 @@
         "R001B1@20": "Compute Cores"
       },
       "pli/dsf_cics_admin/R0010422.pli": {
-        "BLANK_TEKST@186": "I/O & Config Routines",
+        "BLANK_TEKST@186": "Interface Declarations",
         "KONTROLL_AV_INPUT@265": "I/O & Config Routines",
         "OVERFØR_FRA_MAP@240": "I/O & Config Routines",
         "OVERFØR_TIL_MAP@225": "I/O & Config Routines",

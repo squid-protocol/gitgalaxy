@@ -15266,7 +15266,7 @@
         "TIMESTAMP@1441": 0
       },
       "cobol/cics-banking-sample-application-cbsa/BNK1CAC.cbl": {
-        "A010@161": 0,
+        "A010@161": 1,
         "A999@316": 1,
         "ABEND-THIS-TASK@1272": 0,
         "ATT010@1273": 1,
@@ -15295,7 +15295,7 @@
         "STM999@1268": 1
       },
       "cobol/cics-banking-sample-application-cbsa/BNK1CCA.cbl": {
-        "A010@154": 0,
+        "A010@154": 1,
         "A999@292": 1,
         "ABEND-THIS-TASK@928": 0,
         "ATT010@929": 1,
@@ -15324,7 +15324,7 @@
         "STM999@924": 1
       },
       "cobol/cics-banking-sample-application-cbsa/BNK1CCS.cbl": {
-        "A010@159": 0,
+        "A010@159": 1,
         "A999@345": 1,
         "ABEND-THIS-TASK@1599": 0,
         "ATT010@1600": 1,
@@ -15362,7 +15362,7 @@
         "STORE-TERM-DEF@1099": 0
       },
       "cobol/cics-banking-sample-application-cbsa/BNK1CRA.cbl": {
-        "A010@178": 0,
+        "A010@178": 1,
         "A999@330": 1,
         "ABEND-THIS-TASK@950": 0,
         "ATT010@951": 1,
@@ -15394,7 +15394,7 @@
         "VALIDATE-AMOUNT@962": 0
       },
       "cobol/cics-banking-sample-application-cbsa/BNK1DAC.cbl": {
-        "A010@189": 0,
+        "A010@189": 1,
         "A999@362": 1,
         "ABEND-THIS-TASK@1134": 0,
         "ATT010@1135": 1,
@@ -15429,7 +15429,7 @@
         "VD999@540": 1
       },
       "cobol/cics-banking-sample-application-cbsa/BNK1DCS.cbl": {
-        "A010@190": 0,
+        "A010@190": 1,
         "A999@396": 1,
         "ABEND-HANDLING@2044": 0,
         "ABEND-THIS-TASK@1910": 0,
@@ -15485,7 +15485,7 @@
         "VD999@819": 1
       },
       "cobol/cics-banking-sample-application-cbsa/BNK1TFN.cbl": {
-        "A010@175": 0,
+        "A010@175": 1,
         "A999@315": 1,
         "ABEND-THIS-TASK@973": 0,
         "ATT010@974": 1,
@@ -15517,7 +15517,7 @@
         "VALIDATE-AMOUNT@988": 0
       },
       "cobol/cics-banking-sample-application-cbsa/BNK1UAC.cbl": {
-        "A010@198": 0,
+        "A010@198": 1,
         "A999@362": 1,
         "ABEND-THIS-TASK@1381": 0,
         "ATT010@1382": 1,
@@ -15552,7 +15552,7 @@
         "VD999@753": 0
       },
       "cobol/cics-banking-sample-application-cbsa/BNKMENU.cbl": {
-        "A010@109": 0,
+        "A010@109": 1,
         "A999@237": 1,
         "ABEND-THIS-TASK@1285": 0,
         "ATT010@1286": 1,
@@ -33698,7 +33698,7 @@
       },
       "pli/dsf_cics_admin/R0010422.pli": {
         "BLANK_TEKST@186": 0,
-        "KONTROLL_AV_INPUT@265": 0,
+        "KONTROLL_AV_INPUT@265": 1,
         "OVERFØR_FRA_MAP@240": 1,
         "OVERFØR_TIL_MAP@225": 0,
         "R001B1@21": 0,
@@ -33708,7 +33708,7 @@
       },
       "pli/dsf_cics_admin/R0010423.pli": {
         "BLANK_TEKST@263": 0,
-        "KONTROLL_AV_INPUT@315": 0,
+        "KONTROLL_AV_INPUT@315": 1,
         "OVERFØR_FRA_MAP@298": 1,
         "OVERFØR_TIL_MAP@290": 0,
         "R001B1@23": 0,
@@ -33718,7 +33718,7 @@
       },
       "pli/dsf_cics_admin/R0010424.pli": {
         "BLANK_TEKST@262": 0,
-        "KONTROLL_AV_INPUT@302": 0,
+        "KONTROLL_AV_INPUT@302": 1,
         "OVERFØR_FRA_MAP@289": 1,
         "OVERFØR_TIL_MAP@283": 0,
         "R001B1@21": 0,
@@ -33728,7 +33728,7 @@
       },
       "pli/dsf_cics_admin/R0010425.pli": {
         "BLANK_TEKST@274": 0,
-        "KONTROLL_AV_INPUT@311": 0,
+        "KONTROLL_AV_INPUT@311": 1,
         "OVERFØR_FRA_MAP@302": 1,
         "OVERFØR_TIL_MAP@295": 0,
         "R001B1@22": 0,
@@ -33758,7 +33758,7 @@
         "TRANTOT@252": 0
       },
       "pli/zopeneditor_sample/PSAM2.pli": {
-        "PSAM2@2": 0
+        "PSAM2@2": 1
       }
     },
     "powershell/PowerToys": {

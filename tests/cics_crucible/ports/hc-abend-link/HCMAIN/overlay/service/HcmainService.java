@@ -140,8 +140,11 @@ public class HcmainService {
         try {
             switch (mainPara(ws)) {
                 case CONTINUE -> sendTrail(ws);                          // GO TO SEND-TRAIL
-                case TO_MAIN_QIDERR -> { mainQiderr(ws); sendTrail(ws); } // MAIN-QIDERR, GO TO SEND-TRAIL
-                case TO_MAIN_ABEND -> { mainAbend(ws); sendTrail(ws); }   // MAIN-ABEND falls into SEND-TRAIL
+                // the HANDLE CONDITION of line 25 takes QIDERR: MAIN-QIDERR, GO TO SEND-TRAIL
+                case TO_MAIN_QIDERR -> onConditionQiderrL25(
+                        new CicsConditionException("QIDERR", PROGRAM, "src/HCMAIN.cbl:25"));
+                // the HANDLE ABEND exit of line 26 takes the abend: MAIN-ABEND falls into SEND-TRAIL
+                case TO_MAIN_ABEND -> onAbendL26(new CicsAbendException(task.abcode(), PROGRAM, "src/HCMAIN.cbl:26"));
                 case TERMINATED -> { /* the task was abended and no exit of this program took it */ }
             }
         } finally {

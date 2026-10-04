@@ -258,6 +258,10 @@ _CALL_IDENTIFIER = re.compile(
     re.I,
 )
 
+# #4304: any EXEC ... END-EXEC block (SQL, CICS, DLI, ...): a CALL inside one is not a COBOL CALL.
+# A block never runs across another EXEC, so a missing END-EXEC masks nothing beyond it.
+_EXEC_BLOCK = re.compile(r"(?<![\w-])EXEC\s+\w+(?:(?!(?<![\w-])EXEC\s)[\s\S])*?(?<![\w-])END-EXEC(?![\w-])", re.I)
+
 # An `EXEC CICS LINK`/`XCTL` block, up to its END-EXEC. The body bound is
 # generous enough for the real multi-option blocks (PROGRAM/COMMAREA/RESP/
 # RESP2/SYNCONRETURN) and hard-capped so an unterminated EXEC cannot scan the
@@ -699,6 +703,16 @@ def _cobol_calls(code_stream: str, values: dict[str, str], cics_only: bool = Fal
         line_start = newlines[index - 1] + 1 if index else 0
         return _opens_inside_literal(code_stream, line_start, offset)
 
+    # #4304: a CALL inside an EXEC ... END-EXEC block is that block's language -- `EXEC SQL CALL
+    # MYSCHEMA.GETCUST (...)` is a DB2 stored procedure (sql_statement_data records it), not a
+    # COBOL CALL whose identifier operand is the schema.
+    exec_spans = [(m.start(), m.end()) for m in _EXEC_BLOCK.finditer(code_stream) if not _shielded(m.start())]
+    exec_starts = [s for s, _ in exec_spans]
+
+    def _in_exec(offset: int) -> bool:
+        i = bisect.bisect_right(exec_starts, offset) - 1
+        return i >= 0 and offset < exec_spans[i][1]
+
     # 1. EXEC CICS LINK / XCTL. Read first so the PROGRAM(...) operand is
     #    attributed to its own verb, and recorded at the line of the EXEC.
     for match in _CICS_TRANSFER.finditer(code_stream):
@@ -754,7 +768,7 @@ def _cobol_calls(code_stream: str, values: dict[str, str], cics_only: bool = Fal
 
     # 2. CALL 'LITERAL'
     for match in () if cics_only else _CALL_LITERAL.finditer(code_stream):
-        if _shielded(match.start()):
+        if _shielded(match.start()) or _in_exec(match.start()):
             continue
         literal = match.group(1) if match.group(1) is not None else match.group(2)
         literal = (literal or "").strip()
@@ -771,7 +785,7 @@ def _cobol_calls(code_stream: str, values: dict[str, str], cics_only: bool = Fal
 
     # 3. CALL IDENTIFIER
     for match in () if cics_only else _CALL_IDENTIFIER.finditer(code_stream):
-        if _shielded(match.start()):
+        if _shielded(match.start()) or _in_exec(match.start()):
             continue
         operand = match.group(1).upper()
         calls.append(

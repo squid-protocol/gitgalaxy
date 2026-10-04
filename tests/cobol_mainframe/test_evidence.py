@@ -19,9 +19,17 @@ import evidence as ev  # noqa: E402
 
 REPO = ev.REPO_ROOT
 
+_DB2 = ("a Db2 case: its proof needs IBM's Db2 container and the gitgalaxy-gnucobol-db2:3 image rebuilt on the "
+        "pinned oracle (#4309); evidence-refresh.yml with db2=true writes it")
+
 # Committed ports with no evidence record yet, each with the reason. A ratchet: it only shrinks (an entry whose
 # record now exists fails test_the_missing_list_only_shrinks).
-MISSING: dict[str, str] = {}
+MISSING: dict[str, str] = {
+    "cbsa-inqacc": _DB2,
+    "cbsa-updacc": _DB2,
+    "genapp-lgicdb01": _DB2,
+    "genapp-lgupdb01": _DB2,
+}
 
 
 def _records():

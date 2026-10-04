@@ -1,0 +1,215 @@
+{
+ "format": "gitgalaxy-evidence/1",
+ "case": "crucible:ca-link-lengths",
+ "program": "CALINK",
+ "kind": "crucible",
+ "port": {
+  "paths": [
+   "tests/cics_crucible/ports/ca-link-lengths/CALINK/overlay/service/CalinkService.java"
+  ],
+  "sha256": "dbb5cdfc742a4103ddf11098e3fd64392f25a6a2198383906fd2a925afa1a1d2",
+  "entry_points": [
+   "runTask"
+  ]
+ },
+ "inputs": {
+  "port": {
+   "paths": [
+    "tests/cics_crucible/ports/ca-link-lengths/*/overlay/**"
+   ],
+   "files": 2,
+   "sha256": "17db7aff02b50dfc6e2d132af49735f9b5911edbcaab357d0d7789e560fac645"
+  },
+  "case": {
+   "paths": [
+    "tests/cics_crucible/strengthened/ca-link-lengths/**"
+   ],
+   "files": 0,
+   "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  "harness": {
+   "paths": [
+    "tests/tools/equivalence.py",
+    "tests/tools/equivalence_common.py",
+    "tests/tools/equivalence_java.py",
+    "tests/tools/equivalence_inputs.py",
+    "tests/tools/equivalence_cics.py",
+    "tests/tools/equivalence_call.py",
+    "tests/tools/equivalence_cache.py",
+    "tests/tools/equivalence_db2.py",
+    "tests/tools/equivalence_oracle.py",
+    "tests/tools/cobol_coverage.py",
+    "tests/tools/java_target_matrix.py",
+    "tests/tools/cics_crucible.py",
+    "tests/tools/cics_crucible_compare.py"
+   ],
+   "files": 13,
+   "sha256": "e6f3db91ce0ad417535c68f4828c38c4cf080a39495e11eee9ba6a8e7e6f1a3a"
+  },
+  "oracle": {
+   "paths": [],
+   "files": 0,
+   "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  "generator": {
+   "paths": [
+    "gitgalaxy/tools/cobol_to_java/**"
+   ],
+   "files": 60,
+   "sha256": "880250850d919c29f8ace3eb0d7183156a05354438ea79f72a417febb9e57e68"
+  },
+  "corpus": {
+   "name": "cics-crucible",
+   "ref": "v0.2.0",
+   "sha256": "085be5a9f372ecb979d4f8dda1d8c749e85d01abb85e227fca4127844db9c5b6"
+  },
+  "differences": {
+   "sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+  },
+  "digest": "41c5ee1ee15bd03626e80ba27255c8042bb4f999e4c6539f59bf796945e375e5"
+ },
+ "proof": {
+  "at": "2026-10-04T14:36:43Z",
+  "verdict": "proven",
+  "runs": 4,
+  "fault_runs": 0,
+  "environments": null,
+  "outputs": {
+   "long-500": {
+    "equal": 1,
+    "records": 1
+   },
+   "no-commarea": {
+    "equal": 1,
+    "records": 1
+   },
+   "short-100": {
+    "equal": 1,
+    "records": 1
+   },
+   "undefined-program": {
+    "equal": 1,
+    "records": 1
+   }
+  },
+  "return_code_equal": null,
+  "sysout_compared": null,
+  "attributes_compared": null,
+  "java_failed": false,
+  "harness_commit": "2f770970f1ec1c5698343c3362a1dea11de3ffad",
+  "inputs_digest": "41c5ee1ee15bd03626e80ba27255c8042bb4f999e4c6539f59bf796945e375e5"
+ },
+ "coverage": {
+  "paragraphs": {
+   "covered": 1,
+   "live": 1
+  },
+  "branches": {
+   "covered": 4,
+   "total": 4
+  },
+  "uncovered_branches": null,
+  "handler_labels": null,
+  "source": "tests/cics_crucible/coverage.json#programs/ca-link-lengths/CALINK",
+  "ledger_sha256": "1f6f6d9c217e8adca68592d3f7f88bbd26690a2247a0b743dc6477155f3aa9da",
+  "inputs_digest": "41c5ee1ee15bd03626e80ba27255c8042bb4f999e4c6539f59bf796945e375e5"
+ },
+ "reach": {
+  "entry_points": [
+   "runTask"
+  ],
+  "unproven": [
+   {
+    "class": "CalinkService",
+    "method": "executeCalink",
+    "line": 38,
+    "kind": "ported_unproven"
+   },
+   {
+    "class": "CalinkService",
+    "method": "handleTransaction",
+    "line": 45,
+    "kind": "stub"
+   },
+   {
+    "class": "CalinkService",
+    "method": "linkCasub",
+    "line": 169,
+    "kind": "left_as_generated"
+   }
+  ],
+  "counts": {
+   "stub": 1,
+   "left_as_generated": 1,
+   "ported_unproven": 1
+  },
+  "generated_compared": true,
+  "port_sha256": "dbb5cdfc742a4103ddf11098e3fd64392f25a6a2198383906fd2a925afa1a1d2"
+ },
+ "mutation": {
+  "commit": "be2561306",
+  "rejudged": null,
+  "seed": 0,
+  "mode": null,
+  "mutants": 165,
+  "chosen": 24,
+  "killed": 19,
+  "survived": 3,
+  "stillborn": 2,
+  "survivors": {
+   "case_gap": 2,
+   "harness_gap": 0,
+   "equivalent": 1,
+   "unreachable": 0,
+   "untriaged": 0
+  },
+  "score_raw": "19/22",
+  "score_adjusted": "19/21",
+  "source": "docs/language_status/mutation_scores.json#crucible:ca-link-lengths/CALINK",
+  "inputs": {
+   "port": {
+    "sha256": "17db7aff02b50dfc6e2d132af49735f9b5911edbcaab357d0d7789e560fac645"
+   },
+   "case": {
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+   },
+   "corpus": {
+    "sha256": "085be5a9f372ecb979d4f8dda1d8c749e85d01abb85e227fca4127844db9c5b6"
+   },
+   "harness": {
+    "sha256": "e67f03b7e18455d8d525349b25ec5e46d20bc2fb812f2c84299141fe89296d36"
+   },
+   "oracle": {
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+   }
+  }
+ },
+ "differences": [],
+ "oracle": {
+  "kind": "crucible-expected-logs",
+  "source": "cics-crucible v0.2.0: each scenario's hand-written expected event log, derived from IBM's documentation (its SPEC.md); the java-ported side is compared with it exactly",
+  "compiler": null,
+  "image": null,
+  "models": [],
+  "assumptions": null
+ },
+ "provenance": {
+  "written_by": "model",
+  "model": "claude-opus-5-5",
+  "backend": "claude CLI 2.1.285 print mode (claude -p --model claude-opus-5-5 --effort high --tools '' --strict-mcp-config --mcp-config '{\"mcpServers\":{}}' --no-session-persistence --system-prompt <porting system prompt>, prompt file on stdin, run from an empty directory)",
+  "attempt": 1,
+  "attempts": null,
+  "ticket_sha256": "5be42ca5d1f49adba2771d0346813dc6609eb4700e970f9ca238cad509759b0f",
+  "porting_rules_sha256": null,
+  "proposed_at": "2026-09-29T21:48:00+00:00",
+  "generator_version": null,
+  "edited_after": null,
+  "provenance_file": {
+   "path": "tests/cics_crucible/ports/ca-link-lengths/CALINK/provenance.json",
+   "format": "cics-crucible-port/1",
+   "sha256": "f982b8e8b1f867d054a835661901d8afbefad1a5d1f08eeac376d8f2778cf9fb"
+  },
+  "crucible_ref_proven": "v0.2.0 (94f2afcb)"
+ },
+ "approvals": []
+}

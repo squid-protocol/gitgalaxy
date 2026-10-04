@@ -1,0 +1,247 @@
+{
+ "format": "gitgalaxy-evidence/1",
+ "case": "crucible:pc-wizard",
+ "program": "PCWIZ",
+ "kind": "crucible",
+ "port": {
+  "paths": [
+   "tests/cics_crucible/ports/pc-wizard/PCWIZ/overlay/service/PcwizService.java"
+  ],
+  "sha256": "62a3e30689d0dc634d875799cfef5a035251ec2bc8fa81514548bf4d4449f6d0",
+  "entry_points": [
+   "runTask"
+  ]
+ },
+ "inputs": {
+  "port": {
+   "paths": [
+    "tests/cics_crucible/ports/pc-wizard/*/overlay/**"
+   ],
+   "files": 2,
+   "sha256": "f50313d1e6e5ee7a5368028ad749b33fbab69439beccc244e86417700f288f56"
+  },
+  "case": {
+   "paths": [
+    "tests/cics_crucible/strengthened/pc-wizard/**"
+   ],
+   "files": 0,
+   "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  "harness": {
+   "paths": [
+    "tests/tools/equivalence.py",
+    "tests/tools/equivalence_common.py",
+    "tests/tools/equivalence_java.py",
+    "tests/tools/equivalence_inputs.py",
+    "tests/tools/equivalence_cics.py",
+    "tests/tools/equivalence_call.py",
+    "tests/tools/equivalence_cache.py",
+    "tests/tools/equivalence_db2.py",
+    "tests/tools/equivalence_oracle.py",
+    "tests/tools/cobol_coverage.py",
+    "tests/tools/java_target_matrix.py",
+    "tests/tools/cics_crucible.py",
+    "tests/tools/cics_crucible_compare.py"
+   ],
+   "files": 13,
+   "sha256": "e6f3db91ce0ad417535c68f4828c38c4cf080a39495e11eee9ba6a8e7e6f1a3a"
+  },
+  "oracle": {
+   "paths": [],
+   "files": 0,
+   "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  "generator": {
+   "paths": [
+    "gitgalaxy/tools/cobol_to_java/**"
+   ],
+   "files": 60,
+   "sha256": "880250850d919c29f8ace3eb0d7183156a05354438ea79f72a417febb9e57e68"
+  },
+  "corpus": {
+   "name": "cics-crucible",
+   "ref": "v0.2.0",
+   "sha256": "085be5a9f372ecb979d4f8dda1d8c749e85d01abb85e227fca4127844db9c5b6"
+  },
+  "differences": {
+   "sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+  },
+  "digest": "166c40381249695104f23c281d191643e211bdf87a306dc4284f2a5bca39fcf1"
+ },
+ "proof": {
+  "at": "2026-10-04T14:39:33Z",
+  "verdict": "proven",
+  "runs": 6,
+  "fault_runs": 0,
+  "environments": null,
+  "outputs": {
+   "back-and-fix": {
+    "equal": 1,
+    "records": 1
+   },
+   "back-clear-keeps-amount": {
+    "equal": 1,
+    "records": 1
+   },
+   "cancel-first-screen": {
+    "equal": 1,
+    "records": 1
+   },
+   "clear-and-bad-amount": {
+    "equal": 1,
+    "records": 1
+   },
+   "happy-post": {
+    "equal": 1,
+    "records": 1
+   },
+   "mapfail-clear-cancel": {
+    "equal": 1,
+    "records": 1
+   }
+  },
+  "return_code_equal": null,
+  "sysout_compared": null,
+  "attributes_compared": null,
+  "java_failed": false,
+  "harness_commit": "2f770970f1ec1c5698343c3362a1dea11de3ffad",
+  "inputs_digest": "166c40381249695104f23c281d191643e211bdf87a306dc4284f2a5bca39fcf1"
+ },
+ "coverage": {
+  "paragraphs": {
+   "covered": 5,
+   "live": 5
+  },
+  "branches": {
+   "covered": 10,
+   "total": 10
+  },
+  "uncovered_branches": null,
+  "handler_labels": null,
+  "source": "tests/cics_crucible/coverage.json#programs/pc-wizard/PCWIZ",
+  "ledger_sha256": "90f306b56fbea5b71e0f3ef7dbb1cbc2a591698cb2c21e58fbe604545fb07576",
+  "inputs_digest": "166c40381249695104f23c281d191643e211bdf87a306dc4284f2a5bca39fcf1"
+ },
+ "reach": {
+  "entry_points": [
+   "runTask"
+  ],
+  "unproven": [
+   {
+    "class": "PcwizService",
+    "method": "executePcwiz",
+    "line": 64,
+    "kind": "stub"
+   },
+   {
+    "class": "PcwizService",
+    "method": "handleTransaction",
+    "line": 73,
+    "kind": "ported_unproven"
+   },
+   {
+    "class": "PcwizService",
+    "method": "handleLink",
+    "line": 81,
+    "kind": "ported_unproven"
+   },
+   {
+    "class": "PcwizService",
+    "method": "renderPcm1",
+    "line": 224,
+    "kind": "ported_unproven"
+   },
+   {
+    "class": "PcwizService",
+    "method": "submitPcm1",
+    "line": 231,
+    "kind": "ported_unproven"
+   },
+   {
+    "class": "PcwizService",
+    "method": "renderPcm2",
+    "line": 250,
+    "kind": "ported_unproven"
+   },
+   {
+    "class": "PcwizService",
+    "method": "returnedCommarea",
+    "line": 286,
+    "kind": "ported_unproven"
+   }
+  ],
+  "counts": {
+   "stub": 1,
+   "left_as_generated": 0,
+   "ported_unproven": 6
+  },
+  "generated_compared": true,
+  "port_sha256": "62a3e30689d0dc634d875799cfef5a035251ec2bc8fa81514548bf4d4449f6d0"
+ },
+ "mutation": {
+  "commit": "be2561306",
+  "rejudged": null,
+  "seed": 0,
+  "mode": null,
+  "mutants": 177,
+  "chosen": 24,
+  "killed": 11,
+  "survived": 10,
+  "stillborn": 3,
+  "survivors": {
+   "case_gap": 5,
+   "harness_gap": 0,
+   "equivalent": 3,
+   "unreachable": 2,
+   "untriaged": 0
+  },
+  "score_raw": "11/21",
+  "score_adjusted": "11/16",
+  "source": "docs/language_status/mutation_scores.json#crucible:pc-wizard/PCWIZ",
+  "inputs": {
+   "port": {
+    "sha256": "f50313d1e6e5ee7a5368028ad749b33fbab69439beccc244e86417700f288f56"
+   },
+   "case": {
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+   },
+   "corpus": {
+    "sha256": "085be5a9f372ecb979d4f8dda1d8c749e85d01abb85e227fca4127844db9c5b6"
+   },
+   "harness": {
+    "sha256": "e67f03b7e18455d8d525349b25ec5e46d20bc2fb812f2c84299141fe89296d36"
+   },
+   "oracle": {
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+   }
+  }
+ },
+ "differences": [],
+ "oracle": {
+  "kind": "crucible-expected-logs",
+  "source": "cics-crucible v0.2.0: each scenario's hand-written expected event log, derived from IBM's documentation (its SPEC.md); the java-ported side is compared with it exactly",
+  "compiler": null,
+  "image": null,
+  "models": [],
+  "assumptions": null
+ },
+ "provenance": {
+  "written_by": "model",
+  "model": "claude-opus-5-5",
+  "backend": "claude CLI 2.1.285 print mode (claude -p --model claude-opus-5-5 --effort high --tools '' --strict-mcp-config --mcp-config '{\"mcpServers\":{}}' --no-session-persistence --system-prompt <porting system prompt>, prompt file on stdin, run from an empty directory)",
+  "attempt": 1,
+  "attempts": null,
+  "ticket_sha256": "2d531ff26f33e2a864ec3aa564c0697e174e9af1331b1ee972e66040bf633d0d",
+  "porting_rules_sha256": null,
+  "proposed_at": "2026-09-29T21:51:16+00:00",
+  "generator_version": null,
+  "edited_after": null,
+  "provenance_file": {
+   "path": "tests/cics_crucible/ports/pc-wizard/PCWIZ/provenance.json",
+   "format": "cics-crucible-port/1",
+   "sha256": "9970fbdf1059265335447998376aae7eedf6586ea0eac00cb81f55c12761a07c"
+  },
+  "crucible_ref_proven": "v0.2.0 (94f2afcb)"
+ },
+ "approvals": []
+}

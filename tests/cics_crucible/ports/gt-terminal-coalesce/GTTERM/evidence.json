@@ -1,0 +1,209 @@
+{
+ "format": "gitgalaxy-evidence/1",
+ "case": "crucible:gt-terminal-coalesce",
+ "program": "GTTERM",
+ "kind": "crucible",
+ "port": {
+  "paths": [
+   "tests/cics_crucible/ports/gt-terminal-coalesce/GTTERM/overlay/service/GttermService.java"
+  ],
+  "sha256": "b9b39d55365a364d93bd4d099cf643932b1c613ca6ccb558c07a7fe162cd785a",
+  "entry_points": [
+   "runTask"
+  ]
+ },
+ "inputs": {
+  "port": {
+   "paths": [
+    "tests/cics_crucible/ports/gt-terminal-coalesce/*/overlay/**"
+   ],
+   "files": 2,
+   "sha256": "ef4e6df9e77544f88ba23f83f44738770465b440a7c7affb6e55ff6c0d96d0b5"
+  },
+  "case": {
+   "paths": [
+    "tests/cics_crucible/strengthened/gt-terminal-coalesce/**"
+   ],
+   "files": 0,
+   "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  "harness": {
+   "paths": [
+    "tests/tools/equivalence.py",
+    "tests/tools/equivalence_common.py",
+    "tests/tools/equivalence_java.py",
+    "tests/tools/equivalence_inputs.py",
+    "tests/tools/equivalence_cics.py",
+    "tests/tools/equivalence_call.py",
+    "tests/tools/equivalence_cache.py",
+    "tests/tools/equivalence_db2.py",
+    "tests/tools/equivalence_oracle.py",
+    "tests/tools/cobol_coverage.py",
+    "tests/tools/java_target_matrix.py",
+    "tests/tools/cics_crucible.py",
+    "tests/tools/cics_crucible_compare.py"
+   ],
+   "files": 13,
+   "sha256": "e6f3db91ce0ad417535c68f4828c38c4cf080a39495e11eee9ba6a8e7e6f1a3a"
+  },
+  "oracle": {
+   "paths": [],
+   "files": 0,
+   "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  "generator": {
+   "paths": [
+    "gitgalaxy/tools/cobol_to_java/**"
+   ],
+   "files": 60,
+   "sha256": "880250850d919c29f8ace3eb0d7183156a05354438ea79f72a417febb9e57e68"
+  },
+  "corpus": {
+   "name": "cics-crucible",
+   "ref": "v0.2.0",
+   "sha256": "085be5a9f372ecb979d4f8dda1d8c749e85d01abb85e227fca4127844db9c5b6"
+  },
+  "differences": {
+   "sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+  },
+  "digest": "22ded917f8142b840a472d28ab95cd56925ad0de7c2841c5318be73051cb0fe3"
+ },
+ "proof": {
+  "at": "2026-10-04T14:37:53Z",
+  "verdict": "proven",
+  "runs": 4,
+  "fault_runs": 0,
+  "environments": null,
+  "outputs": {
+   "cancel-in-time": {
+    "equal": 1,
+    "records": 1
+   },
+   "cancel-too-late": {
+    "equal": 1,
+    "records": 1
+   },
+   "staggered": {
+    "equal": 1,
+    "records": 1
+   },
+   "three-in-one": {
+    "equal": 1,
+    "records": 1
+   }
+  },
+  "return_code_equal": null,
+  "sysout_compared": null,
+  "attributes_compared": null,
+  "java_failed": false,
+  "harness_commit": "2f770970f1ec1c5698343c3362a1dea11de3ffad",
+  "inputs_digest": "22ded917f8142b840a472d28ab95cd56925ad0de7c2841c5318be73051cb0fe3"
+ },
+ "coverage": {
+  "paragraphs": {
+   "covered": 1,
+   "live": 1
+  },
+  "branches": {
+   "covered": 4,
+   "total": 4
+  },
+  "uncovered_branches": null,
+  "handler_labels": null,
+  "source": "tests/cics_crucible/coverage.json#programs/gt-terminal-coalesce/GTTERM",
+  "ledger_sha256": "f1c77405f9536bee3ff2964d900d1f5e4410a045ba015346554068107f5b466a",
+  "inputs_digest": "22ded917f8142b840a472d28ab95cd56925ad0de7c2841c5318be73051cb0fe3"
+ },
+ "reach": {
+  "entry_points": [
+   "runTask"
+  ],
+  "unproven": [
+   {
+    "class": "GttermService",
+    "method": "executeGtterm",
+    "line": 40,
+    "kind": "stub"
+   },
+   {
+    "class": "GttermService",
+    "method": "handleTransaction",
+    "line": 47,
+    "kind": "stub"
+   }
+  ],
+  "counts": {
+   "stub": 2,
+   "left_as_generated": 0,
+   "ported_unproven": 0
+  },
+  "generated_compared": true,
+  "port_sha256": "b9b39d55365a364d93bd4d099cf643932b1c613ca6ccb558c07a7fe162cd785a"
+ },
+ "mutation": {
+  "commit": "be2561306",
+  "rejudged": null,
+  "seed": 0,
+  "mode": null,
+  "mutants": 84,
+  "chosen": 24,
+  "killed": 13,
+  "survived": 8,
+  "stillborn": 3,
+  "survivors": {
+   "case_gap": 6,
+   "harness_gap": 0,
+   "equivalent": 1,
+   "unreachable": 1,
+   "untriaged": 0
+  },
+  "score_raw": "13/21",
+  "score_adjusted": "13/19",
+  "source": "docs/language_status/mutation_scores.json#crucible:gt-terminal-coalesce/GTTERM",
+  "inputs": {
+   "port": {
+    "sha256": "ef4e6df9e77544f88ba23f83f44738770465b440a7c7affb6e55ff6c0d96d0b5"
+   },
+   "case": {
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+   },
+   "corpus": {
+    "sha256": "085be5a9f372ecb979d4f8dda1d8c749e85d01abb85e227fca4127844db9c5b6"
+   },
+   "harness": {
+    "sha256": "e67f03b7e18455d8d525349b25ec5e46d20bc2fb812f2c84299141fe89296d36"
+   },
+   "oracle": {
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+   }
+  }
+ },
+ "differences": [],
+ "oracle": {
+  "kind": "crucible-expected-logs",
+  "source": "cics-crucible v0.2.0: each scenario's hand-written expected event log, derived from IBM's documentation (its SPEC.md); the java-ported side is compared with it exactly",
+  "compiler": null,
+  "image": null,
+  "models": [],
+  "assumptions": null
+ },
+ "provenance": {
+  "written_by": "model",
+  "model": "claude-opus-5-5",
+  "backend": "claude CLI 2.1.285 print mode (claude -p --model claude-opus-5-5 --effort high --tools '' --strict-mcp-config --mcp-config '{\"mcpServers\":{}}' --no-session-persistence --system-prompt <porting system prompt>, prompt file on stdin, run from an empty directory)",
+  "attempt": 2,
+  "attempts": null,
+  "ticket_sha256": "b3e9779089d018be84d66917f9940a84b83b94bfd60503559616affda1fb9f93",
+  "porting_rules_sha256": null,
+  "proposed_at": "2026-09-29T22:00:50+00:00",
+  "generator_version": null,
+  "edited_after": null,
+  "provenance_file": {
+   "path": "tests/cics_crucible/ports/gt-terminal-coalesce/GTTERM/provenance.json",
+   "format": "cics-crucible-port/1",
+   "sha256": "d66d191e4f9fe42f369cd55e11f083292f73b80d35993755ab8891ec0904da09"
+  },
+  "crucible_ref_proven": "v0.2.0 (94f2afcb)"
+ },
+ "approvals": []
+}

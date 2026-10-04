@@ -288,8 +288,9 @@ def _now_ts() -> str:
 
 def harness_commit() -> str:
     head = (_git("rev-parse", "HEAD") or "").strip()
-    dirty = (_git("status", "--porcelain", "--", "tests/tools", "tests/equivalence", "gitgalaxy/tools/cobol_to_java")
-             or "").strip()  # fmt: skip
+    # tracked files only: the records this run writes (untracked until committed) are not the harness
+    dirty = (_git("status", "--porcelain", "--untracked-files=no", "--", "tests/tools", "tests/equivalence",
+                  "tests/cics_crucible", "gitgalaxy/tools/cobol_to_java") or "").strip()  # fmt: skip
     return head + ("+uncommitted" if dirty else "")
 
 

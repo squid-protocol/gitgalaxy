@@ -41,6 +41,7 @@ verdict, but it limits what the proof says about inputs outside the scenarios.
 | C8 | compiler | DISPLAY of signed zoned, binary and packed items | MATCHED | yes |
 | C9 | compiler | POINTER is 8 bytes in GnuCOBOL (x86-64), 4 on z/OS | DIFFERS | only NULL, trailing (CBSA) |
 | C10 | compiler | INITIALIZE / VALUE ZERO zoned items: unsigned F zone (GnuCOBOL) vs preferred C sign (z/OS) | DIFFERS (tolerated where a case declares it) | yes (CardDemo READACCT ARRYFILE) |
+| C11 | compiler | MOVE of an alphanumeric item holding a non-digit to a numeric DISPLAY item (#4049) | DIFFERS (inputs kept out of the cases) | yes (COMEN01C option `1!`) |
 | D1 | data | Text order is ASCII (Latin-1), not EBCDIC | DIFFERS | keys: no; comparisons: not audited |
 | D2 | data | Hex literals that name EBCDIC characters (`X'40'`) | DIFFERS | no |
 | D3 | data | Zoned signs in ASCII data (`{`, `}`, A–R overpunch) | MATCHED | yes |
@@ -228,6 +229,18 @@ verdict, but it limits what the proof says about inputs outside the scenarios.
 - **Not tolerated.** A negative overpunch (`}`, `J`–`R`) against either form, a different digit, or any byte in an
   undeclared dataset.
 
+### C11. A non-digit moved to a numeric DISPLAY item — DIFFERS (inputs kept out of the cases)
+- **What.** COMEN01C moves the typed option (`WS-OPTION-X`, PIC X(2) JUST RIGHT) to `WS-OPTION` (PIC 9(2)) and then
+  tests `WS-OPTION IS NOT NUMERIC`. With a non-digit typed, GnuCOBOL 3 (`-std=ibm`) gives `1!` -> `01` and `!1` ->
+  `00`, both NUMERIC (measured 2026-10-03), so `1!` is option 1 and XCTLs. IBM treats an alphanumeric sender of a
+  numeric MOVE as an unsigned integer and moves its bytes; a non-digit's digit nibble (`!` is X'5A') is not a digit,
+  so on z/OS the item is not NUMERIC and the menu says the option is invalid -- IBM documents no result for such
+  data.
+- **Found by.** The test-strengthening loop (#4049): the model-written port treats `1!` and `!1` as invalid options,
+  GnuCOBOL does not; the proofs differ on both inputs.
+- **Now.** Those inputs are not in the case, so the three COMEN01C survivors in the port's own digit test stay case
+  gaps. A z/OS run (#4050) settles which side is right.
+
 ### C8. DISPLAY text — MATCHED
 - **What.** GnuCOBOL writes a signed zoned item as `012-` and a binary item as `-00007`. IBM writes their external
   decimal form with the sign overpunched (`01K`, `000P`). `ggdisplay.c` (LD_PRELOAD) rewrites each such operand as
@@ -278,6 +291,15 @@ verdict, but it limits what the proof says about inputs outside the scenarios.
 - Fault runs (`ggfault.c`, CICS `faults.cfg`) give a statement the same status or RESP on both sides, and say which
   faults fired.
 - The values are the ones IBM documents for the condition. What a real device failure would give is not modelled.
+- **CICS commands beyond files (#4049).** XCTL, WRITEQ TS, START, RETRIEVE and CANCEL take a plan too (named by the
+  program, queue, TRANSID, `-` and REQID), in the equivalence harness and in the CICS crucible's strengthened
+  scenarios. A planned command does nothing but return its RESP / RESP2: the XCTL does not transfer, the WRITEQ TS
+  writes no item, the START schedules nothing, the RETRIEVE moves no data, the CANCEL cancels nothing. IBM's
+  descriptions of these conditions say the request was not performed; a partial effect is not modelled. Only
+  conditions IBM lists for the command are planned (CICS TS, each command's "Conditions"): XCTL PGMIDERR (RESP2 3,
+  the program could not be loaded); WRITEQ TS INVREQ; START INVREQ (RESP2 17); RETRIEVE IOERR. An unhandled one
+  abends with the code the stub and CicsTask already give it (AEI0, AEIP). CANCEL has no INVREQ, so a port's
+  `INVREQ` branch after CANCEL stays unreachable.
 
 ### F3. Record formats — ASSUMED
 - Most cases' datasets are fixed-length records.

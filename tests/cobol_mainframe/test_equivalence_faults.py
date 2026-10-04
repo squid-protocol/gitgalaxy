@@ -101,6 +101,24 @@ def test_cics_scenarios_inject_named_conditions_as_dfhresp_numbers():
         ec.fault_lines({"name": "s", "faults": [{"file": "X", "resp": "NOSUCHCONDITION"}]})
 
 
+def test_program_control_ts_and_interval_commands_can_be_planned_too():
+    # #4049: the conditions a mutation survivor needs (an XCTL, a WRITEQ TS, a START that fails)
+    sc = {"name": "s", "faults": [{"cmd": "XCTL", "program": "COACTVWC", "resp": "PGMIDERR", "resp2": 3},
+                                  {"cmd": "WRITEQ-TS", "queue": "PCLEDGER", "resp": "INVREQ"},
+                                  {"cmd": "START", "transid": "GT02", "nth": 2, "resp": "INVREQ", "resp2": 17},
+                                  {"cmd": "RETRIEVE", "resp": "IOERR"},
+                                  {"cmd": "CANCEL", "reqid": "R1", "resp": "NOTAUTH"}]}  # fmt: skip
+    assert ec.fault_lines(sc) == ["XCTL COACTVWC 1 27 3", "WRITEQ-TS PCLEDGER 1 16 0", "START GT02 2 16 17",
+                                  "RETRIEVE - 1 17 0", "CANCEL R1 1 70 0"]  # fmt: skip
+    with pytest.raises(ec.Unsupported):
+        ec.fault_lines({"name": "s", "faults": [{"cmd": "XCTL", "resp": "PGMIDERR"}]})  # names no program
+    for cmd in ('"WRITEQ-TS", queue', '"XCTL", program', '"START", transid', '"RETRIEVE", "-"', '"CANCEL", reqid'):
+        assert cmd in CICS_TASK_JAVA, cmd
+    stub = (Path(__file__).resolve().parents[1] / "equivalence" / "cics" / "ggcics.c").read_text(encoding="utf-8")
+    for cmd in ('"WRITEQ-TS", qname', '"XCTL", program', '"START", transid', '"RETRIEVE", "-"', '"CANCEL", reqid'):
+        assert f"injected({cmd}" in stub, cmd
+
+
 def test_the_java_side_gets_the_same_faults_and_codes_abends():
     files, abend = _RUNTIME["CobolFiles"], _RUNTIME["CobolAbend"]
     for method in ("public String open(String dd)", "Read<T> read(String dd", "Read<T> readNext(String dd",

@@ -88,3 +88,34 @@ def test_a_value_with_more_decimals_than_its_picture_is_refused_not_rounded():
     inputs = {"T": {"fields": fields, "records": [b"0010{"], "spec": {}}}
     assert st.build_record(BATCH, inputs, {"dataset": "T", "based_on": 1, "set": {"AMT": "1.25"}})[1] is None
     assert "more decimals" in st.build_record(BATCH, inputs, {"dataset": "T", "based_on": 1, "set": {"AMT": 1.999}})[1]
+
+
+# ---- #4049: survivor-driven rounds (--case-gaps) -------------------------------------------------------------
+def test_the_case_gaps_are_the_survivors_the_committed_results_triaged_so(tmp_path):
+    results = {"ports": [
+        {"case": "c", "program": "P", "survivors": [{"id": "a1", "verdict": "case_gap"},
+                                                     {"id": "b2", "verdict": "equivalent"}]},
+        {"case": "crucible:x", "program": "Q", "survivors": [{"id": "c3", "verdict": "case_gap"}]},
+        {"case": "crucible:x", "program": "R", "survivors": [{"id": "d4", "verdict": "case_gap"}]}]}  # fmt: skip
+    f = tmp_path / "scores.json"
+    f.write_text(st.json.dumps(results), encoding="utf-8")
+    assert st.case_gaps(f, "c") == {"a1"}
+    assert st.case_gaps(f, "crucible:x", "Q") == {"c3"}
+    assert st.case_gaps(f, "nope") == set()
+
+
+def test_a_cics_proposal_may_set_any_commarea_field_of_the_layout_and_plan_a_fault():
+    names = {"CA-USER-TYPE", "CA-CONTEXT", "CA-LAST-MAP"}
+    ok = {"name": "x", "aid": "DFHENTER", "commarea": {"CA-LAST-MAP": "M1"},
+          "faults": [{"cmd": "XCTL", "program": "PROG1", "resp": "PGMIDERR", "resp2": 3}]}  # fmt: skip
+    assert st.validate(CICS, ok, set(), names) is None
+    assert "COMMAREA layout" in st.validate(CICS, {"name": "x", "commarea": {"CA-SECRET": "1"}}, set(), names)
+    bad = {"name": "x", "faults": [{"cmd": "LINK", "program": "P", "resp": "PGMIDERR"}]}
+    assert "fault" in st.validate(CICS, bad, set(), names)
+
+
+def test_the_prompt_names_the_survivors_to_kill_by_id():
+    src = [f"LINE {i}" for i in range(1, 50)]
+    hints = [{"id": "abc123", "file": "S.java", "line": 9, "before": "a > 0", "after": "a >= 0"}]
+    text = st.prompt(CALL, src, [], hints, [], "")
+    assert "`abc123` S.java:9" in text and "targets" in text

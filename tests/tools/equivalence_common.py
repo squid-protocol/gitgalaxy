@@ -156,11 +156,17 @@ def _input_path(case: dict[str, Any], corpus: Path, rel: str) -> Path:
 
 # #3828: the compiler options that change results, as GnuCOBOL 3.1 flags under `-std=ibm` ("" = its own
 # behaviour already). #4102: `-std=ibm` alone keeps a binary item's bytes (TRUNC(BIN)); -fbinary-truncate gives IBM's
-# default TRUNC(STD) -- MOVE 99999 to S9(4) COMP stores 9999, ADD past 9999 is a size error (measured 2026-10-02). GnuCOBOL has no INTDATE (INTEGER-OF-DATE is always ANSI), no ARITH(EXTEND) or NUMPROC
-# switch and no TRUNC(OPT): a case needing one cannot be proven here, and says so rather than run unfaithfully.
+# default TRUNC(STD) -- MOVE 99999 to S9(4) COMP stores 9999, ADD past 9999 is a size error (measured 2026-10-02). GnuCOBOL has no INTDATE (INTEGER-OF-DATE is always ANSI), no ARITH(EXTEND)
+# and no TRUNC(OPT): a case needing one cannot be proven here, and says so rather than run unfaithfully. NUMPROC: see
+# numproc_mig and numproc_guard (#4271).
 COBC_OPTIONS = {
     ("INTDATE", "ANSI"): "", ("TRUNC", "STD"): "-fbinary-truncate", ("TRUNC", "BIN"): "-fnotrunc", ("ARITH", "COMPAT"): "",
     ("NUMPROC", "NOPFD"): "",
+    # #4271: with preferred signs NUMPROC(PFD) computes as NOPFD (Programming Guide SC27-8714-03, "Sign representation
+    # of zoned and packed-decimal data"); what it does with any other sign IBM leaves to the generated code, and the
+    # det runtime refuses such a value by name (Codec.numprocPfd). A port without that guard is refused here
+    # (numproc_guard): GnuCOBOL accepts every sign.
+    ("NUMPROC", "PFD"): "",
 }  # fmt: skip
 
 
@@ -219,6 +225,59 @@ class UnsupportedOption(Exception):
     """A compiler option the GnuCOBOL side cannot honour (#3828)."""
 
 
+def compiler_version(case: dict[str, Any]) -> Optional[tuple[int, int]]:
+    """(version, release) of the IBM compiler a case states it was built with (`"compiler": {"product": "Enterprise
+    COBOL", "version": "6.1", "evidence": ...}`, e.g. the estate's build JCL's IGY.V6R1M0.SIGYCOMP), else None."""
+    c = case.get("compiler") or {}
+    m = re.fullmatch(r"(\d+)(?:\.(\d+))?(?:\.\d+)*", str(c.get("version") or "").strip())
+    if not m or str(c.get("product") or "").strip().lower() != "enterprise cobol":
+        return None
+    return int(m.group(1)), int(m.group(2) or 0)
+
+
+def numproc_mig(case: dict[str, Any]) -> str:
+    """#4271: what NUMPROC(MIG) compiles as (register C5). Enterprise COBOL 5 and 6 no longer support MIG: "If
+    NUMPROC(MIG) is specified, Enterprise COBOL 5 or 6 issues a warning message and the compilation will get the
+    default setting for NUMPROC. This is either the user-customized default or the IBM default, which is
+    NUMPROC(NOPFD)" (Enterprise COBOL for z/OS 6.4 Migration Guide, GC27-8715-03, Table 18 "Compiler options not
+    supported in Enterprise COBOL"; the same in the 5.2 Migration Guide, GC14-7383-03). The installation default is taken as IBM's (ASSUMED). Under Enterprise COBOL 4 or earlier
+    MIG was its own sign processing, documented only as "similar to OS/VS COBOL": refused, as is a case that does
+    not state its compiler."""
+    version = compiler_version(case)
+    if version is None or version[0] < 5:
+        raise UnsupportedOption(
+            "NUMPROC(MIG): its sign processing is OS/VS COBOL's under Enterprise COBOL 4 and earlier, which IBM does "
+            "not specify, so the case cannot be proven; a case built by Enterprise COBOL 5 or later states its "
+            '"compiler" (product, version, evidence), and MIG then compiles as NUMPROC(NOPFD)'
+        )
+    return DEFAULTS["NUMPROC"]
+
+
+def numproc(case: dict[str, Any], source: str) -> str:
+    """The NUMPROC the program compiles with: its cards over the case's `compiler_options`, else IBM's default; MIG
+    resolved by numproc_mig."""
+    rows = [{"option": o, "value": v} for text in case.get("compiler_options", []) for o, v, _ in parse_options(text)]
+    value = str(effective(rows + compiler_options(source)).get("NUMPROC") or DEFAULTS["NUMPROC"]).upper()
+    return numproc_mig(case) if value == "MIG" else value
+
+
+DET_PORT_HEADER = "// gitgalaxy-det-port:"
+
+
+def numproc_guard(case: dict[str, Any], source: str, port_dir: Optional[Path]) -> None:
+    """#4271: a NUMPROC(PFD) program is proven only through a det port, whose runtime refuses a non-preferred sign
+    (register C5); a model port or the generated service has no such guard, so GnuCOBOL's NOPFD reading of a
+    non-preferred sign could pass for IBM's PFD. Raises UnsupportedOption for those."""
+    if numproc(case, source) != "PFD":
+        return
+    services = sorted(port_dir.rglob("*Service.java")) if port_dir and port_dir.is_dir() else []
+    if not any(read_source(p).text.startswith(DET_PORT_HEADER) for p in services):
+        raise UnsupportedOption(
+            "NUMPROC(PFD): only a det port's runtime refuses a non-preferred sign (oracle_assumptions.md C5); this "
+            "port has no such guard, so the case cannot be proven with it"
+        )
+
+
 def compile_options(case: dict[str, Any], source: str) -> tuple[str, list[str]]:
     """#3828: (the program with its CBL / PROCESS cards blanked -- GnuCOBOL rejects CBL --, the cobc
     flags for its options). The case's `compiler_options` (e.g. ["INTDATE(LILIAN)"]) stand for the
@@ -230,6 +289,8 @@ def compile_options(case: dict[str, Any], source: str) -> tuple[str, list[str]]:
     eff = effective(rows)
     for option, default in DEFAULTS.items():  # an option nothing names is IBM's default (#4102: TRUNC(STD))
         eff.setdefault(option, default)
+    if str(eff.get("NUMPROC") or "").upper() == "MIG":
+        eff["NUMPROC"] = numproc_mig(case)
     for option, value in eff.items():
         if option not in SEMANTIC_OPTIONS:
             continue

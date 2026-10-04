@@ -24,7 +24,8 @@ program opens I-O) is unloaded to fixed-length records. Compiled `-std=ibm
 #3828: the program's CBL / PROCESS cards, and a case's `"compiler_options": ["TRUNC(BIN)"]`
 (the compile step's PARM; the cards override it), become cobc flags where GnuCOBOL has one
 (TRUNC(BIN) -> -fnotrunc); one it cannot honour -- INTDATE(LILIAN), ARITH(EXTEND),
-NUMPROC(PFD), TRUNC(OPT) -- stops the run (equivalence_common.compile_options). A case's
+TRUNC(OPT), NUMPROC(MIG) under a compiler before Enterprise COBOL 5 -- stops the run
+(equivalence_common.compile_options); NUMPROC(PFD) runs only with a det port (#4271). A case's
 `"culture"` (e.g. {"db2_date_format": "eur"}) is the Java side's target config.
 
 Java side -- the generated project (the refractor + cobol-to-java pipeline, target
@@ -97,6 +98,7 @@ from equivalence_common import (
     diff_varseq,
     java_failure_report,
     layout_fields,
+    numproc_guard,
     read_program,
     stage_copybooks,
     require_ascii_runtime,
@@ -665,6 +667,9 @@ def main() -> int:
     data_encoding(case)  # a bad declaration fails here, not after the COBOL build
     (corpus_entry,) = mc.select([case["corpus"]])
     corpus = mc.require_clone(corpus_entry)
+    if not args.cobol_only:  # #4271: NUMPROC(PFD) only through a det port's guard (register C5)
+        port_dir = None if args.generated_only else args.port or CASES / case.get("port_from", case["name"]) / "port"
+        numproc_guard(case, read_program(case, corpus / case["program_source"])[0], port_dir)
     if case.get("db2"):  # a database of the pool to this case alone (parallel runs take the others, or wait)
         equivalence_db2.hold_lock()
     work = args.keep or Path(tempfile.mkdtemp(prefix=f"equiv_{args.case}_"))

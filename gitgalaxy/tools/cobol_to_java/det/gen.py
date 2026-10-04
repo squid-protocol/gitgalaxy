@@ -205,6 +205,10 @@ class Gen:
 
     def field_expr(self, ref: E.Ref) -> str:
         it = self.resolve(ref)
+        if it.category == "FLOAT":  # #4271: no Field carries a float; IBM's is hexadecimal (register C6)
+            raise Untranslatable(
+                f"{ref.name}: {it.usage} floating point (IBM hexadecimal on z/OS, oracle_assumptions.md C6)"
+            )
         packed = self.check_lift(it)
         base = self.ids.get(id(it))
         if base is None:

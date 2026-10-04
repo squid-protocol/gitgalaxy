@@ -90,6 +90,8 @@ class FileDef:
     handle: str | None = None  # the Java expression creating the DetFile; None: a hole
     why: str = ""
     varying: dict | None = None  # RECORD VARYING ... DEPENDING ON: {min, max, depending} (program.fd_entries)
+    sort: bool = False  # an SD (sort-merge) file: SORT / MERGE / RELEASE / RETURN only
+    sort_length: int | None = None  # its records' length (None: records of different lengths)
 
 
 @dataclass
@@ -165,11 +167,17 @@ class Gen:
         self.dto_codecs: Cics | None = None
         self.dto_codecs_factory: Callable[[], Cics] | None = None
         self.entities: set = set()
+        # SPECIAL-NAMES alphabets (name -> first word of the definition) and PROGRAM COLLATING SEQUENCE: a SORT /
+        # MERGE's collating sequence
+        self.alphabets: dict[str, str] = {}
+        self.program_collating: str | None = None
 
     # ---- references ---------------------------------------------------------------------------------------------
     def resolve(self, ref: E.Ref) -> L.Item:
         if ref.name == "RETURN-CODE" and not self.items.get(ref.name):
             ref = E.Ref("GG-RETURN-CODE")
+        if ref.name == "SORT-RETURN" and not self.items.get(ref.name):
+            ref = E.Ref("GG-SORT-RETURN")
         cands = self.items.get(ref.name, [])
         if ref.qualifiers:
 
@@ -950,6 +958,14 @@ class Gen:
         c = f"{ind}// {_comment(s.text)}"
         if k == "HOLE":
             raise Untranslatable(s.data.get("why", "not parsed"))
+        if self.sets_sort_return(s):
+            # IBM (SORT-RETURN special register): moving 16 to it in an input / output procedure ends the sort at
+            # the next RELEASE or RETURN; GnuCOBOL's behaviour is not measured
+            raise Untranslatable("SORT-RETURN set by the program (ends a sort early): not modelled")
+        if k in ("SORT", "MERGE"):
+            return [c, *self.sort(s, ind)]
+        if k in ("RELEASE", "RETURN"):
+            return [c, *self.release_return(s, ind)]
         if k == "MOVE":
             return [c] + [ind + self.move(s.data["from"], t) for t in s.data["to"]]
         if k == "IF":
@@ -1493,6 +1509,140 @@ class Gen:
         if k == "START":
             raise Untranslatable("START")
         raise Untranslatable(k)
+
+    # ---- SORT / MERGE / RELEASE / RETURN (IBM Enterprise COBOL for z/OS 6.4 Language Reference) ----------------
+    def sets_sort_return(self, s: S.Stmt) -> bool:
+        """Whether the statement stores into the SORT-RETURN special register."""
+        if self.items.get("SORT-RETURN"):
+            return False  # the program's own item of that name
+        d, targets = s.data, []
+        if s.kind == "MOVE":
+            targets = d["to"]
+        elif s.kind == "SET-TO":
+            targets = d["targets"]
+        elif s.kind == "INITIALIZE":
+            targets = d["refs"]
+        elif s.kind in ("COMPUTE", "ARITH"):
+            targets = [t[0] if isinstance(t, tuple) else t for t in (d.get("targets") or []) + (d.get("giving") or [])]
+        return any(isinstance(t, E.Ref) and t.name == "SORT-RETURN" for t in targets)
+
+    def sort_file(self, name: str) -> FileDef:
+        fd = next((f for f in self.p.files.values() if f.sort and name in (f.select, f.fd)), None)
+        if fd is None:
+            raise Untranslatable(f"{name}: no SD file")
+        if fd.record is None or fd.sort_length is None:
+            raise Untranslatable(f"{name}: an SD with no record, or records of different lengths")
+        return fd
+
+    def procedure_range(self, rng: tuple, ind: str) -> list[str]:
+        """An INPUT / OUTPUT PROCEDURE: run as PERFORM name [THRU name] runs it (a section: its paragraphs)."""
+        t, thru = rng
+        if t not in self.para_index or (thru is not None and thru not in self.para_index):
+            raise Untranslatable(f"PROCEDURE {t}{' THRU ' + thru if thru else ''}: no such paragraph")
+        if thru is None and self.p.proc.paragraphs[self.para_index[t]].section == t:
+            sec = [i for i, p in enumerate(self.p.proc.paragraphs) if p.section == t]
+            return self.perform_call(sec[0], sec[-1], ind)
+        return self.perform_call(self.para_index[t], self.para_index[thru or t], ind)
+
+    def sort(self, s: S.Stmt, ind: str) -> list[str]:
+        """SORT / MERGE: a Sort over the SD's records, filled from the USING files or the INPUT PROCEDURE's RELEASEs,
+        ordered, then emptied into the GIVING files or by the OUTPUT PROCEDURE's RETURNs; SORT-RETURN 0."""
+        d, verb = s.data, s.kind
+        sd = self.sort_file(d["file"])
+        var = f"sort_{jname(sd.select)}"
+        collating = d["collating"] or self.program_collating
+        if collating is not None:
+            kind = self.alphabets.get(collating)
+            # NATIVE: the data's own order, as without the phrase (register D1); STANDARD-1: ASCII, which the
+            # harness's ISO-8859-1 data is in byte order. Any other alphabet is not modelled.
+            if kind not in ("NATIVE", "STANDARD-1"):
+                raise Untranslatable(f"{verb} COLLATING SEQUENCE {collating} ({kind or 'no ALPHABET'}): not modelled")
+        keys = []
+        for ref, asc in d["keys"]:
+            it = self.resolve(ref)
+            top = it
+            while top.parent is not None:
+                top = top.parent
+            if it.section != "FILE" or top.fd != sd.fd:
+                raise Untranslatable(f"{verb} KEY {ref.name}: not in a record of {sd.fd}")
+            if _occurs_chain(it) or it.depending:
+                raise Untranslatable(f"{verb} KEY {ref.name}: under an OCCURS")
+            keys.append(f"new Sort.Key(r -> {self.factory(it, 'r', str(it.offset))}, {_b(asc)})")
+        out = [f"{ind}{var} = new Sort({jstr(sd.fd or sd.select)}, {sd.sort_length}, {_b(d['duplicates'])}, CS,"]
+        out += [f"{ind}        {k}{',' if n < len(keys) - 1 else ');'}" for n, k in enumerate(keys)]
+        if d["input"] is not None:
+            out += self.procedure_range(d["input"], ind)
+        for n, name in enumerate(d["using"]):
+            if n and verb == "MERGE":
+                out.append(f"{ind}{var}.nextInput();")
+            out += self.using_file(verb, var, sd, name, ind)
+        out.append(f"{ind}{var}.{'sort' if verb == 'SORT' else 'merge'}();")
+        if d["output"] is not None:
+            out += self.procedure_range(d["output"], ind)
+        for name in d["giving"]:
+            out += self.giving_file(verb, var, sd, name, ind)
+        out.append(f"{ind}{var} = null;")
+        out.append(f"{ind}Cobol.store({self.field_expr(E.Ref('SORT-RETURN'))}, BigDecimal.ZERO, false, CS);")
+        return out
+
+    def _sort_io_file(self, verb: str, sd: FileDef, name: str) -> tuple[FileDef, L.Item]:
+        """A USING / GIVING file and its record (checked present, so callers get it as a non-optional Item)."""
+        fd = self.p.files.get(name)
+        if fd is None or fd.sort:
+            raise Untranslatable(f"{verb} USING / GIVING {name}: no such file")
+        if fd.handle is None:
+            raise Untranslatable(f"{name}: {fd.why}")
+        if fd.varying is not None or fd.record is None or fd.record.size != sd.sort_length:
+            raise Untranslatable(f"{verb} USING / GIVING {name}: records not the sort file's length: not modelled")
+        return fd, fd.record
+
+    def using_file(self, verb: str, var: str, sd: FileDef, name: str, ind: str) -> list[str]:
+        """USING: the file opened, every record read into the sort, closed. Its FILE STATUS item is left as it was:
+        GnuCOBOL's implicit I/O does not set it (and IBM's depends on FASTSRT: register F4)."""
+        fd, record = self._sort_io_file(verb, sd, name)
+        v, rec, st, what = jname(fd.select), self.ids[id(record)], self.tmpname("st"), f"{verb} USING {name}"
+        return [f'{ind}String {st} = {v}.open("INPUT");',
+                f'{ind}Sort.expect({st}, {jstr(what + ": OPEN")}, "00");',
+                f"{ind}while (true) {{", f"{ind}    {st} = {v}.readNext();",
+                f'{ind}    if ({st}.equals("10")) {{', f"{ind}        break;", f"{ind}    }}",
+                f'{ind}    Sort.expect({st}, {jstr(what + ": READ")}, "00");', f"{ind}    {var}.add({rec});", f"{ind}}}",
+                f"{ind}{st} = {v}.close();",
+                f'{ind}Sort.expect({st}, {jstr(what + ": CLOSE")}, "00");']  # fmt: skip
+
+    def giving_file(self, verb: str, var: str, sd: FileDef, name: str, ind: str) -> list[str]:
+        """GIVING: the file opened OUTPUT, every record in order written from its record area, closed (its FILE
+        STATUS left as it was, as USING)."""
+        fd, record = self._sort_io_file(verb, sd, name)
+        v, rec, st, what = jname(fd.select), self.ids[id(record)], self.tmpname("st"), f"{verb} GIVING {name}"
+        r = self.tmpname("r")
+        return [f"{ind}{var}.rewind();", f'{ind}String {st} = {v}.open("OUTPUT");',
+                f'{ind}Sort.expect({st}, {jstr(what + ": OPEN")}, "00");',
+                f"{ind}for (byte[] {r} = {var}.next(); {r} != null; {r} = {var}.next()) {{",
+                f"{ind}    {rec}.putRaw({r});", f"{ind}    {st} = {v}.write({record.size});",
+                f'{ind}    Sort.expect({st}, {jstr(what + ": WRITE")}, "00");',
+                f"{ind}}}", f"{ind}{st} = {v}.close();",
+                f'{ind}Sort.expect({st}, {jstr(what + ": CLOSE")}, "00");']  # fmt: skip
+
+    def release_return(self, s: S.Stmt, ind: str) -> list[str]:
+        """RELEASE record [FROM x]: (MOVE x TO record) the record into the active sort. RETURN file [INTO x]: the
+        next record into the SD record area ([MOVE it TO x]); AT END when none is left."""
+        if s.kind == "RELEASE":
+            it = self.resolve(s.data["record"])
+            sd = self.sort_file(it.fd or "")
+            if it.size != sd.sort_length:
+                raise Untranslatable(f"RELEASE {it.name}: not the sort file's record length")
+            var = f"sort_{jname(sd.select)}"
+            out = [ind + self.move(s.data["from"], s.data["record"])] if s.data["from"] is not None else []
+            what = jstr(f"RELEASE {it.name} outside an input procedure")
+            return [*out, f"{ind}Sort.active({var}, {what}).release({self.field_expr(s.data['record'])});"]
+        sd = self.sort_file(s.data["file"])
+        var, rec, st = f"sort_{jname(sd.select)}", self.ids[id(sd.record)], self.tmpname("st")
+        what = jstr(f"RETURN {s.data['file']} outside an output procedure")
+        out = [f'{ind}String {st} = Sort.active({var}, {what}).returnInto({rec}) ? "00" : "10";']
+        if s.data["into"] is not None:
+            out += [f'{ind}if ({st}.equals("00")) {{', f"{ind}    Cobol.move({rec}, {self.field_expr(s.data['into'])}, CS);",
+                    f"{ind}}}"]  # fmt: skip
+        return out + self.io_phrases(s, st, ind, at_end="10", invalid=())
 
     def status(self, fd: FileDef, st: str, ind: str) -> list[str]:
         if fd.status is None:

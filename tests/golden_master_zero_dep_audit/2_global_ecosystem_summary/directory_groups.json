@@ -901,20 +901,20 @@
       "avg_exposures": {
         "api_exposure": 0.64,
         "churn": 0.0,
-        "cognitive_load": 65.92,
+        "cognitive_load": 66.11,
         "concurrency": 0.0,
         "dead_code": 3.05,
         "documentation": 49.34,
-        "safety_score": 89.04,
+        "safety_score": 89.25,
         "secrets_risk": 0.0,
         "spec_match": 0.0,
         "stability": 49.67,
-        "state_flux": 82.78,
-        "tech_debt": 96.56,
+        "state_flux": 83.01,
+        "tech_debt": 96.72,
         "verification": 57.37
       },
       "file_count": 151,
-      "total_mass": 47415.86
+      "total_mass": 47383.94
     },
     "cobol/cics-banking-sample-application-cbsa": {
       "avg_exposures": {
@@ -977,20 +977,20 @@
       "avg_exposures": {
         "api_exposure": 0.0,
         "churn": 0.0,
-        "cognitive_load": 11.99,
+        "cognitive_load": 12.14,
         "concurrency": 0.0,
         "dead_code": 0.0,
         "documentation": 31.11,
-        "safety_score": 25.13,
+        "safety_score": 25.16,
         "secrets_risk": 0.0,
         "spec_match": 0.0,
         "stability": 50.0,
         "state_flux": 25.82,
-        "tech_debt": 29.14,
+        "tech_debt": 29.24,
         "verification": 2.22
       },
       "file_count": 45,
-      "total_mass": 947.08
+      "total_mass": 946.88
     },
     "cobol/cobol-programming-course": {
       "avg_exposures": {

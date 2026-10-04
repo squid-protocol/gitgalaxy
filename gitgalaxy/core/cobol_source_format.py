@@ -127,3 +127,30 @@ def blank_identification_area(code_stream: str, formats: list[str] | None = None
         if fmt == FIXED and len(body) > 72 and body[72:].strip():
             lines[i] = body[:72] + " " * (len(body) - 72) + line[len(body) :]
     return "\n".join(lines)
+
+
+# #4300: a numbered sequence area -- six letters/digits with at least one digit (ISPF
+# `NUMBER ON STD` writes `000100`), never a space inside. Free-format text in cols 1-6
+# (`   02  DELTA`, `EXEC S`) does not match, and neither does a level number.
+_NUMBERED_SEQUENCE_AREA = re.compile(r"(?=[A-Za-z]{0,5}[0-9])[0-9A-Za-z]{6}")
+
+
+def blank_sequence_area(code_stream: str, formats: list[str] | None = None) -> str:
+    """`code_stream` with the numbered sequence area (cols 1-6) of its fixed-format lines blanked
+    -- offsets and lengths kept. The area is not program text, but a verb whose operand starts on
+    the next line (`PERFORM` / `000900     INIT-PARA`) read the sequence number as its operand.
+    A debug line's col-7 `D` indicator behind an all-digit area is blanked too (`064000D   PASS.`
+    is the operand `PASS`); a continuation `-` stays. Free and variable lines are left alone.
+    `formats` as for `blank_identification_area`."""
+    lines = code_stream.split("\n")
+    if formats is None or len(formats) != len(lines):
+        formats = line_formats(code_stream)
+    for i, (line, fmt) in enumerate(zip(lines, formats)):
+        if fmt != FIXED or not _NUMBERED_SEQUENCE_AREA.match(line):
+            continue
+        indicator = line[6:7]
+        if indicator in ("", " ", "\t", "-", "\r"):
+            lines[i] = " " * 6 + line[6:]
+        elif indicator in "Dd" and line[:6].isdigit():
+            lines[i] = " " * 7 + line[7:]
+    return "\n".join(lines)

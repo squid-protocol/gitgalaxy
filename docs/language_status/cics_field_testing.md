@@ -26,7 +26,7 @@ counted in it (their fact counts are not recorded here).
 | CSD resources | 4 | 0 | 2 | 457 | 0 | 0 | 2 | 223 | 1.3% | open | 77 more clean fresh facts |
 | JCL resolved DSNs | 5 | 0 | 2 | 752 | 1 | 0 | 1 | 102 | 2.9% | open | 1 more clean fresh round(s), 198 more clean fresh facts |
 | file I/O moves | 3 | 0 | 1 | 247 | 0 | 0 | 1 | 38 | 7.9% | open | 1 more clean fresh round(s), 262 more clean fresh facts |
-| dead | 5 | 0 | 3 | 144 | 0 | 6 | 3 | 35 | 8.6% | open | 265 more clean fresh facts |
+| dead | 5 | 0 | 3 | 144 | 0 | 7 | 3 | 35 | 8.6% | open | 265 more clean fresh facts |
 | entry transactions | 4 | 0 | 2 | 70 | 0 | 0 | 2 | 30 | 10.0% | open | 270 more clean fresh facts |
 | DD names | 4 | 0 | 1 | 89 | 0 | 0 | 1 | 22 | 13.6% | open | 1 more clean fresh round(s), 278 more clean fresh facts |
 | DB2 table access | 3 | 0 | 1 | 58 | 0 | 0 | 1 | 21 | 14.3% | open | 1 more clean fresh round(s), 279 more clean fresh facts |
@@ -44,7 +44,7 @@ counted in it (their fact counts are not recorded here).
 | IMS segment access | 2 | 0 | 1 | 21 | 0 | 0 | 1 | 1 | - | open | 1 more clean fresh round(s), 299 more clean fresh facts |
 | async children | 2 | 0 | 1 | 6 | 0 | 0 | 1 | 1 | - | open | 1 more clean fresh round(s), 299 more clean fresh facts |
 | program_id | 7 | 0 | 4 | 128 | 3 | 0 | 0 | 0 | - | open | 2 more clean fresh round(s), 300 more clean fresh facts |
-| units | 7 | 0 | 4 | 2,058 | 7 | 3 | 0 | 0 | - | open | 2 more clean fresh round(s), 300 more clean fresh facts |
+| units | 7 | 0 | 4 | 2,058 | 7 | 4 | 0 | 0 | - | open | 2 more clean fresh round(s), 300 more clean fresh facts |
 | MOVE truncation | 6 | 0 | 3 | 165 | 1 | 0 | 0 | 0 | - | open | 2 more clean fresh round(s), 300 more clean fresh facts |
 | data moves | 6 | 0 | 3 | 12,583 | 3 | 0 | 0 | 0 | - | open | 2 more clean fresh round(s), 300 more clean fresh facts |
 | record fields | 6 | 0 | 3 | 5,475 | 4 | 2 | 0 | 0 | - | open | 2 more clean fresh round(s), 300 more clean fresh facts |
@@ -79,7 +79,7 @@ counted in it (their fact counts are not recorded here).
 | 4 | cics-genapp | public | 2,294 | 11 | 4 | 1 | 0 |
 | 5 | zecs | public | 1,293 | 43 | 0 | 0 | 2 |
 | 6 | dsf | public | 2,018 | 4 | 7 | 1 | 0 |
-| 7 | dbb-mortgage-application | public | 45 | 0 | 4 | 0 | 0 |
+| 7 | dbb-mortgage-application | public | 45 | 0 | 4 | 1 | 0 |
 
 ## Defect log
 
@@ -131,6 +131,7 @@ counted in it (their fact counts are not recorded here).
 | D040 | unkeyed estate, after 7 | engine | fact | units | #4203 | In free-format source the engine's COBOL function-start rule let its optional 6-column sequence-area slot swallow an indent plus the level number (`    01 VALUE-BYTES.`), stepping past its level-number shield, so data description entries (and indented FD / SD lines) read as paragraphs: 143 phantom units on CobolCraft @ e8c420df, every unit of coordinates.cob and decode.cob. No keyed estate is free-format, so the ledger never saw it. |
 | D041 | 7 | engine | fact | program_id | #4242 | A literal program name (`PROGRAM-ID. 'EPSCSMRD'.`, column 9) recorded no PROGRAM-ID: the engine's class_start rule wanted a word boundary right after the paragraph's separator, and a quote is no word character. IBM DBB epscsmrd.cbl (13 quoted PROGRAM-IDs) had no class row at all; found during its census (#4226). |
 | D042 | 7 | engine | fact | record fields | #4246 | An unnamed data description entry (an implicit FILLER: `2 PIC X(40) USAGE DISPLAY VALUE '...'`, IBM DBB EPSCSMRD L24 / L27 / L30) was read as an item named PIC with no PICTURE: the clause keyword standing where the name goes was taken for the name, and the entry's clauses were read from after it. Found onboarding EPSCSMRD into the key (#4226); the key's own reader made the same misreading. |
+| D043 | 7 | forge | fact | units, dead | #4243 | cobol_graveyard_finder read a multi-program source as one program: IBM DBB epscsmrd.cbl (eleven siblings, two nested, each opening with MAINLINE SECTION) gave the later programs' AUTHOR / INSTALLATION / LINKAGE headers as units of the first, one MAINLINE for thirteen, and reachability across programs. Its reader also had the gaps the key's draft fixed on the same file (#4206): a consuming GO TO match swallowed the later GO TO ... DEPENDING ON targets, a DEPENDING ON anywhere in a sentence hid a plain GO TO after it, and XML PARSE PROCESSING PROCEDURE reached nothing. 973 forge unit / dead mismatches against the draft; 0 after. |
 
 Key errors (the census's findings against the answer key itself) are counted from each key's
 rulings, not logged by hand. The engine agreeing with a key is only as good as the key: a key

@@ -94,11 +94,12 @@ def fd_entries(lines: list[Line]) -> dict[str, dict[str, Any]]:
     out: dict[str, dict[str, Any]] = {}
     if not m:
         return out
-    for fd in re.finditer(r"\b[FS]D\s+([A-Z0-9-]+)(.*?)(?=\s0?1\s+[A-Z0-9-]+|\s[FS]D\s|\Z)", m.group(1), re.I | re.S):
-        e = fd.group(2)
+    for fd in re.finditer(r"\b([FS])D\s+([A-Z0-9-]+)(.*?)(?=\s0?1\s+[A-Z0-9-]+|\s[FS]D\s|\Z)", m.group(1), re.I | re.S):
+        e = fd.group(3)
         d: dict[str, Any] = {
             "varying": None,
             "mode_v": bool(re.search(r"\bRECORDING\s+(?:MODE\s+)?(?:IS\s+)?V\b", e, re.I)),
+            "sd": fd.group(1).upper() == "S",  # a sort-merge file description
         }
         v = re.search(r"\bRECORD\s+(?:IS\s+)?VARYING\b(.*?)(?:\.\s*$|$)", e, re.I | re.S)
         if v:
@@ -107,8 +108,20 @@ def fd_entries(lines: list[Line]) -> dict[str, dict[str, Any]]:
             dep = re.search(r"\bDEPENDING\s+(?:ON\s+)?([A-Z0-9-]+)", v.group(1), re.I)
             d["varying"] = {"min": int(lo.group(1)) if lo else None, "max": int(hi.group(1)) if hi else None,
                             "depending": dep.group(1).upper().rstrip(".") if dep else None}  # fmt: skip
-        out[fd.group(1).upper()] = d
+        out[fd.group(2).upper()] = d
     return out
+
+
+def alphabets(lines: list[Line]) -> tuple[dict[str, str], str | None]:
+    """SPECIAL-NAMES: alphabet-name -> its definition's first word (STANDARD-1, NATIVE, EBCDIC, a literal ...), and
+    OBJECT-COMPUTER's PROGRAM COLLATING SEQUENCE alphabet-name (or None)."""
+    text = " ".join(ln.text for ln in lines)
+    m = re.search(r"\bPROCEDURE\s+DIVISION\b", text, re.I)
+    head = text[: m.start()] if m else text
+    names = {a.group(1).upper(): a.group(2).upper().rstrip(".")
+             for a in re.finditer(r"\bALPHABET\s+([A-Z0-9-]+)\s+(?:IS\s+)?(\S+)", head, re.I)}  # fmt: skip
+    pc = re.search(r"\bPROGRAM\s+COLLATING\s+SEQUENCE\s+(?:IS\s+)?([A-Z0-9-]+)", head, re.I)
+    return names, pc.group(1).upper() if pc else None
 
 
 def stub_files(stub: str) -> dict[str, str]:
@@ -259,6 +272,19 @@ def trunc_std(program: Path, options: list[str] | None = None) -> bool:
     return str(effective(rows).get("TRUNC") or DEFAULTS["TRUNC"]).upper() == "STD"
 
 
+def numproc_pfd(program: Path, options: list[str] | None = None) -> bool:
+    """Whether the program runs under NUMPROC(PFD) (#4271): the NUMPROC option in effect -- its CBL / PROCESS cards over
+    `options` (the compile step's PARM), else IBM's default, NOPFD. NUMPROC(MIG) is NOPFD: Enterprise COBOL 5 and 6 no
+    longer support it and compile the default instead (Enterprise COBOL 6.4 Migration Guide, GC27-8715-03, Table 18;
+    the equivalence harness refuses MIG for a case built by an earlier compiler: oracle_assumptions.md C5)."""
+    from gitgalaxy.core.compiler_options import compiler_options, effective, parse_options
+    from gitgalaxy.core.source_text import read_source
+
+    rows = [{"option": o, "value": v} for text in options or [] for o, v, _ in parse_options(text)]
+    rows += compiler_options(read_source(program).text)
+    return str(effective(rows).get("NUMPROC") or "").upper() == "PFD"
+
+
 _ENTRIES = re.compile(r"^    public (?:void runTask\(CicsTask task\)|int runBatch\(List<Dd> dds, String parm\)|"
                       r"int handleCall\([^)]*\)) \{$", re.M)  # fmt: skip
 
@@ -283,9 +309,10 @@ def drop_unused_fields(java: str) -> str:
         java = out
 
 
-def with_trunc(java: str, std: bool) -> str:
-    """Each entry (runTask / runBatch / handleCall) run with this program's TRUNC (Cobol.swapTruncBinary), the
-    caller's restored after it -- a LINK or CALL into a program compiled otherwise leaves the caller's as it was."""
+def with_trunc(java: str, std: bool, pfd: bool = False) -> str:
+    """Each entry (runTask / runBatch / handleCall) run with this program's TRUNC (Cobol.swapTruncBinary) and NUMPROC
+    (Cobol.swapNumprocPfd, #4271), the caller's restored after it -- a LINK or CALL into a program compiled otherwise
+    leaves the caller's as it was."""
     out, at = [], 0
     for m in _ENTRIES.finditer(java):
         end = _method_end(java, m.end())
@@ -295,10 +322,15 @@ def with_trunc(java: str, std: bool) -> str:
         out.append(java[at : m.end()])
         out.append(
             f"\n        boolean truncBefore = Cobol.swapTruncBinary({'true' if std else 'false'});  // TRUNC"
-            f"({'STD' if std else 'BIN'})\n        try {{"
+            f"({'STD' if std else 'BIN'})"
+            f"\n        boolean pfdBefore = Cobol.swapNumprocPfd({'true' if pfd else 'false'});  // NUMPROC"
+            f"({'PFD' if pfd else 'NOPFD'})\n        try {{"
         )
         out.append("\n".join(("    " + ln) if ln.strip() else ln for ln in body.split("\n")))
-        out.append("    } finally {\n            Cobol.swapTruncBinary(truncBefore);\n        }\n    ")
+        out.append(
+            "    } finally {\n            Cobol.swapTruncBinary(truncBefore);\n"
+            "            Cobol.swapNumprocPfd(pfdBefore);\n        }\n    "
+        )
         at = end
     out.append(java[at:])
     return "".join(out)
@@ -394,6 +426,14 @@ def _translate(program: Path, copy_dirs: list[Path], stub: str, package: str, es
     L.layout(rc)
     records.append(rc)
     proc = S.parse(lines)
+    # SORT-RETURN: the special register, S9(4) BINARY (IBM: 0 after a successful SORT / MERGE) -- only in a program
+    # that sorts or names it, so no other port's storage changes
+    sorts = any(s.kind in ("SORT", "MERGE") for p in proc.paragraphs for s in S.walk(p.body))
+    named = any(re.search(r"\bSORT-RETURN\b", ln.text, re.I) for ln in lines)
+    if (sorts or named) and not any(it.name == "SORT-RETURN" for r in records for it in r.walk()):
+        srt = L.Item(1, "GG-SORT-RETURN", "WORKING-STORAGE", pic="S9(4)", usage="BINARY")
+        L.layout(srt)
+        records.append(srt)
     svc_m = re.search(r"public class (\w+)", stub)
     if svc_m is None:
         raise ValueError("the stub has no public class")
@@ -421,7 +461,8 @@ def _translate(program: Path, copy_dirs: list[Path], stub: str, package: str, es
     gen.write_only_pointers = write_only_pointers(records, proc)
     if typed:
         gen.sync_groups = groups
-        gen.lifted = liftable(records, excluded, rc)
+        gen.lifted = liftable(records, excluded | {"GG-SORT-RETURN"}, rc)
+    gen.alphabets, gen.program_collating = alphabets(lines)
     gen.copy_dirs = [program.parent, *copy_dirs, C.COPY]
     gen.java_root = (project / "src/main/java") if project is not None else None
     gen.clock = "clock.currentDate()" if batch else "Funcs.currentDate(java.time.LocalDateTime.now())"
@@ -484,6 +525,15 @@ def _translate(program: Path, copy_dirs: list[Path], stub: str, package: str, es
             fd.record = recs[0]
             fd.fd = recs[0].fd
         prog.files[fc["select"]] = fd
+        if fds.get((fd.fd or fd.select).upper(), {}).get("sd"):
+            # a sort file: no dataset, only SORT / MERGE / RELEASE / RETURN, through the active Sort
+            fd.sort = True
+            fd.why = "a sort file (SD): SORT / MERGE / RELEASE / RETURN only"
+            if fd.record is not None:
+                lengths = {r.size for r in records if r.section == "FILE" and r.fd == fd.fd}
+                fd.sort_length = lengths.pop() if len(lengths) == 1 else None
+            file_decls.append(f"    private Sort sort_{G.jname(fd.select)};")
+            continue
         if fd.record is None:
             fd.why = "no FD record"
             continue
@@ -713,6 +763,8 @@ def _translate(program: Path, copy_dirs: list[Path], stub: str, package: str, es
         ctor_repos += list(gen.cics.repos.items())
         # the codecs added constants: none (they use their own literals)
 
+    if any(f.sort for f in prog.files.values()):
+        extra_imports.append(f"{package}.cobolrt.Sort")
     if gen.sql is not None:  # the generated Db2 repositories the statements run on
         ctor_repos += [(c, f) for c, f in gen.sql.repos.items()]
         extra_imports.append(f"{package}.cobolrt.sql.DetSql")
@@ -972,7 +1024,8 @@ def _translate(program: Path, copy_dirs: list[Path], stub: str, package: str, es
     stats = dict(gen.stats)
     stats["program"] = prog.name
     stats["inferred"] = inferred
-    return Result(with_trunc(drop_unused_fields("\n".join(out)), trunc_std(program, options)), service, stats)
+    java = drop_unused_fields("\n".join(out))
+    return Result(with_trunc(java, trunc_std(program, options), numproc_pfd(program, options)), service, stats)
 
 
 def _record_io(proc: S.Procedure, fd: G.FileDef, records: list) -> bool:

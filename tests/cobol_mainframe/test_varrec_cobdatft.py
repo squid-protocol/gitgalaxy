@@ -66,8 +66,8 @@ def test_the_translator_reads_record_varying_and_recording_mode_v(tmp_path):
     ]) + "\n"  # fmt: skip
     (tmp_path / "VB.cbl").write_text(src, encoding="ascii")
     fds = P.fd_entries(SRC.program_lines(tmp_path / "VB.cbl", []))
-    assert fds["VBFILE"] == {"varying": {"min": 10, "max": 80, "depending": "WS-RECD-LEN"}, "mode_v": True}
-    assert fds["FBFILE"] == {"varying": None, "mode_v": False}
+    assert fds["VBFILE"] == {"varying": {"min": 10, "max": 80, "depending": "WS-RECD-LEN"}, "mode_v": True, "sd": False}
+    assert fds["FBFILE"] == {"varying": None, "mode_v": False, "sd": False}
 
 
 def test_cobdatft_is_a_runtime_library_call():

@@ -459,6 +459,7 @@ public class CicsTask {
         LocalDateTime clock = now();
         LocalDateTime at = null;
         String resp = "NORMAL";
+        int[] planned;
         if (hhmmss < 0 || mm > 59 || ss > 59 || hh > (isTime ? 23 : 99)) {
             resp = "INVREQ";
         } else if (from != null && (from.length < 1 || from.length > 32763)) {
@@ -467,6 +468,8 @@ public class CicsTask {
             resp = "TRANSIDERR";
         } else if (termid != null && programs != null && !programs.terminal(termid)) {
             resp = "TERMIDERR";
+        } else if ((planned = root().injected("START", transid.stripTrailing())) != null) {
+            resp = respName(planned[0]);  // #4049: a planned condition; nothing is started
         } else if (isTime) {
             at = clock.toLocalDate().atTime(hh, mm, ss);
             if (!at.isAfter(clock)) {
@@ -503,6 +506,11 @@ public class CicsTask {
      *  ENDDATA when none is left, as for a task no START started. */
     public RetrieveResult retrieve(int maxLength) {
         CicsTask task = root();
+        int[] planned = task.injected("RETRIEVE", "-");  // #4049: a planned condition; nothing is retrieved
+        if (planned != null) {
+            event("RETRIEVE", "resp", respName(planned[0]), "length", null, "data", null);
+            return new RetrieveResult(respName(planned[0]), -1, null);
+        }
         if (task.retrieved >= task.retrieveData.size()) {
             event("RETRIEVE", "resp", "ENDDATA", "length", null, "data", null);
             return new RetrieveResult("ENDDATA", -1, null);
@@ -522,6 +530,11 @@ public class CicsTask {
      *  harness then drops it), NOTFND when none matches "an unexpired interval control command". */
     public String cancel(String reqid) {
         CicsTask task = root();
+        int[] planned = task.injected("CANCEL", reqid.stripTrailing());  // #4049: a planned condition
+        if (planned != null) {
+            event("CANCEL", "reqid", reqid, "resp", respName(planned[0]));
+            return respName(planned[0]);
+        }
         LocalDateTime at = task.ownRequests.containsKey(reqid) ? task.ownRequests.get(reqid) : task.unexpired.get(reqid);
         String resp = at != null && at.isAfter(now()) ? "NORMAL" : "NOTFND";
         if ("NORMAL".equals(resp)) {
@@ -1165,7 +1178,10 @@ public class CicsTask {
             List<byte[]> items = queues.get(queue);
             String resp = "NORMAL";
             int item = 0;
-            if (data == null || data.length < 1 || data.length > 32763) {
+            int[] planned = task.root().injected("WRITEQ-TS", queue.stripTrailing());  // #4049: nothing is written
+            if (planned != null) {
+                resp = respName(planned[0]);
+            } else if (data == null || data.length < 1 || data.length > 32763) {
                 resp = "LENGERR";
             } else if (rewrite > 0 && items == null) {
                 resp = "QIDERR";
@@ -1316,6 +1332,12 @@ public class CicsTask {
         } else if (programs != null && !programs.defined(program)) {
             resp = "PGMIDERR";
             resp2 = 1;
+        } else {
+            int[] planned = root().injected("XCTL", program.stripTrailing());  // #4049: the program does not end
+            if (planned != null) {
+                resp = respName(planned[0]);
+                resp2 = planned[1];
+            }
         }
         event("XCTL", "program", program, "length", commarea == null ? Integer.valueOf(0) : length, "commarea",
                 snapshot.apply(commarea), "resp", resp, "resp2", resp2);
@@ -1441,6 +1463,30 @@ public class CicsTask {
 
     private CicsTask root() {
         return parent == null ? this : parent.root();
+    }
+
+    /** #4049: a DFHRESP number a fault plan names, as the condition's name (IBM CICS "RESP values"). */
+    static String respName(int resp) {
+        return switch (resp) {
+            case 0 -> "NORMAL";
+            case 11 -> "TERMIDERR";
+            case 13 -> "NOTFND";
+            case 16 -> "INVREQ";
+            case 17 -> "IOERR";
+            case 18 -> "NOSPACE";
+            case 22 -> "LENGERR";
+            case 26 -> "ITEMERR";
+            case 27 -> "PGMIDERR";
+            case 28 -> "TRANSIDERR";
+            case 29 -> "ENDDATA";
+            case 44 -> "QIDERR";
+            case 53 -> "SYSIDERR";
+            case 54 -> "ISCINVREQ";
+            case 56 -> "ENVDEFERR";
+            case 70 -> "NOTAUTH";
+            case 100 -> "LOCKED";
+            default -> throw new IllegalArgumentException("no condition name known for RESP " + resp);
+        };
     }
 
     /** The abend code of an unhandled condition (IBM's AEIx / AEYx codes, the AEIA topic). */

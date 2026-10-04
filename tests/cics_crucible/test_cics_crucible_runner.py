@@ -144,6 +144,52 @@ def test_a_perfect_log_passes():
     assert cc.compare(exp, _actual_from_expected(exp), ALL, _ctx()).status == "pass"
 
 
+# ---- #4049: strengthened scenarios, their logs derived from the COBOL ---------------------------------------
+def test_a_log_derived_from_the_cobol_run_is_what_that_run_did():
+    case = _case()
+    act = _actual_from_expected(case.expected["three-visits"])
+    log = runner.derive_expected(case, act, "three-visits", {})
+    assert log["derived"]["from"] == "cobol-stub" and log["format"] == cc.EXPECTED_FORMAT
+    assert cc.compare(log, act, ALL, _ctx()).status == "pass"
+    other = copy.deepcopy(act)
+    other["tasks"][1]["commarea"] = _raw("009FIRST   ")
+    assert cc.compare(log, other, ALL, _ctx()).status == "fail"
+    # a COMMAREA is written by its layout's fields, the same as the hand-written log
+    assert log["tasks"][1]["commarea"] == case.expected["three-visits"]["tasks"][1]["commarea"]
+    assert log["tasks"][1]["commarea"]["fields"] == {"WS-COUNT": "1", "WS-NAME": "FIRST"}
+
+
+def test_no_log_is_derived_from_what_the_cobol_side_does_not_model_or_could_not_run():
+    case = _case()
+    act = _actual_from_expected(case.expected["three-visits"])
+    act["tasks"][0]["events"][0]["text"] = cc.Unmodelled("something")
+    with pytest.raises(RuntimeError, match="does not model"):
+        runner.derive_expected(case, act, "three-visits", {})
+    with pytest.raises(RuntimeError, match="stopped early"):
+        runner.derive_expected(case, {"tasks": [], "stopped": "step 0: no transid"}, "three-visits", {})
+
+
+def test_strengthened_scenarios_join_their_case_with_their_derived_logs(tmp_path):
+    case = _case()
+    sc = {"id": "s-extra", "path": "trap", "summary": "x", "steps": [{"at": 0, "aid": "ENTER", "text": "FX01"}],
+          "faults": [{"task": "FX01", "cmd": "WRITEQ-TS", "queue": "Q1", "resp": "INVREQ"}]}  # fmt: skip
+    d = tmp_path / case.id
+    (d / "expected").mkdir(parents=True)
+    (d / "case.json").write_text(json.dumps({"format": runner.STRENGTHENED_FORMAT, "case": case.id,
+                                             "scenarios": [sc]}), encoding="utf-8")  # fmt: skip
+    with pytest.raises(cc.CaseError, match="derive-expected"):
+        runner.add_strengthened(case, tmp_path)
+    (d / "expected" / "s-extra.json").write_text(json.dumps({"tasks": []}), encoding="utf-8")
+    case = _case()
+    assert runner.add_strengthened(case, tmp_path) == ["s-extra"] and case.expected["s-extra"] == {"tasks": []}
+    assert case.scenarios[-1]["id"] == "s-extra"
+    assert runner.fault_plans(sc) == {"FX01": ["WRITEQ-TS Q1 1 16 0"]} and runner.task_faults(sc, "FX02") == []
+    with pytest.raises(cc.CaseError, match="already"):  # a strengthened scenario never replaces the crucible's
+        runner.add_strengthened(case, tmp_path)
+    with pytest.raises(cc.CaseError, match="names the TRANSID"):
+        runner.fault_plans({"id": "x", "faults": [{"cmd": "XCTL", "program": "P", "resp": "PGMIDERR"}]})
+
+
 def test_text_is_padded_to_its_length_but_embedded_blanks_count():
     exp = _case().expected["three-visits"]
     act = _actual_from_expected(exp)

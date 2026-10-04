@@ -65,6 +65,15 @@ public final class Cobol {
         return before;
     }
 
+    /** NUMPROC for a program's run (#4271): `pfd` true for NUMPROC(PFD) -- a zoned or packed value read with a sign
+     *  that is not preferred is refused by name (Codec.numprocPfd) --, false for IBM's default NUMPROC(NOPFD) (and
+     *  NUMPROC(MIG), which Enterprise COBOL 5 and later compile as the default). The setting before is returned. */
+    public static boolean swapNumprocPfd(boolean pfd) {
+        boolean before = Codec.numprocPfd;
+        Codec.numprocPfd = pfd;
+        return before;
+    }
+
     // ------------------------------------------------------------------------------------------ ARITHMETIC
     /** An intermediate quotient as GnuCOBOL forms it (cob_decimal_div): the dividend shifted 38 digits, then
      *  divided and truncated -- the receiver's own truncation or ROUNDED then applies in store. */
@@ -464,8 +473,22 @@ public final class Cobol {
 
     // ----------------------------------------------------------------------------------------- class tests
 
+    /** Whether a signed zoned or packed item's sign is X'F' (an unsigned-form sign in a signed item). */
+    private static boolean isNumericSignF(Field f, Charset cs) {
+        byte[] d = f.st.bytes;
+        if (f.kind == Field.Kind.NUMERIC_PACKED) return (d[f.off + f.len - 1] & 0x0F) == 0x0F;
+        if (f.kind != Field.Kind.NUMERIC_DISPLAY) return false;
+        char c = Codec.ch(d[f.signLeading ? f.off : f.off + f.digits - 1], cs);
+        return c >= '0' && c <= '9';
+    }
+
     public static boolean isNumeric(Field f, Charset cs) {
         byte[] d = f.st.bytes;
+        if (Codec.numprocPfd && f.signed && !f.signSeparate && isNumericSignF(f, cs)) {
+            // NUMPROC(PFD)'s class test takes C, D and "+0" for a signed item, NOPFD's C, D and F (Programming Guide
+            // SC27-8714-03, Table 7, NUMCLS(PRIM)): an F-signed value's answer is not settled -- refused (C5)
+            throw Codec.nonPreferredSign(f);
+        }
         switch (f.kind) {
             case NUMERIC_DISPLAY: {
                 int start = f.off;

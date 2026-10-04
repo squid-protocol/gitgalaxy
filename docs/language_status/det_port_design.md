@@ -153,11 +153,13 @@ public final class Cobol {
     //   Clause.tally(counter, Mode.CHARACTERS | ALL | LEADING, pattern|null[, cs]); Clause.replace(Mode.CHARACTERS | ALL |
     //   LEADING | FIRST, pattern|null, by[, cs]); Clause.converting(from, to[, cs]); each .before(x) / .after(x) (INITIAL)
     public static void setTruncBinary(boolean on);   // TRUNC(STD) for binary items; default off, see below
+    public static boolean swapNumprocPfd(boolean pfd); // NUMPROC(PFD) for a program's run (#4271), see below
 }
 ```
 
-Arithmetic intermediates: exact `BigDecimal` (GnuCOBOL's default is exact decimal arithmetic for these programs'
-sizes); `store` truncates high-order digits beyond the PICTURE and low-order digits beyond the scale (or rounds half
+Arithmetic intermediates: exact `BigDecimal`. `cobc -std=ibm` instead truncates them to IBM's fixed-point decimal places
+(ARITHMETIC-OSVS), which the runtime does not model yet (#4287, register C2); no proven scenario reaches the
+difference. `store` truncates high-order digits beyond the PICTURE and low-order digits beyond the scale (or rounds half
 away from zero with ROUNDED).
 
 What GnuCOBOL (`-std=ibm`) does, which the runtime follows (each is a case in `tests/cobol_mainframe/test_cobolrt.py`):
@@ -169,6 +171,13 @@ What GnuCOBOL (`-std=ibm`) does, which the runtime follows (each is a case in `t
   `trunc_std`), and each entry point runs with it (`Cobol.swapTruncBinary`, restored on return, so a LINK into a
   program compiled otherwise keeps the caller's). The harness compiles the COBOL side to match: `TRUNC(STD)` is
   `cobc -fbinary-truncate`, `TRUNC(BIN)` is `-fnotrunc` (`equivalence_common.py`; register C1, MATCHED).
+- **Zoned and packed signs follow the program's NUMPROC option** (#4271). Each entry point runs with it too
+  (`Cobol.swapNumprocPfd`; `det/program.py` `numproc_pfd`). IBM's default NOPFD reads any sign; MIG compiles as NOPFD
+  under Enterprise COBOL 5 and later. Under PFD the runtime reads a zoned or packed value only with a preferred sign
+  (C / D signed, F unsigned, never D on zero) and stops by name on any other, because IBM leaves that to the generated
+  code (register C5).
+- **COMP-1 / COMP-2 are refused** (#4271): a statement that names a float item is a Hole. z/OS evaluates such an
+  expression in hexadecimal floating point, which no oracle here runs (register C6).
 - **COMP-5 is native little-endian**; COMP / COMP-4 / BINARY are big-endian; 1-4 digits 2 bytes, 5-9 4, 10-18 8.
 - A MOVE keeps the sending sign through truncation (a `-0.05` into `S9(3)` is X"30307D", negative zero).
 - `MOVE SPACES` to a numeric or numeric-edited item does not compile (cobc error); the runtime fills it with spaces.
@@ -338,7 +347,7 @@ exercised.
 
 A fourth estate, from a different IBM team: [estate4_dbb_mortgage.md](estate4_dbb_mortgage.md). 99.0% of its 204
 statements translate. EPSNBRVL (a CALL with a group USING item; 22/22 branches) and EPSCMORT (CICS, a generated BMS map,
-Db2) are proven. EPSMPMT is not proven on purpose (`NUMPROC(MIG)`, C5), and EPSMLIST waits for ESDS browse by RBA
+Db2) are proven. EPSMPMT is not proven on purpose: its payment is computed in floating point (C6; its `NUMPROC(MIG)` is modelled since #4271, C5). EPSMLIST waits for ESDS browse by RBA
 (#4213). Onboarding it needed general fixes: compiler cards from column 1, `ID DIVISION`, group USING items across a
 CALL as contract DTOs, and nested COPY in a copybook's record (the IR).
 

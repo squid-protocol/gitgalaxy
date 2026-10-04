@@ -98,7 +98,18 @@ _UNIT_HEADER = re.compile(_AREA_A_START + f"({_NAME})" + _SECTION_SUFFIX + r"\s*
 # #4026: the same word characters as `_NAME`, so `東京PERFORM` is no verb either.
 _V = rf"(?<!{_LETTER})(?<!{_HYPHEN})"
 _PERFORM = re.compile(rf"{_V}PERFORM\s+({_NAME})(?:\s+(?:THRU|THROUGH)\s+({_NAME}))?")
-_GO_TO = re.compile(rf"{_V}GO\s+(?:TO\s+)?({_NAME}(?:\s+{_NAME})*)")
+# #4243: `XML PARSE ... PROCESSING PROCEDURE [IS] A [THRU B]` runs A..B for each parser
+# event and returns, like a PERFORM (DBB EPSCSMRI's XML-HANDLER THRU GENERAL-LOGIC-EXIT).
+_PROCESSING_PROCEDURE = re.compile(
+    rf"{_V}PROCESSING\s+PROCEDURE\s+(?:IS\s+)?({_NAME})(?:\s+(?:THRU|THROUGH)\s+({_NAME}))?"
+)
+# #4243: only the verb is matched; its targets are read one name at a time after it
+# (_GO_TO_TARGET), stopping at the first that is no unit. A run of names also spans the
+# statements after it (`GO TO GENERAL-LOGIC-EXIT` ... `MOVE X OF Y` ...), so a match
+# consuming the run swallowed every later GO TO in it: DBB EPSCSMRI's
+# `GO TO X000000CC ... X00000174 DEPENDING ON ELE-CON-LEN` targets all read as dead.
+_GO_TO = re.compile(rf"{_V}GO\s+(?:TO\s+)?")
+_GO_TO_TARGET = re.compile(rf"\s*({_NAME})")
 # `ALTER P TO PROCEED TO Q` rewires P's GO TO: Q is reached as a GO TO target
 # (CardDemo CBSTM03A's 8200/8300/8400-*-OPEN are reached only this way).
 _ALTER = re.compile(rf"{_V}ALTER\s+({_NAME})\s+TO\s+(?:PROCEED\s+TO\s+)?({_NAME})")
@@ -290,13 +301,90 @@ def unit_headers(proc_div: str) -> list[str]:
     return [u["name"] for u in procedure_units(proc_div) if u["name"]]
 
 
+# #4243: a source holding several programs -- batch-compiled siblings, each
+# `IDENTIFICATION DIVISION ... END PROGRAM`, and programs nested in them (DBB
+# epscsmrd.cbl: eleven siblings, two nested, every one opening with MAINLINE SECTION).
+_ID_DIVISION = re.compile(r"(?:IDENTIFICATION|ID)[ \t]+DIVISION[ \t]*\.")
+_END_PROGRAM = re.compile(r"END[ \t]+PROGRAM\b")
+_PROGRAM_NAME = re.compile(r"PROGRAM-ID[ \t]*\.?\s+['\"]?([A-Z0-9][A-Z0-9\-]*)")
+
+
+def split_programs(content: str) -> Optional[list[dict]]:
+    """The programs of an upper-cased fixed-format source, or None when it holds one.
+
+    A program starts at an `IDENTIFICATION DIVISION.` header in Area A and ends at
+    its `END PROGRAM` (or the end of the source); a header met while a program is
+    still open starts a program nested in it. Each program is {program_id, nested_in,
+    text}: its own lines only, a nested program's lines cut out, so its PROCEDURE
+    DIVISION stops at its END PROGRAM or its first nested program. A free-format
+    source (its headers are not in Area A) reads as one program, as before.
+    """
+    lines = content.split("\n")
+    rows: list[list[int]] = []  # per program, the indexes of its own lines
+    parents: list[Optional[int]] = []
+    open_: list[int] = []
+    for i, line in enumerate(lines):
+        code = _code_area(line) or ""
+        head = code.strip()
+        area_a = bool(head) and len(code) - len(code.lstrip(" ")) < 4  # cols 8-11
+        if area_a and _ID_DIVISION.match(head):
+            parents.append(open_[-1] if open_ else None)
+            rows.append([i])
+            open_.append(len(rows) - 1)
+            continue
+        if open_:
+            rows[open_[-1]].append(i)
+            if area_a and _END_PROGRAM.match(head):
+                open_.pop()
+    if len(rows) < 2:
+        return None
+    texts = ["\n".join(lines[i] for i in r) for r in rows]
+    ids: list[Optional[str]] = []
+    for text in texts:
+        # the raw code area: _code_area blanks literals, and the name may be one (`'EPSCSMRD'`)
+        m = _PROGRAM_NAME.search("\n".join(r[7:72] for r in text.split("\n") if _code_area(r) is not None))
+        ids.append(m.group(1) if m else None)
+    return [
+        {"program_id": ids[n], "nested_in": ids[p] if p is not None else None, "text": texts[n]}
+        for n, p in enumerate(parents)
+    ]
+
+
+def keyed_unit(program_id: Optional[str], name: str) -> str:
+    """#4243: a unit of a source's second or later program as `PROG:NAME`, the way the
+    answer key names it (#4206): siblings repeat names (each has a MAINLINE), so a
+    bare name is the first program's. A colon never occurs in a COBOL name."""
+    return f"{program_id}:{name}" if program_id else name
+
+
+def program_units(
+    content: str,
+    filepath: Path,
+    copybook_root: Optional[Path] = None,
+    origin: Optional[Path] = None,
+    declared: Optional[str] = None,
+) -> Optional[list[tuple[Optional[str], list[dict]]]]:
+    """#4243: (program prefix, units) per program of a multi-program source -- the
+    first program's prefix None, the others' their PROGRAM-ID -- each program's
+    copybooks inlined into its own text; None for a one-program source."""
+    progs = split_programs(content)
+    if progs is None:
+        return None
+    out: list[tuple[Optional[str], list[dict]]] = []
+    for n, prog in enumerate(progs):
+        split = split_procedure_division(resolve_copybooks(prog["text"], filepath, copybook_root, origin, declared))
+        units = procedure_units(split[1]) if split else []
+        out.append((None if n == 0 else prog["program_id"] or f"PROGRAM-{n + 1}", units))
+    return out
+
+
 _CONDITIONAL_PHRASE = re.compile(
     r"(?<![A-Z0-9-])(?:(?:NOT\s+)?(?:AT\s+)?(?:END|END-OF-PAGE|EOP)|(?:NOT\s+)?INVALID\s+KEY"
     r"|(?:NOT\s+)?(?:ON\s+)?(?:SIZE\s+ERROR|OVERFLOW|EXCEPTION))(?![A-Z0-9-])"
 )
 _PHRASE_SCOPE_END = re.compile(
     r"\bEND-(?:READ|RETURN|WRITE|REWRITE|DELETE|START|ADD|SUBTRACT|MULTIPLY|DIVIDE|COMPUTE|CALL|STRING"
-    r"|UNSTRING|SEARCH|ACCEPT|DISPLAY)\b"
+    r"|UNSTRING|SEARCH|ACCEPT|DISPLAY|XML|JSON|INVOKE)\b"  # #4243: END-XML closes XML PARSE's ON EXCEPTION
 )
 
 
@@ -352,7 +440,11 @@ def _sentence_is_terminal(sentence: str) -> bool:
     if sentence.endswith("END-EXEC"):
         starts = [m.start() for m in re.finditer(r"\bEXEC\s", sentence)]
         return bool(starts) and _CICS_TERMINAL.match(sentence[starts[-1] :]) is not None
-    return _TERMINAL_TAIL.search(sentence) is not None and " DEPENDING " not in sentence
+    # A GO TO ... DEPENDING ON falls through when its index is out of range, so it ends
+    # nothing; a plain transfer after it in the same sentence still does (#4243, DBB
+    # EPSCSMRI `GO TO X..C6 ... DEPENDING ON ROUTING-CODE (HASH-VALUE) GO TO GENERAL-LOGIC-EXIT .`).
+    tail = _TERMINAL_TAIL.search(sentence)
+    return tail is not None and " DEPENDING " not in sentence[tail.start() :]
 
 
 def _is_terminal(text: str) -> bool:
@@ -423,13 +515,14 @@ def reachable_units(units: list[dict]) -> set[str]:
         while k < len(units):
             reached.add(k)
             text = units[k]["text"]
-            queue.extend(span(m.group(1), m.group(2)) for m in _PERFORM.finditer(text) if m.group(1) in index)
+            for rx in (_PERFORM, _PROCESSING_PROCEDURE):
+                queue.extend(span(m.group(1), m.group(2)) for m in rx.finditer(text) if m.group(1) in index)
             for m in _GO_TO.finditer(text):
-                for target in m.group(1).split():
-                    if target not in index:
-                        break
-                    t = index[target]
+                pos = m.end()
+                while (target := _GO_TO_TARGET.match(text, pos)) and target.group(1) in index:
+                    t = index[target.group(1)]
                     queue.append((t, end if end is not None and start <= t <= end else None))
+                    pos = target.end()
             queue.extend((index[m.group(2)], None) for m in _ALTER.finditer(text) if m.group(2) in index)
             if (end is not None and k >= end) or terminal[k]:
                 break
@@ -556,9 +649,19 @@ def x_ray_dead_code(
     # A unit (paragraph or section) is dead when no path from the entry reaches it:
     # PERFORM, PERFORM ... THRU, GO TO, fall-through within and across sections,
     # and CICS HANDLE labels are all followed (#3203 defect 5).
-    units = procedure_units(proc_div)
-    declared_units = {u["name"] for u in units if u["name"]}
-    dead_paragraphs = declared_units - reachable_units(units)
+    # #4243: in a multi-program source each program's units are its own, reached
+    # only from its own entry; a later program's are named PROG:NAME.
+    per_program = program_units(raw_content, filepath, copybook_root, origin, declared)
+    if per_program is None:
+        units = procedure_units(proc_div)
+        declared_units = {u["name"] for u in units if u["name"]}
+        dead_paragraphs = declared_units - reachable_units(units)
+    else:
+        declared_units, dead_paragraphs = set(), set()
+        for prefix, units in per_program:
+            names = {u["name"] for u in units if u["name"]}
+            declared_units |= {keyed_unit(prefix, n) for n in names}
+            dead_paragraphs |= {keyed_unit(prefix, n) for n in names - reachable_units(units)}
 
     # Calculate a rough estimate of Lines of Code (LOC) saved
     # (Assuming average 10 lines per paragraph and 1 line per variable)

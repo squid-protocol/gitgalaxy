@@ -7,7 +7,7 @@
   "paths": [
    "tests/cics_crucible/ports/hc-abend-link/HCMAIN/overlay/service/HcmainService.java"
   ],
-  "sha256": "88ede908ceb4b87b78b2fc80211f949f78c287fd1736a20236f0513b6692708e",
+  "sha256": "3a5f9a993c27f66ce25b02d8f1bdf0dd9dfdeec4a1b7cc783473b03cda3e257f",
   "entry_points": [
    "runTask"
   ]
@@ -18,7 +18,7 @@
     "tests/cics_crucible/ports/hc-abend-link/*/overlay/**"
    ],
    "files": 2,
-   "sha256": "4ca82a76c8f2eb704ab391f9178968aa48542b39206ce7f94f6db49388650498"
+   "sha256": "53df11ee2eb611299d7ad83b71b2a5693b76d7cece3b301aa934ea7005b6ba8f"
   },
   "case": {
    "paths": [
@@ -66,10 +66,10 @@
   "differences": {
    "sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
   },
-  "digest": "624bd9c366795b2ea27c1c15eab1f0c1567c7cc0eb3fa0cafeaabc1926a92310"
+  "digest": "fcfdee984e4193216758c488525ce639e3e8717ad2eab9ceba406fc0beaa3d76"
  },
  "proof": {
-  "at": "2026-10-04T14:38:02Z",
+  "at": "2026-10-04T15:36:20Z",
   "verdict": "proven",
   "runs": 5,
   "fault_runs": 0,
@@ -100,8 +100,8 @@
   "sysout_compared": null,
   "attributes_compared": null,
   "java_failed": false,
-  "harness_commit": "2f770970f1ec1c5698343c3362a1dea11de3ffad",
-  "inputs_digest": "624bd9c366795b2ea27c1c15eab1f0c1567c7cc0eb3fa0cafeaabc1926a92310"
+  "harness_commit": "d8fb3481788213abd823f92465f6787573137024+uncommitted",
+  "inputs_digest": "fcfdee984e4193216758c488525ce639e3e8717ad2eab9ceba406fc0beaa3d76"
  },
  "coverage": {
   "paragraphs": {
@@ -116,7 +116,7 @@
   "handler_labels": null,
   "source": "tests/cics_crucible/coverage.json#programs/hc-abend-link/HCMAIN",
   "ledger_sha256": "95f8d57261c6f6b47c207fc37718c23892eae9644f6e7c73974ae1a61e779575",
-  "inputs_digest": "624bd9c366795b2ea27c1c15eab1f0c1567c7cc0eb3fa0cafeaabc1926a92310"
+  "inputs_digest": "fcfdee984e4193216758c488525ce639e3e8717ad2eab9ceba406fc0beaa3d76"
  },
  "reach": {
   "entry_points": [
@@ -138,59 +138,47 @@
    {
     "class": "HcmainService",
     "method": "linkHcsub",
-    "line": 160,
+    "line": 163,
     "kind": "left_as_generated"
    },
    {
     "class": "HcmainService",
-    "method": "onConditionQiderrL25",
-    "line": 170,
-    "kind": "ported_unproven"
-   },
-   {
-    "class": "HcmainService",
-    "method": "onAbendL26",
-    "line": 187,
-    "kind": "ported_unproven"
-   },
-   {
-    "class": "HcmainService",
     "method": "readqTsHcmodeL27",
-    "line": 200,
+    "line": 203,
     "kind": "left_as_generated"
    },
    {
     "class": "HcmainService",
     "method": "readqTsHcnoneL37",
-    "line": 206,
+    "line": 209,
     "kind": "left_as_generated"
    },
    {
     "class": "HcmainService",
     "method": "readqTsHcnoneL54",
-    "line": 212,
+    "line": 215,
     "kind": "left_as_generated"
    },
    {
     "class": "HcmainService",
     "method": "seed",
-    "line": 432,
+    "line": 435,
     "kind": "ported_unproven"
    },
    {
     "class": "HcmainService",
     "method": "bridgeHcsub",
-    "line": 437,
+    "line": 440,
     "kind": "ported_unproven"
    }
   ],
   "counts": {
    "stub": 1,
    "left_as_generated": 4,
-   "ported_unproven": 5
+   "ported_unproven": 3
   },
   "generated_compared": true,
-  "port_sha256": "88ede908ceb4b87b78b2fc80211f949f78c287fd1736a20236f0513b6692708e"
+  "port_sha256": "3a5f9a993c27f66ce25b02d8f1bdf0dd9dfdeec4a1b7cc783473b03cda3e257f"
  },
  "mutation": {
   "commit": "be2561306",

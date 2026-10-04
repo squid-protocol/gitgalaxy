@@ -7,7 +7,7 @@
   "paths": [
    "tests/cics_crucible/ports/hc-perform-range/HCQREAD/overlay/service/HcqreadService.java"
   ],
-  "sha256": "3e51cf82158f18d0a3587cc66e7df9d1b87ea978fdd002926c7b5c9809cb6163",
+  "sha256": "69d8b11c009c8e50c6016a5cc05545ba9c25d2d9917536c70f09704c65cf1639",
   "entry_points": [
    "runTask"
   ]
@@ -18,7 +18,7 @@
     "tests/cics_crucible/ports/hc-perform-range/*/overlay/**"
    ],
    "files": 1,
-   "sha256": "3e51cf82158f18d0a3587cc66e7df9d1b87ea978fdd002926c7b5c9809cb6163"
+   "sha256": "69d8b11c009c8e50c6016a5cc05545ba9c25d2d9917536c70f09704c65cf1639"
   },
   "case": {
    "paths": [
@@ -66,10 +66,10 @@
   "differences": {
    "sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
   },
-  "digest": "0de5dc3b01d3e149e1cbf5339807721fbdbf6169464d7c82d210b23fef6c6f74"
+  "digest": "1f4ff4cf56eacb81aaca4193b9df5527a1163dcaa2d8fb2d16c89ecc5412f54c"
  },
  "proof": {
-  "at": "2026-10-04T14:38:25Z",
+  "at": "2026-10-04T15:36:11Z",
   "verdict": "proven",
   "runs": 4,
   "fault_runs": 0,
@@ -96,8 +96,8 @@
   "sysout_compared": null,
   "attributes_compared": null,
   "java_failed": false,
-  "harness_commit": "2f770970f1ec1c5698343c3362a1dea11de3ffad",
-  "inputs_digest": "0de5dc3b01d3e149e1cbf5339807721fbdbf6169464d7c82d210b23fef6c6f74"
+  "harness_commit": "d8fb3481788213abd823f92465f6787573137024",
+  "inputs_digest": "1f4ff4cf56eacb81aaca4193b9df5527a1163dcaa2d8fb2d16c89ecc5412f54c"
  },
  "coverage": {
   "paragraphs": {
@@ -112,7 +112,7 @@
   "handler_labels": null,
   "source": "tests/cics_crucible/coverage.json#programs/hc-perform-range/HCQREAD",
   "ledger_sha256": "de06f16c516e0fb3d5eadf97476bbcad970863d0323555c5f8f9af0de7ae67b5",
-  "inputs_digest": "0de5dc3b01d3e149e1cbf5339807721fbdbf6169464d7c82d210b23fef6c6f74"
+  "inputs_digest": "1f4ff4cf56eacb81aaca4193b9df5527a1163dcaa2d8fb2d16c89ecc5412f54c"
  },
  "reach": {
   "entry_points": [
@@ -133,72 +133,42 @@
    },
    {
     "class": "HcqreadService",
-    "method": "onConditionQiderrL25",
-    "line": 82,
-    "kind": "ported_unproven"
-   },
-   {
-    "class": "HcqreadService",
-    "method": "onConditionItemerrL25",
-    "line": 92,
-    "kind": "ported_unproven"
-   },
-   {
-    "class": "HcqreadService",
-    "method": "onConditionErrorL25",
-    "line": 102,
-    "kind": "ported_unproven"
-   },
-   {
-    "class": "HcqreadService",
-    "method": "onConditionItemerrL56",
-    "line": 112,
-    "kind": "ported_unproven"
-   },
-   {
-    "class": "HcqreadService",
     "method": "writeqTsHcworkL37",
-    "line": 120,
+    "line": 124,
     "kind": "left_as_generated"
    },
    {
     "class": "HcqreadService",
     "method": "readqTsHcworkL41",
-    "line": 126,
+    "line": 130,
     "kind": "left_as_generated"
    },
    {
     "class": "HcqreadService",
     "method": "readqTsHcworkL49",
-    "line": 132,
+    "line": 136,
     "kind": "left_as_generated"
    },
    {
     "class": "HcqreadService",
     "method": "readqTsHcworkL57",
-    "line": 138,
+    "line": 142,
     "kind": "left_as_generated"
    },
    {
     "class": "HcqreadService",
     "method": "readqTsHcq1L65",
-    "line": 144,
+    "line": 148,
     "kind": "left_as_generated"
-   },
-   {
-    "class": "HcqreadService",
-    "method": "current",
-    "line": 394,
-    "kind": "ported_unproven"
    }
   ],
   "counts": {
    "stub": 0,
    "left_as_generated": 5,
-   "ported_unproven": 7
+   "ported_unproven": 2
   },
   "generated_compared": true,
-  "port_sha256": "3e51cf82158f18d0a3587cc66e7df9d1b87ea978fdd002926c7b5c9809cb6163"
+  "port_sha256": "69d8b11c009c8e50c6016a5cc05545ba9c25d2d9917536c70f09704c65cf1639"
  },
  "mutation": {
   "commit": "be2561306",

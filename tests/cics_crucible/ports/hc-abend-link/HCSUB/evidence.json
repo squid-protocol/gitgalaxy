@@ -7,7 +7,7 @@
   "paths": [
    "tests/cics_crucible/ports/hc-abend-link/HCSUB/overlay/service/HcsubService.java"
   ],
-  "sha256": "7d50aeb7b1aa2fc5d1f715142332e2defa500b8186db7cc563da77ce22786ca1",
+  "sha256": "13d749651afac8e6d6a727ce93a87c4350ba259d18bfadb97c44d7d47878d36b",
   "entry_points": [
    "runTask"
   ]
@@ -18,7 +18,7 @@
     "tests/cics_crucible/ports/hc-abend-link/*/overlay/**"
    ],
    "files": 2,
-   "sha256": "4ca82a76c8f2eb704ab391f9178968aa48542b39206ce7f94f6db49388650498"
+   "sha256": "53df11ee2eb611299d7ad83b71b2a5693b76d7cece3b301aa934ea7005b6ba8f"
   },
   "case": {
    "paths": [
@@ -66,10 +66,10 @@
   "differences": {
    "sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
   },
-  "digest": "624bd9c366795b2ea27c1c15eab1f0c1567c7cc0eb3fa0cafeaabc1926a92310"
+  "digest": "fcfdee984e4193216758c488525ce639e3e8717ad2eab9ceba406fc0beaa3d76"
  },
  "proof": {
-  "at": "2026-10-04T14:38:13Z",
+  "at": "2026-10-04T15:36:30Z",
   "verdict": "proven",
   "runs": 3,
   "fault_runs": 0,
@@ -92,8 +92,8 @@
   "sysout_compared": null,
   "attributes_compared": null,
   "java_failed": false,
-  "harness_commit": "2f770970f1ec1c5698343c3362a1dea11de3ffad",
-  "inputs_digest": "624bd9c366795b2ea27c1c15eab1f0c1567c7cc0eb3fa0cafeaabc1926a92310"
+  "harness_commit": "d8fb3481788213abd823f92465f6787573137024+uncommitted",
+  "inputs_digest": "fcfdee984e4193216758c488525ce639e3e8717ad2eab9ceba406fc0beaa3d76"
  },
  "coverage": {
   "paragraphs": {
@@ -108,7 +108,7 @@
   "handler_labels": null,
   "source": "tests/cics_crucible/coverage.json#programs/hc-abend-link/HCSUB",
   "ledger_sha256": "34ce8eb5575a95cbd23d9a3111bae85bc9e136c5895c54647de0d506d1771f31",
-  "inputs_digest": "624bd9c366795b2ea27c1c15eab1f0c1567c7cc0eb3fa0cafeaabc1926a92310"
+  "inputs_digest": "fcfdee984e4193216758c488525ce639e3e8717ad2eab9ceba406fc0beaa3d76"
  },
  "reach": {
   "entry_points": [
@@ -125,12 +125,6 @@
     "class": "HcsubService",
     "method": "handleLink",
     "line": 98,
-    "kind": "ported_unproven"
-   },
-   {
-    "class": "HcsubService",
-    "method": "onAbendL32",
-    "line": 109,
     "kind": "ported_unproven"
    },
    {
@@ -155,10 +149,10 @@
   "counts": {
    "stub": 1,
    "left_as_generated": 3,
-   "ported_unproven": 2
+   "ported_unproven": 1
   },
   "generated_compared": true,
-  "port_sha256": "7d50aeb7b1aa2fc5d1f715142332e2defa500b8186db7cc563da77ce22786ca1"
+  "port_sha256": "13d749651afac8e6d6a727ce93a87c4350ba259d18bfadb97c44d7d47878d36b"
  },
  "mutation": {
   "commit": "be2561306",

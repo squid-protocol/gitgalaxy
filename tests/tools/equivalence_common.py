@@ -271,7 +271,7 @@ def numproc_guard(case: dict[str, Any], source: str, port_dir: Optional[Path]) -
     if numproc(case, source) != "PFD":
         return
     services = sorted(port_dir.rglob("*Service.java")) if port_dir and port_dir.is_dir() else []
-    if not any(p.read_text(encoding="utf-8", errors="replace").startswith(DET_PORT_HEADER) for p in services):
+    if not any(read_source(p).text.startswith(DET_PORT_HEADER) for p in services):
         raise UnsupportedOption(
             "NUMPROC(PFD): only a det port's runtime refuses a non-preferred sign (oracle_assumptions.md C5); this "
             "port has no such guard, so the case cannot be proven with it"

@@ -653,13 +653,17 @@ DEFINITION: dict[str, Any] = {
         # TEST.CBL:18), each occurrence its own match. After a period only `COPY` and the full
         # `EXEC SQL INCLUDE` count: a bare INCLUDE is the second line of the two-line EXEC SQL form.
         "import": re.compile(
-            r"(?:^(?:[0-9a-zA-Z" + NATIONAL + r" \t]{6}[ \-]?)?[ \t]*(?:EXEC[ \t]+SQL[ \t]+)?(?:COPY|INCLUDE)"
-            r"|(?<=\.)[ \t]+(?:COPY|EXEC[ \t]+SQL[ \t]+INCLUDE))\b",
+            r"(?:^(?:[0-9a-zA-Z"
+            + NATIONAL
+            + r" \t]{6}[ \-]?)?[ \t\u3000]*(?:EXEC[ \t\u3000]+SQL[ \t\u3000]+)?(?:COPY|INCLUDE)"
+            r"|(?<=\.)[ \t\u3000]+(?:COPY|EXEC[ \t\u3000]+SQL[ \t\u3000]+INCLUDE))\b",
             re.I | re.M,
         ),
         "_dependency_capture": re.compile(
-            r"(?:^(?:[0-9a-zA-Z" + NATIONAL + r" \t]{6}[ \-]?)?[ \t]*(?:EXEC[ \t]+SQL[ \t]+)?(?:COPY|INCLUDE)"
-            r"|(?<=\.)[ \t]+(?:COPY|EXEC[ \t]+SQL[ \t]+INCLUDE))[ \t\n]+['\"]?([A-Z"
+            r"(?:^(?:[0-9a-zA-Z"
+            + NATIONAL
+            + r" \t]{6}[ \-]?)?[ \t\u3000]*(?:EXEC[ \t\u3000]+SQL[ \t\u3000]+)?(?:COPY|INCLUDE)"
+            r"|(?<=\.)[ \t\u3000]+(?:COPY|EXEC[ \t\u3000]+SQL[ \t\u3000]+INCLUDE))[ \t\n\u3000]+['\"]?([A-Z"
             + NATIONAL
             + WIDE_DIGITS
             + WIDE_HYPHENS

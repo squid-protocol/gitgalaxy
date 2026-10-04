@@ -44,6 +44,9 @@
     "javascript/react": {
       "javascript/react/build.js": 1
     },
+    "javascript/react_error_codes": {
+      "javascript/react_error_codes/extract-errors.js": 1
+    },
     "jcl/cash-account-cobol": {
       "jcl/cash-account-cobol/DB2DDL.jcl": 1
     },

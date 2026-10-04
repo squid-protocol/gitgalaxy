@@ -158,6 +158,18 @@ _LEVEL_START = re.compile(
     re.I | re.M,
 )
 
+# #4246: a data description entry may omit its name -- an implicit FILLER (`2 PIC X(40) VALUE '...'`,
+# DBB MortgageApplication EPSCSMRD). Its first word after the level number is then a clause keyword, which
+# is a reserved word and never a data name; the entry's clauses start at that word.
+_IMPLICIT_FILLER_CLAUSES = frozenset(
+    {
+        "PIC", "PICTURE", "USAGE", "VALUE", "VALUES", "OCCURS", "SIGN", "LEADING", "TRAILING", "JUSTIFIED",
+        "JUST", "BLANK", "SYNC", "SYNCHRONIZED", "EXTERNAL", "GLOBAL", "BINARY", "PACKED-DECIMAL", "DISPLAY",
+        "DISPLAY-1", "NATIONAL", "INDEX", "POINTER", "PROCEDURE-POINTER", "FUNCTION-POINTER", "COMP",
+        "COMPUTATIONAL", *(f"COMP-{n}" for n in range(1, 7)), *(f"COMPUTATIONAL-{n}" for n in range(1, 7)),
+    }
+)  # fmt: skip
+
 # The period that ends a data description entry (not a decimal point), and an
 # entry left open mid VALUE list (#3452).
 _ENTRY_END = re.compile(r"\.(?=[ \t\n\u3000]|$)")
@@ -608,8 +620,8 @@ def _cobol_value_map(code_stream: str) -> dict[str, str]:
             continue
         text = literal.group(1) if literal.group(1) is not None else literal.group(2)
         text = (text or "").strip()
-        if not text:
-            continue
+        if not text or level.group(2).upper() in _IMPLICIT_FILLER_CLAUSES:
+            continue  # #4246: an unnamed entry's VALUE belongs to no name
         # First declaration wins: a name redefined later in the same program is
         # ambiguous, and taking the first matches the answer key's reading.
         values.setdefault(level.group(2).upper(), text)
@@ -985,10 +997,13 @@ def _cobol_records(code_stream: str, decimal_comma: Optional[bool] = None) -> li
             continue
         level = int(level_match.group(1))
         name = level_match.group(2).upper()
-
-        # The entry body: from just after the name to the next level number.
+        # The entry body: from just after the name to the next level number -- or, for an unnamed entry
+        # (#4246: `2 PIC X(40)`, an implicit FILLER), from the clause keyword the name position holds.
+        body = level_match.end()
+        if name in _IMPLICIT_FILLER_CLAUSES:
+            name, body = "FILLER", level_match.start(2)
         stop = entries[pos + 1].start() if pos + 1 < len(entries) else len(code_stream)
-        window = code_stream[level_match.end() : min(stop, level_match.end() + _ENTRY_LIMIT)]
+        window = code_stream[body : min(stop, body + _ENTRY_LIMIT)]
 
         ordinal = len(records)
         if level in _CONDITION_LEVELS:

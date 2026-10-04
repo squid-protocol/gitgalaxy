@@ -411,6 +411,9 @@
     "c": {
       "c/SOURCES.md": "Unknown Architect"
     },
+    "c/cosmopolitan_intrin": {
+      "c/cosmopolitan_intrin/countbits.c": "Unknown Architect"
+    },
     "c/cpython": {
       "c/cpython/Makefile.pre.in": "Unknown Architect",
       "c/cpython/ceval.c": "Unknown Architect",
@@ -435,6 +438,9 @@
       "c/doom/r_defs.h": "Unknown Architect",
       "c/doom/w_wad.c": "Unknown Architect",
       "c/doom/z_zone.c": "Unknown Architect"
+    },
+    "c/freebsd_openpam": {
+      "c/freebsd_openpam/pam_acct_mgmt.c": "Unknown Architect"
     },
     "c/micropython": {
       "c/micropython/compile.c": "Unknown Architect",
@@ -1126,6 +1132,10 @@
       "cpp/powertoys/main.cpp": "Builtin (local) administrator",
       "cpp/powertoys/powertoy_module.h": "Unknown Architect"
     },
+    "cpp/serenity_ak_siphash_cpu": {
+      "cpp/serenity_ak_siphash_cpu/CPUFeatures.cpp": "Unknown Architect",
+      "cpp/serenity_ak_siphash_cpu/SipHash.cpp": "Unknown Architect"
+    },
     "csd": {
       "csd/SOURCES.md": "Unknown Architect"
     },
@@ -1362,6 +1372,9 @@
       "go/core/syscall_linux.go": "Unknown Architect",
       "go/core/value.go": "Unknown Architect"
     },
+    "go/go_runtime_rand": {
+      "go/go_runtime_rand/rand.go": "Unknown Architect"
+    },
     "go/kubernetes": {
       "go/kubernetes/csi_plugin.go": "Unknown Architect",
       "go/kubernetes/generic.go": "Unknown Architect",
@@ -1370,6 +1383,9 @@
       "go/kubernetes/proxier.go": "Unknown Architect",
       "go/kubernetes/replica_set.go": "Unknown Architect",
       "go/kubernetes/scheduler.go": "Unknown Architect"
+    },
+    "go/kubernetes_kubectl_tls": {
+      "go/kubernetes_kubectl_tls/create_secret_tls_test.go": "Unknown Architect"
     },
     "groovy/fineract_gradle_plugin": {
       "groovy/fineract_gradle_plugin/LICENSE_RELEASE": "Unknown Architect",
@@ -1876,6 +1892,17 @@
     "java": {
       "java/SOURCES.md": "Unknown Architect"
     },
+    "java/flutter_android_editing_tests": {
+      "java/flutter_android_editing_tests/InputConnectionAdaptorTest.java": "Unknown Architect"
+    },
+    "java/jenkins_cli": {
+      "java/jenkins_cli/LICENSE.txt": "Unknown Architect",
+      "java/jenkins_cli/SetBuildDescriptionCommand.java": "Unknown Architect"
+    },
+    "java/selenium_grid_session_queue": {
+      "java/selenium_grid_session_queue/NOTICE": "Unknown Architect",
+      "java/selenium_grid_session_queue/RemoteNewSessionQueue.java": "Unknown Architect"
+    },
     "java/springboot": {
       "java/springboot/AutoConfigurationImportSelector.java": "Phillip Webb",
       "java/springboot/Binder.java": "Phillip Webb",
@@ -1889,6 +1916,13 @@
     "javascript": {
       "javascript/SOURCES.md": "Unknown Architect"
     },
+    "javascript/cesium_particle_emitters": {
+      "javascript/cesium_particle_emitters/CircleEmitter.js": "Unknown Architect",
+      "javascript/cesium_particle_emitters/LICENSE.md": "Unknown Architect"
+    },
+    "javascript/javascript_algorithms_bits": {
+      "javascript/javascript_algorithms_bits/fullAdder.js": "Unknown Architect"
+    },
     "javascript/jquery": {
       "javascript/jquery/LICENSE.txt": "Unknown Architect",
       "javascript/jquery/ajax.js": "Unknown Architect",
@@ -1899,6 +1933,15 @@
       "javascript/jquery/event.js": "Unknown Architect",
       "javascript/jquery/tokenize.js": "Unknown Architect"
     },
+    "javascript/node_tls_security_tests": {
+      "javascript/node_tls_security_tests/regexp-unicode-sets.js": "Unknown Architect",
+      "javascript/node_tls_security_tests/test-crypto-dh-modp2.js": "Unknown Architect",
+      "javascript/node_tls_security_tests/test-fs-lchown.js": "Unknown Architect",
+      "javascript/node_tls_security_tests/test-https-host-headers.js": "Unknown Architect",
+      "javascript/node_tls_security_tests/test-tls-cert-ext-encoding.js": "Unknown Architect",
+      "javascript/node_tls_security_tests/test-tls-psk-server.js": "Unknown Architect",
+      "javascript/node_tls_security_tests/test-tls-use-after-free-regression.js": "Unknown Architect"
+    },
     "javascript/react": {
       "javascript/react/BabelPlugin.ts": "Unknown Architect",
       "javascript/react/ReactFiberBeginWork.js": "Unknown Architect",
@@ -1906,6 +1949,9 @@
       "javascript/react/ReactFlightServer.js": "Unknown Architect",
       "javascript/react/ReactSymbols.js": "Unknown Architect",
       "javascript/react/build.js": "Unknown Architect"
+    },
+    "javascript/react_error_codes": {
+      "javascript/react_error_codes/extract-errors.js": "Unknown Architect"
     },
     "javascript/threejs": {
       "javascript/threejs/BufferGeometry.js": "Unknown Architect",
@@ -2393,6 +2439,16 @@
       "makefile/freebsd/COPYRIGHT": "Unknown Architect",
       "makefile/freebsd/Makefile": "Unknown Architect"
     },
+    "markdown": {
+      "markdown/SOURCES.md": "Unknown Architect"
+    },
+    "markdown/airflow_job_lifecycle": {
+      "markdown/airflow_job_lifecycle/JOB_LIFECYCLE.md": "Unknown Architect",
+      "markdown/airflow_job_lifecycle/NOTICE": "Unknown Architect"
+    },
+    "markdown/kubernetes_client_go": {
+      "markdown/kubernetes_client_go/ARCHITECTURE.md": "Unknown Architect"
+    },
     "matlab": {
       "matlab/SOURCES.md": "Unknown Architect"
     },
@@ -2442,6 +2498,10 @@
     },
     "perl": {
       "perl/SOURCES.md": "Unknown Architect"
+    },
+    "perl/ack3_tests": {
+      "perl/ack3_tests/LICENSE.md": "Unknown Architect",
+      "perl/ack3_tests/file-permission.t": "Unknown Architect"
     },
     "perl/bugzilla": {
       "perl/bugzilla/Auth.pm": "Unknown Architect",
@@ -2497,6 +2557,10 @@
       "php/laravel_core/Model.php": "Unknown Architect",
       "php/laravel_core/Router.php": "Unknown Architect"
     },
+    "php/laravel_validation_rules": {
+      "php/laravel_validation_rules/Can.php": "Unknown Architect",
+      "php/laravel_validation_rules/LICENSE.md": "Unknown Architect"
+    },
     "php/magento2": {
       "php/magento2/AbstractBlock.php": "Unknown Architect",
       "php/magento2/AbstractModel.php": "Unknown Architect",
@@ -2515,6 +2579,9 @@
       "php/symfony/Parser.php": "Fabien Potencier",
       "php/symfony/Request.php": "Fabien Potencier",
       "php/symfony/Router.php": "Fabien Potencier"
+    },
+    "php/symfony_emoji_data": {
+      "php/symfony_emoji_data/emoji-ccp.php": "Unknown Architect"
     },
     "php/wordpress": {
       "php/wordpress/admin-ajax.php": "Unknown Architect",
@@ -2731,6 +2798,17 @@
       "python/airflow/s3.py": "Unknown Architect",
       "python/airflow/scheduler_job_runner.py": "Unknown Architect"
     },
+    "python/airflow_ai_providers": {
+      "python/airflow_ai_providers/NOTICE": "Unknown Architect",
+      "python/airflow_ai_providers/openai_src_airflow_providers_openai_hooks_openai.py": "Unknown Architect",
+      "python/airflow_ai_providers/pinecone_src_airflow_providers_pinecone_hooks_pinecone.py": "Unknown Architect",
+      "python/airflow_ai_providers/pinecone_src_airflow_providers_pinecone_operators_pinecone.py": "Unknown Architect",
+      "python/airflow_ai_providers/pinecone_tests_system_pinecone_example_pinecone_cohere.py": "Unknown Architect"
+    },
+    "python/airflow_opsgenie_tests": {
+      "python/airflow_opsgenie_tests/NOTICE": "Unknown Architect",
+      "python/airflow_opsgenie_tests/test_opsgenie.py": "Unknown Architect"
+    },
     "python/cython": {
       "python/cython/COPYING.txt": "Unknown Architect",
       "python/cython/CodeGeneration.py": "Unknown Architect",
@@ -2738,6 +2816,10 @@
       "python/cython/MemoryView.pxd": "Unknown Architect",
       "python/cython/MemoryView.pyx": "Unknown Architect",
       "python/cython/Nodes.py": "Unknown Architect"
+    },
+    "python/django_db_tests": {
+      "python/django_db_tests/test_iterator.py": "Unknown Architect",
+      "python/django_db_tests/test_utils.py": "Unknown Architect"
     },
     "python/fastapi": {
       "python/fastapi/CONTRIBUTING.md": "Unknown Architect",
@@ -2976,6 +3058,26 @@
       "python/fastapi/tests/test_ws_router.py": "Unknown Architect",
       "python/fastapi/tests/utils.py": "Unknown Architect"
     },
+    "python/homeassistant_anthropic": {
+      "python/homeassistant_anthropic/LICENSE.md": "Unknown Architect",
+      "python/homeassistant_anthropic/coordinator.py": "Unknown Architect"
+    },
+    "python/homeassistant_ble_integrations": {
+      "python/homeassistant_ble_integrations/LICENSE.md": "Unknown Architect",
+      "python/homeassistant_ble_integrations/aranet___init__.py": "Unknown Architect",
+      "python/homeassistant_ble_integrations/gardena_bluetooth___init__.py": "Unknown Architect",
+      "python/homeassistant_ble_integrations/utils.py": "Unknown Architect"
+    },
+    "python/langchain_agents": {
+      "python/langchain_agents/langchain_agents_middleware_model_fallback.py": "Unknown Architect",
+      "python/langchain_agents/langchain_agents_middleware_tool_emulator.py": "Unknown Architect",
+      "python/langchain_agents/tests_integration_tests_chat_models_test_base.py": "Unknown Architect"
+    },
+    "python/micropython_usb_tls": {
+      "python/micropython_usb_tls/ssl_verify_callback.py": "Unknown Architect",
+      "python/micropython_usb_tls/tls_dtls.py": "Unknown Architect",
+      "python/micropython_usb_tls/usb_simple_host_pyusb.py": "Unknown Architect"
+    },
     "python/numpy": {
       "python/numpy/LICENSE.txt": "Unknown Architect",
       "python/numpy/__init__.py": "Unknown Architect",
@@ -2995,6 +3097,31 @@
       "python/numpy/testutils.py": "Pierre Gerard-Marchant",
       "python/numpy/ufunc_docstrings.py": "Unknown Architect",
       "python/numpy/verify_c_api_version.py": "Unknown Architect"
+    },
+    "python/opencv_dnn_conversion": {
+      "python/opencv_dnn_conversion/py_to_py_resnet50_onnx.py": "Unknown Architect"
+    },
+    "python/pip_vendored_requests": {
+      "python/pip_vendored_requests/LICENSE.txt": "Unknown Architect",
+      "python/pip_vendored_requests/packages.py": "Unknown Architect"
+    },
+    "python/scikit-learn_examples": {
+      "python/scikit-learn_examples/COPYING": "Unknown Architect",
+      "python/scikit-learn_examples/linear_model_plot_nnls.py": "The scikit-learn developers",
+      "python/scikit-learn_examples/svm_plot_custom_kernel.py": "The scikit-learn developers"
+    },
+    "python/tensorflow_ml_ops": {
+      "python/tensorflow_ml_ops/core_tfrt_saved_model_tests_gen_matmul_gpu.py": "Unknown Architect",
+      "python/tensorflow_ml_ops/lite_testing_op_tests_einsum.py": "Unknown Architect"
+    },
+    "python/tensorflow_model_fixtures": {
+      "python/tensorflow_model_fixtures/lite_testdata_multi_add.pb": "Tensor Scanner",
+      "python/tensorflow_model_fixtures/python_compiler_mlir_multi_add.tflite": "Tensor Scanner"
+    },
+    "python/thealgorithms_machine_learning": {
+      "python/thealgorithms_machine_learning/LICENSE.md": "Unknown Architect",
+      "python/thealgorithms_machine_learning/logistic_regression.py": "Unknown Architect",
+      "python/thealgorithms_machine_learning/lstm_lstm_prediction.py": "Unknown Architect"
     },
     "python/twisted": {
       "python/twisted/defer.py": "Glyph Lefkowitz",
@@ -3061,6 +3188,10 @@
       "ruby/rails/metal.rb": "Unknown Architect",
       "ruby/rails/routing.rb": "Unknown Architect"
     },
+    "ruby/rails_http_token_auth": {
+      "ruby/rails_http_token_auth/MIT-LICENSE": "Unknown Architect",
+      "ruby/rails_http_token_auth/http_token_authentication_test.rb": "Unknown Architect"
+    },
     "rust": {
       "rust/SOURCES.md": "Unknown Architect"
     },
@@ -3074,6 +3205,12 @@
       "rust/bevy/bevy_reflect_path.rs": "Unknown Architect",
       "rust/bevy/bevy_render_phase.rs": "Unknown Architect",
       "rust/bevy/bevy_schedule_graph.rs": "Unknown Architect"
+    },
+    "rust/bevy_asset_examples": {
+      "rust/bevy_asset_examples/LICENSE-APACHE": "Unknown Architect",
+      "rust/bevy_asset_examples/LICENSE-MIT": "Unknown Architect",
+      "rust/bevy_asset_examples/image_node.rs": "Unknown Architect",
+      "rust/bevy_asset_examples/rotation.rs": "Unknown Architect"
     },
     "rust/holylang": {
       "rust/holylang/ast.rs": "Unknown Architect",
@@ -3118,6 +3255,9 @@
       "rust/tokio/tests.rs": "Unknown Architect",
       "rust/tokio/tokio_mpsc_bounded.rs": "Unknown Architect",
       "rust/tokio/tokio_named_pipe.rs": "Unknown Architect"
+    },
+    "rust/tokio_util_rand": {
+      "rust/tokio_util_rand/rand.rs": "Unknown Architect"
     },
     "rust/wasmtime": {
       "rust/wasmtime/wasmtime_component_macro.rs": "Unknown Architect",
@@ -3260,6 +3400,10 @@
       "shell/freebsd-src/runulp.sh": "Unknown Architect",
       "shell/freebsd-src/timeout_test.sh": "Unknown Architect",
       "shell/freebsd-src/ztest.sh": "Unknown Architect"
+    },
+    "shell/freebsd_sysbuild": {
+      "shell/freebsd_sysbuild/COPYRIGHT": "Unknown Architect",
+      "shell/freebsd_sysbuild/sysbuild.sh": "Unknown Architect"
     },
     "shell/haiku": {
       "shell/haiku/HardwareChecker.sh": "Unknown Architect",
@@ -3688,6 +3832,9 @@
     "typescript": {
       "typescript/SOURCES.md": "Unknown Architect"
     },
+    "typescript/angular_zonejs_mocha": {
+      "typescript/angular_zonejs_mocha/mocha.ts": "Unknown Architect"
+    },
     "typescript/assemblyscript": {
       "typescript/assemblyscript/asconfig.json": "Unknown Architect",
       "typescript/assemblyscript/ast.ts": "Unknown Architect",
@@ -3695,12 +3842,30 @@
       "typescript/assemblyscript/package.json": "Unknown Architect",
       "typescript/assemblyscript/parser.ts": "Unknown Architect"
     },
+    "typescript/effect_ai_anthropic": {
+      "typescript/effect_ai_anthropic/AnthropicTokenizer.ts": "Unknown Architect"
+    },
+    "typescript/excalibur_math": {
+      "typescript/excalibur_math/LICENSE.md": "Unknown Architect",
+      "typescript/excalibur_math/collision_colliders_separating-axis.ts": "Unknown Architect",
+      "typescript/excalibur_math/math_ray.ts": "Unknown Architect"
+    },
+    "typescript/excalidraw_text_wrapping": {
+      "typescript/excalidraw_text_wrapping/textWrapping.ts": "Unknown Architect"
+    },
     "typescript/fp-ts": {
       "typescript/fp-ts/Either.ts": "Unknown Architect",
       "typescript/fp-ts/HKT.ts": "Unknown Architect",
       "typescript/fp-ts/TaskEither.ts": "Unknown Architect",
       "typescript/fp-ts/package.json": "Unknown Architect",
       "typescript/fp-ts/pipeable.ts": "Unknown Architect"
+    },
+    "typescript/nx_util_ai": {
+      "typescript/nx_util_ai/nx-dev_pages_api_query-ai-handler.ts": "Unknown Architect",
+      "typescript/nx_util_ai/util-ai_src_lib_moderation.ts": "Unknown Architect"
+    },
+    "typescript/pixijs_examples": {
+      "typescript/pixijs_examples/events_dragging.ts": "Unknown Architect"
     },
     "typescript/playwright": {
       "typescript/playwright/NOTICE": "Unknown Architect",
@@ -3892,6 +4057,9 @@
       "zig/zig/Type.zig": "Unknown Architect",
       "zig/zig/Zcu.zig": "Unknown Architect",
       "zig/zig/main.zig": "Unknown Architect"
+    },
+    "zig/zig_std_linux_mips": {
+      "zig/zig_std_linux_mips/mips.zig": "Unknown Architect"
     },
     "zig/zls": {
       "zig/zls/DocumentScope.zig": "Unknown Architect",

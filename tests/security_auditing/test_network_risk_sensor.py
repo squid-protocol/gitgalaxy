@@ -952,6 +952,33 @@ def test_copy_of_a_member_absent_from_the_repo_draws_no_edge(sensor):
     assert _resolve(sensor, files, "src/base/cobol_src/BNK1CAC.cbl", "BNK1CAM") is None
 
 
+def test_copy_of_a_unique_member_in_another_language_draws_no_edge_4265(sensor):
+    """#4265: the language rule holds for ONE candidate too (che4z lsp fixtures).
+
+    `COPY A` in TEST.CBL, and `COPY B` in testing_A.cpy, matched the only `A` / `B`
+    in the repository -- HLASM sources under another directory -- and drew a
+    COBOL -> HLASM edge. The member COBOL copies is COBOL source, so no edge. The one
+    exception is a BMS mapset: its symbolic map is a COBOL copybook generated from it, so
+    a mapset that is the only file of the COPYed name keeps its edge (estate-crucible
+    CUSTINQ `COPY CUSTMS`, whose key accepts the mapset as an alternative).
+    """
+    files = [
+        _cobol("cobol/lsp/TEST.CBL", imports=["A"], classes=["TEST"]),
+        _cobol("cobol/lsp/testing_A.cpy", imports=["B"]),
+        _cobol("cobol/lsp/BNK1CAC.cbl", imports=["BNK1CAM"], classes=["BNK1CAC"]),
+        {"path": "hlasm/che4z/A.hlasm", "lang_id": "hlasm", "raw_imports": []},
+        {"path": "hlasm/che4z/B.hlasm", "lang_id": "hlasm", "raw_imports": ["A"]},
+        {"path": "bms/BNK1CAM.bms", "lang_id": "bms", "raw_imports": []},
+    ]
+    assert _resolve(sensor, files, "cobol/lsp/TEST.CBL", "A") is None
+    assert _resolve(sensor, files, "cobol/lsp/testing_A.cpy", "B") is None
+    assert _resolve(sensor, files, "cobol/lsp/BNK1CAC.cbl", "BNK1CAM") == "bms/BNK1CAM.bms"
+    # the HLASM member HLASM copies still resolves, and so does a COBOL member
+    assert _resolve(sensor, files, "hlasm/che4z/B.hlasm", "A") == "hlasm/che4z/A.hlasm"
+    files.append(_cobol("cobol/copy/A.cpy"))
+    assert _resolve(sensor, files, "cobol/lsp/TEST.CBL", "A") == "cobol/copy/A.cpy"
+
+
 def test_equally_near_and_equally_shallow_candidates_still_draw_no_edge(sensor):
     """Nothing in the repository separates these two, so the resolver still refuses.
 

@@ -626,6 +626,19 @@ class NetworkRiskSensor:
                     stem, cmp_path = stem.lower(), cmp_path.lower()
                 if not (stem == cmp_path or stem.endswith("/" + cmp_path)):
                     return None
+            # #4265: a source member (COBOL COPY, PL/I %INCLUDE, HLASM COPY) is source in the
+            # importer's own language -- the rule `_narrow_ambiguous` applies to several
+            # candidates holds for one too. The only `A` in the repository being A.hlasm does
+            # not make it what COBOL's `COPY A` copies (che4z lsp fixtures: TEST.CBL,
+            # testing_A.cpy -> A.hlasm / B.hlasm); like #3001's Python `import base64` ->
+            # base64.c, a cross-language name match is no edge.
+            # A BMS mapset is the one exception for COBOL: its symbolic map is a copybook generated
+            # from it (`source_members_generated_from`).
+            if file_facts and src_lang in SOURCE_MEMBER_IMPORT_LANGS:
+                cand_lang = (file_facts.get(candidates[0]) or ("", False))[0]
+                generated_from = LANGUAGE_DEFINITIONS.get(src_lang or "", {}).get("source_members_generated_from", ())
+                if cand_lang != src_lang and cand_lang not in generated_from:
+                    return None
             return candidates[0]
 
         # Stage 2: multiple files share this name/stem — disambiguate using

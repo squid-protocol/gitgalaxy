@@ -590,7 +590,7 @@
       "cobol/aws-mainframe-modernization-carddemo/CVTRA06Y.cpy": -0.184,
       "cobol/aws-mainframe-modernization-carddemo/CVTRA07Y.cpy": -0.375,
       "cobol/aws-mainframe-modernization-carddemo/DFHAID.cpy": 0.15,
-      "cobol/aws-mainframe-modernization-carddemo/DFHBMSCA.cpy": 0.194,
+      "cobol/aws-mainframe-modernization-carddemo/DFHBMSCA.cpy": 0.046,
       "cobol/aws-mainframe-modernization-carddemo/LICENSE.md": 0.0,
       "cobol/aws-mainframe-modernization-carddemo/NOTICE.md": 0.0,
       "cobol/aws-mainframe-modernization-carddemo/README.md": 0.0,
@@ -862,7 +862,7 @@
       "cobol/cics-banking-sample-application-cbsa/CREACC.cpy": -0.51,
       "cobol/cics-banking-sample-application-cbsa/CRECUST.cbl": 1.7,
       "cobol/cics-banking-sample-application-cbsa/CRECUST.cpy": -0.403,
-      "cobol/cics-banking-sample-application-cbsa/CUSTCTRL.cpy": -0.204,
+      "cobol/cics-banking-sample-application-cbsa/CUSTCTRL.cpy": -0.24,
       "cobol/cics-banking-sample-application-cbsa/CUSTMAP.cpy": -0.23,
       "cobol/cics-banking-sample-application-cbsa/CUSTOMER.cpy": 0.062,
       "cobol/cics-banking-sample-application-cbsa/DBCRFUN.cbl": 1.133,
@@ -1071,8 +1071,8 @@
     },
     "cobol/zopeneditor-sample": {
       "cobol/zopeneditor-sample/CUSTCOPY.cpy": 0.042,
-      "cobol/zopeneditor-sample/DATETIME.cpy": 0.113,
-      "cobol/zopeneditor-sample/REPTTOTL.cpy": -0.104,
+      "cobol/zopeneditor-sample/DATETIME.cpy": 0.024,
+      "cobol/zopeneditor-sample/REPTTOTL.cpy": -0.202,
       "cobol/zopeneditor-sample/SAM1.cbl": 2.71,
       "cobol/zopeneditor-sample/SAM2.cbl": 2.485,
       "cobol/zopeneditor-sample/SAM2PAR5.cpy": 0.0,
@@ -1285,7 +1285,7 @@
       "dockerfile/moby/builder/remotecontext/detect.go": 0.316,
       "dockerfile/moby/builder/remotecontext/detect_test.go": 1.652,
       "dockerfile/moby/builder/remotecontext/filehash.go": 0.382,
-      "dockerfile/moby/builder/remotecontext/git.go": 1.817,
+      "dockerfile/moby/builder/remotecontext/git.go": 1.793,
       "dockerfile/moby/builder/remotecontext/lazycontext.go": 0.438,
       "dockerfile/moby/builder/remotecontext/mimetype.go": 0.848,
       "dockerfile/moby/builder/remotecontext/mimetype_test.go": 0.126,
@@ -2618,22 +2618,22 @@
     "pli/dsf_cics_admin": {
       "pli/dsf_cics_admin/LICENSE.md": 0.0,
       "pli/dsf_cics_admin/PROVENANCE.md": 0.0,
-      "pli/dsf_cics_admin/R0010301.pli": 2.233,
-      "pli/dsf_cics_admin/R0010420.pli": -0.544,
+      "pli/dsf_cics_admin/R0010301.pli": 2.254,
+      "pli/dsf_cics_admin/R0010420.pli": -0.509,
       "pli/dsf_cics_admin/R0010421.pli": -0.739,
-      "pli/dsf_cics_admin/R0010422.pli": 2.139,
-      "pli/dsf_cics_admin/R0010423.pli": 2.053,
-      "pli/dsf_cics_admin/R0010424.pli": 2.01,
-      "pli/dsf_cics_admin/R0010425.pli": 0.868,
-      "pli/dsf_cics_admin/R0010426.pli": -0.719,
-      "pli/dsf_cics_admin/R0010427.pli": 2.808,
+      "pli/dsf_cics_admin/R0010422.pli": 2.234,
+      "pli/dsf_cics_admin/R0010423.pli": 2.114,
+      "pli/dsf_cics_admin/R0010424.pli": 2.072,
+      "pli/dsf_cics_admin/R0010425.pli": 0.948,
+      "pli/dsf_cics_admin/R0010426.pli": -0.613,
+      "pli/dsf_cics_admin/R0010427.pli": 2.892,
       "pli/dsf_cics_admin/R001TK62.pli": 3.079
     },
     "pli/zopeneditor_sample": {
       "pli/zopeneditor_sample/PROVENANCE.md": 0.0,
       "pli/zopeneditor_sample/PSAM1.pli": 2.617,
       "pli/zopeneditor_sample/PSAM1LIB.pli": 2.36,
-      "pli/zopeneditor_sample/PSAM2.pli": -0.451
+      "pli/zopeneditor_sample/PSAM2.pli": -0.386
     },
     "powershell": {
       "powershell/SOURCES.md": 0.0
@@ -4066,7 +4066,7 @@
       "zig/zls/DocumentStore.zig": 1.371,
       "zig/zls/Server.zig": -0.217,
       "zig/zls/analysis.zig": 0.769,
-      "zig/zls/ast.zig": 0.488,
+      "zig/zls/ast.zig": 0.467,
       "zig/zls/config_gen.zig": 0.02,
       "zig/zls/print_ast.zig": 1.197
     }

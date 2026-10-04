@@ -2339,17 +2339,20 @@
         "State Mutators": 3
       },
       "cobol/che-che4z_nist_ccvs85/IF4014.2.cbl": {
-        "I/O & Config Routines": 3,
-        "Interface Declarations": 12
+        "I/O & Config Routines": 2,
+        "Interface Declarations": 12,
+        "State Mutators": 1
       },
       "cobol/che-che4z_nist_ccvs85/IF4024.2.cbl": {
-        "I/O & Config Routines": 4,
+        "I/O & Config Routines": 3,
         "Interface Declarations": 10,
+        "State Mutators": 1,
         "Type Conversions": 2
       },
       "cobol/che-che4z_nist_ccvs85/IF4034.2.cbl": {
-        "I/O & Config Routines": 4,
-        "Interface Declarations": 10
+        "I/O & Config Routines": 3,
+        "Interface Declarations": 10,
+        "State Mutators": 1
       },
       "cobol/che-che4z_nist_ccvs85/IX1014.2.cbl": {
         "Compute Cores": 1,
@@ -2377,8 +2380,9 @@
       },
       "cobol/che-che4z_nist_ccvs85/IX1114.2.cbl": {
         "Compute Cores": 1,
-        "I/O & Config Routines": 18,
-        "Interface Declarations": 26
+        "I/O & Config Routines": 17,
+        "Interface Declarations": 26,
+        "State Mutators": 1
       },
       "cobol/che-che4z_nist_ccvs85/IX1134.2.cbl": {
         "Compute Cores": 1,
@@ -2476,8 +2480,8 @@
         "Interface Declarations": 5
       },
       "cobol/che-che4z_nist_ccvs85/IX4014.2.cbl": {
-        "I/O & Config Routines": 4,
-        "Interface Declarations": 2
+        "I/O & Config Routines": 2,
+        "Interface Declarations": 4
       },
       "cobol/che-che4z_nist_ccvs85/LICENSE.md": {},
       "cobol/che-che4z_nist_ccvs85/NC1104.2.cbl": {
@@ -2531,15 +2535,15 @@
       },
       "cobol/che-che4z_nist_ccvs85/NC1364.2.cbl": {
         "Compute Cores": 1,
-        "I/O & Config Routines": 23,
+        "I/O & Config Routines": 22,
         "Interface Declarations": 23,
-        "State Mutators": 3
+        "State Mutators": 4
       },
       "cobol/che-che4z_nist_ccvs85/NC1374.2.cbl": {
         "Compute Cores": 1,
-        "I/O & Config Routines": 23,
+        "I/O & Config Routines": 22,
         "Interface Declarations": 23,
-        "State Mutators": 3
+        "State Mutators": 4
       },
       "cobol/che-che4z_nist_ccvs85/NC1384.2.cbl": {
         "Compute Cores": 1,
@@ -2628,8 +2632,8 @@
         "State Mutators": 3
       },
       "cobol/che-che4z_nist_ccvs85/NC2394.2.cbl": {
-        "Compute Cores": 1,
-        "I/O & Config Routines": 24,
+        "Compute Cores": 2,
+        "I/O & Config Routines": 23,
         "Interface Declarations": 42,
         "State Mutators": 4
       },
@@ -2640,22 +2644,22 @@
         "State Mutators": 4
       },
       "cobol/che-che4z_nist_ccvs85/NC2414.2.cbl": {
-        "Compute Cores": 10,
-        "I/O & Config Routines": 28,
+        "Compute Cores": 11,
+        "I/O & Config Routines": 27,
         "Interface Declarations": 51,
         "State Mutators": 3
       },
       "cobol/che-che4z_nist_ccvs85/NC2424.2.cbl": {
-        "Compute Cores": 1,
-        "I/O & Config Routines": 26,
+        "Compute Cores": 2,
+        "I/O & Config Routines": 25,
         "Interface Declarations": 24,
         "State Mutators": 3
       },
       "cobol/che-che4z_nist_ccvs85/NC2434.2.cbl": {
         "Compute Cores": 17,
-        "I/O & Config Routines": 23,
+        "I/O & Config Routines": 22,
         "Interface Declarations": 23,
-        "State Mutators": 3
+        "State Mutators": 4
       },
       "cobol/che-che4z_nist_ccvs85/NC2444.2.cbl": {
         "Compute Cores": 1,
@@ -2721,8 +2725,8 @@
         "Interface Declarations": 5
       },
       "cobol/che-che4z_nist_ccvs85/RL4014.2.cbl": {
-        "I/O & Config Routines": 3,
-        "Interface Declarations": 2
+        "I/O & Config Routines": 2,
+        "Interface Declarations": 3
       },
       "cobol/che-che4z_nist_ccvs85/SG3034.2.cbl": {
         "Interface Declarations": 6
@@ -2738,7 +2742,7 @@
         "State Mutators": 3
       },
       "cobol/che-che4z_nist_ccvs85/SQ3034.2.cbl": {
-        "I/O & Config Routines": 1
+        "Interface Declarations": 1
       },
       "cobol/che-che4z_nist_ccvs85/ST1084.2.cbl": {
         "Compute Cores": 1,

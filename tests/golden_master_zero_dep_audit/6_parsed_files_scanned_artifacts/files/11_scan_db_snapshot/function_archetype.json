@@ -10841,7 +10841,7 @@
         "IF401M-CURRENT-DATE@57": "I/O & Config Routines",
         "IF401M-DATE-OF-INTEGER@61": "Interface Declarations",
         "IF401M-DAY-OF-INTEGER@67": "Interface Declarations",
-        "IF401M-END@100": "I/O & Config Routines",
+        "IF401M-END@100": "State Mutators",
         "IF401M-FACTORIAL@72": "Interface Declarations",
         "IF401M-INTEGER-OF-DATE@82": "Interface Declarations",
         "IF401M-INTEGER-OF-DAY@88": "Interface Declarations",
@@ -10849,7 +10849,7 @@
         "IF401M-INTEGER@77": "Interface Declarations"
       },
       "cobol/che-che4z_nist_ccvs85/IF4024.2.cbl": {
-        "IF402M-END@120": "I/O & Config Routines",
+        "IF402M-END@120": "State Mutators",
         "IF402M-LENGTH@32": "Interface Declarations",
         "IF402M-LOG10@42": "Interface Declarations",
         "IF402M-LOG@37": "Interface Declarations",
@@ -10867,7 +10867,7 @@
         "IF402M-ORD@103": "Interface Declarations"
       },
       "cobol/che-che4z_nist_ccvs85/IF4034.2.cbl": {
-        "IF403M-END@93": "I/O & Config Routines",
+        "IF403M-END@93": "State Mutators",
         "IF403M-PRESENT-VALUE@26": "Interface Declarations",
         "IF403M-RANDOM@32": "Interface Declarations",
         "IF403M-RANGE@37": "Interface Declarations",
@@ -11140,7 +11140,7 @@
         "PRINT-DETAIL-DECL@247": "I/O & Config Routines",
         "SECT-IX111-0001@221": "Interface Declarations",
         "SECT-IX111A-0003@421": "Interface Declarations",
-        "SEQ-INIT-010@422": "I/O & Config Routines",
+        "SEQ-INIT-010@422": "State Mutators",
         "TERMINATE-CCVS@329": "Interface Declarations",
         "TERMINATE-ROUTINE@435": "Interface Declarations",
         "WRITE-LINE-DECL@264": "Interface Declarations",
@@ -12165,8 +12165,8 @@
         "IX401M-CLOSE@59": "I/O & Config Routines",
         "IX401M-CONTROL@52": "Interface Declarations",
         "IX401M-OPENEXT@63": "I/O & Config Routines",
-        "IX401M-READKEY@73": "I/O & Config Routines",
-        "IX401M-READNEXT@67": "I/O & Config Routines",
+        "IX401M-READKEY@73": "Interface Declarations",
+        "IX401M-READNEXT@67": "Interface Declarations",
         "IX401M-START@79": "Interface Declarations"
       },
       "cobol/che-che4z_nist_ccvs85/NC1104.2.cbl": {
@@ -12794,7 +12794,7 @@
         "FAIL@231": "State Mutators",
         "HEAD-ROUTINE@246": "Compute Cores",
         "INSPT@229": "State Mutators",
-        "NC136-001@336": "I/O & Config Routines",
+        "NC136-001@336": "State Mutators",
         "OPEN-FILES@217": "I/O & Config Routines",
         "PASS@230": "State Mutators",
         "PRINT-DETAIL@234": "I/O & Config Routines",
@@ -12846,7 +12846,7 @@
         "FAIL@230": "State Mutators",
         "HEAD-ROUTINE@245": "Compute Cores",
         "INSPT@228": "State Mutators",
-        "NC137A-001@335": "I/O & Config Routines",
+        "NC137A-001@335": "State Mutators",
         "OPEN-FILES@216": "I/O & Config Routines",
         "PASS@229": "State Mutators",
         "PRINT-DETAIL@233": "I/O & Config Routines",
@@ -14079,7 +14079,7 @@
         "SECT-NC239A-001@330": "Interface Declarations",
         "TABLE-FAIL@359": "Interface Declarations",
         "TABLE-INIT-SUBROUTINE@339": "I/O & Config Routines",
-        "TABLE-INIT@332": "I/O & Config Routines",
+        "TABLE-INIT@332": "Compute Cores",
         "TABLE-TEST@350": "I/O & Config Routines",
         "TABLE-WRITE@364": "Interface Declarations",
         "TERMINATE-CALL@227": "Interface Declarations",
@@ -14254,7 +14254,7 @@
         "SECT-NC241A-001@336": "Interface Declarations",
         "TERMINATE-CALL@233": "Interface Declarations",
         "TERMINATE-CCVS@231": "Interface Declarations",
-        "TH-15-001@337": "I/O & Config Routines",
+        "TH-15-001@337": "Compute Cores",
         "TH1-DELETE-GF-2@382": "Interface Declarations",
         "TH1-DELETE-GF-3@406": "Interface Declarations",
         "TH1-DELETE-GF-4@429": "Interface Declarations",
@@ -14359,7 +14359,7 @@
         "TEST-3-3@488": "I/O & Config Routines",
         "TEST-3-WRITE@470": "Interface Declarations",
         "TEST-3@458": "I/O & Config Routines",
-        "TH-16-001@368": "I/O & Config Routines",
+        "TH-16-001@368": "Compute Cores",
         "TH7-DELETE-1@516": "Interface Declarations",
         "TH7-INIT@504": "I/O & Config Routines",
         "TH7-TEST-1@520": "I/O & Config Routines",
@@ -14419,7 +14419,7 @@
         "SECT-NC243A-001@364": "Interface Declarations",
         "TERMINATE-CALL@261": "Interface Declarations",
         "TERMINATE-CCVS@259": "Interface Declarations",
-        "TH-17-001@365": "I/O & Config Routines",
+        "TH-17-001@365": "State Mutators",
         "TH7-DELETE-1@599": "Interface Declarations",
         "TH7-FIND-LEVEL-4-ENTRY@610": "I/O & Config Routines",
         "TH7-FIND-LEVEL-5-ENTRY@633": "I/O & Config Routines",
@@ -14972,7 +14972,7 @@
         "RL401M-CLOSE@59": "I/O & Config Routines",
         "RL401M-CONTROL@52": "Interface Declarations",
         "RL401M-OPENEXT@64": "I/O & Config Routines",
-        "RL401M-READNEXT@68": "I/O & Config Routines",
+        "RL401M-READNEXT@68": "Interface Declarations",
         "RL401M-START@73": "Interface Declarations"
       },
       "cobol/che-che4z_nist_ccvs85/SG3034.2.cbl": {
@@ -15024,7 +15024,7 @@
         "WRT-LN@264": "I/O & Config Routines"
       },
       "cobol/che-che4z_nist_ccvs85/SQ3034.2.cbl": {
-        "SQ303M-CONTROL@41": "I/O & Config Routines"
+        "SQ303M-CONTROL@41": "Interface Declarations"
       },
       "cobol/che-che4z_nist_ccvs85/ST1084.2.cbl": {
         "B-IS-LESS-THAN-SPACE@279": "Interface Declarations",

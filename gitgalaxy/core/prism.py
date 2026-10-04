@@ -11,7 +11,7 @@ import logging
 import re
 from typing import Any, Optional, TypedDict
 
-from gitgalaxy.core.cobol_source_format import blank_identification_area, line_formats
+from gitgalaxy.core.cobol_source_format import blank_identification_area, blank_sequence_area, line_formats
 from gitgalaxy.standards.language_standards import COMPILED_HANDSHAKE_REGISTRY, LENS_CONFIG, PRISM_CONFIG
 
 # ==============================================================================
@@ -339,7 +339,14 @@ class Prism:
 
             # --- THE FIX: Prevent the "Inline Comment Double-Dip" ---
             # 1. Count the total non-blank lines in the original un-split file
-            total_active_lines = len([l for l in content.split("\n") if l.strip()])
+            # #4300: a fixed-format COBOL line that holds nothing but its sequence / identification
+            # fields (`003100`, `003100 ... IC4014.2`) is a blank line: neither code (the code
+            # stream blanks those fields) nor documentation.
+            active_text = content
+            if primary_lang == "cobol":
+                formats = line_formats(content)
+                active_text = blank_sequence_area(blank_identification_area(content, formats), formats)
+            total_active_lines = len([l for l in active_text.split("\n") if l.strip()])
 
             # 2. Count the pure coding lines
             coding_loc = len([l for l in final_code.split("\n") if l.strip()])
@@ -871,7 +878,11 @@ class Prism:
                 # the compiler ignores -- blanked for every COBOL rule and reader downstream. A
                 # free-format line keeps its text past column 72; the format is detected per file
                 # and switched by >>SOURCE FORMAT / $SET SOURCEFORMAT directives.
-                code = blank_identification_area(code, line_formats(text))
+                formats = line_formats(text)
+                code = blank_identification_area(code, formats)
+                # #4300: and the numbered sequence area (cols 1-6), which a split operand
+                # (`PERFORM` / `000900     INIT-PARA`) otherwise read as its target.
+                code = blank_sequence_area(code, formats)
             if pos_lits:
                 lits.extend(pos_lits.splitlines())
             return code, "\n".join(lits)

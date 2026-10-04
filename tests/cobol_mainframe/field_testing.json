@@ -743,6 +743,20 @@
       "found_by": "census",
       "issue": 4246,
       "summary": "An unnamed data description entry (an implicit FILLER: `2 PIC X(40) USAGE DISPLAY VALUE '...'`, IBM DBB EPSCSMRD L24 / L27 / L30) was read as an item named PIC with no PICTURE: the clause keyword standing where the name goes was taken for the name, and the entry's clauses were read from after it. Found onboarding EPSCSMRD into the key (#4226); the key's own reader made the same misreading."
+    },
+    {
+      "id": "D043",
+      "estate": "dbb-mortgage-application",
+      "side": "forge",
+      "fields": [
+        "units",
+        "dead"
+      ],
+      "language": "cobol",
+      "severity": "fact",
+      "found_by": "census",
+      "issue": 4243,
+      "summary": "cobol_graveyard_finder read a multi-program source as one program: IBM DBB epscsmrd.cbl (eleven siblings, two nested, each opening with MAINLINE SECTION) gave the later programs' AUTHOR / INSTALLATION / LINKAGE headers as units of the first, one MAINLINE for thirteen, and reachability across programs. Its reader also had the gaps the key's draft fixed on the same file (#4206): a consuming GO TO match swallowed the later GO TO ... DEPENDING ON targets, a DEPENDING ON anywhere in a sentence hid a plain GO TO after it, and XML PARSE PROCESSING PROCEDURE reached nothing. 973 forge unit / dead mismatches against the draft; 0 after."
     }
   ],
   "fields": {

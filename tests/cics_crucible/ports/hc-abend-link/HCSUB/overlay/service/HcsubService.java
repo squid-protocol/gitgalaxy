@@ -180,8 +180,9 @@ public class HcsubService {
             // line 34: EXEC CICS ABEND ABCODE('HCX1')
             String label = task.abend("HCX1");
             if (LABEL_SUB_ABEND.equals(label)) {
-                // this program's exit took the abend: control goes to SUB-ABEND, which ends with RETURN
-                subAbend(task, ca);
+                // this program's exit (HANDLE ABEND, line 32) took the abend: control goes to SUB-ABEND,
+                // which ends with RETURN
+                onAbendL32(new CicsAbendException("HCX1", PROGRAM, "src/HCSUB.cbl:34"));
                 return;
             }
             if (label == null) {

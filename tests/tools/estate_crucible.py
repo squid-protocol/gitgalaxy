@@ -83,6 +83,7 @@ CHANNELS = (
     "file_control",
     "entry_points",
     "file_edges",
+    "data_moves",
 )
 RESOLVED_VERBS = ("CALL", "LINK", "XCTL", "EXEC PGM")
 
@@ -150,13 +151,24 @@ def load_key(crucible: Path) -> tuple[dict[str, Any], dict[str, dict[str, Any]]]
     return manifest, members
 
 
+def source_encoding_arg(manifest: dict[str, Any]) -> list[str]:
+    """`--source-encoding PATH=CODEC,...` for every member the key says is not UTF-8: nothing in
+    a raw EBCDIC member's bytes names its code page, so the scan is told, as an estate would be."""
+    pages = manifest.get("code_pages") or {}
+    if not pages:
+        return []
+    return ["--source-encoding", ",".join(f"{path}={codec}" for path, codec in sorted(pages.items()))]
+
+
 def scan(crucible: Path, scan_dir: Path) -> Path:
     from gitgalaxy.tools.cobol_to_cobol.galaxy_ir import scan_to_db
+
+    manifest = json.loads((crucible / "key" / "manifest.json").read_text(encoding="utf-8"))
 
     saved = os.environ.get("PYTHONPATH")
     os.environ["PYTHONPATH"] = os.pathsep.join(p for p in (str(REPO_ROOT), saved) if p)
     try:
-        return scan_to_db(crucible / "estate", scan_dir)
+        return scan_to_db(crucible / "estate", scan_dir, extra_args=source_encoding_arg(manifest))
     finally:
         if saved is None:
             os.environ.pop("PYTHONPATH")
@@ -857,6 +869,63 @@ def score_entry_points(sc: Score, path: str, entry: dict[str, Any], eng: Engine)
             sc.add("entry_points", path, f"{r.kind} {r.entry_name} @{r.line}", "phantom", None, "not in the key")
 
 
+def _norm(v: Any) -> Any:
+    return " ".join(v.split()).upper() if isinstance(v, str) else v
+
+
+def score_data_moves(sc: Score, path: str, entry: dict[str, Any], eng: Engine) -> None:
+    """data_move_data: one row per source -> target pair of a data-moving statement."""
+    ef = eng.files.get(path)
+    rows = list(ef.data_moves) if ef else []
+    used: set = set()
+    for f in entry.get("data_moves", []):
+        label = f"{f['verb']} {f['source']} -> {f['target']} @{f['line']}"
+        r = next(
+            (
+                x
+                for x in rows
+                if id(x) not in used
+                and _u(x.verb) == f["verb"]
+                and x.line == f["line"]
+                and _norm(x.target) == _norm(f["target"])
+                and _norm(x.source) == _norm(f["source"])
+            ),
+            None,
+        )
+        if r is None:
+            sc.add("data_moves", path, label, "missing", f.get("horror"), "", f.get("depends_on"))
+            continue
+        used.add(id(r))
+        d = _diff(
+            [
+                ("source_kind", f["source_kind"], r.source_kind),
+                ("corresponding", f["corresponding"], bool(r.corresponding)),
+                ("source_refmod", f["source_refmod"], bool(r.source_refmod)),
+                ("target_refmod", f["target_refmod"], bool(r.target_refmod)),
+                ("source_refmod_text", f["source_refmod_text"], r.source_refmod_text),
+            ]
+        )
+        sc.add("data_moves", path, label, "fail" if d else "pass", f.get("horror"), d, f.get("depends_on"))
+    explicit = {_norm(p["target"]): p for p in _phantoms(entry, "data_moves")}
+    seen = set()
+    for r in rows:
+        if id(r) not in used:
+            p = explicit.get(_norm(r.target))
+            if p:
+                seen.add(_norm(r.target))
+            sc.add(
+                "data_moves",
+                path,
+                f"{r.verb} {r.source} -> {r.target} @{r.line}",
+                "phantom",
+                p.get("horror") if p else None,
+                p["why"] if p else "not in the key",
+            )
+    for t, p in explicit.items():
+        if t not in seen:
+            sc.add("data_moves", path, f"not -> {p['target']}", "pass", p.get("horror"))
+
+
 def score_file_edges(sc: Score, path: str, entry: dict[str, Any], eng: Engine) -> None:
     got = set(eng.file_edges.get(path, set()))
     for f in entry.get("file_edges", []):
@@ -869,7 +938,7 @@ def score_file_edges(sc: Score, path: str, entry: dict[str, Any], eng: Engine) -
 
 
 SOURCE_LANGUAGES = ("cobol", "pli")
-COBOL_ONLY = (score_programs, score_units, score_edges, score_copies, score_data_items, score_layouts)
+COBOL_ONLY = (score_programs, score_units, score_edges, score_copies, score_data_items, score_layouts, score_data_moves)
 SCORERS = (
     score_programs,
     score_units,
@@ -886,6 +955,7 @@ SCORERS = (
     score_file_control,
     score_entry_points,
     score_file_edges,
+    score_data_moves,
 )
 
 
@@ -947,7 +1017,8 @@ def horror_verdicts(sc: Score, crucible: Path) -> list[dict[str, Any]]:
         h = json.loads(p.read_text(encoding="utf-8"))
         checks = [c for c in sc.checks if c.horror == h["id"]]
         counts = Counter(c.status for c in checks)
-        bad = [c for c in checks if c.status in ("fail", "missing", "phantom")]
+        # a failing check that depends on another horror is that horror's cascade, not this one's failure
+        bad = [c for c in checks if c.status in ("fail", "missing", "phantom") and not c.depends_on]
         cascade = [c for c in sc.checks if h["id"] in c.depends_on and c.status in ("fail", "missing", "phantom")]
         out.append(
             {

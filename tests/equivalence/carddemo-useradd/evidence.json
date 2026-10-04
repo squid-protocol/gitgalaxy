@@ -7,7 +7,7 @@
   "paths": [
    "tests/equivalence/carddemo-useradd/port/service/Cousr01cService.java"
   ],
-  "sha256": "c4476e29c75fd64cc4b2dabe616796030c9093bae4ab32ad4b69422bbd2b5e37",
+  "sha256": "035c33bee31627f924b4ac8b7185dabb406200fffd1a59807df68efbaedcde01",
   "entry_points": [
    "runTask"
   ]
@@ -18,7 +18,7 @@
     "tests/equivalence/carddemo-useradd/port/**"
    ],
    "files": 1,
-   "sha256": "c4476e29c75fd64cc4b2dabe616796030c9093bae4ab32ad4b69422bbd2b5e37"
+   "sha256": "035c33bee31627f924b4ac8b7185dabb406200fffd1a59807df68efbaedcde01"
   },
   "case": {
    "paths": [
@@ -42,7 +42,7 @@
     "tests/tools/java_target_matrix.py"
    ],
    "files": 11,
-   "sha256": "66f1d285d03116d862dceca3c6e19905152139abc1d6f4b2b504e30cfdd8f6c6"
+   "sha256": "609073a350a3120d63bf3cb3e7f6a1050a9fc8a91964ac548b2826356f319cbc"
   },
   "oracle": {
    "paths": [
@@ -72,10 +72,10 @@
   "differences": {
    "sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
   },
-  "digest": "232563d87097d76114e332d0774f5314bdc9fc33ec5aac8deb211c184ddb5855"
+  "digest": "1012a3a591871a48880df2ade12e6bd7948bfd65461d2f08ac1c3b7fca1faaff"
  },
  "proof": {
-  "at": "2026-10-04T14:44:39Z",
+  "at": "2026-10-04T15:31:18Z",
   "verdict": "proven",
   "runs": 13,
   "fault_runs": 1,
@@ -138,8 +138,8 @@
   "sysout_compared": null,
   "attributes_compared": null,
   "java_failed": false,
-  "harness_commit": "2f770970f1ec1c5698343c3362a1dea11de3ffad",
-  "inputs_digest": "232563d87097d76114e332d0774f5314bdc9fc33ec5aac8deb211c184ddb5855"
+  "harness_commit": "b2054a86377f7ca2f42496e4c64cad8091ae4818+uncommitted",
+  "inputs_digest": "1012a3a591871a48880df2ade12e6bd7948bfd65461d2f08ac1c3b7fca1faaff"
  },
  "coverage": {
   "paragraphs": {
@@ -163,7 +163,7 @@
    "total": 0
   },
   "source": "the proof's own traced COBOL runs (cobol_coverage.py)",
-  "inputs_digest": "232563d87097d76114e332d0774f5314bdc9fc33ec5aac8deb211c184ddb5855"
+  "inputs_digest": "1012a3a591871a48880df2ade12e6bd7948bfd65461d2f08ac1c3b7fca1faaff"
  },
  "reach": {
   "entry_points": [
@@ -196,12 +196,6 @@
    },
    {
     "class": "Cousr01cService",
-    "method": "writeUsrsec",
-    "line": 347,
-    "kind": "ported_unproven"
-   },
-   {
-    "class": "Cousr01cService",
     "method": "renderCousr1a",
     "line": 354,
     "kind": "left_as_generated"
@@ -216,10 +210,10 @@
   "counts": {
    "stub": 3,
    "left_as_generated": 3,
-   "ported_unproven": 1
+   "ported_unproven": 0
   },
   "generated_compared": true,
-  "port_sha256": "c4476e29c75fd64cc4b2dabe616796030c9093bae4ab32ad4b69422bbd2b5e37"
+  "port_sha256": "035c33bee31627f924b4ac8b7185dabb406200fffd1a59807df68efbaedcde01"
  },
  "mutation": null,
  "differences": [],

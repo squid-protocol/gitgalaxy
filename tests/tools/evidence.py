@@ -50,6 +50,7 @@ import re
 import subprocess
 import sys
 import tempfile
+from collections.abc import Iterable
 from dataclasses import dataclass, field
 from pathlib import Path
 from typing import Any, Optional
@@ -312,6 +313,8 @@ def proof_section(t: Target, report: dict[str, Any], digest: str) -> dict[str, A
         "at": _now_ts(),
         "verdict": "proven" if report.get("proven") else "not-proven",
         "runs": runs, "fault_runs": faults,
+        # #4048 follow-up: the batch step run once more through each of these methods (equivalence.py entry runs)
+        **({"entry_runs": [e["method"] for e in report["entries"]]} if report.get("entries") else {}),
         "environments": envs if len(envs) > 1 else None,
         "outputs": outputs,
         "return_code_equal": (rc.get("cobol") == rc.get("java")) if rc else None,
@@ -365,15 +368,16 @@ def _generated_originals(work: Optional[Path]) -> list[Path]:
     return [p for d in work.rglob("generated_before_overlay") if d.is_dir() for p in d.rglob("*.java")]
 
 
-def reach_section(t: Target, work: Optional[Path] = None) -> dict[str, Any]:
-    """#4255: which of the port's methods the proof runs (proof_reach), sorted into its three kinds."""
+def reach_section(t: Target, work: Optional[Path] = None, entries: Iterable[str] = ()) -> dict[str, Any]:
+    """#4255: which of the port's methods the proof runs (proof_reach), sorted into its three kinds. `entries`:
+    the methods the proof also drove the program through (a batch case's entry runs), roots beside PROOF_ROOTS."""
     from gitgalaxy.tools.cobol_to_java import proof_reach  # noqa: PLC0415 -- the engine's, only when a record is made
 
     own = [REPO_ROOT / p for p in port_files(t) if p.endswith(".java")]
     originals = _generated_originals(work)
     names = {p.name for p in own}
     generated = [p for p in originals if p.name in names]
-    report = proof_reach.analyse(own, generated=generated)
+    report = proof_reach.analyse(own, roots=(*proof_reach.PROOF_ROOTS, *entries), generated=generated)
     unproven = []
     for cls, r in sorted(report.items()):
         for m in r["unproven"]:
@@ -487,7 +491,7 @@ def record_proof(t: Target, report: dict[str, Any], work: Optional[Path] = None)
         "inputs": inputs,
         "proof": proof_section(t, report, inputs["digest"]),
         "coverage": coverage_section(t, report, inputs["digest"]),
-        "reach": reach_section(t, work),
+        "reach": reach_section(t, work, [e["method"] for e in report.get("entries") or []]),
         "mutation": mutation_section(t),
         "oracle": oracle_section(t, report.get("oracle")),
         "provenance": provenance_section(t),
@@ -597,7 +601,8 @@ def claim(rec: dict[str, Any], st: dict[str, Any]) -> str:
     oracle = (f"{o.get('compiler') or 'GnuCOBOL'} + the harness's models" if o.get("kind") == "gnucobol-models"
               else "the crucible's hand-written expected logs (derived from IBM's documentation)")  # fmt: skip
     parts = [f"**{prog}**: {how if p['verdict'] == 'proven' else 'NOT equal'} on **{n} {unit}** "
-             f"({p['fault_runs']} fault runs{', ' + str(len(p['environments'])) + ' environments' if p.get('environments') else ''}; "
+             f"({p['fault_runs']} fault runs{', ' + str(len(p['entry_runs'])) + ' entry runs' if p.get('entry_runs') else ''}"
+             f"{', ' + str(len(p['environments'])) + ' environments' if p.get('environments') else ''}; "
              f"{equal}/{total} compared records equal), against **{oracle}**."]  # fmt: skip
     c = rec.get("coverage")
     if c:

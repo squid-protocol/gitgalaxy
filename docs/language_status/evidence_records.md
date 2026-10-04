@@ -35,6 +35,12 @@ The index of every record is [`evidence/README.md`](evidence/README.md). The pag
   - **stub**: the generator's placeholder, kept;
   - **left as generated**: the generated body, unchanged;
   - **ported_unproven**: behaviour the port added that no proof runs.
+
+  The proof runs a port through runTask, handleCall or runBatch. A batch case may also list `entries`: no-argument
+  methods of the service, such as a controller's `executeX`. Each one gets an **entry run**: the step runs once
+  more through that method and is compared with the same COBOL run. The method returns no RETURN-CODE, so the
+  run counts as RETURN-CODE 0 when it returns normally. Only a method that an entry run actually ran counts as
+  reached.
 - **Mutation (#4047).** The port's entry of `mutation_scores.json`, with the inputs it was judged against
   (recomputed at its commit from git history).
 - **Provenance.** Who or what wrote the port: the model, backend, attempt and ticket hash, citing the loop's

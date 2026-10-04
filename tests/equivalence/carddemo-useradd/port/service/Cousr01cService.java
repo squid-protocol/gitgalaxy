@@ -224,7 +224,7 @@ public class Cousr01cService {
         SecUserData rec = w.secUser;
         String key = rec.getSecUsrId();
         int resp = task.write(WS_USRSEC_FILE, secUserDataRepository.existsById(key),
-                () -> secUserDataRepository.save(rec));
+                () -> writeUsrsec(rec));   // the record is added through the file's WRITE
         switch (resp) {
             case 0: // DFHRESP(NORMAL)
                 initializeAllFields(w);

@@ -8,13 +8,13 @@ The status above judges the record alone (policy: ported_unproven = block). Whet
 
 | | |
 |---|---|
-| proof | proven at 2026-10-04T14:44:28Z, harness `2f770970f1ec1c5698343c3362a1dea11de3ffad` |
-| inputs digest | `86437991c0f1b40b318a43ff1ba52c41b617dbf46efd0cb9fb6ca13ea4f6b7ae` |
+| proof | proven at 2026-10-04T15:41:29Z, harness `cdad33370dc73ea44e5bf1348d88c9404a14c2d2+uncommitted` |
+| inputs digest | `a054b3fd60a3e98d1bfdb4c47e550314fd922619078bd6e4490784eb5936f93e` |
 | port | 1 files `65ecdd2e543471e8` |
 | case | 1 files `686b990dfac22931` |
 | corpus | aws-mainframe-modernization-carddemo @ `59cc6c2fd7ebd7ef7925cad552a01a4b8b6e4d5e` `d0c4803872ec126e` |
 | differences |  `4f53cda18c2baa0c` |
-| harness | 11 files `66f1d285d03116d8` |
+| harness | 11 files `609073a350a3120d` |
 | oracle | 16 files `b1be686cf96bbdce` |
 | generator | 60 files `880250850d919c29` |
 | oracle run | gnucobol-models: cobc (GnuCOBOL) 3.1.2.0, image `sha256:d7e387df360c` (matches pin: True) |

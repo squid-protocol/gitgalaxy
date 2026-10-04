@@ -59,6 +59,11 @@ every output are equal -- and, for a fault run, the same faults fired, at least 
 the COBOL coverage (#4023) counts every run. A CICS case's scenario may carry `"faults"` too (READ conditions:
 equivalence_cics.fault_lines).
 
+#4048 follow-up -- entry runs: a batch case's `"entries"` ([{method, why}]) each run the step once more through
+that no-argument method of the service (a controller's entry, executeX) instead of runBatch, compared with the
+same COBOL run: the same abend, or RETURN-CODE 0 -- the method returns none, so it ends the step 0 when it
+returns normally -- and every output equal. The evidence record counts each as run by the proof (proof_reach).
+
 A case with `"kind": "cics"` is an online program (#3754, equivalence_cics.py): its
 EXEC CICS is translated to calls into a stub runtime, each scenario (COMMAREA, key
 pressed, screen input) runs as one task on both sides -- the Java as a CicsTask through
@@ -371,6 +376,14 @@ def report_markdown(case: dict[str, Any], report: dict[str, Any]) -> str:
         for f in report["faults"]:
             lines.append(f"| {f['name']} | {'; '.join(f'`{x}`' for x in f['plan'])} | {f['why']} | {f['summary']} | "
                          f"{'yes' if f['ok'] else '**no**'} |")  # fmt: skip
+    if report.get("entries"):  # #4048 follow-up
+        lines += ["", "## Entry runs", "",
+                  ("Each runs the step once more through a no-argument method of the service instead of runBatch, "
+                   "and is proven against the same COBOL run: the same abend, or RETURN-CODE 0 (the method returns "
+                   "none) and the same outputs."), "",
+                  "| method | why | outcome | equal |", "|---|---|---|---|"]  # fmt: skip
+        for e in report["entries"]:
+            lines.append(f"| `{e['method']}()` | {e['why']} | {e['summary']} | {'yes' if e['ok'] else '**no**'} |")
     lines += cov.report_lines(report.get("coverage"), report.get("runs", 1), report.get("proven", False))  # #4023
     for dd, d in report["outputs"].items():
         if d["diffs"]:
@@ -452,6 +465,10 @@ def feedback_md(report: dict[str, Any]) -> str:
             out += [f"The fault run `{f['name']}` injects {'; '.join(f['plan'])} (DD OP NTH FILE-STATUS) on both "
                     f"sides -- {f.get('why', '')}", ""]  # fmt: skip
             out += _run_feedback(f"Fault run {f['name']}", f)
+    for e in report.get("entries", []):
+        if not e["ok"]:
+            out += [f"The entry run `{e['method']}()` runs the step through that method -- {e.get('why', '')}", ""]
+            out += _run_feedback(f"Entry run {e['method']}", e)
     return "\n".join(out).strip()
 
 
@@ -728,6 +745,7 @@ def main() -> int:
 
     envs = _environments(args.environments, case)
     by_name = {f"fault:{f['name']}": f for f in faults}
+    entries = ej.entry_names(case)  # #4048 follow-up: the step once more through each entry method
 
     def differs(name: str, java: dict[str, bytes]) -> bool:
         f = by_name.get(name)
@@ -738,7 +756,8 @@ def main() -> int:
                                         port=not args.generated_only, port_dir=args.port,
                                         faults=tuple((f["name"], fault_plan(f), "\n".join(f.get("sql_plan", [])))
                                                      for f in faults),
-                                        stop=differs if args.first_difference else None)  # fmt: skip
+                                        stop=differs if args.first_difference else None,
+                                        entries=tuple(entries))  # fmt: skip
     except RuntimeError as e:  # the port does not compile, or its run fails: the loop's feedback, not a crash
         failed = java_failure_report(case, work, str(e))
         (work / "report.json").write_text(json.dumps(failed, indent=2) + "\n", encoding="utf-8")
@@ -750,8 +769,10 @@ def main() -> int:
     ok = True
     made = [e for e in envs if e["name"] in runs]  # --first-difference: the runs after the first difference
     faults_made = [f for f in faults if f"fault:{f['name']}" in runs]  # are not made
-    if len(made) < len(envs) or len(faults_made) < len(faults):
-        report["stopped"] = f"at the first difference: {len(made) + len(faults_made)} of {len(envs) + len(faults)} runs"
+    entries_made = [e for e in entries if f"entry:{e}" in runs]
+    if len(made) < len(envs) or len(faults_made) < len(faults) or len(entries_made) < len(entries):
+        report["stopped"] = (f"at the first difference: {len(made) + len(faults_made) + len(entries_made)} of "
+                             f"{len(envs) + len(faults) + len(entries)} runs")
     for i, env in enumerate(made):
         run = compare_run(case, corpus, cobol, runs[env["name"]])
         if i == 0:  # the first environment's outputs are the report's, as before #3821
@@ -764,6 +785,11 @@ def main() -> int:
         run = compare_run(case, corpus, cobol_faults[f["name"]], runs[f"fault:{f['name']}"], fault=f)
         report.setdefault("faults", []).append({"name": f["name"], "why": f.get("why", ""), "plan": fault_plan(f)
                                                 .strip().splitlines(), **run})  # fmt: skip
+        ok &= run["ok"]
+    whys = {e["method"]: e.get("why", "") for e in case.get("entries", [])}
+    for e in entries_made:  # #4048 follow-up: each entry run, against the same COBOL run as the normal one
+        run = compare_run(case, corpus, cobol, runs[f"entry:{e}"])
+        report.setdefault("entries", []).append({"method": e, "why": whys[e], **run})
         ok &= run["ok"]
     rc = report["return_code"]
     report["proven"] = ok
@@ -798,6 +824,8 @@ def main() -> int:
                   f"{'equal to COBOL' if e['ok'] else 'DIFFERS'}")  # fmt: skip
     for f in report.get("faults", []):
         print(f"{case['program']} fault {f['name']}: {'equal' if f['ok'] else 'DIFFERS'} -- {f['summary']}")
+    for e in report.get("entries", []):
+        print(f"{case['program']} entry {e['method']}(): {'equal' if e['ok'] else 'DIFFERS'} -- {e['summary']}")
     if report["coverage"]:
         print(f"{case['program']} COBOL coverage: {cov.headline(report['coverage'], report['runs'], ok)}")
     print(f"report: {work / 'report.json'}")

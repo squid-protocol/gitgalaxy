@@ -44,7 +44,7 @@
     "tests/tools/cics_crucible_compare.py"
    ],
    "files": 13,
-   "sha256": "e6f3db91ce0ad417535c68f4828c38c4cf080a39495e11eee9ba6a8e7e6f1a3a"
+   "sha256": "1549c810f2072e5323782c43f34191fb370d080880f2f2e0e09bc6897faaf3c6"
   },
   "oracle": {
    "paths": [],
@@ -66,10 +66,10 @@
   "differences": {
    "sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
   },
-  "digest": "41c5ee1ee15bd03626e80ba27255c8042bb4f999e4c6539f59bf796945e375e5"
+  "digest": "ebb1a592e771a21505e6f364aa6ec4ff966db446426da35004958eb0db42a7fc"
  },
  "proof": {
-  "at": "2026-10-04T14:36:43Z",
+  "at": "2026-10-04T15:44:49Z",
   "verdict": "proven",
   "runs": 4,
   "fault_runs": 0,
@@ -96,8 +96,8 @@
   "sysout_compared": null,
   "attributes_compared": null,
   "java_failed": false,
-  "harness_commit": "2f770970f1ec1c5698343c3362a1dea11de3ffad",
-  "inputs_digest": "41c5ee1ee15bd03626e80ba27255c8042bb4f999e4c6539f59bf796945e375e5"
+  "harness_commit": "cdad33370dc73ea44e5bf1348d88c9404a14c2d2+uncommitted",
+  "inputs_digest": "ebb1a592e771a21505e6f364aa6ec4ff966db446426da35004958eb0db42a7fc"
  },
  "coverage": {
   "paragraphs": {
@@ -112,7 +112,7 @@
   "handler_labels": null,
   "source": "tests/cics_crucible/coverage.json#programs/ca-link-lengths/CALINK",
   "ledger_sha256": "1f6f6d9c217e8adca68592d3f7f88bbd26690a2247a0b743dc6477155f3aa9da",
-  "inputs_digest": "41c5ee1ee15bd03626e80ba27255c8042bb4f999e4c6539f59bf796945e375e5"
+  "inputs_digest": "ebb1a592e771a21505e6f364aa6ec4ff966db446426da35004958eb0db42a7fc"
  },
  "reach": {
   "entry_points": [

@@ -171,7 +171,9 @@ public class CocrdslcService {
                 // no RESP / HANDLE CONDITION: CICS default action abends the task
                 String label = task.abendOnCondition(resp);
                 if (label != null) {
-                    abendRoutine(task, w);
+                    // the HANDLE ABEND exit of line 250 takes the abend: ABEND-ROUTINE
+                    onAbendL250(new CicsAbendException(CicsTask.abcodeFor(resp), "COCRDSLC",
+                            "app/cbl/COCRDSLC.cbl:331"));
                 }
             }
             return;

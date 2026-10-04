@@ -104,8 +104,10 @@ public class Cbact04cService {
         return fdDiscgrpRecRepository.findById(key);
     }
 
+    /** TCATBAL-FILE read sequentially: a KSDS returns its records in key order (TRANCAT-ACCT-ID, TYPE, CD). */
     public List<FdTranCatBalRecord> readAllTcatbalFile() {
-        return fdTranCatBalRecordRepository.findAll();
+        return fdTranCatBalRecordRepository.findAll(
+                Sort.by("id.fdTrancatAcctId", "id.fdTrancatTypeCd", "id.fdTrancatCd"));
     }
 
     /** The batch entry: job INTCALC step STEP15 (app/jcl/INTCALC.jcl:22), PARM='2022071800'. */
@@ -120,8 +122,7 @@ public class Cbact04cService {
         check(files.open("DISCGRP"), "ERROR OPENING DALY REJECTS FILE");                // 0200-DISCGRP-OPEN
         check(files.open("ACCTFILE"), "ERROR OPENING ACCOUNT MASTER FILE");             // 0300-ACCTFILE-OPEN
         check(files.open("TRANSACT", transact, false), "ERROR OPENING TRANSACTION FILE");  // 0400-TRANFILE-OPEN
-        List<FdTranCatBalRecord> balances = fdTranCatBalRecordRepository.findAll(
-                Sort.by("id.fdTrancatAcctId", "id.fdTrancatTypeCd", "id.fdTrancatCd"));  // TCATBAL-FILE, key order
+        List<FdTranCatBalRecord> balances = readAllTcatbalFile();                        // TCATBAL-FILE
         OutputStream tranFile;
         try {
             Files.createDirectories(transact.getParent());

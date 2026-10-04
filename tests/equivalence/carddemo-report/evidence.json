@@ -43,7 +43,7 @@
     "tests/tools/java_target_matrix.py"
    ],
    "files": 11,
-   "sha256": "66f1d285d03116d862dceca3c6e19905152139abc1d6f4b2b504e30cfdd8f6c6"
+   "sha256": "609073a350a3120d63bf3cb3e7f6a1050a9fc8a91964ac548b2826356f319cbc"
   },
   "oracle": {
    "paths": [
@@ -73,10 +73,10 @@
   "differences": {
    "sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
   },
-  "digest": "8615c41090a77219a7aea80139041f9947e2fac5f1d262f799c32b8f03bb8523"
+  "digest": "3b5d241221eb3238f49146f0539a572d1ee56b3ea1c46aafd60851e450ea259c"
  },
  "proof": {
-  "at": "2026-10-04T14:44:04Z",
+  "at": "2026-10-04T15:40:46Z",
   "verdict": "proven",
   "runs": 16,
   "fault_runs": 1,
@@ -151,8 +151,8 @@
   "sysout_compared": null,
   "attributes_compared": null,
   "java_failed": false,
-  "harness_commit": "2f770970f1ec1c5698343c3362a1dea11de3ffad",
-  "inputs_digest": "8615c41090a77219a7aea80139041f9947e2fac5f1d262f799c32b8f03bb8523"
+  "harness_commit": "cdad33370dc73ea44e5bf1348d88c9404a14c2d2+uncommitted",
+  "inputs_digest": "3b5d241221eb3238f49146f0539a572d1ee56b3ea1c46aafd60851e450ea259c"
  },
  "coverage": {
   "paragraphs": {
@@ -284,7 +284,7 @@
    "total": 0
   },
   "source": "the proof's own traced COBOL runs (cobol_coverage.py)",
-  "inputs_digest": "8615c41090a77219a7aea80139041f9947e2fac5f1d262f799c32b8f03bb8523"
+  "inputs_digest": "3b5d241221eb3238f49146f0539a572d1ee56b3ea1c46aafd60851e450ea259c"
  },
  "reach": {
   "entry_points": [

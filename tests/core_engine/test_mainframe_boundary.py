@@ -498,3 +498,34 @@ def test_plain_cics_return_without_transid_is_not_a_routing_site():
     assert _calls("cobol", "       EXEC CICS RETURN END-EXEC.") == []
     browse = [c for c in _calls("cobol", "       EXEC CICS STARTBR FILE('CUST') END-EXEC.") if "TRANSID" in c["verb"]]
     assert browse == []
+
+def test_cobol_level_77_is_always_a_root():
+    """A level-77 entry is always a root and nothing nests under it except 88s, even after an open 01."""
+    from gitgalaxy.core.mainframe_boundary import extract_boundary
+    src = (
+        "       WORKING-STORAGE SECTION.\n"
+        "       01  OPEN-GROUP.\n"
+        "           05  SUB-ITEM   PIC X.\n"
+        "       77  ROOT-ITEM-1    PIC X.\n"
+        "       88  IS-ROOT        VALUE 'Y'.\n"
+        "       LINKAGE SECTION.\n"
+        "       77  ROOT-ITEM-2    PIC 9.\n"
+    )
+    records = extract_boundary("cobol", src)["records"]
+    assert len(records) == 5
+    
+    # 01 OPEN-GROUP
+    assert records[0]["level"] == 1
+    assert records[0]["parent_ordinal"] is None
+    # 05 SUB-ITEM
+    assert records[1]["level"] == 5
+    assert records[1]["parent_ordinal"] == 0
+    # 77 ROOT-ITEM-1
+    assert records[2]["level"] == 77
+    assert records[2]["parent_ordinal"] is None
+    # 88 IS-ROOT
+    assert records[3]["level"] == 88
+    assert records[3]["parent_ordinal"] == 2
+    # 77 ROOT-ITEM-2
+    assert records[4]["level"] == 77
+    assert records[4]["parent_ordinal"] is None

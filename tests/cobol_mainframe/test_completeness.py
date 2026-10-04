@@ -96,7 +96,7 @@ PINNED = {
     "cics-genapp": {
         # #4278: + 11 EXEC SQL INCLUDE members inside records (LGCMAREA, LGPOLICY)
         "program calls": (95, 101), "copybooks": (40, 40), "transactions": (74, 74), "screens": (52, 52),
-        "data flows": (1284, 1285), "IMS PSBs": (0, 0), "batch entry": (0, 0),
+        "data flows": (1285, 1285), "IMS PSBs": (0, 0), "batch entry": (0, 0),
     },
     # #3576: PL/I main programs are scored too -- PSAM1 is run by RUNPSAM1.jcl; MACSAMP (the
     # macro-preprocessor showcase) and PSAM1LIB (a library copy of PSAM1) are run by no step.
@@ -112,7 +112,7 @@ PINNED = {
     # read from the code stream now, so it is the batch main its source says it is.
     "dsf": {
         "program calls": (6771, 6888), "copybooks": (0, 0), "transactions": (234, 309), "screens": (0, 2421),
-        "data flows": (149, 178), "IMS PSBs": (0, 1), "batch entry": (0, 129),
+        "data flows": (178, 178), "IMS PSBs": (0, 1), "batch entry": (0, 129),
     },
     # IBM DBB MortgageApplication (estate 4): 11 of 12 unresolved program calls are
     # EPSCSMRD's helpers (XCHRFLTR, XWSPFLTR, EPSCSMRC/O/L/K, ...), which the

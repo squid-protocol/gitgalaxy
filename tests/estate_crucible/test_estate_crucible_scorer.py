@@ -247,3 +247,60 @@ def test_file_edges_are_scored_per_target_and_kind():
             ("file_edges", "call -> r.cbl", "phantom", None),
         ]
     )
+
+
+def test_the_scan_is_told_every_non_utf8_members_code_page():
+    assert ec.source_encoding_arg({}) == []
+    manifest = {"code_pages": {"apps/N/cobol/KØB.cbl": "cp277", "apps/J/cobol/A.cbl": "cp930"}}
+    assert ec.source_encoding_arg(manifest) == [
+        "--source-encoding",
+        "apps/J/cobol/A.cbl=cp930,apps/N/cobol/KØB.cbl=cp277",
+    ]
+
+
+def test_a_data_move_is_matched_on_verb_line_source_and_target():
+    def row(verb, source, kind, target, line):
+        return SimpleNamespace(
+            verb=verb,
+            source=source,
+            source_kind=kind,
+            target=target,
+            corresponding=False,
+            source_refmod=False,
+            target_refmod=False,
+            line=line,
+            source_refmod_text=None,
+        )
+
+    eng = FakeEngine(
+        files={
+            "p.cbl": SimpleNamespace(
+                data_moves=[row("MOVE", "SPACE", "figurative", "X", 9), row("MOVE", "'A'", "literal", "Y", 8)]
+            )
+        }
+    )
+    base = {"corresponding": False, "source_refmod": False, "target_refmod": False, "source_refmod_text": None}
+    entry = {
+        "data_moves": [
+            {"verb": "MOVE", "source": "'A'", "source_kind": "literal", "target": "Y", "line": 8, **base},
+            {
+                "verb": "MOVE",
+                "source": "SPACE",
+                "source_kind": "figurative",
+                "target": "X項目",
+                "line": 9,
+                "horror": "H-0040",
+                **base,
+            },
+        ],
+        "phantoms": [{"channel": "data_moves", "target": "X", "why": "w", "horror": "H-0040"}],
+    }
+    sc = ec.Score()
+    ec.score_data_moves(sc, "p.cbl", entry, eng)
+    assert _statuses(sc) == sorted(
+        [
+            ("data_moves", "MOVE 'A' -> Y @8", "pass", None),
+            ("data_moves", "MOVE SPACE -> X項目 @9", "missing", "H-0040"),
+            ("data_moves", "MOVE SPACE -> X @9", "phantom", "H-0040"),
+        ]
+    )

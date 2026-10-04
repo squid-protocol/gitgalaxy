@@ -924,6 +924,18 @@ _COBOL_UNIT_END_RE = re.compile(
 )
 _STRUCTURAL_UNIT_END_LANGS = frozenset({"cobol", "pli"})
 
+# #4302: a COBOL program may run statements straight after `PROCEDURE DIVISION.`,
+# before any paragraph or section header (batch mains open, loop, close and GOBACK
+# there: carddemo CBACT01C.cbl:70-91). Mode A only makes units at headers, so that
+# code -- the top of the program's call tree -- belonged to no unit. Each PROCEDURE
+# DIVISION's entry code becomes a calls-only `__global_context__` bucket, Python's
+# module-level shape: recorded in synthetic_unit_data, never in the function
+# population. Line-leading after the sequence area, whole words, like
+# `_COBOL_UNIT_END_RE`. The header ends at its separator period (`USING ...` /
+# `RETURNING ...` may run over several lines).
+_COBOL_PROCEDURE_DIVISION_RE = re.compile(r"^(?:[^\n]{6})?[ \t]*PROCEDURE[ \t]+DIVISION(?![\w-])", re.I | re.M)
+_COBOL_SEPARATOR_PERIOD_RE = re.compile(r"\.(?=\s|$)")
+
 # #1949 follow-up: a Mode A "function" can be a bare data/constant definition
 # rather than real code -- confirmed against real corpus source. NASM's `equ`
 # directive assigns a constant to a label
@@ -4790,6 +4802,9 @@ class StructuralExtractor:
                     ) or family in ("column_sensitive"):
                         mode_name = "Mode_A_Labels"
                         sats, impact = self._slice_by_labels(code, rules, offset, spatial_map)
+                        if lang_id == "cobol":
+                            # #4302: calls-only, so `impact` is unchanged.
+                            sats.extend(self._cobol_procedure_entry_units(code, sats, rules, offset))
                     elif lang_id == "m4":
                         mode_name = "Mode_F_M4_Brackets"
                         sats, impact = self._slice_by_m4_brackets(code, rules, offset, spatial_map)
@@ -7607,6 +7622,48 @@ class StructuralExtractor:
         sat["references_to"] = []
         sat["references_qualifiers"] = {}
         return sat
+
+    def _cobol_procedure_entry_units(
+        self, code: str, satellites: list[FunctionNode], rules: dict[str, Any], offset: int
+    ) -> list[FunctionNode]:
+        """#4302: each PROCEDURE DIVISION's entry code, as a calls-only `__global_context__`.
+
+        The entry code runs from the header's separator period to the first unit
+        header after it, or to the program's end / the next program's header
+        (`_COBOL_UNIT_END_RE`), whichever is first -- so a nested or sibling
+        program's entry code is its own bucket. A bucket is kept only when it
+        PERFORMs, CALLs or GOes TO something: it exists to carry those edges.
+        Like Python's module-level unit it has no weight of its own, so no
+        file's magnitude or impact moves, and it stays out of the population.
+        """
+        unit_starts = sorted(int(s["start_idx"]) for s in satellites if isinstance(s.get("start_idx"), int))
+        units: list[FunctionNode] = []
+        for header in _COBOL_PROCEDURE_DIVISION_RE.finditer(code):
+            bound = next((u for u in unit_starts if u >= header.end()), len(code))
+            program_end = _COBOL_UNIT_END_RE.search(code, header.end(), bound)
+            if program_end:
+                bound = program_end.start()
+            period = _COBOL_SEPARATOR_PERIOD_RE.search(code, header.end(), bound)
+            if period is None:
+                continue
+            block = code[period.end() : bound]
+            if not block.strip():
+                continue
+            start_line = offset + code.count("\n", 0, header.start()) + 1
+            end_line = offset + code.count("\n", 0, period.end() + len(block.rstrip())) + 1
+            loc = sum(1 for line in block.splitlines() if line.strip())
+            sat, _ = self._calculate_block_metrics(
+                "__global_context__", block, loc, start_line, end_line, rules, period.end(), bound
+            )
+            if not sat.get("calls_out_to") and not sat.get("transfers_to"):
+                continue
+            for weight in ("magnitude", "mag", "impact"):
+                sat[weight] = 0.0  # type: ignore[literal-required]
+            sat["calls_only"] = True
+            sat["references_to"] = []
+            sat["references_qualifiers"] = {}
+            units.append(sat)
+        return units
 
     @staticmethod
     def _module_text(code: str, satellites: list[FunctionNode]) -> str:

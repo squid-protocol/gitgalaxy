@@ -1651,7 +1651,7 @@
         "Commented Logic Exposure": "0.0%",
         "Concurrency Exposure": "0.0%",
         "Documentation Exposure": "33.33%",
-        "Error & Exception Exposure": "30.12%",
+        "Error & Exception Exposure": "29.97%",
         "Hardcoded Payload Artifacts": "0.0%",
         "Instability Exposure": "50.0%",
         "Specification Exposure": "0.0%",
@@ -1660,7 +1660,7 @@
         "Testing Exposure": "2.31%",
         "Volatility Exposure": "0.0%"
       },
-      "Directory Group Magnitude": 124.27,
+      "Directory Group Magnitude": 122.27,
       "Ecosystem Fingerprint (Archetypes)": {
         "file_cluster_2": "100.0%"
       },

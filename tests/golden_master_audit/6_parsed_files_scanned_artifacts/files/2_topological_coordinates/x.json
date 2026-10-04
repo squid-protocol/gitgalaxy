@@ -406,7 +406,7 @@
       "bms/cbsa/PROVENANCE.md": -225.28
     },
     "bms/genapp": {
-      "bms/genapp/ssmap.bms": 11737.51
+      "bms/genapp/ssmap.bms": 11737.1
     },
     "c": {
       "c/SOURCES.md": -4668.34
@@ -597,9 +597,9 @@
       "cobol/aws-mainframe-modernization-carddemo/UNUSED1Y.cpy": 6591.99
     },
     "cobol/cash-account-cobol": {
-      "cobol/cash-account-cobol/CASH00.cbl": 11176.5,
-      "cobol/cash-account-cobol/DCLCASH.cpy": 11218.83,
-      "cobol/cash-account-cobol/DCLFRANK.cpy": 10989.28
+      "cobol/cash-account-cobol/CASH00.cbl": 11176.32,
+      "cobol/cash-account-cobol/DCLCASH.cpy": 11218.64,
+      "cobol/cash-account-cobol/DCLFRANK.cpy": 10989.24
     },
     "cobol/che-che4z-lsp-for-cobol": {
       "cobol/che-che4z-lsp-for-cobol/LICENSE.md": -6061.28,

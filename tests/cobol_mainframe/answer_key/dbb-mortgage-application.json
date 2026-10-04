@@ -683,7 +683,8 @@
       },
       "commareas_validated": false,
       "main_line": null,
-      "extents_validated": false
+      "extents_validated": true,
+      "extents_validated_tier": "llm_verified"
     },
     "zBuilder/MortgageApplication/cobol/epscsmrt.cbl": {
       "program_id": "EPSCSMRT",
@@ -911,7 +912,8 @@
       },
       "commareas_validated": false,
       "main_line": null,
-      "extents_validated": false
+      "extents_validated": true,
+      "extents_validated_tier": "llm_verified"
     },
     "zBuilder/MortgageApplication/cobol/epsmlist.cbl": {
       "program_id": "EPSMLIST",
@@ -1837,7 +1839,8 @@
       },
       "commareas_validated": false,
       "main_line": null,
-      "extents_validated": false
+      "extents_validated": true,
+      "extents_validated_tier": "llm_verified"
     },
     "zBuilder/MortgageApplication/cobol/epsmpmt.cbl": {
       "program_id": "EPSMPMT",
@@ -2585,7 +2588,8 @@
       },
       "commareas_validated": false,
       "main_line": null,
-      "extents_validated": false
+      "extents_validated": true,
+      "extents_validated_tier": "llm_verified"
     },
     "zBuilder/MortgageApplication/cobol/epsnbrvl.cbl": {
       "program_id": "EPSNBRVL",
@@ -3325,7 +3329,8 @@
       },
       "commareas_validated": false,
       "main_line": null,
-      "extents_validated": false
+      "extents_validated": true,
+      "extents_validated_tier": "llm_verified"
     }
   },
   "pli_programs": {},
@@ -7088,5 +7093,29 @@
         "zBuilder/MortgageApplication/cobol/epsnbrvl.cbl"
       ]
     }
-  ]
+  ],
+  "extents_verification": {
+    "issue": 4318,
+    "at": "2026-10-04",
+    "by": "claude-opus-5.5 (author pass)",
+    "method": "Drafted by this tool's own reader (cobol_answer_key.py add-extents), never from engine output. Edges cross-checked against the forge's independent reading (cobol_graveyard_finder units + PERFORM/GO TO): every COBOL edge agrees. Extents and edges compared with the engine at main 0d64632e: every disagreement settled against the source (trailing sequence-number-only / D lines the engine counts; the main line, #4302; self GO TO dropped by the engine, #3362; PERFORM TEST phantom, #4305) -- no key error found.",
+    "blind_sample": {
+      "seed": 4318,
+      "claims": 10,
+      "agree": 10,
+      "reviewers": "4 fresh-context claude-opus-5.5 subagents, staged source copy and definitions only, no answers (same model family as the author)",
+      "questions": [
+        "Q019 zBuilder/MortgageApplication/cobol/epsmpmt.cbl A300-TRY2",
+        "Q026 zBuilder/MortgageApplication/cobol/epsmpmt.cbl A100-VALIDATE-INPUT",
+        "Q035 zBuilder/MortgageApplication/cobol/epsmpmt.cbl A200-CALULATE-MONTH-PAYMENT",
+        "Q042 zBuilder/MortgageApplication/cobol/epsmlist.cbl A600-CALCULATE-MORTGAGE",
+        "Q049 zBuilder/MortgageApplication/cobol/epscmort.cbl EPSCMORT-MAINLINE",
+        "Q053 zBuilder/MortgageApplication/cobol/epsmpmt.cbl A999-RETURN-ERROR-TEXT",
+        "Q082 zBuilder/MortgageApplication/cobol/epsmpmt.cbl A000-MAINLINE",
+        "Q086 zBuilder/MortgageApplication/cobol/epscsmrt.cbl A000-MAINLINE",
+        "Q092 zBuilder/MortgageApplication/cobol/epscmort.cbl A300-SEND-MAP",
+        "Q096 zBuilder/MortgageApplication/cobol/epscmort.cbl A805-DUMMY-SQL-CALL"
+      ]
+    }
+  }
 }

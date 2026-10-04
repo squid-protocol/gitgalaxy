@@ -116,77 +116,7 @@
         "engine | dead | app/cbl/COUSR01C.cbl | MAIN-PARA | fp": "engine_dead_is_unreferenced_by_name",
         "engine | dead | app/cbl/COUSR02C.cbl | MAIN-PARA | fp": "engine_dead_is_unreferenced_by_name",
         "engine | dead | app/cbl/COUSR03C.cbl | MAIN-PARA | fp": "engine_dead_is_unreferenced_by_name",
-        "engine | intra-program edges | app/cbl/CBACT01C.cbl | (procedure division) -> PERFORM 0000-ACCTFILE-OPEN | fn": "engine_main_line_in_no_unit",
-        "engine | intra-program edges | app/cbl/CBACT01C.cbl | (procedure division) -> PERFORM 1000-ACCTFILE-GET-NEXT | fn": "engine_main_line_in_no_unit",
-        "engine | intra-program edges | app/cbl/CBACT01C.cbl | (procedure division) -> PERFORM 2000-OUTFILE-OPEN | fn": "engine_main_line_in_no_unit",
-        "engine | intra-program edges | app/cbl/CBACT01C.cbl | (procedure division) -> PERFORM 3000-ARRFILE-OPEN | fn": "engine_main_line_in_no_unit",
-        "engine | intra-program edges | app/cbl/CBACT01C.cbl | (procedure division) -> PERFORM 4000-VBRFILE-OPEN | fn": "engine_main_line_in_no_unit",
-        "engine | intra-program edges | app/cbl/CBACT01C.cbl | (procedure division) -> PERFORM 9000-ACCTFILE-CLOSE | fn": "engine_main_line_in_no_unit",
-        "engine | intra-program edges | app/cbl/CBACT02C.cbl | (procedure division) -> PERFORM 0000-CARDFILE-OPEN | fn": "engine_main_line_in_no_unit",
-        "engine | intra-program edges | app/cbl/CBACT02C.cbl | (procedure division) -> PERFORM 1000-CARDFILE-GET-NEXT | fn": "engine_main_line_in_no_unit",
-        "engine | intra-program edges | app/cbl/CBACT02C.cbl | (procedure division) -> PERFORM 9000-CARDFILE-CLOSE | fn": "engine_main_line_in_no_unit",
-        "engine | intra-program edges | app/cbl/CBACT03C.cbl | (procedure division) -> PERFORM 0000-XREFFILE-OPEN | fn": "engine_main_line_in_no_unit",
-        "engine | intra-program edges | app/cbl/CBACT03C.cbl | (procedure division) -> PERFORM 1000-XREFFILE-GET-NEXT | fn": "engine_main_line_in_no_unit",
-        "engine | intra-program edges | app/cbl/CBACT03C.cbl | (procedure division) -> PERFORM 9000-XREFFILE-CLOSE | fn": "engine_main_line_in_no_unit",
-        "engine | intra-program edges | app/cbl/CBACT04C.cbl | (procedure division) -> PERFORM 0000-TCATBALF-OPEN | fn": "engine_main_line_in_no_unit",
-        "engine | intra-program edges | app/cbl/CBACT04C.cbl | (procedure division) -> PERFORM 0100-XREFFILE-OPEN | fn": "engine_main_line_in_no_unit",
-        "engine | intra-program edges | app/cbl/CBACT04C.cbl | (procedure division) -> PERFORM 0200-DISCGRP-OPEN | fn": "engine_main_line_in_no_unit",
-        "engine | intra-program edges | app/cbl/CBACT04C.cbl | (procedure division) -> PERFORM 0300-ACCTFILE-OPEN | fn": "engine_main_line_in_no_unit",
-        "engine | intra-program edges | app/cbl/CBACT04C.cbl | (procedure division) -> PERFORM 0400-TRANFILE-OPEN | fn": "engine_main_line_in_no_unit",
-        "engine | intra-program edges | app/cbl/CBACT04C.cbl | (procedure division) -> PERFORM 1000-TCATBALF-GET-NEXT | fn": "engine_main_line_in_no_unit",
-        "engine | intra-program edges | app/cbl/CBACT04C.cbl | (procedure division) -> PERFORM 1050-UPDATE-ACCOUNT | fn": "engine_main_line_in_no_unit",
-        "engine | intra-program edges | app/cbl/CBACT04C.cbl | (procedure division) -> PERFORM 1100-GET-ACCT-DATA | fn": "engine_main_line_in_no_unit",
-        "engine | intra-program edges | app/cbl/CBACT04C.cbl | (procedure division) -> PERFORM 1110-GET-XREF-DATA | fn": "engine_main_line_in_no_unit",
-        "engine | intra-program edges | app/cbl/CBACT04C.cbl | (procedure division) -> PERFORM 1200-GET-INTEREST-RATE | fn": "engine_main_line_in_no_unit",
-        "engine | intra-program edges | app/cbl/CBACT04C.cbl | (procedure division) -> PERFORM 1300-COMPUTE-INTEREST | fn": "engine_main_line_in_no_unit",
-        "engine | intra-program edges | app/cbl/CBACT04C.cbl | (procedure division) -> PERFORM 1400-COMPUTE-FEES | fn": "engine_main_line_in_no_unit",
-        "engine | intra-program edges | app/cbl/CBACT04C.cbl | (procedure division) -> PERFORM 9000-TCATBALF-CLOSE | fn": "engine_main_line_in_no_unit",
-        "engine | intra-program edges | app/cbl/CBACT04C.cbl | (procedure division) -> PERFORM 9100-XREFFILE-CLOSE | fn": "engine_main_line_in_no_unit",
-        "engine | intra-program edges | app/cbl/CBACT04C.cbl | (procedure division) -> PERFORM 9200-DISCGRP-CLOSE | fn": "engine_main_line_in_no_unit",
-        "engine | intra-program edges | app/cbl/CBACT04C.cbl | (procedure division) -> PERFORM 9300-ACCTFILE-CLOSE | fn": "engine_main_line_in_no_unit",
-        "engine | intra-program edges | app/cbl/CBACT04C.cbl | (procedure division) -> PERFORM 9400-TRANFILE-CLOSE | fn": "engine_main_line_in_no_unit",
-        "engine | intra-program edges | app/cbl/CBCUS01C.cbl | (procedure division) -> PERFORM 0000-CUSTFILE-OPEN | fn": "engine_main_line_in_no_unit",
-        "engine | intra-program edges | app/cbl/CBCUS01C.cbl | (procedure division) -> PERFORM 1000-CUSTFILE-GET-NEXT | fn": "engine_main_line_in_no_unit",
-        "engine | intra-program edges | app/cbl/CBCUS01C.cbl | (procedure division) -> PERFORM 9000-CUSTFILE-CLOSE | fn": "engine_main_line_in_no_unit",
         "engine | intra-program edges | app/cbl/CBSTM03A.CBL | 8500-READTRNX-READ -> GO TO 8500-READTRNX-READ | fn": "engine_drops_self_transfer",
-        "engine | intra-program edges | app/cbl/CBTRN02C.cbl | (procedure division) -> PERFORM 0000-DALYTRAN-OPEN | fn": "engine_main_line_in_no_unit",
-        "engine | intra-program edges | app/cbl/CBTRN02C.cbl | (procedure division) -> PERFORM 0100-TRANFILE-OPEN | fn": "engine_main_line_in_no_unit",
-        "engine | intra-program edges | app/cbl/CBTRN02C.cbl | (procedure division) -> PERFORM 0200-XREFFILE-OPEN | fn": "engine_main_line_in_no_unit",
-        "engine | intra-program edges | app/cbl/CBTRN02C.cbl | (procedure division) -> PERFORM 0300-DALYREJS-OPEN | fn": "engine_main_line_in_no_unit",
-        "engine | intra-program edges | app/cbl/CBTRN02C.cbl | (procedure division) -> PERFORM 0400-ACCTFILE-OPEN | fn": "engine_main_line_in_no_unit",
-        "engine | intra-program edges | app/cbl/CBTRN02C.cbl | (procedure division) -> PERFORM 0500-TCATBALF-OPEN | fn": "engine_main_line_in_no_unit",
-        "engine | intra-program edges | app/cbl/CBTRN02C.cbl | (procedure division) -> PERFORM 1000-DALYTRAN-GET-NEXT | fn": "engine_main_line_in_no_unit",
-        "engine | intra-program edges | app/cbl/CBTRN02C.cbl | (procedure division) -> PERFORM 1500-VALIDATE-TRAN | fn": "engine_main_line_in_no_unit",
-        "engine | intra-program edges | app/cbl/CBTRN02C.cbl | (procedure division) -> PERFORM 2000-POST-TRANSACTION | fn": "engine_main_line_in_no_unit",
-        "engine | intra-program edges | app/cbl/CBTRN02C.cbl | (procedure division) -> PERFORM 2500-WRITE-REJECT-REC | fn": "engine_main_line_in_no_unit",
-        "engine | intra-program edges | app/cbl/CBTRN02C.cbl | (procedure division) -> PERFORM 9000-DALYTRAN-CLOSE | fn": "engine_main_line_in_no_unit",
-        "engine | intra-program edges | app/cbl/CBTRN02C.cbl | (procedure division) -> PERFORM 9100-TRANFILE-CLOSE | fn": "engine_main_line_in_no_unit",
-        "engine | intra-program edges | app/cbl/CBTRN02C.cbl | (procedure division) -> PERFORM 9200-XREFFILE-CLOSE | fn": "engine_main_line_in_no_unit",
-        "engine | intra-program edges | app/cbl/CBTRN02C.cbl | (procedure division) -> PERFORM 9300-DALYREJS-CLOSE | fn": "engine_main_line_in_no_unit",
-        "engine | intra-program edges | app/cbl/CBTRN02C.cbl | (procedure division) -> PERFORM 9400-ACCTFILE-CLOSE | fn": "engine_main_line_in_no_unit",
-        "engine | intra-program edges | app/cbl/CBTRN02C.cbl | (procedure division) -> PERFORM 9500-TCATBALF-CLOSE | fn": "engine_main_line_in_no_unit",
-        "engine | intra-program edges | app/cbl/CBTRN03C.cbl | (procedure division) -> PERFORM 0000-TRANFILE-OPEN | fn": "engine_main_line_in_no_unit",
-        "engine | intra-program edges | app/cbl/CBTRN03C.cbl | (procedure division) -> PERFORM 0100-REPTFILE-OPEN | fn": "engine_main_line_in_no_unit",
-        "engine | intra-program edges | app/cbl/CBTRN03C.cbl | (procedure division) -> PERFORM 0200-CARDXREF-OPEN | fn": "engine_main_line_in_no_unit",
-        "engine | intra-program edges | app/cbl/CBTRN03C.cbl | (procedure division) -> PERFORM 0300-TRANTYPE-OPEN | fn": "engine_main_line_in_no_unit",
-        "engine | intra-program edges | app/cbl/CBTRN03C.cbl | (procedure division) -> PERFORM 0400-TRANCATG-OPEN | fn": "engine_main_line_in_no_unit",
-        "engine | intra-program edges | app/cbl/CBTRN03C.cbl | (procedure division) -> PERFORM 0500-DATEPARM-OPEN | fn": "engine_main_line_in_no_unit",
-        "engine | intra-program edges | app/cbl/CBTRN03C.cbl | (procedure division) -> PERFORM 0550-DATEPARM-READ | fn": "engine_main_line_in_no_unit",
-        "engine | intra-program edges | app/cbl/CBTRN03C.cbl | (procedure division) -> PERFORM 1000-TRANFILE-GET-NEXT | fn": "engine_main_line_in_no_unit",
-        "engine | intra-program edges | app/cbl/CBTRN03C.cbl | (procedure division) -> PERFORM 1100-WRITE-TRANSACTION-REPORT | fn": "engine_main_line_in_no_unit",
-        "engine | intra-program edges | app/cbl/CBTRN03C.cbl | (procedure division) -> PERFORM 1110-WRITE-GRAND-TOTALS | fn": "engine_main_line_in_no_unit",
-        "engine | intra-program edges | app/cbl/CBTRN03C.cbl | (procedure division) -> PERFORM 1110-WRITE-PAGE-TOTALS | fn": "engine_main_line_in_no_unit",
-        "engine | intra-program edges | app/cbl/CBTRN03C.cbl | (procedure division) -> PERFORM 1120-WRITE-ACCOUNT-TOTALS | fn": "engine_main_line_in_no_unit",
-        "engine | intra-program edges | app/cbl/CBTRN03C.cbl | (procedure division) -> PERFORM 1500-A-LOOKUP-XREF | fn": "engine_main_line_in_no_unit",
-        "engine | intra-program edges | app/cbl/CBTRN03C.cbl | (procedure division) -> PERFORM 1500-B-LOOKUP-TRANTYPE | fn": "engine_main_line_in_no_unit",
-        "engine | intra-program edges | app/cbl/CBTRN03C.cbl | (procedure division) -> PERFORM 1500-C-LOOKUP-TRANCATG | fn": "engine_main_line_in_no_unit",
-        "engine | intra-program edges | app/cbl/CBTRN03C.cbl | (procedure division) -> PERFORM 9000-TRANFILE-CLOSE | fn": "engine_main_line_in_no_unit",
-        "engine | intra-program edges | app/cbl/CBTRN03C.cbl | (procedure division) -> PERFORM 9100-REPTFILE-CLOSE | fn": "engine_main_line_in_no_unit",
-        "engine | intra-program edges | app/cbl/CBTRN03C.cbl | (procedure division) -> PERFORM 9200-CARDXREF-CLOSE | fn": "engine_main_line_in_no_unit",
-        "engine | intra-program edges | app/cbl/CBTRN03C.cbl | (procedure division) -> PERFORM 9300-TRANTYPE-CLOSE | fn": "engine_main_line_in_no_unit",
-        "engine | intra-program edges | app/cbl/CBTRN03C.cbl | (procedure division) -> PERFORM 9400-TRANCATG-CLOSE | fn": "engine_main_line_in_no_unit",
-        "engine | intra-program edges | app/cbl/CBTRN03C.cbl | (procedure division) -> PERFORM 9500-DATEPARM-CLOSE | fn": "engine_main_line_in_no_unit",
-        "engine | intra-program edges | app/cbl/CSUTLDTC.cbl | (procedure division) -> PERFORM A000-MAIN | fn": "engine_main_line_in_no_unit",
         "engine | unit extents | app/app-transaction-type-db2/cbl/COTRTLIC.cbl | 0000-MAIN L498-897 | fn": "engine_unit_end_counts_noncode_lines",
         "engine | unit extents | app/app-transaction-type-db2/cbl/COTRTLIC.cbl | 0000-MAIN L498-898 | fp": "engine_unit_end_counts_noncode_lines",
         "engine | unit extents | app/app-transaction-type-db2/cbl/COTRTLIC.cbl | 1000-RECEIVE-MAP-EXIT L926-928 | fn": "engine_unit_end_counts_noncode_lines",
@@ -770,12 +700,12 @@
         },
         "intra-program edges": {
           "engine": {
-            "got": 953,
-            "tp": 953,
+            "got": 1023,
+            "tp": 1023,
             "truth": 1024
           },
           "forge": null,
-          "truth": "draft"
+          "truth": "llm_verified"
         },
         "job submissions": {
           "engine": {
@@ -851,7 +781,7 @@
             "truth": 881
           },
           "forge": null,
-          "truth": "draft"
+          "truth": "llm_verified"
         },
         "units": {
           "engine": {
@@ -1711,7 +1641,7 @@
             "truth": 373
           },
           "forge": null,
-          "truth": "draft"
+          "truth": "llm_verified"
         },
         "job submissions": {
           "engine": null,
@@ -1783,7 +1713,7 @@
             "truth": 680
           },
           "forge": null,
-          "truth": "draft"
+          "truth": "llm_verified"
         },
         "units": {
           "engine": {
@@ -2226,7 +2156,7 @@
             "truth": 131
           },
           "forge": null,
-          "truth": "draft"
+          "truth": "llm_verified"
         },
         "job submissions": {
           "engine": null,
@@ -2298,7 +2228,7 @@
             "truth": 162
           },
           "forge": null,
-          "truth": "draft"
+          "truth": "llm_verified"
         },
         "units": {
           "engine": {
@@ -2653,7 +2583,7 @@
             "truth": 17
           },
           "forge": null,
-          "truth": "draft"
+          "truth": "llm_verified"
         },
         "job submissions": {
           "engine": null,
@@ -2721,7 +2651,7 @@
             "truth": 21
           },
           "forge": null,
-          "truth": "draft"
+          "truth": "llm_verified"
         },
         "units": {
           "engine": {
@@ -2778,8 +2708,6 @@
         "engine | dead | src/GML/R001BYDL.cobol | 0000 | fp": "engine_dead_is_unreferenced_by_name",
         "engine | dead | src/GML/R001BYDL.cobol | 1000 | fp": "engine_dead_is_unreferenced_by_name",
         "engine | dead | src/GML/R001BYDL.cobol | 8000 | fp": "engine_dead_is_unreferenced_by_name",
-        "engine | intra-program edges | src/GML/FO04D1X1.cobol | (procedure division) -> GO TO B | fn": "engine_main_line_in_no_unit",
-        "engine | intra-program edges | src/GML/FO04D1X1.cobol | (procedure division) -> GO TO NULLST | fn": "engine_main_line_in_no_unit",
         "engine | intra-program edges | src/GML/FO04D1X1.cobol | LES-KORT -> GO TO LES-KORT | fn": "engine_drops_self_transfer",
         "engine | intra-program edges | src/GML/FO04D1X1.cobol | LES-PREG -> GO TO LES-PREG | fn": "engine_drops_self_transfer",
         "engine | intra-program edges | src/GML/FO04D1X1.cobol | TEST-TRK-TAB -> GO TO TEST-TRK-TAB | fn": "engine_drops_self_transfer",
@@ -3129,12 +3057,12 @@
         },
         "intra-program edges": {
           "engine": {
-            "got": 114,
-            "tp": 114,
+            "got": 116,
+            "tp": 116,
             "truth": 123
           },
           "forge": null,
-          "truth": "draft"
+          "truth": "llm_verified"
         },
         "job submissions": {
           "engine": null,
@@ -3198,7 +3126,7 @@
             "truth": 166
           },
           "forge": null,
-          "truth": "draft"
+          "truth": "llm_verified"
         },
         "units": {
           "engine": {
@@ -3239,29 +3167,6 @@
         "engine | dead | Source/ZECS001.cbl | 9000-EXIT | fn": "engine_dead_is_unreferenced_by_name",
         "engine | dead | Source/ZECS003.cbl | 9000-EXIT | fn": "engine_dead_is_unreferenced_by_name",
         "engine | dead | Source/ZECSPLT.cbl | 9000-EXIT | fn": "engine_dead_is_unreferenced_by_name",
-        "engine | intra-program edges | Source/ECS001.cbl | (procedure division) -> PERFORM A1000-GET-INPUT-REQUEST | fn": "engine_main_line_in_no_unit",
-        "engine | intra-program edges | Source/ECS001.cbl | (procedure division) -> PERFORM A2000-SETUP-ECS-REQUEST | fn": "engine_main_line_in_no_unit",
-        "engine | intra-program edges | Source/ECS001.cbl | (procedure division) -> PERFORM A3000-OPEN-CONNECTION | fn": "engine_main_line_in_no_unit",
-        "engine | intra-program edges | Source/ECS001.cbl | (procedure division) -> PERFORM A4000-EXECUTE-SERVICE | fn": "engine_main_line_in_no_unit",
-        "engine | intra-program edges | Source/ECS001.cbl | (procedure division) -> PERFORM A5000-CLOSE-CONNECTION | fn": "engine_main_line_in_no_unit",
-        "engine | intra-program edges | Source/ECS001.cbl | (procedure division) -> PERFORM A6000-DISPLAY-RESULTS | fn": "engine_main_line_in_no_unit",
-        "engine | intra-program edges | Source/ECS001.cbl | (procedure division) -> PERFORM Z1000-EXIT-PROGRAM | fn": "engine_main_line_in_no_unit",
-        "engine | intra-program edges | Source/ZECS000.cbl | (procedure division) -> PERFORM 1000-RETRIEVE | fn": "engine_main_line_in_no_unit",
-        "engine | intra-program edges | Source/ZECS000.cbl | (procedure division) -> PERFORM 2000-READ-FILE | fn": "engine_main_line_in_no_unit",
-        "engine | intra-program edges | Source/ZECS000.cbl | (procedure division) -> PERFORM 8000-RESTART | fn": "engine_main_line_in_no_unit",
-        "engine | intra-program edges | Source/ZECS000.cbl | (procedure division) -> PERFORM 9000-RETURN | fn": "engine_main_line_in_no_unit",
-        "engine | intra-program edges | Source/ZECS001.cbl | (procedure division) -> PERFORM 1000-ACCESS-PARMS | fn": "engine_main_line_in_no_unit",
-        "engine | intra-program edges | Source/ZECS001.cbl | (procedure division) -> PERFORM 2000-PROCESS-REQUEST | fn": "engine_main_line_in_no_unit",
-        "engine | intra-program edges | Source/ZECS001.cbl | (procedure division) -> PERFORM 9000-RETURN | fn": "engine_main_line_in_no_unit",
-        "engine | intra-program edges | Source/ZECS003.cbl | (procedure division) -> PERFORM 1000-INITIALIZE | fn": "engine_main_line_in_no_unit",
-        "engine | intra-program edges | Source/ZECS003.cbl | (procedure division) -> PERFORM 2000-REPLICATE | fn": "engine_main_line_in_no_unit",
-        "engine | intra-program edges | Source/ZECS003.cbl | (procedure division) -> PERFORM 3000-READ-ZF | fn": "engine_main_line_in_no_unit",
-        "engine | intra-program edges | Source/ZECS003.cbl | (procedure division) -> PERFORM 4000-CLEAR-COMPLETE | fn": "engine_main_line_in_no_unit",
-        "engine | intra-program edges | Source/ZECS003.cbl | (procedure division) -> PERFORM 9000-RETURN | fn": "engine_main_line_in_no_unit",
-        "engine | intra-program edges | Source/ZECSPLT.cbl | (procedure division) -> PERFORM 1000-INQUIRE-START | fn": "engine_main_line_in_no_unit",
-        "engine | intra-program edges | Source/ZECSPLT.cbl | (procedure division) -> PERFORM 2000-INQUIRE-NEXT | fn": "engine_main_line_in_no_unit",
-        "engine | intra-program edges | Source/ZECSPLT.cbl | (procedure division) -> PERFORM 3000-INQUIRE-END | fn": "engine_main_line_in_no_unit",
-        "engine | intra-program edges | Source/ZECSPLT.cbl | (procedure division) -> PERFORM 9000-RETURN | fn": "engine_main_line_in_no_unit",
         "engine | unit extents | Source/ECS001.cbl | (procedure division) L79-89 | fn": "engine_main_line_in_no_unit",
         "engine | unit extents | Source/ZECS000.cbl | (procedure division) L233-243 | fn": "engine_main_line_in_no_unit",
         "engine | unit extents | Source/ZECS001.cbl | (procedure division) L453-460 | fn": "engine_main_line_in_no_unit",
@@ -3582,12 +3487,12 @@
         },
         "intra-program edges": {
           "engine": {
-            "got": 161,
-            "tp": 161,
+            "got": 184,
+            "tp": 184,
             "truth": 184
           },
           "forge": null,
-          "truth": "draft"
+          "truth": "llm_verified"
         },
         "job submissions": {
           "engine": null,
@@ -3655,7 +3560,7 @@
             "truth": 221
           },
           "forge": null,
-          "truth": "draft"
+          "truth": "llm_verified"
         },
         "units": {
           "engine": {
@@ -4019,7 +3924,7 @@
             "truth": 93
           },
           "forge": null,
-          "truth": "draft"
+          "truth": "llm_verified"
         },
         "job submissions": {
           "engine": null,
@@ -4087,7 +3992,7 @@
             "truth": 66
           },
           "forge": null,
-          "truth": "draft"
+          "truth": "llm_verified"
         },
         "units": {
           "engine": {

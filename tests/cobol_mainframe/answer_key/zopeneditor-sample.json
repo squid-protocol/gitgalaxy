@@ -2047,7 +2047,8 @@
       "records_validated": true,
       "records_validated_tier": "sample_verified",
       "main_line": null,
-      "extents_validated": false
+      "extents_validated": true,
+      "extents_validated_tier": "llm_verified"
     },
     "COBOL/SAM1LIB.cbl": {
       "program_id": "SAM1",
@@ -3707,7 +3708,8 @@
       "records_validated": true,
       "records_validated_tier": "sample_verified",
       "main_line": null,
-      "extents_validated": false
+      "extents_validated": true,
+      "extents_validated_tier": "llm_verified"
     },
     "COBOL/SAM2.cbl": {
       "program_id": "SAM2",
@@ -3975,7 +3977,8 @@
       "records_validated": true,
       "records_validated_tier": "sample_verified",
       "main_line": null,
-      "extents_validated": false
+      "extents_validated": true,
+      "extents_validated_tier": "llm_verified"
     },
     "multiroot/sam/SAM1.cbl": {
       "program_id": "SAM1",
@@ -6298,7 +6301,8 @@
       "records_validated": true,
       "records_validated_tier": "sample_verified",
       "main_line": null,
-      "extents_validated": false
+      "extents_validated": true,
+      "extents_validated_tier": "llm_verified"
     },
     "multiroot/sam/SAM2.cbl": {
       "program_id": "SAM2",
@@ -6574,7 +6578,8 @@
       "records_validated": true,
       "records_validated_tier": "sample_verified",
       "main_line": null,
-      "extents_validated": false
+      "extents_validated": true,
+      "extents_validated_tier": "llm_verified"
     }
   },
   "method": {
@@ -13137,7 +13142,8 @@
           "edges": []
         }
       ],
-      "extents_validated": false
+      "extents_validated": true,
+      "extents_validated_tier": "llm_verified"
     },
     "PLI/PSAM1.pli": {
       "units": [
@@ -13185,7 +13191,8 @@
           "edges": []
         }
       ],
-      "extents_validated": false
+      "extents_validated": true,
+      "extents_validated_tier": "llm_verified"
     },
     "PLI/PSAM1LIB.pli": {
       "units": [
@@ -13233,7 +13240,8 @@
           "edges": []
         }
       ],
-      "extents_validated": false
+      "extents_validated": true,
+      "extents_validated_tier": "llm_verified"
     },
     "PLI/PSAM2.pli": {
       "units": [
@@ -13247,7 +13255,38 @@
           "edges": []
         }
       ],
-      "extents_validated": false
+      "extents_validated": true,
+      "extents_validated_tier": "llm_verified"
+    }
+  },
+  "extents_verification": {
+    "issue": 4318,
+    "at": "2026-10-04",
+    "by": "claude-opus-5.5 (author pass)",
+    "method": "Drafted by this tool's own reader (cobol_answer_key.py add-extents), never from engine output. Edges cross-checked against the forge's independent reading (cobol_graveyard_finder units + PERFORM/GO TO): every COBOL edge agrees. Extents and edges compared with the engine at main 0d64632e: every disagreement settled against the source (trailing sequence-number-only / D lines the engine counts; the main line, #4302; self GO TO dropped by the engine, #3362; PERFORM TEST phantom, #4305) -- no key error found.",
+    "blind_sample": {
+      "seed": 4318,
+      "claims": 16,
+      "agree": 16,
+      "reviewers": "4 fresh-context claude-opus-5.5 subagents, staged source copy and definitions only, no answers (same model family as the author)",
+      "questions": [
+        "Q001 COBOL/SAM2.cbl 100-VALIDATE-TRAN",
+        "Q012 COBOL/SAM1LIB.cbl 220-PROCESS-DELETE-TRAN",
+        "Q013 PLI/PSAM1.pli PSAM1",
+        "Q037 PLI/PSAM1LIB.pli PRTHDG1",
+        "Q052 multiroot/sam/SAM2.cbl 200-PROCESS-TRAN",
+        "Q060 COBOL/SAM1LIB.cbl 299-REPORT-BAD-TRAN",
+        "Q063 multiroot/sam/SAM1.cbl 730-READ-CUSTOMER-FILE",
+        "Q064 multiroot/sam/SAM2.cbl 300-PROCESS-CPU-CRUNCH",
+        "Q068 PLI/PSAM1.pli TRANTOT",
+        "Q075 PLI/PSAM2.pli PSAM2",
+        "Q078 COBOL/SAM1LIB.cbl 100-PROCESS-TRANSACTIONS",
+        "Q083 COBOL/SAM2.cbl 310-CRUNCH-LOOP",
+        "Q085 PLI/PSAM1LIB.pli PSAM1",
+        "Q087 COBOL/SAM1LIB.cbl 720-POSITION-CUST-FILE",
+        "Q099 multiroot/sam/SAM2.cbl 100-VALIDATE-TRAN",
+        "Q100 PLI/MACSAMP.pli MACROFEATURES"
+      ]
     }
   }
 }

@@ -1331,7 +1331,8 @@
       "records_validated": true,
       "records_validated_tier": "sample_verified",
       "main_line": null,
-      "extents_validated": false
+      "extents_validated": true,
+      "extents_validated_tier": "llm_verified"
     },
     "app/app-authorization-ims-db2-mq/cbl/COPAUA0C.cbl": {
       "program_id": "COPAUA0C",
@@ -3921,7 +3922,8 @@
       "records_validated": true,
       "records_validated_tier": "sample_verified",
       "main_line": null,
-      "extents_validated": false
+      "extents_validated": true,
+      "extents_validated_tier": "llm_verified"
     },
     "app/app-authorization-ims-db2-mq/cbl/COPAUS0C.cbl": {
       "program_id": "COPAUS0C",
@@ -5865,7 +5867,8 @@
       "records_validated": true,
       "records_validated_tier": "sample_verified",
       "main_line": null,
-      "extents_validated": false
+      "extents_validated": true,
+      "extents_validated_tier": "llm_verified"
     },
     "app/app-authorization-ims-db2-mq/cbl/COPAUS1C.cbl": {
       "program_id": "COPAUS1C",
@@ -7606,7 +7609,8 @@
       "records_validated": true,
       "records_validated_tier": "sample_verified",
       "main_line": null,
-      "extents_validated": false
+      "extents_validated": true,
+      "extents_validated_tier": "llm_verified"
     },
     "app/app-authorization-ims-db2-mq/cbl/COPAUS2C.cbl": {
       "program_id": "COPAUS2C",
@@ -8302,7 +8306,8 @@
       "records_validated": true,
       "records_validated_tier": "sample_verified",
       "main_line": null,
-      "extents_validated": false
+      "extents_validated": true,
+      "extents_validated_tier": "llm_verified"
     },
     "app/app-authorization-ims-db2-mq/cbl/DBUNLDGS.CBL": {
       "program_id": "DBUNLDGS",
@@ -9748,7 +9753,8 @@
       "records_validated": true,
       "records_validated_tier": "sample_verified",
       "main_line": null,
-      "extents_validated": false
+      "extents_validated": true,
+      "extents_validated_tier": "llm_verified"
     },
     "app/app-authorization-ims-db2-mq/cbl/PAUDBLOD.CBL": {
       "program_id": "PAUDBLOD",
@@ -11374,7 +11380,8 @@
       "records_validated": true,
       "records_validated_tier": "sample_verified",
       "main_line": null,
-      "extents_validated": false
+      "extents_validated": true,
+      "extents_validated_tier": "llm_verified"
     },
     "app/app-authorization-ims-db2-mq/cbl/PAUDBUNL.CBL": {
       "program_id": "PAUDBUNL",
@@ -12762,7 +12769,8 @@
       "records_validated": true,
       "records_validated_tier": "sample_verified",
       "main_line": null,
-      "extents_validated": false
+      "extents_validated": true,
+      "extents_validated_tier": "llm_verified"
     },
     "app/app-transaction-type-db2/cbl/COBTUPDT.cbl": {
       "program_id": "COBTUPDT",
@@ -13232,7 +13240,8 @@
       "records_validated": true,
       "records_validated_tier": "sample_verified",
       "main_line": null,
-      "extents_validated": false
+      "extents_validated": true,
+      "extents_validated_tier": "llm_verified"
     },
     "app/app-transaction-type-db2/cbl/COTRTLIC.cbl": {
       "program_id": "COTRTLIC",
@@ -18373,7 +18382,8 @@
       "records_validated": true,
       "records_validated_tier": "sample_verified",
       "main_line": null,
-      "extents_validated": false
+      "extents_validated": true,
+      "extents_validated_tier": "llm_verified"
     },
     "app/app-transaction-type-db2/cbl/COTRTUPC.cbl": {
       "program_id": "COTRTUPC",
@@ -21726,7 +21736,8 @@
       "records_validated": true,
       "records_validated_tier": "sample_verified",
       "main_line": null,
-      "extents_validated": false
+      "extents_validated": true,
+      "extents_validated_tier": "llm_verified"
     },
     "app/app-vsam-mq/cbl/COACCT01.cbl": {
       "program_id": "COACCT01",
@@ -23745,7 +23756,8 @@
       "records_validated": true,
       "records_validated_tier": "sample_verified",
       "main_line": null,
-      "extents_validated": false
+      "extents_validated": true,
+      "extents_validated_tier": "llm_verified"
     },
     "app/app-vsam-mq/cbl/CODATE01.cbl": {
       "program_id": "CODATE01",
@@ -25272,7 +25284,8 @@
       "records_validated": true,
       "records_validated_tier": "sample_verified",
       "main_line": null,
-      "extents_validated": false
+      "extents_validated": true,
+      "extents_validated_tier": "llm_verified"
     },
     "app/cbl/CBACT01C.cbl": {
       "program_id": "CBACT01C",
@@ -26734,7 +26747,8 @@
           }
         ]
       },
-      "extents_validated": false
+      "extents_validated": true,
+      "extents_validated_tier": "llm_verified"
     },
     "app/cbl/CBACT02C.cbl": {
       "program_id": "CBACT02C",
@@ -27241,7 +27255,8 @@
           }
         ]
       },
-      "extents_validated": false
+      "extents_validated": true,
+      "extents_validated_tier": "llm_verified"
     },
     "app/cbl/CBACT03C.cbl": {
       "program_id": "CBACT03C",
@@ -27748,7 +27763,8 @@
           }
         ]
       },
-      "extents_validated": false
+      "extents_validated": true,
+      "extents_validated_tier": "llm_verified"
     },
     "app/cbl/CBACT04C.cbl": {
       "program_id": "CBACT04C",
@@ -29771,7 +29787,8 @@
           }
         ]
       },
-      "extents_validated": false
+      "extents_validated": true,
+      "extents_validated_tier": "llm_verified"
     },
     "app/cbl/CBCUS01C.cbl": {
       "program_id": "CBCUS01C",
@@ -30278,7 +30295,8 @@
           }
         ]
       },
-      "extents_validated": false
+      "extents_validated": true,
+      "extents_validated_tier": "llm_verified"
     },
     "app/cbl/CBEXPORT.cbl": {
       "program_id": "CBEXPORT",
@@ -31446,7 +31464,8 @@
       "records_validated": true,
       "records_validated_tier": "sample_verified",
       "main_line": null,
-      "extents_validated": false
+      "extents_validated": true,
+      "extents_validated_tier": "llm_verified"
     },
     "app/cbl/CBIMPORT.cbl": {
       "program_id": "CBIMPORT",
@@ -32489,7 +32508,8 @@
       "records_validated": true,
       "records_validated_tier": "sample_verified",
       "main_line": null,
-      "extents_validated": false
+      "extents_validated": true,
+      "extents_validated_tier": "llm_verified"
     },
     "app/cbl/CBSTM03A.CBL": {
       "program_id": "CBSTM03A",
@@ -35774,7 +35794,8 @@
         "end": 294,
         "edges": []
       },
-      "extents_validated": false
+      "extents_validated": true,
+      "extents_validated_tier": "llm_verified"
     },
     "app/cbl/CBSTM03B.CBL": {
       "program_id": "CBSTM03B",
@@ -36662,7 +36683,8 @@
       "records_validated": true,
       "records_validated_tier": "sample_verified",
       "main_line": null,
-      "extents_validated": false
+      "extents_validated": true,
+      "extents_validated_tier": "llm_verified"
     },
     "app/cbl/CBTRN01C.cbl": {
       "program_id": "CBTRN01C",
@@ -38034,7 +38056,8 @@
       "records_validated": true,
       "records_validated_tier": "sample_verified",
       "main_line": null,
-      "extents_validated": false
+      "extents_validated": true,
+      "extents_validated_tier": "llm_verified"
     },
     "app/cbl/CBTRN02C.cbl": {
       "program_id": "CBTRN02C",
@@ -40152,7 +40175,8 @@
           }
         ]
       },
-      "extents_validated": false
+      "extents_validated": true,
+      "extents_validated_tier": "llm_verified"
     },
     "app/cbl/CBTRN03C.cbl": {
       "program_id": "CBTRN03C",
@@ -41881,7 +41905,8 @@
           }
         ]
       },
-      "extents_validated": false
+      "extents_validated": true,
+      "extents_validated_tier": "llm_verified"
     },
     "app/cbl/COACTUPC.cbl": {
       "program_id": "COACTUPC",
@@ -52917,7 +52942,8 @@
       "records_validated": true,
       "records_validated_tier": "sample_verified",
       "main_line": null,
-      "extents_validated": false
+      "extents_validated": true,
+      "extents_validated_tier": "llm_verified"
     },
     "app/cbl/COACTVWC.cbl": {
       "program_id": "COACTVWC",
@@ -55065,7 +55091,8 @@
       "records_validated": true,
       "records_validated_tier": "sample_verified",
       "main_line": null,
-      "extents_validated": false
+      "extents_validated": true,
+      "extents_validated_tier": "llm_verified"
     },
     "app/cbl/COADM01C.cbl": {
       "program_id": "COADM01C",
@@ -55589,7 +55616,8 @@
       "records_validated": true,
       "records_validated_tier": "sample_verified",
       "main_line": null,
-      "extents_validated": false
+      "extents_validated": true,
+      "extents_validated_tier": "llm_verified"
     },
     "app/cbl/COBIL00C.cbl": {
       "program_id": "COBIL00C",
@@ -56623,7 +56651,8 @@
       "records_validated": true,
       "records_validated_tier": "sample_verified",
       "main_line": null,
-      "extents_validated": false
+      "extents_validated": true,
+      "extents_validated_tier": "llm_verified"
     },
     "app/cbl/COBSWAIT.cbl": {
       "program_id": "COBSWAIT",
@@ -56706,7 +56735,8 @@
         "end": 40,
         "edges": []
       },
-      "extents_validated": false
+      "extents_validated": true,
+      "extents_validated_tier": "llm_verified"
     },
     "app/cbl/COCRDLIC.cbl": {
       "program_id": "COCRDLIC",
@@ -59479,7 +59509,8 @@
       "records_validated": true,
       "records_validated_tier": "sample_verified",
       "main_line": null,
-      "extents_validated": false
+      "extents_validated": true,
+      "extents_validated_tier": "llm_verified"
     },
     "app/cbl/COCRDSLC.cbl": {
       "program_id": "COCRDSLC",
@@ -61582,7 +61613,8 @@
       "records_validated": true,
       "records_validated_tier": "sample_verified",
       "main_line": null,
-      "extents_validated": false
+      "extents_validated": true,
+      "extents_validated_tier": "llm_verified"
     },
     "app/cbl/COCRDUPC.cbl": {
       "program_id": "COCRDUPC",
@@ -65215,7 +65247,8 @@
       "records_validated": true,
       "records_validated_tier": "sample_verified",
       "main_line": null,
-      "extents_validated": false
+      "extents_validated": true,
+      "extents_validated_tier": "llm_verified"
     },
     "app/cbl/COMEN01C.cbl": {
       "program_id": "COMEN01C",
@@ -65739,7 +65772,8 @@
       "records_validated": true,
       "records_validated_tier": "sample_verified",
       "main_line": null,
-      "extents_validated": false
+      "extents_validated": true,
+      "extents_validated_tier": "llm_verified"
     },
     "app/cbl/CORPT00C.cbl": {
       "program_id": "CORPT00C",
@@ -67433,7 +67467,8 @@
       "records_validated": true,
       "records_validated_tier": "sample_verified",
       "main_line": null,
-      "extents_validated": false
+      "extents_validated": true,
+      "extents_validated_tier": "llm_verified"
     },
     "app/cbl/COSGN00C.cbl": {
       "program_id": "COSGN00C",
@@ -67903,7 +67938,8 @@
       "records_validated": true,
       "records_validated_tier": "sample_verified",
       "main_line": null,
-      "extents_validated": false
+      "extents_validated": true,
+      "extents_validated_tier": "llm_verified"
     },
     "app/cbl/COTRN00C.cbl": {
       "program_id": "COTRN00C",
@@ -68872,7 +68908,8 @@
       "records_validated": true,
       "records_validated_tier": "sample_verified",
       "main_line": null,
-      "extents_validated": false
+      "extents_validated": true,
+      "extents_validated_tier": "llm_verified"
     },
     "app/cbl/COTRN01C.cbl": {
       "program_id": "COTRN01C",
@@ -69571,7 +69608,8 @@
       "records_validated": true,
       "records_validated_tier": "sample_verified",
       "main_line": null,
-      "extents_validated": false
+      "extents_validated": true,
+      "extents_validated_tier": "llm_verified"
     },
     "app/cbl/COTRN02C.cbl": {
       "program_id": "COTRN02C",
@@ -70872,7 +70910,8 @@
       "records_validated": true,
       "records_validated_tier": "sample_verified",
       "main_line": null,
-      "extents_validated": false
+      "extents_validated": true,
+      "extents_validated_tier": "llm_verified"
     },
     "app/cbl/COUSR00C.cbl": {
       "program_id": "COUSR00C",
@@ -71963,7 +72002,8 @@
       "records_validated": true,
       "records_validated_tier": "sample_verified",
       "main_line": null,
-      "extents_validated": false
+      "extents_validated": true,
+      "extents_validated_tier": "llm_verified"
     },
     "app/cbl/COUSR01C.cbl": {
       "program_id": "COUSR01C",
@@ -72453,7 +72493,8 @@
       "records_validated": true,
       "records_validated_tier": "sample_verified",
       "main_line": null,
-      "extents_validated": false
+      "extents_validated": true,
+      "extents_validated_tier": "llm_verified"
     },
     "app/cbl/COUSR02C.cbl": {
       "program_id": "COUSR02C",
@@ -73206,7 +73247,8 @@
       "records_validated": true,
       "records_validated_tier": "sample_verified",
       "main_line": null,
-      "extents_validated": false
+      "extents_validated": true,
+      "extents_validated_tier": "llm_verified"
     },
     "app/cbl/COUSR03C.cbl": {
       "program_id": "COUSR03C",
@@ -73934,7 +73976,8 @@
       "records_validated": true,
       "records_validated_tier": "sample_verified",
       "main_line": null,
-      "extents_validated": false
+      "extents_validated": true,
+      "extents_validated_tier": "llm_verified"
     },
     "app/cbl/CSUTLDTC.cbl": {
       "program_id": "CSUTLDTC",
@@ -74776,7 +74819,8 @@
           }
         ]
       },
-      "extents_validated": false
+      "extents_validated": true,
+      "extents_validated_tier": "llm_verified"
     }
   },
   "pli_programs": {},
@@ -132487,6 +132531,40 @@
           "at": "2026-09-26"
         }
       }
+    }
+  },
+  "extents_verification": {
+    "issue": 4318,
+    "at": "2026-10-04",
+    "by": "claude-opus-5.5 (author pass)",
+    "method": "Drafted by this tool's own reader (cobol_answer_key.py add-extents), never from engine output. Edges cross-checked against the forge's independent reading (cobol_graveyard_finder units + PERFORM/GO TO): every COBOL edge agrees. Extents and edges compared with the engine at main 0d64632e: every disagreement settled against the source (trailing sequence-number-only / D lines the engine counts; the main line, #4302; self GO TO dropped by the engine, #3362; PERFORM TEST phantom, #4305) -- no key error found.",
+    "blind_sample": {
+      "seed": 4318,
+      "claims": 20,
+      "agree": 20,
+      "reviewers": "4 fresh-context claude-opus-5.5 subagents, staged source copy and definitions only, no answers (same model family as the author)",
+      "questions": [
+        "Q003 app/cbl/CBSTM03A.CBL MAIN LINE",
+        "Q010 app/cbl/CBTRN02C.cbl MAIN LINE",
+        "Q011 app/cbl/CBACT03C.cbl MAIN LINE",
+        "Q017 app/cbl/CBACT04C.cbl MAIN LINE",
+        "Q020 app/cbl/COACTVWC.cbl 1200-SETUP-SCREEN-VARS",
+        "Q024 app/cbl/COACTUPC.cbl 3320-UNPROTECT-FEW-ATTRS-EXIT",
+        "Q025 app/cbl/CBTRN03C.cbl MAIN LINE",
+        "Q033 app/cbl/COCRDUPC.cbl 9000-READ-DATA",
+        "Q039 app/cbl/COTRN02C.cbl INITIALIZE-ALL-FIELDS",
+        "Q045 app/cbl/COACTUPC.cbl 9400-GETCUSTDATA-BYCUST-EXIT",
+        "Q046 app/cbl/COBSWAIT.cbl MAIN LINE",
+        "Q047 app/cbl/CBCUS01C.cbl MAIN LINE",
+        "Q051 app/cbl/COACTUPC.cbl 3400-SEND-SCREEN-EXIT",
+        "Q071 app/cbl/CBACT03C.cbl 0000-XREFFILE-OPEN",
+        "Q072 app/cbl/CSUTLDTC.cbl MAIN LINE",
+        "Q073 app/cbl/COACTVWC.cbl 1300-SETUP-SCREEN-ATTRS",
+        "Q079 app/cbl/CBSTM03A.CBL 8200-XREFFILE-OPEN",
+        "Q084 app/cbl/CBACT02C.cbl MAIN LINE",
+        "Q093 app/cbl/CBTRN01C.cbl 0500-TRANFILE-OPEN",
+        "Q097 app/cbl/CBACT01C.cbl MAIN LINE"
+      ]
     }
   }
 }

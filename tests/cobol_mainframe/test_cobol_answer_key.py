@@ -491,8 +491,13 @@ def test_draft_keys_sibling_programs_with_their_own_units(tmp_path):
         # #4318: each unit ends at its last code line; FIRST-UNUSED stops before the
         # nested program's IDENTIFICATION DIVISION, not at SECOND's END PROGRAM.
         "units": [
-            {"name": "MAINLINE", "kind": "section", "line": 22, "end": 25, "edges": [
-                {"verb": "PERFORM_THRU", "target": "SECOND-USED", "thru": "FIRST-UNUSED", "line": 23}]},
+            {
+                "name": "MAINLINE",
+                "kind": "section",
+                "line": 22,
+                "end": 25,
+                "edges": [{"verb": "PERFORM_THRU", "target": "SECOND-USED", "thru": "FIRST-UNUSED", "line": 23}],
+            },
             {"name": "SECOND-USED", "kind": "paragraph", "line": 26, "end": 27, "edges": []},
             {"name": "FIRST-UNUSED", "kind": "paragraph", "line": 28, "end": 29, "edges": []},
         ],  # fmt: skip
@@ -1993,7 +1998,9 @@ def test_a_procedure_copybooks_paragraph_is_a_perform_target(tmp_path):
     `EXEC SQL INCLUDE CSDB2RPY` brings in: an edge, though not a unit of the file."""
     cpy = tmp_path / "CPYPARA.cpy"
     cpy.write_text("       CPY-PARA.\n           DISPLAY 'C'.\n", encoding="utf-8")
-    path = _program(tmp_path, "       MAIN-PARA.\n           PERFORM CPY-PARA\n           GOBACK.\n       COPY CPYPARA.\n")
+    path = _program(
+        tmp_path, "       MAIN-PARA.\n           PERFORM CPY-PARA\n           GOBACK.\n       COPY CPYPARA.\n"
+    )
     entry, _ = ak.draft_program(path, tmp_path, [path, cpy], {"PROG": ["PROG.cbl"]})
     assert [u["name"] for u in entry["units"]] == ["MAIN-PARA"]
     assert _edges(entry["units"][0]) == [("PERFORM", "CPY-PARA", 7)]

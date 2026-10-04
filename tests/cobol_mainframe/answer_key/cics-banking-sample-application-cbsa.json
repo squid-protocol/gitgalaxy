@@ -1094,7 +1094,8 @@
       "records_validated": true,
       "records_validated_tier": "sample_verified",
       "main_line": null,
-      "extents_validated": false
+      "extents_validated": true,
+      "extents_validated_tier": "llm_verified"
     },
     "src/base/cobol_src/ACCTCTRL.cbl": {
       "program_id": "ACCTCTRL",
@@ -2239,7 +2240,8 @@
       "records_validated": true,
       "records_validated_tier": "sample_verified",
       "main_line": null,
-      "extents_validated": false
+      "extents_validated": true,
+      "extents_validated_tier": "llm_verified"
     },
     "src/base/cobol_src/BANKDATA.cbl": {
       "program_id": "BANKDATA",
@@ -5670,7 +5672,8 @@
       "records_validated": true,
       "records_validated_tier": "sample_verified",
       "main_line": null,
-      "extents_validated": false
+      "extents_validated": true,
+      "extents_validated_tier": "llm_verified"
     },
     "src/base/cobol_src/BNK1CAC.cbl": {
       "program_id": "BNK1CAC",
@@ -7820,7 +7823,8 @@
       "records_validated": true,
       "records_validated_tier": "sample_verified",
       "main_line": null,
-      "extents_validated": false
+      "extents_validated": true,
+      "extents_validated_tier": "llm_verified"
     },
     "src/base/cobol_src/BNK1CCA.cbl": {
       "program_id": "BNK1CCA",
@@ -9741,7 +9745,8 @@
       "records_validated": true,
       "records_validated_tier": "sample_verified",
       "main_line": null,
-      "extents_validated": false
+      "extents_validated": true,
+      "extents_validated_tier": "llm_verified"
     },
     "src/base/cobol_src/BNK1CCS.cbl": {
       "program_id": "BNK1CCS",
@@ -12059,7 +12064,8 @@
       "records_validated": true,
       "records_validated_tier": "sample_verified",
       "main_line": null,
-      "extents_validated": false
+      "extents_validated": true,
+      "extents_validated_tier": "llm_verified"
     },
     "src/base/cobol_src/BNK1CRA.cbl": {
       "program_id": "BNK1CRA",
@@ -14406,7 +14412,8 @@
       "records_validated": true,
       "records_validated_tier": "sample_verified",
       "main_line": null,
-      "extents_validated": false
+      "extents_validated": true,
+      "extents_validated_tier": "llm_verified"
     },
     "src/base/cobol_src/BNK1DAC.cbl": {
       "program_id": "BNK1DAC",
@@ -16991,7 +16998,8 @@
       "records_validated": true,
       "records_validated_tier": "sample_verified",
       "main_line": null,
-      "extents_validated": false
+      "extents_validated": true,
+      "extents_validated_tier": "llm_verified"
     },
     "src/base/cobol_src/BNK1DCS.cbl": {
       "program_id": "BNK1DCS",
@@ -19923,7 +19931,8 @@
       "records_validated": true,
       "records_validated_tier": "sample_verified",
       "main_line": null,
-      "extents_validated": false
+      "extents_validated": true,
+      "extents_validated_tier": "llm_verified"
     },
     "src/base/cobol_src/BNK1TFN.cbl": {
       "program_id": "BNK1TFN",
@@ -22210,7 +22219,8 @@
       "records_validated": true,
       "records_validated_tier": "sample_verified",
       "main_line": null,
-      "extents_validated": false
+      "extents_validated": true,
+      "extents_validated_tier": "llm_verified"
     },
     "src/base/cobol_src/BNK1UAC.cbl": {
       "program_id": "BNK1UAC",
@@ -24795,7 +24805,8 @@
       "records_validated": true,
       "records_validated_tier": "sample_verified",
       "main_line": null,
-      "extents_validated": false
+      "extents_validated": true,
+      "extents_validated_tier": "llm_verified"
     },
     "src/base/cobol_src/BNKMENU.cbl": {
       "program_id": "BNKMENU",
@@ -26228,7 +26239,8 @@
       "records_validated": true,
       "records_validated_tier": "sample_verified",
       "main_line": null,
-      "extents_validated": false
+      "extents_validated": true,
+      "extents_validated_tier": "llm_verified"
     },
     "src/base/cobol_src/CRDTAGY1.cbl": {
       "program_id": "CRDTAGY1",
@@ -27143,7 +27155,8 @@
       "records_validated": true,
       "records_validated_tier": "sample_verified",
       "main_line": null,
-      "extents_validated": false
+      "extents_validated": true,
+      "extents_validated_tier": "llm_verified"
     },
     "src/base/cobol_src/CRDTAGY2.cbl": {
       "program_id": "CRDTAGY2",
@@ -28058,7 +28071,8 @@
       "records_validated": true,
       "records_validated_tier": "sample_verified",
       "main_line": null,
-      "extents_validated": false
+      "extents_validated": true,
+      "extents_validated_tier": "llm_verified"
     },
     "src/base/cobol_src/CRDTAGY3.cbl": {
       "program_id": "CRDTAGY3",
@@ -28973,7 +28987,8 @@
       "records_validated": true,
       "records_validated_tier": "sample_verified",
       "main_line": null,
-      "extents_validated": false
+      "extents_validated": true,
+      "extents_validated_tier": "llm_verified"
     },
     "src/base/cobol_src/CRDTAGY4.cbl": {
       "program_id": "CRDTAGY4",
@@ -29888,7 +29903,8 @@
       "records_validated": true,
       "records_validated_tier": "sample_verified",
       "main_line": null,
-      "extents_validated": false
+      "extents_validated": true,
+      "extents_validated_tier": "llm_verified"
     },
     "src/base/cobol_src/CRDTAGY5.cbl": {
       "program_id": "CRDTAGY5",
@@ -30803,7 +30819,8 @@
       "records_validated": true,
       "records_validated_tier": "sample_verified",
       "main_line": null,
-      "extents_validated": false
+      "extents_validated": true,
+      "extents_validated_tier": "llm_verified"
     },
     "src/base/cobol_src/CREACC.cbl": {
       "program_id": "CREACC",
@@ -33770,7 +33787,8 @@
       "records_validated": true,
       "records_validated_tier": "sample_verified",
       "main_line": null,
-      "extents_validated": false
+      "extents_validated": true,
+      "extents_validated_tier": "llm_verified"
     },
     "src/base/cobol_src/CRECUST.cbl": {
       "program_id": "CRECUST",
@@ -37435,7 +37453,8 @@
       "records_validated": true,
       "records_validated_tier": "sample_verified",
       "main_line": null,
-      "extents_validated": false
+      "extents_validated": true,
+      "extents_validated_tier": "llm_verified"
     },
     "src/base/cobol_src/CUSTCTRL.cbl": {
       "program_id": "CUSTCTRL",
@@ -38532,7 +38551,8 @@
       "records_validated": true,
       "records_validated_tier": "sample_verified",
       "main_line": null,
-      "extents_validated": false
+      "extents_validated": true,
+      "extents_validated_tier": "llm_verified"
     },
     "src/base/cobol_src/DBCRFUN.cbl": {
       "program_id": "DBCRFUN",
@@ -40323,7 +40343,8 @@
       "records_validated": true,
       "records_validated_tier": "sample_verified",
       "main_line": null,
-      "extents_validated": false
+      "extents_validated": true,
+      "extents_validated_tier": "llm_verified"
     },
     "src/base/cobol_src/DELACC.cbl": {
       "program_id": "DELACC",
@@ -42217,7 +42238,8 @@
       "records_validated": true,
       "records_validated_tier": "sample_verified",
       "main_line": null,
-      "extents_validated": false
+      "extents_validated": true,
+      "extents_validated_tier": "llm_verified"
     },
     "src/base/cobol_src/DELCUS.cbl": {
       "program_id": "DELCUS",
@@ -44719,7 +44741,8 @@
       "records_validated": true,
       "records_validated_tier": "sample_verified",
       "main_line": null,
-      "extents_validated": false
+      "extents_validated": true,
+      "extents_validated_tier": "llm_verified"
     },
     "src/base/cobol_src/GETCOMPY.cbl": {
       "program_id": "GETCOMPY",
@@ -44792,7 +44815,8 @@
       "records_validated": true,
       "records_validated_tier": "sample_verified",
       "main_line": null,
-      "extents_validated": false
+      "extents_validated": true,
+      "extents_validated_tier": "llm_verified"
     },
     "src/base/cobol_src/GETSCODE.cbl": {
       "program_id": "GETSCODE",
@@ -44873,7 +44897,8 @@
       "records_validated": true,
       "records_validated_tier": "sample_verified",
       "main_line": null,
-      "extents_validated": false
+      "extents_validated": true,
+      "extents_validated_tier": "llm_verified"
     },
     "src/base/cobol_src/INQACC.cbl": {
       "program_id": "INQACC",
@@ -46767,7 +46792,8 @@
       "records_validated": true,
       "records_validated_tier": "sample_verified",
       "main_line": null,
-      "extents_validated": false
+      "extents_validated": true,
+      "extents_validated_tier": "llm_verified"
     },
     "src/base/cobol_src/INQACCCU.cbl": {
       "program_id": "INQACCCU",
@@ -48609,7 +48635,8 @@
       "records_validated": true,
       "records_validated_tier": "sample_verified",
       "main_line": null,
-      "extents_validated": false
+      "extents_validated": true,
+      "extents_validated_tier": "llm_verified"
     },
     "src/base/cobol_src/INQCUST.cbl": {
       "program_id": "INQCUST",
@@ -50286,7 +50313,8 @@
       "records_validated": true,
       "records_validated_tier": "sample_verified",
       "main_line": null,
-      "extents_validated": false
+      "extents_validated": true,
+      "extents_validated_tier": "llm_verified"
     },
     "src/base/cobol_src/UPDACC.cbl": {
       "program_id": "UPDACC",
@@ -51495,7 +51523,8 @@
       "records_validated": true,
       "records_validated_tier": "sample_verified",
       "main_line": null,
-      "extents_validated": false
+      "extents_validated": true,
+      "extents_validated_tier": "llm_verified"
     },
     "src/base/cobol_src/UPDCUST.cbl": {
       "program_id": "UPDCUST",
@@ -52625,7 +52654,8 @@
       "records_validated": true,
       "records_validated_tier": "sample_verified",
       "main_line": null,
-      "extents_validated": false
+      "extents_validated": true,
+      "extents_validated_tier": "llm_verified"
     },
     "src/base/cobol_src/XFRFUN.cbl": {
       "program_id": "XFRFUN",
@@ -55219,7 +55249,8 @@
       "records_validated": true,
       "records_validated_tier": "sample_verified",
       "main_line": null,
-      "extents_validated": false
+      "extents_validated": true,
+      "extents_validated_tier": "llm_verified"
     }
   },
   "method": {
@@ -88234,6 +88265,30 @@
           "at": "2026-09-26"
         }
       }
+    }
+  },
+  "extents_verification": {
+    "issue": 4318,
+    "at": "2026-10-04",
+    "by": "claude-opus-5.5 (author pass)",
+    "method": "Drafted by this tool's own reader (cobol_answer_key.py add-extents), never from engine output. Edges cross-checked against the forge's independent reading (cobol_graveyard_finder units + PERFORM/GO TO): every COBOL edge agrees. Extents and edges compared with the engine at main 0d64632e: every disagreement settled against the source (trailing sequence-number-only / D lines the engine counts; the main line, #4302; self GO TO dropped by the engine, #3362; PERFORM TEST phantom, #4305) -- no key error found.",
+    "blind_sample": {
+      "seed": 4318,
+      "claims": 10,
+      "agree": 10,
+      "reviewers": "4 fresh-context claude-opus-5.5 subagents, staged source copy and definitions only, no answers (same model family as the author)",
+      "questions": [
+        "Q009 src/base/cobol_src/CRDTAGY3.cbl A010",
+        "Q016 src/base/cobol_src/BNK1UAC.cbl RM010",
+        "Q032 src/base/cobol_src/CREACC.cbl CAC010",
+        "Q034 src/base/cobol_src/DELACC.cbl A999",
+        "Q040 src/base/cobol_src/DBCRFUN.cbl WTPD999",
+        "Q048 src/base/cobol_src/BNK1DCS.cbl SM010",
+        "Q056 src/base/cobol_src/BNKMENU.cbl SEND-TERMINATION-MSG",
+        "Q057 src/base/cobol_src/BNKMENU.cbl POPULATE-TIME-DATE",
+        "Q067 src/base/cobol_src/DELACC.cbl POPULATE-TIME-DATE",
+        "Q074 src/base/cobol_src/BNK1CCS.cbl ATT999"
+      ]
     }
   }
 }

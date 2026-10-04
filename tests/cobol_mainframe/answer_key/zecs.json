@@ -817,7 +817,8 @@
           }
         ]
       },
-      "extents_validated": false
+      "extents_validated": true,
+      "extents_validated_tier": "llm_verified"
     },
     "Source/ZECS000.cbl": {
       "program_id": "ZECS000",
@@ -3893,7 +3894,8 @@
           }
         ]
       },
-      "extents_validated": false
+      "extents_validated": true,
+      "extents_validated_tier": "llm_verified"
     },
     "Source/ZECS001.cbl": {
       "program_id": "ZECS001",
@@ -10770,7 +10772,8 @@
           }
         ]
       },
-      "extents_validated": false
+      "extents_validated": true,
+      "extents_validated_tier": "llm_verified"
     },
     "Source/ZECS003.cbl": {
       "program_id": "ZECS003",
@@ -12666,7 +12669,8 @@
           }
         ]
       },
-      "extents_validated": false
+      "extents_validated": true,
+      "extents_validated_tier": "llm_verified"
     },
     "Source/ZECSPLT.cbl": {
       "program_id": "ZECSPLT",
@@ -13207,7 +13211,8 @@
           }
         ]
       },
-      "extents_validated": false
+      "extents_validated": true,
+      "extents_validated_tier": "llm_verified"
     }
   },
   "pli_programs": {},
@@ -22895,6 +22900,35 @@
           "at": "2026-09-26"
         }
       }
+    }
+  },
+  "extents_verification": {
+    "issue": 4318,
+    "at": "2026-10-04",
+    "by": "claude-opus-5.5 (author pass)",
+    "method": "Drafted by this tool's own reader (cobol_answer_key.py add-extents), never from engine output. Edges cross-checked against the forge's independent reading (cobol_graveyard_finder units + PERFORM/GO TO): every COBOL edge agrees. Extents and edges compared with the engine at main 0d64632e: every disagreement settled against the source (trailing sequence-number-only / D lines the engine counts; the main line, #4302; self GO TO dropped by the engine, #3362; PERFORM TEST phantom, #4305) -- no key error found.",
+    "blind_sample": {
+      "seed": 4318,
+      "claims": 15,
+      "agree": 15,
+      "reviewers": "4 fresh-context claude-opus-5.5 subagents, staged source copy and definitions only, no answers (same model family as the author)",
+      "questions": [
+        "Q004 Source/ZECS000.cbl 9950-EXIT",
+        "Q005 Source/ZECS003.cbl MAIN LINE",
+        "Q007 Source/ZECS000.cbl 3200-EXIT",
+        "Q015 Source/ZECS001.cbl 1610-SCAN-ZCXXSD",
+        "Q018 Source/ZECS001.cbl 1300-EXIT",
+        "Q036 Source/ZECS000.cbl 9900-EXIT",
+        "Q041 Source/ZECS000.cbl 1000-RETRIEVE",
+        "Q043 Source/ZECS001.cbl 3500-EXIT",
+        "Q065 Source/ZECSPLT.cbl MAIN LINE",
+        "Q069 Source/ZECS001.cbl 4000-EXIT",
+        "Q080 Source/ZECS000.cbl MAIN LINE",
+        "Q088 Source/ZECS001.cbl MAIN LINE",
+        "Q090 Source/ECS001.cbl MAIN LINE",
+        "Q094 Source/ZECS001.cbl 1320-CLEAR",
+        "Q098 Source/ZECS001.cbl 3510-EXIT"
+      ]
     }
   }
 }

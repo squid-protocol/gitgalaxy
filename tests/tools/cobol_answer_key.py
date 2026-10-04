@@ -6569,9 +6569,7 @@ def add_extents(repo: Path, key: dict[str, Any]) -> list[str]:
 # files as `pli_moves` (every PL/I file of a small corpus, a seeded sample of DSF's),
 # plus the sources #4301 names, whose `KONTROLL_AV_INPUT` the engine once cut at a
 # conditional `ELSE RETURN;` (both copies DSF ships of each).
-PLI_UNIT_WITNESSES = tuple(
-    f"src/{d}R00104{n}.pli" for d in ("", "GML/") for n in ("22", "23", "24", "25")
-)
+PLI_UNIT_WITNESSES = tuple(f"src/{d}R00104{n}.pli" for d in ("", "GML/") for n in ("22", "23", "24", "25"))
 
 
 def pli_unit_scope(repo: Path, key: dict[str, Any]) -> list[str]:

@@ -980,6 +980,14 @@
     "refmod spans": {
       "introduced": "#3676",
       "development_rounds": 6
+    },
+    "unit extents": {
+      "introduced": "#4318",
+      "development_rounds": 7
+    },
+    "intra-program edges": {
+      "introduced": "#4318",
+      "development_rounds": 7
     }
   }
 }

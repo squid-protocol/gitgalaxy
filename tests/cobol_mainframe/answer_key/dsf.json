@@ -1682,7 +1682,8 @@
           }
         ]
       },
-      "extents_validated": false
+      "extents_validated": true,
+      "extents_validated_tier": "llm_verified"
     },
     "src/GML/FO04F1X1.cobol": {
       "program_id": "FO04F1X1",
@@ -5526,7 +5527,8 @@
       "records_validated": true,
       "records_validated_tier": "sample_verified",
       "main_line": null,
-      "extents_validated": false
+      "extents_validated": true,
+      "extents_validated_tier": "llm_verified"
     },
     "src/GML/FRMERK.cobol": {
       "program_id": "LISTMRK",
@@ -6182,7 +6184,8 @@
       "records_validated": true,
       "records_validated_tier": "sample_verified",
       "main_line": null,
-      "extents_validated": false
+      "extents_validated": true,
+      "extents_validated_tier": "llm_verified"
     },
     "src/GML/FRREDIG.cobol": {
       "program_id": "LIST1X",
@@ -7184,7 +7187,8 @@
       "records_validated": true,
       "records_validated_tier": "sample_verified",
       "main_line": null,
-      "extents_validated": false
+      "extents_validated": true,
+      "extents_validated_tier": "llm_verified"
     },
     "src/GML/PLUKKFR.cobol": {
       "program_id": "TELL-TRANS",
@@ -7660,7 +7664,8 @@
         "end": 75,
         "edges": []
       },
-      "extents_validated": false
+      "extents_validated": true,
+      "extents_validated_tier": "llm_verified"
     },
     "src/GML/PLUKKFRN.cobol": {
       "program_id": "TELL-TRANS",
@@ -8136,7 +8141,8 @@
         "end": 75,
         "edges": []
       },
-      "extents_validated": false
+      "extents_validated": true,
+      "extents_validated_tier": "llm_verified"
     },
     "src/GML/R001BYDL.cobol": {
       "program_id": "R001BYDL",
@@ -9955,7 +9961,8 @@
       "records_validated": true,
       "records_validated_tier": "sample_verified",
       "main_line": null,
-      "extents_validated": false
+      "extents_validated": true,
+      "extents_validated_tier": "llm_verified"
     }
   },
   "sql_tables": {},
@@ -183699,7 +183706,8 @@
           ]
         }
       ],
-      "extents_validated": false
+      "extents_validated": true,
+      "extents_validated_tier": "llm_verified"
     },
     "src/GML/R0010423.pli": {
       "units": [
@@ -183858,7 +183866,8 @@
           ]
         }
       ],
-      "extents_validated": false
+      "extents_validated": true,
+      "extents_validated_tier": "llm_verified"
     },
     "src/GML/R0010424.pli": {
       "units": [
@@ -184017,7 +184026,8 @@
           ]
         }
       ],
-      "extents_validated": false
+      "extents_validated": true,
+      "extents_validated_tier": "llm_verified"
     },
     "src/GML/R0010425.pli": {
       "units": [
@@ -184176,7 +184186,8 @@
           ]
         }
       ],
-      "extents_validated": false
+      "extents_validated": true,
+      "extents_validated_tier": "llm_verified"
     },
     "src/GML/R0010427.pli": {
       "units": [
@@ -184190,7 +184201,8 @@
           "edges": []
         }
       ],
-      "extents_validated": false
+      "extents_validated": true,
+      "extents_validated_tier": "llm_verified"
     },
     "src/GML/R00104BP.pli": {
       "units": [
@@ -184231,7 +184243,8 @@
           "edges": []
         }
       ],
-      "extents_validated": false
+      "extents_validated": true,
+      "extents_validated_tier": "llm_verified"
     },
     "src/GML/R00104U3.pli": {
       "units": [
@@ -184283,7 +184296,8 @@
           "edges": []
         }
       ],
-      "extents_validated": false
+      "extents_validated": true,
+      "extents_validated_tier": "llm_verified"
     },
     "src/GML/R0010705.pli": {
       "units": [
@@ -184297,7 +184311,8 @@
           "edges": []
         }
       ],
-      "extents_validated": false
+      "extents_validated": true,
+      "extents_validated_tier": "llm_verified"
     },
     "src/GML/R0010902.pli": {
       "units": [
@@ -184329,7 +184344,8 @@
           "edges": []
         }
       ],
-      "extents_validated": false
+      "extents_validated": true,
+      "extents_validated_tier": "llm_verified"
     },
     "src/GML/R0011022.pli": {
       "units": [
@@ -184343,7 +184359,8 @@
           "edges": []
         }
       ],
-      "extents_validated": false
+      "extents_validated": true,
+      "extents_validated_tier": "llm_verified"
     },
     "src/GML/R0012004.pli": {
       "units": [
@@ -184414,7 +184431,8 @@
           "edges": []
         }
       ],
-      "extents_validated": false
+      "extents_validated": true,
+      "extents_validated_tier": "llm_verified"
     },
     "src/GML/R0014131.pli": {
       "units": [
@@ -184428,7 +184446,8 @@
           "edges": []
         }
       ],
-      "extents_validated": false
+      "extents_validated": true,
+      "extents_validated_tier": "llm_verified"
     },
     "src/GML/R0014168.pli": {
       "units": [
@@ -184442,7 +184461,8 @@
           "edges": []
         }
       ],
-      "extents_validated": false
+      "extents_validated": true,
+      "extents_validated_tier": "llm_verified"
     },
     "src/GML/R001UE20.pli": {
       "units": [
@@ -184456,7 +184476,8 @@
           "edges": []
         }
       ],
-      "extents_validated": false
+      "extents_validated": true,
+      "extents_validated_tier": "llm_verified"
     },
     "src/R0010422.pli": {
       "units": [
@@ -184605,7 +184626,8 @@
           ]
         }
       ],
-      "extents_validated": false
+      "extents_validated": true,
+      "extents_validated_tier": "llm_verified"
     },
     "src/R0010423.pli": {
       "units": [
@@ -184764,7 +184786,8 @@
           ]
         }
       ],
-      "extents_validated": false
+      "extents_validated": true,
+      "extents_validated_tier": "llm_verified"
     },
     "src/R0010424.pli": {
       "units": [
@@ -184923,7 +184946,8 @@
           ]
         }
       ],
-      "extents_validated": false
+      "extents_validated": true,
+      "extents_validated_tier": "llm_verified"
     },
     "src/R0010425.pli": {
       "units": [
@@ -185082,7 +185106,8 @@
           ]
         }
       ],
-      "extents_validated": false
+      "extents_validated": true,
+      "extents_validated_tier": "llm_verified"
     },
     "src/R0010503.pli": {
       "units": [
@@ -185096,7 +185121,8 @@
           "edges": []
         }
       ],
-      "extents_validated": false
+      "extents_validated": true,
+      "extents_validated_tier": "llm_verified"
     },
     "src/R0010509.pli": {
       "units": [
@@ -185128,7 +185154,8 @@
           "edges": []
         }
       ],
-      "extents_validated": false
+      "extents_validated": true,
+      "extents_validated_tier": "llm_verified"
     },
     "src/R0010607.pli": {
       "units": [
@@ -185187,7 +185214,8 @@
           "edges": []
         }
       ],
-      "extents_validated": false
+      "extents_validated": true,
+      "extents_validated_tier": "llm_verified"
     },
     "src/R0011120.pli": {
       "units": [
@@ -185201,7 +185229,8 @@
           "edges": []
         }
       ],
-      "extents_validated": false
+      "extents_validated": true,
+      "extents_validated_tier": "llm_verified"
     },
     "src/R0014145.pli": {
       "units": [
@@ -185215,7 +185244,8 @@
           "edges": []
         }
       ],
-      "extents_validated": false
+      "extents_validated": true,
+      "extents_validated_tier": "llm_verified"
     },
     "src/R0014161.pli": {
       "units": [
@@ -185229,7 +185259,8 @@
           "edges": []
         }
       ],
-      "extents_validated": false
+      "extents_validated": true,
+      "extents_validated_tier": "llm_verified"
     },
     "src/R0015411.pli": {
       "units": [
@@ -185243,7 +185274,8 @@
           "edges": []
         }
       ],
-      "extents_validated": false
+      "extents_validated": true,
+      "extents_validated_tier": "llm_verified"
     },
     "src/R0017022.pli": {
       "units": [
@@ -185268,7 +185300,8 @@
           ]
         }
       ],
-      "extents_validated": false
+      "extents_validated": true,
+      "extents_validated_tier": "llm_verified"
     },
     "src/R0019938.pli": {
       "units": [
@@ -185282,7 +185315,8 @@
           "edges": []
         }
       ],
-      "extents_validated": false
+      "extents_validated": true,
+      "extents_validated_tier": "llm_verified"
     },
     "src/R0019951.pli": {
       "units": [
@@ -185330,7 +185364,8 @@
           "edges": []
         }
       ],
-      "extents_validated": false
+      "extents_validated": true,
+      "extents_validated_tier": "llm_verified"
     },
     "src/R0019954.pli": {
       "units": [
@@ -185344,7 +185379,8 @@
           "edges": []
         }
       ],
-      "extents_validated": false
+      "extents_validated": true,
+      "extents_validated_tier": "llm_verified"
     },
     "src/R0019963.pli": {
       "units": [
@@ -185358,7 +185394,8 @@
           "edges": []
         }
       ],
-      "extents_validated": false
+      "extents_validated": true,
+      "extents_validated_tier": "llm_verified"
     },
     "src/R0019A03.pli": {
       "units": [
@@ -185378,7 +185415,8 @@
           ]
         }
       ],
-      "extents_validated": false
+      "extents_validated": true,
+      "extents_validated_tier": "llm_verified"
     },
     "src/R001A401.pli": {
       "units": [
@@ -185392,7 +185430,8 @@
           "edges": []
         }
       ],
-      "extents_validated": false
+      "extents_validated": true,
+      "extents_validated_tier": "llm_verified"
     },
     "src/R001NO1A.pli": {
       "units": [
@@ -185445,7 +185484,41 @@
           "edges": []
         }
       ],
-      "extents_validated": false
+      "extents_validated": true,
+      "extents_validated_tier": "llm_verified"
+    }
+  },
+  "extents_verification": {
+    "issue": 4318,
+    "at": "2026-10-04",
+    "by": "claude-opus-5.5 (author pass)",
+    "method": "Drafted by this tool's own reader (cobol_answer_key.py add-extents), never from engine output. Edges cross-checked against the forge's independent reading (cobol_graveyard_finder units + PERFORM/GO TO): every COBOL edge agrees. Extents and edges compared with the engine at main 0d64632e: every disagreement settled against the source (trailing sequence-number-only / D lines the engine counts; the main line, #4302; self GO TO dropped by the engine, #3362; PERFORM TEST phantom, #4305) -- no key error found.",
+    "blind_sample": {
+      "seed": 4318,
+      "claims": 19,
+      "agree": 19,
+      "reviewers": "4 fresh-context claude-opus-5.5 subagents, staged source copy and definitions only, no answers (same model family as the author)",
+      "questions": [
+        "Q002 src/GML/PLUKKFRN.cobol SLUTT",
+        "Q008 src/R0010423.pli OVERF\u00d8R_FRA_MAP",
+        "Q021 src/GML/R0010423.pli R001B1",
+        "Q022 src/GML/PLUKKFR.cobol MAIN LINE",
+        "Q023 src/R0019951.pli STAT_SKRIV",
+        "Q027 src/GML/FRREDIG.cobol SLUTT",
+        "Q029 src/GML/PLUKKFRN.cobol MAIN LINE",
+        "Q050 src/GML/PLUKKFR.cobol SLUTT",
+        "Q054 src/R0014145.pli REGN_TT_67_TIL_70",
+        "Q055 src/GML/PLUKKFR.cobol SKRIV-UT",
+        "Q058 src/GML/FO04F1X1.cobol SLUTT",
+        "Q059 src/GML/FO04D1X1.cobol MAIN LINE",
+        "Q061 src/GML/R0011022.pli AJOURF\u00d8R_B02_MED_FB_TRANS",
+        "Q070 src/GML/FRREDIG.cobol STARTEN",
+        "Q076 src/GML/FO04F1X1.cobol SKRIV-LINJER",
+        "Q077 src/GML/FO04F1X1.cobol TEST-TKNR",
+        "Q081 src/GML/FRREDIG.cobol TEST-DATA",
+        "Q089 src/GML/R00104BP.pli SKRIV_FEIL_SP",
+        "Q091 src/GML/PLUKKFRN.cobol TEST-TRKNR"
+      ]
     }
   }
 }

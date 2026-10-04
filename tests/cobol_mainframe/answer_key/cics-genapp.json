@@ -996,7 +996,8 @@
       "records_validated": true,
       "records_validated_tier": "sample_verified",
       "main_line": null,
-      "extents_validated": false
+      "extents_validated": true,
+      "extents_validated_tier": "llm_verified"
     },
     "base/src/lgacdb02.cbl": {
       "program_id": "LGACDB02",
@@ -1759,7 +1760,8 @@
       "records_validated": true,
       "records_validated_tier": "sample_verified",
       "main_line": null,
-      "extents_validated": false
+      "extents_validated": true,
+      "extents_validated_tier": "llm_verified"
     },
     "base/src/lgacus01.cbl": {
       "program_id": "LGACUS01",
@@ -2321,7 +2323,8 @@
       "records_validated": true,
       "records_validated_tier": "sample_verified",
       "main_line": null,
-      "extents_validated": false
+      "extents_validated": true,
+      "extents_validated_tier": "llm_verified"
     },
     "base/src/lgacvs01.cbl": {
       "program_id": "LGACVS01",
@@ -2877,7 +2880,8 @@
       "records_validated": true,
       "records_validated_tier": "sample_verified",
       "main_line": null,
-      "extents_validated": false
+      "extents_validated": true,
+      "extents_validated_tier": "llm_verified"
     },
     "base/src/lgapdb01.cbl": {
       "program_id": "LGAPDB01",
@@ -4140,7 +4144,8 @@
       "records_validated": true,
       "records_validated_tier": "sample_verified",
       "main_line": null,
-      "extents_validated": false
+      "extents_validated": true,
+      "extents_validated_tier": "llm_verified"
     },
     "base/src/lgapol01.cbl": {
       "program_id": "LGAPOL01",
@@ -4682,7 +4687,8 @@
       "records_validated": true,
       "records_validated_tier": "sample_verified",
       "main_line": null,
-      "extents_validated": false
+      "extents_validated": true,
+      "extents_validated_tier": "llm_verified"
     },
     "base/src/lgapvs01.cbl": {
       "program_id": "LGAPVS01",
@@ -5702,7 +5708,8 @@
       "records_validated": true,
       "records_validated_tier": "sample_verified",
       "main_line": null,
-      "extents_validated": false
+      "extents_validated": true,
+      "extents_validated_tier": "llm_verified"
     },
     "base/src/lgastat1.cbl": {
       "program_id": "LGASTAT1",
@@ -6363,7 +6370,8 @@
       "records_validated": true,
       "records_validated_tier": "sample_verified",
       "main_line": null,
-      "extents_validated": false
+      "extents_validated": true,
+      "extents_validated_tier": "llm_verified"
     },
     "base/src/lgdpdb01.cbl": {
       "program_id": "LGDPDB01",
@@ -7077,7 +7085,8 @@
       "records_validated": true,
       "records_validated_tier": "sample_verified",
       "main_line": null,
-      "extents_validated": false
+      "extents_validated": true,
+      "extents_validated_tier": "llm_verified"
     },
     "base/src/lgdpol01.cbl": {
       "program_id": "LGDPOL01",
@@ -7615,7 +7624,8 @@
       "records_validated": true,
       "records_validated_tier": "sample_verified",
       "main_line": null,
-      "extents_validated": false
+      "extents_validated": true,
+      "extents_validated_tier": "llm_verified"
     },
     "base/src/lgdpvs01.cbl": {
       "program_id": "LGDPVS01",
@@ -8283,7 +8293,8 @@
       "records_validated": true,
       "records_validated_tier": "sample_verified",
       "main_line": null,
-      "extents_validated": false
+      "extents_validated": true,
+      "extents_validated_tier": "llm_verified"
     },
     "base/src/lgicdb01.cbl": {
       "program_id": "LGICDB01",
@@ -8949,7 +8960,8 @@
       "records_validated": true,
       "records_validated_tier": "sample_verified",
       "main_line": null,
-      "extents_validated": false
+      "extents_validated": true,
+      "extents_validated_tier": "llm_verified"
     },
     "base/src/lgicus01.cbl": {
       "program_id": "LGICUS01",
@@ -9518,7 +9530,8 @@
       "records_validated": true,
       "records_validated_tier": "sample_verified",
       "main_line": null,
-      "extents_validated": false
+      "extents_validated": true,
+      "extents_validated_tier": "llm_verified"
     },
     "base/src/lgicvs01.cbl": {
       "program_id": "LGICVS01",
@@ -10395,7 +10408,8 @@
       "records_validated": true,
       "records_validated_tier": "sample_verified",
       "main_line": null,
-      "extents_validated": false
+      "extents_validated": true,
+      "extents_validated_tier": "llm_verified"
     },
     "base/src/lgipdb01.cbl": {
       "program_id": "LGIPDB01",
@@ -11929,7 +11943,8 @@
       "records_validated": true,
       "records_validated_tier": "sample_verified",
       "main_line": null,
-      "extents_validated": false
+      "extents_validated": true,
+      "extents_validated_tier": "llm_verified"
     },
     "base/src/lgipol01.cbl": {
       "program_id": "LGIPOL01",
@@ -12431,7 +12446,8 @@
       "records_validated": true,
       "records_validated_tier": "sample_verified",
       "main_line": null,
-      "extents_validated": false
+      "extents_validated": true,
+      "extents_validated_tier": "llm_verified"
     },
     "base/src/lgipvs01.cbl": {
       "program_id": "LGIPVS01",
@@ -13100,7 +13116,8 @@
       "records_validated": true,
       "records_validated_tier": "sample_verified",
       "main_line": null,
-      "extents_validated": false
+      "extents_validated": true,
+      "extents_validated_tier": "llm_verified"
     },
     "base/src/lgsetup.cbl": {
       "program_id": "LGSETUP",
@@ -14568,7 +14585,8 @@
       "records_validated": true,
       "records_validated_tier": "sample_verified",
       "main_line": null,
-      "extents_validated": false
+      "extents_validated": true,
+      "extents_validated_tier": "llm_verified"
     },
     "base/src/lgstsq.cbl": {
       "program_id": "LGSTSQ",
@@ -15010,7 +15028,8 @@
       "records_validated": true,
       "records_validated_tier": "sample_verified",
       "main_line": null,
-      "extents_validated": false
+      "extents_validated": true,
+      "extents_validated_tier": "llm_verified"
     },
     "base/src/lgtestc1.cbl": {
       "program_id": "LGTESTC1",
@@ -15626,7 +15645,8 @@
       "records_validated": true,
       "records_validated_tier": "sample_verified",
       "main_line": null,
-      "extents_validated": false
+      "extents_validated": true,
+      "extents_validated_tier": "llm_verified"
     },
     "base/src/lgtestp1.cbl": {
       "program_id": "LGTESTP1",
@@ -15969,7 +15989,8 @@
       "records_validated": true,
       "records_validated_tier": "sample_verified",
       "main_line": null,
-      "extents_validated": false
+      "extents_validated": true,
+      "extents_validated_tier": "llm_verified"
     },
     "base/src/lgtestp2.cbl": {
       "program_id": "LGTESTP2",
@@ -16312,7 +16333,8 @@
       "records_validated": true,
       "records_validated_tier": "sample_verified",
       "main_line": null,
-      "extents_validated": false
+      "extents_validated": true,
+      "extents_validated_tier": "llm_verified"
     },
     "base/src/lgtestp3.cbl": {
       "program_id": "LGTESTP3",
@@ -16655,7 +16677,8 @@
       "records_validated": true,
       "records_validated_tier": "sample_verified",
       "main_line": null,
-      "extents_validated": false
+      "extents_validated": true,
+      "extents_validated_tier": "llm_verified"
     },
     "base/src/lgtestp4.cbl": {
       "program_id": "LGTESTP4",
@@ -16958,7 +16981,8 @@
       "records_validated": true,
       "records_validated_tier": "sample_verified",
       "main_line": null,
-      "extents_validated": false
+      "extents_validated": true,
+      "extents_validated_tier": "llm_verified"
     },
     "base/src/lgucdb01.cbl": {
       "program_id": "LGUCDB01",
@@ -17801,7 +17825,8 @@
       "records_validated": true,
       "records_validated_tier": "sample_verified",
       "main_line": null,
-      "extents_validated": false
+      "extents_validated": true,
+      "extents_validated_tier": "llm_verified"
     },
     "base/src/lgucus01.cbl": {
       "program_id": "LGUCUS01",
@@ -18417,7 +18442,8 @@
       "records_validated": true,
       "records_validated_tier": "sample_verified",
       "main_line": null,
-      "extents_validated": false
+      "extents_validated": true,
+      "extents_validated_tier": "llm_verified"
     },
     "base/src/lgucvs01.cbl": {
       "program_id": "LGUCVS01",
@@ -18994,7 +19020,8 @@
       "records_validated": true,
       "records_validated_tier": "sample_verified",
       "main_line": null,
-      "extents_validated": false
+      "extents_validated": true,
+      "extents_validated_tier": "llm_verified"
     },
     "base/src/lgupdb01.cbl": {
       "program_id": "LGUPDB01",
@@ -20117,7 +20144,8 @@
       "records_validated": true,
       "records_validated_tier": "sample_verified",
       "main_line": null,
-      "extents_validated": false
+      "extents_validated": true,
+      "extents_validated_tier": "llm_verified"
     },
     "base/src/lgupol01.cbl": {
       "program_id": "LGUPOL01",
@@ -20744,7 +20772,8 @@
       "records_validated": true,
       "records_validated_tier": "sample_verified",
       "main_line": null,
-      "extents_validated": false
+      "extents_validated": true,
+      "extents_validated_tier": "llm_verified"
     },
     "base/src/lgupvs01.cbl": {
       "program_id": "LGUPVS01",
@@ -21801,7 +21830,8 @@
       "records_validated": true,
       "records_validated_tier": "sample_verified",
       "main_line": null,
-      "extents_validated": false
+      "extents_validated": true,
+      "extents_validated_tier": "llm_verified"
     },
     "base/src/lgwebst5.cbl": {
       "program_id": "LGWEBST5",
@@ -25484,7 +25514,8 @@
       "records_validated": true,
       "records_validated_tier": "sample_verified",
       "main_line": null,
-      "extents_validated": false
+      "extents_validated": true,
+      "extents_validated_tier": "llm_verified"
     }
   },
   "pli_programs": {},
@@ -47321,6 +47352,30 @@
           "at": "2026-09-26"
         }
       }
+    }
+  },
+  "extents_verification": {
+    "issue": 4318,
+    "at": "2026-10-04",
+    "by": "claude-opus-5.5 (author pass)",
+    "method": "Drafted by this tool's own reader (cobol_answer_key.py add-extents), never from engine output. Edges cross-checked against the forge's independent reading (cobol_graveyard_finder units + PERFORM/GO TO): every COBOL edge agrees. Extents and edges compared with the engine at main 0d64632e: every disagreement settled against the source (trailing sequence-number-only / D lines the engine counts; the main line, #4302; self GO TO dropped by the engine, #3362; PERFORM TEST phantom, #4305) -- no key error found.",
+    "blind_sample": {
+      "seed": 4318,
+      "claims": 10,
+      "agree": 10,
+      "reviewers": "4 fresh-context claude-opus-5.5 subagents, staged source copy and definitions only, no answers (same model family as the author)",
+      "questions": [
+        "Q006 base/src/lgtestp2.cbl ENDIT-STARTIT",
+        "Q014 base/src/lgapvs01.cbl MAINLINE",
+        "Q028 base/src/lgupol01.cbl MAINLINE-EXIT",
+        "Q030 base/src/lgapdb01.cbl INSERT-ENDOW",
+        "Q031 base/src/lgastat1.cbl MAINLINE",
+        "Q038 base/src/lgipol01.cbl MAINLINE",
+        "Q044 base/src/lgapvs01.cbl WRITE-ERROR-MESSAGE",
+        "Q062 base/src/lgacdb01.cbl MAINLINE-EXIT",
+        "Q066 base/src/lgdpol01.cbl WRITE-ERROR-MESSAGE",
+        "Q095 base/src/lgipdb01.cbl WRITE-ERROR-MESSAGE"
+      ]
     }
   }
 }

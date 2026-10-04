@@ -24,6 +24,22 @@
   "sibling_ports": [
    "HCMAIN",
    "HCSUB"
+  ],
+  "reproven": [
+   {
+    "at": "2026-10-04T14:21:41+00:00",
+    "crucible_ref": "v0.2.0 (94f2afcb)",
+    "summary": {
+     "push-pop": "1/1",
+     "pushed-abend": "1/1",
+     "sub-own-exit": "1/1",
+     "sub-resp": "1/1",
+     "sub-unhandled": "1/1"
+    },
+    "port_sha256": "d8c00de07beaab47ddf5baa48485060eaeb2571d47006bc6e6190a0d76c1baca",
+    "harness_commit": "16ae9e01515581be224b32982ceae54bc73e68fb",
+    "by": "tests/tools/crucible_port_provenance.py reprove (cics_crucible.py --sides java-ported --program HCMAIN --report-dir)"
+   }
   ]
  },
  "approved": false,

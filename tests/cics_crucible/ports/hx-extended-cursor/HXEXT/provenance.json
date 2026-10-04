@@ -21,6 +21,20 @@
   },
   "sibling_ports": [
    "HXEXT"
+  ],
+  "reproven": [
+   {
+    "at": "2026-10-04T14:22:11+00:00",
+    "crucible_ref": "v0.2.0 (94f2afcb)",
+    "summary": {
+     "bad-account": "1/1",
+     "good-entry": "1/1",
+     "pf5-blink": "1/1"
+    },
+    "port_sha256": "482501a81d8c25ee8db1aa1483784fde7551fbf1c8c924e31c41a024572bb4a3",
+    "harness_commit": "16ae9e01515581be224b32982ceae54bc73e68fb",
+    "by": "tests/tools/crucible_port_provenance.py reprove (cics_crucible.py --sides java-ported --program HXEXT --report-dir)"
+   }
   ]
  },
  "approved": false,

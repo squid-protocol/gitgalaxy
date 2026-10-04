@@ -23,6 +23,21 @@
   "sibling_ports": [
    "CALINK",
    "CASUB"
+  ],
+  "reproven": [
+   {
+    "at": "2026-10-04T14:20:40+00:00",
+    "crucible_ref": "v0.2.0 (94f2afcb)",
+    "summary": {
+     "long-500": "1/1",
+     "no-commarea": "1/1",
+     "short-100": "1/1",
+     "undefined-program": "1/1"
+    },
+    "port_sha256": "b34d3ea4db80c4417cc1bb0964bb0c2a83d31abce0bcf1e912469ee3d71e371a",
+    "harness_commit": "16ae9e01515581be224b32982ceae54bc73e68fb",
+    "by": "tests/tools/crucible_port_provenance.py reprove (cics_crucible.py --sides java-ported --program CALINK --report-dir)"
+   }
   ]
  },
  "approved": false,

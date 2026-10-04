@@ -25,6 +25,7 @@ on:
       - "gitgalaxy/**"
       - "pyproject.toml"
       - "tests/tools/cics_crucible*.py"
+      - "tests/tools/crucible_port_provenance.py"
       - "tests/tools/equivalence_cics.py"
       - "tests/tools/cobol_coverage.py"
       - "gitgalaxy/tools/cobol_to_cobol/cobol_graveyard_finder.py"

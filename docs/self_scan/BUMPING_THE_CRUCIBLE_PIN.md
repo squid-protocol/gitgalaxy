@@ -155,3 +155,29 @@ review, same as everything else in this codebase's "never silently
 overwrite" philosophy) rather than requiring a maintainer to hand-write a
 one-off bypass script each time — would close this properly. Not implemented
 here; flagged for a follow-up issue.
+
+## The CICS crucible pin (`tests/_cics_crucible_pin.py`): re-prove the committed ports (#4308)
+
+The CICS crucible (squid-protocol/cics-crucible) has its own pin and its own bump, described in
+`tests/_cics_crucible_pin.py` and `docs/ecosystem.md` ("CICS crucible release -> pin bump"). It is one PR:
+
+1. Check the crucible out at the new tag (`CICS_CRUCIBLE_PATH`, or `../cics-crucible`), and move `PINNED_REF`.
+2. `python tests/tools/cics_crucible.py --update-baseline`, then commit `tests/cics_crucible/baseline.json`,
+   `tests/cics_crucible/coverage.json` and `docs/language_status/cics_crucible.md`. Explain every cell that moved.
+3. **Re-prove the committed ports and re-stamp their provenance.** Every
+   `tests/cics_crucible/ports/<case>/<PROGRAM>/provenance.json` names the crucible version its proof ran at, and
+   `tests/cics_crucible/test_port_provenance.py` fails until each one is at the new pin. Run
+   `python tests/tools/crucible_port_provenance.py reprove` (Docker, a JDK 17 and Maven). It runs
+   `cics_crucible.py --cases C --program P --sides java-ported --report-dir ...` for each port at the pinned checkout
+   and writes the outcome into the record:
+   - proven: a `proof.reproven` entry is **appended** (the crucible ref, the per-scenario summary, the port tree's
+     sha256, the harness commit). The loop's own `proof.crucible_ref` and `history` are never rewritten: they say
+     how and where the port was first proven.
+   - not proven: `proof.stale` = `{against: <new pin>, reason, needs}`. The test accepts it, because the record now
+     says it is stale. Say in the PR which ports went stale and why; fixing a port is a `port_runner prove` loop of
+     its own, not part of the bump.
+   Never write a `reproven` entry by hand: only `reprove`, which runs the proof, writes one.
+   `python tests/tools/crucible_port_provenance.py check` lists the records that are still behind.
+
+The evidence record (#4048) recomputes staleness from fingerprints instead of storing it. The `crucible` input it
+records is this pin, so a bump makes every crucible port's evidence stale until it is re-proven here.

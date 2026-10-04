@@ -448,14 +448,15 @@ _USAGE_CLAUSE = re.compile(
 )
 # `OCCURS <n> [TO <m>] [TIMES]` plus the optional `DEPENDING [ON] <name>`.
 _OCCURS_CLAUSE = re.compile(r"\bOCCURS[ \t\n\u3000]+(\d+)(?:[ \t\n\u3000]+TO[ \t\n\u3000]+(\d+))?", re.I)
+_COBOL_NAME = r"[A-Z" + NATIONAL + r"][A-Z" + NATIONAL + WIDE_DIGITS + WIDE_HYPHENS + r"0-9-]*"
+# #4282: the DEPENDING ON object keeps its qualifiers (`B OF A`, `X IN Y OF Z`, cobol-check
+# EXR001.CBL:5 `DEPENDING ON BETA OF ALPHA`) -- a bare `BETA` can name a different item.
 _DEPENDING_CLAUSE = re.compile(
-    r"\bDEPENDING[ \t\n\u3000]+(?:ON[ \t\n\u3000]+)?([A-Z"
-    + NATIONAL
-    + r"][A-Z"
-    + NATIONAL
-    + WIDE_DIGITS
-    + WIDE_HYPHENS
-    + r"0-9-]*)",
+    r"\bDEPENDING[ \t\n\u3000]+(?:ON[ \t\n\u3000]+)?("
+    + _COBOL_NAME
+    + r"(?:[ \t\n\u3000]+(?:OF|IN)[ \t\n\u3000]+"
+    + _COBOL_NAME
+    + r"){0,15})",
     re.I,
 )
 # `REDEFINES <name>` -- the storage-overlay pointer.
@@ -1059,7 +1060,7 @@ def _cobol_records(code_stream: str, decimal_comma: Optional[bool] = None) -> li
             occurs_min = int(occurs_match.group(1))
             occurs_max = int(occurs_match.group(2)) if occurs_match.group(2) else occurs_min
             dep_match = _DEPENDING_CLAUSE.search(window)
-            depending = dep_match.group(1).upper() if dep_match else None
+            depending = " ".join(dep_match.group(1).upper().split()) if dep_match else None
         redefines_match = _REDEFINES_CLAUSE.search(window)
         redefines = redefines_match.group(1).upper() if redefines_match else None
         value_match = _VALUE_CLAUSE.search(window)

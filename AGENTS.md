@@ -63,3 +63,9 @@ Example:
 description: "A concise summary of the page's specific content for SEO..."
 ---
 Never rely on the global `mkdocs.yml` site description for individual pages.
+
+# CI Pipeline & Skill Documentation Rule
+
+You **MUST** consult and follow existing skill documentation before executing CI scripts, fixing tests, or regenerating golden masters.
+1. **Always read the manual:** Before running complex pipeline scripts like `update_golden_master.py`, `tri_comparison_chart.py`, or `ground_truth_ledger.py`, you must `cat` and read the relevant guides inside `.claude/skills/` (specifically `.claude/skills/ci-push-checklist/SKILL.md`).
+2. **Never guess CI environments:** The CI environment uses strict dependency gating (e.g., zero-dependency vs. full-precision ML modes) and pinned versions of testing corpora (e.g., `tests/_crucible_pin.py`). Do not guess environment flags or assume your local python dependencies mirror the CI. Reference the documentation to execute the exact commands required for full replication.

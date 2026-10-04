@@ -39,12 +39,13 @@ DATA DIVISION is nine programs'. Before the fixes below, all 6 were refused.
 | `mortgage-nbrvl` | EPSNBRVL, number validator | CALL, group USING item | **proven**, 15 calls | 3/3 paragraphs, 22/22 branches |
 | `mortgage-cmort` | EPSCMORT, mortgage screen | CICS, BMS (generated map), Db2 `SYSIBM.SYSDUMMY1`, CALL EPSNBRVL, LINK EPSMLIST (#4213) | **proven**, 9 scenarios (8 written, plus the automatic SQL-fault task on its SELECT, #4200) | 3/6 paragraphs, 15/21 branches |
 | `mortgage-mlist` | EPSMLIST, company list | CICS, BMS (generated map), an ESDS browsed by RBA (STARTBR / READNEXT ... RBA, #4213), the dataset stated by the case | **proven**, 9 scenarios (2 with injected STARTBR / READNEXT conditions) | 5/6 paragraphs, 14/15 branches |
-| `mortgage-mpmt` | EPSMPMT, payment calculator | CALL, binary arguments as field values | **not proven on purpose**: `CBL NUMPROC(MIG)` (C5) | — |
+| `mortgage-mpmt` | EPSMPMT, payment calculator | CALL, binary arguments as field values | **not proven on purpose**: the payment is computed through a COMP-1 item, in hexadecimal floating point on z/OS and in truncated decimal on GnuCOBOL; the det translator refuses float items (C6). Its `CBL NUMPROC(MIG)` compiles as NUMPROC(NOPFD) under the estate's Enterprise COBOL 6.1 (C5, #4271) | — |
 
 **Not reached, and why:**
-- EPSCMORT's ENTER (indicator '3') and WHEN OTHER paths LINK EPSCSMRT, which, like EPSMPMT, compiles with
-  `NUMPROC(MIG)` (C5).
-- A company EPSMLIST lists LINKs EPSCSMRT for its payment (C5 again), so no scenario lists one: EPSMLIST's
+- EPSCMORT's ENTER (indicator '3') and WHEN OTHER paths LINK EPSCSMRT. EPSCSMRT CALLs EPSMPMT through a data
+  name the engine does not resolve (`CALL WS-CALLED-PROGRAM`, its value from a REDEFINES table), and EPSMPMT's
+  payment is computed in floating point (C6). Its `NUMPROC(MIG)` is no longer the obstacle (C5, #4271).
+- A company EPSMLIST lists LINKs EPSCSMRT for its payment (the same reasons), so no scenario lists one: EPSMLIST's
   A600 and the branch into it are not reached, and no record's contents reach an output. The RBA browse is judged by
   its outcomes there, and pinned rule by rule on both sides by `tests/cics_crucible/test_cics_runtimes.py`
   (oracle_assumptions.md X13).

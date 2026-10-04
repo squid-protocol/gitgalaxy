@@ -13,6 +13,38 @@ final class Codec {
      *  harness) does not: a binary item holds whatever its 2 / 4 / 8 bytes hold (TRUNC(BIN)), so that is the default. */
     static volatile boolean truncBinary = false;
 
+    /** NUMPROC(PFD) (#4271): the program assumes preferred signs -- X'C' signed positive or zero, X'D' signed negative,
+     *  X'F' unsigned -- and IBM leaves what it does with any other sign to the generated code ("the compiler uses
+     *  whatever sign it is given"; Enterprise COBOL 6.4 Programming Guide, SC27-8714-03, "Sign representation of
+     *  zoned and packed-decimal data"). With preferred signs its results are NUMPROC(NOPFD)'s, so the runtime computes
+     *  as before and refuses, by name, to read a zoned or packed value whose sign is not preferred. Default false:
+     *  IBM's default NUMPROC(NOPFD), which accepts any valid sign. */
+    static volatile boolean numprocPfd = false;
+
+    /** The refusal of a non-preferred sign under NUMPROC(PFD) (register C5). */
+    static UnsupportedOperationException nonPreferredSign(Field f) {
+        return new UnsupportedOperationException("NUMPROC(PFD): a " + (f.signed ? "signed " : "unsigned ")
+                + (f.kind == Field.Kind.NUMERIC_PACKED ? "packed" : "zoned")
+                + " item with a non-preferred sign (IBM: the result depends on the generated code) is not modelled");
+    }
+
+    /** Whether a zoned item's sign byte, or a packed item's sign nibble, holds the preferred sign for the item and its
+     *  value: C / D (a zero C) when signed, F when unsigned. SIGN SEPARATE items carry no sign nibble. */
+    static boolean preferredSign(Field f, Charset cs) {
+        byte[] d = f.st.bytes;
+        if (f.kind == Field.Kind.NUMERIC_PACKED) {
+            int sign = d[f.off + f.len - 1] & 0x0F;
+            if (!f.signed) return sign == 0x0F;
+            if (sign == 0x0C) return true;
+            return sign == 0x0D && readAny(f, cs).mag.signum() != 0;
+        }
+        if (f.kind != Field.Kind.NUMERIC_DISPLAY || f.signSeparate) return true;
+        char c = ch(d[f.signLeading ? f.off : f.off + f.digits - 1], cs);
+        if (!f.signed) return c >= '0' && c <= '9';
+        if (POSITIVE.indexOf(c) >= 0) return true;
+        return NEGATIVE.indexOf(c) >= 0 && readAny(f, cs).mag.signum() != 0;
+    }
+
     private Codec() {}
 
     /** A decimal as sign and magnitude, so that a negative zero survives a MOVE. */
@@ -63,6 +95,11 @@ final class Codec {
     }
 
     static Num read(Field f, Charset cs) {
+        if (numprocPfd && !preferredSign(f, cs)) throw nonPreferredSign(f);
+        return readAny(f, cs);
+    }
+
+    private static Num readAny(Field f, Charset cs) {
         byte[] d = f.st.bytes;
         switch (f.kind) {
             case NUMERIC_DISPLAY: {

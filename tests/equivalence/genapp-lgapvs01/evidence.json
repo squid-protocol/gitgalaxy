@@ -7,7 +7,7 @@
   "paths": [
    "tests/equivalence/genapp-lgapvs01/port/service/Lgapvs01Service.java"
   ],
-  "sha256": "ceaa777bed4a2857249d505eef51164822023028cfae263fa5ee65417ac3eec7",
+  "sha256": "dcf52958d7f69cd6e7a7e69762353f393fc46f24f1dd3958efacf18c1cc083b3",
   "entry_points": [
    "runTask"
   ]
@@ -18,7 +18,7 @@
     "tests/equivalence/genapp-lgapvs01/port/**"
    ],
    "files": 1,
-   "sha256": "ceaa777bed4a2857249d505eef51164822023028cfae263fa5ee65417ac3eec7"
+   "sha256": "dcf52958d7f69cd6e7a7e69762353f393fc46f24f1dd3958efacf18c1cc083b3"
   },
   "case": {
    "paths": [
@@ -42,7 +42,7 @@
     "tests/tools/java_target_matrix.py"
    ],
    "files": 11,
-   "sha256": "609073a350a3120d63bf3cb3e7f6a1050a9fc8a91964ac548b2826356f319cbc"
+   "sha256": "1764f900744b3e9c121722acf2c84aee1ef8dded04fa68f429e0abc39f031fd9"
   },
   "oracle": {
    "paths": [
@@ -62,7 +62,7 @@
     "gitgalaxy/tools/cobol_to_java/**"
    ],
    "files": 60,
-   "sha256": "880250850d919c29f8ace3eb0d7183156a05354438ea79f72a417febb9e57e68"
+   "sha256": "0903665aaebe06576a2cc6a2de1bc7c744a8dd8b94a5c1fdd5a53c404d60712b"
   },
   "corpus": {
    "name": "cics-genapp",
@@ -72,10 +72,10 @@
   "differences": {
    "sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
   },
-  "digest": "b163cbfc5a0691d3d5f17569fbd9946bae860257ba321878872c66c8ac657fd8"
+  "digest": "231a467d836204ec5ba7ef6147653af38fe51a263709339af61f49d9f3f52b13"
  },
  "proof": {
-  "at": "2026-10-04T15:44:42Z",
+  "at": "2026-10-04T18:32:01Z",
   "verdict": "proven",
   "runs": 8,
   "fault_runs": 0,
@@ -118,8 +118,8 @@
   "sysout_compared": null,
   "attributes_compared": null,
   "java_failed": false,
-  "harness_commit": "cdad33370dc73ea44e5bf1348d88c9404a14c2d2+uncommitted",
-  "inputs_digest": "b163cbfc5a0691d3d5f17569fbd9946bae860257ba321878872c66c8ac657fd8"
+  "harness_commit": "ec33bb3416e3b415c394086012546e08b6502dc1+uncommitted",
+  "inputs_digest": "231a467d836204ec5ba7ef6147653af38fe51a263709339af61f49d9f3f52b13"
  },
  "coverage": {
   "paragraphs": {
@@ -161,7 +161,7 @@
    "total": 0
   },
   "source": "the proof's own traced COBOL runs (cobol_coverage.py)",
-  "inputs_digest": "b163cbfc5a0691d3d5f17569fbd9946bae860257ba321878872c66c8ac657fd8"
+  "inputs_digest": "231a467d836204ec5ba7ef6147653af38fe51a263709339af61f49d9f3f52b13"
  },
  "reach": {
   "entry_points": [
@@ -170,42 +170,36 @@
   "unproven": [
    {
     "class": "Lgapvs01Service",
-    "method": "executeLgapvs01",
-    "line": 39,
-    "kind": "stub"
-   },
-   {
-    "class": "Lgapvs01Service",
     "method": "handleTransaction",
-    "line": 45,
-    "kind": "stub"
+    "line": 40,
+    "kind": "left_as_generated"
    },
    {
     "class": "Lgapvs01Service",
     "method": "handleLink",
-    "line": 200,
-    "kind": "stub"
+    "line": 199,
+    "kind": "left_as_generated"
    },
    {
     "class": "Lgapvs01Service",
     "method": "linkLgstsq",
-    "line": 208,
+    "line": 210,
     "kind": "left_as_generated"
    },
    {
     "class": "Lgapvs01Service",
     "method": "writeKsdspoly",
-    "line": 213,
+    "line": 215,
     "kind": "left_as_generated"
    }
   ],
   "counts": {
-   "stub": 3,
-   "left_as_generated": 2,
+   "stub": 0,
+   "left_as_generated": 4,
    "ported_unproven": 0
   },
   "generated_compared": true,
-  "port_sha256": "ceaa777bed4a2857249d505eef51164822023028cfae263fa5ee65417ac3eec7"
+  "port_sha256": "dcf52958d7f69cd6e7a7e69762353f393fc46f24f1dd3958efacf18c1cc083b3"
  },
  "mutation": null,
  "differences": [],

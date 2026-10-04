@@ -164,6 +164,14 @@ def _dateutil():
     return t, copy.deepcopy(rec)
 
 
+def _with_unproven(rec):
+    """The record with a ported method no proof runs (the generator's executeX that #4342 removed from the port)."""
+    unproven = [*rec["reach"]["unproven"],
+                {"class": "CsutldtcService", "method": "executeCsutldtc", "line": 30, "kind": "ported_unproven"}]
+    counts = {**rec["reach"]["counts"], "ported_unproven": rec["reach"]["counts"]["ported_unproven"] + 1}
+    return {**rec, "reach": {**rec["reach"], "unproven": unproven, "counts": counts}}
+
+
 def _current(t, rec):
     """The record made current and fully proven (as if re-proven now with every ported method reached)."""
     rec["inputs"] = ev.compute_inputs(t, rec.get("differences"))
@@ -269,7 +277,8 @@ def test_an_approval_is_refused_to_a_script_a_model_or_no_purpose(tmp_path, by, 
 
 def test_only_a_proven_current_record_can_be_approved(tmp_path):
     t, rec = _dateutil()
-    tt = _tmp_target(tmp_path, t, rec)  # as committed: a ported_unproven method, so not proven
+    rec = _with_unproven(rec)  # a ported_unproven method: not proven
+    tt = _tmp_target(tmp_path, t, rec)
     with pytest.raises(ev.ApprovalRefused, match="only a current proof"):
         ev.sign(tt, "Jane Reviewer", "the pilot", "approved", None, interactive=True, confirm=lambda p: "Jane Reviewer")
 
@@ -287,8 +296,10 @@ def test_the_claim_is_derived_from_the_numbers():
     t, rec = _dateutil()
     text = ev.claim(rec, ev.status(rec, t, live=False))
     assert text.startswith("**CSUTLDTC**: byte-identical on **17 calls**")
-    assert "Proven through **handleCall** only" in text and "executeCsutldtc" in text
-    assert "not-proven" in text
+    assert "Proven through **handleCall** only; **0 ported method(s) that no proof runs**" in text
+    rec = _with_unproven(rec)
+    text = ev.claim(rec, ev.status(rec, t, live=False))
+    assert "**1 ported method(s) that no proof runs** (executeCsutldtc)" in text and "not-proven" in text
 
 
 def test_a_tree_digest_is_path_and_bytes_and_order_free():

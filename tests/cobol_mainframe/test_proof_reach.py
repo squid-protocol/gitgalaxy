@@ -233,6 +233,8 @@ def test_every_survivor_in_code_no_proof_runs_was_triaged_as_out_of_the_proofs_r
     flagged = _flagged_survivors()
     verdicts = [s["verdict"] for _, s in flagged]
     assert "case_gap" not in verdicts and "harness_gap" not in verdicts
-    # 37 when #4255 counted them; the 8 in hc-abend-link and hc-perform-range left with their ports' changes (their
-    # handlers now run), until the next mutation run judges those ports again
-    assert verdicts.count("unreachable") >= 29
+    # 37 when #4255 counted them. The 8 in hc-abend-link and hc-perform-range left with their ports' changes (their
+    # handlers now run, #4325); #4342 took 14 more with the code they sat in: COMEN01C's 9 and COACTVWC's 1 were in the
+    # data-driven dispatchers runTask now XCTLs through, CSUTLDTC's 4 in executeCsutldtc, which is gone. Those ports
+    # are skipped until their next mutation run judges them again (#4343 re-runs them).
+    assert verdicts.count("unreachable") >= 15

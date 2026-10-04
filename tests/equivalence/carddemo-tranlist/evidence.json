@@ -7,7 +7,7 @@
   "paths": [
    "tests/equivalence/carddemo-tranlist/port/service/Cotrn00cService.java"
   ],
-  "sha256": "7a3c8ddbf7ed4b054e323b270bf38538b350bc19e773ae8d52e1de2d0c8dc192",
+  "sha256": "03c3680ae42946c2e92b512e2a63d43f6f918f32c3e3549d72a67c80138623cd",
   "entry_points": [
    "runTask"
   ]
@@ -18,7 +18,7 @@
     "tests/equivalence/carddemo-tranlist/port/**"
    ],
    "files": 1,
-   "sha256": "7a3c8ddbf7ed4b054e323b270bf38538b350bc19e773ae8d52e1de2d0c8dc192"
+   "sha256": "03c3680ae42946c2e92b512e2a63d43f6f918f32c3e3549d72a67c80138623cd"
   },
   "case": {
    "paths": [
@@ -42,7 +42,7 @@
     "tests/tools/java_target_matrix.py"
    ],
    "files": 11,
-   "sha256": "609073a350a3120d63bf3cb3e7f6a1050a9fc8a91964ac548b2826356f319cbc"
+   "sha256": "1764f900744b3e9c121722acf2c84aee1ef8dded04fa68f429e0abc39f031fd9"
   },
   "oracle": {
    "paths": [
@@ -62,7 +62,7 @@
     "gitgalaxy/tools/cobol_to_java/**"
    ],
    "files": 60,
-   "sha256": "880250850d919c29f8ace3eb0d7183156a05354438ea79f72a417febb9e57e68"
+   "sha256": "0903665aaebe06576a2cc6a2de1bc7c744a8dd8b94a5c1fdd5a53c404d60712b"
   },
   "corpus": {
    "name": "aws-mainframe-modernization-carddemo",
@@ -72,10 +72,10 @@
   "differences": {
    "sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
   },
-  "digest": "0dc5c78a2ea450578216958f8b190d117943b46f8f4de1160724f5392ceaf6a0"
+  "digest": "70d1ae7326d364bf02778ae4b268600e6d8ed45feb831b9b530e050720a6acab"
  },
  "proof": {
-  "at": "2026-10-04T15:41:19Z",
+  "at": "2026-10-04T18:28:41Z",
   "verdict": "proven",
   "runs": 21,
   "fault_runs": 3,
@@ -170,8 +170,8 @@
   "sysout_compared": null,
   "attributes_compared": null,
   "java_failed": false,
-  "harness_commit": "cdad33370dc73ea44e5bf1348d88c9404a14c2d2+uncommitted",
-  "inputs_digest": "0dc5c78a2ea450578216958f8b190d117943b46f8f4de1160724f5392ceaf6a0"
+  "harness_commit": "ec33bb3416e3b415c394086012546e08b6502dc1+uncommitted",
+  "inputs_digest": "70d1ae7326d364bf02778ae4b268600e6d8ed45feb831b9b530e050720a6acab"
  },
  "coverage": {
   "paragraphs": {
@@ -285,7 +285,7 @@
    "total": 0
   },
   "source": "the proof's own traced COBOL runs (cobol_coverage.py)",
-  "inputs_digest": "0dc5c78a2ea450578216958f8b190d117943b46f8f4de1160724f5392ceaf6a0"
+  "inputs_digest": "70d1ae7326d364bf02778ae4b268600e6d8ed45feb831b9b530e050720a6acab"
  },
  "reach": {
   "entry_points": [
@@ -294,66 +294,36 @@
   "unproven": [
    {
     "class": "Cotrn00cService",
-    "method": "executeCotrn00c",
-    "line": 74,
-    "kind": "stub"
-   },
-   {
-    "class": "Cotrn00cService",
     "method": "handleTransaction",
-    "line": 79,
-    "kind": "stub"
-   },
-   {
-    "class": "Cotrn00cService",
-    "method": "handleLink",
-    "line": 91,
-    "kind": "stub"
-   },
-   {
-    "class": "Cotrn00cService",
-    "method": "dispatchCdemoToProgramL192",
-    "line": 98,
+    "line": 70,
     "kind": "left_as_generated"
    },
    {
     "class": "Cotrn00cService",
-    "method": "dispatchCdemoToProgramL518",
-    "line": 114,
+    "method": "handleLink",
+    "line": 86,
     "kind": "left_as_generated"
    },
    {
     "class": "Cotrn00cService",
     "method": "browseTransact",
-    "line": 129,
+    "line": 113,
     "kind": "left_as_generated"
    },
    {
     "class": "Cotrn00cService",
     "method": "browseBackTransact",
-    "line": 133,
-    "kind": "left_as_generated"
-   },
-   {
-    "class": "Cotrn00cService",
-    "method": "renderCotrn0a",
-    "line": 140,
-    "kind": "left_as_generated"
-   },
-   {
-    "class": "Cotrn00cService",
-    "method": "submitCotrn0a",
-    "line": 147,
+    "line": 117,
     "kind": "left_as_generated"
    }
   ],
   "counts": {
-   "stub": 3,
-   "left_as_generated": 6,
+   "stub": 0,
+   "left_as_generated": 4,
    "ported_unproven": 0
   },
   "generated_compared": true,
-  "port_sha256": "7a3c8ddbf7ed4b054e323b270bf38538b350bc19e773ae8d52e1de2d0c8dc192"
+  "port_sha256": "03c3680ae42946c2e92b512e2a63d43f6f918f32c3e3549d72a67c80138623cd"
  },
  "mutation": null,
  "differences": [],

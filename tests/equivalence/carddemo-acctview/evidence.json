@@ -7,7 +7,7 @@
   "paths": [
    "tests/equivalence/carddemo-acctview/port/service/CoactvwcService.java"
   ],
-  "sha256": "a37842449f525647468000fa410bc1c578e3a936cea9745e58375d38a1ea7de5",
+  "sha256": "c1734f35fe73bed715f2381de3e27b2d743e24d988cf1c43f882bacf8d1edc4e",
   "entry_points": [
    "runTask"
   ]
@@ -18,7 +18,7 @@
     "tests/equivalence/carddemo-acctview/port/**"
    ],
    "files": 1,
-   "sha256": "a37842449f525647468000fa410bc1c578e3a936cea9745e58375d38a1ea7de5"
+   "sha256": "c1734f35fe73bed715f2381de3e27b2d743e24d988cf1c43f882bacf8d1edc4e"
   },
   "case": {
    "paths": [
@@ -42,7 +42,7 @@
     "tests/tools/java_target_matrix.py"
    ],
    "files": 11,
-   "sha256": "609073a350a3120d63bf3cb3e7f6a1050a9fc8a91964ac548b2826356f319cbc"
+   "sha256": "1764f900744b3e9c121722acf2c84aee1ef8dded04fa68f429e0abc39f031fd9"
   },
   "oracle": {
    "paths": [
@@ -62,7 +62,7 @@
     "gitgalaxy/tools/cobol_to_java/**"
    ],
    "files": 60,
-   "sha256": "880250850d919c29f8ace3eb0d7183156a05354438ea79f72a417febb9e57e68"
+   "sha256": "0903665aaebe06576a2cc6a2de1bc7c744a8dd8b94a5c1fdd5a53c404d60712b"
   },
   "corpus": {
    "name": "aws-mainframe-modernization-carddemo",
@@ -72,10 +72,10 @@
   "differences": {
    "sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
   },
-  "digest": "728f00e0a325b1e37e8932d41a6bd4aaa11b36c8393413915e5a8989154a85e9"
+  "digest": "630b3125a5241e2d154ba2ec1081363c376042c2cb0adc2816c6eb78f0ae8f43"
  },
  "proof": {
-  "at": "2026-10-04T15:34:33Z",
+  "at": "2026-10-04T18:17:45Z",
   "verdict": "proven",
   "runs": 20,
   "fault_runs": 6,
@@ -166,8 +166,8 @@
   "sysout_compared": null,
   "attributes_compared": null,
   "java_failed": false,
-  "harness_commit": "cdad33370dc73ea44e5bf1348d88c9404a14c2d2",
-  "inputs_digest": "728f00e0a325b1e37e8932d41a6bd4aaa11b36c8393413915e5a8989154a85e9"
+  "harness_commit": "ec33bb3416e3b415c394086012546e08b6502dc1",
+  "inputs_digest": "630b3125a5241e2d154ba2ec1081363c376042c2cb0adc2816c6eb78f0ae8f43"
  },
  "coverage": {
   "paragraphs": {
@@ -263,7 +263,7 @@
    "total": 1
   },
   "source": "the proof's own traced COBOL runs (cobol_coverage.py)",
-  "inputs_digest": "728f00e0a325b1e37e8932d41a6bd4aaa11b36c8393413915e5a8989154a85e9"
+  "inputs_digest": "630b3125a5241e2d154ba2ec1081363c376042c2cb0adc2816c6eb78f0ae8f43"
  },
  "reach": {
   "entry_points": [
@@ -272,66 +272,36 @@
   "unproven": [
    {
     "class": "CoactvwcService",
-    "method": "executeCoactvwc",
-    "line": 58,
-    "kind": "stub"
-   },
-   {
-    "class": "CoactvwcService",
     "method": "handleTransaction",
-    "line": 64,
-    "kind": "stub"
+    "line": 57,
+    "kind": "left_as_generated"
    },
    {
     "class": "CoactvwcService",
     "method": "handleLink",
-    "line": 384,
-    "kind": "stub"
-   },
-   {
-    "class": "CoactvwcService",
-    "method": "dispatchCdemoToProgramL349",
-    "line": 392,
-    "kind": "ported_unproven"
+    "line": 381,
+    "kind": "left_as_generated"
    },
    {
     "class": "CoactvwcService",
     "method": "onAbendL264",
-    "line": 420,
-    "kind": "stub"
-   },
-   {
-    "class": "CoactvwcService",
-    "method": "onAbendL930",
-    "line": 429,
+    "line": 418,
     "kind": "stub"
    },
    {
     "class": "CoactvwcService",
     "method": "abendLegacy9999L934",
-    "line": 439,
-    "kind": "left_as_generated"
-   },
-   {
-    "class": "CoactvwcService",
-    "method": "renderCactvwa",
-    "line": 446,
-    "kind": "left_as_generated"
-   },
-   {
-    "class": "CoactvwcService",
-    "method": "submitCactvwa",
-    "line": 454,
+    "line": 428,
     "kind": "left_as_generated"
    }
   ],
   "counts": {
-   "stub": 5,
+   "stub": 1,
    "left_as_generated": 3,
-   "ported_unproven": 1
+   "ported_unproven": 0
   },
   "generated_compared": true,
-  "port_sha256": "a37842449f525647468000fa410bc1c578e3a936cea9745e58375d38a1ea7de5"
+  "port_sha256": "c1734f35fe73bed715f2381de3e27b2d743e24d988cf1c43f882bacf8d1edc4e"
  },
  "mutation": {
   "commit": "be2561306",
@@ -456,7 +426,7 @@
  "provenance": {
   "written_by": "person",
   "author": "Joe Esquibel",
-  "first_commit": "d40084d8",
+  "first_commit": "d40084d8c",
   "first_committed": "2026-09-26",
   "model": null,
   "provenance_file": null,

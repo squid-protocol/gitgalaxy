@@ -1581,7 +1581,8 @@ class Gen:
         out.append(f"{ind}Cobol.store({self.field_expr(E.Ref('SORT-RETURN'))}, BigDecimal.ZERO, false, CS);")
         return out
 
-    def _sort_io_file(self, verb: str, sd: FileDef, name: str) -> FileDef:
+    def _sort_io_file(self, verb: str, sd: FileDef, name: str) -> tuple[FileDef, L.Item]:
+        """A USING / GIVING file and its record (checked present, so callers get it as a non-optional Item)."""
         fd = self.p.files.get(name)
         if fd is None or fd.sort:
             raise Untranslatable(f"{verb} USING / GIVING {name}: no such file")
@@ -1589,13 +1590,13 @@ class Gen:
             raise Untranslatable(f"{name}: {fd.why}")
         if fd.varying is not None or fd.record is None or fd.record.size != sd.sort_length:
             raise Untranslatable(f"{verb} USING / GIVING {name}: records not the sort file's length: not modelled")
-        return fd
+        return fd, fd.record
 
     def using_file(self, verb: str, var: str, sd: FileDef, name: str, ind: str) -> list[str]:
         """USING: the file opened, every record read into the sort, closed. Its FILE STATUS item is left as it was:
         GnuCOBOL's implicit I/O does not set it (and IBM's depends on FASTSRT: register F4)."""
-        fd = self._sort_io_file(verb, sd, name)
-        v, rec, st, what = jname(fd.select), self.ids[id(fd.record)], self.tmpname("st"), f"{verb} USING {name}"
+        fd, record = self._sort_io_file(verb, sd, name)
+        v, rec, st, what = jname(fd.select), self.ids[id(record)], self.tmpname("st"), f"{verb} USING {name}"
         return [f'{ind}String {st} = {v}.open("INPUT");',
                 f'{ind}Sort.expect({st}, {jstr(what + ": OPEN")}, "00");',
                 f"{ind}while (true) {{", f"{ind}    {st} = {v}.readNext();",
@@ -1607,13 +1608,13 @@ class Gen:
     def giving_file(self, verb: str, var: str, sd: FileDef, name: str, ind: str) -> list[str]:
         """GIVING: the file opened OUTPUT, every record in order written from its record area, closed (its FILE
         STATUS left as it was, as USING)."""
-        fd = self._sort_io_file(verb, sd, name)
-        v, rec, st, what = jname(fd.select), self.ids[id(fd.record)], self.tmpname("st"), f"{verb} GIVING {name}"
+        fd, record = self._sort_io_file(verb, sd, name)
+        v, rec, st, what = jname(fd.select), self.ids[id(record)], self.tmpname("st"), f"{verb} GIVING {name}"
         r = self.tmpname("r")
         return [f"{ind}{var}.rewind();", f'{ind}String {st} = {v}.open("OUTPUT");',
                 f'{ind}Sort.expect({st}, {jstr(what + ": OPEN")}, "00");',
                 f"{ind}for (byte[] {r} = {var}.next(); {r} != null; {r} = {var}.next()) {{",
-                f"{ind}    {rec}.putRaw({r});", f"{ind}    {st} = {v}.write({fd.record.size});",
+                f"{ind}    {rec}.putRaw({r});", f"{ind}    {st} = {v}.write({record.size});",
                 f'{ind}    Sort.expect({st}, {jstr(what + ": WRITE")}, "00");',
                 f"{ind}}}", f"{ind}{st} = {v}.close();",
                 f'{ind}Sort.expect({st}, {jstr(what + ": CLOSE")}, "00");']  # fmt: skip

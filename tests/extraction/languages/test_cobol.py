@@ -392,12 +392,17 @@ DEPENDENCY_CASES: dict[str, Any] = {
         ("COPY MYFILE IN MYLIB.", "MYFILE"),  # IN library qualifier
         ("       01  WS-REC.  COPY CPYB.", "CPYB"),  # #4303: after a level entry on the same line
         ("       05 X PIC 9. EXEC SQL INCLUDE SQLCA END-EXEC.", "SQLCA"),  # #4303: INCLUDE after a period
+        ("       COPY\u3000KYUYCPY.", "KYUYCPY"),  # #4352: U+3000 between COPY and the member
+        ("       EXEC SQL\u3000INCLUDE\u3000SQLCA END-EXEC.", "SQLCA"),  # #4352: U+3000 inside EXEC SQL INCLUDE
+        ("       01  WS-REC.\u3000COPY\u3000CPYB.", "CPYB"),  # #4352: U+3000 after a separator period
     ],
     "invalid": [
         "01 COPY-FILE PIC X(10).",  # carried-forward: substring-of-keyword lookalike
         "      * COPY MYFILE.",  # commented-out copy (column-7 asterisk)
         "       MOVE A TO B. INCLUDE-FLAG",  # #4303: only COPY / EXEC SQL INCLUDE open a statement mid-line
         "       MOVE 1.5 TO X. INCLUDE Y.",  # #4303: a bare INCLUDE mid-line is not the EXEC SQL form
+        "       COPY\u3000",  # #4352: separator with no member is not an import
+        "       01 COPY\u3000FILE PIC X(10).",  # #4352: COPY mid-entry (not at a statement start) stays unmatched
     ],
     "pathological": [
         ("COPY \n 'Z_MACROS'", "Z_MACROS"),  # carried-forward: vertical spacing
@@ -429,6 +434,13 @@ def test_cobol_dependency_capture_every_copy_on_a_line_4303():
     dep = COBOL_RULES["_dependency_capture"]
     assert dep.findall("       01 PARENT. COPY A. COPY B. COPY C.") == ["A", "B", "C"]
     assert len(COBOL_RULES["import"].findall("       01 PARENT. COPY A. COPY B. COPY C.")) == 3
+
+
+def test_cobol_import_ideographic_space_4352():
+    """#4352 (KYUYJP.cbl:16): `COPY<U+3000>KYUYCPY.` is an import in both import rules."""
+    line = "       COPY\u3000KYUYCPY."
+    assert COBOL_RULES["_dependency_capture"].findall(line) == ["KYUYCPY"]
+    assert len(COBOL_RULES["import"].findall(line)) == 1
 
 
 def test_cobol_dependency_capture_redos_immunity():

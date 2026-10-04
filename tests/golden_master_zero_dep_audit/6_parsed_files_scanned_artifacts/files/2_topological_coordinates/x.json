@@ -1,7 +1,7 @@
 {
   "groups": {
     "abap": {
-      "abap/SOURCES.md": -10953.82
+      "abap/SOURCES.md": -10953.92
     },
     "abap/abapGit": {
       "abap/abapGit/package.devc.xml": -1905.79,
@@ -71,37 +71,37 @@
       "ada/functional/test_try_map_to_result.adb": 356.51
     },
     "agc_assembly": {
-      "agc_assembly/SOURCES.md": 1329.11
+      "agc_assembly/SOURCES.md": 1329.1
     },
     "agc_assembly/apollo-11": {
-      "agc_assembly/apollo-11/AGC_BLOCK_TWO_SELF-CHECK.agc": 8619.89,
-      "agc_assembly/apollo-11/ALARM_AND_ABORT.agc": 7878.14,
-      "agc_assembly/apollo-11/BURN_BABY_BURN--MASTER_IGNITION_ROUTINE.agc": 8469.77,
-      "agc_assembly/apollo-11/CONTRIBUTING.md": 8451.54,
-      "agc_assembly/apollo-11/EXECUTIVE.agc": 7567.09,
-      "agc_assembly/apollo-11/INTERPRETER.agc": 7855.01,
-      "agc_assembly/apollo-11/LICENSE.md": 8313.34,
-      "agc_assembly/apollo-11/LUNAR_LANDING_GUIDANCE_EQUATIONS.agc": 8147.83,
-      "agc_assembly/apollo-11/PINBALL_GAME_BUTTONS_AND_LIGHTS.agc": 8161.48,
-      "agc_assembly/apollo-11/RCS_FAILURE_MONITOR.agc": 7502.24,
-      "agc_assembly/apollo-11/THE_LUNAR_LANDING.agc": 8705.02,
-      "agc_assembly/apollo-11/WAITLIST.agc": 7967.97
+      "agc_assembly/apollo-11/AGC_BLOCK_TWO_SELF-CHECK.agc": 8619.9,
+      "agc_assembly/apollo-11/ALARM_AND_ABORT.agc": 7878.15,
+      "agc_assembly/apollo-11/BURN_BABY_BURN--MASTER_IGNITION_ROUTINE.agc": 8469.79,
+      "agc_assembly/apollo-11/CONTRIBUTING.md": 8451.55,
+      "agc_assembly/apollo-11/EXECUTIVE.agc": 7567.1,
+      "agc_assembly/apollo-11/INTERPRETER.agc": 7855.03,
+      "agc_assembly/apollo-11/LICENSE.md": 8313.35,
+      "agc_assembly/apollo-11/LUNAR_LANDING_GUIDANCE_EQUATIONS.agc": 8147.84,
+      "agc_assembly/apollo-11/PINBALL_GAME_BUTTONS_AND_LIGHTS.agc": 8161.5,
+      "agc_assembly/apollo-11/RCS_FAILURE_MONITOR.agc": 7502.25,
+      "agc_assembly/apollo-11/THE_LUNAR_LANDING.agc": 8705.03,
+      "agc_assembly/apollo-11/WAITLIST.agc": 7967.99
     },
     "apex": {
-      "apex/SOURCES.md": 12922.63
+      "apex/SOURCES.md": 12922.64
     },
     "apex/apex-recipes": {
-      "apex/apex-recipes/AuraEnabledRecipes_Tests.cls": -4622.08,
-      "apex/apex-recipes/LICENSE.md": -4734.09,
-      "apex/apex-recipes/QueueableRecipes.cls": -4447.84,
-      "apex/apex-recipes/SOQLRecipes.cls": -4664.36,
-      "apex/apex-recipes/SOQLRecipes.cls-meta.xml": -4046.26,
-      "apex/apex-recipes/SOQLRecipes_Tests.cls": -4426.26,
-      "apex/apex-recipes/project-scratch-def.json": -4963.16,
-      "apex/apex-recipes/sfdx-project.json": -4226.42
+      "apex/apex-recipes/AuraEnabledRecipes_Tests.cls": -4621.77,
+      "apex/apex-recipes/LICENSE.md": -4733.77,
+      "apex/apex-recipes/QueueableRecipes.cls": -4447.52,
+      "apex/apex-recipes/SOQLRecipes.cls": -4664.05,
+      "apex/apex-recipes/SOQLRecipes.cls-meta.xml": -4045.94,
+      "apex/apex-recipes/SOQLRecipes_Tests.cls": -4425.94,
+      "apex/apex-recipes/project-scratch-def.json": -4962.84,
+      "apex/apex-recipes/sfdx-project.json": -4226.11
     },
     "assembly": {
-      "assembly/SOURCES.md": -2602.02
+      "assembly/SOURCES.md": -2601.88
     },
     "assembly/blst_generated_asm": {
       "assembly/blst_generated_asm/add_mod_256-x86_64.s": -929.54,
@@ -164,26 +164,26 @@
       "assembly/cosmopolitan_syscalls/calls_sys_aio_mlock.S": 655.84
     },
     "assembly/cpm65_6502": {
-      "assembly/cpm65_6502/apps_adm3adrv.S": -4588.93,
-      "assembly/cpm65_6502/apps_adm3atst.asm": -3792.14,
-      "assembly/cpm65_6502/apps_bedit.asm": -4582.5,
-      "assembly/cpm65_6502/apps_capsdrv.asm": -5114.1,
-      "assembly/cpm65_6502/apps_cls.asm": -3766.35,
-      "assembly/cpm65_6502/apps_cpuinfo.asm": -4428.15,
-      "assembly/cpm65_6502/apps_devices.asm": -4766.93,
-      "assembly/cpm65_6502/apps_dinfo.asm": -4510.28,
-      "assembly/cpm65_6502/apps_dump.asm": -3714.24,
-      "assembly/cpm65_6502/apps_kbdtest.asm": -4946.85,
-      "assembly/cpm65_6502/apps_ls.asm": -4394.72,
-      "assembly/cpm65_6502/apps_more.asm": -3830.78,
-      "assembly/cpm65_6502/apps_scrntest.asm": -4851.47,
-      "assembly/cpm65_6502/apps_scrvt100.S": -4192.86,
-      "assembly/cpm65_6502/apps_vt52drv.asm": -3955.1,
-      "assembly/cpm65_6502/apps_vt52test.asm": -4091.64,
-      "assembly/cpm65_6502/apps_xrecv.asm": -4305.45,
-      "assembly/cpm65_6502/apps_xsend.asm": -4056.33,
-      "assembly/cpm65_6502/cpmfs_hello.asm": -4444.61,
-      "assembly/cpm65_6502/lib_bdos.S": -4960.36
+      "assembly/cpm65_6502/apps_adm3adrv.S": -4588.58,
+      "assembly/cpm65_6502/apps_adm3atst.asm": -3791.78,
+      "assembly/cpm65_6502/apps_bedit.asm": -4582.15,
+      "assembly/cpm65_6502/apps_capsdrv.asm": -5113.74,
+      "assembly/cpm65_6502/apps_cls.asm": -3765.99,
+      "assembly/cpm65_6502/apps_cpuinfo.asm": -4427.8,
+      "assembly/cpm65_6502/apps_devices.asm": -4766.57,
+      "assembly/cpm65_6502/apps_dinfo.asm": -4509.92,
+      "assembly/cpm65_6502/apps_dump.asm": -3713.89,
+      "assembly/cpm65_6502/apps_kbdtest.asm": -4946.49,
+      "assembly/cpm65_6502/apps_ls.asm": -4394.37,
+      "assembly/cpm65_6502/apps_more.asm": -3830.42,
+      "assembly/cpm65_6502/apps_scrntest.asm": -4851.12,
+      "assembly/cpm65_6502/apps_scrvt100.S": -4192.5,
+      "assembly/cpm65_6502/apps_vt52drv.asm": -3954.74,
+      "assembly/cpm65_6502/apps_vt52test.asm": -4091.28,
+      "assembly/cpm65_6502/apps_xrecv.asm": -4305.09,
+      "assembly/cpm65_6502/apps_xsend.asm": -4055.97,
+      "assembly/cpm65_6502/cpmfs_hello.asm": -4444.26,
+      "assembly/cpm65_6502/lib_bdos.S": -4960.0
     },
     "assembly/freebsd_kernel_arch": {
       "assembly/freebsd_kernel_arch/COPYRIGHT": -5267.89,
@@ -260,25 +260,25 @@
       "assembly/hellosilicon_aarch64/Chapter_09_debug.s": 7064.83
     },
     "assembly/linux_1_0_kernel": {
-      "assembly/linux_1_0_kernel/COPYING": -9375.3,
-      "assembly/linux_1_0_kernel/boot_bootsect.S": -8294.91,
-      "assembly/linux_1_0_kernel/boot_head.S": -8008.32,
-      "assembly/linux_1_0_kernel/boot_setup.S": -8581.21,
-      "assembly/linux_1_0_kernel/drivers_FPU-emu_div_small.S": -7985.89,
-      "assembly/linux_1_0_kernel/drivers_FPU-emu_poly_div.S": -7863.21,
-      "assembly/linux_1_0_kernel/drivers_FPU-emu_poly_mul64.S": -7939.33,
-      "assembly/linux_1_0_kernel/drivers_FPU-emu_polynomial.S": -9003.1,
-      "assembly/linux_1_0_kernel/drivers_FPU-emu_reg_div.S": -8656.09,
-      "assembly/linux_1_0_kernel/drivers_FPU-emu_reg_norm.S": -8312.46,
-      "assembly/linux_1_0_kernel/drivers_FPU-emu_reg_round.S": -8853.97,
-      "assembly/linux_1_0_kernel/drivers_FPU-emu_reg_u_add.S": -9139.94,
-      "assembly/linux_1_0_kernel/drivers_FPU-emu_reg_u_div.S": -8489.41,
-      "assembly/linux_1_0_kernel/drivers_FPU-emu_reg_u_mul.S": -8239.53,
-      "assembly/linux_1_0_kernel/drivers_FPU-emu_reg_u_sub.S": -8087.6,
-      "assembly/linux_1_0_kernel/drivers_FPU-emu_wm_shrx.S": -9157.77,
-      "assembly/linux_1_0_kernel/drivers_FPU-emu_wm_sqrt.S": -9001.99,
-      "assembly/linux_1_0_kernel/kernel_ksyms.S": -8671.95,
-      "assembly/linux_1_0_kernel/kernel_sys_call.S": -8824.36
+      "assembly/linux_1_0_kernel/COPYING": -9375.43,
+      "assembly/linux_1_0_kernel/boot_bootsect.S": -8295.04,
+      "assembly/linux_1_0_kernel/boot_head.S": -8008.44,
+      "assembly/linux_1_0_kernel/boot_setup.S": -8581.33,
+      "assembly/linux_1_0_kernel/drivers_FPU-emu_div_small.S": -7986.02,
+      "assembly/linux_1_0_kernel/drivers_FPU-emu_poly_div.S": -7863.33,
+      "assembly/linux_1_0_kernel/drivers_FPU-emu_poly_mul64.S": -7939.46,
+      "assembly/linux_1_0_kernel/drivers_FPU-emu_polynomial.S": -9003.23,
+      "assembly/linux_1_0_kernel/drivers_FPU-emu_reg_div.S": -8656.21,
+      "assembly/linux_1_0_kernel/drivers_FPU-emu_reg_norm.S": -8312.59,
+      "assembly/linux_1_0_kernel/drivers_FPU-emu_reg_round.S": -8854.09,
+      "assembly/linux_1_0_kernel/drivers_FPU-emu_reg_u_add.S": -9140.07,
+      "assembly/linux_1_0_kernel/drivers_FPU-emu_reg_u_div.S": -8489.54,
+      "assembly/linux_1_0_kernel/drivers_FPU-emu_reg_u_mul.S": -8239.66,
+      "assembly/linux_1_0_kernel/drivers_FPU-emu_reg_u_sub.S": -8087.72,
+      "assembly/linux_1_0_kernel/drivers_FPU-emu_wm_shrx.S": -9157.89,
+      "assembly/linux_1_0_kernel/drivers_FPU-emu_wm_sqrt.S": -9002.12,
+      "assembly/linux_1_0_kernel/kernel_ksyms.S": -8672.07,
+      "assembly/linux_1_0_kernel/kernel_sys_call.S": -8824.49
     },
     "assembly/nasm_testsuite": {
       "assembly/nasm_testsuite/a32offs.asm": -5887.57,
@@ -301,65 +301,65 @@
       "assembly/nasm_testsuite/avx512pf.asm": -5557.77
     },
     "assembly/os_tutorial_x86": {
-      "assembly/os_tutorial_x86/01-bootsector-barebones_boot_sect_simple.asm": -7036.41,
-      "assembly/os_tutorial_x86/02-bootsector-print_boot_sect_hello.asm": -7708.66,
-      "assembly/os_tutorial_x86/03-bootsector-memory_boot_sect_memory.asm": -7770.18,
-      "assembly/os_tutorial_x86/03-bootsector-memory_boot_sect_memory_org.asm": -7541.93,
-      "assembly/os_tutorial_x86/04-bootsector-stack_boot_sect_stack.asm": -7511.66,
-      "assembly/os_tutorial_x86/05-bootsector-functions-strings_boot_sect_main.asm": -7988.82,
-      "assembly/os_tutorial_x86/05-bootsector-functions-strings_boot_sect_print.asm": -8172.61,
-      "assembly/os_tutorial_x86/05-bootsector-functions-strings_boot_sect_print_hex.asm": -7815.32,
-      "assembly/os_tutorial_x86/06-bootsector-segmentation_boot_sect_segmentation.asm": -7158.11,
-      "assembly/os_tutorial_x86/07-bootsector-disk_boot_sect_disk.asm": -7316.12,
-      "assembly/os_tutorial_x86/07-bootsector-disk_boot_sect_main.asm": -7330.84,
-      "assembly/os_tutorial_x86/08-32bit-print_32bit-print.asm": -6946.79,
-      "assembly/os_tutorial_x86/09-32bit-gdt_32bit-gdt.asm": -8115.04,
-      "assembly/os_tutorial_x86/10-32bit-enter_32bit-main.asm": -7640.27,
-      "assembly/os_tutorial_x86/10-32bit-enter_32bit-switch.asm": -8340.82,
-      "assembly/os_tutorial_x86/13-kernel-barebones_bootsect.asm": -7690.14,
-      "assembly/os_tutorial_x86/13-kernel-barebones_kernel_entry.asm": -7007.98,
-      "assembly/os_tutorial_x86/14-checkpoint_boot_32bit_print.asm": -7954.19,
-      "assembly/os_tutorial_x86/14-checkpoint_boot_bootsect.asm": -7001.79,
-      "assembly/os_tutorial_x86/14-checkpoint_boot_disk.asm": -7331.48,
-      "assembly/os_tutorial_x86/14-checkpoint_boot_gdt.asm": -6713.79,
-      "assembly/os_tutorial_x86/14-checkpoint_boot_kernel_entry.asm": -8088.92
+      "assembly/os_tutorial_x86/01-bootsector-barebones_boot_sect_simple.asm": -7036.55,
+      "assembly/os_tutorial_x86/02-bootsector-print_boot_sect_hello.asm": -7708.8,
+      "assembly/os_tutorial_x86/03-bootsector-memory_boot_sect_memory.asm": -7770.32,
+      "assembly/os_tutorial_x86/03-bootsector-memory_boot_sect_memory_org.asm": -7542.07,
+      "assembly/os_tutorial_x86/04-bootsector-stack_boot_sect_stack.asm": -7511.8,
+      "assembly/os_tutorial_x86/05-bootsector-functions-strings_boot_sect_main.asm": -7988.95,
+      "assembly/os_tutorial_x86/05-bootsector-functions-strings_boot_sect_print.asm": -8172.75,
+      "assembly/os_tutorial_x86/05-bootsector-functions-strings_boot_sect_print_hex.asm": -7815.46,
+      "assembly/os_tutorial_x86/06-bootsector-segmentation_boot_sect_segmentation.asm": -7158.25,
+      "assembly/os_tutorial_x86/07-bootsector-disk_boot_sect_disk.asm": -7316.26,
+      "assembly/os_tutorial_x86/07-bootsector-disk_boot_sect_main.asm": -7330.98,
+      "assembly/os_tutorial_x86/08-32bit-print_32bit-print.asm": -6946.92,
+      "assembly/os_tutorial_x86/09-32bit-gdt_32bit-gdt.asm": -8115.18,
+      "assembly/os_tutorial_x86/10-32bit-enter_32bit-main.asm": -7640.41,
+      "assembly/os_tutorial_x86/10-32bit-enter_32bit-switch.asm": -8340.96,
+      "assembly/os_tutorial_x86/13-kernel-barebones_bootsect.asm": -7690.28,
+      "assembly/os_tutorial_x86/13-kernel-barebones_kernel_entry.asm": -7008.12,
+      "assembly/os_tutorial_x86/14-checkpoint_boot_32bit_print.asm": -7954.33,
+      "assembly/os_tutorial_x86/14-checkpoint_boot_bootsect.asm": -7001.93,
+      "assembly/os_tutorial_x86/14-checkpoint_boot_disk.asm": -7331.62,
+      "assembly/os_tutorial_x86/14-checkpoint_boot_gdt.asm": -6713.93,
+      "assembly/os_tutorial_x86/14-checkpoint_boot_kernel_entry.asm": -8089.06
     },
     "assembly/rpi_smartstart_baremetal": {
-      "assembly/rpi_smartstart_baremetal/10_virtualmemory_SmartStart32.S": 10730.4,
-      "assembly/rpi_smartstart_baremetal/10_virtualmemory_SmartStart64.S": 10779.58,
-      "assembly/rpi_smartstart_baremetal/Arm32_64_USB_SmartStart32.S": 11038.72,
-      "assembly/rpi_smartstart_baremetal/Arm32_64_USB_SmartStart64.S": 11318.73,
-      "assembly/rpi_smartstart_baremetal/Core3Interrupt_SmartStart64.S": 10516.75,
-      "assembly/rpi_smartstart_baremetal/FreeRTOSv10.1.1_loader_RaspberryPi_SmartStart32.S": 10473.81,
-      "assembly/rpi_smartstart_baremetal/FreeRTOSv10.1.1_loader_RaspberryPi_SmartStart64.S": 10616.26,
-      "assembly/rpi_smartstart_baremetal/Multicore_SmartStart32.S": 11170.13,
-      "assembly/rpi_smartstart_baremetal/Multicore_SmartStart64.S": 10169.76,
-      "assembly/rpi_smartstart_baremetal/SimpleSched_SmartStart32.S": 10258.23
+      "assembly/rpi_smartstart_baremetal/10_virtualmemory_SmartStart32.S": 10730.41,
+      "assembly/rpi_smartstart_baremetal/10_virtualmemory_SmartStart64.S": 10779.59,
+      "assembly/rpi_smartstart_baremetal/Arm32_64_USB_SmartStart32.S": 11038.73,
+      "assembly/rpi_smartstart_baremetal/Arm32_64_USB_SmartStart64.S": 11318.74,
+      "assembly/rpi_smartstart_baremetal/Core3Interrupt_SmartStart64.S": 10516.76,
+      "assembly/rpi_smartstart_baremetal/FreeRTOSv10.1.1_loader_RaspberryPi_SmartStart32.S": 10473.82,
+      "assembly/rpi_smartstart_baremetal/FreeRTOSv10.1.1_loader_RaspberryPi_SmartStart64.S": 10616.27,
+      "assembly/rpi_smartstart_baremetal/Multicore_SmartStart32.S": 11170.14,
+      "assembly/rpi_smartstart_baremetal/Multicore_SmartStart64.S": 10169.77,
+      "assembly/rpi_smartstart_baremetal/SimpleSched_SmartStart32.S": 10258.24
     },
     "assembly/x86_bare_metal": {
-      "assembly/x86_bare_metal/LICENSE.adoc": -1587.04,
-      "assembly/x86_bare_metal/apm_shutdown.S": -835.74,
-      "assembly/x86_bare_metal/apm_shutdown2.S": -1285.07,
-      "assembly/x86_bare_metal/bios_background.S": -1123.62,
-      "assembly/x86_bare_metal/bios_carriage_return.S": -1433.1,
-      "assembly/x86_bare_metal/bios_clear_screen.S": -1107.33,
-      "assembly/x86_bare_metal/bios_color.S": -466.13,
-      "assembly/x86_bare_metal/bios_cursor_position.S": -1273.61,
-      "assembly/x86_bare_metal/bios_detect_memory.S": -886.02,
-      "assembly/x86_bare_metal/bios_disk_load.S": -1361.98,
-      "assembly/x86_bare_metal/bios_disk_load2.S": -27.09,
-      "assembly/x86_bare_metal/bios_hello_world.S": -345.47,
-      "assembly/x86_bare_metal/bios_initial_state.S": -1632.63,
-      "assembly/x86_bare_metal/bios_keyboard.S": -1040.87,
-      "assembly/x86_bare_metal/bios_keyboard_loop.S": -939.81,
-      "assembly/x86_bare_metal/bios_newline.S": -597.12,
-      "assembly/x86_bare_metal/bios_pixel.S": -340.07,
-      "assembly/x86_bare_metal/bios_pixel_line.S": -688.3,
-      "assembly/x86_bare_metal/bios_putc.S": -1439.89,
-      "assembly/x86_bare_metal/bios_scroll.S": -659.36,
-      "assembly/x86_bare_metal/bios_serial.S": -929.13,
-      "assembly/x86_bare_metal/bios_sleep.S": -240.65,
-      "assembly/x86_bare_metal/c_hello_world_entry.S": -303.82
+      "assembly/x86_bare_metal/LICENSE.adoc": -1586.96,
+      "assembly/x86_bare_metal/apm_shutdown.S": -835.66,
+      "assembly/x86_bare_metal/apm_shutdown2.S": -1284.99,
+      "assembly/x86_bare_metal/bios_background.S": -1123.53,
+      "assembly/x86_bare_metal/bios_carriage_return.S": -1433.02,
+      "assembly/x86_bare_metal/bios_clear_screen.S": -1107.24,
+      "assembly/x86_bare_metal/bios_color.S": -466.05,
+      "assembly/x86_bare_metal/bios_cursor_position.S": -1273.53,
+      "assembly/x86_bare_metal/bios_detect_memory.S": -885.94,
+      "assembly/x86_bare_metal/bios_disk_load.S": -1361.9,
+      "assembly/x86_bare_metal/bios_disk_load2.S": -27.0,
+      "assembly/x86_bare_metal/bios_hello_world.S": -345.38,
+      "assembly/x86_bare_metal/bios_initial_state.S": -1632.55,
+      "assembly/x86_bare_metal/bios_keyboard.S": -1040.79,
+      "assembly/x86_bare_metal/bios_keyboard_loop.S": -939.73,
+      "assembly/x86_bare_metal/bios_newline.S": -597.03,
+      "assembly/x86_bare_metal/bios_pixel.S": -339.99,
+      "assembly/x86_bare_metal/bios_pixel_line.S": -688.21,
+      "assembly/x86_bare_metal/bios_putc.S": -1439.81,
+      "assembly/x86_bare_metal/bios_scroll.S": -659.27,
+      "assembly/x86_bare_metal/bios_serial.S": -929.04,
+      "assembly/x86_bare_metal/bios_sleep.S": -240.57,
+      "assembly/x86_bare_metal/c_hello_world_entry.S": -303.74
     },
     "assembly/xv6_x86_kernel": {
       "assembly/xv6_x86_kernel/bootasm.S": -2598.7,
@@ -371,7 +371,7 @@
       "assembly/xv6_x86_kernel/usys.S": -2759.67
     },
     "batch": {
-      "batch/SOURCES.md": -11631.12
+      "batch/SOURCES.md": -11631.24
     },
     "batch/cpython/Tools/buildbot": {
       "batch/cpython/Tools/buildbot/clean.bat": -9540.93
@@ -381,14 +381,14 @@
       "batch/cpython/Tools/msi/buildrelease.bat": -10129.94
     },
     "blueprint": {
-      "blueprint/SOURCES.md": 3298.22
+      "blueprint/SOURCES.md": 3298.2
     },
     "blueprint/ghostty": {
-      "blueprint/ghostty/command-palette.blp": -10477.72,
-      "blueprint/ghostty/imgui-widget.blp": -10208.02,
-      "blueprint/ghostty/split-tree-split.blp": -10740.19,
-      "blueprint/ghostty/split-tree.blp": -9996.85,
-      "blueprint/ghostty/window.blp": -10308.49
+      "blueprint/ghostty/command-palette.blp": -10477.84,
+      "blueprint/ghostty/imgui-widget.blp": -10208.13,
+      "blueprint/ghostty/split-tree-split.blp": -10740.31,
+      "blueprint/ghostty/split-tree.blp": -9996.96,
+      "blueprint/ghostty/window.blp": -10308.61
     },
     "bms": {
       "bms/SOURCES.md": 12551.33
@@ -406,23 +406,23 @@
       "bms/cbsa/PROVENANCE.md": -225.28
     },
     "bms/genapp": {
-      "bms/genapp/ssmap.bms": 11737.5
+      "bms/genapp/ssmap.bms": 11737.51
     },
     "c": {
-      "c/SOURCES.md": -4668.6
+      "c/SOURCES.md": -4668.34
     },
     "c/cosmopolitan_intrin": {
       "c/cosmopolitan_intrin/countbits.c": 658.22
     },
     "c/cpython": {
-      "c/cpython/Makefile.pre.in": -5825.85,
-      "c/cpython/ceval.c": -5440.77,
-      "c/cpython/compile.c": -4950.5,
-      "c/cpython/dictobject.c": -5838.01,
-      "c/cpython/frameobject.c": -6026.49,
-      "c/cpython/gc.c": -5694.51,
-      "c/cpython/object.c": -5165.72,
-      "c/cpython/typeobject.c": -5482.99
+      "c/cpython/Makefile.pre.in": -5825.48,
+      "c/cpython/ceval.c": -5440.39,
+      "c/cpython/compile.c": -4950.13,
+      "c/cpython/dictobject.c": -5837.63,
+      "c/cpython/frameobject.c": -6026.11,
+      "c/cpython/gc.c": -5694.14,
+      "c/cpython/object.c": -5165.35,
+      "c/cpython/typeobject.c": -5482.61
     },
     "c/doom": {
       "c/doom/LICENSE.TXT": -7501.53,
@@ -462,127 +462,127 @@
       "c/sqlite/lemon.c": 9028.53
     },
     "cobol/CICS-Cobol": {
-      "cobol/CICS-Cobol/CBL0102v01DivisionAmbiente.cbl": 1226.3,
-      "cobol/CICS-Cobol/CBL0103v01DivisionData.cbl": 916.73,
-      "cobol/CICS-Cobol/CBL0104v01ProcedureDivision.cbl": 487.93,
-      "cobol/CICS-Cobol/CBL0105v01DeclararElementoGrupo.cbl": 2306.68,
-      "cobol/CICS-Cobol/CBL0106v01ClausulaImagen.cbl": 2238.0,
-      "cobol/CICS-Cobol/CBL0201v01VerbosBasicos.cbl": 2585.52,
-      "cobol/CICS-Cobol/CBL0202v01IniciarlizarVerbo.cbl": 1527.73,
-      "cobol/CICS-Cobol/CBL0203v01MoveVerb.cbl": 1372.15,
-      "cobol/CICS-Cobol/CBL0204v01AddVerb.cbl": 2002.28,
-      "cobol/CICS-Cobol/CBL0205v01SubtractVerb.cbl": 1665.16,
-      "cobol/CICS-Cobol/CBL0206v01MultiplyVerb.cbl": 1779.9,
-      "cobol/CICS-Cobol/CBL0207v01DivideVerb.cbl": 2062.53,
-      "cobol/CICS-Cobol/CBL0208v01ComputeVerb.cbl": 579.95,
-      "cobol/CICS-Cobol/CBL0301v01DataLayoutRedefine.cbl": 2352.54,
-      "cobol/CICS-Cobol/CBL0302v01DataLayoutRenames.cbl": 914.71,
-      "cobol/CICS-Cobol/CBL0303v01ClausuleUse.cbl": 2272.25,
-      "cobol/CICS-Cobol/CBL0304v01ClausuleComp.cbl": 1007.74,
-      "cobol/CICS-Cobol/CBL0305v01ClausuleComp-1.cbl": 811.83,
-      "cobol/CICS-Cobol/CBL0306v01ClausuleComp-2.cbl": 1709.73,
-      "cobol/CICS-Cobol/CBL0307v01ClausuleComp-3.cbl": 1950.46,
-      "cobol/CICS-Cobol/CBL0401v01ClausuleCopy.cbl": 678.79,
-      "cobol/CICS-Cobol/CBL0501v01DeclaracioCondicionIF.cbl": 1905.67,
-      "cobol/CICS-Cobol/CBL0502v01CondicionRelacion.cbl": 1084.2,
-      "cobol/CICS-Cobol/CBL0503v01CondicionSigno.cbl": 1225.62,
-      "cobol/CICS-Cobol/CBL0504v01CondicionClass.cbl": 2347.58,
-      "cobol/CICS-Cobol/CBL0505v01CondicionName.cbl": 2070.5,
+      "cobol/CICS-Cobol/CBL0102v01DivisionAmbiente.cbl": 1226.31,
+      "cobol/CICS-Cobol/CBL0103v01DivisionData.cbl": 916.76,
+      "cobol/CICS-Cobol/CBL0104v01ProcedureDivision.cbl": 488.23,
+      "cobol/CICS-Cobol/CBL0105v01DeclararElementoGrupo.cbl": 2306.64,
+      "cobol/CICS-Cobol/CBL0106v01ClausulaImagen.cbl": 2237.97,
+      "cobol/CICS-Cobol/CBL0201v01VerbosBasicos.cbl": 2585.47,
+      "cobol/CICS-Cobol/CBL0202v01IniciarlizarVerbo.cbl": 1527.72,
+      "cobol/CICS-Cobol/CBL0203v01MoveVerb.cbl": 1372.16,
+      "cobol/CICS-Cobol/CBL0204v01AddVerb.cbl": 2002.17,
+      "cobol/CICS-Cobol/CBL0205v01SubtractVerb.cbl": 1665.14,
+      "cobol/CICS-Cobol/CBL0206v01MultiplyVerb.cbl": 1779.88,
+      "cobol/CICS-Cobol/CBL0207v01DivideVerb.cbl": 2062.4,
+      "cobol/CICS-Cobol/CBL0208v01ComputeVerb.cbl": 579.98,
+      "cobol/CICS-Cobol/CBL0301v01DataLayoutRedefine.cbl": 2352.49,
+      "cobol/CICS-Cobol/CBL0302v01DataLayoutRenames.cbl": 914.83,
+      "cobol/CICS-Cobol/CBL0303v01ClausuleUse.cbl": 2272.21,
+      "cobol/CICS-Cobol/CBL0304v01ClausuleComp.cbl": 1007.83,
+      "cobol/CICS-Cobol/CBL0305v01ClausuleComp-1.cbl": 811.85,
+      "cobol/CICS-Cobol/CBL0306v01ClausuleComp-2.cbl": 1709.71,
+      "cobol/CICS-Cobol/CBL0307v01ClausuleComp-3.cbl": 1950.43,
+      "cobol/CICS-Cobol/CBL0401v01ClausuleCopy.cbl": 678.81,
+      "cobol/CICS-Cobol/CBL0501v01DeclaracioCondicionIF.cbl": 1905.63,
+      "cobol/CICS-Cobol/CBL0502v01CondicionRelacion.cbl": 1084.22,
+      "cobol/CICS-Cobol/CBL0503v01CondicionSigno.cbl": 1225.64,
+      "cobol/CICS-Cobol/CBL0504v01CondicionClass.cbl": 1145.9,
+      "cobol/CICS-Cobol/CBL0505v01CondicionName.cbl": 2070.39,
       "cobol/CICS-Cobol/CBL0506v01CondicionNot.cbl": 1429.12,
-      "cobol/CICS-Cobol/CBL0507v01CondicionCombined.cbl": 2529.81,
-      "cobol/CICS-Cobol/CBL0508v01CondicionVerb.cbl": 968.31,
-      "cobol/CICS-Cobol/CBL0601v01InOutLineLoop.cbl": 1073.72,
-      "cobol/CICS-Cobol/CBL0602v01PerformUntil.cbl": 1673.47,
-      "cobol/CICS-Cobol/CBL0603v01PerformTimes.cbl": 875.21,
-      "cobol/CICS-Cobol/CBL0604v01PerformVariying.cbl": 1352.5,
-      "cobol/CICS-Cobol/CBL0605v01GotoStatement.cbl": 753.74,
-      "cobol/CICS-Cobol/CBL0701v01StatementInspect.cbl": 2530.23,
-      "cobol/CICS-Cobol/CBL0702v01InspectReplacing.cbl": 463.87,
-      "cobol/CICS-Cobol/CBL0703v01StatementString.cbl": 1207.15,
-      "cobol/CICS-Cobol/CBL0704v01StatementNotString.cbl": 1173.37,
-      "cobol/CICS-Cobol/CBL0801v01TableOneDimention.cbl": 1916.36,
-      "cobol/CICS-Cobol/CBL0802v01TableTwoDimention.cbl": 1893.08,
-      "cobol/CICS-Cobol/CBL0803v01TableUseSubIndice.cbl": 2071.9,
-      "cobol/CICS-Cobol/CBL0804v01TableUseIndice.cbl": 1507.68,
-      "cobol/CICS-Cobol/CBL0805v01TableUseIndiceWithSet.cbl": 1485.9,
-      "cobol/CICS-Cobol/CBL0806v01TableSearch.cbl": 2159.58,
-      "cobol/CICS-Cobol/CBL0807v01TableSearchAll.cbl": 1731.18,
-      "cobol/CICS-Cobol/CBL0901v01AccesoSecuencial.cbl": 445.59,
-      "cobol/CICS-Cobol/CBL0901v02AccesoSecuencialFiles.cbl": 686.61,
-      "cobol/CICS-Cobol/CBL0902v01AccesoAleatorio.cbl": 762.78,
-      "cobol/CICS-Cobol/CBL0903v01AccesoDinamico.cbl": 1280.99,
+      "cobol/CICS-Cobol/CBL0507v01CondicionCombined.cbl": 2529.76,
+      "cobol/CICS-Cobol/CBL0508v01CondicionVerb.cbl": 968.41,
+      "cobol/CICS-Cobol/CBL0601v01InOutLineLoop.cbl": 1073.79,
+      "cobol/CICS-Cobol/CBL0602v01PerformUntil.cbl": 1673.42,
+      "cobol/CICS-Cobol/CBL0603v01PerformTimes.cbl": 875.31,
+      "cobol/CICS-Cobol/CBL0604v01PerformVariying.cbl": 1352.52,
+      "cobol/CICS-Cobol/CBL0605v01GotoStatement.cbl": 753.87,
+      "cobol/CICS-Cobol/CBL0701v01StatementInspect.cbl": 2529.68,
+      "cobol/CICS-Cobol/CBL0702v01InspectReplacing.cbl": 464.13,
+      "cobol/CICS-Cobol/CBL0703v01StatementString.cbl": 2369.52,
+      "cobol/CICS-Cobol/CBL0704v01StatementNotString.cbl": 1212.65,
+      "cobol/CICS-Cobol/CBL0801v01TableOneDimention.cbl": 1878.72,
+      "cobol/CICS-Cobol/CBL0802v01TableTwoDimention.cbl": 1930.57,
+      "cobol/CICS-Cobol/CBL0803v01TableUseSubIndice.cbl": 2071.79,
+      "cobol/CICS-Cobol/CBL0804v01TableUseIndice.cbl": 1507.66,
+      "cobol/CICS-Cobol/CBL0805v01TableUseIndiceWithSet.cbl": 1485.89,
+      "cobol/CICS-Cobol/CBL0806v01TableSearch.cbl": 2159.44,
+      "cobol/CICS-Cobol/CBL0807v01TableSearchAll.cbl": 1731.11,
+      "cobol/CICS-Cobol/CBL0901v01AccesoSecuencial.cbl": 445.62,
+      "cobol/CICS-Cobol/CBL0901v02AccesoSecuencialFiles.cbl": 686.75,
+      "cobol/CICS-Cobol/CBL0902v01AccesoAleatorio.cbl": 762.8,
+      "cobol/CICS-Cobol/CBL0903v01AccesoDinamico.cbl": 1281.02,
       "cobol/CICS-Cobol/CBL1001v01ManejoCICS.cbl": 1220.07
     },
     "cobol/Z-SMS-Gateway": {
-      "cobol/Z-SMS-Gateway/BALANCE.cbl": 7443.06,
-      "cobol/Z-SMS-Gateway/HISTORY.cbl": 7747.46,
-      "cobol/Z-SMS-Gateway/MESSAGES.cbl": 7715.11,
-      "cobol/Z-SMS-Gateway/SENDSMS.cbl": 7997.39
+      "cobol/Z-SMS-Gateway/BALANCE.cbl": 7443.05,
+      "cobol/Z-SMS-Gateway/HISTORY.cbl": 7747.45,
+      "cobol/Z-SMS-Gateway/MESSAGES.cbl": 7715.1,
+      "cobol/Z-SMS-Gateway/SENDSMS.cbl": 7997.38
     },
     "cobol/aws-mainframe-modernization-carddemo": {
       "cobol/aws-mainframe-modernization-carddemo/CBACT01C.cbl": 5970.43,
-      "cobol/aws-mainframe-modernization-carddemo/CBACT02C.cbl": 7190.72,
+      "cobol/aws-mainframe-modernization-carddemo/CBACT02C.cbl": 7190.73,
       "cobol/aws-mainframe-modernization-carddemo/CBACT03C.cbl": 6901.21,
-      "cobol/aws-mainframe-modernization-carddemo/CBACT04C.cbl": 6900.4,
-      "cobol/aws-mainframe-modernization-carddemo/CBCUS01C.cbl": 7569.58,
-      "cobol/aws-mainframe-modernization-carddemo/CBTRN01C.cbl": 7435.72,
+      "cobol/aws-mainframe-modernization-carddemo/CBACT04C.cbl": 6900.41,
+      "cobol/aws-mainframe-modernization-carddemo/CBCUS01C.cbl": 7569.59,
+      "cobol/aws-mainframe-modernization-carddemo/CBTRN01C.cbl": 7435.73,
       "cobol/aws-mainframe-modernization-carddemo/CBTRN02C.cbl": 6577.32,
       "cobol/aws-mainframe-modernization-carddemo/CBTRN03C.cbl": 6023.64,
       "cobol/aws-mainframe-modernization-carddemo/COACTUP.CPY": 5855.63,
       "cobol/aws-mainframe-modernization-carddemo/COACTUPC.cbl": 6705.02,
       "cobol/aws-mainframe-modernization-carddemo/COACTVW.CPY": 5949.3,
-      "cobol/aws-mainframe-modernization-carddemo/COACTVWC.cbl": 7369.37,
-      "cobol/aws-mainframe-modernization-carddemo/COADM01.CPY": 6519.36,
+      "cobol/aws-mainframe-modernization-carddemo/COACTVWC.cbl": 7369.39,
+      "cobol/aws-mainframe-modernization-carddemo/COADM01.CPY": 6519.37,
       "cobol/aws-mainframe-modernization-carddemo/COADM01C.cbl": 6626.36,
-      "cobol/aws-mainframe-modernization-carddemo/COADM02Y.cpy": 6798.69,
+      "cobol/aws-mainframe-modernization-carddemo/COADM02Y.cpy": 6798.7,
       "cobol/aws-mainframe-modernization-carddemo/COBIL00.CPY": 6475.06,
-      "cobol/aws-mainframe-modernization-carddemo/COBIL00C.cbl": 6983.21,
+      "cobol/aws-mainframe-modernization-carddemo/COBIL00C.cbl": 6983.24,
       "cobol/aws-mainframe-modernization-carddemo/COCOM01Y.cpy": 6891.26,
-      "cobol/aws-mainframe-modernization-carddemo/COCRDLI.CPY": 7758.01,
-      "cobol/aws-mainframe-modernization-carddemo/COCRDLIC.cbl": 6760.65,
-      "cobol/aws-mainframe-modernization-carddemo/COCRDSL.CPY": 7071.2,
-      "cobol/aws-mainframe-modernization-carddemo/COCRDSLC.cbl": 6412.17,
-      "cobol/aws-mainframe-modernization-carddemo/COCRDUP.CPY": 7814.87,
-      "cobol/aws-mainframe-modernization-carddemo/COCRDUPC.cbl": 6411.71,
-      "cobol/aws-mainframe-modernization-carddemo/COMEN01.CPY": 6100.34,
-      "cobol/aws-mainframe-modernization-carddemo/COMEN01C.cbl": 5890.36,
-      "cobol/aws-mainframe-modernization-carddemo/COMEN02Y.cpy": 7764.95,
+      "cobol/aws-mainframe-modernization-carddemo/COCRDLI.CPY": 7758.02,
+      "cobol/aws-mainframe-modernization-carddemo/COCRDLIC.cbl": 6760.66,
+      "cobol/aws-mainframe-modernization-carddemo/COCRDSL.CPY": 7071.21,
+      "cobol/aws-mainframe-modernization-carddemo/COCRDSLC.cbl": 6412.16,
+      "cobol/aws-mainframe-modernization-carddemo/COCRDUP.CPY": 7814.88,
+      "cobol/aws-mainframe-modernization-carddemo/COCRDUPC.cbl": 6411.7,
+      "cobol/aws-mainframe-modernization-carddemo/COMEN01.CPY": 6100.35,
+      "cobol/aws-mainframe-modernization-carddemo/COMEN01C.cbl": 5890.27,
+      "cobol/aws-mainframe-modernization-carddemo/COMEN02Y.cpy": 7764.96,
       "cobol/aws-mainframe-modernization-carddemo/CORPT00.CPY": 5684.38,
-      "cobol/aws-mainframe-modernization-carddemo/CORPT00C.cbl": 6062.1,
-      "cobol/aws-mainframe-modernization-carddemo/COSGN00.CPY": 7833.66,
+      "cobol/aws-mainframe-modernization-carddemo/CORPT00C.cbl": 6062.04,
+      "cobol/aws-mainframe-modernization-carddemo/COSGN00.CPY": 7833.67,
       "cobol/aws-mainframe-modernization-carddemo/COSGN00C.cbl": 6097.22,
-      "cobol/aws-mainframe-modernization-carddemo/COTRN00.CPY": 7223.06,
-      "cobol/aws-mainframe-modernization-carddemo/COTRN00C.cbl": 6976.84,
-      "cobol/aws-mainframe-modernization-carddemo/COTRN01.CPY": 7405.16,
-      "cobol/aws-mainframe-modernization-carddemo/COTRN01C.cbl": 7314.78,
+      "cobol/aws-mainframe-modernization-carddemo/COTRN00.CPY": 7223.07,
+      "cobol/aws-mainframe-modernization-carddemo/COTRN00C.cbl": 6976.87,
+      "cobol/aws-mainframe-modernization-carddemo/COTRN01.CPY": 7405.17,
+      "cobol/aws-mainframe-modernization-carddemo/COTRN01C.cbl": 7314.85,
       "cobol/aws-mainframe-modernization-carddemo/COTRN02.CPY": 5562.73,
-      "cobol/aws-mainframe-modernization-carddemo/COTRN02C.cbl": 7179.81,
+      "cobol/aws-mainframe-modernization-carddemo/COTRN02C.cbl": 7179.84,
       "cobol/aws-mainframe-modernization-carddemo/COTTL01Y.cpy": 7046.89,
       "cobol/aws-mainframe-modernization-carddemo/COUSR00.CPY": 6855.56,
-      "cobol/aws-mainframe-modernization-carddemo/COUSR00C.cbl": 6185.77,
-      "cobol/aws-mainframe-modernization-carddemo/COUSR01.CPY": 7147.77,
-      "cobol/aws-mainframe-modernization-carddemo/COUSR01C.cbl": 7323.49,
+      "cobol/aws-mainframe-modernization-carddemo/COUSR00C.cbl": 6185.74,
+      "cobol/aws-mainframe-modernization-carddemo/COUSR01.CPY": 7147.78,
+      "cobol/aws-mainframe-modernization-carddemo/COUSR01C.cbl": 7323.57,
       "cobol/aws-mainframe-modernization-carddemo/COUSR02.CPY": 5597.82,
-      "cobol/aws-mainframe-modernization-carddemo/COUSR02C.cbl": 6293.33,
+      "cobol/aws-mainframe-modernization-carddemo/COUSR02C.cbl": 6293.3,
       "cobol/aws-mainframe-modernization-carddemo/COUSR03.CPY": 6132.47,
       "cobol/aws-mainframe-modernization-carddemo/COUSR03C.cbl": 6577.34,
-      "cobol/aws-mainframe-modernization-carddemo/CSDAT01Y.cpy": 7959.38,
+      "cobol/aws-mainframe-modernization-carddemo/CSDAT01Y.cpy": 7959.39,
       "cobol/aws-mainframe-modernization-carddemo/CSLKPCDY.cpy": 5738.7,
       "cobol/aws-mainframe-modernization-carddemo/CSMSG01Y.cpy": 5284.1,
       "cobol/aws-mainframe-modernization-carddemo/CSMSG02Y.cpy": 5432.39,
       "cobol/aws-mainframe-modernization-carddemo/CSSETATY.cpy": 6666.04,
-      "cobol/aws-mainframe-modernization-carddemo/CSSTRPFY.cpy": 7594.55,
+      "cobol/aws-mainframe-modernization-carddemo/CSSTRPFY.cpy": 7594.56,
       "cobol/aws-mainframe-modernization-carddemo/CSUSR01Y.cpy": 5520.1,
-      "cobol/aws-mainframe-modernization-carddemo/CSUTLDPY.cpy": 7548.0,
+      "cobol/aws-mainframe-modernization-carddemo/CSUTLDPY.cpy": 7548.02,
       "cobol/aws-mainframe-modernization-carddemo/CSUTLDTC.cbl": 5779.04,
       "cobol/aws-mainframe-modernization-carddemo/CSUTLDWY.cpy": 5450.57,
       "cobol/aws-mainframe-modernization-carddemo/CUSTREC.cpy": 5440.45,
-      "cobol/aws-mainframe-modernization-carddemo/CVACT01Y.cpy": 7963.48,
+      "cobol/aws-mainframe-modernization-carddemo/CVACT01Y.cpy": 7963.49,
       "cobol/aws-mainframe-modernization-carddemo/CVACT02Y.cpy": 7348.95,
       "cobol/aws-mainframe-modernization-carddemo/CVACT03Y.cpy": 7760.69,
       "cobol/aws-mainframe-modernization-carddemo/CVCRD01Y.cpy": 7478.38,
-      "cobol/aws-mainframe-modernization-carddemo/CVCUS01Y.cpy": 7841.13,
-      "cobol/aws-mainframe-modernization-carddemo/CVTRA01Y.cpy": 8142.25,
+      "cobol/aws-mainframe-modernization-carddemo/CVCUS01Y.cpy": 7841.14,
+      "cobol/aws-mainframe-modernization-carddemo/CVTRA01Y.cpy": 8142.26,
       "cobol/aws-mainframe-modernization-carddemo/CVTRA02Y.cpy": 5800.6,
       "cobol/aws-mainframe-modernization-carddemo/CVTRA03Y.cpy": 6547.06,
       "cobol/aws-mainframe-modernization-carddemo/CVTRA04Y.cpy": 7757.22,
@@ -593,13 +593,13 @@
       "cobol/aws-mainframe-modernization-carddemo/DFHBMSCA.cpy": 7493.86,
       "cobol/aws-mainframe-modernization-carddemo/LICENSE.md": 6306.05,
       "cobol/aws-mainframe-modernization-carddemo/NOTICE.md": 6340.65,
-      "cobol/aws-mainframe-modernization-carddemo/README.md": 7641.62,
+      "cobol/aws-mainframe-modernization-carddemo/README.md": 7641.63,
       "cobol/aws-mainframe-modernization-carddemo/UNUSED1Y.cpy": 6591.99
     },
     "cobol/cash-account-cobol": {
-      "cobol/cash-account-cobol/CASH00.cbl": 11176.49,
-      "cobol/cash-account-cobol/DCLCASH.cpy": 11218.82,
-      "cobol/cash-account-cobol/DCLFRANK.cpy": 10989.27
+      "cobol/cash-account-cobol/CASH00.cbl": 11176.5,
+      "cobol/cash-account-cobol/DCLCASH.cpy": 11218.83,
+      "cobol/cash-account-cobol/DCLFRANK.cpy": 10989.28
     },
     "cobol/che-che4z-lsp-for-cobol": {
       "cobol/che-che4z-lsp-for-cobol/LICENSE.md": -6061.28,
@@ -609,94 +609,94 @@
       "cobol/che-che4z-lsp-for-cobol/SQLDA.cpy": -5767.6
     },
     "cobol/che-che4z_lsp_project_fixtures": {
-      "cobol/che-che4z_lsp_project_fixtures/ABCD.cbl": -1058.67,
-      "cobol/che-che4z_lsp_project_fixtures/ADSORT.cbl": -752.27,
-      "cobol/che-che4z_lsp_project_fixtures/BASIC.cbl": -234.56,
-      "cobol/che-che4z_lsp_project_fixtures/CALL.cbl": -1345.75,
-      "cobol/che-che4z_lsp_project_fixtures/CFAST.cbl": -1368.73,
-      "cobol/che-che4z_lsp_project_fixtures/DIAGNOSTIC_TEST_A.CBL": -452.15,
-      "cobol/che-che4z_lsp_project_fixtures/DIAGNOSTIC_TEST_B.CBL": -1976.33,
-      "cobol/che-che4z_lsp_project_fixtures/DIAGNOSTIC_TEST_C.CBL": -1133.46,
-      "cobol/che-che4z_lsp_project_fixtures/HELLO-WORLD.cbl": -705.16,
-      "cobol/che-che4z_lsp_project_fixtures/HOVER.CBL": -1801.4,
-      "cobol/che-che4z_lsp_project_fixtures/HOVER_COPYBOOK_NESTED.CBL": -674.32,
-      "cobol/che-che4z_lsp_project_fixtures/HOVER_PARA.CBL": -2353.24,
-      "cobol/che-che4z_lsp_project_fixtures/LICENSE.md": -1624.02,
-      "cobol/che-che4z_lsp_project_fixtures/PAYLIB.CBL": -1506.66,
-      "cobol/che-che4z_lsp_project_fixtures/REPLA.CBL": -2296.54,
-      "cobol/che-che4z_lsp_project_fixtures/REPLACING.CBL": -529.72,
-      "cobol/che-che4z_lsp_project_fixtures/RES.cbl": -157.42,
-      "cobol/che-che4z_lsp_project_fixtures/SNIPPET.cbl": -1246.7,
-      "cobol/che-che4z_lsp_project_fixtures/SNIPPET2.cbl": -528.37,
-      "cobol/che-che4z_lsp_project_fixtures/SNIPPET_IDMS.cbl": -2381.04,
-      "cobol/che-che4z_lsp_project_fixtures/TEST.CBL": -1256.45,
-      "cobol/che-che4z_lsp_project_fixtures/TEST1.CBL": -2437.03,
-      "cobol/che-che4z_lsp_project_fixtures/TEST10.CBL": -1640.11,
-      "cobol/che-che4z_lsp_project_fixtures/TEST14.CBL": -1863.81,
-      "cobol/che-che4z_lsp_project_fixtures/TEST15.CBL": -603.61,
-      "cobol/che-che4z_lsp_project_fixtures/TEST16.CBL": -1684.02,
-      "cobol/che-che4z_lsp_project_fixtures/TEST2.CBL": -2193.09,
-      "cobol/che-che4z_lsp_project_fixtures/TEST21.CBL": -2258.88,
-      "cobol/che-che4z_lsp_project_fixtures/TEST3.CBL": -898.72,
-      "cobol/che-che4z_lsp_project_fixtures/TEST4.CBL": -1135.29,
-      "cobol/che-che4z_lsp_project_fixtures/TEST5.CBL": -526.4,
-      "cobol/che-che4z_lsp_project_fixtures/TEST51.CBL": -2093.84,
-      "cobol/che-che4z_lsp_project_fixtures/TEST6.CBL": -1915.0,
-      "cobol/che-che4z_lsp_project_fixtures/TEST61.CBL": -1840.6,
-      "cobol/che-che4z_lsp_project_fixtures/TEST7.CBL": -1520.18,
-      "cobol/che-che4z_lsp_project_fixtures/TEST8.CBL": -2514.56,
-      "cobol/che-che4z_lsp_project_fixtures/TESTCPY1.cbl": -863.04,
-      "cobol/che-che4z_lsp_project_fixtures/TESTCPY2.cbl": -2102.47,
-      "cobol/che-che4z_lsp_project_fixtures/TEST_TITLE.CBL": -307.66,
-      "cobol/che-che4z_lsp_project_fixtures/USER1.cbl": -1950.38,
-      "cobol/che-che4z_lsp_project_fixtures/USER2.cbl": -445.9,
-      "cobol/che-che4z_lsp_project_fixtures/USERC1F.cbl": -765.98,
-      "cobol/che-che4z_lsp_project_fixtures/USERC1N1.cbl": -2235.01,
-      "cobol/che-che4z_lsp_project_fixtures/USERC1N2.cbl": -455.12,
-      "cobol/che-che4z_lsp_project_fixtures/USERC1R.cbl": -2091.38,
-      "cobol/che-che4z_lsp_project_fixtures/VAR.cbl": -191.43,
-      "cobol/che-che4z_lsp_project_fixtures/XML1.cbl": -1747.22,
-      "cobol/che-che4z_lsp_project_fixtures/XML2.cbl": -900.2,
-      "cobol/che-che4z_lsp_project_fixtures/XML3.cbl": -1026.63,
-      "cobol/che-che4z_lsp_project_fixtures/cobol-daco_DACOSMPL.cbl": -1303.9,
-      "cobol/che-che4z_lsp_project_fixtures/cobol-dc_ABCD.cbl": -886.72,
-      "cobol/che-che4z_lsp_project_fixtures/cobol-idms_DACOSMPL.cbl": -1524.63,
-      "cobol/che-che4z_lsp_project_fixtures/cobol-idms_IDMSSMPL.cbl": -1387.94,
-      "cobol/che-che4z_lsp_project_fixtures/cobol-sample_SAMPLE1.cbl": -391.2,
-      "cobol/che-che4z_lsp_project_fixtures/cobol-vanila_DACOSMPL.cbl": -1286.04,
-      "cobol/che-che4z_lsp_project_fixtures/cobol-vanila_IDMSSMPL.cbl": -1540.53,
-      "cobol/che-che4z_lsp_project_fixtures/copy-daco_DACOSMPL_PDRTPY-DXY.cpy": -1643.42,
-      "cobol/che-che4z_lsp_project_fixtures/copy-idms_DABPA11N_SUBSCHEMA-NAMES.cpy": -2561.07,
-      "cobol/che-che4z_lsp_project_fixtures/copy-sample_COPY1.cpy": 50.99,
-      "cobol/che-che4z_lsp_project_fixtures/copybook-analysis_mainfile1.cbl": -1911.95,
-      "cobol/che-che4z_lsp_project_fixtures/copybook-analysis_mainfile2.cbl": -169.86,
-      "cobol/che-che4z_lsp_project_fixtures/outline.cbl": -54.63,
-      "cobol/che-che4z_lsp_project_fixtures/special_schema.cbl": -1090.22,
-      "cobol/che-che4z_lsp_project_fixtures/subroutines_SUB1.cob": -1094.16,
-      "cobol/che-che4z_lsp_project_fixtures/testing_A.cpy": -617.67,
-      "cobol/che-che4z_lsp_project_fixtures/testing_ASTRO.cpy": -954.13,
-      "cobol/che-che4z_lsp_project_fixtures/testing_CHOPIN.CPY": -2415.3,
-      "cobol/che-che4z_lsp_project_fixtures/testing_CHOPIN1.CPY": -1863.19,
-      "cobol/che-che4z_lsp_project_fixtures/testing_CPY1.cpy": -2131.45,
-      "cobol/che-che4z_lsp_project_fixtures/testing_DIAGNOS.CPY": -21.84
+      "cobol/che-che4z_lsp_project_fixtures/ABCD.cbl": -1058.75,
+      "cobol/che-che4z_lsp_project_fixtures/ADSORT.cbl": -752.54,
+      "cobol/che-che4z_lsp_project_fixtures/BASIC.cbl": -234.92,
+      "cobol/che-che4z_lsp_project_fixtures/CALL.cbl": -1345.66,
+      "cobol/che-che4z_lsp_project_fixtures/CFAST.cbl": -1368.61,
+      "cobol/che-che4z_lsp_project_fixtures/DIAGNOSTIC_TEST_A.CBL": -452.43,
+      "cobol/che-che4z_lsp_project_fixtures/DIAGNOSTIC_TEST_B.CBL": -1975.96,
+      "cobol/che-che4z_lsp_project_fixtures/DIAGNOSTIC_TEST_C.CBL": -1133.47,
+      "cobol/che-che4z_lsp_project_fixtures/HELLO-WORLD.cbl": -705.34,
+      "cobol/che-che4z_lsp_project_fixtures/HOVER.CBL": -1801.0,
+      "cobol/che-che4z_lsp_project_fixtures/HOVER_COPYBOOK_NESTED.CBL": -674.52,
+      "cobol/che-che4z_lsp_project_fixtures/HOVER_PARA.CBL": -876.27,
+      "cobol/che-che4z_lsp_project_fixtures/LICENSE.md": -1659.73,
+      "cobol/che-che4z_lsp_project_fixtures/PAYLIB.CBL": -1506.52,
+      "cobol/che-che4z_lsp_project_fixtures/REPLA.CBL": -2296.14,
+      "cobol/che-che4z_lsp_project_fixtures/REPLACING.CBL": -529.87,
+      "cobol/che-che4z_lsp_project_fixtures/RES.cbl": -157.65,
+      "cobol/che-che4z_lsp_project_fixtures/SNIPPET.cbl": -1949.88,
+      "cobol/che-che4z_lsp_project_fixtures/SNIPPET2.cbl": -1238.06,
+      "cobol/che-che4z_lsp_project_fixtures/SNIPPET_IDMS.cbl": -602.1,
+      "cobol/che-che4z_lsp_project_fixtures/TEST.CBL": -1256.39,
+      "cobol/che-che4z_lsp_project_fixtures/TEST1.CBL": -2436.6,
+      "cobol/che-che4z_lsp_project_fixtures/TEST10.CBL": -454.73,
+      "cobol/che-che4z_lsp_project_fixtures/TEST14.CBL": -1863.42,
+      "cobol/che-che4z_lsp_project_fixtures/TEST15.CBL": -603.88,
+      "cobol/che-che4z_lsp_project_fixtures/TEST16.CBL": -1683.74,
+      "cobol/che-che4z_lsp_project_fixtures/TEST2.CBL": -2192.77,
+      "cobol/che-che4z_lsp_project_fixtures/TEST21.CBL": -2258.53,
+      "cobol/che-che4z_lsp_project_fixtures/TEST3.CBL": -898.77,
+      "cobol/che-che4z_lsp_project_fixtures/TEST4.CBL": -1135.27,
+      "cobol/che-che4z_lsp_project_fixtures/TEST5.CBL": -526.53,
+      "cobol/che-che4z_lsp_project_fixtures/TEST51.CBL": -2093.4,
+      "cobol/che-che4z_lsp_project_fixtures/TEST6.CBL": -1914.74,
+      "cobol/che-che4z_lsp_project_fixtures/TEST61.CBL": -1840.29,
+      "cobol/che-che4z_lsp_project_fixtures/TEST7.CBL": -1520.03,
+      "cobol/che-che4z_lsp_project_fixtures/TEST8.CBL": -2514.13,
+      "cobol/che-che4z_lsp_project_fixtures/TESTCPY1.cbl": -863.15,
+      "cobol/che-che4z_lsp_project_fixtures/TESTCPY2.cbl": -2102.05,
+      "cobol/che-che4z_lsp_project_fixtures/TEST_TITLE.CBL": -307.88,
+      "cobol/che-che4z_lsp_project_fixtures/USER1.cbl": -2315.73,
+      "cobol/che-che4z_lsp_project_fixtures/USER2.cbl": -1595.63,
+      "cobol/che-che4z_lsp_project_fixtures/USERC1F.cbl": -766.14,
+      "cobol/che-che4z_lsp_project_fixtures/USERC1N1.cbl": -2234.52,
+      "cobol/che-che4z_lsp_project_fixtures/USERC1N2.cbl": -455.43,
+      "cobol/che-che4z_lsp_project_fixtures/USERC1R.cbl": -2090.95,
+      "cobol/che-che4z_lsp_project_fixtures/VAR.cbl": -191.7,
+      "cobol/che-che4z_lsp_project_fixtures/XML1.cbl": -1746.74,
+      "cobol/che-che4z_lsp_project_fixtures/XML2.cbl": -900.47,
+      "cobol/che-che4z_lsp_project_fixtures/XML3.cbl": -1026.81,
+      "cobol/che-che4z_lsp_project_fixtures/cobol-daco_DACOSMPL.cbl": -1303.82,
+      "cobol/che-che4z_lsp_project_fixtures/cobol-dc_ABCD.cbl": -2363.17,
+      "cobol/che-che4z_lsp_project_fixtures/cobol-idms_DACOSMPL.cbl": -1524.02,
+      "cobol/che-che4z_lsp_project_fixtures/cobol-idms_IDMSSMPL.cbl": -1387.7,
+      "cobol/che-che4z_lsp_project_fixtures/cobol-sample_SAMPLE1.cbl": -391.41,
+      "cobol/che-che4z_lsp_project_fixtures/cobol-vanila_DACOSMPL.cbl": -1286.03,
+      "cobol/che-che4z_lsp_project_fixtures/cobol-vanila_IDMSSMPL.cbl": -1540.16,
+      "cobol/che-che4z_lsp_project_fixtures/copy-daco_DACOSMPL_PDRTPY-DXY.cpy": -1643.23,
+      "cobol/che-che4z_lsp_project_fixtures/copy-idms_DABPA11N_SUBSCHEMA-NAMES.cpy": -2560.66,
+      "cobol/che-che4z_lsp_project_fixtures/copy-sample_COPY1.cpy": 50.71,
+      "cobol/che-che4z_lsp_project_fixtures/copybook-analysis_mainfile1.cbl": -1911.68,
+      "cobol/che-che4z_lsp_project_fixtures/copybook-analysis_mainfile2.cbl": -170.13,
+      "cobol/che-che4z_lsp_project_fixtures/outline.cbl": -54.92,
+      "cobol/che-che4z_lsp_project_fixtures/special_schema.cbl": -1090.26,
+      "cobol/che-che4z_lsp_project_fixtures/subroutines_SUB1.cob": -1094.14,
+      "cobol/che-che4z_lsp_project_fixtures/testing_A.cpy": -617.76,
+      "cobol/che-che4z_lsp_project_fixtures/testing_ASTRO.cpy": -954.15,
+      "cobol/che-che4z_lsp_project_fixtures/testing_CHOPIN.CPY": -2414.93,
+      "cobol/che-che4z_lsp_project_fixtures/testing_CHOPIN1.CPY": -1862.96,
+      "cobol/che-che4z_lsp_project_fixtures/testing_CPY1.cpy": -2131.15,
+      "cobol/che-che4z_lsp_project_fixtures/testing_DIAGNOS.CPY": -22.1
     },
     "cobol/che-che4z_nist_ccvs85": {
       "cobol/che-che4z_nist_ccvs85/DB1024.2.cbl": -343.01,
-      "cobol/che-che4z_nist_ccvs85/DB1034.2.cbl": 1008.54,
+      "cobol/che-che4z_nist_ccvs85/DB1034.2.cbl": 1008.53,
       "cobol/che-che4z_nist_ccvs85/DB1044.2.cbl": 170.01,
       "cobol/che-che4z_nist_ccvs85/DB3014.2.cbl": -1638.73,
-      "cobol/che-che4z_nist_ccvs85/DB3024.2.cbl": 106.46,
-      "cobol/che-che4z_nist_ccvs85/DB3054.2.cbl": 1041.15,
-      "cobol/che-che4z_nist_ccvs85/IC1014.2.cbl": -527.25,
+      "cobol/che-che4z_nist_ccvs85/DB3024.2.cbl": 106.42,
+      "cobol/che-che4z_nist_ccvs85/DB3054.2.cbl": 1040.93,
+      "cobol/che-che4z_nist_ccvs85/IC1014.2.cbl": 1246.51,
       "cobol/che-che4z_nist_ccvs85/IC1024.2.cbl": 1461.13,
       "cobol/che-che4z_nist_ccvs85/IC1034.2.cbl": -770.58,
-      "cobol/che-che4z_nist_ccvs85/IC1044.2.cbl": -1988.85,
+      "cobol/che-che4z_nist_ccvs85/IC1044.2.cbl": 1152.46,
       "cobol/che-che4z_nist_ccvs85/IC1054.2.cbl": 1510.94,
       "cobol/che-che4z_nist_ccvs85/IC1064.2.cbl": 1047.62,
       "cobol/che-che4z_nist_ccvs85/IC1074.2.cbl": 1652.05,
       "cobol/che-che4z_nist_ccvs85/IC1084.2.cbl": -1589.38,
       "cobol/che-che4z_nist_ccvs85/IC1094.2.cbl": -1737.24,
-      "cobol/che-che4z_nist_ccvs85/IC1104.2.cbl": 1134.44,
+      "cobol/che-che4z_nist_ccvs85/IC1104.2.cbl": -182.66,
       "cobol/che-che4z_nist_ccvs85/IC1114.2.cbl": 465.81,
       "cobol/che-che4z_nist_ccvs85/IC1134.2.cbl": -1877.44,
       "cobol/che-che4z_nist_ccvs85/IC1144.2.cbl": -1248.84,
@@ -711,7 +711,7 @@
       "cobol/che-che4z_nist_ccvs85/IC2064.2.cbl": -523.34,
       "cobol/che-che4z_nist_ccvs85/IC2074.2.cbl": -246.71,
       "cobol/che-che4z_nist_ccvs85/IC2084.2.cbl": -1269.07,
-      "cobol/che-che4z_nist_ccvs85/IC2094.2.cbl": -923.41,
+      "cobol/che-che4z_nist_ccvs85/IC2094.2.cbl": -508.9,
       "cobol/che-che4z_nist_ccvs85/IC2104.2.cbl": 850.04,
       "cobol/che-che4z_nist_ccvs85/IC2114.2.cbl": 20.48,
       "cobol/che-che4z_nist_ccvs85/IC2124.2.cbl": -1495.48,
@@ -720,13 +720,13 @@
       "cobol/che-che4z_nist_ccvs85/IC2154.2.cbl": -2018.13,
       "cobol/che-che4z_nist_ccvs85/IC2164.2.cbl": -1047.3,
       "cobol/che-che4z_nist_ccvs85/IC2174.2.cbl": 676.91,
-      "cobol/che-che4z_nist_ccvs85/IC2244.2.cbl": 89.77,
-      "cobol/che-che4z_nist_ccvs85/IC2264.2.cbl": 34.64,
-      "cobol/che-che4z_nist_ccvs85/IC2284.2.cbl": -1714.8,
-      "cobol/che-che4z_nist_ccvs85/IC2334.2.cbl": 1301.55,
-      "cobol/che-che4z_nist_ccvs85/IC2344.2.cbl": 1285.55,
-      "cobol/che-che4z_nist_ccvs85/IC2374.2.cbl": 1516.19,
-      "cobol/che-che4z_nist_ccvs85/IC4014.2.cbl": -166.34,
+      "cobol/che-che4z_nist_ccvs85/IC2244.2.cbl": 655.18,
+      "cobol/che-che4z_nist_ccvs85/IC2264.2.cbl": 964.29,
+      "cobol/che-che4z_nist_ccvs85/IC2284.2.cbl": -1714.71,
+      "cobol/che-che4z_nist_ccvs85/IC2334.2.cbl": 1301.46,
+      "cobol/che-che4z_nist_ccvs85/IC2344.2.cbl": 1500.95,
+      "cobol/che-che4z_nist_ccvs85/IC2374.2.cbl": 1515.97,
+      "cobol/che-che4z_nist_ccvs85/IC4014.2.cbl": -1990.57,
       "cobol/che-che4z_nist_ccvs85/IF1024.2.cbl": -1186.09,
       "cobol/che-che4z_nist_ccvs85/IF1054.2.cbl": 576.65,
       "cobol/che-che4z_nist_ccvs85/IF1074.2.cbl": -1686.95,
@@ -763,9 +763,9 @@
       "cobol/che-che4z_nist_ccvs85/IX1024.2.cbl": 804.42,
       "cobol/che-che4z_nist_ccvs85/IX1034.2.cbl": -780.4,
       "cobol/che-che4z_nist_ccvs85/IX1044.2.cbl": 786.05,
-      "cobol/che-che4z_nist_ccvs85/IX1114.2.cbl": 896.63,
+      "cobol/che-che4z_nist_ccvs85/IX1114.2.cbl": -33.05,
       "cobol/che-che4z_nist_ccvs85/IX1134.2.cbl": -302.2,
-      "cobol/che-che4z_nist_ccvs85/IX1144.2.cbl": 640.0,
+      "cobol/che-che4z_nist_ccvs85/IX1144.2.cbl": 639.99,
       "cobol/che-che4z_nist_ccvs85/IX1154.2.cbl": 552.03,
       "cobol/che-che4z_nist_ccvs85/IX1164.2.cbl": -950.19,
       "cobol/che-che4z_nist_ccvs85/IX1174.2.cbl": 509.95,
@@ -776,8 +776,8 @@
       "cobol/che-che4z_nist_ccvs85/IX2014.2.cbl": -1368.33,
       "cobol/che-che4z_nist_ccvs85/IX2034.2.cbl": -121.03,
       "cobol/che-che4z_nist_ccvs85/IX2044.2.cbl": -1064.59,
-      "cobol/che-che4z_nist_ccvs85/IX2174.2.cbl": 694.39,
-      "cobol/che-che4z_nist_ccvs85/IX2184.2.cbl": -1028.02,
+      "cobol/che-che4z_nist_ccvs85/IX2174.2.cbl": 128.9,
+      "cobol/che-che4z_nist_ccvs85/IX2184.2.cbl": -1028.01,
       "cobol/che-che4z_nist_ccvs85/IX3014.2.cbl": -778.59,
       "cobol/che-che4z_nist_ccvs85/IX4014.2.cbl": -1578.05,
       "cobol/che-che4z_nist_ccvs85/LICENSE.md": 1695.4,
@@ -797,7 +797,7 @@
       "cobol/che-che4z_nist_ccvs85/NC1404.2.cbl": 147.92,
       "cobol/che-che4z_nist_ccvs85/NC1414.2.cbl": -1484.47,
       "cobol/che-che4z_nist_ccvs85/NC2104.2.cbl": -144.95,
-      "cobol/che-che4z_nist_ccvs85/NC2144.2.cbl": 1466.01,
+      "cobol/che-che4z_nist_ccvs85/NC2144.2.cbl": -937.81,
       "cobol/che-che4z_nist_ccvs85/NC2154.2.cbl": 1513.62,
       "cobol/che-che4z_nist_ccvs85/NC2194.2.cbl": 812.59,
       "cobol/che-che4z_nist_ccvs85/NC2224.2.cbl": 196.55,
@@ -834,170 +834,170 @@
       "cobol/che-che4z_nist_ccvs85/ST3014.2.cbl": -386.59
     },
     "cobol/cics-banking-sample-application-cbsa": {
-      "cobol/cics-banking-sample-application-cbsa/ABNDINFO.cpy": -4927.78,
-      "cobol/cics-banking-sample-application-cbsa/ABNDPROC.cbl": -5689.35,
-      "cobol/cics-banking-sample-application-cbsa/ACCDB2.cpy": -5225.1,
-      "cobol/cics-banking-sample-application-cbsa/ACCOUNT.cpy": -6009.32,
-      "cobol/cics-banking-sample-application-cbsa/ACCTCTRL.cpy": -4861.19,
-      "cobol/cics-banking-sample-application-cbsa/BANKDATA.cbl": -4781.95,
-      "cobol/cics-banking-sample-application-cbsa/BANKMAP.cpy": -6267.96,
-      "cobol/cics-banking-sample-application-cbsa/BNK1CAC.cbl": -5831.94,
-      "cobol/cics-banking-sample-application-cbsa/BNK1CCA.cbl": -5922.36,
-      "cobol/cics-banking-sample-application-cbsa/BNK1CCS.cbl": -5326.83,
-      "cobol/cics-banking-sample-application-cbsa/BNK1CRA.cbl": -4725.55,
-      "cobol/cics-banking-sample-application-cbsa/BNK1DAC.cbl": -5918.93,
-      "cobol/cics-banking-sample-application-cbsa/BNK1DCS.cbl": -5596.84,
+      "cobol/cics-banking-sample-application-cbsa/ABNDINFO.cpy": -4927.82,
+      "cobol/cics-banking-sample-application-cbsa/ABNDPROC.cbl": -5689.44,
+      "cobol/cics-banking-sample-application-cbsa/ACCDB2.cpy": -5225.16,
+      "cobol/cics-banking-sample-application-cbsa/ACCOUNT.cpy": -6009.43,
+      "cobol/cics-banking-sample-application-cbsa/ACCTCTRL.cpy": -4861.23,
+      "cobol/cics-banking-sample-application-cbsa/BANKDATA.cbl": -4781.57,
+      "cobol/cics-banking-sample-application-cbsa/BANKMAP.cpy": -6268.09,
+      "cobol/cics-banking-sample-application-cbsa/BNK1CAC.cbl": -5832.15,
+      "cobol/cics-banking-sample-application-cbsa/BNK1CCA.cbl": -5922.6,
+      "cobol/cics-banking-sample-application-cbsa/BNK1CCS.cbl": -5326.89,
+      "cobol/cics-banking-sample-application-cbsa/BNK1CRA.cbl": -4725.45,
+      "cobol/cics-banking-sample-application-cbsa/BNK1DAC.cbl": -5919.15,
+      "cobol/cics-banking-sample-application-cbsa/BNK1DCS.cbl": -5597.0,
       "cobol/cics-banking-sample-application-cbsa/BNK1DDM.cpy": -4265.99,
-      "cobol/cics-banking-sample-application-cbsa/BNK1TFN.cbl": -5590.46,
-      "cobol/cics-banking-sample-application-cbsa/BNK1UAC.cbl": -5263.65,
-      "cobol/cics-banking-sample-application-cbsa/BNKMENU.cbl": -4959.39,
-      "cobol/cics-banking-sample-application-cbsa/CONTDB2.cpy": -6561.36,
+      "cobol/cics-banking-sample-application-cbsa/BNK1TFN.cbl": -5590.6,
+      "cobol/cics-banking-sample-application-cbsa/BNK1UAC.cbl": -5017.01,
+      "cobol/cics-banking-sample-application-cbsa/BNKMENU.cbl": -4959.38,
+      "cobol/cics-banking-sample-application-cbsa/CONTDB2.cpy": -6561.48,
       "cobol/cics-banking-sample-application-cbsa/CONTROLI.cpy": -4164.13,
-      "cobol/cics-banking-sample-application-cbsa/CRDTAGY1.cbl": -4829.04,
+      "cobol/cics-banking-sample-application-cbsa/CRDTAGY1.cbl": -4829.07,
       "cobol/cics-banking-sample-application-cbsa/CRDTAGY2.cbl": -4455.54,
-      "cobol/cics-banking-sample-application-cbsa/CRDTAGY3.cbl": -6188.72,
-      "cobol/cics-banking-sample-application-cbsa/CRDTAGY4.cbl": -6036.35,
-      "cobol/cics-banking-sample-application-cbsa/CRDTAGY5.cbl": -5061.78,
-      "cobol/cics-banking-sample-application-cbsa/CREACC.cbl": -5122.63,
-      "cobol/cics-banking-sample-application-cbsa/CREACC.cpy": -5251.15,
-      "cobol/cics-banking-sample-application-cbsa/CRECUST.cbl": -5036.25,
-      "cobol/cics-banking-sample-application-cbsa/CRECUST.cpy": -6331.97,
+      "cobol/cics-banking-sample-application-cbsa/CRDTAGY3.cbl": -6188.85,
+      "cobol/cics-banking-sample-application-cbsa/CRDTAGY4.cbl": -6036.46,
+      "cobol/cics-banking-sample-application-cbsa/CRDTAGY5.cbl": -5061.83,
+      "cobol/cics-banking-sample-application-cbsa/CREACC.cbl": -5122.67,
+      "cobol/cics-banking-sample-application-cbsa/CREACC.cpy": -5251.21,
+      "cobol/cics-banking-sample-application-cbsa/CRECUST.cbl": -5282.9,
+      "cobol/cics-banking-sample-application-cbsa/CRECUST.cpy": -6332.09,
       "cobol/cics-banking-sample-application-cbsa/CUSTCTRL.cpy": -4202.94,
-      "cobol/cics-banking-sample-application-cbsa/CUSTMAP.cpy": -4714.49,
-      "cobol/cics-banking-sample-application-cbsa/CUSTOMER.cpy": -5945.06,
-      "cobol/cics-banking-sample-application-cbsa/DBCRFUN.cbl": -4663.12,
-      "cobol/cics-banking-sample-application-cbsa/DELACC.cbl": -4706.42,
-      "cobol/cics-banking-sample-application-cbsa/DELACC.cpy": -4598.2,
-      "cobol/cics-banking-sample-application-cbsa/DELACCZ.cpy": -6375.9,
-      "cobol/cics-banking-sample-application-cbsa/DELCUS.cbl": -6153.86,
-      "cobol/cics-banking-sample-application-cbsa/DELCUS.cpy": -5492.45,
+      "cobol/cics-banking-sample-application-cbsa/CUSTMAP.cpy": -4714.52,
+      "cobol/cics-banking-sample-application-cbsa/CUSTOMER.cpy": -5945.16,
+      "cobol/cics-banking-sample-application-cbsa/DBCRFUN.cbl": -4663.14,
+      "cobol/cics-banking-sample-application-cbsa/DELACC.cbl": -4706.43,
+      "cobol/cics-banking-sample-application-cbsa/DELACC.cpy": -4598.22,
+      "cobol/cics-banking-sample-application-cbsa/DELACCZ.cpy": -6376.03,
+      "cobol/cics-banking-sample-application-cbsa/DELCUS.cbl": -6153.98,
+      "cobol/cics-banking-sample-application-cbsa/DELCUS.cpy": -5492.53,
       "cobol/cics-banking-sample-application-cbsa/GETCOMPY.cbl": -4463.16,
-      "cobol/cics-banking-sample-application-cbsa/GETCOMPY.cpy": -5681.43,
-      "cobol/cics-banking-sample-application-cbsa/GETSCODE.cbl": -5588.88,
-      "cobol/cics-banking-sample-application-cbsa/GETSCODE.cpy": -5791.49,
+      "cobol/cics-banking-sample-application-cbsa/GETCOMPY.cpy": -5681.51,
+      "cobol/cics-banking-sample-application-cbsa/GETSCODE.cbl": -5588.97,
+      "cobol/cics-banking-sample-application-cbsa/GETSCODE.cpy": -5791.58,
       "cobol/cics-banking-sample-application-cbsa/INQACC.cbl": -4515.83,
-      "cobol/cics-banking-sample-application-cbsa/INQACC.cpy": -4393.8,
-      "cobol/cics-banking-sample-application-cbsa/INQACCCU.cbl": -5786.81,
-      "cobol/cics-banking-sample-application-cbsa/INQACCCU.cpy": -5478.12,
-      "cobol/cics-banking-sample-application-cbsa/INQACCCZ.cpy": -5840.44,
+      "cobol/cics-banking-sample-application-cbsa/INQACC.cpy": -4393.81,
+      "cobol/cics-banking-sample-application-cbsa/INQACCCU.cbl": -5786.9,
+      "cobol/cics-banking-sample-application-cbsa/INQACCCU.cpy": -5478.19,
+      "cobol/cics-banking-sample-application-cbsa/INQACCCZ.cpy": -5840.54,
       "cobol/cics-banking-sample-application-cbsa/INQACCZ.cpy": -4215.68,
-      "cobol/cics-banking-sample-application-cbsa/INQCUST.cbl": -5402.02,
-      "cobol/cics-banking-sample-application-cbsa/INQCUST.cpy": -4275.21,
-      "cobol/cics-banking-sample-application-cbsa/INQCUSTZ.cpy": -6485.9,
-      "cobol/cics-banking-sample-application-cbsa/NEWACCNO.cpy": -5061.22,
-      "cobol/cics-banking-sample-application-cbsa/NEWCUSNO.cpy": -4600.98,
-      "cobol/cics-banking-sample-application-cbsa/PAYDBCR.cpy": -6139.51,
+      "cobol/cics-banking-sample-application-cbsa/INQCUST.cbl": -5402.09,
+      "cobol/cics-banking-sample-application-cbsa/INQCUST.cpy": -4275.22,
+      "cobol/cics-banking-sample-application-cbsa/INQCUSTZ.cpy": -6486.03,
+      "cobol/cics-banking-sample-application-cbsa/NEWACCNO.cpy": -5061.27,
+      "cobol/cics-banking-sample-application-cbsa/NEWCUSNO.cpy": -4601.01,
+      "cobol/cics-banking-sample-application-cbsa/PAYDBCR.cpy": -6139.62,
       "cobol/cics-banking-sample-application-cbsa/PROCDB2.cpy": -4053.81,
-      "cobol/cics-banking-sample-application-cbsa/PROCISRT.cpy": -6061.45,
-      "cobol/cics-banking-sample-application-cbsa/PROCTRAN.cpy": -5149.55,
+      "cobol/cics-banking-sample-application-cbsa/PROCISRT.cpy": -6061.56,
+      "cobol/cics-banking-sample-application-cbsa/PROCTRAN.cpy": -5149.6,
       "cobol/cics-banking-sample-application-cbsa/RESPSTR.cpy": -4398.32,
-      "cobol/cics-banking-sample-application-cbsa/SORTCODE.cpy": -6542.76,
+      "cobol/cics-banking-sample-application-cbsa/SORTCODE.cpy": -6542.88,
       "cobol/cics-banking-sample-application-cbsa/STCUSTNO.cpy": -4037.09,
-      "cobol/cics-banking-sample-application-cbsa/UPDACC.cbl": -5876.12,
-      "cobol/cics-banking-sample-application-cbsa/UPDACC.cpy": -6357.95,
-      "cobol/cics-banking-sample-application-cbsa/UPDCUST.cbl": -5305.06,
-      "cobol/cics-banking-sample-application-cbsa/UPDCUST.cpy": -4445.51,
-      "cobol/cics-banking-sample-application-cbsa/WAZI.cpy": -4600.22,
-      "cobol/cics-banking-sample-application-cbsa/XFRFUN.cbl": -5425.44,
-      "cobol/cics-banking-sample-application-cbsa/XFRFUN.cpy": -6246.7
+      "cobol/cics-banking-sample-application-cbsa/UPDACC.cbl": -5876.23,
+      "cobol/cics-banking-sample-application-cbsa/UPDACC.cpy": -6358.07,
+      "cobol/cics-banking-sample-application-cbsa/UPDCUST.cbl": -5305.12,
+      "cobol/cics-banking-sample-application-cbsa/UPDCUST.cpy": -4445.53,
+      "cobol/cics-banking-sample-application-cbsa/WAZI.cpy": -4600.26,
+      "cobol/cics-banking-sample-application-cbsa/XFRFUN.cbl": -5425.52,
+      "cobol/cics-banking-sample-application-cbsa/XFRFUN.cpy": -6246.81
     },
     "cobol/cics-genapp": {
-      "cobol/cics-genapp/README.md": 9095.03,
-      "cobol/cics-genapp/lgacdb01.cbl": 8719.74,
-      "cobol/cics-genapp/lgacdb02.cbl": 9155.34,
-      "cobol/cics-genapp/lgacus01.cbl": 7795.43,
-      "cobol/cics-genapp/lgacvs01.cbl": 9433.82,
-      "cobol/cics-genapp/lgapdb01.cbl": 8814.27,
-      "cobol/cics-genapp/lgapol01.cbl": 8675.64,
-      "cobol/cics-genapp/lgapvs01.cbl": 8773.5,
-      "cobol/cics-genapp/lgastat1.cbl": 9006.65,
-      "cobol/cics-genapp/lgcmarea.cpy": 8723.08,
-      "cobol/cics-genapp/lgdpdb01.cbl": 8415.17,
-      "cobol/cics-genapp/lgdpol01.cbl": 7715.6,
-      "cobol/cics-genapp/lgdpvs01.cbl": 8177.81,
-      "cobol/cics-genapp/lgicdb01.cbl": 8099.65,
-      "cobol/cics-genapp/lgicus01.cbl": 9388.46,
-      "cobol/cics-genapp/lgicvs01.cbl": 7883.68,
-      "cobol/cics-genapp/lgipdb01.cbl": 8519.51,
-      "cobol/cics-genapp/lgipol01.cbl": 8158.61,
-      "cobol/cics-genapp/lgipvs01.cbl": 9091.89,
-      "cobol/cics-genapp/lgpolicy.cpy": 7718.99,
-      "cobol/cics-genapp/lgsetup.cbl": 7527.39,
-      "cobol/cics-genapp/lgstsq.cbl": 7580.39,
-      "cobol/cics-genapp/lgtestc1.cbl": 9068.62,
-      "cobol/cics-genapp/lgtestp1.cbl": 8515.7,
-      "cobol/cics-genapp/lgtestp2.cbl": 8975.3,
-      "cobol/cics-genapp/lgtestp3.cbl": 8227.87,
-      "cobol/cics-genapp/lgtestp4.cbl": 8020.76,
-      "cobol/cics-genapp/lgucdb01.cbl": 8460.98,
-      "cobol/cics-genapp/lgucus01.cbl": 7912.71,
-      "cobol/cics-genapp/lgucvs01.cbl": 9389.72,
-      "cobol/cics-genapp/lgupdb01.cbl": 8331.52,
-      "cobol/cics-genapp/lgupol01.cbl": 9274.92,
-      "cobol/cics-genapp/lgupvs01.cbl": 7951.14,
-      "cobol/cics-genapp/lgwebst5.cbl": 8252.34,
-      "cobol/cics-genapp/polloo2.cpy": 8347.08,
-      "cobol/cics-genapp/pollook.cpy": 7924.86,
-      "cobol/cics-genapp/soaic01.cpy": 7804.99,
-      "cobol/cics-genapp/soaipb1.cpy": 9581.83,
-      "cobol/cics-genapp/soaipe1.cpy": 8546.25,
-      "cobol/cics-genapp/soaiph1.cpy": 9268.98,
-      "cobol/cics-genapp/soaipm1.cpy": 7381.41,
-      "cobol/cics-genapp/soavcii.cpy": 8950.4,
-      "cobol/cics-genapp/soavcio.cpy": 9604.45,
-      "cobol/cics-genapp/soavpii.cpy": 7505.43,
-      "cobol/cics-genapp/soavpio.cpy": 9408.6
+      "cobol/cics-genapp/README.md": 9095.04,
+      "cobol/cics-genapp/lgacdb01.cbl": 8719.75,
+      "cobol/cics-genapp/lgacdb02.cbl": 9155.35,
+      "cobol/cics-genapp/lgacus01.cbl": 7795.44,
+      "cobol/cics-genapp/lgacvs01.cbl": 9433.83,
+      "cobol/cics-genapp/lgapdb01.cbl": 8814.28,
+      "cobol/cics-genapp/lgapol01.cbl": 8675.65,
+      "cobol/cics-genapp/lgapvs01.cbl": 8773.51,
+      "cobol/cics-genapp/lgastat1.cbl": 9006.66,
+      "cobol/cics-genapp/lgcmarea.cpy": 8723.09,
+      "cobol/cics-genapp/lgdpdb01.cbl": 8415.18,
+      "cobol/cics-genapp/lgdpol01.cbl": 7715.61,
+      "cobol/cics-genapp/lgdpvs01.cbl": 8177.82,
+      "cobol/cics-genapp/lgicdb01.cbl": 8099.66,
+      "cobol/cics-genapp/lgicus01.cbl": 9388.47,
+      "cobol/cics-genapp/lgicvs01.cbl": 7883.69,
+      "cobol/cics-genapp/lgipdb01.cbl": 8519.52,
+      "cobol/cics-genapp/lgipol01.cbl": 8158.62,
+      "cobol/cics-genapp/lgipvs01.cbl": 9091.9,
+      "cobol/cics-genapp/lgpolicy.cpy": 7719.0,
+      "cobol/cics-genapp/lgsetup.cbl": 7527.4,
+      "cobol/cics-genapp/lgstsq.cbl": 7580.4,
+      "cobol/cics-genapp/lgtestc1.cbl": 9068.63,
+      "cobol/cics-genapp/lgtestp1.cbl": 8515.71,
+      "cobol/cics-genapp/lgtestp2.cbl": 8975.31,
+      "cobol/cics-genapp/lgtestp3.cbl": 8227.88,
+      "cobol/cics-genapp/lgtestp4.cbl": 8020.77,
+      "cobol/cics-genapp/lgucdb01.cbl": 8460.99,
+      "cobol/cics-genapp/lgucus01.cbl": 7912.72,
+      "cobol/cics-genapp/lgucvs01.cbl": 9389.73,
+      "cobol/cics-genapp/lgupdb01.cbl": 8331.53,
+      "cobol/cics-genapp/lgupol01.cbl": 9274.93,
+      "cobol/cics-genapp/lgupvs01.cbl": 7951.15,
+      "cobol/cics-genapp/lgwebst5.cbl": 8252.35,
+      "cobol/cics-genapp/polloo2.cpy": 8347.09,
+      "cobol/cics-genapp/pollook.cpy": 7924.87,
+      "cobol/cics-genapp/soaic01.cpy": 7805.0,
+      "cobol/cics-genapp/soaipb1.cpy": 9581.84,
+      "cobol/cics-genapp/soaipe1.cpy": 8546.26,
+      "cobol/cics-genapp/soaiph1.cpy": 9268.99,
+      "cobol/cics-genapp/soaipm1.cpy": 7381.42,
+      "cobol/cics-genapp/soavcii.cpy": 8950.41,
+      "cobol/cics-genapp/soavcio.cpy": 9604.46,
+      "cobol/cics-genapp/soavpii.cpy": 7505.44,
+      "cobol/cics-genapp/soavpio.cpy": 9408.61
     },
     "cobol/cics-java-jcics-samples": {
-      "cobol/cics-java-jcics-samples/EC01.cbl": -10500.09,
-      "cobol/cics-java-jcics-samples/EDUCHAN.cbl": -10289.18
+      "cobol/cics-java-jcics-samples/EC01.cbl": -10500.19,
+      "cobol/cics-java-jcics-samples/EDUCHAN.cbl": -10289.29
     },
     "cobol/cobol-check": {
-      "cobol/cobol-check/TESTPRG.CBL": -7074.38,
-      "cobol/cobol-check/copybooks_CCHECKPD.CPY": -8200.39,
-      "cobol/cobol-check/copybooks_CCHECKWS.CPY": -8121.61,
-      "cobol/cobol-check/copybooks_DFHEIBLK.CPY": -6655.92,
-      "cobol/cobol-check/src_main_cobol_ALPHA.CBL": -6473.33,
-      "cobol/cobol-check/src_main_cobol_BIPM012.CBL": -7228.38,
-      "cobol/cobol-check/src_main_cobol_DB2PROG.cbl": -6798.02,
-      "cobol/cobol-check/src_main_cobol_DPICNUMBERS.CBL": -7651.14,
-      "cobol/cobol-check/src_main_cobol_FileCopy.cbl": -7530.29,
-      "cobol/cobol-check/src_main_cobol_GREETING.CBL": -7342.51,
-      "cobol/cobol-check/src_main_cobol_LONGLINESANDNUMBERS.CBL": -6653.13,
-      "cobol/cobol-check/src_main_cobol_MOCK.CBL": -7073.97,
-      "cobol/cobol-check/src_main_cobol_MOCKPARA.CBL": -6549.89,
-      "cobol/cobol-check/src_main_cobol_MOCKTEST.CBL": -7304.21,
-      "cobol/cobol-check/src_main_cobol_NUMBERS.CBL": -7679.45,
-      "cobol/cobol-check/src_main_cobol_REPLAC.CBL": -7166.7,
-      "cobol/cobol-check/src_main_cobol_RETURNCODE.CBL": -5976.29,
-      "cobol/cobol-check/src_main_cobol_TESTNESTED.CBL": -7637.75,
-      "cobol/cobol-check/src_main_cobol_WS88LEVEL.CBL": -6149.5,
-      "cobol/cobol-check/src_main_cobol_copy_BADCOPY-padded.CBL": -6875.43,
-      "cobol/cobol-check/src_main_cobol_copy_BADCOPY.CBL": -7851.92,
-      "cobol/cobol-check/src_main_cobol_copy_BIPM012I.CBL": -6370.67,
-      "cobol/cobol-check/src_main_cobol_copy_COPY001-padded.CBL": -7597.97,
-      "cobol/cobol-check/src_main_cobol_copy_COPY001.CBL": -6231.25,
-      "cobol/cobol-check/src_main_cobol_copy_COPY002-padded.CBL": -6165.18,
-      "cobol/cobol-check/src_main_cobol_copy_COPY002.CBL": -8032.19,
-      "cobol/cobol-check/src_main_cobol_copy_COPY003.CBL": -6064.77,
-      "cobol/cobol-check/src_main_cobol_copy_COPY004.CBL": -7788.46,
-      "cobol/cobol-check/src_main_cobol_copy_COPY005-padded.CBL": -7085.26,
-      "cobol/cobol-check/src_main_cobol_copy_COPY005.CBL": -6345.58,
-      "cobol/cobol-check/src_main_cobol_copy_COPY006.CBL": -7763.69,
-      "cobol/cobol-check/src_main_cobol_copy_COPYP001-padded.CBL": -7473.31,
-      "cobol/cobol-check/src_main_cobol_copy_COPYP001.CBL": -7132.0,
-      "cobol/cobol-check/src_main_cobol_copy_COPYP002-padded.CBL": -6502.27,
-      "cobol/cobol-check/src_main_cobol_copy_COPYP002.CBL": -7851.32,
-      "cobol/cobol-check/src_main_cobol_copy_COPYR001-padded.CBL": -7942.9,
-      "cobol/cobol-check/src_main_cobol_copy_COPYR001.CBL": -6197.99,
-      "cobol/cobol-check/src_main_cobol_copy_EX002-padded.CBL": -6881.31,
-      "cobol/cobol-check/src_main_cobol_copy_EX002.CBL": -6635.66,
-      "cobol/cobol-check/src_main_cobol_copy_EX005-padded.CBL": -6828.41,
-      "cobol/cobol-check/src_main_cobol_copy_EX005.CBL": -6880.83,
-      "cobol/cobol-check/src_main_cobol_copy_EXP01-padded.CBL": -6538.07,
-      "cobol/cobol-check/src_main_cobol_copy_EXP01.CBL": -7068.79,
-      "cobol/cobol-check/src_main_cobol_copy_EXR001-padded.CBL": -7452.77,
-      "cobol/cobol-check/src_main_cobol_copy_EXR001.CBL": -7418.16
+      "cobol/cobol-check/TESTPRG.CBL": -7074.51,
+      "cobol/cobol-check/copybooks_CCHECKPD.CPY": -8200.52,
+      "cobol/cobol-check/copybooks_CCHECKWS.CPY": -8121.74,
+      "cobol/cobol-check/copybooks_DFHEIBLK.CPY": -6656.05,
+      "cobol/cobol-check/src_main_cobol_ALPHA.CBL": -6473.47,
+      "cobol/cobol-check/src_main_cobol_BIPM012.CBL": -7228.51,
+      "cobol/cobol-check/src_main_cobol_DB2PROG.cbl": -6798.15,
+      "cobol/cobol-check/src_main_cobol_DPICNUMBERS.CBL": -7651.27,
+      "cobol/cobol-check/src_main_cobol_FileCopy.cbl": -7530.45,
+      "cobol/cobol-check/src_main_cobol_GREETING.CBL": -7342.65,
+      "cobol/cobol-check/src_main_cobol_LONGLINESANDNUMBERS.CBL": -6653.27,
+      "cobol/cobol-check/src_main_cobol_MOCK.CBL": -7074.1,
+      "cobol/cobol-check/src_main_cobol_MOCKPARA.CBL": -6550.03,
+      "cobol/cobol-check/src_main_cobol_MOCKTEST.CBL": -7304.36,
+      "cobol/cobol-check/src_main_cobol_NUMBERS.CBL": -7679.58,
+      "cobol/cobol-check/src_main_cobol_REPLAC.CBL": -7166.83,
+      "cobol/cobol-check/src_main_cobol_RETURNCODE.CBL": -5976.42,
+      "cobol/cobol-check/src_main_cobol_TESTNESTED.CBL": -7637.89,
+      "cobol/cobol-check/src_main_cobol_WS88LEVEL.CBL": -6149.64,
+      "cobol/cobol-check/src_main_cobol_copy_BADCOPY-padded.CBL": -6875.56,
+      "cobol/cobol-check/src_main_cobol_copy_BADCOPY.CBL": -7852.06,
+      "cobol/cobol-check/src_main_cobol_copy_BIPM012I.CBL": -6370.8,
+      "cobol/cobol-check/src_main_cobol_copy_COPY001-padded.CBL": -7598.11,
+      "cobol/cobol-check/src_main_cobol_copy_COPY001.CBL": -6231.38,
+      "cobol/cobol-check/src_main_cobol_copy_COPY002-padded.CBL": -6165.32,
+      "cobol/cobol-check/src_main_cobol_copy_COPY002.CBL": -8032.32,
+      "cobol/cobol-check/src_main_cobol_copy_COPY003.CBL": -6064.9,
+      "cobol/cobol-check/src_main_cobol_copy_COPY004.CBL": -7788.6,
+      "cobol/cobol-check/src_main_cobol_copy_COPY005-padded.CBL": -7085.4,
+      "cobol/cobol-check/src_main_cobol_copy_COPY005.CBL": -6345.72,
+      "cobol/cobol-check/src_main_cobol_copy_COPY006.CBL": -7763.83,
+      "cobol/cobol-check/src_main_cobol_copy_COPYP001-padded.CBL": -7473.44,
+      "cobol/cobol-check/src_main_cobol_copy_COPYP001.CBL": -7132.14,
+      "cobol/cobol-check/src_main_cobol_copy_COPYP002-padded.CBL": -6502.41,
+      "cobol/cobol-check/src_main_cobol_copy_COPYP002.CBL": -7851.45,
+      "cobol/cobol-check/src_main_cobol_copy_COPYR001-padded.CBL": -7943.04,
+      "cobol/cobol-check/src_main_cobol_copy_COPYR001.CBL": -6198.12,
+      "cobol/cobol-check/src_main_cobol_copy_EX002-padded.CBL": -6881.45,
+      "cobol/cobol-check/src_main_cobol_copy_EX002.CBL": -6635.79,
+      "cobol/cobol-check/src_main_cobol_copy_EX005-padded.CBL": -6828.55,
+      "cobol/cobol-check/src_main_cobol_copy_EX005.CBL": -6880.96,
+      "cobol/cobol-check/src_main_cobol_copy_EXP01-padded.CBL": -6538.2,
+      "cobol/cobol-check/src_main_cobol_copy_EXP01.CBL": -7068.92,
+      "cobol/cobol-check/src_main_cobol_copy_EXR001-padded.CBL": -7452.9,
+      "cobol/cobol-check/src_main_cobol_copy_EXR001.CBL": -7418.29
     },
     "cobol/cobol-programming-course": {
       "cobol/cobol-programming-course/CBL0106.cbl": -7659.81,
@@ -1043,13 +1043,13 @@
     },
     "cobol/gnucobol": {
       "cobol/gnucobol/CBL_OC_DUMP.cob": -2734.01,
-      "cobol/gnucobol/COPYING": -3291.72,
-      "cobol/gnucobol/numeric-display.cob": -2502.07,
-      "cobol/gnucobol/numeric-dump.cob": -3095.17,
-      "cobol/gnucobol/sqlca.cpy": -3008.79,
-      "cobol/gnucobol/sqlda.cpy": -2912.95,
-      "cobol/gnucobol/tutorial.cob": -2835.74,
-      "cobol/gnucobol/xfhfcd.cpy": -2271.0,
+      "cobol/gnucobol/COPYING": -3291.74,
+      "cobol/gnucobol/numeric-display.cob": -2502.06,
+      "cobol/gnucobol/numeric-dump.cob": -3095.19,
+      "cobol/gnucobol/sqlca.cpy": -3008.8,
+      "cobol/gnucobol/sqlda.cpy": -2912.96,
+      "cobol/gnucobol/tutorial.cob": -2835.75,
+      "cobol/gnucobol/xfhfcd.cpy": -2270.99,
       "cobol/gnucobol/xfhfcd3.cpy": -2428.36
     },
     "cobol/gnucobol_internals": {
@@ -1070,17 +1070,17 @@
       "cobol/zECS/ZECSZKC.cpy": 9840.0
     },
     "cobol/zopeneditor-sample": {
-      "cobol/zopeneditor-sample/CUSTCOPY.cpy": 1412.5,
-      "cobol/zopeneditor-sample/DATETIME.cpy": 1804.43,
-      "cobol/zopeneditor-sample/REPTTOTL.cpy": 915.19,
-      "cobol/zopeneditor-sample/SAM1.cbl": 1314.52,
-      "cobol/zopeneditor-sample/SAM2.cbl": 1101.7,
-      "cobol/zopeneditor-sample/SAM2PAR5.cpy": 1119.22,
-      "cobol/zopeneditor-sample/SAM2PARM.cpy": 1227.83,
-      "cobol/zopeneditor-sample/TRANREC.cpy": 1601.64
+      "cobol/zopeneditor-sample/CUSTCOPY.cpy": 1412.49,
+      "cobol/zopeneditor-sample/DATETIME.cpy": 1804.42,
+      "cobol/zopeneditor-sample/REPTTOTL.cpy": 915.18,
+      "cobol/zopeneditor-sample/SAM1.cbl": 1314.51,
+      "cobol/zopeneditor-sample/SAM2.cbl": 1101.69,
+      "cobol/zopeneditor-sample/SAM2PAR5.cpy": 1119.21,
+      "cobol/zopeneditor-sample/SAM2PARM.cpy": 1227.82,
+      "cobol/zopeneditor-sample/TRANREC.cpy": 1601.63
     },
     "cpp": {
-      "cpp/SOURCES.md": -11094.81
+      "cpp/SOURCES.md": -11094.93
     },
     "cpp/NVDA": {
       "cpp/NVDA/CODE_OF_CONDUCT.md": 3016.41,
@@ -1115,13 +1115,13 @@
       "cpp/godot/variant.h": -4741.03
     },
     "cpp/mlir": {
-      "cpp/mlir/flatbuffer_export.cc": -598.47,
-      "cpp/mlir/glob_lit_test.bzl": -345.21,
-      "cpp/mlir/mlir_bridge_rollout_policy.cc": -1141.16,
-      "cpp/mlir/mlir_graph_optimization_pass.cc": -942.94,
-      "cpp/mlir/stablehlo.cc": -752.74,
-      "cpp/mlir/tf_mlir_opt_main.cc": -173.66,
-      "cpp/mlir/tf_tfl_translate.cc": -585.68
+      "cpp/mlir/flatbuffer_export.cc": -598.44,
+      "cpp/mlir/glob_lit_test.bzl": -345.18,
+      "cpp/mlir/mlir_bridge_rollout_policy.cc": -1141.12,
+      "cpp/mlir/mlir_graph_optimization_pass.cc": -942.9,
+      "cpp/mlir/stablehlo.cc": -752.7,
+      "cpp/mlir/tf_mlir_opt_main.cc": -173.63,
+      "cpp/mlir/tf_tfl_translate.cc": -585.64
     },
     "cpp/powertoys": {
       "cpp/powertoys/FancyZones.cpp": -7270.09,
@@ -1137,7 +1137,7 @@
       "cpp/serenity_ak_siphash_cpu/SipHash.cpp": 5592.24
     },
     "csd": {
-      "csd/SOURCES.md": 5338.42
+      "csd/SOURCES.md": 5338.41
     },
     "csd/carddemo": {
       "csd/carddemo/CARDDEMO.CSD": -1184.52,
@@ -1168,12 +1168,12 @@
       "csharp/roslyn/Workspace.cs": 8138.32
     },
     "css": {
-      "css/SOURCES.md": -6641.7
+      "css/SOURCES.md": -6641.31
     },
     "css/bootstrap_dist": {
       "css/bootstrap_dist/bootstrap-grid.css": 834.26,
       "css/bootstrap_dist/bootstrap-reboot.css": 1117.5,
-      "css/bootstrap_dist/bootstrap.rtl.css": 1010.34
+      "css/bootstrap_dist/bootstrap.rtl.css": 1010.33
     },
     "css/cytoscape_docs": {
       "css/cytoscape_docs/reset.css": -8207.85,
@@ -1186,29 +1186,29 @@
     },
     "css/gutenberg_css_modules": {
       "css/gutenberg_css_modules/LICENSE.md": 5976.16,
-      "css/gutenberg_css_modules/block-theme-style.css": 6193.22,
-      "css/gutenberg_css_modules/button.module.css": 5797.4,
+      "css/gutenberg_css_modules/block-theme-style.css": 6193.21,
+      "css/gutenberg_css_modules/button.module.css": 5797.39,
       "css/gutenberg_css_modules/card.module.css": 5561.18,
-      "css/gutenberg_css_modules/tabs.module.css": 6060.83
+      "css/gutenberg_css_modules/tabs.module.css": 6060.82
     },
     "css/mediawiki_resources": {
-      "css/mediawiki_resources/COPYING": 11310.81,
-      "css/mediawiki_resources/apihelp.css": 11709.0,
-      "css/mediawiki_resources/apisandbox.css": 10919.31,
-      "css/mediawiki_resources/diff.styles.print.css": 11162.8,
-      "css/mediawiki_resources/mediawiki.action.history.css": 11564.35,
-      "css/mediawiki_resources/toc.css": 11338.79
+      "css/mediawiki_resources/COPYING": 11310.82,
+      "css/mediawiki_resources/apihelp.css": 11709.01,
+      "css/mediawiki_resources/apisandbox.css": 10919.32,
+      "css/mediawiki_resources/diff.styles.print.css": 11162.81,
+      "css/mediawiki_resources/mediawiki.action.history.css": 11564.36,
+      "css/mediawiki_resources/toc.css": 11338.8
     },
     "css/odoo": {
       "css/odoo/control_panel_mobile.css": 10080.53,
       "css/odoo/icons-baseline.css": 10213.05
     },
     "css/tailwindcss_atrules": {
-      "css/tailwindcss_atrules/index.css": -5699.03,
-      "css/tailwindcss_atrules/playground_vite_index.css": -5441.03,
-      "css/tailwindcss_atrules/preflight.css": -5852.82,
-      "css/tailwindcss_atrules/theme.css": -5453.39,
-      "css/tailwindcss_atrules/utilities.css": -5231.81
+      "css/tailwindcss_atrules/index.css": -5698.7,
+      "css/tailwindcss_atrules/playground_vite_index.css": -5440.7,
+      "css/tailwindcss_atrules/preflight.css": -5852.49,
+      "css/tailwindcss_atrules/theme.css": -5453.06,
+      "css/tailwindcss_atrules/utilities.css": -5231.48
     },
     "css/threejs_app_ui": {
       "css/threejs_app_ui/editor_main.css": -6830.56,
@@ -1219,7 +1219,7 @@
       "css/wordpress/LICENSE.txt": -5880.22
     },
     "dart": {
-      "dart/SOURCES.md": -10234.9
+      "dart/SOURCES.md": -10235.01
     },
     "dart/flutter": {
       "dart/flutter/editable_text.dart": 1945.24,
@@ -1231,19 +1231,19 @@
       "dart/flutter/theme_data.dart": 2502.22
     },
     "db2_sql": {
-      "db2_sql/SOURCES.md": 7187.62
+      "db2_sql/SOURCES.md": 7187.61
     },
     "db2_sql/db2unit": {
-      "db2_sql/db2unit/00-Prereqs.sql": -9259.47,
-      "db2_sql/db2unit/01-ObjectsAdmin.sql": -9516.9,
-      "db2_sql/db2unit/02-Objects.sql": -9037.36,
-      "db2_sql/db2unit/03-Headers.sql": -9499.86,
-      "db2_sql/db2unit/06-AssertsNoMessage.sql": -9311.5,
-      "db2_sql/db2unit/07-Version.sql": -9422.52,
-      "db2_sql/db2unit/98-Clean.sql": -9734.18,
-      "db2_sql/db2unit/99-CleanAdmin.sql": -8738.98,
-      "db2_sql/db2unit/LICENSE.txt": -8888.93,
-      "db2_sql/db2unit/PROVENANCE.md": -9860.31
+      "db2_sql/db2unit/00-Prereqs.sql": -9259.59,
+      "db2_sql/db2unit/01-ObjectsAdmin.sql": -9517.02,
+      "db2_sql/db2unit/02-Objects.sql": -9037.47,
+      "db2_sql/db2unit/03-Headers.sql": -9499.97,
+      "db2_sql/db2unit/06-AssertsNoMessage.sql": -9311.61,
+      "db2_sql/db2unit/07-Version.sql": -9422.64,
+      "db2_sql/db2unit/98-Clean.sql": -9734.29,
+      "db2_sql/db2unit/99-CleanAdmin.sql": -8739.1,
+      "db2_sql/db2unit/LICENSE.txt": -8889.04,
+      "db2_sql/db2unit/PROVENANCE.md": -9860.43
     },
     "dockerfile": {
       "dockerfile/SOURCES.md": 9276.09
@@ -1281,37 +1281,37 @@
       "dockerfile/moby/builder/dockerfile/utils_test.go": -3024.91
     },
     "dockerfile/moby/builder/remotecontext": {
-      "dockerfile/moby/builder/remotecontext/archive.go": -9295.14,
-      "dockerfile/moby/builder/remotecontext/detect.go": -8788.61,
-      "dockerfile/moby/builder/remotecontext/detect_test.go": -8374.03,
-      "dockerfile/moby/builder/remotecontext/filehash.go": -9101.77,
-      "dockerfile/moby/builder/remotecontext/git.go": -8272.99,
-      "dockerfile/moby/builder/remotecontext/lazycontext.go": -8995.16,
-      "dockerfile/moby/builder/remotecontext/mimetype.go": -8539.0,
-      "dockerfile/moby/builder/remotecontext/mimetype_test.go": -8667.44,
-      "dockerfile/moby/builder/remotecontext/remote.go": -8808.39,
-      "dockerfile/moby/builder/remotecontext/remote_test.go": -9105.35,
-      "dockerfile/moby/builder/remotecontext/tarsum_test.go": -8566.88,
-      "dockerfile/moby/builder/remotecontext/utils_test.go": -9386.11
+      "dockerfile/moby/builder/remotecontext/archive.go": -9295.27,
+      "dockerfile/moby/builder/remotecontext/detect.go": -8788.74,
+      "dockerfile/moby/builder/remotecontext/detect_test.go": -8374.17,
+      "dockerfile/moby/builder/remotecontext/filehash.go": -9101.9,
+      "dockerfile/moby/builder/remotecontext/git.go": -8273.12,
+      "dockerfile/moby/builder/remotecontext/lazycontext.go": -8995.29,
+      "dockerfile/moby/builder/remotecontext/mimetype.go": -8539.13,
+      "dockerfile/moby/builder/remotecontext/mimetype_test.go": -8667.57,
+      "dockerfile/moby/builder/remotecontext/remote.go": -8808.52,
+      "dockerfile/moby/builder/remotecontext/remote_test.go": -9105.48,
+      "dockerfile/moby/builder/remotecontext/tarsum_test.go": -8567.02,
+      "dockerfile/moby/builder/remotecontext/utils_test.go": -9386.24
     },
     "dockerfile/moby/builder/remotecontext/git": {
       "dockerfile/moby/builder/remotecontext/git/gitutils.go": -8356.95,
       "dockerfile/moby/builder/remotecontext/git/gitutils_test.go": -8595.89
     },
     "dockerfile/moby/builder/remotecontext/internal/tarsum": {
-      "dockerfile/moby/builder/remotecontext/internal/tarsum/builder_context.go": 3857.12,
-      "dockerfile/moby/builder/remotecontext/internal/tarsum/builder_context_test.go": 3928.43,
-      "dockerfile/moby/builder/remotecontext/internal/tarsum/fileinfosums.go": 4132.19,
-      "dockerfile/moby/builder/remotecontext/internal/tarsum/fileinfosums_test.go": 4525.22,
-      "dockerfile/moby/builder/remotecontext/internal/tarsum/tarsum.go": 3837.32,
-      "dockerfile/moby/builder/remotecontext/internal/tarsum/tarsum_spec.md": 4654.1,
-      "dockerfile/moby/builder/remotecontext/internal/tarsum/tarsum_test.go": 4082.68,
-      "dockerfile/moby/builder/remotecontext/internal/tarsum/versioning.go": 4406.71,
-      "dockerfile/moby/builder/remotecontext/internal/tarsum/versioning_test.go": 3633.66,
-      "dockerfile/moby/builder/remotecontext/internal/tarsum/writercloser.go": 3553.24
+      "dockerfile/moby/builder/remotecontext/internal/tarsum/builder_context.go": 3857.09,
+      "dockerfile/moby/builder/remotecontext/internal/tarsum/builder_context_test.go": 3928.39,
+      "dockerfile/moby/builder/remotecontext/internal/tarsum/fileinfosums.go": 4132.15,
+      "dockerfile/moby/builder/remotecontext/internal/tarsum/fileinfosums_test.go": 4525.19,
+      "dockerfile/moby/builder/remotecontext/internal/tarsum/tarsum.go": 3837.29,
+      "dockerfile/moby/builder/remotecontext/internal/tarsum/tarsum_spec.md": 4654.07,
+      "dockerfile/moby/builder/remotecontext/internal/tarsum/tarsum_test.go": 4082.65,
+      "dockerfile/moby/builder/remotecontext/internal/tarsum/versioning.go": 4406.68,
+      "dockerfile/moby/builder/remotecontext/internal/tarsum/versioning_test.go": 3633.63,
+      "dockerfile/moby/builder/remotecontext/internal/tarsum/writercloser.go": 3553.21
     },
     "dockerfile/moby/builder/remotecontext/urlutil": {
-      "dockerfile/moby/builder/remotecontext/urlutil/urlutil.go": 5360.5,
+      "dockerfile/moby/builder/remotecontext/urlutil/urlutil.go": 5360.49,
       "dockerfile/moby/builder/remotecontext/urlutil/urlutil_test.go": 5627.98
     },
     "dockerfile/moby/test_targets": {
@@ -1343,24 +1343,24 @@
       "fortran/SOURCES.md": -7999.54
     },
     "fortran/wrf": {
-      "fortran/wrf/LICENSE.txt": 5775.54,
-      "fortran/wrf/cleanCMake.sh": 5616.83,
-      "fortran/wrf/configure_reader.py": 6918.81,
-      "fortran/wrf/gen_be_wrapper.ksh": 6508.32,
-      "fortran/wrf/module_configure.F": 5573.08,
-      "fortran/wrf/module_domain.F": 6590.09,
-      "fortran/wrf/module_initialize_real.F": 6302.18,
-      "fortran/wrf/module_physics_init.F": 6232.15,
-      "fortran/wrf/module_sf_noahdrv.F": 5967.98,
-      "fortran/wrf/regtest.csh": 6072.64,
-      "fortran/wrf/regtest_hwrf.csh": 5702.23,
-      "fortran/wrf/regtest_nmmnest.csh": 6730.92,
-      "fortran/wrf/run_convert_e2c.ksh": 7024.4,
-      "fortran/wrf/sourcetree.py": 6595.85,
-      "fortran/wrf/wrf_timeseries.F": 5931.51
+      "fortran/wrf/LICENSE.txt": 5775.53,
+      "fortran/wrf/cleanCMake.sh": 5616.82,
+      "fortran/wrf/configure_reader.py": 6918.8,
+      "fortran/wrf/gen_be_wrapper.ksh": 6508.31,
+      "fortran/wrf/module_configure.F": 5573.07,
+      "fortran/wrf/module_domain.F": 6590.08,
+      "fortran/wrf/module_initialize_real.F": 6302.17,
+      "fortran/wrf/module_physics_init.F": 6232.14,
+      "fortran/wrf/module_sf_noahdrv.F": 5967.97,
+      "fortran/wrf/regtest.csh": 6072.63,
+      "fortran/wrf/regtest_hwrf.csh": 5702.22,
+      "fortran/wrf/regtest_nmmnest.csh": 6730.91,
+      "fortran/wrf/run_convert_e2c.ksh": 7024.39,
+      "fortran/wrf/sourcetree.py": 6595.84,
+      "fortran/wrf/wrf_timeseries.F": 5931.5
     },
     "go": {
-      "go/SOURCES.md": 8825.94
+      "go/SOURCES.md": 8825.93
     },
     "go/core": {
       "go/core/PATENTS": 6811.09,
@@ -1373,19 +1373,19 @@
       "go/core/value.go": 6801.34
     },
     "go/go_runtime_rand": {
-      "go/go_runtime_rand/rand.go": 187.64
+      "go/go_runtime_rand/rand.go": 187.63
     },
     "go/kubernetes": {
-      "go/kubernetes/csi_plugin.go": 4724.88,
-      "go/kubernetes/generic.go": 5321.14,
-      "go/kubernetes/kubelet.go": 5488.08,
-      "go/kubernetes/options.go": 4876.97,
+      "go/kubernetes/csi_plugin.go": 4724.87,
+      "go/kubernetes/generic.go": 5321.13,
+      "go/kubernetes/kubelet.go": 5488.07,
+      "go/kubernetes/options.go": 4876.96,
       "go/kubernetes/proxier.go": 4973.27,
       "go/kubernetes/replica_set.go": 5036.03,
-      "go/kubernetes/scheduler.go": 4531.96
+      "go/kubernetes/scheduler.go": 4531.95
     },
     "go/kubernetes_kubectl_tls": {
-      "go/kubernetes_kubectl_tls/create_secret_tls_test.go": 2422.59
+      "go/kubernetes_kubectl_tls/create_secret_tls_test.go": 2422.58
     },
     "groovy/fineract_gradle_plugin": {
       "groovy/fineract_gradle_plugin/LICENSE_RELEASE": 9726.95,
@@ -1527,26 +1527,26 @@
       "groovy/gradle_integtest_specs/core-configuration_configuration-cache_src_integTest_groovy_org_gradle_internal_cc_impl_ConfigurationCacheIncludedBuildScriptChangesIntegrationTest.groovy": -4682.49
     },
     "groovy/gradle_sample_task_classes": {
-      "groovy/gradle_sample_task_classes/base_buildDashboard_common_src_main_groovy_org_gradle_sample_GroovyPerson.groovy": 4762.2,
-      "groovy/gradle_sample_task_classes/base_customExternalTask_groovy_task_src_main_groovy_org_gradle_GreetingTask.groovy": 5264.72,
-      "groovy/gradle_sample_task_classes/base_customExternalTask_kotlin_task_src_main_groovy_org_gradle_GreetingTask.groovy": 4744.24,
-      "groovy/gradle_sample_task_classes/codeQuality_codeQuality_groovy_src_main_groovy_org_gradle_sample_GroovyPerson.groovy": 5016.93,
-      "groovy/gradle_sample_task_classes/codeQuality_codeQuality_kotlin_src_main_groovy_org_gradle_sample_GroovyPerson.groovy": 4304.16,
-      "groovy/gradle_sample_task_classes/groovy_crossCompilation_common_src_main_groovy_org_gradle_GroovyPerson.groovy": 5191.52,
-      "groovy/gradle_sample_task_classes/groovy_crossCompilation_common_src_main_groovy_org_gradle_PersonList.groovy": 5277.09,
+      "groovy/gradle_sample_task_classes/base_buildDashboard_common_src_main_groovy_org_gradle_sample_GroovyPerson.groovy": 4762.19,
+      "groovy/gradle_sample_task_classes/base_customExternalTask_groovy_task_src_main_groovy_org_gradle_GreetingTask.groovy": 5264.71,
+      "groovy/gradle_sample_task_classes/base_customExternalTask_kotlin_task_src_main_groovy_org_gradle_GreetingTask.groovy": 4744.23,
+      "groovy/gradle_sample_task_classes/codeQuality_codeQuality_groovy_src_main_groovy_org_gradle_sample_GroovyPerson.groovy": 5016.92,
+      "groovy/gradle_sample_task_classes/codeQuality_codeQuality_kotlin_src_main_groovy_org_gradle_sample_GroovyPerson.groovy": 4304.15,
+      "groovy/gradle_sample_task_classes/groovy_crossCompilation_common_src_main_groovy_org_gradle_GroovyPerson.groovy": 5191.51,
+      "groovy/gradle_sample_task_classes/groovy_crossCompilation_common_src_main_groovy_org_gradle_PersonList.groovy": 5277.08,
       "groovy/gradle_sample_task_classes/groovy_groovyDependency_common_src_main_groovy_org_gradle_GroovyPerson.groovy": 4636.71,
-      "groovy/gradle_sample_task_classes/groovy_groovyDependency_common_src_main_groovy_org_gradle_PersonList.groovy": 3960.2,
-      "groovy/gradle_sample_task_classes/groovy_library-publishing_common_my-library_src_main_groovy_org_gradle_sample_list_LinkedList.groovy": 4780.24,
-      "groovy/gradle_sample_task_classes/groovy_library-publishing_common_my-library_src_main_groovy_org_gradle_sample_utilities_JoinUtils.groovy": 5306.26,
+      "groovy/gradle_sample_task_classes/groovy_groovyDependency_common_src_main_groovy_org_gradle_PersonList.groovy": 3960.19,
+      "groovy/gradle_sample_task_classes/groovy_library-publishing_common_my-library_src_main_groovy_org_gradle_sample_list_LinkedList.groovy": 4780.23,
+      "groovy/gradle_sample_task_classes/groovy_library-publishing_common_my-library_src_main_groovy_org_gradle_sample_utilities_JoinUtils.groovy": 5306.25,
       "groovy/gradle_sample_task_classes/groovy_library-publishing_common_my-library_src_main_groovy_org_gradle_sample_utilities_SplitUtils.groovy": 4549.53,
-      "groovy/gradle_sample_task_classes/groovy_library-publishing_common_my-library_src_main_groovy_org_gradle_sample_utilities_StringUtils.groovy": 4159.2,
+      "groovy/gradle_sample_task_classes/groovy_library-publishing_common_my-library_src_main_groovy_org_gradle_sample_utilities_StringUtils.groovy": 4159.19,
       "groovy/gradle_sample_task_classes/groovy_quickstart_groovy_src_main_groovy_org_gradle_Person.groovy": 5051.3,
       "groovy/gradle_sample_task_classes/groovy_quickstart_kotlin_src_main_groovy_org_gradle_Person.groovy": 4926.43,
-      "groovy/gradle_sample_task_classes/organizingGradleProjects_customGradleDistribution_groovy_buildSrc_src_main_groovy_org_gradle_distribution_DownloadGradle.groovy": 4183.16,
-      "groovy/gradle_sample_task_classes/testKit_automaticClasspathInjectionCustomTestSourceSet_common_src_main_groovy_org_gradle_sample_HelloWorldPlugin.groovy": 5422.15,
-      "groovy/gradle_sample_task_classes/testKit_automaticClasspathInjectionQuickstart_common_src_main_groovy_org_gradle_sample_HelloWorldPlugin.groovy": 4334.08,
-      "groovy/gradle_sample_task_classes/testKit_testKitFunctionalTestSpockBuildCache_groovy_src_main_groovy_org_gradle_sample_HelloWorldPlugin.groovy": 4458.98,
-      "groovy/gradle_sample_task_classes/testKit_testKitFunctionalTestSpockBuildCache_groovy_src_main_groovy_org_gradle_sample_MyCacheableTask.groovy": 4695.24
+      "groovy/gradle_sample_task_classes/organizingGradleProjects_customGradleDistribution_groovy_buildSrc_src_main_groovy_org_gradle_distribution_DownloadGradle.groovy": 4183.15,
+      "groovy/gradle_sample_task_classes/testKit_automaticClasspathInjectionCustomTestSourceSet_common_src_main_groovy_org_gradle_sample_HelloWorldPlugin.groovy": 5422.14,
+      "groovy/gradle_sample_task_classes/testKit_automaticClasspathInjectionQuickstart_common_src_main_groovy_org_gradle_sample_HelloWorldPlugin.groovy": 4334.07,
+      "groovy/gradle_sample_task_classes/testKit_testKitFunctionalTestSpockBuildCache_groovy_src_main_groovy_org_gradle_sample_HelloWorldPlugin.groovy": 4458.97,
+      "groovy/gradle_sample_task_classes/testKit_testKitFunctionalTestSpockBuildCache_groovy_src_main_groovy_org_gradle_sample_MyCacheableTask.groovy": 4695.23
     },
     "groovy/jenkins_view_groovy": {
       "groovy/jenkins_view_groovy/Jenkinsfile": -3738.07,
@@ -1676,36 +1676,36 @@
       "groovy/spock_smoke_specs/SharedFieldsInSuperclass.groovy": 6786.87
     },
     "groovy/spock_specs": {
-      "groovy/spock_specs/org_spockframework_builder_PojoBuilderSpec.groovy": 4883.05,
-      "groovy/spock_specs/org_spockframework_buildsupport_SpecClassFileFinderSpec.groovy": 4397.25,
-      "groovy/spock_specs/org_spockframework_datapipes_DataPipesIteratorSpec.groovy": 4607.96,
-      "groovy/spock_specs/org_spockframework_docs_datadriven_DataSpec.groovy": 4784.36,
-      "groovy/spock_specs/org_spockframework_docs_datadriven_v1_MathSpec.groovy": 5691.48,
-      "groovy/spock_specs/org_spockframework_docs_datadriven_v2_MathSpec.groovy": 4001.65,
-      "groovy/spock_specs/org_spockframework_docs_datadriven_v3_MathSpec.groovy": 4422.42,
+      "groovy/spock_specs/org_spockframework_builder_PojoBuilderSpec.groovy": 4883.04,
+      "groovy/spock_specs/org_spockframework_buildsupport_SpecClassFileFinderSpec.groovy": 4397.24,
+      "groovy/spock_specs/org_spockframework_datapipes_DataPipesIteratorSpec.groovy": 4607.95,
+      "groovy/spock_specs/org_spockframework_docs_datadriven_DataSpec.groovy": 4784.35,
+      "groovy/spock_specs/org_spockframework_docs_datadriven_v1_MathSpec.groovy": 5691.47,
+      "groovy/spock_specs/org_spockframework_docs_datadriven_v2_MathSpec.groovy": 4001.64,
+      "groovy/spock_specs/org_spockframework_docs_datadriven_v3_MathSpec.groovy": 4422.41,
       "groovy/spock_specs/org_spockframework_docs_datadriven_v4_MathSpec.groovy": 5287.05,
-      "groovy/spock_specs/org_spockframework_docs_datadriven_v5_MathSpec.groovy": 5618.2,
-      "groovy/spock_specs/org_spockframework_docs_datadriven_v6_MathSpec.groovy": 4491.13,
-      "groovy/spock_specs/org_spockframework_docs_datadriven_v7_MathSpec.groovy": 4975.77,
-      "groovy/spock_specs/org_spockframework_docs_extension_ConfineMetaClassChangesDocSpec.groovy": 5490.72,
-      "groovy/spock_specs/org_spockframework_docs_extension_ExtensionStoreSpec.groovy": 5272.43,
-      "groovy/spock_specs/org_spockframework_docs_extension_FancyMockMakerDocSpec.groovy": 3948.06,
-      "groovy/spock_specs/org_spockframework_docs_extension_IgnoreIfDocSpec.groovy": 4507.81,
-      "groovy/spock_specs/org_spockframework_docs_extension_InterceptorSpec.groovy": 5354.14,
-      "groovy/spock_specs/org_spockframework_docs_extension_IssueDocSpec.groovy": 4753.11,
-      "groovy/spock_specs/org_spockframework_docs_extension_MockMakerConfigurationDocSpec.groovy": 4071.84,
-      "groovy/spock_specs/org_spockframework_docs_extension_ParameterInjectionSpec.groovy": 4350.65,
-      "groovy/spock_specs/org_spockframework_docs_extension_PendingFeatureIfDocSpec.groovy": 4208.58,
+      "groovy/spock_specs/org_spockframework_docs_datadriven_v5_MathSpec.groovy": 5618.19,
+      "groovy/spock_specs/org_spockframework_docs_datadriven_v6_MathSpec.groovy": 4491.12,
+      "groovy/spock_specs/org_spockframework_docs_datadriven_v7_MathSpec.groovy": 4975.76,
+      "groovy/spock_specs/org_spockframework_docs_extension_ConfineMetaClassChangesDocSpec.groovy": 5490.71,
+      "groovy/spock_specs/org_spockframework_docs_extension_ExtensionStoreSpec.groovy": 5272.42,
+      "groovy/spock_specs/org_spockframework_docs_extension_FancyMockMakerDocSpec.groovy": 3948.05,
+      "groovy/spock_specs/org_spockframework_docs_extension_IgnoreIfDocSpec.groovy": 4507.8,
+      "groovy/spock_specs/org_spockframework_docs_extension_InterceptorSpec.groovy": 5354.13,
+      "groovy/spock_specs/org_spockframework_docs_extension_IssueDocSpec.groovy": 4753.1,
+      "groovy/spock_specs/org_spockframework_docs_extension_MockMakerConfigurationDocSpec.groovy": 4071.83,
+      "groovy/spock_specs/org_spockframework_docs_extension_ParameterInjectionSpec.groovy": 4350.64,
+      "groovy/spock_specs/org_spockframework_docs_extension_PendingFeatureIfDocSpec.groovy": 4208.57,
       "groovy/spock_specs/org_spockframework_docs_extension_RequiresDocSpec.groovy": 5597.85,
-      "groovy/spock_specs/org_spockframework_docs_extension_RetryDocSpec.groovy": 5097.28,
-      "groovy/spock_specs/org_spockframework_docs_extension_SeeDocSpec.groovy": 5360.6,
-      "groovy/spock_specs/org_spockframework_docs_extension_SnapshotDocSpec.groovy": 4260.3,
-      "groovy/spock_specs/org_spockframework_docs_extension_StepwiseDocSpec.groovy": 5078.46,
-      "groovy/spock_specs/org_spockframework_docs_extension_SubjectDocSpec.groovy": 4630.7,
-      "groovy/spock_specs/org_spockframework_docs_extension_TagDocSpec.groovy": 4742.14,
-      "groovy/spock_specs/org_spockframework_docs_extension_TempDirDocSpec.groovy": 5026.66,
-      "groovy/spock_specs/org_spockframework_docs_extension_UseDocSpec.groovy": 5390.76,
-      "groovy/spock_specs/org_spockframework_docs_interaction_BuilderExampleSpec.groovy": 4311.41
+      "groovy/spock_specs/org_spockframework_docs_extension_RetryDocSpec.groovy": 5097.27,
+      "groovy/spock_specs/org_spockframework_docs_extension_SeeDocSpec.groovy": 5360.59,
+      "groovy/spock_specs/org_spockframework_docs_extension_SnapshotDocSpec.groovy": 4260.29,
+      "groovy/spock_specs/org_spockframework_docs_extension_StepwiseDocSpec.groovy": 5078.45,
+      "groovy/spock_specs/org_spockframework_docs_extension_SubjectDocSpec.groovy": 4630.69,
+      "groovy/spock_specs/org_spockframework_docs_extension_TagDocSpec.groovy": 4742.13,
+      "groovy/spock_specs/org_spockframework_docs_extension_TempDirDocSpec.groovy": 5026.65,
+      "groovy/spock_specs/org_spockframework_docs_extension_UseDocSpec.groovy": 5390.75,
+      "groovy/spock_specs/org_spockframework_docs_interaction_BuilderExampleSpec.groovy": 4311.4
     },
     "groovy/spring_boot_gradle": {
       "groovy/spring_boot_gradle/LICENSE.txt": 2737.47,
@@ -1741,17 +1741,17 @@
       "haskell/SOURCES.md": 7949.91
     },
     "haskell/pandoc": {
-      "haskell/pandoc/AUTHORS.md": 11031.47,
-      "haskell/pandoc/App.hs": 11050.98,
-      "haskell/pandoc/CONTRIBUTING.md": 11905.7,
-      "haskell/pandoc/COPYING.md": 10694.99,
-      "haskell/pandoc/COPYRIGHT": 11549.31,
+      "haskell/pandoc/AUTHORS.md": 11031.48,
+      "haskell/pandoc/App.hs": 11050.99,
+      "haskell/pandoc/CONTRIBUTING.md": 11905.71,
+      "haskell/pandoc/COPYING.md": 10695.0,
+      "haskell/pandoc/COPYRIGHT": 11549.32,
       "haskell/pandoc/Class.hs": 11178.2,
-      "haskell/pandoc/Filter.hs": 11538.75,
+      "haskell/pandoc/Filter.hs": 11538.76,
       "haskell/pandoc/Options.hs": 11327.73,
-      "haskell/pandoc/Pandoc.hs": 11747.03,
-      "haskell/pandoc/Parsing.hs": 10852.87,
-      "haskell/pandoc/Shared.hs": 11344.6
+      "haskell/pandoc/Pandoc.hs": 11747.04,
+      "haskell/pandoc/Parsing.hs": 10852.88,
+      "haskell/pandoc/Shared.hs": 11344.61
     },
     "hlasm": {
       "hlasm/PROVENANCE.md": -4792.04,
@@ -1781,16 +1781,16 @@
       "hlasm/zecs/ZECSNC.asm": 2403.58
     },
     "hlasm/zopeneditor_sample": {
-      "hlasm/zopeneditor_sample/ASAM1.asm": -11068.71,
-      "hlasm/zopeneditor_sample/REGISTRS.asm": -11349.49
+      "hlasm/zopeneditor_sample/ASAM1.asm": -11068.83,
+      "hlasm/zopeneditor_sample/REGISTRS.asm": -11349.61
     },
     "hlo": {
       "hlo/SOURCES.md": -8762.19
     },
     "hlo/xla/gpu_emitters": {
-      "hlo/xla/gpu_emitters/f4e2m1fn_intrinsics.hlo": -9964.24,
-      "hlo/xla/gpu_emitters/reduction_groups_two_in_same_group.hlo": -9951.58,
-      "hlo/xla/gpu_emitters/side_output.hlo": -10188.17
+      "hlo/xla/gpu_emitters/f4e2m1fn_intrinsics.hlo": -9964.36,
+      "hlo/xla/gpu_emitters/reduction_groups_two_in_same_group.hlo": -9951.7,
+      "hlo/xla/gpu_emitters/side_output.hlo": -10188.28
     },
     "html": {
       "html/SOURCES.md": -6968.3
@@ -1807,11 +1807,11 @@
       "html/baseline/control_standard.html": 1797.38
     },
     "html/cesium_sandcastle": {
-      "html/cesium_sandcastle/CesiumViewer_index.html": 4106.79,
-      "html/cesium_sandcastle/HelloWorld.html": 3802.99,
-      "html/cesium_sandcastle/LICENSE.md": 4022.17,
-      "html/cesium_sandcastle/bucket.html": 4284.89,
-      "html/cesium_sandcastle/gallery_cylinders_and_cones.html": 3608.66
+      "html/cesium_sandcastle/CesiumViewer_index.html": 4106.76,
+      "html/cesium_sandcastle/HelloWorld.html": 3802.96,
+      "html/cesium_sandcastle/LICENSE.md": 4022.15,
+      "html/cesium_sandcastle/bucket.html": 4284.86,
+      "html/cesium_sandcastle/gallery_cylinders_and_cones.html": 3608.63
     },
     "html/cpython_jinja": {
       "html/cpython_jinja/LICENSE.txt": 9875.94,
@@ -1827,34 +1827,34 @@
       "html/html5_boilerplate/src_index.html": 7488.28
     },
     "html/jquery_test_fixtures": {
-      "html/jquery_test_fixtures/LICENSE.txt": 391.18,
-      "html/jquery_test_fixtures/csp-nonce.html": 1.14,
-      "html/jquery_test_fixtures/iframe.html": 811.35,
-      "html/jquery_test_fixtures/name.html": 331.75,
-      "html/jquery_test_fixtures/qunit-fixture.html": 270.53,
-      "html/jquery_test_fixtures/table.html": 458.03,
-      "html/jquery_test_fixtures/trusted-html.html": 682.08
+      "html/jquery_test_fixtures/LICENSE.txt": 391.15,
+      "html/jquery_test_fixtures/csp-nonce.html": 1.12,
+      "html/jquery_test_fixtures/iframe.html": 811.33,
+      "html/jquery_test_fixtures/name.html": 331.73,
+      "html/jquery_test_fixtures/qunit-fixture.html": 270.5,
+      "html/jquery_test_fixtures/table.html": 458.01,
+      "html/jquery_test_fixtures/trusted-html.html": 682.06
     },
     "html/odoo_mako": {
-      "html/odoo_mako/LICENSE.txt": -3502.24,
-      "html/odoo_mako/mako_footer.html": -3691.83,
-      "html/odoo_mako/mako_header.html": -3391.75,
-      "html/odoo_mako/status_display.html": -3239.41
+      "html/odoo_mako/LICENSE.txt": -3502.26,
+      "html/odoo_mako/mako_footer.html": -3691.84,
+      "html/odoo_mako/mako_header.html": -3391.77,
+      "html/odoo_mako/status_display.html": -3239.43
     },
     "html/playwright_dom_fixtures": {
-      "html/playwright_dom_fixtures/csp.html": -3121.65,
-      "html/playwright_dom_fixtures/dynamic-oopif.html": -3661.21,
-      "html/playwright_dom_fixtures/headings.html": -3513.0,
-      "html/playwright_dom_fixtures/historyapi.html": -3271.13,
-      "html/playwright_dom_fixtures/overflow-large.html": -3544.31,
-      "html/playwright_dom_fixtures/window-stop.html": -3936.83
+      "html/playwright_dom_fixtures/csp.html": -3121.45,
+      "html/playwright_dom_fixtures/dynamic-oopif.html": -3661.0,
+      "html/playwright_dom_fixtures/headings.html": -3512.79,
+      "html/playwright_dom_fixtures/historyapi.html": -3270.93,
+      "html/playwright_dom_fixtures/overflow-large.html": -3544.11,
+      "html/playwright_dom_fixtures/window-stop.html": -3936.63
     },
     "html/polyglot_emscripten": {
       "html/polyglot_emscripten/LICENSE.txt": -8807.48,
       "html/polyglot_emscripten/pyrepl_index.html": -8940.03
     },
     "html/polyglot_odoo": {
-      "html/polyglot_odoo/LICENSE.txt": 12040.74,
+      "html/polyglot_odoo/LICENSE.txt": 12040.75,
       "html/polyglot_odoo/database_manager.qweb.html": 11853.06
     },
     "html/polyglot_vscode": {
@@ -1876,12 +1876,12 @@
       "html/threejs_shader_examples/webgl_custom_attributes.html": -5902.58
     },
     "html/vscode_webviews": {
-      "html/vscode_webviews/LICENSE.txt": 12272.44,
+      "html/vscode_webviews/LICENSE.txt": 12272.45,
       "html/vscode_webviews/build_builtin_index.html": 11877.4,
-      "html/vscode_webviews/github_auth_media_index.html": 12161.6,
-      "html/vscode_webviews/webWorkerExtensionHostIframe.html": 12301.13,
+      "html/vscode_webviews/github_auth_media_index.html": 12161.61,
+      "html/vscode_webviews/webWorkerExtensionHostIframe.html": 12301.14,
       "html/vscode_webviews/webview_pre_index.html": 12687.26,
-      "html/vscode_webviews/workbench.html": 12561.74
+      "html/vscode_webviews/workbench.html": 12561.75
     },
     "html/wordpress_blocks": {
       "html/wordpress_blocks/LICENSE.txt": -2267.02,
@@ -1896,8 +1896,8 @@
       "java/flutter_android_editing_tests/InputConnectionAdaptorTest.java": -1044.96
     },
     "java/jenkins_cli": {
-      "java/jenkins_cli/LICENSE.txt": 3497.63,
-      "java/jenkins_cli/SetBuildDescriptionCommand.java": 3733.42
+      "java/jenkins_cli/LICENSE.txt": 3497.6,
+      "java/jenkins_cli/SetBuildDescriptionCommand.java": 3733.4
     },
     "java/selenium_grid_session_queue": {
       "java/selenium_grid_session_queue/NOTICE": -9821.44,
@@ -1917,8 +1917,8 @@
       "javascript/SOURCES.md": 5651.69
     },
     "javascript/cesium_particle_emitters": {
-      "javascript/cesium_particle_emitters/CircleEmitter.js": 12273.46,
-      "javascript/cesium_particle_emitters/LICENSE.md": 12455.72
+      "javascript/cesium_particle_emitters/CircleEmitter.js": 12273.47,
+      "javascript/cesium_particle_emitters/LICENSE.md": 12455.73
     },
     "javascript/javascript_algorithms_bits": {
       "javascript/javascript_algorithms_bits/fullAdder.js": -8018.33
@@ -1951,16 +1951,16 @@
       "javascript/react/build.js": -4755.09
     },
     "javascript/react_error_codes": {
-      "javascript/react_error_codes/extract-errors.js": -1668.25
+      "javascript/react_error_codes/extract-errors.js": -1668.15
     },
     "javascript/threejs": {
-      "javascript/threejs/BufferGeometry.js": -9337.45,
-      "javascript/threejs/Editor.js": -8362.4,
-      "javascript/threejs/GLTFLoader.js": -8874.82,
-      "javascript/threejs/Matrix4.js": -8781.11,
-      "javascript/threejs/Nodes.js": -9014.1,
-      "javascript/threejs/WebGLProgram.js": -8515.68,
-      "javascript/threejs/WebGLRenderer.js": -9176.65
+      "javascript/threejs/BufferGeometry.js": -9337.67,
+      "javascript/threejs/Editor.js": -8362.62,
+      "javascript/threejs/GLTFLoader.js": -8875.03,
+      "javascript/threejs/Matrix4.js": -8781.33,
+      "javascript/threejs/Nodes.js": -9014.32,
+      "javascript/threejs/WebGLProgram.js": -8515.89,
+      "javascript/threejs/WebGLRenderer.js": -9176.86
     },
     "jcl/cash-account-cobol": {
       "jcl/cash-account-cobol/DB2BIND.jcl": -7105.64,
@@ -2104,49 +2104,49 @@
       "jcl/cics-java-jcics-samples/etc_VSAM_DEFVSAM.jcl": 3138.79
     },
     "jcl/cobol-programming-course": {
-      "jcl/cobol-programming-course/ADDAMT.jcl": 2781.28,
-      "jcl/cobol-programming-course/CBL0001J.jcl": 3085.0,
-      "jcl/cobol-programming-course/CBL0002J.jcl": 2959.98,
-      "jcl/cobol-programming-course/CBL0003J.jcl": 3709.73,
-      "jcl/cobol-programming-course/CBL0004J.jcl": 2587.48,
-      "jcl/cobol-programming-course/CBL0005J.jcl": 3458.81,
-      "jcl/cobol-programming-course/CBL0006J.jcl": 3404.02,
-      "jcl/cobol-programming-course/CBL0007J.jcl": 2633.16,
-      "jcl/cobol-programming-course/CBL0008J.jcl": 3817.98,
-      "jcl/cobol-programming-course/CBL0009J.jcl": 2754.42,
-      "jcl/cobol-programming-course/CBL0010J.jcl": 3031.2,
-      "jcl/cobol-programming-course/CBL0011J.jcl": 3766.9,
-      "jcl/cobol-programming-course/CBL0012J.jcl": 2435.1,
-      "jcl/cobol-programming-course/CBL0013J.jcl": 3387.03,
-      "jcl/cobol-programming-course/CBL0014J.jcl": 3641.37,
-      "jcl/cobol-programming-course/CBL0033J.jcl": 3226.39,
-      "jcl/cobol-programming-course/CBL006AJ.jcl": 3729.61,
-      "jcl/cobol-programming-course/CBL0106J.jcl": 3176.24,
-      "jcl/cobol-programming-course/CBLDB21C.jcl": 2447.44,
-      "jcl/cobol-programming-course/CBLDB21R.jcl": 4164.6,
-      "jcl/cobol-programming-course/CBLDB22C.jcl": 3171.78,
-      "jcl/cobol-programming-course/CBLDB22R.jcl": 3370.66,
-      "jcl/cobol-programming-course/CBLDB23C.jcl": 3885.15,
-      "jcl/cobol-programming-course/CBLDB23R.jcl": 2406.42,
-      "jcl/cobol-programming-course/COBRUN.jcl": 3577.33,
-      "jcl/cobol-programming-course/CRETBL.jcl": 3669.39,
-      "jcl/cobol-programming-course/DB2CBL.jcl": 3181.11,
-      "jcl/cobol-programming-course/DB2JCL.jcl": 2206.73,
-      "jcl/cobol-programming-course/DB2SETUP.jcl": 2320.54,
-      "jcl/cobol-programming-course/DBRMLIB.jcl": 4017.17,
-      "jcl/cobol-programming-course/DEPTPAY.JCL": 2820.2,
-      "jcl/cobol-programming-course/DSNUPROC.jcl": 3982.22,
-      "jcl/cobol-programming-course/EMPPAY.JCL": 2669.17,
-      "jcl/cobol-programming-course/HELLO.jcl": 3021.15,
-      "jcl/cobol-programming-course/IGYWC.jcl": 2825.92,
-      "jcl/cobol-programming-course/IGYWCL.jcl": 3436.5,
-      "jcl/cobol-programming-course/IGYWCLG.jcl": 2935.71,
-      "jcl/cobol-programming-course/LOADTBL.jcl": 4011.2,
-      "jcl/cobol-programming-course/PAYROL00.jcl": 2563.47,
-      "jcl/cobol-programming-course/PAYROL0X.jcl": 4255.25,
-      "jcl/cobol-programming-course/SELTBL.jcl": 2097.65,
-      "jcl/cobol-programming-course/SRCHBINJ.jcl": 4019.37,
-      "jcl/cobol-programming-course/SRCHSERJ.jcl": 2460.56
+      "jcl/cobol-programming-course/ADDAMT.jcl": 2781.24,
+      "jcl/cobol-programming-course/CBL0001J.jcl": 3084.96,
+      "jcl/cobol-programming-course/CBL0002J.jcl": 2959.94,
+      "jcl/cobol-programming-course/CBL0003J.jcl": 3709.69,
+      "jcl/cobol-programming-course/CBL0004J.jcl": 2587.44,
+      "jcl/cobol-programming-course/CBL0005J.jcl": 3458.77,
+      "jcl/cobol-programming-course/CBL0006J.jcl": 3403.98,
+      "jcl/cobol-programming-course/CBL0007J.jcl": 2633.13,
+      "jcl/cobol-programming-course/CBL0008J.jcl": 3817.94,
+      "jcl/cobol-programming-course/CBL0009J.jcl": 2754.38,
+      "jcl/cobol-programming-course/CBL0010J.jcl": 3031.16,
+      "jcl/cobol-programming-course/CBL0011J.jcl": 3766.86,
+      "jcl/cobol-programming-course/CBL0012J.jcl": 2435.06,
+      "jcl/cobol-programming-course/CBL0013J.jcl": 3386.99,
+      "jcl/cobol-programming-course/CBL0014J.jcl": 3641.33,
+      "jcl/cobol-programming-course/CBL0033J.jcl": 3226.35,
+      "jcl/cobol-programming-course/CBL006AJ.jcl": 3729.57,
+      "jcl/cobol-programming-course/CBL0106J.jcl": 3176.2,
+      "jcl/cobol-programming-course/CBLDB21C.jcl": 2447.4,
+      "jcl/cobol-programming-course/CBLDB21R.jcl": 4164.56,
+      "jcl/cobol-programming-course/CBLDB22C.jcl": 3171.75,
+      "jcl/cobol-programming-course/CBLDB22R.jcl": 3370.62,
+      "jcl/cobol-programming-course/CBLDB23C.jcl": 3885.11,
+      "jcl/cobol-programming-course/CBLDB23R.jcl": 2406.38,
+      "jcl/cobol-programming-course/COBRUN.jcl": 3577.29,
+      "jcl/cobol-programming-course/CRETBL.jcl": 3669.35,
+      "jcl/cobol-programming-course/DB2CBL.jcl": 3181.07,
+      "jcl/cobol-programming-course/DB2JCL.jcl": 2206.69,
+      "jcl/cobol-programming-course/DB2SETUP.jcl": 2320.5,
+      "jcl/cobol-programming-course/DBRMLIB.jcl": 4017.13,
+      "jcl/cobol-programming-course/DEPTPAY.JCL": 2820.16,
+      "jcl/cobol-programming-course/DSNUPROC.jcl": 3982.18,
+      "jcl/cobol-programming-course/EMPPAY.JCL": 2669.13,
+      "jcl/cobol-programming-course/HELLO.jcl": 3021.11,
+      "jcl/cobol-programming-course/IGYWC.jcl": 2825.88,
+      "jcl/cobol-programming-course/IGYWCL.jcl": 3436.46,
+      "jcl/cobol-programming-course/IGYWCLG.jcl": 2935.67,
+      "jcl/cobol-programming-course/LOADTBL.jcl": 4011.16,
+      "jcl/cobol-programming-course/PAYROL00.jcl": 2563.43,
+      "jcl/cobol-programming-course/PAYROL0X.jcl": 4255.21,
+      "jcl/cobol-programming-course/SELTBL.jcl": 2097.61,
+      "jcl/cobol-programming-course/SRCHBINJ.jcl": 4019.33,
+      "jcl/cobol-programming-course/SRCHSERJ.jcl": 2460.52
     },
     "jcl/zopeneditor-sample": {
       "jcl/zopeneditor-sample/ALLOCATE.jcl": 5306.42,
@@ -2164,12 +2164,12 @@
       "json/SOURCES.md": -8863.26
     },
     "json/baseline": {
-      "json/baseline/control-package.json": 12189.07
+      "json/baseline/control-package.json": 12189.08
     },
     "json/kafka/message": {
-      "json/kafka/message/DescribeTransactionsResponse.json": 11256.14,
-      "json/kafka/message/SaslAuthenticateRequest.json": 11503.1,
-      "json/kafka/message/VoteRequest.json": 11508.29
+      "json/kafka/message/DescribeTransactionsResponse.json": 11256.15,
+      "json/kafka/message/SaslAuthenticateRequest.json": 11503.11,
+      "json/kafka/message/VoteRequest.json": 11508.3
     },
     "kotlin": {
       "kotlin/SOURCES.md": -5328.11
@@ -2290,49 +2290,49 @@
       "lua/SOURCES.md": 4296.47
     },
     "lua/cosmopolitan": {
-      "lua/cosmopolitan/all.lua": -2448.04,
-      "lua/cosmopolitan/api.lua": -3336.31,
-      "lua/cosmopolitan/attrib.lua": -2816.29,
-      "lua/cosmopolitan/big.lua": -4038.69,
-      "lua/cosmopolitan/binarytrees.lua": -2157.51,
-      "lua/cosmopolitan/bitwise.lua": -2401.07,
-      "lua/cosmopolitan/bwcoercion.lua": -3451.14,
-      "lua/cosmopolitan/call-lua-module.lua": -3229.7,
-      "lua/cosmopolitan/calls.lua": -3696.43,
-      "lua/cosmopolitan/closedsource.lua": -3653.75,
-      "lua/cosmopolitan/closure.lua": -3896.95,
-      "lua/cosmopolitan/code.lua": -3519.23,
-      "lua/cosmopolitan/constructs.lua": -3692.7,
-      "lua/cosmopolitan/coroutine.lua": -3101.93,
-      "lua/cosmopolitan/crashreport.lua": -3762.88,
-      "lua/cosmopolitan/cstack.lua": -3824.55,
-      "lua/cosmopolitan/db.lua": -2984.11,
-      "lua/cosmopolitan/errors.lua": -2441.65,
-      "lua/cosmopolitan/events.lua": -2574.55,
-      "lua/cosmopolitan/fetch.lua": -3943.67,
-      "lua/cosmopolitan/files.lua": -2806.16,
-      "lua/cosmopolitan/finger.lua": -2327.54,
-      "lua/cosmopolitan/gc.lua": -3321.52,
-      "lua/cosmopolitan/gengc.lua": -2837.82,
-      "lua/cosmopolitan/gensvg.lua": -1984.16,
-      "lua/cosmopolitan/goto.lua": -3971.5,
-      "lua/cosmopolitan/heavy.lua": -2190.13,
-      "lua/cosmopolitan/hitcounter.lua": -3030.92,
-      "lua/cosmopolitan/literals.lua": -2181.85,
-      "lua/cosmopolitan/locals.lua": -3564.22,
-      "lua/cosmopolitan/main.lua": -3641.32,
-      "lua/cosmopolitan/math.lua": -3220.63,
-      "lua/cosmopolitan/maxmind.lua": -3373.72,
-      "lua/cosmopolitan/mymodule.lua": -2180.59,
-      "lua/cosmopolitan/nextvar.lua": -2789.99,
-      "lua/cosmopolitan/opensource.lua": -1930.66,
-      "lua/cosmopolitan/pm.lua": -2346.72,
-      "lua/cosmopolitan/printpayload.lua": -4181.45,
-      "lua/cosmopolitan/redbean-form.lua": -2905.76,
-      "lua/cosmopolitan/sort.lua": -3132.78,
-      "lua/cosmopolitan/strings.lua": -3078.86,
-      "lua/cosmopolitan/tpack.lua": -2584.75,
-      "lua/cosmopolitan/tracegc.lua": -2544.83
+      "lua/cosmopolitan/all.lua": -2447.72,
+      "lua/cosmopolitan/api.lua": -3335.99,
+      "lua/cosmopolitan/attrib.lua": -2815.98,
+      "lua/cosmopolitan/big.lua": -4038.38,
+      "lua/cosmopolitan/binarytrees.lua": -2157.19,
+      "lua/cosmopolitan/bitwise.lua": -2400.76,
+      "lua/cosmopolitan/bwcoercion.lua": -3450.82,
+      "lua/cosmopolitan/call-lua-module.lua": -3229.39,
+      "lua/cosmopolitan/calls.lua": -3696.12,
+      "lua/cosmopolitan/closedsource.lua": -3653.43,
+      "lua/cosmopolitan/closure.lua": -3896.63,
+      "lua/cosmopolitan/code.lua": -3518.91,
+      "lua/cosmopolitan/constructs.lua": -3692.38,
+      "lua/cosmopolitan/coroutine.lua": -3101.61,
+      "lua/cosmopolitan/crashreport.lua": -3762.56,
+      "lua/cosmopolitan/cstack.lua": -3824.23,
+      "lua/cosmopolitan/db.lua": -2983.79,
+      "lua/cosmopolitan/errors.lua": -2441.33,
+      "lua/cosmopolitan/events.lua": -2574.23,
+      "lua/cosmopolitan/fetch.lua": -3943.35,
+      "lua/cosmopolitan/files.lua": -2805.85,
+      "lua/cosmopolitan/finger.lua": -2327.22,
+      "lua/cosmopolitan/gc.lua": -3321.2,
+      "lua/cosmopolitan/gengc.lua": -2837.51,
+      "lua/cosmopolitan/gensvg.lua": -1983.85,
+      "lua/cosmopolitan/goto.lua": -3971.19,
+      "lua/cosmopolitan/heavy.lua": -2189.82,
+      "lua/cosmopolitan/hitcounter.lua": -3030.6,
+      "lua/cosmopolitan/literals.lua": -2181.53,
+      "lua/cosmopolitan/locals.lua": -3563.91,
+      "lua/cosmopolitan/main.lua": -3641.01,
+      "lua/cosmopolitan/math.lua": -3220.31,
+      "lua/cosmopolitan/maxmind.lua": -3373.41,
+      "lua/cosmopolitan/mymodule.lua": -2180.27,
+      "lua/cosmopolitan/nextvar.lua": -2789.68,
+      "lua/cosmopolitan/opensource.lua": -1930.34,
+      "lua/cosmopolitan/pm.lua": -2346.4,
+      "lua/cosmopolitan/printpayload.lua": -4181.13,
+      "lua/cosmopolitan/redbean-form.lua": -2905.45,
+      "lua/cosmopolitan/sort.lua": -3132.46,
+      "lua/cosmopolitan/strings.lua": -3078.54,
+      "lua/cosmopolitan/tpack.lua": -2584.43,
+      "lua/cosmopolitan/tracegc.lua": -2544.51
     },
     "lua/darwin-xnu": {
       "lua/darwin-xnu/benchmark.lua": 6695.58,
@@ -2392,27 +2392,27 @@
       "lua/pandoc/writer-template.lua": 4328.21
     },
     "lua/redis": {
-      "lua/redis/COPYRIGHT": -3240.17,
-      "lua/redis/README": -2695.17,
-      "lua/redis/bisect.lua": -2270.82,
-      "lua/redis/cf.lua": -2401.75,
-      "lua/redis/echo.lua": -2161.63,
-      "lua/redis/env.lua": -3455.81,
-      "lua/redis/factorial.lua": -2920.72,
-      "lua/redis/fib.lua": -2390.4,
-      "lua/redis/fibfor.lua": -2159.63,
-      "lua/redis/globals.lua": -2513.77,
-      "lua/redis/hello.lua": -2169.14,
-      "lua/redis/life.lua": -2655.12,
-      "lua/redis/luac.lua": -2000.49,
-      "lua/redis/printf.lua": -3118.41,
-      "lua/redis/readonly.lua": -2790.45,
-      "lua/redis/sort.lua": -2891.32,
-      "lua/redis/strict.lua": -2629.13,
-      "lua/redis/table.lua": -3313.3,
-      "lua/redis/trace-calls.lua": -3174.17,
-      "lua/redis/trace-globals.lua": -2825.7,
-      "lua/redis/xd.lua": -3233.52
+      "lua/redis/COPYRIGHT": -3239.96,
+      "lua/redis/README": -2694.96,
+      "lua/redis/bisect.lua": -2270.61,
+      "lua/redis/cf.lua": -2401.55,
+      "lua/redis/echo.lua": -2161.42,
+      "lua/redis/env.lua": -3455.6,
+      "lua/redis/factorial.lua": -2920.51,
+      "lua/redis/fib.lua": -2390.2,
+      "lua/redis/fibfor.lua": -2159.42,
+      "lua/redis/globals.lua": -2513.56,
+      "lua/redis/hello.lua": -2168.93,
+      "lua/redis/life.lua": -2654.91,
+      "lua/redis/luac.lua": -2000.29,
+      "lua/redis/printf.lua": -3118.2,
+      "lua/redis/readonly.lua": -2790.24,
+      "lua/redis/sort.lua": -2891.11,
+      "lua/redis/strict.lua": -2628.93,
+      "lua/redis/table.lua": -3313.1,
+      "lua/redis/trace-calls.lua": -3173.96,
+      "lua/redis/trace-globals.lua": -2825.5,
+      "lua/redis/xd.lua": -3233.31
     },
     "m4": {
       "m4/SOURCES.md": -10155.82
@@ -2422,11 +2422,11 @@
       "m4/curl/configure.ac": 8324.23
     },
     "m4/curl/m4": {
-      "m4/curl/m4/curl-confopts.m4": -11155.94,
-      "m4/curl/m4/curl-mbedtls.m4": -10871.54,
-      "m4/curl/m4/curl-sysconfig.m4": -11398.03,
-      "m4/curl/m4/xc-am-iface.m4": -10662.68,
-      "m4/curl/m4/zz40-xc-ovr.m4": -10929.17
+      "m4/curl/m4/curl-confopts.m4": -11156.06,
+      "m4/curl/m4/curl-mbedtls.m4": -10871.66,
+      "m4/curl/m4/curl-sysconfig.m4": -11398.14,
+      "m4/curl/m4/xc-am-iface.m4": -10662.79,
+      "m4/curl/m4/zz40-xc-ovr.m4": -10929.28
     },
     "m4/gnucobol": {
       "m4/gnucobol/COPYING": -5581.55,
@@ -2453,13 +2453,13 @@
       "matlab/SOURCES.md": 2557.23
     },
     "matlab/eeglab": {
-      "matlab/eeglab/README.md": -9706.99,
-      "matlab/eeglab/eeg_eval.m": -10083.68,
-      "matlab/eeglab/eeglab.m": -9597.87,
-      "matlab/eeglab/eegobj.m": -9118.49,
-      "matlab/eeglab/pop_loadset.m": -9306.07,
-      "matlab/eeglab/runica.m": -9921.32,
-      "matlab/eeglab/supergui.m": -9589.62
+      "matlab/eeglab/README.md": -9707.1,
+      "matlab/eeglab/eeg_eval.m": -10083.78,
+      "matlab/eeglab/eeglab.m": -9597.98,
+      "matlab/eeglab/eegobj.m": -9118.59,
+      "matlab/eeglab/pop_loadset.m": -9306.17,
+      "matlab/eeglab/runica.m": -9921.42,
+      "matlab/eeglab/supergui.m": -9589.73
     },
     "mlir": {
       "mlir/SOURCES.md": -10720.24
@@ -2469,15 +2469,15 @@
       "mlir/tensorflow/compiler/mlir/tfrt/tests/xla_rewrite.mlir": 9634.84
     },
     "mlir/tensorflow/compiler/mlir/tfrt/tests/mlrt": {
-      "mlir/tensorflow/compiler/mlir/tfrt/tests/mlrt/tpu_conversions.mlir": -5958.54
+      "mlir/tensorflow/compiler/mlir/tfrt/tests/mlrt/tpu_conversions.mlir": -5958.2
     },
     "nix": {
       "nix/SOURCES.md": -1561.02
     },
     "nix/bun": {
-      "nix/bun/LICENSE.md": -10725.72,
-      "nix/bun/flake.nix": -10764.39,
-      "nix/bun/shell.nix": -10981.51
+      "nix/bun/LICENSE.md": -10725.83,
+      "nix/bun/flake.nix": -10764.5,
+      "nix/bun/shell.nix": -10981.63
     },
     "nix/ghostty": {
       "nix/ghostty/build.zig": 8475.34,
@@ -2497,11 +2497,11 @@
       "objective-c/worldwideweb/TcpAccess.m": -5653.69
     },
     "perl": {
-      "perl/SOURCES.md": 713.14
+      "perl/SOURCES.md": 713.11
     },
     "perl/ack3_tests": {
-      "perl/ack3_tests/LICENSE.md": -3252.84,
-      "perl/ack3_tests/file-permission.t": -3027.37
+      "perl/ack3_tests/LICENSE.md": -3252.66,
+      "perl/ack3_tests/file-permission.t": -3027.18
     },
     "perl/bugzilla": {
       "perl/bugzilla/Auth.pm": 8233.95,
@@ -2511,19 +2511,19 @@
       "perl/bugzilla/Requirements.pm": 9114.21
     },
     "perl/exiftool": {
-      "perl/exiftool/ExifTool.pm": 3162.11,
-      "perl/exiftool/META.json": 3388.86,
-      "perl/exiftool/Makefile.PL": 2599.26,
-      "perl/exiftool/README": 3624.09,
-      "perl/exiftool/RandomAccess.pm": 3198.16,
-      "perl/exiftool/exiftool": 2840.28
+      "perl/exiftool/ExifTool.pm": 3162.09,
+      "perl/exiftool/META.json": 3388.83,
+      "perl/exiftool/Makefile.PL": 2599.23,
+      "perl/exiftool/README": 3624.07,
+      "perl/exiftool/RandomAccess.pm": 3198.14,
+      "perl/exiftool/exiftool": 2840.26
     },
     "perl/mojo": {
-      "perl/mojo/IOLoop.pm": -9710.44,
-      "perl/mojo/Makefile.PL": -10221.35,
-      "perl/mojo/Promise.pm": -10011.38,
-      "perl/mojo/Template.pm": -9706.54,
-      "perl/mojo/WebSocket.pm": -9399.59
+      "perl/mojo/IOLoop.pm": -9710.55,
+      "perl/mojo/Makefile.PL": -10221.46,
+      "perl/mojo/Promise.pm": -10011.49,
+      "perl/mojo/Template.pm": -9706.65,
+      "perl/mojo/WebSocket.pm": -9399.7
     },
     "perl/spamassassin": {
       "perl/spamassassin/AsyncLoop.pm": 7507.68,
@@ -2536,7 +2536,7 @@
       "perl/spamassassin/SpamAssassin.pm": 7346.06
     },
     "php": {
-      "php/SOURCES.md": -10782.11
+      "php/SOURCES.md": -10782.21
     },
     "php/guzzle": {
       "php/guzzle/Client.php": 8706.29,
@@ -2558,8 +2558,8 @@
       "php/laravel_core/Router.php": -7960.08
     },
     "php/laravel_validation_rules": {
-      "php/laravel_validation_rules/Can.php": 1755.73,
-      "php/laravel_validation_rules/LICENSE.md": 1497.93
+      "php/laravel_validation_rules/Can.php": 1755.72,
+      "php/laravel_validation_rules/LICENSE.md": 1497.92
     },
     "php/magento2": {
       "php/magento2/AbstractBlock.php": -6485.63,
@@ -2572,26 +2572,26 @@
       "php/magento2/ObjectManager.php": -5707.47
     },
     "php/symfony": {
-      "php/symfony/Application.php": -2532.88,
-      "php/symfony/ContainerBuilder.php": -2913.78,
-      "php/symfony/EventDispatcher.php": -3124.77,
-      "php/symfony/HttpKernel.php": -2088.85,
-      "php/symfony/Parser.php": -2274.87,
-      "php/symfony/Request.php": -2620.21,
-      "php/symfony/Router.php": -2711.31
+      "php/symfony/Application.php": -2532.71,
+      "php/symfony/ContainerBuilder.php": -2913.6,
+      "php/symfony/EventDispatcher.php": -3124.59,
+      "php/symfony/HttpKernel.php": -2088.68,
+      "php/symfony/Parser.php": -2274.7,
+      "php/symfony/Request.php": -2620.04,
+      "php/symfony/Router.php": -2711.14
     },
     "php/symfony_emoji_data": {
-      "php/symfony_emoji_data/emoji-ccp.php": -3991.83
+      "php/symfony_emoji_data/emoji-ccp.php": -3991.62
     },
     "php/wordpress": {
       "php/wordpress/admin-ajax.php": 5790.44,
-      "php/wordpress/class-wp-query.php": 5586.92,
+      "php/wordpress/class-wp-query.php": 5586.91,
       "php/wordpress/formatting.php": 5975.08,
-      "php/wordpress/functions.php": 5896.54,
-      "php/wordpress/license.txt": 5666.5,
-      "php/wordpress/plugin.php": 5375.97,
-      "php/wordpress/wp-login.php": 6226.57,
-      "php/wordpress/wp-settings.php": 6366.71
+      "php/wordpress/functions.php": 5896.53,
+      "php/wordpress/license.txt": 5666.49,
+      "php/wordpress/plugin.php": 5375.96,
+      "php/wordpress/wp-login.php": 6226.56,
+      "php/wordpress/wp-settings.php": 6366.7
     },
     "plaintext": {
       "plaintext/SOURCES.md": 228.6
@@ -2613,30 +2613,30 @@
       "plaintext/opencv/include/CMakeLists.txt": 5285.36
     },
     "pli": {
-      "pli/SOURCES.md": 12228.98
+      "pli/SOURCES.md": 12228.99
     },
     "pli/dsf_cics_admin": {
-      "pli/dsf_cics_admin/LICENSE.md": -1368.23,
-      "pli/dsf_cics_admin/PROVENANCE.md": -1453.72,
-      "pli/dsf_cics_admin/R0010301.pli": -1613.61,
-      "pli/dsf_cics_admin/R0010420.pli": -1759.51,
-      "pli/dsf_cics_admin/R0010421.pli": -1012.84,
-      "pli/dsf_cics_admin/R0010422.pli": -1885.27,
-      "pli/dsf_cics_admin/R0010423.pli": -1593.12,
-      "pli/dsf_cics_admin/R0010424.pli": -2111.97,
-      "pli/dsf_cics_admin/R0010425.pli": -1318.13,
-      "pli/dsf_cics_admin/R0010426.pli": -1887.45,
-      "pli/dsf_cics_admin/R0010427.pli": -2167.66,
-      "pli/dsf_cics_admin/R001TK62.pli": -1188.07
+      "pli/dsf_cics_admin/LICENSE.md": -1368.1,
+      "pli/dsf_cics_admin/PROVENANCE.md": -1453.59,
+      "pli/dsf_cics_admin/R0010301.pli": -1613.48,
+      "pli/dsf_cics_admin/R0010420.pli": -1759.39,
+      "pli/dsf_cics_admin/R0010421.pli": -1012.73,
+      "pli/dsf_cics_admin/R0010422.pli": -1885.14,
+      "pli/dsf_cics_admin/R0010423.pli": -1592.99,
+      "pli/dsf_cics_admin/R0010424.pli": -2111.84,
+      "pli/dsf_cics_admin/R0010425.pli": -1317.96,
+      "pli/dsf_cics_admin/R0010426.pli": -1887.33,
+      "pli/dsf_cics_admin/R0010427.pli": -2167.54,
+      "pli/dsf_cics_admin/R001TK62.pli": -1187.94
     },
     "pli/zopeneditor_sample": {
       "pli/zopeneditor_sample/PROVENANCE.md": -6862.83,
-      "pli/zopeneditor_sample/PSAM1.pli": -7076.15,
-      "pli/zopeneditor_sample/PSAM1LIB.pli": -7336.96,
-      "pli/zopeneditor_sample/PSAM2.pli": -7058.08
+      "pli/zopeneditor_sample/PSAM1.pli": -7076.13,
+      "pli/zopeneditor_sample/PSAM1LIB.pli": -7336.92,
+      "pli/zopeneditor_sample/PSAM2.pli": -7058.07
     },
     "powershell": {
-      "powershell/SOURCES.md": -1214.89
+      "powershell/SOURCES.md": -1214.83
     },
     "powershell/PowerToys": {
       "powershell/PowerToys/Build-Awake.ps1": -4613.83,
@@ -2776,27 +2776,27 @@
       "powershell/runtime/update-machine-certs.ps1": -2527.97
     },
     "proto": {
-      "proto/SOURCES.md": -10954.42
+      "proto/SOURCES.md": -10954.34
     },
     "proto/tensorflow/framework": {
-      "proto/tensorflow/framework/dataset.proto": -6399.79,
-      "proto/tensorflow/framework/graph.proto": -6176.98,
-      "proto/tensorflow/framework/tensor.proto": -6198.09
+      "proto/tensorflow/framework/dataset.proto": -6399.41,
+      "proto/tensorflow/framework/graph.proto": -6176.59,
+      "proto/tensorflow/framework/tensor.proto": -6197.7
     },
     "protobuf": {
-      "protobuf/SOURCES.md": 2031.39
+      "protobuf/SOURCES.md": 2031.38
     },
     "protobuf/baseline": {
-      "protobuf/baseline/control.proto": 6512.78
+      "protobuf/baseline/control.proto": 6512.77
     },
     "python": {
-      "python/SOURCES.md": 12975.1
+      "python/SOURCES.md": 12975.11
     },
     "python/airflow": {
-      "python/airflow/NOTICE": -9640.99,
-      "python/airflow/dag.py": -9882.2,
-      "python/airflow/s3.py": -10221.93,
-      "python/airflow/scheduler_job_runner.py": -9951.32
+      "python/airflow/NOTICE": -9640.91,
+      "python/airflow/dag.py": -9882.12,
+      "python/airflow/s3.py": -10221.85,
+      "python/airflow/scheduler_job_runner.py": -9951.23
     },
     "python/airflow_ai_providers": {
       "python/airflow_ai_providers/NOTICE": 0.99,
@@ -2810,21 +2810,21 @@
       "python/airflow_opsgenie_tests/test_opsgenie.py": -3180.36
     },
     "python/cython": {
-      "python/cython/COPYING.txt": 11828.98,
-      "python/cython/CodeGeneration.py": 11677.7,
-      "python/cython/LICENSE.txt": 10862.69,
-      "python/cython/MemoryView.pxd": 11467.72,
-      "python/cython/MemoryView.pyx": 11121.11,
-      "python/cython/Nodes.py": 11430.71
+      "python/cython/COPYING.txt": 11828.99,
+      "python/cython/CodeGeneration.py": 11677.71,
+      "python/cython/LICENSE.txt": 10862.7,
+      "python/cython/MemoryView.pxd": 11467.73,
+      "python/cython/MemoryView.pyx": 11121.12,
+      "python/cython/Nodes.py": 11430.72
     },
     "python/django_db_tests": {
       "python/django_db_tests/test_iterator.py": -1954.69,
       "python/django_db_tests/test_utils.py": -1664.63
     },
     "python/fastapi": {
-      "python/fastapi/CONTRIBUTING.md": 6533.83,
-      "python/fastapi/README.md": 6735.29,
-      "python/fastapi/SECURITY.md": 6679.1
+      "python/fastapi/CONTRIBUTING.md": 6533.82,
+      "python/fastapi/README.md": 6735.28,
+      "python/fastapi/SECURITY.md": 6679.09
     },
     "python/fastapi/fastapi": {
       "python/fastapi/fastapi/__init__.py": 4560.35,
@@ -3069,34 +3069,34 @@
       "python/homeassistant_ble_integrations/utils.py": -7365.75
     },
     "python/langchain_agents": {
-      "python/langchain_agents/langchain_agents_middleware_model_fallback.py": -484.54,
-      "python/langchain_agents/langchain_agents_middleware_tool_emulator.py": -254.18,
-      "python/langchain_agents/tests_integration_tests_chat_models_test_base.py": -198.14
+      "python/langchain_agents/langchain_agents_middleware_model_fallback.py": -484.53,
+      "python/langchain_agents/langchain_agents_middleware_tool_emulator.py": -254.17,
+      "python/langchain_agents/tests_integration_tests_chat_models_test_base.py": -198.13
     },
     "python/micropython_usb_tls": {
-      "python/micropython_usb_tls/ssl_verify_callback.py": -11158.4,
-      "python/micropython_usb_tls/tls_dtls.py": -11198.33,
-      "python/micropython_usb_tls/usb_simple_host_pyusb.py": -11450.19
+      "python/micropython_usb_tls/ssl_verify_callback.py": -11158.52,
+      "python/micropython_usb_tls/tls_dtls.py": -11198.45,
+      "python/micropython_usb_tls/usb_simple_host_pyusb.py": -11450.31
     },
     "python/numpy": {
-      "python/numpy/LICENSE.txt": 468.87,
-      "python/numpy/__init__.py": 1229.21,
-      "python/numpy/_linalg.py": 1666.14,
-      "python/numpy/cfuncs.py": 1144.57,
-      "python/numpy/core.py": 1036.6,
-      "python/numpy/crackfortran.py": 1293.03,
-      "python/numpy/cversions.txt": 1982.62,
-      "python/numpy/func2subr.py": 1791.49,
-      "python/numpy/genapi.py": 734.67,
-      "python/numpy/generate_numpy_api.py": 1957.47,
-      "python/numpy/generate_ufunc_api.py": 1591.39,
-      "python/numpy/generate_umath_doc.py": 638.68,
-      "python/numpy/lapack_litemodule.c": 659.82,
-      "python/numpy/numpy_api.py": 864.01,
-      "python/numpy/symbolic.py": 1350.4,
-      "python/numpy/testutils.py": 1047.65,
-      "python/numpy/ufunc_docstrings.py": 1557.02,
-      "python/numpy/verify_c_api_version.py": 2042.72
+      "python/numpy/LICENSE.txt": 468.85,
+      "python/numpy/__init__.py": 1229.2,
+      "python/numpy/_linalg.py": 1666.13,
+      "python/numpy/cfuncs.py": 1144.55,
+      "python/numpy/core.py": 1036.59,
+      "python/numpy/crackfortran.py": 1293.01,
+      "python/numpy/cversions.txt": 1982.61,
+      "python/numpy/func2subr.py": 1791.48,
+      "python/numpy/genapi.py": 734.66,
+      "python/numpy/generate_numpy_api.py": 1957.45,
+      "python/numpy/generate_ufunc_api.py": 1591.37,
+      "python/numpy/generate_umath_doc.py": 638.66,
+      "python/numpy/lapack_litemodule.c": 659.8,
+      "python/numpy/numpy_api.py": 863.99,
+      "python/numpy/symbolic.py": 1350.39,
+      "python/numpy/testutils.py": 1047.63,
+      "python/numpy/ufunc_docstrings.py": 1557.0,
+      "python/numpy/verify_c_api_version.py": 2042.7
     },
     "python/opencv_dnn_conversion": {
       "python/opencv_dnn_conversion/py_to_py_resnet50_onnx.py": -8015.59
@@ -3106,28 +3106,28 @@
       "python/pip_vendored_requests/packages.py": 10401.39
     },
     "python/scikit-learn_examples": {
-      "python/scikit-learn_examples/COPYING": 2925.08,
-      "python/scikit-learn_examples/linear_model_plot_nnls.py": 2880.54,
-      "python/scikit-learn_examples/svm_plot_custom_kernel.py": 2735.42
+      "python/scikit-learn_examples/COPYING": 2925.06,
+      "python/scikit-learn_examples/linear_model_plot_nnls.py": 2880.52,
+      "python/scikit-learn_examples/svm_plot_custom_kernel.py": 2735.4
     },
     "python/tensorflow_ml_ops": {
-      "python/tensorflow_ml_ops/core_tfrt_saved_model_tests_gen_matmul_gpu.py": 682.07,
-      "python/tensorflow_ml_ops/lite_testing_op_tests_einsum.py": 932.13
+      "python/tensorflow_ml_ops/core_tfrt_saved_model_tests_gen_matmul_gpu.py": 682.03,
+      "python/tensorflow_ml_ops/lite_testing_op_tests_einsum.py": 932.09
     },
     "python/tensorflow_model_fixtures": {
-      "python/tensorflow_model_fixtures/lite_testdata_multi_add.pb": 8348.77,
-      "python/tensorflow_model_fixtures/python_compiler_mlir_multi_add.tflite": 8017.11
+      "python/tensorflow_model_fixtures/lite_testdata_multi_add.pb": 8348.76,
+      "python/tensorflow_model_fixtures/python_compiler_mlir_multi_add.tflite": 8017.1
     },
     "python/thealgorithms_machine_learning": {
-      "python/thealgorithms_machine_learning/LICENSE.md": -2242.97,
-      "python/thealgorithms_machine_learning/logistic_regression.py": -2513.62,
-      "python/thealgorithms_machine_learning/lstm_lstm_prediction.py": -2271.53
+      "python/thealgorithms_machine_learning/LICENSE.md": -2242.84,
+      "python/thealgorithms_machine_learning/logistic_regression.py": -2513.48,
+      "python/thealgorithms_machine_learning/lstm_lstm_prediction.py": -2271.39
     },
     "python/twisted": {
-      "python/twisted/defer.py": 1736.98,
-      "python/twisted/http.py": 2058.42,
-      "python/twisted/reflect.py": 2342.88,
-      "python/twisted/transport.py": 2069.88
+      "python/twisted/defer.py": 1736.97,
+      "python/twisted/http.py": 2058.41,
+      "python/twisted/reflect.py": 2342.87,
+      "python/twisted/transport.py": 2069.87
     },
     "python/wtfpython": {
       "python/wtfpython/2_tricky_strings.py": -9115.53,
@@ -3142,7 +3142,7 @@
       "rexx/SOURCES.md": 9396.02
     },
     "rexx/hercules_390_hyperion": {
-      "rexx/hercules_390_hyperion/COPYRIGHT": 11565.42,
+      "rexx/hercules_390_hyperion/COPYRIGHT": 11565.43,
       "rexx/hercules_390_hyperion/sample.rexx": 11815.49
     },
     "rexx/hercules_hyperion": {
@@ -3155,56 +3155,56 @@
       "rexx/hercules_hyperion/hrecurs.rexx": 8213.98
     },
     "rexx/ibm_z_zos": {
-      "rexx/ibm_z_zos/LICENSE.md": -8438.21,
-      "rexx/ibm_z_zos/bpxget.rexx": -8743.29,
-      "rexx/ibm_z_zos/bpxput.rexx": -8388.76,
-      "rexx/ibm_z_zos/bpxwtabs.rexx": -9633.12,
-      "rexx/ibm_z_zos/colonies.rexx": -8766.71,
-      "rexx/ibm_z_zos/devinfo.rexx": -8970.24,
-      "rexx/ibm_z_zos/domchk.rexx": -9260.94,
-      "rexx/ibm_z_zos/ftpget.rexx": -8290.38,
-      "rexx/ibm_z_zos/i.rexx": -8382.16,
-      "rexx/ibm_z_zos/jobwait.rexx": -9078.66,
-      "rexx/ibm_z_zos/rangelks.rexx": -8663.0,
-      "rexx/ibm_z_zos/rangelks2.rexx": -8552.06,
-      "rexx/ibm_z_zos/which.rexx": -9621.06,
-      "rexx/ibm_z_zos/wjsacl.rexx": -9481.86,
-      "rexx/ibm_z_zos/wjscrck.rexx": -9125.81,
-      "rexx/ibm_z_zos/wjsdvino.rexx": -9834.11,
-      "rexx/ibm_z_zos/wjssh.rexx": -9435.61,
-      "rexx/ibm_z_zos/wjssmfr.rexx": -9312.53,
-      "rexx/ibm_z_zos/wjsst92.rexx": -8990.7
+      "rexx/ibm_z_zos/LICENSE.md": -8438.34,
+      "rexx/ibm_z_zos/bpxget.rexx": -8743.42,
+      "rexx/ibm_z_zos/bpxput.rexx": -8388.88,
+      "rexx/ibm_z_zos/bpxwtabs.rexx": -9633.25,
+      "rexx/ibm_z_zos/colonies.rexx": -8766.84,
+      "rexx/ibm_z_zos/devinfo.rexx": -8970.37,
+      "rexx/ibm_z_zos/domchk.rexx": -9261.07,
+      "rexx/ibm_z_zos/ftpget.rexx": -8290.5,
+      "rexx/ibm_z_zos/i.rexx": -8382.29,
+      "rexx/ibm_z_zos/jobwait.rexx": -9078.79,
+      "rexx/ibm_z_zos/rangelks.rexx": -8663.13,
+      "rexx/ibm_z_zos/rangelks2.rexx": -8552.19,
+      "rexx/ibm_z_zos/which.rexx": -9621.19,
+      "rexx/ibm_z_zos/wjsacl.rexx": -9481.99,
+      "rexx/ibm_z_zos/wjscrck.rexx": -9125.94,
+      "rexx/ibm_z_zos/wjsdvino.rexx": -9834.24,
+      "rexx/ibm_z_zos/wjssh.rexx": -9435.74,
+      "rexx/ibm_z_zos/wjssmfr.rexx": -9312.66,
+      "rexx/ibm_z_zos/wjsst92.rexx": -8990.83
     },
     "ruby": {
-      "ruby/SOURCES.md": -3426.96
+      "ruby/SOURCES.md": -3426.78
     },
     "ruby/rails": {
       "ruby/rails/MIT-LICENSE": 11463.49,
-      "ruby/rails/Rakefile": 11949.81,
-      "ruby/rails/base.rb": 11201.72,
-      "ruby/rails/blob.rb": 11773.92,
-      "ruby/rails/generator.rb": 11663.17,
-      "ruby/rails/inbound_emails_controller.rb": 12115.07,
-      "ruby/rails/metal.rb": 11446.49,
-      "ruby/rails/routing.rb": 11589.3
+      "ruby/rails/Rakefile": 11949.82,
+      "ruby/rails/base.rb": 11201.73,
+      "ruby/rails/blob.rb": 11773.93,
+      "ruby/rails/generator.rb": 11663.18,
+      "ruby/rails/inbound_emails_controller.rb": 12115.08,
+      "ruby/rails/metal.rb": 11446.5,
+      "ruby/rails/routing.rb": 11589.31
     },
     "ruby/rails_http_token_auth": {
       "ruby/rails_http_token_auth/MIT-LICENSE": 9010.47,
       "ruby/rails_http_token_auth/http_token_authentication_test.rb": 9256.46
     },
     "rust": {
-      "rust/SOURCES.md": -11609.12
+      "rust/SOURCES.md": -11609.23
     },
     "rust/bevy": {
-      "rust/bevy/LICENSE-APACHE": 7189.3,
-      "rust/bevy/LICENSE-MIT": 8003.79,
-      "rust/bevy/bevy_ecs_macros.rs": 7170.67,
-      "rust/bevy/bevy_ecs_query.rs": 7531.11,
-      "rust/bevy/bevy_ecs_table.rs": 6992.68,
-      "rust/bevy/bevy_ecs_world.rs": 7529.24,
-      "rust/bevy/bevy_reflect_path.rs": 7919.76,
-      "rust/bevy/bevy_render_phase.rs": 7292.42,
-      "rust/bevy/bevy_schedule_graph.rs": 7727.09
+      "rust/bevy/LICENSE-APACHE": 7189.29,
+      "rust/bevy/LICENSE-MIT": 8003.78,
+      "rust/bevy/bevy_ecs_macros.rs": 7170.66,
+      "rust/bevy/bevy_ecs_query.rs": 7531.1,
+      "rust/bevy/bevy_ecs_table.rs": 6992.67,
+      "rust/bevy/bevy_ecs_world.rs": 7529.23,
+      "rust/bevy/bevy_reflect_path.rs": 7919.75,
+      "rust/bevy/bevy_render_phase.rs": 7292.41,
+      "rust/bevy/bevy_schedule_graph.rs": 7727.08
     },
     "rust/bevy_asset_examples": {
       "rust/bevy_asset_examples/LICENSE-APACHE": 4690.23,
@@ -3213,12 +3213,12 @@
       "rust/bevy_asset_examples/rotation.rs": 4707.28
     },
     "rust/holylang": {
-      "rust/holylang/ast.rs": 6971.22,
-      "rust/holylang/compile.rs": 6163.07,
-      "rust/holylang/error.rs": 7070.28,
-      "rust/holylang/main.rs": 6501.5,
-      "rust/holylang/parser.rs": 6408.88,
-      "rust/holylang/semantic.rs": 6657.8,
+      "rust/holylang/ast.rs": 6971.21,
+      "rust/holylang/compile.rs": 6163.06,
+      "rust/holylang/error.rs": 7070.27,
+      "rust/holylang/main.rs": 6501.49,
+      "rust/holylang/parser.rs": 6408.87,
+      "rust/holylang/semantic.rs": 6657.79,
       "rust/holylang/transpiler.rs": 6745.59
     },
     "rust/serde": {
@@ -3233,49 +3233,49 @@
       "rust/serde/test_annotations.rs": 8309.11
     },
     "rust/syn": {
-      "rust/syn/LICENSE-APACHE": -10662.16,
-      "rust/syn/bigint.rs": -10814.35,
-      "rust/syn/buffer.rs": -10404.71,
-      "rust/syn/classify.rs": -10094.92,
-      "rust/syn/custom_keyword.rs": -9894.77,
-      "rust/syn/custom_punctuation.rs": -10487.18,
-      "rust/syn/data.rs": -10655.49,
-      "rust/syn/derive.rs": -10300.68
+      "rust/syn/LICENSE-APACHE": -10662.28,
+      "rust/syn/bigint.rs": -10814.48,
+      "rust/syn/buffer.rs": -10404.83,
+      "rust/syn/classify.rs": -10095.04,
+      "rust/syn/custom_keyword.rs": -9894.9,
+      "rust/syn/custom_punctuation.rs": -10487.3,
+      "rust/syn/data.rs": -10655.62,
+      "rust/syn/derive.rs": -10300.8
     },
     "rust/tokio": {
-      "rust/tokio/addr_of.rs": 9686.8,
-      "rust/tokio/block_on.rs": 10492.69,
-      "rust/tokio/blocking.rs": 9995.36,
-      "rust/tokio/builder.rs": 10042.96,
-      "rust/tokio/config.rs": 10857.39,
-      "rust/tokio/fuzz.rs": 10554.79,
-      "rust/tokio/interval.rs": 9784.08,
-      "rust/tokio/lib.rs": 10711.06,
-      "rust/tokio/maybe_done.rs": 10124.04,
-      "rust/tokio/tests.rs": 10558.9,
-      "rust/tokio/tokio_mpsc_bounded.rs": 10289.66,
-      "rust/tokio/tokio_named_pipe.rs": 10270.56
+      "rust/tokio/addr_of.rs": 9686.81,
+      "rust/tokio/block_on.rs": 10492.7,
+      "rust/tokio/blocking.rs": 9995.37,
+      "rust/tokio/builder.rs": 10042.97,
+      "rust/tokio/config.rs": 10857.4,
+      "rust/tokio/fuzz.rs": 10554.8,
+      "rust/tokio/interval.rs": 9784.09,
+      "rust/tokio/lib.rs": 10711.07,
+      "rust/tokio/maybe_done.rs": 10124.05,
+      "rust/tokio/tests.rs": 10558.91,
+      "rust/tokio/tokio_mpsc_bounded.rs": 10289.67,
+      "rust/tokio/tokio_named_pipe.rs": 10270.57
     },
     "rust/tokio_util_rand": {
-      "rust/tokio_util_rand/rand.rs": 12869.29
+      "rust/tokio_util_rand/rand.rs": 12869.3
     },
     "rust/wasmtime": {
-      "rust/wasmtime/wasmtime_component_macro.rs": -1044.52,
-      "rust/wasmtime/wasmtime_instance.rs": -1289.4,
-      "rust/wasmtime/wasmtime_isle_parser.rs": -1666.75,
-      "rust/wasmtime/wasmtime_pulley_interp.rs": -1356.9
+      "rust/wasmtime/wasmtime_component_macro.rs": -1044.43,
+      "rust/wasmtime/wasmtime_instance.rs": -1289.31,
+      "rust/wasmtime/wasmtime_isle_parser.rs": -1666.66,
+      "rust/wasmtime/wasmtime_pulley_interp.rs": -1356.81
     },
     "scala": {
-      "scala/SOURCES.md": 4122.98
+      "scala/SOURCES.md": 4122.96
     },
     "scala/kafka": {
-      "scala/kafka/Kafka.scala": 10288.58,
-      "scala/kafka/KafkaApis.scala": 10413.35,
-      "scala/kafka/KafkaRaftManager.scala": 10868.57,
-      "scala/kafka/LogManager.scala": 10732.08,
-      "scala/kafka/Partition.scala": 10464.42,
-      "scala/kafka/ReplicaManager.scala": 10104.06,
-      "scala/kafka/SocketServer.scala": 9884.67
+      "scala/kafka/Kafka.scala": 10288.59,
+      "scala/kafka/KafkaApis.scala": 10413.36,
+      "scala/kafka/KafkaRaftManager.scala": 10868.58,
+      "scala/kafka/LogManager.scala": 10732.09,
+      "scala/kafka/Partition.scala": 10464.43,
+      "scala/kafka/ReplicaManager.scala": 10104.07,
+      "scala/kafka/SocketServer.scala": 9884.68
     },
     "scheme": {
       "scheme/SOURCES.md": 12398.53
@@ -3290,30 +3290,30 @@
       "scheme/racket/thread.rkt": 4483.7
     },
     "shell": {
-      "shell/SOURCES.md": -477.52
+      "shell/SOURCES.md": -477.5
     },
     "shell/ansible": {
       "shell/ansible/COPYING": 9853.49,
-      "shell/ansible/aggregate-coverage.sh": 10223.05,
-      "shell/ansible/alpine.sh": 10247.69,
-      "shell/ansible/ansible-console__runme.sh": 10537.32,
-      "shell/ansible/ansible-doc__runme.sh": 10342.17,
-      "shell/ansible/ansible-galaxy__runme.sh": 10115.57,
-      "shell/ansible/ansible-inventory__runme.sh": 9767.05,
-      "shell/ansible/ansible-playbook-callbacks__runme.sh": 10718.3,
-      "shell/ansible/ansible-pull__runme.sh": 10337.14,
+      "shell/ansible/aggregate-coverage.sh": 10223.06,
+      "shell/ansible/alpine.sh": 10247.7,
+      "shell/ansible/ansible-console__runme.sh": 10537.33,
+      "shell/ansible/ansible-doc__runme.sh": 10342.18,
+      "shell/ansible/ansible-galaxy__runme.sh": 10115.58,
+      "shell/ansible/ansible-inventory__runme.sh": 9767.06,
+      "shell/ansible/ansible-playbook-callbacks__runme.sh": 10718.31,
+      "shell/ansible/ansible-pull__runme.sh": 10337.15,
       "shell/ansible/ansible-test-collection-script-dependencies__runme.sh": 10261.01,
       "shell/ansible/ansible-test-config-invalid__runme.sh": 9940.24,
-      "shell/ansible/ansible-test-config__runme.sh": 11047.0,
-      "shell/ansible/ansible-test-container__runme.sh": 10864.18,
-      "shell/ansible/ansible-test-coverage-windows__runme.sh": 10567.17,
-      "shell/ansible/ansible-test-coverage__runme.sh": 10128.98,
-      "shell/ansible/ansible-test-debugging-env__runme.sh": 10922.42,
-      "shell/ansible/hello__runme.sh": 9571.02,
-      "shell/ansible/module_common_regex_regression.sh": 9819.63,
-      "shell/ansible/runme.sh": 10857.26,
-      "shell/ansible/test__runme.sh": 9867.72,
-      "shell/ansible/windows.sh": 10633.22
+      "shell/ansible/ansible-test-config__runme.sh": 11047.01,
+      "shell/ansible/ansible-test-container__runme.sh": 10864.19,
+      "shell/ansible/ansible-test-coverage-windows__runme.sh": 10567.18,
+      "shell/ansible/ansible-test-coverage__runme.sh": 10128.99,
+      "shell/ansible/ansible-test-debugging-env__runme.sh": 10922.43,
+      "shell/ansible/hello__runme.sh": 9571.03,
+      "shell/ansible/module_common_regex_regression.sh": 9819.64,
+      "shell/ansible/runme.sh": 10857.27,
+      "shell/ansible/test__runme.sh": 9867.73,
+      "shell/ansible/windows.sh": 10633.23
     },
     "shell/brew": {
       "shell/brew/Dockerfile": -6207.99,
@@ -3352,25 +3352,25 @@
       "shell/curl/typos.sh": -2189.1
     },
     "shell/darwin-xnu": {
-      "shell/darwin-xnu/MPMMtest_run.sh": 10626.4,
-      "shell/darwin-xnu/generate_combined_symbolsets_plist.sh": 9947.04,
-      "shell/darwin-xnu/generate_linker_aliases.sh": 9232.71,
-      "shell/darwin-xnu/generate_linker_exports.sh": 10646.16,
-      "shell/darwin-xnu/generate_symbolset_plist.sh": 9419.53,
-      "shell/darwin-xnu/ios_trace_ipc.sh": 10257.83,
-      "shell/darwin-xnu/iosspeedtracer.sh": 10764.92,
-      "shell/darwin-xnu/list_supported.sh": 9477.3,
-      "shell/darwin-xnu/mach_install_mig.sh": 10497.94,
-      "shell/darwin-xnu/make_posix_availability.sh": 10331.63,
-      "shell/darwin-xnu/make_symbol_aliasing.sh": 9949.02,
-      "shell/darwin-xnu/makesyscalls.sh": 10016.45,
-      "shell/darwin-xnu/persona_test_run_src.sh": 9813.96,
-      "shell/darwin-xnu/remote_build.sh": 10061.19,
-      "shell/darwin-xnu/setup.sh": 10664.8,
-      "shell/darwin-xnu/test.sh": 9820.51,
-      "shell/darwin-xnu/validate_blacklist.sh": 9667.14,
-      "shell/darwin-xnu/vnode_if.sh": 9513.89,
-      "shell/darwin-xnu/xcrun_cache.sh": 10339.03
+      "shell/darwin-xnu/MPMMtest_run.sh": 10626.41,
+      "shell/darwin-xnu/generate_combined_symbolsets_plist.sh": 9947.05,
+      "shell/darwin-xnu/generate_linker_aliases.sh": 9232.72,
+      "shell/darwin-xnu/generate_linker_exports.sh": 10646.17,
+      "shell/darwin-xnu/generate_symbolset_plist.sh": 9419.54,
+      "shell/darwin-xnu/ios_trace_ipc.sh": 10257.84,
+      "shell/darwin-xnu/iosspeedtracer.sh": 10764.93,
+      "shell/darwin-xnu/list_supported.sh": 9477.31,
+      "shell/darwin-xnu/mach_install_mig.sh": 10497.95,
+      "shell/darwin-xnu/make_posix_availability.sh": 10331.64,
+      "shell/darwin-xnu/make_symbol_aliasing.sh": 9949.03,
+      "shell/darwin-xnu/makesyscalls.sh": 10016.46,
+      "shell/darwin-xnu/persona_test_run_src.sh": 9813.97,
+      "shell/darwin-xnu/remote_build.sh": 10061.2,
+      "shell/darwin-xnu/setup.sh": 10664.81,
+      "shell/darwin-xnu/test.sh": 9820.52,
+      "shell/darwin-xnu/validate_blacklist.sh": 9667.15,
+      "shell/darwin-xnu/vnode_if.sh": 9513.9,
+      "shell/darwin-xnu/xcrun_cache.sh": 10339.04
     },
     "shell/freebsd-src": {
       "shell/freebsd-src/COPYRIGHT": -3499.71,
@@ -3406,28 +3406,28 @@
       "shell/freebsd_sysbuild/sysbuild.sh": 7797.39
     },
     "shell/haiku": {
-      "shell/haiku/HardwareChecker.sh": 9068.53,
-      "shell/haiku/License.md": 9895.01,
-      "shell/haiku/ValidatePeopleEmails.sh": 8774.16,
-      "shell/haiku/bootstrap.sh": 9749.25,
-      "shell/haiku/build-toolchain.sh": 9260.1,
-      "shell/haiku/catmerge.sh": 8520.46,
-      "shell/haiku/colorgrep.sh": 8479.62,
-      "shell/haiku/convert.sh": 8210.45,
-      "shell/haiku/create_project_file.sh": 8473.27,
-      "shell/haiku/default_deskbar_items.sh": 9594.65,
-      "shell/haiku/gen-bepo.sh": 9579.48,
-      "shell/haiku/generate_CountryFlags.sh": 9340.29,
+      "shell/haiku/HardwareChecker.sh": 9068.54,
+      "shell/haiku/License.md": 9895.02,
+      "shell/haiku/ValidatePeopleEmails.sh": 8774.17,
+      "shell/haiku/bootstrap.sh": 9749.26,
+      "shell/haiku/build-toolchain.sh": 9260.11,
+      "shell/haiku/catmerge.sh": 8520.47,
+      "shell/haiku/colorgrep.sh": 8479.63,
+      "shell/haiku/convert.sh": 8210.46,
+      "shell/haiku/create_project_file.sh": 8473.28,
+      "shell/haiku/default_deskbar_items.sh": 9594.66,
+      "shell/haiku/gen-bepo.sh": 9579.49,
+      "shell/haiku/generate_CountryFlags.sh": 9340.3,
       "shell/haiku/install-wifi-firmwares.sh": 8763.21,
-      "shell/haiku/install.sh": 9581.05,
-      "shell/haiku/leak_analyser.sh": 9053.84,
-      "shell/haiku/makezip.sh": 8966.05,
-      "shell/haiku/mk_floppy_prg_atari.sh": 9501.2,
-      "shell/haiku/mksysroot.sh": 9202.27,
-      "shell/haiku/mktable.sh": 8436.79,
-      "shell/haiku/sysprep-gce.sh": 8944.75,
-      "shell/haiku/usb__install.sh": 8901.61,
-      "shell/haiku/usb_vision__install.sh": 8610.35
+      "shell/haiku/install.sh": 9581.06,
+      "shell/haiku/leak_analyser.sh": 9053.85,
+      "shell/haiku/makezip.sh": 8966.06,
+      "shell/haiku/mk_floppy_prg_atari.sh": 9501.21,
+      "shell/haiku/mksysroot.sh": 9202.28,
+      "shell/haiku/mktable.sh": 8436.8,
+      "shell/haiku/sysprep-gce.sh": 8944.76,
+      "shell/haiku/usb__install.sh": 8901.62,
+      "shell/haiku/usb_vision__install.sh": 8610.36
     },
     "shell/illumos-gate": {
       "shell/illumos-gate/Run.sh": 7015.13,
@@ -3545,29 +3545,29 @@
       "shell/reactos/remaster.sh": 6646.95
     },
     "shell/serenity": {
-      "shell/serenity/BuildFuzzers.sh": -6797.51,
-      "shell/serenity/ClassiCube__package.sh": -6000.96,
-      "shell/serenity/FAudio__package.sh": -6328.23,
-      "shell/serenity/ObjFW__package.sh": -6630.83,
-      "shell/serenity/OpenJDK__package.sh": -6983.86,
-      "shell/serenity/RISCVEmu__package.sh": -7063.56,
-      "shell/serenity/RetroArch__package.sh": -6146.84,
-      "shell/serenity/SDL2-GNUBoy__package.sh": -5718.5,
-      "shell/serenity/SDL2__package.sh": -6952.98,
-      "shell/serenity/SDL2_gfx__package.sh": -5964.88,
-      "shell/serenity/SDL2_image__package.sh": -5945.02,
-      "shell/serenity/SDL2_mixer__package.sh": -6237.99,
-      "shell/serenity/SDL2_net__package.sh": -6587.17,
-      "shell/serenity/SDL2_sound__package.sh": -5858.99,
-      "shell/serenity/SDL2_ttf__package.sh": -7296.26,
-      "shell/serenity/SDLPoP__package.sh": -6643.76,
-      "shell/serenity/SDL_mixer__package.sh": -7140.1,
-      "shell/serenity/analyze-qemu-coverage.sh": -6529.75,
-      "shell/serenity/builtin.sh": -6570.99,
-      "shell/serenity/embedmap.sh": -7214.23,
-      "shell/serenity/install.sh": -6271.42,
-      "shell/serenity/package.sh": -7109.8,
-      "shell/serenity/run-tests-and-shutdown.sh": -6811.49
+      "shell/serenity/BuildFuzzers.sh": -6797.77,
+      "shell/serenity/ClassiCube__package.sh": -6001.22,
+      "shell/serenity/FAudio__package.sh": -6328.49,
+      "shell/serenity/ObjFW__package.sh": -6631.08,
+      "shell/serenity/OpenJDK__package.sh": -6984.12,
+      "shell/serenity/RISCVEmu__package.sh": -7063.81,
+      "shell/serenity/RetroArch__package.sh": -6147.1,
+      "shell/serenity/SDL2-GNUBoy__package.sh": -5718.76,
+      "shell/serenity/SDL2__package.sh": -6953.24,
+      "shell/serenity/SDL2_gfx__package.sh": -5965.14,
+      "shell/serenity/SDL2_image__package.sh": -5945.28,
+      "shell/serenity/SDL2_mixer__package.sh": -6238.25,
+      "shell/serenity/SDL2_net__package.sh": -6587.43,
+      "shell/serenity/SDL2_sound__package.sh": -5859.25,
+      "shell/serenity/SDL2_ttf__package.sh": -7296.52,
+      "shell/serenity/SDLPoP__package.sh": -6644.02,
+      "shell/serenity/SDL_mixer__package.sh": -7140.36,
+      "shell/serenity/analyze-qemu-coverage.sh": -6530.01,
+      "shell/serenity/builtin.sh": -6571.25,
+      "shell/serenity/embedmap.sh": -7214.49,
+      "shell/serenity/install.sh": -6271.68,
+      "shell/serenity/package.sh": -7110.05,
+      "shell/serenity/run-tests-and-shutdown.sh": -6811.75
     },
     "shell/sqlite": {
       "shell/sqlite/LICENSE.md": -1286.21,
@@ -3586,7 +3586,7 @@
       "shell/sqlite/warnings-clang.sh": -1729.88
     },
     "solidity": {
-      "solidity/SOURCES.md": -5469.77
+      "solidity/SOURCES.md": -5469.45
     },
     "solidity/openzeppelin": {
       "solidity/openzeppelin/AccessControl.sol": -6962.03,
@@ -3598,7 +3598,7 @@
       "solidity/openzeppelin/StorageSlot.sol": -7413.12
     },
     "sql": {
-      "sql/SOURCES.md": -10926.22
+      "sql/SOURCES.md": -10926.33
     },
     "sql/baseline": {
       "sql/baseline/schema.php": -10490.63
@@ -3608,8 +3608,8 @@
       "sql/mediawiki_mysql/blobs.sql": 7327.27
     },
     "sql/mediawiki_postgresql": {
-      "sql/mediawiki_postgresql/COPYING": -1186.16,
-      "sql/mediawiki_postgresql/tables.sql": -935.74
+      "sql/mediawiki_postgresql/COPYING": -1186.11,
+      "sql/mediawiki_postgresql/tables.sql": -935.69
     },
     "sql/spamassassin_mysql": {
       "sql/spamassassin_mysql/NOTICE": 8622.07,
@@ -3658,23 +3658,23 @@
       "sqlite/mediawiki_sqlite_alterpatches/patch-pagelinks-drop-pl_title.sql": 6597.85
     },
     "sqlite/mediawiki_sqlite_tables": {
-      "sqlite/mediawiki_sqlite_tables/COPYING": -4181.14,
-      "sqlite/mediawiki_sqlite_tables/patch-block_target.sql": -3633.37,
-      "sqlite/mediawiki_sqlite_tables/patch-collation.sql": -4275.36,
-      "sqlite/mediawiki_sqlite_tables/patch-existencelinks.sql": -3105.76,
-      "sqlite/mediawiki_sqlite_tables/patch-file.sql": -3946.09,
-      "sqlite/mediawiki_sqlite_tables/patch-user-user_is_temp.sql": -3454.28,
-      "sqlite/mediawiki_sqlite_tables/patch-user_autocreate_serial-uas_year.sql": -3219.46,
-      "sqlite/mediawiki_sqlite_tables/patch-watchlist_label.sql": -3904.04,
-      "sqlite/mediawiki_sqlite_tables/searchindex-fts3.sql": -3873.8,
-      "sqlite/mediawiki_sqlite_tables/searchindex-no-fts.sql": -3444.53,
-      "sqlite/mediawiki_sqlite_tables/tables-generated.sql": -3644.4
+      "sqlite/mediawiki_sqlite_tables/COPYING": -4180.9,
+      "sqlite/mediawiki_sqlite_tables/patch-block_target.sql": -3633.13,
+      "sqlite/mediawiki_sqlite_tables/patch-collation.sql": -4275.12,
+      "sqlite/mediawiki_sqlite_tables/patch-existencelinks.sql": -3105.52,
+      "sqlite/mediawiki_sqlite_tables/patch-file.sql": -3945.86,
+      "sqlite/mediawiki_sqlite_tables/patch-user-user_is_temp.sql": -3454.04,
+      "sqlite/mediawiki_sqlite_tables/patch-user_autocreate_serial-uas_year.sql": -3219.22,
+      "sqlite/mediawiki_sqlite_tables/patch-watchlist_label.sql": -3903.8,
+      "sqlite/mediawiki_sqlite_tables/searchindex-fts3.sql": -3873.57,
+      "sqlite/mediawiki_sqlite_tables/searchindex-no-fts.sql": -3444.29,
+      "sqlite/mediawiki_sqlite_tables/tables-generated.sql": -3644.16
     },
     "sqlite/prisma_sqlite_migrations": {
-      "sqlite/prisma_sqlite_migrations/provider-switch-postgresql-to-sqlite__20210215145936_hello.sql": -9644.8,
-      "sqlite/prisma_sqlite_migrations/schema-folder-sqlite-db-exists__20240527130802_init.sql": -9840.18,
-      "sqlite/prisma_sqlite_migrations/schema-folder-sqlite-migration-exists__20240527130802_init.sql": -9658.15,
-      "sqlite/prisma_sqlite_migrations/schema-folder-sqlite-migration-failed__20240527130802_init.sql": -9393.77
+      "sqlite/prisma_sqlite_migrations/provider-switch-postgresql-to-sqlite__20210215145936_hello.sql": -9645.01,
+      "sqlite/prisma_sqlite_migrations/schema-folder-sqlite-db-exists__20240527130802_init.sql": -9840.39,
+      "sqlite/prisma_sqlite_migrations/schema-folder-sqlite-migration-exists__20240527130802_init.sql": -9658.36,
+      "sqlite/prisma_sqlite_migrations/schema-folder-sqlite-migration-failed__20240527130802_init.sql": -9393.98
     },
     "sqlite/prisma_typed_sql": {
       "sqlite/prisma_typed_sql/findBigInt.sql": -2793.26,
@@ -3695,25 +3695,25 @@
       "sqlite/prisma_typed_sql/getString.sql": -2902.84
     },
     "sqlite/sqitch_sqlite_engine": {
-      "sqlite/sqitch_sqlite_engine/LICENSE.md": 11294.45,
-      "sqlite/sqitch_sqlite_engine/engine_sqlite.sql": 11554.77,
-      "sqlite/sqitch_sqlite_engine/t_upgradable_registry.sql": 11734.0,
-      "sqlite/sqitch_sqlite_engine/upgrade_sqlite-1.0.sql": 11715.86,
-      "sqlite/sqitch_sqlite_engine/upgrade_sqlite-1.1.sql": 12019.04
+      "sqlite/sqitch_sqlite_engine/LICENSE.md": 11294.46,
+      "sqlite/sqitch_sqlite_engine/engine_sqlite.sql": 11554.78,
+      "sqlite/sqitch_sqlite_engine/t_upgradable_registry.sql": 11734.01,
+      "sqlite/sqitch_sqlite_engine/upgrade_sqlite-1.0.sql": 11715.87,
+      "sqlite/sqitch_sqlite_engine/upgrade_sqlite-1.1.sql": 12019.05
     },
     "sqlite/sqlite_cli_scripts": {
-      "sqlite/sqlite_cli_scripts/LICENSE.md": 2282.65,
-      "sqlite/sqlite_cli_scripts/dblwidth-a.sql": 2520.01,
-      "sqlite/sqlite_cli_scripts/dotcmd01.sql": 2341.18,
-      "sqlite/sqlite_cli_scripts/fptest01.sql": 1860.01,
-      "sqlite/sqlite_cli_scripts/import01.sql": 2175.96,
-      "sqlite/sqlite_cli_scripts/imposter1.sql": 2638.06,
-      "sqlite/sqlite_cli_scripts/intck01.sql": 2355.23,
-      "sqlite/sqlite_cli_scripts/modeA.sql": 2147.95,
-      "sqlite/sqlite_cli_scripts/regexp1.sql": 1583.27,
-      "sqlite/sqlite_cli_scripts/vt100-a.sql": 1888.33,
-      "sqlite/sqlite_cli_scripts/wasm_000-mandelbrot.sql": 1990.74,
-      "sqlite/sqlite_cli_scripts/wasm_001-sudoku.sql": 1651.6
+      "sqlite/sqlite_cli_scripts/LICENSE.md": 2282.63,
+      "sqlite/sqlite_cli_scripts/dblwidth-a.sql": 2519.99,
+      "sqlite/sqlite_cli_scripts/dotcmd01.sql": 2341.16,
+      "sqlite/sqlite_cli_scripts/fptest01.sql": 1859.99,
+      "sqlite/sqlite_cli_scripts/import01.sql": 2175.94,
+      "sqlite/sqlite_cli_scripts/imposter1.sql": 2638.05,
+      "sqlite/sqlite_cli_scripts/intck01.sql": 2355.22,
+      "sqlite/sqlite_cli_scripts/modeA.sql": 2147.93,
+      "sqlite/sqlite_cli_scripts/regexp1.sql": 1583.25,
+      "sqlite/sqlite_cli_scripts/vt100-a.sql": 1888.31,
+      "sqlite/sqlite_cli_scripts/wasm_000-mandelbrot.sql": 1990.72,
+      "sqlite/sqlite_cli_scripts/wasm_001-sudoku.sql": 1651.58
     },
     "sqlite/yii2_sqlite_schema": {
       "sqlite/yii2_sqlite_schema/LICENSE.md": 6852.42,
@@ -3728,52 +3728,52 @@
       "swift/SOURCES.md": 9875.43
     },
     "swift/alamofire": {
-      "swift/alamofire/AFError.swift": -10393.99,
-      "swift/alamofire/Alamofire.podspec": -9422.78,
-      "swift/alamofire/Package.swift": -10062.78,
-      "swift/alamofire/ParameterEncoder.swift": -9642.72,
-      "swift/alamofire/Request.swift": -10156.06,
-      "swift/alamofire/Response.swift": -9838.84,
-      "swift/alamofire/Session.swift": -9899.99
+      "swift/alamofire/AFError.swift": -10394.12,
+      "swift/alamofire/Alamofire.podspec": -9422.9,
+      "swift/alamofire/Package.swift": -10062.91,
+      "swift/alamofire/ParameterEncoder.swift": -9642.85,
+      "swift/alamofire/Request.swift": -10156.19,
+      "swift/alamofire/Response.swift": -9838.97,
+      "swift/alamofire/Session.swift": -9900.12
     },
     "tabular": {
       "tabular/SOURCES.md": -6381.25
     },
     "tabular/baseline": {
-      "tabular/baseline/control_standard.csv": -7650.43,
-      "tabular/baseline/control_standard.tsv": -7890.58
+      "tabular/baseline/control_standard.csv": -7650.34,
+      "tabular/baseline/control_standard.tsv": -7890.5
     },
     "tabular/csv_erp": {
-      "tabular/csv_erp/LICENSE.txt": 4854.68,
+      "tabular/csv_erp/LICENSE.txt": 4854.67,
       "tabular/csv_erp/ir.model.access.csv": 4650.39,
       "tabular/csv_erp/test.translation.import.model1-translated.csv": 4926.14
     },
     "tabular/devsecops_payloads": {
-      "tabular/devsecops_payloads/weaponized_export.csv": 8285.18
+      "tabular/devsecops_payloads/weaponized_export.csv": 8285.17
     },
     "tabular/tsv_genomics": {
       "tabular/tsv_genomics/B.cell_eQTL.tsv": 9446.35
     },
     "tcl/macports_port_api": {
-      "tcl/macports_port_api/fetch_common.tcl": 2924.73,
-      "tcl/macports_port_api/library.tcl": 3691.46,
-      "tcl/macports_port_api/portactivate.tcl": 2602.57,
-      "tcl/macports_port_api/portbuild.tcl": 2474.69,
-      "tcl/macports_port_api/portbump.tcl": 3535.45,
-      "tcl/macports_port_api/portchecksum.tcl": 2763.38,
-      "tcl/macports_port_api/portclean.tcl": 3658.13,
-      "tcl/macports_port_api/portdeactivate.tcl": 2295.98,
-      "tcl/macports_port_api/portdepends.tcl": 3670.06,
-      "tcl/macports_port_api/portdestroot.tcl": 3150.01,
-      "tcl/macports_port_api/portdistcheck.tcl": 3385.45,
-      "tcl/macports_port_api/portdistfiles.tcl": 2985.54,
-      "tcl/macports_port_api/portextract.tcl": 2486.84,
-      "tcl/macports_port_api/portfetch.tcl": 2781.69,
-      "tcl/macports_port_api/portinstall.tcl": 3408.26,
-      "tcl/macports_port_api/portlint.tcl": 3027.28,
-      "tcl/macports_port_api/portlivecheck.tcl": 2581.35,
-      "tcl/macports_port_api/portload.tcl": 3836.06,
-      "tcl/macports_port_api/portmain.tcl": 3281.75
+      "tcl/macports_port_api/fetch_common.tcl": 2924.7,
+      "tcl/macports_port_api/library.tcl": 3691.44,
+      "tcl/macports_port_api/portactivate.tcl": 2602.54,
+      "tcl/macports_port_api/portbuild.tcl": 2474.66,
+      "tcl/macports_port_api/portbump.tcl": 3535.42,
+      "tcl/macports_port_api/portchecksum.tcl": 2763.35,
+      "tcl/macports_port_api/portclean.tcl": 3658.1,
+      "tcl/macports_port_api/portdeactivate.tcl": 2295.96,
+      "tcl/macports_port_api/portdepends.tcl": 3670.04,
+      "tcl/macports_port_api/portdestroot.tcl": 3149.99,
+      "tcl/macports_port_api/portdistcheck.tcl": 3385.42,
+      "tcl/macports_port_api/portdistfiles.tcl": 2985.51,
+      "tcl/macports_port_api/portextract.tcl": 2486.81,
+      "tcl/macports_port_api/portfetch.tcl": 2781.66,
+      "tcl/macports_port_api/portinstall.tcl": 3408.24,
+      "tcl/macports_port_api/portlint.tcl": 3027.25,
+      "tcl/macports_port_api/portlivecheck.tcl": 2581.33,
+      "tcl/macports_port_api/portload.tcl": 3836.03,
+      "tcl/macports_port_api/portmain.tcl": 3281.72
     },
     "tcl/macports_registry": {
       "tcl/macports_registry/common.tcl": -5991.7,
@@ -3807,7 +3807,7 @@
       "tcl/sqlite_json_triggers/LICENSE.md": 1266.15
     },
     "tcl/sqlite_query_planner": {
-      "tcl/sqlite_query_planner/LICENSE.md": -10244.11
+      "tcl/sqlite_query_planner/LICENSE.md": -10244.31
     },
     "tcl/sqlite_rtree": {
       "tcl/sqlite_rtree/LICENSE.md": -460.07
@@ -3816,15 +3816,15 @@
       "td/SOURCES.md": -8547.37
     },
     "td/tensorflow/compiler/mlir/tfrt": {
-      "td/tensorflow/compiler/mlir/tfrt/tf_mlrt_ops.td": -10504.67,
-      "td/tensorflow/compiler/mlir/tfrt/tf_mlrt_tpu_ops.td": -10714.97
+      "td/tensorflow/compiler/mlir/tfrt/tf_mlrt_ops.td": -10504.59,
+      "td/tensorflow/compiler/mlir/tfrt/tf_mlrt_tpu_ops.td": -10714.89
     },
     "td/tensorflow/core/ir": {
       "td/tensorflow/core/ir/dialect.td": -256.67,
       "td/tensorflow/core/ir/ops.td": 11.48
     },
     "text": {
-      "text/SOURCES.md": 7895.73
+      "text/SOURCES.md": 7895.72
     },
     "text/baseline": {
       "text/baseline/control-readme.md": 9069.03
@@ -3833,7 +3833,7 @@
       "typescript/SOURCES.md": 8834.53
     },
     "typescript/angular_zonejs_mocha": {
-      "typescript/angular_zonejs_mocha/mocha.ts": -10418.84
+      "typescript/angular_zonejs_mocha/mocha.ts": -10418.95
     },
     "typescript/assemblyscript": {
       "typescript/assemblyscript/asconfig.json": 5163.78,
@@ -3843,12 +3843,12 @@
       "typescript/assemblyscript/parser.ts": 4517.12
     },
     "typescript/effect_ai_anthropic": {
-      "typescript/effect_ai_anthropic/AnthropicTokenizer.ts": 4545.73
+      "typescript/effect_ai_anthropic/AnthropicTokenizer.ts": 4545.7
     },
     "typescript/excalibur_math": {
-      "typescript/excalibur_math/LICENSE.md": -10418.23,
-      "typescript/excalibur_math/collision_colliders_separating-axis.ts": -10421.17,
-      "typescript/excalibur_math/math_ray.ts": -10669.0
+      "typescript/excalibur_math/LICENSE.md": -10418.33,
+      "typescript/excalibur_math/collision_colliders_separating-axis.ts": -10421.27,
+      "typescript/excalibur_math/math_ray.ts": -10669.1
     },
     "typescript/excalidraw_text_wrapping": {
       "typescript/excalidraw_text_wrapping/textWrapping.ts": 10656.46
@@ -3865,37 +3865,37 @@
       "typescript/nx_util_ai/util-ai_src_lib_moderation.ts": -8541.16
     },
     "typescript/pixijs_examples": {
-      "typescript/pixijs_examples/events_dragging.ts": -10541.75
+      "typescript/pixijs_examples/events_dragging.ts": -10541.67
     },
     "typescript/playwright": {
-      "typescript/playwright/NOTICE": 1002.94,
-      "typescript/playwright/README.md": 467.69,
+      "typescript/playwright/NOTICE": 1002.93,
+      "typescript/playwright/README.md": 467.68,
       "typescript/playwright/SECURITY.md": 1206.01,
-      "typescript/playwright/SUPPORT.md": 134.87,
+      "typescript/playwright/SUPPORT.md": 134.86,
       "typescript/playwright/api.ts": 1144.62,
       "typescript/playwright/bidiConnection.ts": 968.96,
-      "typescript/playwright/connection.ts": 439.85,
+      "typescript/playwright/connection.ts": 439.84,
       "typescript/playwright/crConnection.ts": 139.29,
-      "typescript/playwright/dispatcher.ts": 739.27,
+      "typescript/playwright/dispatcher.ts": 739.26,
       "typescript/playwright/frames.ts": 647.72,
       "typescript/playwright/protocol.ts": 536.46
     },
     "typescript/typescript_compiler": {
-      "typescript/typescript_compiler/binder.ts": 12419.62,
-      "typescript/typescript_compiler/package.json": 12191.71
+      "typescript/typescript_compiler/binder.ts": 12419.63,
+      "typescript/typescript_compiler/package.json": 12191.72
     },
     "typescript/vscode": {
-      "typescript/vscode/LICENSE.txt": -8416.36,
-      "typescript/vscode/async.ts": -8620.56,
-      "typescript/vscode/codeEditorWidget.ts": -8657.12,
-      "typescript/vscode/eslint.config.js": -8104.02,
-      "typescript/vscode/extHost.api.impl.ts": -8951.22,
-      "typescript/vscode/gulpfile.vscode.ts": -8152.25,
-      "typescript/vscode/instantiationService.ts": -8806.08,
-      "typescript/vscode/ipc.ts": -8405.72,
-      "typescript/vscode/lifecycle.ts": -9218.5,
-      "typescript/vscode/package.json": -9262.8,
-      "typescript/vscode/vscode.d.ts": -8926.55
+      "typescript/vscode/LICENSE.txt": -8416.47,
+      "typescript/vscode/async.ts": -8620.67,
+      "typescript/vscode/codeEditorWidget.ts": -8657.23,
+      "typescript/vscode/eslint.config.js": -8104.13,
+      "typescript/vscode/extHost.api.impl.ts": -8951.34,
+      "typescript/vscode/gulpfile.vscode.ts": -8152.36,
+      "typescript/vscode/instantiationService.ts": -8806.19,
+      "typescript/vscode/ipc.ts": -8405.83,
+      "typescript/vscode/lifecycle.ts": -9218.61,
+      "typescript/vscode/package.json": -9262.91,
+      "typescript/vscode/vscode.d.ts": -8926.66
     },
     "typescript/zod": {
       "typescript/zod/package.json": -6165.71,
@@ -3920,7 +3920,7 @@
       "xml/jenkins/excludesFilter.xml": -9573.05
     },
     "xml/odoo": {
-      "xml/odoo/__manifest__.py": -10666.68
+      "xml/odoo/__manifest__.py": -10666.79
     },
     "xml/odoo/views": {
       "xml/odoo/views/menu.xml": 9054.61,
@@ -3932,10 +3932,10 @@
       "xml/powertoys/MainWindow.xaml.cs": 9927.83
     },
     "xml/springboot": {
-      "xml/springboot/LICENSE.txt": -3550.06
+      "xml/springboot/LICENSE.txt": -3550.07
     },
     "xml/springboot/build-info": {
-      "xml/springboot/build-info/pom.xml": -7341.45
+      "xml/springboot/build-info/pom.xml": -7341.42
     },
     "xml/springboot/getting-started": {
       "xml/springboot/getting-started/pom.xml": 8073.9
@@ -3944,7 +3944,7 @@
       "xml/springboot/resources/pom.xml": 5893.33
     },
     "yacc": {
-      "yacc/SOURCES.md": -7789.4
+      "yacc/SOURCES.md": -7789.32
     },
     "yacc/freebsd": {
       "yacc/freebsd/COPYRIGHT": 1421.06,
@@ -3958,48 +3958,48 @@
       "yaml/ansible/COPYING": -6628.31
     },
     "yaml/ansible/blocks": {
-      "yaml/ansible/blocks/block_fail_tasks.yml": -10726.76,
-      "yaml/ansible/blocks/block_in_rescue.yml": -10507.59
+      "yaml/ansible/blocks/block_fail_tasks.yml": -10726.89,
+      "yaml/ansible/blocks/block_in_rescue.yml": -10507.71
     },
     "yaml/ansible/include_import_tasks/tasks": {
       "yaml/ansible/include_import_tasks/tasks/test_include_dupe_loop.yml": 7394.47,
-      "yaml/ansible/include_import_tasks/tasks/test_recursion.yml": 7121.25
+      "yaml/ansible/include_import_tasks/tasks/test_recursion.yml": 7121.24
     },
     "yaml/ansible/yaml_parsing": {
       "yaml/ansible/yaml_parsing/playbook.yml": 8291.29
     },
     "yaml/ansible/yaml_parsing/tasks": {
-      "yaml/ansible/yaml_parsing/tasks/main.yml": -5243.86,
-      "yaml/ansible/yaml_parsing/tasks/unsafe.yml": -5009.38
+      "yaml/ansible/yaml_parsing/tasks/main.yml": -5243.53,
+      "yaml/ansible/yaml_parsing/tasks/unsafe.yml": -5009.05
     },
     "yaml/black_action": {
       "yaml/black_action/action.yml": -7997.14
     },
     "yaml/grafana_compose": {
-      "yaml/grafana_compose/docker_ha-test-unified-alerting_docker-compose.yaml": -4492.25,
-      "yaml/grafana_compose/frontend-service_docker-compose.yaml": -4217.72,
-      "yaml/grafana_compose/local_cdn_docker-compose.yaml": -4179.09
+      "yaml/grafana_compose/docker_ha-test-unified-alerting_docker-compose.yaml": -4492.0,
+      "yaml/grafana_compose/frontend-service_docker-compose.yaml": -4217.47,
+      "yaml/grafana_compose/local_cdn_docker-compose.yaml": -4178.84
     },
     "yaml/moby_workflows": {
-      "yaml/moby_workflows/arm64.yml": -9854.33,
-      "yaml/moby_workflows/bin-image.yml": -10413.66,
-      "yaml/moby_workflows/buildkit.yml": -9943.37,
-      "yaml/moby_workflows/ci.yml": -10152.54,
-      "yaml/moby_workflows/codeql.yml": -9539.61,
-      "yaml/moby_workflows/labeler.yml": -9341.69,
-      "yaml/moby_workflows/test.yml": -9698.28,
-      "yaml/moby_workflows/validate-pr.yml": -10199.82,
-      "yaml/moby_workflows/vm.yml": -10081.02,
-      "yaml/moby_workflows/windows-2022.yml": -9656.68,
-      "yaml/moby_workflows/windows-2025.yml": -10457.58
+      "yaml/moby_workflows/arm64.yml": -9854.45,
+      "yaml/moby_workflows/bin-image.yml": -10413.78,
+      "yaml/moby_workflows/buildkit.yml": -9943.49,
+      "yaml/moby_workflows/ci.yml": -10152.66,
+      "yaml/moby_workflows/codeql.yml": -9539.73,
+      "yaml/moby_workflows/labeler.yml": -9341.81,
+      "yaml/moby_workflows/test.yml": -9698.39,
+      "yaml/moby_workflows/validate-pr.yml": -10199.94,
+      "yaml/moby_workflows/vm.yml": -10081.14,
+      "yaml/moby_workflows/windows-2022.yml": -9656.8,
+      "yaml/moby_workflows/windows-2025.yml": -10457.7
     },
     "yaml/serenity_composite_actions": {
-      "yaml/serenity_composite_actions/cache-restore_action.yml": 11962.17,
-      "yaml/serenity_composite_actions/cache-save_action.yml": 12170.81,
-      "yaml/serenity_composite_actions/setup_action.yml": 12134.31
+      "yaml/serenity_composite_actions/cache-restore_action.yml": 11962.18,
+      "yaml/serenity_composite_actions/cache-save_action.yml": 12170.82,
+      "yaml/serenity_composite_actions/setup_action.yml": 12134.32
     },
     "yaml/sqlmap_openapi": {
-      "yaml/sqlmap_openapi/sqlmapapi.yaml": -11431.82
+      "yaml/sqlmap_openapi/sqlmapapi.yaml": -11431.93
     },
     "yaml/vscode_workflows": {
       "yaml/vscode_workflows/LICENSE.txt": 1930.61,
@@ -4038,18 +4038,18 @@
       "zig/mach/win32.zig": -6835.92
     },
     "zig/tigerbeetle": {
-      "zig/tigerbeetle/aof.zig": -7455.81,
-      "zig/tigerbeetle/build.zig": -7655.56,
-      "zig/tigerbeetle/build_multiversion.zig": -7209.63,
-      "zig/tigerbeetle/cluster.zig": -8015.47,
-      "zig/tigerbeetle/config.zig": -7457.19,
-      "zig/tigerbeetle/constants.zig": -8243.44,
-      "zig/tigerbeetle/copyhound.zig": -7917.04,
-      "zig/tigerbeetle/counting_allocator.zig": -8296.69,
-      "zig/tigerbeetle/direction.zig": -7113.35,
-      "zig/tigerbeetle/download.sh": -7971.19,
-      "zig/tigerbeetle/download.win.ps1": -7487.18,
-      "zig/tigerbeetle/state_machine.zig": -7739.61
+      "zig/tigerbeetle/aof.zig": -7456.04,
+      "zig/tigerbeetle/build.zig": -7655.79,
+      "zig/tigerbeetle/build_multiversion.zig": -7209.86,
+      "zig/tigerbeetle/cluster.zig": -8015.69,
+      "zig/tigerbeetle/config.zig": -7457.42,
+      "zig/tigerbeetle/constants.zig": -8243.67,
+      "zig/tigerbeetle/copyhound.zig": -7917.27,
+      "zig/tigerbeetle/counting_allocator.zig": -8296.92,
+      "zig/tigerbeetle/direction.zig": -7113.58,
+      "zig/tigerbeetle/download.sh": -7971.42,
+      "zig/tigerbeetle/download.win.ps1": -7487.41,
+      "zig/tigerbeetle/state_machine.zig": -7739.83
     },
     "zig/zig": {
       "zig/zig/Compilation.zig": -4568.92,
@@ -4059,7 +4059,7 @@
       "zig/zig/main.zig": -4649.3
     },
     "zig/zig_std_linux_mips": {
-      "zig/zig_std_linux_mips/mips.zig": 12016.99
+      "zig/zig_std_linux_mips/mips.zig": 12017.0
     },
     "zig/zls": {
       "zig/zls/DocumentScope.zig": 1410.58,

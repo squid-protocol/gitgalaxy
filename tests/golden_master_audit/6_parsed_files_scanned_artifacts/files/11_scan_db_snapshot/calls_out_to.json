@@ -42808,7 +42808,12 @@
       "cobol/cics-banking-sample-application-cbsa/BANKDATA.cbl": {
         "A010@370": [
           "TIMESTAMP",
-          "INITIALISE-ARRAYS"
+          "INITIALISE-ARRAYS",
+          "GET-TODAYS-DATE",
+          "DELETE-DB2-ROWS",
+          "PROGRAM-DONE",
+          "TEST",
+          "DEFINE-ACC"
         ],
         "A999@675": [],
         "CALC-DAY-OF-WEEK@1406": [],
@@ -42853,7 +42858,9 @@
         "A010@161": [
           "SEND-MAP",
           "SEND-TERMINATION-MSG",
-          "PROCESS-MAP"
+          "PROCESS-MAP",
+          "POPULATE-TIME-DATE",
+          "ABEND-THIS-TASK"
         ],
         "A999@316": [],
         "ABEND-THIS-TASK@1272": [],
@@ -42903,7 +42910,9 @@
         "A010@154": [
           "SEND-MAP",
           "SEND-TERMINATION-MSG",
-          "PROCESS-MAP"
+          "PROCESS-MAP",
+          "POPULATE-TIME-DATE",
+          "ABEND-THIS-TASK"
         ],
         "A999@292": [],
         "ABEND-THIS-TASK@928": [],
@@ -42955,7 +42964,9 @@
           "SEND-MAP",
           "RESTORE-TERM-DEF",
           "SEND-TERMINATION-MSG",
-          "PROCESS-MAP"
+          "PROCESS-MAP",
+          "POPULATE-TIME-DATE",
+          "ABEND-THIS-TASK"
         ],
         "A999@345": [],
         "ABEND-THIS-TASK@1599": [],
@@ -43027,7 +43038,9 @@
         "A010@178": [
           "SEND-MAP",
           "SEND-TERMINATION-MSG",
-          "PROCESS-MAP"
+          "PROCESS-MAP",
+          "POPULATE-TIME-DATE",
+          "ABEND-THIS-TASK"
         ],
         "A999@330": [],
         "ABEND-THIS-TASK@950": [],
@@ -43082,7 +43095,9 @@
         "A010@189": [
           "SEND-MAP",
           "PROCESS-MAP",
-          "SEND-TERMINATION-MSG"
+          "SEND-TERMINATION-MSG",
+          "POPULATE-TIME-DATE",
+          "ABEND-THIS-TASK"
         ],
         "A999@362": [],
         "ABEND-THIS-TASK@1134": [],
@@ -43144,7 +43159,9 @@
           "SEND-MAP",
           "RESTORE-TERM-DEF",
           "PROCESS-MAP",
-          "SEND-TERMINATION-MSG"
+          "SEND-TERMINATION-MSG",
+          "POPULATE-TIME-DATE",
+          "ABEND-THIS-TASK"
         ],
         "A999@396": [],
         "ABEND-HANDLING@2044": [],
@@ -43249,7 +43266,9 @@
         "A010@175": [
           "SEND-MAP",
           "SEND-TERMINATION-MSG",
-          "PROCESS-MAP"
+          "PROCESS-MAP",
+          "POPULATE-TIME-DATE",
+          "ABEND-THIS-TASK"
         ],
         "A999@315": [],
         "ABEND-THIS-TASK@973": [],
@@ -43304,7 +43323,9 @@
         "A010@198": [
           "SEND-MAP",
           "SEND-TERMINATION-MSG",
-          "PROCESS-MAP"
+          "PROCESS-MAP",
+          "POPULATE-TIME-DATE",
+          "ABEND-THIS-TASK"
         ],
         "A999@362": [],
         "ABEND-THIS-TASK@1381": [],
@@ -43365,7 +43386,9 @@
         "A010@109": [
           "SEND-MAP",
           "SEND-TERMINATION-MSG",
-          "PROCESS-MENU-MAP"
+          "PROCESS-MENU-MAP",
+          "POPULATE-TIME-DATE",
+          "ABEND-THIS-TASK"
         ],
         "A999@237": [],
         "ABEND-THIS-TASK@1285": [],
@@ -43574,7 +43597,15 @@
         "GLCV999@1418": [],
         "GMOFH010@1330": [],
         "GMOFH999@1337": [],
-        "P010@358": [],
+        "P010@358": [
+          "POPULATE-TIME-DATE",
+          "CREDIT-CHECK",
+          "GET-ME-OUT-OF-HERE",
+          "DATE-OF-BIRTH-CHECK",
+          "ENQ-NAMED-COUNTER",
+          "UPD-NCS",
+          "WRITE-CUSTOMER-VSAM"
+        ],
         "P999@477": [],
         "POPULATE-TIME-DATE2@1481": [],
         "POPULATE-TIME-DATE@481": [],
@@ -43875,7 +43906,10 @@
         "UPDATE-ACCOUNT-DB2@180": []
       },
       "cobol/cics-banking-sample-application-cbsa/UPDCUST.cbl": {
-        "A010@138": [],
+        "A010@138": [
+          "UPDATE-CUSTOMER-VSAM",
+          "GET-ME-OUT-OF-HERE"
+        ],
         "A999@207": [],
         "GET-ME-OUT-OF-HERE@339": [],
         "GMOOH010@340": [],
@@ -124259,7 +124293,9 @@
       },
       "pli/dsf_cics_admin/R0010422.pli": {
         "BLANK_TEKST@186": [],
-        "KONTROLL_AV_INPUT@265": [],
+        "KONTROLL_AV_INPUT@265": [
+          "SEND_MAP"
+        ],
         "OVERFØR_FRA_MAP@240": [],
         "OVERFØR_TIL_MAP@225": [],
         "R001B1@21": [
@@ -124274,7 +124310,9 @@
       },
       "pli/dsf_cics_admin/R0010423.pli": {
         "BLANK_TEKST@263": [],
-        "KONTROLL_AV_INPUT@315": [],
+        "KONTROLL_AV_INPUT@315": [
+          "SEND_MAP"
+        ],
         "OVERFØR_FRA_MAP@298": [],
         "OVERFØR_TIL_MAP@290": [],
         "R001B1@23": [
@@ -124290,7 +124328,9 @@
       },
       "pli/dsf_cics_admin/R0010424.pli": {
         "BLANK_TEKST@262": [],
-        "KONTROLL_AV_INPUT@302": [],
+        "KONTROLL_AV_INPUT@302": [
+          "SEND_MAP"
+        ],
         "OVERFØR_FRA_MAP@289": [],
         "OVERFØR_TIL_MAP@283": [],
         "R001B1@21": [
@@ -124306,7 +124346,9 @@
       },
       "pli/dsf_cics_admin/R0010425.pli": {
         "BLANK_TEKST@274": [],
-        "KONTROLL_AV_INPUT@311": [],
+        "KONTROLL_AV_INPUT@311": [
+          "SEND_MAP"
+        ],
         "OVERFØR_FRA_MAP@302": [],
         "OVERFØR_TIL_MAP@295": [],
         "R001B1@22": [

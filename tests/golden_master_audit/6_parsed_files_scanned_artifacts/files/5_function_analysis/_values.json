@@ -70566,33 +70566,78 @@
         {
           "Control Flow Branches": 0,
           "Control Flow Ratio": "0.0%",
-          "End Line": 25,
+          "End Line": 24,
           "Function Name": "MAIN-PROCEDURE",
           "Input Parameters": 0,
           "Is Documented": 0,
           "Is Public": 0,
-          "Lines of Code (LOC)": 4,
+          "Lines of Code (LOC)": 3,
           "Reflection Hits": 0,
           "Start Line": 22,
-          "Structural Impact": 1.2
+          "Structural Impact": 1.1
         }
       ],
       "cobol/CICS-Cobol/CBL0103v01DivisionData.cbl": [
         {
           "Control Flow Branches": 0,
           "Control Flow Ratio": "0.0%",
-          "End Line": 34,
+          "End Line": 33,
           "Function Name": "MAIN-PROCEDURE",
           "Input Parameters": 0,
           "Is Documented": 0,
           "Is Public": 0,
-          "Lines of Code (LOC)": 4,
+          "Lines of Code (LOC)": 3,
           "Reflection Hits": 0,
           "Start Line": 31,
-          "Structural Impact": 1.2
+          "Structural Impact": 1.1
         }
       ],
       "cobol/CICS-Cobol/CBL0104v01ProcedureDivision.cbl": [
+        {
+          "Control Flow Branches": 0,
+          "Control Flow Ratio": "0.0%",
+          "End Line": 20,
+          "Function Name": "MAIN-PROCEDURE",
+          "Input Parameters": 0,
+          "Is Documented": 0,
+          "Is Public": 0,
+          "Lines of Code (LOC)": 6,
+          "Reflection Hits": 0,
+          "Start Line": 15,
+          "Structural Impact": 1.3
+        }
+      ],
+      "cobol/CICS-Cobol/CBL0105v01DeclararElementoGrupo.cbl": [
+        {
+          "Control Flow Branches": 0,
+          "Control Flow Ratio": "0.0%",
+          "End Line": 26,
+          "Function Name": "MAIN-PROCEDURE",
+          "Input Parameters": 0,
+          "Is Documented": 0,
+          "Is Public": 0,
+          "Lines of Code (LOC)": 8,
+          "Reflection Hits": 0,
+          "Start Line": 19,
+          "Structural Impact": 1.4
+        }
+      ],
+      "cobol/CICS-Cobol/CBL0106v01ClausulaImagen.cbl": [
+        {
+          "Control Flow Branches": 0,
+          "Control Flow Ratio": "0.0%",
+          "End Line": 29,
+          "Function Name": "MAIN-PROCEDURE",
+          "Input Parameters": 0,
+          "Is Documented": 0,
+          "Is Public": 0,
+          "Lines of Code (LOC)": 12,
+          "Reflection Hits": 0,
+          "Start Line": 18,
+          "Structural Impact": 1.6
+        }
+      ],
+      "cobol/CICS-Cobol/CBL0201v01VerbosBasicos.cbl": [
         {
           "Control Flow Branches": 0,
           "Control Flow Ratio": "0.0%",
@@ -70607,22 +70652,7 @@
           "Structural Impact": 1.4
         }
       ],
-      "cobol/CICS-Cobol/CBL0105v01DeclararElementoGrupo.cbl": [
-        {
-          "Control Flow Branches": 0,
-          "Control Flow Ratio": "0.0%",
-          "End Line": 27,
-          "Function Name": "MAIN-PROCEDURE",
-          "Input Parameters": 0,
-          "Is Documented": 0,
-          "Is Public": 0,
-          "Lines of Code (LOC)": 9,
-          "Reflection Hits": 0,
-          "Start Line": 19,
-          "Structural Impact": 1.4
-        }
-      ],
-      "cobol/CICS-Cobol/CBL0106v01ClausulaImagen.cbl": [
+      "cobol/CICS-Cobol/CBL0202v01IniciarlizarVerbo.cbl": [
         {
           "Control Flow Branches": 0,
           "Control Flow Ratio": "0.0%",
@@ -70631,37 +70661,7 @@
           "Input Parameters": 0,
           "Is Documented": 0,
           "Is Public": 0,
-          "Lines of Code (LOC)": 13,
-          "Reflection Hits": 0,
-          "Start Line": 18,
-          "Structural Impact": 1.6
-        }
-      ],
-      "cobol/CICS-Cobol/CBL0201v01VerbosBasicos.cbl": [
-        {
-          "Control Flow Branches": 0,
-          "Control Flow Ratio": "0.0%",
-          "End Line": 22,
-          "Function Name": "MAIN-PROCEDURE",
-          "Input Parameters": 0,
-          "Is Documented": 0,
-          "Is Public": 0,
-          "Lines of Code (LOC)": 8,
-          "Reflection Hits": 0,
-          "Start Line": 15,
-          "Structural Impact": 1.4
-        }
-      ],
-      "cobol/CICS-Cobol/CBL0202v01IniciarlizarVerbo.cbl": [
-        {
-          "Control Flow Branches": 0,
-          "Control Flow Ratio": "0.0%",
-          "End Line": 31,
-          "Function Name": "MAIN-PROCEDURE",
-          "Input Parameters": 0,
-          "Is Documented": 0,
-          "Is Public": 0,
-          "Lines of Code (LOC)": 13,
+          "Lines of Code (LOC)": 12,
           "Reflection Hits": 0,
           "Start Line": 19,
           "Structural Impact": 1.6
@@ -70671,42 +70671,42 @@
         {
           "Control Flow Branches": 0,
           "Control Flow Ratio": "0.0%",
-          "End Line": 41,
+          "End Line": 40,
           "Function Name": "MAIN-PROCEDURE",
           "Input Parameters": 0,
           "Is Documented": 0,
           "Is Public": 0,
-          "Lines of Code (LOC)": 19,
+          "Lines of Code (LOC)": 18,
           "Reflection Hits": 0,
           "Start Line": 23,
-          "Structural Impact": 2.0
+          "Structural Impact": 1.9
         }
       ],
       "cobol/CICS-Cobol/CBL0204v01AddVerb.cbl": [
         {
           "Control Flow Branches": 0,
           "Control Flow Ratio": "0.0%",
-          "End Line": 46,
+          "End Line": 45,
           "Function Name": "MAIN-PROCEDURE",
           "Input Parameters": 0,
           "Is Documented": 0,
           "Is Public": 0,
-          "Lines of Code (LOC)": 23,
+          "Lines of Code (LOC)": 22,
           "Reflection Hits": 0,
           "Start Line": 24,
-          "Structural Impact": 2.2
+          "Structural Impact": 2.1
         }
       ],
       "cobol/CICS-Cobol/CBL0205v01SubtractVerb.cbl": [
         {
           "Control Flow Branches": 0,
           "Control Flow Ratio": "0.0%",
-          "End Line": 44,
+          "End Line": 43,
           "Function Name": "MAIN-PROCEDURE",
           "Input Parameters": 0,
           "Is Documented": 0,
           "Is Public": 0,
-          "Lines of Code (LOC)": 21,
+          "Lines of Code (LOC)": 20,
           "Reflection Hits": 0,
           "Start Line": 24,
           "Structural Impact": 2.0
@@ -70716,12 +70716,12 @@
         {
           "Control Flow Branches": 0,
           "Control Flow Ratio": "0.0%",
-          "End Line": 54,
+          "End Line": 53,
           "Function Name": "MAIN-PROCEDURE",
           "Input Parameters": 0,
           "Is Documented": 0,
           "Is Public": 0,
-          "Lines of Code (LOC)": 31,
+          "Lines of Code (LOC)": 30,
           "Reflection Hits": 0,
           "Start Line": 24,
           "Structural Impact": 2.5
@@ -70731,27 +70731,27 @@
         {
           "Control Flow Branches": 0,
           "Control Flow Ratio": "0.0%",
-          "End Line": 60,
+          "End Line": 59,
           "Function Name": "MAIN-PROCEDURE",
           "Input Parameters": 0,
           "Is Documented": 0,
           "Is Public": 0,
-          "Lines of Code (LOC)": 35,
+          "Lines of Code (LOC)": 34,
           "Reflection Hits": 0,
           "Start Line": 26,
-          "Structural Impact": 2.8
+          "Structural Impact": 2.7
         }
       ],
       "cobol/CICS-Cobol/CBL0208v01ComputeVerb.cbl": [
         {
           "Control Flow Branches": 0,
           "Control Flow Ratio": "0.0%",
-          "End Line": 49,
+          "End Line": 48,
           "Function Name": "MAIN-PROCEDURE",
           "Input Parameters": 0,
           "Is Documented": 0,
           "Is Public": 0,
-          "Lines of Code (LOC)": 24,
+          "Lines of Code (LOC)": 23,
           "Reflection Hits": 0,
           "Start Line": 26,
           "Structural Impact": 2.2
@@ -70761,12 +70761,12 @@
         {
           "Control Flow Branches": 0,
           "Control Flow Ratio": "0.0%",
-          "End Line": 57,
+          "End Line": 56,
           "Function Name": "MAIN-PROCEDURE",
           "Input Parameters": 0,
           "Is Documented": 0,
           "Is Public": 0,
-          "Lines of Code (LOC)": 34,
+          "Lines of Code (LOC)": 33,
           "Reflection Hits": 1,
           "Start Line": 24,
           "Structural Impact": 2.7
@@ -70776,27 +70776,27 @@
         {
           "Control Flow Branches": 0,
           "Control Flow Ratio": "0.0%",
-          "End Line": 52,
+          "End Line": 51,
           "Function Name": "MAIN-PROCEDURE",
           "Input Parameters": 0,
           "Is Documented": 0,
           "Is Public": 0,
-          "Lines of Code (LOC)": 27,
+          "Lines of Code (LOC)": 26,
           "Reflection Hits": 1,
           "Start Line": 26,
-          "Structural Impact": 2.4
+          "Structural Impact": 2.3
         }
       ],
       "cobol/CICS-Cobol/CBL0303v01ClausuleUse.cbl": [
         {
           "Control Flow Branches": 0,
           "Control Flow Ratio": "0.0%",
-          "End Line": 43,
+          "End Line": 42,
           "Function Name": "MAIN-PROCEDURE",
           "Input Parameters": 0,
           "Is Documented": 0,
           "Is Public": 0,
-          "Lines of Code (LOC)": 25,
+          "Lines of Code (LOC)": 24,
           "Reflection Hits": 1,
           "Start Line": 19,
           "Structural Impact": 2.2
@@ -70806,27 +70806,27 @@
         {
           "Control Flow Branches": 0,
           "Control Flow Ratio": "0.0%",
-          "End Line": 55,
+          "End Line": 54,
           "Function Name": "MAIN-PROCEDURE",
           "Input Parameters": 0,
           "Is Documented": 0,
           "Is Public": 0,
-          "Lines of Code (LOC)": 27,
+          "Lines of Code (LOC)": 26,
           "Reflection Hits": 1,
           "Start Line": 29,
-          "Structural Impact": 2.4
+          "Structural Impact": 2.3
         }
       ],
       "cobol/CICS-Cobol/CBL0305v01ClausuleComp-1.cbl": [
         {
           "Control Flow Branches": 0,
           "Control Flow Ratio": "0.0%",
-          "End Line": 50,
+          "End Line": 49,
           "Function Name": "MAIN-PROCEDURE",
           "Input Parameters": 0,
           "Is Documented": 0,
           "Is Public": 0,
-          "Lines of Code (LOC)": 24,
+          "Lines of Code (LOC)": 23,
           "Reflection Hits": 0,
           "Start Line": 27,
           "Structural Impact": 2.2
@@ -70836,12 +70836,12 @@
         {
           "Control Flow Branches": 0,
           "Control Flow Ratio": "0.0%",
-          "End Line": 50,
+          "End Line": 49,
           "Function Name": "MAIN-PROCEDURE",
           "Input Parameters": 0,
           "Is Documented": 0,
           "Is Public": 0,
-          "Lines of Code (LOC)": 24,
+          "Lines of Code (LOC)": 23,
           "Reflection Hits": 0,
           "Start Line": 27,
           "Structural Impact": 2.2
@@ -70851,12 +70851,12 @@
         {
           "Control Flow Branches": 0,
           "Control Flow Ratio": "0.0%",
-          "End Line": 60,
+          "End Line": 59,
           "Function Name": "MAIN-PROCEDURE",
           "Input Parameters": 0,
           "Is Documented": 0,
           "Is Public": 0,
-          "Lines of Code (LOC)": 24,
+          "Lines of Code (LOC)": 23,
           "Reflection Hits": 0,
           "Start Line": 37,
           "Structural Impact": 2.2
@@ -70866,12 +70866,12 @@
         {
           "Control Flow Branches": 0,
           "Control Flow Ratio": "0.0%",
-          "End Line": 40,
+          "End Line": 39,
           "Function Name": "MAIN-PROCEDURE",
           "Input Parameters": 0,
           "Is Documented": 0,
           "Is Public": 0,
-          "Lines of Code (LOC)": 24,
+          "Lines of Code (LOC)": 23,
           "Reflection Hits": 0,
           "Start Line": 17,
           "Structural Impact": 2.2
@@ -70881,12 +70881,12 @@
         {
           "Control Flow Branches": 7,
           "Control Flow Ratio": "36.8%",
-          "End Line": 44,
+          "End Line": 43,
           "Function Name": "MAIN-PROCEDURE",
           "Input Parameters": 0,
           "Is Documented": 0,
           "Is Public": 0,
-          "Lines of Code (LOC)": 27,
+          "Lines of Code (LOC)": 26,
           "Reflection Hits": 0,
           "Start Line": 18,
           "Structural Impact": 9.3
@@ -70896,12 +70896,12 @@
         {
           "Control Flow Branches": 3,
           "Control Flow Ratio": "33.3%",
-          "End Line": 36,
+          "End Line": 35,
           "Function Name": "MAIN-PROCEDURE",
           "Input Parameters": 0,
           "Is Documented": 0,
           "Is Public": 0,
-          "Lines of Code (LOC)": 16,
+          "Lines of Code (LOC)": 15,
           "Reflection Hits": 0,
           "Start Line": 21,
           "Structural Impact": 4.8
@@ -70911,12 +70911,12 @@
         {
           "Control Flow Branches": 5,
           "Control Flow Ratio": "33.3%",
-          "End Line": 43,
+          "End Line": 42,
           "Function Name": "MAIN-PROCEDURE",
           "Input Parameters": 0,
           "Is Documented": 0,
           "Is Public": 0,
-          "Lines of Code (LOC)": 27,
+          "Lines of Code (LOC)": 26,
           "Reflection Hits": 0,
           "Start Line": 17,
           "Structural Impact": 7.3
@@ -70926,12 +70926,12 @@
         {
           "Control Flow Branches": 3,
           "Control Flow Ratio": "25.0%",
-          "End Line": 37,
+          "End Line": 36,
           "Function Name": "MAIN-PROCEDURE",
           "Input Parameters": 0,
           "Is Documented": 0,
           "Is Public": 0,
-          "Lines of Code (LOC)": 20,
+          "Lines of Code (LOC)": 19,
           "Reflection Hits": 0,
           "Start Line": 18,
           "Structural Impact": 5.0
@@ -70941,42 +70941,42 @@
         {
           "Control Flow Branches": 2,
           "Control Flow Ratio": "22.2%",
-          "End Line": 39,
+          "End Line": 38,
           "Function Name": "MAIN-PROCEDURE",
           "Input Parameters": 0,
           "Is Documented": 0,
           "Is Public": 0,
-          "Lines of Code (LOC)": 17,
+          "Lines of Code (LOC)": 16,
           "Reflection Hits": 0,
           "Start Line": 23,
-          "Structural Impact": 3.9
+          "Structural Impact": 3.8
         }
       ],
       "cobol/CICS-Cobol/CBL0506v01CondicionNot.cbl": [
         {
           "Control Flow Branches": 2,
           "Control Flow Ratio": "22.2%",
-          "End Line": 35,
+          "End Line": 34,
           "Function Name": "MAIN-PROCEDURE",
           "Input Parameters": 0,
           "Is Documented": 0,
           "Is Public": 0,
-          "Lines of Code (LOC)": 17,
+          "Lines of Code (LOC)": 16,
           "Reflection Hits": 0,
           "Start Line": 19,
-          "Structural Impact": 3.9
+          "Structural Impact": 3.8
         }
       ],
       "cobol/CICS-Cobol/CBL0507v01CondicionCombined.cbl": [
         {
           "Control Flow Branches": 2,
           "Control Flow Ratio": "18.2%",
-          "End Line": 37,
+          "End Line": 36,
           "Function Name": "MAIN-PROCEDURE",
           "Input Parameters": 0,
           "Is Documented": 0,
           "Is Public": 0,
-          "Lines of Code (LOC)": 18,
+          "Lines of Code (LOC)": 17,
           "Reflection Hits": 0,
           "Start Line": 20,
           "Structural Impact": 3.9
@@ -70986,15 +70986,15 @@
         {
           "Control Flow Branches": 4,
           "Control Flow Ratio": "30.8%",
-          "End Line": 40,
+          "End Line": 39,
           "Function Name": "MAIN-PROCEDURE",
           "Input Parameters": 0,
           "Is Documented": 0,
           "Is Public": 0,
-          "Lines of Code (LOC)": 22,
+          "Lines of Code (LOC)": 21,
           "Reflection Hits": 1,
           "Start Line": 19,
-          "Structural Impact": 6.1
+          "Structural Impact": 6.0
         }
       ],
       "cobol/CICS-Cobol/CBL0601v01InOutLineLoop.cbl": [
@@ -71040,19 +71040,6 @@
         {
           "Control Flow Branches": 0,
           "Control Flow Ratio": "0.0%",
-          "End Line": 51,
-          "Function Name": "E-PARA",
-          "Input Parameters": 0,
-          "Is Documented": 0,
-          "Is Public": 0,
-          "Lines of Code (LOC)": 5,
-          "Reflection Hits": 0,
-          "Start Line": 47,
-          "Structural Impact": 1.2
-        },
-        {
-          "Control Flow Branches": 0,
-          "Control Flow Ratio": "0.0%",
           "End Line": 42,
           "Function Name": "C-PARA",
           "Input Parameters": 0,
@@ -71075,6 +71062,19 @@
           "Reflection Hits": 0,
           "Start Line": 44,
           "Structural Impact": 1.1
+        },
+        {
+          "Control Flow Branches": 0,
+          "Control Flow Ratio": "0.0%",
+          "End Line": 48,
+          "Function Name": "E-PARA",
+          "Input Parameters": 0,
+          "Is Documented": 0,
+          "Is Public": 0,
+          "Lines of Code (LOC)": 2,
+          "Reflection Hits": 0,
+          "Start Line": 47,
+          "Structural Impact": 1.1
         }
       ],
       "cobol/CICS-Cobol/CBL0602v01PerformUntil.cbl": [
@@ -71094,15 +71094,15 @@
         {
           "Control Flow Branches": 0,
           "Control Flow Ratio": "0.0%",
-          "End Line": 33,
+          "End Line": 31,
           "Function Name": "CONTADOR",
           "Input Parameters": 0,
           "Is Documented": 0,
           "Is Public": 0,
-          "Lines of Code (LOC)": 5,
+          "Lines of Code (LOC)": 3,
           "Reflection Hits": 0,
           "Start Line": 29,
-          "Structural Impact": 1.2
+          "Structural Impact": 1.1
         }
       ],
       "cobol/CICS-Cobol/CBL0603v01PerformTimes.cbl": [
@@ -71122,15 +71122,15 @@
         {
           "Control Flow Branches": 0,
           "Control Flow Ratio": "0.0%",
-          "End Line": 33,
+          "End Line": 31,
           "Function Name": "0100-CONTADOR",
           "Input Parameters": 0,
           "Is Documented": 0,
           "Is Public": 0,
-          "Lines of Code (LOC)": 5,
+          "Lines of Code (LOC)": 3,
           "Reflection Hits": 0,
           "Start Line": 29,
-          "Structural Impact": 1.2
+          "Structural Impact": 1.1
         }
       ],
       "cobol/CICS-Cobol/CBL0604v01PerformVariying.cbl": [
@@ -71150,15 +71150,15 @@
         {
           "Control Flow Branches": 0,
           "Control Flow Ratio": "0.0%",
-          "End Line": 40,
+          "End Line": 38,
           "Function Name": "0100-CONTADOR",
           "Input Parameters": 0,
           "Is Documented": 0,
           "Is Public": 0,
-          "Lines of Code (LOC)": 4,
+          "Lines of Code (LOC)": 2,
           "Reflection Hits": 0,
           "Start Line": 37,
-          "Structural Impact": 1.2
+          "Structural Impact": 1.1
         }
       ],
       "cobol/CICS-Cobol/CBL0605v01GotoStatement.cbl": [
@@ -71204,19 +71204,6 @@
         {
           "Control Flow Branches": 0,
           "Control Flow Ratio": "0.0%",
-          "End Line": 42,
-          "Function Name": "0100-CONTADOR",
-          "Input Parameters": 0,
-          "Is Documented": 0,
-          "Is Public": 0,
-          "Lines of Code (LOC)": 4,
-          "Reflection Hits": 0,
-          "Start Line": 39,
-          "Structural Impact": 1.2
-        },
-        {
-          "Control Flow Branches": 0,
-          "Control Flow Ratio": "0.0%",
           "End Line": 32,
           "Function Name": "C-PARA",
           "Input Parameters": 0,
@@ -71226,78 +71213,91 @@
           "Reflection Hits": 0,
           "Start Line": 31,
           "Structural Impact": 1.1
+        },
+        {
+          "Control Flow Branches": 0,
+          "Control Flow Ratio": "0.0%",
+          "End Line": 40,
+          "Function Name": "0100-CONTADOR",
+          "Input Parameters": 0,
+          "Is Documented": 0,
+          "Is Public": 0,
+          "Lines of Code (LOC)": 2,
+          "Reflection Hits": 0,
+          "Start Line": 39,
+          "Structural Impact": 1.1
         }
       ],
       "cobol/CICS-Cobol/CBL0701v01StatementInspect.cbl": [
         {
           "Control Flow Branches": 0,
           "Control Flow Ratio": "0.0%",
-          "End Line": 35,
+          "End Line": 33,
           "Function Name": "0000-MAIN",
           "Input Parameters": 0,
           "Is Documented": 0,
           "Is Public": 0,
-          "Lines of Code (LOC)": 15,
+          "Lines of Code (LOC)": 13,
           "Reflection Hits": 0,
           "Start Line": 21,
-          "Structural Impact": 1.8
+          "Structural Impact": 1.6
         }
       ],
       "cobol/CICS-Cobol/CBL0702v01InspectReplacing.cbl": [
         {
           "Control Flow Branches": 0,
           "Control Flow Ratio": "0.0%",
-          "End Line": 32,
+          "End Line": 30,
           "Function Name": "0000-MAIN",
           "Input Parameters": 0,
           "Is Documented": 0,
           "Is Public": 0,
-          "Lines of Code (LOC)": 14,
+          "Lines of Code (LOC)": 12,
           "Reflection Hits": 0,
           "Start Line": 19,
-          "Structural Impact": 1.7
+          "Structural Impact": 1.6
         }
       ],
       "cobol/CICS-Cobol/CBL0703v01StatementString.cbl": [
         {
           "Control Flow Branches": 1,
           "Control Flow Ratio": "12.5%",
-          "End Line": 38,
+          "End Line": 36,
           "Function Name": "0000-MAIN",
           "Input Parameters": 0,
           "Is Documented": 0,
           "Is Public": 0,
-          "Lines of Code (LOC)": 19,
+          "Lines of Code (LOC)": 17,
           "Reflection Hits": 0,
           "Start Line": 20,
-          "Structural Impact": 3.0
+          "Structural Impact": 2.9
         }
       ],
       "cobol/CICS-Cobol/CBL0704v01StatementNotString.cbl": [
         {
           "Control Flow Branches": 1,
           "Control Flow Ratio": "10.0%",
-          "End Line": 41,
+          "End Line": 39,
           "Function Name": "0000-MAIN",
           "Input Parameters": 0,
           "Is Documented": 0,
           "Is Public": 0,
-          "Lines of Code (LOC)": 20,
+          "Lines of Code (LOC)": 18,
           "Reflection Hits": 0,
           "Start Line": 22,
-          "Structural Impact": 3.0
+          "Structural Impact": 2.9
         }
       ],
       "cobol/CICS-Cobol/CBL0801v01TableOneDimention.cbl": [
         {
           "Control Flow Branches": 0,
           "Control Flow Ratio": "0.0%",
-          "End Line": 31,
+          "End Line": 29,
           "Function Name": "0000-MAIN",
           "Input Parameters": 0,
           "Is Documented": 0,
           "Is Public": 0,
-          "Lines of Code (LOC)": 13,
+          "Lines of Code (LOC)": 11,
           "Reflection Hits": 0,
           "Start Line": 19,
           "Structural Impact": 1.6
@@ -71307,30 +71307,30 @@
         {
           "Control Flow Branches": 0,
           "Control Flow Ratio": "0.0%",
-          "End Line": 34,
+          "End Line": 32,
           "Function Name": "0000-MAIN",
           "Input Parameters": 0,
           "Is Documented": 0,
           "Is Public": 0,
-          "Lines of Code (LOC)": 12,
+          "Lines of Code (LOC)": 10,
           "Reflection Hits": 0,
           "Start Line": 23,
-          "Structural Impact": 1.6
+          "Structural Impact": 1.5
         }
       ],
       "cobol/CICS-Cobol/CBL0803v01TableUseSubIndice.cbl": [
         {
           "Control Flow Branches": 0,
           "Control Flow Ratio": "0.0%",
-          "End Line": 57,
+          "End Line": 55,
           "Function Name": "0000-MAIN",
           "Input Parameters": 0,
           "Is Documented": 0,
           "Is Public": 0,
-          "Lines of Code (LOC)": 35,
+          "Lines of Code (LOC)": 33,
           "Reflection Hits": 0,
           "Start Line": 23,
-          "Structural Impact": 2.8
+          "Structural Impact": 2.7
         }
       ],
       "cobol/CICS-Cobol/CBL0804v01TableUseIndice.cbl": [
@@ -71363,19 +71363,6 @@
         {
           "Control Flow Branches": 0,
           "Control Flow Ratio": "0.0%",
-          "End Line": 61,
-          "Function Name": "300-MOSTRAR",
-          "Input Parameters": 0,
-          "Is Documented": 0,
-          "Is Public": 0,
-          "Lines of Code (LOC)": 4,
-          "Reflection Hits": 0,
-          "Start Line": 58,
-          "Structural Impact": 1.2
-        },
-        {
-          "Control Flow Branches": 0,
-          "Control Flow Ratio": "0.0%",
           "End Line": 53,
           "Function Name": "100-ONE-DIMENSION",
           "Input Parameters": 0,
@@ -71384,6 +71371,19 @@
           "Lines of Code (LOC)": 2,
           "Reflection Hits": 0,
           "Start Line": 52,
+          "Structural Impact": 1.1
+        },
+        {
+          "Control Flow Branches": 0,
+          "Control Flow Ratio": "0.0%",
+          "End Line": 59,
+          "Function Name": "300-MOSTRAR",
+          "Input Parameters": 0,
+          "Is Documented": 0,
+          "Is Public": 0,
+          "Lines of Code (LOC)": 2,
+          "Reflection Hits": 0,
+          "Start Line": 58,
           "Structural Impact": 1.1
         }
       ],
@@ -71417,19 +71417,6 @@
         {
           "Control Flow Branches": 0,
           "Control Flow Ratio": "0.0%",
-          "End Line": 68,
-          "Function Name": "300-MOSTRAR",
-          "Input Parameters": 0,
-          "Is Documented": 0,
-          "Is Public": 0,
-          "Lines of Code (LOC)": 5,
-          "Reflection Hits": 0,
-          "Start Line": 64,
-          "Structural Impact": 1.2
-        },
-        {
-          "Control Flow Branches": 0,
-          "Control Flow Ratio": "0.0%",
           "End Line": 59,
           "Function Name": "100-ONE-DIMENSION",
           "Input Parameters": 0,
@@ -71439,21 +71426,34 @@
           "Reflection Hits": 0,
           "Start Line": 57,
           "Structural Impact": 1.1
+        },
+        {
+          "Control Flow Branches": 0,
+          "Control Flow Ratio": "0.0%",
+          "End Line": 66,
+          "Function Name": "300-MOSTRAR",
+          "Input Parameters": 0,
+          "Is Documented": 0,
+          "Is Public": 0,
+          "Lines of Code (LOC)": 3,
+          "Reflection Hits": 0,
+          "Start Line": 64,
+          "Structural Impact": 1.1
         }
       ],
       "cobol/CICS-Cobol/CBL0806v01TableSearch.cbl": [
         {
           "Control Flow Branches": 2,
           "Control Flow Ratio": "28.6%",
-          "End Line": 59,
+          "End Line": 57,
           "Function Name": "100-ONE-DIMENSION",
           "Input Parameters": 0,
           "Is Documented": 0,
           "Is Public": 0,
-          "Lines of Code (LOC)": 14,
+          "Lines of Code (LOC)": 12,
           "Reflection Hits": 0,
           "Start Line": 46,
-          "Structural Impact": 3.7
+          "Structural Impact": 3.6
         },
         {
           "Control Flow Branches": 0,
@@ -71512,15 +71512,15 @@
         {
           "Control Flow Branches": 0,
           "Control Flow Ratio": "0.0%",
-          "End Line": 73,
+          "End Line": 71,
           "Function Name": "150-SHOW-AFTER",
           "Input Parameters": 0,
           "Is Documented": 0,
           "Is Public": 0,
-          "Lines of Code (LOC)": 6,
+          "Lines of Code (LOC)": 4,
           "Reflection Hits": 0,
           "Start Line": 68,
-          "Structural Impact": 1.3
+          "Structural Impact": 1.2
         }
       ],
       "cobol/CICS-Cobol/CBL0901v01AccesoSecuencial.cbl": [
@@ -71553,12 +71553,12 @@
         {
           "Control Flow Branches": 0,
           "Control Flow Ratio": "0.0%",
-          "End Line": 62,
+          "End Line": 61,
           "Function Name": "4000-FINAL",
           "Input Parameters": 0,
           "Is Documented": 0,
           "Is Public": 0,
-          "Lines of Code (LOC)": 3,
+          "Lines of Code (LOC)": 2,
           "Reflection Hits": 0,
           "Start Line": 60,
           "Structural Impact": 1.1
@@ -71581,19 +71581,6 @@
         {
           "Control Flow Branches": 0,
           "Control Flow Ratio": "0.0%",
-          "End Line": 89,
-          "Function Name": "4000-FINAL",
-          "Input Parameters": 0,
-          "Is Documented": 0,
-          "Is Public": 0,
-          "Lines of Code (LOC)": 4,
-          "Reflection Hits": 0,
-          "Start Line": 86,
-          "Structural Impact": 1.2
-        },
-        {
-          "Control Flow Branches": 0,
-          "Control Flow Ratio": "0.0%",
           "End Line": 79,
           "Function Name": "0000-MAIN",
           "Input Parameters": 0,
@@ -71602,6 +71589,19 @@
           "Lines of Code (LOC)": 3,
           "Reflection Hits": 0,
           "Start Line": 77,
+          "Structural Impact": 1.1
+        },
+        {
+          "Control Flow Branches": 0,
+          "Control Flow Ratio": "0.0%",
+          "End Line": 87,
+          "Function Name": "4000-FINAL",
+          "Input Parameters": 0,
+          "Is Documented": 0,
+          "Is Public": 0,
+          "Lines of Code (LOC)": 2,
+          "Reflection Hits": 0,
+          "Start Line": 86,
           "Structural Impact": 1.1
         }
       ],
@@ -71635,31 +71635,18 @@
         {
           "Control Flow Branches": 0,
           "Control Flow Ratio": "0.0%",
-          "End Line": 78,
+          "End Line": 77,
           "Function Name": "4000-FINAL",
           "Input Parameters": 0,
           "Is Documented": 0,
           "Is Public": 0,
-          "Lines of Code (LOC)": 3,
+          "Lines of Code (LOC)": 2,
           "Reflection Hits": 0,
           "Start Line": 76,
           "Structural Impact": 1.1
         }
       ],
       "cobol/CICS-Cobol/CBL0903v01AccesoDinamico.cbl": [
-        {
-          "Control Flow Branches": 0,
-          "Control Flow Ratio": "0.0%",
-          "End Line": 79,
-          "Function Name": "4000-FINAL",
-          "Input Parameters": 0,
-          "Is Documented": 0,
-          "Is Public": 0,
-          "Lines of Code (LOC)": 4,
-          "Reflection Hits": 0,
-          "Start Line": 76,
-          "Structural Impact": 1.2
-        },
         {
           "Control Flow Branches": 0,
           "Control Flow Ratio": "0.0%",
@@ -71684,6 +71671,19 @@
           "Lines of Code (LOC)": 2,
           "Reflection Hits": 0,
           "Start Line": 73,
+          "Structural Impact": 1.1
+        },
+        {
+          "Control Flow Branches": 0,
+          "Control Flow Ratio": "0.0%",
+          "End Line": 77,
+          "Function Name": "4000-FINAL",
+          "Input Parameters": 0,
+          "Is Documented": 0,
+          "Is Public": 0,
+          "Lines of Code (LOC)": 2,
+          "Reflection Hits": 0,
+          "Start Line": 76,
           "Structural Impact": 1.1
         }
       ],
@@ -73970,12 +73970,38 @@
         {
           "Control Flow Branches": 0,
           "Control Flow Ratio": "0.0%",
-          "End Line": 1030,
+          "End Line": 4208,
+          "Function Name": "9700-CHECK-CHANGE-IN-REC-EXIT",
+          "Input Parameters": 0,
+          "Is Documented": 0,
+          "Is Public": 0,
+          "Lines of Code (LOC)": 8,
+          "Reflection Hits": 0,
+          "Start Line": 4201,
+          "Structural Impact": 1.4
+        },
+        {
+          "Control Flow Branches": 0,
+          "Control Flow Ratio": "0.0%",
+          "End Line": 4241,
+          "Function Name": "ABEND-ROUTINE-EXIT",
+          "Input Parameters": 0,
+          "Is Documented": 0,
+          "Is Public": 0,
+          "Lines of Code (LOC)": 8,
+          "Reflection Hits": 0,
+          "Start Line": 4234,
+          "Structural Impact": 1.4
+        },
+        {
+          "Control Flow Branches": 0,
+          "Control Flow Ratio": "0.0%",
+          "End Line": 1031,
           "Function Name": "0000-MAIN-EXIT",
           "Input Parameters": 0,
           "Is Documented": 0,
           "Is Public": 0,
-          "Lines of Code (LOC)": 2,
+          "Lines of Code (LOC)": 3,
           "Reflection Hits": 0,
           "Start Line": 1029,
           "Structural Impact": 1.1
@@ -73983,12 +74009,12 @@
         {
           "Control Flow Branches": 0,
           "Control Flow Ratio": "0.0%",
-          "End Line": 1045,
+          "End Line": 1046,
           "Function Name": "1000-PROCESS-INPUTS-EXIT",
           "Input Parameters": 0,
           "Is Documented": 0,
           "Is Public": 0,
-          "Lines of Code (LOC)": 2,
+          "Lines of Code (LOC)": 3,
           "Reflection Hits": 0,
           "Start Line": 1044,
           "Structural Impact": 1.1
@@ -73996,12 +74022,12 @@
         {
           "Control Flow Branches": 0,
           "Control Flow Ratio": "0.0%",
-          "End Line": 1435,
+          "End Line": 1436,
           "Function Name": "1100-RECEIVE-MAP-EXIT",
           "Input Parameters": 0,
           "Is Documented": 0,
           "Is Public": 0,
-          "Lines of Code (LOC)": 2,
+          "Lines of Code (LOC)": 3,
           "Reflection Hits": 0,
           "Start Line": 1434,
           "Structural Impact": 1.1
@@ -74009,12 +74035,12 @@
         {
           "Control Flow Branches": 0,
           "Control Flow Ratio": "0.0%",
-          "End Line": 1687,
+          "End Line": 1688,
           "Function Name": "1200-EDIT-MAP-INPUTS-EXIT",
           "Input Parameters": 0,
           "Is Documented": 0,
           "Is Public": 0,
-          "Lines of Code (LOC)": 2,
+          "Lines of Code (LOC)": 3,
           "Reflection Hits": 0,
           "Start Line": 1686,
           "Structural Impact": 1.1
@@ -74022,12 +74048,12 @@
         {
           "Control Flow Branches": 0,
           "Control Flow Ratio": "0.0%",
-          "End Line": 1786,
+          "End Line": 1787,
           "Function Name": "1205-COMPARE-OLD-NEW-EXIT",
           "Input Parameters": 0,
           "Is Documented": 0,
           "Is Public": 0,
-          "Lines of Code (LOC)": 2,
+          "Lines of Code (LOC)": 3,
           "Reflection Hits": 0,
           "Start Line": 1785,
           "Structural Impact": 1.1
@@ -74035,12 +74061,12 @@
         {
           "Control Flow Branches": 0,
           "Control Flow Ratio": "0.0%",
-          "End Line": 1829,
+          "End Line": 1830,
           "Function Name": "1210-EDIT-ACCOUNT-EXIT",
           "Input Parameters": 0,
           "Is Documented": 0,
           "Is Public": 0,
-          "Lines of Code (LOC)": 2,
+          "Lines of Code (LOC)": 3,
           "Reflection Hits": 0,
           "Start Line": 1828,
           "Structural Impact": 1.1
@@ -74048,12 +74074,12 @@
         {
           "Control Flow Branches": 0,
           "Control Flow Ratio": "0.0%",
-          "End Line": 1861,
+          "End Line": 1862,
           "Function Name": "1215-EDIT-MANDATORY-EXIT",
           "Input Parameters": 0,
           "Is Documented": 0,
           "Is Public": 0,
-          "Lines of Code (LOC)": 2,
+          "Lines of Code (LOC)": 3,
           "Reflection Hits": 0,
           "Start Line": 1860,
           "Structural Impact": 1.1
@@ -74061,12 +74087,12 @@
         {
           "Control Flow Branches": 0,
           "Control Flow Ratio": "0.0%",
-          "End Line": 1903,
+          "End Line": 1904,
           "Function Name": "1220-EDIT-YESNO-EXIT",
           "Input Parameters": 0,
           "Is Documented": 0,
           "Is Public": 0,
-          "Lines of Code (LOC)": 2,
+          "Lines of Code (LOC)": 3,
           "Reflection Hits": 0,
           "Start Line": 1902,
           "Structural Impact": 1.1
@@ -74074,12 +74100,12 @@
         {
           "Control Flow Branches": 0,
           "Control Flow Ratio": "0.0%",
-          "End Line": 1960,
+          "End Line": 1961,
           "Function Name": "1225-EDIT-ALPHA-REQD-EXIT",
           "Input Parameters": 0,
           "Is Documented": 0,
           "Is Public": 0,
-          "Lines of Code (LOC)": 2,
+          "Lines of Code (LOC)": 3,
           "Reflection Hits": 0,
           "Start Line": 1959,
           "Structural Impact": 1.1
@@ -74087,12 +74113,12 @@
         {
           "Control Flow Branches": 0,
           "Control Flow Ratio": "0.0%",
-          "End Line": 2018,
+          "End Line": 2019,
           "Function Name": "1230-EDIT-ALPHANUM-REQD-EXIT",
           "Input Parameters": 0,
           "Is Documented": 0,
           "Is Public": 0,
-          "Lines of Code (LOC)": 2,
+          "Lines of Code (LOC)": 3,
           "Reflection Hits": 0,
           "Start Line": 2017,
           "Structural Impact": 1.1
@@ -74100,12 +74126,12 @@
         {
           "Control Flow Branches": 0,
           "Control Flow Ratio": "0.0%",
-          "End Line": 2066,
+          "End Line": 2067,
           "Function Name": "1235-EDIT-ALPHA-OPT-EXIT",
           "Input Parameters": 0,
           "Is Documented": 0,
           "Is Public": 0,
-          "Lines of Code (LOC)": 2,
+          "Lines of Code (LOC)": 3,
           "Reflection Hits": 0,
           "Start Line": 2065,
           "Structural Impact": 1.1
@@ -74113,12 +74139,12 @@
         {
           "Control Flow Branches": 0,
           "Control Flow Ratio": "0.0%",
-          "End Line": 2114,
+          "End Line": 2115,
           "Function Name": "1240-EDIT-ALPHANUM-OPT-EXIT",
           "Input Parameters": 0,
           "Is Documented": 0,
           "Is Public": 0,
-          "Lines of Code (LOC)": 2,
+          "Lines of Code (LOC)": 3,
           "Reflection Hits": 0,
           "Start Line": 2113,
           "Structural Impact": 1.1
@@ -74126,12 +74152,12 @@
         {
           "Control Flow Branches": 0,
           "Control Flow Ratio": "0.0%",
-          "End Line": 2185,
+          "End Line": 2186,
           "Function Name": "1245-EDIT-NUM-REQD-EXIT",
           "Input Parameters": 0,
           "Is Documented": 0,
           "Is Public": 0,
-          "Lines of Code (LOC)": 2,
+          "Lines of Code (LOC)": 3,
           "Reflection Hits": 0,
           "Start Line": 2184,
           "Structural Impact": 1.1
@@ -74139,12 +74165,12 @@
         {
           "Control Flow Branches": 0,
           "Control Flow Ratio": "0.0%",
-          "End Line": 2230,
+          "End Line": 2231,
           "Function Name": "1250-EDIT-SIGNED-9V2-EXIT",
           "Input Parameters": 0,
           "Is Documented": 0,
           "Is Public": 0,
-          "Lines of Code (LOC)": 2,
+          "Lines of Code (LOC)": 3,
           "Reflection Hits": 0,
           "Start Line": 2229,
           "Structural Impact": 1.1
@@ -74152,12 +74178,12 @@
         {
           "Control Flow Branches": 0,
           "Control Flow Ratio": "0.0%",
-          "End Line": 2433,
+          "End Line": 2434,
           "Function Name": "EDIT-US-PHONE-EXIT",
           "Input Parameters": 0,
           "Is Documented": 0,
           "Is Public": 0,
-          "Lines of Code (LOC)": 2,
+          "Lines of Code (LOC)": 3,
           "Reflection Hits": 0,
           "Start Line": 2432,
           "Structural Impact": 1.1
@@ -74165,12 +74191,12 @@
         {
           "Control Flow Branches": 0,
           "Control Flow Ratio": "0.0%",
-          "End Line": 2436,
+          "End Line": 2437,
           "Function Name": "1260-EDIT-US-PHONE-NUM-EXIT",
           "Input Parameters": 0,
           "Is Documented": 0,
           "Is Public": 0,
-          "Lines of Code (LOC)": 2,
+          "Lines of Code (LOC)": 3,
           "Reflection Hits": 0,
           "Start Line": 2435,
           "Structural Impact": 1.1
@@ -74178,12 +74204,12 @@
         {
           "Control Flow Branches": 0,
           "Control Flow Ratio": "0.0%",
-          "End Line": 2498,
+          "End Line": 2499,
           "Function Name": "1265-EDIT-US-SSN-EXIT",
           "Input Parameters": 0,
           "Is Documented": 0,
           "Is Public": 0,
-          "Lines of Code (LOC)": 2,
+          "Lines of Code (LOC)": 3,
           "Reflection Hits": 0,
           "Start Line": 2497,
           "Structural Impact": 1.1
@@ -74191,12 +74217,12 @@
         {
           "Control Flow Branches": 0,
           "Control Flow Ratio": "0.0%",
-          "End Line": 2520,
+          "End Line": 2521,
           "Function Name": "1270-EDIT-US-STATE-CD-EXIT",
           "Input Parameters": 0,
           "Is Documented": 0,
           "Is Public": 0,
-          "Lines of Code (LOC)": 2,
+          "Lines of Code (LOC)": 3,
           "Reflection Hits": 0,
           "Start Line": 2519,
           "Structural Impact": 1.1
@@ -74204,12 +74230,12 @@
         {
           "Control Flow Branches": 0,
           "Control Flow Ratio": "0.0%",
-          "End Line": 2540,
+          "End Line": 2541,
           "Function Name": "1275-EDIT-FICO-SCORE-EXIT",
           "Input Parameters": 0,
           "Is Documented": 0,
           "Is Public": 0,
-          "Lines of Code (LOC)": 2,
+          "Lines of Code (LOC)": 3,
           "Reflection Hits": 0,
           "Start Line": 2539,
           "Structural Impact": 1.1
@@ -74217,12 +74243,12 @@
         {
           "Control Flow Branches": 0,
           "Control Flow Ratio": "0.0%",
-          "End Line": 2567,
+          "End Line": 2568,
           "Function Name": "1280-EDIT-US-STATE-ZIP-CD-EXIT",
           "Input Parameters": 0,
           "Is Documented": 0,
           "Is Public": 0,
-          "Lines of Code (LOC)": 2,
+          "Lines of Code (LOC)": 3,
           "Reflection Hits": 0,
           "Start Line": 2566,
           "Structural Impact": 1.1
@@ -74230,12 +74256,12 @@
         {
           "Control Flow Branches": 0,
           "Control Flow Ratio": "0.0%",
-          "End Line": 2652,
+          "End Line": 2653,
           "Function Name": "2000-DECIDE-ACTION-EXIT",
           "Input Parameters": 0,
           "Is Documented": 0,
           "Is Public": 0,
-          "Lines of Code (LOC)": 2,
+          "Lines of Code (LOC)": 3,
           "Reflection Hits": 0,
           "Start Line": 2651,
           "Structural Impact": 1.1
@@ -74243,12 +74269,12 @@
         {
           "Control Flow Branches": 0,
           "Control Flow Ratio": "0.0%",
-          "End Line": 2673,
+          "End Line": 2674,
           "Function Name": "3000-SEND-MAP-EXIT",
           "Input Parameters": 0,
           "Is Documented": 0,
           "Is Public": 0,
-          "Lines of Code (LOC)": 2,
+          "Lines of Code (LOC)": 3,
           "Reflection Hits": 0,
           "Start Line": 2672,
           "Structural Impact": 1.1
@@ -74256,12 +74282,12 @@
         {
           "Control Flow Branches": 0,
           "Control Flow Ratio": "0.0%",
-          "End Line": 2703,
+          "End Line": 2704,
           "Function Name": "3100-SCREEN-INIT-EXIT",
           "Input Parameters": 0,
           "Is Documented": 0,
           "Is Public": 0,
-          "Lines of Code (LOC)": 2,
+          "Lines of Code (LOC)": 3,
           "Reflection Hits": 0,
           "Start Line": 2702,
           "Structural Impact": 1.1
@@ -74269,12 +74295,12 @@
         {
           "Control Flow Branches": 0,
           "Control Flow Ratio": "0.0%",
-          "End Line": 2736,
+          "End Line": 2737,
           "Function Name": "3200-SETUP-SCREEN-VARS-EXIT",
           "Input Parameters": 0,
           "Is Documented": 0,
           "Is Public": 0,
-          "Lines of Code (LOC)": 2,
+          "Lines of Code (LOC)": 3,
           "Reflection Hits": 0,
           "Start Line": 2735,
           "Structural Impact": 1.1
@@ -74282,12 +74308,12 @@
         {
           "Control Flow Branches": 0,
           "Control Flow Ratio": "0.0%",
-          "End Line": 2792,
+          "End Line": 2793,
           "Function Name": "3201-SHOW-INITIAL-VALUES-EXIT",
           "Input Parameters": 0,
           "Is Documented": 0,
           "Is Public": 0,
-          "Lines of Code (LOC)": 2,
+          "Lines of Code (LOC)": 3,
           "Reflection Hits": 0,
           "Start Line": 2791,
           "Structural Impact": 1.1
@@ -74295,12 +74321,12 @@
         {
           "Control Flow Branches": 0,
           "Control Flow Ratio": "0.0%",
-          "End Line": 2876,
+          "End Line": 2877,
           "Function Name": "3202-SHOW-ORIGINAL-VALUES-EXIT",
           "Input Parameters": 0,
           "Is Documented": 0,
           "Is Public": 0,
-          "Lines of Code (LOC)": 2,
+          "Lines of Code (LOC)": 3,
           "Reflection Hits": 0,
           "Start Line": 2875,
           "Structural Impact": 1.1
@@ -74308,12 +74334,12 @@
         {
           "Control Flow Branches": 0,
           "Control Flow Ratio": "0.0%",
-          "End Line": 2960,
+          "End Line": 2961,
           "Function Name": "3203-SHOW-UPDATED-VALUES-EXIT",
           "Input Parameters": 0,
           "Is Documented": 0,
           "Is Public": 0,
-          "Lines of Code (LOC)": 2,
+          "Lines of Code (LOC)": 3,
           "Reflection Hits": 0,
           "Start Line": 2959,
           "Structural Impact": 1.1
@@ -74321,12 +74347,12 @@
         {
           "Control Flow Branches": 0,
           "Control Flow Ratio": "0.0%",
-          "End Line": 2992,
+          "End Line": 2993,
           "Function Name": "3250-SETUP-INFOMSG-EXIT",
           "Input Parameters": 0,
           "Is Documented": 0,
           "Is Public": 0,
-          "Lines of Code (LOC)": 2,
+          "Lines of Code (LOC)": 3,
           "Reflection Hits": 0,
           "Start Line": 2991,
           "Structural Impact": 1.1
@@ -74334,12 +74360,12 @@
         {
           "Control Flow Branches": 0,
           "Control Flow Ratio": "0.0%",
-          "End Line": 3446,
+          "End Line": 3447,
           "Function Name": "3300-SETUP-SCREEN-ATTRS-EXIT",
           "Input Parameters": 0,
           "Is Documented": 0,
           "Is Public": 0,
-          "Lines of Code (LOC)": 2,
+          "Lines of Code (LOC)": 3,
           "Reflection Hits": 0,
           "Start Line": 3445,
           "Structural Impact": 1.1
@@ -74347,12 +74373,12 @@
         {
           "Control Flow Branches": 0,
           "Control Flow Ratio": "0.0%",
-          "End Line": 3505,
+          "End Line": 3506,
           "Function Name": "3310-PROTECT-ALL-ATTRS-EXIT",
           "Input Parameters": 0,
           "Is Documented": 0,
           "Is Public": 0,
-          "Lines of Code (LOC)": 2,
+          "Lines of Code (LOC)": 3,
           "Reflection Hits": 0,
           "Start Line": 3504,
           "Structural Impact": 1.1
@@ -74360,12 +74386,12 @@
         {
           "Control Flow Branches": 0,
           "Control Flow Ratio": "0.0%",
-          "End Line": 3571,
+          "End Line": 3572,
           "Function Name": "3320-UNPROTECT-FEW-ATTRS-EXIT",
           "Input Parameters": 0,
           "Is Documented": 0,
           "Is Public": 0,
-          "Lines of Code (LOC)": 2,
+          "Lines of Code (LOC)": 3,
           "Reflection Hits": 0,
           "Start Line": 3570,
           "Structural Impact": 1.1
@@ -74373,12 +74399,12 @@
         {
           "Control Flow Branches": 0,
           "Control Flow Ratio": "0.0%",
-          "End Line": 3593,
+          "End Line": 3594,
           "Function Name": "3390-SETUP-INFOMSG-ATTRS-EXIT",
           "Input Parameters": 0,
           "Is Documented": 0,
           "Is Public": 0,
-          "Lines of Code (LOC)": 2,
+          "Lines of Code (LOC)": 3,
           "Reflection Hits": 0,
           "Start Line": 3592,
           "Structural Impact": 1.1
@@ -74386,12 +74412,12 @@
         {
           "Control Flow Branches": 0,
           "Control Flow Ratio": "0.0%",
-          "End Line": 3612,
+          "End Line": 3613,
           "Function Name": "3400-SEND-SCREEN-EXIT",
           "Input Parameters": 0,
           "Is Documented": 0,
           "Is Public": 0,
-          "Lines of Code (LOC)": 2,
+          "Lines of Code (LOC)": 3,
           "Reflection Hits": 0,
           "Start Line": 3611,
           "Structural Impact": 1.1
@@ -74399,12 +74425,12 @@
         {
           "Control Flow Branches": 0,
           "Control Flow Ratio": "0.0%",
-          "End Line": 3656,
+          "End Line": 3657,
           "Function Name": "9000-READ-ACCT-EXIT",
           "Input Parameters": 0,
           "Is Documented": 0,
           "Is Public": 0,
-          "Lines of Code (LOC)": 2,
+          "Lines of Code (LOC)": 3,
           "Reflection Hits": 0,
           "Start Line": 3655,
           "Structural Impact": 1.1
@@ -74412,12 +74438,12 @@
         {
           "Control Flow Branches": 0,
           "Control Flow Ratio": "0.0%",
-          "End Line": 3707,
+          "End Line": 3708,
           "Function Name": "9200-GETCARDXREF-BYACCT-EXIT",
           "Input Parameters": 0,
           "Is Documented": 0,
           "Is Public": 0,
-          "Lines of Code (LOC)": 2,
+          "Lines of Code (LOC)": 3,
           "Reflection Hits": 0,
           "Start Line": 3706,
           "Structural Impact": 1.1
@@ -74425,12 +74451,12 @@
         {
           "Control Flow Branches": 0,
           "Control Flow Ratio": "0.0%",
-          "End Line": 3757,
+          "End Line": 3758,
           "Function Name": "9300-GETACCTDATA-BYACCT-EXIT",
           "Input Parameters": 0,
           "Is Documented": 0,
           "Is Public": 0,
-          "Lines of Code (LOC)": 2,
+          "Lines of Code (LOC)": 3,
           "Reflection Hits": 0,
           "Start Line": 3756,
           "Structural Impact": 1.1
@@ -74438,12 +74464,12 @@
         {
           "Control Flow Branches": 0,
           "Control Flow Ratio": "0.0%",
-          "End Line": 3806,
+          "End Line": 3807,
           "Function Name": "9400-GETCUSTDATA-BYCUST-EXIT",
           "Input Parameters": 0,
           "Is Documented": 0,
           "Is Public": 0,
-          "Lines of Code (LOC)": 2,
+          "Lines of Code (LOC)": 3,
           "Reflection Hits": 0,
           "Start Line": 3805,
           "Structural Impact": 1.1
@@ -74451,12 +74477,12 @@
         {
           "Control Flow Branches": 0,
           "Control Flow Ratio": "0.0%",
-          "End Line": 3894,
+          "End Line": 3895,
           "Function Name": "9500-STORE-FETCHED-DATA-EXIT",
           "Input Parameters": 0,
           "Is Documented": 0,
           "Is Public": 0,
-          "Lines of Code (LOC)": 2,
+          "Lines of Code (LOC)": 3,
           "Reflection Hits": 0,
           "Start Line": 3893,
           "Structural Impact": 1.1
@@ -74464,40 +74490,14 @@
         {
           "Control Flow Branches": 0,
           "Control Flow Ratio": "0.0%",
-          "End Line": 4114,
+          "End Line": 4115,
           "Function Name": "9600-WRITE-PROCESSING-EXIT",
           "Input Parameters": 0,
           "Is Documented": 0,
           "Is Public": 0,
-          "Lines of Code (LOC)": 2,
+          "Lines of Code (LOC)": 3,
           "Reflection Hits": 0,
           "Start Line": 4113,
-          "Structural Impact": 1.1
-        },
-        {
-          "Control Flow Branches": 0,
-          "Control Flow Ratio": "0.0%",
-          "End Line": 4202,
-          "Function Name": "9700-CHECK-CHANGE-IN-REC-EXIT",
-          "Input Parameters": 0,
-          "Is Documented": 0,
-          "Is Public": 0,
-          "Lines of Code (LOC)": 2,
-          "Reflection Hits": 0,
-          "Start Line": 4201,
-          "Structural Impact": 1.1
-        },
-        {
-          "Control Flow Branches": 0,
-          "Control Flow Ratio": "0.0%",
-          "End Line": 4235,
-          "Function Name": "ABEND-ROUTINE-EXIT",
-          "Input Parameters": 0,
-          "Is Documented": 0,
-          "Is Public": 0,
-          "Lines of Code (LOC)": 2,
-          "Reflection Hits": 0,
-          "Start Line": 4234,
           "Structural Impact": 1.1
         }
       ],
@@ -74740,12 +74740,25 @@
         {
           "Control Flow Branches": 0,
           "Control Flow Ratio": "0.0%",
-          "End Line": 409,
+          "End Line": 914,
+          "Function Name": "SEND-LONG-TEXT-EXIT",
+          "Input Parameters": 0,
+          "Is Documented": 0,
+          "Is Public": 0,
+          "Lines of Code (LOC)": 8,
+          "Reflection Hits": 0,
+          "Start Line": 907,
+          "Structural Impact": 1.4
+        },
+        {
+          "Control Flow Branches": 0,
+          "Control Flow Ratio": "0.0%",
+          "End Line": 410,
           "Function Name": "0000-MAIN-EXIT",
           "Input Parameters": 0,
           "Is Documented": 0,
           "Is Public": 0,
-          "Lines of Code (LOC)": 2,
+          "Lines of Code (LOC)": 3,
           "Reflection Hits": 0,
           "Start Line": 408,
           "Structural Impact": 1.1
@@ -74753,12 +74766,12 @@
         {
           "Control Flow Branches": 0,
           "Control Flow Ratio": "0.0%",
-          "End Line": 412,
+          "End Line": 413,
           "Function Name": "0000-MAIN-EXIT",
           "Input Parameters": 0,
           "Is Documented": 0,
           "Is Public": 0,
-          "Lines of Code (LOC)": 2,
+          "Lines of Code (LOC)": 3,
           "Reflection Hits": 0,
           "Start Line": 411,
           "Structural Impact": 1.1
@@ -74766,12 +74779,12 @@
         {
           "Control Flow Branches": 0,
           "Control Flow Ratio": "0.0%",
-          "End Line": 428,
+          "End Line": 429,
           "Function Name": "1000-SEND-MAP-EXIT",
           "Input Parameters": 0,
           "Is Documented": 0,
           "Is Public": 0,
-          "Lines of Code (LOC)": 2,
+          "Lines of Code (LOC)": 3,
           "Reflection Hits": 0,
           "Start Line": 427,
           "Structural Impact": 1.1
@@ -74779,12 +74792,12 @@
         {
           "Control Flow Branches": 0,
           "Control Flow Ratio": "0.0%",
-          "End Line": 458,
+          "End Line": 459,
           "Function Name": "1100-SCREEN-INIT-EXIT",
           "Input Parameters": 0,
           "Is Documented": 0,
           "Is Public": 0,
-          "Lines of Code (LOC)": 2,
+          "Lines of Code (LOC)": 3,
           "Reflection Hits": 0,
           "Start Line": 457,
           "Structural Impact": 1.1
@@ -74792,12 +74805,12 @@
         {
           "Control Flow Branches": 0,
           "Control Flow Ratio": "0.0%",
-          "End Line": 538,
+          "End Line": 539,
           "Function Name": "1200-SETUP-SCREEN-VARS-EXIT",
           "Input Parameters": 0,
           "Is Documented": 0,
           "Is Public": 0,
-          "Lines of Code (LOC)": 2,
+          "Lines of Code (LOC)": 3,
           "Reflection Hits": 0,
           "Start Line": 537,
           "Structural Impact": 1.1
@@ -74805,12 +74818,12 @@
         {
           "Control Flow Branches": 0,
           "Control Flow Ratio": "0.0%",
-          "End Line": 575,
+          "End Line": 576,
           "Function Name": "1300-SETUP-SCREEN-ATTRS-EXIT",
           "Input Parameters": 0,
           "Is Documented": 0,
           "Is Public": 0,
-          "Lines of Code (LOC)": 2,
+          "Lines of Code (LOC)": 3,
           "Reflection Hits": 0,
           "Start Line": 574,
           "Structural Impact": 1.1
@@ -74818,12 +74831,12 @@
         {
           "Control Flow Branches": 0,
           "Control Flow Ratio": "0.0%",
-          "End Line": 593,
+          "End Line": 594,
           "Function Name": "1400-SEND-SCREEN-EXIT",
           "Input Parameters": 0,
           "Is Documented": 0,
           "Is Public": 0,
-          "Lines of Code (LOC)": 2,
+          "Lines of Code (LOC)": 3,
           "Reflection Hits": 0,
           "Start Line": 592,
           "Structural Impact": 1.1
@@ -74831,12 +74844,12 @@
         {
           "Control Flow Branches": 0,
           "Control Flow Ratio": "0.0%",
-          "End Line": 608,
+          "End Line": 609,
           "Function Name": "2000-PROCESS-INPUTS-EXIT",
           "Input Parameters": 0,
           "Is Documented": 0,
           "Is Public": 0,
-          "Lines of Code (LOC)": 2,
+          "Lines of Code (LOC)": 3,
           "Reflection Hits": 0,
           "Start Line": 607,
           "Structural Impact": 1.1
@@ -74844,12 +74857,12 @@
         {
           "Control Flow Branches": 0,
           "Control Flow Ratio": "0.0%",
-          "End Line": 620,
+          "End Line": 621,
           "Function Name": "2100-RECEIVE-MAP-EXIT",
           "Input Parameters": 0,
           "Is Documented": 0,
           "Is Public": 0,
-          "Lines of Code (LOC)": 2,
+          "Lines of Code (LOC)": 3,
           "Reflection Hits": 0,
           "Start Line": 619,
           "Structural Impact": 1.1
@@ -74857,12 +74870,12 @@
         {
           "Control Flow Branches": 0,
           "Control Flow Ratio": "0.0%",
-          "End Line": 646,
+          "End Line": 647,
           "Function Name": "2200-EDIT-MAP-INPUTS-EXIT",
           "Input Parameters": 0,
           "Is Documented": 0,
           "Is Public": 0,
-          "Lines of Code (LOC)": 2,
+          "Lines of Code (LOC)": 3,
           "Reflection Hits": 0,
           "Start Line": 645,
           "Structural Impact": 1.1
@@ -74870,12 +74883,12 @@
         {
           "Control Flow Branches": 0,
           "Control Flow Ratio": "0.0%",
-          "End Line": 684,
+          "End Line": 685,
           "Function Name": "2210-EDIT-ACCOUNT-EXIT",
           "Input Parameters": 0,
           "Is Documented": 0,
           "Is Public": 0,
-          "Lines of Code (LOC)": 2,
+          "Lines of Code (LOC)": 3,
           "Reflection Hits": 0,
           "Start Line": 683,
           "Structural Impact": 1.1
@@ -74883,12 +74896,12 @@
         {
           "Control Flow Branches": 0,
           "Control Flow Ratio": "0.0%",
-          "End Line": 721,
+          "End Line": 722,
           "Function Name": "9000-READ-ACCT-EXIT",
           "Input Parameters": 0,
           "Is Documented": 0,
           "Is Public": 0,
-          "Lines of Code (LOC)": 2,
+          "Lines of Code (LOC)": 3,
           "Reflection Hits": 0,
           "Start Line": 720,
           "Structural Impact": 1.1
@@ -74896,12 +74909,12 @@
         {
           "Control Flow Branches": 0,
           "Control Flow Ratio": "0.0%",
-          "End Line": 772,
+          "End Line": 773,
           "Function Name": "9200-GETCARDXREF-BYACCT-EXIT",
           "Input Parameters": 0,
           "Is Documented": 0,
           "Is Public": 0,
-          "Lines of Code (LOC)": 2,
+          "Lines of Code (LOC)": 3,
           "Reflection Hits": 0,
           "Start Line": 771,
           "Structural Impact": 1.1
@@ -74909,12 +74922,12 @@
         {
           "Control Flow Branches": 0,
           "Control Flow Ratio": "0.0%",
-          "End Line": 822,
+          "End Line": 823,
           "Function Name": "9300-GETACCTDATA-BYACCT-EXIT",
           "Input Parameters": 0,
           "Is Documented": 0,
           "Is Public": 0,
-          "Lines of Code (LOC)": 2,
+          "Lines of Code (LOC)": 3,
           "Reflection Hits": 0,
           "Start Line": 821,
           "Structural Impact": 1.1
@@ -74922,12 +74935,12 @@
         {
           "Control Flow Branches": 0,
           "Control Flow Ratio": "0.0%",
-          "End Line": 871,
+          "End Line": 872,
           "Function Name": "9400-GETCUSTDATA-BYCUST-EXIT",
           "Input Parameters": 0,
           "Is Documented": 0,
           "Is Public": 0,
-          "Lines of Code (LOC)": 2,
+          "Lines of Code (LOC)": 3,
           "Reflection Hits": 0,
           "Start Line": 870,
           "Structural Impact": 1.1
@@ -74935,27 +74948,14 @@
         {
           "Control Flow Branches": 0,
           "Control Flow Ratio": "0.0%",
-          "End Line": 889,
+          "End Line": 890,
           "Function Name": "SEND-PLAIN-TEXT-EXIT",
           "Input Parameters": 0,
           "Is Documented": 0,
           "Is Public": 0,
-          "Lines of Code (LOC)": 2,
+          "Lines of Code (LOC)": 3,
           "Reflection Hits": 0,
           "Start Line": 888,
-          "Structural Impact": 1.1
-        },
-        {
-          "Control Flow Branches": 0,
-          "Control Flow Ratio": "0.0%",
-          "End Line": 908,
-          "Function Name": "SEND-LONG-TEXT-EXIT",
-          "Input Parameters": 0,
-          "Is Documented": 0,
-          "Is Public": 0,
-          "Lines of Code (LOC)": 2,
-          "Reflection Hits": 0,
-          "Start Line": 907,
           "Structural Impact": 1.1
         }
       ],
@@ -75001,6 +75001,19 @@
           "Structural Impact": 8.1
         },
         {
+          "Control Flow Branches": 1,
+          "Control Flow Ratio": "100.0%",
+          "End Line": 167,
+          "Function Name": "RETURN-TO-SIGNON-SCREEN",
+          "Input Parameters": 0,
+          "Is Documented": 0,
+          "Is Public": 0,
+          "Lines of Code (LOC)": 8,
+          "Reflection Hits": 1,
+          "Start Line": 160,
+          "Structural Impact": 2.4
+        },
+        {
           "Control Flow Branches": 0,
           "Control Flow Ratio": "0.0%",
           "End Line": 184,
@@ -75038,19 +75051,6 @@
           "Reflection Hits": 1,
           "Start Line": 189,
           "Structural Impact": 1.4
-        },
-        {
-          "Control Flow Branches": 0,
-          "Control Flow Ratio": "0.0%",
-          "End Line": 160,
-          "Function Name": "RETURN-TO-SIGNON-SCREEN",
-          "Input Parameters": 0,
-          "Is Documented": 0,
-          "Is Public": 0,
-          "Lines of Code (LOC)": 1,
-          "Reflection Hits": 0,
-          "Start Line": 160,
-          "Structural Impact": 1.1
         }
       ],
       "cobol/aws-mainframe-modernization-carddemo/COADM02Y.cpy": [],
@@ -75161,6 +75161,19 @@
           "Structural Impact": 6.2
         },
         {
+          "Control Flow Branches": 1,
+          "Control Flow Ratio": "100.0%",
+          "End Line": 284,
+          "Function Name": "RETURN-TO-PREV-SCREEN",
+          "Input Parameters": 0,
+          "Is Documented": 0,
+          "Is Public": 0,
+          "Lines of Code (LOC)": 12,
+          "Reflection Hits": 1,
+          "Start Line": 273,
+          "Structural Impact": 2.6
+        },
+        {
           "Control Flow Branches": 0,
           "Control Flow Ratio": "0.0%",
           "End Line": 301,
@@ -75250,19 +75263,6 @@
           "Reflection Hits": 0,
           "Start Line": 552,
           "Structural Impact": 1.2
-        },
-        {
-          "Control Flow Branches": 0,
-          "Control Flow Ratio": "0.0%",
-          "End Line": 273,
-          "Function Name": "RETURN-TO-PREV-SCREEN",
-          "Input Parameters": 0,
-          "Is Documented": 0,
-          "Is Public": 0,
-          "Lines of Code (LOC)": 1,
-          "Reflection Hits": 0,
-          "Start Line": 273,
-          "Structural Impact": 1.1
         }
       ],
       "cobol/aws-mainframe-modernization-carddemo/COCOM01Y.cpy": [],
@@ -75531,25 +75531,38 @@
         {
           "Control Flow Branches": 0,
           "Control Flow Ratio": "0.0%",
-          "End Line": 1379,
+          "End Line": 1380,
           "Function Name": "9100-READ-BACKWARDS-EXIT",
           "Input Parameters": 0,
           "Is Documented": 0,
           "Is Public": 0,
-          "Lines of Code (LOC)": 6,
+          "Lines of Code (LOC)": 7,
           "Reflection Hits": 1,
           "Start Line": 1374,
-          "Structural Impact": 1.3
+          "Structural Impact": 1.4
         },
         {
           "Control Flow Branches": 0,
           "Control Flow Ratio": "0.0%",
-          "End Line": 622,
+          "End Line": 1417,
+          "Function Name": "9500-FILTER-RECORDS-EXIT",
+          "Input Parameters": 0,
+          "Is Documented": 0,
+          "Is Public": 0,
+          "Lines of Code (LOC)": 9,
+          "Reflection Hits": 0,
+          "Start Line": 1409,
+          "Structural Impact": 1.4
+        },
+        {
+          "Control Flow Branches": 0,
+          "Control Flow Ratio": "0.0%",
+          "End Line": 623,
           "Function Name": "0000-MAIN-EXIT",
           "Input Parameters": 0,
           "Is Documented": 0,
           "Is Public": 0,
-          "Lines of Code (LOC)": 2,
+          "Lines of Code (LOC)": 3,
           "Reflection Hits": 0,
           "Start Line": 621,
           "Structural Impact": 1.1
@@ -75557,12 +75570,12 @@
         {
           "Control Flow Branches": 0,
           "Control Flow Ratio": "0.0%",
-          "End Line": 640,
+          "End Line": 641,
           "Function Name": "1000-SEND-MAP-EXIT",
           "Input Parameters": 0,
           "Is Documented": 0,
           "Is Public": 0,
-          "Lines of Code (LOC)": 2,
+          "Lines of Code (LOC)": 3,
           "Reflection Hits": 0,
           "Start Line": 639,
           "Structural Impact": 1.1
@@ -75570,12 +75583,12 @@
         {
           "Control Flow Branches": 0,
           "Control Flow Ratio": "0.0%",
-          "End Line": 675,
+          "End Line": 676,
           "Function Name": "1100-SCREEN-INIT-EXIT",
           "Input Parameters": 0,
           "Is Documented": 0,
           "Is Public": 0,
-          "Lines of Code (LOC)": 2,
+          "Lines of Code (LOC)": 3,
           "Reflection Hits": 0,
           "Start Line": 674,
           "Structural Impact": 1.1
@@ -75583,12 +75596,12 @@
         {
           "Control Flow Branches": 0,
           "Control Flow Ratio": "0.0%",
-          "End Line": 746,
+          "End Line": 747,
           "Function Name": "1200-SCREEN-ARRAY-INIT-EXIT",
           "Input Parameters": 0,
           "Is Documented": 0,
           "Is Public": 0,
-          "Lines of Code (LOC)": 2,
+          "Lines of Code (LOC)": 3,
           "Reflection Hits": 0,
           "Start Line": 745,
           "Structural Impact": 1.1
@@ -75596,12 +75609,12 @@
         {
           "Control Flow Branches": 0,
           "Control Flow Ratio": "0.0%",
-          "End Line": 835,
+          "End Line": 836,
           "Function Name": "1250-SETUP-ARRAY-ATTRIBS-EXIT",
           "Input Parameters": 0,
           "Is Documented": 0,
           "Is Public": 0,
-          "Lines of Code (LOC)": 2,
+          "Lines of Code (LOC)": 3,
           "Reflection Hits": 0,
           "Start Line": 834,
           "Structural Impact": 1.1
@@ -75609,12 +75622,12 @@
         {
           "Control Flow Branches": 0,
           "Control Flow Ratio": "0.0%",
-          "End Line": 891,
+          "End Line": 892,
           "Function Name": "1300-SETUP-SCREEN-ATTRS-EXIT",
           "Input Parameters": 0,
           "Is Documented": 0,
           "Is Public": 0,
-          "Lines of Code (LOC)": 2,
+          "Lines of Code (LOC)": 3,
           "Reflection Hits": 0,
           "Start Line": 890,
           "Structural Impact": 1.1
@@ -75622,12 +75635,12 @@
         {
           "Control Flow Branches": 0,
           "Control Flow Ratio": "0.0%",
-          "End Line": 934,
+          "End Line": 935,
           "Function Name": "1400-SETUP-MESSAGE-EXIT",
           "Input Parameters": 0,
           "Is Documented": 0,
           "Is Public": 0,
-          "Lines of Code (LOC)": 2,
+          "Lines of Code (LOC)": 3,
           "Reflection Hits": 0,
           "Start Line": 933,
           "Structural Impact": 1.1
@@ -75635,12 +75648,12 @@
         {
           "Control Flow Branches": 0,
           "Control Flow Ratio": "0.0%",
-          "End Line": 949,
+          "End Line": 950,
           "Function Name": "1500-SEND-SCREEN-EXIT",
           "Input Parameters": 0,
           "Is Documented": 0,
           "Is Public": 0,
-          "Lines of Code (LOC)": 2,
+          "Lines of Code (LOC)": 3,
           "Reflection Hits": 0,
           "Start Line": 948,
           "Structural Impact": 1.1
@@ -75648,12 +75661,12 @@
         {
           "Control Flow Branches": 0,
           "Control Flow Ratio": "0.0%",
-          "End Line": 960,
+          "End Line": 961,
           "Function Name": "2000-RECEIVE-MAP-EXIT",
           "Input Parameters": 0,
           "Is Documented": 0,
           "Is Public": 0,
-          "Lines of Code (LOC)": 2,
+          "Lines of Code (LOC)": 3,
           "Reflection Hits": 0,
           "Start Line": 959,
           "Structural Impact": 1.1
@@ -75661,12 +75674,12 @@
         {
           "Control Flow Branches": 0,
           "Control Flow Ratio": "0.0%",
-          "End Line": 982,
+          "End Line": 983,
           "Function Name": "2100-RECEIVE-SCREEN-EXIT",
           "Input Parameters": 0,
           "Is Documented": 0,
           "Is Public": 0,
-          "Lines of Code (LOC)": 2,
+          "Lines of Code (LOC)": 3,
           "Reflection Hits": 0,
           "Start Line": 981,
           "Structural Impact": 1.1
@@ -75674,12 +75687,12 @@
         {
           "Control Flow Branches": 0,
           "Control Flow Ratio": "0.0%",
-          "End Line": 1000,
+          "End Line": 1001,
           "Function Name": "2200-EDIT-INPUTS-EXIT",
           "Input Parameters": 0,
           "Is Documented": 0,
           "Is Public": 0,
-          "Lines of Code (LOC)": 2,
+          "Lines of Code (LOC)": 3,
           "Reflection Hits": 0,
           "Start Line": 999,
           "Structural Impact": 1.1
@@ -75687,12 +75700,12 @@
         {
           "Control Flow Branches": 0,
           "Control Flow Ratio": "0.0%",
-          "End Line": 1033,
+          "End Line": 1034,
           "Function Name": "2210-EDIT-ACCOUNT-EXIT",
           "Input Parameters": 0,
           "Is Documented": 0,
           "Is Public": 0,
-          "Lines of Code (LOC)": 2,
+          "Lines of Code (LOC)": 3,
           "Reflection Hits": 0,
           "Start Line": 1032,
           "Structural Impact": 1.1
@@ -75700,12 +75713,12 @@
         {
           "Control Flow Branches": 0,
           "Control Flow Ratio": "0.0%",
-          "End Line": 1070,
+          "End Line": 1071,
           "Function Name": "2220-EDIT-CARD-EXIT",
           "Input Parameters": 0,
           "Is Documented": 0,
           "Is Public": 0,
-          "Lines of Code (LOC)": 2,
+          "Lines of Code (LOC)": 3,
           "Reflection Hits": 0,
           "Start Line": 1069,
           "Structural Impact": 1.1
@@ -75713,12 +75726,12 @@
         {
           "Control Flow Branches": 0,
           "Control Flow Ratio": "0.0%",
-          "End Line": 1120,
+          "End Line": 1121,
           "Function Name": "2250-EDIT-ARRAY-EXIT",
           "Input Parameters": 0,
           "Is Documented": 0,
           "Is Public": 0,
-          "Lines of Code (LOC)": 2,
+          "Lines of Code (LOC)": 3,
           "Reflection Hits": 0,
           "Start Line": 1119,
           "Structural Impact": 1.1
@@ -75726,12 +75739,12 @@
         {
           "Control Flow Branches": 0,
           "Control Flow Ratio": "0.0%",
-          "End Line": 1262,
+          "End Line": 1263,
           "Function Name": "9000-READ-FORWARD-EXIT",
           "Input Parameters": 0,
           "Is Documented": 0,
           "Is Public": 0,
-          "Lines of Code (LOC)": 2,
+          "Lines of Code (LOC)": 3,
           "Reflection Hits": 0,
           "Start Line": 1261,
           "Structural Impact": 1.1
@@ -75739,25 +75752,12 @@
         {
           "Control Flow Branches": 0,
           "Control Flow Ratio": "0.0%",
-          "End Line": 1410,
-          "Function Name": "9500-FILTER-RECORDS-EXIT",
-          "Input Parameters": 0,
-          "Is Documented": 0,
-          "Is Public": 0,
-          "Lines of Code (LOC)": 2,
-          "Reflection Hits": 0,
-          "Start Line": 1409,
-          "Structural Impact": 1.1
-        },
-        {
-          "Control Flow Branches": 0,
-          "Control Flow Ratio": "0.0%",
-          "End Line": 1434,
+          "End Line": 1435,
           "Function Name": "SEND-PLAIN-TEXT-EXIT",
           "Input Parameters": 0,
           "Is Documented": 0,
           "Is Public": 0,
-          "Lines of Code (LOC)": 2,
+          "Lines of Code (LOC)": 3,
           "Reflection Hits": 0,
           "Start Line": 1433,
           "Structural Impact": 1.1
@@ -75765,12 +75765,12 @@
         {
           "Control Flow Branches": 0,
           "Control Flow Ratio": "0.0%",
-          "End Line": 1453,
+          "End Line": 1454,
           "Function Name": "SEND-LONG-TEXT-EXIT",
           "Input Parameters": 0,
           "Is Documented": 0,
           "Is Public": 0,
-          "Lines of Code (LOC)": 2,
+          "Lines of Code (LOC)": 3,
           "Reflection Hits": 0,
           "Start Line": 1452,
           "Structural Impact": 1.1
@@ -76002,6 +76002,19 @@
         {
           "Control Flow Branches": 0,
           "Control Flow Ratio": "0.0%",
+          "End Line": 856,
+          "Function Name": "SEND-PLAIN-TEXT-EXIT",
+          "Input Parameters": 0,
+          "Is Documented": 0,
+          "Is Public": 0,
+          "Lines of Code (LOC)": 8,
+          "Reflection Hits": 0,
+          "Start Line": 849,
+          "Structural Impact": 1.4
+        },
+        {
+          "Control Flow Branches": 0,
+          "Control Flow Ratio": "0.0%",
           "End Line": 730,
           "Function Name": "9000-READ-DATA",
           "Input Parameters": 0,
@@ -76015,12 +76028,12 @@
         {
           "Control Flow Branches": 0,
           "Control Flow Ratio": "0.0%",
-          "End Line": 409,
+          "End Line": 410,
           "Function Name": "0000-MAIN-EXIT",
           "Input Parameters": 0,
           "Is Documented": 0,
           "Is Public": 0,
-          "Lines of Code (LOC)": 2,
+          "Lines of Code (LOC)": 3,
           "Reflection Hits": 0,
           "Start Line": 408,
           "Structural Impact": 1.1
@@ -76028,12 +76041,12 @@
         {
           "Control Flow Branches": 0,
           "Control Flow Ratio": "0.0%",
-          "End Line": 424,
+          "End Line": 425,
           "Function Name": "1000-SEND-MAP-EXIT",
           "Input Parameters": 0,
           "Is Documented": 0,
           "Is Public": 0,
-          "Lines of Code (LOC)": 2,
+          "Lines of Code (LOC)": 3,
           "Reflection Hits": 0,
           "Start Line": 423,
           "Structural Impact": 1.1
@@ -76041,12 +76054,12 @@
         {
           "Control Flow Branches": 0,
           "Control Flow Ratio": "0.0%",
-          "End Line": 454,
+          "End Line": 455,
           "Function Name": "1100-SCREEN-INIT-EXIT",
           "Input Parameters": 0,
           "Is Documented": 0,
           "Is Public": 0,
-          "Lines of Code (LOC)": 2,
+          "Lines of Code (LOC)": 3,
           "Reflection Hits": 0,
           "Start Line": 453,
           "Structural Impact": 1.1
@@ -76054,12 +76067,12 @@
         {
           "Control Flow Branches": 0,
           "Control Flow Ratio": "0.0%",
-          "End Line": 500,
+          "End Line": 501,
           "Function Name": "1200-SETUP-SCREEN-VARS-EXIT",
           "Input Parameters": 0,
           "Is Documented": 0,
           "Is Public": 0,
-          "Lines of Code (LOC)": 2,
+          "Lines of Code (LOC)": 3,
           "Reflection Hits": 0,
           "Start Line": 499,
           "Structural Impact": 1.1
@@ -76080,12 +76093,12 @@
         {
           "Control Flow Branches": 0,
           "Control Flow Ratio": "0.0%",
-          "End Line": 579,
+          "End Line": 580,
           "Function Name": "1400-SEND-SCREEN-EXIT",
           "Input Parameters": 0,
           "Is Documented": 0,
           "Is Public": 0,
-          "Lines of Code (LOC)": 2,
+          "Lines of Code (LOC)": 3,
           "Reflection Hits": 0,
           "Start Line": 578,
           "Structural Impact": 1.1
@@ -76093,12 +76106,12 @@
         {
           "Control Flow Branches": 0,
           "Control Flow Ratio": "0.0%",
-          "End Line": 594,
+          "End Line": 595,
           "Function Name": "2000-PROCESS-INPUTS-EXIT",
           "Input Parameters": 0,
           "Is Documented": 0,
           "Is Public": 0,
-          "Lines of Code (LOC)": 2,
+          "Lines of Code (LOC)": 3,
           "Reflection Hits": 0,
           "Start Line": 593,
           "Structural Impact": 1.1
@@ -76106,12 +76119,12 @@
         {
           "Control Flow Branches": 0,
           "Control Flow Ratio": "0.0%",
-          "End Line": 606,
+          "End Line": 607,
           "Function Name": "2100-RECEIVE-MAP-EXIT",
           "Input Parameters": 0,
           "Is Documented": 0,
           "Is Public": 0,
-          "Lines of Code (LOC)": 2,
+          "Lines of Code (LOC)": 3,
           "Reflection Hits": 0,
           "Start Line": 605,
           "Structural Impact": 1.1
@@ -76119,12 +76132,12 @@
         {
           "Control Flow Branches": 0,
           "Control Flow Ratio": "0.0%",
-          "End Line": 644,
+          "End Line": 645,
           "Function Name": "2200-EDIT-MAP-INPUTS-EXIT",
           "Input Parameters": 0,
           "Is Documented": 0,
           "Is Public": 0,
-          "Lines of Code (LOC)": 2,
+          "Lines of Code (LOC)": 3,
           "Reflection Hits": 0,
           "Start Line": 643,
           "Structural Impact": 1.1
@@ -76132,12 +76145,12 @@
         {
           "Control Flow Branches": 0,
           "Control Flow Ratio": "0.0%",
-          "End Line": 682,
+          "End Line": 683,
           "Function Name": "2210-EDIT-ACCOUNT-EXIT",
           "Input Parameters": 0,
           "Is Documented": 0,
           "Is Public": 0,
-          "Lines of Code (LOC)": 2,
+          "Lines of Code (LOC)": 3,
           "Reflection Hits": 0,
           "Start Line": 681,
           "Structural Impact": 1.1
@@ -76145,12 +76158,12 @@
         {
           "Control Flow Branches": 0,
           "Control Flow Ratio": "0.0%",
-          "End Line": 723,
+          "End Line": 724,
           "Function Name": "2220-EDIT-CARD-EXIT",
           "Input Parameters": 0,
           "Is Documented": 0,
           "Is Public": 0,
-          "Lines of Code (LOC)": 2,
+          "Lines of Code (LOC)": 3,
           "Reflection Hits": 0,
           "Start Line": 722,
           "Structural Impact": 1.1
@@ -76158,12 +76171,12 @@
         {
           "Control Flow Branches": 0,
           "Control Flow Ratio": "0.0%",
-          "End Line": 733,
+          "End Line": 734,
           "Function Name": "9000-READ-DATA-EXIT",
           "Input Parameters": 0,
           "Is Documented": 0,
           "Is Public": 0,
-          "Lines of Code (LOC)": 2,
+          "Lines of Code (LOC)": 3,
           "Reflection Hits": 0,
           "Start Line": 732,
           "Structural Impact": 1.1
@@ -76171,12 +76184,12 @@
         {
           "Control Flow Branches": 0,
           "Control Flow Ratio": "0.0%",
-          "End Line": 776,
+          "End Line": 777,
           "Function Name": "9100-GETCARD-BYACCTCARD-EXIT",
           "Input Parameters": 0,
           "Is Documented": 0,
           "Is Public": 0,
-          "Lines of Code (LOC)": 2,
+          "Lines of Code (LOC)": 3,
           "Reflection Hits": 0,
           "Start Line": 775,
           "Structural Impact": 1.1
@@ -76184,12 +76197,12 @@
         {
           "Control Flow Branches": 0,
           "Control Flow Ratio": "0.0%",
-          "End Line": 811,
+          "End Line": 812,
           "Function Name": "9150-GETCARD-BYACCT-EXIT",
           "Input Parameters": 0,
           "Is Documented": 0,
           "Is Public": 0,
-          "Lines of Code (LOC)": 2,
+          "Lines of Code (LOC)": 3,
           "Reflection Hits": 0,
           "Start Line": 810,
           "Structural Impact": 1.1
@@ -76197,27 +76210,14 @@
         {
           "Control Flow Branches": 0,
           "Control Flow Ratio": "0.0%",
-          "End Line": 832,
+          "End Line": 833,
           "Function Name": "SEND-LONG-TEXT-EXIT",
           "Input Parameters": 0,
           "Is Documented": 0,
           "Is Public": 0,
-          "Lines of Code (LOC)": 2,
+          "Lines of Code (LOC)": 3,
           "Reflection Hits": 0,
           "Start Line": 831,
-          "Structural Impact": 1.1
-        },
-        {
-          "Control Flow Branches": 0,
-          "Control Flow Ratio": "0.0%",
-          "End Line": 850,
-          "Function Name": "SEND-PLAIN-TEXT-EXIT",
-          "Input Parameters": 0,
-          "Is Documented": 0,
-          "Is Public": 0,
-          "Lines of Code (LOC)": 2,
-          "Reflection Hits": 0,
-          "Start Line": 849,
           "Structural Impact": 1.1
         }
       ],
@@ -76525,12 +76525,25 @@
         {
           "Control Flow Branches": 0,
           "Control Flow Ratio": "0.0%",
-          "End Line": 561,
+          "End Line": 1529,
+          "Function Name": "9300-CHECK-CHANGE-IN-REC-EXIT",
+          "Input Parameters": 0,
+          "Is Documented": 0,
+          "Is Public": 0,
+          "Lines of Code (LOC)": 9,
+          "Reflection Hits": 0,
+          "Start Line": 1521,
+          "Structural Impact": 1.4
+        },
+        {
+          "Control Flow Branches": 0,
+          "Control Flow Ratio": "0.0%",
+          "End Line": 562,
           "Function Name": "0000-MAIN-EXIT",
           "Input Parameters": 0,
           "Is Documented": 0,
           "Is Public": 0,
-          "Lines of Code (LOC)": 2,
+          "Lines of Code (LOC)": 3,
           "Reflection Hits": 0,
           "Start Line": 560,
           "Structural Impact": 1.1
@@ -76538,12 +76551,12 @@
         {
           "Control Flow Branches": 0,
           "Control Flow Ratio": "0.0%",
-          "End Line": 576,
+          "End Line": 577,
           "Function Name": "1000-PROCESS-INPUTS-EXIT",
           "Input Parameters": 0,
           "Is Documented": 0,
           "Is Public": 0,
-          "Lines of Code (LOC)": 2,
+          "Lines of Code (LOC)": 3,
           "Reflection Hits": 0,
           "Start Line": 575,
           "Structural Impact": 1.1
@@ -76551,12 +76564,12 @@
         {
           "Control Flow Branches": 0,
           "Control Flow Ratio": "0.0%",
-          "End Line": 639,
+          "End Line": 640,
           "Function Name": "1100-RECEIVE-MAP-EXIT",
           "Input Parameters": 0,
           "Is Documented": 0,
           "Is Public": 0,
-          "Lines of Code (LOC)": 2,
+          "Lines of Code (LOC)": 3,
           "Reflection Hits": 0,
           "Start Line": 638,
           "Structural Impact": 1.1
@@ -76564,12 +76577,12 @@
         {
           "Control Flow Branches": 0,
           "Control Flow Ratio": "0.0%",
-          "End Line": 718,
+          "End Line": 719,
           "Function Name": "1200-EDIT-MAP-INPUTS-EXIT",
           "Input Parameters": 0,
           "Is Documented": 0,
           "Is Public": 0,
-          "Lines of Code (LOC)": 2,
+          "Lines of Code (LOC)": 3,
           "Reflection Hits": 0,
           "Start Line": 717,
           "Structural Impact": 1.1
@@ -76577,12 +76590,12 @@
         {
           "Control Flow Branches": 0,
           "Control Flow Ratio": "0.0%",
-          "End Line": 759,
+          "End Line": 760,
           "Function Name": "1210-EDIT-ACCOUNT-EXIT",
           "Input Parameters": 0,
           "Is Documented": 0,
           "Is Public": 0,
-          "Lines of Code (LOC)": 2,
+          "Lines of Code (LOC)": 3,
           "Reflection Hits": 0,
           "Start Line": 758,
           "Structural Impact": 1.1
@@ -76590,12 +76603,12 @@
         {
           "Control Flow Branches": 0,
           "Control Flow Ratio": "0.0%",
-          "End Line": 803,
+          "End Line": 804,
           "Function Name": "1220-EDIT-CARD-EXIT",
           "Input Parameters": 0,
           "Is Documented": 0,
           "Is Public": 0,
-          "Lines of Code (LOC)": 2,
+          "Lines of Code (LOC)": 3,
           "Reflection Hits": 0,
           "Start Line": 802,
           "Structural Impact": 1.1
@@ -76603,12 +76616,12 @@
         {
           "Control Flow Branches": 0,
           "Control Flow Ratio": "0.0%",
-          "End Line": 842,
+          "End Line": 843,
           "Function Name": "1230-EDIT-NAME-EXIT",
           "Input Parameters": 0,
           "Is Documented": 0,
           "Is Public": 0,
-          "Lines of Code (LOC)": 2,
+          "Lines of Code (LOC)": 3,
           "Reflection Hits": 0,
           "Start Line": 841,
           "Structural Impact": 1.1
@@ -76616,12 +76629,12 @@
         {
           "Control Flow Branches": 0,
           "Control Flow Ratio": "0.0%",
-          "End Line": 875,
+          "End Line": 876,
           "Function Name": "1240-EDIT-CARDSTATUS-EXIT",
           "Input Parameters": 0,
           "Is Documented": 0,
           "Is Public": 0,
-          "Lines of Code (LOC)": 2,
+          "Lines of Code (LOC)": 3,
           "Reflection Hits": 0,
           "Start Line": 874,
           "Structural Impact": 1.1
@@ -76629,12 +76642,12 @@
         {
           "Control Flow Branches": 0,
           "Control Flow Ratio": "0.0%",
-          "End Line": 911,
+          "End Line": 912,
           "Function Name": "1250-EDIT-EXPIRY-MON-EXIT",
           "Input Parameters": 0,
           "Is Documented": 0,
           "Is Public": 0,
-          "Lines of Code (LOC)": 2,
+          "Lines of Code (LOC)": 3,
           "Reflection Hits": 0,
           "Start Line": 910,
           "Structural Impact": 1.1
@@ -76642,12 +76655,12 @@
         {
           "Control Flow Branches": 0,
           "Control Flow Ratio": "0.0%",
-          "End Line": 946,
+          "End Line": 947,
           "Function Name": "1260-EDIT-EXPIRY-YEAR-EXIT",
           "Input Parameters": 0,
           "Is Documented": 0,
           "Is Public": 0,
-          "Lines of Code (LOC)": 2,
+          "Lines of Code (LOC)": 3,
           "Reflection Hits": 0,
           "Start Line": 945,
           "Structural Impact": 1.1
@@ -76655,12 +76668,12 @@
         {
           "Control Flow Branches": 0,
           "Control Flow Ratio": "0.0%",
-          "End Line": 1030,
+          "End Line": 1031,
           "Function Name": "2000-DECIDE-ACTION-EXIT",
           "Input Parameters": 0,
           "Is Documented": 0,
           "Is Public": 0,
-          "Lines of Code (LOC)": 2,
+          "Lines of Code (LOC)": 3,
           "Reflection Hits": 0,
           "Start Line": 1029,
           "Structural Impact": 1.1
@@ -76668,12 +76681,12 @@
         {
           "Control Flow Branches": 0,
           "Control Flow Ratio": "0.0%",
-          "End Line": 1049,
+          "End Line": 1050,
           "Function Name": "3000-SEND-MAP-EXIT",
           "Input Parameters": 0,
           "Is Documented": 0,
           "Is Public": 0,
-          "Lines of Code (LOC)": 2,
+          "Lines of Code (LOC)": 3,
           "Reflection Hits": 0,
           "Start Line": 1048,
           "Structural Impact": 1.1
@@ -76681,12 +76694,12 @@
         {
           "Control Flow Branches": 0,
           "Control Flow Ratio": "0.0%",
-          "End Line": 1079,
+          "End Line": 1080,
           "Function Name": "3100-SCREEN-INIT-EXIT",
           "Input Parameters": 0,
           "Is Documented": 0,
           "Is Public": 0,
-          "Lines of Code (LOC)": 2,
+          "Lines of Code (LOC)": 3,
           "Reflection Hits": 0,
           "Start Line": 1078,
           "Structural Impact": 1.1
@@ -76694,12 +76707,12 @@
         {
           "Control Flow Branches": 0,
           "Control Flow Ratio": "0.0%",
-          "End Line": 1136,
+          "End Line": 1137,
           "Function Name": "3200-SETUP-SCREEN-VARS-EXIT",
           "Input Parameters": 0,
           "Is Documented": 0,
           "Is Public": 0,
-          "Lines of Code (LOC)": 2,
+          "Lines of Code (LOC)": 3,
           "Reflection Hits": 0,
           "Start Line": 1135,
           "Structural Impact": 1.1
@@ -76707,12 +76720,12 @@
         {
           "Control Flow Branches": 0,
           "Control Flow Ratio": "0.0%",
-          "End Line": 1166,
+          "End Line": 1167,
           "Function Name": "3250-SETUP-INFOMSG-EXIT",
           "Input Parameters": 0,
           "Is Documented": 0,
           "Is Public": 0,
-          "Lines of Code (LOC)": 2,
+          "Lines of Code (LOC)": 3,
           "Reflection Hits": 0,
           "Start Line": 1165,
           "Structural Impact": 1.1
@@ -76720,12 +76733,12 @@
         {
           "Control Flow Branches": 0,
           "Control Flow Ratio": "0.0%",
-          "End Line": 1320,
+          "End Line": 1321,
           "Function Name": "3300-SETUP-SCREEN-ATTRS-EXIT",
           "Input Parameters": 0,
           "Is Documented": 0,
           "Is Public": 0,
-          "Lines of Code (LOC)": 2,
+          "Lines of Code (LOC)": 3,
           "Reflection Hits": 0,
           "Start Line": 1319,
           "Structural Impact": 1.1
@@ -76733,12 +76746,12 @@
         {
           "Control Flow Branches": 0,
           "Control Flow Ratio": "0.0%",
-          "End Line": 1339,
+          "End Line": 1340,
           "Function Name": "3400-SEND-SCREEN-EXIT",
           "Input Parameters": 0,
           "Is Documented": 0,
           "Is Public": 0,
-          "Lines of Code (LOC)": 2,
+          "Lines of Code (LOC)": 3,
           "Reflection Hits": 0,
           "Start Line": 1338,
           "Structural Impact": 1.1
@@ -76746,12 +76759,12 @@
         {
           "Control Flow Branches": 0,
           "Control Flow Ratio": "0.0%",
-          "End Line": 1373,
+          "End Line": 1374,
           "Function Name": "9000-READ-DATA-EXIT",
           "Input Parameters": 0,
           "Is Documented": 0,
           "Is Public": 0,
-          "Lines of Code (LOC)": 2,
+          "Lines of Code (LOC)": 3,
           "Reflection Hits": 0,
           "Start Line": 1372,
           "Structural Impact": 1.1
@@ -76759,12 +76772,12 @@
         {
           "Control Flow Branches": 0,
           "Control Flow Ratio": "0.0%",
-          "End Line": 1416,
+          "End Line": 1417,
           "Function Name": "9100-GETCARD-BYACCTCARD-EXIT",
           "Input Parameters": 0,
           "Is Documented": 0,
           "Is Public": 0,
-          "Lines of Code (LOC)": 2,
+          "Lines of Code (LOC)": 3,
           "Reflection Hits": 0,
           "Start Line": 1415,
           "Structural Impact": 1.1
@@ -76772,12 +76785,12 @@
         {
           "Control Flow Branches": 0,
           "Control Flow Ratio": "0.0%",
-          "End Line": 1495,
+          "End Line": 1496,
           "Function Name": "9200-WRITE-PROCESSING-EXIT",
           "Input Parameters": 0,
           "Is Documented": 0,
           "Is Public": 0,
-          "Lines of Code (LOC)": 2,
+          "Lines of Code (LOC)": 3,
           "Reflection Hits": 0,
           "Start Line": 1494,
           "Structural Impact": 1.1
@@ -76785,25 +76798,12 @@
         {
           "Control Flow Branches": 0,
           "Control Flow Ratio": "0.0%",
-          "End Line": 1522,
-          "Function Name": "9300-CHECK-CHANGE-IN-REC-EXIT",
-          "Input Parameters": 0,
-          "Is Documented": 0,
-          "Is Public": 0,
-          "Lines of Code (LOC)": 2,
-          "Reflection Hits": 0,
-          "Start Line": 1521,
-          "Structural Impact": 1.1
-        },
-        {
-          "Control Flow Branches": 0,
-          "Control Flow Ratio": "0.0%",
-          "End Line": 1555,
+          "End Line": 1556,
           "Function Name": "ABEND-ROUTINE-EXIT",
           "Input Parameters": 0,
           "Is Documented": 0,
           "Is Public": 0,
-          "Lines of Code (LOC)": 2,
+          "Lines of Code (LOC)": 3,
           "Reflection Hits": 0,
           "Start Line": 1554,
           "Structural Impact": 1.1
@@ -76851,6 +76851,19 @@
           "Structural Impact": 9.6
         },
         {
+          "Control Flow Branches": 1,
+          "Control Flow Ratio": "100.0%",
+          "End Line": 177,
+          "Function Name": "RETURN-TO-SIGNON-SCREEN",
+          "Input Parameters": 0,
+          "Is Documented": 0,
+          "Is Public": 0,
+          "Lines of Code (LOC)": 8,
+          "Reflection Hits": 1,
+          "Start Line": 170,
+          "Structural Impact": 2.4
+        },
+        {
           "Control Flow Branches": 0,
           "Control Flow Ratio": "0.0%",
           "End Line": 194,
@@ -76888,19 +76901,6 @@
           "Reflection Hits": 1,
           "Start Line": 199,
           "Structural Impact": 1.4
-        },
-        {
-          "Control Flow Branches": 0,
-          "Control Flow Ratio": "0.0%",
-          "End Line": 170,
-          "Function Name": "RETURN-TO-SIGNON-SCREEN",
-          "Input Parameters": 0,
-          "Is Documented": 0,
-          "Is Public": 0,
-          "Lines of Code (LOC)": 1,
-          "Reflection Hits": 0,
-          "Start Line": 170,
-          "Structural Impact": 1.1
         }
       ],
       "cobol/aws-mainframe-modernization-carddemo/COMEN02Y.cpy": [],
@@ -76972,6 +76972,19 @@
           "Structural Impact": 4.2
         },
         {
+          "Control Flow Branches": 1,
+          "Control Flow Ratio": "100.0%",
+          "End Line": 551,
+          "Function Name": "RETURN-TO-PREV-SCREEN",
+          "Input Parameters": 0,
+          "Is Documented": 0,
+          "Is Public": 0,
+          "Lines of Code (LOC)": 12,
+          "Reflection Hits": 1,
+          "Start Line": 540,
+          "Structural Impact": 2.6
+        },
+        {
           "Control Flow Branches": 0,
           "Control Flow Ratio": "0.0%",
           "End Line": 628,
@@ -77000,6 +77013,19 @@
         {
           "Control Flow Branches": 0,
           "Control Flow Ratio": "0.0%",
+          "End Line": 591,
+          "Function Name": "RETURN-TO-CICS",
+          "Input Parameters": 0,
+          "Is Documented": 0,
+          "Is Public": 0,
+          "Lines of Code (LOC)": 7,
+          "Reflection Hits": 1,
+          "Start Line": 585,
+          "Structural Impact": 1.4
+        },
+        {
+          "Control Flow Branches": 0,
+          "Control Flow Ratio": "0.0%",
           "End Line": 604,
           "Function Name": "RECEIVE-TRNRPT-SCREEN",
           "Input Parameters": 0,
@@ -77009,32 +77035,6 @@
           "Reflection Hits": 1,
           "Start Line": 596,
           "Structural Impact": 1.4
-        },
-        {
-          "Control Flow Branches": 0,
-          "Control Flow Ratio": "0.0%",
-          "End Line": 540,
-          "Function Name": "RETURN-TO-PREV-SCREEN",
-          "Input Parameters": 0,
-          "Is Documented": 0,
-          "Is Public": 0,
-          "Lines of Code (LOC)": 1,
-          "Reflection Hits": 0,
-          "Start Line": 540,
-          "Structural Impact": 1.1
-        },
-        {
-          "Control Flow Branches": 0,
-          "Control Flow Ratio": "0.0%",
-          "End Line": 585,
-          "Function Name": "RETURN-TO-CICS",
-          "Input Parameters": 0,
-          "Is Documented": 0,
-          "Is Public": 0,
-          "Lines of Code (LOC)": 1,
-          "Reflection Hits": 0,
-          "Start Line": 585,
-          "Structural Impact": 1.1
         }
       ],
       "cobol/aws-mainframe-modernization-carddemo/COSGN00.CPY": [],
@@ -77277,6 +77277,19 @@
           "Structural Impact": 4.2
         },
         {
+          "Control Flow Branches": 1,
+          "Control Flow Ratio": "100.0%",
+          "End Line": 521,
+          "Function Name": "RETURN-TO-PREV-SCREEN",
+          "Input Parameters": 0,
+          "Is Documented": 0,
+          "Is Public": 0,
+          "Lines of Code (LOC)": 12,
+          "Reflection Hits": 1,
+          "Start Line": 510,
+          "Structural Impact": 2.6
+        },
+        {
           "Control Flow Branches": 0,
           "Control Flow Ratio": "0.0%",
           "End Line": 586,
@@ -77314,19 +77327,6 @@
           "Reflection Hits": 1,
           "Start Line": 692,
           "Structural Impact": 1.2
-        },
-        {
-          "Control Flow Branches": 0,
-          "Control Flow Ratio": "0.0%",
-          "End Line": 510,
-          "Function Name": "RETURN-TO-PREV-SCREEN",
-          "Input Parameters": 0,
-          "Is Documented": 0,
-          "Is Public": 0,
-          "Lines of Code (LOC)": 1,
-          "Reflection Hits": 0,
-          "Start Line": 510,
-          "Structural Impact": 1.1
         }
       ],
       "cobol/aws-mainframe-modernization-carddemo/COTRN01.CPY": [],
@@ -77369,6 +77369,19 @@
           "Reflection Hits": 1,
           "Start Line": 267,
           "Structural Impact": 6.5
+        },
+        {
+          "Control Flow Branches": 1,
+          "Control Flow Ratio": "100.0%",
+          "End Line": 208,
+          "Function Name": "RETURN-TO-PREV-SCREEN",
+          "Input Parameters": 0,
+          "Is Documented": 0,
+          "Is Public": 0,
+          "Lines of Code (LOC)": 12,
+          "Reflection Hits": 1,
+          "Start Line": 197,
+          "Structural Impact": 2.6
         },
         {
           "Control Flow Branches": 0,
@@ -77434,19 +77447,6 @@
           "Reflection Hits": 0,
           "Start Line": 301,
           "Structural Impact": 1.2
-        },
-        {
-          "Control Flow Branches": 0,
-          "Control Flow Ratio": "0.0%",
-          "End Line": 197,
-          "Function Name": "RETURN-TO-PREV-SCREEN",
-          "Input Parameters": 0,
-          "Is Documented": 0,
-          "Is Public": 0,
-          "Lines of Code (LOC)": 1,
-          "Reflection Hits": 0,
-          "Start Line": 197,
-          "Structural Impact": 1.1
         }
       ],
       "cobol/aws-mainframe-modernization-carddemo/COTRN02.CPY": [],
@@ -77582,6 +77582,19 @@
           "Structural Impact": 3.2
         },
         {
+          "Control Flow Branches": 1,
+          "Control Flow Ratio": "100.0%",
+          "End Line": 511,
+          "Function Name": "RETURN-TO-PREV-SCREEN",
+          "Input Parameters": 0,
+          "Is Documented": 0,
+          "Is Public": 0,
+          "Lines of Code (LOC)": 12,
+          "Reflection Hits": 1,
+          "Start Line": 500,
+          "Structural Impact": 2.6
+        },
+        {
           "Control Flow Branches": 0,
           "Control Flow Ratio": "0.0%",
           "End Line": 466,
@@ -77671,19 +77684,6 @@
           "Reflection Hits": 0,
           "Start Line": 754,
           "Structural Impact": 1.2
-        },
-        {
-          "Control Flow Branches": 0,
-          "Control Flow Ratio": "0.0%",
-          "End Line": 500,
-          "Function Name": "RETURN-TO-PREV-SCREEN",
-          "Input Parameters": 0,
-          "Is Documented": 0,
-          "Is Public": 0,
-          "Lines of Code (LOC)": 1,
-          "Reflection Hits": 0,
-          "Start Line": 500,
-          "Structural Impact": 1.1
         }
       ],
       "cobol/aws-mainframe-modernization-carddemo/COTTL01Y.cpy": [],
@@ -77846,6 +77846,19 @@
           "Structural Impact": 4.2
         },
         {
+          "Control Flow Branches": 1,
+          "Control Flow Ratio": "100.0%",
+          "End Line": 517,
+          "Function Name": "RETURN-TO-PREV-SCREEN",
+          "Input Parameters": 0,
+          "Is Documented": 0,
+          "Is Public": 0,
+          "Lines of Code (LOC)": 12,
+          "Reflection Hits": 1,
+          "Start Line": 506,
+          "Structural Impact": 2.6
+        },
+        {
           "Control Flow Branches": 0,
           "Control Flow Ratio": "0.0%",
           "End Line": 581,
@@ -77883,19 +77896,6 @@
           "Reflection Hits": 1,
           "Start Line": 687,
           "Structural Impact": 1.2
-        },
-        {
-          "Control Flow Branches": 0,
-          "Control Flow Ratio": "0.0%",
-          "End Line": 506,
-          "Function Name": "RETURN-TO-PREV-SCREEN",
-          "Input Parameters": 0,
-          "Is Documented": 0,
-          "Is Public": 0,
-          "Lines of Code (LOC)": 1,
-          "Reflection Hits": 0,
-          "Start Line": 506,
-          "Structural Impact": 1.1
         }
       ],
       "cobol/aws-mainframe-modernization-carddemo/COUSR01.CPY": [],
@@ -77938,6 +77938,19 @@
           "Reflection Hits": 1,
           "Start Line": 238,
           "Structural Impact": 7.8
+        },
+        {
+          "Control Flow Branches": 1,
+          "Control Flow Ratio": "100.0%",
+          "End Line": 178,
+          "Function Name": "RETURN-TO-PREV-SCREEN",
+          "Input Parameters": 0,
+          "Is Documented": 0,
+          "Is Public": 0,
+          "Lines of Code (LOC)": 14,
+          "Reflection Hits": 1,
+          "Start Line": 165,
+          "Structural Impact": 2.7
         },
         {
           "Control Flow Branches": 0,
@@ -78003,19 +78016,6 @@
           "Reflection Hits": 0,
           "Start Line": 279,
           "Structural Impact": 1.2
-        },
-        {
-          "Control Flow Branches": 0,
-          "Control Flow Ratio": "0.0%",
-          "End Line": 165,
-          "Function Name": "RETURN-TO-PREV-SCREEN",
-          "Input Parameters": 0,
-          "Is Documented": 0,
-          "Is Public": 0,
-          "Lines of Code (LOC)": 1,
-          "Reflection Hits": 0,
-          "Start Line": 165,
-          "Structural Impact": 1.1
         }
       ],
       "cobol/aws-mainframe-modernization-carddemo/COUSR02.CPY": [],
@@ -78086,6 +78086,19 @@
           "Structural Impact": 6.7
         },
         {
+          "Control Flow Branches": 1,
+          "Control Flow Ratio": "100.0%",
+          "End Line": 261,
+          "Function Name": "RETURN-TO-PREV-SCREEN",
+          "Input Parameters": 0,
+          "Is Documented": 0,
+          "Is Public": 0,
+          "Lines of Code (LOC)": 12,
+          "Reflection Hits": 1,
+          "Start Line": 250,
+          "Structural Impact": 2.6
+        },
+        {
           "Control Flow Branches": 0,
           "Control Flow Ratio": "0.0%",
           "End Line": 278,
@@ -78149,19 +78162,6 @@
           "Reflection Hits": 0,
           "Start Line": 395,
           "Structural Impact": 1.2
-        },
-        {
-          "Control Flow Branches": 0,
-          "Control Flow Ratio": "0.0%",
-          "End Line": 250,
-          "Function Name": "RETURN-TO-PREV-SCREEN",
-          "Input Parameters": 0,
-          "Is Documented": 0,
-          "Is Public": 0,
-          "Lines of Code (LOC)": 1,
-          "Reflection Hits": 0,
-          "Start Line": 250,
-          "Structural Impact": 1.1
         }
       ],
       "cobol/aws-mainframe-modernization-carddemo/COUSR03.CPY": [],
@@ -78232,6 +78232,19 @@
           "Structural Impact": 6.0
         },
         {
+          "Control Flow Branches": 1,
+          "Control Flow Ratio": "100.0%",
+          "End Line": 208,
+          "Function Name": "RETURN-TO-PREV-SCREEN",
+          "Input Parameters": 0,
+          "Is Documented": 0,
+          "Is Public": 0,
+          "Lines of Code (LOC)": 12,
+          "Reflection Hits": 1,
+          "Start Line": 197,
+          "Structural Impact": 2.6
+        },
+        {
           "Control Flow Branches": 0,
           "Control Flow Ratio": "0.0%",
           "End Line": 225,
@@ -78295,19 +78308,6 @@
           "Reflection Hits": 0,
           "Start Line": 341,
           "Structural Impact": 1.2
-        },
-        {
-          "Control Flow Branches": 0,
-          "Control Flow Ratio": "0.0%",
-          "End Line": 197,
-          "Function Name": "RETURN-TO-PREV-SCREEN",
-          "Input Parameters": 0,
-          "Is Documented": 0,
-          "Is Public": 0,
-          "Lines of Code (LOC)": 1,
-          "Reflection Hits": 0,
-          "Start Line": 197,
-          "Structural Impact": 1.1
         }
       ],
       "cobol/aws-mainframe-modernization-carddemo/CSDAT01Y.cpy": [],
@@ -78332,12 +78332,12 @@
         {
           "Control Flow Branches": 0,
           "Control Flow Ratio": "0.0%",
-          "End Line": 81,
+          "End Line": 82,
           "Function Name": "YYYY-STORE-PFKEY-EXIT",
           "Input Parameters": 0,
           "Is Documented": 0,
           "Is Public": 1,
-          "Lines of Code (LOC)": 2,
+          "Lines of Code (LOC)": 3,
           "Reflection Hits": 0,
           "Start Line": 80,
           "Structural Impact": 1.1
@@ -78426,6 +78426,19 @@
         {
           "Control Flow Branches": 0,
           "Control Flow Ratio": "0.0%",
+          "End Line": 328,
+          "Function Name": "EDIT-DATE-LE-EXIT",
+          "Input Parameters": 0,
+          "Is Documented": 0,
+          "Is Public": 0,
+          "Lines of Code (LOC)": 6,
+          "Reflection Hits": 0,
+          "Start Line": 323,
+          "Structural Impact": 1.3
+        },
+        {
+          "Control Flow Branches": 0,
+          "Control Flow Ratio": "0.0%",
           "End Line": 20,
           "Function Name": "EDIT-DATE-CCYYMMDD",
           "Input Parameters": 0,
@@ -78439,12 +78452,12 @@
         {
           "Control Flow Branches": 0,
           "Control Flow Ratio": "0.0%",
-          "End Line": 89,
+          "End Line": 90,
           "Function Name": "EDIT-YEAR-CCYY-EXIT",
           "Input Parameters": 0,
           "Is Documented": 0,
           "Is Public": 0,
-          "Lines of Code (LOC)": 2,
+          "Lines of Code (LOC)": 3,
           "Reflection Hits": 0,
           "Start Line": 88,
           "Structural Impact": 1.1
@@ -78452,12 +78465,12 @@
         {
           "Control Flow Branches": 0,
           "Control Flow Ratio": "0.0%",
-          "End Line": 146,
+          "End Line": 147,
           "Function Name": "EDIT-MONTH-EXIT",
           "Input Parameters": 0,
           "Is Documented": 0,
           "Is Public": 0,
-          "Lines of Code (LOC)": 2,
+          "Lines of Code (LOC)": 3,
           "Reflection Hits": 0,
           "Start Line": 145,
           "Structural Impact": 1.1
@@ -78465,12 +78478,12 @@
         {
           "Control Flow Branches": 0,
           "Control Flow Ratio": "0.0%",
-          "End Line": 206,
+          "End Line": 207,
           "Function Name": "EDIT-DAY-EXIT",
           "Input Parameters": 0,
           "Is Documented": 0,
           "Is Public": 0,
-          "Lines of Code (LOC)": 2,
+          "Lines of Code (LOC)": 3,
           "Reflection Hits": 0,
           "Start Line": 205,
           "Structural Impact": 1.1
@@ -78478,12 +78491,12 @@
         {
           "Control Flow Branches": 0,
           "Control Flow Ratio": "0.0%",
-          "End Line": 281,
+          "End Line": 282,
           "Function Name": "EDIT-DAY-MONTH-YEAR-EXIT",
           "Input Parameters": 0,
           "Is Documented": 0,
           "Is Public": 1,
-          "Lines of Code (LOC)": 2,
+          "Lines of Code (LOC)": 3,
           "Reflection Hits": 0,
           "Start Line": 280,
           "Structural Impact": 1.1
@@ -78491,25 +78504,12 @@
         {
           "Control Flow Branches": 0,
           "Control Flow Ratio": "0.0%",
-          "End Line": 324,
-          "Function Name": "EDIT-DATE-LE-EXIT",
-          "Input Parameters": 0,
-          "Is Documented": 0,
-          "Is Public": 0,
-          "Lines of Code (LOC)": 2,
-          "Reflection Hits": 0,
-          "Start Line": 323,
-          "Structural Impact": 1.1
-        },
-        {
-          "Control Flow Branches": 0,
-          "Control Flow Ratio": "0.0%",
-          "End Line": 330,
+          "End Line": 331,
           "Function Name": "EDIT-DATE-CCYYMMDD-EXIT",
           "Input Parameters": 0,
           "Is Documented": 0,
           "Is Public": 0,
-          "Lines of Code (LOC)": 2,
+          "Lines of Code (LOC)": 3,
           "Reflection Hits": 0,
           "Start Line": 329,
           "Structural Impact": 1.1
@@ -78517,12 +78517,12 @@
         {
           "Control Flow Branches": 0,
           "Control Flow Ratio": "0.0%",
-          "End Line": 371,
+          "End Line": 372,
           "Function Name": "EDIT-DATE-OF-BIRTH-EXIT",
           "Input Parameters": 0,
           "Is Documented": 0,
           "Is Public": 0,
-          "Lines of Code (LOC)": 2,
+          "Lines of Code (LOC)": 3,
           "Reflection Hits": 0,
           "Start Line": 370,
           "Structural Impact": 1.1
@@ -78545,12 +78545,12 @@
         {
           "Control Flow Branches": 0,
           "Control Flow Ratio": "0.0%",
-          "End Line": 153,
+          "End Line": 154,
           "Function Name": "A000-MAIN-EXIT",
           "Input Parameters": 0,
           "Is Documented": 0,
           "Is Public": 0,
-          "Lines of Code (LOC)": 2,
+          "Lines of Code (LOC)": 3,
           "Reflection Hits": 0,
           "Start Line": 152,
           "Structural Impact": 1.1
@@ -78675,15 +78675,15 @@
         {
           "Control Flow Branches": 0,
           "Control Flow Ratio": "0.0%",
-          "End Line": 49,
+          "End Line": 47,
           "Function Name": "100-Print-User",
           "Input Parameters": 0,
           "Is Documented": 0,
           "Is Public": 0,
-          "Lines of Code (LOC)": 18,
+          "Lines of Code (LOC)": 16,
           "Reflection Hits": 0,
           "Start Line": 32,
-          "Structural Impact": 1.9
+          "Structural Impact": 1.8
         },
         {
           "Control Flow Branches": 0,
@@ -79016,15 +79016,15 @@
         {
           "Control Flow Branches": 0,
           "Control Flow Ratio": "0.0%",
-          "End Line": 49,
+          "End Line": 47,
           "Function Name": "100-Print-User",
           "Input Parameters": 0,
           "Is Documented": 0,
           "Is Public": 0,
-          "Lines of Code (LOC)": 18,
+          "Lines of Code (LOC)": 16,
           "Reflection Hits": 0,
           "Start Line": 32,
-          "Structural Impact": 1.9
+          "Structural Impact": 1.8
         },
         {
           "Control Flow Branches": 0,
@@ -79044,28 +79044,28 @@
         {
           "Control Flow Branches": 0,
           "Control Flow Ratio": "0.0%",
-          "End Line": 50,
+          "End Line": 48,
           "Function Name": "100-Print-User",
           "Input Parameters": 0,
           "Is Documented": 0,
           "Is Public": 0,
-          "Lines of Code (LOC)": 19,
+          "Lines of Code (LOC)": 17,
           "Reflection Hits": 0,
           "Start Line": 32,
-          "Structural Impact": 2.0
+          "Structural Impact": 1.9
         },
         {
           "Control Flow Branches": 0,
           "Control Flow Ratio": "0.0%",
-          "End Line": 27,
+          "End Line": 15,
           "Function Name": "Program1-id",
           "Input Parameters": 0,
           "Is Documented": 0,
           "Is Public": 0,
-          "Lines of Code (LOC)": 13,
+          "Lines of Code (LOC)": 1,
           "Reflection Hits": 0,
           "Start Line": 15,
-          "Structural Impact": 1.6
+          "Structural Impact": 1.1
         },
         {
           "Control Flow Branches": 0,
@@ -79085,15 +79085,15 @@
         {
           "Control Flow Branches": 0,
           "Control Flow Ratio": "0.0%",
-          "End Line": 52,
+          "End Line": 50,
           "Function Name": "100-Print-User",
           "Input Parameters": 0,
           "Is Documented": 0,
           "Is Public": 0,
-          "Lines of Code (LOC)": 19,
+          "Lines of Code (LOC)": 17,
           "Reflection Hits": 0,
           "Start Line": 34,
-          "Structural Impact": 2.0
+          "Structural Impact": 1.9
         },
         {
           "Control Flow Branches": 0,
@@ -79113,15 +79113,15 @@
         {
           "Control Flow Branches": 0,
           "Control Flow Ratio": "0.0%",
-          "End Line": 53,
+          "End Line": 51,
           "Function Name": "100-Print-User",
           "Input Parameters": 0,
           "Is Documented": 0,
           "Is Public": 0,
-          "Lines of Code (LOC)": 20,
+          "Lines of Code (LOC)": 18,
           "Reflection Hits": 0,
           "Start Line": 34,
-          "Structural Impact": 2.0
+          "Structural Impact": 1.9
         },
         {
           "Control Flow Branches": 0,
@@ -79141,15 +79141,15 @@
         {
           "Control Flow Branches": 0,
           "Control Flow Ratio": "0.0%",
-          "End Line": 54,
+          "End Line": 52,
           "Function Name": "100-Print-User",
           "Input Parameters": 0,
           "Is Documented": 0,
           "Is Public": 0,
-          "Lines of Code (LOC)": 20,
+          "Lines of Code (LOC)": 18,
           "Reflection Hits": 0,
           "Start Line": 35,
-          "Structural Impact": 2.0
+          "Structural Impact": 1.9
         },
         {
           "Control Flow Branches": 0,
@@ -79169,15 +79169,15 @@
         {
           "Control Flow Branches": 0,
           "Control Flow Ratio": "0.0%",
-          "End Line": 51,
+          "End Line": 49,
           "Function Name": "100-Print-User",
           "Input Parameters": 0,
           "Is Documented": 0,
           "Is Public": 0,
-          "Lines of Code (LOC)": 18,
+          "Lines of Code (LOC)": 16,
           "Reflection Hits": 0,
           "Start Line": 34,
-          "Structural Impact": 1.9
+          "Structural Impact": 1.8
         },
         {
           "Control Flow Branches": 0,
@@ -79212,15 +79212,15 @@
         {
           "Control Flow Branches": 11,
           "Control Flow Ratio": "50.0%",
-          "End Line": 78,
+          "End Line": 76,
           "Function Name": "EVENT-HANDLER",
           "Input Parameters": 0,
           "Is Documented": 0,
           "Is Public": 0,
-          "Lines of Code (LOC)": 41,
+          "Lines of Code (LOC)": 39,
           "Reflection Hits": 0,
           "Start Line": 38,
-          "Structural Impact": 14.1
+          "Structural Impact": 13.9
         },
         {
           "Control Flow Branches": 2,
@@ -79240,15 +79240,15 @@
         {
           "Control Flow Branches": 11,
           "Control Flow Ratio": "50.0%",
-          "End Line": 77,
+          "End Line": 75,
           "Function Name": "EVENT-HANDLER",
           "Input Parameters": 0,
           "Is Documented": 0,
           "Is Public": 0,
-          "Lines of Code (LOC)": 41,
+          "Lines of Code (LOC)": 39,
           "Reflection Hits": 0,
           "Start Line": 37,
-          "Structural Impact": 14.1
+          "Structural Impact": 13.9
         },
         {
           "Control Flow Branches": 2,
@@ -79268,15 +79268,15 @@
         {
           "Control Flow Branches": 11,
           "Control Flow Ratio": "50.0%",
-          "End Line": 83,
+          "End Line": 81,
           "Function Name": "EVENT-HANDLER",
           "Input Parameters": 0,
           "Is Documented": 0,
           "Is Public": 0,
-          "Lines of Code (LOC)": 41,
+          "Lines of Code (LOC)": 39,
           "Reflection Hits": 0,
           "Start Line": 43,
-          "Structural Impact": 14.1
+          "Structural Impact": 13.9
         },
         {
           "Control Flow Branches": 2,
@@ -79318,19 +79318,6 @@
           "Reflection Hits": 0,
           "Start Line": 45,
           "Structural Impact": 3.3
-        },
-        {
-          "Control Flow Branches": 0,
-          "Control Flow Ratio": "0.0%",
-          "End Line": 39,
-          "Function Name": "PROTOCOL",
-          "Input Parameters": 0,
-          "Is Documented": 0,
-          "Is Public": 0,
-          "Lines of Code (LOC)": 32,
-          "Reflection Hits": 0,
-          "Start Line": 8,
-          "Structural Impact": 2.6
         },
         {
           "Control Flow Branches": 1,
@@ -79395,6 +79382,19 @@
           "Lines of Code (LOC)": 1,
           "Reflection Hits": 0,
           "Start Line": 7,
+          "Structural Impact": 1.1
+        },
+        {
+          "Control Flow Branches": 0,
+          "Control Flow Ratio": "0.0%",
+          "End Line": 10,
+          "Function Name": "PROTOCOL",
+          "Input Parameters": 0,
+          "Is Documented": 0,
+          "Is Public": 0,
+          "Lines of Code (LOC)": 3,
+          "Reflection Hits": 0,
+          "Start Line": 8,
           "Structural Impact": 1.1
         },
         {
@@ -79493,19 +79493,6 @@
         {
           "Control Flow Branches": 0,
           "Control Flow Ratio": "0.0%",
-          "End Line": 23,
-          "Function Name": "PROTOCOL",
-          "Input Parameters": 0,
-          "Is Documented": 0,
-          "Is Public": 0,
-          "Lines of Code (LOC)": 16,
-          "Reflection Hits": 2,
-          "Start Line": 8,
-          "Structural Impact": 1.8
-        },
-        {
-          "Control Flow Branches": 0,
-          "Control Flow Ratio": "0.0%",
           "End Line": 7,
           "Function Name": "IDMS-CONTROL",
           "Input Parameters": 0,
@@ -79514,6 +79501,19 @@
           "Lines of Code (LOC)": 1,
           "Reflection Hits": 0,
           "Start Line": 7,
+          "Structural Impact": 1.1
+        },
+        {
+          "Control Flow Branches": 0,
+          "Control Flow Ratio": "0.0%",
+          "End Line": 10,
+          "Function Name": "PROTOCOL",
+          "Input Parameters": 0,
+          "Is Documented": 0,
+          "Is Public": 0,
+          "Lines of Code (LOC)": 3,
+          "Reflection Hits": 0,
+          "Start Line": 8,
           "Structural Impact": 1.1
         }
       ],
@@ -79543,19 +79543,6 @@
           "Reflection Hits": 0,
           "Start Line": 45,
           "Structural Impact": 3.3
-        },
-        {
-          "Control Flow Branches": 0,
-          "Control Flow Ratio": "0.0%",
-          "End Line": 39,
-          "Function Name": "PROTOCOL",
-          "Input Parameters": 0,
-          "Is Documented": 0,
-          "Is Public": 0,
-          "Lines of Code (LOC)": 32,
-          "Reflection Hits": 0,
-          "Start Line": 8,
-          "Structural Impact": 2.6
         },
         {
           "Control Flow Branches": 1,
@@ -79620,6 +79607,19 @@
           "Lines of Code (LOC)": 1,
           "Reflection Hits": 0,
           "Start Line": 7,
+          "Structural Impact": 1.1
+        },
+        {
+          "Control Flow Branches": 0,
+          "Control Flow Ratio": "0.0%",
+          "End Line": 10,
+          "Function Name": "PROTOCOL",
+          "Input Parameters": 0,
+          "Is Documented": 0,
+          "Is Public": 0,
+          "Lines of Code (LOC)": 3,
+          "Reflection Hits": 0,
+          "Start Line": 8,
           "Structural Impact": 1.1
         },
         {
@@ -79757,15 +79757,15 @@
         {
           "Control Flow Branches": 0,
           "Control Flow Ratio": "0.0%",
-          "End Line": 31,
+          "End Line": 10,
           "Function Name": "PROTOCOL",
           "Input Parameters": 0,
           "Is Documented": 0,
           "Is Public": 0,
-          "Lines of Code (LOC)": 25,
+          "Lines of Code (LOC)": 4,
           "Reflection Hits": 0,
           "Start Line": 7,
-          "Structural Impact": 2.2
+          "Structural Impact": 1.2
         },
         {
           "Control Flow Branches": 0,
@@ -79967,19 +79967,6 @@
           "Structural Impact": 3.3
         },
         {
-          "Control Flow Branches": 0,
-          "Control Flow Ratio": "0.0%",
-          "End Line": 38,
-          "Function Name": "PROTOCOL",
-          "Input Parameters": 0,
-          "Is Documented": 0,
-          "Is Public": 0,
-          "Lines of Code (LOC)": 31,
-          "Reflection Hits": 0,
-          "Start Line": 8,
-          "Structural Impact": 2.5
-        },
-        {
           "Control Flow Branches": 1,
           "Control Flow Ratio": "100.0%",
           "End Line": 90,
@@ -80042,6 +80029,19 @@
           "Lines of Code (LOC)": 1,
           "Reflection Hits": 0,
           "Start Line": 7,
+          "Structural Impact": 1.1
+        },
+        {
+          "Control Flow Branches": 0,
+          "Control Flow Ratio": "0.0%",
+          "End Line": 10,
+          "Function Name": "PROTOCOL",
+          "Input Parameters": 0,
+          "Is Documented": 0,
+          "Is Public": 0,
+          "Lines of Code (LOC)": 3,
+          "Reflection Hits": 0,
+          "Start Line": 8,
           "Structural Impact": 1.1
         },
         {
@@ -80179,15 +80179,15 @@
         {
           "Control Flow Branches": 0,
           "Control Flow Ratio": "0.0%",
-          "End Line": 31,
+          "End Line": 10,
           "Function Name": "PROTOCOL",
           "Input Parameters": 0,
           "Is Documented": 0,
           "Is Public": 0,
-          "Lines of Code (LOC)": 25,
+          "Lines of Code (LOC)": 4,
           "Reflection Hits": 0,
           "Start Line": 7,
-          "Structural Impact": 2.2
+          "Structural Impact": 1.2
         },
         {
           "Control Flow Branches": 0,
@@ -80386,28 +80386,28 @@
         {
           "Control Flow Branches": 4,
           "Control Flow Ratio": "50.0%",
-          "End Line": 105,
+          "End Line": 104,
           "Function Name": "p",
           "Input Parameters": 0,
           "Is Documented": 0,
           "Is Public": 0,
-          "Lines of Code (LOC)": 18,
+          "Lines of Code (LOC)": 17,
           "Reflection Hits": 0,
           "Start Line": 88,
-          "Structural Impact": 5.9
+          "Structural Impact": 5.8
         },
         {
           "Control Flow Branches": 0,
           "Control Flow Ratio": "0.0%",
-          "End Line": 86,
+          "End Line": 87,
           "Function Name": "m",
           "Input Parameters": 0,
           "Is Documented": 0,
           "Is Public": 0,
-          "Lines of Code (LOC)": 18,
+          "Lines of Code (LOC)": 19,
           "Reflection Hits": 0,
           "Start Line": 69,
-          "Structural Impact": 1.9
+          "Structural Impact": 2.0
         }
       ],
       "cobol/che-che4z_lsp_project_fixtures/subroutines_SUB1.cob": [],
@@ -80788,19 +80788,6 @@
         {
           "Control Flow Branches": 0,
           "Control Flow Ratio": "0.0%",
-          "End Line": 249,
-          "Function Name": "BEGIN-PERFORM-THRU",
-          "Input Parameters": 0,
-          "Is Documented": 0,
-          "Is Public": 0,
-          "Lines of Code (LOC)": 4,
-          "Reflection Hits": 0,
-          "Start Line": 246,
-          "Structural Impact": 1.2
-        },
-        {
-          "Control Flow Branches": 0,
-          "Control Flow Ratio": "0.0%",
           "End Line": 382,
           "Function Name": "START-PROGRAM-WRITE",
           "Input Parameters": 0,
@@ -81108,6 +81095,19 @@
           "Lines of Code (LOC)": 2,
           "Reflection Hits": 0,
           "Start Line": 244,
+          "Structural Impact": 1.1
+        },
+        {
+          "Control Flow Branches": 0,
+          "Control Flow Ratio": "0.0%",
+          "End Line": 248,
+          "Function Name": "BEGIN-PERFORM-THRU",
+          "Input Parameters": 0,
+          "Is Documented": 0,
+          "Is Public": 0,
+          "Lines of Code (LOC)": 3,
+          "Reflection Hits": 0,
+          "Start Line": 246,
           "Structural Impact": 1.1
         },
         {
@@ -82025,19 +82025,6 @@
         {
           "Control Flow Branches": 0,
           "Control Flow Ratio": "0.0%",
-          "End Line": 247,
-          "Function Name": "BEGIN-PERFORM-THRU",
-          "Input Parameters": 0,
-          "Is Documented": 0,
-          "Is Public": 0,
-          "Lines of Code (LOC)": 4,
-          "Reflection Hits": 0,
-          "Start Line": 244,
-          "Structural Impact": 1.2
-        },
-        {
-          "Control Flow Branches": 0,
-          "Control Flow Ratio": "0.0%",
           "End Line": 380,
           "Function Name": "START-PROGRAM-WRITE",
           "Input Parameters": 0,
@@ -82332,6 +82319,19 @@
           "Lines of Code (LOC)": 2,
           "Reflection Hits": 0,
           "Start Line": 242,
+          "Structural Impact": 1.1
+        },
+        {
+          "Control Flow Branches": 0,
+          "Control Flow Ratio": "0.0%",
+          "End Line": 246,
+          "Function Name": "BEGIN-PERFORM-THRU",
+          "Input Parameters": 0,
+          "Is Documented": 0,
+          "Is Public": 0,
+          "Lines of Code (LOC)": 3,
+          "Reflection Hits": 0,
+          "Start Line": 244,
           "Structural Impact": 1.1
         },
         {
@@ -83665,12 +83665,12 @@
         {
           "Control Flow Branches": 0,
           "Control Flow Ratio": "0.0%",
-          "End Line": 308,
+          "End Line": 307,
           "Function Name": "BEGIN-AT-END-PROC",
           "Input Parameters": 0,
           "Is Documented": 0,
           "Is Public": 0,
-          "Lines of Code (LOC)": 3,
+          "Lines of Code (LOC)": 2,
           "Reflection Hits": 0,
           "Start Line": 306,
           "Structural Impact": 1.1
@@ -84291,12 +84291,12 @@
         {
           "Control Flow Branches": 0,
           "Control Flow Ratio": "0.0%",
-          "End Line": 38,
+          "End Line": 36,
           "Function Name": "BUGGING-2",
           "Input Parameters": 0,
           "Is Documented": 0,
           "Is Public": 0,
-          "Lines of Code (LOC)": 9,
+          "Lines of Code (LOC)": 7,
           "Reflection Hits": 0,
           "Start Line": 30,
           "Structural Impact": 1.4
@@ -84332,15 +84332,15 @@
         {
           "Control Flow Branches": 0,
           "Control Flow Ratio": "0.0%",
-          "End Line": 37,
+          "End Line": 35,
           "Function Name": "BUGGING",
           "Input Parameters": 0,
           "Is Documented": 0,
           "Is Public": 0,
-          "Lines of Code (LOC)": 7,
+          "Lines of Code (LOC)": 5,
           "Reflection Hits": 0,
           "Start Line": 31,
-          "Structural Impact": 1.4
+          "Structural Impact": 1.2
         },
         {
           "Control Flow Branches": 0,
@@ -84373,15 +84373,15 @@
         {
           "Control Flow Branches": 0,
           "Control Flow Ratio": "0.0%",
-          "End Line": 37,
+          "End Line": 35,
           "Function Name": "BUGGING",
           "Input Parameters": 0,
           "Is Documented": 0,
           "Is Public": 0,
-          "Lines of Code (LOC)": 7,
+          "Lines of Code (LOC)": 5,
           "Reflection Hits": 0,
           "Start Line": 31,
-          "Structural Impact": 1.4
+          "Structural Impact": 1.2
         },
         {
           "Control Flow Branches": 0,
@@ -95203,19 +95203,6 @@
           "Structural Impact": 11.1
         },
         {
-          "Control Flow Branches": 0,
-          "Control Flow Ratio": "0.0%",
-          "End Line": 685,
-          "Function Name": "CCVS-999999",
-          "Input Parameters": 0,
-          "Is Documented": 0,
-          "Is Public": 0,
-          "Lines of Code (LOC)": 117,
-          "Reflection Hits": 0,
-          "Start Line": 569,
-          "Structural Impact": 6.0
-        },
-        {
           "Control Flow Branches": 4,
           "Control Flow Ratio": "50.0%",
           "End Line": 239,
@@ -96011,6 +95998,19 @@
         {
           "Control Flow Branches": 0,
           "Control Flow Ratio": "0.0%",
+          "End Line": 570,
+          "Function Name": "CCVS-999999",
+          "Input Parameters": 0,
+          "Is Documented": 0,
+          "Is Public": 0,
+          "Lines of Code (LOC)": 2,
+          "Reflection Hits": 0,
+          "Start Line": 569,
+          "Structural Impact": 1.1
+        },
+        {
+          "Control Flow Branches": 0,
+          "Control Flow Ratio": "0.0%",
           "End Line": 686,
           "Function Name": "SECT-IC224A-1-001",
           "Input Parameters": 0,
@@ -96074,19 +96074,6 @@
           "Reflection Hits": 0,
           "Start Line": 231,
           "Structural Impact": 5.2
-        },
-        {
-          "Control Flow Branches": 0,
-          "Control Flow Ratio": "0.0%",
-          "End Line": 489,
-          "Function Name": "CCVS-999999",
-          "Input Parameters": 0,
-          "Is Documented": 0,
-          "Is Public": 0,
-          "Lines of Code (LOC)": 109,
-          "Reflection Hits": 0,
-          "Start Line": 381,
-          "Structural Impact": 5.0
         },
         {
           "Control Flow Branches": 3,
@@ -96533,6 +96520,19 @@
         {
           "Control Flow Branches": 0,
           "Control Flow Ratio": "0.0%",
+          "End Line": 382,
+          "Function Name": "CCVS-999999",
+          "Input Parameters": 0,
+          "Is Documented": 0,
+          "Is Public": 0,
+          "Lines of Code (LOC)": 2,
+          "Reflection Hits": 0,
+          "Start Line": 381,
+          "Structural Impact": 1.1
+        },
+        {
+          "Control Flow Branches": 0,
+          "Control Flow Ratio": "0.0%",
           "End Line": 490,
           "Function Name": "SECT-IC226A-1-001",
           "Input Parameters": 0,
@@ -96689,19 +96689,6 @@
           "Structural Impact": 3.4
         },
         {
-          "Control Flow Branches": 0,
-          "Control Flow Ratio": "0.0%",
-          "End Line": 427,
-          "Function Name": "CCVS-999999",
-          "Input Parameters": 0,
-          "Is Documented": 0,
-          "Is Public": 0,
-          "Lines of Code (LOC)": 45,
-          "Reflection Hits": 0,
-          "Start Line": 383,
-          "Structural Impact": 3.2
-        },
-        {
           "Control Flow Branches": 2,
           "Control Flow Ratio": "100.0%",
           "End Line": 309,
@@ -96855,19 +96842,6 @@
           "Lines of Code (LOC)": 5,
           "Reflection Hits": 0,
           "Start Line": 429,
-          "Structural Impact": 1.2
-        },
-        {
-          "Control Flow Branches": 0,
-          "Control Flow Ratio": "0.0%",
-          "End Line": 437,
-          "Function Name": "GLO-EXIT-001",
-          "Input Parameters": 0,
-          "Is Documented": 0,
-          "Is Public": 0,
-          "Lines of Code (LOC)": 4,
-          "Reflection Hits": 0,
-          "Start Line": 434,
           "Structural Impact": 1.2
         },
         {
@@ -97068,6 +97042,19 @@
         {
           "Control Flow Branches": 0,
           "Control Flow Ratio": "0.0%",
+          "End Line": 384,
+          "Function Name": "CCVS-999999",
+          "Input Parameters": 0,
+          "Is Documented": 0,
+          "Is Public": 0,
+          "Lines of Code (LOC)": 2,
+          "Reflection Hits": 0,
+          "Start Line": 383,
+          "Structural Impact": 1.1
+        },
+        {
+          "Control Flow Branches": 0,
+          "Control Flow Ratio": "0.0%",
           "End Line": 428,
           "Function Name": "SECT-IC228A-1-001",
           "Input Parameters": 0,
@@ -97076,6 +97063,19 @@
           "Lines of Code (LOC)": 1,
           "Reflection Hits": 0,
           "Start Line": 428,
+          "Structural Impact": 1.1
+        },
+        {
+          "Control Flow Branches": 0,
+          "Control Flow Ratio": "0.0%",
+          "End Line": 435,
+          "Function Name": "GLO-EXIT-001",
+          "Input Parameters": 0,
+          "Is Documented": 0,
+          "Is Public": 0,
+          "Lines of Code (LOC)": 2,
+          "Reflection Hits": 0,
+          "Start Line": 434,
           "Structural Impact": 1.1
         }
       ],
@@ -97157,19 +97157,6 @@
           "Reflection Hits": 0,
           "Start Line": 351,
           "Structural Impact": 4.4
-        },
-        {
-          "Control Flow Branches": 0,
-          "Control Flow Ratio": "0.0%",
-          "End Line": 496,
-          "Function Name": "CCVS-999999",
-          "Input Parameters": 0,
-          "Is Documented": 0,
-          "Is Public": 0,
-          "Lines of Code (LOC)": 102,
-          "Reflection Hits": 0,
-          "Start Line": 395,
-          "Structural Impact": 4.0
         },
         {
           "Control Flow Branches": 2,
@@ -97408,19 +97395,6 @@
         {
           "Control Flow Branches": 0,
           "Control Flow Ratio": "0.0%",
-          "End Line": 504,
-          "Function Name": "END-PROG",
-          "Input Parameters": 0,
-          "Is Documented": 0,
-          "Is Public": 0,
-          "Lines of Code (LOC)": 4,
-          "Reflection Hits": 0,
-          "Start Line": 501,
-          "Structural Impact": 1.2
-        },
-        {
-          "Control Flow Branches": 0,
-          "Control Flow Ratio": "0.0%",
           "End Line": 201,
           "Function Name": "SECT-IC233A-001",
           "Input Parameters": 0,
@@ -97486,12 +97460,12 @@
         {
           "Control Flow Branches": 0,
           "Control Flow Ratio": "0.0%",
-          "End Line": 261,
+          "End Line": 260,
           "Function Name": "EXIT-USE-TEST-2",
           "Input Parameters": 0,
           "Is Documented": 0,
           "Is Public": 0,
-          "Lines of Code (LOC)": 3,
+          "Lines of Code (LOC)": 2,
           "Reflection Hits": 0,
           "Start Line": 259,
           "Structural Impact": 1.1
@@ -97720,6 +97694,19 @@
         {
           "Control Flow Branches": 0,
           "Control Flow Ratio": "0.0%",
+          "End Line": 396,
+          "Function Name": "CCVS-999999",
+          "Input Parameters": 0,
+          "Is Documented": 0,
+          "Is Public": 0,
+          "Lines of Code (LOC)": 2,
+          "Reflection Hits": 0,
+          "Start Line": 395,
+          "Structural Impact": 1.1
+        },
+        {
+          "Control Flow Branches": 0,
+          "Control Flow Ratio": "0.0%",
           "End Line": 497,
           "Function Name": "SECT-IC233A-1-001",
           "Input Parameters": 0,
@@ -97741,6 +97728,19 @@
           "Lines of Code (LOC)": 3,
           "Reflection Hits": 0,
           "Start Line": 498,
+          "Structural Impact": 1.1
+        },
+        {
+          "Control Flow Branches": 0,
+          "Control Flow Ratio": "0.0%",
+          "End Line": 502,
+          "Function Name": "END-PROG",
+          "Input Parameters": 0,
+          "Is Documented": 0,
+          "Is Public": 0,
+          "Lines of Code (LOC)": 2,
+          "Reflection Hits": 0,
+          "Start Line": 501,
           "Structural Impact": 1.1
         }
       ],
@@ -97785,32 +97785,6 @@
           "Structural Impact": 5.2
         },
         {
-          "Control Flow Branches": 0,
-          "Control Flow Ratio": "0.0%",
-          "End Line": 590,
-          "Function Name": "USE-INIT-1",
-          "Input Parameters": 0,
-          "Is Documented": 0,
-          "Is Public": 0,
-          "Lines of Code (LOC)": 113,
-          "Reflection Hits": 0,
-          "Start Line": 478,
-          "Structural Impact": 4.5
-        },
-        {
-          "Control Flow Branches": 0,
-          "Control Flow Ratio": "0.0%",
-          "End Line": 708,
-          "Function Name": "USE-INIT-1",
-          "Input Parameters": 0,
-          "Is Documented": 0,
-          "Is Public": 0,
-          "Lines of Code (LOC)": 112,
-          "Reflection Hits": 0,
-          "Start Line": 597,
-          "Structural Impact": 4.5
-        },
-        {
           "Control Flow Branches": 3,
           "Control Flow Ratio": "75.0%",
           "End Line": 314,
@@ -97822,19 +97796,6 @@
           "Reflection Hits": 0,
           "Start Line": 307,
           "Structural Impact": 4.4
-        },
-        {
-          "Control Flow Branches": 0,
-          "Control Flow Ratio": "0.0%",
-          "End Line": 471,
-          "Function Name": "CCVS-999999",
-          "Input Parameters": 0,
-          "Is Documented": 0,
-          "Is Public": 0,
-          "Lines of Code (LOC)": 112,
-          "Reflection Hits": 0,
-          "Start Line": 360,
-          "Structural Impact": 4.0
         },
         {
           "Control Flow Branches": 2,
@@ -97995,19 +97956,6 @@
         {
           "Control Flow Branches": 0,
           "Control Flow Ratio": "0.0%",
-          "End Line": 718,
-          "Function Name": "USE-INIT-1",
-          "Input Parameters": 0,
-          "Is Documented": 0,
-          "Is Public": 0,
-          "Lines of Code (LOC)": 9,
-          "Reflection Hits": 0,
-          "Start Line": 710,
-          "Structural Impact": 1.4
-        },
-        {
-          "Control Flow Branches": 0,
-          "Control Flow Ratio": "0.0%",
           "End Line": 224,
           "Function Name": "OPEN-FILES",
           "Input Parameters": 0,
@@ -98017,6 +97965,19 @@
           "Reflection Hits": 0,
           "Start Line": 219,
           "Structural Impact": 1.3
+        },
+        {
+          "Control Flow Branches": 0,
+          "Control Flow Ratio": "0.0%",
+          "End Line": 713,
+          "Function Name": "USE-INIT-1",
+          "Input Parameters": 0,
+          "Is Documented": 0,
+          "Is Public": 0,
+          "Lines of Code (LOC)": 4,
+          "Reflection Hits": 0,
+          "Start Line": 710,
+          "Structural Impact": 1.2
         },
         {
           "Control Flow Branches": 0,
@@ -98034,12 +97995,12 @@
         {
           "Control Flow Branches": 0,
           "Control Flow Ratio": "0.0%",
-          "End Line": 217,
+          "End Line": 216,
           "Function Name": "USE-TEST-2",
           "Input Parameters": 0,
           "Is Documented": 0,
           "Is Public": 0,
-          "Lines of Code (LOC)": 3,
+          "Lines of Code (LOC)": 2,
           "Reflection Hits": 0,
           "Start Line": 215,
           "Structural Impact": 1.1
@@ -98268,6 +98229,19 @@
         {
           "Control Flow Branches": 0,
           "Control Flow Ratio": "0.0%",
+          "End Line": 361,
+          "Function Name": "CCVS-999999",
+          "Input Parameters": 0,
+          "Is Documented": 0,
+          "Is Public": 0,
+          "Lines of Code (LOC)": 2,
+          "Reflection Hits": 0,
+          "Start Line": 360,
+          "Structural Impact": 1.1
+        },
+        {
+          "Control Flow Branches": 0,
+          "Control Flow Ratio": "0.0%",
           "End Line": 473,
           "Function Name": "NON-GLOBAL-SECTION",
           "Input Parameters": 0,
@@ -98281,12 +98255,12 @@
         {
           "Control Flow Branches": 0,
           "Control Flow Ratio": "0.0%",
-          "End Line": 476,
+          "End Line": 475,
           "Function Name": "USE-PARA",
           "Input Parameters": 0,
           "Is Documented": 0,
           "Is Public": 0,
-          "Lines of Code (LOC)": 3,
+          "Lines of Code (LOC)": 2,
           "Reflection Hits": 0,
           "Start Line": 474,
           "Structural Impact": 1.1
@@ -98307,6 +98281,19 @@
         {
           "Control Flow Branches": 0,
           "Control Flow Ratio": "0.0%",
+          "End Line": 480,
+          "Function Name": "USE-INIT-1",
+          "Input Parameters": 0,
+          "Is Documented": 0,
+          "Is Public": 0,
+          "Lines of Code (LOC)": 3,
+          "Reflection Hits": 0,
+          "Start Line": 478,
+          "Structural Impact": 1.1
+        },
+        {
+          "Control Flow Branches": 0,
+          "Control Flow Ratio": "0.0%",
           "End Line": 592,
           "Function Name": "USE-TEST",
           "Input Parameters": 0,
@@ -98320,12 +98307,12 @@
         {
           "Control Flow Branches": 0,
           "Control Flow Ratio": "0.0%",
-          "End Line": 595,
+          "End Line": 594,
           "Function Name": "USE-TEST-1",
           "Input Parameters": 0,
           "Is Documented": 0,
           "Is Public": 0,
-          "Lines of Code (LOC)": 3,
+          "Lines of Code (LOC)": 2,
           "Reflection Hits": 0,
           "Start Line": 593,
           "Structural Impact": 1.1
@@ -98346,6 +98333,19 @@
         {
           "Control Flow Branches": 0,
           "Control Flow Ratio": "0.0%",
+          "End Line": 599,
+          "Function Name": "USE-INIT-1",
+          "Input Parameters": 0,
+          "Is Documented": 0,
+          "Is Public": 0,
+          "Lines of Code (LOC)": 3,
+          "Reflection Hits": 0,
+          "Start Line": 597,
+          "Structural Impact": 1.1
+        },
+        {
+          "Control Flow Branches": 0,
+          "Control Flow Ratio": "0.0%",
           "End Line": 709,
           "Function Name": "SECT-IC234A-3-001",
           "Input Parameters": 0,
@@ -98358,19 +98358,6 @@
         }
       ],
       "cobol/che-che4z_nist_ccvs85/IC2374.2.cbl": [
-        {
-          "Control Flow Branches": 0,
-          "Control Flow Ratio": "0.0%",
-          "End Line": 416,
-          "Function Name": "CCVS-999999",
-          "Input Parameters": 0,
-          "Is Documented": 0,
-          "Is Public": 0,
-          "Lines of Code (LOC)": 97,
-          "Reflection Hits": 1,
-          "Start Line": 320,
-          "Structural Impact": 5.9
-        },
         {
           "Control Flow Branches": 4,
           "Control Flow Ratio": "50.0%",
@@ -98790,6 +98777,19 @@
         {
           "Control Flow Branches": 0,
           "Control Flow Ratio": "0.0%",
+          "End Line": 321,
+          "Function Name": "CCVS-999999",
+          "Input Parameters": 0,
+          "Is Documented": 0,
+          "Is Public": 0,
+          "Lines of Code (LOC)": 2,
+          "Reflection Hits": 0,
+          "Start Line": 320,
+          "Structural Impact": 1.1
+        },
+        {
+          "Control Flow Branches": 0,
+          "Control Flow Ratio": "0.0%",
           "End Line": 418,
           "Function Name": "SECT-IC237A-1-001",
           "Input Parameters": 0,
@@ -98829,12 +98829,12 @@
         {
           "Control Flow Branches": 0,
           "Control Flow Ratio": "0.0%",
-          "End Line": 425,
+          "End Line": 424,
           "Function Name": "END-OF-PROGRAM",
           "Input Parameters": 0,
           "Is Documented": 0,
           "Is Public": 0,
-          "Lines of Code (LOC)": 2,
+          "Lines of Code (LOC)": 1,
           "Reflection Hits": 0,
           "Start Line": 424,
           "Structural Impact": 1.1
@@ -98844,38 +98844,12 @@
         {
           "Control Flow Branches": 0,
           "Control Flow Ratio": "0.0%",
-          "End Line": 65,
-          "Function Name": "IC401M-BYCONT",
-          "Input Parameters": 0,
-          "Is Documented": 0,
-          "Is Public": 0,
-          "Lines of Code (LOC)": 18,
-          "Reflection Hits": 0,
-          "Start Line": 48,
-          "Structural Impact": 1.9
-        },
-        {
-          "Control Flow Branches": 0,
-          "Control Flow Ratio": "0.0%",
-          "End Line": 74,
-          "Function Name": "END-PARA",
-          "Input Parameters": 0,
-          "Is Documented": 0,
-          "Is Public": 0,
-          "Lines of Code (LOC)": 6,
-          "Reflection Hits": 0,
-          "Start Line": 69,
-          "Structural Impact": 1.3
-        },
-        {
-          "Control Flow Branches": 0,
-          "Control Flow Ratio": "0.0%",
-          "End Line": 32,
+          "End Line": 31,
           "Function Name": "IC401M-USE",
           "Input Parameters": 0,
           "Is Documented": 0,
           "Is Public": 0,
-          "Lines of Code (LOC)": 5,
+          "Lines of Code (LOC)": 4,
           "Reflection Hits": 0,
           "Start Line": 28,
           "Structural Impact": 1.2
@@ -98922,6 +98896,19 @@
         {
           "Control Flow Branches": 0,
           "Control Flow Ratio": "0.0%",
+          "End Line": 52,
+          "Function Name": "IC401M-BYCONT",
+          "Input Parameters": 0,
+          "Is Documented": 0,
+          "Is Public": 0,
+          "Lines of Code (LOC)": 5,
+          "Reflection Hits": 0,
+          "Start Line": 48,
+          "Structural Impact": 1.2
+        },
+        {
+          "Control Flow Branches": 0,
+          "Control Flow Ratio": "0.0%",
           "End Line": 33,
           "Function Name": "IC401M-NONDECL",
           "Input Parameters": 0,
@@ -98943,6 +98930,19 @@
           "Lines of Code (LOC)": 3,
           "Reflection Hits": 0,
           "Start Line": 66,
+          "Structural Impact": 1.1
+        },
+        {
+          "Control Flow Branches": 0,
+          "Control Flow Ratio": "0.0%",
+          "End Line": 69,
+          "Function Name": "END-PARA",
+          "Input Parameters": 0,
+          "Is Documented": 0,
+          "Is Public": 0,
+          "Lines of Code (LOC)": 1,
+          "Reflection Hits": 0,
+          "Start Line": 69,
           "Structural Impact": 1.1
         }
       ],
@@ -132142,12 +132142,12 @@
         {
           "Control Flow Branches": 0,
           "Control Flow Ratio": "0.0%",
-          "End Line": 323,
+          "End Line": 322,
           "Function Name": "USE-PAR-EXIT",
           "Input Parameters": 0,
           "Is Documented": 0,
           "Is Public": 0,
-          "Lines of Code (LOC)": 3,
+          "Lines of Code (LOC)": 2,
           "Reflection Hits": 0,
           "Start Line": 321,
           "Structural Impact": 1.1
@@ -132885,12 +132885,12 @@
         {
           "Control Flow Branches": 0,
           "Control Flow Ratio": "0.0%",
-          "End Line": 351,
+          "End Line": 350,
           "Function Name": "IX-FS2-01-EXIT",
           "Input Parameters": 0,
           "Is Documented": 0,
           "Is Public": 0,
-          "Lines of Code (LOC)": 3,
+          "Lines of Code (LOC)": 2,
           "Reflection Hits": 0,
           "Start Line": 349,
           "Structural Impact": 1.1
@@ -133420,19 +133420,6 @@
         {
           "Control Flow Branches": 0,
           "Control Flow Ratio": "0.0%",
-          "End Line": 317,
-          "Function Name": "EXIT-DECL",
-          "Input Parameters": 0,
-          "Is Documented": 0,
-          "Is Public": 0,
-          "Lines of Code (LOC)": 5,
-          "Reflection Hits": 0,
-          "Start Line": 313,
-          "Structural Impact": 1.2
-        },
-        {
-          "Control Flow Branches": 0,
-          "Control Flow Ratio": "0.0%",
           "End Line": 430,
           "Function Name": "OPN-INIT-GF-01-0",
           "Input Parameters": 0,
@@ -133532,6 +133519,19 @@
           "Lines of Code (LOC)": 2,
           "Reflection Hits": 0,
           "Start Line": 303,
+          "Structural Impact": 1.1
+        },
+        {
+          "Control Flow Branches": 0,
+          "Control Flow Ratio": "0.0%",
+          "End Line": 314,
+          "Function Name": "EXIT-DECL",
+          "Input Parameters": 0,
+          "Is Documented": 0,
+          "Is Public": 0,
+          "Lines of Code (LOC)": 2,
+          "Reflection Hits": 0,
+          "Start Line": 313,
           "Structural Impact": 1.1
         },
         {
@@ -134280,19 +134280,6 @@
         {
           "Control Flow Branches": 0,
           "Control Flow Ratio": "0.0%",
-          "End Line": 474,
-          "Function Name": "DECL-EXIT",
-          "Input Parameters": 0,
-          "Is Documented": 0,
-          "Is Public": 0,
-          "Lines of Code (LOC)": 4,
-          "Reflection Hits": 0,
-          "Start Line": 471,
-          "Structural Impact": 1.2
-        },
-        {
-          "Control Flow Branches": 0,
-          "Control Flow Ratio": "0.0%",
           "End Line": 496,
           "Function Name": "CCVS-INIT-FILE",
           "Input Parameters": 0,
@@ -134483,6 +134470,19 @@
           "Lines of Code (LOC)": 1,
           "Reflection Hits": 0,
           "Start Line": 470,
+          "Structural Impact": 1.1
+        },
+        {
+          "Control Flow Branches": 0,
+          "Control Flow Ratio": "0.0%",
+          "End Line": 471,
+          "Function Name": "DECL-EXIT",
+          "Input Parameters": 0,
+          "Is Documented": 0,
+          "Is Public": 0,
+          "Lines of Code (LOC)": 1,
+          "Reflection Hits": 0,
+          "Start Line": 471,
           "Structural Impact": 1.1
         },
         {
@@ -135309,19 +135309,6 @@
         {
           "Control Flow Branches": 0,
           "Control Flow Ratio": "0.0%",
-          "End Line": 470,
-          "Function Name": "DECL-EXIT",
-          "Input Parameters": 0,
-          "Is Documented": 0,
-          "Is Public": 0,
-          "Lines of Code (LOC)": 4,
-          "Reflection Hits": 0,
-          "Start Line": 467,
-          "Structural Impact": 1.2
-        },
-        {
-          "Control Flow Branches": 0,
-          "Control Flow Ratio": "0.0%",
           "End Line": 492,
           "Function Name": "CCVS-INIT-FILE",
           "Input Parameters": 0,
@@ -135486,6 +135473,19 @@
           "Lines of Code (LOC)": 1,
           "Reflection Hits": 0,
           "Start Line": 466,
+          "Structural Impact": 1.1
+        },
+        {
+          "Control Flow Branches": 0,
+          "Control Flow Ratio": "0.0%",
+          "End Line": 467,
+          "Function Name": "DECL-EXIT",
+          "Input Parameters": 0,
+          "Is Documented": 0,
+          "Is Public": 0,
+          "Lines of Code (LOC)": 1,
+          "Reflection Hits": 0,
+          "Start Line": 467,
           "Structural Impact": 1.1
         },
         {
@@ -136299,19 +136299,6 @@
         {
           "Control Flow Branches": 0,
           "Control Flow Ratio": "0.0%",
-          "End Line": 471,
-          "Function Name": "DECL-EXIT",
-          "Input Parameters": 0,
-          "Is Documented": 0,
-          "Is Public": 0,
-          "Lines of Code (LOC)": 4,
-          "Reflection Hits": 0,
-          "Start Line": 468,
-          "Structural Impact": 1.2
-        },
-        {
-          "Control Flow Branches": 0,
-          "Control Flow Ratio": "0.0%",
           "End Line": 493,
           "Function Name": "CCVS-INIT-FILE",
           "Input Parameters": 0,
@@ -136476,6 +136463,19 @@
           "Lines of Code (LOC)": 1,
           "Reflection Hits": 0,
           "Start Line": 467,
+          "Structural Impact": 1.1
+        },
+        {
+          "Control Flow Branches": 0,
+          "Control Flow Ratio": "0.0%",
+          "End Line": 468,
+          "Function Name": "DECL-EXIT",
+          "Input Parameters": 0,
+          "Is Documented": 0,
+          "Is Public": 0,
+          "Lines of Code (LOC)": 1,
+          "Reflection Hits": 0,
+          "Start Line": 468,
           "Structural Impact": 1.1
         },
         {
@@ -137289,19 +137289,6 @@
         {
           "Control Flow Branches": 0,
           "Control Flow Ratio": "0.0%",
-          "End Line": 471,
-          "Function Name": "DECL-EXIT",
-          "Input Parameters": 0,
-          "Is Documented": 0,
-          "Is Public": 0,
-          "Lines of Code (LOC)": 4,
-          "Reflection Hits": 0,
-          "Start Line": 468,
-          "Structural Impact": 1.2
-        },
-        {
-          "Control Flow Branches": 0,
-          "Control Flow Ratio": "0.0%",
           "End Line": 493,
           "Function Name": "CCVS-INIT-FILE",
           "Input Parameters": 0,
@@ -137466,6 +137453,19 @@
           "Lines of Code (LOC)": 1,
           "Reflection Hits": 0,
           "Start Line": 467,
+          "Structural Impact": 1.1
+        },
+        {
+          "Control Flow Branches": 0,
+          "Control Flow Ratio": "0.0%",
+          "End Line": 468,
+          "Function Name": "DECL-EXIT",
+          "Input Parameters": 0,
+          "Is Documented": 0,
+          "Is Public": 0,
+          "Lines of Code (LOC)": 1,
+          "Reflection Hits": 0,
+          "Start Line": 468,
           "Structural Impact": 1.1
         },
         {
@@ -138279,19 +138279,6 @@
         {
           "Control Flow Branches": 0,
           "Control Flow Ratio": "0.0%",
-          "End Line": 470,
-          "Function Name": "DECL-EXIT",
-          "Input Parameters": 0,
-          "Is Documented": 0,
-          "Is Public": 0,
-          "Lines of Code (LOC)": 4,
-          "Reflection Hits": 0,
-          "Start Line": 467,
-          "Structural Impact": 1.2
-        },
-        {
-          "Control Flow Branches": 0,
-          "Control Flow Ratio": "0.0%",
           "End Line": 492,
           "Function Name": "CCVS-INIT-FILE",
           "Input Parameters": 0,
@@ -138456,6 +138443,19 @@
           "Lines of Code (LOC)": 1,
           "Reflection Hits": 0,
           "Start Line": 466,
+          "Structural Impact": 1.1
+        },
+        {
+          "Control Flow Branches": 0,
+          "Control Flow Ratio": "0.0%",
+          "End Line": 467,
+          "Function Name": "DECL-EXIT",
+          "Input Parameters": 0,
+          "Is Documented": 0,
+          "Is Public": 0,
+          "Lines of Code (LOC)": 1,
+          "Reflection Hits": 0,
+          "Start Line": 467,
           "Structural Impact": 1.1
         },
         {
@@ -139269,19 +139269,6 @@
         {
           "Control Flow Branches": 0,
           "Control Flow Ratio": "0.0%",
-          "End Line": 470,
-          "Function Name": "DECL-EXIT",
-          "Input Parameters": 0,
-          "Is Documented": 0,
-          "Is Public": 0,
-          "Lines of Code (LOC)": 4,
-          "Reflection Hits": 0,
-          "Start Line": 467,
-          "Structural Impact": 1.2
-        },
-        {
-          "Control Flow Branches": 0,
-          "Control Flow Ratio": "0.0%",
           "End Line": 492,
           "Function Name": "CCVS-INIT-FILE",
           "Input Parameters": 0,
@@ -139446,6 +139433,19 @@
           "Lines of Code (LOC)": 1,
           "Reflection Hits": 0,
           "Start Line": 466,
+          "Structural Impact": 1.1
+        },
+        {
+          "Control Flow Branches": 0,
+          "Control Flow Ratio": "0.0%",
+          "End Line": 467,
+          "Function Name": "DECL-EXIT",
+          "Input Parameters": 0,
+          "Is Documented": 0,
+          "Is Public": 0,
+          "Lines of Code (LOC)": 1,
+          "Reflection Hits": 0,
+          "Start Line": 467,
           "Structural Impact": 1.1
         },
         {
@@ -140285,19 +140285,6 @@
         {
           "Control Flow Branches": 0,
           "Control Flow Ratio": "0.0%",
-          "End Line": 474,
-          "Function Name": "DECL-EXIT",
-          "Input Parameters": 0,
-          "Is Documented": 0,
-          "Is Public": 0,
-          "Lines of Code (LOC)": 4,
-          "Reflection Hits": 0,
-          "Start Line": 471,
-          "Structural Impact": 1.2
-        },
-        {
-          "Control Flow Branches": 0,
-          "Control Flow Ratio": "0.0%",
           "End Line": 496,
           "Function Name": "CCVS-INIT-FILE",
           "Input Parameters": 0,
@@ -140436,6 +140423,19 @@
           "Lines of Code (LOC)": 1,
           "Reflection Hits": 0,
           "Start Line": 470,
+          "Structural Impact": 1.1
+        },
+        {
+          "Control Flow Branches": 0,
+          "Control Flow Ratio": "0.0%",
+          "End Line": 471,
+          "Function Name": "DECL-EXIT",
+          "Input Parameters": 0,
+          "Is Documented": 0,
+          "Is Public": 0,
+          "Lines of Code (LOC)": 1,
+          "Reflection Hits": 0,
+          "Start Line": 471,
           "Structural Impact": 1.1
         },
         {
@@ -141236,19 +141236,6 @@
         {
           "Control Flow Branches": 0,
           "Control Flow Ratio": "0.0%",
-          "End Line": 473,
-          "Function Name": "DECL-EXIT",
-          "Input Parameters": 0,
-          "Is Documented": 0,
-          "Is Public": 0,
-          "Lines of Code (LOC)": 4,
-          "Reflection Hits": 0,
-          "Start Line": 470,
-          "Structural Impact": 1.2
-        },
-        {
-          "Control Flow Branches": 0,
-          "Control Flow Ratio": "0.0%",
           "End Line": 495,
           "Function Name": "CCVS-INIT-FILE",
           "Input Parameters": 0,
@@ -141387,6 +141374,19 @@
           "Lines of Code (LOC)": 1,
           "Reflection Hits": 0,
           "Start Line": 469,
+          "Structural Impact": 1.1
+        },
+        {
+          "Control Flow Branches": 0,
+          "Control Flow Ratio": "0.0%",
+          "End Line": 470,
+          "Function Name": "DECL-EXIT",
+          "Input Parameters": 0,
+          "Is Documented": 0,
+          "Is Public": 0,
+          "Lines of Code (LOC)": 1,
+          "Reflection Hits": 0,
+          "Start Line": 470,
           "Structural Impact": 1.1
         },
         {
@@ -142213,19 +142213,6 @@
         {
           "Control Flow Branches": 0,
           "Control Flow Ratio": "0.0%",
-          "End Line": 480,
-          "Function Name": "END-DECL",
-          "Input Parameters": 0,
-          "Is Documented": 0,
-          "Is Public": 0,
-          "Lines of Code (LOC)": 4,
-          "Reflection Hits": 0,
-          "Start Line": 477,
-          "Structural Impact": 1.2
-        },
-        {
-          "Control Flow Branches": 0,
-          "Control Flow Ratio": "0.0%",
           "End Line": 502,
           "Function Name": "CCVS-INIT-FILE",
           "Input Parameters": 0,
@@ -142390,6 +142377,19 @@
           "Lines of Code (LOC)": 2,
           "Reflection Hits": 0,
           "Start Line": 475,
+          "Structural Impact": 1.1
+        },
+        {
+          "Control Flow Branches": 0,
+          "Control Flow Ratio": "0.0%",
+          "End Line": 477,
+          "Function Name": "END-DECL",
+          "Input Parameters": 0,
+          "Is Documented": 0,
+          "Is Public": 0,
+          "Lines of Code (LOC)": 1,
+          "Reflection Hits": 0,
+          "Start Line": 477,
           "Structural Impact": 1.1
         },
         {
@@ -144468,12 +144468,12 @@
         {
           "Control Flow Branches": 0,
           "Control Flow Ratio": "0.0%",
-          "End Line": 360,
+          "End Line": 359,
           "Function Name": "IX-FD2-01-EXIT",
           "Input Parameters": 0,
           "Is Documented": 0,
           "Is Public": 0,
-          "Lines of Code (LOC)": 3,
+          "Lines of Code (LOC)": 2,
           "Reflection Hits": 0,
           "Start Line": 358,
           "Structural Impact": 1.1
@@ -145967,19 +145967,6 @@
         {
           "Control Flow Branches": 0,
           "Control Flow Ratio": "0.0%",
-          "End Line": 304,
-          "Function Name": "INPUT-PROCESS",
-          "Input Parameters": 0,
-          "Is Documented": 0,
-          "Is Public": 0,
-          "Lines of Code (LOC)": 5,
-          "Reflection Hits": 0,
-          "Start Line": 300,
-          "Structural Impact": 1.2
-        },
-        {
-          "Control Flow Branches": 0,
-          "Control Flow Ratio": "0.0%",
           "End Line": 554,
           "Function Name": "REA-INIT-GF-03",
           "Input Parameters": 0,
@@ -146040,6 +146027,19 @@
           "Lines of Code (LOC)": 2,
           "Reflection Hits": 0,
           "Start Line": 298,
+          "Structural Impact": 1.1
+        },
+        {
+          "Control Flow Branches": 0,
+          "Control Flow Ratio": "0.0%",
+          "End Line": 302,
+          "Function Name": "INPUT-PROCESS",
+          "Input Parameters": 0,
+          "Is Documented": 0,
+          "Is Public": 0,
+          "Lines of Code (LOC)": 3,
+          "Reflection Hits": 0,
+          "Start Line": 300,
           "Structural Impact": 1.1
         },
         {
@@ -185237,6 +185237,19 @@
           "Structural Impact": 31.7
         },
         {
+          "Control Flow Branches": 10,
+          "Control Flow Ratio": "25.0%",
+          "End Line": 673,
+          "Function Name": "A010",
+          "Input Parameters": 0,
+          "Is Documented": 0,
+          "Is Public": 0,
+          "Lines of Code (LOC)": 304,
+          "Reflection Hits": 3,
+          "Start Line": 370,
+          "Structural Impact": 26.2
+        },
+        {
           "Control Flow Branches": 7,
           "Control Flow Ratio": "53.8%",
           "End Line": 872,
@@ -185261,19 +185274,6 @@
           "Reflection Hits": 0,
           "Start Line": 881,
           "Structural Impact": 5.1
-        },
-        {
-          "Control Flow Branches": 2,
-          "Control Flow Ratio": "20.0%",
-          "End Line": 406,
-          "Function Name": "A010",
-          "Input Parameters": 0,
-          "Is Documented": 0,
-          "Is Public": 0,
-          "Lines of Code (LOC)": 37,
-          "Reflection Hits": 0,
-          "Start Line": 370,
-          "Structural Impact": 4.8
         },
         {
           "Control Flow Branches": 2,
@@ -185617,17 +185617,17 @@
           "Structural Impact": 25.0
         },
         {
-          "Control Flow Branches": 11,
-          "Control Flow Ratio": "68.8%",
-          "End Line": 249,
+          "Control Flow Branches": 12,
+          "Control Flow Ratio": "63.2%",
+          "End Line": 314,
           "Function Name": "A010",
           "Input Parameters": 0,
           "Is Documented": 0,
           "Is Public": 0,
-          "Lines of Code (LOC)": 89,
-          "Reflection Hits": 6,
+          "Lines of Code (LOC)": 154,
+          "Reflection Hits": 9,
           "Start Line": 161,
-          "Structural Impact": 16.4
+          "Structural Impact": 20.7
         },
         {
           "Control Flow Branches": 6,
@@ -185957,17 +185957,17 @@
           "Structural Impact": 26.4
         },
         {
-          "Control Flow Branches": 9,
-          "Control Flow Ratio": "64.3%",
-          "End Line": 226,
+          "Control Flow Branches": 10,
+          "Control Flow Ratio": "58.8%",
+          "End Line": 290,
           "Function Name": "A010",
           "Input Parameters": 0,
           "Is Documented": 0,
           "Is Public": 0,
-          "Lines of Code (LOC)": 73,
-          "Reflection Hits": 6,
+          "Lines of Code (LOC)": 137,
+          "Reflection Hits": 9,
           "Start Line": 154,
-          "Structural Impact": 13.7
+          "Structural Impact": 17.9
         },
         {
           "Control Flow Branches": 6,
@@ -186310,17 +186310,17 @@
           "Structural Impact": 98.8
         },
         {
-          "Control Flow Branches": 9,
-          "Control Flow Ratio": "50.0%",
-          "End Line": 277,
+          "Control Flow Branches": 10,
+          "Control Flow Ratio": "45.5%",
+          "End Line": 343,
           "Function Name": "A010",
           "Input Parameters": 0,
           "Is Documented": 0,
           "Is Public": 0,
-          "Lines of Code (LOC)": 119,
-          "Reflection Hits": 7,
+          "Lines of Code (LOC)": 185,
+          "Reflection Hits": 10,
           "Start Line": 159,
-          "Structural Impact": 15.9
+          "Structural Impact": 20.2
         },
         {
           "Control Flow Branches": 6,
@@ -186767,6 +186767,19 @@
       ],
       "cobol/cics-banking-sample-application-cbsa/BNK1CRA.cbl": [
         {
+          "Control Flow Branches": 11,
+          "Control Flow Ratio": "61.1%",
+          "End Line": 328,
+          "Function Name": "A010",
+          "Input Parameters": 0,
+          "Is Documented": 0,
+          "Is Public": 0,
+          "Lines of Code (LOC)": 151,
+          "Reflection Hits": 9,
+          "Start Line": 178,
+          "Structural Impact": 19.6
+        },
+        {
           "Control Flow Branches": 12,
           "Control Flow Ratio": "100.0%",
           "End Line": 1148,
@@ -186791,19 +186804,6 @@
           "Reflection Hits": 5,
           "Start Line": 481,
           "Structural Impact": 16.0
-        },
-        {
-          "Control Flow Branches": 10,
-          "Control Flow Ratio": "66.7%",
-          "End Line": 264,
-          "Function Name": "A010",
-          "Input Parameters": 0,
-          "Is Documented": 0,
-          "Is Public": 0,
-          "Lines of Code (LOC)": 87,
-          "Reflection Hits": 6,
-          "Start Line": 178,
-          "Structural Impact": 15.4
         },
         {
           "Control Flow Branches": 6,
@@ -187159,17 +187159,17 @@
       ],
       "cobol/cics-banking-sample-application-cbsa/BNK1DAC.cbl": [
         {
-          "Control Flow Branches": 13,
-          "Control Flow Ratio": "68.4%",
-          "End Line": 296,
+          "Control Flow Branches": 14,
+          "Control Flow Ratio": "63.6%",
+          "End Line": 360,
           "Function Name": "A010",
           "Input Parameters": 0,
           "Is Documented": 0,
           "Is Public": 0,
-          "Lines of Code (LOC)": 108,
-          "Reflection Hits": 6,
+          "Lines of Code (LOC)": 172,
+          "Reflection Hits": 9,
           "Start Line": 189,
-          "Structural Impact": 19.4
+          "Structural Impact": 23.6
         },
         {
           "Control Flow Branches": 7,
@@ -187590,17 +187590,17 @@
       ],
       "cobol/cics-banking-sample-application-cbsa/BNK1DCS.cbl": [
         {
-          "Control Flow Branches": 12,
-          "Control Flow Ratio": "52.2%",
-          "End Line": 327,
+          "Control Flow Branches": 13,
+          "Control Flow Ratio": "48.1%",
+          "End Line": 394,
           "Function Name": "A010",
           "Input Parameters": 0,
           "Is Documented": 0,
           "Is Public": 0,
-          "Lines of Code (LOC)": 138,
-          "Reflection Hits": 7,
+          "Lines of Code (LOC)": 205,
+          "Reflection Hits": 10,
           "Start Line": 190,
-          "Structural Impact": 19.9
+          "Structural Impact": 24.2
         },
         {
           "Control Flow Branches": 14,
@@ -188309,6 +188309,19 @@
         },
         {
           "Control Flow Branches": 10,
+          "Control Flow Ratio": "58.8%",
+          "End Line": 313,
+          "Function Name": "A010",
+          "Input Parameters": 0,
+          "Is Documented": 0,
+          "Is Public": 0,
+          "Lines of Code (LOC)": 139,
+          "Reflection Hits": 9,
+          "Start Line": 175,
+          "Structural Impact": 17.9
+        },
+        {
+          "Control Flow Branches": 10,
           "Control Flow Ratio": "83.3%",
           "End Line": 656,
           "Function Name": "GCD010",
@@ -188319,19 +188332,6 @@
           "Reflection Hits": 4,
           "Start Line": 479,
           "Structural Impact": 17.5
-        },
-        {
-          "Control Flow Branches": 9,
-          "Control Flow Ratio": "64.3%",
-          "End Line": 248,
-          "Function Name": "A010",
-          "Input Parameters": 0,
-          "Is Documented": 0,
-          "Is Public": 0,
-          "Lines of Code (LOC)": 74,
-          "Reflection Hits": 6,
-          "Start Line": 175,
-          "Structural Impact": 13.7
         },
         {
           "Control Flow Branches": 6,
@@ -188700,17 +188700,17 @@
           "Structural Impact": 28.5
         },
         {
-          "Control Flow Branches": 11,
-          "Control Flow Ratio": "64.7%",
-          "End Line": 296,
+          "Control Flow Branches": 12,
+          "Control Flow Ratio": "60.0%",
+          "End Line": 360,
           "Function Name": "A010",
           "Input Parameters": 0,
           "Is Documented": 0,
           "Is Public": 0,
-          "Lines of Code (LOC)": 99,
-          "Reflection Hits": 6,
+          "Lines of Code (LOC)": 163,
+          "Reflection Hits": 9,
           "Start Line": 198,
-          "Structural Impact": 16.9
+          "Structural Impact": 21.1
         },
         {
           "Control Flow Branches": 8,
@@ -189131,6 +189131,19 @@
           "Structural Impact": 33.5
         },
         {
+          "Control Flow Branches": 9,
+          "Control Flow Ratio": "56.2%",
+          "End Line": 235,
+          "Function Name": "A010",
+          "Input Parameters": 0,
+          "Is Documented": 0,
+          "Is Public": 0,
+          "Lines of Code (LOC)": 127,
+          "Reflection Hits": 8,
+          "Start Line": 109,
+          "Structural Impact": 16.4
+        },
+        {
           "Control Flow Branches": 6,
           "Control Flow Ratio": "50.0%",
           "End Line": 1202,
@@ -189142,19 +189155,6 @@
           "Reflection Hits": 12,
           "Start Line": 973,
           "Structural Impact": 13.5
-        },
-        {
-          "Control Flow Branches": 8,
-          "Control Flow Ratio": "61.5%",
-          "End Line": 171,
-          "Function Name": "A010",
-          "Input Parameters": 0,
-          "Is Documented": 0,
-          "Is Public": 0,
-          "Lines of Code (LOC)": 63,
-          "Reflection Hits": 5,
-          "Start Line": 109,
-          "Structural Impact": 12.2
         },
         {
           "Control Flow Branches": 3,
@@ -190552,17 +190552,17 @@
           "Structural Impact": 66.0
         },
         {
-          "Control Flow Branches": 14,
-          "Control Flow Ratio": "93.3%",
-          "End Line": 411,
+          "Control Flow Branches": 16,
+          "Control Flow Ratio": "57.1%",
+          "End Line": 475,
           "Function Name": "P010",
           "Input Parameters": 0,
           "Is Documented": 0,
           "Is Public": 1,
-          "Lines of Code (LOC)": 54,
+          "Lines of Code (LOC)": 118,
           "Reflection Hits": 0,
           "Start Line": 358,
-          "Structural Impact": 17.7
+          "Structural Impact": 22.9
         },
         {
           "Control Flow Branches": 10,
@@ -193238,16 +193238,16 @@
       "cobol/cics-banking-sample-application-cbsa/UPDCUST.cbl": [
         {
           "Control Flow Branches": 14,
-          "Control Flow Ratio": "93.3%",
-          "End Line": 194,
+          "Control Flow Ratio": "82.4%",
+          "End Line": 205,
           "Function Name": "A010",
           "Input Parameters": 0,
           "Is Documented": 0,
           "Is Public": 1,
-          "Lines of Code (LOC)": 57,
+          "Lines of Code (LOC)": 68,
           "Reflection Hits": 0,
           "Start Line": 138,
-          "Structural Impact": 17.9
+          "Structural Impact": 18.4
         },
         {
           "Control Flow Branches": 8,
@@ -196004,12 +196004,12 @@
         {
           "Control Flow Branches": 0,
           "Control Flow Ratio": "0.0%",
-          "End Line": 116,
+          "End Line": 117,
           "Function Name": "ZZX-EXIT",
           "Input Parameters": 0,
           "Is Documented": 0,
           "Is Public": 0,
-          "Lines of Code (LOC)": 2,
+          "Lines of Code (LOC)": 3,
           "Reflection Hits": 0,
           "Start Line": 115,
           "Structural Impact": 1.1
@@ -196503,15 +196503,15 @@
         {
           "Control Flow Branches": 0,
           "Control Flow Ratio": "0.0%",
-          "End Line": 130,
+          "End Line": 131,
           "Function Name": "9999-ABORT",
           "Input Parameters": 0,
           "Is Documented": 0,
           "Is Public": 0,
-          "Lines of Code (LOC)": 3,
+          "Lines of Code (LOC)": 4,
           "Reflection Hits": 0,
           "Start Line": 128,
-          "Structural Impact": 1.1
+          "Structural Impact": 1.2
         }
       ],
       "cobol/cobol-check/src_main_cobol_GREETING.CBL": [
@@ -196574,25 +196574,25 @@
         {
           "Control Flow Branches": 4,
           "Control Flow Ratio": "50.0%",
-          "End Line": 62,
+          "End Line": 63,
           "Function Name": "200-GOODBYE",
           "Input Parameters": 0,
           "Is Documented": 0,
           "Is Public": 0,
-          "Lines of Code (LOC)": 17,
+          "Lines of Code (LOC)": 18,
           "Reflection Hits": 0,
           "Start Line": 46,
-          "Structural Impact": 5.8
+          "Structural Impact": 5.9
         },
         {
           "Control Flow Branches": 3,
-          "Control Flow Ratio": "42.9%",
-          "End Line": 76,
+          "Control Flow Ratio": "37.5%",
+          "End Line": 78,
           "Function Name": "400-CHANGE-2",
           "Input Parameters": 0,
           "Is Documented": 0,
           "Is Public": 0,
-          "Lines of Code (LOC)": 9,
+          "Lines of Code (LOC)": 11,
           "Reflection Hits": 0,
           "Start Line": 68,
           "Structural Impact": 4.5
@@ -196652,6 +196652,19 @@
         {
           "Control Flow Branches": 0,
           "Control Flow Ratio": "0.0%",
+          "End Line": 42,
+          "Function Name": "100-WELCOME",
+          "Input Parameters": 0,
+          "Is Documented": 0,
+          "Is Public": 0,
+          "Lines of Code (LOC)": 6,
+          "Reflection Hits": 0,
+          "Start Line": 37,
+          "Structural Impact": 1.3
+        },
+        {
+          "Control Flow Branches": 0,
+          "Control Flow Ratio": "0.0%",
           "End Line": 125,
           "Function Name": "700-MAKE-CALL",
           "Input Parameters": 0,
@@ -196661,19 +196674,6 @@
           "Reflection Hits": 0,
           "Start Line": 120,
           "Structural Impact": 1.3
-        },
-        {
-          "Control Flow Branches": 0,
-          "Control Flow Ratio": "0.0%",
-          "End Line": 41,
-          "Function Name": "100-WELCOME",
-          "Input Parameters": 0,
-          "Is Documented": 0,
-          "Is Public": 0,
-          "Lines of Code (LOC)": 5,
-          "Reflection Hits": 0,
-          "Start Line": 37,
-          "Structural Impact": 1.2
         },
         {
           "Control Flow Branches": 0,
@@ -196717,12 +196717,12 @@
         {
           "Control Flow Branches": 0,
           "Control Flow Ratio": "0.0%",
-          "End Line": 142,
+          "End Line": 143,
           "Function Name": "999-END",
           "Input Parameters": 0,
           "Is Documented": 0,
           "Is Public": 0,
-          "Lines of Code (LOC)": 2,
+          "Lines of Code (LOC)": 3,
           "Reflection Hits": 0,
           "Start Line": 141,
           "Structural Impact": 1.1
@@ -196812,25 +196812,25 @@
         {
           "Control Flow Branches": 4,
           "Control Flow Ratio": "50.0%",
-          "End Line": 58,
+          "End Line": 59,
           "Function Name": "200-GOODBYE",
           "Input Parameters": 0,
           "Is Documented": 0,
           "Is Public": 0,
-          "Lines of Code (LOC)": 17,
+          "Lines of Code (LOC)": 18,
           "Reflection Hits": 0,
           "Start Line": 42,
-          "Structural Impact": 5.8
+          "Structural Impact": 5.9
         },
         {
           "Control Flow Branches": 3,
-          "Control Flow Ratio": "42.9%",
-          "End Line": 69,
+          "Control Flow Ratio": "37.5%",
+          "End Line": 71,
           "Function Name": "400-CHANGE-2",
           "Input Parameters": 0,
           "Is Documented": 0,
           "Is Public": 0,
-          "Lines of Code (LOC)": 9,
+          "Lines of Code (LOC)": 11,
           "Reflection Hits": 0,
           "Start Line": 61,
           "Structural Impact": 4.5
@@ -196942,6 +196942,19 @@
         {
           "Control Flow Branches": 0,
           "Control Flow Ratio": "0.0%",
+          "End Line": 40,
+          "Function Name": "100-WELCOME",
+          "Input Parameters": 0,
+          "Is Documented": 0,
+          "Is Public": 0,
+          "Lines of Code (LOC)": 6,
+          "Reflection Hits": 0,
+          "Start Line": 35,
+          "Structural Impact": 1.3
+        },
+        {
+          "Control Flow Branches": 0,
+          "Control Flow Ratio": "0.0%",
           "End Line": 104,
           "Function Name": "700-MAKE-CALL",
           "Input Parameters": 0,
@@ -196951,19 +196964,6 @@
           "Reflection Hits": 0,
           "Start Line": 99,
           "Structural Impact": 1.3
-        },
-        {
-          "Control Flow Branches": 0,
-          "Control Flow Ratio": "0.0%",
-          "End Line": 39,
-          "Function Name": "100-WELCOME",
-          "Input Parameters": 0,
-          "Is Documented": 0,
-          "Is Public": 0,
-          "Lines of Code (LOC)": 5,
-          "Reflection Hits": 0,
-          "Start Line": 35,
-          "Structural Impact": 1.2
         },
         {
           "Control Flow Branches": 0,
@@ -197007,12 +197007,12 @@
         {
           "Control Flow Branches": 0,
           "Control Flow Ratio": "0.0%",
-          "End Line": 160,
+          "End Line": 161,
           "Function Name": "999-END",
           "Input Parameters": 0,
           "Is Documented": 0,
           "Is Public": 0,
-          "Lines of Code (LOC)": 2,
+          "Lines of Code (LOC)": 3,
           "Reflection Hits": 0,
           "Start Line": 159,
           "Structural Impact": 1.1
@@ -197078,13 +197078,13 @@
       "cobol/cobol-check/src_main_cobol_TESTNESTED.CBL": [
         {
           "Control Flow Branches": 3,
-          "Control Flow Ratio": "60.0%",
-          "End Line": 21,
+          "Control Flow Ratio": "50.0%",
+          "End Line": 22,
           "Function Name": "MOCK-SECTION-WITH-ERROR",
           "Input Parameters": 0,
           "Is Documented": 0,
           "Is Public": 0,
-          "Lines of Code (LOC)": 9,
+          "Lines of Code (LOC)": 10,
           "Reflection Hits": 1,
           "Start Line": 13,
           "Structural Impact": 4.5
@@ -197810,15 +197810,15 @@
         {
           "Control Flow Branches": 23,
           "Control Flow Ratio": "46.0%",
-          "End Line": 259,
+          "End Line": 260,
           "Function Name": "MAIN00",
           "Input Parameters": 0,
           "Is Documented": 0,
           "Is Public": 0,
-          "Lines of Code (LOC)": 159,
+          "Lines of Code (LOC)": 160,
           "Reflection Hits": 0,
           "Start Line": 101,
-          "Structural Impact": 31.9
+          "Structural Impact": 32.0
         },
         {
           "Control Flow Branches": 0,
@@ -197843,28 +197843,28 @@
         {
           "Control Flow Branches": 4,
           "Control Flow Ratio": "25.0%",
-          "End Line": 227,
+          "End Line": 229,
           "Function Name": "read-all-records",
           "Input Parameters": 0,
           "Is Documented": 0,
           "Is Public": 0,
-          "Lines of Code (LOC)": 24,
+          "Lines of Code (LOC)": 26,
           "Reflection Hits": 0,
           "Start Line": 204,
-          "Structural Impact": 6.2
+          "Structural Impact": 6.3
         },
         {
           "Control Flow Branches": 4,
           "Control Flow Ratio": "26.7%",
-          "End Line": 255,
+          "End Line": 257,
           "Function Name": "rewrite-first-record",
           "Input Parameters": 0,
           "Is Documented": 0,
           "Is Public": 0,
-          "Lines of Code (LOC)": 25,
+          "Lines of Code (LOC)": 27,
           "Reflection Hits": 0,
           "Start Line": 231,
-          "Structural Impact": 6.2
+          "Structural Impact": 6.3
         },
         {
           "Control Flow Branches": 2,
@@ -401361,29 +401361,29 @@
       "pli/dsf_cics_admin/R0010301.pli": [
         {
           "Control Flow Branches": 35,
-          "Control Flow Ratio": "52.2%",
-          "End Line": 524,
+          "Control Flow Ratio": "50.7%",
+          "End Line": 537,
           "Function Name": "R00103",
           "Input Parameters": 1,
           "Is Documented": 0,
           "Is Public": 1,
-          "Lines of Code (LOC)": 499,
-          "Reflection Hits": 20,
+          "Lines of Code (LOC)": 512,
+          "Reflection Hits": 23,
           "Start Line": 26,
-          "Structural Impact": 75.9
+          "Structural Impact": 76.5
         },
         {
           "Control Flow Branches": 5,
-          "Control Flow Ratio": "62.5%",
-          "End Line": 572,
+          "Control Flow Ratio": "71.4%",
+          "End Line": 566,
           "Function Name": "ATK_KONTROLL",
           "Input Parameters": 0,
           "Is Documented": 0,
           "Is Public": 0,
-          "Lines of Code (LOC)": 34,
+          "Lines of Code (LOC)": 28,
           "Reflection Hits": 1,
           "Start Line": 539,
-          "Structural Impact": 7.7
+          "Structural Impact": 7.4
         }
       ],
       "pli/dsf_cics_admin/R0010420.pli": [
@@ -401405,15 +401405,15 @@
         {
           "Control Flow Branches": 13,
           "Control Flow Ratio": "61.9%",
-          "End Line": 101,
+          "End Line": 100,
           "Function Name": "R001B1",
           "Input Parameters": 1,
           "Is Documented": 0,
           "Is Public": 1,
-          "Lines of Code (LOC)": 82,
+          "Lines of Code (LOC)": 81,
           "Reflection Hits": 9,
           "Start Line": 20,
-          "Structural Impact": 23.9
+          "Structural Impact": 23.8
         }
       ],
       "pli/dsf_cics_admin/R0010422.pli": [
@@ -401432,94 +401432,94 @@
         },
         {
           "Control Flow Branches": 12,
-          "Control Flow Ratio": "60.0%",
-          "End Line": 316,
+          "Control Flow Ratio": "57.1%",
+          "End Line": 326,
           "Function Name": "KONTROLL_AV_INPUT",
           "Input Parameters": 0,
           "Is Documented": 0,
           "Is Public": 0,
-          "Lines of Code (LOC)": 52,
+          "Lines of Code (LOC)": 62,
           "Reflection Hits": 0,
           "Start Line": 265,
-          "Structural Impact": 15.6
+          "Structural Impact": 16.1
         },
         {
           "Control Flow Branches": 7,
           "Control Flow Ratio": "77.8%",
-          "End Line": 264,
+          "End Line": 260,
           "Function Name": "OVERFØR_FRA_MAP",
           "Input Parameters": 0,
           "Is Documented": 0,
           "Is Public": 0,
-          "Lines of Code (LOC)": 25,
+          "Lines of Code (LOC)": 21,
           "Reflection Hits": 0,
           "Start Line": 240,
-          "Structural Impact": 9.2
+          "Structural Impact": 9.1
         },
         {
           "Control Flow Branches": 2,
           "Control Flow Ratio": "50.0%",
-          "End Line": 239,
+          "End Line": 237,
           "Function Name": "OVERFØR_TIL_MAP",
           "Input Parameters": 0,
           "Is Documented": 0,
           "Is Public": 0,
-          "Lines of Code (LOC)": 15,
+          "Lines of Code (LOC)": 13,
           "Reflection Hits": 0,
           "Start Line": 225,
-          "Structural Impact": 3.8
+          "Structural Impact": 3.6
         },
         {
           "Control Flow Branches": 0,
           "Control Flow Ratio": "0.0%",
-          "End Line": 210,
+          "End Line": 208,
           "Function Name": "TEKST_UNP",
           "Input Parameters": 0,
           "Is Documented": 0,
           "Is Public": 0,
-          "Lines of Code (LOC)": 14,
+          "Lines of Code (LOC)": 12,
           "Reflection Hits": 0,
           "Start Line": 197,
-          "Structural Impact": 1.7
-        },
-        {
-          "Control Flow Branches": 0,
-          "Control Flow Ratio": "0.0%",
-          "End Line": 224,
-          "Function Name": "TEKST_PROT",
-          "Input Parameters": 0,
-          "Is Documented": 0,
-          "Is Public": 0,
-          "Lines of Code (LOC)": 14,
-          "Reflection Hits": 0,
-          "Start Line": 211,
-          "Structural Impact": 1.7
-        },
-        {
-          "Control Flow Branches": 0,
-          "Control Flow Ratio": "0.0%",
-          "End Line": 196,
-          "Function Name": "BLANK_TEKST",
-          "Input Parameters": 0,
-          "Is Documented": 0,
-          "Is Public": 0,
-          "Lines of Code (LOC)": 11,
-          "Reflection Hits": 0,
-          "Start Line": 186,
           "Structural Impact": 1.6
         },
         {
           "Control Flow Branches": 0,
           "Control Flow Ratio": "0.0%",
-          "End Line": 185,
+          "End Line": 222,
+          "Function Name": "TEKST_PROT",
+          "Input Parameters": 0,
+          "Is Documented": 0,
+          "Is Public": 0,
+          "Lines of Code (LOC)": 12,
+          "Reflection Hits": 0,
+          "Start Line": 211,
+          "Structural Impact": 1.6
+        },
+        {
+          "Control Flow Branches": 0,
+          "Control Flow Ratio": "0.0%",
+          "End Line": 194,
+          "Function Name": "BLANK_TEKST",
+          "Input Parameters": 0,
+          "Is Documented": 0,
+          "Is Public": 0,
+          "Lines of Code (LOC)": 9,
+          "Reflection Hits": 0,
+          "Start Line": 186,
+          "Structural Impact": 1.4
+        },
+        {
+          "Control Flow Branches": 0,
+          "Control Flow Ratio": "0.0%",
+          "End Line": 183,
           "Function Name": "SEND_MAP",
           "Input Parameters": 0,
           "Is Documented": 0,
           "Is Public": 0,
-          "Lines of Code (LOC)": 6,
+          "Lines of Code (LOC)": 4,
           "Reflection Hits": 1,
           "Start Line": 180,
-          "Structural Impact": 1.3
+          "Structural Impact": 1.2
         }
       ],
       "pli/dsf_cics_admin/R0010423.pli": [
@@ -401538,16 +401538,16 @@
         },
         {
           "Control Flow Branches": 4,
-          "Control Flow Ratio": "50.0%",
-          "End Line": 331,
+          "Control Flow Ratio": "44.4%",
+          "End Line": 341,
           "Function Name": "KONTROLL_AV_INPUT",
           "Input Parameters": 0,
           "Is Documented": 0,
           "Is Public": 0,
-          "Lines of Code (LOC)": 17,
+          "Lines of Code (LOC)": 27,
           "Reflection Hits": 0,
           "Start Line": 315,
-          "Structural Impact": 5.8
+          "Structural Impact": 6.3
         },
         {
           "Control Flow Branches": 3,
@@ -401644,94 +401644,94 @@
         },
         {
           "Control Flow Branches": 2,
-          "Control Flow Ratio": "40.0%",
-          "End Line": 311,
+          "Control Flow Ratio": "33.3%",
+          "End Line": 321,
           "Function Name": "KONTROLL_AV_INPUT",
           "Input Parameters": 0,
           "Is Documented": 0,
           "Is Public": 0,
-          "Lines of Code (LOC)": 10,
+          "Lines of Code (LOC)": 20,
           "Reflection Hits": 0,
           "Start Line": 302,
-          "Structural Impact": 3.5
+          "Structural Impact": 4.0
         },
         {
           "Control Flow Branches": 1,
           "Control Flow Ratio": "33.3%",
-          "End Line": 301,
+          "End Line": 297,
           "Function Name": "OVERFØR_FRA_MAP",
           "Input Parameters": 0,
           "Is Documented": 0,
           "Is Public": 0,
-          "Lines of Code (LOC)": 13,
+          "Lines of Code (LOC)": 9,
           "Reflection Hits": 0,
           "Start Line": 289,
-          "Structural Impact": 2.6
+          "Structural Impact": 2.5
         },
         {
           "Control Flow Branches": 0,
           "Control Flow Ratio": "0.0%",
-          "End Line": 274,
+          "End Line": 272,
           "Function Name": "TEKST_UNP",
           "Input Parameters": 0,
           "Is Documented": 0,
           "Is Public": 0,
-          "Lines of Code (LOC)": 8,
+          "Lines of Code (LOC)": 6,
           "Reflection Hits": 0,
           "Start Line": 267,
-          "Structural Impact": 1.4
+          "Structural Impact": 1.3
         },
         {
           "Control Flow Branches": 0,
           "Control Flow Ratio": "0.0%",
-          "End Line": 282,
+          "End Line": 280,
           "Function Name": "TEKST_PROT",
           "Input Parameters": 0,
           "Is Documented": 0,
           "Is Public": 0,
-          "Lines of Code (LOC)": 8,
+          "Lines of Code (LOC)": 6,
           "Reflection Hits": 0,
           "Start Line": 275,
-          "Structural Impact": 1.4
+          "Structural Impact": 1.3
         },
         {
           "Control Flow Branches": 0,
           "Control Flow Ratio": "0.0%",
-          "End Line": 261,
+          "End Line": 259,
           "Function Name": "SEND_MAP",
           "Input Parameters": 0,
           "Is Documented": 0,
           "Is Public": 0,
-          "Lines of Code (LOC)": 6,
+          "Lines of Code (LOC)": 4,
           "Reflection Hits": 1,
           "Start Line": 256,
-          "Structural Impact": 1.3
+          "Structural Impact": 1.2
         },
         {
           "Control Flow Branches": 0,
           "Control Flow Ratio": "0.0%",
-          "End Line": 288,
+          "End Line": 286,
           "Function Name": "OVERFØR_TIL_MAP",
           "Input Parameters": 0,
           "Is Documented": 0,
           "Is Public": 0,
-          "Lines of Code (LOC)": 6,
+          "Lines of Code (LOC)": 4,
           "Reflection Hits": 0,
           "Start Line": 283,
-          "Structural Impact": 1.3
+          "Structural Impact": 1.2
         },
         {
           "Control Flow Branches": 0,
           "Control Flow Ratio": "0.0%",
-          "End Line": 266,
+          "End Line": 264,
           "Function Name": "BLANK_TEKST",
           "Input Parameters": 0,
           "Is Documented": 0,
           "Is Public": 0,
-          "Lines of Code (LOC)": 5,
+          "Lines of Code (LOC)": 3,
           "Reflection Hits": 0,
           "Start Line": 262,
-          "Structural Impact": 1.2
+          "Structural Impact": 1.1
         }
       ],
       "pli/dsf_cics_admin/R0010425.pli": [
@@ -401750,16 +401750,16 @@
         },
         {
           "Control Flow Branches": 2,
-          "Control Flow Ratio": "40.0%",
-          "End Line": 320,
+          "Control Flow Ratio": "33.3%",
+          "End Line": 330,
           "Function Name": "KONTROLL_AV_INPUT",
           "Input Parameters": 0,
           "Is Documented": 0,
           "Is Public": 0,
-          "Lines of Code (LOC)": 10,
+          "Lines of Code (LOC)": 20,
           "Reflection Hits": 0,
           "Start Line": 311,
-          "Structural Impact": 3.5
+          "Structural Impact": 4.0
         },
         {
           "Control Flow Branches": 1,
@@ -401918,15 +401918,15 @@
         {
           "Control Flow Branches": 0,
           "Control Flow Ratio": "0.0%",
-          "End Line": 313,
+          "End Line": 308,
           "Function Name": "PRTHDG1",
           "Input Parameters": 0,
           "Is Documented": 0,
           "Is Public": 0,
-          "Lines of Code (LOC)": 9,
+          "Lines of Code (LOC)": 4,
           "Reflection Hits": 0,
           "Start Line": 305,
-          "Structural Impact": 1.4
+          "Structural Impact": 1.2
         }
       ],
       "pli/zopeneditor_sample/PSAM1LIB.pli": [
@@ -401959,30 +401959,30 @@
         {
           "Control Flow Branches": 0,
           "Control Flow Ratio": "0.0%",
-          "End Line": 303,
+          "End Line": 298,
           "Function Name": "PRTHDG1",
           "Input Parameters": 0,
           "Is Documented": 0,
           "Is Public": 0,
-          "Lines of Code (LOC)": 9,
+          "Lines of Code (LOC)": 4,
           "Reflection Hits": 0,
           "Start Line": 295,
-          "Structural Impact": 1.4
+          "Structural Impact": 1.2
         }
       ],
       "pli/zopeneditor_sample/PSAM2.pli": [
         {
           "Control Flow Branches": 4,
-          "Control Flow Ratio": "40.0%",
-          "End Line": 82,
+          "Control Flow Ratio": "36.4%",
+          "End Line": 85,
           "Function Name": "PSAM2",
           "Input Parameters": 2,
           "Is Documented": 0,
           "Is Public": 0,
-          "Lines of Code (LOC)": 81,
+          "Lines of Code (LOC)": 84,
           "Reflection Hits": 0,
           "Start Line": 2,
-          "Structural Impact": 12.7
+          "Structural Impact": 12.9
         }
       ]
     },

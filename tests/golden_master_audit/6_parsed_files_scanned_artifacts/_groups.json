@@ -1448,10 +1448,10 @@
         "Testing Exposure": "2.35%",
         "Volatility Exposure": "0.0%"
       },
-      "Directory Group Magnitude": 392.28,
+      "Directory Group Magnitude": 389.38,
       "Ecosystem Fingerprint (Archetypes)": {
-        "file_cluster_11": "76.0%",
-        "file_cluster_2": "16.0%",
+        "file_cluster_11": "80.0%",
+        "file_cluster_2": "12.0%",
         "file_cluster_7": "2.0%",
         "file_cluster_9": "6.0%"
       },
@@ -1540,7 +1540,7 @@
     "cobol/aws-mainframe-modernization-carddemo": {
       "Average Risk Exposures": {
         "API Exposure": "1.57%",
-        "Cognitive Load Exposure": "28.91%",
+        "Cognitive Load Exposure": "28.67%",
         "Commented Logic Exposure": "0.91%",
         "Concurrency Exposure": "0.0%",
         "Documentation Exposure": "18.67%",
@@ -1553,7 +1553,7 @@
         "Testing Exposure": "19.84%",
         "Volatility Exposure": "0.0%"
       },
-      "Directory Group Magnitude": 10127.46,
+      "Directory Group Magnitude": 10145.87,
       "Ecosystem Fingerprint (Archetypes)": {
         "Static: Literature & Documentation": "4.0%",
         "file_cluster_11": "13.3%",
@@ -1714,10 +1714,10 @@
         "Specification Exposure": "0.0%",
         "State Flux Exposure": "31.89%",
         "Tech Debt Exposure": "40.18%",
-        "Testing Exposure": "1.71%",
+        "Testing Exposure": "1.7%",
         "Volatility Exposure": "0.0%"
       },
-      "Directory Group Magnitude": 798.83,
+      "Directory Group Magnitude": 789.93,
       "Ecosystem Fingerprint (Archetypes)": {
         "Static: Literature & Documentation": "1.4%",
         "Unclassified": "4.3%",
@@ -1816,7 +1816,7 @@
         "Testing Exposure": "57.37%",
         "Volatility Exposure": "0.0%"
       },
-      "Directory Group Magnitude": 47447.16,
+      "Directory Group Magnitude": 47415.86,
       "Ecosystem Fingerprint (Archetypes)": {
         "Static: Literature & Documentation": "0.7%",
         "file_cluster_11": "21.9%",
@@ -1991,18 +1991,18 @@
         "Instability Exposure": "50.0%",
         "Specification Exposure": "0.0%",
         "State Flux Exposure": "41.39%",
-        "Tech Debt Exposure": "15.54%",
+        "Tech Debt Exposure": "15.91%",
         "Testing Exposure": "22.33%",
         "Volatility Exposure": "0.0%"
       },
-      "Directory Group Magnitude": 9661.57,
+      "Directory Group Magnitude": 9726.77,
       "Ecosystem Fingerprint (Archetypes)": {
         "Unclassified": "1.5%",
-        "file_cluster_11": "30.3%",
+        "file_cluster_11": "28.8%",
         "file_cluster_12": "10.6%",
         "file_cluster_2": "53.0%",
         "file_cluster_3": "1.5%",
-        "file_cluster_4": "3.0%"
+        "file_cluster_4": "4.5%"
       },
       "File Count": 66,
       "Files": [
@@ -2190,7 +2190,7 @@
         "Testing Exposure": "2.22%",
         "Volatility Exposure": "0.0%"
       },
-      "Directory Group Magnitude": 946.58,
+      "Directory Group Magnitude": 947.08,
       "Ecosystem Fingerprint (Archetypes)": {
         "file_cluster_11": "20.0%",
         "file_cluster_2": "75.6%",
@@ -2348,7 +2348,7 @@
         "Testing Exposure": "2.06%",
         "Volatility Exposure": "0.0%"
       },
-      "Directory Group Magnitude": 331.62,
+      "Directory Group Magnitude": 331.92,
       "Ecosystem Fingerprint (Archetypes)": {
         "Static: Literature & Documentation": "11.1%",
         "file_cluster_11": "11.1%",
@@ -7700,11 +7700,11 @@
         "Instability Exposure": "41.67%",
         "Specification Exposure": "0.0%",
         "State Flux Exposure": "79.75%",
-        "Tech Debt Exposure": "19.5%",
+        "Tech Debt Exposure": "22.06%",
         "Testing Exposure": "14.95%",
         "Volatility Exposure": "0.0%"
       },
-      "Directory Group Magnitude": 979.22,
+      "Directory Group Magnitude": 980.02,
       "Ecosystem Fingerprint (Archetypes)": {
         "Static: Literature & Documentation": "16.7%",
         "file_cluster_1": "16.7%",
@@ -7741,11 +7741,11 @@
         "Instability Exposure": "37.5%",
         "Specification Exposure": "0.0%",
         "State Flux Exposure": "75.0%",
-        "Tech Debt Exposure": "0.0%",
+        "Tech Debt Exposure": "18.28%",
         "Testing Exposure": "1.81%",
         "Volatility Exposure": "0.0%"
       },
-      "Directory Group Magnitude": 279.28,
+      "Directory Group Magnitude": 279.08,
       "Ecosystem Fingerprint (Archetypes)": {
         "Static: Literature & Documentation": "25.0%",
         "file_cluster_11": "50.0%",

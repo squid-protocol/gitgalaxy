@@ -1954,7 +1954,8 @@ class GalaxyIR:
         `name`, `level`, `pic`, `usage`, `class`, `offset`, `bytes`, `occurs`,
         `file`), `unexpanded` (COPY members that did not resolve to a copybook in
         the repository) and `copybooks` (the ones that did). A REDEFINES item
-        overlays storage and is skipped, like 66/88 entries. Fields inside an
+        overlays storage and is skipped, like 66/88 entries, but an overlay wider
+        than its target widens the shared storage (#4280). Fields inside an
         OCCURS group are listed once; the group's width carries the repetition.
         `extension` is (file, item) entries appended to the record's own children
         (a copied record continued in the program -- `_copy_extension`).
@@ -1967,7 +1968,10 @@ class GalaxyIR:
         state = {"variable": False, "unknown": False}
         extension_files = sorted({f.file_path for f, _ in extension or []})
 
-        def _walk(owner: EngineFile, it: EngineDataItem, offset: int, depth: int) -> int:
+        def _walk(owner: EngineFile, it: EngineDataItem, offset: int, depth: int, sink: Optional[list] = None) -> int:
+            """`it`'s width; its elementary fields go to `sink` (`fields`, or a throwaway list
+            when only an overlay's width is wanted)."""
+            out = fields if sink is None else sink
             if it.level in (66, 88):
                 return 0
             if it.occurs_depending_on:
@@ -1979,6 +1983,11 @@ class GalaxyIR:
                 kids = kids + list(extension)
             if kids:
                 size = 0
+                # #4280: the storage a REDEFINES group shares -- (start, width) of the item last
+                # redefined. An overlay WIDER than its target extends it: the region is the max of
+                # the target and all its overlays (carddemo COADM02Y: 6 option rows of data, a
+                # 9-row OCCURS overlay -- 272 -> 407 bytes; CORPT00C JOB-DATA-2's 1000 x 80 lines).
+                region: Optional[list] = None
                 for kid_file, kid in kids:
                     if kid_file is None:
                         unexpanded.append(kid)
@@ -1986,15 +1995,25 @@ class GalaxyIR:
                         continue
                     if kid_file is not owner and kid_file.file_path not in copybooks + extension_files:
                         copybooks.append(kid_file.file_path)
-                    if kid.redefines or kid.level in (66, 88):
+                    if kid.level in (66, 88):
                         continue
-                    size += _walk(kid_file, kid, offset + size, depth + (kid_file is not owner))
+                    kid_depth = depth + (kid_file is not owner)
+                    if kid.redefines:
+                        if region is not None and region[2] == kid.redefines.upper():
+                            wide = _walk(kid_file, kid, region[0], kid_depth, [])
+                            if wide > region[1]:
+                                size += wide - region[1]
+                                region[1] = wide
+                        continue
+                    kid_width = _walk(kid_file, kid, offset + size, kid_depth, sink)
+                    region = [offset + size, kid_width, kid.name.upper()]
+                    size += kid_width
                 return size * times
             width = _elementary_bytes(it)
             if width is None:
                 state["unknown"] = True
                 width = 0
-            fields.append(
+            out.append(
                 {
                     "name": it.name,
                     "level": it.level,
@@ -4588,6 +4607,7 @@ class GalaxyIR:
             if kids:
                 size: Optional[int] = 0
                 at: dict = {}
+                region: Optional[list] = None  # #4280: [target name, shared width] -- as record_layout
                 for kid_file, kid in kids:
                     if kid_file is None:
                         size = None
@@ -4597,10 +4617,20 @@ class GalaxyIR:
                     if kid.redefines:
                         base = at.get(kid.redefines.upper())
                         at_base = base if base is not None else offset + (size or 0)
-                        walk(kid_file, kid, key, at_base, depth + 1, None, (it.name, *path))
+                        wide = walk(kid_file, kid, key, at_base, depth + 1, None, (it.name, *path))
+                        if (
+                            region is not None
+                            and region[0] == kid.redefines.upper()
+                            and wide is not None
+                            and region[1] is not None
+                            and wide > region[1]
+                        ):
+                            size = None if size is None else size + wide - region[1]
+                            region[1] = wide
                         continue
                     at[kid.name.upper()] = offset + (size or 0)
                     width = walk(kid_file, kid, key, offset + (size or 0), depth + 1, None, (it.name, *path))
+                    region = [kid.name.upper(), width]
                     size = None if size is None or width is None else size + width
                 total = None if size is None else size * times
             else:

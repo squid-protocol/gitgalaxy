@@ -848,7 +848,7 @@ def _cobol_records(code_stream: str, decimal_comma: Optional[bool] = None) -> li
             parent_ordinal: Optional[int] = last_item_ordinal
             parent_usage = stack[-1][2] if stack else None
         else:
-            while stack and stack[-1][0] >= level:
+            while stack and (stack[-1][0] >= level or level == 77):
                 stack.pop()
             parent_ordinal = stack[-1][1] if stack else None
             parent_usage = stack[-1][2] if stack else None

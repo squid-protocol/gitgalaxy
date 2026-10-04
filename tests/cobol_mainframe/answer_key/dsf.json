@@ -1,5 +1,5 @@
 {
-  "schema_version": 1,
+  "schema_version": 2,
   "corpus": "dsf",
   "url": "https://github.com/navikt/DSF",
   "ref": "faade4961e316c89e8c312456bae411c63f1c482",
@@ -10,62 +10,197 @@
         {
           "name": "B",
           "kind": "paragraph",
-          "line": 133
+          "line": 133,
+          "end": 134,
+          "edges": []
         },
         {
           "name": "NULLST",
           "kind": "paragraph",
-          "line": 135
+          "line": 135,
+          "end": 138,
+          "edges": [
+            {
+              "verb": "PERFORM",
+              "target": "NULL",
+              "line": 136
+            },
+            {
+              "verb": "GO_TO",
+              "target": "OPEN-KORT",
+              "line": 138
+            }
+          ]
         },
         {
           "name": "NULL",
           "kind": "paragraph",
-          "line": 139
+          "line": 139,
+          "end": 142,
+          "edges": []
         },
         {
           "name": "OPEN-KORT",
           "kind": "paragraph",
-          "line": 143
+          "line": 143,
+          "end": 145,
+          "edges": []
         },
         {
           "name": "LES-KORT",
           "kind": "paragraph",
-          "line": 146
+          "line": 146,
+          "end": 149,
+          "edges": [
+            {
+              "verb": "GO_TO",
+              "target": "OPEN-TAPE",
+              "line": 147
+            },
+            {
+              "verb": "GO_TO",
+              "target": "TABB",
+              "line": 148
+            },
+            {
+              "verb": "GO_TO",
+              "target": "LES-KORT",
+              "line": 149
+            }
+          ]
         },
         {
           "name": "TABB",
           "kind": "paragraph",
-          "line": 150
+          "line": 150,
+          "end": 155,
+          "edges": [
+            {
+              "verb": "GO_TO",
+              "target": "LES-KORT",
+              "line": 155
+            }
+          ]
         },
         {
           "name": "OPEN-TAPE",
           "kind": "paragraph",
-          "line": 156
+          "line": 156,
+          "end": 160,
+          "edges": []
         },
         {
           "name": "LES-PREG",
           "kind": "paragraph",
-          "line": 161
+          "line": 161,
+          "end": 174,
+          "edges": [
+            {
+              "verb": "GO_TO",
+              "target": "EOF-INNFILE",
+              "line": 162
+            },
+            {
+              "verb": "GO_TO",
+              "target": "SELECTED",
+              "line": 163
+            },
+            {
+              "verb": "GO_TO",
+              "target": "SELECTED",
+              "line": 164
+            },
+            {
+              "verb": "GO_TO",
+              "target": "SELECTED",
+              "line": 165
+            },
+            {
+              "verb": "GO_TO",
+              "target": "SELECTED",
+              "line": 166
+            },
+            {
+              "verb": "GO_TO",
+              "target": "SELECTED",
+              "line": 167
+            },
+            {
+              "verb": "GO_TO",
+              "target": "SELECTED",
+              "line": 169
+            },
+            {
+              "verb": "GO_TO",
+              "target": "SELECTED",
+              "line": 171
+            },
+            {
+              "verb": "GO_TO",
+              "target": "SELECTED",
+              "line": 173
+            },
+            {
+              "verb": "GO_TO",
+              "target": "LES-PREG",
+              "line": 174
+            }
+          ]
         },
         {
           "name": "EOF-INNFILE",
           "kind": "paragraph",
-          "line": 175
+          "line": 175,
+          "end": 177,
+          "edges": []
         },
         {
           "name": "SELECTED",
           "kind": "paragraph",
-          "line": 178
+          "line": 178,
+          "end": 187,
+          "edges": []
         },
         {
           "name": "TEST-TRK-TAB",
           "kind": "paragraph",
-          "line": 188
+          "line": 188,
+          "end": 198,
+          "edges": [
+            {
+              "verb": "GO_TO",
+              "target": "SKRIV",
+              "line": 192
+            },
+            {
+              "verb": "GO_TO",
+              "target": "SKRIV",
+              "line": 195
+            },
+            {
+              "verb": "GO_TO",
+              "target": "SKRIV",
+              "line": 197
+            },
+            {
+              "verb": "GO_TO",
+              "target": "TEST-TRK-TAB",
+              "line": 198
+            }
+          ]
         },
         {
           "name": "SKRIV",
           "kind": "paragraph",
-          "line": 199
+          "line": 199,
+          "end": 201,
+          "edges": [
+            {
+              "verb": "GO_TO",
+              "target": "LES-PREG",
+              "line": 201
+            }
+          ]
         }
       ],
       "dead": {},
@@ -1510,7 +1645,44 @@
       },
       "commareas_validated": false,
       "records_validated": true,
-      "records_validated_tier": "sample_verified"
+      "records_validated_tier": "sample_verified",
+      "main_line": {
+        "line": 125,
+        "end": 132,
+        "edges": [
+          {
+            "verb": "GO_TO",
+            "target": "B",
+            "line": 127
+          },
+          {
+            "verb": "GO_TO",
+            "target": "B",
+            "line": 128
+          },
+          {
+            "verb": "GO_TO",
+            "target": "B",
+            "line": 129
+          },
+          {
+            "verb": "GO_TO",
+            "target": "B",
+            "line": 130
+          },
+          {
+            "verb": "GO_TO",
+            "target": "B",
+            "line": 131
+          },
+          {
+            "verb": "GO_TO",
+            "target": "NULLST",
+            "line": 132
+          }
+        ]
+      },
+      "extents_validated": false
     },
     "src/GML/FO04F1X1.cobol": {
       "program_id": "FO04F1X1",
@@ -1518,47 +1690,155 @@
         {
           "name": "START--X",
           "kind": "paragraph",
-          "line": 288
+          "line": 288,
+          "end": 291,
+          "edges": []
         },
         {
           "name": "LES-KORT",
           "kind": "paragraph",
-          "line": 292
+          "line": 292,
+          "end": 297,
+          "edges": [
+            {
+              "verb": "GO_TO",
+              "target": "FLYTT-DATO",
+              "line": 294
+            },
+            {
+              "verb": "GO_TO",
+              "target": "LES-KORT",
+              "line": 297
+            }
+          ]
         },
         {
           "name": "FLYTT-DATO",
           "kind": "paragraph",
-          "line": 298
+          "line": 298,
+          "end": 301,
+          "edges": []
         },
         {
           "name": "LES-PARAM",
           "kind": "paragraph",
-          "line": 302
+          "line": 302,
+          "end": 306,
+          "edges": [
+            {
+              "verb": "GO_TO",
+              "target": "SLUTT",
+              "line": 303
+            },
+            {
+              "verb": "GO_TO",
+              "target": "TEST-TKNR",
+              "line": 304
+            },
+            {
+              "verb": "GO_TO",
+              "target": "LES-PARAM",
+              "line": 306
+            }
+          ]
         },
         {
           "name": "TEST-TKNR",
           "kind": "paragraph",
-          "line": 307
+          "line": 307,
+          "end": 316,
+          "edges": [
+            {
+              "verb": "GO_TO",
+              "target": "LES",
+              "line": 310
+            },
+            {
+              "verb": "GO_TO",
+              "target": "LES",
+              "line": 314
+            },
+            {
+              "verb": "GO_TO",
+              "target": "LES-PARAM",
+              "line": 316
+            }
+          ]
         },
         {
           "name": "LES",
           "kind": "paragraph",
-          "line": 317
+          "line": 317,
+          "end": 332,
+          "edges": [
+            {
+              "verb": "GO_TO",
+              "target": "SLUTT",
+              "line": 318
+            },
+            {
+              "verb": "GO_TO",
+              "target": "LES",
+              "line": 320
+            },
+            {
+              "verb": "GO_TO",
+              "target": "LES",
+              "line": 324
+            },
+            {
+              "verb": "GO_TO",
+              "target": "LES-PARAM",
+              "line": 326
+            },
+            {
+              "verb": "GO_TO",
+              "target": "SKRIV-HEADING",
+              "line": 328
+            },
+            {
+              "verb": "GO_TO",
+              "target": "SKRIV-HEADING",
+              "line": 330
+            },
+            {
+              "verb": "GO_TO",
+              "target": "SKRIV-HEADING",
+              "line": 331
+            },
+            {
+              "verb": "GO_TO",
+              "target": "SKRIV-LINJER",
+              "line": 332
+            }
+          ]
         },
         {
           "name": "SKRIV-HEADING",
           "kind": "paragraph",
-          "line": 333
+          "line": 333,
+          "end": 358,
+          "edges": []
         },
         {
           "name": "SKRIV-LINJER",
           "kind": "paragraph",
-          "line": 359
+          "line": 359,
+          "end": 403,
+          "edges": [
+            {
+              "verb": "GO_TO",
+              "target": "LES",
+              "line": 403
+            }
+          ]
         },
         {
           "name": "SLUTT",
           "kind": "paragraph",
-          "line": 404
+          "line": 404,
+          "end": 406,
+          "edges": []
         }
       ],
       "dead": {},
@@ -5244,7 +5524,9 @@
       },
       "commareas_validated": false,
       "records_validated": true,
-      "records_validated_tier": "sample_verified"
+      "records_validated_tier": "sample_verified",
+      "main_line": null,
+      "extents_validated": false
     },
     "src/GML/FRMERK.cobol": {
       "program_id": "LISTMRK",
@@ -5252,32 +5534,72 @@
         {
           "name": "STARTEN",
           "kind": "paragraph",
-          "line": 66
+          "line": 66,
+          "end": 73,
+          "edges": []
         },
         {
           "name": "TEST-DATA",
           "kind": "paragraph",
-          "line": 74
+          "line": 74,
+          "end": 77,
+          "edges": [
+            {
+              "verb": "GO_TO",
+              "target": "SLUTT",
+              "line": 75
+            },
+            {
+              "verb": "GO_TO",
+              "target": "DANN-DATA",
+              "line": 76
+            },
+            {
+              "verb": "GO_TO",
+              "target": "DANN-NYSIDE",
+              "line": 77
+            }
+          ]
         },
         {
           "name": "DANN-DATA",
           "kind": "paragraph",
-          "line": 78
+          "line": 78,
+          "end": 82,
+          "edges": []
         },
         {
           "name": "SKRIV-SIDE",
           "kind": "paragraph",
-          "line": 83
+          "line": 83,
+          "end": 90,
+          "edges": [
+            {
+              "verb": "GO_TO",
+              "target": "TEST-DATA",
+              "line": 90
+            }
+          ]
         },
         {
           "name": "DANN-NYSIDE",
           "kind": "paragraph",
-          "line": 91
+          "line": 91,
+          "end": 99,
+          "edges": [
+            {
+              "verb": "GO_TO",
+              "target": "DANN-DATA",
+              "line": 99
+            }
+          ]
         },
         {
           "name": "SLUTT",
           "kind": "paragraph",
-          "line": 100
+          "line": 100,
+          "end": 102,
+          "edges": []
         }
       ],
       "dead": {},
@@ -5858,7 +6180,9 @@
       },
       "commareas_validated": false,
       "records_validated": true,
-      "records_validated_tier": "sample_verified"
+      "records_validated_tier": "sample_verified",
+      "main_line": null,
+      "extents_validated": false
     },
     "src/GML/FRREDIG.cobol": {
       "program_id": "LIST1X",
@@ -5866,32 +6190,82 @@
         {
           "name": "STARTEN",
           "kind": "paragraph",
-          "line": 89
+          "line": 89,
+          "end": 96,
+          "edges": []
         },
         {
           "name": "TEST-DATA",
           "kind": "paragraph",
-          "line": 97
+          "line": 97,
+          "end": 100,
+          "edges": [
+            {
+              "verb": "GO_TO",
+              "target": "SLUTT",
+              "line": 98
+            },
+            {
+              "verb": "GO_TO",
+              "target": "DANN-DATA",
+              "line": 99
+            },
+            {
+              "verb": "GO_TO",
+              "target": "DANN-NYSIDE",
+              "line": 100
+            }
+          ]
         },
         {
           "name": "DANN-DATA",
           "kind": "paragraph",
-          "line": 101
+          "line": 101,
+          "end": 109,
+          "edges": []
         },
         {
           "name": "SKRIV-SIDE",
           "kind": "paragraph",
-          "line": 110
+          "line": 110,
+          "end": 116,
+          "edges": [
+            {
+              "verb": "GO_TO",
+              "target": "DANN-NYSIDE",
+              "line": 111
+            },
+            {
+              "verb": "GO_TO",
+              "target": "DANN-NYSIDE",
+              "line": 112
+            },
+            {
+              "verb": "GO_TO",
+              "target": "TEST-DATA",
+              "line": 116
+            }
+          ]
         },
         {
           "name": "DANN-NYSIDE",
           "kind": "paragraph",
-          "line": 117
+          "line": 117,
+          "end": 131,
+          "edges": [
+            {
+              "verb": "GO_TO",
+              "target": "DANN-DATA",
+              "line": 131
+            }
+          ]
         },
         {
           "name": "SLUTT",
           "kind": "paragraph",
-          "line": 132
+          "line": 132,
+          "end": 134,
+          "edges": []
         }
       ],
       "dead": {},
@@ -6808,7 +7182,9 @@
       },
       "commareas_validated": false,
       "records_validated": true,
-      "records_validated_tier": "sample_verified"
+      "records_validated_tier": "sample_verified",
+      "main_line": null,
+      "extents_validated": false
     },
     "src/GML/PLUKKFR.cobol": {
       "program_id": "TELL-TRANS",
@@ -6816,32 +7192,104 @@
         {
           "name": "LESE",
           "kind": "paragraph",
-          "line": 76
+          "line": 76,
+          "end": 78,
+          "edges": [
+            {
+              "verb": "GO_TO",
+              "target": "SLUTT",
+              "line": 77
+            },
+            {
+              "verb": "GO_TO",
+              "target": "SLUTT",
+              "line": 78
+            }
+          ]
         },
         {
           "name": "TEST-TRKNR",
           "kind": "paragraph",
-          "line": 79
+          "line": 79,
+          "end": 82,
+          "edges": [
+            {
+              "verb": "GO_TO",
+              "target": "FEIL-TRANS",
+              "line": 80
+            },
+            {
+              "verb": "GO_TO",
+              "target": "SKRIV-UT",
+              "line": 81
+            },
+            {
+              "verb": "GO_TO",
+              "target": "LES-TRK",
+              "line": 82
+            }
+          ]
         },
         {
           "name": "LES-TRK",
           "kind": "paragraph",
-          "line": 83
+          "line": 83,
+          "end": 85,
+          "edges": [
+            {
+              "verb": "GO_TO",
+              "target": "SLUTT",
+              "line": 84
+            },
+            {
+              "verb": "GO_TO",
+              "target": "TEST-TRKNR",
+              "line": 85
+            }
+          ]
         },
         {
           "name": "FEIL-TRANS",
           "kind": "paragraph",
-          "line": 86
+          "line": 86,
+          "end": 88,
+          "edges": [
+            {
+              "verb": "GO_TO",
+              "target": "SLUTT",
+              "line": 87
+            },
+            {
+              "verb": "GO_TO",
+              "target": "TEST-TRKNR",
+              "line": 88
+            }
+          ]
         },
         {
           "name": "SKRIV-UT",
           "kind": "paragraph",
-          "line": 89
+          "line": 89,
+          "end": 97,
+          "edges": [
+            {
+              "verb": "GO_TO",
+              "target": "SLUTT",
+              "line": 96
+            },
+            {
+              "verb": "GO_TO",
+              "target": "TEST-TRKNR",
+              "line": 97
+            }
+          ]
         },
         {
           "name": "SLUTT",
           "kind": "paragraph",
-          "line": 98
+          "line": 98,
+          "end": 101,
+          "edges": []
         }
       ],
       "dead": {},
@@ -7206,7 +7654,13 @@
       },
       "commareas_validated": false,
       "records_validated": true,
-      "records_validated_tier": "sample_verified"
+      "records_validated_tier": "sample_verified",
+      "main_line": {
+        "line": 73,
+        "end": 75,
+        "edges": []
+      },
+      "extents_validated": false
     },
     "src/GML/PLUKKFRN.cobol": {
       "program_id": "TELL-TRANS",
@@ -7214,32 +7668,104 @@
         {
           "name": "LESE",
           "kind": "paragraph",
-          "line": 76
+          "line": 76,
+          "end": 78,
+          "edges": [
+            {
+              "verb": "GO_TO",
+              "target": "SLUTT",
+              "line": 77
+            },
+            {
+              "verb": "GO_TO",
+              "target": "SLUTT",
+              "line": 78
+            }
+          ]
         },
         {
           "name": "TEST-TRKNR",
           "kind": "paragraph",
-          "line": 79
+          "line": 79,
+          "end": 82,
+          "edges": [
+            {
+              "verb": "GO_TO",
+              "target": "SKRIV-UT",
+              "line": 80
+            },
+            {
+              "verb": "GO_TO",
+              "target": "FEIL-TRANS",
+              "line": 81
+            },
+            {
+              "verb": "GO_TO",
+              "target": "LES-TRK",
+              "line": 82
+            }
+          ]
         },
         {
           "name": "LES-TRK",
           "kind": "paragraph",
-          "line": 83
+          "line": 83,
+          "end": 85,
+          "edges": [
+            {
+              "verb": "GO_TO",
+              "target": "SLUTT",
+              "line": 84
+            },
+            {
+              "verb": "GO_TO",
+              "target": "TEST-TRKNR",
+              "line": 85
+            }
+          ]
         },
         {
           "name": "FEIL-TRANS",
           "kind": "paragraph",
-          "line": 86
+          "line": 86,
+          "end": 88,
+          "edges": [
+            {
+              "verb": "GO_TO",
+              "target": "SLUTT",
+              "line": 87
+            },
+            {
+              "verb": "GO_TO",
+              "target": "TEST-TRKNR",
+              "line": 88
+            }
+          ]
         },
         {
           "name": "SKRIV-UT",
           "kind": "paragraph",
-          "line": 89
+          "line": 89,
+          "end": 97,
+          "edges": [
+            {
+              "verb": "GO_TO",
+              "target": "SLUTT",
+              "line": 96
+            },
+            {
+              "verb": "GO_TO",
+              "target": "TEST-TRKNR",
+              "line": 97
+            }
+          ]
         },
         {
           "name": "SLUTT",
           "kind": "paragraph",
-          "line": 98
+          "line": 98,
+          "end": 101,
+          "edges": []
         }
       ],
       "dead": {},
@@ -7604,7 +8130,13 @@
       },
       "commareas_validated": false,
       "records_validated": true,
-      "records_validated_tier": "sample_verified"
+      "records_validated_tier": "sample_verified",
+      "main_line": {
+        "line": 73,
+        "end": 75,
+        "edges": []
+      },
+      "extents_validated": false
     },
     "src/GML/R001BYDL.cobol": {
       "program_id": "R001BYDL",
@@ -7612,32 +8144,66 @@
         {
           "name": "0000",
           "kind": "paragraph",
-          "line": 154
+          "line": 154,
+          "end": 158,
+          "edges": []
         },
         {
           "name": "1000",
           "kind": "paragraph",
-          "line": 160
+          "line": 160,
+          "end": 171,
+          "edges": [
+            {
+              "verb": "GO_TO",
+              "target": "9000",
+              "line": 162
+            },
+            {
+              "verb": "PERFORM",
+              "target": "BERGEN",
+              "line": 165
+            },
+            {
+              "verb": "GO_TO",
+              "target": "1000",
+              "line": 171
+            }
+          ]
         },
         {
           "name": "9000",
           "kind": "paragraph",
-          "line": 172
+          "line": 172,
+          "end": 175,
+          "edges": []
         },
         {
           "name": "BERGEN",
           "kind": "section",
-          "line": 177
+          "line": 177,
+          "end": 196,
+          "edges": [
+            {
+              "verb": "GO_TO",
+              "target": "9999",
+              "line": 196
+            }
+          ]
         },
         {
           "name": "8000",
           "kind": "paragraph",
-          "line": 197
+          "line": 197,
+          "end": 199,
+          "edges": []
         },
         {
           "name": "9999",
           "kind": "paragraph",
-          "line": 200
+          "line": 200,
+          "end": 201,
+          "edges": []
         }
       ],
       "dead": {},
@@ -9387,7 +9953,9 @@
       },
       "commareas_validated": false,
       "records_validated": true,
-      "records_validated_tier": "sample_verified"
+      "records_validated_tier": "sample_verified",
+      "main_line": null,
+      "extents_validated": false
     }
   },
   "sql_tables": {},
@@ -182982,5 +183550,1902 @@
       }
     }
   },
-  "runner_steps": {}
+  "runner_steps": {},
+  "pli_units": {
+    "src/GML/R0010422.pli": {
+      "units": [
+        {
+          "name": "R001B1",
+          "kind": "procedure",
+          "line": 23,
+          "end": 177,
+          "block_end": 331,
+          "nested_in": null,
+          "edges": [
+            {
+              "verb": "CALL",
+              "target": "BLANK_TEKST",
+              "line": 101
+            },
+            {
+              "verb": "CALL",
+              "target": "TEKST_PROT",
+              "line": 102
+            },
+            {
+              "verb": "CALL",
+              "target": "OVERF\u00d8R_TIL_MAP",
+              "line": 106
+            },
+            {
+              "verb": "CALL",
+              "target": "BLANK_TEKST",
+              "line": 112
+            },
+            {
+              "verb": "CALL",
+              "target": "TEKST_PROT",
+              "line": 113
+            },
+            {
+              "verb": "CALL",
+              "target": "OVERF\u00d8R_TIL_MAP",
+              "line": 118
+            },
+            {
+              "verb": "CALL",
+              "target": "BLANK_TEKST",
+              "line": 124
+            },
+            {
+              "verb": "CALL",
+              "target": "TEKST_PROT",
+              "line": 125
+            },
+            {
+              "verb": "CALL",
+              "target": "OVERF\u00d8R_TIL_MAP",
+              "line": 134
+            },
+            {
+              "verb": "CALL",
+              "target": "TEKST_PROT",
+              "line": 147
+            },
+            {
+              "verb": "CALL",
+              "target": "SEND_MAP",
+              "line": 155
+            },
+            {
+              "verb": "CALL",
+              "target": "SEND_MAP",
+              "line": 169
+            },
+            {
+              "verb": "CALL",
+              "target": "SEND_MAP",
+              "line": 176
+            }
+          ]
+        },
+        {
+          "name": "SEND_MAP",
+          "kind": "procedure",
+          "line": 182,
+          "end": 185,
+          "block_end": 185,
+          "nested_in": "R001B1",
+          "edges": []
+        },
+        {
+          "name": "BLANK_TEKST",
+          "kind": "procedure",
+          "line": 188,
+          "end": 196,
+          "block_end": 196,
+          "nested_in": "R001B1",
+          "edges": []
+        },
+        {
+          "name": "TEKST_UNP",
+          "kind": "procedure",
+          "line": 199,
+          "end": 210,
+          "block_end": 210,
+          "nested_in": "R001B1",
+          "edges": []
+        },
+        {
+          "name": "TEKST_PROT",
+          "kind": "procedure",
+          "line": 213,
+          "end": 224,
+          "block_end": 224,
+          "nested_in": "R001B1",
+          "edges": []
+        },
+        {
+          "name": "OVERF\u00d8R_TIL_MAP",
+          "kind": "procedure",
+          "line": 227,
+          "end": 239,
+          "block_end": 239,
+          "nested_in": "R001B1",
+          "edges": []
+        },
+        {
+          "name": "OVERF\u00d8R_FRA_MAP",
+          "kind": "procedure",
+          "line": 242,
+          "end": 262,
+          "block_end": 262,
+          "nested_in": "R001B1",
+          "edges": []
+        },
+        {
+          "name": "KONTROLL_AV_INPUT",
+          "kind": "procedure",
+          "line": 267,
+          "end": 328,
+          "block_end": 328,
+          "nested_in": "R001B1",
+          "edges": [
+            {
+              "verb": "CALL",
+              "target": "SEND_MAP",
+              "line": 324
+            }
+          ]
+        }
+      ],
+      "extents_validated": false
+    },
+    "src/GML/R0010423.pli": {
+      "units": [
+        {
+          "name": "R001B1",
+          "kind": "procedure",
+          "line": 22,
+          "end": 253,
+          "block_end": 343,
+          "nested_in": null,
+          "edges": [
+            {
+              "verb": "CALL",
+              "target": "BLANK_TEKST",
+              "line": 96
+            },
+            {
+              "verb": "CALL",
+              "target": "TEKST_PROT",
+              "line": 97
+            },
+            {
+              "verb": "CALL",
+              "target": "OVERF\u00d8R_TIL_MAP",
+              "line": 101
+            },
+            {
+              "verb": "CALL",
+              "target": "BLANK_TEKST",
+              "line": 107
+            },
+            {
+              "verb": "CALL",
+              "target": "TEKST_PROT",
+              "line": 108
+            },
+            {
+              "verb": "CALL",
+              "target": "OVERF\u00d8R_TIL_MAP",
+              "line": 113
+            },
+            {
+              "verb": "CALL",
+              "target": "BLANK_TEKST",
+              "line": 119
+            },
+            {
+              "verb": "CALL",
+              "target": "TEKST_PROT",
+              "line": 120
+            },
+            {
+              "verb": "CALL",
+              "target": "OVERF\u00d8R_TIL_MAP",
+              "line": 129
+            },
+            {
+              "verb": "CALL",
+              "target": "TEKST_PROT",
+              "line": 216
+            },
+            {
+              "verb": "CALL",
+              "target": "SEND_MAP",
+              "line": 224
+            },
+            {
+              "verb": "CALL",
+              "target": "SEND_MAP",
+              "line": 238
+            },
+            {
+              "verb": "CALL",
+              "target": "SEND_MAP",
+              "line": 245
+            },
+            {
+              "verb": "CALL",
+              "target": "TEKST_UNP",
+              "line": 250
+            },
+            {
+              "verb": "CALL",
+              "target": "SEND_MAP",
+              "line": 252
+            }
+          ]
+        },
+        {
+          "name": "SEND_MAP",
+          "kind": "procedure",
+          "line": 256,
+          "end": 259,
+          "block_end": 259,
+          "nested_in": "R001B1",
+          "edges": []
+        },
+        {
+          "name": "BLANK_TEKST",
+          "kind": "procedure",
+          "line": 262,
+          "end": 266,
+          "block_end": 266,
+          "nested_in": "R001B1",
+          "edges": []
+        },
+        {
+          "name": "TEKST_UNP",
+          "kind": "procedure",
+          "line": 269,
+          "end": 276,
+          "block_end": 276,
+          "nested_in": "R001B1",
+          "edges": []
+        },
+        {
+          "name": "TEKST_PROT",
+          "kind": "procedure",
+          "line": 279,
+          "end": 286,
+          "block_end": 286,
+          "nested_in": "R001B1",
+          "edges": []
+        },
+        {
+          "name": "OVERF\u00d8R_TIL_MAP",
+          "kind": "procedure",
+          "line": 289,
+          "end": 294,
+          "block_end": 294,
+          "nested_in": "R001B1",
+          "edges": []
+        },
+        {
+          "name": "OVERF\u00d8R_FRA_MAP",
+          "kind": "procedure",
+          "line": 297,
+          "end": 309,
+          "block_end": 309,
+          "nested_in": "R001B1",
+          "edges": []
+        },
+        {
+          "name": "KONTROLL_AV_INPUT",
+          "kind": "procedure",
+          "line": 314,
+          "end": 340,
+          "block_end": 340,
+          "nested_in": "R001B1",
+          "edges": [
+            {
+              "verb": "CALL",
+              "target": "SEND_MAP",
+              "line": 336
+            }
+          ]
+        }
+      ],
+      "extents_validated": false
+    },
+    "src/GML/R0010424.pli": {
+      "units": [
+        {
+          "name": "R001B1",
+          "kind": "procedure",
+          "line": 22,
+          "end": 254,
+          "block_end": 325,
+          "nested_in": null,
+          "edges": [
+            {
+              "verb": "CALL",
+              "target": "BLANK_TEKST",
+              "line": 96
+            },
+            {
+              "verb": "CALL",
+              "target": "TEKST_PROT",
+              "line": 97
+            },
+            {
+              "verb": "CALL",
+              "target": "OVERF\u00d8R_TIL_MAP",
+              "line": 101
+            },
+            {
+              "verb": "CALL",
+              "target": "BLANK_TEKST",
+              "line": 107
+            },
+            {
+              "verb": "CALL",
+              "target": "TEKST_PROT",
+              "line": 108
+            },
+            {
+              "verb": "CALL",
+              "target": "OVERF\u00d8R_TIL_MAP",
+              "line": 113
+            },
+            {
+              "verb": "CALL",
+              "target": "BLANK_TEKST",
+              "line": 119
+            },
+            {
+              "verb": "CALL",
+              "target": "TEKST_PROT",
+              "line": 120
+            },
+            {
+              "verb": "CALL",
+              "target": "OVERF\u00d8R_TIL_MAP",
+              "line": 129
+            },
+            {
+              "verb": "CALL",
+              "target": "TEKST_PROT",
+              "line": 217
+            },
+            {
+              "verb": "CALL",
+              "target": "SEND_MAP",
+              "line": 225
+            },
+            {
+              "verb": "CALL",
+              "target": "SEND_MAP",
+              "line": 239
+            },
+            {
+              "verb": "CALL",
+              "target": "SEND_MAP",
+              "line": 246
+            },
+            {
+              "verb": "CALL",
+              "target": "TEKST_UNP",
+              "line": 251
+            },
+            {
+              "verb": "CALL",
+              "target": "SEND_MAP",
+              "line": 253
+            }
+          ]
+        },
+        {
+          "name": "SEND_MAP",
+          "kind": "procedure",
+          "line": 257,
+          "end": 260,
+          "block_end": 260,
+          "nested_in": "R001B1",
+          "edges": []
+        },
+        {
+          "name": "BLANK_TEKST",
+          "kind": "procedure",
+          "line": 263,
+          "end": 265,
+          "block_end": 265,
+          "nested_in": "R001B1",
+          "edges": []
+        },
+        {
+          "name": "TEKST_UNP",
+          "kind": "procedure",
+          "line": 268,
+          "end": 273,
+          "block_end": 273,
+          "nested_in": "R001B1",
+          "edges": []
+        },
+        {
+          "name": "TEKST_PROT",
+          "kind": "procedure",
+          "line": 276,
+          "end": 281,
+          "block_end": 281,
+          "nested_in": "R001B1",
+          "edges": []
+        },
+        {
+          "name": "OVERF\u00d8R_TIL_MAP",
+          "kind": "procedure",
+          "line": 284,
+          "end": 287,
+          "block_end": 287,
+          "nested_in": "R001B1",
+          "edges": []
+        },
+        {
+          "name": "OVERF\u00d8R_FRA_MAP",
+          "kind": "procedure",
+          "line": 290,
+          "end": 298,
+          "block_end": 298,
+          "nested_in": "R001B1",
+          "edges": []
+        },
+        {
+          "name": "KONTROLL_AV_INPUT",
+          "kind": "procedure",
+          "line": 303,
+          "end": 322,
+          "block_end": 322,
+          "nested_in": "R001B1",
+          "edges": [
+            {
+              "verb": "CALL",
+              "target": "SEND_MAP",
+              "line": 318
+            }
+          ]
+        }
+      ],
+      "extents_validated": false
+    },
+    "src/GML/R0010425.pli": {
+      "units": [
+        {
+          "name": "R001B1",
+          "kind": "procedure",
+          "line": 22,
+          "end": 266,
+          "block_end": 332,
+          "nested_in": null,
+          "edges": [
+            {
+              "verb": "CALL",
+              "target": "BLANK_TEKST",
+              "line": 99
+            },
+            {
+              "verb": "CALL",
+              "target": "TEKST_PROT",
+              "line": 100
+            },
+            {
+              "verb": "CALL",
+              "target": "OVERF\u00d8R_TIL_MAP",
+              "line": 104
+            },
+            {
+              "verb": "CALL",
+              "target": "BLANK_TEKST",
+              "line": 110
+            },
+            {
+              "verb": "CALL",
+              "target": "TEKST_PROT",
+              "line": 111
+            },
+            {
+              "verb": "CALL",
+              "target": "OVERF\u00d8R_TIL_MAP",
+              "line": 118
+            },
+            {
+              "verb": "CALL",
+              "target": "BLANK_TEKST",
+              "line": 125
+            },
+            {
+              "verb": "CALL",
+              "target": "TEKST_PROT",
+              "line": 126
+            },
+            {
+              "verb": "CALL",
+              "target": "OVERF\u00d8R_TIL_MAP",
+              "line": 136
+            },
+            {
+              "verb": "CALL",
+              "target": "TEKST_PROT",
+              "line": 228
+            },
+            {
+              "verb": "CALL",
+              "target": "SEND_MAP",
+              "line": 236
+            },
+            {
+              "verb": "CALL",
+              "target": "SEND_MAP",
+              "line": 252
+            },
+            {
+              "verb": "CALL",
+              "target": "SEND_MAP",
+              "line": 258
+            },
+            {
+              "verb": "CALL",
+              "target": "TEKST_UNP",
+              "line": 263
+            },
+            {
+              "verb": "CALL",
+              "target": "SEND_MAP",
+              "line": 265
+            }
+          ]
+        },
+        {
+          "name": "SEND_MAP",
+          "kind": "procedure",
+          "line": 269,
+          "end": 272,
+          "block_end": 272,
+          "nested_in": "R001B1",
+          "edges": []
+        },
+        {
+          "name": "BLANK_TEKST",
+          "kind": "procedure",
+          "line": 275,
+          "end": 277,
+          "block_end": 277,
+          "nested_in": "R001B1",
+          "edges": []
+        },
+        {
+          "name": "TEKST_UNP",
+          "kind": "procedure",
+          "line": 280,
+          "end": 285,
+          "block_end": 285,
+          "nested_in": "R001B1",
+          "edges": []
+        },
+        {
+          "name": "TEKST_PROT",
+          "kind": "procedure",
+          "line": 288,
+          "end": 293,
+          "block_end": 293,
+          "nested_in": "R001B1",
+          "edges": []
+        },
+        {
+          "name": "OVERF\u00d8R_TIL_MAP",
+          "kind": "procedure",
+          "line": 296,
+          "end": 299,
+          "block_end": 299,
+          "nested_in": "R001B1",
+          "edges": []
+        },
+        {
+          "name": "OVERF\u00d8R_FRA_MAP",
+          "kind": "procedure",
+          "line": 302,
+          "end": 309,
+          "block_end": 309,
+          "nested_in": "R001B1",
+          "edges": []
+        },
+        {
+          "name": "KONTROLL_AV_INPUT",
+          "kind": "procedure",
+          "line": 311,
+          "end": 330,
+          "block_end": 330,
+          "nested_in": "R001B1",
+          "edges": [
+            {
+              "verb": "CALL",
+              "target": "SEND_MAP",
+              "line": 326
+            }
+          ]
+        }
+      ],
+      "extents_validated": false
+    },
+    "src/GML/R0010427.pli": {
+      "units": [
+        {
+          "name": "R0010427",
+          "kind": "procedure",
+          "line": 20,
+          "end": 105,
+          "block_end": 105,
+          "nested_in": null,
+          "edges": []
+        }
+      ],
+      "extents_validated": false
+    },
+    "src/GML/R00104BP.pli": {
+      "units": [
+        {
+          "name": "R001041",
+          "kind": "procedure",
+          "line": 43,
+          "end": 92,
+          "block_end": 119,
+          "nested_in": null,
+          "edges": []
+        },
+        {
+          "name": "SKRIV_FEIL",
+          "kind": "procedure",
+          "line": 94,
+          "end": 100,
+          "block_end": 100,
+          "nested_in": "R001041",
+          "edges": []
+        },
+        {
+          "name": "SKRIV_FEIL_YP",
+          "kind": "procedure",
+          "line": 102,
+          "end": 107,
+          "block_end": 107,
+          "nested_in": "R001041",
+          "edges": []
+        },
+        {
+          "name": "SKRIV_FEIL_SP",
+          "kind": "procedure",
+          "line": 109,
+          "end": 114,
+          "block_end": 114,
+          "nested_in": "R001041",
+          "edges": []
+        }
+      ],
+      "extents_validated": false
+    },
+    "src/GML/R00104U3.pli": {
+      "units": [
+        {
+          "name": "R001041",
+          "kind": "procedure",
+          "line": 44,
+          "end": 138,
+          "block_end": 165,
+          "nested_in": null,
+          "edges": [
+            {
+              "verb": "CALL",
+              "target": "OVERF\u00d8R_U3_SP_MAP",
+              "line": 121
+            },
+            {
+              "verb": "CALL",
+              "target": "OVERF\u00d8R_U3_YP_MAP",
+              "line": 129
+            }
+          ]
+        },
+        {
+          "name": "SKRIV_FEIL",
+          "kind": "procedure",
+          "line": 140,
+          "end": 146,
+          "block_end": 146,
+          "nested_in": "R001041",
+          "edges": []
+        },
+        {
+          "name": "SKRIV_FEIL_YP",
+          "kind": "procedure",
+          "line": 148,
+          "end": 153,
+          "block_end": 153,
+          "nested_in": "R001041",
+          "edges": []
+        },
+        {
+          "name": "SKRIV_FEIL_SP",
+          "kind": "procedure",
+          "line": 155,
+          "end": 160,
+          "block_end": 160,
+          "nested_in": "R001041",
+          "edges": []
+        }
+      ],
+      "extents_validated": false
+    },
+    "src/GML/R0010705.pli": {
+      "units": [
+        {
+          "name": "KONTROLL_US_SPES",
+          "kind": "procedure",
+          "line": 17,
+          "end": 59,
+          "block_end": 59,
+          "nested_in": null,
+          "edges": []
+        }
+      ],
+      "extents_validated": false
+    },
+    "src/GML/R0010902.pli": {
+      "units": [
+        {
+          "name": "BLANK_EF_S\u00d8KER",
+          "kind": "procedure",
+          "line": 32,
+          "end": 49,
+          "block_end": 49,
+          "nested_in": null,
+          "edges": []
+        },
+        {
+          "name": "BLANK_EF_SPES",
+          "kind": "procedure",
+          "line": 57,
+          "end": 73,
+          "block_end": 73,
+          "nested_in": null,
+          "edges": []
+        },
+        {
+          "name": "BLANK_EF_MELDNR",
+          "kind": "procedure",
+          "line": 81,
+          "end": 112,
+          "block_end": 112,
+          "nested_in": null,
+          "edges": []
+        }
+      ],
+      "extents_validated": false
+    },
+    "src/GML/R0011022.pli": {
+      "units": [
+        {
+          "name": "AJOURF\u00d8R_B02_MED_FB_TRANS",
+          "kind": "procedure",
+          "line": 35,
+          "end": 515,
+          "block_end": 515,
+          "nested_in": null,
+          "edges": []
+        }
+      ],
+      "extents_validated": false
+    },
+    "src/GML/R0012004.pli": {
+      "units": [
+        {
+          "name": "UPDATE_STATISTIKK_REG",
+          "kind": "procedure",
+          "line": 76,
+          "end": 407,
+          "block_end": 407,
+          "nested_in": null,
+          "edges": [
+            {
+              "verb": "CALL",
+              "target": "SKRIV_BRUKER_ID",
+              "line": 79
+            },
+            {
+              "verb": "CALL",
+              "target": "LESE_STATISTIKK_REG",
+              "line": 81
+            },
+            {
+              "verb": "CALL",
+              "target": "LES_TKNR",
+              "line": 89
+            },
+            {
+              "verb": "CALL",
+              "target": "SKRIV_STATISTIKK_REG",
+              "line": 399
+            }
+          ]
+        },
+        {
+          "name": "LESE_STATISTIKK_REG",
+          "kind": "procedure",
+          "line": 410,
+          "end": 449,
+          "block_end": 449,
+          "nested_in": null,
+          "edges": []
+        },
+        {
+          "name": "SKRIV_STATISTIKK_REG",
+          "kind": "procedure",
+          "line": 451,
+          "end": 475,
+          "block_end": 475,
+          "nested_in": null,
+          "edges": []
+        },
+        {
+          "name": "LES_TKNR",
+          "kind": "procedure",
+          "line": 477,
+          "end": 502,
+          "block_end": 502,
+          "nested_in": null,
+          "edges": []
+        },
+        {
+          "name": "SKRIV_BRUKER_ID",
+          "kind": "procedure",
+          "line": 504,
+          "end": 521,
+          "block_end": 521,
+          "nested_in": null,
+          "edges": []
+        }
+      ],
+      "extents_validated": false
+    },
+    "src/GML/R0014131.pli": {
+      "units": [
+        {
+          "name": "BEREGN_TP_ETTERLATT_AP",
+          "kind": "procedure",
+          "line": 91,
+          "end": 982,
+          "block_end": 982,
+          "nested_in": null,
+          "edges": []
+        }
+      ],
+      "extents_validated": false
+    },
+    "src/GML/R0014168.pli": {
+      "units": [
+        {
+          "name": "LEGG_AFPHIST_I_TAB",
+          "kind": "procedure",
+          "line": 20,
+          "end": 135,
+          "block_end": 135,
+          "nested_in": null,
+          "edges": []
+        }
+      ],
+      "extents_validated": false
+    },
+    "src/GML/R001UE20.pli": {
+      "units": [
+        {
+          "name": "R01UE20",
+          "kind": "procedure",
+          "line": 54,
+          "end": 1554,
+          "block_end": 1554,
+          "nested_in": null,
+          "edges": []
+        }
+      ],
+      "extents_validated": false
+    },
+    "src/R0010422.pli": {
+      "units": [
+        {
+          "name": "R001B1",
+          "kind": "procedure",
+          "line": 21,
+          "end": 175,
+          "block_end": 329,
+          "nested_in": null,
+          "edges": [
+            {
+              "verb": "CALL",
+              "target": "BLANK_TEKST",
+              "line": 99
+            },
+            {
+              "verb": "CALL",
+              "target": "TEKST_PROT",
+              "line": 100
+            },
+            {
+              "verb": "CALL",
+              "target": "OVERF\u00d8R_TIL_MAP",
+              "line": 104
+            },
+            {
+              "verb": "CALL",
+              "target": "BLANK_TEKST",
+              "line": 110
+            },
+            {
+              "verb": "CALL",
+              "target": "TEKST_PROT",
+              "line": 111
+            },
+            {
+              "verb": "CALL",
+              "target": "OVERF\u00d8R_TIL_MAP",
+              "line": 116
+            },
+            {
+              "verb": "CALL",
+              "target": "BLANK_TEKST",
+              "line": 122
+            },
+            {
+              "verb": "CALL",
+              "target": "TEKST_PROT",
+              "line": 123
+            },
+            {
+              "verb": "CALL",
+              "target": "OVERF\u00d8R_TIL_MAP",
+              "line": 132
+            },
+            {
+              "verb": "CALL",
+              "target": "TEKST_PROT",
+              "line": 145
+            },
+            {
+              "verb": "CALL",
+              "target": "SEND_MAP",
+              "line": 153
+            },
+            {
+              "verb": "CALL",
+              "target": "SEND_MAP",
+              "line": 167
+            },
+            {
+              "verb": "CALL",
+              "target": "SEND_MAP",
+              "line": 174
+            }
+          ]
+        },
+        {
+          "name": "SEND_MAP",
+          "kind": "procedure",
+          "line": 180,
+          "end": 183,
+          "block_end": 183,
+          "nested_in": "R001B1",
+          "edges": []
+        },
+        {
+          "name": "BLANK_TEKST",
+          "kind": "procedure",
+          "line": 186,
+          "end": 194,
+          "block_end": 194,
+          "nested_in": "R001B1",
+          "edges": []
+        },
+        {
+          "name": "TEKST_UNP",
+          "kind": "procedure",
+          "line": 197,
+          "end": 208,
+          "block_end": 208,
+          "nested_in": "R001B1",
+          "edges": []
+        },
+        {
+          "name": "TEKST_PROT",
+          "kind": "procedure",
+          "line": 211,
+          "end": 222,
+          "block_end": 222,
+          "nested_in": "R001B1",
+          "edges": []
+        },
+        {
+          "name": "OVERF\u00d8R_TIL_MAP",
+          "kind": "procedure",
+          "line": 225,
+          "end": 237,
+          "block_end": 237,
+          "nested_in": "R001B1",
+          "edges": []
+        },
+        {
+          "name": "OVERF\u00d8R_FRA_MAP",
+          "kind": "procedure",
+          "line": 240,
+          "end": 260,
+          "block_end": 260,
+          "nested_in": "R001B1",
+          "edges": []
+        },
+        {
+          "name": "KONTROLL_AV_INPUT",
+          "kind": "procedure",
+          "line": 265,
+          "end": 326,
+          "block_end": 326,
+          "nested_in": "R001B1",
+          "edges": [
+            {
+              "verb": "CALL",
+              "target": "SEND_MAP",
+              "line": 322
+            }
+          ]
+        }
+      ],
+      "extents_validated": false
+    },
+    "src/R0010423.pli": {
+      "units": [
+        {
+          "name": "R001B1",
+          "kind": "procedure",
+          "line": 23,
+          "end": 254,
+          "block_end": 344,
+          "nested_in": null,
+          "edges": [
+            {
+              "verb": "CALL",
+              "target": "BLANK_TEKST",
+              "line": 97
+            },
+            {
+              "verb": "CALL",
+              "target": "TEKST_PROT",
+              "line": 98
+            },
+            {
+              "verb": "CALL",
+              "target": "OVERF\u00d8R_TIL_MAP",
+              "line": 102
+            },
+            {
+              "verb": "CALL",
+              "target": "BLANK_TEKST",
+              "line": 108
+            },
+            {
+              "verb": "CALL",
+              "target": "TEKST_PROT",
+              "line": 109
+            },
+            {
+              "verb": "CALL",
+              "target": "OVERF\u00d8R_TIL_MAP",
+              "line": 114
+            },
+            {
+              "verb": "CALL",
+              "target": "BLANK_TEKST",
+              "line": 120
+            },
+            {
+              "verb": "CALL",
+              "target": "TEKST_PROT",
+              "line": 121
+            },
+            {
+              "verb": "CALL",
+              "target": "OVERF\u00d8R_TIL_MAP",
+              "line": 130
+            },
+            {
+              "verb": "CALL",
+              "target": "TEKST_PROT",
+              "line": 217
+            },
+            {
+              "verb": "CALL",
+              "target": "SEND_MAP",
+              "line": 225
+            },
+            {
+              "verb": "CALL",
+              "target": "SEND_MAP",
+              "line": 239
+            },
+            {
+              "verb": "CALL",
+              "target": "SEND_MAP",
+              "line": 246
+            },
+            {
+              "verb": "CALL",
+              "target": "TEKST_UNP",
+              "line": 251
+            },
+            {
+              "verb": "CALL",
+              "target": "SEND_MAP",
+              "line": 253
+            }
+          ]
+        },
+        {
+          "name": "SEND_MAP",
+          "kind": "procedure",
+          "line": 257,
+          "end": 260,
+          "block_end": 260,
+          "nested_in": "R001B1",
+          "edges": []
+        },
+        {
+          "name": "BLANK_TEKST",
+          "kind": "procedure",
+          "line": 263,
+          "end": 267,
+          "block_end": 267,
+          "nested_in": "R001B1",
+          "edges": []
+        },
+        {
+          "name": "TEKST_UNP",
+          "kind": "procedure",
+          "line": 270,
+          "end": 277,
+          "block_end": 277,
+          "nested_in": "R001B1",
+          "edges": []
+        },
+        {
+          "name": "TEKST_PROT",
+          "kind": "procedure",
+          "line": 280,
+          "end": 287,
+          "block_end": 287,
+          "nested_in": "R001B1",
+          "edges": []
+        },
+        {
+          "name": "OVERF\u00d8R_TIL_MAP",
+          "kind": "procedure",
+          "line": 290,
+          "end": 295,
+          "block_end": 295,
+          "nested_in": "R001B1",
+          "edges": []
+        },
+        {
+          "name": "OVERF\u00d8R_FRA_MAP",
+          "kind": "procedure",
+          "line": 298,
+          "end": 310,
+          "block_end": 310,
+          "nested_in": "R001B1",
+          "edges": []
+        },
+        {
+          "name": "KONTROLL_AV_INPUT",
+          "kind": "procedure",
+          "line": 315,
+          "end": 341,
+          "block_end": 341,
+          "nested_in": "R001B1",
+          "edges": [
+            {
+              "verb": "CALL",
+              "target": "SEND_MAP",
+              "line": 337
+            }
+          ]
+        }
+      ],
+      "extents_validated": false
+    },
+    "src/R0010424.pli": {
+      "units": [
+        {
+          "name": "R001B1",
+          "kind": "procedure",
+          "line": 21,
+          "end": 253,
+          "block_end": 324,
+          "nested_in": null,
+          "edges": [
+            {
+              "verb": "CALL",
+              "target": "BLANK_TEKST",
+              "line": 95
+            },
+            {
+              "verb": "CALL",
+              "target": "TEKST_PROT",
+              "line": 96
+            },
+            {
+              "verb": "CALL",
+              "target": "OVERF\u00d8R_TIL_MAP",
+              "line": 100
+            },
+            {
+              "verb": "CALL",
+              "target": "BLANK_TEKST",
+              "line": 106
+            },
+            {
+              "verb": "CALL",
+              "target": "TEKST_PROT",
+              "line": 107
+            },
+            {
+              "verb": "CALL",
+              "target": "OVERF\u00d8R_TIL_MAP",
+              "line": 112
+            },
+            {
+              "verb": "CALL",
+              "target": "BLANK_TEKST",
+              "line": 118
+            },
+            {
+              "verb": "CALL",
+              "target": "TEKST_PROT",
+              "line": 119
+            },
+            {
+              "verb": "CALL",
+              "target": "OVERF\u00d8R_TIL_MAP",
+              "line": 128
+            },
+            {
+              "verb": "CALL",
+              "target": "TEKST_PROT",
+              "line": 216
+            },
+            {
+              "verb": "CALL",
+              "target": "SEND_MAP",
+              "line": 224
+            },
+            {
+              "verb": "CALL",
+              "target": "SEND_MAP",
+              "line": 238
+            },
+            {
+              "verb": "CALL",
+              "target": "SEND_MAP",
+              "line": 245
+            },
+            {
+              "verb": "CALL",
+              "target": "TEKST_UNP",
+              "line": 250
+            },
+            {
+              "verb": "CALL",
+              "target": "SEND_MAP",
+              "line": 252
+            }
+          ]
+        },
+        {
+          "name": "SEND_MAP",
+          "kind": "procedure",
+          "line": 256,
+          "end": 259,
+          "block_end": 259,
+          "nested_in": "R001B1",
+          "edges": []
+        },
+        {
+          "name": "BLANK_TEKST",
+          "kind": "procedure",
+          "line": 262,
+          "end": 264,
+          "block_end": 264,
+          "nested_in": "R001B1",
+          "edges": []
+        },
+        {
+          "name": "TEKST_UNP",
+          "kind": "procedure",
+          "line": 267,
+          "end": 272,
+          "block_end": 272,
+          "nested_in": "R001B1",
+          "edges": []
+        },
+        {
+          "name": "TEKST_PROT",
+          "kind": "procedure",
+          "line": 275,
+          "end": 280,
+          "block_end": 280,
+          "nested_in": "R001B1",
+          "edges": []
+        },
+        {
+          "name": "OVERF\u00d8R_TIL_MAP",
+          "kind": "procedure",
+          "line": 283,
+          "end": 286,
+          "block_end": 286,
+          "nested_in": "R001B1",
+          "edges": []
+        },
+        {
+          "name": "OVERF\u00d8R_FRA_MAP",
+          "kind": "procedure",
+          "line": 289,
+          "end": 297,
+          "block_end": 297,
+          "nested_in": "R001B1",
+          "edges": []
+        },
+        {
+          "name": "KONTROLL_AV_INPUT",
+          "kind": "procedure",
+          "line": 302,
+          "end": 321,
+          "block_end": 321,
+          "nested_in": "R001B1",
+          "edges": [
+            {
+              "verb": "CALL",
+              "target": "SEND_MAP",
+              "line": 317
+            }
+          ]
+        }
+      ],
+      "extents_validated": false
+    },
+    "src/R0010425.pli": {
+      "units": [
+        {
+          "name": "R001B1",
+          "kind": "procedure",
+          "line": 22,
+          "end": 265,
+          "block_end": 332,
+          "nested_in": null,
+          "edges": [
+            {
+              "verb": "CALL",
+              "target": "BLANK_TEKST",
+              "line": 98
+            },
+            {
+              "verb": "CALL",
+              "target": "TEKST_PROT",
+              "line": 99
+            },
+            {
+              "verb": "CALL",
+              "target": "OVERF\u00d8R_TIL_MAP",
+              "line": 103
+            },
+            {
+              "verb": "CALL",
+              "target": "BLANK_TEKST",
+              "line": 109
+            },
+            {
+              "verb": "CALL",
+              "target": "TEKST_PROT",
+              "line": 110
+            },
+            {
+              "verb": "CALL",
+              "target": "OVERF\u00d8R_TIL_MAP",
+              "line": 117
+            },
+            {
+              "verb": "CALL",
+              "target": "BLANK_TEKST",
+              "line": 124
+            },
+            {
+              "verb": "CALL",
+              "target": "TEKST_PROT",
+              "line": 125
+            },
+            {
+              "verb": "CALL",
+              "target": "OVERF\u00d8R_TIL_MAP",
+              "line": 135
+            },
+            {
+              "verb": "CALL",
+              "target": "TEKST_PROT",
+              "line": 227
+            },
+            {
+              "verb": "CALL",
+              "target": "SEND_MAP",
+              "line": 235
+            },
+            {
+              "verb": "CALL",
+              "target": "SEND_MAP",
+              "line": 251
+            },
+            {
+              "verb": "CALL",
+              "target": "SEND_MAP",
+              "line": 257
+            },
+            {
+              "verb": "CALL",
+              "target": "TEKST_UNP",
+              "line": 262
+            },
+            {
+              "verb": "CALL",
+              "target": "SEND_MAP",
+              "line": 264
+            }
+          ]
+        },
+        {
+          "name": "SEND_MAP",
+          "kind": "procedure",
+          "line": 268,
+          "end": 271,
+          "block_end": 271,
+          "nested_in": "R001B1",
+          "edges": []
+        },
+        {
+          "name": "BLANK_TEKST",
+          "kind": "procedure",
+          "line": 274,
+          "end": 276,
+          "block_end": 276,
+          "nested_in": "R001B1",
+          "edges": []
+        },
+        {
+          "name": "TEKST_UNP",
+          "kind": "procedure",
+          "line": 279,
+          "end": 284,
+          "block_end": 284,
+          "nested_in": "R001B1",
+          "edges": []
+        },
+        {
+          "name": "TEKST_PROT",
+          "kind": "procedure",
+          "line": 287,
+          "end": 292,
+          "block_end": 292,
+          "nested_in": "R001B1",
+          "edges": []
+        },
+        {
+          "name": "OVERF\u00d8R_TIL_MAP",
+          "kind": "procedure",
+          "line": 295,
+          "end": 299,
+          "block_end": 299,
+          "nested_in": "R001B1",
+          "edges": []
+        },
+        {
+          "name": "OVERF\u00d8R_FRA_MAP",
+          "kind": "procedure",
+          "line": 302,
+          "end": 309,
+          "block_end": 309,
+          "nested_in": "R001B1",
+          "edges": []
+        },
+        {
+          "name": "KONTROLL_AV_INPUT",
+          "kind": "procedure",
+          "line": 311,
+          "end": 330,
+          "block_end": 330,
+          "nested_in": "R001B1",
+          "edges": [
+            {
+              "verb": "CALL",
+              "target": "SEND_MAP",
+              "line": 326
+            }
+          ]
+        }
+      ],
+      "extents_validated": false
+    },
+    "src/R0010503.pli": {
+      "units": [
+        {
+          "name": "KONTROLL_AP_S\u00d8KER",
+          "kind": "procedure",
+          "line": 69,
+          "end": 480,
+          "block_end": 480,
+          "nested_in": null,
+          "edges": []
+        }
+      ],
+      "extents_validated": false
+    },
+    "src/R0010509.pli": {
+      "units": [
+        {
+          "name": "BLANK_AP_MAP",
+          "kind": "procedure",
+          "line": 50,
+          "end": 102,
+          "block_end": 102,
+          "nested_in": null,
+          "edges": []
+        },
+        {
+          "name": "OVERF\u00d8R_AP_S\u00d8KER",
+          "kind": "procedure",
+          "line": 113,
+          "end": 147,
+          "block_end": 147,
+          "nested_in": null,
+          "edges": []
+        },
+        {
+          "name": "OVERF\u00d8R_AP_SPES",
+          "kind": "procedure",
+          "line": 156,
+          "end": 185,
+          "block_end": 185,
+          "nested_in": null,
+          "edges": []
+        }
+      ],
+      "extents_validated": false
+    },
+    "src/R0010607.pli": {
+      "units": [
+        {
+          "name": "TEKST_BARN",
+          "kind": "procedure",
+          "line": 50,
+          "end": 96,
+          "block_end": 96,
+          "nested_in": null,
+          "edges": []
+        },
+        {
+          "name": "FJERN_TEKST_BARN",
+          "kind": "procedure",
+          "line": 99,
+          "end": 114,
+          "block_end": 114,
+          "nested_in": null,
+          "edges": []
+        },
+        {
+          "name": "BLOKKERE_BARN",
+          "kind": "procedure",
+          "line": 116,
+          "end": 142,
+          "block_end": 142,
+          "nested_in": null,
+          "edges": []
+        },
+        {
+          "name": "TEKST_SPES",
+          "kind": "procedure",
+          "line": 146,
+          "end": 196,
+          "block_end": 196,
+          "nested_in": null,
+          "edges": []
+        },
+        {
+          "name": "FJERN_TEKST_SPES",
+          "kind": "procedure",
+          "line": 200,
+          "end": 224,
+          "block_end": 224,
+          "nested_in": null,
+          "edges": []
+        },
+        {
+          "name": "BLOKKERE_SPES",
+          "kind": "procedure",
+          "line": 226,
+          "end": 248,
+          "block_end": 248,
+          "nested_in": null,
+          "edges": []
+        }
+      ],
+      "extents_validated": false
+    },
+    "src/R0011120.pli": {
+      "units": [
+        {
+          "name": "BPTR",
+          "kind": "procedure",
+          "line": 42,
+          "end": 869,
+          "block_end": 869,
+          "nested_in": null,
+          "edges": []
+        }
+      ],
+      "extents_validated": false
+    },
+    "src/R0014145.pli": {
+      "units": [
+        {
+          "name": "REGN_TT_67_TIL_70",
+          "kind": "procedure",
+          "line": 36,
+          "end": 117,
+          "block_end": 117,
+          "nested_in": null,
+          "edges": []
+        }
+      ],
+      "extents_validated": false
+    },
+    "src/R0014161.pli": {
+      "units": [
+        {
+          "name": "LEGG_UF\u00d8REHIST_I_TAB",
+          "kind": "procedure",
+          "line": 30,
+          "end": 339,
+          "block_end": 339,
+          "nested_in": null,
+          "edges": []
+        }
+      ],
+      "extents_validated": false
+    },
+    "src/R0015411.pli": {
+      "units": [
+        {
+          "name": "R001540",
+          "kind": "procedure",
+          "line": 19,
+          "end": 259,
+          "block_end": 259,
+          "nested_in": null,
+          "edges": []
+        }
+      ],
+      "extents_validated": false
+    },
+    "src/R0017022.pli": {
+      "units": [
+        {
+          "name": "LAG_BARNEP_EN_HEND",
+          "kind": "procedure",
+          "line": 18,
+          "end": 116,
+          "block_end": 116,
+          "nested_in": null,
+          "edges": [
+            {
+              "verb": "CALL",
+              "target": "PLASSER_TEKST",
+              "line": 108
+            },
+            {
+              "verb": "CALL",
+              "target": "INSERT_HENDELSE",
+              "line": 114
+            }
+          ]
+        }
+      ],
+      "extents_validated": false
+    },
+    "src/R0019938.pli": {
+      "units": [
+        {
+          "name": "ETTERLATTEPENSJON_OPPH\u00d8RER",
+          "kind": "procedure",
+          "line": 21,
+          "end": 79,
+          "block_end": 79,
+          "nested_in": null,
+          "edges": []
+        }
+      ],
+      "extents_validated": false
+    },
+    "src/R0019951.pli": {
+      "units": [
+        {
+          "name": "OMREGNING_PGA_INNTEKTSENDRING",
+          "kind": "procedure",
+          "line": 40,
+          "end": 252,
+          "block_end": 320,
+          "nested_in": null,
+          "edges": [
+            {
+              "verb": "CALL",
+              "target": "STAT_SKRIV",
+              "line": 230
+            },
+            {
+              "verb": "CALL",
+              "target": "STAT_SKRIV",
+              "line": 247
+            },
+            {
+              "verb": "CALL",
+              "target": "RYDD_OPP",
+              "line": 252
+            }
+          ]
+        },
+        {
+          "name": "STAT_SKRIV",
+          "kind": "procedure",
+          "line": 254,
+          "end": 281,
+          "block_end": 281,
+          "nested_in": "OMREGNING_PGA_INNTEKTSENDRING",
+          "edges": []
+        },
+        {
+          "name": "RYDD_OPP",
+          "kind": "procedure",
+          "line": 290,
+          "end": 318,
+          "block_end": 318,
+          "nested_in": "OMREGNING_PGA_INNTEKTSENDRING",
+          "edges": []
+        }
+      ],
+      "extents_validated": false
+    },
+    "src/R0019954.pli": {
+      "units": [
+        {
+          "name": "RULL_FORVENTET",
+          "kind": "procedure",
+          "line": 26,
+          "end": 89,
+          "block_end": 89,
+          "nested_in": null,
+          "edges": []
+        }
+      ],
+      "extents_validated": false
+    },
+    "src/R0019963.pli": {
+      "units": [
+        {
+          "name": "SKRIV_FEIL_YP",
+          "kind": "procedure",
+          "line": 28,
+          "end": 71,
+          "block_end": 71,
+          "nested_in": null,
+          "edges": []
+        }
+      ],
+      "extents_validated": false
+    },
+    "src/R0019A03.pli": {
+      "units": [
+        {
+          "name": "AU_KJ\u00d8RING_KONTROLL",
+          "kind": "procedure",
+          "line": 7,
+          "end": 122,
+          "block_end": 122,
+          "nested_in": null,
+          "edges": [
+            {
+              "verb": "CALL",
+              "target": "BLANK_AU_MELDNR",
+              "line": 64
+            }
+          ]
+        }
+      ],
+      "extents_validated": false
+    },
+    "src/R001A401.pli": {
+      "units": [
+        {
+          "name": "R00104",
+          "kind": "procedure",
+          "line": 8,
+          "end": 418,
+          "block_end": 418,
+          "nested_in": null,
+          "edges": []
+        }
+      ],
+      "extents_validated": false
+    },
+    "src/R001NO1A.pli": {
+      "units": [
+        {
+          "name": "P119_BEHANDLE_AFP",
+          "kind": "procedure",
+          "line": 42,
+          "end": 62,
+          "block_end": 243,
+          "nested_in": null,
+          "edges": [
+            {
+              "verb": "CALL",
+              "target": "BLANK_AFP_MELDNR",
+              "line": 49
+            },
+            {
+              "verb": "CALL",
+              "target": "BLANK_AFP_SPES",
+              "line": 50
+            },
+            {
+              "verb": "CALL",
+              "target": "OVERF_AFP_BLANKETT",
+              "line": 51
+            },
+            {
+              "verb": "CALL",
+              "target": "FINN_FEIL_AFP",
+              "line": 62
+            }
+          ]
+        },
+        {
+          "name": "OVERF_AFP_BLANKETT",
+          "kind": "procedure",
+          "line": 71,
+          "end": 104,
+          "block_end": 104,
+          "nested_in": "P119_BEHANDLE_AFP",
+          "edges": []
+        },
+        {
+          "name": "FINN_FEIL_AFP",
+          "kind": "procedure",
+          "line": 111,
+          "end": 229,
+          "block_end": 229,
+          "nested_in": "P119_BEHANDLE_AFP",
+          "edges": []
+        }
+      ],
+      "extents_validated": false
+    }
+  }
 }

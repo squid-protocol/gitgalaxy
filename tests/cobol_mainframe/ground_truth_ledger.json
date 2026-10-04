@@ -6,6 +6,26 @@
       "kind": "deliberate",
       "summary": "The engine's usage_status is the unreferenced-by-name census (a unit's name occurs nowhere else in the file), not reachability. Reachability-based dead code stays on the forge by decision (docs/unreferenced_by_name_contract.md; #3348 scope note). Scoring usage_status against the key's reachability verdicts is therefore expected to disagree."
     },
+    "engine_drops_self_transfer": {
+      "issue": 3362,
+      "kind": "deliberate",
+      "summary": "A GO TO back to the paragraph it is in (a read loop) is not recorded: the engine drops a unit's transfer to itself like recursion (detector, #3362 contract). The key keeps it, since it is a real edge."
+    },
+    "engine_inline_perform_phantom_callee": {
+      "issue": 4305,
+      "kind": "defect",
+      "summary": "An inline PERFORM form (PERFORM TEST AFTER / WITH TEST ...) is read as an out-of-line PERFORM of a paragraph named TEST."
+    },
+    "engine_main_line_in_no_unit": {
+      "issue": 4302,
+      "kind": "defect",
+      "summary": "The key's main line (statements between PROCEDURE DIVISION and the first header) is in no engine unit: its extent is missing and its PERFORM / GO TO edges are never recorded. A synthetic calls-only main line (#4323) would carry the edges; it records no extent, so the extent entry stays with this issue."
+    },
+    "engine_unit_end_counts_noncode_lines": {
+      "issue": 4300,
+      "kind": "defect",
+      "summary": "A unit that ends at the next header runs over the trailing lines that hold no code: a sequence number alone (CardDemo cols 1-6, 91 units; DSF PL/I cols 73-80, 8 outer procedures) or a col-7 D debugging line while WITH DEBUGGING MODE is commented out (CBSA BANKDATA CDW010). Same root as #4300 (the sequence area is not blanked in the stream the slicer reads); the key ends a unit at its last code line."
+    },
     "forge_units_include_copied_paragraphs": {
       "issue": 3414,
       "kind": "deliberate",
@@ -96,6 +116,269 @@
         "engine | dead | app/cbl/COUSR01C.cbl | MAIN-PARA | fp": "engine_dead_is_unreferenced_by_name",
         "engine | dead | app/cbl/COUSR02C.cbl | MAIN-PARA | fp": "engine_dead_is_unreferenced_by_name",
         "engine | dead | app/cbl/COUSR03C.cbl | MAIN-PARA | fp": "engine_dead_is_unreferenced_by_name",
+        "engine | intra-program edges | app/cbl/CBACT01C.cbl | (procedure division) -> PERFORM 0000-ACCTFILE-OPEN | fn": "engine_main_line_in_no_unit",
+        "engine | intra-program edges | app/cbl/CBACT01C.cbl | (procedure division) -> PERFORM 1000-ACCTFILE-GET-NEXT | fn": "engine_main_line_in_no_unit",
+        "engine | intra-program edges | app/cbl/CBACT01C.cbl | (procedure division) -> PERFORM 2000-OUTFILE-OPEN | fn": "engine_main_line_in_no_unit",
+        "engine | intra-program edges | app/cbl/CBACT01C.cbl | (procedure division) -> PERFORM 3000-ARRFILE-OPEN | fn": "engine_main_line_in_no_unit",
+        "engine | intra-program edges | app/cbl/CBACT01C.cbl | (procedure division) -> PERFORM 4000-VBRFILE-OPEN | fn": "engine_main_line_in_no_unit",
+        "engine | intra-program edges | app/cbl/CBACT01C.cbl | (procedure division) -> PERFORM 9000-ACCTFILE-CLOSE | fn": "engine_main_line_in_no_unit",
+        "engine | intra-program edges | app/cbl/CBACT02C.cbl | (procedure division) -> PERFORM 0000-CARDFILE-OPEN | fn": "engine_main_line_in_no_unit",
+        "engine | intra-program edges | app/cbl/CBACT02C.cbl | (procedure division) -> PERFORM 1000-CARDFILE-GET-NEXT | fn": "engine_main_line_in_no_unit",
+        "engine | intra-program edges | app/cbl/CBACT02C.cbl | (procedure division) -> PERFORM 9000-CARDFILE-CLOSE | fn": "engine_main_line_in_no_unit",
+        "engine | intra-program edges | app/cbl/CBACT03C.cbl | (procedure division) -> PERFORM 0000-XREFFILE-OPEN | fn": "engine_main_line_in_no_unit",
+        "engine | intra-program edges | app/cbl/CBACT03C.cbl | (procedure division) -> PERFORM 1000-XREFFILE-GET-NEXT | fn": "engine_main_line_in_no_unit",
+        "engine | intra-program edges | app/cbl/CBACT03C.cbl | (procedure division) -> PERFORM 9000-XREFFILE-CLOSE | fn": "engine_main_line_in_no_unit",
+        "engine | intra-program edges | app/cbl/CBACT04C.cbl | (procedure division) -> PERFORM 0000-TCATBALF-OPEN | fn": "engine_main_line_in_no_unit",
+        "engine | intra-program edges | app/cbl/CBACT04C.cbl | (procedure division) -> PERFORM 0100-XREFFILE-OPEN | fn": "engine_main_line_in_no_unit",
+        "engine | intra-program edges | app/cbl/CBACT04C.cbl | (procedure division) -> PERFORM 0200-DISCGRP-OPEN | fn": "engine_main_line_in_no_unit",
+        "engine | intra-program edges | app/cbl/CBACT04C.cbl | (procedure division) -> PERFORM 0300-ACCTFILE-OPEN | fn": "engine_main_line_in_no_unit",
+        "engine | intra-program edges | app/cbl/CBACT04C.cbl | (procedure division) -> PERFORM 0400-TRANFILE-OPEN | fn": "engine_main_line_in_no_unit",
+        "engine | intra-program edges | app/cbl/CBACT04C.cbl | (procedure division) -> PERFORM 1000-TCATBALF-GET-NEXT | fn": "engine_main_line_in_no_unit",
+        "engine | intra-program edges | app/cbl/CBACT04C.cbl | (procedure division) -> PERFORM 1050-UPDATE-ACCOUNT | fn": "engine_main_line_in_no_unit",
+        "engine | intra-program edges | app/cbl/CBACT04C.cbl | (procedure division) -> PERFORM 1100-GET-ACCT-DATA | fn": "engine_main_line_in_no_unit",
+        "engine | intra-program edges | app/cbl/CBACT04C.cbl | (procedure division) -> PERFORM 1110-GET-XREF-DATA | fn": "engine_main_line_in_no_unit",
+        "engine | intra-program edges | app/cbl/CBACT04C.cbl | (procedure division) -> PERFORM 1200-GET-INTEREST-RATE | fn": "engine_main_line_in_no_unit",
+        "engine | intra-program edges | app/cbl/CBACT04C.cbl | (procedure division) -> PERFORM 1300-COMPUTE-INTEREST | fn": "engine_main_line_in_no_unit",
+        "engine | intra-program edges | app/cbl/CBACT04C.cbl | (procedure division) -> PERFORM 1400-COMPUTE-FEES | fn": "engine_main_line_in_no_unit",
+        "engine | intra-program edges | app/cbl/CBACT04C.cbl | (procedure division) -> PERFORM 9000-TCATBALF-CLOSE | fn": "engine_main_line_in_no_unit",
+        "engine | intra-program edges | app/cbl/CBACT04C.cbl | (procedure division) -> PERFORM 9100-XREFFILE-CLOSE | fn": "engine_main_line_in_no_unit",
+        "engine | intra-program edges | app/cbl/CBACT04C.cbl | (procedure division) -> PERFORM 9200-DISCGRP-CLOSE | fn": "engine_main_line_in_no_unit",
+        "engine | intra-program edges | app/cbl/CBACT04C.cbl | (procedure division) -> PERFORM 9300-ACCTFILE-CLOSE | fn": "engine_main_line_in_no_unit",
+        "engine | intra-program edges | app/cbl/CBACT04C.cbl | (procedure division) -> PERFORM 9400-TRANFILE-CLOSE | fn": "engine_main_line_in_no_unit",
+        "engine | intra-program edges | app/cbl/CBCUS01C.cbl | (procedure division) -> PERFORM 0000-CUSTFILE-OPEN | fn": "engine_main_line_in_no_unit",
+        "engine | intra-program edges | app/cbl/CBCUS01C.cbl | (procedure division) -> PERFORM 1000-CUSTFILE-GET-NEXT | fn": "engine_main_line_in_no_unit",
+        "engine | intra-program edges | app/cbl/CBCUS01C.cbl | (procedure division) -> PERFORM 9000-CUSTFILE-CLOSE | fn": "engine_main_line_in_no_unit",
+        "engine | intra-program edges | app/cbl/CBSTM03A.CBL | 8500-READTRNX-READ -> GO TO 8500-READTRNX-READ | fn": "engine_drops_self_transfer",
+        "engine | intra-program edges | app/cbl/CBTRN02C.cbl | (procedure division) -> PERFORM 0000-DALYTRAN-OPEN | fn": "engine_main_line_in_no_unit",
+        "engine | intra-program edges | app/cbl/CBTRN02C.cbl | (procedure division) -> PERFORM 0100-TRANFILE-OPEN | fn": "engine_main_line_in_no_unit",
+        "engine | intra-program edges | app/cbl/CBTRN02C.cbl | (procedure division) -> PERFORM 0200-XREFFILE-OPEN | fn": "engine_main_line_in_no_unit",
+        "engine | intra-program edges | app/cbl/CBTRN02C.cbl | (procedure division) -> PERFORM 0300-DALYREJS-OPEN | fn": "engine_main_line_in_no_unit",
+        "engine | intra-program edges | app/cbl/CBTRN02C.cbl | (procedure division) -> PERFORM 0400-ACCTFILE-OPEN | fn": "engine_main_line_in_no_unit",
+        "engine | intra-program edges | app/cbl/CBTRN02C.cbl | (procedure division) -> PERFORM 0500-TCATBALF-OPEN | fn": "engine_main_line_in_no_unit",
+        "engine | intra-program edges | app/cbl/CBTRN02C.cbl | (procedure division) -> PERFORM 1000-DALYTRAN-GET-NEXT | fn": "engine_main_line_in_no_unit",
+        "engine | intra-program edges | app/cbl/CBTRN02C.cbl | (procedure division) -> PERFORM 1500-VALIDATE-TRAN | fn": "engine_main_line_in_no_unit",
+        "engine | intra-program edges | app/cbl/CBTRN02C.cbl | (procedure division) -> PERFORM 2000-POST-TRANSACTION | fn": "engine_main_line_in_no_unit",
+        "engine | intra-program edges | app/cbl/CBTRN02C.cbl | (procedure division) -> PERFORM 2500-WRITE-REJECT-REC | fn": "engine_main_line_in_no_unit",
+        "engine | intra-program edges | app/cbl/CBTRN02C.cbl | (procedure division) -> PERFORM 9000-DALYTRAN-CLOSE | fn": "engine_main_line_in_no_unit",
+        "engine | intra-program edges | app/cbl/CBTRN02C.cbl | (procedure division) -> PERFORM 9100-TRANFILE-CLOSE | fn": "engine_main_line_in_no_unit",
+        "engine | intra-program edges | app/cbl/CBTRN02C.cbl | (procedure division) -> PERFORM 9200-XREFFILE-CLOSE | fn": "engine_main_line_in_no_unit",
+        "engine | intra-program edges | app/cbl/CBTRN02C.cbl | (procedure division) -> PERFORM 9300-DALYREJS-CLOSE | fn": "engine_main_line_in_no_unit",
+        "engine | intra-program edges | app/cbl/CBTRN02C.cbl | (procedure division) -> PERFORM 9400-ACCTFILE-CLOSE | fn": "engine_main_line_in_no_unit",
+        "engine | intra-program edges | app/cbl/CBTRN02C.cbl | (procedure division) -> PERFORM 9500-TCATBALF-CLOSE | fn": "engine_main_line_in_no_unit",
+        "engine | intra-program edges | app/cbl/CBTRN03C.cbl | (procedure division) -> PERFORM 0000-TRANFILE-OPEN | fn": "engine_main_line_in_no_unit",
+        "engine | intra-program edges | app/cbl/CBTRN03C.cbl | (procedure division) -> PERFORM 0100-REPTFILE-OPEN | fn": "engine_main_line_in_no_unit",
+        "engine | intra-program edges | app/cbl/CBTRN03C.cbl | (procedure division) -> PERFORM 0200-CARDXREF-OPEN | fn": "engine_main_line_in_no_unit",
+        "engine | intra-program edges | app/cbl/CBTRN03C.cbl | (procedure division) -> PERFORM 0300-TRANTYPE-OPEN | fn": "engine_main_line_in_no_unit",
+        "engine | intra-program edges | app/cbl/CBTRN03C.cbl | (procedure division) -> PERFORM 0400-TRANCATG-OPEN | fn": "engine_main_line_in_no_unit",
+        "engine | intra-program edges | app/cbl/CBTRN03C.cbl | (procedure division) -> PERFORM 0500-DATEPARM-OPEN | fn": "engine_main_line_in_no_unit",
+        "engine | intra-program edges | app/cbl/CBTRN03C.cbl | (procedure division) -> PERFORM 0550-DATEPARM-READ | fn": "engine_main_line_in_no_unit",
+        "engine | intra-program edges | app/cbl/CBTRN03C.cbl | (procedure division) -> PERFORM 1000-TRANFILE-GET-NEXT | fn": "engine_main_line_in_no_unit",
+        "engine | intra-program edges | app/cbl/CBTRN03C.cbl | (procedure division) -> PERFORM 1100-WRITE-TRANSACTION-REPORT | fn": "engine_main_line_in_no_unit",
+        "engine | intra-program edges | app/cbl/CBTRN03C.cbl | (procedure division) -> PERFORM 1110-WRITE-GRAND-TOTALS | fn": "engine_main_line_in_no_unit",
+        "engine | intra-program edges | app/cbl/CBTRN03C.cbl | (procedure division) -> PERFORM 1110-WRITE-PAGE-TOTALS | fn": "engine_main_line_in_no_unit",
+        "engine | intra-program edges | app/cbl/CBTRN03C.cbl | (procedure division) -> PERFORM 1120-WRITE-ACCOUNT-TOTALS | fn": "engine_main_line_in_no_unit",
+        "engine | intra-program edges | app/cbl/CBTRN03C.cbl | (procedure division) -> PERFORM 1500-A-LOOKUP-XREF | fn": "engine_main_line_in_no_unit",
+        "engine | intra-program edges | app/cbl/CBTRN03C.cbl | (procedure division) -> PERFORM 1500-B-LOOKUP-TRANTYPE | fn": "engine_main_line_in_no_unit",
+        "engine | intra-program edges | app/cbl/CBTRN03C.cbl | (procedure division) -> PERFORM 1500-C-LOOKUP-TRANCATG | fn": "engine_main_line_in_no_unit",
+        "engine | intra-program edges | app/cbl/CBTRN03C.cbl | (procedure division) -> PERFORM 9000-TRANFILE-CLOSE | fn": "engine_main_line_in_no_unit",
+        "engine | intra-program edges | app/cbl/CBTRN03C.cbl | (procedure division) -> PERFORM 9100-REPTFILE-CLOSE | fn": "engine_main_line_in_no_unit",
+        "engine | intra-program edges | app/cbl/CBTRN03C.cbl | (procedure division) -> PERFORM 9200-CARDXREF-CLOSE | fn": "engine_main_line_in_no_unit",
+        "engine | intra-program edges | app/cbl/CBTRN03C.cbl | (procedure division) -> PERFORM 9300-TRANTYPE-CLOSE | fn": "engine_main_line_in_no_unit",
+        "engine | intra-program edges | app/cbl/CBTRN03C.cbl | (procedure division) -> PERFORM 9400-TRANCATG-CLOSE | fn": "engine_main_line_in_no_unit",
+        "engine | intra-program edges | app/cbl/CBTRN03C.cbl | (procedure division) -> PERFORM 9500-DATEPARM-CLOSE | fn": "engine_main_line_in_no_unit",
+        "engine | intra-program edges | app/cbl/CSUTLDTC.cbl | (procedure division) -> PERFORM A000-MAIN | fn": "engine_main_line_in_no_unit",
+        "engine | unit extents | app/app-transaction-type-db2/cbl/COTRTLIC.cbl | 0000-MAIN L498-897 | fn": "engine_unit_end_counts_noncode_lines",
+        "engine | unit extents | app/app-transaction-type-db2/cbl/COTRTLIC.cbl | 0000-MAIN L498-898 | fp": "engine_unit_end_counts_noncode_lines",
+        "engine | unit extents | app/app-transaction-type-db2/cbl/COTRTLIC.cbl | 1000-RECEIVE-MAP-EXIT L926-928 | fn": "engine_unit_end_counts_noncode_lines",
+        "engine | unit extents | app/app-transaction-type-db2/cbl/COTRTLIC.cbl | 1000-RECEIVE-MAP-EXIT L926-929 | fp": "engine_unit_end_counts_noncode_lines",
+        "engine | unit extents | app/app-transaction-type-db2/cbl/COTRTLIC.cbl | 1100-RECEIVE-SCREEN L930-954 | fn": "engine_unit_end_counts_noncode_lines",
+        "engine | unit extents | app/app-transaction-type-db2/cbl/COTRTLIC.cbl | 1100-RECEIVE-SCREEN L930-955 | fp": "engine_unit_end_counts_noncode_lines",
+        "engine | unit extents | app/app-transaction-type-db2/cbl/COTRTLIC.cbl | 1100-RECEIVE-SCREEN-EXIT L956-958 | fn": "engine_unit_end_counts_noncode_lines",
+        "engine | unit extents | app/app-transaction-type-db2/cbl/COTRTLIC.cbl | 1100-RECEIVE-SCREEN-EXIT L956-959 | fp": "engine_unit_end_counts_noncode_lines",
+        "engine | unit extents | app/app-transaction-type-db2/cbl/COTRTLIC.cbl | 1200-EDIT-INPUTS L960-976 | fn": "engine_unit_end_counts_noncode_lines",
+        "engine | unit extents | app/app-transaction-type-db2/cbl/COTRTLIC.cbl | 1200-EDIT-INPUTS L960-977 | fp": "engine_unit_end_counts_noncode_lines",
+        "engine | unit extents | app/app-transaction-type-db2/cbl/COTRTLIC.cbl | 1200-EDIT-INPUTS-EXIT L978-980 | fn": "engine_unit_end_counts_noncode_lines",
+        "engine | unit extents | app/app-transaction-type-db2/cbl/COTRTLIC.cbl | 1200-EDIT-INPUTS-EXIT L978-981 | fp": "engine_unit_end_counts_noncode_lines",
+        "engine | unit extents | app/app-transaction-type-db2/cbl/COTRTLIC.cbl | 1210-EDIT-ARRAY L982-1053 | fn": "engine_unit_end_counts_noncode_lines",
+        "engine | unit extents | app/app-transaction-type-db2/cbl/COTRTLIC.cbl | 1210-EDIT-ARRAY L982-1054 | fp": "engine_unit_end_counts_noncode_lines",
+        "engine | unit extents | app/app-transaction-type-db2/cbl/COTRTLIC.cbl | 1210-EDIT-ARRAY-EXIT L1055-1057 | fn": "engine_unit_end_counts_noncode_lines",
+        "engine | unit extents | app/app-transaction-type-db2/cbl/COTRTLIC.cbl | 1210-EDIT-ARRAY-EXIT L1055-1059 | fp": "engine_unit_end_counts_noncode_lines",
+        "engine | unit extents | app/app-transaction-type-db2/cbl/COTRTLIC.cbl | 1211-EDIT-ARRAY-DESC L1060-1090 | fn": "engine_unit_end_counts_noncode_lines",
+        "engine | unit extents | app/app-transaction-type-db2/cbl/COTRTLIC.cbl | 1211-EDIT-ARRAY-DESC L1060-1091 | fp": "engine_unit_end_counts_noncode_lines",
+        "engine | unit extents | app/app-transaction-type-db2/cbl/COTRTLIC.cbl | 1211-EDIT-ARRAY-DESC-EXIT L1092-1094 | fn": "engine_unit_end_counts_noncode_lines",
+        "engine | unit extents | app/app-transaction-type-db2/cbl/COTRTLIC.cbl | 1211-EDIT-ARRAY-DESC-EXIT L1092-1095 | fp": "engine_unit_end_counts_noncode_lines",
+        "engine | unit extents | app/app-transaction-type-db2/cbl/COTRTLIC.cbl | 1220-EDIT-TYPECD L1096-1123 | fn": "engine_unit_end_counts_noncode_lines",
+        "engine | unit extents | app/app-transaction-type-db2/cbl/COTRTLIC.cbl | 1220-EDIT-TYPECD L1096-1124 | fp": "engine_unit_end_counts_noncode_lines",
+        "engine | unit extents | app/app-transaction-type-db2/cbl/COTRTLIC.cbl | 1220-EDIT-TYPECD-EXIT L1125-1140 | fn": "engine_unit_end_counts_noncode_lines",
+        "engine | unit extents | app/app-transaction-type-db2/cbl/COTRTLIC.cbl | 1220-EDIT-TYPECD-EXIT L1125-1141 | fp": "engine_unit_end_counts_noncode_lines",
+        "engine | unit extents | app/app-transaction-type-db2/cbl/COTRTLIC.cbl | 1230-EDIT-DESC-EXIT L1165-1178 | fn": "engine_unit_end_counts_noncode_lines",
+        "engine | unit extents | app/app-transaction-type-db2/cbl/COTRTLIC.cbl | 1230-EDIT-DESC-EXIT L1165-1180 | fp": "engine_unit_end_counts_noncode_lines",
+        "engine | unit extents | app/app-transaction-type-db2/cbl/COTRTLIC.cbl | 1240-EDIT-ALPHANUM-REQD-EXIT L1235-1237 | fn": "engine_unit_end_counts_noncode_lines",
+        "engine | unit extents | app/app-transaction-type-db2/cbl/COTRTLIC.cbl | 1240-EDIT-ALPHANUM-REQD-EXIT L1235-1238 | fp": "engine_unit_end_counts_noncode_lines",
+        "engine | unit extents | app/app-transaction-type-db2/cbl/COTRTLIC.cbl | 1290-CROSS-EDITS-EXIT L1269-1271 | fn": "engine_unit_end_counts_noncode_lines",
+        "engine | unit extents | app/app-transaction-type-db2/cbl/COTRTLIC.cbl | 1290-CROSS-EDITS-EXIT L1269-1273 | fp": "engine_unit_end_counts_noncode_lines",
+        "engine | unit extents | app/app-transaction-type-db2/cbl/COTRTLIC.cbl | 2000-SEND-MAP L1274-1288 | fn": "engine_unit_end_counts_noncode_lines",
+        "engine | unit extents | app/app-transaction-type-db2/cbl/COTRTLIC.cbl | 2000-SEND-MAP L1274-1289 | fp": "engine_unit_end_counts_noncode_lines",
+        "engine | unit extents | app/app-transaction-type-db2/cbl/COTRTLIC.cbl | 2100-SCREEN-INIT L1293-1323 | fn": "engine_unit_end_counts_noncode_lines",
+        "engine | unit extents | app/app-transaction-type-db2/cbl/COTRTLIC.cbl | 2100-SCREEN-INIT L1293-1324 | fp": "engine_unit_end_counts_noncode_lines",
+        "engine | unit extents | app/app-transaction-type-db2/cbl/COTRTLIC.cbl | 2100-SCREEN-INIT-EXIT L1325-1327 | fn": "engine_unit_end_counts_noncode_lines",
+        "engine | unit extents | app/app-transaction-type-db2/cbl/COTRTLIC.cbl | 2100-SCREEN-INIT-EXIT L1325-1328 | fp": "engine_unit_end_counts_noncode_lines",
+        "engine | unit extents | app/app-transaction-type-db2/cbl/COTRTLIC.cbl | 2200-SETUP-ARRAY-ATTRIBS L1329-1374 | fn": "engine_unit_end_counts_noncode_lines",
+        "engine | unit extents | app/app-transaction-type-db2/cbl/COTRTLIC.cbl | 2200-SETUP-ARRAY-ATTRIBS L1329-1376 | fp": "engine_unit_end_counts_noncode_lines",
+        "engine | unit extents | app/app-transaction-type-db2/cbl/COTRTLIC.cbl | 2200-SETUP-ARRAY-ATTRIBS-EXIT L1377-1379 | fn": "engine_unit_end_counts_noncode_lines",
+        "engine | unit extents | app/app-transaction-type-db2/cbl/COTRTLIC.cbl | 2200-SETUP-ARRAY-ATTRIBS-EXIT L1377-1382 | fp": "engine_unit_end_counts_noncode_lines",
+        "engine | unit extents | app/app-transaction-type-db2/cbl/COTRTLIC.cbl | 2300-SCREEN-ARRAY-INIT L1383-1431 | fn": "engine_unit_end_counts_noncode_lines",
+        "engine | unit extents | app/app-transaction-type-db2/cbl/COTRTLIC.cbl | 2300-SCREEN-ARRAY-INIT L1383-1432 | fp": "engine_unit_end_counts_noncode_lines",
+        "engine | unit extents | app/app-transaction-type-db2/cbl/COTRTLIC.cbl | 2300-SCREEN-ARRAY-INIT-EXIT L1433-1435 | fn": "engine_unit_end_counts_noncode_lines",
+        "engine | unit extents | app/app-transaction-type-db2/cbl/COTRTLIC.cbl | 2300-SCREEN-ARRAY-INIT-EXIT L1433-1437 | fp": "engine_unit_end_counts_noncode_lines",
+        "engine | unit extents | app/app-transaction-type-db2/cbl/COTRTLIC.cbl | 2400-SETUP-SCREEN-ATTRS-EXIT L1499-1501 | fn": "engine_unit_end_counts_noncode_lines",
+        "engine | unit extents | app/app-transaction-type-db2/cbl/COTRTLIC.cbl | 2400-SETUP-SCREEN-ATTRS-EXIT L1499-1503 | fp": "engine_unit_end_counts_noncode_lines",
+        "engine | unit extents | app/app-transaction-type-db2/cbl/COTRTLIC.cbl | 2500-SETUP-MESSAGE-EXIT L1582-1584 | fn": "engine_unit_end_counts_noncode_lines",
+        "engine | unit extents | app/app-transaction-type-db2/cbl/COTRTLIC.cbl | 2500-SETUP-MESSAGE-EXIT L1582-1586 | fp": "engine_unit_end_counts_noncode_lines",
+        "engine | unit extents | app/app-transaction-type-db2/cbl/COTRTLIC.cbl | 2600-SEND-SCREEN-EXIT L1597-1599 | fn": "engine_unit_end_counts_noncode_lines",
+        "engine | unit extents | app/app-transaction-type-db2/cbl/COTRTLIC.cbl | 2600-SEND-SCREEN-EXIT L1597-1602 | fp": "engine_unit_end_counts_noncode_lines",
+        "engine | unit extents | app/app-transaction-type-db2/cbl/COTRTLIC.cbl | 8100-READ-BACKWARDS L1727-1792 | fn": "engine_unit_end_counts_noncode_lines",
+        "engine | unit extents | app/app-transaction-type-db2/cbl/COTRTLIC.cbl | 8100-READ-BACKWARDS L1727-1793 | fp": "engine_unit_end_counts_noncode_lines",
+        "engine | unit extents | app/app-transaction-type-db2/cbl/COTRTLIC.cbl | 8100-READ-BACKWARDS-EXIT L1794-1799 | fn": "engine_unit_end_counts_noncode_lines",
+        "engine | unit extents | app/app-transaction-type-db2/cbl/COTRTLIC.cbl | 8100-READ-BACKWARDS-EXIT L1794-1800 | fp": "engine_unit_end_counts_noncode_lines",
+        "engine | unit extents | app/app-transaction-type-db2/cbl/COTRTLIC.cbl | 9200-UPDATE-RECORD L1837-1890 | fn": "engine_unit_end_counts_noncode_lines",
+        "engine | unit extents | app/app-transaction-type-db2/cbl/COTRTLIC.cbl | 9200-UPDATE-RECORD L1837-1891 | fp": "engine_unit_end_counts_noncode_lines",
+        "engine | unit extents | app/app-transaction-type-db2/cbl/COTRTLIC.cbl | 9200-UPDATE-RECORD-EXIT L1892-1894 | fn": "engine_unit_end_counts_noncode_lines",
+        "engine | unit extents | app/app-transaction-type-db2/cbl/COTRTLIC.cbl | 9200-UPDATE-RECORD-EXIT L1892-1895 | fp": "engine_unit_end_counts_noncode_lines",
+        "engine | unit extents | app/app-transaction-type-db2/cbl/COTRTLIC.cbl | 9300-DELETE-RECORD L1896-1936 | fn": "engine_unit_end_counts_noncode_lines",
+        "engine | unit extents | app/app-transaction-type-db2/cbl/COTRTLIC.cbl | 9300-DELETE-RECORD L1896-1937 | fp": "engine_unit_end_counts_noncode_lines",
+        "engine | unit extents | app/app-transaction-type-db2/cbl/COTRTLIC.cbl | 9300-DELETE-RECORD-EXIT L1938-1940 | fn": "engine_unit_end_counts_noncode_lines",
+        "engine | unit extents | app/app-transaction-type-db2/cbl/COTRTLIC.cbl | 9300-DELETE-RECORD-EXIT L1938-1941 | fp": "engine_unit_end_counts_noncode_lines",
+        "engine | unit extents | app/app-transaction-type-db2/cbl/COTRTLIC.cbl | 9400-OPEN-FORWARD-CURSOR-EXIT L1965-1967 | fn": "engine_unit_end_counts_noncode_lines",
+        "engine | unit extents | app/app-transaction-type-db2/cbl/COTRTLIC.cbl | 9400-OPEN-FORWARD-CURSOR-EXIT L1965-1969 | fp": "engine_unit_end_counts_noncode_lines",
+        "engine | unit extents | app/app-transaction-type-db2/cbl/COTRTLIC.cbl | 9450-CLOSE-FORWARD-CURSOR-EXIT L1993-1995 | fn": "engine_unit_end_counts_noncode_lines",
+        "engine | unit extents | app/app-transaction-type-db2/cbl/COTRTLIC.cbl | 9450-CLOSE-FORWARD-CURSOR-EXIT L1993-1996 | fp": "engine_unit_end_counts_noncode_lines",
+        "engine | unit extents | app/app-transaction-type-db2/cbl/COTRTLIC.cbl | 9500-OPEN-BACKWARD-CURSOR-EXIT L2021-2023 | fn": "engine_unit_end_counts_noncode_lines",
+        "engine | unit extents | app/app-transaction-type-db2/cbl/COTRTLIC.cbl | 9500-OPEN-BACKWARD-CURSOR-EXIT L2021-2025 | fp": "engine_unit_end_counts_noncode_lines",
+        "engine | unit extents | app/app-transaction-type-db2/cbl/COTRTLIC.cbl | 9550-CLOSE-BACK-CURSOR-EXIT L2049-2061 | fn": "engine_unit_end_counts_noncode_lines",
+        "engine | unit extents | app/app-transaction-type-db2/cbl/COTRTLIC.cbl | 9550-CLOSE-BACK-CURSOR-EXIT L2049-2062 | fp": "engine_unit_end_counts_noncode_lines",
+        "engine | unit extents | app/app-transaction-type-db2/cbl/COTRTUPC.cbl | 0000-MAIN L345-557 | fn": "engine_unit_end_counts_noncode_lines",
+        "engine | unit extents | app/app-transaction-type-db2/cbl/COTRTUPC.cbl | 0000-MAIN L345-558 | fp": "engine_unit_end_counts_noncode_lines",
+        "engine | unit extents | app/app-transaction-type-db2/cbl/COTRTUPC.cbl | 0000-MAIN-EXIT L573-575 | fn": "engine_unit_end_counts_noncode_lines",
+        "engine | unit extents | app/app-transaction-type-db2/cbl/COTRTUPC.cbl | 0000-MAIN-EXIT L573-576 | fp": "engine_unit_end_counts_noncode_lines",
+        "engine | unit extents | app/app-transaction-type-db2/cbl/COTRTUPC.cbl | 0001-CHECK-PFKEYS L577-618 | fn": "engine_unit_end_counts_noncode_lines",
+        "engine | unit extents | app/app-transaction-type-db2/cbl/COTRTUPC.cbl | 0001-CHECK-PFKEYS L577-620 | fp": "engine_unit_end_counts_noncode_lines",
+        "engine | unit extents | app/app-transaction-type-db2/cbl/COTRTUPC.cbl | 0001-CHECK-PFKEYS-EXIT L621-623 | fn": "engine_unit_end_counts_noncode_lines",
+        "engine | unit extents | app/app-transaction-type-db2/cbl/COTRTUPC.cbl | 0001-CHECK-PFKEYS-EXIT L621-624 | fp": "engine_unit_end_counts_noncode_lines",
+        "engine | unit extents | app/app-transaction-type-db2/cbl/COTRTUPC.cbl | 1100-RECEIVE-MAP-EXIT L649-650 | fn": "engine_unit_end_counts_noncode_lines",
+        "engine | unit extents | app/app-transaction-type-db2/cbl/COTRTUPC.cbl | 1100-RECEIVE-MAP-EXIT L649-651 | fp": "engine_unit_end_counts_noncode_lines",
+        "engine | unit extents | app/app-transaction-type-db2/cbl/COTRTUPC.cbl | 1200-EDIT-MAP-INPUTS L689-777 | fn": "engine_unit_end_counts_noncode_lines",
+        "engine | unit extents | app/app-transaction-type-db2/cbl/COTRTUPC.cbl | 1200-EDIT-MAP-INPUTS L689-778 | fp": "engine_unit_end_counts_noncode_lines",
+        "engine | unit extents | app/app-transaction-type-db2/cbl/COTRTUPC.cbl | 1200-EDIT-MAP-INPUTS-EXIT L779-781 | fn": "engine_unit_end_counts_noncode_lines",
+        "engine | unit extents | app/app-transaction-type-db2/cbl/COTRTUPC.cbl | 1200-EDIT-MAP-INPUTS-EXIT L779-782 | fp": "engine_unit_end_counts_noncode_lines",
+        "engine | unit extents | app/app-transaction-type-db2/cbl/COTRTUPC.cbl | 1205-COMPARE-OLD-NEW L783-812 | fn": "engine_unit_end_counts_noncode_lines",
+        "engine | unit extents | app/app-transaction-type-db2/cbl/COTRTUPC.cbl | 1205-COMPARE-OLD-NEW L783-813 | fp": "engine_unit_end_counts_noncode_lines",
+        "engine | unit extents | app/app-transaction-type-db2/cbl/COTRTUPC.cbl | 1205-COMPARE-OLD-NEW-EXIT L814-816 | fn": "engine_unit_end_counts_noncode_lines",
+        "engine | unit extents | app/app-transaction-type-db2/cbl/COTRTUPC.cbl | 1205-COMPARE-OLD-NEW-EXIT L814-818 | fp": "engine_unit_end_counts_noncode_lines",
+        "engine | unit extents | app/app-transaction-type-db2/cbl/COTRTUPC.cbl | 1210-EDIT-TRANTYPE L820-843 | fn": "engine_unit_end_counts_noncode_lines",
+        "engine | unit extents | app/app-transaction-type-db2/cbl/COTRTUPC.cbl | 1210-EDIT-TRANTYPE L820-844 | fp": "engine_unit_end_counts_noncode_lines",
+        "engine | unit extents | app/app-transaction-type-db2/cbl/COTRTUPC.cbl | 1210-EDIT-TRANTYPE-EXIT L845-847 | fn": "engine_unit_end_counts_noncode_lines",
+        "engine | unit extents | app/app-transaction-type-db2/cbl/COTRTUPC.cbl | 1210-EDIT-TRANTYPE-EXIT L845-848 | fp": "engine_unit_end_counts_noncode_lines",
+        "engine | unit extents | app/app-transaction-type-db2/cbl/COTRTUPC.cbl | 1230-EDIT-ALPHANUM-REQD-EXIT L903-905 | fn": "engine_unit_end_counts_noncode_lines",
+        "engine | unit extents | app/app-transaction-type-db2/cbl/COTRTUPC.cbl | 1230-EDIT-ALPHANUM-REQD-EXIT L903-906 | fp": "engine_unit_end_counts_noncode_lines",
+        "engine | unit extents | app/app-transaction-type-db2/cbl/COTRTUPC.cbl | 1245-EDIT-NUM-REQD-EXIT L974-976 | fn": "engine_unit_end_counts_noncode_lines",
+        "engine | unit extents | app/app-transaction-type-db2/cbl/COTRTUPC.cbl | 1245-EDIT-NUM-REQD-EXIT L974-977 | fp": "engine_unit_end_counts_noncode_lines",
+        "engine | unit extents | app/app-transaction-type-db2/cbl/COTRTUPC.cbl | 2000-DECIDE-ACTION-EXIT L1083-1085 | fn": "engine_unit_end_counts_noncode_lines",
+        "engine | unit extents | app/app-transaction-type-db2/cbl/COTRTUPC.cbl | 2000-DECIDE-ACTION-EXIT L1083-1088 | fp": "engine_unit_end_counts_noncode_lines",
+        "engine | unit extents | app/app-transaction-type-db2/cbl/COTRTUPC.cbl | 3000-SEND-MAP L1089-1104 | fn": "engine_unit_end_counts_noncode_lines",
+        "engine | unit extents | app/app-transaction-type-db2/cbl/COTRTUPC.cbl | 3000-SEND-MAP L1089-1105 | fp": "engine_unit_end_counts_noncode_lines",
+        "engine | unit extents | app/app-transaction-type-db2/cbl/COTRTUPC.cbl | 3000-SEND-MAP-EXIT L1106-1108 | fn": "engine_unit_end_counts_noncode_lines",
+        "engine | unit extents | app/app-transaction-type-db2/cbl/COTRTUPC.cbl | 3000-SEND-MAP-EXIT L1106-1109 | fp": "engine_unit_end_counts_noncode_lines",
+        "engine | unit extents | app/app-transaction-type-db2/cbl/COTRTUPC.cbl | 3100-SCREEN-INIT L1110-1134 | fn": "engine_unit_end_counts_noncode_lines",
+        "engine | unit extents | app/app-transaction-type-db2/cbl/COTRTUPC.cbl | 3100-SCREEN-INIT L1110-1135 | fp": "engine_unit_end_counts_noncode_lines",
+        "engine | unit extents | app/app-transaction-type-db2/cbl/COTRTUPC.cbl | 3100-SCREEN-INIT-EXIT L1136-1138 | fn": "engine_unit_end_counts_noncode_lines",
+        "engine | unit extents | app/app-transaction-type-db2/cbl/COTRTUPC.cbl | 3100-SCREEN-INIT-EXIT L1136-1139 | fp": "engine_unit_end_counts_noncode_lines",
+        "engine | unit extents | app/app-transaction-type-db2/cbl/COTRTUPC.cbl | 3200-SETUP-SCREEN-VARS-EXIT L1172-1174 | fn": "engine_unit_end_counts_noncode_lines",
+        "engine | unit extents | app/app-transaction-type-db2/cbl/COTRTUPC.cbl | 3200-SETUP-SCREEN-VARS-EXIT L1172-1175 | fp": "engine_unit_end_counts_noncode_lines",
+        "engine | unit extents | app/app-transaction-type-db2/cbl/COTRTUPC.cbl | 3201-SHOW-INITIAL-VALUES L1176-1179 | fn": "engine_unit_end_counts_noncode_lines",
+        "engine | unit extents | app/app-transaction-type-db2/cbl/COTRTUPC.cbl | 3201-SHOW-INITIAL-VALUES L1176-1180 | fp": "engine_unit_end_counts_noncode_lines",
+        "engine | unit extents | app/app-transaction-type-db2/cbl/COTRTUPC.cbl | 3201-SHOW-INITIAL-VALUES-EXIT L1181-1183 | fn": "engine_unit_end_counts_noncode_lines",
+        "engine | unit extents | app/app-transaction-type-db2/cbl/COTRTUPC.cbl | 3201-SHOW-INITIAL-VALUES-EXIT L1181-1184 | fp": "engine_unit_end_counts_noncode_lines",
+        "engine | unit extents | app/app-transaction-type-db2/cbl/COTRTUPC.cbl | 3202-SHOW-ORIGINAL-VALUES L1185-1192 | fn": "engine_unit_end_counts_noncode_lines",
+        "engine | unit extents | app/app-transaction-type-db2/cbl/COTRTUPC.cbl | 3202-SHOW-ORIGINAL-VALUES L1185-1193 | fp": "engine_unit_end_counts_noncode_lines",
+        "engine | unit extents | app/app-transaction-type-db2/cbl/COTRTUPC.cbl | 3203-SHOW-UPDATED-VALUES L1197-1201 | fn": "engine_unit_end_counts_noncode_lines",
+        "engine | unit extents | app/app-transaction-type-db2/cbl/COTRTUPC.cbl | 3203-SHOW-UPDATED-VALUES L1197-1202 | fp": "engine_unit_end_counts_noncode_lines",
+        "engine | unit extents | app/app-transaction-type-db2/cbl/COTRTUPC.cbl | 3203-SHOW-UPDATED-VALUES-EXIT L1203-1205 | fn": "engine_unit_end_counts_noncode_lines",
+        "engine | unit extents | app/app-transaction-type-db2/cbl/COTRTUPC.cbl | 3203-SHOW-UPDATED-VALUES-EXIT L1203-1209 | fp": "engine_unit_end_counts_noncode_lines",
+        "engine | unit extents | app/app-transaction-type-db2/cbl/COTRTUPC.cbl | 3300-SETUP-SCREEN-ATTRS-EXIT L1364-1366 | fn": "engine_unit_end_counts_noncode_lines",
+        "engine | unit extents | app/app-transaction-type-db2/cbl/COTRTUPC.cbl | 3300-SETUP-SCREEN-ATTRS-EXIT L1364-1367 | fp": "engine_unit_end_counts_noncode_lines",
+        "engine | unit extents | app/app-transaction-type-db2/cbl/COTRTUPC.cbl | 3310-PROTECT-ALL-ATTRS-EXIT L1373-1375 | fn": "engine_unit_end_counts_noncode_lines",
+        "engine | unit extents | app/app-transaction-type-db2/cbl/COTRTUPC.cbl | 3310-PROTECT-ALL-ATTRS-EXIT L1373-1376 | fp": "engine_unit_end_counts_noncode_lines",
+        "engine | unit extents | app/app-transaction-type-db2/cbl/COTRTUPC.cbl | 3320-UNPROTECT-FEW-ATTRS-EXIT L1382-1384 | fn": "engine_unit_end_counts_noncode_lines",
+        "engine | unit extents | app/app-transaction-type-db2/cbl/COTRTUPC.cbl | 3320-UNPROTECT-FEW-ATTRS-EXIT L1382-1385 | fp": "engine_unit_end_counts_noncode_lines",
+        "engine | unit extents | app/app-transaction-type-db2/cbl/COTRTUPC.cbl | 3390-SETUP-INFOMSG-ATTRS-EXIT L1393-1395 | fn": "engine_unit_end_counts_noncode_lines",
+        "engine | unit extents | app/app-transaction-type-db2/cbl/COTRTUPC.cbl | 3390-SETUP-INFOMSG-ATTRS-EXIT L1393-1396 | fp": "engine_unit_end_counts_noncode_lines",
+        "engine | unit extents | app/app-transaction-type-db2/cbl/COTRTUPC.cbl | 3391-SETUP-PFKEY-ATTRS-EXIT L1424-1426 | fn": "engine_unit_end_counts_noncode_lines",
+        "engine | unit extents | app/app-transaction-type-db2/cbl/COTRTUPC.cbl | 3391-SETUP-PFKEY-ATTRS-EXIT L1424-1427 | fp": "engine_unit_end_counts_noncode_lines",
+        "engine | unit extents | app/app-transaction-type-db2/cbl/COTRTUPC.cbl | 3400-SEND-SCREEN-EXIT L1442-1444 | fn": "engine_unit_end_counts_noncode_lines",
+        "engine | unit extents | app/app-transaction-type-db2/cbl/COTRTUPC.cbl | 3400-SEND-SCREEN-EXIT L1442-1446 | fp": "engine_unit_end_counts_noncode_lines",
+        "engine | unit extents | app/app-transaction-type-db2/cbl/COTRTUPC.cbl | 9000-READ-TRANTYPE L1447-1463 | fn": "engine_unit_end_counts_noncode_lines",
+        "engine | unit extents | app/app-transaction-type-db2/cbl/COTRTUPC.cbl | 9000-READ-TRANTYPE L1447-1465 | fp": "engine_unit_end_counts_noncode_lines",
+        "engine | unit extents | app/app-transaction-type-db2/cbl/COTRTUPC.cbl | 9100-GET-TRANSACTION-TYPE-EXIT L1512-1514 | fn": "engine_unit_end_counts_noncode_lines",
+        "engine | unit extents | app/app-transaction-type-db2/cbl/COTRTUPC.cbl | 9100-GET-TRANSACTION-TYPE-EXIT L1512-1516 | fp": "engine_unit_end_counts_noncode_lines",
+        "engine | unit extents | app/app-transaction-type-db2/cbl/COTRTUPC.cbl | 9800-DELETE-PROCESSING-EXIT L1664-1672 | fn": "engine_unit_end_counts_noncode_lines",
+        "engine | unit extents | app/app-transaction-type-db2/cbl/COTRTUPC.cbl | 9800-DELETE-PROCESSING-EXIT L1664-1674 | fp": "engine_unit_end_counts_noncode_lines",
+        "engine | unit extents | app/app-transaction-type-db2/cbl/COTRTUPC.cbl | ABEND-ROUTINE-EXIT L1699-1701 | fn": "engine_unit_end_counts_noncode_lines",
+        "engine | unit extents | app/app-transaction-type-db2/cbl/COTRTUPC.cbl | ABEND-ROUTINE-EXIT L1699-1702 | fp": "engine_unit_end_counts_noncode_lines",
+        "engine | unit extents | app/app-vsam-mq/cbl/COACCT01.cbl | 1000-CONTROL L178-220 | fn": "engine_unit_end_counts_noncode_lines",
+        "engine | unit extents | app/app-vsam-mq/cbl/COACCT01.cbl | 1000-CONTROL L178-221 | fp": "engine_unit_end_counts_noncode_lines",
+        "engine | unit extents | app/app-vsam-mq/cbl/COACCT01.cbl | 2100-OPEN-ERROR-QUEUE L289-322 | fn": "engine_unit_end_counts_noncode_lines",
+        "engine | unit extents | app/app-vsam-mq/cbl/COACCT01.cbl | 2100-OPEN-ERROR-QUEUE L289-324 | fp": "engine_unit_end_counts_noncode_lines",
+        "engine | unit extents | app/app-vsam-mq/cbl/COACCT01.cbl | 2300-OPEN-INPUT-QUEUE L222-253 | fn": "engine_unit_end_counts_noncode_lines",
+        "engine | unit extents | app/app-vsam-mq/cbl/COACCT01.cbl | 2300-OPEN-INPUT-QUEUE L222-254 | fp": "engine_unit_end_counts_noncode_lines",
+        "engine | unit extents | app/app-vsam-mq/cbl/COACCT01.cbl | 2400-OPEN-OUTPUT-QUEUE L255-287 | fn": "engine_unit_end_counts_noncode_lines",
+        "engine | unit extents | app/app-vsam-mq/cbl/COACCT01.cbl | 2400-OPEN-OUTPUT-QUEUE L255-288 | fp": "engine_unit_end_counts_noncode_lines",
+        "engine | unit extents | app/app-vsam-mq/cbl/COACCT01.cbl | 3000-GET-REQUEST L334-388 | fn": "engine_unit_end_counts_noncode_lines",
+        "engine | unit extents | app/app-vsam-mq/cbl/COACCT01.cbl | 3000-GET-REQUEST L334-389 | fp": "engine_unit_end_counts_noncode_lines",
+        "engine | unit extents | app/app-vsam-mq/cbl/COACCT01.cbl | 4000-MAIN-PROCESS L325-331 | fn": "engine_unit_end_counts_noncode_lines",
+        "engine | unit extents | app/app-vsam-mq/cbl/COACCT01.cbl | 4000-MAIN-PROCESS L325-333 | fp": "engine_unit_end_counts_noncode_lines",
+        "engine | unit extents | app/app-vsam-mq/cbl/COACCT01.cbl | 4000-PROCESS-REQUEST-REPLY L390-460 | fn": "engine_unit_end_counts_noncode_lines",
+        "engine | unit extents | app/app-vsam-mq/cbl/COACCT01.cbl | 4000-PROCESS-REQUEST-REPLY L390-461 | fp": "engine_unit_end_counts_noncode_lines",
+        "engine | unit extents | app/app-vsam-mq/cbl/COACCT01.cbl | 4100-PUT-REPLY L462-499 | fn": "engine_unit_end_counts_noncode_lines",
+        "engine | unit extents | app/app-vsam-mq/cbl/COACCT01.cbl | 4100-PUT-REPLY L462-500 | fp": "engine_unit_end_counts_noncode_lines",
+        "engine | unit extents | app/app-vsam-mq/cbl/COACCT01.cbl | 5100-CLOSE-OUTPUT-QUEUE L574-595 | fn": "engine_unit_end_counts_noncode_lines",
+        "engine | unit extents | app/app-vsam-mq/cbl/COACCT01.cbl | 5100-CLOSE-OUTPUT-QUEUE L574-596 | fp": "engine_unit_end_counts_noncode_lines",
+        "engine | unit extents | app/app-vsam-mq/cbl/COACCT01.cbl | 5200-CLOSE-ERROR-QUEUE L597-619 | fn": "engine_unit_end_counts_noncode_lines",
+        "engine | unit extents | app/app-vsam-mq/cbl/COACCT01.cbl | 5200-CLOSE-ERROR-QUEUE L597-620 | fp": "engine_unit_end_counts_noncode_lines",
+        "engine | unit extents | app/app-vsam-mq/cbl/COACCT01.cbl | 8000-TERMINATION L538-550 | fn": "engine_unit_end_counts_noncode_lines",
+        "engine | unit extents | app/app-vsam-mq/cbl/COACCT01.cbl | 8000-TERMINATION L538-551 | fp": "engine_unit_end_counts_noncode_lines",
+        "engine | unit extents | app/app-vsam-mq/cbl/CODATE01.cbl | 1000-CONTROL L127-169 | fn": "engine_unit_end_counts_noncode_lines",
+        "engine | unit extents | app/app-vsam-mq/cbl/CODATE01.cbl | 1000-CONTROL L127-170 | fp": "engine_unit_end_counts_noncode_lines",
+        "engine | unit extents | app/app-vsam-mq/cbl/CODATE01.cbl | 2100-OPEN-ERROR-QUEUE L238-271 | fn": "engine_unit_end_counts_noncode_lines",
+        "engine | unit extents | app/app-vsam-mq/cbl/CODATE01.cbl | 2100-OPEN-ERROR-QUEUE L238-273 | fp": "engine_unit_end_counts_noncode_lines",
+        "engine | unit extents | app/app-vsam-mq/cbl/CODATE01.cbl | 2300-OPEN-INPUT-QUEUE L171-202 | fn": "engine_unit_end_counts_noncode_lines",
+        "engine | unit extents | app/app-vsam-mq/cbl/CODATE01.cbl | 2300-OPEN-INPUT-QUEUE L171-203 | fp": "engine_unit_end_counts_noncode_lines",
+        "engine | unit extents | app/app-vsam-mq/cbl/CODATE01.cbl | 2400-OPEN-OUTPUT-QUEUE L204-236 | fn": "engine_unit_end_counts_noncode_lines",
+        "engine | unit extents | app/app-vsam-mq/cbl/CODATE01.cbl | 2400-OPEN-OUTPUT-QUEUE L204-237 | fp": "engine_unit_end_counts_noncode_lines",
+        "engine | unit extents | app/app-vsam-mq/cbl/CODATE01.cbl | 3000-GET-REQUEST L283-337 | fn": "engine_unit_end_counts_noncode_lines",
+        "engine | unit extents | app/app-vsam-mq/cbl/CODATE01.cbl | 3000-GET-REQUEST L283-338 | fp": "engine_unit_end_counts_noncode_lines",
+        "engine | unit extents | app/app-vsam-mq/cbl/CODATE01.cbl | 4000-MAIN-PROCESS L274-280 | fn": "engine_unit_end_counts_noncode_lines",
+        "engine | unit extents | app/app-vsam-mq/cbl/CODATE01.cbl | 4000-MAIN-PROCESS L274-282 | fp": "engine_unit_end_counts_noncode_lines",
+        "engine | unit extents | app/app-vsam-mq/cbl/CODATE01.cbl | 4000-PROCESS-REQUEST-REPLY L339-364 | fn": "engine_unit_end_counts_noncode_lines",
+        "engine | unit extents | app/app-vsam-mq/cbl/CODATE01.cbl | 4000-PROCESS-REQUEST-REPLY L339-365 | fp": "engine_unit_end_counts_noncode_lines",
+        "engine | unit extents | app/app-vsam-mq/cbl/CODATE01.cbl | 4100-PUT-REPLY L366-403 | fn": "engine_unit_end_counts_noncode_lines",
+        "engine | unit extents | app/app-vsam-mq/cbl/CODATE01.cbl | 4100-PUT-REPLY L366-404 | fp": "engine_unit_end_counts_noncode_lines",
+        "engine | unit extents | app/app-vsam-mq/cbl/CODATE01.cbl | 5100-CLOSE-OUTPUT-QUEUE L478-499 | fn": "engine_unit_end_counts_noncode_lines",
+        "engine | unit extents | app/app-vsam-mq/cbl/CODATE01.cbl | 5100-CLOSE-OUTPUT-QUEUE L478-500 | fp": "engine_unit_end_counts_noncode_lines",
+        "engine | unit extents | app/app-vsam-mq/cbl/CODATE01.cbl | 5200-CLOSE-ERROR-QUEUE L501-523 | fn": "engine_unit_end_counts_noncode_lines",
+        "engine | unit extents | app/app-vsam-mq/cbl/CODATE01.cbl | 5200-CLOSE-ERROR-QUEUE L501-524 | fp": "engine_unit_end_counts_noncode_lines",
+        "engine | unit extents | app/app-vsam-mq/cbl/CODATE01.cbl | 8000-TERMINATION L442-454 | fn": "engine_unit_end_counts_noncode_lines",
+        "engine | unit extents | app/app-vsam-mq/cbl/CODATE01.cbl | 8000-TERMINATION L442-455 | fp": "engine_unit_end_counts_noncode_lines",
+        "engine | unit extents | app/cbl/CBACT01C.cbl | (procedure division) L140-160 | fn": "engine_main_line_in_no_unit",
+        "engine | unit extents | app/cbl/CBACT02C.cbl | (procedure division) L70-87 | fn": "engine_main_line_in_no_unit",
+        "engine | unit extents | app/cbl/CBACT03C.cbl | (procedure division) L70-87 | fn": "engine_main_line_in_no_unit",
+        "engine | unit extents | app/cbl/CBACT04C.cbl | (procedure division) L180-232 | fn": "engine_main_line_in_no_unit",
+        "engine | unit extents | app/cbl/CBCUS01C.cbl | (procedure division) L70-87 | fn": "engine_main_line_in_no_unit",
+        "engine | unit extents | app/cbl/CBSTM03A.CBL | (procedure division) L262-294 | fn": "engine_main_line_in_no_unit",
+        "engine | unit extents | app/cbl/CBTRN02C.cbl | (procedure division) L193-234 | fn": "engine_main_line_in_no_unit",
+        "engine | unit extents | app/cbl/CBTRN03C.cbl | (procedure division) L159-217 | fn": "engine_main_line_in_no_unit",
+        "engine | unit extents | app/cbl/COBSWAIT.cbl | (procedure division) L34-40 | fn": "engine_main_line_in_no_unit",
+        "engine | unit extents | app/cbl/CSUTLDTC.cbl | (procedure division) L88-102 | fn": "engine_main_line_in_no_unit",
         "forge | units | app/app-transaction-type-db2/cbl/COTRTLIC.cbl | 9998-PRIMING-QUERY | fp": "forge_units_include_copied_paragraphs",
         "forge | units | app/app-transaction-type-db2/cbl/COTRTLIC.cbl | 9998-PRIMING-QUERY-EXIT | fp": "forge_units_include_copied_paragraphs",
         "forge | units | app/app-transaction-type-db2/cbl/COTRTLIC.cbl | 9999-FORMAT-DB2-MESSAGE | fp": "forge_units_include_copied_paragraphs",
@@ -485,6 +768,15 @@
           },
           "truth": "cross_verified"
         },
+        "intra-program edges": {
+          "engine": {
+            "got": 953,
+            "tp": 953,
+            "truth": 1024
+          },
+          "forge": null,
+          "truth": "draft"
+        },
         "job submissions": {
           "engine": {
             "got": 3,
@@ -550,6 +842,16 @@
           },
           "forge": null,
           "truth": "cross_verified"
+        },
+        "unit extents": {
+          "engine": {
+            "got": 871,
+            "outside": 237,
+            "tp": 780,
+            "truth": 881
+          },
+          "forge": null,
+          "truth": "draft"
         },
         "units": {
           "engine": {
@@ -1061,7 +1363,10 @@
         "engine | dead | src/base/cobol_src/UPDCUST.cbl | PTD010 | fn": "engine_dead_is_unreferenced_by_name",
         "engine | dead | src/base/cobol_src/UPDCUST.cbl | PTD999 | fn": "engine_dead_is_unreferenced_by_name",
         "engine | dead | src/base/cobol_src/XFRFUN.cbl | A999 | fn": "engine_dead_is_unreferenced_by_name",
-        "engine | dead | src/base/cobol_src/XFRFUN.cbl | GMOOH999 | fn": "engine_dead_is_unreferenced_by_name"
+        "engine | dead | src/base/cobol_src/XFRFUN.cbl | GMOOH999 | fn": "engine_dead_is_unreferenced_by_name",
+        "engine | intra-program edges | src/base/cobol_src/BANKDATA.cbl | A010 -> PERFORM TEST | fp": "engine_inline_perform_phantom_callee",
+        "engine | unit extents | src/base/cobol_src/BANKDATA.cbl | CDW010 L1407-1433 | fn": "engine_unit_end_counts_noncode_lines",
+        "engine | unit extents | src/base/cobol_src/BANKDATA.cbl | CDW010 L1407-1436 | fp": "engine_unit_end_counts_noncode_lines"
       },
       "scoreboard": {
         "BMS screen fields": {
@@ -1399,6 +1704,15 @@
           },
           "truth": "cross_verified"
         },
+        "intra-program edges": {
+          "engine": {
+            "got": 374,
+            "tp": 373,
+            "truth": 373
+          },
+          "forge": null,
+          "truth": "draft"
+        },
         "job submissions": {
           "engine": null,
           "forge": null,
@@ -1457,6 +1771,16 @@
             "got": 1320,
             "tp": 1320,
             "truth": 1320
+          },
+          "forge": null,
+          "truth": "draft"
+        },
+        "unit extents": {
+          "engine": {
+            "got": 680,
+            "outside": 0,
+            "tp": 679,
+            "truth": 680
           },
           "forge": null,
           "truth": "draft"
@@ -1895,6 +2219,15 @@
           },
           "truth": "cross_verified"
         },
+        "intra-program edges": {
+          "engine": {
+            "got": 131,
+            "tp": 131,
+            "truth": 131
+          },
+          "forge": null,
+          "truth": "draft"
+        },
         "job submissions": {
           "engine": null,
           "forge": null,
@@ -1953,6 +2286,16 @@
             "got": 432,
             "tp": 432,
             "truth": 432
+          },
+          "forge": null,
+          "truth": "draft"
+        },
+        "unit extents": {
+          "engine": {
+            "got": 162,
+            "outside": 0,
+            "tp": 162,
+            "truth": 162
           },
           "forge": null,
           "truth": "draft"
@@ -2303,6 +2646,15 @@
           },
           "truth": "cross_verified"
         },
+        "intra-program edges": {
+          "engine": {
+            "got": 17,
+            "tp": 17,
+            "truth": 17
+          },
+          "forge": null,
+          "truth": "draft"
+        },
         "job submissions": {
           "engine": null,
           "forge": null,
@@ -2361,6 +2713,16 @@
           "forge": null,
           "truth": "draft"
         },
+        "unit extents": {
+          "engine": {
+            "got": 21,
+            "outside": 0,
+            "tp": 21,
+            "truth": 21
+          },
+          "forge": null,
+          "truth": "draft"
+        },
         "units": {
           "engine": {
             "got": 21,
@@ -2415,7 +2777,35 @@
         "engine | dead | src/GML/PLUKKFRN.cobol | LESE | fp": "engine_dead_is_unreferenced_by_name",
         "engine | dead | src/GML/R001BYDL.cobol | 0000 | fp": "engine_dead_is_unreferenced_by_name",
         "engine | dead | src/GML/R001BYDL.cobol | 1000 | fp": "engine_dead_is_unreferenced_by_name",
-        "engine | dead | src/GML/R001BYDL.cobol | 8000 | fp": "engine_dead_is_unreferenced_by_name"
+        "engine | dead | src/GML/R001BYDL.cobol | 8000 | fp": "engine_dead_is_unreferenced_by_name",
+        "engine | intra-program edges | src/GML/FO04D1X1.cobol | (procedure division) -> GO TO B | fn": "engine_main_line_in_no_unit",
+        "engine | intra-program edges | src/GML/FO04D1X1.cobol | (procedure division) -> GO TO NULLST | fn": "engine_main_line_in_no_unit",
+        "engine | intra-program edges | src/GML/FO04D1X1.cobol | LES-KORT -> GO TO LES-KORT | fn": "engine_drops_self_transfer",
+        "engine | intra-program edges | src/GML/FO04D1X1.cobol | LES-PREG -> GO TO LES-PREG | fn": "engine_drops_self_transfer",
+        "engine | intra-program edges | src/GML/FO04D1X1.cobol | TEST-TRK-TAB -> GO TO TEST-TRK-TAB | fn": "engine_drops_self_transfer",
+        "engine | intra-program edges | src/GML/FO04F1X1.cobol | LES -> GO TO LES | fn": "engine_drops_self_transfer",
+        "engine | intra-program edges | src/GML/FO04F1X1.cobol | LES-KORT -> GO TO LES-KORT | fn": "engine_drops_self_transfer",
+        "engine | intra-program edges | src/GML/FO04F1X1.cobol | LES-PARAM -> GO TO LES-PARAM | fn": "engine_drops_self_transfer",
+        "engine | intra-program edges | src/GML/R001BYDL.cobol | 1000 -> GO TO 1000 | fn": "engine_drops_self_transfer",
+        "engine | unit extents | src/GML/FO04D1X1.cobol | (procedure division) L125-132 | fn": "engine_main_line_in_no_unit",
+        "engine | unit extents | src/GML/PLUKKFR.cobol | (procedure division) L73-75 | fn": "engine_main_line_in_no_unit",
+        "engine | unit extents | src/GML/PLUKKFRN.cobol | (procedure division) L73-75 | fn": "engine_main_line_in_no_unit",
+        "engine | unit extents | src/GML/R0010422.pli | R001B1 L23-177 | fn": "engine_unit_end_counts_noncode_lines",
+        "engine | unit extents | src/GML/R0010422.pli | R001B1 L23-181 | fp": "engine_unit_end_counts_noncode_lines",
+        "engine | unit extents | src/GML/R0010423.pli | R001B1 L22-253 | fn": "engine_unit_end_counts_noncode_lines",
+        "engine | unit extents | src/GML/R0010423.pli | R001B1 L22-255 | fp": "engine_unit_end_counts_noncode_lines",
+        "engine | unit extents | src/GML/R0010424.pli | R001B1 L22-254 | fn": "engine_unit_end_counts_noncode_lines",
+        "engine | unit extents | src/GML/R0010424.pli | R001B1 L22-256 | fp": "engine_unit_end_counts_noncode_lines",
+        "engine | unit extents | src/GML/R0010425.pli | R001B1 L22-266 | fn": "engine_unit_end_counts_noncode_lines",
+        "engine | unit extents | src/GML/R0010425.pli | R001B1 L22-268 | fp": "engine_unit_end_counts_noncode_lines",
+        "engine | unit extents | src/GML/R00104BP.pli | R001041 L43-92 | fn": "engine_unit_end_counts_noncode_lines",
+        "engine | unit extents | src/GML/R00104BP.pli | R001041 L43-93 | fp": "engine_unit_end_counts_noncode_lines",
+        "engine | unit extents | src/GML/R00104U3.pli | R001041 L44-138 | fn": "engine_unit_end_counts_noncode_lines",
+        "engine | unit extents | src/GML/R00104U3.pli | R001041 L44-139 | fp": "engine_unit_end_counts_noncode_lines",
+        "engine | unit extents | src/R0010422.pli | R001B1 L21-175 | fn": "engine_unit_end_counts_noncode_lines",
+        "engine | unit extents | src/R0010422.pli | R001B1 L21-179 | fp": "engine_unit_end_counts_noncode_lines",
+        "engine | unit extents | src/R0010424.pli | R001B1 L21-253 | fn": "engine_unit_end_counts_noncode_lines",
+        "engine | unit extents | src/R0010424.pli | R001B1 L21-255 | fp": "engine_unit_end_counts_noncode_lines"
       },
       "scoreboard": {
         "BMS screen fields": {
@@ -2737,6 +3127,15 @@
           },
           "truth": "cross_verified"
         },
+        "intra-program edges": {
+          "engine": {
+            "got": 114,
+            "tp": 114,
+            "truth": 123
+          },
+          "forge": null,
+          "truth": "draft"
+        },
         "job submissions": {
           "engine": null,
           "forge": null,
@@ -2791,6 +3190,16 @@
           "forge": null,
           "truth": "draft"
         },
+        "unit extents": {
+          "engine": {
+            "got": 163,
+            "outside": 14,
+            "tp": 155,
+            "truth": 166
+          },
+          "forge": null,
+          "truth": "draft"
+        },
         "units": {
           "engine": {
             "got": 51,
@@ -2829,7 +3238,35 @@
         "engine | dead | Source/ZECS000.cbl | 9950-EXIT | fn": "engine_dead_is_unreferenced_by_name",
         "engine | dead | Source/ZECS001.cbl | 9000-EXIT | fn": "engine_dead_is_unreferenced_by_name",
         "engine | dead | Source/ZECS003.cbl | 9000-EXIT | fn": "engine_dead_is_unreferenced_by_name",
-        "engine | dead | Source/ZECSPLT.cbl | 9000-EXIT | fn": "engine_dead_is_unreferenced_by_name"
+        "engine | dead | Source/ZECSPLT.cbl | 9000-EXIT | fn": "engine_dead_is_unreferenced_by_name",
+        "engine | intra-program edges | Source/ECS001.cbl | (procedure division) -> PERFORM A1000-GET-INPUT-REQUEST | fn": "engine_main_line_in_no_unit",
+        "engine | intra-program edges | Source/ECS001.cbl | (procedure division) -> PERFORM A2000-SETUP-ECS-REQUEST | fn": "engine_main_line_in_no_unit",
+        "engine | intra-program edges | Source/ECS001.cbl | (procedure division) -> PERFORM A3000-OPEN-CONNECTION | fn": "engine_main_line_in_no_unit",
+        "engine | intra-program edges | Source/ECS001.cbl | (procedure division) -> PERFORM A4000-EXECUTE-SERVICE | fn": "engine_main_line_in_no_unit",
+        "engine | intra-program edges | Source/ECS001.cbl | (procedure division) -> PERFORM A5000-CLOSE-CONNECTION | fn": "engine_main_line_in_no_unit",
+        "engine | intra-program edges | Source/ECS001.cbl | (procedure division) -> PERFORM A6000-DISPLAY-RESULTS | fn": "engine_main_line_in_no_unit",
+        "engine | intra-program edges | Source/ECS001.cbl | (procedure division) -> PERFORM Z1000-EXIT-PROGRAM | fn": "engine_main_line_in_no_unit",
+        "engine | intra-program edges | Source/ZECS000.cbl | (procedure division) -> PERFORM 1000-RETRIEVE | fn": "engine_main_line_in_no_unit",
+        "engine | intra-program edges | Source/ZECS000.cbl | (procedure division) -> PERFORM 2000-READ-FILE | fn": "engine_main_line_in_no_unit",
+        "engine | intra-program edges | Source/ZECS000.cbl | (procedure division) -> PERFORM 8000-RESTART | fn": "engine_main_line_in_no_unit",
+        "engine | intra-program edges | Source/ZECS000.cbl | (procedure division) -> PERFORM 9000-RETURN | fn": "engine_main_line_in_no_unit",
+        "engine | intra-program edges | Source/ZECS001.cbl | (procedure division) -> PERFORM 1000-ACCESS-PARMS | fn": "engine_main_line_in_no_unit",
+        "engine | intra-program edges | Source/ZECS001.cbl | (procedure division) -> PERFORM 2000-PROCESS-REQUEST | fn": "engine_main_line_in_no_unit",
+        "engine | intra-program edges | Source/ZECS001.cbl | (procedure division) -> PERFORM 9000-RETURN | fn": "engine_main_line_in_no_unit",
+        "engine | intra-program edges | Source/ZECS003.cbl | (procedure division) -> PERFORM 1000-INITIALIZE | fn": "engine_main_line_in_no_unit",
+        "engine | intra-program edges | Source/ZECS003.cbl | (procedure division) -> PERFORM 2000-REPLICATE | fn": "engine_main_line_in_no_unit",
+        "engine | intra-program edges | Source/ZECS003.cbl | (procedure division) -> PERFORM 3000-READ-ZF | fn": "engine_main_line_in_no_unit",
+        "engine | intra-program edges | Source/ZECS003.cbl | (procedure division) -> PERFORM 4000-CLEAR-COMPLETE | fn": "engine_main_line_in_no_unit",
+        "engine | intra-program edges | Source/ZECS003.cbl | (procedure division) -> PERFORM 9000-RETURN | fn": "engine_main_line_in_no_unit",
+        "engine | intra-program edges | Source/ZECSPLT.cbl | (procedure division) -> PERFORM 1000-INQUIRE-START | fn": "engine_main_line_in_no_unit",
+        "engine | intra-program edges | Source/ZECSPLT.cbl | (procedure division) -> PERFORM 2000-INQUIRE-NEXT | fn": "engine_main_line_in_no_unit",
+        "engine | intra-program edges | Source/ZECSPLT.cbl | (procedure division) -> PERFORM 3000-INQUIRE-END | fn": "engine_main_line_in_no_unit",
+        "engine | intra-program edges | Source/ZECSPLT.cbl | (procedure division) -> PERFORM 9000-RETURN | fn": "engine_main_line_in_no_unit",
+        "engine | unit extents | Source/ECS001.cbl | (procedure division) L79-89 | fn": "engine_main_line_in_no_unit",
+        "engine | unit extents | Source/ZECS000.cbl | (procedure division) L233-243 | fn": "engine_main_line_in_no_unit",
+        "engine | unit extents | Source/ZECS001.cbl | (procedure division) L453-460 | fn": "engine_main_line_in_no_unit",
+        "engine | unit extents | Source/ZECS003.cbl | (procedure division) L172-183 | fn": "engine_main_line_in_no_unit",
+        "engine | unit extents | Source/ZECSPLT.cbl | (procedure division) L61-71 | fn": "engine_main_line_in_no_unit"
       },
       "scoreboard": {
         "BMS screen fields": {
@@ -3143,6 +3580,15 @@
           },
           "truth": "cross_verified"
         },
+        "intra-program edges": {
+          "engine": {
+            "got": 161,
+            "tp": 161,
+            "truth": 184
+          },
+          "forge": null,
+          "truth": "draft"
+        },
         "job submissions": {
           "engine": null,
           "forge": null,
@@ -3201,6 +3647,16 @@
           "forge": null,
           "truth": "draft"
         },
+        "unit extents": {
+          "engine": {
+            "got": 216,
+            "outside": 34,
+            "tp": 216,
+            "truth": 221
+          },
+          "forge": null,
+          "truth": "draft"
+        },
         "units": {
           "engine": {
             "got": 216,
@@ -3239,7 +3695,10 @@
         "engine | dead | COBOL/SAM1.cbl | 000-MAIN | fp": "engine_dead_is_unreferenced_by_name",
         "engine | dead | COBOL/SAM1LIB.cbl | 000-MAIN | fp": "engine_dead_is_unreferenced_by_name",
         "engine | dead | COBOL/SAM2.cbl | 000-MAIN | fp": "engine_dead_is_unreferenced_by_name",
-        "engine | dead | multiroot/sam/SAM2.cbl | 000-MAIN | fp": "engine_dead_is_unreferenced_by_name"
+        "engine | dead | multiroot/sam/SAM2.cbl | 000-MAIN | fp": "engine_dead_is_unreferenced_by_name",
+        "engine | intra-program edges | COBOL/SAM1.cbl | 210-PROCESS-ADD-TRAN -> PERFORM TEST | fp": "engine_inline_perform_phantom_callee",
+        "engine | intra-program edges | COBOL/SAM1LIB.cbl | 210-PROCESS-ADD-TRAN -> PERFORM TEST | fp": "engine_inline_perform_phantom_callee",
+        "engine | intra-program edges | multiroot/sam/SAM1.cbl | 210-PROCESS-ADD-TRAN -> PERFORM TEST | fp": "engine_inline_perform_phantom_callee"
       },
       "scoreboard": {
         "BMS screen fields": {
@@ -3553,6 +4012,15 @@
           },
           "truth": "cross_verified"
         },
+        "intra-program edges": {
+          "engine": {
+            "got": 96,
+            "tp": 93,
+            "truth": 93
+          },
+          "forge": null,
+          "truth": "draft"
+        },
         "job submissions": {
           "engine": null,
           "forge": null,
@@ -3608,6 +4076,16 @@
         },
         "symbolic maps": {
           "engine": null,
+          "forge": null,
+          "truth": "draft"
+        },
+        "unit extents": {
+          "engine": {
+            "got": 66,
+            "outside": 0,
+            "tp": 66,
+            "truth": 66
+          },
           "forge": null,
           "truth": "draft"
         },

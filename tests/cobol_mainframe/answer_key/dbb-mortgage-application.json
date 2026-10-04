@@ -1,5 +1,5 @@
 {
-  "schema_version": 1,
+  "schema_version": 2,
   "corpus": "dbb-mortgage-application",
   "url": "https://github.com/IBM/dbb",
   "ref": "ce2c1be58eb049e000c6627bd8273263fef0c606",
@@ -10,32 +10,91 @@
         {
           "name": "EPSCMORT-MAINLINE",
           "kind": "paragraph",
-          "line": 75
+          "line": 75,
+          "end": 146,
+          "edges": [
+            {
+              "verb": "PERFORM",
+              "target": "A805-DUMMY-SQL-CALL",
+              "line": 77
+            },
+            {
+              "verb": "PERFORM",
+              "target": "A300-SEND-MAP",
+              "line": 85
+            },
+            {
+              "verb": "PERFORM",
+              "target": "A300-SEND-MAP",
+              "line": 92
+            },
+            {
+              "verb": "PERFORM",
+              "target": "A300-SEND-MAP",
+              "line": 111
+            },
+            {
+              "verb": "PERFORM",
+              "target": "A100-PROCESS-MAP",
+              "line": 124
+            },
+            {
+              "verb": "PERFORM",
+              "target": "A600-CALCULATE-MORTGAGE",
+              "line": 133
+            }
+          ]
         },
         {
           "name": "A100-PROCESS-MAP",
           "kind": "paragraph",
-          "line": 148
+          "line": 148,
+          "end": 153,
+          "edges": [
+            {
+              "verb": "PERFORM",
+              "target": "A400-RECEIVE-MAP",
+              "line": 149
+            },
+            {
+              "verb": "PERFORM",
+              "target": "A600-CALCULATE-MORTGAGE",
+              "line": 150
+            },
+            {
+              "verb": "PERFORM",
+              "target": "A300-SEND-MAP",
+              "line": 152
+            }
+          ]
         },
         {
           "name": "A300-SEND-MAP",
           "kind": "paragraph",
-          "line": 155
+          "line": 155,
+          "end": 185,
+          "edges": []
         },
         {
           "name": "A400-RECEIVE-MAP",
           "kind": "paragraph",
-          "line": 187
+          "line": 187,
+          "end": 214,
+          "edges": []
         },
         {
           "name": "A600-CALCULATE-MORTGAGE",
           "kind": "paragraph",
-          "line": 217
+          "line": 217,
+          "end": 233,
+          "edges": []
         },
         {
           "name": "A805-DUMMY-SQL-CALL",
           "kind": "paragraph",
-          "line": 235
+          "line": 235,
+          "end": 249,
+          "edges": []
         }
       ],
       "dead": {},
@@ -622,7 +681,9 @@
           "at": "2026-10-03"
         }
       },
-      "commareas_validated": false
+      "commareas_validated": false,
+      "main_line": null,
+      "extents_validated": false
     },
     "zBuilder/MortgageApplication/cobol/epscsmrt.cbl": {
       "program_id": "EPSCSMRT",
@@ -630,7 +691,9 @@
         {
           "name": "A000-MAINLINE",
           "kind": "paragraph",
-          "line": 38
+          "line": 38,
+          "end": 59,
+          "edges": []
         }
       ],
       "dead": {},
@@ -846,7 +909,9 @@
           "at": "2026-10-03"
         }
       },
-      "commareas_validated": false
+      "commareas_validated": false,
+      "main_line": null,
+      "extents_validated": false
     },
     "zBuilder/MortgageApplication/cobol/epsmlist.cbl": {
       "program_id": "EPSMLIST",
@@ -854,32 +919,82 @@
         {
           "name": "EPSCMORT-MAINLINE",
           "kind": "paragraph",
-          "line": 92
+          "line": 92,
+          "end": 118,
+          "edges": [
+            {
+              "verb": "PERFORM",
+              "target": "A100-PROCESS-MAP",
+              "line": 98
+            },
+            {
+              "verb": "PERFORM",
+              "target": "A100-PROCESS-MAP",
+              "line": 111
+            },
+            {
+              "verb": "PERFORM",
+              "target": "A100-PROCESS-MAP",
+              "line": 114
+            }
+          ]
         },
         {
           "name": "A100-PROCESS-MAP",
           "kind": "paragraph",
-          "line": 120
+          "line": 120,
+          "end": 151,
+          "edges": [
+            {
+              "verb": "PERFORM",
+              "target": "A310-ERASE-MAP",
+              "line": 122
+            },
+            {
+              "verb": "PERFORM",
+              "target": "A150-PROCESS-FILE",
+              "line": 136
+            },
+            {
+              "verb": "PERFORM",
+              "target": "A300-SEND-MAP",
+              "line": 151
+            }
+          ]
         },
         {
           "name": "A150-PROCESS-FILE",
           "kind": "paragraph",
-          "line": 153
+          "line": 153,
+          "end": 190,
+          "edges": [
+            {
+              "verb": "PERFORM",
+              "target": "A600-CALCULATE-MORTGAGE",
+              "line": 170
+            }
+          ]
         },
         {
           "name": "A300-SEND-MAP",
           "kind": "paragraph",
-          "line": 192
+          "line": 192,
+          "end": 197,
+          "edges": []
         },
         {
           "name": "A310-ERASE-MAP",
           "kind": "paragraph",
-          "line": 199
+          "line": 199,
+          "end": 206,
+          "edges": []
         },
         {
           "name": "A600-CALCULATE-MORTGAGE",
           "kind": "paragraph",
-          "line": 209
+          "line": 209,
+          "end": 224,
+          "edges": []
         }
       ],
       "dead": {},
@@ -1720,7 +1835,9 @@
           "at": "2026-10-03"
         }
       },
-      "commareas_validated": false
+      "commareas_validated": false,
+      "main_line": null,
+      "extents_validated": false
     },
     "zBuilder/MortgageApplication/cobol/epsmpmt.cbl": {
       "program_id": "EPSMPMT",
@@ -1728,27 +1845,53 @@
         {
           "name": "A000-MAINLINE",
           "kind": "paragraph",
-          "line": 83
+          "line": 83,
+          "end": 94,
+          "edges": [
+            {
+              "verb": "PERFORM",
+              "target": "A100-VALIDATE-INPUT",
+              "line": 86
+            },
+            {
+              "verb": "PERFORM",
+              "target": "A200-CALULATE-MONTH-PAYMENT",
+              "line": 88
+            },
+            {
+              "verb": "PERFORM",
+              "target": "A999-RETURN-ERROR-TEXT",
+              "line": 91
+            }
+          ]
         },
         {
           "name": "A100-VALIDATE-INPUT",
           "kind": "paragraph",
-          "line": 96
+          "line": 96,
+          "end": 122,
+          "edges": []
         },
         {
           "name": "A200-CALULATE-MONTH-PAYMENT",
           "kind": "paragraph",
-          "line": 124
+          "line": 124,
+          "end": 131,
+          "edges": []
         },
         {
           "name": "A300-TRY2",
           "kind": "paragraph",
-          "line": 140
+          "line": 140,
+          "end": 146,
+          "edges": []
         },
         {
           "name": "A999-RETURN-ERROR-TEXT",
           "kind": "paragraph",
-          "line": 148
+          "line": 148,
+          "end": 152,
+          "edges": []
         }
       ],
       "dead": {
@@ -2440,7 +2583,9 @@
           "at": "2026-10-03"
         }
       },
-      "commareas_validated": false
+      "commareas_validated": false,
+      "main_line": null,
+      "extents_validated": false
     },
     "zBuilder/MortgageApplication/cobol/epsnbrvl.cbl": {
       "program_id": "EPSNBRVL",
@@ -2448,17 +2593,34 @@
         {
           "name": "A000-MAINLINE",
           "kind": "paragraph",
-          "line": 80
+          "line": 80,
+          "end": 150,
+          "edges": [
+            {
+              "verb": "PERFORM",
+              "target": "A002-COMPUTE-DECIMAL",
+              "line": 128
+            },
+            {
+              "verb": "PERFORM",
+              "target": "A001-COMPUTE-INTEGER",
+              "line": 141
+            }
+          ]
         },
         {
           "name": "A001-COMPUTE-INTEGER",
           "kind": "paragraph",
-          "line": 152
+          "line": 152,
+          "end": 167,
+          "edges": []
         },
         {
           "name": "A002-COMPUTE-DECIMAL",
           "kind": "paragraph",
-          "line": 169
+          "line": 169,
+          "end": 186,
+          "edges": []
         }
       ],
       "dead": {},
@@ -3161,7 +3323,9 @@
           "at": "2026-10-03"
         }
       },
-      "commareas_validated": false
+      "commareas_validated": false,
+      "main_line": null,
+      "extents_validated": false
     }
   },
   "pli_programs": {},

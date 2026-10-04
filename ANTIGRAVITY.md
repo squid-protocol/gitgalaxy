@@ -30,11 +30,35 @@ Data flows through `gitgalaxy/core/` in this pipeline:
 Any PR touching parsing logic (`detector.py`, `prism.py`, etc.) is checked against the **Language Crucible** (a separate repo of hostile code structures) to guard against regex regressions.
 - GitGalaxy pins the crucible corpus and runs differential scans against `tests/golden_master_audit/` and `tests/golden_master_zero_dep_audit/`.
 - **CRITICAL:** **Never hand-edit these fixtures.** If output intentionally changes, update them.
-- **Local Verification before Push:** Run:
+- **The only way to regenerate them** (from the worktree root, with no `PYTHONPATH` set):
   ```bash
-  python tests/tools/crucible_check.py --update
+  python tests/tools/crucible_check.py --update --yes   # bless both legs (full + zero-dependency)
+  python tests/tools/crucible_check.py                  # verify both legs pass
+  python tests/tools/scope_check.py --expect cobol      # prove the diff is scoped (use your language(s))
   ```
-- **Footgun Warning:** `crucible_check.py` handles the local venvs correctly. Do not hand-build venvs and assume `LANGUAGE_CRUCIBLE_PATH` works, as reusing a venv across worktrees causes the editable install (`pip install -e .`) to point to the wrong checkout, producing false positives. 
+  `crucible_check.py` builds one venv per leg inside this worktree (`.crucible_venvs/`) with a Python matching CI's pin, and checks the corpus pin. **Never** run `tests/tools/update_golden_master.py` directly, **never** use the repo `.venv` or a venv you built by hand: each of these scans the wrong code or the wrong Python and produces huge unrelated diffs.
+- **The corpus:** a `language-crucible` checkout on the tag in `tests/_crucible_pin.py`, as a sibling `../language-crucible` of your worktree. Its path must not contain `tmp`, `temp` or `cache` anywhere.
+- **Stop signs. If you see any of these, STOP: don't push, and report to the user.**
+  - `scope_check.py` reports changes in a language your fix doesn't touch.
+  - The golden diff touches far more files than your change explains (e.g. hundreds of files, or Python/JS files for a COBOL fix).
+  - `crucible_check.py` warns about the corpus pin or an unsafe corpus path.
+- **If a required command is blocked or denied** (e.g. "command permission auto-denied" in headless mode): **stop and ask the user to run it or allow it.** Do not substitute another command or a hand-built recipe.
+- **Footgun Warning:** reusing a venv across worktrees makes the editable install (`pip install -e .`) point to the wrong checkout, producing false positives. `crucible_check.py` exists to prevent this.
+
+### Generated files: regenerate, never hand-edit
+
+These files are written by tools, and CI fails when they differ from a fresh regeneration. Don't hand-edit them, and don't add anything to them (including frontmatter or SEO metadata). If one is stale, run its generator:
+
+| File(s) | Regenerate with |
+|---|---|
+| `tests/golden_master_audit/`, `tests/golden_master_zero_dep_audit/` | `python tests/tools/crucible_check.py --update --yes` |
+| `tests/cobol_mainframe/ground_truth_ledger.json` | `python tests/tools/ground_truth_ledger.py update` (after `python tests/tools/mainframe_corpus.py fetch`) |
+| `docs/language_status/evidence/*.md` | `python tests/tools/evidence.py render` |
+| `docs/language_status/cics_field_testing.md`, `gitgalaxy/standards/fact_channel_confidence.json` | `python tests/tools/field_testing.py report --write` |
+| `docs/language_status/fresh_estate_trials.md` / `.svg` | `python tests/tools/trial.py report --write` |
+| ruff / mypy / dead-key baselines | `python tests/tools/audit_check.py --regenerate` |
+
+A merge conflict in any of these is resolved by taking `main`'s version and regenerating, never by hand-merging.
 
 ## 4. Testing Conventions
 

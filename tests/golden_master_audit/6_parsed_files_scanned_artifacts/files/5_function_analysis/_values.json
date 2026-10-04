@@ -44798,6 +44798,23 @@
     "c": {
       "c/SOURCES.md": []
     },
+    "c/cosmopolitan_intrin": {
+      "c/cosmopolitan_intrin/countbits.c": [
+        {
+          "Control Flow Branches": 7,
+          "Control Flow Ratio": "77.8%",
+          "End Line": 86,
+          "Function Name": "_countbits",
+          "Input Parameters": 2,
+          "Is Documented": 1,
+          "Is Public": 1,
+          "Lines of Code (LOC)": 57,
+          "Reflection Hits": 0,
+          "Start Line": 30,
+          "Structural Impact": 16.7
+        }
+      ]
+    },
     "c/cpython": {
       "c/cpython/Makefile.pre.in": [
         {
@@ -64776,6 +64793,23 @@
           "Lines of Code (LOC)": 24,
           "Reflection Hits": 0,
           "Start Line": 93,
+          "Structural Impact": 2.2
+        }
+      ]
+    },
+    "c/freebsd_openpam": {
+      "c/freebsd_openpam/pam_acct_mgmt.c": [
+        {
+          "Control Flow Branches": 0,
+          "Control Flow Ratio": "0.0%",
+          "End Line": 62,
+          "Function Name": "pam_acct_mgmt",
+          "Input Parameters": 2,
+          "Is Documented": 0,
+          "Is Public": 1,
+          "Lines of Code (LOC)": 10,
+          "Reflection Hits": 0,
+          "Start Line": 53,
           "Structural Impact": 2.2
         }
       ]
@@ -241809,6 +241843,155 @@
         }
       ]
     },
+    "cpp/serenity_ak_siphash_cpu": {
+      "cpp/serenity_ak_siphash_cpu/CPUFeatures.cpp": [
+        {
+          "Control Flow Branches": 5,
+          "Control Flow Ratio": "62.5%",
+          "End Line": 54,
+          "Function Name": "Detail::detect_cpu_features_uncached",
+          "Input Parameters": 0,
+          "Is Documented": 0,
+          "Is Public": 0,
+          "Lines of Code (LOC)": 25,
+          "Reflection Hits": 0,
+          "Start Line": 30,
+          "Structural Impact": 7.2
+        },
+        {
+          "Control Flow Branches": 0,
+          "Control Flow Ratio": "0.0%",
+          "End Line": 27,
+          "Function Name": "cpuid",
+          "Input Parameters": 2,
+          "Is Documented": 0,
+          "Is Public": 0,
+          "Lines of Code (LOC)": 8,
+          "Reflection Hits": 0,
+          "Start Line": 20,
+          "Structural Impact": 2.1
+        }
+      ],
+      "cpp/serenity_ak_siphash_cpu/SipHash.cpp": [
+        {
+          "Control Flow Branches": 21,
+          "Control Flow Ratio": "80.8%",
+          "End Line": 135,
+          "Function Name": "do_siphash",
+          "Input Parameters": 3,
+          "Is Documented": 0,
+          "Is Public": 0,
+          "Lines of Code (LOC)": 90,
+          "Reflection Hits": 0,
+          "Start Line": 46,
+          "Structural Impact": 48.5
+        },
+        {
+          "Control Flow Branches": 0,
+          "Control Flow Ratio": "0.0%",
+          "End Line": 42,
+          "Function Name": "sipround",
+          "Input Parameters": 4,
+          "Is Documented": 0,
+          "Is Public": 0,
+          "Lines of Code (LOC)": 17,
+          "Reflection Hits": 0,
+          "Start Line": 26,
+          "Structural Impact": 3.1
+        },
+        {
+          "Control Flow Branches": 0,
+          "Control Flow Ratio": "0.0%",
+          "End Line": 24,
+          "Function Name": "rotate_left",
+          "Input Parameters": 2,
+          "Is Documented": 0,
+          "Is Public": 0,
+          "Lines of Code (LOC)": 4,
+          "Reflection Hits": 0,
+          "Start Line": 21,
+          "Structural Impact": 1.9
+        },
+        {
+          "Control Flow Branches": 0,
+          "Control Flow Ratio": "0.0%",
+          "End Line": 179,
+          "Function Name": "sip_hash_bytes",
+          "Input Parameters": 1,
+          "Is Documented": 0,
+          "Is Public": 0,
+          "Lines of Code (LOC)": 9,
+          "Reflection Hits": 0,
+          "Start Line": 171,
+          "Structural Impact": 1.9
+        },
+        {
+          "Control Flow Branches": 0,
+          "Control Flow Ratio": "0.0%",
+          "End Line": 159,
+          "Function Name": "sip_hash_u64",
+          "Input Parameters": 1,
+          "Is Documented": 0,
+          "Is Public": 0,
+          "Lines of Code (LOC)": 7,
+          "Reflection Hits": 0,
+          "Start Line": 153,
+          "Structural Impact": 1.8
+        },
+        {
+          "Control Flow Branches": 0,
+          "Control Flow Ratio": "0.0%",
+          "End Line": 164,
+          "Function Name": "standard_sip_hash",
+          "Input Parameters": 1,
+          "Is Documented": 0,
+          "Is Public": 0,
+          "Lines of Code (LOC)": 4,
+          "Reflection Hits": 0,
+          "Start Line": 161,
+          "Structural Impact": 1.6
+        },
+        {
+          "Control Flow Branches": 0,
+          "Control Flow Ratio": "0.0%",
+          "End Line": 169,
+          "Function Name": "secure_sip_hash",
+          "Input Parameters": 1,
+          "Is Documented": 0,
+          "Is Public": 0,
+          "Lines of Code (LOC)": 4,
+          "Reflection Hits": 0,
+          "Start Line": 166,
+          "Structural Impact": 1.6
+        },
+        {
+          "Control Flow Branches": 0,
+          "Control Flow Ratio": "0.0%",
+          "End Line": 146,
+          "Function Name": "SipHashKey",
+          "Input Parameters": 0,
+          "Is Documented": 0,
+          "Is Public": 0,
+          "Lines of Code (LOC)": 9,
+          "Reflection Hits": 0,
+          "Start Line": 138,
+          "Structural Impact": 1.4
+        },
+        {
+          "Control Flow Branches": 0,
+          "Control Flow Ratio": "0.0%",
+          "End Line": 147,
+          "Function Name": "operator*",
+          "Input Parameters": 0,
+          "Is Documented": 0,
+          "Is Public": 0,
+          "Lines of Code (LOC)": 1,
+          "Reflection Hits": 0,
+          "Start Line": 147,
+          "Structural Impact": 1.1
+        }
+      ]
+    },
     "csd": {
       "csd/SOURCES.md": []
     },
@@ -299967,6 +300150,231 @@
         }
       ]
     },
+    "go/go_runtime_rand": {
+      "go/go_runtime_rand/rand.go": [
+        {
+          "Control Flow Branches": 12,
+          "Control Flow Ratio": "85.7%",
+          "End Line": 84,
+          "Function Name": "randinit",
+          "Input Parameters": 0,
+          "Is Documented": 1,
+          "Is Public": 0,
+          "Lines of Code (LOC)": 47,
+          "Reflection Hits": 0,
+          "Start Line": 38,
+          "Structural Impact": 15.3
+        },
+        {
+          "Control Flow Branches": 3,
+          "Control Flow Ratio": "100.0%",
+          "End Line": 110,
+          "Function Name": "readTimeRandom",
+          "Input Parameters": 1,
+          "Is Documented": 1,
+          "Is Public": 0,
+          "Lines of Code (LOC)": 20,
+          "Reflection Hits": 0,
+          "Start Line": 91,
+          "Structural Impact": 6.7
+        },
+        {
+          "Control Flow Branches": 3,
+          "Control Flow Ratio": "75.0%",
+          "End Line": 133,
+          "Function Name": "bootstrapRand",
+          "Input Parameters": 0,
+          "Is Documented": 0,
+          "Is Public": 0,
+          "Lines of Code (LOC)": 13,
+          "Reflection Hits": 0,
+          "Start Line": 121,
+          "Structural Impact": 4.7
+        },
+        {
+          "Control Flow Branches": 2,
+          "Control Flow Ratio": "66.7%",
+          "End Line": 180,
+          "Function Name": "rand",
+          "Input Parameters": 0,
+          "Is Documented": 1,
+          "Is Public": 0,
+          "Lines of Code (LOC)": 21,
+          "Reflection Hits": 0,
+          "Start Line": 160,
+          "Structural Impact": 4.0
+        },
+        {
+          "Control Flow Branches": 1,
+          "Control Flow Ratio": "50.0%",
+          "End Line": 197,
+          "Function Name": "mrandinit",
+          "Input Parameters": 1,
+          "Is Documented": 0,
+          "Is Public": 0,
+          "Lines of Code (LOC)": 10,
+          "Reflection Hits": 0,
+          "Start Line": 188,
+          "Structural Impact": 3.3
+        },
+        {
+          "Control Flow Branches": 1,
+          "Control Flow Ratio": "33.3%",
+          "End Line": 118,
+          "Function Name": "allZero",
+          "Input Parameters": 1,
+          "Is Documented": 0,
+          "Is Public": 0,
+          "Lines of Code (LOC)": 7,
+          "Reflection Hits": 0,
+          "Start Line": 112,
+          "Structural Impact": 3.2
+        },
+        {
+          "Control Flow Branches": 1,
+          "Control Flow Ratio": "33.3%",
+          "End Line": 250,
+          "Function Name": "cheaprand",
+          "Input Parameters": 0,
+          "Is Documented": 1,
+          "Is Public": 0,
+          "Lines of Code (LOC)": 23,
+          "Reflection Hits": 1,
+          "Start Line": 228,
+          "Structural Impact": 3.2
+        },
+        {
+          "Control Flow Branches": 1,
+          "Control Flow Ratio": "33.3%",
+          "End Line": 298,
+          "Function Name": "cheaprandu64",
+          "Input Parameters": 0,
+          "Is Documented": 0,
+          "Is Public": 0,
+          "Lines of Code (LOC)": 16,
+          "Reflection Hits": 0,
+          "Start Line": 283,
+          "Structural Impact": 2.8
+        },
+        {
+          "Control Flow Branches": 1,
+          "Control Flow Ratio": "100.0%",
+          "End Line": 144,
+          "Function Name": "bootstrapRandReseed",
+          "Input Parameters": 0,
+          "Is Documented": 0,
+          "Is Public": 0,
+          "Lines of Code (LOC)": 8,
+          "Reflection Hits": 0,
+          "Start Line": 137,
+          "Structural Impact": 2.4
+        },
+        {
+          "Control Flow Branches": 0,
+          "Control Flow Ratio": "0.0%",
+          "End Line": 207,
+          "Function Name": "randn",
+          "Input Parameters": 1,
+          "Is Documented": 1,
+          "Is Public": 0,
+          "Lines of Code (LOC)": 4,
+          "Reflection Hits": 0,
+          "Start Line": 204,
+          "Structural Impact": 1.6
+        },
+        {
+          "Control Flow Branches": 0,
+          "Control Flow Ratio": "0.0%",
+          "End Line": 319,
+          "Function Name": "cheaprandn",
+          "Input Parameters": 1,
+          "Is Documented": 1,
+          "Is Public": 0,
+          "Lines of Code (LOC)": 4,
+          "Reflection Hits": 0,
+          "Start Line": 316,
+          "Structural Impact": 1.6
+        },
+        {
+          "Control Flow Branches": 0,
+          "Control Flow Ratio": "0.0%",
+          "End Line": 336,
+          "Function Name": "legacy_fastrandn",
+          "Input Parameters": 1,
+          "Is Documented": 0,
+          "Is Public": 0,
+          "Lines of Code (LOC)": 3,
+          "Reflection Hits": 0,
+          "Start Line": 334,
+          "Structural Impact": 1.6
+        },
+        {
+          "Control Flow Branches": 0,
+          "Control Flow Ratio": "0.0%",
+          "End Line": 151,
+          "Function Name": "rand32",
+          "Input Parameters": 0,
+          "Is Documented": 0,
+          "Is Public": 0,
+          "Lines of Code (LOC)": 3,
+          "Reflection Hits": 0,
+          "Start Line": 149,
+          "Structural Impact": 1.1
+        },
+        {
+          "Control Flow Branches": 0,
+          "Control Flow Ratio": "0.0%",
+          "End Line": 185,
+          "Function Name": "maps_rand",
+          "Input Parameters": 0,
+          "Is Documented": 0,
+          "Is Public": 0,
+          "Lines of Code (LOC)": 3,
+          "Reflection Hits": 0,
+          "Start Line": 183,
+          "Structural Impact": 1.1
+        },
+        {
+          "Control Flow Branches": 0,
+          "Control Flow Ratio": "0.0%",
+          "End Line": 272,
+          "Function Name": "cheaprand64",
+          "Input Parameters": 0,
+          "Is Documented": 1,
+          "Is Public": 0,
+          "Lines of Code (LOC)": 3,
+          "Reflection Hits": 0,
+          "Start Line": 270,
+          "Structural Impact": 1.1
+        },
+        {
+          "Control Flow Branches": 0,
+          "Control Flow Ratio": "0.0%",
+          "End Line": 331,
+          "Function Name": "legacy_fastrand",
+          "Input Parameters": 0,
+          "Is Documented": 1,
+          "Is Public": 0,
+          "Lines of Code (LOC)": 3,
+          "Reflection Hits": 0,
+          "Start Line": 329,
+          "Structural Impact": 1.1
+        },
+        {
+          "Control Flow Branches": 0,
+          "Control Flow Ratio": "0.0%",
+          "End Line": 341,
+          "Function Name": "legacy_fastrand64",
+          "Input Parameters": 0,
+          "Is Documented": 0,
+          "Is Public": 0,
+          "Lines of Code (LOC)": 3,
+          "Reflection Hits": 0,
+          "Start Line": 339,
+          "Structural Impact": 1.1
+        }
+      ]
+    },
     "go/kubernetes": {
       "go/kubernetes/csi_plugin.go": [
         {
@@ -301929,6 +302337,49 @@
           "Reflection Hits": 0,
           "Start Line": 126,
           "Structural Impact": 1.2
+        }
+      ]
+    },
+    "go/kubernetes_kubectl_tls": {
+      "go/kubernetes_kubectl_tls/create_secret_tls_test.go": [
+        {
+          "Control Flow Branches": 6,
+          "Control Flow Ratio": "54.5%",
+          "End Line": 185,
+          "Function Name": "TestCreateSecretTLS",
+          "Input Parameters": 1,
+          "Is Documented": 0,
+          "Is Public": 1,
+          "Lines of Code (LOC)": 103,
+          "Reflection Hits": 0,
+          "Start Line": 83,
+          "Structural Impact": 15.0
+        },
+        {
+          "Control Flow Branches": 2,
+          "Control Flow Ratio": "66.7%",
+          "End Line": 197,
+          "Function Name": "write",
+          "Input Parameters": 3,
+          "Is Documented": 0,
+          "Is Public": 0,
+          "Lines of Code (LOC)": 11,
+          "Reflection Hits": 0,
+          "Start Line": 187,
+          "Structural Impact": 6.5
+        },
+        {
+          "Control Flow Branches": 0,
+          "Control Flow Ratio": "0.0%",
+          "End Line": 205,
+          "Function Name": "writeKeyPair",
+          "Input Parameters": 4,
+          "Is Documented": 0,
+          "Is Public": 0,
+          "Lines of Code (LOC)": 7,
+          "Reflection Hits": 0,
+          "Start Line": 199,
+          "Structural Impact": 2.6
         }
       ]
     },
@@ -320174,6 +320625,891 @@
     "java": {
       "java/SOURCES.md": []
     },
+    "java/flutter_android_editing_tests": {
+      "java/flutter_android_editing_tests/InputConnectionAdaptorTest.java": [
+        {
+          "Control Flow Branches": 5,
+          "Control Flow Ratio": "45.5%",
+          "End Line": 1330,
+          "Function Name": "sampleInputConnectionAdaptor",
+          "Input Parameters": 2,
+          "Is Documented": 0,
+          "Is Public": 0,
+          "Lines of Code (LOC)": 28,
+          "Reflection Hits": 0,
+          "Start Line": 1303,
+          "Structural Impact": 11.8
+        },
+        {
+          "Control Flow Branches": 2,
+          "Control Flow Ratio": "50.0%",
+          "End Line": 91,
+          "Function Name": "verifyMethodCall",
+          "Input Parameters": 3,
+          "Is Documented": 0,
+          "Is Public": 0,
+          "Lines of Code (LOC)": 13,
+          "Reflection Hits": 0,
+          "Start Line": 79,
+          "Structural Impact": 6.7
+        },
+        {
+          "Control Flow Branches": 2,
+          "Control Flow Ratio": "11.1%",
+          "End Line": 260,
+          "Function Name": "testCommitContent",
+          "Input Parameters": 0,
+          "Is Documented": 0,
+          "Is Public": 0,
+          "Lines of Code (LOC)": 62,
+          "Reflection Hits": 0,
+          "Start Line": 199,
+          "Structural Impact": 6.1
+        },
+        {
+          "Control Flow Branches": 2,
+          "Control Flow Ratio": "50.0%",
+          "End Line": 992,
+          "Function Name": "testSendKeyEvent_rightKeyMovesCaretRightComplexEmoji",
+          "Input Parameters": 0,
+          "Is Documented": 0,
+          "Is Public": 1,
+          "Lines of Code (LOC)": 134,
+          "Reflection Hits": 0,
+          "Start Line": 859,
+          "Structural Impact": 5.5
+        },
+        {
+          "Control Flow Branches": 1,
+          "Control Flow Ratio": "33.3%",
+          "End Line": 774,
+          "Function Name": "testSendKeyEvent_leftKeyMovesCaretLeftComplexEmoji",
+          "Input Parameters": 0,
+          "Is Documented": 0,
+          "Is Public": 1,
+          "Lines of Code (LOC)": 141,
+          "Reflection Hits": 0,
+          "Start Line": 634,
+          "Structural Impact": 4.0
+        },
+        {
+          "Control Flow Branches": 0,
+          "Control Flow Ratio": "0.0%",
+          "End Line": 1150,
+          "Function Name": "testExtractedText_monitoring",
+          "Input Parameters": 0,
+          "Is Documented": 0,
+          "Is Public": 1,
+          "Lines of Code (LOC)": 51,
+          "Reflection Hits": 0,
+          "Start Line": 1100,
+          "Structural Impact": 3.6
+        },
+        {
+          "Control Flow Branches": 0,
+          "Control Flow Ratio": "0.0%",
+          "End Line": 1382,
+          "Function Name": "updateEditingState",
+          "Input Parameters": 6,
+          "Is Documented": 0,
+          "Is Public": 1,
+          "Lines of Code (LOC)": 16,
+          "Reflection Hits": 0,
+          "Start Line": 1367,
+          "Structural Impact": 3.4
+        },
+        {
+          "Control Flow Branches": 0,
+          "Control Flow Ratio": "0.0%",
+          "End Line": 409,
+          "Function Name": "testPerformPrivateCommand_dataIsCharArray",
+          "Input Parameters": 0,
+          "Is Documented": 0,
+          "Is Public": 0,
+          "Lines of Code (LOC)": 39,
+          "Reflection Hits": 0,
+          "Start Line": 371,
+          "Structural Impact": 3.0
+        },
+        {
+          "Control Flow Branches": 0,
+          "Control Flow Ratio": "0.0%",
+          "End Line": 487,
+          "Function Name": "testPerformPrivateCommand_dataIsCharSequenceArray",
+          "Input Parameters": 0,
+          "Is Documented": 0,
+          "Is Public": 0,
+          "Lines of Code (LOC)": 40,
+          "Reflection Hits": 0,
+          "Start Line": 448,
+          "Structural Impact": 3.0
+        },
+        {
+          "Control Flow Branches": 0,
+          "Control Flow Ratio": "0.0%",
+          "End Line": 1191,
+          "Function Name": "testCursorAnchorInfo",
+          "Input Parameters": 0,
+          "Is Documented": 0,
+          "Is Public": 1,
+          "Lines of Code (LOC)": 40,
+          "Reflection Hits": 0,
+          "Start Line": 1152,
+          "Structural Impact": 3.0
+        },
+        {
+          "Control Flow Branches": 0,
+          "Control Flow Ratio": "0.0%",
+          "End Line": 332,
+          "Function Name": "testPerformPrivateCommand_dataIsByteArray",
+          "Input Parameters": 0,
+          "Is Documented": 0,
+          "Is Public": 0,
+          "Lines of Code (LOC)": 38,
+          "Reflection Hits": 0,
+          "Start Line": 295,
+          "Structural Impact": 2.9
+        },
+        {
+          "Control Flow Branches": 0,
+          "Control Flow Ratio": "0.0%",
+          "End Line": 526,
+          "Function Name": "testPerformPrivateCommand_dataIsCharSequence",
+          "Input Parameters": 0,
+          "Is Documented": 0,
+          "Is Public": 0,
+          "Lines of Code (LOC)": 38,
+          "Reflection Hits": 0,
+          "Start Line": 489,
+          "Structural Impact": 2.9
+        },
+        {
+          "Control Flow Branches": 0,
+          "Control Flow Ratio": "0.0%",
+          "End Line": 602,
+          "Function Name": "testPerformPrivateCommand_dataIsFloatArray",
+          "Input Parameters": 0,
+          "Is Documented": 0,
+          "Is Public": 0,
+          "Lines of Code (LOC)": 38,
+          "Reflection Hits": 0,
+          "Start Line": 565,
+          "Structural Impact": 2.9
+        },
+        {
+          "Control Flow Branches": 0,
+          "Control Flow Ratio": "0.0%",
+          "End Line": 369,
+          "Function Name": "testPerformPrivateCommand_dataIsByte",
+          "Input Parameters": 0,
+          "Is Documented": 0,
+          "Is Public": 0,
+          "Lines of Code (LOC)": 36,
+          "Reflection Hits": 0,
+          "Start Line": 334,
+          "Structural Impact": 2.8
+        },
+        {
+          "Control Flow Branches": 0,
+          "Control Flow Ratio": "0.0%",
+          "End Line": 446,
+          "Function Name": "testPerformPrivateCommand_dataIsChar",
+          "Input Parameters": 0,
+          "Is Documented": 0,
+          "Is Public": 0,
+          "Lines of Code (LOC)": 36,
+          "Reflection Hits": 0,
+          "Start Line": 411,
+          "Structural Impact": 2.8
+        },
+        {
+          "Control Flow Branches": 0,
+          "Control Flow Ratio": "0.0%",
+          "End Line": 563,
+          "Function Name": "testPerformPrivateCommand_dataIsFloat",
+          "Input Parameters": 0,
+          "Is Documented": 0,
+          "Is Public": 0,
+          "Lines of Code (LOC)": 36,
+          "Reflection Hits": 0,
+          "Start Line": 528,
+          "Structural Impact": 2.8
+        },
+        {
+          "Control Flow Branches": 0,
+          "Control Flow Ratio": "0.0%",
+          "End Line": 1417,
+          "Function Name": "updateSelection",
+          "Input Parameters": 5,
+          "Is Documented": 0,
+          "Is Public": 1,
+          "Lines of Code (LOC)": 8,
+          "Reflection Hits": 0,
+          "Start Line": 1410,
+          "Structural Impact": 2.8
+        },
+        {
+          "Control Flow Branches": 0,
+          "Control Flow Ratio": "0.0%",
+          "End Line": 293,
+          "Function Name": "testPerformPrivateCommand_dataIsNull",
+          "Input Parameters": 0,
+          "Is Documented": 0,
+          "Is Public": 0,
+          "Lines of Code (LOC)": 32,
+          "Reflection Hits": 0,
+          "Start Line": 262,
+          "Structural Impact": 2.6
+        },
+        {
+          "Control Flow Branches": 1,
+          "Control Flow Ratio": "33.3%",
+          "End Line": 1217,
+          "Function Name": "testSendKeyEvent_sendHardwareKeyEvents",
+          "Input Parameters": 0,
+          "Is Documented": 0,
+          "Is Public": 1,
+          "Lines of Code (LOC)": 13,
+          "Reflection Hits": 0,
+          "Start Line": 1205,
+          "Structural Impact": 2.6
+        },
+        {
+          "Control Flow Branches": 1,
+          "Control Flow Ratio": "33.3%",
+          "End Line": 1231,
+          "Function Name": "testSendKeyEvent_delKeyNotConsumed",
+          "Input Parameters": 0,
+          "Is Documented": 0,
+          "Is Public": 1,
+          "Lines of Code (LOC)": 13,
+          "Reflection Hits": 0,
+          "Start Line": 1219,
+          "Structural Impact": 2.6
+        },
+        {
+          "Control Flow Branches": 1,
+          "Control Flow Ratio": "50.0%",
+          "End Line": 1255,
+          "Function Name": "testCleanUpBatchEndsOnCloseConnection",
+          "Input Parameters": 0,
+          "Is Documented": 0,
+          "Is Public": 1,
+          "Lines of Code (LOC)": 12,
+          "Reflection Hits": 0,
+          "Start Line": 1244,
+          "Structural Impact": 2.6
+        },
+        {
+          "Control Flow Branches": 0,
+          "Control Flow Ratio": "0.0%",
+          "End Line": 128,
+          "Function Name": "inputConnectionAdaptor_ReceivesEnter",
+          "Input Parameters": 0,
+          "Is Documented": 0,
+          "Is Public": 1,
+          "Lines of Code (LOC)": 29,
+          "Reflection Hits": 0,
+          "Start Line": 100,
+          "Structural Impact": 2.5
+        },
+        {
+          "Control Flow Branches": 0,
+          "Control Flow Ratio": "0.0%",
+          "End Line": 857,
+          "Function Name": "testSendKeyEvent_rightKeyMovesCaretRightComplexRegion",
+          "Input Parameters": 0,
+          "Is Documented": 0,
+          "Is Public": 1,
+          "Lines of Code (LOC)": 37,
+          "Reflection Hits": 0,
+          "Start Line": 821,
+          "Structural Impact": 2.5
+        },
+        {
+          "Control Flow Branches": 0,
+          "Control Flow Ratio": "0.0%",
+          "End Line": 1084,
+          "Function Name": "testSendKeyEvent_MovementKeysAreNopWhenNoSelection",
+          "Input Parameters": 0,
+          "Is Documented": 0,
+          "Is Public": 1,
+          "Lines of Code (LOC)": 30,
+          "Reflection Hits": 0,
+          "Start Line": 1055,
+          "Structural Impact": 2.5
+        },
+        {
+          "Control Flow Branches": 0,
+          "Control Flow Ratio": "0.0%",
+          "End Line": 1296,
+          "Function Name": "sampleEditable",
+          "Input Parameters": 3,
+          "Is Documented": 0,
+          "Is Public": 0,
+          "Lines of Code (LOC)": 7,
+          "Reflection Hits": 0,
+          "Start Line": 1290,
+          "Structural Impact": 2.4
+        },
+        {
+          "Control Flow Branches": 0,
+          "Control Flow Ratio": "0.0%",
+          "End Line": 1408,
+          "Function Name": "updateExtractedText",
+          "Input Parameters": 3,
+          "Is Documented": 0,
+          "Is Public": 1,
+          "Lines of Code (LOC)": 5,
+          "Reflection Hits": 0,
+          "Start Line": 1404,
+          "Structural Impact": 2.2
+        },
+        {
+          "Control Flow Branches": 0,
+          "Control Flow Ratio": "0.0%",
+          "End Line": 1288,
+          "Function Name": "sampleEditable",
+          "Input Parameters": 2,
+          "Is Documented": 0,
+          "Is Public": 0,
+          "Lines of Code (LOC)": 7,
+          "Reflection Hits": 0,
+          "Start Line": 1282,
+          "Structural Impact": 2.1
+        },
+        {
+          "Control Flow Branches": 0,
+          "Control Flow Ratio": "0.0%",
+          "End Line": 181,
+          "Function Name": "testPerformContextMenuAction_copy",
+          "Input Parameters": 0,
+          "Is Documented": 0,
+          "Is Public": 0,
+          "Lines of Code (LOC)": 20,
+          "Reflection Hits": 0,
+          "Start Line": 162,
+          "Structural Impact": 2.0
+        },
+        {
+          "Control Flow Branches": 0,
+          "Control Flow Ratio": "0.0%",
+          "End Line": 160,
+          "Function Name": "testPerformContextMenuAction_cut",
+          "Input Parameters": 0,
+          "Is Documented": 0,
+          "Is Public": 0,
+          "Lines of Code (LOC)": 18,
+          "Reflection Hits": 0,
+          "Start Line": 143,
+          "Structural Impact": 1.9
+        },
+        {
+          "Control Flow Branches": 0,
+          "Control Flow Ratio": "0.0%",
+          "End Line": 1402,
+          "Function Name": "updateCursorAnchorInfo",
+          "Input Parameters": 2,
+          "Is Documented": 0,
+          "Is Public": 1,
+          "Lines of Code (LOC)": 4,
+          "Reflection Hits": 0,
+          "Start Line": 1399,
+          "Structural Impact": 1.9
+        },
+        {
+          "Control Flow Branches": 0,
+          "Control Flow Ratio": "0.0%",
+          "End Line": 197,
+          "Function Name": "testPerformContextMenuAction_paste",
+          "Input Parameters": 0,
+          "Is Documented": 0,
+          "Is Public": 0,
+          "Lines of Code (LOC)": 15,
+          "Reflection Hits": 0,
+          "Start Line": 183,
+          "Structural Impact": 1.8
+        },
+        {
+          "Control Flow Branches": 0,
+          "Control Flow Ratio": "0.0%",
+          "End Line": 618,
+          "Function Name": "testSendKeyEvent_shiftKeyUpDoesNotCancelSelection",
+          "Input Parameters": 0,
+          "Is Documented": 0,
+          "Is Public": 1,
+          "Lines of Code (LOC)": 15,
+          "Reflection Hits": 0,
+          "Start Line": 604,
+          "Structural Impact": 1.8
+        },
+        {
+          "Control Flow Branches": 0,
+          "Control Flow Ratio": "0.0%",
+          "End Line": 805,
+          "Function Name": "testSendKeyEvent_shiftLeftKeyStartsSelectionLeft",
+          "Input Parameters": 0,
+          "Is Documented": 0,
+          "Is Public": 1,
+          "Lines of Code (LOC)": 15,
+          "Reflection Hits": 0,
+          "Start Line": 791,
+          "Structural Impact": 1.8
+        },
+        {
+          "Control Flow Branches": 0,
+          "Control Flow Ratio": "0.0%",
+          "End Line": 1023,
+          "Function Name": "testSendKeyEvent_shiftRightKeyStartsSelectionRight",
+          "Input Parameters": 0,
+          "Is Documented": 0,
+          "Is Public": 1,
+          "Lines of Code (LOC)": 15,
+          "Reflection Hits": 0,
+          "Start Line": 1009,
+          "Structural Impact": 1.8
+        },
+        {
+          "Control Flow Branches": 0,
+          "Control Flow Ratio": "0.0%",
+          "End Line": 789,
+          "Function Name": "testSendKeyEvent_leftKeyExtendsSelectionLeft",
+          "Input Parameters": 0,
+          "Is Documented": 0,
+          "Is Public": 1,
+          "Lines of Code (LOC)": 14,
+          "Reflection Hits": 0,
+          "Start Line": 776,
+          "Structural Impact": 1.7
+        },
+        {
+          "Control Flow Branches": 0,
+          "Control Flow Ratio": "0.0%",
+          "End Line": 1007,
+          "Function Name": "testSendKeyEvent_rightKeyExtendsSelectionRight",
+          "Input Parameters": 0,
+          "Is Documented": 0,
+          "Is Public": 1,
+          "Lines of Code (LOC)": 14,
+          "Reflection Hits": 0,
+          "Start Line": 994,
+          "Structural Impact": 1.7
+        },
+        {
+          "Control Flow Branches": 0,
+          "Control Flow Ratio": "0.0%",
+          "End Line": 1038,
+          "Function Name": "testSendKeyEvent_upKeyMovesCaretUp",
+          "Input Parameters": 0,
+          "Is Documented": 0,
+          "Is Public": 1,
+          "Lines of Code (LOC)": 14,
+          "Reflection Hits": 0,
+          "Start Line": 1025,
+          "Structural Impact": 1.7
+        },
+        {
+          "Control Flow Branches": 0,
+          "Control Flow Ratio": "0.0%",
+          "End Line": 1053,
+          "Function Name": "testSendKeyEvent_downKeyMovesCaretDown",
+          "Input Parameters": 0,
+          "Is Documented": 0,
+          "Is Public": 1,
+          "Lines of Code (LOC)": 14,
+          "Reflection Hits": 0,
+          "Start Line": 1040,
+          "Structural Impact": 1.7
+        },
+        {
+          "Control Flow Branches": 0,
+          "Control Flow Ratio": "0.0%",
+          "End Line": 141,
+          "Function Name": "testPerformContextMenuAction_selectAll",
+          "Input Parameters": 0,
+          "Is Documented": 0,
+          "Is Public": 1,
+          "Lines of Code (LOC)": 12,
+          "Reflection Hits": 0,
+          "Start Line": 130,
+          "Structural Impact": 1.6
+        },
+        {
+          "Control Flow Branches": 0,
+          "Control Flow Ratio": "0.0%",
+          "End Line": 632,
+          "Function Name": "testSendKeyEvent_leftKeyMovesCaretLeft",
+          "Input Parameters": 0,
+          "Is Documented": 0,
+          "Is Public": 1,
+          "Lines of Code (LOC)": 13,
+          "Reflection Hits": 0,
+          "Start Line": 620,
+          "Structural Impact": 1.6
+        },
+        {
+          "Control Flow Branches": 0,
+          "Control Flow Ratio": "0.0%",
+          "End Line": 819,
+          "Function Name": "testSendKeyEvent_rightKeyMovesCaretRight",
+          "Input Parameters": 0,
+          "Is Documented": 0,
+          "Is Public": 1,
+          "Lines of Code (LOC)": 13,
+          "Reflection Hits": 0,
+          "Start Line": 807,
+          "Structural Impact": 1.6
+        },
+        {
+          "Control Flow Branches": 0,
+          "Control Flow Ratio": "0.0%",
+          "End Line": 1098,
+          "Function Name": "testMethod_getExtractedText",
+          "Input Parameters": 0,
+          "Is Documented": 0,
+          "Is Public": 1,
+          "Lines of Code (LOC)": 13,
+          "Reflection Hits": 0,
+          "Start Line": 1086,
+          "Structural Impact": 1.6
+        },
+        {
+          "Control Flow Branches": 0,
+          "Control Flow Ratio": "0.0%",
+          "End Line": 1203,
+          "Function Name": "testSendKeyEvent_sendSoftKeyEvents",
+          "Input Parameters": 0,
+          "Is Documented": 0,
+          "Is Public": 1,
+          "Lines of Code (LOC)": 11,
+          "Reflection Hits": 0,
+          "Start Line": 1193,
+          "Structural Impact": 1.6
+        },
+        {
+          "Control Flow Branches": 0,
+          "Control Flow Ratio": "0.0%",
+          "End Line": 1301,
+          "Function Name": "sampleInputConnectionAdaptor",
+          "Input Parameters": 1,
+          "Is Documented": 0,
+          "Is Public": 0,
+          "Lines of Code (LOC)": 4,
+          "Reflection Hits": 0,
+          "Start Line": 1298,
+          "Structural Impact": 1.6
+        },
+        {
+          "Control Flow Branches": 0,
+          "Control Flow Ratio": "0.0%",
+          "End Line": 1335,
+          "Function Name": "isEmoji",
+          "Input Parameters": 1,
+          "Is Documented": 0,
+          "Is Public": 1,
+          "Lines of Code (LOC)": 3,
+          "Reflection Hits": 0,
+          "Start Line": 1333,
+          "Structural Impact": 1.6
+        },
+        {
+          "Control Flow Branches": 0,
+          "Control Flow Ratio": "0.0%",
+          "End Line": 1339,
+          "Function Name": "isEmojiModifier",
+          "Input Parameters": 1,
+          "Is Documented": 0,
+          "Is Public": 1,
+          "Lines of Code (LOC)": 3,
+          "Reflection Hits": 0,
+          "Start Line": 1337,
+          "Structural Impact": 1.6
+        },
+        {
+          "Control Flow Branches": 0,
+          "Control Flow Ratio": "0.0%",
+          "End Line": 1343,
+          "Function Name": "isEmojiModifierBase",
+          "Input Parameters": 1,
+          "Is Documented": 0,
+          "Is Public": 1,
+          "Lines of Code (LOC)": 3,
+          "Reflection Hits": 0,
+          "Start Line": 1341,
+          "Structural Impact": 1.6
+        },
+        {
+          "Control Flow Branches": 0,
+          "Control Flow Ratio": "0.0%",
+          "End Line": 1347,
+          "Function Name": "isRegionalIndicatorSymbol",
+          "Input Parameters": 1,
+          "Is Documented": 0,
+          "Is Public": 1,
+          "Lines of Code (LOC)": 3,
+          "Reflection Hits": 0,
+          "Start Line": 1345,
+          "Structural Impact": 1.6
+        },
+        {
+          "Control Flow Branches": 0,
+          "Control Flow Ratio": "0.0%",
+          "End Line": 1351,
+          "Function Name": "isVariationSelector",
+          "Input Parameters": 1,
+          "Is Documented": 0,
+          "Is Public": 1,
+          "Lines of Code (LOC)": 3,
+          "Reflection Hits": 0,
+          "Start Line": 1349,
+          "Structural Impact": 1.6
+        },
+        {
+          "Control Flow Branches": 0,
+          "Control Flow Ratio": "0.0%",
+          "End Line": 1357,
+          "Function Name": "TestTextInputChannel",
+          "Input Parameters": 1,
+          "Is Documented": 0,
+          "Is Public": 1,
+          "Lines of Code (LOC)": 3,
+          "Reflection Hits": 0,
+          "Start Line": 1355,
+          "Structural Impact": 1.6
+        },
+        {
+          "Control Flow Branches": 0,
+          "Control Flow Ratio": "0.0%",
+          "End Line": 1429,
+          "Function Name": "resetStates",
+          "Input Parameters": 0,
+          "Is Documented": 0,
+          "Is Public": 1,
+          "Lines of Code (LOC)": 11,
+          "Reflection Hits": 0,
+          "Start Line": 1419,
+          "Structural Impact": 1.6
+        },
+        {
+          "Control Flow Branches": 0,
+          "Control Flow Ratio": "0.0%",
+          "End Line": 1242,
+          "Function Name": "testDoesNotConsumeBackButton",
+          "Input Parameters": 0,
+          "Is Documented": 0,
+          "Is Public": 1,
+          "Lines of Code (LOC)": 10,
+          "Reflection Hits": 0,
+          "Start Line": 1233,
+          "Structural Impact": 1.5
+        },
+        {
+          "Control Flow Branches": 0,
+          "Control Flow Ratio": "0.0%",
+          "End Line": 98,
+          "Function Name": "setUp",
+          "Input Parameters": 0,
+          "Is Documented": 0,
+          "Is Public": 1,
+          "Lines of Code (LOC)": 6,
+          "Reflection Hits": 0,
+          "Start Line": 93,
+          "Structural Impact": 1.3
+        },
+        {
+          "Control Flow Branches": 0,
+          "Control Flow Ratio": "0.0%",
+          "End Line": 1397,
+          "Function Name": "TestImm",
+          "Input Parameters": 0,
+          "Is Documented": 0,
+          "Is Public": 1,
+          "Lines of Code (LOC)": 1,
+          "Reflection Hits": 0,
+          "Start Line": 1397,
+          "Structural Impact": 1.1
+        }
+      ]
+    },
+    "java/jenkins_cli": {
+      "java/jenkins_cli/LICENSE.txt": [],
+      "java/jenkins_cli/SetBuildDescriptionCommand.java": [
+        {
+          "Control Flow Branches": 2,
+          "Control Flow Ratio": "40.0%",
+          "End Line": 46,
+          "Function Name": "run",
+          "Input Parameters": 0,
+          "Is Documented": 0,
+          "Is Public": 1,
+          "Lines of Code (LOC)": 16,
+          "Reflection Hits": 0,
+          "Start Line": 31,
+          "Structural Impact": 3.8
+        },
+        {
+          "Control Flow Branches": 0,
+          "Control Flow Ratio": "0.0%",
+          "End Line": 19,
+          "Function Name": "getShortDescription",
+          "Input Parameters": 0,
+          "Is Documented": 0,
+          "Is Public": 1,
+          "Lines of Code (LOC)": 4,
+          "Reflection Hits": 0,
+          "Start Line": 16,
+          "Structural Impact": 1.2
+        }
+      ]
+    },
+    "java/selenium_grid_session_queue": {
+      "java/selenium_grid_session_queue/NOTICE": [],
+      "java/selenium_grid_session_queue/RemoteNewSessionQueue.java": [
+        {
+          "Control Flow Branches": 2,
+          "Control Flow Ratio": "33.3%",
+          "End Line": 182,
+          "Function Name": "complete",
+          "Input Parameters": 2,
+          "Is Documented": 0,
+          "Is Public": 1,
+          "Lines of Code (LOC)": 21,
+          "Reflection Hits": 0,
+          "Start Line": 162,
+          "Structural Impact": 6.2
+        },
+        {
+          "Control Flow Branches": 2,
+          "Control Flow Ratio": "28.6%",
+          "End Line": 143,
+          "Function Name": "remove",
+          "Input Parameters": 1,
+          "Is Documented": 0,
+          "Is Public": 1,
+          "Lines of Code (LOC)": 17,
+          "Reflection Hits": 0,
+          "Start Line": 127,
+          "Structural Impact": 5.1
+        },
+        {
+          "Control Flow Branches": 0,
+          "Control Flow Ratio": "0.0%",
+          "End Line": 78,
+          "Function Name": "RemoteNewSessionQueue",
+          "Input Parameters": 3,
+          "Is Documented": 0,
+          "Is Public": 1,
+          "Lines of Code (LOC)": 7,
+          "Reflection Hits": 0,
+          "Start Line": 72,
+          "Structural Impact": 2.4
+        },
+        {
+          "Control Flow Branches": 0,
+          "Control Flow Ratio": "0.0%",
+          "End Line": 97,
+          "Function Name": "create",
+          "Input Parameters": 1,
+          "Is Documented": 0,
+          "Is Public": 1,
+          "Lines of Code (LOC)": 18,
+          "Reflection Hits": 0,
+          "Start Line": 80,
+          "Structural Impact": 2.3
+        },
+        {
+          "Control Flow Branches": 0,
+          "Control Flow Ratio": "0.0%",
+          "End Line": 160,
+          "Function Name": "getNextAvailable",
+          "Input Parameters": 1,
+          "Is Documented": 0,
+          "Is Public": 1,
+          "Lines of Code (LOC)": 16,
+          "Reflection Hits": 0,
+          "Start Line": 145,
+          "Structural Impact": 2.2
+        },
+        {
+          "Control Flow Branches": 0,
+          "Control Flow Ratio": "0.0%",
+          "End Line": 125,
+          "Function Name": "retryAddToQueue",
+          "Input Parameters": 1,
+          "Is Documented": 0,
+          "Is Public": 1,
+          "Lines of Code (LOC)": 13,
+          "Reflection Hits": 0,
+          "Start Line": 113,
+          "Structural Impact": 2.1
+        },
+        {
+          "Control Flow Branches": 0,
+          "Control Flow Ratio": "0.0%",
+          "End Line": 111,
+          "Function Name": "addToQueue",
+          "Input Parameters": 1,
+          "Is Documented": 0,
+          "Is Public": 1,
+          "Lines of Code (LOC)": 7,
+          "Reflection Hits": 0,
+          "Start Line": 105,
+          "Structural Impact": 1.8
+        },
+        {
+          "Control Flow Branches": 0,
+          "Control Flow Ratio": "0.0%",
+          "End Line": 191,
+          "Function Name": "clearQueue",
+          "Input Parameters": 0,
+          "Is Documented": 0,
+          "Is Public": 1,
+          "Lines of Code (LOC)": 8,
+          "Reflection Hits": 0,
+          "Start Line": 184,
+          "Structural Impact": 1.4
+        },
+        {
+          "Control Flow Branches": 0,
+          "Control Flow Ratio": "0.0%",
+          "End Line": 200,
+          "Function Name": "getQueueContents",
+          "Input Parameters": 0,
+          "Is Documented": 0,
+          "Is Public": 1,
+          "Lines of Code (LOC)": 8,
+          "Reflection Hits": 0,
+          "Start Line": 193,
+          "Structural Impact": 1.4
+        },
+        {
+          "Control Flow Branches": 0,
+          "Control Flow Ratio": "0.0%",
+          "End Line": 209,
+          "Function Name": "isReady",
+          "Input Parameters": 0,
+          "Is Documented": 0,
+          "Is Public": 1,
+          "Lines of Code (LOC)": 8,
+          "Reflection Hits": 0,
+          "Start Line": 202,
+          "Structural Impact": 1.4
+        },
+        {
+          "Control Flow Branches": 0,
+          "Control Flow Ratio": "0.0%",
+          "End Line": 103,
+          "Function Name": "peekEmpty",
+          "Input Parameters": 0,
+          "Is Documented": 0,
+          "Is Public": 1,
+          "Lines of Code (LOC)": 5,
+          "Reflection Hits": 0,
+          "Start Line": 99,
+          "Structural Impact": 1.2
+        }
+      ]
+    },
     "java/springboot": {
       "java/springboot/AutoConfigurationImportSelector.java": [
         {
@@ -324328,6 +325664,80 @@
     "javascript": {
       "javascript/SOURCES.md": []
     },
+    "javascript/cesium_particle_emitters": {
+      "javascript/cesium_particle_emitters/CircleEmitter.js": [
+        {
+          "Control Flow Branches": 2,
+          "Control Flow Ratio": "100.0%",
+          "End Line": 22,
+          "Function Name": "CircleEmitter",
+          "Input Parameters": 1,
+          "Is Documented": 1,
+          "Is Public": 0,
+          "Lines of Code (LOC)": 9,
+          "Reflection Hits": 0,
+          "Start Line": 14,
+          "Structural Impact": 4.7
+        },
+        {
+          "Control Flow Branches": 0,
+          "Control Flow Ratio": "0.0%",
+          "End Line": 60,
+          "Function Name": "emit",
+          "Input Parameters": 1,
+          "Is Documented": 1,
+          "Is Public": 0,
+          "Lines of Code (LOC)": 11,
+          "Reflection Hits": 0,
+          "Start Line": 50,
+          "Structural Impact": 2.0
+        },
+        {
+          "Control Flow Branches": 0,
+          "Control Flow Ratio": "0.0%",
+          "End Line": 40,
+          "Function Name": "set",
+          "Input Parameters": 1,
+          "Is Documented": 1,
+          "Is Public": 0,
+          "Lines of Code (LOC)": 6,
+          "Reflection Hits": 0,
+          "Start Line": 35,
+          "Structural Impact": 1.7
+        },
+        {
+          "Control Flow Branches": 0,
+          "Control Flow Ratio": "0.0%",
+          "End Line": 34,
+          "Function Name": "get",
+          "Input Parameters": 0,
+          "Is Documented": 1,
+          "Is Public": 0,
+          "Lines of Code (LOC)": 3,
+          "Reflection Hits": 0,
+          "Start Line": 32,
+          "Structural Impact": 1.1
+        }
+      ],
+      "javascript/cesium_particle_emitters/LICENSE.md": []
+    },
+    "javascript/javascript_algorithms_bits": {
+      "javascript/javascript_algorithms_bits/fullAdder.js": [
+        {
+          "Control Flow Branches": 1,
+          "Control Flow Ratio": "20.0%",
+          "End Line": 70,
+          "Function Name": "fullAdder",
+          "Input Parameters": 2,
+          "Is Documented": 1,
+          "Is Public": 1,
+          "Lines of Code (LOC)": 34,
+          "Reflection Hits": 0,
+          "Start Line": 37,
+          "Structural Impact": 5.2
+        }
+      ]
+    },
     "javascript/jquery": {
       "javascript/jquery/LICENSE.txt": [],
       "javascript/jquery/ajax.js": [
@@ -325696,6 +327106,29 @@
           "Structural Impact": 31.3
         }
       ]
+    },
+    "javascript/node_tls_security_tests": {
+      "javascript/node_tls_security_tests/regexp-unicode-sets.js": [
+        {
+          "Control Flow Branches": 8,
+          "Control Flow Ratio": "61.5%",
+          "End Line": 112,
+          "Function Name": "check",
+          "Input Parameters": 4,
+          "Is Documented": 0,
+          "Is Public": 0,
+          "Lines of Code (LOC)": 30,
+          "Reflection Hits": 0,
+          "Start Line": 83,
+          "Structural Impact": 21.6
+        }
+      ],
+      "javascript/node_tls_security_tests/test-crypto-dh-modp2.js": [],
+      "javascript/node_tls_security_tests/test-fs-lchown.js": [],
+      "javascript/node_tls_security_tests/test-https-host-headers.js": [],
+      "javascript/node_tls_security_tests/test-tls-cert-ext-encoding.js": [],
+      "javascript/node_tls_security_tests/test-tls-psk-server.js": [],
+      "javascript/node_tls_security_tests/test-tls-use-after-free-regression.js": []
     },
     "javascript/react": {
       "javascript/react/BabelPlugin.ts": [
@@ -330635,6 +332068,23 @@
           "Reflection Hits": 0,
           "Start Line": 825,
           "Structural Impact": 1.6
+        }
+      ]
+    },
+    "javascript/react_error_codes": {
+      "javascript/react_error_codes/extract-errors.js": [
+        {
+          "Control Flow Branches": 11,
+          "Control Flow Ratio": "61.1%",
+          "End Line": 69,
+          "Function Name": "main",
+          "Input Parameters": 0,
+          "Is Documented": 0,
+          "Is Public": 0,
+          "Lines of Code (LOC)": 63,
+          "Reflection Hits": 1,
+          "Start Line": 7,
+          "Structural Impact": 15.2
         }
       ]
     },
@@ -362364,6 +363814,16 @@
         }
       ]
     },
+    "markdown": {
+      "markdown/SOURCES.md": []
+    },
+    "markdown/airflow_job_lifecycle": {
+      "markdown/airflow_job_lifecycle/JOB_LIFECYCLE.md": [],
+      "markdown/airflow_job_lifecycle/NOTICE": []
+    },
+    "markdown/kubernetes_client_go": {
+      "markdown/kubernetes_client_go/ARCHITECTURE.md": []
+    },
     "matlab": {
       "matlab/SOURCES.md": []
     },
@@ -365273,6 +366733,37 @@
     },
     "perl": {
       "perl/SOURCES.md": []
+    },
+    "perl/ack3_tests": {
+      "perl/ack3_tests/LICENSE.md": [],
+      "perl/ack3_tests/file-permission.t": [
+        {
+          "Control Flow Branches": 6,
+          "Control Flow Ratio": "40.0%",
+          "End Line": 87,
+          "Function Name": "check_with",
+          "Input Parameters": 1,
+          "Is Documented": 0,
+          "Is Public": 1,
+          "Lines of Code (LOC)": 28,
+          "Reflection Hits": 0,
+          "Start Line": 60,
+          "Structural Impact": 11.3
+        },
+        {
+          "Control Flow Branches": 0,
+          "Control Flow Ratio": "0.0%",
+          "End Line": 33,
+          "Function Name": "o",
+          "Input Parameters": 1,
+          "Is Documented": 0,
+          "Is Public": 1,
+          "Lines of Code (LOC)": 1,
+          "Reflection Hits": 0,
+          "Start Line": 33,
+          "Structural Impact": 1.5
+        }
+      ]
     },
     "perl/bugzilla": {
       "perl/bugzilla/Auth.pm": [
@@ -386916,6 +388407,63 @@
         }
       ]
     },
+    "php/laravel_validation_rules": {
+      "php/laravel_validation_rules/Can.php": [
+        {
+          "Control Flow Branches": 1,
+          "Control Flow Ratio": "33.3%",
+          "End Line": 72,
+          "Function Name": "message",
+          "Input Parameters": 0,
+          "Is Documented": 1,
+          "Is Public": 1,
+          "Lines of Code (LOC)": 8,
+          "Reflection Hits": 0,
+          "Start Line": 65,
+          "Structural Impact": 2.4
+        },
+        {
+          "Control Flow Branches": 0,
+          "Control Flow Ratio": "0.0%",
+          "End Line": 58,
+          "Function Name": "passes",
+          "Input Parameters": 2,
+          "Is Documented": 1,
+          "Is Public": 1,
+          "Lines of Code (LOC)": 8,
+          "Reflection Hits": 0,
+          "Start Line": 51,
+          "Structural Impact": 2.1
+        },
+        {
+          "Control Flow Branches": 0,
+          "Control Flow Ratio": "0.0%",
+          "End Line": 42,
+          "Function Name": "__construct",
+          "Input Parameters": 2,
+          "Is Documented": 1,
+          "Is Public": 1,
+          "Lines of Code (LOC)": 5,
+          "Reflection Hits": 0,
+          "Start Line": 38,
+          "Structural Impact": 2.0
+        },
+        {
+          "Control Flow Branches": 0,
+          "Control Flow Ratio": "0.0%",
+          "End Line": 85,
+          "Function Name": "setValidator",
+          "Input Parameters": 1,
+          "Is Documented": 1,
+          "Is Public": 1,
+          "Lines of Code (LOC)": 6,
+          "Reflection Hits": 0,
+          "Start Line": 80,
+          "Structural Impact": 1.7
+        }
+      ],
+      "php/laravel_validation_rules/LICENSE.md": []
+    },
     "php/magento2": {
       "php/magento2/AbstractBlock.php": [
         {
@@ -394111,6 +395659,9 @@
           "Structural Impact": 1.2
         }
       ]
+    },
+    "php/symfony_emoji_data": {
+      "php/symfony_emoji_data/emoji-ccp.php": []
     },
     "php/wordpress": {
       "php/wordpress/admin-ajax.php": [],
@@ -408788,6 +410339,1140 @@
         }
       ]
     },
+    "python/airflow_ai_providers": {
+      "python/airflow_ai_providers/NOTICE": [],
+      "python/airflow_ai_providers/openai_src_airflow_providers_openai_hooks_openai.py": [
+        {
+          "Control Flow Branches": 8,
+          "Control Flow Ratio": "72.7%",
+          "End Line": 481,
+          "Function Name": "wait_for_batch",
+          "Input Parameters": 4,
+          "Is Documented": 1,
+          "Is Public": 1,
+          "Lines of Code (LOC)": 33,
+          "Reflection Hits": 0,
+          "Start Line": 449,
+          "Structural Impact": 21.8
+        },
+        {
+          "Control Flow Branches": 3,
+          "Control Flow Ratio": "60.0%",
+          "End Line": 121,
+          "Function Name": "get_conn",
+          "Input Parameters": 1,
+          "Is Documented": 1,
+          "Is Public": 1,
+          "Lines of Code (LOC)": 12,
+          "Reflection Hits": 0,
+          "Start Line": 110,
+          "Structural Impact": 6.3
+        },
+        {
+          "Control Flow Branches": 0,
+          "Control Flow Ratio": "0.0%",
+          "End Line": 438,
+          "Function Name": "create_batch",
+          "Input Parameters": 5,
+          "Is Documented": 0,
+          "Is Public": 1,
+          "Lines of Code (LOC)": 20,
+          "Reflection Hits": 0,
+          "Start Line": 419,
+          "Structural Impact": 3.4
+        },
+        {
+          "Control Flow Branches": 0,
+          "Control Flow Ratio": "0.0%",
+          "End Line": 142,
+          "Function Name": "create_chat_completion",
+          "Input Parameters": 4,
+          "Is Documented": 0,
+          "Is Public": 1,
+          "Lines of Code (LOC)": 20,
+          "Reflection Hits": 0,
+          "Start Line": 123,
+          "Structural Impact": 3.2
+        },
+        {
+          "Control Flow Branches": 0,
+          "Control Flow Ratio": "0.0%",
+          "End Line": 222,
+          "Function Name": "create_message",
+          "Input Parameters": 5,
+          "Is Documented": 0,
+          "Is Public": 1,
+          "Lines of Code (LOC)": 14,
+          "Reflection Hits": 0,
+          "Start Line": 209,
+          "Structural Impact": 3.1
+        },
+        {
+          "Control Flow Branches": 0,
+          "Control Flow Ratio": "0.0%",
+          "End Line": 311,
+          "Function Name": "create_embeddings",
+          "Input Parameters": 4,
+          "Is Documented": 0,
+          "Is Public": 1,
+          "Lines of Code (LOC)": 15,
+          "Reflection Hits": 0,
+          "Start Line": 297,
+          "Structural Impact": 3.0
+        },
+        {
+          "Control Flow Branches": 0,
+          "Control Flow Ratio": "0.0%",
+          "End Line": 243,
+          "Function Name": "modify_message",
+          "Input Parameters": 4,
+          "Is Documented": 1,
+          "Is Public": 1,
+          "Lines of Code (LOC)": 11,
+          "Reflection Hits": 0,
+          "Start Line": 233,
+          "Structural Impact": 2.8
+        },
+        {
+          "Control Flow Branches": 0,
+          "Control Flow Ratio": "0.0%",
+          "End Line": 266,
+          "Function Name": "create_run_and_poll",
+          "Input Parameters": 4,
+          "Is Documented": 1,
+          "Is Public": 1,
+          "Lines of Code (LOC)": 12,
+          "Reflection Hits": 0,
+          "Start Line": 255,
+          "Structural Impact": 2.8
+        },
+        {
+          "Control Flow Branches": 0,
+          "Control Flow Ratio": "0.0%",
+          "End Line": 253,
+          "Function Name": "create_run",
+          "Input Parameters": 4,
+          "Is Documented": 1,
+          "Is Public": 1,
+          "Lines of Code (LOC)": 9,
+          "Reflection Hits": 0,
+          "Start Line": 245,
+          "Structural Impact": 2.7
+        },
+        {
+          "Control Flow Branches": 0,
+          "Control Flow Ratio": "0.0%",
+          "End Line": 295,
+          "Function Name": "modify_run",
+          "Input Parameters": 4,
+          "Is Documented": 1,
+          "Is Public": 1,
+          "Lines of Code (LOC)": 9,
+          "Reflection Hits": 0,
+          "Start Line": 287,
+          "Structural Impact": 2.7
+        },
+        {
+          "Control Flow Branches": 0,
+          "Control Flow Ratio": "0.0%",
+          "End Line": 398,
+          "Function Name": "upload_files_to_vector_store",
+          "Input Parameters": 3,
+          "Is Documented": 0,
+          "Is Public": 1,
+          "Lines of Code (LOC)": 14,
+          "Reflection Hits": 0,
+          "Start Line": 385,
+          "Structural Impact": 2.7
+        },
+        {
+          "Control Flow Branches": 0,
+          "Control Flow Ratio": "0.0%",
+          "End Line": 198,
+          "Function Name": "modify_thread",
+          "Input Parameters": 3,
+          "Is Documented": 1,
+          "Is Public": 1,
+          "Lines of Code (LOC)": 9,
+          "Reflection Hits": 0,
+          "Start Line": 190,
+          "Structural Impact": 2.5
+        },
+        {
+          "Control Flow Branches": 0,
+          "Control Flow Ratio": "0.0%",
+          "End Line": 276,
+          "Function Name": "get_run",
+          "Input Parameters": 3,
+          "Is Documented": 1,
+          "Is Public": 1,
+          "Lines of Code (LOC)": 9,
+          "Reflection Hits": 0,
+          "Start Line": 268,
+          "Structural Impact": 2.5
+        },
+        {
+          "Control Flow Branches": 0,
+          "Control Flow Ratio": "0.0%",
+          "End Line": 323,
+          "Function Name": "upload_file",
+          "Input Parameters": 3,
+          "Is Documented": 1,
+          "Is Public": 1,
+          "Lines of Code (LOC)": 11,
+          "Reflection Hits": 0,
+          "Start Line": 313,
+          "Structural Impact": 2.5
+        },
+        {
+          "Control Flow Branches": 0,
+          "Control Flow Ratio": "0.0%",
+          "End Line": 417,
+          "Function Name": "delete_vector_store_file",
+          "Input Parameters": 3,
+          "Is Documented": 1,
+          "Is Public": 1,
+          "Lines of Code (LOC)": 9,
+          "Reflection Hits": 0,
+          "Start Line": 409,
+          "Structural Impact": 2.5
+        },
+        {
+          "Control Flow Branches": 0,
+          "Control Flow Ratio": "0.0%",
+          "End Line": 87,
+          "Function Name": "__init__",
+          "Input Parameters": 4,
+          "Is Documented": 0,
+          "Is Public": 0,
+          "Lines of Code (LOC)": 3,
+          "Reflection Hits": 0,
+          "Start Line": 85,
+          "Structural Impact": 2.4
+        },
+        {
+          "Control Flow Branches": 0,
+          "Control Flow Ratio": "0.0%",
+          "End Line": 151,
+          "Function Name": "create_assistant",
+          "Input Parameters": 3,
+          "Is Documented": 1,
+          "Is Public": 1,
+          "Lines of Code (LOC)": 8,
+          "Reflection Hits": 0,
+          "Start Line": 144,
+          "Structural Impact": 2.4
+        },
+        {
+          "Control Flow Branches": 0,
+          "Control Flow Ratio": "0.0%",
+          "End Line": 174,
+          "Function Name": "modify_assistant",
+          "Input Parameters": 3,
+          "Is Documented": 1,
+          "Is Public": 1,
+          "Lines of Code (LOC)": 8,
+          "Reflection Hits": 0,
+          "Start Line": 167,
+          "Structural Impact": 2.4
+        },
+        {
+          "Control Flow Branches": 0,
+          "Control Flow Ratio": "0.0%",
+          "End Line": 231,
+          "Function Name": "get_messages",
+          "Input Parameters": 3,
+          "Is Documented": 1,
+          "Is Public": 1,
+          "Lines of Code (LOC)": 8,
+          "Reflection Hits": 0,
+          "Start Line": 224,
+          "Structural Impact": 2.4
+        },
+        {
+          "Control Flow Branches": 0,
+          "Control Flow Ratio": "0.0%",
+          "End Line": 285,
+          "Function Name": "get_runs",
+          "Input Parameters": 3,
+          "Is Documented": 1,
+          "Is Public": 1,
+          "Lines of Code (LOC)": 8,
+          "Reflection Hits": 0,
+          "Start Line": 278,
+          "Structural Impact": 2.4
+        },
+        {
+          "Control Flow Branches": 0,
+          "Control Flow Ratio": "0.0%",
+          "End Line": 374,
+          "Function Name": "modify_vector_store",
+          "Input Parameters": 3,
+          "Is Documented": 1,
+          "Is Public": 1,
+          "Lines of Code (LOC)": 8,
+          "Reflection Hits": 0,
+          "Start Line": 367,
+          "Structural Impact": 2.4
+        },
+        {
+          "Control Flow Branches": 0,
+          "Control Flow Ratio": "0.0%",
+          "End Line": 160,
+          "Function Name": "get_assistant",
+          "Input Parameters": 2,
+          "Is Documented": 1,
+          "Is Public": 1,
+          "Lines of Code (LOC)": 8,
+          "Reflection Hits": 0,
+          "Start Line": 153,
+          "Structural Impact": 2.1
+        },
+        {
+          "Control Flow Branches": 0,
+          "Control Flow Ratio": "0.0%",
+          "End Line": 183,
+          "Function Name": "delete_assistant",
+          "Input Parameters": 2,
+          "Is Documented": 1,
+          "Is Public": 1,
+          "Lines of Code (LOC)": 8,
+          "Reflection Hits": 0,
+          "Start Line": 176,
+          "Structural Impact": 2.1
+        },
+        {
+          "Control Flow Branches": 0,
+          "Control Flow Ratio": "0.0%",
+          "End Line": 207,
+          "Function Name": "delete_thread",
+          "Input Parameters": 2,
+          "Is Documented": 1,
+          "Is Public": 1,
+          "Lines of Code (LOC)": 8,
+          "Reflection Hits": 0,
+          "Start Line": 200,
+          "Structural Impact": 2.1
+        },
+        {
+          "Control Flow Branches": 0,
+          "Control Flow Ratio": "0.0%",
+          "End Line": 332,
+          "Function Name": "get_file",
+          "Input Parameters": 2,
+          "Is Documented": 1,
+          "Is Public": 1,
+          "Lines of Code (LOC)": 8,
+          "Reflection Hits": 0,
+          "Start Line": 325,
+          "Structural Impact": 2.1
+        },
+        {
+          "Control Flow Branches": 0,
+          "Control Flow Ratio": "0.0%",
+          "End Line": 346,
+          "Function Name": "delete_file",
+          "Input Parameters": 2,
+          "Is Documented": 1,
+          "Is Public": 1,
+          "Lines of Code (LOC)": 8,
+          "Reflection Hits": 0,
+          "Start Line": 339,
+          "Structural Impact": 2.1
+        },
+        {
+          "Control Flow Branches": 0,
+          "Control Flow Ratio": "0.0%",
+          "End Line": 365,
+          "Function Name": "get_vector_store",
+          "Input Parameters": 2,
+          "Is Documented": 1,
+          "Is Public": 1,
+          "Lines of Code (LOC)": 8,
+          "Reflection Hits": 0,
+          "Start Line": 358,
+          "Structural Impact": 2.1
+        },
+        {
+          "Control Flow Branches": 0,
+          "Control Flow Ratio": "0.0%",
+          "End Line": 383,
+          "Function Name": "delete_vector_store",
+          "Input Parameters": 2,
+          "Is Documented": 1,
+          "Is Public": 1,
+          "Lines of Code (LOC)": 8,
+          "Reflection Hits": 0,
+          "Start Line": 376,
+          "Structural Impact": 2.1
+        },
+        {
+          "Control Flow Branches": 0,
+          "Control Flow Ratio": "0.0%",
+          "End Line": 407,
+          "Function Name": "get_vector_store_files",
+          "Input Parameters": 2,
+          "Is Documented": 1,
+          "Is Public": 1,
+          "Lines of Code (LOC)": 8,
+          "Reflection Hits": 0,
+          "Start Line": 400,
+          "Structural Impact": 2.1
+        },
+        {
+          "Control Flow Branches": 0,
+          "Control Flow Ratio": "0.0%",
+          "End Line": 447,
+          "Function Name": "get_batch",
+          "Input Parameters": 2,
+          "Is Documented": 1,
+          "Is Public": 1,
+          "Lines of Code (LOC)": 8,
+          "Reflection Hits": 0,
+          "Start Line": 440,
+          "Structural Impact": 2.1
+        },
+        {
+          "Control Flow Branches": 0,
+          "Control Flow Ratio": "0.0%",
+          "End Line": 490,
+          "Function Name": "cancel_batch",
+          "Input Parameters": 2,
+          "Is Documented": 1,
+          "Is Public": 1,
+          "Lines of Code (LOC)": 8,
+          "Reflection Hits": 0,
+          "Start Line": 483,
+          "Structural Impact": 2.1
+        },
+        {
+          "Control Flow Branches": 0,
+          "Control Flow Ratio": "0.0%",
+          "End Line": 68,
+          "Function Name": "is_in_progress",
+          "Input Parameters": 2,
+          "Is Documented": 1,
+          "Is Public": 1,
+          "Lines of Code (LOC)": 3,
+          "Reflection Hits": 0,
+          "Start Line": 66,
+          "Structural Impact": 1.9
+        },
+        {
+          "Control Flow Branches": 0,
+          "Control Flow Ratio": "0.0%",
+          "End Line": 165,
+          "Function Name": "get_assistants",
+          "Input Parameters": 2,
+          "Is Documented": 1,
+          "Is Public": 1,
+          "Lines of Code (LOC)": 4,
+          "Reflection Hits": 0,
+          "Start Line": 162,
+          "Structural Impact": 1.9
+        },
+        {
+          "Control Flow Branches": 0,
+          "Control Flow Ratio": "0.0%",
+          "End Line": 188,
+          "Function Name": "create_thread",
+          "Input Parameters": 2,
+          "Is Documented": 1,
+          "Is Public": 1,
+          "Lines of Code (LOC)": 4,
+          "Reflection Hits": 0,
+          "Start Line": 185,
+          "Structural Impact": 1.9
+        },
+        {
+          "Control Flow Branches": 0,
+          "Control Flow Ratio": "0.0%",
+          "End Line": 351,
+          "Function Name": "create_vector_store",
+          "Input Parameters": 2,
+          "Is Documented": 1,
+          "Is Public": 1,
+          "Lines of Code (LOC)": 4,
+          "Reflection Hits": 0,
+          "Start Line": 348,
+          "Structural Impact": 1.9
+        },
+        {
+          "Control Flow Branches": 0,
+          "Control Flow Ratio": "0.0%",
+          "End Line": 356,
+          "Function Name": "get_vector_stores",
+          "Input Parameters": 2,
+          "Is Documented": 1,
+          "Is Public": 1,
+          "Lines of Code (LOC)": 4,
+          "Reflection Hits": 0,
+          "Start Line": 353,
+          "Structural Impact": 1.9
+        },
+        {
+          "Control Flow Branches": 0,
+          "Control Flow Ratio": "0.0%",
+          "End Line": 96,
+          "Function Name": "get_ui_field_behaviour",
+          "Input Parameters": 1,
+          "Is Documented": 1,
+          "Is Public": 1,
+          "Lines of Code (LOC)": 7,
+          "Reflection Hits": 0,
+          "Start Line": 90,
+          "Structural Impact": 1.8
+        },
+        {
+          "Control Flow Branches": 0,
+          "Control Flow Ratio": "0.0%",
+          "End Line": 103,
+          "Function Name": "test_connection",
+          "Input Parameters": 1,
+          "Is Documented": 0,
+          "Is Public": 1,
+          "Lines of Code (LOC)": 6,
+          "Reflection Hits": 0,
+          "Start Line": 98,
+          "Structural Impact": 1.7
+        },
+        {
+          "Control Flow Branches": 0,
+          "Control Flow Ratio": "0.0%",
+          "End Line": 108,
+          "Function Name": "conn",
+          "Input Parameters": 1,
+          "Is Documented": 1,
+          "Is Public": 1,
+          "Lines of Code (LOC)": 3,
+          "Reflection Hits": 0,
+          "Start Line": 106,
+          "Structural Impact": 1.6
+        },
+        {
+          "Control Flow Branches": 0,
+          "Control Flow Ratio": "0.0%",
+          "End Line": 337,
+          "Function Name": "get_files",
+          "Input Parameters": 1,
+          "Is Documented": 1,
+          "Is Public": 1,
+          "Lines of Code (LOC)": 4,
+          "Reflection Hits": 0,
+          "Start Line": 334,
+          "Structural Impact": 1.6
+        },
+        {
+          "Control Flow Branches": 0,
+          "Control Flow Ratio": "0.0%",
+          "End Line": 63,
+          "Function Name": "__str__",
+          "Input Parameters": 1,
+          "Is Documented": 0,
+          "Is Public": 0,
+          "Lines of Code (LOC)": 2,
+          "Reflection Hits": 0,
+          "Start Line": 62,
+          "Structural Impact": 1.5
+        }
+      ],
+      "python/airflow_ai_providers/pinecone_src_airflow_providers_pinecone_hooks_pinecone.py": [
+        {
+          "Control Flow Branches": 6,
+          "Control Flow Ratio": "60.0%",
+          "End Line": 389,
+          "Function Name": "upsert_data_async",
+          "Input Parameters": 5,
+          "Is Documented": 0,
+          "Is Public": 1,
+          "Lines of Code (LOC)": 26,
+          "Reflection Hits": 0,
+          "Start Line": 364,
+          "Structural Impact": 18.4
+        },
+        {
+          "Control Flow Branches": 3,
+          "Control Flow Ratio": "60.0%",
+          "End Line": 219,
+          "Function Name": "get_pod_spec_obj",
+          "Input Parameters": 8,
+          "Is Documented": 0,
+          "Is Public": 1,
+          "Lines of Code (LOC)": 31,
+          "Reflection Hits": 0,
+          "Start Line": 189,
+          "Structural Impact": 13.6
+        },
+        {
+          "Control Flow Branches": 0,
+          "Control Flow Ratio": "0.0%",
+          "End Line": 353,
+          "Function Name": "query_vector",
+          "Input Parameters": 10,
+          "Is Documented": 0,
+          "Is Public": 1,
+          "Lines of Code (LOC)": 40,
+          "Reflection Hits": 0,
+          "Start Line": 314,
+          "Structural Impact": 5.3
+        },
+        {
+          "Control Flow Branches": 2,
+          "Control Flow Ratio": "40.0%",
+          "End Line": 111,
+          "Function Name": "environment",
+          "Input Parameters": 1,
+          "Is Documented": 0,
+          "Is Public": 1,
+          "Lines of Code (LOC)": 7,
+          "Reflection Hits": 0,
+          "Start Line": 105,
+          "Structural Impact": 4.6
+        },
+        {
+          "Control Flow Branches": 2,
+          "Control Flow Ratio": "40.0%",
+          "End Line": 120,
+          "Function Name": "region",
+          "Input Parameters": 1,
+          "Is Documented": 0,
+          "Is Public": 1,
+          "Lines of Code (LOC)": 7,
+          "Reflection Hits": 0,
+          "Start Line": 114,
+          "Structural Impact": 4.6
+        },
+        {
+          "Control Flow Branches": 0,
+          "Control Flow Ratio": "0.0%",
+          "End Line": 187,
+          "Function Name": "upsert",
+          "Input Parameters": 7,
+          "Is Documented": 0,
+          "Is Public": 1,
+          "Lines of Code (LOC)": 35,
+          "Reflection Hits": 0,
+          "Start Line": 153,
+          "Structural Impact": 4.6
+        },
+        {
+          "Control Flow Branches": 1,
+          "Control Flow Ratio": "33.3%",
+          "End Line": 228,
+          "Function Name": "get_serverless_spec_obj",
+          "Input Parameters": 3,
+          "Is Documented": 1,
+          "Is Public": 1,
+          "Lines of Code (LOC)": 8,
+          "Reflection Hits": 0,
+          "Start Line": 221,
+          "Structural Impact": 4.4
+        },
+        {
+          "Control Flow Branches": 0,
+          "Control Flow Ratio": "0.0%",
+          "End Line": 254,
+          "Function Name": "create_index",
+          "Input Parameters": 6,
+          "Is Documented": 0,
+          "Is Public": 1,
+          "Lines of Code (LOC)": 25,
+          "Reflection Hits": 0,
+          "Start Line": 230,
+          "Structural Impact": 3.9
+        },
+        {
+          "Control Flow Branches": 1,
+          "Control Flow Ratio": "50.0%",
+          "End Line": 362,
+          "Function Name": "_chunks",
+          "Input Parameters": 2,
+          "Is Documented": 1,
+          "Is Public": 0,
+          "Lines of Code (LOC)": 7,
+          "Reflection Hits": 0,
+          "Start Line": 356,
+          "Structural Impact": 3.8
+        },
+        {
+          "Control Flow Branches": 1,
+          "Control Flow Ratio": "33.3%",
+          "End Line": 136,
+          "Function Name": "pinecone_client",
+          "Input Parameters": 1,
+          "Is Documented": 1,
+          "Is Public": 1,
+          "Lines of Code (LOC)": 14,
+          "Reflection Hits": 0,
+          "Start Line": 123,
+          "Structural Impact": 3.5
+        },
+        {
+          "Control Flow Branches": 0,
+          "Control Flow Ratio": "0.0%",
+          "End Line": 409,
+          "Function Name": "describe_index_stats",
+          "Input Parameters": 4,
+          "Is Documented": 0,
+          "Is Public": 1,
+          "Lines of Code (LOC)": 19,
+          "Reflection Hits": 0,
+          "Start Line": 391,
+          "Structural Impact": 3.2
+        },
+        {
+          "Control Flow Branches": 1,
+          "Control Flow Ratio": "33.3%",
+          "End Line": 102,
+          "Function Name": "api_key",
+          "Input Parameters": 1,
+          "Is Documented": 0,
+          "Is Public": 1,
+          "Lines of Code (LOC)": 5,
+          "Reflection Hits": 0,
+          "Start Line": 98,
+          "Structural Impact": 3.1
+        },
+        {
+          "Control Flow Branches": 0,
+          "Control Flow Ratio": "0.0%",
+          "End Line": 283,
+          "Function Name": "configure_index",
+          "Input Parameters": 4,
+          "Is Documented": 0,
+          "Is Public": 1,
+          "Lines of Code (LOC)": 11,
+          "Reflection Hits": 0,
+          "Start Line": 273,
+          "Structural Impact": 2.8
+        },
+        {
+          "Control Flow Branches": 0,
+          "Control Flow Ratio": "0.0%",
+          "End Line": 95,
+          "Function Name": "__init__",
+          "Input Parameters": 4,
+          "Is Documented": 0,
+          "Is Public": 0,
+          "Lines of Code (LOC)": 6,
+          "Reflection Hits": 0,
+          "Start Line": 90,
+          "Structural Impact": 2.5
+        },
+        {
+          "Control Flow Branches": 0,
+          "Control Flow Ratio": "0.0%",
+          "End Line": 271,
+          "Function Name": "delete_index",
+          "Input Parameters": 3,
+          "Is Documented": 1,
+          "Is Public": 1,
+          "Lines of Code (LOC)": 8,
+          "Reflection Hits": 0,
+          "Start Line": 264,
+          "Structural Impact": 2.4
+        },
+        {
+          "Control Flow Branches": 0,
+          "Control Flow Ratio": "0.0%",
+          "End Line": 292,
+          "Function Name": "create_collection",
+          "Input Parameters": 3,
+          "Is Documented": 1,
+          "Is Public": 1,
+          "Lines of Code (LOC)": 8,
+          "Reflection Hits": 0,
+          "Start Line": 285,
+          "Structural Impact": 2.4
+        },
+        {
+          "Control Flow Branches": 0,
+          "Control Flow Ratio": "0.0%",
+          "End Line": 76,
+          "Function Name": "get_connection_form_widgets",
+          "Input Parameters": 1,
+          "Is Documented": 1,
+          "Is Public": 1,
+          "Lines of Code (LOC)": 14,
+          "Reflection Hits": 0,
+          "Start Line": 63,
+          "Structural Impact": 2.1
+        },
+        {
+          "Control Flow Branches": 0,
+          "Control Flow Ratio": "0.0%",
+          "End Line": 262,
+          "Function Name": "describe_index",
+          "Input Parameters": 2,
+          "Is Documented": 1,
+          "Is Public": 1,
+          "Lines of Code (LOC)": 7,
+          "Reflection Hits": 0,
+          "Start Line": 256,
+          "Structural Impact": 2.1
+        },
+        {
+          "Control Flow Branches": 0,
+          "Control Flow Ratio": "0.0%",
+          "End Line": 300,
+          "Function Name": "delete_collection",
+          "Input Parameters": 2,
+          "Is Documented": 1,
+          "Is Public": 1,
+          "Lines of Code (LOC)": 7,
+          "Reflection Hits": 0,
+          "Start Line": 294,
+          "Structural Impact": 2.1
+        },
+        {
+          "Control Flow Branches": 0,
+          "Control Flow Ratio": "0.0%",
+          "End Line": 308,
+          "Function Name": "describe_collection",
+          "Input Parameters": 2,
+          "Is Documented": 1,
+          "Is Public": 1,
+          "Lines of Code (LOC)": 7,
+          "Reflection Hits": 0,
+          "Start Line": 302,
+          "Structural Impact": 2.1
+        },
+        {
+          "Control Flow Branches": 0,
+          "Control Flow Ratio": "0.0%",
+          "End Line": 88,
+          "Function Name": "get_ui_field_behaviour",
+          "Input Parameters": 1,
+          "Is Documented": 1,
+          "Is Public": 1,
+          "Lines of Code (LOC)": 10,
+          "Reflection Hits": 0,
+          "Start Line": 79,
+          "Structural Impact": 1.9
+        },
+        {
+          "Control Flow Branches": 0,
+          "Control Flow Ratio": "0.0%",
+          "End Line": 147,
+          "Function Name": "test_connection",
+          "Input Parameters": 1,
+          "Is Documented": 0,
+          "Is Public": 1,
+          "Lines of Code (LOC)": 6,
+          "Reflection Hits": 0,
+          "Start Line": 142,
+          "Structural Impact": 1.7
+        },
+        {
+          "Control Flow Branches": 0,
+          "Control Flow Ratio": "0.0%",
+          "End Line": 151,
+          "Function Name": "list_indexes",
+          "Input Parameters": 1,
+          "Is Documented": 1,
+          "Is Public": 1,
+          "Lines of Code (LOC)": 3,
+          "Reflection Hits": 0,
+          "Start Line": 149,
+          "Structural Impact": 1.6
+        },
+        {
+          "Control Flow Branches": 0,
+          "Control Flow Ratio": "0.0%",
+          "End Line": 312,
+          "Function Name": "list_collections",
+          "Input Parameters": 1,
+          "Is Documented": 1,
+          "Is Public": 1,
+          "Lines of Code (LOC)": 3,
+          "Reflection Hits": 0,
+          "Start Line": 310,
+          "Structural Impact": 1.6
+        },
+        {
+          "Control Flow Branches": 0,
+          "Control Flow Ratio": "0.0%",
+          "End Line": 140,
+          "Function Name": "conn",
+          "Input Parameters": 1,
+          "Is Documented": 0,
+          "Is Public": 1,
+          "Lines of Code (LOC)": 2,
+          "Reflection Hits": 0,
+          "Start Line": 139,
+          "Structural Impact": 1.5
+        }
+      ],
+      "python/airflow_ai_providers/pinecone_src_airflow_providers_pinecone_operators_pinecone.py": [
+        {
+          "Control Flow Branches": 1,
+          "Control Flow Ratio": "50.0%",
+          "End Line": 77,
+          "Function Name": "__init__",
+          "Input Parameters": 8,
+          "Is Documented": 0,
+          "Is Public": 0,
+          "Lines of Code (LOC)": 21,
+          "Reflection Hits": 0,
+          "Start Line": 57,
+          "Structural Impact": 7.0
+        },
+        {
+          "Control Flow Branches": 0,
+          "Control Flow Ratio": "0.0%",
+          "End Line": 148,
+          "Function Name": "__init__",
+          "Input Parameters": 14,
+          "Is Documented": 0,
+          "Is Public": 0,
+          "Lines of Code (LOC)": 30,
+          "Reflection Hits": 0,
+          "Start Line": 119,
+          "Structural Impact": 5.4
+        },
+        {
+          "Control Flow Branches": 0,
+          "Control Flow Ratio": "0.0%",
+          "End Line": 209,
+          "Function Name": "__init__",
+          "Input Parameters": 9,
+          "Is Documented": 0,
+          "Is Public": 0,
+          "Lines of Code (LOC)": 20,
+          "Reflection Hits": 0,
+          "Start Line": 190,
+          "Structural Impact": 4.2
+        },
+        {
+          "Control Flow Branches": 0,
+          "Control Flow Ratio": "0.0%",
+          "End Line": 170,
+          "Function Name": "execute",
+          "Input Parameters": 2,
+          "Is Documented": 0,
+          "Is Public": 1,
+          "Lines of Code (LOC)": 17,
+          "Reflection Hits": 0,
+          "Start Line": 154,
+          "Structural Impact": 2.6
+        },
+        {
+          "Control Flow Branches": 0,
+          "Control Flow Ratio": "0.0%",
+          "End Line": 94,
+          "Function Name": "execute",
+          "Input Parameters": 2,
+          "Is Documented": 1,
+          "Is Public": 1,
+          "Lines of Code (LOC)": 11,
+          "Reflection Hits": 0,
+          "Start Line": 84,
+          "Structural Impact": 2.3
+        },
+        {
+          "Control Flow Branches": 0,
+          "Control Flow Ratio": "0.0%",
+          "End Line": 223,
+          "Function Name": "execute",
+          "Input Parameters": 2,
+          "Is Documented": 0,
+          "Is Public": 1,
+          "Lines of Code (LOC)": 9,
+          "Reflection Hits": 0,
+          "Start Line": 215,
+          "Structural Impact": 2.2
+        },
+        {
+          "Control Flow Branches": 0,
+          "Control Flow Ratio": "0.0%",
+          "End Line": 82,
+          "Function Name": "hook",
+          "Input Parameters": 1,
+          "Is Documented": 1,
+          "Is Public": 1,
+          "Lines of Code (LOC)": 3,
+          "Reflection Hits": 0,
+          "Start Line": 80,
+          "Structural Impact": 1.6
+        },
+        {
+          "Control Flow Branches": 0,
+          "Control Flow Ratio": "0.0%",
+          "End Line": 152,
+          "Function Name": "hook",
+          "Input Parameters": 1,
+          "Is Documented": 0,
+          "Is Public": 1,
+          "Lines of Code (LOC)": 2,
+          "Reflection Hits": 0,
+          "Start Line": 151,
+          "Structural Impact": 1.5
+        },
+        {
+          "Control Flow Branches": 0,
+          "Control Flow Ratio": "0.0%",
+          "End Line": 213,
+          "Function Name": "hook",
+          "Input Parameters": 1,
+          "Is Documented": 0,
+          "Is Public": 1,
+          "Lines of Code (LOC)": 2,
+          "Reflection Hits": 0,
+          "Start Line": 212,
+          "Structural Impact": 1.5
+        }
+      ],
+      "python/airflow_ai_providers/pinecone_tests_system_pinecone_example_pinecone_cohere.py": [
+        {
+          "Control Flow Branches": 1,
+          "Control Flow Ratio": "33.3%",
+          "End Line": 70,
+          "Function Name": "transform_output",
+          "Input Parameters": 1,
+          "Is Documented": 0,
+          "Is Public": 1,
+          "Lines of Code (LOC)": 3,
+          "Reflection Hits": 0,
+          "Start Line": 68,
+          "Structural Impact": 3.0
+        },
+        {
+          "Control Flow Branches": 0,
+          "Control Flow Ratio": "0.0%",
+          "End Line": 86,
+          "Function Name": "delete_index",
+          "Input Parameters": 0,
+          "Is Documented": 0,
+          "Is Public": 1,
+          "Lines of Code (LOC)": 3,
+          "Reflection Hits": 0,
+          "Start Line": 84,
+          "Structural Impact": 1.1
+        }
+      ]
+    },
+    "python/airflow_opsgenie_tests": {
+      "python/airflow_opsgenie_tests/NOTICE": [],
+      "python/airflow_opsgenie_tests/test_opsgenie.py": [
+        {
+          "Control Flow Branches": 0,
+          "Control Flow Ratio": "0.0%",
+          "End Line": 121,
+          "Function Name": "test_create_alert_api_key_not_set",
+          "Input Parameters": 3,
+          "Is Documented": 0,
+          "Is Public": 1,
+          "Lines of Code (LOC)": 12,
+          "Reflection Hits": 0,
+          "Start Line": 110,
+          "Structural Impact": 2.6
+        },
+        {
+          "Control Flow Branches": 0,
+          "Control Flow Ratio": "0.0%",
+          "End Line": 147,
+          "Function Name": "test_close_alert",
+          "Input Parameters": 2,
+          "Is Documented": 0,
+          "Is Public": 1,
+          "Lines of Code (LOC)": 18,
+          "Reflection Hits": 0,
+          "Start Line": 130,
+          "Structural Impact": 2.6
+        },
+        {
+          "Control Flow Branches": 0,
+          "Control Flow Ratio": "0.0%",
+          "End Line": 100,
+          "Function Name": "test_get_conn_custom_host",
+          "Input Parameters": 2,
+          "Is Documented": 0,
+          "Is Public": 1,
+          "Lines of Code (LOC)": 13,
+          "Reflection Hits": 0,
+          "Start Line": 88,
+          "Structural Impact": 2.4
+        },
+        {
+          "Control Flow Branches": 0,
+          "Control Flow Ratio": "0.0%",
+          "End Line": 163,
+          "Function Name": "test_delete_alert",
+          "Input Parameters": 2,
+          "Is Documented": 0,
+          "Is Public": 1,
+          "Lines of Code (LOC)": 14,
+          "Reflection Hits": 0,
+          "Start Line": 150,
+          "Structural Impact": 2.4
+        },
+        {
+          "Control Flow Branches": 0,
+          "Control Flow Ratio": "0.0%",
+          "End Line": 77,
+          "Function Name": "setup_connections",
+          "Input Parameters": 2,
+          "Is Documented": 0,
+          "Is Public": 1,
+          "Lines of Code (LOC)": 9,
+          "Reflection Hits": 0,
+          "Start Line": 69,
+          "Structural Impact": 2.2
+        },
+        {
+          "Control Flow Branches": 0,
+          "Control Flow Ratio": "0.0%",
+          "End Line": 127,
+          "Function Name": "test_create_alert_create_alert_payload",
+          "Input Parameters": 2,
+          "Is Documented": 0,
+          "Is Public": 1,
+          "Lines of Code (LOC)": 4,
+          "Reflection Hits": 0,
+          "Start Line": 124,
+          "Structural Impact": 1.9
+        },
+        {
+          "Control Flow Branches": 0,
+          "Control Flow Ratio": "0.0%",
+          "End Line": 107,
+          "Function Name": "test_verify_api_key_set",
+          "Input Parameters": 1,
+          "Is Documented": 0,
+          "Is Public": 1,
+          "Lines of Code (LOC)": 6,
+          "Reflection Hits": 0,
+          "Start Line": 102,
+          "Structural Impact": 1.7
+        },
+        {
+          "Control Flow Branches": 0,
+          "Control Flow Ratio": "0.0%",
+          "End Line": 82,
+          "Function Name": "test_get_api_key",
+          "Input Parameters": 1,
+          "Is Documented": 0,
+          "Is Public": 1,
+          "Lines of Code (LOC)": 4,
+          "Reflection Hits": 0,
+          "Start Line": 79,
+          "Structural Impact": 1.6
+        },
+        {
+          "Control Flow Branches": 0,
+          "Control Flow Ratio": "0.0%",
+          "End Line": 86,
+          "Function Name": "test_get_conn_defaults_host",
+          "Input Parameters": 1,
+          "Is Documented": 0,
+          "Is Public": 1,
+          "Lines of Code (LOC)": 3,
+          "Reflection Hits": 0,
+          "Start Line": 84,
+          "Structural Impact": 1.6
+        }
+      ]
+    },
     "python/cython": {
       "python/cython/COPYING.txt": [],
       "python/cython/CodeGeneration.py": [
@@ -416350,6 +419035,207 @@
           "Reflection Hits": 0,
           "Start Line": 8345,
           "Structural Impact": 1.1
+        }
+      ]
+    },
+    "python/django_db_tests": {
+      "python/django_db_tests/test_iterator.py": [
+        {
+          "Control Flow Branches": 1,
+          "Control Flow Ratio": "25.0%",
+          "End Line": 25,
+          "Function Name": "test_iterator_invalid_chunk_size",
+          "Input Parameters": 1,
+          "Is Documented": 0,
+          "Is Public": 1,
+          "Lines of Code (LOC)": 7,
+          "Reflection Hits": 0,
+          "Start Line": 19,
+          "Structural Impact": 3.2
+        },
+        {
+          "Control Flow Branches": 0,
+          "Control Flow Ratio": "0.0%",
+          "End Line": 58,
+          "Function Name": "test_no_chunked_reads",
+          "Input Parameters": 1,
+          "Is Documented": 1,
+          "Is Public": 1,
+          "Lines of Code (LOC)": 11,
+          "Reflection Hits": 0,
+          "Start Line": 48,
+          "Structural Impact": 2.0
+        },
+        {
+          "Control Flow Branches": 0,
+          "Control Flow Ratio": "0.0%",
+          "End Line": 35,
+          "Function Name": "test_default_iterator_chunk_size",
+          "Input Parameters": 1,
+          "Is Documented": 0,
+          "Is Public": 1,
+          "Lines of Code (LOC)": 9,
+          "Reflection Hits": 0,
+          "Start Line": 27,
+          "Structural Impact": 1.9
+        },
+        {
+          "Control Flow Branches": 0,
+          "Control Flow Ratio": "0.0%",
+          "End Line": 46,
+          "Function Name": "test_iterator_chunk_size",
+          "Input Parameters": 1,
+          "Is Documented": 0,
+          "Is Public": 1,
+          "Lines of Code (LOC)": 10,
+          "Reflection Hits": 0,
+          "Start Line": 37,
+          "Structural Impact": 1.9
+        },
+        {
+          "Control Flow Branches": 0,
+          "Control Flow Ratio": "0.0%",
+          "End Line": 17,
+          "Function Name": "setUpTestData",
+          "Input Parameters": 1,
+          "Is Documented": 0,
+          "Is Public": 1,
+          "Lines of Code (LOC)": 3,
+          "Reflection Hits": 0,
+          "Start Line": 15,
+          "Structural Impact": 1.6
+        }
+      ],
+      "python/django_db_tests/test_utils.py": [
+        {
+          "Control Flow Branches": 1,
+          "Control Flow Ratio": "33.3%",
+          "End Line": 91,
+          "Function Name": "test_split_tzname_delta",
+          "Input Parameters": 1,
+          "Is Documented": 0,
+          "Is Public": 1,
+          "Lines of Code (LOC)": 16,
+          "Reflection Hits": 0,
+          "Start Line": 76,
+          "Structural Impact": 3.6
+        },
+        {
+          "Control Flow Branches": 1,
+          "Control Flow Ratio": "20.0%",
+          "End Line": 140,
+          "Function Name": "test_unsupported_callproc_kparams_raises_error",
+          "Input Parameters": 1,
+          "Is Documented": 0,
+          "Is Public": 1,
+          "Lines of Code (LOC)": 8,
+          "Reflection Hits": 0,
+          "Start Line": 133,
+          "Structural Impact": 3.2
+        },
+        {
+          "Control Flow Branches": 0,
+          "Control Flow Ratio": "0.0%",
+          "End Line": 105,
+          "Function Name": "_test_procedure",
+          "Input Parameters": 5,
+          "Is Documented": 0,
+          "Is Public": 0,
+          "Lines of Code (LOC)": 9,
+          "Reflection Hits": 0,
+          "Start Line": 97,
+          "Structural Impact": 2.9
+        },
+        {
+          "Control Flow Branches": 0,
+          "Control Flow Ratio": "0.0%",
+          "End Line": 74,
+          "Function Name": "test_format_number",
+          "Input Parameters": 1,
+          "Is Documented": 0,
+          "Is Public": 1,
+          "Lines of Code (LOC)": 28,
+          "Reflection Hits": 0,
+          "Start Line": 47,
+          "Structural Impact": 2.8
+        },
+        {
+          "Control Flow Branches": 0,
+          "Control Flow Ratio": "0.0%",
+          "End Line": 49,
+          "Function Name": "equal",
+          "Input Parameters": 4,
+          "Is Documented": 0,
+          "Is Public": 1,
+          "Lines of Code (LOC)": 2,
+          "Reflection Hits": 0,
+          "Start Line": 48,
+          "Structural Impact": 2.3
+        },
+        {
+          "Control Flow Branches": 0,
+          "Control Flow Ratio": "0.0%",
+          "End Line": 35,
+          "Function Name": "test_truncate_name",
+          "Input Parameters": 1,
+          "Is Documented": 0,
+          "Is Public": 1,
+          "Lines of Code (LOC)": 15,
+          "Reflection Hits": 0,
+          "Start Line": 21,
+          "Structural Impact": 2.2
+        },
+        {
+          "Control Flow Branches": 0,
+          "Control Flow Ratio": "0.0%",
+          "End Line": 45,
+          "Function Name": "test_split_identifier",
+          "Input Parameters": 1,
+          "Is Documented": 0,
+          "Is Public": 1,
+          "Lines of Code (LOC)": 9,
+          "Reflection Hits": 0,
+          "Start Line": 37,
+          "Structural Impact": 1.9
+        },
+        {
+          "Control Flow Branches": 0,
+          "Control Flow Ratio": "0.0%",
+          "End Line": 130,
+          "Function Name": "test_callproc_kparams",
+          "Input Parameters": 1,
+          "Is Documented": 0,
+          "Is Public": 1,
+          "Lines of Code (LOC)": 7,
+          "Reflection Hits": 0,
+          "Start Line": 124,
+          "Structural Impact": 1.8
+        },
+        {
+          "Control Flow Branches": 0,
+          "Control Flow Ratio": "0.0%",
+          "End Line": 119,
+          "Function Name": "test_callproc_with_int_params",
+          "Input Parameters": 1,
+          "Is Documented": 0,
+          "Is Public": 1,
+          "Lines of Code (LOC)": 6,
+          "Reflection Hits": 0,
+          "Start Line": 114,
+          "Structural Impact": 1.7
+        },
+        {
+          "Control Flow Branches": 0,
+          "Control Flow Ratio": "0.0%",
+          "End Line": 111,
+          "Function Name": "test_callproc_without_params",
+          "Input Parameters": 1,
+          "Is Documented": 0,
+          "Is Public": 1,
+          "Lines of Code (LOC)": 4,
+          "Reflection Hits": 0,
+          "Start Line": 108,
+          "Structural Impact": 1.6
         }
       ]
     },
@@ -443146,6 +446032,478 @@
         }
       ]
     },
+    "python/homeassistant_anthropic": {
+      "python/homeassistant_anthropic/LICENSE.md": [],
+      "python/homeassistant_anthropic/coordinator.py": [
+        {
+          "Control Flow Branches": 3,
+          "Control Flow Ratio": "75.0%",
+          "End Line": 78,
+          "Function Name": "mark_connection_error",
+          "Input Parameters": 1,
+          "Is Documented": 1,
+          "Is Public": 1,
+          "Lines of Code (LOC)": 8,
+          "Reflection Hits": 0,
+          "Start Line": 71,
+          "Structural Impact": 6.1
+        },
+        {
+          "Control Flow Branches": 1,
+          "Control Flow Ratio": "11.1%",
+          "End Line": 69,
+          "Function Name": "async_update_data",
+          "Input Parameters": 1,
+          "Is Documented": 1,
+          "Is Public": 1,
+          "Lines of Code (LOC)": 20,
+          "Reflection Hits": 0,
+          "Start Line": 50,
+          "Structural Impact": 3.8
+        },
+        {
+          "Control Flow Branches": 0,
+          "Control Flow Ratio": "0.0%",
+          "End Line": 42,
+          "Function Name": "__init__",
+          "Input Parameters": 3,
+          "Is Documented": 1,
+          "Is Public": 1,
+          "Lines of Code (LOC)": 14,
+          "Reflection Hits": 0,
+          "Start Line": 29,
+          "Structural Impact": 2.7
+        },
+        {
+          "Control Flow Branches": 0,
+          "Control Flow Ratio": "0.0%",
+          "End Line": 48,
+          "Function Name": "async_set_updated_data",
+          "Input Parameters": 2,
+          "Is Documented": 1,
+          "Is Public": 1,
+          "Lines of Code (LOC)": 4,
+          "Reflection Hits": 0,
+          "Start Line": 45,
+          "Structural Impact": 1.9
+        }
+      ]
+    },
+    "python/homeassistant_ble_integrations": {
+      "python/homeassistant_ble_integrations/LICENSE.md": [],
+      "python/homeassistant_ble_integrations/aranet___init__.py": [
+        {
+          "Control Flow Branches": 0,
+          "Control Flow Ratio": "0.0%",
+          "End Line": 49,
+          "Function Name": "async_setup_entry",
+          "Input Parameters": 2,
+          "Is Documented": 1,
+          "Is Public": 1,
+          "Lines of Code (LOC)": 17,
+          "Reflection Hits": 0,
+          "Start Line": 33,
+          "Structural Impact": 2.6
+        },
+        {
+          "Control Flow Branches": 0,
+          "Control Flow Ratio": "0.0%",
+          "End Line": 54,
+          "Function Name": "async_unload_entry",
+          "Input Parameters": 2,
+          "Is Documented": 1,
+          "Is Public": 1,
+          "Lines of Code (LOC)": 3,
+          "Reflection Hits": 0,
+          "Start Line": 52,
+          "Structural Impact": 1.9
+        },
+        {
+          "Control Flow Branches": 0,
+          "Control Flow Ratio": "0.0%",
+          "End Line": 30,
+          "Function Name": "_service_info_to_adv",
+          "Input Parameters": 1,
+          "Is Documented": 0,
+          "Is Public": 0,
+          "Lines of Code (LOC)": 4,
+          "Reflection Hits": 0,
+          "Start Line": 27,
+          "Structural Impact": 1.6
+        }
+      ],
+      "python/homeassistant_ble_integrations/gardena_bluetooth___init__.py": [
+        {
+          "Control Flow Branches": 0,
+          "Control Flow Ratio": "0.0%",
+          "End Line": 122,
+          "Function Name": "async_setup_entry",
+          "Input Parameters": 2,
+          "Is Documented": 0,
+          "Is Public": 1,
+          "Lines of Code (LOC)": 52,
+          "Reflection Hits": 0,
+          "Start Line": 71,
+          "Structural Impact": 4.3
+        },
+        {
+          "Control Flow Branches": 1,
+          "Control Flow Ratio": "20.0%",
+          "End Line": 59,
+          "Function Name": "get_connection",
+          "Input Parameters": 2,
+          "Is Documented": 1,
+          "Is Public": 1,
+          "Lines of Code (LOC)": 12,
+          "Reflection Hits": 0,
+          "Start Line": 48,
+          "Structural Impact": 4.1
+        },
+        {
+          "Control Flow Branches": 1,
+          "Control Flow Ratio": "20.0%",
+          "End Line": 132,
+          "Function Name": "async_unload_entry",
+          "Input Parameters": 2,
+          "Is Documented": 0,
+          "Is Public": 1,
+          "Lines of Code (LOC)": 8,
+          "Reflection Hits": 0,
+          "Start Line": 125,
+          "Structural Impact": 3.9
+        },
+        {
+          "Control Flow Branches": 1,
+          "Control Flow Ratio": "33.3%",
+          "End Line": 57,
+          "Function Name": "_device_lookup",
+          "Input Parameters": 0,
+          "Is Documented": 0,
+          "Is Public": 0,
+          "Lines of Code (LOC)": 7,
+          "Reflection Hits": 0,
+          "Start Line": 51,
+          "Structural Impact": 2.4
+        },
+        {
+          "Control Flow Branches": 0,
+          "Control Flow Ratio": "0.0%",
+          "End Line": 68,
+          "Function Name": "_update_timestamp",
+          "Input Parameters": 2,
+          "Is Documented": 0,
+          "Is Public": 0,
+          "Lines of Code (LOC)": 7,
+          "Reflection Hits": 0,
+          "Start Line": 62,
+          "Structural Impact": 2.1
+        }
+      ],
+      "python/homeassistant_ble_integrations/utils.py": [
+        {
+          "Control Flow Branches": 4,
+          "Control Flow Ratio": "57.1%",
+          "End Line": 33,
+          "Function Name": "get_device_macs",
+          "Input Parameters": 2,
+          "Is Documented": 0,
+          "Is Public": 1,
+          "Lines of Code (LOC)": 17,
+          "Reflection Hits": 0,
+          "Start Line": 17,
+          "Structural Impact": 9.5
+        },
+        {
+          "Control Flow Branches": 0,
+          "Control Flow Ratio": "0.0%",
+          "End Line": 48,
+          "Function Name": "non_verifying_requests_session",
+          "Input Parameters": 1,
+          "Is Documented": 1,
+          "Is Public": 1,
+          "Lines of Code (LOC)": 13,
+          "Reflection Hits": 0,
+          "Start Line": 36,
+          "Structural Impact": 2.1
+        }
+      ]
+    },
+    "python/langchain_agents": {
+      "python/langchain_agents/langchain_agents_middleware_model_fallback.py": [
+        {
+          "Control Flow Branches": 3,
+          "Control Flow Ratio": "75.0%",
+          "End Line": 70,
+          "Function Name": "__init__",
+          "Input Parameters": 3,
+          "Is Documented": 0,
+          "Is Public": 0,
+          "Lines of Code (LOC)": 21,
+          "Reflection Hits": 0,
+          "Start Line": 50,
+          "Structural Impact": 9.1
+        },
+        {
+          "Control Flow Branches": 1,
+          "Control Flow Ratio": "14.3%",
+          "End Line": 104,
+          "Function Name": "wrap_model_call",
+          "Input Parameters": 3,
+          "Is Documented": 0,
+          "Is Public": 1,
+          "Lines of Code (LOC)": 33,
+          "Reflection Hits": 0,
+          "Start Line": 72,
+          "Structural Impact": 5.7
+        },
+        {
+          "Control Flow Branches": 1,
+          "Control Flow Ratio": "11.1%",
+          "End Line": 138,
+          "Function Name": "awrap_model_call",
+          "Input Parameters": 3,
+          "Is Documented": 0,
+          "Is Public": 1,
+          "Lines of Code (LOC)": 33,
+          "Reflection Hits": 0,
+          "Start Line": 106,
+          "Structural Impact": 5.7
+        }
+      ],
+      "python/langchain_agents/langchain_agents_middleware_tool_emulator.py": [
+        {
+          "Control Flow Branches": 8,
+          "Control Flow Ratio": "88.9%",
+          "End Line": 107,
+          "Function Name": "__init__",
+          "Input Parameters": 3,
+          "Is Documented": 0,
+          "Is Public": 0,
+          "Lines of Code (LOC)": 42,
+          "Reflection Hits": 0,
+          "Start Line": 66,
+          "Structural Impact": 20.1
+        },
+        {
+          "Control Flow Branches": 6,
+          "Control Flow Ratio": "50.0%",
+          "End Line": 209,
+          "Function Name": "awrap_tool_call",
+          "Input Parameters": 3,
+          "Is Documented": 0,
+          "Is Public": 1,
+          "Lines of Code (LOC)": 51,
+          "Reflection Hits": 0,
+          "Start Line": 159,
+          "Structural Impact": 16.6
+        },
+        {
+          "Control Flow Branches": 6,
+          "Control Flow Ratio": "60.0%",
+          "End Line": 157,
+          "Function Name": "wrap_tool_call",
+          "Input Parameters": 3,
+          "Is Documented": 0,
+          "Is Public": 1,
+          "Lines of Code (LOC)": 49,
+          "Reflection Hits": 0,
+          "Start Line": 109,
+          "Structural Impact": 16.4
+        }
+      ],
+      "python/langchain_agents/tests_integration_tests_chat_models_test_base.py": [
+        {
+          "Control Flow Branches": 1,
+          "Control Flow Ratio": "25.0%",
+          "End Line": 35,
+          "Function Name": "test_init_chat_model_chain",
+          "Input Parameters": 0,
+          "Is Documented": 0,
+          "Is Public": 1,
+          "Lines of Code (LOC)": 14,
+          "Reflection Hits": 0,
+          "Start Line": 22,
+          "Structural Impact": 2.7
+        },
+        {
+          "Control Flow Branches": 0,
+          "Control Flow Ratio": "0.0%",
+          "End Line": 41,
+          "Function Name": "chat_model_class",
+          "Input Parameters": 1,
+          "Is Documented": 0,
+          "Is Public": 1,
+          "Lines of Code (LOC)": 2,
+          "Reflection Hits": 0,
+          "Start Line": 40,
+          "Structural Impact": 1.5
+        },
+        {
+          "Control Flow Branches": 0,
+          "Control Flow Ratio": "0.0%",
+          "End Line": 45,
+          "Function Name": "chat_model_params",
+          "Input Parameters": 1,
+          "Is Documented": 0,
+          "Is Public": 1,
+          "Lines of Code (LOC)": 2,
+          "Reflection Hits": 0,
+          "Start Line": 44,
+          "Structural Impact": 1.5
+        },
+        {
+          "Control Flow Branches": 0,
+          "Control Flow Ratio": "0.0%",
+          "End Line": 49,
+          "Function Name": "supports_image_inputs",
+          "Input Parameters": 1,
+          "Is Documented": 0,
+          "Is Public": 1,
+          "Lines of Code (LOC)": 2,
+          "Reflection Hits": 0,
+          "Start Line": 48,
+          "Structural Impact": 1.5
+        },
+        {
+          "Control Flow Branches": 0,
+          "Control Flow Ratio": "0.0%",
+          "End Line": 53,
+          "Function Name": "has_tool_calling",
+          "Input Parameters": 1,
+          "Is Documented": 0,
+          "Is Public": 1,
+          "Lines of Code (LOC)": 2,
+          "Reflection Hits": 0,
+          "Start Line": 52,
+          "Structural Impact": 1.5
+        },
+        {
+          "Control Flow Branches": 0,
+          "Control Flow Ratio": "0.0%",
+          "End Line": 57,
+          "Function Name": "has_structured_output",
+          "Input Parameters": 1,
+          "Is Documented": 0,
+          "Is Public": 1,
+          "Lines of Code (LOC)": 2,
+          "Reflection Hits": 0,
+          "Start Line": 56,
+          "Structural Impact": 1.5
+        }
+      ]
+    },
+    "python/micropython_usb_tls": {
+      "python/micropython_usb_tls/ssl_verify_callback.py": [
+        {
+          "Control Flow Branches": 0,
+          "Control Flow Ratio": "0.0%",
+          "End Line": 38,
+          "Function Name": "test",
+          "Input Parameters": 1,
+          "Is Documented": 0,
+          "Is Public": 1,
+          "Lines of Code (LOC)": 15,
+          "Reflection Hits": 0,
+          "Start Line": 24,
+          "Structural Impact": 2.2
+        },
+        {
+          "Control Flow Branches": 0,
+          "Control Flow Ratio": "0.0%",
+          "End Line": 16,
+          "Function Name": "verify_callback",
+          "Input Parameters": 2,
+          "Is Documented": 0,
+          "Is Public": 1,
+          "Lines of Code (LOC)": 3,
+          "Reflection Hits": 0,
+          "Start Line": 14,
+          "Structural Impact": 1.9
+        },
+        {
+          "Control Flow Branches": 0,
+          "Control Flow Ratio": "0.0%",
+          "End Line": 21,
+          "Function Name": "verify_callback_fail",
+          "Input Parameters": 2,
+          "Is Documented": 0,
+          "Is Public": 1,
+          "Lines of Code (LOC)": 3,
+          "Reflection Hits": 0,
+          "Start Line": 19,
+          "Structural Impact": 1.9
+        }
+      ],
+      "python/micropython_usb_tls/tls_dtls.py": [
+        {
+          "Control Flow Branches": 1,
+          "Control Flow Ratio": "25.0%",
+          "End Line": 27,
+          "Function Name": "ioctl",
+          "Input Parameters": 3,
+          "Is Documented": 0,
+          "Is Public": 1,
+          "Lines of Code (LOC)": 4,
+          "Reflection Hits": 0,
+          "Start Line": 24,
+          "Structural Impact": 4.2
+        },
+        {
+          "Control Flow Branches": 0,
+          "Control Flow Ratio": "0.0%",
+          "End Line": 22,
+          "Function Name": "readinto",
+          "Input Parameters": 2,
+          "Is Documented": 0,
+          "Is Public": 1,
+          "Lines of Code (LOC)": 4,
+          "Reflection Hits": 0,
+          "Start Line": 19,
+          "Structural Impact": 1.9
+        },
+        {
+          "Control Flow Branches": 0,
+          "Control Flow Ratio": "0.0%",
+          "End Line": 17,
+          "Function Name": "write",
+          "Input Parameters": 2,
+          "Is Documented": 0,
+          "Is Public": 1,
+          "Lines of Code (LOC)": 2,
+          "Reflection Hits": 0,
+          "Start Line": 16,
+          "Structural Impact": 1.8
+        },
+        {
+          "Control Flow Branches": 0,
+          "Control Flow Ratio": "0.0%",
+          "End Line": 14,
+          "Function Name": "__init__",
+          "Input Parameters": 1,
+          "Is Documented": 0,
+          "Is Public": 0,
+          "Lines of Code (LOC)": 3,
+          "Reflection Hits": 0,
+          "Start Line": 12,
+          "Structural Impact": 1.6
+        }
+      ],
+      "python/micropython_usb_tls/usb_simple_host_pyusb.py": [
+        {
+          "Control Flow Branches": 2,
+          "Control Flow Ratio": "66.7%",
+          "End Line": 43,
+          "Function Name": "main",
+          "Input Parameters": 0,
+          "Is Documented": 0,
+          "Is Public": 1,
+          "Lines of Code (LOC)": 25,
+          "Reflection Hits": 0,
+          "Start Line": 19,
+          "Structural Impact": 4.2
+        }
+      ]
+    },
     "python/numpy": {
       "python/numpy/LICENSE.txt": [],
       "python/numpy/__init__.py": [],
@@ -450902,6 +454260,231 @@
           "Structural Impact": 1.5
         }
       ]
+    },
+    "python/opencv_dnn_conversion": {
+      "python/opencv_dnn_conversion/py_to_py_resnet50_onnx.py": [
+        {
+          "Control Flow Branches": 0,
+          "Control Flow Ratio": "0.0%",
+          "End Line": 37,
+          "Function Name": "get_pytorch_onnx_model",
+          "Input Parameters": 1,
+          "Is Documented": 0,
+          "Is Public": 1,
+          "Lines of Code (LOC)": 29,
+          "Reflection Hits": 0,
+          "Start Line": 9,
+          "Structural Impact": 2.9
+        },
+        {
+          "Control Flow Branches": 0,
+          "Control Flow Ratio": "0.0%",
+          "End Line": 46,
+          "Function Name": "main",
+          "Input Parameters": 0,
+          "Is Documented": 0,
+          "Is Public": 1,
+          "Lines of Code (LOC)": 7,
+          "Reflection Hits": 0,
+          "Start Line": 40,
+          "Structural Impact": 1.4
+        }
+      ]
+    },
+    "python/pip_vendored_requests": {
+      "python/pip_vendored_requests/LICENSE.txt": [],
+      "python/pip_vendored_requests/packages.py": []
+    },
+    "python/scikit-learn_examples": {
+      "python/scikit-learn_examples/COPYING": [],
+      "python/scikit-learn_examples/linear_model_plot_nnls.py": [],
+      "python/scikit-learn_examples/svm_plot_custom_kernel.py": [
+        {
+          "Control Flow Branches": 0,
+          "Control Flow Ratio": "0.0%",
+          "End Line": 36,
+          "Function Name": "my_kernel",
+          "Input Parameters": 2,
+          "Is Documented": 1,
+          "Is Public": 1,
+          "Lines of Code (LOC)": 10,
+          "Reflection Hits": 0,
+          "Start Line": 27,
+          "Structural Impact": 2.2
+        }
+      ]
+    },
+    "python/tensorflow_ml_ops": {
+      "python/tensorflow_ml_ops/core_tfrt_saved_model_tests_gen_matmul_gpu.py": [
+        {
+          "Control Flow Branches": 1,
+          "Control Flow Ratio": "50.0%",
+          "End Line": 64,
+          "Function Name": "main",
+          "Input Parameters": 1,
+          "Is Documented": 0,
+          "Is Public": 1,
+          "Lines of Code (LOC)": 11,
+          "Reflection Hits": 0,
+          "Start Line": 54,
+          "Structural Impact": 3.4
+        },
+        {
+          "Control Flow Branches": 0,
+          "Control Flow Ratio": "0.0%",
+          "End Line": 51,
+          "Function Name": "toy",
+          "Input Parameters": 2,
+          "Is Documented": 0,
+          "Is Public": 1,
+          "Lines of Code (LOC)": 4,
+          "Reflection Hits": 0,
+          "Start Line": 48,
+          "Structural Impact": 1.9
+        },
+        {
+          "Control Flow Branches": 0,
+          "Control Flow Ratio": "0.0%",
+          "End Line": 43,
+          "Function Name": "__init__",
+          "Input Parameters": 1,
+          "Is Documented": 0,
+          "Is Public": 0,
+          "Lines of Code (LOC)": 4,
+          "Reflection Hits": 0,
+          "Start Line": 40,
+          "Structural Impact": 1.6
+        }
+      ],
+      "python/tensorflow_ml_ops/lite_testing_op_tests_einsum.py": [
+        {
+          "Control Flow Branches": 3,
+          "Control Flow Ratio": "30.0%",
+          "End Line": 89,
+          "Function Name": "make_einsum_tests",
+          "Input Parameters": 1,
+          "Is Documented": 1,
+          "Is Public": 1,
+          "Lines of Code (LOC)": 65,
+          "Reflection Hits": 0,
+          "Start Line": 25,
+          "Structural Impact": 8.9
+        },
+        {
+          "Control Flow Branches": 3,
+          "Control Flow Ratio": "60.0%",
+          "End Line": 59,
+          "Function Name": "set_dynamic_shape",
+          "Input Parameters": 1,
+          "Is Documented": 1,
+          "Is Public": 1,
+          "Lines of Code (LOC)": 3,
+          "Reflection Hits": 0,
+          "Start Line": 57,
+          "Structural Impact": 5.8
+        },
+        {
+          "Control Flow Branches": 0,
+          "Control Flow Ratio": "0.0%",
+          "End Line": 82,
+          "Function Name": "build_inputs",
+          "Input Parameters": 4,
+          "Is Documented": 1,
+          "Is Public": 1,
+          "Lines of Code (LOC)": 9,
+          "Reflection Hits": 0,
+          "Start Line": 74,
+          "Structural Impact": 2.7
+        },
+        {
+          "Control Flow Branches": 0,
+          "Control Flow Ratio": "0.0%",
+          "End Line": 72,
+          "Function Name": "build_graph",
+          "Input Parameters": 1,
+          "Is Documented": 1,
+          "Is Public": 1,
+          "Lines of Code (LOC)": 12,
+          "Reflection Hits": 0,
+          "Start Line": 61,
+          "Structural Impact": 2.0
+        }
+      ]
+    },
+    "python/tensorflow_model_fixtures": {
+      "python/tensorflow_model_fixtures/lite_testdata_multi_add.pb": [],
+      "python/tensorflow_model_fixtures/python_compiler_mlir_multi_add.tflite": []
+    },
+    "python/thealgorithms_machine_learning": {
+      "python/thealgorithms_machine_learning/LICENSE.md": [],
+      "python/thealgorithms_machine_learning/logistic_regression.py": [
+        {
+          "Control Flow Branches": 2,
+          "Control Flow Ratio": "50.0%",
+          "End Line": 125,
+          "Function Name": "logistic_reg",
+          "Input Parameters": 4,
+          "Is Documented": 0,
+          "Is Public": 1,
+          "Lines of Code (LOC)": 14,
+          "Reflection Hits": 0,
+          "Start Line": 112,
+          "Structural Impact": 7.4
+        },
+        {
+          "Control Flow Branches": 0,
+          "Control Flow Ratio": "0.0%",
+          "End Line": 103,
+          "Function Name": "cost_function",
+          "Input Parameters": 2,
+          "Is Documented": 1,
+          "Is Public": 1,
+          "Lines of Code (LOC)": 38,
+          "Reflection Hits": 0,
+          "Start Line": 66,
+          "Structural Impact": 3.6
+        },
+        {
+          "Control Flow Branches": 0,
+          "Control Flow Ratio": "0.0%",
+          "End Line": 63,
+          "Function Name": "sigmoid_function",
+          "Input Parameters": 1,
+          "Is Documented": 1,
+          "Is Public": 1,
+          "Lines of Code (LOC)": 33,
+          "Reflection Hits": 0,
+          "Start Line": 31,
+          "Structural Impact": 3.1
+        },
+        {
+          "Control Flow Branches": 0,
+          "Control Flow Ratio": "0.0%",
+          "End Line": 108,
+          "Function Name": "log_likelihood",
+          "Input Parameters": 3,
+          "Is Documented": 0,
+          "Is Public": 1,
+          "Lines of Code (LOC)": 3,
+          "Reflection Hits": 0,
+          "Start Line": 106,
+          "Structural Impact": 2.1
+        },
+        {
+          "Control Flow Branches": 0,
+          "Control Flow Ratio": "0.0%",
+          "End Line": 146,
+          "Function Name": "predict_prob",
+          "Input Parameters": 1,
+          "Is Documented": 0,
+          "Is Public": 1,
+          "Lines of Code (LOC)": 4,
+          "Reflection Hits": 0,
+          "Start Line": 143,
+          "Structural Impact": 1.6
+        }
+      ],
+      "python/thealgorithms_machine_learning/lstm_lstm_prediction.py": []
     },
     "python/twisted": {
       "python/twisted/defer.py": [
@@ -459111,6 +462694,128 @@
       ],
       "ruby/rails/routing.rb": []
     },
+    "ruby/rails_http_token_auth": {
+      "ruby/rails_http_token_auth/MIT-LICENSE": [],
+      "ruby/rails_http_token_auth/http_token_authentication_test.rb": [
+        {
+          "Control Flow Branches": 3,
+          "Control Flow Ratio": "75.0%",
+          "End Line": 36,
+          "Function Name": "authenticate_with_request",
+          "Input Parameters": 0,
+          "Is Documented": 0,
+          "Is Public": 0,
+          "Lines of Code (LOC)": 7,
+          "Reflection Hits": 0,
+          "Start Line": 30,
+          "Structural Impact": 4.3
+        },
+        {
+          "Control Flow Branches": 1,
+          "Control Flow Ratio": "50.0%",
+          "End Line": 42,
+          "Function Name": "authenticate_long_credentials",
+          "Input Parameters": 0,
+          "Is Documented": 0,
+          "Is Public": 0,
+          "Lines of Code (LOC)": 5,
+          "Reflection Hits": 0,
+          "Start Line": 38,
+          "Structural Impact": 2.2
+        },
+        {
+          "Control Flow Branches": 1,
+          "Control Flow Ratio": "50.0%",
+          "End Line": 21,
+          "Function Name": "show",
+          "Input Parameters": 0,
+          "Is Documented": 0,
+          "Is Public": 0,
+          "Lines of Code (LOC)": 3,
+          "Reflection Hits": 0,
+          "Start Line": 19,
+          "Structural Impact": 2.1
+        },
+        {
+          "Control Flow Branches": 0,
+          "Control Flow Ratio": "0.0%",
+          "End Line": 233,
+          "Function Name": "sample_request",
+          "Input Parameters": 2,
+          "Is Documented": 0,
+          "Is Public": 0,
+          "Lines of Code (LOC)": 6,
+          "Reflection Hits": 0,
+          "Start Line": 228,
+          "Structural Impact": 2.0
+        },
+        {
+          "Control Flow Branches": 0,
+          "Control Flow Ratio": "0.0%",
+          "End Line": 249,
+          "Function Name": "sample_request_without_token_key",
+          "Input Parameters": 1,
+          "Is Documented": 0,
+          "Is Public": 0,
+          "Lines of Code (LOC)": 11,
+          "Reflection Hits": 0,
+          "Start Line": 239,
+          "Structural Impact": 2.0
+        },
+        {
+          "Control Flow Branches": 0,
+          "Control Flow Ratio": "0.0%",
+          "End Line": 28,
+          "Function Name": "authenticate",
+          "Input Parameters": 0,
+          "Is Documented": 0,
+          "Is Public": 0,
+          "Lines of Code (LOC)": 5,
+          "Reflection Hits": 0,
+          "Start Line": 24,
+          "Structural Impact": 1.2
+        },
+        {
+          "Control Flow Branches": 0,
+          "Control Flow Ratio": "0.0%",
+          "End Line": 13,
+          "Function Name": "index",
+          "Input Parameters": 0,
+          "Is Documented": 0,
+          "Is Public": 0,
+          "Lines of Code (LOC)": 3,
+          "Reflection Hits": 0,
+          "Start Line": 11,
+          "Structural Impact": 1.1
+        },
+        {
+          "Control Flow Branches": 0,
+          "Control Flow Ratio": "0.0%",
+          "End Line": 17,
+          "Function Name": "display",
+          "Input Parameters": 0,
+          "Is Documented": 0,
+          "Is Public": 0,
+          "Lines of Code (LOC)": 3,
+          "Reflection Hits": 0,
+          "Start Line": 15,
+          "Structural Impact": 1.1
+        },
+        {
+          "Control Flow Branches": 0,
+          "Control Flow Ratio": "0.0%",
+          "End Line": 237,
+          "Function Name": "malformed_request",
+          "Input Parameters": 0,
+          "Is Documented": 0,
+          "Is Public": 0,
+          "Lines of Code (LOC)": 3,
+          "Reflection Hits": 0,
+          "Start Line": 235,
+          "Structural Impact": 1.1
+        }
+      ]
+    },
     "rust": {
       "rust/SOURCES.md": []
     },
@@ -463055,6 +466760,105 @@
           "Reflection Hits": 0,
           "Start Line": 258,
           "Structural Impact": 1.6
+        }
+      ]
+    },
+    "rust/bevy_asset_examples": {
+      "rust/bevy_asset_examples/LICENSE-APACHE": [],
+      "rust/bevy_asset_examples/LICENSE-MIT": [],
+      "rust/bevy_asset_examples/image_node.rs": [
+        {
+          "Control Flow Branches": 0,
+          "Control Flow Ratio": "0.0%",
+          "End Line": 42,
+          "Function Name": "setup",
+          "Input Parameters": 2,
+          "Is Documented": 0,
+          "Is Public": 0,
+          "Lines of Code (LOC)": 30,
+          "Reflection Hits": 0,
+          "Start Line": 13,
+          "Structural Impact": 3.2
+        },
+        {
+          "Control Flow Branches": 0,
+          "Control Flow Ratio": "0.0%",
+          "End Line": 11,
+          "Function Name": "main",
+          "Input Parameters": 0,
+          "Is Documented": 1,
+          "Is Public": 0,
+          "Lines of Code (LOC)": 6,
+          "Reflection Hits": 0,
+          "Start Line": 6,
+          "Structural Impact": 1.3
+        }
+      ],
+      "rust/bevy_asset_examples/rotation.rs": [
+        {
+          "Control Flow Branches": 3,
+          "Control Flow Ratio": "18.8%",
+          "End Line": 246,
+          "Function Name": "rotate_to_player_system",
+          "Input Parameters": 3,
+          "Is Documented": 1,
+          "Is Public": 0,
+          "Lines of Code (LOC)": 52,
+          "Reflection Hits": 0,
+          "Start Line": 195,
+          "Structural Impact": 10.6
+        },
+        {
+          "Control Flow Branches": 3,
+          "Control Flow Ratio": "21.4%",
+          "End Line": 151,
+          "Function Name": "player_movement_system",
+          "Input Parameters": 3,
+          "Is Documented": 1,
+          "Is Public": 0,
+          "Lines of Code (LOC)": 40,
+          "Reflection Hits": 0,
+          "Start Line": 112,
+          "Structural Impact": 10.0
+        },
+        {
+          "Control Flow Branches": 0,
+          "Control Flow Ratio": "0.0%",
+          "End Line": 109,
+          "Function Name": "setup",
+          "Input Parameters": 2,
+          "Is Documented": 1,
+          "Is Public": 0,
+          "Lines of Code (LOC)": 58,
+          "Reflection Hits": 0,
+          "Start Line": 52,
+          "Structural Impact": 4.6
+        },
+        {
+          "Control Flow Branches": 1,
+          "Control Flow Ratio": "12.5%",
+          "End Line": 172,
+          "Function Name": "snap_to_player_system",
+          "Input Parameters": 2,
+          "Is Documented": 1,
+          "Is Public": 0,
+          "Lines of Code (LOC)": 19,
+          "Reflection Hits": 0,
+          "Start Line": 154,
+          "Structural Impact": 4.4
+        },
+        {
+          "Control Flow Branches": 0,
+          "Control Flow Ratio": "0.0%",
+          "End Line": 21,
+          "Function Name": "main",
+          "Input Parameters": 0,
+          "Is Documented": 0,
+          "Is Public": 0,
+          "Lines of Code (LOC)": 15,
+          "Reflection Hits": 0,
+          "Start Line": 7,
+          "Structural Impact": 1.5
         }
       ]
     },
@@ -474398,6 +478202,101 @@
           "Reflection Hits": 0,
           "Start Line": 2394,
           "Structural Impact": 1.4
+        }
+      ]
+    },
+    "rust/tokio_util_rand": {
+      "rust/tokio_util_rand/rand.rs": [
+        {
+          "Control Flow Branches": 1,
+          "Control Flow Ratio": "25.0%",
+          "End Line": 50,
+          "Function Name": "from_u64",
+          "Input Parameters": 1,
+          "Is Documented": 1,
+          "Is Public": 0,
+          "Lines of Code (LOC)": 11,
+          "Reflection Hits": 0,
+          "Start Line": 40,
+          "Structural Impact": 3.4
+        },
+        {
+          "Control Flow Branches": 0,
+          "Control Flow Ratio": "0.0%",
+          "End Line": 81,
+          "Function Name": "fastrand_n",
+          "Input Parameters": 2,
+          "Is Documented": 0,
+          "Is Public": 0,
+          "Lines of Code (LOC)": 11,
+          "Reflection Hits": 0,
+          "Start Line": 71,
+          "Structural Impact": 2.3
+        },
+        {
+          "Control Flow Branches": 0,
+          "Control Flow Ratio": "0.0%",
+          "End Line": 94,
+          "Function Name": "fastrand",
+          "Input Parameters": 1,
+          "Is Documented": 0,
+          "Is Public": 0,
+          "Lines of Code (LOC)": 12,
+          "Reflection Hits": 0,
+          "Start Line": 83,
+          "Structural Impact": 2.0
+        },
+        {
+          "Control Flow Branches": 0,
+          "Control Flow Ratio": "0.0%",
+          "End Line": 54,
+          "Function Name": "from_pair",
+          "Input Parameters": 2,
+          "Is Documented": 0,
+          "Is Public": 0,
+          "Lines of Code (LOC)": 3,
+          "Reflection Hits": 0,
+          "Start Line": 52,
+          "Structural Impact": 1.9
+        },
+        {
+          "Control Flow Branches": 0,
+          "Control Flow Ratio": "0.0%",
+          "End Line": 69,
+          "Function Name": "from_seed",
+          "Input Parameters": 1,
+          "Is Documented": 1,
+          "Is Public": 1,
+          "Lines of Code (LOC)": 6,
+          "Reflection Hits": 0,
+          "Start Line": 64,
+          "Structural Impact": 1.7
+        },
+        {
+          "Control Flow Branches": 0,
+          "Control Flow Ratio": "0.0%",
+          "End Line": 38,
+          "Function Name": "new",
+          "Input Parameters": 0,
+          "Is Documented": 1,
+          "Is Public": 1,
+          "Lines of Code (LOC)": 3,
+          "Reflection Hits": 0,
+          "Start Line": 36,
+          "Structural Impact": 1.1
+        },
+        {
+          "Control Flow Branches": 0,
+          "Control Flow Ratio": "0.0%",
+          "End Line": 61,
+          "Function Name": "new",
+          "Input Parameters": 0,
+          "Is Documented": 1,
+          "Is Public": 1,
+          "Lines of Code (LOC)": 3,
+          "Reflection Hits": 0,
+          "Start Line": 59,
+          "Structural Impact": 1.1
         }
       ]
     },
@@ -506195,6 +510094,37 @@
         }
       ]
     },
+    "shell/freebsd_sysbuild": {
+      "shell/freebsd_sysbuild/COPYRIGHT": [],
+      "shell/freebsd_sysbuild/sysbuild.sh": [
+        {
+          "Control Flow Branches": 0,
+          "Control Flow Ratio": "0.0%",
+          "End Line": 145,
+          "Function Name": "usage",
+          "Input Parameters": 0,
+          "Is Documented": 0,
+          "Is Public": 0,
+          "Lines of Code (LOC)": 12,
+          "Reflection Hits": 0,
+          "Start Line": 134,
+          "Structural Impact": 1.6
+        },
+        {
+          "Control Flow Branches": 0,
+          "Control Flow Ratio": "0.0%",
+          "End Line": 181,
+          "Function Name": "ports_make",
+          "Input Parameters": 1,
+          "Is Documented": 0,
+          "Is Public": 0,
+          "Lines of Code (LOC)": 3,
+          "Reflection Hits": 0,
+          "Start Line": 179,
+          "Structural Impact": 1.6
+        }
+      ]
+    },
     "shell/haiku": {
       "shell/haiku/HardwareChecker.sh": [
         {
@@ -519486,6 +523416,309 @@
     "typescript": {
       "typescript/SOURCES.md": []
     },
+    "typescript/angular_zonejs_mocha": {
+      "typescript/angular_zonejs_mocha/mocha.ts": [
+        {
+          "Control Flow Branches": 11,
+          "Control Flow Ratio": "22.4%",
+          "End Line": 192,
+          "Function Name": "patchMocha",
+          "Input Parameters": 1,
+          "Is Documented": 0,
+          "Is Public": 1,
+          "Lines of Code (LOC)": 180,
+          "Reflection Hits": 16,
+          "Start Line": 13,
+          "Structural Impact": 26.0
+        },
+        {
+          "Control Flow Branches": 4,
+          "Control Flow Ratio": "66.7%",
+          "End Line": 73,
+          "Function Name": "modifyArguments",
+          "Input Parameters": 3,
+          "Is Documented": 0,
+          "Is Public": 0,
+          "Lines of Code (LOC)": 20,
+          "Reflection Hits": 0,
+          "Start Line": 54,
+          "Structural Impact": 11.0
+        },
+        {
+          "Control Flow Branches": 3,
+          "Control Flow Ratio": "50.0%",
+          "End Line": 189,
+          "Function Name": "run",
+          "Input Parameters": 1,
+          "Is Documented": 0,
+          "Is Public": 0,
+          "Lines of Code (LOC)": 17,
+          "Reflection Hits": 1,
+          "Start Line": 173,
+          "Structural Impact": 6.5
+        },
+        {
+          "Control Flow Branches": 0,
+          "Control Flow Ratio": "0.0%",
+          "End Line": 99,
+          "Function Name": "wrapTestInZone",
+          "Input Parameters": 1,
+          "Is Documented": 0,
+          "Is Public": 0,
+          "Lines of Code (LOC)": 15,
+          "Reflection Hits": 0,
+          "Start Line": 85,
+          "Structural Impact": 2.2
+        },
+        {
+          "Control Flow Branches": 0,
+          "Control Flow Ratio": "0.0%",
+          "End Line": 115,
+          "Function Name": "wrapSuiteInZone",
+          "Input Parameters": 1,
+          "Is Documented": 0,
+          "Is Public": 0,
+          "Lines of Code (LOC)": 15,
+          "Reflection Hits": 0,
+          "Start Line": 101,
+          "Structural Impact": 2.2
+        },
+        {
+          "Control Flow Branches": 0,
+          "Control Flow Ratio": "0.0%",
+          "End Line": 83,
+          "Function Name": "wrapDescribeInZone",
+          "Input Parameters": 1,
+          "Is Documented": 0,
+          "Is Public": 0,
+          "Lines of Code (LOC)": 9,
+          "Reflection Hits": 0,
+          "Start Line": 75,
+          "Structural Impact": 1.9
+        },
+        {
+          "Control Flow Branches": 0,
+          "Control Flow Ratio": "0.0%",
+          "End Line": 80,
+          "Function Name": "syncTest",
+          "Input Parameters": 1,
+          "Is Documented": 0,
+          "Is Public": 0,
+          "Lines of Code (LOC)": 5,
+          "Reflection Hits": 0,
+          "Start Line": 76,
+          "Structural Impact": 1.7
+        },
+        {
+          "Control Flow Branches": 0,
+          "Control Flow Ratio": "0.0%",
+          "End Line": 90,
+          "Function Name": "asyncTest",
+          "Input Parameters": 1,
+          "Is Documented": 0,
+          "Is Public": 0,
+          "Lines of Code (LOC)": 5,
+          "Reflection Hits": 0,
+          "Start Line": 86,
+          "Structural Impact": 1.7
+        },
+        {
+          "Control Flow Branches": 0,
+          "Control Flow Ratio": "0.0%",
+          "End Line": 96,
+          "Function Name": "syncTest",
+          "Input Parameters": 1,
+          "Is Documented": 0,
+          "Is Public": 0,
+          "Lines of Code (LOC)": 5,
+          "Reflection Hits": 0,
+          "Start Line": 92,
+          "Structural Impact": 1.7
+        },
+        {
+          "Control Flow Branches": 0,
+          "Control Flow Ratio": "0.0%",
+          "End Line": 106,
+          "Function Name": "asyncTest",
+          "Input Parameters": 1,
+          "Is Documented": 0,
+          "Is Public": 0,
+          "Lines of Code (LOC)": 5,
+          "Reflection Hits": 0,
+          "Start Line": 102,
+          "Structural Impact": 1.7
+        },
+        {
+          "Control Flow Branches": 0,
+          "Control Flow Ratio": "0.0%",
+          "End Line": 112,
+          "Function Name": "syncTest",
+          "Input Parameters": 1,
+          "Is Documented": 0,
+          "Is Public": 0,
+          "Lines of Code (LOC)": 5,
+          "Reflection Hits": 0,
+          "Start Line": 108,
+          "Structural Impact": 1.7
+        },
+        {
+          "Control Flow Branches": 0,
+          "Control Flow Ratio": "0.0%",
+          "End Line": 171,
+          "Function Name": "runTest",
+          "Input Parameters": 1,
+          "Is Documented": 0,
+          "Is Public": 0,
+          "Lines of Code (LOC)": 5,
+          "Reflection Hits": 1,
+          "Start Line": 167,
+          "Structural Impact": 1.7
+        },
+        {
+          "Control Flow Branches": 0,
+          "Control Flow Ratio": "0.0%",
+          "End Line": 126,
+          "Function Name": "skip",
+          "Input Parameters": 0,
+          "Is Documented": 0,
+          "Is Public": 0,
+          "Lines of Code (LOC)": 4,
+          "Reflection Hits": 1,
+          "Start Line": 123,
+          "Structural Impact": 1.2
+        },
+        {
+          "Control Flow Branches": 0,
+          "Control Flow Ratio": "0.0%",
+          "End Line": 137,
+          "Function Name": "test",
+          "Input Parameters": 0,
+          "Is Documented": 0,
+          "Is Public": 0,
+          "Lines of Code (LOC)": 4,
+          "Reflection Hits": 1,
+          "Start Line": 134,
+          "Structural Impact": 1.2
+        },
+        {
+          "Control Flow Branches": 0,
+          "Control Flow Ratio": "0.0%",
+          "End Line": 144,
+          "Function Name": "skip",
+          "Input Parameters": 0,
+          "Is Documented": 0,
+          "Is Public": 0,
+          "Lines of Code (LOC)": 4,
+          "Reflection Hits": 1,
+          "Start Line": 141,
+          "Structural Impact": 1.2
+        },
+        {
+          "Control Flow Branches": 0,
+          "Control Flow Ratio": "0.0%",
+          "End Line": 68,
+          "Function Name": "toString",
+          "Input Parameters": 0,
+          "Is Documented": 0,
+          "Is Public": 0,
+          "Lines of Code (LOC)": 3,
+          "Reflection Hits": 0,
+          "Start Line": 66,
+          "Structural Impact": 1.1
+        },
+        {
+          "Control Flow Branches": 0,
+          "Control Flow Ratio": "0.0%",
+          "End Line": 119,
+          "Function Name": "suite",
+          "Input Parameters": 0,
+          "Is Documented": 0,
+          "Is Public": 0,
+          "Lines of Code (LOC)": 3,
+          "Reflection Hits": 1,
+          "Start Line": 117,
+          "Structural Impact": 1.1
+        },
+        {
+          "Control Flow Branches": 0,
+          "Control Flow Ratio": "0.0%",
+          "End Line": 130,
+          "Function Name": "only",
+          "Input Parameters": 0,
+          "Is Documented": 0,
+          "Is Public": 0,
+          "Lines of Code (LOC)": 3,
+          "Reflection Hits": 1,
+          "Start Line": 128,
+          "Structural Impact": 1.1
+        },
+        {
+          "Control Flow Branches": 0,
+          "Control Flow Ratio": "0.0%",
+          "End Line": 148,
+          "Function Name": "only",
+          "Input Parameters": 0,
+          "Is Documented": 0,
+          "Is Public": 0,
+          "Lines of Code (LOC)": 3,
+          "Reflection Hits": 1,
+          "Start Line": 146,
+          "Structural Impact": 1.1
+        },
+        {
+          "Control Flow Branches": 0,
+          "Control Flow Ratio": "0.0%",
+          "End Line": 152,
+          "Function Name": "suiteTeardown",
+          "Input Parameters": 0,
+          "Is Documented": 0,
+          "Is Public": 0,
+          "Lines of Code (LOC)": 3,
+          "Reflection Hits": 1,
+          "Start Line": 150,
+          "Structural Impact": 1.1
+        },
+        {
+          "Control Flow Branches": 0,
+          "Control Flow Ratio": "0.0%",
+          "End Line": 156,
+          "Function Name": "teardown",
+          "Input Parameters": 0,
+          "Is Documented": 0,
+          "Is Public": 0,
+          "Lines of Code (LOC)": 3,
+          "Reflection Hits": 1,
+          "Start Line": 154,
+          "Structural Impact": 1.1
+        },
+        {
+          "Control Flow Branches": 0,
+          "Control Flow Ratio": "0.0%",
+          "End Line": 160,
+          "Function Name": "suiteSetup",
+          "Input Parameters": 0,
+          "Is Documented": 0,
+          "Is Public": 0,
+          "Lines of Code (LOC)": 3,
+          "Reflection Hits": 1,
+          "Start Line": 158,
+          "Structural Impact": 1.1
+        },
+        {
+          "Control Flow Branches": 0,
+          "Control Flow Ratio": "0.0%",
+          "End Line": 164,
+          "Function Name": "setup",
+          "Input Parameters": 0,
+          "Is Documented": 0,
+          "Is Public": 0,
+          "Lines of Code (LOC)": 3,
+          "Reflection Hits": 1,
+          "Start Line": 162,
+          "Structural Impact": 1.1
+        }
+      ]
+    },
     "typescript/assemblyscript": {
       "typescript/assemblyscript/asconfig.json": [],
       "typescript/assemblyscript/ast.ts": [
@@ -524774,6 +529007,580 @@
         }
       ]
     },
+    "typescript/effect_ai_anthropic": {
+      "typescript/effect_ai_anthropic/AnthropicTokenizer.ts": [
+        {
+          "Control Flow Branches": 4,
+          "Control Flow Ratio": "23.5%",
+          "End Line": 52,
+          "Function Name": "tokenize",
+          "Input Parameters": 1,
+          "Is Documented": 1,
+          "Is Public": 0,
+          "Lines of Code (LOC)": 35,
+          "Reflection Hits": 0,
+          "Start Line": 18,
+          "Structural Impact": 8.8
+        },
+        {
+          "Control Flow Branches": 4,
+          "Control Flow Ratio": "28.6%",
+          "End Line": 43,
+          "Function Name": "try",
+          "Input Parameters": 0,
+          "Is Documented": 1,
+          "Is Public": 0,
+          "Lines of Code (LOC)": 24,
+          "Reflection Hits": 0,
+          "Start Line": 20,
+          "Structural Impact": 6.2
+        },
+        {
+          "Control Flow Branches": 0,
+          "Control Flow Ratio": "0.0%",
+          "End Line": 50,
+          "Function Name": "catch",
+          "Input Parameters": 1,
+          "Is Documented": 0,
+          "Is Public": 0,
+          "Lines of Code (LOC)": 7,
+          "Reflection Hits": 0,
+          "Start Line": 44,
+          "Structural Impact": 1.8
+        }
+      ]
+    },
+    "typescript/excalibur_math": {
+      "typescript/excalibur_math/LICENSE.md": [],
+      "typescript/excalibur_math/collision_colliders_separating-axis.ts": [
+        {
+          "Control Flow Branches": 6,
+          "Control Flow Ratio": "66.7%",
+          "End Line": 138,
+          "Function Name": "findPolygonPolygonSeparation",
+          "Input Parameters": 2,
+          "Is Documented": 0,
+          "Is Public": 0,
+          "Lines of Code (LOC)": 67,
+          "Reflection Hits": 0,
+          "Start Line": 72,
+          "Structural Impact": 15.5
+        },
+        {
+          "Control Flow Branches": 5,
+          "Control Flow Ratio": "62.5%",
+          "End Line": 168,
+          "Function Name": "findCirclePolygonSeparation",
+          "Input Parameters": 2,
+          "Is Documented": 0,
+          "Is Public": 0,
+          "Lines of Code (LOC)": 30,
+          "Reflection Hits": 0,
+          "Start Line": 139,
+          "Structural Impact": 11.9
+        },
+        {
+          "Control Flow Branches": 4,
+          "Control Flow Ratio": "80.0%",
+          "End Line": 204,
+          "Function Name": "findPolygonPolygonSeparationDegenerate",
+          "Input Parameters": 2,
+          "Is Documented": 0,
+          "Is Public": 0,
+          "Lines of Code (LOC)": 35,
+          "Reflection Hits": 0,
+          "Start Line": 170,
+          "Structural Impact": 10.4
+        }
+      ],
+      "typescript/excalibur_math/math_ray.ts": [
+        {
+          "Control Flow Branches": 6,
+          "Control Flow Ratio": "60.0%",
+          "End Line": 49,
+          "Function Name": "intersect",
+          "Input Parameters": 1,
+          "Is Documented": 1,
+          "Is Public": 1,
+          "Lines of Code (LOC)": 24,
+          "Reflection Hits": 0,
+          "Start Line": 26,
+          "Structural Impact": 11.1
+        },
+        {
+          "Control Flow Branches": 1,
+          "Control Flow Ratio": "33.3%",
+          "End Line": 57,
+          "Function Name": "intersectPoint",
+          "Input Parameters": 1,
+          "Is Documented": 0,
+          "Is Public": 1,
+          "Lines of Code (LOC)": 7,
+          "Reflection Hits": 0,
+          "Start Line": 51,
+          "Structural Impact": 3.2
+        },
+        {
+          "Control Flow Branches": 0,
+          "Control Flow Ratio": "0.0%",
+          "End Line": 19,
+          "Function Name": "constructor",
+          "Input Parameters": 2,
+          "Is Documented": 1,
+          "Is Public": 0,
+          "Lines of Code (LOC)": 4,
+          "Reflection Hits": 0,
+          "Start Line": 16,
+          "Structural Impact": 1.9
+        },
+        {
+          "Control Flow Branches": 0,
+          "Control Flow Ratio": "0.0%",
+          "End Line": 64,
+          "Function Name": "getPoint",
+          "Input Parameters": 1,
+          "Is Documented": 1,
+          "Is Public": 1,
+          "Lines of Code (LOC)": 3,
+          "Reflection Hits": 0,
+          "Start Line": 62,
+          "Structural Impact": 1.6
+        }
+      ]
+    },
+    "typescript/excalidraw_text_wrapping": {
+      "typescript/excalidraw_text_wrapping/textWrapping.ts": [
+        {
+          "Control Flow Branches": 9,
+          "Control Flow Ratio": "75.0%",
+          "End Line": 573,
+          "Function Name": "wrapLine",
+          "Input Parameters": 4,
+          "Is Documented": 1,
+          "Is Public": 0,
+          "Lines of Code (LOC)": 88,
+          "Reflection Hits": 0,
+          "Start Line": 486,
+          "Structural Impact": 26.8
+        },
+        {
+          "Control Flow Branches": 6,
+          "Control Flow Ratio": "60.0%",
+          "End Line": 647,
+          "Function Name": "wrapWord",
+          "Input Parameters": 4,
+          "Is Documented": 1,
+          "Is Public": 0,
+          "Lines of Code (LOC)": 70,
+          "Reflection Hits": 0,
+          "Start Line": 578,
+          "Structural Impact": 19.2
+        },
+        {
+          "Control Flow Branches": 5,
+          "Control Flow Ratio": "55.6%",
+          "End Line": 698,
+          "Function Name": "trimLine",
+          "Input Parameters": 5,
+          "Is Documented": 1,
+          "Is Public": 0,
+          "Lines of Code (LOC)": 44,
+          "Reflection Hits": 0,
+          "Start Line": 655,
+          "Structural Impact": 16.9
+        },
+        {
+          "Control Flow Branches": 5,
+          "Control Flow Ratio": "62.5%",
+          "End Line": 478,
+          "Function Name": "getWrappedTextLines",
+          "Input Parameters": 3,
+          "Is Documented": 1,
+          "Is Public": 1,
+          "Lines of Code (LOC)": 33,
+          "Reflection Hits": 0,
+          "Start Line": 446,
+          "Structural Impact": 13.7
+        },
+        {
+          "Control Flow Branches": 3,
+          "Control Flow Ratio": "75.0%",
+          "End Line": 740,
+          "Function Name": "satisfiesWordInvariant",
+          "Input Parameters": 1,
+          "Is Documented": 1,
+          "Is Public": 0,
+          "Lines of Code (LOC)": 7,
+          "Reflection Hits": 0,
+          "Start Line": 734,
+          "Structural Impact": 6.0
+        },
+        {
+          "Control Flow Branches": 1,
+          "Control Flow Ratio": "25.0%",
+          "End Line": 36,
+          "Function Name": "containsCJK",
+          "Input Parameters": 1,
+          "Is Documented": 1,
+          "Is Public": 1,
+          "Lines of Code (LOC)": 7,
+          "Reflection Hits": 0,
+          "Start Line": 30,
+          "Structural Impact": 3.2
+        },
+        {
+          "Control Flow Branches": 1,
+          "Control Flow Ratio": "33.3%",
+          "End Line": 729,
+          "Function Name": "isSingleCharacter",
+          "Input Parameters": 1,
+          "Is Documented": 1,
+          "Is Public": 0,
+          "Lines of Code (LOC)": 6,
+          "Reflection Hits": 0,
+          "Start Line": 724,
+          "Structural Impact": 3.1
+        },
+        {
+          "Control Flow Branches": 0,
+          "Control Flow Ratio": "0.0%",
+          "End Line": 717,
+          "Function Name": "trimLineEndAtSoftBreak",
+          "Input Parameters": 3,
+          "Is Documented": 1,
+          "Is Public": 0,
+          "Lines of Code (LOC)": 13,
+          "Reflection Hits": 0,
+          "Start Line": 705,
+          "Structural Impact": 2.6
+        },
+        {
+          "Control Flow Branches": 1,
+          "Control Flow Ratio": "33.3%",
+          "End Line": 48,
+          "Function Name": "getLineBreakRegex",
+          "Input Parameters": 0,
+          "Is Documented": 0,
+          "Is Public": 0,
+          "Lines of Code (LOC)": 11,
+          "Reflection Hits": 0,
+          "Start Line": 38,
+          "Structural Impact": 2.5
+        },
+        {
+          "Control Flow Branches": 0,
+          "Control Flow Ratio": "0.0%",
+          "End Line": 405,
+          "Function Name": "wrapText",
+          "Input Parameters": 3,
+          "Is Documented": 1,
+          "Is Public": 1,
+          "Lines of Code (LOC)": 9,
+          "Reflection Hits": 0,
+          "Start Line": 397,
+          "Structural Impact": 2.5
+        },
+        {
+          "Control Flow Branches": 1,
+          "Control Flow Ratio": "33.3%",
+          "End Line": 56,
+          "Function Name": "getEmojiRegex",
+          "Input Parameters": 0,
+          "Is Documented": 0,
+          "Is Public": 0,
+          "Lines of Code (LOC)": 7,
+          "Reflection Hits": 0,
+          "Start Line": 50,
+          "Structural Impact": 2.4
+        },
+        {
+          "Control Flow Branches": 0,
+          "Control Flow Ratio": "0.0%",
+          "End Line": 438,
+          "Function Name": "getHardLineBreaks",
+          "Input Parameters": 1,
+          "Is Documented": 1,
+          "Is Public": 0,
+          "Lines of Code (LOC)": 16,
+          "Reflection Hits": 0,
+          "Start Line": 423,
+          "Structural Impact": 2.2
+        },
+        {
+          "Control Flow Branches": 0,
+          "Control Flow Ratio": "0.0%",
+          "End Line": 169,
+          "Function Name": "getLineBreakRegexAdvanced",
+          "Input Parameters": 0,
+          "Is Documented": 1,
+          "Is Public": 0,
+          "Lines of Code (LOC)": 19,
+          "Reflection Hits": 0,
+          "Start Line": 151,
+          "Structural Impact": 2.0
+        },
+        {
+          "Control Flow Branches": 0,
+          "Control Flow Ratio": "0.0%",
+          "End Line": 335,
+          "Function Name": "PreceededBy",
+          "Input Parameters": 1,
+          "Is Documented": 1,
+          "Is Public": 0,
+          "Lines of Code (LOC)": 9,
+          "Reflection Hits": 0,
+          "Start Line": 327,
+          "Structural Impact": 1.9
+        },
+        {
+          "Control Flow Branches": 0,
+          "Control Flow Ratio": "0.0%",
+          "End Line": 347,
+          "Function Name": "FollowedBy",
+          "Input Parameters": 1,
+          "Is Documented": 1,
+          "Is Public": 0,
+          "Lines of Code (LOC)": 9,
+          "Reflection Hits": 0,
+          "Start Line": 339,
+          "Structural Impact": 1.9
+        },
+        {
+          "Control Flow Branches": 0,
+          "Control Flow Ratio": "0.0%",
+          "End Line": 359,
+          "Function Name": "NotPrecededBy",
+          "Input Parameters": 1,
+          "Is Documented": 1,
+          "Is Public": 0,
+          "Lines of Code (LOC)": 9,
+          "Reflection Hits": 0,
+          "Start Line": 351,
+          "Structural Impact": 1.9
+        },
+        {
+          "Control Flow Branches": 0,
+          "Control Flow Ratio": "0.0%",
+          "End Line": 371,
+          "Function Name": "NotFollowedBy",
+          "Input Parameters": 1,
+          "Is Documented": 1,
+          "Is Public": 0,
+          "Lines of Code (LOC)": 9,
+          "Reflection Hits": 0,
+          "Start Line": 363,
+          "Structural Impact": 1.9
+        },
+        {
+          "Control Flow Branches": 0,
+          "Control Flow Ratio": "0.0%",
+          "End Line": 263,
+          "Function Name": "Before",
+          "Input Parameters": 1,
+          "Is Documented": 1,
+          "Is Public": 0,
+          "Lines of Code (LOC)": 8,
+          "Reflection Hits": 0,
+          "Start Line": 256,
+          "Structural Impact": 1.8
+        },
+        {
+          "Control Flow Branches": 0,
+          "Control Flow Ratio": "0.0%",
+          "End Line": 274,
+          "Function Name": "After",
+          "Input Parameters": 1,
+          "Is Documented": 1,
+          "Is Public": 0,
+          "Lines of Code (LOC)": 8,
+          "Reflection Hits": 0,
+          "Start Line": 267,
+          "Structural Impact": 1.8
+        },
+        {
+          "Control Flow Branches": 0,
+          "Control Flow Ratio": "0.0%",
+          "End Line": 285,
+          "Function Name": "BeforeMany",
+          "Input Parameters": 1,
+          "Is Documented": 1,
+          "Is Public": 0,
+          "Lines of Code (LOC)": 8,
+          "Reflection Hits": 0,
+          "Start Line": 278,
+          "Structural Impact": 1.8
+        },
+        {
+          "Control Flow Branches": 0,
+          "Control Flow Ratio": "0.0%",
+          "End Line": 296,
+          "Function Name": "AfterMany",
+          "Input Parameters": 1,
+          "Is Documented": 1,
+          "Is Public": 0,
+          "Lines of Code (LOC)": 8,
+          "Reflection Hits": 0,
+          "Start Line": 289,
+          "Structural Impact": 1.8
+        },
+        {
+          "Control Flow Branches": 0,
+          "Control Flow Ratio": "0.0%",
+          "End Line": 307,
+          "Function Name": "NotBefore",
+          "Input Parameters": 1,
+          "Is Documented": 1,
+          "Is Public": 0,
+          "Lines of Code (LOC)": 8,
+          "Reflection Hits": 0,
+          "Start Line": 300,
+          "Structural Impact": 1.8
+        },
+        {
+          "Control Flow Branches": 0,
+          "Control Flow Ratio": "0.0%",
+          "End Line": 318,
+          "Function Name": "NotAfter",
+          "Input Parameters": 1,
+          "Is Documented": 1,
+          "Is Public": 0,
+          "Lines of Code (LOC)": 8,
+          "Reflection Hits": 0,
+          "Start Line": 311,
+          "Structural Impact": 1.8
+        },
+        {
+          "Control Flow Branches": 0,
+          "Control Flow Ratio": "0.0%",
+          "End Line": 389,
+          "Function Name": "parseTokens",
+          "Input Parameters": 1,
+          "Is Documented": 1,
+          "Is Public": 1,
+          "Lines of Code (LOC)": 8,
+          "Reflection Hits": 0,
+          "Start Line": 382,
+          "Structural Impact": 1.8
+        },
+        {
+          "Control Flow Branches": 0,
+          "Control Flow Ratio": "0.0%",
+          "End Line": 323,
+          "Function Name": "Chain",
+          "Input Parameters": 1,
+          "Is Documented": 0,
+          "Is Public": 0,
+          "Lines of Code (LOC)": 5,
+          "Reflection Hits": 0,
+          "Start Line": 319,
+          "Structural Impact": 1.7
+        },
+        {
+          "Control Flow Branches": 0,
+          "Control Flow Ratio": "0.0%",
+          "End Line": 206,
+          "Function Name": "getEmojiRegexUnicode",
+          "Input Parameters": 0,
+          "Is Documented": 1,
+          "Is Public": 0,
+          "Lines of Code (LOC)": 13,
+          "Reflection Hits": 0,
+          "Start Line": 194,
+          "Structural Impact": 1.6
+        },
+        {
+          "Control Flow Branches": 0,
+          "Control Flow Ratio": "0.0%",
+          "End Line": 252,
+          "Function Name": "On",
+          "Input Parameters": 1,
+          "Is Documented": 1,
+          "Is Public": 0,
+          "Lines of Code (LOC)": 4,
+          "Reflection Hits": 0,
+          "Start Line": 249,
+          "Structural Impact": 1.6
+        },
+        {
+          "Control Flow Branches": 0,
+          "Control Flow Ratio": "0.0%",
+          "End Line": 215,
+          "Function Name": "build",
+          "Input Parameters": 1,
+          "Is Documented": 1,
+          "Is Public": 0,
+          "Lines of Code (LOC)": 1,
+          "Reflection Hits": 0,
+          "Start Line": 215,
+          "Structural Impact": 1.5
+        },
+        {
+          "Control Flow Branches": 0,
+          "Control Flow Ratio": "0.0%",
+          "End Line": 219,
+          "Function Name": "join",
+          "Input Parameters": 1,
+          "Is Documented": 1,
+          "Is Public": 0,
+          "Lines of Code (LOC)": 1,
+          "Reflection Hits": 0,
+          "Start Line": 219,
+          "Structural Impact": 1.5
+        },
+        {
+          "Control Flow Branches": 0,
+          "Control Flow Ratio": "0.0%",
+          "End Line": 228,
+          "Function Name": "or",
+          "Input Parameters": 1,
+          "Is Documented": 1,
+          "Is Public": 0,
+          "Lines of Code (LOC)": 2,
+          "Reflection Hits": 0,
+          "Start Line": 227,
+          "Structural Impact": 1.5
+        },
+        {
+          "Control Flow Branches": 0,
+          "Control Flow Ratio": "0.0%",
+          "End Line": 233,
+          "Function Name": "group",
+          "Input Parameters": 1,
+          "Is Documented": 1,
+          "Is Public": 0,
+          "Lines of Code (LOC)": 2,
+          "Reflection Hits": 0,
+          "Start Line": 232,
+          "Structural Impact": 1.5
+        },
+        {
+          "Control Flow Branches": 0,
+          "Control Flow Ratio": "0.0%",
+          "End Line": 238,
+          "Function Name": "class",
+          "Input Parameters": 1,
+          "Is Documented": 1,
+          "Is Public": 0,
+          "Lines of Code (LOC)": 2,
+          "Reflection Hits": 0,
+          "Start Line": 237,
+          "Structural Impact": 1.5
+        },
+        {
+          "Control Flow Branches": 0,
+          "Control Flow Ratio": "0.0%",
+          "End Line": 142,
+          "Function Name": "getLineBreakRegexSimple",
+          "Input Parameters": 0,
+          "Is Documented": 1,
+          "Is Public": 0,
+          "Lines of Code (LOC)": 5,
+          "Reflection Hits": 0,
+          "Start Line": 138,
+          "Structural Impact": 1.2
+        }
+      ]
+    },
     "typescript/fp-ts": {
       "typescript/fp-ts/Either.ts": [
         {
@@ -529019,6 +533826,94 @@
           "Reflection Hits": 0,
           "Start Line": 2306,
           "Structural Impact": 1.5
+        }
+      ]
+    },
+    "typescript/nx_util_ai": {
+      "typescript/nx_util_ai/nx-dev_pages_api_query-ai-handler.ts": [
+        {
+          "Control Flow Branches": 1,
+          "Control Flow Ratio": "11.1%",
+          "End Line": 82,
+          "Function Name": "handler",
+          "Input Parameters": 1,
+          "Is Documented": 0,
+          "Is Public": 1,
+          "Lines of Code (LOC)": 59,
+          "Reflection Hits": 0,
+          "Start Line": 24,
+          "Structural Impact": 5.8
+        }
+      ],
+      "typescript/nx_util_ai/util-ai_src_lib_moderation.ts": [
+        {
+          "Control Flow Branches": 1,
+          "Control Flow Ratio": "50.0%",
+          "End Line": 21,
+          "Function Name": "moderateContent",
+          "Input Parameters": 2,
+          "Is Documented": 0,
+          "Is Public": 1,
+          "Lines of Code (LOC)": 18,
+          "Reflection Hits": 0,
+          "Start Line": 4,
+          "Structural Impact": 4.4
+        }
+      ]
+    },
+    "typescript/pixijs_examples": {
+      "typescript/pixijs_examples/events_dragging.ts": [
+        {
+          "Control Flow Branches": 1,
+          "Control Flow Ratio": "100.0%",
+          "End Line": 62,
+          "Function Name": "onDragMove",
+          "Input Parameters": 1,
+          "Is Documented": 0,
+          "Is Public": 0,
+          "Lines of Code (LOC)": 5,
+          "Reflection Hits": 0,
+          "Start Line": 58,
+          "Structural Impact": 3.1
+        },
+        {
+          "Control Flow Branches": 0,
+          "Control Flow Ratio": "0.0%",
+          "End Line": 49,
+          "Function Name": "createBunny",
+          "Input Parameters": 2,
+          "Is Documented": 0,
+          "Is Public": 0,
+          "Lines of Code (LOC)": 26,
+          "Reflection Hits": 0,
+          "Start Line": 24,
+          "Structural Impact": 3.0
+        },
+        {
+          "Control Flow Branches": 1,
+          "Control Flow Ratio": "100.0%",
+          "End Line": 79,
+          "Function Name": "onDragEnd",
+          "Input Parameters": 0,
+          "Is Documented": 0,
+          "Is Public": 0,
+          "Lines of Code (LOC)": 7,
+          "Reflection Hits": 0,
+          "Start Line": 73,
+          "Structural Impact": 2.4
+        },
+        {
+          "Control Flow Branches": 0,
+          "Control Flow Ratio": "0.0%",
+          "End Line": 71,
+          "Function Name": "onDragStart",
+          "Input Parameters": 1,
+          "Is Documented": 0,
+          "Is Public": 0,
+          "Lines of Code (LOC)": 8,
+          "Reflection Hits": 0,
+          "Start Line": 64,
+          "Structural Impact": 1.8
         }
       ]
     },
@@ -591955,6 +596850,179 @@
           "Reflection Hits": 0,
           "Start Line": 5660,
           "Structural Impact": 1.1
+        }
+      ]
+    },
+    "zig/zig_std_linux_mips": {
+      "zig/zig_std_linux_mips/mips.zig": [
+        {
+          "Control Flow Branches": 0,
+          "Control Flow Ratio": "0.0%",
+          "End Line": 176,
+          "Function Name": "syscall7",
+          "Input Parameters": 8,
+          "Is Documented": 0,
+          "Is Public": 1,
+          "Lines of Code (LOC)": 32,
+          "Reflection Hits": 0,
+          "Start Line": 145,
+          "Structural Impact": 4.6
+        },
+        {
+          "Control Flow Branches": 0,
+          "Control Flow Ratio": "0.0%",
+          "End Line": 143,
+          "Function Name": "syscall6",
+          "Input Parameters": 7,
+          "Is Documented": 0,
+          "Is Public": 1,
+          "Lines of Code (LOC)": 29,
+          "Reflection Hits": 0,
+          "Start Line": 115,
+          "Structural Impact": 4.3
+        },
+        {
+          "Control Flow Branches": 0,
+          "Control Flow Ratio": "0.0%",
+          "End Line": 113,
+          "Function Name": "syscall5",
+          "Input Parameters": 6,
+          "Is Documented": 0,
+          "Is Public": 1,
+          "Lines of Code (LOC)": 19,
+          "Reflection Hits": 0,
+          "Start Line": 95,
+          "Structural Impact": 3.6
+        },
+        {
+          "Control Flow Branches": 0,
+          "Control Flow Ratio": "0.0%",
+          "End Line": 90,
+          "Function Name": "syscall4",
+          "Input Parameters": 5,
+          "Is Documented": 0,
+          "Is Public": 1,
+          "Lines of Code (LOC)": 15,
+          "Reflection Hits": 0,
+          "Start Line": 76,
+          "Structural Impact": 3.2
+        },
+        {
+          "Control Flow Branches": 1,
+          "Control Flow Ratio": "100.0%",
+          "End Line": 226,
+          "Function Name": "clone",
+          "Input Parameters": 0,
+          "Is Documented": 0,
+          "Is Public": 1,
+          "Lines of Code (LOC)": 49,
+          "Reflection Hits": 0,
+          "Start Line": 178,
+          "Structural Impact": 3.0
+        },
+        {
+          "Control Flow Branches": 0,
+          "Control Flow Ratio": "0.0%",
+          "End Line": 74,
+          "Function Name": "syscall3",
+          "Input Parameters": 4,
+          "Is Documented": 0,
+          "Is Public": 1,
+          "Lines of Code (LOC)": 14,
+          "Reflection Hits": 0,
+          "Start Line": 61,
+          "Structural Impact": 2.9
+        },
+        {
+          "Control Flow Branches": 0,
+          "Control Flow Ratio": "0.0%",
+          "End Line": 59,
+          "Function Name": "syscall2",
+          "Input Parameters": 3,
+          "Is Documented": 0,
+          "Is Public": 1,
+          "Lines of Code (LOC)": 13,
+          "Reflection Hits": 0,
+          "Start Line": 47,
+          "Structural Impact": 2.6
+        },
+        {
+          "Control Flow Branches": 0,
+          "Control Flow Ratio": "0.0%",
+          "End Line": 45,
+          "Function Name": "syscall1",
+          "Input Parameters": 2,
+          "Is Documented": 0,
+          "Is Public": 1,
+          "Lines of Code (LOC)": 12,
+          "Reflection Hits": 0,
+          "Start Line": 34,
+          "Structural Impact": 2.3
+        },
+        {
+          "Control Flow Branches": 0,
+          "Control Flow Ratio": "0.0%",
+          "End Line": 32,
+          "Function Name": "syscall_pipe",
+          "Input Parameters": 1,
+          "Is Documented": 0,
+          "Is Public": 1,
+          "Lines of Code (LOC)": 16,
+          "Reflection Hits": 0,
+          "Start Line": 17,
+          "Structural Impact": 2.2
+        },
+        {
+          "Control Flow Branches": 0,
+          "Control Flow Ratio": "0.0%",
+          "End Line": 15,
+          "Function Name": "syscall0",
+          "Input Parameters": 1,
+          "Is Documented": 0,
+          "Is Public": 1,
+          "Lines of Code (LOC)": 11,
+          "Reflection Hits": 0,
+          "Start Line": 5,
+          "Structural Impact": 2.0
+        },
+        {
+          "Control Flow Branches": 0,
+          "Control Flow Ratio": "0.0%",
+          "End Line": 263,
+          "Function Name": "atime",
+          "Input Parameters": 1,
+          "Is Documented": 0,
+          "Is Public": 1,
+          "Lines of Code (LOC)": 3,
+          "Reflection Hits": 0,
+          "Start Line": 261,
+          "Structural Impact": 1.6
+        },
+        {
+          "Control Flow Branches": 0,
+          "Control Flow Ratio": "0.0%",
+          "End Line": 267,
+          "Function Name": "mtime",
+          "Input Parameters": 1,
+          "Is Documented": 0,
+          "Is Public": 1,
+          "Lines of Code (LOC)": 3,
+          "Reflection Hits": 0,
+          "Start Line": 265,
+          "Structural Impact": 1.6
+        },
+        {
+          "Control Flow Branches": 0,
+          "Control Flow Ratio": "0.0%",
+          "End Line": 271,
+          "Function Name": "ctime",
+          "Input Parameters": 1,
+          "Is Documented": 0,
+          "Is Public": 1,
+          "Lines of Code (LOC)": 3,
+          "Reflection Hits": 0,
+          "Start Line": 269,
+          "Structural Impact": 1.6
         }
       ]
     },

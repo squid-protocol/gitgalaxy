@@ -1581,6 +1581,33 @@ def test_copybook_record_units_follow_the_engine_layout_contract(tmp_path):
     }  # fmt: skip
 
 
+def test_an_unnamed_entry_is_an_implicit_filler_with_its_clauses(tmp_path):
+    """#4246: `2 PIC X(40) ...` (DBB MortgageApplication EPSCSMRD) has no name -- an implicit FILLER. The key
+    read PIC as its name and lost the PIC, so the item took no storage and every field after it moved up."""
+    lines = [
+        "1 EPSPDATA-HEADER.",
+        "  2 PIC X(40) USAGE DISPLAY VALUE 'HEADER LINE ONE'.",
+        "  2 TITLE-TEXT PIC X(10) VALUE 'TITLE'.",
+        "  2 COMP-3 PIC S9(5).",
+        "  2 USAGE BINARY PIC 9(4).",
+        "  2 VALUE 'Z' PIC X.",
+        "  2 PIC-CODE PIC X(2).",
+    ]
+    cpy = _cpy(tmp_path, "UNNAMED.cpy", lines)
+    items = ak._data_items(ak.Source(cpy))
+    assert [(it["level"], it["name"], it["pic"], it["usage"], it["value"]) for it in items] == [
+        (1, "EPSPDATA-HEADER", None, None, None),
+        (2, "FILLER", "X(40)", "DISPLAY", "HEADER LINE ONE"),
+        (2, "TITLE-TEXT", "X(10)", None, "TITLE"),
+        (2, "FILLER", "S9(5)", "COMP-3", None),
+        (2, "FILLER", "9(4)", "BINARY", None),
+        (2, "FILLER", "X", None, "Z"),
+        (2, "PIC-CODE", "X(2)", None, None),  # a name that only starts with a clause word is a name
+    ]
+    # the FILLERs take their storage: TITLE-TEXT after 40 bytes, PIC-CODE after 40+10+3+2+1
+    assert ak.copybook_record_units(cpy) == {"EPSPDATA-HEADER/TITLE-TEXT @40+10", "EPSPDATA-HEADER/PIC-CODE @56+2"}
+
+
 def test_refmod_units_key_the_reference_modification_text(tmp_path):
     """#3649: `L<line> VERB SOURCE(start:length) -> TARGET(start:length)`, one spelling on
     both sides (spacing around + - : normalized); a subscript is not a refmod."""

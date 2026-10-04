@@ -4,6 +4,9 @@
       "groovy/gradle/DefaultPluginManager.java": "2 instances",
       "groovy/gradle/DefaultProject.java": "10 instances"
     },
+    "java/selenium_grid_session_queue": {
+      "java/selenium_grid_session_queue/RemoteNewSessionQueue.java": "5 instances"
+    },
     "php/magento2": {
       "php/magento2/Mysql.php": "12 instances"
     },
@@ -12,6 +15,10 @@
     },
     "python/airflow": {
       "python/airflow/scheduler_job_runner.py": "1 instances"
+    },
+    "python/django_db_tests": {
+      "python/django_db_tests/test_iterator.py": "1 instances",
+      "python/django_db_tests/test_utils.py": "1 instances"
     }
   },
   "path": [

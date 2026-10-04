@@ -411,6 +411,9 @@
     "c": {
       "c/SOURCES.md": "Markdown"
     },
+    "c/cosmopolitan_intrin": {
+      "c/cosmopolitan_intrin/countbits.c": "C"
+    },
     "c/cpython": {
       "c/cpython/Makefile.pre.in": "Makefile",
       "c/cpython/ceval.c": "C",
@@ -435,6 +438,9 @@
       "c/doom/r_defs.h": "C",
       "c/doom/w_wad.c": "C",
       "c/doom/z_zone.c": "C"
+    },
+    "c/freebsd_openpam": {
+      "c/freebsd_openpam/pam_acct_mgmt.c": "C"
     },
     "c/micropython": {
       "c/micropython/compile.c": "C",
@@ -1126,6 +1132,10 @@
       "cpp/powertoys/main.cpp": "Cpp",
       "cpp/powertoys/powertoy_module.h": "Cpp"
     },
+    "cpp/serenity_ak_siphash_cpu": {
+      "cpp/serenity_ak_siphash_cpu/CPUFeatures.cpp": "Cpp",
+      "cpp/serenity_ak_siphash_cpu/SipHash.cpp": "Cpp"
+    },
     "csd": {
       "csd/SOURCES.md": "Markdown"
     },
@@ -1362,6 +1372,9 @@
       "go/core/syscall_linux.go": "Go",
       "go/core/value.go": "Go"
     },
+    "go/go_runtime_rand": {
+      "go/go_runtime_rand/rand.go": "Go"
+    },
     "go/kubernetes": {
       "go/kubernetes/csi_plugin.go": "Go",
       "go/kubernetes/generic.go": "Go",
@@ -1370,6 +1383,9 @@
       "go/kubernetes/proxier.go": "Go",
       "go/kubernetes/replica_set.go": "Go",
       "go/kubernetes/scheduler.go": "Go"
+    },
+    "go/kubernetes_kubectl_tls": {
+      "go/kubernetes_kubectl_tls/create_secret_tls_test.go": "Go"
     },
     "groovy/fineract_gradle_plugin": {
       "groovy/fineract_gradle_plugin/LICENSE_RELEASE": "Plaintext",
@@ -1876,6 +1892,17 @@
     "java": {
       "java/SOURCES.md": "Markdown"
     },
+    "java/flutter_android_editing_tests": {
+      "java/flutter_android_editing_tests/InputConnectionAdaptorTest.java": "Java"
+    },
+    "java/jenkins_cli": {
+      "java/jenkins_cli/LICENSE.txt": "Plaintext",
+      "java/jenkins_cli/SetBuildDescriptionCommand.java": "Java"
+    },
+    "java/selenium_grid_session_queue": {
+      "java/selenium_grid_session_queue/NOTICE": "Plaintext",
+      "java/selenium_grid_session_queue/RemoteNewSessionQueue.java": "Java"
+    },
     "java/springboot": {
       "java/springboot/AutoConfigurationImportSelector.java": "Java",
       "java/springboot/Binder.java": "Java",
@@ -1889,6 +1916,13 @@
     "javascript": {
       "javascript/SOURCES.md": "Markdown"
     },
+    "javascript/cesium_particle_emitters": {
+      "javascript/cesium_particle_emitters/CircleEmitter.js": "Javascript",
+      "javascript/cesium_particle_emitters/LICENSE.md": "Markdown"
+    },
+    "javascript/javascript_algorithms_bits": {
+      "javascript/javascript_algorithms_bits/fullAdder.js": "Javascript"
+    },
     "javascript/jquery": {
       "javascript/jquery/LICENSE.txt": "Plaintext",
       "javascript/jquery/ajax.js": "Javascript",
@@ -1899,6 +1933,15 @@
       "javascript/jquery/event.js": "Javascript",
       "javascript/jquery/tokenize.js": "Javascript"
     },
+    "javascript/node_tls_security_tests": {
+      "javascript/node_tls_security_tests/regexp-unicode-sets.js": "Javascript",
+      "javascript/node_tls_security_tests/test-crypto-dh-modp2.js": "Javascript",
+      "javascript/node_tls_security_tests/test-fs-lchown.js": "Javascript",
+      "javascript/node_tls_security_tests/test-https-host-headers.js": "Javascript",
+      "javascript/node_tls_security_tests/test-tls-cert-ext-encoding.js": "Javascript",
+      "javascript/node_tls_security_tests/test-tls-psk-server.js": "Javascript",
+      "javascript/node_tls_security_tests/test-tls-use-after-free-regression.js": "Javascript"
+    },
     "javascript/react": {
       "javascript/react/BabelPlugin.ts": "Typescript",
       "javascript/react/ReactFiberBeginWork.js": "Javascript",
@@ -1906,6 +1949,9 @@
       "javascript/react/ReactFlightServer.js": "Javascript",
       "javascript/react/ReactSymbols.js": "Javascript",
       "javascript/react/build.js": "Javascript"
+    },
+    "javascript/react_error_codes": {
+      "javascript/react_error_codes/extract-errors.js": "Javascript"
     },
     "javascript/threejs": {
       "javascript/threejs/BufferGeometry.js": "Javascript",
@@ -2393,6 +2439,16 @@
       "makefile/freebsd/COPYRIGHT": "Plaintext",
       "makefile/freebsd/Makefile": "Makefile"
     },
+    "markdown": {
+      "markdown/SOURCES.md": "Markdown"
+    },
+    "markdown/airflow_job_lifecycle": {
+      "markdown/airflow_job_lifecycle/JOB_LIFECYCLE.md": "Markdown",
+      "markdown/airflow_job_lifecycle/NOTICE": "Plaintext"
+    },
+    "markdown/kubernetes_client_go": {
+      "markdown/kubernetes_client_go/ARCHITECTURE.md": "Markdown"
+    },
     "matlab": {
       "matlab/SOURCES.md": "Markdown"
     },
@@ -2442,6 +2498,10 @@
     },
     "perl": {
       "perl/SOURCES.md": "Markdown"
+    },
+    "perl/ack3_tests": {
+      "perl/ack3_tests/LICENSE.md": "Markdown",
+      "perl/ack3_tests/file-permission.t": "Perl"
     },
     "perl/bugzilla": {
       "perl/bugzilla/Auth.pm": "Perl",
@@ -2497,6 +2557,10 @@
       "php/laravel_core/Model.php": "Php",
       "php/laravel_core/Router.php": "Php"
     },
+    "php/laravel_validation_rules": {
+      "php/laravel_validation_rules/Can.php": "Php",
+      "php/laravel_validation_rules/LICENSE.md": "Markdown"
+    },
     "php/magento2": {
       "php/magento2/AbstractBlock.php": "Php",
       "php/magento2/AbstractModel.php": "Php",
@@ -2515,6 +2579,9 @@
       "php/symfony/Parser.php": "Php",
       "php/symfony/Request.php": "Php",
       "php/symfony/Router.php": "Php"
+    },
+    "php/symfony_emoji_data": {
+      "php/symfony_emoji_data/emoji-ccp.php": "Php"
     },
     "php/wordpress": {
       "php/wordpress/admin-ajax.php": "Php",
@@ -2731,6 +2798,17 @@
       "python/airflow/s3.py": "Python",
       "python/airflow/scheduler_job_runner.py": "Python"
     },
+    "python/airflow_ai_providers": {
+      "python/airflow_ai_providers/NOTICE": "Plaintext",
+      "python/airflow_ai_providers/openai_src_airflow_providers_openai_hooks_openai.py": "Python",
+      "python/airflow_ai_providers/pinecone_src_airflow_providers_pinecone_hooks_pinecone.py": "Python",
+      "python/airflow_ai_providers/pinecone_src_airflow_providers_pinecone_operators_pinecone.py": "Python",
+      "python/airflow_ai_providers/pinecone_tests_system_pinecone_example_pinecone_cohere.py": "Python"
+    },
+    "python/airflow_opsgenie_tests": {
+      "python/airflow_opsgenie_tests/NOTICE": "Plaintext",
+      "python/airflow_opsgenie_tests/test_opsgenie.py": "Python"
+    },
     "python/cython": {
       "python/cython/COPYING.txt": "Plaintext",
       "python/cython/CodeGeneration.py": "Python",
@@ -2738,6 +2816,10 @@
       "python/cython/MemoryView.pxd": "Python",
       "python/cython/MemoryView.pyx": "Python",
       "python/cython/Nodes.py": "Python"
+    },
+    "python/django_db_tests": {
+      "python/django_db_tests/test_iterator.py": "Python",
+      "python/django_db_tests/test_utils.py": "Python"
     },
     "python/fastapi": {
       "python/fastapi/CONTRIBUTING.md": "Markdown",
@@ -2976,6 +3058,26 @@
       "python/fastapi/tests/test_ws_router.py": "Python",
       "python/fastapi/tests/utils.py": "Python"
     },
+    "python/homeassistant_anthropic": {
+      "python/homeassistant_anthropic/LICENSE.md": "Markdown",
+      "python/homeassistant_anthropic/coordinator.py": "Python"
+    },
+    "python/homeassistant_ble_integrations": {
+      "python/homeassistant_ble_integrations/LICENSE.md": "Markdown",
+      "python/homeassistant_ble_integrations/aranet___init__.py": "Python",
+      "python/homeassistant_ble_integrations/gardena_bluetooth___init__.py": "Python",
+      "python/homeassistant_ble_integrations/utils.py": "Python"
+    },
+    "python/langchain_agents": {
+      "python/langchain_agents/langchain_agents_middleware_model_fallback.py": "Python",
+      "python/langchain_agents/langchain_agents_middleware_tool_emulator.py": "Python",
+      "python/langchain_agents/tests_integration_tests_chat_models_test_base.py": "Python"
+    },
+    "python/micropython_usb_tls": {
+      "python/micropython_usb_tls/ssl_verify_callback.py": "Python",
+      "python/micropython_usb_tls/tls_dtls.py": "Python",
+      "python/micropython_usb_tls/usb_simple_host_pyusb.py": "Python"
+    },
     "python/numpy": {
       "python/numpy/LICENSE.txt": "Plaintext",
       "python/numpy/__init__.py": "Python",
@@ -2995,6 +3097,31 @@
       "python/numpy/testutils.py": "Python",
       "python/numpy/ufunc_docstrings.py": "Python",
       "python/numpy/verify_c_api_version.py": "Python"
+    },
+    "python/opencv_dnn_conversion": {
+      "python/opencv_dnn_conversion/py_to_py_resnet50_onnx.py": "Python"
+    },
+    "python/pip_vendored_requests": {
+      "python/pip_vendored_requests/LICENSE.txt": "Plaintext",
+      "python/pip_vendored_requests/packages.py": "Python"
+    },
+    "python/scikit-learn_examples": {
+      "python/scikit-learn_examples/COPYING": "Plaintext",
+      "python/scikit-learn_examples/linear_model_plot_nnls.py": "Python",
+      "python/scikit-learn_examples/svm_plot_custom_kernel.py": "Python"
+    },
+    "python/tensorflow_ml_ops": {
+      "python/tensorflow_ml_ops/core_tfrt_saved_model_tests_gen_matmul_gpu.py": "Python",
+      "python/tensorflow_ml_ops/lite_testing_op_tests_einsum.py": "Python"
+    },
+    "python/tensorflow_model_fixtures": {
+      "python/tensorflow_model_fixtures/lite_testdata_multi_add.pb": "Binary_Threat",
+      "python/tensorflow_model_fixtures/python_compiler_mlir_multi_add.tflite": "Binary_Threat"
+    },
+    "python/thealgorithms_machine_learning": {
+      "python/thealgorithms_machine_learning/LICENSE.md": "Markdown",
+      "python/thealgorithms_machine_learning/logistic_regression.py": "Python",
+      "python/thealgorithms_machine_learning/lstm_lstm_prediction.py": "Python"
     },
     "python/twisted": {
       "python/twisted/defer.py": "Python",
@@ -3061,6 +3188,10 @@
       "ruby/rails/metal.rb": "Ruby",
       "ruby/rails/routing.rb": "Ruby"
     },
+    "ruby/rails_http_token_auth": {
+      "ruby/rails_http_token_auth/MIT-LICENSE": "Plaintext",
+      "ruby/rails_http_token_auth/http_token_authentication_test.rb": "Ruby"
+    },
     "rust": {
       "rust/SOURCES.md": "Markdown"
     },
@@ -3074,6 +3205,12 @@
       "rust/bevy/bevy_reflect_path.rs": "Rust",
       "rust/bevy/bevy_render_phase.rs": "Rust",
       "rust/bevy/bevy_schedule_graph.rs": "Rust"
+    },
+    "rust/bevy_asset_examples": {
+      "rust/bevy_asset_examples/LICENSE-APACHE": "Plaintext",
+      "rust/bevy_asset_examples/LICENSE-MIT": "Plaintext",
+      "rust/bevy_asset_examples/image_node.rs": "Rust",
+      "rust/bevy_asset_examples/rotation.rs": "Rust"
     },
     "rust/holylang": {
       "rust/holylang/ast.rs": "Rust",
@@ -3118,6 +3255,9 @@
       "rust/tokio/tests.rs": "Rust",
       "rust/tokio/tokio_mpsc_bounded.rs": "Rust",
       "rust/tokio/tokio_named_pipe.rs": "Rust"
+    },
+    "rust/tokio_util_rand": {
+      "rust/tokio_util_rand/rand.rs": "Rust"
     },
     "rust/wasmtime": {
       "rust/wasmtime/wasmtime_component_macro.rs": "Rust",
@@ -3260,6 +3400,10 @@
       "shell/freebsd-src/runulp.sh": "Shell",
       "shell/freebsd-src/timeout_test.sh": "Shell",
       "shell/freebsd-src/ztest.sh": "Shell"
+    },
+    "shell/freebsd_sysbuild": {
+      "shell/freebsd_sysbuild/COPYRIGHT": "Plaintext",
+      "shell/freebsd_sysbuild/sysbuild.sh": "Shell"
     },
     "shell/haiku": {
       "shell/haiku/HardwareChecker.sh": "Shell",
@@ -3688,6 +3832,9 @@
     "typescript": {
       "typescript/SOURCES.md": "Markdown"
     },
+    "typescript/angular_zonejs_mocha": {
+      "typescript/angular_zonejs_mocha/mocha.ts": "Typescript"
+    },
     "typescript/assemblyscript": {
       "typescript/assemblyscript/asconfig.json": "Json",
       "typescript/assemblyscript/ast.ts": "Typescript",
@@ -3695,12 +3842,30 @@
       "typescript/assemblyscript/package.json": "Plaintext",
       "typescript/assemblyscript/parser.ts": "Typescript"
     },
+    "typescript/effect_ai_anthropic": {
+      "typescript/effect_ai_anthropic/AnthropicTokenizer.ts": "Typescript"
+    },
+    "typescript/excalibur_math": {
+      "typescript/excalibur_math/LICENSE.md": "Markdown",
+      "typescript/excalibur_math/collision_colliders_separating-axis.ts": "Typescript",
+      "typescript/excalibur_math/math_ray.ts": "Typescript"
+    },
+    "typescript/excalidraw_text_wrapping": {
+      "typescript/excalidraw_text_wrapping/textWrapping.ts": "Typescript"
+    },
     "typescript/fp-ts": {
       "typescript/fp-ts/Either.ts": "Typescript",
       "typescript/fp-ts/HKT.ts": "Typescript",
       "typescript/fp-ts/TaskEither.ts": "Typescript",
       "typescript/fp-ts/package.json": "Plaintext",
       "typescript/fp-ts/pipeable.ts": "Typescript"
+    },
+    "typescript/nx_util_ai": {
+      "typescript/nx_util_ai/nx-dev_pages_api_query-ai-handler.ts": "Typescript",
+      "typescript/nx_util_ai/util-ai_src_lib_moderation.ts": "Typescript"
+    },
+    "typescript/pixijs_examples": {
+      "typescript/pixijs_examples/events_dragging.ts": "Typescript"
     },
     "typescript/playwright": {
       "typescript/playwright/NOTICE": "Plaintext",
@@ -3892,6 +4057,9 @@
       "zig/zig/Type.zig": "Zig",
       "zig/zig/Zcu.zig": "Zig",
       "zig/zig/main.zig": "Zig"
+    },
+    "zig/zig_std_linux_mips": {
+      "zig/zig_std_linux_mips/mips.zig": "Zig"
     },
     "zig/zls": {
       "zig/zls/DocumentScope.zig": "Zig",

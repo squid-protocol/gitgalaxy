@@ -411,6 +411,9 @@
     "c": {
       "c/SOURCES.md": "SOURCES.md"
     },
+    "c/cosmopolitan_intrin": {
+      "c/cosmopolitan_intrin/countbits.c": "countbits.c"
+    },
     "c/cpython": {
       "c/cpython/Makefile.pre.in": "Makefile.pre.in",
       "c/cpython/ceval.c": "ceval.c",
@@ -435,6 +438,9 @@
       "c/doom/r_defs.h": "r_defs.h",
       "c/doom/w_wad.c": "w_wad.c",
       "c/doom/z_zone.c": "z_zone.c"
+    },
+    "c/freebsd_openpam": {
+      "c/freebsd_openpam/pam_acct_mgmt.c": "pam_acct_mgmt.c"
     },
     "c/micropython": {
       "c/micropython/compile.c": "compile.c",
@@ -1126,6 +1132,10 @@
       "cpp/powertoys/main.cpp": "main.cpp",
       "cpp/powertoys/powertoy_module.h": "powertoy_module.h"
     },
+    "cpp/serenity_ak_siphash_cpu": {
+      "cpp/serenity_ak_siphash_cpu/CPUFeatures.cpp": "CPUFeatures.cpp",
+      "cpp/serenity_ak_siphash_cpu/SipHash.cpp": "SipHash.cpp"
+    },
     "csd": {
       "csd/SOURCES.md": "SOURCES.md"
     },
@@ -1362,6 +1372,9 @@
       "go/core/syscall_linux.go": "syscall_linux.go",
       "go/core/value.go": "value.go"
     },
+    "go/go_runtime_rand": {
+      "go/go_runtime_rand/rand.go": "rand.go"
+    },
     "go/kubernetes": {
       "go/kubernetes/csi_plugin.go": "csi_plugin.go",
       "go/kubernetes/generic.go": "generic.go",
@@ -1370,6 +1383,9 @@
       "go/kubernetes/proxier.go": "proxier.go",
       "go/kubernetes/replica_set.go": "replica_set.go",
       "go/kubernetes/scheduler.go": "scheduler.go"
+    },
+    "go/kubernetes_kubectl_tls": {
+      "go/kubernetes_kubectl_tls/create_secret_tls_test.go": "create_secret_tls_test.go"
     },
     "groovy/fineract_gradle_plugin": {
       "groovy/fineract_gradle_plugin/LICENSE_RELEASE": "LICENSE_RELEASE",
@@ -1876,6 +1892,17 @@
     "java": {
       "java/SOURCES.md": "SOURCES.md"
     },
+    "java/flutter_android_editing_tests": {
+      "java/flutter_android_editing_tests/InputConnectionAdaptorTest.java": "InputConnectionAdaptorTest.java"
+    },
+    "java/jenkins_cli": {
+      "java/jenkins_cli/LICENSE.txt": "LICENSE.txt",
+      "java/jenkins_cli/SetBuildDescriptionCommand.java": "SetBuildDescriptionCommand.java"
+    },
+    "java/selenium_grid_session_queue": {
+      "java/selenium_grid_session_queue/NOTICE": "NOTICE",
+      "java/selenium_grid_session_queue/RemoteNewSessionQueue.java": "RemoteNewSessionQueue.java"
+    },
     "java/springboot": {
       "java/springboot/AutoConfigurationImportSelector.java": "AutoConfigurationImportSelector.java",
       "java/springboot/Binder.java": "Binder.java",
@@ -1889,6 +1916,13 @@
     "javascript": {
       "javascript/SOURCES.md": "SOURCES.md"
     },
+    "javascript/cesium_particle_emitters": {
+      "javascript/cesium_particle_emitters/CircleEmitter.js": "CircleEmitter.js",
+      "javascript/cesium_particle_emitters/LICENSE.md": "LICENSE.md"
+    },
+    "javascript/javascript_algorithms_bits": {
+      "javascript/javascript_algorithms_bits/fullAdder.js": "fullAdder.js"
+    },
     "javascript/jquery": {
       "javascript/jquery/LICENSE.txt": "LICENSE.txt",
       "javascript/jquery/ajax.js": "ajax.js",
@@ -1899,6 +1933,15 @@
       "javascript/jquery/event.js": "event.js",
       "javascript/jquery/tokenize.js": "tokenize.js"
     },
+    "javascript/node_tls_security_tests": {
+      "javascript/node_tls_security_tests/regexp-unicode-sets.js": "regexp-unicode-sets.js",
+      "javascript/node_tls_security_tests/test-crypto-dh-modp2.js": "test-crypto-dh-modp2.js",
+      "javascript/node_tls_security_tests/test-fs-lchown.js": "test-fs-lchown.js",
+      "javascript/node_tls_security_tests/test-https-host-headers.js": "test-https-host-headers.js",
+      "javascript/node_tls_security_tests/test-tls-cert-ext-encoding.js": "test-tls-cert-ext-encoding.js",
+      "javascript/node_tls_security_tests/test-tls-psk-server.js": "test-tls-psk-server.js",
+      "javascript/node_tls_security_tests/test-tls-use-after-free-regression.js": "test-tls-use-after-free-regression.js"
+    },
     "javascript/react": {
       "javascript/react/BabelPlugin.ts": "BabelPlugin.ts",
       "javascript/react/ReactFiberBeginWork.js": "ReactFiberBeginWork.js",
@@ -1906,6 +1949,9 @@
       "javascript/react/ReactFlightServer.js": "ReactFlightServer.js",
       "javascript/react/ReactSymbols.js": "ReactSymbols.js",
       "javascript/react/build.js": "build.js"
+    },
+    "javascript/react_error_codes": {
+      "javascript/react_error_codes/extract-errors.js": "extract-errors.js"
     },
     "javascript/threejs": {
       "javascript/threejs/BufferGeometry.js": "BufferGeometry.js",
@@ -2393,6 +2439,16 @@
       "makefile/freebsd/COPYRIGHT": "COPYRIGHT",
       "makefile/freebsd/Makefile": "Makefile"
     },
+    "markdown": {
+      "markdown/SOURCES.md": "SOURCES.md"
+    },
+    "markdown/airflow_job_lifecycle": {
+      "markdown/airflow_job_lifecycle/JOB_LIFECYCLE.md": "JOB_LIFECYCLE.md",
+      "markdown/airflow_job_lifecycle/NOTICE": "NOTICE"
+    },
+    "markdown/kubernetes_client_go": {
+      "markdown/kubernetes_client_go/ARCHITECTURE.md": "ARCHITECTURE.md"
+    },
     "matlab": {
       "matlab/SOURCES.md": "SOURCES.md"
     },
@@ -2442,6 +2498,10 @@
     },
     "perl": {
       "perl/SOURCES.md": "SOURCES.md"
+    },
+    "perl/ack3_tests": {
+      "perl/ack3_tests/LICENSE.md": "LICENSE.md",
+      "perl/ack3_tests/file-permission.t": "file-permission.t"
     },
     "perl/bugzilla": {
       "perl/bugzilla/Auth.pm": "Auth.pm",
@@ -2497,6 +2557,10 @@
       "php/laravel_core/Model.php": "Model.php",
       "php/laravel_core/Router.php": "Router.php"
     },
+    "php/laravel_validation_rules": {
+      "php/laravel_validation_rules/Can.php": "Can.php",
+      "php/laravel_validation_rules/LICENSE.md": "LICENSE.md"
+    },
     "php/magento2": {
       "php/magento2/AbstractBlock.php": "AbstractBlock.php",
       "php/magento2/AbstractModel.php": "AbstractModel.php",
@@ -2515,6 +2579,9 @@
       "php/symfony/Parser.php": "Parser.php",
       "php/symfony/Request.php": "Request.php",
       "php/symfony/Router.php": "Router.php"
+    },
+    "php/symfony_emoji_data": {
+      "php/symfony_emoji_data/emoji-ccp.php": "emoji-ccp.php"
     },
     "php/wordpress": {
       "php/wordpress/admin-ajax.php": "admin-ajax.php",
@@ -2731,6 +2798,17 @@
       "python/airflow/s3.py": "s3.py",
       "python/airflow/scheduler_job_runner.py": "scheduler_job_runner.py"
     },
+    "python/airflow_ai_providers": {
+      "python/airflow_ai_providers/NOTICE": "NOTICE",
+      "python/airflow_ai_providers/openai_src_airflow_providers_openai_hooks_openai.py": "openai_src_airflow_providers_openai_hooks_openai.py",
+      "python/airflow_ai_providers/pinecone_src_airflow_providers_pinecone_hooks_pinecone.py": "pinecone_src_airflow_providers_pinecone_hooks_pinecone.py",
+      "python/airflow_ai_providers/pinecone_src_airflow_providers_pinecone_operators_pinecone.py": "pinecone_src_airflow_providers_pinecone_operators_pinecone.py",
+      "python/airflow_ai_providers/pinecone_tests_system_pinecone_example_pinecone_cohere.py": "pinecone_tests_system_pinecone_example_pinecone_cohere.py"
+    },
+    "python/airflow_opsgenie_tests": {
+      "python/airflow_opsgenie_tests/NOTICE": "NOTICE",
+      "python/airflow_opsgenie_tests/test_opsgenie.py": "test_opsgenie.py"
+    },
     "python/cython": {
       "python/cython/COPYING.txt": "COPYING.txt",
       "python/cython/CodeGeneration.py": "CodeGeneration.py",
@@ -2738,6 +2816,10 @@
       "python/cython/MemoryView.pxd": "MemoryView.pxd",
       "python/cython/MemoryView.pyx": "MemoryView.pyx",
       "python/cython/Nodes.py": "Nodes.py"
+    },
+    "python/django_db_tests": {
+      "python/django_db_tests/test_iterator.py": "test_iterator.py",
+      "python/django_db_tests/test_utils.py": "test_utils.py"
     },
     "python/fastapi": {
       "python/fastapi/CONTRIBUTING.md": "CONTRIBUTING.md",
@@ -2976,6 +3058,26 @@
       "python/fastapi/tests/test_ws_router.py": "test_ws_router.py",
       "python/fastapi/tests/utils.py": "utils.py"
     },
+    "python/homeassistant_anthropic": {
+      "python/homeassistant_anthropic/LICENSE.md": "LICENSE.md",
+      "python/homeassistant_anthropic/coordinator.py": "coordinator.py"
+    },
+    "python/homeassistant_ble_integrations": {
+      "python/homeassistant_ble_integrations/LICENSE.md": "LICENSE.md",
+      "python/homeassistant_ble_integrations/aranet___init__.py": "aranet___init__.py",
+      "python/homeassistant_ble_integrations/gardena_bluetooth___init__.py": "gardena_bluetooth___init__.py",
+      "python/homeassistant_ble_integrations/utils.py": "utils.py"
+    },
+    "python/langchain_agents": {
+      "python/langchain_agents/langchain_agents_middleware_model_fallback.py": "langchain_agents_middleware_model_fallback.py",
+      "python/langchain_agents/langchain_agents_middleware_tool_emulator.py": "langchain_agents_middleware_tool_emulator.py",
+      "python/langchain_agents/tests_integration_tests_chat_models_test_base.py": "tests_integration_tests_chat_models_test_base.py"
+    },
+    "python/micropython_usb_tls": {
+      "python/micropython_usb_tls/ssl_verify_callback.py": "ssl_verify_callback.py",
+      "python/micropython_usb_tls/tls_dtls.py": "tls_dtls.py",
+      "python/micropython_usb_tls/usb_simple_host_pyusb.py": "usb_simple_host_pyusb.py"
+    },
     "python/numpy": {
       "python/numpy/LICENSE.txt": "LICENSE.txt",
       "python/numpy/__init__.py": "__init__.py",
@@ -2995,6 +3097,31 @@
       "python/numpy/testutils.py": "testutils.py",
       "python/numpy/ufunc_docstrings.py": "ufunc_docstrings.py",
       "python/numpy/verify_c_api_version.py": "verify_c_api_version.py"
+    },
+    "python/opencv_dnn_conversion": {
+      "python/opencv_dnn_conversion/py_to_py_resnet50_onnx.py": "py_to_py_resnet50_onnx.py"
+    },
+    "python/pip_vendored_requests": {
+      "python/pip_vendored_requests/LICENSE.txt": "LICENSE.txt",
+      "python/pip_vendored_requests/packages.py": "packages.py"
+    },
+    "python/scikit-learn_examples": {
+      "python/scikit-learn_examples/COPYING": "COPYING",
+      "python/scikit-learn_examples/linear_model_plot_nnls.py": "linear_model_plot_nnls.py",
+      "python/scikit-learn_examples/svm_plot_custom_kernel.py": "svm_plot_custom_kernel.py"
+    },
+    "python/tensorflow_ml_ops": {
+      "python/tensorflow_ml_ops/core_tfrt_saved_model_tests_gen_matmul_gpu.py": "core_tfrt_saved_model_tests_gen_matmul_gpu.py",
+      "python/tensorflow_ml_ops/lite_testing_op_tests_einsum.py": "lite_testing_op_tests_einsum.py"
+    },
+    "python/tensorflow_model_fixtures": {
+      "python/tensorflow_model_fixtures/lite_testdata_multi_add.pb": "lite_testdata_multi_add.pb",
+      "python/tensorflow_model_fixtures/python_compiler_mlir_multi_add.tflite": "python_compiler_mlir_multi_add.tflite"
+    },
+    "python/thealgorithms_machine_learning": {
+      "python/thealgorithms_machine_learning/LICENSE.md": "LICENSE.md",
+      "python/thealgorithms_machine_learning/logistic_regression.py": "logistic_regression.py",
+      "python/thealgorithms_machine_learning/lstm_lstm_prediction.py": "lstm_lstm_prediction.py"
     },
     "python/twisted": {
       "python/twisted/defer.py": "defer.py",
@@ -3061,6 +3188,10 @@
       "ruby/rails/metal.rb": "metal.rb",
       "ruby/rails/routing.rb": "routing.rb"
     },
+    "ruby/rails_http_token_auth": {
+      "ruby/rails_http_token_auth/MIT-LICENSE": "MIT-LICENSE",
+      "ruby/rails_http_token_auth/http_token_authentication_test.rb": "http_token_authentication_test.rb"
+    },
     "rust": {
       "rust/SOURCES.md": "SOURCES.md"
     },
@@ -3074,6 +3205,12 @@
       "rust/bevy/bevy_reflect_path.rs": "bevy_reflect_path.rs",
       "rust/bevy/bevy_render_phase.rs": "bevy_render_phase.rs",
       "rust/bevy/bevy_schedule_graph.rs": "bevy_schedule_graph.rs"
+    },
+    "rust/bevy_asset_examples": {
+      "rust/bevy_asset_examples/LICENSE-APACHE": "LICENSE-APACHE",
+      "rust/bevy_asset_examples/LICENSE-MIT": "LICENSE-MIT",
+      "rust/bevy_asset_examples/image_node.rs": "image_node.rs",
+      "rust/bevy_asset_examples/rotation.rs": "rotation.rs"
     },
     "rust/holylang": {
       "rust/holylang/ast.rs": "ast.rs",
@@ -3118,6 +3255,9 @@
       "rust/tokio/tests.rs": "tests.rs",
       "rust/tokio/tokio_mpsc_bounded.rs": "tokio_mpsc_bounded.rs",
       "rust/tokio/tokio_named_pipe.rs": "tokio_named_pipe.rs"
+    },
+    "rust/tokio_util_rand": {
+      "rust/tokio_util_rand/rand.rs": "rand.rs"
     },
     "rust/wasmtime": {
       "rust/wasmtime/wasmtime_component_macro.rs": "wasmtime_component_macro.rs",
@@ -3260,6 +3400,10 @@
       "shell/freebsd-src/runulp.sh": "runulp.sh",
       "shell/freebsd-src/timeout_test.sh": "timeout_test.sh",
       "shell/freebsd-src/ztest.sh": "ztest.sh"
+    },
+    "shell/freebsd_sysbuild": {
+      "shell/freebsd_sysbuild/COPYRIGHT": "COPYRIGHT",
+      "shell/freebsd_sysbuild/sysbuild.sh": "sysbuild.sh"
     },
     "shell/haiku": {
       "shell/haiku/HardwareChecker.sh": "HardwareChecker.sh",
@@ -3688,6 +3832,9 @@
     "typescript": {
       "typescript/SOURCES.md": "SOURCES.md"
     },
+    "typescript/angular_zonejs_mocha": {
+      "typescript/angular_zonejs_mocha/mocha.ts": "mocha.ts"
+    },
     "typescript/assemblyscript": {
       "typescript/assemblyscript/asconfig.json": "asconfig.json",
       "typescript/assemblyscript/ast.ts": "ast.ts",
@@ -3695,12 +3842,30 @@
       "typescript/assemblyscript/package.json": "package.json",
       "typescript/assemblyscript/parser.ts": "parser.ts"
     },
+    "typescript/effect_ai_anthropic": {
+      "typescript/effect_ai_anthropic/AnthropicTokenizer.ts": "AnthropicTokenizer.ts"
+    },
+    "typescript/excalibur_math": {
+      "typescript/excalibur_math/LICENSE.md": "LICENSE.md",
+      "typescript/excalibur_math/collision_colliders_separating-axis.ts": "collision_colliders_separating-axis.ts",
+      "typescript/excalibur_math/math_ray.ts": "math_ray.ts"
+    },
+    "typescript/excalidraw_text_wrapping": {
+      "typescript/excalidraw_text_wrapping/textWrapping.ts": "textWrapping.ts"
+    },
     "typescript/fp-ts": {
       "typescript/fp-ts/Either.ts": "Either.ts",
       "typescript/fp-ts/HKT.ts": "HKT.ts",
       "typescript/fp-ts/TaskEither.ts": "TaskEither.ts",
       "typescript/fp-ts/package.json": "package.json",
       "typescript/fp-ts/pipeable.ts": "pipeable.ts"
+    },
+    "typescript/nx_util_ai": {
+      "typescript/nx_util_ai/nx-dev_pages_api_query-ai-handler.ts": "nx-dev_pages_api_query-ai-handler.ts",
+      "typescript/nx_util_ai/util-ai_src_lib_moderation.ts": "util-ai_src_lib_moderation.ts"
+    },
+    "typescript/pixijs_examples": {
+      "typescript/pixijs_examples/events_dragging.ts": "events_dragging.ts"
     },
     "typescript/playwright": {
       "typescript/playwright/NOTICE": "NOTICE",
@@ -3892,6 +4057,9 @@
       "zig/zig/Type.zig": "Type.zig",
       "zig/zig/Zcu.zig": "Zcu.zig",
       "zig/zig/main.zig": "main.zig"
+    },
+    "zig/zig_std_linux_mips": {
+      "zig/zig_std_linux_mips/mips.zig": "mips.zig"
     },
     "zig/zls": {
       "zig/zls/DocumentScope.zig": "DocumentScope.zig",

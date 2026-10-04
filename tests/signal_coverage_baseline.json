@@ -1,22 +1,11 @@
 {
   "_doc": "Signals that fire on no language-crucible file, each with the reason (#4108). tests/tools/signal_coverage.py check fails when a signal not listed here drops to zero, or a listed one starts firing. A zero here is a blind spot of the golden master: a regression in that signal cannot show up in the golden diff.",
   "zero_coverage": {
-    "AI Orchestration Frameworks": "corpus gap: no langchain / llama_index imports in the crucible",
     "Agentic Rce": "placeholder: detector removed in #1020; key kept for SIGNAL_SCHEMA positions",
-    "Architectural Diagrams (Mermaid/PlantUML)": "corpus gap: no ```mermaid / ```plantuml fences in any crucible markdown",
-    "Cloud LLM API Integrations": "corpus gap: no openai / anthropic SDK imports (rule wired for python/js/ts)",
-    "Deep Learning & Neural Networks": "corpus gap: no torch / tensorflow / keras imports in python/js/ts (the only rule languages)",
     "Feature Flags": "NO DETECTOR: no rule writes feature_flags anywhere, though it feeds the debt family; the crucible has real flag usage (React's ReactFeatureFlags)",
-    "Hardware Bridge": "corpus gap: no hardware-bridge imports in python/js",
-    "Invisible Unicode Payload Smuggling": "corpus gap: no runs of variation selectors / tag characters",
-    "Local Inference & Tensor Math": "by design: only galaxyscope's model-weight-file path (gguf/safetensors) writes it; no code-level rule",
-    "Low-Level Bitwise / Cryptographic Math": "corpus gap: no XOR chains or 3+ consecutive ^= statements (strict rule)",
+    "Invisible Unicode Payload Smuggling": "no real public file carries a variation-selector/tag-character payload; the crucible's Unicode examples are negative controls (#4135) and do not trigger. Needs a planted case in keyword-rosetta, not real code",
     "Prompt Injection": "placeholder: detector removed in #1020; key kept for SIGNAL_SCHEMA positions",
-    "Safety & Constraint Bypasses": "corpus gap: no verify=False / NODE_TLS_REJECT_UNAUTHORIZED / safe_mode=off patterns",
-    "Sec Extension Mismatch": "corpus gap: no inert-extension file (.txt/.md/.json) parsed as an executable language",
-    "Sec Tainted Injection": "placeholder: computation removed in #3101; key kept for SIGNAL_SCHEMA positions",
-    "Self-Referential File Copy/Overwrite (Worm Pattern)": "corpus gap: no self-copy of __file__ / $0",
-    "Traditional Machine Learning (Stats/Trees)": "corpus gap: no sklearn / xgboost-style imports",
-    "Vector Databases (RAG)": "corpus gap: no chromadb / pinecone / weaviate imports"
+    "Sec Extension Mismatch": "no inert-extension file (.txt/.md/.json) parsed as an executable language; real public repos do not ship these, so this needs a planted case in keyword-rosetta",
+    "Sec Tainted Injection": "placeholder: computation removed in #3101; key kept for SIGNAL_SCHEMA positions"
   }
 }

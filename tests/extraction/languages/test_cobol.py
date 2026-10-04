@@ -201,12 +201,22 @@ CLASS_CASES: dict[str, Any] = {
         ("        PROGRAM-ID. 'EPSCSMRD'.", "EPSCSMRD"),  # #4242: a literal name, Area B (DBB MortgageApplication)
         ('       PROGRAM-ID. "EPSCSMRF".', "EPSCSMRF"),  # #4242: the double-quoted literal
         ("PROGRAM-ID. 'MYPROG' IS INITIAL PROGRAM.", "MYPROG"),  # #4242: a literal name, then its clause
+        ("       PROGRAM-ID.    CBLDB22" + " " * 45 + "\n", "CBLDB22"),  # #4307: padded to col 72, no period
+        ("       PROGRAM-ID.    CBLDB22" + " " * 45 + "00000700\n", "CBLDB22"),  # #4307: padded, then a sequence number
+        ("       PROGRAM-ID. CBLDB22   ", "CBLDB22"),  # #4307: trailing blanks at end of input
+        ("PROGRAM-ID TEST16.", "TEST16"),  # #4307: no period after the keyword (lsp fixture TEST16.CBL)
+        ("       PROGRAM-ID TEST51", "TEST51"),  # #4307: neither period
+        ("CLASS-ID MyClass.", "MyClass"),  # #4307: keyword period optional for CLASS-ID
     ],
     "invalid": [
         "      * PROGRAM-ID. MyProgram.",  # commented-out declaration
         "      * PROGRAM-ID. 'MYPROG'.",  # #4242: a commented-out literal name
         "       MOVE 'PROGRAM-ID. X' TO WS-TEXT.",  # #4242: PROGRAM-ID inside a literal is no paragraph
         "       WORKING-STORAGE SECTION.",  # unrelated section, no class_start keyword
+        "       PROGRAM-IDENT X.",  # #4307: a longer word is not the PROGRAM-ID keyword
+        "       PROGRAM-ID-X PIC X(8).",  # #4307: a hyphenated data name is not the paragraph
+        "       OBJECT REFERENCE FOO.",  # #4307: OBJECT / FACTORY still need their period
+        "      * PROGRAM-ID TEST16.",  # #4307: a commented-out period-less declaration
     ],
     "pathological": [
         ("PROGRAM-ID.\n    MyProgram.", "MyProgram"),  # vertical split

@@ -265,6 +265,24 @@ is invalid or the report is stale. A new corpus is a new round; a new channel ne
 with its honest `development_rounds`; key errors are counted automatically. Quote coverage only
 from that report. The full protocol is in the `mainframe-ground-truth` skill ("Field testing").
 
+### The porting loop (automated COBOL -> Java)
+
+`tests/tools/porting_loop.py` runs port_runner end to end on one equivalence case. A model ports the program from
+its ticket, the harness proves it (outputs, CICS events or CALLs, and every fault run), and a failed proof's
+feedback drives the next attempt. Use the `porting-loop` skill: it covers running it (JDK 17, the corpora cache, the
+no-tools model), deciding whose a failure is (model, ticket, generator, harness, case), building cases with fault
+runs and coverage, and committing a proven port with provenance. CardDemo / CBSA / crucible results are development
+numbers, never first-try rates. Results and lessons so far: `docs/language_status/porting_loop.md`.
+
+### The deterministic port (det-port)
+
+`gitgalaxy/tools/cobol_to_java/det` translates a COBOL program to Java with no model, and `tests/tools/det_port.py`
+proves the result (batch, CICS and Db2 cases). Use the `det-port` skill: it covers the environment (Docker images,
+the Db2 container), debugging a differing scenario, and the checklists for a translator, runtime, harness or oracle
+change. After a translator change, `det_port.py check --work DIR` lists the ports it moved against `origin/main`;
+re-prove exactly those. Every known or suspected difference between our oracle (GnuCOBOL plus our CICS, Db2 and LE
+models) and IBM z/OS is in `docs/language_status/oracle_assumptions.md`; a new model or refusal adds its entry there.
+
 ## Testing conventions
 
 `tests/` has no `__init__.py` anywhere in this repo. A new test file that needs to import a

@@ -13,7 +13,12 @@ from typing import Any
 from gitgalaxy.standards.language_standards import _lazy_re as re  # #3914: compiled on first use
 from gitgalaxy.standards.language_standards.identifiers import CAPITAL, ID_CONTINUE, ID_START
 
-from .._shared_patterns import CALLS_OUT_C_STYLE_GENERIC, GLOBAL_FRAGILE_DEBT, GLOBAL_PLANNED_DEBT
+from .._shared_patterns import (
+    CALLS_OUT_C_STYLE_GENERIC,
+    COMMENTED_STATEMENT_C_FAMILY,
+    GLOBAL_FRAGILE_DEBT,
+    GLOBAL_PLANNED_DEBT,
+)
 
 DEFINITION: dict[str, Any] = {
     "_meta": {
@@ -56,6 +61,10 @@ DEFINITION: dict[str, Any] = {
     # (/* */) is handled by the Section 2.3.C.3 Heuristic Pass.
     "lexical_family": "standard_block",
     "rules": {
+        # A `branch` hit is code: a keyword, `?` or `:` inside a string or char
+        # literal (a JDBC `"values (?, ?)"`, `"if"` in a message) is not a
+        # decision. See branch_rule_contract.md, "Literals".
+        "_scope_filters": {"branch": "outside_literals"},
         # Epic #3264: Explicitly declare the structural invocation paradigm
         # #3644: type-argument lists before `(` (`static_cast<int>(`, `new Array<T>()`).
         "calls_out": CALLS_OUT_C_STYLE_GENERIC,
@@ -312,15 +321,17 @@ DEFINITION: dict[str, Any] = {
         # (`record Foo<T>(T Value) : Base<T>`, C# 9+ records / C# 12 primary constructors on
         # classes/structs, mainstream and common) for the same reason -- the `(...)` between the
         # generics and the `:` was equally unconsumed.
-        # #1708: modifier alternation was missing `readonly`/`ref` -- C# 7.2+
-        # `readonly struct`, `ref struct`, and `readonly ref struct` declarations
-        # (mainstream in modern codebases, e.g. Roslyn's own parser) structurally failed to
-        # match, a pure class_recall gap. Verified via roslyn/CSharpCompilation.cs
-        # (`readonly struct ImportInfo`) and roslyn/LanguageParser.cs
-        # (`readonly ref struct ParserSyntaxContextResetter`): found_classes 22 -> 24,
-        # class recall 91.7% -> 100%, zero precision cost (extra_classes still 0).
+        # Issue #1708: `readonly` and `ref` are also valid type-declaration modifiers (C# 7.2+).
+        # `readonly struct` promises the compiler every field is immutable (so it can skip
+        # defensive copies), and `ref struct` pins a struct to the stack (Span<T>-style types
+        # that must never be boxed or captured on the heap). They combine in either order
+        # (`readonly ref struct`, `ref readonly struct`) and with `record struct`. Both keywords
+        # still have to sit in the modifier run directly before a type keyword + name, so
+        # fields (`private readonly Foo _x;`) and ref returns (`public ref readonly T Get()`)
+        # remain unmatched. The modifier run cap is 6 (was 5) to leave room for the longer
+        # stacks these enable (e.g. `public readonly ref partial struct`), still bounded.
         "class_start": re.compile(
-            r"^[ \t]*(?:\[[^\]]*\][ \t]*){0,5}(?:(?:public|internal|private|protected|static|sealed|abstract|partial|file|unsafe|new|readonly|ref)[ \t]+){0,5}(?:class|interface|struct|record(?:[ \t]+(?:struct|class))?|enum)\s+(["
+            r"^[ \t]*(?:\[[^\]]*\][ \t]*){0,5}(?:(?:public|internal|private|protected|static|sealed|abstract|partial|file|unsafe|new|readonly|ref)[ \t]+){0,6}(?:class|interface|struct|record(?:[ \t]+(?:struct|class))?|enum)\s+(["
             + ID_START
             + r"$]["
             + ID_CONTINUE
@@ -425,6 +436,8 @@ DEFINITION: dict[str, Any] = {
         # idiomatic (`/* if (x) foo(); */`).
         "dead_code": re.compile(
             r"(?://|/\*)[ \t]*(?:public|private|protected|internal|class|void|if|for|foreach|while|return|using)\b"
+            + r"|"
+            + COMMENTED_STATEMENT_C_FAMILY
         ),
         # 13. doc (Structured Documentation)
         # BUG FIX #2672: apply the family-wide line-marker fix (#2658

@@ -1,5 +1,5 @@
 {
-  "schema_version": 1,
+  "schema_version": 2,
   "corpus": "cics-genapp",
   "url": "https://github.com/cicsdev/cics-genapp",
   "ref": "f6f3f4b2580d31b7d8dcc31ce3e3676f4cceaaaa",
@@ -10,27 +10,64 @@
         {
           "name": "MAINLINE",
           "kind": "section",
-          "line": 128
+          "line": 128,
+          "end": 192,
+          "edges": [
+            {
+              "verb": "PERFORM",
+              "target": "WRITE-ERROR-MESSAGE",
+              "line": 151
+            },
+            {
+              "verb": "PERFORM",
+              "target": "OBTAIN-CUSTOMER-NUMBER",
+              "line": 171
+            },
+            {
+              "verb": "PERFORM",
+              "target": "INSERT-CUSTOMER",
+              "line": 172
+            }
+          ]
         },
         {
           "name": "MAINLINE-EXIT",
           "kind": "paragraph",
-          "line": 194
+          "line": 194,
+          "end": 195,
+          "edges": []
         },
         {
           "name": "OBTAIN-CUSTOMER-NUMBER",
           "kind": "paragraph",
-          "line": 199
+          "line": 199,
+          "end": 211,
+          "edges": []
         },
         {
           "name": "INSERT-CUSTOMER",
           "kind": "paragraph",
-          "line": 215
+          "line": 215,
+          "end": 287,
+          "edges": [
+            {
+              "verb": "PERFORM",
+              "target": "WRITE-ERROR-MESSAGE",
+              "line": 247
+            },
+            {
+              "verb": "PERFORM",
+              "target": "WRITE-ERROR-MESSAGE",
+              "line": 276
+            }
+          ]
         },
         {
           "name": "WRITE-ERROR-MESSAGE",
           "kind": "paragraph",
-          "line": 295
+          "line": 295,
+          "end": 328,
+          "edges": []
         }
       ],
       "dead": {
@@ -957,7 +994,10 @@
         "derived": "censused CSD TRANSACTION -> PROGRAM rows joined to the cross-verified PROGRAM-ID (#3575)"
       },
       "records_validated": true,
-      "records_validated_tier": "sample_verified"
+      "records_validated_tier": "sample_verified",
+      "main_line": null,
+      "extents_validated": true,
+      "extents_validated_tier": "llm_verified"
     },
     "base/src/lgacdb02.cbl": {
       "program_id": "LGACDB02",
@@ -965,22 +1005,47 @@
         {
           "name": "MAINLINE",
           "kind": "section",
-          "line": 115
+          "line": 115,
+          "end": 155,
+          "edges": [
+            {
+              "verb": "PERFORM",
+              "target": "WRITE-ERROR-MESSAGE",
+              "line": 133
+            },
+            {
+              "verb": "PERFORM",
+              "target": "INSERT-CUSTOMER-PASSWORD",
+              "line": 148
+            }
+          ]
         },
         {
           "name": "MAINLINE-EXIT",
           "kind": "paragraph",
-          "line": 157
+          "line": 157,
+          "end": 158,
+          "edges": []
         },
         {
           "name": "INSERT-CUSTOMER-PASSWORD",
           "kind": "paragraph",
-          "line": 161
+          "line": 161,
+          "end": 184,
+          "edges": [
+            {
+              "verb": "PERFORM",
+              "target": "WRITE-ERROR-MESSAGE",
+              "line": 180
+            }
+          ]
         },
         {
           "name": "WRITE-ERROR-MESSAGE",
           "kind": "paragraph",
-          "line": 192
+          "line": 192,
+          "end": 225,
+          "edges": []
         }
       ],
       "dead": {
@@ -1693,7 +1758,10 @@
         "derived": "censused CSD TRANSACTION -> PROGRAM rows joined to the cross-verified PROGRAM-ID (#3575)"
       },
       "records_validated": true,
-      "records_validated_tier": "sample_verified"
+      "records_validated_tier": "sample_verified",
+      "main_line": null,
+      "extents_validated": true,
+      "extents_validated_tier": "llm_verified"
     },
     "base/src/lgacus01.cbl": {
       "program_id": "LGACUS01",
@@ -1701,22 +1769,41 @@
         {
           "name": "MAINLINE",
           "kind": "section",
-          "line": 78
+          "line": 78,
+          "end": 123,
+          "edges": [
+            {
+              "verb": "PERFORM",
+              "target": "WRITE-ERROR-MESSAGE",
+              "line": 97
+            },
+            {
+              "verb": "PERFORM",
+              "target": "INSERT-CUSTOMER",
+              "line": 119
+            }
+          ]
         },
         {
           "name": "MAINLINE-EXIT",
           "kind": "paragraph",
-          "line": 125
+          "line": 125,
+          "end": 126,
+          "edges": []
         },
         {
           "name": "INSERT-CUSTOMER",
           "kind": "paragraph",
-          "line": 132
+          "line": 132,
+          "end": 140,
+          "edges": []
         },
         {
           "name": "WRITE-ERROR-MESSAGE",
           "kind": "paragraph",
-          "line": 147
+          "line": 147,
+          "end": 179,
+          "edges": []
         }
       ],
       "dead": {
@@ -2234,7 +2321,10 @@
         "derived": "censused CSD TRANSACTION -> PROGRAM rows joined to the cross-verified PROGRAM-ID (#3575)"
       },
       "records_validated": true,
-      "records_validated_tier": "sample_verified"
+      "records_validated_tier": "sample_verified",
+      "main_line": null,
+      "extents_validated": true,
+      "extents_validated_tier": "llm_verified"
     },
     "base/src/lgacvs01.cbl": {
       "program_id": "LGACVS01",
@@ -2242,17 +2332,29 @@
         {
           "name": "MAINLINE",
           "kind": "section",
-          "line": 63
+          "line": 63,
+          "end": 81,
+          "edges": [
+            {
+              "verb": "PERFORM",
+              "target": "WRITE-ERROR-MESSAGE",
+              "line": 78
+            }
+          ]
         },
         {
           "name": "A-EXIT",
           "kind": "paragraph",
-          "line": 85
+          "line": 85,
+          "end": 87,
+          "edges": []
         },
         {
           "name": "WRITE-ERROR-MESSAGE",
           "kind": "paragraph",
-          "line": 89
+          "line": 89,
+          "end": 121,
+          "edges": []
         }
       ],
       "dead": {},
@@ -2776,7 +2878,10 @@
         "derived": "censused CSD TRANSACTION -> PROGRAM rows joined to the cross-verified PROGRAM-ID (#3575)"
       },
       "records_validated": true,
-      "records_validated_tier": "sample_verified"
+      "records_validated_tier": "sample_verified",
+      "main_line": null,
+      "extents_validated": true,
+      "extents_validated_tier": "llm_verified"
     },
     "base/src/lgapdb01.cbl": {
       "program_id": "LGAPDB01",
@@ -2784,42 +2889,124 @@
         {
           "name": "MAINLINE",
           "kind": "section",
-          "line": 146
+          "line": 146,
+          "end": 250,
+          "edges": [
+            {
+              "verb": "PERFORM",
+              "target": "WRITE-ERROR-MESSAGE",
+              "line": 167
+            },
+            {
+              "verb": "PERFORM",
+              "target": "INSERT-POLICY",
+              "line": 219
+            },
+            {
+              "verb": "PERFORM",
+              "target": "INSERT-ENDOW",
+              "line": 226
+            },
+            {
+              "verb": "PERFORM",
+              "target": "INSERT-HOUSE",
+              "line": 229
+            },
+            {
+              "verb": "PERFORM",
+              "target": "INSERT-MOTOR",
+              "line": 232
+            },
+            {
+              "verb": "PERFORM",
+              "target": "INSERT-COMMERCIAL",
+              "line": 235
+            }
+          ]
         },
         {
           "name": "MAINLINE-EXIT",
           "kind": "paragraph",
-          "line": 252
+          "line": 252,
+          "end": 253,
+          "edges": []
         },
         {
           "name": "INSERT-POLICY",
           "kind": "paragraph",
-          "line": 261
+          "line": 261,
+          "end": 322,
+          "edges": [
+            {
+              "verb": "PERFORM",
+              "target": "WRITE-ERROR-MESSAGE",
+              "line": 297
+            },
+            {
+              "verb": "PERFORM",
+              "target": "WRITE-ERROR-MESSAGE",
+              "line": 302
+            }
+          ]
         },
         {
           "name": "INSERT-ENDOW",
           "kind": "paragraph",
-          "line": 327
+          "line": 327,
+          "end": 397,
+          "edges": [
+            {
+              "verb": "PERFORM",
+              "target": "WRITE-ERROR-MESSAGE",
+              "line": 391
+            }
+          ]
         },
         {
           "name": "INSERT-HOUSE",
           "kind": "paragraph",
-          "line": 402
+          "line": 402,
+          "end": 435,
+          "edges": [
+            {
+              "verb": "PERFORM",
+              "target": "WRITE-ERROR-MESSAGE",
+              "line": 429
+            }
+          ]
         },
         {
           "name": "INSERT-MOTOR",
           "kind": "paragraph",
-          "line": 440
+          "line": 440,
+          "end": 481,
+          "edges": [
+            {
+              "verb": "PERFORM",
+              "target": "WRITE-ERROR-MESSAGE",
+              "line": 475
+            }
+          ]
         },
         {
           "name": "INSERT-COMMERCIAL",
           "kind": "paragraph",
-          "line": 486
+          "line": 486,
+          "end": 555,
+          "edges": [
+            {
+              "verb": "PERFORM",
+              "target": "WRITE-ERROR-MESSAGE",
+              "line": 549
+            }
+          ]
         },
         {
           "name": "WRITE-ERROR-MESSAGE",
           "kind": "paragraph",
-          "line": 562
+          "line": 562,
+          "end": 595,
+          "edges": []
         }
       ],
       "dead": {
@@ -3955,7 +4142,10 @@
         "derived": "censused CSD TRANSACTION -> PROGRAM rows joined to the cross-verified PROGRAM-ID (#3575)"
       },
       "records_validated": true,
-      "records_validated_tier": "sample_verified"
+      "records_validated_tier": "sample_verified",
+      "main_line": null,
+      "extents_validated": true,
+      "extents_validated_tier": "llm_verified"
     },
     "base/src/lgapol01.cbl": {
       "program_id": "LGAPOL01",
@@ -3963,17 +4153,29 @@
         {
           "name": "MAINLINE",
           "kind": "section",
-          "line": 80
+          "line": 80,
+          "end": 126,
+          "edges": [
+            {
+              "verb": "PERFORM",
+              "target": "WRITE-ERROR-MESSAGE",
+              "line": 100
+            }
+          ]
         },
         {
           "name": "MAINLINE-EXIT",
           "kind": "paragraph",
-          "line": 128
+          "line": 128,
+          "end": 129,
+          "edges": []
         },
         {
           "name": "WRITE-ERROR-MESSAGE",
           "kind": "paragraph",
-          "line": 137
+          "line": 137,
+          "end": 169,
+          "edges": []
         }
       ],
       "dead": {
@@ -4483,7 +4685,10 @@
         "derived": "censused CSD TRANSACTION -> PROGRAM rows joined to the cross-verified PROGRAM-ID (#3575)"
       },
       "records_validated": true,
-      "records_validated_tier": "sample_verified"
+      "records_validated_tier": "sample_verified",
+      "main_line": null,
+      "extents_validated": true,
+      "extents_validated_tier": "llm_verified"
     },
     "base/src/lgapvs01.cbl": {
       "program_id": "LGAPVS01",
@@ -4491,17 +4696,29 @@
         {
           "name": "MAINLINE",
           "kind": "section",
-          "line": 94
+          "line": 94,
+          "end": 147,
+          "edges": [
+            {
+              "verb": "PERFORM",
+              "target": "WRITE-ERROR-MESSAGE",
+              "line": 145
+            }
+          ]
         },
         {
           "name": "A-EXIT",
           "kind": "paragraph",
-          "line": 151
+          "line": 151,
+          "end": 153,
+          "edges": []
         },
         {
           "name": "WRITE-ERROR-MESSAGE",
           "kind": "paragraph",
-          "line": 155
+          "line": 155,
+          "end": 188,
+          "edges": []
         }
       ],
       "dead": {},
@@ -5489,7 +5706,10 @@
         "derived": "censused CSD TRANSACTION -> PROGRAM rows joined to the cross-verified PROGRAM-ID (#3575)"
       },
       "records_validated": true,
-      "records_validated_tier": "sample_verified"
+      "records_validated_tier": "sample_verified",
+      "main_line": null,
+      "extents_validated": true,
+      "extents_validated_tier": "llm_verified"
     },
     "base/src/lgastat1.cbl": {
       "program_id": "LGASTAT1",
@@ -5497,12 +5717,16 @@
         {
           "name": "MAINLINE",
           "kind": "section",
-          "line": 69
+          "line": 69,
+          "end": 135,
+          "edges": []
         },
         {
           "name": "MAINLINE-EXIT",
           "kind": "paragraph",
-          "line": 137
+          "line": 137,
+          "end": 138,
+          "edges": []
         }
       ],
       "dead": {
@@ -6144,7 +6368,10 @@
         "derived": "censused CSD TRANSACTION -> PROGRAM rows joined to the cross-verified PROGRAM-ID (#3575)"
       },
       "records_validated": true,
-      "records_validated_tier": "sample_verified"
+      "records_validated_tier": "sample_verified",
+      "main_line": null,
+      "extents_validated": true,
+      "extents_validated_tier": "llm_verified"
     },
     "base/src/lgdpdb01.cbl": {
       "program_id": "LGDPDB01",
@@ -6152,22 +6379,47 @@
         {
           "name": "MAINLINE",
           "kind": "section",
-          "line": 111
+          "line": 111,
+          "end": 175,
+          "edges": [
+            {
+              "verb": "PERFORM",
+              "target": "WRITE-ERROR-MESSAGE",
+              "line": 133
+            },
+            {
+              "verb": "PERFORM",
+              "target": "DELETE-POLICY-DB2-INFO",
+              "line": 167
+            }
+          ]
         },
         {
           "name": "MAINLINE-EXIT",
           "kind": "paragraph",
-          "line": 177
+          "line": 177,
+          "end": 178,
+          "edges": []
         },
         {
           "name": "DELETE-POLICY-DB2-INFO",
           "kind": "paragraph",
-          "line": 186
+          "line": 186,
+          "end": 204,
+          "edges": [
+            {
+              "verb": "PERFORM",
+              "target": "WRITE-ERROR-MESSAGE",
+              "line": 200
+            }
+          ]
         },
         {
           "name": "WRITE-ERROR-MESSAGE",
           "kind": "paragraph",
-          "line": 212
+          "line": 212,
+          "end": 245,
+          "edges": []
         }
       ],
       "dead": {
@@ -6831,7 +7083,10 @@
         "derived": "censused CSD TRANSACTION -> PROGRAM rows joined to the cross-verified PROGRAM-ID (#3575)"
       },
       "records_validated": true,
-      "records_validated_tier": "sample_verified"
+      "records_validated_tier": "sample_verified",
+      "main_line": null,
+      "extents_validated": true,
+      "extents_validated_tier": "llm_verified"
     },
     "base/src/lgdpol01.cbl": {
       "program_id": "LGDPOL01",
@@ -6839,22 +7094,41 @@
         {
           "name": "MAINLINE",
           "kind": "section",
-          "line": 78
+          "line": 78,
+          "end": 133,
+          "edges": [
+            {
+              "verb": "PERFORM",
+              "target": "WRITE-ERROR-MESSAGE",
+              "line": 97
+            },
+            {
+              "verb": "PERFORM",
+              "target": "DELETE-POLICY-DB2-INFO",
+              "line": 126
+            }
+          ]
         },
         {
           "name": "MAINLINE-EXIT",
           "kind": "paragraph",
-          "line": 135
+          "line": 135,
+          "end": 136,
+          "edges": []
         },
         {
           "name": "DELETE-POLICY-DB2-INFO",
           "kind": "paragraph",
-          "line": 139
+          "line": 139,
+          "end": 146,
+          "edges": []
         },
         {
           "name": "WRITE-ERROR-MESSAGE",
           "kind": "paragraph",
-          "line": 154
+          "line": 154,
+          "end": 186,
+          "edges": []
         }
       ],
       "dead": {
@@ -7348,7 +7622,10 @@
         "derived": "censused CSD TRANSACTION -> PROGRAM rows joined to the cross-verified PROGRAM-ID (#3575)"
       },
       "records_validated": true,
-      "records_validated_tier": "sample_verified"
+      "records_validated_tier": "sample_verified",
+      "main_line": null,
+      "extents_validated": true,
+      "extents_validated_tier": "llm_verified"
     },
     "base/src/lgdpvs01.cbl": {
       "program_id": "LGDPVS01",
@@ -7356,17 +7633,29 @@
         {
           "name": "MAINLINE",
           "kind": "section",
-          "line": 72
+          "line": 72,
+          "end": 91,
+          "edges": [
+            {
+              "verb": "PERFORM",
+              "target": "WRITE-ERROR-MESSAGE",
+              "line": 89
+            }
+          ]
         },
         {
           "name": "A-EXIT",
           "kind": "paragraph",
-          "line": 95
+          "line": 95,
+          "end": 97,
+          "edges": []
         },
         {
           "name": "WRITE-ERROR-MESSAGE",
           "kind": "paragraph",
-          "line": 99
+          "line": 99,
+          "end": 132,
+          "edges": []
         }
       ],
       "dead": {},
@@ -8002,7 +8291,10 @@
         "derived": "censused CSD TRANSACTION -> PROGRAM rows joined to the cross-verified PROGRAM-ID (#3575)"
       },
       "records_validated": true,
-      "records_validated_tier": "sample_verified"
+      "records_validated_tier": "sample_verified",
+      "main_line": null,
+      "extents_validated": true,
+      "extents_validated_tier": "llm_verified"
     },
     "base/src/lgicdb01.cbl": {
       "program_id": "LGICDB01",
@@ -8010,27 +8302,54 @@
         {
           "name": "MAINLINE",
           "kind": "section",
-          "line": 102
+          "line": 102,
+          "end": 154,
+          "edges": [
+            {
+              "verb": "PERFORM",
+              "target": "WRITE-ERROR-MESSAGE",
+              "line": 121
+            },
+            {
+              "verb": "PERFORM",
+              "target": "GET-CUSTOMER-INFO",
+              "line": 154
+            }
+          ]
         },
         {
           "name": "MAINLINE-END",
           "kind": "paragraph",
-          "line": 159
+          "line": 159,
+          "end": 161,
+          "edges": []
         },
         {
           "name": "MAINLINE-EXIT",
           "kind": "paragraph",
-          "line": 163
+          "line": 163,
+          "end": 164,
+          "edges": []
         },
         {
           "name": "GET-CUSTOMER-INFO",
           "kind": "paragraph",
-          "line": 167
+          "line": 167,
+          "end": 205,
+          "edges": [
+            {
+              "verb": "PERFORM",
+              "target": "WRITE-ERROR-MESSAGE",
+              "line": 201
+            }
+          ]
         },
         {
           "name": "WRITE-ERROR-MESSAGE",
           "kind": "paragraph",
-          "line": 212
+          "line": 212,
+          "end": 245,
+          "edges": []
         }
       ],
       "dead": {
@@ -8639,7 +8958,10 @@
         "derived": "censused CSD TRANSACTION -> PROGRAM rows joined to the cross-verified PROGRAM-ID (#3575)"
       },
       "records_validated": true,
-      "records_validated_tier": "sample_verified"
+      "records_validated_tier": "sample_verified",
+      "main_line": null,
+      "extents_validated": true,
+      "extents_validated_tier": "llm_verified"
     },
     "base/src/lgicus01.cbl": {
       "program_id": "LGICUS01",
@@ -8647,27 +8969,48 @@
         {
           "name": "MAINLINE",
           "kind": "section",
-          "line": 77
+          "line": 77,
+          "end": 109,
+          "edges": [
+            {
+              "verb": "PERFORM",
+              "target": "WRITE-ERROR-MESSAGE",
+              "line": 89
+            },
+            {
+              "verb": "PERFORM",
+              "target": "GET-CUSTOMER-INFO",
+              "line": 109
+            }
+          ]
         },
         {
           "name": "MAINLINE-END",
           "kind": "paragraph",
-          "line": 114
+          "line": 114,
+          "end": 115,
+          "edges": []
         },
         {
           "name": "MAINLINE-EXIT",
           "kind": "paragraph",
-          "line": 117
+          "line": 117,
+          "end": 118,
+          "edges": []
         },
         {
           "name": "GET-CUSTOMER-INFO",
           "kind": "paragraph",
-          "line": 120
+          "line": 120,
+          "end": 128,
+          "edges": []
         },
         {
           "name": "WRITE-ERROR-MESSAGE",
           "kind": "paragraph",
-          "line": 135
+          "line": 135,
+          "end": 166,
+          "edges": []
         }
       ],
       "dead": {
@@ -9185,7 +9528,10 @@
         "derived": "censused CSD TRANSACTION -> PROGRAM rows joined to the cross-verified PROGRAM-ID (#3575)"
       },
       "records_validated": true,
-      "records_validated_tier": "sample_verified"
+      "records_validated_tier": "sample_verified",
+      "main_line": null,
+      "extents_validated": true,
+      "extents_validated_tier": "llm_verified"
     },
     "base/src/lgicvs01.cbl": {
       "program_id": "LGICVS01",
@@ -9193,12 +9539,16 @@
         {
           "name": "MAINLINE",
           "kind": "section",
-          "line": 93
+          "line": 93,
+          "end": 225,
+          "edges": []
         },
         {
           "name": "A-EXIT",
           "kind": "paragraph",
-          "line": 227
+          "line": 227,
+          "end": 229,
+          "edges": []
         }
       ],
       "dead": {
@@ -10056,7 +10406,10 @@
         "derived": "censused CSD TRANSACTION -> PROGRAM rows joined to the cross-verified PROGRAM-ID (#3575)"
       },
       "records_validated": true,
-      "records_validated_tier": "sample_verified"
+      "records_validated_tier": "sample_verified",
+      "main_line": null,
+      "extents_validated": true,
+      "extents_validated_tier": "llm_verified"
     },
     "base/src/lgipdb01.cbl": {
       "program_id": "LGIPDB01",
@@ -10064,62 +10417,216 @@
         {
           "name": "MAINLINE",
           "kind": "section",
-          "line": 230
+          "line": 230,
+          "end": 310,
+          "edges": [
+            {
+              "verb": "PERFORM",
+              "target": "WRITE-ERROR-MESSAGE",
+              "line": 253
+            },
+            {
+              "verb": "PERFORM",
+              "target": "GET-ENDOW-DB2-INFO",
+              "line": 281
+            },
+            {
+              "verb": "PERFORM",
+              "target": "GET-HOUSE-DB2-INFO",
+              "line": 285
+            },
+            {
+              "verb": "PERFORM",
+              "target": "GET-MOTOR-DB2-INFO",
+              "line": 289
+            },
+            {
+              "verb": "PERFORM",
+              "target": "GET-COMMERCIAL-DB2-INFO-1",
+              "line": 293
+            },
+            {
+              "verb": "PERFORM",
+              "target": "GET-COMMERCIAL-DB2-INFO-2",
+              "line": 297
+            },
+            {
+              "verb": "PERFORM",
+              "target": "GET-COMMERCIAL-DB2-INFO-3",
+              "line": 301
+            },
+            {
+              "verb": "PERFORM",
+              "target": "GET-COMMERCIAL-DB2-INFO-5",
+              "line": 305
+            }
+          ]
+        },
+        {
+          "name": "END-PROGRAM",
+          "kind": "paragraph",
+          "line": 312,
+          "end": 313,
+          "edges": []
         },
         {
           "name": "MAINLINE-EXIT",
           "kind": "paragraph",
-          "line": 315
+          "line": 315,
+          "end": 316,
+          "edges": []
         },
         {
           "name": "GET-ENDOW-DB2-INFO",
           "kind": "paragraph",
-          "line": 327
+          "line": 327,
+          "end": 432,
+          "edges": [
+            {
+              "verb": "PERFORM",
+              "target": "WRITE-ERROR-MESSAGE",
+              "line": 428
+            }
+          ]
         },
         {
           "name": "GET-HOUSE-DB2-INFO",
           "kind": "paragraph",
-          "line": 441
+          "line": 441,
+          "end": 523,
+          "edges": [
+            {
+              "verb": "PERFORM",
+              "target": "WRITE-ERROR-MESSAGE",
+              "line": 519
+            }
+          ]
         },
         {
           "name": "GET-MOTOR-DB2-INFO",
           "kind": "paragraph",
-          "line": 529
+          "line": 529,
+          "end": 621,
+          "edges": [
+            {
+              "verb": "PERFORM",
+              "target": "WRITE-ERROR-MESSAGE",
+              "line": 617
+            }
+          ]
         },
         {
           "name": "GET-COMMERCIAL-DB2-INFO-1",
           "kind": "paragraph",
-          "line": 627
+          "line": 627,
+          "end": 724,
+          "edges": [
+            {
+              "verb": "PERFORM",
+              "target": "WRITE-ERROR-MESSAGE",
+              "line": 719
+            }
+          ]
         },
         {
           "name": "GET-COMMERCIAL-DB2-INFO-2",
           "kind": "paragraph",
-          "line": 730
+          "line": 730,
+          "end": 829,
+          "edges": [
+            {
+              "verb": "PERFORM",
+              "target": "WRITE-ERROR-MESSAGE",
+              "line": 824
+            }
+          ]
         },
         {
           "name": "GET-COMMERCIAL-DB2-INFO-3",
           "kind": "paragraph",
-          "line": 835
+          "line": 835,
+          "end": 861,
+          "edges": [
+            {
+              "verb": "PERFORM",
+              "target": "WRITE-ERROR-MESSAGE",
+              "line": 845
+            },
+            {
+              "verb": "PERFORM",
+              "target": "END-PROGRAM",
+              "line": 846
+            },
+            {
+              "verb": "PERFORM",
+              "target": "GET-COMMERCIAL-DB2-INFO-3-CUR",
+              "line": 849
+            },
+            {
+              "verb": "PERFORM",
+              "target": "WRITE-ERROR-MESSAGE",
+              "line": 857
+            },
+            {
+              "verb": "PERFORM",
+              "target": "END-PROGRAM",
+              "line": 858
+            }
+          ]
         },
         {
           "name": "GET-COMMERCIAL-DB2-INFO-3-CUR",
           "kind": "paragraph",
-          "line": 863
+          "line": 863,
+          "end": 913,
+          "edges": []
         },
         {
           "name": "GET-COMMERCIAL-DB2-INFO-5",
           "kind": "paragraph",
-          "line": 919
+          "line": 919,
+          "end": 944,
+          "edges": [
+            {
+              "verb": "PERFORM",
+              "target": "WRITE-ERROR-MESSAGE",
+              "line": 928
+            },
+            {
+              "verb": "PERFORM",
+              "target": "END-PROGRAM",
+              "line": 929
+            },
+            {
+              "verb": "PERFORM",
+              "target": "GET-COMMERCIAL-DB2-INFO-5-CUR",
+              "line": 932
+            },
+            {
+              "verb": "PERFORM",
+              "target": "WRITE-ERROR-MESSAGE",
+              "line": 940
+            },
+            {
+              "verb": "PERFORM",
+              "target": "END-PROGRAM",
+              "line": 941
+            }
+          ]
         },
         {
           "name": "GET-COMMERCIAL-DB2-INFO-5-CUR",
           "kind": "paragraph",
-          "line": 946
+          "line": 946,
+          "end": 990,
+          "edges": []
         },
         {
           "name": "WRITE-ERROR-MESSAGE",
           "kind": "paragraph",
-          "line": 997
+          "line": 997,
+          "end": 1030,
+          "edges": []
         }
       ],
       "dead": {
@@ -11413,7 +11920,9 @@
       "sql": true,
       "verification": {
         "status": "validated",
-        "notes": [],
+        "notes": [
+          "2026-09-30 key_fixed (#4026, #4028): units gains END-PROGRAM -- `End-Program.` in Area A at line 312 is a paragraph (reached by fall-through from MAINLINE and by PERFORM END-PROGRAM). The key's reader, like the forge and the engine, rejected every END-... name as a scope terminator; it now rejects only the reserved END- words. Read against the source; dead is unchanged (MAINLINE-EXIT)."
+        ],
         "tier": "cross_verified",
         "cross_by": "claude-opus-5.5 blind reviewers (genapp census)",
         "cross_at": "2026-09-24",
@@ -11432,7 +11941,10 @@
         "derived": "censused CSD TRANSACTION -> PROGRAM rows joined to the cross-verified PROGRAM-ID (#3575)"
       },
       "records_validated": true,
-      "records_validated_tier": "sample_verified"
+      "records_validated_tier": "sample_verified",
+      "main_line": null,
+      "extents_validated": true,
+      "extents_validated_tier": "llm_verified"
     },
     "base/src/lgipol01.cbl": {
       "program_id": "LGIPOL01",
@@ -11440,17 +11952,29 @@
         {
           "name": "MAINLINE",
           "kind": "section",
-          "line": 70
+          "line": 70,
+          "end": 96,
+          "edges": [
+            {
+              "verb": "PERFORM",
+              "target": "WRITE-ERROR-MESSAGE",
+              "line": 81
+            }
+          ]
         },
         {
           "name": "MAINLINE-EXIT",
           "kind": "paragraph",
-          "line": 98
+          "line": 98,
+          "end": 99,
+          "edges": []
         },
         {
           "name": "WRITE-ERROR-MESSAGE",
           "kind": "paragraph",
-          "line": 107
+          "line": 107,
+          "end": 139,
+          "edges": []
         }
       ],
       "dead": {
@@ -11920,7 +12444,10 @@
         "derived": "censused CSD TRANSACTION -> PROGRAM rows joined to the cross-verified PROGRAM-ID (#3575)"
       },
       "records_validated": true,
-      "records_validated_tier": "sample_verified"
+      "records_validated_tier": "sample_verified",
+      "main_line": null,
+      "extents_validated": true,
+      "extents_validated_tier": "llm_verified"
     },
     "base/src/lgipvs01.cbl": {
       "program_id": "LGIPVS01",
@@ -11928,12 +12455,16 @@
         {
           "name": "MAINLINE",
           "kind": "section",
-          "line": 75
+          "line": 75,
+          "end": 144,
+          "edges": []
         },
         {
           "name": "A-EXIT",
           "kind": "paragraph",
-          "line": 146
+          "line": 146,
+          "end": 148,
+          "edges": []
         }
       ],
       "dead": {
@@ -12583,7 +13114,10 @@
         "derived": "censused CSD TRANSACTION -> PROGRAM rows joined to the cross-verified PROGRAM-ID (#3575)"
       },
       "records_validated": true,
-      "records_validated_tier": "sample_verified"
+      "records_validated_tier": "sample_verified",
+      "main_line": null,
+      "extents_validated": true,
+      "extents_validated_tier": "llm_verified"
     },
     "base/src/lgsetup.cbl": {
       "program_id": "LGSETUP",
@@ -12591,12 +13125,16 @@
         {
           "name": "MAINLINE",
           "kind": "section",
-          "line": 126
+          "line": 126,
+          "end": 528,
+          "edges": []
         },
         {
           "name": "A-EXIT",
           "kind": "paragraph",
-          "line": 530
+          "line": 530,
+          "end": 532,
+          "edges": []
         }
       ],
       "dead": {
@@ -14045,7 +14583,10 @@
         "derived": "censused CSD TRANSACTION -> PROGRAM rows joined to the cross-verified PROGRAM-ID (#3575)"
       },
       "records_validated": true,
-      "records_validated_tier": "sample_verified"
+      "records_validated_tier": "sample_verified",
+      "main_line": null,
+      "extents_validated": true,
+      "extents_validated_tier": "llm_verified"
     },
     "base/src/lgstsq.cbl": {
       "program_id": "LGSTSQ",
@@ -14053,12 +14594,16 @@
         {
           "name": "MAINLINE",
           "kind": "section",
-          "line": 55
+          "line": 55,
+          "end": 122,
+          "edges": []
         },
         {
           "name": "A-EXIT",
           "kind": "paragraph",
-          "line": 124
+          "line": 124,
+          "end": 126,
+          "edges": []
         }
       ],
       "dead": {
@@ -14481,7 +15026,10 @@
         "derived": "censused CSD TRANSACTION -> PROGRAM rows joined to the cross-verified PROGRAM-ID (#3575)"
       },
       "records_validated": true,
-      "records_validated_tier": "sample_verified"
+      "records_validated_tier": "sample_verified",
+      "main_line": null,
+      "extents_validated": true,
+      "extents_validated_tier": "llm_verified"
     },
     "base/src/lgtestc1.cbl": {
       "program_id": "LGTESTC1",
@@ -14489,52 +15037,148 @@
         {
           "name": "MAINLINE",
           "kind": "section",
-          "line": 53
+          "line": 53,
+          "end": 68,
+          "edges": [
+            {
+              "verb": "GO_TO",
+              "target": "A-GAIN",
+              "line": 56
+            }
+          ]
         },
         {
           "name": "A-GAIN",
           "kind": "paragraph",
-          "line": 70
+          "line": 70,
+          "end": 228,
+          "edges": [
+            {
+              "verb": "GO_TO",
+              "target": "NO-DATA",
+              "line": 95
+            },
+            {
+              "verb": "GO_TO",
+              "target": "ENDIT-STARTIT",
+              "line": 111
+            },
+            {
+              "verb": "GO_TO",
+              "target": "NO-ADD",
+              "line": 134
+            },
+            {
+              "verb": "PERFORM",
+              "target": "WRITE-GENACNTL",
+              "line": 137
+            },
+            {
+              "verb": "GO_TO",
+              "target": "ENDIT-STARTIT",
+              "line": 146
+            },
+            {
+              "verb": "GO_TO",
+              "target": "NO-DATA",
+              "line": 156
+            },
+            {
+              "verb": "GO_TO",
+              "target": "NO-UPD",
+              "line": 196
+            },
+            {
+              "verb": "GO_TO",
+              "target": "ENDIT-STARTIT",
+              "line": 207
+            },
+            {
+              "verb": "GO_TO",
+              "target": "ENDIT-STARTIT",
+              "line": 220
+            }
+          ]
         },
         {
           "name": "ENDIT-STARTIT",
           "kind": "paragraph",
-          "line": 230
+          "line": 230,
+          "end": 234,
+          "edges": []
         },
         {
           "name": "ENDIT",
           "kind": "paragraph",
-          "line": 236
+          "line": 236,
+          "end": 244,
+          "edges": []
         },
         {
           "name": "CLEARIT",
           "kind": "paragraph",
-          "line": 246
+          "line": 246,
+          "end": 257,
+          "edges": []
         },
         {
           "name": "NO-UPD",
           "kind": "paragraph",
-          "line": 259
+          "line": 259,
+          "end": 261,
+          "edges": [
+            {
+              "verb": "GO_TO",
+              "target": "ERROR-OUT",
+              "line": 261
+            }
+          ]
         },
         {
           "name": "NO-ADD",
           "kind": "paragraph",
-          "line": 263
+          "line": 263,
+          "end": 265,
+          "edges": [
+            {
+              "verb": "GO_TO",
+              "target": "ERROR-OUT",
+              "line": 265
+            }
+          ]
         },
         {
           "name": "NO-DATA",
           "kind": "paragraph",
-          "line": 267
+          "line": 267,
+          "end": 269,
+          "edges": [
+            {
+              "verb": "GO_TO",
+              "target": "ERROR-OUT",
+              "line": 269
+            }
+          ]
         },
         {
           "name": "ERROR-OUT",
           "kind": "paragraph",
-          "line": 271
+          "line": 271,
+          "end": 281,
+          "edges": [
+            {
+              "verb": "GO_TO",
+              "target": "ENDIT-STARTIT",
+              "line": 281
+            }
+          ]
         },
         {
           "name": "WRITE-GENACNTL",
           "kind": "paragraph",
-          "line": 283
+          "line": 283,
+          "end": 347,
+          "edges": []
         }
       ],
       "dead": {},
@@ -14999,7 +15643,10 @@
         "derived": "censused CSD TRANSACTION -> PROGRAM rows joined to the cross-verified PROGRAM-ID (#3575)"
       },
       "records_validated": true,
-      "records_validated_tier": "sample_verified"
+      "records_validated_tier": "sample_verified",
+      "main_line": null,
+      "extents_validated": true,
+      "extents_validated_tier": "llm_verified"
     },
     "base/src/lgtestp1.cbl": {
       "program_id": "LGTESTP1",
@@ -15007,52 +15654,164 @@
         {
           "name": "MAINLINE",
           "kind": "section",
-          "line": 30
+          "line": 30,
+          "end": 50,
+          "edges": [
+            {
+              "verb": "GO_TO",
+              "target": "A-GAIN",
+              "line": 33
+            }
+          ]
         },
         {
           "name": "A-GAIN",
           "kind": "paragraph",
-          "line": 52
+          "line": 52,
+          "end": 255,
+          "edges": [
+            {
+              "verb": "GO_TO",
+              "target": "NO-DATA",
+              "line": 77
+            },
+            {
+              "verb": "GO_TO",
+              "target": "ENDIT-STARTIT",
+              "line": 95
+            },
+            {
+              "verb": "GO_TO",
+              "target": "NO-ADD",
+              "line": 121
+            },
+            {
+              "verb": "GO_TO",
+              "target": "ENDIT-STARTIT",
+              "line": 133
+            },
+            {
+              "verb": "GO_TO",
+              "target": "NO-DELETE",
+              "line": 145
+            },
+            {
+              "verb": "GO_TO",
+              "target": "ENDIT-STARTIT",
+              "line": 167
+            },
+            {
+              "verb": "GO_TO",
+              "target": "NO-DATA",
+              "line": 178
+            },
+            {
+              "verb": "GO_TO",
+              "target": "NO-UPD",
+              "line": 221
+            },
+            {
+              "verb": "GO_TO",
+              "target": "ENDIT-STARTIT",
+              "line": 234
+            },
+            {
+              "verb": "GO_TO",
+              "target": "ENDIT-STARTIT",
+              "line": 247
+            }
+          ]
         },
         {
           "name": "ENDIT-STARTIT",
           "kind": "paragraph",
-          "line": 257
+          "line": 257,
+          "end": 261,
+          "edges": []
         },
         {
           "name": "ENDIT",
           "kind": "paragraph",
-          "line": 263
+          "line": 263,
+          "end": 271,
+          "edges": []
         },
         {
           "name": "CLEARIT",
           "kind": "paragraph",
-          "line": 273
+          "line": 273,
+          "end": 284,
+          "edges": []
         },
         {
           "name": "NO-ADD",
           "kind": "paragraph",
-          "line": 286
+          "line": 286,
+          "end": 294,
+          "edges": [
+            {
+              "verb": "GO_TO",
+              "target": "ERROR-OUT",
+              "line": 290
+            },
+            {
+              "verb": "GO_TO",
+              "target": "ERROR-OUT",
+              "line": 293
+            }
+          ]
         },
         {
           "name": "NO-UPD",
           "kind": "paragraph",
-          "line": 296
+          "line": 296,
+          "end": 298,
+          "edges": [
+            {
+              "verb": "GO_TO",
+              "target": "ERROR-OUT",
+              "line": 298
+            }
+          ]
         },
         {
           "name": "NO-DELETE",
           "kind": "paragraph",
-          "line": 300
+          "line": 300,
+          "end": 302,
+          "edges": [
+            {
+              "verb": "GO_TO",
+              "target": "ERROR-OUT",
+              "line": 302
+            }
+          ]
         },
         {
           "name": "NO-DATA",
           "kind": "paragraph",
-          "line": 304
+          "line": 304,
+          "end": 306,
+          "edges": [
+            {
+              "verb": "GO_TO",
+              "target": "ERROR-OUT",
+              "line": 306
+            }
+          ]
         },
         {
           "name": "ERROR-OUT",
           "kind": "paragraph",
-          "line": 308
+          "line": 308,
+          "end": 318,
+          "edges": [
+            {
+              "verb": "GO_TO",
+              "target": "ENDIT-STARTIT",
+              "line": 318
+            }
+          ]
         }
       ],
       "dead": {},
@@ -15228,7 +15987,10 @@
         "derived": "censused CSD TRANSACTION -> PROGRAM rows joined to the cross-verified PROGRAM-ID (#3575)"
       },
       "records_validated": true,
-      "records_validated_tier": "sample_verified"
+      "records_validated_tier": "sample_verified",
+      "main_line": null,
+      "extents_validated": true,
+      "extents_validated_tier": "llm_verified"
     },
     "base/src/lgtestp2.cbl": {
       "program_id": "LGTESTP2",
@@ -15236,52 +15998,164 @@
         {
           "name": "MAINLINE",
           "kind": "section",
-          "line": 30
+          "line": 30,
+          "end": 45,
+          "edges": [
+            {
+              "verb": "GO_TO",
+              "target": "A-GAIN",
+              "line": 33
+            }
+          ]
         },
         {
           "name": "A-GAIN",
           "kind": "paragraph",
-          "line": 47
+          "line": 47,
+          "end": 237,
+          "edges": [
+            {
+              "verb": "GO_TO",
+              "target": "NO-DATA",
+              "line": 72
+            },
+            {
+              "verb": "GO_TO",
+              "target": "ENDIT-STARTIT",
+              "line": 88
+            },
+            {
+              "verb": "GO_TO",
+              "target": "NO-ADD",
+              "line": 111
+            },
+            {
+              "verb": "GO_TO",
+              "target": "ENDIT-STARTIT",
+              "line": 123
+            },
+            {
+              "verb": "GO_TO",
+              "target": "NO-DELETE",
+              "line": 135
+            },
+            {
+              "verb": "GO_TO",
+              "target": "ENDIT-STARTIT",
+              "line": 153
+            },
+            {
+              "verb": "GO_TO",
+              "target": "NO-DATA",
+              "line": 164
+            },
+            {
+              "verb": "GO_TO",
+              "target": "NO-UPD",
+              "line": 203
+            },
+            {
+              "verb": "GO_TO",
+              "target": "ENDIT-STARTIT",
+              "line": 216
+            },
+            {
+              "verb": "GO_TO",
+              "target": "ENDIT-STARTIT",
+              "line": 229
+            }
+          ]
         },
         {
           "name": "ENDIT-STARTIT",
           "kind": "paragraph",
-          "line": 239
+          "line": 239,
+          "end": 243,
+          "edges": []
         },
         {
           "name": "ENDIT",
           "kind": "paragraph",
-          "line": 245
+          "line": 245,
+          "end": 253,
+          "edges": []
         },
         {
           "name": "CLEARIT",
           "kind": "paragraph",
-          "line": 255
+          "line": 255,
+          "end": 266,
+          "edges": []
         },
         {
           "name": "NO-ADD",
           "kind": "paragraph",
-          "line": 268
+          "line": 268,
+          "end": 276,
+          "edges": [
+            {
+              "verb": "GO_TO",
+              "target": "ERROR-OUT",
+              "line": 272
+            },
+            {
+              "verb": "GO_TO",
+              "target": "ERROR-OUT",
+              "line": 275
+            }
+          ]
         },
         {
           "name": "NO-UPD",
           "kind": "paragraph",
-          "line": 278
+          "line": 278,
+          "end": 280,
+          "edges": [
+            {
+              "verb": "GO_TO",
+              "target": "ERROR-OUT",
+              "line": 280
+            }
+          ]
         },
         {
           "name": "NO-DELETE",
           "kind": "paragraph",
-          "line": 282
+          "line": 282,
+          "end": 284,
+          "edges": [
+            {
+              "verb": "GO_TO",
+              "target": "ERROR-OUT",
+              "line": 284
+            }
+          ]
         },
         {
           "name": "NO-DATA",
           "kind": "paragraph",
-          "line": 286
+          "line": 286,
+          "end": 288,
+          "edges": [
+            {
+              "verb": "GO_TO",
+              "target": "ERROR-OUT",
+              "line": 288
+            }
+          ]
         },
         {
           "name": "ERROR-OUT",
           "kind": "paragraph",
-          "line": 290
+          "line": 290,
+          "end": 300,
+          "edges": [
+            {
+              "verb": "GO_TO",
+              "target": "ENDIT-STARTIT",
+              "line": 300
+            }
+          ]
         }
       ],
       "dead": {},
@@ -15457,7 +16331,10 @@
         "derived": "censused CSD TRANSACTION -> PROGRAM rows joined to the cross-verified PROGRAM-ID (#3575)"
       },
       "records_validated": true,
-      "records_validated_tier": "sample_verified"
+      "records_validated_tier": "sample_verified",
+      "main_line": null,
+      "extents_validated": true,
+      "extents_validated_tier": "llm_verified"
     },
     "base/src/lgtestp3.cbl": {
       "program_id": "LGTESTP3",
@@ -15465,52 +16342,164 @@
         {
           "name": "MAINLINE",
           "kind": "section",
-          "line": 30
+          "line": 30,
+          "end": 48,
+          "edges": [
+            {
+              "verb": "GO_TO",
+              "target": "A-GAIN",
+              "line": 33
+            }
+          ]
         },
         {
           "name": "A-GAIN",
           "kind": "paragraph",
-          "line": 50
+          "line": 50,
+          "end": 236,
+          "edges": [
+            {
+              "verb": "GO_TO",
+              "target": "NO-DATA",
+              "line": 75
+            },
+            {
+              "verb": "GO_TO",
+              "target": "ENDIT-STARTIT",
+              "line": 90
+            },
+            {
+              "verb": "GO_TO",
+              "target": "NO-ADD",
+              "line": 112
+            },
+            {
+              "verb": "GO_TO",
+              "target": "ENDIT-STARTIT",
+              "line": 123
+            },
+            {
+              "verb": "GO_TO",
+              "target": "NO-DELETE",
+              "line": 135
+            },
+            {
+              "verb": "GO_TO",
+              "target": "ENDIT-STARTIT",
+              "line": 153
+            },
+            {
+              "verb": "GO_TO",
+              "target": "NO-DATA",
+              "line": 164
+            },
+            {
+              "verb": "GO_TO",
+              "target": "NO-UPD",
+              "line": 201
+            },
+            {
+              "verb": "GO_TO",
+              "target": "ENDIT-STARTIT",
+              "line": 214
+            },
+            {
+              "verb": "GO_TO",
+              "target": "ENDIT-STARTIT",
+              "line": 228
+            }
+          ]
         },
         {
           "name": "ENDIT-STARTIT",
           "kind": "paragraph",
-          "line": 238
+          "line": 238,
+          "end": 242,
+          "edges": []
         },
         {
           "name": "ENDIT",
           "kind": "paragraph",
-          "line": 244
+          "line": 244,
+          "end": 252,
+          "edges": []
         },
         {
           "name": "CLEARIT",
           "kind": "paragraph",
-          "line": 254
+          "line": 254,
+          "end": 265,
+          "edges": []
         },
         {
           "name": "NO-ADD",
           "kind": "paragraph",
-          "line": 267
+          "line": 267,
+          "end": 275,
+          "edges": [
+            {
+              "verb": "GO_TO",
+              "target": "ERROR-OUT",
+              "line": 271
+            },
+            {
+              "verb": "GO_TO",
+              "target": "ERROR-OUT",
+              "line": 274
+            }
+          ]
         },
         {
           "name": "NO-UPD",
           "kind": "paragraph",
-          "line": 277
+          "line": 277,
+          "end": 279,
+          "edges": [
+            {
+              "verb": "GO_TO",
+              "target": "ERROR-OUT",
+              "line": 279
+            }
+          ]
         },
         {
           "name": "NO-DELETE",
           "kind": "paragraph",
-          "line": 281
+          "line": 281,
+          "end": 283,
+          "edges": [
+            {
+              "verb": "GO_TO",
+              "target": "ERROR-OUT",
+              "line": 283
+            }
+          ]
         },
         {
           "name": "NO-DATA",
           "kind": "paragraph",
-          "line": 285
+          "line": 285,
+          "end": 287,
+          "edges": [
+            {
+              "verb": "GO_TO",
+              "target": "ERROR-OUT",
+              "line": 287
+            }
+          ]
         },
         {
           "name": "ERROR-OUT",
           "kind": "paragraph",
-          "line": 289
+          "line": 289,
+          "end": 299,
+          "edges": [
+            {
+              "verb": "GO_TO",
+              "target": "ENDIT-STARTIT",
+              "line": 299
+            }
+          ]
         }
       ],
       "dead": {},
@@ -15686,7 +16675,10 @@
         "derived": "censused CSD TRANSACTION -> PROGRAM rows joined to the cross-verified PROGRAM-ID (#3575)"
       },
       "records_validated": true,
-      "records_validated_tier": "sample_verified"
+      "records_validated_tier": "sample_verified",
+      "main_line": null,
+      "extents_validated": true,
+      "extents_validated_tier": "llm_verified"
     },
     "base/src/lgtestp4.cbl": {
       "program_id": "LGTESTP4",
@@ -15694,52 +16686,149 @@
         {
           "name": "MAINLINE",
           "kind": "section",
-          "line": 30
+          "line": 30,
+          "end": 55,
+          "edges": [
+            {
+              "verb": "GO_TO",
+              "target": "A-GAIN",
+              "line": 33
+            }
+          ]
         },
         {
           "name": "A-GAIN",
           "kind": "paragraph",
-          "line": 57
+          "line": 57,
+          "end": 255,
+          "edges": [
+            {
+              "verb": "GO_TO",
+              "target": "NO-DATA",
+              "line": 127
+            },
+            {
+              "verb": "GO_TO",
+              "target": "ENDIT-STARTIT",
+              "line": 154
+            },
+            {
+              "verb": "GO_TO",
+              "target": "NO-ADD",
+              "line": 184
+            },
+            {
+              "verb": "GO_TO",
+              "target": "ENDIT-STARTIT",
+              "line": 195
+            },
+            {
+              "verb": "GO_TO",
+              "target": "NO-DELETE",
+              "line": 207
+            },
+            {
+              "verb": "GO_TO",
+              "target": "ENDIT-STARTIT",
+              "line": 234
+            },
+            {
+              "verb": "GO_TO",
+              "target": "ENDIT-STARTIT",
+              "line": 247
+            }
+          ]
         },
         {
           "name": "ENDIT-STARTIT",
           "kind": "paragraph",
-          "line": 257
+          "line": 257,
+          "end": 261,
+          "edges": []
         },
         {
           "name": "ENDIT",
           "kind": "paragraph",
-          "line": 263
+          "line": 263,
+          "end": 271,
+          "edges": []
         },
         {
           "name": "CLEARIT",
           "kind": "paragraph",
-          "line": 273
+          "line": 273,
+          "end": 284,
+          "edges": []
         },
         {
           "name": "NO-ADD",
           "kind": "paragraph",
-          "line": 286
+          "line": 286,
+          "end": 294,
+          "edges": [
+            {
+              "verb": "GO_TO",
+              "target": "ERROR-OUT",
+              "line": 290
+            },
+            {
+              "verb": "GO_TO",
+              "target": "ERROR-OUT",
+              "line": 293
+            }
+          ]
         },
         {
           "name": "NO-UPD",
           "kind": "paragraph",
-          "line": 296
+          "line": 296,
+          "end": 298,
+          "edges": [
+            {
+              "verb": "GO_TO",
+              "target": "ERROR-OUT",
+              "line": 298
+            }
+          ]
         },
         {
           "name": "NO-DELETE",
           "kind": "paragraph",
-          "line": 300
+          "line": 300,
+          "end": 302,
+          "edges": [
+            {
+              "verb": "GO_TO",
+              "target": "ERROR-OUT",
+              "line": 302
+            }
+          ]
         },
         {
           "name": "NO-DATA",
           "kind": "paragraph",
-          "line": 304
+          "line": 304,
+          "end": 306,
+          "edges": [
+            {
+              "verb": "GO_TO",
+              "target": "ERROR-OUT",
+              "line": 306
+            }
+          ]
         },
         {
           "name": "ERROR-OUT",
           "kind": "paragraph",
-          "line": 308
+          "line": 308,
+          "end": 318,
+          "edges": [
+            {
+              "verb": "GO_TO",
+              "target": "ENDIT-STARTIT",
+              "line": 318
+            }
+          ]
         }
       ],
       "dead": {
@@ -15890,7 +16979,10 @@
         "derived": "censused CSD TRANSACTION -> PROGRAM rows joined to the cross-verified PROGRAM-ID (#3575)"
       },
       "records_validated": true,
-      "records_validated_tier": "sample_verified"
+      "records_validated_tier": "sample_verified",
+      "main_line": null,
+      "extents_validated": true,
+      "extents_validated_tier": "llm_verified"
     },
     "base/src/lgucdb01.cbl": {
       "program_id": "LGUCDB01",
@@ -15898,22 +16990,54 @@
         {
           "name": "MAINLINE",
           "kind": "section",
-          "line": 101
+          "line": 101,
+          "end": 139,
+          "edges": [
+            {
+              "verb": "PERFORM",
+              "target": "WRITE-ERROR-MESSAGE",
+              "line": 119
+            },
+            {
+              "verb": "PERFORM",
+              "target": "UPDATE-CUSTOMER-INFO",
+              "line": 134
+            }
+          ]
+        },
+        {
+          "name": "END-PROGRAM",
+          "kind": "paragraph",
+          "line": 142,
+          "end": 143,
+          "edges": []
         },
         {
           "name": "MAINLINE-EXIT",
           "kind": "paragraph",
-          "line": 145
+          "line": 145,
+          "end": 146,
+          "edges": []
         },
         {
           "name": "UPDATE-CUSTOMER-INFO",
           "kind": "paragraph",
-          "line": 152
+          "line": 152,
+          "end": 181,
+          "edges": [
+            {
+              "verb": "PERFORM",
+              "target": "WRITE-ERROR-MESSAGE",
+              "line": 178
+            }
+          ]
         },
         {
           "name": "WRITE-ERROR-MESSAGE",
           "kind": "paragraph",
-          "line": 189
+          "line": 189,
+          "end": 222,
+          "edges": []
         }
       ],
       "dead": {
@@ -16678,7 +17802,9 @@
       "sql": true,
       "verification": {
         "status": "validated",
-        "notes": [],
+        "notes": [
+          "2026-09-30 key_fixed (#4026, #4028): units gains END-PROGRAM -- `End-Program.` in Area A at line 142 is a paragraph (reached by fall-through from MAINLINE and by PERFORM END-PROGRAM). The key's reader, like the forge and the engine, rejected every END-... name as a scope terminator; it now rejects only the reserved END- words. Read against the source; dead is unchanged (MAINLINE-EXIT)."
+        ],
         "tier": "cross_verified",
         "cross_by": "claude-opus-5.5 blind reviewers (genapp census)",
         "cross_at": "2026-09-24",
@@ -16697,7 +17823,10 @@
         "derived": "censused CSD TRANSACTION -> PROGRAM rows joined to the cross-verified PROGRAM-ID (#3575)"
       },
       "records_validated": true,
-      "records_validated_tier": "sample_verified"
+      "records_validated_tier": "sample_verified",
+      "main_line": null,
+      "extents_validated": true,
+      "extents_validated_tier": "llm_verified"
     },
     "base/src/lgucus01.cbl": {
       "program_id": "LGUCUS01",
@@ -16705,22 +17834,53 @@
         {
           "name": "MAINLINE",
           "kind": "section",
-          "line": 83
+          "line": 83,
+          "end": 116,
+          "edges": [
+            {
+              "verb": "PERFORM",
+              "target": "WRITE-ERROR-MESSAGE",
+              "line": 101
+            },
+            {
+              "verb": "GO_TO",
+              "target": "END-PROGRAM",
+              "line": 112
+            },
+            {
+              "verb": "PERFORM",
+              "target": "UPDATE-CUSTOMER-INFO",
+              "line": 116
+            }
+          ]
+        },
+        {
+          "name": "END-PROGRAM",
+          "kind": "paragraph",
+          "line": 119,
+          "end": 120,
+          "edges": []
         },
         {
           "name": "MAINLINE-EXIT",
           "kind": "paragraph",
-          "line": 122
+          "line": 122,
+          "end": 123,
+          "edges": []
         },
         {
           "name": "UPDATE-CUSTOMER-INFO",
           "kind": "paragraph",
-          "line": 126
+          "line": 126,
+          "end": 133,
+          "edges": []
         },
         {
           "name": "WRITE-ERROR-MESSAGE",
           "kind": "paragraph",
-          "line": 140
+          "line": 140,
+          "end": 172,
+          "edges": []
         }
       ],
       "dead": {
@@ -17259,7 +18419,9 @@
       "sql": false,
       "verification": {
         "status": "validated",
-        "notes": [],
+        "notes": [
+          "2026-09-30 key_fixed (#4026, #4028): units gains END-PROGRAM -- `End-Program.` in Area A at line 119 is a paragraph (reached by fall-through from MAINLINE and by PERFORM END-PROGRAM). The key's reader, like the forge and the engine, rejected every END-... name as a scope terminator; it now rejects only the reserved END- words. Read against the source; dead is unchanged (MAINLINE-EXIT)."
+        ],
         "tier": "cross_verified",
         "cross_by": "claude-opus-5.5 blind reviewers (genapp census)",
         "cross_at": "2026-09-24",
@@ -17278,7 +18440,10 @@
         "derived": "censused CSD TRANSACTION -> PROGRAM rows joined to the cross-verified PROGRAM-ID (#3575)"
       },
       "records_validated": true,
-      "records_validated_tier": "sample_verified"
+      "records_validated_tier": "sample_verified",
+      "main_line": null,
+      "extents_validated": true,
+      "extents_validated_tier": "llm_verified"
     },
     "base/src/lgucvs01.cbl": {
       "program_id": "LGUCVS01",
@@ -17286,17 +18451,34 @@
         {
           "name": "MAINLINE",
           "kind": "section",
-          "line": 64
+          "line": 64,
+          "end": 96,
+          "edges": [
+            {
+              "verb": "PERFORM",
+              "target": "WRITE-ERROR-MESSAGE",
+              "line": 80
+            },
+            {
+              "verb": "PERFORM",
+              "target": "WRITE-ERROR-MESSAGE",
+              "line": 93
+            }
+          ]
         },
         {
           "name": "A-EXIT",
           "kind": "paragraph",
-          "line": 100
+          "line": 100,
+          "end": 102,
+          "edges": []
         },
         {
           "name": "WRITE-ERROR-MESSAGE",
           "kind": "paragraph",
-          "line": 104
+          "line": 104,
+          "end": 136,
+          "edges": []
         }
       ],
       "dead": {},
@@ -17836,7 +19018,10 @@
         "derived": "censused CSD TRANSACTION -> PROGRAM rows joined to the cross-verified PROGRAM-ID (#3575)"
       },
       "records_validated": true,
-      "records_validated_tier": "sample_verified"
+      "records_validated_tier": "sample_verified",
+      "main_line": null,
+      "extents_validated": true,
+      "extents_validated_tier": "llm_verified"
     },
     "base/src/lgupdb01.cbl": {
       "program_id": "LGUPDB01",
@@ -17844,47 +19029,158 @@
         {
           "name": "MAINLINE",
           "kind": "section",
-          "line": 162
+          "line": 162,
+          "end": 212,
+          "edges": [
+            {
+              "verb": "PERFORM",
+              "target": "WRITE-ERROR-MESSAGE",
+              "line": 185
+            },
+            {
+              "verb": "PERFORM",
+              "target": "UPDATE-POLICY-DB2-INFO",
+              "line": 207
+            }
+          ]
+        },
+        {
+          "name": "END-PROGRAM",
+          "kind": "paragraph",
+          "line": 215,
+          "end": 216,
+          "edges": []
         },
         {
           "name": "MAINLINE-EXIT",
           "kind": "paragraph",
-          "line": 218
+          "line": 218,
+          "end": 219,
+          "edges": []
         },
         {
           "name": "FETCH-DB2-POLICY-ROW",
           "kind": "paragraph",
-          "line": 228
+          "line": 228,
+          "end": 239,
+          "edges": []
         },
         {
           "name": "UPDATE-POLICY-DB2-INFO",
           "kind": "paragraph",
-          "line": 251
+          "line": 251,
+          "end": 360,
+          "edges": [
+            {
+              "verb": "PERFORM",
+              "target": "WRITE-ERROR-MESSAGE",
+              "line": 264
+            },
+            {
+              "verb": "PERFORM",
+              "target": "WRITE-ERROR-MESSAGE",
+              "line": 268
+            },
+            {
+              "verb": "PERFORM",
+              "target": "FETCH-DB2-POLICY-ROW",
+              "line": 273
+            },
+            {
+              "verb": "PERFORM",
+              "target": "UPDATE-ENDOW-DB2-INFO",
+              "line": 288
+            },
+            {
+              "verb": "PERFORM",
+              "target": "UPDATE-HOUSE-DB2-INFO",
+              "line": 293
+            },
+            {
+              "verb": "PERFORM",
+              "target": "UPDATE-MOTOR-DB2-INFO",
+              "line": 298
+            },
+            {
+              "verb": "PERFORM",
+              "target": "CLOSE-PCURSOR",
+              "line": 305
+            },
+            {
+              "verb": "PERFORM",
+              "target": "WRITE-ERROR-MESSAGE",
+              "line": 341
+            },
+            {
+              "verb": "PERFORM",
+              "target": "WRITE-ERROR-MESSAGE",
+              "line": 356
+            },
+            {
+              "verb": "PERFORM",
+              "target": "CLOSE-PCURSOR",
+              "line": 360
+            }
+          ]
         },
         {
           "name": "CLOSE-PCURSOR",
           "kind": "paragraph",
-          "line": 362
+          "line": 362,
+          "end": 381,
+          "edges": [
+            {
+              "verb": "PERFORM",
+              "target": "WRITE-ERROR-MESSAGE",
+              "line": 378
+            }
+          ]
         },
         {
           "name": "UPDATE-ENDOW-DB2-INFO",
           "kind": "paragraph",
-          "line": 387
+          "line": 387,
+          "end": 418,
+          "edges": [
+            {
+              "verb": "PERFORM",
+              "target": "WRITE-ERROR-MESSAGE",
+              "line": 415
+            }
+          ]
         },
         {
           "name": "UPDATE-HOUSE-DB2-INFO",
           "kind": "paragraph",
-          "line": 424
+          "line": 424,
+          "end": 454,
+          "edges": [
+            {
+              "verb": "PERFORM",
+              "target": "WRITE-ERROR-MESSAGE",
+              "line": 451
+            }
+          ]
         },
         {
           "name": "UPDATE-MOTOR-DB2-INFO",
           "kind": "paragraph",
-          "line": 460
+          "line": 460,
+          "end": 495,
+          "edges": [
+            {
+              "verb": "PERFORM",
+              "target": "WRITE-ERROR-MESSAGE",
+              "line": 492
+            }
+          ]
         },
         {
           "name": "WRITE-ERROR-MESSAGE",
           "kind": "paragraph",
-          "line": 502
+          "line": 502,
+          "end": 535,
+          "edges": []
         }
       ],
       "dead": {
@@ -18825,7 +20121,9 @@
       "sql": true,
       "verification": {
         "status": "validated",
-        "notes": [],
+        "notes": [
+          "2026-09-30 key_fixed (#4026, #4028): units gains END-PROGRAM -- `End-Program.` in Area A at line 215 is a paragraph (reached by fall-through from MAINLINE and by PERFORM END-PROGRAM). The key's reader, like the forge and the engine, rejected every END-... name as a scope terminator; it now rejects only the reserved END- words. Read against the source; dead is unchanged (MAINLINE-EXIT)."
+        ],
         "tier": "cross_verified",
         "cross_by": "claude-opus-5.5 blind reviewers (genapp census)",
         "cross_at": "2026-09-24",
@@ -18844,7 +20142,10 @@
         "derived": "censused CSD TRANSACTION -> PROGRAM rows joined to the cross-verified PROGRAM-ID (#3575)"
       },
       "records_validated": true,
-      "records_validated_tier": "sample_verified"
+      "records_validated_tier": "sample_verified",
+      "main_line": null,
+      "extents_validated": true,
+      "extents_validated_tier": "llm_verified"
     },
     "base/src/lgupol01.cbl": {
       "program_id": "LGUPOL01",
@@ -18852,22 +20153,48 @@
         {
           "name": "MAINLINE",
           "kind": "section",
-          "line": 83
+          "line": 83,
+          "end": 143,
+          "edges": [
+            {
+              "verb": "PERFORM",
+              "target": "WRITE-ERROR-MESSAGE",
+              "line": 101
+            },
+            {
+              "verb": "PERFORM",
+              "target": "UPDATE-POLICY-DB2-INFO",
+              "line": 143
+            }
+          ]
+        },
+        {
+          "name": "END-PROGRAM",
+          "kind": "paragraph",
+          "line": 146,
+          "end": 147,
+          "edges": []
         },
         {
           "name": "MAINLINE-EXIT",
           "kind": "paragraph",
-          "line": 149
+          "line": 149,
+          "end": 150,
+          "edges": []
         },
         {
           "name": "UPDATE-POLICY-DB2-INFO",
           "kind": "paragraph",
-          "line": 155
+          "line": 155,
+          "end": 162,
+          "edges": []
         },
         {
           "name": "WRITE-ERROR-MESSAGE",
           "kind": "paragraph",
-          "line": 169
+          "line": 169,
+          "end": 201,
+          "edges": []
         }
       ],
       "dead": {
@@ -19422,7 +20749,9 @@
       "sql": false,
       "verification": {
         "status": "validated",
-        "notes": [],
+        "notes": [
+          "2026-09-30 key_fixed (#4026, #4028): units gains END-PROGRAM -- `End-Program.` in Area A at line 146 is a paragraph (reached by fall-through from MAINLINE and by PERFORM END-PROGRAM). The key's reader, like the forge and the engine, rejected every END-... name as a scope terminator; it now rejects only the reserved END- words. Read against the source; dead is unchanged (MAINLINE-EXIT)."
+        ],
         "tier": "cross_verified",
         "cross_by": "claude-opus-5.5 blind reviewers (genapp census)",
         "cross_at": "2026-09-24",
@@ -19441,7 +20770,10 @@
         "derived": "censused CSD TRANSACTION -> PROGRAM rows joined to the cross-verified PROGRAM-ID (#3575)"
       },
       "records_validated": true,
-      "records_validated_tier": "sample_verified"
+      "records_validated_tier": "sample_verified",
+      "main_line": null,
+      "extents_validated": true,
+      "extents_validated_tier": "llm_verified"
     },
     "base/src/lgupvs01.cbl": {
       "program_id": "LGUPVS01",
@@ -19449,17 +20781,34 @@
         {
           "name": "MAINLINE",
           "kind": "section",
-          "line": 97
+          "line": 97,
+          "end": 166,
+          "edges": [
+            {
+              "verb": "PERFORM",
+              "target": "WRITE-ERROR-MESSAGE",
+              "line": 150
+            },
+            {
+              "verb": "PERFORM",
+              "target": "WRITE-ERROR-MESSAGE",
+              "line": 163
+            }
+          ]
         },
         {
           "name": "A-EXIT",
           "kind": "paragraph",
-          "line": 170
+          "line": 170,
+          "end": 172,
+          "edges": []
         },
         {
           "name": "WRITE-ERROR-MESSAGE",
           "kind": "paragraph",
-          "line": 174
+          "line": 174,
+          "end": 206,
+          "edges": []
         }
       ],
       "dead": {},
@@ -20479,7 +21828,10 @@
         "derived": "censused CSD TRANSACTION -> PROGRAM rows joined to the cross-verified PROGRAM-ID (#3575)"
       },
       "records_validated": true,
-      "records_validated_tier": "sample_verified"
+      "records_validated_tier": "sample_verified",
+      "main_line": null,
+      "extents_validated": true,
+      "extents_validated_tier": "llm_verified"
     },
     "base/src/lgwebst5.cbl": {
       "program_id": "LGWEBST5",
@@ -20487,22 +21839,151 @@
         {
           "name": "MAINLINE",
           "kind": "section",
-          "line": 250
+          "line": 250,
+          "end": 709,
+          "edges": [
+            {
+              "verb": "PERFORM",
+              "target": "TRAN-RATE-INTERVAL",
+              "line": 266
+            },
+            {
+              "verb": "PERFORM",
+              "target": "TRAN-RATE-COUNTS",
+              "line": 279
+            },
+            {
+              "verb": "PERFORM",
+              "target": "TRAN-RATE-COUNTS",
+              "line": 294
+            },
+            {
+              "verb": "PERFORM",
+              "target": "TRAN-RATE-COUNTS",
+              "line": 317
+            },
+            {
+              "verb": "PERFORM",
+              "target": "TRAN-RATE-COUNTS",
+              "line": 340
+            },
+            {
+              "verb": "PERFORM",
+              "target": "TRAN-RATE-COUNTS",
+              "line": 362
+            },
+            {
+              "verb": "PERFORM",
+              "target": "TRAN-RATE-COUNTS",
+              "line": 384
+            },
+            {
+              "verb": "PERFORM",
+              "target": "TRAN-RATE-COUNTS",
+              "line": 406
+            },
+            {
+              "verb": "PERFORM",
+              "target": "TRAN-RATE-COUNTS",
+              "line": 429
+            },
+            {
+              "verb": "PERFORM",
+              "target": "TRAN-RATE-COUNTS",
+              "line": 451
+            },
+            {
+              "verb": "PERFORM",
+              "target": "TRAN-RATE-COUNTS",
+              "line": 473
+            },
+            {
+              "verb": "PERFORM",
+              "target": "TRAN-RATE-COUNTS",
+              "line": 495
+            },
+            {
+              "verb": "PERFORM",
+              "target": "TRAN-RATE-COUNTS",
+              "line": 518
+            },
+            {
+              "verb": "PERFORM",
+              "target": "TRAN-RATE-COUNTS",
+              "line": 540
+            },
+            {
+              "verb": "PERFORM",
+              "target": "TRAN-RATE-COUNTS",
+              "line": 562
+            },
+            {
+              "verb": "PERFORM",
+              "target": "TRAN-RATE-COUNTS",
+              "line": 584
+            },
+            {
+              "verb": "PERFORM",
+              "target": "TRAN-RATE-COUNTS",
+              "line": 607
+            },
+            {
+              "verb": "PERFORM",
+              "target": "TRAN-RATE-COUNTS",
+              "line": 629
+            },
+            {
+              "verb": "PERFORM",
+              "target": "TRAN-RATE-COUNTS",
+              "line": 651
+            },
+            {
+              "verb": "PERFORM",
+              "target": "TRAN-RATE-COUNTS",
+              "line": 678
+            },
+            {
+              "verb": "PERFORM",
+              "target": "TRAN-RATE-COUNTS",
+              "line": 684
+            },
+            {
+              "verb": "PERFORM",
+              "target": "TRAN-RATE-COUNTS",
+              "line": 689
+            },
+            {
+              "verb": "PERFORM",
+              "target": "TRAN-RATE-COUNTS",
+              "line": 694
+            },
+            {
+              "verb": "PERFORM",
+              "target": "TRAN-RATE-COUNTS",
+              "line": 699
+            }
+          ]
         },
         {
           "name": "A-EXIT",
           "kind": "paragraph",
-          "line": 711
+          "line": 711,
+          "end": 713,
+          "edges": []
         },
         {
           "name": "TRAN-RATE-INTERVAL",
           "kind": "paragraph",
-          "line": 715
+          "line": 715,
+          "end": 767,
+          "edges": []
         },
         {
           "name": "TRAN-RATE-COUNTS",
           "kind": "paragraph",
-          "line": 769
+          "line": 769,
+          "end": 802,
+          "edges": []
         }
       ],
       "dead": {
@@ -24031,7 +25512,10 @@
         "derived": "censused CSD TRANSACTION -> PROGRAM rows joined to the cross-verified PROGRAM-ID (#3575)"
       },
       "records_validated": true,
-      "records_validated_tier": "sample_verified"
+      "records_validated_tier": "sample_verified",
+      "main_line": null,
+      "extents_validated": true,
+      "extents_validated_tier": "llm_verified"
     }
   },
   "pli_programs": {},
@@ -37146,8 +38630,14 @@
           "kind": "CLUSTER",
           "name": "<USRHLQ>.GENAPP.KSDSCUST",
           "org": "INDEXED",
-          "keys": null,
-          "rec": null,
+          "keys": [
+            10,
+            0
+          ],
+          "rec": [
+            225,
+            225
+          ],
           "related": null,
           "unique": null,
           "upgrade": null,
@@ -37158,8 +38648,14 @@
           "kind": "CLUSTER",
           "name": "<USRHLQ>.GENAPP.KSDSPOLY",
           "org": "INDEXED",
-          "keys": null,
-          "rec": null,
+          "keys": [
+            21,
+            0
+          ],
+          "rec": [
+            64,
+            64
+          ],
           "related": null,
           "unique": null,
           "upgrade": null,
@@ -37218,8 +38714,14 @@
           "kind": "CLUSTER",
           "name": "<USRHLQ>.<WUIAPPL>.EYUWREP",
           "org": "INDEXED",
-          "keys": null,
-          "rec": null,
+          "keys": [
+            20,
+            20
+          ],
+          "rec": [
+            8192,
+            32000
+          ],
           "related": null,
           "unique": null,
           "upgrade": null,
@@ -43590,6 +45092,11 @@
         "A:base/src/lgtestp4.cbl::NO-UPD": {
           "verdict": "key_fixed",
           "why": "NO-ADD (the paragraph before NO-UPD) is one EVALUATE CA-RETURN-CODE whose branches WHEN 70 and WHEN OTHER both end in Go To ERROR-OUT, so it never falls through; nothing PERFORMs or GO TOs NO-UPD. The key's reader treated any EVALUATE as possibly falling through; _evaluate_is_terminal now recognises an exhaustive (WHEN OTHER) EVALUATE whose every branch transfers, and the key marks NO-UPD dead. Re-running the reader over all four keys changes only this unit."
+        },
+        "vsam:base/cntl/adef121.jcl,base/cntl/defwrep.jcl": {
+          "verdict": "key_fixed",
+          "at": "2026-10-02",
+          "why": "KSDSCUST, KSDSPOLY and EYUWREP code KEYS and RECORDSIZE on the DATA component (DATA(NAME(...) KEYS(10 0) RECORDSIZE(225 225))), which IDCAMS takes as the cluster's; the key's reader (and the census, which agreed with it) read the cluster's own block only and recorded none. vsam_define_rows now falls back to DATA(...) (never INDEX(...): IDCAMS accepts neither there), as the engine does (file_control._define_row). Re-running the reader over all six keys' IDCAMS members changes only these three defines."
         }
       },
       "programs": [
@@ -45845,6 +47352,30 @@
           "at": "2026-09-26"
         }
       }
+    }
+  },
+  "extents_verification": {
+    "issue": 4318,
+    "at": "2026-10-04",
+    "by": "claude-opus-5.5 (author pass)",
+    "method": "Drafted by this tool's own reader (cobol_answer_key.py add-extents), never from engine output. Edges cross-checked against the forge's independent reading (cobol_graveyard_finder units + PERFORM/GO TO): every COBOL edge agrees. Extents and edges compared with the engine at main 0d64632e: every disagreement settled against the source (trailing sequence-number-only / D lines the engine counts; the main line, #4302; self GO TO dropped by the engine, #3362; PERFORM TEST phantom, #4305) -- no key error found.",
+    "blind_sample": {
+      "seed": 4318,
+      "claims": 10,
+      "agree": 10,
+      "reviewers": "4 fresh-context claude-opus-5.5 subagents, staged source copy and definitions only, no answers (same model family as the author)",
+      "questions": [
+        "Q006 base/src/lgtestp2.cbl ENDIT-STARTIT",
+        "Q014 base/src/lgapvs01.cbl MAINLINE",
+        "Q028 base/src/lgupol01.cbl MAINLINE-EXIT",
+        "Q030 base/src/lgapdb01.cbl INSERT-ENDOW",
+        "Q031 base/src/lgastat1.cbl MAINLINE",
+        "Q038 base/src/lgipol01.cbl MAINLINE",
+        "Q044 base/src/lgapvs01.cbl WRITE-ERROR-MESSAGE",
+        "Q062 base/src/lgacdb01.cbl MAINLINE-EXIT",
+        "Q066 base/src/lgdpol01.cbl WRITE-ERROR-MESSAGE",
+        "Q095 base/src/lgipdb01.cbl WRITE-ERROR-MESSAGE"
+      ]
     }
   }
 }

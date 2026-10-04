@@ -13,7 +13,7 @@ from typing import Any
 from gitgalaxy.standards.language_standards import _lazy_re as re  # #3914: compiled on first use
 from gitgalaxy.standards.language_standards.identifiers import CAPITAL, ID_CONTINUE, ID_START
 
-from .._shared_patterns import CALLS_OUT_C_STYLE, GLOBAL_FRAGILE_DEBT, GLOBAL_PLANNED_DEBT
+from .._shared_patterns import CALLS_OUT_C_STYLE, COMMENTED_STATEMENT_C_FAMILY, GLOBAL_FRAGILE_DEBT, GLOBAL_PLANNED_DEBT
 
 DEFINITION: dict[str, Any] = {
     "_meta": {
@@ -63,6 +63,10 @@ DEFINITION: dict[str, Any] = {
     # same-stem `chrono.h` (fmt's own header), so the resolver matches it exactly.
     "include_names_file_literally": True,
     "rules": {
+        # A `branch` hit is code: a keyword, `?` or `:` inside a string or char
+        # literal (a JDBC `"values (?, ?)"`, `"if"` in a message) is not a
+        # decision. See branch_rule_contract.md, "Literals".
+        "_scope_filters": {"branch": "outside_literals"},
         # Epic #3264: Explicitly declare the structural invocation paradigm
         "calls_out": CALLS_OUT_C_STYLE,
         # --- PHASE 1: LOGIC TOPOLOGY & STRUCTURE ---
@@ -316,7 +320,11 @@ DEFINITION: dict[str, Any] = {
             re.M,
         ),
         # 12. dead_code (Commented Logic / Deprecated Trails)
-        "dead_code": re.compile(r"(?://|/\*)[ \t]*(?:if|for|while|struct|union|enum|void|int|return)\b"),
+        "dead_code": re.compile(
+            r"(?://|/\*)[ \t]*(?:if|for|while|struct|union|enum|void|int|return)\b"
+            + r"|"
+            + COMMENTED_STATEMENT_C_FAMILY
+        ),
         # 13. doc (Structured Documentation)
         # BUG FIX #2672: `/**`, `///` and the Doxygen tags (`@param`,
         # `\param`, ...) were independent alternatives, so one Doxygen

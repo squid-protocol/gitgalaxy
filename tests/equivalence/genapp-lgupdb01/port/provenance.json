@@ -1,0 +1,33 @@
+{
+ "format": "porting-loop-provenance/1",
+ "program": "LGUPDB01",
+ "written_by": "model (the #4023 follow-up porting loop), not a person",
+ "model": "claude-sonnet-5-5",
+ "backend": "claude-code-headless: claude -p, no tools, only the ticket's prompt",
+ "proposed": "2026-10-02T20:44:45+00:00",
+ "attempt": 1,
+ "attempts": [
+  {
+   "n": 1,
+   "verdict": "not proven"
+  },
+  {
+   "n": 2,
+   "verdict": "not proven"
+  },
+  {
+   "n": 3,
+   "verdict": "not proven"
+  },
+  {
+   "n": 4,
+   "verdict": "not proven"
+  }
+ ],
+ "ticket_sha256": "4876c514393f3e61b082c4f0b633d600829b1683c1fd220b3a2b7f288cf1a15a",
+ "prompt_tokens": 53261,
+ "proof": "tests/tools/equivalence.py run genapp-lgupdb01",
+ "edited_after": "none: the files are the model's answer as the loop stored it",
+ "licence": "EPL-2.0",
+ "proven_after": "#4188: the loop's own verdicts were 'not proven' because a port's proof ran the LINKed program as its stub; with #4188 the stored attempt proves unedited (re-proven with --faults all)"
+}

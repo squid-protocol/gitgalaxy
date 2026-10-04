@@ -150,13 +150,13 @@
     "repos": "serde-rs/json"
   },
   "scala": {
-    "engine_edges": 488,
+    "engine_edges": 502,
     "files": 233,
-    "fn": 27,
-    "fp": 6,
-    "imports": 521,
-    "precision_pct": 98.8,
-    "recall_pct": 94.8,
+    "fn": 9,
+    "fp": 0,
+    "imports": 529,
+    "precision_pct": 100.0,
+    "recall_pct": 98.3,
     "repos": "circe/circe"
   },
   "shell": {
@@ -180,11 +180,11 @@
     "repos": "OpenZeppelin/openzeppelin-contracts"
   },
   "typescript": {
-    "engine_edges": 629,
+    "engine_edges": 817,
     "files": 460,
     "fn": 0,
     "fp": 0,
-    "imports": 666,
+    "imports": 859,
     "precision_pct": 100.0,
     "recall_pct": 100.0,
     "repos": "colinhacks/zod"

@@ -1,0 +1,217 @@
+{
+ "format": "gitgalaxy-evidence/1",
+ "case": "crucible:ca-xctl-versions",
+ "program": "CAXB",
+ "kind": "crucible",
+ "port": {
+  "paths": [
+   "tests/cics_crucible/ports/ca-xctl-versions/CAXB/overlay/service/CaxbService.java"
+  ],
+  "sha256": "73c9e07686b8df2701328cd2805ca0c8f6f3e5075dab9b68a6a798c13b1dcf98",
+  "entry_points": [
+   "runTask"
+  ]
+ },
+ "inputs": {
+  "port": {
+   "paths": [
+    "tests/cics_crucible/ports/ca-xctl-versions/*/overlay/**"
+   ],
+   "files": 2,
+   "sha256": "638a103de511bdd3f6121a9e80088f2a9b77aa5d59bb9c9b7ef5f4b3b3da8994"
+  },
+  "case": {
+   "paths": [
+    "tests/cics_crucible/strengthened/ca-xctl-versions/**"
+   ],
+   "files": 0,
+   "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  "harness": {
+   "paths": [
+    "tests/tools/equivalence.py",
+    "tests/tools/equivalence_common.py",
+    "tests/tools/equivalence_java.py",
+    "tests/tools/equivalence_inputs.py",
+    "tests/tools/equivalence_cics.py",
+    "tests/tools/equivalence_call.py",
+    "tests/tools/equivalence_cache.py",
+    "tests/tools/equivalence_db2.py",
+    "tests/tools/equivalence_oracle.py",
+    "tests/tools/cobol_coverage.py",
+    "tests/tools/java_target_matrix.py",
+    "tests/tools/cics_crucible.py",
+    "tests/tools/cics_crucible_compare.py"
+   ],
+   "files": 13,
+   "sha256": "1549c810f2072e5323782c43f34191fb370d080880f2f2e0e09bc6897faaf3c6"
+  },
+  "oracle": {
+   "paths": [],
+   "files": 0,
+   "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  "generator": {
+   "paths": [
+    "gitgalaxy/tools/cobol_to_java/**"
+   ],
+   "files": 60,
+   "sha256": "880250850d919c29f8ace3eb0d7183156a05354438ea79f72a417febb9e57e68"
+  },
+  "corpus": {
+   "name": "cics-crucible",
+   "ref": "v0.2.0",
+   "sha256": "085be5a9f372ecb979d4f8dda1d8c749e85d01abb85e227fca4127844db9c5b6"
+  },
+  "differences": {
+   "sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+  },
+  "digest": "4f77b3c913171a5f6d426cd4d398b5eb0d47115983f9e5c1feef192a8df26da6"
+ },
+ "proof": {
+  "at": "2026-10-04T15:45:11Z",
+  "verdict": "proven",
+  "runs": 3,
+  "fault_runs": 0,
+  "environments": null,
+  "outputs": {
+   "direct-entry": {
+    "equal": 1,
+    "records": 1
+   },
+   "long-overread": {
+    "equal": 1,
+    "records": 1
+   },
+   "short-upgrade": {
+    "equal": 1,
+    "records": 1
+   }
+  },
+  "return_code_equal": null,
+  "sysout_compared": null,
+  "attributes_compared": null,
+  "java_failed": false,
+  "harness_commit": "cdad33370dc73ea44e5bf1348d88c9404a14c2d2+uncommitted",
+  "inputs_digest": "4f77b3c913171a5f6d426cd4d398b5eb0d47115983f9e5c1feef192a8df26da6"
+ },
+ "coverage": {
+  "paragraphs": {
+   "covered": 1,
+   "live": 1
+  },
+  "branches": {
+   "covered": 6,
+   "total": 6
+  },
+  "uncovered_branches": null,
+  "handler_labels": null,
+  "source": "tests/cics_crucible/coverage.json#programs/ca-xctl-versions/CAXB",
+  "ledger_sha256": "14fb4eee40f3c102720586999186172a1e57ed5764e2798ce1fc36d88fbd4de7",
+  "inputs_digest": "4f77b3c913171a5f6d426cd4d398b5eb0d47115983f9e5c1feef192a8df26da6"
+ },
+ "reach": {
+  "entry_points": [
+   "runTask"
+  ],
+  "unproven": [
+   {
+    "class": "CaxbService",
+    "method": "executeCaxb",
+    "line": 53,
+    "kind": "stub"
+   },
+   {
+    "class": "CaxbService",
+    "method": "handleTransaction",
+    "line": 59,
+    "kind": "ported_unproven"
+   },
+   {
+    "class": "CaxbService",
+    "method": "handleLink",
+    "line": 148,
+    "kind": "ported_unproven"
+   },
+   {
+    "class": "CaxbService",
+    "method": "returnedCommarea",
+    "line": 254,
+    "kind": "ported_unproven"
+   }
+  ],
+  "counts": {
+   "stub": 1,
+   "left_as_generated": 0,
+   "ported_unproven": 3
+  },
+  "generated_compared": true,
+  "port_sha256": "73c9e07686b8df2701328cd2805ca0c8f6f3e5075dab9b68a6a798c13b1dcf98"
+ },
+ "mutation": {
+  "commit": "be2561306",
+  "rejudged": null,
+  "seed": 0,
+  "mode": null,
+  "mutants": 153,
+  "chosen": 24,
+  "killed": 15,
+  "survived": 9,
+  "stillborn": 0,
+  "survivors": {
+   "case_gap": 4,
+   "harness_gap": 0,
+   "equivalent": 2,
+   "unreachable": 3,
+   "untriaged": 0
+  },
+  "score_raw": "15/24",
+  "score_adjusted": "15/19",
+  "source": "docs/language_status/mutation_scores.json#crucible:ca-xctl-versions/CAXB",
+  "inputs": {
+   "port": {
+    "sha256": "638a103de511bdd3f6121a9e80088f2a9b77aa5d59bb9c9b7ef5f4b3b3da8994"
+   },
+   "case": {
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+   },
+   "corpus": {
+    "sha256": "085be5a9f372ecb979d4f8dda1d8c749e85d01abb85e227fca4127844db9c5b6"
+   },
+   "harness": {
+    "sha256": "e67f03b7e18455d8d525349b25ec5e46d20bc2fb812f2c84299141fe89296d36"
+   },
+   "oracle": {
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+   }
+  }
+ },
+ "differences": [],
+ "oracle": {
+  "kind": "crucible-expected-logs",
+  "source": "cics-crucible v0.2.0: each scenario's hand-written expected event log, derived from IBM's documentation (its SPEC.md); the java-ported side is compared with it exactly",
+  "compiler": null,
+  "image": null,
+  "models": [],
+  "assumptions": null
+ },
+ "provenance": {
+  "written_by": "model",
+  "model": "claude-opus-5-5",
+  "backend": "claude CLI 2.1.285 print mode (claude -p --model claude-opus-5-5 --effort high --tools '' --strict-mcp-config --mcp-config '{\"mcpServers\":{}}' --no-session-persistence --system-prompt <porting system prompt>, prompt file on stdin, run from an empty directory)",
+  "attempt": 2,
+  "attempts": null,
+  "ticket_sha256": "a212bc54ab81da9384f3634491b2fca2f83dee76777ed681df34cf81d31eca92",
+  "porting_rules_sha256": null,
+  "proposed_at": "2026-09-29T22:01:23+00:00",
+  "generator_version": null,
+  "edited_after": null,
+  "provenance_file": {
+   "path": "tests/cics_crucible/ports/ca-xctl-versions/CAXB/provenance.json",
+   "format": "cics-crucible-port/1",
+   "sha256": "50d68d5aa8b64330580c6b58486a4c1287f51c76f73653664305876a54a4b615"
+  },
+  "crucible_ref_proven": "v0.2.0 (94f2afcb)"
+ },
+ "approvals": []
+}

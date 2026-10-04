@@ -1,6 +1,8 @@
 # ANTIGRAVITY.md
 
-This file provides guidance to Antigravity when working with code in the GitGalaxy repository. It is modeled after the `CLAUDE.md` to ensure seamless CI passes and token-efficient workflows.
+This file provides guidance to Antigravity when working with code in the GitGalaxy repository. It outlines Antigravity-specific tool usage and workflow rules.
+
+**⚠️ CRITICAL:** While this file exists, **`CLAUDE.md` is the primary, continuously updated source of truth** for the repository's architecture, CI procedures, and testing philosophy. Read `CLAUDE.md` first for deep project context before relying solely on summarized assumptions.
 
 ## 1. What this is (The Pipeline)
 
@@ -185,3 +187,16 @@ Adding or removing lines elsewhere in a file no longer changes the baseline, so 
 Editing a flagged line itself, or adding another identical violating line, IS a new key and fails the audit. If that's pre-existing
 debt you deliberately carry (or you fixed findings), regenerate with `python tests/ruff_audit.py --write-baseline`
 (`tests/mypy_audit.py` uses the same scheme and flag).
+
+## 11. Workflow Best Practices & Gotchas
+
+To avoid common startup friction and CI failures, keep the following rules in mind:
+
+### Git Worktrees
+This repository heavily utilizes `git worktree` for active feature development (e.g., `/nvme-data/projects/gitgalaxy-worktrees/`). If a branch fails to checkout with a `fatal: already used by worktree` error, or if files seem "missing" from `main`, check `git worktree list` first rather than assuming the branch doesn't exist.
+
+### CI/CD Triage & Pipeline Manager Subagent
+For CI/CD triage and Dependabot management, do not try to guess the pipeline status manually. Leverage the pipeline-manager agent instructions located in `.claude/agents/pipeline-manager.md`. Use this exact subagent prompt schema when investigating failing GitHub Actions runs or stale Dependabot PRs.
+
+### Zero-Tolerance Lossy Read Policy
+GitGalaxy enforces a zero-tolerance policy against lossy reads to protect legacy source integrity, which is strictly enforced by `tests/test_source_reads.py`. Never use `errors="ignore"` or `errors="replace"` in `.decode()` calls or file reads. Always use strict decoding wrapped in a `try...except UnicodeDecodeError` block to safely probe bytes without triggering the CI failure.

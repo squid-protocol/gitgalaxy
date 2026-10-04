@@ -11,12 +11,57 @@ import logging
 import re
 from typing import Any, Optional, TypedDict
 
+from gitgalaxy.core.cobol_source_format import blank_identification_area, blank_sequence_area, line_formats
 from gitgalaxy.standards.language_standards import COMPILED_HANDSHAKE_REGISTRY, LENS_CONFIG, PRISM_CONFIG
 
 # ==============================================================================
 # GitGalaxy Phase 2: Payload & Surface Splitter (The Prism)
 # Strategy Protocol: Safe Delimiter Extraction & Format Bypasses
 # ==============================================================================
+
+# #1718: C++14 digit separators (`512'000`, `0xDE'AD'BE'EF`, `1'000.5`) put a
+# bare `'` inside a numeric literal. The shared SHIELD_PATTERN's unbounded
+# `'(?:\\.|[^'\\])*'` char branch read that separator as a char-literal opener
+# and ran to the next unrelated `'` anywhere later in the file, hiding every
+# real comment (prism) or every real brace (detector) in between. These
+# fragments are shared by prism's C++ comment matrix and detector.py's C++
+# brace-safe stream.
+#
+# CPP_LANG_IDS: the language ids whose code gets the C++-aware literal shield.
+CPP_LANG_IDS: frozenset[str] = frozenset({"cpp"})
+
+# A pp-number that contains at least one digit separator. Only numbers that
+# actually carry a separator are claimed (plain numbers need no shielding).
+# The lookbehind keeps an encoding prefix's digit (`u8'a'`) or an identifier's
+# trailing digit (`x1'...`) from starting a number. Every repetition is
+# bounded and each position has exactly one way to match (`'` is excluded from
+# the pre-separator class; `[eEpP][+-]` only wins when a sign follows), so it
+# cannot backtrack catastrophically. A separator must be followed by a digit
+# or letter -- a trailing `'` is never swallowed.
+CPP_DIGIT_SEPARATED_NUMBER_PATTERN = (
+    r"(?<![0-9A-Za-z_])\.?[0-9]"
+    r"(?:[eEpP][+-]|[0-9A-Za-z_.]){0,63}"
+    r"'[0-9A-Za-z_]"
+    r"(?:[eEpP][+-]|'(?=[0-9A-Za-z_])|[0-9A-Za-z_.]){0,255}"
+)
+
+# A real C++ char literal: one line, short, escape-aware (`'a'`, `'\n'`,
+# `'\''`, `'\x41'`, `'\U0001F600'`, multi-char `'abcd'`). Bounded to 16
+# units so a stray `'` (e.g. `#error don't`) can no longer pair with a quote
+# far away.
+CPP_CHAR_LITERAL_PATTERN = r"'(?:\\.|[^'\\\n]){1,16}'"
+
+# The C++ literal shield for prism's comment matrix: identical to the shared
+# SHIELD_PATTERN's `"` and backtick branches, with the separator-bearing
+# number tried BEFORE the (now bounded) char branch. Exactly one capturing
+# group, so the literal shield stays group 1 in `<shield>|<comment>`.
+CPP_LITERAL_MASK_PATTERN = (
+    r'((?<!\\)"(?:\\.|[^"\\])*"|'
+    + CPP_DIGIT_SEPARATED_NUMBER_PATTERN
+    + r"|(?<!\\)"
+    + CPP_CHAR_LITERAL_PATTERN
+    + r"|(?<!\\)`(?:\\.|[^`\\])*`)"
+)
 
 
 class PrismResult(TypedDict):
@@ -99,26 +144,6 @@ class Prism:
         # Defends against catastrophic backtracking and logic erosion inside strings
         self.LITERAL_MASK_PATTERN = PRISM_CONFIG.get("SHIELD_PATTERN", "")
 
-        # #1718: C++ (C++14+) uses a single quote as a digit separator inside
-        # numeric literals (512'000, 1'000'000'000, 0xDE'AD). The shared
-        # SHIELD_PATTERN's single-quote branch is unbounded, so a separator
-        # `'` is mistaken for the opening quote of a char literal and pairs
-        # with the NEXT unrelated `'` anywhere later in the file (re.S lets
-        # [^'\\] span newlines), swallowing every real // and /* */ comment
-        # in between as one giant "literal" -- the code stream then carries
-        # comment text into the detector and coding_loc is inflated.
-        # C++ char literals are short, but C++23 named escapes (\\N{...}) can
-        # run much longer than 10 chars, so the branch is bounded to 64 -- wide
-        # enough for any real literal, still far too short for a cross-file
-        # cascade. Kept per-language because the shared pattern must stay
-        # unbounded for JS/PHP single-quoted strings.
-        self.CPP_LITERAL_MASK_PATTERN = (
-            r'((?<!\\)"(?:\\.|[^"\\])*"'
-            r"|[0-9a-fA-F]'[0-9a-fA-F]"
-            r"|(?<!\\)'(?:\\.|[^'\\]){0,64}'"
-            r"|(?<!\\)`(?:\\.|[^`\\])*`)"
-        )
-
         # #2419: LiveCode (`multi_style_live`) string literals have NO backslash
         # escapes -- `\` is an ordinary character, and `"` is the only string
         # delimiter (`'` and backtick are not string delimiters in either
@@ -177,10 +202,11 @@ class Prism:
 
         # --- TIER 2: REGEX PRE-COMPILATION ---
         self.REGEX_MATRIX: dict[str, re.Pattern] = self._compile_regex_matrix()
-
-        # #1718: C++ digit separators (512'000) must not pair with a later
-        # `'` as a char literal, so C++ uses a bounded single-quote shield
-        # in the generic standard_block stripper (see _strip_segment_comments).
+        # #1718: C++ gets its own matrix whose literal shield understands digit
+        # separators (see CPP_LITERAL_MASK_PATTERN). Selected only for a C++
+        # segment in the generic `standard_block` family -- see
+        # _generic_family_pattern. Every other language keeps REGEX_MATRIX.
+        self.CPP_LITERAL_MASK_PATTERN = CPP_LITERAL_MASK_PATTERN
         self.CPP_REGEX_MATRIX: dict[str, re.Pattern] = self._compile_regex_matrix(
             literal_pattern=self.CPP_LITERAL_MASK_PATTERN
         )
@@ -313,7 +339,14 @@ class Prism:
 
             # --- THE FIX: Prevent the "Inline Comment Double-Dip" ---
             # 1. Count the total non-blank lines in the original un-split file
-            total_active_lines = len([l for l in content.split("\n") if l.strip()])
+            # #4300: a fixed-format COBOL line that holds nothing but its sequence / identification
+            # fields (`003100`, `003100 ... IC4014.2`) is a blank line: neither code (the code
+            # stream blanks those fields) nor documentation.
+            active_text = content
+            if primary_lang == "cobol":
+                formats = line_formats(content)
+                active_text = blank_sequence_area(blank_identification_area(content, formats), formats)
+            total_active_lines = len([l for l in active_text.split("\n") if l.strip()])
 
             # 2. Count the pure coding lines
             coding_loc = len([l for l in final_code.split("\n") if l.strip()])
@@ -452,9 +485,7 @@ class Prism:
         # Generic REGEX_MATRIX families (standard_block and siblings) --
         # same pattern selection `_strip_segment_comments` uses for its own
         # generic branch.
-        pattern = self.REGEX_MATRIX.get(family)
-        if lang_id == "cpp" and family == "standard_block":
-            pattern = self.CPP_REGEX_MATRIX.get(family) or pattern
+        pattern = self._generic_family_pattern(lang_id, family)
         if not pattern:
             return self._blank_preserve_newlines(text)
         return self._positional_generic_strip(text, pattern)
@@ -842,6 +873,16 @@ class Prism:
                 # ('*'/'.*' in column 1, no inline marker).
                 bms_mode=(lang_id in ("bms", "hlasm")),
             )
+            if lang_id == "cobol":
+                # #4264: columns 73-80 of a fixed-format line are the identification area, which
+                # the compiler ignores -- blanked for every COBOL rule and reader downstream. A
+                # free-format line keeps its text past column 72; the format is detected per file
+                # and switched by >>SOURCE FORMAT / $SET SOURCEFORMAT directives.
+                formats = line_formats(text)
+                code = blank_identification_area(code, formats)
+                # #4300: and the numbered sequence area (cols 1-6), which a split operand
+                # (`PERFORM` / `000900     INIT-PARA`) otherwise read as its target.
+                code = blank_sequence_area(code, formats)
             if pos_lits:
                 lits.extend(pos_lits.splitlines())
             return code, "\n".join(lits)
@@ -863,16 +904,7 @@ class Prism:
             return code, "\n".join(lits)
 
         # 3. GENERIC STRIPPER
-        pattern = self.REGEX_MATRIX.get(family)
-        if lang_id == "cpp" and family == "standard_block":
-            # #1718: C++ digit separators (512'000) use `'` as a digit
-            # separator, which the unbounded shared single-quote branch
-            # misreads as a char literal opener that pairs with the next
-            # unrelated `'` anywhere later in the file -- swallowing every
-            # real comment in between. Route C++ through the bounded
-            # CPP_REGEX_MATRIX so separators can't cascade into a false
-            # literal (JS/PHP keep the unbounded shared pattern).
-            pattern = self.CPP_REGEX_MATRIX.get(family) or pattern
+        pattern = self._generic_family_pattern(lang_id, family)
         if not pattern:
             return text, "\n".join(lits)
 
@@ -888,6 +920,22 @@ class Prism:
 
         code = pattern.sub(strip_callback, text)
         return code, "\n".join(lits)
+
+    def _generic_family_pattern(self, lang_id: str, family: str) -> Optional[re.Pattern]:
+        """Picks the generic comment-stripping pattern for one segment.
+
+        #1718: a C++ `standard_block` segment uses CPP_REGEX_MATRIX, whose
+        literal shield does not mistake a digit separator (`512'000`) for a
+        char-literal opener. Everything else -- including C++ reconfigured
+        into another family -- uses the shared REGEX_MATRIX unchanged. Used by
+        both `_strip_segment_comments` and `_positional_comment_segment` so
+        the code stream and the positional comment stream always agree.
+        """
+        if lang_id in CPP_LANG_IDS and family == "standard_block":
+            cpp_pattern = self.CPP_REGEX_MATRIX.get(family)
+            if cpp_pattern is not None:
+                return cpp_pattern
+        return self.REGEX_MATRIX.get(family)
 
     def _compile_regex_matrix(self, literal_pattern: Optional[str] = None) -> dict[str, re.Pattern]:
         """Safely pre-compiles the standard regex matrix based on dynamic config lengths."""
@@ -988,12 +1036,19 @@ class Prism:
                 try:
                     # ---> THE FIX: Strip any rogue inline flags injected by the config <---
                     p = p.replace("(?i)", "").replace("(?m)", "").replace("(?s)", "")
-                    literal_mask = literal_pattern or self.LITERAL_MASK_PATTERN
+                    # #1718: an explicit `literal_pattern` (e.g. C++'s
+                    # digit-separator-aware shield) replaces the shared
+                    # shield for every family built here; None keeps the
+                    # default. Either way it must expose exactly one
+                    # capturing group, so the shield stays group 1.
+                    literal_mask = literal_pattern if literal_pattern is not None else self.LITERAL_MASK_PATTERN
                     # #2419: LiveCode has no `\` string escapes -- see
                     # MULTI_STYLE_LIVE_LITERAL_MASK_PATTERN's own comment.
                     if fam_key == "multi_style_live" and literal_pattern is None:
                         literal_mask = self.MULTI_STYLE_LIVE_LITERAL_MASK_PATTERN
-                    full_pattern = f"{literal_mask}|{p}"
+                    # Literal shield first (group 1), then the comment (group 2):
+                    # whichever starts first claims its whole span.
+                    full_pattern = rf"{literal_mask}|{p}"
 
                     flags = re.S | re.M
                     if fam_key == "line_exclusive":

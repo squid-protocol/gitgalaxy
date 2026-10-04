@@ -1,0 +1,825 @@
+{
+ "format": "cics-crucible-coverage/1",
+ "crucible_ref": "v0.2.0 (94f2afcb)",
+ "note": "#4023: the COBOL each passing cobol-stub scenario executes (live paragraphs and sections entered; branch outcomes as LINE:OUTCOME of the crucible's source) -- a ratchet (tests/tools/cics_crucible.py --ci). Regenerate with --update-baseline.",
+ "programs": {
+  "ca-link-lengths/CALINK": {
+   "live": 1,
+   "outcomes": 4,
+   "scenarios": {
+    "short-100": {
+     "units": [
+      "MAIN-PARA"
+     ],
+     "outcomes": [
+      "40:WHEN@41"
+     ]
+    },
+    "long-500": {
+     "units": [
+      "MAIN-PARA"
+     ],
+     "outcomes": [
+      "40:WHEN@45"
+     ]
+    },
+    "no-commarea": {
+     "units": [
+      "MAIN-PARA"
+     ],
+     "outcomes": [
+      "40:WHEN@49"
+     ]
+    },
+    "undefined-program": {
+     "units": [
+      "MAIN-PARA"
+     ],
+     "outcomes": [
+      "40:OTHER"
+     ]
+    }
+   }
+  },
+  "ca-link-lengths/CASUB": {
+   "live": 1,
+   "outcomes": 4,
+   "scenarios": {
+    "short-100": {
+     "units": [
+      "SUB-MAIN"
+     ],
+     "outcomes": [
+      "21:false",
+      "29:false"
+     ]
+    },
+    "long-500": {
+     "units": [
+      "SUB-MAIN"
+     ],
+     "outcomes": [
+      "21:false",
+      "29:true"
+     ]
+    },
+    "no-commarea": {
+     "units": [
+      "SUB-MAIN"
+     ],
+     "outcomes": [
+      "21:true"
+     ]
+    }
+   }
+  },
+  "ca-xctl-versions/CAXA": {
+   "live": 1,
+   "outcomes": 3,
+   "scenarios": {
+    "short-upgrade": {
+     "units": [
+      "MAIN-PARA"
+     ],
+     "outcomes": [
+      "42:WHEN@43"
+     ]
+    },
+    "long-overread": {
+     "units": [
+      "MAIN-PARA"
+     ],
+     "outcomes": [
+      "42:WHEN@47"
+     ]
+    },
+    "length-range": {
+     "units": [
+      "MAIN-PARA"
+     ],
+     "outcomes": [
+      "42:OTHER"
+     ]
+    }
+   }
+  },
+  "ca-xctl-versions/CAXB": {
+   "live": 1,
+   "outcomes": 6,
+   "scenarios": {
+    "short-upgrade": {
+     "units": [
+      "MAIN-PARA"
+     ],
+     "outcomes": [
+      "25:false",
+      "25:true",
+      "33:true",
+      "34:false",
+      "34:true"
+     ]
+    },
+    "long-overread": {
+     "units": [
+      "MAIN-PARA"
+     ],
+     "outcomes": [
+      "25:false",
+      "25:true",
+      "33:true",
+      "34:false"
+     ]
+    },
+    "direct-entry": {
+     "units": [
+      "MAIN-PARA"
+     ],
+     "outcomes": [
+      "25:false",
+      "25:true",
+      "33:false"
+     ]
+    }
+   }
+  },
+  "gt-start-retrieve/GTSTART": {
+   "live": 1,
+   "outcomes": 6,
+   "scenarios": {
+    "interval-data": {
+     "units": [
+      "MAIN-PARA"
+     ],
+     "outcomes": [
+      "32:WHEN@33"
+     ]
+    },
+    "no-data": {
+     "units": [
+      "MAIN-PARA"
+     ],
+     "outcomes": [
+      "32:WHEN@37"
+     ]
+    },
+    "time-six-hours": {
+     "units": [
+      "MAIN-PARA"
+     ],
+     "outcomes": [
+      "32:WHEN@40"
+     ]
+    },
+    "retrieve-lengerr": {
+     "units": [
+      "MAIN-PARA"
+     ],
+     "outcomes": [
+      "32:WHEN@47"
+     ]
+    },
+    "protect-abend": {
+     "units": [
+      "MAIN-PARA"
+     ],
+     "outcomes": [
+      "32:WHEN@51"
+     ]
+    },
+    "unknown-mode": {
+     "units": [
+      "MAIN-PARA"
+     ],
+     "outcomes": [
+      "32:none"
+     ]
+    }
+   }
+  },
+  "gt-start-retrieve/GTWORK": {
+   "live": 1,
+   "outcomes": 2,
+   "scenarios": {
+    "interval-data": {
+     "units": [
+      "MAIN-PARA"
+     ],
+     "outcomes": [
+      "32:false",
+      "32:true"
+     ]
+    },
+    "no-data": {
+     "units": [
+      "MAIN-PARA"
+     ],
+     "outcomes": [
+      "32:false"
+     ]
+    },
+    "time-six-hours": {
+     "units": [
+      "MAIN-PARA"
+     ],
+     "outcomes": [
+      "32:false",
+      "32:true"
+     ]
+    },
+    "retrieve-lengerr": {
+     "units": [
+      "MAIN-PARA"
+     ],
+     "outcomes": [
+      "32:false",
+      "32:true"
+     ]
+    },
+    "protect-abend": {
+     "units": [
+      "MAIN-PARA"
+     ],
+     "outcomes": [
+      "32:false",
+      "32:true"
+     ]
+    }
+   }
+  },
+  "gt-terminal-coalesce/GTSHOW": {
+   "live": 1,
+   "outcomes": 2,
+   "scenarios": {
+    "three-in-one": {
+     "units": [
+      "MAIN-PARA"
+     ],
+     "outcomes": [
+      "27:false",
+      "27:true"
+     ]
+    },
+    "staggered": {
+     "units": [
+      "MAIN-PARA"
+     ],
+     "outcomes": [
+      "27:false"
+     ]
+    },
+    "cancel-too-late": {
+     "units": [
+      "MAIN-PARA"
+     ],
+     "outcomes": [
+      "27:false"
+     ]
+    }
+   }
+  },
+  "gt-terminal-coalesce/GTTERM": {
+   "live": 1,
+   "outcomes": 4,
+   "scenarios": {
+    "three-in-one": {
+     "units": [
+      "MAIN-PARA"
+     ],
+     "outcomes": [
+      "31:WHEN@32"
+     ]
+    },
+    "staggered": {
+     "units": [
+      "MAIN-PARA"
+     ],
+     "outcomes": [
+      "31:WHEN@43"
+     ]
+    },
+    "cancel-in-time": {
+     "units": [
+      "MAIN-PARA"
+     ],
+     "outcomes": [
+      "31:OTHER",
+      "31:WHEN@51"
+     ]
+    },
+    "cancel-too-late": {
+     "units": [
+      "MAIN-PARA"
+     ],
+     "outcomes": [
+      "31:OTHER",
+      "31:WHEN@51"
+     ]
+    }
+   }
+  },
+  "hc-abend-link/HCMAIN": {
+   "live": 4,
+   "outcomes": 4,
+   "scenarios": {
+    "sub-resp": {
+     "units": [
+      "MAIN-PARA",
+      "MAIN-QIDERR",
+      "SEND-TRAIL"
+     ],
+     "outcomes": [
+      "32:false"
+     ]
+    },
+    "sub-unhandled": {
+     "units": [
+      "MAIN-ABEND",
+      "MAIN-PARA",
+      "SEND-TRAIL"
+     ],
+     "outcomes": [
+      "32:false"
+     ]
+    },
+    "sub-own-exit": {
+     "units": [
+      "MAIN-PARA",
+      "MAIN-QIDERR",
+      "SEND-TRAIL"
+     ],
+     "outcomes": [
+      "32:false"
+     ]
+    },
+    "push-pop": {
+     "units": [
+      "MAIN-PARA",
+      "MAIN-QIDERR",
+      "SEND-TRAIL"
+     ],
+     "outcomes": [
+      "32:true",
+      "36:false"
+     ]
+    },
+    "pushed-abend": {
+     "units": [
+      "MAIN-PARA"
+     ],
+     "outcomes": [
+      "32:true",
+      "36:true"
+     ]
+    }
+   }
+  },
+  "hc-abend-link/HCSUB": {
+   "live": 2,
+   "outcomes": 3,
+   "scenarios": {
+    "sub-resp": {
+     "units": [
+      "SUB-MAIN"
+     ],
+     "outcomes": [
+      "25:OTHER"
+     ]
+    },
+    "sub-unhandled": {
+     "units": [
+      "SUB-MAIN"
+     ],
+     "outcomes": [
+      "25:WHEN@26"
+     ]
+    },
+    "sub-own-exit": {
+     "units": [
+      "SUB-ABEND",
+      "SUB-MAIN"
+     ],
+     "outcomes": [
+      "25:WHEN@31"
+     ]
+    }
+   }
+  },
+  "hc-perform-range/HCQREAD": {
+   "live": 8,
+   "outcomes": 0,
+   "scenarios": {
+    "three-items": {
+     "units": [
+      "LATE-ITEM",
+      "MAIN-PARA",
+      "PAST-END",
+      "READ-ITEMS",
+      "READ-ITEMS-EXIT",
+      "SEND-TRAIL"
+     ],
+     "outcomes": []
+    },
+    "no-queue": {
+     "units": [
+      "LATE-ITEM",
+      "MAIN-PARA",
+      "NO-QUEUE",
+      "PAST-END",
+      "READ-ITEMS",
+      "READ-ITEMS-EXIT",
+      "SEND-TRAIL"
+     ],
+     "outcomes": []
+    },
+    "five-items": {
+     "units": [
+      "LATE-ITEM",
+      "MAIN-PARA",
+      "NO-QUEUE",
+      "PAST-END",
+      "READ-ITEMS",
+      "READ-ITEMS-EXIT",
+      "SEND-TRAIL"
+     ],
+     "outcomes": []
+    },
+    "length-trap": {
+     "units": [
+      "ANY-ERROR",
+      "MAIN-PARA",
+      "READ-ITEMS",
+      "SEND-TRAIL"
+     ],
+     "outcomes": []
+    }
+   }
+  },
+  "hx-attr-bytes/HXATTR": {
+   "live": 4,
+   "outcomes": 6,
+   "scenarios": {
+    "first-display": {
+     "units": [
+      "FIRST-SCREEN",
+      "MAIN-PARA"
+     ],
+     "outcomes": [
+      "29:true"
+     ]
+    },
+    "echo-dataonly": {
+     "units": [
+      "ECHO-SCREEN",
+      "FIRST-SCREEN",
+      "MAIN-PARA"
+     ],
+     "outcomes": [
+      "29:false",
+      "29:true",
+      "32:false",
+      "78:true"
+     ]
+    },
+    "clear-maponly": {
+     "units": [
+      "FIRST-SCREEN",
+      "MAIN-PARA",
+      "RESET-SCREEN"
+     ],
+     "outcomes": [
+      "29:false",
+      "29:true",
+      "32:true"
+     ]
+    },
+    "pa-key-mapfail": {
+     "units": [
+      "ECHO-SCREEN",
+      "FIRST-SCREEN",
+      "MAIN-PARA"
+     ],
+     "outcomes": [
+      "29:false",
+      "29:true",
+      "32:false",
+      "78:false"
+     ]
+    }
+   }
+  },
+  "hx-extended-cursor/HXEXT": {
+   "live": 3,
+   "outcomes": 6,
+   "scenarios": {
+    "bad-account": {
+     "units": [
+      "CHECK-INPUT",
+      "MAIN-PARA"
+     ],
+     "outcomes": [
+      "23:false",
+      "23:true",
+      "30:false",
+      "43:true"
+     ]
+    },
+    "good-entry": {
+     "units": [
+      "CHECK-INPUT",
+      "MAIN-PARA"
+     ],
+     "outcomes": [
+      "23:false",
+      "23:true",
+      "30:false",
+      "43:false"
+     ]
+    },
+    "pf5-blink": {
+     "units": [
+      "BLINK-MISTAKE",
+      "MAIN-PARA"
+     ],
+     "outcomes": [
+      "23:false",
+      "23:true",
+      "30:true"
+     ]
+    }
+   }
+  },
+  "pc-aid-menu/PCDETL": {
+   "live": 1,
+   "outcomes": 2,
+   "scenarios": {
+    "option1-xctl": {
+     "units": [
+      "MAIN-PARA"
+     ],
+     "outcomes": [
+      "22:false"
+     ]
+    },
+    "option2-next-transid": {
+     "units": [
+      "MAIN-PARA"
+     ],
+     "outcomes": [
+      "22:false"
+     ]
+    },
+    "aid-keys": {
+     "units": [
+      "MAIN-PARA"
+     ],
+     "outcomes": [
+      "22:true"
+     ]
+    }
+   }
+  },
+  "pc-aid-menu/PCMENU": {
+   "live": 4,
+   "outcomes": 9,
+   "scenarios": {
+    "option1-xctl": {
+     "units": [
+      "MAIN-PARA",
+      "SHOW-MENU"
+     ],
+     "outcomes": [
+      "25:false",
+      "25:true",
+      "33:false",
+      "42:false",
+      "46:WHEN@47"
+     ]
+    },
+    "option2-next-transid": {
+     "units": [
+      "MAIN-PARA",
+      "SHOW-MENU"
+     ],
+     "outcomes": [
+      "25:false",
+      "25:true",
+      "33:false",
+      "42:false",
+      "46:WHEN@52"
+     ]
+    },
+    "aid-keys": {
+     "units": [
+      "MAIN-PARA",
+      "MENU-EXIT",
+      "MENU-REFRESH",
+      "SHOW-MENU"
+     ],
+     "outcomes": [
+      "25:false",
+      "25:true",
+      "33:false",
+      "33:true",
+      "42:true"
+     ]
+    },
+    "invalid-option": {
+     "units": [
+      "MAIN-PARA",
+      "SHOW-MENU"
+     ],
+     "outcomes": [
+      "25:false",
+      "25:true",
+      "33:false",
+      "42:false",
+      "46:OTHER"
+     ]
+    }
+   }
+  },
+  "pc-wizard/PCCONF": {
+   "live": 5,
+   "outcomes": 14,
+   "scenarios": {
+    "happy-post": {
+     "units": [
+      "MAIN-PARA",
+      "POST-IT",
+      "SEND-STEP3",
+      "TAKE-AMOUNT"
+     ],
+     "outcomes": [
+      "34:WHEN@46",
+      "34:WHEN@53",
+      "64:false",
+      "92:false"
+     ]
+    },
+    "mapfail-clear-cancel": {
+     "units": [
+      "MAIN-PARA"
+     ],
+     "outcomes": [
+      "34:WHEN@35"
+     ]
+    },
+    "back-and-fix": {
+     "units": [
+      "MAIN-PARA",
+      "POST-IT",
+      "SEND-STEP3",
+      "TAKE-AMOUNT"
+     ],
+     "outcomes": [
+      "34:WHEN@46",
+      "34:WHEN@48",
+      "34:WHEN@53",
+      "64:false",
+      "92:false"
+     ]
+    },
+    "clear-and-bad-amount": {
+     "units": [
+      "MAIN-PARA",
+      "POST-IT",
+      "SEND-STEP2",
+      "SEND-STEP3",
+      "TAKE-AMOUNT"
+     ],
+     "outcomes": [
+      "34:OTHER",
+      "34:WHEN@39",
+      "34:WHEN@46",
+      "34:WHEN@53",
+      "41:false",
+      "41:true",
+      "64:false",
+      "64:true",
+      "77:false",
+      "92:false",
+      "92:true"
+     ]
+    },
+    "back-clear-keeps-amount": {
+     "units": [
+      "MAIN-PARA",
+      "SEND-STEP2",
+      "SEND-STEP3",
+      "TAKE-AMOUNT"
+     ],
+     "outcomes": [
+      "34:WHEN@35",
+      "34:WHEN@39",
+      "34:WHEN@46",
+      "34:WHEN@48",
+      "41:false",
+      "64:false",
+      "64:true",
+      "77:true",
+      "92:false"
+     ]
+    }
+   }
+  },
+  "pc-wizard/PCWIZ": {
+   "live": 5,
+   "outcomes": 10,
+   "scenarios": {
+    "happy-post": {
+     "units": [
+      "MAIN-PARA",
+      "SEND-STEP1",
+      "SEND-STEP2",
+      "TAKE-NAME"
+     ],
+     "outcomes": [
+      "25:false",
+      "25:true",
+      "32:OTHER",
+      "51:false",
+      "71:false"
+     ]
+    },
+    "mapfail-clear-cancel": {
+     "units": [
+      "MAIN-PARA",
+      "SEND-STEP1",
+      "SEND-STEP2",
+      "TAKE-NAME"
+     ],
+     "outcomes": [
+      "25:false",
+      "25:true",
+      "32:OTHER",
+      "32:WHEN@40",
+      "51:false",
+      "51:true",
+      "71:false"
+     ]
+    },
+    "back-and-fix": {
+     "units": [
+      "MAIN-PARA",
+      "SEND-STEP1",
+      "SEND-STEP2",
+      "TAKE-NAME"
+     ],
+     "outcomes": [
+      "25:false",
+      "25:true",
+      "32:OTHER",
+      "32:WHEN@35",
+      "51:false",
+      "71:false",
+      "71:true"
+     ]
+    },
+    "clear-and-bad-amount": {
+     "units": [
+      "MAIN-PARA",
+      "SEND-STEP1",
+      "SEND-STEP2",
+      "TAKE-NAME"
+     ],
+     "outcomes": [
+      "25:false",
+      "25:true",
+      "32:OTHER",
+      "51:false",
+      "71:false"
+     ]
+    },
+    "back-clear-keeps-amount": {
+     "units": [
+      "MAIN-PARA",
+      "SEND-STEP1",
+      "SEND-STEP2",
+      "TAKE-NAME"
+     ],
+     "outcomes": [
+      "25:false",
+      "25:true",
+      "32:OTHER",
+      "32:WHEN@35",
+      "51:false",
+      "71:false",
+      "71:true"
+     ]
+    },
+    "cancel-first-screen": {
+     "units": [
+      "CANCEL-WIZARD",
+      "MAIN-PARA",
+      "SEND-STEP1"
+     ],
+     "outcomes": [
+      "25:false",
+      "25:true",
+      "32:WHEN@33"
+     ]
+    }
+   }
+  }
+ }
+}

@@ -36,7 +36,7 @@ from gitgalaxy.tools.cobol_to_java.cobol_to_java_common import (
     parse_pic_precision,
     status_text,
 )
-from gitgalaxy.tools.cobol_to_java.cobol_to_java_names import java_class_base
+from gitgalaxy.tools.cobol_to_java.cobol_to_java_names import java_class_base, sql_name
 from gitgalaxy.tools.cobol_to_java.cobol_to_java_spring_forge import _accessors, _declared_fields
 from gitgalaxy.tools.cobol_to_java.java_target import JavaTarget
 
@@ -95,6 +95,10 @@ def _codec_kind(f: Field) -> str | None:
     return "zoned" if usage in ("DISPLAY", "") else None
 
 
+def _b(v: bool) -> str:
+    return "true" if v else "false"
+
+
 def _codec_get(f: Field, dbcs_page: str | None = None) -> str:
     kind = _codec_kind(f)
     if kind == "national":
@@ -106,14 +110,16 @@ def _codec_get(f: Field, dbcs_page: str | None = None) -> str:
     if kind == "text":
         return f"CobolRecords.text(rec, {f.offset}, {f.bytes}, text)"
     signed, _digits, scale = _pic_numeric(f.pic or "") or (False, 0, 0)
-    if kind == "zoned":
+    if kind == "zoned" and f.sign:  # #3694: a sign byte of its own, '+' / '-'
+        dec = f"CobolRecords.zonedSeparate(rec, {f.offset}, {f.bytes}, {scale}, {_b(f.sign == 'leading')}, text)"
+    elif kind == "zoned":
         dec = f"CobolRecords.zoned(rec, {f.offset}, {f.bytes}, {scale}, text)"
     elif kind == "packed":
         dec = f"CobolRecords.packed(rec, {f.offset}, {f.bytes}, {scale})"
     else:
         dec = f"CobolRecords.binary(rec, {f.offset}, {f.bytes}, {scale}, {str(signed).lower()})"
     return {"Integer": f"CobolRecords.toInteger({dec})", "Long": f"CobolRecords.toLong({dec})",
-            "Double": f"{dec}.doubleValue()", "String": f"{dec}.toPlainString()"}.get(f.jtype, dec)  # fmt: skip
+            "Double": f"CobolRecords.toDouble({dec})", "String": f"CobolRecords.toString({dec})"}.get(f.jtype, dec)  # fmt: skip
 
 
 def _codec_put(f: Field, value: str, dbcs_page: str | None = None) -> str:
@@ -130,6 +136,9 @@ def _codec_put(f: Field, value: str, dbcs_page: str | None = None) -> str:
         return f"CobolRecords.putText(rec, {f.offset}, {f.bytes}, {value}, text)"
     signed, digits, scale = _pic_numeric(f.pic or "") or (False, 0, 0)
     dec = f"CobolRecords.decimal({value})"
+    if kind == "zoned" and f.sign:
+        return (f"CobolRecords.putZonedSeparate(rec, {f.offset}, {digits}, {scale}, {_b(f.sign == 'leading')}, "
+                f"{dec}, text)")  # fmt: skip
     if kind == "zoned":
         return f"CobolRecords.putZoned(rec, {f.offset}, {digits}, {scale}, {str(signed).lower()}, {dec}, text)"
     if kind == "packed":
@@ -178,8 +187,10 @@ import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.math.RoundingMode;
 import java.nio.charset.Charset;
+import java.text.Bidi;
 import java.util.Arrays;
 import java.util.Locale;
+import java.util.Set;
 
 /**
  * #3624: COBOL storage for the entities' record codecs (fromRecord / toRecord) -- DISPLAY text, zoned
@@ -193,13 +204,30 @@ import java.util.Locale;
  * BigInteger, BigDecimal and Integer.parseInt read Arabic-Indic, Devanagari and full-width digits as
  * numbers -- where COBOL's NUMERIC test and NUMVAL reject them, so every parse here checks the
  * characters itself before handing them to BigInteger / BigDecimal.
+ *
+ * #3987: a 3270 had no BiDi engine, so Arabic and Hebrew records hold their text in visual order (left to
+ * right, as the screen showed it). Under such a page text() returns logical (reading-order) Unicode, which
+ * a browser lays out itself, and putText() stores the visual order back.
  */
 public final class CobolRecords {
 
     private static final String POSITIVE = "__POSITIVE__";
     private static final String NEGATIVE = "__NEGATIVE__";
+    private static final String RECORD_CHARSET = "__RECORD_CHARSET__";
+    private static final String BIDI_LAYOUT = "__BIDI_LAYOUT__";
+    private static final boolean RTL_SCREEN = "visual_rtl".equals(BIDI_LAYOUT);
+    private static final Set<String> VISUAL_BIDI_PAGES = Set.of("IBM420", "IBM424", "IBM864", "IBM862");
 
     private CobolRecords() {
+    }
+
+    /**
+     * #4060: the code page the migrated system's record bytes are in -- every dataset, file and COMMAREA a
+     * port reads or writes. The target config's data.record_charset (here __RECORD_CHARSET__), unless the
+     * system property gitgalaxy.data.charset names another. A port never picks a charset itself.
+     */
+    public static Charset charset() {
+        return Charset.forName(System.getProperty("gitgalaxy.data.charset", RECORD_CHARSET));
     }
 
     public static byte[] blank(int length, Charset text) {
@@ -208,22 +236,128 @@ public final class CobolRecords {
         return rec;
     }
 
+    /** #3987: a visual page's field comes back in logical order (logical(...)). */
     public static String text(byte[] rec, int offset, int length, Charset text) {
-        return new String(rec, offset, length, text);
+        String s = new String(rec, offset, length, text);
+        return visualOrder(text) ? logical(s) : s;
     }
 
+    /** #3985: stores `value` in `length` bytes as fit(...) sizes it: under a mixed DBCS page (IBM930 / 939)
+     *  a value too wide loses whole characters, so the record never ends inside a Shift-Out run or half a
+     *  double-byte character. */
     public static void putText(byte[] rec, int offset, int length, String value, Charset text) {
-        byte[] v = (value == null ? "" : value).getBytes(text);
+        String fitted = fit(value, length, text);
+        byte[] v = (visualOrder(text) ? visual(fitted) : fitted).getBytes(text);  // #3987: a permutation, same width
         byte space = " ".getBytes(text)[0];
         for (int i = 0; i < length; i++) {
             rec[offset + i] = i < v.length ? v[i] : space;
         }
     }
 
+    /** #3985: the bytes `value` takes in the record -- a PIC X field's width, which String.length() is not
+     *  under a multi-byte page: `AB\\u65e5\\u672cC` is 5 characters and, in IBM939, 9 bytes (Shift-Out and Shift-In
+     *  count). */
+    public static int width(String value, Charset text) {
+        return value == null ? 0 : value.getBytes(text).length;
+    }
+
+    /** #3985: `value` cut and space-padded to exactly `width` bytes. A value too wide loses whole characters
+     *  from the right, so a double-byte character is never split and the encoder closes the Shift-Out run
+     *  (a deliberate deviation: COBOL's MOVE truncates at the byte). On a single-byte page it is the MOVE. */
+    public static String fit(String value, int width, Charset text) {
+        String v = value == null ? "" : value;
+        int bytes = width(v, text);
+        if (bytes > width) {
+            int end = Math.min(v.length(), Math.max(width, 0));  // a character is at least one byte
+            if (end > 0 && Character.isHighSurrogate(v.charAt(end - 1))) {
+                end--;  // never half a surrogate pair
+            }
+            while (end > 0 && width(v.substring(0, end), text) > width) {
+                end -= end > 1 && Character.isLowSurrogate(v.charAt(end - 1)) ? 2 : 1;
+            }
+            v = v.substring(0, end);
+            bytes = width(v, text);
+        }
+        StringBuilder out = new StringBuilder(v);
+        for (int i = bytes; i < width; i++) {
+            out.append(' ');
+        }
+        return out.toString();
+    }
+
+    /** #3987: whether `text` keeps right-to-left text in visual order -- the target config's data.bidi_layout
+     *  (here __BIDI_LAYOUT__): visual_ltr / visual_rtl, logical, or auto: visual_ltr under IBM420 / IBM424
+     *  (EBCDIC Arabic / Hebrew) and IBM864 / IBM862 (PC Arabic / Hebrew), as IBM's CDRA defines them. */
+    public static boolean visualOrder(Charset text) {
+        if (!"auto".equals(BIDI_LAYOUT)) {
+            return BIDI_LAYOUT.startsWith("visual_");
+        }
+        return text != null && VISUAL_BIDI_PAGES.contains(text.name());
+    }
+
+    /** #3987: visual-order text (as a 3270 showed it) in logical order: each right-to-left run reversed, a
+     *  number in it kept left to right, its mirrored characters (brackets) swapped. The Unicode Bidirectional
+     *  Algorithm in the screen's direction -- visual_ltr: the first byte at the left; visual_rtl (a
+     *  screen-reverse terminal): at the right, so Arabic or Hebrew is stored in reading order and a number
+     *  or Latin word reversed. On such a line it is its own inverse: `visual(logical(s))` is `s` for words
+     *  and numbers; a punctuation-only cluster between a right-to-left letter and a digit can come back
+     *  reordered. A string with no right-to-left character is returned as it is. Shaped (presentation)
+     *  forms are kept, so the record bytes round-trip. */
+    public static String logical(String visual) {
+        if (RTL_SCREEN) {
+            return reorder(reversed(visual), Bidi.DIRECTION_RIGHT_TO_LEFT);
+        }
+        return reorder(visual, Bidi.DIRECTION_LEFT_TO_RIGHT);
+    }
+
+    /** #3987: logical text in the order a visual record holds it -- the 3270 screen's characters, from the
+     *  first byte's side (left for visual_ltr, right for visual_rtl). */
+    public static String visual(String logical) {
+        if (RTL_SCREEN) {
+            return reversed(reorder(logical, Bidi.DIRECTION_RIGHT_TO_LEFT));
+        }
+        return reorder(logical, Bidi.DIRECTION_LEFT_TO_RIGHT);
+    }
+
+    private static String reversed(String s) {
+        if (s == null || !Bidi.requiresBidi(s.toCharArray(), 0, s.length())) {
+            return s;
+        }
+        return new StringBuilder(s).reverse().toString();
+    }
+
+    /** The screen's characters, left to right, for `s` laid out in a paragraph of direction `flags`. */
+    private static String reorder(String s, int flags) {
+        if (s == null || s.isEmpty() || !Bidi.requiresBidi(s.toCharArray(), 0, s.length())) {
+            return s;
+        }
+        Bidi bidi = new Bidi(s, flags);
+        int n = s.length();
+        byte[] levels = new byte[n];
+        Integer[] order = new Integer[n];
+        for (int i = 0; i < n; i++) {
+            levels[i] = (byte) bidi.getLevelAt(i);
+            order[i] = i;
+        }
+        Bidi.reorderVisually(levels, 0, order, 0, n);
+        StringBuilder out = new StringBuilder(n);
+        for (int i : order) {
+            char c = s.charAt(i);
+            out.append(levels[i] % 2 == 1 ? mirrored(c) : c);
+        }
+        return out.toString();
+    }
+
+    private static char mirrored(char c) {
+        String pairs = "()[]{}<>\\u00ab\\u00bb";
+        int i = pairs.indexOf(c);
+        return i < 0 ? c : pairs.charAt(i ^ 1);
+    }
+
     public static BigDecimal zoned(byte[] rec, int offset, int length, int scale, Charset text) {
         String s = new String(rec, offset, length, text);
         if (s.length() != length) {  // #3831: a multi-byte character is no zoned digit
-            throw new NumberFormatException("invalid zoned digits '" + s + "' at offset " + offset);
+            return null;
         }
         char last = s.charAt(length - 1);
         boolean negative = false;
@@ -236,14 +370,43 @@ public final class CobolRecords {
             digit = NEGATIVE.indexOf(last);
             negative = true;
         } else {
-            throw new NumberFormatException("invalid zoned sign '" + last + "' at offset " + (offset + length - 1));
+            return null;
         }
         String digits = s.substring(0, length - 1) + digit;
         if (!isAsciiDigits(digits)) {
-            throw new NumberFormatException("invalid zoned digits '" + s + "' at offset " + offset);
+            return null;
         }
         BigDecimal v = new BigDecimal(new BigInteger(digits), scale);
         return negative ? v.negate() : v;
+    }
+
+    /** #3694: a SIGN ... SEPARATE item: its digits and a '+' / '-' byte before them (`leading`) or after; any
+     *  other sign byte, or a non-digit, is no number (null, as zoned). */
+    public static BigDecimal zonedSeparate(byte[] rec, int offset, int length, int scale, boolean leading,
+                                           Charset text) {
+        String s = new String(rec, offset, length, text);
+        if (s.length() != length || length < 2) {
+            return null;
+        }
+        char sign = leading ? s.charAt(0) : s.charAt(length - 1);
+        String digits = leading ? s.substring(1) : s.substring(0, length - 1);
+        if ((sign != '+' && sign != '-') || !isAsciiDigits(digits)) {
+            return null;
+        }
+        BigDecimal v = new BigDecimal(new BigInteger(digits), scale);
+        return sign == '-' ? v.negate() : v;
+    }
+
+    /** #3694: as putZoned, for a SIGN ... SEPARATE item (`digits` digits and the sign byte: '-' for a negative
+     *  value, else '+'). */
+    public static void putZonedSeparate(byte[] rec, int offset, int digits, int scale, boolean leading,
+                                        BigDecimal value, Charset text) {
+        BigInteger unscaled = value.setScale(scale, RoundingMode.DOWN).unscaledValue();
+        String s = unscaled.abs().toString();
+        s = s.length() > digits ? s.substring(s.length() - digits) : "0".repeat(digits - s.length()) + s;
+        String sign = unscaled.signum() < 0 ? "-" : "+";
+        byte[] b = (leading ? sign + s : s + sign).getBytes(text);
+        System.arraycopy(b, 0, rec, offset, digits + 1);
     }
 
     public static void putZoned(byte[] rec, int offset, int digits, int scale, boolean signed, BigDecimal value,
@@ -269,9 +432,7 @@ public final class CobolRecords {
             int lo = b & 0x0F;
             boolean badDigit = b >> 4 > 9 || (i < length - 1 && lo > 9);
             if (badDigit || (i == length - 1 && lo < 0x0A)) {
-                throw new NumberFormatException("invalid packed decimal (S0C7): byte X'"
-                        + Integer.toHexString(b | 0x100).substring(1).toUpperCase(Locale.ROOT) + "' at offset "
-                        + (offset + i) + (badDigit ? ", a digit nibble above 9" : ", a sign nibble below A"));
+                return null;
             }
             digits.append(b >> 4);
             if (i < length - 1) {
@@ -394,7 +555,8 @@ public final class CobolRecords {
         if (key == null) {
             return null;
         }
-        byte[] bytes = key.getBytes(Charset.forName(codePage));
+        Charset page = Charset.forName(codePage);
+        byte[] bytes = (visualOrder(page) ? visual(key) : key).getBytes(page);  // #3987: the bytes VSAM holds
         StringBuilder hex = new StringBuilder(bytes.length * 2);
         for (byte b : bytes) {
             hex.append(Character.toUpperCase(Character.forDigit((b >> 4) & 0xF, 16)))
@@ -404,11 +566,19 @@ public final class CobolRecords {
     }
 
     public static Integer toInteger(BigDecimal v) {
-        return v.intValue();
+        return v == null ? null : v.intValue();
     }
 
     public static Long toLong(BigDecimal v) {
-        return v.longValue();
+        return v == null ? null : v.longValue();
+    }
+
+    public static Double toDouble(BigDecimal v) {
+        return v == null ? null : v.doubleValue();
+    }
+
+    public static String toString(BigDecimal v) {
+        return v == null ? null : v.toPlainString();
     }
 }
 """
@@ -425,10 +595,16 @@ class Field:
     occurs: int | None
     pli_type: str | None = None  # #3720: a PL/I item's data type as written, when it has no picture
     usage: str | None = None  # #3624: a COBOL item's USAGE (COMP-3, COMP, ...), None for DISPLAY
+    sign: str | None = None  # #3694: "leading" / "trailing" -- a SIGN ... SEPARATE item's sign byte; None embedded
 
     @property
     def described(self) -> str:
-        return f"PIC {self.pic}" if self.pic else self.pli_type or "no PIC"
+        """`PIC S9(15) COMP-3`: the PICTURE and a USAGE other than DISPLAY -- the comment a reader (and the
+        det-port's key decoder) sizes the field by."""
+        if not self.pic:
+            return self.pli_type or "no PIC"
+        usage = (self.usage or "").upper()
+        return f"PIC {self.pic} {usage}" if usage and usage != "DISPLAY" else f"PIC {self.pic}"
 
 
 @dataclass
@@ -447,6 +623,7 @@ class Store:
     alternates: list[dict] = field(default_factory=list)  # {aix, paths, field: Field|None, unique}
     browse_forward: bool = False
     browse_back: bool = False
+    window: str = ""  # how a FROM ... LENGTH record is cut from its 01 (GalaxyIR.vsam_stores), else ""
 
     @property
     def repository(self) -> str:
@@ -577,6 +754,10 @@ class RepositoryForge:
         if composite:
             used_entities.claim(key_type)
         st = Store(raw, entity, table, best["record"], best["file"], layout, fields, key, composite, key_type, note)
+        if best.get("window_of"):
+            st.window = (f"the {best['length']} bytes a WRITE / REWRITE FROM {best['record']} LENGTH writes, from "
+                         f"offset {best['window_offset']} of {best['window_of']}"
+                         + (f", laid out by REDEFINES {best['overlay']}" if best.get("overlay") else ""))  # fmt: skip
         for aix in raw.get("alternate_indexes", []):
             alt = next((f for f in fields if f.offset == aix.get("key_offset") and f.bytes == aix.get("key_length")
                         and not f.occurs), None)  # fmt: skip
@@ -618,7 +799,7 @@ class RepositoryForge:
             pli = f.get("dialect") == "pli"
             out.append(Field(name, java, java_type(f), f["offset"], f["bytes"], f"'{pic}'" if pli and pic else pic,
                              f.get("occurs"), f.get("usage") if pli else None,
-                             None if pli else f.get("usage")))  # fmt: skip
+                             None if pli else f.get("usage"), f.get("sign")))  # fmt: skip
         return out
 
     def _sorted_by_code_page(self, st: Store) -> bool:
@@ -677,6 +858,8 @@ class RepositoryForge:
             )
         java.append(f" * record {st.record} ({st.record_file}, {st.layout.get('bytes')} bytes"
                     f"{', RECORDSIZE ' + str(raw['record_max']) if raw.get('record_max') else ''}).")  # fmt: skip
+        if st.window:
+            java.append(f" * The record is {st.window}.")
         java.append(f" * Key: {st.key_note}.")
         if raw.get("cics_files"):
             java.append(" * CICS files: " + ", ".join(sorted({c["file"] + (f" (path {c['via']})" if c.get("via") else "")
@@ -684,7 +867,7 @@ class RepositoryForge:
         java.append(f" * Generated from GitGalaxy's verified skeleton; VSAM defines field testing: {self.status}.")
         java.append(" */")
         java.append(f'@Entity(name = "Vsam{st.entity}")')
-        java.append(f'@Table(name = "{st.table}")')
+        java.append(f'@Table(name = "{sql_name(st.table)}")')
         if t.lombok:
             java += ["@Data", "@NoArgsConstructor"]
         java.append(f"public class {st.entity} {{\n")
@@ -712,10 +895,10 @@ class RepositoryForge:
             column = f.cobol.upper().replace("-", "_")
             if f.occurs:
                 body.append("    @ElementCollection")
-                body.append(f'    @CollectionTable(name = "{st.table}_{column.lower()}")')
+                body.append(f'    @CollectionTable(name = "{sql_name(f"{st.table}_{column.lower()}")}")')
                 body.append(f"    private List<{f.jtype}> {f.java};\n")
                 continue
-            attrs = [f'name = "{column}"', *_decimal_attrs(f)]
+            attrs = [f'name = "{sql_name(column)}"', *_decimal_attrs(f)]  # #4037: a reserved word quoted
             if f.jtype == "String" and f.bytes is not None:  # a width not known: the JPA default
                 attrs.append(f"length = {max(f.bytes, 1)}")
             if f is st.key and f.jtype == "String":
@@ -795,20 +978,22 @@ class RepositoryForge:
             "    }",
         ]
 
-    def edit_source(self) -> str | None:
+    def edit_source(self, needed: bool = False) -> str | None:
         """#3827: the CobolEdit runtime (numeric-edited PICTUREs), beside CobolRecords, or None without an
-        entity."""
-        if not self.stores:
+        entity -- unless `needed` (#3989 / #4039: a program to port -- its ticket formats edited fields through it)."""
+        if not self.stores and not needed:
             return None
         return cobol_edit_source(self.target.project.package)
 
-    def records_source(self) -> str | None:
-        """#3624: the CobolRecords runtime the record codecs share, or None without an entity."""
-        if not self.stores:
+    def records_source(self, needed: bool = False) -> str | None:
+        """#3624: the CobolRecords runtime the record codecs share, or None without an entity -- unless `needed`
+        (#3989 / #4039: a program to port -- its ticket reads numbers and fixed-width fields through it)."""
+        if not self.stores and not needed:
             return None
-        from gitgalaxy.tools.cobol_to_java.java_target import zoned_sign_characters
+        from gitgalaxy.tools.cobol_to_java.java_target import record_charset_java, zoned_sign_characters
 
         pos, neg = zoned_sign_characters(self.target.data.code_page)
+        charset = record_charset_java(self.target.data.record_charset)
 
         def escape(s: str) -> str:
             return "".join(c if 32 <= ord(c) <= 126 and c not in '\\"' else f"\\u{ord(c):04x}" for c in s)
@@ -817,6 +1002,8 @@ class RepositoryForge:
             COBOL_RECORDS_JAVA.replace("__PACKAGE__", f"{self.package}.{ENTITY_SUBPACKAGE}")
             .replace("__POSITIVE__", escape(pos))
             .replace("__NEGATIVE__", escape(neg))
+            .replace("__RECORD_CHARSET__", charset)
+            .replace("__BIDI_LAYOUT__", self.target.data.bidi_layout)
         )
 
     def key_source(self, st: Store) -> str | None:
@@ -846,7 +1033,7 @@ class RepositoryForge:
         body: list[str] = []
         for f in st.composite:
             column = f.cobol.upper().replace("-", "_")
-            attrs = [f'name = "{column}"', *_decimal_attrs(f)] + (
+            attrs = [f'name = "{sql_name(column)}"', *_decimal_attrs(f)] + (
                 [f"length = {max(f.bytes, 1)}"] if f.jtype == "String" and f.bytes is not None else []
             )
             if f.jtype == "String":
@@ -1007,7 +1194,7 @@ class RepositoryForge:
                     ops.append((f"read{name}", [f"    public Optional<{st.entity}> read{name}({kt} key) {{",
                                                 f"        return {repo_var}.findById(key);", "    }\n"]))  # fmt: skip
                 if "WRITE" in verbs:
-                    ops.append((f"write{name}", self._save(f"write{name}", st, repo_var)))
+                    ops.append((f"write{name}", self._add(f"write{name}", st, repo_var, user["name"])))
                 if "REWRITE" in verbs:
                     ops.append((f"rewrite{name}", self._save(f"rewrite{name}", st, repo_var)))
                 if "DELETE" in verbs:
@@ -1117,6 +1304,26 @@ class RepositoryForge:
         todo = (" TODO: the key is not one field, so it orders by its text, not the code page's bytes."
                 if self.target.culture.key_collation == "ebcdic" else "")  # fmt: skip
         return ["vsamKey"], f"Sequential READ: in key order (the vsamKey, #3945).{todo}"
+
+    @staticmethod
+    def _add(method: str, st: Store, repo_var: str, file: str) -> list[str]:
+        """A CICS WRITE: it adds a record, and a key already on file is DUPREC -- JPA's save alone would replace
+        that record. An ESDS / RRDS entity's generated id has no key to check: a plain save."""
+        if st.composite:
+            key = "record.getId()"
+        elif st.key is not None:
+            key = f"record.get{st.key.java[0].upper()}{st.key.java[1:]}()"
+        elif (st.raw.get("organization") or "").upper() in ("NONINDEXED", "NUMBERED"):
+            return RepositoryForge._save(method, st, repo_var)
+        else:
+            key = "record.getVsamKey()"
+        return [f"    public {st.entity} {method}({st.entity} record) {{",
+                "        // CICS WRITE adds a record: DUPREC when its key is already on file",
+                f"        Optional<{st.entity}> onFile = {repo_var}.findById({key});",
+                "        if (onFile.isPresent()) {",
+                "            throw new org.springframework.dao.DuplicateKeyException(",
+                f'                "DUPREC: CICS file {file} already holds the key of this record");',
+                "        }", f"        return {repo_var}.save(record);", "    }\n"]  # fmt: skip
 
     @staticmethod
     def _save(method: str, st: Store, repo_var: str) -> list[str]:

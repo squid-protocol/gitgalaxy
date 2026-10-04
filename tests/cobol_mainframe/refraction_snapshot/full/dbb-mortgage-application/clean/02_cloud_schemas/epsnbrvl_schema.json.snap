@@ -1,0 +1,47 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "WS_WORK_AMOUNTS",
+  "type": "object",
+  "properties": {
+    "ERROR_INDICATOR": {
+      "type": "integer",
+      "description": "Legacy PIC: 99"
+    },
+    "ERROR_TEXT": {
+      "type": "string",
+      "description": "Legacy PIC: X(80)"
+    },
+    "WS_LEADING_SPACES": {
+      "type": "integer",
+      "description": "Legacy PIC: 9(4)"
+    },
+    "WS_TRAILING_SPACES": {
+      "type": "integer",
+      "description": "Legacy PIC: 9(4)"
+    },
+    "WS_END_SPACE": {
+      "type": "integer",
+      "description": "Legacy PIC: 9(4)"
+    },
+    "WS_DECIMAL_SPACE": {
+      "type": "integer",
+      "description": "Legacy PIC: 99"
+    },
+    "WS_IDX": {
+      "type": "integer",
+      "description": "Legacy PIC: 9(2)"
+    },
+    "WS_DEC_IDX": {
+      "type": "integer",
+      "description": "Legacy PIC: 9(2)"
+    },
+    "WS_NUM_IDX": {
+      "type": "integer",
+      "description": "Legacy PIC: 9(2)"
+    },
+    "WS_MAX_FIELD": {
+      "type": "integer",
+      "description": "Legacy PIC: 9(2)"
+    }
+  }
+}

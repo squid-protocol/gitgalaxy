@@ -1,0 +1,160 @@
+name: CICS Crucible
+
+# #3989: gitgalaxy's CICS pipeline measured against cics-crucible (squid-protocol/cics-crucible),
+# an adversarial benchmark whose every scenario carries a hand-written expected event log derived
+# from IBM's documentation. tests/tools/cics_crucible.py scans each case (engine-facts), generates
+# and compiles its Spring Boot project (forge-compile), runs the COBOL task by task on the harness's
+# stub CICS runtime in GnuCOBOL (cobol-stub) and the generated services through CicsTask (java),
+# and compares each scenario with its log exactly. Most cells fail or are unsupported today: the
+# baseline (tests/cics_crucible/baseline.json) ledgers them, and this job holds it as a ratchet --
+# a cell failing that the ledger does not list fails the run, and so does a ledgered cell that now
+# passes (lower the ledger with --update-baseline), so it only ever shrinks.
+# #4023: the cobol-stub side also runs the COBOL traced (-ftraceall), and tests/cics_crucible/coverage.json
+# holds, per scenario, the paragraphs and branch outcomes it executes: a change that loses (or gains) one
+# fails the run until it is re-baselined, so a crucible change cannot silently shrink what a proof proves.
+#
+# The crucible is cloned at PINNED_REF, read straight out of tests/_cics_crucible_pin.py (there is no
+# repository variable for this pin), so a fork's pull_request run clones the same public ref with no
+# credentials. The runner's own tests run first, with EQUIVALENCE_E2E=1: the fixture case goes
+# through every side, proving the drivers before the ratchet is trusted.
+
+on:
+  pull_request:
+    branches: [main]
+    paths:
+      - "gitgalaxy/**"
+      - "pyproject.toml"
+      - "tests/tools/cics_crucible*.py"
+      - "tests/tools/crucible_port_provenance.py"
+      - "tests/tools/equivalence_cics.py"
+      - "tests/tools/cobol_coverage.py"
+      - "gitgalaxy/tools/cobol_to_cobol/cobol_graveyard_finder.py"
+      - "tests/tools/equivalence_common.py"
+      - "tests/tools/equivalence_java.py"
+      - "tests/tools/java_target_matrix.py"
+      - "tests/tools/cobol_answer_key.py"
+      - "tests/equivalence/cics/**"
+      - "tests/equivalence/gnucobol.Dockerfile"
+      - "tests/tools/equivalence_oracle.py"
+      - "tests/cics_crucible/**"
+      - "tests/_cics_crucible_pin.py"
+      - ".github/workflows/cics-crucible.yml"
+  push:
+    branches: [main]
+    paths:
+      - "gitgalaxy/**"
+      - "tests/tools/cics_crucible*.py"
+      - "tests/tools/equivalence_cics.py"
+      - "tests/tools/cobol_coverage.py"
+      - "tests/equivalence/cics/**"
+      - "tests/equivalence/gnucobol.Dockerfile"
+      - "tests/tools/equivalence_oracle.py"
+      - "tests/cics_crucible/**"
+      - "tests/_cics_crucible_pin.py"
+      - ".github/workflows/cics-crucible.yml"
+  schedule:
+    # weekly: Maven Central drift, and (#4309) whether the pinned GnuCOBOL package still installs -- Debian drops a
+    # superseded version from deb.debian.org at a point release; the pinned build then fails here, loudly
+    - cron: "41 5 * * 1"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
+
+jobs:
+  crucible:
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    env:
+      GITGALAXY_LICENSE_KEY: COMMUNITY_FREE_TIER
+      PYTHONUTF8: "1"
+    steps:
+      - name: Checkout GitGalaxy
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          path: gitgalaxy
+          persist-credentials: false
+
+      - name: Clone cics-crucible at the pin
+        run: |
+          # One line, one literal form in the pin file: see tests/_cics_crucible_pin.py.
+          ref=$(sed -n 's/^PINNED_REF = "\(.*\)"/\1/p' gitgalaxy/tests/_cics_crucible_pin.py)
+          if [ -z "$ref" ]; then
+            echo "::error title=CICS crucible pin unavailable::No PINNED_REF in gitgalaxy/tests/_cics_crucible_pin.py. If its line was reformatted, restore the one-line form or update this sed."
+            exit 1
+          fi
+          git init -q cics-crucible
+          git -C cics-crucible remote add origin https://github.com/squid-protocol/cics-crucible.git
+          if echo "$ref" | grep -Eq '^[0-9a-f]{40}$'; then
+            git -C cics-crucible fetch -q --depth 1 origin "$ref"
+          else
+            git -C cics-crucible fetch -q --depth 1 origin "+refs/tags/$ref:refs/tags/$ref"
+          fi
+          git -C cics-crucible checkout -q --detach FETCH_HEAD
+          echo "cics-crucible at $ref ($(git -C cics-crucible rev-parse HEAD))"
+
+      - name: Setup Python
+        uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97 # v7.0.0
+        with:
+          python-version: "3.12"
+          cache: "pip"
+
+      - name: Install GitGalaxy
+        run: |
+          python -m pip install --upgrade pip
+          pip install -e ./gitgalaxy pytest
+
+      - name: Setup JDK 17
+        uses: actions/setup-java@de7274f081f381c8f8158605e0321c36c376e2e6 # v6.0.1
+        with:
+          distribution: temurin
+          java-version: "17"
+
+      - name: Cache Maven dependencies
+        uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
+        with:
+          path: ~/.m2/repository
+          key: cics-crucible-m2-${{ hashFiles('gitgalaxy/gitgalaxy/tools/cobol_to_java/cobol_to_java_build_forge.py') }}
+          restore-keys: |
+            cics-crucible-m2-
+            java-compile-m2-
+
+      - name: Build the GnuCOBOL image
+        run: docker build -q -t gitgalaxy-gnucobol:3 -f gitgalaxy/tests/equivalence/gnucobol.Dockerfile gitgalaxy/tests/equivalence
+
+      # #4309: the image is the pinned oracle (base digest, gnucobol3 package, cobc --version), or the run stops here;
+      # GITGALAXY_ORACLE_STRICT below makes every later proof refuse a mismatched image too
+      - name: Check the oracle against its pin
+        run: python gitgalaxy/tests/tools/equivalence_oracle.py --strict
+
+      - name: The runner's own tests (the fixture end to end)
+        env:
+          EQUIVALENCE_E2E: "1"
+          GITGALAXY_ORACLE_STRICT: "1"
+        run: |
+          cd gitgalaxy
+          python -m pytest -q -p no:cacheprovider tests/cics_crucible
+
+      - name: Measure the crucible against the baseline
+        env:
+          GITGALAXY_ORACLE_STRICT: "1"
+        run: |
+          cd gitgalaxy
+          python tests/tools/cics_crucible.py --crucible ../cics-crucible --ci --out "$RUNNER_TEMP/cics_crucible"
+
+      - name: Publish the report
+        if: always()
+        run: |
+          if [ -f "$RUNNER_TEMP/cics_crucible/report.md" ]; then cat "$RUNNER_TEMP/cics_crucible/report.md" >> "$GITHUB_STEP_SUMMARY"; fi
+
+      - name: Upload the results
+        if: always()
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        with:
+          name: cics-crucible-results
+          path: ${{ runner.temp }}/cics_crucible
+          if-no-files-found: ignore

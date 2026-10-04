@@ -1,0 +1,89 @@
+{
+ "format": "cics-crucible-port/1",
+ "case": "hx-attr-bytes",
+ "program": "HXATTR",
+ "attempt": 1,
+ "backend": "command",
+ "model": "claude-opus-5-5",
+ "command": "claude CLI 2.1.285 print mode (claude -p --model claude-opus-5-5 --effort high --tools '' --strict-mcp-config --mcp-config '{\"mcpServers\":{}}' --no-session-persistence --system-prompt <porting system prompt>, prompt file on stdin, run from an empty directory)",
+ "proposed_at": "2026-09-29T21:43:30+00:00",
+ "ticket_sha256": "aec092ea5730d27d57dea7d1422bb2a91f854ccc1e56eea3bb42ac8152fdd112",
+ "prompt_tokens": 23194,
+ "feedback_from": null,
+ "notes": "Defects of the original kept (each commented in the code with its fix):\n- BRITEO(1:1) = LOW-VALUE: BMS does not send a field starting with X'00', so 'IGNORED' never shows; INITIAL-TEXT stays.\n- SECRETA X'4D' (DFHUNNOD) has the MDT on, so 'PASSWORD' comes back as input on every key. Fix: DFHBMDAR X'4C'.\n- RAWA X'3C' is not a valid attribute byte.\n- BLINKYA X'F1' is DFHBMASF (ASKIP + MDT), not blink. BLINKY returns as input on every key.\n- TWIDDLEA via arithmetic: X'40' + 1 = X'41', not DFHBMFSE X'C1'.\n- LEFTOVRA = DFHBMEOF X'80', an input flag used as an attribute.\n- ECHO-SCREEN falls through to a plain EXEC CICS RETURN (no TRANSID), which ends the pseudo-conversation. The RETURN at line 38 cannot be reached from FIRST-SCREEN or RESET-SCREEN.\n- ECHO-SCREEN sends the RECEIVE input flags left in the A subfields as attributes (X'80' for fields the operator erased).\n\nAssumptions and limits:\n- Hxm1Screen does not carry the RECEIVE input flags. Because of that, the echo port leaves every A byte except STAT at X'00' and cannot reproduce X'80'.\n- A received field that is null or empty keeps its low values.\n- A received field with data is padded with blanks (JUSTIFY=(LEFT,BLANK)).\n- Only non-zero A bytes are recorded as subfields. No L subfield is -1, so no cursor is recorded.\n- The WS-BITS halfword is split and joined as its two bytes directly. The ticket does not show CobolRecords.binary's signature, so it was not used; the value (64 + 1 = 65) is well inside PIC S9(4) either way.\n- executeHxattr only logs: HXATTR has no batch entry.\n- handleTransaction runs runTask with ENTER and returns the COMMAREA passed on RETURN.\n\nFacts contradicted: none. The RECEIVE RESP check on NORMAL (line 74) matches the source.",
+ "proof": {
+  "at": "2026-09-29T21:59:31+00:00",
+  "crucible_ref": "v0.1.0 (0c942cb8)",
+  "summary": {
+   "clear-maponly": "1/1",
+   "echo-dataonly": "1/1",
+   "first-display": "1/1"
+  },
+  "sibling_ports": [
+   "HXATTR"
+  ],
+  "reproven": [
+   {
+    "at": "2026-10-04T14:22:04+00:00",
+    "crucible_ref": "v0.2.0 (94f2afcb)",
+    "summary": {
+     "clear-maponly": "1/1",
+     "echo-dataonly": "1/1",
+     "first-display": "1/1",
+     "pa-key-mapfail": "1/1"
+    },
+    "port_sha256": "afe83be45184f98ee53a54f4bdc90269d9c4777917ac3d69d870144633ae3938",
+    "harness_commit": "16ae9e01515581be224b32982ceae54bc73e68fb",
+    "by": "tests/tools/crucible_port_provenance.py reprove (cics_crucible.py --sides java-ported --program HXATTR --report-dir)"
+   }
+  ]
+ },
+ "approved": false,
+ "history": [
+  {
+   "at": "2026-09-29T21:43:30+00:00",
+   "event": "proposed",
+   "attempt": 1
+  },
+  {
+   "at": "2026-09-29T21:43:56+00:00",
+   "event": "proof-failed",
+   "attempt": 1,
+   "summary": {
+    "clear-maponly": "0/1",
+    "echo-dataonly": "0/1",
+    "first-display": "0/1"
+   }
+  },
+  {
+   "at": "2026-09-29T21:45:03+00:00",
+   "event": "proof-failed",
+   "attempt": 1,
+   "summary": {
+    "clear-maponly": "0/1",
+    "echo-dataonly": "0/1",
+    "first-display": "0/1"
+   }
+  },
+  {
+   "at": "2026-09-29T21:45:32+00:00",
+   "event": "proven",
+   "attempt": 1,
+   "summary": {
+    "clear-maponly": "1/1",
+    "echo-dataonly": "1/1",
+    "first-display": "1/1"
+   }
+  },
+  {
+   "at": "2026-09-29T21:59:31+00:00",
+   "event": "proven",
+   "attempt": 1,
+   "summary": {
+    "clear-maponly": "1/1",
+    "echo-dataonly": "1/1",
+    "first-display": "1/1"
+   }
+  }
+ ]
+}

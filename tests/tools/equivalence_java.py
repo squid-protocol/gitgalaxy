@@ -20,11 +20,13 @@ Maven runs offline when the local repository already holds the build's artifacts
 
 from __future__ import annotations
 
+import json
 import os
+import re
 import shutil
 import subprocess
 from pathlib import Path
-from typing import Any
+from typing import Any, Callable
 
 import equivalence_common as common
 import java_target_matrix as jtm
@@ -56,6 +58,14 @@ def environment(name: str) -> dict[str, str]:
     return {"name": name, "locale": locale, "tz": tz or "UTC"}
 
 
+def data_charset_arg(case: dict[str, Any]) -> str:
+    """#4060: the port reads and writes record bytes in CobolRecords.charset(); the harness sets it to the case's
+    data encoding -- the bytes the COBOL side wrote -- so a port that hard-codes another charset fails."""
+    from gitgalaxy.core.ebcdic_codecs import java_charset_name
+
+    return f"-Dgitgalaxy.data.charset={java_charset_name(common.data_encoding(case))}"
+
+
 def jvm_args(env: dict[str, str]) -> str:
     """The system properties that put the generated test in `env` (see EquivalenceRunTest's static block)."""
     args = f"-Dequivalence.locale={env['locale']} -Dequivalence.tz={env['tz']}"
@@ -72,6 +82,21 @@ def _clock(case: dict[str, Any]) -> str:
     """The case's COB_CURRENT_DATE (`YYYY/MM/DD hh:mm:ss.cc`) as an ISO local date-time."""
     date, _, time = case["clock"].partition(" ")
     return f"{date.replace('/', '-')}T{time}"
+
+
+def entry_names(case: dict[str, Any]) -> list[str]:
+    """#4048 follow-up: the case's `entries` -- each a no-argument method of the service (a controller's entry,
+    executeX) that runs the whole step. Each is an entry run: the step once more through that method instead of
+    runBatch, compared with the same COBOL run, every output and the RETURN-CODE (0 when the method returns
+    normally, since it returns none). The method passes no PARM, so a case with one cannot have entries."""
+    names = [e["method"] for e in case.get("entries", [])]
+    if names and case.get("parm") is not None:
+        raise SystemExit(f"{case['name']}: an entry method passes no PARM, so it is not the step the COBOL ran "
+                         f"(PARM={case['parm']!r}): drop `entries`")
+    bad = [n for n in names if not re.fullmatch(r"[a-z][A-Za-z0-9_]*", n)]
+    if bad:
+        raise SystemExit(f"{case['name']}: entries {bad} are not Java method names")
+    return names
 
 
 def equivalence_test(case: dict[str, Any]) -> str:
@@ -99,8 +124,21 @@ def equivalence_test(case: dict[str, Any]) -> str:
     imports = "".join(
         f"import {PKG}.entity.vsam.{s['entity']};\n" for s in case["datasets"].values() if s.get("entity")
     )
+    entry_call = f"            rc = {var}.runBatch(List.of({dds}), {parm});\n"
+    if case.get("entries"):  # an entry run (equivalence.entry): the step through the program's no-argument method
+        arms = "".join(f'                case "{e}" -> {var}.{e}();\n' for e in entry_names(case))
+        entry_call = (
+            '            String entry = System.getProperty("equivalence.entry", "");\n'
+            "            if (entry.isEmpty()) {\n    " + entry_call + "            } else {\n"
+            "                switch (entry) {\n" + arms
+            + '                    default -> throw new IllegalStateException("no entry " + entry);\n'
+            "                }\n"
+            "                rc = 0;  // the method returned normally: the step ends RETURN-CODE 0 (it returns none)\n"
+            "            }\n"
+        )
     return f"""package {PKG};
 
+import {PKG}.batch.CobolAbend;
 import {PKG}.batch.Dd;
 {imports}import java.io.IOException;
 import java.nio.charset.Charset;
@@ -136,7 +174,15 @@ class EquivalenceRunTest {{
     @Test
     void run() throws IOException {{
 {chr(10).join(loads)}
-        int rc = {var}.runBatch(List.of({dds}), {parm});
+        int rc;
+        try {{
+{entry_call}        }} catch (CobolAbend abend) {{  // the step ends ABEND Unnnn, with no return code
+            Files.writeString(out.resolve("ABEND"), abend.code());
+            return;
+        }} catch (RuntimeException e) {{  // an abend the port did not code as one: never equal to the COBOL's
+            Files.writeString(out.resolve("ABEND"), ("UNCODED " + e).lines().findFirst().orElse("UNCODED"));
+            return;
+        }}
         Files.writeString(out.resolve("RETURN-CODE"), Integer.toString(rc));
 {chr(10).join(dumps)}
     }}
@@ -167,33 +213,258 @@ def prepare_project(case: dict[str, Any], corpus: Path, work: Path, test_source:
     """The generated project (config `h2`) with the port overlaid and `test_source` as its
     EquivalenceRunTest. `port` False keeps the generated service as generated (the stub)."""
     work.mkdir(parents=True, exist_ok=True)
-    clean = jtm.refactor(corpus, work, scan=True)
-    # #3828: a case's `culture` (e.g. {"db2_date_format": "eur"}) is the Java side's target config too
-    config = {**jtm.MATRIX["h2"], "culture": case["culture"]} if case.get("culture") else jtm.MATRIX["h2"]
-    project = jtm.generate(clean, "h2", config, work)
     # #3753: any candidate port, laid out the same way; #3804: a case may prove another case's port
     port_dir = port_dir or CASES / case.get("port_from", case["name"]) / "port"
-    for f in port_dir.rglob("*.java") if port else []:
-        dest = project / "src/main/java" / PKG_DIR / f.relative_to(port_dir)
+    overlay = (
+        sorted(f.relative_to(port_dir).as_posix() for f in port_dir.rglob("*.java"))
+        if port and port_dir.is_dir()
+        else []
+    )
+    # A program that CALLs another (COTRN02C -> CSUTLDTC) runs against that program's proven port, never its
+    # generated stub: `uses_ports` names the cases whose ports are laid first; the case's own port is laid last.
+    used = [(CASES / other / "port", rel) for other in case.get("uses_ports", [])
+            for rel in sorted(f.relative_to(CASES / other / "port").as_posix()
+                              for f in (CASES / other / "port").rglob("*.java"))]  # fmt: skip
+    # (merged before --reuse compares it with the earlier run's: both carry the borrowed files)
+    overlay = [rel for _, rel in used if rel not in overlay] + overlay
+    earlier = common.reused(work)
+    if earlier is not None:  # --reuse: the earlier run's project, built from the same estate by the same generator
+        project = _reused_project(earlier, work, overlay)
+    else:
+        import equivalence_cache
+
+        clean = equivalence_cache.refactor(corpus, work, scan=True)  # (once per corpus and engine: every case's)
+        # #3828: a case's `culture` (e.g. {"db2_date_format": "eur"}) is the Java side's target config too
+        config = {**jtm.MATRIX["h2"], "culture": case["culture"]} if case.get("culture") else jtm.MATRIX["h2"]
+        project = jtm.generate(clean, "h2", config, work)
+    (project / OVERLAY_FILE).write_text(json.dumps(overlay) + "\n", encoding="utf-8")
+    sources = {rel: (port_dir / rel if (port_dir / rel).is_file() else next(d / r for d, r in used if r == rel))
+               for rel in overlay}  # fmt: skip
+    # #4188: a port proven with the programs its task LINKs to runs them as Java too, never as their stubs
+    if port and port_dir.is_dir() and case.get("programs"):
+        linked, origins = linked_programs(case, corpus, project, sources, work)
+        overlay = overlay + [rel for rel in linked if rel not in sources]
+        sources.update(linked)
+        (work / LINKED_FILE).write_text(json.dumps(origins, indent=2) + "\n", encoding="utf-8")
+    for rel in overlay:
+        dest = project / "src/main/java" / PKG_DIR / rel
         dest.parent.mkdir(parents=True, exist_ok=True)
-        shutil.copy(f, dest)
+        keep_generated(dest, project, rel)
+        shutil.copy(sources[rel], dest)
+    if earlier is not None and overlay:
+        _compile_overlay(project, earlier, overlay, work)
+    if case.get("db2"):  # IBM's JDBC driver, and the Db2 repositories on the harness's Db2
+        import equivalence_db2
+
+        equivalence_db2.patch_project(project, PKG)
     test = project / "src/test/java" / PKG_DIR / "EquivalenceRunTest.java"
     test.parent.mkdir(parents=True, exist_ok=True)
     test.write_text(test_source, encoding="utf-8")
     return project
 
 
-def run_maven(project: Path, work: Path, inputs: Path, env: dict[str, str] | None = None) -> Path:
-    """Run EquivalenceRunTest in `env` (#3821; default: `default`); the directory it wrote its outputs to."""
+# #4048: the generated file each overlay file replaced, kept beside the project, so the evidence record can tell a
+# method the port left as generated from one it ported (proof_reach's `generated`)
+GENERATED_KEEP = "generated_before_overlay"
+
+
+def keep_generated(dest: Path, project: Path, rel: str) -> None:
+    """Before an overlay file replaces `dest`, keep the generated one (once) under ../generated_before_overlay/rel."""
+    kept = project.parent / GENERATED_KEEP / rel
+    if dest.is_file() and not kept.exists():
+        kept.parent.mkdir(parents=True, exist_ok=True)
+        shutil.copyfile(dest, kept)
+
+
+OVERLAY_FILE = "equivalence_overlay.json"  # the port files laid over the generated project, for --reuse
+LINKED_FILE = "linked_programs.json"  # #4188: where each LINKed program's Java came from, for the report
+
+
+def linked_programs(case: dict[str, Any], corpus: Path, project: Path, sources: dict[str, Path],
+                    work: Path) -> tuple[dict[str, Path], dict[str, str]]:  # fmt: skip
+    """The Java of each program the case's task LINKs to (`"programs"`), for a port's proof (#4188): the port's own
+    service when it carries one, else the program's committed model port (the case that proves it), else its
+    deterministic translation from this checkout -- {published path: source}, and {program: origin}."""
+    from gitgalaxy.tools.cobol_to_java.det import program as P
+
+    files: dict[str, Path] = {}
+    origins: dict[str, str] = {}
+    for extra in case["programs"]:
+        prog = extra["program"].upper()
+        rel = f"service/{_service_class(prog)}.java"
+        if rel in sources:
+            origins[prog] = "the port under proof"
+            continue
+        proving = sorted(c.parent for c in CASES.glob("*/case.json")
+                         if (c.parent / "port" / rel).is_file()
+                         and json.loads(c.read_text(encoding="utf-8")).get("program", "").upper() == prog)  # fmt: skip
+        if proving:
+            other = proving[0] / "port"
+            for f in sorted(other.rglob("*.java")):
+                files.setdefault(f.relative_to(other).as_posix(), f)
+            origins[prog] = f"committed model port ({proving[0].name})"
+            continue
+        dirs = [corpus / d for d in case.get("copy_dirs", ["app/cpy"])]
+        dirs += [corpus / d for d in (case.get("db2") or {}).get("include_dirs", [])]
+        stub = (project / "src/main/java" / PKG_DIR / rel).read_text(encoding="utf-8")
+        r = P.translate(corpus / extra["program_source"], dirs, stub, PKG, P.estate_files(project), project,
+                        options=case.get("compiler_options"))  # fmt: skip
+        out = work / "linked" / rel
+        out.parent.mkdir(parents=True, exist_ok=True)
+        out.write_text(r.java, encoding="utf-8")
+        files[rel] = out
+        for rt, text in P.runtime_files(PKG, P.has_batch(project)).items():
+            dest = work / "linked" / rt
+            dest.parent.mkdir(parents=True, exist_ok=True)
+            dest.write_text(text, encoding="utf-8")
+            files.setdefault(rt, dest)
+        origins[prog] = f"det port (translated from {extra['program_source']})"
+    return files, origins
+
+
+def _reused_project(earlier: Path, work: Path, overlay: list[str]) -> Path:
+    """The earlier run's generated project, copied (its build too): only valid when the port covers the same
+    files, so that every one the earlier port replaced is replaced again."""
+    poms = sorted(earlier.glob(f"*/{OVERLAY_FILE}"))
+    if len(poms) != 1:
+        raise RuntimeError(f"--reuse: no single generated project under {earlier}")
+    before = json.loads(poms[0].read_text(encoding="utf-8"))
+    if before != overlay:
+        raise RuntimeError(f"--reuse: the port's files {overlay} are not the earlier run's {before}")
+    project = work / poms[0].parent.name
+    shutil.copytree(poms[0].parent, project, dirs_exist_ok=True, ignore=shutil.ignore_patterns("surefire-reports"))
+    (project / PRECOMPILED).unlink(missing_ok=True)
+    return project
+
+
+# javac exactly as the generated pom's maven-compiler-plugin runs it (Spring Boot's parent: -parameters, release 17;
+# Lombok found on the classpath)
+JAVAC_OPTIONS = ["-g", "-parameters", "--release", "17", "-encoding", "UTF-8", "-nowarn"]
+PRECOMPILED = "target/equivalence-precompiled"  # present: the main classes are built, Maven skips compiling them
+TEST_CLASSPATH = "target/equivalence-test-classpath"  # --reuse: the classpath the tests run on, this project's
+TEST_SOURCE = "target/equivalence-test-source"  # the EquivalenceRunTest source target/test-classes was built from
+TEST_FILE = f"src/test/java/{PKG_DIR}/EquivalenceRunTest.java"
+RUNNER = f"""import org.junit.platform.launcher.core.LauncherDiscoveryRequestBuilder;
+import org.junit.platform.launcher.core.LauncherFactory;
+import org.junit.platform.launcher.listeners.SummaryGeneratingListener;
+import org.junit.platform.launcher.listeners.TestExecutionSummary;
+import static org.junit.platform.engine.discovery.DiscoverySelectors.selectClass;
+
+/** --reuse: EquivalenceRunTest without Maven -- the JUnit Platform launcher surefire itself drives, in a fresh JVM. */
+public class EquivalenceMain {{
+    public static void main(String[] args) {{
+        SummaryGeneratingListener listener = new SummaryGeneratingListener();
+        LauncherFactory.create().execute(LauncherDiscoveryRequestBuilder.request()
+                .selectors(selectClass("{PKG}.EquivalenceRunTest")).build(), listener);
+        TestExecutionSummary s = listener.getSummary();
+        s.printFailuresTo(new java.io.PrintWriter(System.out, true), 40);
+        System.out.println("Tests run: " + s.getTestsFoundCount() + ", Failures: " + s.getTotalFailureCount());
+        System.exit(s.getTestsSucceededCount() == 1 && s.getTotalFailureCount() == 0 ? 0 : 1);
+    }}
+}}
+"""
+
+
+def _launcher(classpath: list[str]) -> Path | None:
+    """The junit-platform-launcher jar of the platform version the tests run on (surefire resolved it into the
+    local repository), or None."""
+    import re
+
+    for e in classpath:
+        m = re.search(r"(.*)/junit-platform-engine/([^/]+)/junit-platform-engine-\2\.jar$", e)
+        if m:
+            jar = (
+                Path(m.group(1)) / "junit-platform-launcher" / m.group(2) / f"junit-platform-launcher-{m.group(2)}.jar"
+            )
+            return jar if jar.is_file() else None
+    return None
+
+
+def _runner(launcher: Path, java_bin: Path, classpath: str, shell: dict[str, str]) -> Path:
+    """EquivalenceMain, compiled once per launcher version and runner source (shared by every mutant's proof)."""
+    import hashlib
+    import tempfile
+
+    key = hashlib.sha256((str(launcher) + RUNNER).encode()).hexdigest()[:12]
+    runner = Path(tempfile.gettempdir()) / f"gitgalaxy-equivalence-runner-{key}"
+    if (runner / "EquivalenceMain.class").is_file():
+        return runner
+    build = Path(tempfile.mkdtemp(prefix="equivalence-runner-"))
+    (build / "EquivalenceMain.java").write_text(RUNNER, encoding="utf-8")
+    subprocess.run([str(java_bin / "javac"), "-nowarn", "-d", str(build), "-cp", classpath,  # noqa: S603
+                    str(build / "EquivalenceMain.java")], env=shell, check=True, capture_output=True)  # fmt: skip
+    try:
+        build.rename(runner)  # atomic: a proof running beside this one may have made it first
+    except OSError:
+        shutil.rmtree(build, ignore_errors=True)
+    return runner
+
+
+def _run_direct(project: Path, argline: str, shell: dict[str, str]) -> subprocess.CompletedProcess[str] | None:
+    """--reuse: the test in a fresh JVM without Maven, when that is the same run -- the main classes compiled from
+    the port, the test classes from this very test source; else None (Maven runs it)."""
+    import shlex
+
+    test, snapshot, cp_file = project / TEST_FILE, project / TEST_SOURCE, project / TEST_CLASSPATH
+    if not ((project / PRECOMPILED).is_file() and cp_file.is_file() and snapshot.is_file()
+            and snapshot.read_bytes() == test.read_bytes()):  # fmt: skip
+        return None
+    classpath = cp_file.read_text(encoding="utf-8").split(os.pathsep)
+    launcher = _launcher(classpath)
+    if launcher is None:
+        return None
+    java_bin = Path(shell["JAVA_HOME"]) / "bin"
+    runner = _runner(launcher, java_bin, os.pathsep.join([*classpath, str(launcher)]), shell)
+    full = os.pathsep.join([*classpath, str(launcher), str(runner)])
+    return subprocess.run([str(java_bin / "java"), *shlex.split(argline), "-cp", full, "EquivalenceMain"],  # noqa: S603
+                          cwd=project, env=shell, capture_output=True, text=True, check=False)  # fmt: skip
+
+
+def _compile_overlay(project: Path, earlier: Path, overlay: list[str], work: Path) -> None:
+    """--reuse: compile only the port's files into the copied build (the rest of it is the earlier run's, from the
+    same sources), against the classpath the earlier run's tests ran on. A compile error is the Java side failing,
+    as Maven's would be."""
+    import xml.etree.ElementTree as ET
+
+    reports = sorted(earlier.glob("*/target/surefire-reports/TEST-*.xml"))
+    if not reports:
+        raise RuntimeError(f"--reuse: {earlier} has no surefire report to take the classpath from")
+    props = {p.get("name"): p.get("value") for p in ET.parse(reports[0]).iter("property")}  # noqa: S314
+    old = str(reports[0].parents[2])
+    entries = [e.replace(old, str(project)) for e in props["surefire.test.class.path"].split(os.pathsep)]
+    classpath = os.pathsep.join(e for e in entries if not e.endswith("test-classes"))
+    (project / TEST_CLASSPATH).write_text(os.pathsep.join(entries), encoding="utf-8")
+    classes = project / "target" / "classes"
+    sources = [str(project / "src/main/java" / PKG_DIR / rel) for rel in overlay]
+    env = dict(os.environ, JAVA_HOME=jtm._jdk(17))
+    javac = str(Path(env["JAVA_HOME"]) / "bin" / "javac")
+    proc = subprocess.run([javac, *JAVAC_OPTIONS, "-d", str(classes), "-cp", classpath, *sources],  # noqa: S603
+                          env=env, capture_output=True, text=True, check=False)  # fmt: skip
+    if proc.returncode != 0:
+        errors = [f"[ERROR] {x}" for x in proc.stderr.splitlines() if ": error: " in x]
+        (work / "maven.log").write_text("\n".join(errors) + "\n" + proc.stderr, encoding="utf-8")
+        raise RuntimeError(f"Java side failed (see {work / 'maven.log'}):\n" + "\n".join(errors[:20]))
+    (project / PRECOMPILED).write_text("", encoding="utf-8")
+
+
+def run_maven(project: Path, work: Path, inputs: Path, env: dict[str, str] | None = None, props: str = "") -> Path:
+    """Run EquivalenceRunTest in `env` (#3821; default: `default`), with more system properties `props`; the
+    directory it wrote its outputs to."""
     out, datasets = work / "out", work / "datasets"
     for d in (out, datasets):
         d.mkdir(parents=True, exist_ok=True)
-    props = jvm_args(env or environment("default"))
+    props = f"{jvm_args(env or environment('default'))} {props}".strip()
     shell = dict(os.environ, JAVA_HOME=jtm._jdk(17))
     shell["PATH"] = str(Path(shell["JAVA_HOME"]) / "bin") + os.pathsep + shell["PATH"]
-    cmd = ["mvn", "-q", "-B", "test", "-Dtest=EquivalenceRunTest", "-Dsurefire.failIfNoSpecifiedTests=false",
-           f"-DargLine=-Dequivalence.in={inputs} -Dequivalence.out={out} -Dequivalence.datasets={datasets} {props}"]  # fmt: skip
-    proc = subprocess.run(cmd, cwd=project, env=shell, capture_output=True, text=True, check=False)  # noqa: S603
+    argline = f"-Dequivalence.in={inputs} -Dequivalence.out={out} -Dequivalence.datasets={datasets} {props}"
+    proc = _run_direct(project, argline, shell)
+    if proc is None:
+        skip = ["-Dmaven.main.skip=true"] if (project / PRECOMPILED).is_file() else []  # --reuse: compiled already
+        cmd = ["mvn", "-q", "-B", "test", *skip, "-Dtest=EquivalenceRunTest", "-Dsurefire.failIfNoSpecifiedTests=false",
+               f"-DargLine={argline}"]  # fmt: skip
+        proc = subprocess.run(cmd, cwd=project, env=shell, capture_output=True, text=True, check=False)  # noqa: S603
+        if proc.returncode == 0 and (project / TEST_FILE).is_file():  # target/test-classes is this source's build
+            (project / TEST_SOURCE).write_bytes((project / TEST_FILE).read_bytes())
     (work / "maven.log").write_text(proc.stdout + proc.stderr, encoding="utf-8")
     if proc.returncode != 0:
         tail = "\n".join((proc.stdout + proc.stderr).splitlines()[-60:])
@@ -212,9 +483,15 @@ def run_java(
 
 def run_java_environments(
     case: dict[str, Any], corpus: Path, work: Path, inputs: Path, envs: list[dict[str, str]], port: bool = True,
-    port_dir: Path | None = None,
+    port_dir: Path | None = None, faults: tuple[tuple[str, ...], ...] = (),
+    stop: Callable[[str, dict[str, bytes]], bool] | None = None, entries: tuple[str, ...] = (),
 ) -> dict[str, dict[str, bytes]]:  # fmt: skip
-    """#3821: the project built once, run in each environment from a fresh work area; {env name: {dd: bytes}}."""
+    """#3821: the project built once, run in each environment from a fresh work area; {env name: {dd: bytes}}.
+    #4023 follow-up: each of `faults` ((name, plan text)) runs once more in the first environment with the
+    plan as gitgalaxy.faults.plan, as `fault:<name>` -- its outputs, and ABEND / FAULTS (the faults that fired).
+    `stop(name, outputs)` True after a run ends there: the runs not made are missing from the result.
+    #4048 follow-up: each of `entries` (entry_names) runs once more in the first environment through that
+    method, as `entry:<name>`."""
     project = prepare_project(case, corpus, work, equivalence_test(case), port, port_dir)
     runs: dict[str, dict[str, bytes]] = {}
     for env in envs:
@@ -224,11 +501,59 @@ def run_java_environments(
         for dd, spec in case["datasets"].items():  # a sequential input is a file the program opens itself
             if "input" in spec and not spec.get("entity"):
                 shutil.copy(inputs / f"{dd}.in", datasets / dd)
-        out = run_maven(project, area, inputs, env)
-        outs = {dd: out / f"{dd}.out" for dd, spec in case["datasets"].items() if spec.get("compare")}
-        outs["RETURN-CODE"] = out / "RETURN-CODE"
-        read = {dd: f.read_bytes() for dd, f in outs.items() if f.is_file()}  # a stub may write nothing
-        if "RETURN-CODE" in read:
-            read["RETURN-CODE"] = read["RETURN-CODE"].strip()  # a number, not a record: whitespace is not data
-        runs[env["name"]] = read
+        runs[env["name"]] = _run_area(case, project, area, inputs, env)
+        if stop and stop(env["name"], runs[env["name"]]):
+            return runs
+    for name, plan, *sql in faults:
+        area = work / "faults" / name
+        (area / "out").mkdir(parents=True, exist_ok=True)
+        (area / "fault.plan").write_text(plan, encoding="ascii")
+        props = f"-Dgitgalaxy.faults.plan={area / 'fault.plan'} -Dgitgalaxy.faults.log={area / 'out' / 'FAULTS'}"
+        if sql and sql[0]:  # #4173: the run's SQL faults, to the det runtime's DetSql (the same log)
+            (area / "sqlfaults.plan").write_text(sql[0] + "\n", encoding="ascii")
+            props += (
+                f" -Dgitgalaxy.sqlfaults.plan={area / 'sqlfaults.plan'}"
+                f" -Dgitgalaxy.sqlfaults.log={area / 'out' / 'FAULTS'}"
+            )
+        read = _run_area(case, project, area, inputs, envs[0], props)
+        read.setdefault("FAULTS", b"")
+        runs[f"fault:{name}"] = read
+        if stop and stop(f"fault:{name}", read):
+            return runs
+    for name in entries:
+        area = work / "entries" / name
+        (area / "out").mkdir(parents=True, exist_ok=True)
+        runs[f"entry:{name}"] = _run_area(case, project, area, inputs, envs[0], f"-Dequivalence.entry={name}")
+        if stop and stop(f"entry:{name}", runs[f"entry:{name}"]):
+            return runs
     return runs
+
+
+def _run_area(case: dict[str, Any], project: Path, area: Path, inputs: Path, env: dict[str, str],
+              props: str = "") -> dict[str, bytes]:  # fmt: skip
+    """One run of the step from a fresh datasets area: {dd: bytes}, RETURN-CODE or ABEND, and FAULTS."""
+    datasets = area / "datasets"
+    datasets.mkdir(parents=True, exist_ok=True)
+    for dd, spec in case["datasets"].items():  # a sequential input is a file the program opens itself
+        if "input" in spec and not spec.get("entity"):
+            shutil.copy(inputs / f"{dd}.in", datasets / dd)
+    sysout = area / "out" / "SYSOUT"  # #4056: what the port DISPLAYs (the generated Sysout appends to it)
+    sysout.parent.mkdir(parents=True, exist_ok=True)
+    sysout.unlink(missing_ok=True)
+    if case.get("db2"):  # the tables as the seed has them, the Db2 repositories on the harness's Db2
+        import equivalence_db2
+
+        equivalence_db2.reset(case, Path("."))
+        props = f"{props} {equivalence_db2.java_props(case)}"
+    out = run_maven(project, area, inputs, env, f"{props} -Dgitgalaxy.sysout={sysout} {data_charset_arg(case)}".strip())
+    outs = {dd: out / f"{dd}.out" for dd, spec in case["datasets"].items() if spec.get("compare")}
+    for extra in ("RETURN-CODE", "ABEND", "FAULTS"):
+        outs[extra] = out / extra
+    read = {dd: f.read_bytes() for dd, f in outs.items() if f.is_file()}  # a stub may write nothing
+    read["SYSOUT"] = sysout.read_bytes() if sysout.is_file() else b""
+    if case.get("db2"):
+        read.update(equivalence_db2.outputs(case))
+    for extra in ("RETURN-CODE", "ABEND"):  # a code, not a record: whitespace is not data
+        if extra in read:
+            read[extra] = read[extra].strip()
+    return read

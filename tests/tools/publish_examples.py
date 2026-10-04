@@ -214,6 +214,8 @@ def build_equivalence(out: Path, work: Path, finished: Optional[Path]) -> list[d
 
     results = []
     for case_file in sorted(eq.CASES.glob("*/case.json")):
+        if not (case_file.parent / "port").is_dir():  # a case with no port to publish (det-port only, a benchmark)
+            continue
         name = case_file.parent.name
         case = eq.load_case(name)
         dest = out / "equivalence" / name

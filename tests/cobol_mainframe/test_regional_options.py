@@ -257,8 +257,10 @@ def test_db2_dates_formats_and_parses_as_db2(tmp_path, fmt, date, time):
 PLAIN = "       IDENTIFICATION DIVISION.\n       PROGRAM-ID. P.\n"
 
 
-def test_the_harness_default_is_unchanged():
-    assert common.compile_options({}, PLAIN) == (PLAIN, [])
+def test_the_harness_default_is_ibms():
+    """#4102: no option named is IBM's defaults -- TRUNC(STD) is GnuCOBOL's -fbinary-truncate (`-std=ibm` alone keeps a
+    binary item's bytes, TRUNC(BIN)); the other defaults are GnuCOBOL's own behaviour."""
+    assert common.compile_options({}, PLAIN) == (PLAIN, ["-fbinary-truncate"])
 
 
 def test_the_harness_maps_what_gnucobol_can_honour():
@@ -267,10 +269,10 @@ def test_the_harness_maps_what_gnucobol_can_honour():
     # the program's own cards are blanked (GnuCOBOL rejects CBL) and override the case's PARM
     src = "       CBL TRUNC(STD),APOST,CICS('SP,EDF')\n" + PLAIN
     text, flags = common.compile_options({"compiler_options": ["TRUNC(BIN)"]}, src)
-    assert text == "\n" + PLAIN and flags == []
+    assert text == "\n" + PLAIN and flags == ["-fbinary-truncate"]
 
 
-@pytest.mark.parametrize("option", ["INTDATE(LILIAN)", "ARITH(EXTEND)", "NUMPROC(PFD)", "TRUNC(OPT)"])
+@pytest.mark.parametrize("option", ["INTDATE(LILIAN)", "ARITH(EXTEND)", "TRUNC(OPT)"])
 def test_the_harness_refuses_what_gnucobol_cannot_honour(option):
     with pytest.raises(common.UnsupportedOption, match="GnuCOBOL 3.1 has no equivalent"):
         common.compile_options({"compiler_options": [option]}, PLAIN)

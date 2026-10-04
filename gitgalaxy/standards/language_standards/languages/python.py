@@ -15,13 +15,15 @@ from gitgalaxy.standards.language_standards.identifiers import ID_CONTINUE, ID_S
 
 from .._shared_patterns import (
     CALLS_OUT_C_STYLE,
-    GLOBAL_DL_FRAMEWORKS,
     GLOBAL_FRAGILE_DEBT,
-    GLOBAL_LLM_API,
-    GLOBAL_LLM_ORCHESTRATOR,
-    GLOBAL_LLM_VECTOR_STORE,
-    GLOBAL_ML_TRADITIONAL,
     GLOBAL_PLANNED_DEBT,
+    PY_CRYPTOGRAPHY,
+    PY_DL_FRAMEWORKS,
+    PY_HARDWARE_BRIDGE,
+    PY_LLM_API,
+    PY_LLM_ORCHESTRATOR,
+    PY_LLM_VECTOR_STORE,
+    PY_ML_TRADITIONAL,
 )
 
 DEFINITION: dict[str, Any] = {
@@ -368,25 +370,21 @@ DEFINITION: dict[str, Any] = {
             r"\[[^\]]{0,500}\bfor\b[^\]]{0,500}\]|\{[^}]{0,500}\bfor\b[^}]{0,500}\}|\([^)]{0,500}\bfor\b[^)]{0,500}\)"
         ),
         "scientific": re.compile(r"\b(?:import|require|from)\b.*?(?:numpy|pandas|scipy|matplotlib|opencv|cv2)\b"),
-        "hardware_bridge": re.compile(
-            r"\b(?:import|require|from)\b.*?(?:serialport|usb|bluetooth|socket\.io|websocket|printer|webgl)\b"
-        ),
-        "cryptography": re.compile(
-            # #2898: hashlib/hmac added -- the stdlib's own crypto modules were missing
-            # from the name list, so files importing them read 0.
-            r"\b(?:import|require|from)\b.*?(?:crypto|bcrypt|x509|tls|ssl|jsonwebtoken|argon2|hashlib|hmac)\b"
-        ),
+        # hardware_bridge / cryptography (#4238): anchored on the top-level package, see
+        # _shared_patterns.py. #2898 added hashlib/hmac to the cryptography names.
+        "hardware_bridge": PY_HARDWARE_BRIDGE,
+        "cryptography": PY_CRYPTOGRAPHY,
         # 23. heat_triggers (Metaprogramming & Reflection)
         # Metaprogramming and class-level binding.
         "reflection_metaprogramming": re.compile(
             r"__(?:getattr|setattr|del|call|new|metaclass|dict|dir|import)__|@(?:staticmethod|classmethod|property)|\b(?:getattr|setattr|inspect\.)\b"
         ),
         # --- AI & LLM SDK SENSORS (GLOBAL_, see #322) ---
-        "llm_api": GLOBAL_LLM_API,
-        "llm_orchestrator": GLOBAL_LLM_ORCHESTRATOR,
-        "llm_vector_store": GLOBAL_LLM_VECTOR_STORE,
-        "ml_traditional": GLOBAL_ML_TRADITIONAL,
-        "dl_frameworks": GLOBAL_DL_FRAMEWORKS,
+        "llm_api": PY_LLM_API,
+        "llm_orchestrator": PY_LLM_ORCHESTRATOR,
+        "llm_vector_store": PY_LLM_VECTOR_STORE,
+        "ml_traditional": PY_ML_TRADITIONAL,
+        "dl_frameworks": PY_DL_FRAMEWORKS,
         # 24. import (Dependency Inclusions)
         # #2875 contract C5: statement position -- 279 of python's 1,925 crucible hits
         # were doctest `>>> import numpy as np` lines inside docstrings (strings count
@@ -498,8 +496,16 @@ DEFINITION: dict[str, Any] = {
             # #2898: the matrix-multiply `@` operand gap must stay on one line --
             # `\s*` crossed newlines, so a decorator under any expression counted
             # (892 of the 898 crucible hits were decorator lines).
-            r"\b(einsum|matmul|tensordot|vdot|bmm)\b|\.dot\s*\(|(?<=[a-zA-Z0-9_\]\)])[ \t]*@[ \t]*(?=[a-zA-Z0-9_\[\(])"
+            # #4136: the augmented form `a @= b` is the same operator (the `=`
+            # failed the operand lookahead). Strings and comments are excluded
+            # by the `outside_literals` scope filter below, not here.
+            r"\b(einsum|matmul|tensordot|vdot|bmm)\b|\.dot\s*\("
+            r"|(?<=[a-zA-Z0-9_\]\)])[ \t]*@(?:=|[ \t]*(?=[a-zA-Z0-9_\[\(]))"
         ),
+        # #4136: the code stream keeps string literals, so `"gecko@003"` and an
+        # `"a@example.com"` fixture read as matmul. Drop matches that touch a
+        # string or comment (detector.py's `_apply_scope_filter`).
+        "_scope_filters": {"vectorized_math": "outside_literals"},
         # --- PHASE 3: HYBRID DOMAIN SENSORS (Python Specifics) ---
         # auth_middleware (#3004): django/flask's gate decorators, the permission
         # query on a user object, and the credential-verification and session

@@ -21,9 +21,11 @@
       "abap/abapGit/zcl_abapgit_xml_output.clas.abap": []
     },
     "ada": {
-      "ada/PROVENANCE.md": []
+      "ada/PROVENANCE.md": [],
+      "ada/SOURCES.md": []
     },
     "ada/alire": {
+      "ada/alire/LICENSE.txt": [],
       "ada/alire/alire-conditional_trees.adb": [
         "Ada.Containers.Indefinite_Ordered_Maps",
         "Alire.TOML_Adapters"
@@ -976,68 +978,17 @@
       "assembly/os_tutorial_x86/14-checkpoint_boot_gdt.asm": [],
       "assembly/os_tutorial_x86/14-checkpoint_boot_kernel_entry.asm": []
     },
-    "assembly/raspberrypi_baremetal": {
-      "assembly/raspberrypi_baremetal/Compress_HUFFMAN_HUFFMANDecode_kernel.asm": [
-        "LIB\\FASMARM.INC",
-        "LIB\\R_PI.INC"
-      ],
-      "assembly/raspberrypi_baremetal/Compress_HUFFMAN_HUFFMANDecode_kernel7.asm": [
-        "LIB\\FASMARM.INC",
-        "LIB\\R_PI2.INC"
-      ],
-      "assembly/raspberrypi_baremetal/Compress_HUFFMAN_HUFFMANDecode_kernel8.asm": [
-        "LIB\\R_PI2.INC"
-      ],
-      "assembly/raspberrypi_baremetal/Compress_HUFFMAN_HUFFMANGFX_kernel.asm": [
-        "LIB\\FASMARM.INC",
-        "LIB\\R_PI.INC"
-      ],
-      "assembly/raspberrypi_baremetal/Compress_HUFFMAN_HUFFMANGFX_kernel7.asm": [
-        "LIB\\FASMARM.INC",
-        "LIB\\R_PI2.INC"
-      ],
-      "assembly/raspberrypi_baremetal/Compress_HUFFMAN_HUFFMANGFX_kernel8.asm": [
-        "LIB\\R_PI2.INC"
-      ],
-      "assembly/raspberrypi_baremetal/Compress_LZ77_LZ77Decode_kernel.asm": [
-        "LIB\\FASMARM.INC",
-        "LIB\\R_PI.INC"
-      ],
-      "assembly/raspberrypi_baremetal/Compress_LZ77_LZ77Decode_kernel7.asm": [
-        "LIB\\FASMARM.INC",
-        "LIB\\R_PI2.INC"
-      ],
-      "assembly/raspberrypi_baremetal/Compress_LZ77_LZ77Decode_kernel8.asm": [
-        "LIB\\R_PI2.INC"
-      ],
-      "assembly/raspberrypi_baremetal/Compress_LZ77_LZ77GFX_kernel.asm": [
-        "LIB\\FASMARM.INC",
-        "LIB\\R_PI.INC"
-      ],
-      "assembly/raspberrypi_baremetal/Compress_LZ77_LZ77GFX_kernel7.asm": [
-        "LIB\\FASMARM.INC",
-        "LIB\\R_PI2.INC"
-      ],
-      "assembly/raspberrypi_baremetal/Compress_LZ77_LZ77GFX_kernel8.asm": [
-        "LIB\\R_PI2.INC"
-      ],
-      "assembly/raspberrypi_baremetal/EMU_GameBoy_kernel.asm": [
-        "CPU.asm",
-        "IOPORT.asm",
-        "LIB\\FASMARM.INC",
-        "LIB\\R_PI.INC",
-        "MEM.INC",
-        "VIDEO.asm"
-      ],
-      "assembly/raspberrypi_baremetal/HelloWorld_CPU_kernel7.asm": [
-        "Font8x8.asm",
-        "LIB\\FASMARM.INC",
-        "LIB\\R_PI2.INC"
-      ],
-      "assembly/raspberrypi_baremetal/HelloWorld_CPU_kernel8.asm": [
-        "Font8x8.asm",
-        "LIB\\R_PI2.INC"
-      ]
+    "assembly/rpi_smartstart_baremetal": {
+      "assembly/rpi_smartstart_baremetal/10_virtualmemory_SmartStart32.S": [],
+      "assembly/rpi_smartstart_baremetal/10_virtualmemory_SmartStart64.S": [],
+      "assembly/rpi_smartstart_baremetal/Arm32_64_USB_SmartStart32.S": [],
+      "assembly/rpi_smartstart_baremetal/Arm32_64_USB_SmartStart64.S": [],
+      "assembly/rpi_smartstart_baremetal/Core3Interrupt_SmartStart64.S": [],
+      "assembly/rpi_smartstart_baremetal/FreeRTOSv10.1.1_loader_RaspberryPi_SmartStart32.S": [],
+      "assembly/rpi_smartstart_baremetal/FreeRTOSv10.1.1_loader_RaspberryPi_SmartStart64.S": [],
+      "assembly/rpi_smartstart_baremetal/Multicore_SmartStart32.S": [],
+      "assembly/rpi_smartstart_baremetal/Multicore_SmartStart64.S": [],
+      "assembly/rpi_smartstart_baremetal/SimpleSched_SmartStart32.S": []
     },
     "assembly/x86_bare_metal": {
       "assembly/x86_bare_metal/LICENSE.adoc": [],
@@ -1093,6 +1044,9 @@
       "blueprint/ghostty/split-tree.blp": [],
       "blueprint/ghostty/window.blp": []
     },
+    "bms": {
+      "bms/SOURCES.md": []
+    },
     "bms/cbsa": {
       "bms/cbsa/BNK1ACC.bms": [],
       "bms/cbsa/BNK1CAM.bms": [],
@@ -1103,11 +1057,20 @@
       "bms/cbsa/BNK1MAI.bms": [],
       "bms/cbsa/BNK1TFM.bms": [],
       "bms/cbsa/BNK1UAM.bms": [],
-      "bms/cbsa/PROVENANCE.md": [],
-      "bms/cbsa/ssmap.bms": []
+      "bms/cbsa/PROVENANCE.md": []
+    },
+    "bms/genapp": {
+      "bms/genapp/ssmap.bms": []
     },
     "c": {
       "c/SOURCES.md": []
+    },
+    "c/cosmopolitan_intrin": {
+      "c/cosmopolitan_intrin/countbits.c": [
+        "libc/assert.h",
+        "libc/dce.h",
+        "libc/nexgen32e/x86feature.h"
+      ]
     },
     "c/cpython": {
       "c/cpython/Makefile.pre.in": [],
@@ -1375,6 +1338,14 @@
         "z_zone.h"
       ]
     },
+    "c/freebsd_openpam": {
+      "c/freebsd_openpam/pam_acct_mgmt.c": [
+        "config.h",
+        "openpam_impl.h",
+        "security/pam_appl.h",
+        "sys/param.h"
+      ]
+    },
     "c/micropython": {
       "c/micropython/compile.c": [
         "assert.h",
@@ -1472,6 +1443,7 @@
       ]
     },
     "c/sqlite": {
+      "c/sqlite/LICENSE.md": [],
       "c/sqlite/README.md": [
         "./doc/lemon.html",
         "doc/compile-for-windows.md"
@@ -1848,6 +1820,9 @@
       "cobol/aws-mainframe-modernization-carddemo/CVTRA07Y.cpy": [],
       "cobol/aws-mainframe-modernization-carddemo/DFHAID.cpy": [],
       "cobol/aws-mainframe-modernization-carddemo/DFHBMSCA.cpy": [],
+      "cobol/aws-mainframe-modernization-carddemo/LICENSE.md": [],
+      "cobol/aws-mainframe-modernization-carddemo/NOTICE.md": [],
+      "cobol/aws-mainframe-modernization-carddemo/README.md": [],
       "cobol/aws-mainframe-modernization-carddemo/UNUSED1Y.cpy": []
     },
     "cobol/cash-account-cobol": {
@@ -1860,6 +1835,8 @@
       "cobol/cash-account-cobol/DCLFRANK.cpy": []
     },
     "cobol/che-che4z-lsp-for-cobol": {
+      "cobol/che-che4z-lsp-for-cobol/LICENSE.md": [],
+      "cobol/che-che4z-lsp-for-cobol/NOTICE.md": [],
       "cobol/che-che4z-lsp-for-cobol/SQLCA_DATACOM.cpy": [],
       "cobol/che-che4z-lsp-for-cobol/SQLCA_DB2.cpy": [],
       "cobol/che-che4z-lsp-for-cobol/SQLDA.cpy": []
@@ -1908,7 +1885,11 @@
       "cobol/che-che4z_lsp_project_fixtures/SNIPPET.cbl": [],
       "cobol/che-che4z_lsp_project_fixtures/SNIPPET2.cbl": [],
       "cobol/che-che4z_lsp_project_fixtures/SNIPPET_IDMS.cbl": [],
-      "cobol/che-che4z_lsp_project_fixtures/TEST.CBL": [],
+      "cobol/che-che4z_lsp_project_fixtures/TEST.CBL": [
+        "A",
+        "B",
+        "C"
+      ],
       "cobol/che-che4z_lsp_project_fixtures/TEST1.CBL": [
         "REPL"
       ],
@@ -1994,7 +1975,9 @@
       "cobol/che-che4z_lsp_project_fixtures/copybook-analysis_mainfile2.cbl": [
         "COPYBOOK"
       ],
-      "cobol/che-che4z_lsp_project_fixtures/outline.cbl": [],
+      "cobol/che-che4z_lsp_project_fixtures/outline.cbl": [
+        "AST"
+      ],
       "cobol/che-che4z_lsp_project_fixtures/special_schema.cbl": [],
       "cobol/che-che4z_lsp_project_fixtures/subroutines_SUB1.cob": [],
       "cobol/che-che4z_lsp_project_fixtures/testing_A.cpy": [
@@ -2655,6 +2638,7 @@
       "cobol/gnucobol/xfhfcd3.cpy": []
     },
     "cobol/gnucobol_internals": {
+      "cobol/gnucobol_internals/COPYING": [],
       "cobol/gnucobol_internals/codegen.c": [
         "cobc.h",
         "config.h",
@@ -3760,6 +3744,23 @@
         "vector"
       ]
     },
+    "cpp/serenity_ak_siphash_cpu": {
+      "cpp/serenity_ak_siphash_cpu/CPUFeatures.cpp": [
+        "AK/CPUFeatures.h"
+      ],
+      "cpp/serenity_ak_siphash_cpu/SipHash.cpp": [
+        "AK/ByteReader.h",
+        "AK/Random.h",
+        "AK/Singleton.h",
+        "AK/SipHash.h",
+        "AK/Span.h",
+        "AK/UFixedBigInt.h",
+        "Kernel/Security/Random.h"
+      ]
+    },
+    "csd": {
+      "csd/SOURCES.md": []
+    },
     "csd/carddemo": {
       "csd/carddemo/CARDDEMO.CSD": [
         "COACTUPC",
@@ -3795,6 +3796,7 @@
         "COACCT01",
         "CODATE01"
       ],
+      "csd/carddemo/NOTICE": [],
       "csd/carddemo/PROVENANCE.md": []
     },
     "csd/cbsa": {
@@ -4206,6 +4208,9 @@
         "typography.dart"
       ]
     },
+    "db2_sql": {
+      "db2_sql/SOURCES.md": []
+    },
     "db2_sql/db2unit": {
       "db2_sql/db2unit/00-Prereqs.sql": [],
       "db2_sql/db2unit/01-ObjectsAdmin.sql": [],
@@ -4215,6 +4220,7 @@
       "db2_sql/db2unit/07-Version.sql": [],
       "db2_sql/db2unit/98-Clean.sql": [],
       "db2_sql/db2unit/99-CleanAdmin.sql": [],
+      "db2_sql/db2unit/LICENSE.txt": [],
       "db2_sql/db2unit/PROVENANCE.md": []
     },
     "dockerfile": {
@@ -5269,6 +5275,15 @@
         "unsafe"
       ]
     },
+    "go/go_runtime_rand": {
+      "go/go_runtime_rand/rand.go": [
+        "internal/byteorder",
+        "internal/chacha8rand",
+        "internal/goarch",
+        "math/bits",
+        "unsafe"
+      ]
+    },
     "go/kubernetes": {
       "go/kubernetes/csi_plugin.go": [
         "context",
@@ -5462,6 +5477,16 @@
         "k8s.io/kubernetes/pkg/scheduler/util/assumecache",
         "k8s.io/utils/clock",
         "time"
+      ]
+    },
+    "go/kubernetes_kubectl_tls": {
+      "go/kubernetes_kubectl_tls/create_secret_tls_test.go": [
+        "k8s.io/api/core/v1",
+        "k8s.io/apimachinery/pkg/api/equality",
+        "k8s.io/apimachinery/pkg/apis/meta/v1",
+        "os",
+        "path/filepath",
+        "testing"
       ]
     },
     "groovy/fineract_gradle_plugin": {
@@ -7074,7 +7099,8 @@
       ]
     },
     "hlasm": {
-      "hlasm/PROVENANCE.md": []
+      "hlasm/PROVENANCE.md": [],
+      "hlasm/SOURCES.md": []
     },
     "hlasm/che4z_hlasm": {
       "hlasm/che4z_hlasm/A.hlasm": [],
@@ -7082,6 +7108,7 @@
       "hlasm/che4z_hlasm/B.hlasm": [],
       "hlasm/che4z_hlasm/BBBBB.hlasm": [],
       "hlasm/che4z_hlasm/CCCCC.hlasm": [],
+      "hlasm/che4z_hlasm/NOTICE.md": [],
       "hlasm/che4z_hlasm/code_action_1.hlasm": [],
       "hlasm/che4z_hlasm/code_action_2.hlasm": [],
       "hlasm/che4z_hlasm/comments.hlasm": [],
@@ -7254,6 +7281,7 @@
       ]
     },
     "html/polyglot_vscode": {
+      "html/polyglot_vscode/LICENSE.txt": [],
       "html/polyglot_vscode/vscode_builtin.html": [
         "browser-main.js"
       ]
@@ -7341,6 +7369,132 @@
     },
     "java": {
       "java/SOURCES.md": []
+    },
+    "java/flutter_android_editing_tests": {
+      "java/flutter_android_editing_tests/InputConnectionAdaptorTest.java": [
+        "android.content.ClipDescription",
+        "android.content.ClipboardManager",
+        "android.content.ContentResolver",
+        "android.content.Context",
+        "android.content.res.AssetManager",
+        "android.net.Uri",
+        "android.os.Bundle",
+        "android.text.InputType",
+        "android.text.Selection",
+        "android.text.SpannableStringBuilder",
+        "android.view.KeyEvent",
+        "android.view.View",
+        "android.view.inputmethod.CursorAnchorInfo",
+        "android.view.inputmethod.EditorInfo",
+        "android.view.inputmethod.ExtractedText",
+        "android.view.inputmethod.ExtractedTextRequest",
+        "android.view.inputmethod.InputConnection",
+        "android.view.inputmethod.InputContentInfo",
+        "android.view.inputmethod.InputMethodManager",
+        "androidx.core.view.inputmethod.InputConnectionCompat",
+        "androidx.test.core.app.ApplicationProvider",
+        "androidx.test.ext.junit.runners.AndroidJUnit4",
+        "com.ibm.icu.lang.UCharacter",
+        "com.ibm.icu.lang.UProperty",
+        "io.flutter.embedding.android.KeyboardManager",
+        "io.flutter.embedding.engine.FlutterJNI",
+        "io.flutter.embedding.engine.dart.DartExecutor",
+        "io.flutter.embedding.engine.systemchannels.ScribeChannel",
+        "io.flutter.embedding.engine.systemchannels.TextInputChannel",
+        "io.flutter.plugin.common.JSONMethodCodec",
+        "io.flutter.plugin.common.MethodCall",
+        "io.flutter.util.FakeKeyEvent",
+        "java.io.ByteArrayInputStream",
+        "java.nio.ByteBuffer",
+        "java.nio.charset.Charset",
+        "org.json.JSONArray",
+        "org.json.JSONException",
+        "org.junit.Assert.assertEquals",
+        "org.junit.Assert.assertFalse",
+        "org.junit.Assert.assertNull",
+        "org.junit.Assert.assertTrue",
+        "org.junit.Before",
+        "org.junit.Test",
+        "org.junit.runner.RunWith",
+        "org.mockito.ArgumentCaptor",
+        "org.mockito.ArgumentMatchers.any",
+        "org.mockito.ArgumentMatchers.anyInt",
+        "org.mockito.ArgumentMatchers.isNull",
+        "org.mockito.Mock",
+        "org.mockito.Mockito.anyString",
+        "org.mockito.Mockito.eq",
+        "org.mockito.Mockito.mock",
+        "org.mockito.Mockito.never",
+        "org.mockito.Mockito.spy",
+        "org.mockito.Mockito.times",
+        "org.mockito.Mockito.verify",
+        "org.mockito.Mockito.when",
+        "org.mockito.MockitoAnnotations",
+        "org.robolectric.Shadows",
+        "org.robolectric.annotation.Config",
+        "org.robolectric.annotation.Implementation",
+        "org.robolectric.annotation.Implements",
+        "org.robolectric.shadow.api.Shadow",
+        "org.robolectric.shadows.ShadowContentResolver",
+        "org.robolectric.shadows.ShadowInputMethodManager"
+      ]
+    },
+    "java/jenkins_cli": {
+      "java/jenkins_cli/LICENSE.txt": [],
+      "java/jenkins_cli/SetBuildDescriptionCommand.java": [
+        "edu.umd.cs.findbugs.annotations.SuppressFBWarnings",
+        "hudson.Extension",
+        "hudson.model.Job",
+        "hudson.model.Run",
+        "java.io.Serializable",
+        "org.apache.commons.io.IOUtils",
+        "org.kohsuke.args4j.Argument"
+      ]
+    },
+    "java/selenium_grid_session_queue": {
+      "java/selenium_grid_session_queue/NOTICE": [],
+      "java/selenium_grid_session_queue/RemoteNewSessionQueue.java": [
+        "java.io.UncheckedIOException",
+        "java.lang.reflect.Type",
+        "java.net.MalformedURLException",
+        "java.net.URI",
+        "java.time.Duration",
+        "java.util.HashMap",
+        "java.util.List",
+        "java.util.Map",
+        "java.util.Optional",
+        "org.openqa.selenium.Capabilities",
+        "org.openqa.selenium.SessionNotCreatedException",
+        "org.openqa.selenium.grid.config.Config",
+        "org.openqa.selenium.grid.data.CreateSessionResponse",
+        "org.openqa.selenium.grid.data.RequestId",
+        "org.openqa.selenium.grid.data.SessionRequest",
+        "org.openqa.selenium.grid.data.SessionRequestCapability",
+        "org.openqa.selenium.grid.log.LoggingOptions",
+        "org.openqa.selenium.grid.security.AddSecretFilter",
+        "org.openqa.selenium.grid.security.Secret",
+        "org.openqa.selenium.grid.security.SecretOptions",
+        "org.openqa.selenium.grid.server.NetworkOptions",
+        "org.openqa.selenium.grid.sessionqueue.NewSessionQueue",
+        "org.openqa.selenium.grid.sessionqueue.config.NewSessionQueueOptions",
+        "org.openqa.selenium.grid.web.Values",
+        "org.openqa.selenium.internal.Either",
+        "org.openqa.selenium.internal.Require",
+        "org.openqa.selenium.json.Json",
+        "org.openqa.selenium.json.TypeToken",
+        "org.openqa.selenium.remote.http.ClientConfig",
+        "org.openqa.selenium.remote.http.ClientConfig.defaultConfig",
+        "org.openqa.selenium.remote.http.Contents",
+        "org.openqa.selenium.remote.http.Filter",
+        "org.openqa.selenium.remote.http.HttpClient",
+        "org.openqa.selenium.remote.http.HttpMethod.DELETE",
+        "org.openqa.selenium.remote.http.HttpMethod.GET",
+        "org.openqa.selenium.remote.http.HttpMethod.POST",
+        "org.openqa.selenium.remote.http.HttpRequest",
+        "org.openqa.selenium.remote.http.HttpResponse",
+        "org.openqa.selenium.remote.tracing.HttpTracing",
+        "org.openqa.selenium.remote.tracing.Tracer"
+      ]
     },
     "java/springboot": {
       "java/springboot/AutoConfigurationImportSelector.java": [
@@ -7697,6 +7851,19 @@
     "javascript": {
       "javascript/SOURCES.md": []
     },
+    "javascript/cesium_particle_emitters": {
+      "javascript/cesium_particle_emitters/CircleEmitter.js": [
+        "../Core/Cartesian3.js",
+        "../Core/Check.js",
+        "../Core/Math.js"
+      ],
+      "javascript/cesium_particle_emitters/LICENSE.md": []
+    },
+    "javascript/javascript_algorithms_bits": {
+      "javascript/javascript_algorithms_bits/fullAdder.js": [
+        "./getBit"
+      ]
+    },
     "javascript/jquery": {
       "javascript/jquery/LICENSE.txt": [],
       "javascript/jquery/ajax.js": [
@@ -7776,6 +7943,46 @@
         "./selectorError.js",
         "./var/rcomma.js",
         "./var/rleadingCombinator.js"
+      ]
+    },
+    "javascript/node_tls_security_tests": {
+      "javascript/node_tls_security_tests/regexp-unicode-sets.js": [],
+      "javascript/node_tls_security_tests/test-crypto-dh-modp2.js": [
+        "../common",
+        "../common/crypto",
+        "assert",
+        "crypto"
+      ],
+      "javascript/node_tls_security_tests/test-fs-lchown.js": [
+        "../common",
+        "../common/tmpdir",
+        "assert",
+        "fs",
+        "path"
+      ],
+      "javascript/node_tls_security_tests/test-https-host-headers.js": [
+        "../common",
+        "../common/fixtures",
+        "assert",
+        "https",
+        "util"
+      ],
+      "javascript/node_tls_security_tests/test-tls-cert-ext-encoding.js": [
+        "../common",
+        "../common/crypto",
+        "tls"
+      ],
+      "javascript/node_tls_security_tests/test-tls-psk-server.js": [
+        "../common",
+        "../common/crypto",
+        "assert",
+        "child_process",
+        "tls"
+      ],
+      "javascript/node_tls_security_tests/test-tls-use-after-free-regression.js": [
+        "../common",
+        "https",
+        "tls"
       ]
     },
     "javascript/react": {
@@ -7949,6 +8156,13 @@
         "rollup-plugin-dts",
         "rollup-plugin-prettier",
         "rollup-plugin-strip-banner"
+      ]
+    },
+    "javascript/react_error_codes": {
+      "javascript/react_error_codes/extract-errors.js": [
+        "child_process",
+        "fs",
+        "path"
       ]
     },
     "javascript/threejs": {
@@ -9311,6 +9525,7 @@
       "lua/darwin-xnu/wqtrace.lua": []
     },
     "lua/freebsd-src": {
+      "lua/freebsd-src/COPYRIGHT": [],
       "lua/freebsd-src/cli.lua": [
         "config",
         "core"
@@ -9467,6 +9682,16 @@
       "makefile/freebsd/COPYRIGHT": [],
       "makefile/freebsd/Makefile": []
     },
+    "markdown": {
+      "markdown/SOURCES.md": []
+    },
+    "markdown/airflow_job_lifecycle": {
+      "markdown/airflow_job_lifecycle/JOB_LIFECYCLE.md": [],
+      "markdown/airflow_job_lifecycle/NOTICE": []
+    },
+    "markdown/kubernetes_client_go": {
+      "markdown/kubernetes_client_go/ARCHITECTURE.md": []
+    },
     "matlab": {
       "matlab/SOURCES.md": []
     },
@@ -9493,6 +9718,7 @@
       "nix/SOURCES.md": []
     },
     "nix/bun": {
+      "nix/bun/LICENSE.md": [],
       "nix/bun/flake.nix": [],
       "nix/bun/shell.nix": []
     },
@@ -9565,6 +9791,21 @@
     },
     "perl": {
       "perl/SOURCES.md": []
+    },
+    "perl/ack3_tests": {
+      "perl/ack3_tests/LICENSE.md": [],
+      "perl/ack3_tests/file-permission.t": [
+        "File::Copy",
+        "File::Spec",
+        "File::Temp",
+        "Test::More",
+        "Util",
+        "constant",
+        "lib",
+        "output",
+        "strict",
+        "warnings"
+      ]
     },
     "perl/bugzilla": {
       "perl/bugzilla/Auth.pm": [
@@ -10305,6 +10546,14 @@
         "stdClass"
       ]
     },
+    "php/laravel_validation_rules": {
+      "php/laravel_validation_rules/Can.php": [
+        "Illuminate\\Contracts\\Validation\\Rule",
+        "Illuminate\\Contracts\\Validation\\ValidatorAwareRule",
+        "Illuminate\\Support\\Facades\\Gate"
+      ],
+      "php/laravel_validation_rules/LICENSE.md": []
+    },
     "php/magento2": {
       "php/magento2/AbstractBlock.php": [
         "Magento\\Framework\\App\\DeploymentConfig",
@@ -10535,6 +10784,9 @@
         "Symfony\\Component\\Routing\\Matcher\\RequestMatcherInterface",
         "Symfony\\Component\\Routing\\Matcher\\UrlMatcherInterface"
       ]
+    },
+    "php/symfony_emoji_data": {
+      "php/symfony_emoji_data/emoji-ccp.php": []
     },
     "php/wordpress": {
       "php/wordpress/admin-ajax.php": [
@@ -10891,6 +11143,7 @@
       "plaintext/SOURCES.md": []
     },
     "plaintext/ansible": {
+      "plaintext/ansible/COPYING": [],
       "plaintext/ansible/requirements.txt": []
     },
     "plaintext/cpython/Lib/test/tokenizedata": {
@@ -10904,6 +11157,9 @@
     },
     "plaintext/opencv/include": {
       "plaintext/opencv/include/CMakeLists.txt": []
+    },
+    "pli": {
+      "pli/SOURCES.md": []
     },
     "pli/dsf_cics_admin": {
       "pli/dsf_cics_admin/LICENSE.md": [],
@@ -11228,6 +11484,7 @@
       ]
     },
     "python/airflow": {
+      "python/airflow/NOTICE": [],
       "python/airflow/dag.py": [
         "__future__",
         "airflow",
@@ -11386,11 +11643,87 @@
         "typing"
       ]
     },
+    "python/airflow_ai_providers": {
+      "python/airflow_ai_providers/NOTICE": [],
+      "python/airflow_ai_providers/openai_src_airflow_providers_openai_hooks_openai.py": [
+        "__future__",
+        "airflow.providers.common.compat.sdk",
+        "airflow.providers.openai.exceptions",
+        "enum",
+        "functools",
+        "openai",
+        "openai.types",
+        "openai.types.batch",
+        "openai.types.beta",
+        "openai.types.beta.threads",
+        "openai.types.chat",
+        "openai.types.vector_stores",
+        "time",
+        "typing"
+      ],
+      "python/airflow_ai_providers/pinecone_src_airflow_providers_pinecone_hooks_pinecone.py": [
+        "__future__",
+        "airflow.models.connection",
+        "airflow.providers.common.compat.sdk",
+        "flask_appbuilder.fieldwidgets",
+        "flask_babel",
+        "functools",
+        "itertools",
+        "multiprocessing.pool",
+        "os",
+        "pinecone",
+        "pinecone.core.openapi.db_data.models",
+        "pinecone.db_data",
+        "pinecone.db_data.dataclasses.sparse_values",
+        "pinecone.db_data.types",
+        "typing",
+        "wtforms"
+      ],
+      "python/airflow_ai_providers/pinecone_src_airflow_providers_pinecone_operators_pinecone.py": [
+        "__future__",
+        "airflow.providers.common.compat.sdk",
+        "airflow.providers.pinecone.hooks.pinecone",
+        "airflow.sdk",
+        "collections.abc",
+        "functools",
+        "pinecone",
+        "pinecone.db_data.types",
+        "typing"
+      ],
+      "python/airflow_ai_providers/pinecone_tests_system_pinecone_example_pinecone_cohere.py": [
+        "__future__",
+        "airflow",
+        "airflow.decorators",
+        "airflow.providers.cohere.operators.embedding",
+        "airflow.providers.pinecone.hooks.pinecone",
+        "airflow.providers.pinecone.operators.pinecone",
+        "airflow.sdk",
+        "datetime",
+        "os",
+        "pinecone.db_data.types",
+        "tests_common.test_utils.system_tests",
+        "typing"
+      ]
+    },
+    "python/airflow_opsgenie_tests": {
+      "python/airflow_opsgenie_tests/NOTICE": [],
+      "python/airflow_opsgenie_tests/test_opsgenie.py": [
+        "__future__",
+        "airflow.models",
+        "airflow.providers.opsgenie.hooks.opsgenie",
+        "opsgenie_sdk",
+        "opsgenie_sdk.exceptions",
+        "pytest",
+        "unittest"
+      ]
+    },
     "python/cython": {
+      "python/cython/COPYING.txt": [],
       "python/cython/CodeGeneration.py": [
         ".Nodes",
         ".Visitor"
       ],
+      "python/cython/LICENSE.txt": [],
       "python/cython/MemoryView.pxd": [],
       "python/cython/MemoryView.pyx": [
         "__future__",
@@ -11422,6 +11755,22 @@
         "enum",
         "itertools",
         "types"
+      ]
+    },
+    "python/django_db_tests": {
+      "python/django_db_tests/test_iterator.py": [
+        ".models",
+        "datetime",
+        "django.db",
+        "django.db.models.sql.compiler",
+        "django.test",
+        "unittest"
+      ],
+      "python/django_db_tests/test_utils.py": [
+        "decimal",
+        "django.db",
+        "django.db.backends.utils",
+        "django.test"
       ]
     },
     "python/fastapi": {
@@ -12935,6 +13284,115 @@
         "sys"
       ]
     },
+    "python/homeassistant_anthropic": {
+      "python/homeassistant_anthropic/LICENSE.md": [],
+      "python/homeassistant_anthropic/coordinator.py": [
+        ".const",
+        "__future__",
+        "anthropic",
+        "datetime",
+        "homeassistant.config_entries",
+        "homeassistant.const",
+        "homeassistant.core",
+        "homeassistant.exceptions",
+        "homeassistant.helpers.httpx_client",
+        "homeassistant.helpers.update_coordinator"
+      ]
+    },
+    "python/homeassistant_ble_integrations": {
+      "python/homeassistant_ble_integrations/LICENSE.md": [],
+      "python/homeassistant_ble_integrations/aranet___init__.py": [
+        "__future__",
+        "aranet4.client",
+        "homeassistant.components.bluetooth",
+        "homeassistant.components.bluetooth.models",
+        "homeassistant.components.bluetooth.passive_update_processor",
+        "homeassistant.config_entries",
+        "homeassistant.const",
+        "homeassistant.core",
+        "logging"
+      ],
+      "python/homeassistant_ble_integrations/gardena_bluetooth___init__.py": [
+        ".const",
+        ".coordinator",
+        ".util",
+        "__future__",
+        "asyncio",
+        "bleak.backends.device",
+        "gardena_bluetooth.client",
+        "gardena_bluetooth.const",
+        "gardena_bluetooth.exceptions",
+        "gardena_bluetooth.parse",
+        "homeassistant.components",
+        "homeassistant.const",
+        "homeassistant.core",
+        "homeassistant.exceptions",
+        "homeassistant.helpers",
+        "homeassistant.helpers.device_registry",
+        "homeassistant.util",
+        "logging"
+      ],
+      "python/homeassistant_ble_integrations/utils.py": [
+        "__future__",
+        "contextlib",
+        "homeassistant.helpers.device_registry",
+        "huawei_lte_api.Session",
+        "re",
+        "requests",
+        "urllib.parse",
+        "urllib3.exceptions",
+        "warnings"
+      ]
+    },
+    "python/langchain_agents": {
+      "python/langchain_agents/langchain_agents_middleware_model_fallback.py": [
+        "__future__",
+        "collections.abc",
+        "langchain.agents.middleware.types",
+        "langchain.chat_models",
+        "langchain_core.language_models.chat_models",
+        "langchain_core.messages",
+        "typing"
+      ],
+      "python/langchain_agents/langchain_agents_middleware_tool_emulator.py": [
+        "__future__",
+        "collections.abc",
+        "langchain.agents.middleware.types",
+        "langchain.chat_models.base",
+        "langchain.tools",
+        "langchain_core.language_models.chat_models",
+        "langchain_core.messages",
+        "langgraph.types",
+        "typing"
+      ],
+      "python/langchain_agents/tests_integration_tests_chat_models_test_base.py": [
+        "langchain.chat_models",
+        "langchain_core.language_models",
+        "langchain_core.messages",
+        "langchain_core.prompts",
+        "langchain_core.runnables",
+        "langchain_tests.integration_tests",
+        "pydantic",
+        "pytest",
+        "typing"
+      ]
+    },
+    "python/micropython_usb_tls": {
+      "python/micropython_usb_tls/ssl_verify_callback.py": [
+        "io",
+        "socket",
+        "tls"
+      ],
+      "python/micropython_usb_tls/tls_dtls.py": [
+        "io",
+        "tls"
+      ],
+      "python/micropython_usb_tls/usb_simple_host_pyusb.py": [
+        "sys",
+        "usb.core",
+        "usb.util"
+      ]
+    },
     "python/numpy": {
       "python/numpy/LICENSE.txt": [],
       "python/numpy/__init__.py": [],
@@ -13057,6 +13515,74 @@
         "numpy_api",
         "os",
         "sys"
+      ]
+    },
+    "python/opencv_dnn_conversion": {
+      "python/opencv_dnn_conversion/py_to_py_resnet50_onnx.py": [
+        "os",
+        "torch",
+        "torch.autograd",
+        "torch.onnx",
+        "torchvision"
+      ]
+    },
+    "python/pip_vendored_requests": {
+      "python/pip_vendored_requests/LICENSE.txt": [],
+      "python/pip_vendored_requests/packages.py": [
+        ".compat",
+        "sys"
+      ]
+    },
+    "python/scikit-learn_examples": {
+      "python/scikit-learn_examples/COPYING": [],
+      "python/scikit-learn_examples/linear_model_plot_nnls.py": [
+        "matplotlib.pyplot",
+        "numpy",
+        "sklearn.linear_model",
+        "sklearn.metrics",
+        "sklearn.model_selection"
+      ],
+      "python/scikit-learn_examples/svm_plot_custom_kernel.py": [
+        "matplotlib.pyplot",
+        "numpy",
+        "sklearn",
+        "sklearn.inspection"
+      ]
+    },
+    "python/tensorflow_ml_ops": {
+      "python/tensorflow_ml_ops/core_tfrt_saved_model_tests_gen_matmul_gpu.py": [
+        "absl",
+        "tensorflow.python.compat",
+        "tensorflow.python.eager",
+        "tensorflow.python.framework",
+        "tensorflow.python.module",
+        "tensorflow.python.ops",
+        "tensorflow.python.saved_model"
+      ],
+      "python/tensorflow_ml_ops/lite_testing_op_tests_einsum.py": [
+        "tensorflow",
+        "tensorflow.lite.testing.zip_test_utils",
+        "tensorflow.python.framework"
+      ]
+    },
+    "python/tensorflow_model_fixtures": {
+      "python/tensorflow_model_fixtures/lite_testdata_multi_add.pb": [],
+      "python/tensorflow_model_fixtures/python_compiler_mlir_multi_add.tflite": []
+    },
+    "python/thealgorithms_machine_learning": {
+      "python/thealgorithms_machine_learning/LICENSE.md": [],
+      "python/thealgorithms_machine_learning/logistic_regression.py": [
+        "doctest",
+        "matplotlib",
+        "numpy",
+        "sklearn"
+      ],
+      "python/thealgorithms_machine_learning/lstm_lstm_prediction.py": [
+        "keras.layers",
+        "keras.models",
+        "numpy",
+        "pandas",
+        "sklearn.preprocessing"
       ]
     },
     "python/twisted": {
@@ -13184,9 +13710,15 @@
       ]
     },
     "rexx": {
-      "rexx/PROVENANCE.md": []
+      "rexx/PROVENANCE.md": [],
+      "rexx/SOURCES.md": []
+    },
+    "rexx/hercules_390_hyperion": {
+      "rexx/hercules_390_hyperion/COPYRIGHT": [],
+      "rexx/hercules_390_hyperion/sample.rexx": []
     },
     "rexx/hercules_hyperion": {
+      "rexx/hercules_hyperion/COPYRIGHT": [],
       "rexx/hercules_hyperion/cmpsc.rexx": [],
       "rexx/hercules_hyperion/hbasic1.rexx": [],
       "rexx/hercules_hyperion/hcommand.rexx": [],
@@ -13194,10 +13726,10 @@
         "hostemu"
       ],
       "rexx/hercules_hyperion/hlinein.rexx": [],
-      "rexx/hercules_hyperion/hrecurs.rexx": [],
-      "rexx/hercules_hyperion/sample.rexx": []
+      "rexx/hercules_hyperion/hrecurs.rexx": []
     },
     "rexx/ibm_z_zos": {
+      "rexx/ibm_z_zos/LICENSE.md": [],
       "rexx/ibm_z_zos/bpxget.rexx": [],
       "rexx/ibm_z_zos/bpxput.rexx": [],
       "rexx/ibm_z_zos/bpxwtabs.rexx": [],
@@ -13271,10 +13803,18 @@
         "ActiveSupport::Autoload"
       ]
     },
+    "ruby/rails_http_token_auth": {
+      "ruby/rails_http_token_auth/MIT-LICENSE": [],
+      "ruby/rails_http_token_auth/http_token_authentication_test.rb": [
+        "abstract_unit"
+      ]
+    },
     "rust": {
       "rust/SOURCES.md": []
     },
     "rust/bevy": {
+      "rust/bevy/LICENSE-APACHE": [],
+      "rust/bevy/LICENSE-MIT": [],
       "rust/bevy/bevy_ecs_macros.rs": [
         "./component",
         "./event",
@@ -13555,6 +14095,17 @@
         "super::*"
       ]
     },
+    "rust/bevy_asset_examples": {
+      "rust/bevy_asset_examples/LICENSE-APACHE": [],
+      "rust/bevy_asset_examples/LICENSE-MIT": [],
+      "rust/bevy_asset_examples/image_node.rs": [
+        "bevy::prelude::*"
+      ],
+      "rust/bevy_asset_examples/rotation.rs": [
+        "bevy::math::ops",
+        "bevy::prelude::*"
+      ]
+    },
     "rust/holylang": {
       "rust/holylang/ast.rs": [
         "./exprs",
@@ -13632,6 +14183,8 @@
       ]
     },
     "rust/serde": {
+      "rust/serde/LICENSE-APACHE": [],
+      "rust/serde/LICENSE-MIT": [],
       "rust/serde/serde_core_de_impls.rs": [
         "crate::de::Deserialize",
         "crate::de::Deserializer",
@@ -14035,6 +14588,13 @@
         "windows_sys::Win32::Storage::FileSystem::*",
         "windows_sys::Win32::System::Pipes::*",
         "windows_sys::Win32::System::SystemServices::*"
+      ]
+    },
+    "rust/tokio_util_rand": {
+      "rust/tokio_util_rand/rand.rs": [
+        "./rt",
+        "./rt_unstable",
+        "rt::RngSeedGenerator"
       ]
     },
     "rust/wasmtime": {
@@ -14880,6 +15440,7 @@
       "shell/darwin-xnu/xcrun_cache.sh": []
     },
     "shell/freebsd-src": {
+      "shell/freebsd-src/COPYRIGHT": [],
       "shell/freebsd-src/chflags_test.sh": [],
       "shell/freebsd-src/chmod_test.sh": [],
       "shell/freebsd-src/cp_test.sh": [],
@@ -14906,6 +15467,12 @@
       "shell/freebsd-src/runulp.sh": [],
       "shell/freebsd-src/timeout_test.sh": [],
       "shell/freebsd-src/ztest.sh": []
+    },
+    "shell/freebsd_sysbuild": {
+      "shell/freebsd_sysbuild/COPYRIGHT": [],
+      "shell/freebsd_sysbuild/sysbuild.sh": [
+        "$2"
+      ]
     },
     "shell/haiku": {
       "shell/haiku/HardwareChecker.sh": [],
@@ -15180,23 +15747,26 @@
     "sql/baseline": {
       "sql/baseline/schema.php": []
     },
-    "sql/mysql/mediawiki": {
-      "sql/mysql/mediawiki/COPYING": [],
-      "sql/mysql/mediawiki/blobs.sql": []
+    "sql/mediawiki_mysql": {
+      "sql/mediawiki_mysql/COPYING": [],
+      "sql/mediawiki_mysql/blobs.sql": []
     },
-    "sql/mysql/spamassassin": {
-      "sql/mysql/spamassassin/neural_mysql.sql": []
+    "sql/mediawiki_postgresql": {
+      "sql/mediawiki_postgresql/COPYING": [],
+      "sql/mediawiki_postgresql/tables.sql": []
     },
-    "sql/postgresql/mediawiki": {
-      "sql/postgresql/mediawiki/tables.sql": []
-    },
-    "sql/postgresql/sqlmap": {
-      "sql/postgresql/sqlmap/dns_request.sql": []
+    "sql/spamassassin_mysql": {
+      "sql/spamassassin_mysql/NOTICE": [],
+      "sql/spamassassin_mysql/neural_mysql.sql": []
     },
     "sql/sqlite": {
       "sql/sqlite/000-mandelbrot.sql": [],
       "sql/sqlite/001-sudoku.sql": [],
+      "sql/sqlite/LICENSE.md": [],
       "sql/sqlite/dotcmd01.sql": []
+    },
+    "sql/sqlmap_postgresql": {
+      "sql/sqlmap_postgresql/dns_request.sql": []
     },
     "sqlite": {
       "sqlite/SOURCES.md": []
@@ -15462,6 +16032,7 @@
       ]
     },
     "tcl/sqlite": {
+      "tcl/sqlite/LICENSE.md": [],
       "tcl/sqlite/README.md": [
         "./doc/lemon.html",
         "doc/compile-for-windows.md"
@@ -15520,6 +16091,11 @@
     "typescript": {
       "typescript/SOURCES.md": []
     },
+    "typescript/angular_zonejs_mocha": {
+      "typescript/angular_zonejs_mocha/mocha.ts": [
+        "../zone-impl"
+      ]
+    },
     "typescript/assemblyscript": {
       "typescript/assemblyscript/asconfig.json": [],
       "typescript/assemblyscript/ast.ts": [
@@ -15553,6 +16129,41 @@
         "./diagnostics",
         "./tokenizer",
         "./util"
+      ]
+    },
+    "typescript/effect_ai_anthropic": {
+      "typescript/effect_ai_anthropic/AnthropicTokenizer.ts": [
+        "@anthropic-ai/tokenizer",
+        "@effect/ai/AiError",
+        "@effect/ai/Prompt",
+        "@effect/ai/Tokenizer",
+        "effect/Array",
+        "effect/Effect",
+        "effect/Layer",
+        "effect/Option"
+      ]
+    },
+    "typescript/excalibur_math": {
+      "typescript/excalibur_math/LICENSE.md": [],
+      "typescript/excalibur_math/collision_colliders_separating-axis.ts": [
+        "../../math/affine-matrix",
+        "../../math/line-segment",
+        "../../math/vector",
+        "../../util/pool",
+        "./circle-collider",
+        "./collider",
+        "./polygon-collider"
+      ],
+      "typescript/excalibur_math/math_ray.ts": [
+        "./line-segment",
+        "./vector"
+      ]
+    },
+    "typescript/excalidraw_text_wrapping": {
+      "typescript/excalidraw_text_wrapping/textWrapping.ts": [
+        "./textMeasurements",
+        "./types",
+        "@excalidraw/common"
       ]
     },
     "typescript/fp-ts": {
@@ -15648,6 +16259,25 @@
         "./Semigroupoid",
         "./Separated",
         "./function"
+      ]
+    },
+    "typescript/nx_util_ai": {
+      "typescript/nx_util_ai/nx-dev_pages_api_query-ai-handler.ts": [
+        "../../lib/getTokenizedContext",
+        "@nx/nx-dev-util-ai",
+        "ai",
+        "next/server",
+        "openai",
+        "openai/streaming"
+      ],
+      "typescript/nx_util_ai/util-ai_src_lib_moderation.ts": [
+        "./utils",
+        "openai"
+      ]
+    },
+    "typescript/pixijs_examples": {
+      "typescript/pixijs_examples/events_dragging.ts": [
+        "pixi.js"
       ]
     },
     "typescript/playwright": {
@@ -16088,10 +16718,12 @@
       "xml/apex/CanTheUser_Tests.cls-meta.xml": [],
       "xml/apex/IterationRecipes_Tests.cls": [],
       "xml/apex/IterationRecipes_Tests.cls-meta.xml": [],
+      "xml/apex/LICENSE.md": [],
       "xml/apex/ListSortingRecipes_Tests.cls": [],
       "xml/apex/ListSortingRecipes_Tests.cls-meta.xml": []
     },
     "xml/jenkins": {
+      "xml/jenkins/LICENSE.txt": [],
       "xml/jenkins/XStreamDOMTest.data1.xml": [],
       "xml/jenkins/XStreamDOMTest.data2.xml": [],
       "xml/jenkins/excludesFilter.xml": []
@@ -16362,6 +16994,7 @@
       "zig/SOURCES.md": []
     },
     "zig/bun": {
+      "zig/bun/LICENSE.md": [],
       "zig/bun/MimallocArena.zig": [
         "bun",
         "std"
@@ -16381,6 +17014,48 @@
         "../bun.js/node/buffer.zig",
         "../work_pool.zig",
         "bun",
+        "std"
+      ]
+    },
+    "zig/mach": {
+      "zig/mach/Core.zig": [
+        "build-options",
+        "builtin",
+        "core/Darwin.zig",
+        "core/Linux.zig",
+        "core/Windows.zig",
+        "main.zig",
+        "std"
+      ],
+      "zig/mach/StringTable.zig": [
+        "std"
+      ],
+      "zig/mach/collision.zig": [
+        "../testing.zig",
+        "main.zig",
+        "std"
+      ],
+      "zig/mach/graph.zig": [
+        "mpsc.zig",
+        "std"
+      ],
+      "zig/mach/main.zig": [
+        "Frequency.zig",
+        "Timer.zig",
+        "std"
+      ],
+      "zig/mach/module.zig": [
+        "StringTable.zig",
+        "graph.zig",
+        "main.zig",
+        "std"
+      ],
+      "zig/mach/testing.zig": [
+        "main.zig",
+        "std"
+      ],
+      "zig/mach/win32.zig": [
+        "builtin",
         "std"
       ]
     },
@@ -16565,6 +17240,12 @@
         "tracy.zig"
       ]
     },
+    "zig/zig_std_linux_mips": {
+      "zig/zig_std_linux_mips/mips.zig": [
+        "../../std.zig",
+        "builtin"
+      ]
+    },
     "zig/zls": {
       "zig/zls/DocumentScope.zig": [
         "ast.zig",
@@ -16643,48 +17324,6 @@
       "zig/zls/print_ast.zig": [
         "std",
         "testing.zig"
-      ]
-    },
-    "zig/zls/mach": {
-      "zig/zls/mach/Core.zig": [
-        "build-options",
-        "builtin",
-        "core/Darwin.zig",
-        "core/Linux.zig",
-        "core/Windows.zig",
-        "main.zig",
-        "std"
-      ],
-      "zig/zls/mach/StringTable.zig": [
-        "std"
-      ],
-      "zig/zls/mach/collision.zig": [
-        "../testing.zig",
-        "main.zig",
-        "std"
-      ],
-      "zig/zls/mach/graph.zig": [
-        "mpsc.zig",
-        "std"
-      ],
-      "zig/zls/mach/main.zig": [
-        "Frequency.zig",
-        "Timer.zig",
-        "std"
-      ],
-      "zig/zls/mach/module.zig": [
-        "StringTable.zig",
-        "graph.zig",
-        "main.zig",
-        "std"
-      ],
-      "zig/zls/mach/testing.zig": [
-        "main.zig",
-        "std"
-      ],
-      "zig/zls/mach/win32.zig": [
-        "builtin",
-        "std"
       ]
     }
   },

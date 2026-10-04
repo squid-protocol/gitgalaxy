@@ -1,0 +1,211 @@
+{
+ "format": "gitgalaxy-evidence/1",
+ "case": "crucible:ca-link-lengths",
+ "program": "CASUB",
+ "kind": "crucible",
+ "port": {
+  "paths": [
+   "tests/cics_crucible/ports/ca-link-lengths/CASUB/overlay/service/CasubService.java"
+  ],
+  "sha256": "587be135f62352cd2f95e4a240763f70984957cb8232bb3235125c58670c68d5",
+  "entry_points": [
+   "runTask"
+  ]
+ },
+ "inputs": {
+  "port": {
+   "paths": [
+    "tests/cics_crucible/ports/ca-link-lengths/*/overlay/**"
+   ],
+   "files": 2,
+   "sha256": "17db7aff02b50dfc6e2d132af49735f9b5911edbcaab357d0d7789e560fac645"
+  },
+  "case": {
+   "paths": [
+    "tests/cics_crucible/strengthened/ca-link-lengths/**"
+   ],
+   "files": 0,
+   "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  "harness": {
+   "paths": [
+    "tests/tools/equivalence.py",
+    "tests/tools/equivalence_common.py",
+    "tests/tools/equivalence_java.py",
+    "tests/tools/equivalence_inputs.py",
+    "tests/tools/equivalence_cics.py",
+    "tests/tools/equivalence_call.py",
+    "tests/tools/equivalence_cache.py",
+    "tests/tools/equivalence_db2.py",
+    "tests/tools/equivalence_oracle.py",
+    "tests/tools/cobol_coverage.py",
+    "tests/tools/java_target_matrix.py",
+    "tests/tools/cics_crucible.py",
+    "tests/tools/cics_crucible_compare.py"
+   ],
+   "files": 13,
+   "sha256": "1549c810f2072e5323782c43f34191fb370d080880f2f2e0e09bc6897faaf3c6"
+  },
+  "oracle": {
+   "paths": [],
+   "files": 0,
+   "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  "generator": {
+   "paths": [
+    "gitgalaxy/tools/cobol_to_java/**"
+   ],
+   "files": 60,
+   "sha256": "880250850d919c29f8ace3eb0d7183156a05354438ea79f72a417febb9e57e68"
+  },
+  "corpus": {
+   "name": "cics-crucible",
+   "ref": "v0.2.0",
+   "sha256": "085be5a9f372ecb979d4f8dda1d8c749e85d01abb85e227fca4127844db9c5b6"
+  },
+  "differences": {
+   "sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+  },
+  "digest": "ebb1a592e771a21505e6f364aa6ec4ff966db446426da35004958eb0db42a7fc"
+ },
+ "proof": {
+  "at": "2026-10-04T15:44:57Z",
+  "verdict": "proven",
+  "runs": 3,
+  "fault_runs": 0,
+  "environments": null,
+  "outputs": {
+   "long-500": {
+    "equal": 1,
+    "records": 1
+   },
+   "no-commarea": {
+    "equal": 1,
+    "records": 1
+   },
+   "short-100": {
+    "equal": 1,
+    "records": 1
+   }
+  },
+  "return_code_equal": null,
+  "sysout_compared": null,
+  "attributes_compared": null,
+  "java_failed": false,
+  "harness_commit": "cdad33370dc73ea44e5bf1348d88c9404a14c2d2+uncommitted",
+  "inputs_digest": "ebb1a592e771a21505e6f364aa6ec4ff966db446426da35004958eb0db42a7fc"
+ },
+ "coverage": {
+  "paragraphs": {
+   "covered": 1,
+   "live": 1
+  },
+  "branches": {
+   "covered": 4,
+   "total": 4
+  },
+  "uncovered_branches": null,
+  "handler_labels": null,
+  "source": "tests/cics_crucible/coverage.json#programs/ca-link-lengths/CASUB",
+  "ledger_sha256": "a3b81568fd3aedc05cfee557db1aab44f4d208ff96121066eb687e23de803063",
+  "inputs_digest": "ebb1a592e771a21505e6f364aa6ec4ff966db446426da35004958eb0db42a7fc"
+ },
+ "reach": {
+  "entry_points": [
+   "runTask"
+  ],
+  "unproven": [
+   {
+    "class": "CasubService",
+    "method": "executeCasub",
+    "line": 44,
+    "kind": "ported_unproven"
+   },
+   {
+    "class": "CasubService",
+    "method": "handleLink",
+    "line": 88,
+    "kind": "ported_unproven"
+   },
+   {
+    "class": "CasubService",
+    "method": "writeqTsCatraceL22",
+    "line": 148,
+    "kind": "left_as_generated"
+   }
+  ],
+  "counts": {
+   "stub": 0,
+   "left_as_generated": 1,
+   "ported_unproven": 2
+  },
+  "generated_compared": true,
+  "port_sha256": "587be135f62352cd2f95e4a240763f70984957cb8232bb3235125c58670c68d5"
+ },
+ "mutation": {
+  "commit": "be2561306",
+  "rejudged": null,
+  "seed": 0,
+  "mode": null,
+  "mutants": 43,
+  "chosen": 24,
+  "killed": 12,
+  "survived": 12,
+  "stillborn": 0,
+  "survivors": {
+   "case_gap": 2,
+   "harness_gap": 0,
+   "equivalent": 6,
+   "unreachable": 4,
+   "untriaged": 0
+  },
+  "score_raw": "12/24",
+  "score_adjusted": "12/14",
+  "source": "docs/language_status/mutation_scores.json#crucible:ca-link-lengths/CASUB",
+  "inputs": {
+   "port": {
+    "sha256": "17db7aff02b50dfc6e2d132af49735f9b5911edbcaab357d0d7789e560fac645"
+   },
+   "case": {
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+   },
+   "corpus": {
+    "sha256": "085be5a9f372ecb979d4f8dda1d8c749e85d01abb85e227fca4127844db9c5b6"
+   },
+   "harness": {
+    "sha256": "e67f03b7e18455d8d525349b25ec5e46d20bc2fb812f2c84299141fe89296d36"
+   },
+   "oracle": {
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+   }
+  }
+ },
+ "differences": [],
+ "oracle": {
+  "kind": "crucible-expected-logs",
+  "source": "cics-crucible v0.2.0: each scenario's hand-written expected event log, derived from IBM's documentation (its SPEC.md); the java-ported side is compared with it exactly",
+  "compiler": null,
+  "image": null,
+  "models": [],
+  "assumptions": null
+ },
+ "provenance": {
+  "written_by": "model",
+  "model": "claude-opus-5-5",
+  "backend": "claude CLI 2.1.285 print mode (claude -p --model claude-opus-5-5 --effort high --tools '' --strict-mcp-config --mcp-config '{\"mcpServers\":{}}' --no-session-persistence --system-prompt <porting system prompt>, prompt file on stdin, run from an empty directory)",
+  "attempt": 1,
+  "attempts": null,
+  "ticket_sha256": "2f38157c3c3874dedffc314f9cf99ef075eb55dd8352770734421cf9fd070b8b",
+  "porting_rules_sha256": null,
+  "proposed_at": "2026-09-29T21:46:59+00:00",
+  "generator_version": null,
+  "edited_after": null,
+  "provenance_file": {
+   "path": "tests/cics_crucible/ports/ca-link-lengths/CASUB/provenance.json",
+   "format": "cics-crucible-port/1",
+   "sha256": "a44b3fc7bea51fe1505cd562adce0bf110e07ae049c8c5325662efd94c199f41"
+  },
+  "crucible_ref_proven": "v0.2.0 (94f2afcb)"
+ },
+ "approvals": []
+}

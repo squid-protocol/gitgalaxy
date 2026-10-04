@@ -14,9 +14,11 @@
       "abap/abapGit/zcl_abapgit_xml_output.clas.abap": "Large Core Modules"
     },
     "ada": {
-      "ada/PROVENANCE.md": "Data / Markup / Trivial"
+      "ada/PROVENANCE.md": "Data / Markup / Trivial",
+      "ada/SOURCES.md": "Data / Markup / Trivial"
     },
     "ada/alire": {
+      "ada/alire/LICENSE.txt": "Data / Markup / Trivial",
       "ada/alire/alire-conditional_trees.adb": "Large Core Modules (3)",
       "ada/alire/alire-crate_configuration.adb": "Large Core Modules (3)",
       "ada/alire/alire-dependencies-states.ads": "Parameter Forwarders Files",
@@ -322,22 +324,17 @@
       "assembly/os_tutorial_x86/14-checkpoint_boot_gdt.asm": "Large Core Modules",
       "assembly/os_tutorial_x86/14-checkpoint_boot_kernel_entry.asm": "Data / Markup / Trivial"
     },
-    "assembly/raspberrypi_baremetal": {
-      "assembly/raspberrypi_baremetal/Compress_HUFFMAN_HUFFMANDecode_kernel.asm": "State Mutators Files",
-      "assembly/raspberrypi_baremetal/Compress_HUFFMAN_HUFFMANDecode_kernel7.asm": "State Mutators Files",
-      "assembly/raspberrypi_baremetal/Compress_HUFFMAN_HUFFMANDecode_kernel8.asm": "Large Core Modules (3)",
-      "assembly/raspberrypi_baremetal/Compress_HUFFMAN_HUFFMANGFX_kernel.asm": "Large Core Modules (3)",
-      "assembly/raspberrypi_baremetal/Compress_HUFFMAN_HUFFMANGFX_kernel7.asm": "Large Core Modules (3)",
-      "assembly/raspberrypi_baremetal/Compress_HUFFMAN_HUFFMANGFX_kernel8.asm": "Large Core Modules (3)",
-      "assembly/raspberrypi_baremetal/Compress_LZ77_LZ77Decode_kernel.asm": "State Mutators Files",
-      "assembly/raspberrypi_baremetal/Compress_LZ77_LZ77Decode_kernel7.asm": "Large Core Modules (3)",
-      "assembly/raspberrypi_baremetal/Compress_LZ77_LZ77Decode_kernel8.asm": "Parameter Forwarders Files",
-      "assembly/raspberrypi_baremetal/Compress_LZ77_LZ77GFX_kernel.asm": "Large Core Modules (3)",
-      "assembly/raspberrypi_baremetal/Compress_LZ77_LZ77GFX_kernel7.asm": "Large Core Modules (3)",
-      "assembly/raspberrypi_baremetal/Compress_LZ77_LZ77GFX_kernel8.asm": "Parameter Forwarders Files",
-      "assembly/raspberrypi_baremetal/EMU_GameBoy_kernel.asm": "Large Core Modules (3)",
-      "assembly/raspberrypi_baremetal/HelloWorld_CPU_kernel7.asm": "Large Core Modules",
-      "assembly/raspberrypi_baremetal/HelloWorld_CPU_kernel8.asm": "Large Core Modules"
+    "assembly/rpi_smartstart_baremetal": {
+      "assembly/rpi_smartstart_baremetal/10_virtualmemory_SmartStart32.S": "Parameter Forwarders Files",
+      "assembly/rpi_smartstart_baremetal/10_virtualmemory_SmartStart64.S": "Parameter Forwarders Files",
+      "assembly/rpi_smartstart_baremetal/Arm32_64_USB_SmartStart32.S": "Parameter Forwarders Files",
+      "assembly/rpi_smartstart_baremetal/Arm32_64_USB_SmartStart64.S": "Parameter Forwarders Files",
+      "assembly/rpi_smartstart_baremetal/Core3Interrupt_SmartStart64.S": "Parameter Forwarders Files",
+      "assembly/rpi_smartstart_baremetal/FreeRTOSv10.1.1_loader_RaspberryPi_SmartStart32.S": "Parameter Forwarders Files",
+      "assembly/rpi_smartstart_baremetal/FreeRTOSv10.1.1_loader_RaspberryPi_SmartStart64.S": "Parameter Forwarders Files",
+      "assembly/rpi_smartstart_baremetal/Multicore_SmartStart32.S": "Parameter Forwarders Files",
+      "assembly/rpi_smartstart_baremetal/Multicore_SmartStart64.S": "Parameter Forwarders Files",
+      "assembly/rpi_smartstart_baremetal/SimpleSched_SmartStart32.S": "Parameter Forwarders Files"
     },
     "assembly/x86_bare_metal": {
       "assembly/x86_bare_metal/LICENSE.adoc": "Data / Markup / Trivial",
@@ -393,6 +390,9 @@
       "blueprint/ghostty/split-tree.blp": "Declarative / Non-Code",
       "blueprint/ghostty/window.blp": "Declarative / Non-Code"
     },
+    "bms": {
+      "bms/SOURCES.md": "Data / Markup / Trivial"
+    },
     "bms/cbsa": {
       "bms/cbsa/BNK1ACC.bms": "Large Core Modules",
       "bms/cbsa/BNK1CAM.bms": "Large Core Modules",
@@ -403,11 +403,16 @@
       "bms/cbsa/BNK1MAI.bms": "Large Core Modules",
       "bms/cbsa/BNK1TFM.bms": "Large Core Modules",
       "bms/cbsa/BNK1UAM.bms": "Large Core Modules",
-      "bms/cbsa/PROVENANCE.md": "Data / Markup / Trivial",
-      "bms/cbsa/ssmap.bms": "Large Core Modules"
+      "bms/cbsa/PROVENANCE.md": "Data / Markup / Trivial"
+    },
+    "bms/genapp": {
+      "bms/genapp/ssmap.bms": "Large Core Modules"
     },
     "c": {
       "c/SOURCES.md": "Data / Markup / Trivial"
+    },
+    "c/cosmopolitan_intrin": {
+      "c/cosmopolitan_intrin/countbits.c": "Many-Argument Workhorses Files"
     },
     "c/cpython": {
       "c/cpython/Makefile.pre.in": "Large Core Modules",
@@ -434,6 +439,9 @@
       "c/doom/w_wad.c": "Large Core Modules (3)",
       "c/doom/z_zone.c": "Large Core Modules (3)"
     },
+    "c/freebsd_openpam": {
+      "c/freebsd_openpam/pam_acct_mgmt.c": "State Mutators Files"
+    },
     "c/micropython": {
       "c/micropython/compile.c": "Many-Argument Workhorses Files",
       "c/micropython/compile.h": "Declarative / Non-Code",
@@ -444,11 +452,12 @@
       "c/micropython/modmachine.h": "Declarative / Non-Code",
       "c/micropython/objtype.c": "Large Core Modules (3)",
       "c/micropython/objtype.h": "Declarative / Non-Code",
-      "c/micropython/vfs.c": "Compute Cores Files",
+      "c/micropython/vfs.c": "Large Core Modules (3)",
       "c/micropython/vfs.h": "Declarative / Non-Code",
       "c/micropython/vm.c": "Compute Cores Files"
     },
     "c/sqlite": {
+      "c/sqlite/LICENSE.md": "Data / Markup / Trivial",
       "c/sqlite/README.md": "Data / Markup / Trivial",
       "c/sqlite/lemon.c": "Large Core Modules (3)"
     },
@@ -490,10 +499,10 @@
       "cobol/CICS-Cobol/CBL0701v01StatementInspect.cbl": "Interface Declarations Files",
       "cobol/CICS-Cobol/CBL0702v01InspectReplacing.cbl": "Interface Declarations Files",
       "cobol/CICS-Cobol/CBL0703v01StatementString.cbl": "Large Core Modules",
-      "cobol/CICS-Cobol/CBL0704v01StatementNotString.cbl": "Large Core Modules",
+      "cobol/CICS-Cobol/CBL0704v01StatementNotString.cbl": "Interface Declarations Files",
       "cobol/CICS-Cobol/CBL0801v01TableOneDimention.cbl": "Interface Declarations Files",
       "cobol/CICS-Cobol/CBL0802v01TableTwoDimention.cbl": "Interface Declarations Files",
-      "cobol/CICS-Cobol/CBL0803v01TableUseSubIndice.cbl": "Large Core Modules",
+      "cobol/CICS-Cobol/CBL0803v01TableUseSubIndice.cbl": "Interface Declarations Files",
       "cobol/CICS-Cobol/CBL0804v01TableUseIndice.cbl": "Interface Declarations Files",
       "cobol/CICS-Cobol/CBL0805v01TableUseIndiceWithSet.cbl": "Interface Declarations Files",
       "cobol/CICS-Cobol/CBL0806v01TableSearch.cbl": "Interface Declarations Files",
@@ -530,7 +539,7 @@
       "cobol/aws-mainframe-modernization-carddemo/COBIL00C.cbl": "Large Core Modules",
       "cobol/aws-mainframe-modernization-carddemo/COCOM01Y.cpy": "Declarative / Non-Code",
       "cobol/aws-mainframe-modernization-carddemo/COCRDLI.CPY": "Declarative / Non-Code",
-      "cobol/aws-mainframe-modernization-carddemo/COCRDLIC.cbl": "Interface Declarations Files",
+      "cobol/aws-mainframe-modernization-carddemo/COCRDLIC.cbl": "Large Core Modules",
       "cobol/aws-mainframe-modernization-carddemo/COCRDSL.CPY": "Declarative / Non-Code",
       "cobol/aws-mainframe-modernization-carddemo/COCRDSLC.cbl": "Interface Declarations Files",
       "cobol/aws-mainframe-modernization-carddemo/COCRDUP.CPY": "Declarative / Non-Code",
@@ -582,6 +591,9 @@
       "cobol/aws-mainframe-modernization-carddemo/CVTRA07Y.cpy": "Declarative / Non-Code",
       "cobol/aws-mainframe-modernization-carddemo/DFHAID.cpy": "Declarative / Non-Code",
       "cobol/aws-mainframe-modernization-carddemo/DFHBMSCA.cpy": "Declarative / Non-Code",
+      "cobol/aws-mainframe-modernization-carddemo/LICENSE.md": "Data / Markup / Trivial",
+      "cobol/aws-mainframe-modernization-carddemo/NOTICE.md": "Data / Markup / Trivial",
+      "cobol/aws-mainframe-modernization-carddemo/README.md": "Data / Markup / Trivial",
       "cobol/aws-mainframe-modernization-carddemo/UNUSED1Y.cpy": "Data / Markup / Trivial"
     },
     "cobol/cash-account-cobol": {
@@ -590,6 +602,8 @@
       "cobol/cash-account-cobol/DCLFRANK.cpy": "Declarative / Non-Code"
     },
     "cobol/che-che4z-lsp-for-cobol": {
+      "cobol/che-che4z-lsp-for-cobol/LICENSE.md": "Data / Markup / Trivial",
+      "cobol/che-che4z-lsp-for-cobol/NOTICE.md": "Data / Markup / Trivial",
       "cobol/che-che4z-lsp-for-cobol/SQLCA_DATACOM.cpy": "Declarative / Non-Code",
       "cobol/che-che4z-lsp-for-cobol/SQLCA_DB2.cpy": "Declarative / Non-Code",
       "cobol/che-che4z-lsp-for-cobol/SQLDA.cpy": "Declarative / Non-Code"
@@ -669,7 +683,7 @@
     "cobol/che-che4z_nist_ccvs85": {
       "cobol/che-che4z_nist_ccvs85/DB1024.2.cbl": "Interface Declarations Files",
       "cobol/che-che4z_nist_ccvs85/DB1034.2.cbl": "Interface Declarations Files",
-      "cobol/che-che4z_nist_ccvs85/DB1044.2.cbl": "Large Core Modules (3)",
+      "cobol/che-che4z_nist_ccvs85/DB1044.2.cbl": "Interface Declarations Files",
       "cobol/che-che4z_nist_ccvs85/DB3014.2.cbl": "Interface Declarations Files",
       "cobol/che-che4z_nist_ccvs85/DB3024.2.cbl": "Interface Declarations Files",
       "cobol/che-che4z_nist_ccvs85/DB3054.2.cbl": "Interface Declarations Files",
@@ -709,13 +723,13 @@
       "cobol/che-che4z_nist_ccvs85/IC2244.2.cbl": "Interface Declarations Files",
       "cobol/che-che4z_nist_ccvs85/IC2264.2.cbl": "Large Core Modules",
       "cobol/che-che4z_nist_ccvs85/IC2284.2.cbl": "Large Core Modules",
-      "cobol/che-che4z_nist_ccvs85/IC2334.2.cbl": "Large Core Modules (3)",
-      "cobol/che-che4z_nist_ccvs85/IC2344.2.cbl": "Large Core Modules (3)",
+      "cobol/che-che4z_nist_ccvs85/IC2334.2.cbl": "Interface Declarations Files",
+      "cobol/che-che4z_nist_ccvs85/IC2344.2.cbl": "Interface Declarations Files",
       "cobol/che-che4z_nist_ccvs85/IC2374.2.cbl": "Large Core Modules (3)",
-      "cobol/che-che4z_nist_ccvs85/IC4014.2.cbl": "Large Core Modules (3)",
+      "cobol/che-che4z_nist_ccvs85/IC4014.2.cbl": "Interface Declarations Files",
       "cobol/che-che4z_nist_ccvs85/IF1024.2.cbl": "Interface Declarations Files",
       "cobol/che-che4z_nist_ccvs85/IF1054.2.cbl": "Interface Declarations Files",
-      "cobol/che-che4z_nist_ccvs85/IF1074.2.cbl": "Large Core Modules (3)",
+      "cobol/che-che4z_nist_ccvs85/IF1074.2.cbl": "Interface Declarations Files",
       "cobol/che-che4z_nist_ccvs85/IF1084.2.cbl": "Interface Declarations Files",
       "cobol/che-che4z_nist_ccvs85/IF1094.2.cbl": "Interface Declarations Files",
       "cobol/che-che4z_nist_ccvs85/IF1104.2.cbl": "Interface Declarations Files",
@@ -736,12 +750,12 @@
       "cobol/che-che4z_nist_ccvs85/IF1314.2.cbl": "Interface Declarations Files",
       "cobol/che-che4z_nist_ccvs85/IF1324.2.cbl": "Interface Declarations Files",
       "cobol/che-che4z_nist_ccvs85/IF1334.2.cbl": "Interface Declarations Files",
-      "cobol/che-che4z_nist_ccvs85/IF1344.2.cbl": "Large Core Modules (3)",
+      "cobol/che-che4z_nist_ccvs85/IF1344.2.cbl": "Interface Declarations Files",
       "cobol/che-che4z_nist_ccvs85/IF1374.2.cbl": "Interface Declarations Files",
       "cobol/che-che4z_nist_ccvs85/IF1384.2.cbl": "Interface Declarations Files",
       "cobol/che-che4z_nist_ccvs85/IF1404.2.cbl": "Interface Declarations Files",
       "cobol/che-che4z_nist_ccvs85/IF1414.2.cbl": "Interface Declarations Files",
-      "cobol/che-che4z_nist_ccvs85/IF1424.2.cbl": "Large Core Modules (3)",
+      "cobol/che-che4z_nist_ccvs85/IF1424.2.cbl": "Interface Declarations Files",
       "cobol/che-che4z_nist_ccvs85/IF4014.2.cbl": "Interface Declarations Files",
       "cobol/che-che4z_nist_ccvs85/IF4024.2.cbl": "Interface Declarations Files",
       "cobol/che-che4z_nist_ccvs85/IF4034.2.cbl": "Interface Declarations Files",
@@ -750,14 +764,14 @@
       "cobol/che-che4z_nist_ccvs85/IX1034.2.cbl": "Large Core Modules",
       "cobol/che-che4z_nist_ccvs85/IX1044.2.cbl": "Large Core Modules",
       "cobol/che-che4z_nist_ccvs85/IX1114.2.cbl": "Interface Declarations Files",
-      "cobol/che-che4z_nist_ccvs85/IX1134.2.cbl": "Large Core Modules (3)",
-      "cobol/che-che4z_nist_ccvs85/IX1144.2.cbl": "Large Core Modules (3)",
-      "cobol/che-che4z_nist_ccvs85/IX1154.2.cbl": "Large Core Modules (3)",
-      "cobol/che-che4z_nist_ccvs85/IX1164.2.cbl": "Large Core Modules (3)",
-      "cobol/che-che4z_nist_ccvs85/IX1174.2.cbl": "Large Core Modules (3)",
-      "cobol/che-che4z_nist_ccvs85/IX1184.2.cbl": "Large Core Modules (3)",
-      "cobol/che-che4z_nist_ccvs85/IX1194.2.cbl": "Large Core Modules (3)",
-      "cobol/che-che4z_nist_ccvs85/IX1204.2.cbl": "Large Core Modules (3)",
+      "cobol/che-che4z_nist_ccvs85/IX1134.2.cbl": "Interface Declarations Files",
+      "cobol/che-che4z_nist_ccvs85/IX1144.2.cbl": "Interface Declarations Files",
+      "cobol/che-che4z_nist_ccvs85/IX1154.2.cbl": "Interface Declarations Files",
+      "cobol/che-che4z_nist_ccvs85/IX1164.2.cbl": "Interface Declarations Files",
+      "cobol/che-che4z_nist_ccvs85/IX1174.2.cbl": "Interface Declarations Files",
+      "cobol/che-che4z_nist_ccvs85/IX1184.2.cbl": "Interface Declarations Files",
+      "cobol/che-che4z_nist_ccvs85/IX1194.2.cbl": "Interface Declarations Files",
+      "cobol/che-che4z_nist_ccvs85/IX1204.2.cbl": "Interface Declarations Files",
       "cobol/che-che4z_nist_ccvs85/IX1214.2.cbl": "Interface Declarations Files",
       "cobol/che-che4z_nist_ccvs85/IX2014.2.cbl": "Large Core Modules (3)",
       "cobol/che-che4z_nist_ccvs85/IX2034.2.cbl": "Large Core Modules",
@@ -765,7 +779,7 @@
       "cobol/che-che4z_nist_ccvs85/IX2174.2.cbl": "Interface Declarations Files",
       "cobol/che-che4z_nist_ccvs85/IX2184.2.cbl": "Large Core Modules",
       "cobol/che-che4z_nist_ccvs85/IX3014.2.cbl": "Interface Declarations Files",
-      "cobol/che-che4z_nist_ccvs85/IX4014.2.cbl": "Large Core Modules",
+      "cobol/che-che4z_nist_ccvs85/IX4014.2.cbl": "Interface Declarations Files",
       "cobol/che-che4z_nist_ccvs85/LICENSE.md": "Data / Markup / Trivial",
       "cobol/che-che4z_nist_ccvs85/NC1104.2.cbl": "Interface Declarations Files",
       "cobol/che-che4z_nist_ccvs85/NC1114.2.cbl": "Interface Declarations Files",
@@ -801,20 +815,20 @@
       "cobol/che-che4z_nist_ccvs85/NC2454.2.cbl": "Interface Declarations Files",
       "cobol/che-che4z_nist_ccvs85/NC2484.2.cbl": "Interface Declarations Files",
       "cobol/che-che4z_nist_ccvs85/NC3034.2.cbl": "Large Core Modules",
-      "cobol/che-che4z_nist_ccvs85/OBIC14.2.cbl": "Declarative / Non-Code",
+      "cobol/che-che4z_nist_ccvs85/OBIC14.2.cbl": "Interface Declarations Files",
       "cobol/che-che4z_nist_ccvs85/OBIC24.2.cbl": "Large Core Modules (3)",
-      "cobol/che-che4z_nist_ccvs85/OBIC34.2.cbl": "Large Core Modules (3)",
+      "cobol/che-che4z_nist_ccvs85/OBIC34.2.cbl": "Interface Declarations Files",
       "cobol/che-che4z_nist_ccvs85/OBSQ34.2.cbl": "Large Core Modules",
       "cobol/che-che4z_nist_ccvs85/OBSQ44.2.cbl": "Large Core Modules",
       "cobol/che-che4z_nist_ccvs85/OBSQ54.2.cbl": "Large Core Modules",
       "cobol/che-che4z_nist_ccvs85/PDC0001.cbl": "Interface Declarations Files",
       "cobol/che-che4z_nist_ccvs85/RL3014.2.cbl": "Interface Declarations Files",
-      "cobol/che-che4z_nist_ccvs85/RL4014.2.cbl": "Large Core Modules",
+      "cobol/che-che4z_nist_ccvs85/RL4014.2.cbl": "Interface Declarations Files",
       "cobol/che-che4z_nist_ccvs85/SG3034.2.cbl": "Interface Declarations Files",
       "cobol/che-che4z_nist_ccvs85/SG4014.2.cbl": "Interface Declarations Files",
       "cobol/che-che4z_nist_ccvs85/SM1064.2.cbl": "Data / Markup / Trivial",
       "cobol/che-che4z_nist_ccvs85/SM1074.2.cbl": "Large Core Modules (3)",
-      "cobol/che-che4z_nist_ccvs85/SQ3034.2.cbl": "Large Core Modules",
+      "cobol/che-che4z_nist_ccvs85/SQ3034.2.cbl": "Interface Declarations Files",
       "cobol/che-che4z_nist_ccvs85/ST1084.2.cbl": "Interface Declarations Files",
       "cobol/che-che4z_nist_ccvs85/ST1184.2.cbl": "Interface Declarations Files",
       "cobol/che-che4z_nist_ccvs85/ST3014.2.cbl": "Declarative / Non-Code"
@@ -916,10 +930,10 @@
       "cobol/cics-genapp/lgtestp3.cbl": "Large Core Modules",
       "cobol/cics-genapp/lgtestp4.cbl": "Large Core Modules",
       "cobol/cics-genapp/lgucdb01.cbl": "Large Core Modules",
-      "cobol/cics-genapp/lgucus01.cbl": "Interface Declarations Files",
+      "cobol/cics-genapp/lgucus01.cbl": "Large Core Modules",
       "cobol/cics-genapp/lgucvs01.cbl": "Large Core Modules",
       "cobol/cics-genapp/lgupdb01.cbl": "Large Core Modules",
-      "cobol/cics-genapp/lgupol01.cbl": "Interface Declarations Files",
+      "cobol/cics-genapp/lgupol01.cbl": "Large Core Modules",
       "cobol/cics-genapp/lgupvs01.cbl": "Large Core Modules",
       "cobol/cics-genapp/lgwebst5.cbl": "Large Core Modules",
       "cobol/cics-genapp/polloo2.cpy": "Data / Markup / Trivial",
@@ -950,7 +964,7 @@
       "cobol/cobol-check/src_main_cobol_FileCopy.cbl": "Interface Declarations Files",
       "cobol/cobol-check/src_main_cobol_GREETING.CBL": "Large Core Modules",
       "cobol/cobol-check/src_main_cobol_LONGLINESANDNUMBERS.CBL": "Interface Declarations Files",
-      "cobol/cobol-check/src_main_cobol_MOCK.CBL": "Large Core Modules (3)",
+      "cobol/cobol-check/src_main_cobol_MOCK.CBL": "Declarative / Non-Code",
       "cobol/cobol-check/src_main_cobol_MOCKPARA.CBL": "Interface Declarations Files",
       "cobol/cobol-check/src_main_cobol_MOCKTEST.CBL": "Interface Declarations Files",
       "cobol/cobol-check/src_main_cobol_NUMBERS.CBL": "Declarative / Non-Code",
@@ -1039,6 +1053,7 @@
       "cobol/gnucobol/xfhfcd3.cpy": "Declarative / Non-Code"
     },
     "cobol/gnucobol_internals": {
+      "cobol/gnucobol_internals/COPYING": "Data / Markup / Trivial",
       "cobol/gnucobol_internals/codegen.c": "Large Core Modules (3)",
       "cobol/gnucobol_internals/fileio.c": "Many-Argument Workhorses Files",
       "cobol/gnucobol_internals/numeric.c": "Large Core Modules (3)",
@@ -1117,11 +1132,19 @@
       "cpp/powertoys/main.cpp": "Large Core Modules (3)",
       "cpp/powertoys/powertoy_module.h": "Large Core Modules (3)"
     },
+    "cpp/serenity_ak_siphash_cpu": {
+      "cpp/serenity_ak_siphash_cpu/CPUFeatures.cpp": "Parameter Forwarders Files",
+      "cpp/serenity_ak_siphash_cpu/SipHash.cpp": "Large Core Modules (3)"
+    },
+    "csd": {
+      "csd/SOURCES.md": "Data / Markup / Trivial"
+    },
     "csd/carddemo": {
       "csd/carddemo/CARDDEMO.CSD": "State Mutators Files",
       "csd/carddemo/CRDDEMO2.csd": "State Mutators Files",
       "csd/carddemo/CRDDEMOD.csd": "State Mutators Files",
       "csd/carddemo/CRDDEMOM.csd": "State Mutators Files",
+      "csd/carddemo/NOTICE": "Data / Markup / Trivial",
       "csd/carddemo/PROVENANCE.md": "Data / Markup / Trivial"
     },
     "csd/cbsa": {
@@ -1207,6 +1230,9 @@
       "dart/flutter/semantics.dart": "Large Core Modules (2)",
       "dart/flutter/theme_data.dart": "Large Core Modules (2)"
     },
+    "db2_sql": {
+      "db2_sql/SOURCES.md": "Data / Markup / Trivial"
+    },
     "db2_sql/db2unit": {
       "db2_sql/db2unit/00-Prereqs.sql": "Large Core Modules (3)",
       "db2_sql/db2unit/01-ObjectsAdmin.sql": "Declarative / Non-Code",
@@ -1216,6 +1242,7 @@
       "db2_sql/db2unit/07-Version.sql": "Data / Markup / Trivial",
       "db2_sql/db2unit/98-Clean.sql": "Declarative / Non-Code",
       "db2_sql/db2unit/99-CleanAdmin.sql": "Data / Markup / Trivial",
+      "db2_sql/db2unit/LICENSE.txt": "Data / Markup / Trivial",
       "db2_sql/db2unit/PROVENANCE.md": "Data / Markup / Trivial"
     },
     "dockerfile": {
@@ -1236,8 +1263,8 @@
       "dockerfile/moby/builder/dockerfile/dispatchers_test.go": "Large Core Modules (3)",
       "dockerfile/moby/builder/dockerfile/dispatchers_unix.go": "Declarative / Non-Code",
       "dockerfile/moby/builder/dockerfile/dispatchers_unix_test.go": "Compute Cores Files",
-      "dockerfile/moby/builder/dockerfile/dispatchers_windows.go": "Many-Argument Workhorses Files",
-      "dockerfile/moby/builder/dockerfile/dispatchers_windows_test.go": "Compute Cores Files",
+      "dockerfile/moby/builder/dockerfile/dispatchers_windows.go": "Large Core Modules (3)",
+      "dockerfile/moby/builder/dockerfile/dispatchers_windows_test.go": "Large Core Modules",
       "dockerfile/moby/builder/dockerfile/evaluator.go": "Encapsulated Accessors Files",
       "dockerfile/moby/builder/dockerfile/evaluator_test.go": "Parameter Forwarders Files",
       "dockerfile/moby/builder/dockerfile/imagecontext.go": "Callbacks & Closures Files",
@@ -1345,6 +1372,9 @@
       "go/core/syscall_linux.go": "Large Core Modules (3)",
       "go/core/value.go": "Large Core Modules (3)"
     },
+    "go/go_runtime_rand": {
+      "go/go_runtime_rand/rand.go": "Encapsulated Accessors Files"
+    },
     "go/kubernetes": {
       "go/kubernetes/csi_plugin.go": "Large Core Modules (2)",
       "go/kubernetes/generic.go": "Large Core Modules (3)",
@@ -1353,6 +1383,9 @@
       "go/kubernetes/proxier.go": "Callbacks & Closures Files",
       "go/kubernetes/replica_set.go": "Many-Argument Workhorses Files",
       "go/kubernetes/scheduler.go": "Callbacks & Closures Files"
+    },
+    "go/kubernetes_kubectl_tls": {
+      "go/kubernetes_kubectl_tls/create_secret_tls_test.go": "Encapsulated Accessors Files"
     },
     "groovy/fineract_gradle_plugin": {
       "groovy/fineract_gradle_plugin/LICENSE_RELEASE": "Data / Markup / Trivial",
@@ -1623,7 +1656,7 @@
       "groovy/spock_smoke_specs/Blocks.groovy": "Interface Declarations Files",
       "groovy/spock_smoke_specs/BuiltInMembersOfClassSpecification.groovy": "Large Core Modules",
       "groovy/spock_smoke_specs/CleanupBlocks.groovy": "Large Core Modules (3)",
-      "groovy/spock_smoke_specs/CompileTimeErrorReporting.groovy": "Large Core Modules (3)",
+      "groovy/spock_smoke_specs/CompileTimeErrorReporting.groovy": "Declarative / Non-Code",
       "groovy/spock_smoke_specs/DisambiguationInConditions.groovy": "Type Conversions Files",
       "groovy/spock_smoke_specs/ExpectBlocks.groovy": "Interface Declarations Files",
       "groovy/spock_smoke_specs/FeatureFiltering.groovy": "Interface Declarations Files",
@@ -1721,7 +1754,8 @@
       "haskell/pandoc/Shared.hs": "State Mutators Files"
     },
     "hlasm": {
-      "hlasm/PROVENANCE.md": "Data / Markup / Trivial"
+      "hlasm/PROVENANCE.md": "Data / Markup / Trivial",
+      "hlasm/SOURCES.md": "Data / Markup / Trivial"
     },
     "hlasm/che4z_hlasm": {
       "hlasm/che4z_hlasm/A.hlasm": "Data / Markup / Trivial",
@@ -1729,6 +1763,7 @@
       "hlasm/che4z_hlasm/B.hlasm": "Data / Markup / Trivial",
       "hlasm/che4z_hlasm/BBBBB.hlasm": "Data / Markup / Trivial",
       "hlasm/che4z_hlasm/CCCCC.hlasm": "Data / Markup / Trivial",
+      "hlasm/che4z_hlasm/NOTICE.md": "Data / Markup / Trivial",
       "hlasm/che4z_hlasm/code_action_1.hlasm": "Data / Markup / Trivial",
       "hlasm/che4z_hlasm/code_action_2.hlasm": "Declarative / Non-Code",
       "hlasm/che4z_hlasm/comments.hlasm": "Data / Markup / Trivial",
@@ -1823,6 +1858,7 @@
       "html/polyglot_odoo/database_manager.qweb.html": "Data / Markup / Trivial"
     },
     "html/polyglot_vscode": {
+      "html/polyglot_vscode/LICENSE.txt": "Data / Markup / Trivial",
       "html/polyglot_vscode/vscode_builtin.html": "Data / Markup / Trivial"
     },
     "html/revealjs_decks": {
@@ -1856,6 +1892,17 @@
     "java": {
       "java/SOURCES.md": "Data / Markup / Trivial"
     },
+    "java/flutter_android_editing_tests": {
+      "java/flutter_android_editing_tests/InputConnectionAdaptorTest.java": "Large Core Modules (3)"
+    },
+    "java/jenkins_cli": {
+      "java/jenkins_cli/LICENSE.txt": "Data / Markup / Trivial",
+      "java/jenkins_cli/SetBuildDescriptionCommand.java": "Declarative / Non-Code"
+    },
+    "java/selenium_grid_session_queue": {
+      "java/selenium_grid_session_queue/NOTICE": "Data / Markup / Trivial",
+      "java/selenium_grid_session_queue/RemoteNewSessionQueue.java": "Generic / Templated Code Files"
+    },
     "java/springboot": {
       "java/springboot/AutoConfigurationImportSelector.java": "Encapsulated Accessors Files",
       "java/springboot/Binder.java": "Generic / Templated Code Files",
@@ -1869,6 +1916,13 @@
     "javascript": {
       "javascript/SOURCES.md": "Data / Markup / Trivial"
     },
+    "javascript/cesium_particle_emitters": {
+      "javascript/cesium_particle_emitters/CircleEmitter.js": "Callbacks & Closures Files",
+      "javascript/cesium_particle_emitters/LICENSE.md": "Data / Markup / Trivial"
+    },
+    "javascript/javascript_algorithms_bits": {
+      "javascript/javascript_algorithms_bits/fullAdder.js": "Compute Cores Files"
+    },
     "javascript/jquery": {
       "javascript/jquery/LICENSE.txt": "Data / Markup / Trivial",
       "javascript/jquery/ajax.js": "Large Core Modules (2)",
@@ -1879,6 +1933,15 @@
       "javascript/jquery/event.js": "Large Core Modules (2)",
       "javascript/jquery/tokenize.js": "Many-Argument Workhorses Files"
     },
+    "javascript/node_tls_security_tests": {
+      "javascript/node_tls_security_tests/regexp-unicode-sets.js": "Many-Argument Workhorses Files",
+      "javascript/node_tls_security_tests/test-crypto-dh-modp2.js": "Declarative / Non-Code",
+      "javascript/node_tls_security_tests/test-fs-lchown.js": "Declarative / Non-Code",
+      "javascript/node_tls_security_tests/test-https-host-headers.js": "Declarative / Non-Code",
+      "javascript/node_tls_security_tests/test-tls-cert-ext-encoding.js": "Declarative / Non-Code",
+      "javascript/node_tls_security_tests/test-tls-psk-server.js": "Declarative / Non-Code",
+      "javascript/node_tls_security_tests/test-tls-use-after-free-regression.js": "Declarative / Non-Code"
+    },
     "javascript/react": {
       "javascript/react/BabelPlugin.ts": "Large Core Modules (2)",
       "javascript/react/ReactFiberBeginWork.js": "Many-Argument Workhorses Files",
@@ -1886,6 +1949,9 @@
       "javascript/react/ReactFlightServer.js": "Large Core Modules (2)",
       "javascript/react/ReactSymbols.js": "Large Core Modules (2)",
       "javascript/react/build.js": "Large Core Modules (3)"
+    },
+    "javascript/react_error_codes": {
+      "javascript/react_error_codes/extract-errors.js": "Large Core Modules"
     },
     "javascript/threejs": {
       "javascript/threejs/BufferGeometry.js": "Large Core Modules (3)",
@@ -2278,6 +2344,7 @@
       "lua/darwin-xnu/wqtrace.lua": "Declarative / Non-Code"
     },
     "lua/freebsd-src": {
+      "lua/freebsd-src/COPYRIGHT": "Data / Markup / Trivial",
       "lua/freebsd-src/cli.lua": "Parameter Forwarders Files",
       "lua/freebsd-src/color.lua": "Interface Declarations Files",
       "lua/freebsd-src/config.lua": "Compute Cores Files",
@@ -2372,6 +2439,16 @@
       "makefile/freebsd/COPYRIGHT": "Data / Markup / Trivial",
       "makefile/freebsd/Makefile": "Large Core Modules"
     },
+    "markdown": {
+      "markdown/SOURCES.md": "Data / Markup / Trivial"
+    },
+    "markdown/airflow_job_lifecycle": {
+      "markdown/airflow_job_lifecycle/JOB_LIFECYCLE.md": "Data / Markup / Trivial",
+      "markdown/airflow_job_lifecycle/NOTICE": "Data / Markup / Trivial"
+    },
+    "markdown/kubernetes_client_go": {
+      "markdown/kubernetes_client_go/ARCHITECTURE.md": "Data / Markup / Trivial"
+    },
     "matlab": {
       "matlab/SOURCES.md": "Data / Markup / Trivial"
     },
@@ -2398,6 +2475,7 @@
       "nix/SOURCES.md": "Data / Markup / Trivial"
     },
     "nix/bun": {
+      "nix/bun/LICENSE.md": "Data / Markup / Trivial",
       "nix/bun/flake.nix": "Declarative / Non-Code",
       "nix/bun/shell.nix": "Declarative / Non-Code"
     },
@@ -2420,6 +2498,10 @@
     },
     "perl": {
       "perl/SOURCES.md": "Data / Markup / Trivial"
+    },
+    "perl/ack3_tests": {
+      "perl/ack3_tests/LICENSE.md": "Data / Markup / Trivial",
+      "perl/ack3_tests/file-permission.t": "Type Conversions Files"
     },
     "perl/bugzilla": {
       "perl/bugzilla/Auth.pm": "Large Core Modules (2)",
@@ -2475,6 +2557,10 @@
       "php/laravel_core/Model.php": "Large Core Modules (3)",
       "php/laravel_core/Router.php": "Large Core Modules (3)"
     },
+    "php/laravel_validation_rules": {
+      "php/laravel_validation_rules/Can.php": "Parameter Forwarders Files",
+      "php/laravel_validation_rules/LICENSE.md": "Data / Markup / Trivial"
+    },
     "php/magento2": {
       "php/magento2/AbstractBlock.php": "Large Core Modules (3)",
       "php/magento2/AbstractModel.php": "Large Core Modules (3)",
@@ -2494,6 +2580,9 @@
       "php/symfony/Request.php": "Large Core Modules (3)",
       "php/symfony/Router.php": "Large Core Modules (3)"
     },
+    "php/symfony_emoji_data": {
+      "php/symfony_emoji_data/emoji-ccp.php": "Declarative / Non-Code"
+    },
     "php/wordpress": {
       "php/wordpress/admin-ajax.php": "Declarative / Non-Code",
       "php/wordpress/class-wp-query.php": "Large Core Modules (3)",
@@ -2508,6 +2597,7 @@
       "plaintext/SOURCES.md": "Data / Markup / Trivial"
     },
     "plaintext/ansible": {
+      "plaintext/ansible/COPYING": "Data / Markup / Trivial",
       "plaintext/ansible/requirements.txt": "Data / Markup / Trivial"
     },
     "plaintext/cpython/Lib/test/tokenizedata": {
@@ -2521,6 +2611,9 @@
     },
     "plaintext/opencv/include": {
       "plaintext/opencv/include/CMakeLists.txt": "Data / Markup / Trivial"
+    },
+    "pli": {
+      "pli/SOURCES.md": "Data / Markup / Trivial"
     },
     "pli/dsf_cics_admin": {
       "pli/dsf_cics_admin/LICENSE.md": "Data / Markup / Trivial",
@@ -2665,7 +2758,7 @@
       "powershell/runtime/HttpStress__build-local.ps1": "Data / Markup / Trivial",
       "powershell/runtime/LICENSE.TXT": "Data / Markup / Trivial",
       "powershell/runtime/PSScriptAnalyzerSettings.psd1": "Declarative / Non-Code",
-      "powershell/runtime/ParallelTestExecution.ps1": "Large Core Modules (3)",
+      "powershell/runtime/ParallelTestExecution.ps1": "Callbacks & Closures Files",
       "powershell/runtime/aspnetcore-sync-checkdiff.ps1": "Data / Markup / Trivial",
       "powershell/runtime/build-docker-sdk.ps1": "Declarative / Non-Code",
       "powershell/runtime/build-local.ps1": "Callbacks & Closures Files",
@@ -2700,15 +2793,33 @@
       "python/SOURCES.md": "Data / Markup / Trivial"
     },
     "python/airflow": {
+      "python/airflow/NOTICE": "Data / Markup / Trivial",
       "python/airflow/dag.py": "Generic / Templated Code Files",
       "python/airflow/s3.py": "Many-Argument Workhorses Files",
       "python/airflow/scheduler_job_runner.py": "Many-Argument Workhorses Files"
     },
+    "python/airflow_ai_providers": {
+      "python/airflow_ai_providers/NOTICE": "Data / Markup / Trivial",
+      "python/airflow_ai_providers/openai_src_airflow_providers_openai_hooks_openai.py": "Generic / Templated Code Files",
+      "python/airflow_ai_providers/pinecone_src_airflow_providers_pinecone_hooks_pinecone.py": "Generic / Templated Code Files",
+      "python/airflow_ai_providers/pinecone_src_airflow_providers_pinecone_operators_pinecone.py": "Generic / Templated Code Files",
+      "python/airflow_ai_providers/pinecone_tests_system_pinecone_example_pinecone_cohere.py": "Type Conversions Files"
+    },
+    "python/airflow_opsgenie_tests": {
+      "python/airflow_opsgenie_tests/NOTICE": "Data / Markup / Trivial",
+      "python/airflow_opsgenie_tests/test_opsgenie.py": "Parameter Forwarders Files"
+    },
     "python/cython": {
+      "python/cython/COPYING.txt": "Data / Markup / Trivial",
       "python/cython/CodeGeneration.py": "Parameter Forwarders Files",
+      "python/cython/LICENSE.txt": "Data / Markup / Trivial",
       "python/cython/MemoryView.pxd": "State Mutators Files",
       "python/cython/MemoryView.pyx": "Large Core Modules (3)",
       "python/cython/Nodes.py": "Large Core Modules (3)"
+    },
+    "python/django_db_tests": {
+      "python/django_db_tests/test_iterator.py": "Parameter Forwarders Files",
+      "python/django_db_tests/test_utils.py": "Parameter Forwarders Files"
     },
     "python/fastapi": {
       "python/fastapi/CONTRIBUTING.md": "Data / Markup / Trivial",
@@ -2947,6 +3058,26 @@
       "python/fastapi/tests/test_ws_router.py": "Parameter Forwarders Files",
       "python/fastapi/tests/utils.py": "Interface Declarations Files"
     },
+    "python/homeassistant_anthropic": {
+      "python/homeassistant_anthropic/LICENSE.md": "Data / Markup / Trivial",
+      "python/homeassistant_anthropic/coordinator.py": "Generic / Templated Code Files"
+    },
+    "python/homeassistant_ble_integrations": {
+      "python/homeassistant_ble_integrations/LICENSE.md": "Data / Markup / Trivial",
+      "python/homeassistant_ble_integrations/aranet___init__.py": "Generic / Templated Code Files",
+      "python/homeassistant_ble_integrations/gardena_bluetooth___init__.py": "Encapsulated Accessors Files",
+      "python/homeassistant_ble_integrations/utils.py": "Generic / Templated Code Files"
+    },
+    "python/langchain_agents": {
+      "python/langchain_agents/langchain_agents_middleware_model_fallback.py": "Large Core Modules (2)",
+      "python/langchain_agents/langchain_agents_middleware_tool_emulator.py": "Many-Argument Workhorses Files",
+      "python/langchain_agents/tests_integration_tests_chat_models_test_base.py": "Generic / Templated Code Files"
+    },
+    "python/micropython_usb_tls": {
+      "python/micropython_usb_tls/ssl_verify_callback.py": "Parameter Forwarders Files",
+      "python/micropython_usb_tls/tls_dtls.py": "Parameter Forwarders Files",
+      "python/micropython_usb_tls/usb_simple_host_pyusb.py": "Large Core Modules"
+    },
     "python/numpy": {
       "python/numpy/LICENSE.txt": "Data / Markup / Trivial",
       "python/numpy/__init__.py": "Data / Markup / Trivial",
@@ -2967,6 +3098,31 @@
       "python/numpy/ufunc_docstrings.py": "Large Core Modules (2)",
       "python/numpy/verify_c_api_version.py": "Large Core Modules (3)"
     },
+    "python/opencv_dnn_conversion": {
+      "python/opencv_dnn_conversion/py_to_py_resnet50_onnx.py": "Interface Declarations Files"
+    },
+    "python/pip_vendored_requests": {
+      "python/pip_vendored_requests/LICENSE.txt": "Data / Markup / Trivial",
+      "python/pip_vendored_requests/packages.py": "Declarative / Non-Code"
+    },
+    "python/scikit-learn_examples": {
+      "python/scikit-learn_examples/COPYING": "Data / Markup / Trivial",
+      "python/scikit-learn_examples/linear_model_plot_nnls.py": "Declarative / Non-Code",
+      "python/scikit-learn_examples/svm_plot_custom_kernel.py": "Parameter Forwarders Files"
+    },
+    "python/tensorflow_ml_ops": {
+      "python/tensorflow_ml_ops/core_tfrt_saved_model_tests_gen_matmul_gpu.py": "Parameter Forwarders Files",
+      "python/tensorflow_ml_ops/lite_testing_op_tests_einsum.py": "Large Core Modules (3)"
+    },
+    "python/tensorflow_model_fixtures": {
+      "python/tensorflow_model_fixtures/lite_testdata_multi_add.pb": "Data / Markup / Trivial",
+      "python/tensorflow_model_fixtures/python_compiler_mlir_multi_add.tflite": "Data / Markup / Trivial"
+    },
+    "python/thealgorithms_machine_learning": {
+      "python/thealgorithms_machine_learning/LICENSE.md": "Data / Markup / Trivial",
+      "python/thealgorithms_machine_learning/logistic_regression.py": "Many-Argument Workhorses Files",
+      "python/thealgorithms_machine_learning/lstm_lstm_prediction.py": "Declarative / Non-Code"
+    },
     "python/twisted": {
       "python/twisted/defer.py": "Generic / Templated Code Files",
       "python/twisted/http.py": "Large Core Modules (3)",
@@ -2982,18 +3138,24 @@
       "python/wtfpython/noxfile.py": "Generic / Templated Code Files"
     },
     "rexx": {
-      "rexx/PROVENANCE.md": "Data / Markup / Trivial"
+      "rexx/PROVENANCE.md": "Data / Markup / Trivial",
+      "rexx/SOURCES.md": "Data / Markup / Trivial"
+    },
+    "rexx/hercules_390_hyperion": {
+      "rexx/hercules_390_hyperion/COPYRIGHT": "Data / Markup / Trivial",
+      "rexx/hercules_390_hyperion/sample.rexx": "Declarative / Non-Code"
     },
     "rexx/hercules_hyperion": {
+      "rexx/hercules_hyperion/COPYRIGHT": "Data / Markup / Trivial",
       "rexx/hercules_hyperion/cmpsc.rexx": "Large Core Modules",
       "rexx/hercules_hyperion/hbasic1.rexx": "Declarative / Non-Code",
       "rexx/hercules_hyperion/hcommand.rexx": "Large Core Modules",
       "rexx/hercules_hyperion/hexecio.rexx": "Declarative / Non-Code",
       "rexx/hercules_hyperion/hlinein.rexx": "Declarative / Non-Code",
-      "rexx/hercules_hyperion/hrecurs.rexx": "Declarative / Non-Code",
-      "rexx/hercules_hyperion/sample.rexx": "Declarative / Non-Code"
+      "rexx/hercules_hyperion/hrecurs.rexx": "Declarative / Non-Code"
     },
     "rexx/ibm_z_zos": {
+      "rexx/ibm_z_zos/LICENSE.md": "Data / Markup / Trivial",
       "rexx/ibm_z_zos/bpxget.rexx": "Large Core Modules (3)",
       "rexx/ibm_z_zos/bpxput.rexx": "Large Core Modules (3)",
       "rexx/ibm_z_zos/bpxwtabs.rexx": "Large Core Modules",
@@ -3026,10 +3188,16 @@
       "ruby/rails/metal.rb": "Large Core Modules (3)",
       "ruby/rails/routing.rb": "Declarative / Non-Code"
     },
+    "ruby/rails_http_token_auth": {
+      "ruby/rails_http_token_auth/MIT-LICENSE": "Data / Markup / Trivial",
+      "ruby/rails_http_token_auth/http_token_authentication_test.rb": "Callbacks & Closures Files"
+    },
     "rust": {
       "rust/SOURCES.md": "Data / Markup / Trivial"
     },
     "rust/bevy": {
+      "rust/bevy/LICENSE-APACHE": "Data / Markup / Trivial",
+      "rust/bevy/LICENSE-MIT": "Data / Markup / Trivial",
       "rust/bevy/bevy_ecs_macros.rs": "Generic / Templated Code Files",
       "rust/bevy/bevy_ecs_query.rs": "Generic / Templated Code Files",
       "rust/bevy/bevy_ecs_table.rs": "Generic / Templated Code Files",
@@ -3037,6 +3205,12 @@
       "rust/bevy/bevy_reflect_path.rs": "Generic / Templated Code Files",
       "rust/bevy/bevy_render_phase.rs": "State Mutators Files",
       "rust/bevy/bevy_schedule_graph.rs": "Generic / Templated Code Files"
+    },
+    "rust/bevy_asset_examples": {
+      "rust/bevy_asset_examples/LICENSE-APACHE": "Data / Markup / Trivial",
+      "rust/bevy_asset_examples/LICENSE-MIT": "Data / Markup / Trivial",
+      "rust/bevy_asset_examples/image_node.rs": "State Mutators Files",
+      "rust/bevy_asset_examples/rotation.rs": "Many-Argument Workhorses Files"
     },
     "rust/holylang": {
       "rust/holylang/ast.rs": "Declarative / Non-Code",
@@ -3048,6 +3222,8 @@
       "rust/holylang/transpiler.rs": "Large Core Modules (3)"
     },
     "rust/serde": {
+      "rust/serde/LICENSE-APACHE": "Data / Markup / Trivial",
+      "rust/serde/LICENSE-MIT": "Data / Markup / Trivial",
       "rust/serde/serde_core_de_impls.rs": "Generic / Templated Code Files",
       "rust/serde/serde_core_de_mod.rs": "Generic / Templated Code Files",
       "rust/serde/serde_core_macros.rs": "Declarative / Non-Code",
@@ -3073,12 +3249,15 @@
       "rust/tokio/builder.rs": "Generic / Templated Code Files",
       "rust/tokio/config.rs": "Declarative / Non-Code",
       "rust/tokio/fuzz.rs": "Data / Markup / Trivial",
-      "rust/tokio/interval.rs": "Large Core Modules (3)",
+      "rust/tokio/interval.rs": "Parameter Forwarders Files",
       "rust/tokio/lib.rs": "Encapsulated Accessors Files",
       "rust/tokio/maybe_done.rs": "Generic / Templated Code Files",
       "rust/tokio/tests.rs": "Large Core Modules (3)",
       "rust/tokio/tokio_mpsc_bounded.rs": "Generic / Templated Code Files",
       "rust/tokio/tokio_named_pipe.rs": "Generic / Templated Code Files"
+    },
+    "rust/tokio_util_rand": {
+      "rust/tokio_util_rand/rand.rs": "Encapsulated Accessors Files"
     },
     "rust/wasmtime": {
       "rust/wasmtime/wasmtime_component_macro.rs": "State Mutators Files",
@@ -3194,6 +3373,7 @@
       "shell/darwin-xnu/xcrun_cache.sh": "Parameter Forwarders Files"
     },
     "shell/freebsd-src": {
+      "shell/freebsd-src/COPYRIGHT": "Data / Markup / Trivial",
       "shell/freebsd-src/chflags_test.sh": "Large Core Modules",
       "shell/freebsd-src/chmod_test.sh": "Large Core Modules",
       "shell/freebsd-src/cp_test.sh": "Large Core Modules",
@@ -3220,6 +3400,10 @@
       "shell/freebsd-src/runulp.sh": "Compute Cores Files",
       "shell/freebsd-src/timeout_test.sh": "Large Core Modules",
       "shell/freebsd-src/ztest.sh": "Large Core Modules"
+    },
+    "shell/freebsd_sysbuild": {
+      "shell/freebsd_sysbuild/COPYRIGHT": "Data / Markup / Trivial",
+      "shell/freebsd_sysbuild/sysbuild.sh": "State Mutators Files"
     },
     "shell/haiku": {
       "shell/haiku/HardwareChecker.sh": "Large Core Modules",
@@ -3419,23 +3603,26 @@
     "sql/baseline": {
       "sql/baseline/schema.php": "Large Core Modules (2)"
     },
-    "sql/mysql/mediawiki": {
-      "sql/mysql/mediawiki/COPYING": "Data / Markup / Trivial",
-      "sql/mysql/mediawiki/blobs.sql": "Data / Markup / Trivial"
+    "sql/mediawiki_mysql": {
+      "sql/mediawiki_mysql/COPYING": "Data / Markup / Trivial",
+      "sql/mediawiki_mysql/blobs.sql": "Data / Markup / Trivial"
     },
-    "sql/mysql/spamassassin": {
-      "sql/mysql/spamassassin/neural_mysql.sql": "Declarative / Non-Code"
+    "sql/mediawiki_postgresql": {
+      "sql/mediawiki_postgresql/COPYING": "Data / Markup / Trivial",
+      "sql/mediawiki_postgresql/tables.sql": "Declarative / Non-Code"
     },
-    "sql/postgresql/mediawiki": {
-      "sql/postgresql/mediawiki/tables.sql": "Declarative / Non-Code"
-    },
-    "sql/postgresql/sqlmap": {
-      "sql/postgresql/sqlmap/dns_request.sql": "Declarative / Non-Code"
+    "sql/spamassassin_mysql": {
+      "sql/spamassassin_mysql/NOTICE": "Data / Markup / Trivial",
+      "sql/spamassassin_mysql/neural_mysql.sql": "Declarative / Non-Code"
     },
     "sql/sqlite": {
       "sql/sqlite/000-mandelbrot.sql": "Declarative / Non-Code",
       "sql/sqlite/001-sudoku.sql": "Declarative / Non-Code",
+      "sql/sqlite/LICENSE.md": "Data / Markup / Trivial",
       "sql/sqlite/dotcmd01.sql": "Declarative / Non-Code"
+    },
+    "sql/sqlmap_postgresql": {
+      "sql/sqlmap_postgresql/dns_request.sql": "Declarative / Non-Code"
     },
     "sqlite": {
       "sqlite/SOURCES.md": "Data / Markup / Trivial"
@@ -3600,6 +3787,7 @@
       "tcl/macports_registry/registry_util.tcl": "Parameter Forwarders Files"
     },
     "tcl/sqlite": {
+      "tcl/sqlite/LICENSE.md": "Data / Markup / Trivial",
       "tcl/sqlite/README.md": "Data / Markup / Trivial",
       "tcl/sqlite/malloc_common.tcl": "Large Core Modules (3)",
       "tcl/sqlite/speedtest.tcl": "Declarative / Non-Code",
@@ -3644,6 +3832,9 @@
     "typescript": {
       "typescript/SOURCES.md": "Data / Markup / Trivial"
     },
+    "typescript/angular_zonejs_mocha": {
+      "typescript/angular_zonejs_mocha/mocha.ts": "Callbacks & Closures Files"
+    },
     "typescript/assemblyscript": {
       "typescript/assemblyscript/asconfig.json": "Data / Markup / Trivial",
       "typescript/assemblyscript/ast.ts": "Large Core Modules (3)",
@@ -3651,12 +3842,30 @@
       "typescript/assemblyscript/package.json": "Data / Markup / Trivial",
       "typescript/assemblyscript/parser.ts": "Compute Cores Files"
     },
+    "typescript/effect_ai_anthropic": {
+      "typescript/effect_ai_anthropic/AnthropicTokenizer.ts": "Large Core Modules (2)"
+    },
+    "typescript/excalibur_math": {
+      "typescript/excalibur_math/LICENSE.md": "Data / Markup / Trivial",
+      "typescript/excalibur_math/collision_colliders_separating-axis.ts": "Many-Argument Workhorses Files",
+      "typescript/excalibur_math/math_ray.ts": "Parameter Forwarders Files"
+    },
+    "typescript/excalidraw_text_wrapping": {
+      "typescript/excalidraw_text_wrapping/textWrapping.ts": "Callbacks & Closures Files"
+    },
     "typescript/fp-ts": {
       "typescript/fp-ts/Either.ts": "Generic / Templated Code Files",
       "typescript/fp-ts/HKT.ts": "Declarative / Non-Code",
       "typescript/fp-ts/TaskEither.ts": "Generic / Templated Code Files",
       "typescript/fp-ts/package.json": "Data / Markup / Trivial",
       "typescript/fp-ts/pipeable.ts": "Generic / Templated Code Files"
+    },
+    "typescript/nx_util_ai": {
+      "typescript/nx_util_ai/nx-dev_pages_api_query-ai-handler.ts": "Large Core Modules (2)",
+      "typescript/nx_util_ai/util-ai_src_lib_moderation.ts": "Large Core Modules (2)"
+    },
+    "typescript/pixijs_examples": {
+      "typescript/pixijs_examples/events_dragging.ts": "State Mutators Files"
     },
     "typescript/playwright": {
       "typescript/playwright/NOTICE": "Data / Markup / Trivial",
@@ -3700,10 +3909,12 @@
       "xml/apex/CanTheUser_Tests.cls-meta.xml": "Data / Markup / Trivial",
       "xml/apex/IterationRecipes_Tests.cls": "Declarative / Non-Code",
       "xml/apex/IterationRecipes_Tests.cls-meta.xml": "Data / Markup / Trivial",
+      "xml/apex/LICENSE.md": "Data / Markup / Trivial",
       "xml/apex/ListSortingRecipes_Tests.cls": "Large Core Modules",
       "xml/apex/ListSortingRecipes_Tests.cls-meta.xml": "Data / Markup / Trivial"
     },
     "xml/jenkins": {
+      "xml/jenkins/LICENSE.txt": "Data / Markup / Trivial",
       "xml/jenkins/XStreamDOMTest.data1.xml": "Data / Markup / Trivial",
       "xml/jenkins/XStreamDOMTest.data2.xml": "Data / Markup / Trivial",
       "xml/jenkins/excludesFilter.xml": "Data / Markup / Trivial"
@@ -3810,10 +4021,21 @@
       "zig/SOURCES.md": "Data / Markup / Trivial"
     },
     "zig/bun": {
+      "zig/bun/LICENSE.md": "Data / Markup / Trivial",
       "zig/bun/MimallocArena.zig": "Large Core Modules (3)",
       "zig/bun/Parser.zig": "Large Core Modules (3)",
       "zig/bun/comptime_string_map.zig": "Large Core Modules (3)",
       "zig/bun/napi.zig": "State Mutators Files"
+    },
+    "zig/mach": {
+      "zig/mach/Core.zig": "Large Core Modules (3)",
+      "zig/mach/StringTable.zig": "Large Core Modules (3)",
+      "zig/mach/collision.zig": "Large Core Modules (3)",
+      "zig/mach/graph.zig": "Large Core Modules (2)",
+      "zig/mach/main.zig": "Declarative / Non-Code",
+      "zig/mach/module.zig": "Large Core Modules (3)",
+      "zig/mach/testing.zig": "Large Core Modules (2)",
+      "zig/mach/win32.zig": "Type Conversions Files"
     },
     "zig/tigerbeetle": {
       "zig/tigerbeetle/aof.zig": "Large Core Modules (3)",
@@ -3836,6 +4058,9 @@
       "zig/zig/Zcu.zig": "Large Core Modules (2)",
       "zig/zig/main.zig": "Large Core Modules (2)"
     },
+    "zig/zig_std_linux_mips": {
+      "zig/zig_std_linux_mips/mips.zig": "Parameter Forwarders Files"
+    },
     "zig/zls": {
       "zig/zls/DocumentScope.zig": "State Mutators Files",
       "zig/zls/DocumentStore.zig": "Large Core Modules (2)",
@@ -3844,16 +4069,6 @@
       "zig/zls/ast.zig": "Large Core Modules (3)",
       "zig/zls/config_gen.zig": "Large Core Modules (2)",
       "zig/zls/print_ast.zig": "Large Core Modules (2)"
-    },
-    "zig/zls/mach": {
-      "zig/zls/mach/Core.zig": "Large Core Modules (3)",
-      "zig/zls/mach/StringTable.zig": "Large Core Modules (3)",
-      "zig/zls/mach/collision.zig": "Large Core Modules (3)",
-      "zig/zls/mach/graph.zig": "Large Core Modules (2)",
-      "zig/zls/mach/main.zig": "Declarative / Non-Code",
-      "zig/zls/mach/module.zig": "Large Core Modules (3)",
-      "zig/zls/mach/testing.zig": "Large Core Modules (2)",
-      "zig/zls/mach/win32.zig": "Type Conversions Files"
     }
   },
   "path": [

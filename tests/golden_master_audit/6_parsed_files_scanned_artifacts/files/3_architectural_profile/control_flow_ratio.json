@@ -14,9 +14,11 @@
       "abap/abapGit/zcl_abapgit_xml_output.clas.abap": "7.9%"
     },
     "ada": {
-      "ada/PROVENANCE.md": "0.0%"
+      "ada/PROVENANCE.md": "0.0%",
+      "ada/SOURCES.md": "0.0%"
     },
     "ada/alire": {
+      "ada/alire/LICENSE.txt": "0.0%",
       "ada/alire/alire-conditional_trees.adb": "20.9%",
       "ada/alire/alire-crate_configuration.adb": "18.1%",
       "ada/alire/alire-dependencies-states.ads": "14.7%",
@@ -91,7 +93,7 @@
     "apex/apex-recipes": {
       "apex/apex-recipes/AuraEnabledRecipes_Tests.cls": "0.0%",
       "apex/apex-recipes/LICENSE.md": "0.0%",
-      "apex/apex-recipes/QueueableRecipes.cls": "9.5%",
+      "apex/apex-recipes/QueueableRecipes.cls": "4.8%",
       "apex/apex-recipes/SOQLRecipes.cls": "1.7%",
       "apex/apex-recipes/SOQLRecipes.cls-meta.xml": "0.0%",
       "apex/apex-recipes/SOQLRecipes_Tests.cls": "1.8%",
@@ -124,7 +126,7 @@
     "assembly/cosmopolitan": {
       "assembly/cosmopolitan/BUILD.mk": "1.7%",
       "assembly/cosmopolitan/ape.S": "2.0%",
-      "assembly/cosmopolitan/loader.c": "29.3%",
+      "assembly/cosmopolitan/loader.c": "27.9%",
       "assembly/cosmopolitan/notice.inc": "0.0%",
       "assembly/cosmopolitan/start.S": "0.0%"
     },
@@ -322,22 +324,17 @@
       "assembly/os_tutorial_x86/14-checkpoint_boot_gdt.asm": "0.0%",
       "assembly/os_tutorial_x86/14-checkpoint_boot_kernel_entry.asm": "0.0%"
     },
-    "assembly/raspberrypi_baremetal": {
-      "assembly/raspberrypi_baremetal/Compress_HUFFMAN_HUFFMANDecode_kernel.asm": "10.2%",
-      "assembly/raspberrypi_baremetal/Compress_HUFFMAN_HUFFMANDecode_kernel7.asm": "11.1%",
-      "assembly/raspberrypi_baremetal/Compress_HUFFMAN_HUFFMANDecode_kernel8.asm": "4.9%",
-      "assembly/raspberrypi_baremetal/Compress_HUFFMAN_HUFFMANGFX_kernel.asm": "6.5%",
-      "assembly/raspberrypi_baremetal/Compress_HUFFMAN_HUFFMANGFX_kernel7.asm": "7.2%",
-      "assembly/raspberrypi_baremetal/Compress_HUFFMAN_HUFFMANGFX_kernel8.asm": "3.8%",
-      "assembly/raspberrypi_baremetal/Compress_LZ77_LZ77Decode_kernel.asm": "13.0%",
-      "assembly/raspberrypi_baremetal/Compress_LZ77_LZ77Decode_kernel7.asm": "13.7%",
-      "assembly/raspberrypi_baremetal/Compress_LZ77_LZ77Decode_kernel8.asm": "6.1%",
-      "assembly/raspberrypi_baremetal/Compress_LZ77_LZ77GFX_kernel.asm": "7.9%",
-      "assembly/raspberrypi_baremetal/Compress_LZ77_LZ77GFX_kernel7.asm": "8.5%",
-      "assembly/raspberrypi_baremetal/Compress_LZ77_LZ77GFX_kernel8.asm": "4.3%",
-      "assembly/raspberrypi_baremetal/EMU_GameBoy_kernel.asm": "1.4%",
-      "assembly/raspberrypi_baremetal/HelloWorld_CPU_kernel7.asm": "6.5%",
-      "assembly/raspberrypi_baremetal/HelloWorld_CPU_kernel8.asm": "3.3%"
+    "assembly/rpi_smartstart_baremetal": {
+      "assembly/rpi_smartstart_baremetal/10_virtualmemory_SmartStart32.S": "2.6%",
+      "assembly/rpi_smartstart_baremetal/10_virtualmemory_SmartStart64.S": "1.4%",
+      "assembly/rpi_smartstart_baremetal/Arm32_64_USB_SmartStart32.S": "3.3%",
+      "assembly/rpi_smartstart_baremetal/Arm32_64_USB_SmartStart64.S": "2.4%",
+      "assembly/rpi_smartstart_baremetal/Core3Interrupt_SmartStart64.S": "2.6%",
+      "assembly/rpi_smartstart_baremetal/FreeRTOSv10.1.1_loader_RaspberryPi_SmartStart32.S": "2.9%",
+      "assembly/rpi_smartstart_baremetal/FreeRTOSv10.1.1_loader_RaspberryPi_SmartStart64.S": "1.6%",
+      "assembly/rpi_smartstart_baremetal/Multicore_SmartStart32.S": "4.8%",
+      "assembly/rpi_smartstart_baremetal/Multicore_SmartStart64.S": "3.4%",
+      "assembly/rpi_smartstart_baremetal/SimpleSched_SmartStart32.S": "3.8%"
     },
     "assembly/x86_bare_metal": {
       "assembly/x86_bare_metal/LICENSE.adoc": "0.0%",
@@ -393,6 +390,9 @@
       "blueprint/ghostty/split-tree.blp": "0.0%",
       "blueprint/ghostty/window.blp": "0.0%"
     },
+    "bms": {
+      "bms/SOURCES.md": "0.0%"
+    },
     "bms/cbsa": {
       "bms/cbsa/BNK1ACC.bms": "0.0%",
       "bms/cbsa/BNK1CAM.bms": "0.0%",
@@ -403,54 +403,63 @@
       "bms/cbsa/BNK1MAI.bms": "0.0%",
       "bms/cbsa/BNK1TFM.bms": "0.0%",
       "bms/cbsa/BNK1UAM.bms": "0.0%",
-      "bms/cbsa/PROVENANCE.md": "0.0%",
-      "bms/cbsa/ssmap.bms": "0.0%"
+      "bms/cbsa/PROVENANCE.md": "0.0%"
+    },
+    "bms/genapp": {
+      "bms/genapp/ssmap.bms": "0.0%"
     },
     "c": {
       "c/SOURCES.md": "0.0%"
     },
+    "c/cosmopolitan_intrin": {
+      "c/cosmopolitan_intrin/countbits.c": "11.7%"
+    },
     "c/cpython": {
       "c/cpython/Makefile.pre.in": "5.6%",
-      "c/cpython/ceval.c": "18.4%",
-      "c/cpython/compile.c": "18.9%",
-      "c/cpython/dictobject.c": "16.9%",
-      "c/cpython/frameobject.c": "18.8%",
-      "c/cpython/gc.c": "12.8%",
-      "c/cpython/object.c": "16.2%",
-      "c/cpython/typeobject.c": "18.7%"
+      "c/cpython/ceval.c": "16.3%",
+      "c/cpython/compile.c": "18.3%",
+      "c/cpython/dictobject.c": "16.1%",
+      "c/cpython/frameobject.c": "18.5%",
+      "c/cpython/gc.c": "11.9%",
+      "c/cpython/object.c": "15.4%",
+      "c/cpython/typeobject.c": "18.0%"
     },
     "c/doom": {
       "c/doom/LICENSE.TXT": "0.0%",
       "c/doom/README.TXT": "0.0%",
-      "c/doom/d_main.c": "22.6%",
+      "c/doom/d_main.c": "21.8%",
       "c/doom/doomdef.h": "0.0%",
-      "c/doom/i_system.c": "3.7%",
-      "c/doom/m_fixed.c": "12.2%",
+      "c/doom/i_system.c": "1.9%",
+      "c/doom/m_fixed.c": "9.8%",
       "c/doom/m_fixed.h": "0.0%",
       "c/doom/p_mobj.c": "25.4%",
       "c/doom/p_mobj.h": "0.0%",
       "c/doom/r_bsp.c": "17.8%",
       "c/doom/r_defs.h": "0.0%",
       "c/doom/w_wad.c": "15.2%",
-      "c/doom/z_zone.c": "19.9%"
+      "c/doom/z_zone.c": "19.1%"
+    },
+    "c/freebsd_openpam": {
+      "c/freebsd_openpam/pam_acct_mgmt.c": "0.0%"
     },
     "c/micropython": {
-      "c/micropython/compile.c": "27.8%",
-      "c/micropython/compile.h": "20.0%",
-      "c/micropython/emitnative.c": "20.6%",
-      "c/micropython/gc.c": "29.1%",
-      "c/micropython/gc.h": "6.5%",
-      "c/micropython/modmachine.c": "20.2%",
-      "c/micropython/modmachine.h": "18.0%",
-      "c/micropython/objtype.c": "25.0%",
-      "c/micropython/objtype.h": "5.6%",
-      "c/micropython/vfs.c": "21.8%",
-      "c/micropython/vfs.h": "5.5%",
-      "c/micropython/vm.c": "19.3%"
+      "c/micropython/compile.c": "24.3%",
+      "c/micropython/compile.h": "0.0%",
+      "c/micropython/emitnative.c": "16.8%",
+      "c/micropython/gc.c": "15.6%",
+      "c/micropython/gc.h": "0.0%",
+      "c/micropython/modmachine.c": "1.1%",
+      "c/micropython/modmachine.h": "0.0%",
+      "c/micropython/objtype.c": "20.1%",
+      "c/micropython/objtype.h": "0.0%",
+      "c/micropython/vfs.c": "18.1%",
+      "c/micropython/vfs.h": "0.0%",
+      "c/micropython/vm.c": "10.3%"
     },
     "c/sqlite": {
+      "c/sqlite/LICENSE.md": "0.0%",
       "c/sqlite/README.md": "0.0%",
-      "c/sqlite/lemon.c": "29.7%"
+      "c/sqlite/lemon.c": "28.7%"
     },
     "cobol/CICS-Cobol": {
       "cobol/CICS-Cobol/CBL0102v01DivisionAmbiente.cbl": "0.0%",
@@ -582,6 +591,9 @@
       "cobol/aws-mainframe-modernization-carddemo/CVTRA07Y.cpy": "0.0%",
       "cobol/aws-mainframe-modernization-carddemo/DFHAID.cpy": "0.0%",
       "cobol/aws-mainframe-modernization-carddemo/DFHBMSCA.cpy": "0.0%",
+      "cobol/aws-mainframe-modernization-carddemo/LICENSE.md": "0.0%",
+      "cobol/aws-mainframe-modernization-carddemo/NOTICE.md": "0.0%",
+      "cobol/aws-mainframe-modernization-carddemo/README.md": "0.0%",
       "cobol/aws-mainframe-modernization-carddemo/UNUSED1Y.cpy": "0.0%"
     },
     "cobol/cash-account-cobol": {
@@ -590,6 +602,8 @@
       "cobol/cash-account-cobol/DCLFRANK.cpy": "0.0%"
     },
     "cobol/che-che4z-lsp-for-cobol": {
+      "cobol/che-che4z-lsp-for-cobol/LICENSE.md": "0.0%",
+      "cobol/che-che4z-lsp-for-cobol/NOTICE.md": "0.0%",
       "cobol/che-che4z-lsp-for-cobol/SQLCA_DATACOM.cpy": "2.0%",
       "cobol/che-che4z-lsp-for-cobol/SQLCA_DB2.cpy": "4.2%",
       "cobol/che-che4z-lsp-for-cobol/SQLDA.cpy": "7.7%"
@@ -673,7 +687,7 @@
       "cobol/che-che4z_nist_ccvs85/DB3014.2.cbl": "0.0%",
       "cobol/che-che4z_nist_ccvs85/DB3024.2.cbl": "0.0%",
       "cobol/che-che4z_nist_ccvs85/DB3054.2.cbl": "0.0%",
-      "cobol/che-che4z_nist_ccvs85/IC1014.2.cbl": "8.8%",
+      "cobol/che-che4z_nist_ccvs85/IC1014.2.cbl": "8.9%",
       "cobol/che-che4z_nist_ccvs85/IC1024.2.cbl": "0.0%",
       "cobol/che-che4z_nist_ccvs85/IC1034.2.cbl": "7.9%",
       "cobol/che-che4z_nist_ccvs85/IC1044.2.cbl": "0.0%",
@@ -697,106 +711,106 @@
       "cobol/che-che4z_nist_ccvs85/IC2064.2.cbl": "0.0%",
       "cobol/che-che4z_nist_ccvs85/IC2074.2.cbl": "9.5%",
       "cobol/che-che4z_nist_ccvs85/IC2084.2.cbl": "27.5%",
-      "cobol/che-che4z_nist_ccvs85/IC2094.2.cbl": "9.0%",
+      "cobol/che-che4z_nist_ccvs85/IC2094.2.cbl": "9.1%",
       "cobol/che-che4z_nist_ccvs85/IC2104.2.cbl": "6.5%",
       "cobol/che-che4z_nist_ccvs85/IC2114.2.cbl": "0.0%",
       "cobol/che-che4z_nist_ccvs85/IC2124.2.cbl": "0.0%",
-      "cobol/che-che4z_nist_ccvs85/IC2134.2.cbl": "9.0%",
+      "cobol/che-che4z_nist_ccvs85/IC2134.2.cbl": "9.1%",
       "cobol/che-che4z_nist_ccvs85/IC2144.2.cbl": "0.0%",
       "cobol/che-che4z_nist_ccvs85/IC2154.2.cbl": "0.0%",
-      "cobol/che-che4z_nist_ccvs85/IC2164.2.cbl": "8.9%",
+      "cobol/che-che4z_nist_ccvs85/IC2164.2.cbl": "9.0%",
       "cobol/che-che4z_nist_ccvs85/IC2174.2.cbl": "0.0%",
       "cobol/che-che4z_nist_ccvs85/IC2244.2.cbl": "6.6%",
       "cobol/che-che4z_nist_ccvs85/IC2264.2.cbl": "9.1%",
-      "cobol/che-che4z_nist_ccvs85/IC2284.2.cbl": "9.3%",
+      "cobol/che-che4z_nist_ccvs85/IC2284.2.cbl": "9.4%",
       "cobol/che-che4z_nist_ccvs85/IC2334.2.cbl": "10.6%",
       "cobol/che-che4z_nist_ccvs85/IC2344.2.cbl": "8.0%",
-      "cobol/che-che4z_nist_ccvs85/IC2374.2.cbl": "8.4%",
+      "cobol/che-che4z_nist_ccvs85/IC2374.2.cbl": "8.5%",
       "cobol/che-che4z_nist_ccvs85/IC4014.2.cbl": "0.0%",
-      "cobol/che-che4z_nist_ccvs85/IF1024.2.cbl": "9.7%",
-      "cobol/che-che4z_nist_ccvs85/IF1054.2.cbl": "10.2%",
-      "cobol/che-che4z_nist_ccvs85/IF1074.2.cbl": "9.2%",
-      "cobol/che-che4z_nist_ccvs85/IF1084.2.cbl": "11.1%",
-      "cobol/che-che4z_nist_ccvs85/IF1094.2.cbl": "11.1%",
+      "cobol/che-che4z_nist_ccvs85/IF1024.2.cbl": "9.8%",
+      "cobol/che-che4z_nist_ccvs85/IF1054.2.cbl": "10.3%",
+      "cobol/che-che4z_nist_ccvs85/IF1074.2.cbl": "9.3%",
+      "cobol/che-che4z_nist_ccvs85/IF1084.2.cbl": "11.2%",
+      "cobol/che-che4z_nist_ccvs85/IF1094.2.cbl": "11.2%",
       "cobol/che-che4z_nist_ccvs85/IF1104.2.cbl": "10.4%",
-      "cobol/che-che4z_nist_ccvs85/IF1114.2.cbl": "11.2%",
-      "cobol/che-che4z_nist_ccvs85/IF1124.2.cbl": "11.1%",
-      "cobol/che-che4z_nist_ccvs85/IF1134.2.cbl": "11.1%",
+      "cobol/che-che4z_nist_ccvs85/IF1114.2.cbl": "11.3%",
+      "cobol/che-che4z_nist_ccvs85/IF1124.2.cbl": "11.2%",
+      "cobol/che-che4z_nist_ccvs85/IF1134.2.cbl": "11.2%",
       "cobol/che-che4z_nist_ccvs85/IF1144.2.cbl": "11.2%",
-      "cobol/che-che4z_nist_ccvs85/IF1154.2.cbl": "10.6%",
-      "cobol/che-che4z_nist_ccvs85/IF1184.2.cbl": "10.7%",
+      "cobol/che-che4z_nist_ccvs85/IF1154.2.cbl": "10.7%",
+      "cobol/che-che4z_nist_ccvs85/IF1184.2.cbl": "10.8%",
       "cobol/che-che4z_nist_ccvs85/IF1204.2.cbl": "10.0%",
       "cobol/che-che4z_nist_ccvs85/IF1214.2.cbl": "10.1%",
       "cobol/che-che4z_nist_ccvs85/IF1224.2.cbl": "10.1%",
       "cobol/che-che4z_nist_ccvs85/IF1244.2.cbl": "10.0%",
       "cobol/che-che4z_nist_ccvs85/IF1254.2.cbl": "10.7%",
-      "cobol/che-che4z_nist_ccvs85/IF1274.2.cbl": "10.3%",
-      "cobol/che-che4z_nist_ccvs85/IF1284.2.cbl": "10.5%",
-      "cobol/che-che4z_nist_ccvs85/IF1294.2.cbl": "11.0%",
+      "cobol/che-che4z_nist_ccvs85/IF1274.2.cbl": "10.4%",
+      "cobol/che-che4z_nist_ccvs85/IF1284.2.cbl": "10.6%",
+      "cobol/che-che4z_nist_ccvs85/IF1294.2.cbl": "11.1%",
       "cobol/che-che4z_nist_ccvs85/IF1314.2.cbl": "9.9%",
       "cobol/che-che4z_nist_ccvs85/IF1324.2.cbl": "10.2%",
       "cobol/che-che4z_nist_ccvs85/IF1334.2.cbl": "10.0%",
       "cobol/che-che4z_nist_ccvs85/IF1344.2.cbl": "10.7%",
-      "cobol/che-che4z_nist_ccvs85/IF1374.2.cbl": "9.4%",
+      "cobol/che-che4z_nist_ccvs85/IF1374.2.cbl": "9.5%",
       "cobol/che-che4z_nist_ccvs85/IF1384.2.cbl": "10.1%",
       "cobol/che-che4z_nist_ccvs85/IF1404.2.cbl": "10.8%",
       "cobol/che-che4z_nist_ccvs85/IF1414.2.cbl": "9.6%",
-      "cobol/che-che4z_nist_ccvs85/IF1424.2.cbl": "9.5%",
-      "cobol/che-che4z_nist_ccvs85/IF4014.2.cbl": "15.0%",
-      "cobol/che-che4z_nist_ccvs85/IF4024.2.cbl": "17.3%",
-      "cobol/che-che4z_nist_ccvs85/IF4034.2.cbl": "13.3%",
-      "cobol/che-che4z_nist_ccvs85/IX1014.2.cbl": "8.8%",
+      "cobol/che-che4z_nist_ccvs85/IF1424.2.cbl": "9.6%",
+      "cobol/che-che4z_nist_ccvs85/IF4014.2.cbl": "20.0%",
+      "cobol/che-che4z_nist_ccvs85/IF4024.2.cbl": "22.7%",
+      "cobol/che-che4z_nist_ccvs85/IF4034.2.cbl": "17.9%",
+      "cobol/che-che4z_nist_ccvs85/IX1014.2.cbl": "8.9%",
       "cobol/che-che4z_nist_ccvs85/IX1024.2.cbl": "11.7%",
-      "cobol/che-che4z_nist_ccvs85/IX1034.2.cbl": "11.4%",
+      "cobol/che-che4z_nist_ccvs85/IX1034.2.cbl": "11.5%",
       "cobol/che-che4z_nist_ccvs85/IX1044.2.cbl": "10.5%",
-      "cobol/che-che4z_nist_ccvs85/IX1114.2.cbl": "9.6%",
-      "cobol/che-che4z_nist_ccvs85/IX1134.2.cbl": "10.2%",
-      "cobol/che-che4z_nist_ccvs85/IX1144.2.cbl": "10.5%",
-      "cobol/che-che4z_nist_ccvs85/IX1154.2.cbl": "10.3%",
-      "cobol/che-che4z_nist_ccvs85/IX1164.2.cbl": "10.3%",
-      "cobol/che-che4z_nist_ccvs85/IX1174.2.cbl": "10.3%",
-      "cobol/che-che4z_nist_ccvs85/IX1184.2.cbl": "10.3%",
-      "cobol/che-che4z_nist_ccvs85/IX1194.2.cbl": "10.6%",
-      "cobol/che-che4z_nist_ccvs85/IX1204.2.cbl": "10.4%",
-      "cobol/che-che4z_nist_ccvs85/IX1214.2.cbl": "10.5%",
+      "cobol/che-che4z_nist_ccvs85/IX1114.2.cbl": "10.2%",
+      "cobol/che-che4z_nist_ccvs85/IX1134.2.cbl": "10.7%",
+      "cobol/che-che4z_nist_ccvs85/IX1144.2.cbl": "11.0%",
+      "cobol/che-che4z_nist_ccvs85/IX1154.2.cbl": "10.9%",
+      "cobol/che-che4z_nist_ccvs85/IX1164.2.cbl": "10.9%",
+      "cobol/che-che4z_nist_ccvs85/IX1174.2.cbl": "10.9%",
+      "cobol/che-che4z_nist_ccvs85/IX1184.2.cbl": "10.8%",
+      "cobol/che-che4z_nist_ccvs85/IX1194.2.cbl": "11.1%",
+      "cobol/che-che4z_nist_ccvs85/IX1204.2.cbl": "11.0%",
+      "cobol/che-che4z_nist_ccvs85/IX1214.2.cbl": "11.1%",
       "cobol/che-che4z_nist_ccvs85/IX2014.2.cbl": "8.9%",
-      "cobol/che-che4z_nist_ccvs85/IX2034.2.cbl": "11.7%",
+      "cobol/che-che4z_nist_ccvs85/IX2034.2.cbl": "11.8%",
       "cobol/che-che4z_nist_ccvs85/IX2044.2.cbl": "10.5%",
-      "cobol/che-che4z_nist_ccvs85/IX2174.2.cbl": "9.8%",
-      "cobol/che-che4z_nist_ccvs85/IX2184.2.cbl": "8.1%",
-      "cobol/che-che4z_nist_ccvs85/IX3014.2.cbl": "15.3%",
-      "cobol/che-che4z_nist_ccvs85/IX4014.2.cbl": "7.1%",
+      "cobol/che-che4z_nist_ccvs85/IX2174.2.cbl": "10.1%",
+      "cobol/che-che4z_nist_ccvs85/IX2184.2.cbl": "8.6%",
+      "cobol/che-che4z_nist_ccvs85/IX3014.2.cbl": "19.6%",
+      "cobol/che-che4z_nist_ccvs85/IX4014.2.cbl": "9.1%",
       "cobol/che-che4z_nist_ccvs85/LICENSE.md": "0.0%",
       "cobol/che-che4z_nist_ccvs85/NC1104.2.cbl": "0.0%",
       "cobol/che-che4z_nist_ccvs85/NC1114.2.cbl": "7.9%",
       "cobol/che-che4z_nist_ccvs85/NC1134.2.cbl": "2.5%",
       "cobol/che-che4z_nist_ccvs85/NC1254.2.cbl": "10.4%",
-      "cobol/che-che4z_nist_ccvs85/NC1274.2.cbl": "9.5%",
-      "cobol/che-che4z_nist_ccvs85/NC1314.2.cbl": "9.9%",
+      "cobol/che-che4z_nist_ccvs85/NC1274.2.cbl": "9.6%",
+      "cobol/che-che4z_nist_ccvs85/NC1314.2.cbl": "10.0%",
       "cobol/che-che4z_nist_ccvs85/NC1334.2.cbl": "8.5%",
       "cobol/che-che4z_nist_ccvs85/NC1344.2.cbl": "12.4%",
-      "cobol/che-che4z_nist_ccvs85/NC1354.2.cbl": "10.3%",
-      "cobol/che-che4z_nist_ccvs85/NC1364.2.cbl": "9.2%",
-      "cobol/che-che4z_nist_ccvs85/NC1374.2.cbl": "8.9%",
+      "cobol/che-che4z_nist_ccvs85/NC1354.2.cbl": "10.4%",
+      "cobol/che-che4z_nist_ccvs85/NC1364.2.cbl": "9.9%",
+      "cobol/che-che4z_nist_ccvs85/NC1374.2.cbl": "9.6%",
       "cobol/che-che4z_nist_ccvs85/NC1384.2.cbl": "7.7%",
       "cobol/che-che4z_nist_ccvs85/NC1394.2.cbl": "7.4%",
       "cobol/che-che4z_nist_ccvs85/NC1404.2.cbl": "5.0%",
       "cobol/che-che4z_nist_ccvs85/NC1414.2.cbl": "10.1%",
       "cobol/che-che4z_nist_ccvs85/NC2104.2.cbl": "25.9%",
-      "cobol/che-che4z_nist_ccvs85/NC2144.2.cbl": "7.1%",
+      "cobol/che-che4z_nist_ccvs85/NC2144.2.cbl": "7.2%",
       "cobol/che-che4z_nist_ccvs85/NC2154.2.cbl": "9.1%",
       "cobol/che-che4z_nist_ccvs85/NC2194.2.cbl": "9.6%",
       "cobol/che-che4z_nist_ccvs85/NC2224.2.cbl": "8.9%",
-      "cobol/che-che4z_nist_ccvs85/NC2244.2.cbl": "8.9%",
+      "cobol/che-che4z_nist_ccvs85/NC2244.2.cbl": "9.0%",
       "cobol/che-che4z_nist_ccvs85/NC2354.2.cbl": "10.2%",
       "cobol/che-che4z_nist_ccvs85/NC2364.2.cbl": "15.3%",
-      "cobol/che-che4z_nist_ccvs85/NC2374.2.cbl": "8.5%",
-      "cobol/che-che4z_nist_ccvs85/NC2384.2.cbl": "12.4%",
-      "cobol/che-che4z_nist_ccvs85/NC2394.2.cbl": "8.1%",
-      "cobol/che-che4z_nist_ccvs85/NC2404.2.cbl": "16.5%",
-      "cobol/che-che4z_nist_ccvs85/NC2414.2.cbl": "17.4%",
-      "cobol/che-che4z_nist_ccvs85/NC2424.2.cbl": "9.0%",
-      "cobol/che-che4z_nist_ccvs85/NC2434.2.cbl": "20.1%",
+      "cobol/che-che4z_nist_ccvs85/NC2374.2.cbl": "8.6%",
+      "cobol/che-che4z_nist_ccvs85/NC2384.2.cbl": "12.5%",
+      "cobol/che-che4z_nist_ccvs85/NC2394.2.cbl": "8.4%",
+      "cobol/che-che4z_nist_ccvs85/NC2404.2.cbl": "17.2%",
+      "cobol/che-che4z_nist_ccvs85/NC2414.2.cbl": "18.0%",
+      "cobol/che-che4z_nist_ccvs85/NC2424.2.cbl": "9.6%",
+      "cobol/che-che4z_nist_ccvs85/NC2434.2.cbl": "21.2%",
       "cobol/che-che4z_nist_ccvs85/NC2444.2.cbl": "11.5%",
       "cobol/che-che4z_nist_ccvs85/NC2454.2.cbl": "7.4%",
       "cobol/che-che4z_nist_ccvs85/NC2484.2.cbl": "8.6%",
@@ -805,11 +819,11 @@
       "cobol/che-che4z_nist_ccvs85/OBIC24.2.cbl": "7.4%",
       "cobol/che-che4z_nist_ccvs85/OBIC34.2.cbl": "9.4%",
       "cobol/che-che4z_nist_ccvs85/OBSQ34.2.cbl": "6.5%",
-      "cobol/che-che4z_nist_ccvs85/OBSQ44.2.cbl": "10.6%",
-      "cobol/che-che4z_nist_ccvs85/OBSQ54.2.cbl": "10.9%",
+      "cobol/che-che4z_nist_ccvs85/OBSQ44.2.cbl": "10.7%",
+      "cobol/che-che4z_nist_ccvs85/OBSQ54.2.cbl": "11.0%",
       "cobol/che-che4z_nist_ccvs85/PDC0001.cbl": "0.0%",
-      "cobol/che-che4z_nist_ccvs85/RL3014.2.cbl": "15.8%",
-      "cobol/che-che4z_nist_ccvs85/RL4014.2.cbl": "6.2%",
+      "cobol/che-che4z_nist_ccvs85/RL3014.2.cbl": "19.1%",
+      "cobol/che-che4z_nist_ccvs85/RL4014.2.cbl": "7.8%",
       "cobol/che-che4z_nist_ccvs85/SG3034.2.cbl": "0.0%",
       "cobol/che-che4z_nist_ccvs85/SG4014.2.cbl": "0.0%",
       "cobol/che-che4z_nist_ccvs85/SM1064.2.cbl": "0.0%",
@@ -817,7 +831,7 @@
       "cobol/che-che4z_nist_ccvs85/SQ3034.2.cbl": "0.0%",
       "cobol/che-che4z_nist_ccvs85/ST1084.2.cbl": "11.1%",
       "cobol/che-che4z_nist_ccvs85/ST1184.2.cbl": "11.1%",
-      "cobol/che-che4z_nist_ccvs85/ST3014.2.cbl": "4.0%"
+      "cobol/che-che4z_nist_ccvs85/ST3014.2.cbl": "4.9%"
     },
     "cobol/cics-banking-sample-application-cbsa": {
       "cobol/cics-banking-sample-application-cbsa/ABNDINFO.cpy": "0.0%",
@@ -949,7 +963,7 @@
       "cobol/cobol-check/src_main_cobol_DPICNUMBERS.CBL": "0.0%",
       "cobol/cobol-check/src_main_cobol_FileCopy.cbl": "7.6%",
       "cobol/cobol-check/src_main_cobol_GREETING.CBL": "14.6%",
-      "cobol/cobol-check/src_main_cobol_LONGLINESANDNUMBERS.CBL": "14.5%",
+      "cobol/cobol-check/src_main_cobol_LONGLINESANDNUMBERS.CBL": "15.8%",
       "cobol/cobol-check/src_main_cobol_MOCK.CBL": "6.2%",
       "cobol/cobol-check/src_main_cobol_MOCKPARA.CBL": "0.0%",
       "cobol/cobol-check/src_main_cobol_MOCKTEST.CBL": "10.9%",
@@ -1039,9 +1053,10 @@
       "cobol/gnucobol/xfhfcd3.cpy": "0.0%"
     },
     "cobol/gnucobol_internals": {
-      "cobol/gnucobol_internals/codegen.c": "29.6%",
-      "cobol/gnucobol_internals/fileio.c": "30.0%",
-      "cobol/gnucobol_internals/numeric.c": "19.7%",
+      "cobol/gnucobol_internals/COPYING": "0.0%",
+      "cobol/gnucobol_internals/codegen.c": "28.0%",
+      "cobol/gnucobol_internals/fileio.c": "29.0%",
+      "cobol/gnucobol_internals/numeric.c": "17.7%",
       "cobol/gnucobol_internals/parser.y": "22.3%",
       "cobol/gnucobol_internals/scanner.l": "19.4%",
       "cobol/gnucobol_internals/syn_misc.at": "0.0%"
@@ -1076,31 +1091,31 @@
       "cpp/NVDA/core.py": "14.2%",
       "cpp/NVDA/ensureuv.ps1": "20.0%",
       "cpp/NVDA/espeak.py": "17.8%",
-      "cpp/NVDA/inProcess.cpp": "18.3%",
+      "cpp/NVDA/inProcess.cpp": "17.6%",
       "cpp/NVDA/nvdaControllerInternal.cpp": "0.0%",
       "cpp/NVDA/readme.md": "0.0%",
-      "cpp/NVDA/storage.cpp": "28.2%"
+      "cpp/NVDA/storage.cpp": "27.7%"
     },
     "cpp/godot": {
       "cpp/godot/AUTHORS.md": "0.0%",
       "cpp/godot/DONORS.md": "0.0%",
       "cpp/godot/LICENSE.txt": "0.0%",
-      "cpp/godot/editor_node.cpp": "26.8%",
+      "cpp/godot/editor_node.cpp": "26.1%",
       "cpp/godot/editor_node.h": "0.5%",
-      "cpp/godot/gdscript_vm.cpp": "24.2%",
-      "cpp/godot/main.cpp": "31.6%",
-      "cpp/godot/main.h": "3.3%",
-      "cpp/godot/node.cpp": "23.6%",
-      "cpp/godot/node.h": "5.8%",
-      "cpp/godot/object.cpp": "24.2%",
-      "cpp/godot/object.h": "8.3%",
+      "cpp/godot/gdscript_vm.cpp": "17.9%",
+      "cpp/godot/main.cpp": "27.3%",
+      "cpp/godot/main.h": "0.0%",
+      "cpp/godot/node.cpp": "23.5%",
+      "cpp/godot/node.h": "4.9%",
+      "cpp/godot/object.cpp": "23.8%",
+      "cpp/godot/object.h": "5.5%",
       "cpp/godot/rendering_server_default.cpp": "17.1%",
-      "cpp/godot/rendering_server_default.h": "5.0%",
-      "cpp/godot/variant.cpp": "34.7%",
+      "cpp/godot/rendering_server_default.h": "2.3%",
+      "cpp/godot/variant.cpp": "34.4%",
       "cpp/godot/variant.h": "5.4%"
     },
     "cpp/mlir": {
-      "cpp/mlir/flatbuffer_export.cc": "17.1%",
+      "cpp/mlir/flatbuffer_export.cc": "16.9%",
       "cpp/mlir/glob_lit_test.bzl": "5.3%",
       "cpp/mlir/mlir_bridge_rollout_policy.cc": "14.8%",
       "cpp/mlir/mlir_graph_optimization_pass.cc": "13.2%",
@@ -1109,19 +1124,27 @@
       "cpp/mlir/tf_tfl_translate.cc": "13.7%"
     },
     "cpp/powertoys": {
-      "cpp/powertoys/FancyZones.cpp": "24.4%",
+      "cpp/powertoys/FancyZones.cpp": "24.1%",
       "cpp/powertoys/FancyZones.h": "0.0%",
       "cpp/powertoys/ImageResizerExt.cpp": "11.1%",
-      "cpp/powertoys/centralized_kb_hook.cpp": "16.6%",
+      "cpp/powertoys/centralized_kb_hook.cpp": "14.9%",
       "cpp/powertoys/logger.cpp": "7.8%",
-      "cpp/powertoys/main.cpp": "16.1%",
+      "cpp/powertoys/main.cpp": "15.0%",
       "cpp/powertoys/powertoy_module.h": "2.0%"
+    },
+    "cpp/serenity_ak_siphash_cpu": {
+      "cpp/serenity_ak_siphash_cpu/CPUFeatures.cpp": "11.6%",
+      "cpp/serenity_ak_siphash_cpu/SipHash.cpp": "14.6%"
+    },
+    "csd": {
+      "csd/SOURCES.md": "0.0%"
     },
     "csd/carddemo": {
       "csd/carddemo/CARDDEMO.CSD": "0.0%",
       "csd/carddemo/CRDDEMO2.csd": "0.0%",
       "csd/carddemo/CRDDEMOD.csd": "0.0%",
       "csd/carddemo/CRDDEMOM.csd": "0.0%",
+      "csd/carddemo/NOTICE": "0.0%",
       "csd/carddemo/PROVENANCE.md": "0.0%"
     },
     "csd/cbsa": {
@@ -1136,13 +1159,13 @@
       "csharp/SOURCES.md": "0.0%"
     },
     "csharp/roslyn": {
-      "csharp/roslyn/CSharpCompilation.cs": "15.0%",
-      "csharp/roslyn/CSharpSyntaxTree.cs": "15.6%",
+      "csharp/roslyn/CSharpCompilation.cs": "14.9%",
+      "csharp/roslyn/CSharpSyntaxTree.cs": "14.1%",
       "csharp/roslyn/DiagnosticAnalyzer.cs": "0.0%",
       "csharp/roslyn/LanguageParser.cs": "24.9%",
       "csharp/roslyn/License.txt": "0.0%",
       "csharp/roslyn/MethodCompiler.cs": "16.3%",
-      "csharp/roslyn/Workspace.cs": "10.2%"
+      "csharp/roslyn/Workspace.cs": "9.7%"
     },
     "css": {
       "css/SOURCES.md": "0.0%"
@@ -1199,13 +1222,16 @@
       "dart/SOURCES.md": "0.0%"
     },
     "dart/flutter": {
-      "dart/flutter/editable_text.dart": "29.8%",
-      "dart/flutter/events.dart": "54.4%",
-      "dart/flutter/framework.dart": "20.4%",
-      "dart/flutter/navigator.dart": "26.0%",
-      "dart/flutter/object.dart": "25.9%",
-      "dart/flutter/semantics.dart": "32.1%",
-      "dart/flutter/theme_data.dart": "34.1%"
+      "dart/flutter/editable_text.dart": "27.6%",
+      "dart/flutter/events.dart": "41.3%",
+      "dart/flutter/framework.dart": "17.7%",
+      "dart/flutter/navigator.dart": "25.0%",
+      "dart/flutter/object.dart": "23.7%",
+      "dart/flutter/semantics.dart": "30.1%",
+      "dart/flutter/theme_data.dart": "25.8%"
+    },
+    "db2_sql": {
+      "db2_sql/SOURCES.md": "0.0%"
     },
     "db2_sql/db2unit": {
       "db2_sql/db2unit/00-Prereqs.sql": "17.3%",
@@ -1216,6 +1242,7 @@
       "db2_sql/db2unit/07-Version.sql": "0.0%",
       "db2_sql/db2unit/98-Clean.sql": "5.0%",
       "db2_sql/db2unit/99-CleanAdmin.sql": "0.0%",
+      "db2_sql/db2unit/LICENSE.txt": "0.0%",
       "db2_sql/db2unit/PROVENANCE.md": "0.0%"
     },
     "dockerfile": {
@@ -1228,24 +1255,24 @@
       "dockerfile/moby/builder/dockerfile/builder_unix.go": "0.0%",
       "dockerfile/moby/builder/dockerfile/builder_windows.go": "13.3%",
       "dockerfile/moby/builder/dockerfile/containerbackend.go": "15.0%",
-      "dockerfile/moby/builder/dockerfile/copy.go": "21.8%",
+      "dockerfile/moby/builder/dockerfile/copy.go": "21.1%",
       "dockerfile/moby/builder/dockerfile/copy_test.go": "2.8%",
       "dockerfile/moby/builder/dockerfile/copy_unix.go": "19.6%",
-      "dockerfile/moby/builder/dockerfile/copy_windows.go": "21.6%",
-      "dockerfile/moby/builder/dockerfile/dispatchers.go": "22.0%",
-      "dockerfile/moby/builder/dockerfile/dispatchers_test.go": "11.9%",
+      "dockerfile/moby/builder/dockerfile/copy_windows.go": "0.0%",
+      "dockerfile/moby/builder/dockerfile/dispatchers.go": "21.6%",
+      "dockerfile/moby/builder/dockerfile/dispatchers_test.go": "10.6%",
       "dockerfile/moby/builder/dockerfile/dispatchers_unix.go": "15.4%",
-      "dockerfile/moby/builder/dockerfile/dispatchers_unix_test.go": "26.9%",
-      "dockerfile/moby/builder/dockerfile/dispatchers_windows.go": "24.2%",
-      "dockerfile/moby/builder/dockerfile/dispatchers_windows_test.go": "23.1%",
+      "dockerfile/moby/builder/dockerfile/dispatchers_unix_test.go": "23.1%",
+      "dockerfile/moby/builder/dockerfile/dispatchers_windows.go": "17.9%",
+      "dockerfile/moby/builder/dockerfile/dispatchers_windows_test.go": "15.4%",
       "dockerfile/moby/builder/dockerfile/evaluator.go": "20.8%",
-      "dockerfile/moby/builder/dockerfile/evaluator_test.go": "7.2%",
+      "dockerfile/moby/builder/dockerfile/evaluator_test.go": "6.4%",
       "dockerfile/moby/builder/dockerfile/imagecontext.go": "12.8%",
       "dockerfile/moby/builder/dockerfile/imagecontext_test.go": "2.2%",
       "dockerfile/moby/builder/dockerfile/imageprobe.go": "9.5%",
       "dockerfile/moby/builder/dockerfile/internals.go": "12.8%",
-      "dockerfile/moby/builder/dockerfile/internals_linux.go": "21.3%",
-      "dockerfile/moby/builder/dockerfile/internals_linux_test.go": "4.0%",
+      "dockerfile/moby/builder/dockerfile/internals_linux.go": "18.7%",
+      "dockerfile/moby/builder/dockerfile/internals_linux_test.go": "2.6%",
       "dockerfile/moby/builder/dockerfile/internals_test.go": "2.8%",
       "dockerfile/moby/builder/dockerfile/internals_windows.go": "16.7%",
       "dockerfile/moby/builder/dockerfile/internals_windows_test.go": "8.3%",
@@ -1259,11 +1286,11 @@
       "dockerfile/moby/builder/remotecontext/detect_test.go": "7.1%",
       "dockerfile/moby/builder/remotecontext/filehash.go": "10.8%",
       "dockerfile/moby/builder/remotecontext/git.go": "10.3%",
-      "dockerfile/moby/builder/remotecontext/lazycontext.go": "17.9%",
+      "dockerfile/moby/builder/remotecontext/lazycontext.go": "14.9%",
       "dockerfile/moby/builder/remotecontext/mimetype.go": "6.2%",
       "dockerfile/moby/builder/remotecontext/mimetype_test.go": "0.0%",
-      "dockerfile/moby/builder/remotecontext/remote.go": "24.7%",
-      "dockerfile/moby/builder/remotecontext/remote_test.go": "15.8%",
+      "dockerfile/moby/builder/remotecontext/remote.go": "23.7%",
+      "dockerfile/moby/builder/remotecontext/remote_test.go": "15.3%",
       "dockerfile/moby/builder/remotecontext/tarsum_test.go": "16.1%",
       "dockerfile/moby/builder/remotecontext/utils_test.go": "6.7%"
     },
@@ -1275,7 +1302,7 @@
       "dockerfile/moby/builder/remotecontext/internal/tarsum/builder_context.go": "16.7%",
       "dockerfile/moby/builder/remotecontext/internal/tarsum/builder_context_test.go": "16.3%",
       "dockerfile/moby/builder/remotecontext/internal/tarsum/fileinfosums.go": "16.1%",
-      "dockerfile/moby/builder/remotecontext/internal/tarsum/fileinfosums_test.go": "17.0%",
+      "dockerfile/moby/builder/remotecontext/internal/tarsum/fileinfosums_test.go": "15.1%",
       "dockerfile/moby/builder/remotecontext/internal/tarsum/tarsum.go": "16.5%",
       "dockerfile/moby/builder/remotecontext/internal/tarsum/tarsum_spec.md": "0.0%",
       "dockerfile/moby/builder/remotecontext/internal/tarsum/tarsum_test.go": "12.1%",
@@ -1337,79 +1364,85 @@
     },
     "go/core": {
       "go/core/PATENTS": "0.0%",
-      "go/core/main.go": "19.0%",
-      "go/core/mgc.go": "18.4%",
+      "go/core/main.go": "18.7%",
+      "go/core/mgc.go": "18.3%",
       "go/core/mutex.go": "0.0%",
-      "go/core/proc.go": "21.3%",
+      "go/core/proc.go": "21.2%",
       "go/core/server.go": "22.0%",
       "go/core/syscall_linux.go": "18.1%",
-      "go/core/value.go": "28.1%"
+      "go/core/value.go": "27.7%"
+    },
+    "go/go_runtime_rand": {
+      "go/go_runtime_rand/rand.go": "14.7%"
     },
     "go/kubernetes": {
-      "go/kubernetes/csi_plugin.go": "17.8%",
-      "go/kubernetes/generic.go": "22.1%",
-      "go/kubernetes/kubelet.go": "10.2%",
+      "go/kubernetes/csi_plugin.go": "15.6%",
+      "go/kubernetes/generic.go": "21.7%",
+      "go/kubernetes/kubelet.go": "9.4%",
       "go/kubernetes/options.go": "0.0%",
-      "go/kubernetes/proxier.go": "17.4%",
-      "go/kubernetes/replica_set.go": "17.0%",
+      "go/kubernetes/proxier.go": "17.0%",
+      "go/kubernetes/replica_set.go": "15.9%",
       "go/kubernetes/scheduler.go": "11.6%"
+    },
+    "go/kubernetes_kubectl_tls": {
+      "go/kubernetes_kubectl_tls/create_secret_tls_test.go": "4.6%"
     },
     "groovy/fineract_gradle_plugin": {
       "groovy/fineract_gradle_plugin/LICENSE_RELEASE": "0.0%",
       "groovy/fineract_gradle_plugin/org_apache_fineract_gradle_FineractPluginExtension.groovy": "0.0%",
-      "groovy/fineract_gradle_plugin/org_apache_fineract_gradle_service_ConfluenceService.groovy": "1.4%",
+      "groovy/fineract_gradle_plugin/org_apache_fineract_gradle_service_ConfluenceService.groovy": "0.7%",
       "groovy/fineract_gradle_plugin/org_apache_fineract_gradle_service_EmailService.groovy": "7.3%",
       "groovy/fineract_gradle_plugin/org_apache_fineract_gradle_service_GitService.groovy": "1.1%",
       "groovy/fineract_gradle_plugin/org_apache_fineract_gradle_service_GpgService.groovy": "14.2%",
-      "groovy/fineract_gradle_plugin/org_apache_fineract_gradle_service_JiraService.groovy": "6.5%",
-      "groovy/fineract_gradle_plugin/org_apache_fineract_gradle_service_SubversionService.groovy": "7.1%",
+      "groovy/fineract_gradle_plugin/org_apache_fineract_gradle_service_JiraService.groovy": "5.6%",
+      "groovy/fineract_gradle_plugin/org_apache_fineract_gradle_service_SubversionService.groovy": "4.8%",
       "groovy/fineract_gradle_plugin/org_apache_fineract_gradle_service_TemplateService.groovy": "12.7%"
     },
     "groovy/flutter_android_gradle": {
       "groovy/flutter_android_gradle/dev_a11y_assessments_android_app_build.gradle": "7.8%",
       "groovy/flutter_android_gradle/dev_a11y_assessments_android_build.gradle": "4.2%",
-      "groovy/flutter_android_gradle/dev_a11y_assessments_android_settings.gradle": "3.6%",
+      "groovy/flutter_android_gradle/dev_a11y_assessments_android_settings.gradle": "0.0%",
       "groovy/flutter_android_gradle/dev_benchmarks_complex_layout_android_app_build.gradle": "7.1%",
       "groovy/flutter_android_gradle/dev_benchmarks_complex_layout_android_build.gradle": "4.2%",
-      "groovy/flutter_android_gradle/dev_benchmarks_complex_layout_android_settings.gradle": "3.6%",
+      "groovy/flutter_android_gradle/dev_benchmarks_complex_layout_android_settings.gradle": "0.0%",
       "groovy/flutter_android_gradle/dev_benchmarks_macrobenchmarks_android_app_build.gradle": "6.1%",
       "groovy/flutter_android_gradle/dev_benchmarks_macrobenchmarks_android_build.gradle": "4.2%",
-      "groovy/flutter_android_gradle/dev_benchmarks_macrobenchmarks_android_settings.gradle": "3.6%",
+      "groovy/flutter_android_gradle/dev_benchmarks_macrobenchmarks_android_settings.gradle": "0.0%",
       "groovy/flutter_android_gradle/dev_benchmarks_microbenchmarks_android_app_build.gradle": "7.1%",
       "groovy/flutter_android_gradle/dev_benchmarks_microbenchmarks_android_build.gradle": "0.0%",
-      "groovy/flutter_android_gradle/dev_benchmarks_microbenchmarks_android_settings.gradle": "4.5%",
+      "groovy/flutter_android_gradle/dev_benchmarks_microbenchmarks_android_settings.gradle": "0.0%",
       "groovy/flutter_android_gradle/dev_benchmarks_multiple_flutters_android_app_build.gradle": "0.0%",
       "groovy/flutter_android_gradle/dev_benchmarks_multiple_flutters_android_build.gradle": "0.0%",
       "groovy/flutter_android_gradle/dev_benchmarks_multiple_flutters_android_settings.gradle": "0.0%",
       "groovy/flutter_android_gradle/dev_benchmarks_platform_views_layout_android_app_build.gradle": "6.7%",
       "groovy/flutter_android_gradle/dev_benchmarks_platform_views_layout_android_build.gradle": "4.2%",
-      "groovy/flutter_android_gradle/dev_benchmarks_platform_views_layout_android_settings.gradle": "3.6%",
+      "groovy/flutter_android_gradle/dev_benchmarks_platform_views_layout_android_settings.gradle": "0.0%",
       "groovy/flutter_android_gradle/dev_benchmarks_platform_views_layout_hybrid_composition_android_app_build.gradle": "7.1%",
       "groovy/flutter_android_gradle/dev_benchmarks_platform_views_layout_hybrid_composition_android_build.gradle": "4.2%",
-      "groovy/flutter_android_gradle/dev_benchmarks_platform_views_layout_hybrid_composition_android_settings.gradle": "3.6%",
+      "groovy/flutter_android_gradle/dev_benchmarks_platform_views_layout_hybrid_composition_android_settings.gradle": "0.0%",
       "groovy/flutter_android_gradle/dev_benchmarks_test_apps_stocks_android_app_build.gradle": "7.0%",
       "groovy/flutter_android_gradle/dev_benchmarks_test_apps_stocks_android_build.gradle": "4.2%",
-      "groovy/flutter_android_gradle/dev_benchmarks_test_apps_stocks_android_settings.gradle": "3.6%"
+      "groovy/flutter_android_gradle/dev_benchmarks_test_apps_stocks_android_settings.gradle": "0.0%"
     },
     "groovy/godot_android_gradle": {
       "groovy/godot_android_gradle/LICENSE.txt": "0.0%",
       "groovy/godot_android_gradle/java_app_assetPackInstallTime_build.gradle": "0.0%",
-      "groovy/godot_android_gradle/java_app_build.gradle": "19.7%",
+      "groovy/godot_android_gradle/java_app_build.gradle": "3.6%",
       "groovy/godot_android_gradle/java_app_settings.gradle": "0.0%",
       "groovy/godot_android_gradle/java_editor_build.gradle": "5.0%",
-      "groovy/godot_android_gradle/java_lib_build.gradle": "14.0%",
+      "groovy/godot_android_gradle/java_lib_build.gradle": "11.9%",
       "groovy/godot_android_gradle/java_nativeSrcsConfigs_build.gradle": "2.3%",
       "groovy/godot_android_gradle/java_scripts_publish-module.gradle": "0.0%",
       "groovy/godot_android_gradle/java_scripts_publish-root.gradle": "6.2%",
       "groovy/godot_android_gradle/java_settings.gradle": "0.0%"
     },
     "groovy/gradle": {
-      "groovy/gradle/DefaultPluginManager.java": "19.1%",
-      "groovy/gradle/DefaultProject.java": "6.2%",
-      "groovy/gradle/DefaultTask.java": "6.4%"
+      "groovy/gradle/DefaultPluginManager.java": "7.7%",
+      "groovy/gradle/DefaultProject.java": "2.8%",
+      "groovy/gradle/DefaultTask.java": "0.0%"
     },
     "groovy/gradle_buildlogic_groovy": {
-      "groovy/gradle_buildlogic_groovy/binary-compatibility_src_main_groovy_gradlebuild_EnrichedReportRenderer.groovy": "9.2%",
+      "groovy/gradle_buildlogic_groovy/binary-compatibility_src_main_groovy_gradlebuild_EnrichedReportRenderer.groovy": "6.9%",
       "groovy/gradle_buildlogic_groovy/binary-compatibility_src_main_groovy_gradlebuild_binarycompatibility_AcceptedApiChange.groovy": "7.7%",
       "groovy/gradle_buildlogic_groovy/binary-compatibility_src_main_groovy_gradlebuild_binarycompatibility_AcceptedApiChanges.groovy": "3.3%",
       "groovy/gradle_buildlogic_groovy/binary-compatibility_src_main_groovy_gradlebuild_binarycompatibility_AcceptedApiChangesJsonFileManager.groovy": "0.0%",
@@ -1421,12 +1454,12 @@
       "groovy/gradle_buildlogic_groovy/binary-compatibility_src_main_groovy_gradlebuild_binarycompatibility_filters_BridgeForBytecodeUpgradeAdapterClassFilter.groovy": "0.0%",
       "groovy/gradle_buildlogic_groovy/binary-compatibility_src_main_groovy_gradlebuild_binarycompatibility_filters_KotlinInternalFilter.groovy": "0.0%",
       "groovy/gradle_buildlogic_groovy/binary-compatibility_src_main_groovy_gradlebuild_binarycompatibility_filters_KotlinInvokeDefaultBridgeFilter.groovy": "0.0%",
-      "groovy/gradle_buildlogic_groovy/binary-compatibility_src_main_groovy_gradlebuild_binarycompatibility_rules_AbstractGradleViolationRule.groovy": "11.6%",
+      "groovy/gradle_buildlogic_groovy/binary-compatibility_src_main_groovy_gradlebuild_binarycompatibility_rules_AbstractGradleViolationRule.groovy": "10.3%",
       "groovy/gradle_buildlogic_groovy/binary-compatibility_src_main_groovy_gradlebuild_binarycompatibility_rules_AbstractSuperClassChangesRule.groovy": "17.9%",
       "groovy/gradle_buildlogic_groovy/binary-compatibility_src_main_groovy_gradlebuild_binarycompatibility_rules_BinaryBreakingSuperclassChangeRule.groovy": "0.0%",
       "groovy/gradle_buildlogic_groovy/binary-compatibility_src_main_groovy_gradlebuild_binarycompatibility_rules_IncubatingInternalInterfaceAddedRule.groovy": "6.0%",
-      "groovy/gradle_buildlogic_groovy/binary-compatibility_src_main_groovy_gradlebuild_binarycompatibility_rules_KotlinModifiersBreakingChangeRule.groovy": "11.9%",
-      "groovy/gradle_buildlogic_groovy/binary-compatibility_src_main_groovy_gradlebuild_binarycompatibility_rules_MethodsRemovedInInternalSuperClassRule.groovy": "11.8%",
+      "groovy/gradle_buildlogic_groovy/binary-compatibility_src_main_groovy_gradlebuild_binarycompatibility_rules_KotlinModifiersBreakingChangeRule.groovy": "9.5%",
+      "groovy/gradle_buildlogic_groovy/binary-compatibility_src_main_groovy_gradlebuild_binarycompatibility_rules_MethodsRemovedInInternalSuperClassRule.groovy": "10.5%",
       "groovy/gradle_buildlogic_groovy/binary-compatibility_src_main_groovy_gradlebuild_binarycompatibility_transforms_ExplodeZipAndFindJars.groovy": "9.8%",
       "groovy/gradle_buildlogic_groovy/binary-compatibility_src_main_groovy_gradlebuild_binarycompatibility_transforms_FindGradleClasspath.groovy": "3.7%",
       "groovy/gradle_buildlogic_groovy/binary-compatibility_src_main_groovy_gradlebuild_binarycompatibility_transforms_FindGradleJars.groovy": "3.7%",
@@ -1467,19 +1500,19 @@
       "groovy/gradle_integtest_specs/core-configuration_configuration-cache_src_integTest_groovy_org_gradle_internal_cc_impl_AbstractConfigurationCacheIntegrationTest.groovy": "0.0%",
       "groovy/gradle_integtest_specs/core-configuration_configuration-cache_src_integTest_groovy_org_gradle_internal_cc_impl_CacheableComputationIntegrationTest.groovy": "0.0%",
       "groovy/gradle_integtest_specs/core-configuration_configuration-cache_src_integTest_groovy_org_gradle_internal_cc_impl_ConfigurationCacheAllowedStartParametersIntegrationTest.groovy": "0.0%",
-      "groovy/gradle_integtest_specs/core-configuration_configuration-cache_src_integTest_groovy_org_gradle_internal_cc_impl_ConfigurationCacheBuildEventsListenerIntegrationTest.groovy": "2.1%",
+      "groovy/gradle_integtest_specs/core-configuration_configuration-cache_src_integTest_groovy_org_gradle_internal_cc_impl_ConfigurationCacheBuildEventsListenerIntegrationTest.groovy": "1.0%",
       "groovy/gradle_integtest_specs/core-configuration_configuration-cache_src_integTest_groovy_org_gradle_internal_cc_impl_ConfigurationCacheBuildFeatureIntegrationTest.groovy": "2.4%",
       "groovy/gradle_integtest_specs/core-configuration_configuration-cache_src_integTest_groovy_org_gradle_internal_cc_impl_ConfigurationCacheBuildSrcChangesIntegrationTest.groovy": "4.1%",
       "groovy/gradle_integtest_specs/core-configuration_configuration-cache_src_integTest_groovy_org_gradle_internal_cc_impl_ConfigurationCacheBuildSrcIntegrationTest.groovy": "3.7%",
-      "groovy/gradle_integtest_specs/core-configuration_configuration-cache_src_integTest_groovy_org_gradle_internal_cc_impl_ConfigurationCacheBuildSrcProblemReportingIntegrationTest.groovy": "6.5%",
-      "groovy/gradle_integtest_specs/core-configuration_configuration-cache_src_integTest_groovy_org_gradle_internal_cc_impl_ConfigurationCacheCircularReferenceIntegrationTest.groovy": "17.0%",
+      "groovy/gradle_integtest_specs/core-configuration_configuration-cache_src_integTest_groovy_org_gradle_internal_cc_impl_ConfigurationCacheBuildSrcProblemReportingIntegrationTest.groovy": "3.9%",
+      "groovy/gradle_integtest_specs/core-configuration_configuration-cache_src_integTest_groovy_org_gradle_internal_cc_impl_ConfigurationCacheCircularReferenceIntegrationTest.groovy": "1.9%",
       "groovy/gradle_integtest_specs/core-configuration_configuration-cache_src_integTest_groovy_org_gradle_internal_cc_impl_ConfigurationCacheClassLoaderCachingIntegrationTest.groovy": "4.9%",
       "groovy/gradle_integtest_specs/core-configuration_configuration-cache_src_integTest_groovy_org_gradle_internal_cc_impl_ConfigurationCacheClassLoaderValidationIntegrationTest.groovy": "0.0%",
-      "groovy/gradle_integtest_specs/core-configuration_configuration-cache_src_integTest_groovy_org_gradle_internal_cc_impl_ConfigurationCacheCleanupIntegrationTest.groovy": "1.8%",
-      "groovy/gradle_integtest_specs/core-configuration_configuration-cache_src_integTest_groovy_org_gradle_internal_cc_impl_ConfigurationCacheCompositeBuildProblemReportingIntegrationTest.groovy": "15.0%",
+      "groovy/gradle_integtest_specs/core-configuration_configuration-cache_src_integTest_groovy_org_gradle_internal_cc_impl_ConfigurationCacheCleanupIntegrationTest.groovy": "0.0%",
+      "groovy/gradle_integtest_specs/core-configuration_configuration-cache_src_integTest_groovy_org_gradle_internal_cc_impl_ConfigurationCacheCompositeBuildProblemReportingIntegrationTest.groovy": "7.5%",
       "groovy/gradle_integtest_specs/core-configuration_configuration-cache_src_integTest_groovy_org_gradle_internal_cc_impl_ConfigurationCacheConventionMappingIntegrationTest.groovy": "0.0%",
       "groovy/gradle_integtest_specs/core-configuration_configuration-cache_src_integTest_groovy_org_gradle_internal_cc_impl_ConfigurationCacheCustomClassLoaderErrorIntegrationTest.groovy": "5.6%",
-      "groovy/gradle_integtest_specs/core-configuration_configuration-cache_src_integTest_groovy_org_gradle_internal_cc_impl_ConfigurationCacheDebugLogIntegrationTest.groovy": "14.3%",
+      "groovy/gradle_integtest_specs/core-configuration_configuration-cache_src_integTest_groovy_org_gradle_internal_cc_impl_ConfigurationCacheDebugLogIntegrationTest.groovy": "9.5%",
       "groovy/gradle_integtest_specs/core-configuration_configuration-cache_src_integTest_groovy_org_gradle_internal_cc_impl_ConfigurationCacheDirIntegrationTest.groovy": "0.0%",
       "groovy/gradle_integtest_specs/core-configuration_configuration-cache_src_integTest_groovy_org_gradle_internal_cc_impl_ConfigurationCacheDirectoryPluginIntegrationTest.groovy": "0.0%",
       "groovy/gradle_integtest_specs/core-configuration_configuration-cache_src_integTest_groovy_org_gradle_internal_cc_impl_ConfigurationCacheEnablementIntegrationTest.groovy": "4.7%",
@@ -1516,14 +1549,14 @@
       "groovy/gradle_sample_task_classes/testKit_testKitFunctionalTestSpockBuildCache_groovy_src_main_groovy_org_gradle_sample_MyCacheableTask.groovy": "0.0%"
     },
     "groovy/jenkins_view_groovy": {
-      "groovy/jenkins_view_groovy/Jenkinsfile": "7.7%",
+      "groovy/jenkins_view_groovy/Jenkinsfile": "7.2%",
       "groovy/jenkins_view_groovy/LICENSE.txt": "0.0%",
       "groovy/jenkins_view_groovy/hudson_PluginWrapper_uninstall.groovy": "0.0%",
-      "groovy/jenkins_view_groovy/hudson_model_AllView_noJob.groovy": "10.8%",
+      "groovy/jenkins_view_groovy/hudson_model_AllView_noJob.groovy": "8.3%",
       "groovy/jenkins_view_groovy/hudson_model_EnvironmentContributor_EnvVarsHtml_index.groovy": "0.0%",
       "groovy/jenkins_view_groovy/hudson_model_UpdateCenter_DownloadJob_SuccessButRequiresRestart_status.groovy": "0.0%",
       "groovy/jenkins_view_groovy/hudson_model_UsageStatistics_global.groovy": "22.2%",
-      "groovy/jenkins_view_groovy/hudson_security_GlobalSecurityConfiguration_index.groovy": "12.1%",
+      "groovy/jenkins_view_groovy/hudson_security_GlobalSecurityConfiguration_index.groovy": "10.3%",
       "groovy/jenkins_view_groovy/hudson_security_LegacySecurityRealm_config.groovy": "14.3%",
       "groovy/jenkins_view_groovy/hudson_security_csrf_GlobalCrumbIssuerConfiguration_config.groovy": "18.8%",
       "groovy/jenkins_view_groovy/hudson_tasks_ArtifactArchiver_help-defaultExcludes.groovy": "0.0%",
@@ -1535,7 +1568,7 @@
       "groovy/jenkins_view_groovy/jenkins_management_AdministrativeMonitorsConfiguration_config.groovy": "7.4%",
       "groovy/jenkins_view_groovy/jenkins_management_AsynchronousAdministrativeMonitor_log.groovy": "10.5%",
       "groovy/jenkins_view_groovy/jenkins_management_ShutdownLink_index.groovy": "12.0%",
-      "groovy/jenkins_view_groovy/jenkins_model_ArtifactManagerConfiguration_config.groovy": "22.2%",
+      "groovy/jenkins_view_groovy/jenkins_model_ArtifactManagerConfiguration_config.groovy": "11.1%",
       "groovy/jenkins_view_groovy/jenkins_model_CauseOfInterruption_UserInterruption_summary.groovy": "28.6%",
       "groovy/jenkins_view_groovy/jenkins_model_CauseOfInterruption_summary.groovy": "0.0%",
       "groovy/jenkins_view_groovy/jenkins_model_CoreEnvironmentContributor_buildEnv.groovy": "0.0%",
@@ -1555,11 +1588,11 @@
       "groovy/kotlin_build_gradle/kotlin-native_backend.native_tests_build.gradle": "0.0%",
       "groovy/kotlin_build_gradle/kotlin-native_gradle_kotlinGradlePlugin.gradle": "50.0%",
       "groovy/kotlin_build_gradle/kotlin-native_gradle_loadRootProperties.gradle": "14.3%",
-      "groovy/kotlin_build_gradle/libraries_examples_kotlin-gradle-subplugin-example_build.gradle": "5.2%",
+      "groovy/kotlin_build_gradle/libraries_examples_kotlin-gradle-subplugin-example_build.gradle": "3.9%",
       "groovy/kotlin_build_gradle/libraries_stdlib_common_build.gradle": "0.0%",
       "groovy/kotlin_build_gradle/libraries_stdlib_jdk7_build.gradle": "0.0%",
       "groovy/kotlin_build_gradle/libraries_stdlib_jdk8_build.gradle": "0.0%",
-      "groovy/kotlin_build_gradle/libraries_tools_kotlin-annotations-jvm_build.gradle": "5.3%",
+      "groovy/kotlin_build_gradle/libraries_tools_kotlin-annotations-jvm_build.gradle": "0.0%",
       "groovy/kotlin_build_gradle/libraries_tools_kotlin-gradle-plugin-integration-tests_src_test_resources_testProject_AndroidDaggerProject_app_build.gradle": "0.0%",
       "groovy/kotlin_build_gradle/libraries_tools_kotlin-gradle-plugin-integration-tests_src_test_resources_testProject_AndroidDaggerProject_build.gradle": "0.0%",
       "groovy/kotlin_build_gradle/libraries_tools_kotlin-gradle-plugin-integration-tests_src_test_resources_testProject_AndroidDaggerProject_settings.gradle": "0.0%",
@@ -1592,13 +1625,13 @@
       "groovy/retrofit_gradle/retrofit-converters_jaxb_build.gradle": "0.0%"
     },
     "groovy/spock": {
-      "groovy/spock/DeepBlockRewriter.java": "16.7%",
-      "groovy/spock/SpecParser.java": "25.5%",
-      "groovy/spock/SpecRewriter.java": "12.4%",
-      "groovy/spock/SpockTransform.java": "12.8%"
+      "groovy/spock/DeepBlockRewriter.java": "15.6%",
+      "groovy/spock/SpecParser.java": "18.9%",
+      "groovy/spock/SpecRewriter.java": "10.9%",
+      "groovy/spock/SpockTransform.java": "6.4%"
     },
     "groovy/spock_core_groovy": {
-      "groovy/spock_core_groovy/build-logic_base_src_main_groovy_org_spockframework_gradle_AsciiDocLinkVerifier.groovy": "7.2%",
+      "groovy/spock_core_groovy/build-logic_base_src_main_groovy_org_spockframework_gradle_AsciiDocLinkVerifier.groovy": "6.2%",
       "groovy/spock_core_groovy/build-logic_base_src_main_groovy_org_spockframework_gradle_JacocoJavaagentProvider.groovy": "0.0%",
       "groovy/spock_core_groovy/build-logic_base_src_main_groovy_org_spockframework_gradle_SpockBasePlugin.groovy": "3.0%",
       "groovy/spock_core_groovy/build-logic_base_src_main_groovy_org_spockframework_gradle_SpockConfigArgumentProvider.groovy": "0.0%",
@@ -1623,11 +1656,11 @@
       "groovy/spock_smoke_specs/Blocks.groovy": "0.0%",
       "groovy/spock_smoke_specs/BuiltInMembersOfClassSpecification.groovy": "2.9%",
       "groovy/spock_smoke_specs/CleanupBlocks.groovy": "5.8%",
-      "groovy/spock_smoke_specs/CompileTimeErrorReporting.groovy": "5.4%",
+      "groovy/spock_smoke_specs/CompileTimeErrorReporting.groovy": "1.8%",
       "groovy/spock_smoke_specs/DisambiguationInConditions.groovy": "0.0%",
       "groovy/spock_smoke_specs/ExpectBlocks.groovy": "0.0%",
       "groovy/spock_smoke_specs/FeatureFiltering.groovy": "2.6%",
-      "groovy/spock_smoke_specs/FeatureMethods.groovy": "17.5%",
+      "groovy/spock_smoke_specs/FeatureMethods.groovy": "7.5%",
       "groovy/spock_smoke_specs/FinalFields.groovy": "5.3%",
       "groovy/spock_smoke_specs/FixtureMethods.groovy": "3.1%",
       "groovy/spock_smoke_specs/GroovyCallChain.groovy": "0.0%",
@@ -1646,7 +1679,7 @@
       "groovy/spock_specs/org_spockframework_builder_PojoBuilderSpec.groovy": "0.0%",
       "groovy/spock_specs/org_spockframework_buildsupport_SpecClassFileFinderSpec.groovy": "0.0%",
       "groovy/spock_specs/org_spockframework_datapipes_DataPipesIteratorSpec.groovy": "2.5%",
-      "groovy/spock_specs/org_spockframework_docs_datadriven_DataSpec.groovy": "6.1%",
+      "groovy/spock_specs/org_spockframework_docs_datadriven_DataSpec.groovy": "5.5%",
       "groovy/spock_specs/org_spockframework_docs_datadriven_v1_MathSpec.groovy": "0.0%",
       "groovy/spock_specs/org_spockframework_docs_datadriven_v2_MathSpec.groovy": "0.0%",
       "groovy/spock_specs/org_spockframework_docs_datadriven_v3_MathSpec.groovy": "0.0%",
@@ -1656,7 +1689,7 @@
       "groovy/spock_specs/org_spockframework_docs_datadriven_v7_MathSpec.groovy": "0.0%",
       "groovy/spock_specs/org_spockframework_docs_extension_ConfineMetaClassChangesDocSpec.groovy": "0.0%",
       "groovy/spock_specs/org_spockframework_docs_extension_ExtensionStoreSpec.groovy": "1.3%",
-      "groovy/spock_specs/org_spockframework_docs_extension_FancyMockMakerDocSpec.groovy": "6.7%",
+      "groovy/spock_specs/org_spockframework_docs_extension_FancyMockMakerDocSpec.groovy": "0.0%",
       "groovy/spock_specs/org_spockframework_docs_extension_IgnoreIfDocSpec.groovy": "1.9%",
       "groovy/spock_specs/org_spockframework_docs_extension_InterceptorSpec.groovy": "0.0%",
       "groovy/spock_specs/org_spockframework_docs_extension_IssueDocSpec.groovy": "0.0%",
@@ -1721,7 +1754,8 @@
       "haskell/pandoc/Shared.hs": "11.8%"
     },
     "hlasm": {
-      "hlasm/PROVENANCE.md": "0.0%"
+      "hlasm/PROVENANCE.md": "0.0%",
+      "hlasm/SOURCES.md": "0.0%"
     },
     "hlasm/che4z_hlasm": {
       "hlasm/che4z_hlasm/A.hlasm": "0.0%",
@@ -1729,6 +1763,7 @@
       "hlasm/che4z_hlasm/B.hlasm": "0.0%",
       "hlasm/che4z_hlasm/BBBBB.hlasm": "0.0%",
       "hlasm/che4z_hlasm/CCCCC.hlasm": "0.0%",
+      "hlasm/che4z_hlasm/NOTICE.md": "0.0%",
       "hlasm/che4z_hlasm/code_action_1.hlasm": "0.0%",
       "hlasm/che4z_hlasm/code_action_2.hlasm": "0.0%",
       "hlasm/che4z_hlasm/comments.hlasm": "0.0%",
@@ -1823,6 +1858,7 @@
       "html/polyglot_odoo/database_manager.qweb.html": "0.0%"
     },
     "html/polyglot_vscode": {
+      "html/polyglot_vscode/LICENSE.txt": "0.0%",
       "html/polyglot_vscode/vscode_builtin.html": "0.0%"
     },
     "html/revealjs_decks": {
@@ -1842,8 +1878,8 @@
     "html/vscode_webviews": {
       "html/vscode_webviews/LICENSE.txt": "0.0%",
       "html/vscode_webviews/build_builtin_index.html": "0.0%",
-      "html/vscode_webviews/github_auth_media_index.html": "13.8%",
-      "html/vscode_webviews/webWorkerExtensionHostIframe.html": "17.7%",
+      "html/vscode_webviews/github_auth_media_index.html": "12.3%",
+      "html/vscode_webviews/webWorkerExtensionHostIframe.html": "16.9%",
       "html/vscode_webviews/webview_pre_index.html": "0.0%",
       "html/vscode_webviews/workbench.html": "0.0%"
     },
@@ -1856,45 +1892,75 @@
     "java": {
       "java/SOURCES.md": "0.0%"
     },
+    "java/flutter_android_editing_tests": {
+      "java/flutter_android_editing_tests/InputConnectionAdaptorTest.java": "1.4%"
+    },
+    "java/jenkins_cli": {
+      "java/jenkins_cli/LICENSE.txt": "0.0%",
+      "java/jenkins_cli/SetBuildDescriptionCommand.java": "5.7%"
+    },
+    "java/selenium_grid_session_queue": {
+      "java/selenium_grid_session_queue/NOTICE": "0.0%",
+      "java/selenium_grid_session_queue/RemoteNewSessionQueue.java": "2.5%"
+    },
     "java/springboot": {
-      "java/springboot/AutoConfigurationImportSelector.java": "12.1%",
-      "java/springboot/Binder.java": "13.8%",
+      "java/springboot/AutoConfigurationImportSelector.java": "8.0%",
+      "java/springboot/Binder.java": "7.6%",
       "java/springboot/JarLauncher.java": "0.0%",
       "java/springboot/LICENSE.txt": "0.0%",
-      "java/springboot/OnClassCondition.java": "12.0%",
-      "java/springboot/ServletWebServerApplicationContext.java": "7.0%",
-      "java/springboot/SpringApplication.java": "15.7%",
-      "java/springboot/WebMvcAutoConfiguration.java": "7.0%"
+      "java/springboot/OnClassCondition.java": "9.9%",
+      "java/springboot/ServletWebServerApplicationContext.java": "6.0%",
+      "java/springboot/SpringApplication.java": "9.3%",
+      "java/springboot/WebMvcAutoConfiguration.java": "5.6%"
     },
     "javascript": {
       "javascript/SOURCES.md": "0.0%"
     },
+    "javascript/cesium_particle_emitters": {
+      "javascript/cesium_particle_emitters/CircleEmitter.js": "10.3%",
+      "javascript/cesium_particle_emitters/LICENSE.md": "0.0%"
+    },
+    "javascript/javascript_algorithms_bits": {
+      "javascript/javascript_algorithms_bits/fullAdder.js": "12.5%"
+    },
     "javascript/jquery": {
       "javascript/jquery/LICENSE.txt": "0.0%",
-      "javascript/jquery/ajax.js": "34.5%",
+      "javascript/jquery/ajax.js": "34.1%",
       "javascript/jquery/buildFragment.js": "37.5%",
       "javascript/jquery/core.js": "28.2%",
       "javascript/jquery/css.js": "35.2%",
       "javascript/jquery/deferred.js": "18.6%",
-      "javascript/jquery/event.js": "30.4%",
+      "javascript/jquery/event.js": "30.2%",
       "javascript/jquery/tokenize.js": "26.3%"
     },
+    "javascript/node_tls_security_tests": {
+      "javascript/node_tls_security_tests/regexp-unicode-sets.js": "15.9%",
+      "javascript/node_tls_security_tests/test-crypto-dh-modp2.js": "2.8%",
+      "javascript/node_tls_security_tests/test-fs-lchown.js": "2.0%",
+      "javascript/node_tls_security_tests/test-https-host-headers.js": "3.9%",
+      "javascript/node_tls_security_tests/test-tls-cert-ext-encoding.js": "2.8%",
+      "javascript/node_tls_security_tests/test-tls-psk-server.js": "10.8%",
+      "javascript/node_tls_security_tests/test-tls-use-after-free-regression.js": "2.0%"
+    },
     "javascript/react": {
-      "javascript/react/BabelPlugin.ts": "24.7%",
-      "javascript/react/ReactFiberBeginWork.js": "17.1%",
-      "javascript/react/ReactFiberWorkLoop.js": "19.9%",
-      "javascript/react/ReactFlightServer.js": "21.3%",
+      "javascript/react/BabelPlugin.ts": "20.0%",
+      "javascript/react/ReactFiberBeginWork.js": "16.5%",
+      "javascript/react/ReactFiberWorkLoop.js": "19.8%",
+      "javascript/react/ReactFlightServer.js": "21.1%",
       "javascript/react/ReactSymbols.js": "56.0%",
-      "javascript/react/build.js": "23.7%"
+      "javascript/react/build.js": "22.7%"
+    },
+    "javascript/react_error_codes": {
+      "javascript/react_error_codes/extract-errors.js": "17.5%"
     },
     "javascript/threejs": {
-      "javascript/threejs/BufferGeometry.js": "15.8%",
-      "javascript/threejs/Editor.js": "13.5%",
-      "javascript/threejs/GLTFLoader.js": "24.0%",
+      "javascript/threejs/BufferGeometry.js": "15.6%",
+      "javascript/threejs/Editor.js": "13.3%",
+      "javascript/threejs/GLTFLoader.js": "23.9%",
       "javascript/threejs/Matrix4.js": "6.7%",
       "javascript/threejs/Nodes.js": "97.9%",
-      "javascript/threejs/WebGLProgram.js": "36.7%",
-      "javascript/threejs/WebGLRenderer.js": "31.3%"
+      "javascript/threejs/WebGLProgram.js": "36.4%",
+      "javascript/threejs/WebGLRenderer.js": "31.2%"
     },
     "jcl/cash-account-cobol": {
       "jcl/cash-account-cobol/DB2BIND.jcl": "0.0%",
@@ -2278,6 +2344,7 @@
       "lua/darwin-xnu/wqtrace.lua": "24.9%"
     },
     "lua/freebsd-src": {
+      "lua/freebsd-src/COPYRIGHT": "0.0%",
       "lua/freebsd-src/cli.lua": "26.0%",
       "lua/freebsd-src/color.lua": "16.0%",
       "lua/freebsd-src/config.lua": "25.2%",
@@ -2372,6 +2439,16 @@
       "makefile/freebsd/COPYRIGHT": "0.0%",
       "makefile/freebsd/Makefile": "0.0%"
     },
+    "markdown": {
+      "markdown/SOURCES.md": "0.0%"
+    },
+    "markdown/airflow_job_lifecycle": {
+      "markdown/airflow_job_lifecycle/JOB_LIFECYCLE.md": "0.0%",
+      "markdown/airflow_job_lifecycle/NOTICE": "0.0%"
+    },
+    "markdown/kubernetes_client_go": {
+      "markdown/kubernetes_client_go/ARCHITECTURE.md": "0.0%"
+    },
     "matlab": {
       "matlab/SOURCES.md": "0.0%"
     },
@@ -2398,11 +2475,12 @@
       "nix/SOURCES.md": "0.0%"
     },
     "nix/bun": {
+      "nix/bun/LICENSE.md": "0.0%",
       "nix/bun/flake.nix": "0.0%",
       "nix/bun/shell.nix": "0.0%"
     },
     "nix/ghostty": {
-      "nix/ghostty/build.zig": "16.4%",
+      "nix/ghostty/build.zig": "16.0%",
       "nix/ghostty/default.nix": "0.0%",
       "nix/ghostty/flake.nix": "0.0%",
       "nix/ghostty/shell.nix": "0.0%"
@@ -2412,14 +2490,18 @@
     },
     "objective-c/worldwideweb": {
       "objective-c/worldwideweb/Anchor.m": "18.2%",
-      "objective-c/worldwideweb/HText.c": "21.7%",
-      "objective-c/worldwideweb/HyperManager.m": "18.1%",
+      "objective-c/worldwideweb/HText.c": "21.1%",
+      "objective-c/worldwideweb/HyperManager.m": "15.7%",
       "objective-c/worldwideweb/HyperText.h": "0.0%",
-      "objective-c/worldwideweb/HyperText.m": "20.4%",
-      "objective-c/worldwideweb/TcpAccess.m": "16.7%"
+      "objective-c/worldwideweb/HyperText.m": "19.7%",
+      "objective-c/worldwideweb/TcpAccess.m": "14.6%"
     },
     "perl": {
       "perl/SOURCES.md": "0.0%"
+    },
+    "perl/ack3_tests": {
+      "perl/ack3_tests/LICENSE.md": "0.0%",
+      "perl/ack3_tests/file-permission.t": "18.9%"
     },
     "perl/bugzilla": {
       "perl/bugzilla/Auth.pm": "24.8%",
@@ -2457,57 +2539,65 @@
       "php/SOURCES.md": "0.0%"
     },
     "php/guzzle": {
-      "php/guzzle/Client.php": "24.1%",
-      "php/guzzle/CurlFactory.php": "25.7%",
+      "php/guzzle/Client.php": "23.7%",
+      "php/guzzle/CurlFactory.php": "24.6%",
       "php/guzzle/CurlMultiHandler.php": "19.4%",
       "php/guzzle/Middleware.php": "9.7%",
       "php/guzzle/Pool.php": "14.1%",
       "php/guzzle/RequestException.php": "15.9%",
-      "php/guzzle/StreamHandler.php": "22.9%"
+      "php/guzzle/StreamHandler.php": "21.8%"
     },
     "php/laravel_core": {
       "php/laravel_core/Application.php": "9.3%",
-      "php/laravel_core/BladeCompiler.php": "17.9%",
+      "php/laravel_core/BladeCompiler.php": "14.5%",
       "php/laravel_core/Collection.php": "16.2%",
-      "php/laravel_core/Container.php": "19.6%",
+      "php/laravel_core/Container.php": "19.4%",
       "php/laravel_core/Facade.php": "8.2%",
       "php/laravel_core/LICENSE.md": "0.0%",
-      "php/laravel_core/Model.php": "14.3%",
+      "php/laravel_core/Model.php": "14.2%",
       "php/laravel_core/Router.php": "13.8%"
+    },
+    "php/laravel_validation_rules": {
+      "php/laravel_validation_rules/Can.php": "2.9%",
+      "php/laravel_validation_rules/LICENSE.md": "0.0%"
     },
     "php/magento2": {
       "php/magento2/AbstractBlock.php": "11.8%",
-      "php/magento2/AbstractModel.php": "12.8%",
+      "php/magento2/AbstractModel.php": "12.4%",
       "php/magento2/Application.php": "13.3%",
       "php/magento2/Http.php": "9.2%",
       "php/magento2/Interceptor.php": "12.9%",
       "php/magento2/LICENSE.txt": "0.0%",
-      "php/magento2/Mysql.php": "23.7%",
+      "php/magento2/Mysql.php": "22.2%",
       "php/magento2/ObjectManager.php": "2.8%"
     },
     "php/symfony": {
-      "php/symfony/Application.php": "29.7%",
-      "php/symfony/ContainerBuilder.php": "32.7%",
+      "php/symfony/Application.php": "28.1%",
+      "php/symfony/ContainerBuilder.php": "32.2%",
       "php/symfony/EventDispatcher.php": "48.4%",
-      "php/symfony/HttpKernel.php": "21.0%",
-      "php/symfony/Parser.php": "25.9%",
-      "php/symfony/Request.php": "29.8%",
+      "php/symfony/HttpKernel.php": "20.1%",
+      "php/symfony/Parser.php": "23.6%",
+      "php/symfony/Request.php": "28.3%",
       "php/symfony/Router.php": "17.6%"
+    },
+    "php/symfony_emoji_data": {
+      "php/symfony_emoji_data/emoji-ccp.php": "0.0%"
     },
     "php/wordpress": {
       "php/wordpress/admin-ajax.php": "7.5%",
-      "php/wordpress/class-wp-query.php": "31.9%",
-      "php/wordpress/formatting.php": "24.5%",
-      "php/wordpress/functions.php": "26.0%",
+      "php/wordpress/class-wp-query.php": "31.7%",
+      "php/wordpress/formatting.php": "19.9%",
+      "php/wordpress/functions.php": "24.2%",
       "php/wordpress/license.txt": "0.0%",
       "php/wordpress/plugin.php": "20.3%",
-      "php/wordpress/wp-login.php": "26.3%",
-      "php/wordpress/wp-settings.php": "7.1%"
+      "php/wordpress/wp-login.php": "23.2%",
+      "php/wordpress/wp-settings.php": "6.5%"
     },
     "plaintext": {
       "plaintext/SOURCES.md": "0.0%"
     },
     "plaintext/ansible": {
+      "plaintext/ansible/COPYING": "0.0%",
       "plaintext/ansible/requirements.txt": "0.0%"
     },
     "plaintext/cpython/Lib/test/tokenizedata": {
@@ -2521,6 +2611,9 @@
     },
     "plaintext/opencv/include": {
       "plaintext/opencv/include/CMakeLists.txt": "0.0%"
+    },
+    "pli": {
+      "pli/SOURCES.md": "0.0%"
     },
     "pli/dsf_cics_admin": {
       "pli/dsf_cics_admin/LICENSE.md": "0.0%",
@@ -2700,15 +2793,33 @@
       "python/SOURCES.md": "0.0%"
     },
     "python/airflow": {
+      "python/airflow/NOTICE": "0.0%",
       "python/airflow/dag.py": "11.4%",
       "python/airflow/s3.py": "18.6%",
       "python/airflow/scheduler_job_runner.py": "17.2%"
     },
+    "python/airflow_ai_providers": {
+      "python/airflow_ai_providers/NOTICE": "0.0%",
+      "python/airflow_ai_providers/openai_src_airflow_providers_openai_hooks_openai.py": "5.1%",
+      "python/airflow_ai_providers/pinecone_src_airflow_providers_pinecone_hooks_pinecone.py": "7.9%",
+      "python/airflow_ai_providers/pinecone_src_airflow_providers_pinecone_operators_pinecone.py": "1.5%",
+      "python/airflow_ai_providers/pinecone_tests_system_pinecone_example_pinecone_cohere.py": "5.1%"
+    },
+    "python/airflow_opsgenie_tests": {
+      "python/airflow_opsgenie_tests/NOTICE": "0.0%",
+      "python/airflow_opsgenie_tests/test_opsgenie.py": "0.8%"
+    },
     "python/cython": {
+      "python/cython/COPYING.txt": "0.0%",
       "python/cython/CodeGeneration.py": "0.0%",
+      "python/cython/LICENSE.txt": "0.0%",
       "python/cython/MemoryView.pxd": "0.0%",
       "python/cython/MemoryView.pyx": "21.3%",
       "python/cython/Nodes.py": "33.5%"
+    },
+    "python/django_db_tests": {
+      "python/django_db_tests/test_iterator.py": "2.2%",
+      "python/django_db_tests/test_utils.py": "1.7%"
     },
     "python/fastapi": {
       "python/fastapi/CONTRIBUTING.md": "0.0%",
@@ -2947,6 +3058,26 @@
       "python/fastapi/tests/test_ws_router.py": "1.1%",
       "python/fastapi/tests/utils.py": "8.3%"
     },
+    "python/homeassistant_anthropic": {
+      "python/homeassistant_anthropic/LICENSE.md": "0.0%",
+      "python/homeassistant_anthropic/coordinator.py": "6.9%"
+    },
+    "python/homeassistant_ble_integrations": {
+      "python/homeassistant_ble_integrations/LICENSE.md": "0.0%",
+      "python/homeassistant_ble_integrations/aranet___init__.py": "0.0%",
+      "python/homeassistant_ble_integrations/gardena_bluetooth___init__.py": "2.0%",
+      "python/homeassistant_ble_integrations/utils.py": "12.9%"
+    },
+    "python/langchain_agents": {
+      "python/langchain_agents/langchain_agents_middleware_model_fallback.py": "9.5%",
+      "python/langchain_agents/langchain_agents_middleware_tool_emulator.py": "24.1%",
+      "python/langchain_agents/tests_integration_tests_chat_models_test_base.py": "2.4%"
+    },
+    "python/micropython_usb_tls": {
+      "python/micropython_usb_tls/ssl_verify_callback.py": "6.9%",
+      "python/micropython_usb_tls/tls_dtls.py": "5.0%",
+      "python/micropython_usb_tls/usb_simple_host_pyusb.py": "13.0%"
+    },
     "python/numpy": {
       "python/numpy/LICENSE.txt": "0.0%",
       "python/numpy/__init__.py": "0.0%",
@@ -2960,12 +3091,37 @@
       "python/numpy/generate_numpy_api.py": "11.5%",
       "python/numpy/generate_ufunc_api.py": "8.1%",
       "python/numpy/generate_umath_doc.py": "5.3%",
-      "python/numpy/lapack_litemodule.c": "7.5%",
+      "python/numpy/lapack_litemodule.c": "4.7%",
       "python/numpy/numpy_api.py": "0.0%",
       "python/numpy/symbolic.py": "38.0%",
       "python/numpy/testutils.py": "26.5%",
       "python/numpy/ufunc_docstrings.py": "3.6%",
       "python/numpy/verify_c_api_version.py": "5.3%"
+    },
+    "python/opencv_dnn_conversion": {
+      "python/opencv_dnn_conversion/py_to_py_resnet50_onnx.py": "3.4%"
+    },
+    "python/pip_vendored_requests": {
+      "python/pip_vendored_requests/LICENSE.txt": "0.0%",
+      "python/pip_vendored_requests/packages.py": "47.1%"
+    },
+    "python/scikit-learn_examples": {
+      "python/scikit-learn_examples/COPYING": "0.0%",
+      "python/scikit-learn_examples/linear_model_plot_nnls.py": "0.0%",
+      "python/scikit-learn_examples/svm_plot_custom_kernel.py": "0.0%"
+    },
+    "python/tensorflow_ml_ops": {
+      "python/tensorflow_ml_ops/core_tfrt_saved_model_tests_gen_matmul_gpu.py": "5.1%",
+      "python/tensorflow_ml_ops/lite_testing_op_tests_einsum.py": "4.8%"
+    },
+    "python/tensorflow_model_fixtures": {
+      "python/tensorflow_model_fixtures/lite_testdata_multi_add.pb": "0.0%",
+      "python/tensorflow_model_fixtures/python_compiler_mlir_multi_add.tflite": "0.0%"
+    },
+    "python/thealgorithms_machine_learning": {
+      "python/thealgorithms_machine_learning/LICENSE.md": "0.0%",
+      "python/thealgorithms_machine_learning/logistic_regression.py": "6.2%",
+      "python/thealgorithms_machine_learning/lstm_lstm_prediction.py": "13.2%"
     },
     "python/twisted": {
       "python/twisted/defer.py": "12.6%",
@@ -2982,18 +3138,24 @@
       "python/wtfpython/noxfile.py": "12.5%"
     },
     "rexx": {
-      "rexx/PROVENANCE.md": "0.0%"
+      "rexx/PROVENANCE.md": "0.0%",
+      "rexx/SOURCES.md": "0.0%"
+    },
+    "rexx/hercules_390_hyperion": {
+      "rexx/hercules_390_hyperion/COPYRIGHT": "0.0%",
+      "rexx/hercules_390_hyperion/sample.rexx": "6.9%"
     },
     "rexx/hercules_hyperion": {
+      "rexx/hercules_hyperion/COPYRIGHT": "0.0%",
       "rexx/hercules_hyperion/cmpsc.rexx": "18.7%",
       "rexx/hercules_hyperion/hbasic1.rexx": "7.4%",
       "rexx/hercules_hyperion/hcommand.rexx": "10.6%",
       "rexx/hercules_hyperion/hexecio.rexx": "13.8%",
       "rexx/hercules_hyperion/hlinein.rexx": "8.0%",
-      "rexx/hercules_hyperion/hrecurs.rexx": "14.3%",
-      "rexx/hercules_hyperion/sample.rexx": "6.9%"
+      "rexx/hercules_hyperion/hrecurs.rexx": "14.3%"
     },
     "rexx/ibm_z_zos": {
+      "rexx/ibm_z_zos/LICENSE.md": "0.0%",
       "rexx/ibm_z_zos/bpxget.rexx": "22.2%",
       "rexx/ibm_z_zos/bpxput.rexx": "19.6%",
       "rexx/ibm_z_zos/bpxwtabs.rexx": "25.4%",
@@ -3026,33 +3188,47 @@
       "ruby/rails/metal.rb": "10.8%",
       "ruby/rails/routing.rb": "7.1%"
     },
+    "ruby/rails_http_token_auth": {
+      "ruby/rails_http_token_auth/MIT-LICENSE": "0.0%",
+      "ruby/rails_http_token_auth/http_token_authentication_test.rb": "8.0%"
+    },
     "rust": {
       "rust/SOURCES.md": "0.0%"
     },
     "rust/bevy": {
-      "rust/bevy/bevy_ecs_macros.rs": "10.3%",
-      "rust/bevy/bevy_ecs_query.rs": "3.6%",
+      "rust/bevy/LICENSE-APACHE": "0.0%",
+      "rust/bevy/LICENSE-MIT": "0.0%",
+      "rust/bevy/bevy_ecs_macros.rs": "10.1%",
+      "rust/bevy/bevy_ecs_query.rs": "3.5%",
       "rust/bevy/bevy_ecs_table.rs": "1.6%",
-      "rust/bevy/bevy_ecs_world.rs": "5.3%",
-      "rust/bevy/bevy_reflect_path.rs": "10.4%",
+      "rust/bevy/bevy_ecs_world.rs": "4.9%",
+      "rust/bevy/bevy_reflect_path.rs": "9.8%",
       "rust/bevy/bevy_render_phase.rs": "0.0%",
       "rust/bevy/bevy_schedule_graph.rs": "10.2%"
+    },
+    "rust/bevy_asset_examples": {
+      "rust/bevy_asset_examples/LICENSE-APACHE": "0.0%",
+      "rust/bevy_asset_examples/LICENSE-MIT": "0.0%",
+      "rust/bevy_asset_examples/image_node.rs": "0.0%",
+      "rust/bevy_asset_examples/rotation.rs": "5.2%"
     },
     "rust/holylang": {
       "rust/holylang/ast.rs": "0.0%",
       "rust/holylang/compile.rs": "2.1%",
       "rust/holylang/error.rs": "20.0%",
       "rust/holylang/main.rs": "0.0%",
-      "rust/holylang/parser.rs": "32.9%",
-      "rust/holylang/semantic.rs": "22.9%",
-      "rust/holylang/transpiler.rs": "19.5%"
+      "rust/holylang/parser.rs": "28.8%",
+      "rust/holylang/semantic.rs": "20.6%",
+      "rust/holylang/transpiler.rs": "14.4%"
     },
     "rust/serde": {
-      "rust/serde/serde_core_de_impls.rs": "8.5%",
-      "rust/serde/serde_core_de_mod.rs": "3.2%",
+      "rust/serde/LICENSE-APACHE": "0.0%",
+      "rust/serde/LICENSE-MIT": "0.0%",
+      "rust/serde/serde_core_de_impls.rs": "8.4%",
+      "rust/serde/serde_core_de_mod.rs": "3.0%",
       "rust/serde/serde_core_macros.rs": "0.0%",
       "rust/serde/serde_derive_de.rs": "11.6%",
-      "rust/serde/serde_internals_ast.rs": "7.4%",
+      "rust/serde/serde_internals_ast.rs": "6.8%",
       "rust/serde/serde_internals_attr.rs": "21.8%",
       "rust/serde/test_annotations.rs": "1.1%"
     },
@@ -3068,35 +3244,38 @@
     },
     "rust/tokio": {
       "rust/tokio/addr_of.rs": "0.0%",
-      "rust/tokio/block_on.rs": "5.0%",
+      "rust/tokio/block_on.rs": "0.0%",
       "rust/tokio/blocking.rs": "7.7%",
-      "rust/tokio/builder.rs": "3.5%",
+      "rust/tokio/builder.rs": "3.3%",
       "rust/tokio/config.rs": "0.0%",
       "rust/tokio/fuzz.rs": "0.0%",
-      "rust/tokio/interval.rs": "5.1%",
+      "rust/tokio/interval.rs": "4.4%",
       "rust/tokio/lib.rs": "0.0%",
       "rust/tokio/maybe_done.rs": "8.9%",
       "rust/tokio/tests.rs": "1.2%",
       "rust/tokio/tokio_mpsc_bounded.rs": "9.7%",
       "rust/tokio/tokio_named_pipe.rs": "8.7%"
     },
+    "rust/tokio_util_rand": {
+      "rust/tokio_util_rand/rand.rs": "1.6%"
+    },
     "rust/wasmtime": {
       "rust/wasmtime/wasmtime_component_macro.rs": "0.0%",
-      "rust/wasmtime/wasmtime_instance.rs": "8.8%",
-      "rust/wasmtime/wasmtime_isle_parser.rs": "40.1%",
+      "rust/wasmtime/wasmtime_instance.rs": "8.7%",
+      "rust/wasmtime/wasmtime_isle_parser.rs": "39.8%",
       "rust/wasmtime/wasmtime_pulley_interp.rs": "8.9%"
     },
     "scala": {
       "scala/SOURCES.md": "0.0%"
     },
     "scala/kafka": {
-      "scala/kafka/Kafka.scala": "16.0%",
-      "scala/kafka/KafkaApis.scala": "21.9%",
+      "scala/kafka/Kafka.scala": "14.7%",
+      "scala/kafka/KafkaApis.scala": "21.5%",
       "scala/kafka/KafkaRaftManager.scala": "1.9%",
-      "scala/kafka/LogManager.scala": "20.4%",
-      "scala/kafka/Partition.scala": "21.0%",
-      "scala/kafka/ReplicaManager.scala": "19.0%",
-      "scala/kafka/SocketServer.scala": "16.5%"
+      "scala/kafka/LogManager.scala": "16.6%",
+      "scala/kafka/Partition.scala": "18.6%",
+      "scala/kafka/ReplicaManager.scala": "17.8%",
+      "scala/kafka/SocketServer.scala": "13.6%"
     },
     "scheme": {
       "scheme/SOURCES.md": "0.0%"
@@ -3104,8 +3283,8 @@
     "scheme/racket": {
       "scheme/racket/LICENSE.txt": "0.0%",
       "scheme/racket/cpnanopass.ss": "12.3%",
-      "scheme/racket/eval.c": "20.0%",
-      "scheme/racket/fun.c": "26.6%",
+      "scheme/racket/eval.c": "18.8%",
+      "scheme/racket/fun.c": "25.2%",
       "scheme/racket/io.ss": "20.7%",
       "scheme/racket/schemify.rkt": "17.3%",
       "scheme/racket/thread.rkt": "14.9%"
@@ -3194,6 +3373,7 @@
       "shell/darwin-xnu/xcrun_cache.sh": "15.6%"
     },
     "shell/freebsd-src": {
+      "shell/freebsd-src/COPYRIGHT": "0.0%",
       "shell/freebsd-src/chflags_test.sh": "0.0%",
       "shell/freebsd-src/chmod_test.sh": "5.0%",
       "shell/freebsd-src/cp_test.sh": "1.0%",
@@ -3220,6 +3400,10 @@
       "shell/freebsd-src/runulp.sh": "36.2%",
       "shell/freebsd-src/timeout_test.sh": "1.1%",
       "shell/freebsd-src/ztest.sh": "17.5%"
+    },
+    "shell/freebsd_sysbuild": {
+      "shell/freebsd_sysbuild/COPYRIGHT": "0.0%",
+      "shell/freebsd_sysbuild/sysbuild.sh": "20.0%"
     },
     "shell/haiku": {
       "shell/haiku/HardwareChecker.sh": "9.1%",
@@ -3417,25 +3601,28 @@
       "sql/SOURCES.md": "0.0%"
     },
     "sql/baseline": {
-      "sql/baseline/schema.php": "21.2%"
+      "sql/baseline/schema.php": "10.0%"
     },
-    "sql/mysql/mediawiki": {
-      "sql/mysql/mediawiki/COPYING": "0.0%",
-      "sql/mysql/mediawiki/blobs.sql": "0.0%"
+    "sql/mediawiki_mysql": {
+      "sql/mediawiki_mysql/COPYING": "0.0%",
+      "sql/mediawiki_mysql/blobs.sql": "0.0%"
     },
-    "sql/mysql/spamassassin": {
-      "sql/mysql/spamassassin/neural_mysql.sql": "0.0%"
+    "sql/mediawiki_postgresql": {
+      "sql/mediawiki_postgresql/COPYING": "0.0%",
+      "sql/mediawiki_postgresql/tables.sql": "0.0%"
     },
-    "sql/postgresql/mediawiki": {
-      "sql/postgresql/mediawiki/tables.sql": "0.0%"
-    },
-    "sql/postgresql/sqlmap": {
-      "sql/postgresql/sqlmap/dns_request.sql": "0.0%"
+    "sql/spamassassin_mysql": {
+      "sql/spamassassin_mysql/NOTICE": "0.0%",
+      "sql/spamassassin_mysql/neural_mysql.sql": "0.0%"
     },
     "sql/sqlite": {
       "sql/sqlite/000-mandelbrot.sql": "17.6%",
       "sql/sqlite/001-sudoku.sql": "14.3%",
+      "sql/sqlite/LICENSE.md": "0.0%",
       "sql/sqlite/dotcmd01.sql": "1.7%"
+    },
+    "sql/sqlmap_postgresql": {
+      "sql/sqlmap_postgresql/dns_request.sql": "0.0%"
     },
     "sqlite": {
       "sqlite/SOURCES.md": "0.0%"
@@ -3541,13 +3728,13 @@
       "swift/SOURCES.md": "0.0%"
     },
     "swift/alamofire": {
-      "swift/alamofire/AFError.swift": "46.4%",
+      "swift/alamofire/AFError.swift": "41.7%",
       "swift/alamofire/Alamofire.podspec": "5.0%",
       "swift/alamofire/Package.swift": "0.0%",
-      "swift/alamofire/ParameterEncoder.swift": "26.7%",
-      "swift/alamofire/Request.swift": "26.9%",
-      "swift/alamofire/Response.swift": "22.0%",
-      "swift/alamofire/Session.swift": "27.2%"
+      "swift/alamofire/ParameterEncoder.swift": "23.8%",
+      "swift/alamofire/Request.swift": "25.9%",
+      "swift/alamofire/Response.swift": "17.9%",
+      "swift/alamofire/Session.swift": "25.3%"
     },
     "tabular": {
       "tabular/SOURCES.md": "0.0%"
@@ -3600,6 +3787,7 @@
       "tcl/macports_registry/registry_util.tcl": "24.2%"
     },
     "tcl/sqlite": {
+      "tcl/sqlite/LICENSE.md": "0.0%",
       "tcl/sqlite/README.md": "0.0%",
       "tcl/sqlite/malloc_common.tcl": "13.7%",
       "tcl/sqlite/speedtest.tcl": "18.4%",
@@ -3644,12 +3832,26 @@
     "typescript": {
       "typescript/SOURCES.md": "0.0%"
     },
+    "typescript/angular_zonejs_mocha": {
+      "typescript/angular_zonejs_mocha/mocha.ts": "7.9%"
+    },
     "typescript/assemblyscript": {
       "typescript/assemblyscript/asconfig.json": "0.0%",
       "typescript/assemblyscript/ast.ts": "6.1%",
-      "typescript/assemblyscript/compiler.ts": "23.9%",
+      "typescript/assemblyscript/compiler.ts": "23.7%",
       "typescript/assemblyscript/package.json": "0.0%",
-      "typescript/assemblyscript/parser.ts": "25.9%"
+      "typescript/assemblyscript/parser.ts": "25.7%"
+    },
+    "typescript/effect_ai_anthropic": {
+      "typescript/effect_ai_anthropic/AnthropicTokenizer.ts": "8.7%"
+    },
+    "typescript/excalibur_math": {
+      "typescript/excalibur_math/LICENSE.md": "0.0%",
+      "typescript/excalibur_math/collision_colliders_separating-axis.ts": "14.3%",
+      "typescript/excalibur_math/math_ray.ts": "18.4%"
+    },
+    "typescript/excalidraw_text_wrapping": {
+      "typescript/excalidraw_text_wrapping/textWrapping.ts": "8.3%"
     },
     "typescript/fp-ts": {
       "typescript/fp-ts/Either.ts": "9.4%",
@@ -3658,6 +3860,13 @@
       "typescript/fp-ts/package.json": "0.0%",
       "typescript/fp-ts/pipeable.ts": "7.2%"
     },
+    "typescript/nx_util_ai": {
+      "typescript/nx_util_ai/nx-dev_pages_api_query-ai-handler.ts": "2.8%",
+      "typescript/nx_util_ai/util-ai_src_lib_moderation.ts": "5.6%"
+    },
+    "typescript/pixijs_examples": {
+      "typescript/pixijs_examples/events_dragging.ts": "6.8%"
+    },
     "typescript/playwright": {
       "typescript/playwright/NOTICE": "0.0%",
       "typescript/playwright/README.md": "0.0%",
@@ -3665,10 +3874,10 @@
       "typescript/playwright/SUPPORT.md": "0.0%",
       "typescript/playwright/api.ts": "0.0%",
       "typescript/playwright/bidiConnection.ts": "27.5%",
-      "typescript/playwright/connection.ts": "27.3%",
+      "typescript/playwright/connection.ts": "27.0%",
       "typescript/playwright/crConnection.ts": "19.9%",
-      "typescript/playwright/dispatcher.ts": "21.5%",
-      "typescript/playwright/frames.ts": "27.1%",
+      "typescript/playwright/dispatcher.ts": "20.4%",
+      "typescript/playwright/frames.ts": "25.6%",
       "typescript/playwright/protocol.ts": "18.2%"
     },
     "typescript/typescript_compiler": {
@@ -3677,14 +3886,14 @@
     },
     "typescript/vscode": {
       "typescript/vscode/LICENSE.txt": "0.0%",
-      "typescript/vscode/async.ts": "14.2%",
-      "typescript/vscode/codeEditorWidget.ts": "16.4%",
-      "typescript/vscode/eslint.config.js": "0.4%",
-      "typescript/vscode/extHost.api.impl.ts": "15.8%",
-      "typescript/vscode/gulpfile.vscode.ts": "11.1%",
-      "typescript/vscode/instantiationService.ts": "22.6%",
+      "typescript/vscode/async.ts": "14.0%",
+      "typescript/vscode/codeEditorWidget.ts": "16.2%",
+      "typescript/vscode/eslint.config.js": "0.1%",
+      "typescript/vscode/extHost.api.impl.ts": "15.4%",
+      "typescript/vscode/gulpfile.vscode.ts": "10.7%",
+      "typescript/vscode/instantiationService.ts": "21.7%",
       "typescript/vscode/ipc.ts": "19.8%",
-      "typescript/vscode/lifecycle.ts": "14.8%",
+      "typescript/vscode/lifecycle.ts": "14.6%",
       "typescript/vscode/package.json": "0.0%",
       "typescript/vscode/vscode.d.ts": "23.5%"
     },
@@ -3700,10 +3909,12 @@
       "xml/apex/CanTheUser_Tests.cls-meta.xml": "0.0%",
       "xml/apex/IterationRecipes_Tests.cls": "0.0%",
       "xml/apex/IterationRecipes_Tests.cls-meta.xml": "0.0%",
+      "xml/apex/LICENSE.md": "0.0%",
       "xml/apex/ListSortingRecipes_Tests.cls": "0.0%",
       "xml/apex/ListSortingRecipes_Tests.cls-meta.xml": "0.0%"
     },
     "xml/jenkins": {
+      "xml/jenkins/LICENSE.txt": "0.0%",
       "xml/jenkins/XStreamDOMTest.data1.xml": "0.0%",
       "xml/jenkins/XStreamDOMTest.data2.xml": "0.0%",
       "xml/jenkins/excludesFilter.xml": "0.0%"
@@ -3810,14 +4021,25 @@
       "zig/SOURCES.md": "0.0%"
     },
     "zig/bun": {
+      "zig/bun/LICENSE.md": "0.0%",
       "zig/bun/MimallocArena.zig": "14.9%",
       "zig/bun/Parser.zig": "17.3%",
-      "zig/bun/comptime_string_map.zig": "11.4%",
+      "zig/bun/comptime_string_map.zig": "11.2%",
       "zig/bun/napi.zig": "11.0%"
     },
+    "zig/mach": {
+      "zig/mach/Core.zig": "6.3%",
+      "zig/mach/StringTable.zig": "3.0%",
+      "zig/mach/collision.zig": "13.3%",
+      "zig/mach/graph.zig": "8.2%",
+      "zig/mach/main.zig": "0.0%",
+      "zig/mach/module.zig": "12.4%",
+      "zig/mach/testing.zig": "8.7%",
+      "zig/mach/win32.zig": "2.1%"
+    },
     "zig/tigerbeetle": {
-      "zig/tigerbeetle/aof.zig": "8.1%",
-      "zig/tigerbeetle/build.zig": "7.2%",
+      "zig/tigerbeetle/aof.zig": "7.7%",
+      "zig/tigerbeetle/build.zig": "7.0%",
       "zig/tigerbeetle/build_multiversion.zig": "4.9%",
       "zig/tigerbeetle/cluster.zig": "9.0%",
       "zig/tigerbeetle/config.zig": "4.5%",
@@ -3827,33 +4049,26 @@
       "zig/tigerbeetle/direction.zig": "15.8%",
       "zig/tigerbeetle/download.sh": "16.3%",
       "zig/tigerbeetle/download.win.ps1": "20.0%",
-      "zig/tigerbeetle/state_machine.zig": "9.7%"
+      "zig/tigerbeetle/state_machine.zig": "9.6%"
     },
     "zig/zig": {
-      "zig/zig/Compilation.zig": "15.5%",
+      "zig/zig/Compilation.zig": "15.3%",
       "zig/zig/InternPool.zig": "8.4%",
       "zig/zig/Type.zig": "16.0%",
       "zig/zig/Zcu.zig": "13.1%",
-      "zig/zig/main.zig": "27.2%"
+      "zig/zig/main.zig": "26.8%"
+    },
+    "zig/zig_std_linux_mips": {
+      "zig/zig_std_linux_mips/mips.zig": "0.4%"
     },
     "zig/zls": {
       "zig/zls/DocumentScope.zig": "9.6%",
       "zig/zls/DocumentStore.zig": "17.1%",
-      "zig/zls/Server.zig": "22.5%",
+      "zig/zls/Server.zig": "22.2%",
       "zig/zls/analysis.zig": "22.2%",
       "zig/zls/ast.zig": "13.9%",
-      "zig/zls/config_gen.zig": "19.4%",
+      "zig/zls/config_gen.zig": "19.3%",
       "zig/zls/print_ast.zig": "4.8%"
-    },
-    "zig/zls/mach": {
-      "zig/zls/mach/Core.zig": "6.5%",
-      "zig/zls/mach/StringTable.zig": "3.0%",
-      "zig/zls/mach/collision.zig": "13.3%",
-      "zig/zls/mach/graph.zig": "8.2%",
-      "zig/zls/mach/main.zig": "0.0%",
-      "zig/zls/mach/module.zig": "12.4%",
-      "zig/zls/mach/testing.zig": "8.7%",
-      "zig/zls/mach/win32.zig": "2.1%"
     }
   },
   "path": [

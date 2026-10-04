@@ -1,0 +1,332 @@
+{
+ "kind": "cics",
+ "corpus": "aws-mainframe-modernization-carddemo",
+ "program": "COBIL00C",
+ "program_source": "app/cbl/COBIL00C.cbl",
+ "copy_dirs": [
+  "app/cpy",
+  "app/cpy-bms"
+ ],
+ "transid": "CB00",
+ "clock": "2022/07/18 10:30:15.00",
+ "datasets": {
+  "AWS.M2.CARDDEMO.ACCTDATA.VSAM.KSDS": {
+   "input": "@case/acctdata.txt",
+   "entity": "AccountRecord",
+   "copybook": "app/cpy/CVACT01Y.cpy",
+   "record": "ACCOUNT-RECORD"
+  },
+  "AWS.M2.CARDDEMO.CARDXREF.VSAM.KSDS": {
+   "input": "app/data/ASCII/cardxref.txt",
+   "entity": "CardXrefRecord"
+  },
+  "AWS.M2.CARDDEMO.TRANSACT.VSAM.KSDS": {
+   "input": "app/data/ASCII/dailytran.txt",
+   "entity": "TranRecord",
+   "copybook": "app/cpy/CVTRA05Y.cpy",
+   "record": "TRAN-RECORD"
+  }
+ },
+ "commarea": {
+  "segments": [
+   {
+    "copybook": "app/cbl/COBIL00C.cbl",
+    "record": "CARDDEMO-COMMAREA"
+   }
+  ]
+ },
+ "screens": {
+  "COBIL0A": {
+   "copybook": "app/cpy-bms/COBIL00.CPY",
+   "input": "COBIL0AI",
+   "output": "COBIL0AO"
+  }
+ },
+ "scenarios": [
+  {
+   "name": "first-entry",
+   "aid": "DFHENTER",
+   "commarea": {
+    "CDEMO-FROM-TRANID": "CM00",
+    "CDEMO-FROM-PROGRAM": "COMEN01C",
+    "CDEMO-USER-ID": "USER0001",
+    "CDEMO-USER-TYPE": "U",
+    "CDEMO-PGM-CONTEXT": 0
+   }
+  },
+  {
+   "name": "no-commarea",
+   "aid": "DFHENTER",
+   "commarea": null
+  },
+  {
+   "name": "first-entry-with-selected-account",
+   "aid": "DFHENTER",
+   "commarea": {
+    "CDEMO-FROM-TRANID": "CM00",
+    "CDEMO-FROM-PROGRAM": "COMEN01C",
+    "CDEMO-USER-ID": "USER0001",
+    "CDEMO-USER-TYPE": "U",
+    "CDEMO-PGM-CONTEXT": 0,
+    "CDEMO-CB00-TRN-SELECTED": "00000000001"
+   }
+  },
+  {
+   "name": "show-balance",
+   "aid": "DFHENTER",
+   "commarea": {
+    "CDEMO-FROM-TRANID": "CM00",
+    "CDEMO-FROM-PROGRAM": "COMEN01C",
+    "CDEMO-USER-ID": "USER0001",
+    "CDEMO-USER-TYPE": "U",
+    "CDEMO-PGM-CONTEXT": 1
+   },
+   "receive": {
+    "COBIL0A": {
+     "ACTIDINI": "00000000001"
+    }
+   }
+  },
+  {
+   "name": "pay-the-balance",
+   "aid": "DFHENTER",
+   "commarea": {
+    "CDEMO-FROM-TRANID": "CM00",
+    "CDEMO-FROM-PROGRAM": "COMEN01C",
+    "CDEMO-USER-ID": "USER0001",
+    "CDEMO-USER-TYPE": "U",
+    "CDEMO-PGM-CONTEXT": 1
+   },
+   "receive": {
+    "COBIL0A": {
+     "ACTIDINI": "00000000001",
+     "CONFIRMI": "Y"
+    }
+   },
+   "why": "the payment is WRITEn as a new transaction (last id + 1, stamped by ASKTIME / FORMATTIME at the task's clock) and the balance REWRITten to zero"
+  },
+  {
+   "name": "pay-lowercase-y",
+   "aid": "DFHENTER",
+   "commarea": {
+    "CDEMO-FROM-TRANID": "CM00",
+    "CDEMO-FROM-PROGRAM": "COMEN01C",
+    "CDEMO-USER-ID": "USER0001",
+    "CDEMO-USER-TYPE": "U",
+    "CDEMO-PGM-CONTEXT": 1
+   },
+   "receive": {
+    "COBIL0A": {
+     "ACTIDINI": "00000000008",
+     "CONFIRMI": "y"
+    }
+   }
+  },
+  {
+   "name": "decline-payment",
+   "aid": "DFHENTER",
+   "commarea": {
+    "CDEMO-FROM-TRANID": "CM00",
+    "CDEMO-FROM-PROGRAM": "COMEN01C",
+    "CDEMO-USER-ID": "USER0001",
+    "CDEMO-USER-TYPE": "U",
+    "CDEMO-PGM-CONTEXT": 1
+   },
+   "receive": {
+    "COBIL0A": {
+     "ACTIDINI": "00000000001",
+     "CONFIRMI": "N"
+    }
+   }
+  },
+  {
+   "name": "confirm-invalid",
+   "aid": "DFHENTER",
+   "commarea": {
+    "CDEMO-FROM-TRANID": "CM00",
+    "CDEMO-FROM-PROGRAM": "COMEN01C",
+    "CDEMO-USER-ID": "USER0001",
+    "CDEMO-USER-TYPE": "U",
+    "CDEMO-PGM-CONTEXT": 1
+   },
+   "receive": {
+    "COBIL0A": {
+     "ACTIDINI": "00000000001",
+     "CONFIRMI": "X"
+    }
+   }
+  },
+  {
+   "name": "account-empty",
+   "aid": "DFHENTER",
+   "commarea": {
+    "CDEMO-FROM-TRANID": "CM00",
+    "CDEMO-FROM-PROGRAM": "COMEN01C",
+    "CDEMO-USER-ID": "USER0001",
+    "CDEMO-USER-TYPE": "U",
+    "CDEMO-PGM-CONTEXT": 1
+   },
+   "receive": {
+    "COBIL0A": {
+     "ACTIDINI": ""
+    }
+   }
+  },
+  {
+   "name": "account-not-found",
+   "aid": "DFHENTER",
+   "commarea": {
+    "CDEMO-FROM-TRANID": "CM00",
+    "CDEMO-FROM-PROGRAM": "COMEN01C",
+    "CDEMO-USER-ID": "USER0001",
+    "CDEMO-USER-TYPE": "U",
+    "CDEMO-PGM-CONTEXT": 1
+   },
+   "receive": {
+    "COBIL0A": {
+     "ACTIDINI": "99999999999"
+    }
+   }
+  },
+  {
+   "name": "nothing-to-pay",
+   "aid": "DFHENTER",
+   "commarea": {
+    "CDEMO-FROM-TRANID": "CM00",
+    "CDEMO-FROM-PROGRAM": "COMEN01C",
+    "CDEMO-USER-ID": "USER0001",
+    "CDEMO-USER-TYPE": "U",
+    "CDEMO-PGM-CONTEXT": 1
+   },
+   "receive": {
+    "COBIL0A": {
+     "ACTIDINI": "00000099999",
+     "CONFIRMI": "Y"
+    }
+   }
+  },
+  {
+   "name": "pf4-clear",
+   "aid": "DFHPF4",
+   "commarea": {
+    "CDEMO-FROM-TRANID": "CM00",
+    "CDEMO-FROM-PROGRAM": "COMEN01C",
+    "CDEMO-USER-ID": "USER0001",
+    "CDEMO-USER-TYPE": "U",
+    "CDEMO-PGM-CONTEXT": 1
+   },
+   "receive": {
+    "COBIL0A": {
+     "ACTIDINI": "00000000001"
+    }
+   }
+  },
+  {
+   "name": "pf3-back",
+   "aid": "DFHPF3",
+   "commarea": {
+    "CDEMO-FROM-TRANID": "CM00",
+    "CDEMO-FROM-PROGRAM": "",
+    "CDEMO-USER-ID": "USER0001",
+    "CDEMO-USER-TYPE": "U",
+    "CDEMO-PGM-CONTEXT": 1
+   },
+   "receive": {
+    "COBIL0A": {
+     "ACTIDINI": "00000000001"
+    }
+   }
+  },
+  {
+   "name": "invalid-key",
+   "aid": "DFHPF5",
+   "commarea": {
+    "CDEMO-FROM-TRANID": "CM00",
+    "CDEMO-FROM-PROGRAM": "COMEN01C",
+    "CDEMO-USER-ID": "USER0001",
+    "CDEMO-USER-TYPE": "U",
+    "CDEMO-PGM-CONTEXT": 1
+   },
+   "receive": {
+    "COBIL0A": {
+     "ACTIDINI": "00000000001"
+    }
+   }
+  },
+  {
+   "name": "account-read-io-error",
+   "aid": "DFHENTER",
+   "commarea": {
+    "CDEMO-FROM-TRANID": "CM00",
+    "CDEMO-FROM-PROGRAM": "COMEN01C",
+    "CDEMO-USER-ID": "USER0001",
+    "CDEMO-USER-TYPE": "U",
+    "CDEMO-PGM-CONTEXT": 1
+   },
+   "receive": {
+    "COBIL0A": {
+     "ACTIDINI": "00000000001"
+    }
+   },
+   "faults": [
+    {
+     "cmd": "READ",
+     "file": "ACCTDAT",
+     "resp": "IOERR",
+     "why": "17 on the account READ UPDATE"
+    }
+   ]
+  },
+  {
+   "name": "write-io-error",
+   "aid": "DFHENTER",
+   "commarea": {
+    "CDEMO-FROM-TRANID": "CM00",
+    "CDEMO-FROM-PROGRAM": "COMEN01C",
+    "CDEMO-USER-ID": "USER0001",
+    "CDEMO-USER-TYPE": "U",
+    "CDEMO-PGM-CONTEXT": 1
+   },
+   "receive": {
+    "COBIL0A": {
+     "ACTIDINI": "00000000001",
+     "CONFIRMI": "Y"
+    }
+   },
+   "faults": [
+    {
+     "cmd": "WRITE",
+     "file": "TRANSACT",
+     "resp": "IOERR",
+     "why": "17 on the payment's WRITE"
+    }
+   ]
+  },
+  {
+   "name": "rewrite-io-error",
+   "aid": "DFHENTER",
+   "commarea": {
+    "CDEMO-FROM-TRANID": "CM00",
+    "CDEMO-FROM-PROGRAM": "COMEN01C",
+    "CDEMO-USER-ID": "USER0001",
+    "CDEMO-USER-TYPE": "U",
+    "CDEMO-PGM-CONTEXT": 1
+   },
+   "receive": {
+    "COBIL0A": {
+     "ACTIDINI": "00000000001",
+     "CONFIRMI": "Y"
+    }
+   },
+   "faults": [
+    {
+     "cmd": "REWRITE",
+     "file": "ACCTDAT",
+     "resp": "IOERR",
+     "why": "17 on the balance REWRITE: the payment is written, the balance not"
+    }
+   ]
+  }
+ ],
+ "notes": "CardDemo's bill payment (transaction CB00, program COBIL00C): an account's balance is read FOR UPDATE and shown; on confirmation the whole balance is paid -- a new transaction (the last id + 1, found by a HIGH-VALUES STARTBR and a READPREV; its timestamps from ASKTIME / FORMATTIME at the task's clock) is WRITEn to TRANSACT and the account REWRITten. Each scenario's files are compared after the task. acctdata.txt is CardDemo's own accounts plus one synthetic account, 00000099999, with a zero balance (written for this case) for 'You have nothing to pay...'. Derived from CardDemo (Apache-2.0; Copyright Amazon.com, Inc. or its affiliates): LICENSE and NOTICE here are the source's own."
+}

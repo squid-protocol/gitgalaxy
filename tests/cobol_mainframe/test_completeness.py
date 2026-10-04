@@ -83,17 +83,20 @@ PINNED = {
     # #3578: the five `SEND MAP(CCARD-NEXT-MAP)` maps, moved from LIT-THISMAP, now resolve.
     "aws-mainframe-modernization-carddemo": {
         # #3710: + COBTUPDT (IKJEFT01 RUN PROGRAM) and 4 IMS programs (DFSRRC00 PARM), run by jobs now
-        "program calls": (70, 87), "copybooks": (173, 173), "transactions": (62, 73), "screens": (47, 47),
+        # #4278: + the 3 EXEC SQL INCLUDE members inside records (CSDB2RWY ...), all resolved
+        "program calls": (70, 87), "copybooks": (176, 176), "transactions": (62, 73), "screens": (47, 47),
         "data flows": (4945, 5054), "IMS PSBs": (7, 7), "batch entry": (16, 17),
     },
     "cics-banking-sample-application-cbsa": {
         # #3710: + BANKDATA, which IKJEFT01 RUN PROGRAM runs
-        "program calls": (143, 151), "copybooks": (88, 88), "transactions": (42, 47), "screens": (36, 37),
+        # #4278: + 11 EXEC SQL INCLUDE members inside records (PROCDB2, ACCDB2, CONTDB2 ...)
+        "program calls": (143, 151), "copybooks": (99, 99), "transactions": (42, 47), "screens": (36, 37),
         "data flows": (4742, 4743), "IMS PSBs": (0, 0), "batch entry": (1, 1),
     },
     "cics-genapp": {
-        "program calls": (95, 101), "copybooks": (29, 29), "transactions": (74, 74), "screens": (52, 52),
-        "data flows": (1284, 1285), "IMS PSBs": (0, 0), "batch entry": (0, 0),
+        # #4278: + 11 EXEC SQL INCLUDE members inside records (LGCMAREA, LGPOLICY)
+        "program calls": (95, 101), "copybooks": (40, 40), "transactions": (74, 74), "screens": (52, 52),
+        "data flows": (1285, 1285), "IMS PSBs": (0, 0), "batch entry": (0, 0),
     },
     # #3576: PL/I main programs are scored too -- PSAM1 is run by RUNPSAM1.jcl; MACSAMP (the
     # macro-preprocessor showcase) and PSAM1LIB (a library copy of PSAM1) are run by no step.
@@ -109,7 +112,23 @@ PINNED = {
     # read from the code stream now, so it is the batch main its source says it is.
     "dsf": {
         "program calls": (6771, 6888), "copybooks": (0, 0), "transactions": (234, 309), "screens": (0, 2421),
-        "data flows": (149, 178), "IMS PSBs": (0, 1), "batch entry": (0, 129),
+        "data flows": (178, 178), "IMS PSBs": (0, 1), "batch entry": (0, 129),
+    },
+    # IBM DBB MortgageApplication (estate 4): 11 of 12 unresolved program calls are
+    # EPSCSMRD's helpers (XCHRFLTR, XWSPFLTR, EPSCSMRC/O/L/K, ...), which the
+    # repository does not ship; one is EPSCSMRT's dynamic CALL WS-CALLED-PROGRAM. Most
+    # unresolved data-flow operands are in that generated web-service wrapper. EPSMLIST
+    # is reached by no transaction in the repository (no CSD), and EPSCSMRT is a batch
+    # driver no JCL step runs. #4242: EPSCSMRD (the web-service wrapper, `PROGRAM-ID. 'EPSCSMRD'.`) records
+    # its program since the quoted name is read; it is a CICS program no transaction here reaches.
+    # #4245: 549/567 data flows -- EPSCSMRD holds 13 programs, and only the first one's DATA
+    # DIVISION was read, so 408 operands of the other 12 resolved to nothing. Of the 18 left,
+    # 11 are EPSCSMRD's XML PARSE special registers (XML-TEXT / XML-NTEXT read as items) and 7
+    # are EPSCSMRT's; `MOVE XML-CODE TO ERROR-CODE` now resolves its target and counts as
+    # `system`, out of the denominator.
+    "dbb-mortgage-application": {
+        "program calls": (7, 19), "copybooks": (11, 11), "transactions": (2, 4), "screens": (7, 7),
+        "data flows": (549, 567), "IMS PSBs": (0, 0), "batch entry": (0, 1),
     },
     # #3512: ECS001 ("Sample CICS program initiated via a terminal") issues only
     # EXEC CICS WEB, so it read as a batch program until WEB commands drew rows; it

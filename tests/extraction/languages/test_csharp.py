@@ -189,34 +189,28 @@ CLASS_CASES: dict[str, Any] = {
             "public class TargetEntity(int x) : Base(x) {",
             "TargetEntity",
         ),  # C# 12 primary-constructor class (non-generic), base
-        (
-            "readonly struct TargetEntity",
-            "TargetEntity",
-        ),  # C# 7.2 readonly struct -- was a total miss before #1708
-        (
-            "readonly ref struct TargetEntity",
-            "TargetEntity",
-        ),  # C# 7.2 readonly ref struct
-        (
-            "ref struct TargetEntity",
-            "TargetEntity",
-        ),  # C# 7.2 ref struct
-        (
-            "ref readonly struct TargetEntity<T>",
-            "TargetEntity",
-        ),  # ref readonly, generic
-        (
-            "public readonly record struct TargetEntity",
-            "TargetEntity",
-        ),  # C# 10 readonly record struct
+        # Issue #1708: `readonly` / `ref` struct modifiers, any order, mixed with others
+        ("public readonly struct Money", "Money"),
+        ("internal ref struct TokenReader", "TokenReader"),
+        ("public readonly ref struct SpanCursor", "SpanCursor"),
+        ("ref readonly struct PackedHeader", "PackedHeader"),
+        ("public readonly partial struct Vector3D : IEquatable<Vector3D>", "Vector3D"),
+        ("public ref partial struct PooledBuffer<T> where T : unmanaged", "PooledBuffer"),
+        ("public readonly record struct Point(int X, int Y);", "Point"),
+        ("[StructLayout(LayoutKind.Sequential)] internal readonly ref struct Slice<T>", "Slice"),
     ],
     "invalid": [
         "var obj = new TargetEntity();",
         "public classList",
         "typeof(TargetEntity)",
-        "readonly int MaxValue",  # field/const declaration, not a type
-        "private readonly string name;",  # field declaration, not a type
-        "ref readonly int GetRef()",  # ref-local return type, not a type decl
+        # Issue #1708 lookalikes: same keywords, but not type declarations
+        "private readonly Dictionary<string, int> _cache = new();",
+        "public static readonly TimeSpan Timeout = TimeSpan.FromSeconds(5);",
+        "public ref readonly Matrix GetIdentity() => ref _identity;",
+        "ref int slot = ref values[index];",
+        "readonly structure = default;",
+        "ref readonly var head = ref list[0];",
+        "public void Load(ref Buffer buffer, in Options options)",
     ],
     "pathological": [
         (
@@ -279,11 +273,21 @@ def test_csharp_class_start_primary_constructor_regression():
     )
 
 
+def test_csharp_class_start_readonly_ref_struct_base_list():
+    """Issue #1708: the new modifiers must not disturb the base-list capture (group 2)."""
+    m = CSHARP_RULES["class_start"].search("public readonly ref struct Frame<T> : IDisposable {")
+    if not (m and m.group(1) == "Frame"):
+        raise AssertionError("readonly ref struct name capture failed")
+    if not (m.group(2) and "IDisposable" in m.group(2)):
+        raise AssertionError("base-list capture lost behind readonly/ref modifiers")
+
+
 def test_csharp_class_start_redos_immunity():
     """ReDoS sweep for the new generic-parameter and primary-constructor step-overs."""
     class_start = CSHARP_RULES["class_start"]
     assert_redos_immune(class_start, "public class Foo<" + "a" * 100000, timeout_sec=3.0)
     assert_redos_immune(class_start, "public class Foo<T>(" + "a" * 100000, timeout_sec=3.0)
+    assert_redos_immune(class_start, "readonly ref " * 20000 + "x", timeout_sec=3.0)
     assert class_start.search("public class Foo<T>(T x) : Base<T> {")
 
 

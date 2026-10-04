@@ -170,10 +170,18 @@ def test_calls_become_service_calls(scanned, tmp_path):
     # a CALL: typed by the callee's USING items (an elementary item maps to its Java type). Two
     # SUBPGMs exist; the engine resolved this one to cbl/SUBPGM.cbl, the clean room keys it cbl__SUBPGM
     assert "/** CALL 'SUBPGM' at cbl/MENU.cbl:" in menu
-    assert "public void callCblSubpgm(String lkA, CblSubpgmLkB lkB) {" in menu
-    assert "cblSubpgmService.getObject().handleCall(lkA, lkB);" in menu
+    # #4023 follow-up: an elementary BY REFERENCE item is a CobolRef (the callee's changes reach the caller, as
+    # shared storage does), and the call returns the callee's RETURN-CODE
+    assert "public int callCblSubpgm(CobolRef<String> lkA, CblSubpgmLkB lkB) {" in menu
+    assert "return cblSubpgmService.getObject().handleCall(lkA, lkB);" in menu
     sub = (src / "service/CblSubpgmService.java").read_text(encoding="utf-8")
-    assert "public void handleCall(String lkA, CblSubpgmLkB lkB) {" in sub
+    assert "public int handleCall(CobolRef<String> lkA, CblSubpgmLkB lkB) {" in sub
+    assert (
+        "import com.gitgalaxy.modernized.call.CobolRef;" in sub
+        and "import com.gitgalaxy.modernized.call.CobolRef;" in menu
+    )
+    ref = (src / "call/CobolRef.java").read_text(encoding="utf-8")
+    assert "public final class CobolRef<T>" in ref and "public void set(T value)" in ref
     # the data-driven XCTL: a switch over the candidates, anything else refused
     assert "public Object dispatchWsNextL" in menu
     assert 'case "ACCTUPD":' in menu and "acctupdService.getObject().handleLink((AcctupdDfhcommarea) request)" in menu

@@ -55,6 +55,7 @@ _EXPECTED_CLAIMANTS: dict[str, list[tuple[str, str]]] = {
     ".h": [("c", "-"), ("objective-c", "D")],
     ".inc": [("cpp", "-"), ("c", "-"), ("php", "-"), ("fortran", "-"), ("assembly", "-")],
     ".m": [("matlab", "D"), ("objective-c", "D")],
+    ".mac": [("hlasm", "D"), ("easytrieve", "-")],
     ".map": [("bms", "D")],
     ".py": [("python", "D"), ("embedded_python", "D")],
     ".sql": [("sqlite", "-"), ("db2_sql", "D")],

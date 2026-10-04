@@ -99,6 +99,7 @@ ESTATE_JOINS = {
     "ims_segment_access": "IMS segment access",
     "vsam_stores": "VSAM defines",  # #3617: each cluster with its CSD files, AIXs and CICS + batch users
     "db2_tables": "DB2 table access",  # #3618: each table's DECLARE + every statement against it
+    "db2_values": "DB2 table access",  # SET :H = expr: the statements that name no table
 }
 
 

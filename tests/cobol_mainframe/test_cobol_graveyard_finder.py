@@ -588,3 +588,227 @@ def test_dsf_shapes_procedure_division_spacing_inline_header_and_at_end(tmp_path
     assert metrics["dead_paras"] == set()
     split = graveyard_module.split_procedure_division("X PROCEDURE    DIVISION. Y")
     assert split == ("X ", ". Y")
+
+
+# ==============================================================================
+# #4026: non-ASCII unit names, and `END-...` paragraph names
+# ==============================================================================
+def test_japanese_section_names_are_units_and_their_perform_is_followed(tmp_path):
+    """opensourcecobol4j cobol_utf8 005 / 008 / 115: full-width and CJK section and
+    paragraph names, with the full-width hyphens U+2212 and U+FF0D inside them."""
+    assert graveyard_module.unit_header("       Ｓ−初期化       SECTION.") == "Ｓ−初期化"
+    assert graveyard_module.unit_header("       Ｐ－初期化.") == "Ｐ－初期化"
+    assert graveyard_module.unit_header("       神奈川−１ラベル.") == "神奈川−１ラベル"
+    assert graveyard_module.unit_header("       S-INIT SECTION.") == "S-INIT"
+    assert _dead(
+        tmp_path,
+        "       Ｓ−主処理 SECTION.",
+        "           PERFORM Ｓ−初期化.",
+        "           GO TO 東京ラベル.",
+        "       大阪ラベル.",
+        "           DISPLAY 'NEVER'.",
+        "       東京ラベル.",
+        "           STOP RUN.",
+        "       Ｓ−初期化 SECTION.",
+        "       Ｐ－初期化.",
+        "           DISPLAY 'INIT'.",
+        "       Ｓ−未使用 SECTION.",
+        "           DISPLAY 'NEVER'.",
+    ) == {"大阪ラベル", "Ｓ−未使用"}
+
+
+def test_full_width_space_still_separates_names():
+    """#3956: U+3000 is a separator, never part of a name."""
+    assert graveyard_module.unit_header("       ＡＢＣ　ＤＥＦ.") is None
+    assert graveyard_module.unit_header("       Ｓ−初期化　SECTION.") == "Ｓ−初期化"
+    units = [
+        {"name": None, "kind": "implicit", "text": "PERFORM　東京ラベル　MOVE 1 TO A. STOP RUN."},
+        {"name": "東京ラベル", "kind": "paragraph", "text": "EXIT."},
+    ]
+    assert graveyard_module._PERFORM.search(units[0]["text"]).group(1) == "東京ラベル"
+    assert graveyard_module.reachable_units(units) == {"東京ラベル"}
+
+
+def test_a_paragraph_named_end_something_is_a_unit(tmp_path):
+    """jp-compat 033: `END-IPROC1.` in Area A is a paragraph, reached by `AT END GO TO`;
+    the reserved scope terminators (`END-IF.`, `END-PERFORM.`) still are not."""
+    assert graveyard_module.unit_header("       END-IPROC1.") == "END-IPROC1"
+    for terminator in ("END-IF", "END-PERFORM", "END-EVALUATE", "END-READ", "END-EXEC", "END-OF-PAGE"):
+        assert graveyard_module.unit_header(f"       {terminator}.") is None, terminator
+    pgm = tmp_path / "IPROC.cbl"
+    pgm.write_text(
+        _proc(
+            "       IPROC1               SECTION.",
+            "       BEGIN-IPROC1.",
+            "          READ INPUT-FILE1 AT END GO TO END-IPROC1.",
+            "          GO TO BEGIN-IPROC1.",
+            "       END-IPROC1.",
+            "       END-IF.",
+            "          STOP RUN.",
+        ),
+        encoding="utf-8",
+    )
+    metrics = graveyard_module.x_ray_dead_code(pgm)
+    assert metrics["total_paras"] == 3
+    assert metrics["dead_paras"] == set()
+
+
+# #4243: a source holding several programs (DBB epscsmrd.cbl's shape): two siblings,
+# one program nested in the second, every one opening with MAINLINE SECTION.
+_MULTI_PROGRAM = """\
+       IDENTIFICATION DIVISION.
+        PROGRAM-ID. 'FIRST'.
+        AUTHOR. WD4Z.
+       DATA DIVISION.
+       WORKING-STORAGE SECTION.
+       01 WS-X PIC 9.
+       PROCEDURE DIVISION.
+       MAINLINE SECTION.
+           CALL 'SECOND'
+           GOBACK.
+       FIRST-UNUSED.
+           DISPLAY 'X'.
+       END PROGRAM 'FIRST'.
+       IDENTIFICATION DIVISION.
+        PROGRAM-ID. 'SECOND'.
+        AUTHOR. WD4Z.
+        INSTALLATION. 9.0.0.
+       DATA DIVISION.
+       LINKAGE SECTION.
+       01 LS-X PIC 9.
+       PROCEDURE DIVISION USING LS-X.
+       MAINLINE SECTION.
+           PERFORM SECOND-USED THRU FIRST-UNUSED
+           CALL 'INNER'
+           GOBACK.
+       SECOND-USED.
+           DISPLAY 'U'.
+       FIRST-UNUSED.
+           DISPLAY 'NOT DEAD HERE'.
+       IDENTIFICATION DIVISION.
+        PROGRAM-ID.
+           INNER.
+       PROCEDURE DIVISION.
+       MAINLINE SECTION.
+           GOBACK.
+       INNER-UNUSED.
+           EXIT.
+       END PROGRAM INNER.
+       END PROGRAM 'SECOND'.
+"""
+
+
+def test_a_multi_program_source_is_read_per_program(tmp_path):
+    """#4243: each program's units are its own, reached only from its own entry, and a
+    later program's are named PROG:NAME. Read as one program, SECOND's and INNER's
+    AUTHOR / INSTALLATION / LINKAGE headers were units of FIRST, the repeated MAINLINEs
+    collapsed into one, and FIRST-UNUSED read as reached through SECOND's PERFORM THRU."""
+    progs = graveyard_module.split_programs(_MULTI_PROGRAM.upper())
+    assert [(p["program_id"], p["nested_in"]) for p in progs] == [
+        ("FIRST", None),
+        ("SECOND", None),
+        ("INNER", "SECOND"),
+    ]
+    assert "INNER-UNUSED" not in progs[1]["text"]  # a nested program's lines are its own
+    pgm = tmp_path / "MULTI.cbl"
+    pgm.write_text(_MULTI_PROGRAM, encoding="utf-8")
+    metrics = graveyard_module.x_ray_dead_code(pgm)
+    assert metrics["total_paras"] == 7
+    assert metrics["dead_paras"] == {"FIRST-UNUSED", "INNER:INNER-UNUSED"}
+    per_program = graveyard_module.program_units(_MULTI_PROGRAM.upper(), pgm)
+    assert [(prefix, [u["name"] for u in units]) for prefix, units in per_program] == [
+        (None, ["MAINLINE", "FIRST-UNUSED"]),
+        ("SECOND", ["MAINLINE", "SECOND-USED", "FIRST-UNUSED"]),
+        ("INNER", ["MAINLINE", "INNER-UNUSED"]),
+    ]
+
+
+def test_a_one_program_source_reads_as_before(tmp_path):
+    """#4243: one IDENTIFICATION DIVISION, or a free-format source whose headers are
+    not in Area A, takes the one-program path unchanged."""
+    one = _MULTI_PROGRAM.split("       IDENTIFICATION DIVISION.\n        PROGRAM-ID. 'SECOND'.")[0]
+    assert graveyard_module.split_programs(one.upper()) is None
+    free = "\n".join(line.strip() for line in _MULTI_PROGRAM.splitlines())
+    assert graveyard_module.split_programs(free.upper()) is None
+    pgm = tmp_path / "ONE.cbl"
+    pgm.write_text(one, encoding="utf-8")
+    assert graveyard_module.x_ray_dead_code(pgm)["dead_paras"] == {"FIRST-UNUSED"}
+
+
+def test_a_go_to_run_does_not_swallow_the_next_go_to(tmp_path):
+    """#4243: a GO TO's target run spans the statements after it, so a consuming match
+    swallowed the later `GO TO B C DEPENDING ON` and B and C read as dead (DBB EPSCSMRI)."""
+    pgm = tmp_path / "GOTO.cbl"
+    pgm.write_text(
+        _proc(
+            "       MAIN-PARA.",
+            "           IF X = 1",
+            "              GO TO DONE",
+            "           END-IF",
+            "           MOVE Y OF Z TO W",
+            "           GO TO",
+            "            B-PARA",
+            "            C-PARA",
+            "            DEPENDING ON X",
+            "           GO TO DONE",
+            "           .",
+            "       B-PARA.",
+            "           GO TO DONE.",
+            "       C-PARA.",
+            "           GO TO DONE.",
+            "       DONE.",
+            "           GOBACK.",
+        ),
+        encoding="utf-8",
+    )
+    assert graveyard_module.x_ray_dead_code(pgm)["dead_paras"] == set()
+
+
+def test_a_depending_go_to_then_a_plain_go_to_ends_the_unit(tmp_path):
+    """#4243: GO TO ... DEPENDING ON falls through when its index is out of range, but a
+    plain GO TO after it in the same sentence ends the unit: no fall-through into NEXT."""
+    pgm = tmp_path / "DEP.cbl"
+    pgm.write_text(
+        _proc(
+            "       MAIN-PARA.",
+            "           GO TO A-PARA DEPENDING ON X GO TO DONE.",
+            "       NEXT-PARA.",
+            "           DISPLAY 'NEVER'.",
+            "       A-PARA.",
+            "           GO TO DONE.",
+            "       DONE.",
+            "           GOBACK.",
+        ),
+        encoding="utf-8",
+    )
+    assert graveyard_module.x_ray_dead_code(pgm)["dead_paras"] == {"NEXT-PARA"}
+
+
+def test_xml_parse_processing_procedure_is_reached_and_end_xml_closes_on_exception(tmp_path):
+    """#4243: `XML PARSE ... PROCESSING PROCEDURE A THRU B` runs A..B like a PERFORM, and
+    END-XML closes its ON EXCEPTION phrase, so `... END-XML GOBACK.` ends the unit
+    (DBB EPSCSMRI MAINLINE): AFTER is dead, not reached by fall-through."""
+    pgm = tmp_path / "XMLP.cbl"
+    pgm.write_text(
+        _proc(
+            "       MAINLINE SECTION.",
+            "           XML PARSE BUF",
+            "            PROCESSING PROCEDURE XML-HANDLER",
+            "            THRU HANDLER-EXIT",
+            "            ON EXCEPTION",
+            "             DISPLAY 'BAD'",
+            "           END-XML",
+            "           GOBACK",
+            "           .",
+            "       XML-HANDLER SECTION.",
+            "       HANDLE-EVENT.",
+            "           DISPLAY 'EVENT'.",
+            "       HANDLER-EXIT.",
+            "           CONTINUE.",
+            "       AFTER SECTION.",
+            "       AFTER-PARA.",
+            "           DISPLAY 'DEAD'.",
+        ),
+        encoding="utf-8",
+    )
+    assert graveyard_module.x_ray_dead_code(pgm)["dead_paras"] == {"AFTER", "AFTER-PARA"}

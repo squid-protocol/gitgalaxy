@@ -14,6 +14,7 @@ from gitgalaxy.standards.language_standards import LANGUAGE_DEFINITIONS
 from gitgalaxy.standards.language_standards._shared_patterns import (
     CALLS_OUT_C_STYLE,
     CALLS_OUT_C_STYLE_GENERIC,
+    CALLS_OUT_C_STYLE_GENERIC_NO_ANNOTATION,
     CALLS_OUT_C_STYLE_NO_ANNOTATION,
 )
 
@@ -183,8 +184,11 @@ def test_annotation_is_not_a_call(lang, code, fn):
 
 
 def test_annotation_languages_use_the_no_annotation_pattern():
-    for lang in ("java", "kotlin", "swift", "dart", "groovy", "scala"):
+    for lang in ("swift", "dart", "scala"):
         assert LANGUAGE_DEFINITIONS[lang]["rules"]["calls_out"] is CALLS_OUT_C_STYLE_NO_ANNOTATION
+    # #4124: the JVM languages' generic-aware variant keeps the same annotation guard.
+    for lang in ("java", "kotlin", "groovy"):
+        assert LANGUAGE_DEFINITIONS[lang]["rules"]["calls_out"] is CALLS_OUT_C_STYLE_GENERIC_NO_ANNOTATION
     # Python/TypeScript/JavaScript decorator factories ARE invocations (C1) -- the plain pattern.
     # #3644: typescript's generic-aware variant has no annotation guard either.
     for lang in ("python", "javascript"):

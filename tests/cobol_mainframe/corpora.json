@@ -190,6 +190,37 @@
           "src/R001TK62.pli"
         ]
       }
+    },
+    {
+      "name": "dbb-mortgage-application",
+      "url": "https://github.com/IBM/dbb",
+      "branch": "main",
+      "ref": "ce2c1be58eb049e000c6627bd8273263fef0c606",
+      "license": "Apache-2.0",
+      "languages": [
+        "cobol",
+        "bms"
+      ],
+      "answer_key": "tests/cobol_mainframe/answer_key/dbb-mortgage-application.json",
+      "excerpt": {
+        "why": "IBM's DBB MortgageApplication sample: the payment calculator EPSMPMT (CALLed by EPSCSMRT, dynamically), the number validator EPSNBRVL, the CICS/DB2 screen program EPSCMORT (which CALLs EPSNBRVL and LINKs), and the browse program EPSMLIST.",
+        "files": [
+          "zBuilder/MortgageApplication/cobol/epsmpmt.cbl",
+          "zBuilder/MortgageApplication/cobol/epsnbrvl.cbl",
+          "zBuilder/MortgageApplication/cobol/epscsmrt.cbl",
+          "zBuilder/MortgageApplication/cobol/epscmort.cbl",
+          "zBuilder/MortgageApplication/cobol/epsmlist.cbl",
+          "zBuilder/MortgageApplication/copybook/epsmtcom.cpy",
+          "zBuilder/MortgageApplication/copybook/epsmtinp.cpy",
+          "zBuilder/MortgageApplication/copybook/epsmtout.cpy",
+          "zBuilder/MortgageApplication/copybook/epsnbrpm.cpy",
+          "zBuilder/MortgageApplication/copybook/epspdata.cpy",
+          "zBuilder/MortgageApplication/copybook/epsmortf.cpy",
+          "zBuilder/MortgageApplication/bms/epsmort.bms",
+          "zBuilder/MortgageApplication/bms/epsmlis.bms"
+        ]
+      },
+      "notes": "IBM Dependency Based Build's MortgageApplication (zBuilder/MortgageApplication): a small CICS/DB2 estate from a different IBM team than CBSA/GenApp -- CALLed computation subprograms (EPSMPMT, EPSNBRVL), a dynamic CALL driver (EPSCSMRT), a BMS/DB2 CICS program (EPSCMORT) and a VSAM browse (EPSMLIST). EPSCSMRD is a generated web-service wrapper (channels/containers, SOAPFAULT, LE condition handlers). The repository is the whole DBB samples repo; only zBuilder/MortgageApplication is COBOL."
     }
   ]
 }

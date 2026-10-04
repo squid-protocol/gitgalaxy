@@ -36,10 +36,40 @@
       * The stub runtime's side of each translated command:
       * tests/equivalence/cics/ggcics.c reads and writes it as a C
       * struct -- two native ints, then the names and option flags the
-      * translator moves in.
+      * translator moves in, then an in-out length (#4005: RECEIVE's
+      * LENGTH -- the most INTO takes, then the data's length), a
+      * 16-byte resource name and two in-out numbers (#4002: a TS
+      * queue, its ITEM and NUMITEMS), and the index of the label a
+      * condition or abend exit transfers to (#4003: the translator's
+      * GO TO ... DEPENDING ON GG-GOTO; -1 leaves the program).
        01  GG-CICS EXTERNAL.
            05 GG-RESP   PIC S9(9) COMP-5.
            05 GG-RESP2  PIC S9(9) COMP-5.
            05 GG-NAME1  PIC X(8).
            05 GG-NAME2  PIC X(8).
            05 GG-FLAGS  PIC X(40).
+           05 GG-LEN    PIC S9(9) COMP-5.
+           05 GG-QNAME  PIC X(16).
+           05 GG-ITEM   PIC S9(9) COMP-5.
+           05 GG-NUM    PIC S9(9) COMP-5.
+           05 GG-GOTO   PIC S9(9) COMP-5.
+      * ASKTIME / FORMATTIME (CardDemo's bill payment): the translator
+      * computes them in COBOL from the task's clock (CURRENT-DATE is the
+      * case's clock), ABSTIME being milliseconds since 00:00 on
+      * 1 January 1900 (IBM CICS TS, EXEC CICS ASKTIME). Each program's
+      * own scratch, not shared.
+       01  GG-TIME.
+           05 GG-MS     PIC S9(18) COMP-3.
+           05 GG-REM    PIC S9(18) COMP-3.
+           05 GG-DAYS   PIC S9(9) COMP-5.
+           05 GG-YMD.
+              10 GG-Y   PIC 9(4).
+              10 GG-M   PIC 9(2).
+              10 GG-D   PIC 9(2).
+           05 GG-DATE8 REDEFINES GG-YMD PIC 9(8).
+           05 GG-HMSC.
+              10 GG-HH  PIC 9(2).
+              10 GG-MI  PIC 9(2).
+              10 GG-SS  PIC 9(2).
+              10 GG-CS  PIC 9(2).
+           05 GG-OUT    PIC X(10).

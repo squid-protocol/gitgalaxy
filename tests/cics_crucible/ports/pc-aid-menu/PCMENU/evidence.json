@@ -1,0 +1,221 @@
+{
+ "format": "gitgalaxy-evidence/1",
+ "case": "crucible:pc-aid-menu",
+ "program": "PCMENU",
+ "kind": "crucible",
+ "port": {
+  "paths": [
+   "tests/cics_crucible/ports/pc-aid-menu/PCMENU/overlay/service/PcmenuService.java"
+  ],
+  "sha256": "2fc31a4ff6d97062d3d36c912f999a46babfbbfec5f7e9a9cdab7339f7d35921",
+  "entry_points": [
+   "runTask"
+  ]
+ },
+ "inputs": {
+  "port": {
+   "paths": [
+    "tests/cics_crucible/ports/pc-aid-menu/*/overlay/**"
+   ],
+   "files": 2,
+   "sha256": "5b5a9321aa7f3216c74f1352ee5bf37502387c26cf88542b675bd37eac07e2a5"
+  },
+  "case": {
+   "paths": [
+    "tests/cics_crucible/strengthened/pc-aid-menu/**"
+   ],
+   "files": 0,
+   "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  "harness": {
+   "paths": [
+    "tests/tools/equivalence.py",
+    "tests/tools/equivalence_common.py",
+    "tests/tools/equivalence_java.py",
+    "tests/tools/equivalence_inputs.py",
+    "tests/tools/equivalence_cics.py",
+    "tests/tools/equivalence_call.py",
+    "tests/tools/equivalence_cache.py",
+    "tests/tools/equivalence_db2.py",
+    "tests/tools/equivalence_oracle.py",
+    "tests/tools/cobol_coverage.py",
+    "tests/tools/java_target_matrix.py",
+    "tests/tools/cics_crucible.py",
+    "tests/tools/cics_crucible_compare.py"
+   ],
+   "files": 13,
+   "sha256": "1549c810f2072e5323782c43f34191fb370d080880f2f2e0e09bc6897faaf3c6"
+  },
+  "oracle": {
+   "paths": [],
+   "files": 0,
+   "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  "generator": {
+   "paths": [
+    "gitgalaxy/tools/cobol_to_java/**"
+   ],
+   "files": 60,
+   "sha256": "880250850d919c29f8ace3eb0d7183156a05354438ea79f72a417febb9e57e68"
+  },
+  "corpus": {
+   "name": "cics-crucible",
+   "ref": "v0.2.0",
+   "sha256": "085be5a9f372ecb979d4f8dda1d8c749e85d01abb85e227fca4127844db9c5b6"
+  },
+  "differences": {
+   "sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+  },
+  "digest": "ae96514bb9a08c4b690bd9c53f64555939ee07776c7c91d840ae14f9154e0ffc"
+ },
+ "proof": {
+  "at": "2026-10-04T15:46:29Z",
+  "verdict": "proven",
+  "runs": 4,
+  "fault_runs": 0,
+  "environments": null,
+  "outputs": {
+   "aid-keys": {
+    "equal": 1,
+    "records": 1
+   },
+   "invalid-option": {
+    "equal": 1,
+    "records": 1
+   },
+   "option1-xctl": {
+    "equal": 1,
+    "records": 1
+   },
+   "option2-next-transid": {
+    "equal": 1,
+    "records": 1
+   }
+  },
+  "return_code_equal": null,
+  "sysout_compared": null,
+  "attributes_compared": null,
+  "java_failed": false,
+  "harness_commit": "cdad33370dc73ea44e5bf1348d88c9404a14c2d2+uncommitted",
+  "inputs_digest": "ae96514bb9a08c4b690bd9c53f64555939ee07776c7c91d840ae14f9154e0ffc"
+ },
+ "coverage": {
+  "paragraphs": {
+   "covered": 4,
+   "live": 4
+  },
+  "branches": {
+   "covered": 9,
+   "total": 9
+  },
+  "uncovered_branches": null,
+  "handler_labels": null,
+  "source": "tests/cics_crucible/coverage.json#programs/pc-aid-menu/PCMENU",
+  "ledger_sha256": "3507a37672aaaa5813c020bbe64d8937ff518cfa3c377af8b85c04629aa93eb6",
+  "inputs_digest": "ae96514bb9a08c4b690bd9c53f64555939ee07776c7c91d840ae14f9154e0ffc"
+ },
+ "reach": {
+  "entry_points": [
+   "runTask"
+  ],
+  "unproven": [
+   {
+    "class": "PcmenuService",
+    "method": "executePcmenu",
+    "line": 94,
+    "kind": "stub"
+   },
+   {
+    "class": "PcmenuService",
+    "method": "handleTransaction",
+    "line": 103,
+    "kind": "ported_unproven"
+   },
+   {
+    "class": "PcmenuService",
+    "method": "xctlPcdetl",
+    "line": 250,
+    "kind": "left_as_generated"
+   },
+   {
+    "class": "PcmenuService",
+    "method": "submitPcmn",
+    "line": 274,
+    "kind": "left_as_generated"
+   }
+  ],
+  "counts": {
+   "stub": 1,
+   "left_as_generated": 2,
+   "ported_unproven": 1
+  },
+  "generated_compared": true,
+  "port_sha256": "2fc31a4ff6d97062d3d36c912f999a46babfbbfec5f7e9a9cdab7339f7d35921"
+ },
+ "mutation": {
+  "commit": "be2561306",
+  "rejudged": null,
+  "seed": 0,
+  "mode": null,
+  "mutants": 147,
+  "chosen": 24,
+  "killed": 14,
+  "survived": 8,
+  "stillborn": 2,
+  "survivors": {
+   "case_gap": 1,
+   "harness_gap": 0,
+   "equivalent": 5,
+   "unreachable": 2,
+   "untriaged": 0
+  },
+  "score_raw": "14/22",
+  "score_adjusted": "14/15",
+  "source": "docs/language_status/mutation_scores.json#crucible:pc-aid-menu/PCMENU",
+  "inputs": {
+   "port": {
+    "sha256": "5b5a9321aa7f3216c74f1352ee5bf37502387c26cf88542b675bd37eac07e2a5"
+   },
+   "case": {
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+   },
+   "corpus": {
+    "sha256": "085be5a9f372ecb979d4f8dda1d8c749e85d01abb85e227fca4127844db9c5b6"
+   },
+   "harness": {
+    "sha256": "e67f03b7e18455d8d525349b25ec5e46d20bc2fb812f2c84299141fe89296d36"
+   },
+   "oracle": {
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+   }
+  }
+ },
+ "differences": [],
+ "oracle": {
+  "kind": "crucible-expected-logs",
+  "source": "cics-crucible v0.2.0: each scenario's hand-written expected event log, derived from IBM's documentation (its SPEC.md); the java-ported side is compared with it exactly",
+  "compiler": null,
+  "image": null,
+  "models": [],
+  "assumptions": null
+ },
+ "provenance": {
+  "written_by": "model",
+  "model": "claude-opus-5-5",
+  "backend": "claude CLI 2.1.285 print mode (claude -p --model claude-opus-5-5 --effort high --tools '' --strict-mcp-config --mcp-config '{\"mcpServers\":{}}' --no-session-persistence --system-prompt <porting system prompt>, prompt file on stdin, run from an empty directory)",
+  "attempt": 2,
+  "attempts": null,
+  "ticket_sha256": "58c23ade0130618a5ac7953ddec48e0bf6c175bbe16034d435624d3596b74b9e",
+  "porting_rules_sha256": null,
+  "proposed_at": "2026-09-29T22:01:28+00:00",
+  "generator_version": null,
+  "edited_after": null,
+  "provenance_file": {
+   "path": "tests/cics_crucible/ports/pc-aid-menu/PCMENU/provenance.json",
+   "format": "cics-crucible-port/1",
+   "sha256": "a56fcb4a88ed1901f38e21b52a5efc8605bdb121ed8a64170974c5ef96ab13ed"
+  },
+  "crucible_ref_proven": "v0.2.0 (94f2afcb)"
+ },
+ "approvals": []
+}

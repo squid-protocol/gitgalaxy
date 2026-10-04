@@ -66,6 +66,7 @@ and fails when a run adds any over a committed per-corpus baseline.
 
 import argparse
 import contextlib
+import dataclasses
 import json
 import os
 import re
@@ -119,6 +120,7 @@ CAUSES = (
     "system_copybook",
     "bms_symbolic_map",
     "forge_flat_schema",
+    "forge_first_program",
     "stated_absence",
 )
 UNEXPLAINED = "unexplained"
@@ -433,6 +435,19 @@ def compare_cics(repo: Path, ir: GalaxyIR) -> list[dict[str, Any]]:
     return rows
 
 
+def _program_placer(path: Path):
+    """#4243: names an engine unit at `line` the way the forge names it -- bare in the
+    source's first program, `PROG:NAME` in a later (sibling or nested) one, the
+    innermost program holding the line winning -- read with the key's program_spans."""
+    spans = ak.program_spans(ak.Source(path))[1:]
+
+    def place(name: str, line: int) -> str:
+        inside = [(s["line"], s["program_id"]) for s in spans if s["line"] <= line <= s["end_line"]]
+        return ak.sibling_unit(max(inside)[1], name) if inside else name
+
+    return place
+
+
 def _cobol_rows(rows: list[dict[str, Any]]) -> list[dict[str, Any]]:
     return [r for r in rows if r.get("language", "cobol") == "cobol"]
 
@@ -457,8 +472,17 @@ def compare(repo: Path, ir: GalaxyIR) -> list[dict[str, Any]]:
         orphans = set(graveyard.get("orphaned_vars", set()))
         lineage_db = engine_lineage(ef, dead_old)
         schemas_db = engine_schemas(ef, path.stem, orphans)
+        # #4245: the forge renders a multi-program source from its FIRST program's DATA DIVISION;
+        # the engine reads every program's. The engine's schema over the first program alone tells
+        # which schema deltas exist only because of the other programs (forge_first_program).
+        first_db = None
+        if schemas_db is not False and any(it.program for it in ef.data_items):
+            first = ef.program_ids[0]
+            first_ef = dataclasses.replace(ef, data_items=[it for it in ef.data_items if it.program in (None, first)])
+            first_db = _schema_values(engine_schemas(first_ef, path.stem, orphans))
         paras_old = old_paragraphs(path, repo)
-        paras_new = {u.name.upper() for u in ef.units}
+        place = _program_placer(path)  # #4243: per program, as the forge now reads it
+        paras_new = {place(u.name.upper(), u.start_line) for u in ef.units}
         copy_named, copy_old = old_copybooks(path, repo)
         copy_new = {Path(p).stem.upper() for p in ef.copy_deps}
         # #3246: record layouts are a real forge-vs-engine datum now. Both sides
@@ -482,7 +506,7 @@ def compare(repo: Path, ir: GalaxyIR) -> list[dict[str, Any]]:
                 },
                 "dead": {
                     "old": sorted(dead_old),
-                    "db_usage_status_1": sorted(u.name for u in ef.units if u.usage_status == 1),
+                    "db_usage_status_1": sorted(place(u.name, u.start_line) for u in ef.units if u.usage_status == 1),
                 },
                 "copybooks": {
                     "named": sorted(copy_named),
@@ -513,6 +537,7 @@ def compare(repo: Path, ir: GalaxyIR) -> list[dict[str, Any]]:
                 "schema": {
                     "old": _schema_values(forge_schemas(path, ignore_vars=orphans)),
                     "db": None if schemas_db is False else _schema_values(schemas_db),
+                    "db_first_program": first_db,
                 },
                 # Stated absences: the DB carries no equivalent (see galaxy_ir.py SCOPE).
                 "forge_only": {
@@ -749,8 +774,20 @@ def flatten(rows: list[dict[str, Any]]) -> list[Delta]:
             if not pair or pair["db"] is None:
                 continue
             old, db = set(pair["old"]), set(pair["db"])
-            deltas += [{"program": prog, "field": field, "side": "old", "value": v} for v in sorted(old - db)]
-            deltas += [{"program": prog, "field": field, "side": "db", "value": v} for v in sorted(db - old)]
+            # #4245: a delta the engine's first-program-only schema does not show (a db-only column
+            # it lacks, a forge value it has) comes from the source's other programs.
+            first = pair.get("db_first_program")
+            first_set = set(first) if first is not None else None
+            deltas += [
+                {"program": prog, "field": field, "side": "old", "value": v,
+                 **({"beyond_first_program": v in first_set} if first_set is not None else {})}
+                for v in sorted(old - db)
+            ]  # fmt: skip
+            deltas += [
+                {"program": prog, "field": field, "side": "db", "value": v,
+                 **({"beyond_first_program": v not in first_set} if first_set is not None else {})}
+                for v in sorted(db - old)
+            ]  # fmt: skip
         # Stated absences: the DB carries no equivalent (galaxy_ir.py SCOPE). The forge's
         # inputs/outputs stay in the row for the summary; since #3348 they are compared above.
         fo = r["forge_only"]
@@ -784,9 +821,21 @@ def _build_ctx(repo: Path, rel: str, ak, files: list[Path], stem_counts: Counter
     same model the key is, not a fourth parser."""
     path = repo / rel
     src = ak.Source(path)
-    units = ak._units(src)
-    unit_kind = {u["name"]: u["kind"] for u in units if u["name"]}
-    reached = set(ak.reachability(units))
+    spans = ak.program_spans(src)
+    unit_kind: dict[str, str] = {}
+    reached: set[str] = set()
+    # #4243: each program's own units, a later program's as PROG:NAME (as the forge reads them)
+    for n, span in enumerate(spans if len(spans) > 1 else [None]):
+        if span is None:
+            units = ak._units(src)
+        else:
+            units = ak._units(src, span["proc"], span["stop"]) if span["proc"] is not None else []
+
+        def keyed(name: str, n: int = n, span: Optional[dict[str, Any]] = span) -> str:
+            return ak.sibling_unit(span["program_id"], name) if n and span else name
+
+        unit_kind.update({keyed(u["name"]): u["kind"] for u in units if u["name"]})
+        reached |= {keyed(name) for name in ak.reachability(units)}
     copies: dict[str, dict[str, Any]] = {}
     for rx, via in ((ak._COPY, "COPY"), (ak._SQL_INCLUDE, "SQL INCLUDE")):
         for m in rx.finditer(src.text):
@@ -904,6 +953,12 @@ def _classify_cause(d: Delta, ctx: dict[str, Any]) -> str:
         # #3356: two independent CSD readers disagree on a DEFINE or one of its key
         # attributes -- a real defect on one side. Left to the validated key.
         return UNEXPLAINED
+    if field == "schema_column" and d.get("beyond_first_program"):
+        # #4245: the forge's cobol_schema_forge renders a multi-program source (IBM DBB
+        # epscsmrd.cbl: 13 PROGRAM-IDs) from the first program's DATA DIVISION only; the
+        # engine reads every program's. A delta that the engine's first-program schema does
+        # not show is that difference in scope, not a reader defect on either side.
+        return "forge_first_program"
     if field in ("lineage", "schema_column"):
         # #3348: the refractor sources these from the DB; the forge is what it replaced.
         # They agree on every pinned corpus, so a delta is a regression on one side.
@@ -1011,9 +1066,9 @@ def _key_verdict(d: Delta, key: Optional[dict[str, Any]]) -> Optional[dict[str, 
     if field == "program_id":
         truth = {prog["program_id"]}
     elif field == "paragraph":
-        truth = {u["name"] for u in prog["units"]}
+        truth = {u["name"] for u in ak.keyed_units(prog)}  # #4243: per program, PROG:NAME, as the forge reads it
     elif field == "dead":
-        truth = set(prog["dead"])
+        truth = set(ak.keyed_dead(prog))
     elif field == "copybook":
         truth = {Path(c["resolves_to"]).stem.upper() for c in prog["copybooks"] if c.get("resolves_to")}
     elif field == "record":

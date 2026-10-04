@@ -101,14 +101,17 @@
       "assembly/x86_bare_metal/bios_pixel_line.S": "2 instances",
       "assembly/x86_bare_metal/bios_sleep.S": "1 instances"
     },
+    "c/cosmopolitan_intrin": {
+      "c/cosmopolitan_intrin/countbits.c": "19 instances"
+    },
     "c/cpython": {
-      "c/cpython/ceval.c": "273 instances",
+      "c/cpython/ceval.c": "256 instances",
       "c/cpython/compile.c": "159 instances",
-      "c/cpython/dictobject.c": "579 instances",
+      "c/cpython/dictobject.c": "575 instances",
       "c/cpython/frameobject.c": "144 instances",
-      "c/cpython/gc.c": "131 instances",
-      "c/cpython/object.c": "158 instances",
-      "c/cpython/typeobject.c": "783 instances"
+      "c/cpython/gc.c": "129 instances",
+      "c/cpython/object.c": "144 instances",
+      "c/cpython/typeobject.c": "768 instances"
     },
     "c/doom": {
       "c/doom/d_main.c": "145 instances",
@@ -117,19 +120,18 @@
       "c/doom/p_mobj.c": "167 instances",
       "c/doom/r_bsp.c": "74 instances",
       "c/doom/w_wad.c": "72 instances",
-      "c/doom/z_zone.c": "58 instances"
+      "c/doom/z_zone.c": "56 instances"
     },
     "c/micropython": {
-      "c/micropython/compile.c": "248 instances",
-      "c/micropython/emitnative.c": "105 instances",
-      "c/micropython/gc.c": "143 instances",
-      "c/micropython/modmachine.h": "4 instances",
-      "c/micropython/objtype.c": "89 instances",
+      "c/micropython/compile.c": "242 instances",
+      "c/micropython/emitnative.c": "101 instances",
+      "c/micropython/gc.c": "113 instances",
+      "c/micropython/objtype.c": "88 instances",
       "c/micropython/vfs.c": "41 instances",
-      "c/micropython/vm.c": "125 instances"
+      "c/micropython/vm.c": "93 instances"
     },
     "c/sqlite": {
-      "c/sqlite/lemon.c": "1629 instances"
+      "c/sqlite/lemon.c": "1627 instances"
     },
     "cobol/CICS-Cobol": {
       "cobol/CICS-Cobol/CBL0501v01DeclaracioCondicionIF.cbl": "1 instances",
@@ -183,7 +185,7 @@
       "cobol/aws-mainframe-modernization-carddemo/CSUTLDTC.cbl": "12 instances"
     },
     "cobol/cash-account-cobol": {
-      "cobol/cash-account-cobol/CASH00.cbl": "23 instances"
+      "cobol/cash-account-cobol/CASH00.cbl": "22 instances"
     },
     "cobol/che-che4z_lsp_project_fixtures": {
       "cobol/che-che4z_lsp_project_fixtures/ADSORT.cbl": "3 instances",
@@ -199,121 +201,121 @@
       "cobol/che-che4z_lsp_project_fixtures/special_schema.cbl": "2 instances"
     },
     "cobol/che-che4z_nist_ccvs85": {
-      "cobol/che-che4z_nist_ccvs85/DB1024.2.cbl": "49 instances",
-      "cobol/che-che4z_nist_ccvs85/DB1034.2.cbl": "49 instances",
-      "cobol/che-che4z_nist_ccvs85/DB1044.2.cbl": "104 instances",
-      "cobol/che-che4z_nist_ccvs85/IC1014.2.cbl": "44 instances",
-      "cobol/che-che4z_nist_ccvs85/IC1034.2.cbl": "44 instances",
-      "cobol/che-che4z_nist_ccvs85/IC1064.2.cbl": "58 instances",
+      "cobol/che-che4z_nist_ccvs85/DB1024.2.cbl": "47 instances",
+      "cobol/che-che4z_nist_ccvs85/DB1034.2.cbl": "47 instances",
+      "cobol/che-che4z_nist_ccvs85/DB1044.2.cbl": "102 instances",
+      "cobol/che-che4z_nist_ccvs85/IC1014.2.cbl": "42 instances",
+      "cobol/che-che4z_nist_ccvs85/IC1034.2.cbl": "42 instances",
+      "cobol/che-che4z_nist_ccvs85/IC1064.2.cbl": "56 instances",
       "cobol/che-che4z_nist_ccvs85/IC1074.2.cbl": "5 instances",
-      "cobol/che-che4z_nist_ccvs85/IC1084.2.cbl": "59 instances",
+      "cobol/che-che4z_nist_ccvs85/IC1084.2.cbl": "57 instances",
       "cobol/che-che4z_nist_ccvs85/IC1134.2.cbl": "1 instances",
-      "cobol/che-che4z_nist_ccvs85/IC1144.2.cbl": "48 instances",
-      "cobol/che-che4z_nist_ccvs85/IC1164.2.cbl": "44 instances",
-      "cobol/che-che4z_nist_ccvs85/IC2014.2.cbl": "58 instances",
-      "cobol/che-che4z_nist_ccvs85/IC2034.2.cbl": "62 instances",
+      "cobol/che-che4z_nist_ccvs85/IC1144.2.cbl": "46 instances",
+      "cobol/che-che4z_nist_ccvs85/IC1164.2.cbl": "42 instances",
+      "cobol/che-che4z_nist_ccvs85/IC2014.2.cbl": "56 instances",
+      "cobol/che-che4z_nist_ccvs85/IC2034.2.cbl": "60 instances",
       "cobol/che-che4z_nist_ccvs85/IC2044.2.cbl": "4 instances",
       "cobol/che-che4z_nist_ccvs85/IC2054.2.cbl": "3 instances",
-      "cobol/che-che4z_nist_ccvs85/IC2074.2.cbl": "53 instances",
+      "cobol/che-che4z_nist_ccvs85/IC2074.2.cbl": "51 instances",
       "cobol/che-che4z_nist_ccvs85/IC2084.2.cbl": "16 instances",
-      "cobol/che-che4z_nist_ccvs85/IC2094.2.cbl": "48 instances",
+      "cobol/che-che4z_nist_ccvs85/IC2094.2.cbl": "46 instances",
       "cobol/che-che4z_nist_ccvs85/IC2104.2.cbl": "2 instances",
-      "cobol/che-che4z_nist_ccvs85/IC2134.2.cbl": "45 instances",
-      "cobol/che-che4z_nist_ccvs85/IC2164.2.cbl": "45 instances",
-      "cobol/che-che4z_nist_ccvs85/IC2244.2.cbl": "55 instances",
-      "cobol/che-che4z_nist_ccvs85/IC2264.2.cbl": "52 instances",
-      "cobol/che-che4z_nist_ccvs85/IC2284.2.cbl": "52 instances",
-      "cobol/che-che4z_nist_ccvs85/IC2334.2.cbl": "66 instances",
-      "cobol/che-che4z_nist_ccvs85/IC2344.2.cbl": "47 instances",
-      "cobol/che-che4z_nist_ccvs85/IC2374.2.cbl": "45 instances",
-      "cobol/che-che4z_nist_ccvs85/IF1024.2.cbl": "64 instances",
-      "cobol/che-che4z_nist_ccvs85/IF1054.2.cbl": "57 instances",
-      "cobol/che-che4z_nist_ccvs85/IF1074.2.cbl": "48 instances",
-      "cobol/che-che4z_nist_ccvs85/IF1084.2.cbl": "59 instances",
-      "cobol/che-che4z_nist_ccvs85/IF1094.2.cbl": "55 instances",
-      "cobol/che-che4z_nist_ccvs85/IF1104.2.cbl": "56 instances",
-      "cobol/che-che4z_nist_ccvs85/IF1114.2.cbl": "86 instances",
-      "cobol/che-che4z_nist_ccvs85/IF1124.2.cbl": "55 instances",
-      "cobol/che-che4z_nist_ccvs85/IF1134.2.cbl": "55 instances",
-      "cobol/che-che4z_nist_ccvs85/IF1144.2.cbl": "85 instances",
-      "cobol/che-che4z_nist_ccvs85/IF1154.2.cbl": "58 instances",
-      "cobol/che-che4z_nist_ccvs85/IF1184.2.cbl": "67 instances",
-      "cobol/che-che4z_nist_ccvs85/IF1204.2.cbl": "73 instances",
-      "cobol/che-che4z_nist_ccvs85/IF1214.2.cbl": "71 instances",
-      "cobol/che-che4z_nist_ccvs85/IF1224.2.cbl": "70 instances",
-      "cobol/che-che4z_nist_ccvs85/IF1244.2.cbl": "77 instances",
-      "cobol/che-che4z_nist_ccvs85/IF1254.2.cbl": "81 instances",
-      "cobol/che-che4z_nist_ccvs85/IF1274.2.cbl": "57 instances",
-      "cobol/che-che4z_nist_ccvs85/IF1284.2.cbl": "71 instances",
-      "cobol/che-che4z_nist_ccvs85/IF1294.2.cbl": "73 instances",
-      "cobol/che-che4z_nist_ccvs85/IF1314.2.cbl": "56 instances",
-      "cobol/che-che4z_nist_ccvs85/IF1324.2.cbl": "68 instances",
-      "cobol/che-che4z_nist_ccvs85/IF1334.2.cbl": "71 instances",
-      "cobol/che-che4z_nist_ccvs85/IF1344.2.cbl": "69 instances",
-      "cobol/che-che4z_nist_ccvs85/IF1374.2.cbl": "62 instances",
-      "cobol/che-che4z_nist_ccvs85/IF1384.2.cbl": "70 instances",
-      "cobol/che-che4z_nist_ccvs85/IF1404.2.cbl": "68 instances",
-      "cobol/che-che4z_nist_ccvs85/IF1414.2.cbl": "66 instances",
-      "cobol/che-che4z_nist_ccvs85/IF1424.2.cbl": "48 instances",
-      "cobol/che-che4z_nist_ccvs85/IX1014.2.cbl": "58 instances",
-      "cobol/che-che4z_nist_ccvs85/IX1024.2.cbl": "90 instances",
-      "cobol/che-che4z_nist_ccvs85/IX1034.2.cbl": "92 instances",
-      "cobol/che-che4z_nist_ccvs85/IX1044.2.cbl": "84 instances",
-      "cobol/che-che4z_nist_ccvs85/IX1114.2.cbl": "50 instances",
-      "cobol/che-che4z_nist_ccvs85/IX1134.2.cbl": "96 instances",
-      "cobol/che-che4z_nist_ccvs85/IX1144.2.cbl": "96 instances",
-      "cobol/che-che4z_nist_ccvs85/IX1154.2.cbl": "95 instances",
-      "cobol/che-che4z_nist_ccvs85/IX1164.2.cbl": "95 instances",
-      "cobol/che-che4z_nist_ccvs85/IX1174.2.cbl": "95 instances",
-      "cobol/che-che4z_nist_ccvs85/IX1184.2.cbl": "95 instances",
-      "cobol/che-che4z_nist_ccvs85/IX1194.2.cbl": "99 instances",
-      "cobol/che-che4z_nist_ccvs85/IX1204.2.cbl": "95 instances",
-      "cobol/che-che4z_nist_ccvs85/IX1214.2.cbl": "98 instances",
-      "cobol/che-che4z_nist_ccvs85/IX2014.2.cbl": "58 instances",
-      "cobol/che-che4z_nist_ccvs85/IX2034.2.cbl": "93 instances",
-      "cobol/che-che4z_nist_ccvs85/IX2044.2.cbl": "85 instances",
-      "cobol/che-che4z_nist_ccvs85/IX2174.2.cbl": "60 instances",
-      "cobol/che-che4z_nist_ccvs85/IX2184.2.cbl": "53 instances",
-      "cobol/che-che4z_nist_ccvs85/NC1114.2.cbl": "46 instances",
+      "cobol/che-che4z_nist_ccvs85/IC2134.2.cbl": "43 instances",
+      "cobol/che-che4z_nist_ccvs85/IC2164.2.cbl": "43 instances",
+      "cobol/che-che4z_nist_ccvs85/IC2244.2.cbl": "53 instances",
+      "cobol/che-che4z_nist_ccvs85/IC2264.2.cbl": "50 instances",
+      "cobol/che-che4z_nist_ccvs85/IC2284.2.cbl": "50 instances",
+      "cobol/che-che4z_nist_ccvs85/IC2334.2.cbl": "64 instances",
+      "cobol/che-che4z_nist_ccvs85/IC2344.2.cbl": "45 instances",
+      "cobol/che-che4z_nist_ccvs85/IC2374.2.cbl": "43 instances",
+      "cobol/che-che4z_nist_ccvs85/IF1024.2.cbl": "62 instances",
+      "cobol/che-che4z_nist_ccvs85/IF1054.2.cbl": "55 instances",
+      "cobol/che-che4z_nist_ccvs85/IF1074.2.cbl": "46 instances",
+      "cobol/che-che4z_nist_ccvs85/IF1084.2.cbl": "57 instances",
+      "cobol/che-che4z_nist_ccvs85/IF1094.2.cbl": "53 instances",
+      "cobol/che-che4z_nist_ccvs85/IF1104.2.cbl": "54 instances",
+      "cobol/che-che4z_nist_ccvs85/IF1114.2.cbl": "84 instances",
+      "cobol/che-che4z_nist_ccvs85/IF1124.2.cbl": "53 instances",
+      "cobol/che-che4z_nist_ccvs85/IF1134.2.cbl": "53 instances",
+      "cobol/che-che4z_nist_ccvs85/IF1144.2.cbl": "83 instances",
+      "cobol/che-che4z_nist_ccvs85/IF1154.2.cbl": "56 instances",
+      "cobol/che-che4z_nist_ccvs85/IF1184.2.cbl": "65 instances",
+      "cobol/che-che4z_nist_ccvs85/IF1204.2.cbl": "71 instances",
+      "cobol/che-che4z_nist_ccvs85/IF1214.2.cbl": "69 instances",
+      "cobol/che-che4z_nist_ccvs85/IF1224.2.cbl": "68 instances",
+      "cobol/che-che4z_nist_ccvs85/IF1244.2.cbl": "75 instances",
+      "cobol/che-che4z_nist_ccvs85/IF1254.2.cbl": "79 instances",
+      "cobol/che-che4z_nist_ccvs85/IF1274.2.cbl": "55 instances",
+      "cobol/che-che4z_nist_ccvs85/IF1284.2.cbl": "69 instances",
+      "cobol/che-che4z_nist_ccvs85/IF1294.2.cbl": "71 instances",
+      "cobol/che-che4z_nist_ccvs85/IF1314.2.cbl": "54 instances",
+      "cobol/che-che4z_nist_ccvs85/IF1324.2.cbl": "66 instances",
+      "cobol/che-che4z_nist_ccvs85/IF1334.2.cbl": "69 instances",
+      "cobol/che-che4z_nist_ccvs85/IF1344.2.cbl": "67 instances",
+      "cobol/che-che4z_nist_ccvs85/IF1374.2.cbl": "60 instances",
+      "cobol/che-che4z_nist_ccvs85/IF1384.2.cbl": "68 instances",
+      "cobol/che-che4z_nist_ccvs85/IF1404.2.cbl": "66 instances",
+      "cobol/che-che4z_nist_ccvs85/IF1414.2.cbl": "64 instances",
+      "cobol/che-che4z_nist_ccvs85/IF1424.2.cbl": "46 instances",
+      "cobol/che-che4z_nist_ccvs85/IX1014.2.cbl": "56 instances",
+      "cobol/che-che4z_nist_ccvs85/IX1024.2.cbl": "88 instances",
+      "cobol/che-che4z_nist_ccvs85/IX1034.2.cbl": "90 instances",
+      "cobol/che-che4z_nist_ccvs85/IX1044.2.cbl": "82 instances",
+      "cobol/che-che4z_nist_ccvs85/IX1114.2.cbl": "48 instances",
+      "cobol/che-che4z_nist_ccvs85/IX1134.2.cbl": "94 instances",
+      "cobol/che-che4z_nist_ccvs85/IX1144.2.cbl": "94 instances",
+      "cobol/che-che4z_nist_ccvs85/IX1154.2.cbl": "93 instances",
+      "cobol/che-che4z_nist_ccvs85/IX1164.2.cbl": "93 instances",
+      "cobol/che-che4z_nist_ccvs85/IX1174.2.cbl": "93 instances",
+      "cobol/che-che4z_nist_ccvs85/IX1184.2.cbl": "93 instances",
+      "cobol/che-che4z_nist_ccvs85/IX1194.2.cbl": "97 instances",
+      "cobol/che-che4z_nist_ccvs85/IX1204.2.cbl": "93 instances",
+      "cobol/che-che4z_nist_ccvs85/IX1214.2.cbl": "96 instances",
+      "cobol/che-che4z_nist_ccvs85/IX2014.2.cbl": "56 instances",
+      "cobol/che-che4z_nist_ccvs85/IX2034.2.cbl": "91 instances",
+      "cobol/che-che4z_nist_ccvs85/IX2044.2.cbl": "83 instances",
+      "cobol/che-che4z_nist_ccvs85/IX2174.2.cbl": "58 instances",
+      "cobol/che-che4z_nist_ccvs85/IX2184.2.cbl": "51 instances",
+      "cobol/che-che4z_nist_ccvs85/NC1114.2.cbl": "44 instances",
       "cobol/che-che4z_nist_ccvs85/NC1134.2.cbl": "6 instances",
-      "cobol/che-che4z_nist_ccvs85/NC1254.2.cbl": "94 instances",
-      "cobol/che-che4z_nist_ccvs85/NC1274.2.cbl": "46 instances",
-      "cobol/che-che4z_nist_ccvs85/NC1314.2.cbl": "66 instances",
-      "cobol/che-che4z_nist_ccvs85/NC1334.2.cbl": "71 instances",
-      "cobol/che-che4z_nist_ccvs85/NC1344.2.cbl": "68 instances",
-      "cobol/che-che4z_nist_ccvs85/NC1354.2.cbl": "62 instances",
-      "cobol/che-che4z_nist_ccvs85/NC1364.2.cbl": "67 instances",
-      "cobol/che-che4z_nist_ccvs85/NC1374.2.cbl": "66 instances",
-      "cobol/che-che4z_nist_ccvs85/NC1384.2.cbl": "56 instances",
-      "cobol/che-che4z_nist_ccvs85/NC1394.2.cbl": "53 instances",
-      "cobol/che-che4z_nist_ccvs85/NC1404.2.cbl": "49 instances",
-      "cobol/che-che4z_nist_ccvs85/NC1414.2.cbl": "55 instances",
-      "cobol/che-che4z_nist_ccvs85/NC2104.2.cbl": "180 instances",
-      "cobol/che-che4z_nist_ccvs85/NC2144.2.cbl": "44 instances",
-      "cobol/che-che4z_nist_ccvs85/NC2154.2.cbl": "44 instances",
-      "cobol/che-che4z_nist_ccvs85/NC2194.2.cbl": "44 instances",
-      "cobol/che-che4z_nist_ccvs85/NC2224.2.cbl": "50 instances",
-      "cobol/che-che4z_nist_ccvs85/NC2244.2.cbl": "58 instances",
-      "cobol/che-che4z_nist_ccvs85/NC2354.2.cbl": "48 instances",
-      "cobol/che-che4z_nist_ccvs85/NC2364.2.cbl": "94 instances",
-      "cobol/che-che4z_nist_ccvs85/NC2374.2.cbl": "53 instances",
-      "cobol/che-che4z_nist_ccvs85/NC2384.2.cbl": "90 instances",
-      "cobol/che-che4z_nist_ccvs85/NC2394.2.cbl": "45 instances",
-      "cobol/che-che4z_nist_ccvs85/NC2404.2.cbl": "77 instances",
-      "cobol/che-che4z_nist_ccvs85/NC2414.2.cbl": "71 instances",
-      "cobol/che-che4z_nist_ccvs85/NC2424.2.cbl": "67 instances",
-      "cobol/che-che4z_nist_ccvs85/NC2434.2.cbl": "106 instances",
-      "cobol/che-che4z_nist_ccvs85/NC2444.2.cbl": "62 instances",
-      "cobol/che-che4z_nist_ccvs85/NC2454.2.cbl": "49 instances",
-      "cobol/che-che4z_nist_ccvs85/NC2484.2.cbl": "52 instances",
+      "cobol/che-che4z_nist_ccvs85/NC1254.2.cbl": "92 instances",
+      "cobol/che-che4z_nist_ccvs85/NC1274.2.cbl": "44 instances",
+      "cobol/che-che4z_nist_ccvs85/NC1314.2.cbl": "64 instances",
+      "cobol/che-che4z_nist_ccvs85/NC1334.2.cbl": "69 instances",
+      "cobol/che-che4z_nist_ccvs85/NC1344.2.cbl": "66 instances",
+      "cobol/che-che4z_nist_ccvs85/NC1354.2.cbl": "60 instances",
+      "cobol/che-che4z_nist_ccvs85/NC1364.2.cbl": "65 instances",
+      "cobol/che-che4z_nist_ccvs85/NC1374.2.cbl": "64 instances",
+      "cobol/che-che4z_nist_ccvs85/NC1384.2.cbl": "54 instances",
+      "cobol/che-che4z_nist_ccvs85/NC1394.2.cbl": "51 instances",
+      "cobol/che-che4z_nist_ccvs85/NC1404.2.cbl": "47 instances",
+      "cobol/che-che4z_nist_ccvs85/NC1414.2.cbl": "53 instances",
+      "cobol/che-che4z_nist_ccvs85/NC2104.2.cbl": "178 instances",
+      "cobol/che-che4z_nist_ccvs85/NC2144.2.cbl": "42 instances",
+      "cobol/che-che4z_nist_ccvs85/NC2154.2.cbl": "42 instances",
+      "cobol/che-che4z_nist_ccvs85/NC2194.2.cbl": "42 instances",
+      "cobol/che-che4z_nist_ccvs85/NC2224.2.cbl": "48 instances",
+      "cobol/che-che4z_nist_ccvs85/NC2244.2.cbl": "56 instances",
+      "cobol/che-che4z_nist_ccvs85/NC2354.2.cbl": "46 instances",
+      "cobol/che-che4z_nist_ccvs85/NC2364.2.cbl": "92 instances",
+      "cobol/che-che4z_nist_ccvs85/NC2374.2.cbl": "51 instances",
+      "cobol/che-che4z_nist_ccvs85/NC2384.2.cbl": "88 instances",
+      "cobol/che-che4z_nist_ccvs85/NC2394.2.cbl": "43 instances",
+      "cobol/che-che4z_nist_ccvs85/NC2404.2.cbl": "75 instances",
+      "cobol/che-che4z_nist_ccvs85/NC2414.2.cbl": "69 instances",
+      "cobol/che-che4z_nist_ccvs85/NC2424.2.cbl": "65 instances",
+      "cobol/che-che4z_nist_ccvs85/NC2434.2.cbl": "104 instances",
+      "cobol/che-che4z_nist_ccvs85/NC2444.2.cbl": "60 instances",
+      "cobol/che-che4z_nist_ccvs85/NC2454.2.cbl": "47 instances",
+      "cobol/che-che4z_nist_ccvs85/NC2484.2.cbl": "50 instances",
       "cobol/che-che4z_nist_ccvs85/OBIC24.2.cbl": "24 instances",
-      "cobol/che-che4z_nist_ccvs85/OBIC34.2.cbl": "46 instances",
-      "cobol/che-che4z_nist_ccvs85/OBSQ34.2.cbl": "48 instances",
-      "cobol/che-che4z_nist_ccvs85/OBSQ44.2.cbl": "76 instances",
-      "cobol/che-che4z_nist_ccvs85/OBSQ54.2.cbl": "83 instances",
-      "cobol/che-che4z_nist_ccvs85/SM1074.2.cbl": "45 instances",
-      "cobol/che-che4z_nist_ccvs85/ST1084.2.cbl": "46 instances",
-      "cobol/che-che4z_nist_ccvs85/ST1184.2.cbl": "46 instances"
+      "cobol/che-che4z_nist_ccvs85/OBIC34.2.cbl": "44 instances",
+      "cobol/che-che4z_nist_ccvs85/OBSQ34.2.cbl": "46 instances",
+      "cobol/che-che4z_nist_ccvs85/OBSQ44.2.cbl": "74 instances",
+      "cobol/che-che4z_nist_ccvs85/OBSQ54.2.cbl": "81 instances",
+      "cobol/che-che4z_nist_ccvs85/SM1074.2.cbl": "43 instances",
+      "cobol/che-che4z_nist_ccvs85/ST1084.2.cbl": "44 instances",
+      "cobol/che-che4z_nist_ccvs85/ST1184.2.cbl": "44 instances"
     },
     "cobol/cics-banking-sample-application-cbsa": {
       "cobol/cics-banking-sample-application-cbsa/BANKDATA.cbl": "46 instances",
@@ -406,9 +408,9 @@
       "cobol/gnucobol/tutorial.cob": "16 instances"
     },
     "cobol/gnucobol_internals": {
-      "cobol/gnucobol_internals/codegen.c": "1508 instances",
-      "cobol/gnucobol_internals/fileio.c": "1532 instances",
-      "cobol/gnucobol_internals/numeric.c": "329 instances",
+      "cobol/gnucobol_internals/codegen.c": "1487 instances",
+      "cobol/gnucobol_internals/fileio.c": "1529 instances",
+      "cobol/gnucobol_internals/numeric.c": "323 instances",
       "cobol/gnucobol_internals/parser.y": "1820 instances",
       "cobol/gnucobol_internals/scanner.l": "352 instances"
     },
@@ -429,20 +431,20 @@
       "cpp/NVDA/ensureuv.ps1": "9 instances",
       "cpp/NVDA/espeak.py": "54 instances",
       "cpp/NVDA/inProcess.cpp": "12 instances",
-      "cpp/NVDA/storage.cpp": "204 instances"
+      "cpp/NVDA/storage.cpp": "198 instances"
     },
     "cpp/godot": {
-      "cpp/godot/editor_node.cpp": "576 instances",
+      "cpp/godot/editor_node.cpp": "573 instances",
       "cpp/godot/editor_node.h": "1 instances",
-      "cpp/godot/gdscript_vm.cpp": "408 instances",
-      "cpp/godot/main.cpp": "776 instances",
+      "cpp/godot/gdscript_vm.cpp": "389 instances",
+      "cpp/godot/main.cpp": "715 instances",
       "cpp/godot/node.cpp": "382 instances",
-      "cpp/godot/node.h": "8 instances",
-      "cpp/godot/object.cpp": "250 instances",
-      "cpp/godot/object.h": "14 instances",
+      "cpp/godot/node.h": "6 instances",
+      "cpp/godot/object.cpp": "248 instances",
+      "cpp/godot/object.h": "12 instances",
       "cpp/godot/rendering_server_default.cpp": "21 instances",
       "cpp/godot/rendering_server_default.h": "2 instances",
-      "cpp/godot/variant.cpp": "267 instances",
+      "cpp/godot/variant.cpp": "266 instances",
       "cpp/godot/variant.h": "15 instances"
     },
     "cpp/mlir": {
@@ -454,24 +456,28 @@
     "cpp/powertoys": {
       "cpp/powertoys/FancyZones.cpp": "25 instances",
       "cpp/powertoys/ImageResizerExt.cpp": "2 instances",
-      "cpp/powertoys/centralized_kb_hook.cpp": "18 instances",
+      "cpp/powertoys/centralized_kb_hook.cpp": "17 instances",
       "cpp/powertoys/logger.cpp": "5 instances",
       "cpp/powertoys/main.cpp": "19 instances"
+    },
+    "cpp/serenity_ak_siphash_cpu": {
+      "cpp/serenity_ak_siphash_cpu/CPUFeatures.cpp": "3 instances",
+      "cpp/serenity_ak_siphash_cpu/SipHash.cpp": "27 instances"
     },
     "csharp/roslyn": {
       "csharp/roslyn/CSharpCompilation.cs": "143 instances",
       "csharp/roslyn/CSharpSyntaxTree.cs": "23 instances",
-      "csharp/roslyn/LanguageParser.cs": "770 instances",
+      "csharp/roslyn/LanguageParser.cs": "768 instances",
       "csharp/roslyn/MethodCompiler.cs": "108 instances",
       "csharp/roslyn/Workspace.cs": "27 instances"
     },
     "dart/flutter": {
-      "dart/flutter/editable_text.dart": "163 instances",
+      "dart/flutter/editable_text.dart": "162 instances",
       "dart/flutter/events.dart": "1 instances",
-      "dart/flutter/framework.dart": "191 instances",
-      "dart/flutter/navigator.dart": "203 instances",
-      "dart/flutter/object.dart": "388 instances",
-      "dart/flutter/semantics.dart": "371 instances",
+      "dart/flutter/framework.dart": "183 instances",
+      "dart/flutter/navigator.dart": "201 instances",
+      "dart/flutter/object.dart": "386 instances",
+      "dart/flutter/semantics.dart": "370 instances",
       "dart/flutter/theme_data.dart": "109 instances"
     },
     "db2_sql/db2unit": {
@@ -483,9 +489,8 @@
       "dockerfile/moby/builder/dockerfile/containerbackend.go": "9 instances",
       "dockerfile/moby/builder/dockerfile/copy.go": "19 instances",
       "dockerfile/moby/builder/dockerfile/copy_unix.go": "6 instances",
-      "dockerfile/moby/builder/dockerfile/copy_windows.go": "9 instances",
       "dockerfile/moby/builder/dockerfile/dispatchers.go": "59 instances",
-      "dockerfile/moby/builder/dockerfile/dispatchers_test.go": "20 instances",
+      "dockerfile/moby/builder/dockerfile/dispatchers_test.go": "19 instances",
       "dockerfile/moby/builder/dockerfile/dispatchers_unix.go": "3 instances",
       "dockerfile/moby/builder/dockerfile/dispatchers_windows.go": "7 instances",
       "dockerfile/moby/builder/dockerfile/evaluator.go": "11 instances",
@@ -502,7 +507,7 @@
       "dockerfile/moby/builder/remotecontext/detect.go": "1 instances",
       "dockerfile/moby/builder/remotecontext/detect_test.go": "1 instances",
       "dockerfile/moby/builder/remotecontext/filehash.go": "1 instances",
-      "dockerfile/moby/builder/remotecontext/lazycontext.go": "2 instances",
+      "dockerfile/moby/builder/remotecontext/lazycontext.go": "1 instances",
       "dockerfile/moby/builder/remotecontext/remote.go": "6 instances",
       "dockerfile/moby/builder/remotecontext/tarsum_test.go": "6 instances"
     },
@@ -553,57 +558,53 @@
     "go/core": {
       "go/core/main.go": "30 instances",
       "go/core/mgc.go": "91 instances",
-      "go/core/proc.go": "491 instances",
+      "go/core/proc.go": "489 instances",
       "go/core/server.go": "202 instances",
       "go/core/syscall_linux.go": "110 instances",
       "go/core/value.go": "155 instances"
     },
+    "go/go_runtime_rand": {
+      "go/go_runtime_rand/rand.go": "16 instances"
+    },
     "go/kubernetes": {
-      "go/kubernetes/csi_plugin.go": "32 instances",
+      "go/kubernetes/csi_plugin.go": "31 instances",
       "go/kubernetes/generic.go": "33 instances",
       "go/kubernetes/kubelet.go": "8 instances",
       "go/kubernetes/proxier.go": "60 instances",
       "go/kubernetes/replica_set.go": "27 instances",
       "go/kubernetes/scheduler.go": "27 instances"
     },
+    "go/kubernetes_kubectl_tls": {
+      "go/kubernetes_kubectl_tls/create_secret_tls_test.go": "1 instances"
+    },
     "groovy/fineract_gradle_plugin": {
       "groovy/fineract_gradle_plugin/org_apache_fineract_gradle_service_EmailService.groovy": "6 instances",
       "groovy/fineract_gradle_plugin/org_apache_fineract_gradle_service_GitService.groovy": "1 instances",
       "groovy/fineract_gradle_plugin/org_apache_fineract_gradle_service_GpgService.groovy": "4 instances",
       "groovy/fineract_gradle_plugin/org_apache_fineract_gradle_service_JiraService.groovy": "7 instances",
-      "groovy/fineract_gradle_plugin/org_apache_fineract_gradle_service_SubversionService.groovy": "1 instances",
       "groovy/fineract_gradle_plugin/org_apache_fineract_gradle_service_TemplateService.groovy": "3 instances"
     },
     "groovy/flutter_android_gradle": {
       "groovy/flutter_android_gradle/dev_a11y_assessments_android_app_build.gradle": "3 instances",
-      "groovy/flutter_android_gradle/dev_a11y_assessments_android_settings.gradle": "1 instances",
       "groovy/flutter_android_gradle/dev_benchmarks_complex_layout_android_app_build.gradle": "4 instances",
-      "groovy/flutter_android_gradle/dev_benchmarks_complex_layout_android_settings.gradle": "1 instances",
       "groovy/flutter_android_gradle/dev_benchmarks_macrobenchmarks_android_app_build.gradle": "4 instances",
-      "groovy/flutter_android_gradle/dev_benchmarks_macrobenchmarks_android_settings.gradle": "1 instances",
       "groovy/flutter_android_gradle/dev_benchmarks_microbenchmarks_android_app_build.gradle": "4 instances",
-      "groovy/flutter_android_gradle/dev_benchmarks_microbenchmarks_android_settings.gradle": "1 instances",
       "groovy/flutter_android_gradle/dev_benchmarks_platform_views_layout_android_app_build.gradle": "4 instances",
-      "groovy/flutter_android_gradle/dev_benchmarks_platform_views_layout_android_settings.gradle": "1 instances",
       "groovy/flutter_android_gradle/dev_benchmarks_platform_views_layout_hybrid_composition_android_app_build.gradle": "3 instances",
-      "groovy/flutter_android_gradle/dev_benchmarks_platform_views_layout_hybrid_composition_android_settings.gradle": "1 instances",
-      "groovy/flutter_android_gradle/dev_benchmarks_test_apps_stocks_android_app_build.gradle": "4 instances",
-      "groovy/flutter_android_gradle/dev_benchmarks_test_apps_stocks_android_settings.gradle": "1 instances"
+      "groovy/flutter_android_gradle/dev_benchmarks_test_apps_stocks_android_app_build.gradle": "4 instances"
     },
     "groovy/godot_android_gradle": {
-      "groovy/godot_android_gradle/java_app_build.gradle": "12 instances",
       "groovy/godot_android_gradle/java_editor_build.gradle": "8 instances",
       "groovy/godot_android_gradle/java_lib_build.gradle": "7 instances",
       "groovy/godot_android_gradle/java_nativeSrcsConfigs_build.gradle": "2 instances",
       "groovy/godot_android_gradle/java_scripts_publish-root.gradle": "5 instances"
     },
     "groovy/gradle": {
-      "groovy/gradle/DefaultPluginManager.java": "14 instances",
-      "groovy/gradle/DefaultProject.java": "19 instances",
-      "groovy/gradle/DefaultTask.java": "7 instances"
+      "groovy/gradle/DefaultPluginManager.java": "10 instances",
+      "groovy/gradle/DefaultProject.java": "16 instances"
     },
     "groovy/gradle_buildlogic_groovy": {
-      "groovy/gradle_buildlogic_groovy/binary-compatibility_src_main_groovy_gradlebuild_EnrichedReportRenderer.groovy": "4 instances",
+      "groovy/gradle_buildlogic_groovy/binary-compatibility_src_main_groovy_gradlebuild_EnrichedReportRenderer.groovy": "2 instances",
       "groovy/gradle_buildlogic_groovy/binary-compatibility_src_main_groovy_gradlebuild_binarycompatibility_AcceptedApiChanges.groovy": "1 instances",
       "groovy/gradle_buildlogic_groovy/binary-compatibility_src_main_groovy_gradlebuild_binarycompatibility_AcceptedViolationsProvider.groovy": "1 instances",
       "groovy/gradle_buildlogic_groovy/binary-compatibility_src_main_groovy_gradlebuild_binarycompatibility_rules_AbstractGradleViolationRule.groovy": "5 instances",
@@ -617,9 +618,7 @@
       "groovy/gradle_dsl_snippets/dependencyManagement_artifactTransforms-incremental_groovy_build.gradle": "1 instances"
     },
     "groovy/gradle_integtest_specs": {
-      "groovy/gradle_integtest_specs/core-configuration_configuration-cache_src_integTest_groovy_org_gradle_internal_cc_impl_ConfigurationCacheBuildEventsListenerIntegrationTest.groovy": "1 instances",
       "groovy/gradle_integtest_specs/core-configuration_configuration-cache_src_integTest_groovy_org_gradle_internal_cc_impl_ConfigurationCacheBuildFeatureIntegrationTest.groovy": "1 instances",
-      "groovy/gradle_integtest_specs/core-configuration_configuration-cache_src_integTest_groovy_org_gradle_internal_cc_impl_ConfigurationCacheCleanupIntegrationTest.groovy": "1 instances",
       "groovy/gradle_integtest_specs/core-configuration_configuration-cache_src_integTest_groovy_org_gradle_internal_cc_impl_ConfigurationCacheFlowScopeIntegrationTest.groovy": "2 instances"
     },
     "groovy/gradle_sample_task_classes": {
@@ -634,8 +633,7 @@
     },
     "groovy/kotlin_build_gradle": {
       "groovy/kotlin_build_gradle/kotlin-native_gradle_loadRootProperties.gradle": "1 instances",
-      "groovy/kotlin_build_gradle/libraries_examples_kotlin-gradle-subplugin-example_build.gradle": "3 instances",
-      "groovy/kotlin_build_gradle/libraries_tools_kotlin-annotations-jvm_build.gradle": "1 instances"
+      "groovy/kotlin_build_gradle/libraries_examples_kotlin-gradle-subplugin-example_build.gradle": "1 instances"
     },
     "groovy/retrofit_gradle": {
       "groovy/retrofit_gradle/build.gradle": "4 instances"
@@ -643,7 +641,7 @@
     "groovy/spock": {
       "groovy/spock/DeepBlockRewriter.java": "19 instances",
       "groovy/spock/SpecParser.java": "21 instances",
-      "groovy/spock/SpecRewriter.java": "32 instances"
+      "groovy/spock/SpecRewriter.java": "31 instances"
     },
     "groovy/spock_core_groovy": {
       "groovy/spock_core_groovy/build-logic_base_src_main_groovy_org_spockframework_gradle_SpockBasePlugin.groovy": "4 instances",
@@ -691,13 +689,28 @@
       "html/vscode_webviews/github_auth_media_index.html": "7 instances",
       "html/vscode_webviews/webWorkerExtensionHostIframe.html": "10 instances"
     },
+    "java/flutter_android_editing_tests": {
+      "java/flutter_android_editing_tests/InputConnectionAdaptorTest.java": "14 instances"
+    },
+    "java/jenkins_cli": {
+      "java/jenkins_cli/SetBuildDescriptionCommand.java": "2 instances"
+    },
+    "java/selenium_grid_session_queue": {
+      "java/selenium_grid_session_queue/RemoteNewSessionQueue.java": "4 instances"
+    },
     "java/springboot": {
-      "java/springboot/AutoConfigurationImportSelector.java": "19 instances",
-      "java/springboot/Binder.java": "13 instances",
+      "java/springboot/AutoConfigurationImportSelector.java": "17 instances",
+      "java/springboot/Binder.java": "11 instances",
       "java/springboot/OnClassCondition.java": "3 instances",
       "java/springboot/ServletWebServerApplicationContext.java": "2 instances",
-      "java/springboot/SpringApplication.java": "48 instances",
-      "java/springboot/WebMvcAutoConfiguration.java": "9 instances"
+      "java/springboot/SpringApplication.java": "34 instances",
+      "java/springboot/WebMvcAutoConfiguration.java": "8 instances"
+    },
+    "javascript/cesium_particle_emitters": {
+      "javascript/cesium_particle_emitters/CircleEmitter.js": "2 instances"
+    },
+    "javascript/javascript_algorithms_bits": {
+      "javascript/javascript_algorithms_bits/fullAdder.js": "1 instances"
     },
     "javascript/jquery": {
       "javascript/jquery/ajax.js": "120 instances",
@@ -708,17 +721,26 @@
       "javascript/jquery/event.js": "120 instances",
       "javascript/jquery/tokenize.js": "15 instances"
     },
+    "javascript/node_tls_security_tests": {
+      "javascript/node_tls_security_tests/regexp-unicode-sets.js": "12 instances",
+      "javascript/node_tls_security_tests/test-https-host-headers.js": "1 instances",
+      "javascript/node_tls_security_tests/test-tls-cert-ext-encoding.js": "2 instances",
+      "javascript/node_tls_security_tests/test-tls-psk-server.js": "4 instances"
+    },
     "javascript/react": {
       "javascript/react/BabelPlugin.ts": "2 instances",
-      "javascript/react/ReactFiberBeginWork.js": "235 instances",
-      "javascript/react/ReactFiberWorkLoop.js": "315 instances",
+      "javascript/react/ReactFiberBeginWork.js": "234 instances",
+      "javascript/react/ReactFiberWorkLoop.js": "314 instances",
       "javascript/react/ReactFlightServer.js": "424 instances",
       "javascript/react/build.js": "15 instances"
     },
+    "javascript/react_error_codes": {
+      "javascript/react_error_codes/extract-errors.js": "11 instances"
+    },
     "javascript/threejs": {
-      "javascript/threejs/BufferGeometry.js": "72 instances",
-      "javascript/threejs/Editor.js": "58 instances",
-      "javascript/threejs/GLTFLoader.js": "332 instances",
+      "javascript/threejs/BufferGeometry.js": "71 instances",
+      "javascript/threejs/Editor.js": "51 instances",
+      "javascript/threejs/GLTFLoader.js": "331 instances",
       "javascript/threejs/Matrix4.js": "97 instances",
       "javascript/threejs/WebGLProgram.js": "33 instances",
       "javascript/threejs/WebGLRenderer.js": "233 instances"
@@ -871,8 +893,11 @@
       "objective-c/worldwideweb/Anchor.m": "14 instances",
       "objective-c/worldwideweb/HText.c": "100 instances",
       "objective-c/worldwideweb/HyperManager.m": "29 instances",
-      "objective-c/worldwideweb/HyperText.m": "274 instances",
+      "objective-c/worldwideweb/HyperText.m": "267 instances",
       "objective-c/worldwideweb/TcpAccess.m": "4 instances"
+    },
+    "perl/ack3_tests": {
+      "perl/ack3_tests/file-permission.t": "2 instances"
     },
     "perl/bugzilla": {
       "perl/bugzilla/Auth.pm": "16 instances",
@@ -915,10 +940,13 @@
       "php/laravel_core/Application.php": "36 instances",
       "php/laravel_core/BladeCompiler.php": "66 instances",
       "php/laravel_core/Collection.php": "169 instances",
-      "php/laravel_core/Container.php": "115 instances",
+      "php/laravel_core/Container.php": "112 instances",
       "php/laravel_core/Facade.php": "17 instances",
-      "php/laravel_core/Model.php": "103 instances",
+      "php/laravel_core/Model.php": "102 instances",
       "php/laravel_core/Router.php": "58 instances"
+    },
+    "php/laravel_validation_rules": {
+      "php/laravel_validation_rules/Can.php": "1 instances"
     },
     "php/magento2": {
       "php/magento2/AbstractBlock.php": "86 instances",
@@ -926,25 +954,25 @@
       "php/magento2/Application.php": "4 instances",
       "php/magento2/Http.php": "9 instances",
       "php/magento2/Interceptor.php": "15 instances",
-      "php/magento2/Mysql.php": "513 instances",
+      "php/magento2/Mysql.php": "506 instances",
       "php/magento2/ObjectManager.php": "3 instances"
     },
     "php/symfony": {
       "php/symfony/Application.php": "213 instances",
       "php/symfony/ContainerBuilder.php": "189 instances",
       "php/symfony/EventDispatcher.php": "29 instances",
-      "php/symfony/HttpKernel.php": "34 instances",
-      "php/symfony/Parser.php": "52 instances",
-      "php/symfony/Request.php": "276 instances",
+      "php/symfony/HttpKernel.php": "32 instances",
+      "php/symfony/Parser.php": "51 instances",
+      "php/symfony/Request.php": "274 instances",
       "php/symfony/Router.php": "27 instances"
     },
     "php/wordpress": {
       "php/wordpress/admin-ajax.php": "2 instances",
       "php/wordpress/class-wp-query.php": "791 instances",
-      "php/wordpress/formatting.php": "786 instances",
-      "php/wordpress/functions.php": "930 instances",
+      "php/wordpress/formatting.php": "710 instances",
+      "php/wordpress/functions.php": "912 instances",
       "php/wordpress/plugin.php": "65 instances",
-      "php/wordpress/wp-login.php": "148 instances",
+      "php/wordpress/wp-login.php": "145 instances",
       "php/wordpress/wp-settings.php": "15 instances"
     },
     "pli/dsf_cics_admin": {
@@ -1068,9 +1096,21 @@
       "python/airflow/s3.py": "182 instances",
       "python/airflow/scheduler_job_runner.py": "223 instances"
     },
+    "python/airflow_ai_providers": {
+      "python/airflow_ai_providers/openai_src_airflow_providers_openai_hooks_openai.py": "7 instances",
+      "python/airflow_ai_providers/pinecone_src_airflow_providers_pinecone_hooks_pinecone.py": "14 instances",
+      "python/airflow_ai_providers/pinecone_src_airflow_providers_pinecone_operators_pinecone.py": "5 instances",
+      "python/airflow_ai_providers/pinecone_tests_system_pinecone_example_pinecone_cohere.py": "4 instances"
+    },
+    "python/airflow_opsgenie_tests": {
+      "python/airflow_opsgenie_tests/test_opsgenie.py": "1 instances"
+    },
     "python/cython": {
       "python/cython/MemoryView.pyx": "176 instances",
       "python/cython/Nodes.py": "1504 instances"
+    },
+    "python/django_db_tests": {
+      "python/django_db_tests/test_utils.py": "1 instances"
     },
     "python/fastapi/fastapi": {
       "python/fastapi/fastapi/applications.py": "24 instances",
@@ -1122,6 +1162,23 @@
       "python/fastapi/tests/test_ws_router.py": "1 instances",
       "python/fastapi/tests/utils.py": "1 instances"
     },
+    "python/homeassistant_anthropic": {
+      "python/homeassistant_anthropic/coordinator.py": "2 instances"
+    },
+    "python/homeassistant_ble_integrations": {
+      "python/homeassistant_ble_integrations/gardena_bluetooth___init__.py": "2 instances",
+      "python/homeassistant_ble_integrations/utils.py": "2 instances"
+    },
+    "python/langchain_agents": {
+      "python/langchain_agents/langchain_agents_middleware_model_fallback.py": "5 instances",
+      "python/langchain_agents/langchain_agents_middleware_tool_emulator.py": "16 instances",
+      "python/langchain_agents/tests_integration_tests_chat_models_test_base.py": "3 instances"
+    },
+    "python/micropython_usb_tls": {
+      "python/micropython_usb_tls/ssl_verify_callback.py": "1 instances",
+      "python/micropython_usb_tls/tls_dtls.py": "5 instances",
+      "python/micropython_usb_tls/usb_simple_host_pyusb.py": "6 instances"
+    },
     "python/numpy": {
       "python/numpy/_linalg.py": "201 instances",
       "python/numpy/cfuncs.py": "35 instances",
@@ -1132,11 +1189,18 @@
       "python/numpy/generate_numpy_api.py": "22 instances",
       "python/numpy/generate_ufunc_api.py": "15 instances",
       "python/numpy/generate_umath_doc.py": "2 instances",
-      "python/numpy/lapack_litemodule.c": "5 instances",
+      "python/numpy/lapack_litemodule.c": "3 instances",
       "python/numpy/symbolic.py": "232 instances",
       "python/numpy/testutils.py": "18 instances",
       "python/numpy/ufunc_docstrings.py": "4 instances",
       "python/numpy/verify_c_api_version.py": "1 instances"
+    },
+    "python/pip_vendored_requests": {
+      "python/pip_vendored_requests/packages.py": "7 instances"
+    },
+    "python/thealgorithms_machine_learning": {
+      "python/thealgorithms_machine_learning/logistic_regression.py": "11 instances",
+      "python/thealgorithms_machine_learning/lstm_lstm_prediction.py": "13 instances"
     },
     "python/twisted": {
       "python/twisted/defer.py": "120 instances",
@@ -1150,13 +1214,15 @@
       "python/wtfpython/notebook_generator.py": "75 instances",
       "python/wtfpython/noxfile.py": "1 instances"
     },
+    "rexx/hercules_390_hyperion": {
+      "rexx/hercules_390_hyperion/sample.rexx": "2 instances"
+    },
     "rexx/hercules_hyperion": {
       "rexx/hercules_hyperion/cmpsc.rexx": "111 instances",
       "rexx/hercules_hyperion/hbasic1.rexx": "2 instances",
       "rexx/hercules_hyperion/hcommand.rexx": "14 instances",
       "rexx/hercules_hyperion/hlinein.rexx": "1 instances",
-      "rexx/hercules_hyperion/hrecurs.rexx": "6 instances",
-      "rexx/hercules_hyperion/sample.rexx": "2 instances"
+      "rexx/hercules_hyperion/hrecurs.rexx": "6 instances"
     },
     "rexx/ibm_z_zos": {
       "rexx/ibm_z_zos/bpxget.rexx": "23 instances",
@@ -1186,22 +1252,27 @@
       "ruby/rails/inbound_emails_controller.rb": "1 instances",
       "ruby/rails/metal.rb": "19 instances"
     },
+    "ruby/rails_http_token_auth": {
+      "ruby/rails_http_token_auth/http_token_authentication_test.rb": "13 instances"
+    },
     "rust/bevy": {
       "rust/bevy/bevy_ecs_macros.rs": "14 instances",
       "rust/bevy/bevy_ecs_table.rs": "1 instances",
       "rust/bevy/bevy_ecs_world.rs": "12 instances",
-      "rust/bevy/bevy_reflect_path.rs": "2 instances",
+      "rust/bevy/bevy_reflect_path.rs": "1 instances",
       "rust/bevy/bevy_schedule_graph.rs": "16 instances"
+    },
+    "rust/bevy_asset_examples": {
+      "rust/bevy_asset_examples/rotation.rs": "3 instances"
     },
     "rust/holylang": {
       "rust/holylang/compile.rs": "3 instances",
       "rust/holylang/parser.rs": "32 instances",
-      "rust/holylang/semantic.rs": "17 instances",
-      "rust/holylang/transpiler.rs": "77 instances"
+      "rust/holylang/semantic.rs": "15 instances",
+      "rust/holylang/transpiler.rs": "74 instances"
     },
     "rust/serde": {
       "rust/serde/serde_core_de_impls.rs": "15 instances",
-      "rust/serde/serde_core_de_mod.rs": "1 instances",
       "rust/serde/serde_derive_de.rs": "6 instances",
       "rust/serde/serde_internals_ast.rs": "1 instances",
       "rust/serde/serde_internals_attr.rs": "25 instances"
@@ -1218,22 +1289,25 @@
       "rust/tokio/tokio_mpsc_bounded.rs": "1 instances",
       "rust/tokio/tokio_named_pipe.rs": "12 instances"
     },
+    "rust/tokio_util_rand": {
+      "rust/tokio_util_rand/rand.rs": "1 instances"
+    },
     "rust/wasmtime": {
       "rust/wasmtime/wasmtime_instance.rs": "4 instances",
       "rust/wasmtime/wasmtime_isle_parser.rs": "23 instances",
       "rust/wasmtime/wasmtime_pulley_interp.rs": "118 instances"
     },
     "scala/kafka": {
-      "scala/kafka/KafkaApis.scala": "98 instances",
-      "scala/kafka/LogManager.scala": "30 instances",
+      "scala/kafka/KafkaApis.scala": "97 instances",
+      "scala/kafka/LogManager.scala": "28 instances",
       "scala/kafka/Partition.scala": "23 instances",
       "scala/kafka/ReplicaManager.scala": "38 instances",
-      "scala/kafka/SocketServer.scala": "35 instances"
+      "scala/kafka/SocketServer.scala": "33 instances"
     },
     "scheme/racket": {
       "scheme/racket/cpnanopass.ss": "246 instances",
-      "scheme/racket/eval.c": "790 instances",
-      "scheme/racket/fun.c": "1957 instances",
+      "scheme/racket/eval.c": "758 instances",
+      "scheme/racket/fun.c": "1938 instances",
       "scheme/racket/io.ss": "72 instances",
       "scheme/racket/schemify.rkt": "3 instances",
       "scheme/racket/thread.rkt": "4 instances"
@@ -1302,6 +1376,9 @@
       "shell/freebsd-src/runulp.sh": "12 instances",
       "shell/freebsd-src/timeout_test.sh": "2 instances",
       "shell/freebsd-src/ztest.sh": "5 instances"
+    },
+    "shell/freebsd_sysbuild": {
+      "shell/freebsd_sysbuild/sysbuild.sh": "50 instances"
     },
     "shell/haiku": {
       "shell/haiku/HardwareChecker.sh": "14 instances",
@@ -1424,7 +1501,7 @@
       "solidity/openzeppelin/Governor.sol": "5 instances"
     },
     "sql/baseline": {
-      "sql/baseline/schema.php": "110 instances"
+      "sql/baseline/schema.php": "107 instances"
     },
     "swift/alamofire": {
       "swift/alamofire/Alamofire.podspec": "7 instances",
@@ -1468,22 +1545,34 @@
       "tcl/sqlite/tester.tcl": "401 instances",
       "tcl/sqlite/testrunner.tcl": "345 instances"
     },
+    "typescript/angular_zonejs_mocha": {
+      "typescript/angular_zonejs_mocha/mocha.ts": "5 instances"
+    },
     "typescript/assemblyscript": {
       "typescript/assemblyscript/ast.ts": "27 instances",
-      "typescript/assemblyscript/compiler.ts": "991 instances",
+      "typescript/assemblyscript/compiler.ts": "983 instances",
       "typescript/assemblyscript/parser.ts": "367 instances"
+    },
+    "typescript/excalibur_math": {
+      "typescript/excalibur_math/collision_colliders_separating-axis.ts": "20 instances"
+    },
+    "typescript/excalidraw_text_wrapping": {
+      "typescript/excalidraw_text_wrapping/textWrapping.ts": "35 instances"
     },
     "typescript/fp-ts": {
       "typescript/fp-ts/Either.ts": "2 instances",
       "typescript/fp-ts/TaskEither.ts": "1 instances",
       "typescript/fp-ts/pipeable.ts": "36 instances"
     },
+    "typescript/pixijs_examples": {
+      "typescript/pixijs_examples/events_dragging.ts": "4 instances"
+    },
     "typescript/playwright": {
       "typescript/playwright/bidiConnection.ts": "21 instances",
       "typescript/playwright/connection.ts": "44 instances",
       "typescript/playwright/crConnection.ts": "13 instances",
       "typescript/playwright/dispatcher.ts": "39 instances",
-      "typescript/playwright/frames.ts": "91 instances"
+      "typescript/playwright/frames.ts": "90 instances"
     },
     "typescript/typescript_compiler": {
       "typescript/typescript_compiler/binder.ts": "213 instances"
@@ -1491,7 +1580,7 @@
     "typescript/vscode": {
       "typescript/vscode/async.ts": "116 instances",
       "typescript/vscode/codeEditorWidget.ts": "73 instances",
-      "typescript/vscode/extHost.api.impl.ts": "25 instances",
+      "typescript/vscode/extHost.api.impl.ts": "24 instances",
       "typescript/vscode/gulpfile.vscode.ts": "43 instances",
       "typescript/vscode/instantiationService.ts": "36 instances",
       "typescript/vscode/ipc.ts": "62 instances",
@@ -1526,6 +1615,14 @@
       "zig/bun/comptime_string_map.zig": "7 instances",
       "zig/bun/napi.zig": "34 instances"
     },
+    "zig/mach": {
+      "zig/mach/Core.zig": "8 instances",
+      "zig/mach/StringTable.zig": "1 instances",
+      "zig/mach/collision.zig": "49 instances",
+      "zig/mach/graph.zig": "15 instances",
+      "zig/mach/module.zig": "16 instances",
+      "zig/mach/win32.zig": "1 instances"
+    },
     "zig/tigerbeetle": {
       "zig/tigerbeetle/aof.zig": "14 instances",
       "zig/tigerbeetle/build.zig": "12 instances",
@@ -1538,7 +1635,7 @@
       "zig/tigerbeetle/state_machine.zig": "47 instances"
     },
     "zig/zig": {
-      "zig/zig/Compilation.zig": "129 instances",
+      "zig/zig/Compilation.zig": "126 instances",
       "zig/zig/InternPool.zig": "178 instances",
       "zig/zig/Type.zig": "31 instances",
       "zig/zig/Zcu.zig": "59 instances",
@@ -1552,14 +1649,6 @@
       "zig/zls/ast.zig": "83 instances",
       "zig/zls/config_gen.zig": "50 instances",
       "zig/zls/print_ast.zig": "11 instances"
-    },
-    "zig/zls/mach": {
-      "zig/zls/mach/Core.zig": "8 instances",
-      "zig/zls/mach/StringTable.zig": "1 instances",
-      "zig/zls/mach/collision.zig": "49 instances",
-      "zig/zls/mach/graph.zig": "15 instances",
-      "zig/zls/mach/module.zig": "16 instances",
-      "zig/zls/mach/win32.zig": "1 instances"
     }
   },
   "path": [

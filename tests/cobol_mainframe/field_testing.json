@@ -79,6 +79,19 @@
         "pli",
         "cobol"
       ]
+    },
+    {
+      "id": "dbb-mortgage-application",
+      "kind": "public",
+      "round": 7,
+      "keyed_by": "#4216",
+      "date": "2026-10-03",
+      "languages": [
+        "cobol",
+        "bms",
+        "jcl",
+        "db2_sql"
+      ]
     }
   ],
   "defects": [
@@ -294,7 +307,7 @@
       "found_by": "pin",
       "issue": 3520,
       "fixed_by": "#3522",
-      "summary": "Nordic national characters (ÆØÅ) truncated PL/I / HLASM / JCL identifiers: units misnamed, calls unlinked."
+      "summary": "Nordic national characters (\u00c6\u00d8\u00c5) truncated PL/I / HLASM / JCL identifiers: units misnamed, calls unlinked."
     },
     {
       "id": "D016",
@@ -537,6 +550,242 @@
       "found_by": "review",
       "issue": 3898,
       "summary": "A bare `LINE SEQUENTIAL` (ORGANIZATION is optional in a SELECT) was recorded as SEQUENTIAL, so a Micro Focus / GnuCOBOL short-form file got the RECFM=FB porting rule instead of one record per line. Found writing #3833's porting rules; no pinned corpus uses LINE SEQUENTIAL. Micro Focus `RECORD SEQUENTIAL` is now SEQUENTIAL too."
+    },
+    {
+      "id": "D029",
+      "estate": null,
+      "after_round": 6,
+      "side": "engine",
+      "fields": [
+        "program_id",
+        "record fields",
+        "units"
+      ],
+      "language": "cobol",
+      "severity": "fact",
+      "found_by": "fresh-estate scan (#3806)",
+      "issue": 3955,
+      "summary": "Japanese user-defined words were invisible (the name classes were ASCII plus the European national characters): a Japanese PROGRAM-ID gave no program, so it was dropped from refraction; a data name starting with a Japanese character was missing and one with a Japanese tail was truncated (`X\u9805\u76ee` -> `X`); Japanese sections and paragraphs were missing; and `_` was missing from the level-start class (`FIXED_FLD` -> `FIXED`).",
+      "fixed_by": "#3967"
+    },
+    {
+      "id": "D030",
+      "estate": null,
+      "after_round": 6,
+      "side": "engine",
+      "fields": [
+        "record fields",
+        "copybook paths"
+      ],
+      "language": "cobol",
+      "severity": "fact",
+      "found_by": "fresh-estate scan (#3806)",
+      "issue": 3956,
+      "summary": "The full-width space U+3000, a separator in opensourcecobol4j, was not one to the engine: `01<U+3000>F02 PIC X.` was missing from record_data, `PIC<U+3000>X` lost its picture, and `COPY<U+3000>inc.` / `DATA<U+3000>DIVISION` were not read.",
+      "fixed_by": "#3966"
+    },
+    {
+      "id": "D031",
+      "estate": null,
+      "after_round": 6,
+      "side": "engine",
+      "fields": [
+        "record fields",
+        "units"
+      ],
+      "language": "cobol",
+      "severity": "fact",
+      "found_by": "fresh-estate scan (#3806)",
+      "issue": 3991,
+      "summary": "#3955 follow-up: full-width hyphens (U+FF0D, U+2212) and full-width digits still ended a COBOL word, so Japanese data names were truncated and could collide (`\uff34\uff25\uff33\uff34\u2212\uff24\uff21\uff34\uff21\uff11` and `\uff34\uff25\uff33\uff34\u2212\uff32\uff25\uff23\uff2f\uff32\uff24\uff11` both `\uff34\uff25\uff33\uff34`) and sections such as `\uff33\u2212\u521d\u671f\u5316 SECTION` were dropped.",
+      "fixed_by": "#3995"
+    },
+    {
+      "id": "D032",
+      "estate": null,
+      "after_round": 6,
+      "side": "forge",
+      "fields": [
+        "file control",
+        "inputs"
+      ],
+      "language": "cobol",
+      "severity": "fact",
+      "found_by": "fresh-estate scan (#3806)",
+      "issue": 3992,
+      "summary": "A batch program with no JCL whose files are ASSIGNed to literals got empty `files_requested`: analyze_cobol_intent read `ASSIGN TO \"x\"` as DD `TO`, so the REST controller took the transactional branch and referenced an undefined `<File>DTO` (jp-compat did not compile).",
+      "fixed_by": "#3994"
+    },
+    {
+      "id": "D033",
+      "estate": null,
+      "after_round": 6,
+      "side": "forge",
+      "fields": [
+        "file control"
+      ],
+      "language": "cobol",
+      "severity": "attribute",
+      "found_by": "fresh-estate scan (#3806)",
+      "issue": 3957,
+      "summary": "A file ASSIGNed to a literal path put the path into Java identifiers (`@RequestBody ./testFileDTO ./testFileData`), so the generated controller did not compile. No fact was wrong -- a name built from it was; `file control` is the closest field (the ASSIGN clause).",
+      "fixed_by": "#3965"
+    },
+    {
+      "id": "D034",
+      "estate": null,
+      "after_round": 6,
+      "side": "forge",
+      "fields": [
+        "record fields"
+      ],
+      "language": "cobol",
+      "severity": "attribute",
+      "found_by": "fresh-estate scan (#3806)",
+      "issue": 3958,
+      "summary": "Target config `data.code_page` accepted any Python codec, not just EBCDIC pages: `shift_jis` made half-width katakana the zoned-decimal \"sign characters\" baked into CobolRecords and the decoder, with no warning. No extracted fact was wrong; `record fields` is the closest field (the zoned-decimal fields it decodes).",
+      "fixed_by": "#3961"
+    },
+    {
+      "id": "D035",
+      "estate": null,
+      "after_round": 6,
+      "side": "forge",
+      "fields": [
+        "inputs",
+        "outputs",
+        "file control"
+      ],
+      "language": "cobol",
+      "severity": "fact",
+      "found_by": "review",
+      "issue": 3998,
+      "summary": "The refractor without `--scan` read SELECT with its own regex (cobol_dag_architect): `ASSIGN TO \"x\"` gave DD `TO`, `SELECT OPTIONAL f` and Japanese / full-width file names were missed, so lineage differed from `--scan`. It now uses the engine's SELECT reader. Found while fixing #3992, not by the estate scan."
+    },
+    {
+      "id": "D036",
+      "estate": null,
+      "after_round": 6,
+      "side": "forge",
+      "fields": [
+        "units",
+        "dead"
+      ],
+      "language": "cobol",
+      "severity": "fact",
+      "found_by": "coverage trace (#4023) on the fresh-estate scan (#3806)",
+      "issue": 4026,
+      "summary": "cobol_graveyard_finder's unit reader took only ASCII names, so Japanese / full-width paragraphs and sections (13 opensourcecobol4j programs) were not units, and it rejected any `END-...` name as a scope terminator, so the legal paragraph `END-IPROC1.` was not one either: those units were neither counted nor judged dead or alive. A GnuCOBOL trace entered them.",
+      "fixed_by": "#4028"
+    },
+    {
+      "id": "D037",
+      "estate": "cics-genapp",
+      "side": "engine",
+      "fields": [
+        "units"
+      ],
+      "language": "cobol",
+      "severity": "fact",
+      "found_by": "ledger",
+      "issue": 4031,
+      "summary": "The engine's COBOL function-start rule excludes every END-... word as a scope terminator, so GENAPP's legal paragraph `End-Program.` (5 programs, reached by PERFORM END-PROGRAM) is not a unit. Surfaced when #4028 fixed the same rule in the forge and the key reader, and the key gained the paragraph."
+    },
+    {
+      "id": "D038",
+      "estate": "dbb-mortgage-application",
+      "side": "engine",
+      "fields": [
+        "MOVE truncation"
+      ],
+      "language": "cobol",
+      "severity": "fact",
+      "found_by": "ledger",
+      "issue": 4204,
+      "summary": "A MOVE whose source is qualified (EPSPCOM-ERRMSG OF W-COMMUNICATION-AREA, 80 bytes, into the BMS field MSGERRO) is recorded but its truncation is not flagged: the sizer does not resolve the qualified source's length. IBM DBB EPSCMORT L231. Root cause: the item lives in EPSMTOUT, nested in EPSMTCOM, which EPSCMORT COPYs under both W-COMMUNICATION-AREA and DFHCOMMAREA; storage spans were keyed by item, so the second placement overwrote the first and a qualifier naming the first never matched (17 qualified data flows on this estate were unresolved)."
+    },
+    {
+      "id": "D039",
+      "estate": "dbb-mortgage-application",
+      "side": "engine",
+      "fields": [
+        "data moves"
+      ],
+      "language": "cobol",
+      "severity": "fact",
+      "found_by": "ledger",
+      "issue": 4205,
+      "summary": "MOVE ALL X'..' (a hexadecimal figurative) is not recorded as a data move: IBM DBB EPSCSMRD L1457 (ALL X'00') and L3452 (ALL X'FF')."
+    },
+    {
+      "id": "D040",
+      "estate": null,
+      "after_round": 7,
+      "side": "engine",
+      "fields": [
+        "units"
+      ],
+      "language": "cobol",
+      "severity": "fact",
+      "found_by": "scan of CobolCraft (GnuCOBOL free-format; not a mainframe estate)",
+      "issue": 4203,
+      "summary": "In free-format source the engine's COBOL function-start rule let its optional 6-column sequence-area slot swallow an indent plus the level number (`    01 VALUE-BYTES.`), stepping past its level-number shield, so data description entries (and indented FD / SD lines) read as paragraphs: 143 phantom units on CobolCraft @ e8c420df, every unit of coordinates.cob and decode.cob. No keyed estate is free-format, so the ledger never saw it."
+    },
+    {
+      "id": "D041",
+      "estate": "dbb-mortgage-application",
+      "side": "engine",
+      "fields": [
+        "program_id"
+      ],
+      "language": "cobol",
+      "severity": "fact",
+      "found_by": "census",
+      "issue": 4242,
+      "summary": "A literal program name (`PROGRAM-ID. 'EPSCSMRD'.`, column 9) recorded no PROGRAM-ID: the engine's class_start rule wanted a word boundary right after the paragraph's separator, and a quote is no word character. IBM DBB epscsmrd.cbl (13 quoted PROGRAM-IDs) had no class row at all; found during its census (#4226)."
+    },
+    {
+      "id": "D042",
+      "estate": "dbb-mortgage-application",
+      "side": "engine",
+      "fields": [
+        "record fields"
+      ],
+      "language": "cobol",
+      "severity": "fact",
+      "found_by": "census",
+      "issue": 4246,
+      "summary": "An unnamed data description entry (an implicit FILLER: `2 PIC X(40) USAGE DISPLAY VALUE '...'`, IBM DBB EPSCSMRD L24 / L27 / L30) was read as an item named PIC with no PICTURE: the clause keyword standing where the name goes was taken for the name, and the entry's clauses were read from after it. Found onboarding EPSCSMRD into the key (#4226); the key's own reader made the same misreading."
+    },
+    {
+      "id": "D043",
+      "estate": "dbb-mortgage-application",
+      "side": "forge",
+      "fields": [
+        "units",
+        "dead"
+      ],
+      "language": "cobol",
+      "severity": "fact",
+      "found_by": "census",
+      "issue": 4243,
+      "summary": "cobol_graveyard_finder read a multi-program source as one program: IBM DBB epscsmrd.cbl (eleven siblings, two nested, each opening with MAINLINE SECTION) gave the later programs' AUTHOR / INSTALLATION / LINKAGE headers as units of the first, one MAINLINE for thirteen, and reachability across programs. Its reader also had the gaps the key's draft fixed on the same file (#4206): a consuming GO TO match swallowed the later GO TO ... DEPENDING ON targets, a DEPENDING ON anywhere in a sentence hid a plain GO TO after it, and XML PARSE PROCESSING PROCEDURE reached nothing. 973 forge unit / dead mismatches against the draft; 0 after."
+    },
+    {
+      "id": "D044",
+      "estate": null,
+      "after_round": 7,
+      "side": "engine",
+      "fields": [
+        "data moves",
+        "CALL USING",
+        "DD names"
+      ],
+      "language": "cobol",
+      "severity": "fact",
+      "found_by": "review",
+      "issue": 4264,
+      "summary": "Columns 73-80 of a fixed-format line (the identification area the compiler ignores: NIST CCVS `NC1314.2`) reached the COBOL readers, and no reader knew fixed from free format (no >>SOURCE FORMAT handling). On the crucible's NIST CCVS85 set ~2,500 phantom data-flow operands came from it (`MOVE \".\" -> NC1314`), CALL USING gained a `CONTENT:IC2244` operand, and 198 dataset bindings took the identification tag as their DD name (`DB1044` for `ASSIGN TO` / `XXXXX055` on the next line; with the tag gone the reader then saw the next line's sequence area and read `TO`, so it now blanks sequence fields as file_control does). Prism now blanks the identification area of fixed lines only, the format detected per file and switched by directives. Found by the 2026-10-03 engine audit, not by a keyed estate (the ledger did not move)."
     }
   ],
   "fields": {
@@ -731,6 +980,14 @@
     "refmod spans": {
       "introduced": "#3676",
       "development_rounds": 6
+    },
+    "unit extents": {
+      "introduced": "#4318",
+      "development_rounds": 7
+    },
+    "intra-program edges": {
+      "introduced": "#4318",
+      "development_rounds": 7
     }
   }
 }

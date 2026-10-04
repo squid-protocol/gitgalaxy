@@ -69,6 +69,12 @@ BASELINE_PATH = Path(__file__).resolve().parent / "dead_key_audit_baseline.json"
 # apart from "the code changed, re-check this."
 # ==============================================================================
 ALLOWLIST = {
+    # package.json fields read from a manifest on disk (core/package_self_reference.py, #3789):
+    # the producer is the npm package author, never a literal in this repo.
+    "exports": "package.json `exports` field, read from the scanned repo's manifest (#3789)",
+    "module": "package.json `module` field, read from the scanned repo's manifest (#3789)",
+    "inheritance_parents": "class_data DB column, copied into the restored class dict by the rehydrator's generic column loop, then folded into `inheritance` (#3786)",
+    "COUNTER": "EXEC CICS option keyword parsed from source (det/cics.py parse_exec: GET COUNTER)",
     # --- Parsed source keywords (not a producer/consumer dict contract) ---
     # cics_tasks.py (#3449) keys `opts` by the option words of the EXEC CICS
     # command it just parsed (cics_resources._options), so "CHANNEL" is written
@@ -79,7 +85,14 @@ ALLOWLIST = {
     "ABCODE": "EXEC CICS option keyword parsed from source (uow_handlers.py, #3453)",
     "KEYS": "IDCAMS DEFINE parameter parsed from JCL in-stream data (file_control.py, #3455)",
     "NSYMBOL": "CBL / PROCESS compiler option parsed from source (compiler_options.py; read by mainframe_boundary, #3816)",
+    "SORT-RETURN": "COBOL data name looked up in det/gen.py's Gen.items, which is keyed by the program's own parsed "
+    "data items: a program may declare an item named SORT-RETURN, shadowing the special register (#4268)",
     # --- Written by an external producer ---
+    # archetype_validation.json (#4100) is written by tests/tools/archetype_drift.py,
+    # outside gitgalaxy/, and read back by archetype_parity.validation_status.
+    "inherits": "archetype_validation.json level key, written by tests/tools/archetype_drift.py (#4100)",
+    "brain_fingerprints": "archetype_validation.json key, written by tests/tools/archetype_drift.py (#4100)",
+    "engine_version": "archetype_validation.json trained.* key, written by tests/tools/archetype_drift.py (#4100)",
     # The AI agent a Java service ticket goes to returns {"diagnosis", "java_code"}
     # (cobol_to_java_agent_forge's system prompt); the guardrail (#3652) reads it.
     "java_code": "AI agent ticket result, written by the agent (cobol_to_java_guardrail.py, #3652)",
@@ -104,6 +117,33 @@ ALLOWLIST = {
     "PCBNAME": "IMS PSBGEN / DBDGEN macro operand parsed from source (ims_gen.py, #3477)",
     "PROCOPT": "IMS PSBGEN / DBDGEN macro operand parsed from source (ims_gen.py, #3477)",
     "PSBNAME": "IMS PSBGEN / DBDGEN macro operand parsed from source (ims_gen.py, #3477)",
+    # --- COBOL-to-Java det port: keys written dynamically (cobol_to_java/det/) ---
+    # cics.parse_exec builds its `opts` dict from the option names it parses out of
+    # the EXEC CICS source text, so these are never written as literals.
+    "LENGTH": "EXEC CICS option name parsed from source (det/cics.py parse_exec builds opts keys dynamically)",
+    "RIDFLD": "EXEC CICS option name parsed from source (det/cics.py parse_exec builds opts keys dynamically)",
+    "MAP": "EXEC CICS option name parsed from source (det/cics.py parse_exec builds opts keys dynamically)",
+    "MAPSET": "EXEC CICS option name parsed from source (det/cics.py parse_exec builds opts keys dynamically)",
+    "DATASET": "EXEC CICS option name parsed from source (det/cics.py parse_exec builds opts keys dynamically)",
+    "FILE": "EXEC CICS option name parsed from source (det/cics.py parse_exec builds opts keys dynamically)",
+    "ABSTIME": "EXEC CICS option name parsed from source (det/cics.py parse_exec builds opts keys dynamically)",
+    "COMMAREA": "EXEC CICS option name parsed from source (det/cics.py parse_exec builds opts keys dynamically)",
+    "CURSOR": "EXEC CICS option name parsed from source (det/cics.py parse_exec builds opts keys dynamically)",
+    "DATESEP": "EXEC CICS option name parsed from source (det/cics.py parse_exec builds opts keys dynamically)",
+    "TIMESEP": "EXEC CICS option name parsed from source (det/cics.py parse_exec builds opts keys dynamically)",
+    "QUEUE": "EXEC CICS option name parsed from source (det/cics.py parse_exec builds opts keys dynamically)",
+    "QNAME": "EXEC CICS option name parsed from source (det/cics.py parse_exec builds opts keys dynamically)",
+    "ITEM": "EXEC CICS option name parsed from source (det/cics.py parse_exec builds opts keys dynamically)",
+    "NUMITEMS": "EXEC CICS option name parsed from source (det/cics.py parse_exec builds opts keys dynamically)",
+    "NOT-OVERFLOW": "COBOL phrase name written dynamically from stmt.PHRASES mapping values (det/stmt.py)",
+    "RESP2": "EXEC CICS option name parsed from source (det/cics.py parse_exec builds opts keys dynamically)",
+    # stmt.PHRASES maps source phrase text to these names; they become dict keys at runtime.
+    "NOT-SIZE-ERROR": "COBOL phrase name written dynamically from the stmt.PHRASES mapping values (det/stmt.py)",
+    "SIZE-ERROR": "COBOL phrase name written dynamically from the stmt.PHRASES mapping values (det/stmt.py)",
+    "AT-END": "COBOL phrase name written dynamically from the stmt.PHRASES mapping values (det/stmt.py)",
+    "INVALID-KEY": "COBOL phrase name written dynamically from the stmt.PHRASES mapping values (det/stmt.py)",
+    "NOT-AT-END": "COBOL phrase name written dynamically from the stmt.PHRASES mapping values (det/stmt.py)",
+    "NOT-INVALID-KEY": "COBOL phrase name written dynamically from the stmt.PHRASES mapping values (det/stmt.py)",
     # --- External package manifests (package.json / composer.json / lockfiles) ---
     # manifest_parser.py and guidestar_lens.py json.load() a THIRD-PARTY file;
     # these keys are that file format's schema, not a dict this repo produces.
@@ -197,6 +237,13 @@ ALLOWLIST = {
     "obscured": "written via the bridge/signal_key indirection in _get_locational_multipliers (signal_processor.py)",
     "secrets": "written via the bridge/signal_key indirection in _get_locational_multipliers (signal_processor.py)",
     "spec": "written via the bridge/signal_key indirection in _get_locational_multipliers (signal_processor.py)",
+    # java_target.target_as_dict writes each config section as dict(vars(<its dataclass>)), so the
+    # Culture field decimal_point is a real key of the port ticket's target["culture"].
+    "decimal_point": "Culture dataclass field, written by target_as_dict's vars() (port tickets, #3984)",
+    "key_collation": "Culture dataclass field, written by target_as_dict's vars() (port tickets, #3986)",
+    "code_page": "Data dataclass field, written by target_as_dict's vars() (port tickets, #3985)",
+    "bidi_layout": "Data dataclass field, written by target_as_dict's vars() (port tickets, #3987)",
+    "record_charset": "Data dataclass field, written by target_as_dict's vars() (port tickets, #3987)",
     # --- External user-provided data ---
     "known_programs": "user-provided IR JSON field, documented as external input (terabyte_log_scanner.py)",
     # --- Regex named-capture-group access, not dict keys ---
@@ -236,6 +283,7 @@ ALLOWLIST = {
     # chat response and the equivalence harness's report.json (tests/tools/equivalence.py).
     "choices": "OpenAI-compatible chat completion response field, written by the model server (port_runner.py, #3753)",
     "equal": "equivalence report.json per-output count, written by tests/tools/equivalence.py (port_runner.py, #3753)",
+    "feedback": "proof report.json first divergences, written by tests/tools/cics_crucible.py (port_runner.py run --feedback, #3989)",
     # #3356: the same tokenizer's attributes that _csd_resources lifts into
     # csd_resource_data's join columns.
     **{

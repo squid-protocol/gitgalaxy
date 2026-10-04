@@ -14,9 +14,11 @@
       "abap/abapGit/zcl_abapgit_xml_output.clas.abap": "zcl_abapgit_xml_output.clas.abap"
     },
     "ada": {
-      "ada/PROVENANCE.md": "PROVENANCE.md"
+      "ada/PROVENANCE.md": "PROVENANCE.md",
+      "ada/SOURCES.md": "SOURCES.md"
     },
     "ada/alire": {
+      "ada/alire/LICENSE.txt": "LICENSE.txt",
       "ada/alire/alire-conditional_trees.adb": "alire-conditional_trees.adb",
       "ada/alire/alire-crate_configuration.adb": "alire-crate_configuration.adb",
       "ada/alire/alire-dependencies-states.ads": "alire-dependencies-states.ads",
@@ -322,22 +324,17 @@
       "assembly/os_tutorial_x86/14-checkpoint_boot_gdt.asm": "14-checkpoint_boot_gdt.asm",
       "assembly/os_tutorial_x86/14-checkpoint_boot_kernel_entry.asm": "14-checkpoint_boot_kernel_entry.asm"
     },
-    "assembly/raspberrypi_baremetal": {
-      "assembly/raspberrypi_baremetal/Compress_HUFFMAN_HUFFMANDecode_kernel.asm": "Compress_HUFFMAN_HUFFMANDecode_kernel.asm",
-      "assembly/raspberrypi_baremetal/Compress_HUFFMAN_HUFFMANDecode_kernel7.asm": "Compress_HUFFMAN_HUFFMANDecode_kernel7.asm",
-      "assembly/raspberrypi_baremetal/Compress_HUFFMAN_HUFFMANDecode_kernel8.asm": "Compress_HUFFMAN_HUFFMANDecode_kernel8.asm",
-      "assembly/raspberrypi_baremetal/Compress_HUFFMAN_HUFFMANGFX_kernel.asm": "Compress_HUFFMAN_HUFFMANGFX_kernel.asm",
-      "assembly/raspberrypi_baremetal/Compress_HUFFMAN_HUFFMANGFX_kernel7.asm": "Compress_HUFFMAN_HUFFMANGFX_kernel7.asm",
-      "assembly/raspberrypi_baremetal/Compress_HUFFMAN_HUFFMANGFX_kernel8.asm": "Compress_HUFFMAN_HUFFMANGFX_kernel8.asm",
-      "assembly/raspberrypi_baremetal/Compress_LZ77_LZ77Decode_kernel.asm": "Compress_LZ77_LZ77Decode_kernel.asm",
-      "assembly/raspberrypi_baremetal/Compress_LZ77_LZ77Decode_kernel7.asm": "Compress_LZ77_LZ77Decode_kernel7.asm",
-      "assembly/raspberrypi_baremetal/Compress_LZ77_LZ77Decode_kernel8.asm": "Compress_LZ77_LZ77Decode_kernel8.asm",
-      "assembly/raspberrypi_baremetal/Compress_LZ77_LZ77GFX_kernel.asm": "Compress_LZ77_LZ77GFX_kernel.asm",
-      "assembly/raspberrypi_baremetal/Compress_LZ77_LZ77GFX_kernel7.asm": "Compress_LZ77_LZ77GFX_kernel7.asm",
-      "assembly/raspberrypi_baremetal/Compress_LZ77_LZ77GFX_kernel8.asm": "Compress_LZ77_LZ77GFX_kernel8.asm",
-      "assembly/raspberrypi_baremetal/EMU_GameBoy_kernel.asm": "EMU_GameBoy_kernel.asm",
-      "assembly/raspberrypi_baremetal/HelloWorld_CPU_kernel7.asm": "HelloWorld_CPU_kernel7.asm",
-      "assembly/raspberrypi_baremetal/HelloWorld_CPU_kernel8.asm": "HelloWorld_CPU_kernel8.asm"
+    "assembly/rpi_smartstart_baremetal": {
+      "assembly/rpi_smartstart_baremetal/10_virtualmemory_SmartStart32.S": "10_virtualmemory_SmartStart32.S",
+      "assembly/rpi_smartstart_baremetal/10_virtualmemory_SmartStart64.S": "10_virtualmemory_SmartStart64.S",
+      "assembly/rpi_smartstart_baremetal/Arm32_64_USB_SmartStart32.S": "Arm32_64_USB_SmartStart32.S",
+      "assembly/rpi_smartstart_baremetal/Arm32_64_USB_SmartStart64.S": "Arm32_64_USB_SmartStart64.S",
+      "assembly/rpi_smartstart_baremetal/Core3Interrupt_SmartStart64.S": "Core3Interrupt_SmartStart64.S",
+      "assembly/rpi_smartstart_baremetal/FreeRTOSv10.1.1_loader_RaspberryPi_SmartStart32.S": "FreeRTOSv10.1.1_loader_RaspberryPi_SmartStart32.S",
+      "assembly/rpi_smartstart_baremetal/FreeRTOSv10.1.1_loader_RaspberryPi_SmartStart64.S": "FreeRTOSv10.1.1_loader_RaspberryPi_SmartStart64.S",
+      "assembly/rpi_smartstart_baremetal/Multicore_SmartStart32.S": "Multicore_SmartStart32.S",
+      "assembly/rpi_smartstart_baremetal/Multicore_SmartStart64.S": "Multicore_SmartStart64.S",
+      "assembly/rpi_smartstart_baremetal/SimpleSched_SmartStart32.S": "SimpleSched_SmartStart32.S"
     },
     "assembly/x86_bare_metal": {
       "assembly/x86_bare_metal/LICENSE.adoc": "LICENSE.adoc",
@@ -393,6 +390,9 @@
       "blueprint/ghostty/split-tree.blp": "split-tree.blp",
       "blueprint/ghostty/window.blp": "window.blp"
     },
+    "bms": {
+      "bms/SOURCES.md": "SOURCES.md"
+    },
     "bms/cbsa": {
       "bms/cbsa/BNK1ACC.bms": "BNK1ACC.bms",
       "bms/cbsa/BNK1CAM.bms": "BNK1CAM.bms",
@@ -403,11 +403,16 @@
       "bms/cbsa/BNK1MAI.bms": "BNK1MAI.bms",
       "bms/cbsa/BNK1TFM.bms": "BNK1TFM.bms",
       "bms/cbsa/BNK1UAM.bms": "BNK1UAM.bms",
-      "bms/cbsa/PROVENANCE.md": "PROVENANCE.md",
-      "bms/cbsa/ssmap.bms": "ssmap.bms"
+      "bms/cbsa/PROVENANCE.md": "PROVENANCE.md"
+    },
+    "bms/genapp": {
+      "bms/genapp/ssmap.bms": "ssmap.bms"
     },
     "c": {
       "c/SOURCES.md": "SOURCES.md"
+    },
+    "c/cosmopolitan_intrin": {
+      "c/cosmopolitan_intrin/countbits.c": "countbits.c"
     },
     "c/cpython": {
       "c/cpython/Makefile.pre.in": "Makefile.pre.in",
@@ -434,6 +439,9 @@
       "c/doom/w_wad.c": "w_wad.c",
       "c/doom/z_zone.c": "z_zone.c"
     },
+    "c/freebsd_openpam": {
+      "c/freebsd_openpam/pam_acct_mgmt.c": "pam_acct_mgmt.c"
+    },
     "c/micropython": {
       "c/micropython/compile.c": "compile.c",
       "c/micropython/compile.h": "compile.h",
@@ -449,6 +457,7 @@
       "c/micropython/vm.c": "vm.c"
     },
     "c/sqlite": {
+      "c/sqlite/LICENSE.md": "LICENSE.md",
       "c/sqlite/README.md": "README.md",
       "c/sqlite/lemon.c": "lemon.c"
     },
@@ -582,6 +591,9 @@
       "cobol/aws-mainframe-modernization-carddemo/CVTRA07Y.cpy": "CVTRA07Y.cpy",
       "cobol/aws-mainframe-modernization-carddemo/DFHAID.cpy": "DFHAID.cpy",
       "cobol/aws-mainframe-modernization-carddemo/DFHBMSCA.cpy": "DFHBMSCA.cpy",
+      "cobol/aws-mainframe-modernization-carddemo/LICENSE.md": "LICENSE.md",
+      "cobol/aws-mainframe-modernization-carddemo/NOTICE.md": "NOTICE.md",
+      "cobol/aws-mainframe-modernization-carddemo/README.md": "README.md",
       "cobol/aws-mainframe-modernization-carddemo/UNUSED1Y.cpy": "UNUSED1Y.cpy"
     },
     "cobol/cash-account-cobol": {
@@ -590,6 +602,8 @@
       "cobol/cash-account-cobol/DCLFRANK.cpy": "DCLFRANK.cpy"
     },
     "cobol/che-che4z-lsp-for-cobol": {
+      "cobol/che-che4z-lsp-for-cobol/LICENSE.md": "LICENSE.md",
+      "cobol/che-che4z-lsp-for-cobol/NOTICE.md": "NOTICE.md",
       "cobol/che-che4z-lsp-for-cobol/SQLCA_DATACOM.cpy": "SQLCA_DATACOM.cpy",
       "cobol/che-che4z-lsp-for-cobol/SQLCA_DB2.cpy": "SQLCA_DB2.cpy",
       "cobol/che-che4z-lsp-for-cobol/SQLDA.cpy": "SQLDA.cpy"
@@ -1039,6 +1053,7 @@
       "cobol/gnucobol/xfhfcd3.cpy": "xfhfcd3.cpy"
     },
     "cobol/gnucobol_internals": {
+      "cobol/gnucobol_internals/COPYING": "COPYING",
       "cobol/gnucobol_internals/codegen.c": "codegen.c",
       "cobol/gnucobol_internals/fileio.c": "fileio.c",
       "cobol/gnucobol_internals/numeric.c": "numeric.c",
@@ -1117,11 +1132,19 @@
       "cpp/powertoys/main.cpp": "main.cpp",
       "cpp/powertoys/powertoy_module.h": "powertoy_module.h"
     },
+    "cpp/serenity_ak_siphash_cpu": {
+      "cpp/serenity_ak_siphash_cpu/CPUFeatures.cpp": "CPUFeatures.cpp",
+      "cpp/serenity_ak_siphash_cpu/SipHash.cpp": "SipHash.cpp"
+    },
+    "csd": {
+      "csd/SOURCES.md": "SOURCES.md"
+    },
     "csd/carddemo": {
       "csd/carddemo/CARDDEMO.CSD": "CARDDEMO.CSD",
       "csd/carddemo/CRDDEMO2.csd": "CRDDEMO2.csd",
       "csd/carddemo/CRDDEMOD.csd": "CRDDEMOD.csd",
       "csd/carddemo/CRDDEMOM.csd": "CRDDEMOM.csd",
+      "csd/carddemo/NOTICE": "NOTICE",
       "csd/carddemo/PROVENANCE.md": "PROVENANCE.md"
     },
     "csd/cbsa": {
@@ -1207,6 +1230,9 @@
       "dart/flutter/semantics.dart": "semantics.dart",
       "dart/flutter/theme_data.dart": "theme_data.dart"
     },
+    "db2_sql": {
+      "db2_sql/SOURCES.md": "SOURCES.md"
+    },
     "db2_sql/db2unit": {
       "db2_sql/db2unit/00-Prereqs.sql": "00-Prereqs.sql",
       "db2_sql/db2unit/01-ObjectsAdmin.sql": "01-ObjectsAdmin.sql",
@@ -1216,6 +1242,7 @@
       "db2_sql/db2unit/07-Version.sql": "07-Version.sql",
       "db2_sql/db2unit/98-Clean.sql": "98-Clean.sql",
       "db2_sql/db2unit/99-CleanAdmin.sql": "99-CleanAdmin.sql",
+      "db2_sql/db2unit/LICENSE.txt": "LICENSE.txt",
       "db2_sql/db2unit/PROVENANCE.md": "PROVENANCE.md"
     },
     "dockerfile": {
@@ -1345,6 +1372,9 @@
       "go/core/syscall_linux.go": "syscall_linux.go",
       "go/core/value.go": "value.go"
     },
+    "go/go_runtime_rand": {
+      "go/go_runtime_rand/rand.go": "rand.go"
+    },
     "go/kubernetes": {
       "go/kubernetes/csi_plugin.go": "csi_plugin.go",
       "go/kubernetes/generic.go": "generic.go",
@@ -1353,6 +1383,9 @@
       "go/kubernetes/proxier.go": "proxier.go",
       "go/kubernetes/replica_set.go": "replica_set.go",
       "go/kubernetes/scheduler.go": "scheduler.go"
+    },
+    "go/kubernetes_kubectl_tls": {
+      "go/kubernetes_kubectl_tls/create_secret_tls_test.go": "create_secret_tls_test.go"
     },
     "groovy/fineract_gradle_plugin": {
       "groovy/fineract_gradle_plugin/LICENSE_RELEASE": "LICENSE_RELEASE",
@@ -1721,7 +1754,8 @@
       "haskell/pandoc/Shared.hs": "Shared.hs"
     },
     "hlasm": {
-      "hlasm/PROVENANCE.md": "PROVENANCE.md"
+      "hlasm/PROVENANCE.md": "PROVENANCE.md",
+      "hlasm/SOURCES.md": "SOURCES.md"
     },
     "hlasm/che4z_hlasm": {
       "hlasm/che4z_hlasm/A.hlasm": "A.hlasm",
@@ -1729,6 +1763,7 @@
       "hlasm/che4z_hlasm/B.hlasm": "B.hlasm",
       "hlasm/che4z_hlasm/BBBBB.hlasm": "BBBBB.hlasm",
       "hlasm/che4z_hlasm/CCCCC.hlasm": "CCCCC.hlasm",
+      "hlasm/che4z_hlasm/NOTICE.md": "NOTICE.md",
       "hlasm/che4z_hlasm/code_action_1.hlasm": "code_action_1.hlasm",
       "hlasm/che4z_hlasm/code_action_2.hlasm": "code_action_2.hlasm",
       "hlasm/che4z_hlasm/comments.hlasm": "comments.hlasm",
@@ -1823,6 +1858,7 @@
       "html/polyglot_odoo/database_manager.qweb.html": "database_manager.qweb.html"
     },
     "html/polyglot_vscode": {
+      "html/polyglot_vscode/LICENSE.txt": "LICENSE.txt",
       "html/polyglot_vscode/vscode_builtin.html": "vscode_builtin.html"
     },
     "html/revealjs_decks": {
@@ -1856,6 +1892,17 @@
     "java": {
       "java/SOURCES.md": "SOURCES.md"
     },
+    "java/flutter_android_editing_tests": {
+      "java/flutter_android_editing_tests/InputConnectionAdaptorTest.java": "InputConnectionAdaptorTest.java"
+    },
+    "java/jenkins_cli": {
+      "java/jenkins_cli/LICENSE.txt": "LICENSE.txt",
+      "java/jenkins_cli/SetBuildDescriptionCommand.java": "SetBuildDescriptionCommand.java"
+    },
+    "java/selenium_grid_session_queue": {
+      "java/selenium_grid_session_queue/NOTICE": "NOTICE",
+      "java/selenium_grid_session_queue/RemoteNewSessionQueue.java": "RemoteNewSessionQueue.java"
+    },
     "java/springboot": {
       "java/springboot/AutoConfigurationImportSelector.java": "AutoConfigurationImportSelector.java",
       "java/springboot/Binder.java": "Binder.java",
@@ -1869,6 +1916,13 @@
     "javascript": {
       "javascript/SOURCES.md": "SOURCES.md"
     },
+    "javascript/cesium_particle_emitters": {
+      "javascript/cesium_particle_emitters/CircleEmitter.js": "CircleEmitter.js",
+      "javascript/cesium_particle_emitters/LICENSE.md": "LICENSE.md"
+    },
+    "javascript/javascript_algorithms_bits": {
+      "javascript/javascript_algorithms_bits/fullAdder.js": "fullAdder.js"
+    },
     "javascript/jquery": {
       "javascript/jquery/LICENSE.txt": "LICENSE.txt",
       "javascript/jquery/ajax.js": "ajax.js",
@@ -1879,6 +1933,15 @@
       "javascript/jquery/event.js": "event.js",
       "javascript/jquery/tokenize.js": "tokenize.js"
     },
+    "javascript/node_tls_security_tests": {
+      "javascript/node_tls_security_tests/regexp-unicode-sets.js": "regexp-unicode-sets.js",
+      "javascript/node_tls_security_tests/test-crypto-dh-modp2.js": "test-crypto-dh-modp2.js",
+      "javascript/node_tls_security_tests/test-fs-lchown.js": "test-fs-lchown.js",
+      "javascript/node_tls_security_tests/test-https-host-headers.js": "test-https-host-headers.js",
+      "javascript/node_tls_security_tests/test-tls-cert-ext-encoding.js": "test-tls-cert-ext-encoding.js",
+      "javascript/node_tls_security_tests/test-tls-psk-server.js": "test-tls-psk-server.js",
+      "javascript/node_tls_security_tests/test-tls-use-after-free-regression.js": "test-tls-use-after-free-regression.js"
+    },
     "javascript/react": {
       "javascript/react/BabelPlugin.ts": "BabelPlugin.ts",
       "javascript/react/ReactFiberBeginWork.js": "ReactFiberBeginWork.js",
@@ -1886,6 +1949,9 @@
       "javascript/react/ReactFlightServer.js": "ReactFlightServer.js",
       "javascript/react/ReactSymbols.js": "ReactSymbols.js",
       "javascript/react/build.js": "build.js"
+    },
+    "javascript/react_error_codes": {
+      "javascript/react_error_codes/extract-errors.js": "extract-errors.js"
     },
     "javascript/threejs": {
       "javascript/threejs/BufferGeometry.js": "BufferGeometry.js",
@@ -2278,6 +2344,7 @@
       "lua/darwin-xnu/wqtrace.lua": "wqtrace.lua"
     },
     "lua/freebsd-src": {
+      "lua/freebsd-src/COPYRIGHT": "COPYRIGHT",
       "lua/freebsd-src/cli.lua": "cli.lua",
       "lua/freebsd-src/color.lua": "color.lua",
       "lua/freebsd-src/config.lua": "config.lua",
@@ -2372,6 +2439,16 @@
       "makefile/freebsd/COPYRIGHT": "COPYRIGHT",
       "makefile/freebsd/Makefile": "Makefile"
     },
+    "markdown": {
+      "markdown/SOURCES.md": "SOURCES.md"
+    },
+    "markdown/airflow_job_lifecycle": {
+      "markdown/airflow_job_lifecycle/JOB_LIFECYCLE.md": "JOB_LIFECYCLE.md",
+      "markdown/airflow_job_lifecycle/NOTICE": "NOTICE"
+    },
+    "markdown/kubernetes_client_go": {
+      "markdown/kubernetes_client_go/ARCHITECTURE.md": "ARCHITECTURE.md"
+    },
     "matlab": {
       "matlab/SOURCES.md": "SOURCES.md"
     },
@@ -2398,6 +2475,7 @@
       "nix/SOURCES.md": "SOURCES.md"
     },
     "nix/bun": {
+      "nix/bun/LICENSE.md": "LICENSE.md",
       "nix/bun/flake.nix": "flake.nix",
       "nix/bun/shell.nix": "shell.nix"
     },
@@ -2420,6 +2498,10 @@
     },
     "perl": {
       "perl/SOURCES.md": "SOURCES.md"
+    },
+    "perl/ack3_tests": {
+      "perl/ack3_tests/LICENSE.md": "LICENSE.md",
+      "perl/ack3_tests/file-permission.t": "file-permission.t"
     },
     "perl/bugzilla": {
       "perl/bugzilla/Auth.pm": "Auth.pm",
@@ -2475,6 +2557,10 @@
       "php/laravel_core/Model.php": "Model.php",
       "php/laravel_core/Router.php": "Router.php"
     },
+    "php/laravel_validation_rules": {
+      "php/laravel_validation_rules/Can.php": "Can.php",
+      "php/laravel_validation_rules/LICENSE.md": "LICENSE.md"
+    },
     "php/magento2": {
       "php/magento2/AbstractBlock.php": "AbstractBlock.php",
       "php/magento2/AbstractModel.php": "AbstractModel.php",
@@ -2494,6 +2580,9 @@
       "php/symfony/Request.php": "Request.php",
       "php/symfony/Router.php": "Router.php"
     },
+    "php/symfony_emoji_data": {
+      "php/symfony_emoji_data/emoji-ccp.php": "emoji-ccp.php"
+    },
     "php/wordpress": {
       "php/wordpress/admin-ajax.php": "admin-ajax.php",
       "php/wordpress/class-wp-query.php": "class-wp-query.php",
@@ -2508,6 +2597,7 @@
       "plaintext/SOURCES.md": "SOURCES.md"
     },
     "plaintext/ansible": {
+      "plaintext/ansible/COPYING": "COPYING",
       "plaintext/ansible/requirements.txt": "requirements.txt"
     },
     "plaintext/cpython/Lib/test/tokenizedata": {
@@ -2521,6 +2611,9 @@
     },
     "plaintext/opencv/include": {
       "plaintext/opencv/include/CMakeLists.txt": "CMakeLists.txt"
+    },
+    "pli": {
+      "pli/SOURCES.md": "SOURCES.md"
     },
     "pli/dsf_cics_admin": {
       "pli/dsf_cics_admin/LICENSE.md": "LICENSE.md",
@@ -2700,15 +2793,33 @@
       "python/SOURCES.md": "SOURCES.md"
     },
     "python/airflow": {
+      "python/airflow/NOTICE": "NOTICE",
       "python/airflow/dag.py": "dag.py",
       "python/airflow/s3.py": "s3.py",
       "python/airflow/scheduler_job_runner.py": "scheduler_job_runner.py"
     },
+    "python/airflow_ai_providers": {
+      "python/airflow_ai_providers/NOTICE": "NOTICE",
+      "python/airflow_ai_providers/openai_src_airflow_providers_openai_hooks_openai.py": "openai_src_airflow_providers_openai_hooks_openai.py",
+      "python/airflow_ai_providers/pinecone_src_airflow_providers_pinecone_hooks_pinecone.py": "pinecone_src_airflow_providers_pinecone_hooks_pinecone.py",
+      "python/airflow_ai_providers/pinecone_src_airflow_providers_pinecone_operators_pinecone.py": "pinecone_src_airflow_providers_pinecone_operators_pinecone.py",
+      "python/airflow_ai_providers/pinecone_tests_system_pinecone_example_pinecone_cohere.py": "pinecone_tests_system_pinecone_example_pinecone_cohere.py"
+    },
+    "python/airflow_opsgenie_tests": {
+      "python/airflow_opsgenie_tests/NOTICE": "NOTICE",
+      "python/airflow_opsgenie_tests/test_opsgenie.py": "test_opsgenie.py"
+    },
     "python/cython": {
+      "python/cython/COPYING.txt": "COPYING.txt",
       "python/cython/CodeGeneration.py": "CodeGeneration.py",
+      "python/cython/LICENSE.txt": "LICENSE.txt",
       "python/cython/MemoryView.pxd": "MemoryView.pxd",
       "python/cython/MemoryView.pyx": "MemoryView.pyx",
       "python/cython/Nodes.py": "Nodes.py"
+    },
+    "python/django_db_tests": {
+      "python/django_db_tests/test_iterator.py": "test_iterator.py",
+      "python/django_db_tests/test_utils.py": "test_utils.py"
     },
     "python/fastapi": {
       "python/fastapi/CONTRIBUTING.md": "CONTRIBUTING.md",
@@ -2947,6 +3058,26 @@
       "python/fastapi/tests/test_ws_router.py": "test_ws_router.py",
       "python/fastapi/tests/utils.py": "utils.py"
     },
+    "python/homeassistant_anthropic": {
+      "python/homeassistant_anthropic/LICENSE.md": "LICENSE.md",
+      "python/homeassistant_anthropic/coordinator.py": "coordinator.py"
+    },
+    "python/homeassistant_ble_integrations": {
+      "python/homeassistant_ble_integrations/LICENSE.md": "LICENSE.md",
+      "python/homeassistant_ble_integrations/aranet___init__.py": "aranet___init__.py",
+      "python/homeassistant_ble_integrations/gardena_bluetooth___init__.py": "gardena_bluetooth___init__.py",
+      "python/homeassistant_ble_integrations/utils.py": "utils.py"
+    },
+    "python/langchain_agents": {
+      "python/langchain_agents/langchain_agents_middleware_model_fallback.py": "langchain_agents_middleware_model_fallback.py",
+      "python/langchain_agents/langchain_agents_middleware_tool_emulator.py": "langchain_agents_middleware_tool_emulator.py",
+      "python/langchain_agents/tests_integration_tests_chat_models_test_base.py": "tests_integration_tests_chat_models_test_base.py"
+    },
+    "python/micropython_usb_tls": {
+      "python/micropython_usb_tls/ssl_verify_callback.py": "ssl_verify_callback.py",
+      "python/micropython_usb_tls/tls_dtls.py": "tls_dtls.py",
+      "python/micropython_usb_tls/usb_simple_host_pyusb.py": "usb_simple_host_pyusb.py"
+    },
     "python/numpy": {
       "python/numpy/LICENSE.txt": "LICENSE.txt",
       "python/numpy/__init__.py": "__init__.py",
@@ -2967,6 +3098,31 @@
       "python/numpy/ufunc_docstrings.py": "ufunc_docstrings.py",
       "python/numpy/verify_c_api_version.py": "verify_c_api_version.py"
     },
+    "python/opencv_dnn_conversion": {
+      "python/opencv_dnn_conversion/py_to_py_resnet50_onnx.py": "py_to_py_resnet50_onnx.py"
+    },
+    "python/pip_vendored_requests": {
+      "python/pip_vendored_requests/LICENSE.txt": "LICENSE.txt",
+      "python/pip_vendored_requests/packages.py": "packages.py"
+    },
+    "python/scikit-learn_examples": {
+      "python/scikit-learn_examples/COPYING": "COPYING",
+      "python/scikit-learn_examples/linear_model_plot_nnls.py": "linear_model_plot_nnls.py",
+      "python/scikit-learn_examples/svm_plot_custom_kernel.py": "svm_plot_custom_kernel.py"
+    },
+    "python/tensorflow_ml_ops": {
+      "python/tensorflow_ml_ops/core_tfrt_saved_model_tests_gen_matmul_gpu.py": "core_tfrt_saved_model_tests_gen_matmul_gpu.py",
+      "python/tensorflow_ml_ops/lite_testing_op_tests_einsum.py": "lite_testing_op_tests_einsum.py"
+    },
+    "python/tensorflow_model_fixtures": {
+      "python/tensorflow_model_fixtures/lite_testdata_multi_add.pb": "lite_testdata_multi_add.pb",
+      "python/tensorflow_model_fixtures/python_compiler_mlir_multi_add.tflite": "python_compiler_mlir_multi_add.tflite"
+    },
+    "python/thealgorithms_machine_learning": {
+      "python/thealgorithms_machine_learning/LICENSE.md": "LICENSE.md",
+      "python/thealgorithms_machine_learning/logistic_regression.py": "logistic_regression.py",
+      "python/thealgorithms_machine_learning/lstm_lstm_prediction.py": "lstm_lstm_prediction.py"
+    },
     "python/twisted": {
       "python/twisted/defer.py": "defer.py",
       "python/twisted/http.py": "http.py",
@@ -2982,18 +3138,24 @@
       "python/wtfpython/noxfile.py": "noxfile.py"
     },
     "rexx": {
-      "rexx/PROVENANCE.md": "PROVENANCE.md"
+      "rexx/PROVENANCE.md": "PROVENANCE.md",
+      "rexx/SOURCES.md": "SOURCES.md"
+    },
+    "rexx/hercules_390_hyperion": {
+      "rexx/hercules_390_hyperion/COPYRIGHT": "COPYRIGHT",
+      "rexx/hercules_390_hyperion/sample.rexx": "sample.rexx"
     },
     "rexx/hercules_hyperion": {
+      "rexx/hercules_hyperion/COPYRIGHT": "COPYRIGHT",
       "rexx/hercules_hyperion/cmpsc.rexx": "cmpsc.rexx",
       "rexx/hercules_hyperion/hbasic1.rexx": "hbasic1.rexx",
       "rexx/hercules_hyperion/hcommand.rexx": "hcommand.rexx",
       "rexx/hercules_hyperion/hexecio.rexx": "hexecio.rexx",
       "rexx/hercules_hyperion/hlinein.rexx": "hlinein.rexx",
-      "rexx/hercules_hyperion/hrecurs.rexx": "hrecurs.rexx",
-      "rexx/hercules_hyperion/sample.rexx": "sample.rexx"
+      "rexx/hercules_hyperion/hrecurs.rexx": "hrecurs.rexx"
     },
     "rexx/ibm_z_zos": {
+      "rexx/ibm_z_zos/LICENSE.md": "LICENSE.md",
       "rexx/ibm_z_zos/bpxget.rexx": "bpxget.rexx",
       "rexx/ibm_z_zos/bpxput.rexx": "bpxput.rexx",
       "rexx/ibm_z_zos/bpxwtabs.rexx": "bpxwtabs.rexx",
@@ -3026,10 +3188,16 @@
       "ruby/rails/metal.rb": "metal.rb",
       "ruby/rails/routing.rb": "routing.rb"
     },
+    "ruby/rails_http_token_auth": {
+      "ruby/rails_http_token_auth/MIT-LICENSE": "MIT-LICENSE",
+      "ruby/rails_http_token_auth/http_token_authentication_test.rb": "http_token_authentication_test.rb"
+    },
     "rust": {
       "rust/SOURCES.md": "SOURCES.md"
     },
     "rust/bevy": {
+      "rust/bevy/LICENSE-APACHE": "LICENSE-APACHE",
+      "rust/bevy/LICENSE-MIT": "LICENSE-MIT",
       "rust/bevy/bevy_ecs_macros.rs": "bevy_ecs_macros.rs",
       "rust/bevy/bevy_ecs_query.rs": "bevy_ecs_query.rs",
       "rust/bevy/bevy_ecs_table.rs": "bevy_ecs_table.rs",
@@ -3037,6 +3205,12 @@
       "rust/bevy/bevy_reflect_path.rs": "bevy_reflect_path.rs",
       "rust/bevy/bevy_render_phase.rs": "bevy_render_phase.rs",
       "rust/bevy/bevy_schedule_graph.rs": "bevy_schedule_graph.rs"
+    },
+    "rust/bevy_asset_examples": {
+      "rust/bevy_asset_examples/LICENSE-APACHE": "LICENSE-APACHE",
+      "rust/bevy_asset_examples/LICENSE-MIT": "LICENSE-MIT",
+      "rust/bevy_asset_examples/image_node.rs": "image_node.rs",
+      "rust/bevy_asset_examples/rotation.rs": "rotation.rs"
     },
     "rust/holylang": {
       "rust/holylang/ast.rs": "ast.rs",
@@ -3048,6 +3222,8 @@
       "rust/holylang/transpiler.rs": "transpiler.rs"
     },
     "rust/serde": {
+      "rust/serde/LICENSE-APACHE": "LICENSE-APACHE",
+      "rust/serde/LICENSE-MIT": "LICENSE-MIT",
       "rust/serde/serde_core_de_impls.rs": "serde_core_de_impls.rs",
       "rust/serde/serde_core_de_mod.rs": "serde_core_de_mod.rs",
       "rust/serde/serde_core_macros.rs": "serde_core_macros.rs",
@@ -3079,6 +3255,9 @@
       "rust/tokio/tests.rs": "tests.rs",
       "rust/tokio/tokio_mpsc_bounded.rs": "tokio_mpsc_bounded.rs",
       "rust/tokio/tokio_named_pipe.rs": "tokio_named_pipe.rs"
+    },
+    "rust/tokio_util_rand": {
+      "rust/tokio_util_rand/rand.rs": "rand.rs"
     },
     "rust/wasmtime": {
       "rust/wasmtime/wasmtime_component_macro.rs": "wasmtime_component_macro.rs",
@@ -3194,6 +3373,7 @@
       "shell/darwin-xnu/xcrun_cache.sh": "xcrun_cache.sh"
     },
     "shell/freebsd-src": {
+      "shell/freebsd-src/COPYRIGHT": "COPYRIGHT",
       "shell/freebsd-src/chflags_test.sh": "chflags_test.sh",
       "shell/freebsd-src/chmod_test.sh": "chmod_test.sh",
       "shell/freebsd-src/cp_test.sh": "cp_test.sh",
@@ -3220,6 +3400,10 @@
       "shell/freebsd-src/runulp.sh": "runulp.sh",
       "shell/freebsd-src/timeout_test.sh": "timeout_test.sh",
       "shell/freebsd-src/ztest.sh": "ztest.sh"
+    },
+    "shell/freebsd_sysbuild": {
+      "shell/freebsd_sysbuild/COPYRIGHT": "COPYRIGHT",
+      "shell/freebsd_sysbuild/sysbuild.sh": "sysbuild.sh"
     },
     "shell/haiku": {
       "shell/haiku/HardwareChecker.sh": "HardwareChecker.sh",
@@ -3419,23 +3603,26 @@
     "sql/baseline": {
       "sql/baseline/schema.php": "schema.php"
     },
-    "sql/mysql/mediawiki": {
-      "sql/mysql/mediawiki/COPYING": "COPYING",
-      "sql/mysql/mediawiki/blobs.sql": "blobs.sql"
+    "sql/mediawiki_mysql": {
+      "sql/mediawiki_mysql/COPYING": "COPYING",
+      "sql/mediawiki_mysql/blobs.sql": "blobs.sql"
     },
-    "sql/mysql/spamassassin": {
-      "sql/mysql/spamassassin/neural_mysql.sql": "neural_mysql.sql"
+    "sql/mediawiki_postgresql": {
+      "sql/mediawiki_postgresql/COPYING": "COPYING",
+      "sql/mediawiki_postgresql/tables.sql": "tables.sql"
     },
-    "sql/postgresql/mediawiki": {
-      "sql/postgresql/mediawiki/tables.sql": "tables.sql"
-    },
-    "sql/postgresql/sqlmap": {
-      "sql/postgresql/sqlmap/dns_request.sql": "dns_request.sql"
+    "sql/spamassassin_mysql": {
+      "sql/spamassassin_mysql/NOTICE": "NOTICE",
+      "sql/spamassassin_mysql/neural_mysql.sql": "neural_mysql.sql"
     },
     "sql/sqlite": {
       "sql/sqlite/000-mandelbrot.sql": "000-mandelbrot.sql",
       "sql/sqlite/001-sudoku.sql": "001-sudoku.sql",
+      "sql/sqlite/LICENSE.md": "LICENSE.md",
       "sql/sqlite/dotcmd01.sql": "dotcmd01.sql"
+    },
+    "sql/sqlmap_postgresql": {
+      "sql/sqlmap_postgresql/dns_request.sql": "dns_request.sql"
     },
     "sqlite": {
       "sqlite/SOURCES.md": "SOURCES.md"
@@ -3600,6 +3787,7 @@
       "tcl/macports_registry/registry_util.tcl": "registry_util.tcl"
     },
     "tcl/sqlite": {
+      "tcl/sqlite/LICENSE.md": "LICENSE.md",
       "tcl/sqlite/README.md": "README.md",
       "tcl/sqlite/malloc_common.tcl": "malloc_common.tcl",
       "tcl/sqlite/speedtest.tcl": "speedtest.tcl",
@@ -3644,6 +3832,9 @@
     "typescript": {
       "typescript/SOURCES.md": "SOURCES.md"
     },
+    "typescript/angular_zonejs_mocha": {
+      "typescript/angular_zonejs_mocha/mocha.ts": "mocha.ts"
+    },
     "typescript/assemblyscript": {
       "typescript/assemblyscript/asconfig.json": "asconfig.json",
       "typescript/assemblyscript/ast.ts": "ast.ts",
@@ -3651,12 +3842,30 @@
       "typescript/assemblyscript/package.json": "package.json",
       "typescript/assemblyscript/parser.ts": "parser.ts"
     },
+    "typescript/effect_ai_anthropic": {
+      "typescript/effect_ai_anthropic/AnthropicTokenizer.ts": "AnthropicTokenizer.ts"
+    },
+    "typescript/excalibur_math": {
+      "typescript/excalibur_math/LICENSE.md": "LICENSE.md",
+      "typescript/excalibur_math/collision_colliders_separating-axis.ts": "collision_colliders_separating-axis.ts",
+      "typescript/excalibur_math/math_ray.ts": "math_ray.ts"
+    },
+    "typescript/excalidraw_text_wrapping": {
+      "typescript/excalidraw_text_wrapping/textWrapping.ts": "textWrapping.ts"
+    },
     "typescript/fp-ts": {
       "typescript/fp-ts/Either.ts": "Either.ts",
       "typescript/fp-ts/HKT.ts": "HKT.ts",
       "typescript/fp-ts/TaskEither.ts": "TaskEither.ts",
       "typescript/fp-ts/package.json": "package.json",
       "typescript/fp-ts/pipeable.ts": "pipeable.ts"
+    },
+    "typescript/nx_util_ai": {
+      "typescript/nx_util_ai/nx-dev_pages_api_query-ai-handler.ts": "nx-dev_pages_api_query-ai-handler.ts",
+      "typescript/nx_util_ai/util-ai_src_lib_moderation.ts": "util-ai_src_lib_moderation.ts"
+    },
+    "typescript/pixijs_examples": {
+      "typescript/pixijs_examples/events_dragging.ts": "events_dragging.ts"
     },
     "typescript/playwright": {
       "typescript/playwright/NOTICE": "NOTICE",
@@ -3700,10 +3909,12 @@
       "xml/apex/CanTheUser_Tests.cls-meta.xml": "CanTheUser_Tests.cls-meta.xml",
       "xml/apex/IterationRecipes_Tests.cls": "IterationRecipes_Tests.cls",
       "xml/apex/IterationRecipes_Tests.cls-meta.xml": "IterationRecipes_Tests.cls-meta.xml",
+      "xml/apex/LICENSE.md": "LICENSE.md",
       "xml/apex/ListSortingRecipes_Tests.cls": "ListSortingRecipes_Tests.cls",
       "xml/apex/ListSortingRecipes_Tests.cls-meta.xml": "ListSortingRecipes_Tests.cls-meta.xml"
     },
     "xml/jenkins": {
+      "xml/jenkins/LICENSE.txt": "LICENSE.txt",
       "xml/jenkins/XStreamDOMTest.data1.xml": "XStreamDOMTest.data1.xml",
       "xml/jenkins/XStreamDOMTest.data2.xml": "XStreamDOMTest.data2.xml",
       "xml/jenkins/excludesFilter.xml": "excludesFilter.xml"
@@ -3810,10 +4021,21 @@
       "zig/SOURCES.md": "SOURCES.md"
     },
     "zig/bun": {
+      "zig/bun/LICENSE.md": "LICENSE.md",
       "zig/bun/MimallocArena.zig": "MimallocArena.zig",
       "zig/bun/Parser.zig": "Parser.zig",
       "zig/bun/comptime_string_map.zig": "comptime_string_map.zig",
       "zig/bun/napi.zig": "napi.zig"
+    },
+    "zig/mach": {
+      "zig/mach/Core.zig": "Core.zig",
+      "zig/mach/StringTable.zig": "StringTable.zig",
+      "zig/mach/collision.zig": "collision.zig",
+      "zig/mach/graph.zig": "graph.zig",
+      "zig/mach/main.zig": "main.zig",
+      "zig/mach/module.zig": "module.zig",
+      "zig/mach/testing.zig": "testing.zig",
+      "zig/mach/win32.zig": "win32.zig"
     },
     "zig/tigerbeetle": {
       "zig/tigerbeetle/aof.zig": "aof.zig",
@@ -3836,6 +4058,9 @@
       "zig/zig/Zcu.zig": "Zcu.zig",
       "zig/zig/main.zig": "main.zig"
     },
+    "zig/zig_std_linux_mips": {
+      "zig/zig_std_linux_mips/mips.zig": "mips.zig"
+    },
     "zig/zls": {
       "zig/zls/DocumentScope.zig": "DocumentScope.zig",
       "zig/zls/DocumentStore.zig": "DocumentStore.zig",
@@ -3844,16 +4069,6 @@
       "zig/zls/ast.zig": "ast.zig",
       "zig/zls/config_gen.zig": "config_gen.zig",
       "zig/zls/print_ast.zig": "print_ast.zig"
-    },
-    "zig/zls/mach": {
-      "zig/zls/mach/Core.zig": "Core.zig",
-      "zig/zls/mach/StringTable.zig": "StringTable.zig",
-      "zig/zls/mach/collision.zig": "collision.zig",
-      "zig/zls/mach/graph.zig": "graph.zig",
-      "zig/zls/mach/main.zig": "main.zig",
-      "zig/zls/mach/module.zig": "module.zig",
-      "zig/zls/mach/testing.zig": "testing.zig",
-      "zig/zls/mach/win32.zig": "win32.zig"
     }
   },
   "path": [

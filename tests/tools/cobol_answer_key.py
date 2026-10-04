@@ -7,6 +7,7 @@ tools and the engine's master DB against it.
         --out key.json [--report why.md]
     python tests/tools/cobol_answer_key.py score <repo> --key key.json [--db master.db] [--md out.md]
     python tests/tools/cobol_answer_key.py add-pli <repo> --key key.json
+    python tests/tools/cobol_answer_key.py add-extents <repo> --key key.json
     python tests/tools/cobol_answer_key.py add-pli-calls <repo> --key key.json
     python tests/tools/cobol_answer_key.py add-sql-tables <repo> --key key.json
     python tests/tools/cobol_answer_key.py add-sql-access <repo> --key key.json
@@ -87,7 +88,9 @@ from typing import Any, Callable, Optional
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 from key_text import read_key_text  # noqa: E402 -- #3869: the key's own decoder, never the engine's
 
-SCHEMA_VERSION = 1
+# 2 (#4318): a unit carries `end` and `edges`; a program (and sibling) carries
+# `main_line`, and `extents_validated` signs both off.
+SCHEMA_VERSION = 2
 
 # How strongly a `validated` program's truth is backed, weakest first. Every
 # validated program names one in `verification.tier`:
@@ -113,12 +116,32 @@ _HEADER = re.compile(rf"^({NAME})(?:\s+(SECTION)(?:\s+[0-9]{{1,2}})?)?\s*\.(?:\s
 _HEADER_NO_PERIOD = re.compile(rf"^({NAME})(?:\s+SECTION(?:\s+[0-9]{{1,2}})?)?$")
 # Words that can sit in Area A followed by a period without being a unit header.
 _NOT_A_HEADER = {"DECLARATIVES", "END", "EXIT", "GOBACK", "CONTINUE", "STOP", "ELSE"}
+# The reserved END- words (scope terminators and `END-OF-PAGE`). #4026: only these,
+# not every `END-...` word -- GENAPP LGIPDB01's `End-Program.` is a PERFORMed
+# paragraph, and opensourcecobol4j's `END-IPROC1.` a GO TO target.
+_RESERVED_END = {
+    "END-" + w
+    for w in (
+        "ACCEPT ADD CALL CHAIN COLOR COMPUTE DELETE DISPLAY DIVIDE EVALUATE EXEC FREE IF INVOKE JSON"
+        " MULTIPLY OF-PAGE PERFORM READ RECEIVE RETURN REWRITE SEARCH SEND START STRING SUBTRACT"
+        " UNSTRING WAIT WRITE XML"
+    ).split()
+}
 # `(?<![\w-])` for the same reason as _CALL below: `END-PERFORM` followed by a
 # real `PERFORM X` read as a PERFORM of the word `PERFORM`, swallowing X
 # (CardDemo COTRTLIC 9450-CLOSE-FORWARD-CURSOR read as dead).
 _PERFORM = re.compile(rf"(?<![\w-])PERFORM\s+({NAME})(?:\s+(?:THRU|THROUGH)\s+({NAME}))?")
+# #4206: `XML PARSE ... PROCESSING PROCEDURE [IS] A [THRU B]` runs A..B for each
+# parser event and returns, like a PERFORM (DBB EPSCSMRI's XML-HANDLER).
+_PROCESSING_PROCEDURE = re.compile(
+    rf"(?<![\w-])PROCESSING\s+PROCEDURE\s+(?:IS\s+)?({NAME})(?:\s+(?:THRU|THROUGH)\s+({NAME}))?"
+)
 _ALTER = re.compile(rf"(?<![\w-])ALTER\s+({NAME})\s+TO\s+(?:PROCEED\s+TO\s+)?({NAME})")
-_GOTO = re.compile(rf"(?<![\w-])GO\s+(?:TO\s+)?((?:{NAME}\s*)+)")
+# #4206: the target run is read in a lookahead, so it consumes nothing: a run of
+# names also spans the statements after it, and a consuming match swallowed every
+# later GO TO in that run (DBB EPSCSMRI `... OF DFHCOMMAREA GO TO X000000CC ...
+# DEPENDING ON ELE-CON-LEN`, whose targets all read as dead).
+_GOTO = re.compile(rf"(?<![\w-])GO\s+(?:TO\s+)?(?=((?:{NAME}\s*)+))")
 _SENTENCE_END = re.compile(r"\.(?=\s|$)")
 _TERMINAL_TAIL = re.compile(rf"(?:\bGOBACK|\bSTOP\s+RUN|\bEXIT\s+PROGRAM|\bGO\s+(?:TO\s+)?{NAME})\s*$")
 _SELECT = re.compile(rf"\bSELECT\s+(?:OPTIONAL\s+)?({NAME})\s+ASSIGN\s+(?:TO\s+)?([A-Z0-9@#$-]+)")
@@ -147,6 +170,7 @@ _SYSTEM_COPY = (
 # between them. Each clause is read inside one entry (level number to the next).
 _DATA_DIVISION = re.compile(r"\bDATA\s+DIVISION\b")
 _PROC_DIVISION = re.compile(r"\bPROCEDURE\s+DIVISION\b")
+_DECLARATIVES_MARK = re.compile(r"^(?:END\s+)?DECLARATIVES\s*\.?$")
 _DD_SECTION = re.compile(r"\b(FILE|WORKING-STORAGE|LOCAL-STORAGE|LINKAGE|COMMUNICATION|REPORT|SCREEN)\s+SECTION\b")
 _DD_FD = re.compile(rf"^\s*(?:FD|SD)\s+({NAME})", re.M)
 _DD_LEVEL = re.compile(rf"^[ \t]*(\d{{1,2}})\s+({NAME})(?![A-Z0-9-])", re.M)  # #3575: a leading \s* ate blank lines
@@ -155,6 +179,7 @@ _DD_LEVEL = re.compile(rf"^[ \t]*(\d{{1,2}})\s+({NAME})(?![A-Z0-9-])", re.M)  # 
 _DD_PIC = re.compile(r"\bPIC(?:TURE)?\s+(?:IS\s+)?([^\s;]+)")
 # `SIGN IS LEADING SEPARATE CHARACTER` / `TRAILING SEPARATE`: the sign takes its own byte (census #3649, CBSA ABNDINFO).
 _DD_SIGN_SEPARATE = re.compile(r"\b(?:LEADING|TRAILING)\s+SEPARATE\b")
+_DD_SIGN_LEADING_SEPARATE = re.compile(r"\bLEADING\s+SEPARATE\b")  # which end the sign byte is at
 _DD_USAGE = re.compile(
     r"(?:\bUSAGE\s+(?:IS\s+)?)?(?<![A-Z0-9-])"
     r"(COMPUTATIONAL(?:-[1-6])?|COMP(?:-[1-6])?|BINARY|PACKED-DECIMAL|DISPLAY(?:-1)?|INDEX|POINTER)(?![A-Z0-9-])"
@@ -164,6 +189,13 @@ _DD_DEPENDING = re.compile(rf"\bDEPENDING\s+(?:ON\s+)?({NAME})")
 _DD_REDEFINES = re.compile(rf"\bREDEFINES\s+({NAME})")
 _DD_VALUE = re.compile(r"\bVALUE\s+(?:IS\s+)?(?:'([^']*)'|\"([^\"]*)\"|([A-Z0-9][A-Z0-9+.-]*))")
 _DD_ENTRY_LIMIT = 600
+# #4246: an entry with no name is an implicit FILLER (`2 PIC X(40) VALUE '...'`, DBB EPSCSMRD). The word in
+# the name's place is then a clause keyword -- reserved, so never a data name -- and the clauses start there.
+_DD_UNNAMED = re.compile(
+    r"PIC|PICTURE|USAGE|VALUES?|OCCURS|SIGN|LEADING|TRAILING|JUST(?:IFIED)?|BLANK|SYNC(?:HRONIZED)?|EXTERNAL"
+    r"|GLOBAL|BINARY|PACKED-DECIMAL|DISPLAY(?:-1)?|NATIONAL|INDEX|(?:PROCEDURE-|FUNCTION-)?POINTER"
+    r"|COMP(?:UTATIONAL)?(?:-[1-6])?"
+)
 
 
 # ==============================================================================
@@ -345,15 +377,134 @@ def _operand_name(src: Source) -> str:
 # ==============================================================================
 # Units and reachability
 # ==============================================================================
-def _units(src: Source) -> list[dict[str, Any]]:
+_ID_DIVISION = re.compile(r"^(?:IDENTIFICATION|ID)\s+DIVISION\s*\.")
+_END_PROGRAM = re.compile(r"^END\s+PROGRAM\s+['\"]?([A-Z0-9@#$-]+)")
+_PROGRAM_ID = re.compile(r"\bPROGRAM-ID\.?\s+['\"]?([A-Z0-9@#$-]+)")
+
+
+def program_spans(src: Source) -> list[dict[str, Any]]:
+    """#4206: every program in a COBOL source, in source order. A batch-compiled
+    source holds sibling programs, each `IDENTIFICATION DIVISION ... END PROGRAM`;
+    an IDENTIFICATION DIVISION met while a program is still open starts a program
+    nested in it (DBB `epscsmrd.cbl`: EPSCSMRC contains XCHRFLTR and XWSPFLTR).
+
+    Each span has `program_id`, `line` (its IDENTIFICATION DIVISION), `end_line`
+    (its END PROGRAM, or the last line), `nested_in`, and the `proc`..`stop` slice
+    of `src.lines` holding its own PROCEDURE DIVISION code: from after the
+    division header sentence to its END PROGRAM or its first nested program."""
+    spans: list[dict[str, Any]] = []
+    open_: list[dict[str, Any]] = []
+    starts: list[int] = []
+    for i, (no, area) in enumerate(src.lines):
+        head = area.strip()
+        area_a = bool(head) and len(area) - len(area.lstrip(" ")) < 4
+        if area_a and _ID_DIVISION.match(head):
+            if open_ and open_[-1]["stop"] is None:
+                open_[-1]["stop"] = i
+            span = {
+                "program_id": None,
+                "line": no,
+                "end_line": None,
+                "nested_in": spans.index(open_[-1]) if open_ else None,  # named after the loop
+                "proc": None,
+                "stop": None,
+            }
+            spans.append(span)
+            open_.append(span)
+            starts.append(i)
+            continue
+        if not open_:
+            continue
+        top = open_[-1]
+        if area_a and _END_PROGRAM.match(head):
+            top["end_line"] = no
+            if top["stop"] is None:
+                top["stop"] = i
+            open_.pop()
+            continue
+        if (
+            top["proc"] is None
+            and top["stop"] is None
+            and re.search(r"\bPROCEDURE\s+DIVISION\b", _blank_literals(area))
+        ):
+            j = i
+            while j < len(src.lines) and not _SENTENCE_END.search(_blank_literals(src.lines[j][1])):
+                j += 1
+            top["proc"] = j + 1
+    for span in open_:
+        span["end_line"] = src.lines[-1][0]
+        if span["stop"] is None:
+            span["stop"] = len(src.lines)
+    for span, start in zip(spans, starts):
+        # Read over the header lines joined: the name may sit on the line after
+        # `PROGRAM-ID.` (#3418).
+        head_end = next((x for x in (span["proc"], span["stop"]) if x is not None), len(src.lines))
+        m = _PROGRAM_ID.search("\n".join(a for _, a in src.lines[start:head_end]))
+        span["program_id"] = m.group(1) if m else None
+    for span in spans:
+        if span["nested_in"] is not None:
+            span["nested_in"] = spans[span["nested_in"]]["program_id"]
+    return spans
+
+
+def sibling_unit(program_id: str, name: str) -> str:
+    """#4206: how a unit of a source's second or later program is named in a score
+    pair or a census claim. Siblings repeat names (each has a MAINLINE SECTION),
+    so a bare name means the file's first program, and `PROG:NAME` any other.
+    A colon never occurs in a COBOL name."""
+    return f"{program_id}:{name}"
+
+
+def keyed_units(prog: dict[str, Any]) -> list[dict[str, Any]]:
+    """Every unit of a key entry, its siblings' as `PROG:NAME` (#4206)."""
+    out = list(prog["units"])
+    for pid, s in prog.get("siblings", {}).items():
+        out += [{**u, "name": sibling_unit(pid, u["name"])} for u in s["units"]]
+    return out
+
+
+def keyed_dead(prog: dict[str, Any]) -> dict[str, Any]:
+    """Every dead verdict of a key entry, its siblings' as `PROG:NAME` (#4206)."""
+    out = dict(prog["dead"])
+    for pid, s in prog.get("siblings", {}).items():
+        out.update({sibling_unit(pid, n): v for n, v in s["dead"].items()})
+    return out
+
+
+def sibling_at(prog: dict[str, Any], line: int) -> Optional[str]:
+    """The innermost sibling program whose lines hold `line`, or None for the
+    entry's own (first) program (#4206)."""
+    inside = [(s["line"], pid) for pid, s in prog.get("siblings", {}).items() if s["line"] <= line <= s["end_line"]]
+    return max(inside)[1] if inside else None
+
+
+def keyed_unit_name(prog: dict[str, Any], name: str, line: int) -> str:
+    """A parser's unit `name` at `line`, named the way `keyed_units` names it (#4206)."""
+    pid = sibling_at(prog, line)
+    return sibling_unit(pid, name) if pid else name
+
+
+def _units(src: Source, start: Optional[int] = None, stop: Optional[int] = None) -> list[dict[str, Any]]:
     """Paragraph/section headers in Area A of the PROCEDURE DIVISION, with bodies.
 
     An implicit unit holds any statements between the division header and the
-    first named header (the program's unnamed first paragraph)."""
-    if src.proc_start is None:
+    first named header (the program's unnamed first paragraph). `start`/`stop`
+    scope it to one program's `src.lines` slice (#4206, `program_spans`); the
+    default is the first PROCEDURE DIVISION to the end of the file."""
+    start = src.proc_start if start is None else start
+    if start is None:
         return []
-    units: list[dict[str, Any]] = [{"name": None, "kind": "implicit", "line": None, "body": []}]
-    lines = src.lines[src.proc_start :]
+    # #4318: the implicit unit is the program's main line. Its header is the
+    # PROCEDURE DIVISION sentence, so it starts at that line (the last one naming
+    # the division before `start`), as a paragraph starts at its header.
+    division = next(
+        (src.lines[j][0] for j in range(start - 1, -1, -1) if _PROC_DIVISION.search(_blank_literals(src.lines[j][1]))),
+        None,
+    )
+    units: list[dict[str, Any]] = [
+        {"name": None, "kind": "implicit", "line": division, "body": [], "body_lines": [], "code_lines": []}
+    ]
+    lines = src.lines[start:stop]
     for i, (no, area) in enumerate(lines):
         lead = len(area) - len(area.lstrip(" "))
         head = area.strip()
@@ -364,18 +515,144 @@ def _units(src: Source) -> list[dict[str, Any]]:
             if nxt.startswith("."):
                 head += " ."
         m = _HEADER.match(head) if head and lead < 4 else None
-        if m and m.group(1) not in _NOT_A_HEADER and not m.group(1).startswith("END-"):
-            units.append({"name": m.group(1), "kind": "section" if m.group(2) else "paragraph", "line": no, "body": []})
+        if m and m.group(1) not in _NOT_A_HEADER and m.group(1) not in _RESERVED_END:
+            units.append(
+                {
+                    "name": m.group(1),
+                    "kind": "section" if m.group(2) else "paragraph",
+                    "line": no,
+                    "body": [],
+                    "body_lines": [],
+                    "code_lines": [no],
+                }
+            )
             rest = head[m.end() :] if head == area.strip() else ""
             if rest.strip():
                 units[-1]["body"].append(rest)
+                units[-1]["body_lines"].append(no)
+        elif head and lead < 4 and _DECLARATIVES_MARK.match(head):
+            # #4318: `DECLARATIVES.` / `END DECLARATIVES.` delimit a region, like
+            # END PROGRAM: they are no unit's code.
+            continue
         else:
             units[-1]["body"].append(area)
+            units[-1]["body_lines"].append(no)
+            if head:
+                units[-1]["code_lines"].append(no)
     if not "".join(units[0]["body"]).strip():
         units.pop(0)
     for u in units:
         u["text"] = _blank_literals("\n".join(u["body"]))
+        # #4318: a unit's extent runs from its header to its last code line before
+        # the next header (or the program's end). Blank and comment lines after
+        # that last statement belong to no unit: they are the gap before the next
+        # header, typically its banner comment.
+        u["end"] = u["code_lines"][-1] if u["code_lines"] else u["line"]
     return units
+
+
+MAIN_LINE = "(procedure division)"
+# #4318: the verbs of an intra-program edge. EXIT PERFORM [CYCLE] leaves an inline
+# PERFORM (#4305) and SQL `WHENEVER ... GO TO` installs a precompiler handler
+# rather than transferring here (the engine's contract too), so neither is an edge.
+_EDGE_EXIT_PERFORM = re.compile(r"(?<![\w-])EXIT\s+$")
+_EDGE_WHENEVER = re.compile(r"(?<![\w-])WHENEVER\s+(?:SQLERROR|SQLWARNING|NOT\s+FOUND)\s+$")
+
+
+def unit_edges(u: dict[str, Any], names: set[str]) -> list[dict[str, Any]]:
+    """#4318: the intra-program control edges of one unit, in source order:
+    `{verb, target, line}` with verb PERFORM (`thru` too for a PERFORM_THRU) or
+    GO_TO (`depending: true` for each target of a GO TO ... DEPENDING ON).
+
+    Read from the unit's own literal-blanked text, so a run of names never spans
+    into the next unit. A target must name a unit of the same program (`names`):
+    that drops the inline PERFORM forms (`PERFORM VARYING|UNTIL|WITH TEST|TEST|
+    n TIMES ...`, which name no procedure) without a keyword list. `line` is the
+    verb's line, so an operand split onto the next line (#4300) still has one.
+    ALTER, CICS HANDLE labels and XML PARSE PROCESSING PROCEDURE are not edges
+    here: they reach a unit (see `reachability`) without being a PERFORM or GO TO."""
+    text = u["text"]
+    starts, pos = [], 0
+    for line in u["body"]:
+        starts.append(pos)
+        pos += len(line) + 1
+
+    def line_at(offset: int) -> int:
+        lo, hi = 0, len(starts) - 1
+        while lo < hi:
+            mid = (lo + hi + 1) // 2
+            if starts[mid] <= offset:
+                lo = mid
+            else:
+                hi = mid - 1
+        return u["body_lines"][lo]
+
+    edges: list[tuple[int, dict[str, Any]]] = []
+    for m in _PERFORM.finditer(text):
+        if _EDGE_EXIT_PERFORM.search(text[max(0, m.start() - 40) : m.start()]) or m.group(1) not in names:
+            continue
+        edge: dict[str, Any] = {"verb": "PERFORM", "target": m.group(1), "line": line_at(m.start())}
+        if m.group(2) in names:
+            edge = {"verb": "PERFORM_THRU", "target": m.group(1), "thru": m.group(2), "line": edge["line"]}
+        edges.append((m.start(), edge))
+    for m in _GOTO.finditer(text):  # a lookahead: the run never swallows a later GO TO
+        if _EDGE_WHENEVER.search(text[max(0, m.start() - 60) : m.start()]):
+            continue
+        targets = []
+        for tok in m.group(1).split():
+            if tok not in names:
+                break
+            targets.append(tok)
+        rest = text[m.start(1) :]
+        depending = len(targets) > 1 or bool(
+            targets and re.match(rf"(?:{NAME}\s+){{{len(targets)}}}DEPENDING\b", rest + " ")
+        )
+        for t in targets:
+            edge = {"verb": "GO_TO", "target": t, "line": line_at(m.start())}
+            if depending:
+                edge["depending"] = True
+            edges.append((m.start(), edge))
+    return [e for _, e in sorted(edges, key=lambda x: x[0])]
+
+
+def main_line_unit(units: list[dict[str, Any]], names: set[str]) -> Optional[dict[str, Any]]:
+    """#4318/#4302: a program's main line as a key pseudo-unit (`line`, `end`,
+    `edges`), or None when its first header follows the division header directly."""
+    if not units or units[0]["name"]:
+        return None
+    u = keyed_unit(units[0], names)
+    return {"line": u["line"], "end": u["end"], "edges": u["edges"]}
+
+
+def _copied_unit_names(
+    src: Source, start: Optional[int], stop: Optional[int], copybooks: list[dict[str, Any]], repo: Path
+) -> set[str]:
+    """#4318: the paragraph and section names the procedure copybooks of one
+    program's PROCEDURE DIVISION (`src.lines[start:stop]`) bring in -- PERFORM
+    targets that are not this file's own units."""
+    lines = src.lines[start:stop] if start is not None else []
+    if not lines:
+        return set()
+    lo, hi = lines[0][0], lines[-1][0]
+    out: set[str] = set()
+    for c in copybooks:
+        if c.get("resolves_to") and lo <= c["line"] <= hi:
+            out.update(u["name"] for u in _units(Source(repo / c["resolves_to"]), 0) if u["name"])
+    return out
+
+
+def keyed_unit(u: dict[str, Any], names: set[str]) -> dict[str, Any]:
+    """#4318: a unit as the key stores it -- name, kind, header line, last line
+    (inclusive) and its intra-program edges. The main line (code between the
+    PROCEDURE DIVISION header and the first header, #4302) is `MAIN_LINE`, kind
+    `main-line`, starting at the division header."""
+    return {
+        "name": u["name"] or MAIN_LINE,
+        "kind": u["kind"] if u["name"] else "main-line",
+        "line": u["line"],
+        "end": u["end"],
+        "edges": unit_edges(u, names),
+    }
 
 
 _TRAILING_COPY = re.compile(
@@ -399,9 +676,11 @@ _CONDITIONAL_PHRASE = re.compile(
     r"(?<![\w-])(?:(?:NOT\s+)?(?:AT\s+)?(?:END|END-OF-PAGE|EOP)|(?:NOT\s+)?INVALID\s+KEY"
     r"|(?:NOT\s+)?(?:ON\s+)?(?:SIZE\s+ERROR|OVERFLOW|EXCEPTION))(?![\w-])"
 )
+# #4206: END-XML / END-JSON / END-INVOKE close an ON EXCEPTION phrase too (DBB
+# EPSCSMRI MAINLINE `XML PARSE ... ON EXCEPTION ... END-XML GOBACK.` never falls through).
 _PHRASE_SCOPE_END = re.compile(
     r"\bEND-(?:READ|RETURN|WRITE|REWRITE|DELETE|START|ADD|SUBTRACT|MULTIPLY|DIVIDE|COMPUTE|CALL|STRING"
-    r"|UNSTRING|SEARCH|ACCEPT|DISPLAY)\b"
+    r"|UNSTRING|SEARCH|ACCEPT|DISPLAY|XML|JSON|INVOKE)\b"
 )
 
 
@@ -446,7 +725,12 @@ def _sentence_is_terminal(sentence: str) -> bool:
     if sentence.endswith("END-EXEC"):
         start = [m.start() for m in re.finditer(r"\bEXEC\s", sentence)]
         return bool(start) and re.match(r"EXEC\s+CICS\s+(RETURN|XCTL|ABEND)\b", sentence[start[-1] :]) is not None
-    return _TERMINAL_TAIL.search(sentence) is not None and " DEPENDING " not in sentence
+    # A GO TO ... DEPENDING ON falls through when its index is out of range, so it
+    # ends nothing; a plain transfer AFTER it in the same sentence still does
+    # (#4206, DBB EPSCSMRI `GO TO X..C6 ... DEPENDING ON ROUTING-CODE (HASH-VALUE)
+    # GO TO GENERAL-LOGIC-EXIT .`).
+    tail = _TERMINAL_TAIL.search(sentence)
+    return tail is not None and " DEPENDING " not in sentence[tail.start() :]
 
 
 def _is_terminal(text: str) -> bool:
@@ -524,11 +808,12 @@ def reachability(units: list[dict[str, Any]], cross_sections: bool = True) -> di
         while k < len(units):
             reached.setdefault(k, reason)
             u, here = units[k], units[k]["name"] or "(procedure division)"
-            for m in _PERFORM.finditer(u["text"]):
-                if m.group(1) in index:
-                    a = index[m.group(1)]
-                    b = span_end(index[m.group(2)]) if m.group(2) in index else span_end(a)
-                    queue.append((a, b, f"PERFORM from {here}"))
+            for rx, verb in ((_PERFORM, "PERFORM"), (_PROCESSING_PROCEDURE, "XML PARSE PROCESSING PROCEDURE")):
+                for m in rx.finditer(u["text"]):
+                    if m.group(1) in index:
+                        a = index[m.group(1)]
+                        b = span_end(index[m.group(2)]) if m.group(2) in index else span_end(a)
+                        queue.append((a, b, f"{verb} from {here}"))
             for m in _GOTO.finditer(u["text"]):
                 for tok in m.group(1).split():
                     if tok not in index:
@@ -651,10 +936,20 @@ def _data_items(src: Source) -> list[dict[str, Any]]:
     DATA DIVISION and PROCEDURE DIVISION are taken (a copybook has neither header
     and is read whole, but this runs on programs)."""
     text = src.raw_text
-    dd = _DATA_DIVISION.search(text)
-    start = dd.end() if dd else 0
-    proc = _PROC_DIVISION.search(text, start)
-    end = proc.start() if proc else len(text)
+    # #4245: every program's DATA DIVISION in a multi-program source (nested programs and
+    # batch-compiled siblings), each to its own PROCEDURE DIVISION -- not only the first one.
+    windows: list[tuple[int, int]] = []
+    for dd in _DATA_DIVISION.finditer(text):
+        if windows and dd.start() < windows[-1][1]:
+            continue
+        proc = _PROC_DIVISION.search(text, dd.end())
+        windows.append((dd.end(), proc.start() if proc else len(text)))
+    if not windows:
+        windows = [(0, len(text))]
+
+    def _window_of(off: int) -> Optional[int]:
+        return next((i for i, (a, b) in enumerate(windows) if a <= off < b), None)
+
     sections = [(m.start(), m.group(1)) for m in _DD_SECTION.finditer(text)]
     fds = [(m.start(), m.group(1)) for m in _DD_FD.finditer(text)]
 
@@ -670,19 +965,29 @@ def _data_items(src: Source) -> list[dict[str, Any]]:
     items: list[dict[str, Any]] = []
     stack: list[tuple[int, int]] = []
     last_item = None
+    open_window = None
     for pos, m in enumerate(entries):
-        if m.start() < start or m.start() >= end:
+        window_index = _window_of(m.start())
+        if window_index is None:
             continue
+        if window_index != open_window:  # #4245: a new program -- nothing of the last one stays open
+            open_window, last_item = window_index, None
+            stack.clear()
         level = int(m.group(1))
         name = m.group(2).upper()
         if name in ("THROUGH", "THRU"):
             continue  # #3602: `1 THROUGH 12.` continues an 88's VALUES; a reserved word is no data name
+        body = m.end()
+        if _DD_UNNAMED.fullmatch(name):  # #4246: an implicit FILLER; its first clause sits where a name would
+            name, body = "FILLER", m.start(2)
         stop = entries[pos + 1].start() if pos + 1 < len(entries) else len(text)
-        window = text[m.end() : min(stop, m.end() + _DD_ENTRY_LIMIT)]
+        window = text[body : min(stop, body + _DD_ENTRY_LIMIT)]
         ordinal = len(items)
         if level in (66, 88):
             parent = last_item
         else:
+            if level == 77:  # a 77 is a root like an 01 (it never sits under the group before it)
+                stack.clear()
             while stack and stack[-1][0] >= level:
                 stack.pop()
             parent = stack[-1][1] if stack else None
@@ -720,6 +1025,7 @@ def _data_items(src: Source) -> list[dict[str, Any]]:
                 "redefines": redef_m.group(1).upper() if redef_m else None,
                 "value": value,
                 "sign_separate": bool(_DD_SIGN_SEPARATE.search(window)),
+                "sign_leading": bool(_DD_SIGN_LEADING_SEPARATE.search(window)),
                 "line": src.line_of(m.start()),
             }
         )
@@ -1275,6 +1581,85 @@ def _pli_clause_starts(stmt: list) -> list[int]:
         if prev in ("THEN", "ELSE", "OTHERWISE", ")", ":", "SNAP", "SYSTEM") or (i >= 2 and stmt[i - 2][1] == "ON"):
             out.append(i)
     return out
+
+
+def pli_units(text: str, included: frozenset[str] = frozenset()) -> list[dict[str, Any]]:
+    """#4318: every PROC / PROCEDURE of one PL/I source as a key unit, in source order:
+    `{name, kind: "procedure", line, end, block_end, nested_in, edges}`.
+
+    This tool's own block reading over the PL/I token stream (comments dropped,
+    columns 73-80 sequence fields removed): `DO`, `BEGIN` and `SELECT` at a clause
+    start, and a labelled `PROC`, open a block; `END;` closes the innermost one and
+    `END name;` every block up to and including the one labelled `name` (PL/I's
+    multiple closure), so a procedure ends at its own END however it is written.
+
+    `line` is the label's line. `block_end` is the line of the END that closes the
+    procedure. `end` is the procedure's OWN extent, the one a unit list that
+    partitions the file can have: its last statement before its first nested
+    procedure, or `block_end` when it has none (a COBOL section's extent likewise
+    stops at its first paragraph). `edges` are the CALLs from the procedure's own
+    statements of a procedure compiled into the same program, `{verb: "CALL",
+    target, line}`: one of this source's, or an include-internal one (`included`,
+    `pli_included_procedures`: defined in a %INCLUDE member, or in the includer
+    when this source is the member) -- the CALLs `pli_call_rows` leaves out of the
+    program call sites.
+    ENTRY statements are secondary entry points, not units."""
+    tokens = _pli_token_stream(_pli_source_lines(text))
+    stmts = _pli_statements(tokens)
+    procs: list[dict[str, Any]] = []
+    stack: list[dict[str, Any]] = []  # {"labels": [...], "proc": index into procs or None}
+    owner: list[Optional[int]] = []  # per statement: the innermost open procedure
+    for stmt in stmts:
+        if not stmt:
+            owner.append(stack_proc(stack))
+            continue
+        labels, rest = _pli_unlabelled(stmt)
+        words = [t[1] if t[0] != "string" else None for t in rest]
+        if words and words[0] in ("PROC", "PROCEDURE") and labels:
+            parent = stack_proc(stack)
+            procs.append({"name": labels[-1], "kind": "procedure", "line": stmt[0][2], "end": None,
+                          "block_end": None, "nested_in": procs[parent]["name"] if parent is not None else None,
+                          "edges": [], "_first_child": None, "_last_own": stmt[-1][2]})  # fmt: skip
+            if parent is not None and procs[parent]["_first_child"] is None:
+                procs[parent]["_first_child"] = len(procs) - 1
+            stack.append({"labels": labels, "proc": len(procs) - 1})
+            owner.append(len(procs) - 1)
+            continue
+        here = stack_proc(stack)
+        owner.append(here)
+        if here is not None and procs[here]["_first_child"] is None:
+            procs[here]["_last_own"] = stmt[-1][2]
+        if words and words[0] == "END":
+            name = words[1] if len(words) > 1 and rest[1][0] == "word" else None
+            while stack:
+                block = stack.pop()
+                if block["proc"] is not None:
+                    procs[block["proc"]]["block_end"] = stmt[-1][2]
+                if name is None or name in block["labels"]:
+                    break
+            continue
+        for i in _pli_clause_starts(rest):
+            if words[i] in ("DO", "BEGIN", "SELECT"):
+                stack.append({"labels": labels, "proc": None})
+                break
+    local = {p["name"] for p in procs} | included
+    for stmt, here in zip(stmts, owner):
+        if here is None or not stmt:
+            continue
+        words = [t[1] if t[0] != "string" else None for t in stmt]
+        for i in _pli_clause_starts(stmt):
+            if words[i] == "CALL" and i + 1 < len(stmt) and words[i + 1] in local:
+                procs[here]["edges"].append({"verb": "CALL", "target": words[i + 1], "line": stmt[i][2]})
+    for p in procs:
+        p["block_end"] = p["block_end"] or (tokens[-1][2] if tokens else p["line"])
+        p["end"] = p["_last_own"] if p["_first_child"] is not None else p["block_end"]
+        del p["_first_child"], p["_last_own"]
+    return procs
+
+
+def stack_proc(stack: list[dict[str, Any]]) -> Optional[int]:
+    """The innermost open procedure on a `pli_units` block stack."""
+    return next((b["proc"] for b in reversed(stack) if b["proc"] is not None), None)
 
 
 def pli_call_rows(text: str) -> list[dict[str, Any]]:
@@ -3910,11 +4295,15 @@ def vsam_define_rows(text: str) -> list[dict[str, Any]]:
         ]
         own = cmd[kind.end() :]
         # The object's own parameter block ends before DATA( / INDEX(.
-        own = re.split(r"\)\s*(?:DATA|INDEX)\s*\(", own)[0]
+        parts = re.split(r"\)\s*(DATA|INDEX)\s*\(", own)
+        own = parts[0]
+        # the DATA component's block (KEYS and RECORDSIZE may be given there instead: IDCAMS takes them as the
+        # object's -- GenApp's adef121.jcl; never on INDEX)
+        data = next((parts[j + 1] for j in range(1, len(parts) - 1, 2) if parts[j] == "DATA"), "")
 
-        def one(*names: str) -> Optional[str]:
+        def one(*names: str, block: Optional[str] = None) -> Optional[str]:
             for n in names:
-                m2 = re.search(rf"\b{n}\s*\(\s*([^()]*?)\s*\)", own)
+                m2 = re.search(rf"\b{n}\s*\(\s*([^()]*?)\s*\)", own if block is None else block)
                 if m2:
                     return m2.group(1)
             return None
@@ -3922,7 +4311,8 @@ def vsam_define_rows(text: str) -> list[dict[str, Any]]:
         def nums(v: Optional[str]) -> list[int]:
             return [int(x) for x in re.findall(r"\d+", v or "")]
 
-        keys, rec = nums(one("KEYS")), nums(one("RECORDSIZE", "RECSZ"))
+        keys = nums(one("KEYS") or one("KEYS", block=data))
+        rec = nums(one("RECORDSIZE", "RECSZ") or one("RECORDSIZE", "RECSZ", block=data))
         org = next((w for w in ("NONINDEXED", "NUMBERED", "LINEAR", "INDEXED") if re.search(rf"\b{w}\b", own)), None)
         uniq = (
             "NONUNIQUE"
@@ -6010,15 +6400,8 @@ def _common_prefix(a: str, b: str) -> list[str]:
     return out
 
 
-def draft_program(
-    path: Path,
-    repo: Path,
-    files: list[Path],
-    pid_to_path: dict[str, list[str]],
-    tx_map: Optional[dict[str, set[str]]] = None,
-) -> tuple[dict[str, Any], dict[str, str]]:
-    src = Source(path)
-    units = _units(src)
+def _named_dead(units: list[dict[str, Any]]) -> tuple[list[dict[str, Any]], dict[str, str], dict[str, dict[str, Any]]]:
+    """One program's named units, its reach evidence, and its dead verdicts."""
     reached = reachability(units)
     named = [u for u in units if u["name"]]
     dead: dict[str, dict[str, Any]] = {}
@@ -6038,6 +6421,28 @@ def draft_program(
         # An `EXIT.`-only paragraph is dead but carries no logic: a tool that
         # counts it as removable bloat is right about reachability, not about size.
         dead[u["name"]] = {"reason": reason, "trivial": _is_exit_only(body)}
+    return named, reached, dead
+
+
+def draft_program(
+    path: Path,
+    repo: Path,
+    files: list[Path],
+    pid_to_path: dict[str, list[str]],
+    tx_map: Optional[dict[str, set[str]]] = None,
+) -> tuple[dict[str, Any], dict[str, str]]:
+    src = Source(path)
+    # #4206: a source holding several programs keys its first as the entry and the
+    # rest as `siblings`, each with units and dead verdicts read from its own
+    # PROCEDURE DIVISION only (reachability never crosses a program boundary).
+    # The other fields stay file-wide, as the parsers they grade read them.
+    spans = program_spans(src)
+    if len(spans) > 1:
+        bounds = (spans[0]["proc"], spans[0]["stop"])
+    else:
+        bounds = (src.proc_start, None)
+    units = _units(src, *bounds) if bounds[0] is not None else []
+    named, reached, dead = _named_dead(units)
 
     copybooks = []
     for rx, via in ((_COPY, "COPY"), (_SQL_INCLUDE, "SQL INCLUDE")):
@@ -6053,6 +6458,24 @@ def draft_program(
             entry = {"name": name, "via": via, "line": src.line_of(m.start(1)), "library": library}
             entry.update(resolve_copybook(name, library, path, repo, files))
             copybooks.append(entry)
+
+    # #4318: a PERFORM may target a paragraph a procedure copybook brings in
+    # (CardDemo COTRTLIC `EXEC SQL INCLUDE CSDB2RPY` -> 9999-FORMAT-DB2-MESSAGE).
+    names = {u["name"] for u in named} | _copied_unit_names(src, *bounds, copybooks, repo)
+    siblings: dict[str, dict[str, Any]] = {}
+    for span in spans[1:]:
+        s_units = _units(src, span["proc"], span["stop"]) if span["proc"] is not None else []
+        s_named, s_reached, s_dead = _named_dead(s_units)
+        s_names = {u["name"] for u in s_named} | _copied_unit_names(src, span["proc"], span["stop"], copybooks, repo)
+        siblings[span["program_id"]] = {
+            "line": span["line"],
+            "end_line": span["end_line"],
+            "nested_in": span["nested_in"],
+            "units": [keyed_unit(u, s_names) for u in s_named],
+            "main_line": main_line_unit(s_units, s_names),
+            "dead": s_dead,
+        }
+        reached.update({sibling_unit(span["program_id"], n): why for n, why in s_reached.items()})
 
     selects = {m.group(1): m.group(2) for m in _SELECT.finditer(src.text)}
     modes: dict[str, set[str]] = {k: set() for k in selects}
@@ -6099,8 +6522,10 @@ def draft_program(
 
     entry = {
         "program_id": src.program_id(),
-        "units": [{"name": u["name"], "kind": u["kind"], "line": u["line"]} for u in named],
+        "units": [keyed_unit(u, names) for u in named],
+        "main_line": main_line_unit(units, names),
         "dead": dead,
+        **({"siblings": siblings} if siblings else {}),
         "copybooks": copybooks,
         "files": files_,
         "calls": calls,
@@ -6120,12 +6545,64 @@ def draft_program(
     return entry, reached
 
 
+def add_extents(repo: Path, key: dict[str, Any]) -> list[str]:
+    """#4318: re-draft every keyed program's unit extents, edges and main line into
+    the key, leaving every other field alone. Refuses (returns the reasons) when the
+    re-drafted unit list (name, kind, line) is not the committed one: the extents
+    must describe the units the key already validated. A program whose extents are
+    signed off (`extents_validated`) is never redrafted."""
+    files = [p for p in repo.rglob("*") if p.is_file() and ".git" not in p.parts]
+    problems = []
+    for rel, prog in key["programs"].items():
+        if prog.get("extents_validated"):
+            continue
+        entry, _ = draft_program(repo / rel, repo, files, {}, None)
+        for pid, block in _keyed_programs(prog):
+            fresh = entry if pid is None else entry.get("siblings", {}).get(pid)
+            if fresh is None:
+                problems.append(f"{rel}:{pid}: sibling not re-drafted")
+                continue
+            shape = [(u["name"], u["kind"], u["line"]) for u in block["units"]]
+            if shape != [(u["name"], u["kind"], u["line"]) for u in fresh["units"]]:
+                problems.append(f"{rel}{':' + pid if pid else ''}: re-drafted units differ from the key's")
+                continue
+            block["units"] = fresh["units"]
+            block["main_line"] = fresh["main_line"]
+        prog["extents_validated"] = False
+    existing = key.get("pli_units", {})
+    scope = pli_unit_scope(repo, key)
+    included = frozenset(pli_included_procedures(_pli_files(repo))) if scope else frozenset()
+    for rel in scope:
+        if not existing.get(rel, {}).get("extents_validated"):
+            existing[rel] = {"units": pli_units(read_key_text(repo / rel), included), "extents_validated": False}
+    if existing:
+        key["pli_units"] = dict(sorted(existing.items()))
+    return problems
+
+
+# #4318: the PL/I sources whose procedure extents and edges are keyed -- the same
+# files as `pli_moves` (every PL/I file of a small corpus, a seeded sample of DSF's),
+# plus the sources #4301 names, whose `KONTROLL_AV_INPUT` the engine once cut at a
+# conditional `ELSE RETURN;` (both copies DSF ships of each).
+PLI_UNIT_WITNESSES = tuple(f"src/{d}R00104{n}.pli" for d in ("", "GML/") for n in ("22", "23", "24", "25"))
+
+
+def pli_unit_scope(repo: Path, key: dict[str, Any]) -> list[str]:
+    files = set(key.get("pli_moves", {}))
+    files.update(rel for rel in PLI_UNIT_WITNESSES if (repo / rel).is_file())
+    return sorted(files)
+
+
 def draft(repo: Path, corpus: str, url: str, ref: str) -> tuple[dict[str, Any], str]:
     files = [p for p in repo.rglob("*") if p.is_file() and ".git" not in p.parts]
     programs = sorted(p for p in files if p.suffix.lower() in PROGRAM_EXTS and Source(p).program_id())
     pid_to_path: dict[str, list[str]] = {}
     for p in programs:
-        pid_to_path.setdefault(Source(p).program_id(), []).append(p.relative_to(repo).as_posix())
+        # #4206: a sibling program is called by its own PROGRAM-ID, from its own
+        # source or another one, and binds to the file that holds it.
+        pids = [s["program_id"] for s in program_spans(Source(p)) if s["program_id"]] or [Source(p).program_id()]
+        for pid in dict.fromkeys(pids):
+            pid_to_path.setdefault(pid, []).append(p.relative_to(repo).as_posix())
     tx_map = _key_transactions(repo)  # #3247: repo-wide CSD read, once
     key: dict[str, Any] = {
         "schema_version": SCHEMA_VERSION,
@@ -6146,7 +6623,7 @@ def draft(repo: Path, corpus: str, url: str, ref: str) -> tuple[dict[str, Any], 
         entry, reached = draft_program(p, repo, files, pid_to_path, tx_map)
         key["programs"][rel] = entry
         report += [f"## {rel} ({entry['program_id']})", "", "| unit | line | reached by |", "|---|---|---|"]
-        for u in entry["units"]:
+        for u in keyed_units(entry):
             report.append(f"| {u['name']} | {u['line']} | {reached.get(u['name'], '**DEAD**')} |")
         report.append("")
     return key, "\n".join(report)
@@ -6176,12 +6653,19 @@ def old_paragraphs(path: Path, repo: Path) -> set[str]:
     readers, so the harness and the scorer share one implementation without
     importing each other (#3211: refraction_differential is the harness on top)."""
     from gitgalaxy.tools.cobol_to_cobol.cobol_graveyard_finder import (
+        keyed_unit,
+        program_units,
         resolve_copybooks,
         split_procedure_division,
         unit_headers,
     )
 
-    content = resolve_copybooks(read_key_text(path).upper(), path, repo)
+    raw = read_key_text(path).upper()
+    # #4243: a multi-program source's units per program, a later program's as PROG:NAME
+    per_program = program_units(raw, path, repo)
+    if per_program is not None:
+        return {keyed_unit(prefix, u["name"]) for prefix, units in per_program for u in units if u["name"]}
+    content = resolve_copybooks(raw, path, repo)
     split = split_procedure_division(content)
     return set(unit_headers(split[1])) if split else set()
 
@@ -6283,6 +6767,143 @@ def engine_call_targets(calls) -> set[str]:
     return {c.target for c in calls if c.target and c.verb not in _TRANSACTION_ROUTING_VERBS}
 
 
+# ==============================================================================
+# Unit extents and intra-program edges (#4318)
+# ==============================================================================
+# The engine's unit graph lives in function_data (one row per paragraph/section:
+# start_line, loc, calls_out_to, transfers_to) and, for a program's main line,
+# synthetic_unit_data (`__global_context__`, start_line and edges only, #4302).
+# GalaxyIR carries neither the edges nor the synthetic rows, so `score` reads
+# them here, read-only, from the same snapshot GalaxyIR loaded.
+ENGINE_MAIN_LINE = "__global_context__"
+
+
+def engine_unit_graph(db: Path, repo_name: str, commit_hash: str) -> dict[str, list[dict[str, Any]]]:
+    """file path -> the engine's units: name, start, end (None for a synthetic
+    main line, which records no extent), calls_out_to, transfers_to, synthetic."""
+    import sqlite3
+
+    con = sqlite3.connect(f"file:{db}?mode=ro", uri=True)
+    try:
+        ids = {
+            fid: (path or "").replace("\\", "/")
+            for fid, path in con.execute(
+                "SELECT id, file_path FROM file_data WHERE repo_name = ? AND commit_hash = ?", (repo_name, commit_hash)
+            )
+        }
+        out: dict[str, list[dict[str, Any]]] = {}
+
+        def edges(raw: Optional[str]) -> list[str]:
+            return [str(x).upper() for x in (json.loads(raw) if raw else [])]
+
+        for fid, name, start, loc, calls, transfers in con.execute(
+            "SELECT file_id, func_name, start_line, loc, calls_out_to, transfers_to FROM function_data"
+        ):
+            if fid in ids:
+                start, loc = int(start or 0), int(loc or 0)
+                out.setdefault(ids[fid], []).append(
+                    {"name": (name or "").upper(), "start": start, "end": start + max(loc, 1) - 1,
+                     "calls": edges(calls), "transfers": edges(transfers), "synthetic": False}
+                )  # fmt: skip
+        has_synthetic = con.execute(
+            "SELECT 1 FROM sqlite_master WHERE type = 'table' AND name = 'synthetic_unit_data'"
+        ).fetchone()
+        if has_synthetic:
+            for fid, name, start, calls, transfers in con.execute(
+                "SELECT file_id, unit_name, start_line, calls_out_to, transfers_to FROM synthetic_unit_data "
+                "WHERE repo_name = ? AND commit_hash = ?",
+                (repo_name, commit_hash),
+            ):
+                if fid in ids and name == ENGINE_MAIN_LINE:
+                    out.setdefault(ids[fid], []).append(
+                        {"name": MAIN_LINE, "start": int(start or 0), "end": None,
+                         "calls": edges(calls), "transfers": edges(transfers), "synthetic": True}
+                    )  # fmt: skip
+        return out
+    finally:
+        con.close()
+
+
+def _keyed_programs(prog: dict[str, Any]) -> list[tuple[Optional[str], dict[str, Any]]]:
+    """(sibling PROGRAM-ID or None for the first program, its block) for a key entry."""
+    return [(None, prog), *prog.get("siblings", {}).items()]
+
+
+def _edge_value(unit: str, verb: str, target: str) -> str:
+    """One scored edge. PERFORM and PERFORM ... THRU score alike: the engine keeps
+    a THRU range's first paragraph only (`calls_out_to`), and the range end is not
+    a transfer of control in its own right."""
+    return f"{unit} -> {'GO TO' if verb == 'GO_TO' else 'PERFORM'} {target}"
+
+
+def key_unit_extents(prog: dict[str, Any]) -> set[str]:
+    """`NAME L<start>-<end>` per keyed unit and main line (#4318), sibling units as `PROG:NAME`."""
+    out = set()
+    for pid, block in _keyed_programs(prog):
+        units = list(block["units"]) + ([{"name": MAIN_LINE, **block["main_line"]}] if block.get("main_line") else [])
+        for u in units:
+            name = sibling_unit(pid, u["name"]) if pid else u["name"]
+            out.add(f"{name} L{u['line']}-{u['end']}")
+    return out
+
+
+def key_unit_edges(prog: dict[str, Any]) -> set[str]:
+    """`FROM -> PERFORM|GO TO TARGET` per keyed intra-program edge (#4318)."""
+    out = set()
+    for pid, block in _keyed_programs(prog):
+        units = list(block["units"]) + ([{"name": MAIN_LINE, **block["main_line"]}] if block.get("main_line") else [])
+        for u in units:
+            name = sibling_unit(pid, u["name"]) if pid else u["name"]
+            out.update(_edge_value(name, e["verb"], e["target"]) for e in u["edges"])
+    return out
+
+
+def engine_unit_extents(prog: dict[str, Any], units: list[dict[str, Any]]) -> set[str]:
+    """The engine's units in the key's extent shape. A synthetic main line records
+    no end, so it claims no extent."""
+    return {
+        f"{keyed_unit_name(prog, u['name'], u['start'])} L{u['start']}-{u['end']}" for u in units if not u["synthetic"]
+    }
+
+
+def engine_unit_edges(prog: dict[str, Any], units: list[dict[str, Any]], call_names: set[str]) -> set[str]:
+    """The engine's intra-program edges: `transfers_to` (GO TO) and `calls_out_to`
+    less the program calls of the file (`call_names`: every CALL / LINK / XCTL
+    operand and target in call_site_data), which is the PERFORM half. What is
+    left that names no unit -- `TEST`, `END-IF` -- is a phantom callee (#4305)
+    and scores as a false edge, as it should."""
+    out = set()
+    for u in units:
+        name = keyed_unit_name(prog, u["name"], u["start"])
+        out.update(_edge_value(name, "PERFORM", t) for t in u["calls"] if t not in call_names)
+        out.update(_edge_value(name, "GO_TO", t) for t in u["transfers"])
+    return out
+
+
+def lines_outside(code: set[int], spans: list[tuple[int, int]], units: list[dict[str, Any]]) -> list[int]:
+    """#4318: the code lines inside some keyed extent (`spans`) that no engine
+    unit's extent covers. A synthetic main line records no extent, so covers none."""
+    keyed: set[int] = set()
+    for lo, hi in spans:
+        keyed.update(range(lo, hi + 1))
+    covered: set[int] = set()
+    for u in units:
+        if not u["synthetic"]:
+            covered.update(range(u["start"], u["end"] + 1))
+    return sorted((code & keyed) - covered)
+
+
+def lines_outside_units(path: Path, prog: dict[str, Any], units: list[dict[str, Any]]) -> list[int]:
+    """#4318: the key's COBOL code lines (comment and blank lines, and a line
+    holding only a sequence number, are not code) outside every engine unit."""
+    code = {no for no, area in Source(path).lines if area.strip()}
+    spans = []
+    for _, block in _keyed_programs(prog):
+        for u in list(block["units"]) + ([block["main_line"]] if block.get("main_line") else []):
+            spans.append((u["line"], u["end"]))
+    return lines_outside(code, spans, units)
+
+
 def score(repo: Path, key: dict[str, Any], db: Optional[Path]) -> tuple[dict[str, Any], str]:
     from gitgalaxy.tools.cobol_to_cobol.cics_transaction_reader import extract_transactions
     from gitgalaxy.tools.cobol_to_cobol.cobol_dag_architect import extract_lineage
@@ -6292,10 +6913,13 @@ def score(repo: Path, key: dict[str, Any], db: Optional[Path]) -> tuple[dict[str
 
     ir = None
     engine_tx: dict[str, set[str]] = {}
+    engine_graph: dict[str, list[dict[str, Any]]] = {}
+    outside: dict[str, list[int]] = {}
     if db is not None:
         from gitgalaxy.tools.cobol_to_cobol.galaxy_ir import load_galaxy_ir
 
         ir = load_galaxy_ir(db)
+        engine_graph = engine_unit_graph(db, ir.repo_name, ir.commit_hash)
         for t in ir.transaction_map("cobol"):  # #3247: engine entry transactions per program
             if t["program"]:
                 engine_tx.setdefault(t["program"].upper(), set()).add(t["transid"].upper())
@@ -6304,6 +6928,15 @@ def score(repo: Path, key: dict[str, Any], db: Optional[Path]) -> tuple[dict[str
     fields = [
         "program_id",
         "units",
+        # #4318: every unit's extent, `NAME L<start>-<end>` (exact on both ends;
+        # the main line is `(procedure division)`), and the PERFORM / GO TO edges
+        # between a program's own units, `FROM -> PERFORM|GO TO TARGET`. Truth is
+        # this tool's own reading; no forge carries either; engine is
+        # function_data (start_line + loc, calls_out_to, transfers_to) plus the
+        # main line's synthetic_unit_data. The extents row also counts the key's
+        # code lines that are inside no engine unit.
+        "unit extents",
+        "intra-program edges",
         "dead",
         "dead (non-trivial)",
         "copybook paths",
@@ -6468,22 +7101,42 @@ def score(repo: Path, key: dict[str, Any], db: Optional[Path]) -> tuple[dict[str
         ef = ir.files.get(rel) if ir else None
 
         add("program_id", rel, {k["program_id"]}, {intent["program_id"]}, set(ef.program_ids[:1]) if ef else None)
+        # #4206: a sibling program's units score as `PROG:NAME`; the engine's units
+        # are placed in a program by their line. The forge reads a file as one
+        # program, so its bare names stand as they are.
         add(
             "units",
             rel,
-            {u["name"] for u in k["units"]},
+            {u["name"] for u in keyed_units(k)},
             old_paragraphs(path, repo),
-            {u.name.upper() for u in ef.units} if ef else None,
+            {keyed_unit_name(k, u.name.upper(), u.start_line) for u in ef.units} if ef else None,
         )
+        e_units = engine_graph.get(rel, [])
+        add("unit extents", rel, key_unit_extents(k), None, engine_unit_extents(k, e_units) if ef else None)
+        call_names = {x.upper() for c in ef.calls for x in (c.operand, c.target) if x} if ef else set()
+        add(
+            "intra-program edges",
+            rel,
+            key_unit_edges(k),
+            None,
+            engine_unit_edges(k, e_units, call_names) if ef else None,
+        )
+        if ef:
+            missed = lines_outside_units(path, k, e_units)
+            if missed:
+                outside[rel] = missed
         forge_dead = set(gy.get("dead_paras", set()))
-        engine_dead = {u.name.upper() for u in ef.units if u.usage_status == 1} if ef else None
-        add("dead", rel, set(k["dead"]), forge_dead, engine_dead)
+        engine_dead = (
+            {keyed_unit_name(k, u.name.upper(), u.start_line) for u in ef.units if u.usage_status == 1} if ef else None
+        )
+        key_dead = keyed_dead(k)
+        add("dead", rel, set(key_dead), forge_dead, engine_dead)
         # Only real logic: a tool is not credited, or blamed, for EXIT.-only paragraphs.
-        trivial = {n for n, v in k["dead"].items() if v["trivial"]}
+        trivial = {n for n, v in key_dead.items() if v["trivial"]}
         add(
             "dead (non-trivial)",
             rel,
-            set(k["dead"]) - trivial,
+            set(key_dead) - trivial,
             forge_dead - trivial,
             engine_dead - trivial if engine_dead is not None else None,
         )
@@ -6576,6 +7229,34 @@ def score(repo: Path, key: dict[str, Any], db: Optional[Path]) -> tuple[dict[str
             {x for x, on in (("cics", intent["is_cics"]), ("sql", intent["is_db2"])) if on},
             None,
         )
+
+    # #4318: PL/I procedures' own extents and their CALLs of procedures of the same source.
+    for rel, k in key.get("pli_units", {}).items():
+        ef = ir.files.get(rel) if ir else None
+        e_units = engine_graph.get(rel, [])
+        truth_ext = {f"{u['name']} L{u['line']}-{u['end']}" for u in k["units"]}
+        truth_edges = {f"{u['name']} -> CALL {e['target']}" for u in k["units"] for e in u["edges"]}
+        call_names = {x.upper() for c in ef.calls for x in (c.operand, c.target) if x} if ef else set()
+        add(
+            "unit extents",
+            rel,
+            truth_ext,
+            None,
+            {f"{u['name']} L{u['start']}-{u['end']}" for u in e_units if not u["synthetic"]} if ef else None,
+        )
+        add(
+            "intra-program edges",
+            rel,
+            truth_edges,
+            None,
+            {f"{u['name']} -> CALL {t}" for u in e_units for t in u["calls"] if t not in call_names} if ef else None,
+        )
+        if ef:
+            code = {line for _, _, line in _pli_token_stream(_pli_source_lines(read_key_text(repo / rel)))}
+            spans = [(u["line"], u["end"]) for u in k["units"]]
+            missed = lines_outside(code, spans, e_units)
+            if missed:
+                outside[rel] = missed
 
     for rel, k in key.get("pli_programs", {}).items():
         ef = ir.files.get(rel) if ir else None
@@ -6962,7 +7643,12 @@ def score(repo: Path, key: dict[str, Any], db: Optional[Path]) -> tuple[dict[str
                     "fp": sorted(_pair_str(x) for x in got - t),
                     "fn": sorted(_pair_str(x) for x in t - got),
                 }
+        if f == "unit extents" and result["fields"][f].get("engine") is not None:
+            n_out = sum(len(v) for v in outside.values())
+            result["fields"][f]["engine"]["outside"] = n_out
+            cols[1] += f" · {n_out} code lines outside any unit"
         md.append(f"| {f} | {cols[0]} | {cols[1]} |")
+    result["lines_outside_units"] = outside
     md.append("")
     md.append("P = correct / reported, R = correct / true. Sets are (program, value) pairs.")
     return result, "\n".join(md) + "\n"
@@ -6977,8 +7663,11 @@ def sample_claims(key: dict[str, Any], n: int, seed: int) -> list[dict[str, Any]
     claims: list[dict[str, Any]] = []
     for rel, p in key["programs"].items():
         claims.append({"program": rel, "kind": "program_id", "claim": f"PROGRAM-ID is {p['program_id']}"})
-        live = [u for u in p["units"] if u["name"] not in p["dead"]]
-        for name, d in p["dead"].items():
+        for pid in p.get("siblings", {}):
+            claims.append({"program": rel, "kind": "program_id", "claim": f"the source also holds program {pid}"})
+        dead = keyed_dead(p)
+        live = [u for u in keyed_units(p) if u["name"] not in dead]
+        for name, d in dead.items():
             claims.append({"program": rel, "kind": "dead", "claim": f"{name} is unreachable ({d['reason']})"})
         for u in live:
             claims.append({"program": rel, "kind": "live", "claim": f"{u['name']} (line {u['line']}) is reachable"})
@@ -7024,6 +7713,9 @@ def main() -> int:
     pm = sub.add_parser("add-pli-moves")
     pm.add_argument("repo", type=Path)
     pm.add_argument("--key", type=Path, required=True)
+    ae = sub.add_parser("add-extents")  # #4318: unit extents, PERFORM / GO TO edges, main line
+    ae.add_argument("repo", type=Path)
+    ae.add_argument("--key", type=Path, required=True)
     pc = sub.add_parser("add-pli-calls")
     pc.add_argument("repo", type=Path)
     pc.add_argument("--key", type=Path, required=True)
@@ -7148,6 +7840,15 @@ def main() -> int:
         return 0
 
     key = json.loads(args.key.read_text(encoding="utf-8"))
+    if args.cmd == "add-extents":
+        problems = add_extents(repo, key)
+        if problems:
+            print("\n".join(problems), file=sys.stderr)
+            return 1
+        key["schema_version"] = SCHEMA_VERSION
+        args.key.write_text(json.dumps(key, indent=2) + "\n", encoding="utf-8")
+        print(f"drafted unit extents and edges for {len(key['programs'])} programs -> {args.key}")
+        return 0
     if args.cmd == "add-pli-moves":
         # #3491 part 3: refresh drafts, never clobber a file someone already signed off.
         drafted, scope = draft_pli_moves(repo)

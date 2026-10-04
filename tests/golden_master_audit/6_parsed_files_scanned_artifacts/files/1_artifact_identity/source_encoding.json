@@ -14,9 +14,11 @@
       "abap/abapGit/zcl_abapgit_xml_output.clas.abap": "utf-8"
     },
     "ada": {
-      "ada/PROVENANCE.md": "utf-8"
+      "ada/PROVENANCE.md": "utf-8",
+      "ada/SOURCES.md": "utf-8"
     },
     "ada/alire": {
+      "ada/alire/LICENSE.txt": "utf-8",
       "ada/alire/alire-conditional_trees.adb": "utf-8",
       "ada/alire/alire-crate_configuration.adb": "utf-8",
       "ada/alire/alire-dependencies-states.ads": "utf-8",
@@ -322,22 +324,17 @@
       "assembly/os_tutorial_x86/14-checkpoint_boot_gdt.asm": "utf-8",
       "assembly/os_tutorial_x86/14-checkpoint_boot_kernel_entry.asm": "utf-8"
     },
-    "assembly/raspberrypi_baremetal": {
-      "assembly/raspberrypi_baremetal/Compress_HUFFMAN_HUFFMANDecode_kernel.asm": "utf-8",
-      "assembly/raspberrypi_baremetal/Compress_HUFFMAN_HUFFMANDecode_kernel7.asm": "utf-8",
-      "assembly/raspberrypi_baremetal/Compress_HUFFMAN_HUFFMANDecode_kernel8.asm": "utf-8",
-      "assembly/raspberrypi_baremetal/Compress_HUFFMAN_HUFFMANGFX_kernel.asm": "utf-8",
-      "assembly/raspberrypi_baremetal/Compress_HUFFMAN_HUFFMANGFX_kernel7.asm": "utf-8",
-      "assembly/raspberrypi_baremetal/Compress_HUFFMAN_HUFFMANGFX_kernel8.asm": "utf-8",
-      "assembly/raspberrypi_baremetal/Compress_LZ77_LZ77Decode_kernel.asm": "utf-8",
-      "assembly/raspberrypi_baremetal/Compress_LZ77_LZ77Decode_kernel7.asm": "utf-8",
-      "assembly/raspberrypi_baremetal/Compress_LZ77_LZ77Decode_kernel8.asm": "utf-8",
-      "assembly/raspberrypi_baremetal/Compress_LZ77_LZ77GFX_kernel.asm": "utf-8",
-      "assembly/raspberrypi_baremetal/Compress_LZ77_LZ77GFX_kernel7.asm": "utf-8",
-      "assembly/raspberrypi_baremetal/Compress_LZ77_LZ77GFX_kernel8.asm": "utf-8",
-      "assembly/raspberrypi_baremetal/EMU_GameBoy_kernel.asm": "utf-8",
-      "assembly/raspberrypi_baremetal/HelloWorld_CPU_kernel7.asm": "utf-8",
-      "assembly/raspberrypi_baremetal/HelloWorld_CPU_kernel8.asm": "utf-8"
+    "assembly/rpi_smartstart_baremetal": {
+      "assembly/rpi_smartstart_baremetal/10_virtualmemory_SmartStart32.S": "utf-8",
+      "assembly/rpi_smartstart_baremetal/10_virtualmemory_SmartStart64.S": "utf-8",
+      "assembly/rpi_smartstart_baremetal/Arm32_64_USB_SmartStart32.S": "utf-8",
+      "assembly/rpi_smartstart_baremetal/Arm32_64_USB_SmartStart64.S": "utf-8",
+      "assembly/rpi_smartstart_baremetal/Core3Interrupt_SmartStart64.S": "utf-8",
+      "assembly/rpi_smartstart_baremetal/FreeRTOSv10.1.1_loader_RaspberryPi_SmartStart32.S": "utf-8",
+      "assembly/rpi_smartstart_baremetal/FreeRTOSv10.1.1_loader_RaspberryPi_SmartStart64.S": "utf-8",
+      "assembly/rpi_smartstart_baremetal/Multicore_SmartStart32.S": "utf-8",
+      "assembly/rpi_smartstart_baremetal/Multicore_SmartStart64.S": "utf-8",
+      "assembly/rpi_smartstart_baremetal/SimpleSched_SmartStart32.S": "utf-8"
     },
     "assembly/x86_bare_metal": {
       "assembly/x86_bare_metal/LICENSE.adoc": "utf-8",
@@ -393,6 +390,9 @@
       "blueprint/ghostty/split-tree.blp": "utf-8",
       "blueprint/ghostty/window.blp": "utf-8"
     },
+    "bms": {
+      "bms/SOURCES.md": "utf-8"
+    },
     "bms/cbsa": {
       "bms/cbsa/BNK1ACC.bms": "utf-8",
       "bms/cbsa/BNK1CAM.bms": "utf-8",
@@ -403,11 +403,16 @@
       "bms/cbsa/BNK1MAI.bms": "utf-8",
       "bms/cbsa/BNK1TFM.bms": "utf-8",
       "bms/cbsa/BNK1UAM.bms": "utf-8",
-      "bms/cbsa/PROVENANCE.md": "utf-8",
-      "bms/cbsa/ssmap.bms": "utf-8"
+      "bms/cbsa/PROVENANCE.md": "utf-8"
+    },
+    "bms/genapp": {
+      "bms/genapp/ssmap.bms": "utf-8"
     },
     "c": {
       "c/SOURCES.md": "utf-8"
+    },
+    "c/cosmopolitan_intrin": {
+      "c/cosmopolitan_intrin/countbits.c": "utf-8"
     },
     "c/cpython": {
       "c/cpython/Makefile.pre.in": "utf-8",
@@ -434,6 +439,9 @@
       "c/doom/w_wad.c": "utf-8",
       "c/doom/z_zone.c": "utf-8"
     },
+    "c/freebsd_openpam": {
+      "c/freebsd_openpam/pam_acct_mgmt.c": "utf-8"
+    },
     "c/micropython": {
       "c/micropython/compile.c": "utf-8",
       "c/micropython/compile.h": "utf-8",
@@ -449,6 +457,7 @@
       "c/micropython/vm.c": "utf-8"
     },
     "c/sqlite": {
+      "c/sqlite/LICENSE.md": "utf-8",
       "c/sqlite/README.md": "utf-8",
       "c/sqlite/lemon.c": "utf-8"
     },
@@ -582,6 +591,9 @@
       "cobol/aws-mainframe-modernization-carddemo/CVTRA07Y.cpy": "utf-8",
       "cobol/aws-mainframe-modernization-carddemo/DFHAID.cpy": "utf-8",
       "cobol/aws-mainframe-modernization-carddemo/DFHBMSCA.cpy": "utf-8",
+      "cobol/aws-mainframe-modernization-carddemo/LICENSE.md": "utf-8",
+      "cobol/aws-mainframe-modernization-carddemo/NOTICE.md": "utf-8",
+      "cobol/aws-mainframe-modernization-carddemo/README.md": "utf-8",
       "cobol/aws-mainframe-modernization-carddemo/UNUSED1Y.cpy": "utf-8"
     },
     "cobol/cash-account-cobol": {
@@ -590,6 +602,8 @@
       "cobol/cash-account-cobol/DCLFRANK.cpy": "utf-8"
     },
     "cobol/che-che4z-lsp-for-cobol": {
+      "cobol/che-che4z-lsp-for-cobol/LICENSE.md": "utf-8",
+      "cobol/che-che4z-lsp-for-cobol/NOTICE.md": "utf-8",
       "cobol/che-che4z-lsp-for-cobol/SQLCA_DATACOM.cpy": "utf-8",
       "cobol/che-che4z-lsp-for-cobol/SQLCA_DB2.cpy": "utf-8",
       "cobol/che-che4z-lsp-for-cobol/SQLDA.cpy": "utf-8"
@@ -1039,6 +1053,7 @@
       "cobol/gnucobol/xfhfcd3.cpy": "utf-8"
     },
     "cobol/gnucobol_internals": {
+      "cobol/gnucobol_internals/COPYING": "utf-8",
       "cobol/gnucobol_internals/codegen.c": "utf-8",
       "cobol/gnucobol_internals/fileio.c": "utf-8",
       "cobol/gnucobol_internals/numeric.c": "utf-8",
@@ -1117,11 +1132,19 @@
       "cpp/powertoys/main.cpp": "utf-8",
       "cpp/powertoys/powertoy_module.h": "utf-8"
     },
+    "cpp/serenity_ak_siphash_cpu": {
+      "cpp/serenity_ak_siphash_cpu/CPUFeatures.cpp": "utf-8",
+      "cpp/serenity_ak_siphash_cpu/SipHash.cpp": "utf-8"
+    },
+    "csd": {
+      "csd/SOURCES.md": "utf-8"
+    },
     "csd/carddemo": {
       "csd/carddemo/CARDDEMO.CSD": "utf-8",
       "csd/carddemo/CRDDEMO2.csd": "utf-8",
       "csd/carddemo/CRDDEMOD.csd": "utf-8",
       "csd/carddemo/CRDDEMOM.csd": "utf-8",
+      "csd/carddemo/NOTICE": "utf-8",
       "csd/carddemo/PROVENANCE.md": "utf-8"
     },
     "csd/cbsa": {
@@ -1207,6 +1230,9 @@
       "dart/flutter/semantics.dart": "utf-8",
       "dart/flutter/theme_data.dart": "utf-8"
     },
+    "db2_sql": {
+      "db2_sql/SOURCES.md": "utf-8"
+    },
     "db2_sql/db2unit": {
       "db2_sql/db2unit/00-Prereqs.sql": "utf-8",
       "db2_sql/db2unit/01-ObjectsAdmin.sql": "utf-8",
@@ -1216,6 +1242,7 @@
       "db2_sql/db2unit/07-Version.sql": "utf-8",
       "db2_sql/db2unit/98-Clean.sql": "utf-8",
       "db2_sql/db2unit/99-CleanAdmin.sql": "utf-8",
+      "db2_sql/db2unit/LICENSE.txt": "utf-8",
       "db2_sql/db2unit/PROVENANCE.md": "utf-8"
     },
     "dockerfile": {
@@ -1345,6 +1372,9 @@
       "go/core/syscall_linux.go": "utf-8",
       "go/core/value.go": "utf-8"
     },
+    "go/go_runtime_rand": {
+      "go/go_runtime_rand/rand.go": "utf-8"
+    },
     "go/kubernetes": {
       "go/kubernetes/csi_plugin.go": "utf-8",
       "go/kubernetes/generic.go": "utf-8",
@@ -1353,6 +1383,9 @@
       "go/kubernetes/proxier.go": "utf-8",
       "go/kubernetes/replica_set.go": "utf-8",
       "go/kubernetes/scheduler.go": "utf-8"
+    },
+    "go/kubernetes_kubectl_tls": {
+      "go/kubernetes_kubectl_tls/create_secret_tls_test.go": "utf-8"
     },
     "groovy/fineract_gradle_plugin": {
       "groovy/fineract_gradle_plugin/LICENSE_RELEASE": "utf-8",
@@ -1721,7 +1754,8 @@
       "haskell/pandoc/Shared.hs": "utf-8"
     },
     "hlasm": {
-      "hlasm/PROVENANCE.md": "utf-8"
+      "hlasm/PROVENANCE.md": "utf-8",
+      "hlasm/SOURCES.md": "utf-8"
     },
     "hlasm/che4z_hlasm": {
       "hlasm/che4z_hlasm/A.hlasm": "utf-8",
@@ -1729,6 +1763,7 @@
       "hlasm/che4z_hlasm/B.hlasm": "utf-8",
       "hlasm/che4z_hlasm/BBBBB.hlasm": "utf-8",
       "hlasm/che4z_hlasm/CCCCC.hlasm": "utf-8",
+      "hlasm/che4z_hlasm/NOTICE.md": "utf-8",
       "hlasm/che4z_hlasm/code_action_1.hlasm": "utf-8",
       "hlasm/che4z_hlasm/code_action_2.hlasm": "utf-8",
       "hlasm/che4z_hlasm/comments.hlasm": "utf-8",
@@ -1823,6 +1858,7 @@
       "html/polyglot_odoo/database_manager.qweb.html": "utf-8"
     },
     "html/polyglot_vscode": {
+      "html/polyglot_vscode/LICENSE.txt": "utf-8",
       "html/polyglot_vscode/vscode_builtin.html": "utf-8"
     },
     "html/revealjs_decks": {
@@ -1856,6 +1892,17 @@
     "java": {
       "java/SOURCES.md": "utf-8"
     },
+    "java/flutter_android_editing_tests": {
+      "java/flutter_android_editing_tests/InputConnectionAdaptorTest.java": "utf-8"
+    },
+    "java/jenkins_cli": {
+      "java/jenkins_cli/LICENSE.txt": "utf-8",
+      "java/jenkins_cli/SetBuildDescriptionCommand.java": "utf-8"
+    },
+    "java/selenium_grid_session_queue": {
+      "java/selenium_grid_session_queue/NOTICE": "utf-8",
+      "java/selenium_grid_session_queue/RemoteNewSessionQueue.java": "utf-8"
+    },
     "java/springboot": {
       "java/springboot/AutoConfigurationImportSelector.java": "utf-8",
       "java/springboot/Binder.java": "utf-8",
@@ -1869,6 +1916,13 @@
     "javascript": {
       "javascript/SOURCES.md": "utf-8"
     },
+    "javascript/cesium_particle_emitters": {
+      "javascript/cesium_particle_emitters/CircleEmitter.js": "utf-8",
+      "javascript/cesium_particle_emitters/LICENSE.md": "utf-8"
+    },
+    "javascript/javascript_algorithms_bits": {
+      "javascript/javascript_algorithms_bits/fullAdder.js": "utf-8"
+    },
     "javascript/jquery": {
       "javascript/jquery/LICENSE.txt": "utf-8",
       "javascript/jquery/ajax.js": "utf-8",
@@ -1879,6 +1933,15 @@
       "javascript/jquery/event.js": "utf-8",
       "javascript/jquery/tokenize.js": "utf-8"
     },
+    "javascript/node_tls_security_tests": {
+      "javascript/node_tls_security_tests/regexp-unicode-sets.js": "utf-8",
+      "javascript/node_tls_security_tests/test-crypto-dh-modp2.js": "utf-8",
+      "javascript/node_tls_security_tests/test-fs-lchown.js": "utf-8",
+      "javascript/node_tls_security_tests/test-https-host-headers.js": "utf-8",
+      "javascript/node_tls_security_tests/test-tls-cert-ext-encoding.js": "utf-8",
+      "javascript/node_tls_security_tests/test-tls-psk-server.js": "utf-8",
+      "javascript/node_tls_security_tests/test-tls-use-after-free-regression.js": "utf-8"
+    },
     "javascript/react": {
       "javascript/react/BabelPlugin.ts": "utf-8",
       "javascript/react/ReactFiberBeginWork.js": "utf-8",
@@ -1886,6 +1949,9 @@
       "javascript/react/ReactFlightServer.js": "utf-8",
       "javascript/react/ReactSymbols.js": "utf-8",
       "javascript/react/build.js": "utf-8"
+    },
+    "javascript/react_error_codes": {
+      "javascript/react_error_codes/extract-errors.js": "utf-8"
     },
     "javascript/threejs": {
       "javascript/threejs/BufferGeometry.js": "utf-8",
@@ -2278,6 +2344,7 @@
       "lua/darwin-xnu/wqtrace.lua": "utf-8"
     },
     "lua/freebsd-src": {
+      "lua/freebsd-src/COPYRIGHT": "utf-8",
       "lua/freebsd-src/cli.lua": "utf-8",
       "lua/freebsd-src/color.lua": "utf-8",
       "lua/freebsd-src/config.lua": "utf-8",
@@ -2372,6 +2439,16 @@
       "makefile/freebsd/COPYRIGHT": "utf-8",
       "makefile/freebsd/Makefile": "utf-8"
     },
+    "markdown": {
+      "markdown/SOURCES.md": "utf-8"
+    },
+    "markdown/airflow_job_lifecycle": {
+      "markdown/airflow_job_lifecycle/JOB_LIFECYCLE.md": "utf-8",
+      "markdown/airflow_job_lifecycle/NOTICE": "utf-8"
+    },
+    "markdown/kubernetes_client_go": {
+      "markdown/kubernetes_client_go/ARCHITECTURE.md": "utf-8"
+    },
     "matlab": {
       "matlab/SOURCES.md": "utf-8"
     },
@@ -2398,6 +2475,7 @@
       "nix/SOURCES.md": "utf-8"
     },
     "nix/bun": {
+      "nix/bun/LICENSE.md": "utf-8",
       "nix/bun/flake.nix": "utf-8",
       "nix/bun/shell.nix": "utf-8"
     },
@@ -2420,6 +2498,10 @@
     },
     "perl": {
       "perl/SOURCES.md": "utf-8"
+    },
+    "perl/ack3_tests": {
+      "perl/ack3_tests/LICENSE.md": "utf-8",
+      "perl/ack3_tests/file-permission.t": "utf-8"
     },
     "perl/bugzilla": {
       "perl/bugzilla/Auth.pm": "utf-8",
@@ -2475,6 +2557,10 @@
       "php/laravel_core/Model.php": "utf-8",
       "php/laravel_core/Router.php": "utf-8"
     },
+    "php/laravel_validation_rules": {
+      "php/laravel_validation_rules/Can.php": "utf-8",
+      "php/laravel_validation_rules/LICENSE.md": "utf-8"
+    },
     "php/magento2": {
       "php/magento2/AbstractBlock.php": "utf-8",
       "php/magento2/AbstractModel.php": "utf-8",
@@ -2494,6 +2580,9 @@
       "php/symfony/Request.php": "utf-8",
       "php/symfony/Router.php": "utf-8"
     },
+    "php/symfony_emoji_data": {
+      "php/symfony_emoji_data/emoji-ccp.php": "utf-8"
+    },
     "php/wordpress": {
       "php/wordpress/admin-ajax.php": "utf-8",
       "php/wordpress/class-wp-query.php": "utf-8",
@@ -2508,6 +2597,7 @@
       "plaintext/SOURCES.md": "utf-8"
     },
     "plaintext/ansible": {
+      "plaintext/ansible/COPYING": "utf-8",
       "plaintext/ansible/requirements.txt": "utf-8"
     },
     "plaintext/cpython/Lib/test/tokenizedata": {
@@ -2521,6 +2611,9 @@
     },
     "plaintext/opencv/include": {
       "plaintext/opencv/include/CMakeLists.txt": "utf-8"
+    },
+    "pli": {
+      "pli/SOURCES.md": "utf-8"
     },
     "pli/dsf_cics_admin": {
       "pli/dsf_cics_admin/LICENSE.md": "utf-8",
@@ -2700,15 +2793,33 @@
       "python/SOURCES.md": "utf-8"
     },
     "python/airflow": {
+      "python/airflow/NOTICE": "utf-8",
       "python/airflow/dag.py": "utf-8",
       "python/airflow/s3.py": "utf-8",
       "python/airflow/scheduler_job_runner.py": "utf-8"
     },
+    "python/airflow_ai_providers": {
+      "python/airflow_ai_providers/NOTICE": "utf-8",
+      "python/airflow_ai_providers/openai_src_airflow_providers_openai_hooks_openai.py": "utf-8",
+      "python/airflow_ai_providers/pinecone_src_airflow_providers_pinecone_hooks_pinecone.py": "utf-8",
+      "python/airflow_ai_providers/pinecone_src_airflow_providers_pinecone_operators_pinecone.py": "utf-8",
+      "python/airflow_ai_providers/pinecone_tests_system_pinecone_example_pinecone_cohere.py": "utf-8"
+    },
+    "python/airflow_opsgenie_tests": {
+      "python/airflow_opsgenie_tests/NOTICE": "utf-8",
+      "python/airflow_opsgenie_tests/test_opsgenie.py": "utf-8"
+    },
     "python/cython": {
+      "python/cython/COPYING.txt": "utf-8",
       "python/cython/CodeGeneration.py": "utf-8",
+      "python/cython/LICENSE.txt": "utf-8",
       "python/cython/MemoryView.pxd": "utf-8",
       "python/cython/MemoryView.pyx": "utf-8",
       "python/cython/Nodes.py": "utf-8"
+    },
+    "python/django_db_tests": {
+      "python/django_db_tests/test_iterator.py": "utf-8",
+      "python/django_db_tests/test_utils.py": "utf-8"
     },
     "python/fastapi": {
       "python/fastapi/CONTRIBUTING.md": "utf-8",
@@ -2947,6 +3058,26 @@
       "python/fastapi/tests/test_ws_router.py": "utf-8",
       "python/fastapi/tests/utils.py": "utf-8"
     },
+    "python/homeassistant_anthropic": {
+      "python/homeassistant_anthropic/LICENSE.md": "utf-8",
+      "python/homeassistant_anthropic/coordinator.py": "utf-8"
+    },
+    "python/homeassistant_ble_integrations": {
+      "python/homeassistant_ble_integrations/LICENSE.md": "utf-8",
+      "python/homeassistant_ble_integrations/aranet___init__.py": "utf-8",
+      "python/homeassistant_ble_integrations/gardena_bluetooth___init__.py": "utf-8",
+      "python/homeassistant_ble_integrations/utils.py": "utf-8"
+    },
+    "python/langchain_agents": {
+      "python/langchain_agents/langchain_agents_middleware_model_fallback.py": "utf-8",
+      "python/langchain_agents/langchain_agents_middleware_tool_emulator.py": "utf-8",
+      "python/langchain_agents/tests_integration_tests_chat_models_test_base.py": "utf-8"
+    },
+    "python/micropython_usb_tls": {
+      "python/micropython_usb_tls/ssl_verify_callback.py": "utf-8",
+      "python/micropython_usb_tls/tls_dtls.py": "utf-8",
+      "python/micropython_usb_tls/usb_simple_host_pyusb.py": "utf-8"
+    },
     "python/numpy": {
       "python/numpy/LICENSE.txt": "utf-8",
       "python/numpy/__init__.py": "utf-8",
@@ -2967,6 +3098,31 @@
       "python/numpy/ufunc_docstrings.py": "utf-8",
       "python/numpy/verify_c_api_version.py": "utf-8"
     },
+    "python/opencv_dnn_conversion": {
+      "python/opencv_dnn_conversion/py_to_py_resnet50_onnx.py": "utf-8"
+    },
+    "python/pip_vendored_requests": {
+      "python/pip_vendored_requests/LICENSE.txt": "utf-8",
+      "python/pip_vendored_requests/packages.py": "utf-8"
+    },
+    "python/scikit-learn_examples": {
+      "python/scikit-learn_examples/COPYING": "utf-8",
+      "python/scikit-learn_examples/linear_model_plot_nnls.py": "utf-8",
+      "python/scikit-learn_examples/svm_plot_custom_kernel.py": "utf-8"
+    },
+    "python/tensorflow_ml_ops": {
+      "python/tensorflow_ml_ops/core_tfrt_saved_model_tests_gen_matmul_gpu.py": "utf-8",
+      "python/tensorflow_ml_ops/lite_testing_op_tests_einsum.py": "utf-8"
+    },
+    "python/tensorflow_model_fixtures": {
+      "python/tensorflow_model_fixtures/lite_testdata_multi_add.pb": "Unknown",
+      "python/tensorflow_model_fixtures/python_compiler_mlir_multi_add.tflite": "Unknown"
+    },
+    "python/thealgorithms_machine_learning": {
+      "python/thealgorithms_machine_learning/LICENSE.md": "utf-8",
+      "python/thealgorithms_machine_learning/logistic_regression.py": "utf-8",
+      "python/thealgorithms_machine_learning/lstm_lstm_prediction.py": "utf-8"
+    },
     "python/twisted": {
       "python/twisted/defer.py": "utf-8",
       "python/twisted/http.py": "utf-8",
@@ -2982,18 +3138,24 @@
       "python/wtfpython/noxfile.py": "utf-8"
     },
     "rexx": {
-      "rexx/PROVENANCE.md": "utf-8"
+      "rexx/PROVENANCE.md": "utf-8",
+      "rexx/SOURCES.md": "utf-8"
+    },
+    "rexx/hercules_390_hyperion": {
+      "rexx/hercules_390_hyperion/COPYRIGHT": "utf-8",
+      "rexx/hercules_390_hyperion/sample.rexx": "utf-8"
     },
     "rexx/hercules_hyperion": {
+      "rexx/hercules_hyperion/COPYRIGHT": "utf-8",
       "rexx/hercules_hyperion/cmpsc.rexx": "utf-8",
       "rexx/hercules_hyperion/hbasic1.rexx": "utf-8",
       "rexx/hercules_hyperion/hcommand.rexx": "utf-8",
       "rexx/hercules_hyperion/hexecio.rexx": "utf-8",
       "rexx/hercules_hyperion/hlinein.rexx": "utf-8",
-      "rexx/hercules_hyperion/hrecurs.rexx": "utf-8",
-      "rexx/hercules_hyperion/sample.rexx": "utf-8"
+      "rexx/hercules_hyperion/hrecurs.rexx": "utf-8"
     },
     "rexx/ibm_z_zos": {
+      "rexx/ibm_z_zos/LICENSE.md": "utf-8",
       "rexx/ibm_z_zos/bpxget.rexx": "utf-8",
       "rexx/ibm_z_zos/bpxput.rexx": "utf-8",
       "rexx/ibm_z_zos/bpxwtabs.rexx": "utf-8",
@@ -3026,10 +3188,16 @@
       "ruby/rails/metal.rb": "utf-8",
       "ruby/rails/routing.rb": "utf-8"
     },
+    "ruby/rails_http_token_auth": {
+      "ruby/rails_http_token_auth/MIT-LICENSE": "utf-8",
+      "ruby/rails_http_token_auth/http_token_authentication_test.rb": "utf-8"
+    },
     "rust": {
       "rust/SOURCES.md": "utf-8"
     },
     "rust/bevy": {
+      "rust/bevy/LICENSE-APACHE": "utf-8",
+      "rust/bevy/LICENSE-MIT": "utf-8",
       "rust/bevy/bevy_ecs_macros.rs": "utf-8",
       "rust/bevy/bevy_ecs_query.rs": "utf-8",
       "rust/bevy/bevy_ecs_table.rs": "utf-8",
@@ -3037,6 +3205,12 @@
       "rust/bevy/bevy_reflect_path.rs": "utf-8",
       "rust/bevy/bevy_render_phase.rs": "utf-8",
       "rust/bevy/bevy_schedule_graph.rs": "utf-8"
+    },
+    "rust/bevy_asset_examples": {
+      "rust/bevy_asset_examples/LICENSE-APACHE": "utf-8",
+      "rust/bevy_asset_examples/LICENSE-MIT": "utf-8",
+      "rust/bevy_asset_examples/image_node.rs": "utf-8",
+      "rust/bevy_asset_examples/rotation.rs": "utf-8"
     },
     "rust/holylang": {
       "rust/holylang/ast.rs": "utf-8",
@@ -3048,6 +3222,8 @@
       "rust/holylang/transpiler.rs": "utf-8"
     },
     "rust/serde": {
+      "rust/serde/LICENSE-APACHE": "utf-8",
+      "rust/serde/LICENSE-MIT": "utf-8",
       "rust/serde/serde_core_de_impls.rs": "utf-8",
       "rust/serde/serde_core_de_mod.rs": "utf-8",
       "rust/serde/serde_core_macros.rs": "utf-8",
@@ -3079,6 +3255,9 @@
       "rust/tokio/tests.rs": "utf-8",
       "rust/tokio/tokio_mpsc_bounded.rs": "utf-8",
       "rust/tokio/tokio_named_pipe.rs": "utf-8"
+    },
+    "rust/tokio_util_rand": {
+      "rust/tokio_util_rand/rand.rs": "utf-8"
     },
     "rust/wasmtime": {
       "rust/wasmtime/wasmtime_component_macro.rs": "utf-8",
@@ -3194,6 +3373,7 @@
       "shell/darwin-xnu/xcrun_cache.sh": "utf-8"
     },
     "shell/freebsd-src": {
+      "shell/freebsd-src/COPYRIGHT": "utf-8",
       "shell/freebsd-src/chflags_test.sh": "utf-8",
       "shell/freebsd-src/chmod_test.sh": "utf-8",
       "shell/freebsd-src/cp_test.sh": "utf-8",
@@ -3220,6 +3400,10 @@
       "shell/freebsd-src/runulp.sh": "utf-8",
       "shell/freebsd-src/timeout_test.sh": "utf-8",
       "shell/freebsd-src/ztest.sh": "utf-8"
+    },
+    "shell/freebsd_sysbuild": {
+      "shell/freebsd_sysbuild/COPYRIGHT": "utf-8",
+      "shell/freebsd_sysbuild/sysbuild.sh": "utf-8"
     },
     "shell/haiku": {
       "shell/haiku/HardwareChecker.sh": "utf-8",
@@ -3419,23 +3603,26 @@
     "sql/baseline": {
       "sql/baseline/schema.php": "utf-8"
     },
-    "sql/mysql/mediawiki": {
-      "sql/mysql/mediawiki/COPYING": "utf-8",
-      "sql/mysql/mediawiki/blobs.sql": "utf-8"
+    "sql/mediawiki_mysql": {
+      "sql/mediawiki_mysql/COPYING": "utf-8",
+      "sql/mediawiki_mysql/blobs.sql": "utf-8"
     },
-    "sql/mysql/spamassassin": {
-      "sql/mysql/spamassassin/neural_mysql.sql": "utf-8"
+    "sql/mediawiki_postgresql": {
+      "sql/mediawiki_postgresql/COPYING": "utf-8",
+      "sql/mediawiki_postgresql/tables.sql": "utf-8"
     },
-    "sql/postgresql/mediawiki": {
-      "sql/postgresql/mediawiki/tables.sql": "utf-8"
-    },
-    "sql/postgresql/sqlmap": {
-      "sql/postgresql/sqlmap/dns_request.sql": "utf-8"
+    "sql/spamassassin_mysql": {
+      "sql/spamassassin_mysql/NOTICE": "utf-8",
+      "sql/spamassassin_mysql/neural_mysql.sql": "utf-8"
     },
     "sql/sqlite": {
       "sql/sqlite/000-mandelbrot.sql": "utf-8",
       "sql/sqlite/001-sudoku.sql": "utf-8",
+      "sql/sqlite/LICENSE.md": "utf-8",
       "sql/sqlite/dotcmd01.sql": "utf-8"
+    },
+    "sql/sqlmap_postgresql": {
+      "sql/sqlmap_postgresql/dns_request.sql": "utf-8"
     },
     "sqlite": {
       "sqlite/SOURCES.md": "utf-8"
@@ -3600,6 +3787,7 @@
       "tcl/macports_registry/registry_util.tcl": "utf-8"
     },
     "tcl/sqlite": {
+      "tcl/sqlite/LICENSE.md": "utf-8",
       "tcl/sqlite/README.md": "utf-8",
       "tcl/sqlite/malloc_common.tcl": "utf-8",
       "tcl/sqlite/speedtest.tcl": "utf-8",
@@ -3644,6 +3832,9 @@
     "typescript": {
       "typescript/SOURCES.md": "utf-8"
     },
+    "typescript/angular_zonejs_mocha": {
+      "typescript/angular_zonejs_mocha/mocha.ts": "utf-8"
+    },
     "typescript/assemblyscript": {
       "typescript/assemblyscript/asconfig.json": "utf-8",
       "typescript/assemblyscript/ast.ts": "utf-8",
@@ -3651,12 +3842,30 @@
       "typescript/assemblyscript/package.json": "utf-8",
       "typescript/assemblyscript/parser.ts": "utf-8"
     },
+    "typescript/effect_ai_anthropic": {
+      "typescript/effect_ai_anthropic/AnthropicTokenizer.ts": "utf-8"
+    },
+    "typescript/excalibur_math": {
+      "typescript/excalibur_math/LICENSE.md": "utf-8",
+      "typescript/excalibur_math/collision_colliders_separating-axis.ts": "utf-8",
+      "typescript/excalibur_math/math_ray.ts": "utf-8"
+    },
+    "typescript/excalidraw_text_wrapping": {
+      "typescript/excalidraw_text_wrapping/textWrapping.ts": "utf-8"
+    },
     "typescript/fp-ts": {
       "typescript/fp-ts/Either.ts": "utf-8",
       "typescript/fp-ts/HKT.ts": "utf-8",
       "typescript/fp-ts/TaskEither.ts": "utf-8",
       "typescript/fp-ts/package.json": "utf-8",
       "typescript/fp-ts/pipeable.ts": "utf-8"
+    },
+    "typescript/nx_util_ai": {
+      "typescript/nx_util_ai/nx-dev_pages_api_query-ai-handler.ts": "utf-8",
+      "typescript/nx_util_ai/util-ai_src_lib_moderation.ts": "utf-8"
+    },
+    "typescript/pixijs_examples": {
+      "typescript/pixijs_examples/events_dragging.ts": "utf-8"
     },
     "typescript/playwright": {
       "typescript/playwright/NOTICE": "utf-8",
@@ -3700,10 +3909,12 @@
       "xml/apex/CanTheUser_Tests.cls-meta.xml": "utf-8",
       "xml/apex/IterationRecipes_Tests.cls": "utf-8",
       "xml/apex/IterationRecipes_Tests.cls-meta.xml": "utf-8",
+      "xml/apex/LICENSE.md": "utf-8",
       "xml/apex/ListSortingRecipes_Tests.cls": "utf-8",
       "xml/apex/ListSortingRecipes_Tests.cls-meta.xml": "utf-8"
     },
     "xml/jenkins": {
+      "xml/jenkins/LICENSE.txt": "utf-8",
       "xml/jenkins/XStreamDOMTest.data1.xml": "utf-8",
       "xml/jenkins/XStreamDOMTest.data2.xml": "utf-8",
       "xml/jenkins/excludesFilter.xml": "utf-8"
@@ -3810,10 +4021,21 @@
       "zig/SOURCES.md": "utf-8"
     },
     "zig/bun": {
+      "zig/bun/LICENSE.md": "utf-8",
       "zig/bun/MimallocArena.zig": "utf-8",
       "zig/bun/Parser.zig": "utf-8",
       "zig/bun/comptime_string_map.zig": "utf-8",
       "zig/bun/napi.zig": "utf-8"
+    },
+    "zig/mach": {
+      "zig/mach/Core.zig": "utf-8",
+      "zig/mach/StringTable.zig": "utf-8",
+      "zig/mach/collision.zig": "utf-8",
+      "zig/mach/graph.zig": "utf-8",
+      "zig/mach/main.zig": "utf-8",
+      "zig/mach/module.zig": "utf-8",
+      "zig/mach/testing.zig": "utf-8",
+      "zig/mach/win32.zig": "utf-8"
     },
     "zig/tigerbeetle": {
       "zig/tigerbeetle/aof.zig": "utf-8",
@@ -3836,6 +4058,9 @@
       "zig/zig/Zcu.zig": "utf-8",
       "zig/zig/main.zig": "utf-8"
     },
+    "zig/zig_std_linux_mips": {
+      "zig/zig_std_linux_mips/mips.zig": "utf-8"
+    },
     "zig/zls": {
       "zig/zls/DocumentScope.zig": "utf-8",
       "zig/zls/DocumentStore.zig": "utf-8",
@@ -3844,16 +4069,6 @@
       "zig/zls/ast.zig": "utf-8",
       "zig/zls/config_gen.zig": "utf-8",
       "zig/zls/print_ast.zig": "utf-8"
-    },
-    "zig/zls/mach": {
-      "zig/zls/mach/Core.zig": "utf-8",
-      "zig/zls/mach/StringTable.zig": "utf-8",
-      "zig/zls/mach/collision.zig": "utf-8",
-      "zig/zls/mach/graph.zig": "utf-8",
-      "zig/zls/mach/main.zig": "utf-8",
-      "zig/zls/mach/module.zig": "utf-8",
-      "zig/zls/mach/testing.zig": "utf-8",
-      "zig/zls/mach/win32.zig": "utf-8"
     }
   },
   "path": [

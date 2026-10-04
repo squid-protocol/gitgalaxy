@@ -1,0 +1,211 @@
+{
+ "format": "gitgalaxy-evidence/1",
+ "case": "crucible:pc-aid-menu",
+ "program": "PCDETL",
+ "kind": "crucible",
+ "port": {
+  "paths": [
+   "tests/cics_crucible/ports/pc-aid-menu/PCDETL/overlay/service/PcdetlService.java"
+  ],
+  "sha256": "00b7a075d06b72fd07be54284ab435e3cd2dce40c9fb4777935d4c225ae52767",
+  "entry_points": [
+   "runTask"
+  ]
+ },
+ "inputs": {
+  "port": {
+   "paths": [
+    "tests/cics_crucible/ports/pc-aid-menu/*/overlay/**"
+   ],
+   "files": 2,
+   "sha256": "5b5a9321aa7f3216c74f1352ee5bf37502387c26cf88542b675bd37eac07e2a5"
+  },
+  "case": {
+   "paths": [
+    "tests/cics_crucible/strengthened/pc-aid-menu/**"
+   ],
+   "files": 0,
+   "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  "harness": {
+   "paths": [
+    "tests/tools/equivalence.py",
+    "tests/tools/equivalence_common.py",
+    "tests/tools/equivalence_java.py",
+    "tests/tools/equivalence_inputs.py",
+    "tests/tools/equivalence_cics.py",
+    "tests/tools/equivalence_call.py",
+    "tests/tools/equivalence_cache.py",
+    "tests/tools/equivalence_db2.py",
+    "tests/tools/equivalence_oracle.py",
+    "tests/tools/cobol_coverage.py",
+    "tests/tools/java_target_matrix.py",
+    "tests/tools/cics_crucible.py",
+    "tests/tools/cics_crucible_compare.py"
+   ],
+   "files": 13,
+   "sha256": "1549c810f2072e5323782c43f34191fb370d080880f2f2e0e09bc6897faaf3c6"
+  },
+  "oracle": {
+   "paths": [],
+   "files": 0,
+   "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  "generator": {
+   "paths": [
+    "gitgalaxy/tools/cobol_to_java/**"
+   ],
+   "files": 60,
+   "sha256": "880250850d919c29f8ace3eb0d7183156a05354438ea79f72a417febb9e57e68"
+  },
+  "corpus": {
+   "name": "cics-crucible",
+   "ref": "v0.2.0",
+   "sha256": "085be5a9f372ecb979d4f8dda1d8c749e85d01abb85e227fca4127844db9c5b6"
+  },
+  "differences": {
+   "sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+  },
+  "digest": "ae96514bb9a08c4b690bd9c53f64555939ee07776c7c91d840ae14f9154e0ffc"
+ },
+ "proof": {
+  "at": "2026-10-04T15:46:21Z",
+  "verdict": "proven",
+  "runs": 3,
+  "fault_runs": 0,
+  "environments": null,
+  "outputs": {
+   "aid-keys": {
+    "equal": 1,
+    "records": 1
+   },
+   "option1-xctl": {
+    "equal": 1,
+    "records": 1
+   },
+   "option2-next-transid": {
+    "equal": 1,
+    "records": 1
+   }
+  },
+  "return_code_equal": null,
+  "sysout_compared": null,
+  "attributes_compared": null,
+  "java_failed": false,
+  "harness_commit": "cdad33370dc73ea44e5bf1348d88c9404a14c2d2+uncommitted",
+  "inputs_digest": "ae96514bb9a08c4b690bd9c53f64555939ee07776c7c91d840ae14f9154e0ffc"
+ },
+ "coverage": {
+  "paragraphs": {
+   "covered": 1,
+   "live": 1
+  },
+  "branches": {
+   "covered": 2,
+   "total": 2
+  },
+  "uncovered_branches": null,
+  "handler_labels": null,
+  "source": "tests/cics_crucible/coverage.json#programs/pc-aid-menu/PCDETL",
+  "ledger_sha256": "7e84773fcc0ea91e7c202508d32b419f56f6723aa0cdccc570061d636889223f",
+  "inputs_digest": "ae96514bb9a08c4b690bd9c53f64555939ee07776c7c91d840ae14f9154e0ffc"
+ },
+ "reach": {
+  "entry_points": [
+   "runTask"
+  ],
+  "unproven": [
+   {
+    "class": "PcdetlService",
+    "method": "executePcdetl",
+    "line": 53,
+    "kind": "stub"
+   },
+   {
+    "class": "PcdetlService",
+    "method": "handleTransaction",
+    "line": 63,
+    "kind": "ported_unproven"
+   },
+   {
+    "class": "PcdetlService",
+    "method": "handleLink",
+    "line": 76,
+    "kind": "stub"
+   }
+  ],
+  "counts": {
+   "stub": 2,
+   "left_as_generated": 0,
+   "ported_unproven": 1
+  },
+  "generated_compared": true,
+  "port_sha256": "00b7a075d06b72fd07be54284ab435e3cd2dce40c9fb4777935d4c225ae52767"
+ },
+ "mutation": {
+  "commit": "be2561306",
+  "rejudged": null,
+  "seed": 0,
+  "mode": null,
+  "mutants": 60,
+  "chosen": 24,
+  "killed": 14,
+  "survived": 10,
+  "stillborn": 0,
+  "survivors": {
+   "case_gap": 0,
+   "harness_gap": 0,
+   "equivalent": 9,
+   "unreachable": 1,
+   "untriaged": 0
+  },
+  "score_raw": "14/24",
+  "score_adjusted": "14/14",
+  "source": "docs/language_status/mutation_scores.json#crucible:pc-aid-menu/PCDETL",
+  "inputs": {
+   "port": {
+    "sha256": "5b5a9321aa7f3216c74f1352ee5bf37502387c26cf88542b675bd37eac07e2a5"
+   },
+   "case": {
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+   },
+   "corpus": {
+    "sha256": "085be5a9f372ecb979d4f8dda1d8c749e85d01abb85e227fca4127844db9c5b6"
+   },
+   "harness": {
+    "sha256": "e67f03b7e18455d8d525349b25ec5e46d20bc2fb812f2c84299141fe89296d36"
+   },
+   "oracle": {
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+   }
+  }
+ },
+ "differences": [],
+ "oracle": {
+  "kind": "crucible-expected-logs",
+  "source": "cics-crucible v0.2.0: each scenario's hand-written expected event log, derived from IBM's documentation (its SPEC.md); the java-ported side is compared with it exactly",
+  "compiler": null,
+  "image": null,
+  "models": [],
+  "assumptions": null
+ },
+ "provenance": {
+  "written_by": "model",
+  "model": "claude-opus-5-5",
+  "backend": "claude CLI 2.1.285 print mode (claude -p --model claude-opus-5-5 --effort high --tools '' --strict-mcp-config --mcp-config '{\"mcpServers\":{}}' --no-session-persistence --system-prompt <porting system prompt>, prompt file on stdin, run from an empty directory)",
+  "attempt": 2,
+  "attempts": null,
+  "ticket_sha256": "98494150e65dd249178f5e54019cf54c915456a071bded373e97f9071f700ada",
+  "porting_rules_sha256": null,
+  "proposed_at": "2026-09-29T22:00:53+00:00",
+  "generator_version": null,
+  "edited_after": null,
+  "provenance_file": {
+   "path": "tests/cics_crucible/ports/pc-aid-menu/PCDETL/provenance.json",
+   "format": "cics-crucible-port/1",
+   "sha256": "92883bc28d0f65916f24074c1db2e3790f3524c0f910baad4cafbc815dc5055f"
+  },
+  "crucible_ref_proven": "v0.2.0 (94f2afcb)"
+ },
+ "approvals": []
+}

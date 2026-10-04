@@ -112,35 +112,473 @@ def commarea_alternative_todos(commarea: dict) -> list[str]:
 # #3754: one CICS task, the runtime a program's runTask is written against.
 CICS_TASK_JAVA = """package __PACKAGE__.cics;
 
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.function.UnaryOperator;
 
 /**
  * One CICS task (#3754): what a transaction receives -- its TRANSID, the key the user pressed (EIBAID), the
- * COMMAREA it was started with (none on a first entry, EIBCALEN = 0) and the screens it RECEIVEs -- and, in
- * order, what the program does with it: SEND MAP / SEND TEXT, RETURN TRANSID with a COMMAREA, XCTL, ABEND.
- * A program's service ports its PROCEDURE DIVISION into runTask(CicsTask); the equivalence harness runs the
- * same task through the original COBOL and compares every event, field by field.
+ * COMMAREA it was started with and its length (none on a first entry, EIBCALEN = 0) and the screens it
+ * RECEIVEs -- and, in order, what the program does with it: RECEIVE, RECEIVE MAP, SEND MAP / SEND TEXT,
+ * READQ / WRITEQ TS, RETURN TRANSID with a COMMAREA, LINK, XCTL, ABEND. A program's service ports its
+ * PROCEDURE DIVISION into runTask(CicsTask); the equivalence harness runs the same task through the original
+ * COBOL and compares every event, field by field.
+ * A LINK (#4004) runs the target program at the next level, as a CicsTask of its own that shares this
+ * task's events, terminal and temporary storage and gets the caller's COMMAREA object itself (by reference).
  */
 public class CicsTask {
 
     private final String transid;
     private final String aid;
     private final Object commarea;
+    private final Integer eibcalen;
+    private byte[] linkArea;  // #4181 follow-up: the LINK COMMAREA's bytes, when the linking program passed them
     private final Map<String, Object> received;
-    private final List<Map<String, Object>> events = new ArrayList<>();
+    private final List<Map<String, Object>> events;
     private boolean ended;
+    private final CicsTask parent;   // the linking program's level (#4004); null at level 1
+    private final int level;
+    private final Object linkCommarea;
+    private Integer linkLength;                             // #3989: the LENGTH of the LINK that started this level
+    private String program;
+    private String invoker = "";                                            // ASSIGN INVOKINGPROG: who LINKed / XCTLed here
+    private Programs programs;
+    private UnaryOperator<Object> snapshot = o -> o;
+    private String xctlTarget;
+    private Object xctlCommarea;
+    private Integer xctlLength;
+    private LocalDateTime now;                              // #4006: the virtual clock (the task's root)
+    private List<byte[]> retrieveData = List.of();
+    private int retrieved;
+    private Map<String, LocalDateTime> unexpired = Map.of();
+    private final Map<String, LocalDateTime> ownRequests = new HashMap<>();
+    private String terminalInput;
+    private boolean terminalRead;
+    private TempStorage tempStorage = new TempStorage();
+    private String abcode = "    ";
+    private String termid;                                  // #3989: EIBTRMID (the task's root); null without one
+    private String exitLabel;                               // #3989: this level's HANDLE ABEND LABEL
+    private boolean exitActive;
+    private final java.util.ArrayDeque<Object[]> pushedExits = new java.util.ArrayDeque<>();
+    private String unwoundTo;                               // an abend below went to this level's exit
+    private List<String[]> faultPlan = List.of();           // #4023 follow-up: injected conditions (the task's root)
+    private java.nio.file.Path faultLog;
+    private final java.util.Set<String> held = new java.util.HashSet<>();  // files a readForUpdate holds (the root's)
+    private boolean syncpointed;                                            // a SYNCPOINT committed (the root's)
+    private Runnable rollbackHook;                                          // how a rollback undoes (the root's)
+    private final Map<String, Integer> faultSeen = new HashMap<>();
 
-    /** `aid` is ENTER, CLEAR, PF1-PF24 or PA1-PA3; `received` maps a map name to its input screen. */
+    /** `aid` is ENTER, CLEAR, PF1-PF24 or PA1-PA3; `received` maps a map name to its input screen. The
+     *  COMMAREA, if any, is its whole record (as long as its DTO's layout). */
     public CicsTask(String transid, String aid, Object commarea, Map<String, Object> received) {
+        this(transid, aid, commarea, null, received);
+    }
+
+    /** As above, with EIBCALEN (#4009): the length of the COMMAREA the task receives, which may be shorter
+     *  or longer than its DTO's record (a caller passing LENGTH(100) to a program declaring 500 bytes).
+     *  Null means the whole record; with no COMMAREA it is 0. */
+    public CicsTask(String transid, String aid, Object commarea, Integer eibcalen, Map<String, Object> received) {
         this.transid = transid;
         this.aid = aid;
         this.commarea = commarea;
+        this.eibcalen = commarea == null ? Integer.valueOf(0) : eibcalen;
         this.received = received == null ? Map.of() : received;
+        this.events = new ArrayList<>();
+        this.parent = null;
+        this.level = 1;
+        this.linkCommarea = null;
+    }
+
+    /** A program level below `caller` (#4004), running `program` on `commarea` (EIBCALEN `length`). */
+    private CicsTask(CicsTask caller, int level, String program, Object commarea, Integer length, Object linkCommarea) {
+        this.transid = caller.transid;
+        this.aid = caller.aid;
+        this.commarea = commarea;
+        this.eibcalen = commarea == null ? Integer.valueOf(0) : length;
+        this.received = caller.received;
+        this.events = caller.events;
+        this.parent = caller;
+        this.level = level;
+        this.linkCommarea = linkCommarea;
+        this.program = program;
+        this.programs = caller.programs;
+        this.snapshot = caller.snapshot;
+        this.tempStorage = caller.tempStorage;
+    }
+
+    /** The programs a LINK or XCTL can reach (#4004): whether the CSD defines one (program autoinstall is
+     *  off, so any other is PGMIDERR), and how to run one at a level -- its service's runTask. */
+    public interface Programs {
+        boolean defined(String program);
+
+        void run(String program, CicsTask task);
+
+        /** Whether the CSD defines a transaction (START's TRANSIDERR, #4006). */
+        default boolean transaction(String transid) {
+            return true;
+        }
+
+        /** Whether the region has a terminal (START's TERMIDERR, #4006). */
+        default boolean terminal(String termid) {
+            return true;
+        }
+    }
+
+    /** How LINK / XCTL reach other programs (#4004). */
+    public CicsTask withPrograms(Programs programs) {
+        this.programs = programs;
+        return this;
+    }
+
+    /** The program this level runs (#4004): its events name it as their issuer. */
+    public CicsTask withProgram(String program) {
+        this.program = program;
+        return this;
+    }
+
+    /** How an event keeps a COMMAREA (#4004): a copy of it as it is when the command is issued -- a LINK
+     *  COMMAREA is shared with the callee, which may change it afterwards. The default keeps the object. */
+    public CicsTask withSnapshot(UnaryOperator<Object> snapshot) {
+        this.snapshot = snapshot;
+        return this;
+    }
+
+    /** The logical level this program runs at: 1 for the task's first program, +1 per LINK (#4004). */
+    public int level() {
+        return level;
+    }
+
+    /** LINK PROGRAM(program) COMMAREA(commarea) LENGTH(length) (#4004, IBM EXEC CICS LINK): LENGERR (RESP2
+     *  11) for a length outside 0-32763, PGMIDERR (RESP2 1) for a program the CSD does not define; else the
+     *  program runs at the next level on `commarea` itself -- what it changes, the caller sees -- then any
+     *  program it XCTLs to, and control returns here. The handlers of this program are not the callee's. */
+    public String link(String program, Object commarea, int length) {
+        return link(program, commarea, length, null);
+    }
+
+    /** LINK with the COMMAREA's bytes as well (#4181 follow-up): the area is passed by reference, so a program
+     *  given `area` reads and writes those bytes as its DFHCOMMAREA -- every byte, the ones its contract DTO does
+     *  not name too (a caller's record laid out unlike the target's contract). The event carries them (base64). */
+    public String link(String program, Object commarea, int length, byte[] area) {
+        String resp = "NORMAL";
+        Integer resp2 = null;
+        int len = commarea == null ? 0 : length;
+        if (commarea != null && (length < 0 || length > 32763)) {
+            resp = "LENGERR";
+            resp2 = 11;
+        } else if (programs == null || !programs.defined(program)) {
+            resp = "PGMIDERR";
+            resp2 = 1;
+        }
+        event("LINK", "target", program, "length", len, "commarea", snapshot.apply(commarea), "resp", resp,
+                "resp2", resp2);
+        if (area != null) {
+            events.get(events.size() - 1).put("area", java.util.Base64.getEncoder().encodeToString(
+                    java.util.Arrays.copyOf(area, Math.max(0, Math.min(len, area.length)))));
+        }
+        if (!"NORMAL".equals(resp)) {
+            return resp;
+        }
+        CicsTask callee = new CicsTask(this, level + 1, program, commarea, len, commarea);
+        callee.invoker = this.program;
+        callee.linkLength = len;
+        callee.linkArea = area;
+        for (int hop = 0; callee != null && hop < 32; hop++) {
+            programs.run(callee.program, callee);
+            if (callee.xctlTarget != null) {
+                String by = callee.program;
+                callee = new CicsTask(this, level + 1, callee.xctlTarget, callee.xctlCommarea, callee.xctlLength,
+                        commarea);
+                callee.invoker = by;
+                callee.linkLength = len;
+            } else {
+                if (!callee.ended) {
+                    callee.returnTransid(null, null);  // a GOBACK is a RETURN
+                }
+                callee = null;
+            }
+        }
+        return resp;
+    }
+
+    /** Runs the task (#4004): `program` at level 1 through the Programs given, then any program it XCTLs
+     *  to, each on the COMMAREA the XCTL passed; they share this task's events, terminal and storage. */
+    public void run(String program) {
+        this.program = program;
+        CicsTask current = this;
+        for (int hop = 0; current != null && hop < 32; hop++) {
+            programs.run(current.program, current);
+            CicsTask next = current.xctlTarget == null ? null
+                    : new CicsTask(this, 1, current.xctlTarget, current.xctlCommarea, current.xctlLength, null);
+            if (next != null) {
+                next.invoker = current.program;
+            }
+            current = next;
+        }
+    }
+
+    /** The virtual time the task was dispatched at (#4006): a task takes no time (EIBTIME, ASKTIME). */
+    public CicsTask withClock(LocalDateTime now) {
+        this.now = now;
+        return this;
+    }
+
+    public LocalDateTime now() {
+        return root().now;
+    }
+
+    private String applid;
+    private String sysid;
+    private java.util.Set<String> tdQueues;
+
+    /** The region's identity (ASSIGN APPLID / SYSID): a deployment fact, set by whoever runs the task. */
+    public CicsTask withRegion(String applid, String sysid) {
+        this.applid = applid;
+        this.sysid = sysid;
+        return this;
+    }
+
+    /** ASSIGN APPLID: the region's application id, 8 characters. */
+    public String assignApplid() {
+        String a = root().applid;
+        if (a == null) {
+            throw new IllegalStateException("ASSIGN APPLID: no region configured (withRegion)");
+        }
+        return String.format(java.util.Locale.ROOT, "%-8.8s", a);
+    }
+
+    /** ASSIGN SYSID: the region's system id, 4 characters. */
+    public String assignSysid() {
+        String s = root().sysid;
+        if (s == null) {
+            throw new IllegalStateException("ASSIGN SYSID: no region configured (withRegion)");
+        }
+        return String.format(java.util.Locale.ROOT, "%-4.4s", s);
+    }
+
+    /** The transient-data queues the CSD defines; null, every queue is defined. */
+    public CicsTask withTdQueues(java.util.Set<String> queues) {
+        this.tdQueues = queues;
+        return this;
+    }
+
+    /** WRITEQ TD QUEUE(queue) FROM(record) (IBM CICS TS): one record on a transient-data queue -- recorded, with the
+     *  record's text, and compared (CardDemo's CORPT00C submits JCL through JOBS). QIDERR (44) for a queue the
+     *  CSD does not define, or the condition the harness planned; then nothing is written. */
+    public int writeqTd(String queue, String record) {
+        String q = queue.strip();
+        int[] planned = root().injected("WRITEQ-TD", q);
+        int resp = planned != null ? planned[0]
+                : root().tdQueues != null && !root().tdQueues.contains(q) ? 44 : 0;
+        event("WRITEQ-TD", "queue", q, "text", resp == 0 ? record : null, "resp", resp);
+        return resp;
+    }
+
+    private static final LocalDateTime ABSTIME_EPOCH = LocalDateTime.of(1900, 1, 1, 0, 0);
+
+    /** ASKTIME ABSTIME (IBM CICS TS): milliseconds since 00:00 on 1 January 1900, at the task's clock. */
+    public long asktime() {
+        return java.time.Duration.between(ABSTIME_EPOCH, now()).toMillis();
+    }
+
+    /** FORMATTIME ABSTIME(t) YYYYMMDD / MMDDYYYY / DDMMYYYY / YYMMDD / MMDDYY / DDMMYY: the date of t in that form,
+     *  its parts joined by `datesep` ("" for no DATESEP; DATESEP with no value is "/"). */
+    public static String formatDate(long abstime, String form, String datesep) {
+        LocalDateTime t = ABSTIME_EPOCH.plus(java.time.Duration.ofMillis(abstime));
+        String y4 = String.format(java.util.Locale.ROOT, "%04d", t.getYear()), y2 = y4.substring(2);
+        String m = String.format(java.util.Locale.ROOT, "%02d", t.getMonthValue()), d = String.format(java.util.Locale.ROOT, "%02d", t.getDayOfMonth());
+        List<String> parts = switch (form) {
+            case "YYYYMMDD" -> List.of(y4, m, d);
+            case "MMDDYYYY" -> List.of(m, d, y4);
+            case "DDMMYYYY" -> List.of(d, m, y4);
+            case "YYMMDD" -> List.of(y2, m, d);
+            case "MMDDYY" -> List.of(m, d, y2);
+            case "DDMMYY" -> List.of(d, m, y2);
+            default -> throw new IllegalArgumentException("FORMATTIME " + form + " is not modelled");
+        };
+        return String.join(datesep, parts);
+    }
+
+    /** FORMATTIME ABSTIME(t) TIME: hhmmss of t, joined by `timesep` ("" for no TIMESEP; TIMESEP alone is ":"). */
+    public static String formatTime(long abstime, String timesep) {
+        LocalDateTime t = ABSTIME_EPOCH.plus(java.time.Duration.ofMillis(abstime));
+        return String.join(timesep, String.format(java.util.Locale.ROOT, "%02d", t.getHour()), String.format(java.util.Locale.ROOT, "%02d", t.getMinute()),
+                String.format(java.util.Locale.ROOT, "%02d", t.getSecond()));
+    }
+
+    /** The terminal the task is attached to (#3989): EIBTRMID, or null for a task no terminal started. */
+    public CicsTask withTermid(String termid) {
+        this.termid = termid;
+        return this;
+    }
+
+    /** EIBTRMID (#3989): the task's terminal, the same at every LINK / XCTL level; null for a non-terminal task. */
+    public String termid() {
+        return root().termid;
+    }
+
+    /** The FROM data of the START requests this task was started for, in expiry order (#4006). */
+    public CicsTask withRetrieveData(List<byte[]> data) {
+        this.retrieveData = data == null ? List.of() : data;
+        return this;
+    }
+
+    /** The region's unexpired interval-control requests by REQID (#4006: what CANCEL can still find). */
+    public CicsTask withRequests(Map<String, LocalDateTime> unexpired) {
+        this.unexpired = unexpired == null ? Map.of() : unexpired;
+        return this;
+    }
+
+    private static final DateTimeFormatter ISO = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss");
+
+    /** START TRANSID(transid) [TERMID] INTERVAL(hhmmss) [FROM] [REQID] [PROTECT] (#4006, IBM EXEC CICS START):
+     *  the request expires at now + INTERVAL; the harness's scheduler runs it once the starting task has
+     *  ended (a PROTECT request only if it ended normally). `termid`, `from` and `reqid` may be null. */
+    public StartResult start(String transid, String termid, int interval, byte[] from, String reqid, boolean protect) {
+        return start(transid, termid, interval, false, from, reqid, protect);
+    }
+
+    /** START ... TIME(hhmmss): today at that time; a TIME not later than now but within the preceding six hours
+     *  expires at once ("if the START gets triggered at any time within 6 hours after the time specified on
+     *  the START, it runs immediately"), an earlier one tomorrow. */
+    public StartResult startAt(String transid, String termid, int time, byte[] from, String reqid, boolean protect) {
+        return start(transid, termid, time, true, from, reqid, protect);
+    }
+
+    private StartResult start(String transid, String termid, int hhmmss, boolean isTime, byte[] from, String reqid,
+            boolean protect) {
+        int hh = hhmmss / 10000, mm = hhmmss / 100 % 100, ss = hhmmss % 100;
+        LocalDateTime clock = now();
+        LocalDateTime at = null;
+        String resp = "NORMAL";
+        int[] planned;
+        if (hhmmss < 0 || mm > 59 || ss > 59 || hh > (isTime ? 23 : 99)) {
+            resp = "INVREQ";
+        } else if (from != null && (from.length < 1 || from.length > 32763)) {
+            resp = "LENGERR";
+        } else if (programs != null && !programs.transaction(transid)) {
+            resp = "TRANSIDERR";
+        } else if (termid != null && programs != null && !programs.terminal(termid)) {
+            resp = "TERMIDERR";
+        } else if ((planned = root().injected("START", transid.stripTrailing())) != null) {
+            resp = respName(planned[0]);  // #4049: a planned condition; nothing is started
+        } else if (isTime) {
+            at = clock.toLocalDate().atTime(hh, mm, ss);
+            if (!at.isAfter(clock)) {
+                at = at.isBefore(clock.minusHours(6)) ? at.plusDays(1) : clock;
+            }
+        } else {
+            at = clock.plusSeconds(hh * 3600L + mm * 60L + ss);
+        }
+        Map<String, Object> e = new LinkedHashMap<>();
+        e.put("event", "START");
+        e.put("transid", transid);
+        e.put("termid", termid);
+        e.put(isTime ? "time" : "interval", String.format(java.util.Locale.ROOT, "%06d", hhmmss));
+        e.put("from", from == null ? null : from.clone());
+        if (reqid != null) {
+            e.put("reqid", reqid);
+            if (at != null) {
+                root().ownRequests.put(reqid, at);
+            }
+        }
+        e.put("protect", protect);
+        e.put("resp", resp);
+        e.put("expires", at == null ? null : at.format(ISO));
+        add(e);
+        return new StartResult(resp, at);
+    }
+
+    /** A START's outcome: its condition and when the request expires (null unless NORMAL). */
+    public record StartResult(String resp, LocalDateTime expires) {
+    }
+
+    /** RETRIEVE INTO LENGTH(maxLength) (#4006, IBM EXEC CICS RETRIEVE): the next data record of the requests
+     *  the task was started for, truncated with LENGERR when longer (the length is then the record's own);
+     *  ENDDATA when none is left, as for a task no START started. */
+    public RetrieveResult retrieve(int maxLength) {
+        CicsTask task = root();
+        int[] planned = task.injected("RETRIEVE", "-");  // #4049: a planned condition; nothing is retrieved
+        if (planned != null) {
+            event("RETRIEVE", "resp", respName(planned[0]), "length", null, "data", null);
+            return new RetrieveResult(respName(planned[0]), -1, null);
+        }
+        if (task.retrieved >= task.retrieveData.size()) {
+            event("RETRIEVE", "resp", "ENDDATA", "length", null, "data", null);
+            return new RetrieveResult("ENDDATA", -1, null);
+        }
+        byte[] stored = task.retrieveData.get(task.retrieved++);
+        byte[] data = stored.length > maxLength ? Arrays.copyOf(stored, Math.max(maxLength, 0)) : stored.clone();
+        String resp = stored.length > maxLength ? "LENGERR" : "NORMAL";
+        event("RETRIEVE", "resp", resp, "length", stored.length, "data", data);
+        return new RetrieveResult(resp, stored.length, data);
+    }
+
+    /** A RETRIEVE's outcome: its condition, the LENGTH it sets (-1 when none) and the data moved INTO. */
+    public record RetrieveResult(String resp, int length, byte[] data) {
+    }
+
+    /** CANCEL REQID(reqid) (#4006, IBM EXEC CICS CANCEL): NORMAL for a request that has not expired yet (the
+     *  harness then drops it), NOTFND when none matches "an unexpired interval control command". */
+    public String cancel(String reqid) {
+        CicsTask task = root();
+        int[] planned = task.injected("CANCEL", reqid.stripTrailing());  // #4049: a planned condition
+        if (planned != null) {
+            event("CANCEL", "reqid", reqid, "resp", respName(planned[0]));
+            return respName(planned[0]);
+        }
+        LocalDateTime at = task.ownRequests.containsKey(reqid) ? task.ownRequests.get(reqid) : task.unexpired.get(reqid);
+        String resp = at != null && at.isAfter(now()) ? "NORMAL" : "NOTFND";
+        if ("NORMAL".equals(resp)) {
+            task.ownRequests.remove(reqid);
+        }
+        event("CANCEL", "reqid", reqid, "resp", resp);
+        return resp;
+    }
+
+    /** LINK PROGRAM(program) with no COMMAREA: the callee's EIBCALEN is 0. */
+    public String link(String program) {
+        return link(program, null, 0);
+    }
+
+    /** The bytes of the COMMAREA this program was LINKed with, when its caller passed them (by reference: what it
+     *  writes there its caller sees); null otherwise. */
+    public byte[] linkArea() {
+        return linkArea;
+    }
+
+    private java.util.Map<String, Long> counters = new java.util.HashMap<>();  // the region's named counters (root's)
+
+    /** The region's named counters, "POOL/NAME" -> the value the next GET COUNTER returns. */
+    public CicsTask withCounters(java.util.Map<String, Long> counters) {
+        this.counters = counters;
+        return this;
+    }
+
+    /** GET COUNTER (IBM CICS TS): the named counter's current value, after which it is one more; null (NOTFND)
+     *  for a counter the region does not have. */
+    public Long getCounter(String pool, String name) {
+        java.util.Map<String, Long> all = root().counters;
+        String key = (pool == null ? "" : pool.strip()) + "/" + (name == null ? "" : name.strip());
+        Long v = all.get(key);
+        if (v != null) {
+            all.put(key, v + 1);
+        }
+        return v;
+    }
+
+    /** ASSIGN INVOKINGPROG: the program that LINKed or XCTLed to this one (IBM CICS TS, ASSIGN), 8 characters;
+     *  blanks for a task's first program. */
+    public String invokingProgram() {
+        return String.format(java.util.Locale.ROOT, "%-8s", invoker == null ? "" : invoker);
     }
 
     public String transid() {
@@ -156,37 +594,932 @@ public class CicsTask {
         return commarea != null;
     }
 
+    /** EIBCALEN: 0 without a COMMAREA, else its length as passed; null when it came as its whole record. */
+    public Integer eibcalen() {
+        return eibcalen;
+    }
+
     public <T> T commarea(Class<T> type) {
         return type.cast(commarea);
     }
 
     /** RECEIVE MAP: the screen the user sent, or empty (MAPFAIL) when nothing was received. */
     public <T> Optional<T> receive(String map, Class<T> type) {
-        return Optional.ofNullable(received.get(map)).map(type::cast);
+        return receive(map, null, type);
+    }
+
+    /** RECEIVE MAP(map) MAPSET(mapset), recorded as an event with its RESP (NORMAL, or MAPFAIL when empty). */
+    public <T> Optional<T> receive(String map, String mapset, Class<T> type) {
+        Optional<T> screen = Optional.ofNullable(received.get(map)).map(type::cast);
+        event("RECEIVE-MAP", "map", map, "mapset", mapset, "resp", screen.isPresent() ? "NORMAL" : "MAPFAIL");
+        return screen;
+    }
+
+    /** What the operator typed on a cleared screen with the key that started the task (#4005), which an
+     *  unformatted RECEIVE returns; null when nothing was transmitted. */
+    public CicsTask withTerminalInput(String text) {
+        this.terminalInput = text;
+        return this;
+    }
+
+    /** The task's terminal input was already read by an earlier program of the task (#4005). */
+    public void terminalInputRead() {
+        this.terminalRead = true;
+    }
+
+    /** RECEIVE INTO LENGTH(maxLength) (#4005): the terminal input, unformatted, read once per task. Input
+     *  longer than maxLength is truncated to it and raises LENGERR, and the length is then the input's full
+     *  length (IBM, EXEC CICS RECEIVE: "the data area specified in the LENGTH option is set to the original
+     *  length of data"). */
+    public Received receiveText(int maxLength) {
+        CicsTask task = root();  // the terminal is the task's, whichever level reads it
+        if (task.terminalRead) {
+            throw new IllegalStateException("a second terminal RECEIVE waits for more input from the operator");
+        }
+        task.terminalRead = true;
+        String text = task.terminalInput == null ? "" : task.terminalInput;
+        String data = text.length() > maxLength ? text.substring(0, Math.max(maxLength, 0)) : text;
+        String resp = text.length() > maxLength ? "LENGERR" : "NORMAL";
+        event("RECEIVE", "resp", resp, "length", text.length(), "data", data);
+        return new Received(resp, text.length(), data);
+    }
+
+    /** A terminal RECEIVE's outcome: its condition, the LENGTH it sets, and the data it moved INTO. */
+    public record Received(String resp, int length, String data) {
+    }
+
+    /** #4023 follow-up: the equivalence harness's injected conditions for this task, as its stub reads them
+     *  (faults.cfg: `CMD FILE NTH RESP [RESP2]`, NTH `*` = every one; DFHRESP numbers), and the file each one
+     *  that fires is appended to (`CMD FILE NTH RESP RESP2`). Commands are counted per task. */
+    public CicsTask withFaults(List<String> plan, java.nio.file.Path log) {
+        List<String[]> parsed = new ArrayList<>();
+        for (String line : plan) {
+            String[] w = line.trim().split("[ ]+");
+            if (w.length >= 4) {
+                parsed.add(w);
+            }
+        }
+        this.faultPlan = List.copyOf(parsed);
+        this.faultLog = log;
+        return this;
+    }
+
+    /** READ FILE(file) (#4023 follow-up): `lookup` is the service's generated read method. RESP NORMAL (0) and the
+     *  record, or NOTFND (13) without one -- or the condition the harness planned, and then nothing is read. */
+    public <T> FileRead<T> read(String file, java.util.function.Supplier<Optional<T>> lookup) {
+        int[] planned = root().injected("READ", file);
+        if (planned != null) {
+            return new FileRead<>(planned[0], planned[1], null);
+        }
+        T record = lookup.get().orElse(null);
+        return new FileRead<>(record != null ? 0 : 13, 0, record);
+    }
+
+    /** READ FILE(file) UPDATE: as read, and the file's record is held for a REWRITE. */
+    public <T> FileRead<T> readForUpdate(String file, java.util.function.Supplier<Optional<T>> lookup) {
+        FileRead<T> r = read(file, lookup);
+        if (r.normal()) {
+            root().held.add(file);
+        }
+        return r;
+    }
+
+    /** WRITE FILE(file) RIDFLD FROM: `exists` says whether the key is there already (DUPREC, 14, as CICS answers);
+     *  else `store` saves the record (the service's generated repository save) and RESP is NORMAL -- or the
+     *  condition the harness planned, and nothing is written. */
+    public int write(String file, boolean exists, Runnable store) {
+        int[] planned = root().injected("WRITE", file);
+        if (planned != null) {
+            return planned[0];
+        }
+        if (exists) {
+            return 14;
+        }
+        store.run();
+        return 0;
+    }
+
+    /** REWRITE FILE(file) FROM: replaces the record a readForUpdate holds (INVREQ, 16, when none is held). */
+    public int rewrite(String file, Runnable store) {
+        int[] planned = root().injected("REWRITE", file);
+        if (planned != null) {
+            return planned[0];
+        }
+        if (!root().held.remove(file)) {
+            return 16;
+        }
+        store.run();
+        return 0;
+    }
+
+    /** DELETE FILE(file) RIDFLD: `exists` says whether the key is there (NOTFND, 13, when not); else `remove`
+     *  deletes it (the service's generated repository delete) -- or the condition the harness planned. */
+    public int delete(String file, boolean exists, Runnable remove) {
+        int[] planned = root().injected("DELETE", file);
+        if (planned != null) {
+            return planned[0];
+        }
+        if (!exists) {
+            return 13;
+        }
+        remove.run();
+        return 0;
+    }
+
+    /** DELETE FILE(file) without RIDFLD: the record a readForUpdate holds (INVREQ, 16, when none is held). */
+    public int deleteHeld(String file, Runnable remove) {
+        int[] planned = root().injected("DELETE", file);
+        if (planned != null) {
+            return planned[0];
+        }
+        if (!root().held.remove(file)) {
+            return 16;
+        }
+        remove.run();
+        return 0;
+    }
+
+    /** One file's browse: its keys (asked again on every command, so a record written meanwhile is seen), how it
+     *  started, and the last key read and in which direction (0: none yet). An RBA browse (#4213) keeps RBAs. */
+    private static final class Browse {
+        java.util.function.Supplier<java.util.NavigableSet<String>> keys;
+        boolean equal;
+        String start;
+        String last;
+        int dir;
+        boolean rba;
+        long rbaStart;
+        long rbaLast = -1;
+    }
+
+    private final Map<String, Browse> browses = new java.util.HashMap<>();
+
+    /** What a READNEXT / READPREV found: its RESP and the key read (null when none; then look nothing up). */
+    public record Browsed(int resp, String key) {
+        public boolean normal() {
+            return resp == 0;
+        }
+    }
+
+    private static boolean highValues(String key) {
+        return !key.isEmpty() && key.chars().allMatch(ch -> ch == '\\u00ff');  // ASCII escape: javac reads source as cp1252 on Windows
+    }
+
+    /** STARTBR FILE(file) RIDFLD(key) [GTEQ | EQUAL] (IBM CICS TS): positions a browse on the first key >= `key`
+     *  (GTEQ, the default) or on `key` itself (EQUAL); NOTFND (13) when there is none. A key of all X'FF'
+     *  (HIGH-VALUES) positions at the end, for READPREV. A second STARTBR on the file: INVREQ (16). `keys`: the
+     *  file's keys, in key order (e.g. the repository's ids as a TreeSet). */
+    public int startbr(String file, String key, boolean equal,
+                       java.util.function.Supplier<java.util.NavigableSet<String>> keys) {
+        int[] planned = root().injected("STARTBR", file);
+        if (planned != null) {
+            return planned[0];
+        }
+        if (root().esds.containsKey(file)) {
+            throw refused("STARTBR by key on " + file + ", an ESDS");
+        }
+        Map<String, Browse> all = root().browses;
+        if (all.containsKey(file)) {
+            return 16;
+        }
+        java.util.NavigableSet<String> k = keys.get();
+        if (!highValues(key) && (equal ? !k.contains(key) : k.ceiling(key) == null)) {
+            return 13;
+        }
+        Browse b = new Browse();
+        b.keys = keys;
+        b.equal = equal;
+        b.start = key;
+        all.put(file, b);
+        return 0;
+    }
+
+    /** READNEXT FILE(file) RIDFLD(ridfld): the key of the next record -- the one STARTBR positioned on first; set
+     *  RIDFLD to it and look the record up by it. A RIDFLD the program changed, or a READNEXT after a READPREV,
+     *  repositions at the first key >= RIDFLD. ENDFILE (20) past the last; INVREQ (16) with no browse. */
+    public Browsed readnext(String file, String ridfld) {
+        int[] planned = root().injected("READNEXT", file);
+        if (planned != null) {
+            return new Browsed(planned[0], null);
+        }
+        Browse b = root().browses.get(file);
+        if (b == null) {
+            return new Browsed(16, null);
+        }
+        if (b.rba) {
+            throw refused("READNEXT by key in an RBA browse of " + file);
+        }
+        java.util.NavigableSet<String> k = b.keys.get();
+        boolean changed = !ridfld.equals(b.last != null ? b.last : b.start);
+        String at;
+        if (b.dir == 1 && !changed) {
+            at = k.higher(ridfld);
+        } else if (highValues(ridfld)) {
+            at = null;
+        } else {
+            at = b.equal ? (k.contains(ridfld) ? ridfld : null) : k.ceiling(ridfld);
+        }
+        if (at == null) {
+            return new Browsed(20, null);
+        }
+        b.last = at;
+        b.dir = 1;
+        return new Browsed(0, at);
+    }
+
+    /** READPREV FILE(file) RIDFLD(ridfld): the key of the previous record. Right after STARTBR the STARTBR key must
+     *  exist (else NOTFND, 13); after a READNEXT, or with RIDFLD changed, it repositions to RIDFLD and reads that
+     *  record -- so it reads again the record READNEXT just read; after a HIGH-VALUES STARTBR, the last record.
+     *  ENDFILE (20) before the first; INVREQ (16) with no browse. */
+    public Browsed readprev(String file, String ridfld) {
+        int[] planned = root().injected("READPREV", file);
+        if (planned != null) {
+            return new Browsed(planned[0], null);
+        }
+        Browse b = root().browses.get(file);
+        if (b == null) {
+            return new Browsed(16, null);
+        }
+        if (b.rba) {
+            throw refused("READPREV by key in an RBA browse of " + file);
+        }
+        java.util.NavigableSet<String> k = b.keys.get();
+        boolean changed = !ridfld.equals(b.last != null ? b.last : b.start);
+        String at;
+        int none;
+        if (highValues(ridfld) && (b.dir == 0 || changed)) {
+            at = k.isEmpty() ? null : k.last();
+            none = 20;
+        } else if (b.dir == -1 && !changed) {
+            at = k.lower(ridfld);
+            none = 20;
+        } else {
+            at = k.contains(ridfld) ? ridfld : null;
+            none = 13;
+        }
+        if (at == null) {
+            return new Browsed(none, null);
+        }
+        b.last = at;
+        b.dir = -1;
+        return new Browsed(0, at);
+    }
+
+    // ---- #4213: an ESDS browsed by relative byte address (STARTBR / READNEXT / READPREV ... RBA) ----------------
+    // IBM CICS TS, EXEC CICS STARTBR / READNEXT / READPREV, option RBA: RIDFLD "contains a relative byte address",
+    // and READNEXT / READPREV "return the relative byte address of each retrieved record". EQUAL is "the default for a
+    // direct ESDS browse"; a RIDFLD of X'FF's positions at the end, for READPREV. The records are fixed-length, in
+    // arrival order, and a record's RBA is its byte offset (oracle_assumptions.md X13); the browse moves as the keyed
+    // one does, in RBA order. Refused (UnsupportedOperationException, "... not modelled"), as the COBOL side's stub
+    // refuses them: an RBA that addresses no record, RBA on a file that is not an ESDS, a browse mixing RBA and keys.
+
+    /** An ESDS of the region: its records in arrival order, each `reclen` bytes. */
+    private record Esds(int reclen, List<byte[]> records) {
+    }
+
+    private final Map<String, Esds> esds = new java.util.HashMap<>();
+
+    /** The region's ESDS `file` (a case's dataset): its records in arrival order, each `reclen` bytes. */
+    public CicsTask withEsds(String file, int reclen, List<byte[]> records) {
+        root().esds.put(file, new Esds(reclen, new ArrayList<>(records)));
+        return this;
+    }
+
+    /** The ESDS `file`'s records, as the task leaves them. */
+    public List<byte[]> esdsRecords(String file) {
+        return root().esds.get(file).records();
+    }
+
+    /** A fullword RIDFLD's RBA: its first four bytes, big-endian, unsigned. */
+    public static long rba(byte[] ridfld) {
+        long v = 0;
+        for (int i = 0; i < 4; i++) {
+            v = (v << 8) | (ridfld[i] & 0xFF);
+        }
+        return v;
+    }
+
+    /** An RBA as the fullword CICS returns in RIDFLD. */
+    public static byte[] rbaBytes(long rba) {
+        return new byte[] {(byte) (rba >>> 24), (byte) (rba >>> 16), (byte) (rba >>> 8), (byte) rba};
+    }
+
+    private static final long RBA_END = 0xFFFFFFFFL;
+
+    private static UnsupportedOperationException refused(String what) {
+        return new UnsupportedOperationException(what + ": not modelled");
+    }
+
+    private Esds esdsOf(String file) {
+        Esds e = root().esds.get(file);
+        if (e == null) {
+            throw refused("STARTBR RBA on " + file + ", not an ESDS");
+        }
+        return e;
+    }
+
+    /** The record (0-based) at `rba`; refused when no record starts there. */
+    private static int rbaRecord(String verb, String file, Esds e, long rba) {
+        if (rba % e.reclen() == 0 && rba / e.reclen() < e.records().size()) {
+            return (int) (rba / e.reclen());
+        }
+        throw refused(verb + " RBA " + rba + " on " + file + ": no record starts there");
+    }
+
+    /** What a READNEXT / READPREV ... RBA found: its RESP and RESP2, and the record and its RBA (null: none). A record
+     *  longer than INTO is LENGERR (22) with the record still returned (CICS copies what INTO takes). */
+    public record BrowsedRba(int resp, int resp2, long rba, byte[] record) {
+        public boolean normal() {
+            return resp == 0;
+        }
+    }
+
+    /** STARTBR FILE(file) RIDFLD(rba) RBA [EQUAL]: positions on the record at `rba`, or at the end for X'FFFFFFFF'.
+     *  INVREQ (16) when a browse of the file is active. */
+    public int startbrRba(String file, long rba) {
+        int[] planned = root().injected("STARTBR", file);
+        if (planned != null) {
+            return planned[0];
+        }
+        Esds e = esdsOf(file);
+        Map<String, Browse> all = root().browses;
+        if (all.containsKey(file)) {
+            return 16;
+        }
+        if (rba != RBA_END) {
+            rbaRecord("STARTBR", file, e, rba);
+        }
+        Browse b = new Browse();
+        b.rba = true;
+        b.equal = true;
+        b.rbaStart = rba;
+        all.put(file, b);
+        return 0;
+    }
+
+    /** READNEXT FILE(file) RIDFLD(ridfld) RBA: the record STARTBR positioned on, then each next; a RIDFLD the program
+     *  changed, or a READNEXT after a READPREV, repositions at that RBA. ENDFILE (20) past the last; INVREQ (16) with
+     *  no browse. `intoLength`: INTO's length (LENGERR past it). */
+    public BrowsedRba readnextRba(String file, long ridfld, int intoLength) {
+        return rbaRead("READNEXT", 1, file, ridfld, intoLength);
+    }
+
+    /** READPREV FILE(file) RIDFLD(ridfld) RBA: right after STARTBR the STARTBR's record (or, after X'FFFFFFFF', the
+     *  last); after a READNEXT, or with RIDFLD changed, the record at RIDFLD -- the one READNEXT just read, again;
+     *  then each previous. ENDFILE (20) before the first; INVREQ (16) with no browse. */
+    public BrowsedRba readprevRba(String file, long ridfld, int intoLength) {
+        return rbaRead("READPREV", -1, file, ridfld, intoLength);
+    }
+
+    private BrowsedRba rbaRead(String verb, int dir, String file, long ridfld, int intoLength) {
+        int[] planned = root().injected(verb, file);
+        if (planned != null) {
+            return new BrowsedRba(planned[0], planned.length > 1 ? planned[1] : 0, ridfld, null);
+        }
+        Browse b = root().browses.get(file);
+        if (b == null) {
+            return new BrowsedRba(16, 34, ridfld, null);
+        }
+        if (!b.rba) {
+            throw refused(verb + " by RBA in a keyed browse of " + file);
+        }
+        Esds e = root().esds.get(file);
+        int n = e.records().size();
+        boolean changed = ridfld != (b.rbaLast >= 0 ? b.rbaLast : b.rbaStart);
+        long at;
+        if (dir > 0) {
+            if (b.dir == 0 && b.rbaStart != RBA_END && !changed) {
+                at = rbaRecord(verb, file, e, ridfld);
+            } else if (b.dir == 1 && !changed) {
+                at = ridfld / e.reclen() + 1;
+            } else if (ridfld == RBA_END) {
+                at = -1;
+            } else {
+                at = rbaRecord(verb, file, e, ridfld);
+            }
+            if (at >= n) {
+                at = -1;
+            }
+        } else {
+            if (ridfld == RBA_END && (b.dir == 0 || changed)) {
+                at = n - 1;
+            } else if (b.dir == -1 && !changed) {
+                at = ridfld / e.reclen() - 1;
+            } else {
+                at = rbaRecord(verb, file, e, ridfld);
+            }
+        }
+        if (at < 0) {
+            return new BrowsedRba(20, 90, ridfld, null);
+        }
+        byte[] rec = e.records().get((int) at);
+        long rba = at * e.reclen();
+        b.rbaLast = rba;
+        b.dir = dir;
+        return rec.length > intoLength ? new BrowsedRba(22, 11, rba, rec) : new BrowsedRba(0, 0, rba, rec);
+    }
+
+    /** ENDBR FILE(file): the browse ends; INVREQ (16) when none is active. */
+    public int endbr(String file) {
+        int[] planned = root().injected("ENDBR", file);
+        if (planned != null) {
+            return planned[0];
+        }
+        return root().browses.remove(file) != null ? 0 : 16;
+    }
+
+    /** SYNCPOINT: the unit of work is committed; a later rollback() cannot undo it. */
+    public void syncpoint() {
+        root().held.clear();
+        root().syncpointed = true;
+        event("SYNCPOINT");
+    }
+
+    /** SYNCPOINT ROLLBACK: the task's file changes are undone -- the transaction the task runs in is marked for
+     *  rollback (the hook, set by whoever runs the task). A rollback after a syncpoint would undo only part of
+     *  the task's work, which this runtime does not model: it refuses rather than undo too much. */
+    public void rollback() {
+        if (root().syncpointed) {
+            throw new UnsupportedOperationException("SYNCPOINT ROLLBACK after a SYNCPOINT is not modelled");
+        }
+        root().held.clear();
+        if (root().rollbackHook != null) {
+            root().rollbackHook.run();
+        }
+        event("SYNCPOINT-ROLLBACK");
+    }
+
+    private java.util.Set<String> nonRecoverable = java.util.Set.of();  // CSD RECOVERY(NONE) files (the root's)
+    private java.util.function.Consumer<Runnable> outsideUnitOfWork = Runnable::run;
+
+    /** The files the CSD defines RECOVERY(NONE), and how a change to one is made outside the task's unit of work
+     *  (e.g. a REQUIRES_NEW transaction): such a change survives a rollback, as in CICS. */
+    public CicsTask withNonRecoverable(java.util.Set<String> files, java.util.function.Consumer<Runnable> outside) {
+        this.nonRecoverable = files;
+        this.outsideUnitOfWork = outside;
+        return this;
+    }
+
+    /** A file change: in the task's unit of work, or outside it for a non-recoverable file. */
+    public void write(String file, Runnable change) {
+        CicsTask r = root();
+        if (r.nonRecoverable.contains(file == null ? "" : file.strip())) {
+            r.outsideUnitOfWork.accept(change);
+        } else {
+            change.run();
+        }
+    }
+
+    /** Who runs the task says how a rollback undoes its changes (e.g. a TransactionStatus's setRollbackOnly). */
+    public CicsTask onRollback(Runnable hook) {
+        this.rollbackHook = hook;
+        return this;
+    }
+
+    /** INQUIRE PROGRAM(program) (#4023 follow-up): its RESP -- NORMAL (0) for a program the region defines, else
+     *  PGMIDERR (27) -- or the condition the harness planned. It changes nothing else a task can see. */
+    public int inquireProgram(String program) {
+        String name = program == null ? "" : program.trim();
+        int[] planned = root().injected("INQUIRE", name);
+        if (planned != null) {
+            return planned[0];
+        }
+        Programs known = programs != null ? programs : root().programs;
+        return known == null || known.defined(name) ? 0 : 27;
+    }
+
+    /** A file command's outcome: RESP and RESP2 (DFHRESP numbers) and the record read, when there is one. */
+    public record FileRead<T>(int resp, int resp2, T record) {
+        public boolean normal() {
+            return resp == 0;
+        }
+    }
+
+    private int[] injected(String cmd, String file) {
+        if (faultPlan.isEmpty()) {
+            return null;
+        }
+        int n = faultSeen.merge(cmd + " " + file, 1, Integer::sum);
+        for (String[] f : faultPlan) {
+            if (f[0].equals(cmd) && f[1].equals(file) && ("*".equals(f[2]) || Integer.parseInt(f[2]) == n)) {
+                int resp = Integer.parseInt(f[3]);
+                int resp2 = f.length > 4 ? Integer.parseInt(f[4]) : 0;
+                if (faultLog != null) {
+                    try {
+                        java.nio.file.Files.writeString(faultLog, cmd + " " + file + " " + n + " " + resp + " " + resp2
+                                + System.lineSeparator(), java.nio.file.StandardOpenOption.CREATE,
+                                java.nio.file.StandardOpenOption.APPEND);
+                    } catch (java.io.IOException e) {
+                        throw new java.io.UncheckedIOException(e);
+                    }
+                }
+                return new int[] {resp, resp2};
+            }
+        }
+        return null;
+    }
+
+    /** The region's temporary storage this task works on (#4002): one store is shared by every task of a
+     *  conversation, the way a region's TS queues outlive the task that writes them. */
+    public CicsTask withTempStorage(TempStorage storage) {
+        this.tempStorage = storage;
+        return this;
+    }
+
+    /** WRITEQ TS QUEUE(queue) FROM(data) (#4002): appends an item, creating the queue with its first write;
+     *  the result's item is the number assigned. An item is the bytes the program wrote, in the region's code
+     *  page (EBCDIC). LENGERR when data is empty or longer than 32763 bytes. */
+    public TsResult writeqTs(String queue, byte[] data) {
+        return tempStorage.write(this, queue, 0, data);
+    }
+
+    /** WRITEQ TS QUEUE(queue) FROM(data) ITEM(item) REWRITE (#4002): QIDERR without the queue, ITEMERR outside it. */
+    public TsResult rewriteqTs(String queue, int item, byte[] data) {
+        return tempStorage.write(this, queue, item, data);
+    }
+
+    /** READQ TS QUEUE(queue) INTO LENGTH(maxLength) ITEM(item) (#4002, IBM EXEC CICS READQ TS): QIDERR when
+     *  the queue does not exist, ITEMERR for an item outside it; else the item, truncated to maxLength with
+     *  LENGERR when longer, and the result's length is the item's own. */
+    public TsResult readqTs(String queue, int item, int maxLength) {
+        return tempStorage.read(this, queue, item, maxLength);
+    }
+
+    /** READQ TS QUEUE(queue) NEXT: the item after the last one read by any task (ITEMERR past the end). */
+    public TsResult readqTsNext(String queue, int maxLength) {
+        return tempStorage.read(this, queue, 0, maxLength);
+    }
+
+    /** A TS command's outcome: its condition, the item (number assigned or read), the LENGTH it sets (READQ;
+     *  -1 when it sets none), the data moved INTO (READQ; null when none) and NUMITEMS. */
+    public record TsResult(String resp, int item, int length, byte[] data, int numItems) {
+    }
+
+    /** A region's temporary storage (#4002): TS queues by name, each a list of items, and the READQ NEXT
+     *  position of each queue (which counts a read by ITEM too). */
+    public static final class TempStorage {
+        private final Map<String, List<byte[]>> queues = new LinkedHashMap<>();
+        private final Map<String, Integer> next = new HashMap<>();
+
+        /** A queue as it is before the conversation starts. */
+        public TempStorage seed(String queue, List<byte[]> items) {
+            queues.put(queue, new ArrayList<>(items));
+            return this;
+        }
+
+        /** Every queue and its items, in the order the queues were created. */
+        public Map<String, List<byte[]>> queues() {
+            Map<String, List<byte[]>> out = new LinkedHashMap<>();
+            queues.forEach((q, items) -> out.put(q, List.copyOf(items)));
+            return out;
+        }
+
+        TsResult write(CicsTask task, String queue, int rewrite, byte[] data) {
+            List<byte[]> items = queues.get(queue);
+            String resp = "NORMAL";
+            int item = 0;
+            int[] planned = task.root().injected("WRITEQ-TS", queue.stripTrailing());  // #4049: nothing is written
+            if (planned != null) {
+                resp = respName(planned[0]);
+            } else if (data == null || data.length < 1 || data.length > 32763) {
+                resp = "LENGERR";
+            } else if (rewrite > 0 && items == null) {
+                resp = "QIDERR";
+            } else if (rewrite > 0 && rewrite > items.size()) {
+                resp = "ITEMERR";
+            } else {
+                if (items == null) {
+                    items = new ArrayList<>();
+                    queues.put(queue, items);
+                }
+                if (rewrite > 0) {
+                    items.set(rewrite - 1, data.clone());
+                    item = rewrite;
+                } else {
+                    items.add(data.clone());
+                    item = items.size();
+                }
+            }
+            task.event("WRITEQ-TS", "queue", queue, "data", data, "resp", resp, "item", item == 0 ? null : item);
+            return new TsResult(resp, item, -1, null, items == null ? 0 : items.size());
+        }
+
+        TsResult read(CicsTask task, String queue, int item, int maxLength) {
+            List<byte[]> items = queues.get(queue);
+            int want = item > 0 ? item : next.getOrDefault(queue, 0) + 1;
+            Object shown = item > 0 ? (Object) item : "NEXT";
+            if (items == null || want < 1 || want > items.size()) {
+                String resp = items == null ? "QIDERR" : "ITEMERR";
+                task.event("READQ-TS", "queue", queue, "item", shown, "resp", resp, "length", null, "data", null);
+                return new TsResult(resp, want, -1, null, 0);
+            }
+            next.put(queue, want);
+            byte[] stored = items.get(want - 1);
+            byte[] data = stored.length > maxLength ? Arrays.copyOf(stored, Math.max(maxLength, 0)) : stored.clone();
+            String resp = stored.length > maxLength ? "LENGERR" : "NORMAL";
+            task.event("READQ-TS", "queue", queue, "item", shown, "resp", resp, "length", stored.length, "data", data);
+            return new TsResult(resp, want, stored.length, data, items.size());
+        }
     }
 
     public void sendMap(String map, Object screen) {
         event("SEND-MAP", "map", map, "screen", screen);
     }
 
+    /** SEND MAP(map) MAPSET(mapset) FROM(screen) with its options (ERASE, DATAONLY, MAPONLY, CURSOR, ...;
+     *  #4001). `screen` holds each field's data (`<f>O`; null under MAPONLY, a value starting with a
+     *  null character leaves the map's INITIAL); `subfields` what the symbolic map's other subfields
+     *  hold. BMS decides from them and the map what is sent. */
+    public void sendMap(String map, String mapset, Object screen, MapSubfields subfields, String... options) {
+        List<String> opts = new ArrayList<>(List.of(options));
+        Collections.sort(opts);
+        MapSubfields sub = subfields == null ? new MapSubfields() : subfields;
+        event("SEND-MAP", "map", map, "mapset", mapset, "screen", screen, "options", opts, "subfields", sub.fields,
+                "cursor", sub.cursorOffset);
+    }
+
+    public void sendMap(String map, String mapset, Object screen, String... options) {
+        sendMap(map, mapset, screen, null, options);
+    }
+
+    /** The symbolic map's subfields besides the data (#4001), as the program sets them: the attribute byte
+     *  (`<f>A`), extended colour and highlight (`<f>C`, `<f>H`) -- the EBCDIC byte values (DFHBMPRO = 0x60,
+     *  DFHRED = 0xF2), never characters -- and the length (`<f>L`: -1 asks for the cursor, with the CURSOR
+     *  option). `cursorAt` is CURSOR(offset). */
+    public static final class MapSubfields {
+        private final Map<String, Map<String, Integer>> fields = new LinkedHashMap<>();
+        private Integer cursorOffset;
+
+        public MapSubfields attr(String field, int value) {
+            return set(field, "attr", value & 0xFF);
+        }
+
+        public MapSubfields color(String field, int value) {
+            return set(field, "color", value & 0xFF);
+        }
+
+        public MapSubfields hilight(String field, int value) {
+            return set(field, "hilight", value & 0xFF);
+        }
+
+        public MapSubfields length(String field, int value) {
+            return set(field, "length", value);
+        }
+
+        /** MOVE -1 TO the field's length: symbolic cursor positioning. */
+        public MapSubfields cursor(String field) {
+            return length(field, -1);
+        }
+
+        public MapSubfields cursorAt(int offset) {
+            this.cursorOffset = offset;
+            return this;
+        }
+
+        private MapSubfields set(String field, String key, int value) {
+            fields.computeIfAbsent(field, f -> new LinkedHashMap<>()).put(key, value);
+            return this;
+        }
+    }
+
+    /** SEND TEXT FROM(text): LENGTH is the text's own, no options. */
     public void sendText(String text) {
-        event("SEND-TEXT", "text", text);
+        sendText(text, text == null ? 0 : text.length());
     }
 
-    /** RETURN TRANSID(transid) COMMAREA(commarea): the task ends; `transid` null for a plain RETURN. */
+    /** SEND TEXT FROM(text) LENGTH(length) with its options (ERASE, FREEKB, ALARM, ...), as the program
+     *  passed them: `text` is the FROM data, not the formatted screen. */
+    public void sendText(String text, int length, String... options) {
+        List<String> opts = new ArrayList<>(List.of(options));
+        Collections.sort(opts);
+        event("SEND-TEXT", "text", text, "length", length, "options", opts);
+    }
+
+    /** RETURN TRANSID(transid) COMMAREA(commarea): the task ends; `transid` null for a plain RETURN. The
+     *  COMMAREA is its whole record. */
     public void returnTransid(String transid, Object commarea) {
-        event("RETURN", "transid", transid, "commarea", commarea);
+        returnTransid(transid, commarea, null);
+    }
+
+    /** RETURN TRANSID(transid) COMMAREA(commarea) LENGTH(length): the next task's EIBCALEN is `length`
+     *  (null: the whole record). Below level 1 (#4004) it returns to the linking program instead: the event
+     *  shows the LINK COMMAREA as that program now sees it. */
+    public void returnTransid(String transid, Object commarea, Integer length) {
+        if (level > 1) {
+            event("RETURN", "level", level, "caller_commarea", snapshot.apply(linkCommarea), "length", linkLength);
+        } else {
+            event("RETURN", "transid", transid, "commarea", snapshot.apply(commarea), "length",
+                    commarea == null ? null : length);
+        }
         ended = true;
     }
 
-    public void xctl(String program, Object commarea) {
-        event("XCTL", "program", program, "commarea", commarea);
-        ended = true;
+    /** XCTL PROGRAM(program) COMMAREA(commarea), the COMMAREA being its whole record. */
+    public String xctl(String program, Object commarea) {
+        return xctl(program, commarea, null);
     }
 
-    public void abend(String abcode) {
-        event("ABEND", "abcode", abcode);
-        ended = true;
+    /** XCTL PROGRAM(program) COMMAREA(commarea) LENGTH(length) (IBM, EXEC CICS XCTL): the program ends, and the
+     *  target runs at the same level (#4004) on a copy of LENGTH bytes -- all of them, even past the end of the
+     *  item (#4008). It fails, and the program goes on, with LENGERR (RESP2 11) for a LENGTH outside 0-32763 or
+     *  PGMIDERR (RESP2 1) for a program the CSD does not define; the result is the condition. */
+    public String xctl(String program, Object commarea, Integer length) {
+        String resp = "NORMAL";
+        Integer resp2 = null;
+        if (commarea != null && length != null && (length < 0 || length > 32763)) {
+            resp = "LENGERR";
+            resp2 = 11;
+        } else if (programs != null && !programs.defined(program)) {
+            resp = "PGMIDERR";
+            resp2 = 1;
+        } else {
+            int[] planned = root().injected("XCTL", program.stripTrailing());  // #4049: the program does not end
+            if (planned != null) {
+                resp = respName(planned[0]);
+                resp2 = planned[1];
+            }
+        }
+        event("XCTL", "program", program, "length", commarea == null ? Integer.valueOf(0) : length, "commarea",
+                snapshot.apply(commarea), "resp", resp, "resp2", resp2);
+        if ("NORMAL".equals(resp)) {
+            xctlTarget = program;
+            xctlCommarea = commarea;
+            xctlLength = commarea == null ? Integer.valueOf(0) : length;
+            ended = true;
+        }
+        return resp;
+    }
+
+    /** HANDLE ABEND LABEL(label) (#3989, IBM EXEC CICS HANDLE ABEND): this program level's abend exit, active
+     *  from now on. An abend at this level or below it (a program it LINKs to) goes to the first active exit
+     *  from the abending level upward; see abend. */
+    public void handleAbend(String label) {
+        exitLabel = label;
+        exitActive = true;
+    }
+
+    /** HANDLE ABEND CANCEL: this level's exit is deactivated. */
+    public void handleAbendCancel() {
+        exitActive = false;
+    }
+
+    /** HANDLE ABEND RESET: the exit cancelled, or taken, is active again. */
+    public void handleAbendReset() {
+        if (exitLabel != null) {
+            exitActive = true;
+        }
+    }
+
+    /** PUSH HANDLE (#3989): saves this level's HANDLE ABEND state and suspends it (the program saves its own
+     *  HANDLE CONDITION / IGNORE CONDITION state, which it ports itself). NORMAL. */
+    public String pushHandle() {
+        pushedExits.push(new Object[] {exitLabel, exitActive});
+        exitLabel = null;
+        exitActive = false;
+        return "NORMAL";
+    }
+
+    /** POP HANDLE: restores the HANDLE ABEND state last pushed; INVREQ when none was. */
+    public String popHandle() {
+        if (pushedExits.isEmpty()) {
+            return "INVREQ";
+        }
+        Object[] saved = pushedExits.pop();
+        exitLabel = (String) saved[0];
+        exitActive = (Boolean) saved[1];
+        return "NORMAL";
+    }
+
+    /** EXEC CICS ABEND ABCODE(abcode) (#3989: with the exit search): CICS looks for an active HANDLE ABEND exit
+     *  from this level upward. Returns the label to go on at when this program's own exit takes the abend (it
+     *  is deactivated as it gets control); null when the program must stop now -- `return` from runTask --
+     *  because an exit of a linking program takes it (that program's link then reports it: abendExit()) or
+     *  none does and the task is terminated. */
+    public String abend(String abcode) {
+        return abend(abcode, "command", null, false);
+    }
+
+    /** EXEC CICS ABEND ABCODE(abcode) CANCEL: no exit is taken, the task is terminated. Returns null. */
+    public String abendCancel(String abcode) {
+        return abend(abcode, "command", null, true);
+    }
+
+    /** A condition the program neither handled nor ignored (#4003): CICS's default action abends the task
+     *  with the condition's code (abcodeFor), with the same exit search and result as abend. */
+    public String abendOnCondition(String condition) {
+        return abend(abcodeFor(condition), "condition", condition, false);
+    }
+
+    /** An abend that a HANDLE ABEND LABEL exit took (#4003), named by the port itself: `label` in `program`;
+     *  the task goes on there. Prefer handleAbend + abend / abendOnCondition, which search the exits. */
+    public void abendToExit(String abcode, String cause, String condition, String program, String label) {
+        record(abcode, cause, condition, program, label);
+    }
+
+    /** After a LINK returned (#3989): the label of this program's HANDLE ABEND exit when an abend below took
+     *  it -- go on at that label -- else null. Read once: it is cleared. When the LINK returns with neither
+     *  this nor NORMAL completion (ended() is true), the task was terminated or unwound past this level. */
+    public String abendExit() {
+        String label = unwoundTo;
+        unwoundTo = null;
+        return label;
+    }
+
+    private String abend(String code, String cause, String condition, boolean cancel) {
+        CicsTask at = null;
+        for (CicsTask t = this; t != null && !cancel; t = t.parent) {
+            if (t.exitActive) {
+                at = t;
+                break;
+            }
+        }
+        if (at == null) {
+            record(code, cause, condition, null, null);
+            for (CicsTask t = this; t != null; t = t.parent) {
+                t.ended = true;
+            }
+            // the task terminates abnormally: CICS backs out its unit of work (recoverable resources)
+            if (!root().syncpointed && root().rollbackHook != null) {
+                root().rollbackHook.run();
+            }
+            return null;
+        }
+        at.exitActive = false;  // "the exit is deactivated when it gets control"
+        record(code, cause, condition, at.program, at.exitLabel);
+        if (at == this) {
+            return exitLabel;
+        }
+        for (CicsTask t = this; t != at; t = t.parent) {
+            t.ended = true;  // the levels below the exit are gone
+        }
+        at.unwoundTo = at.exitLabel;
+        return null;
+    }
+
+    /** ASSIGN ABCODE: the task's current abend code, blanks while there has been none. */
+    public String abcode() {
+        return root().abcode;
+    }
+
+    private CicsTask root() {
+        return parent == null ? this : parent.root();
+    }
+
+    /** #4049: a DFHRESP number a fault plan names, as the condition's name (IBM CICS "RESP values"). */
+    static String respName(int resp) {
+        return switch (resp) {
+            case 0 -> "NORMAL";
+            case 11 -> "TERMIDERR";
+            case 13 -> "NOTFND";
+            case 16 -> "INVREQ";
+            case 17 -> "IOERR";
+            case 18 -> "NOSPACE";
+            case 22 -> "LENGERR";
+            case 26 -> "ITEMERR";
+            case 27 -> "PGMIDERR";
+            case 28 -> "TRANSIDERR";
+            case 29 -> "ENDDATA";
+            case 44 -> "QIDERR";
+            case 53 -> "SYSIDERR";
+            case 54 -> "ISCINVREQ";
+            case 56 -> "ENVDEFERR";
+            case 70 -> "NOTAUTH";
+            case 100 -> "LOCKED";
+            default -> throw new IllegalArgumentException("no condition name known for RESP " + resp);
+        };
+    }
+
+    /** The abend code of an unhandled condition (IBM's AEIx / AEYx codes, the AEIA topic). */
+    public static String abcodeFor(String condition) {
+        return switch (condition) {
+            case "NOTFND" -> "AEIM";
+            case "LENGERR" -> "AEIV";
+            case "ITEMERR" -> "AEIZ";
+            case "QIDERR" -> "AEYH";
+            case "MAPFAIL" -> "AEI9";
+            case "ENDDATA" -> "AEI2";
+            case "PGMIDERR" -> "AEI0";
+            case "INVREQ" -> "AEIP";
+            default -> throw new IllegalArgumentException("no abend code known for condition " + condition);
+        };
+    }
+
+    private void record(String code, String cause, String condition, String program, String label) {
+        root().abcode = code;
+        Map<String, Object> e = new LinkedHashMap<>();
+        e.put("event", "ABEND");
+        e.put("abcode", code);
+        e.put("cause", cause);
+        if (condition != null) {
+            e.put("condition", condition);
+        }
+        e.put("outcome", program == null ? "terminated" : "exit");
+        if (program != null) {
+            e.put("exit", Map.of("program", program, "label", label));
+        } else {
+            ended = true;
+        }
+        add(e);
     }
 
     public boolean ended() {
@@ -202,6 +1535,13 @@ public class CicsTask {
         e.put("event", kind);
         for (int i = 0; i < kv.length; i += 2) {
             e.put((String) kv[i], kv[i + 1]);
+        }
+        add(e);
+    }
+
+    private void add(Map<String, Object> e) {
+        if (program != null) {
+            e.put("issuer", program);  // #4004: the program issuing the command, at whichever level
         }
         events.add(e);
     }
@@ -310,10 +1650,15 @@ class CicsForge:
             if use:
                 self.dtos[name].uses.append(use)
             return name
-        shared = file not in self.program_files and not layout.get("extended") and record.upper() != "DFHCOMMAREA"
+        # A copybook record continued by a program's own entries (COPY COCOM01Y, then COTRN01C's 05 CDEMO-CT01-INFO)
+        # is extended whether or not the layout says so: an unpacked COMMAREA's fields carry the files they come
+        # from. Named after its owner it keeps its name whatever else the estate holds -- numbered, it was renamed
+        # each time another program's extension appeared, and every port naming it stopped compiling.
+        extended = layout.get("extended") or any(f.get("file") not in (None, file) for f in layout.get("fields", []))
+        shared = file not in self.program_files and not extended and record.upper() != "DFHCOMMAREA"
         # A copybook record is named alone; a program's own record after the program declaring it
         # (MENU's WS-COMM -> MenuWsComm, whichever program receives it); an extended copy after its owner.
-        declarer = self._file_cls.get(file) if not layout.get("extended") else None
+        declarer = self._file_cls.get(file) if not extended else None
         name = java_class_base(record) if shared else (declarer or owner_cls) + java_class_base(record)
         base, n = name, 1
         while name in self.dtos or name in self.names:
@@ -655,8 +2000,9 @@ class CicsForge:
                 "        return ResponseEntity.noContent().build();", "    }\n"]  # fmt: skip
 
     def runtime_sources(self) -> dict[str, str]:
-        """#3754: CicsTask (package <pkg>.cics), when any program has a transaction to run as a task."""
-        if not any(p.transactions for p in self.programs.values()):
+        """#3754: CicsTask (package <pkg>.cics), when there is a CICS program to run as a task (#4004: or at a
+        LINK / XCTL level)."""
+        if not self.programs:
             return {}
         return {"CicsTask": CICS_TASK_JAVA.replace("__PACKAGE__", self.package)}
 
@@ -680,18 +2026,21 @@ class CicsForge:
 
         if prog.transactions:
             handler("handleTransaction", "String transid", req, resp, "A CICS transaction entered the program.")
-            # #3754: the whole task -- the port's target, and what the equivalence harness drives
-            imports.append(f"import {self.package}.cics.CicsTask;")
-            methods += [
-                "    /** One pseudo-conversational task of this program (#3754). TODO: [AI AGENT] port the PROCEDURE",
-                "     *  DIVISION: read task.hasCommarea() / task.commarea(..) / task.aid() / task.receive(map, ..),",
-                "     *  and record what the program does through the task -- sendMap, sendText, returnTransid,",
-                "     *  xctl, abend -- in the order it does it. */",
-                "    public void runTask(CicsTask task) {",
-                f'        log.info("{prog.cls}: runTask");',
-                "        // TODO: [AI AGENT] port the PROCEDURE DIVISION into this task",
-                "    }\n",
-            ]
+        # #3754: the whole task -- the port's target, and what the equivalence harness drives; #4004: a program
+        # reached only by LINK / XCTL runs the same way, at its level
+        imports.append(f"import {self.package}.cics.CicsTask;")
+        what = ("One pseudo-conversational task of this program (#3754)" if prog.transactions
+                else "This program's run at a LINK / XCTL level (#4004): task.level(), task.eibcalen()")  # fmt: skip
+        methods += [
+            f"    /** {what}. TODO: [AI AGENT] port the PROCEDURE",
+            "     *  DIVISION: read task.hasCommarea() / task.commarea(..) / task.aid() / task.receive(map, ..),",
+            "     *  and record what the program does through the task -- sendMap, sendText, returnTransid,",
+            "     *  link, xctl, abend -- in the order it does it. */",
+            "    public void runTask(CicsTask task) {",
+            f'        log.info("{prog.cls}: runTask");',
+            "        // TODO: [AI AGENT] port the PROCEDURE DIVISION into this task",
+            "    }\n",
+        ]
         if self.has_link_handler(prog):
             handler("handleLink", None, req, resp, "Another program LINKed / XCTLed to this one.")
         if (prog.channel_in or prog.channel_out) and (req, resp) != (prog.channel_in, prog.channel_out):

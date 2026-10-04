@@ -370,6 +370,30 @@
       "program": null,
       "sha256": "f49192062920f953297f9169a6a724820967e39823d7af67d5e58ed173281ed4"
     },
+    "src/main/java/com/gitgalaxy/modernized/util/CobolCompare.java": {
+      "calls": [],
+      "classes": [
+        "CobolCompare"
+      ],
+      "endpoints": [],
+      "fields": [],
+      "kind": "other",
+      "methods": [
+        "CobolCompare",
+        "bytes",
+        "compare",
+        "eq",
+        "filled",
+        "ge",
+        "gt",
+        "highValues",
+        "le",
+        "lowValues",
+        "lt"
+      ],
+      "program": null,
+      "sha256": "a97626e7b0add603f98f9cc6bc825ef247c7fa57a6bba7619738a77b4385a45f"
+    },
     "src/main/java/com/gitgalaxy/modernized/util/EbcdicDecoderUtil.java": {
       "calls": [],
       "classes": [

@@ -18,6 +18,7 @@ import statistics
 from collections.abc import Mapping
 from typing import Any, Optional, TypedDict
 
+from gitgalaxy.core.function_population import is_population_function
 from gitgalaxy.core.spatial_correlation import WEIGHTED_SIGNALS, weighted_view
 from gitgalaxy.metrics import archetype_classifier
 from gitgalaxy.standards import analysis_lens
@@ -152,8 +153,10 @@ class SignalProcessor:
         arch_key = next((k for k in inference_model if k.startswith("ARCHETYPES_K")), None)
         self.GLOBAL_ARCHETYPES = inference_model.get(arch_key, {}) if arch_key else {}
 
-        # ---> NEW: Fetch Language-Specific Clustering Models <---
-        self.LANGUAGE_INFERENCE_MODELS = getattr(config, "SPECIFIC_FILE_INFERENCE_MODEL", {})
+        # #1157: (live vector length, centroid length, centroid name) combinations
+        # already warned about by _classify_archetype, so a drifted model logs once
+        # per instance rather than once per classified function.
+        self._archetype_dim_mismatch_warned: set[tuple[int, int, str]] = set()
 
         # Fetch Structural Constants
         physics = getattr(config, "ENGINE_CONSTANTS", {})
@@ -192,13 +195,6 @@ class SignalProcessor:
             },
         )
 
-        # ---> NEW: Fetch the Archetype Matrix
-        self.CONTEXT_VIOLATION_MATRIX = security_profiles.get("CONTEXT_VIOLATION_MATRIX", {})
-
-        # Dimension-mismatch warnings are deduplicated per (vector len, centroid
-        # len, model) so a stale model doesn't spam one warning per function/file.
-        self._archetype_dim_warned: set[tuple[int, int, str]] = set()
-
         self.logger.info("Signal Processor Online | Context-Aware Risk Schema & ML Archetypes loaded.")
 
     def _classify_archetype(
@@ -216,19 +212,17 @@ class SignalProcessor:
             return best_match, 0.0, fingerprint
 
         for arch_name, centroid_vector in archetypes_dict.items():
+            # #1157: a live vector whose width differs from the trained centroid
+            # is schema drift. Comparing a truncated prefix yields a confidently
+            # wrong label, so refuse to classify at all and say so (once per
+            # distinct mismatch -- this runs for every function in a scan).
             if len(scaled_vector) != len(centroid_vector):
-                # #1157/#1158: this mismatch used to be silently truncated
-                # (zip()/min() over the shorter sequence), producing a
-                # confidently-wrong archetype label with no signal that the
-                # classification was untrustworthy. Refuse to classify and say
-                # why instead. Warn once per (vector, centroid) length pair so
-                # a big scan doesn't spam one line per function/file.
-                warn_key = (len(scaled_vector), len(centroid_vector), arch_name)
-                if warn_key not in self._archetype_dim_warned:
-                    self._archetype_dim_warned.add(warn_key)
+                mismatch_key = (len(scaled_vector), len(centroid_vector), arch_name)
+                if mismatch_key not in self._archetype_dim_mismatch_warned:
+                    self._archetype_dim_mismatch_warned.add(mismatch_key)
                     self.logger.warning(
-                        "Archetype dimension mismatch: live vector has %d dims but centroid '%s' has %d; "
-                        "skipping classification rather than silently truncating",
+                        "Archetype dimension mismatch: live feature vector has %d dimensions but "
+                        "centroid %r has %d; refusing to classify (Unclassified) instead of truncating.",
                         len(scaled_vector),
                         arch_name,
                         len(centroid_vector),
@@ -236,9 +230,8 @@ class SignalProcessor:
                 return "Unclassified", 0.0, {}
 
             dist_sq = 0.0
-
-            for i in range(len(scaled_vector)):
-                dist_sq += (scaled_vector[i] - centroid_vector[i]) ** 2
+            for live_value, centroid_value in zip(scaled_vector, centroid_vector):
+                dist_sq += (live_value - centroid_value) ** 2
 
             distance = math.sqrt(dist_sq)
             fingerprint[arch_name] = round(distance, 3)
@@ -347,47 +340,11 @@ class SignalProcessor:
             ext = f".{filename.split('.')[-1]}" if "." in filename else ""
             ghost_meta = meta.get("metadata", {})
 
-            # ==================================================================
-            # EXTENSION SPOOFING DETECTOR
-            # Punishes files claiming to be inert data but evaluated as executable code
-            # ==================================================================
-            if ext:
-                inert_disguises = {
-                    ".txt",
-                    ".md",
-                    ".csv",
-                    ".json",
-                    ".yaml",
-                    ".yml",
-                    ".xml",
-                    ".log",
-                    ".png",
-                    ".jpg",
-                    ".jpeg",
-                    ".gif",
-                    ".mp4",
-                }
-                executable_langs = {
-                    "shell",
-                    "python",
-                    "javascript",
-                    "typescript",
-                    "ruby",
-                    "perl",
-                    "php",
-                    "c",
-                    "cpp",
-                    "rust",
-                    "go",
-                    "java",
-                    "powershell",
-                }
-
-                if ext in inert_disguises and lang_id.lower() in executable_langs:
-                    self.logger.warning(
-                        f"🚨 SPOOFING DETECTED: {rel_path} claims to be {ext} but executed as {lang_id}!"
-                    )
-                    raw_signals["sec_extension_mismatch"] = 1
+            # #4126: the text-spoof check that stood here (an inert extension whose content was
+            # detected as an executable language) could not fire -- language detection never yields
+            # that pair (a script named .txt/.log/.md comes out `.undeterminable`). Disguised
+            # executables are now caught on the denied-extension path in galaxyscope's worker, by
+            # security_lens.detect_disguised_executable(). sec_extension_mismatch keeps its slot.
 
             # ==================================================================
             # CRITICAL SECRETS EXPOSURE OVERRIDE
@@ -731,24 +688,22 @@ class SignalProcessor:
 
             popularity = meta.get("popularity", 0)
 
-            # #ENGINE-PARITY: the file (global macro-species) and per-language
-            # (local micro-species) archetypes are now classified from the FULLY-
+            # #ENGINE-PARITY: the file archetype is classified from the FULLY-
             # assembled metrics in record_keeper (mirroring offline
-            # apply_file_clusters) and written back into this telemetry dict before
-            # the recorders read it. The old raw_vector built here used a hardcoded
+            # apply_file_clusters), which overwrites these placeholders -- label,
+            # centroid distance and per-centroid fingerprint (#4106) -- before the
+            # recorders read them. The old raw_vector built here used a hardcoded
             # feature set that silently drifted from the trainer -- the v2.8.0
-            # file_cluster "Unclassified"/mismatch bug. These are placeholders that
-            # record_keeper overwrites once every file metric + the function->file
-            # composition rollup are available.
+            # file_cluster "Unclassified"/mismatch bug.
+            #
+            # #4106: the per-language "local micro-species" model
+            # (SPECIFIC_FILE_INFERENCE_MODEL) is retired. Nothing had applied it
+            # since #3061, and it cannot be: its 74 features have no recorded order
+            # and match no feature space the engine computes. Revive it only as a
+            # retrained, self-describing brain (FEATURE_NAMES included).
             global_archetype = "Unclassified"
             global_drift = 0.0
             arch_fingerprint: dict[str, float] = {}
-
-            # B) LOCAL MICRO-SPECIES -- classified in record_keeper from the
-            # per-language self-describing brain (see above); placeholders here.
-            local_archetype = None
-            local_drift = 0.0
-            local_fingerprint: dict[str, float] = {}
 
             # ------------------------------------------------------------------
             # 2. CORE RISK EXPOSURE CALCULATIONS
@@ -875,9 +830,6 @@ class SignalProcessor:
                 "encapsulation_ratio": round(encapsulation_ratio, 3),
                 "global_drift": global_drift,
                 "archetype_fingerprint": arch_fingerprint,
-                "local_archetype": local_archetype,
-                "local_drift": local_drift,
-                "local_fingerprint": local_fingerprint,
                 "function_archetype_mix": function_archetype_mix,
                 "densities": {"cog_raw": round(cog_raw, 3)},
                 # Evidence-mass flag (#2655): consumers can tell a count-regime score
@@ -2262,17 +2214,18 @@ class SignalProcessor:
         }
 
     def _generate_function_rankings(self, parsed_files: list[dict[str, Any]]) -> dict[str, list[dict[str, Any]]]:
-        all_funcs = [
-            {
-                "name": func.get("name", "anon"),
-                "file": f.get("name", "unknown"),
-                "impact": func.get("impact", 0),
-                "loc": func.get("loc", 0),
-            }
-            for f in parsed_files
-            for func in f.get("functions", [])
-            if isinstance(func, dict) and not func.get("calls_only")
-        ]
+        all_funcs = []
+        for f in parsed_files:
+            for func in f.get("functions", []):
+                if is_population_function(func):  # #4110
+                    all_funcs.append(
+                        {
+                            "name": func.get("name", "anon"),
+                            "file": f.get("name", "unknown"),
+                            "impact": func.get("impact", 0),
+                            "loc": func.get("loc", 0),
+                        }
+                    )
         all_funcs.sort(key=lambda x: x["impact"], reverse=True)
         return {
             "highest": all_funcs[:3],

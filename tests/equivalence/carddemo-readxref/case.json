@@ -1,0 +1,107 @@
+{
+ "corpus": "aws-mainframe-modernization-carddemo",
+ "program": "CBACT03C",
+ "program_source": "app/cbl/CBACT03C.cbl",
+ "copy_dirs": [
+  "app/cpy"
+ ],
+ "job": "READXREF",
+ "step": "STEP05",
+ "parm": null,
+ "clock": "2022/07/18 10:30:15.00",
+ "datasets": {
+  "XREFFILE": {
+   "input": "app/data/ASCII/cardxref.txt",
+   "organization": "indexed",
+   "reclen": 50,
+   "keys": [
+    {
+     "offset": 0,
+     "length": 16
+    }
+   ],
+   "entity": "CardXrefRecord"
+  }
+ },
+ "notes": "Job READXREF step STEP05: CBACT03C reads CardDemo's card / customer / account cross reference (the CARDXREF KSDS, cardxref.txt; its 36-byte lines padded to the 50-byte record) in key order and DISPLAYs each CARD-XREF-RECORD on SYSOUT; it writes no file, so SYSOUT, RETURN-CODE and the abend are the outputs compared. Every record is DISPLAYed TWICE -- once in 1000-XREFFILE-GET-NEXT on status '00' and again in the main loop (the program's defect: CBACT02C has the first DISPLAY commented out). Every input is the corpus's data. Derived from CardDemo (Apache-2.0; Copyright Amazon.com, Inc. or its affiliates): LICENSE and NOTICE here are the source's own.",
+ "faults": [
+  {
+   "name": "open-xreffile",
+   "plan": [
+    {
+     "dd": "XREFFILE",
+     "op": "OPEN",
+     "nth": 1,
+     "status": "35"
+    }
+   ],
+   "why": "35: OPEN of a file that is not present (IBM Enterprise COBOL for z/OS Language Reference, File status key values): 'ERROR OPENING XREFFILE' from 0000-XREFFILE-OPEN, 9910-DISPLAY-IO-STATUS, then 9999-ABEND-PROGRAM -> ABEND U0999"
+  },
+  {
+   "name": "open-xreffile-verified",
+   "plan": [
+    {
+     "dd": "XREFFILE",
+     "op": "OPEN",
+     "nth": 1,
+     "status": "97"
+    }
+   ],
+   "why": "97: OPEN successful, file integrity verified (IBM Enterprise COBOL for z/OS Language Reference, File status key values) -- a SUCCESSFUL open, but 0000-XREFFILE-OPEN accepts only '00', so the step abends (the program's defect) through 9910-DISPLAY-IO-STATUS's 9 arm, then 9999-ABEND-PROGRAM -> ABEND U0999"
+  },
+  {
+   "name": "xreffile-read-error",
+   "plan": [
+    {
+     "dd": "XREFFILE",
+     "op": "READ",
+     "nth": 3,
+     "status": "30"
+    }
+   ],
+   "why": "30: permanent I/O error (IBM Enterprise COBOL for z/OS Language Reference, File status key values) on the third cross reference: 'ERROR READING ...' from 1000-XREFFILE-GET-NEXT after two cross references are displayed, 9910-DISPLAY-IO-STATUS, then 9999-ABEND-PROGRAM -> ABEND U0999"
+  },
+  {
+   "name": "xreffile-early-end",
+   "plan": [
+    {
+     "dd": "XREFFILE",
+     "op": "READ",
+     "nth": 3,
+     "status": "10"
+    }
+   ],
+   "why": "10: end of file (IBM Enterprise COBOL for z/OS Language Reference, File status key values) after two cross references: END-OF-FILE is set, the file is closed and the step ends normally with what it has displayed"
+  },
+  {
+   "name": "xreffile-status-9",
+   "plan": [
+    {
+     "dd": "XREFFILE",
+     "op": "READ",
+     "nth": 1,
+     "status": "9A"
+    }
+   ],
+   "why": "9x: implementor-defined condition (IBM Enterprise COBOL for z/OS Language Reference, File status key values): 1000-XREFFILE-GET-NEXT -> 9910-DISPLAY-IO-STATUS's non-numeric / 9 arm, then 9999-ABEND-PROGRAM -> ABEND U0999"
+  },
+  {
+   "name": "close-xreffile",
+   "plan": [
+    {
+     "dd": "XREFFILE",
+     "op": "CLOSE",
+     "nth": 1,
+     "status": "30"
+    }
+   ],
+   "why": "30: permanent I/O error (IBM Enterprise COBOL for z/OS Language Reference, File status key values) closing XREFFILE after every record is displayed: 'ERROR CLOSING ...' from 9000-XREFFILE-CLOSE, 9910-DISPLAY-IO-STATUS, then 9999-ABEND-PROGRAM -> ABEND U0999"
+  }
+ ],
+ "entries": [
+  {
+   "method": "executeCbact03c",
+   "why": "#4316 unproven ports: reaches executeCbact03c, the service's no-argument entry (the generated controller's), which runs the step as runBatch(List.of(), null): CBACT03C takes no PARM and opens its files through the DD names it declares, so the step it runs is the COBOL's"
+  }
+ ]
+}

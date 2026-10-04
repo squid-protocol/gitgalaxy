@@ -45,6 +45,7 @@ COBOL_RULES = LANGUAGE_DEFINITIONS["cobol"]["rules"]
 # ==============================================================================
 FUNCTION_CASES: dict[str, Any] = {
     "valid": [
+        ("       END-TargetFunc.", "END-TargetFunc"),  # #4031: a paragraph named END-... (not a reserved terminator)
         ("       0000.", "0000"),  # #3533: an all-digit procedure name (navikt/DSF R001BYDL)
         ("       9999.", "9999"),
         ("       TargetFunc.", "TargetFunc"),  # carried-forward: fixed-format paragraph
@@ -63,7 +64,7 @@ FUNCTION_CASES: dict[str, Any] = {
         "      01680012.",
         "       01 TargetFunc.",  # carried-forward: data-division level number
         "           PERFORM TargetFunc.",  # carried-forward: PERFORM invocation, same line
-        "       END-TargetFunc.",  # carried-forward: scope-terminator lookalike
+        "       END-PERFORM.",  # a reserved scope terminator (#4031: END-TargetFunc. IS a paragraph)
         "       PROCEDURE DIVISION.",  # division header
         "       01 WS-RECORD.",  # level 01
         "       77 WS-COUNTER.",  # level 77
@@ -197,14 +198,20 @@ CLASS_CASES: dict[str, Any] = {
         ("CLASS-ID. MyClass FINAL.", "MyClass"),  # was a real bug, now fixed
         ("CLASS-ID. MyClass INHERITS Base.", "MyClass"),  # was a real bug, now fixed
         ("INTERFACE-ID. MyInterface INHERITS BaseInterface.", "MyInterface"),  # was a real bug, now fixed
+        ("        PROGRAM-ID. 'EPSCSMRD'.", "EPSCSMRD"),  # #4242: a literal name, Area B (DBB MortgageApplication)
+        ('       PROGRAM-ID. "EPSCSMRF".', "EPSCSMRF"),  # #4242: the double-quoted literal
+        ("PROGRAM-ID. 'MYPROG' IS INITIAL PROGRAM.", "MYPROG"),  # #4242: a literal name, then its clause
     ],
     "invalid": [
         "      * PROGRAM-ID. MyProgram.",  # commented-out declaration
+        "      * PROGRAM-ID. 'MYPROG'.",  # #4242: a commented-out literal name
+        "       MOVE 'PROGRAM-ID. X' TO WS-TEXT.",  # #4242: PROGRAM-ID inside a literal is no paragraph
         "       WORKING-STORAGE SECTION.",  # unrelated section, no class_start keyword
     ],
     "pathological": [
         ("PROGRAM-ID.\n    MyProgram.", "MyProgram"),  # vertical split
         ("PROGRAM-ID.\n    MyProgram\n    IS INITIAL PROGRAM.", "MyProgram"),  # vertical split + clause
+        ("       PROGRAM-ID.\n       'MYPROG'.", "MYPROG"),  # #4242: a literal name on the next line
     ],
 }
 
@@ -373,10 +380,14 @@ DEPENDENCY_CASES: dict[str, Any] = {
         ("COPY MYFILE REPLACING ==OLD== BY ==NEW==.", "MYFILE"),  # REPLACING clause
         ("COPY MYFILE OF MYLIB.", "MYFILE"),  # OF library qualifier
         ("COPY MYFILE IN MYLIB.", "MYFILE"),  # IN library qualifier
+        ("       01  WS-REC.  COPY CPYB.", "CPYB"),  # #4303: after a level entry on the same line
+        ("       05 X PIC 9. EXEC SQL INCLUDE SQLCA END-EXEC.", "SQLCA"),  # #4303: INCLUDE after a period
     ],
     "invalid": [
         "01 COPY-FILE PIC X(10).",  # carried-forward: substring-of-keyword lookalike
         "      * COPY MYFILE.",  # commented-out copy (column-7 asterisk)
+        "       MOVE A TO B. INCLUDE-FLAG",  # #4303: only COPY / EXEC SQL INCLUDE open a statement mid-line
+        "       MOVE 1.5 TO X. INCLUDE Y.",  # #4303: a bare INCLUDE mid-line is not the EXEC SQL form
     ],
     "pathological": [
         ("COPY \n 'Z_MACROS'", "Z_MACROS"),  # carried-forward: vertical spacing
@@ -403,10 +414,18 @@ def test_cobol_dependency_capture_pathological(payload, expected_path):
     )
 
 
+def test_cobol_dependency_capture_every_copy_on_a_line_4303():
+    """#4303 (lsp fixtures TEST.CBL:18): each COPY on one line is its own import."""
+    dep = COBOL_RULES["_dependency_capture"]
+    assert dep.findall("       01 PARENT. COPY A. COPY B. COPY C.") == ["A", "B", "C"]
+    assert len(COBOL_RULES["import"].findall("       01 PARENT. COPY A. COPY B. COPY C.")) == 3
+
+
 def test_cobol_dependency_capture_redos_immunity():
     """ReDoS sweep for the COPY/INCLUDE statement pattern."""
     dep = COBOL_RULES["_dependency_capture"]
     assert_redos_immune(dep, "COPY '" + "a" * 200000, timeout_sec=3.0)
+    assert_redos_immune(dep, "01 A." + ". " * 100000 + "COPY", timeout_sec=3.0)
     assert dep.search("COPY MYLIB.")
 
 

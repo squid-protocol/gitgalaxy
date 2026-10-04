@@ -77,7 +77,7 @@ $$\text{ExecutionVectors} = (\text{sec\_high\_risk\_execution} \times 4.0) + (\t
   $$\text{ExecutionVectors} = \frac{\text{ExecutionVectors}}{\text{agent\_dampener} \times \text{hardware\_dampener}}$$
 
 ##### 3. Injection Mass & Deterministic Spikes
-$$\text{InjectionMass} = (\text{InputVectors} \times \text{ExecutionVectors}) \times \text{ArchetypeMultiplier}$$
+$$\text{InjectionMass} = (\text{InputVectors} \times \text{ExecutionVectors})$$
 * **Confirmed Taint Spike:** Adds $+500.0 \times \text{sec\_tainted\_injection}$.
 * **Confirmed SQLi Spike:** Adds $+500.0 \times \text{sec\_amplified\_sql\_injection}$.
 
@@ -87,13 +87,10 @@ $$\text{Density} = \left( \frac{\text{InjectionMass}}{\max(\text{LOC} + 150, 1)}
 Mapped via Sigmoid (Standard mode threshold = 40.0, slope = 0.4; Paranoid mode threshold = 3.0, slope = 1.2).
 
 ```python
-def _calc_injection_surface(self, loc: int, raw_signals: dict[str, int], mp: float, archetype: str) -> float:
+def _calc_injection_surface(self, loc: int, raw_signals: dict[str, int], mp: float) -> float:
     """
     Calculates Injection Surface Exposure (XSS, SQLi, RCE, Command Injection).
     """
-    arch_matrix = self.CONTEXT_VIOLATION_MATRIX.get(archetype, {})
-    arch_multiplier = arch_matrix.get("injection_surface_multiplier", 1.0)
-
     input_vectors = raw_signals.get("sec_io", 0) + (raw_signals.get("ssr_boundaries", 0) * 2.0)
     execution_vectors = (raw_signals.get("sec_high_risk_execution", 0) * 4.0) + (
         raw_signals.get("sec_safety_bypasses", 0) * 2.0
@@ -112,7 +109,7 @@ def _calc_injection_surface(self, loc: int, raw_signals: dict[str, int], mp: flo
     hardware_dampener = 1.0 + (raw_signals.get("hardware_bridge", 0) * 3.0)
     execution_vectors = execution_vectors / hardware_dampener
 
-    injection_mass = (input_vectors * execution_vectors) * arch_multiplier
+    injection_mass = input_vectors * execution_vectors
 
     # Direct taint confirmation spike
     taint_confirmed = raw_signals.get("sec_tainted_injection", 0)

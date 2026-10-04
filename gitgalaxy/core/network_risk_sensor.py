@@ -24,6 +24,12 @@ from gitgalaxy.core.graph_engine import (
     pagerank,
 )
 from gitgalaxy.core.invocation_resolver import PROGRAM_DECLARING_LANGUAGES
+from gitgalaxy.core.package_self_reference import (
+    Package,
+    export_targets,
+    owning_package,
+    split_specifier,
+)
 from gitgalaxy.core.path_proximity import proximity_rank
 from gitgalaxy.core.unicode_paths import nfc
 from gitgalaxy.standards.analysis_lens import RECORDING_SCHEMAS
@@ -180,6 +186,10 @@ class NetworkRiskSensor:
         # as the edge_data table. Deliberately not written into file telemetry
         # or the returned macro metrics -- both reach the audit/GPU JSON exports.
         self.dependency_edges: list[dict[str, Any]] = []
+        # #3788: per importing file, the module each JS/TS namespace alias names
+        # (`import * as ns from "./x"` -> {"ns": <x's path>}) from the latest
+        # _resolve_edges pass; the call resolver reads it for `ns.f()` calls.
+        self.namespace_aliases: dict[str, dict[str, str]] = {}
         # #perf: memoized extension-stripped candidate paths for Stage-2 import
         # disambiguation. On generated SDKs (many files share a stem) a single
         # token matches thousands of candidates, so _resolve_target stripped the
@@ -193,10 +203,16 @@ class NetworkRiskSensor:
         self._by_norm_path: dict[str, str] = {}
         # #3596: declared name -> the files declaring it (DECLARATION_IMPORT_LANGS).
         self._declared_in: dict[str, list[str]] = defaultdict(list)
+        # #4128: every trailing run of directory names (`circe/pointer`, `pointer`)
+        # of the scanned files, built on first use -- does a dotted name spell a
+        # package directory of this repo?
+        self._dir_tails: Optional[set[str]] = None
         # #3665: the scanned directory, when the caller has one (galaxyscope sets
         # it). Only used to tell two same-named candidates apart as ONE file: a
         # symlinked header (`include/X.h -> ../Core/X.h`) is scanned at both paths.
         self.root: Optional[str] = None
+        # #3789: scan-relative directory -> the package.json that owns it (None: none does)
+        self._packages: dict[str, Optional[Package]] = {}
 
     def _build_resolution_map(self, files: list[dict[str, Any]]) -> dict[str, list[str]]:
         """
@@ -208,7 +224,9 @@ class NetworkRiskSensor:
         """
         resolution_map: dict[str, list[str]] = defaultdict(list)
         self._by_norm_path = {}
+        self._packages = {}
         self._declared_in = defaultdict(list)
+        self._dir_tails = None
         for f in files:
             path = f.get("path", "")
             if not path:
@@ -381,7 +399,8 @@ class NetworkRiskSensor:
         # that package's package.scala; of an object, the object's file (the
         # name search below, on the token without its wildcard).
         package_object = src_def.get("package_object_file")
-        if package_object and target_token.endswith(("._", ".*")):
+        wildcard = bool(package_object) and target_token.endswith(("._", ".*"))
+        if wildcard:
             target_token = target_token[:-2]
             owned = self._resolve_path_tail(
                 f"{target_token.replace('.', '/')}/{package_object}", resolution_map, curr_path
@@ -408,36 +427,103 @@ class NetworkRiskSensor:
         # A JS/TS bare specifier names a package; only an aliased or multi-
         # segment one that mirrors a real file path is local (see the flag).
         if src_def.get("bare_import_names_package") and not is_relative and not target_token.startswith("/"):
-            return self._resolve_path_mirror(target_token, resolution_map, src_lang, file_facts)
+            return self._resolve_self_reference(target_token, curr_path) or self._resolve_path_mirror(
+                target_token, resolution_map, src_lang, file_facts
+            )
 
         # `#include <chrono>` names a file called exactly `chrono`, never chrono.h.
         if src_def.get("include_names_file_literally") and not posixpath.splitext(target_token)[1]:
             return self._resolve_literal_file(target_token, resolution_map)
 
-        resolved = self._resolve_by_name(
-            target_token, resolution_map, curr_path, folded_maps, fold_lang, src_lang, file_facts
-        )
+        # #4128: an import here names source of these languages only. A resource
+        # that mirrors the package path (circe's resources/io/circe/tests/examples/
+        # glossary.json for `import io.circe.tests.examples.glossary`, a val) is not
+        # its target, however well its path matches.
+        target_langs = src_def.get("import_target_langs")
+
+        def by_name(token: str) -> Optional[str]:
+            hit = self._resolve_by_name(token, resolution_map, curr_path, folded_maps, fold_lang, src_lang, file_facts)
+            if (
+                hit is not None
+                and target_langs
+                and file_facts
+                and (file_facts.get(hit) or ("", False))[0] not in target_langs
+            ):
+                return None
+            return hit
+
+        resolved = by_name(target_token)
         # #3554: a Java `import static a.b.C.member` / nested `a.b.Outer.Inner`
         # names something INSIDE a class file; when the full name resolves to
         # nothing, the class it belongs to is the file.
         if resolved is None and src_def.get("imports_may_name_member"):
             parts = target_token.split(".")
-            for cut in range(1, min(3, len(parts) - 2) + 1):
+            # #4128: a Scala import may be RELATIVE to the enclosing package
+            # (`import Decoder.state._` inside package io.circe), so its owner
+            # can be one bare class name.
+            min_owner = 1 if package_object else 2
+            for cut in range(1, min(3, len(parts) - min_owner) + 1):
                 # The owner of a member or nested class is a CLASS: `java.util.X`
                 # failing never makes `java.util` (a lone util.kt) its file.
                 if not parts[-cut - 1][:1].isupper():
                     continue
-                resolved = self._resolve_by_name(
-                    ".".join(parts[:-cut]), resolution_map, curr_path, folded_maps, fold_lang, src_lang, file_facts
-                )
+                owner = ".".join(parts[:-cut])
+                resolved = by_name(owner)
+                # #4128: an owner declared in a file not named after it
+                # (`io.circe.DecodingFailure.Reason.X` -> DecodingFailure, in Error.scala).
+                if resolved is None and src_def.get("imports_may_name_declaration"):
+                    resolved = self._resolve_declaration(owner, curr_path, file_facts, src_lang)
                 if resolved is not None:
                     break
+        # #4128: a NAMED Scala import of a package object (`import io.circe.jawn`) or of
+        # one of its members (`io.circe.jawn.decode`, `io.circe.syntax.EncoderOps`) is
+        # that package's package.scala, as a wildcard of it is (#3595). A lower-case
+        # member (a def or val, which Scala 2 only allows inside an object) tries it
+        # before the declaration search, whose same-named class METHOD in the
+        # package's directory (`JawnParser.parse`) is not what the import names; an
+        # upper-case one after it, since `io.circe.DecodingFailure` is Error.scala's
+        # class, not a member of io/circe/package.scala.
+        # A wildcard was tried above, and a name that is itself a package directory
+        # (`import io.circe.parser`, `io.circe.pointer._`) is never a member of its
+        # parent's package object.
+        segments = target_token.split(".")
+        member = (
+            bool(package_object)
+            and resolved is None
+            and len(segments) >= 3
+            and not wildcard
+            and not self._names_package_dir(segments)
+        )
+        lower_member = member and segments[-1][:1].islower()
+
+        def package_object_of(names: list[str]) -> Optional[str]:
+            if not package_object or wildcard or len(names) < 2:
+                return None
+            return self._resolve_path_tail(f"{'/'.join(names)}/{package_object}", resolution_map, curr_path)
+
+        if resolved is None:
+            resolved = package_object_of(segments)
+        if resolved is None and lower_member:
+            resolved = package_object_of(segments[:-1])
         # #3596: a Kotlin top-level function/property (`a.b.asName`) lives in a
         # file not named after it: the one file that declares it under a
         # directory mirroring its package.
         if resolved is None and src_def.get("imports_may_name_declaration"):
             resolved = self._resolve_declaration(target_token, curr_path, file_facts, src_lang)
+        if resolved is None and member and not lower_member:
+            resolved = package_object_of(segments[:-1])
         return resolved
+
+    def _names_package_dir(self, names: list[str]) -> bool:
+        """#4128: whether `a.b.c` spells a directory some scanned file sits in."""
+        if self._dir_tails is None:
+            tails: set[str] = set()
+            for path in self._by_norm_path:
+                dirs = path.split("/")[:-1]
+                for i in range(len(dirs)):
+                    tails.add("/".join(dirs[i:]))
+            self._dir_tails = tails
+        return "/".join(names) in self._dir_tails
 
     def _resolve_by_name(
         self,
@@ -679,6 +765,49 @@ class NetworkRiskSensor:
         owner = directory if owns_directory else posixpath.join(directory, posixpath.splitext(name)[0])
         for rel in (posixpath.join(owner, module + ".rs"), posixpath.join(owner, module, "mod.rs")):
             hit = self._by_norm_path.get(posixpath.normpath(rel) if owner else rel)
+            if hit is not None:
+                return hit
+        return None
+
+    def _resolve_self_reference(self, specifier: str, curr_path: str) -> Optional[str]:
+        """#3789: `from "zod/v4"` inside zod -> the file zod's package.json `exports` declares.
+
+        Only the nearest package.json (the importing file's own package) is consulted, and
+        only when its `name` is the specifier's package. See core/package_self_reference.py.
+        """
+        if self.root is None:
+            return None
+        pkg = owning_package(self.root, posixpath.dirname(curr_path.replace("\\", "/")), self._packages)
+        if pkg is None or not pkg.name:
+            return None
+        name, subpath = split_specifier(specifier.replace("\\", "/"))
+        if name != pkg.name:
+            return None
+        for target in export_targets(pkg, subpath):
+            hit = self._declared_file(pkg.dir, target)
+            if hit is not None and hit != curr_path:
+                return hit
+        return None
+
+    def _declared_file(self, package_dir: str, target: str) -> Optional[str]:
+        """The scanned file a package.json target (`./src/index.ts`, `./v4/index.js`) names:
+        exactly that file, its emitted-spelling source (`.js` -> `.ts`), or, for an
+        extensionless / directory target, the file with a source extension or an `index`."""
+        if not target.startswith("./") or ".." in target.split("/"):
+            return None
+        rel = posixpath.normpath(posixpath.join(package_dir, target))
+        stem, ext = posixpath.splitext(rel)
+        exact = self._by_norm_path.get(rel)
+        if exact is not None:
+            return exact
+        if ext in _ESM_EMITTED_EXTS:
+            names = [stem + e for e in _ESM_SOURCE_EXTS if e not in _ESM_EMITTED_EXTS and e != ".d.ts"]
+        elif not ext:
+            names = [rel + e for e in _ESM_SOURCE_EXTS] + [posixpath.join(rel, "index" + e) for e in _ESM_SOURCE_EXTS]
+        else:
+            return None
+        for name in names:
+            hit = self._by_norm_path.get(name)
             if hit is not None:
                 return hit
         return None
@@ -1056,11 +1185,24 @@ class NetworkRiskSensor:
         folded_maps = self._build_folded_resolution_map(parsed_files)
         file_facts = self._build_file_facts(parsed_files)
         edges: dict[tuple[str, str], dict[str, Any]] = {}
+        self.namespace_aliases = {}
 
         for f in parsed_files:
             curr_path = f.get("path", "")
             fold_lang = self._fold_lang(f)
             src_lang = str(f.get("lang_id", "")).lower()
+            for alias, spec in (f.get("namespace_imports") or {}).items():
+                aliased = self._resolve_target(
+                    spec,
+                    resolution_map,
+                    curr_path,
+                    folded_maps=folded_maps,
+                    fold_lang=fold_lang,
+                    src_lang=src_lang,
+                    file_facts=file_facts,
+                )
+                if aliased and aliased != curr_path:
+                    self.namespace_aliases.setdefault(curr_path, {})[alias] = aliased
 
             for imp in f.get("raw_imports", []):
                 # Check if it's a Level 2 Tuple (Entity Import) or Level 1 String
@@ -1141,9 +1283,10 @@ class NetworkRiskSensor:
             local_risk_vector = f.get("risk_vector", [0.0] * len(self.RISK_SCHEMA))
             pagerank_score = round(pr_score, 6)
             blast_radius = round(pr_normalized, 3)
-            systemic_threat_vector = [
-                round(pr_normalized * (local_risk / 100.0), 3) for local_risk in local_risk_vector
-            ]
+            systemic_threat_vector = []
+            for local_risk in local_risk_vector:
+                # Systemic Threat = Dependency Blast Radius * Local Vulnerability Severity
+                systemic_threat_vector.append(round(pr_normalized * (local_risk / 100.0), 3))
 
         return {
             "pagerank_score": pagerank_score,

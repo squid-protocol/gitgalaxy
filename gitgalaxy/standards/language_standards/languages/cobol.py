@@ -11,7 +11,7 @@
 from typing import Any
 
 from gitgalaxy.standards.language_standards import _lazy_re as re  # #3914: compiled on first use
-from gitgalaxy.standards.language_standards.identifiers import NATIONAL
+from gitgalaxy.standards.language_standards.identifiers import NATIONAL, WIDE_DIGITS, WIDE_HYPHENS
 
 from .._shared_patterns import GLOBAL_FRAGILE_DEBT, GLOBAL_PLANNED_DEBT
 
@@ -134,9 +134,12 @@ DEFINITION: dict[str, Any] = {
         # blocks the ~30-space identification-area bridge while leaving
         # normal spacing untouched. Wider single-line alignment (rare for a
         # USING list -- multi-operand lists wrap with commas) is
-        # conservatively counted short, never over-read. Column-73 blanking
-        # is not done here because it is unsafe without fixed/free-format
-        # detection (free-format lines legitimately run past column 72).
+        # conservatively counted short, never over-read. #4264: Prism now
+        # blanks columns 73+ of every fixed-format line before any rule runs
+        # (gitgalaxy/core/cobol_source_format.py: per-file fixed/free
+        # detection, switched by >>SOURCE FORMAT directives), and leaves a
+        # free-format line's text past column 72 alone. The `{1,4}` cap stays
+        # as defence for a rule matched against raw text.
         #
         # Both branches of the separator are disjoint from the operand's
         # own `[A-Z0-9_-]+`, the operand is non-nullable, and the
@@ -149,7 +152,7 @@ DEFINITION: dict[str, Any] = {
         "args": re.compile(
             r"\b(?:USING|RETURNING)\s+"
             r"((?:(?:BY\s+(?:REFERENCE|CONTENT|VALUE)\s+)?(?!RETURNING\b)"
-            r"[A-Z" + NATIONAL + r"0-9_-]+(?:[ \t\r\n]*,[ \t\r\n]*|[ \t]{1,4})?){0,20})",
+            r"[A-Z" + NATIONAL + WIDE_DIGITS + WIDE_HYPHENS + r"0-9_-]+(?:[ \t\r\n]*,[ \t\r\n]*|[ \t]{1,4})?){0,20})",
             re.I,
         ),
         # 3. linear: Sequential I/O & Network Boundaries. Structural boundaries defining straight-line execution flow.
@@ -269,11 +272,17 @@ DEFINITION: dict[str, Any] = {
             # spaces, so a real structural fix needs file-level fixed/free-
             # format detection -- out of scope for this narrow token exclusion.
             r"CEE3DMP|CEEMOUT|CEEDUMP|"
-            r"PROGRAM-ID|CLASS-ID|SECTION|DIVISION|END-[A-Z" + NATIONAL + r"a-z0-9_-]+)(?=[ \t\n.]))"
+            # #4031: only the RESERVED END- words are scope terminators, not every `END-...` name: a paragraph
+            # may be named END-PROGRAM (cics-genapp lgipdb01.cbl:312, PERFORMed and fallen into) or END-IPROC1
+            # (opensourcecobol4j jp-compat 033). The list is the one #4028 gave the graveyard finder: the COBOL
+            # 2014 / IBM Enterprise COBOL / GnuCOBOL reserved END- words.
+            r"PROGRAM-ID|CLASS-ID|SECTION|DIVISION|END-(?:ACCEPT|ADD|CALL|CHAIN|COLOR|COMPUTE|DELETE|DISPLAY|DIVIDE|"
+            r"EVALUATE|EXEC|FREE|IF|INVOKE|JSON|MULTIPLY|OF-PAGE|PERFORM|READ|RECEIVE|RETURN|REWRITE|SEARCH|SEND|"
+            r"START|STRING|SUBTRACT|UNSTRING|WAIT|WRITE|XML))(?=[ \t\n.]))"
             # 4. THE DIVISION/SECTION HEADER SHIELD
             # Bans any word followed immediately by DIVISION (e.g., "PROCEDURE DIVISION").
             # Upgraded to `[ \t\n]+` to prevent vertical ghosting.
-            r"(?![A-Z" + NATIONAL + r"a-z0-9_-]+[ \t\n]+DIVISION\b)"
+            r"(?![A-Z" + NATIONAL + WIDE_DIGITS + WIDE_HYPHENS + r"a-z0-9_-]+[ \t\n]+DIVISION\b)"
             # 5. THE IDENTIFIER CAPTURE (FUNCTION IDENTIFIER - GROUP 1)
             # [ THE GREEDY MARGIN SHIELD ]: The `\b` forces the engine to evaluate the whole word,
             # preventing the 6-character margin-eater from splitting flush-left identifiers.
@@ -293,11 +302,20 @@ DEFINITION: dict[str, Any] = {
             # or 8-digit (cols 73-80) sequence field before a lone period (CardDemo
             # `045100 .`) is never one. A continued numeric VALUE line (`1000.`) does
             # not begin a sentence, so the cobol_sentence_start filter drops it.
-            r"(?:\b|(?<=[0-9]{6}[ \-Dd]))([0-9_-]*[A-Z"
+            r"(?:\b|(?<=[0-9]{6}[ \-Dd]))([0-9_"
+            + WIDE_DIGITS
+            + WIDE_HYPHENS
+            + r"-]*[A-Z"
             + NATIONAL
             + r"a-z][A-Z"
             + NATIONAL
-            + r"a-z0-9_-]*|[0-9]{1,5}(?![0-9]))"
+            + WIDE_DIGITS
+            + WIDE_HYPHENS
+            + r"a-z0-9_-]*|[0-9"
+            + WIDE_DIGITS
+            + r"]{1,5}(?![0-9"
+            + WIDE_DIGITS
+            + r"]))"
             # 6. THE IGNITION & TRAILING ANCHOR (Lookahead)
             # Confirms paragraph/section by looking for an optional "SECTION", then a mandatory ".".
             # Upgraded to `[ \t\n]+` to allow vertical separation between the name and SECTION.
@@ -357,15 +375,26 @@ DEFINITION: dict[str, Any] = {
         #    already allows at line start. The `\b` before the name is func_start's
         #    greedy-margin guard: without it that 6-char prefix ate `    My` of an
         #    indented `MyProgram` and captured `Program`.
+        # 4. #4242: the name may be a literal -- `PROGRAM-ID. 'EPSCSMRD'.` (DBB
+        #    MortgageApplication) or `"NAME"`. A quote is no word character, so
+        #    `\b` refused it and the program recorded no class. An optional quote
+        #    on each side; the capture stays the bare name.
         "class_start": re.compile(
             r"^(?:[0-9a-zA-Z" + NATIONAL + r" \t]{6}[ \-]?)?[ \t]*(?:PROGRAM-ID|CLASS-ID|INTERFACE-ID|FACTORY|OBJECT)\."
             r"(?:[ \t]+|(?:[ \t]+\S{1,8})?[ \t]*\n(?:[0-9a-zA-Z" + NATIONAL + r" \t]{6}[ \-]?)?[ \t]*)"
-            r"\b([0-9_-]*[A-Z"
+            r"['\"]?\b([0-9_"
+            + WIDE_DIGITS
+            + WIDE_HYPHENS
+            + r"-]*[A-Z"
             + NATIONAL
             + r"a-z][A-Z"
             + NATIONAL
-            + r"a-z0-9_-]*)(?:[ \t\n]+(?!DIVISION\b)[A-Z"
+            + WIDE_DIGITS
+            + WIDE_HYPHENS
+            + r"a-z0-9_-]*)['\"]?(?:[ \t\n]+(?!DIVISION\b)[A-Z"
             + NATIONAL
+            + WIDE_DIGITS
+            + WIDE_HYPHENS
             + r"a-z0-9_-]+){0,6}(?=[ \t]*\.|\n|$)",
             re.I | re.M,
         ),
@@ -422,7 +451,10 @@ DEFINITION: dict[str, Any] = {
         # TRUNCATE and DROP DATABASE are whole-store destruction (family 4).
         "high_risk_execution": re.compile(
             r"(?<![-\w])(?:STOP\s+RUN|ALTER"
-            r"|CANCEL(?![ \t]+(?:REQID|TRANSID|SYSID|END-EXEC)\b)(?=[ \t]+['\"A-Z" + NATIONAL + r"0-9]))(?![-\w])"
+            r"|CANCEL(?![ \t]+(?:REQID|TRANSID|SYSID|END-EXEC)\b)(?=[ \t]+['\"A-Z"
+            + NATIONAL
+            + WIDE_DIGITS
+            + r"0-9]))(?![-\w])"
             r"|\bEXEC\s+SQL\s+(?:PREPARE|EXECUTE(?:\s+IMMEDIATE)?|TRUNCATE|DROP\s+DATABASE)\b",
             re.I,
         ),
@@ -557,7 +589,16 @@ DEFINITION: dict[str, Any] = {
         ),
         # 20. generics: Generics / Type Parameters. Parameterized classes (Modern COBOL).
         "generics": re.compile(
-            r"\bCLASS-ID\.\s+[A-Z" + NATIONAL + r"a-z0-9_-]+\s+USING\s+[A-Z" + NATIONAL + r"a-z0-9_-]+", re.I
+            r"\bCLASS-ID\.\s+[A-Z"
+            + NATIONAL
+            + WIDE_DIGITS
+            + WIDE_HYPHENS
+            + r"a-z0-9_-]+\s+USING\s+[A-Z"
+            + NATIONAL
+            + WIDE_DIGITS
+            + WIDE_HYPHENS
+            + r"a-z0-9_-]+",
+            re.I,
         ),
         # 21. comprehensions: Iterators / Comprehensions. (Not native to COBOL).
         "comprehensions": None,
@@ -595,15 +636,21 @@ DEFINITION: dict[str, Any] = {
         # (`EXEC SQL` / `INCLUDE X`, CBSA's style) satisfies. CardDemo's
         # app-transaction-type-db2 programs use the one-line form, so 6 copybook
         # edges (CSDB2RWY, CSDB2RPY and the DCLGEN .dcl members) were lost.
+        # #4303: a COPY / EXEC SQL INCLUDE also opens a statement after a separator period on the
+        # same line (`01  WS-REC.  COPY CPYB.`, `01 PARENT. COPY A. COPY B. COPY C.` -- lsp fixtures
+        # TEST.CBL:18), each occurrence its own match. After a period only `COPY` and the full
+        # `EXEC SQL INCLUDE` count: a bare INCLUDE is the second line of the two-line EXEC SQL form.
         "import": re.compile(
-            r"^(?:[0-9a-zA-Z" + NATIONAL + r" \t]{6}[ \-]?)?[ \t]*(?:EXEC[ \t]+SQL[ \t]+)?(?:COPY|INCLUDE)\b",
+            r"(?:^(?:[0-9a-zA-Z" + NATIONAL + r" \t]{6}[ \-]?)?[ \t]*(?:EXEC[ \t]+SQL[ \t]+)?(?:COPY|INCLUDE)"
+            r"|(?<=\.)[ \t]+(?:COPY|EXEC[ \t]+SQL[ \t]+INCLUDE))\b",
             re.I | re.M,
         ),
         "_dependency_capture": re.compile(
-            r"^(?:[0-9a-zA-Z"
+            r"(?:^(?:[0-9a-zA-Z" + NATIONAL + r" \t]{6}[ \-]?)?[ \t]*(?:EXEC[ \t]+SQL[ \t]+)?(?:COPY|INCLUDE)"
+            r"|(?<=\.)[ \t]+(?:COPY|EXEC[ \t]+SQL[ \t]+INCLUDE))[ \t\n]+['\"]?([A-Z"
             + NATIONAL
-            + r" \t]{6}[ \-]?)?[ \t]*(?:EXEC[ \t]+SQL[ \t]+)?(?:COPY|INCLUDE)[ \t\n]+['\"]?([A-Z"
-            + NATIONAL
+            + WIDE_DIGITS
+            + WIDE_HYPHENS
             + r"a-z0-9_-]+)['\"]?",
             re.I | re.M,
         ),
@@ -654,7 +701,13 @@ DEFINITION: dict[str, Any] = {
         "dependency_injection": None,
         # 34. macros: Preprocessor Hooks. DEFINE directives.
         "macros": re.compile(
-            r"^(?:[0-9a-zA-Z" + NATIONAL + r" \t]{6}[ \-]?)?[ \t]*DEFINE\s+[A-Z" + NATIONAL + r"0-9_-]+\.|>>DEFINE",
+            r"^(?:[0-9a-zA-Z"
+            + NATIONAL
+            + r" \t]{6}[ \-]?)?[ \t]*DEFINE\s+[A-Z"
+            + NATIONAL
+            + WIDE_DIGITS
+            + WIDE_HYPHENS
+            + r"0-9_-]+\.|>>DEFINE",
             re.I | re.M,
         ),
         # 35. pointers: Memory Map. Explicit pointer tracking.
@@ -779,6 +832,8 @@ DEFINITION: dict[str, Any] = {
         "time_date_logic": re.compile(
             r"(?i)\bACCEPT\s+[A-Z"
             + NATIONAL
+            + WIDE_DIGITS
+            + WIDE_HYPHENS
             + r"a-z0-9_-]+\s+FROM\s+(?:DATE|TIME|DAY-OF-WEEK|DAY)\b|\b(?:CURRENT-DATE|WHEN-COMPILED)\b"
             r"|\bEXEC\s+CICS\s+(?:ASKTIME|FORMATTIME|CONVERTTIME)\b"
             r"|\bFUNCTION\s+(?:INTEGER-OF-DATE|DATE-OF-INTEGER|INTEGER-OF-DAY|DAY-OF-INTEGER|DATE-TO-YYYYMMDD"
@@ -821,7 +876,13 @@ DEFINITION: dict[str, Any] = {
         # #3359: `(?<![\w-])`, not `\b` -- the scope terminators `END-PERFORM` /
         # `END-CALL` end in the verb, so `\b` let the NEXT statement's first word
         # (`END-PERFORM` newline `MOVE ...`) be captured as a callee.
-        "calls_out": re.compile(r"(?i)(?<![\w-])(?:PERFORM|CALL)\s+['\"]?([A-Z" + NATIONAL + r"a-z0-9_-]+)['\"]?"),
+        "calls_out": re.compile(
+            r"(?i)(?<![\w-])(?:PERFORM|CALL)\s+['\"]?([A-Z"
+            + NATIONAL
+            + WIDE_DIGITS
+            + WIDE_HYPHENS
+            + r"a-z0-9_-]+)['\"]?"
+        ),
         # #3393: in `CALL 'SUBPROG'` the literal IS the callee (as JCL's PGM=
         # is), but the literal shield blanked it before calls_out ran, so only
         # `CALL WS-PGM` and PERFORM reached calls_out_to. A literal right after
@@ -841,7 +902,11 @@ DEFINITION: dict[str, Any] = {
         # the whole crucible). WHENEVER ... GO TO (embedded SQL) is excluded: that
         # installs a handler, it does not transfer here.
         "_transfers_out": re.compile(
-            r"(?i)(?<!SQLERROR\s)(?<!SQLWARNING\s)(?<!FOUND\s)\bGO\s+TO\s+([A-Z" + NATIONAL + r"a-z0-9_-]+)"
+            r"(?i)(?<!SQLERROR\s)(?<!SQLWARNING\s)(?<!FOUND\s)\bGO\s+TO\s+([A-Z"
+            + NATIONAL
+            + WIDE_DIGITS
+            + WIDE_HYPHENS
+            + r"a-z0-9_-]+)"
         ),
         # #3197: a paragraph/section header begins a SENTENCE. `func_start`
         # alone cannot see that -- the deciding context is the PREVIOUS line,

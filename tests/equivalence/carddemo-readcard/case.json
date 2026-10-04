@@ -1,0 +1,107 @@
+{
+ "corpus": "aws-mainframe-modernization-carddemo",
+ "program": "CBACT02C",
+ "program_source": "app/cbl/CBACT02C.cbl",
+ "copy_dirs": [
+  "app/cpy"
+ ],
+ "job": "READCARD",
+ "step": "STEP05",
+ "parm": null,
+ "clock": "2022/07/18 10:30:15.00",
+ "datasets": {
+  "CARDFILE": {
+   "input": "app/data/ASCII/carddata.txt",
+   "organization": "indexed",
+   "reclen": 150,
+   "keys": [
+    {
+     "offset": 0,
+     "length": 16
+    }
+   ],
+   "entity": "CardRecord"
+  }
+ },
+ "notes": "Job READCARD step STEP05: CBACT02C reads CardDemo's card master (the CARDDATA KSDS, carddata.txt) in key order and DISPLAYs each CARD-RECORD on SYSOUT between its START / END OF EXECUTION lines; it writes no file, so SYSOUT, RETURN-CODE and the abend are the outputs compared. Every input is the corpus's data. Derived from CardDemo (Apache-2.0; Copyright Amazon.com, Inc. or its affiliates): LICENSE and NOTICE here are the source's own.",
+ "faults": [
+  {
+   "name": "open-cardfile",
+   "plan": [
+    {
+     "dd": "CARDFILE",
+     "op": "OPEN",
+     "nth": 1,
+     "status": "35"
+    }
+   ],
+   "why": "35: OPEN of a file that is not present (IBM Enterprise COBOL for z/OS Language Reference, File status key values): 'ERROR OPENING CARDFILE' from 0000-CARDFILE-OPEN, 9910-DISPLAY-IO-STATUS, then 9999-ABEND-PROGRAM -> ABEND U0999"
+  },
+  {
+   "name": "open-cardfile-verified",
+   "plan": [
+    {
+     "dd": "CARDFILE",
+     "op": "OPEN",
+     "nth": 1,
+     "status": "97"
+    }
+   ],
+   "why": "97: OPEN successful, file integrity verified (IBM Enterprise COBOL for z/OS Language Reference, File status key values) -- a SUCCESSFUL open, but 0000-CARDFILE-OPEN accepts only '00', so the step abends (the program's defect) through 9910-DISPLAY-IO-STATUS's 9 arm, then 9999-ABEND-PROGRAM -> ABEND U0999"
+  },
+  {
+   "name": "cardfile-read-error",
+   "plan": [
+    {
+     "dd": "CARDFILE",
+     "op": "READ",
+     "nth": 3,
+     "status": "30"
+    }
+   ],
+   "why": "30: permanent I/O error (IBM Enterprise COBOL for z/OS Language Reference, File status key values) on the third card: 'ERROR READING ...' from 1000-CARDFILE-GET-NEXT after two cards are displayed, 9910-DISPLAY-IO-STATUS, then 9999-ABEND-PROGRAM -> ABEND U0999"
+  },
+  {
+   "name": "cardfile-early-end",
+   "plan": [
+    {
+     "dd": "CARDFILE",
+     "op": "READ",
+     "nth": 3,
+     "status": "10"
+    }
+   ],
+   "why": "10: end of file (IBM Enterprise COBOL for z/OS Language Reference, File status key values) after two cards: END-OF-FILE is set, the file is closed and the step ends normally with what it has displayed"
+  },
+  {
+   "name": "cardfile-status-9",
+   "plan": [
+    {
+     "dd": "CARDFILE",
+     "op": "READ",
+     "nth": 1,
+     "status": "9A"
+    }
+   ],
+   "why": "9x: implementor-defined condition (IBM Enterprise COBOL for z/OS Language Reference, File status key values): 1000-CARDFILE-GET-NEXT -> 9910-DISPLAY-IO-STATUS's non-numeric / 9 arm, then 9999-ABEND-PROGRAM -> ABEND U0999"
+  },
+  {
+   "name": "close-cardfile",
+   "plan": [
+    {
+     "dd": "CARDFILE",
+     "op": "CLOSE",
+     "nth": 1,
+     "status": "30"
+    }
+   ],
+   "why": "30: permanent I/O error (IBM Enterprise COBOL for z/OS Language Reference, File status key values) closing CARDFILE after every record is displayed: 'ERROR CLOSING ...' from 9000-CARDFILE-CLOSE, 9910-DISPLAY-IO-STATUS, then 9999-ABEND-PROGRAM -> ABEND U0999"
+  }
+ ],
+ "entries": [
+  {
+   "method": "executeCbact02c",
+   "why": "#4316 unproven ports: reaches executeCbact02c, the service's no-argument entry (the generated controller's), which runs the step as runBatch(List.of(), null): CBACT02C takes no PARM and opens its files through the DD names it declares, so the step it runs is the COBOL's"
+  }
+ ]
+}

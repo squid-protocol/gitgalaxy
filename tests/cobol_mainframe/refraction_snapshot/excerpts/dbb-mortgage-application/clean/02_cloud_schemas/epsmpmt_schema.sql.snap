@@ -1,0 +1,11 @@
+CREATE TABLE WS_WORK_AMOUNTS (
+    STATIC_MAXIMUM_PRINCIPLE       DECIMAL(11, 2),
+    ERROR_INDICATOR                SMALLINT,
+    ERROR_TEXT                     VARCHAR(80),
+    VALIDATION_INDICATOR           SMALLINT,
+    WS_NUMBER_OF_MONTHS            DECIMAL(11, 2),
+    LOAN                           DECIMAL(11, 2),
+    PAYMENT                        DECIMAL(11, 2),
+    INTEREST                       DECIMAL(13, 4),
+    NUMBER_PERIODS                 SMALLINT
+);

@@ -1,0 +1,1019 @@
+{
+ "kind": "cics",
+ "corpus": "aws-mainframe-modernization-carddemo",
+ "program": "COTRTLIC",
+ "program_source": "app/app-transaction-type-db2/cbl/COTRTLIC.cbl",
+ "copy_dirs": [
+  "app/cpy",
+  "app/app-transaction-type-db2/cpy",
+  "app/app-transaction-type-db2/cpy-bms"
+ ],
+ "transid": "CTLI",
+ "clock": "2022/07/18 10:30:15.00",
+ "datasets": {},
+ "db2": {
+  "ddl": [
+   "app/app-transaction-type-db2/ddl/TRNTYPE.ddl",
+   "app/app-transaction-type-db2/ddl/TRNTYCAT.ddl"
+  ],
+  "include_dirs": [
+   "app/app-transaction-type-db2/dcl"
+  ],
+  "seed": "@case/seed.sql",
+  "compare": [
+   "CARDDEMO.TRANSACTION_TYPE_CATEGORY",
+   "CARDDEMO.TRANSACTION_TYPE"
+  ]
+ },
+ "commarea": {
+  "segments": [
+   {
+    "copybook": "app/cpy/COCOM01Y.cpy",
+    "record": "CARDDEMO-COMMAREA"
+   },
+   {
+    "copybook": "app/app-transaction-type-db2/cbl/COTRTLIC.cbl",
+    "record": "WS-THIS-PROGCOMMAREA"
+   }
+  ]
+ },
+ "screens": {
+  "CTRTLIA": {
+   "copybook": "app/app-transaction-type-db2/cpy-bms/COTRTLI.cpy",
+   "input": "CTRTLIAI",
+   "output": "CTRTLIAO"
+  }
+ },
+ "scenarios": [
+  {
+   "name": "first-entry-from-admin-menu",
+   "aid": "DFHENTER",
+   "commarea": {
+    "CDEMO-FROM-TRANID": "CA00",
+    "CDEMO-FROM-PROGRAM": "COADM01C",
+    "CDEMO-USER-ID": "ADMIN001",
+    "CDEMO-USER-TYPE": "A",
+    "CDEMO-PGM-CONTEXT": 0
+   },
+   "why": "option 5 of COADM01C (XCTL, context 0): not from this program, so 0000-MAIN INITIALIZEs WS-THIS-PROGCOMMAREA (page 1); no RECEIVE; 9998-PRIMING-QUERY, then WHEN OTHER: 8000-READ-FORWARD opens C-TR-TYPE-FORWARD from blanks, fetches types 01-07 and an eighth row (CA-NEXT-PAGE-EXISTS, last key 08); 2500-SETUP-MESSAGE: 'Type U to update, D to delete any record'"
+  },
+  {
+   "name": "no-commarea",
+   "aid": "DFHENTER",
+   "commarea": null,
+   "why": "EIBCALEN 0: the program builds its own CARDDEMO-COMMAREA (CTLI / COTRTLIC, admin, page 1) and shows page 1"
+  },
+  {
+   "name": "enter-refreshes-page",
+   "aid": "DFHENTER",
+   "commarea": {
+    "CDEMO-FROM-TRANID": "CTLI",
+    "CDEMO-FROM-PROGRAM": "COTRTLIC",
+    "CDEMO-USER-ID": "ADMIN001",
+    "CDEMO-USER-TYPE": "A",
+    "CDEMO-PGM-CONTEXT": 0,
+    "CDEMO-LAST-MAP": "CTRTLIA",
+    "CDEMO-LAST-MAPSET": "COTRTLI",
+    "WS-CA-ALL-ROWS-OUT": "01PURCHASE                                          02PAYMENT                                           03CREDIT                                            04AUTHORIZATION                                     05REFUND                                            06REVERAL                                           07ADJUSTMENT                                        ",
+    "WS-CA-LAST-TR-CODE": "08",
+    "WS-CA-FIRST-TR-CODE": "01",
+    "WS-CA-SCREEN-NUM": 1,
+    "WS-CA-LAST-PAGE-DISPLAYED": 9,
+    "WS-CA-NEXT-PAGE-IND": "Y"
+   },
+   "receive": {
+    "CTRTLIA": {
+     "TRTTYP1I": "01",
+     "TRTYPD1I": "PURCHASE",
+     "TRTTYP2I": "02",
+     "TRTYPD2I": "PAYMENT",
+     "TRTTYP3I": "03",
+     "TRTYPD3I": "CREDIT",
+     "TRTTYP4I": "04",
+     "TRTYPD4I": "AUTHORIZATION",
+     "TRTTYP5I": "05",
+     "TRTYPD5I": "REFUND",
+     "TRTTYP6I": "06",
+     "TRTYPD6I": "REVERAL",
+     "TRTTYP7I": "07",
+     "TRTYPD7I": "ADJUSTMENT"
+    }
+   },
+   "why": "page 1 sent back unchanged: 1200-EDIT-INPUTS finds no action and blank filters; WHEN OTHER reads forward from the first key shown (01) again"
+  },
+  {
+   "name": "pf8-next-page",
+   "aid": "DFHPF8",
+   "commarea": {
+    "CDEMO-FROM-TRANID": "CTLI",
+    "CDEMO-FROM-PROGRAM": "COTRTLIC",
+    "CDEMO-USER-ID": "ADMIN001",
+    "CDEMO-USER-TYPE": "A",
+    "CDEMO-PGM-CONTEXT": 0,
+    "CDEMO-LAST-MAP": "CTRTLIA",
+    "CDEMO-LAST-MAPSET": "COTRTLI",
+    "WS-CA-ALL-ROWS-OUT": "01PURCHASE                                          02PAYMENT                                           03CREDIT                                            04AUTHORIZATION                                     05REFUND                                            06REVERAL                                           07ADJUSTMENT                                        ",
+    "WS-CA-LAST-TR-CODE": "08",
+    "WS-CA-FIRST-TR-CODE": "01",
+    "WS-CA-SCREEN-NUM": 1,
+    "WS-CA-LAST-PAGE-DISPLAYED": 9,
+    "WS-CA-NEXT-PAGE-IND": "Y"
+   },
+   "receive": {
+    "CTRTLIA": {
+     "TRTTYP1I": "01",
+     "TRTYPD1I": "PURCHASE",
+     "TRTTYP2I": "02",
+     "TRTYPD2I": "PAYMENT",
+     "TRTTYP3I": "03",
+     "TRTYPD3I": "CREDIT",
+     "TRTTYP4I": "04",
+     "TRTYPD4I": "AUTHORIZATION",
+     "TRTTYP5I": "05",
+     "TRTYPD5I": "REFUND",
+     "TRTTYP6I": "06",
+     "TRTYPD6I": "REVERAL",
+     "TRTTYP7I": "07",
+     "TRTYPD7I": "ADJUSTMENT"
+    }
+   },
+   "why": "WHEN CCARD-AID-PFK08 AND CA-NEXT-PAGE-EXISTS: page 2 from the stored last key 08: types 08-12, then +100 -> CA-NEXT-PAGE-NOT-EXISTS and 'No more pages for these search conditions'; the empty rows' action fields protected; CA-LAST-PAGE-SHOWN set"
+  },
+  {
+   "name": "pf8-on-last-page",
+   "aid": "DFHPF8",
+   "commarea": {
+    "CDEMO-FROM-TRANID": "CTLI",
+    "CDEMO-FROM-PROGRAM": "COTRTLIC",
+    "CDEMO-USER-ID": "ADMIN001",
+    "CDEMO-USER-TYPE": "A",
+    "CDEMO-PGM-CONTEXT": 0,
+    "CDEMO-LAST-MAP": "CTRTLIA",
+    "CDEMO-LAST-MAPSET": "COTRTLI",
+    "WS-CA-ALL-ROWS-OUT": "08FEE                                               09INTEREST                                          10CASH ADVANCE                                      11BALANCE TRANSFER                                  12OVERLIMIT FEE                                     \u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000",
+    "WS-CA-LAST-TR-CODE": "  ",
+    "WS-CA-FIRST-TR-CODE": "08",
+    "WS-CA-SCREEN-NUM": 2,
+    "WS-CA-LAST-PAGE-DISPLAYED": 0,
+    "WS-CA-NEXT-PAGE-IND": "\u0000"
+   },
+   "receive": {
+    "CTRTLIA": {
+     "TRTTYP1I": "08",
+     "TRTYPD1I": "FEE",
+     "TRTTYP2I": "09",
+     "TRTYPD2I": "INTEREST",
+     "TRTTYP3I": "10",
+     "TRTYPD3I": "CASH ADVANCE",
+     "TRTTYP4I": "11",
+     "TRTYPD4I": "BALANCE TRANSFER",
+     "TRTTYP5I": "12",
+     "TRTYPD5I": "OVERLIMIT FEE"
+    }
+   },
+   "why": "PF8 with no next page: WHEN OTHER reads page 2 again; 2500-SETUP-MESSAGE (CA-LAST-PAGE-SHOWN) replaces the message with 'No more pages to display'"
+  },
+  {
+   "name": "pf7-on-first-page",
+   "aid": "DFHPF7",
+   "commarea": {
+    "CDEMO-FROM-TRANID": "CTLI",
+    "CDEMO-FROM-PROGRAM": "COTRTLIC",
+    "CDEMO-USER-ID": "ADMIN001",
+    "CDEMO-USER-TYPE": "A",
+    "CDEMO-PGM-CONTEXT": 0,
+    "CDEMO-LAST-MAP": "CTRTLIA",
+    "CDEMO-LAST-MAPSET": "COTRTLI",
+    "WS-CA-ALL-ROWS-OUT": "01PURCHASE                                          02PAYMENT                                           03CREDIT                                            04AUTHORIZATION                                     05REFUND                                            06REVERAL                                           07ADJUSTMENT                                        ",
+    "WS-CA-LAST-TR-CODE": "08",
+    "WS-CA-FIRST-TR-CODE": "01",
+    "WS-CA-SCREEN-NUM": 1,
+    "WS-CA-LAST-PAGE-DISPLAYED": 9,
+    "WS-CA-NEXT-PAGE-IND": "Y"
+   },
+   "receive": {
+    "CTRTLIA": {
+     "TRTTYP1I": "01",
+     "TRTYPD1I": "PURCHASE",
+     "TRTTYP2I": "02",
+     "TRTYPD2I": "PAYMENT",
+     "TRTTYP3I": "03",
+     "TRTYPD3I": "CREDIT",
+     "TRTTYP4I": "04",
+     "TRTYPD4I": "AUTHORIZATION",
+     "TRTTYP5I": "05",
+     "TRTYPD5I": "REFUND",
+     "TRTTYP6I": "06",
+     "TRTYPD6I": "REVERAL",
+     "TRTTYP7I": "07",
+     "TRTYPD7I": "ADJUSTMENT"
+    }
+   },
+   "why": "WHEN CCARD-AID-PFK07 AND CA-FIRST-PAGE: page 1 again, 'No previous pages to display'"
+  },
+  {
+   "name": "pf7-back-to-first-page",
+   "aid": "DFHPF7",
+   "commarea": {
+    "CDEMO-FROM-TRANID": "CTLI",
+    "CDEMO-FROM-PROGRAM": "COTRTLIC",
+    "CDEMO-USER-ID": "ADMIN001",
+    "CDEMO-USER-TYPE": "A",
+    "CDEMO-PGM-CONTEXT": 0,
+    "CDEMO-LAST-MAP": "CTRTLIA",
+    "CDEMO-LAST-MAPSET": "COTRTLI",
+    "WS-CA-ALL-ROWS-OUT": "08FEE                                               09INTEREST                                          10CASH ADVANCE                                      11BALANCE TRANSFER                                  12OVERLIMIT FEE                                     \u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000",
+    "WS-CA-LAST-TR-CODE": "  ",
+    "WS-CA-FIRST-TR-CODE": "08",
+    "WS-CA-SCREEN-NUM": 2,
+    "WS-CA-LAST-PAGE-DISPLAYED": 0,
+    "WS-CA-NEXT-PAGE-IND": "\u0000"
+   },
+   "receive": {
+    "CTRTLIA": {
+     "TRTTYP1I": "08",
+     "TRTYPD1I": "FEE",
+     "TRTTYP2I": "09",
+     "TRTYPD2I": "INTEREST",
+     "TRTTYP3I": "10",
+     "TRTYPD3I": "CASH ADVANCE",
+     "TRTTYP4I": "11",
+     "TRTYPD4I": "BALANCE TRANSFER",
+     "TRTTYP5I": "12",
+     "TRTYPD5I": "OVERLIMIT FEE"
+    }
+   },
+   "why": "WHEN CCARD-AID-PFK07 AND NOT CA-FIRST-PAGE: the page number drops to 1 and 8100-READ-BACKWARDS fetches C-TR-TYPE-BACKWARD (TR_TYPE < 08, descending) into rows 7..1; since the page is now 1, 2500 also says 'No previous pages to display'"
+  },
+  {
+   "name": "type-filter",
+   "aid": "DFHENTER",
+   "commarea": {
+    "CDEMO-FROM-TRANID": "CTLI",
+    "CDEMO-FROM-PROGRAM": "COTRTLIC",
+    "CDEMO-USER-ID": "ADMIN001",
+    "CDEMO-USER-TYPE": "A",
+    "CDEMO-PGM-CONTEXT": 0,
+    "CDEMO-LAST-MAP": "CTRTLIA",
+    "CDEMO-LAST-MAPSET": "COTRTLI",
+    "WS-CA-ALL-ROWS-OUT": "01PURCHASE                                          02PAYMENT                                           03CREDIT                                            04AUTHORIZATION                                     05REFUND                                            06REVERAL                                           07ADJUSTMENT                                        ",
+    "WS-CA-LAST-TR-CODE": "08",
+    "WS-CA-FIRST-TR-CODE": "01",
+    "WS-CA-SCREEN-NUM": 1,
+    "WS-CA-LAST-PAGE-DISPLAYED": 9,
+    "WS-CA-NEXT-PAGE-IND": "Y"
+   },
+   "receive": {
+    "CTRTLIA": {
+     "TRTYPEI": "05",
+     "TRTTYP1I": "01",
+     "TRTYPD1I": "PURCHASE",
+     "TRTTYP2I": "02",
+     "TRTYPD2I": "PAYMENT",
+     "TRTTYP3I": "03",
+     "TRTYPD3I": "CREDIT",
+     "TRTTYP4I": "04",
+     "TRTYPD4I": "AUTHORIZATION",
+     "TRTTYP5I": "05",
+     "TRTYPD5I": "REFUND",
+     "TRTTYP6I": "06",
+     "TRTYPD6I": "REVERAL",
+     "TRTTYP7I": "07",
+     "TRTYPD7I": "ADJUSTMENT"
+    }
+   },
+   "why": "1220-EDIT-TYPECD accepts 05 (FLG-TYPEFILTER-ISVALID), changed -> the paging state is reset; 1290-CROSS-EDITS' 9100-CHECK-FILTERS counts 1 row; the cursor's type predicate selects REFUND only"
+  },
+  {
+   "name": "type-filter-not-numeric",
+   "aid": "DFHENTER",
+   "commarea": {
+    "CDEMO-FROM-TRANID": "CTLI",
+    "CDEMO-FROM-PROGRAM": "COTRTLIC",
+    "CDEMO-USER-ID": "ADMIN001",
+    "CDEMO-USER-TYPE": "A",
+    "CDEMO-PGM-CONTEXT": 0,
+    "CDEMO-LAST-MAP": "CTRTLIA",
+    "CDEMO-LAST-MAPSET": "COTRTLI",
+    "WS-CA-ALL-ROWS-OUT": "01PURCHASE                                          02PAYMENT                                           03CREDIT                                            04AUTHORIZATION                                     05REFUND                                            06REVERAL                                           07ADJUSTMENT                                        ",
+    "WS-CA-LAST-TR-CODE": "08",
+    "WS-CA-FIRST-TR-CODE": "01",
+    "WS-CA-SCREEN-NUM": 1,
+    "WS-CA-LAST-PAGE-DISPLAYED": 9,
+    "WS-CA-NEXT-PAGE-IND": "Y"
+   },
+   "receive": {
+    "CTRTLIA": {
+     "TRTYPEI": "AB",
+     "TRTTYP1I": "01",
+     "TRTYPD1I": "PURCHASE",
+     "TRTTYP2I": "02",
+     "TRTYPD2I": "PAYMENT",
+     "TRTTYP3I": "03",
+     "TRTYPD3I": "CREDIT",
+     "TRTTYP4I": "04",
+     "TRTYPD4I": "AUTHORIZATION",
+     "TRTTYP5I": "05",
+     "TRTYPD5I": "REFUND",
+     "TRTTYP6I": "06",
+     "TRTYPD6I": "REVERAL",
+     "TRTTYP7I": "07",
+     "TRTYPD7I": "ADJUSTMENT"
+    }
+   },
+   "why": "'AB' IS NOT NUMERIC: 'TYPE CODE FILTER,IF SUPPLIED MUST BE A 2 DIGIT NUMBER', the filter red; WHEN INPUT-ERROR skips the read: the rows in the COMMAREA are shown again, every action field protected"
+  },
+  {
+   "name": "type-filter-no-match",
+   "aid": "DFHENTER",
+   "commarea": {
+    "CDEMO-FROM-TRANID": "CTLI",
+    "CDEMO-FROM-PROGRAM": "COTRTLIC",
+    "CDEMO-USER-ID": "ADMIN001",
+    "CDEMO-USER-TYPE": "A",
+    "CDEMO-PGM-CONTEXT": 0,
+    "CDEMO-LAST-MAP": "CTRTLIA",
+    "CDEMO-LAST-MAPSET": "COTRTLI",
+    "WS-CA-ALL-ROWS-OUT": "01PURCHASE                                          02PAYMENT                                           03CREDIT                                            04AUTHORIZATION                                     05REFUND                                            06REVERAL                                           07ADJUSTMENT                                        ",
+    "WS-CA-LAST-TR-CODE": "08",
+    "WS-CA-FIRST-TR-CODE": "01",
+    "WS-CA-SCREEN-NUM": 1,
+    "WS-CA-LAST-PAGE-DISPLAYED": 9,
+    "WS-CA-NEXT-PAGE-IND": "Y"
+   },
+   "receive": {
+    "CTRTLIA": {
+     "TRTYPEI": "99",
+     "TRTTYP1I": "01",
+     "TRTYPD1I": "PURCHASE",
+     "TRTTYP2I": "02",
+     "TRTYPD2I": "PAYMENT",
+     "TRTTYP3I": "03",
+     "TRTYPD3I": "CREDIT",
+     "TRTTYP4I": "04",
+     "TRTYPD4I": "AUTHORIZATION",
+     "TRTTYP5I": "05",
+     "TRTYPD5I": "REFUND",
+     "TRTTYP6I": "06",
+     "TRTYPD6I": "REVERAL",
+     "TRTTYP7I": "07",
+     "TRTYPD7I": "ADJUSTMENT"
+    }
+   },
+   "why": "type 99: 9100-CHECK-FILTERS counts 0 -> 'No Records found for these filter conditions', the filter red, no read"
+  },
+  {
+   "name": "desc-filter",
+   "aid": "DFHENTER",
+   "commarea": {
+    "CDEMO-FROM-TRANID": "CTLI",
+    "CDEMO-FROM-PROGRAM": "COTRTLIC",
+    "CDEMO-USER-ID": "ADMIN001",
+    "CDEMO-USER-TYPE": "A",
+    "CDEMO-PGM-CONTEXT": 0,
+    "CDEMO-LAST-MAP": "CTRTLIA",
+    "CDEMO-LAST-MAPSET": "COTRTLI",
+    "WS-CA-ALL-ROWS-OUT": "01PURCHASE                                          02PAYMENT                                           03CREDIT                                            04AUTHORIZATION                                     05REFUND                                            06REVERAL                                           07ADJUSTMENT                                        ",
+    "WS-CA-LAST-TR-CODE": "08",
+    "WS-CA-FIRST-TR-CODE": "01",
+    "WS-CA-SCREEN-NUM": 1,
+    "WS-CA-LAST-PAGE-DISPLAYED": 9,
+    "WS-CA-NEXT-PAGE-IND": "Y"
+   },
+   "receive": {
+    "CTRTLIA": {
+     "TRDESCI": "A",
+     "TRTTYP1I": "01",
+     "TRTYPD1I": "PURCHASE",
+     "TRTTYP2I": "02",
+     "TRTYPD2I": "PAYMENT",
+     "TRTTYP3I": "03",
+     "TRTYPD3I": "CREDIT",
+     "TRTTYP4I": "04",
+     "TRTYPD4I": "AUTHORIZATION",
+     "TRTTYP5I": "05",
+     "TRTYPD5I": "REFUND",
+     "TRTTYP6I": "06",
+     "TRTYPD6I": "REVERAL",
+     "TRTTYP7I": "07",
+     "TRTYPD7I": "ADJUSTMENT"
+    }
+   },
+   "why": "1230-EDIT-DESC builds the LIKE pattern '%A%'; exactly seven descriptions contain an A (01 02 04 06 07 10 11): the seventh row's look-ahead FETCH returns +100 inside 8000-READ-FORWARD -> no next page"
+  },
+  {
+   "name": "desc-filter-no-match",
+   "aid": "DFHENTER",
+   "commarea": {
+    "CDEMO-FROM-TRANID": "CTLI",
+    "CDEMO-FROM-PROGRAM": "COTRTLIC",
+    "CDEMO-USER-ID": "ADMIN001",
+    "CDEMO-USER-TYPE": "A",
+    "CDEMO-PGM-CONTEXT": 0,
+    "CDEMO-LAST-MAP": "CTRTLIA",
+    "CDEMO-LAST-MAPSET": "COTRTLI",
+    "WS-CA-ALL-ROWS-OUT": "01PURCHASE                                          02PAYMENT                                           03CREDIT                                            04AUTHORIZATION                                     05REFUND                                            06REVERAL                                           07ADJUSTMENT                                        ",
+    "WS-CA-LAST-TR-CODE": "08",
+    "WS-CA-FIRST-TR-CODE": "01",
+    "WS-CA-SCREEN-NUM": 1,
+    "WS-CA-LAST-PAGE-DISPLAYED": 9,
+    "WS-CA-NEXT-PAGE-IND": "Y"
+   },
+   "receive": {
+    "CTRTLIA": {
+     "TRDESCI": "XYZ",
+     "TRTTYP1I": "01",
+     "TRTYPD1I": "PURCHASE",
+     "TRTTYP2I": "02",
+     "TRTYPD2I": "PAYMENT",
+     "TRTTYP3I": "03",
+     "TRTYPD3I": "CREDIT",
+     "TRTTYP4I": "04",
+     "TRTYPD4I": "AUTHORIZATION",
+     "TRTTYP5I": "05",
+     "TRTYPD5I": "REFUND",
+     "TRTTYP6I": "06",
+     "TRTYPD6I": "REVERAL",
+     "TRTTYP7I": "07",
+     "TRTYPD7I": "ADJUSTMENT"
+    }
+   },
+   "why": "'%XYZ%' matches nothing: 'No Records found for these filter conditions', the description filter red with the cursor"
+  },
+  {
+   "name": "both-filters",
+   "aid": "DFHENTER",
+   "commarea": {
+    "CDEMO-FROM-TRANID": "CTLI",
+    "CDEMO-FROM-PROGRAM": "COTRTLIC",
+    "CDEMO-USER-ID": "ADMIN001",
+    "CDEMO-USER-TYPE": "A",
+    "CDEMO-PGM-CONTEXT": 0,
+    "CDEMO-LAST-MAP": "CTRTLIA",
+    "CDEMO-LAST-MAPSET": "COTRTLI",
+    "WS-CA-ALL-ROWS-OUT": "01PURCHASE                                          02PAYMENT                                           03CREDIT                                            04AUTHORIZATION                                     05REFUND                                            06REVERAL                                           07ADJUSTMENT                                        ",
+    "WS-CA-LAST-TR-CODE": "08",
+    "WS-CA-FIRST-TR-CODE": "01",
+    "WS-CA-SCREEN-NUM": 1,
+    "WS-CA-LAST-PAGE-DISPLAYED": 9,
+    "WS-CA-NEXT-PAGE-IND": "Y"
+   },
+   "receive": {
+    "CTRTLIA": {
+     "TRTYPEI": "01",
+     "TRDESCI": "PURCH",
+     "TRTTYP1I": "01",
+     "TRTYPD1I": "PURCHASE",
+     "TRTTYP2I": "02",
+     "TRTYPD2I": "PAYMENT",
+     "TRTTYP3I": "03",
+     "TRTYPD3I": "CREDIT",
+     "TRTTYP4I": "04",
+     "TRTYPD4I": "AUTHORIZATION",
+     "TRTTYP5I": "05",
+     "TRTYPD5I": "REFUND",
+     "TRTTYP6I": "06",
+     "TRTYPD6I": "REVERAL",
+     "TRTTYP7I": "07",
+     "TRTYPD7I": "ADJUSTMENT"
+    }
+   },
+   "why": "type 01 and '%PURCH%': both predicates of C-TR-TYPE-FORWARD apply -> PURCHASE alone"
+  },
+  {
+   "name": "select-delete-asks-confirmation",
+   "aid": "DFHENTER",
+   "commarea": {
+    "CDEMO-FROM-TRANID": "CTLI",
+    "CDEMO-FROM-PROGRAM": "COTRTLIC",
+    "CDEMO-USER-ID": "ADMIN001",
+    "CDEMO-USER-TYPE": "A",
+    "CDEMO-PGM-CONTEXT": 0,
+    "CDEMO-LAST-MAP": "CTRTLIA",
+    "CDEMO-LAST-MAPSET": "COTRTLI",
+    "WS-CA-ALL-ROWS-OUT": "08FEE                                               09INTEREST                                          10CASH ADVANCE                                      11BALANCE TRANSFER                                  12OVERLIMIT FEE                                     \u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000",
+    "WS-CA-LAST-TR-CODE": "  ",
+    "WS-CA-FIRST-TR-CODE": "08",
+    "WS-CA-SCREEN-NUM": 2,
+    "WS-CA-LAST-PAGE-DISPLAYED": 0,
+    "WS-CA-NEXT-PAGE-IND": "\u0000"
+   },
+   "receive": {
+    "CTRTLIA": {
+     "TRTTYP1I": "08",
+     "TRTYPD1I": "FEE",
+     "TRTTYP2I": "09",
+     "TRTYPD2I": "INTEREST",
+     "TRTTYP3I": "10",
+     "TRTYPD3I": "CASH ADVANCE",
+     "TRTTYP4I": "11",
+     "TRTYPD4I": "BALANCE TRANSFER",
+     "TRTTYP5I": "12",
+     "TRTYPD5I": "OVERLIMIT FEE",
+     "TRTSEL1I": "D"
+    }
+   },
+   "why": "'D' on row 1 (type 08): 1210-EDIT-ARRAY counts one delete, the selection is new (WS-CA-ROW-SELECTED 1); WHEN CCARD-AID-ENTER AND WS-DELETES-REQUESTED > 0 reads the page again, 2300 sets CA-DELETE-REQUESTED, the row is highlighted, the filters protected, 'Delete HIGHLIGHTED row ? Press F10 to confirm'"
+  },
+  {
+   "name": "pf10-deletes-row",
+   "aid": "DFHPF10",
+   "commarea": {
+    "CDEMO-FROM-TRANID": "CTLI",
+    "CDEMO-FROM-PROGRAM": "COTRTLIC",
+    "CDEMO-USER-ID": "ADMIN001",
+    "CDEMO-USER-TYPE": "A",
+    "CDEMO-PGM-CONTEXT": 0,
+    "CDEMO-LAST-MAP": "CTRTLIA",
+    "CDEMO-LAST-MAPSET": "COTRTLI",
+    "WS-CA-ALL-ROWS-OUT": "08FEE                                               09INTEREST                                          10CASH ADVANCE                                      11BALANCE TRANSFER                                  12OVERLIMIT FEE                                     \u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000",
+    "WS-CA-LAST-TR-CODE": "  ",
+    "WS-CA-FIRST-TR-CODE": "08",
+    "WS-CA-SCREEN-NUM": 2,
+    "WS-CA-LAST-PAGE-DISPLAYED": 9,
+    "WS-CA-NEXT-PAGE-IND": "\u0000",
+    "WS-CA-ROW-SELECTED": 1,
+    "WS-CA-DELETE-FLAG": "Y"
+   },
+   "receive": {
+    "CTRTLIA": {
+     "TRTTYP1I": "08",
+     "TRTYPD1I": "FEE",
+     "TRTTYP2I": "09",
+     "TRTYPD2I": "INTEREST",
+     "TRTTYP3I": "10",
+     "TRTYPD3I": "CASH ADVANCE",
+     "TRTTYP4I": "11",
+     "TRTYPD4I": "BALANCE TRANSFER",
+     "TRTTYP5I": "12",
+     "TRTYPD5I": "OVERLIMIT FEE",
+     "TRTSEL1I": "D"
+    }
+   },
+   "why": "PF10 with CA-DELETE-REQUESTED and nothing changed: 9300-DELETE-RECORD DELETEs type 08 (no category rows) and SYNCPOINTs; the screen (rows as they were) says 'HIGHLIGHTED row deleted.Hit Enter to continue', the action cleared; then CARDDEMO-COMMAREA and the program's area are INITIALIZEd for a fresh start"
+  },
+  {
+   "name": "pf10-after-moving-selection",
+   "aid": "DFHPF10",
+   "commarea": {
+    "CDEMO-FROM-TRANID": "CTLI",
+    "CDEMO-FROM-PROGRAM": "COTRTLIC",
+    "CDEMO-USER-ID": "ADMIN001",
+    "CDEMO-USER-TYPE": "A",
+    "CDEMO-PGM-CONTEXT": 0,
+    "CDEMO-LAST-MAP": "CTRTLIA",
+    "CDEMO-LAST-MAPSET": "COTRTLI",
+    "WS-CA-ALL-ROWS-OUT": "08FEE                                               09INTEREST                                          10CASH ADVANCE                                      11BALANCE TRANSFER                                  12OVERLIMIT FEE                                     \u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000",
+    "WS-CA-LAST-TR-CODE": "  ",
+    "WS-CA-FIRST-TR-CODE": "08",
+    "WS-CA-SCREEN-NUM": 2,
+    "WS-CA-LAST-PAGE-DISPLAYED": 9,
+    "WS-CA-NEXT-PAGE-IND": "\u0000",
+    "WS-CA-ROW-SELECTED": 1,
+    "WS-CA-DELETE-FLAG": "Y"
+   },
+   "receive": {
+    "CTRTLIA": {
+     "TRTTYP1I": "08",
+     "TRTYPD1I": "FEE",
+     "TRTTYP2I": "09",
+     "TRTYPD2I": "INTEREST",
+     "TRTTYP3I": "10",
+     "TRTYPD3I": "CASH ADVANCE",
+     "TRTTYP4I": "11",
+     "TRTYPD4I": "BALANCE TRANSFER",
+     "TRTTYP5I": "12",
+     "TRTYPD5I": "OVERLIMIT FEE",
+     "TRTSEL1I": "",
+     "TRTSEL2I": "D"
+    }
+   },
+   "why": "the 'D' moved to row 2: 1210 sees a different selected row (FLG-ROW-SELECTION-CHANGED-YES), so PF10 is treated as ENTER: no DELETE, row 2 (type 09) highlighted and the confirmation asked again"
+  },
+  {
+   "name": "select-update-unchanged",
+   "aid": "DFHENTER",
+   "commarea": {
+    "CDEMO-FROM-TRANID": "CTLI",
+    "CDEMO-FROM-PROGRAM": "COTRTLIC",
+    "CDEMO-USER-ID": "ADMIN001",
+    "CDEMO-USER-TYPE": "A",
+    "CDEMO-PGM-CONTEXT": 0,
+    "CDEMO-LAST-MAP": "CTRTLIA",
+    "CDEMO-LAST-MAPSET": "COTRTLI",
+    "WS-CA-ALL-ROWS-OUT": "01PURCHASE                                          02PAYMENT                                           03CREDIT                                            04AUTHORIZATION                                     05REFUND                                            06REVERAL                                           07ADJUSTMENT                                        ",
+    "WS-CA-LAST-TR-CODE": "08",
+    "WS-CA-FIRST-TR-CODE": "01",
+    "WS-CA-SCREEN-NUM": 1,
+    "WS-CA-LAST-PAGE-DISPLAYED": 9,
+    "WS-CA-NEXT-PAGE-IND": "Y"
+   },
+   "receive": {
+    "CTRTLIA": {
+     "TRTTYP1I": "01",
+     "TRTYPD1I": "PURCHASE",
+     "TRTTYP2I": "02",
+     "TRTYPD2I": "PAYMENT",
+     "TRTTYP3I": "03",
+     "TRTYPD3I": "CREDIT",
+     "TRTTYP4I": "04",
+     "TRTYPD4I": "AUTHORIZATION",
+     "TRTTYP5I": "05",
+     "TRTYPD5I": "REFUND",
+     "TRTTYP6I": "06",
+     "TRTYPD6I": "REVERAL",
+     "TRTTYP7I": "07",
+     "TRTYPD7I": "ADJUSTMENT",
+     "TRTSEL6I": "U"
+    }
+   },
+   "why": "'U' on row 6 (REVERAL): 1211-EDIT-ARRAY-DESC finds the description unchanged -> 'No change detected with respect to database values.' (not an input error); the row's description unprotected with the cursor, CA-UPDATE-REQUESTED, 'Update HIGHLIGHTED row. Press F10 to save'"
+  },
+  {
+   "name": "update-new-description",
+   "aid": "DFHENTER",
+   "commarea": {
+    "CDEMO-FROM-TRANID": "CTLI",
+    "CDEMO-FROM-PROGRAM": "COTRTLIC",
+    "CDEMO-USER-ID": "ADMIN001",
+    "CDEMO-USER-TYPE": "A",
+    "CDEMO-PGM-CONTEXT": 0,
+    "CDEMO-LAST-MAP": "CTRTLIA",
+    "CDEMO-LAST-MAPSET": "COTRTLI",
+    "WS-CA-ALL-ROWS-OUT": "01PURCHASE                                          02PAYMENT                                           03CREDIT                                            04AUTHORIZATION                                     05REFUND                                            06REVERAL                                           07ADJUSTMENT                                        ",
+    "WS-CA-LAST-TR-CODE": "08",
+    "WS-CA-FIRST-TR-CODE": "01",
+    "WS-CA-SCREEN-NUM": 1,
+    "WS-CA-LAST-PAGE-DISPLAYED": 9,
+    "WS-CA-NEXT-PAGE-IND": "Y",
+    "WS-CA-ROW-SELECTED": 6,
+    "WS-CA-UPDATE-FLAG": "Y"
+   },
+   "receive": {
+    "CTRTLIA": {
+     "TRTTYP1I": "01",
+     "TRTYPD1I": "PURCHASE",
+     "TRTTYP2I": "02",
+     "TRTYPD2I": "PAYMENT",
+     "TRTTYP3I": "03",
+     "TRTYPD3I": "CREDIT",
+     "TRTTYP4I": "04",
+     "TRTYPD4I": "AUTHORIZATION",
+     "TRTTYP5I": "05",
+     "TRTYPD5I": "REFUND",
+     "TRTTYP6I": "06",
+     "TRTYPD6I": "REVERSAL",
+     "TRTTYP7I": "07",
+     "TRTYPD7I": "ADJUSTMENT",
+     "TRTSEL6I": "U"
+    }
+   },
+   "why": "row 6's description typed as REVERSAL: changed, 1240-EDIT-ALPHANUM-REQD accepts it; the typed text shown, the save prompt"
+  },
+  {
+   "name": "pf10-saves-update",
+   "aid": "DFHPF10",
+   "commarea": {
+    "CDEMO-FROM-TRANID": "CTLI",
+    "CDEMO-FROM-PROGRAM": "COTRTLIC",
+    "CDEMO-USER-ID": "ADMIN001",
+    "CDEMO-USER-TYPE": "A",
+    "CDEMO-PGM-CONTEXT": 0,
+    "CDEMO-LAST-MAP": "CTRTLIA",
+    "CDEMO-LAST-MAPSET": "COTRTLI",
+    "WS-CA-ALL-ROWS-OUT": "01PURCHASE                                          02PAYMENT                                           03CREDIT                                            04AUTHORIZATION                                     05REFUND                                            06REVERAL                                           07ADJUSTMENT                                        ",
+    "WS-CA-LAST-TR-CODE": "08",
+    "WS-CA-FIRST-TR-CODE": "01",
+    "WS-CA-SCREEN-NUM": 1,
+    "WS-CA-LAST-PAGE-DISPLAYED": 9,
+    "WS-CA-NEXT-PAGE-IND": "Y",
+    "WS-CA-ROW-SELECTED": 6,
+    "WS-CA-UPDATE-FLAG": "Y"
+   },
+   "receive": {
+    "CTRTLIA": {
+     "TRTTYP1I": "01",
+     "TRTYPD1I": "PURCHASE",
+     "TRTTYP2I": "02",
+     "TRTYPD2I": "PAYMENT",
+     "TRTTYP3I": "03",
+     "TRTYPD3I": "CREDIT",
+     "TRTTYP4I": "04",
+     "TRTYPD4I": "AUTHORIZATION",
+     "TRTTYP5I": "05",
+     "TRTYPD5I": "REFUND",
+     "TRTTYP6I": "06",
+     "TRTYPD6I": "REVERSAL",
+     "TRTTYP7I": "07",
+     "TRTYPD7I": "ADJUSTMENT",
+     "TRTSEL6I": "U"
+    }
+   },
+   "why": "PF10 with CA-UPDATE-REQUESTED: 9200-UPDATE-RECORD UPDATEs type 06 (SYNCPOINT); the VARCHAR length is FUNCTION LENGTH of the 50-byte row field, so the row keeps the blanks after REVERSAL; the page is read again, 'HIGHLIGHTED row was updated', the action cleared"
+  },
+  {
+   "name": "update-description-blank",
+   "aid": "DFHENTER",
+   "commarea": {
+    "CDEMO-FROM-TRANID": "CTLI",
+    "CDEMO-FROM-PROGRAM": "COTRTLIC",
+    "CDEMO-USER-ID": "ADMIN001",
+    "CDEMO-USER-TYPE": "A",
+    "CDEMO-PGM-CONTEXT": 0,
+    "CDEMO-LAST-MAP": "CTRTLIA",
+    "CDEMO-LAST-MAPSET": "COTRTLI",
+    "WS-CA-ALL-ROWS-OUT": "01PURCHASE                                          02PAYMENT                                           03CREDIT                                            04AUTHORIZATION                                     05REFUND                                            06REVERAL                                           07ADJUSTMENT                                        ",
+    "WS-CA-LAST-TR-CODE": "08",
+    "WS-CA-FIRST-TR-CODE": "01",
+    "WS-CA-SCREEN-NUM": 1,
+    "WS-CA-LAST-PAGE-DISPLAYED": 9,
+    "WS-CA-NEXT-PAGE-IND": "Y",
+    "WS-CA-ROW-SELECTED": 6,
+    "WS-CA-UPDATE-FLAG": "Y"
+   },
+   "receive": {
+    "CTRTLIA": {
+     "TRTTYP1I": "01",
+     "TRTYPD1I": "PURCHASE",
+     "TRTTYP2I": "02",
+     "TRTYPD2I": "PAYMENT",
+     "TRTTYP3I": "03",
+     "TRTYPD3I": "CREDIT",
+     "TRTTYP4I": "04",
+     "TRTYPD4I": "AUTHORIZATION",
+     "TRTTYP5I": "05",
+     "TRTYPD5I": "REFUND",
+     "TRTTYP6I": "06",
+     "TRTYPD6I": "",
+     "TRTTYP7I": "07",
+     "TRTYPD7I": "ADJUSTMENT",
+     "TRTSEL6I": "U"
+    }
+   },
+   "why": "row 6's description cleared: 'Transaction Desc must be supplied.' (INPUT-ERROR), the field red and shown as '*'"
+  },
+  {
+   "name": "update-description-not-alphanumeric",
+   "aid": "DFHENTER",
+   "commarea": {
+    "CDEMO-FROM-TRANID": "CTLI",
+    "CDEMO-FROM-PROGRAM": "COTRTLIC",
+    "CDEMO-USER-ID": "ADMIN001",
+    "CDEMO-USER-TYPE": "A",
+    "CDEMO-PGM-CONTEXT": 0,
+    "CDEMO-LAST-MAP": "CTRTLIA",
+    "CDEMO-LAST-MAPSET": "COTRTLI",
+    "WS-CA-ALL-ROWS-OUT": "01PURCHASE                                          02PAYMENT                                           03CREDIT                                            04AUTHORIZATION                                     05REFUND                                            06REVERAL                                           07ADJUSTMENT                                        ",
+    "WS-CA-LAST-TR-CODE": "08",
+    "WS-CA-FIRST-TR-CODE": "01",
+    "WS-CA-SCREEN-NUM": 1,
+    "WS-CA-LAST-PAGE-DISPLAYED": 9,
+    "WS-CA-NEXT-PAGE-IND": "Y",
+    "WS-CA-ROW-SELECTED": 6,
+    "WS-CA-UPDATE-FLAG": "Y"
+   },
+   "receive": {
+    "CTRTLIA": {
+     "TRTTYP1I": "01",
+     "TRTYPD1I": "PURCHASE",
+     "TRTTYP2I": "02",
+     "TRTYPD2I": "PAYMENT",
+     "TRTTYP3I": "03",
+     "TRTYPD3I": "CREDIT",
+     "TRTTYP4I": "04",
+     "TRTYPD4I": "AUTHORIZATION",
+     "TRTTYP5I": "05",
+     "TRTYPD5I": "REFUND",
+     "TRTTYP6I": "06",
+     "TRTYPD6I": "REVERSAL-FRAUD",
+     "TRTTYP7I": "07",
+     "TRTYPD7I": "ADJUSTMENT",
+     "TRTSEL6I": "U"
+    }
+   },
+   "why": "a '-' in the description: 'Transaction Desc can have numbers or alphabets only.', red"
+  },
+  {
+   "name": "two-actions-refused",
+   "aid": "DFHENTER",
+   "commarea": {
+    "CDEMO-FROM-TRANID": "CTLI",
+    "CDEMO-FROM-PROGRAM": "COTRTLIC",
+    "CDEMO-USER-ID": "ADMIN001",
+    "CDEMO-USER-TYPE": "A",
+    "CDEMO-PGM-CONTEXT": 0,
+    "CDEMO-LAST-MAP": "CTRTLIA",
+    "CDEMO-LAST-MAPSET": "COTRTLI",
+    "WS-CA-ALL-ROWS-OUT": "01PURCHASE                                          02PAYMENT                                           03CREDIT                                            04AUTHORIZATION                                     05REFUND                                            06REVERAL                                           07ADJUSTMENT                                        ",
+    "WS-CA-LAST-TR-CODE": "08",
+    "WS-CA-FIRST-TR-CODE": "01",
+    "WS-CA-SCREEN-NUM": 1,
+    "WS-CA-LAST-PAGE-DISPLAYED": 9,
+    "WS-CA-NEXT-PAGE-IND": "Y"
+   },
+   "receive": {
+    "CTRTLIA": {
+     "TRTTYP1I": "01",
+     "TRTYPD1I": "PURCHASE",
+     "TRTTYP2I": "02",
+     "TRTYPD2I": "PAYMENT",
+     "TRTTYP3I": "03",
+     "TRTYPD3I": "CREDIT",
+     "TRTTYP4I": "04",
+     "TRTYPD4I": "AUTHORIZATION",
+     "TRTTYP5I": "05",
+     "TRTYPD5I": "REFUND",
+     "TRTTYP6I": "06",
+     "TRTYPD6I": "REVERAL",
+     "TRTTYP7I": "07",
+     "TRTYPD7I": "ADJUSTMENT",
+     "TRTSEL1I": "D",
+     "TRTSEL3I": "U"
+    }
+   },
+   "why": "'D' on row 1 and 'U' on row 3: WS-MORETHAN1ACTION -> both action fields red, 'Please select only 1 action' (INPUT-ERROR, the page read again)"
+  },
+  {
+   "name": "invalid-action-code",
+   "aid": "DFHENTER",
+   "commarea": {
+    "CDEMO-FROM-TRANID": "CTLI",
+    "CDEMO-FROM-PROGRAM": "COTRTLIC",
+    "CDEMO-USER-ID": "ADMIN001",
+    "CDEMO-USER-TYPE": "A",
+    "CDEMO-PGM-CONTEXT": 0,
+    "CDEMO-LAST-MAP": "CTRTLIA",
+    "CDEMO-LAST-MAPSET": "COTRTLI",
+    "WS-CA-ALL-ROWS-OUT": "01PURCHASE                                          02PAYMENT                                           03CREDIT                                            04AUTHORIZATION                                     05REFUND                                            06REVERAL                                           07ADJUSTMENT                                        ",
+    "WS-CA-LAST-TR-CODE": "08",
+    "WS-CA-FIRST-TR-CODE": "01",
+    "WS-CA-SCREEN-NUM": 1,
+    "WS-CA-LAST-PAGE-DISPLAYED": 9,
+    "WS-CA-NEXT-PAGE-IND": "Y"
+   },
+   "receive": {
+    "CTRTLIA": {
+     "TRTTYP1I": "01",
+     "TRTYPD1I": "PURCHASE",
+     "TRTTYP2I": "02",
+     "TRTYPD2I": "PAYMENT",
+     "TRTTYP3I": "03",
+     "TRTYPD3I": "CREDIT",
+     "TRTTYP4I": "04",
+     "TRTYPD4I": "AUTHORIZATION",
+     "TRTTYP5I": "05",
+     "TRTYPD5I": "REFUND",
+     "TRTTYP6I": "06",
+     "TRTYPD6I": "REVERAL",
+     "TRTTYP7I": "07",
+     "TRTYPD7I": "ADJUSTMENT",
+     "TRTSEL2I": "X"
+    }
+   },
+   "why": "'X' on row 2: neither D, U nor blank -> 'Action code selected is invalid', the field red"
+  },
+  {
+   "name": "invalid-key-acts-as-enter",
+   "aid": "DFHPF5",
+   "commarea": {
+    "CDEMO-FROM-TRANID": "CTLI",
+    "CDEMO-FROM-PROGRAM": "COTRTLIC",
+    "CDEMO-USER-ID": "ADMIN001",
+    "CDEMO-USER-TYPE": "A",
+    "CDEMO-PGM-CONTEXT": 0,
+    "CDEMO-LAST-MAP": "CTRTLIA",
+    "CDEMO-LAST-MAPSET": "COTRTLI",
+    "WS-CA-ALL-ROWS-OUT": "01PURCHASE                                          02PAYMENT                                           03CREDIT                                            04AUTHORIZATION                                     05REFUND                                            06REVERAL                                           07ADJUSTMENT                                        ",
+    "WS-CA-LAST-TR-CODE": "08",
+    "WS-CA-FIRST-TR-CODE": "01",
+    "WS-CA-SCREEN-NUM": 1,
+    "WS-CA-LAST-PAGE-DISPLAYED": 9,
+    "WS-CA-NEXT-PAGE-IND": "Y"
+   },
+   "receive": {
+    "CTRTLIA": {
+     "TRTTYP1I": "01",
+     "TRTYPD1I": "PURCHASE",
+     "TRTTYP2I": "02",
+     "TRTYPD2I": "PAYMENT",
+     "TRTTYP3I": "03",
+     "TRTYPD3I": "CREDIT",
+     "TRTTYP4I": "04",
+     "TRTYPD4I": "AUTHORIZATION",
+     "TRTTYP5I": "05",
+     "TRTYPD5I": "REFUND",
+     "TRTTYP6I": "06",
+     "TRTYPD6I": "REVERAL",
+     "TRTTYP7I": "07",
+     "TRTYPD7I": "ADJUSTMENT"
+    }
+   },
+   "why": "PF5 is not a key of this screen: PFK-INVALID -> CCARD-AID-ENTER, page 1 again"
+  },
+  {
+   "name": "pf2-to-add-screen",
+   "aid": "DFHPF2",
+   "commarea": {
+    "CDEMO-FROM-TRANID": "CTLI",
+    "CDEMO-FROM-PROGRAM": "COTRTLIC",
+    "CDEMO-USER-ID": "ADMIN001",
+    "CDEMO-USER-TYPE": "A",
+    "CDEMO-PGM-CONTEXT": 0,
+    "CDEMO-LAST-MAP": "CTRTLIA",
+    "CDEMO-LAST-MAPSET": "COTRTLI",
+    "WS-CA-ALL-ROWS-OUT": "01PURCHASE                                          02PAYMENT                                           03CREDIT                                            04AUTHORIZATION                                     05REFUND                                            06REVERAL                                           07ADJUSTMENT                                        ",
+    "WS-CA-LAST-TR-CODE": "08",
+    "WS-CA-FIRST-TR-CODE": "01",
+    "WS-CA-SCREEN-NUM": 1,
+    "WS-CA-LAST-PAGE-DISPLAYED": 9,
+    "WS-CA-NEXT-PAGE-IND": "Y"
+   },
+   "receive": {
+    "CTRTLIA": {
+     "TRTTYP1I": "01",
+     "TRTYPD1I": "PURCHASE",
+     "TRTTYP2I": "02",
+     "TRTYPD2I": "PAYMENT",
+     "TRTTYP3I": "03",
+     "TRTYPD3I": "CREDIT",
+     "TRTTYP4I": "04",
+     "TRTYPD4I": "AUTHORIZATION",
+     "TRTTYP5I": "05",
+     "TRTYPD5I": "REFUND",
+     "TRTTYP6I": "06",
+     "TRTYPD6I": "REVERAL",
+     "TRTTYP7I": "07",
+     "TRTYPD7I": "ADJUSTMENT"
+    }
+   },
+   "why": "PF2 from this program: XCTL to COTRTUPC with CARDDEMO-COMMAREA (from CTLI / COTRTLIC, user type U, context 0)"
+  },
+  {
+   "name": "pf3-back-to-admin",
+   "aid": "DFHPF3",
+   "commarea": {
+    "CDEMO-FROM-TRANID": "CTLI",
+    "CDEMO-FROM-PROGRAM": "COTRTLIC",
+    "CDEMO-USER-ID": "ADMIN001",
+    "CDEMO-USER-TYPE": "A",
+    "CDEMO-PGM-CONTEXT": 0,
+    "CDEMO-LAST-MAP": "CTRTLIA",
+    "CDEMO-LAST-MAPSET": "COTRTLI",
+    "WS-CA-ALL-ROWS-OUT": "01PURCHASE                                          02PAYMENT                                           03CREDIT                                            04AUTHORIZATION                                     05REFUND                                            06REVERAL                                           07ADJUSTMENT                                        ",
+    "WS-CA-LAST-TR-CODE": "08",
+    "WS-CA-FIRST-TR-CODE": "01",
+    "WS-CA-SCREEN-NUM": 1,
+    "WS-CA-LAST-PAGE-DISPLAYED": 9,
+    "WS-CA-NEXT-PAGE-IND": "Y"
+   },
+   "receive": {
+    "CTRTLIA": {
+     "TRTTYP1I": "01",
+     "TRTYPD1I": "PURCHASE",
+     "TRTTYP2I": "02",
+     "TRTYPD2I": "PAYMENT",
+     "TRTTYP3I": "03",
+     "TRTYPD3I": "CREDIT",
+     "TRTTYP4I": "04",
+     "TRTYPD4I": "AUTHORIZATION",
+     "TRTTYP5I": "05",
+     "TRTYPD5I": "REFUND",
+     "TRTTYP6I": "06",
+     "TRTYPD6I": "REVERAL",
+     "TRTTYP7I": "07",
+     "TRTYPD7I": "ADJUSTMENT"
+    }
+   },
+   "why": "PF3: the caller is this program itself, so CA00 / COADM01C; SYNCPOINT and XCTL (admin, context 0)"
+  },
+  {
+   "name": "enter-after-delete-starts-over",
+   "aid": "DFHENTER",
+   "commarea": {
+    "CDEMO-FROM-TRANID": "CTLI",
+    "CDEMO-FROM-PROGRAM": "COTRTLIC",
+    "CDEMO-PGM-CONTEXT": 0,
+    "CDEMO-LAST-MAP": "CTRTLIA",
+    "CDEMO-LAST-MAPSET": "COTRTLI",
+    "WS-CA-SCREEN-NUM": 1,
+    "WS-CA-LAST-PAGE-DISPLAYED": 9
+   },
+   "receive": {
+    "CTRTLIA": {
+     "TRTTYP1I": "08",
+     "TRTYPD1I": "FEE",
+     "TRTTYP2I": "09",
+     "TRTYPD2I": "INTEREST",
+     "TRTTYP3I": "10",
+     "TRTYPD3I": "CASH ADVANCE",
+     "TRTTYP4I": "11",
+     "TRTYPD4I": "BALANCE TRANSFER",
+     "TRTTYP5I": "12",
+     "TRTYPD5I": "OVERLIMIT FEE"
+    }
+   },
+   "why": "the COMMAREA pf10-deletes-row returns (INITIALIZEd, page 1); ENTER on the screen it left: no action, the first key blank -> page 1 read from the start (the seed is reset, so type 08 is back but on page 2)"
+  }
+ ],
+ "notes": "CardDemo's Db2 transaction-type list (transaction CTLI, program COTRTLIC, admin menu option 5): seven types a page from CARDDEMO.TRANSACTION_TYPE through two Db2 cursors (C-TR-TYPE-FORWARD, and C-TR-TYPE-BACKWARD for PF7), optionally filtered by type code and by a description LIKE pattern; 'D' or 'U' on a row and ENTER asks for confirmation, PF10 DELETEs or UPDATEs it; PF2 goes to COTRTUPC, PF3 back to the admin menu. The paging state, the rows shown and the pending action live in the program's COMMAREA area after CARDDEMO-COMMAREA (rows never fetched are LOW-VALUES); each scenario gives the state the previous screen returned. Both sides run their SQL on one real Db2 (tests/tools/equivalence_db2.py): TRANSACTION_TYPE and TRANSACTION_TYPE_CATEGORY are created from the corpus DDL, seeded before each scenario and both compared after it. The seed is the corpus's DB2LTTYP.ctl and DB2LTCAT.ctl INSERTs unchanged, plus five types (08-12) without category rows in a separate INSERT, written for this case (and carddemo-cotrtupc): the corpus's seven types fill exactly one page, so paging needs more, and a type without category rows can be deleted. Not covered: every path through 9999-FORMAT-DB2-MESSAGE, which CALLs Db2's DSNTIAC (not modelled) -- a delete refused by the category foreign key (-532), an update or delete of a row gone meanwhile (+100), cursor and priming-query errors; and the PF3-from-COTRTUPC / re-entered-from-another-program resets, which no CardDemo caller produces (COTRTUPC clears its CARDDEMO-COMMAREA on entry, so its PF3 always returns to the admin menu). Derived from CardDemo (Apache-2.0; Copyright Amazon.com, Inc. or its affiliates): LICENSE and NOTICE here are the source's own."
+}

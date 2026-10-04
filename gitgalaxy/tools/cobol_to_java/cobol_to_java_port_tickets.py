@@ -27,6 +27,7 @@
 # ==============================================================================
 from __future__ import annotations
 
+import codecs
 import functools
 import json
 import math
@@ -36,11 +37,15 @@ from typing import Any
 
 from gitgalaxy.core.compiler_options import compiler_options, effective
 from gitgalaxy.core.data_moves import rounding_facts
+from gitgalaxy.core.ebcdic_codecs import register as register_code_pages
 from gitgalaxy.core.source_text import read_source
+from gitgalaxy.core.special_names import special_names
 from gitgalaxy.core.unicode_paths import on_disk
 from gitgalaxy.tools.cobol_to_java.cobol_to_java_agent_forge import ticket_skeleton
 from gitgalaxy.tools.cobol_to_java.cobol_to_java_names import java_class_base
 from gitgalaxy.tools.cobol_to_java.cobol_to_java_transaction_forge import DTO_SUBPACKAGE
+from gitgalaxy.tools.cobol_to_java.java_target import visual_bidi
+from gitgalaxy.tools.cobol_to_java.proof_reach import PROOF_ROOTS as PROOF_ENTRY_POINTS
 
 TICKET_VERSION = 1
 PORTING_RULES = [
@@ -80,8 +85,36 @@ PORTING_RULES = [
         " than this service; do not invent calls, files, queues or tables the facts do not name."
     ),
     (
-        "An abend (a CALL to CEE3ABD, an unrecoverable file status) becomes an exception; a DISPLAY becomes a"
-        " log line; the step's RETURN-CODE is runBatch's return value."
+        "An abend is `throw CobolAbend.user(abcode, why)` (the generated batch runtime; CALL 'CEE3ABD' USING "
+        "ABCODE: the step ends ABEND Unnnn) -- never another exception; the step's RETURN-CODE is runBatch's "
+        "return value."
+    ),
+    (
+        "A DISPLAY is `Sysout.display(...)` (DISPLAY ... WITH NO ADVANCING: `Sysout.displayNoAdvancing`), never a "
+        "log line: SYSOUT is compared line by line with the COBOL's. Its text is exactly what IBM COBOL writes, the "
+        "operands concatenated: a literal as written; an alphanumeric or group item as all its bytes, trailing "
+        "spaces included (a group's numeric fields as stored: zoned digits, the sign overpunched); a numeric item "
+        "-- DISPLAY, COMP or COMP-3, not edited, no SIGN SEPARATE -- as `Sysout.number(value, digits, scale, "
+        "signed)`: its PICTURE digits zero-padded, no decimal point, the sign overpunched in the last digit when "
+        "signed (PIC S9(3) holding -12 is `01K`); an edited item as its edited text."
+    ),
+    (
+        "Every file I/O statement of a batch program (OPEN, CLOSE, READ, READ NEXT, WRITE, REWRITE, DELETE, "
+        "START) is ONE call to the generated CobolFiles, per file (its DD name), in the order the program runs "
+        "them. open(dd) / open(dd, path, input) / close(dd[, action]) / write / rewrite / delete(dd, action) / "
+        'start(dd, found) return the status String; read(dd, supplier) ("00" or "23") and readNext(dd, '
+        'iterator) ("00" or "10") return a CobolFiles.Read<T> -- status() and record(), null unless found. '
+        "Take the program's "
+        "FILE STATUS logic -- IF <status> = '00', AT END, INVALID KEY, its error paragraphs -- from the status "
+        "returned, exactly as the program does; never skip a statement the program runs (a read-ahead, a "
+        "CLOSE) or add one it does not. The equivalence harness injects file faults through CobolFiles and "
+        "through GnuCOBOL at the same statement, and proves the error paths too. A keyed (VSAM KSDS) file keeps "
+        "its mainframe semantics: WRITE is writeKeyed(dd, () -> repo.existsById(key), () -> repo.save(r)) -- "
+        '"22" when the key is on file, never save() over it -- and REWRITE is rewriteKeyed(dd, exists, save) '
+        '("23" when it is not). A record the program READs INTO its working storage is the program\'s own copy: '
+        "keep Entity.fromRecord(read.toRecord(cs), cs), never the repository's managed entity, so a change that is "
+        "not REWRITten is never saved; and a READ that fails without INVALID KEY / AT END leaves the previous "
+        "record in place, as the program's storage does."
     ),
     (
         "A sequential dataset is fixed-length records (RECFM=FB): write each record's toRecord(...) bytes "
@@ -92,6 +125,12 @@ PORTING_RULES = [
         "Decode and encode a numeric field held in record bytes or a text column (zoned with an overpunched "
         "sign, COMP-3, COMP) only through the generated CobolRecords (zoned / packed / binary and their put "
         "methods) or the entity codecs, never a hand-written decoder."
+    ),
+    (
+        "Record bytes -- every dataset, file and COMMAREA the program reads or writes -- are in the code page "
+        "CobolRecords.charset() returns: the migration's declared data.record_charset, a deployment fact. Pass "
+        "it wherever a record codec, CobolRecords method or String takes a Charset; never Charset.forName, "
+        "StandardCharsets or a guessed EBCDIC page for record data (#4060)."
     ),
     (
         "Read a number from text (a screen field, FUNCTION NUMVAL, a PARM) only through "
@@ -117,14 +156,69 @@ PORTING_RULES = [
         "collation (#3822)."
     ),
     (
+        "Compare alphanumeric operands (PIC X / A items, group items, alphanumeric literals and figurative "
+        "constants) in IF, EVALUATE, PERFORM UNTIL and SEARCH WHEN only through the generated CobolCompare "
+        "(compare, eq, gt, ge, lt, le), never String.compareTo or equals: it compares the code page's bytes "
+        "as the mainframe does -- lower case before upper, letters before digits, so IF CUST-ID > 'A' is true "
+        "for '1001' -- and pads the shorter operand with spaces ('AB' = 'AB  '). HIGH-VALUES / LOW-VALUES are "
+        "CobolCompare.highValues(n) / lowValues(n). A numeric comparison stays BigDecimal.compareTo. A program "
+        "that declares PROGRAM COLLATING SEQUENCE compares by that alphabet instead: flag it in a TODO (#3986)."
+    ),
+    (
         "A CICS program is ported into runTask(CicsTask task), one task per call (#3754): EIBCALEN = 0 is "
-        "!task.hasCommarea(), DFHCOMMAREA is task.commarea(<its DTO>.class), EIBAID is task.aid() (ENTER, CLEAR, "
-        "PF1-PF24, PA1-PA3), RECEIVE MAP is task.receive(map, <its screen>.class) (empty = MAPFAIL), SEND MAP "
-        "is task.sendMap(map, screen), SEND TEXT / SEND is task.sendText, RETURN TRANSID COMMAREA is "
-        "task.returnTransid, XCTL is task.xctl, ABEND is task.abend -- in the order the program does them, and "
-        "the task ends at RETURN / XCTL / ABEND. A file READ is the service's generated read method (an empty "
-        "result is NOTFND, DFHRESP 13). A screen field shows what the symbolic map's O field would hold: text "
-        "as moved, an edited PICTURE formatted as COBOL formats it."
+        "!task.hasCommarea(), EIBCALEN is task.eibcalen() (#4009: null = the whole record), DFHCOMMAREA is "
+        "task.commarea(<its DTO>.class), EIBAID is task.aid() (ENTER, CLEAR, PF1-PF24, PA1-PA3), EIBTRMID is "
+        "task.termid(), EIBTIME / EIBDATE / ASKTIME are task.now() (the task's dispatch time on the region's "
+        "virtual clock, #3989), RECEIVE MAP is "
+        "task.receive(map, mapset, <its screen>.class) (empty = MAPFAIL), SEND MAP is task.sendMap(map, mapset, "
+        "screen, subfields, options...) (#4001: the screen holds each <f>O; CicsTask.MapSubfields each <f>A / <f>C "
+        "/ <f>H as its EBCDIC byte and <f>L = -1 for the cursor), "
+        "SEND TEXT / SEND is task.sendText(from, length, options...), RETURN TRANSID COMMAREA LENGTH is "
+        "task.returnTransid(transid, commarea, length), XCTL is task.xctl, LINK is task.link, ABEND is task.abend "
+        "-- in the order "
+        "the program does them, and "
+        "the task ends at RETURN / XCTL / ABEND. A file READ is task.read(file, () -> <the service's generated read "
+        "method>): its resp() is NORMAL (0), NOTFND (13) when the read finds nothing, or a condition the "
+        "equivalence harness injects (NOTOPEN, IOERR, DISABLED, ...), and its resp2(); port every arm of the "
+        "program's RESP handling (EVALUATE WS-RESP-CD ... WHEN OTHER) from it (#4023 follow-up). READ ... UPDATE is "
+        "task.readForUpdate(file, lookup) (it holds the record for a REWRITE); WRITE FILE RIDFLD FROM is "
+        "task.write(file, <whether the key is already in the file>, () -> <save the new record>): DUPREC (14) when it "
+        "is; REWRITE FILE FROM is task.rewrite(file, () -> <save the changed record>): INVREQ (16) without a held "
+        "record; each returns the RESP, and the injected conditions apply as for a READ. SYNCPOINT is "
+        "task.syncpoint() and SYNCPOINT ROLLBACK task.rollback(), which undoes the task's file changes: save every "
+        "change through these calls only -- what each file holds after the task is compared with the COBOL's. "
+        "DELETE FILE RIDFLD is task.delete(file, <whether the key is there>, () -> <delete it>) (NOTFND 13 when not); "
+        "DELETE FILE without RIDFLD is task.deleteHeld(file, () -> <delete the held record>). A browse: STARTBR is "
+        "task.startbr(file, <RIDFLD as text>, <EQUAL given>, () -> <the file's keys, in key order, as a "
+        "NavigableSet<String>>) (NOTFND 13 when no key qualifies); READNEXT / READPREV are task.readnext(file, "
+        "<RIDFLD as text>) / task.readprev(file, ...), whose Browsed holds the RESP (ENDFILE 20 past either end) and "
+        "the key read -- set RIDFLD to it and look the record up by it; ENDBR is task.endbr(file). The task keeps "
+        "the browse's position and CICS's repositioning rules (a READPREV right after a READNEXT reads the same "
+        "record again): pass RIDFLD exactly as the program holds it. ASKTIME ABSTIME is task.asktime(); FORMATTIME "
+        'is CicsTask.formatDate(abstime, "YYYYMMDD" (or the form given), <DATESEP>) and '
+        "CicsTask.formatTime(abstime, <TIMESEP>). ASSIGN APPLID / SYSID are task.assignApplid() / "
+        "task.assignSysid() (the region's identity: never a literal). WRITEQ TD QUEUE FROM is "
+        "task.writeqTd(queue, <the record as text, its full LENGTH>), which returns the RESP (QIDERR 44 for a queue "
+        "the CSD does not define). "
+        "INQUIRE PROGRAM(p) is task.inquireProgram(p): its RESP (NORMAL 0, "
+        "PGMIDERR 27). A screen field shows what the symbolic map's O field would hold: text "
+        "as moved, an edited PICTURE formatted as COBOL formats it. A COMMAREA is the generated DTO of its "
+        "record; an area no generated DTO describes (a plain PIC X(n) item) is passed as a String of its n "
+        "characters, or a byte[] of its EBCDIC bytes (#3989)."
+    ),
+    (
+        "CICS condition and abend handling (#3989): HANDLE CONDITION, IGNORE CONDITION, HANDLE AID and RESP are "
+        "the program's own control flow -- port each transfer to its label as Java control flow. HANDLE ABEND "
+        "LABEL is task.handleAbend(label) (CANCEL, RESET: handleAbendCancel / handleAbendReset), and PUSH / POP "
+        "HANDLE are task.pushHandle() / popHandle() besides saving and restoring the program's own handler "
+        "state. EXEC CICS ABEND is task.abend(abcode) and a condition that takes CICS's default action is "
+        "task.abendOnCondition(condition): CicsTask searches the active abend exits from this program's level "
+        "upward, as CICS does, records the ABEND, and returns the label to continue at when this program's own "
+        "exit took it -- or null, and the program must then return from runTask at once. After task.link(...) "
+        "returns, task.abendExit() is the label of this program's exit when an abend in a program below reached "
+        "it (continue there), and task.ended() is true when the task was terminated (stop). Never throw an "
+        "exception to model a CICS transfer: the services are @Transactional, so an exception out of one marks "
+        "the whole task rollback-only."
     ),
     (
         "Dates and times only through java.time -- LocalDate, LocalDateTime, LocalTime and DateTimeFormatter "
@@ -136,8 +230,8 @@ PORTING_RULES = [
     ),
     (
         "Read the time only from the generated batch runtime's MainframeClock (now() for local, currentDate() for "
-        "FUNCTION CURRENT-DATE), never from the system clock directly or ZoneId.systemDefault(): it is how a run is "
-        "pinned to be compared with the original."
+        "FUNCTION CURRENT-DATE) -- in a CICS task, from task.now() -- never from the system clock directly or "
+        "ZoneId.systemDefault(): it is how a run is pinned to be compared with the original."
     ),
     (
         "A DB2 DATE / TIME / TIMESTAMP fetched into, or bound from, a character host variable (a DCLGEN DATE is "
@@ -158,6 +252,16 @@ PORTING_RULES = [
     (
         "A fact whose field testing is not 'field-tested' is verified on reference estates but still being "
         "field-tested: where the source contradicts it, follow the source and say so in the port's notes."
+    ),
+    (
+        "The proof calls one method per program: runTask(CicsTask) for a CICS program, handleCall(...) for a "
+        "CALLed one, runBatch(dds, parm) for a batch one -- the ticket's methods to port. Port all of the "
+        "program's behaviour into that method and the private helpers it calls. Port nothing into the other "
+        "generated methods -- execute<Program>, handleTransaction, handleLink, handleChannel, onAbendL<n>, "
+        "onCondition<C>L<n>, dispatch<X>L<n>, submit<Map> / render<Map>, xctl<P> / link<P>, the generated "
+        "readqTs / writeqTs / read / browse helpers -- even where their TODO asks: leave each body as generated "
+        "and keep no second entry point. Code the proof never runs is not proven, and the porting loop lists "
+        "every method the proof cannot reach that the port changed (#4255)."
     ),
 ]
 
@@ -197,6 +301,87 @@ def line_sequential_rules(file_control: list[dict[str, Any]]) -> list[str]:
         f"{'it' if len(names) == 1 else 'them'}: read one record per line (the line terminator is not data) and "
         "pad a short line with spaces to the record length; on write, strip the record's trailing spaces and end "
         "the line with the platform's terminator -- \\n, or \\r\\n when the estate runs on Windows (#3833)."
+    ]
+
+
+def decimal_point_rules(text: str, culture: dict[str, Any] | None) -> list[str]:
+    """#3984: the decimal point this program's numbers use, named in its ticket -- the generic NUMVAL and
+    CobolEdit rules leave it to the porter to find DECIMAL-POINT IS COMMA in SPECIAL-NAMES, and a
+    `ZZZ.ZZ9,99` formatted with decimalComma = false reads 1.234,50 as 1,234.50. culture.decimal_point
+    overrides the program as it does for the entities (_decimal_comma); a program with neither keeps
+    today's rules."""
+    line = next((sn["line"] for sn in special_names(text) if sn["clause"] == "DECIMAL-POINT"), None)
+    declared = str((culture or {}).get("decimal_point") or "auto")
+    if declared == "period" and line is not None:
+        return [
+            f"This program codes DECIMAL-POINT IS COMMA (SPECIAL-NAMES, line {line}), but this migration declares "
+            "culture.decimal_point: period: pass '.' to CobolRecords.numval and decimalComma = false to "
+            "CobolEdit.format, as the generated entities do (#3984)."
+        ]
+    if declared == "comma" or (declared == "auto" and line is not None):
+        where = (f"codes DECIMAL-POINT IS COMMA (SPECIAL-NAMES, line {line})" if line is not None
+                 else "is ported with culture.decimal_point: comma")  # fmt: skip
+        return [
+            f"This program {where}: in its PICTUREs and numeric literals `,` is the decimal point and `.` an "
+            "insertion character (PIC 9(6),99 has 2 decimals; VALUE 12,50 is 12.5). Pass ',' to "
+            "CobolRecords.numval and decimalComma = true to CobolEdit.format for every one of its fields; a "
+            'Java literal is still written with `.` (new BigDecimal("12.50")) (#3984).'
+        ]
+    return []
+
+
+def collation_rules(culture: dict[str, Any] | None) -> list[str]:
+    """#3986: CobolCompare always follows the code page's bytes, as the program did; under a key_collation
+    other than ebcdic the generated repositories browse in another order, so a program that compares the
+    keys it browses can see them out of its own order. Said once, where it applies."""
+    collation = str((culture or {}).get("key_collation") or "ebcdic")
+    if collation == "ebcdic":
+        return []
+    order = "UTF-8 byte order" if collation == "binary" else "the database's default collation"
+    return [
+        f"This migration declares culture.key_collation: {collation}: repository browses return keys in "
+        f"{order}, while CobolCompare compares as the mainframe did. Where the program compares a key it "
+        "browsed with another (a READNEXT loop ending on a limit, a control break), the two orders can "
+        "disagree: flag it in a TODO rather than switching the comparison (#3986)."
+    ]
+
+
+def multibyte_rules(data: dict[str, Any] | None) -> list[str]:
+    """#3985: under a multi-byte code page a PIC X field's width is bytes, not characters -- a mixed EBCDIC
+    page (cp930 / cp939 / cp933 / cp935 / cp937) wraps each double-byte run in Shift-Out / Shift-In, and an
+    ASCII DBCS page (shift_jis, cp932) takes two bytes per Kanji -- so String.length() and substring() stop
+    matching the record. Said only where the code page can encode a CJK character; a single-byte estate keeps
+    today's rules."""
+    code_page = str((data or {}).get("code_page") or "cp037")
+    register_code_pages()
+    try:
+        codecs.lookup(code_page)
+        "\u65e5".encode(code_page)
+    except (LookupError, UnicodeError):
+        return []
+    return [
+        f"This migration's code page ({code_page}) is multi-byte: a PIC X field's width is BYTES, not characters "
+        "(`AB日本C` is 5 characters and, in a mixed EBCDIC page, 9 bytes: Shift-Out and Shift-In count). "
+        "Measure a field with CobolRecords.width(value, text) and cut or pad it with CobolRecords.fit(value, "
+        "width, text), which keeps whole characters; never String.length(), substring() or String.format "
+        "widths for fixed-width logic. A reference modification (X(3:5)) of such a field can split a "
+        "double-byte run: flag it in a TODO (#3985)."
+    ]
+
+
+def bidi_rules(data: dict[str, Any] | None) -> list[str]:
+    """#3987: where the record bytes keep Arabic / Hebrew text in visual order (a 3270's left-to-right screen
+    order: data.bidi_layout visual, or auto under cp420 / cp424 / cp864 / cp862), CobolRecords hands the port
+    logical Strings and stores visual bytes. Said only there; a logical estate keeps today's rules."""
+    if not visual_bidi(data):
+        return []
+    return [
+        "This migration's records keep right-to-left text (Arabic, Hebrew) in VISUAL order, as the 3270 showed it "
+        "left to right. CobolRecords.text(...) and the entity codecs return it in logical (reading) order, and "
+        "putText(...) / toRecord(...) store it visual again: keep every String in logical order, never reverse "
+        "one by hand. Where a String meets record bytes outside CobolRecords (a COMMAREA, a hand-built record), "
+        "convert it with CobolRecords.visual(logical) / CobolRecords.logical(visual). A reference modification "
+        "(X(3:5)) or INSPECT of such a field counts positions in visual order: flag it in a TODO (#3987)."
     ]
 
 
@@ -438,6 +623,11 @@ def _public_methods(java: str) -> list[dict[str, Any]]:
     return out
 
 
+def _method_name(signature: str) -> str:
+    """`public int runBatch(List<Dd> dds, String parm)` -> runBatch."""
+    return signature.split("(", 1)[0].split()[-1]
+
+
 def _imports(java: str, package: str) -> list[str]:
     """The project classes a generated file imports (entities, repositories, DTOs, batch runtime)."""
     return sorted(re.findall(rf"^import ({re.escape(package)}\.[\w.]+);", java, re.M))
@@ -473,11 +663,19 @@ def build_ticket(key: str, skeleton: dict[str, Any], java_dir: Path, package: st
         "traced_to_this_program": [{"file": f, "symbol": s} for f, s in tied],
     }
     methods = _public_methods(java)
+    # #4255: port only what the proof drives; the other TODO methods are left as generated
+    entry = [m["signature"] for m in methods if _method_name(m["signature"]) in PROOF_ENTRY_POINTS]
+    todo = [m["signature"] for m in methods if m["todo"]]
+    to_port = [s for s in todo if s in entry] if entry else todo
     text = read_source(on_disk(source_root, prog["file"]), declared=declared).text if readable and source_root else ""
     rounding = rounding_facts(text) if readable else []  # #3825
     options = compiler_options(text)  # #3828
     file_control = (skeleton.get("sections", {}).get("file_control") or {}).get("facts") or []
     rules = list(PORTING_RULES) + option_rules(options) + line_sequential_rules(file_control)  # #3833
+    rules += decimal_point_rules(text, target.get("culture"))  # #3984
+    rules += collation_rules(target.get("culture"))  # #3986
+    rules += multibyte_rules(target.get("data"))  # #3985
+    rules += bidi_rules(target.get("data"))  # #3987
     if (target.get("culture") or {}).get("rounding") == "half_even":  # #3819: a declared deviation
         rules.append(
             "This migration declares culture.rounding: half_even (a deviation from COBOL): a plain ROUNDED "
@@ -499,7 +697,9 @@ def build_ticket(key: str, skeleton: dict[str, Any], java_dir: Path, package: st
             "file": service_rel,
             "overlay": f"port/service/{service}.java",
             "methods": methods,
-            "methods_to_port": [m["signature"] for m in methods if m["todo"]],
+            "methods_to_port": to_port,
+            "proof_entry_points": entry,
+            "left_as_generated": [s for s in todo if s not in to_port],
             "config": target,
         },
         "source": source,
@@ -514,6 +714,10 @@ def build_ticket(key: str, skeleton: dict[str, Any], java_dir: Path, package: st
             "return": (
                 f"One complete Java file for {service_rel}: the same package, class name and public method "
                 "signatures, with the TODO bodies ported (helper methods may be added)."
+                if not entry
+                else f"One complete Java file for {service_rel}: the same package, class name and public method "
+                f"signatures, with {' and '.join(_method_name(e) for e in entry)} ported -- what the proof runs -- "
+                "and helper methods it calls added; every other generated method left as generated (#4255)."
             ),
             "proof": (
                 "The port is laid over the generated project as an overlay and proven by the equivalence "
@@ -535,6 +739,11 @@ def ticket_markdown(t: dict[str, Any]) -> str:
     md += [f"Fill `{tg['file']}` ({tg['service']}); return it as `{tg['overlay']}`.", "",
           "## Methods to port", ""]  # fmt: skip
     md += [f"- `{m}`" for m in tg["methods_to_port"]] or ["- (no method is marked as a TODO; see the worklist)"]
+    if tg.get("proof_entry_points"):  # #4255
+        md += ["", f"The proof runs the port through {', '.join(f'`{e}`' for e in tg['proof_entry_points'])} only."]
+    if tg.get("left_as_generated"):
+        md += ["", "Leave as generated (no proof runs them; port nothing into them):", ""]
+        md += [f"- `{m}`" for m in tg["left_as_generated"]]
     md += ["", "## Target configuration", "", "```json", json.dumps(tg["config"], indent=2, sort_keys=True), "```"]
     md += ["", "## Porting rules", ""] + [f"{i}. {r}" for i, r in enumerate(t["rules"], 1)]
     if t.get("rounding"):  # #3825: every statement whose rounding or SIZE ERROR the port must keep

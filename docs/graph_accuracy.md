@@ -113,12 +113,20 @@ fetches the pinned jars from Maven Central, which rate-limits bursts; `MAVEN_FLA
 
 **Numbers vs scip-java on gson** (7,858 reference edges):
 
-| metric | first (#3783) | after overload choice (#3835) |
-|---|---|---|
-| confident precision | 59.8% (4,778 judged) | 92.7% (3,474 judged) |
-| recall | 36.3% | 41.0% |
-| resolution recall | 38.7% | 43.6% |
-| strict precision (JDK calls counted wrong) | 54.4% | 82.9% |
+| metric | first (#3783) | after overload choice (#3835) | after generic constructors (#4124) |
+|---|---|---|---|
+| confident precision | 59.8% (4,778 judged) | 92.7% (3,474 judged) | 93.2% (3,727 judged) |
+| recall | 36.3% | 41.0% | 44.2% |
+| resolution recall | 38.7% | 43.6% | 45.3% |
+| strict precision (JDK calls counted wrong) | 54.4% | 82.9% | 84.0% |
+
+#4124 has two parts:
+- **Generic constructors are extracted.** `calls_out` now takes `new TypeToken<X>() {}` and
+  `new ArrayList<>(xs)`.
+- **The reference picks the right constructor.** For an anonymous subclass, scip-java
+  references the class, not a constructor. The adapter used to map every such reference to
+  the class's last constructor. It now picks the constructor by argument count. Without that
+  fix, 137 right links to `TypeToken()` scored as wrong overloads.
 
 **Overloads were most of the first gap.** 1,653 of the first 1,923 `wrong` links went to
 a different **overload of the right method** in the same class, which is why

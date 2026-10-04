@@ -14,9 +14,11 @@
       "abap/abapGit/zcl_abapgit_xml_output.clas.abap": 0.0
     },
     "ada": {
-      "ada/PROVENANCE.md": 0.29886
+      "ada/PROVENANCE.md": 0.55488,
+      "ada/SOURCES.md": 0.55488
     },
     "ada/alire": {
+      "ada/alire/LICENSE.txt": 0.0,
       "ada/alire/alire-conditional_trees.adb": 0.0,
       "ada/alire/alire-crate_configuration.adb": 0.0,
       "ada/alire/alire-dependencies-states.ads": 0.0,
@@ -86,7 +88,7 @@
       "agc_assembly/apollo-11/WAITLIST.agc": 1.0
     },
     "apex": {
-      "apex/SOURCES.md": 0.38148
+      "apex/SOURCES.md": 0.37842
     },
     "apex/apex-recipes": {
       "apex/apex-recipes/AuraEnabledRecipes_Tests.cls": 1.0,
@@ -322,22 +324,17 @@
       "assembly/os_tutorial_x86/14-checkpoint_boot_gdt.asm": 0.0,
       "assembly/os_tutorial_x86/14-checkpoint_boot_kernel_entry.asm": 0.0
     },
-    "assembly/raspberrypi_baremetal": {
-      "assembly/raspberrypi_baremetal/Compress_HUFFMAN_HUFFMANDecode_kernel.asm": 0.0,
-      "assembly/raspberrypi_baremetal/Compress_HUFFMAN_HUFFMANDecode_kernel7.asm": 0.0,
-      "assembly/raspberrypi_baremetal/Compress_HUFFMAN_HUFFMANDecode_kernel8.asm": 0.0,
-      "assembly/raspberrypi_baremetal/Compress_HUFFMAN_HUFFMANGFX_kernel.asm": 0.0,
-      "assembly/raspberrypi_baremetal/Compress_HUFFMAN_HUFFMANGFX_kernel7.asm": 0.0,
-      "assembly/raspberrypi_baremetal/Compress_HUFFMAN_HUFFMANGFX_kernel8.asm": 0.0,
-      "assembly/raspberrypi_baremetal/Compress_LZ77_LZ77Decode_kernel.asm": 0.0,
-      "assembly/raspberrypi_baremetal/Compress_LZ77_LZ77Decode_kernel7.asm": 0.0,
-      "assembly/raspberrypi_baremetal/Compress_LZ77_LZ77Decode_kernel8.asm": 0.0,
-      "assembly/raspberrypi_baremetal/Compress_LZ77_LZ77GFX_kernel.asm": 0.0,
-      "assembly/raspberrypi_baremetal/Compress_LZ77_LZ77GFX_kernel7.asm": 0.0,
-      "assembly/raspberrypi_baremetal/Compress_LZ77_LZ77GFX_kernel8.asm": 0.0,
-      "assembly/raspberrypi_baremetal/EMU_GameBoy_kernel.asm": 0.0,
-      "assembly/raspberrypi_baremetal/HelloWorld_CPU_kernel7.asm": 0.0,
-      "assembly/raspberrypi_baremetal/HelloWorld_CPU_kernel8.asm": 0.0
+    "assembly/rpi_smartstart_baremetal": {
+      "assembly/rpi_smartstart_baremetal/10_virtualmemory_SmartStart32.S": 0.0,
+      "assembly/rpi_smartstart_baremetal/10_virtualmemory_SmartStart64.S": 0.0,
+      "assembly/rpi_smartstart_baremetal/Arm32_64_USB_SmartStart32.S": 0.0,
+      "assembly/rpi_smartstart_baremetal/Arm32_64_USB_SmartStart64.S": 0.0,
+      "assembly/rpi_smartstart_baremetal/Core3Interrupt_SmartStart64.S": 0.0,
+      "assembly/rpi_smartstart_baremetal/FreeRTOSv10.1.1_loader_RaspberryPi_SmartStart32.S": 0.0,
+      "assembly/rpi_smartstart_baremetal/FreeRTOSv10.1.1_loader_RaspberryPi_SmartStart64.S": 0.0,
+      "assembly/rpi_smartstart_baremetal/Multicore_SmartStart32.S": 0.0,
+      "assembly/rpi_smartstart_baremetal/Multicore_SmartStart64.S": 0.0,
+      "assembly/rpi_smartstart_baremetal/SimpleSched_SmartStart32.S": 0.0
     },
     "assembly/x86_bare_metal": {
       "assembly/x86_bare_metal/LICENSE.adoc": 0.0,
@@ -374,7 +371,7 @@
       "assembly/xv6_x86_kernel/usys.S": 0.0
     },
     "batch": {
-      "batch/SOURCES.md": 0.52224
+      "batch/SOURCES.md": 0.51306
     },
     "batch/cpython/Tools/buildbot": {
       "batch/cpython/Tools/buildbot/clean.bat": 0.0
@@ -393,6 +390,9 @@
       "blueprint/ghostty/split-tree.blp": 0.0,
       "blueprint/ghostty/window.blp": 0.0
     },
+    "bms": {
+      "bms/SOURCES.md": 0.36924
+    },
     "bms/cbsa": {
       "bms/cbsa/BNK1ACC.bms": 0.13770000000000002,
       "bms/cbsa/BNK1CAM.bms": 0.13770000000000002,
@@ -403,11 +403,16 @@
       "bms/cbsa/BNK1MAI.bms": 0.13770000000000002,
       "bms/cbsa/BNK1TFM.bms": 0.13770000000000002,
       "bms/cbsa/BNK1UAM.bms": 0.13770000000000002,
-      "bms/cbsa/PROVENANCE.md": 0.13770000000000002,
-      "bms/cbsa/ssmap.bms": 0.13770000000000002
+      "bms/cbsa/PROVENANCE.md": 0.13770000000000002
+    },
+    "bms/genapp": {
+      "bms/genapp/ssmap.bms": 0.0
     },
     "c": {
-      "c/SOURCES.md": 0.8160000000000001
+      "c/SOURCES.md": 0.969
+    },
+    "c/cosmopolitan_intrin": {
+      "c/cosmopolitan_intrin/countbits.c": 0.0
     },
     "c/cpython": {
       "c/cpython/Makefile.pre.in": 0.0,
@@ -434,6 +439,9 @@
       "c/doom/w_wad.c": 0.0,
       "c/doom/z_zone.c": 0.0
     },
+    "c/freebsd_openpam": {
+      "c/freebsd_openpam/pam_acct_mgmt.c": 0.0
+    },
     "c/micropython": {
       "c/micropython/compile.c": 0.0,
       "c/micropython/compile.h": 0.0,
@@ -449,6 +457,7 @@
       "c/micropython/vm.c": 0.0
     },
     "c/sqlite": {
+      "c/sqlite/LICENSE.md": 1.0,
       "c/sqlite/README.md": 1.0,
       "c/sqlite/lemon.c": 1.0
     },
@@ -511,78 +520,81 @@
       "cobol/Z-SMS-Gateway/SENDSMS.cbl": 0.0
     },
     "cobol/aws-mainframe-modernization-carddemo": {
-      "cobol/aws-mainframe-modernization-carddemo/CBACT01C.cbl": 0.0,
-      "cobol/aws-mainframe-modernization-carddemo/CBACT02C.cbl": 0.0,
-      "cobol/aws-mainframe-modernization-carddemo/CBACT03C.cbl": 0.0,
-      "cobol/aws-mainframe-modernization-carddemo/CBACT04C.cbl": 0.0,
-      "cobol/aws-mainframe-modernization-carddemo/CBCUS01C.cbl": 0.0,
-      "cobol/aws-mainframe-modernization-carddemo/CBTRN01C.cbl": 0.0,
-      "cobol/aws-mainframe-modernization-carddemo/CBTRN02C.cbl": 0.0,
-      "cobol/aws-mainframe-modernization-carddemo/CBTRN03C.cbl": 0.0,
-      "cobol/aws-mainframe-modernization-carddemo/COACTUP.CPY": 0.0,
-      "cobol/aws-mainframe-modernization-carddemo/COACTUPC.cbl": 0.0,
-      "cobol/aws-mainframe-modernization-carddemo/COACTVW.CPY": 0.0,
-      "cobol/aws-mainframe-modernization-carddemo/COACTVWC.cbl": 0.0,
-      "cobol/aws-mainframe-modernization-carddemo/COADM01.CPY": 0.0,
-      "cobol/aws-mainframe-modernization-carddemo/COADM01C.cbl": 0.0,
-      "cobol/aws-mainframe-modernization-carddemo/COADM02Y.cpy": 0.0,
-      "cobol/aws-mainframe-modernization-carddemo/COBIL00.CPY": 0.0,
-      "cobol/aws-mainframe-modernization-carddemo/COBIL00C.cbl": 0.0,
-      "cobol/aws-mainframe-modernization-carddemo/COCOM01Y.cpy": 0.0,
-      "cobol/aws-mainframe-modernization-carddemo/COCRDLI.CPY": 0.0,
-      "cobol/aws-mainframe-modernization-carddemo/COCRDLIC.cbl": 0.0,
-      "cobol/aws-mainframe-modernization-carddemo/COCRDSL.CPY": 0.0,
-      "cobol/aws-mainframe-modernization-carddemo/COCRDSLC.cbl": 0.0,
-      "cobol/aws-mainframe-modernization-carddemo/COCRDUP.CPY": 0.0,
-      "cobol/aws-mainframe-modernization-carddemo/COCRDUPC.cbl": 0.0,
-      "cobol/aws-mainframe-modernization-carddemo/COMEN01.CPY": 0.0,
-      "cobol/aws-mainframe-modernization-carddemo/COMEN01C.cbl": 0.0,
-      "cobol/aws-mainframe-modernization-carddemo/COMEN02Y.cpy": 0.0,
-      "cobol/aws-mainframe-modernization-carddemo/CORPT00.CPY": 0.0,
-      "cobol/aws-mainframe-modernization-carddemo/CORPT00C.cbl": 0.0,
-      "cobol/aws-mainframe-modernization-carddemo/COSGN00.CPY": 0.0,
-      "cobol/aws-mainframe-modernization-carddemo/COSGN00C.cbl": 0.0,
-      "cobol/aws-mainframe-modernization-carddemo/COTRN00.CPY": 0.0,
-      "cobol/aws-mainframe-modernization-carddemo/COTRN00C.cbl": 0.0,
-      "cobol/aws-mainframe-modernization-carddemo/COTRN01.CPY": 0.0,
-      "cobol/aws-mainframe-modernization-carddemo/COTRN01C.cbl": 0.0,
-      "cobol/aws-mainframe-modernization-carddemo/COTRN02.CPY": 0.0,
-      "cobol/aws-mainframe-modernization-carddemo/COTRN02C.cbl": 0.0,
-      "cobol/aws-mainframe-modernization-carddemo/COTTL01Y.cpy": 0.0,
-      "cobol/aws-mainframe-modernization-carddemo/COUSR00.CPY": 0.0,
-      "cobol/aws-mainframe-modernization-carddemo/COUSR00C.cbl": 0.0,
-      "cobol/aws-mainframe-modernization-carddemo/COUSR01.CPY": 0.0,
-      "cobol/aws-mainframe-modernization-carddemo/COUSR01C.cbl": 0.0,
-      "cobol/aws-mainframe-modernization-carddemo/COUSR02.CPY": 0.0,
-      "cobol/aws-mainframe-modernization-carddemo/COUSR02C.cbl": 0.0,
-      "cobol/aws-mainframe-modernization-carddemo/COUSR03.CPY": 0.0,
-      "cobol/aws-mainframe-modernization-carddemo/COUSR03C.cbl": 0.0,
-      "cobol/aws-mainframe-modernization-carddemo/CSDAT01Y.cpy": 0.0,
-      "cobol/aws-mainframe-modernization-carddemo/CSLKPCDY.cpy": 0.0,
-      "cobol/aws-mainframe-modernization-carddemo/CSMSG01Y.cpy": 0.0,
-      "cobol/aws-mainframe-modernization-carddemo/CSMSG02Y.cpy": 0.0,
-      "cobol/aws-mainframe-modernization-carddemo/CSSETATY.cpy": 0.0,
-      "cobol/aws-mainframe-modernization-carddemo/CSSTRPFY.cpy": 0.0,
-      "cobol/aws-mainframe-modernization-carddemo/CSUSR01Y.cpy": 0.0,
-      "cobol/aws-mainframe-modernization-carddemo/CSUTLDPY.cpy": 0.0,
-      "cobol/aws-mainframe-modernization-carddemo/CSUTLDTC.cbl": 0.0,
-      "cobol/aws-mainframe-modernization-carddemo/CSUTLDWY.cpy": 0.0,
-      "cobol/aws-mainframe-modernization-carddemo/CUSTREC.cpy": 0.0,
-      "cobol/aws-mainframe-modernization-carddemo/CVACT01Y.cpy": 0.0,
-      "cobol/aws-mainframe-modernization-carddemo/CVACT02Y.cpy": 0.0,
-      "cobol/aws-mainframe-modernization-carddemo/CVACT03Y.cpy": 0.0,
-      "cobol/aws-mainframe-modernization-carddemo/CVCRD01Y.cpy": 0.0,
-      "cobol/aws-mainframe-modernization-carddemo/CVCUS01Y.cpy": 0.0,
-      "cobol/aws-mainframe-modernization-carddemo/CVTRA01Y.cpy": 0.0,
-      "cobol/aws-mainframe-modernization-carddemo/CVTRA02Y.cpy": 0.0,
-      "cobol/aws-mainframe-modernization-carddemo/CVTRA03Y.cpy": 0.0,
-      "cobol/aws-mainframe-modernization-carddemo/CVTRA04Y.cpy": 0.0,
-      "cobol/aws-mainframe-modernization-carddemo/CVTRA05Y.cpy": 0.0,
-      "cobol/aws-mainframe-modernization-carddemo/CVTRA06Y.cpy": 0.0,
-      "cobol/aws-mainframe-modernization-carddemo/CVTRA07Y.cpy": 0.0,
-      "cobol/aws-mainframe-modernization-carddemo/DFHAID.cpy": 0.0,
-      "cobol/aws-mainframe-modernization-carddemo/DFHBMSCA.cpy": 0.0,
-      "cobol/aws-mainframe-modernization-carddemo/UNUSED1Y.cpy": 0.0
+      "cobol/aws-mainframe-modernization-carddemo/CBACT01C.cbl": 1.0,
+      "cobol/aws-mainframe-modernization-carddemo/CBACT02C.cbl": 1.0,
+      "cobol/aws-mainframe-modernization-carddemo/CBACT03C.cbl": 1.0,
+      "cobol/aws-mainframe-modernization-carddemo/CBACT04C.cbl": 1.0,
+      "cobol/aws-mainframe-modernization-carddemo/CBCUS01C.cbl": 1.0,
+      "cobol/aws-mainframe-modernization-carddemo/CBTRN01C.cbl": 1.0,
+      "cobol/aws-mainframe-modernization-carddemo/CBTRN02C.cbl": 1.0,
+      "cobol/aws-mainframe-modernization-carddemo/CBTRN03C.cbl": 1.0,
+      "cobol/aws-mainframe-modernization-carddemo/COACTUP.CPY": 1.0,
+      "cobol/aws-mainframe-modernization-carddemo/COACTUPC.cbl": 1.0,
+      "cobol/aws-mainframe-modernization-carddemo/COACTVW.CPY": 1.0,
+      "cobol/aws-mainframe-modernization-carddemo/COACTVWC.cbl": 1.0,
+      "cobol/aws-mainframe-modernization-carddemo/COADM01.CPY": 1.0,
+      "cobol/aws-mainframe-modernization-carddemo/COADM01C.cbl": 1.0,
+      "cobol/aws-mainframe-modernization-carddemo/COADM02Y.cpy": 1.0,
+      "cobol/aws-mainframe-modernization-carddemo/COBIL00.CPY": 1.0,
+      "cobol/aws-mainframe-modernization-carddemo/COBIL00C.cbl": 1.0,
+      "cobol/aws-mainframe-modernization-carddemo/COCOM01Y.cpy": 1.0,
+      "cobol/aws-mainframe-modernization-carddemo/COCRDLI.CPY": 1.0,
+      "cobol/aws-mainframe-modernization-carddemo/COCRDLIC.cbl": 1.0,
+      "cobol/aws-mainframe-modernization-carddemo/COCRDSL.CPY": 1.0,
+      "cobol/aws-mainframe-modernization-carddemo/COCRDSLC.cbl": 1.0,
+      "cobol/aws-mainframe-modernization-carddemo/COCRDUP.CPY": 1.0,
+      "cobol/aws-mainframe-modernization-carddemo/COCRDUPC.cbl": 1.0,
+      "cobol/aws-mainframe-modernization-carddemo/COMEN01.CPY": 1.0,
+      "cobol/aws-mainframe-modernization-carddemo/COMEN01C.cbl": 1.0,
+      "cobol/aws-mainframe-modernization-carddemo/COMEN02Y.cpy": 1.0,
+      "cobol/aws-mainframe-modernization-carddemo/CORPT00.CPY": 1.0,
+      "cobol/aws-mainframe-modernization-carddemo/CORPT00C.cbl": 1.0,
+      "cobol/aws-mainframe-modernization-carddemo/COSGN00.CPY": 1.0,
+      "cobol/aws-mainframe-modernization-carddemo/COSGN00C.cbl": 1.0,
+      "cobol/aws-mainframe-modernization-carddemo/COTRN00.CPY": 1.0,
+      "cobol/aws-mainframe-modernization-carddemo/COTRN00C.cbl": 1.0,
+      "cobol/aws-mainframe-modernization-carddemo/COTRN01.CPY": 1.0,
+      "cobol/aws-mainframe-modernization-carddemo/COTRN01C.cbl": 1.0,
+      "cobol/aws-mainframe-modernization-carddemo/COTRN02.CPY": 1.0,
+      "cobol/aws-mainframe-modernization-carddemo/COTRN02C.cbl": 1.0,
+      "cobol/aws-mainframe-modernization-carddemo/COTTL01Y.cpy": 1.0,
+      "cobol/aws-mainframe-modernization-carddemo/COUSR00.CPY": 1.0,
+      "cobol/aws-mainframe-modernization-carddemo/COUSR00C.cbl": 1.0,
+      "cobol/aws-mainframe-modernization-carddemo/COUSR01.CPY": 1.0,
+      "cobol/aws-mainframe-modernization-carddemo/COUSR01C.cbl": 1.0,
+      "cobol/aws-mainframe-modernization-carddemo/COUSR02.CPY": 1.0,
+      "cobol/aws-mainframe-modernization-carddemo/COUSR02C.cbl": 1.0,
+      "cobol/aws-mainframe-modernization-carddemo/COUSR03.CPY": 1.0,
+      "cobol/aws-mainframe-modernization-carddemo/COUSR03C.cbl": 1.0,
+      "cobol/aws-mainframe-modernization-carddemo/CSDAT01Y.cpy": 1.0,
+      "cobol/aws-mainframe-modernization-carddemo/CSLKPCDY.cpy": 1.0,
+      "cobol/aws-mainframe-modernization-carddemo/CSMSG01Y.cpy": 1.0,
+      "cobol/aws-mainframe-modernization-carddemo/CSMSG02Y.cpy": 1.0,
+      "cobol/aws-mainframe-modernization-carddemo/CSSETATY.cpy": 1.0,
+      "cobol/aws-mainframe-modernization-carddemo/CSSTRPFY.cpy": 1.0,
+      "cobol/aws-mainframe-modernization-carddemo/CSUSR01Y.cpy": 1.0,
+      "cobol/aws-mainframe-modernization-carddemo/CSUTLDPY.cpy": 1.0,
+      "cobol/aws-mainframe-modernization-carddemo/CSUTLDTC.cbl": 1.0,
+      "cobol/aws-mainframe-modernization-carddemo/CSUTLDWY.cpy": 1.0,
+      "cobol/aws-mainframe-modernization-carddemo/CUSTREC.cpy": 1.0,
+      "cobol/aws-mainframe-modernization-carddemo/CVACT01Y.cpy": 1.0,
+      "cobol/aws-mainframe-modernization-carddemo/CVACT02Y.cpy": 1.0,
+      "cobol/aws-mainframe-modernization-carddemo/CVACT03Y.cpy": 1.0,
+      "cobol/aws-mainframe-modernization-carddemo/CVCRD01Y.cpy": 1.0,
+      "cobol/aws-mainframe-modernization-carddemo/CVCUS01Y.cpy": 1.0,
+      "cobol/aws-mainframe-modernization-carddemo/CVTRA01Y.cpy": 1.0,
+      "cobol/aws-mainframe-modernization-carddemo/CVTRA02Y.cpy": 1.0,
+      "cobol/aws-mainframe-modernization-carddemo/CVTRA03Y.cpy": 1.0,
+      "cobol/aws-mainframe-modernization-carddemo/CVTRA04Y.cpy": 1.0,
+      "cobol/aws-mainframe-modernization-carddemo/CVTRA05Y.cpy": 1.0,
+      "cobol/aws-mainframe-modernization-carddemo/CVTRA06Y.cpy": 1.0,
+      "cobol/aws-mainframe-modernization-carddemo/CVTRA07Y.cpy": 1.0,
+      "cobol/aws-mainframe-modernization-carddemo/DFHAID.cpy": 1.0,
+      "cobol/aws-mainframe-modernization-carddemo/DFHBMSCA.cpy": 1.0,
+      "cobol/aws-mainframe-modernization-carddemo/LICENSE.md": 1.0,
+      "cobol/aws-mainframe-modernization-carddemo/NOTICE.md": 1.0,
+      "cobol/aws-mainframe-modernization-carddemo/README.md": 1.0,
+      "cobol/aws-mainframe-modernization-carddemo/UNUSED1Y.cpy": 1.0
     },
     "cobol/cash-account-cobol": {
       "cobol/cash-account-cobol/CASH00.cbl": 0.0,
@@ -590,9 +602,11 @@
       "cobol/cash-account-cobol/DCLFRANK.cpy": 0.0
     },
     "cobol/che-che4z-lsp-for-cobol": {
-      "cobol/che-che4z-lsp-for-cobol/SQLCA_DATACOM.cpy": 0.0,
-      "cobol/che-che4z-lsp-for-cobol/SQLCA_DB2.cpy": 0.0,
-      "cobol/che-che4z-lsp-for-cobol/SQLDA.cpy": 0.0
+      "cobol/che-che4z-lsp-for-cobol/LICENSE.md": 1.0,
+      "cobol/che-che4z-lsp-for-cobol/NOTICE.md": 1.0,
+      "cobol/che-che4z-lsp-for-cobol/SQLCA_DATACOM.cpy": 1.0,
+      "cobol/che-che4z-lsp-for-cobol/SQLCA_DB2.cpy": 1.0,
+      "cobol/che-che4z-lsp-for-cobol/SQLDA.cpy": 1.0
     },
     "cobol/che-che4z_lsp_project_fixtures": {
       "cobol/che-che4z_lsp_project_fixtures/ABCD.cbl": 1.0,
@@ -1039,6 +1053,7 @@
       "cobol/gnucobol/xfhfcd3.cpy": 0.0
     },
     "cobol/gnucobol_internals": {
+      "cobol/gnucobol_internals/COPYING": 0.0,
       "cobol/gnucobol_internals/codegen.c": 0.0,
       "cobol/gnucobol_internals/fileio.c": 0.0,
       "cobol/gnucobol_internals/numeric.c": 0.0,
@@ -1065,7 +1080,7 @@
       "cobol/zopeneditor-sample/TRANREC.cpy": 0.0
     },
     "cpp": {
-      "cpp/SOURCES.md": 0.70992
+      "cpp/SOURCES.md": 0.85068
     },
     "cpp/NVDA": {
       "cpp/NVDA/CODE_OF_CONDUCT.md": 1.0,
@@ -1117,11 +1132,19 @@
       "cpp/powertoys/main.cpp": 0.0,
       "cpp/powertoys/powertoy_module.h": 0.0
     },
+    "cpp/serenity_ak_siphash_cpu": {
+      "cpp/serenity_ak_siphash_cpu/CPUFeatures.cpp": 0.0,
+      "cpp/serenity_ak_siphash_cpu/SipHash.cpp": 0.0
+    },
+    "csd": {
+      "csd/SOURCES.md": 0.357
+    },
     "csd/carddemo": {
       "csd/carddemo/CARDDEMO.CSD": 0.36312,
       "csd/carddemo/CRDDEMO2.csd": 0.36312,
       "csd/carddemo/CRDDEMOD.csd": 0.36312,
       "csd/carddemo/CRDDEMOM.csd": 0.36312,
+      "csd/carddemo/NOTICE": 0.36312,
       "csd/carddemo/PROVENANCE.md": 0.36312
     },
     "csd/cbsa": {
@@ -1133,7 +1156,7 @@
       "csd/z_sms_gateway/ZSMSCSD.csd": 0.20094
     },
     "csharp": {
-      "csharp/SOURCES.md": 0.3723
+      "csharp/SOURCES.md": 0.37128
     },
     "csharp/roslyn": {
       "csharp/roslyn/CSharpCompilation.cs": 0.0,
@@ -1207,6 +1230,9 @@
       "dart/flutter/semantics.dart": 0.0,
       "dart/flutter/theme_data.dart": 0.0
     },
+    "db2_sql": {
+      "db2_sql/SOURCES.md": 0.16932
+    },
     "db2_sql/db2unit": {
       "db2_sql/db2unit/00-Prereqs.sql": 0.23154000000000002,
       "db2_sql/db2unit/01-ObjectsAdmin.sql": 0.23154000000000002,
@@ -1216,6 +1242,7 @@
       "db2_sql/db2unit/07-Version.sql": 0.23154000000000002,
       "db2_sql/db2unit/98-Clean.sql": 0.23154000000000002,
       "db2_sql/db2unit/99-CleanAdmin.sql": 0.23154000000000002,
+      "db2_sql/db2unit/LICENSE.txt": 0.23154000000000002,
       "db2_sql/db2unit/PROVENANCE.md": 0.23154000000000002
     },
     "dockerfile": {
@@ -1294,7 +1321,7 @@
       "dockerfile/moby/test_targets/windows.Dockerfile": 0.0
     },
     "embedded_python": {
-      "embedded_python/SOURCES.md": 0.48246
+      "embedded_python/SOURCES.md": 0.49878
     },
     "embedded_python/meow_turtle": {
       "embedded_python/meow_turtle/actuators.py": 0.0,
@@ -1313,7 +1340,7 @@
       "embedded_python/meow_turtle/vibration_driver.py": 0.0
     },
     "fortran": {
-      "fortran/SOURCES.md": 0.28356000000000003
+      "fortran/SOURCES.md": 0.32232
     },
     "fortran/wrf": {
       "fortran/wrf/LICENSE.txt": 0.0,
@@ -1333,7 +1360,7 @@
       "fortran/wrf/wrf_timeseries.F": 0.0
     },
     "go": {
-      "go/SOURCES.md": 0.5773199999999999
+      "go/SOURCES.md": 0.7894800000000001
     },
     "go/core": {
       "go/core/PATENTS": 0.0,
@@ -1345,6 +1372,9 @@
       "go/core/syscall_linux.go": 0.0,
       "go/core/value.go": 0.0
     },
+    "go/go_runtime_rand": {
+      "go/go_runtime_rand/rand.go": 0.0
+    },
     "go/kubernetes": {
       "go/kubernetes/csi_plugin.go": 0.0,
       "go/kubernetes/generic.go": 0.0,
@@ -1353,6 +1383,9 @@
       "go/kubernetes/proxier.go": 0.0,
       "go/kubernetes/replica_set.go": 0.0,
       "go/kubernetes/scheduler.go": 0.0
+    },
+    "go/kubernetes_kubectl_tls": {
+      "go/kubernetes_kubectl_tls/create_secret_tls_test.go": 0.0
     },
     "groovy/fineract_gradle_plugin": {
       "groovy/fineract_gradle_plugin/LICENSE_RELEASE": 0.0,
@@ -1721,25 +1754,27 @@
       "haskell/pandoc/Shared.hs": 1.0
     },
     "hlasm": {
-      "hlasm/PROVENANCE.md": 0.4233
+      "hlasm/PROVENANCE.md": 0.77112,
+      "hlasm/SOURCES.md": 0.77112
     },
     "hlasm/che4z_hlasm": {
-      "hlasm/che4z_hlasm/A.hlasm": 0.0,
-      "hlasm/che4z_hlasm/AAAAA.hlasm": 0.0,
-      "hlasm/che4z_hlasm/B.hlasm": 0.0,
-      "hlasm/che4z_hlasm/BBBBB.hlasm": 0.0,
-      "hlasm/che4z_hlasm/CCCCC.hlasm": 0.0,
-      "hlasm/che4z_hlasm/code_action_1.hlasm": 0.0,
-      "hlasm/che4z_hlasm/code_action_2.hlasm": 0.0,
-      "hlasm/che4z_hlasm/comments.hlasm": 0.0,
-      "hlasm/che4z_hlasm/factorial.hlasm": 0.0,
-      "hlasm/che4z_hlasm/forward_dependency.hlasm": 0.0,
-      "hlasm/che4z_hlasm/infinite.hlasm": 0.0,
-      "hlasm/che4z_hlasm/output.hlasm": 0.0,
-      "hlasm/che4z_hlasm/remote.hlasm": 0.0,
-      "hlasm/che4z_hlasm/remote2.hlasm": 0.0,
-      "hlasm/che4z_hlasm/tutorial.hlasm": 0.0,
-      "hlasm/che4z_hlasm/virtual_file.hlasm": 0.0
+      "hlasm/che4z_hlasm/A.hlasm": 0.17490000000000003,
+      "hlasm/che4z_hlasm/AAAAA.hlasm": 0.17490000000000003,
+      "hlasm/che4z_hlasm/B.hlasm": 0.17490000000000003,
+      "hlasm/che4z_hlasm/BBBBB.hlasm": 0.17490000000000003,
+      "hlasm/che4z_hlasm/CCCCC.hlasm": 0.17490000000000003,
+      "hlasm/che4z_hlasm/NOTICE.md": 0.17490000000000003,
+      "hlasm/che4z_hlasm/code_action_1.hlasm": 0.17490000000000003,
+      "hlasm/che4z_hlasm/code_action_2.hlasm": 0.17490000000000003,
+      "hlasm/che4z_hlasm/comments.hlasm": 0.17490000000000003,
+      "hlasm/che4z_hlasm/factorial.hlasm": 0.17490000000000003,
+      "hlasm/che4z_hlasm/forward_dependency.hlasm": 0.17490000000000003,
+      "hlasm/che4z_hlasm/infinite.hlasm": 0.17490000000000003,
+      "hlasm/che4z_hlasm/output.hlasm": 0.17490000000000003,
+      "hlasm/che4z_hlasm/remote.hlasm": 0.17490000000000003,
+      "hlasm/che4z_hlasm/remote2.hlasm": 0.17490000000000003,
+      "hlasm/che4z_hlasm/tutorial.hlasm": 0.17490000000000003,
+      "hlasm/che4z_hlasm/virtual_file.hlasm": 0.17490000000000003
     },
     "hlasm/zecs": {
       "hlasm/zecs/ZECS002.asm": 0.0,
@@ -1750,7 +1785,7 @@
       "hlasm/zopeneditor_sample/REGISTRS.asm": 0.0
     },
     "hlo": {
-      "hlo/SOURCES.md": 0.28152000000000005
+      "hlo/SOURCES.md": 0.32436000000000004
     },
     "hlo/xla/gpu_emitters": {
       "hlo/xla/gpu_emitters/f4e2m1fn_intrinsics.hlo": 0.0,
@@ -1823,6 +1858,7 @@
       "html/polyglot_odoo/database_manager.qweb.html": 0.0
     },
     "html/polyglot_vscode": {
+      "html/polyglot_vscode/LICENSE.txt": 0.0,
       "html/polyglot_vscode/vscode_builtin.html": 0.0
     },
     "html/revealjs_decks": {
@@ -1854,7 +1890,18 @@
       "html/wordpress_blocks/search.html": 0.0
     },
     "java": {
-      "java/SOURCES.md": 0.38148
+      "java/SOURCES.md": 0.72624
+    },
+    "java/flutter_android_editing_tests": {
+      "java/flutter_android_editing_tests/InputConnectionAdaptorTest.java": 0.0
+    },
+    "java/jenkins_cli": {
+      "java/jenkins_cli/LICENSE.txt": 0.0,
+      "java/jenkins_cli/SetBuildDescriptionCommand.java": 0.0
+    },
+    "java/selenium_grid_session_queue": {
+      "java/selenium_grid_session_queue/NOTICE": 0.0,
+      "java/selenium_grid_session_queue/RemoteNewSessionQueue.java": 0.0
     },
     "java/springboot": {
       "java/springboot/AutoConfigurationImportSelector.java": 0.0,
@@ -1867,7 +1914,14 @@
       "java/springboot/WebMvcAutoConfiguration.java": 0.0
     },
     "javascript": {
-      "javascript/SOURCES.md": 0.714
+      "javascript/SOURCES.md": 1.0
+    },
+    "javascript/cesium_particle_emitters": {
+      "javascript/cesium_particle_emitters/CircleEmitter.js": 1.0,
+      "javascript/cesium_particle_emitters/LICENSE.md": 1.0
+    },
+    "javascript/javascript_algorithms_bits": {
+      "javascript/javascript_algorithms_bits/fullAdder.js": 0.0
     },
     "javascript/jquery": {
       "javascript/jquery/LICENSE.txt": 0.0,
@@ -1879,6 +1933,15 @@
       "javascript/jquery/event.js": 0.0,
       "javascript/jquery/tokenize.js": 0.0
     },
+    "javascript/node_tls_security_tests": {
+      "javascript/node_tls_security_tests/regexp-unicode-sets.js": 0.0,
+      "javascript/node_tls_security_tests/test-crypto-dh-modp2.js": 0.0,
+      "javascript/node_tls_security_tests/test-fs-lchown.js": 0.0,
+      "javascript/node_tls_security_tests/test-https-host-headers.js": 0.0,
+      "javascript/node_tls_security_tests/test-tls-cert-ext-encoding.js": 0.0,
+      "javascript/node_tls_security_tests/test-tls-psk-server.js": 0.0,
+      "javascript/node_tls_security_tests/test-tls-use-after-free-regression.js": 0.0
+    },
     "javascript/react": {
       "javascript/react/BabelPlugin.ts": 0.0,
       "javascript/react/ReactFiberBeginWork.js": 0.0,
@@ -1886,6 +1949,9 @@
       "javascript/react/ReactFlightServer.js": 0.0,
       "javascript/react/ReactSymbols.js": 0.0,
       "javascript/react/build.js": 0.0
+    },
+    "javascript/react_error_codes": {
+      "javascript/react_error_codes/extract-errors.js": 0.0
     },
     "javascript/threejs": {
       "javascript/threejs/BufferGeometry.js": 0.0,
@@ -2118,7 +2184,7 @@
       "kotlin/okhttp/build.gradle.kts": 0.0
     },
     "livecode": {
-      "livecode/SOURCES.md": 0.6864600000000001
+      "livecode/SOURCES.md": 0.63138
     },
     "livecode/livecode": {
       "livecode/livecode/_clipboard_private_setter.livecodescript": 0.0,
@@ -2278,6 +2344,7 @@
       "lua/darwin-xnu/wqtrace.lua": 0.0
     },
     "lua/freebsd-src": {
+      "lua/freebsd-src/COPYRIGHT": 0.0,
       "lua/freebsd-src/cli.lua": 0.0,
       "lua/freebsd-src/color.lua": 0.0,
       "lua/freebsd-src/config.lua": 0.0,
@@ -2348,7 +2415,7 @@
       "lua/redis/xd.lua": 0.0
     },
     "m4": {
-      "m4/SOURCES.md": 0.5752799999999999
+      "m4/SOURCES.md": 0.56508
     },
     "m4/curl": {
       "m4/curl/COPYING": 0.0,
@@ -2366,11 +2433,21 @@
       "m4/gnucobol/configure.ac": 0.0
     },
     "makefile": {
-      "makefile/SOURCES.md": 0.28254
+      "makefile/SOURCES.md": 0.32436000000000004
     },
     "makefile/freebsd": {
       "makefile/freebsd/COPYRIGHT": 0.0,
       "makefile/freebsd/Makefile": 0.0
+    },
+    "markdown": {
+      "markdown/SOURCES.md": 0.29988
+    },
+    "markdown/airflow_job_lifecycle": {
+      "markdown/airflow_job_lifecycle/JOB_LIFECYCLE.md": 1.0,
+      "markdown/airflow_job_lifecycle/NOTICE": 1.0
+    },
+    "markdown/kubernetes_client_go": {
+      "markdown/kubernetes_client_go/ARCHITECTURE.md": 1.0
     },
     "matlab": {
       "matlab/SOURCES.md": 0.37332
@@ -2395,11 +2472,12 @@
       "mlir/tensorflow/compiler/mlir/tfrt/tests/mlrt/tpu_conversions.mlir": 0.0
     },
     "nix": {
-      "nix/SOURCES.md": 0.58038
+      "nix/SOURCES.md": 0.5813999999999999
     },
     "nix/bun": {
-      "nix/bun/flake.nix": 0.0,
-      "nix/bun/shell.nix": 0.0
+      "nix/bun/LICENSE.md": 1.0,
+      "nix/bun/flake.nix": 1.0,
+      "nix/bun/shell.nix": 1.0
     },
     "nix/ghostty": {
       "nix/ghostty/build.zig": 0.0,
@@ -2408,7 +2486,7 @@
       "nix/ghostty/shell.nix": 0.0
     },
     "objective-c": {
-      "objective-c/SOURCES.md": 0.38556
+      "objective-c/SOURCES.md": 0.39066
     },
     "objective-c/worldwideweb": {
       "objective-c/worldwideweb/Anchor.m": 0.0,
@@ -2419,7 +2497,11 @@
       "objective-c/worldwideweb/TcpAccess.m": 0.0
     },
     "perl": {
-      "perl/SOURCES.md": 0.98022
+      "perl/SOURCES.md": 1.0
+    },
+    "perl/ack3_tests": {
+      "perl/ack3_tests/LICENSE.md": 1.0,
+      "perl/ack3_tests/file-permission.t": 1.0
     },
     "perl/bugzilla": {
       "perl/bugzilla/Auth.pm": 0.0,
@@ -2475,6 +2557,10 @@
       "php/laravel_core/Model.php": 0.358,
       "php/laravel_core/Router.php": 0.358
     },
+    "php/laravel_validation_rules": {
+      "php/laravel_validation_rules/Can.php": 0.358,
+      "php/laravel_validation_rules/LICENSE.md": 0.358
+    },
     "php/magento2": {
       "php/magento2/AbstractBlock.php": 0.0,
       "php/magento2/AbstractModel.php": 0.0,
@@ -2494,6 +2580,9 @@
       "php/symfony/Request.php": 0.0,
       "php/symfony/Router.php": 0.0
     },
+    "php/symfony_emoji_data": {
+      "php/symfony_emoji_data/emoji-ccp.php": 0.0
+    },
     "php/wordpress": {
       "php/wordpress/admin-ajax.php": 0.0,
       "php/wordpress/class-wp-query.php": 0.0,
@@ -2505,9 +2594,10 @@
       "php/wordpress/wp-settings.php": 0.0
     },
     "plaintext": {
-      "plaintext/SOURCES.md": 0.83946
+      "plaintext/SOURCES.md": 0.80478
     },
     "plaintext/ansible": {
+      "plaintext/ansible/COPYING": 0.0,
       "plaintext/ansible/requirements.txt": 0.0
     },
     "plaintext/cpython/Lib/test/tokenizedata": {
@@ -2521,6 +2611,9 @@
     },
     "plaintext/opencv/include": {
       "plaintext/opencv/include/CMakeLists.txt": 0.0
+    },
+    "pli": {
+      "pli/SOURCES.md": 0.25602
     },
     "pli/dsf_cics_admin": {
       "pli/dsf_cics_admin/LICENSE.md": 0.89352,
@@ -2543,7 +2636,7 @@
       "pli/zopeneditor_sample/PSAM2.pli": 0.13158
     },
     "powershell": {
-      "powershell/SOURCES.md": 0.5773199999999999
+      "powershell/SOURCES.md": 0.56406
     },
     "powershell/PowerToys": {
       "powershell/PowerToys/Build-Awake.ps1": 0.0,
@@ -2700,15 +2793,33 @@
       "python/SOURCES.md": 1.0
     },
     "python/airflow": {
+      "python/airflow/NOTICE": 0.0,
       "python/airflow/dag.py": 0.0,
       "python/airflow/s3.py": 0.0,
       "python/airflow/scheduler_job_runner.py": 0.0
     },
+    "python/airflow_ai_providers": {
+      "python/airflow_ai_providers/NOTICE": 0.0,
+      "python/airflow_ai_providers/openai_src_airflow_providers_openai_hooks_openai.py": 0.0,
+      "python/airflow_ai_providers/pinecone_src_airflow_providers_pinecone_hooks_pinecone.py": 0.0,
+      "python/airflow_ai_providers/pinecone_src_airflow_providers_pinecone_operators_pinecone.py": 0.0,
+      "python/airflow_ai_providers/pinecone_tests_system_pinecone_example_pinecone_cohere.py": 0.0
+    },
+    "python/airflow_opsgenie_tests": {
+      "python/airflow_opsgenie_tests/NOTICE": 0.0,
+      "python/airflow_opsgenie_tests/test_opsgenie.py": 0.0
+    },
     "python/cython": {
+      "python/cython/COPYING.txt": 0.0,
       "python/cython/CodeGeneration.py": 0.0,
+      "python/cython/LICENSE.txt": 0.0,
       "python/cython/MemoryView.pxd": 0.0,
       "python/cython/MemoryView.pyx": 0.0,
       "python/cython/Nodes.py": 0.0
+    },
+    "python/django_db_tests": {
+      "python/django_db_tests/test_iterator.py": 0.0,
+      "python/django_db_tests/test_utils.py": 0.0
     },
     "python/fastapi": {
       "python/fastapi/CONTRIBUTING.md": 1.0,
@@ -2947,6 +3058,26 @@
       "python/fastapi/tests/test_ws_router.py": 0.0,
       "python/fastapi/tests/utils.py": 0.0
     },
+    "python/homeassistant_anthropic": {
+      "python/homeassistant_anthropic/LICENSE.md": 1.0,
+      "python/homeassistant_anthropic/coordinator.py": 1.0
+    },
+    "python/homeassistant_ble_integrations": {
+      "python/homeassistant_ble_integrations/LICENSE.md": 1.0,
+      "python/homeassistant_ble_integrations/aranet___init__.py": 1.0,
+      "python/homeassistant_ble_integrations/gardena_bluetooth___init__.py": 1.0,
+      "python/homeassistant_ble_integrations/utils.py": 1.0
+    },
+    "python/langchain_agents": {
+      "python/langchain_agents/langchain_agents_middleware_model_fallback.py": 0.0,
+      "python/langchain_agents/langchain_agents_middleware_tool_emulator.py": 0.0,
+      "python/langchain_agents/tests_integration_tests_chat_models_test_base.py": 0.0
+    },
+    "python/micropython_usb_tls": {
+      "python/micropython_usb_tls/ssl_verify_callback.py": 0.0,
+      "python/micropython_usb_tls/tls_dtls.py": 0.0,
+      "python/micropython_usb_tls/usb_simple_host_pyusb.py": 0.0
+    },
     "python/numpy": {
       "python/numpy/LICENSE.txt": 1.0,
       "python/numpy/__init__.py": 1.0,
@@ -2967,6 +3098,27 @@
       "python/numpy/ufunc_docstrings.py": 1.0,
       "python/numpy/verify_c_api_version.py": 1.0
     },
+    "python/opencv_dnn_conversion": {
+      "python/opencv_dnn_conversion/py_to_py_resnet50_onnx.py": 0.0
+    },
+    "python/pip_vendored_requests": {
+      "python/pip_vendored_requests/LICENSE.txt": 0.0,
+      "python/pip_vendored_requests/packages.py": 0.0
+    },
+    "python/scikit-learn_examples": {
+      "python/scikit-learn_examples/COPYING": 0.0,
+      "python/scikit-learn_examples/linear_model_plot_nnls.py": 0.0,
+      "python/scikit-learn_examples/svm_plot_custom_kernel.py": 0.0
+    },
+    "python/tensorflow_ml_ops": {
+      "python/tensorflow_ml_ops/core_tfrt_saved_model_tests_gen_matmul_gpu.py": 0.0,
+      "python/tensorflow_ml_ops/lite_testing_op_tests_einsum.py": 0.0
+    },
+    "python/thealgorithms_machine_learning": {
+      "python/thealgorithms_machine_learning/LICENSE.md": 0.3723,
+      "python/thealgorithms_machine_learning/logistic_regression.py": 0.3723,
+      "python/thealgorithms_machine_learning/lstm_lstm_prediction.py": 0.3723
+    },
     "python/twisted": {
       "python/twisted/defer.py": 0.0,
       "python/twisted/http.py": 0.0,
@@ -2982,39 +3134,45 @@
       "python/wtfpython/noxfile.py": 1.0
     },
     "rexx": {
-      "rexx/PROVENANCE.md": 0.18359999999999999
+      "rexx/PROVENANCE.md": 0.61098,
+      "rexx/SOURCES.md": 0.61098
+    },
+    "rexx/hercules_390_hyperion": {
+      "rexx/hercules_390_hyperion/COPYRIGHT": 0.0,
+      "rexx/hercules_390_hyperion/sample.rexx": 0.0
     },
     "rexx/hercules_hyperion": {
+      "rexx/hercules_hyperion/COPYRIGHT": 0.0,
       "rexx/hercules_hyperion/cmpsc.rexx": 0.0,
       "rexx/hercules_hyperion/hbasic1.rexx": 0.0,
       "rexx/hercules_hyperion/hcommand.rexx": 0.0,
       "rexx/hercules_hyperion/hexecio.rexx": 0.0,
       "rexx/hercules_hyperion/hlinein.rexx": 0.0,
-      "rexx/hercules_hyperion/hrecurs.rexx": 0.0,
-      "rexx/hercules_hyperion/sample.rexx": 0.0
+      "rexx/hercules_hyperion/hrecurs.rexx": 0.0
     },
     "rexx/ibm_z_zos": {
-      "rexx/ibm_z_zos/bpxget.rexx": 0.0,
-      "rexx/ibm_z_zos/bpxput.rexx": 0.0,
-      "rexx/ibm_z_zos/bpxwtabs.rexx": 0.0,
-      "rexx/ibm_z_zos/colonies.rexx": 0.0,
-      "rexx/ibm_z_zos/devinfo.rexx": 0.0,
-      "rexx/ibm_z_zos/domchk.rexx": 0.0,
-      "rexx/ibm_z_zos/ftpget.rexx": 0.0,
-      "rexx/ibm_z_zos/i.rexx": 0.0,
-      "rexx/ibm_z_zos/jobwait.rexx": 0.0,
-      "rexx/ibm_z_zos/rangelks.rexx": 0.0,
-      "rexx/ibm_z_zos/rangelks2.rexx": 0.0,
-      "rexx/ibm_z_zos/which.rexx": 0.0,
-      "rexx/ibm_z_zos/wjsacl.rexx": 0.0,
-      "rexx/ibm_z_zos/wjscrck.rexx": 0.0,
-      "rexx/ibm_z_zos/wjsdvino.rexx": 0.0,
-      "rexx/ibm_z_zos/wjssh.rexx": 0.0,
-      "rexx/ibm_z_zos/wjssmfr.rexx": 0.0,
-      "rexx/ibm_z_zos/wjsst92.rexx": 0.0
+      "rexx/ibm_z_zos/LICENSE.md": 1.0,
+      "rexx/ibm_z_zos/bpxget.rexx": 1.0,
+      "rexx/ibm_z_zos/bpxput.rexx": 1.0,
+      "rexx/ibm_z_zos/bpxwtabs.rexx": 1.0,
+      "rexx/ibm_z_zos/colonies.rexx": 1.0,
+      "rexx/ibm_z_zos/devinfo.rexx": 1.0,
+      "rexx/ibm_z_zos/domchk.rexx": 1.0,
+      "rexx/ibm_z_zos/ftpget.rexx": 1.0,
+      "rexx/ibm_z_zos/i.rexx": 1.0,
+      "rexx/ibm_z_zos/jobwait.rexx": 1.0,
+      "rexx/ibm_z_zos/rangelks.rexx": 1.0,
+      "rexx/ibm_z_zos/rangelks2.rexx": 1.0,
+      "rexx/ibm_z_zos/which.rexx": 1.0,
+      "rexx/ibm_z_zos/wjsacl.rexx": 1.0,
+      "rexx/ibm_z_zos/wjscrck.rexx": 1.0,
+      "rexx/ibm_z_zos/wjsdvino.rexx": 1.0,
+      "rexx/ibm_z_zos/wjssh.rexx": 1.0,
+      "rexx/ibm_z_zos/wjssmfr.rexx": 1.0,
+      "rexx/ibm_z_zos/wjsst92.rexx": 1.0
     },
     "ruby": {
-      "ruby/SOURCES.md": 0.3723
+      "ruby/SOURCES.md": 0.48552
     },
     "ruby/rails": {
       "ruby/rails/MIT-LICENSE": 0.0,
@@ -3026,10 +3184,16 @@
       "ruby/rails/metal.rb": 0.0,
       "ruby/rails/routing.rb": 0.0
     },
+    "ruby/rails_http_token_auth": {
+      "ruby/rails_http_token_auth/MIT-LICENSE": 0.0,
+      "ruby/rails_http_token_auth/http_token_authentication_test.rb": 0.0
+    },
     "rust": {
       "rust/SOURCES.md": 1.0
     },
     "rust/bevy": {
+      "rust/bevy/LICENSE-APACHE": 0.0,
+      "rust/bevy/LICENSE-MIT": 0.0,
       "rust/bevy/bevy_ecs_macros.rs": 0.0,
       "rust/bevy/bevy_ecs_query.rs": 0.0,
       "rust/bevy/bevy_ecs_table.rs": 0.0,
@@ -3037,6 +3201,12 @@
       "rust/bevy/bevy_reflect_path.rs": 0.0,
       "rust/bevy/bevy_render_phase.rs": 0.0,
       "rust/bevy/bevy_schedule_graph.rs": 0.0
+    },
+    "rust/bevy_asset_examples": {
+      "rust/bevy_asset_examples/LICENSE-APACHE": 0.0,
+      "rust/bevy_asset_examples/LICENSE-MIT": 0.0,
+      "rust/bevy_asset_examples/image_node.rs": 0.0,
+      "rust/bevy_asset_examples/rotation.rs": 0.0
     },
     "rust/holylang": {
       "rust/holylang/ast.rs": 0.0,
@@ -3048,6 +3218,8 @@
       "rust/holylang/transpiler.rs": 0.0
     },
     "rust/serde": {
+      "rust/serde/LICENSE-APACHE": 0.0,
+      "rust/serde/LICENSE-MIT": 0.0,
       "rust/serde/serde_core_de_impls.rs": 0.0,
       "rust/serde/serde_core_de_mod.rs": 0.0,
       "rust/serde/serde_core_macros.rs": 0.0,
@@ -3079,6 +3251,9 @@
       "rust/tokio/tests.rs": 0.0,
       "rust/tokio/tokio_mpsc_bounded.rs": 0.0,
       "rust/tokio/tokio_named_pipe.rs": 0.0
+    },
+    "rust/tokio_util_rand": {
+      "rust/tokio_util_rand/rand.rs": 0.0
     },
     "rust/wasmtime": {
       "rust/wasmtime/wasmtime_component_macro.rs": 0.0,
@@ -3194,6 +3369,7 @@
       "shell/darwin-xnu/xcrun_cache.sh": 0.0
     },
     "shell/freebsd-src": {
+      "shell/freebsd-src/COPYRIGHT": 0.0,
       "shell/freebsd-src/chflags_test.sh": 0.0,
       "shell/freebsd-src/chmod_test.sh": 0.0,
       "shell/freebsd-src/cp_test.sh": 0.0,
@@ -3220,6 +3396,10 @@
       "shell/freebsd-src/runulp.sh": 0.0,
       "shell/freebsd-src/timeout_test.sh": 0.0,
       "shell/freebsd-src/ztest.sh": 0.0
+    },
+    "shell/freebsd_sysbuild": {
+      "shell/freebsd_sysbuild/COPYRIGHT": 0.0,
+      "shell/freebsd_sysbuild/sysbuild.sh": 0.0
     },
     "shell/haiku": {
       "shell/haiku/HardwareChecker.sh": 0.547,
@@ -3402,7 +3582,7 @@
       "shell/sqlite/warnings-clang.sh": 1.0
     },
     "solidity": {
-      "solidity/SOURCES.md": 0.28356000000000003
+      "solidity/SOURCES.md": 0.3315
     },
     "solidity/openzeppelin": {
       "solidity/openzeppelin/AccessControl.sol": 0.0,
@@ -3414,28 +3594,31 @@
       "solidity/openzeppelin/StorageSlot.sol": 0.0
     },
     "sql": {
-      "sql/SOURCES.md": 0.5202
+      "sql/SOURCES.md": 1.0
     },
     "sql/baseline": {
       "sql/baseline/schema.php": 0.0
     },
-    "sql/mysql/mediawiki": {
-      "sql/mysql/mediawiki/COPYING": 0.0,
-      "sql/mysql/mediawiki/blobs.sql": 0.0
+    "sql/mediawiki_mysql": {
+      "sql/mediawiki_mysql/COPYING": 0.0,
+      "sql/mediawiki_mysql/blobs.sql": 0.0
     },
-    "sql/mysql/spamassassin": {
-      "sql/mysql/spamassassin/neural_mysql.sql": 0.0
+    "sql/mediawiki_postgresql": {
+      "sql/mediawiki_postgresql/COPYING": 0.0,
+      "sql/mediawiki_postgresql/tables.sql": 0.0
     },
-    "sql/postgresql/mediawiki": {
-      "sql/postgresql/mediawiki/tables.sql": 0.0
-    },
-    "sql/postgresql/sqlmap": {
-      "sql/postgresql/sqlmap/dns_request.sql": 0.0
+    "sql/spamassassin_mysql": {
+      "sql/spamassassin_mysql/NOTICE": 0.0,
+      "sql/spamassassin_mysql/neural_mysql.sql": 0.0
     },
     "sql/sqlite": {
-      "sql/sqlite/000-mandelbrot.sql": 0.0,
-      "sql/sqlite/001-sudoku.sql": 0.0,
-      "sql/sqlite/dotcmd01.sql": 0.0
+      "sql/sqlite/000-mandelbrot.sql": 1.0,
+      "sql/sqlite/001-sudoku.sql": 1.0,
+      "sql/sqlite/LICENSE.md": 1.0,
+      "sql/sqlite/dotcmd01.sql": 1.0
+    },
+    "sql/sqlmap_postgresql": {
+      "sql/sqlmap_postgresql/dns_request.sql": 0.0
     },
     "sqlite": {
       "sqlite/SOURCES.md": 1.0
@@ -3538,7 +3721,7 @@
       "sqlite/yii2_sqlite_schema/tests_data_sqlite.sql": 0.508
     },
     "swift": {
-      "swift/SOURCES.md": 0.38454
+      "swift/SOURCES.md": 0.37434
     },
     "swift/alamofire": {
       "swift/alamofire/AFError.swift": 0.0,
@@ -3550,7 +3733,7 @@
       "swift/alamofire/Session.swift": 0.0
     },
     "tabular": {
-      "tabular/SOURCES.md": 0.41616
+      "tabular/SOURCES.md": 0.4947
     },
     "tabular/baseline": {
       "tabular/baseline/control_standard.csv": 0.0,
@@ -3600,6 +3783,7 @@
       "tcl/macports_registry/registry_util.tcl": 0.0
     },
     "tcl/sqlite": {
+      "tcl/sqlite/LICENSE.md": 1.0,
       "tcl/sqlite/README.md": 1.0,
       "tcl/sqlite/malloc_common.tcl": 1.0,
       "tcl/sqlite/speedtest.tcl": 1.0,
@@ -3644,6 +3828,9 @@
     "typescript": {
       "typescript/SOURCES.md": 1.0
     },
+    "typescript/angular_zonejs_mocha": {
+      "typescript/angular_zonejs_mocha/mocha.ts": 0.0
+    },
     "typescript/assemblyscript": {
       "typescript/assemblyscript/asconfig.json": 0.0,
       "typescript/assemblyscript/ast.ts": 0.0,
@@ -3651,12 +3838,30 @@
       "typescript/assemblyscript/package.json": 0.0,
       "typescript/assemblyscript/parser.ts": 0.0
     },
+    "typescript/effect_ai_anthropic": {
+      "typescript/effect_ai_anthropic/AnthropicTokenizer.ts": 0.0
+    },
+    "typescript/excalibur_math": {
+      "typescript/excalibur_math/LICENSE.md": 0.439,
+      "typescript/excalibur_math/collision_colliders_separating-axis.ts": 0.439,
+      "typescript/excalibur_math/math_ray.ts": 0.439
+    },
+    "typescript/excalidraw_text_wrapping": {
+      "typescript/excalidraw_text_wrapping/textWrapping.ts": 0.0
+    },
     "typescript/fp-ts": {
       "typescript/fp-ts/Either.ts": 0.0,
       "typescript/fp-ts/HKT.ts": 0.0,
       "typescript/fp-ts/TaskEither.ts": 0.0,
       "typescript/fp-ts/package.json": 0.0,
       "typescript/fp-ts/pipeable.ts": 0.0
+    },
+    "typescript/nx_util_ai": {
+      "typescript/nx_util_ai/nx-dev_pages_api_query-ai-handler.ts": 0.0,
+      "typescript/nx_util_ai/util-ai_src_lib_moderation.ts": 0.0
+    },
+    "typescript/pixijs_examples": {
+      "typescript/pixijs_examples/events_dragging.ts": 0.0
     },
     "typescript/playwright": {
       "typescript/playwright/NOTICE": 1.0,
@@ -3693,17 +3898,19 @@
       "typescript/zod/tsconfig.json": 0.0
     },
     "xml": {
-      "xml/SOURCES.md": 0.85476
+      "xml/SOURCES.md": 0.9027000000000001
     },
     "xml/apex": {
-      "xml/apex/CanTheUser_Tests.cls": 0.0,
-      "xml/apex/CanTheUser_Tests.cls-meta.xml": 0.0,
-      "xml/apex/IterationRecipes_Tests.cls": 0.0,
-      "xml/apex/IterationRecipes_Tests.cls-meta.xml": 0.0,
-      "xml/apex/ListSortingRecipes_Tests.cls": 0.0,
-      "xml/apex/ListSortingRecipes_Tests.cls-meta.xml": 0.0
+      "xml/apex/CanTheUser_Tests.cls": 1.0,
+      "xml/apex/CanTheUser_Tests.cls-meta.xml": 1.0,
+      "xml/apex/IterationRecipes_Tests.cls": 1.0,
+      "xml/apex/IterationRecipes_Tests.cls-meta.xml": 1.0,
+      "xml/apex/LICENSE.md": 1.0,
+      "xml/apex/ListSortingRecipes_Tests.cls": 1.0,
+      "xml/apex/ListSortingRecipes_Tests.cls-meta.xml": 1.0
     },
     "xml/jenkins": {
+      "xml/jenkins/LICENSE.txt": 0.0,
       "xml/jenkins/XStreamDOMTest.data1.xml": 0.0,
       "xml/jenkins/XStreamDOMTest.data2.xml": 0.0,
       "xml/jenkins/excludesFilter.xml": 0.0
@@ -3733,7 +3940,7 @@
       "xml/springboot/resources/pom.xml": 0.0
     },
     "yacc": {
-      "yacc/SOURCES.md": 0.28152000000000005
+      "yacc/SOURCES.md": 0.32334
     },
     "yacc/freebsd": {
       "yacc/freebsd/COPYRIGHT": 0.0,
@@ -3810,10 +4017,21 @@
       "zig/SOURCES.md": 1.0
     },
     "zig/bun": {
-      "zig/bun/MimallocArena.zig": 0.0,
-      "zig/bun/Parser.zig": 0.0,
-      "zig/bun/comptime_string_map.zig": 0.0,
-      "zig/bun/napi.zig": 0.0
+      "zig/bun/LICENSE.md": 1.0,
+      "zig/bun/MimallocArena.zig": 1.0,
+      "zig/bun/Parser.zig": 1.0,
+      "zig/bun/comptime_string_map.zig": 1.0,
+      "zig/bun/napi.zig": 1.0
+    },
+    "zig/mach": {
+      "zig/mach/Core.zig": 0.0,
+      "zig/mach/StringTable.zig": 0.0,
+      "zig/mach/collision.zig": 0.0,
+      "zig/mach/graph.zig": 0.0,
+      "zig/mach/main.zig": 0.0,
+      "zig/mach/module.zig": 0.0,
+      "zig/mach/testing.zig": 0.0,
+      "zig/mach/win32.zig": 0.0
     },
     "zig/tigerbeetle": {
       "zig/tigerbeetle/aof.zig": 0.0,
@@ -3836,6 +4054,9 @@
       "zig/zig/Zcu.zig": 0.0,
       "zig/zig/main.zig": 0.0
     },
+    "zig/zig_std_linux_mips": {
+      "zig/zig_std_linux_mips/mips.zig": 0.0
+    },
     "zig/zls": {
       "zig/zls/DocumentScope.zig": 0.0,
       "zig/zls/DocumentStore.zig": 0.0,
@@ -3844,16 +4065,6 @@
       "zig/zls/ast.zig": 0.0,
       "zig/zls/config_gen.zig": 0.0,
       "zig/zls/print_ast.zig": 0.0
-    },
-    "zig/zls/mach": {
-      "zig/zls/mach/Core.zig": 0.0,
-      "zig/zls/mach/StringTable.zig": 0.0,
-      "zig/zls/mach/collision.zig": 0.0,
-      "zig/zls/mach/graph.zig": 0.0,
-      "zig/zls/mach/main.zig": 0.0,
-      "zig/zls/mach/module.zig": 0.0,
-      "zig/zls/mach/testing.zig": 0.0,
-      "zig/zls/mach/win32.zig": 0.0
     }
   },
   "path": [

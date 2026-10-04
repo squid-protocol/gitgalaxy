@@ -28,7 +28,7 @@ from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any, Optional, Union, cast
 
-from gitgalaxy.core.aperture import ApertureFilter, InaccessibleArtifactError
+from gitgalaxy.core.aperture import DENIED_EXTENSION, ApertureFilter, InaccessibleArtifactError
 from gitgalaxy.core.call_resolver import confident_file_pairs, resolve_calls
 from gitgalaxy.core.detector import HAS_TIKTOKEN, _compiled_rules
 from gitgalaxy.core.function_graph import attach_function_metrics, function_metrics
@@ -55,7 +55,7 @@ from gitgalaxy.recorders.sbom_recorder import SbomRecorder
 from gitgalaxy.security.ai_appsec_sensor import AIAppSecSensor
 from gitgalaxy.security.dev_agent_firewall import DevAgentFirewall
 from gitgalaxy.security.security_auditor import HAS_NUMPY, HAS_PANDAS, HAS_XGBOOST, SecurityAuditor
-from gitgalaxy.security.security_lens import SecurityLens
+from gitgalaxy.security.security_lens import SecurityLens, detect_disguised_executable
 from gitgalaxy.standards.analysis_lens import (
     ASSET_MASKS,
     PATH_MODIFIERS,
@@ -383,10 +383,43 @@ def extract_raw_imports(import_regex: "re.Pattern[str]", content: str, lang_def:
                     re.split(r"\s+as\s+", item)[0].strip()
                     for item in extracted_path.replace("{", "").replace("}", "").split(",")
                 ]
+            quote = lang_def.get("import_name_quote")
             for item in items:
+                if quote:
+                    item = item.replace(quote, "")
                 if item:
                     tokens.add(item)
     return tokens
+
+
+# #3788: a JS/TS namespace import binds an ALIAS to a whole module -- `import * as ns from "x"`,
+# `import ns = require("x")`, `const ns = require("x")` -- and `ns.f()` then calls that module's
+# `f`. The alias is rarely the file's name, so the call resolver needs alias -> specifier.
+_NAMESPACE_IMPORT_LANGS = frozenset({"javascript", "typescript"})
+_NAMESPACE_IMPORT = re.compile(
+    r"""(?:\bimport\s+(?:type\s+)?\*\s*as\s+([A-Za-z_$][\w$]*)\s+from"""
+    r"""|\bimport\s+(?:type\s+)?([A-Za-z_$][\w$]*)\s*=\s*require\s*\("""
+    r"""|\b(?:const|let|var)\s+([A-Za-z_$][\w$]*)\s*=\s*require\s*\()"""
+    r"""\s*(['"])([^'"\n]{1,300})\4"""
+)
+
+
+def extract_namespace_imports(code: str, lang_id: str) -> dict[str, str]:
+    """#3788: `{alias: module specifier}` for a JS/TS file's namespace imports.
+
+    An alias bound twice to different modules is dropped (the call site cannot say which one
+    it means); the same module twice is kept.
+    """
+    if lang_id not in _NAMESPACE_IMPORT_LANGS or ("as" not in code and "require" not in code):
+        return {}
+    found: dict[str, str] = {}
+    clash: set[str] = set()
+    for m in _NAMESPACE_IMPORT.finditer(code):
+        alias = m.group(1) or m.group(2) or m.group(3)
+        spec = m.group(5)
+        if found.setdefault(alias, spec) != spec:
+            clash.add(alias)
+    return {a: sp for a, sp in found.items() if a not in clash}
 
 
 # #3595: a brace selector group opens right after an import-path separator
@@ -502,16 +535,20 @@ def _process_file_worker(rel_path: str) -> dict[str, Any]:
             phase_times["1_Aperture_Filter"] = time.perf_counter() - t_aperture
 
         if not is_valid:
-            # ---> NEW: THE BINARY ANALYSIS SENSOR <---
-            # Intercept binary and blacklisted extensions for deep inspection
-            if "Binary Format" in reason or "Blacklisted Extension" in reason or "Embedded Data Payload" in reason:
+            # ---> THE BINARY ANALYSIS SENSOR (#4126) <---
+            # A file whose extension Gate 1.3 denies is checked for executable magic at offset 0
+            # (ELF, PE/NE/LE, a self-consistent DOS MZ, Mach-O, Java class, wasm) -- and only when
+            # the extension claims an inert format (an image, an archive, a document...). The gate
+            # reads the reason's kind, not its wording: a reworded message once disconnected it.
+            # scan_binary()'s entropy and anywhere-in-8KB checks flagged 10.5% of ordinary denied
+            # files (compressed images, LFS pointers); it stays for binary_anomaly_detector.py.
+            if getattr(reason, "kind", "") == DENIED_EXTENSION:
                 try:
                     with open(full_path_str, "rb") as f:
-                        # Read the first 8KB to check headers and entropy
                         head = f.read(8192)
 
                     ext = Path(rel_path).suffix.lower()
-                    binary_threats = security.scan_binary(head, ext)
+                    binary_threats = detect_disguised_executable(head, ext)
 
                     if binary_threats:
                         logger.critical(f"🚨 BINARY ANALYSIS TRIGGERED: Weaponized binary detected at '{rel_path}'!")
@@ -540,7 +577,9 @@ def _process_file_worker(rel_path: str) -> dict[str, Any]:
                             "doc_loc": 0,
                             "raw_imports": [],
                             "popularity_hits": set(),
-                            "equations": binary_threats,
+                            # the snippet is evidence text, not a signal count: it rides in
+                            # threat_snippets below, never in the numeric equations
+                            "equations": {k: v for k, v in binary_threats.items() if k != "threat_snippet"},
                             # #368: the hit_vector above was computed but never
                             # attached, so scan_binary()'s findings only ever
                             # rode out on the non-durable "equations" dict and
@@ -659,7 +698,10 @@ def _process_file_worker(rel_path: str) -> dict[str, Any]:
                     is_minified = True
 
             vendor_paths = _worker_state["config"].get("APERTURE_CONFIG", {}).get("VENDOR_MINIFICATION_PATHS", [])
-            safe_path = full_path_str.replace("\\", "/")
+            # #4058: match the vendor markers against the path under the scan root (with a
+            # leading "/" so a top-level `vendor/` still matches), not the absolute path:
+            # a checkout under `.../vendor/...` would otherwise blank every file it holds.
+            safe_path = "/" + rel_path.replace("\\", "/")
 
             if re.search(r"\.min\.[a-z]+$", full_path_str, re.I) or any(v in safe_path for v in vendor_paths):
                 is_minified = True
@@ -922,7 +964,14 @@ def _process_file_worker(rel_path: str) -> dict[str, Any]:
                 except Exception:
                     logging.exception("Import extraction failed for language '%s'.", lang_id)
 
+            namespace_imports: dict[str, str] = {}
             if not is_inert:
+                try:
+                    namespace_imports = extract_namespace_imports(
+                        refraction.get("code_stream", content_buffer), lang_id
+                    )
+                except Exception:
+                    logging.exception("Namespace import extraction failed for language '%s'.", lang_id)
                 # #3660: a language's `_declaration_capture` (group 1: the name) over
                 # the code stream, so a commented-out declaration is never indexed.
                 declaration_regex = lang_defs.get(lang_id, {}).get("rules", {}).get("_declaration_capture")
@@ -1066,6 +1115,7 @@ def _process_file_worker(rel_path: str) -> dict[str, Any]:
             "raw_imports": sorted(raw_imports),
             "named_tokens": sorted(named_tokens),
             "declared_names": sorted(declared_names),
+            "namespace_imports": namespace_imports,
             # #3813: how the file's bytes became text -- the codec, and whether it was certain
             # (bom / utf-8 / utf-16-heuristic / declared) or a legacy guess (cp1252 / latin-1).
             "source_encoding": source.encoding,
@@ -2117,6 +2167,12 @@ class Orchestrator:
                     # ---> Tally both the extension AND the full filename
                     self.ext_tally[ext] = self.ext_tally.get(ext, 0) + 1
                     self.ext_tally[name] = self.ext_tally.get(name, 0) + 1
+                elif self._is_disguised_executable(self.root / path_obj, reason):
+                    # #4126: denied by extension but executable inside -- dispatch it so the
+                    # worker's Binary Analysis Sensor forges its threat artifact. It joins the
+                    # dispatch maps only, not the language census or the extension tallies.
+                    self.stem_map[rel_path] = rel_path
+                    self.file_size_map[rel_path] = size_bytes
                 else:
                     # Route directly to Unparsable Artifacts, bypassing the Multi-Processing pool
                     self.unparsable_files.append(
@@ -2183,6 +2239,10 @@ class Orchestrator:
                     # ---> Tally both the extension AND the full filename
                     self.ext_tally[ext] = self.ext_tally.get(ext, 0) + 1
                     self.ext_tally[name] = self.ext_tally.get(name, 0) + 1
+                elif self._is_disguised_executable(full_p, reason):
+                    # #4126: see the git census above
+                    self.stem_map[rel_p] = rel_p
+                    self.file_size_map[rel_p] = size_bytes
                 else:
                     self.unparsable_files.append(
                         {
@@ -2193,6 +2253,23 @@ class Orchestrator:
                         }
                     )
                     self._record_anomaly(rel_p, reason)
+
+    @staticmethod
+    def _is_disguised_executable(full_path: Path, reason: Any) -> bool:
+        """#4126: a file Gate 1.3 denied by extension whose first bytes are an executable.
+
+        Census routes every denied file straight to the unparsable list, so without this
+        the worker's Binary Analysis Sensor never sees one. Only an extension that claims
+        an inert format (image, archive, document...) with executable magic at offset 0
+        qualifies -- see security_lens.detect_disguised_executable()."""
+        if getattr(reason, "kind", "") != DENIED_EXTENSION:
+            return False
+        try:
+            with open(full_path, "rb") as fh:
+                head = fh.read(8192)
+        except OSError:
+            return False
+        return bool(detect_disguised_executable(head, Path(full_path).suffix.lower()))
 
     def _extract_features_parallel(self):
         """
@@ -2404,7 +2481,9 @@ class Orchestrator:
         Runs after the import graph (step 3 of the ladder reads its edges). The
         per-step counts are logged here and kept on `fcall_stats` for #3331.
         """
-        self.fcall_sites, self.fcall_stats = resolve_calls(self.parsed_files, self.network_sensor.dependency_edges)
+        self.fcall_sites, self.fcall_stats = resolve_calls(
+            self.parsed_files, self.network_sensor.dependency_edges, self.network_sensor.namespace_aliases
+        )
         by_step = self.fcall_stats.get("by_step", {})
         logger.info(
             "Call Resolver: %d call pairs -> %s",

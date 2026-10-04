@@ -1,0 +1,149 @@
+{
+ "kind": "cics",
+ "corpus": "dbb-mortgage-application",
+ "program": "EPSCMORT",
+ "program_source": "zBuilder/MortgageApplication/cobol/epscmort.cbl",
+ "copy_dirs": [
+  "zBuilder/MortgageApplication/copybook"
+ ],
+ "subprograms": [
+  "zBuilder/MortgageApplication/cobol/epsnbrvl.cbl"
+ ],
+ "transid": "EPSP",
+ "clock": "2026/10/03 10:30:15.00",
+ "datasets": {
+  "EPSMORTF": {
+   "input": "@case/epsmortf.txt",
+   "copybook": "zBuilder/MortgageApplication/copybook/epsmortf.cpy",
+   "record": "MORTGAGE-COMPANY-INFO",
+   "csd": {
+    "organization": "ESDS",
+    "reclen": 56,
+    "why": "the repository ships no CSD or IDCAMS DEFINE for EPSMORTF; EPSMLIST browses it by RBA (STARTBR ... RBA, which IBM allows only on an ESDS or a KSDS base) and reads it INTO MORTGAGE-COMPANY-INFO (COPY EPSMORTF), 56 bytes: an ESDS of fixed 56-byte records, the four companies in arrival order"
+   }
+  }
+ },
+ "db2": {
+  "ddl": [],
+  "compare": []
+ },
+ "commarea": {
+  "segments": [
+   {
+    "copybook": "zBuilder/MortgageApplication/cobol/epscmort.cbl",
+    "record": "DFHCOMMAREA"
+   }
+  ]
+ },
+ "screens": {
+  "EPMENU": {
+   "copybook": "@bms/EPSMORT.cpy",
+   "input": "EPMENUI",
+   "output": "EPMENUO"
+  },
+  "EPSMLIS": {
+   "copybook": "@bms/EPSMLIS.cpy",
+   "input": "EPSMLISI",
+   "output": "EPSMLISO"
+  }
+ },
+ "scenarios": [
+  {
+   "name": "first-entry",
+   "aid": "DFHENTER",
+   "commarea": null,
+   "why": "EIBCALEN 0: A805 runs its SELECT FROM SYSIBM.SYSDUMMY1 (SQLCODE 0, MSGERRO untouched); LOW-VALUES into EPMENUO, SEND MAP EPMENU ERASE CURSOR; PROCESS-INDICATOR '3'; RETURN TRANSID('EPSP') with the 106-byte COMMAREA"
+  },
+  {
+   "name": "clear",
+   "aid": "DFHCLEAR",
+   "commarea": {
+    "PROCESS-INDICATOR": "3",
+    "EPSPCOM-PRINCIPLE-DATA": "250000.00",
+    "EPSPCOM-NUMBER-OF-YEARS": 30,
+    "EPSPCOM-QUOTED-INTEREST-RATE": "5.125",
+    "EPSPCOM-YEAR-MONTH-IND": "Y"
+   },
+   "why": "CLEAR: the map is cleared and sent again with ERASE; the COMMAREA goes back as received"
+  },
+  {
+   "name": "pf3-at-menu",
+   "aid": "DFHPF3",
+   "commarea": {
+    "PROCESS-INDICATOR": "3",
+    "EPSPCOM-PRINCIPLE-DATA": "250000.00",
+    "EPSPCOM-NUMBER-OF-YEARS": 30,
+    "EPSPCOM-QUOTED-INTEREST-RATE": "5.125",
+    "EPSPCOM-YEAR-MONTH-IND": "Y"
+   },
+   "why": "PF3 with PROCESS-INDICATOR '3': SEND TEXT 'END OF TRANSACTION - THANK YOU' ERASE FREEKB, then a plain RETURN (no TRANSID)"
+  },
+  {
+   "name": "pf12-at-menu",
+   "aid": "DFHPF12",
+   "commarea": {
+    "PROCESS-INDICATOR": "3",
+    "EPSPCOM-PRINCIPLE-DATA": "250000.00",
+    "EPSPCOM-NUMBER-OF-YEARS": 30,
+    "EPSPCOM-QUOTED-INTEREST-RATE": "5.125",
+    "EPSPCOM-YEAR-MONTH-IND": "Y"
+   },
+   "why": "PF12 is the same WHEN as PF3 (DFHPF3 OR DFHPF12)"
+  },
+  {
+   "name": "pf3-from-list",
+   "aid": "DFHPF3",
+   "commarea": {
+    "PROCESS-INDICATOR": "9",
+    "EPSPCOM-PRINCIPLE-DATA": "250000.00",
+    "EPSPCOM-NUMBER-OF-YEARS": 30,
+    "EPSPCOM-QUOTED-INTEREST-RATE": "5.125",
+    "EPSPCOM-YEAR-MONTH-IND": "Y"
+   },
+   "why": "PF3 with PROCESS-INDICATOR '9' (back from the company list): SEND TEXT of one blank ERASE FREEKB, SEND MAP FROM(EPMENUO) with no ERASE/DATAONLY (SEND-ALL), indicator back to '3', RETURN TRANSID"
+  },
+  {
+   "name": "other-key-from-list",
+   "aid": "DFHPF5",
+   "commarea": {
+    "PROCESS-INDICATOR": "9",
+    "EPSPCOM-PRINCIPLE-DATA": "250000.00",
+    "EPSPCOM-NUMBER-OF-YEARS": 30,
+    "EPSPCOM-QUOTED-INTEREST-RATE": "5.125",
+    "EPSPCOM-YEAR-MONTH-IND": "Y"
+   },
+   "why": "WHEN OTHER with indicator '9': nothing to calculate; RETURN TRANSID('EPSP') with the COMMAREA unchanged"
+  },
+  {
+   "name": "pf9-list",
+   "aid": "DFHPF9",
+   "commarea": {
+    "PROCESS-INDICATOR": "3",
+    "EPSPCOM-PRINCIPLE-DATA": "200000.00",
+    "EPSPCOM-NUMBER-OF-YEARS": 30,
+    "EPSPCOM-QUOTED-INTEREST-RATE": "3.500",
+    "EPSPCOM-YEAR-MONTH-IND": "Y"
+   },
+   "why": "PF9: PROCESS-INDICATOR '9', LINK EPSMLIST with the COMMAREA: it browses the ESDS EPSMORTF by RBA from RBA 0 to ENDFILE (no company has a rate below 3.500, so no LINK to EPSCSMRT), sends map EPSMLIS and RETURNs; then RETURN TRANSID('EPSP') with the COMMAREA"
+  },
+  {
+   "name": "enter-from-list",
+   "aid": "DFHENTER",
+   "commarea": {
+    "PROCESS-INDICATOR": "9",
+    "EPSPCOM-PRINCIPLE-DATA": "200000.00",
+    "EPSPCOM-NUMBER-OF-YEARS": 30,
+    "EPSPCOM-QUOTED-INTEREST-RATE": "3.500",
+    "EPSPCOM-YEAR-MONTH-IND": "Y"
+   },
+   "why": "ENTER with indicator '9' (the list on screen): LINK EPSMLIST again, the same browse; RETURN TRANSID"
+  }
+ ],
+ "notes": "IBM DBB MortgageApplication's mortgage screen (transaction EPSP, map EPMENU of mapset EPSMORT, whose symbolic map the repository does not ship: generated from epsmort.bms, `@bms/`). Every task first runs A805's dummy SELECT IBMREQD FROM SYSIBM.SYSDUMMY1 (Db2's own one-row table: no DDL, no seed). The COMMAREA is DFHCOMMAREA (COPY EPSMTCOM: PROCESS-INDICATOR, the EPSMTINP inputs, the EPSMTOUT outputs), 106 bytes. Not reachable here: ENTER with indicator '3' (A100: RECEIVE MAP, three CALLs of EPSNBRVL, then A600's LINK to EPSCSMRT) and WHEN OTHER with '3' (A600) need EPSCSMRT, whose CALL of EPSMPMT the engine does not resolve and whose payment is computed in floating point (oracle_assumptions.md C6; its CBL NUMPROC(MIG) is modelled since #4271, C5); a company EPSMLIST lists (PF9, ENTER from the list) LINKs EPSCSMRT too, so the list scenarios quote a rate no company is below. PF9 and ENTER from the list run EPSMLIST in the same task (`programs`), which browses the ESDS EPSMORTF by RBA (#4213): the dataset is stated by the case (`csd`), as in mortgage-mlist.",
+ "programs": [
+  {
+   "program": "EPSMLIST",
+   "program_source": "zBuilder/MortgageApplication/cobol/epsmlist.cbl"
+  }
+ ]
+}

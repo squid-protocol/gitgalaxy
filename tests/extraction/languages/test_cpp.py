@@ -61,22 +61,6 @@ FUNCTION_CASES: dict[str, Any] = {
             "TargetClass::operator=",
         ),  # out-of-line operator= -- was a real bug, now fixed
         (
-            "MyClass::operator()() const {",
-            "MyClass::operator()",
-        ),  # functor operator()
-        (
-            "MyClass::operator bool() const {",
-            "MyClass::operator bool",
-        ),  # primitive type conversion operator
-        (
-            "MyClass::operator std::string() const {",
-            "MyClass::operator std::string",
-        ),  # namespace-qualified type conversion operator
-        (
-            "MyClass::operator Foo() const {",
-            "MyClass::operator Foo",
-        ),  # custom type conversion operator
-        (
             "MyClass::MyClass(int x) : field_(x), other_(0) {",
             "MyClass::MyClass",
         ),  # out-of-line constructor, multi-field member-init list
@@ -84,11 +68,24 @@ FUNCTION_CASES: dict[str, Any] = {
             "MyClass::MyClass(int x) : " + "field_a(1), " * 60 + "field_z(2) {",
             "MyClass::MyClass",
         ),  # synthetic long initializer-list (over 500 chars, under 2000)
+        # Function-call operator (out-of-line, with and without a return type)
+        ("Widget::operator()(int x) const {", "Widget::operator()"),
+        ("bool Widget::operator()(int x) const {", "Widget::operator()"),
+        # User-defined conversion operators
+        ("Handle::operator bool() const {", "Handle::operator bool"),
+        ("Path::operator std::string() const {", "Path::operator std::string"),
+        ("Box::operator Payload() const {", "Box::operator Payload"),
+        ("Str::operator const char*() const {", "Str::operator const char*"),
+        ("Ref::operator T&() {", "Ref::operator T&"),
+        ("explicit operator bool() const {", "operator bool"),  # in-class, explicit
     ],
     "invalid": [
         "class TargetFunc {",  # class decl lookalike
         "#define TargetFunc()",  # macro-expansion lookalike
         "if (TargetFunc()) {",  # call inside condition
+        "obj.operator()(x);",  # explicit call-operator invocation, not a definition
+        "auto ok = obj.operator bool(); {",  # explicit conversion call, then a scope block
+        "int operator_count = compute(x);",  # identifier merely prefixed with `operator`
     ],
     "pathological": [
         (
@@ -177,6 +174,16 @@ def test_cpp_func_start_redos_immunity():
     assert_redos_immune(func_start, "Foo::" * 5000 + "operator=(", timeout_sec=3.0)
     assert_redos_immune(func_start, "Foo::operator" + "=" * 100000, timeout_sec=3.0)
     assert func_start.search("Foo::operator=(const Foo& other) {")
+
+
+def test_cpp_func_start_call_and_conversion_operator_redos_immunity():
+    """ReDoS sweep for the operator() and conversion-operator name alternatives."""
+    func_start = CPP_RULES["func_start"]
+    assert_redos_immune(func_start, "Foo::operator " + "A::" * 20000, timeout_sec=3.0)
+    assert_redos_immune(func_start, "Foo::operator const " + "const " * 20000, timeout_sec=3.0)
+    assert_redos_immune(func_start, "Foo::operator T" + " *" * 20000, timeout_sec=3.0)
+    assert_redos_immune(func_start, "Foo::operator Vec<" + "<a" * 20000, timeout_sec=3.0)
+    assert_redos_immune(func_start, "Foo::operator" + "()" * 20000, timeout_sec=3.0)
 
 
 def test_cpp_func_start_known_limitation_raw_string_lookalike_still_matches_at_regex_level():

@@ -116,6 +116,10 @@ museum_2/
 # no ctags -- e.g. abap): hand-reviewed and committed like the ledger above, read by
 # tests/tools/tri_comparison_chart.py but never written by it.
 !docs/self_scan/manual_verification.json
+# docs/research: data that backs a research write-up (the Devin port inventory)
+!docs/research/*.json
+# #4047: the committed mutation scores of the proven ports (tests/tools/mutation_scores.py)
+!docs/language_status/mutation_scores.json
 # #3315: hand-labelled thin-wrapper verdicts -- source data the wrapper probe scores against.
 !tests/tools/wrapper_labels.json
 !tests/tools/wrapper_labels_memory_alloc.json
@@ -123,9 +127,15 @@ museum_2/
 # committed and reviewed like the ledger above. A new key file dropped silently by
 # the *.json rule above is how its first PR shipped without its own data.
 !tests/cobol_mainframe/answer_key/*.json
+# ...and the port-invariance pairs' manifest (tests/tools/port_invariance.py): which COBOL file
+# each committed det port pairs with.
+!tests/cobol_mainframe/port_invariance/pairs.json
 # ...and the mixed CJK EBCDIC code-page tables (#3816 part 3a): package data the decoder
 # loads at run time, generated once from the JDK by tests/tools/gen_ebcdic_dbcs.py.
 !gitgalaxy/core/ebcdic_dbcs/*.json
+# ...and the archetype brains + their validation record (#4100): package data the
+# classifier loads at run time; archetype-validation.yml refreshes the record on main.
+!gitgalaxy/standards/archetype_brains/*.json
 # ...and the pinned mainframe corpus manifest (#3213) and the refraction tools'
 # ReDoS baseline (#3214): committed source, same reason.
 !tests/cobol_mainframe/corpora.json
@@ -138,6 +148,19 @@ museum_2/
 !tests/cobol_mainframe/ground_truth_ledger.json
 # ...and the fresh-estate trial ledger (#3805, tests/tools/trial.py).
 !tests/cobol_mainframe/trials.json
+# ...and the CICS crucible runner's ratchet ledger and its fixture case (#3989): the fixture is in the
+# crucible's format, so its case.json and expected logs are source like the answer keys above.
+!tests/cics_crucible/baseline.json
+# #4023: the crucible's COBOL coverage ledger (a ratchet, like baseline.json)
+!tests/cics_crucible/coverage.json
+# ...and the equivalence cases (#3624) and their ports' provenance (#4023 follow-up): source, not output
+!tests/equivalence/*/case.json
+!tests/equivalence/*/port/provenance.json
+!tests/cics_crucible/ports/*/*/provenance.json
+# #4048: the evidence record of each ported program (tests/tools/evidence.py) is source, not output
+!tests/equivalence/*/evidence.json
+!tests/cics_crucible/ports/*/*/evidence.json
+!tests/cics_crucible/fixture/**/*.json
 *_llm.md
 venvs/
 

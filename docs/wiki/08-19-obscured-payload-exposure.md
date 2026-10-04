@@ -2,6 +2,8 @@
 
 > **File Reference:** [`gitgalaxy/metrics/signal_processor.py`](https://github.com/squid-protocol/gitgalaxy/blob/main/gitgalaxy/metrics/signal_processor.py)
 
+> **Note (#4106):** `_calc_obscured_payload` is no longer present in `signal_processor.py`; this page describes the equation as it was last implemented and needs re-verification against current code. The pseudo-code below never applied an archetype multiplier: the `CONTEXT_VIOLATION_MATRIX` config it once appeared to read was dead and was removed (#1090).
+
 ## Engineering Summary
 Evaluates source code for obfuscation techniques, evasion patterns, and high-risk execution capabilities. The metric identifies modules that combine code hiding mechanisms (metaprogramming, reflection, bitwise operations, shadow imports, file extension mismatches) with high-risk capabilities (dynamic code execution, data exfiltration, safety bypasses). This subsystem evaluates the input signals to calculate a formalized risk score. In GitGalaxy, this subsystem is known as the Obscured Payload Exposure metric.
 
@@ -46,7 +48,7 @@ $$\text{IntentMass} = (\text{safety\_bypasses} \times 3.0) + (\text{io} \times 4
 * If non-paranoid mode is active:
   * If obfuscation is present without intent, threat mass is scaled down to $5\%$ ($\times 0.05$).
   * If intent is present without obfuscation, threat mass is scaled down to $10\%$ ($\times 0.10$).
-* **Contextual Drift Anomaly:** If local language drift significantly exceeds repository global drift ($\text{local\_drift} / \text{global\_drift} > 1.5$), threat mass is multiplied by the drift ratio.
+* **Contextual Drift Anomaly (retired, #4106):** this multiplied threat mass by $\text{local\_drift} / \text{global\_drift}$ when that ratio exceeded 1.5. The per-language model behind `local_drift` was never applied after #3061 and has been removed, so the check could not fire and is gone.
 
 ### 4. Sigmoid Mapping
 Density is computed against padded lines of code ($\text{LOC} + 150$) and mapped through a sigmoid curve:
@@ -61,16 +63,10 @@ def _calc_obscured_payload(
     loc: int,
     raw_signals: dict[str, int],
     mp: float,
-    archetype: str,
-    global_drift: float,
-    local_drift: float,
 ) -> float:
     """
     Calculates Obscured Payload Exposure (Malicious Intent Density).
     """
-    arch_matrix = self.CONTEXT_VIOLATION_MATRIX.get(archetype, {})
-    arch_multiplier = arch_matrix.get("obscured_payload_multiplier", 1.0)
-
     obfuscation_indicators = (raw_signals.get("sec_reflection_metaprogramming", 0) * 5.0) + (
         raw_signals.get("sec_bitwise_ops", 0) * 2.0
     )
@@ -93,7 +89,7 @@ def _calc_obscured_payload(
     science_dampener = 1.0 + (raw_signals.get("scientific", 0) * 2.0)
     obfuscation_mass = obfuscation_mass / science_dampener
 
-    total_threat_mass = (obfuscation_mass + intent_mass) * arch_multiplier
+    total_threat_mass = obfuscation_mass + intent_mass
 
     if total_threat_mass == 0:
         return 0.0
@@ -103,12 +99,6 @@ def _calc_obscured_payload(
             total_threat_mass *= 0.05
         elif intent_mass > 0 and obfuscation_mass == 0:
             total_threat_mass *= 0.10
-
-    # Contextual drift anomaly check
-    if local_drift > 0 and global_drift > 0:
-        drift_delta = local_drift / global_drift
-        if drift_delta > 1.5:
-            total_threat_mass *= drift_delta
 
     # Documentation and safety dampener
     docs_and_safety = (raw_signals.get("doc", 0) * 0.5) + raw_signals.get("safety", 0)

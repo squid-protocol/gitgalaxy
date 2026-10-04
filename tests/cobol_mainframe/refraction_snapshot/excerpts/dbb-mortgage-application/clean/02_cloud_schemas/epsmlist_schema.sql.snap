@@ -1,0 +1,16 @@
+CREATE TABLE DFHCOMMAREA (
+    WS_FORMAT_NUMBER               DECIMAL(9, 2),
+    W_CALL_PROGRAM                 VARCHAR(8),
+    RESPONSE                       INTEGER,
+    RID_LENGTH                     INTEGER,
+    DISP_COUNT                     SMALLINT,
+    MAX_LOOP                       SMALLINT,
+    END_OF_FILE                    VARCHAR(1),
+    CLOSE_FILE                     VARCHAR(1),
+    W_COMAREA_LENGTH               SMALLINT,
+    OUTMAP_COMPANY                 VARCHAR(24),
+    OUTMAP_PHONE_NUM               VARCHAR(13),
+    OUTMAP_RATE                    VARCHAR(5),
+    OUTMAP_LOAN                    VARCHAR(12),
+    OUTMAP_YEARS                   VARCHAR(2)
+);

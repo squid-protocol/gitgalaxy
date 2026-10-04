@@ -1,0 +1,118 @@
+{
+ "kind": "cics",
+ "corpus": "cics-banking-sample-application-cbsa",
+ "program": "DELACC",
+ "program_source": "src/base/cobol_src/DELACC.cbl",
+ "copy_dirs": [
+  "src/base/cobol_copy"
+ ],
+ "transid": "ODAC",
+ "clock": "2026/10/01 10:30:15.00",
+ "region": {
+  "applid": "CBSAREGN",
+  "sysid": "CICA"
+ },
+ "db2": {
+  "ddl": [
+   "etc/install/base/db2jcl/CRETB01.jcl",
+   "etc/install/base/db2jcl/CREI101.jcl",
+   "etc/install/base/db2jcl/CRETB02.jcl"
+  ],
+  "seed": "@case/seed.sql",
+  "compare": [
+   "IBMUSER.ACCOUNT",
+   "IBMUSER.PROCTRAN"
+  ],
+  "qualifier": "IBMUSER"
+ },
+ "commarea": {
+  "segments": [
+   {
+    "copybook": "src/base/cobol_src/BNK1DAC.cbl",
+    "record": "PARMS-SUBPGM"
+   }
+  ]
+ },
+ "linked": true,
+ "screens": {},
+ "scenarios": [
+  {
+   "name": "delete-current",
+   "commarea": {
+    "PARMS-SUBPGM-ACCNO": "1"
+   },
+   "why": "SELECT +0: the COMMAREA filled from the row ('Y', fail code space), DELETE +0, PROCTRAN 'ODA' row: sort code, account, ref EIBTASKN, date DD.MM.YYYY and time HHMMSS from the case clock, the description customer/type/last and next statement dates, amount = the actual balance (1200.00, not the available)"
+  },
+  {
+   "name": "delete-saving",
+   "commarea": {
+    "PARMS-SUBPGM-ACCNO": "2"
+   },
+   "why": "type SAVING"
+  },
+  {
+   "name": "delete-loan-negative",
+   "commarea": {
+    "PARMS-SUBPGM-ACCNO": "3"
+   },
+   "why": "type LOAN: a negative balance into PROCTRAN_AMOUNT and the signed COMMAREA balances"
+  },
+  {
+   "name": "delete-mortgage",
+   "commarea": {
+    "PARMS-SUBPGM-ACCNO": "5"
+   },
+   "why": "type MORTGAGE, a large negative balance"
+  },
+  {
+   "name": "delete-max-values-leap-days",
+   "commarea": {
+    "PARMS-SUBPGM-ACCNO": "6"
+   },
+   "why": "rate 9999.99, overdraft 99999999, available 9999999999.99 and actual -9999999999.99 (PROCTRAN_AMOUNT at the DECIMAL(12,2) limit); opened, last and next statement on 29 February"
+  },
+  {
+   "name": "overdraft-past-picture",
+   "commarea": {
+    "PARMS-SUBPGM-ACCNO": "11"
+   },
+   "why": "INTEGER overdraft 123456789 through S9(9) COMP into 9(8): the high-order digit is lost; statement dates across a year end; amount 0.01"
+  },
+  {
+   "name": "account-zero",
+   "commarea": {
+    "PARMS-SUBPGM-ACCNO": "0"
+   },
+   "why": "boundary: account number 00000000 is read and deleted"
+  },
+  {
+   "name": "account-99999999",
+   "commarea": {
+    "PARMS-SUBPGM-ACCNO": "99999999"
+   },
+   "why": "boundary: the largest DELACC-ACCNO; DELACC has no sentinel (INQACC's 99999999), the account is deleted"
+  },
+  {
+   "name": "not-found",
+   "commarea": {
+    "PARMS-SUBPGM-ACCNO": "12"
+   },
+   "why": "SELECT INTO no row: SQLCODE +100, 'N' '1', no DELETE, no PROCTRAN row; the rest of the COMMAREA untouched"
+  },
+  {
+   "name": "other-sort-code-not-found",
+   "commarea": {
+    "PARMS-SUBPGM-ACCNO": "10"
+   },
+   "why": "account 00000010 exists only under sort code 123456; the program reads by its own SORTCODE (987654): +100, 'N' '1', the 123456 row not deleted"
+  },
+  {
+   "name": "null-statement-date",
+   "commarea": {
+    "PARMS-SUBPGM-ACCNO": "4"
+   },
+   "why": "ACCOUNT_LAST_STATEMENT NULL with no indicator: SELECT -305, ABNDINFO filled (no LINK), ABEND HRAC; no DELETE, no PROCTRAN"
+  }
+ ],
+ "notes": "CBSA's delete-account service (DELACC, LINKed by BNK1DAC with its PARMS-SUBPGM record, the DELACC copybook's layout under the caller's names: the generated DTO is the caller's). The account is read by the program's own sort code (987654) and the COMMAREA's account number with a SELECT INTO from ACCOUNT; +100 gives DEL-SUCCESS 'N', DEL-FAIL-CD '1'; any other non-zero SQLCODE (e.g. -305, a NULL date with no indicator) fills ABNDINFO and ABENDs HRAC (no LINK). On +0 the COMMAREA is filled from the row, the row DELETEd (a failure gives 'N' '3') and a PROCTRAN row INSERTed: type 'ODA', the description customer/type/last and next statement dates, amount the actual balance, date DD.MM.YYYY and time HHMMSS from the case clock (ASKTIME/FORMATTIME), ref EIBTASKN. An INSERT failure LINKs ABNDPROC and ABENDs HWPT. ACCOUNT and PROCTRAN are compared after every scenario."
+}

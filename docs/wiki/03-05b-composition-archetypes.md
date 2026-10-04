@@ -108,6 +108,38 @@ classifier runs post-network (so `pagerank` is available): it labels each functi
 function mix up per file, labels each file, then aggregates file archetypes + scale + coupling into
 the repo label — all in one pass.
 
+## Validation & drift (#4100)
+
+The brains are retrained offline, far less often than the engine changes, so engine improvements
+are allowed to move archetype labels ahead of a retrain -- but never unseen. Every level of the
+tower carries a **trust state**, shipped in `archetype_brains/archetype_validation.json` and shown
+in the LLM brief's section 0 and the audit's forensic trail ("Archetype Validation"):
+
+| State | Meaning | Labels |
+|---|---|---|
+| VALIDATED | ≥ 98% of crucible code files keep the label the trained-against engine gave them | used |
+| DRIFTING | 95–98% agreement: engine changes have moved some labels | used; drift reported |
+| UNVALIDATED | no measurement covers the brain actually loaded | used; flagged |
+| DEGRADED | < 95% agreement, or some of the level's inputs are dead (label names it reads that the level below never emits) | used, qualified; retrain issue opened |
+| INVALID | the level cannot honour its contract: dimension/feature break, or none of its inputs matches a label the level below emits | **withheld** -- emitted as `Unvalidated` |
+
+**Agreement is stability, not accuracy.** It is the share of crucible code files whose label the
+current engine still assigns the way the engine the brains were trained against did
+(`tests/archetype_trained_baseline.json`); there is no ground-truth archetype to be accurate
+against. The repo level is one data point on one corpus, so it inherits the composition level's
+measured state.
+
+- **Structural checks run live** from the loaded brains (`archetype_parity.structural_problems`),
+  including label-vocabulary parity between levels. Only these may change what a scan emits.
+- **Agreement is measured on language-crucible** by `tests/tools/archetype_drift.py`:
+  report-only on every PR (the Golden Crucible job summary shows this change's delta), and
+  recorded after every push to main by `archetype-validation.yml`, which also opens, updates and
+  closes a single `archetype-retrain` issue.
+- **After a retrain:** land the brains, then
+  `archetype_drift.py rebaseline --audit <crucible audit at the trained-against engine> ...` and
+  `measure --write-record`. `test_archetype_validation.py` fails until the record covers the new
+  brains.
+
 ## Provenance & methodology
 
 The taxonomies were trained and chosen through pre-registered experiments in

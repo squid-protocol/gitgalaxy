@@ -6,6 +6,7 @@ from pathlib import Path
 from unittest.mock import MagicMock, patch
 
 # Adjust imports to match your architecture
+from gitgalaxy.core.aperture import DENIED_EXTENSION, ApertureReason
 from gitgalaxy.core.spatial_correlation import weighted_count
 from gitgalaxy.galaxyscope import Orchestrator, _process_file_worker, _worker_state
 
@@ -1982,8 +1983,11 @@ class TestGalaxyScopeOrchestrator(unittest.TestCase):
         mock_security = MockSecurity.return_value
 
         # 1. Test Binary Threat Escalation
-        mock_aperture.evaluate_path_integrity.return_value = (False, 2048, "Binary Format Detected")
-        mock_security.scan_binary.return_value = {"sec_high_risk_execution": 1, "threat_snippet": "malicious payload"}
+        mock_aperture.evaluate_path_integrity.return_value = (
+            False,
+            2048,
+            ApertureReason("Blocked (Explicitly Denied Extension: '.png')", DENIED_EXTENSION),
+        )
 
         _init_worker(".", self.mock_config, {".exe": 1}, logging.INFO, set(), set())
 
@@ -1995,8 +1999,9 @@ class TestGalaxyScopeOrchestrator(unittest.TestCase):
 
         from unittest.mock import mock_open
 
-        with patch("builtins.open", mock_open(read_data=b"MZ\x90\x00")):
-            result = _process_file_worker("malware.exe")
+        # #4126: an ELF executable under an image extension
+        with patch("builtins.open", mock_open(read_data=b"\x7fELF\x02\x01\x01" + b"\x00" * 64)):
+            result = _process_file_worker("malware.png")
 
         self.assertEqual(result["status"], "success", "Failed to escalate weaponized binary to success!")
         self.assertEqual(result["data"]["lang_id"], "binary_threat", "Failed to tag binary threat!")
@@ -2030,11 +2035,11 @@ class TestGalaxyScopeOrchestrator(unittest.TestCase):
 
         mock_aperture = MockAperture.return_value
         mock_security = MockSecurity.return_value
-        mock_aperture.evaluate_path_integrity.return_value = (False, 4096, "Binary Format Detected")
-        mock_security.scan_binary.return_value = {
-            "sec_extension_mismatch": 1,
-            "threat_snippet": "Expected b'\\x89PNG', found mismatch",
-        }
+        mock_aperture.evaluate_path_integrity.return_value = (
+            False,
+            4096,
+            ApertureReason("Blocked (Explicitly Denied Extension: '.png')", DENIED_EXTENSION),
+        )
 
         _init_worker(".", self.mock_config, {".png": 1}, logging.INFO, set(), set())
         _worker_state["security"] = mock_security
@@ -2042,7 +2047,7 @@ class TestGalaxyScopeOrchestrator(unittest.TestCase):
 
         from unittest.mock import mock_open
 
-        with patch("builtins.open", mock_open(read_data=b"MZ\x90\x00 not a png")):
+        with patch("builtins.open", mock_open(read_data=b"\x7fELF\x02\x01\x01" + b"\x00" * 64)):
             result = _process_file_worker("logo.png")
 
         self.assertEqual(result["data"]["lang_id"], "binary_threat")
@@ -2056,6 +2061,8 @@ class TestGalaxyScopeOrchestrator(unittest.TestCase):
             "#368: sec_extension_mismatch not threaded into the durable hit_vector slot",
         )
         self.assertEqual(len(data["risk_vector"]), len(SignalProcessor.RISK_SCHEMA))
+        self.assertNotIn("threat_snippet", data["equations"], "#4126: evidence text must not ride in equations")
+        self.assertIn("ELF", data["threat_snippets"]["binary_xray"][0])
 
     # ==============================================================================
     # TEST 19: SARIF IGNORED PATHS & SANITIZATION

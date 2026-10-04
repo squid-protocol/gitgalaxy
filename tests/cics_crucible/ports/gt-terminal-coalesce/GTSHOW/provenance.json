@@ -1,0 +1,85 @@
+{
+ "format": "cics-crucible-port/1",
+ "case": "gt-terminal-coalesce",
+ "program": "GTSHOW",
+ "attempt": 2,
+ "backend": "command",
+ "model": "claude-opus-5-5",
+ "command": "claude CLI 2.1.285 print mode (claude -p --model claude-opus-5-5 --effort high --tools '' --strict-mcp-config --mcp-config '{\"mcpServers\":{}}' --no-session-persistence --system-prompt <porting system prompt>, prompt file on stdin, run from an empty directory)",
+ "proposed_at": "2026-09-29T22:00:52+00:00",
+ "ticket_sha256": "cab4e687fd5fdb04a786a3d561cb1634075779cc35c704867651ba59902a7815",
+ "prompt_tokens": 21242,
+ "feedback_from": 1,
+ "notes": "Why the harness failed (outside this ticket):\n- All three failing scenarios diverge in task 1, which is GT11 / GTTERM, not GTSHOW.\n- At event 2, GTTERM's START records termid null where 'T001' is expected.\n- The fix belongs in GTTERM's service, which this ticket may not edit (rule 6). Its START ... TERMID must pass the terminal id, e.g. task.termid() for TERMID(EIBTRMID), instead of null.\n- Until that is fixed, GT12 is never scheduled on T001, so no GTSHOW task can be compared.\n- The GTSHOW logic itself is unchanged from attempt 1. No divergence in a GT12 task was reported.\n\nDefects of the original kept:\n1. WS-COUNT is PIC 9 and ADD 1 has no SIZE ERROR. After 10 records it wraps to 0, so the 11th record is strung without its ',' separator. Fix: WS-COUNT PIC 9(4).\n2. The loop ends on any response other than NORMAL, including LENGERR. A START FROM longer than 10 bytes is truncated, and neither it nor any record after it is shown. Fix: loop until ENDDATA and handle LENGERR records.\n3. STRING has no ON OVERFLOW. A combined line longer than 40 bytes is cut silently. Fix: add ON OVERFLOW.\n\nAssumption:\n- The RETRIEVE data is decoded as the region's EBCDIC code page (IBM037), the same convention CicsTask documents for TS items.\n- This must match the encoding GTTERM's port uses for START FROM bytes.",
+ "proof": {
+  "at": "2026-09-29T22:01:14+00:00",
+  "crucible_ref": "v0.1.0 (0c942cb8)",
+  "summary": {
+   "cancel-too-late": "1/1",
+   "staggered": "1/1",
+   "three-in-one": "1/1"
+  },
+  "sibling_ports": [
+   "GTSHOW",
+   "GTTERM"
+  ],
+  "reproven": [
+   {
+    "at": "2026-10-04T14:21:26+00:00",
+    "crucible_ref": "v0.2.0 (94f2afcb)",
+    "summary": {
+     "cancel-too-late": "1/1",
+     "staggered": "1/1",
+     "three-in-one": "1/1"
+    },
+    "port_sha256": "82edcbebdd3141a76be612591e8e40319c9d877efca36786f32935c65b7374b0",
+    "harness_commit": "16ae9e01515581be224b32982ceae54bc73e68fb",
+    "by": "tests/tools/crucible_port_provenance.py reprove (cics_crucible.py --sides java-ported --program GTSHOW --report-dir)"
+   }
+  ]
+ },
+ "approved": false,
+ "history": [
+  {
+   "at": "2026-09-29T21:47:00+00:00",
+   "event": "proposed",
+   "attempt": 1
+  },
+  {
+   "at": "2026-09-29T21:47:32+00:00",
+   "event": "proof-failed",
+   "attempt": 1,
+   "summary": {
+    "cancel-too-late": "0/1",
+    "staggered": "0/1",
+    "three-in-one": "0/1"
+   }
+  },
+  {
+   "at": "2026-09-29T21:59:07+00:00",
+   "event": "proof-failed",
+   "attempt": 1,
+   "summary": {
+    "cancel-too-late": "0/1",
+    "staggered": "0/1",
+    "three-in-one": "0/1"
+   }
+  },
+  {
+   "at": "2026-09-29T22:00:52+00:00",
+   "event": "proposed",
+   "attempt": 2,
+   "feedback_from": 1
+  },
+  {
+   "at": "2026-09-29T22:01:14+00:00",
+   "event": "proven",
+   "attempt": 2,
+   "summary": {
+    "cancel-too-late": "1/1",
+    "staggered": "1/1",
+    "three-in-one": "1/1"
+   }
+  }
+ ]
+}

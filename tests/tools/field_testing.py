@@ -106,11 +106,12 @@ def validate(registry: dict[str, Any], ledger: dict[str, Any], corpora: list[str
         if where in seen:
             errors.append(f"{where}: duplicate defect id")
         seen.add(where)
-        if d.get("found_by") == REVIEW:
+        if off_ledger(d):
+            how = "by review" if d.get("found_by") == REVIEW else "off the ledger's estates"
             if d.get("estate") is not None:
                 errors.append(f"{where}: a defect found by review names no estate (after_round says when)")
             if not isinstance(d.get("after_round"), int) or not 0 <= d["after_round"] <= max(rounds, default=0):
-                errors.append(f"{where}: a defect found by review needs after_round, the last round checked before it")
+                errors.append(f"{where}: a defect found {how} needs after_round, the last round checked before it")
         elif d.get("estate") not in ids:
             errors.append(f"{where}: unknown estate {d.get('estate')}")
         if d.get("side") not in SIDES:
@@ -132,12 +133,20 @@ def validate(registry: dict[str, Any], ledger: dict[str, Any], corpora: list[str
 # A defect found by reading code, not by checking an estate (#3898, found writing #3833's porting rules):
 # it names no estate, only `after_round`, the last round checked before it was found. It still resets
 # its fields' clean rounds from there -- those rounds did not catch it.
+# #3998: so does one found on an estate that cannot be an `estates` round -- an unkeyed estate kept
+# outside the repo (the GPL opensourcecobol4j fresh estate, #3806): `estate` is null, `found_by` says
+# where it was found, and `after_round` places it the same way.
 REVIEW = "review"
+
+
+def off_ledger(d: dict[str, Any]) -> bool:
+    """A defect found by review or on an unkeyed estate: it names no estate, only `after_round`."""
+    return d.get("found_by") == REVIEW or d.get("estate") is None
 
 
 def defect_round(d: dict[str, Any], order: dict[str, int]) -> int:
     """The round a defect counts against: its estate's, or for one found by review, `after_round`."""
-    return d["after_round"] if d.get("found_by") == REVIEW else order[d["estate"]]
+    return d["after_round"] if off_ledger(d) else order[d["estate"]]
 
 
 def tested(estate: dict[str, Any], field: str, ledger: dict[str, Any]) -> bool:
@@ -218,7 +227,9 @@ def _bound(facts: int) -> str:
 
 
 def _round_cell(d: dict[str, Any], order: dict[str, int]) -> str:
-    return f"review, after {d['after_round']}" if d.get("found_by") == REVIEW else str(order[d["estate"]])
+    if not off_ledger(d):
+        return str(order[d["estate"]])
+    return f"{'review' if d.get('found_by') == REVIEW else 'unkeyed estate'}, after {d['after_round']}"
 
 
 def render(registry: dict[str, Any], ledger: dict[str, Any]) -> str:

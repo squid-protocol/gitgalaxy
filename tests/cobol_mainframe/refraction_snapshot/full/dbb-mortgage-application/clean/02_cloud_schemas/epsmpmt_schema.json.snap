@@ -1,0 +1,43 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "WS_WORK_AMOUNTS",
+  "type": "object",
+  "properties": {
+    "STATIC_MAXIMUM_PRINCIPLE": {
+      "type": "number",
+      "description": "Legacy PIC: 9(9)V99"
+    },
+    "ERROR_INDICATOR": {
+      "type": "integer",
+      "description": "Legacy PIC: 99"
+    },
+    "ERROR_TEXT": {
+      "type": "string",
+      "description": "Legacy PIC: X(80)"
+    },
+    "VALIDATION_INDICATOR": {
+      "type": "integer",
+      "description": "Legacy PIC: 9"
+    },
+    "WS_NUMBER_OF_MONTHS": {
+      "type": "number",
+      "description": "Legacy PIC: 9(9)V99"
+    },
+    "LOAN": {
+      "type": "number",
+      "description": "Legacy PIC: 9(9)V99"
+    },
+    "PAYMENT": {
+      "type": "number",
+      "description": "Legacy PIC: 9(9)V99"
+    },
+    "INTEREST": {
+      "type": "number",
+      "description": "Legacy PIC: 9(9)V9999"
+    },
+    "NUMBER_PERIODS": {
+      "type": "integer",
+      "description": "Legacy PIC: 999"
+    }
+  }
+}

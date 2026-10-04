@@ -1,0 +1,345 @@
+{
+ "format": "gitgalaxy-evidence/1",
+ "case": "carddemo-userdel",
+ "program": "COUSR03C",
+ "kind": "cics",
+ "port": {
+  "paths": [
+   "tests/equivalence/carddemo-userdel/port/service/Cousr03cService.java"
+  ],
+  "sha256": "0201a3f95e9edca794ed3a0f4b3eaad0707ee518e938c416e5e236460058d07e",
+  "entry_points": [
+   "runTask"
+  ]
+ },
+ "inputs": {
+  "port": {
+   "paths": [
+    "tests/equivalence/carddemo-userdel/port/**"
+   ],
+   "files": 1,
+   "sha256": "0201a3f95e9edca794ed3a0f4b3eaad0707ee518e938c416e5e236460058d07e"
+  },
+  "case": {
+   "paths": [
+    "tests/equivalence/carddemo-userdel/**"
+   ],
+   "files": 2,
+   "sha256": "f0901f27a92b6d4b75715c8be41873d4812c515480a030e5e3dd49b063dcd987"
+  },
+  "harness": {
+   "paths": [
+    "tests/tools/equivalence.py",
+    "tests/tools/equivalence_common.py",
+    "tests/tools/equivalence_java.py",
+    "tests/tools/equivalence_inputs.py",
+    "tests/tools/equivalence_cics.py",
+    "tests/tools/equivalence_call.py",
+    "tests/tools/equivalence_cache.py",
+    "tests/tools/equivalence_db2.py",
+    "tests/tools/equivalence_oracle.py",
+    "tests/tools/cobol_coverage.py",
+    "tests/tools/java_target_matrix.py"
+   ],
+   "files": 11,
+   "sha256": "609073a350a3120d63bf3cb3e7f6a1050a9fc8a91964ac548b2826356f319cbc"
+  },
+  "oracle": {
+   "paths": [
+    "tests/equivalence/gnucobol.Dockerfile",
+    "tests/equivalence/gnucobol-db2.Dockerfile",
+    "tests/equivalence/cics/**",
+    "tests/equivalence/le/**",
+    "tests/equivalence/faults/**",
+    "tests/equivalence/db2/**",
+    "tests/tools/equivalence_sql.py"
+   ],
+   "files": 16,
+   "sha256": "b1be686cf96bbdce71bd0b5dc4245252f64020d97a5094cee850165bf093d250"
+  },
+  "generator": {
+   "paths": [
+    "gitgalaxy/tools/cobol_to_java/**"
+   ],
+   "files": 60,
+   "sha256": "880250850d919c29f8ace3eb0d7183156a05354438ea79f72a417febb9e57e68"
+  },
+  "corpus": {
+   "name": "aws-mainframe-modernization-carddemo",
+   "ref": "59cc6c2fd7ebd7ef7925cad552a01a4b8b6e4d5e",
+   "sha256": "d0c4803872ec126eb56a170212f76207beff5ab8c2b6507dd6df4a084cdeb919"
+  },
+  "differences": {
+   "sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+  },
+  "digest": "846c9fa31ebc1bbb49e3a5b7656561e621606efed1942e206e5868890a211ae9"
+ },
+ "proof": {
+  "at": "2026-10-04T15:44:06Z",
+  "verdict": "proven",
+  "runs": 18,
+  "fault_runs": 2,
+  "environments": null,
+  "outputs": {
+   "first-entry": {
+    "equal": 2,
+    "records": 2
+   },
+   "first-entry-with-selected-user": {
+    "equal": 4,
+    "records": 4
+   },
+   "first-entry-selected-user-missing": {
+    "equal": 3,
+    "records": 3
+   },
+   "no-commarea": {
+    "equal": 1,
+    "records": 1
+   },
+   "enter-looks-up-user": {
+    "equal": 4,
+    "records": 4
+   },
+   "enter-empty-user-id": {
+    "equal": 3,
+    "records": 3
+   },
+   "enter-user-not-found": {
+    "equal": 3,
+    "records": 3
+   },
+   "pf5-deletes-user": {
+    "equal": 4,
+    "records": 4
+   },
+   "pf5-deletes-an-admin": {
+    "equal": 4,
+    "records": 4
+   },
+   "pf5-empty-user-id": {
+    "equal": 3,
+    "records": 3
+   },
+   "pf5-user-not-found": {
+    "equal": 4,
+    "records": 4
+   },
+   "pf5-delete-not-open": {
+    "equal": 4,
+    "records": 4
+   },
+   "lookup-io-error": {
+    "equal": 3,
+    "records": 3
+   },
+   "pf3-back-to-caller": {
+    "equal": 2,
+    "records": 2
+   },
+   "pf3-back-to-admin-menu": {
+    "equal": 2,
+    "records": 2
+   },
+   "pf4-clear": {
+    "equal": 3,
+    "records": 3
+   },
+   "pf12-admin-menu": {
+    "equal": 2,
+    "records": 2
+   },
+   "invalid-key": {
+    "equal": 3,
+    "records": 3
+   }
+  },
+  "return_code_equal": null,
+  "sysout_compared": null,
+  "attributes_compared": null,
+  "java_failed": false,
+  "harness_commit": "cdad33370dc73ea44e5bf1348d88c9404a14c2d2+uncommitted",
+  "inputs_digest": "846c9fa31ebc1bbb49e3a5b7656561e621606efed1942e206e5868890a211ae9"
+ },
+ "coverage": {
+  "paragraphs": {
+   "covered": 11,
+   "live": 11
+  },
+  "branches": {
+   "covered": 30,
+   "total": 32
+  },
+  "uncovered_branches": [
+   {
+    "line": 199,
+    "kind": "IF",
+    "outcome": "true",
+    "unit": "RETURN-TO-PREV-SCREEN"
+   },
+   {
+    "line": 313,
+    "kind": "EVALUATE",
+    "outcome": "WHEN@323",
+    "unit": "DELETE-USER-SEC-FILE"
+   }
+  ],
+  "handler_labels": {
+   "covered": 0,
+   "total": 0
+  },
+  "source": "the proof's own traced COBOL runs (cobol_coverage.py)",
+  "inputs_digest": "846c9fa31ebc1bbb49e3a5b7656561e621606efed1942e206e5868890a211ae9"
+ },
+ "reach": {
+  "entry_points": [
+   "runTask"
+  ],
+  "unproven": [
+   {
+    "class": "Cousr03cService",
+    "method": "executeCousr03c",
+    "line": 55,
+    "kind": "stub"
+   },
+   {
+    "class": "Cousr03cService",
+    "method": "handleTransaction",
+    "line": 62,
+    "kind": "stub"
+   },
+   {
+    "class": "Cousr03cService",
+    "method": "handleLink",
+    "line": 74,
+    "kind": "stub"
+   },
+   {
+    "class": "Cousr03cService",
+    "method": "dispatchCdemoToProgramL205",
+    "line": 82,
+    "kind": "left_as_generated"
+   },
+   {
+    "class": "Cousr03cService",
+    "method": "renderCousr3a",
+    "line": 106,
+    "kind": "left_as_generated"
+   },
+   {
+    "class": "Cousr03cService",
+    "method": "submitCousr3a",
+    "line": 114,
+    "kind": "left_as_generated"
+   }
+  ],
+  "counts": {
+   "stub": 3,
+   "left_as_generated": 3,
+   "ported_unproven": 0
+  },
+  "generated_compared": true,
+  "port_sha256": "0201a3f95e9edca794ed3a0f4b3eaad0707ee518e938c416e5e236460058d07e"
+ },
+ "mutation": null,
+ "differences": [],
+ "oracle": {
+  "kind": "gnucobol-models",
+  "compiler": "cobc (GnuCOBOL) 3.1.2.0",
+  "package": "3.1.2-5+b1",
+  "flags": "-std=ibm -fsign=EBCDIC",
+  "compiler_options": null,
+  "image": {
+   "name": "gitgalaxy-gnucobol:3",
+   "id": "sha256:d7e387df360c519ce8945a1f6d748c8dafab06f50551b23ddf85d6373a4dcd6e",
+   "base": "debian:bookworm-slim@sha256:3783cc01769c7b2b1b83a5c5ad96c815348e28ed7da68e2e3687004faa906251",
+   "matches_pin": true,
+   "mismatches": []
+  },
+  "models": [
+   {
+    "path": "tests/equivalence/cics/DFHAID.cpy",
+    "sha256": "630c4f2cb617984403b2750dde4022c2e5b56bee0d9367049092af1f80def3c3"
+   },
+   {
+    "path": "tests/equivalence/cics/DFHBMSCA.cpy",
+    "sha256": "716274032abeec7783c189067cef6010ca9832c44072d2010493e3c430523a6a"
+   },
+   {
+    "path": "tests/equivalence/cics/DFHEIBLK.cpy",
+    "sha256": "fa4e0e29e8155a653c685420eb159fc5ec491ccf8eba13ccac1eb4962692fcf0"
+   },
+   {
+    "path": "tests/equivalence/cics/ggcics.c",
+    "sha256": "cfd00f48166b47683c2d342e0677b0faf06a0415183c109b6df62947485267d3"
+   },
+   {
+    "path": "tests/equivalence/db2/SQLCA.cpy",
+    "sha256": "2feec0cb41ec13473904f76885f8550b8e518016678ba6ab8deec378568a3674"
+   },
+   {
+    "path": "tests/equivalence/db2/SQLDA.cpy",
+    "sha256": "2f0c5b623926aa9767764344fc9d10fbbad8f9a404e2198c920a37baad8a6b6c"
+   },
+   {
+    "path": "tests/equivalence/db2/ggsql.c",
+    "sha256": "9f1776b4ce806a072af60706165d14e7bd3abd1698a383d7a728cc41982f8fab"
+   },
+   {
+    "path": "tests/equivalence/db2/ggsqlrun.c",
+    "sha256": "6029d1bf8da9b69c143e7d5fda194d50956bb261cd9ce37d7aa814f5511f47ea"
+   },
+   {
+    "path": "tests/equivalence/faults/ggabend.c",
+    "sha256": "6ef6042ded87f2651bcd38ce997895d277164501252756b0e5ee565765dc75bf"
+   },
+   {
+    "path": "tests/equivalence/faults/ggdisplay.c",
+    "sha256": "27101f274ac2f1e81cf0b5b4567caeb25311b17a8cd16447791be76b0cf51797"
+   },
+   {
+    "path": "tests/equivalence/faults/ggfault.c",
+    "sha256": "82f3e785fe10be99567675d29eb5b5d164c48df9a839394e9d85cfa5ef3a5049"
+   },
+   {
+    "path": "tests/equivalence/gnucobol-db2.Dockerfile",
+    "sha256": "d27c27d8e66a0f2e0b7b18de53405f067e5ad2dbd4dfbcacaaba62a1dce50009"
+   },
+   {
+    "path": "tests/equivalence/gnucobol.Dockerfile",
+    "sha256": "d1d845f5c839b4534553b8fe1abe146804a284b28842a63354643779de083109"
+   },
+   {
+    "path": "tests/equivalence/le/ceedays.c",
+    "sha256": "a2007e47ac1539ad72b612036453b5297708209198267dcc9bfb58350b63964a"
+   },
+   {
+    "path": "tests/equivalence/le/cobdatft.c",
+    "sha256": "df75c2ffbfbfad769135bb5044edf2b9b22440f3ff47e163b515605d2281edf4"
+   },
+   {
+    "path": "tests/tools/equivalence_sql.py",
+    "sha256": "f559af88445cfae17e422e4eef5c4cef57fc43ecc06263646cd26ceae4feafc9"
+   }
+  ],
+  "assumptions": null
+ },
+ "provenance": {
+  "written_by": "model",
+  "model": "claude-sonnet-5-5",
+  "backend": "claude-code-headless: claude -p, no tools, only the ticket's prompt",
+  "attempt": 1,
+  "attempts": 1,
+  "ticket_sha256": "b58dbc8fce1d15f729c5c8bcfed9f1ce6f16a84149e280412749e197f77893d8",
+  "porting_rules_sha256": null,
+  "proposed_at": "2026-10-01T15:28:08+00:00",
+  "generator_version": null,
+  "edited_after": "none: the files are the model's answer as the loop stored it",
+  "provenance_file": {
+   "path": "tests/equivalence/carddemo-userdel/port/provenance.json",
+   "format": "porting-loop-provenance/1",
+   "sha256": "11a77e9236c976a5defbfeb8f703ecca8e42020d83745067a424b97ed231ac22"
+  }
+ },
+ "approvals": []
+}

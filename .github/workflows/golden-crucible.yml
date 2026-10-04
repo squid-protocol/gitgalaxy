@@ -54,7 +54,7 @@ jobs:
           # expects PyYAML present even on this leg.
           if [ "${{ matrix.mode }}" = "full-precision" ]; then
             echo "Installing heavy engines for Full-Precision Mode..."
-            pip install PyYAML tiktoken pandas xgboost
+            pip install PyYAML tiktoken "pandas>=2.0.0" xgboost
           else
             echo "Deliberately skipping tiktoken/pandas/xgboost -- Zero-Dependency Mode leg."
             pip install PyYAML

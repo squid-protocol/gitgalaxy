@@ -1,0 +1,161 @@
+{
+ "kind": "cics",
+ "corpus": "dbb-mortgage-application",
+ "program": "EPSMLIST",
+ "program_source": "zBuilder/MortgageApplication/cobol/epsmlist.cbl",
+ "copy_dirs": [
+  "zBuilder/MortgageApplication/copybook"
+ ],
+ "transid": "EPSP",
+ "clock": "2026/10/03 10:30:15.00",
+ "linked": true,
+ "datasets": {
+  "EPSMORTF": {
+   "input": "@case/epsmortf.txt",
+   "copybook": "zBuilder/MortgageApplication/copybook/epsmortf.cpy",
+   "record": "MORTGAGE-COMPANY-INFO",
+   "csd": {
+    "organization": "ESDS",
+    "reclen": 56,
+    "why": "the repository ships no CSD or IDCAMS DEFINE for EPSMORTF; EPSMLIST browses it by RBA (STARTBR ... RBA, which IBM allows only on an ESDS or a KSDS base) and reads it INTO MORTGAGE-COMPANY-INFO (COPY EPSMORTF), 56 bytes: an ESDS of fixed 56-byte records, the four companies in arrival order"
+   }
+  }
+ },
+ "commarea": {
+  "segments": [
+   {
+    "copybook": "zBuilder/MortgageApplication/cobol/epsmlist.cbl",
+    "record": "DFHCOMMAREA"
+   }
+  ]
+ },
+ "screens": {
+  "EPSMLIS": {
+   "copybook": "@bms/EPSMLIS.cpy",
+   "input": "EPSMLISI",
+   "output": "EPSMLISO"
+  }
+ },
+ "scenarios": [
+  {
+   "name": "first-entry",
+   "aid": "DFHENTER",
+   "commarea": null,
+   "why": "EIBCALEN 0: A100 lists from the COMMAREA it was never given (oracle_assumptions.md X12: LOW-VALUES here, so principal and rate are zero and no company passes A150's test); the whole ESDS browsed to ENDFILE"
+  },
+  {
+   "name": "list-rate-below-every-company",
+   "aid": "DFHENTER",
+   "commarea": {
+    "PROCESS-INDICATOR": "9",
+    "EPSPCOM-PRINCIPLE-DATA": "200000.00",
+    "EPSPCOM-NUMBER-OF-YEARS": 30,
+    "EPSPCOM-QUOTED-INTEREST-RATE": "3.500",
+    "EPSPCOM-YEAR-MONTH-IND": "Y"
+   },
+   "why": "A100: SEND MAP ERASE of LOW-VALUES; STARTBR RBA EQUAL at RBA 0 (the first record) NORMAL; READNEXT RBA reads the four records in arrival order (RIDFLD set to 0, 56, 112, 168), none with a rate below 3.500, so no line is filled and no LINK; the fifth READNEXT is ENDFILE; ENDBR; SEND MAP"
+  },
+  {
+   "name": "list-principal-above-every-loan",
+   "aid": "DFHENTER",
+   "commarea": {
+    "PROCESS-INDICATOR": "9",
+    "EPSPCOM-PRINCIPLE-DATA": "750000.00",
+    "EPSPCOM-NUMBER-OF-YEARS": 30,
+    "EPSPCOM-QUOTED-INTEREST-RATE": "9.000",
+    "EPSPCOM-YEAR-MONTH-IND": "Y"
+   },
+   "why": "the other half of A150's AND: every rate is below 9.000 but no loan exceeds 750000.00; the whole file is browsed to ENDFILE"
+  },
+  {
+   "name": "other-key",
+   "aid": "DFHPF5",
+   "commarea": {
+    "PROCESS-INDICATOR": "9",
+    "EPSPCOM-PRINCIPLE-DATA": "200000.00",
+    "EPSPCOM-NUMBER-OF-YEARS": 30,
+    "EPSPCOM-QUOTED-INTEREST-RATE": "3.500",
+    "EPSPCOM-YEAR-MONTH-IND": "Y"
+   },
+   "why": "WHEN OTHER: the same list as ENTER"
+  },
+  {
+   "name": "clear",
+   "aid": "DFHCLEAR",
+   "commarea": {
+    "PROCESS-INDICATOR": "9",
+    "EPSPCOM-PRINCIPLE-DATA": "200000.00",
+    "EPSPCOM-NUMBER-OF-YEARS": 30,
+    "EPSPCOM-QUOTED-INTEREST-RATE": "3.500",
+    "EPSPCOM-YEAR-MONTH-IND": "Y"
+   },
+   "why": "CLEAR: RETURN at once, the COMMAREA untouched"
+  },
+  {
+   "name": "pf3",
+   "aid": "DFHPF3",
+   "commarea": {
+    "PROCESS-INDICATOR": "9",
+    "EPSPCOM-PRINCIPLE-DATA": "200000.00",
+    "EPSPCOM-NUMBER-OF-YEARS": 30,
+    "EPSPCOM-QUOTED-INTEREST-RATE": "3.500",
+    "EPSPCOM-YEAR-MONTH-IND": "Y"
+   },
+   "why": "PF3: RETURN at once"
+  },
+  {
+   "name": "pf12",
+   "aid": "DFHPF12",
+   "commarea": {
+    "PROCESS-INDICATOR": "9",
+    "EPSPCOM-PRINCIPLE-DATA": "200000.00",
+    "EPSPCOM-NUMBER-OF-YEARS": 30,
+    "EPSPCOM-QUOTED-INTEREST-RATE": "3.500",
+    "EPSPCOM-YEAR-MONTH-IND": "Y"
+   },
+   "why": "PF12: the same WHEN as PF3"
+  },
+  {
+   "name": "startbr-notfnd",
+   "aid": "DFHENTER",
+   "commarea": {
+    "PROCESS-INDICATOR": "9",
+    "EPSPCOM-PRINCIPLE-DATA": "200000.00",
+    "EPSPCOM-NUMBER-OF-YEARS": 30,
+    "EPSPCOM-QUOTED-INTEREST-RATE": "3.500",
+    "EPSPCOM-YEAR-MONTH-IND": "Y"
+   },
+   "faults": [
+    {
+     "cmd": "STARTBR",
+     "file": "EPSMORTF",
+     "resp": "NOTFND",
+     "resp2": 80,
+     "why": "13 on the STARTBR (an empty ESDS: no record at RBA 0)"
+    }
+   ],
+   "why": "the STARTBR's ELSE: 'ERROR WITH START' in the first company line, the RESP (13) in the first loan field; no ENDBR (CLOSE-FILE 'N'); SEND MAP"
+  },
+  {
+   "name": "readnext-ioerr",
+   "aid": "DFHENTER",
+   "commarea": {
+    "PROCESS-INDICATOR": "9",
+    "EPSPCOM-PRINCIPLE-DATA": "200000.00",
+    "EPSPCOM-NUMBER-OF-YEARS": 30,
+    "EPSPCOM-QUOTED-INTEREST-RATE": "3.500",
+    "EPSPCOM-YEAR-MONTH-IND": "Y"
+   },
+   "faults": [
+    {
+     "cmd": "READNEXT",
+     "file": "EPSMORTF",
+     "resp": "IOERR",
+     "why": "17 on the first READNEXT"
+    }
+   ],
+   "why": "A150's inner ELSE: 'ERROR WITH READ NEXT' and the RESP (17) in the first line; END-OF-FILE stays 'N', so the loop reads on (the failed READNEXT left the browse where STARTBR put it) through the four records to ENDFILE"
+  }
+ ],
+ "notes": "IBM DBB MortgageApplication's company list (EPSMLIST, LINKed by EPSCMORT on PF9 and ENTER from the list): it browses the ESDS EPSMORTF by relative byte address (STARTBR RIDFLD(RID-LENGTH) RBA EQUAL with RBA 0, then READNEXT ... RBA) and lists, on map EPSMLIS (generated from epsmlis.bms, `@bms/`), each company whose loan exceeds the principal and whose rate is below the quoted rate. The repository ships no CSD or IDCAMS DEFINE for EPSMORTF and no data: the dataset is stated by the case (`csd`) and the four records are the case's own. Not reachable here: a company that passes A150's test LINKs EPSCSMRT for the payment, whose CALL of EPSMPMT the engine does not resolve and whose payment is computed in floating point (oracle_assumptions.md C6; its CBL NUMPROC(MIG) is modelled since #4271, C5), so no scenario lists a company. EIBCALEN 0 (first-entry) MOVEs the unaddressed DFHCOMMAREA first, as EPSCMORT does (oracle_assumptions.md X12). No record's contents reach an output without that LINK, so the proof judges the browse by its outcomes (each READNEXT NORMAL until ENDFILE, the STARTBR and READNEXT error paths, ENDBR); the RBA rules themselves are pinned on both sides by tests/cics_crucible/test_cics_runtimes.py."
+}

@@ -1,0 +1,23 @@
+{
+  "format": "cics-crucible/expected/1",
+  "case": "fx-ts-queue",
+  "scenario": "seeded",
+  "tasks": [
+    {"seq": 1, "transid": "FX02", "program": "FXTSQ", "termid": "T001", "at": "2026-03-02T10:00:00",
+     "trigger": {"kind": "terminal", "step": 0}, "eibaid": "ENTER", "eibcalen": 0, "commarea": null,
+     "events": [
+       {"event": "RECEIVE", "program": "FXTSQ", "resp": "NORMAL", "length": 6, "data": {"length": 6, "text": "FX02 T"}},
+       {"event": "READQ-TS", "program": "FXTSQ", "queue": "FXQ", "item": 1, "resp": "NORMAL", "length": 5,
+        "data": {"length": 5, "text": "HELLO"}},
+       {"event": "WRITEQ-TS", "program": "FXTSQ", "queue": "FXQ", "data": {"length": 5, "text": "HELLO"},
+        "resp": "NORMAL", "item": 2},
+       {"event": "READQ-TS", "program": "FXTSQ", "queue": "FXQ", "item": 2, "resp": "LENGERR", "length": 5,
+        "data": {"length": 3, "text": "HEL"}},
+       {"event": "READQ-TS", "program": "FXTSQ", "queue": "FXNONE", "item": 1, "resp": "QIDERR", "data": null},
+       {"event": "SEND-TEXT", "program": "FXTSQ", "text": "FX02 T 5 2 HEL 5 22 44", "length": 22, "options": ["ERASE"]},
+       {"event": "RETURN", "program": "FXTSQ", "level": 1, "transid": null, "commarea": null}
+     ],
+     "end": "normal"}
+  ],
+  "final": {"ts_queues": {"FXQ": ["HELLO", "HELLO"]}}
+}

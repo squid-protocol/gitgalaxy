@@ -1,0 +1,71 @@
+{
+ "format": "cics-crucible-port/1",
+ "case": "pc-wizard",
+ "program": "PCCONF",
+ "attempt": 1,
+ "backend": "command",
+ "model": "claude-opus-5-5",
+ "command": "claude CLI 2.1.285 print mode (claude -p --model claude-opus-5-5 --effort high --tools '' --strict-mcp-config --mcp-config '{\"mcpServers\":{}}' --no-session-persistence --system-prompt <porting system prompt>, prompt file on stdin, run from an empty directory)",
+ "proposed_at": "2026-09-29T21:52:06+00:00",
+ "ticket_sha256": "e82634d8195af5345b14e598cf0c6448685a7fe5c4425506abc3898b804cb40b",
+ "prompt_tokens": 21986,
+ "feedback_from": null,
+ "notes": "Defects of the original kept (behaviour unchanged):\n- MAIN-PARA moves DFHCOMMAREA without testing EIBCALEN. With no COMMAREA there is no addressability, so the task abends. It is ported as task.abend(\"ASRA\"). CicsTask has no API for a program check, so the event's cause shows \"command\" rather than a protection exception. Fix: IF EIBCALEN = 0 handle a first entry before the MOVE.\n- A COMMAREA shorter than 30 bytes (EIBCALEN < 30) is still moved as 30 bytes, and the bytes past EIBCALEN are undefined. The port uses the DTO as passed.\n- MAIN-PARA has no GOBACK/RETURN after END-EVALUATE, so control falls into TAKE-AMOUNT. Every branch ends the task, so this is unreachable in practice. The fall-through is kept, guarded by !task.ended(). Fix: EXEC CICS RETURN after END-EVALUATE.\n- WHEN PC-STEP = 2 is tested before PF7 and ENTER. On step 2, PF7 and every other non-PF3/CLEAR key takes the amount instead of going back. ENTER posts whatever PC-STEP is, not only step 3.\n- PC-ERRORS is never reset after a valid amount, so LG-ERR logs the cumulative error count. ADD 1 keeps 4 digits (TRUNC(STD) assumed, no CBL card given), and LG-ERR keeps the 2 low-order digits.\n\nPort choices a reviewer should check:\n- Rule 11: the ZZZ,ZZ9.99 edit (WS-AMT-ED / LG-AMT) is done by a small hand-written helper, editZzzZz9V99, not CobolEdit.format. The ticket does not give CobolEdit's package, and guessing it would break the build. This deviates from rule 11. Once the package is known, swap it for CobolEdit.format(\"ZZZ,ZZ9.99\", amount, false, null).\n- Rule 10: MOVE AMTI TO WS-AMT-DIGITS is ported as digit arithmetic after the IS NUMERIC test. That test accepts only '0'-'9', so non-Latin digits are rejected as COBOL rejects them. CobolRecords.numval is not used, for the same reason: its package is not in the ticket. This also deviates from rule 10.\n- AMT input: 3270 nulls are removed and the value is right-justified, zero-filled to 7 (JUSTIFY=(RIGHT,ZERO)). Empty or absent input gives AMTL = 0. MAPFAIL leaves PCM2I at low-values.\n- Low-value output fields are sent as strings of '\\0', so BMS keeps the map's content. For example, MSG3's INITIAL shows when WS-MSG is spaces.\n- The WRITEQ TS PCLEDGER item is encoded as IBM037. The target config does not name the region's code page, and the ledger's fixed characters are the same in 037 and 1047.\n- In runTask, XCTL and WRITEQ TS go through task.xctl and task.writeqTs. xctlPcwiz and writeqTsPcledgerL104 are kept but not called. The PCWIZ COMMAREA is passed as a PcwizWsState copy, which has the same PCSTATE layout.\n- XCTL and WRITEQ are coded without RESP, so any non-NORMAL condition abends the task through abendOnCondition.\n\nFacts contradicted: none found. The RESP_CHECK on RECEIVE (line 61) matches the source.",
+ "proof": {
+  "at": "2026-09-29T21:59:54+00:00",
+  "crucible_ref": "v0.1.0 (0c942cb8)",
+  "summary": {
+   "back-and-fix": "1/1",
+   "happy-post": "1/1",
+   "mapfail-clear-cancel": "1/1"
+  },
+  "sibling_ports": [
+   "PCCONF",
+   "PCWIZ"
+  ],
+  "reproven": [
+   {
+    "at": "2026-10-04T14:22:34+00:00",
+    "crucible_ref": "v0.2.0 (94f2afcb)",
+    "summary": {
+     "back-and-fix": "1/1",
+     "back-clear-keeps-amount": "1/1",
+     "clear-and-bad-amount": "1/1",
+     "happy-post": "1/1",
+     "mapfail-clear-cancel": "1/1"
+    },
+    "port_sha256": "3eb72b4cded23d93e5eb4722ca56c26462020a2fd5389e74b55fb673b62ca824",
+    "harness_commit": "16ae9e01515581be224b32982ceae54bc73e68fb",
+    "by": "tests/tools/crucible_port_provenance.py reprove (cics_crucible.py --sides java-ported --program PCCONF --report-dir)"
+   }
+  ]
+ },
+ "approved": false,
+ "history": [
+  {
+   "at": "2026-09-29T21:52:06+00:00",
+   "event": "proposed",
+   "attempt": 1
+  },
+  {
+   "at": "2026-09-29T21:52:28+00:00",
+   "event": "proven",
+   "attempt": 1,
+   "summary": {
+    "back-and-fix": "1/1",
+    "happy-post": "1/1",
+    "mapfail-clear-cancel": "1/1"
+   }
+  },
+  {
+   "at": "2026-09-29T21:59:54+00:00",
+   "event": "proven",
+   "attempt": 1,
+   "summary": {
+    "back-and-fix": "1/1",
+    "happy-post": "1/1",
+    "mapfail-clear-cancel": "1/1"
+   }
+  }
+ ]
+}

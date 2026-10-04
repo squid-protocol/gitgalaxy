@@ -14,9 +14,11 @@
       "abap/abapGit/zcl_abapgit_xml_output.clas.abap": "Spaces"
     },
     "ada": {
-      "ada/PROVENANCE.md": "Neutral / No Indentation"
+      "ada/PROVENANCE.md": "Neutral / No Indentation",
+      "ada/SOURCES.md": "Neutral / No Indentation"
     },
     "ada/alire": {
+      "ada/alire/LICENSE.txt": "Neutral / No Indentation",
       "ada/alire/alire-conditional_trees.adb": "Spaces",
       "ada/alire/alire-crate_configuration.adb": "Spaces",
       "ada/alire/alire-dependencies-states.ads": "Spaces",
@@ -322,22 +324,17 @@
       "assembly/os_tutorial_x86/14-checkpoint_boot_gdt.asm": "Spaces",
       "assembly/os_tutorial_x86/14-checkpoint_boot_kernel_entry.asm": "Neutral / No Indentation"
     },
-    "assembly/raspberrypi_baremetal": {
-      "assembly/raspberrypi_baremetal/Compress_HUFFMAN_HUFFMANDecode_kernel.asm": "Spaces",
-      "assembly/raspberrypi_baremetal/Compress_HUFFMAN_HUFFMANDecode_kernel7.asm": "Spaces",
-      "assembly/raspberrypi_baremetal/Compress_HUFFMAN_HUFFMANDecode_kernel8.asm": "Mixed (85.7% Spaces / 14.3% Tabs)",
-      "assembly/raspberrypi_baremetal/Compress_HUFFMAN_HUFFMANGFX_kernel.asm": "Spaces",
-      "assembly/raspberrypi_baremetal/Compress_HUFFMAN_HUFFMANGFX_kernel7.asm": "Spaces",
-      "assembly/raspberrypi_baremetal/Compress_HUFFMAN_HUFFMANGFX_kernel8.asm": "Mixed (92.9% Spaces / 7.1% Tabs)",
-      "assembly/raspberrypi_baremetal/Compress_LZ77_LZ77Decode_kernel.asm": "Mixed (59.3% Spaces / 40.7% Tabs)",
-      "assembly/raspberrypi_baremetal/Compress_LZ77_LZ77Decode_kernel7.asm": "Mixed (60.7% Spaces / 39.3% Tabs)",
-      "assembly/raspberrypi_baremetal/Compress_LZ77_LZ77Decode_kernel8.asm": "Spaces",
-      "assembly/raspberrypi_baremetal/Compress_LZ77_LZ77GFX_kernel.asm": "Mixed (82.0% Spaces / 18.0% Tabs)",
-      "assembly/raspberrypi_baremetal/Compress_LZ77_LZ77GFX_kernel7.asm": "Mixed (82.3% Spaces / 17.7% Tabs)",
-      "assembly/raspberrypi_baremetal/Compress_LZ77_LZ77GFX_kernel8.asm": "Mixed (92.3% Spaces / 7.7% Tabs)",
-      "assembly/raspberrypi_baremetal/EMU_GameBoy_kernel.asm": "Spaces",
-      "assembly/raspberrypi_baremetal/HelloWorld_CPU_kernel7.asm": "Spaces",
-      "assembly/raspberrypi_baremetal/HelloWorld_CPU_kernel8.asm": "Spaces"
+    "assembly/rpi_smartstart_baremetal": {
+      "assembly/rpi_smartstart_baremetal/10_virtualmemory_SmartStart32.S": "Mixed (18.0% Spaces / 82.0% Tabs)",
+      "assembly/rpi_smartstart_baremetal/10_virtualmemory_SmartStart64.S": "Mixed (8.2% Spaces / 91.8% Tabs)",
+      "assembly/rpi_smartstart_baremetal/Arm32_64_USB_SmartStart32.S": "Mixed (30.3% Spaces / 69.7% Tabs)",
+      "assembly/rpi_smartstart_baremetal/Arm32_64_USB_SmartStart64.S": "Mixed (9.1% Spaces / 90.9% Tabs)",
+      "assembly/rpi_smartstart_baremetal/Core3Interrupt_SmartStart64.S": "Mixed (8.9% Spaces / 91.1% Tabs)",
+      "assembly/rpi_smartstart_baremetal/FreeRTOSv10.1.1_loader_RaspberryPi_SmartStart32.S": "Mixed (25.2% Spaces / 74.8% Tabs)",
+      "assembly/rpi_smartstart_baremetal/FreeRTOSv10.1.1_loader_RaspberryPi_SmartStart64.S": "Mixed (8.7% Spaces / 91.3% Tabs)",
+      "assembly/rpi_smartstart_baremetal/Multicore_SmartStart32.S": "Mixed (26.8% Spaces / 73.2% Tabs)",
+      "assembly/rpi_smartstart_baremetal/Multicore_SmartStart64.S": "Mixed (6.6% Spaces / 93.4% Tabs)",
+      "assembly/rpi_smartstart_baremetal/SimpleSched_SmartStart32.S": "Mixed (25.4% Spaces / 74.6% Tabs)"
     },
     "assembly/x86_bare_metal": {
       "assembly/x86_bare_metal/LICENSE.adoc": "Neutral / No Indentation",
@@ -393,6 +390,9 @@
       "blueprint/ghostty/split-tree.blp": "Spaces",
       "blueprint/ghostty/window.blp": "Spaces"
     },
+    "bms": {
+      "bms/SOURCES.md": "Neutral / No Indentation"
+    },
     "bms/cbsa": {
       "bms/cbsa/BNK1ACC.bms": "Spaces",
       "bms/cbsa/BNK1CAM.bms": "Spaces",
@@ -403,11 +403,16 @@
       "bms/cbsa/BNK1MAI.bms": "Spaces",
       "bms/cbsa/BNK1TFM.bms": "Spaces",
       "bms/cbsa/BNK1UAM.bms": "Spaces",
-      "bms/cbsa/PROVENANCE.md": "Neutral / No Indentation",
-      "bms/cbsa/ssmap.bms": "Spaces"
+      "bms/cbsa/PROVENANCE.md": "Neutral / No Indentation"
+    },
+    "bms/genapp": {
+      "bms/genapp/ssmap.bms": "Spaces"
     },
     "c": {
       "c/SOURCES.md": "Neutral / No Indentation"
+    },
+    "c/cosmopolitan_intrin": {
+      "c/cosmopolitan_intrin/countbits.c": "Spaces"
     },
     "c/cpython": {
       "c/cpython/Makefile.pre.in": "Mixed (0.4% Spaces / 99.6% Tabs)",
@@ -434,6 +439,9 @@
       "c/doom/w_wad.c": "Mixed (67.1% Spaces / 32.9% Tabs)",
       "c/doom/z_zone.c": "Mixed (61.0% Spaces / 39.0% Tabs)"
     },
+    "c/freebsd_openpam": {
+      "c/freebsd_openpam/pam_acct_mgmt.c": "Tabs"
+    },
     "c/micropython": {
       "c/micropython/compile.c": "Spaces",
       "c/micropython/compile.h": "Neutral / No Indentation",
@@ -449,6 +457,7 @@
       "c/micropython/vm.c": "Spaces"
     },
     "c/sqlite": {
+      "c/sqlite/LICENSE.md": "Neutral / No Indentation",
       "c/sqlite/README.md": "Neutral / No Indentation",
       "c/sqlite/lemon.c": "Spaces"
     },
@@ -560,7 +569,7 @@
       "cobol/aws-mainframe-modernization-carddemo/CSDAT01Y.cpy": "Spaces",
       "cobol/aws-mainframe-modernization-carddemo/CSLKPCDY.cpy": "Spaces",
       "cobol/aws-mainframe-modernization-carddemo/CSMSG01Y.cpy": "Spaces",
-      "cobol/aws-mainframe-modernization-carddemo/CSMSG02Y.cpy": "Neutral / No Indentation",
+      "cobol/aws-mainframe-modernization-carddemo/CSMSG02Y.cpy": "Spaces",
       "cobol/aws-mainframe-modernization-carddemo/CSSETATY.cpy": "Spaces",
       "cobol/aws-mainframe-modernization-carddemo/CSSTRPFY.cpy": "Spaces",
       "cobol/aws-mainframe-modernization-carddemo/CSUSR01Y.cpy": "Spaces",
@@ -582,6 +591,9 @@
       "cobol/aws-mainframe-modernization-carddemo/CVTRA07Y.cpy": "Spaces",
       "cobol/aws-mainframe-modernization-carddemo/DFHAID.cpy": "Spaces",
       "cobol/aws-mainframe-modernization-carddemo/DFHBMSCA.cpy": "Spaces",
+      "cobol/aws-mainframe-modernization-carddemo/LICENSE.md": "Neutral / No Indentation",
+      "cobol/aws-mainframe-modernization-carddemo/NOTICE.md": "Neutral / No Indentation",
+      "cobol/aws-mainframe-modernization-carddemo/README.md": "Neutral / No Indentation",
       "cobol/aws-mainframe-modernization-carddemo/UNUSED1Y.cpy": "Spaces"
     },
     "cobol/cash-account-cobol": {
@@ -590,6 +602,8 @@
       "cobol/cash-account-cobol/DCLFRANK.cpy": "Spaces"
     },
     "cobol/che-che4z-lsp-for-cobol": {
+      "cobol/che-che4z-lsp-for-cobol/LICENSE.md": "Neutral / No Indentation",
+      "cobol/che-che4z-lsp-for-cobol/NOTICE.md": "Neutral / No Indentation",
       "cobol/che-che4z-lsp-for-cobol/SQLCA_DATACOM.cpy": "Spaces",
       "cobol/che-che4z-lsp-for-cobol/SQLCA_DB2.cpy": "Spaces",
       "cobol/che-che4z-lsp-for-cobol/SQLDA.cpy": "Spaces"
@@ -604,14 +618,14 @@
       "cobol/che-che4z_lsp_project_fixtures/DIAGNOSTIC_TEST_B.CBL": "Spaces",
       "cobol/che-che4z_lsp_project_fixtures/DIAGNOSTIC_TEST_C.CBL": "Spaces",
       "cobol/che-che4z_lsp_project_fixtures/HELLO-WORLD.cbl": "Spaces",
-      "cobol/che-che4z_lsp_project_fixtures/HOVER.CBL": "Neutral / No Indentation",
+      "cobol/che-che4z_lsp_project_fixtures/HOVER.CBL": "Spaces",
       "cobol/che-che4z_lsp_project_fixtures/HOVER_COPYBOOK_NESTED.CBL": "Spaces",
       "cobol/che-che4z_lsp_project_fixtures/HOVER_PARA.CBL": "Spaces",
       "cobol/che-che4z_lsp_project_fixtures/LICENSE.md": "Neutral / No Indentation",
       "cobol/che-che4z_lsp_project_fixtures/PAYLIB.CBL": "Spaces",
       "cobol/che-che4z_lsp_project_fixtures/REPLA.CBL": "Spaces",
       "cobol/che-che4z_lsp_project_fixtures/REPLACING.CBL": "Spaces",
-      "cobol/che-che4z_lsp_project_fixtures/RES.cbl": "Neutral / No Indentation",
+      "cobol/che-che4z_lsp_project_fixtures/RES.cbl": "Spaces",
       "cobol/che-che4z_lsp_project_fixtures/SNIPPET.cbl": "Neutral / No Indentation",
       "cobol/che-che4z_lsp_project_fixtures/SNIPPET2.cbl": "Neutral / No Indentation",
       "cobol/che-che4z_lsp_project_fixtures/SNIPPET_IDMS.cbl": "Neutral / No Indentation",
@@ -644,12 +658,12 @@
       "cobol/che-che4z_lsp_project_fixtures/XML1.cbl": "Spaces",
       "cobol/che-che4z_lsp_project_fixtures/XML2.cbl": "Spaces",
       "cobol/che-che4z_lsp_project_fixtures/XML3.cbl": "Spaces",
-      "cobol/che-che4z_lsp_project_fixtures/cobol-daco_DACOSMPL.cbl": "Neutral / No Indentation",
+      "cobol/che-che4z_lsp_project_fixtures/cobol-daco_DACOSMPL.cbl": "Spaces",
       "cobol/che-che4z_lsp_project_fixtures/cobol-dc_ABCD.cbl": "Spaces",
-      "cobol/che-che4z_lsp_project_fixtures/cobol-idms_DACOSMPL.cbl": "Neutral / No Indentation",
+      "cobol/che-che4z_lsp_project_fixtures/cobol-idms_DACOSMPL.cbl": "Spaces",
       "cobol/che-che4z_lsp_project_fixtures/cobol-idms_IDMSSMPL.cbl": "Spaces",
       "cobol/che-che4z_lsp_project_fixtures/cobol-sample_SAMPLE1.cbl": "Spaces",
-      "cobol/che-che4z_lsp_project_fixtures/cobol-vanila_DACOSMPL.cbl": "Neutral / No Indentation",
+      "cobol/che-che4z_lsp_project_fixtures/cobol-vanila_DACOSMPL.cbl": "Spaces",
       "cobol/che-che4z_lsp_project_fixtures/cobol-vanila_IDMSSMPL.cbl": "Spaces",
       "cobol/che-che4z_lsp_project_fixtures/copy-daco_DACOSMPL_PDRTPY-DXY.cpy": "Spaces",
       "cobol/che-che4z_lsp_project_fixtures/copy-idms_DABPA11N_SUBSCHEMA-NAMES.cpy": "Spaces",
@@ -667,157 +681,157 @@
       "cobol/che-che4z_lsp_project_fixtures/testing_DIAGNOS.CPY": "Spaces"
     },
     "cobol/che-che4z_nist_ccvs85": {
-      "cobol/che-che4z_nist_ccvs85/DB1024.2.cbl": "Neutral / No Indentation",
-      "cobol/che-che4z_nist_ccvs85/DB1034.2.cbl": "Neutral / No Indentation",
-      "cobol/che-che4z_nist_ccvs85/DB1044.2.cbl": "Neutral / No Indentation",
-      "cobol/che-che4z_nist_ccvs85/DB3014.2.cbl": "Neutral / No Indentation",
-      "cobol/che-che4z_nist_ccvs85/DB3024.2.cbl": "Neutral / No Indentation",
-      "cobol/che-che4z_nist_ccvs85/DB3054.2.cbl": "Neutral / No Indentation",
-      "cobol/che-che4z_nist_ccvs85/IC1014.2.cbl": "Neutral / No Indentation",
-      "cobol/che-che4z_nist_ccvs85/IC1024.2.cbl": "Neutral / No Indentation",
-      "cobol/che-che4z_nist_ccvs85/IC1034.2.cbl": "Neutral / No Indentation",
-      "cobol/che-che4z_nist_ccvs85/IC1044.2.cbl": "Neutral / No Indentation",
-      "cobol/che-che4z_nist_ccvs85/IC1054.2.cbl": "Neutral / No Indentation",
-      "cobol/che-che4z_nist_ccvs85/IC1064.2.cbl": "Neutral / No Indentation",
-      "cobol/che-che4z_nist_ccvs85/IC1074.2.cbl": "Neutral / No Indentation",
-      "cobol/che-che4z_nist_ccvs85/IC1084.2.cbl": "Neutral / No Indentation",
-      "cobol/che-che4z_nist_ccvs85/IC1094.2.cbl": "Neutral / No Indentation",
-      "cobol/che-che4z_nist_ccvs85/IC1104.2.cbl": "Neutral / No Indentation",
-      "cobol/che-che4z_nist_ccvs85/IC1114.2.cbl": "Neutral / No Indentation",
-      "cobol/che-che4z_nist_ccvs85/IC1134.2.cbl": "Neutral / No Indentation",
-      "cobol/che-che4z_nist_ccvs85/IC1144.2.cbl": "Neutral / No Indentation",
-      "cobol/che-che4z_nist_ccvs85/IC1164.2.cbl": "Neutral / No Indentation",
-      "cobol/che-che4z_nist_ccvs85/IC1174.2.cbl": "Neutral / No Indentation",
-      "cobol/che-che4z_nist_ccvs85/IC1184.2.cbl": "Neutral / No Indentation",
-      "cobol/che-che4z_nist_ccvs85/IC2014.2.cbl": "Neutral / No Indentation",
-      "cobol/che-che4z_nist_ccvs85/IC2024.2.cbl": "Neutral / No Indentation",
-      "cobol/che-che4z_nist_ccvs85/IC2034.2.cbl": "Neutral / No Indentation",
-      "cobol/che-che4z_nist_ccvs85/IC2044.2.cbl": "Neutral / No Indentation",
-      "cobol/che-che4z_nist_ccvs85/IC2054.2.cbl": "Neutral / No Indentation",
-      "cobol/che-che4z_nist_ccvs85/IC2064.2.cbl": "Neutral / No Indentation",
-      "cobol/che-che4z_nist_ccvs85/IC2074.2.cbl": "Neutral / No Indentation",
-      "cobol/che-che4z_nist_ccvs85/IC2084.2.cbl": "Neutral / No Indentation",
-      "cobol/che-che4z_nist_ccvs85/IC2094.2.cbl": "Neutral / No Indentation",
-      "cobol/che-che4z_nist_ccvs85/IC2104.2.cbl": "Neutral / No Indentation",
-      "cobol/che-che4z_nist_ccvs85/IC2114.2.cbl": "Neutral / No Indentation",
-      "cobol/che-che4z_nist_ccvs85/IC2124.2.cbl": "Neutral / No Indentation",
-      "cobol/che-che4z_nist_ccvs85/IC2134.2.cbl": "Neutral / No Indentation",
-      "cobol/che-che4z_nist_ccvs85/IC2144.2.cbl": "Neutral / No Indentation",
-      "cobol/che-che4z_nist_ccvs85/IC2154.2.cbl": "Neutral / No Indentation",
-      "cobol/che-che4z_nist_ccvs85/IC2164.2.cbl": "Neutral / No Indentation",
-      "cobol/che-che4z_nist_ccvs85/IC2174.2.cbl": "Neutral / No Indentation",
-      "cobol/che-che4z_nist_ccvs85/IC2244.2.cbl": "Neutral / No Indentation",
-      "cobol/che-che4z_nist_ccvs85/IC2264.2.cbl": "Neutral / No Indentation",
-      "cobol/che-che4z_nist_ccvs85/IC2284.2.cbl": "Neutral / No Indentation",
-      "cobol/che-che4z_nist_ccvs85/IC2334.2.cbl": "Neutral / No Indentation",
-      "cobol/che-che4z_nist_ccvs85/IC2344.2.cbl": "Neutral / No Indentation",
-      "cobol/che-che4z_nist_ccvs85/IC2374.2.cbl": "Neutral / No Indentation",
-      "cobol/che-che4z_nist_ccvs85/IC4014.2.cbl": "Neutral / No Indentation",
-      "cobol/che-che4z_nist_ccvs85/IF1024.2.cbl": "Neutral / No Indentation",
-      "cobol/che-che4z_nist_ccvs85/IF1054.2.cbl": "Neutral / No Indentation",
-      "cobol/che-che4z_nist_ccvs85/IF1074.2.cbl": "Neutral / No Indentation",
-      "cobol/che-che4z_nist_ccvs85/IF1084.2.cbl": "Neutral / No Indentation",
-      "cobol/che-che4z_nist_ccvs85/IF1094.2.cbl": "Neutral / No Indentation",
-      "cobol/che-che4z_nist_ccvs85/IF1104.2.cbl": "Neutral / No Indentation",
-      "cobol/che-che4z_nist_ccvs85/IF1114.2.cbl": "Neutral / No Indentation",
-      "cobol/che-che4z_nist_ccvs85/IF1124.2.cbl": "Neutral / No Indentation",
-      "cobol/che-che4z_nist_ccvs85/IF1134.2.cbl": "Neutral / No Indentation",
-      "cobol/che-che4z_nist_ccvs85/IF1144.2.cbl": "Neutral / No Indentation",
-      "cobol/che-che4z_nist_ccvs85/IF1154.2.cbl": "Neutral / No Indentation",
-      "cobol/che-che4z_nist_ccvs85/IF1184.2.cbl": "Neutral / No Indentation",
-      "cobol/che-che4z_nist_ccvs85/IF1204.2.cbl": "Neutral / No Indentation",
-      "cobol/che-che4z_nist_ccvs85/IF1214.2.cbl": "Neutral / No Indentation",
-      "cobol/che-che4z_nist_ccvs85/IF1224.2.cbl": "Neutral / No Indentation",
-      "cobol/che-che4z_nist_ccvs85/IF1244.2.cbl": "Neutral / No Indentation",
-      "cobol/che-che4z_nist_ccvs85/IF1254.2.cbl": "Neutral / No Indentation",
-      "cobol/che-che4z_nist_ccvs85/IF1274.2.cbl": "Neutral / No Indentation",
-      "cobol/che-che4z_nist_ccvs85/IF1284.2.cbl": "Neutral / No Indentation",
-      "cobol/che-che4z_nist_ccvs85/IF1294.2.cbl": "Neutral / No Indentation",
-      "cobol/che-che4z_nist_ccvs85/IF1314.2.cbl": "Neutral / No Indentation",
-      "cobol/che-che4z_nist_ccvs85/IF1324.2.cbl": "Neutral / No Indentation",
-      "cobol/che-che4z_nist_ccvs85/IF1334.2.cbl": "Neutral / No Indentation",
-      "cobol/che-che4z_nist_ccvs85/IF1344.2.cbl": "Neutral / No Indentation",
-      "cobol/che-che4z_nist_ccvs85/IF1374.2.cbl": "Neutral / No Indentation",
-      "cobol/che-che4z_nist_ccvs85/IF1384.2.cbl": "Neutral / No Indentation",
-      "cobol/che-che4z_nist_ccvs85/IF1404.2.cbl": "Neutral / No Indentation",
-      "cobol/che-che4z_nist_ccvs85/IF1414.2.cbl": "Neutral / No Indentation",
-      "cobol/che-che4z_nist_ccvs85/IF1424.2.cbl": "Neutral / No Indentation",
-      "cobol/che-che4z_nist_ccvs85/IF4014.2.cbl": "Neutral / No Indentation",
-      "cobol/che-che4z_nist_ccvs85/IF4024.2.cbl": "Neutral / No Indentation",
-      "cobol/che-che4z_nist_ccvs85/IF4034.2.cbl": "Neutral / No Indentation",
-      "cobol/che-che4z_nist_ccvs85/IX1014.2.cbl": "Neutral / No Indentation",
-      "cobol/che-che4z_nist_ccvs85/IX1024.2.cbl": "Neutral / No Indentation",
-      "cobol/che-che4z_nist_ccvs85/IX1034.2.cbl": "Neutral / No Indentation",
-      "cobol/che-che4z_nist_ccvs85/IX1044.2.cbl": "Neutral / No Indentation",
-      "cobol/che-che4z_nist_ccvs85/IX1114.2.cbl": "Neutral / No Indentation",
-      "cobol/che-che4z_nist_ccvs85/IX1134.2.cbl": "Neutral / No Indentation",
-      "cobol/che-che4z_nist_ccvs85/IX1144.2.cbl": "Neutral / No Indentation",
-      "cobol/che-che4z_nist_ccvs85/IX1154.2.cbl": "Neutral / No Indentation",
-      "cobol/che-che4z_nist_ccvs85/IX1164.2.cbl": "Neutral / No Indentation",
-      "cobol/che-che4z_nist_ccvs85/IX1174.2.cbl": "Neutral / No Indentation",
-      "cobol/che-che4z_nist_ccvs85/IX1184.2.cbl": "Neutral / No Indentation",
-      "cobol/che-che4z_nist_ccvs85/IX1194.2.cbl": "Neutral / No Indentation",
-      "cobol/che-che4z_nist_ccvs85/IX1204.2.cbl": "Neutral / No Indentation",
-      "cobol/che-che4z_nist_ccvs85/IX1214.2.cbl": "Neutral / No Indentation",
-      "cobol/che-che4z_nist_ccvs85/IX2014.2.cbl": "Neutral / No Indentation",
-      "cobol/che-che4z_nist_ccvs85/IX2034.2.cbl": "Neutral / No Indentation",
-      "cobol/che-che4z_nist_ccvs85/IX2044.2.cbl": "Neutral / No Indentation",
-      "cobol/che-che4z_nist_ccvs85/IX2174.2.cbl": "Neutral / No Indentation",
-      "cobol/che-che4z_nist_ccvs85/IX2184.2.cbl": "Neutral / No Indentation",
-      "cobol/che-che4z_nist_ccvs85/IX3014.2.cbl": "Neutral / No Indentation",
-      "cobol/che-che4z_nist_ccvs85/IX4014.2.cbl": "Neutral / No Indentation",
+      "cobol/che-che4z_nist_ccvs85/DB1024.2.cbl": "Spaces",
+      "cobol/che-che4z_nist_ccvs85/DB1034.2.cbl": "Spaces",
+      "cobol/che-che4z_nist_ccvs85/DB1044.2.cbl": "Spaces",
+      "cobol/che-che4z_nist_ccvs85/DB3014.2.cbl": "Spaces",
+      "cobol/che-che4z_nist_ccvs85/DB3024.2.cbl": "Spaces",
+      "cobol/che-che4z_nist_ccvs85/DB3054.2.cbl": "Spaces",
+      "cobol/che-che4z_nist_ccvs85/IC1014.2.cbl": "Spaces",
+      "cobol/che-che4z_nist_ccvs85/IC1024.2.cbl": "Spaces",
+      "cobol/che-che4z_nist_ccvs85/IC1034.2.cbl": "Spaces",
+      "cobol/che-che4z_nist_ccvs85/IC1044.2.cbl": "Spaces",
+      "cobol/che-che4z_nist_ccvs85/IC1054.2.cbl": "Spaces",
+      "cobol/che-che4z_nist_ccvs85/IC1064.2.cbl": "Spaces",
+      "cobol/che-che4z_nist_ccvs85/IC1074.2.cbl": "Spaces",
+      "cobol/che-che4z_nist_ccvs85/IC1084.2.cbl": "Spaces",
+      "cobol/che-che4z_nist_ccvs85/IC1094.2.cbl": "Spaces",
+      "cobol/che-che4z_nist_ccvs85/IC1104.2.cbl": "Spaces",
+      "cobol/che-che4z_nist_ccvs85/IC1114.2.cbl": "Spaces",
+      "cobol/che-che4z_nist_ccvs85/IC1134.2.cbl": "Spaces",
+      "cobol/che-che4z_nist_ccvs85/IC1144.2.cbl": "Spaces",
+      "cobol/che-che4z_nist_ccvs85/IC1164.2.cbl": "Spaces",
+      "cobol/che-che4z_nist_ccvs85/IC1174.2.cbl": "Spaces",
+      "cobol/che-che4z_nist_ccvs85/IC1184.2.cbl": "Spaces",
+      "cobol/che-che4z_nist_ccvs85/IC2014.2.cbl": "Spaces",
+      "cobol/che-che4z_nist_ccvs85/IC2024.2.cbl": "Spaces",
+      "cobol/che-che4z_nist_ccvs85/IC2034.2.cbl": "Spaces",
+      "cobol/che-che4z_nist_ccvs85/IC2044.2.cbl": "Spaces",
+      "cobol/che-che4z_nist_ccvs85/IC2054.2.cbl": "Spaces",
+      "cobol/che-che4z_nist_ccvs85/IC2064.2.cbl": "Spaces",
+      "cobol/che-che4z_nist_ccvs85/IC2074.2.cbl": "Spaces",
+      "cobol/che-che4z_nist_ccvs85/IC2084.2.cbl": "Spaces",
+      "cobol/che-che4z_nist_ccvs85/IC2094.2.cbl": "Spaces",
+      "cobol/che-che4z_nist_ccvs85/IC2104.2.cbl": "Spaces",
+      "cobol/che-che4z_nist_ccvs85/IC2114.2.cbl": "Spaces",
+      "cobol/che-che4z_nist_ccvs85/IC2124.2.cbl": "Spaces",
+      "cobol/che-che4z_nist_ccvs85/IC2134.2.cbl": "Spaces",
+      "cobol/che-che4z_nist_ccvs85/IC2144.2.cbl": "Spaces",
+      "cobol/che-che4z_nist_ccvs85/IC2154.2.cbl": "Spaces",
+      "cobol/che-che4z_nist_ccvs85/IC2164.2.cbl": "Spaces",
+      "cobol/che-che4z_nist_ccvs85/IC2174.2.cbl": "Spaces",
+      "cobol/che-che4z_nist_ccvs85/IC2244.2.cbl": "Spaces",
+      "cobol/che-che4z_nist_ccvs85/IC2264.2.cbl": "Spaces",
+      "cobol/che-che4z_nist_ccvs85/IC2284.2.cbl": "Spaces",
+      "cobol/che-che4z_nist_ccvs85/IC2334.2.cbl": "Spaces",
+      "cobol/che-che4z_nist_ccvs85/IC2344.2.cbl": "Spaces",
+      "cobol/che-che4z_nist_ccvs85/IC2374.2.cbl": "Spaces",
+      "cobol/che-che4z_nist_ccvs85/IC4014.2.cbl": "Spaces",
+      "cobol/che-che4z_nist_ccvs85/IF1024.2.cbl": "Spaces",
+      "cobol/che-che4z_nist_ccvs85/IF1054.2.cbl": "Spaces",
+      "cobol/che-che4z_nist_ccvs85/IF1074.2.cbl": "Spaces",
+      "cobol/che-che4z_nist_ccvs85/IF1084.2.cbl": "Spaces",
+      "cobol/che-che4z_nist_ccvs85/IF1094.2.cbl": "Spaces",
+      "cobol/che-che4z_nist_ccvs85/IF1104.2.cbl": "Spaces",
+      "cobol/che-che4z_nist_ccvs85/IF1114.2.cbl": "Spaces",
+      "cobol/che-che4z_nist_ccvs85/IF1124.2.cbl": "Spaces",
+      "cobol/che-che4z_nist_ccvs85/IF1134.2.cbl": "Spaces",
+      "cobol/che-che4z_nist_ccvs85/IF1144.2.cbl": "Spaces",
+      "cobol/che-che4z_nist_ccvs85/IF1154.2.cbl": "Spaces",
+      "cobol/che-che4z_nist_ccvs85/IF1184.2.cbl": "Spaces",
+      "cobol/che-che4z_nist_ccvs85/IF1204.2.cbl": "Spaces",
+      "cobol/che-che4z_nist_ccvs85/IF1214.2.cbl": "Spaces",
+      "cobol/che-che4z_nist_ccvs85/IF1224.2.cbl": "Spaces",
+      "cobol/che-che4z_nist_ccvs85/IF1244.2.cbl": "Spaces",
+      "cobol/che-che4z_nist_ccvs85/IF1254.2.cbl": "Spaces",
+      "cobol/che-che4z_nist_ccvs85/IF1274.2.cbl": "Spaces",
+      "cobol/che-che4z_nist_ccvs85/IF1284.2.cbl": "Spaces",
+      "cobol/che-che4z_nist_ccvs85/IF1294.2.cbl": "Spaces",
+      "cobol/che-che4z_nist_ccvs85/IF1314.2.cbl": "Spaces",
+      "cobol/che-che4z_nist_ccvs85/IF1324.2.cbl": "Spaces",
+      "cobol/che-che4z_nist_ccvs85/IF1334.2.cbl": "Spaces",
+      "cobol/che-che4z_nist_ccvs85/IF1344.2.cbl": "Spaces",
+      "cobol/che-che4z_nist_ccvs85/IF1374.2.cbl": "Spaces",
+      "cobol/che-che4z_nist_ccvs85/IF1384.2.cbl": "Spaces",
+      "cobol/che-che4z_nist_ccvs85/IF1404.2.cbl": "Spaces",
+      "cobol/che-che4z_nist_ccvs85/IF1414.2.cbl": "Spaces",
+      "cobol/che-che4z_nist_ccvs85/IF1424.2.cbl": "Spaces",
+      "cobol/che-che4z_nist_ccvs85/IF4014.2.cbl": "Spaces",
+      "cobol/che-che4z_nist_ccvs85/IF4024.2.cbl": "Spaces",
+      "cobol/che-che4z_nist_ccvs85/IF4034.2.cbl": "Spaces",
+      "cobol/che-che4z_nist_ccvs85/IX1014.2.cbl": "Spaces",
+      "cobol/che-che4z_nist_ccvs85/IX1024.2.cbl": "Spaces",
+      "cobol/che-che4z_nist_ccvs85/IX1034.2.cbl": "Spaces",
+      "cobol/che-che4z_nist_ccvs85/IX1044.2.cbl": "Spaces",
+      "cobol/che-che4z_nist_ccvs85/IX1114.2.cbl": "Spaces",
+      "cobol/che-che4z_nist_ccvs85/IX1134.2.cbl": "Spaces",
+      "cobol/che-che4z_nist_ccvs85/IX1144.2.cbl": "Spaces",
+      "cobol/che-che4z_nist_ccvs85/IX1154.2.cbl": "Spaces",
+      "cobol/che-che4z_nist_ccvs85/IX1164.2.cbl": "Spaces",
+      "cobol/che-che4z_nist_ccvs85/IX1174.2.cbl": "Spaces",
+      "cobol/che-che4z_nist_ccvs85/IX1184.2.cbl": "Spaces",
+      "cobol/che-che4z_nist_ccvs85/IX1194.2.cbl": "Spaces",
+      "cobol/che-che4z_nist_ccvs85/IX1204.2.cbl": "Spaces",
+      "cobol/che-che4z_nist_ccvs85/IX1214.2.cbl": "Spaces",
+      "cobol/che-che4z_nist_ccvs85/IX2014.2.cbl": "Spaces",
+      "cobol/che-che4z_nist_ccvs85/IX2034.2.cbl": "Spaces",
+      "cobol/che-che4z_nist_ccvs85/IX2044.2.cbl": "Spaces",
+      "cobol/che-che4z_nist_ccvs85/IX2174.2.cbl": "Spaces",
+      "cobol/che-che4z_nist_ccvs85/IX2184.2.cbl": "Spaces",
+      "cobol/che-che4z_nist_ccvs85/IX3014.2.cbl": "Spaces",
+      "cobol/che-che4z_nist_ccvs85/IX4014.2.cbl": "Spaces",
       "cobol/che-che4z_nist_ccvs85/LICENSE.md": "Neutral / No Indentation",
-      "cobol/che-che4z_nist_ccvs85/NC1104.2.cbl": "Neutral / No Indentation",
-      "cobol/che-che4z_nist_ccvs85/NC1114.2.cbl": "Neutral / No Indentation",
-      "cobol/che-che4z_nist_ccvs85/NC1134.2.cbl": "Neutral / No Indentation",
-      "cobol/che-che4z_nist_ccvs85/NC1254.2.cbl": "Neutral / No Indentation",
-      "cobol/che-che4z_nist_ccvs85/NC1274.2.cbl": "Neutral / No Indentation",
-      "cobol/che-che4z_nist_ccvs85/NC1314.2.cbl": "Neutral / No Indentation",
-      "cobol/che-che4z_nist_ccvs85/NC1334.2.cbl": "Neutral / No Indentation",
-      "cobol/che-che4z_nist_ccvs85/NC1344.2.cbl": "Neutral / No Indentation",
-      "cobol/che-che4z_nist_ccvs85/NC1354.2.cbl": "Neutral / No Indentation",
-      "cobol/che-che4z_nist_ccvs85/NC1364.2.cbl": "Neutral / No Indentation",
-      "cobol/che-che4z_nist_ccvs85/NC1374.2.cbl": "Neutral / No Indentation",
-      "cobol/che-che4z_nist_ccvs85/NC1384.2.cbl": "Neutral / No Indentation",
-      "cobol/che-che4z_nist_ccvs85/NC1394.2.cbl": "Neutral / No Indentation",
-      "cobol/che-che4z_nist_ccvs85/NC1404.2.cbl": "Neutral / No Indentation",
-      "cobol/che-che4z_nist_ccvs85/NC1414.2.cbl": "Neutral / No Indentation",
-      "cobol/che-che4z_nist_ccvs85/NC2104.2.cbl": "Neutral / No Indentation",
-      "cobol/che-che4z_nist_ccvs85/NC2144.2.cbl": "Neutral / No Indentation",
-      "cobol/che-che4z_nist_ccvs85/NC2154.2.cbl": "Neutral / No Indentation",
-      "cobol/che-che4z_nist_ccvs85/NC2194.2.cbl": "Neutral / No Indentation",
-      "cobol/che-che4z_nist_ccvs85/NC2224.2.cbl": "Neutral / No Indentation",
-      "cobol/che-che4z_nist_ccvs85/NC2244.2.cbl": "Neutral / No Indentation",
-      "cobol/che-che4z_nist_ccvs85/NC2354.2.cbl": "Neutral / No Indentation",
-      "cobol/che-che4z_nist_ccvs85/NC2364.2.cbl": "Neutral / No Indentation",
-      "cobol/che-che4z_nist_ccvs85/NC2374.2.cbl": "Neutral / No Indentation",
-      "cobol/che-che4z_nist_ccvs85/NC2384.2.cbl": "Neutral / No Indentation",
-      "cobol/che-che4z_nist_ccvs85/NC2394.2.cbl": "Neutral / No Indentation",
-      "cobol/che-che4z_nist_ccvs85/NC2404.2.cbl": "Neutral / No Indentation",
-      "cobol/che-che4z_nist_ccvs85/NC2414.2.cbl": "Neutral / No Indentation",
-      "cobol/che-che4z_nist_ccvs85/NC2424.2.cbl": "Neutral / No Indentation",
-      "cobol/che-che4z_nist_ccvs85/NC2434.2.cbl": "Neutral / No Indentation",
-      "cobol/che-che4z_nist_ccvs85/NC2444.2.cbl": "Neutral / No Indentation",
-      "cobol/che-che4z_nist_ccvs85/NC2454.2.cbl": "Neutral / No Indentation",
-      "cobol/che-che4z_nist_ccvs85/NC2484.2.cbl": "Neutral / No Indentation",
-      "cobol/che-che4z_nist_ccvs85/NC3034.2.cbl": "Neutral / No Indentation",
-      "cobol/che-che4z_nist_ccvs85/OBIC14.2.cbl": "Neutral / No Indentation",
-      "cobol/che-che4z_nist_ccvs85/OBIC24.2.cbl": "Neutral / No Indentation",
-      "cobol/che-che4z_nist_ccvs85/OBIC34.2.cbl": "Neutral / No Indentation",
-      "cobol/che-che4z_nist_ccvs85/OBSQ34.2.cbl": "Neutral / No Indentation",
-      "cobol/che-che4z_nist_ccvs85/OBSQ44.2.cbl": "Neutral / No Indentation",
-      "cobol/che-che4z_nist_ccvs85/OBSQ54.2.cbl": "Neutral / No Indentation",
+      "cobol/che-che4z_nist_ccvs85/NC1104.2.cbl": "Spaces",
+      "cobol/che-che4z_nist_ccvs85/NC1114.2.cbl": "Spaces",
+      "cobol/che-che4z_nist_ccvs85/NC1134.2.cbl": "Spaces",
+      "cobol/che-che4z_nist_ccvs85/NC1254.2.cbl": "Spaces",
+      "cobol/che-che4z_nist_ccvs85/NC1274.2.cbl": "Spaces",
+      "cobol/che-che4z_nist_ccvs85/NC1314.2.cbl": "Spaces",
+      "cobol/che-che4z_nist_ccvs85/NC1334.2.cbl": "Spaces",
+      "cobol/che-che4z_nist_ccvs85/NC1344.2.cbl": "Spaces",
+      "cobol/che-che4z_nist_ccvs85/NC1354.2.cbl": "Spaces",
+      "cobol/che-che4z_nist_ccvs85/NC1364.2.cbl": "Spaces",
+      "cobol/che-che4z_nist_ccvs85/NC1374.2.cbl": "Spaces",
+      "cobol/che-che4z_nist_ccvs85/NC1384.2.cbl": "Spaces",
+      "cobol/che-che4z_nist_ccvs85/NC1394.2.cbl": "Spaces",
+      "cobol/che-che4z_nist_ccvs85/NC1404.2.cbl": "Spaces",
+      "cobol/che-che4z_nist_ccvs85/NC1414.2.cbl": "Spaces",
+      "cobol/che-che4z_nist_ccvs85/NC2104.2.cbl": "Spaces",
+      "cobol/che-che4z_nist_ccvs85/NC2144.2.cbl": "Spaces",
+      "cobol/che-che4z_nist_ccvs85/NC2154.2.cbl": "Spaces",
+      "cobol/che-che4z_nist_ccvs85/NC2194.2.cbl": "Spaces",
+      "cobol/che-che4z_nist_ccvs85/NC2224.2.cbl": "Spaces",
+      "cobol/che-che4z_nist_ccvs85/NC2244.2.cbl": "Spaces",
+      "cobol/che-che4z_nist_ccvs85/NC2354.2.cbl": "Spaces",
+      "cobol/che-che4z_nist_ccvs85/NC2364.2.cbl": "Spaces",
+      "cobol/che-che4z_nist_ccvs85/NC2374.2.cbl": "Spaces",
+      "cobol/che-che4z_nist_ccvs85/NC2384.2.cbl": "Spaces",
+      "cobol/che-che4z_nist_ccvs85/NC2394.2.cbl": "Spaces",
+      "cobol/che-che4z_nist_ccvs85/NC2404.2.cbl": "Spaces",
+      "cobol/che-che4z_nist_ccvs85/NC2414.2.cbl": "Spaces",
+      "cobol/che-che4z_nist_ccvs85/NC2424.2.cbl": "Spaces",
+      "cobol/che-che4z_nist_ccvs85/NC2434.2.cbl": "Spaces",
+      "cobol/che-che4z_nist_ccvs85/NC2444.2.cbl": "Spaces",
+      "cobol/che-che4z_nist_ccvs85/NC2454.2.cbl": "Spaces",
+      "cobol/che-che4z_nist_ccvs85/NC2484.2.cbl": "Spaces",
+      "cobol/che-che4z_nist_ccvs85/NC3034.2.cbl": "Spaces",
+      "cobol/che-che4z_nist_ccvs85/OBIC14.2.cbl": "Spaces",
+      "cobol/che-che4z_nist_ccvs85/OBIC24.2.cbl": "Spaces",
+      "cobol/che-che4z_nist_ccvs85/OBIC34.2.cbl": "Spaces",
+      "cobol/che-che4z_nist_ccvs85/OBSQ34.2.cbl": "Spaces",
+      "cobol/che-che4z_nist_ccvs85/OBSQ44.2.cbl": "Spaces",
+      "cobol/che-che4z_nist_ccvs85/OBSQ54.2.cbl": "Spaces",
       "cobol/che-che4z_nist_ccvs85/PDC0001.cbl": "Spaces",
-      "cobol/che-che4z_nist_ccvs85/RL3014.2.cbl": "Neutral / No Indentation",
-      "cobol/che-che4z_nist_ccvs85/RL4014.2.cbl": "Neutral / No Indentation",
-      "cobol/che-che4z_nist_ccvs85/SG3034.2.cbl": "Neutral / No Indentation",
-      "cobol/che-che4z_nist_ccvs85/SG4014.2.cbl": "Neutral / No Indentation",
-      "cobol/che-che4z_nist_ccvs85/SM1064.2.cbl": "Neutral / No Indentation",
-      "cobol/che-che4z_nist_ccvs85/SM1074.2.cbl": "Neutral / No Indentation",
-      "cobol/che-che4z_nist_ccvs85/SQ3034.2.cbl": "Neutral / No Indentation",
-      "cobol/che-che4z_nist_ccvs85/ST1084.2.cbl": "Neutral / No Indentation",
-      "cobol/che-che4z_nist_ccvs85/ST1184.2.cbl": "Neutral / No Indentation",
-      "cobol/che-che4z_nist_ccvs85/ST3014.2.cbl": "Neutral / No Indentation"
+      "cobol/che-che4z_nist_ccvs85/RL3014.2.cbl": "Spaces",
+      "cobol/che-che4z_nist_ccvs85/RL4014.2.cbl": "Spaces",
+      "cobol/che-che4z_nist_ccvs85/SG3034.2.cbl": "Spaces",
+      "cobol/che-che4z_nist_ccvs85/SG4014.2.cbl": "Spaces",
+      "cobol/che-che4z_nist_ccvs85/SM1064.2.cbl": "Spaces",
+      "cobol/che-che4z_nist_ccvs85/SM1074.2.cbl": "Spaces",
+      "cobol/che-che4z_nist_ccvs85/SQ3034.2.cbl": "Spaces",
+      "cobol/che-che4z_nist_ccvs85/ST1084.2.cbl": "Spaces",
+      "cobol/che-che4z_nist_ccvs85/ST1184.2.cbl": "Spaces",
+      "cobol/che-che4z_nist_ccvs85/ST3014.2.cbl": "Spaces"
     },
     "cobol/cics-banking-sample-application-cbsa": {
       "cobol/cics-banking-sample-application-cbsa/ABNDINFO.cpy": "Spaces",
@@ -949,7 +963,7 @@
       "cobol/cobol-check/src_main_cobol_DPICNUMBERS.CBL": "Spaces",
       "cobol/cobol-check/src_main_cobol_FileCopy.cbl": "Spaces",
       "cobol/cobol-check/src_main_cobol_GREETING.CBL": "Spaces",
-      "cobol/cobol-check/src_main_cobol_LONGLINESANDNUMBERS.CBL": "Neutral / No Indentation",
+      "cobol/cobol-check/src_main_cobol_LONGLINESANDNUMBERS.CBL": "Spaces",
       "cobol/cobol-check/src_main_cobol_MOCK.CBL": "Spaces",
       "cobol/cobol-check/src_main_cobol_MOCKPARA.CBL": "Spaces",
       "cobol/cobol-check/src_main_cobol_MOCKTEST.CBL": "Spaces",
@@ -1039,6 +1053,7 @@
       "cobol/gnucobol/xfhfcd3.cpy": "Spaces"
     },
     "cobol/gnucobol_internals": {
+      "cobol/gnucobol_internals/COPYING": "Neutral / No Indentation",
       "cobol/gnucobol_internals/codegen.c": "Mixed (0.0% Spaces / 100.0% Tabs)",
       "cobol/gnucobol_internals/fileio.c": "Mixed (0.1% Spaces / 99.9% Tabs)",
       "cobol/gnucobol_internals/numeric.c": "Tabs",
@@ -1117,11 +1132,19 @@
       "cpp/powertoys/main.cpp": "Spaces",
       "cpp/powertoys/powertoy_module.h": "Spaces"
     },
+    "cpp/serenity_ak_siphash_cpu": {
+      "cpp/serenity_ak_siphash_cpu/CPUFeatures.cpp": "Spaces",
+      "cpp/serenity_ak_siphash_cpu/SipHash.cpp": "Spaces"
+    },
+    "csd": {
+      "csd/SOURCES.md": "Neutral / No Indentation"
+    },
     "csd/carddemo": {
       "csd/carddemo/CARDDEMO.CSD": "Spaces",
       "csd/carddemo/CRDDEMO2.csd": "Spaces",
       "csd/carddemo/CRDDEMOD.csd": "Spaces",
       "csd/carddemo/CRDDEMOM.csd": "Spaces",
+      "csd/carddemo/NOTICE": "Neutral / No Indentation",
       "csd/carddemo/PROVENANCE.md": "Neutral / No Indentation"
     },
     "csd/cbsa": {
@@ -1207,6 +1230,9 @@
       "dart/flutter/semantics.dart": "Spaces",
       "dart/flutter/theme_data.dart": "Spaces"
     },
+    "db2_sql": {
+      "db2_sql/SOURCES.md": "Neutral / No Indentation"
+    },
     "db2_sql/db2unit": {
       "db2_sql/db2unit/00-Prereqs.sql": "Spaces",
       "db2_sql/db2unit/01-ObjectsAdmin.sql": "Spaces",
@@ -1216,6 +1242,7 @@
       "db2_sql/db2unit/07-Version.sql": "Spaces",
       "db2_sql/db2unit/98-Clean.sql": "Spaces",
       "db2_sql/db2unit/99-CleanAdmin.sql": "Neutral / No Indentation",
+      "db2_sql/db2unit/LICENSE.txt": "Neutral / No Indentation",
       "db2_sql/db2unit/PROVENANCE.md": "Neutral / No Indentation"
     },
     "dockerfile": {
@@ -1345,6 +1372,9 @@
       "go/core/syscall_linux.go": "Tabs",
       "go/core/value.go": "Tabs"
     },
+    "go/go_runtime_rand": {
+      "go/go_runtime_rand/rand.go": "Tabs"
+    },
     "go/kubernetes": {
       "go/kubernetes/csi_plugin.go": "Tabs",
       "go/kubernetes/generic.go": "Tabs",
@@ -1353,6 +1383,9 @@
       "go/kubernetes/proxier.go": "Tabs",
       "go/kubernetes/replica_set.go": "Tabs",
       "go/kubernetes/scheduler.go": "Tabs"
+    },
+    "go/kubernetes_kubectl_tls": {
+      "go/kubernetes_kubectl_tls/create_secret_tls_test.go": "Tabs"
     },
     "groovy/fineract_gradle_plugin": {
       "groovy/fineract_gradle_plugin/LICENSE_RELEASE": "Neutral / No Indentation",
@@ -1721,7 +1754,8 @@
       "haskell/pandoc/Shared.hs": "Spaces"
     },
     "hlasm": {
-      "hlasm/PROVENANCE.md": "Neutral / No Indentation"
+      "hlasm/PROVENANCE.md": "Neutral / No Indentation",
+      "hlasm/SOURCES.md": "Neutral / No Indentation"
     },
     "hlasm/che4z_hlasm": {
       "hlasm/che4z_hlasm/A.hlasm": "Neutral / No Indentation",
@@ -1729,6 +1763,7 @@
       "hlasm/che4z_hlasm/B.hlasm": "Neutral / No Indentation",
       "hlasm/che4z_hlasm/BBBBB.hlasm": "Spaces",
       "hlasm/che4z_hlasm/CCCCC.hlasm": "Spaces",
+      "hlasm/che4z_hlasm/NOTICE.md": "Neutral / No Indentation",
       "hlasm/che4z_hlasm/code_action_1.hlasm": "Spaces",
       "hlasm/che4z_hlasm/code_action_2.hlasm": "Spaces",
       "hlasm/che4z_hlasm/comments.hlasm": "Spaces",
@@ -1823,6 +1858,7 @@
       "html/polyglot_odoo/database_manager.qweb.html": "Spaces"
     },
     "html/polyglot_vscode": {
+      "html/polyglot_vscode/LICENSE.txt": "Neutral / No Indentation",
       "html/polyglot_vscode/vscode_builtin.html": "Tabs"
     },
     "html/revealjs_decks": {
@@ -1856,6 +1892,17 @@
     "java": {
       "java/SOURCES.md": "Neutral / No Indentation"
     },
+    "java/flutter_android_editing_tests": {
+      "java/flutter_android_editing_tests/InputConnectionAdaptorTest.java": "Spaces"
+    },
+    "java/jenkins_cli": {
+      "java/jenkins_cli/LICENSE.txt": "Neutral / No Indentation",
+      "java/jenkins_cli/SetBuildDescriptionCommand.java": "Spaces"
+    },
+    "java/selenium_grid_session_queue": {
+      "java/selenium_grid_session_queue/NOTICE": "Neutral / No Indentation",
+      "java/selenium_grid_session_queue/RemoteNewSessionQueue.java": "Spaces"
+    },
     "java/springboot": {
       "java/springboot/AutoConfigurationImportSelector.java": "Tabs",
       "java/springboot/Binder.java": "Tabs",
@@ -1869,6 +1916,13 @@
     "javascript": {
       "javascript/SOURCES.md": "Neutral / No Indentation"
     },
+    "javascript/cesium_particle_emitters": {
+      "javascript/cesium_particle_emitters/CircleEmitter.js": "Spaces",
+      "javascript/cesium_particle_emitters/LICENSE.md": "Neutral / No Indentation"
+    },
+    "javascript/javascript_algorithms_bits": {
+      "javascript/javascript_algorithms_bits/fullAdder.js": "Spaces"
+    },
     "javascript/jquery": {
       "javascript/jquery/LICENSE.txt": "Neutral / No Indentation",
       "javascript/jquery/ajax.js": "Tabs",
@@ -1879,6 +1933,15 @@
       "javascript/jquery/event.js": "Tabs",
       "javascript/jquery/tokenize.js": "Tabs"
     },
+    "javascript/node_tls_security_tests": {
+      "javascript/node_tls_security_tests/regexp-unicode-sets.js": "Spaces",
+      "javascript/node_tls_security_tests/test-crypto-dh-modp2.js": "Spaces",
+      "javascript/node_tls_security_tests/test-fs-lchown.js": "Spaces",
+      "javascript/node_tls_security_tests/test-https-host-headers.js": "Spaces",
+      "javascript/node_tls_security_tests/test-tls-cert-ext-encoding.js": "Spaces",
+      "javascript/node_tls_security_tests/test-tls-psk-server.js": "Spaces",
+      "javascript/node_tls_security_tests/test-tls-use-after-free-regression.js": "Spaces"
+    },
     "javascript/react": {
       "javascript/react/BabelPlugin.ts": "Spaces",
       "javascript/react/ReactFiberBeginWork.js": "Spaces",
@@ -1886,6 +1949,9 @@
       "javascript/react/ReactFlightServer.js": "Spaces",
       "javascript/react/ReactSymbols.js": "Spaces",
       "javascript/react/build.js": "Spaces"
+    },
+    "javascript/react_error_codes": {
+      "javascript/react_error_codes/extract-errors.js": "Spaces"
     },
     "javascript/threejs": {
       "javascript/threejs/BufferGeometry.js": "Tabs",
@@ -2278,6 +2344,7 @@
       "lua/darwin-xnu/wqtrace.lua": "Tabs"
     },
     "lua/freebsd-src": {
+      "lua/freebsd-src/COPYRIGHT": "Neutral / No Indentation",
       "lua/freebsd-src/cli.lua": "Tabs",
       "lua/freebsd-src/color.lua": "Tabs",
       "lua/freebsd-src/config.lua": "Tabs",
@@ -2372,6 +2439,16 @@
       "makefile/freebsd/COPYRIGHT": "Neutral / No Indentation",
       "makefile/freebsd/Makefile": "Tabs"
     },
+    "markdown": {
+      "markdown/SOURCES.md": "Neutral / No Indentation"
+    },
+    "markdown/airflow_job_lifecycle": {
+      "markdown/airflow_job_lifecycle/JOB_LIFECYCLE.md": "Neutral / No Indentation",
+      "markdown/airflow_job_lifecycle/NOTICE": "Neutral / No Indentation"
+    },
+    "markdown/kubernetes_client_go": {
+      "markdown/kubernetes_client_go/ARCHITECTURE.md": "Neutral / No Indentation"
+    },
     "matlab": {
       "matlab/SOURCES.md": "Neutral / No Indentation"
     },
@@ -2398,6 +2475,7 @@
       "nix/SOURCES.md": "Neutral / No Indentation"
     },
     "nix/bun": {
+      "nix/bun/LICENSE.md": "Neutral / No Indentation",
       "nix/bun/flake.nix": "Spaces",
       "nix/bun/shell.nix": "Spaces"
     },
@@ -2420,6 +2498,10 @@
     },
     "perl": {
       "perl/SOURCES.md": "Neutral / No Indentation"
+    },
+    "perl/ack3_tests": {
+      "perl/ack3_tests/LICENSE.md": "Neutral / No Indentation",
+      "perl/ack3_tests/file-permission.t": "Spaces"
     },
     "perl/bugzilla": {
       "perl/bugzilla/Auth.pm": "Spaces",
@@ -2475,6 +2557,10 @@
       "php/laravel_core/Model.php": "Spaces",
       "php/laravel_core/Router.php": "Spaces"
     },
+    "php/laravel_validation_rules": {
+      "php/laravel_validation_rules/Can.php": "Spaces",
+      "php/laravel_validation_rules/LICENSE.md": "Neutral / No Indentation"
+    },
     "php/magento2": {
       "php/magento2/AbstractBlock.php": "Spaces",
       "php/magento2/AbstractModel.php": "Spaces",
@@ -2494,6 +2580,9 @@
       "php/symfony/Request.php": "Spaces",
       "php/symfony/Router.php": "Spaces"
     },
+    "php/symfony_emoji_data": {
+      "php/symfony_emoji_data/emoji-ccp.php": "Spaces"
+    },
     "php/wordpress": {
       "php/wordpress/admin-ajax.php": "Tabs",
       "php/wordpress/class-wp-query.php": "Tabs",
@@ -2508,6 +2597,7 @@
       "plaintext/SOURCES.md": "Neutral / No Indentation"
     },
     "plaintext/ansible": {
+      "plaintext/ansible/COPYING": "Neutral / No Indentation",
       "plaintext/ansible/requirements.txt": "Neutral / No Indentation"
     },
     "plaintext/cpython/Lib/test/tokenizedata": {
@@ -2521,6 +2611,9 @@
     },
     "plaintext/opencv/include": {
       "plaintext/opencv/include/CMakeLists.txt": "Neutral / No Indentation"
+    },
+    "pli": {
+      "pli/SOURCES.md": "Neutral / No Indentation"
     },
     "pli/dsf_cics_admin": {
       "pli/dsf_cics_admin/LICENSE.md": "Neutral / No Indentation",
@@ -2700,15 +2793,33 @@
       "python/SOURCES.md": "Neutral / No Indentation"
     },
     "python/airflow": {
+      "python/airflow/NOTICE": "Neutral / No Indentation",
       "python/airflow/dag.py": "Spaces",
       "python/airflow/s3.py": "Spaces",
       "python/airflow/scheduler_job_runner.py": "Spaces"
     },
+    "python/airflow_ai_providers": {
+      "python/airflow_ai_providers/NOTICE": "Neutral / No Indentation",
+      "python/airflow_ai_providers/openai_src_airflow_providers_openai_hooks_openai.py": "Spaces",
+      "python/airflow_ai_providers/pinecone_src_airflow_providers_pinecone_hooks_pinecone.py": "Spaces",
+      "python/airflow_ai_providers/pinecone_src_airflow_providers_pinecone_operators_pinecone.py": "Spaces",
+      "python/airflow_ai_providers/pinecone_tests_system_pinecone_example_pinecone_cohere.py": "Spaces"
+    },
+    "python/airflow_opsgenie_tests": {
+      "python/airflow_opsgenie_tests/NOTICE": "Neutral / No Indentation",
+      "python/airflow_opsgenie_tests/test_opsgenie.py": "Spaces"
+    },
     "python/cython": {
+      "python/cython/COPYING.txt": "Neutral / No Indentation",
       "python/cython/CodeGeneration.py": "Spaces",
+      "python/cython/LICENSE.txt": "Neutral / No Indentation",
       "python/cython/MemoryView.pxd": "Spaces",
       "python/cython/MemoryView.pyx": "Spaces",
       "python/cython/Nodes.py": "Spaces"
+    },
+    "python/django_db_tests": {
+      "python/django_db_tests/test_iterator.py": "Spaces",
+      "python/django_db_tests/test_utils.py": "Spaces"
     },
     "python/fastapi": {
       "python/fastapi/CONTRIBUTING.md": "Neutral / No Indentation",
@@ -2947,6 +3058,26 @@
       "python/fastapi/tests/test_ws_router.py": "Spaces",
       "python/fastapi/tests/utils.py": "Spaces"
     },
+    "python/homeassistant_anthropic": {
+      "python/homeassistant_anthropic/LICENSE.md": "Neutral / No Indentation",
+      "python/homeassistant_anthropic/coordinator.py": "Spaces"
+    },
+    "python/homeassistant_ble_integrations": {
+      "python/homeassistant_ble_integrations/LICENSE.md": "Neutral / No Indentation",
+      "python/homeassistant_ble_integrations/aranet___init__.py": "Spaces",
+      "python/homeassistant_ble_integrations/gardena_bluetooth___init__.py": "Spaces",
+      "python/homeassistant_ble_integrations/utils.py": "Spaces"
+    },
+    "python/langchain_agents": {
+      "python/langchain_agents/langchain_agents_middleware_model_fallback.py": "Spaces",
+      "python/langchain_agents/langchain_agents_middleware_tool_emulator.py": "Spaces",
+      "python/langchain_agents/tests_integration_tests_chat_models_test_base.py": "Spaces"
+    },
+    "python/micropython_usb_tls": {
+      "python/micropython_usb_tls/ssl_verify_callback.py": "Spaces",
+      "python/micropython_usb_tls/tls_dtls.py": "Spaces",
+      "python/micropython_usb_tls/usb_simple_host_pyusb.py": "Spaces"
+    },
     "python/numpy": {
       "python/numpy/LICENSE.txt": "Neutral / No Indentation",
       "python/numpy/__init__.py": "Neutral / No Indentation",
@@ -2967,6 +3098,31 @@
       "python/numpy/ufunc_docstrings.py": "Spaces",
       "python/numpy/verify_c_api_version.py": "Spaces"
     },
+    "python/opencv_dnn_conversion": {
+      "python/opencv_dnn_conversion/py_to_py_resnet50_onnx.py": "Spaces"
+    },
+    "python/pip_vendored_requests": {
+      "python/pip_vendored_requests/LICENSE.txt": "Neutral / No Indentation",
+      "python/pip_vendored_requests/packages.py": "Spaces"
+    },
+    "python/scikit-learn_examples": {
+      "python/scikit-learn_examples/COPYING": "Neutral / No Indentation",
+      "python/scikit-learn_examples/linear_model_plot_nnls.py": "Neutral / No Indentation",
+      "python/scikit-learn_examples/svm_plot_custom_kernel.py": "Spaces"
+    },
+    "python/tensorflow_ml_ops": {
+      "python/tensorflow_ml_ops/core_tfrt_saved_model_tests_gen_matmul_gpu.py": "Spaces",
+      "python/tensorflow_ml_ops/lite_testing_op_tests_einsum.py": "Spaces"
+    },
+    "python/tensorflow_model_fixtures": {
+      "python/tensorflow_model_fixtures/lite_testdata_multi_add.pb": "Unknown",
+      "python/tensorflow_model_fixtures/python_compiler_mlir_multi_add.tflite": "Unknown"
+    },
+    "python/thealgorithms_machine_learning": {
+      "python/thealgorithms_machine_learning/LICENSE.md": "Neutral / No Indentation",
+      "python/thealgorithms_machine_learning/logistic_regression.py": "Spaces",
+      "python/thealgorithms_machine_learning/lstm_lstm_prediction.py": "Spaces"
+    },
     "python/twisted": {
       "python/twisted/defer.py": "Spaces",
       "python/twisted/http.py": "Spaces",
@@ -2982,18 +3138,24 @@
       "python/wtfpython/noxfile.py": "Spaces"
     },
     "rexx": {
-      "rexx/PROVENANCE.md": "Neutral / No Indentation"
+      "rexx/PROVENANCE.md": "Neutral / No Indentation",
+      "rexx/SOURCES.md": "Neutral / No Indentation"
+    },
+    "rexx/hercules_390_hyperion": {
+      "rexx/hercules_390_hyperion/COPYRIGHT": "Neutral / No Indentation",
+      "rexx/hercules_390_hyperion/sample.rexx": "Spaces"
     },
     "rexx/hercules_hyperion": {
+      "rexx/hercules_hyperion/COPYRIGHT": "Neutral / No Indentation",
       "rexx/hercules_hyperion/cmpsc.rexx": "Spaces",
       "rexx/hercules_hyperion/hbasic1.rexx": "Spaces",
       "rexx/hercules_hyperion/hcommand.rexx": "Spaces",
       "rexx/hercules_hyperion/hexecio.rexx": "Spaces",
       "rexx/hercules_hyperion/hlinein.rexx": "Mixed (75.0% Spaces / 25.0% Tabs)",
-      "rexx/hercules_hyperion/hrecurs.rexx": "Spaces",
-      "rexx/hercules_hyperion/sample.rexx": "Spaces"
+      "rexx/hercules_hyperion/hrecurs.rexx": "Spaces"
     },
     "rexx/ibm_z_zos": {
+      "rexx/ibm_z_zos/LICENSE.md": "Neutral / No Indentation",
       "rexx/ibm_z_zos/bpxget.rexx": "Spaces",
       "rexx/ibm_z_zos/bpxput.rexx": "Spaces",
       "rexx/ibm_z_zos/bpxwtabs.rexx": "Spaces",
@@ -3026,10 +3188,16 @@
       "ruby/rails/metal.rb": "Spaces",
       "ruby/rails/routing.rb": "Spaces"
     },
+    "ruby/rails_http_token_auth": {
+      "ruby/rails_http_token_auth/MIT-LICENSE": "Neutral / No Indentation",
+      "ruby/rails_http_token_auth/http_token_authentication_test.rb": "Spaces"
+    },
     "rust": {
       "rust/SOURCES.md": "Neutral / No Indentation"
     },
     "rust/bevy": {
+      "rust/bevy/LICENSE-APACHE": "Neutral / No Indentation",
+      "rust/bevy/LICENSE-MIT": "Neutral / No Indentation",
       "rust/bevy/bevy_ecs_macros.rs": "Spaces",
       "rust/bevy/bevy_ecs_query.rs": "Spaces",
       "rust/bevy/bevy_ecs_table.rs": "Spaces",
@@ -3037,6 +3205,12 @@
       "rust/bevy/bevy_reflect_path.rs": "Spaces",
       "rust/bevy/bevy_render_phase.rs": "Spaces",
       "rust/bevy/bevy_schedule_graph.rs": "Spaces"
+    },
+    "rust/bevy_asset_examples": {
+      "rust/bevy_asset_examples/LICENSE-APACHE": "Neutral / No Indentation",
+      "rust/bevy_asset_examples/LICENSE-MIT": "Neutral / No Indentation",
+      "rust/bevy_asset_examples/image_node.rs": "Spaces",
+      "rust/bevy_asset_examples/rotation.rs": "Spaces"
     },
     "rust/holylang": {
       "rust/holylang/ast.rs": "Spaces",
@@ -3048,6 +3222,8 @@
       "rust/holylang/transpiler.rs": "Spaces"
     },
     "rust/serde": {
+      "rust/serde/LICENSE-APACHE": "Neutral / No Indentation",
+      "rust/serde/LICENSE-MIT": "Neutral / No Indentation",
       "rust/serde/serde_core_de_impls.rs": "Spaces",
       "rust/serde/serde_core_de_mod.rs": "Spaces",
       "rust/serde/serde_core_macros.rs": "Spaces",
@@ -3079,6 +3255,9 @@
       "rust/tokio/tests.rs": "Spaces",
       "rust/tokio/tokio_mpsc_bounded.rs": "Spaces",
       "rust/tokio/tokio_named_pipe.rs": "Spaces"
+    },
+    "rust/tokio_util_rand": {
+      "rust/tokio_util_rand/rand.rs": "Spaces"
     },
     "rust/wasmtime": {
       "rust/wasmtime/wasmtime_component_macro.rs": "Spaces",
@@ -3194,6 +3373,7 @@
       "shell/darwin-xnu/xcrun_cache.sh": "Mixed (18.3% Spaces / 81.7% Tabs)"
     },
     "shell/freebsd-src": {
+      "shell/freebsd-src/COPYRIGHT": "Neutral / No Indentation",
       "shell/freebsd-src/chflags_test.sh": "Tabs",
       "shell/freebsd-src/chmod_test.sh": "Tabs",
       "shell/freebsd-src/cp_test.sh": "Tabs",
@@ -3220,6 +3400,10 @@
       "shell/freebsd-src/runulp.sh": "Mixed (54.8% Spaces / 45.2% Tabs)",
       "shell/freebsd-src/timeout_test.sh": "Tabs",
       "shell/freebsd-src/ztest.sh": "Tabs"
+    },
+    "shell/freebsd_sysbuild": {
+      "shell/freebsd_sysbuild/COPYRIGHT": "Neutral / No Indentation",
+      "shell/freebsd_sysbuild/sysbuild.sh": "Mixed (3.5% Spaces / 96.5% Tabs)"
     },
     "shell/haiku": {
       "shell/haiku/HardwareChecker.sh": "Tabs",
@@ -3419,23 +3603,26 @@
     "sql/baseline": {
       "sql/baseline/schema.php": "Tabs"
     },
-    "sql/mysql/mediawiki": {
-      "sql/mysql/mediawiki/COPYING": "Neutral / No Indentation",
-      "sql/mysql/mediawiki/blobs.sql": "Tabs"
+    "sql/mediawiki_mysql": {
+      "sql/mediawiki_mysql/COPYING": "Neutral / No Indentation",
+      "sql/mediawiki_mysql/blobs.sql": "Tabs"
     },
-    "sql/mysql/spamassassin": {
-      "sql/mysql/spamassassin/neural_mysql.sql": "Spaces"
+    "sql/mediawiki_postgresql": {
+      "sql/mediawiki_postgresql/COPYING": "Neutral / No Indentation",
+      "sql/mediawiki_postgresql/tables.sql": "Spaces"
     },
-    "sql/postgresql/mediawiki": {
-      "sql/postgresql/mediawiki/tables.sql": "Spaces"
-    },
-    "sql/postgresql/sqlmap": {
-      "sql/postgresql/sqlmap/dns_request.sql": "Neutral / No Indentation"
+    "sql/spamassassin_mysql": {
+      "sql/spamassassin_mysql/NOTICE": "Neutral / No Indentation",
+      "sql/spamassassin_mysql/neural_mysql.sql": "Spaces"
     },
     "sql/sqlite": {
       "sql/sqlite/000-mandelbrot.sql": "Spaces",
       "sql/sqlite/001-sudoku.sql": "Spaces",
+      "sql/sqlite/LICENSE.md": "Neutral / No Indentation",
       "sql/sqlite/dotcmd01.sql": "Spaces"
+    },
+    "sql/sqlmap_postgresql": {
+      "sql/sqlmap_postgresql/dns_request.sql": "Neutral / No Indentation"
     },
     "sqlite": {
       "sqlite/SOURCES.md": "Neutral / No Indentation"
@@ -3600,6 +3787,7 @@
       "tcl/macports_registry/registry_util.tcl": "Spaces"
     },
     "tcl/sqlite": {
+      "tcl/sqlite/LICENSE.md": "Neutral / No Indentation",
       "tcl/sqlite/README.md": "Neutral / No Indentation",
       "tcl/sqlite/malloc_common.tcl": "Spaces",
       "tcl/sqlite/speedtest.tcl": "Spaces",
@@ -3644,6 +3832,9 @@
     "typescript": {
       "typescript/SOURCES.md": "Neutral / No Indentation"
     },
+    "typescript/angular_zonejs_mocha": {
+      "typescript/angular_zonejs_mocha/mocha.ts": "Spaces"
+    },
     "typescript/assemblyscript": {
       "typescript/assemblyscript/asconfig.json": "Spaces",
       "typescript/assemblyscript/ast.ts": "Spaces",
@@ -3651,12 +3842,30 @@
       "typescript/assemblyscript/package.json": "Neutral / No Indentation",
       "typescript/assemblyscript/parser.ts": "Spaces"
     },
+    "typescript/effect_ai_anthropic": {
+      "typescript/effect_ai_anthropic/AnthropicTokenizer.ts": "Spaces"
+    },
+    "typescript/excalibur_math": {
+      "typescript/excalibur_math/LICENSE.md": "Neutral / No Indentation",
+      "typescript/excalibur_math/collision_colliders_separating-axis.ts": "Spaces",
+      "typescript/excalibur_math/math_ray.ts": "Spaces"
+    },
+    "typescript/excalidraw_text_wrapping": {
+      "typescript/excalidraw_text_wrapping/textWrapping.ts": "Spaces"
+    },
     "typescript/fp-ts": {
       "typescript/fp-ts/Either.ts": "Spaces",
       "typescript/fp-ts/HKT.ts": "Spaces",
       "typescript/fp-ts/TaskEither.ts": "Spaces",
       "typescript/fp-ts/package.json": "Neutral / No Indentation",
       "typescript/fp-ts/pipeable.ts": "Spaces"
+    },
+    "typescript/nx_util_ai": {
+      "typescript/nx_util_ai/nx-dev_pages_api_query-ai-handler.ts": "Spaces",
+      "typescript/nx_util_ai/util-ai_src_lib_moderation.ts": "Spaces"
+    },
+    "typescript/pixijs_examples": {
+      "typescript/pixijs_examples/events_dragging.ts": "Spaces"
     },
     "typescript/playwright": {
       "typescript/playwright/NOTICE": "Neutral / No Indentation",
@@ -3700,10 +3909,12 @@
       "xml/apex/CanTheUser_Tests.cls-meta.xml": "Neutral / No Indentation",
       "xml/apex/IterationRecipes_Tests.cls": "Spaces",
       "xml/apex/IterationRecipes_Tests.cls-meta.xml": "Neutral / No Indentation",
+      "xml/apex/LICENSE.md": "Neutral / No Indentation",
       "xml/apex/ListSortingRecipes_Tests.cls": "Spaces",
       "xml/apex/ListSortingRecipes_Tests.cls-meta.xml": "Neutral / No Indentation"
     },
     "xml/jenkins": {
+      "xml/jenkins/LICENSE.txt": "Neutral / No Indentation",
       "xml/jenkins/XStreamDOMTest.data1.xml": "Neutral / No Indentation",
       "xml/jenkins/XStreamDOMTest.data2.xml": "Neutral / No Indentation",
       "xml/jenkins/excludesFilter.xml": "Neutral / No Indentation"
@@ -3810,10 +4021,21 @@
       "zig/SOURCES.md": "Neutral / No Indentation"
     },
     "zig/bun": {
+      "zig/bun/LICENSE.md": "Neutral / No Indentation",
       "zig/bun/MimallocArena.zig": "Spaces",
       "zig/bun/Parser.zig": "Spaces",
       "zig/bun/comptime_string_map.zig": "Spaces",
       "zig/bun/napi.zig": "Spaces"
+    },
+    "zig/mach": {
+      "zig/mach/Core.zig": "Spaces",
+      "zig/mach/StringTable.zig": "Spaces",
+      "zig/mach/collision.zig": "Spaces",
+      "zig/mach/graph.zig": "Spaces",
+      "zig/mach/main.zig": "Spaces",
+      "zig/mach/module.zig": "Spaces",
+      "zig/mach/testing.zig": "Spaces",
+      "zig/mach/win32.zig": "Spaces"
     },
     "zig/tigerbeetle": {
       "zig/tigerbeetle/aof.zig": "Spaces",
@@ -3836,6 +4058,9 @@
       "zig/zig/Zcu.zig": "Spaces",
       "zig/zig/main.zig": "Spaces"
     },
+    "zig/zig_std_linux_mips": {
+      "zig/zig_std_linux_mips/mips.zig": "Spaces"
+    },
     "zig/zls": {
       "zig/zls/DocumentScope.zig": "Spaces",
       "zig/zls/DocumentStore.zig": "Spaces",
@@ -3844,16 +4069,6 @@
       "zig/zls/ast.zig": "Spaces",
       "zig/zls/config_gen.zig": "Spaces",
       "zig/zls/print_ast.zig": "Spaces"
-    },
-    "zig/zls/mach": {
-      "zig/zls/mach/Core.zig": "Spaces",
-      "zig/zls/mach/StringTable.zig": "Spaces",
-      "zig/zls/mach/collision.zig": "Spaces",
-      "zig/zls/mach/graph.zig": "Spaces",
-      "zig/zls/mach/main.zig": "Spaces",
-      "zig/zls/mach/module.zig": "Spaces",
-      "zig/zls/mach/testing.zig": "Spaces",
-      "zig/zls/mach/win32.zig": "Spaces"
     }
   },
   "path": [

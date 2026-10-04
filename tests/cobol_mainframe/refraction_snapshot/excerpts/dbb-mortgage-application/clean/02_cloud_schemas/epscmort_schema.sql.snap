@@ -1,0 +1,9 @@
+CREATE TABLE DFHCOMMAREA (
+    WS_FORMAT_NUMBER               DECIMAL(9, 2),
+    W_CALL_PROGRAM                 VARCHAR(8),
+    W_COMAREA_LENGTH               SMALLINT,
+    SQL_ERROR_CODE                 INTEGER,
+    IBMREQD                        VARCHAR(1),
+    END_OF_TRANS_MSG               VARCHAR(30),
+    BLANK_MSG                      VARCHAR(1)
+);

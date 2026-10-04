@@ -20,6 +20,29 @@ Enforces a multi-tiered hierarchy:
 - Stateful caching to preserve whitelist locks for explicitly referenced configurations.
 Secondary content gates include shebang processing, binary header inspection (X-Ray gate reading 8KB chunks), and minified code detection (line length density).
 
+## Declared ports
+A deterministic COBOL-to-Java port (`gitgalaxy/tools/cobol_to_java/det`) is machine-translated by design. Its
+indentation is uniform and its compound conditions are spelled out in full, so three generated-noise gates would
+otherwise drop it: line saturation (4.1), the generator-signature header check (4.3) and lexical monotony (5.1).
+Before this exemption, a default scan excluded 45 of 49 det ports.
+
+Each det port's first line declares it:
+
+```java
+// gitgalaxy-det-port: COBOL COACTUPC (COACTUPC.cbl), translated by rule, statement for statement
+```
+
+`declared_port()` reads that line, only in a `.java` file and only on the first line. A declared port passes 4.3 and
+5.1, and 4.1 up to `DECLARED_PORT_MAX_LINE_LENGTH` (5000 characters) instead of `MAX_LINE_LENGTH`. The emitter keeps
+its own long literals (storage images) to one 400-character piece per line, so only conditions run long. A
+condition-name test over a long VALUE list can reach tens of thousands of characters (CardDemo's COACTUPC tests 400+
+phone area codes on one line), but such tests sit far below line 100, past what Gate 4.1 reads.
+
+**Why a comment is trusted.** Anyone can write the line, so it only lifts noise filters. The binary, embedded-payload,
+amalgamation, size and secrets gates all still apply. A forged header can only admit a file to the scan, where every
+sensor reads it; it cannot hide anything. The remaining cost is performance, bounded by the 5000-character cap and
+the per-file execution timeout.
+
 ## Pipeline Integration
 Inputs: Unfiltered filesystem or Git index file paths.
 Outputs: Filtered list of analyzable source files, flagged security risks, and excluded path lists.

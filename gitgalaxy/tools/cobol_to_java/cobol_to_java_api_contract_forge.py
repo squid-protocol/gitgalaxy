@@ -21,8 +21,13 @@ from pathlib import Path
 from typing import Optional
 
 from gitgalaxy.tools.cobol_to_java.cobol_to_java_names import (
+    _WORD_BREAKS,
+    capitalize_name,
     java_class_base,
+    java_legal_chars,
+    java_start_ok,
     java_url_segment,
+    lower_name,
     output_key,
     program_key_from_ir,
 )
@@ -51,6 +56,11 @@ def generate_rest_controller(
     files_requested = base_intent.get("files_requested", [])
     is_cics = base_intent.get("is_cics", False)
 
+    # #3992: a non-CICS program that opens files is batch. Its files are its SELECTs (files_requested); when the
+    # intent reader read none (a SELECT form it does not know) the files it OPENs for input (the lineage) stand in,
+    # so its files arrive as uploads -- never as a request DTO, which no generator writes.
+    if not files_requested and not is_cics:
+        files_requested = [{"dd_name": i} for i in inputs]
     is_batch = len(files_requested) > 0 and not is_cics
 
     java = []
@@ -96,22 +106,29 @@ def generate_rest_controller(
         seen_vars: dict[str, int] = {}
 
         for file_req in files_requested:
-            dd_name_raw = file_req.get("dd_name", "UNKNOWN").lower()
+            dd_name_raw = file_req.get("dd_name", "UNKNOWN")
 
-            # Strip hyphens and camelCase the Java variable
-            dd_parts = dd_name_raw.split("-")
-            safe_dd_name = dd_parts[0] + "".join(word.title() for word in dd_parts[1:])
+            # Strip non-identifier chars and camelCase the Java variable (#3957)
+            dd_parts = [w for w in _WORD_BREAKS.split(dd_name_raw) if w]
+            if not dd_parts:
+                dd_parts = ["unknown"]
+            safe_dd_name = lower_name(dd_parts[0]) + "".join(capitalize_name(word) for word in dd_parts[1:])
+            # #3992: a literal ASSIGN (`"01.DAT"`, `"KUNDE§NR"`) may start with a digit or hold a character Java
+            # rejects; such a name is made legal, a legal one is unchanged.
+            safe_dd_name = java_legal_chars(safe_dd_name)
+            if not java_start_ok(safe_dd_name[0]):
+                safe_dd_name = f"file{safe_dd_name}"
             base_var_name = f"{safe_dd_name}File"
 
             # Enforce unique variable names and Spring request params
             if base_var_name in seen_vars:
                 seen_vars[base_var_name] += 1
                 unique_var_name = f"{base_var_name}{seen_vars[base_var_name]}"
-                unique_param_name = f"{dd_name_raw}File{seen_vars[base_var_name]}"
+                unique_param_name = f"{safe_dd_name}File{seen_vars[base_var_name]}"
             else:
                 seen_vars[base_var_name] = 1
                 unique_var_name = base_var_name
-                unique_param_name = f"{dd_name_raw}File"
+                unique_param_name = f"{safe_dd_name}File"
 
             params.append(f'@RequestParam("{unique_param_name}") MultipartFile {unique_var_name}')
 
@@ -130,15 +147,11 @@ def generate_rest_controller(
         java.append('    @PostMapping("/execute")')
         java.append(f"    public ResponseEntity<?> execute{camel_prog}(")
 
-        params = []
+        # #3992: the controller names only classes the run generates. No generator writes a DTO per input file
+        # (a CICS program's COMMAREA contract comes from its skeleton, forges.cics.controller), so a file input is
+        # listed for the porter, not bound as an `@RequestBody <File>DTO` that cannot compile.
         if inputs:
-            for i in inputs:
-                safe_class = "".join(word.capitalize() for word in i.split("-"))
-                safe_var = safe_class[0].lower() + safe_class[1:]
-                params.append(f"@RequestBody {safe_class}DTO {safe_var}Data")
-
-        if params:
-            java.append("        " + ",\n        ".join(params))
+            java.append(f"        // Input files: {', '.join(inputs)} (no request DTO is generated for them)")
         else:
             java.append("        /* No external data dependencies detected */")
 

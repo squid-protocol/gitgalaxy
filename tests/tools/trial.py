@@ -62,6 +62,10 @@ BINS = ("@1", "@2", "@3", "@4+")
 # The frozen system's harness: the files the proof runs through (tests/tools/equivalence*.py and its image).
 HARNESS_PATHS = ("tests/tools/equivalence.py", "tests/tools/equivalence_common.py", "tests/tools/equivalence_java.py",
                  "tests/tools/equivalence_inputs.py", "tests/tools/equivalence_cics.py",
+                 "tests/tools/cobol_coverage.py",  # #4023: every COBOL run is traced through it
+                 "tests/equivalence/faults/ggfault.c", "tests/equivalence/faults/ggabend.c",  # fault runs, CEE3ABD
+                 "tests/equivalence/faults/ggdisplay.c",  # #4056: DISPLAY as IBM writes it
+                 "tests/tools/equivalence_call.py", "tests/equivalence/le/ceedays.c",  # CALL cases, LE services
                  "tests/equivalence/gnucobol.Dockerfile")  # fmt: skip
 # `Trial-Cause: generator CBACT04C` -- bounded, one trailer per line
 _TRAILER = re.compile(r"^Trial-Cause:[ \t]{0,8}([a-z]{1,12})[ \t]{1,8}([A-Za-z0-9$#@_-]{1,64})[ \t]{0,8}$", re.M)
@@ -138,7 +142,8 @@ def _today() -> str:
 
 
 def _ts(text: str) -> _dt.datetime:
-    return _dt.datetime.fromisoformat(text)
+    # git and GitHub write UTC as a trailing Z, which fromisoformat accepts only from Python 3.11
+    return _dt.datetime.fromisoformat(text[:-1] + "+00:00" if text.endswith("Z") else text)
 
 
 # ---- eligibility: declared in code, applied at start ------------------------------------

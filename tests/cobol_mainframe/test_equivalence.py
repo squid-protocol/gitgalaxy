@@ -19,6 +19,7 @@ import pytest
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "tools"))
 import equivalence as eq  # noqa: E402
+import equivalence_common as common  # noqa: E402
 import equivalence_java as ej  # noqa: E402
 
 from gitgalaxy.core.job_flow import _parm, jcl_job_flow  # noqa: E402
@@ -28,6 +29,61 @@ from gitgalaxy.tools.cobol_to_java.cobol_to_java_repository_forge import (  # no
     _codec_kind,
     _codec_put,
 )
+
+
+def _cobol(*lines: str) -> str:
+    return "".join(f"       {line}\n" for line in lines)
+
+
+def test_layout_fields_expands_a_nested_copy_so_later_fields_keep_their_offsets(tmp_path):
+    """#4010: CALINK's WS-BLOCK -- a COPY inside the record, then more fields. Dropping the COPY
+    put WS-AFTER-FLAG at offset 0 instead of 100."""
+    (tmp_path / "src").mkdir()
+    (tmp_path / "copy").mkdir()
+    (tmp_path / "copy/CAHDR.cpy").write_text(
+        _cobol(
+            "    10  HDR-EYE        PIC X(4).",
+            "    10  HDR-INNER.",
+            "        COPY CATAIL.",
+            "    10  HDR-LEN        PIC S9(4) COMP.",
+        )
+    )
+    (tmp_path / "copy/CATAIL.cpy").write_text(_cobol("        15  TAIL-TXT   PIC X(94)."))
+    (tmp_path / "src/CALINK.cbl").write_text(_cobol(
+        "IDENTIFICATION DIVISION.", "PROGRAM-ID. CALINK.", "DATA DIVISION.", "WORKING-STORAGE SECTION.",
+        "01  WS-BLOCK.", "    05  WS-HEAD.", "    COPY CAHDR.", "    05  WS-AFTER-FLAG   PIC X.",
+        "01  WS-OTHER             PIC X(3).", "PROCEDURE DIVISION.", "    GOBACK."))  # fmt: skip
+    fields = common.layout_fields(tmp_path, "src/CALINK.cbl", "WS-BLOCK", copy_dirs=[tmp_path / "copy"])
+    assert [(f["name"], f["offset"], f["bytes"]) for f in fields] == [
+        ("HDR-EYE", 0, 4), ("TAIL-TXT", 4, 94), ("HDR-LEN", 98, 2), ("WS-AFTER-FLAG", 100, 1)]  # fmt: skip
+    # the default search: the file's own directory, then the corpus root
+    (tmp_path / "copy/CATAIL.cpy").rename(tmp_path / "CATAIL.cpy")
+    (tmp_path / "copy/CAHDR.cpy").rename(tmp_path / "src/cahdr.cpy")
+    assert common.layout_fields(tmp_path, "src/CALINK.cbl", "WS-BLOCK") == fields
+
+
+def test_layout_fields_fails_loudly_on_a_copy_it_cannot_expand(tmp_path):
+    """#4010: an unresolved COPY inside the record raises instead of shifting every later field;
+    one outside it (before the record, or past a section header) is harmless. REPLACING is refused
+    by name."""
+    (tmp_path / "P.cbl").write_text(_cobol(
+        "DATA DIVISION.", "WORKING-STORAGE SECTION.", "COPY DFHAID.", "01  WS-A.", "    05  A-1   PIC X.",
+        "    COPY GONE.", "    05  A-2   PIC X.", "01  WS-B.", "    05  B-1   PIC X(2).", "LINKAGE SECTION.",
+        "COPY DFHEIBLK.", "PROCEDURE DIVISION."))  # fmt: skip
+    with pytest.raises(common.LayoutError, match="COPY GONE inside WS-A"):
+        common.layout_fields(tmp_path, "P.cbl", "WS-A")
+    assert [(f["name"], f["offset"]) for f in common.layout_fields(tmp_path, "P.cbl", "WS-B")] == [("B-1", 0)]
+    with pytest.raises(common.LayoutError, match="no record WS-C"):
+        common.layout_fields(tmp_path, "P.cbl", "WS-C")
+    (tmp_path / "R.cbl").write_text(_cobol("01  WS-R.", "    COPY HDR", "        REPLACING ==:X:== BY ==WS==."))
+    (tmp_path / "HDR.cpy").write_text(_cobol("    05  :X:-A   PIC X."))
+    with pytest.raises(common.LayoutError, match="COPY HDR REPLACING"):
+        common.layout_fields(tmp_path, "R.cbl", "WS-R")
+    # after the PROCEDURE DIVISION no record is laid out: COACTUPC's 39 COPY CSSETATY REPLACING are no reason to refuse
+    (tmp_path / "Q.cbl").write_text(_cobol("DATA DIVISION.", "WORKING-STORAGE SECTION.", "01  WS-Q.",
+                                           "    05  Q-1   PIC X(3).", "PROCEDURE DIVISION.", "    COPY HDR",
+                                           "        REPLACING ==:X:== BY ==WS==."))  # fmt: skip
+    assert [(f["name"], f["offset"]) for f in common.layout_fields(tmp_path, "Q.cbl", "WS-Q")] == [("Q-1", 0)]
 
 
 def test_decode_field_reads_cobol_storage_exactly():
@@ -137,6 +193,25 @@ def test_carddemo_intcalc_is_equivalent_end_to_end(tmp_path):
     assert proc.returncode == 0, proc.stdout[-3000:] + proc.stderr[-3000:]
     report = json.loads((tmp_path / "report.json").read_text())
     assert all(o["equal"] == o["records"] == 50 for o in report["outputs"].values())
+    # #4023 follow-up: every injected file fault is proven too -- the port takes the COBOL's error path
+    assert len(report["faults"]) == 19 and all(f["ok"] for f in report["faults"]), report["faults"]
+
+
+@pytest.mark.skipif(os.environ.get("EQUIVALENCE_E2E") != "1", reason="needs Docker (GnuCOBOL) and a JDK + Maven")
+def test_carddemo_posttran_is_equivalent_end_to_end(tmp_path):
+    """CardDemo CBTRN02C, ported: every output equal (accounts, category balances, posted transactions, rejects),
+    RETURN-CODE 4, and every injected fault proven -- the abends, and the program's two silent defects (a READ
+    error posts against the previous record; an ACCOUNT REWRITE's status is never tested)."""
+    import subprocess
+
+    proc = subprocess.run([sys.executable, str(Path(eq.__file__)), "run", "carddemo-posttran", "--keep",  # noqa: S603
+                           str(tmp_path)], capture_output=True, text=True, check=False)  # fmt: skip
+    assert proc.returncode == 0, proc.stdout[-3000:] + proc.stderr[-3000:]
+    report = json.loads((tmp_path / "report.json").read_text())
+    assert report["return_code"] == {"cobol": "4", "java": "4"}
+    assert {dd: (o["equal"], o["records"]) for dd, o in report["outputs"].items()} == {
+        "ACCTFILE": (50, 50), "TCATBALF": (100, 100), "TRANFILE": (262, 262), "DALYREJS": (38, 38)}  # fmt: skip
+    assert len(report["faults"]) == 28 and all(f["ok"] for f in report["faults"]), report["faults"]
 
 
 def test_the_two_sides_share_the_cases_directory():

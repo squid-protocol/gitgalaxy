@@ -36,7 +36,7 @@ jobs:
 
       - name: Run Muninn
         # zizmor: ignore[github_action_from_unverified_creator_used]
-        uses: skaldlab/muninn@e9f71d6613d4ea73f144cffb6f53ef2f23f9c069 # v0.3.12
+        uses: skaldlab/muninn@dfbf06a4e2ab86298040a86672501a5dea132a38 # v0.3.13
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
           fail-on: info
@@ -44,6 +44,6 @@ jobs:
 
       - name: Upload SARIF
         if: always() && hashFiles('muninn.sarif') != ''
-        uses: github/codeql-action/upload-sarif@1c5b675653bb5c22dbe9b12b556ec555138e09fd # v4
+        uses: github/codeql-action/upload-sarif@2892aa5e19bbd11bc0cff5427e3b750a04d9e3c2 # v4
         with:
           sarif_file: muninn.sarif

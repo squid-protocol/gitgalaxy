@@ -1,0 +1,86 @@
+{
+ "format": "cics-crucible-port/1",
+ "case": "pc-aid-menu",
+ "program": "PCMENU",
+ "attempt": 2,
+ "backend": "command",
+ "model": "claude-opus-5-5",
+ "command": "claude CLI 2.1.285 print mode (claude -p --model claude-opus-5-5 --effort high --tools '' --strict-mcp-config --mcp-config '{\"mcpServers\":{}}' --no-session-persistence --system-prompt <porting system prompt>, prompt file on stdin, run from an empty directory)",
+ "proposed_at": "2026-09-29T22:01:28+00:00",
+ "ticket_sha256": "58c23ade0130618a5ac7953ddec48e0bf6c175bbe16034d435624d3596b74b9e",
+ "prompt_tokens": 29984,
+ "feedback_from": 1,
+ "notes": "Why attempt 1 failed to compile:\n- The error is not in this file. It is in PcdetlService.java:106, the PCDETL port, which is outside this ticket and which I may not edit (rule 6).\n- That line calls task.sendMap(map, mapset, screen, null, ...). A bare null fits both sendMap(..., MapSubfields, String...) and sendMap(..., String...), so the call is ambiguous.\n- One-line fix for the PCDETL port: pass `new CicsTask.MapSubfields()`, or cast the null to `(CicsTask.MapSubfields) null`.\n- PcmenuService passes a typed MapSubfields variable, so it compiles on its own. The three scenarios need PcdetlService fixed before they can run.\n\nDefects of the original, kept:\n- MOVE DFHCOMMAREA TO WS-CA always moves 10 bytes, even when EIBCALEN < 10. Fix: INITIALIZE WS-CA, then MOVE DFHCOMMAREA(1:EIBCALEN).\n- ADD 1 TO MN-VISITS has no ON SIZE ERROR, so 9999 wraps to 0000. Fix: add ON SIZE ERROR, or widen the PICTURE.\n- The RECEIVE MAP has no RESP and no HANDLE CONDITION MAPFAIL. A key that sends no data abends AEI9, except PF3 and PF5, whose HANDLE AID takes precedence. Fix: add RESP to the RECEIVE and treat MAPFAIL like 'KEY NOT ACTIVE'.\n- The XCTL has no RESP. A PGMIDERR or LENGERR takes CICS's default action, an abend. Fix: add RESP and show an error on the menu.\n- MENU-EXIT follows END-EVALUATE with no exit in between. Every EVALUATE branch ends the task (XCTL, RETURN or SHOW-MENU), so the fall-through is never taken. It is kept as is.\n- EIBCALEN = 0 always starts a new session, even for PF3, so PF3 on a new session does not exit. This is by design, as the source says.\n\nFacts:\n- No fact was contradicted by the source.\n- For the PC12 RETURN and the XCTL, the COMMAREA is passed as PcdetlWsCa, because PCDETL reads that DTO.\n- On entry, a COMMAREA of either PcmenuWsCa or PcdetlWsCa is accepted. PCDETL's RETURN TRANSID('PC11') at src/PCDETL.cbl:35 may pass the same 10-byte layout under its own DTO.",
+ "proof": {
+  "at": "2026-09-29T22:02:13+00:00",
+  "crucible_ref": "v0.1.0 (0c942cb8)",
+  "summary": {
+   "aid-keys": "1/1",
+   "option1-xctl": "1/1",
+   "option2-next-transid": "1/1"
+  },
+  "sibling_ports": [
+   "PCDETL",
+   "PCMENU"
+  ],
+  "reproven": [
+   {
+    "at": "2026-10-04T14:22:26+00:00",
+    "crucible_ref": "v0.2.0 (94f2afcb)",
+    "summary": {
+     "aid-keys": "1/1",
+     "invalid-option": "1/1",
+     "option1-xctl": "1/1",
+     "option2-next-transid": "1/1"
+    },
+    "port_sha256": "0a54d7b0e277eef6ee5f5f217d8ba51ea73960a1b7d05dd60ddc32fd85a83d2f",
+    "harness_commit": "16ae9e01515581be224b32982ceae54bc73e68fb",
+    "by": "tests/tools/crucible_port_provenance.py reprove (cics_crucible.py --sides java-ported --program PCMENU --report-dir)"
+   }
+  ]
+ },
+ "approved": false,
+ "history": [
+  {
+   "at": "2026-09-29T21:50:23+00:00",
+   "event": "proposed",
+   "attempt": 1
+  },
+  {
+   "at": "2026-09-29T21:51:00+00:00",
+   "event": "proof-failed",
+   "attempt": 1,
+   "summary": {
+    "aid-keys": "0/1",
+    "option1-xctl": "0/1",
+    "option2-next-transid": "0/1"
+   }
+  },
+  {
+   "at": "2026-09-29T21:59:50+00:00",
+   "event": "proof-failed",
+   "attempt": 1,
+   "summary": {
+    "aid-keys": "0/1",
+    "option1-xctl": "0/1",
+    "option2-next-transid": "0/1"
+   }
+  },
+  {
+   "at": "2026-09-29T22:01:28+00:00",
+   "event": "proposed",
+   "attempt": 2,
+   "feedback_from": 1
+  },
+  {
+   "at": "2026-09-29T22:02:13+00:00",
+   "event": "proven",
+   "attempt": 2,
+   "summary": {
+    "aid-keys": "1/1",
+    "option1-xctl": "1/1",
+    "option2-next-transid": "1/1"
+   }
+  }
+ ]
+}

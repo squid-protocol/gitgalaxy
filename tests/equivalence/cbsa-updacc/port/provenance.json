@@ -1,0 +1,20 @@
+{
+ "format": "porting-loop-provenance/1",
+ "program": "UPDACC",
+ "written_by": "model (the #4023 follow-up porting loop), not a person",
+ "model": "claude-sonnet-5-5",
+ "backend": "claude-code-headless: claude -p, no tools, only the ticket's prompt",
+ "proposed": "2026-10-02T19:14:10+00:00",
+ "attempt": 1,
+ "attempts": [
+  {
+   "n": 1,
+   "verdict": "proven"
+  }
+ ],
+ "ticket_sha256": "e9b880bccd60e2bde150bb21663bad3865897f31d074b9b712ce05916985ec5d",
+ "prompt_tokens": 45401,
+ "proof": "tests/tools/equivalence.py run cbsa-updacc",
+ "edited_after": "none: the files are the model's answer as the loop stored it",
+ "licence": "derived from the CICS Bank Sample Application (EPL-2.0; Copyright IBM Corp.) -- see LICENSE and NOTICE in this case's directory"
+}

@@ -44,6 +44,9 @@
     "javascript/react": {
       "javascript/react/build.js": 1
     },
+    "javascript/react_error_codes": {
+      "javascript/react_error_codes/extract-errors.js": 1
+    },
     "jcl/cash-account-cobol": {
       "jcl/cash-account-cobol/DB2DDL.jcl": 1
     },
@@ -232,6 +235,10 @@
       "zig/bun/Parser.zig": 0,
       "zig/bun/napi.zig": 0
     },
+    "zig/mach": {
+      "zig/mach/Core.zig": 7,
+      "zig/mach/module.zig": 3
+    },
     "zig/tigerbeetle": {
       "zig/tigerbeetle/aof.zig": 0,
       "zig/tigerbeetle/build.zig": 5,
@@ -242,10 +249,6 @@
       "zig/zig/Compilation.zig": 0,
       "zig/zig/InternPool.zig": 2,
       "zig/zig/main.zig": 0
-    },
-    "zig/zls/mach": {
-      "zig/zls/mach/Core.zig": 7,
-      "zig/zls/mach/module.zig": 3
     }
   },
   "path": [

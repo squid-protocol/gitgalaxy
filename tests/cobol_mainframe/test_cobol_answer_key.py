@@ -49,19 +49,41 @@ def test_key_integrity(key_path):
             assert v.get("cross_by"), f"{where}: cross_verified needs cross_by (the second model)"
         if v["tier"] == "human_signed":
             assert v.get("signed_by"), f"{where}: human_signed needs signed_by"
-        names = [u["name"] for u in prog["units"]]
-        # A duplicate paragraph name is legal COBOL while it is never referenced
-        # (CardDemo COACTVWC); the key must declare it rather than carry it silently.
-        dupes = sorted({n for n in names if names.count(n) > 1})
-        assert dupes == sorted(v.get("duplicate_units", [])), f"{where}: undeclared duplicate unit {dupes}"
-        for name, verdict in prog["dead"].items():
-            assert name in names, f"{where}: dead {name} is not a unit"
-            assert verdict["reason"] and isinstance(verdict["trivial"], bool)
+        # #4206: a multi-program source keys its first program here and the rest as
+        # `siblings`, each checked like a program of its own.
+        for pid, scope in [(None, prog), *prog.get("siblings", {}).items()]:
+            at = f"{where}:{pid}" if pid else where
+            if pid:
+                assert pid != prog["program_id"] and scope["line"] <= scope["end_line"], at
+                assert scope["nested_in"] in (None, prog["program_id"], *prog["siblings"]), f"{at}: nested_in"
+                assert all(scope["line"] < u["line"] <= scope["end_line"] for u in scope["units"]), f"{at}: span"
+            names = [u["name"] for u in scope["units"]]
+            # A duplicate paragraph name is legal COBOL while it is never referenced
+            # (CardDemo COACTVWC); the key must declare it rather than carry it silently.
+            dupes = sorted({n for n in names if names.count(n) > 1})
+            declared = v.get("duplicate_units", []) if pid is None else scope.get("duplicate_units", [])
+            assert dupes == sorted(declared), f"{at}: undeclared duplicate unit {dupes}"
+            for name, verdict in scope["dead"].items():
+                assert name in names, f"{at}: dead {name} is not a unit"
+                assert verdict["reason"] and isinstance(verdict["trivial"], bool)
+            # #4318: extents partition the procedure code -- ordered, each ending
+            # before the next begins -- and every edge sits inside its unit.
+            spans = ([scope["main_line"]] if scope["main_line"] else []) + scope["units"]
+            for u, nxt in zip(spans, spans[1:] + [None]):
+                assert u["line"] <= u["end"] and (nxt is None or u["end"] < nxt["line"]), f"{at}: extent {u}"
+                for e in u["edges"]:
+                    assert e["verb"] in ("PERFORM", "PERFORM_THRU", "GO_TO"), f"{at}: edge {e}"
+                    assert u["line"] <= e["line"] <= u["end"], f"{at}: edge {e} outside its unit"
         for cb in prog["copybooks"]:
             assert cb["resolves_to"] or cb["why"], f"{where}: unresolved {cb['name']} without a reason"
             assert not (cb["resolves_to"] or "").lower().endswith((".cbl", ".cob")), "a COPY never means a program"
         for f in prog["files"]:
             assert set(f["modes"]) <= {"INPUT", "OUTPUT", "I-O", "EXTEND"}
+        assert isinstance(prog["extents_validated"], bool), f"{where}: extents_validated"
+    for rel, entry in key.get("pli_units", {}).items():
+        for u in entry["units"]:
+            assert u["line"] <= u["end"] <= u["block_end"], f"{key_path.stem}:{rel}: extent {u}"
+            assert all(e["verb"] == "CALL" for e in u["edges"]), f"{key_path.stem}:{rel}: {u['name']}"
 
 
 def test_cbsa_key_carries_the_verified_findings():
@@ -120,6 +142,26 @@ def test_area_b_continuation_is_not_a_header(tmp_path):
         )
     )
     assert names == ["MAIN-PARA"]
+
+
+def test_a_paragraph_named_end_something_is_a_header(tmp_path):
+    """#4026 (GENAPP LGIPDB01): `End-Program.` in Area A is a PERFORMed paragraph;
+    only the reserved END- words (`END-IF.`, `END-EVALUATE.`) are not headers."""
+    names, why = _reach(
+        _program(
+            tmp_path,
+            "       MAINLINE SECTION.\n"
+            "           IF A = B PERFORM END-PROGRAM\n"
+            "       END-IF.\n"
+            "       END-EVALUATE.\n"
+            "       END-PROGRAM.\n"
+            "           EXEC CICS RETURN END-EXEC.\n"
+            "       MAINLINE-EXIT.\n"
+            "           EXIT.\n",
+        )
+    )
+    assert names == ["MAINLINE", "END-PROGRAM", "MAINLINE-EXIT"]
+    assert "END-PROGRAM" in why and "MAINLINE-EXIT" not in why
 
 
 def test_perform_goto_and_fall_through(tmp_path):
@@ -361,6 +403,232 @@ def test_draft_program_carries_entry_transactions(tmp_path):
 
     entry_no_map, _ = ak.draft_program(path, tmp_path, [path], {"PROG": ["PROG.cbl"]})
     assert entry_no_map["transactions"] == []
+
+
+# The DBB `epscsmrd.cbl` shape (#4206): batch-compiled sibling programs, each
+# `IDENTIFICATION DIVISION ... END PROGRAM`, repeating MAINLINE SECTION, with
+# a program nested inside the last one.
+_MULTI_PROGRAM = """\
+       IDENTIFICATION DIVISION.
+        PROGRAM-ID. 'FIRST'.
+        AUTHOR. WD4Z.
+       DATA DIVISION.
+       WORKING-STORAGE SECTION.
+       01 WS-X PIC 9.
+       PROCEDURE DIVISION.
+       MAINLINE SECTION.
+           CALL 'SECOND'
+           GOBACK.
+       FIRST-UNUSED.
+           DISPLAY 'X'.
+       END PROGRAM 'FIRST'.
+       IDENTIFICATION DIVISION.
+        PROGRAM-ID. 'SECOND'.
+        AUTHOR. WD4Z.
+        INSTALLATION. 9.0.0.
+       DATA DIVISION.
+       LINKAGE SECTION.
+       01 LS-X PIC 9.
+       PROCEDURE DIVISION USING LS-X.
+       MAINLINE SECTION.
+           PERFORM SECOND-USED THRU FIRST-UNUSED
+           CALL 'INNER'
+           GOBACK.
+       SECOND-USED.
+           DISPLAY 'U'.
+       FIRST-UNUSED.
+           DISPLAY 'NOT DEAD HERE'.
+       IDENTIFICATION DIVISION.
+        PROGRAM-ID.
+           INNER.
+       PROCEDURE DIVISION.
+       MAINLINE SECTION.
+           GOBACK.
+       INNER-UNUSED.
+           EXIT.
+       END PROGRAM INNER.
+       END PROGRAM 'SECOND'.
+"""
+
+
+def test_program_spans_split_siblings_and_nested_programs(tmp_path):
+    """#4206: one span per program, nested programs inside their container, each
+    span's PROCEDURE DIVISION stopping at its END PROGRAM or first nested program."""
+    path = tmp_path / "MULTI.cbl"
+    path.write_text(_MULTI_PROGRAM, encoding="utf-8")
+    src = ak.Source(path)
+    spans = ak.program_spans(src)
+    assert [(s["program_id"], s["line"], s["end_line"], s["nested_in"]) for s in spans] == [
+        ("FIRST", 1, 13, None),
+        ("SECOND", 14, 39, None),
+        ("INNER", 30, 38, "SECOND"),  # PROGRAM-ID on the line after its paragraph name (#3418)
+    ]
+    assert [u["name"] for u in ak._units(src, spans[1]["proc"], spans[1]["stop"]) if u["name"]] == [
+        "MAINLINE",
+        "SECOND-USED",
+        "FIRST-UNUSED",
+    ]
+    # A single-program source keeps the whole-file reading.
+    single = _program(tmp_path, "       MAIN-PARA.\n           GOBACK.\n")
+    assert len(ak.program_spans(ak.Source(single))) == 1
+
+
+def test_draft_keys_sibling_programs_with_their_own_units(tmp_path):
+    """#4206: the first program is the entry, the rest are `siblings` with units and
+    dead verdicts from their own PROCEDURE DIVISION. Before, the draft read SECOND's
+    PROGRAM-ID / AUTHOR / INSTALLATION paragraphs as units of FIRST."""
+    path = tmp_path / "MULTI.cbl"
+    path.write_text(_MULTI_PROGRAM, encoding="utf-8")
+    entry, why = ak.draft_program(path, tmp_path, [path], {p: ["MULTI.cbl"] for p in ("FIRST", "SECOND", "INNER")})
+
+    assert entry["program_id"] == "FIRST"
+    assert [u["name"] for u in entry["units"]] == ["MAINLINE", "FIRST-UNUSED"]
+    assert set(entry["dead"]) == {"FIRST-UNUSED"}
+    assert entry["siblings"]["SECOND"] == {
+        "line": 14,
+        "end_line": 39,
+        "nested_in": None,
+        # #4318: each unit ends at its last code line; FIRST-UNUSED stops before the
+        # nested program's IDENTIFICATION DIVISION, not at SECOND's END PROGRAM.
+        "units": [
+            {
+                "name": "MAINLINE",
+                "kind": "section",
+                "line": 22,
+                "end": 25,
+                "edges": [{"verb": "PERFORM_THRU", "target": "SECOND-USED", "thru": "FIRST-UNUSED", "line": 23}],
+            },
+            {"name": "SECOND-USED", "kind": "paragraph", "line": 26, "end": 27, "edges": []},
+            {"name": "FIRST-UNUSED", "kind": "paragraph", "line": 28, "end": 29, "edges": []},
+        ],  # fmt: skip
+        "main_line": None,
+        # Reachability stays inside SECOND: its FIRST-UNUSED is in a PERFORM range,
+        # so it is live there even though FIRST's is dead.
+        "dead": {},
+    }
+    assert entry["siblings"]["INNER"]["nested_in"] == "SECOND"
+    assert entry["siblings"]["INNER"]["dead"] == {
+        "INNER-UNUSED": {
+            "reason": "never PERFORMed or GO TO'd, and the unit before it never falls through",
+            "trivial": True,
+        }
+    }
+    assert why["SECOND:SECOND-USED"] == "PERFORM from MAINLINE"
+    assert {c["target"]: c["resolves_to"] for c in entry["calls"]} == {"SECOND": "MULTI.cbl", "INNER": "MULTI.cbl"}
+
+    # Score pairs and census claims name a sibling's unit PROG:NAME; a parser's
+    # unit is placed in a program by its line, the innermost program winning.
+    assert [u["name"] for u in ak.keyed_units(entry)][2:4] == ["SECOND:MAINLINE", "SECOND:SECOND-USED"]
+    assert set(ak.keyed_dead(entry)) == {"FIRST-UNUSED", "INNER:INNER-UNUSED"}
+    assert ak.keyed_unit_name(entry, "MAINLINE", 8) == "MAINLINE"
+    assert ak.keyed_unit_name(entry, "MAINLINE", 22) == "SECOND:MAINLINE"
+    assert ak.keyed_unit_name(entry, "MAINLINE", 34) == "INNER:MAINLINE"
+
+
+def test_score_places_engine_units_in_their_sibling_program(tmp_path):
+    """#4206: with a DB, an engine unit scores as the program its line falls in, so
+    a sibling's repeated MAINLINE is a separate pair, not a collision."""
+    from types import SimpleNamespace as NS
+
+    path = tmp_path / "MULTI.cbl"
+    path.write_text(_MULTI_PROGRAM, encoding="utf-8")
+    entry, _ = ak.draft_program(path, tmp_path, [path], {})
+    unit = lambda name, line, status=0: NS(name=name, start_line=line, usage_status=status)  # noqa: E731
+    units = [unit("MAINLINE", 8), unit("FIRST-UNUSED", 11, 1), unit("MAINLINE", 22), unit("MAINLINE", 34)]
+    assert {ak.keyed_unit_name(entry, u.name, u.start_line) for u in units} == {
+        "MAINLINE",
+        "FIRST-UNUSED",
+        "SECOND:MAINLINE",
+        "INNER:MAINLINE",
+    }
+
+
+def test_the_forge_reads_a_multi_program_source_per_program(tmp_path):
+    """#4243: the forge's unit view (old_paragraphs) and dead verdicts name a sibling's
+    unit PROG:NAME, as the key does, so they score pair for pair. Read as one program
+    they held SECOND's AUTHOR / INSTALLATION headers, one MAINLINE, and no INNER units."""
+    from gitgalaxy.tools.cobol_to_cobol.cobol_graveyard_finder import x_ray_dead_code
+
+    path = tmp_path / "MULTI.cbl"
+    path.write_text(_MULTI_PROGRAM, encoding="utf-8")
+    entry, _ = ak.draft_program(path, tmp_path, [path], {})
+    assert ak.old_paragraphs(path, tmp_path) == {u["name"] for u in ak.keyed_units(entry)}
+    assert x_ray_dead_code(path, copybook_root=tmp_path)["dead_paras"] == set(ak.keyed_dead(entry))
+
+
+def test_every_go_to_in_a_name_run_is_seen(tmp_path):
+    """#4206 (DBB EPSCSMRI): a run of names spans statements, so a consuming GO TO
+    match swallowed the next GO TO and its DEPENDING ON targets read as dead. And a
+    plain GO TO after a GO TO ... DEPENDING ON in one sentence still ends the unit."""
+    _, why = _reach(
+        _program(
+            tmp_path,
+            "       ROUTE.\n"
+            "           GO TO\n"
+            "            C1\n"
+            "           DEPENDING ON WS-X\n"
+            "           GO TO DONE\n"
+            "           .\n"
+            "       C1.\n"
+            "           IF WS-X = 0\n"
+            "            GO TO DONE\n"
+            "           END-IF\n"
+            "           MOVE WS-X TO WS-X\n"
+            "           GO TO\n"
+            "            T1\n"
+            "            T2\n"
+            "           DEPENDING ON WS-X\n"
+            "           GO TO DONE\n"
+            "           .\n"
+            "       NEVER-FALLEN-INTO SECTION.\n"
+            "       T1.\n"
+            "           GO TO DONE.\n"
+            "       T2.\n"
+            "           GO TO DONE.\n"
+            "       DONE.\n"
+            "           GOBACK.\n",
+            data="       01 WS-X PIC 9.",
+        )
+    )
+    assert why["T1"] == "GO TO from C1" and why["T2"] == "GO TO from C1"
+    assert why["C1"] == "GO TO from ROUTE"  # not a fall-through from ROUTE
+    assert "NEVER-FALLEN-INTO" not in why
+
+
+def test_xml_parse_processing_procedure_is_a_range_and_end_xml_closes_its_phrase(tmp_path):
+    """#4206 (DBB EPSCSMRI MAINLINE): `XML PARSE ... PROCESSING PROCEDURE A THRU B`
+    reaches A..B and returns, and END-XML closes the ON EXCEPTION phrase, so the
+    GOBACK after it ends the unit. Before, MAINLINE read as falling through into
+    the next paragraph, which made the handler and the section after it live."""
+    _, why = _reach(
+        _program(
+            tmp_path,
+            "       MAINLINE SECTION.\n"
+            "           XML PARSE WS-X\n"
+            "            PROCESSING PROCEDURE HANDLER\n"
+            "            THRU HANDLER-EXIT\n"
+            "            ON EXCEPTION\n"
+            "             DISPLAY 'E'\n"
+            "            NOT ON EXCEPTION\n"
+            "             DISPLAY 'OK'\n"
+            "           END-XML\n"
+            "           GOBACK\n"
+            "           .\n"
+            "       NOT-FALLEN-INTO.\n"
+            "           DISPLAY 'X'.\n"
+            "       HANDLER.\n"
+            "           DISPLAY 'H'.\n"
+            "       HANDLER-EXIT.\n"
+            "           CONTINUE.\n"
+            "       AFTER-THE-RANGE SECTION.\n"
+            "       NEVER.\n"
+            "           GOBACK.\n",
+            data="       01 WS-X PIC X(10).",
+        )
+    )
+    assert why["HANDLER"] == "XML PARSE PROCESSING PROCEDURE from MAINLINE"
+    assert why["HANDLER-EXIT"] == "fall-through from HANDLER"
+    assert not {"NOT-FALLEN-INTO", "AFTER-THE-RANGE", "NEVER"} & set(why)
 
 
 def test_copybooks_resolve_to_members_through_zapp_libraries(tmp_path):
@@ -1344,6 +1612,33 @@ def test_copybook_record_units_follow_the_engine_layout_contract(tmp_path):
     }  # fmt: skip
 
 
+def test_an_unnamed_entry_is_an_implicit_filler_with_its_clauses(tmp_path):
+    """#4246: `2 PIC X(40) ...` (DBB MortgageApplication EPSCSMRD) has no name -- an implicit FILLER. The key
+    read PIC as its name and lost the PIC, so the item took no storage and every field after it moved up."""
+    lines = [
+        "1 EPSPDATA-HEADER.",
+        "  2 PIC X(40) USAGE DISPLAY VALUE 'HEADER LINE ONE'.",
+        "  2 TITLE-TEXT PIC X(10) VALUE 'TITLE'.",
+        "  2 COMP-3 PIC S9(5).",
+        "  2 USAGE BINARY PIC 9(4).",
+        "  2 VALUE 'Z' PIC X.",
+        "  2 PIC-CODE PIC X(2).",
+    ]
+    cpy = _cpy(tmp_path, "UNNAMED.cpy", lines)
+    items = ak._data_items(ak.Source(cpy))
+    assert [(it["level"], it["name"], it["pic"], it["usage"], it["value"]) for it in items] == [
+        (1, "EPSPDATA-HEADER", None, None, None),
+        (2, "FILLER", "X(40)", "DISPLAY", "HEADER LINE ONE"),
+        (2, "TITLE-TEXT", "X(10)", None, "TITLE"),
+        (2, "FILLER", "S9(5)", "COMP-3", None),
+        (2, "FILLER", "9(4)", "BINARY", None),
+        (2, "FILLER", "X", None, "Z"),
+        (2, "PIC-CODE", "X(2)", None, None),  # a name that only starts with a clause word is a name
+    ]
+    # the FILLERs take their storage: TITLE-TEXT after 40 bytes, PIC-CODE after 40+10+3+2+1
+    assert ak.copybook_record_units(cpy) == {"EPSPDATA-HEADER/TITLE-TEXT @40+10", "EPSPDATA-HEADER/PIC-CODE @56+2"}
+
+
 def test_refmod_units_key_the_reference_modification_text(tmp_path):
     """#3649: `L<line> VERB SOURCE(start:length) -> TARGET(start:length)`, one spelling on
     both sides (spacing around + - : normalized); a subscript is not a refmod."""
@@ -1559,3 +1854,213 @@ def test_runner_step_units_read_systsin_parm_and_members():
         "L13 REXX IKJEFT1B RUNS=MYREXX/TSO EXEC",
         "L13 REXX IKJEFT1B RUNS=OTHER/TSO EXEC",
     }
+
+
+# ---- #4318: unit extents and intra-program edges --------------------------------
+# The #4301 / #4302 reproducer verbatim: a conditional GOBACK mid-paragraph, a
+# paragraph whose name starts with RETURN, EXIT PERFORM and inline PERFORMs, and
+# main-line code before the first paragraph.
+_REPRO_4301 = """\
+       IDENTIFICATION DIVISION.
+       PROGRAM-ID. REPRO1.
+       DATA DIVISION.
+       WORKING-STORAGE SECTION.
+       01  WS-FLAG                PIC X VALUE 'N'.
+       01  WS-I                   PIC 9(4) COMP VALUE 0.
+       PROCEDURE DIVISION.
+           PERFORM ENTRY-TARGET
+           PERFORM MAIN-PARA
+           GOBACK.
+       MAIN-PARA.
+           IF WS-FLAG = 'Y'
+              GOBACK
+           END-IF
+           PERFORM AFTER-GOBACK-TARGET
+           CALL 'SUBPGM1'
+           PERFORM RETURN-TO-MENU
+           PERFORM LOOP-PARA.
+       RETURN-TO-MENU.
+           MOVE 'Y' TO WS-FLAG
+           PERFORM IN-RETURN-PARA-TARGET.
+       LOOP-PARA.
+           PERFORM VARYING WS-I FROM 1 BY 1 UNTIL WS-I > 5
+              IF WS-I = 3
+                 EXIT PERFORM
+              END-IF
+              DISPLAY WS-I
+           END-PERFORM
+           PERFORM AFTER-EXIT-PERFORM-TARGET
+           PERFORM TEST AFTER VARYING WS-I FROM 1 BY 1
+                   UNTIL WS-I > 2
+              DISPLAY WS-I
+           END-PERFORM.
+       ENTRY-TARGET.
+           DISPLAY 'E'.
+       AFTER-GOBACK-TARGET.
+           DISPLAY 'A'.
+       IN-RETURN-PARA-TARGET.
+           DISPLAY 'R'.
+       AFTER-EXIT-PERFORM-TARGET.
+           DISPLAY 'X'.
+"""
+
+
+def _edges(unit):
+    return [(e["verb"], e["target"], e["line"]) for e in unit["edges"]]
+
+
+def test_extents_and_edges_on_the_4301_reproducer(tmp_path):
+    """A unit runs from its header to its last code line before the next header,
+    however many GOBACK / RETURN / EXIT words it holds; the main line is a unit
+    starting at PROCEDURE DIVISION; CALL, inline PERFORM forms and EXIT PERFORM
+    are not edges."""
+    path = tmp_path / "REPRO1.cbl"
+    path.write_text(_REPRO_4301, encoding="utf-8")
+    entry, _ = ak.draft_program(path, tmp_path, [path], {"REPRO1": ["REPRO1.cbl"]})
+    units = {u["name"]: u for u in entry["units"]}
+    assert entry["main_line"] == {
+        "line": 7,
+        "end": 10,
+        "edges": [
+            {"verb": "PERFORM", "target": "ENTRY-TARGET", "line": 8},
+            {"verb": "PERFORM", "target": "MAIN-PARA", "line": 9},
+        ],
+    }
+    assert (units["MAIN-PARA"]["line"], units["MAIN-PARA"]["end"]) == (11, 18)
+    assert _edges(units["MAIN-PARA"]) == [
+        ("PERFORM", "AFTER-GOBACK-TARGET", 15),
+        ("PERFORM", "RETURN-TO-MENU", 17),
+        ("PERFORM", "LOOP-PARA", 18),
+    ]
+    assert (units["RETURN-TO-MENU"]["end"], _edges(units["RETURN-TO-MENU"])) == (
+        21,
+        [("PERFORM", "IN-RETURN-PARA-TARGET", 21)],
+    )
+    assert (units["LOOP-PARA"]["end"], _edges(units["LOOP-PARA"])) == (
+        33,
+        [("PERFORM", "AFTER-EXIT-PERFORM-TARGET", 29)],
+    )
+    assert (units["AFTER-EXIT-PERFORM-TARGET"]["line"], units["AFTER-EXIT-PERFORM-TARGET"]["end"]) == (40, 41)
+    # The score's shapes: the main line is a unit of its own, with its edges.
+    assert "(procedure division) L7-10" in ak.key_unit_extents(entry)
+    assert "(procedure division) -> PERFORM MAIN-PARA" in ak.key_unit_edges(entry)
+
+
+def test_extents_skip_trailing_non_code_and_edges_read_split_and_depending_forms(tmp_path):
+    """A line holding only a sequence number, a comment or a col-7 `D` debugging
+    line is not code, so it never ends a unit. A PERFORM whose target is on the
+    next line (#4300) is an edge at the verb's line; GO TO ... DEPENDING ON is one
+    edge per target; a GO TO back into the same paragraph is an edge; SQL
+    WHENEVER ... GO TO, `PERFORM n TIMES` and `PERFORM WS-N TIMES` are not."""
+    proc = [
+        "000100 MAIN-PARA.",
+        "000200     PERFORM",
+        "000300         SPLIT-TARGET",
+        "000400     PERFORM 3 TIMES",
+        "000500         DISPLAY 'X'",
+        "000600     END-PERFORM",
+        "000700     PERFORM WS-N TIMES",
+        "000800         DISPLAY 'Y'",
+        "000900     END-PERFORM",
+        "001000     EXEC SQL WHENEVER SQLERROR GO TO SPLIT-TARGET END-EXEC",
+        "001100     GO TO P-A P-B",
+        "001200           P-C DEPENDING ON WS-N.",
+        "001300",
+        "001400*    BANNER FOR THE NEXT PARAGRAPH",
+        "001500D    DISPLAY 'DEBUG'.",
+        "001600 SPLIT-TARGET.",
+        "001700     ADD 1 TO WS-N",
+        "001800     IF WS-N < 9 GO TO SPLIT-TARGET.",
+        "001900",
+        "002000 P-A.  EXIT.",
+        "002100 P-B.  EXIT.",
+        "002200 P-C.  EXIT.",
+    ]
+    path = _program(tmp_path, "\n".join(proc), data="       01 WS-N PIC 9.")
+    entry, _ = ak.draft_program(path, tmp_path, [path], {"PROG": ["PROG.cbl"]})
+    units = {u["name"]: u for u in entry["units"]}
+    base = 6  # PROCEDURE DIVISION is line 6 of this `_program` file
+    assert units["MAIN-PARA"]["end"] == base + 12
+    assert _edges(units["MAIN-PARA"]) == [
+        ("PERFORM", "SPLIT-TARGET", base + 2),
+        ("GO_TO", "P-A", base + 11),
+        ("GO_TO", "P-B", base + 11),
+        ("GO_TO", "P-C", base + 11),
+    ]
+    assert all(e.get("depending") for e in units["MAIN-PARA"]["edges"][1:])
+    assert units["SPLIT-TARGET"]["end"] == base + 18
+    assert _edges(units["SPLIT-TARGET"]) == [("GO_TO", "SPLIT-TARGET", base + 18)]
+    assert entry["main_line"] is None
+
+
+def test_a_procedure_copybooks_paragraph_is_a_perform_target(tmp_path):
+    """CardDemo COTRTLIC PERFORMs 9999-FORMAT-DB2-MESSAGE, a paragraph that
+    `EXEC SQL INCLUDE CSDB2RPY` brings in: an edge, though not a unit of the file."""
+    cpy = tmp_path / "CPYPARA.cpy"
+    cpy.write_text("       CPY-PARA.\n           DISPLAY 'C'.\n", encoding="utf-8")
+    path = _program(
+        tmp_path, "       MAIN-PARA.\n           PERFORM CPY-PARA\n           GOBACK.\n       COPY CPYPARA.\n"
+    )
+    entry, _ = ak.draft_program(path, tmp_path, [path, cpy], {"PROG": ["PROG.cbl"]})
+    assert [u["name"] for u in entry["units"]] == ["MAIN-PARA"]
+    assert _edges(entry["units"][0]) == [("PERFORM", "CPY-PARA", 7)]
+
+
+def test_pli_units_end_at_their_own_end_and_nested_own_extent():
+    """PL/I: `END name;` closes every block up to the named one, an unlabelled
+    END the innermost; `ELSE RETURN;` ends nothing (#4301's KONTROLL_AV_INPUT).
+    A procedure with nested ones keeps its own code before the first of them."""
+    text = "\n".join(
+        [
+            " MAIN: PROC OPTIONS(MAIN);",  # 1
+            "   CALL CHECK;",  # 2
+            "   CALL EXTERNAL_PGM;",  # 3
+            "   CALL INCLUDED_PROC;",  # 4
+            "",  # 5
+            "  CHECK: PROC;",  # 6
+            "    IF A = 1 THEN DO;",  # 7
+            "       B = 2;",  # 8
+            "    END;",  # 9
+            "    ELSE RETURN;",  # 10
+            "    SELECT (A);",  # 11
+            "      WHEN (1) CALL SHOW;",  # 12
+            "      OTHERWISE;",  # 13
+            "    END;",  # 14
+            "    LOOP: DO I = 1 TO 3;",  # 15
+            "      DO J = 1 TO 2;",  # 16
+            "    END LOOP;",  # 17 -- multiple closure
+            "    CALL SHOW;",  # 18
+            "  END CHECK;",  # 19
+            "  SHOW: PROC;",  # 20
+            "  END;",  # 21
+            " END MAIN;",  # 22
+        ]
+    )
+    units = {u["name"]: u for u in ak.pli_units(text, frozenset({"INCLUDED_PROC"}))}
+    assert {n: (u["line"], u["end"], u["block_end"], u["nested_in"]) for n, u in units.items()} == {
+        "MAIN": (1, 4, 22, None),
+        "CHECK": (6, 19, 19, "MAIN"),
+        "SHOW": (20, 21, 21, "MAIN"),
+    }
+    assert _edges(units["MAIN"]) == [("CALL", "CHECK", 2), ("CALL", "INCLUDED_PROC", 4)]
+    assert _edges(units["CHECK"]) == [("CALL", "SHOW", 12), ("CALL", "SHOW", 18)]
+
+
+def test_engine_edges_drop_program_calls_and_keep_phantoms():
+    """The engine's calls_out_to mixes PERFORM targets and program CALLs: the
+    file's call-site operands and targets are removed, and what is left that names
+    no unit (#4305's `TEST`) still scores, as a false edge. A synthetic main line
+    has edges but no extent."""
+    prog = {"units": [], "dead": {}}
+    units = [
+        {"name": "A010", "start": 5, "end": 9, "calls": ["B020", "SUBPGM1", "WS-PGM", "TEST"],
+         "transfers": ["A999"], "synthetic": False},
+        {"name": ak.MAIN_LINE, "start": 3, "end": None, "calls": ["A010"], "transfers": [], "synthetic": True},
+    ]  # fmt: skip
+    assert ak.engine_unit_edges(prog, units, {"SUBPGM1", "WS-PGM", "PGM2"}) == {
+        "A010 -> PERFORM B020",
+        "A010 -> PERFORM TEST",
+        "A010 -> GO TO A999",
+        "(procedure division) -> PERFORM A010",
+    }
+    assert ak.engine_unit_extents(prog, units) == {"A010 L5-9"}

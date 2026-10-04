@@ -79,3 +79,34 @@ def test_walk_is_bounded():
     assert q == "a.a.a.a"
     long_ident = "x" * 100_000 + ".f"
     assert len(_call_qualifier(long_ident, len(long_ident) - 1)) <= 64
+
+
+def test_java_lambda_arrow_is_not_a_receiver_separator():
+    # #3837: in java `->` only ends a lambda's parameters, so `() -> toJson(gson, x)`
+    # is a bare call to toJson, not a call on an `<expr>` receiver.
+    code = "class A {\n  void run(Gson gson, Object x) {\n    Runnable r = () -> toJson(gson, x);\n    this.save();\n  }\n}\n"
+    quals = _quals("java", code, "run")
+    assert quals["toJson"] == [""]
+    assert quals["save"] == ["this"]
+
+
+def test_arrow_stays_a_separator_outside_java():
+    # PHP and C/C++ member access still split on `->`.
+    assert _call_qualifier("$this->save(", len("$this->")) == "this"
+    assert _call_qualifier("p->f(", len("p->")) == "p"
+
+
+def test_spread_operator_is_not_a_receiver():
+    # #3787: `...f()` is a bare call and `...ns.f()` a call on `ns`; the spread's dots are
+    # not a member access, so neither has an `<expr>` receiver. `a.b()` and `a.f()` stay.
+    assert _call_qualifier("x(...f(", len("x(...")) == ""
+    assert _call_qualifier("{ ...f(", len("{ ...")) == ""
+    assert _call_qualifier("x(...errorUtil.errToObj(", len("x(...errorUtil.")) == "errorUtil"
+    assert _call_qualifier("x(...a.b.f(", len("x(...a.b.")) == "a.b"
+    assert _call_qualifier("x(a.f(", len("x(a.")) == "a"
+    code = "function run(v, i) {\n  r.push(...parseCaseValue(v));\n  s.parse({ ...makeBig(i), ...errorUtil.errToObj(v) });\n}\n"
+    q = _quals("typescript", code, "run")
+    assert q["parseCaseValue"] == [""]
+    assert q["makeBig"] == [""]
+    assert q["errToObj"] == ["errorUtil"]
+    assert q["push"] == ["r"]

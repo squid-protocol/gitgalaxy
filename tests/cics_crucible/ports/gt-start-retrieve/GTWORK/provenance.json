@@ -1,0 +1,77 @@
+{
+ "format": "cics-crucible-port/1",
+ "case": "gt-start-retrieve",
+ "program": "GTWORK",
+ "attempt": 1,
+ "backend": "command",
+ "model": "claude-opus-5-5",
+ "command": "claude CLI 2.1.285 print mode (claude -p --model claude-opus-5-5 --effort high --tools '' --strict-mcp-config --mcp-config '{\"mcpServers\":{}}' --no-session-persistence --system-prompt <porting system prompt>, prompt file on stdin, run from an empty directory)",
+ "proposed_at": "2026-09-29T21:47:25+00:00",
+ "ticket_sha256": "af37dbd71d30e7af0834104ab12aa4e5edfb8b71122659f623e7eacc4ee6e218",
+ "prompt_tokens": 12387,
+ "feedback_from": null,
+ "notes": "Defects of the original kept (behaviour unchanged, each commented in the code):\n- On LENGERR, LOG-LEN logs the START record's full original length (what CICS puts in LENGTH), not the\n  20 bytes actually moved into WS-DATA. A length of 10000 or more would also lose its high-order digit(s)\n  in PIC 9(4). Fix: MOVE FUNCTION MIN(WS-LEN 20) TO LOG-LEN.\n- Any RETRIEVE response other than NORMAL or LENGERR ends the loop quietly, as if it were end of data.\n  That includes INVREQ, IOERR and NOTFND, not only ENDDATA. Fix: set WS-MORE to 'N' only on\n  DFHRESP(ENDDATA) and abend on anything else.\n- LOG-RESP is PIC 99 unsigned, so it keeps only the absolute value mod 100 of EIBRESP. That is harmless\n  for the values RETRIEVE returns.\n\nFacts:\n- No fact is contradicted by the source. The uow_handlers RESP_CHECK (LENGERR, NORMAL at line 28) matches\n  lines 32-33.\n\nAssumptions:\n- runTask records WRITEQ TS through task.writeqTs, because the harness compares task events. The\n  generated writeqTsGtlogL41 (Spring TempStorage) is used only by executeGtwork.\n- executeGtwork has no START data, so it runs the loop once against ENDDATA. It writes the single record\n  \"R=29 L=0000 D=\" followed by 20 spaces.\n- The WS-LOG bytes are encoded in EBCDIC IBM037. The CSD and the facts do not name the region's code\n  page; if the region uses another EBCDIC page, change the EBCDIC constant.\n- The unsigned PIC 99 / 9(4) DISPLAY digits are written as plain zoned digits (F0-F9) through that\n  charset, without CobolRecords. These fields have no sign to overpunch.\n- The DFHRESP values used: NORMAL=0, NOTFND=13, INVREQ=16, IOERR=17, LENGERR=22, ENDDATA=29.",
+ "proof": {
+  "at": "2026-09-29T21:59:03+00:00",
+  "crucible_ref": "v0.1.0 (0c942cb8)",
+  "summary": {
+   "interval-data": "1/1",
+   "no-data": "1/1",
+   "protect-abend": "1/1",
+   "retrieve-lengerr": "1/1",
+   "time-six-hours": "1/1"
+  },
+  "sibling_ports": [
+   "GTSTART",
+   "GTWORK"
+  ],
+  "reproven": [
+   {
+    "at": "2026-10-04T14:21:19+00:00",
+    "crucible_ref": "v0.2.0 (94f2afcb)",
+    "summary": {
+     "interval-data": "1/1",
+     "no-data": "1/1",
+     "protect-abend": "1/1",
+     "retrieve-lengerr": "1/1",
+     "time-six-hours": "1/1"
+    },
+    "port_sha256": "6ade6ae1bb873dfee5a3e6df8a9e500dc07ba5df58d7b8651a0780150e5fcd15",
+    "harness_commit": "16ae9e01515581be224b32982ceae54bc73e68fb",
+    "by": "tests/tools/crucible_port_provenance.py reprove (cics_crucible.py --sides java-ported --program GTWORK --report-dir)"
+   }
+  ]
+ },
+ "approved": false,
+ "history": [
+  {
+   "at": "2026-09-29T21:47:25+00:00",
+   "event": "proposed",
+   "attempt": 1
+  },
+  {
+   "at": "2026-09-29T21:48:09+00:00",
+   "event": "proven",
+   "attempt": 1,
+   "summary": {
+    "interval-data": "1/1",
+    "no-data": "1/1",
+    "protect-abend": "1/1",
+    "retrieve-lengerr": "1/1",
+    "time-six-hours": "1/1"
+   }
+  },
+  {
+   "at": "2026-09-29T21:59:03+00:00",
+   "event": "proven",
+   "attempt": 1,
+   "summary": {
+    "interval-data": "1/1",
+    "no-data": "1/1",
+    "protect-abend": "1/1",
+    "retrieve-lengerr": "1/1",
+    "time-six-hours": "1/1"
+   }
+  }
+ ]
+}

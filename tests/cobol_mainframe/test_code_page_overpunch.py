@@ -67,3 +67,11 @@ def test_cp037_is_unchanged():
 def test_an_unknown_code_page_fails_when_the_config_loads():
     with pytest.raises(ConfigError, match="cp9999"):
         target_from_dict({"data": {"code_page": "cp9999"}})
+
+def test_ascii_family_code_page_uses_pc_cobol_overpunch():
+    assert zoned_sign_characters("shift_jis") == ("{ABCDEFGHI", "}JKLMNOPQR")
+    assert zoned_sign_characters("utf-8") == ("{ABCDEFGHI", "}JKLMNOPQR")
+
+def test_non_ascii_non_ebcdic_code_page_fails():
+    with pytest.raises(ConfigError, match="not a known EBCDIC or ASCII code page"):
+        zoned_sign_characters("utf-16")

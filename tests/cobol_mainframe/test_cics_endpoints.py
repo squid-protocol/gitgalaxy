@@ -200,9 +200,23 @@ def test_a_transaction_becomes_an_endpoint_and_a_link_target_takes_the_commarea(
     menu_service = (src / "service/MenuService.java").read_text(encoding="utf-8")
     assert "public void runTask(CicsTask task) {" in menu_service
     assert "import com.gitgalaxy.modernized.cics.CicsTask;" in menu_service
-    assert "public void runTask" not in service  # ACCTINQ is only LINKed to: no transaction, no task
+    # #4004: ACCTINQ is only LINKed to -- no transaction, but a runTask the harness drives at its LINK level
+    assert "public void runTask(CicsTask task) {" in service and "LINK / XCTL level (#4004)" in service
     task = (src / "cics/CicsTask.java").read_text(encoding="utf-8")
-    assert "public void returnTransid(String transid, Object commarea)" in task and "public void xctl(" in task
+    assert "public void returnTransid(String transid, Object commarea)" in task and "public String xctl(" in task
+    # #4009: what the CICS crucible compares -- SEND TEXT's LENGTH and options, RECEIVE MAP as an event,
+    # and EIBCALEN beside the DTO (a short or long COMMAREA), both on a task and on RETURN ... LENGTH
+    assert "public void sendText(String text, int length, String... options)" in task
+    assert "public <T> Optional<T> receive(String map, String mapset, Class<T> type)" in task
+    assert 'event("RECEIVE-MAP", "map", map, "mapset", mapset, "resp",' in task
+    assert "public void returnTransid(String transid, Object commarea, Integer length)" in task
+    assert "Integer eibcalen, Map<String, Object> received)" in task and "public Integer eibcalen()" in task
+    # #4001: SEND MAP carries the mapset, options, and the symbolic map's other subfields (A, C, H, L)
+    assert (
+        "public void sendMap(String map, String mapset, Object screen, MapSubfields subfields, String... options)"
+        in task
+    )
+    assert "public static final class MapSubfields" in task and "public MapSubfields cursor(String field)" in task
 
     assert not (src / "controller/BatchController.java").exists()  # batch: the generic path, unchanged
     audit = (src.parents[5] / "java_migration_audit.txt").read_text(encoding="utf-8")

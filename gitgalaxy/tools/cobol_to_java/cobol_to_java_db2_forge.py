@@ -73,9 +73,53 @@ def sql_java_type(sql_type: str) -> str:
     return "String"
 
 
+def set_as_values(statement: str) -> str | None:
+    """`SET :A = e1, :B = e2` or `SET (:A, :B) = (e1, e2)` as the query `VALUES (e1, e2)` (DB2 SQL Reference,
+    SET assignment statement: the host variables take the values in order), or None for another form."""
+    s = " ".join(statement.split())
+    m = re.fullmatch(r"SET\s*\(([^)]*)\)\s*=\s*\((.*)\)", s, re.I)
+    if m:
+        return f"VALUES ({m.group(2).strip()})"
+    exprs = []
+    for part in _split_top(s[3:].strip() if s.upper().startswith("SET") else ""):
+        a = re.fullmatch(r":[^\s=]+(?:\s*(?:INDICATOR\s*)?:[^\s=]+)?\s*=\s*(.+)", part.strip(), re.I)
+        if not a:
+            return None
+        exprs.append(a.group(1).strip())
+    return f"VALUES ({', '.join(exprs)})" if exprs else None
+
+
+def _split_top(text: str) -> list[str]:
+    """`text` split at the commas outside parentheses and quotes."""
+    out: list[str] = []
+    cur: list[str] = []
+    depth, quote = 0, ""
+    for ch in text:
+        if quote:
+            quote = "" if ch == quote else quote
+        elif ch in "'\"":
+            quote = ch
+        elif ch == "(":
+            depth += 1
+        elif ch == ")":
+            depth -= 1
+        elif ch == "," and depth == 0:
+            out.append("".join(cur))
+            cur = []
+            continue
+        cur.append(ch)
+    out.append("".join(cur))
+    return out
+
+
 def to_jdbc(statement: str, verb: str) -> tuple[str, list[tuple[str, str]], list[str]]:
     """(SQL for NamedParameterJdbcTemplate, [(host variable, parameter)], notes) of one statement."""
     sql, notes = statement, []
+    if verb == "SET":
+        values = set_as_values(statement)
+        if values is not None:
+            sql = values
+            notes.append("the SET's host variables are the columns of the returned row, in order")
     if verb == "DECLARE CURSOR":
         sql = _CURSOR_FOR.sub("", sql, count=1)
     if verb.split()[0] == "SELECT" or verb == "DECLARE CURSOR":
@@ -90,9 +134,55 @@ def to_jdbc(statement: str, verb: str) -> tuple[str, list[tuple[str, str]], list
         return ":" + params[host]
 
     sql = _HOST.sub(named, sql)
-    if re.search(r"\bWHERE\s+CURRENT\s+OF\b", sql, re.I):
-        notes.append("TODO: a positioned statement (WHERE CURRENT OF): rewrite it to the row's key")
+    if verb == "DECLARE CURSOR" and re.search(r"\bFOR\s+UPDATE\b", sql, re.I):
+        # a cursor a positioned statement may use: each row also carries its row id, which that statement names
+        at = _top_from(sql)
+        exposed = _exposed_name(sql[at:]) if at is not None else None
+        if at is not None and exposed:
+            sql = f"{sql[:at].rstrip()}, RID_BIT({exposed}) AS GG_RID {sql[at:]}"
+            notes.append("each row also returns GG_RID, its row id, for a positioned UPDATE / DELETE")
+    pos = re.search(r"\bWHERE\s+CURRENT\s+OF\s+[A-Z0-9_-]+", sql, re.I)
+    if pos:
+        tm = re.match(r"\s*(?:UPDATE|DELETE\s+FROM)\s+([A-Z0-9_.$#@]+)", sql, re.I)
+        if tm:  # JDBC has no cursor position here: the row FETCH last returned, by its row id
+            sql = f"{sql[: pos.start()]}WHERE RID_BIT({tm.group(1)}) = :ggRid{sql[pos.end() :]}"
+            params["GG-RID"] = "ggRid"
+            notes.append("positioned (WHERE CURRENT OF): the cursor's current row, by the GG_RID its FETCH returned")
+        else:
+            notes.append("TODO: a positioned statement (WHERE CURRENT OF): rewrite it to the row's key")
     return " ".join(sql.split()), sorted(params.items()), notes
+
+
+_CLAUSE_WORDS = {"WHERE", "ORDER", "FOR", "GROUP", "HAVING", "FETCH", "WITH", "UNION", "OPTIMIZE"}
+
+
+def _exposed_name(from_clause: str) -> str | None:
+    """The name a FROM clause exposes its one table by: the correlation name (`FROM POLICY P`, `FROM POLICY AS P`),
+    else the table's; None for a join or a nested query."""
+    words = from_clause.replace(",", " , ").split()
+    if len(words) < 2 or words[0].upper() != "FROM" or words[1].startswith("("):
+        return None
+    rest = [w for w in words[2:4] if w.upper() != "AS"]
+    if rest and rest[0] == ",":
+        return None  # more than one table
+    if rest and rest[0].upper() not in _CLAUSE_WORDS and rest[0].replace("_", "").isalnum():
+        return rest[0]
+    return words[1]
+
+
+def _top_from(sql: str) -> int | None:
+    """The offset of the outermost SELECT's FROM (outside parentheses and quotes), or None."""
+    depth, quote = 0, ""
+    for i, ch in enumerate(sql):
+        if quote:
+            quote = "" if ch == quote else quote
+        elif ch == "'":
+            quote = ch
+        elif ch in "()":
+            depth += 1 if ch == "(" else -1
+        elif depth == 0 and re.match(r"(?i)\bFROM\b", sql[i : i + 5]) and (i == 0 or not sql[i - 1].isalnum()):
+            return i
+    return None
 
 
 # #3828: the DB2 character formats of DATE and TIME (DB2 for z/OS SQL Reference, "Datetime values"):
@@ -347,9 +437,27 @@ class Db2Forge:
         self.counts = {"tables": 0, "rows": 0, "statements": 0, "positioned": 0}
         self.uses: dict[str, set[str]] = {}  # program key -> repository classes it uses
         for raw in section.get("facts", []):
-            mine = [s for s in raw.get("statements", []) if s.get("file") in self.key_of and s.get("statement")]
+            # a statement of a converted program -- its own, or in a member it includes (one per including program)
+            mine = []
+            for s in raw.get("statements", []):
+                if not s.get("statement"):
+                    continue
+                owners = [s["file"]] if s.get("file") in self.key_of else [p for p in s.get("included_by", [])
+                                                                            if p in self.key_of]  # fmt: skip
+                mine += [{**s, "program_file": p} for p in owners]
             if mine:
                 self.tables.append(self._plan({**raw, "statements": mine}))
+        # SET :H = expr: the statements that name no table, one repository of their own
+        values = (estate.get("sections") or {}).get("db2_values") or {}
+        mine = []
+        for s in values.get("facts", []):
+            owners = [s["file"]] if s.get("file") in self.key_of else [p for p in s.get("included_by", [])
+                                                                        if p in self.key_of]  # fmt: skip
+            mine += [{**s, "program_file": p} for p in owners if s.get("statement")]
+        if mine:
+            raw = {"table": "DB2_VALUES", "names": ["(no table: SET host-variable = expression)"], "columns": [],
+                   "declared_in": None, "line": None, "statements": mine}  # fmt: skip
+            self.tables.append(self._plan(raw))
         self.dates = self._claim("Db2Dates") if self.tables else ""  # #3828
 
     def _claim(self, name: str) -> str:
@@ -370,13 +478,13 @@ class Db2Forge:
             fact = {"source": f"{raw['declared_in']}:{raw['line']}", "section": "db2_tables", "table": raw["table"]}
             self.trace.record(java_path(self.package, ROW_SUBPACKAGE, row), "Class", "db2-row", [fact])
         for st in raw["statements"]:
-            key = self.key_of[st["file"]]
+            key = self.key_of[st.get("program_file", st["file"])]
             self.uses.setdefault(key, set()).add(t.repository)
             t.programs.add(key)
             verb = st["verb"]
             sql, params, notes = to_jdbc(st["statement"], verb)
             self.counts["statements"] += 1
-            self.counts["positioned"] += any("WHERE CURRENT OF" in n for n in notes)
+            self.counts["positioned"] += any("WHERE CURRENT OF" in n for n in notes)  # (rewritten or a TODO)
             stem = "cursor" + java_class_base(st["cursor"]) if verb == "DECLARE CURSOR" else verb.split()[0].lower()
             name = f"{stem}L{st['line']}{java_class_base(key)}"
             while name in used:
@@ -409,7 +517,7 @@ class Db2Forge:
             doc.append(f"     *  DB2 table access field testing: {self.status}. */")
             if verb == "DECLARE CURSOR":
                 sig, call = "List<Map<String, Object>>", "queryForList"
-            elif verb.split()[0] == "SELECT":
+            elif verb.split()[0] in ("SELECT", "SET"):
                 sig, call = "Map<String, Object>", "queryForMap"  # SQLCODE +100 -> EmptyResultDataAccessException
             else:
                 sig, call = "int", "update"

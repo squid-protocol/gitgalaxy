@@ -12,7 +12,7 @@
           "Organization": "SEQUENTIAL",
           "Record Key": null,
           "Relative Key": null,
-          "Select": "APXT01"
+          "Select": "APXT01_CANAL"
         }
       ],
       "cobol/CICS-Cobol/CBL0901v01AccesoSecuencial.cbl": [
@@ -483,7 +483,7 @@
         {
           "Access Mode": null,
           "Alternate Keys": null,
-          "Assign": "DB1024",
+          "Assign": "XXXXX055",
           "FD Copies": null,
           "File Status": null,
           "Line": 52,
@@ -497,7 +497,7 @@
         {
           "Access Mode": null,
           "Alternate Keys": null,
-          "Assign": "DB1034",
+          "Assign": "XXXXX055",
           "FD Copies": null,
           "File Status": null,
           "Line": 50,
@@ -511,7 +511,7 @@
         {
           "Access Mode": null,
           "Alternate Keys": null,
-          "Assign": "DB1044",
+          "Assign": "XXXXX055",
           "FD Copies": null,
           "File Status": null,
           "Line": 61,
@@ -523,9 +523,9 @@
         {
           "Access Mode": null,
           "Alternate Keys": null,
-          "Assign": "DB1044",
+          "Assign": "XXXXX014",
           "FD Copies": null,
-          "File Status": null,
+          "File Status": "GEN-STATUS",
           "Line": 63,
           "Organization": null,
           "Record Key": null,
@@ -535,7 +535,7 @@
         {
           "Access Mode": null,
           "Alternate Keys": null,
-          "Assign": "DB1044",
+          "Assign": "XXXXX027",
           "FD Copies": null,
           "File Status": null,
           "Line": 67,
@@ -547,13 +547,13 @@
       ],
       "cobol/che-che4z_nist_ccvs85/DB3014.2.cbl": [
         {
-          "Access Mode": null,
+          "Access Mode": "SEQUENTIAL",
           "Alternate Keys": null,
-          "Assign": "DB3014",
+          "Assign": "XXXXX014",
           "FD Copies": null,
           "File Status": null,
           "Line": 15,
-          "Organization": null,
+          "Organization": "SEQUENTIAL",
           "Record Key": null,
           "Relative Key": null,
           "Select": "TFIL"
@@ -561,13 +561,13 @@
       ],
       "cobol/che-che4z_nist_ccvs85/DB3024.2.cbl": [
         {
-          "Access Mode": null,
+          "Access Mode": "SEQUENTIAL",
           "Alternate Keys": null,
-          "Assign": "DB3024",
+          "Assign": "XXXXX014",
           "FD Copies": null,
           "File Status": null,
           "Line": 16,
-          "Organization": null,
+          "Organization": "SEQUENTIAL",
           "Record Key": null,
           "Relative Key": null,
           "Select": "TFIL"
@@ -575,13 +575,13 @@
       ],
       "cobol/che-che4z_nist_ccvs85/DB3054.2.cbl": [
         {
-          "Access Mode": null,
+          "Access Mode": "SEQUENTIAL",
           "Alternate Keys": null,
-          "Assign": "DB3054",
+          "Assign": "XXXXX014",
           "FD Copies": null,
           "File Status": null,
           "Line": 16,
-          "Organization": null,
+          "Organization": "SEQUENTIAL",
           "Record Key": null,
           "Relative Key": null,
           "Select": "TFIL"
@@ -591,7 +591,7 @@
         {
           "Access Mode": null,
           "Alternate Keys": null,
-          "Assign": "IC1014",
+          "Assign": "XXXXX055",
           "FD Copies": null,
           "File Status": null,
           "Line": 39,
@@ -605,7 +605,7 @@
         {
           "Access Mode": null,
           "Alternate Keys": null,
-          "Assign": "IC1024",
+          "Assign": "XXXXX055",
           "FD Copies": null,
           "File Status": null,
           "Line": 28,
@@ -619,7 +619,7 @@
         {
           "Access Mode": null,
           "Alternate Keys": null,
-          "Assign": "IC1034",
+          "Assign": "XXXXX055",
           "FD Copies": null,
           "File Status": null,
           "Line": 34,
@@ -633,7 +633,7 @@
         {
           "Access Mode": null,
           "Alternate Keys": null,
-          "Assign": "IC1044",
+          "Assign": "XXXXX055",
           "FD Copies": null,
           "File Status": null,
           "Line": 34,
@@ -647,7 +647,7 @@
         {
           "Access Mode": null,
           "Alternate Keys": null,
-          "Assign": "IC1064",
+          "Assign": "XXXXX055",
           "FD Copies": null,
           "File Status": null,
           "Line": 38,
@@ -661,7 +661,7 @@
         {
           "Access Mode": null,
           "Alternate Keys": null,
-          "Assign": "IC1074",
+          "Assign": "XXXXX055",
           "FD Copies": null,
           "File Status": null,
           "Line": 37,
@@ -675,7 +675,7 @@
         {
           "Access Mode": null,
           "Alternate Keys": null,
-          "Assign": "IC1084",
+          "Assign": "XXXXX055",
           "FD Copies": null,
           "File Status": null,
           "Line": 30,
@@ -689,7 +689,7 @@
         {
           "Access Mode": null,
           "Alternate Keys": null,
-          "Assign": "IC1094",
+          "Assign": "XXXXX055",
           "FD Copies": null,
           "File Status": null,
           "Line": 30,
@@ -703,7 +703,7 @@
         {
           "Access Mode": null,
           "Alternate Keys": null,
-          "Assign": "IC1104",
+          "Assign": "XXXXX055",
           "FD Copies": null,
           "File Status": null,
           "Line": 31,
@@ -717,7 +717,7 @@
         {
           "Access Mode": null,
           "Alternate Keys": null,
-          "Assign": "IC1144",
+          "Assign": "XXXXX055",
           "FD Copies": null,
           "File Status": null,
           "Line": 42,
@@ -731,7 +731,7 @@
         {
           "Access Mode": null,
           "Alternate Keys": null,
-          "Assign": "IC1164",
+          "Assign": "XXXXX055",
           "FD Copies": null,
           "File Status": null,
           "Line": 39,
@@ -745,7 +745,7 @@
         {
           "Access Mode": null,
           "Alternate Keys": null,
-          "Assign": "IC2014",
+          "Assign": "XXXXX055",
           "FD Copies": null,
           "File Status": null,
           "Line": 32,
@@ -759,7 +759,7 @@
         {
           "Access Mode": null,
           "Alternate Keys": null,
-          "Assign": "IC2024",
+          "Assign": "XXXXX055",
           "FD Copies": null,
           "File Status": null,
           "Line": 29,
@@ -773,7 +773,7 @@
         {
           "Access Mode": null,
           "Alternate Keys": null,
-          "Assign": "IC2034",
+          "Assign": "XXXXX055",
           "FD Copies": null,
           "File Status": null,
           "Line": 33,
@@ -787,7 +787,7 @@
         {
           "Access Mode": null,
           "Alternate Keys": null,
-          "Assign": "IC2044",
+          "Assign": "XXXXX055",
           "FD Copies": null,
           "File Status": null,
           "Line": 34,
@@ -801,7 +801,7 @@
         {
           "Access Mode": null,
           "Alternate Keys": null,
-          "Assign": "IC2054",
+          "Assign": "XXXXX055",
           "FD Copies": null,
           "File Status": null,
           "Line": 29,
@@ -815,7 +815,7 @@
         {
           "Access Mode": null,
           "Alternate Keys": null,
-          "Assign": "IC2064",
+          "Assign": "XXXXX055",
           "FD Copies": null,
           "File Status": null,
           "Line": 34,
@@ -829,7 +829,7 @@
         {
           "Access Mode": null,
           "Alternate Keys": null,
-          "Assign": "IC2074",
+          "Assign": "XXXXX055",
           "FD Copies": null,
           "File Status": null,
           "Line": 32,
@@ -843,7 +843,7 @@
         {
           "Access Mode": null,
           "Alternate Keys": null,
-          "Assign": "IC2094",
+          "Assign": "XXXXX055",
           "FD Copies": null,
           "File Status": null,
           "Line": 27,
@@ -857,7 +857,7 @@
         {
           "Access Mode": null,
           "Alternate Keys": null,
-          "Assign": "IC2134",
+          "Assign": "XXXXX055",
           "FD Copies": null,
           "File Status": null,
           "Line": 27,
@@ -871,7 +871,7 @@
         {
           "Access Mode": null,
           "Alternate Keys": null,
-          "Assign": "IC2164",
+          "Assign": "XXXXX055",
           "FD Copies": null,
           "File Status": null,
           "Line": 27,
@@ -885,7 +885,7 @@
         {
           "Access Mode": null,
           "Alternate Keys": null,
-          "Assign": "IC2244",
+          "Assign": "XXXXX055",
           "FD Copies": null,
           "File Status": null,
           "Line": 44,
@@ -897,7 +897,7 @@
         {
           "Access Mode": null,
           "Alternate Keys": null,
-          "Assign": "IC2244",
+          "Assign": "XXXXX055",
           "FD Copies": null,
           "File Status": null,
           "Line": 669,
@@ -911,7 +911,7 @@
         {
           "Access Mode": null,
           "Alternate Keys": null,
-          "Assign": "IC2264",
+          "Assign": "XXXXX055",
           "FD Copies": null,
           "File Status": null,
           "Line": 44,
@@ -925,7 +925,7 @@
         {
           "Access Mode": null,
           "Alternate Keys": null,
-          "Assign": "IC2284",
+          "Assign": "XXXXX055",
           "FD Copies": null,
           "File Status": null,
           "Line": 46,
@@ -939,7 +939,7 @@
         {
           "Access Mode": null,
           "Alternate Keys": null,
-          "Assign": "IC2334",
+          "Assign": "XXXXX055",
           "FD Copies": null,
           "File Status": null,
           "Line": 44,
@@ -951,7 +951,7 @@
         {
           "Access Mode": null,
           "Alternate Keys": null,
-          "Assign": "IC2334",
+          "Assign": "XXXXX018",
           "FD Copies": null,
           "File Status": null,
           "Line": 46,
@@ -965,7 +965,7 @@
         {
           "Access Mode": null,
           "Alternate Keys": null,
-          "Assign": "IC2344",
+          "Assign": "XXXXX055",
           "FD Copies": null,
           "File Status": null,
           "Line": 57,
@@ -977,7 +977,7 @@
         {
           "Access Mode": null,
           "Alternate Keys": null,
-          "Assign": "IC2344",
+          "Assign": "XXXXX014",
           "FD Copies": null,
           "File Status": null,
           "Line": 59,
@@ -991,7 +991,7 @@
         {
           "Access Mode": null,
           "Alternate Keys": null,
-          "Assign": "IC2374",
+          "Assign": "XXXXX055",
           "FD Copies": null,
           "File Status": null,
           "Line": 30,
@@ -1003,7 +1003,7 @@
         {
           "Access Mode": null,
           "Alternate Keys": null,
-          "Assign": "IC2374",
+          "Assign": "XXXXX055",
           "FD Copies": null,
           "File Status": null,
           "Line": 402,
@@ -1017,7 +1017,7 @@
         {
           "Access Mode": null,
           "Alternate Keys": null,
-          "Assign": "IF1024",
+          "Assign": "XXXXX055",
           "FD Copies": null,
           "File Status": null,
           "Line": 18,
@@ -1031,7 +1031,7 @@
         {
           "Access Mode": null,
           "Alternate Keys": null,
-          "Assign": "IF1054",
+          "Assign": "XXXXX055",
           "FD Copies": null,
           "File Status": null,
           "Line": 22,
@@ -1045,7 +1045,7 @@
         {
           "Access Mode": null,
           "Alternate Keys": null,
-          "Assign": "IF1074",
+          "Assign": "XXXXX055",
           "FD Copies": null,
           "File Status": null,
           "Line": 18,
@@ -1059,7 +1059,7 @@
         {
           "Access Mode": null,
           "Alternate Keys": null,
-          "Assign": "IF1084",
+          "Assign": "XXXXX055",
           "FD Copies": null,
           "File Status": null,
           "Line": 18,
@@ -1073,7 +1073,7 @@
         {
           "Access Mode": null,
           "Alternate Keys": null,
-          "Assign": "IF1094",
+          "Assign": "XXXXX055",
           "FD Copies": null,
           "File Status": null,
           "Line": 18,
@@ -1087,7 +1087,7 @@
         {
           "Access Mode": null,
           "Alternate Keys": null,
-          "Assign": "IF1104",
+          "Assign": "XXXXX055",
           "FD Copies": null,
           "File Status": null,
           "Line": 18,
@@ -1101,7 +1101,7 @@
         {
           "Access Mode": null,
           "Alternate Keys": null,
-          "Assign": "IF1114",
+          "Assign": "XXXXX055",
           "FD Copies": null,
           "File Status": null,
           "Line": 18,
@@ -1115,7 +1115,7 @@
         {
           "Access Mode": null,
           "Alternate Keys": null,
-          "Assign": "IF1124",
+          "Assign": "XXXXX055",
           "FD Copies": null,
           "File Status": null,
           "Line": 18,
@@ -1129,7 +1129,7 @@
         {
           "Access Mode": null,
           "Alternate Keys": null,
-          "Assign": "IF1134",
+          "Assign": "XXXXX055",
           "FD Copies": null,
           "File Status": null,
           "Line": 18,
@@ -1143,7 +1143,7 @@
         {
           "Access Mode": null,
           "Alternate Keys": null,
-          "Assign": "IF1144",
+          "Assign": "XXXXX055",
           "FD Copies": null,
           "File Status": null,
           "Line": 18,
@@ -1157,7 +1157,7 @@
         {
           "Access Mode": null,
           "Alternate Keys": null,
-          "Assign": "IF1154",
+          "Assign": "XXXXX055",
           "FD Copies": null,
           "File Status": null,
           "Line": 18,
@@ -1171,7 +1171,7 @@
         {
           "Access Mode": null,
           "Alternate Keys": null,
-          "Assign": "IF1184",
+          "Assign": "XXXXX055",
           "FD Copies": null,
           "File Status": null,
           "Line": 18,
@@ -1185,7 +1185,7 @@
         {
           "Access Mode": null,
           "Alternate Keys": null,
-          "Assign": "IF1204",
+          "Assign": "XXXXX055",
           "FD Copies": null,
           "File Status": null,
           "Line": 17,
@@ -1199,7 +1199,7 @@
         {
           "Access Mode": null,
           "Alternate Keys": null,
-          "Assign": "IF1214",
+          "Assign": "XXXXX055",
           "FD Copies": null,
           "File Status": null,
           "Line": 17,
@@ -1213,7 +1213,7 @@
         {
           "Access Mode": null,
           "Alternate Keys": null,
-          "Assign": "IF1224",
+          "Assign": "XXXXX055",
           "FD Copies": null,
           "File Status": null,
           "Line": 17,
@@ -1227,7 +1227,7 @@
         {
           "Access Mode": null,
           "Alternate Keys": null,
-          "Assign": "IF1244",
+          "Assign": "XXXXX055",
           "FD Copies": null,
           "File Status": null,
           "Line": 18,
@@ -1241,7 +1241,7 @@
         {
           "Access Mode": null,
           "Alternate Keys": null,
-          "Assign": "IF1254",
+          "Assign": "XXXXX055",
           "FD Copies": null,
           "File Status": null,
           "Line": 18,
@@ -1255,7 +1255,7 @@
         {
           "Access Mode": null,
           "Alternate Keys": null,
-          "Assign": "IF1274",
+          "Assign": "XXXXX055",
           "FD Copies": null,
           "File Status": null,
           "Line": 22,
@@ -1269,7 +1269,7 @@
         {
           "Access Mode": null,
           "Alternate Keys": null,
-          "Assign": "IF1284",
+          "Assign": "XXXXX055",
           "FD Copies": null,
           "File Status": null,
           "Line": 22,
@@ -1283,7 +1283,7 @@
         {
           "Access Mode": null,
           "Alternate Keys": null,
-          "Assign": "IF1294",
+          "Assign": "XXXXX055",
           "FD Copies": null,
           "File Status": null,
           "Line": 22,
@@ -1297,7 +1297,7 @@
         {
           "Access Mode": null,
           "Alternate Keys": null,
-          "Assign": "IF1314",
+          "Assign": "XXXXX055",
           "FD Copies": null,
           "File Status": null,
           "Line": 18,
@@ -1311,7 +1311,7 @@
         {
           "Access Mode": null,
           "Alternate Keys": null,
-          "Assign": "IF1324",
+          "Assign": "XXXXX055",
           "FD Copies": null,
           "File Status": null,
           "Line": 17,
@@ -1325,7 +1325,7 @@
         {
           "Access Mode": null,
           "Alternate Keys": null,
-          "Assign": "IF1334",
+          "Assign": "XXXXX055",
           "FD Copies": null,
           "File Status": null,
           "Line": 18,
@@ -1339,7 +1339,7 @@
         {
           "Access Mode": null,
           "Alternate Keys": null,
-          "Assign": "IF1344",
+          "Assign": "XXXXX055",
           "FD Copies": null,
           "File Status": null,
           "Line": 17,
@@ -1353,7 +1353,7 @@
         {
           "Access Mode": null,
           "Alternate Keys": null,
-          "Assign": "IF1374",
+          "Assign": "XXXXX055",
           "FD Copies": null,
           "File Status": null,
           "Line": 18,
@@ -1367,7 +1367,7 @@
         {
           "Access Mode": null,
           "Alternate Keys": null,
-          "Assign": "IF1384",
+          "Assign": "XXXXX055",
           "FD Copies": null,
           "File Status": null,
           "Line": 17,
@@ -1381,7 +1381,7 @@
         {
           "Access Mode": null,
           "Alternate Keys": null,
-          "Assign": "IF1404",
+          "Assign": "XXXXX055",
           "FD Copies": null,
           "File Status": null,
           "Line": 18,
@@ -1395,7 +1395,7 @@
         {
           "Access Mode": null,
           "Alternate Keys": null,
-          "Assign": "IF1414",
+          "Assign": "XXXXX055",
           "FD Copies": null,
           "File Status": null,
           "Line": 16,
@@ -1409,7 +1409,7 @@
         {
           "Access Mode": null,
           "Alternate Keys": null,
-          "Assign": "IF1424",
+          "Assign": "XXXXX055",
           "FD Copies": null,
           "File Status": null,
           "Line": 18,
@@ -1421,21 +1421,21 @@
       ],
       "cobol/che-che4z_nist_ccvs85/IX1014.2.cbl": [
         {
-          "Access Mode": null,
+          "Access Mode": "RANDOM",
           "Alternate Keys": null,
-          "Assign": "IX1014",
+          "Assign": "XXXXX062",
           "FD Copies": null,
           "File Status": null,
           "Line": 50,
-          "Organization": null,
-          "Record Key": null,
+          "Organization": "INDEXED",
+          "Record Key": "RAW-DATA-KEY",
           "Relative Key": null,
           "Select": "RAW-DATA"
         },
         {
           "Access Mode": null,
           "Alternate Keys": null,
-          "Assign": "IX1014",
+          "Assign": "XXXXX055",
           "FD Copies": null,
           "File Status": null,
           "Line": 55,
@@ -1445,35 +1445,35 @@
           "Select": "PRINT-FILE"
         },
         {
-          "Access Mode": null,
+          "Access Mode": "SEQUENTIAL",
           "Alternate Keys": null,
-          "Assign": "IX1014",
+          "Assign": "XXXXP024",
           "FD Copies": null,
           "File Status": null,
           "Line": 57,
-          "Organization": null,
-          "Record Key": null,
+          "Organization": "INDEXED",
+          "Record Key": "IX-FS1-KEY",
           "Relative Key": null,
           "Select": "IX-FS1"
         }
       ],
       "cobol/che-che4z_nist_ccvs85/IX1024.2.cbl": [
         {
-          "Access Mode": null,
+          "Access Mode": "RANDOM",
           "Alternate Keys": null,
-          "Assign": "IX1024",
+          "Assign": "XXXXX062",
           "FD Copies": null,
           "File Status": null,
           "Line": 62,
-          "Organization": null,
-          "Record Key": null,
+          "Organization": "INDEXED",
+          "Record Key": "RAW-DATA-KEY",
           "Relative Key": null,
           "Select": "RAW-DATA"
         },
         {
           "Access Mode": null,
           "Alternate Keys": null,
-          "Assign": "IX1024",
+          "Assign": "XXXXX055",
           "FD Copies": null,
           "File Status": null,
           "Line": 67,
@@ -1483,35 +1483,35 @@
           "Select": "PRINT-FILE"
         },
         {
-          "Access Mode": null,
+          "Access Mode": "RANDOM",
           "Alternate Keys": null,
-          "Assign": "IX1024",
+          "Assign": "XXXXP024",
           "FD Copies": null,
           "File Status": null,
           "Line": 69,
-          "Organization": null,
-          "Record Key": null,
+          "Organization": "INDEXED",
+          "Record Key": "IX-FS1-KEY",
           "Relative Key": null,
           "Select": "IX-FS1"
         }
       ],
       "cobol/che-che4z_nist_ccvs85/IX1034.2.cbl": [
         {
-          "Access Mode": null,
+          "Access Mode": "RANDOM",
           "Alternate Keys": null,
-          "Assign": "IX1034",
+          "Assign": "XXXXX062",
           "FD Copies": null,
           "File Status": null,
           "Line": 59,
-          "Organization": null,
-          "Record Key": null,
+          "Organization": "INDEXED",
+          "Record Key": "RAW-DATA-KEY",
           "Relative Key": null,
           "Select": "RAW-DATA"
         },
         {
           "Access Mode": null,
           "Alternate Keys": null,
-          "Assign": "IX1034",
+          "Assign": "XXXXX055",
           "FD Copies": null,
           "File Status": null,
           "Line": 64,
@@ -1523,11 +1523,11 @@
         {
           "Access Mode": null,
           "Alternate Keys": null,
-          "Assign": "IX1034",
+          "Assign": "XXXXD024",
           "FD Copies": null,
           "File Status": null,
           "Line": 66,
-          "Organization": null,
+          "Organization": "INDEXED",
           "Record Key": null,
           "Relative Key": null,
           "Select": "IX-FS1"
@@ -1535,21 +1535,21 @@
       ],
       "cobol/che-che4z_nist_ccvs85/IX1044.2.cbl": [
         {
-          "Access Mode": null,
+          "Access Mode": "RANDOM",
           "Alternate Keys": null,
-          "Assign": "IX1044",
+          "Assign": "XXXXX062",
           "FD Copies": null,
           "File Status": null,
           "Line": 64,
-          "Organization": null,
-          "Record Key": null,
+          "Organization": "INDEXED",
+          "Record Key": "RAW-DATA-KEY",
           "Relative Key": null,
           "Select": "RAW-DATA"
         },
         {
           "Access Mode": null,
           "Alternate Keys": null,
-          "Assign": "IX1044",
+          "Assign": "XXXXX055",
           "FD Copies": null,
           "File Status": null,
           "Line": 69,
@@ -1559,13 +1559,13 @@
           "Select": "PRINT-FILE"
         },
         {
-          "Access Mode": null,
+          "Access Mode": "SEQUENTIAL",
           "Alternate Keys": null,
-          "Assign": "IX1044",
+          "Assign": "XXXXX025",
           "FD Copies": null,
-          "File Status": null,
+          "File Status": "IX-FS2-STATUS",
           "Line": 71,
-          "Organization": null,
+          "Organization": "INDEXED",
           "Record Key": null,
           "Relative Key": null,
           "Select": "IX-FS2"
@@ -1575,7 +1575,7 @@
         {
           "Access Mode": null,
           "Alternate Keys": null,
-          "Assign": "IX1114",
+          "Assign": "XXXXX055",
           "FD Copies": null,
           "File Status": null,
           "Line": 36,
@@ -1585,35 +1585,35 @@
           "Select": "PRINT-FILE"
         },
         {
-          "Access Mode": null,
+          "Access Mode": "SEQUENTIAL",
           "Alternate Keys": null,
-          "Assign": "IX1114",
+          "Assign": "XXXXX025",
           "FD Copies": null,
-          "File Status": null,
+          "File Status": "IX-NOP-STATUS",
           "Line": 39,
-          "Organization": null,
-          "Record Key": null,
+          "Organization": "INDEXED",
+          "Record Key": "IX-NOP-KEY",
           "Relative Key": null,
           "Select": "IX-NOP"
         }
       ],
       "cobol/che-che4z_nist_ccvs85/IX1134.2.cbl": [
         {
-          "Access Mode": null,
+          "Access Mode": "RANDOM",
           "Alternate Keys": null,
-          "Assign": "IX1134",
+          "Assign": "XXXXX062",
           "FD Copies": null,
           "File Status": null,
           "Line": 42,
-          "Organization": null,
-          "Record Key": null,
+          "Organization": "INDEXED",
+          "Record Key": "RAW-DATA-KEY",
           "Relative Key": null,
           "Select": "RAW-DATA"
         },
         {
           "Access Mode": null,
           "Alternate Keys": null,
-          "Assign": "IX1134",
+          "Assign": "XXXXX055",
           "FD Copies": null,
           "File Status": null,
           "Line": 48,
@@ -1623,35 +1623,35 @@
           "Select": "PRINT-FILE"
         },
         {
-          "Access Mode": null,
+          "Access Mode": "SEQUENTIAL",
           "Alternate Keys": null,
-          "Assign": "IX1134",
+          "Assign": "XXXXX024",
           "FD Copies": null,
-          "File Status": null,
+          "File Status": "IX-FS3-STATUS",
           "Line": 51,
-          "Organization": null,
-          "Record Key": null,
+          "Organization": "INDEXED",
+          "Record Key": "IX-FS3-KEY",
           "Relative Key": null,
           "Select": "IX-FS3"
         }
       ],
       "cobol/che-che4z_nist_ccvs85/IX1144.2.cbl": [
         {
-          "Access Mode": null,
+          "Access Mode": "RANDOM",
           "Alternate Keys": null,
-          "Assign": "IX1144",
+          "Assign": "XXXXX062",
           "FD Copies": null,
           "File Status": null,
           "Line": 38,
-          "Organization": null,
-          "Record Key": null,
+          "Organization": "INDEXED",
+          "Record Key": "RAW-DATA-KEY",
           "Relative Key": null,
           "Select": "RAW-DATA"
         },
         {
           "Access Mode": null,
           "Alternate Keys": null,
-          "Assign": "IX1144",
+          "Assign": "XXXXX055",
           "FD Copies": null,
           "File Status": null,
           "Line": 44,
@@ -1661,35 +1661,35 @@
           "Select": "PRINT-FILE"
         },
         {
-          "Access Mode": null,
+          "Access Mode": "SEQUENTIAL",
           "Alternate Keys": null,
-          "Assign": "IX1144",
+          "Assign": "XXXXX024",
           "FD Copies": null,
-          "File Status": null,
+          "File Status": "IX-FS3-STATUS",
           "Line": 47,
-          "Organization": null,
-          "Record Key": null,
+          "Organization": "INDEXED",
+          "Record Key": "IX-FS3-KEY",
           "Relative Key": null,
           "Select": "IX-FS3"
         }
       ],
       "cobol/che-che4z_nist_ccvs85/IX1154.2.cbl": [
         {
-          "Access Mode": null,
+          "Access Mode": "RANDOM",
           "Alternate Keys": null,
-          "Assign": "IX1154",
+          "Assign": "XXXXX062",
           "FD Copies": null,
           "File Status": null,
           "Line": 39,
-          "Organization": null,
-          "Record Key": null,
+          "Organization": "INDEXED",
+          "Record Key": "RAW-DATA-KEY",
           "Relative Key": null,
           "Select": "RAW-DATA"
         },
         {
           "Access Mode": null,
           "Alternate Keys": null,
-          "Assign": "IX1154",
+          "Assign": "XXXXX055",
           "FD Copies": null,
           "File Status": null,
           "Line": 45,
@@ -1699,35 +1699,35 @@
           "Select": "PRINT-FILE"
         },
         {
-          "Access Mode": null,
+          "Access Mode": "SEQUENTIAL",
           "Alternate Keys": null,
-          "Assign": "IX1154",
+          "Assign": "XXXXX024",
           "FD Copies": null,
-          "File Status": null,
+          "File Status": "IX-FS3-STATUS",
           "Line": 48,
-          "Organization": null,
-          "Record Key": null,
+          "Organization": "INDEXED",
+          "Record Key": "IX-FS3-KEY",
           "Relative Key": null,
           "Select": "IX-FS3"
         }
       ],
       "cobol/che-che4z_nist_ccvs85/IX1164.2.cbl": [
         {
-          "Access Mode": null,
+          "Access Mode": "RANDOM",
           "Alternate Keys": null,
-          "Assign": "IX1164",
+          "Assign": "XXXXX062",
           "FD Copies": null,
           "File Status": null,
           "Line": 39,
-          "Organization": null,
-          "Record Key": null,
+          "Organization": "INDEXED",
+          "Record Key": "RAW-DATA-KEY",
           "Relative Key": null,
           "Select": "RAW-DATA"
         },
         {
           "Access Mode": null,
           "Alternate Keys": null,
-          "Assign": "IX1164",
+          "Assign": "XXXXX055",
           "FD Copies": null,
           "File Status": null,
           "Line": 45,
@@ -1737,35 +1737,35 @@
           "Select": "PRINT-FILE"
         },
         {
-          "Access Mode": null,
+          "Access Mode": "SEQUENTIAL",
           "Alternate Keys": null,
-          "Assign": "IX1164",
+          "Assign": "XXXXX024",
           "FD Copies": null,
-          "File Status": null,
+          "File Status": "IX-FS3-STATUS",
           "Line": 48,
-          "Organization": null,
-          "Record Key": null,
+          "Organization": "INDEXED",
+          "Record Key": "IX-FS3-KEY",
           "Relative Key": null,
           "Select": "IX-FS3"
         }
       ],
       "cobol/che-che4z_nist_ccvs85/IX1174.2.cbl": [
         {
-          "Access Mode": null,
+          "Access Mode": "RANDOM",
           "Alternate Keys": null,
-          "Assign": "IX1174",
+          "Assign": "XXXXX062",
           "FD Copies": null,
           "File Status": null,
           "Line": 38,
-          "Organization": null,
-          "Record Key": null,
+          "Organization": "INDEXED",
+          "Record Key": "RAW-DATA-KEY",
           "Relative Key": null,
           "Select": "RAW-DATA"
         },
         {
           "Access Mode": null,
           "Alternate Keys": null,
-          "Assign": "IX1174",
+          "Assign": "XXXXX055",
           "FD Copies": null,
           "File Status": null,
           "Line": 44,
@@ -1775,35 +1775,35 @@
           "Select": "PRINT-FILE"
         },
         {
-          "Access Mode": null,
+          "Access Mode": "SEQUENTIAL",
           "Alternate Keys": null,
-          "Assign": "IX1174",
+          "Assign": "XXXXX024",
           "FD Copies": null,
-          "File Status": null,
+          "File Status": "IX-FS3-STATUS",
           "Line": 47,
-          "Organization": null,
-          "Record Key": null,
+          "Organization": "INDEXED",
+          "Record Key": "IX-FS3-KEY",
           "Relative Key": null,
           "Select": "IX-FS3"
         }
       ],
       "cobol/che-che4z_nist_ccvs85/IX1184.2.cbl": [
         {
-          "Access Mode": null,
+          "Access Mode": "RANDOM",
           "Alternate Keys": null,
-          "Assign": "IX1184",
+          "Assign": "XXXXX062",
           "FD Copies": null,
           "File Status": null,
           "Line": 38,
-          "Organization": null,
-          "Record Key": null,
+          "Organization": "INDEXED",
+          "Record Key": "RAW-DATA-KEY",
           "Relative Key": null,
           "Select": "RAW-DATA"
         },
         {
           "Access Mode": null,
           "Alternate Keys": null,
-          "Assign": "IX1184",
+          "Assign": "XXXXX055",
           "FD Copies": null,
           "File Status": null,
           "Line": 44,
@@ -1813,35 +1813,35 @@
           "Select": "PRINT-FILE"
         },
         {
-          "Access Mode": null,
+          "Access Mode": "SEQUENTIAL",
           "Alternate Keys": null,
-          "Assign": "IX1184",
+          "Assign": "XXXXX024",
           "FD Copies": null,
-          "File Status": null,
+          "File Status": "IX-FS3-STATUS",
           "Line": 47,
-          "Organization": null,
-          "Record Key": null,
+          "Organization": "INDEXED",
+          "Record Key": "IX-FS3-KEY",
           "Relative Key": null,
           "Select": "IX-FS3"
         }
       ],
       "cobol/che-che4z_nist_ccvs85/IX1194.2.cbl": [
         {
-          "Access Mode": null,
+          "Access Mode": "RANDOM",
           "Alternate Keys": null,
-          "Assign": "IX1194",
+          "Assign": "XXXXX062",
           "FD Copies": null,
           "File Status": null,
           "Line": 41,
-          "Organization": null,
-          "Record Key": null,
+          "Organization": "INDEXED",
+          "Record Key": "RAW-DATA-KEY",
           "Relative Key": null,
           "Select": "RAW-DATA"
         },
         {
           "Access Mode": null,
           "Alternate Keys": null,
-          "Assign": "IX1194",
+          "Assign": "XXXXX055",
           "FD Copies": null,
           "File Status": null,
           "Line": 47,
@@ -1851,35 +1851,35 @@
           "Select": "PRINT-FILE"
         },
         {
-          "Access Mode": null,
+          "Access Mode": "SEQUENTIAL",
           "Alternate Keys": null,
-          "Assign": "IX1194",
+          "Assign": "XXXXX024",
           "FD Copies": null,
-          "File Status": null,
+          "File Status": "IX-FS3-STATUS",
           "Line": 50,
-          "Organization": null,
-          "Record Key": null,
+          "Organization": "INDEXED",
+          "Record Key": "IX-FS3-KEY",
           "Relative Key": null,
           "Select": "IX-FS3"
         }
       ],
       "cobol/che-che4z_nist_ccvs85/IX1204.2.cbl": [
         {
-          "Access Mode": null,
+          "Access Mode": "RANDOM",
           "Alternate Keys": null,
-          "Assign": "IX1204",
+          "Assign": "XXXXX062",
           "FD Copies": null,
           "File Status": null,
           "Line": 40,
-          "Organization": null,
-          "Record Key": null,
+          "Organization": "INDEXED",
+          "Record Key": "RAW-DATA-KEY",
           "Relative Key": null,
           "Select": "RAW-DATA"
         },
         {
           "Access Mode": null,
           "Alternate Keys": null,
-          "Assign": "IX1204",
+          "Assign": "XXXXX055",
           "FD Copies": null,
           "File Status": null,
           "Line": 46,
@@ -1889,35 +1889,35 @@
           "Select": "PRINT-FILE"
         },
         {
-          "Access Mode": null,
+          "Access Mode": "SEQUENTIAL",
           "Alternate Keys": null,
-          "Assign": "IX1204",
+          "Assign": "XXXXX024",
           "FD Copies": null,
-          "File Status": null,
+          "File Status": "IX-FS3-STATUS",
           "Line": 49,
-          "Organization": null,
-          "Record Key": null,
+          "Organization": "INDEXED",
+          "Record Key": "IX-FS3-KEY",
           "Relative Key": null,
           "Select": "IX-FS3"
         }
       ],
       "cobol/che-che4z_nist_ccvs85/IX1214.2.cbl": [
         {
-          "Access Mode": null,
+          "Access Mode": "RANDOM",
           "Alternate Keys": null,
-          "Assign": "IX1214",
+          "Assign": "XXXXX062",
           "FD Copies": null,
           "File Status": null,
           "Line": 45,
-          "Organization": null,
-          "Record Key": null,
+          "Organization": "INDEXED",
+          "Record Key": "RAW-DATA-KEY",
           "Relative Key": null,
           "Select": "RAW-DATA"
         },
         {
           "Access Mode": null,
           "Alternate Keys": null,
-          "Assign": "IX1214",
+          "Assign": "XXXXX055",
           "FD Copies": null,
           "File Status": null,
           "Line": 51,
@@ -1927,35 +1927,35 @@
           "Select": "PRINT-FILE"
         },
         {
-          "Access Mode": null,
+          "Access Mode": "SEQUENTIAL",
           "Alternate Keys": null,
-          "Assign": "IX1214",
+          "Assign": "XXXXX024",
           "FD Copies": null,
-          "File Status": null,
+          "File Status": "IX-VS2-STATUS",
           "Line": 54,
-          "Organization": null,
-          "Record Key": null,
+          "Organization": "INDEXED",
+          "Record Key": "IX-VS2-KEY",
           "Relative Key": null,
           "Select": "IX-VS2"
         }
       ],
       "cobol/che-che4z_nist_ccvs85/IX2014.2.cbl": [
         {
-          "Access Mode": null,
+          "Access Mode": "RANDOM",
           "Alternate Keys": null,
-          "Assign": "IX2014",
+          "Assign": "XXXXX062",
           "FD Copies": null,
           "File Status": null,
           "Line": 51,
-          "Organization": null,
-          "Record Key": null,
+          "Organization": "INDEXED",
+          "Record Key": "RAW-DATA-KEY",
           "Relative Key": null,
           "Select": "RAW-DATA"
         },
         {
           "Access Mode": null,
           "Alternate Keys": null,
-          "Assign": "IX2014",
+          "Assign": "XXXXX055",
           "FD Copies": null,
           "File Status": null,
           "Line": 56,
@@ -1965,35 +1965,35 @@
           "Select": "PRINT-FILE"
         },
         {
-          "Access Mode": null,
+          "Access Mode": "SEQUENTIAL",
           "Alternate Keys": null,
-          "Assign": "IX2014",
+          "Assign": "XXXXP024",
           "FD Copies": null,
           "File Status": null,
           "Line": 58,
-          "Organization": null,
-          "Record Key": null,
+          "Organization": "INDEXED",
+          "Record Key": "IX-FS1-KEY",
           "Relative Key": null,
           "Select": "IX-FS1"
         }
       ],
       "cobol/che-che4z_nist_ccvs85/IX2034.2.cbl": [
         {
-          "Access Mode": null,
+          "Access Mode": "RANDOM",
           "Alternate Keys": null,
-          "Assign": "IX2034",
+          "Assign": "XXXXX062",
           "FD Copies": null,
           "File Status": null,
           "Line": 55,
-          "Organization": null,
-          "Record Key": null,
+          "Organization": "INDEXED",
+          "Record Key": "RAW-DATA-KEY",
           "Relative Key": null,
           "Select": "RAW-DATA"
         },
         {
           "Access Mode": null,
           "Alternate Keys": null,
-          "Assign": "IX2034",
+          "Assign": "XXXXX055",
           "FD Copies": null,
           "File Status": null,
           "Line": 60,
@@ -2003,13 +2003,13 @@
           "Select": "PRINT-FILE"
         },
         {
-          "Access Mode": null,
+          "Access Mode": "DYNAMIC",
           "Alternate Keys": null,
-          "Assign": "IX2034",
+          "Assign": "XXXXD024",
           "FD Copies": null,
           "File Status": null,
           "Line": 62,
-          "Organization": null,
+          "Organization": "INDEXED",
           "Record Key": null,
           "Relative Key": null,
           "Select": "IX-FD1"
@@ -2017,21 +2017,21 @@
       ],
       "cobol/che-che4z_nist_ccvs85/IX2044.2.cbl": [
         {
-          "Access Mode": null,
+          "Access Mode": "RANDOM",
           "Alternate Keys": null,
-          "Assign": "IX2044",
+          "Assign": "XXXXX062",
           "FD Copies": null,
           "File Status": null,
           "Line": 73,
-          "Organization": null,
-          "Record Key": null,
+          "Organization": "INDEXED",
+          "Record Key": "RAW-DATA-KEY",
           "Relative Key": null,
           "Select": "RAW-DATA"
         },
         {
           "Access Mode": null,
           "Alternate Keys": null,
-          "Assign": "IX2044",
+          "Assign": "XXXXX055",
           "FD Copies": null,
           "File Status": null,
           "Line": 78,
@@ -2041,13 +2041,13 @@
           "Select": "PRINT-FILE"
         },
         {
-          "Access Mode": null,
+          "Access Mode": "DYNAMIC",
           "Alternate Keys": null,
-          "Assign": "IX2044",
+          "Assign": "XXXXX025",
           "FD Copies": null,
-          "File Status": null,
+          "File Status": "IX-FD2-STATUS",
           "Line": 80,
-          "Organization": null,
+          "Organization": "INDEXED",
           "Record Key": null,
           "Relative Key": null,
           "Select": "IX-FD2"
@@ -2057,7 +2057,7 @@
         {
           "Access Mode": null,
           "Alternate Keys": null,
-          "Assign": "IX2174",
+          "Assign": "XXXXX055",
           "FD Copies": null,
           "File Status": null,
           "Line": 58,
@@ -2067,47 +2067,47 @@
           "Select": "PRINT-FILE"
         },
         {
-          "Access Mode": null,
+          "Access Mode": "DYNAMIC",
           "Alternate Keys": null,
-          "Assign": "IX2174",
+          "Assign": "XXXXP024",
           "FD Copies": null,
-          "File Status": null,
+          "File Status": "IX-FS1-STATUS",
           "Line": 61,
-          "Organization": null,
-          "Record Key": null,
+          "Organization": "INDEXED",
+          "Record Key": "IX-FS1-KEY",
           "Relative Key": null,
           "Select": "IX-FS1"
         },
         {
-          "Access Mode": null,
+          "Access Mode": "SEQUENTIAL",
           "Alternate Keys": null,
-          "Assign": "IX2174",
+          "Assign": "XXXXP025",
           "FD Copies": null,
-          "File Status": null,
+          "File Status": "IX-VS1-STATUS",
           "Line": 69,
-          "Organization": null,
-          "Record Key": null,
+          "Organization": "INDEXED",
+          "Record Key": "IX-VS1-KEY",
           "Relative Key": null,
           "Select": "IX-VS1"
         }
       ],
       "cobol/che-che4z_nist_ccvs85/IX2184.2.cbl": [
         {
-          "Access Mode": null,
+          "Access Mode": "RANDOM",
           "Alternate Keys": null,
-          "Assign": "IX2184",
+          "Assign": "XXXXX062",
           "FD Copies": null,
           "File Status": null,
           "Line": 66,
-          "Organization": null,
-          "Record Key": null,
+          "Organization": "INDEXED",
+          "Record Key": "RAW-DATA-KEY",
           "Relative Key": null,
           "Select": "RAW-DATA"
         },
         {
           "Access Mode": null,
           "Alternate Keys": null,
-          "Assign": "IX2184",
+          "Assign": "XXXXX055",
           "FD Copies": null,
           "File Status": null,
           "Line": 71,
@@ -2117,66 +2117,66 @@
           "Select": "PRINT-FILE"
         },
         {
-          "Access Mode": null,
+          "Access Mode": "SEQUENTIAL",
           "Alternate Keys": null,
-          "Assign": "IX2184",
+          "Assign": "XXXXP024",
           "FD Copies": null,
-          "File Status": null,
+          "File Status": "IX-FS1-STATUS",
           "Line": 74,
-          "Organization": null,
-          "Record Key": null,
+          "Organization": "INDEXED",
+          "Record Key": "IX-FS1-KEY",
           "Relative Key": null,
           "Select": "IX-FS1"
         },
         {
-          "Access Mode": null,
+          "Access Mode": "DYNAMIC",
           "Alternate Keys": null,
-          "Assign": "IX2184",
+          "Assign": "XXXXP025",
           "FD Copies": null,
-          "File Status": null,
+          "File Status": "IX-FS2-STATUS",
           "Line": 83,
-          "Organization": null,
-          "Record Key": null,
+          "Organization": "INDEXED",
+          "Record Key": "IX-FS2-KEY",
           "Relative Key": null,
           "Select": "IX-FS2"
         }
       ],
       "cobol/che-che4z_nist_ccvs85/IX3014.2.cbl": [
         {
-          "Access Mode": null,
+          "Access Mode": "RANDOM",
           "Alternate Keys": null,
-          "Assign": "IX3014",
+          "Assign": "XXXXX024",
           "FD Copies": null,
           "File Status": null,
           "Line": 15,
-          "Organization": null,
-          "Record Key": null,
+          "Organization": "INDEXED",
+          "Record Key": "RKEY",
           "Relative Key": null,
           "Select": "TFIL"
         }
       ],
       "cobol/che-che4z_nist_ccvs85/IX4014.2.cbl": [
         {
-          "Access Mode": null,
-          "Alternate Keys": null,
-          "Assign": "IX4014",
+          "Access Mode": "DYNAMIC",
+          "Alternate Keys": "BEANO",
+          "Assign": "XXXXX025",
           "FD Copies": null,
           "File Status": null,
           "Line": 15,
-          "Organization": null,
-          "Record Key": null,
+          "Organization": "INDEXED",
+          "Record Key": "RKEY",
           "Relative Key": null,
           "Select": "TFIL"
         },
         {
-          "Access Mode": null,
+          "Access Mode": "SEQUENTIAL",
           "Alternate Keys": null,
-          "Assign": "IX4014",
+          "Assign": "XXXXX026",
           "FD Copies": null,
           "File Status": null,
           "Line": 30,
-          "Organization": null,
-          "Record Key": null,
+          "Organization": "INDEXED",
+          "Record Key": "RKEY2",
           "Relative Key": null,
           "Select": "TFIL2"
         }
@@ -2185,7 +2185,7 @@
         {
           "Access Mode": null,
           "Alternate Keys": null,
-          "Assign": "NC1114",
+          "Assign": "XXXXX055",
           "FD Copies": null,
           "File Status": null,
           "Line": 32,
@@ -2199,7 +2199,7 @@
         {
           "Access Mode": null,
           "Alternate Keys": null,
-          "Assign": "NC1134",
+          "Assign": "XXXXX055",
           "FD Copies": null,
           "File Status": null,
           "Line": 31,
@@ -2213,7 +2213,7 @@
         {
           "Access Mode": null,
           "Alternate Keys": null,
-          "Assign": "NC1254",
+          "Assign": "XXXXX055",
           "FD Copies": null,
           "File Status": null,
           "Line": 31,
@@ -2227,7 +2227,7 @@
         {
           "Access Mode": null,
           "Alternate Keys": null,
-          "Assign": "NC1274",
+          "Assign": "XXXXX055",
           "FD Copies": null,
           "File Status": null,
           "Line": 32,
@@ -2241,7 +2241,7 @@
         {
           "Access Mode": null,
           "Alternate Keys": null,
-          "Assign": "NC1314",
+          "Assign": "XXXXX055",
           "FD Copies": null,
           "File Status": null,
           "Line": 30,
@@ -2255,7 +2255,7 @@
         {
           "Access Mode": null,
           "Alternate Keys": null,
-          "Assign": "NC1334",
+          "Assign": "XXXXX055",
           "FD Copies": null,
           "File Status": null,
           "Line": 32,
@@ -2269,7 +2269,7 @@
         {
           "Access Mode": null,
           "Alternate Keys": null,
-          "Assign": "NC1344",
+          "Assign": "XXXXX055",
           "FD Copies": null,
           "File Status": null,
           "Line": 31,
@@ -2283,7 +2283,7 @@
         {
           "Access Mode": null,
           "Alternate Keys": null,
-          "Assign": "NC1354",
+          "Assign": "XXXXX055",
           "FD Copies": null,
           "File Status": null,
           "Line": 32,
@@ -2297,7 +2297,7 @@
         {
           "Access Mode": null,
           "Alternate Keys": null,
-          "Assign": "NC1364",
+          "Assign": "XXXXX055",
           "FD Copies": null,
           "File Status": null,
           "Line": 31,
@@ -2311,7 +2311,7 @@
         {
           "Access Mode": null,
           "Alternate Keys": null,
-          "Assign": "NC1374",
+          "Assign": "XXXXX055",
           "FD Copies": null,
           "File Status": null,
           "Line": 30,
@@ -2325,7 +2325,7 @@
         {
           "Access Mode": null,
           "Alternate Keys": null,
-          "Assign": "NC1384",
+          "Assign": "XXXXX055",
           "FD Copies": null,
           "File Status": null,
           "Line": 31,
@@ -2339,7 +2339,7 @@
         {
           "Access Mode": null,
           "Alternate Keys": null,
-          "Assign": "NC1394",
+          "Assign": "XXXXX055",
           "FD Copies": null,
           "File Status": null,
           "Line": 32,
@@ -2353,7 +2353,7 @@
         {
           "Access Mode": null,
           "Alternate Keys": null,
-          "Assign": "NC1404",
+          "Assign": "XXXXX055",
           "FD Copies": null,
           "File Status": null,
           "Line": 31,
@@ -2367,7 +2367,7 @@
         {
           "Access Mode": null,
           "Alternate Keys": null,
-          "Assign": "NC1414",
+          "Assign": "XXXXX055",
           "FD Copies": null,
           "File Status": null,
           "Line": 31,
@@ -2381,7 +2381,7 @@
         {
           "Access Mode": null,
           "Alternate Keys": null,
-          "Assign": "NC2104",
+          "Assign": "XXXXX055",
           "FD Copies": null,
           "File Status": null,
           "Line": 30,
@@ -2395,7 +2395,7 @@
         {
           "Access Mode": null,
           "Alternate Keys": null,
-          "Assign": "NC2144",
+          "Assign": "XXXXX055",
           "FD Copies": null,
           "File Status": null,
           "Line": 54,
@@ -2409,7 +2409,7 @@
         {
           "Access Mode": null,
           "Alternate Keys": null,
-          "Assign": "NC2154",
+          "Assign": "XXXXX055",
           "FD Copies": null,
           "File Status": null,
           "Line": 51,
@@ -2423,7 +2423,7 @@
         {
           "Access Mode": null,
           "Alternate Keys": null,
-          "Assign": "NC2194",
+          "Assign": "XXXXX055",
           "FD Copies": null,
           "File Status": null,
           "Line": 69,
@@ -2437,7 +2437,7 @@
         {
           "Access Mode": null,
           "Alternate Keys": null,
-          "Assign": "NC2224",
+          "Assign": "XXXXX055",
           "FD Copies": null,
           "File Status": null,
           "Line": 31,
@@ -2451,7 +2451,7 @@
         {
           "Access Mode": null,
           "Alternate Keys": null,
-          "Assign": "NC2244",
+          "Assign": "XXXXX055",
           "FD Copies": null,
           "File Status": null,
           "Line": 31,
@@ -2465,7 +2465,7 @@
         {
           "Access Mode": null,
           "Alternate Keys": null,
-          "Assign": "NC2354",
+          "Assign": "XXXXX055",
           "FD Copies": null,
           "File Status": null,
           "Line": 32,
@@ -2479,7 +2479,7 @@
         {
           "Access Mode": null,
           "Alternate Keys": null,
-          "Assign": "NC2364",
+          "Assign": "XXXXX055",
           "FD Copies": null,
           "File Status": null,
           "Line": 32,
@@ -2493,7 +2493,7 @@
         {
           "Access Mode": null,
           "Alternate Keys": null,
-          "Assign": "NC2374",
+          "Assign": "XXXXX055",
           "FD Copies": null,
           "File Status": null,
           "Line": 32,
@@ -2507,7 +2507,7 @@
         {
           "Access Mode": null,
           "Alternate Keys": null,
-          "Assign": "NC2384",
+          "Assign": "XXXXX055",
           "FD Copies": null,
           "File Status": null,
           "Line": 32,
@@ -2521,7 +2521,7 @@
         {
           "Access Mode": null,
           "Alternate Keys": null,
-          "Assign": "NC2394",
+          "Assign": "XXXXX055",
           "FD Copies": null,
           "File Status": null,
           "Line": 31,
@@ -2535,7 +2535,7 @@
         {
           "Access Mode": null,
           "Alternate Keys": null,
-          "Assign": "NC2404",
+          "Assign": "XXXXX055",
           "FD Copies": null,
           "File Status": null,
           "Line": 34,
@@ -2549,7 +2549,7 @@
         {
           "Access Mode": null,
           "Alternate Keys": null,
-          "Assign": "NC2414",
+          "Assign": "XXXXX055",
           "FD Copies": null,
           "File Status": null,
           "Line": 33,
@@ -2563,7 +2563,7 @@
         {
           "Access Mode": null,
           "Alternate Keys": null,
-          "Assign": "NC2424",
+          "Assign": "XXXXX055",
           "FD Copies": null,
           "File Status": null,
           "Line": 35,
@@ -2577,7 +2577,7 @@
         {
           "Access Mode": null,
           "Alternate Keys": null,
-          "Assign": "NC2434",
+          "Assign": "XXXXX055",
           "FD Copies": null,
           "File Status": null,
           "Line": 33,
@@ -2591,7 +2591,7 @@
         {
           "Access Mode": null,
           "Alternate Keys": null,
-          "Assign": "NC2444",
+          "Assign": "XXXXX055",
           "FD Copies": null,
           "File Status": null,
           "Line": 32,
@@ -2605,7 +2605,7 @@
         {
           "Access Mode": null,
           "Alternate Keys": null,
-          "Assign": "NC2454",
+          "Assign": "XXXXX055",
           "FD Copies": null,
           "File Status": null,
           "Line": 32,
@@ -2619,7 +2619,7 @@
         {
           "Access Mode": null,
           "Alternate Keys": null,
-          "Assign": "NC2484",
+          "Assign": "XXXXX055",
           "FD Copies": null,
           "File Status": null,
           "Line": 32,
@@ -2633,7 +2633,7 @@
         {
           "Access Mode": null,
           "Alternate Keys": null,
-          "Assign": "OBIC24",
+          "Assign": "XXXXX027",
           "FD Copies": null,
           "File Status": null,
           "Line": 36,
@@ -2647,7 +2647,7 @@
         {
           "Access Mode": null,
           "Alternate Keys": null,
-          "Assign": "OBIC34",
+          "Assign": "XXXXX055",
           "FD Copies": null,
           "File Status": null,
           "Line": 34,
@@ -2659,21 +2659,21 @@
       ],
       "cobol/che-che4z_nist_ccvs85/OBSQ34.2.cbl": [
         {
-          "Access Mode": null,
+          "Access Mode": "RANDOM",
           "Alternate Keys": null,
-          "Assign": "OBSQ34",
+          "Assign": "XXXXX062",
           "FD Copies": null,
           "File Status": null,
           "Line": 30,
-          "Organization": null,
-          "Record Key": null,
+          "Organization": "INDEXED",
+          "Record Key": "RAW-DATA-KEY",
           "Relative Key": null,
           "Select": "RAW-DATA"
         },
         {
           "Access Mode": null,
           "Alternate Keys": null,
-          "Assign": "OBSQ34",
+          "Assign": "XXXXX055",
           "FD Copies": null,
           "File Status": null,
           "Line": 35,
@@ -2685,19 +2685,19 @@
         {
           "Access Mode": null,
           "Alternate Keys": null,
-          "Assign": "OBSQ34",
+          "Assign": "XXXXP004",
           "FD Copies": null,
           "File Status": null,
           "Line": 37,
-          "Organization": null,
+          "Organization": "SEQUENTIAL",
           "Record Key": null,
           "Relative Key": null,
           "Select": "SQ-FS1"
         },
         {
-          "Access Mode": null,
+          "Access Mode": "SEQUENTIAL",
           "Alternate Keys": null,
-          "Assign": "OBSQ34",
+          "Assign": "XXXXP008",
           "FD Copies": null,
           "File Status": null,
           "Line": 40,
@@ -2709,19 +2709,19 @@
         {
           "Access Mode": null,
           "Alternate Keys": null,
-          "Assign": "OBSQ34",
+          "Assign": "XXXXP009",
           "FD Copies": null,
           "File Status": null,
           "Line": 43,
-          "Organization": null,
+          "Organization": "SEQUENTIAL",
           "Record Key": null,
           "Relative Key": null,
           "Select": "SQ-FS3"
         },
         {
-          "Access Mode": null,
+          "Access Mode": "SEQUENTIAL",
           "Alternate Keys": null,
-          "Assign": "OBSQ34",
+          "Assign": "XXXXP010",
           "FD Copies": null,
           "File Status": null,
           "Line": 46,
@@ -2733,7 +2733,7 @@
         {
           "Access Mode": null,
           "Alternate Keys": null,
-          "Assign": "OBSQ34",
+          "Assign": "XXXXP005",
           "FD Copies": null,
           "File Status": null,
           "Line": 49,
@@ -2745,31 +2745,31 @@
         {
           "Access Mode": null,
           "Alternate Keys": null,
-          "Assign": "OBSQ34",
+          "Assign": "XXXXP011",
           "FD Copies": null,
           "File Status": null,
           "Line": 51,
-          "Organization": null,
+          "Organization": "SEQUENTIAL",
           "Record Key": null,
           "Relative Key": null,
           "Select": "SQ-FS6"
         },
         {
-          "Access Mode": null,
+          "Access Mode": "SEQUENTIAL",
           "Alternate Keys": null,
-          "Assign": "OBSQ34",
+          "Assign": "XXXXP012",
           "FD Copies": null,
           "File Status": null,
           "Line": 54,
-          "Organization": null,
+          "Organization": "SEQUENTIAL",
           "Record Key": null,
           "Relative Key": null,
           "Select": "SQ-FS7"
         },
         {
-          "Access Mode": null,
+          "Access Mode": "SEQUENTIAL",
           "Alternate Keys": null,
-          "Assign": "OBSQ34",
+          "Assign": "XXXXP013",
           "FD Copies": null,
           "File Status": null,
           "Line": 58,
@@ -2781,21 +2781,21 @@
       ],
       "cobol/che-che4z_nist_ccvs85/OBSQ44.2.cbl": [
         {
-          "Access Mode": null,
+          "Access Mode": "RANDOM",
           "Alternate Keys": null,
-          "Assign": "OBSQ44",
+          "Assign": "XXXXX062",
           "FD Copies": null,
           "File Status": null,
           "Line": 27,
-          "Organization": null,
-          "Record Key": null,
+          "Organization": "INDEXED",
+          "Record Key": "RAW-DATA-KEY",
           "Relative Key": null,
           "Select": "RAW-DATA"
         },
         {
           "Access Mode": null,
           "Alternate Keys": null,
-          "Assign": "OBSQ44",
+          "Assign": "XXXXX055",
           "FD Copies": null,
           "File Status": null,
           "Line": 32,
@@ -2807,7 +2807,7 @@
         {
           "Access Mode": null,
           "Alternate Keys": null,
-          "Assign": "OBSQ44",
+          "Assign": "XXXXP004",
           "FD Copies": null,
           "File Status": null,
           "Line": 34,
@@ -2819,7 +2819,7 @@
         {
           "Access Mode": null,
           "Alternate Keys": null,
-          "Assign": "OBSQ44",
+          "Assign": "XXXXP008",
           "FD Copies": null,
           "File Status": null,
           "Line": 36,
@@ -2831,7 +2831,7 @@
         {
           "Access Mode": null,
           "Alternate Keys": null,
-          "Assign": "OBSQ44",
+          "Assign": "XXXXP009",
           "FD Copies": null,
           "File Status": null,
           "Line": 38,
@@ -2843,7 +2843,7 @@
         {
           "Access Mode": null,
           "Alternate Keys": null,
-          "Assign": "OBSQ44",
+          "Assign": "XXXXP010",
           "FD Copies": null,
           "File Status": null,
           "Line": 40,
@@ -2855,21 +2855,21 @@
       ],
       "cobol/che-che4z_nist_ccvs85/OBSQ54.2.cbl": [
         {
-          "Access Mode": null,
+          "Access Mode": "RANDOM",
           "Alternate Keys": null,
-          "Assign": "OBSQ54",
+          "Assign": "XXXXX062",
           "FD Copies": null,
           "File Status": null,
           "Line": 29,
-          "Organization": null,
-          "Record Key": null,
+          "Organization": "INDEXED",
+          "Record Key": "RAW-DATA-KEY",
           "Relative Key": null,
           "Select": "RAW-DATA"
         },
         {
           "Access Mode": null,
           "Alternate Keys": null,
-          "Assign": "OBSQ54",
+          "Assign": "XXXXX055",
           "FD Copies": null,
           "File Status": null,
           "Line": 34,
@@ -2881,7 +2881,7 @@
         {
           "Access Mode": null,
           "Alternate Keys": null,
-          "Assign": "OBSQ54",
+          "Assign": "XXXXD009",
           "FD Copies": null,
           "File Status": null,
           "Line": 36,
@@ -2893,7 +2893,7 @@
         {
           "Access Mode": null,
           "Alternate Keys": null,
-          "Assign": "OBSQ54",
+          "Assign": "XXXXD005",
           "FD Copies": null,
           "File Status": null,
           "Line": 38,
@@ -2905,7 +2905,7 @@
         {
           "Access Mode": null,
           "Alternate Keys": null,
-          "Assign": "OBSQ54",
+          "Assign": "XXXXD011",
           "FD Copies": null,
           "File Status": null,
           "Line": 40,
@@ -2917,7 +2917,7 @@
         {
           "Access Mode": null,
           "Alternate Keys": null,
-          "Assign": "OBSQ54",
+          "Assign": "XXXXD012",
           "FD Copies": null,
           "File Status": null,
           "Line": 42,
@@ -2929,7 +2929,7 @@
         {
           "Access Mode": null,
           "Alternate Keys": null,
-          "Assign": "OBSQ54",
+          "Assign": "XXXXD013",
           "FD Copies": null,
           "File Status": null,
           "Line": 44,
@@ -2941,39 +2941,39 @@
       ],
       "cobol/che-che4z_nist_ccvs85/RL3014.2.cbl": [
         {
-          "Access Mode": null,
+          "Access Mode": "RANDOM",
           "Alternate Keys": null,
-          "Assign": "RL3014",
+          "Assign": "XXXXX021",
           "FD Copies": null,
           "File Status": null,
           "Line": 15,
-          "Organization": null,
+          "Organization": "RELATIVE",
           "Record Key": null,
-          "Relative Key": null,
+          "Relative Key": "RKEY",
           "Select": "TFIL"
         }
       ],
       "cobol/che-che4z_nist_ccvs85/RL4014.2.cbl": [
         {
-          "Access Mode": null,
+          "Access Mode": "DYNAMIC",
           "Alternate Keys": null,
-          "Assign": "RL4014",
+          "Assign": "XXXXX021",
           "FD Copies": null,
           "File Status": null,
           "Line": 15,
-          "Organization": null,
+          "Organization": "RELATIVE",
           "Record Key": null,
-          "Relative Key": null,
+          "Relative Key": "RKEY",
           "Select": "TFIL"
         },
         {
           "Access Mode": null,
           "Alternate Keys": null,
-          "Assign": "RL4014",
+          "Assign": "XXXXX022",
           "FD Copies": null,
           "File Status": null,
           "Line": 25,
-          "Organization": null,
+          "Organization": "RELATIVE",
           "Record Key": null,
           "Relative Key": null,
           "Select": "TFIL2"
@@ -2983,7 +2983,7 @@
         {
           "Access Mode": null,
           "Alternate Keys": null,
-          "Assign": "SM1074",
+          "Assign": "XXXXX055",
           "FD Copies": null,
           "File Status": null,
           "Line": 30,
@@ -2995,25 +2995,25 @@
       ],
       "cobol/che-che4z_nist_ccvs85/SQ3034.2.cbl": [
         {
-          "Access Mode": null,
+          "Access Mode": "SEQUENTIAL",
           "Alternate Keys": null,
-          "Assign": "SQ3034",
+          "Assign": "XXXXX014",
           "FD Copies": null,
           "File Status": null,
           "Line": 15,
-          "Organization": null,
+          "Organization": "SEQUENTIAL",
           "Record Key": null,
           "Relative Key": null,
           "Select": "TFIL"
         },
         {
-          "Access Mode": null,
+          "Access Mode": "SEQUENTIAL",
           "Alternate Keys": null,
-          "Assign": "SQ3034",
+          "Assign": "XXXXX008",
           "FD Copies": null,
           "File Status": null,
           "Line": 20,
-          "Organization": null,
+          "Organization": "SEQUENTIAL",
           "Record Key": null,
           "Relative Key": null,
           "Select": "TFIL2"
@@ -3023,7 +3023,7 @@
         {
           "Access Mode": null,
           "Alternate Keys": null,
-          "Assign": "ST1084",
+          "Assign": "XXXXX055",
           "FD Copies": null,
           "File Status": null,
           "Line": 48,
@@ -3035,7 +3035,7 @@
         {
           "Access Mode": null,
           "Alternate Keys": null,
-          "Assign": "ST1084",
+          "Assign": "XXXXX027",
           "FD Copies": null,
           "File Status": null,
           "Line": 50,
@@ -3049,7 +3049,7 @@
         {
           "Access Mode": null,
           "Alternate Keys": null,
-          "Assign": "ST1184",
+          "Assign": "XXXXX055",
           "FD Copies": null,
           "File Status": null,
           "Line": 58,
@@ -3061,7 +3061,7 @@
         {
           "Access Mode": null,
           "Alternate Keys": null,
-          "Assign": "ST1184",
+          "Assign": "XXXXX027",
           "FD Copies": null,
           "File Status": null,
           "Line": 60,
@@ -3075,7 +3075,7 @@
         {
           "Access Mode": null,
           "Alternate Keys": null,
-          "Assign": "ST3014",
+          "Assign": "XXXXX027",
           "FD Copies": null,
           "File Status": null,
           "Line": 14,
@@ -3085,9 +3085,9 @@
           "Select": "TFIL"
         },
         {
-          "Access Mode": null,
+          "Access Mode": "SEQUENTIAL",
           "Alternate Keys": null,
-          "Assign": "ST3014",
+          "Assign": "XXXXX001",
           "FD Copies": null,
           "File Status": null,
           "Line": 16,
@@ -3097,9 +3097,9 @@
           "Select": "TFIL-2"
         },
         {
-          "Access Mode": null,
+          "Access Mode": "SEQUENTIAL",
           "Alternate Keys": null,
-          "Assign": "ST3014",
+          "Assign": "XXXXX002",
           "FD Copies": null,
           "File Status": null,
           "Line": 19,
@@ -3109,9 +3109,9 @@
           "Select": "TFIL-3"
         },
         {
-          "Access Mode": null,
+          "Access Mode": "SEQUENTIAL",
           "Alternate Keys": null,
-          "Assign": "ST3014",
+          "Assign": "XXXXX003",
           "FD Copies": null,
           "File Status": null,
           "Line": 22,
@@ -3121,9 +3121,9 @@
           "Select": "TFIL-4"
         },
         {
-          "Access Mode": null,
+          "Access Mode": "SEQUENTIAL",
           "Alternate Keys": null,
-          "Assign": "ST3014",
+          "Assign": "XXXXX004",
           "FD Copies": null,
           "File Status": null,
           "Line": 25,

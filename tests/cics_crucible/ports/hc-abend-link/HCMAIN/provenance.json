@@ -1,0 +1,109 @@
+{
+ "format": "cics-crucible-port/1",
+ "case": "hc-abend-link",
+ "program": "HCMAIN",
+ "attempt": 2,
+ "backend": "command",
+ "model": "claude-opus-5-5",
+ "command": "claude CLI 2.1.285 print mode (claude -p --model claude-opus-5-5 --effort high --tools '' --strict-mcp-config --mcp-config '{\"mcpServers\":{}}' --no-session-persistence --system-prompt <porting system prompt>, prompt file on stdin, run from an empty directory)",
+ "proposed_at": "2026-09-29T22:01:48+00:00",
+ "ticket_sha256": "6ea64c009b09cab754e4aec123597890e743fcd869a36ee8669610b7cb92e738",
+ "prompt_tokens": 26368,
+ "feedback_from": 1,
+ "notes": "Fix for attempt 1: HANDLE ABEND LABEL, PUSH HANDLE and POP HANDLE now go through the task (task.handleAbend /\npushHandle / popHandle). Before, the exit was only a local flag, so an abend raised in HCSUB could not find\nHCMAIN's exit one level up. After the LINK, the port reads task.abendExit() / task.ended(). An unhandled\ncondition goes through task.abendOnCondition. No exception is caught or thrown to model a CICS transfer.\n\nDefects of the original kept as they are:\n- MAIN-ABEND strings CA-TRAIL(1:3) even when WS-CA was never INITIALIZEd. This happens when the abend comes\n  from the HCMODE read, for example LENGERR on an item longer than WS-MLEN = 1. The trail then holds WS-CA's\n  initial binary zeros. Fix: INITIALIZE WS-CA at the top of MAIN-PARA.\n- WS-JLEN is never reset. After the line-37 read it holds that item's length, and the line-54 read uses it\n  as its maximum. That can raise LENGERR (unhandled, so AEIV goes to MAIN-ABEND) for an item longer than\n  the first one. Fix: MOVE 8 TO WS-JLEN before each READQ.\n- In 'P' mode the line-37 READQ runs with every handler suspended by PUSH HANDLE. A missing HCNONE queue\n  therefore terminates the task with AEYH, and neither MAIN-QIDERR nor MAIN-ABEND takes it. This is kept\n  as the program intends.\n\nFacts found contradicted:\n- commarea_contracts says the caller's record WS-CA is 4 bytes, 1 field, with a shape mismatch against\n  HCSUB's DFHCOMMAREA. The source has WS-CA as COPY HCLINKCA, the same 20-byte, 5-field layout that HCSUB\n  declares. The port follows the source and passes the HcsubDfhcommarea DTO unchanged, with LENGTH(20).",
+ "proof": {
+  "at": "2026-09-29T22:02:11+00:00",
+  "crucible_ref": "v0.1.0 (0c942cb8)",
+  "summary": {
+   "push-pop": "1/1",
+   "pushed-abend": "1/1",
+   "sub-own-exit": "1/1",
+   "sub-resp": "1/1",
+   "sub-unhandled": "1/1"
+  },
+  "sibling_ports": [
+   "HCMAIN",
+   "HCSUB"
+  ],
+  "reproven": [
+   {
+    "at": "2026-10-04T14:21:41+00:00",
+    "crucible_ref": "v0.2.0 (94f2afcb)",
+    "summary": {
+     "push-pop": "1/1",
+     "pushed-abend": "1/1",
+     "sub-own-exit": "1/1",
+     "sub-resp": "1/1",
+     "sub-unhandled": "1/1"
+    },
+    "port_sha256": "d8c00de07beaab47ddf5baa48485060eaeb2571d47006bc6e6190a0d76c1baca",
+    "harness_commit": "16ae9e01515581be224b32982ceae54bc73e68fb",
+    "by": "tests/tools/crucible_port_provenance.py reprove (cics_crucible.py --sides java-ported --program HCMAIN --report-dir)"
+   },
+   {
+    "at": "2026-10-04T15:39:22+00:00",
+    "crucible_ref": "v0.2.0 (94f2afcb)",
+    "summary": {
+     "push-pop": "1/1",
+     "pushed-abend": "1/1",
+     "sub-own-exit": "1/1",
+     "sub-resp": "1/1",
+     "sub-unhandled": "1/1"
+    },
+    "port_sha256": "004f0b4ec4bf8e4618c4db3a98b8124f2526d9efc46221d6ac81eb38d7ed5e46",
+    "harness_commit": "356f7d105baa91e7fa7e46b333ed10ba7bbcbcb0",
+    "by": "tests/tools/crucible_port_provenance.py reprove (cics_crucible.py --sides java-ported --program HCMAIN --report-dir)"
+   }
+  ]
+ },
+ "approved": false,
+ "history": [
+  {
+   "at": "2026-09-29T21:50:04+00:00",
+   "event": "proposed",
+   "attempt": 1
+  },
+  {
+   "at": "2026-09-29T21:50:26+00:00",
+   "event": "proof-failed",
+   "attempt": 1,
+   "summary": {
+    "push-pop": "1/1",
+    "pushed-abend": "1/1",
+    "sub-own-exit": "1/1",
+    "sub-resp": "1/1",
+    "sub-unhandled": "0/1"
+   }
+  },
+  {
+   "at": "2026-09-29T21:59:26+00:00",
+   "event": "proof-failed",
+   "attempt": 1,
+   "summary": {
+    "push-pop": "1/1",
+    "pushed-abend": "1/1",
+    "sub-own-exit": "1/1",
+    "sub-resp": "1/1",
+    "sub-unhandled": "0/1"
+   }
+  },
+  {
+   "at": "2026-09-29T22:01:48+00:00",
+   "event": "proposed",
+   "attempt": 2,
+   "feedback_from": 1
+  },
+  {
+   "at": "2026-09-29T22:02:11+00:00",
+   "event": "proven",
+   "attempt": 2,
+   "summary": {
+    "push-pop": "1/1",
+    "pushed-abend": "1/1",
+    "sub-own-exit": "1/1",
+    "sub-resp": "1/1",
+    "sub-unhandled": "1/1"
+   }
+  }
+ ]
+}

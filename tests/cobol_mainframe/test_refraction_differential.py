@@ -153,6 +153,31 @@ def _cause(mini_repo, **kw):
     return classified[0]["cause"]
 
 
+def _schema_causes(mini_repo, old, db, first):
+    row = dict(_row(), schema={"old": old, "db": db, "db_first_program": first})
+    return {(d["side"], d["value"]): d["cause"] for d in rd.classify(mini_repo, [row], None)}
+
+
+def test_forge_first_program_4245(mini_repo):
+    # A multi-program source: the forge renders the first program's DATA DIVISION, the engine every
+    # program's. Only a delta the engine's first-program schema would not show is that scope
+    # difference; one it does show is still a reader disagreement.
+    got = _schema_causes(
+        mini_repo,
+        old=["TABLE P", "B    INTEGER"],
+        db=["TABLE P", "B    INTEGER,", "C    INTEGER,", "X    INTEGER"],
+        first=["TABLE P", "B    INTEGER", "C    INTEGER,"],
+    )
+    assert got == {
+        ("old", "B    INTEGER"): "forge_first_program",  # the last column of the first program's schema
+        ("db", "B    INTEGER,"): "forge_first_program",
+        ("db", "X    INTEGER"): "forge_first_program",  # a sibling program's column
+        ("db", "C    INTEGER,"): "unexplained",  # in the first program too: the forge dropped it
+    }
+    # a one-program source (no first-program schema) keeps the #3348 rule
+    assert set(_schema_causes(mini_repo, old=[], db=["X    INTEGER"], first=None).values()) == {"unexplained"}
+
+
 def test_scope_terminator(mini_repo):
     assert _cause(mini_repo, dead_old=["GOBACK"]) == "scope_terminator"
 
@@ -524,3 +549,26 @@ def test_a_db_from_before_the_channels_is_not_compared(mini_repo):
     """A DB without the channels gives None: the refractor keeps the forge, nothing to compare."""
     row = _with(_row(), lineage={"old": ["inputs:INDD"], "db": None}, schema={"old": ["TABLE T"], "db": None})
     assert rd.classify(mini_repo, [row], None) == []
+
+
+def test_engine_units_are_placed_in_their_program(tmp_path):
+    """#4243: the differential names an engine unit the way the forge now does -- bare
+    in the first program, PROG:NAME in a sibling or nested one (innermost wins) -- so a
+    repeated MAINLINE is three pairs, not one name both sides happen to share."""
+    src = tmp_path / "MULTI.cbl"
+    src.write_text(
+        "       IDENTIFICATION DIVISION.\n        PROGRAM-ID. 'FIRST'.\n       PROCEDURE DIVISION.\n"
+        "       MAINLINE SECTION.\n           GOBACK.\n       END PROGRAM 'FIRST'.\n"
+        "       IDENTIFICATION DIVISION.\n        PROGRAM-ID. 'SECOND'.\n       PROCEDURE DIVISION.\n"
+        "       MAINLINE SECTION.\n           GOBACK.\n"
+        "       IDENTIFICATION DIVISION.\n        PROGRAM-ID. INNER.\n       PROCEDURE DIVISION.\n"
+        "       MAINLINE SECTION.\n           GOBACK.\n       END PROGRAM INNER.\n       END PROGRAM 'SECOND'.\n",
+        encoding="utf-8",
+    )
+    place = rd._program_placer(src)
+    assert [place("MAINLINE", line) for line in (4, 10, 15)] == ["MAINLINE", "SECOND:MAINLINE", "INNER:MAINLINE"]
+    one = tmp_path / "ONE.cbl"
+    one.write_text(
+        "       IDENTIFICATION DIVISION.\n        PROGRAM-ID. ONE.\n       PROCEDURE DIVISION.\n", encoding="utf-8"
+    )
+    assert rd._program_placer(one)("MAINLINE", 3) == "MAINLINE"

@@ -1,0 +1,182 @@
+{
+ "kind": "call",
+ "corpus": "dbb-mortgage-application",
+ "program": "EPSMPMT",
+ "program_source": "zBuilder/MortgageApplication/cobol/epsmpmt.cbl",
+ "copy_dirs": [
+  "zBuilder/MortgageApplication/copybook"
+ ],
+ "compiler": {
+  "product": "Enterprise COBOL",
+  "version": "6.1",
+  "evidence": "Migration/jclToZBuilder/samples/BLDMORT.jcl compiles EPSMPMT with STEPLIB IGY.V6R1M0.SIGYCOMP (Enterprise COBOL 6.1) and no PARM: the program's CBL NUMPROC(MIG) compiles as the default NUMPROC(NOPFD) (oracle_assumptions.md C5)"
+ },
+ "clock": "2026/10/03 10:30:15.00",
+ "using": [
+  {
+   "name": "EPSPDATA",
+   "size": 101,
+   "record": {
+    "copybook": "zBuilder/MortgageApplication/copybook/epspdata.cpy",
+    "name": "EPSPDATA"
+   }
+  }
+ ],
+ "calls": [
+  {
+   "name": "thirty-years",
+   "args": [
+    {
+     "EPSPDATA-PRINCIPLE-DATA": "200000.00",
+     "EPSPDATA-NUMBER-OF-YEARS": 30,
+     "EPSPDATA-NUMBER-OF-MONTHS": 0,
+     "EPSPDATA-QUOTED-INTEREST-RATE": "5.250",
+     "EPSPDATA-YEAR-MONTH-IND": "Y",
+     "EPSPDATA-RETURN-MONTH-PAYMENT": "0"
+    }
+   ],
+   "why": "a 30-year mortgage: Y, months = years * 12, the annuity formula in A200"
+  },
+  {
+   "name": "fifteen-years-in-months",
+   "args": [
+    {
+     "EPSPDATA-PRINCIPLE-DATA": "150000.00",
+     "EPSPDATA-NUMBER-OF-YEARS": 0,
+     "EPSPDATA-NUMBER-OF-MONTHS": 180,
+     "EPSPDATA-QUOTED-INTEREST-RATE": "3.875",
+     "EPSPDATA-YEAR-MONTH-IND": "N",
+     "EPSPDATA-RETURN-MONTH-PAYMENT": "0"
+    }
+   ],
+   "why": "N: the months field is used as given (180)"
+  },
+  {
+   "name": "other-indicator",
+   "args": [
+    {
+     "EPSPDATA-PRINCIPLE-DATA": "50000.00",
+     "EPSPDATA-NUMBER-OF-YEARS": 5,
+     "EPSPDATA-NUMBER-OF-MONTHS": 48,
+     "EPSPDATA-QUOTED-INTEREST-RATE": "4.500",
+     "EPSPDATA-YEAR-MONTH-IND": "X",
+     "EPSPDATA-RETURN-MONTH-PAYMENT": "0"
+    }
+   ],
+   "why": "any indicator other than 'Y' takes the months field"
+  },
+  {
+   "name": "one-year-small",
+   "args": [
+    {
+     "EPSPDATA-PRINCIPLE-DATA": "1.00",
+     "EPSPDATA-NUMBER-OF-YEARS": 0,
+     "EPSPDATA-NUMBER-OF-MONTHS": 12,
+     "EPSPDATA-QUOTED-INTEREST-RATE": "1.000",
+     "EPSPDATA-YEAR-MONTH-IND": "N",
+     "EPSPDATA-RETURN-MONTH-PAYMENT": "0"
+    }
+   ],
+   "why": "a small loan over 12 months"
+  },
+  {
+   "name": "maximum-principal",
+   "args": [
+    {
+     "EPSPDATA-PRINCIPLE-DATA": "100000000.01",
+     "EPSPDATA-NUMBER-OF-YEARS": 30,
+     "EPSPDATA-NUMBER-OF-MONTHS": 0,
+     "EPSPDATA-QUOTED-INTEREST-RATE": "6.000",
+     "EPSPDATA-YEAR-MONTH-IND": "Y",
+     "EPSPDATA-RETURN-MONTH-PAYMENT": "0"
+    }
+   ],
+   "why": "exactly the static maximum 100000000.01: not greater, so valid"
+  },
+  {
+   "name": "high-rate",
+   "args": [
+    {
+     "EPSPDATA-PRINCIPLE-DATA": "200000.00",
+     "EPSPDATA-NUMBER-OF-YEARS": 0,
+     "EPSPDATA-NUMBER-OF-MONTHS": 360,
+     "EPSPDATA-QUOTED-INTEREST-RATE": "99.999",
+     "EPSPDATA-YEAR-MONTH-IND": "N",
+     "EPSPDATA-RETURN-MONTH-PAYMENT": "0"
+    }
+   ],
+   "why": "a 99.999% rate over 360 months: (1+i)**n grows to about 1e12 in COMP-1"
+  },
+  {
+   "name": "principal-zero",
+   "args": [
+    {
+     "EPSPDATA-PRINCIPLE-DATA": "0",
+     "EPSPDATA-NUMBER-OF-YEARS": 30,
+     "EPSPDATA-NUMBER-OF-MONTHS": 0,
+     "EPSPDATA-QUOTED-INTEREST-RATE": "5.000",
+     "EPSPDATA-YEAR-MONTH-IND": "Y",
+     "EPSPDATA-RETURN-MONTH-PAYMENT": "123.45"
+    }
+   ],
+   "why": "principal not > 0 -> indicator 1, A999 returns error text 1; the payment field is left as passed"
+  },
+  {
+   "name": "principal-negative",
+   "args": [
+    {
+     "EPSPDATA-PRINCIPLE-DATA": "-500.00",
+     "EPSPDATA-NUMBER-OF-YEARS": 10,
+     "EPSPDATA-NUMBER-OF-MONTHS": 0,
+     "EPSPDATA-QUOTED-INTEREST-RATE": "5.000",
+     "EPSPDATA-YEAR-MONTH-IND": "Y",
+     "EPSPDATA-RETURN-MONTH-PAYMENT": "0"
+    }
+   ],
+   "why": "a negative principal -> error 1 ('PRINCIPLE AMOUNT IS NEGATIVE')"
+  },
+  {
+   "name": "principal-too-large",
+   "args": [
+    {
+     "EPSPDATA-PRINCIPLE-DATA": "100000000.50",
+     "EPSPDATA-NUMBER-OF-YEARS": 30,
+     "EPSPDATA-NUMBER-OF-MONTHS": 0,
+     "EPSPDATA-QUOTED-INTEREST-RATE": "5.000",
+     "EPSPDATA-YEAR-MONTH-IND": "Y",
+     "EPSPDATA-RETURN-MONTH-PAYMENT": "0"
+    }
+   ],
+   "why": "above 100000000.01 -> indicator 2"
+  },
+  {
+   "name": "rate-zero",
+   "args": [
+    {
+     "EPSPDATA-PRINCIPLE-DATA": "100000.00",
+     "EPSPDATA-NUMBER-OF-YEARS": 30,
+     "EPSPDATA-NUMBER-OF-MONTHS": 0,
+     "EPSPDATA-QUOTED-INTEREST-RATE": "0",
+     "EPSPDATA-YEAR-MONTH-IND": "Y",
+     "EPSPDATA-RETURN-MONTH-PAYMENT": "0"
+    }
+   ],
+   "why": "a rate not > 0 -> indicator 3 ('NEGATIVE INTEREST RATE')"
+  },
+  {
+   "name": "rate-negative",
+   "args": [
+    {
+     "EPSPDATA-PRINCIPLE-DATA": "100000.00",
+     "EPSPDATA-NUMBER-OF-YEARS": 30,
+     "EPSPDATA-NUMBER-OF-MONTHS": 0,
+     "EPSPDATA-QUOTED-INTEREST-RATE": "-1.250",
+     "EPSPDATA-YEAR-MONTH-IND": "Y",
+     "EPSPDATA-RETURN-MONTH-PAYMENT": "0"
+    }
+   ],
+   "why": "a negative rate -> indicator 3"
+  }
+ ],
+ "notes": "IBM DBB MortgageApplication's monthly-payment calculator (CALLed by EPSCSMRT; its business logic). It carries CBL NUMPROC(MIG); the estate builds it with Enterprise COBOL 6.1, which no longer supports MIG and compiles the default NUMPROC(NOPFD) instead (IBM Migration Guide; oracle_assumptions.md C5, #4271). NUMPROC does not touch binary or floating-point items in any case, and EPSMPMT's zoned items are unsigned items it fills itself. EPSPDATA's inputs are binary (COMP), so each call gives them as field values (equivalence_call.arg_bytes). The payment goes through WS-CALC-INTEREST COMP-1. z/OS evaluates both COMPUTEs that name it in hexadecimal floating point (IBM Programming Guide, Appendix A); GnuCOBOL stores an IEEE float and evaluates in decimal truncated by ARITHMETIC-OSVS (599550.79 against an exact 599550.51 for maximum-principal). The det translator therefore refuses the float item by name and the case is not proven on purpose (oracle_assumptions.md C6, proof_sweep KNOWN_UNPROVEN). Its scenarios stay for a z/OS capture (#4050). A zero-month loan is left out on purpose: the COMPUTE divides by ((1+i)**0)-1 = 0 with no ON SIZE ERROR, an outcome that is compiler-dependent. A300-TRY2 (FUNCTION ANNUITY, a translation hole) is dead code: never PERFORMed (answer key)."
+}

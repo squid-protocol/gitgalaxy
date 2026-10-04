@@ -1,0 +1,78 @@
+{
+ "format": "cics-crucible-port/1",
+ "case": "gt-start-retrieve",
+ "program": "GTSTART",
+ "attempt": 1,
+ "backend": "command",
+ "model": "claude-opus-5-5",
+ "command": "claude CLI 2.1.285 print mode (claude -p --model claude-opus-5-5 --effort high --tools '' --strict-mcp-config --mcp-config '{\"mcpServers\":{}}' --no-session-persistence --system-prompt <porting system prompt>, prompt file on stdin, run from an empty directory)",
+ "proposed_at": "2026-09-29T21:46:55+00:00",
+ "ticket_sha256": "a2c3151275a921e20dda2d43e98097e95b8d37733aae7a6306ea60b20b9c7533",
+ "prompt_tokens": 13403,
+ "feedback_from": null,
+ "notes": "Defects / behaviours of the original kept:\n- EVALUATE WS-MODE has no WHEN OTHER. An unknown or blank mode starts nothing but still sends\n  'STARTS ISSUED'. Fix: add WHEN OTHER with a SEND TEXT such as 'INVALID MODE'.\n- RECEIVE has no RESP/NOHANDLE/HANDLE CONDITION. Terminal input longer than 20 bytes (including the\n  transid) raises LENGERR, which abends the task with AEIV. Fix: add RESP(WS-RESP) to the RECEIVE\n  and test it.\n- The STARTs have no RESP either. Any non-NORMAL condition takes the default action, an abend\n  through task.abendOnCondition. CicsTask.abcodeFor knows INVREQ and LENGERR only. If TRANSIDERR or\n  TERMIDERR ever occurred it would raise IllegalArgumentException instead. I did not invent an abend\n  code for those; GT02 is defined in the CSD per the navigation facts.\n- Mode X: the ABEND at line 58 is ported as task.abend(\"GTAB\"), as rule 14 requires, and the task\n  ends there. The generated abendGtabL58() is kept unchanged but not called from runTask.\n- WS-INLEN is set by RECEIVE but never used afterwards.\n\nAssumptions / facts:\n- START FROM data is passed as the field's bytes in EBCDIC (IBM037), the region's code page.\n  CicsTask documents this for TS items; for START it is my assumption.\n- executeGtstart has no batch step to port (a CICS-only program, no COMMAREA per the interface\n  facts), so it only logs.\n- No fact was contradicted by the source. The field-testing-open sections (calls, cics_tasks,\n  navigation) match lines 34-58.\n- The \"commarea_length\" values in the calls facts are the START FROM LENGTHs, not a COMMAREA.",
+ "proof": {
+  "at": "2026-09-29T21:59:02+00:00",
+  "crucible_ref": "v0.1.0 (0c942cb8)",
+  "summary": {
+   "interval-data": "1/1",
+   "no-data": "1/1",
+   "protect-abend": "1/1",
+   "retrieve-lengerr": "1/1",
+   "time-six-hours": "1/1"
+  },
+  "sibling_ports": [
+   "GTSTART",
+   "GTWORK"
+  ],
+  "reproven": [
+   {
+    "at": "2026-10-04T14:21:11+00:00",
+    "crucible_ref": "v0.2.0 (94f2afcb)",
+    "summary": {
+     "interval-data": "1/1",
+     "no-data": "1/1",
+     "protect-abend": "1/1",
+     "retrieve-lengerr": "1/1",
+     "time-six-hours": "1/1",
+     "unknown-mode": "1/1"
+    },
+    "port_sha256": "4fef1e45bdbf2feef91a2e0a27eaf1ded061c9520bfeb247bdf5edef23c3e840",
+    "harness_commit": "16ae9e01515581be224b32982ceae54bc73e68fb",
+    "by": "tests/tools/crucible_port_provenance.py reprove (cics_crucible.py --sides java-ported --program GTSTART --report-dir)"
+   }
+  ]
+ },
+ "approved": false,
+ "history": [
+  {
+   "at": "2026-09-29T21:46:55+00:00",
+   "event": "proposed",
+   "attempt": 1
+  },
+  {
+   "at": "2026-09-29T21:47:47+00:00",
+   "event": "proven",
+   "attempt": 1,
+   "summary": {
+    "interval-data": "1/1",
+    "no-data": "1/1",
+    "protect-abend": "1/1",
+    "retrieve-lengerr": "1/1",
+    "time-six-hours": "1/1"
+   }
+  },
+  {
+   "at": "2026-09-29T21:59:02+00:00",
+   "event": "proven",
+   "attempt": 1,
+   "summary": {
+    "interval-data": "1/1",
+    "no-data": "1/1",
+    "protect-abend": "1/1",
+    "retrieve-lengerr": "1/1",
+    "time-six-hours": "1/1"
+   }
+  }
+ ]
+}

@@ -1,0 +1,410 @@
+{
+ "kind": "cics",
+ "corpus": "aws-mainframe-modernization-carddemo",
+ "program": "COTRN00C",
+ "program_source": "app/cbl/COTRN00C.cbl",
+ "copy_dirs": [
+  "app/cpy",
+  "app/cpy-bms"
+ ],
+ "transid": "CT00",
+ "clock": "2022/07/18 10:30:15.00",
+ "datasets": {
+  "AWS.M2.CARDDEMO.TRANSACT.VSAM.KSDS": {
+   "input": "app/data/ASCII/dailytran.txt",
+   "entity": "TranRecord",
+   "copybook": "app/cpy/CVTRA05Y.cpy",
+   "record": "TRAN-RECORD"
+  }
+ },
+ "commarea": {
+  "segments": [
+   {
+    "copybook": "app/cbl/COTRN00C.cbl",
+    "record": "CARDDEMO-COMMAREA"
+   }
+  ]
+ },
+ "screens": {
+  "COTRN0A": {
+   "copybook": "app/cpy-bms/COTRN00.CPY",
+   "input": "COTRN0AI",
+   "output": "COTRN0AO"
+  }
+ },
+ "scenarios": [
+  {
+   "name": "first-entry",
+   "aid": "DFHENTER",
+   "commarea": {
+    "CDEMO-FROM-TRANID": "CM00",
+    "CDEMO-FROM-PROGRAM": "COMEN01C",
+    "CDEMO-USER-ID": "USER0001",
+    "CDEMO-USER-TYPE": "U",
+    "CDEMO-PGM-CONTEXT": 0
+   }
+  },
+  {
+   "name": "no-commarea",
+   "aid": "DFHENTER",
+   "commarea": null
+  },
+  {
+   "name": "enter-lists-from-the-start",
+   "aid": "DFHENTER",
+   "commarea": {
+    "CDEMO-FROM-TRANID": "CM00",
+    "CDEMO-FROM-PROGRAM": "COMEN01C",
+    "CDEMO-USER-ID": "USER0001",
+    "CDEMO-USER-TYPE": "U",
+    "CDEMO-PGM-CONTEXT": 1
+   },
+   "receive": {
+    "COTRN0A": {}
+   }
+  },
+  {
+   "name": "enter-lists-from-an-id",
+   "aid": "DFHENTER",
+   "commarea": {
+    "CDEMO-FROM-TRANID": "CM00",
+    "CDEMO-FROM-PROGRAM": "COMEN01C",
+    "CDEMO-USER-ID": "USER0001",
+    "CDEMO-USER-TYPE": "U",
+    "CDEMO-PGM-CONTEXT": 1
+   },
+   "receive": {
+    "COTRN0A": {
+     "TRNIDINI": "0000000198494663"
+    }
+   }
+  },
+  {
+   "name": "enter-from-between-two-ids",
+   "aid": "DFHENTER",
+   "commarea": {
+    "CDEMO-FROM-TRANID": "CM00",
+    "CDEMO-FROM-PROGRAM": "COMEN01C",
+    "CDEMO-USER-ID": "USER0001",
+    "CDEMO-USER-TYPE": "U",
+    "CDEMO-PGM-CONTEXT": 1
+   },
+   "receive": {
+    "COTRN0A": {
+     "TRNIDINI": "0000000500000000"
+    }
+   }
+  },
+  {
+   "name": "enter-id-not-numeric",
+   "aid": "DFHENTER",
+   "commarea": {
+    "CDEMO-FROM-TRANID": "CM00",
+    "CDEMO-FROM-PROGRAM": "COMEN01C",
+    "CDEMO-USER-ID": "USER0001",
+    "CDEMO-USER-TYPE": "U",
+    "CDEMO-PGM-CONTEXT": 1
+   },
+   "receive": {
+    "COTRN0A": {
+     "TRNIDINI": "00000005ABC"
+    }
+   }
+  },
+  {
+   "name": "enter-past-the-last-id",
+   "aid": "DFHENTER",
+   "commarea": {
+    "CDEMO-FROM-TRANID": "CM00",
+    "CDEMO-FROM-PROGRAM": "COMEN01C",
+    "CDEMO-USER-ID": "USER0001",
+    "CDEMO-USER-TYPE": "U",
+    "CDEMO-PGM-CONTEXT": 1
+   },
+   "receive": {
+    "COTRN0A": {
+     "TRNIDINI": "9999999999999999"
+    }
+   }
+  },
+  {
+   "name": "select-a-transaction",
+   "aid": "DFHENTER",
+   "commarea": {
+    "CDEMO-FROM-TRANID": "CM00",
+    "CDEMO-FROM-PROGRAM": "COMEN01C",
+    "CDEMO-USER-ID": "USER0001",
+    "CDEMO-USER-TYPE": "U",
+    "CDEMO-PGM-CONTEXT": 1,
+    "CDEMO-CT00-TRNID-FIRST": "0000000000683580",
+    "CDEMO-CT00-TRNID-LAST": "0000000021711604",
+    "CDEMO-CT00-PAGE-NUM": 1,
+    "CDEMO-CT00-NEXT-PAGE-FLG": "Y"
+   },
+   "receive": {
+    "COTRN0A": {
+     "SEL0004I": "S",
+     "TRNID04I": "0000000009101861"
+    }
+   }
+  },
+  {
+   "name": "select-lowercase",
+   "aid": "DFHENTER",
+   "commarea": {
+    "CDEMO-FROM-TRANID": "CM00",
+    "CDEMO-FROM-PROGRAM": "COMEN01C",
+    "CDEMO-USER-ID": "USER0001",
+    "CDEMO-USER-TYPE": "U",
+    "CDEMO-PGM-CONTEXT": 1,
+    "CDEMO-CT00-TRNID-FIRST": "0000000000683580",
+    "CDEMO-CT00-TRNID-LAST": "0000000021711604",
+    "CDEMO-CT00-PAGE-NUM": 1,
+    "CDEMO-CT00-NEXT-PAGE-FLG": "Y"
+   },
+   "receive": {
+    "COTRN0A": {
+     "SEL0010I": "s",
+     "TRNID10I": "0000000021711604"
+    }
+   }
+  },
+  {
+   "name": "select-invalid-action",
+   "aid": "DFHENTER",
+   "commarea": {
+    "CDEMO-FROM-TRANID": "CM00",
+    "CDEMO-FROM-PROGRAM": "COMEN01C",
+    "CDEMO-USER-ID": "USER0001",
+    "CDEMO-USER-TYPE": "U",
+    "CDEMO-PGM-CONTEXT": 1,
+    "CDEMO-CT00-TRNID-FIRST": "0000000000683580",
+    "CDEMO-CT00-TRNID-LAST": "0000000021711604",
+    "CDEMO-CT00-PAGE-NUM": 1,
+    "CDEMO-CT00-NEXT-PAGE-FLG": "Y"
+   },
+   "receive": {
+    "COTRN0A": {
+     "SEL0001I": "U",
+     "TRNID01I": "0000000000683580"
+    }
+   }
+  },
+  {
+   "name": "pf8-next-page",
+   "aid": "DFHPF8",
+   "commarea": {
+    "CDEMO-FROM-TRANID": "CM00",
+    "CDEMO-FROM-PROGRAM": "COMEN01C",
+    "CDEMO-USER-ID": "USER0001",
+    "CDEMO-USER-TYPE": "U",
+    "CDEMO-PGM-CONTEXT": 1,
+    "CDEMO-CT00-TRNID-FIRST": "0000000000683580",
+    "CDEMO-CT00-TRNID-LAST": "0000000021711604",
+    "CDEMO-CT00-PAGE-NUM": 1,
+    "CDEMO-CT00-NEXT-PAGE-FLG": "Y"
+   },
+   "receive": {
+    "COTRN0A": {}
+   }
+  },
+  {
+   "name": "pf8-to-the-last-page",
+   "aid": "DFHPF8",
+   "commarea": {
+    "CDEMO-FROM-TRANID": "CM00",
+    "CDEMO-FROM-PROGRAM": "COMEN01C",
+    "CDEMO-USER-ID": "USER0001",
+    "CDEMO-USER-TYPE": "U",
+    "CDEMO-PGM-CONTEXT": 1,
+    "CDEMO-CT00-TRNID-FIRST": "0000000925687557",
+    "CDEMO-CT00-TRNID-LAST": "0000000957695517",
+    "CDEMO-CT00-PAGE-NUM": 29,
+    "CDEMO-CT00-NEXT-PAGE-FLG": "Y"
+   },
+   "receive": {
+    "COTRN0A": {}
+   }
+  },
+  {
+   "name": "pf8-already-at-bottom",
+   "aid": "DFHPF8",
+   "commarea": {
+    "CDEMO-FROM-TRANID": "CM00",
+    "CDEMO-FROM-PROGRAM": "COMEN01C",
+    "CDEMO-USER-ID": "USER0001",
+    "CDEMO-USER-TYPE": "U",
+    "CDEMO-PGM-CONTEXT": 1,
+    "CDEMO-CT00-TRNID-FIRST": "0000000957864065",
+    "CDEMO-CT00-TRNID-LAST": "0000000996722787",
+    "CDEMO-CT00-PAGE-NUM": 30,
+    "CDEMO-CT00-NEXT-PAGE-FLG": "N"
+   },
+   "receive": {
+    "COTRN0A": {}
+   }
+  },
+  {
+   "name": "pf7-previous-page",
+   "aid": "DFHPF7",
+   "commarea": {
+    "CDEMO-FROM-TRANID": "CM00",
+    "CDEMO-FROM-PROGRAM": "COMEN01C",
+    "CDEMO-USER-ID": "USER0001",
+    "CDEMO-USER-TYPE": "U",
+    "CDEMO-PGM-CONTEXT": 1,
+    "CDEMO-CT00-TRNID-FIRST": "0000000025430891",
+    "CDEMO-CT00-TRNID-LAST": "0000000054727064",
+    "CDEMO-CT00-PAGE-NUM": 2,
+    "CDEMO-CT00-NEXT-PAGE-FLG": "Y"
+   },
+   "receive": {
+    "COTRN0A": {}
+   }
+  },
+  {
+   "name": "pf7-from-the-last-page",
+   "aid": "DFHPF7",
+   "commarea": {
+    "CDEMO-FROM-TRANID": "CM00",
+    "CDEMO-FROM-PROGRAM": "COMEN01C",
+    "CDEMO-USER-ID": "USER0001",
+    "CDEMO-USER-TYPE": "U",
+    "CDEMO-PGM-CONTEXT": 1,
+    "CDEMO-CT00-TRNID-FIRST": "0000000957864065",
+    "CDEMO-CT00-TRNID-LAST": "0000000996722787",
+    "CDEMO-CT00-PAGE-NUM": 30,
+    "CDEMO-CT00-NEXT-PAGE-FLG": "N"
+   },
+   "receive": {
+    "COTRN0A": {}
+   }
+  },
+  {
+   "name": "pf7-already-at-top",
+   "aid": "DFHPF7",
+   "commarea": {
+    "CDEMO-FROM-TRANID": "CM00",
+    "CDEMO-FROM-PROGRAM": "COMEN01C",
+    "CDEMO-USER-ID": "USER0001",
+    "CDEMO-USER-TYPE": "U",
+    "CDEMO-PGM-CONTEXT": 1,
+    "CDEMO-CT00-TRNID-FIRST": "0000000000683580",
+    "CDEMO-CT00-TRNID-LAST": "0000000021711604",
+    "CDEMO-CT00-PAGE-NUM": 1,
+    "CDEMO-CT00-NEXT-PAGE-FLG": "Y"
+   },
+   "receive": {
+    "COTRN0A": {}
+   }
+  },
+  {
+   "name": "pf3-main-menu",
+   "aid": "DFHPF3",
+   "commarea": {
+    "CDEMO-FROM-TRANID": "CM00",
+    "CDEMO-FROM-PROGRAM": "COMEN01C",
+    "CDEMO-USER-ID": "USER0001",
+    "CDEMO-USER-TYPE": "U",
+    "CDEMO-PGM-CONTEXT": 1,
+    "CDEMO-CT00-TRNID-FIRST": "0000000000683580",
+    "CDEMO-CT00-TRNID-LAST": "0000000021711604",
+    "CDEMO-CT00-PAGE-NUM": 1,
+    "CDEMO-CT00-NEXT-PAGE-FLG": "Y"
+   },
+   "receive": {
+    "COTRN0A": {}
+   }
+  },
+  {
+   "name": "invalid-key",
+   "aid": "DFHPF5",
+   "commarea": {
+    "CDEMO-FROM-TRANID": "CM00",
+    "CDEMO-FROM-PROGRAM": "COMEN01C",
+    "CDEMO-USER-ID": "USER0001",
+    "CDEMO-USER-TYPE": "U",
+    "CDEMO-PGM-CONTEXT": 1,
+    "CDEMO-CT00-TRNID-FIRST": "0000000000683580",
+    "CDEMO-CT00-TRNID-LAST": "0000000021711604",
+    "CDEMO-CT00-PAGE-NUM": 1,
+    "CDEMO-CT00-NEXT-PAGE-FLG": "Y"
+   },
+   "receive": {
+    "COTRN0A": {}
+   }
+  },
+  {
+   "name": "startbr-not-open",
+   "aid": "DFHENTER",
+   "commarea": {
+    "CDEMO-FROM-TRANID": "CM00",
+    "CDEMO-FROM-PROGRAM": "COMEN01C",
+    "CDEMO-USER-ID": "USER0001",
+    "CDEMO-USER-TYPE": "U",
+    "CDEMO-PGM-CONTEXT": 1
+   },
+   "receive": {
+    "COTRN0A": {}
+   },
+   "faults": [
+    {
+     "cmd": "STARTBR",
+     "file": "TRANSACT",
+     "resp": "NOTOPEN",
+     "why": "19 on the STARTBR -> 'Unable to lookup transaction...'"
+    }
+   ]
+  },
+  {
+   "name": "readnext-io-error-mid-page",
+   "aid": "DFHENTER",
+   "commarea": {
+    "CDEMO-FROM-TRANID": "CM00",
+    "CDEMO-FROM-PROGRAM": "COMEN01C",
+    "CDEMO-USER-ID": "USER0001",
+    "CDEMO-USER-TYPE": "U",
+    "CDEMO-PGM-CONTEXT": 1
+   },
+   "receive": {
+    "COTRN0A": {}
+   },
+   "faults": [
+    {
+     "cmd": "READNEXT",
+     "file": "TRANSACT",
+     "resp": "IOERR",
+     "why": "17 on the 6th READNEXT",
+     "nth": 6
+    }
+   ]
+  },
+  {
+   "name": "readprev-io-error",
+   "aid": "DFHPF7",
+   "commarea": {
+    "CDEMO-FROM-TRANID": "CM00",
+    "CDEMO-FROM-PROGRAM": "COMEN01C",
+    "CDEMO-USER-ID": "USER0001",
+    "CDEMO-USER-TYPE": "U",
+    "CDEMO-PGM-CONTEXT": 1,
+    "CDEMO-CT00-TRNID-FIRST": "0000000025430891",
+    "CDEMO-CT00-TRNID-LAST": "0000000054727064",
+    "CDEMO-CT00-PAGE-NUM": 2,
+    "CDEMO-CT00-NEXT-PAGE-FLG": "Y"
+   },
+   "receive": {
+    "COTRN0A": {}
+   },
+   "faults": [
+    {
+     "cmd": "READPREV",
+     "file": "TRANSACT",
+     "resp": "IOERR",
+     "why": "17 on the first READPREV"
+    }
+   ]
+  }
+ ],
+ "notes": "CardDemo's transaction list (transaction CT00, program COTRN00C): ten transactions a page browsed from TRANSACT (STARTBR / READNEXT / READPREV / ENDBR, the amount through an edited picture, the date cut from the timestamp), PF8 / PF7 page forward and back, an 'S' beside one XCTLs to the view screen, a search id must be numeric. TRANSACT is loaded from CardDemo's own dailytran.txt (300 transactions, the 350-byte layout POSTTRAN posts into it). Derived from CardDemo (Apache-2.0; Copyright Amazon.com, Inc. or its affiliates): LICENSE and NOTICE here are the source's own."
+}

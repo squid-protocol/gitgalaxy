@@ -40,11 +40,12 @@ from pathlib import Path
 from typing import Any
 from unittest.mock import patch
 
-from gitgalaxy.core.source_text import read_source
-
 REPO_ROOT = Path(__file__).resolve().parents[2]
 if str(REPO_ROOT) not in sys.path:
     sys.path.insert(0, str(REPO_ROOT))
+# After the insert: run as a script, sys.path starts at tests/tools, so an earlier `import gitgalaxy` would load
+# whatever gitgalaxy the interpreter has installed (another checkout's editable install) and snapshot its output.
+from gitgalaxy.core.source_text import read_source  # noqa: E402
 
 MAINFRAME = REPO_ROOT / "tests" / "cobol_mainframe"
 EXCERPTS = MAINFRAME / "refraction_excerpts"

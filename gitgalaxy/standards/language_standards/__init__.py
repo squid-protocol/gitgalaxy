@@ -52,14 +52,14 @@ for the same metrics tracked over time across pushes to main.
 | Php | 100.0% | 99.9% | 100.0% | 100.0% |
 | Powershell | 93.8% | 100.0% | 100.0% | 100.0% |
 | Python | 100.0% | 99.6% | 100.0% | 100.0% |
-| Ruby | 100.0% | 100.0% | 100.0% | 100.0% |
+| Ruby | 98.5% | 100.0% | 100.0% | 100.0% |
 | Rust | 100.0% | 100.0% | 100.0% | 100.0% |
 | Scala | 100.0% | 100.0% | 100.0% | 100.0% |
-| Shell | 99.9% | 98.2% | N/A | N/A |
+| Shell | 99.1% | 98.2% | N/A | N/A |
 | Solidity | 100.0% | 94.3% | 100.0% | 100.0% |
 | Swift | 100.0% | 99.2% | 100.0% | 100.0% |
 | Tcl | 100.0% | 96.6% | N/A | N/A |
-| Typescript | 100.0% | 100.0% | 100.0% | 100.0% |
+| Typescript | 99.6% | 100.0% | 100.0% | 100.0% |
 | Zig | 100.0% | 100.0% | 100.0% | 100.0% |
 <!-- TREE_SITTER_ACCURACY_TABLE:END -->
 """
@@ -88,6 +88,7 @@ from .languages import csv as _csv
 from .languages import dart as _dart
 from .languages import db2_sql as _db2_sql
 from .languages import dockerfile as _dockerfile
+from .languages import easytrieve as _easytrieve
 from .languages import embedded_python as _embedded_python
 from .languages import fortran as _fortran
 from .languages import glsl as _glsl
@@ -213,4 +214,5 @@ LANGUAGE_DEFINITIONS: dict[str, Any] = {
     "hlasm": _hlasm.DEFINITION,
     "rexx": _rexx.DEFINITION,
     "csd": _csd.DEFINITION,
+    "easytrieve": _easytrieve.DEFINITION,
 }

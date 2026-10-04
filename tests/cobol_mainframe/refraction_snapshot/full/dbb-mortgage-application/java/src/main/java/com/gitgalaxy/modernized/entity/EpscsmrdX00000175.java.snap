@@ -1,0 +1,49 @@
+package com.gitgalaxy.modernized.entity;
+
+import lombok.Data;
+import lombok.NoArgsConstructor;
+import jakarta.persistence.*;
+import java.math.BigDecimal;
+
+@Data
+@NoArgsConstructor
+@Entity
+@Table(name = "X00000175")
+public class EpscsmrdX00000175 {
+
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "sys_id")
+    private Long sysId;
+
+    @Column(name = "PROCESS_INDICATOR", length = 1)
+    private String processIndicator;
+
+    @Column(name = "EPSPCOM_PRINCIPLE_DATA", precision = 11, scale = 2)
+    private BigDecimal epspcomPrincipleData;
+
+    @Column(name = "EPSPCOM_NUMBER_OF_YEARS")
+    private Integer epspcomNumberOfYears;
+
+    @Column(name = "EPSPCOM_NUMBER_OF_MONTHS")
+    private Integer epspcomNumberOfMonths;
+
+    @Column(name = "EPSPCOM_QUOTED_INTEREST_RATE", precision = 5, scale = 3)
+    private BigDecimal epspcomQuotedInterestRate;
+
+    @Column(name = "EPSPCOM_YEAR_MONTH_IND", length = 1)
+    private String epspcomYearMonthInd;
+
+    @Column(name = "EPSPCOM_RETURN_MONTH_PAYMENT", precision = 9, scale = 2)
+    private BigDecimal epspcomReturnMonthPayment;
+
+    @Column(name = "EPSPCOM_ERRMSG", length = 80)
+    private String epspcomErrmsg;
+
+    @Column(name = "EPSPCOM_PROGRAM_RETCODE")
+    private Integer epspcomProgramRetcode;
+
+    @Column(name = "EPSPCOM_PROGRAM_RETCODE_RDF", length = 4)
+    private String epspcomProgramRetcodeRdf;
+
+}

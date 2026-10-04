@@ -143,3 +143,18 @@ def test_public_methods_marks_the_todo_bodies():
     assert [(m["signature"], m["todo"]) for m in _public_methods(java)] == [
         ("public void kept(int a)", False), ("public int runBatch(List<Dd> dds, String parm)", True),
         ("public void other()", True)]  # fmt: skip
+
+
+def test_a_ticket_asks_only_for_what_the_proof_runs(generated):
+    """#4255: the generated service's other TODO methods (execute<Program>, the controller's entry points) are not
+    proven; the ticket asks for runBatch and lists the rest as left as generated."""
+    java = generated[0]
+    t = json.loads((java / "ai_agent_jobs/POSTIT_port_ticket.json").read_text())
+    tg = t["target"]
+    assert tg["methods_to_port"] == tg["proof_entry_points"] == ["public int runBatch(List<Dd> dds, String parm)"]
+    assert any(s.startswith("public void executePostit(") for s in tg["left_as_generated"])
+    assert "runBatch ported -- what the proof runs" in t["deliverable"]["return"]
+    assert any("keep no second entry point" in r for r in t["rules"])
+    md = (java / "ai_agent_jobs/POSTIT_port_ticket.md").read_text()
+    assert "The proof runs the port through `public int runBatch(List<Dd> dds, String parm)` only." in md
+    assert "Leave as generated (no proof runs them; port nothing into them):" in md

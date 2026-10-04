@@ -367,12 +367,17 @@ class _Set:
 
     __slots__ = ("_prefix", "by_dir", "by_path", "defs", "n_paths", "owners")
 
-    def __init__(self, defs: list[_Definition]) -> None:
+    def __init__(self, defs: list[_Definition], signatures: tuple[_Definition, ...] = ()) -> None:
         self.defs = defs
         self.by_path: dict[str, _Definition] = {}  # path -> first definition in it
         self.by_dir: dict[str, list[_Definition]] = {}
-        # path -> the distinct owners (classes; None = free) defining the name there
+        # path -> the distinct owners (classes; None = free) defining the name there.
+        # #3836: a class that only DECLARES it (an interface, an `abstract` method)
+        # counts too: a receiver may be that type, so it is one more candidate
+        # class, though never a target itself.
         self.owners: dict[str, set[Optional[str]]] = {}
+        for d in signatures:
+            self.owners.setdefault(d.path, set()).add(d.owner_key)
         for d in defs:
             self.owners.setdefault(d.path, set()).add(d.owner_key)
             if d.path not in self.by_path:
@@ -410,7 +415,7 @@ class _Bucket:
     `all`, `free` (free functions and classes -- what a bare call may reach),
     `methods` (functions with an owner -- what a receiver may reach)."""
 
-    __slots__ = ("_all", "_free", "_methods", "by_owner", "defs")
+    __slots__ = ("_all", "_free", "_methods", "by_owner", "defs", "signatures")
 
     def __init__(self) -> None:
         self.defs: list[_Definition] = []
@@ -418,6 +423,10 @@ class _Bucket:
         # Several: two programs can share a PROGRAM-ID (zopeneditor's SAM1 and
         # SAM1LIB), two packages a class name -- `owned()` picks among them.
         self.by_owner: dict[str, list[_Definition]] = {}
+        # #3836: bodyless declarations of the name on a class (an interface or
+        # `abstract` method): never targets (#3757), but they say the call
+        # dispatches to an override the scan cannot pick
+        self.signatures: list[_Definition] = []
         self._all: Optional[_Set] = None
         self._free: Optional[_Set] = None
         self._methods: Optional[_Set] = None
@@ -446,7 +455,9 @@ class _Bucket:
     @property
     def methods(self) -> _Set:
         if self._methods is None:
-            self._methods = _Set([d for d in self.defs if d.kind == "function" and d.owner_key is not None])
+            self._methods = _Set(
+                [d for d in self.defs if d.kind == "function" and d.owner_key is not None], tuple(self.signatures)
+            )
         return self._methods
 
 
@@ -468,16 +479,31 @@ def _index(parsed_files: list[dict[str, Any]]) -> dict[tuple[str, str], _Bucket]
             if func.get("is_synthetic_slice"):
                 continue
             shape = func.get("def_shape") or None
-            if shape == "signature":
-                # #3757: an interface member, an `abstract` method, an overload
-                # signature -- no code runs there, so no call lands there
-                continue
             name = str(func.get("name") or "")
             leaf, prefix = _leaf(name)
             if not leaf:
                 continue
             owner = func.get("parent_class_name") or prefix
             owner_key = _key(_leaf(owner)[0], lang) if owner else None
+            if shape == "signature":
+                # #3757: an interface member, an `abstract` method, an overload
+                # signature -- no code runs there, so no call lands there. A
+                # class's declaration is kept aside (#3836, see _Bucket.signatures).
+                if owner_key is not None:
+                    index.setdefault((group, _key(leaf, lang)), _Bucket()).signatures.append(
+                        _Definition(
+                            path,
+                            dir_,
+                            parts,
+                            stem,
+                            name,
+                            int(func.get("start_line", 0) or 0),
+                            owner_key,
+                            "function",
+                            shape,
+                        )
+                    )
+                continue
             index.setdefault((group, _key(leaf, lang)), _Bucket()).add(
                 _Definition(
                     path,
@@ -644,13 +670,32 @@ def _nearest_of(defs: list[_Definition], src_parts: tuple[str, ...]) -> Optional
     return None if second_rank == best_rank else best
 
 
+def _alias_scope(target: str, imports: dict[str, set[str]]) -> set[str]:
+    """#3788: the files a namespace alias bound to `target` can reach: the module itself, and
+    what a barrel module (`index.ts`) re-exports, `_BARREL_HOPS` deep (see `_with_reexports`)."""
+    seen = {target}
+    frontier = [target] if posixpath.basename(target) in _BARREL_BASENAMES else []
+    for _ in range(_BARREL_HOPS + 1):
+        nxt = []
+        for barrel in frontier:
+            for d in imports.get(barrel, ()):
+                if d not in seen:
+                    seen.add(d)
+                    if posixpath.basename(d) in _BARREL_BASENAMES:
+                        nxt.append(d)
+        frontier = nxt
+    return seen
+
+
 class _File:
     """What one calling file brings to every lookup made from it."""
 
-    __slots__ = ("dir", "imported", "imported_dirs", "imported_stems", "lang", "parts", "path")
+    __slots__ = ("aliases", "dir", "imported", "imported_dirs", "imported_stems", "lang", "parts", "path")
 
-    def __init__(self, path: str, lang: str, imported: set[str]) -> None:
+    def __init__(self, path: str, lang: str, imported: set[str], aliases: Optional[dict[str, set[str]]] = None) -> None:
         self.path = path
+        # #3788: a namespace alias (`import * as ns from "x"`) -> the files `ns.f()` may reach
+        self.aliases = aliases or {}
         self.lang = lang
         self.dir = _dirname(path)
         self.parts = _parts(self.dir)
@@ -718,6 +763,15 @@ def _visible_receiver(cset: _Set, caller: _File, cache: _Cache) -> tuple[str, Op
     return "receiver", _nearest(cset, caller, cache)
 
 
+def _other_visible_class(cset: _Set, caller: _File) -> bool:
+    """Whether a file the caller sees, other than its own, defines the name on a class."""
+    if any(p in cset.owners for p in caller.imported if p != caller.path):
+        return True
+    if caller.lang in _PACKAGE_DIR_LANGS:
+        return any(d.path != caller.path for d in cset.by_dir.get(caller.dir, []))
+    return False
+
+
 def _ladder(cset: _Set, caller: _File, visible_only: bool, cache: _Cache) -> tuple[str, Optional[_Definition]]:
     """Steps file -> import -> unique -> nearest -> tie over an already-filtered set.
 
@@ -766,15 +820,31 @@ def _resolve_one(
                 return d
         return _nearest_of(defs, caller.parts) or min(defs, key=lambda d: d.path)
 
+    def walk(owners: list[str]) -> Optional[tuple[str, Optional[_Definition]]]:
+        """The caller's lineage, nearest class first: the first class with a body
+        for the name wins (`class`). #3836: a class that only DECLARES it -- an
+        `abstract` method, an interface's -- ends the walk: the call dispatches to
+        an override, which the scan cannot pick, so it is the ambiguous `receiver`
+        step (an implementation as the guess), never a confident link. The
+        caller's own class is checked in its own file, where it is defined."""
+        for i, owner_key in enumerate(owners):
+            d = owned(owner_key)
+            if d is not None and (i or d.path == caller.path):
+                return "class", d
+            if any(s.owner_key == owner_key and (i or s.path == caller.path) for s in bucket.signatures):
+                return "receiver", _ladder(bucket.methods, caller, True, cache)[1]
+            if d is not None:
+                return "class", d
+        return None
+
     ownerless = caller.lang in _OWNERLESS_METHOD_LANGS
 
     if qualifier == "" and bucket.defs and _leaf(bucket.defs[0].name)[0] in _BARE_BUILTINS.get(caller.lang, ()):
         return "none", None  # the built-in (#3401), external like any library call
     if qualifier is None or qualifier == "":
-        for owner_key in lineage:
-            d = owned(owner_key)
-            if d is not None:
-                return "class", d
+        hit = walk(lineage)
+        if hit is not None:
+            return hit
         # A bare call cannot reach another class's method: only a free
         # function, a class (a constructor), or the caller's own lineage,
         # handled above. (Ownerless-method languages keep every candidate.)
@@ -790,10 +860,9 @@ def _resolve_one(
         return step, d
 
     if qualifier in _SELF_RECEIVERS:
-        for owner_key in lineage:
-            d = owned(owner_key)
-            if d is not None:
-                return "class", d
+        hit = walk(lineage)
+        if hit is not None:
+            return hit
         return _ladder(bucket.methods, caller, True, cache)
     if qualifier in _SUPER_RECEIVERS:
         for owner_key in lineage[1:]:
@@ -813,6 +882,13 @@ def _resolve_one(
     d = owned(_key(last, caller.lang))
     if d is not None:
         return "qualified", d
+    if caller.aliases and qualifier in caller.aliases:
+        # #3788: `import * as processors from "./json-schema-processors.js"`: the alias names that
+        # module, whatever the file is called. Only the module itself (and, for a barrel, what it
+        # re-exports) can hold `processors.f`.
+        via = [d for p, d in bucket.all.by_path.items() if p in caller.aliases[qualifier] and d.owner_key is None]
+        if via:
+            return "import", (_nearest_of(via, caller.parts) or min(via, key=lambda d: d.path))
     if head in caller.imported_stems or last in caller.imported_stems or last in caller.imported_dirs:
         via = [
             d
@@ -824,7 +900,15 @@ def _resolve_one(
     # A receiver the engine cannot type: a variable, a call result, an external
     # module. Only a method can answer it (a free function is not reachable
     # through a receiver), and only a visible one confidently.
-    return _ladder(bucket.all if ownerless else bucket.methods, caller, True, cache)
+    cset = bucket.all if ownerless else bucket.methods
+    step, d = _ladder(cset, caller, True, cache)
+    if step == "file" and d is not None and d.owner_key in lineage and _other_visible_class(cset, caller):
+        # #3837: `members.entrySet()` inside JsonObject, which has its own
+        # entrySet. An explicit receiver other than `this` is usually ANOTHER
+        # object: the caller's own class is only one candidate, so with another
+        # visible class defining the name the call is ambiguous, not `file`.
+        return "receiver", d
+    return step, d
 
 
 # #3759: languages where one file holds several bindings of a name only in
@@ -886,8 +970,12 @@ def _choose_overloads(overloads: list[_Definition], arities: list[int]) -> tuple
 def resolve_calls(
     parsed_files: list[dict[str, Any]],
     dependency_edges: Optional[list[dict[str, Any]]] = None,
+    namespace_aliases: Optional[dict[str, dict[str, str]]] = None,
 ) -> tuple[list[dict[str, Any]], dict[str, Any]]:
     """Resolve every (caller function, callee name) pair in the repository.
+
+    `namespace_aliases` (#3788) maps a JS/TS file to the modules its namespace imports
+    name (`{file: {alias: module path}}`), so `ns.f()` reaches the module `ns` is bound to.
 
     Returns `(sites, stats)`:
       - `sites`: one row per distinct callee name per caller (calls_out_to is
@@ -920,7 +1008,12 @@ def resolve_calls(
         src_path = f.get("path", "")
         lang = str(f.get("lang_id", "")).lower()
         group = _group(lang)
-        caller = _File(src_path, lang, imports.get(src_path, set()))
+        caller = _File(
+            src_path,
+            lang,
+            imports.get(src_path, set()),
+            {a: _alias_scope(t, imports) for a, t in (namespace_aliases or {}).get(src_path, {}).items()},
+        )
         lang_counts = by_lang.setdefault(lang, Counter())
         # A module's own receiver types (`app = FastAPI()` at top level) hold in
         # every function of the file that does not bind that name itself.

@@ -1,0 +1,69 @@
+{
+ "format": "cics-crucible-port/1",
+ "case": "ca-link-lengths",
+ "program": "CASUB",
+ "attempt": 1,
+ "backend": "command",
+ "model": "claude-opus-5-5",
+ "command": "claude CLI 2.1.285 print mode (claude -p --model claude-opus-5-5 --effort high --tools '' --strict-mcp-config --mcp-config '{\"mcpServers\":{}}' --no-session-persistence --system-prompt <porting system prompt>, prompt file on stdin, run from an empty directory)",
+ "proposed_at": "2026-09-29T21:46:59+00:00",
+ "ticket_sha256": "2f38157c3c3874dedffc314f9cf99ef075eb55dd8352770734421cf9fd070b8b",
+ "prompt_tokens": 13392,
+ "feedback_from": null,
+ "notes": "Defects of the original kept (behaviour unchanged, documented in the code):\n1. SUB-MAIN line 29: the extension test trusts EIBCALEN rather than the caller's real storage. CALINK\n   line 46 LINKs its 100-byte WS-CA100 with LENGTH(500). EIBCALEN is then 500, so CASUB writes\n   CA-EXT-FLAG and CA-EXT-DATA (offsets 100-499) over 400 bytes of CALINK storage past WS-CA100.\n   One-line fix (CALINK): LINK with LENGTH(LENGTH OF WS-CA100), or pass a 500-byte area.\n2. SUB-MAIN lines 27-28: CA-SEEN-LEN (offset 7-8) and CA-REPLY (offset 29-48) are written whenever\n   EIBCALEN > 0, even when the caller passed fewer than 49 bytes. This overwrites storage past a short\n   COMMAREA. One-line fix: guard those MOVEs with IF EIBCALEN >= LENGTH OF CA-HEAD.\n\nPorting decisions:\n- MOVE EIBCALEN TO CA-SEEN-LEN is ported as a straight copy. Both fields are PIC S9(4) COMP, and the\n  compiler copies the halfword for a same-PICTURE binary move. EIBCALEN is 0-32763, so no value is\n  lost in the halfword.\n  - The one uncertainty is a TRUNC(STD) build, which could cut a value above 9999 to its low 4 digits.\n  - The proven inputs are 0, 100 and 500, so the harness does not exercise this; it is the oracle if\n    it ever differs.\n- EIBCALEN null (the whole record, #4009) is treated as 500, the LENGTH OF DFHCOMMAREA.\n- runTask writes the CATRACE item through task.writeqTs, as the 11 bytes of WS-MSG in EBCDIC (IBM1047).\n  'NO COMMAREA' has the same bytes in CP037.\n- The WRITEQ has no RESP option, so any condition it raised would be CICS's default abend. With a\n  fixed LENGTH(11) this cannot happen, but the abend path is kept.\n- executeCasub has no COMMAREA, so it ports the EIBCALEN = 0 path: it writes 'NO COMMAREA' through the\n  generated writeqTsCatraceL22.\n- handleLink runs the same logic on the passed DTO with EIBCALEN = 500 (the whole record), or the\n  EIBCALEN = 0 path when the request is null.\n\nFacts: no field-tested fact is contradicted by the source. The cics_resources, commarea_contracts and\ninterface facts ('open') match the program: CATRACE is written with LENGTH(11). The inbound LINKs are\nline 42 with 100 bytes, line 46 with 100 bytes of storage but LENGTH(500), and line 50 with none.",
+ "proof": {
+  "at": "2026-09-29T21:58:43+00:00",
+  "crucible_ref": "v0.1.0 (0c942cb8)",
+  "summary": {
+   "long-500": "1/1",
+   "no-commarea": "1/1",
+   "short-100": "1/1"
+  },
+  "sibling_ports": [
+   "CALINK",
+   "CASUB"
+  ],
+  "reproven": [
+   {
+    "at": "2026-10-04T14:20:47+00:00",
+    "crucible_ref": "v0.2.0 (94f2afcb)",
+    "summary": {
+     "long-500": "1/1",
+     "no-commarea": "1/1",
+     "short-100": "1/1"
+    },
+    "port_sha256": "f9f7df2ff9465390588fc45f35de0147d9135d48b91b08717cd76d92b6e5637b",
+    "harness_commit": "16ae9e01515581be224b32982ceae54bc73e68fb",
+    "by": "tests/tools/crucible_port_provenance.py reprove (cics_crucible.py --sides java-ported --program CASUB --report-dir)"
+   }
+  ]
+ },
+ "approved": false,
+ "history": [
+  {
+   "at": "2026-09-29T21:46:59+00:00",
+   "event": "proposed",
+   "attempt": 1
+  },
+  {
+   "at": "2026-09-29T21:48:45+00:00",
+   "event": "proof-failed",
+   "attempt": 1,
+   "summary": {
+    "long-500": "0/1",
+    "no-commarea": "1/1",
+    "short-100": "0/1"
+   }
+  },
+  {
+   "at": "2026-09-29T21:58:43+00:00",
+   "event": "proven",
+   "attempt": 1,
+   "summary": {
+    "long-500": "1/1",
+    "no-commarea": "1/1",
+    "short-100": "1/1"
+   }
+  }
+ ]
+}

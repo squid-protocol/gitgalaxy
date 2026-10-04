@@ -6216,6 +6216,7 @@
           "Value": null
         },
         {
+          "Copy Members": "SQLCA",
           "FD": null,
           "Level": 1,
           "Line": 91,
@@ -6954,6 +6955,7 @@
           "Value": null
         },
         {
+          "Copy Members": "SQLCA",
           "FD": null,
           "Level": 1,
           "Line": 114,
@@ -8220,6 +8222,7 @@
           "Value": null
         },
         {
+          "Copy Members": "SQLCA",
           "FD": null,
           "Level": 1,
           "Line": 126,
@@ -409774,6 +409777,7 @@
           "Value": null
         },
         {
+          "Copy Members": "SQLCA",
           "FD": null,
           "Level": 5,
           "Line": 116,
@@ -411920,7 +411924,7 @@
           "Value": null
         },
         {
-          "Copy Members": "ACCTCTRL",
+          "Copy Members": "ACCTCTRL,CONTDB2",
           "FD": null,
           "Level": 1,
           "Line": 328,
@@ -436994,6 +436998,7 @@
       ],
       "cobol/cics-banking-sample-application-cbsa/CREACC.cbl": [
         {
+          "Copy Members": "ACCDB2",
           "FD": null,
           "Level": 77,
           "Line": 46,
@@ -437506,6 +437511,7 @@
           "Value": null
         },
         {
+          "Copy Members": "PROCDB2",
           "FD": null,
           "Level": 1,
           "Line": 89,
@@ -437730,6 +437736,7 @@
           "Value": null
         },
         {
+          "Copy Members": "SQLCA",
           "FD": null,
           "Level": 3,
           "Line": 113,
@@ -439774,6 +439781,7 @@
       ],
       "cobol/cics-banking-sample-application-cbsa/CRECUST.cbl": [
         {
+          "Copy Members": "PROCDB2",
           "FD": null,
           "Level": 1,
           "Line": 59,
@@ -439934,6 +439942,7 @@
           "Value": null
         },
         {
+          "Copy Members": "SQLCA",
           "FD": null,
           "Level": 3,
           "Line": 76,
@@ -445374,6 +445383,7 @@
       ],
       "cobol/cics-banking-sample-application-cbsa/DBCRFUN.cbl": [
         {
+          "Copy Members": "ACCDB2",
           "FD": null,
           "Level": 77,
           "Line": 52,
@@ -445598,6 +445608,7 @@
           "Value": null
         },
         {
+          "Copy Members": "PROCDB2",
           "FD": null,
           "Level": 3,
           "Line": 73,
@@ -445758,6 +445769,7 @@
           "Value": null
         },
         {
+          "Copy Members": "SQLCA",
           "FD": null,
           "Level": 3,
           "Line": 90,
@@ -446820,6 +446832,7 @@
           "Value": null
         },
         {
+          "Copy Members": "ACCDB2",
           "FD": null,
           "Level": 1,
           "Line": 47,
@@ -447028,6 +447041,7 @@
           "Value": null
         },
         {
+          "Copy Members": "PROCDB2",
           "FD": null,
           "Level": 3,
           "Line": 67,
@@ -447188,6 +447202,7 @@
           "Value": null
         },
         {
+          "Copy Members": "SQLCA",
           "FD": null,
           "Level": 3,
           "Line": 84,
@@ -449422,6 +449437,7 @@
           "Value": null
         },
         {
+          "Copy Members": "PROCDB2",
           "FD": null,
           "Level": 1,
           "Line": 50,
@@ -449582,6 +449598,7 @@
           "Value": null
         },
         {
+          "Copy Members": "SQLCA",
           "FD": null,
           "Level": 3,
           "Line": 68,
@@ -452051,6 +452068,7 @@
           "Value": null
         },
         {
+          "Copy Members": "SQLCA",
           "FD": null,
           "Level": 3,
           "Line": 58,
@@ -454041,6 +454059,7 @@
           "Value": null
         },
         {
+          "Copy Members": "SQLCA",
           "FD": null,
           "Level": 3,
           "Line": 65,
@@ -461517,6 +461536,7 @@
       ],
       "cobol/cics-banking-sample-application-cbsa/UPDACC.cbl": [
         {
+          "Copy Members": "ACCDB2",
           "FD": null,
           "Level": 77,
           "Line": 53,
@@ -461741,6 +461761,7 @@
           "Value": null
         },
         {
+          "Copy Members": "SQLCA",
           "FD": null,
           "Level": 3,
           "Line": 74,
@@ -464347,6 +464368,7 @@
           "Value": null
         },
         {
+          "Copy Members": "PROCDB2",
           "FD": null,
           "Level": 3,
           "Line": 78,
@@ -464507,6 +464529,7 @@
           "Value": null
         },
         {
+          "Copy Members": "SQLCA",
           "FD": null,
           "Level": 3,
           "Line": 95,
@@ -465374,6 +465397,7 @@
           "Value": "PLOP"
         },
         {
+          "Copy Members": "SQLDA",
           "FD": null,
           "Level": 1,
           "Line": 200,
@@ -466935,6 +466959,7 @@
           "Value": null
         },
         {
+          "Copy Members": "SQLCA",
           "FD": null,
           "Level": 3,
           "Line": 101,
@@ -466951,6 +466976,7 @@
           "Value": null
         },
         {
+          "Copy Members": "LGCMAREA",
           "FD": null,
           "Level": 1,
           "Line": 117,
@@ -467434,6 +467460,7 @@
           "Value": null
         },
         {
+          "Copy Members": "SQLCA",
           "FD": null,
           "Level": 3,
           "Line": 79,
@@ -468931,6 +468958,7 @@
           "Value": null
         },
         {
+          "Copy Members": "LGPOLICY",
           "FD": null,
           "Level": 49,
           "Line": 72,
@@ -469395,6 +469423,7 @@
           "Value": null
         },
         {
+          "Copy Members": "SQLCA",
           "FD": null,
           "Level": 1,
           "Line": 119,
@@ -469411,6 +469440,7 @@
           "Value": "LGAPVS01"
         },
         {
+          "Copy Members": "LGCMAREA",
           "FD": null,
           "Level": 1,
           "Line": 134,
@@ -473200,6 +473230,7 @@
           "Value": null
         },
         {
+          "Copy Members": "SQLCA",
           "FD": null,
           "Level": 3,
           "Line": 83,
@@ -473216,6 +473247,7 @@
           "Value": null
         },
         {
+          "Copy Members": "LGCMAREA",
           "FD": null,
           "Level": 1,
           "Line": 99,
@@ -474632,7 +474664,7 @@
           "Value": null
         },
         {
-          "Copy Members": "LGPOLICY",
+          "Copy Members": "LGPOLICY,SQLCA",
           "FD": null,
           "Level": 3,
           "Line": 72,
@@ -474649,6 +474681,7 @@
           "Value": null
         },
         {
+          "Copy Members": "LGCMAREA",
           "FD": null,
           "Level": 1,
           "Line": 91,
@@ -476961,6 +476994,7 @@
           "Value": null
         },
         {
+          "Copy Members": "LGPOLICY",
           "FD": null,
           "Level": 3,
           "Line": 192,
@@ -477057,6 +477091,7 @@
           "Value": null
         },
         {
+          "Copy Members": "LGCMAREA",
           "FD": null,
           "Level": 1,
           "Line": 217,
@@ -482323,6 +482358,7 @@
           "Value": "SPACES"
         },
         {
+          "Copy Members": "LGPOLICY,SQLCA",
           "FD": null,
           "Level": 77,
           "Line": 72,
@@ -482339,6 +482375,7 @@
           "Value": "LGUCVS01"
         },
         {
+          "Copy Members": "LGCMAREA",
           "FD": null,
           "Level": 1,
           "Line": 89,
@@ -483995,6 +484032,7 @@
           "Value": null
         },
         {
+          "Copy Members": "LGPOLICY",
           "FD": null,
           "Level": 3,
           "Line": 98,
@@ -484059,6 +484097,7 @@
           "Value": null
         },
         {
+          "Copy Members": "SQLCA",
           "FD": null,
           "Level": 77,
           "Line": 112,
@@ -484075,6 +484114,7 @@
           "Value": "LGUPVS01"
         },
         {
+          "Copy Members": "LGCMAREA",
           "FD": null,
           "Level": 1,
           "Line": 150,
@@ -501506,6 +501546,7 @@
           "Value": "Y"
         },
         {
+          "Copy Members": "SQLCA",
           "FD": null,
           "Level": 88,
           "Line": 51,
@@ -501956,6 +501997,7 @@
           "Value": "Y"
         },
         {
+          "Copy Members": "SQLCA",
           "FD": null,
           "Level": 88,
           "Line": 48,

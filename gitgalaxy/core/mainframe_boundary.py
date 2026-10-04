@@ -491,12 +491,16 @@ _NUMERIC_BAREWORD = re.compile(r"[+-]?[0-9]{0,31}")
 # member is recorded on the entry it follows (`copy_members`); expanding it is the
 # reader's job (galaxy_ir), exactly as for every other cross-file layout. Quotes
 # and a trailing `OF/IN library` are allowed; the member name is what is kept.
+# #4278: `EXEC SQL INCLUDE member END-EXEC` expands a member in place exactly as
+# COPY does (carddemo COTRTLIC.cbl:304 `EXEC SQL INCLUDE CSDB2RWY END-EXEC`, GenApp
+# `01 DFHCOMMAREA.` + `EXEC SQL INCLUDE LGCMAREA END-EXEC.`), so it is recorded the
+# same way.
 _COPY_IN_ENTRY = re.compile(
     r"(?<![A-Z"
     + NATIONAL
     + WIDE_DIGITS
     + WIDE_HYPHENS
-    + r"0-9-])COPY[ \t\n\u3000]+['\"]?([A-Z"
+    + r"0-9-])(?:COPY|EXEC[ \t\n\u3000]+SQL[ \t\n\u3000]+INCLUDE)[ \t\n\u3000]+['\"]?([A-Z"
     + NATIONAL
     + WIDE_DIGITS
     + r"0-9@#$][A-Z"

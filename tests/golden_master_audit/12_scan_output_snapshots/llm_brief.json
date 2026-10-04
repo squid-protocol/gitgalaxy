@@ -1460,7 +1460,7 @@
     "",
     "*(+735 more files with mainframe facts; full detail in `record_data`/`call_site_data`/`dataset_data`.)*",
     "",
-    "- **Mainframe skeleton completeness:** 64% (mean channel ratio; channel table in the audit report, section 7). Top missing inputs: JCL and PROC libraries (258 gaps); application programs (source or load-module list) (223 gaps); scheduler export (CA-7 / Control-M / TWS) (120 gaps).",
+    "- **Mainframe skeleton completeness:** 65% (mean channel ratio; channel table in the audit report, section 7). Top missing inputs: JCL and PROC libraries (258 gaps); application programs (source or load-module list) (223 gaps); scheduler export (CA-7 / Control-M / TWS) (120 gaps).",
     "",
     "## 14. PROJECT IDIOM WRAPPERS (Hidden Literal Vocabulary)",
     "> **AI CONTEXT:** Project-local helpers that wrap a literal primitive (print, abort, allocation). Their call sites are NOT in the literal signal counts above -- read a low `debug_prints`/`panics_and_aborts`/`memory_alloc` count together with this list. Full detail in `wrapper_data`.",

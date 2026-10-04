@@ -963,12 +963,19 @@ def _translate(program: Path, copy_dirs: list[Path], stub: str, package: str, es
         f"        return Cobol.num({gen.ids[id(rc)]}, CS).intValue();",
         "    }",
         "",
-        f"    public void execute{service[: -len('Service')]}() {{",
-        "        runBatch(List.of(), null);"
-        if batch
-        else "        // a CICS / CALLed program: see runTask / handleCall",
-        "    }",
-        "",
+        # #4342: executeX only for a batch program, where it runs the step (no DD overrides, no PARM) and returns its
+        # RETURN-CODE; a CICS / CALLed program has no batch form, so it gets none
+        *(
+            [
+                "    /** The program run as a batch step with no DD overrides and no PARM; its RETURN-CODE. */",
+                f"    public int execute{service[: -len('Service')]}() {{",
+                "        return runBatch(List.of(), null);",
+                "    }",
+                "",
+            ]
+            if batch
+            else []
+        ),
         *call_entry,
         *cics_entry,
         "",

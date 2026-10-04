@@ -9,7 +9,6 @@ import com.gitgalaxy.modernized.call.CobolRef;
 import com.gitgalaxy.modernized.cics.CicsTask;
 import com.gitgalaxy.modernized.dto.contract.CarddemoCommarea;
 import com.gitgalaxy.modernized.dto.screen.Corpt0aScreen;
-import com.gitgalaxy.modernized.dto.screen.ScreenModel;
 import com.gitgalaxy.modernized.entity.vsam.CobolRecords;
 import com.gitgalaxy.modernized.messaging.TransientData;
 import com.gitgalaxy.modernized.util.CobolCompare;
@@ -18,7 +17,6 @@ import java.math.BigInteger;
 import java.math.RoundingMode;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.util.Locale;
 import java.util.Optional;
 import org.springframework.beans.factory.ObjectProvider;
 import org.springframework.transaction.annotation.Transactional;
@@ -45,8 +43,6 @@ public class Corpt00cService {
     private static final String MSG_INVALID_KEY = "Invalid key pressed. Please see below..."; // CCDA-MSG-INVALID-KEY
 
     private final ObjectProvider<CsutldtcService> csutldtcService;
-    private final ObjectProvider<Comen01cService> comen01cService;
-    private final ObjectProvider<Cosgn00cService> cosgn00cService;
     private final TransientData transientData;
 
     /** The program's working storage for one task. */
@@ -71,11 +67,6 @@ public class Corpt00cService {
         String endDate() {
             return eY + "-" + eM + "-" + eD;
         }
-    }
-
-    public void executeCorpt00c(/* Parameters mapped from Controller */) {
-        log.info("Executing modernized business logic for CORPT00C");
-        // CORPT00C is a pseudo-conversational CICS program: its whole PROCEDURE DIVISION is ported in runTask.
     }
 
     /** A CICS transaction entered the program. TODO: [AI AGENT] implement from the program's business rules. */
@@ -392,7 +383,7 @@ public class Corpt00cService {
         ca.setCdemoFromTranid(TRANID);
         ca.setCdemoFromProgram(PGMNAME);
         ca.setCdemoPgmContext(0);
-        String resp = task.xctl(ca.getCdemoToProgram().strip(), ca);
+        String resp = dispatchCdemoToProgramL548(task, ca.getCdemoToProgram(), ca);   // line 548
         if (!"NORMAL".equals(resp)) {
             task.abendOnCondition(resp);                        // no RESP on the XCTL: default action abends
         }
@@ -608,33 +599,13 @@ public class Corpt00cService {
         return csutldtcService.getObject().handleCall(lsDate, lsDateFormat, lsResult);
     }
 
-    /** XCTL PROGRAM(CDEMO-TO-PROGRAM) at app/cbl/CORPT00C.cbl:548: the target is data-driven. Candidates: COMEN01C (moves), COSGN00C (moves).
+    /** EXEC CICS XCTL PROGRAM(CDEMO-TO-PROGRAM) at app/cbl/CORPT00C.cbl:548, COMMAREA(CARDDEMO-COMMAREA): the target is data-driven (candidates the engine found: COMEN01C (moves), COSGN00C (moves)).
+     *  CICS resolves the name when the command runs (#4342): `program` is the PROGRAM field as the
+     *  COBOL holds it, its trailing blanks the name's padding. Returns the command's condition
+     *  (NORMAL, PGMIDERR, ...).
      *  Dynamic call targets field testing: open (5 public / 0 private estates). */
-    public Object dispatchCdemoToProgramL548(String program, Object request) {
-        switch (program.trim().toUpperCase(Locale.ROOT)) {
-            case "COMEN01C":
-                return comen01cService.getObject().handleLink((CarddemoCommarea) request);
-            case "COSGN00C":
-                cosgn00cService.getObject().handleLink();
-                return null;
-            default:
-                throw new IllegalArgumentException("XCTL PROGRAM(CDEMO-TO-PROGRAM) at app/cbl/CORPT00C.cbl:548: no known target " + program);
-        }
-    }
-
-    /** SEND MAP(CORPT0A) MAPSET(CORPT00) FROM(CORPT0AO) at app/cbl/CORPT00C.cbl:563, app/cbl/CORPT00C.cbl:571 (#3619).
-     *  The screen is filled in runTask (SEND-TRNRPT-SCREEN / POPULATE-HEADER-INFO).
-     *  BMS screen fields field testing: open (3 public / 0 private estates). */
-    public Corpt0aScreen renderCorpt0a(Corpt0aScreen screen) {
-        return screen;
-    }
-
-    /** RECEIVE MAP(CORPT0A) MAPSET(CORPT00) INTO(CORPT0AI) at app/cbl/CORPT00C.cbl:598 (#3619).
-     *  `aid` is the key the user pressed (EIBAID): ENTER, PF1-PF24, CLEAR, PA1-PA3.
-     *  The logic after the RECEIVE is ported in runTask.
-     *  BMS screen fields field testing: open (3 public / 0 private estates). */
-    public ScreenModel submitCorpt0a(Corpt0aScreen input, String aid) {
-        return renderCorpt0a(input);
+    public String dispatchCdemoToProgramL548(CicsTask task, String program, Object commarea) {
+        return task.xctl(program.stripTrailing(), commarea);
     }
 
     /** EXEC CICS WRITEQ TD QUEUE('JOBS') FROM(JCL-RECORD) at app/cbl/CORPT00C.cbl:517 (#3620).
@@ -648,5 +619,4 @@ public class Corpt00cService {
     /** Job submission at line 517 (#3622). TODO: this program submits job TRNRPT00 through the internal reader, which runs PROC TRANREPT (app/proc/TRANREPT.prc): no generated job matches -- launch its steps. */
     protected void submitTrnrpt00L517() {
     }
-
 }

@@ -100,17 +100,30 @@ def generate_service_skeleton(
             java.append(f"    // TODO: AI AGENT - Implement or mock interface call to: {call_camel}Service")
         java.append("")
 
-    java.append(f"    public void execute{camel_prog}(/* Parameters mapped from Controller */) {{")
-    java.append(f'        log.info("Executing modernized business logic for {prog_id}");')
-    java.append("        // TODO: [AI AGENT] Implement extracted business rules here.")
-    if extras.get("methods"):
-        java.append("    }\n")
-        java.extend(extras["methods"])
+    # #4342: the generic executeX only for a program no skeleton forge gives an entry to. A batch program's executeX
+    # runs its runBatch (the batch forge writes it); a CICS program (runTask) or a CALLed one (handleCall) has no
+    # batch form, so a method here would be an entry with no COBOL behaviour behind it.
+    if has_generic_execute(extras):
+        java.append(f"    public void execute{camel_prog}(/* Parameters mapped from Controller */) {{")
+        java.append(f'        log.info("Executing modernized business logic for {prog_id}");')
+        java.append("        // TODO: [AI AGENT] Implement extracted business rules here.")
+        java.append("    }\n" if extras.get("methods") else "    }\n}")
+    if extras.get("methods") or not has_generic_execute(extras):
+        java.extend(extras.get("methods", []))
         java.append("}")
-    else:
-        java.append("    }\n}")
 
     return "\n".join(java)
+
+
+def has_generic_execute(extras: Optional[dict]) -> bool:
+    """#4342: whether the service gets the generic executeX: no skeleton forge gave the program an entry."""
+    return not (extras or {}).get("entry")
+
+
+def has_execute(extras: Optional[dict]) -> bool:
+    """#4342: whether the service has an executeX for the generic REST controller to call: the generic one, or a
+    batch program's (which runs runBatch)."""
+    return has_generic_execute(extras) or (extras or {}).get("entry") == "batch"
 
 
 def main():

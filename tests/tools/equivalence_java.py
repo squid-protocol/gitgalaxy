@@ -87,8 +87,9 @@ def _clock(case: dict[str, Any]) -> str:
 def entry_names(case: dict[str, Any]) -> list[str]:
     """#4048 follow-up: the case's `entries` -- each a no-argument method of the service (a controller's entry,
     executeX) that runs the whole step. Each is an entry run: the step once more through that method instead of
-    runBatch, compared with the same COBOL run, every output and the RETURN-CODE (0 when the method returns
-    normally, since it returns none). The method passes no PARM, so a case with one cannot have entries."""
+    runBatch, compared with the same COBOL run, every output and the RETURN-CODE: the one the method returns (#4342:
+    the generated executeX returns runBatch's), or 0 when it returns normally and is void. The method passes no PARM,
+    so a case with one cannot have entries."""
     names = [e["method"] for e in case.get("entries", [])]
     if names and case.get("parm") is not None:
         raise SystemExit(f"{case['name']}: an entry method passes no PARM, so it is not the step the COBOL ran "
@@ -97,6 +98,13 @@ def entry_names(case: dict[str, Any]) -> list[str]:
     if bad:
         raise SystemExit(f"{case['name']}: entries {bad} are not Java method names")
     return names
+
+
+def _entry_returns(case: dict[str, Any], svc: str) -> dict[str, str]:
+    """#4342: each entry method's declared return type (int: its RETURN-CODE), read from the case's port."""
+    src = CASES / case.get("port_from", case["name"]) / "port" / "service" / f"{svc}.java"
+    text = src.read_text(encoding="utf-8") if src.is_file() else ""
+    return {m.group(2): m.group(1) for m in re.finditer(r"public\s+(int|void)\s+([a-z]\w*)\s*\(\s*\)", text)}
 
 
 def equivalence_test(case: dict[str, Any]) -> str:
@@ -126,14 +134,18 @@ def equivalence_test(case: dict[str, Any]) -> str:
     )
     entry_call = f"            rc = {var}.runBatch(List.of({dds}), {parm});\n"
     if case.get("entries"):  # an entry run (equivalence.entry): the step through the program's no-argument method
-        arms = "".join(f'                case "{e}" -> {var}.{e}();\n' for e in entry_names(case))
+        returns = _entry_returns(case, svc)
+        arms = "".join(f'                case "{e}" -> rc = {var}.{e}();\n' if returns.get(e) == "int"
+                       # a void method returned normally: the step ends RETURN-CODE 0 (it returns none)
+                       else f'                case "{e}" -> {{\n                    {var}.{e}();\n'
+                            "                    rc = 0;\n                }\n"
+                       for e in entry_names(case))  # fmt: skip
         entry_call = (
             '            String entry = System.getProperty("equivalence.entry", "");\n'
             "            if (entry.isEmpty()) {\n    " + entry_call + "            } else {\n"
             "                switch (entry) {\n" + arms
             + '                    default -> throw new IllegalStateException("no entry " + entry);\n'
             "                }\n"
-            "                rc = 0;  // the method returned normally: the step ends RETURN-CODE 0 (it returns none)\n"
             "            }\n"
         )
     return f"""package {PKG};

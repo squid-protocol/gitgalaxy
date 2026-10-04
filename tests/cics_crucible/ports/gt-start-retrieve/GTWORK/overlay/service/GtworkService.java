@@ -38,20 +38,6 @@ public class GtworkService {
     private static final int DFHRESP_NORMAL = 0;
     private static final int DFHRESP_LENGERR = 22;
 
-    public void executeGtwork(/* Parameters mapped from Controller */) {
-        log.info("Executing modernized business logic for GTWORK");
-        // GTWORK is the GT02 background task, started only by START (GTSTART). A call from the controller is
-        // not a START-initiated task, so it has no START data: its first RETRIEVE answers ENDDATA (as
-        // CicsTask.retrieve does for a task no START started). The one WS-LOG record the program then
-        // writes goes to the region's TS queue GTLOG through the generated WRITEQ TS (line 41) helper.
-        mainPara(maxLength -> new CicsTask.RetrieveResult("ENDDATA", -1, null),
-                wsLog -> {
-                    writeqTsGtlogL41(new String(wsLog, EBCDIC));
-                    return true;
-                });
-        // EXEC CICS RETURN END-EXEC (line 45): the program ends.
-    }
-
     /** A CICS transaction entered the program. TODO: [AI AGENT] implement from the program's business rules. */
     public void handleTransaction(String transid) {
         log.info("Gtwork: handleTransaction");

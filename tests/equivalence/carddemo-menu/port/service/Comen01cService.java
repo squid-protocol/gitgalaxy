@@ -6,23 +6,11 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import com.gitgalaxy.modernized.cics.CicsTask;
 import com.gitgalaxy.modernized.dto.contract.CarddemoCommarea;
-import com.gitgalaxy.modernized.dto.contract.CoactupcCommarea;
-import com.gitgalaxy.modernized.dto.contract.CoactvwcCommarea;
-import com.gitgalaxy.modernized.dto.contract.Cobil00cCarddemoCommarea;
-import com.gitgalaxy.modernized.dto.contract.CocrdlicCommarea;
-import com.gitgalaxy.modernized.dto.contract.CocrdslcCommarea;
-import com.gitgalaxy.modernized.dto.contract.CocrdupcCommarea;
-import com.gitgalaxy.modernized.dto.contract.Copaus0cCarddemoCommarea;
-import com.gitgalaxy.modernized.dto.contract.Cotrn00cCarddemoCommarea;
-import com.gitgalaxy.modernized.dto.contract.Cotrn01cCarddemoCommarea;
-import com.gitgalaxy.modernized.dto.contract.Cotrn02cCarddemoCommarea;
 import com.gitgalaxy.modernized.dto.screen.Comen1aScreen;
-import com.gitgalaxy.modernized.dto.screen.ScreenModel;
 import com.gitgalaxy.modernized.util.CobolCompare;
 import java.time.LocalDateTime;
 import java.util.Locale;
 import java.util.Optional;
-import org.springframework.beans.factory.ObjectProvider;
 import org.springframework.transaction.annotation.Transactional;
 
 /**
@@ -65,23 +53,6 @@ public class Comen01cService {
         "CORPT00C", "COBIL00C", "COPAUS0C"};
     private static final String[] OPT_USRTYPE = {"U", "U", "U", "U", "U", "U", "U", "U", "U", "U", "U"};
 
-    private final ObjectProvider<CoactupcService> coactupcService;
-    private final ObjectProvider<CoactvwcService> coactvwcService;
-    private final ObjectProvider<Cobil00cService> cobil00cService;
-    private final ObjectProvider<CocrdlicService> cocrdlicService;
-    private final ObjectProvider<CocrdslcService> cocrdslcService;
-    private final ObjectProvider<CocrdupcService> cocrdupcService;
-    private final ObjectProvider<Copaus0cService> copaus0cService;
-    private final ObjectProvider<Corpt00cService> corpt00cService;
-    private final ObjectProvider<Cotrn00cService> cotrn00cService;
-    private final ObjectProvider<Cotrn01cService> cotrn01cService;
-    private final ObjectProvider<Cotrn02cService> cotrn02cService;
-    private final ObjectProvider<Cosgn00cService> cosgn00cService;
-
-    /** COMEN01C is a CICS program: its whole PROCEDURE DIVISION is ported in {@link #runTask(CicsTask)}. */
-    public void executeComen01c(/* Parameters mapped from Controller */) {
-        log.info("Executing modernized business logic for COMEN01C");
-    }
 
     /** A CICS transaction entered the program. TODO: [AI AGENT] implement from the program's business rules. */
     public CarddemoCommarea handleTransaction(String transid, CarddemoCommarea request) {
@@ -100,92 +71,31 @@ public class Comen01cService {
         return request;
     }
 
-    /** XCTL PROGRAM(CDEMO-MENU-OPT-PGMNAME) at app/cbl/COMEN01C.cbl:156: the target is data-driven. Candidates: COACTUPC (table), COACTVWC (table), COBIL00C (table), COCRDLIC (table), COCRDSLC (table), COCRDUPC (table), COPAUS0C (table), CORPT00C (table), COTRN00C (table), COTRN01C (table), COTRN02C (table).
+    /** EXEC CICS XCTL PROGRAM(CDEMO-MENU-OPT-PGMNAME) at app/cbl/COMEN01C.cbl:156, COMMAREA(CARDDEMO-COMMAREA): the target is data-driven (candidates the engine found: COACTUPC (table), COACTVWC (table), COBIL00C (table), COCRDLIC (table), COCRDSLC (table), COCRDUPC (table), COPAUS0C (table), CORPT00C (table), COTRN00C (table), COTRN01C (table), COTRN02C (table)).
+     *  CICS resolves the name when the command runs (#4342): `program` is the PROGRAM field as the
+     *  COBOL holds it, its trailing blanks the name's padding. Returns the command's condition
+     *  (NORMAL, PGMIDERR, ...).
      *  Dynamic call targets field testing: open (5 public / 0 private estates). */
-    public Object dispatchCdemoMenuOptPgmnameL156(String program, Object request) {
-        switch (program.trim().toUpperCase(Locale.ROOT)) {
-            case "COACTUPC":
-                return coactupcService.getObject().handleLink(CoactupcCommarea.fromPrefix((CarddemoCommarea) request));
-            case "COACTVWC":
-                return coactvwcService.getObject().handleLink(CoactvwcCommarea.fromPrefix((CarddemoCommarea) request));
-            case "COBIL00C":
-                return cobil00cService.getObject().handleLink((Cobil00cCarddemoCommarea) request);
-            case "COCRDLIC":
-                return cocrdlicService.getObject().handleLink(CocrdlicCommarea.fromPrefix((CarddemoCommarea) request));
-            case "COCRDSLC":
-                return cocrdslcService.getObject().handleLink(CocrdslcCommarea.fromPrefix((CarddemoCommarea) request));
-            case "COCRDUPC":
-                return cocrdupcService.getObject().handleLink(CocrdupcCommarea.fromPrefix((CarddemoCommarea) request));
-            case "COPAUS0C":
-                return copaus0cService.getObject().handleLink((Copaus0cCarddemoCommarea) request);
-            case "CORPT00C":
-                return corpt00cService.getObject().handleLink((CarddemoCommarea) request);
-            case "COTRN00C":
-                return cotrn00cService.getObject().handleLink((Cotrn00cCarddemoCommarea) request);
-            case "COTRN01C":
-                return cotrn01cService.getObject().handleLink((Cotrn01cCarddemoCommarea) request);
-            case "COTRN02C":
-                return cotrn02cService.getObject().handleLink((Cotrn02cCarddemoCommarea) request);
-            default:
-                throw new IllegalArgumentException("XCTL PROGRAM(CDEMO-MENU-OPT-PGMNAME) at app/cbl/COMEN01C.cbl:156: no known target " + program);
-        }
+    public String dispatchCdemoMenuOptPgmnameL156(CicsTask task, String program, Object commarea) {
+        return task.xctl(program.stripTrailing(), commarea);
     }
 
-    /** XCTL PROGRAM(CDEMO-MENU-OPT-PGMNAME) at app/cbl/COMEN01C.cbl:184: the target is data-driven. Candidates: COACTUPC (table), COACTVWC (table), COBIL00C (table), COCRDLIC (table), COCRDSLC (table), COCRDUPC (table), COPAUS0C (table), CORPT00C (table), COTRN00C (table), COTRN01C (table), COTRN02C (table).
+    /** EXEC CICS XCTL PROGRAM(CDEMO-MENU-OPT-PGMNAME) at app/cbl/COMEN01C.cbl:184, COMMAREA(CARDDEMO-COMMAREA): the target is data-driven (candidates the engine found: COACTUPC (table), COACTVWC (table), COBIL00C (table), COCRDLIC (table), COCRDSLC (table), COCRDUPC (table), COPAUS0C (table), CORPT00C (table), COTRN00C (table), COTRN01C (table), COTRN02C (table)).
+     *  CICS resolves the name when the command runs (#4342): `program` is the PROGRAM field as the
+     *  COBOL holds it, its trailing blanks the name's padding. Returns the command's condition
+     *  (NORMAL, PGMIDERR, ...).
      *  Dynamic call targets field testing: open (5 public / 0 private estates). */
-    public Object dispatchCdemoMenuOptPgmnameL184(String program, Object request) {
-        switch (program.trim().toUpperCase(Locale.ROOT)) {
-            case "COACTUPC":
-                return coactupcService.getObject().handleLink(CoactupcCommarea.fromPrefix((CarddemoCommarea) request));
-            case "COACTVWC":
-                return coactvwcService.getObject().handleLink(CoactvwcCommarea.fromPrefix((CarddemoCommarea) request));
-            case "COBIL00C":
-                return cobil00cService.getObject().handleLink((Cobil00cCarddemoCommarea) request);
-            case "COCRDLIC":
-                return cocrdlicService.getObject().handleLink(CocrdlicCommarea.fromPrefix((CarddemoCommarea) request));
-            case "COCRDSLC":
-                return cocrdslcService.getObject().handleLink(CocrdslcCommarea.fromPrefix((CarddemoCommarea) request));
-            case "COCRDUPC":
-                return cocrdupcService.getObject().handleLink(CocrdupcCommarea.fromPrefix((CarddemoCommarea) request));
-            case "COPAUS0C":
-                return copaus0cService.getObject().handleLink((Copaus0cCarddemoCommarea) request);
-            case "CORPT00C":
-                return corpt00cService.getObject().handleLink((CarddemoCommarea) request);
-            case "COTRN00C":
-                return cotrn00cService.getObject().handleLink((Cotrn00cCarddemoCommarea) request);
-            case "COTRN01C":
-                return cotrn01cService.getObject().handleLink((Cotrn01cCarddemoCommarea) request);
-            case "COTRN02C":
-                return cotrn02cService.getObject().handleLink((Cotrn02cCarddemoCommarea) request);
-            default:
-                throw new IllegalArgumentException("XCTL PROGRAM(CDEMO-MENU-OPT-PGMNAME) at app/cbl/COMEN01C.cbl:184: no known target " + program);
-        }
+    public String dispatchCdemoMenuOptPgmnameL184(CicsTask task, String program, Object commarea) {
+        return task.xctl(program.stripTrailing(), commarea);
     }
 
-    /** XCTL PROGRAM(CDEMO-TO-PROGRAM) at app/cbl/COMEN01C.cbl:201: the target is data-driven. Candidates: COSGN00C (moves).
+    /** EXEC CICS XCTL PROGRAM(CDEMO-TO-PROGRAM) at app/cbl/COMEN01C.cbl:201, no COMMAREA: the target is data-driven (candidates the engine found: COSGN00C (moves)).
+     *  CICS resolves the name when the command runs (#4342): `program` is the PROGRAM field as the
+     *  COBOL holds it, its trailing blanks the name's padding. Returns the command's condition
+     *  (NORMAL, PGMIDERR, ...).
      *  Dynamic call targets field testing: open (5 public / 0 private estates). */
-    public Object dispatchCdemoToProgramL201(String program, Object request) {
-        switch (program.trim().toUpperCase(Locale.ROOT)) {
-            case "COSGN00C":
-                cosgn00cService.getObject().handleLink();
-                return null;
-            default:
-                throw new IllegalArgumentException("XCTL PROGRAM(CDEMO-TO-PROGRAM) at app/cbl/COMEN01C.cbl:201: no known target " + program);
-        }
-    }
-
-    /** SEND MAP(COMEN1A) MAPSET(COMEN01) FROM(COMEN1AO) at app/cbl/COMEN01C.cbl:215 (#3619).
-     *  Ported in runTask (SEND-MENU-SCREEN); the web view model is not used by the harness.
-     *  BMS screen fields field testing: open (3 public / 0 private estates). */
-    public Comen1aScreen renderComen1a(Comen1aScreen screen) {
-        return screen;
-    }
-
-    /** RECEIVE MAP(COMEN1A) MAPSET(COMEN01) INTO(COMEN1AI) at app/cbl/COMEN01C.cbl:227 (#3619).
-     *  Ported in runTask (RECEIVE-MENU-SCREEN / PROCESS-ENTER-KEY).
-     *  BMS screen fields field testing: open (3 public / 0 private estates). */
-    public ScreenModel submitComen1a(Comen1aScreen input, String aid) {
-        return renderComen1a(input);
+    public String dispatchCdemoToProgramL201(CicsTask task, String program) {
+        return task.xctl(program.stripTrailing(), null);
     }
 
     // ------------------------------------------------------------------------------------------
@@ -227,7 +137,7 @@ public class Comen01cService {
     }
 
     /** The working storage of one task (COBOL WORKING-STORAGE is fresh per task). */
-    private static final class Run {
+    private final class Run {
         private final CicsTask task;
         private CarddemoCommarea commarea = new CarddemoCommarea();   // CARDDEMO-COMMAREA
         // COMEN1AI / COMEN1AO share storage (REDEFINES): one screen object is both. Initial storage is spaces.
@@ -384,7 +294,7 @@ public class Comen01cService {
                         commarea.setCdemoFromTranid(WS_TRANID);
                         commarea.setCdemoFromProgram(pad(WS_PGMNAME, 8));
                         commarea.setCdemoPgmContext(0);
-                        xctl(pgm, commarea);                           // XCTL ... COMMAREA(CARDDEMO-COMMAREA)
+                        xctl(dispatchCdemoMenuOptPgmnameL156(task, pgm, commarea));   // XCTL ... COMMAREA, line 156
                         return;
                     }
                     wsMessage = pad("", 80);
@@ -404,7 +314,7 @@ public class Comen01cService {
                     // DEFECT (kept): MOVE WS-PGMNAME TO CDEMO-FROM-PROGRAM is coded twice (lines 179-180);
                     // the repeat is harmless. Fix: delete line 180.
                     commarea.setCdemoPgmContext(0);
-                    xctl(pgm, commarea);
+                    xctl(dispatchCdemoMenuOptPgmnameL184(task, pgm, commarea));   // line 184
                     return;
                 }
                 sendMenuScreen();
@@ -417,12 +327,12 @@ public class Comen01cService {
             if (CobolCompare.eq(to, lowValues(8)) || CobolCompare.eq(to, " ")) {
                 commarea.setCdemoToProgram("COSGN00C");
             }
-            xctl(commarea.getCdemoToProgram(), null);                  // XCTL PROGRAM(CDEMO-TO-PROGRAM)
+            xctl(dispatchCdemoToProgramL201(task, commarea.getCdemoToProgram()));   // XCTL PROGRAM(CDEMO-TO-PROGRAM), line 201
         }
 
-        /** XCTL: on success the task ends; a failure (PGMIDERR) is unhandled, so CICS abends the task. */
-        private void xctl(String program, Object comm) {
-            String resp = task.xctl(program.stripTrailing(), comm);
+        /** After an XCTL (its condition): on success the task ends; a failure (PGMIDERR) is unhandled, so CICS abends
+         *  the task. */
+        private void xctl(String resp) {
             if (!"NORMAL".equals(resp)) {
                 task.abendOnCondition(resp);
             }

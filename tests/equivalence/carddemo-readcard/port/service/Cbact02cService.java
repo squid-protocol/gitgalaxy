@@ -33,9 +33,10 @@ public class Cbact02cService {
         Iterator<CardRecord> cursor;          // sequential position in CARDFILE-FILE
     }
 
-    public void executeCbact02c(/* Parameters mapped from Controller */) {
-        log.info("Executing modernized business logic for CBACT02C");
-        runBatch(List.of(), null);
+    /** The program run as a batch step with no DD overrides and no PARM (#4342): runBatch's DD
+     *  names resolved as the program declares them; returns the step's RETURN-CODE. */
+    public int executeCbact02c() {
+        return runBatch(List.of(), null);
     }
 
     /** AWS.M2.CARDDEMO.CARDDATA.VSAM.KSDS as BATCH SELECT CARDFILE-FILE at app/cbl/CBACT02C.cbl (SELECT CARDFILE-FILE); VSAM defines field testing: open (3 public / 0 private estates). */
@@ -153,5 +154,4 @@ public class Cbact02cService {
     private static boolean isDigit(char c) {
         return c >= '0' && c <= '9';
     }
-
 }

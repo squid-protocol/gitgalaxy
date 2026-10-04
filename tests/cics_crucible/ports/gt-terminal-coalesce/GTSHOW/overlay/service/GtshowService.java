@@ -33,15 +33,6 @@ public class GtshowService {
     /** WS-SHOW PIC X(40). */
     private static final int WS_SHOW_LEN = 40;
 
-    /**
-     * GTSHOW has no batch entry. It is a CICS program only, reached as transaction GT12 (runTask).
-     * No part of the PROCEDURE DIVISION runs outside a CICS task.
-     */
-    public void executeGtshow(/* Parameters mapped from Controller */) {
-        log.info("Executing modernized business logic for GTSHOW");
-        log.info("GTSHOW runs only as CICS transaction GT12; its logic is in runTask(CicsTask)");
-    }
-
     /** A CICS transaction entered the program. GT12's logic is in runTask(CicsTask). The CICS runtime
      *  calls it with the task: its RETRIEVE data, terminal and events. */
     public void handleTransaction(String transid) {
@@ -143,5 +134,4 @@ public class GtshowService {
         }
         return ptr;
     }
-
 }

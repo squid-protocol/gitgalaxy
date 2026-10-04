@@ -119,8 +119,30 @@ class SkeletonForges:
     def cics_program(self, key: str) -> CicsProgram | None:
         return self.cics.programs.get(key)
 
+    def entry(self, key: str) -> str | None:
+        """#4342: how the program is entered, which decides its generated entry points: "batch" (runBatch -- and the
+        generic controller's executeX, which runs it), "cics" (runTask, through its CICS endpoints), "call"
+        (handleCall, from its callers), or None when no forge gives it an entry (the generic executeX alone)."""
+        if self.batch.has_entry(key):
+            return "batch"
+        if key in self.cics.programs:
+            return "cics"
+        if self.calls.is_called(key):
+            return "call"
+        return None
+
     def service_extras(self, key: str) -> dict | None:
-        """What every forge adds to the program's @Service, merged."""
+        """What every forge adds to the program's @Service, merged, and (#4342) its `entry`."""
+        merged = self._merged_extras(key)
+        entry = self.entry(key)
+        if entry is None:
+            return merged
+        return {
+            **(merged or {"imports": [], "fields": [], "methods": [], "annotations": [], "class_doc": []}),
+            "entry": entry,
+        }
+
+    def _merged_extras(self, key: str) -> dict | None:
         prog = self.cics.programs.get(key)
         return merge_extras(
             self.cics.service_extras(prog) if prog is not None else None,

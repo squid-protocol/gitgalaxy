@@ -8,19 +8,16 @@ import com.gitgalaxy.modernized.cics.CicsTask;
 import com.gitgalaxy.modernized.dto.contract.CarddemoCommarea;
 import com.gitgalaxy.modernized.dto.contract.CocrdslcCommarea;
 import com.gitgalaxy.modernized.dto.screen.CcrdslaScreen;
-import com.gitgalaxy.modernized.dto.screen.ScreenModel;
 import com.gitgalaxy.modernized.entity.vsam.CardRecord;
 import com.gitgalaxy.modernized.entity.vsam.CobolRecords;
 import com.gitgalaxy.modernized.exception.*;
 import com.gitgalaxy.modernized.repository.vsam.CardRecordRepository;
 import com.gitgalaxy.modernized.util.CobolCompare;
-import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.Locale;
 import java.util.Optional;
-import org.springframework.beans.factory.ObjectProvider;
 import org.springframework.transaction.annotation.Transactional;
 
 /**
@@ -62,7 +59,6 @@ public class CocrdslcService {
     private static final int DFHRED = 0xF2;
     private static final int DFHNEUTR = 0xF7;
 
-    private final ObjectProvider<Comen01cService> comen01cService;
     private final CardRecordRepository cardRecordRepository;
 
     private final ThreadLocal<Active> activeTask = new ThreadLocal<>();
@@ -88,11 +84,6 @@ public class CocrdslcService {
         String abendMsg = x("", 72);
         int respCd;
         int reasCd;
-    }
-
-    public void executeCocrdslc(/* Parameters mapped from Controller */) {
-        log.info("Executing modernized business logic for COCRDSLC");
-        // The business logic of COCRDSLC is a CICS task: see runTask.
     }
 
     /** A CICS transaction entered the program. The logic is in runTask (one task per call). */
@@ -166,7 +157,7 @@ public class CocrdslcService {
             ca.setCdemoLastMapset(x(LIT_THISMAPSET, 7));
             ca.setCdemoLastMap(x(LIT_THISMAP, 7));
             // EXEC CICS XCTL PROGRAM(CDEMO-TO-PROGRAM) COMMAREA(CARDDEMO-COMMAREA)
-            String resp = task.xctl(ca.getCdemoToProgram().trim(), ca);
+            String resp = dispatchCdemoToProgramL331(task, ca.getCdemoToProgram(), ca);   // line 331
             if (!"NORMAL".equals(resp)) {
                 // no RESP / HANDLE CONDITION: CICS default action abends the task
                 String label = task.abendOnCondition(resp);
@@ -583,16 +574,14 @@ public class CocrdslcService {
         return request;
     }
 
-    /** XCTL PROGRAM(CDEMO-TO-PROGRAM) at app/cbl/COCRDSLC.cbl:331: the target is data-driven. Candidates: COMEN01C (moves).
-     *  Also MOVEd from CDEMO-FROM-PROGRAM, whose content is not known statically: those names reach the default branch.
+    /** EXEC CICS XCTL PROGRAM(CDEMO-TO-PROGRAM) at app/cbl/COCRDSLC.cbl:331, COMMAREA(CARDDEMO-COMMAREA): the target is data-driven (candidates the engine found: COMEN01C (moves)).
+     *  Also MOVEd from CDEMO-FROM-PROGRAM, whose content is not known statically.
+     *  CICS resolves the name when the command runs (#4342): `program` is the PROGRAM field as the
+     *  COBOL holds it, its trailing blanks the name's padding. Returns the command's condition
+     *  (NORMAL, PGMIDERR, ...).
      *  Dynamic call targets field testing: open (5 public / 0 private estates). */
-    public Object dispatchCdemoToProgramL331(String program, Object request) {
-        switch (program.trim().toUpperCase(Locale.ROOT)) {
-            case "COMEN01C":
-                return comen01cService.getObject().handleLink((CarddemoCommarea) request);
-            default:
-                throw new IllegalArgumentException("XCTL PROGRAM(CDEMO-TO-PROGRAM) at app/cbl/COCRDSLC.cbl:331: no known target " + program);
-        }
+    public String dispatchCdemoToProgramL331(CicsTask task, String program, Object commarea) {
+        return task.xctl(program.stripTrailing(), commarea);
     }
 
     /** AWS.M2.CARDDEMO.CARDDATA.VSAM.KSDS as CICS file CARDAIX at app/cbl/COCRDSLC.cbl:783; VSAM defines field testing: open (3 public / 0 private estates). */
@@ -619,19 +608,6 @@ public class CocrdslcService {
     }
 
     /**
-     * EXEC CICS HANDLE ABEND at app/cbl/COCRDSLC.cbl:871 (paragraph ABEND-ROUTINE) routes abends to None.
-     * Units of work and handlers field testing: field-tested (6 public / 0 private estates).
-     */
-    public void onAbendL871(CicsAbendException e) {
-        log.info("HANDLE ABEND LABEL None at line 871", e);
-        // ABEND-ROUTINE: EXEC CICS HANDLE ABEND CANCEL (no label: the abend exit is cancelled)
-        Active a = activeTask.get();
-        if (a != null) {
-            a.task().handleAbendCancel();
-        }
-    }
-
-    /**
      * EXEC CICS ABEND ABCODE(9999) at app/cbl/COCRDSLC.cbl:875 (paragraph paragraph).
      * Units of work and handlers field testing: field-tested (6 public / 0 private estates).
      * Note: resolved at run time if an identifier.
@@ -639,17 +615,4 @@ public class CocrdslcService {
     public void abendLegacy9999L875() {
         throw new CicsAbendException("9999", "COCRDSLC", "app/cbl/COCRDSLC.cbl:875");
     }
-
-    /** SEND MAP(CCRDSLA) MAPSET(COCRDSL) FROM(CCRDSLAO) at app/cbl/COCRDSLC.cbl:569 (#3619).
-     *  The logic that fills CCRDSLAO (1100 / 1200 / 1300) needs the task's state and is ported in runTask (sendMap). */
-    public CcrdslaScreen renderCcrdsla(CcrdslaScreen screen) {
-        return screen;
-    }
-
-    /** RECEIVE MAP(CCRDSLA) MAPSET(COCRDSL) INTO(CCRDSLAI) at app/cbl/COCRDSLC.cbl:597 (#3619).
-     *  The logic that reads CCRDSLAI (2200 / 2210 / 2220) is ported in runTask (processInputs). */
-    public ScreenModel submitCcrdsla(CcrdslaScreen input, String aid) {
-        return renderCcrdsla(input);
-    }
-
 }

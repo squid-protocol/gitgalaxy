@@ -9,7 +9,6 @@ import com.gitgalaxy.modernized.dto.contract.PcconfWsState;
 import com.gitgalaxy.modernized.dto.contract.PcwizWsState;
 import com.gitgalaxy.modernized.dto.screen.Pcm2Screen;
 import com.gitgalaxy.modernized.dto.screen.Pcm3Screen;
-import com.gitgalaxy.modernized.dto.screen.ScreenModel;
 import com.gitgalaxy.modernized.messaging.TempStorage;
 import org.springframework.beans.factory.ObjectProvider;
 import org.springframework.transaction.annotation.Transactional;
@@ -57,13 +56,6 @@ public class PcconfService {
     private static final class WorkingStorage {
         PcconfWsState state;
         String wsMsg = spaces(40);
-    }
-
-    public void executePcconf(/* Parameters mapped from Controller */) {
-        log.info("Executing modernized business logic for PCCONF");
-        // PCCONF is a CICS pseudo-conversational program (transaction PC03): it has no batch step.
-        // Its PROCEDURE DIVISION is ported into runTask(CicsTask), one task per call (#3754).
-        log.info("PCCONF runs as CICS transaction {}; see runTask(CicsTask)", TRANSID);
     }
 
     /** A CICS transaction entered the program. TODO: [AI AGENT] implement from the program's business rules. */
@@ -259,28 +251,6 @@ public class PcconfService {
      *  Call targets field testing: open (6 public / 0 private estates). */
     public PcwizWsState xctlPcwiz(PcwizWsState request) {
         return pcwizService.getObject().handleLink(request);
-    }
-
-    /** SEND MAP(PCM2) MAPSET(PCSET) FROM(PCM2O) at src/PCCONF.cbl:82 (#3619).
-     *  The PCM2O filling is ported in fillPcm2 (SEND-STEP2), used by runTask.
-     *  BMS screen fields field testing: open (3 public / 0 private estates). */
-    public Pcm2Screen renderPcm2(Pcm2Screen screen) {
-        return screen;
-    }
-
-    /** RECEIVE MAP(PCM2) MAPSET(PCSET) INTO(PCM2I) at src/PCCONF.cbl:61 (#3619).
-     *  The PCM2I handling is ported in takeAmount (TAKE-AMOUNT), used by runTask; it needs the
-     *  COMMAREA state, which only runTask has.
-     *  BMS screen fields field testing: open (3 public / 0 private estates). */
-    public ScreenModel submitPcm2(Pcm2Screen input, String aid) {
-        return renderPcm2(input);
-    }
-
-    /** SEND MAP(PCM3) MAPSET(PCSET) FROM(PCM3O) at src/PCCONF.cbl:95 (#3619).
-     *  The PCM3O filling is ported in fillPcm3 (SEND-STEP3), used by runTask.
-     *  BMS screen fields field testing: open (3 public / 0 private estates). */
-    public Pcm3Screen renderPcm3(Pcm3Screen screen) {
-        return screen;
     }
 
     /** EXEC CICS WRITEQ TS QUEUE('PCLEDGER') FROM(WS-LEDGER) at src/PCCONF.cbl:104 (#3620).

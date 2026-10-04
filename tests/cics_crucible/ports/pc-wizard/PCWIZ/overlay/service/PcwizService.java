@@ -8,12 +8,10 @@ import com.gitgalaxy.modernized.cics.CicsTask;
 import com.gitgalaxy.modernized.dto.contract.PcwizWsState;
 import com.gitgalaxy.modernized.dto.screen.Pcm1Screen;
 import com.gitgalaxy.modernized.dto.screen.Pcm2Screen;
-import com.gitgalaxy.modernized.dto.screen.ScreenModel;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
-import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Optional;
@@ -59,12 +57,6 @@ public class PcwizService {
         String msg = spaces(40);
         /** 01 WS-AMT-DIGITS PIC 9(7) VALUE 0. */
         BigDecimal amtDigits = BigDecimal.ZERO;
-    }
-
-    public void executePcwiz(/* Parameters mapped from Controller */) {
-        log.info("Executing modernized business logic for PCWIZ");
-        // PCWIZ is a CICS program with no batch entry: its PROCEDURE DIVISION is ported in runTask(CicsTask).
-        log.info("PCWIZ runs only as a CICS transaction (PC01 / PC02 / XCTL from PCCONF); see runTask");
     }
 
     /** A CICS transaction entered the program: runs one task with no screen input (a RECEIVE MAP is MAPFAIL)
@@ -217,42 +209,6 @@ public class PcwizService {
         task.sendText(WS_BYE, 16, "ERASE");
         // EXEC CICS RETURN
         task.returnTransid(null, null);
-    }
-
-    /** SEND MAP(PCM1) MAPSET(PCSET) FROM(PCM1O) at src/PCWIZ.cbl:63 (#3619): SEND-STEP1's moves, with the
-     *  screen's msg1 as WS-MSG. */
-    public Pcm1Screen renderPcm1(Pcm1Screen screen) {
-        return buildPcm1(screen == null ? spaces(40) : screen.getMsg1());
-    }
-
-    /** RECEIVE MAP(PCM1) MAPSET(PCSET) INTO(PCM1I) at src/PCWIZ.cbl:48 (#3619): runs the PC02 task on a
-     *  step-1 state with this input and key, and returns the screen it sends next -- null when the task
-     *  sent text instead (PF3: WIZARD CANCELLED). */
-    public ScreenModel submitPcm1(Pcm1Screen input, String aid) {
-        Work w = new Work();
-        initializeWsState(w);
-        w.state.setPcStep(1);
-        Map<String, Object> received = input == null ? Map.of() : Map.of(MAP1, input);
-        CicsTask task = new CicsTask("PC02", aid, w.state, received);
-        runTask(task);
-        ScreenModel next = null;
-        List<Map<String, Object>> events = task.events();
-        for (Map<String, Object> e : events) {
-            if ("SEND-MAP".equals(e.get("event")) && e.get("screen") instanceof ScreenModel s) {
-                next = s;
-            }
-        }
-        return next;
-    }
-
-    /** SEND MAP(PCM2) MAPSET(PCSET) FROM(PCM2O) at src/PCWIZ.cbl:76 (#3619): the moves SEND-STEP2 makes,
-     *  taking PC-NAME from nameout, the amount digits from amt and WS-MSG from msg2. */
-    public Pcm2Screen renderPcm2(Pcm2Screen screen) {
-        Pcm2Screen out = new Pcm2Screen();
-        out.setNameout(alnum(screen == null ? null : screen.getNameout(), 15));
-        out.setAmt(screen == null || screen.getAmt() == null ? lowValues(7) : alnum(screen.getAmt(), 7));
-        out.setMsg2(alnum(screen == null ? null : screen.getMsg2(), 40));
-        return out;
     }
 
     // ---- helpers ----

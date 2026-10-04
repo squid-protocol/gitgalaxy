@@ -124,6 +124,10 @@ class CallForge:
         self._params[key] = out
         return out
 
+    def is_called(self, key: str) -> bool:
+        """Whether the program is CALLed by another program of the estate: it has a handleCall (#4342: its entry)."""
+        return key in self._call_handlers
+
     def _need_call_handler(self, key: str) -> None:
         if key in self._call_handlers:
             return
@@ -328,16 +332,20 @@ class CallForge:
 
     def _dispatch(self, key: str, d: dict, status: str) -> None:
         ex = self.extras[key]
-        passed = next(
-            (c.get("commarea") for c in (self.skeletons[key]["sections"].get("calls") or {}).get("facts", [])
+        site: dict = next(
+            (c for c in (self.skeletons[key]["sections"].get("calls") or {}).get("facts", [])
              if c.get("line") == d["line"] and c.get("verb") == d["verb"]),
-            None,
+            {},
         )  # fmt: skip
+        passed = site.get("commarea")
         operand = d["operand"].split("(")[0].split(" OF ")[0].strip()
         method = f"dispatch{java_class_base(operand)}L{d['line']}"
         link = d["verb"] in _LINK_VERBS
         where = f"{d['verb']} {'PROGRAM(' + operand + ')' if link else operand} at {d['file']}:{d['line']}"
         cands = ", ".join(f"{c['program']} ({c['via']})" for c in d.get("candidates", [])) or "none found"
+        if link and key in self.cics.programs:
+            self._task_dispatch(key, d, status, method, where, cands, passed, site)
+            return
         ex.methods.append(f"    /** {where}: the target is data-driven. Candidates: {cands}.")
         if d.get("other_sources"):
             ex.methods.append(f"     *  Also MOVEd from {', '.join(d['other_sources'])}, whose content is not known "
@@ -401,6 +409,57 @@ class CallForge:
                 facts,
                 [],
             )
+
+    def _task_dispatch(self, key: str, d: dict, status: str, method: str, where: str, cands: str,
+                       passed: str | None, site: dict) -> None:  # fmt: skip
+        """#4342: a data-driven LINK / XCTL of a CICS program. The program runs as a CicsTask (runTask), and CICS
+        resolves the name when the command runs -- the program the region defines by that name, PGMIDERR when it
+        defines none -- so the dispatcher is the command itself, through the task: the path the proof drives (the
+        port's runTask calls it). No switch over the candidates: CICS program names are case-sensitive and any
+        defined program is a valid target, so refusing other names, or case-mapping them, would differ from CICS."""
+        ex = self.extras[key]
+        ex.imports.add(f"import {self.package}.cics.CicsTask;")
+        verb = d["verb"]
+        length = site.get("commarea_length")
+        what = (f"COMMAREA({passed})" + (f" LENGTH({length})" if length else "")) if passed else "no COMMAREA"
+        ex.methods.append(f"    /** EXEC CICS {where}, {what}: the target is data-driven (candidates the engine found: "
+                          f"{cands}).")  # fmt: skip
+        if d.get("other_sources"):
+            ex.methods.append(f"     *  Also MOVEd from {', '.join(d['other_sources'])}, whose content is not known "
+                              "statically.")  # fmt: skip
+        for c in d.get("candidates", []):  # the record a candidate receives, when it is not the one this site passes
+            callee = self.key_of.get(c.get("resolves_to") or "")
+            gap = self._mismatch(passed, callee) if callee is not None else None
+            if gap:
+                ex.methods.append(f"     *  {c['program']}: {gap}.")
+        ex.methods += ["     *  CICS resolves the name when the command runs (#4342): `program` is the PROGRAM field as the",
+                       "     *  COBOL holds it, its trailing blanks the name's padding. Returns the command's condition",
+                       "     *  (NORMAL, PGMIDERR, ...).",
+                       f"     *  Dynamic call targets field testing: {status}. */"]  # fmt: skip
+        name = "program.stripTrailing()"
+        if verb == "XCTL":
+            if passed and length:
+                sig, call = "Object commarea, Integer length", f"task.xctl({name}, commarea, length)"
+            elif passed:
+                sig, call = "Object commarea", f"task.xctl({name}, commarea)"
+            else:
+                sig, call = "", f"task.xctl({name}, null)"
+        elif passed:
+            sig, call = "Object commarea, int length", f"task.link({name}, commarea, length)"
+        else:
+            sig, call = "", f"task.link({name})"
+        ex.methods += [f"    public String {method}(CicsTask task, String program{', ' + sig if sig else ''}) {{",
+                       f"        return {call};", "    }\n"]  # fmt: skip
+        self.counts["dispatch"] += 1
+        if self.trace:
+            self.trace.record(
+                java_path(self.package, "service", f"{self.cls_of[key]}Service"),
+                f"{self.cls_of[key]}Service#{method}",
+                "dispatch",
+                [{"source": f"{d['file']}:{d['line']}", "section": "dynamic_call_targets",
+                  "ledger_field": "dynamic_call_targets", "field_testing": status}],
+                [],
+            )  # fmt: skip
 
     # ---- remote regions -----------------------------------------------------
     @staticmethod

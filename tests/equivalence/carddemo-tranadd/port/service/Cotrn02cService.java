@@ -7,10 +7,8 @@ import org.slf4j.LoggerFactory;
 import com.gitgalaxy.modernized.batch.Sysout;
 import com.gitgalaxy.modernized.call.CobolRef;
 import com.gitgalaxy.modernized.cics.CicsTask;
-import com.gitgalaxy.modernized.dto.contract.CarddemoCommarea;
 import com.gitgalaxy.modernized.dto.contract.Cotrn02cCarddemoCommarea;
 import com.gitgalaxy.modernized.dto.screen.Cotrn2aScreen;
-import com.gitgalaxy.modernized.dto.screen.ScreenModel;
 import com.gitgalaxy.modernized.entity.vsam.CardXrefRecord;
 import com.gitgalaxy.modernized.entity.vsam.CobolEdit;
 import com.gitgalaxy.modernized.entity.vsam.CobolRecords;
@@ -54,15 +52,8 @@ public class Cotrn02cService {
     private static final String HIGH_16 = "\u00ff".repeat(16);   // HIGH-VALUES as CicsTask reads them (record charset)
 
     private final ObjectProvider<CsutldtcService> csutldtcService;
-    private final ObjectProvider<Comen01cService> comen01cService;
-    private final ObjectProvider<Cosgn00cService> cosgn00cService;
     private final CardXrefRecordRepository cardXrefRecordRepository;
     private final TranRecordRepository tranRecordRepository;
-
-    public void executeCotrn02c(/* Parameters mapped from Controller */) {
-        log.info("Executing modernized business logic for COTRN02C");
-        // The program's logic is CICS pseudo-conversational: it is ported in runTask(CicsTask).
-    }
 
     /** A CICS transaction entered the program. TODO: [AI AGENT] implement from the program's business rules. */
     public Cotrn02cCarddemoCommarea handleTransaction(String transid, Cotrn02cCarddemoCommarea request) {
@@ -88,19 +79,14 @@ public class Cotrn02cService {
         return csutldtcService.getObject().handleCall(lsDate, lsDateFormat, lsResult);
     }
 
-    /** XCTL PROGRAM(CDEMO-TO-PROGRAM) at app/cbl/COTRN02C.cbl:508: the target is data-driven. Candidates: COMEN01C (moves), COSGN00C (moves).
-     *  Also MOVEd from CDEMO-FROM-PROGRAM, whose content is not known statically: those names reach the default branch.
+    /** EXEC CICS XCTL PROGRAM(CDEMO-TO-PROGRAM) at app/cbl/COTRN02C.cbl:508, COMMAREA(CARDDEMO-COMMAREA): the target is data-driven (candidates the engine found: COMEN01C (moves), COSGN00C (moves)).
+     *  Also MOVEd from CDEMO-FROM-PROGRAM, whose content is not known statically.
+     *  CICS resolves the name when the command runs (#4342): `program` is the PROGRAM field as the
+     *  COBOL holds it, its trailing blanks the name's padding. Returns the command's condition
+     *  (NORMAL, PGMIDERR, ...).
      *  Dynamic call targets field testing: open (5 public / 0 private estates). */
-    public Object dispatchCdemoToProgramL508(String program, Object request) {
-        switch (program.trim().toUpperCase(Locale.ROOT)) {
-            case "COMEN01C":
-                return comen01cService.getObject().handleLink((CarddemoCommarea) request);
-            case "COSGN00C":
-                cosgn00cService.getObject().handleLink();
-                return null;
-            default:
-                throw new IllegalArgumentException("XCTL PROGRAM(CDEMO-TO-PROGRAM) at app/cbl/COTRN02C.cbl:508: no known target " + program);
-        }
+    public String dispatchCdemoToProgramL508(CicsTask task, String program, Object commarea) {
+        return task.xctl(program.stripTrailing(), commarea);
     }
 
     /** AWS.M2.CARDDEMO.CARDXREF.VSAM.KSDS as CICS file CCXREF at app/cbl/COTRN02C.cbl:611; VSAM defines field testing: open (3 public / 0 private estates). */
@@ -124,20 +110,6 @@ public class Cotrn02cService {
 
     public List<TranRecord> browseBackTransact(String from, int count) {
         return tranRecordRepository.findByTranIdSortLessThanEqualOrderByTranIdSortDesc(CobolRecords.sortKey(from, "cp037"), org.springframework.data.domain.PageRequest.of(0, count));
-    }
-
-    /** SEND MAP(COTRN2A) MAPSET(COTRN02) FROM(COTRN2AO) at app/cbl/COTRN02C.cbl:522 (#3619).
-     *  The logic that fills COTRN2AO is ported in runTask (SEND-TRNADD-SCREEN / POPULATE-HEADER-INFO).
-     *  BMS screen fields field testing: open (3 public / 0 private estates). */
-    public Cotrn2aScreen renderCotrn2a(Cotrn2aScreen screen) {
-        return screen;
-    }
-
-    /** RECEIVE MAP(COTRN2A) MAPSET(COTRN02) INTO(COTRN2AI) at app/cbl/COTRN02C.cbl:541 (#3619).
-     *  The logic that reads COTRN2AI after the RECEIVE is ported in runTask.
-     *  BMS screen fields field testing: open (3 public / 0 private estates). */
-    public ScreenModel submitCotrn2a(Cotrn2aScreen input, String aid) {
-        return renderCotrn2a(input);
     }
 
     // ------------------------------------------------------------------ helpers
@@ -658,8 +630,7 @@ public class Cotrn02cService {
             ca.setCdemoFromTranid(WS_TRANID);
             ca.setCdemoFromProgram(WS_PGMNAME);
             ca.setCdemoPgmContext(0);
-            String target = pad(ca.getCdemoToProgram(), 8).stripTrailing();
-            task.xctl(target, ca);
+            dispatchCdemoToProgramL508(task, pad(ca.getCdemoToProgram(), 8), ca);   // line 508
             if (task.ended()) {
                 done = true;   // on PGMIDERR / LENGERR the program goes on (RESP not tested)
             }

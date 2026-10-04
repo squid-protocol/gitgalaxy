@@ -7,17 +7,13 @@ import org.slf4j.LoggerFactory;
 import com.gitgalaxy.modernized.cics.CicsTask;
 import com.gitgalaxy.modernized.dto.contract.CarddemoCommarea;
 import com.gitgalaxy.modernized.dto.screen.Cousr1aScreen;
-import com.gitgalaxy.modernized.dto.screen.ScreenModel;
 import com.gitgalaxy.modernized.entity.vsam.CobolRecords;
 import com.gitgalaxy.modernized.entity.vsam.SecUserData;
 import com.gitgalaxy.modernized.repository.vsam.SecUserDataRepository;
 import com.gitgalaxy.modernized.util.CobolCompare;
-import java.math.BigDecimal;
 import java.time.LocalDateTime;
-import java.util.List;
 import java.util.Locale;
 import java.util.Optional;
-import org.springframework.beans.factory.ObjectProvider;
 import org.springframework.transaction.annotation.Transactional;
 
 /**
@@ -42,8 +38,6 @@ public class Cousr01cService {
     private static final String CCDA_TITLE02 = "              CardDemo";
     private static final String CCDA_MSG_INVALID_KEY = "Invalid key pressed. Please see below...";
 
-    private final ObjectProvider<Coadm01cService> coadm01cService;
-    private final ObjectProvider<Cosgn00cService> cosgn00cService;
     private final SecUserDataRepository secUserDataRepository;
 
     /** Working storage of one task: WS-MESSAGE, WS-ERR-FLG, CARDDEMO-COMMAREA, SEC-USER-DATA and the
@@ -56,11 +50,6 @@ public class Cousr01cService {
         Cousr1aScreen screen = new Cousr1aScreen();
         final CicsTask.MapSubfields sub = new CicsTask.MapSubfields();
         final SecUserData secUser = new SecUserData();
-    }
-
-    public void executeCousr01c(/* Parameters mapped from Controller */) {
-        log.info("Executing modernized business logic for COUSR01C");
-        // The business logic of COUSR01C is a CICS task: see runTask.
     }
 
     /** A CICS transaction entered the program. TODO: [AI AGENT] implement from the program's business rules. */
@@ -176,7 +165,7 @@ public class Cousr01cService {
         c.setCdemoFromTranid(pad(WS_TRANID, 4));
         c.setCdemoFromProgram(pad(WS_PGMNAME, 8));
         c.setCdemoPgmContext(0);
-        String resp = task.xctl(c.getCdemoToProgram().stripTrailing(), c);
+        String resp = dispatchCdemoToProgramL175(task, c.getCdemoToProgram(), c);   // line 175
         if (!"NORMAL".equals(resp)) {
             // no RESP / HANDLE CONDITION: CICS's default action abends the task
             task.abendOnCondition(resp);
@@ -329,37 +318,17 @@ public class Cousr01cService {
         return request;
     }
 
-    /** XCTL PROGRAM(CDEMO-TO-PROGRAM) at app/cbl/COUSR01C.cbl:175: the target is data-driven. Candidates: COADM01C (moves), COSGN00C (moves).
+    /** EXEC CICS XCTL PROGRAM(CDEMO-TO-PROGRAM) at app/cbl/COUSR01C.cbl:175, COMMAREA(CARDDEMO-COMMAREA): the target is data-driven (candidates the engine found: COADM01C (moves), COSGN00C (moves)).
+     *  CICS resolves the name when the command runs (#4342): `program` is the PROGRAM field as the
+     *  COBOL holds it, its trailing blanks the name's padding. Returns the command's condition
+     *  (NORMAL, PGMIDERR, ...).
      *  Dynamic call targets field testing: open (5 public / 0 private estates). */
-    public Object dispatchCdemoToProgramL175(String program, Object request) {
-        switch (program.trim().toUpperCase(Locale.ROOT)) {
-            case "COADM01C":
-                return coadm01cService.getObject().handleLink((CarddemoCommarea) request);
-            case "COSGN00C":
-                cosgn00cService.getObject().handleLink();
-                return null;
-            default:
-                throw new IllegalArgumentException("XCTL PROGRAM(CDEMO-TO-PROGRAM) at app/cbl/COUSR01C.cbl:175: no known target " + program);
-        }
+    public String dispatchCdemoToProgramL175(CicsTask task, String program, Object commarea) {
+        return task.xctl(program.stripTrailing(), commarea);
     }
 
     /** AWS.M2.CARDDEMO.USRSEC.VSAM.KSDS as CICS file USRSEC at app/cbl/COUSR01C.cbl:240; VSAM defines field testing: open (3 public / 0 private estates). */
     public SecUserData writeUsrsec(SecUserData record) {
         return secUserDataRepository.save(record);
     }
-
-    /** SEND MAP(COUSR1A) MAPSET(COUSR01) FROM(COUSR1AO) at app/cbl/COUSR01C.cbl:190 (#3619).
-     *  The screen is filled by runTask (SEND-USRADD-SCREEN / POPULATE-HEADER-INFO).
-     *  BMS screen fields field testing: open (3 public / 0 private estates). */
-    public Cousr1aScreen renderCousr1a(Cousr1aScreen screen) {
-        return screen;
-    }
-
-    /** RECEIVE MAP(COUSR1A) MAPSET(COUSR01) INTO(COUSR1AI) at app/cbl/COUSR01C.cbl:203 (#3619).
-     *  The input is processed by runTask (PROCESS-ENTER-KEY).
-     *  BMS screen fields field testing: open (3 public / 0 private estates). */
-    public ScreenModel submitCousr1a(Cousr1aScreen input, String aid) {
-        return renderCousr1a(input);
-    }
-
 }

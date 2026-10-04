@@ -47,15 +47,6 @@ public class PcdetlService {
     private static final int DMSGO_LEN = 40;
 
     /**
-     * PCDETL has no batch entry. It is a CICS program only: entry transaction PC12, and the XCTL target of PCMENU.
-     * Its whole PROCEDURE DIVISION is ported into {@link #runTask(CicsTask)}.
-     */
-    public void executePcdetl(/* Parameters mapped from Controller */) {
-        log.info("Executing modernized business logic for PCDETL");
-        log.info("PCDETL is a CICS program (transaction PC12); its logic runs through runTask(CicsTask)");
-    }
-
-    /**
      * A CICS transaction entered the program. This runs one task of PCDETL on the given COMMAREA
      * (null means a first entry, EIBCALEN = 0). The program ends with RETURN TRANSID('PC11') and NO COMMAREA,
      * so the next task receives no COMMAREA and this method returns null.

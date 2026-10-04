@@ -13,7 +13,6 @@ import com.gitgalaxy.modernized.entity.vsam.WfPolicyInfoKey;
 import com.gitgalaxy.modernized.repository.vsam.WfPolicyInfoRepository;
 import com.gitgalaxy.modernized.util.CobolCompare;
 import java.math.BigDecimal;
-import java.util.List;
 import java.util.Locale;
 import java.util.Optional;
 import org.springframework.beans.factory.ObjectProvider;
@@ -35,11 +34,6 @@ public class Lgapvs01Service {
 
     private final ObjectProvider<LgstsqService> lgstsqService;
     private final WfPolicyInfoRepository wfPolicyInfoRepository;
-
-    public void executeLgapvs01(/* Parameters mapped from Controller */) {
-        log.info("Executing modernized business logic for lgapvs01");
-        // The program's logic is a CICS task: see runTask.
-    }
 
     /** A CICS transaction entered the program. TODO: [AI AGENT] implement from the program's business rules. */
     public Lgapvs01Dfhcommarea handleTransaction(String transid, Lgapvs01Dfhcommarea request) {
@@ -219,5 +213,4 @@ public class Lgapvs01Service {
         }
         return wfPolicyInfoRepository.save(record);
     }
-
 }

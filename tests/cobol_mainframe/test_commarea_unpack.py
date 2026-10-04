@@ -213,5 +213,8 @@ def test_the_java_reads_the_unpacked_commarea_and_the_menu_builds_it(scanned, tm
     assert "private SharedComm sharedComm;" in dto and "private AcctupdWsOwn wsOwn;" in dto
     assert "public static AcctupdCommarea fromPrefix(SharedComm sharedComm) {" in dto
     menu = (src / "service/MenuService.java").read_text(encoding="utf-8")
-    assert "acctupdService.getObject().handleLink(AcctupdCommarea.fromPrefix((SharedComm) request))" in menu
+    # #4342: MENU is a CICS program, so its data-driven XCTL goes through its task (the path its proof drives); the
+    # composite DTO's fromPrefix is how the port builds ACCTUPD's COMMAREA from the record it holds
+    assert "return task.xctl(program.stripTrailing(), commarea);" in menu
+    assert "handleLink" not in menu
     assert "TODO: this site passes" not in menu  # the prefix is the documented entry, not a mismatch

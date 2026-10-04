@@ -10,7 +10,6 @@ import com.gitgalaxy.modernized.dto.contract.CarddemoCommarea;
 import com.gitgalaxy.modernized.dto.contract.Cotrn00cCarddemoCommarea;
 import com.gitgalaxy.modernized.dto.contract.Cotrn01cCarddemoCommarea;
 import com.gitgalaxy.modernized.dto.screen.Cotrn0aScreen;
-import com.gitgalaxy.modernized.dto.screen.ScreenModel;
 import com.gitgalaxy.modernized.entity.vsam.CobolEdit;
 import com.gitgalaxy.modernized.entity.vsam.CobolRecords;
 import com.gitgalaxy.modernized.entity.vsam.TranRecord;
@@ -29,7 +28,6 @@ import java.util.Map;
 import java.util.NavigableSet;
 import java.util.Optional;
 import java.util.TreeSet;
-import org.springframework.beans.factory.ObjectProvider;
 import org.springframework.transaction.annotation.Transactional;
 
 /**
@@ -65,15 +63,7 @@ public class Cotrn00cService {
         }
     }
 
-    private final ObjectProvider<Comen01cService> comen01cService;
-    private final ObjectProvider<Cosgn00cService> cosgn00cService;
-    private final ObjectProvider<Cotrn01cService> cotrn01cService;
     private final TranRecordRepository tranRecordRepository;
-
-    /** COTRN00C is a pseudo-conversational CICS program: its whole PROCEDURE DIVISION is ported in runTask. */
-    public void executeCotrn00c(/* Parameters mapped from Controller */) {
-        log.info("Executing modernized business logic for COTRN00C");
-    }
 
     /** A CICS transaction entered the program. TODO: [AI AGENT] implement from the program's business rules. */
     public Cotrn00cCarddemoCommarea handleTransaction(String transid, Cotrn00cCarddemoCommarea request) {
@@ -93,36 +83,22 @@ public class Cotrn00cService {
         return request;
     }
 
-    /** XCTL PROGRAM(CDEMO-TO-PROGRAM) at app/cbl/COTRN00C.cbl:192: the target is data-driven. Candidates: COMEN01C (moves), COSGN00C (moves), COTRN01C (moves).
+    /** EXEC CICS XCTL PROGRAM(CDEMO-TO-PROGRAM) at app/cbl/COTRN00C.cbl:192, COMMAREA(CARDDEMO-COMMAREA): the target is data-driven (candidates the engine found: COMEN01C (moves), COSGN00C (moves), COTRN01C (moves)).
+     *  CICS resolves the name when the command runs (#4342): `program` is the PROGRAM field as the
+     *  COBOL holds it, its trailing blanks the name's padding. Returns the command's condition
+     *  (NORMAL, PGMIDERR, ...).
      *  Dynamic call targets field testing: open (5 public / 0 private estates). */
-    public Object dispatchCdemoToProgramL192(String program, Object request) {
-        switch (program.trim().toUpperCase(Locale.ROOT)) {
-            case "COMEN01C":
-                return comen01cService.getObject().handleLink((CarddemoCommarea) request);
-            case "COSGN00C":
-                cosgn00cService.getObject().handleLink();
-                return null;
-            case "COTRN01C":
-                return cotrn01cService.getObject().handleLink((Cotrn01cCarddemoCommarea) request);
-            default:
-                throw new IllegalArgumentException("XCTL PROGRAM(CDEMO-TO-PROGRAM) at app/cbl/COTRN00C.cbl:192: no known target " + program);
-        }
+    public String dispatchCdemoToProgramL192(CicsTask task, String program, Object commarea) {
+        return task.xctl(program.stripTrailing(), commarea);
     }
 
-    /** XCTL PROGRAM(CDEMO-TO-PROGRAM) at app/cbl/COTRN00C.cbl:518: the target is data-driven. Candidates: COMEN01C (moves), COSGN00C (moves), COTRN01C (moves).
+    /** EXEC CICS XCTL PROGRAM(CDEMO-TO-PROGRAM) at app/cbl/COTRN00C.cbl:518, COMMAREA(CARDDEMO-COMMAREA): the target is data-driven (candidates the engine found: COMEN01C (moves), COSGN00C (moves), COTRN01C (moves)).
+     *  CICS resolves the name when the command runs (#4342): `program` is the PROGRAM field as the
+     *  COBOL holds it, its trailing blanks the name's padding. Returns the command's condition
+     *  (NORMAL, PGMIDERR, ...).
      *  Dynamic call targets field testing: open (5 public / 0 private estates). */
-    public Object dispatchCdemoToProgramL518(String program, Object request) {
-        switch (program.trim().toUpperCase(Locale.ROOT)) {
-            case "COMEN01C":
-                return comen01cService.getObject().handleLink((CarddemoCommarea) request);
-            case "COSGN00C":
-                cosgn00cService.getObject().handleLink();
-                return null;
-            case "COTRN01C":
-                return cotrn01cService.getObject().handleLink((Cotrn01cCarddemoCommarea) request);
-            default:
-                throw new IllegalArgumentException("XCTL PROGRAM(CDEMO-TO-PROGRAM) at app/cbl/COTRN00C.cbl:518: no known target " + program);
-        }
+    public String dispatchCdemoToProgramL518(CicsTask task, String program, Object commarea) {
+        return task.xctl(program.stripTrailing(), commarea);
     }
 
     /** AWS.M2.CARDDEMO.TRANSACT.VSAM.KSDS as CICS file TRANSACT at app/cbl/COTRN00C.cbl:593, 626, 660, 694; VSAM defines field testing: open (3 public / 0 private estates). */
@@ -132,20 +108,6 @@ public class Cotrn00cService {
 
     public List<TranRecord> browseBackTransact(String from, int count) {
         return tranRecordRepository.findByTranIdSortLessThanEqualOrderByTranIdSortDesc(CobolRecords.sortKey(from, "cp037"), org.springframework.data.domain.PageRequest.of(0, count));
-    }
-
-    /** SEND MAP(COTRN0A) MAPSET(COTRN00) FROM(COTRN0AO) at app/cbl/COTRN00C.cbl:534, app/cbl/COTRN00C.cbl:542 (#3619).
-     *  The screen is filled and sent by runTask (SEND-TRNLST-SCREEN).
-     *  BMS screen fields field testing: open (3 public / 0 private estates). */
-    public Cotrn0aScreen renderCotrn0a(Cotrn0aScreen screen) {
-        return screen;
-    }
-
-    /** RECEIVE MAP(COTRN0A) MAPSET(COTRN00) INTO(COTRN0AI) at app/cbl/COTRN00C.cbl:556 (#3619).
-     *  The screen is received and processed by runTask (RECEIVE-TRNLST-SCREEN and what follows).
-     *  BMS screen fields field testing: open (3 public / 0 private estates). */
-    public ScreenModel submitCotrn0a(Cotrn0aScreen input, String aid) {
-        return renderCotrn0a(input);
     }
 
     /** One task's WORKING-STORAGE and the paragraphs of the program. */
@@ -277,7 +239,7 @@ public class Cotrn00cService {
                     put(FROM_TRANID, 4, TRANID);
                     put(FROM_PROGRAM, 8, PGMNAME);
                     put(PGM_CONTEXT, 1, "0");
-                    xctl();   // EXEC CICS XCTL PROGRAM(CDEMO-TO-PROGRAM)
+                    xctl(dispatchCdemoToProgramL192(task, txt(TO_PROGRAM, 8), commareaDto()));   // XCTL, line 192
                     return;
                 } else {
                     message = fit("Invalid selection. Valid value is S", 80);
@@ -474,13 +436,12 @@ public class Cotrn00cService {
             put(FROM_TRANID, 4, TRANID);
             put(FROM_PROGRAM, 8, PGMNAME);
             numPut(PGM_CONTEXT, 1, 0);
-            xctl();
+            xctl(dispatchCdemoToProgramL518(task, txt(TO_PROGRAM, 8), commareaDto()));   // XCTL, line 518
         }
 
         /** EXEC CICS XCTL PROGRAM(CDEMO-TO-PROGRAM) COMMAREA(CARDDEMO-COMMAREA): never returns when it works;
          *  without RESP a failure takes CICS's default action, an abend. */
-        void xctl() {
-            String r = task.xctl(txt(TO_PROGRAM, 8).trim(), commareaDto());
+        void xctl(String r) {
             if (!"NORMAL".equals(r)) {
                 task.abendOnCondition(r);
             }
@@ -827,5 +788,4 @@ public class Cotrn00cService {
             return d;
         }
     }
-
 }

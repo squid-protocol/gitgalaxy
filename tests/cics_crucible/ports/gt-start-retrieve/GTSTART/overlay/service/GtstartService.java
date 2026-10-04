@@ -44,15 +44,6 @@ public class GtstartService {
     /** The transaction GTSTART starts (START TRANSID('GT02'), CSD: GT02 -> GTWORK). */
     private static final String GT02 = "GT02";
 
-    /**
-     * GTSTART is a CICS program (transaction GT01) with no COMMAREA and no batch step: its whole
-     * PROCEDURE DIVISION is ported into {@link #runTask(CicsTask)}, which needs the task's terminal input.
-     */
-    public void executeGtstart(/* Parameters mapped from Controller */) {
-        log.info("Executing modernized business logic for GTSTART");
-        log.info("GTSTART is a CICS transaction (GT01): it runs one task at a time through runTask(CicsTask)");
-    }
-
     /** A CICS transaction entered the program. TODO: [AI AGENT] implement from the program's business rules. */
     public void handleTransaction(String transid) {
         log.info("Gtstart: handleTransaction");
@@ -188,5 +179,4 @@ public class GtstartService {
     public void abendGtabL58() {
         throw new CicsAbendException("GTAB", "GTSTART", "src/GTSTART.cbl:58");
     }
-
 }

@@ -7,7 +7,6 @@ import org.slf4j.LoggerFactory;
 import com.gitgalaxy.modernized.cics.CicsTask;
 import com.gitgalaxy.modernized.dto.contract.HxextWsCa;
 import com.gitgalaxy.modernized.dto.screen.Hxm2Screen;
-import com.gitgalaxy.modernized.dto.screen.ScreenModel;
 import org.springframework.transaction.annotation.Transactional;
 
 /**
@@ -49,12 +48,6 @@ public class HxextService {
     private record Send(Hxm2Screen screen, CicsTask.MapSubfields subfields, String[] options) {
     }
 
-    /** HXEXT is a CICS program: it has no batch step. Its logic runs through runTask(CicsTask). */
-    public void executeHxext(/* Parameters mapped from Controller */) {
-        log.info("Executing modernized business logic for HXEXT");
-        log.info("HXEXT is a CICS program (transaction {}); it runs through runTask(CicsTask)", TRANSID);
-    }
-
     /** A CICS transaction entered the program: the COMMAREA it returns (WS-CA, VALUE 'E'). */
     public HxextWsCa handleTransaction(String transid, HxextWsCa request) {
         log.info("Hxext: handleTransaction");
@@ -90,15 +83,6 @@ public class HxextService {
      *  screen as the program filled it. */
     public Hxm2Screen renderHxm2(Hxm2Screen screen) {
         return screen == null ? firstEntryScreen().screen() : screen;
-    }
-
-    /** RECEIVE MAP(HXM2) MAPSET(HXSET2) INTO(HXM2I): the screen the program sends next for the key pressed
-     *  (PF5: BLINK-MISTAKE; any other key: CHECK-INPUT). */
-    public ScreenModel submitHxm2(Hxm2Screen input, String aid) {
-        if (PF5.equals(aid)) {
-            return renderHxm2(blinkMistake().screen());
-        }
-        return renderHxm2(checkInput(input).screen());
     }
 
     // ------------------------------------------------------------------------------------------

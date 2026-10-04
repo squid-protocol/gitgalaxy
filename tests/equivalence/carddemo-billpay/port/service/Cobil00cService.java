@@ -6,10 +6,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import com.gitgalaxy.modernized.batch.Sysout;
 import com.gitgalaxy.modernized.cics.CicsTask;
-import com.gitgalaxy.modernized.dto.contract.CarddemoCommarea;
 import com.gitgalaxy.modernized.dto.contract.Cobil00cCarddemoCommarea;
 import com.gitgalaxy.modernized.dto.screen.Cobil0aScreen;
-import com.gitgalaxy.modernized.dto.screen.ScreenModel;
 import com.gitgalaxy.modernized.entity.vsam.AccountRecord;
 import com.gitgalaxy.modernized.entity.vsam.CardXrefRecord;
 import com.gitgalaxy.modernized.entity.vsam.CobolEdit;
@@ -32,7 +30,6 @@ import java.util.NavigableSet;
 import java.util.Optional;
 import java.util.Set;
 import java.util.TreeSet;
-import org.springframework.beans.factory.ObjectProvider;
 import org.springframework.transaction.annotation.Transactional;
 
 /**
@@ -60,16 +57,9 @@ public class Cobil00cService {
     private static final int DFHGREEN = 0xF4;
     private static final String HIGH_VALUES_16 = "\u00ff".repeat(16);
 
-    private final ObjectProvider<Comen01cService> comen01cService;
-    private final ObjectProvider<Cosgn00cService> cosgn00cService;
     private final AccountRecordRepository accountRecordRepository;
     private final CardXrefRecordRepository cardXrefRecordRepository;
     private final TranRecordRepository tranRecordRepository;
-
-    /** Online (CICS) program: its business logic is runTask; there is nothing to run outside a task. */
-    public void executeCobil00c(/* Parameters mapped from Controller */) {
-        log.info("Executing modernized business logic for COBIL00C");
-    }
 
     /** A CICS transaction entered the program. */
     public Cobil00cCarddemoCommarea handleTransaction(String transid, Cobil00cCarddemoCommarea request) {
@@ -88,19 +78,14 @@ public class Cobil00cService {
         return request;
     }
 
-    /** XCTL PROGRAM(CDEMO-TO-PROGRAM) at app/cbl/COBIL00C.cbl:281: the target is data-driven. Candidates: COMEN01C (moves), COSGN00C (moves).
-     *  Also MOVEd from CDEMO-FROM-PROGRAM, whose content is not known statically: those names reach the default branch.
+    /** EXEC CICS XCTL PROGRAM(CDEMO-TO-PROGRAM) at app/cbl/COBIL00C.cbl:281, COMMAREA(CARDDEMO-COMMAREA): the target is data-driven (candidates the engine found: COMEN01C (moves), COSGN00C (moves)).
+     *  Also MOVEd from CDEMO-FROM-PROGRAM, whose content is not known statically.
+     *  CICS resolves the name when the command runs (#4342): `program` is the PROGRAM field as the
+     *  COBOL holds it, its trailing blanks the name's padding. Returns the command's condition
+     *  (NORMAL, PGMIDERR, ...).
      *  Dynamic call targets field testing: open (5 public / 0 private estates). */
-    public Object dispatchCdemoToProgramL281(String program, Object request) {
-        switch (program.trim().toUpperCase(Locale.ROOT)) {
-            case "COMEN01C":
-                return comen01cService.getObject().handleLink((CarddemoCommarea) request);
-            case "COSGN00C":
-                cosgn00cService.getObject().handleLink();
-                return null;
-            default:
-                throw new IllegalArgumentException("XCTL PROGRAM(CDEMO-TO-PROGRAM) at app/cbl/COBIL00C.cbl:281: no known target " + program);
-        }
+    public String dispatchCdemoToProgramL281(CicsTask task, String program, Object commarea) {
+        return task.xctl(program.stripTrailing(), commarea);
     }
 
     /** AWS.M2.CARDDEMO.ACCTDATA.VSAM.KSDS as CICS file ACCTDAT at app/cbl/COBIL00C.cbl:345, 379; VSAM defines field testing: open (3 public / 0 private estates). */
@@ -128,18 +113,6 @@ public class Cobil00cService {
 
     public List<TranRecord> browseBackTransact(String from, int count) {
         return tranRecordRepository.findByTranIdSortLessThanEqualOrderByTranIdSortDesc(CobolRecords.sortKey(from, "cp037"), org.springframework.data.domain.PageRequest.of(0, count));
-    }
-
-    /** SEND MAP(COBIL0A) MAPSET(COBIL00) FROM(COBIL0AO) at app/cbl/COBIL00C.cbl:295 (#3619).
-     *  The screen is filled by runTask (SEND-BILLPAY-SCREEN / POPULATE-HEADER-INFO). */
-    public Cobil0aScreen renderCobil0a(Cobil0aScreen screen) {
-        return screen;
-    }
-
-    /** RECEIVE MAP(COBIL0A) MAPSET(COBIL00) INTO(COBIL0AI) at app/cbl/COBIL00C.cbl:308 (#3619).
-     *  The input is processed by runTask (PROCESS-ENTER-KEY). */
-    public ScreenModel submitCobil0a(Cobil0aScreen input, String aid) {
-        return renderCobil0a(input);
     }
 
     // ------------------------------------------------------------------ helpers
@@ -528,7 +501,7 @@ public class Cobil00cService {
             ca.setCdemoFromTranid(WS_TRANID);
             ca.setCdemoFromProgram(fit(WS_PGMNAME, 8));
             ca.setCdemoPgmContext(0);
-            String r = task.xctl(ca.getCdemoToProgram().trim(), copyCommarea(ca));
+            String r = dispatchCdemoToProgramL281(task, ca.getCdemoToProgram(), copyCommarea(ca));   // line 281
             return "NORMAL".equals(r);
         }
 

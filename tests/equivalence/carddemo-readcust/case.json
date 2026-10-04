@@ -101,7 +101,7 @@
  "entries": [
   {
    "method": "executeCbcus01c",
-   "why": "#4316 unproven ports: reaches executeCbcus01c, the service's no-argument entry (the generated controller's), which runs the step as runBatch(List.of(), null): CBCUS01C takes no PARM and opens its files through the DD names it declares, so the step it runs is the COBOL's"
+   "why": "#4316 unproven ports: reaches executeCbcus01c, the service's no-argument entry (the generated controller's), which runs the step as runBatch(List.of(), null) and returns its RETURN-CODE (#4342): CBCUS01C takes no PARM and opens its files through the DD names it declares, so the step it runs is the COBOL's"
   }
  ]
 }

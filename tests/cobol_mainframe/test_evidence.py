@@ -307,15 +307,18 @@ def test_an_entry_method_is_reached_only_when_the_proof_ran_it():
     assert run["counts"]["ported_unproven"] == 0 and "executeCbact02c" in run["entry_points"], run
 
 
-def test_the_generated_test_drives_each_entry_and_refuses_a_parm():
+def test_the_generated_test_drives_each_entry_and_refuses_a_parm(monkeypatch):
     import equivalence_java as ej  # noqa: PLC0415
 
     case = json.loads((REPO / "tests/equivalence/carddemo-readcard/case.json").read_text(encoding="utf-8"))
     case["name"] = "carddemo-readcard"
     src = ej.equivalence_test(case)
     assert 'System.getProperty("equivalence.entry", "")' in src
-    assert 'case "executeCbact02c" -> cbact02cService.executeCbact02c();' in src
-    assert "rc = 0;" in src and "runBatch(List.of(" in src
+    # #4342: the generated executeX returns runBatch's RETURN-CODE, and the entry run compares that one
+    assert 'case "executeCbact02c" -> rc = cbact02cService.executeCbact02c();' in src and "runBatch(List.of(" in src
+    monkeypatch.setattr(ej, "_entry_returns", lambda case, svc: {"executeCbact02c": "void"})
+    void = ej.equivalence_test(case)  # a void entry that returns normally ends the step RETURN-CODE 0
+    assert "cbact02cService.executeCbact02c();\n                    rc = 0;" in void
     assert "equivalence.entry" not in ej.equivalence_test({**case, "entries": []})
     with pytest.raises(SystemExit, match="passes no PARM"):
         ej.entry_names({**case, "parm": "2022071800"})

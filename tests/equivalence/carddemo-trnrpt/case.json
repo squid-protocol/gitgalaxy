@@ -45,5 +45,6 @@
     {"name": "close-trantype", "plan": [{"dd": "TRANTYPE", "op": "CLOSE", "nth": 1, "status": "30"}], "why": "30: permanent I/O error (IBM Enterprise COBOL for z/OS Language Reference, File status key values) closing TRANTYPE: its 9x00 CLOSE paragraph -> ABEND U0999"},
     {"name": "close-trancatg", "plan": [{"dd": "TRANCATG", "op": "CLOSE", "nth": 1, "status": "30"}], "why": "30: permanent I/O error (IBM Enterprise COBOL for z/OS Language Reference, File status key values) closing TRANCATG: its 9x00 CLOSE paragraph -> ABEND U0999"},
     {"name": "close-dateparm", "plan": [{"dd": "DATEPARM", "op": "CLOSE", "nth": 1, "status": "30"}], "why": "30: permanent I/O error (IBM Enterprise COBOL for z/OS Language Reference, File status key values) closing DATEPARM: its 9x00 CLOSE paragraph -> ABEND U0999"}
-  ]
+  ],
+  "entries": [{"method": "executeCbtrn03c", "why": "#4342: reaches executeCbtrn03c, the generated controller's no-argument entry, which runs the step as runBatch(List.of(), null) and returns its RETURN-CODE: CBTRN03C takes no PARM and opens its files through the DD names it declares, so the step it runs is the COBOL's"}]
 }

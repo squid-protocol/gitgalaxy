@@ -49,9 +49,10 @@ public class Cbtrn01cService {
     private final CobolFiles files;
     private final ApplicationContext ctx;
 
-    public void executeCbtrn01c(/* Parameters mapped from Controller */) {
-        log.info("Executing modernized business logic for CBTRN01C");
-        // The business logic of CBTRN01C is the batch main line: see runBatch.
+    /** The program run as a batch step with no DD overrides and no PARM (#4342): runBatch's DD
+     *  names resolved as the program declares them; returns the step's RETURN-CODE. */
+    public int executeCbtrn01c() {
+        return runBatch(List.of(), null);
     }
 
     /** Working storage of one run. */

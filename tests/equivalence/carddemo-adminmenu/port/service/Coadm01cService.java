@@ -6,13 +6,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import com.gitgalaxy.modernized.cics.CicsTask;
 import com.gitgalaxy.modernized.dto.contract.CarddemoCommarea;
-import com.gitgalaxy.modernized.dto.contract.CotrtlicCommarea;
-import com.gitgalaxy.modernized.dto.contract.CotrtupcCommarea;
-import com.gitgalaxy.modernized.dto.contract.Cousr00cCarddemoCommarea;
-import com.gitgalaxy.modernized.dto.contract.Cousr02cCarddemoCommarea;
-import com.gitgalaxy.modernized.dto.contract.Cousr03cCarddemoCommarea;
 import com.gitgalaxy.modernized.dto.screen.Coadm1aScreen;
-import com.gitgalaxy.modernized.dto.screen.ScreenModel;
 import com.gitgalaxy.modernized.entity.vsam.CobolRecords;
 import com.gitgalaxy.modernized.exception.*;
 import com.gitgalaxy.modernized.util.CobolCompare;
@@ -20,7 +14,6 @@ import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.Locale;
 import java.util.Optional;
-import org.springframework.beans.factory.ObjectProvider;
 import org.springframework.transaction.annotation.Transactional;
 
 /**
@@ -51,13 +44,6 @@ public class Coadm01cService {
     private static final String[] OPT_PGM = {
         "COUSR00C", "COUSR01C", "COUSR02C", "COUSR03C", "COTRTLIC", "COTRTUPC"};
 
-    private final ObjectProvider<CotrtlicService> cotrtlicService;
-    private final ObjectProvider<CotrtupcService> cotrtupcService;
-    private final ObjectProvider<Cousr00cService> cousr00cService;
-    private final ObjectProvider<Cousr01cService> cousr01cService;
-    private final ObjectProvider<Cousr02cService> cousr02cService;
-    private final ObjectProvider<Cousr03cService> cousr03cService;
-    private final ObjectProvider<Cosgn00cService> cosgn00cService;
 
     /** The program's working storage for one task. */
     private static final class State {
@@ -66,11 +52,6 @@ public class Coadm01cService {
         CicsTask.MapSubfields sub = new CicsTask.MapSubfields();
         String message = " ".repeat(80);               // WS-MESSAGE
         boolean err;                                   // WS-ERR-FLG
-    }
-
-    public void executeCoadm01c(/* Parameters mapped from Controller */) {
-        log.info("Executing modernized business logic for COADM01C");
-        // The program's logic is the pseudo-conversational task: see runTask.
     }
 
     /** A CICS transaction entered the program. TODO: [AI AGENT] implement from the program's business rules. */
@@ -165,7 +146,7 @@ public class Coadm01cService {
                 s.ca.setCdemoFromTranid(TRANID);
                 s.ca.setCdemoFromProgram(PGMNAME);
                 s.ca.setCdemoPgmContext(0);
-                String resp = task.xctl(pgm, s.ca);
+                String resp = dispatchCdemoAdminOptPgmnameL145(task, pgm, s.ca);   // line 145
                 if ("PGMIDERR".equals(resp)) {
                     pgmiderrErrPara(task, s);
                     return true;
@@ -187,7 +168,7 @@ public class Coadm01cService {
         if (to == null || CobolCompare.eq(to, CobolCompare.lowValues(8)) || CobolCompare.eq(to, "")) {
             s.ca.setCdemoToProgram("COSGN00C");
         }
-        String resp = task.xctl(s.ca.getCdemoToProgram().trim(), null);   // XCTL without COMMAREA
+        String resp = dispatchCdemoToProgramL168(task, s.ca.getCdemoToProgram());   // XCTL without COMMAREA, line 168
         if ("PGMIDERR".equals(resp)) {
             pgmiderrErrPara(task, s);
             return true;
@@ -368,47 +349,21 @@ public class Coadm01cService {
         o.setErrmsg(fld(o.getErrmsg(), 78));
     }
 
-    /** XCTL PROGRAM(CDEMO-ADMIN-OPT-PGMNAME) at app/cbl/COADM01C.cbl:145: the target is data-driven. Candidates: COTRTLIC (table), COTRTUPC (table), COUSR00C (table), COUSR01C (table), COUSR02C (table), COUSR03C (table).
+    /** EXEC CICS XCTL PROGRAM(CDEMO-ADMIN-OPT-PGMNAME) at app/cbl/COADM01C.cbl:145, COMMAREA(CARDDEMO-COMMAREA): the target is data-driven (candidates the engine found: COTRTLIC (table), COTRTUPC (table), COUSR00C (table), COUSR01C (table), COUSR02C (table), COUSR03C (table)).
+     *  CICS resolves the name when the command runs (#4342): `program` is the PROGRAM field as the
+     *  COBOL holds it, its trailing blanks the name's padding. Returns the command's condition
+     *  (NORMAL, PGMIDERR, ...).
      *  Dynamic call targets field testing: open (5 public / 0 private estates). */
-    public Object dispatchCdemoAdminOptPgmnameL145(String program, Object request) {
-        switch (program.trim().toUpperCase(Locale.ROOT)) {
-            case "COTRTLIC":
-                return cotrtlicService.getObject().handleLink(CotrtlicCommarea.fromPrefix((CarddemoCommarea) request));
-            case "COTRTUPC":
-                return cotrtupcService.getObject().handleLink(CotrtupcCommarea.fromPrefix((CarddemoCommarea) request));
-            case "COUSR00C":
-                return cousr00cService.getObject().handleLink((Cousr00cCarddemoCommarea) request);
-            case "COUSR01C":
-                return cousr01cService.getObject().handleLink((CarddemoCommarea) request);
-            case "COUSR02C":
-                return cousr02cService.getObject().handleLink((Cousr02cCarddemoCommarea) request);
-            case "COUSR03C":
-                return cousr03cService.getObject().handleLink((Cousr03cCarddemoCommarea) request);
-            default:
-                throw new IllegalArgumentException("XCTL PROGRAM(CDEMO-ADMIN-OPT-PGMNAME) at app/cbl/COADM01C.cbl:145: no known target " + program);
-        }
+    public String dispatchCdemoAdminOptPgmnameL145(CicsTask task, String program, Object commarea) {
+        return task.xctl(program.stripTrailing(), commarea);
     }
 
-    /** XCTL PROGRAM(CDEMO-TO-PROGRAM) at app/cbl/COADM01C.cbl:168: the target is data-driven. Candidates: COSGN00C (moves).
+    /** EXEC CICS XCTL PROGRAM(CDEMO-TO-PROGRAM) at app/cbl/COADM01C.cbl:168, no COMMAREA: the target is data-driven (candidates the engine found: COSGN00C (moves)).
+     *  CICS resolves the name when the command runs (#4342): `program` is the PROGRAM field as the
+     *  COBOL holds it, its trailing blanks the name's padding. Returns the command's condition
+     *  (NORMAL, PGMIDERR, ...).
      *  Dynamic call targets field testing: open (5 public / 0 private estates). */
-    public Object dispatchCdemoToProgramL168(String program, Object request) {
-        switch (program.trim().toUpperCase(Locale.ROOT)) {
-            case "COSGN00C":
-                cosgn00cService.getObject().handleLink();
-                return null;
-            default:
-                throw new IllegalArgumentException("XCTL PROGRAM(CDEMO-TO-PROGRAM) at app/cbl/COADM01C.cbl:168: no known target " + program);
-        }
+    public String dispatchCdemoToProgramL168(CicsTask task, String program) {
+        return task.xctl(program.stripTrailing(), null);
     }
-
-    /** SEND MAP(COADM1A) MAPSET(COADM01) FROM(COADM1AO): the screen is filled by sendMenuScreen in runTask. */
-    public Coadm1aScreen renderCoadm1a(Coadm1aScreen screen) {
-        return screen;
-    }
-
-    /** RECEIVE MAP(COADM1A): the logic that reads COADM1AI is processEnterKey in runTask. */
-    public ScreenModel submitCoadm1a(Coadm1aScreen input, String aid) {
-        return renderCoadm1a(input);
-    }
-
 }

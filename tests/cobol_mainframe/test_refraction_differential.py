@@ -153,6 +153,31 @@ def _cause(mini_repo, **kw):
     return classified[0]["cause"]
 
 
+def _schema_causes(mini_repo, old, db, first):
+    row = dict(_row(), schema={"old": old, "db": db, "db_first_program": first})
+    return {(d["side"], d["value"]): d["cause"] for d in rd.classify(mini_repo, [row], None)}
+
+
+def test_forge_first_program_4245(mini_repo):
+    # A multi-program source: the forge renders the first program's DATA DIVISION, the engine every
+    # program's. Only a delta the engine's first-program schema would not show is that scope
+    # difference; one it does show is still a reader disagreement.
+    got = _schema_causes(
+        mini_repo,
+        old=["TABLE P", "B    INTEGER"],
+        db=["TABLE P", "B    INTEGER,", "C    INTEGER,", "X    INTEGER"],
+        first=["TABLE P", "B    INTEGER", "C    INTEGER,"],
+    )
+    assert got == {
+        ("old", "B    INTEGER"): "forge_first_program",  # the last column of the first program's schema
+        ("db", "B    INTEGER,"): "forge_first_program",
+        ("db", "X    INTEGER"): "forge_first_program",  # a sibling program's column
+        ("db", "C    INTEGER,"): "unexplained",  # in the first program too: the forge dropped it
+    }
+    # a one-program source (no first-program schema) keeps the #3348 rule
+    assert set(_schema_causes(mini_repo, old=[], db=["X    INTEGER"], first=None).values()) == {"unexplained"}
+
+
 def test_scope_terminator(mini_repo):
     assert _cause(mini_repo, dead_old=["GOBACK"]) == "scope_terminator"
 

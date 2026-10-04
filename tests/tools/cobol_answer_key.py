@@ -936,10 +936,20 @@ def _data_items(src: Source) -> list[dict[str, Any]]:
     DATA DIVISION and PROCEDURE DIVISION are taken (a copybook has neither header
     and is read whole, but this runs on programs)."""
     text = src.raw_text
-    dd = _DATA_DIVISION.search(text)
-    start = dd.end() if dd else 0
-    proc = _PROC_DIVISION.search(text, start)
-    end = proc.start() if proc else len(text)
+    # #4245: every program's DATA DIVISION in a multi-program source (nested programs and
+    # batch-compiled siblings), each to its own PROCEDURE DIVISION -- not only the first one.
+    windows: list[tuple[int, int]] = []
+    for dd in _DATA_DIVISION.finditer(text):
+        if windows and dd.start() < windows[-1][1]:
+            continue
+        proc = _PROC_DIVISION.search(text, dd.end())
+        windows.append((dd.end(), proc.start() if proc else len(text)))
+    if not windows:
+        windows = [(0, len(text))]
+
+    def _window_of(off: int) -> Optional[int]:
+        return next((i for i, (a, b) in enumerate(windows) if a <= off < b), None)
+
     sections = [(m.start(), m.group(1)) for m in _DD_SECTION.finditer(text)]
     fds = [(m.start(), m.group(1)) for m in _DD_FD.finditer(text)]
 
@@ -955,9 +965,14 @@ def _data_items(src: Source) -> list[dict[str, Any]]:
     items: list[dict[str, Any]] = []
     stack: list[tuple[int, int]] = []
     last_item = None
+    open_window = None
     for pos, m in enumerate(entries):
-        if m.start() < start or m.start() >= end:
+        window_index = _window_of(m.start())
+        if window_index is None:
             continue
+        if window_index != open_window:  # #4245: a new program -- nothing of the last one stays open
+            open_window, last_item = window_index, None
+            stack.clear()
         level = int(m.group(1))
         name = m.group(2).upper()
         if name in ("THROUGH", "THRU"):

@@ -121,9 +121,14 @@ PINNED = {
     # is reached by no transaction in the repository (no CSD), and EPSCSMRT is a batch
     # driver no JCL step runs. #4242: EPSCSMRD (the web-service wrapper, `PROGRAM-ID. 'EPSCSMRD'.`) records
     # its program since the quoted name is read; it is a CICS program no transaction here reaches.
+    # #4245: 549/567 data flows -- EPSCSMRD holds 13 programs, and only the first one's DATA
+    # DIVISION was read, so 408 operands of the other 12 resolved to nothing. Of the 18 left,
+    # 11 are EPSCSMRD's XML PARSE special registers (XML-TEXT / XML-NTEXT read as items) and 7
+    # are EPSCSMRT's; `MOVE XML-CODE TO ERROR-CODE` now resolves its target and counts as
+    # `system`, out of the denominator.
     "dbb-mortgage-application": {
         "program calls": (7, 19), "copybooks": (11, 11), "transactions": (2, 4), "screens": (7, 7),
-        "data flows": (141, 568), "IMS PSBs": (0, 0), "batch entry": (0, 1),
+        "data flows": (549, 567), "IMS PSBs": (0, 0), "batch entry": (0, 1),
     },
     # #3512: ECS001 ("Sample CICS program initiated via a terminal") issues only
     # EXEC CICS WEB, so it read as a batch program until WEB commands drew rows; it

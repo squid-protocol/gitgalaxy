@@ -959,6 +959,26 @@ def _cobol_records(code_stream: str, decimal_comma: Optional[bool] = None) -> li
     data_start = dd_match.end() if dd_match else 0
     proc_match = _PROCEDURE_DIVISION.search(code_stream, data_start)
     data_end = proc_match.start() if proc_match else len(code_stream)
+    # #4245: a source may hold several programs (nested, or batch-compiled siblings -- DBB
+    # epscsmrd.cbl has 13 PROGRAM-IDs), each with its own DATA DIVISION. Every program's
+    # window is read, not only the first one's; the owning program is the PROGRAM-ID the
+    # entry's line falls under (derivable from `line`, as galaxy_ir does for units).
+    windows: list[tuple[int, int]] = []
+    if dd_match:
+        for dd in _DATA_DIVISION.finditer(code_stream):
+            if windows and dd.start() < windows[-1][1]:
+                continue
+            nxt_proc = _PROCEDURE_DIVISION.search(code_stream, dd.end())
+            windows.append((dd.end(), nxt_proc.start() if nxt_proc else len(code_stream)))
+    else:
+        windows.append((data_start, data_end))
+    window_starts = [w[0] for w in windows]
+
+    def _window_end(offset: int) -> Optional[int]:
+        """The end of the DATA DIVISION window holding `offset`, or None when it is in none."""
+        i = bisect.bisect_right(window_starts, offset) - 1
+        return windows[i][1] if i >= 0 and windows[i][0] <= offset < windows[i][1] else None
+
     # #3942: a copybook has no SPECIAL-NAMES -- DECIMAL-POINT IS COMMA belongs to the program that COPYs it.
     # A separator comma is a comma followed by a space, so `12345,67` can only be one literal: kept as
     # written, which is right in every program that includes it (the reader applies that program's point).
@@ -1002,11 +1022,16 @@ def _cobol_records(code_stream: str, decimal_comma: Optional[bool] = None) -> li
     records: list[dict[str, Any]] = []
     stack: list[tuple[int, int, Optional[str]]] = []  # (level, ordinal, usage) of the open group items
     last_item_ordinal: Optional[int] = None
+    open_window: Optional[int] = None
 
     for pos, level_match in enumerate(entries):
         start = level_match.start()
-        if start < data_start or start >= data_end:
+        entry_window_end = _window_end(start)
+        if entry_window_end is None:
             continue
+        if entry_window_end != open_window:
+            # #4245: a new program's DATA DIVISION -- nothing of the previous program stays open.
+            open_window, stack, last_item_ordinal = entry_window_end, [], None
         level = int(level_match.group(1))
         name = level_match.group(2).upper()
         # The entry body: from just after the name to the next level number -- or, for an unnamed entry
@@ -1082,7 +1107,7 @@ def _cobol_records(code_stream: str, decimal_comma: Optional[bool] = None) -> li
         # section-level `LINKAGE SECTION.` + `COPY X.` (a COPY that belongs to no
         # entry) and a procedure-division COPY are never attributed to the entry
         # above them.
-        copy_stop = min(stop, level_match.end() + _ENTRY_LIMIT, data_end)
+        copy_stop = min(stop, level_match.end() + _ENTRY_LIMIT, entry_window_end)
         for offsets in (section_offsets, fd_offsets):
             nxt = bisect.bisect_right(offsets, level_match.end())
             if nxt < len(offsets):

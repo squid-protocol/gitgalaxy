@@ -44,6 +44,9 @@
     "javascript/react": {
       "javascript/react/build.js": "2 instances"
     },
+    "javascript/react_error_codes": {
+      "javascript/react_error_codes/extract-errors.js": "2 instances"
+    },
     "jcl/cash-account-cobol": {
       "jcl/cash-account-cobol/DB2DDL.jcl": "3 instances"
     },

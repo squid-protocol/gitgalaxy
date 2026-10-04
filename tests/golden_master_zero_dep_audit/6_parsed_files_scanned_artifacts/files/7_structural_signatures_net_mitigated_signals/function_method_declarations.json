@@ -411,6 +411,9 @@
     "c": {
       "c/SOURCES.md": 0
     },
+    "c/cosmopolitan_intrin": {
+      "c/cosmopolitan_intrin/countbits.c": 1
+    },
     "c/cpython": {
       "c/cpython/Makefile.pre.in": 244,
       "c/cpython/ceval.c": 115,
@@ -435,6 +438,9 @@
       "c/doom/r_defs.h": 0,
       "c/doom/w_wad.c": 15,
       "c/doom/z_zone.c": 10
+    },
+    "c/freebsd_openpam": {
+      "c/freebsd_openpam/pam_acct_mgmt.c": 1
     },
     "c/micropython": {
       "c/micropython/compile.c": 100,
@@ -1126,6 +1132,10 @@
       "cpp/powertoys/main.cpp": 9,
       "cpp/powertoys/powertoy_module.h": 4
     },
+    "cpp/serenity_ak_siphash_cpu": {
+      "cpp/serenity_ak_siphash_cpu/CPUFeatures.cpp": 2,
+      "cpp/serenity_ak_siphash_cpu/SipHash.cpp": 9
+    },
     "csd": {
       "csd/SOURCES.md": 0
     },
@@ -1362,6 +1372,9 @@
       "go/core/syscall_linux.go": 107,
       "go/core/value.go": 192
     },
+    "go/go_runtime_rand": {
+      "go/go_runtime_rand/rand.go": 17
+    },
     "go/kubernetes": {
       "go/kubernetes/csi_plugin.go": 39,
       "go/kubernetes/generic.go": 26,
@@ -1370,6 +1383,9 @@
       "go/kubernetes/proxier.go": 28,
       "go/kubernetes/replica_set.go": 26,
       "go/kubernetes/scheduler.go": 21
+    },
+    "go/kubernetes_kubectl_tls": {
+      "go/kubernetes_kubectl_tls/create_secret_tls_test.go": 3
     },
     "groovy/fineract_gradle_plugin": {
       "groovy/fineract_gradle_plugin/LICENSE_RELEASE": 0,
@@ -1876,6 +1892,17 @@
     "java": {
       "java/SOURCES.md": 0
     },
+    "java/flutter_android_editing_tests": {
+      "java/flutter_android_editing_tests/InputConnectionAdaptorTest.java": 54
+    },
+    "java/jenkins_cli": {
+      "java/jenkins_cli/LICENSE.txt": 0,
+      "java/jenkins_cli/SetBuildDescriptionCommand.java": 2
+    },
+    "java/selenium_grid_session_queue": {
+      "java/selenium_grid_session_queue/NOTICE": 0,
+      "java/selenium_grid_session_queue/RemoteNewSessionQueue.java": 11
+    },
     "java/springboot": {
       "java/springboot/AutoConfigurationImportSelector.java": 47,
       "java/springboot/Binder.java": 51,
@@ -1889,6 +1916,13 @@
     "javascript": {
       "javascript/SOURCES.md": 0
     },
+    "javascript/cesium_particle_emitters": {
+      "javascript/cesium_particle_emitters/CircleEmitter.js": 4,
+      "javascript/cesium_particle_emitters/LICENSE.md": 0
+    },
+    "javascript/javascript_algorithms_bits": {
+      "javascript/javascript_algorithms_bits/fullAdder.js": 1
+    },
     "javascript/jquery": {
       "javascript/jquery/LICENSE.txt": 0,
       "javascript/jquery/ajax.js": 19,
@@ -1899,6 +1933,15 @@
       "javascript/jquery/event.js": 32,
       "javascript/jquery/tokenize.js": 1
     },
+    "javascript/node_tls_security_tests": {
+      "javascript/node_tls_security_tests/regexp-unicode-sets.js": 1,
+      "javascript/node_tls_security_tests/test-crypto-dh-modp2.js": 0,
+      "javascript/node_tls_security_tests/test-fs-lchown.js": 0,
+      "javascript/node_tls_security_tests/test-https-host-headers.js": 0,
+      "javascript/node_tls_security_tests/test-tls-cert-ext-encoding.js": 0,
+      "javascript/node_tls_security_tests/test-tls-psk-server.js": 0,
+      "javascript/node_tls_security_tests/test-tls-use-after-free-regression.js": 0
+    },
     "javascript/react": {
       "javascript/react/BabelPlugin.ts": 3,
       "javascript/react/ReactFiberBeginWork.js": 71,
@@ -1906,6 +1949,9 @@
       "javascript/react/ReactFlightServer.js": 163,
       "javascript/react/ReactSymbols.js": 1,
       "javascript/react/build.js": 26
+    },
+    "javascript/react_error_codes": {
+      "javascript/react_error_codes/extract-errors.js": 1
     },
     "javascript/threejs": {
       "javascript/threejs/BufferGeometry.js": 35,
@@ -2393,6 +2439,16 @@
       "makefile/freebsd/COPYRIGHT": 0,
       "makefile/freebsd/Makefile": 1
     },
+    "markdown": {
+      "markdown/SOURCES.md": 0
+    },
+    "markdown/airflow_job_lifecycle": {
+      "markdown/airflow_job_lifecycle/JOB_LIFECYCLE.md": 0,
+      "markdown/airflow_job_lifecycle/NOTICE": 0
+    },
+    "markdown/kubernetes_client_go": {
+      "markdown/kubernetes_client_go/ARCHITECTURE.md": 0
+    },
     "matlab": {
       "matlab/SOURCES.md": 0
     },
@@ -2442,6 +2498,10 @@
     },
     "perl": {
       "perl/SOURCES.md": 0
+    },
+    "perl/ack3_tests": {
+      "perl/ack3_tests/LICENSE.md": 0,
+      "perl/ack3_tests/file-permission.t": 2
     },
     "perl/bugzilla": {
       "perl/bugzilla/Auth.pm": 10,
@@ -2497,6 +2557,10 @@
       "php/laravel_core/Model.php": 162,
       "php/laravel_core/Router.php": 90
     },
+    "php/laravel_validation_rules": {
+      "php/laravel_validation_rules/Can.php": 4,
+      "php/laravel_validation_rules/LICENSE.md": 0
+    },
     "php/magento2": {
       "php/magento2/AbstractBlock.php": 57,
       "php/magento2/AbstractModel.php": 57,
@@ -2515,6 +2579,9 @@
       "php/symfony/Parser.php": 12,
       "php/symfony/Request.php": 94,
       "php/symfony/Router.php": 18
+    },
+    "php/symfony_emoji_data": {
+      "php/symfony_emoji_data/emoji-ccp.php": 0
     },
     "php/wordpress": {
       "php/wordpress/admin-ajax.php": 0,
@@ -2731,6 +2798,17 @@
       "python/airflow/s3.py": 56,
       "python/airflow/scheduler_job_runner.py": 64
     },
+    "python/airflow_ai_providers": {
+      "python/airflow_ai_providers/NOTICE": 0,
+      "python/airflow_ai_providers/openai_src_airflow_providers_openai_hooks_openai.py": 41,
+      "python/airflow_ai_providers/pinecone_src_airflow_providers_pinecone_hooks_pinecone.py": 25,
+      "python/airflow_ai_providers/pinecone_src_airflow_providers_pinecone_operators_pinecone.py": 9,
+      "python/airflow_ai_providers/pinecone_tests_system_pinecone_example_pinecone_cohere.py": 2
+    },
+    "python/airflow_opsgenie_tests": {
+      "python/airflow_opsgenie_tests/NOTICE": 0,
+      "python/airflow_opsgenie_tests/test_opsgenie.py": 9
+    },
     "python/cython": {
       "python/cython/COPYING.txt": 0,
       "python/cython/CodeGeneration.py": 3,
@@ -2738,6 +2816,10 @@
       "python/cython/MemoryView.pxd": 16,
       "python/cython/MemoryView.pyx": 84,
       "python/cython/Nodes.py": 478
+    },
+    "python/django_db_tests": {
+      "python/django_db_tests/test_iterator.py": 5,
+      "python/django_db_tests/test_utils.py": 10
     },
     "python/fastapi": {
       "python/fastapi/CONTRIBUTING.md": 0,
@@ -2976,6 +3058,26 @@
       "python/fastapi/tests/test_ws_router.py": 33,
       "python/fastapi/tests/utils.py": 1
     },
+    "python/homeassistant_anthropic": {
+      "python/homeassistant_anthropic/LICENSE.md": 0,
+      "python/homeassistant_anthropic/coordinator.py": 4
+    },
+    "python/homeassistant_ble_integrations": {
+      "python/homeassistant_ble_integrations/LICENSE.md": 0,
+      "python/homeassistant_ble_integrations/aranet___init__.py": 3,
+      "python/homeassistant_ble_integrations/gardena_bluetooth___init__.py": 5,
+      "python/homeassistant_ble_integrations/utils.py": 2
+    },
+    "python/langchain_agents": {
+      "python/langchain_agents/langchain_agents_middleware_model_fallback.py": 3,
+      "python/langchain_agents/langchain_agents_middleware_tool_emulator.py": 3,
+      "python/langchain_agents/tests_integration_tests_chat_models_test_base.py": 6
+    },
+    "python/micropython_usb_tls": {
+      "python/micropython_usb_tls/ssl_verify_callback.py": 3,
+      "python/micropython_usb_tls/tls_dtls.py": 4,
+      "python/micropython_usb_tls/usb_simple_host_pyusb.py": 1
+    },
     "python/numpy": {
       "python/numpy/LICENSE.txt": 0,
       "python/numpy/__init__.py": 0,
@@ -2995,6 +3097,31 @@
       "python/numpy/testutils.py": 17,
       "python/numpy/ufunc_docstrings.py": 1,
       "python/numpy/verify_c_api_version.py": 3
+    },
+    "python/opencv_dnn_conversion": {
+      "python/opencv_dnn_conversion/py_to_py_resnet50_onnx.py": 2
+    },
+    "python/pip_vendored_requests": {
+      "python/pip_vendored_requests/LICENSE.txt": 0,
+      "python/pip_vendored_requests/packages.py": 0
+    },
+    "python/scikit-learn_examples": {
+      "python/scikit-learn_examples/COPYING": 0,
+      "python/scikit-learn_examples/linear_model_plot_nnls.py": 0,
+      "python/scikit-learn_examples/svm_plot_custom_kernel.py": 1
+    },
+    "python/tensorflow_ml_ops": {
+      "python/tensorflow_ml_ops/core_tfrt_saved_model_tests_gen_matmul_gpu.py": 3,
+      "python/tensorflow_ml_ops/lite_testing_op_tests_einsum.py": 4
+    },
+    "python/tensorflow_model_fixtures": {
+      "python/tensorflow_model_fixtures/lite_testdata_multi_add.pb": 0,
+      "python/tensorflow_model_fixtures/python_compiler_mlir_multi_add.tflite": 0
+    },
+    "python/thealgorithms_machine_learning": {
+      "python/thealgorithms_machine_learning/LICENSE.md": 0,
+      "python/thealgorithms_machine_learning/logistic_regression.py": 5,
+      "python/thealgorithms_machine_learning/lstm_lstm_prediction.py": 0
     },
     "python/twisted": {
       "python/twisted/defer.py": 116,
@@ -3061,6 +3188,10 @@
       "ruby/rails/metal.rb": 25,
       "ruby/rails/routing.rb": 0
     },
+    "ruby/rails_http_token_auth": {
+      "ruby/rails_http_token_auth/MIT-LICENSE": 0,
+      "ruby/rails_http_token_auth/http_token_authentication_test.rb": 11
+    },
     "rust": {
       "rust/SOURCES.md": 0
     },
@@ -3074,6 +3205,12 @@
       "rust/bevy/bevy_reflect_path.rs": 12,
       "rust/bevy/bevy_render_phase.rs": 3,
       "rust/bevy/bevy_schedule_graph.rs": 7
+    },
+    "rust/bevy_asset_examples": {
+      "rust/bevy_asset_examples/LICENSE-APACHE": 0,
+      "rust/bevy_asset_examples/LICENSE-MIT": 0,
+      "rust/bevy_asset_examples/image_node.rs": 2,
+      "rust/bevy_asset_examples/rotation.rs": 5
     },
     "rust/holylang": {
       "rust/holylang/ast.rs": 0,
@@ -3118,6 +3255,9 @@
       "rust/tokio/tests.rs": 28,
       "rust/tokio/tokio_mpsc_bounded.rs": 59,
       "rust/tokio/tokio_named_pipe.rs": 68
+    },
+    "rust/tokio_util_rand": {
+      "rust/tokio_util_rand/rand.rs": 7
     },
     "rust/wasmtime": {
       "rust/wasmtime/wasmtime_component_macro.rs": 5,
@@ -3260,6 +3400,10 @@
       "shell/freebsd-src/runulp.sh": 2,
       "shell/freebsd-src/timeout_test.sh": 19,
       "shell/freebsd-src/ztest.sh": 4
+    },
+    "shell/freebsd_sysbuild": {
+      "shell/freebsd_sysbuild/COPYRIGHT": 0,
+      "shell/freebsd_sysbuild/sysbuild.sh": 11
     },
     "shell/haiku": {
       "shell/haiku/HardwareChecker.sh": 13,
@@ -3688,6 +3832,9 @@
     "typescript": {
       "typescript/SOURCES.md": 0
     },
+    "typescript/angular_zonejs_mocha": {
+      "typescript/angular_zonejs_mocha/mocha.ts": 23
+    },
     "typescript/assemblyscript": {
       "typescript/assemblyscript/asconfig.json": 0,
       "typescript/assemblyscript/ast.ts": 187,
@@ -3695,12 +3842,30 @@
       "typescript/assemblyscript/package.json": 0,
       "typescript/assemblyscript/parser.ts": 63
     },
+    "typescript/effect_ai_anthropic": {
+      "typescript/effect_ai_anthropic/AnthropicTokenizer.ts": 3
+    },
+    "typescript/excalibur_math": {
+      "typescript/excalibur_math/LICENSE.md": 0,
+      "typescript/excalibur_math/collision_colliders_separating-axis.ts": 3,
+      "typescript/excalibur_math/math_ray.ts": 4
+    },
+    "typescript/excalidraw_text_wrapping": {
+      "typescript/excalidraw_text_wrapping/textWrapping.ts": 33
+    },
     "typescript/fp-ts": {
       "typescript/fp-ts/Either.ts": 62,
       "typescript/fp-ts/HKT.ts": 0,
       "typescript/fp-ts/TaskEither.ts": 41,
       "typescript/fp-ts/package.json": 0,
       "typescript/fp-ts/pipeable.ts": 224
+    },
+    "typescript/nx_util_ai": {
+      "typescript/nx_util_ai/nx-dev_pages_api_query-ai-handler.ts": 1,
+      "typescript/nx_util_ai/util-ai_src_lib_moderation.ts": 1
+    },
+    "typescript/pixijs_examples": {
+      "typescript/pixijs_examples/events_dragging.ts": 4
     },
     "typescript/playwright": {
       "typescript/playwright/NOTICE": 0,
@@ -3892,6 +4057,9 @@
       "zig/zig/Type.zig": 189,
       "zig/zig/Zcu.zig": 128,
       "zig/zig/main.zig": 68
+    },
+    "zig/zig_std_linux_mips": {
+      "zig/zig_std_linux_mips/mips.zig": 13
     },
     "zig/zls": {
       "zig/zls/DocumentScope.zig": 45,

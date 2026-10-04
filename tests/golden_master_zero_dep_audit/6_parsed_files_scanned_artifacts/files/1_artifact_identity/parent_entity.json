@@ -28,6 +28,15 @@
       "groovy/spock/SpecRewriter.java": "AbstractSpecVisitor implements IRewriteResources",
       "groovy/spock/SpockTransform.java": "ASTTransformation"
     },
+    "java/flutter_android_editing_tests": {
+      "java/flutter_android_editing_tests/InputConnectionAdaptorTest.java": "TextInputChannel, ShadowInputMethodManager"
+    },
+    "java/jenkins_cli": {
+      "java/jenkins_cli/SetBuildDescriptionCommand.java": "CLICommand implements Serializable"
+    },
+    "java/selenium_grid_session_queue": {
+      "java/selenium_grid_session_queue/RemoteNewSessionQueue.java": "NewSessionQueue"
+    },
     "java/springboot": {
       "java/springboot/AutoConfigurationImportSelector.java": "DeferredImportSelector, BeanClassLoaderAware,, DeferredImportSelector",
       "java/springboot/Binder.java": "BindContext",
@@ -46,10 +55,19 @@
       "python/airflow/s3.py": "AwsBaseHook",
       "python/airflow/scheduler_job_runner.py": "BaseJobRunner, LoggingMixin"
     },
+    "python/airflow_ai_providers": {
+      "python/airflow_ai_providers/openai_src_airflow_providers_openai_hooks_openai.py": "str, Enum, BaseHook",
+      "python/airflow_ai_providers/pinecone_src_airflow_providers_pinecone_hooks_pinecone.py": "BaseHook",
+      "python/airflow_ai_providers/pinecone_src_airflow_providers_pinecone_operators_pinecone.py": "BaseOperator"
+    },
     "python/cython": {
       "python/cython/CodeGeneration.py": "VisitorTransform",
       "python/cython/MemoryView.pyx": "object, memoryview",
       "python/cython/Nodes.py": "enum.IntEnum, type, Node"
+    },
+    "python/django_db_tests": {
+      "python/django_db_tests/test_iterator.py": "TestCase",
+      "python/django_db_tests/test_utils.py": "SimpleTestCase, TransactionTestCase"
     },
     "python/fastapi/fastapi": {
       "python/fastapi/fastapi/applications.py": "Starlette",
@@ -149,12 +167,26 @@
       "python/fastapi/tests/test_webhooks_security.py": "BaseModel",
       "python/fastapi/tests/test_ws_router.py": "Exception"
     },
+    "python/homeassistant_anthropic": {
+      "python/homeassistant_anthropic/coordinator.py": "DataUpdateCoordinator[None]"
+    },
+    "python/langchain_agents": {
+      "python/langchain_agents/langchain_agents_middleware_model_fallback.py": "AgentMiddleware[AgentState[ResponseT], ContextT, ResponseT]",
+      "python/langchain_agents/langchain_agents_middleware_tool_emulator.py": "AgentMiddleware[AgentState[Any], ContextT], Generic[ContextT]",
+      "python/langchain_agents/tests_integration_tests_chat_models_test_base.py": "BaseModel, ChatModelIntegrationTests"
+    },
+    "python/micropython_usb_tls": {
+      "python/micropython_usb_tls/tls_dtls.py": "io.IOBase"
+    },
     "python/numpy": {
       "python/numpy/_linalg.py": "NamedTuple, ValueError",
       "python/numpy/core.py": "FutureWarning, Exception, MAError",
       "python/numpy/genapi.py": "Exception",
       "python/numpy/symbolic.py": "Enum, Exception, UserWarning",
       "python/numpy/verify_c_api_version.py": "ValueError"
+    },
+    "python/tensorflow_ml_ops": {
+      "python/tensorflow_ml_ops/core_tfrt_saved_model_tests_gen_matmul_gpu.py": "module.Module"
     },
     "python/twisted": {
       "python/twisted/defer.py": "Exception, TypeError, Enum",
@@ -167,6 +199,9 @@
       "ruby/rails/blob.rb": "ActiveStorage::Record",
       "ruby/rails/inbound_emails_controller.rb": "ActionMailbox::BaseController",
       "ruby/rails/metal.rb": "ActionDispatch::MiddlewareStack, ActionDispatch::MiddlewareStack::Middleware, AbstractController::Base"
+    },
+    "ruby/rails_http_token_auth": {
+      "ruby/rails_http_token_auth/http_token_authentication_test.rb": "ActionController::TestCase, ActionController::Base"
     },
     "shell/brew": {
       "shell/brew/brew.rb": "Homebrew::Bundle::PackageType, Hash",

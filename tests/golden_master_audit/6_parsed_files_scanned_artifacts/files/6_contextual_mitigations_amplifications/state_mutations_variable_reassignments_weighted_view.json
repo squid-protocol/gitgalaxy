@@ -101,6 +101,9 @@
       "assembly/x86_bare_metal/bios_pixel_line.S": 6,
       "assembly/x86_bare_metal/bios_sleep.S": 3
     },
+    "c/cosmopolitan_intrin": {
+      "c/cosmopolitan_intrin/countbits.c": 59
+    },
     "c/cpython": {
       "c/cpython/ceval.c": 846,
       "c/cpython/compile.c": 484,
@@ -457,6 +460,10 @@
       "cpp/powertoys/logger.cpp": 15,
       "cpp/powertoys/main.cpp": 70
     },
+    "cpp/serenity_ak_siphash_cpu": {
+      "cpp/serenity_ak_siphash_cpu/CPUFeatures.cpp": 9,
+      "cpp/serenity_ak_siphash_cpu/SipHash.cpp": 97
+    },
     "csharp/roslyn": {
       "csharp/roslyn/CSharpCompilation.cs": 521,
       "csharp/roslyn/CSharpSyntaxTree.cs": 76,
@@ -556,6 +563,9 @@
       "go/core/syscall_linux.go": 358,
       "go/core/value.go": 480
     },
+    "go/go_runtime_rand": {
+      "go/go_runtime_rand/rand.go": 55
+    },
     "go/kubernetes": {
       "go/kubernetes/csi_plugin.go": 110,
       "go/kubernetes/generic.go": 101,
@@ -563,6 +573,9 @@
       "go/kubernetes/proxier.go": 199,
       "go/kubernetes/replica_set.go": 94,
       "go/kubernetes/scheduler.go": 99
+    },
+    "go/kubernetes_kubectl_tls": {
+      "go/kubernetes_kubectl_tls/create_secret_tls_test.go": 11
     },
     "groovy/fineract_gradle_plugin": {
       "groovy/fineract_gradle_plugin/org_apache_fineract_gradle_service_EmailService.groovy": 22,
@@ -676,6 +689,15 @@
       "html/vscode_webviews/github_auth_media_index.html": 26,
       "html/vscode_webviews/webWorkerExtensionHostIframe.html": 31
     },
+    "java/flutter_android_editing_tests": {
+      "java/flutter_android_editing_tests/InputConnectionAdaptorTest.java": 154
+    },
+    "java/jenkins_cli": {
+      "java/jenkins_cli/SetBuildDescriptionCommand.java": 6
+    },
+    "java/selenium_grid_session_queue": {
+      "java/selenium_grid_session_queue/RemoteNewSessionQueue.java": 18
+    },
     "java/springboot": {
       "java/springboot/AutoConfigurationImportSelector.java": 69,
       "java/springboot/Binder.java": 52,
@@ -683,6 +705,12 @@
       "java/springboot/ServletWebServerApplicationContext.java": 13,
       "java/springboot/SpringApplication.java": 155,
       "java/springboot/WebMvcAutoConfiguration.java": 53
+    },
+    "javascript/cesium_particle_emitters": {
+      "javascript/cesium_particle_emitters/CircleEmitter.js": 10
+    },
+    "javascript/javascript_algorithms_bits": {
+      "javascript/javascript_algorithms_bits/fullAdder.js": 5
     },
     "javascript/jquery": {
       "javascript/jquery/ajax.js": 362,
@@ -693,12 +721,21 @@
       "javascript/jquery/event.js": 364,
       "javascript/jquery/tokenize.js": 45
     },
+    "javascript/node_tls_security_tests": {
+      "javascript/node_tls_security_tests/regexp-unicode-sets.js": 73,
+      "javascript/node_tls_security_tests/test-https-host-headers.js": 12,
+      "javascript/node_tls_security_tests/test-tls-cert-ext-encoding.js": 13,
+      "javascript/node_tls_security_tests/test-tls-psk-server.js": 12
+    },
     "javascript/react": {
       "javascript/react/BabelPlugin.ts": 6,
       "javascript/react/ReactFiberBeginWork.js": 773,
       "javascript/react/ReactFiberWorkLoop.js": 1042,
       "javascript/react/ReactFlightServer.js": 1371,
       "javascript/react/build.js": 46
+    },
+    "javascript/react_error_codes": {
+      "javascript/react_error_codes/extract-errors.js": 34
     },
     "javascript/threejs": {
       "javascript/threejs/BufferGeometry.js": 261,
@@ -859,6 +896,9 @@
       "objective-c/worldwideweb/HyperText.m": 862,
       "objective-c/worldwideweb/TcpAccess.m": 13
     },
+    "perl/ack3_tests": {
+      "perl/ack3_tests/file-permission.t": 6
+    },
     "perl/bugzilla": {
       "perl/bugzilla/Auth.pm": 49,
       "perl/bugzilla/Bug.pm": 1350,
@@ -904,6 +944,9 @@
       "php/laravel_core/Facade.php": 53,
       "php/laravel_core/Model.php": 406,
       "php/laravel_core/Router.php": 213
+    },
+    "php/laravel_validation_rules": {
+      "php/laravel_validation_rules/Can.php": 10
     },
     "php/magento2": {
       "php/magento2/AbstractBlock.php": 310,
@@ -1053,9 +1096,21 @@
       "python/airflow/s3.py": 573,
       "python/airflow/scheduler_job_runner.py": 773
     },
+    "python/airflow_ai_providers": {
+      "python/airflow_ai_providers/openai_src_airflow_providers_openai_hooks_openai.py": 74,
+      "python/airflow_ai_providers/pinecone_src_airflow_providers_pinecone_hooks_pinecone.py": 54,
+      "python/airflow_ai_providers/pinecone_src_airflow_providers_pinecone_operators_pinecone.py": 37,
+      "python/airflow_ai_providers/pinecone_tests_system_pinecone_example_pinecone_cohere.py": 17
+    },
+    "python/airflow_opsgenie_tests": {
+      "python/airflow_opsgenie_tests/test_opsgenie.py": 25
+    },
     "python/cython": {
       "python/cython/MemoryView.pyx": 554,
       "python/cython/Nodes.py": 5021
+    },
+    "python/django_db_tests": {
+      "python/django_db_tests/test_utils.py": 5
     },
     "python/fastapi/fastapi": {
       "python/fastapi/fastapi/applications.py": 90,
@@ -1107,6 +1162,23 @@
       "python/fastapi/tests/test_ws_router.py": 34,
       "python/fastapi/tests/utils.py": 5
     },
+    "python/homeassistant_anthropic": {
+      "python/homeassistant_anthropic/coordinator.py": 12
+    },
+    "python/homeassistant_ble_integrations": {
+      "python/homeassistant_ble_integrations/gardena_bluetooth___init__.py": 22,
+      "python/homeassistant_ble_integrations/utils.py": 9
+    },
+    "python/langchain_agents": {
+      "python/langchain_agents/langchain_agents_middleware_model_fallback.py": 17,
+      "python/langchain_agents/langchain_agents_middleware_tool_emulator.py": 48,
+      "python/langchain_agents/tests_integration_tests_chat_models_test_base.py": 13
+    },
+    "python/micropython_usb_tls": {
+      "python/micropython_usb_tls/ssl_verify_callback.py": 10,
+      "python/micropython_usb_tls/tls_dtls.py": 22,
+      "python/micropython_usb_tls/usb_simple_host_pyusb.py": 18
+    },
     "python/numpy": {
       "python/numpy/_linalg.py": 638,
       "python/numpy/cfuncs.py": 231,
@@ -1122,6 +1194,13 @@
       "python/numpy/testutils.py": 63,
       "python/numpy/ufunc_docstrings.py": 14,
       "python/numpy/verify_c_api_version.py": 10
+    },
+    "python/pip_vendored_requests": {
+      "python/pip_vendored_requests/packages.py": 22
+    },
+    "python/thealgorithms_machine_learning": {
+      "python/thealgorithms_machine_learning/logistic_regression.py": 38,
+      "python/thealgorithms_machine_learning/lstm_lstm_prediction.py": 48
     },
     "python/twisted": {
       "python/twisted/defer.py": 434,
@@ -1173,12 +1252,18 @@
       "ruby/rails/inbound_emails_controller.rb": 4,
       "ruby/rails/metal.rb": 72
     },
+    "ruby/rails_http_token_auth": {
+      "ruby/rails_http_token_auth/http_token_authentication_test.rb": 66
+    },
     "rust/bevy": {
       "rust/bevy/bevy_ecs_macros.rs": 52,
       "rust/bevy/bevy_ecs_table.rs": 4,
       "rust/bevy/bevy_ecs_world.rs": 55,
       "rust/bevy/bevy_reflect_path.rs": 5,
       "rust/bevy/bevy_schedule_graph.rs": 53
+    },
+    "rust/bevy_asset_examples": {
+      "rust/bevy_asset_examples/rotation.rs": 13
     },
     "rust/holylang": {
       "rust/holylang/compile.rs": 12,
@@ -1203,6 +1288,9 @@
       "rust/tokio/tests.rs": 11,
       "rust/tokio/tokio_mpsc_bounded.rs": 3,
       "rust/tokio/tokio_named_pipe.rs": 53
+    },
+    "rust/tokio_util_rand": {
+      "rust/tokio_util_rand/rand.rs": 7
     },
     "rust/wasmtime": {
       "rust/wasmtime/wasmtime_instance.rs": 14,
@@ -1288,6 +1376,9 @@
       "shell/freebsd-src/runulp.sh": 41,
       "shell/freebsd-src/timeout_test.sh": 6,
       "shell/freebsd-src/ztest.sh": 15
+    },
+    "shell/freebsd_sysbuild": {
+      "shell/freebsd_sysbuild/sysbuild.sh": 159
     },
     "shell/haiku": {
       "shell/haiku/HardwareChecker.sh": 66,
@@ -1454,15 +1545,27 @@
       "tcl/sqlite/tester.tcl": 1302,
       "tcl/sqlite/testrunner.tcl": 1107
     },
+    "typescript/angular_zonejs_mocha": {
+      "typescript/angular_zonejs_mocha/mocha.ts": 34
+    },
     "typescript/assemblyscript": {
       "typescript/assemblyscript/ast.ts": 91,
       "typescript/assemblyscript/compiler.ts": 3131,
       "typescript/assemblyscript/parser.ts": 1120
     },
+    "typescript/excalibur_math": {
+      "typescript/excalibur_math/collision_colliders_separating-axis.ts": 62
+    },
+    "typescript/excalidraw_text_wrapping": {
+      "typescript/excalidraw_text_wrapping/textWrapping.ts": 111
+    },
     "typescript/fp-ts": {
       "typescript/fp-ts/Either.ts": 6,
       "typescript/fp-ts/TaskEither.ts": 3,
       "typescript/fp-ts/pipeable.ts": 108
+    },
+    "typescript/pixijs_examples": {
+      "typescript/pixijs_examples/events_dragging.ts": 22
     },
     "typescript/playwright": {
       "typescript/playwright/bidiConnection.ts": 87,

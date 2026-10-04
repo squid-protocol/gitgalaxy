@@ -44,7 +44,7 @@
     "tests/tools/cics_crucible_compare.py"
    ],
    "files": 13,
-   "sha256": "e6f3db91ce0ad417535c68f4828c38c4cf080a39495e11eee9ba6a8e7e6f1a3a"
+   "sha256": "1549c810f2072e5323782c43f34191fb370d080880f2f2e0e09bc6897faaf3c6"
   },
   "oracle": {
    "paths": [],
@@ -66,10 +66,10 @@
   "differences": {
    "sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
   },
-  "digest": "27f1a96e1ec5d09a26a986b8966a08ccc60dc026b26eab8df09b4081d09edad9"
+  "digest": "ae96514bb9a08c4b690bd9c53f64555939ee07776c7c91d840ae14f9154e0ffc"
  },
  "proof": {
-  "at": "2026-10-04T14:39:10Z",
+  "at": "2026-10-04T15:46:29Z",
   "verdict": "proven",
   "runs": 4,
   "fault_runs": 0,
@@ -96,8 +96,8 @@
   "sysout_compared": null,
   "attributes_compared": null,
   "java_failed": false,
-  "harness_commit": "2f770970f1ec1c5698343c3362a1dea11de3ffad",
-  "inputs_digest": "27f1a96e1ec5d09a26a986b8966a08ccc60dc026b26eab8df09b4081d09edad9"
+  "harness_commit": "cdad33370dc73ea44e5bf1348d88c9404a14c2d2+uncommitted",
+  "inputs_digest": "ae96514bb9a08c4b690bd9c53f64555939ee07776c7c91d840ae14f9154e0ffc"
  },
  "coverage": {
   "paragraphs": {
@@ -112,7 +112,7 @@
   "handler_labels": null,
   "source": "tests/cics_crucible/coverage.json#programs/pc-aid-menu/PCMENU",
   "ledger_sha256": "3507a37672aaaa5813c020bbe64d8937ff518cfa3c377af8b85c04629aa93eb6",
-  "inputs_digest": "27f1a96e1ec5d09a26a986b8966a08ccc60dc026b26eab8df09b4081d09edad9"
+  "inputs_digest": "ae96514bb9a08c4b690bd9c53f64555939ee07776c7c91d840ae14f9154e0ffc"
  },
  "reach": {
   "entry_points": [

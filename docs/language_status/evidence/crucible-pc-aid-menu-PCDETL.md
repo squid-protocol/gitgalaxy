@@ -8,13 +8,13 @@ The status above judges the record alone (policy: ported_unproven = block). Whet
 
 | | |
 |---|---|
-| proof | proven at 2026-10-04T14:38:59Z, harness `2f770970f1ec1c5698343c3362a1dea11de3ffad` |
-| inputs digest | `27f1a96e1ec5d09a26a986b8966a08ccc60dc026b26eab8df09b4081d09edad9` |
+| proof | proven at 2026-10-04T15:46:21Z, harness `cdad33370dc73ea44e5bf1348d88c9404a14c2d2+uncommitted` |
+| inputs digest | `ae96514bb9a08c4b690bd9c53f64555939ee07776c7c91d840ae14f9154e0ffc` |
 | port | 2 files `5b5a9321aa7f3216` |
 | case | 0 files `e3b0c44298fc1c14` |
 | corpus | cics-crucible @ `v0.2.0` `085be5a9f372ecb9` |
 | differences |  `4f53cda18c2baa0c` |
-| harness | 13 files `e6f3db91ce0ad417` |
+| harness | 13 files `1549c810f2072e53` |
 | oracle | 0 files `e3b0c44298fc1c14` |
 | generator | 60 files `880250850d919c29` |
 | oracle run | crucible-expected-logs: cics-crucible v0.2.0: each scenario's hand-written expected event log, derived from IBM's documentation (its SPEC.md); the java-ported side is compared with it exactly |

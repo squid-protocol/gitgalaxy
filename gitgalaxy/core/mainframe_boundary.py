@@ -463,7 +463,9 @@ _REDEFINES_CLAUSE = re.compile(
     r"\bREDEFINES[ \t\n\u3000]+([A-Z" + NATIONAL + r"][A-Z" + NATIONAL + WIDE_DIGITS + WIDE_HYPHENS + r"0-9-]*)", re.I
 )
 # `VALUE [IS] <literal>`: a quoted string, or a numeric / figurative constant
-# (`ZERO`, `SPACES`, `HIGH-VALUES`, `-1`, `12.5`).
+# (`ZERO`, `SPACES`, `HIGH-VALUES`, `-1`, `12.5`). #4277: a numeric literal may open
+# with its sign (`VALUE +0`, `VALUE -1`, GenApp lgicdb01.cbl:35); before, the sign could
+# not start the bareword and the VALUE was dropped.
 # #3943: `VALUES [ARE]` too -- the plural condition-names use (`88 OK VALUES 1, 2, 3.`); a COBOL-name
 # boundary, not `\b`, so `HIGH-VALUES` is never read as the keyword.
 _VALUE_CLAUSE = re.compile(
@@ -471,7 +473,7 @@ _VALUE_CLAUSE = re.compile(
     + NATIONAL
     + WIDE_DIGITS
     + WIDE_HYPHENS
-    + r"0-9-])VALUES?[ \t\n\u3000]+(?:(?:IS|ARE)[ \t\n\u3000]+)?(?:'([^']*)'|\"([^\"]*)\"|([A-Z"
+    + r"0-9-])VALUES?[ \t\n\u3000]+(?:(?:IS|ARE)[ \t\n\u3000]+)?(?:'([^']*)'|\"([^\"]*)\"|((?:[+-](?=\.?[0-9]))?(?:\.(?=[0-9]))?[A-Z"
     + NATIONAL
     + WIDE_DIGITS
     + r"0-9][A-Z"

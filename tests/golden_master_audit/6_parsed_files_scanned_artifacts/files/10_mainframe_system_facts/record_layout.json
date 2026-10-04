@@ -198,7 +198,7 @@
           "Redefines": null,
           "Section": "WORKING-STORAGE",
           "Usage": null,
-          "Value": null
+          "Value": "-123.45"
         },
         {
           "FD": null,
@@ -2349,7 +2349,7 @@
           "Redefines": null,
           "Section": "WORKING-STORAGE",
           "Usage": null,
-          "Value": null
+          "Value": "-8"
         },
         {
           "FD": null,
@@ -187803,7 +187803,7 @@
           "Redefines": null,
           "Section": "WORKING-STORAGE",
           "Usage": null,
-          "Value": null
+          "Value": ".25"
         },
         {
           "FD": null,
@@ -201735,7 +201735,7 @@
           "Redefines": null,
           "Section": "WORKING-STORAGE",
           "Usage": null,
-          "Value": null
+          "Value": "-5"
         },
         {
           "FD": null,
@@ -207837,7 +207837,7 @@
           "Redefines": null,
           "Section": "WORKING-STORAGE",
           "Usage": null,
-          "Value": null
+          "Value": "-5"
         },
         {
           "FD": null,
@@ -213843,7 +213843,7 @@
           "Redefines": null,
           "Section": "WORKING-STORAGE",
           "Usage": null,
-          "Value": null
+          "Value": "-4"
         },
         {
           "FD": null,
@@ -213891,7 +213891,7 @@
           "Redefines": null,
           "Section": "WORKING-STORAGE",
           "Usage": null,
-          "Value": null
+          "Value": "-8.32"
         },
         {
           "FD": null,
@@ -213923,7 +213923,7 @@
           "Redefines": null,
           "Section": "WORKING-STORAGE",
           "Usage": null,
-          "Value": null
+          "Value": "-5.3"
         },
         {
           "FD": null,
@@ -213971,7 +213971,7 @@
           "Redefines": null,
           "Section": "WORKING-STORAGE",
           "Usage": null,
-          "Value": null
+          "Value": "-430000"
         },
         {
           "FD": null,
@@ -216533,7 +216533,7 @@
           "Redefines": null,
           "Section": "WORKING-STORAGE",
           "Usage": null,
-          "Value": null
+          "Value": "-4"
         },
         {
           "FD": null,
@@ -216581,7 +216581,7 @@
           "Redefines": null,
           "Section": "WORKING-STORAGE",
           "Usage": null,
-          "Value": null
+          "Value": "-8.32"
         },
         {
           "FD": null,
@@ -216613,7 +216613,7 @@
           "Redefines": null,
           "Section": "WORKING-STORAGE",
           "Usage": null,
-          "Value": null
+          "Value": "-5.3"
         },
         {
           "FD": null,
@@ -216661,7 +216661,7 @@
           "Redefines": null,
           "Section": "WORKING-STORAGE",
           "Usage": null,
-          "Value": null
+          "Value": "-430000"
         },
         {
           "FD": null,
@@ -219223,7 +219223,7 @@
           "Redefines": null,
           "Section": "WORKING-STORAGE",
           "Usage": null,
-          "Value": null
+          "Value": "-4"
         },
         {
           "FD": null,
@@ -219271,7 +219271,7 @@
           "Redefines": null,
           "Section": "WORKING-STORAGE",
           "Usage": null,
-          "Value": null
+          "Value": "-8.32"
         },
         {
           "FD": null,
@@ -219303,7 +219303,7 @@
           "Redefines": null,
           "Section": "WORKING-STORAGE",
           "Usage": null,
-          "Value": null
+          "Value": "-5.3"
         },
         {
           "FD": null,
@@ -219351,7 +219351,7 @@
           "Redefines": null,
           "Section": "WORKING-STORAGE",
           "Usage": null,
-          "Value": null
+          "Value": "-430000"
         },
         {
           "FD": null,
@@ -221897,7 +221897,7 @@
           "Redefines": null,
           "Section": "WORKING-STORAGE",
           "Usage": null,
-          "Value": null
+          "Value": "-4"
         },
         {
           "FD": null,
@@ -235989,7 +235989,7 @@
           "Redefines": null,
           "Section": "WORKING-STORAGE",
           "Usage": null,
-          "Value": null
+          "Value": "-4"
         },
         {
           "FD": null,
@@ -236037,7 +236037,7 @@
           "Redefines": null,
           "Section": "WORKING-STORAGE",
           "Usage": null,
-          "Value": null
+          "Value": "-8.32"
         },
         {
           "FD": null,
@@ -236069,7 +236069,7 @@
           "Redefines": null,
           "Section": "WORKING-STORAGE",
           "Usage": null,
-          "Value": null
+          "Value": "-5.3"
         },
         {
           "FD": null,
@@ -236117,7 +236117,7 @@
           "Redefines": null,
           "Section": "WORKING-STORAGE",
           "Usage": null,
-          "Value": null
+          "Value": "-430000"
         },
         {
           "FD": null,
@@ -238663,7 +238663,7 @@
           "Redefines": null,
           "Section": "WORKING-STORAGE",
           "Usage": null,
-          "Value": null
+          "Value": "-4"
         },
         {
           "FD": null,
@@ -243163,7 +243163,7 @@
           "Redefines": null,
           "Section": "WORKING-STORAGE",
           "Usage": null,
-          "Value": null
+          "Value": "-4"
         },
         {
           "FD": null,
@@ -243211,7 +243211,7 @@
           "Redefines": null,
           "Section": "WORKING-STORAGE",
           "Usage": null,
-          "Value": null
+          "Value": "-8.32"
         },
         {
           "FD": null,
@@ -243243,7 +243243,7 @@
           "Redefines": null,
           "Section": "WORKING-STORAGE",
           "Usage": null,
-          "Value": null
+          "Value": "-5.3"
         },
         {
           "FD": null,
@@ -245789,7 +245789,7 @@
           "Redefines": null,
           "Section": "WORKING-STORAGE",
           "Usage": null,
-          "Value": null
+          "Value": "-4"
         },
         {
           "FD": null,
@@ -245837,7 +245837,7 @@
           "Redefines": null,
           "Section": "WORKING-STORAGE",
           "Usage": null,
-          "Value": null
+          "Value": "-8.32"
         },
         {
           "FD": null,
@@ -245869,7 +245869,7 @@
           "Redefines": null,
           "Section": "WORKING-STORAGE",
           "Usage": null,
-          "Value": null
+          "Value": "-5.3"
         },
         {
           "FD": null,
@@ -245917,7 +245917,7 @@
           "Redefines": null,
           "Section": "WORKING-STORAGE",
           "Usage": null,
-          "Value": null
+          "Value": "-430000"
         },
         {
           "FD": null,
@@ -250465,7 +250465,7 @@
           "Redefines": null,
           "Section": "WORKING-STORAGE",
           "Usage": null,
-          "Value": null
+          "Value": "-4"
         },
         {
           "FD": null,
@@ -250513,7 +250513,7 @@
           "Redefines": null,
           "Section": "WORKING-STORAGE",
           "Usage": null,
-          "Value": null
+          "Value": "-8.32"
         },
         {
           "FD": null,
@@ -250545,7 +250545,7 @@
           "Redefines": null,
           "Section": "WORKING-STORAGE",
           "Usage": null,
-          "Value": null
+          "Value": "-5.3"
         },
         {
           "FD": null,
@@ -315141,7 +315141,7 @@
           "Redefines": null,
           "Section": "WORKING-STORAGE",
           "Usage": null,
-          "Value": null
+          "Value": "+1.6"
         },
         {
           "FD": null,
@@ -315157,7 +315157,7 @@
           "Redefines": null,
           "Section": "WORKING-STORAGE",
           "Usage": null,
-          "Value": null
+          "Value": "-1.6"
         },
         {
           "FD": null,
@@ -318345,7 +318345,7 @@
           "Redefines": null,
           "Section": "WORKING-STORAGE",
           "Usage": null,
-          "Value": null
+          "Value": ".01"
         },
         {
           "FD": null,
@@ -318361,7 +318361,7 @@
           "Redefines": null,
           "Section": "WORKING-STORAGE",
           "Usage": null,
-          "Value": null
+          "Value": ".19"
         },
         {
           "FD": null,
@@ -327937,7 +327937,7 @@
           "Redefines": null,
           "Section": "WORKING-STORAGE",
           "Usage": null,
-          "Value": "IS"
+          "Value": "-1.06"
         },
         {
           "FD": null,
@@ -327969,7 +327969,7 @@
           "Redefines": null,
           "Section": "WORKING-STORAGE",
           "Usage": null,
-          "Value": "IS"
+          "Value": "+10.1"
         },
         {
           "FD": null,
@@ -327985,7 +327985,7 @@
           "Redefines": null,
           "Section": "WORKING-STORAGE",
           "Usage": null,
-          "Value": "IS"
+          "Value": "-1"
         },
         {
           "FD": null,
@@ -349555,7 +349555,7 @@
           "Redefines": null,
           "Section": "WORKING-STORAGE",
           "Usage": null,
-          "Value": null
+          "Value": ".1"
         },
         {
           "FD": null,
@@ -357979,7 +357979,7 @@
           "Redefines": null,
           "Section": "WORKING-STORAGE",
           "Usage": null,
-          "Value": null
+          "Value": "+2"
         },
         {
           "FD": null,
@@ -357995,7 +357995,7 @@
           "Redefines": null,
           "Section": "WORKING-STORAGE",
           "Usage": null,
-          "Value": null
+          "Value": "+3"
         },
         {
           "FD": null,
@@ -358011,7 +358011,7 @@
           "Redefines": null,
           "Section": "WORKING-STORAGE",
           "Usage": null,
-          "Value": null
+          "Value": "+5"
         },
         {
           "FD": null,
@@ -358027,7 +358027,7 @@
           "Redefines": null,
           "Section": "WORKING-STORAGE",
           "Usage": null,
-          "Value": null
+          "Value": "+6"
         },
         {
           "FD": null,
@@ -358043,7 +358043,7 @@
           "Redefines": null,
           "Section": "WORKING-STORAGE",
           "Usage": null,
-          "Value": null
+          "Value": "+7"
         },
         {
           "FD": null,
@@ -358059,7 +358059,7 @@
           "Redefines": null,
           "Section": "WORKING-STORAGE",
           "Usage": null,
-          "Value": null
+          "Value": "+10"
         },
         {
           "FD": null,
@@ -407543,7 +407543,7 @@
           "Redefines": null,
           "Section": "WORKING-STORAGE",
           "Usage": "COMP",
-          "Value": null
+          "Value": "+12"
         },
         {
           "FD": null,
@@ -447842,7 +447842,7 @@
           "Redefines": null,
           "Section": "WORKING-STORAGE",
           "Usage": "COMP",
-          "Value": null
+          "Value": "+10"
         },
         {
           "FD": null,
@@ -447954,7 +447954,7 @@
           "Redefines": null,
           "Section": "WORKING-STORAGE",
           "Usage": "COMP",
-          "Value": null
+          "Value": "+14"
         },
         {
           "FD": null,
@@ -450159,7 +450159,7 @@
           "Redefines": null,
           "Section": "WORKING-STORAGE",
           "Usage": "COMP",
-          "Value": null
+          "Value": "+10"
         },
         {
           "FD": null,
@@ -450239,7 +450239,7 @@
           "Redefines": null,
           "Section": "WORKING-STORAGE",
           "Usage": "COMP",
-          "Value": null
+          "Value": "+14"
         },
         {
           "FD": null,
@@ -450271,7 +450271,7 @@
           "Redefines": null,
           "Section": "WORKING-STORAGE",
           "Usage": "COMP",
-          "Value": null
+          "Value": "+16"
         },
         {
           "FD": null,
@@ -452595,7 +452595,7 @@
           "Redefines": null,
           "Section": "WORKING-STORAGE",
           "Usage": "COMP",
-          "Value": null
+          "Value": "+10"
         },
         {
           "FD": null,
@@ -454634,7 +454634,7 @@
           "Redefines": null,
           "Section": "WORKING-STORAGE",
           "Usage": "COMP",
-          "Value": null
+          "Value": "+10"
         },
         {
           "FD": null,
@@ -465443,7 +465443,7 @@
           "Redefines": null,
           "Section": "LOCAL-STORAGE",
           "Usage": "COMP",
-          "Value": null
+          "Value": "+78"
         },
         {
           "FD": null,
@@ -465491,7 +465491,7 @@
           "Redefines": null,
           "Section": "LOCAL-STORAGE",
           "Usage": "COMP",
-          "Value": null
+          "Value": "+81"
         },
         {
           "FD": null,
@@ -465587,7 +465587,7 @@
           "Redefines": null,
           "Section": "LOCAL-STORAGE",
           "Usage": "COMP",
-          "Value": null
+          "Value": "+78"
         },
         {
           "FD": null,
@@ -465635,7 +465635,7 @@
           "Redefines": null,
           "Section": "LOCAL-STORAGE",
           "Usage": "COMP",
-          "Value": null
+          "Value": "+81"
         },
         {
           "FD": null,
@@ -466411,7 +466411,7 @@
           "Redefines": null,
           "Section": "WORKING-STORAGE",
           "Usage": "COMP",
-          "Value": null
+          "Value": "+0"
         },
         {
           "FD": null,
@@ -466923,7 +466923,7 @@
           "Redefines": null,
           "Section": "WORKING-STORAGE",
           "Usage": "COMP",
-          "Value": null
+          "Value": "+18"
         },
         {
           "Copy Members": "LGPOLICY",
@@ -466940,7 +466940,7 @@
           "Redefines": null,
           "Section": "WORKING-STORAGE",
           "Usage": null,
-          "Value": null
+          "Value": "+0"
         },
         {
           "FD": null,
@@ -467168,7 +467168,7 @@
           "Redefines": null,
           "Section": "WORKING-STORAGE",
           "Usage": "COMP",
-          "Value": null
+          "Value": "+0"
         },
         {
           "FD": null,
@@ -467748,7 +467748,7 @@
           "Redefines": null,
           "Section": "WORKING-STORAGE",
           "Usage": "COMP",
-          "Value": null
+          "Value": "+0"
         },
         {
           "FD": null,
@@ -467956,7 +467956,7 @@
           "Redefines": null,
           "Section": "WORKING-STORAGE",
           "Usage": "COMP",
-          "Value": null
+          "Value": "+18"
         },
         {
           "FD": null,
@@ -467972,7 +467972,7 @@
           "Redefines": null,
           "Section": "WORKING-STORAGE",
           "Usage": null,
-          "Value": null
+          "Value": "+0"
         },
         {
           "Copy Members": "LGPOLICY",
@@ -468120,7 +468120,7 @@
           "Redefines": null,
           "Section": "WORKING-STORAGE",
           "Usage": "COMP",
-          "Value": null
+          "Value": "+0"
         },
         {
           "FD": null,
@@ -468587,7 +468587,7 @@
           "Redefines": null,
           "Section": "WORKING-STORAGE",
           "Usage": "COMP",
-          "Value": null
+          "Value": "+0"
         },
         {
           "FD": null,
@@ -468907,7 +468907,7 @@
           "Redefines": null,
           "Section": "WORKING-STORAGE",
           "Usage": "COMP",
-          "Value": null
+          "Value": "+28"
         },
         {
           "FD": null,
@@ -468923,7 +468923,7 @@
           "Redefines": null,
           "Section": "WORKING-STORAGE",
           "Usage": null,
-          "Value": null
+          "Value": "+0"
         },
         {
           "FD": null,
@@ -469356,7 +469356,7 @@
           "Redefines": null,
           "Section": "WORKING-STORAGE",
           "Usage": "COMP",
-          "Value": null
+          "Value": "+0"
         },
         {
           "FD": null,
@@ -469420,7 +469420,7 @@
           "Redefines": null,
           "Section": "WORKING-STORAGE",
           "Usage": "COMP",
-          "Value": null
+          "Value": "+0"
         },
         {
           "Copy Members": "SQLCA",
@@ -469600,7 +469600,7 @@
           "Redefines": null,
           "Section": "WORKING-STORAGE",
           "Usage": "COMP",
-          "Value": null
+          "Value": "+0"
         },
         {
           "FD": null,
@@ -469824,7 +469824,7 @@
           "Redefines": null,
           "Section": "WORKING-STORAGE",
           "Usage": "COMP",
-          "Value": null
+          "Value": "+28"
         },
         {
           "FD": null,
@@ -469840,7 +469840,7 @@
           "Redefines": null,
           "Section": "WORKING-STORAGE",
           "Usage": null,
-          "Value": null
+          "Value": "+0"
         },
         {
           "Copy Members": "LGCMAREA",
@@ -470403,7 +470403,7 @@
           "Redefines": null,
           "Section": "WORKING-STORAGE",
           "Usage": "COMP",
-          "Value": null
+          "Value": "+0"
         },
         {
           "FD": null,
@@ -470774,7 +470774,7 @@
           "Redefines": null,
           "Section": "WORKING-STORAGE",
           "Usage": "COMP",
-          "Value": null
+          "Value": "+0"
         },
         {
           "FD": null,
@@ -471222,7 +471222,7 @@
           "Redefines": null,
           "Section": "WORKING-STORAGE",
           "Usage": "COMP",
-          "Value": null
+          "Value": "+18"
         },
         {
           "FD": null,
@@ -471238,7 +471238,7 @@
           "Redefines": null,
           "Section": "WORKING-STORAGE",
           "Usage": null,
-          "Value": null
+          "Value": "+0"
         },
         {
           "FD": null,
@@ -472859,7 +472859,7 @@
           "Redefines": null,
           "Section": "WORKING-STORAGE",
           "Usage": "COMP",
-          "Value": null
+          "Value": "+0"
         },
         {
           "FD": null,
@@ -473195,7 +473195,7 @@
           "Redefines": null,
           "Section": "WORKING-STORAGE",
           "Usage": "COMP",
-          "Value": null
+          "Value": "+28"
         },
         {
           "FD": null,
@@ -473407,7 +473407,7 @@
           "Redefines": null,
           "Section": "WORKING-STORAGE",
           "Usage": "COMP",
-          "Value": null
+          "Value": "+0"
         },
         {
           "FD": null,
@@ -473615,7 +473615,7 @@
           "Redefines": null,
           "Section": "WORKING-STORAGE",
           "Usage": "COMP",
-          "Value": null
+          "Value": "+28"
         },
         {
           "FD": null,
@@ -473842,7 +473842,7 @@
           "Redefines": null,
           "Section": "WORKING-STORAGE",
           "Usage": "COMP",
-          "Value": null
+          "Value": "+0"
         },
         {
           "FD": null,
@@ -474341,7 +474341,7 @@
           "Redefines": null,
           "Section": "WORKING-STORAGE",
           "Usage": "COMP",
-          "Value": null
+          "Value": "+0"
         },
         {
           "FD": null,
@@ -474629,7 +474629,7 @@
           "Redefines": null,
           "Section": "WORKING-STORAGE",
           "Usage": "COMP",
-          "Value": null
+          "Value": "+18"
         },
         {
           "FD": null,
@@ -474645,7 +474645,7 @@
           "Redefines": null,
           "Section": "WORKING-STORAGE",
           "Usage": null,
-          "Value": null
+          "Value": "+0"
         },
         {
           "FD": null,
@@ -474841,7 +474841,7 @@
           "Redefines": null,
           "Section": "WORKING-STORAGE",
           "Usage": "COMP",
-          "Value": null
+          "Value": "+0"
         },
         {
           "FD": null,
@@ -475065,7 +475065,7 @@
           "Redefines": null,
           "Section": "WORKING-STORAGE",
           "Usage": "COMP",
-          "Value": null
+          "Value": "+18"
         },
         {
           "Copy Members": "LGPOLICY",
@@ -475082,7 +475082,7 @@
           "Redefines": null,
           "Section": "WORKING-STORAGE",
           "Usage": null,
-          "Value": null
+          "Value": "+0"
         },
         {
           "Copy Members": "LGCMAREA",
@@ -476175,7 +476175,7 @@
           "Redefines": null,
           "Section": "WORKING-STORAGE",
           "Usage": "COMP",
-          "Value": null
+          "Value": "+0"
         },
         {
           "FD": null,
@@ -476479,7 +476479,7 @@
           "Redefines": null,
           "Section": "WORKING-STORAGE",
           "Usage": "COMP",
-          "Value": null
+          "Value": "-1"
         },
         {
           "FD": null,
@@ -476511,7 +476511,7 @@
           "Redefines": null,
           "Section": "WORKING-STORAGE",
           "Usage": "COMP",
-          "Value": null
+          "Value": "+33"
         },
         {
           "FD": null,
@@ -476527,7 +476527,7 @@
           "Redefines": null,
           "Section": "WORKING-STORAGE",
           "Usage": null,
-          "Value": null
+          "Value": "+0"
         },
         {
           "FD": null,
@@ -476543,7 +476543,7 @@
           "Redefines": null,
           "Section": "WORKING-STORAGE",
           "Usage": "COMP",
-          "Value": null
+          "Value": "+1"
         },
         {
           "FD": null,
@@ -476607,7 +476607,7 @@
           "Redefines": null,
           "Section": "WORKING-STORAGE",
           "Usage": "COMP",
-          "Value": null
+          "Value": "+0"
         },
         {
           "FD": null,
@@ -476623,7 +476623,7 @@
           "Redefines": null,
           "Section": "WORKING-STORAGE",
           "Usage": "COMP",
-          "Value": null
+          "Value": "+0"
         },
         {
           "FD": null,
@@ -476639,7 +476639,7 @@
           "Redefines": null,
           "Section": "WORKING-STORAGE",
           "Usage": "COMP",
-          "Value": null
+          "Value": "+0"
         },
         {
           "FD": null,
@@ -477267,7 +477267,7 @@
           "Redefines": null,
           "Section": "WORKING-STORAGE",
           "Usage": "COMP",
-          "Value": null
+          "Value": "+0"
         },
         {
           "FD": null,
@@ -478121,7 +478121,7 @@
           "Redefines": null,
           "Section": null,
           "Usage": "COMP",
-          "Value": null
+          "Value": "+72"
         },
         {
           "FD": null,
@@ -478137,7 +478137,7 @@
           "Redefines": null,
           "Section": null,
           "Usage": "COMP",
-          "Value": null
+          "Value": "+72"
         },
         {
           "FD": null,
@@ -478153,7 +478153,7 @@
           "Redefines": null,
           "Section": null,
           "Usage": "COMP",
-          "Value": null
+          "Value": "+52"
         },
         {
           "FD": null,
@@ -478169,7 +478169,7 @@
           "Redefines": null,
           "Section": null,
           "Usage": "COMP",
-          "Value": null
+          "Value": "+58"
         },
         {
           "FD": null,
@@ -478185,7 +478185,7 @@
           "Redefines": null,
           "Section": null,
           "Usage": "COMP",
-          "Value": null
+          "Value": "+65"
         },
         {
           "FD": null,
@@ -478201,7 +478201,7 @@
           "Redefines": null,
           "Section": null,
           "Usage": "COMP",
-          "Value": null
+          "Value": "+1102"
         },
         {
           "FD": null,
@@ -478217,7 +478217,7 @@
           "Redefines": null,
           "Section": null,
           "Usage": "COMP",
-          "Value": null
+          "Value": "+546"
         },
         {
           "FD": null,
@@ -478233,7 +478233,7 @@
           "Redefines": null,
           "Section": null,
           "Usage": "COMP",
-          "Value": null
+          "Value": "+124"
         },
         {
           "FD": null,
@@ -478249,7 +478249,7 @@
           "Redefines": null,
           "Section": null,
           "Usage": "COMP",
-          "Value": null
+          "Value": "+130"
         },
         {
           "FD": null,
@@ -478265,7 +478265,7 @@
           "Redefines": null,
           "Section": null,
           "Usage": "COMP",
-          "Value": null
+          "Value": "+137"
         },
         {
           "FD": null,
@@ -478281,7 +478281,7 @@
           "Redefines": null,
           "Section": null,
           "Usage": "COMP",
-          "Value": null
+          "Value": "+1174"
         },
         {
           "FD": null,
@@ -478297,7 +478297,7 @@
           "Redefines": null,
           "Section": null,
           "Usage": "COMP",
-          "Value": null
+          "Value": "+618"
         },
         {
           "FD": null,
@@ -478313,7 +478313,7 @@
           "Redefines": null,
           "Section": null,
           "Usage": "COMP",
-          "Value": null
+          "Value": "+25"
         },
         {
           "FD": null,
@@ -479915,7 +479915,7 @@
           "Redefines": null,
           "Section": "WORKING-STORAGE",
           "Usage": null,
-          "Value": null
+          "Value": "+0000001"
         },
         {
           "FD": null,
@@ -479931,7 +479931,7 @@
           "Redefines": null,
           "Section": "WORKING-STORAGE",
           "Usage": "COMP",
-          "Value": null
+          "Value": "+0000011"
         },
         {
           "FD": null,
@@ -482099,7 +482099,7 @@
           "Redefines": null,
           "Section": "WORKING-STORAGE",
           "Usage": "COMP",
-          "Value": null
+          "Value": "+0"
         },
         {
           "FD": null,
@@ -482535,7 +482535,7 @@
           "Redefines": null,
           "Section": "WORKING-STORAGE",
           "Usage": "COMP",
-          "Value": null
+          "Value": "+0"
         },
         {
           "FD": null,
@@ -482743,7 +482743,7 @@
           "Redefines": null,
           "Section": "WORKING-STORAGE",
           "Usage": "COMP",
-          "Value": null
+          "Value": "+28"
         },
         {
           "FD": null,
@@ -482759,7 +482759,7 @@
           "Redefines": null,
           "Section": "WORKING-STORAGE",
           "Usage": "COMP",
-          "Value": null
+          "Value": "+0"
         },
         {
           "FD": null,
@@ -482970,7 +482970,7 @@
           "Redefines": null,
           "Section": "WORKING-STORAGE",
           "Usage": "COMP",
-          "Value": null
+          "Value": "+0"
         },
         {
           "FD": null,
@@ -483453,7 +483453,7 @@
           "Redefines": null,
           "Section": "WORKING-STORAGE",
           "Usage": "COMP",
-          "Value": null
+          "Value": "+0"
         },
         {
           "FD": null,
@@ -483773,7 +483773,7 @@
           "Redefines": null,
           "Section": "WORKING-STORAGE",
           "Usage": "COMP",
-          "Value": null
+          "Value": "+28"
         },
         {
           "FD": null,
@@ -483789,7 +483789,7 @@
           "Redefines": null,
           "Section": "WORKING-STORAGE",
           "Usage": "COMP",
-          "Value": null
+          "Value": "+0"
         },
         {
           "FD": null,
@@ -484274,7 +484274,7 @@
           "Redefines": null,
           "Section": "WORKING-STORAGE",
           "Usage": "COMP",
-          "Value": null
+          "Value": "+0"
         },
         {
           "FD": null,
@@ -484338,7 +484338,7 @@
           "Redefines": null,
           "Section": "WORKING-STORAGE",
           "Usage": "COMP",
-          "Value": null
+          "Value": "+124"
         },
         {
           "FD": null,
@@ -484354,7 +484354,7 @@
           "Redefines": null,
           "Section": "WORKING-STORAGE",
           "Usage": "COMP",
-          "Value": null
+          "Value": "+130"
         },
         {
           "FD": null,
@@ -484370,7 +484370,7 @@
           "Redefines": null,
           "Section": "WORKING-STORAGE",
           "Usage": "COMP",
-          "Value": null
+          "Value": "+137"
         },
         {
           "FD": null,
@@ -484546,7 +484546,7 @@
           "Redefines": null,
           "Section": "WORKING-STORAGE",
           "Usage": "COMP",
-          "Value": null
+          "Value": "+28"
         },
         {
           "FD": null,
@@ -484562,7 +484562,7 @@
           "Redefines": null,
           "Section": "WORKING-STORAGE",
           "Usage": "COMP",
-          "Value": null
+          "Value": "+0"
         },
         {
           "FD": null,
@@ -485173,7 +485173,7 @@
           "Redefines": null,
           "Section": "WORKING-STORAGE",
           "Usage": "COMP",
-          "Value": null
+          "Value": "+0"
         },
         {
           "FD": null,
@@ -485816,7 +485816,7 @@
           "Redefines": null,
           "Section": "WORKING-STORAGE",
           "Usage": "COMP",
-          "Value": null
+          "Value": "+0"
         },
         {
           "FD": null,
@@ -501109,7 +501109,7 @@
           "Redefines": null,
           "Section": "WORKING-STORAGE",
           "Usage": "COMP",
-          "Value": null
+          "Value": "+1320"
         },
         {
           "FD": null,
@@ -501141,7 +501141,7 @@
           "Redefines": null,
           "Section": "WORKING-STORAGE",
           "Usage": "COMP",
-          "Value": null
+          "Value": "+132"
         },
         {
           "FD": null,
@@ -501157,7 +501157,7 @@
           "Redefines": null,
           "Section": "WORKING-STORAGE",
           "Usage": "COMP",
-          "Value": null
+          "Value": "+10"
         },
         {
           "FD": null,
@@ -501592,7 +501592,7 @@
           "Redefines": null,
           "Section": "WORKING-STORAGE",
           "Usage": "COMP",
-          "Value": null
+          "Value": "+1320"
         },
         {
           "FD": null,
@@ -501624,7 +501624,7 @@
           "Redefines": null,
           "Section": "WORKING-STORAGE",
           "Usage": "COMP",
-          "Value": null
+          "Value": "+132"
         },
         {
           "FD": null,
@@ -501640,7 +501640,7 @@
           "Redefines": null,
           "Section": "WORKING-STORAGE",
           "Usage": "COMP",
-          "Value": null
+          "Value": "+10"
         },
         {
           "FD": null,
@@ -502043,7 +502043,7 @@
           "Redefines": null,
           "Section": "WORKING-STORAGE",
           "Usage": "COMP",
-          "Value": null
+          "Value": "+1320"
         },
         {
           "FD": null,
@@ -502075,7 +502075,7 @@
           "Redefines": null,
           "Section": "WORKING-STORAGE",
           "Usage": "COMP",
-          "Value": null
+          "Value": "+132"
         },
         {
           "FD": null,
@@ -502091,7 +502091,7 @@
           "Redefines": null,
           "Section": "WORKING-STORAGE",
           "Usage": "COMP",
-          "Value": null
+          "Value": "+10"
         },
         {
           "FD": null,
@@ -510005,7 +510005,7 @@
           "Redefines": null,
           "Section": "WORKING-STORAGE",
           "Usage": null,
-          "Value": null
+          "Value": "-1"
         },
         {
           "FD": null,
@@ -510021,7 +510021,7 @@
           "Redefines": null,
           "Section": "WORKING-STORAGE",
           "Usage": null,
-          "Value": null
+          "Value": "-12"
         },
         {
           "FD": null,
@@ -510037,7 +510037,7 @@
           "Redefines": null,
           "Section": "WORKING-STORAGE",
           "Usage": null,
-          "Value": null
+          "Value": "-123"
         },
         {
           "FD": null,
@@ -510053,7 +510053,7 @@
           "Redefines": null,
           "Section": "WORKING-STORAGE",
           "Usage": null,
-          "Value": null
+          "Value": "-1234"
         },
         {
           "FD": null,
@@ -510069,7 +510069,7 @@
           "Redefines": null,
           "Section": "WORKING-STORAGE",
           "Usage": null,
-          "Value": null
+          "Value": "-12345"
         },
         {
           "FD": null,
@@ -510085,7 +510085,7 @@
           "Redefines": null,
           "Section": "WORKING-STORAGE",
           "Usage": null,
-          "Value": null
+          "Value": "-123456"
         },
         {
           "FD": null,
@@ -510101,7 +510101,7 @@
           "Redefines": null,
           "Section": "WORKING-STORAGE",
           "Usage": null,
-          "Value": null
+          "Value": "-1234567"
         },
         {
           "FD": null,
@@ -510117,7 +510117,7 @@
           "Redefines": null,
           "Section": "WORKING-STORAGE",
           "Usage": null,
-          "Value": null
+          "Value": "-12345678"
         },
         {
           "FD": null,
@@ -510133,7 +510133,7 @@
           "Redefines": null,
           "Section": "WORKING-STORAGE",
           "Usage": null,
-          "Value": null
+          "Value": "-123456789"
         },
         {
           "FD": null,
@@ -510149,7 +510149,7 @@
           "Redefines": null,
           "Section": "WORKING-STORAGE",
           "Usage": null,
-          "Value": null
+          "Value": "-1234567890"
         },
         {
           "FD": null,
@@ -510165,7 +510165,7 @@
           "Redefines": null,
           "Section": "WORKING-STORAGE",
           "Usage": null,
-          "Value": null
+          "Value": "-12345678901"
         },
         {
           "FD": null,
@@ -510181,7 +510181,7 @@
           "Redefines": null,
           "Section": "WORKING-STORAGE",
           "Usage": null,
-          "Value": null
+          "Value": "-123456789012"
         },
         {
           "FD": null,
@@ -510197,7 +510197,7 @@
           "Redefines": null,
           "Section": "WORKING-STORAGE",
           "Usage": null,
-          "Value": null
+          "Value": "-1234567890123"
         },
         {
           "FD": null,
@@ -510213,7 +510213,7 @@
           "Redefines": null,
           "Section": "WORKING-STORAGE",
           "Usage": null,
-          "Value": null
+          "Value": "-12345678901234"
         },
         {
           "FD": null,
@@ -510229,7 +510229,7 @@
           "Redefines": null,
           "Section": "WORKING-STORAGE",
           "Usage": null,
-          "Value": null
+          "Value": "-123456789012345"
         },
         {
           "FD": null,
@@ -510245,7 +510245,7 @@
           "Redefines": null,
           "Section": "WORKING-STORAGE",
           "Usage": null,
-          "Value": null
+          "Value": "-1234567890123456"
         },
         {
           "FD": null,
@@ -510261,7 +510261,7 @@
           "Redefines": null,
           "Section": "WORKING-STORAGE",
           "Usage": null,
-          "Value": null
+          "Value": "-12345678901234567"
         },
         {
           "FD": null,
@@ -510277,7 +510277,7 @@
           "Redefines": null,
           "Section": "WORKING-STORAGE",
           "Usage": "DISPLAY",
-          "Value": null
+          "Value": "-123456789012345678"
         }
       ],
       "cobol/gnucobol/numeric-dump.cob": [
@@ -511175,7 +511175,7 @@
           "Redefines": null,
           "Section": "WORKING-STORAGE",
           "Usage": null,
-          "Value": null
+          "Value": "-1"
         },
         {
           "FD": null,
@@ -511223,7 +511223,7 @@
           "Redefines": null,
           "Section": "WORKING-STORAGE",
           "Usage": null,
-          "Value": null
+          "Value": "-12"
         },
         {
           "FD": null,
@@ -511271,7 +511271,7 @@
           "Redefines": null,
           "Section": "WORKING-STORAGE",
           "Usage": null,
-          "Value": null
+          "Value": "-123"
         },
         {
           "FD": null,
@@ -511319,7 +511319,7 @@
           "Redefines": null,
           "Section": "WORKING-STORAGE",
           "Usage": null,
-          "Value": null
+          "Value": "-1234"
         },
         {
           "FD": null,
@@ -511367,7 +511367,7 @@
           "Redefines": null,
           "Section": "WORKING-STORAGE",
           "Usage": null,
-          "Value": null
+          "Value": "-12345"
         },
         {
           "FD": null,
@@ -511415,7 +511415,7 @@
           "Redefines": null,
           "Section": "WORKING-STORAGE",
           "Usage": null,
-          "Value": null
+          "Value": "-123456"
         },
         {
           "FD": null,
@@ -511463,7 +511463,7 @@
           "Redefines": null,
           "Section": "WORKING-STORAGE",
           "Usage": null,
-          "Value": null
+          "Value": "-1234567"
         },
         {
           "FD": null,
@@ -511511,7 +511511,7 @@
           "Redefines": null,
           "Section": "WORKING-STORAGE",
           "Usage": null,
-          "Value": null
+          "Value": "-12345678"
         },
         {
           "FD": null,
@@ -511559,7 +511559,7 @@
           "Redefines": null,
           "Section": "WORKING-STORAGE",
           "Usage": null,
-          "Value": null
+          "Value": "-123456789"
         },
         {
           "FD": null,
@@ -511607,7 +511607,7 @@
           "Redefines": null,
           "Section": "WORKING-STORAGE",
           "Usage": null,
-          "Value": null
+          "Value": "-1234567890"
         },
         {
           "FD": null,
@@ -511655,7 +511655,7 @@
           "Redefines": null,
           "Section": "WORKING-STORAGE",
           "Usage": null,
-          "Value": null
+          "Value": "-12345678901"
         },
         {
           "FD": null,
@@ -511703,7 +511703,7 @@
           "Redefines": null,
           "Section": "WORKING-STORAGE",
           "Usage": null,
-          "Value": null
+          "Value": "-123456789012"
         },
         {
           "FD": null,
@@ -511751,7 +511751,7 @@
           "Redefines": null,
           "Section": "WORKING-STORAGE",
           "Usage": null,
-          "Value": null
+          "Value": "-1234567890123"
         },
         {
           "FD": null,
@@ -511799,7 +511799,7 @@
           "Redefines": null,
           "Section": "WORKING-STORAGE",
           "Usage": null,
-          "Value": null
+          "Value": "-12345678901234"
         },
         {
           "FD": null,
@@ -511847,7 +511847,7 @@
           "Redefines": null,
           "Section": "WORKING-STORAGE",
           "Usage": null,
-          "Value": null
+          "Value": "-123456789012345"
         },
         {
           "FD": null,
@@ -511895,7 +511895,7 @@
           "Redefines": null,
           "Section": "WORKING-STORAGE",
           "Usage": null,
-          "Value": null
+          "Value": "-1234567890123456"
         },
         {
           "FD": null,
@@ -511943,7 +511943,7 @@
           "Redefines": null,
           "Section": "WORKING-STORAGE",
           "Usage": null,
-          "Value": null
+          "Value": "-12345678901234567"
         },
         {
           "FD": null,
@@ -511991,7 +511991,7 @@
           "Redefines": null,
           "Section": "WORKING-STORAGE",
           "Usage": null,
-          "Value": null
+          "Value": "-123456789012345678"
         },
         {
           "FD": null,
@@ -523304,7 +523304,7 @@
           "Redefines": null,
           "Section": null,
           "Usage": "COMP-3",
-          "Value": null
+          "Value": "+0"
         },
         {
           "FD": null,
@@ -523320,7 +523320,7 @@
           "Redefines": null,
           "Section": null,
           "Usage": "COMP-3",
-          "Value": null
+          "Value": "+0"
         },
         {
           "FD": null,
@@ -523336,7 +523336,7 @@
           "Redefines": null,
           "Section": null,
           "Usage": "COMP-3",
-          "Value": null
+          "Value": "+0"
         },
         {
           "FD": null,
@@ -523352,7 +523352,7 @@
           "Redefines": null,
           "Section": null,
           "Usage": "COMP-3",
-          "Value": null
+          "Value": "+0"
         },
         {
           "FD": null,
@@ -523368,7 +523368,7 @@
           "Redefines": null,
           "Section": null,
           "Usage": "COMP-3",
-          "Value": null
+          "Value": "+0"
         },
         {
           "FD": null,
@@ -523384,7 +523384,7 @@
           "Redefines": null,
           "Section": null,
           "Usage": "COMP-3",
-          "Value": null
+          "Value": "+0"
         },
         {
           "FD": null,
@@ -523400,7 +523400,7 @@
           "Redefines": null,
           "Section": null,
           "Usage": "COMP-3",
-          "Value": null
+          "Value": "+0"
         },
         {
           "FD": null,
@@ -523416,7 +523416,7 @@
           "Redefines": null,
           "Section": null,
           "Usage": "COMP-3",
-          "Value": null
+          "Value": "+0"
         },
         {
           "FD": null,
@@ -523432,7 +523432,7 @@
           "Redefines": null,
           "Section": null,
           "Usage": "COMP-3",
-          "Value": null
+          "Value": "+0"
         },
         {
           "FD": null,
@@ -523448,7 +523448,7 @@
           "Redefines": null,
           "Section": null,
           "Usage": "COMP-3",
-          "Value": null
+          "Value": "+0"
         },
         {
           "FD": null,
@@ -523464,7 +523464,7 @@
           "Redefines": null,
           "Section": null,
           "Usage": "COMP-3",
-          "Value": null
+          "Value": "+0"
         },
         {
           "FD": null,
@@ -523480,7 +523480,7 @@
           "Redefines": null,
           "Section": null,
           "Usage": "COMP-3",
-          "Value": null
+          "Value": "+0"
         },
         {
           "FD": null,
@@ -523496,7 +523496,7 @@
           "Redefines": null,
           "Section": null,
           "Usage": "COMP-3",
-          "Value": null
+          "Value": "+0"
         },
         {
           "FD": null,
@@ -523512,7 +523512,7 @@
           "Redefines": null,
           "Section": null,
           "Usage": "COMP-3",
-          "Value": null
+          "Value": "+0"
         }
       ],
       "cobol/zopeneditor-sample/SAM1.cbl": [
@@ -523722,7 +523722,7 @@
           "Redefines": null,
           "Section": "WORKING-STORAGE",
           "Usage": "COMP-3",
-          "Value": null
+          "Value": "+0"
         },
         {
           "FD": null,
@@ -523738,7 +523738,7 @@
           "Redefines": null,
           "Section": "WORKING-STORAGE",
           "Usage": "COMP-3",
-          "Value": null
+          "Value": "+0"
         },
         {
           "FD": null,
@@ -523754,7 +523754,7 @@
           "Redefines": null,
           "Section": "WORKING-STORAGE",
           "Usage": "COMP-3",
-          "Value": null
+          "Value": "+0"
         },
         {
           "FD": null,
@@ -523770,7 +523770,7 @@
           "Redefines": null,
           "Section": "WORKING-STORAGE",
           "Usage": "COMP-3",
-          "Value": null
+          "Value": "+0"
         },
         {
           "FD": null,
@@ -523786,7 +523786,7 @@
           "Redefines": null,
           "Section": "WORKING-STORAGE",
           "Usage": "COMP-3",
-          "Value": null
+          "Value": "+0"
         },
         {
           "FD": null,
@@ -523802,7 +523802,7 @@
           "Redefines": null,
           "Section": "WORKING-STORAGE",
           "Usage": "COMP-3",
-          "Value": null
+          "Value": "+0"
         },
         {
           "FD": null,
@@ -523818,7 +523818,7 @@
           "Redefines": null,
           "Section": "WORKING-STORAGE",
           "Usage": "COMP-3",
-          "Value": null
+          "Value": "+0"
         },
         {
           "FD": null,
@@ -523834,7 +523834,7 @@
           "Redefines": null,
           "Section": "WORKING-STORAGE",
           "Usage": "COMP-3",
-          "Value": null
+          "Value": "+0"
         },
         {
           "FD": null,
@@ -523850,7 +523850,7 @@
           "Redefines": null,
           "Section": "WORKING-STORAGE",
           "Usage": "COMP-3",
-          "Value": null
+          "Value": "+0"
         },
         {
           "FD": null,
@@ -523866,7 +523866,7 @@
           "Redefines": null,
           "Section": "WORKING-STORAGE",
           "Usage": "COMP-3",
-          "Value": null
+          "Value": "+0"
         },
         {
           "FD": null,
@@ -523882,7 +523882,7 @@
           "Redefines": null,
           "Section": "WORKING-STORAGE",
           "Usage": "COMP-3",
-          "Value": null
+          "Value": "+0"
         },
         {
           "FD": null,
@@ -523898,7 +523898,7 @@
           "Redefines": null,
           "Section": "WORKING-STORAGE",
           "Usage": "COMP-3",
-          "Value": null
+          "Value": "+0"
         },
         {
           "FD": null,
@@ -523914,7 +523914,7 @@
           "Redefines": null,
           "Section": "WORKING-STORAGE",
           "Usage": "COMP-3",
-          "Value": null
+          "Value": "+0"
         },
         {
           "FD": null,
@@ -523930,7 +523930,7 @@
           "Redefines": null,
           "Section": "WORKING-STORAGE",
           "Usage": "COMP-3",
-          "Value": null
+          "Value": "+0"
         },
         {
           "FD": null,
@@ -524202,7 +524202,7 @@
           "Redefines": null,
           "Section": "WORKING-STORAGE",
           "Usage": "COMP-3",
-          "Value": null
+          "Value": "+0"
         },
         {
           "Copy Members": "CUSTCOPY",
@@ -525213,7 +525213,7 @@
           "Redefines": null,
           "Section": "WORKING-STORAGE",
           "Usage": "COMP-3",
-          "Value": null
+          "Value": "+0"
         },
         {
           "FD": null,

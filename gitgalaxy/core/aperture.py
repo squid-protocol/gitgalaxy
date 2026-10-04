@@ -402,8 +402,12 @@ class ApertureFilter:
         # 15-318 KB of text were dropped whole). Every binary in the pinned crucible
         # carries 178+ NULs per 1000 characters (tar, .mat); text damaged in transfer
         # carries a handful. More than 1 per 1000 is binary.
+        # #4351: ... unless the member is short and the NULs are a handful: a 168-byte PL/I member
+        # with 2 NULs at the end of a comment (estate-crucible NULREST.pli, H-0037) is 12 per 1000.
+        # At most _STRAY_NULS NULs, with no more than as many other control characters, is
+        # transfer damage in text, whatever the size; a binary carries control bytes beyond its NULs.
         nuls = content.count("\x00") if "\x00" in content else 0
-        if nuls and nuls * 1000 > len(content):
+        if nuls and nuls * 1000 > len(content) and not self._stray_nuls(content, nuls):
             report.update(
                 {
                     "valid": False,
@@ -581,6 +585,19 @@ class ApertureFilter:
                     return report
 
         return report
+
+    # #4351: the most NULs (and, separately, other C0 control characters) a member may carry and
+    # still be text damaged in transfer rather than a binary.
+    _STRAY_NULS = 4
+    _CONTROL_CHARS = re.compile(r"[\x01-\x08\x0e-\x1f\x7f]")
+
+    @classmethod
+    def _stray_nuls(cls, content: str, nuls: int) -> bool:
+        """#4351: a handful of NULs in a member that is otherwise text (see Gate 3.1)."""
+        if nuls > cls._STRAY_NULS:
+            return False
+        # stops at the first control character past the limit
+        return all(n <= cls._STRAY_NULS for n, _ in enumerate(cls._CONTROL_CHARS.finditer(content), 1))
 
     def _check_ignore_rules(self, rel_path: str, has_intent: bool = False) -> bool:
         """

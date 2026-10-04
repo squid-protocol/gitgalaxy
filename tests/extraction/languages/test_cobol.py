@@ -198,14 +198,20 @@ CLASS_CASES: dict[str, Any] = {
         ("CLASS-ID. MyClass FINAL.", "MyClass"),  # was a real bug, now fixed
         ("CLASS-ID. MyClass INHERITS Base.", "MyClass"),  # was a real bug, now fixed
         ("INTERFACE-ID. MyInterface INHERITS BaseInterface.", "MyInterface"),  # was a real bug, now fixed
+        ("        PROGRAM-ID. 'EPSCSMRD'.", "EPSCSMRD"),  # #4242: a literal name, Area B (DBB MortgageApplication)
+        ('       PROGRAM-ID. "EPSCSMRF".', "EPSCSMRF"),  # #4242: the double-quoted literal
+        ("PROGRAM-ID. 'MYPROG' IS INITIAL PROGRAM.", "MYPROG"),  # #4242: a literal name, then its clause
     ],
     "invalid": [
         "      * PROGRAM-ID. MyProgram.",  # commented-out declaration
+        "      * PROGRAM-ID. 'MYPROG'.",  # #4242: a commented-out literal name
+        "       MOVE 'PROGRAM-ID. X' TO WS-TEXT.",  # #4242: PROGRAM-ID inside a literal is no paragraph
         "       WORKING-STORAGE SECTION.",  # unrelated section, no class_start keyword
     ],
     "pathological": [
         ("PROGRAM-ID.\n    MyProgram.", "MyProgram"),  # vertical split
         ("PROGRAM-ID.\n    MyProgram\n    IS INITIAL PROGRAM.", "MyProgram"),  # vertical split + clause
+        ("       PROGRAM-ID.\n       'MYPROG'.", "MYPROG"),  # #4242: a literal name on the next line
     ],
 }
 

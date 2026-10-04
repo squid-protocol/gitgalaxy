@@ -732,6 +732,19 @@
       "summary": "In free-format source the engine's COBOL function-start rule let its optional 6-column sequence-area slot swallow an indent plus the level number (`    01 VALUE-BYTES.`), stepping past its level-number shield, so data description entries (and indented FD / SD lines) read as paragraphs: 143 phantom units on CobolCraft @ e8c420df, every unit of coordinates.cob and decode.cob. No keyed estate is free-format, so the ledger never saw it."
     },
     {
+      "id": "D041",
+      "estate": "dbb-mortgage-application",
+      "side": "engine",
+      "fields": [
+        "program_id"
+      ],
+      "language": "cobol",
+      "severity": "fact",
+      "found_by": "census",
+      "issue": 4242,
+      "summary": "A literal program name (`PROGRAM-ID. 'EPSCSMRD'.`, column 9) recorded no PROGRAM-ID: the engine's class_start rule wanted a word boundary right after the paragraph's separator, and a quote is no word character. IBM DBB epscsmrd.cbl (13 quoted PROGRAM-IDs) had no class row at all; found during its census (#4226)."
+    },
+    {
       "id": "D042",
       "estate": "dbb-mortgage-application",
       "side": "engine",

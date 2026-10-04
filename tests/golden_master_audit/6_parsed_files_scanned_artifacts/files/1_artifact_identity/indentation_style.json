@@ -411,6 +411,9 @@
     "c": {
       "c/SOURCES.md": "Neutral / No Indentation"
     },
+    "c/cosmopolitan_intrin": {
+      "c/cosmopolitan_intrin/countbits.c": "Spaces"
+    },
     "c/cpython": {
       "c/cpython/Makefile.pre.in": "Mixed (0.4% Spaces / 99.6% Tabs)",
       "c/cpython/ceval.c": "Mixed (99.7% Spaces / 0.3% Tabs)",
@@ -435,6 +438,9 @@
       "c/doom/r_defs.h": "Spaces",
       "c/doom/w_wad.c": "Mixed (67.1% Spaces / 32.9% Tabs)",
       "c/doom/z_zone.c": "Mixed (61.0% Spaces / 39.0% Tabs)"
+    },
+    "c/freebsd_openpam": {
+      "c/freebsd_openpam/pam_acct_mgmt.c": "Tabs"
     },
     "c/micropython": {
       "c/micropython/compile.c": "Spaces",
@@ -1126,6 +1132,10 @@
       "cpp/powertoys/main.cpp": "Spaces",
       "cpp/powertoys/powertoy_module.h": "Spaces"
     },
+    "cpp/serenity_ak_siphash_cpu": {
+      "cpp/serenity_ak_siphash_cpu/CPUFeatures.cpp": "Spaces",
+      "cpp/serenity_ak_siphash_cpu/SipHash.cpp": "Spaces"
+    },
     "csd": {
       "csd/SOURCES.md": "Neutral / No Indentation"
     },
@@ -1362,6 +1372,9 @@
       "go/core/syscall_linux.go": "Tabs",
       "go/core/value.go": "Tabs"
     },
+    "go/go_runtime_rand": {
+      "go/go_runtime_rand/rand.go": "Tabs"
+    },
     "go/kubernetes": {
       "go/kubernetes/csi_plugin.go": "Tabs",
       "go/kubernetes/generic.go": "Tabs",
@@ -1370,6 +1383,9 @@
       "go/kubernetes/proxier.go": "Tabs",
       "go/kubernetes/replica_set.go": "Tabs",
       "go/kubernetes/scheduler.go": "Tabs"
+    },
+    "go/kubernetes_kubectl_tls": {
+      "go/kubernetes_kubectl_tls/create_secret_tls_test.go": "Tabs"
     },
     "groovy/fineract_gradle_plugin": {
       "groovy/fineract_gradle_plugin/LICENSE_RELEASE": "Neutral / No Indentation",
@@ -1876,6 +1892,17 @@
     "java": {
       "java/SOURCES.md": "Neutral / No Indentation"
     },
+    "java/flutter_android_editing_tests": {
+      "java/flutter_android_editing_tests/InputConnectionAdaptorTest.java": "Spaces"
+    },
+    "java/jenkins_cli": {
+      "java/jenkins_cli/LICENSE.txt": "Neutral / No Indentation",
+      "java/jenkins_cli/SetBuildDescriptionCommand.java": "Spaces"
+    },
+    "java/selenium_grid_session_queue": {
+      "java/selenium_grid_session_queue/NOTICE": "Neutral / No Indentation",
+      "java/selenium_grid_session_queue/RemoteNewSessionQueue.java": "Spaces"
+    },
     "java/springboot": {
       "java/springboot/AutoConfigurationImportSelector.java": "Tabs",
       "java/springboot/Binder.java": "Tabs",
@@ -1889,6 +1916,13 @@
     "javascript": {
       "javascript/SOURCES.md": "Neutral / No Indentation"
     },
+    "javascript/cesium_particle_emitters": {
+      "javascript/cesium_particle_emitters/CircleEmitter.js": "Spaces",
+      "javascript/cesium_particle_emitters/LICENSE.md": "Neutral / No Indentation"
+    },
+    "javascript/javascript_algorithms_bits": {
+      "javascript/javascript_algorithms_bits/fullAdder.js": "Spaces"
+    },
     "javascript/jquery": {
       "javascript/jquery/LICENSE.txt": "Neutral / No Indentation",
       "javascript/jquery/ajax.js": "Tabs",
@@ -1899,6 +1933,15 @@
       "javascript/jquery/event.js": "Tabs",
       "javascript/jquery/tokenize.js": "Tabs"
     },
+    "javascript/node_tls_security_tests": {
+      "javascript/node_tls_security_tests/regexp-unicode-sets.js": "Spaces",
+      "javascript/node_tls_security_tests/test-crypto-dh-modp2.js": "Spaces",
+      "javascript/node_tls_security_tests/test-fs-lchown.js": "Spaces",
+      "javascript/node_tls_security_tests/test-https-host-headers.js": "Spaces",
+      "javascript/node_tls_security_tests/test-tls-cert-ext-encoding.js": "Spaces",
+      "javascript/node_tls_security_tests/test-tls-psk-server.js": "Spaces",
+      "javascript/node_tls_security_tests/test-tls-use-after-free-regression.js": "Spaces"
+    },
     "javascript/react": {
       "javascript/react/BabelPlugin.ts": "Spaces",
       "javascript/react/ReactFiberBeginWork.js": "Spaces",
@@ -1906,6 +1949,9 @@
       "javascript/react/ReactFlightServer.js": "Spaces",
       "javascript/react/ReactSymbols.js": "Spaces",
       "javascript/react/build.js": "Spaces"
+    },
+    "javascript/react_error_codes": {
+      "javascript/react_error_codes/extract-errors.js": "Spaces"
     },
     "javascript/threejs": {
       "javascript/threejs/BufferGeometry.js": "Tabs",
@@ -2393,6 +2439,16 @@
       "makefile/freebsd/COPYRIGHT": "Neutral / No Indentation",
       "makefile/freebsd/Makefile": "Tabs"
     },
+    "markdown": {
+      "markdown/SOURCES.md": "Neutral / No Indentation"
+    },
+    "markdown/airflow_job_lifecycle": {
+      "markdown/airflow_job_lifecycle/JOB_LIFECYCLE.md": "Neutral / No Indentation",
+      "markdown/airflow_job_lifecycle/NOTICE": "Neutral / No Indentation"
+    },
+    "markdown/kubernetes_client_go": {
+      "markdown/kubernetes_client_go/ARCHITECTURE.md": "Neutral / No Indentation"
+    },
     "matlab": {
       "matlab/SOURCES.md": "Neutral / No Indentation"
     },
@@ -2442,6 +2498,10 @@
     },
     "perl": {
       "perl/SOURCES.md": "Neutral / No Indentation"
+    },
+    "perl/ack3_tests": {
+      "perl/ack3_tests/LICENSE.md": "Neutral / No Indentation",
+      "perl/ack3_tests/file-permission.t": "Spaces"
     },
     "perl/bugzilla": {
       "perl/bugzilla/Auth.pm": "Spaces",
@@ -2497,6 +2557,10 @@
       "php/laravel_core/Model.php": "Spaces",
       "php/laravel_core/Router.php": "Spaces"
     },
+    "php/laravel_validation_rules": {
+      "php/laravel_validation_rules/Can.php": "Spaces",
+      "php/laravel_validation_rules/LICENSE.md": "Neutral / No Indentation"
+    },
     "php/magento2": {
       "php/magento2/AbstractBlock.php": "Spaces",
       "php/magento2/AbstractModel.php": "Spaces",
@@ -2515,6 +2579,9 @@
       "php/symfony/Parser.php": "Spaces",
       "php/symfony/Request.php": "Spaces",
       "php/symfony/Router.php": "Spaces"
+    },
+    "php/symfony_emoji_data": {
+      "php/symfony_emoji_data/emoji-ccp.php": "Spaces"
     },
     "php/wordpress": {
       "php/wordpress/admin-ajax.php": "Tabs",
@@ -2731,6 +2798,17 @@
       "python/airflow/s3.py": "Spaces",
       "python/airflow/scheduler_job_runner.py": "Spaces"
     },
+    "python/airflow_ai_providers": {
+      "python/airflow_ai_providers/NOTICE": "Neutral / No Indentation",
+      "python/airflow_ai_providers/openai_src_airflow_providers_openai_hooks_openai.py": "Spaces",
+      "python/airflow_ai_providers/pinecone_src_airflow_providers_pinecone_hooks_pinecone.py": "Spaces",
+      "python/airflow_ai_providers/pinecone_src_airflow_providers_pinecone_operators_pinecone.py": "Spaces",
+      "python/airflow_ai_providers/pinecone_tests_system_pinecone_example_pinecone_cohere.py": "Spaces"
+    },
+    "python/airflow_opsgenie_tests": {
+      "python/airflow_opsgenie_tests/NOTICE": "Neutral / No Indentation",
+      "python/airflow_opsgenie_tests/test_opsgenie.py": "Spaces"
+    },
     "python/cython": {
       "python/cython/COPYING.txt": "Neutral / No Indentation",
       "python/cython/CodeGeneration.py": "Spaces",
@@ -2738,6 +2816,10 @@
       "python/cython/MemoryView.pxd": "Spaces",
       "python/cython/MemoryView.pyx": "Spaces",
       "python/cython/Nodes.py": "Spaces"
+    },
+    "python/django_db_tests": {
+      "python/django_db_tests/test_iterator.py": "Spaces",
+      "python/django_db_tests/test_utils.py": "Spaces"
     },
     "python/fastapi": {
       "python/fastapi/CONTRIBUTING.md": "Neutral / No Indentation",
@@ -2976,6 +3058,26 @@
       "python/fastapi/tests/test_ws_router.py": "Spaces",
       "python/fastapi/tests/utils.py": "Spaces"
     },
+    "python/homeassistant_anthropic": {
+      "python/homeassistant_anthropic/LICENSE.md": "Neutral / No Indentation",
+      "python/homeassistant_anthropic/coordinator.py": "Spaces"
+    },
+    "python/homeassistant_ble_integrations": {
+      "python/homeassistant_ble_integrations/LICENSE.md": "Neutral / No Indentation",
+      "python/homeassistant_ble_integrations/aranet___init__.py": "Spaces",
+      "python/homeassistant_ble_integrations/gardena_bluetooth___init__.py": "Spaces",
+      "python/homeassistant_ble_integrations/utils.py": "Spaces"
+    },
+    "python/langchain_agents": {
+      "python/langchain_agents/langchain_agents_middleware_model_fallback.py": "Spaces",
+      "python/langchain_agents/langchain_agents_middleware_tool_emulator.py": "Spaces",
+      "python/langchain_agents/tests_integration_tests_chat_models_test_base.py": "Spaces"
+    },
+    "python/micropython_usb_tls": {
+      "python/micropython_usb_tls/ssl_verify_callback.py": "Spaces",
+      "python/micropython_usb_tls/tls_dtls.py": "Spaces",
+      "python/micropython_usb_tls/usb_simple_host_pyusb.py": "Spaces"
+    },
     "python/numpy": {
       "python/numpy/LICENSE.txt": "Neutral / No Indentation",
       "python/numpy/__init__.py": "Neutral / No Indentation",
@@ -2995,6 +3097,31 @@
       "python/numpy/testutils.py": "Spaces",
       "python/numpy/ufunc_docstrings.py": "Spaces",
       "python/numpy/verify_c_api_version.py": "Spaces"
+    },
+    "python/opencv_dnn_conversion": {
+      "python/opencv_dnn_conversion/py_to_py_resnet50_onnx.py": "Spaces"
+    },
+    "python/pip_vendored_requests": {
+      "python/pip_vendored_requests/LICENSE.txt": "Neutral / No Indentation",
+      "python/pip_vendored_requests/packages.py": "Spaces"
+    },
+    "python/scikit-learn_examples": {
+      "python/scikit-learn_examples/COPYING": "Neutral / No Indentation",
+      "python/scikit-learn_examples/linear_model_plot_nnls.py": "Neutral / No Indentation",
+      "python/scikit-learn_examples/svm_plot_custom_kernel.py": "Spaces"
+    },
+    "python/tensorflow_ml_ops": {
+      "python/tensorflow_ml_ops/core_tfrt_saved_model_tests_gen_matmul_gpu.py": "Spaces",
+      "python/tensorflow_ml_ops/lite_testing_op_tests_einsum.py": "Spaces"
+    },
+    "python/tensorflow_model_fixtures": {
+      "python/tensorflow_model_fixtures/lite_testdata_multi_add.pb": "Unknown",
+      "python/tensorflow_model_fixtures/python_compiler_mlir_multi_add.tflite": "Unknown"
+    },
+    "python/thealgorithms_machine_learning": {
+      "python/thealgorithms_machine_learning/LICENSE.md": "Neutral / No Indentation",
+      "python/thealgorithms_machine_learning/logistic_regression.py": "Spaces",
+      "python/thealgorithms_machine_learning/lstm_lstm_prediction.py": "Spaces"
     },
     "python/twisted": {
       "python/twisted/defer.py": "Spaces",
@@ -3061,6 +3188,10 @@
       "ruby/rails/metal.rb": "Spaces",
       "ruby/rails/routing.rb": "Spaces"
     },
+    "ruby/rails_http_token_auth": {
+      "ruby/rails_http_token_auth/MIT-LICENSE": "Neutral / No Indentation",
+      "ruby/rails_http_token_auth/http_token_authentication_test.rb": "Spaces"
+    },
     "rust": {
       "rust/SOURCES.md": "Neutral / No Indentation"
     },
@@ -3074,6 +3205,12 @@
       "rust/bevy/bevy_reflect_path.rs": "Spaces",
       "rust/bevy/bevy_render_phase.rs": "Spaces",
       "rust/bevy/bevy_schedule_graph.rs": "Spaces"
+    },
+    "rust/bevy_asset_examples": {
+      "rust/bevy_asset_examples/LICENSE-APACHE": "Neutral / No Indentation",
+      "rust/bevy_asset_examples/LICENSE-MIT": "Neutral / No Indentation",
+      "rust/bevy_asset_examples/image_node.rs": "Spaces",
+      "rust/bevy_asset_examples/rotation.rs": "Spaces"
     },
     "rust/holylang": {
       "rust/holylang/ast.rs": "Spaces",
@@ -3118,6 +3255,9 @@
       "rust/tokio/tests.rs": "Spaces",
       "rust/tokio/tokio_mpsc_bounded.rs": "Spaces",
       "rust/tokio/tokio_named_pipe.rs": "Spaces"
+    },
+    "rust/tokio_util_rand": {
+      "rust/tokio_util_rand/rand.rs": "Spaces"
     },
     "rust/wasmtime": {
       "rust/wasmtime/wasmtime_component_macro.rs": "Spaces",
@@ -3260,6 +3400,10 @@
       "shell/freebsd-src/runulp.sh": "Mixed (54.8% Spaces / 45.2% Tabs)",
       "shell/freebsd-src/timeout_test.sh": "Tabs",
       "shell/freebsd-src/ztest.sh": "Tabs"
+    },
+    "shell/freebsd_sysbuild": {
+      "shell/freebsd_sysbuild/COPYRIGHT": "Neutral / No Indentation",
+      "shell/freebsd_sysbuild/sysbuild.sh": "Mixed (3.5% Spaces / 96.5% Tabs)"
     },
     "shell/haiku": {
       "shell/haiku/HardwareChecker.sh": "Tabs",
@@ -3688,6 +3832,9 @@
     "typescript": {
       "typescript/SOURCES.md": "Neutral / No Indentation"
     },
+    "typescript/angular_zonejs_mocha": {
+      "typescript/angular_zonejs_mocha/mocha.ts": "Spaces"
+    },
     "typescript/assemblyscript": {
       "typescript/assemblyscript/asconfig.json": "Spaces",
       "typescript/assemblyscript/ast.ts": "Spaces",
@@ -3695,12 +3842,30 @@
       "typescript/assemblyscript/package.json": "Neutral / No Indentation",
       "typescript/assemblyscript/parser.ts": "Spaces"
     },
+    "typescript/effect_ai_anthropic": {
+      "typescript/effect_ai_anthropic/AnthropicTokenizer.ts": "Spaces"
+    },
+    "typescript/excalibur_math": {
+      "typescript/excalibur_math/LICENSE.md": "Neutral / No Indentation",
+      "typescript/excalibur_math/collision_colliders_separating-axis.ts": "Spaces",
+      "typescript/excalibur_math/math_ray.ts": "Spaces"
+    },
+    "typescript/excalidraw_text_wrapping": {
+      "typescript/excalidraw_text_wrapping/textWrapping.ts": "Spaces"
+    },
     "typescript/fp-ts": {
       "typescript/fp-ts/Either.ts": "Spaces",
       "typescript/fp-ts/HKT.ts": "Spaces",
       "typescript/fp-ts/TaskEither.ts": "Spaces",
       "typescript/fp-ts/package.json": "Neutral / No Indentation",
       "typescript/fp-ts/pipeable.ts": "Spaces"
+    },
+    "typescript/nx_util_ai": {
+      "typescript/nx_util_ai/nx-dev_pages_api_query-ai-handler.ts": "Spaces",
+      "typescript/nx_util_ai/util-ai_src_lib_moderation.ts": "Spaces"
+    },
+    "typescript/pixijs_examples": {
+      "typescript/pixijs_examples/events_dragging.ts": "Spaces"
     },
     "typescript/playwright": {
       "typescript/playwright/NOTICE": "Neutral / No Indentation",
@@ -3892,6 +4057,9 @@
       "zig/zig/Type.zig": "Spaces",
       "zig/zig/Zcu.zig": "Spaces",
       "zig/zig/main.zig": "Spaces"
+    },
+    "zig/zig_std_linux_mips": {
+      "zig/zig_std_linux_mips/mips.zig": "Spaces"
     },
     "zig/zls": {
       "zig/zls/DocumentScope.zig": "Spaces",

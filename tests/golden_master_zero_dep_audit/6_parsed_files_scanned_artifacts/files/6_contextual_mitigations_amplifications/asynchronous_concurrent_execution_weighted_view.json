@@ -201,6 +201,18 @@
       "python/fastapi/tests/test_stringified_annotation_dependency.py": 16,
       "python/fastapi/tests/test_ws_router.py": 67
     },
+    "python/homeassistant_anthropic": {
+      "python/homeassistant_anthropic/coordinator.py": 12
+    },
+    "python/homeassistant_ble_integrations": {
+      "python/homeassistant_ble_integrations/aranet___init__.py": 14,
+      "python/homeassistant_ble_integrations/gardena_bluetooth___init__.py": 101
+    },
+    "python/langchain_agents": {
+      "python/langchain_agents/langchain_agents_middleware_model_fallback.py": 13,
+      "python/langchain_agents/langchain_agents_middleware_tool_emulator.py": 13,
+      "python/langchain_agents/tests_integration_tests_chat_models_test_base.py": 12
+    },
     "rust/bevy": {
       "rust/bevy/bevy_ecs_world.rs": 29
     },
@@ -247,6 +259,9 @@
     "tcl/sqlite": {
       "tcl/sqlite/tester.tcl": 9,
       "tcl/sqlite/testrunner.tcl": 32
+    },
+    "typescript/pixijs_examples": {
+      "typescript/pixijs_examples/events_dragging.ts": 8
     },
     "typescript/playwright": {
       "typescript/playwright/bidiConnection.ts": 10,

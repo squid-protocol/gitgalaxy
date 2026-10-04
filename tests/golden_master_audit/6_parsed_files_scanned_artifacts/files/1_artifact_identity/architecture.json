@@ -1,0 +1,13 @@
+{
+  "groups": {
+    "python/tensorflow_model_fixtures": {
+      "python/tensorflow_model_fixtures/lite_testdata_multi_add.pb": "Unknown",
+      "python/tensorflow_model_fixtures/python_compiler_mlir_multi_add.tflite": "Unknown"
+    }
+  },
+  "path": [
+    "6. Parsed Files (Scanned Artifacts)",
+    "1. Artifact Identity",
+    "Architecture"
+  ]
+}

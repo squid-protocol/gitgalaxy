@@ -307,7 +307,7 @@
       "found_by": "pin",
       "issue": 3520,
       "fixed_by": "#3522",
-      "summary": "Nordic national characters (ÆØÅ) truncated PL/I / HLASM / JCL identifiers: units misnamed, calls unlinked."
+      "summary": "Nordic national characters (\u00c6\u00d8\u00c5) truncated PL/I / HLASM / JCL identifiers: units misnamed, calls unlinked."
     },
     {
       "id": "D016",
@@ -565,7 +565,7 @@
       "severity": "fact",
       "found_by": "fresh-estate scan (#3806)",
       "issue": 3955,
-      "summary": "Japanese user-defined words were invisible (the name classes were ASCII plus the European national characters): a Japanese PROGRAM-ID gave no program, so it was dropped from refraction; a data name starting with a Japanese character was missing and one with a Japanese tail was truncated (`X項目` -> `X`); Japanese sections and paragraphs were missing; and `_` was missing from the level-start class (`FIXED_FLD` -> `FIXED`).",
+      "summary": "Japanese user-defined words were invisible (the name classes were ASCII plus the European national characters): a Japanese PROGRAM-ID gave no program, so it was dropped from refraction; a data name starting with a Japanese character was missing and one with a Japanese tail was truncated (`X\u9805\u76ee` -> `X`); Japanese sections and paragraphs were missing; and `_` was missing from the level-start class (`FIXED_FLD` -> `FIXED`).",
       "fixed_by": "#3967"
     },
     {
@@ -597,7 +597,7 @@
       "severity": "fact",
       "found_by": "fresh-estate scan (#3806)",
       "issue": 3991,
-      "summary": "#3955 follow-up: full-width hyphens (U+FF0D, U+2212) and full-width digits still ended a COBOL word, so Japanese data names were truncated and could collide (`ＴＥＳＴ−ＤＡＴＡ１` and `ＴＥＳＴ−ＲＥＣＯＲＤ１` both `ＴＥＳＴ`) and sections such as `Ｓ−初期化 SECTION` were dropped.",
+      "summary": "#3955 follow-up: full-width hyphens (U+FF0D, U+2212) and full-width digits still ended a COBOL word, so Japanese data names were truncated and could collide (`\uff34\uff25\uff33\uff34\u2212\uff24\uff21\uff34\uff21\uff11` and `\uff34\uff25\uff33\uff34\u2212\uff32\uff25\uff23\uff2f\uff32\uff24\uff11` both `\uff34\uff25\uff33\uff34`) and sections such as `\uff33\u2212\u521d\u671f\u5316 SECTION` were dropped.",
       "fixed_by": "#3995"
     },
     {
@@ -730,6 +730,19 @@
       "found_by": "scan of CobolCraft (GnuCOBOL free-format; not a mainframe estate)",
       "issue": 4203,
       "summary": "In free-format source the engine's COBOL function-start rule let its optional 6-column sequence-area slot swallow an indent plus the level number (`    01 VALUE-BYTES.`), stepping past its level-number shield, so data description entries (and indented FD / SD lines) read as paragraphs: 143 phantom units on CobolCraft @ e8c420df, every unit of coordinates.cob and decode.cob. No keyed estate is free-format, so the ledger never saw it."
+    },
+    {
+      "id": "D042",
+      "estate": "dbb-mortgage-application",
+      "side": "engine",
+      "fields": [
+        "record fields"
+      ],
+      "language": "cobol",
+      "severity": "fact",
+      "found_by": "census",
+      "issue": 4246,
+      "summary": "An unnamed data description entry (an implicit FILLER: `2 PIC X(40) USAGE DISPLAY VALUE '...'`, IBM DBB EPSCSMRD L24 / L27 / L30) was read as an item named PIC with no PICTURE: the clause keyword standing where the name goes was taken for the name, and the entry's clauses were read from after it. Found onboarding EPSCSMRD into the key (#4226); the key's own reader made the same misreading."
     }
   ],
   "fields": {

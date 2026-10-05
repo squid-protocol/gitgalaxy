@@ -52,6 +52,9 @@ DEFINITION: dict[str, Any] = {
     # map's own build JCL. Every other language keeps unconstrained
     # cross-language resolution (an HTML page importing a .css file).
     "imports_are_source_members": True,
+    # #4265: `COPY member IN|OF library` names the library to search (galaxyscope records it per
+    # member as `import_libraries`; it resolves through a --copy-libraries declaration).
+    "import_library_qualifier": True,
     # #4265: the one other language a COBOL member can come from. A BMS mapset's symbolic map is a
     # COBOL copybook GENERATED from the .bms source at build time (`COPY CUSTMS` in a CICS program);
     # when the repository's only `CUSTMS` is the mapset, the COPY names it -- the edge estate-crucible's

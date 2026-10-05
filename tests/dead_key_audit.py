@@ -69,6 +69,11 @@ BASELINE_PATH = Path(__file__).resolve().parent / "dead_key_audit_baseline.json"
 # apart from "the code changed, re-check this."
 # ==============================================================================
 ALLOWLIST = {
+    # --copy-libraries declaration fields (core/copy_libraries.py, #4265): the producer is the user's
+    # JSON / YAML file, never a literal in this repo.
+    "libraries": "--copy-libraries declaration: library-name -> directories, read from the user's file (#4265)",
+    "syslib": "--copy-libraries declaration: per-program search orders, read from the user's file (#4265)",
+    "order": "--copy-libraries declaration: one search order's library-names, read from the user's file (#4265)",
     # package.json fields read from a manifest on disk (core/package_self_reference.py, #3789):
     # the producer is the npm package author, never a literal in this repo.
     "exports": "package.json `exports` field, read from the scanned repo's manifest (#3789)",

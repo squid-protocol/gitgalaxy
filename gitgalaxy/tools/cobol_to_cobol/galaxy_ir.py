@@ -338,6 +338,9 @@ class EngineDataItem:
     # #3355: the COPY member(s) that expand right after this entry, comma-separated
     # (`01 DFHCOMMAREA.` + `COPY INQCUST.` -> 'INQCUST'); None when no COPY follows.
     copy_members: Optional[str] = None
+    # #4265: the library-name each `copy_members` COPY names (`COPY DATEWS IN SHRCPY`), comma-separated in
+    # the same order, "" for an unqualified COPY; None when none names one (record_data.copy_libraries).
+    copy_libraries: Optional[str] = None
     # #3694: the item codes SIGN ... SEPARATE, so a DISPLAY sign takes a byte of its own --
     # before the digits when `sign_leading` (SIGN LEADING SEPARATE), else after them.
     sign_separate: bool = False
@@ -835,6 +838,9 @@ class EngineFile:
     program_ids: list[str] = field(default_factory=list)
     units: list[EngineUnit] = field(default_factory=list)
     copy_deps: list[str] = field(default_factory=list)
+    # #4265: per copy_deps path, the COPY forms its edge carries when the scan declared copy libraries
+    # (library-names, "" for an unqualified COPY): `COPY X` and `COPY X IN LIB` can reach two files.
+    copy_dep_libraries: dict[str, list[str]] = field(default_factory=dict)
     # #3720: every %INCLUDE member a PL/I file names, found or not (file_data.raw_imports);
     # copy_deps holds only the ones the scan resolved to a file. Empty for other languages.
     includes: list[str] = field(default_factory=list)
@@ -1347,7 +1353,7 @@ class GalaxyIR:
         return out
 
     # ---- #3355: the COMMAREA contract ----------------------------------------
-    def _copybook_file(self, member: str, *contexts: EngineFile) -> Optional[EngineFile]:
+    def _copybook_file(self, member: str, *contexts: EngineFile, library: Optional[str] = None) -> Optional[EngineFile]:
         """The copybook file a `COPY member` in one of `contexts` resolved to.
 
         Read off each context's resolved COPY edges (copy_deps) by file stem, in
@@ -1358,6 +1364,9 @@ class GalaxyIR:
         member = nfc(member)  # #3815: a member name and a file stem meet in NFC
         for ctx in contexts:
             hits = [p for p in ctx.copy_deps if nfc(Path(p).stem.upper()) == member]
+            if len(hits) > 1 and library is not None and ctx.copy_dep_libraries:
+                # #4265: the edge the COPY's own form (its library-name, or none) resolved to
+                hits = [p for p in hits if library in ctx.copy_dep_libraries.get(p, ())] or hits
             if len(hits) == 1 and hits[0] in self.files:
                 return self.files[hits[0]]
         for ctx in contexts:  # #3490: a symbolic map generated from BMS source
@@ -1731,23 +1740,27 @@ class GalaxyIR:
             if ef.language != "cobol":
                 continue
             for it in ef.data_items:
-                members = [m for m in (it.copy_members or "").split(",") if m]
-                if not members:
+                forms = [f for f in _copy_forms(it) if f[0]]
+                if not forms:
                     continue
                 keep: list = []
-                for i, member in enumerate(members):
-                    _cb, roots = self._copy_roots(member, ef, ef, 0)
+                for i, (member, library) in enumerate(forms):
+                    _cb, roots = self._copy_roots(member, ef, ef, 0, library)
                     # once one member stands at section level, the ones after it follow it there
                     if len(keep) == i and ((roots[0].level not in (1, 77)) if roots else i == 0):
-                        keep.append(member)
+                        keep.append((member, library))
                     else:
                         ef.section_copies.append((member, it.ordinal))
-                if len(keep) != len(members):
-                    it.copy_members = ",".join(keep) or None
+                if len(keep) != len(forms):
+                    it.copy_members = ",".join(m for m, _ in keep) or None
+                    # #4265: the library-names stay parallel to the members kept
+                    it.copy_libraries = ",".join(lib or "" for _, lib in keep) if any(lib for _, lib in keep) else None
 
-    def _copy_roots(self, member: str, ef: EngineFile, origin: EngineFile, depth: int) -> tuple:
-        """(copybook file, its record roots) for `COPY member`, or (None, [])."""
-        cb = self._copybook_file(member, ef, origin) if depth < _COPY_DEPTH else None
+    def _copy_roots(
+        self, member: str, ef: EngineFile, origin: EngineFile, depth: int, library: Optional[str] = None
+    ) -> tuple:
+        """(copybook file, its record roots) for `COPY member [IN library]`, or (None, [])."""
+        cb = self._copybook_file(member, ef, origin, library=library) if depth < _COPY_DEPTH else None
         if cb is None:
             return None, []
         return cb, [r for r in cb.records if r.level not in (66, 88)]
@@ -1774,10 +1787,10 @@ class GalaxyIR:
             EPSMTINP.` and `COPY EPSMTOUT.`) has those members after it, as its siblings, resolved from the copybook."""
             # #4330: section-level members the extractor recorded on `owner` close `item` after the kept ones
             moved = any(o == owner.ordinal for _, o in owner_ef.section_copies)
-            for member in (owner.copy_members or "").split(","):
+            for member, library in _copy_forms(owner):
                 if not member:
                     continue
-                cb, roots = self._copy_roots(member, owner_ef, origin, d)
+                cb, roots = self._copy_roots(member, owner_ef, origin, d, library)
                 if cb is None:
                     if owner is not item and _SYSTEM_COPYBOOK.match(nfc(member)):
                         # #4278: a runtime member after an entry (`EXEC SQL INCLUDE SQLCA`,
@@ -1826,9 +1839,9 @@ class GalaxyIR:
     ) -> bool:
         """Whether a resolved COPY recorded on `leaf` (the last entry of `group`'s subtree) has
         roots no deeper than `group` -- the copybook opened entries at `group`'s level or above."""
-        for member in (leaf.copy_members or "").split(","):
+        for member, library in _copy_forms(leaf):
             if member:
-                _, roots = self._copy_roots(member, ef, origin, depth)
+                _, roots = self._copy_roots(member, ef, origin, depth, library)
                 if roots and not all(r.level > group.level for r in roots):
                     return True
         return False
@@ -5650,13 +5663,17 @@ def load_galaxy_ir(db_path: Path, repo_name: Optional[str] = None) -> GalaxyIR:
         # 'exec' rows alongside the 'import' ones, and copy_deps means COPY /
         # EXEC SQL INCLUDE only -- without this filter a CICS LINK would read as
         # a copybook dependency.
-        for src, dst in cur.execute(
-            "SELECT src_file_id, dst_file_id FROM edge_data "
+        # #4265: `copy_libraries` is NULL on a DB written before the column existed.
+        libs_col = "copy_libraries" if _has_column(cur, "edge_data", "copy_libraries") else "NULL"
+        for src, dst, libs in cur.execute(
+            f"SELECT src_file_id, dst_file_id, {libs_col} FROM edge_data "  # noqa: S608 -- one of two literals
             "WHERE repo_name = ? AND commit_hash = ? AND COALESCE(edge_kind, 'import') = 'import'",
             (repo_name, commit_hash),
         ):
             if src in by_id and dst in by_id:
                 by_id[src].copy_deps.append(by_id[dst].file_path)
+                if libs:
+                    by_id[src].copy_dep_libraries[by_id[dst].file_path] = json.loads(libs)
         for ef in files.values():
             ef.copy_deps.sort()
         source_pages: dict[str, str] = {}
@@ -5789,6 +5806,8 @@ def load_galaxy_ir(db_path: Path, repo_name: Optional[str] = None) -> GalaxyIR:
             copy_col = "copy_members" if _has_column(cur, "record_data", "copy_members") else "NULL"
             # #3694: `sign_separate` likewise (an older DB sizes every sign as embedded).
             sign_col = "sign_separate" if _has_column(cur, "record_data", "sign_separate") else "NULL"
+            # #4265: `copy_libraries` likewise.
+            lib_col = "copy_libraries" if _has_column(cur, "record_data", "copy_libraries") else "NULL"
             for (
                 file_id,
                 ordinal,
@@ -5808,10 +5827,12 @@ def load_galaxy_ir(db_path: Path, repo_name: Optional[str] = None) -> GalaxyIR:
                 attrs,
                 copies,
                 sign_sep,
+                copy_libs,
             ) in cur.execute(
                 "SELECT file_id, ordinal, parent_ordinal, level_number, item_name, section, fd_name, pic, "  # noqa: S608 -- attributes_col is one of two literals; values are bound
                 "usage, occurs_min, occurs_max, occurs_depending_on, redefines, value_literal, line_number, "
-                f"{attributes_col}, {copy_col}, {sign_col} FROM record_data WHERE repo_name = ? AND commit_hash = ? "
+                f"{attributes_col}, {copy_col}, {sign_col}, {lib_col} FROM record_data "
+                "WHERE repo_name = ? AND commit_hash = ? "
                 "ORDER BY file_id, ordinal",
                 (repo_name, commit_hash),
             ):
@@ -5837,6 +5858,7 @@ def load_galaxy_ir(db_path: Path, repo_name: Optional[str] = None) -> GalaxyIR:
                         copy_members=copies,
                         sign_separate=bool(sign_sep),
                         sign_leading=sign_sep == 2,
+                        copy_libraries=copy_libs,
                     )
                 )
             # Thread children onto parents and collect the roots. `data_items` is
@@ -6311,6 +6333,14 @@ def load_galaxy_ir(db_path: Path, repo_name: Optional[str] = None) -> GalaxyIR:
     ir = GalaxyIR(db_path, repo_name, commit_hash, files, source_pages=source_pages)
     ir._settle_copy_members()  # #4330: needs the resolved COPY edges and symbolic maps above
     return ir
+
+
+def _copy_forms(item: EngineDataItem) -> list[tuple[str, Optional[str]]]:
+    """#4265: (member, library-name) per COPY recorded on `item` -- "" for an unqualified COPY. A library
+    only narrows anything where the scan declared copy libraries (EngineFile.copy_dep_libraries)."""
+    members = (item.copy_members or "").split(",")
+    libs = (item.copy_libraries or "").split(",")
+    return [(m, libs[i] if i < len(libs) else "") for i, m in enumerate(members)]
 
 
 def _program_bounds(ef: EngineFile) -> list[int]:

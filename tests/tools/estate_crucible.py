@@ -160,15 +160,55 @@ def source_encoding_arg(manifest: dict[str, Any]) -> list[str]:
     return ["--source-encoding", ",".join(f"{path}={codec}" for path, codec in sorted(pages.items()))]
 
 
+# #4265: the estate's copy libraries, by its own naming rule (README "Copy libraries"): `<APP>CPY` is an
+# app's copybook/ directory, `<APP>DCL` its dclgen/, `SHRCPY` shared/copylib/; a program's SYSLIB is its
+# app's two libraries, then SHRCPY.
+_LIBRARY_DIRS = (("copybook", "CPY"), ("dclgen", "DCL"))
+
+
+def copy_library_declaration(manifest: dict[str, Any]) -> dict[str, Any]:
+    """The `galaxyscope --copy-libraries` declaration of the estate the manifest describes."""
+    libraries: dict[str, list[str]] = {}
+    apps: dict[str, list[str]] = {}
+    for path, member in sorted(manifest["members"].items()):
+        directory = path.rsplit("/", 1)[0]
+        if member.get("library") == "copylib":
+            libraries.setdefault("SHRCPY", [])
+            if directory not in libraries["SHRCPY"]:
+                libraries["SHRCPY"].append(directory)
+        for kind, suffix in _LIBRARY_DIRS:
+            if member.get("library") == kind and member.get("app"):
+                name = f"{member['app']}{suffix}"
+                libraries.setdefault(name, [directory])
+                apps.setdefault(member["app"], [])
+                if name not in apps[member["app"]]:
+                    apps[member["app"]].append(name)
+        if member.get("app"):
+            apps.setdefault(member["app"], [])
+    shared = ["SHRCPY"] if "SHRCPY" in libraries else []
+    syslib = [
+        {"programs": f"apps/{app}/*", "order": sorted(names, key=lambda n: n.endswith("DCL")) + shared}
+        for app, names in sorted(apps.items())
+    ]
+    return {"libraries": libraries, "syslib": syslib}
+
+
 def scan(crucible: Path, scan_dir: Path) -> Path:
     from gitgalaxy.tools.cobol_to_cobol.galaxy_ir import scan_to_db
 
     manifest = json.loads((crucible / "key" / "manifest.json").read_text(encoding="utf-8"))
+    scan_dir.mkdir(parents=True, exist_ok=True)
+    declaration = scan_dir / "copy_libraries.json"
+    declaration.write_text(json.dumps(copy_library_declaration(manifest), indent=1) + "\n", encoding="utf-8")
 
     saved = os.environ.get("PYTHONPATH")
     os.environ["PYTHONPATH"] = os.pathsep.join(p for p in (str(REPO_ROOT), saved) if p)
     try:
-        return scan_to_db(crucible / "estate", scan_dir, extra_args=source_encoding_arg(manifest))
+        return scan_to_db(
+            crucible / "estate",
+            scan_dir,
+            extra_args=[*source_encoding_arg(manifest), "--copy-libraries", str(declaration)],
+        )
     finally:
         if saved is None:
             os.environ.pop("PYTHONPATH")

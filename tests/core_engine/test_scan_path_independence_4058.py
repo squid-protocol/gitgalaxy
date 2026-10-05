@@ -21,7 +21,8 @@ import pytest
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 import golden_diff  # noqa: E402
 
-PARENTS = ("neutral", "tmp", "docs", "vendor", "src")
+# #4249: `x.min.js` / `x.min.y` parents must not change the `.min.` filename test.
+PARENTS = ("neutral", "tmp", "docs", "vendor", "src", "x.min.js", "x.min.y")
 
 
 def _tree(root: Path) -> Path:
@@ -33,6 +34,7 @@ def _tree(root: Path) -> Path:
         '"""Core."""\nimport os\nfrom lib.util import helper\n\n\ndef run(x):\n'
         "    if x > 1:\n        return helper(x)\n    for i in range(x):\n        print(i)\n    return os.getcwd()\n"
     )
+    (root / "lib" / "app.min.js").write_text("var a=1;\n" * 3)
     (root / "lib" / "util.py").write_text(
         "def helper(x):\n    try:\n        return x * 2\n    except Exception:\n        return None\n"
     )

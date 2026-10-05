@@ -1406,6 +1406,7 @@ class Orchestrator:
         # edges aggregated from them. Empty for a repository with no mainframe
         # source, and on any path that never reaches the resolver.
         self.call_sites: list[dict[str, Any]] = []
+        self.call_ambiguities: list[dict[str, Any]] = []  # #4419
         self.invocation_edges: list[dict[str, Any]] = []
         # #3313 step 3: resolved idiom wrappers (wrapper_resolver.resolve_wrappers).
         self.wrappers: list[dict[str, Any]] = []
@@ -1539,7 +1540,8 @@ class Orchestrator:
             # #3200/#3201: the mainframe call graph (COBOL CALL, CICS LINK/XCTL, JCL
             # EXEC PGM=). Since #3237 its resolved edges enter the dependency graph
             # like #3333's function calls -- see invocation_resolver.py's header.
-            self.call_sites, self.invocation_edges = resolve_invocations(self.parsed_files)
+            self.call_ambiguities = []
+            self.call_sites, self.invocation_edges = resolve_invocations(self.parsed_files, self.call_ambiguities)
             self.parsed_files, network_macro = self.network_sensor.build_dependency_graph(
                 self.parsed_files, confident_file_pairs(self.fcall_sites), import_edges, self.invocation_edges
             )
@@ -1588,6 +1590,8 @@ class Orchestrator:
             t_phase = time.time()
             summary = self.processor.summarize_galaxy_metrics(repository_graph, total_unparsable)
             summary["network_macro"] = network_macro
+            if self.call_ambiguities:  # #4419: a shared PROGRAM-ID with no member named for it
+                summary["call_target_ambiguities"] = self.call_ambiguities
             if self.network_sensor.copy_libraries is not None:  # #4265: only when libraries are declared
                 summary["copy_member_collisions"] = self.network_sensor.copy_collisions
 
@@ -3651,7 +3655,8 @@ class Orchestrator:
             import_edges = self.network_sensor.resolve_import_edges(self.parsed_files)
             self._resolve_function_calls()
             # #3200/#3201, #3237: same resolution in delta mode, into the same graph.
-            self.call_sites, self.invocation_edges = resolve_invocations(self.parsed_files)
+            self.call_ambiguities = []
+            self.call_sites, self.invocation_edges = resolve_invocations(self.parsed_files, self.call_ambiguities)
             self.parsed_files, network_macro = self.network_sensor.build_dependency_graph(
                 self.parsed_files, confident_file_pairs(self.fcall_sites), import_edges, self.invocation_edges
             )
@@ -3671,6 +3676,8 @@ class Orchestrator:
             # 7. Synthesis and Database Forging
             summary = self.processor.summarize_galaxy_metrics(repository_graph, unparsable_audits)
             summary["network_macro"] = network_macro
+            if self.call_ambiguities:  # #4419: a shared PROGRAM-ID with no member named for it
+                summary["call_target_ambiguities"] = self.call_ambiguities
             if self.network_sensor.copy_libraries is not None:  # #4265: only when libraries are declared
                 summary["copy_member_collisions"] = self.network_sensor.copy_collisions
 

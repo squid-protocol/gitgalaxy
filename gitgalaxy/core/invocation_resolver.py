@@ -25,6 +25,11 @@
 # (core/path_proximity.py), but they still disagree about what a tie MEANS: a
 # call picks one, an import that is still ambiguous draws nothing.
 #
+# #4419: before proximity, the MEMBER named for the target wins. Old forks
+# (`PROG#OLD`, `PROGV2`) keep the original PROGRAM-ID, and the program object a
+# CALL loads is built from the member of that name. With no such member the
+# nearest declarer is kept and the guess is reported (`call_target_ambiguities`).
+#
 # THE EDGES ARE A SEPARATE KIND, AND SINCE #3237 THEY ARE IN THE GRAPH.
 # `edge_kind` is 'call'/'exec', never 'import'. #3200 kept them out of the
 # DiGraph so it could ship with a zero-diff golden master; #3333 then put
@@ -44,7 +49,7 @@
 # tests/tools_recorders/test_edge_data.py asserts.
 # ==============================================================================
 from pathlib import Path
-from typing import Any
+from typing import Any, Optional
 
 from gitgalaxy.core.mainframe_boundary import TRANSACTION_ROUTING_VERBS
 from gitgalaxy.core.path_proximity import nearest_path
@@ -116,6 +121,30 @@ def _program_index(parsed_files: list[dict[str, Any]]) -> dict[str, list[str]]:
     return index
 
 
+def _pick_program(
+    candidates: list[str], target: str, src_path: str, ambiguities: Optional[list[dict[str, Any]]] = None
+) -> Optional[str]:
+    """The file a program name resolves to among the files declaring it (#4419).
+
+    One declarer is the answer. Several (a fork such as `PROG#OLD` still says the
+    original PROGRAM-ID) means the MEMBER named for the target is the evidence --
+    the program object a CALL loads is built from the member of that name
+    (Enterprise COBOL Programming Guide) -- so a member whose stem equals the target
+    wins, the nearest one if several directories hold it. With no such member the
+    nearest declarer is kept, as before, and the guess is appended to `ambiguities`
+    so the scan summary reports it rather than guessing silently."""
+    if len(candidates) <= 1:
+        return candidates[0] if candidates else None
+    key = nfc(target.upper())
+    named = [c for c in candidates if nfc(Path(c.replace("\\", "/")).stem.upper()) == key]
+    if named:
+        return nearest_path(named, src_path)
+    chosen = nearest_path(candidates, src_path)
+    if ambiguities is not None:
+        ambiguities.append({"src_path": src_path, "target": target, "chosen": chosen, "candidates": sorted(candidates)})
+    return chosen
+
+
 def _pli_included_procedures(parsed_files: list[dict[str, Any]]) -> set[str]:
     """#3491: names that are only ever NESTED PL/I procedures. navikt/DSF splits a
     program into %INCLUDE members (R00153NC.pli is pasted into R0015301.pli), and a
@@ -138,6 +167,7 @@ def _pli_included_procedures(parsed_files: list[dict[str, Any]]) -> set[str]:
 
 def resolve_invocations(
     parsed_files: list[dict[str, Any]],
+    ambiguities: Optional[list[dict[str, Any]]] = None,
 ) -> tuple[list[dict[str, Any]], list[dict[str, Any]]]:
     """Resolve every extracted call site, and aggregate the resolved ones into edges.
 
@@ -150,6 +180,9 @@ def resolve_invocations(
         nowhere", answered: they are rows, not silence.
       - `edges` is one row per (src, dst, kind) pair with a `call_sites` count,
         shaped like #2992's import edges so edge_data takes them unchanged.
+
+    `ambiguities`, when given, collects each site whose PROGRAM-ID was shared by
+    several files with no member named for it (#4419): the guess it kept.
     """
     index = _program_index(parsed_files)
     included = _pli_included_procedures(parsed_files)
@@ -169,7 +202,7 @@ def resolve_invocations(
             # never matched against the PROGRAM-ID index here. It still rides in
             # call_site_data as a row, just with no program destination.
             if target and site.get("verb") not in TRANSACTION_ROUTING_VERBS:
-                resolved = nearest_path(index.get(nfc(str(target).upper()), []), src_path)
+                resolved = _pick_program(index.get(nfc(str(target).upper()), []), str(target), src_path, ambiguities)
                 # A program calling itself is recursion, not an edge: the
                 # import graph drops self-edges for the same reason.
                 if resolved == src_path:
@@ -217,7 +250,9 @@ def resolve_transactions(parsed_files: list[dict[str, Any]]) -> list[dict[str, A
         src_path = f.get("path", "")
         for txn in f.get("transaction_defs", []) or []:
             program = txn.get("program")
-            resolved = nearest_path(index.get(nfc(str(program).upper()), []), src_path) if program else None
+            resolved = (
+                _pick_program(index.get(nfc(str(program).upper()), []), str(program), src_path) if program else None
+            )
             record = dict(txn)
             record["src_path"] = src_path
             record["resolved_path"] = resolved

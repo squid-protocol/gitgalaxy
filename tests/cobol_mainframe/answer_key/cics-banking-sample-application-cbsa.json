@@ -84,7 +84,9 @@
         "status": "validated",
         "by": "claude-opus-5 (agent standing in for a human reviewer)",
         "at": "2026-09-19",
-        "notes": [],
+        "notes": [
+          "#4393: records re-drafted by the fixed reader (signed / prefixed / continued VALUE literals, no VALUE or USAGE read past the DATA DIVISION, implicit FILLER #4246, 77 as a root #4359); every changed field matches the engine and the #4377 referee panel"
+        ],
         "tier": "cross_verified",
         "cross_by": "claude-opus-5.5, fresh-context subagent given only the brief (blind; same model family as the author)",
         "cross_at": "2026-09-23",
@@ -171,7 +173,7 @@
           "occurs_max": null,
           "occurs_depending_on": null,
           "redefines": null,
-          "value": null,
+          "value": "+12",
           "line": 40
         },
         {
@@ -1078,7 +1080,7 @@
           "section": "LINKAGE",
           "fd": null,
           "pic": "X(600)",
-          "usage": "DISPLAY",
+          "usage": null,
           "occurs_min": null,
           "occurs_max": null,
           "occurs_depending_on": null,
@@ -1261,7 +1263,8 @@
         "by": "claude-opus-5 (agent standing in for a human reviewer)",
         "at": "2026-09-19",
         "notes": [
-          "POPULATE-TIME-DATE SECTION is mentioned only in a column-7 D debug line: real dead logic."
+          "POPULATE-TIME-DATE SECTION is mentioned only in a column-7 D debug line: real dead logic.",
+          "#4393: records re-drafted by the fixed reader (signed / prefixed / continued VALUE literals, no VALUE or USAGE read past the DATA DIVISION, implicit FILLER #4246, 77 as a root #4359); every changed field matches the engine and the #4377 referee panel"
         ],
         "tier": "cross_verified",
         "cross_by": "claude-opus-5.5, fresh-context subagent given only the brief (blind; same model family as the author)",
@@ -1706,7 +1709,7 @@
         },
         {
           "ordinal": 27,
-          "parent": 26,
+          "parent": null,
           "level": 77,
           "name": "PROCTRAN-RETRY",
           "section": "LOCAL-STORAGE",
@@ -2677,7 +2680,8 @@
         "at": "2026-09-19",
         "notes": [
           "CALC-DAY-OF-WEEK SECTION (and CDW010/CDW999) is never PERFORMed: real dead logic.",
-          "CUSTOMER-FILE is ASSIGN TO VSAM and opened OUTPUT once (line 449)."
+          "CUSTOMER-FILE is ASSIGN TO VSAM and opened OUTPUT once (line 449).",
+          "#4393: records re-drafted by the fixed reader (signed / prefixed / continued VALUE literals, no VALUE or USAGE read past the DATA DIVISION, implicit FILLER #4246, 77 as a root #4359); every changed field matches the engine and the #4377 referee panel"
         ],
         "tier": "cross_verified",
         "cross_by": "claude-opus-5.5, fresh-context subagent given only the brief (blind; same model family as the author)",
@@ -2706,7 +2710,7 @@
         },
         {
           "ordinal": 1,
-          "parent": 0,
+          "parent": null,
           "level": 77,
           "name": "WS-ACCOUNT-OPENED-DAY",
           "section": "WORKING-STORAGE",
@@ -2722,7 +2726,7 @@
         },
         {
           "ordinal": 2,
-          "parent": 0,
+          "parent": null,
           "level": 77,
           "name": "WS-ACCOUNT-OPENED-MONTH",
           "section": "WORKING-STORAGE",
@@ -2738,7 +2742,7 @@
         },
         {
           "ordinal": 3,
-          "parent": 0,
+          "parent": null,
           "level": 77,
           "name": "WS-ACCOUNT-OPENED-YEAR",
           "section": "WORKING-STORAGE",
@@ -5656,7 +5660,7 @@
           "section": "LINKAGE",
           "fd": null,
           "pic": "X(256)",
-          "usage": "DISPLAY",
+          "usage": null,
           "occurs_min": null,
           "occurs_max": null,
           "occurs_depending_on": null,
@@ -6170,7 +6174,8 @@
         "by": "claude-opus-5 (agent standing in for a human reviewer)",
         "at": "2026-09-19",
         "notes": [
-          "2026-09-24: A999 is dead (EXIT-only). A010 contains an unconditional EXEC CICS RETURN TRANSID(...) sentence, so it never falls through; the IF after it only handles a failed RETURN by abending. Found by the blind cross-check (cross_verify.py). The draft reader only tested a unit's LAST sentence (fixed)."
+          "2026-09-24: A999 is dead (EXIT-only). A010 contains an unconditional EXEC CICS RETURN TRANSID(...) sentence, so it never falls through; the IF after it only handles a failed RETURN by abending. Found by the blind cross-check (cross_verify.py). The draft reader only tested a unit's LAST sentence (fixed).",
+          "#4393: records re-drafted by the fixed reader (signed / prefixed / continued VALUE literals, no VALUE or USAGE read past the DATA DIVISION, implicit FILLER #4246, 77 as a root #4359); every changed field matches the engine and the #4377 referee panel"
         ],
         "tier": "cross_verified",
         "cross_by": "claude-opus-5.5, fresh-context subagent given only the brief (blind; same model family as the author)",
@@ -7746,7 +7751,7 @@
           "occurs_max": null,
           "occurs_depending_on": null,
           "redefines": null,
-          "value": "TO",
+          "value": null,
           "line": 157
         }
       ],
@@ -8268,7 +8273,8 @@
         "by": "claude-opus-5 (agent standing in for a human reviewer)",
         "at": "2026-09-19",
         "notes": [
-          "2026-09-24: A999 is dead (EXIT-only). A010 contains an unconditional EXEC CICS RETURN TRANSID(...) sentence, so it never falls through; the IF after it only handles a failed RETURN by abending. Found by the blind cross-check (cross_verify.py). The draft reader only tested a unit's LAST sentence (fixed)."
+          "2026-09-24: A999 is dead (EXIT-only). A010 contains an unconditional EXEC CICS RETURN TRANSID(...) sentence, so it never falls through; the IF after it only handles a failed RETURN by abending. Found by the blind cross-check (cross_verify.py). The draft reader only tested a unit's LAST sentence (fixed).",
+          "#4393: records re-drafted by the fixed reader (signed / prefixed / continued VALUE literals, no VALUE or USAGE read past the DATA DIVISION, implicit FILLER #4246, 77 as a root #4359); every changed field matches the engine and the #4377 referee panel"
         ],
         "tier": "cross_verified",
         "cross_by": "claude-opus-5.5, fresh-context subagent given only the brief (blind; same model family as the author)",
@@ -9668,7 +9674,7 @@
           "occurs_max": null,
           "occurs_depending_on": null,
           "redefines": null,
-          "value": "TO",
+          "value": null,
           "line": 148
         }
       ],
@@ -10447,7 +10453,8 @@
         "by": "claude-opus-5 (agent standing in for a human reviewer)",
         "at": "2026-09-19",
         "notes": [
-          "2026-09-24: A999 is dead (EXIT-only). A010 contains an unconditional EXEC CICS RETURN TRANSID(...) sentence, so it never falls through; the IF after it only handles a failed RETURN by abending. Found by the blind cross-check (cross_verify.py). The draft reader only tested a unit's LAST sentence (fixed)."
+          "2026-09-24: A999 is dead (EXIT-only). A010 contains an unconditional EXEC CICS RETURN TRANSID(...) sentence, so it never falls through; the IF after it only handles a failed RETURN by abending. Found by the blind cross-check (cross_verify.py). The draft reader only tested a unit's LAST sentence (fixed).",
+          "#4393: records re-drafted by the fixed reader (signed / prefixed / continued VALUE literals, no VALUE or USAGE read past the DATA DIVISION, implicit FILLER #4246, 77 as a root #4359); every changed field matches the engine and the #4377 referee panel"
         ],
         "tier": "cross_verified",
         "cross_by": "claude-opus-5.5, fresh-context subagent given only the brief (blind; same model family as the author)",
@@ -11959,7 +11966,7 @@
           "occurs_max": null,
           "occurs_depending_on": null,
           "redefines": null,
-          "value": "TO",
+          "value": null,
           "line": 154
         }
       ],
@@ -12599,7 +12606,8 @@
         "by": "claude-opus-5 (agent standing in for a human reviewer)",
         "at": "2026-09-19",
         "notes": [
-          "2026-09-24: A999 is dead (EXIT-only). A010 contains an unconditional EXEC CICS RETURN TRANSID(...) sentence, so it never falls through; the IF after it only handles a failed RETURN by abending. Found by the blind cross-check (cross_verify.py). The draft reader only tested a unit's LAST sentence (fixed)."
+          "2026-09-24: A999 is dead (EXIT-only). A010 contains an unconditional EXEC CICS RETURN TRANSID(...) sentence, so it never falls through; the IF after it only handles a failed RETURN by abending. Found by the blind cross-check (cross_verify.py). The draft reader only tested a unit's LAST sentence (fixed).",
+          "#4393: records re-drafted by the fixed reader (signed / prefixed / continued VALUE literals, no VALUE or USAGE read past the DATA DIVISION, implicit FILLER #4246, 77 as a root #4359); every changed field matches the engine and the #4377 referee panel"
         ],
         "tier": "cross_verified",
         "cross_by": "claude-opus-5.5, fresh-context subagent given only the brief (blind; same model family as the author)",
@@ -14335,7 +14343,7 @@
           "occurs_max": null,
           "occurs_depending_on": null,
           "redefines": null,
-          "value": "TO",
+          "value": null,
           "line": 173
         }
       ],
@@ -14954,7 +14962,8 @@
         "by": "claude-opus-5 (agent standing in for a human reviewer)",
         "at": "2026-09-19",
         "notes": [
-          "2026-09-24: A999 is dead (EXIT-only). A010 contains an unconditional EXEC CICS RETURN TRANSID(...) sentence, so it never falls through; the IF after it only handles a failed RETURN by abending. Found by the blind cross-check (cross_verify.py). The draft reader only tested a unit's LAST sentence (fixed)."
+          "2026-09-24: A999 is dead (EXIT-only). A010 contains an unconditional EXEC CICS RETURN TRANSID(...) sentence, so it never falls through; the IF after it only handles a failed RETURN by abending. Found by the blind cross-check (cross_verify.py). The draft reader only tested a unit's LAST sentence (fixed).",
+          "#4393: records re-drafted by the fixed reader (signed / prefixed / continued VALUE literals, no VALUE or USAGE read past the DATA DIVISION, implicit FILLER #4246, 77 as a root #4359); every changed field matches the engine and the #4377 referee panel"
         ],
         "tier": "cross_verified",
         "cross_by": "claude-opus-5.5, fresh-context subagent given only the brief (blind; same model family as the author)",
@@ -16914,7 +16923,7 @@
           "occurs_max": null,
           "occurs_depending_on": null,
           "redefines": null,
-          "value": "TO",
+          "value": null,
           "line": 184
         }
       ],
@@ -17957,7 +17966,8 @@
         "by": "claude-opus-5 (agent standing in for a human reviewer)",
         "at": "2026-09-19",
         "notes": [
-          "2026-09-24: A999 is dead (EXIT-only). A010 contains an unconditional EXEC CICS RETURN TRANSID(...) sentence, so it never falls through; the IF after it only handles a failed RETURN by abending. Found by the blind cross-check (cross_verify.py). The draft reader only tested a unit's LAST sentence (fixed)."
+          "2026-09-24: A999 is dead (EXIT-only). A010 contains an unconditional EXEC CICS RETURN TRANSID(...) sentence, so it never falls through; the IF after it only handles a failed RETURN by abending. Found by the blind cross-check (cross_verify.py). The draft reader only tested a unit's LAST sentence (fixed).",
+          "#4393: records re-drafted by the fixed reader (signed / prefixed / continued VALUE literals, no VALUE or USAGE read past the DATA DIVISION, implicit FILLER #4246, 77 as a root #4359); every changed field matches the engine and the #4377 referee panel"
         ],
         "tier": "cross_verified",
         "cross_by": "claude-opus-5.5, fresh-context subagent given only the brief (blind; same model family as the author)",
@@ -19805,7 +19815,7 @@
           "occurs_max": null,
           "occurs_depending_on": null,
           "redefines": null,
-          "value": "TO",
+          "value": null,
           "line": 185
         }
       ],
@@ -20486,7 +20496,8 @@
         "by": "claude-opus-5 (agent standing in for a human reviewer)",
         "at": "2026-09-19",
         "notes": [
-          "2026-09-24: A999 is dead (EXIT-only). A010 contains an unconditional EXEC CICS RETURN TRANSID(...) sentence, so it never falls through; the IF after it only handles a failed RETURN by abending. Found by the blind cross-check (cross_verify.py). The draft reader only tested a unit's LAST sentence (fixed)."
+          "2026-09-24: A999 is dead (EXIT-only). A010 contains an unconditional EXEC CICS RETURN TRANSID(...) sentence, so it never falls through; the IF after it only handles a failed RETURN by abending. Found by the blind cross-check (cross_verify.py). The draft reader only tested a unit's LAST sentence (fixed).",
+          "#4393: records re-drafted by the fixed reader (signed / prefixed / continued VALUE literals, no VALUE or USAGE read past the DATA DIVISION, implicit FILLER #4246, 77 as a root #4359); every changed field matches the engine and the #4377 referee panel"
         ],
         "tier": "cross_verified",
         "cross_by": "claude-opus-5.5, fresh-context subagent given only the brief (blind; same model family as the author)",
@@ -22142,7 +22153,7 @@
           "occurs_max": null,
           "occurs_depending_on": null,
           "redefines": null,
-          "value": "TO",
+          "value": null,
           "line": 170
         }
       ],
@@ -22786,7 +22797,8 @@
         "by": "claude-opus-5 (agent standing in for a human reviewer)",
         "at": "2026-09-19",
         "notes": [
-          "2026-09-24: A999 is dead (EXIT-only). A010 contains an unconditional EXEC CICS RETURN TRANSID(...) sentence, so it never falls through; the IF after it only handles a failed RETURN by abending. Found by the blind cross-check (cross_verify.py). The draft reader only tested a unit's LAST sentence (fixed)."
+          "2026-09-24: A999 is dead (EXIT-only). A010 contains an unconditional EXEC CICS RETURN TRANSID(...) sentence, so it never falls through; the IF after it only handles a failed RETURN by abending. Found by the blind cross-check (cross_verify.py). The draft reader only tested a unit's LAST sentence (fixed).",
+          "#4393: records re-drafted by the fixed reader (signed / prefixed / continued VALUE literals, no VALUE or USAGE read past the DATA DIVISION, implicit FILLER #4246, 77 as a root #4359); every changed field matches the engine and the #4377 referee panel"
         ],
         "tier": "cross_verified",
         "cross_by": "claude-opus-5.5, fresh-context subagent given only the brief (blind; same model family as the author)",
@@ -24714,7 +24726,7 @@
           "occurs_max": null,
           "occurs_depending_on": null,
           "redefines": null,
-          "value": "TO",
+          "value": null,
           "line": 193
         }
       ],
@@ -25360,7 +25372,8 @@
         "by": "claude-opus-5 (agent standing in for a human reviewer)",
         "at": "2026-09-19",
         "notes": [
-          "2026-09-24: A999 is dead (EXIT-only). A010 contains an unconditional EXEC CICS RETURN TRANSID(...) sentence, so it never falls through; the IF after it only handles a failed RETURN by abending. Found by the blind cross-check (cross_verify.py). The draft reader only tested a unit's LAST sentence (fixed)."
+          "2026-09-24: A999 is dead (EXIT-only). A010 contains an unconditional EXEC CICS RETURN TRANSID(...) sentence, so it never falls through; the IF after it only handles a failed RETURN by abending. Found by the blind cross-check (cross_verify.py). The draft reader only tested a unit's LAST sentence (fixed).",
+          "#4393: records re-drafted by the fixed reader (signed / prefixed / continued VALUE literals, no VALUE or USAGE read past the DATA DIVISION, implicit FILLER #4246, 77 as a root #4359); every changed field matches the engine and the #4377 referee panel"
         ],
         "tier": "cross_verified",
         "cross_by": "claude-opus-5.5, fresh-context subagent given only the brief (blind; same model family as the author)",
@@ -26120,7 +26133,7 @@
           "occurs_max": null,
           "occurs_depending_on": null,
           "redefines": null,
-          "value": "TO",
+          "value": null,
           "line": 104
         }
       ],
@@ -34371,7 +34384,9 @@
         "status": "validated",
         "by": "claude-opus-5 (agent standing in for a human reviewer)",
         "at": "2026-09-19",
-        "notes": [],
+        "notes": [
+          "#4393: records re-drafted by the fixed reader (signed / prefixed / continued VALUE literals, no VALUE or USAGE read past the DATA DIVISION, implicit FILLER #4246, 77 as a root #4359); every changed field matches the engine and the #4377 referee panel"
+        ],
         "tier": "cross_verified",
         "cross_by": "claude-opus-5.5, fresh-context subagent given only the brief (blind; same model family as the author)",
         "cross_at": "2026-09-23",
@@ -35567,7 +35582,7 @@
         },
         {
           "ordinal": 74,
-          "parent": 73,
+          "parent": null,
           "level": 77,
           "name": "PROCTRAN-RETRY",
           "section": "LOCAL-STORAGE",
@@ -37429,7 +37444,7 @@
           "section": "LINKAGE",
           "fd": null,
           "pic": null,
-          "usage": "DISPLAY",
+          "usage": null,
           "occurs_min": null,
           "occurs_max": null,
           "occurs_depending_on": null,
@@ -37620,7 +37635,8 @@
         "by": "claude-opus-5 (agent standing in for a human reviewer)",
         "at": "2026-09-19",
         "notes": [
-          "POPULATE-TIME-DATE SECTION is mentioned only in a column-7 D debug line: real dead logic."
+          "POPULATE-TIME-DATE SECTION is mentioned only in a column-7 D debug line: real dead logic.",
+          "#4393: records re-drafted by the fixed reader (signed / prefixed / continued VALUE literals, no VALUE or USAGE read past the DATA DIVISION, implicit FILLER #4246, 77 as a root #4359); every changed field matches the engine and the #4377 referee panel"
         ],
         "tier": "cross_verified",
         "cross_by": "claude-opus-5.5, fresh-context subagent given only the brief (blind; same model family as the author)",
@@ -38017,7 +38033,7 @@
         },
         {
           "ordinal": 24,
-          "parent": 23,
+          "parent": null,
           "level": 77,
           "name": "PROCTRAN-RETRY",
           "section": "LOCAL-STORAGE",
@@ -40643,7 +40659,8 @@
         "by": "claude-opus-5 (agent standing in for a human reviewer)",
         "at": "2026-09-19",
         "notes": [
-          "2026-09-23: A999 is dead (EXIT-only) -- A010 ends in PERFORM GET-ME-OUT-OF-HERE, which never returns, the same shape as the 11 other CBSA programs whose A999 was already dead. The first draft missed it because its IF/END-IF count matched `IF` inside `END-IF` (fixed; found drafting CardDemo)."
+          "2026-09-23: A999 is dead (EXIT-only) -- A010 ends in PERFORM GET-ME-OUT-OF-HERE, which never returns, the same shape as the 11 other CBSA programs whose A999 was already dead. The first draft missed it because its IF/END-IF count matched `IF` inside `END-IF` (fixed; found drafting CardDemo).",
+          "#4393: records re-drafted by the fixed reader (signed / prefixed / continued VALUE literals, no VALUE or USAGE read past the DATA DIVISION, implicit FILLER #4246, 77 as a root #4359); every changed field matches the engine and the #4377 referee panel"
         ],
         "tier": "cross_verified",
         "cross_by": "claude-opus-5.5, fresh-context subagent given only the brief (blind; same model family as the author)",
@@ -41232,7 +41249,7 @@
         },
         {
           "ordinal": 36,
-          "parent": 35,
+          "parent": null,
           "level": 77,
           "name": "PROCTRAN-RETRY",
           "section": "WORKING-STORAGE",
@@ -41691,7 +41708,7 @@
           "occurs_max": null,
           "occurs_depending_on": null,
           "redefines": null,
-          "value": null,
+          "value": "+10",
           "line": 146
         },
         {
@@ -41803,7 +41820,7 @@
           "occurs_max": null,
           "occurs_depending_on": null,
           "redefines": null,
-          "value": null,
+          "value": "+14",
           "line": 158
         },
         {
@@ -42616,7 +42633,9 @@
         "status": "validated",
         "by": "claude-opus-5 (agent standing in for a human reviewer)",
         "at": "2026-09-19",
-        "notes": [],
+        "notes": [
+          "#4393: records re-drafted by the fixed reader (signed / prefixed / continued VALUE literals, no VALUE or USAGE read past the DATA DIVISION, implicit FILLER #4246, 77 as a root #4359); every changed field matches the engine and the #4377 referee panel"
+        ],
         "tier": "cross_verified",
         "cross_by": "claude-opus-5.5, fresh-context subagent given only the brief (blind; same model family as the author)",
         "cross_at": "2026-09-23",
@@ -42964,7 +42983,7 @@
         },
         {
           "ordinal": 21,
-          "parent": 20,
+          "parent": null,
           "level": 77,
           "name": "PROCTRAN-RETRY",
           "section": "WORKING-STORAGE",
@@ -43375,7 +43394,7 @@
           "occurs_max": null,
           "occurs_depending_on": null,
           "redefines": null,
-          "value": null,
+          "value": "+10",
           "line": 121
         },
         {
@@ -43455,7 +43474,7 @@
           "occurs_max": null,
           "occurs_depending_on": null,
           "redefines": null,
-          "value": null,
+          "value": "+14",
           "line": 133
         },
         {
@@ -43487,7 +43506,7 @@
           "occurs_max": null,
           "occurs_depending_on": null,
           "redefines": null,
-          "value": null,
+          "value": "+16",
           "line": 136
         },
         {
@@ -45291,7 +45310,9 @@
         "status": "validated",
         "by": "claude-opus-5 (agent standing in for a human reviewer)",
         "at": "2026-09-19",
-        "notes": [],
+        "notes": [
+          "#4393: records re-drafted by the fixed reader (signed / prefixed / continued VALUE literals, no VALUE or USAGE read past the DATA DIVISION, implicit FILLER #4246, 77 as a root #4359); every changed field matches the engine and the #4377 referee panel"
+        ],
         "tier": "cross_verified",
         "cross_by": "claude-opus-5.5, fresh-context subagent given only the brief (blind; same model family as the author)",
         "cross_at": "2026-09-23",
@@ -46018,7 +46039,7 @@
           "occurs_max": null,
           "occurs_depending_on": null,
           "redefines": null,
-          "value": null,
+          "value": "+10",
           "line": 126
         },
         {
@@ -47188,7 +47209,8 @@
         "by": "claude-opus-5 (agent standing in for a human reviewer)",
         "at": "2026-09-19",
         "notes": [
-          "2026-09-23: A999 is dead (EXIT-only) -- A010 ends in PERFORM GET-ME-OUT-OF-HERE, which never returns, the same shape as the 11 other CBSA programs whose A999 was already dead. The first draft missed it because its IF/END-IF count matched `IF` inside `END-IF` (fixed; found drafting CardDemo)."
+          "2026-09-23: A999 is dead (EXIT-only) -- A010 ends in PERFORM GET-ME-OUT-OF-HERE, which never returns, the same shape as the 11 other CBSA programs whose A999 was already dead. The first draft missed it because its IF/END-IF count matched `IF` inside `END-IF` (fixed; found drafting CardDemo).",
+          "#4393: records re-drafted by the fixed reader (signed / prefixed / continued VALUE literals, no VALUE or USAGE read past the DATA DIVISION, implicit FILLER #4246, 77 as a root #4359); every changed field matches the engine and the #4377 referee panel"
         ],
         "tier": "cross_verified",
         "cross_by": "claude-opus-5.5, fresh-context subagent given only the brief (blind; same model family as the author)",
@@ -48076,7 +48098,7 @@
           "occurs_max": null,
           "occurs_depending_on": null,
           "redefines": null,
-          "value": null,
+          "value": "+10",
           "line": 138
         },
         {
@@ -49000,7 +49022,9 @@
         "status": "validated",
         "by": "claude-opus-5 (agent standing in for a human reviewer)",
         "at": "2026-09-19",
-        "notes": [],
+        "notes": [
+          "#4393: records re-drafted by the fixed reader (signed / prefixed / continued VALUE literals, no VALUE or USAGE read past the DATA DIVISION, implicit FILLER #4246, 77 as a root #4359); every changed field matches the engine and the #4377 referee panel"
+        ],
         "tier": "cross_verified",
         "cross_by": "claude-opus-5.5, fresh-context subagent given only the brief (blind; same model family as the author)",
         "cross_at": "2026-09-23",
@@ -50287,7 +50311,7 @@
           "occurs_max": null,
           "occurs_depending_on": null,
           "redefines": null,
-          "value": "TO",
+          "value": null,
           "line": 161
         }
       ],
@@ -53276,7 +53300,9 @@
         "status": "validated",
         "by": "claude-opus-5 (agent standing in for a human reviewer)",
         "at": "2026-09-19",
-        "notes": [],
+        "notes": [
+          "#4393: records re-drafted by the fixed reader (signed / prefixed / continued VALUE literals, no VALUE or USAGE read past the DATA DIVISION, implicit FILLER #4246, 77 as a root #4359); every changed field matches the engine and the #4377 referee panel"
+        ],
         "tier": "cross_verified",
         "cross_by": "claude-opus-5.5, fresh-context subagent given only the brief (blind; same model family as the author)",
         "cross_at": "2026-09-23",
@@ -54563,7 +54589,7 @@
           "occurs_max": null,
           "occurs_depending_on": null,
           "redefines": null,
-          "value": null,
+          "value": "+78",
           "line": 205
         },
         {
@@ -54611,7 +54637,7 @@
           "occurs_max": null,
           "occurs_depending_on": null,
           "redefines": null,
-          "value": null,
+          "value": "+81",
           "line": 210
         },
         {
@@ -54707,7 +54733,7 @@
           "occurs_max": null,
           "occurs_depending_on": null,
           "redefines": null,
-          "value": null,
+          "value": "+78",
           "line": 219
         },
         {
@@ -54755,7 +54781,7 @@
           "occurs_max": null,
           "occurs_depending_on": null,
           "redefines": null,
-          "value": null,
+          "value": "+81",
           "line": 224
         },
         {

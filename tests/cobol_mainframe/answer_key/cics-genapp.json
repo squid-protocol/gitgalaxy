@@ -388,7 +388,7 @@
           "occurs_max": null,
           "occurs_depending_on": null,
           "redefines": null,
-          "value": null,
+          "value": "+0",
           "line": 41
         },
         {
@@ -777,7 +777,7 @@
         },
         {
           "ordinal": 37,
-          "parent": 36,
+          "parent": null,
           "level": 77,
           "name": "LGACDB02",
           "section": "WORKING-STORAGE",
@@ -793,7 +793,7 @@
         },
         {
           "ordinal": 38,
-          "parent": 36,
+          "parent": null,
           "level": 77,
           "name": "LGACVS01",
           "section": "WORKING-STORAGE",
@@ -809,7 +809,7 @@
         },
         {
           "ordinal": 39,
-          "parent": 36,
+          "parent": null,
           "level": 77,
           "name": "LGAC-NCS",
           "section": "WORKING-STORAGE",
@@ -825,7 +825,7 @@
         },
         {
           "ordinal": 40,
-          "parent": 36,
+          "parent": null,
           "level": 77,
           "name": "WS-CS-PASSWORD",
           "section": "WORKING-STORAGE",
@@ -841,7 +841,7 @@
         },
         {
           "ordinal": 41,
-          "parent": 36,
+          "parent": null,
           "level": 77,
           "name": "WS-CS-STATE",
           "section": "WORKING-STORAGE",
@@ -857,7 +857,7 @@
         },
         {
           "ordinal": 42,
-          "parent": 36,
+          "parent": null,
           "level": 77,
           "name": "WS-CA-COUNT",
           "section": "WORKING-STORAGE",
@@ -900,7 +900,7 @@
           "occurs_max": null,
           "occurs_depending_on": null,
           "redefines": null,
-          "value": null,
+          "value": "+18",
           "line": 83
         },
         {
@@ -916,7 +916,7 @@
           "occurs_max": null,
           "occurs_depending_on": null,
           "redefines": null,
-          "value": null,
+          "value": "+0",
           "line": 84
         },
         {
@@ -975,7 +975,9 @@
       "sql": true,
       "verification": {
         "status": "validated",
-        "notes": [],
+        "notes": [
+          "#4393: records re-drafted by the fixed reader (signed / prefixed / continued VALUE literals, no VALUE or USAGE read past the DATA DIVISION, implicit FILLER #4246, 77 as a root #4359); every changed field matches the engine and the #4377 referee panel"
+        ],
         "tier": "cross_verified",
         "cross_by": "claude-opus-5.5 blind reviewers (genapp census)",
         "cross_at": "2026-09-24",
@@ -1296,7 +1298,7 @@
           "occurs_max": null,
           "occurs_depending_on": null,
           "redefines": null,
-          "value": null,
+          "value": "+0",
           "line": 39
         },
         {
@@ -1739,7 +1741,9 @@
       "sql": true,
       "verification": {
         "status": "validated",
-        "notes": [],
+        "notes": [
+          "#4393: records re-drafted by the fixed reader (signed / prefixed / continued VALUE literals, no VALUE or USAGE read past the DATA DIVISION, implicit FILLER #4246, 77 as a root #4359); every changed field matches the engine and the #4377 referee panel"
+        ],
         "tier": "cross_verified",
         "cross_by": "claude-opus-5.5 blind reviewers (genapp census)",
         "cross_at": "2026-09-24",
@@ -2037,7 +2041,7 @@
           "occurs_max": null,
           "occurs_depending_on": null,
           "redefines": null,
-          "value": null,
+          "value": "+0",
           "line": 34
         },
         {
@@ -2245,7 +2249,7 @@
           "occurs_max": null,
           "occurs_depending_on": null,
           "redefines": null,
-          "value": null,
+          "value": "+18",
           "line": 56
         },
         {
@@ -2261,12 +2265,12 @@
           "occurs_max": null,
           "occurs_depending_on": null,
           "redefines": null,
-          "value": null,
+          "value": "+0",
           "line": 57
         },
         {
           "ordinal": 23,
-          "parent": 22,
+          "parent": null,
           "level": 77,
           "name": "LGACDB01",
           "section": "WORKING-STORAGE",
@@ -2302,7 +2306,9 @@
       "sql": false,
       "verification": {
         "status": "validated",
-        "notes": [],
+        "notes": [
+          "#4393: records re-drafted by the fixed reader (signed / prefixed / continued VALUE literals, no VALUE or USAGE read past the DATA DIVISION, implicit FILLER #4246, 77 as a root #4359); every changed field matches the engine and the #4377 referee panel"
+        ],
         "tier": "cross_verified",
         "cross_by": "claude-opus-5.5 blind reviewers (genapp census)",
         "cross_at": "2026-09-24",
@@ -2528,7 +2534,7 @@
           "occurs_max": null,
           "occurs_depending_on": null,
           "redefines": null,
-          "value": null,
+          "value": "+0",
           "line": 26
         },
         {
@@ -2859,7 +2865,9 @@
       "sql": false,
       "verification": {
         "status": "validated",
-        "notes": [],
+        "notes": [
+          "#4393: records re-drafted by the fixed reader (signed / prefixed / continued VALUE literals, no VALUE or USAGE read past the DATA DIVISION, implicit FILLER #4246, 77 as a root #4359); every changed field matches the engine and the #4377 referee panel"
+        ],
         "tier": "cross_verified",
         "cross_by": "claude-opus-5.5 blind reviewers (genapp census)",
         "cross_at": "2026-09-24",
@@ -3248,7 +3256,7 @@
           "occurs_max": null,
           "occurs_depending_on": null,
           "redefines": null,
-          "value": null,
+          "value": "+0",
           "line": 36
         },
         {
@@ -3568,7 +3576,7 @@
           "occurs_max": null,
           "occurs_depending_on": null,
           "redefines": null,
-          "value": null,
+          "value": "+28",
           "line": 65
         },
         {
@@ -3584,7 +3592,7 @@
           "occurs_max": null,
           "occurs_depending_on": null,
           "redefines": null,
-          "value": null,
+          "value": "+0",
           "line": 66
         },
         {
@@ -4016,7 +4024,7 @@
           "occurs_max": null,
           "occurs_depending_on": null,
           "redefines": null,
-          "value": null,
+          "value": "+0",
           "line": 112
         },
         {
@@ -4080,7 +4088,7 @@
           "occurs_max": null,
           "occurs_depending_on": null,
           "redefines": null,
-          "value": null,
+          "value": "+0",
           "line": 117
         },
         {
@@ -4123,7 +4131,9 @@
       "sql": true,
       "verification": {
         "status": "validated",
-        "notes": [],
+        "notes": [
+          "#4393: records re-drafted by the fixed reader (signed / prefixed / continued VALUE literals, no VALUE or USAGE read past the DATA DIVISION, implicit FILLER #4246, 77 as a root #4359); every changed field matches the engine and the #4377 referee panel"
+        ],
         "tier": "cross_verified",
         "cross_by": "claude-opus-5.5 blind reviewers (genapp census)",
         "cross_at": "2026-09-24",
@@ -4401,7 +4411,7 @@
           "occurs_max": null,
           "occurs_depending_on": null,
           "redefines": null,
-          "value": null,
+          "value": "+0",
           "line": 36
         },
         {
@@ -4625,7 +4635,7 @@
           "occurs_max": null,
           "occurs_depending_on": null,
           "redefines": null,
-          "value": null,
+          "value": "+28",
           "line": 59
         },
         {
@@ -4641,7 +4651,7 @@
           "occurs_max": null,
           "occurs_depending_on": null,
           "redefines": null,
-          "value": null,
+          "value": "+0",
           "line": 60
         },
         {
@@ -4666,7 +4676,9 @@
       "sql": false,
       "verification": {
         "status": "validated",
-        "notes": [],
+        "notes": [
+          "#4393: records re-drafted by the fixed reader (signed / prefixed / continued VALUE literals, no VALUE or USAGE read past the DATA DIVISION, implicit FILLER #4246, 77 as a root #4359); every changed field matches the engine and the #4377 referee panel"
+        ],
         "tier": "cross_verified",
         "cross_by": "claude-opus-5.5 blind reviewers (genapp census)",
         "cross_at": "2026-09-24",
@@ -5324,7 +5336,7 @@
           "occurs_max": null,
           "occurs_depending_on": null,
           "redefines": null,
-          "value": null,
+          "value": "+0",
           "line": 54
         },
         {
@@ -5649,7 +5661,7 @@
         },
         {
           "ordinal": 54,
-          "parent": 53,
+          "parent": null,
           "level": 77,
           "name": "EYECATCHER",
           "section": "WORKING-STORAGE",
@@ -5687,7 +5699,9 @@
       "sql": false,
       "verification": {
         "status": "validated",
-        "notes": [],
+        "notes": [
+          "#4393: records re-drafted by the fixed reader (signed / prefixed / continued VALUE literals, no VALUE or USAGE read past the DATA DIVISION, implicit FILLER #4246, 77 as a root #4359); every changed field matches the engine and the #4377 referee panel"
+        ],
         "tier": "cross_verified",
         "cross_by": "claude-opus-5.5 blind reviewers (genapp census)",
         "cross_at": "2026-09-24",
@@ -5762,7 +5776,7 @@
           "occurs_max": null,
           "occurs_depending_on": null,
           "redefines": null,
-          "value": null,
+          "value": "+0",
           "line": 16
         },
         {
@@ -6210,7 +6224,7 @@
           "occurs_max": null,
           "occurs_depending_on": null,
           "redefines": null,
-          "value": null,
+          "value": "+18",
           "line": 47
         },
         {
@@ -6226,12 +6240,12 @@
           "occurs_max": null,
           "occurs_depending_on": null,
           "redefines": null,
-          "value": null,
+          "value": "+0",
           "line": 48
         },
         {
           "ordinal": 30,
-          "parent": 29,
+          "parent": null,
           "level": 77,
           "name": "LGACDB01",
           "section": "WORKING-STORAGE",
@@ -6247,7 +6261,7 @@
         },
         {
           "ordinal": 31,
-          "parent": 29,
+          "parent": null,
           "level": 77,
           "name": "LGACVS01",
           "section": "WORKING-STORAGE",
@@ -6263,7 +6277,7 @@
         },
         {
           "ordinal": 32,
-          "parent": 29,
+          "parent": null,
           "level": 77,
           "name": "ATRANID",
           "section": "WORKING-STORAGE",
@@ -6279,7 +6293,7 @@
         },
         {
           "ordinal": 33,
-          "parent": 29,
+          "parent": null,
           "level": 77,
           "name": "GENAPOOL",
           "section": "WORKING-STORAGE",
@@ -6295,7 +6309,7 @@
         },
         {
           "ordinal": 34,
-          "parent": 29,
+          "parent": null,
           "level": 77,
           "name": "STSQ-NAME",
           "section": "WORKING-STORAGE",
@@ -6311,7 +6325,7 @@
         },
         {
           "ordinal": 35,
-          "parent": 29,
+          "parent": null,
           "level": 77,
           "name": "GENAOTHER",
           "section": "WORKING-STORAGE",
@@ -6349,7 +6363,9 @@
       "sql": false,
       "verification": {
         "status": "validated",
-        "notes": [],
+        "notes": [
+          "#4393: records re-drafted by the fixed reader (signed / prefixed / continued VALUE literals, no VALUE or USAGE read past the DATA DIVISION, implicit FILLER #4246, 77 as a root #4359); every changed field matches the engine and the #4377 referee panel"
+        ],
         "tier": "cross_verified",
         "cross_by": "claude-opus-5.5 blind reviewers (genapp census)",
         "cross_at": "2026-09-24",
@@ -6653,7 +6669,7 @@
           "occurs_max": null,
           "occurs_depending_on": null,
           "redefines": null,
-          "value": null,
+          "value": "+0",
           "line": 36
         },
         {
@@ -6989,7 +7005,7 @@
           "occurs_max": null,
           "occurs_depending_on": null,
           "redefines": null,
-          "value": null,
+          "value": "+28",
           "line": 66
         },
         {
@@ -7064,7 +7080,9 @@
       "sql": true,
       "verification": {
         "status": "validated",
-        "notes": [],
+        "notes": [
+          "#4393: records re-drafted by the fixed reader (signed / prefixed / continued VALUE literals, no VALUE or USAGE read past the DATA DIVISION, implicit FILLER #4246, 77 as a root #4359); every changed field matches the engine and the #4377 referee panel"
+        ],
         "tier": "cross_verified",
         "cross_by": "claude-opus-5.5 blind reviewers (genapp census)",
         "cross_at": "2026-09-24",
@@ -7354,7 +7372,7 @@
           "occurs_max": null,
           "occurs_depending_on": null,
           "redefines": null,
-          "value": null,
+          "value": "+0",
           "line": 34
         },
         {
@@ -7562,7 +7580,7 @@
           "occurs_max": null,
           "occurs_depending_on": null,
           "redefines": null,
-          "value": null,
+          "value": "+28",
           "line": 57
         },
         {
@@ -7603,7 +7621,9 @@
       "sql": false,
       "verification": {
         "status": "validated",
-        "notes": [],
+        "notes": [
+          "#4393: records re-drafted by the fixed reader (signed / prefixed / continued VALUE literals, no VALUE or USAGE read past the DATA DIVISION, implicit FILLER #4246, 77 as a root #4359); every changed field matches the engine and the #4377 referee panel"
+        ],
         "tier": "cross_verified",
         "cross_by": "claude-opus-5.5 blind reviewers (genapp census)",
         "cross_at": "2026-09-24",
@@ -7909,7 +7929,7 @@
           "occurs_max": null,
           "occurs_depending_on": null,
           "redefines": null,
-          "value": null,
+          "value": "+0",
           "line": 32
         },
         {
@@ -8234,7 +8254,7 @@
         },
         {
           "ordinal": 32,
-          "parent": 31,
+          "parent": null,
           "level": 77,
           "name": "EYECATCHER",
           "section": "WORKING-STORAGE",
@@ -8272,7 +8292,9 @@
       "sql": false,
       "verification": {
         "status": "validated",
-        "notes": [],
+        "notes": [
+          "#4393: records re-drafted by the fixed reader (signed / prefixed / continued VALUE literals, no VALUE or USAGE read past the DATA DIVISION, implicit FILLER #4246, 77 as a root #4359); every changed field matches the engine and the #4377 referee panel"
+        ],
         "tier": "cross_verified",
         "cross_by": "claude-opus-5.5 blind reviewers (genapp census)",
         "cross_at": "2026-09-24",
@@ -8576,7 +8598,7 @@
           "occurs_max": null,
           "occurs_depending_on": null,
           "redefines": null,
-          "value": null,
+          "value": "+0",
           "line": 35
         },
         {
@@ -8864,7 +8886,7 @@
           "occurs_max": null,
           "occurs_depending_on": null,
           "redefines": null,
-          "value": null,
+          "value": "+18",
           "line": 59
         },
         {
@@ -8880,7 +8902,7 @@
           "occurs_max": null,
           "occurs_depending_on": null,
           "redefines": null,
-          "value": null,
+          "value": "+0",
           "line": 60
         },
         {
@@ -8939,7 +8961,9 @@
       "sql": true,
       "verification": {
         "status": "validated",
-        "notes": [],
+        "notes": [
+          "#4393: records re-drafted by the fixed reader (signed / prefixed / continued VALUE literals, no VALUE or USAGE read past the DATA DIVISION, implicit FILLER #4246, 77 as a root #4359); every changed field matches the engine and the #4377 referee panel"
+        ],
         "tier": "cross_verified",
         "cross_by": "claude-opus-5.5 blind reviewers (genapp census)",
         "cross_at": "2026-09-24",
@@ -9244,7 +9268,7 @@
           "occurs_max": null,
           "occurs_depending_on": null,
           "redefines": null,
-          "value": null,
+          "value": "+0",
           "line": 36
         },
         {
@@ -9468,7 +9492,7 @@
           "occurs_max": null,
           "occurs_depending_on": null,
           "redefines": null,
-          "value": null,
+          "value": "+18",
           "line": 57
         },
         {
@@ -9484,7 +9508,7 @@
           "occurs_max": null,
           "occurs_depending_on": null,
           "redefines": null,
-          "value": null,
+          "value": "+0",
           "line": 58
         },
         {
@@ -9509,7 +9533,9 @@
       "sql": false,
       "verification": {
         "status": "validated",
-        "notes": [],
+        "notes": [
+          "#4393: records re-drafted by the fixed reader (signed / prefixed / continued VALUE literals, no VALUE or USAGE read past the DATA DIVISION, implicit FILLER #4246, 77 as a root #4359); every changed field matches the engine and the #4377 referee panel"
+        ],
         "tier": "cross_verified",
         "cross_by": "claude-opus-5.5 blind reviewers (genapp census)",
         "cross_at": "2026-09-24",
@@ -10252,7 +10278,7 @@
         },
         {
           "ordinal": 43,
-          "parent": 42,
+          "parent": null,
           "level": 77,
           "name": "MSGEND",
           "section": "WORKING-STORAGE",
@@ -10268,7 +10294,7 @@
         },
         {
           "ordinal": 44,
-          "parent": 42,
+          "parent": null,
           "level": 77,
           "name": "F82",
           "section": "WORKING-STORAGE",
@@ -10284,7 +10310,7 @@
         },
         {
           "ordinal": 45,
-          "parent": 42,
+          "parent": null,
           "level": 77,
           "name": "F10",
           "section": "WORKING-STORAGE",
@@ -10387,7 +10413,9 @@
       "sql": false,
       "verification": {
         "status": "validated",
-        "notes": [],
+        "notes": [
+          "#4393: records re-drafted by the fixed reader (signed / prefixed / continued VALUE literals, no VALUE or USAGE read past the DATA DIVISION, implicit FILLER #4246, 77 as a root #4359); every changed field matches the engine and the #4377 referee panel"
+        ],
         "tier": "cross_verified",
         "cross_by": "claude-opus-5.5 blind reviewers (genapp census)",
         "cross_at": "2026-09-24",
@@ -10965,7 +10993,7 @@
           "occurs_max": null,
           "occurs_depending_on": null,
           "redefines": null,
-          "value": null,
+          "value": "+0",
           "line": 43
         },
         {
@@ -11269,7 +11297,7 @@
           "occurs_max": null,
           "occurs_depending_on": null,
           "redefines": null,
-          "value": null,
+          "value": "-1",
           "line": 70
         },
         {
@@ -11301,7 +11329,7 @@
           "occurs_max": null,
           "occurs_depending_on": null,
           "redefines": null,
-          "value": null,
+          "value": "+33",
           "line": 73
         },
         {
@@ -11317,7 +11345,7 @@
           "occurs_max": null,
           "occurs_depending_on": null,
           "redefines": null,
-          "value": null,
+          "value": "+0",
           "line": 74
         },
         {
@@ -11333,7 +11361,7 @@
           "occurs_max": null,
           "occurs_depending_on": null,
           "redefines": null,
-          "value": null,
+          "value": "+1",
           "line": 78
         },
         {
@@ -11397,7 +11425,7 @@
           "occurs_max": null,
           "occurs_depending_on": null,
           "redefines": null,
-          "value": null,
+          "value": "+0",
           "line": 167
         },
         {
@@ -11413,7 +11441,7 @@
           "occurs_max": null,
           "occurs_depending_on": null,
           "redefines": null,
-          "value": null,
+          "value": "+0",
           "line": 168
         },
         {
@@ -11429,7 +11457,7 @@
           "occurs_max": null,
           "occurs_depending_on": null,
           "redefines": null,
-          "value": null,
+          "value": "+0",
           "line": 169
         },
         {
@@ -11802,7 +11830,7 @@
         },
         {
           "ordinal": 68,
-          "parent": 67,
+          "parent": null,
           "level": 77,
           "name": "IND-BROKERID",
           "section": "WORKING-STORAGE",
@@ -11818,7 +11846,7 @@
         },
         {
           "ordinal": 69,
-          "parent": 67,
+          "parent": null,
           "level": 77,
           "name": "IND-BROKERSREF",
           "section": "WORKING-STORAGE",
@@ -11834,7 +11862,7 @@
         },
         {
           "ordinal": 70,
-          "parent": 67,
+          "parent": null,
           "level": 77,
           "name": "IND-PAYMENT",
           "section": "WORKING-STORAGE",
@@ -11850,7 +11878,7 @@
         },
         {
           "ordinal": 71,
-          "parent": 67,
+          "parent": null,
           "level": 77,
           "name": "IND-E-PADDINGDATA",
           "section": "WORKING-STORAGE",
@@ -11866,7 +11894,7 @@
         },
         {
           "ordinal": 72,
-          "parent": 67,
+          "parent": null,
           "level": 77,
           "name": "IND-E-PADDINGDATAL",
           "section": "WORKING-STORAGE",
@@ -11921,7 +11949,8 @@
       "verification": {
         "status": "validated",
         "notes": [
-          "2026-09-30 key_fixed (#4026, #4028): units gains END-PROGRAM -- `End-Program.` in Area A at line 312 is a paragraph (reached by fall-through from MAINLINE and by PERFORM END-PROGRAM). The key's reader, like the forge and the engine, rejected every END-... name as a scope terminator; it now rejects only the reserved END- words. Read against the source; dead is unchanged (MAINLINE-EXIT)."
+          "2026-09-30 key_fixed (#4026, #4028): units gains END-PROGRAM -- `End-Program.` in Area A at line 312 is a paragraph (reached by fall-through from MAINLINE and by PERFORM END-PROGRAM). The key's reader, like the forge and the engine, rejected every END-... name as a scope terminator; it now rejects only the reserved END- words. Read against the source; dead is unchanged (MAINLINE-EXIT).",
+          "#4393: records re-drafted by the fixed reader (signed / prefixed / continued VALUE literals, no VALUE or USAGE read past the DATA DIVISION, implicit FILLER #4246, 77 as a root #4359); every changed field matches the engine and the #4377 referee panel"
         ],
         "tier": "cross_verified",
         "cross_by": "claude-opus-5.5 blind reviewers (genapp census)",
@@ -12208,7 +12237,7 @@
           "occurs_max": null,
           "occurs_depending_on": null,
           "redefines": null,
-          "value": null,
+          "value": "+0",
           "line": 36
         },
         {
@@ -12425,7 +12454,9 @@
       "sql": false,
       "verification": {
         "status": "validated",
-        "notes": [],
+        "notes": [
+          "#4393: records re-drafted by the fixed reader (signed / prefixed / continued VALUE literals, no VALUE or USAGE read past the DATA DIVISION, implicit FILLER #4246, 77 as a root #4359); every changed field matches the engine and the #4377 referee panel"
+        ],
         "tier": "cross_verified",
         "cross_by": "claude-opus-5.5 blind reviewers (genapp census)",
         "cross_at": "2026-09-24",
@@ -12960,7 +12991,7 @@
         },
         {
           "ordinal": 30,
-          "parent": 29,
+          "parent": null,
           "level": 77,
           "name": "MSGEND",
           "section": "WORKING-STORAGE",
@@ -12976,7 +13007,7 @@
         },
         {
           "ordinal": 31,
-          "parent": 29,
+          "parent": null,
           "level": 77,
           "name": "F64",
           "section": "WORKING-STORAGE",
@@ -12992,7 +13023,7 @@
         },
         {
           "ordinal": 32,
-          "parent": 29,
+          "parent": null,
           "level": 77,
           "name": "F11",
           "section": "WORKING-STORAGE",
@@ -13095,7 +13126,9 @@
       "sql": false,
       "verification": {
         "status": "validated",
-        "notes": [],
+        "notes": [
+          "#4393: records re-drafted by the fixed reader (signed / prefixed / continued VALUE literals, no VALUE or USAGE read past the DATA DIVISION, implicit FILLER #4246, 77 as a root #4359); every changed field matches the engine and the #4377 referee panel"
+        ],
         "tier": "cross_verified",
         "cross_by": "claude-opus-5.5 blind reviewers (genapp census)",
         "cross_at": "2026-09-24",
@@ -13609,7 +13642,7 @@
           "occurs_max": null,
           "occurs_depending_on": null,
           "redefines": null,
-          "value": null,
+          "value": "+0000001",
           "line": 52
         },
         {
@@ -13625,7 +13658,7 @@
           "occurs_max": null,
           "occurs_depending_on": null,
           "redefines": null,
-          "value": null,
+          "value": "+0000011",
           "line": 53
         },
         {
@@ -14430,7 +14463,7 @@
         },
         {
           "ordinal": 80,
-          "parent": 79,
+          "parent": null,
           "level": 77,
           "name": "MSGEND",
           "section": "WORKING-STORAGE",
@@ -14446,7 +14479,7 @@
         },
         {
           "ordinal": 81,
-          "parent": 79,
+          "parent": null,
           "level": 77,
           "name": "F82",
           "section": "WORKING-STORAGE",
@@ -14462,7 +14495,7 @@
         },
         {
           "ordinal": 82,
-          "parent": 79,
+          "parent": null,
           "level": 77,
           "name": "F10",
           "section": "WORKING-STORAGE",
@@ -14564,7 +14597,9 @@
       "sql": false,
       "verification": {
         "status": "validated",
-        "notes": [],
+        "notes": [
+          "#4393: records re-drafted by the fixed reader (signed / prefixed / continued VALUE literals, no VALUE or USAGE read past the DATA DIVISION, implicit FILLER #4246, 77 as a root #4359); every changed field matches the engine and the #4377 referee panel"
+        ],
         "tier": "cross_verified",
         "cross_by": "claude-opus-5.5 blind reviewers (genapp census)",
         "cross_at": "2026-09-24",
@@ -14955,7 +14990,7 @@
         },
         {
           "ordinal": 21,
-          "parent": 20,
+          "parent": null,
           "level": 77,
           "name": "STDQ-NAME",
           "section": "WORKING-STORAGE",
@@ -15007,7 +15042,9 @@
       "sql": false,
       "verification": {
         "status": "validated",
-        "notes": [],
+        "notes": [
+          "#4393: records re-drafted by the fixed reader (signed / prefixed / continued VALUE literals, no VALUE or USAGE read past the DATA DIVISION, implicit FILLER #4246, 77 as a root #4359); every changed field matches the engine and the #4377 referee panel"
+        ],
         "tier": "cross_verified",
         "cross_by": "claude-opus-5.5 blind reviewers (genapp census)",
         "cross_at": "2026-09-24",
@@ -15570,7 +15607,7 @@
         },
         {
           "ordinal": 18,
-          "parent": 17,
+          "parent": null,
           "level": 77,
           "name": "F24",
           "section": "WORKING-STORAGE",
@@ -15586,7 +15623,7 @@
         },
         {
           "ordinal": 19,
-          "parent": 17,
+          "parent": null,
           "level": 77,
           "name": "MSGEND",
           "section": "WORKING-STORAGE",
@@ -15624,7 +15661,9 @@
       "sql": false,
       "verification": {
         "status": "validated",
-        "notes": [],
+        "notes": [
+          "#4393: records re-drafted by the fixed reader (signed / prefixed / continued VALUE literals, no VALUE or USAGE read past the DATA DIVISION, implicit FILLER #4246, 77 as a root #4359); every changed field matches the engine and the #4377 referee panel"
+        ],
         "tier": "cross_verified",
         "cross_by": "claude-opus-5.5 blind reviewers (genapp census)",
         "cross_at": "2026-09-24",
@@ -17503,7 +17542,7 @@
           "occurs_max": null,
           "occurs_depending_on": null,
           "redefines": null,
-          "value": null,
+          "value": "+0",
           "line": 51
         },
         {
@@ -17764,7 +17803,7 @@
         },
         {
           "ordinal": 39,
-          "parent": 38,
+          "parent": null,
           "level": 77,
           "name": "LGUCVS01",
           "section": "WORKING-STORAGE",
@@ -17803,7 +17842,8 @@
       "verification": {
         "status": "validated",
         "notes": [
-          "2026-09-30 key_fixed (#4026, #4028): units gains END-PROGRAM -- `End-Program.` in Area A at line 142 is a paragraph (reached by fall-through from MAINLINE and by PERFORM END-PROGRAM). The key's reader, like the forge and the engine, rejected every END-... name as a scope terminator; it now rejects only the reserved END- words. Read against the source; dead is unchanged (MAINLINE-EXIT)."
+          "2026-09-30 key_fixed (#4026, #4028): units gains END-PROGRAM -- `End-Program.` in Area A at line 142 is a paragraph (reached by fall-through from MAINLINE and by PERFORM END-PROGRAM). The key's reader, like the forge and the engine, rejected every END-... name as a scope terminator; it now rejects only the reserved END- words. Read against the source; dead is unchanged (MAINLINE-EXIT).",
+          "#4393: records re-drafted by the fixed reader (signed / prefixed / continued VALUE literals, no VALUE or USAGE read past the DATA DIVISION, implicit FILLER #4246, 77 as a root #4359); every changed field matches the engine and the #4377 referee panel"
         ],
         "tier": "cross_verified",
         "cross_by": "claude-opus-5.5 blind reviewers (genapp census)",
@@ -18106,7 +18146,7 @@
           "occurs_max": null,
           "occurs_depending_on": null,
           "redefines": null,
-          "value": null,
+          "value": "+0",
           "line": 34
         },
         {
@@ -18314,7 +18354,7 @@
           "occurs_max": null,
           "occurs_depending_on": null,
           "redefines": null,
-          "value": null,
+          "value": "+28",
           "line": 57
         },
         {
@@ -18330,7 +18370,7 @@
           "occurs_max": null,
           "occurs_depending_on": null,
           "redefines": null,
-          "value": null,
+          "value": "+0",
           "line": 58
         },
         {
@@ -18420,7 +18460,8 @@
       "verification": {
         "status": "validated",
         "notes": [
-          "2026-09-30 key_fixed (#4026, #4028): units gains END-PROGRAM -- `End-Program.` in Area A at line 119 is a paragraph (reached by fall-through from MAINLINE and by PERFORM END-PROGRAM). The key's reader, like the forge and the engine, rejected every END-... name as a scope terminator; it now rejects only the reserved END- words. Read against the source; dead is unchanged (MAINLINE-EXIT)."
+          "2026-09-30 key_fixed (#4026, #4028): units gains END-PROGRAM -- `End-Program.` in Area A at line 119 is a paragraph (reached by fall-through from MAINLINE and by PERFORM END-PROGRAM). The key's reader, like the forge and the engine, rejected every END-... name as a scope terminator; it now rejects only the reserved END- words. Read against the source; dead is unchanged (MAINLINE-EXIT).",
+          "#4393: records re-drafted by the fixed reader (signed / prefixed / continued VALUE literals, no VALUE or USAGE read past the DATA DIVISION, implicit FILLER #4246, 77 as a root #4359); every changed field matches the engine and the #4377 referee panel"
         ],
         "tier": "cross_verified",
         "cross_by": "claude-opus-5.5 blind reviewers (genapp census)",
@@ -18668,7 +18709,7 @@
           "occurs_max": null,
           "occurs_depending_on": null,
           "redefines": null,
-          "value": null,
+          "value": "+0",
           "line": 27
         },
         {
@@ -18999,7 +19040,9 @@
       "sql": false,
       "verification": {
         "status": "validated",
-        "notes": [],
+        "notes": [
+          "#4393: records re-drafted by the fixed reader (signed / prefixed / continued VALUE literals, no VALUE or USAGE read past the DATA DIVISION, implicit FILLER #4246, 77 as a root #4359); every changed field matches the engine and the #4377 referee panel"
+        ],
         "tier": "cross_verified",
         "cross_by": "claude-opus-5.5 blind reviewers (genapp census)",
         "cross_at": "2026-09-24",
@@ -19438,7 +19481,7 @@
           "occurs_max": null,
           "occurs_depending_on": null,
           "redefines": null,
-          "value": null,
+          "value": "+0",
           "line": 34
         },
         {
@@ -19758,7 +19801,7 @@
           "occurs_max": null,
           "occurs_depending_on": null,
           "redefines": null,
-          "value": null,
+          "value": "+28",
           "line": 64
         },
         {
@@ -19774,7 +19817,7 @@
           "occurs_max": null,
           "occurs_depending_on": null,
           "redefines": null,
-          "value": null,
+          "value": "+0",
           "line": 65
         },
         {
@@ -20035,7 +20078,7 @@
         },
         {
           "ordinal": 47,
-          "parent": 46,
+          "parent": null,
           "level": 77,
           "name": "IND-BROKERID",
           "section": "WORKING-STORAGE",
@@ -20051,7 +20094,7 @@
         },
         {
           "ordinal": 48,
-          "parent": 46,
+          "parent": null,
           "level": 77,
           "name": "IND-BROKERSREF",
           "section": "WORKING-STORAGE",
@@ -20067,7 +20110,7 @@
         },
         {
           "ordinal": 49,
-          "parent": 46,
+          "parent": null,
           "level": 77,
           "name": "IND-PAYMENT",
           "section": "WORKING-STORAGE",
@@ -20083,7 +20126,7 @@
         },
         {
           "ordinal": 50,
-          "parent": 46,
+          "parent": null,
           "level": 77,
           "name": "LGUPVS01",
           "section": "WORKING-STORAGE",
@@ -20122,7 +20165,8 @@
       "verification": {
         "status": "validated",
         "notes": [
-          "2026-09-30 key_fixed (#4026, #4028): units gains END-PROGRAM -- `End-Program.` in Area A at line 215 is a paragraph (reached by fall-through from MAINLINE and by PERFORM END-PROGRAM). The key's reader, like the forge and the engine, rejected every END-... name as a scope terminator; it now rejects only the reserved END- words. Read against the source; dead is unchanged (MAINLINE-EXIT)."
+          "2026-09-30 key_fixed (#4026, #4028): units gains END-PROGRAM -- `End-Program.` in Area A at line 215 is a paragraph (reached by fall-through from MAINLINE and by PERFORM END-PROGRAM). The key's reader, like the forge and the engine, rejected every END-... name as a scope terminator; it now rejects only the reserved END- words. Read against the source; dead is unchanged (MAINLINE-EXIT).",
+          "#4393: records re-drafted by the fixed reader (signed / prefixed / continued VALUE literals, no VALUE or USAGE read past the DATA DIVISION, implicit FILLER #4246, 77 as a root #4359); every changed field matches the engine and the #4377 referee panel"
         ],
         "tier": "cross_verified",
         "cross_by": "claude-opus-5.5 blind reviewers (genapp census)",
@@ -20420,7 +20464,7 @@
           "occurs_max": null,
           "occurs_depending_on": null,
           "redefines": null,
-          "value": null,
+          "value": "+0",
           "line": 34
         },
         {
@@ -20484,7 +20528,7 @@
           "occurs_max": null,
           "occurs_depending_on": null,
           "redefines": null,
-          "value": null,
+          "value": "+124",
           "line": 39
         },
         {
@@ -20500,7 +20544,7 @@
           "occurs_max": null,
           "occurs_depending_on": null,
           "redefines": null,
-          "value": null,
+          "value": "+130",
           "line": 40
         },
         {
@@ -20516,7 +20560,7 @@
           "occurs_max": null,
           "occurs_depending_on": null,
           "redefines": null,
-          "value": null,
+          "value": "+137",
           "line": 41
         },
         {
@@ -20692,7 +20736,7 @@
           "occurs_max": null,
           "occurs_depending_on": null,
           "redefines": null,
-          "value": null,
+          "value": "+28",
           "line": 62
         },
         {
@@ -20708,7 +20752,7 @@
           "occurs_max": null,
           "occurs_depending_on": null,
           "redefines": null,
-          "value": null,
+          "value": "+0",
           "line": 63
         },
         {
@@ -20750,7 +20794,8 @@
       "verification": {
         "status": "validated",
         "notes": [
-          "2026-09-30 key_fixed (#4026, #4028): units gains END-PROGRAM -- `End-Program.` in Area A at line 146 is a paragraph (reached by fall-through from MAINLINE and by PERFORM END-PROGRAM). The key's reader, like the forge and the engine, rejected every END-... name as a scope terminator; it now rejects only the reserved END- words. Read against the source; dead is unchanged (MAINLINE-EXIT)."
+          "2026-09-30 key_fixed (#4026, #4028): units gains END-PROGRAM -- `End-Program.` in Area A at line 146 is a paragraph (reached by fall-through from MAINLINE and by PERFORM END-PROGRAM). The key's reader, like the forge and the engine, rejected every END-... name as a scope terminator; it now rejects only the reserved END- words. Read against the source; dead is unchanged (MAINLINE-EXIT).",
+          "#4393: records re-drafted by the fixed reader (signed / prefixed / continued VALUE literals, no VALUE or USAGE read past the DATA DIVISION, implicit FILLER #4246, 77 as a root #4359); every changed field matches the engine and the #4377 referee panel"
         ],
         "tier": "cross_verified",
         "cross_by": "claude-opus-5.5 blind reviewers (genapp census)",
@@ -21446,7 +21491,7 @@
           "occurs_max": null,
           "occurs_depending_on": null,
           "redefines": null,
-          "value": null,
+          "value": "+0",
           "line": 57
         },
         {
@@ -21771,7 +21816,7 @@
         },
         {
           "ordinal": 56,
-          "parent": 55,
+          "parent": null,
           "level": 77,
           "name": "EYECATCHER",
           "section": "WORKING-STORAGE",
@@ -21809,7 +21854,9 @@
       "sql": false,
       "verification": {
         "status": "validated",
-        "notes": [],
+        "notes": [
+          "#4393: records re-drafted by the fixed reader (signed / prefixed / continued VALUE literals, no VALUE or USAGE read past the DATA DIVISION, implicit FILLER #4246, 77 as a root #4359); every changed field matches the engine and the #4377 referee panel"
+        ],
         "tier": "cross_verified",
         "cross_by": "claude-opus-5.5 blind reviewers (genapp census)",
         "cross_at": "2026-09-24",
@@ -22282,7 +22329,7 @@
           "occurs_max": null,
           "occurs_depending_on": null,
           "redefines": null,
-          "value": null,
+          "value": "+0",
           "line": 35
         },
         {
@@ -25493,7 +25540,9 @@
       "sql": false,
       "verification": {
         "status": "validated",
-        "notes": [],
+        "notes": [
+          "#4393: records re-drafted by the fixed reader (signed / prefixed / continued VALUE literals, no VALUE or USAGE read past the DATA DIVISION, implicit FILLER #4246, 77 as a root #4359); every changed field matches the engine and the #4377 referee panel"
+        ],
         "tier": "cross_verified",
         "cross_by": "claude-opus-5.5 blind reviewers (genapp census)",
         "cross_at": "2026-09-24",

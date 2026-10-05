@@ -64,6 +64,8 @@ ALLOWED: dict[tuple[str, str, str], str] = {
     ): "tests the codec's error-handler protocol",
     # `--config`: the scan's own YAML configuration, not a file of the estate being scanned.
     ("gitgalaxy/galaxyscope.py", "main", "text-read"): "the scan's own --config YAML",
+    # `--copy-libraries` (#4265): the scan's own library declaration (JSON / YAML), likewise not an estate file.
+    ("gitgalaxy/core/copy_libraries.py", "load_copy_libraries", "text-read"): "the scan's own --copy-libraries file",
 }
 
 

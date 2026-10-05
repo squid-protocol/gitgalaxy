@@ -304,3 +304,128 @@ def test_a_data_move_is_matched_on_verb_line_source_and_target():
             ("data_moves", "MOVE SPACE -> X @9", "phantom", "H-0040"),
         ]
     )
+
+
+# ---- phase 3 (v0.4.0): copy libraries, collisions, gaps, dead code -----------------------------
+
+
+def test_the_scan_is_told_the_keys_own_copy_libraries_when_it_has_them():
+    declared = {
+        "libraries": {"ORDROLD": ["apps/ORDR/oldcopy"]},
+        "syslib": [{"programs": "apps/ORDR/*", "order": ["ORDROLD"]}],
+    }
+    assert ec.copy_library_declaration({"copy_libraries": declared, "members": {}}) == declared
+    derived = ec.copy_library_declaration(
+        {
+            "members": {
+                "apps/A/copybook/X.cpy": {"app": "A", "library": "copybook"},
+                "shared/copylib/Y.cpy": {"app": None, "library": "copylib"},
+            }
+        }
+    )
+    assert derived["syslib"] == [{"programs": "apps/A/*", "order": ["ACPY", "SHRCPY"]}]
+
+
+def test_a_collision_is_matched_on_member_and_compared_on_winner_and_shadowed_libraries():
+    eng = FakeEngine()
+    eng.collisions = [
+        {
+            "importer": "p.cbl",
+            "member": "ORDREC",
+            "resolved": "a/ORDREC.cpy",
+            "library": "ACPY",
+            "shadowed": [{"library": "SHRCPY", "paths": ["s/ORDREC.cpy"]}],
+        },
+        {"importer": "p.cbl", "member": "DATEWS", "resolved": "a/DATEWS.cpy", "library": "ACPY", "shadowed": []},
+    ]
+    entry = {
+        "copy_collisions": [
+            {
+                "member": "ORDREC",
+                "line": 9,
+                "library": "ACPY",
+                "resolves_to": "a/ORDREC.cpy",
+                "shadowed": [
+                    {"library": "SHRCPY", "path": "s/ORDREC.cpy"},
+                    {"library": "AOLD", "path": "o/ORDREC.cpy"},
+                ],
+                "horror": "H-0052",
+            },
+            {"member": "ADDRREC", "line": 12, "library": "ACPY", "resolves_to": "a/ADDRREC.cpy", "shadowed": []},
+        ]
+    }
+    sc = ec.Score()
+    ec.score_copy_collisions(sc, "p.cbl", entry, eng)
+    assert _statuses(sc) == sorted(
+        [
+            ("copy_collisions", "ORDREC @9", "fail", "H-0052"),
+            ("copy_collisions", "ADDRREC @12", "missing", None),
+            ("copy_collisions", "DATEWS (reported)", "phantom", None),
+        ]
+    )
+    eng.collisions = None
+    sc = ec.Score()
+    ec.score_copy_collisions(sc, "p.cbl", entry, eng)
+    assert {c.status for c in sc.checks} == {"unscored"}
+
+
+def test_a_gap_fails_only_when_the_scan_resolves_it_to_a_member_of_that_name():
+    eng = FakeEngine()
+    eng.out_edges = {"p.cbl": {("apps/A/cobol/PRICE.cbl", "import"), ("apps/A/copybook/REC.cpy", "import")}}
+    entry = {
+        "gaps": [
+            {"kind": "copy", "name": "PRICE", "line": 5, "why": "", "horror": "H-0053"},
+            {"kind": "call", "name": "VENDOR", "line": 9, "why": ""},
+        ]
+    }
+    sc = ec.Score()
+    ec.score_gaps(sc, "p.cbl", entry, eng)
+    assert _statuses(sc) == sorted(
+        [("gaps", "copy PRICE @5", "fail", "H-0053"), ("gaps", "call VENDOR @9", "pass", None)]
+    )
+
+
+def test_dead_code_is_an_unused_unit_or_a_member_nothing_points_at():
+    eng = FakeEngine(
+        units={"p.cbl": [dict(_unit("9000-OLD", 40, 44), usage=1), dict(_unit("1000-LIVE", 30, 39), usage=0)]}
+    )
+    eng.in_edges = {"old.cbl": {("main.cbl", "call")}}
+    sc = ec.Score()
+    ec.score_dead(
+        sc,
+        "p.cbl",
+        {
+            "dead": [
+                {"kind": "paragraph", "name": "9000-old", "line": 40, "why": ""},
+                {"kind": "paragraph", "name": "1000-LIVE", "line": 30, "why": ""},
+                {"kind": "paragraph", "name": "GONE", "line": 50, "why": ""},
+            ]
+        },
+        eng,
+    )
+    ec.score_dead(
+        sc, "old.cbl", {"dead": [{"kind": "program", "name": "OLD", "line": 2, "why": "", "horror": "H-0051"}]}, eng
+    )
+    ec.score_dead(sc, "orphan.cpy", {"dead": [{"kind": "copybook", "name": "ORPHAN", "line": 1, "why": ""}]}, eng)
+    assert _statuses(sc) == sorted(
+        [
+            ("dead", "paragraph 9000-old @40", "pass", None),
+            ("dead", "paragraph 1000-LIVE @30", "fail", None),
+            ("dead", "paragraph GONE @50", "missing", None),
+            ("dead", "program OLD @2", "fail", "H-0051"),
+            ("dead", "copybook ORPHAN @1", "pass", None),
+        ]
+    )
+
+
+def test_an_explicit_file_edge_phantom_is_attributed_to_its_horror():
+    eng = FakeEngine()
+    eng.file_edges = {"main.cbl": {("ORDV#OLD.cbl", "call")}}
+    entry = {
+        "phantoms": [
+            {"channel": "file_edges", "kind": "call", "target": "ORDV#OLD.cbl", "why": "stale copy", "horror": "H-0050"}
+        ]
+    }
+    sc = ec.Score()
+    ec.score_file_edges(sc, "main.cbl", entry, eng)
+    assert _statuses(sc) == [("file_edges", "call -> ORDV#OLD.cbl", "phantom", "H-0050")]

@@ -152,6 +152,7 @@
 # measured deltas.
 # ==============================================================================
 import bisect
+import dataclasses
 import fnmatch
 import json
 import os
@@ -341,6 +342,9 @@ class EngineDataItem:
     # #4265: the library-name each `copy_members` COPY names (`COPY DATEWS IN SHRCPY`), comma-separated in
     # the same order, "" for an unqualified COPY; None when none names one (record_data.copy_libraries).
     copy_libraries: Optional[str] = None
+    # #4265: each `copy_members` COPY's REPLACING operands (record_data.copy_replacing, JSON): None, or a
+    # list parallel to the members of None / [[from, to(, LEADING|TRAILING)], ...].
+    copy_replacing: Optional[str] = None
     # #3694: the item codes SIGN ... SEPARATE, so a DISPLAY sign takes a byte of its own --
     # before the digits when `sign_leading` (SIGN LEADING SEPARATE), else after them.
     sign_separate: bool = False
@@ -841,6 +845,9 @@ class EngineFile:
     # #4265: per copy_deps path, the COPY forms its edge carries when the scan declared copy libraries
     # (library-names, "" for an unqualified COPY): `COPY X` and `COPY X IN LIB` can reach two files.
     copy_dep_libraries: dict[str, list[str]] = field(default_factory=dict)
+    # #4265: the record tree of a COPY ... REPLACING template copybook (names with a pseudo-text tag,
+    # `:TAG:-ID`); its data_items / records stay empty -- the entries exist only once replaced.
+    template_records: list = field(default_factory=list)
     # #3720: every %INCLUDE member a PL/I file names, found or not (file_data.raw_imports);
     # copy_deps holds only the ones the scan resolved to a file. Empty for other languages.
     includes: list[str] = field(default_factory=list)
@@ -1740,21 +1747,24 @@ class GalaxyIR:
             if ef.language != "cobol":
                 continue
             for it in ef.data_items:
-                forms = [f for f in _copy_forms(it) if f[0]]
+                forms = [(*f, r) for f, r in zip(_copy_forms(it), _copy_replacings(it)) if f[0]]
                 if not forms:
                     continue
                 keep: list = []
-                for i, (member, library) in enumerate(forms):
-                    _cb, roots = self._copy_roots(member, ef, ef, 0, library)
+                for i, (member, library, replacing) in enumerate(forms):
+                    cb, roots = self._copy_roots(member, ef, ef, 0, library)
+                    if replacing and cb is not None and not roots:
+                        roots = cb.template_records  # #4265: a REPLACING template's levels are its own
                     # once one member stands at section level, the ones after it follow it there
                     if len(keep) == i and ((roots[0].level not in (1, 77)) if roots else i == 0):
-                        keep.append((member, library))
+                        keep.append((member, library, replacing))
                     else:
                         ef.section_copies.append((member, it.ordinal))
                 if len(keep) != len(forms):
-                    it.copy_members = ",".join(m for m, _ in keep) or None
-                    # #4265: the library-names stay parallel to the members kept
-                    it.copy_libraries = ",".join(lib or "" for _, lib in keep) if any(lib for _, lib in keep) else None
+                    it.copy_members = ",".join(m for m, _, _ in keep) or None
+                    # #4265: the library-names and REPLACING operands stay parallel to the members kept
+                    it.copy_libraries = ",".join(lib or "" for _, lib, _ in keep) if any(k[1] for k in keep) else None
+                    it.copy_replacing = json.dumps([r for _, _, r in keep]) if any(k[2] for k in keep) else None
 
     def _copy_roots(
         self, member: str, ef: EngineFile, origin: EngineFile, depth: int, library: Optional[str] = None
@@ -1787,10 +1797,12 @@ class GalaxyIR:
             EPSMTINP.` and `COPY EPSMTOUT.`) has those members after it, as its siblings, resolved from the copybook."""
             # #4330: section-level members the extractor recorded on `owner` close `item` after the kept ones
             moved = any(o == owner.ordinal for _, o in owner_ef.section_copies)
-            for member, library in _copy_forms(owner):
+            for (member, library), replacing in zip(_copy_forms(owner), _copy_replacings(owner)):
                 if not member:
                     continue
                 cb, roots = self._copy_roots(member, owner_ef, origin, d, library)
+                if replacing and cb is not None:
+                    roots = self._replaced_roots(cb, roots or cb.template_records, replacing)
                 if cb is None:
                     if owner is not item and _SYSTEM_COPYBOOK.match(nfc(member)):
                         # #4278: a runtime member after an entry (`EXEC SQL INCLUDE SQLCA`,
@@ -1833,6 +1845,14 @@ class GalaxyIR:
             ):
                 break
         return kids
+
+    def _replaced_roots(self, cb: EngineFile, roots: list, replacing: list) -> list:
+        """#4265: `cb`'s roots as one COPY ... REPLACING sees them (cached, so a layout is stable)."""
+        cache = self.__dict__.setdefault("_replaced_cache", {})
+        key = (cb.file_path, json.dumps(replacing))
+        if key not in cache:
+            cache[key] = [_replaced(r, replacing) for r in roots]
+        return cache[key]
 
     def _copy_closes(
         self, leaf: EngineDataItem, group: EngineDataItem, ef: EngineFile, origin: EngineFile, depth: int
@@ -5808,6 +5828,7 @@ def load_galaxy_ir(db_path: Path, repo_name: Optional[str] = None) -> GalaxyIR:
             sign_col = "sign_separate" if _has_column(cur, "record_data", "sign_separate") else "NULL"
             # #4265: `copy_libraries` likewise.
             lib_col = "copy_libraries" if _has_column(cur, "record_data", "copy_libraries") else "NULL"
+            repl_col = "copy_replacing" if _has_column(cur, "record_data", "copy_replacing") else "NULL"
             for (
                 file_id,
                 ordinal,
@@ -5828,10 +5849,11 @@ def load_galaxy_ir(db_path: Path, repo_name: Optional[str] = None) -> GalaxyIR:
                 copies,
                 sign_sep,
                 copy_libs,
+                copy_repl,
             ) in cur.execute(
                 "SELECT file_id, ordinal, parent_ordinal, level_number, item_name, section, fd_name, pic, "  # noqa: S608 -- attributes_col is one of two literals; values are bound
                 "usage, occurs_min, occurs_max, occurs_depending_on, redefines, value_literal, line_number, "
-                f"{attributes_col}, {copy_col}, {sign_col}, {lib_col} FROM record_data "
+                f"{attributes_col}, {copy_col}, {sign_col}, {lib_col}, {repl_col} FROM record_data "
                 "WHERE repo_name = ? AND commit_hash = ? "
                 "ORDER BY file_id, ordinal",
                 (repo_name, commit_hash),
@@ -5859,6 +5881,7 @@ def load_galaxy_ir(db_path: Path, repo_name: Optional[str] = None) -> GalaxyIR:
                         sign_separate=bool(sign_sep),
                         sign_leading=sign_sep == 2,
                         copy_libraries=copy_libs,
+                        copy_replacing=copy_repl,
                     )
                 )
             # Thread children onto parents and collect the roots. `data_items` is
@@ -5872,6 +5895,17 @@ def load_galaxy_ir(db_path: Path, repo_name: Optional[str] = None) -> GalaxyIR:
                         by_ordinal[item.parent_ordinal].children.append(item)
                     else:
                         ef.records.append(item)
+                # #4265: a copybook written for COPY ... REPLACING (`05 :TAG:-ID`) is a template: its
+                # tagged entries are not data-names until a COPY replaces the tag, so they are kept
+                # apart (`template_records`) and only expanded through a REPLACING. A program is never
+                # a template: its tagged entries await its own REPLACE statement (cobol-check REPLAC.CBL),
+                # and its other entries stay the data-names its procedure code moves.
+                if (
+                    ef.language == "cobol"
+                    and not ef.is_program
+                    and any(_PSEUDO_TAG.search(it.name) for it in ef.data_items)
+                ):
+                    ef.template_records, ef.records, ef.data_items = ef.records, [], []
 
         # #3211-followup: the CICS transaction map. Hangs off the DEFINING deck's
         # file (the .csd/JCL), with dst_file_id resolved to the program's file.
@@ -6333,6 +6367,63 @@ def load_galaxy_ir(db_path: Path, repo_name: Optional[str] = None) -> GalaxyIR:
     ir = GalaxyIR(db_path, repo_name, commit_hash, files, source_pages=source_pages)
     ir._settle_copy_members()  # #4330: needs the resolved COPY edges and symbolic maps above
     return ir
+
+
+# #4265: a pseudo-text tag in a copybook entry's name (`:TAG:-ID`), replaced by COPY ... REPLACING.
+_PSEUDO_TAG = re.compile(r":[^\s:]+:")
+
+
+def _copy_replacings(item: EngineDataItem) -> list:
+    """#4265: per `copy_members` COPY on `item`, its REPLACING pairs (or None)."""
+    try:
+        found = json.loads(item.copy_replacing) if item.copy_replacing else []
+    except ValueError:
+        found = []
+    members = (item.copy_members or "").split(",")
+    return [found[i] if i < len(found) else None for i in range(len(members))]
+
+
+def _replace_text(text: Optional[str], pairs: list) -> Optional[str]:
+    """#4265: `text` after a COPY's REPLACING. A pseudo-text operand delimited by `:` or `( )` (a
+    tag: `:TAG:-ID`) replaces partial words; LEADING / TRAILING replace a word's start / end; any
+    other operand replaces whole words only. One left-to-right pass, as the compiler does: at each
+    position the first pair that matches is applied, and replaced text is never matched again."""
+    if not text:
+        return text
+    patterns: list[str] = []
+    targets: list[str] = []
+    for pair in pairs:
+        src, dst = pair[0], pair[1]
+        mode = pair[2] if len(pair) > 2 else None
+        if not src:
+            continue
+        if mode == "LEADING":
+            patterns.append(rf"(?<![\w-]){re.escape(src)}")
+        elif mode == "TRAILING":
+            patterns.append(rf"{re.escape(src)}(?![\w-])")
+        elif src[:1] in ":(" and src[-1:] in ":)":
+            patterns.append(re.escape(src))
+        else:
+            patterns.append(rf"(?<![\w-]){re.escape(src)}(?![\w-])")
+        targets.append(dst)
+    if not patterns:
+        return text
+    combined = re.compile("|".join(f"(?P<p{i}>{p})" for i, p in enumerate(patterns)), re.I)
+    return combined.sub(lambda m: targets[int((m.lastgroup or "p0")[1:])], text)
+
+
+def _replaced(item: EngineDataItem, pairs: list) -> EngineDataItem:
+    """#4265: a copy of copied entry `item` (its subtree too) with a COPY's REPLACING applied to the
+    words that name storage: the name, REDEFINES and OCCURS DEPENDING ON objects, PICTURE and VALUE."""
+    return dataclasses.replace(
+        item,
+        name=_replace_text(item.name, pairs) or item.name,
+        redefines=_replace_text(item.redefines, pairs),
+        occurs_depending_on=_replace_text(item.occurs_depending_on, pairs),
+        pic=_replace_text(item.pic, pairs),
+        value=_replace_text(item.value, pairs),
+        children=[_replaced(c, pairs) for c in item.children],
+    )
 
 
 def _copy_forms(item: EngineDataItem) -> list[tuple[str, Optional[str]]]:

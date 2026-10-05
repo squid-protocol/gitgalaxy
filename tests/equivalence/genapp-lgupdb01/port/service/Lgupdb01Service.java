@@ -6,7 +6,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import com.gitgalaxy.modernized.cics.CicsTask;
 import com.gitgalaxy.modernized.client.Dor1RemoteClient;
-import com.gitgalaxy.modernized.dto.contract.Lgacdb01CaErrorMsg;
+import com.gitgalaxy.modernized.dto.contract.LgstsqDfhcommarea;
 import com.gitgalaxy.modernized.dto.contract.Lgupdb01Dfhcommarea;
 import com.gitgalaxy.modernized.dto.contract.Lgupvs01Dfhcommarea;
 import com.gitgalaxy.modernized.entity.vsam.CobolRecords;
@@ -397,14 +397,14 @@ public class Lgupdb01Service {
                     + " SQLCODE=" + sqlrc;
         }
         String errorMsg = wsDate.substring(0, 8) + " " + wsTime.substring(0, 6) + " LGUPDB01" + variable;
-        Lgacdb01CaErrorMsg em = new Lgacdb01CaErrorMsg();
+        LgstsqDfhcommarea em = new LgstsqDfhcommarea();
         em.setCaData(errorMsg);  // 87 bytes: ERROR-MSG, laid over the LGSTSQ commarea
         if (linkLgstsqTask(task, em, 87)) {
             return true;
         }
         if (calen > 0) {
             String dfh = commareaImage(ca, cs);
-            Lgacdb01CaErrorMsg c = new Lgacdb01CaErrorMsg();
+            LgstsqDfhcommarea c = new LgstsqDfhcommarea();
             if (calen < 91) {
                 c.setCaData(CobolRecords.fit(dfh.substring(0, Math.min(calen, dfh.length())), 90, cs));
             } else {
@@ -415,7 +415,7 @@ public class Lgupdb01Service {
         return false;
     }
 
-    private boolean linkLgstsqTask(CicsTask task, Lgacdb01CaErrorMsg msg, int length) {
+    private boolean linkLgstsqTask(CicsTask task, LgstsqDfhcommarea msg, int length) {
         String resp = task.link("LGSTSQ", msg, length);
         if (!"NORMAL".equals(resp)) {
             task.abendOnCondition(resp);
@@ -483,7 +483,7 @@ public class Lgupdb01Service {
     /** EXEC CICS LINK PROGRAM(LGSTSQ) at base/src/lgupdb01.cbl:515, base/src/lgupdb01.cbl:523, base/src/lgupdb01.cbl:529.
      *  Call targets field testing: open (6 public / 0 private estates). */
     // TODO: this site passes ERROR-MSG; LGSTSQ receives CA-ERROR-MSG (base/src/lgacdb01.cbl) -- map one layout onto the other
-    public Lgacdb01CaErrorMsg linkLgstsq(Lgacdb01CaErrorMsg request) {
+    public LgstsqDfhcommarea linkLgstsq(LgstsqDfhcommarea request) {
         return lgstsqService.getObject().handleLink(request);
     }
 

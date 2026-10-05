@@ -1092,6 +1092,7 @@ class RecordKeeper:
                 copy_members TEXT,
                 sign_separate INTEGER,
                 copy_libraries TEXT,
+                copy_replacing TEXT,
                 FOREIGN KEY(file_id) REFERENCES file_data(id) ON DELETE CASCADE
             )
         """)
@@ -1110,6 +1111,11 @@ class RecordKeeper:
         # #4265: `copy_libraries` -- the library-name each `copy_members` COPY names (`COPY X IN LIB`),
         # comma-separated in the same order, "" for an unqualified COPY; NULL when none names one.
         _ensure_columns(cursor, "record_data", ["copy_libraries TEXT"])
+        # #4265: `copy_replacing` -- each `copy_members` COPY's REPLACING operands, a JSON list in the same
+        # order: null for a COPY that replaces nothing, else [[from, to(, LEADING|TRAILING)], ...] with
+        # pseudo-text as written minus its `==` delimiters. NULL when no COPY on the entry replaces
+        # anything. The copybook keeps its own (tagged) names; the reader applies the REPLACING.
+        _ensure_columns(cursor, "record_data", ["copy_replacing TEXT"])
         cursor.execute("CREATE INDEX IF NOT EXISTS idx_record_file_id ON record_data(file_id);")
         cursor.execute("CREATE INDEX IF NOT EXISTS idx_record_snapshot ON record_data(repo_name, commit_hash);")
 
@@ -3019,6 +3025,7 @@ class RecordKeeper:
                 "copy_members",
                 "sign_separate",
                 "copy_libraries",
+                "copy_replacing",
             ),
             "record_layouts",
             lambda it: (
@@ -3040,6 +3047,7 @@ class RecordKeeper:
                 it.get("copy_members"),  # #3355
                 int(it["sign_separate"]) if it.get("sign_separate") else None,  # #3694: 1 trailing, 2 leading
                 it.get("copy_libraries"),  # #4265
+                it.get("copy_replacing"),  # #4265
             ),
         )
 

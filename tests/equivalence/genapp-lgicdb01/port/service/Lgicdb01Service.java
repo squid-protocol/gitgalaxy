@@ -5,7 +5,7 @@ import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import com.gitgalaxy.modernized.cics.CicsTask;
-import com.gitgalaxy.modernized.dto.contract.Lgacdb01CaErrorMsg;
+import com.gitgalaxy.modernized.dto.contract.LgstsqDfhcommarea;
 import com.gitgalaxy.modernized.dto.contract.Lgicdb01Dfhcommarea;
 import com.gitgalaxy.modernized.entity.vsam.CobolRecords;
 import com.gitgalaxy.modernized.exception.*;
@@ -187,7 +187,7 @@ public class Lgicdb01Service {
         String errorMsg = emDate + " " + emTime + " LGICUS01" + variable;
 
         // EXEC CICS LINK PROGRAM('LGSTSQ') COMMAREA(ERROR-MSG) LENGTH(71)
-        Lgacdb01CaErrorMsg msg = new Lgacdb01CaErrorMsg();
+        LgstsqDfhcommarea msg = new LgstsqDfhcommarea();
         msg.setCaData(errorMsg);
         if (!linked(task, task.link("LGSTSQ", msg, errorMsg.length()))) {
             return false;
@@ -196,7 +196,7 @@ public class Lgicdb01Service {
         // IF EIBCALEN > 0 (EIBCALEN is 0 on the no-commarea path)
         if (ca != null && calen > 0) {
             int n = Math.min(calen, 90);   // < 91: DFHCOMMAREA(1:EIBCALEN); else DFHCOMMAREA(1:90)
-            Lgacdb01CaErrorMsg caMsg = new Lgacdb01CaErrorMsg();
+            LgstsqDfhcommarea caMsg = new LgstsqDfhcommarea();
             caMsg.setCaData(CobolRecords.fit(commareaText(ca, cs).substring(0, n), 90, cs));
             // EXEC CICS LINK PROGRAM('LGSTSQ') COMMAREA(CA-ERROR-MSG) LENGTH(99)
             if (!linked(task, task.link("LGSTSQ", caMsg, 99))) {
@@ -256,7 +256,7 @@ public class Lgicdb01Service {
     }
 
     /** EXEC CICS LINK PROGRAM(LGSTSQ) at base/src/lgicdb01.cbl:225, :233, :239 (runTask links through the task). */
-    public Lgacdb01CaErrorMsg linkLgstsq(Lgacdb01CaErrorMsg request) {
+    public LgstsqDfhcommarea linkLgstsq(LgstsqDfhcommarea request) {
         return lgstsqService.getObject().handleLink(request);
     }
 

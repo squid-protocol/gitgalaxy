@@ -8,6 +8,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import com.gitgalaxy.modernized.cics.CicsTask;
 import com.gitgalaxy.modernized.dto.contract.FxchainWsState;
+import com.gitgalaxy.modernized.dto.contract.FxlastDfhcommarea;
 import org.springframework.beans.factory.ObjectProvider;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -51,12 +52,16 @@ public class FxchainService {
             task.returnTransid("FX01", ws, 11);
             return;
         }
-        task.xctl("FXLAST", ws, 11);
+        // FXLAST only knows its own DFHCOMMAREA: the XCTL hands it that DTO, filled from this program's WS-STATE
+        FxlastDfhcommarea last = new FxlastDfhcommarea();
+        last.setWsCount(ws.getWsCount());
+        last.setWsName(ws.getWsName());
+        task.xctl("FXLAST", last, 11);
     }
 
     /** EXEC CICS XCTL PROGRAM(FXLAST) at src/FXCHAIN.cbl:34. XCTL transfers control: nothing after it runs in the caller.
      *  Call targets field testing: open (6 public / 0 private estates). */
-    public FxchainWsState xctlFxlast(FxchainWsState request) {
+    public FxlastDfhcommarea xctlFxlast(FxlastDfhcommarea request) {
         return fxlastService.getObject().handleLink(request);
     }
 

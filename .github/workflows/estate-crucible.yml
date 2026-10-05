@@ -1,0 +1,104 @@
+name: Estate Crucible
+
+# #4317 phase 5: gitgalaxy's mainframe extraction measured against estate-crucible
+# (squid-protocol/estate-crucible), a synthetic z/OS estate whose answer key is written by the
+# same generator that writes the code; every planted "horror" cites the IBM text for what its key
+# asserts. tests/tools/estate_crucible_gate.py scans the estate with THIS checkout's engine,
+# scores every fact channel against the key, and holds the result as a ratchet against
+# tests/estate_crucible/baseline.json: a horror that passed and now fails, a channel whose pass
+# count drops, or a check that passed and no longer does fails the run. Improvements do not fail
+# it; they are listed, and the baseline is lowered with --update-baseline.
+#
+# The crucible is cloned at PINNED_REF, read straight out of tests/_estate_crucible_pin.py (there is
+# no repository variable for this pin, like the CICS crucible's), so a fork's pull_request run clones
+# the same public ref with no credentials: the repo is public, no token is needed. The whole job is
+# a ~3 s scan plus install, so there is no scan cache.
+
+on:
+  pull_request:
+    branches: [main]
+    paths:
+      - "gitgalaxy/**"
+      - "pyproject.toml"
+      - "tests/tools/estate_crucible*.py"
+      - "tests/estate_crucible/**"
+      - "tests/_estate_crucible_pin.py"
+      - ".github/workflows/estate-crucible.yml"
+      # never read by a scan: the COBOL-to-Java translator and its entry point, and prose
+      - "!gitgalaxy/tools/cobol_to_java/**"
+      - "!gitgalaxy/cobol_to_java_controller.py"
+      - "!**/*.md"
+  push:
+    branches: [main]
+    paths:
+      - "gitgalaxy/**"
+      - "pyproject.toml"
+      - "tests/tools/estate_crucible*.py"
+      - "tests/estate_crucible/**"
+      - "tests/_estate_crucible_pin.py"
+      - ".github/workflows/estate-crucible.yml"
+      # never read by a scan: the COBOL-to-Java translator and its entry point, and prose
+      - "!gitgalaxy/tools/cobol_to_java/**"
+      - "!gitgalaxy/cobol_to_java_controller.py"
+      - "!**/*.md"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
+
+jobs:
+  estate:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5  # the job takes ~40 s; a hang should fail fast
+    env:
+      GITGALAXY_LICENSE_KEY: COMMUNITY_FREE_TIER
+      PYTHONUTF8: "1"
+    steps:
+      - name: Checkout GitGalaxy
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          path: gitgalaxy
+          persist-credentials: false
+
+      - name: Clone estate-crucible at the pin
+        run: |
+          # One line, one literal form in the pin file: see tests/_estate_crucible_pin.py.
+          ref=$(sed -n 's/^PINNED_REF = "\(.*\)"/\1/p' gitgalaxy/tests/_estate_crucible_pin.py)
+          if [ -z "$ref" ]; then
+            echo "::error title=Estate crucible pin unavailable::No PINNED_REF in gitgalaxy/tests/_estate_crucible_pin.py. If its line was reformatted, restore the one-line form or update this sed."
+            exit 1
+          fi
+          git init -q estate-crucible
+          git -C estate-crucible remote add origin https://github.com/squid-protocol/estate-crucible.git
+          if echo "$ref" | grep -Eq '^[0-9a-f]{40}$'; then
+            git -C estate-crucible fetch -q --depth 1 origin "$ref"
+          else
+            git -C estate-crucible fetch -q --depth 1 origin "+refs/tags/$ref:refs/tags/$ref"
+          fi
+          git -C estate-crucible checkout -q --detach FETCH_HEAD
+          echo "estate-crucible at $ref ($(git -C estate-crucible rev-parse HEAD))"
+
+      - name: Setup Python
+        uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97 # v7.0.0
+        with:
+          python-version: "3.12"
+          cache: "pip"
+
+      - name: Install GitGalaxy
+        run: |
+          python -m pip install --upgrade pip
+          pip install -e ./gitgalaxy
+
+      - name: Score the estate against the baseline
+        run: |
+          cd gitgalaxy
+          python tests/tools/estate_crucible_gate.py --crucible ../estate-crucible --md "$RUNNER_TEMP/estate_crucible.md"
+
+      - name: Publish the report
+        if: always()
+        run: |
+          if [ -f "$RUNNER_TEMP/estate_crucible.md" ]; then cat "$RUNNER_TEMP/estate_crucible.md" >> "$GITHUB_STEP_SUMMARY"; fi

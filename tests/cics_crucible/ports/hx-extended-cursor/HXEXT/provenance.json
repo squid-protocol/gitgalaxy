@@ -34,6 +34,22 @@
     "port_sha256": "482501a81d8c25ee8db1aa1483784fde7551fbf1c8c924e31c41a024572bb4a3",
     "harness_commit": "16ae9e01515581be224b32982ceae54bc73e68fb",
     "by": "tests/tools/crucible_port_provenance.py reprove (cics_crucible.py --sides java-ported --program HXEXT --report-dir)"
+   },
+   {
+    "at": "2026-10-05T10:27:58+00:00",
+    "crucible_ref": "v0.2.0 (94f2afcb)",
+    "summary": {
+     "bad-account": "1/1",
+     "good-entry": "1/1",
+     "pf5-blink": "1/1"
+    },
+    "port_sha256": "ae3837ff9418e65494c6885a9a8f17be45f52a24ae655b75bb35712741f78181",
+    "harness_commit": "78c73e6832cb8b86cd405c73457c07d62d3b266f",
+    "by": "tests/tools/crucible_port_provenance.py reprove (cics_crucible.py --sides java-ported java-facade --program HXEXT --report-dir)",
+    "entry_points": [
+     "runTask",
+     "handleTransaction"
+    ]
    }
   ]
  },
@@ -63,6 +79,21 @@
     "good-entry": "1/1",
     "pf5-blink": "1/1"
    }
+  },
+  {
+   "at": "2026-10-05T10:13:31+00:00",
+   "event": "resurfaced",
+   "by": "tests/tools/port_surface.py",
+   "generator_commit": "1aff9778c",
+   "generated_from": "service/HxextService.java",
+   "replaced": [
+    "handleTransaction"
+   ],
+   "removed": [
+    "executeHxext",
+    "submitHxm2"
+   ]
   }
- ]
+ ],
+ "edited_after": "the deployed entry points (facades) were brought to the generator's by tests/tools/port_surface.py (#4343; see history 'resurfaced'); runTask and the logic it runs are the model's answer"
 }

@@ -49,6 +49,23 @@
     "port_sha256": "e99a38302eb266375394565a8924ac65cec94de115adb2f06828f9d933af0c68",
     "harness_commit": "356f7d105baa91e7fa7e46b333ed10ba7bbcbcb0",
     "by": "tests/tools/crucible_port_provenance.py reprove (cics_crucible.py --sides java-ported --program HCQREAD --report-dir)"
+   },
+   {
+    "at": "2026-10-05T10:27:37+00:00",
+    "crucible_ref": "v0.2.0 (94f2afcb)",
+    "summary": {
+     "five-items": "1/1",
+     "length-trap": "1/1",
+     "no-queue": "1/1",
+     "three-items": "1/1"
+    },
+    "port_sha256": "6cab1e1ca4ea16e5b8a5a1045979cfa736e981158e1eade90815e7dfc63b0337",
+    "harness_commit": "78c73e6832cb8b86cd405c73457c07d62d3b266f",
+    "by": "tests/tools/crucible_port_provenance.py reprove (cics_crucible.py --sides java-ported java-facade --program HCQREAD --report-dir)",
+    "entry_points": [
+     "runTask",
+     "handleTransaction"
+    ]
    }
   ]
  },
@@ -80,6 +97,20 @@
     "no-queue": "1/1",
     "three-items": "1/1"
    }
+  },
+  {
+   "at": "2026-10-05T10:13:31+00:00",
+   "event": "resurfaced",
+   "by": "tests/tools/port_surface.py",
+   "generator_commit": "1aff9778c",
+   "generated_from": "service/HcqreadService.java",
+   "replaced": [
+    "handleTransaction"
+   ],
+   "removed": [
+    "executeHcqread"
+   ]
   }
- ]
+ ],
+ "edited_after": "the deployed entry points (facades) were brought to the generator's by tests/tools/port_surface.py (#4343; see history 'resurfaced'); runTask and the logic it runs are the model's answer"
 }

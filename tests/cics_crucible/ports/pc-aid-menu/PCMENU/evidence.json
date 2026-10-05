@@ -7,8 +7,9 @@
   "paths": [
    "tests/cics_crucible/ports/pc-aid-menu/PCMENU/overlay/service/PcmenuService.java"
   ],
-  "sha256": "2fc31a4ff6d97062d3d36c912f999a46babfbbfec5f7e9a9cdab7339f7d35921",
+  "sha256": "47f58da40521290b14e64be460506f4fc618a6624fa8b2c4dbb1e9cf6a5da6f6",
   "entry_points": [
+   "handleTransaction",
    "runTask"
   ]
  },
@@ -18,7 +19,7 @@
     "tests/cics_crucible/ports/pc-aid-menu/*/overlay/**"
    ],
    "files": 2,
-   "sha256": "5b5a9321aa7f3216c74f1352ee5bf37502387c26cf88542b675bd37eac07e2a5"
+   "sha256": "76087f21ac6a0f956378a1d64168ef3e7b460f4f8dd865d24c7a0544a7d3ca64"
   },
   "case": {
    "paths": [
@@ -44,7 +45,7 @@
     "tests/tools/cics_crucible_compare.py"
    ],
    "files": 13,
-   "sha256": "76e6774afa2c5e70a0fefbff574591dee05a4270a46d98d70433c272870f08a7"
+   "sha256": "a3ae3d6d7e938e36cd15639224926bf86762c0f436c35667909f895cbe77382c"
   },
   "oracle": {
    "paths": [],
@@ -66,13 +67,16 @@
   "differences": {
    "sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
   },
-  "digest": "c51a067ddffb224424b5b1121ada28aad2c84817e3e0455c781fe6617bad0239"
+  "digest": "fb85526a5e68cbcfb9fb58b9a8b58be76665dca39b7d010c31a8248c759af0e8"
  },
  "proof": {
-  "at": "2026-10-05T06:07:53Z",
-  "verdict": "proven",
+  "at": "2026-10-05T10:35:00Z",
+  "verdict": "not-proven",
   "runs": 4,
   "fault_runs": 0,
+  "entry_runs": [
+   "handleTransaction"
+  ],
   "environments": null,
   "outputs": {
    "aid-keys": {
@@ -88,7 +92,7 @@
     "records": 1
    },
    "option2-next-transid": {
-    "equal": 1,
+    "equal": 0,
     "records": 1
    }
   },
@@ -96,8 +100,8 @@
   "sysout_compared": null,
   "attributes_compared": null,
   "java_failed": false,
-  "harness_commit": "d03da8b743917a29a13e48709fb0c7f6ad778528+uncommitted",
-  "inputs_digest": "c51a067ddffb224424b5b1121ada28aad2c84817e3e0455c781fe6617bad0239"
+  "harness_commit": "78c73e6832cb8b86cd405c73457c07d62d3b266f+uncommitted",
+  "inputs_digest": "fb85526a5e68cbcfb9fb58b9a8b58be76665dca39b7d010c31a8248c759af0e8"
  },
  "coverage": {
   "paragraphs": {
@@ -112,45 +116,28 @@
   "handler_labels": null,
   "source": "tests/cics_crucible/coverage.json#programs/pc-aid-menu/PCMENU",
   "ledger_sha256": "3507a37672aaaa5813c020bbe64d8937ff518cfa3c377af8b85c04629aa93eb6",
-  "inputs_digest": "c51a067ddffb224424b5b1121ada28aad2c84817e3e0455c781fe6617bad0239"
+  "inputs_digest": "fb85526a5e68cbcfb9fb58b9a8b58be76665dca39b7d010c31a8248c759af0e8"
  },
  "reach": {
   "entry_points": [
+   "handleTransaction",
    "runTask"
   ],
   "unproven": [
    {
     "class": "PcmenuService",
-    "method": "executePcmenu",
-    "line": 94,
-    "kind": "stub"
-   },
-   {
-    "class": "PcmenuService",
-    "method": "handleTransaction",
-    "line": 103,
-    "kind": "ported_unproven"
-   },
-   {
-    "class": "PcmenuService",
     "method": "xctlPcdetl",
-    "line": 250,
+    "line": 237,
     "kind": "left_as_generated"
-   },
-   {
-    "class": "PcmenuService",
-    "method": "submitPcmn",
-    "line": 274,
-    "kind": "ported_unproven"
    }
   ],
   "counts": {
-   "stub": 1,
+   "stub": 0,
    "left_as_generated": 1,
-   "ported_unproven": 2
+   "ported_unproven": 0
   },
   "generated_compared": true,
-  "port_sha256": "2fc31a4ff6d97062d3d36c912f999a46babfbbfec5f7e9a9cdab7339f7d35921"
+  "port_sha256": "47f58da40521290b14e64be460506f4fc618a6624fa8b2c4dbb1e9cf6a5da6f6"
  },
  "mutation": {
   "commit": "be2561306",
@@ -193,7 +180,7 @@
  "differences": [],
  "oracle": {
   "kind": "crucible-expected-logs",
-  "source": "cics-crucible v0.2.0: each scenario's hand-written expected event log, derived from IBM's documentation (its SPEC.md); the java-ported side is compared with it exactly",
+  "source": "cics-crucible v0.2.0: each scenario's hand-written expected event log, derived from IBM's documentation (its SPEC.md); the java-ported side (runTask) and the java-facade side (the deployed entry points, #4343) are compared with it exactly",
   "compiler": null,
   "image": null,
   "models": [],
@@ -209,11 +196,11 @@
   "porting_rules_sha256": null,
   "proposed_at": "2026-09-29T22:01:28+00:00",
   "generator_version": null,
-  "edited_after": null,
+  "edited_after": "the deployed entry points (facades) were brought to the generator's by tests/tools/port_surface.py (#4343; see history 'resurfaced'); runTask and the logic it runs are the model's answer",
   "provenance_file": {
    "path": "tests/cics_crucible/ports/pc-aid-menu/PCMENU/provenance.json",
    "format": "cics-crucible-port/1",
-   "sha256": "a56fcb4a88ed1901f38e21b52a5efc8605bdb121ed8a64170974c5ef96ab13ed"
+   "sha256": "3c13bc4de86fd166afe0afbb43a14d6f066af84f0f5e733d6c638a9c353d0d32"
   },
   "crucible_ref_proven": "v0.2.0 (94f2afcb)"
  },

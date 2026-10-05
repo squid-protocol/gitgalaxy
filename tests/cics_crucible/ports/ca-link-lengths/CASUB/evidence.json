@@ -7,8 +7,9 @@
   "paths": [
    "tests/cics_crucible/ports/ca-link-lengths/CASUB/overlay/service/CasubService.java"
   ],
-  "sha256": "587be135f62352cd2f95e4a240763f70984957cb8232bb3235125c58670c68d5",
+  "sha256": "d1ac8625d79c7e43be8acb944fe78ae180ccbc2a8b7975179056f1c96dddf330",
   "entry_points": [
+   "handleLink",
    "runTask"
   ]
  },
@@ -18,7 +19,7 @@
     "tests/cics_crucible/ports/ca-link-lengths/*/overlay/**"
    ],
    "files": 2,
-   "sha256": "17db7aff02b50dfc6e2d132af49735f9b5911edbcaab357d0d7789e560fac645"
+   "sha256": "17689244a21afff2330b7c48d4479a03e18107db3e9cfb58cafcf70d50a45d4d"
   },
   "case": {
    "paths": [
@@ -44,7 +45,7 @@
     "tests/tools/cics_crucible_compare.py"
    ],
    "files": 13,
-   "sha256": "76e6774afa2c5e70a0fefbff574591dee05a4270a46d98d70433c272870f08a7"
+   "sha256": "a3ae3d6d7e938e36cd15639224926bf86762c0f436c35667909f895cbe77382c"
   },
   "oracle": {
    "paths": [],
@@ -66,13 +67,16 @@
   "differences": {
    "sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
   },
-  "digest": "d525651acf23166e48293261d01b8eb387ca6559492e04c7e0805013f8ee25cd"
+  "digest": "ed66ea2ddf5f8b82e531a6ffd41ab411e654100ff5eea6b807a739a31f84f6c3"
  },
  "proof": {
-  "at": "2026-10-05T06:06:26Z",
+  "at": "2026-10-05T10:29:51Z",
   "verdict": "proven",
   "runs": 3,
   "fault_runs": 0,
+  "entry_runs": [
+   "handleLink"
+  ],
   "environments": null,
   "outputs": {
    "long-500": {
@@ -92,8 +96,8 @@
   "sysout_compared": null,
   "attributes_compared": null,
   "java_failed": false,
-  "harness_commit": "d03da8b743917a29a13e48709fb0c7f6ad778528+uncommitted",
-  "inputs_digest": "d525651acf23166e48293261d01b8eb387ca6559492e04c7e0805013f8ee25cd"
+  "harness_commit": "78c73e6832cb8b86cd405c73457c07d62d3b266f+uncommitted",
+  "inputs_digest": "ed66ea2ddf5f8b82e531a6ffd41ab411e654100ff5eea6b807a739a31f84f6c3"
  },
  "coverage": {
   "paragraphs": {
@@ -108,39 +112,28 @@
   "handler_labels": null,
   "source": "tests/cics_crucible/coverage.json#programs/ca-link-lengths/CASUB",
   "ledger_sha256": "a3b81568fd3aedc05cfee557db1aab44f4d208ff96121066eb687e23de803063",
-  "inputs_digest": "d525651acf23166e48293261d01b8eb387ca6559492e04c7e0805013f8ee25cd"
+  "inputs_digest": "ed66ea2ddf5f8b82e531a6ffd41ab411e654100ff5eea6b807a739a31f84f6c3"
  },
  "reach": {
   "entry_points": [
+   "handleLink",
    "runTask"
   ],
   "unproven": [
    {
     "class": "CasubService",
-    "method": "executeCasub",
-    "line": 44,
-    "kind": "ported_unproven"
-   },
-   {
-    "class": "CasubService",
-    "method": "handleLink",
-    "line": 88,
-    "kind": "ported_unproven"
-   },
-   {
-    "class": "CasubService",
     "method": "writeqTsCatraceL22",
-    "line": 148,
+    "line": 131,
     "kind": "left_as_generated"
    }
   ],
   "counts": {
    "stub": 0,
    "left_as_generated": 1,
-   "ported_unproven": 2
+   "ported_unproven": 0
   },
   "generated_compared": true,
-  "port_sha256": "587be135f62352cd2f95e4a240763f70984957cb8232bb3235125c58670c68d5"
+  "port_sha256": "d1ac8625d79c7e43be8acb944fe78ae180ccbc2a8b7975179056f1c96dddf330"
  },
  "mutation": {
   "commit": "be2561306",
@@ -183,7 +176,7 @@
  "differences": [],
  "oracle": {
   "kind": "crucible-expected-logs",
-  "source": "cics-crucible v0.2.0: each scenario's hand-written expected event log, derived from IBM's documentation (its SPEC.md); the java-ported side is compared with it exactly",
+  "source": "cics-crucible v0.2.0: each scenario's hand-written expected event log, derived from IBM's documentation (its SPEC.md); the java-ported side (runTask) and the java-facade side (the deployed entry points, #4343) are compared with it exactly",
   "compiler": null,
   "image": null,
   "models": [],
@@ -199,11 +192,11 @@
   "porting_rules_sha256": null,
   "proposed_at": "2026-09-29T21:46:59+00:00",
   "generator_version": null,
-  "edited_after": null,
+  "edited_after": "the deployed entry points (facades) were brought to the generator's by tests/tools/port_surface.py (#4343; see history 'resurfaced'); runTask and the logic it runs are the model's answer",
   "provenance_file": {
    "path": "tests/cics_crucible/ports/ca-link-lengths/CASUB/provenance.json",
    "format": "cics-crucible-port/1",
-   "sha256": "a44b3fc7bea51fe1505cd562adce0bf110e07ae049c8c5325662efd94c199f41"
+   "sha256": "b6c03b63eac6c7c0edecad6241e9560ac50851c0fbcbe00b21b6e8a21799952c"
   },
   "crucible_ref_proven": "v0.2.0 (94f2afcb)"
  },

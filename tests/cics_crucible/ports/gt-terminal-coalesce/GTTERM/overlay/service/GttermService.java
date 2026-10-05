@@ -36,16 +36,13 @@ public class GttermService {
     private static final String GT12 = "GT12";
     private static final String REQID = "GTREQ001";
 
-    /** GTTERM is a CICS-only program. It has no batch entry and no COMMAREA, and its logic is in runTask. */
-    public void executeGtterm(/* Parameters mapped from Controller */) {
-        log.info("Executing modernized business logic for GTTERM");
-        // GTTERM has no batch PROCEDURE entry. Its PROCEDURE DIVISION runs only as CICS transaction GT11,
-        // which is ported in runTask(CicsTask). There is nothing to run here.
-    }
-
-    /** A CICS transaction entered the program. GT11 is ported in runTask(CicsTask). */
+    /** A CICS transaction entered the program (#4343): one task of it in the region (CicsTask.region()),
+     *  ENTER pressed, started from a cleared screen, run through runTask. */
     public void handleTransaction(String transid) {
-        log.info("Gtterm: handleTransaction {}", transid);
+        log.info("Gtterm: handleTransaction");
+        CicsTask.Region region = CicsTask.region();
+        CicsTask task = region.transaction(transid, null);
+        region.run(task, "GTTERM", this::runTask);
     }
 
     /** One task of GTTERM (#3754). */

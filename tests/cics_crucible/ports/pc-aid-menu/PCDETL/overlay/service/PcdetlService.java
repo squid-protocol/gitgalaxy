@@ -46,35 +46,23 @@ public class PcdetlService {
     private static final int DTRANO_LEN = 4;
     private static final int DMSGO_LEN = 40;
 
-    /**
-     * PCDETL has no batch entry. It is a CICS program only: entry transaction PC12, and the XCTL target of PCMENU.
-     * Its whole PROCEDURE DIVISION is ported into {@link #runTask(CicsTask)}.
-     */
-    public void executePcdetl(/* Parameters mapped from Controller */) {
-        log.info("Executing modernized business logic for PCDETL");
-        log.info("PCDETL is a CICS program (transaction PC12); its logic runs through runTask(CicsTask)");
-    }
-
-    /**
-     * A CICS transaction entered the program. This runs one task of PCDETL on the given COMMAREA
-     * (null means a first entry, EIBCALEN = 0). The program ends with RETURN TRANSID('PC11') and NO COMMAREA,
-     * so the next task receives no COMMAREA and this method returns null.
-     */
+    /** A CICS transaction entered the program (#4343): one task of it in the region (CicsTask.region()),
+     *  ENTER pressed -- `request` its COMMAREA, null when started from a cleared screen -- run through runTask. Returns the COMMAREA its RETURN passes on (null: none). */
     public PcdetlWsCa handleTransaction(String transid, PcdetlWsCa request) {
         log.info("Pcdetl: handleTransaction");
-        CicsTask task = new CicsTask(transid, "ENTER", request, Map.of()).withProgram("PCDETL");
-        runTask(task);
-        // RETURN TRANSID('PC11') passes no COMMAREA (src/PCDETL.cbl:35)
-        return null;
+        CicsTask.Region region = CicsTask.region();
+        CicsTask task = region.transaction(transid, request);
+        region.run(task, "PCDETL", this::runTask);
+        return task.returned(PcdetlWsCa.class);
     }
 
-    /**
-     * Another program LINKed / XCTLed to this one. PCDETL only reads its COMMAREA
-     * (MOVE DFHCOMMAREA TO WS-CA, src/PCDETL.cbl:27) and never writes DFHCOMMAREA back.
-     * The caller's COMMAREA is therefore returned unchanged.
-     */
+    /** Another program LINKed / XCTLed to this one (#4343): the program at that level in the region
+     *  (CicsTask.region()), run through runTask on `request`, passed by reference -- what it changes, the caller sees. */
     public PcdetlWsCa handleLink(PcdetlWsCa request) {
         log.info("Pcdetl: handleLink");
+        CicsTask.Region region = CicsTask.region();
+        CicsTask task = region.linked("PCDETL", request);
+        region.run(task, "PCDETL", this::runTask);
         return request;
     }
 

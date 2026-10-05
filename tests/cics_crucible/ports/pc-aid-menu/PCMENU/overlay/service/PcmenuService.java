@@ -91,27 +91,14 @@ public class PcmenuService {
         }
     }
 
-    public void executePcmenu(/* Parameters mapped from Controller */) {
-        log.info("Executing modernized business logic for PCMENU");
-        // PCMENU is a pseudo-conversational CICS program (transaction PC11): it has no batch step.
-        // Its whole PROCEDURE DIVISION is ported into runTask(CicsTask), one task per call (#3754).
-        log.info("PCMENU runs online only: drive it through runTask(CicsTask)");
-    }
-
-    /** A CICS transaction entered the program: runs one task with ENTER on the given COMMAREA and
-     *  returns the COMMAREA the task passed on RETURN TRANSID (the request itself when it passed none). */
+    /** A CICS transaction entered the program (#4343): one task of it in the region (CicsTask.region()),
+     *  ENTER pressed -- `request` its COMMAREA, null when started from a cleared screen -- run through runTask. Returns the COMMAREA its RETURN passes on (null: none). */
     public PcmenuWsCa handleTransaction(String transid, PcmenuWsCa request) {
         log.info("Pcmenu: handleTransaction");
-        CicsTask task = new CicsTask(transid, "ENTER", request, Map.of()).withProgram("PCMENU");
-        runTask(task);
-        List<Map<String, Object>> events = task.events();
-        for (int i = events.size() - 1; i >= 0; i--) {
-            Map<String, Object> e = events.get(i);
-            if ("RETURN".equals(e.get("event")) && e.get("commarea") instanceof PcmenuWsCa ca) {
-                return ca;
-            }
-        }
-        return request;
+        CicsTask.Region region = CicsTask.region();
+        CicsTask task = region.transaction(transid, request);
+        region.run(task, "PCMENU", this::runTask);
+        return task.returned(PcmenuWsCa.class);
     }
 
     /** One pseudo-conversational task of this program (#3754). */
@@ -265,14 +252,6 @@ public class PcmenuService {
             screen.setMsg(fit(screen.getMsg(), 40));
         }
         return screen;
-    }
-
-    /** RECEIVE MAP(PCMN) MAPSET(PCSET2) INTO(PCMNI) at src/PCMENU.cbl:40 (#3619).
-     *  `aid` is the key the user pressed (EIBAID): ENTER, PF1-PF24, CLEAR, PA1-PA3.
-     *  The conversation's decisions are made in runTask; this view-model hook returns the screen as sent.
-     *  BMS screen fields field testing: open (3 public / 0 private estates). */
-    public ScreenModel submitPcmn(PcmnScreen input, String aid) {
-        return renderPcmn(input);
     }
 
     /** MN-VISITS from a COMMAREA DTO: PIC 9(4) unsigned keeps 4 digits and no sign. */

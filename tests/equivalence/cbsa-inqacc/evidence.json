@@ -7,7 +7,7 @@
   "paths": [
    "tests/equivalence/cbsa-inqacc/port/service/InqaccService.java"
   ],
-  "sha256": "d0193820a4f3a00ed6b11754ecbe18f092baccd2588a964d352ef8cca2d7a94a",
+  "sha256": "83d336899208b7dde1e4468dc752aca7c725a87c8f95a7e0b4d69f057fd7e2a9",
   "entry_points": [
    "runTask"
   ]
@@ -18,7 +18,7 @@
     "tests/equivalence/cbsa-inqacc/port/**"
    ],
    "files": 1,
-   "sha256": "d0193820a4f3a00ed6b11754ecbe18f092baccd2588a964d352ef8cca2d7a94a"
+   "sha256": "83d336899208b7dde1e4468dc752aca7c725a87c8f95a7e0b4d69f057fd7e2a9"
   },
   "case": {
    "paths": [
@@ -42,7 +42,7 @@
     "tests/tools/java_target_matrix.py"
    ],
    "files": 11,
-   "sha256": "609073a350a3120d63bf3cb3e7f6a1050a9fc8a91964ac548b2826356f319cbc"
+   "sha256": "1764f900744b3e9c121722acf2c84aee1ef8dded04fa68f429e0abc39f031fd9"
   },
   "oracle": {
    "paths": [
@@ -62,7 +62,7 @@
     "gitgalaxy/tools/cobol_to_java/**"
    ],
    "files": 60,
-   "sha256": "4bce659e864447a8a4bd52045c7ee9117b016f7bef661231777be32946c64e41"
+   "sha256": "674777fda7f1a297b554ec1935d0b26aa8d37f65f65e150a94fab7dd570a0866"
   },
   "corpus": {
    "name": "cics-banking-sample-application-cbsa",
@@ -72,10 +72,10 @@
   "differences": {
    "sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
   },
-  "digest": "5a30bbbf7f5d70a075af415fd66e9b987bdeb26aff83581b2716faa0c1083e40"
+  "digest": "5ef98b121b4d088320da25eb4fdddbd3db61a7b05c70ceec95d65113c0255833"
  },
  "proof": {
-  "at": "2026-10-05T05:07:58Z",
+  "at": "2026-10-05T06:05:04Z",
   "verdict": "proven",
   "runs": 14,
   "fault_runs": 0,
@@ -142,8 +142,8 @@
   "sysout_compared": null,
   "attributes_compared": null,
   "java_failed": false,
-  "harness_commit": "7d9f9ad4029581c5bb198f11be6a6308cd80a591+uncommitted",
-  "inputs_digest": "5a30bbbf7f5d70a075af415fd66e9b987bdeb26aff83581b2716faa0c1083e40"
+  "harness_commit": "d03da8b743917a29a13e48709fb0c7f6ad778528+uncommitted",
+  "inputs_digest": "5ef98b121b4d088320da25eb4fdddbd3db61a7b05c70ceec95d65113c0255833"
  },
  "coverage": {
   "paragraphs": {
@@ -233,7 +233,7 @@
    "total": 1
   },
   "source": "the proof's own traced COBOL runs (cobol_coverage.py)",
-  "inputs_digest": "5a30bbbf7f5d70a075af415fd66e9b987bdeb26aff83581b2716faa0c1083e40"
+  "inputs_digest": "5ef98b121b4d088320da25eb4fdddbd3db61a7b05c70ceec95d65113c0255833"
  },
  "reach": {
   "entry_points": [
@@ -242,108 +242,66 @@
   "unproven": [
    {
     "class": "InqaccService",
-    "method": "executeInqacc",
-    "line": 111,
-    "kind": "stub"
-   },
-   {
-    "class": "InqaccService",
     "method": "handleLink",
-    "line": 159,
-    "kind": "stub"
+    "line": 155,
+    "kind": "left_as_generated"
    },
    {
     "class": "InqaccService",
     "method": "onAbendL210",
-    "line": 289,
+    "line": 288,
     "kind": "stub"
    },
    {
     "class": "InqaccService",
-    "method": "dispatchWsAbendPgmL321",
-    "line": 519,
-    "kind": "left_as_generated"
-   },
-   {
-    "class": "InqaccService",
-    "method": "dispatchWsAbendPgmL401",
-    "line": 530,
-    "kind": "left_as_generated"
-   },
-   {
-    "class": "InqaccService",
-    "method": "dispatchWsAbendPgmL516",
-    "line": 541,
-    "kind": "left_as_generated"
-   },
-   {
-    "class": "InqaccService",
-    "method": "dispatchWsAbendPgmL738",
-    "line": 552,
-    "kind": "left_as_generated"
-   },
-   {
-    "class": "InqaccService",
-    "method": "dispatchWsAbendPgmL810",
-    "line": 563,
-    "kind": "left_as_generated"
-   },
-   {
-    "class": "InqaccService",
-    "method": "dispatchWsAbendPgmL924",
-    "line": 574,
-    "kind": "left_as_generated"
-   },
-   {
-    "class": "InqaccService",
     "method": "rollbackL682",
-    "line": 587,
+    "line": 580,
     "kind": "left_as_generated"
    },
    {
     "class": "InqaccService",
     "method": "abendHracL335",
-    "line": 596,
+    "line": 589,
     "kind": "left_as_generated"
    },
    {
     "class": "InqaccService",
     "method": "abendHracL415",
-    "line": 605,
+    "line": 598,
     "kind": "left_as_generated"
    },
    {
     "class": "InqaccService",
     "method": "abendHracL524",
-    "line": 614,
+    "line": 607,
     "kind": "left_as_generated"
    },
    {
     "class": "InqaccService",
     "method": "abendHrolL748",
-    "line": 623,
+    "line": 616,
     "kind": "left_as_generated"
    },
    {
     "class": "InqaccService",
     "method": "abendMyabendcodeL814",
-    "line": 632,
+    "line": 625,
     "kind": "left_as_generated"
    },
    {
     "class": "InqaccService",
     "method": "abendHncsL932",
-    "line": 641,
+    "line": 634,
     "kind": "left_as_generated"
    }
   ],
   "counts": {
-   "stub": 3,
-   "left_as_generated": 13,
+   "stub": 1,
+   "left_as_generated": 8,
    "ported_unproven": 0
   },
   "generated_compared": true,
-  "port_sha256": "d0193820a4f3a00ed6b11754ecbe18f092baccd2588a964d352ef8cca2d7a94a"
+  "port_sha256": "83d336899208b7dde1e4468dc752aca7c725a87c8f95a7e0b4d69f057fd7e2a9"
  },
  "mutation": null,
  "differences": [],

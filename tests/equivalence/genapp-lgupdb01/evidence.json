@@ -7,7 +7,7 @@
   "paths": [
    "tests/equivalence/genapp-lgupdb01/port/service/Lgupdb01Service.java"
   ],
-  "sha256": "6f94ee8e33c0d57d4fc01098a5ff5ef0395a8a301064559a5b31cb924e46ef91",
+  "sha256": "c3630947411885221e3099fe1e0de07547da8f2e8a34802513f108fce25de6bc",
   "entry_points": [
    "runTask"
   ]
@@ -18,7 +18,7 @@
     "tests/equivalence/genapp-lgupdb01/port/**"
    ],
    "files": 1,
-   "sha256": "6f94ee8e33c0d57d4fc01098a5ff5ef0395a8a301064559a5b31cb924e46ef91"
+   "sha256": "c3630947411885221e3099fe1e0de07547da8f2e8a34802513f108fce25de6bc"
   },
   "case": {
    "paths": [
@@ -42,7 +42,7 @@
     "tests/tools/java_target_matrix.py"
    ],
    "files": 11,
-   "sha256": "609073a350a3120d63bf3cb3e7f6a1050a9fc8a91964ac548b2826356f319cbc"
+   "sha256": "1764f900744b3e9c121722acf2c84aee1ef8dded04fa68f429e0abc39f031fd9"
   },
   "oracle": {
    "paths": [
@@ -62,7 +62,7 @@
     "gitgalaxy/tools/cobol_to_java/**"
    ],
    "files": 60,
-   "sha256": "4bce659e864447a8a4bd52045c7ee9117b016f7bef661231777be32946c64e41"
+   "sha256": "674777fda7f1a297b554ec1935d0b26aa8d37f65f65e150a94fab7dd570a0866"
   },
   "corpus": {
    "name": "cics-genapp",
@@ -72,10 +72,10 @@
   "differences": {
    "sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
   },
-  "digest": "e2f649a244f6834ef0cfb5040dcc46ab6f86f8f3d3cb516ad70baec4222801e5"
+  "digest": "f929b9dd7b28d6a45e732b24c38a60ab4e78d712d85679d2a439b56315a21b90"
  },
  "proof": {
-  "at": "2026-10-05T05:09:54Z",
+  "at": "2026-10-05T06:06:13Z",
   "verdict": "proven",
   "runs": 5,
   "fault_runs": 0,
@@ -106,8 +106,8 @@
   "sysout_compared": null,
   "attributes_compared": null,
   "java_failed": false,
-  "harness_commit": "7d9f9ad4029581c5bb198f11be6a6308cd80a591+uncommitted",
-  "inputs_digest": "e2f649a244f6834ef0cfb5040dcc46ab6f86f8f3d3cb516ad70baec4222801e5"
+  "harness_commit": "d03da8b743917a29a13e48709fb0c7f6ad778528+uncommitted",
+  "inputs_digest": "f929b9dd7b28d6a45e732b24c38a60ab4e78d712d85679d2a439b56315a21b90"
  },
  "coverage": {
   "paragraphs": {
@@ -251,7 +251,7 @@
    "total": 0
   },
   "source": "the proof's own traced COBOL runs (cobol_coverage.py)",
-  "inputs_digest": "e2f649a244f6834ef0cfb5040dcc46ab6f86f8f3d3cb516ad70baec4222801e5"
+  "inputs_digest": "f929b9dd7b28d6a45e732b24c38a60ab4e78d712d85679d2a439b56315a21b90"
  },
  "reach": {
   "entry_points": [
@@ -260,60 +260,48 @@
   "unproven": [
    {
     "class": "Lgupdb01Service",
-    "method": "executeLgupdb01",
-    "line": 77,
-    "kind": "stub"
-   },
-   {
-    "class": "Lgupdb01Service",
     "method": "handleTransaction",
-    "line": 82,
-    "kind": "stub"
+    "line": 78,
+    "kind": "left_as_generated"
    },
    {
     "class": "Lgupdb01Service",
     "method": "handleLink",
     "line": 472,
-    "kind": "stub"
+    "kind": "left_as_generated"
    },
    {
     "class": "Lgupdb01Service",
     "method": "remoteLgupvs01L209",
-    "line": 479,
+    "line": 482,
     "kind": "left_as_generated"
    },
    {
     "class": "Lgupdb01Service",
     "method": "linkLgstsq",
-    "line": 486,
-    "kind": "left_as_generated"
-   },
-   {
-    "class": "Lgupdb01Service",
-    "method": "dispatchLgupvs01L209",
-    "line": 492,
+    "line": 489,
     "kind": "left_as_generated"
    },
    {
     "class": "Lgupdb01Service",
     "method": "rollbackL338",
-    "line": 505,
+    "line": 506,
     "kind": "left_as_generated"
    },
    {
     "class": "Lgupdb01Service",
     "method": "abendLgcaL186",
-    "line": 514,
+    "line": 515,
     "kind": "left_as_generated"
    }
   ],
   "counts": {
-   "stub": 3,
-   "left_as_generated": 5,
+   "stub": 0,
+   "left_as_generated": 6,
    "ported_unproven": 0
   },
   "generated_compared": true,
-  "port_sha256": "6f94ee8e33c0d57d4fc01098a5ff5ef0395a8a301064559a5b31cb924e46ef91"
+  "port_sha256": "c3630947411885221e3099fe1e0de07547da8f2e8a34802513f108fce25de6bc"
  },
  "mutation": null,
  "differences": [],

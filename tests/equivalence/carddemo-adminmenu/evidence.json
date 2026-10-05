@@ -62,7 +62,7 @@
     "gitgalaxy/tools/cobol_to_java/**"
    ],
    "files": 60,
-   "sha256": "0903665aaebe06576a2cc6a2de1bc7c744a8dd8b94a5c1fdd5a53c404d60712b"
+   "sha256": "674777fda7f1a297b554ec1935d0b26aa8d37f65f65e150a94fab7dd570a0866"
   },
   "corpus": {
    "name": "aws-mainframe-modernization-carddemo",
@@ -72,10 +72,10 @@
   "differences": {
    "sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
   },
-  "digest": "b9b882067e1800bcafc7b33b4583d4f55cd1652dc2fb1e26580890ab36e9cc81"
+  "digest": "c1636481d65847df805754b1b0799781e6f2bdd7ddc2bdb8fd973c65c90bdcbf"
  },
  "proof": {
-  "at": "2026-10-04T18:17:55Z",
+  "at": "2026-10-05T05:52:58Z",
   "verdict": "proven",
   "runs": 16,
   "fault_runs": 0,
@@ -150,8 +150,8 @@
   "sysout_compared": null,
   "attributes_compared": null,
   "java_failed": false,
-  "harness_commit": "ec33bb3416e3b415c394086012546e08b6502dc1+uncommitted",
-  "inputs_digest": "b9b882067e1800bcafc7b33b4583d4f55cd1652dc2fb1e26580890ab36e9cc81"
+  "harness_commit": "d03da8b743917a29a13e48709fb0c7f6ad778528+uncommitted",
+  "inputs_digest": "c1636481d65847df805754b1b0799781e6f2bdd7ddc2bdb8fd973c65c90bdcbf"
  },
  "coverage": {
   "paragraphs": {
@@ -205,7 +205,7 @@
    "total": 1
   },
   "source": "the proof's own traced COBOL runs (cobol_coverage.py)",
-  "inputs_digest": "b9b882067e1800bcafc7b33b4583d4f55cd1652dc2fb1e26580890ab36e9cc81"
+  "inputs_digest": "c1636481d65847df805754b1b0799781e6f2bdd7ddc2bdb8fd973c65c90bdcbf"
  },
  "reach": {
   "entry_points": [

@@ -8,15 +8,15 @@ The status above judges the record alone (policy: ported_unproven = block). Whet
 
 | | |
 |---|---|
-| proof | proven at 2026-10-05T18:24:37Z, harness `fa95bb09562affe68502c54e1461cd869e9ecbe9+uncommitted` |
-| inputs digest | `68dae296dba7e7acfd12712979cd3cff879190599ed97c621efb8ce456b2e637` |
+| proof | proven at 2026-10-05T20:29:48Z, harness `48d55c669739c4ee09408123dcb79640f4790a4d` |
+| inputs digest | `adb9141e9175cb86c78758ade80104cab7e3771a0382438af11e4925e3d29197` |
 | port | 1 files `c363094741188522` |
 | case | 2 files `74984f1fdb517f9a` |
 | corpus | cics-genapp @ `f6f3f4b2580d31b7d8dcc31ce3e3676f4cceaaaa` `c5e4d52071fad96b` |
 | differences |  `4f53cda18c2baa0c` |
 | harness | 11 files `cd0c22f11e735f25` |
 | oracle | 16 files `ee924d311b67148f` |
-| generator | 60 files `ccb4fd2cdd5affdf` |
+| generator | 60 files `3b378f8d6fbe884d` |
 | oracle run | gnucobol-models: cobc (GnuCOBOL) 3.1.2.0, image `sha256:3d1d5e13c632` (matches pin: True) |
 | written by | model `claude-sonnet-5-5`, attempt 1 |
 

@@ -63,7 +63,7 @@
     "gitgalaxy/tools/cobol_to_java/**"
    ],
    "files": 60,
-   "sha256": "ccb4fd2cdd5affdf5bf83e5134413c40a7ebbe96ecc44f6506c2ca6f1fe9dfeb"
+   "sha256": "3b378f8d6fbe884d332b76134e2dbcb0e5848d4f95ac01da63a5c8289cd412dd"
   },
   "corpus": {
    "name": "cics-banking-sample-application-cbsa",
@@ -73,10 +73,10 @@
   "differences": {
    "sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
   },
-  "digest": "6bbc59381ba6bc43ba56d05f09266eb08ca25cc0424f958220302a347db78cbe"
+  "digest": "d95e8741102beb159d089b11e513b769102ffddd0fe355693c37c01299d1ad06"
  },
  "proof": {
-  "at": "2026-10-05T18:25:11Z",
+  "at": "2026-10-05T20:30:20Z",
   "verdict": "proven",
   "runs": 14,
   "fault_runs": 0,
@@ -153,8 +153,8 @@
    "failed": [],
    "error": null
   },
-  "harness_commit": "fa95bb09562affe68502c54e1461cd869e9ecbe9+uncommitted",
-  "inputs_digest": "6bbc59381ba6bc43ba56d05f09266eb08ca25cc0424f958220302a347db78cbe"
+  "harness_commit": "48d55c669739c4ee09408123dcb79640f4790a4d+uncommitted",
+  "inputs_digest": "d95e8741102beb159d089b11e513b769102ffddd0fe355693c37c01299d1ad06"
  },
  "coverage": {
   "paragraphs": {
@@ -244,7 +244,7 @@
    "total": 1
   },
   "source": "the proof's own traced COBOL runs (cobol_coverage.py)",
-  "inputs_digest": "6bbc59381ba6bc43ba56d05f09266eb08ca25cc0424f958220302a347db78cbe"
+  "inputs_digest": "d95e8741102beb159d089b11e513b769102ffddd0fe355693c37c01299d1ad06"
  },
  "reach": {
   "entry_points": [

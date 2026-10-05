@@ -63,7 +63,7 @@
     "gitgalaxy/tools/cobol_to_java/**"
    ],
    "files": 60,
-   "sha256": "ccb4fd2cdd5affdf5bf83e5134413c40a7ebbe96ecc44f6506c2ca6f1fe9dfeb"
+   "sha256": "3b378f8d6fbe884d332b76134e2dbcb0e5848d4f95ac01da63a5c8289cd412dd"
   },
   "corpus": {
    "name": "cics-genapp",
@@ -73,10 +73,10 @@
   "differences": {
    "sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
   },
-  "digest": "68dae296dba7e7acfd12712979cd3cff879190599ed97c621efb8ce456b2e637"
+  "digest": "adb9141e9175cb86c78758ade80104cab7e3771a0382438af11e4925e3d29197"
  },
  "proof": {
-  "at": "2026-10-05T18:24:37Z",
+  "at": "2026-10-05T20:29:48Z",
   "verdict": "proven",
   "runs": 5,
   "fault_runs": 0,
@@ -117,8 +117,8 @@
    "failed": [],
    "error": null
   },
-  "harness_commit": "fa95bb09562affe68502c54e1461cd869e9ecbe9+uncommitted",
-  "inputs_digest": "68dae296dba7e7acfd12712979cd3cff879190599ed97c621efb8ce456b2e637"
+  "harness_commit": "48d55c669739c4ee09408123dcb79640f4790a4d",
+  "inputs_digest": "adb9141e9175cb86c78758ade80104cab7e3771a0382438af11e4925e3d29197"
  },
  "coverage": {
   "paragraphs": {
@@ -262,7 +262,7 @@
    "total": 0
   },
   "source": "the proof's own traced COBOL runs (cobol_coverage.py)",
-  "inputs_digest": "68dae296dba7e7acfd12712979cd3cff879190599ed97c621efb8ce456b2e637"
+  "inputs_digest": "adb9141e9175cb86c78758ade80104cab7e3771a0382438af11e4925e3d29197"
  },
  "reach": {
   "entry_points": [

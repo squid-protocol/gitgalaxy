@@ -59,4 +59,6 @@ def test_debugging_lines_are_code_with_debugging_mode():
 def test_a_data_name_in_column_7_is_not_a_debugging_indicator():
     # cobol-check COPYR001.CBL:4 -- code from column 1, so columns 1-6 are no sequence area
     src = "01  A.\n  02  B    PIC S99.\n  02  D    PIC S9999 OCCURS 1 TO 52 TIMES\n      DEPENDING ON B OF A.\n"
-    assert "  02  D    PIC" in _PRISM.split_streams(src, "cobol")["code_stream"]
+    code = _PRISM.split_streams(src, "cobol")["code_stream"]
+    assert "  02  D    PIC" in code
+    assert "DEPENDING ON B OF A" in code  # a word starting in column 7 after a blank sequence area

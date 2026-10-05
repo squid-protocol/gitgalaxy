@@ -1739,10 +1739,15 @@ class Prism:
             formats = line_formats(text)
             plain = "\n".join(ln for ln in text.split("\n") if not (len(ln) >= 7 and ln[6] in "*/"))
             if not _DEBUGGING_MODE.search(plain):
-                # Columns 1-6 must be a sequence area -- blank, or one unbroken field (`064000`): in
-                # `  02  D    PIC S9999` (cobol-check COPYR001) the `D` in column 7 is a data name.
+                # Columns 1-6 must be a sequence area: one unbroken field (`064000D`, the indicator may
+                # touch the code), or blank -- and then column 8 is blank too (`      D    DISPLAY`). In
+                # cobol-check COPYR001, written from column 1, `  02  D    PIC` holds a data name `D`
+                # and `      DEPENDING ON B OF A.` a word that merely starts in column 7.
                 debug_comments = [
-                    f == "fixed" and len(ln) >= 7 and ln[6] in "Dd" and (not ln[:6].strip() or " " not in ln[:6])
+                    f == "fixed"
+                    and len(ln) >= 7
+                    and ln[6] in "Dd"
+                    and (" " not in ln[:6] if ln[:6].strip() else ln[7:8] in ("", " ", "\t"))
                     for ln, f in zip(text.split("\n"), formats)
                 ]
 

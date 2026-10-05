@@ -8282,9 +8282,7 @@
           "line": 86
         }
       ],
-      "transactions": [
-        "CPVD"
-      ],
+      "transactions": [],
       "cics": true,
       "sql": true,
       "verification": {
@@ -59506,7 +59504,6 @@
         }
       ],
       "transactions": [
-        "CC00",
         "CCLI"
       ],
       "cics": true,

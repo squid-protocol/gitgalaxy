@@ -64,12 +64,12 @@
     "transactions": {
       "Gaps": {
         "CICS program no transaction reaches": 15,
-        "transaction to a missing program": 16
+        "transaction to a missing program": 8
       },
-      "Ratio": "84.3%",
-      "Resolved": 166,
+      "Ratio": "86.3%",
+      "Resolved": 145,
       "System Names (Not Gaps)": 15,
-      "Total": 197
+      "Total": 168
     }
   }
 }

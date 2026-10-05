@@ -415,13 +415,12 @@ JCL_INLINE_CSD = """\
 """
 
 
-def test_csd_extract_dump_reads_transaction_and_program_autoinstall():
-    """A CEDA EXTRACT dump yields the TRANSACTION->PROGRAM edge and the PROGRAM
-    record's autoinstall TRANSID pairing, with GROUP/PROFILE attributes."""
+def test_csd_extract_dump_reads_transaction_and_ignores_program_transid():
+    """A CEDA EXTRACT dump yields the TRANSACTION->PROGRAM edge with GROUP/PROFILE
+    attributes; the PROGRAM record's TRANSID is the remote-DPL mirror, not a route (#4503)."""
     txns = _transactions("csd", CSD_EXTRACT)
     assert txns == [
         {"transid": "CAUP", "program": "COACTUPC", "group": "CARDDEMO", "profile": "DFHCICST", "line": 1},
-        {"transid": "CC00", "program": "COSGN00C", "group": "CARDDEMO", "profile": None, "line": 6},
     ]
 
 
@@ -445,7 +444,6 @@ def test_jcl_inline_dfhcsdup_deck_is_read_and_a_commented_define_is_skipped():
     attrs and SET lines do not interfere); a `*`-commented DEFINE draws nothing."""
     txns = _transactions("jcl", JCL_INLINE_CSD)
     assert txns == [
-        {"transid": "CC00", "program": "COSGN00C", "group": "CARDDEMO", "profile": None, "line": 5},
         {"transid": "CCDM", "program": "COADM00C", "group": "CARDDEMO", "profile": None, "line": 7},
     ]
 
@@ -499,9 +497,11 @@ def test_plain_cics_return_without_transid_is_not_a_routing_site():
     browse = [c for c in _calls("cobol", "       EXEC CICS STARTBR FILE('CUST') END-EXEC.") if "TRANSID" in c["verb"]]
     assert browse == []
 
+
 def test_cobol_level_77_is_always_a_root():
     """A level-77 entry is always a root and nothing nests under it except 88s, even after an open 01."""
     from gitgalaxy.core.mainframe_boundary import extract_boundary
+
     src = (
         "       WORKING-STORAGE SECTION.\n"
         "       01  OPEN-GROUP.\n"
@@ -513,7 +513,7 @@ def test_cobol_level_77_is_always_a_root():
     )
     records = extract_boundary("cobol", src)["records"]
     assert len(records) == 5
-    
+
     # 01 OPEN-GROUP
     assert records[0]["level"] == 1
     assert records[0]["parent_ordinal"] is None

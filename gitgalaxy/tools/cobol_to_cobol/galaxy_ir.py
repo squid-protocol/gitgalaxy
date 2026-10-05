@@ -842,6 +842,12 @@ class EngineFile:
     calls: list = field(default_factory=list)  # EngineCall, #3200
     datasets: list = field(default_factory=list)  # EngineDataset, #3201
     data_items: list = field(default_factory=list)  # EngineDataItem, flat source order, #3246
+    # #4330: COPY members that stand at section level, not inside the entry above them: a member whose
+    # own first entry is an 01 / 77 (it opens a record of its own), or a later member of a run that did
+    # not resolve. Moved out of that entry's `copy_members` by GalaxyIR._settle_copy_members, as
+    # (member, ordinal of the entry the COPY follows) -- `_copy_extension` still finds a copied record
+    # continued in the program from there.
+    section_copies: list = field(default_factory=list)
     records: list = field(default_factory=list)  # EngineDataItem tree roots (01/77), #3246
     # #3348: the DB has record_data, so an empty `data_items` means "no items", not "not read".
     records_read: bool = False
@@ -1444,6 +1450,7 @@ class GalaxyIR:
         ch = {"resolved": 0, "total": 0, "system": 0, "gaps": {"missing copybook": 0}}
         for f in cobol:
             members = {m for it in f.data_items for m in (it.copy_members or "").split(",") if m}
+            members |= {m for m, _ in f.section_copies}  # #4330
             sym = {s.file_path.rsplit("#", 1)[-1] for s in f.symbolic_copies}
             for m in sorted(members):
                 if m in stems or m in sym:
@@ -1706,6 +1713,38 @@ class GalaxyIR:
         symbolic maps generated for the BMS mapsets it COPYs (#3490)."""
         return [self.files[p] for p in ef.copy_deps if p in self.files] + ef.symbolic_copies
 
+    def _settle_copy_members(self) -> None:
+        """#4330: the COPY members that belong to the entry they follow.
+
+        The extractor lists every COPY between an entry and the next level number on that entry
+        (`copy_members`); it cannot see the members' own levels. A level-01 (or 77) entry in copied
+        text begins a new record (Enterprise COBOL), so a member whose first data entry is an 01 / 77
+        ends the entry above it -- CICS `01 WS-COMMAREA.` + `COPY CUSTCOMM.` + `COPY CUSTMS.` (a
+        symbolic map) + `COPY DFHAID.`: only CUSTCOMM is WS-COMMAREA's. A member that does not
+        resolve to records is not guessed at: the first one stays with the entry (a gap in its
+        layout, as before), a later one is a section-level copy. Every member after a moved one
+        moves too (it follows the record the moved one opened). Moved members are kept on
+        `EngineFile.section_copies` with the entry they follow, where they still close the record
+        above them (`_expanded_children`) and a copied record continued in the program is still
+        found (`_copy_extension`)."""
+        for ef in self.files.values():
+            if ef.language != "cobol":
+                continue
+            for it in ef.data_items:
+                members = [m for m in (it.copy_members or "").split(",") if m]
+                if not members:
+                    continue
+                keep: list = []
+                for i, member in enumerate(members):
+                    _cb, roots = self._copy_roots(member, ef, ef, 0)
+                    # once one member stands at section level, the ones after it follow it there
+                    if len(keep) == i and ((roots[0].level not in (1, 77)) if roots else i == 0):
+                        keep.append(member)
+                    else:
+                        ef.section_copies.append((member, it.ordinal))
+                if len(keep) != len(members):
+                    it.copy_members = ",".join(keep) or None
+
     def _copy_roots(self, member: str, ef: EngineFile, origin: EngineFile, depth: int) -> tuple:
         """(copybook file, its record roots) for `COPY member`, or (None, [])."""
         cb = self._copybook_file(member, ef, origin) if depth < _COPY_DEPTH else None
@@ -1733,6 +1772,8 @@ class GalaxyIR:
             """Append `owner`'s COPY members; True when one closes `item`. A copied root that is elementary and is
             followed in its copybook by a COPY of its own (IBM DBB EPSMTCOM: `10 PROCESS-INDICATOR` then `COPY
             EPSMTINP.` and `COPY EPSMTOUT.`) has those members after it, as its siblings, resolved from the copybook."""
+            # #4330: section-level members the extractor recorded on `owner` close `item` after the kept ones
+            moved = any(o == owner.ordinal for _, o in owner_ef.section_copies)
             for member in (owner.copy_members or "").split(","):
                 if not member:
                     continue
@@ -1753,7 +1794,7 @@ class GalaxyIR:
                             return True
                 elif roots:
                     return True
-            return False
+            return moved
 
         if not _is_elementary(item) and _copies(item, ef, depth):
             return kids
@@ -1806,8 +1847,10 @@ class GalaxyIR:
         if not roots:
             return []
         by_ordinal = {it.ordinal: it for it in ef.data_items}
+        # #4330: a member that opens its own 01 is a section-level copy now, kept with its entry's ordinal
+        moved = {o for m, o in ef.section_copies if nfc(m) == member}
         for it in ef.data_items:
-            if member not in nfc(it.copy_members or "").split(","):
+            if member not in nfc(it.copy_members or "").split(",") and it.ordinal not in moved:
                 continue
             # The COPY is recorded on the entry just before it. A 66 / 88 there (COUSR02C: `88 USR-MODIFIED-NO`
             # right above `COPY COCOM01Y`) has no PIC but is no group: the record continues after the data item
@@ -6260,7 +6303,9 @@ def load_galaxy_ir(db_path: Path, repo_name: Optional[str] = None) -> GalaxyIR:
     _attach_symbolic_maps(files)
     _name_pli_programs(files)
     _attribute_programs(files)
-    return GalaxyIR(db_path, repo_name, commit_hash, files, source_pages=source_pages)
+    ir = GalaxyIR(db_path, repo_name, commit_hash, files, source_pages=source_pages)
+    ir._settle_copy_members()  # #4330: needs the resolved COPY edges and symbolic maps above
+    return ir
 
 
 def _program_bounds(ef: EngineFile) -> list[int]:

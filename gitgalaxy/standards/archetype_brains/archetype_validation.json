@@ -47,12 +47,33 @@
         "file": "VALIDATED",
         "function": "VALIDATED"
       }
+    },
+    {
+      "agreement": {
+        "composition_file": 0.9739,
+        "composition_repo": null,
+        "file": 0.9872,
+        "function": 0.984
+      },
+      "date": "2026-10-05",
+      "engine_commit": "49cba5db",
+      "state": {
+        "composition_file": "DEGRADED",
+        "composition_repo": "INVALID",
+        "file": "VALIDATED",
+        "function": "VALIDATED"
+      }
     }
   ],
   "levels": {
     "composition_file": {
-      "agreement": 0.9743,
+      "agreement": 0.9739,
       "eroding": {
+        "Interface Declarations Files": {
+          "files": 397,
+          "mostly_to": "Large Core Modules",
+          "retained": 0.9798
+        },
         "Large Core Modules": {
           "files": 304,
           "mostly_to": "Interface Declarations Files",
@@ -70,7 +91,7 @@
         }
       },
       "files_compared": 2725,
-      "fit_shift": -0.1
+      "fit_shift": -0.097
     },
     "composition_repo": {
       "crucible_label": {
@@ -80,7 +101,7 @@
       "inherits": "composition_file"
     },
     "file": {
-      "agreement": 0.9875,
+      "agreement": 0.9872,
       "eroding": {
         "file_cluster_13": {
           "files": 76,
@@ -106,7 +127,7 @@
       "files_compared": 2725
     },
     "function": {
-      "agreement": 0.9839,
+      "agreement": 0.984,
       "eroding": {
         "C Struct Operations": {
           "functions": 82,
@@ -114,7 +135,7 @@
         },
         "I/O & Config Routines": {
           "functions": 7440,
-          "retained": 0.9251
+          "retained": 0.9254
         }
       },
       "functions_compared": 43654
@@ -123,8 +144,8 @@
   "measured": {
     "corpus": "language-crucible@v1.7.0",
     "coverage": 0.9873,
-    "engine_commit": "2d7052cc",
-    "measured_at": "2026-10-04"
+    "engine_commit": "49cba5db",
+    "measured_at": "2026-10-05"
   },
   "retrain_issue": 4111,
   "schema": 1,

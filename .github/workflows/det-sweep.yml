@@ -7,7 +7,7 @@ name: Det Sweep
 #
 # `proof_sweep.py --det-only --skip-db2` translates each equivalence case with the det translator
 # (gitgalaxy/tools/cobol_to_java/det) and proves it with tests/tools/equivalence.py, then checks the verdicts against
-# proof_sweep.KNOWN_UNPROVEN (the cases not proven on purpose): a case that stops proving, or a listed one that now
+# tests/equivalence/det_sweep_baseline.json (the cases not proven yet, each with its issue): a case that stops proving, or a listed one that now
 # proves, fails the run. The Db2 cases are left out (IBM's Db2 container takes minutes to start); the nightly
 # Evidence Refresh and a local `proof_sweep.py` cover them. The model-written ports are re-proven by Evidence Refresh.
 #

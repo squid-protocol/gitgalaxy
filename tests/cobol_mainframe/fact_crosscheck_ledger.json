@@ -7,11 +7,6 @@
    "issue": 4273,
    "summary": "MOVE DFHVALUE(x) TO y: the engine records the operand as written (DFHVALUE), the translator its CVDA number (det/cvda.py). Same move."
   },
-  "engine-copy-continuation-double-count": {
-   "side": "engine",
-   "issue": 4458,
-   "summary": "Entries continuing a COPYed record (COCOM01Y + 05 CDEMO-CT02-INFO) are also laid out under the 01 before the COPY: CSUTLDTC-PARM 158 bytes, not 100."
-  },
   "engine-drops-self-transfer": {
    "side": "definitional",
    "issue": 3362,
@@ -75,14 +70,6 @@
  },
  "disagreements": {
   "aws-mainframe-modernization-carddemo :: edges | app/cbl/CBSTM03A.CBL | translator | 8500-READTRNX-READ -> GO TO 8500-READTRNX-READ": "engine-drops-self-transfer",
-  "aws-mainframe-modernization-carddemo :: offsets | app/cbl/COTRN02C.cbl | engine | CSUTLDTC-PARM (record) +158": "engine-copy-continuation-double-count",
-  "aws-mainframe-modernization-carddemo :: offsets | app/cbl/COTRN02C.cbl | engine | CSUTLDTC-PARM/CDEMO-CT02-NEXT-PAGE-FLG @140+1": "engine-copy-continuation-double-count",
-  "aws-mainframe-modernization-carddemo :: offsets | app/cbl/COTRN02C.cbl | engine | CSUTLDTC-PARM/CDEMO-CT02-PAGE-NUM @132+8": "engine-copy-continuation-double-count",
-  "aws-mainframe-modernization-carddemo :: offsets | app/cbl/COTRN02C.cbl | engine | CSUTLDTC-PARM/CDEMO-CT02-TRN-SEL-FLG @141+1": "engine-copy-continuation-double-count",
-  "aws-mainframe-modernization-carddemo :: offsets | app/cbl/COTRN02C.cbl | engine | CSUTLDTC-PARM/CDEMO-CT02-TRN-SELECTED @142+16": "engine-copy-continuation-double-count",
-  "aws-mainframe-modernization-carddemo :: offsets | app/cbl/COTRN02C.cbl | engine | CSUTLDTC-PARM/CDEMO-CT02-TRNID-FIRST @100+16": "engine-copy-continuation-double-count",
-  "aws-mainframe-modernization-carddemo :: offsets | app/cbl/COTRN02C.cbl | engine | CSUTLDTC-PARM/CDEMO-CT02-TRNID-LAST @116+16": "engine-copy-continuation-double-count",
-  "aws-mainframe-modernization-carddemo :: offsets | app/cbl/COTRN02C.cbl | translator | CSUTLDTC-PARM (record) +100": "engine-copy-continuation-double-count",
   "aws-mainframe-modernization-carddemo :: status | app/app-authorization-ims-db2-mq/cbl/COPAUA0C.cbl | engine | translator refused: CopyNotFound: COPY CMQODV": "translator-refuses-vendor-copybook",
   "aws-mainframe-modernization-carddemo :: status | app/app-authorization-ims-db2-mq/cbl/COPAUS1C.cbl | engine | translator refused: procedure: ExprError: no open EVALUATE": "translator-refuses-grammar",
   "aws-mainframe-modernization-carddemo :: status | app/app-authorization-ims-db2-mq/cbl/DBUNLDGS.CBL | engine | translator refused: procedure: ExprError: the PROCEDURE DIVISION does not parse at line 164": "translator-refuses-grammar",

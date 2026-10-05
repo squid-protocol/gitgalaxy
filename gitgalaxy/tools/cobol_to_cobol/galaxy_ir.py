@@ -2584,6 +2584,11 @@ class GalaxyIR:
                 commarea["alternatives"] = [
                     {"record": o[3], "file": o[2], "bytes": o[4]["bytes"], "sources": o[5]} for o in options[1:]
                 ]
+                own = self._dfhcommarea(ef)
+                if own is not None and any(src["verb"] in ("LINK", "XCTL") for src in sources):
+                    # a LINKed / XCTLed-to program only knows its own LINKAGE: its DTO is named after this, whatever
+                    # the caller passes (a RETURN TRANSID hands the next task the caller's own record: that name stays)
+                    commarea["declared_record"] = own.name
             else:
                 own = self._dfhcommarea(ef)
                 area = "the main procedure's parameter area" if ef.language == "pli" else "DFHCOMMAREA"

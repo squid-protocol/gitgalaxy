@@ -21,10 +21,12 @@ The declaration is a JSON (or YAML, with PyYAML) file::
 `libraries` maps a library-name (as `COPY ... IN` writes it) to the scan-relative directories
 that hold its members (a PDS is flat: a member is a file directly in one of them, any
 extension). `syslib` lists search orders; a program takes the FIRST entry whose `programs`
-glob (fnmatch, `*` crosses `/`) matches its scan-relative path. A program no entry matches, a
-library-name the declaration does not know, and an unqualified member found in none of the
-program's libraries all fall back to the default resolver -- the declaration only ever adds
-what it says.
+glob (fnmatch, `*` crosses `/`) matches its scan-relative path. A program no entry matches and
+a library-name the declaration does not know fall back to the default resolver. A program WITH
+a declared search order is held to it (#4420): a member found in none of its libraries -- or not
+in the library `IN` names -- gets no edge, as the compiler would not find it either (nothing
+falls back to a program source of the same name), and is reported as a gap
+(`copy_member_gaps`).
 """
 
 from __future__ import annotations

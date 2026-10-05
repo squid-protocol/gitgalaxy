@@ -671,6 +671,9 @@ class RecordKeeper:
         _ensure_columns(cursor, "repo_data", ["repo_composition_archetype TEXT", "repo_composition_z REAL"])
         # #2992: same heal for a pre-#2992 repo_data.
         _ensure_columns(cursor, "repo_data", ["network_edges_unrecorded INTEGER"])
+        # #4421: the --copy-libraries reports (collisions #4265, gaps #4420) as JSON lists, NULL when no
+        # libraries were declared; a --db-only scan and GalaxyIR read them from here, not the run summary.
+        _ensure_columns(cursor, "repo_data", ["copy_member_collisions TEXT", "copy_member_gaps TEXT"])
 
         cursor.execute("""
             CREATE TABLE IF NOT EXISTS folder_data (
@@ -3880,6 +3883,14 @@ class RecordKeeper:
         """,  # noqa: S608 -- SHORT_KEY_MAP/SIGNAL_SCHEMA are internal constants, values go through repo_placeholders/`?`
             repo_row_data,
         )
+        # #4421: the COPY-library reports. Present in the summary only when --copy-libraries declared
+        # libraries (an empty list is a real answer then); absent -> NULL, never a fake "no collisions".
+        for key in ("copy_member_collisions", "copy_member_gaps"):
+            if isinstance(summary.get(key), list):
+                cursor.execute(
+                    f"UPDATE repo_data SET {key} = ? WHERE repo_name = ? AND commit_hash = ?",  # noqa: S608 -- key is one of two literals
+                    (json.dumps(summary[key], sort_keys=True), repo_name, commit_hash),
+                )
         # #3313 step 4: repo-level wrapper-aware totals, summed from this snapshot's
         # file_data rows so the two can never disagree.
         cursor.execute(

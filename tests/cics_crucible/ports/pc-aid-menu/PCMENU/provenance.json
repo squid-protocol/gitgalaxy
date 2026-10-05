@@ -101,6 +101,16 @@
     "executePcmenu",
     "submitPcmn"
    ]
+  },
+  {
+   "at": "2026-10-05T11:22:20+00:00",
+   "event": "resurfaced",
+   "by": "tests/tools/port_surface.py",
+   "generator_commit": "d69a63419",
+   "generated_from": "service/PcmenuService.java",
+   "replaced": [
+    "handleTransaction"
+   ]
   }
  ],
  "edited_after": "the deployed entry points (facades) were brought to the generator's by tests/tools/port_surface.py (#4343; see history 'resurfaced'); runTask and the logic it runs are the model's answer"

@@ -47,8 +47,13 @@ public class PcdetlService {
     private static final int DMSGO_LEN = 40;
 
     /** A CICS transaction entered the program (#4343): one task of it in the region (CicsTask.region()),
-     *  ENTER pressed -- `request` its COMMAREA, null when started from a cleared screen -- run through runTask. Returns the COMMAREA its RETURN passes on (null: none). */
-    public PcdetlWsCa handleTransaction(String transid, PcdetlWsCa request) {
+     *  ENTER pressed -- `request` its COMMAREA, null when started from a cleared screen -- run through runTask. Returns the COMMAREA its RETURN passes on (null: none).
+     *  The COMMAREA crosses programs (#4427): COBOL passes bytes, and each program reads them through its
+     *  own record, so a port may pass either record -- the facade carries it as Object where a flow
+     *  presents another class, and runTask reads it (task.commarea(..)). The flows:
+     *  in: RETURN TRANSID(PC12) COMMAREA(WS-CA) at src/PCMENU.cbl:56 -> src/PCDETL.cbl (PcmenuWsCa besides PcdetlWsCa).
+     */
+    public PcdetlWsCa handleTransaction(String transid, Object request) {
         log.info("Pcdetl: handleTransaction");
         CicsTask.Region region = CicsTask.region();
         CicsTask task = region.transaction(transid, request);

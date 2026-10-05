@@ -44,18 +44,13 @@ public class GtstartService {
     /** The transaction GTSTART starts (START TRANSID('GT02'), CSD: GT02 -> GTWORK). */
     private static final String GT02 = "GT02";
 
-    /**
-     * GTSTART is a CICS program (transaction GT01) with no COMMAREA and no batch step: its whole
-     * PROCEDURE DIVISION is ported into {@link #runTask(CicsTask)}, which needs the task's terminal input.
-     */
-    public void executeGtstart(/* Parameters mapped from Controller */) {
-        log.info("Executing modernized business logic for GTSTART");
-        log.info("GTSTART is a CICS transaction (GT01): it runs one task at a time through runTask(CicsTask)");
-    }
-
-    /** A CICS transaction entered the program. TODO: [AI AGENT] implement from the program's business rules. */
+    /** A CICS transaction entered the program (#4343): one task of it in the region (CicsTask.region()),
+     *  ENTER pressed, started from a cleared screen, run through runTask. */
     public void handleTransaction(String transid) {
         log.info("Gtstart: handleTransaction");
+        CicsTask.Region region = CicsTask.region();
+        CicsTask task = region.transaction(transid, null);
+        region.run(task, "GTSTART", this::runTask);
     }
 
     /** One pseudo-conversational task of this program (#3754): the PROCEDURE DIVISION of GTSTART. */

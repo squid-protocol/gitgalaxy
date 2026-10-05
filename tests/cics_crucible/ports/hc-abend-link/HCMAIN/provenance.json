@@ -104,6 +104,24 @@
     "sub-resp": "1/1",
     "sub-unhandled": "1/1"
    }
+  },
+  {
+   "at": "2026-10-05T10:13:31+00:00",
+   "event": "resurfaced",
+   "by": "tests/tools/port_surface.py",
+   "generator_commit": "1aff9778c",
+   "generated_from": "service/HcmainService.java",
+   "replaced": [
+    "handleTransaction"
+   ],
+   "removed": [
+    "executeHcmain"
+   ],
+   "helpers_removed": [
+    "bridgeHcsub",
+    "seed"
+   ]
   }
- ]
+ ],
+ "edited_after": "the deployed entry points (facades) were brought to the generator's by tests/tools/port_surface.py (#4343; see history 'resurfaced'); runTask and the logic it runs are the model's answer"
 }

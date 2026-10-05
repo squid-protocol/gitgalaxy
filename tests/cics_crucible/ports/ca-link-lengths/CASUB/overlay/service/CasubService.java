@@ -37,18 +37,6 @@ public class CasubService {
 
     private final TempStorage tempStorage;
 
-    /**
-     * Entry from the controller: it passes no COMMAREA, so this is CASUB's EIBCALEN = 0 path
-     * (SUB-MAIN lines 21-25): the 'NO COMMAREA' trace item is written to CATRACE and the program returns.
-     */
-    public void executeCasub(/* Parameters mapped from Controller */) {
-        log.info("Executing modernized business logic for CASUB");
-        // SUB-MAIN, IF EIBCALEN = 0 (line 21)
-        //   EXEC CICS WRITEQ TS QUEUE('CATRACE') FROM(WS-MSG) LENGTH(11) (line 22)
-        writeqTsCatraceL22(pad(WS_MSG, WS_MSG_LENGTH));
-        //   EXEC CICS RETURN (line 25)
-    }
-
     /** This program's run at a LINK / XCTL level (#4004): task.level(), task.eibcalen(). */
     public void runTask(CicsTask task) {
         log.info("Casub: runTask");
@@ -83,18 +71,13 @@ public class CasubService {
         task.returnTransid(null, null);
     }
 
-    /** Another program LINKed / XCTLed to this one: the same PROCEDURE DIVISION on the caller's COMMAREA,
-     *  EIBCALEN being the whole record (500) when one is passed, 0 when none is. */
+    /** Another program LINKed / XCTLed to this one (#4343): the program at that level in the region
+     *  (CicsTask.region()), run through runTask on `request`, passed by reference -- what it changes, the caller sees. */
     public CasubDfhcommarea handleLink(CasubDfhcommarea request) {
         log.info("Casub: handleLink");
-        // SUB-MAIN, IF EIBCALEN = 0 (line 21)
-        if (request == null) {
-            // WRITEQ TS QUEUE('CATRACE') FROM(WS-MSG) LENGTH(11) (line 22), then RETURN (line 25)
-            writeqTsCatraceL22(pad(WS_MSG, WS_MSG_LENGTH));
-            return null;
-        }
-        // Lines 27-35, then RETURN (line 36)
-        subMainBody(request, LENGTH_OF_DFHCOMMAREA);
+        CicsTask.Region region = CicsTask.region();
+        CicsTask task = region.linked("CASUB", request);
+        region.run(task, "CASUB", this::runTask);
         return request;
     }
 

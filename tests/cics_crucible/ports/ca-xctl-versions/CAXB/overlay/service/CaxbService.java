@@ -46,21 +46,14 @@ public class CaxbService {
     /** WS-REPORT PIC X(80). */
     private static final int REPORT_LENGTH = 80;
 
-    /**
-     * CAXB is a CICS program (transaction CA03); it has no batch step. The business logic lives in
-     * runTask(CicsTask); this entry only records that it was called.
-     */
-    public void executeCaxb(/* Parameters mapped from Controller */) {
-        log.info("Executing modernized business logic for CAXB");
-        log.info("CAXB is a pseudo-conversational CICS program (transaction CA03); run it through runTask(CicsTask)");
-    }
-
-    /** A CICS transaction entered the program: one task on `request` (its whole record), ENTER pressed. */
+    /** A CICS transaction entered the program (#4343): one task of it in the region (CicsTask.region()),
+     *  ENTER pressed -- `request` its COMMAREA, null when started from a cleared screen -- run through runTask. Returns the COMMAREA its RETURN passes on (null: none). */
     public CaxbDfhcommarea handleTransaction(String transid, CaxbDfhcommarea request) {
         log.info("Caxb: handleTransaction");
-        CicsTask task = new CicsTask(transid, "ENTER", request, null, Map.of()).withProgram("CAXB");
-        runTask(task);
-        return returnedCommarea(task, request);
+        CicsTask.Region region = CicsTask.region();
+        CicsTask task = region.transaction(transid, request);
+        region.run(task, "CAXB", this::runTask);
+        return task.returned(CaxbDfhcommarea.class);
     }
 
     /** One pseudo-conversational task of this program (#3754): MAIN-PARA of src/CAXB.cbl. */
@@ -144,12 +137,14 @@ public class CaxbService {
         task.returnTransid("CA03", ws, V2_LENGTH);
     }
 
-    /** Another program LINKed / XCTLed to this one: one task on `request` (its whole record). */
+    /** Another program LINKed / XCTLed to this one (#4343): the program at that level in the region
+     *  (CicsTask.region()), run through runTask on `request`, passed by reference -- what it changes, the caller sees. */
     public CaxbDfhcommarea handleLink(CaxbDfhcommarea request) {
         log.info("Caxb: handleLink");
-        CicsTask task = new CicsTask("CA03", "ENTER", request, null, Map.of()).withProgram("CAXB");
-        runTask(task);
-        return returnedCommarea(task, request);
+        CicsTask.Region region = CicsTask.region();
+        CicsTask task = region.linked("CAXB", request);
+        region.run(task, "CAXB", this::runTask);
+        return request;
     }
 
     // ------------------------------------------------------------------ helpers
@@ -250,16 +245,4 @@ public class CaxbService {
         return sb.toString();
     }
 
-    /** The COMMAREA of the task's RETURN, if it returned one. */
-    private static CaxbDfhcommarea returnedCommarea(CicsTask task, CaxbDfhcommarea fallback) {
-        List<Map<String, Object>> events = task.events();
-        for (int i = events.size() - 1; i >= 0; i--) {
-            Map<String, Object> e = events.get(i);
-            if ("RETURN".equals(e.get("event"))) {
-                Object ca = e.get("commarea");
-                return ca instanceof CaxbDfhcommarea c ? c : fallback;
-            }
-        }
-        return fallback;
-    }
 }

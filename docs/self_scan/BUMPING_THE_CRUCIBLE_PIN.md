@@ -101,7 +101,11 @@ those are the *why*.
    instead of reading `LANGUAGE_CRUCIBLE_REF`.
 8. **Push, then watch CI actually pass** before merging —
    `crucible-audit` (both modes), `tri-comparison-audit`,
-   `tree-sitter-accuracy-audit`, `flag-golden-master-changes`. A local
+   `tree-sitter-accuracy-audit`, `flag-golden-master-changes`, and
+   `crucible-path-independence` (#4248: scans the new corpus from a neutral parent
+   and from `tmp/docs/vendor/src/`, fails naming the leaves if they differ; run it
+   by hand with `python tests/tools/crucible_path_check.py` since it only
+   triggers on engine changes). A local
    `--ci` run is a fast pre-check but isn't a substitute: a differently-named
    local checkout makes the `corpus_path` field look like it drifted even
    when nothing about the corpus changed.

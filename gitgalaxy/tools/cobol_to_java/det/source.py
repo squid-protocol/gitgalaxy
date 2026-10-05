@@ -39,27 +39,50 @@ class CopyNotFound(Exception):
     pass
 
 
-class CopyDisagrees(CopyNotFound):
-    """#4467: the translator's resolution of a COPY is not the engine's (the program is refused by name)."""
+class CopyUnresolved(CopyNotFound):
+    """#4468: a COPY the engine did not resolve to one file (a gap, a collision, several files), or that the translator
+    never expanded where the engine resolved it: the program is refused by name, never built on a guessed member."""
 
 
 @dataclass(frozen=True)
 class EngineCopies:
-    """#4467: the engine's resolution of a program's own COPY statements (the scan's copy_deps: GalaxyIR, or the port
-    ticket the generator wrote from it). The translator's first-hit directory search is independent of the engine's
-    resolver (copy libraries, SYSLIB order, COPY ... IN, collisions and gaps: #4265, #4420); until the translator
-    takes the engine's resolution (#4461), a program where the two differ is refused rather than built on a member
-    the engine did not choose (#4459 a COPY not expanded, #4460 a program spliced in, #4461 the wrong library).
+    """#4468 (ownership per #4273, docs/language_status/fact_ownership.md): the engine's resolution of every COPY the
+    program reaches -- the program's own and its copybooks' -- which the translator takes instead of searching
+    directories. The engine resolves the way the compiler does (copy libraries, SYSLIB order, COPY ... IN: #4265,
+    #4420); the translator's first-hit search took the wrong library's member (#4461) and spliced a program source in
+    for a member no library holds (#4460).
 
-    `root`: the estate the engine scanned (its paths are relative to it). `resolved`: member -> the files the
-    engine resolved for the program's COPY of it. `gaps` / `collisions`: the members the engine reports no declared
-    library holds, or several do (#4421; only when the scan declared copy libraries)."""
+    `root`: the estate the engine scanned (its paths are relative to it). `edges`: importer (repo-relative, every
+    estate file the program's COPYs reach) -> member -> ((file, the COPY forms' library-names: "" an unqualified COPY;
+    empty: not recorded), ...). `gaps` / `collisions`: (importer, member) the engine reports no declared library
+    holds, or several do (#4421; only when the scan declared copy libraries)."""
 
     program: Path
     root: Path
-    resolved: dict[str, tuple[Path, ...]]
-    gaps: frozenset[str] = frozenset()
-    collisions: frozenset[str] = frozenset()
+    edges: dict[str, dict[str, tuple[tuple[Path, frozenset[str]], ...]]]
+    gaps: frozenset[tuple[str, str]] = frozenset()
+    collisions: frozenset[tuple[str, str]] = frozenset()
+
+    @classmethod
+    def of(cls, program: Path, root: Path, deps: dict[str, dict[str, list[str]] | list[str]],
+           gaps=(), collisions=()) -> EngineCopies:  # fmt: skip
+        """From importer -> its resolved COPY files (repo-relative; a list, or file -> library-names). A symbolic
+        map generated from BMS (`map.bms#MAPSET`) is not an estate file: the translator generates its own."""
+        edges: dict[str, dict[str, list[tuple[Path, frozenset[str]]]]] = {}
+        for imp, files in deps.items():
+            mine = edges.setdefault(imp, {})
+            for f in files:
+                if not re.search(r"\.bms#[^/]*$", f, re.I):
+                    libs = files.get(f) if isinstance(files, dict) else None
+                    mine.setdefault(Path(f).stem.upper(), []).append((root / f, frozenset(libs or ())))
+        return cls(program, root, {i: {m: tuple(v) for m, v in e.items()} for i, e in edges.items()},
+                   frozenset((i, m.upper()) for i, m in gaps), frozenset((i, m.upper()) for i, m in collisions))  # fmt: skip
+
+    @property
+    def resolved(self) -> dict[str, tuple[Path, ...]]:
+        """member -> the files the engine resolved for the program's own COPY of it."""
+        own = self.edges.get(self.rel(self.program), {})
+        return {m: tuple(f for f, _ in hits) for m, hits in own.items()}
 
     def rel(self, p: Path) -> str:
         try:
@@ -67,30 +90,40 @@ class EngineCopies:
         except ValueError:
             return str(p)
 
-    def check(self, name: str, member: Path, where: str) -> None:
-        """One COPY of the program's own: the member the translator found against the engine's."""
-        in_estate = self.rel(member) != str(member)  # (else a system or generated member: the engine has none)
-        if name in self.collisions:
-            raise CopyDisagrees(f"{where}: COPY {name}: the engine records a collision (several libraries hold it)")
-        if name in self.gaps and in_estate:  # (a gap the translator fills from its system members: SQLCA, DFHAID)
-            raise CopyDisagrees(f"{where}: COPY {name}: the engine records a gap (no declared library holds it), "
-                                f"translator resolved {self.rel(member)}")  # fmt: skip
-        engine = self.resolved.get(name, ())
-        if not engine:
-            if in_estate:
-                raise CopyDisagrees(f"{where}: COPY {name}: translator resolved {self.rel(member)}, "
-                                    "engine resolved nothing")  # fmt: skip
+    def in_estate(self, p: Path) -> bool:
+        return self.rel(p) != str(p)
+
+    def member(self, importer: str, name: str, library: str | None, where: str) -> Path | None:
+        """The file the engine resolved `COPY name [IN library]` in `importer` to. None: the engine resolved nothing
+        for it -- a system or generated member outside the estate (DFHAID, SQLCA, a BMS symbolic map), which the
+        caller then finds itself; an estate file it would find instead is refused (`unresolved`)."""
+        imp = self.rel(Path(importer))
+        if (imp, name) in self.collisions:
+            raise CopyUnresolved(f"{where}: COPY {name}: the engine records a collision (several libraries hold it)")
+        hits = self.edges.get(imp, {}).get(name, ())
+        if len(hits) > 1:  # #4265: `COPY X` and `COPY X IN LIB` in one file reach two files; the COPY's own form picks
+            hits = tuple(h for h in hits if (library or "") in h[1]) or hits
+        if len(hits) > 1:
+            raise CopyUnresolved(f"{where}: COPY {name}: the engine resolved several files: "
+                                 f"{', '.join(sorted(self.rel(f) for f, _ in hits))}")  # fmt: skip
+        return hits[0][0] if hits else None
+
+    def unresolved(self, importer: str, name: str, found: Path, where: str) -> None:
+        """A member the engine resolved nothing for, found by the translator's own search: refused when it is an
+        estate file (#4460: a program source spliced in; a gap no declared library fills)."""
+        if not self.in_estate(found):
             return
-        if member.resolve() not in {e.resolve() for e in engine}:
-            raise CopyDisagrees(f"{where}: COPY {name}: translator resolved {self.rel(member)}, engine resolved "
-                                f"{', '.join(sorted(self.rel(e) for e in engine))}")  # fmt: skip
+        why = ("records a gap (no declared library holds it)" if (self.rel(Path(importer)), name) in self.gaps
+               else "resolved nothing")  # fmt: skip
+        raise CopyUnresolved(f"{where}: COPY {name}: the engine {why}; the estate holds {self.rel(found)}")
 
     def check_all_expanded(self, expanded: set[str]) -> None:
         """Every member the engine resolved for the program was expanded by the translator (#4459)."""
-        for name in sorted(set(self.resolved) - expanded):
-            raise CopyDisagrees(f"{self.program}: COPY {name}: engine resolved "
-                                f"{', '.join(sorted(self.rel(e) for e in self.resolved[name]))}, "
-                                "translator expanded no COPY of it")  # fmt: skip
+        resolved = self.resolved
+        for name in sorted(set(resolved) - expanded):
+            raise CopyUnresolved(f"{self.program}: COPY {name}: engine resolved "
+                                 f"{', '.join(sorted(self.rel(e) for e in resolved[name]))}, "
+                                 "translator expanded no COPY of it")  # fmt: skip
 
 
 def _raw_lines(path: Path) -> list[str]:
@@ -147,20 +180,72 @@ def _open_literal(text: str) -> bool:
     return quote is not None
 
 
-_COPY = re.compile(r"^\s*COPY\s+(['\"]?)([A-Z0-9#@$-]+)\1(?:\s+(?:OF|IN)\s+[A-Z0-9-]+)?\s*(.*)$", re.I)
+# #4459: a COPY anywhere on its line (`01 WS-HEAD.  COPY RPTHDR.`), never inside a literal; its member may be on the
+# next line (`COPY` / `UPDCTL.`, joined by `expand`)
+_COPY = re.compile(r"(?<![A-Z0-9#@$-])COPY\s+(['\"]?)([A-Z0-9#@$-]+)\1(?:\s+(?:OF|IN)\s+([A-Z0-9-]+))?", re.I)
+_COPY_ALONE = re.compile(r"(?<![A-Z0-9#@$-])COPY\s*$", re.I)
+_PROGRAM_MARK = re.compile(r"^\s*(?:IDENTIFICATION|ID)\s+DIVISION\b|^\s*PROGRAM-ID\b", re.I)
+
+
+def _copy_match(text: str):
+    """The COPY statement in `text` (not inside a literal), or None."""
+    for m in _COPY.finditer(text):
+        if not _open_literal(text[: m.start()]):
+            return m
+    return None
+
+
+def copy_names(lines: list[Line]) -> set[str]:
+    """The members the COPY statements of `lines` name (each form `expand` reads: after other text, several to a
+    line, the member on the next line)."""
+    names: set[str] = set()
+    for i, ln in enumerate(lines):
+        text = ln.text
+        if _COPY_ALONE.search(text) and not _open_literal(text) and i + 1 < len(lines):
+            text = text.rstrip() + " " + lines[i + 1].text.lstrip()
+        for m in _COPY.finditer(text):
+            if not _open_literal(text[: m.start()]):
+                names.add(m.group(2).upper())
+    return names
+
+
+def _statement_end(stmt: str, start: int) -> int:
+    """Index just past the period that ends the COPY statement beginning at `start` (-1: not ended yet); a period
+    inside ==pseudo-text== or a literal does not end it."""
+    quote, pseudo, k = None, False, start
+    while k < len(stmt):
+        ch = stmt[k]
+        if pseudo:
+            if stmt.startswith("==", k):
+                pseudo, k = False, k + 1
+        elif quote:
+            quote = None if ch == quote else quote
+        elif stmt.startswith("==", k):
+            pseudo, k = True, k + 1
+        elif ch in "'\"":
+            quote = ch
+        elif ch == "." and (k + 1 == len(stmt) or stmt[k + 1].isspace()):
+            return k + 1
+        k += 1
+    return -1
 
 
 def expand(lines: list[Line], dirs: list[Path], depth: int = 0, chain: frozenset = frozenset(),
            engine: EngineCopies | None = None, expanded_names: set[str] | None = None) -> list[Line]:  # fmt: skip
     """COPY statements replaced by their members' lines (recursively); REPLACING ==a== BY ==b== and word-for-word
-    `a BY b` applied. A member found nowhere raises CopyNotFound. `engine` (#4467): each COPY in the engine's program
-    is checked against the engine's resolution (CopyDisagrees); `expanded_names` collects the members it expanded."""
+    `a BY b` applied. A member found nowhere raises CopyNotFound. `engine` (#4468): each COPY in an estate file takes
+    the member the engine resolved (CopyUnresolved where it resolved none or several); without it, and for a member
+    outside the estate, the first of `dirs` holding it. `expanded_names` collects the program's own members."""
     out: list[Line] = []
     own = str(engine.program) if engine is not None else None
     i = 0
     while i < len(lines):
         ln = lines[i]
-        m = _COPY.match(ln.text)
+        if _COPY_ALONE.search(ln.text) and not _open_literal(ln.text) and i + 1 < len(lines):
+            # #4459: the member name on the next line
+            ln = Line(ln.text.rstrip() + " " + lines[i + 1].text.lstrip(), ln.file, ln.line)
+            lines = [*lines[:i], ln, *lines[i + 2 :]]
+        m = _copy_match(ln.text)
         if not m and re.match(r"\s*EXEC\s+SQL\b", ln.text, re.I):
             # EXEC SQL INCLUDE member END-EXEC is a COPY of the member (Db2's precompiler includes it the same way)
             j, block = i, ln.text
@@ -171,42 +256,57 @@ def expand(lines: list[Line], dirs: list[Path], depth: int = 0, chain: frozenset
             if inc:
                 lines = [*lines[:i], Line(f"COPY {inc.group(1)}.", ln.file, ln.line), *lines[j + 1 :]]
                 ln = lines[i]
-                m = _COPY.match(ln.text)
+                m = _copy_match(ln.text)
         if not m:
             out.append(ln)
             i += 1
             continue
         stmt, j = ln.text, i
-        while not re.search(r"\.\s*$", re.sub(r"==.*?==|'[^']*'", "", stmt)) and j + 1 < len(lines):
+        end = _statement_end(stmt, m.start())
+        while end < 0 and j + 1 < len(lines):
             j += 1
             stmt += " " + lines[j].text
+            end = _statement_end(stmt, m.start())
+        tail = stmt[end:] if end > 0 else ""
+        stmt = stmt[m.start() : end] if end > 0 else stmt[m.start() :]
         name = m.group(2).upper()
         # never a file being expanded already (the including program or copybook itself)
         # a copybook's extensions in every directory before a program's: CBSA keeps a program INQCUST.cbl next to
         # its sources and the copybook INQCUST.cpy elsewhere; never a file being expanded already
-        member = next((d / f"{nm}{ext}" for exts in (COPYBOOK_EXTS, PROGRAM_EXTS) for d in dirs
-                       for nm in dict.fromkeys((name, name.lower())) for ext in exts
-                       if (d / f"{nm}{ext}").is_file() and (d / f"{nm}{ext}").resolve() not in chain), None)  # fmt: skip
+        where = f"{ln.file}:{ln.line}"
+        member = engine.member(ln.file, name, m.group(3) and m.group(3).upper(), where) if engine is not None else None
+        if member is not None and member.resolve() in chain:
+            raise CopyNotFound(f"{where}: COPY {name} resolves to {member}, which is being expanded already")
         if member is None:
-            raise CopyNotFound(f"{ln.file}:{ln.line}: COPY {name} found in none of {[str(d) for d in dirs]}")
+            member = next((d / f"{nm}{ext}" for exts in (COPYBOOK_EXTS, PROGRAM_EXTS) for d in dirs
+                           for nm in dict.fromkeys((name, name.lower())) for ext in exts
+                           if (d / f"{nm}{ext}").is_file() and (d / f"{nm}{ext}").resolve() not in chain), None)  # fmt: skip
+            if member is None:
+                raise CopyNotFound(f"{where}: COPY {name} found in none of {[str(d) for d in dirs]}")
+            if engine is not None and engine.in_estate(Path(ln.file)):
+                engine.unresolved(ln.file, name, member, where)
         if depth > 8:
-            raise CopyNotFound(f"{ln.file}:{ln.line}: COPY {name} nests deeper than 8")
-        if engine is not None and ln.file == own:
-            engine.check(name, member, f"{ln.file}:{ln.line}")
-            if expanded_names is not None:
-                expanded_names.add(name)
+            raise CopyNotFound(f"{where}: COPY {name} nests deeper than 8")
+        if engine is not None and ln.file == own and expanded_names is not None:
+            expanded_names.add(name)
         body = logical_lines(_raw_lines(member), str(member))
+        if any(_PROGRAM_MARK.match(b.text) for b in body):
+            # #4460: a program, not a copybook: splicing it in would give the includer another program's records
+            raise CopyNotFound(f"{where}: COPY {name} resolves to {member}, which is a program (IDENTIFICATION "
+                               "DIVISION / PROGRAM-ID), not a copybook")  # fmt: skip
         pairs = _replacing(stmt)
         if pairs:
             for b in body:
                 for old, new in pairs:
                     b.text = _replace(b.text, old, new)
-        expanded = expand(body, dirs, depth + 1, chain | {member.resolve()})
+        expanded = expand(body, dirs, depth + 1, chain | {member.resolve()}, engine)
         # the text before COPY on its line (rare: `01 X. COPY Y.`) and what follows the COPY's period stay
         head = ln.text[: m.start()]
         if head.strip():
             out.append(Line(head, ln.file, ln.line))
         out += expanded
+        if tail.strip():  # what follows the COPY's period (`COPY A. COPY B.`) is read on
+            lines = [*lines[: j + 1], Line(tail.lstrip(), ln.file, lines[j].line), *lines[j + 1 :]]
         i = j + 1
     return out
 
@@ -229,10 +329,11 @@ def _replace(text: str, old: str, new: str) -> str:
 
 
 def program_lines(program: Path, dirs: list[Path], engine: EngineCopies | None = None) -> list[Line]:
-    """The whole program, expanded. `engine` (#4467): refused (CopyDisagrees) where a COPY of the program's own
-    resolves otherwise than the engine resolved it, or a member the engine resolved is never expanded."""
-    if engine is not None:
-        engine = EngineCopies(program, engine.root, engine.resolved, engine.gaps, engine.collisions)
+    """The whole program, expanded. `engine` (#4468): every COPY in an estate file takes the member the engine
+    resolved; refused (CopyUnresolved) where the engine resolved none or several, or a member it resolved for the
+    program is never expanded (#4459)."""
+    if engine is not None and engine.program != program:
+        engine = EngineCopies(program, engine.root, engine.edges, engine.gaps, engine.collisions)
     names: set[str] = set()
     out = expand(logical_lines(_raw_lines(program), str(program)), [program.parent, *dirs],
                  chain=frozenset({program.resolve()}), engine=engine, expanded_names=names)  # fmt: skip
@@ -242,9 +343,10 @@ def program_lines(program: Path, dirs: list[Path], engine: EngineCopies | None =
 
 
 def engine_copies_from_ticket(project: Path, program: Path) -> EngineCopies | None:
-    """#4467: the engine's resolution of `program`'s COPYs from the port ticket the generator wrote for it
-    (ai_agent_jobs/*_port_ticket.json: source.program.file and the copybooks the scan resolved, repo-relative). None
-    where no ticket names the program (nothing to compare against)."""
+    """#4468: the engine's resolution of `program`'s COPYs from the port ticket the generator wrote for it
+    (ai_agent_jobs/*_port_ticket.json, repo-relative): the skeleton's `copy_edges` (every estate file the program's
+    COPYs reach, with library-names) and its gaps and collisions; a ticket without them (written before #4468): the
+    program's own copybooks. None where no ticket names the program (the translator then searches `dirs`)."""
     jobs = project / "ai_agent_jobs"
     if not jobs.is_dir():
         return None
@@ -253,19 +355,20 @@ def engine_copies_from_ticket(project: Path, program: Path) -> EngineCopies | No
 
     for t in sorted(jobs.glob("*_port_ticket.json")):
         try:
-            src = json.loads(t.read_text(encoding="utf-8")).get("source") or {}
+            doc = json.loads(t.read_text(encoding="utf-8"))
         except (OSError, ValueError):
             continue
+        src = doc.get("source") or {}
         rel = (src.get("program") or {}).get("file")
         if not rel or not target.endswith("/" + rel.replace("\\", "/")):
             continue
         root = Path(target[: -len(rel) - 1])
-        resolved: dict[str, list[Path]] = {}
-        for c in src.get("copybooks") or []:
-            f = c.get("file") or ""
-            if f and "#" not in f:
-                resolved.setdefault(Path(f).stem.upper(), []).append(root / f)
-        return EngineCopies(program, root, {k: tuple(v) for k, v in resolved.items()})
+        facts = (doc.get("facts") or {}).get("program") or {}
+        edges = facts.get("copy_edges")
+        if edges is None:
+            edges = {rel: [c.get("file") or "" for c in src.get("copybooks") or [] if c.get("file")]}
+        return EngineCopies.of(program, root, edges, [tuple(g) for g in facts.get("copy_gaps") or []],
+                               [tuple(c) for c in facts.get("copy_collisions") or []])  # fmt: skip
     return None
 
 
@@ -345,17 +448,10 @@ def bms_copybooks(bms_files: list[Path], out: Path) -> list[str]:
 
 
 def engine_copies_from_ir(ir, rel: str, root: Path) -> EngineCopies | None:
-    """#4467: the engine's resolution of the program at `rel` (repo-relative) from GalaxyIR: its copy_deps, and the
-    collisions and gaps the scan reported for it (#4421: only when it declared copy libraries). None: no such file."""
-    ef = ir.files.get(rel)
-    if ef is None:
+    """#4468: the engine's resolution of every COPY the program at `rel` (repo-relative) reaches, from GalaxyIR
+    (GalaxyIR.copy_resolution). None: no such file."""
+    if ir.files.get(rel) is None:
         return None
-    resolved: dict[str, list[Path]] = {}
-    for dep in ef.copy_deps:
-        if "#" not in dep:
-            resolved.setdefault(Path(dep).stem.upper(), []).append(root / dep)
-    mine = [r for r in (ir.copy_member_collisions or []) if r.get("importer") == rel]
-    gaps = [r for r in (ir.copy_member_gaps or []) if r.get("importer") == rel]
-    return EngineCopies(root / rel, root, {k: tuple(v) for k, v in resolved.items()},
-                        frozenset(str(r["member"]).upper() for r in gaps),
-                        frozenset(str(r["member"]).upper() for r in mine))  # fmt: skip
+    res = ir.copy_resolution(rel)
+    return EngineCopies.of(root / rel, root, res["edges"], [tuple(g) for g in res["gaps"]],
+                           [tuple(c) for c in res["collisions"]])  # fmt: skip

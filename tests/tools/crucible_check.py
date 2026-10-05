@@ -62,6 +62,8 @@ Exits non-zero if any checked mode fails (or if the corpus isn't found), so it's
 as a CI/pre-PR gate directly.
 """
 
+from __future__ import annotations
+
 import argparse
 import os
 import re

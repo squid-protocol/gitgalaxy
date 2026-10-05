@@ -289,7 +289,9 @@ class ApertureFilter:
         """
         path_obj = Path(file_path)
         normalized_path = path_obj.as_posix()
-        relative_path = str(path_obj.relative_to(self.root)) if path_obj.is_relative_to(self.root) else normalized_path
+        relative_path = (
+            path_obj.relative_to(self.root).as_posix() if path_obj.is_relative_to(self.root) else normalized_path
+        )
         active_intent = has_intent or (normalized_path in self._intent_cache)
 
         result: FilterResult = {

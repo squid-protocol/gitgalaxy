@@ -278,12 +278,13 @@ def record_bytes(rec: Any) -> str:
     return f"{rec.name} (record) +{rec.size * rec.occurs}"
 
 
-def copybook_layouts(path: Path, dirs: list[Path]) -> tuple[Optional[set[str]], Optional[str]]:
+def copybook_layouts(path: Path, dirs: list[Path], engine: Any = None) -> tuple[Optional[set[str]], Optional[str]]:
     """A keyed copybook's layout units, the member parsed on its own inside a synthetic program (wrapped in an
     01 when its first entry is not one, each top-level entry then laid out from its own offset)."""
     _, _, L, S, _ = det()
     try:
-        body = S.expand(S.logical_lines(S._raw_lines(path), str(path)), dirs, chain=frozenset({path.resolve()}))
+        body = S.expand(S.logical_lines(S._raw_lines(path), str(path)), dirs, chain=frozenset({path.resolve()}),
+                        engine=engine)  # fmt: skip
     except S.CopyNotFound as e:
         return None, f"CopyNotFound: {_copy_not_found(e)}"
     first = next((re.match(r"\s*(\d+)\s", ln.text) for ln in body if re.match(r"\s*\d+\s", ln.text)), None)
@@ -309,9 +310,11 @@ def copybook_layouts(path: Path, dirs: list[Path]) -> tuple[Optional[set[str]], 
 # One program
 # ------------------------------------------------------------------------------
 def program_facts(
-    root: Path, prog: Path, dirs: list[Path], key_prog: Optional[dict[str, Any]] = None
+    root: Path, prog: Path, dirs: list[Path], key_prog: Optional[dict[str, Any]] = None, engine: Any = None
 ) -> dict[str, Any]:
-    """{status, error, seconds, facts: {channel: set}, records: [(root Item, file, line)]} for one program."""
+    """{status, error, seconds, facts: {channel: set}, records: [(root Item, file, line)]} for one program.
+    `engine` (det.source.EngineCopies, #4468): the engine's COPY resolution, which the translator takes as it does
+    when it translates (None: its own directory search, as a referee with no scan)."""
     import cobol_answer_key as ak
 
     C, E, L, S, ST = det()
@@ -326,7 +329,7 @@ def program_facts(
         return os.path.relpath(file, root).replace("\\", "/")
 
     try:
-        lines = S.program_lines(prog, dirs)
+        lines = S.program_lines(prog, dirs, engine)
     except S.CopyNotFound as e:
         out.update(status="fail", error=f"CopyNotFound: {_copy_not_found(e)}", failed=["copy", "data", "procedure"])
         out["seconds"] = round(time.monotonic() - t0, 3)
@@ -334,13 +337,12 @@ def program_facts(
 
     # copybooks: the members the program's own text COPYs / INCLUDEs (the translator's own COPY pattern), and
     # the file in the corpus each expanded to (system / BMS-generated members resolve outside it: name only)
-    direct = set()
     own_logical = S.logical_lines(S._raw_lines(prog), progfile)
+    direct = S.copy_names(own_logical)
     for i, ln in enumerate(own_logical):
-        m = S._COPY.match(ln.text)
-        if m:
-            direct.add(m.group(2).upper())
-        elif re.match(r"\s*EXEC\s+SQL\b", ln.text, re.I):
+        if S._copy_match(ln.text):
+            continue
+        if re.match(r"\s*EXEC\s+SQL\b", ln.text, re.I):
             block, j = ln.text, i  # an EXEC SQL INCLUDE block over several lines, joined as det.source.expand does
             while not re.search(r"\bEND-EXEC\b", block, re.I) and j + 1 < len(own_logical):
                 j += 1
@@ -525,11 +527,12 @@ def translator_version() -> str:
 
 
 def translator_doc(root: Path, corpus: str, key: dict[str, Any], cache: Path,
-                   case_dirs: Optional[dict[str, list[Path]]] = None) -> tuple[dict[str, Any], dict[str, Any]]:  # fmt: skip
+                   case_dirs: Optional[dict[str, list[Path]]] = None, ir: Any = None) -> tuple[dict[str, Any], dict[str, Any]]:  # fmt: skip
     """(the referee-facts/1 document over the key's programs and keyed copybooks, the per-program context
     (records) the cross-check's offsets channel needs). `case_dirs`: the copy directories a det-port case
-    names for a program, used instead of the corpus-wide ones."""
-    C, _, _, _, _ = det()
+    names for a program, used instead of the corpus-wide ones. `ir` (GalaxyIR of the scan, #4468): the translator
+    takes each COPY's member from the engine's resolution, as det.program.translate does from the port ticket."""
+    C, _, _, S, _ = det()
     doc = F.new_doc("translator", translator_version(), corpus, CHANNELS)
     ctx: dict[str, Any] = {}
     all_dirs = copy_dirs(root)
@@ -537,13 +540,15 @@ def translator_doc(root: Path, corpus: str, key: dict[str, Any], cache: Path,
     for rel in sorted(key.get("programs", {})):
         prog = root / rel
         dirs = [root / d for d in (case_dirs or {}).get(rel, [])] or nearest_first(prog, all_dirs)
-        r = program_facts(root, prog, [*dirs, *extra], key["programs"][rel])
+        engine = S.engine_copies_from_ir(ir, rel, root) if ir is not None else None
+        r = program_facts(root, prog, [*dirs, *extra], key["programs"][rel], engine)
         doc["files"][rel] = {"status": r["status"], "seconds": r["seconds"], "error": r["error"],
                              "failed": r["failed"], "facts": {ch: sorted(v) for ch, v in r["facts"].items()}}  # fmt: skip
         ctx[rel] = r
     for rel in sorted(key.get("copybook_layouts", {})):
         path = root / rel
-        units, err = copybook_layouts(path, [*nearest_first(path, all_dirs), *extra])
+        engine = S.engine_copies_from_ir(ir, rel, root) if ir is not None else None
+        units, err = copybook_layouts(path, [*nearest_first(path, all_dirs), *extra], engine)
         doc["files"][rel] = {"status": "fail" if units is None else "ok", "seconds": None, "error": err,
                              "facts": {"layouts": sorted(units or [])}}  # fmt: skip
     return doc, ctx

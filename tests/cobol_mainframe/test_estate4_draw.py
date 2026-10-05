@@ -50,7 +50,7 @@ def test_target_round_arithmetic():
     r = e4.round_for_time(e4.TARGET_TIME)
     assert e4.round_time(r) >= e4.TARGET_TIME
     assert e4.round_time(r - 1) < e4.TARGET_TIME
-    assert e4.round_time(1) == dt.datetime.fromtimestamp(e4.DRAND_GENESIS, tz=dt.UTC)
+    assert e4.round_time(1) == dt.datetime.fromtimestamp(e4.DRAND_GENESIS, tz=dt.timezone.utc)
     assert r == 6531446
 
 

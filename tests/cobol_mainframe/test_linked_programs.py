@@ -1,6 +1,8 @@
 """#4188: a port proven with the programs its task LINKs to runs them as Java -- the port's own service, a committed
 model port, or (tested end to end by the harness) a deterministic translation -- and names each one's origin."""
 
+from __future__ import annotations
+
 import json
 import sys
 from pathlib import Path

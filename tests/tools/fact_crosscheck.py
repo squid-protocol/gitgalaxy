@@ -343,6 +343,14 @@ def _crucible_db(crucible: Path) -> Path:
     return EC.scan(crucible, scan_dir)
 
 
+def _ir(db: Path) -> Any:
+    """GalaxyIR of a scan: the translator side takes the engine's COPY resolution from it (#4468: the engine owns
+    COPY resolution, fact_ownership.md), as the det translator does when it translates."""
+    from gitgalaxy.tools.cobol_to_cobol.galaxy_ir import load_galaxy_ir
+
+    return load_galaxy_ir(db)
+
+
 def run_all(crucible: Optional[Path], cache: Path, only: Optional[list[str]] = None, log=print) -> dict[str, Any]:
     TA.det()  # the translator extra must be installed: fail here, never skip
     cases = case_programs()
@@ -361,7 +369,7 @@ def run_all(crucible: Optional[Path], cache: Path, only: Optional[list[str]] = N
         akey = augmented_key(key, extra)
         db = MC.scan(c)
         t_scan = time.monotonic() - t0
-        tr, ctx = TA.translator_doc(root, c["name"], akey, cache, cases.get(c["name"]))
+        tr, ctx = TA.translator_doc(root, c["name"], akey, cache, cases.get(c["name"]), _ir(db))
         eng = engine_side(db, c["name"], akey, ctx)
         kdoc = key_side(key)
         res = compare(c["name"], eng, tr, kdoc, set(key.get("programs", {})) | set(key.get("copybook_layouts", {})))
@@ -387,7 +395,7 @@ def run_all(crucible: Optional[Path], cache: Path, only: Optional[list[str]] = N
         db = _crucible_db(crucible)
         t_scan = time.monotonic() - t0
         root = crucible / "estate"
-        tr, ctx = TA.translator_doc(root, CRUCIBLE, key, cache)
+        tr, ctx = TA.translator_doc(root, CRUCIBLE, key, cache, ir=_ir(db))
         eng = engine_side(db, CRUCIBLE, key, ctx)
         kdoc = key_side(key, members)
         res = compare(CRUCIBLE, eng, tr, kdoc, set(key["programs"]))

@@ -18,23 +18,6 @@
     "user-signs-on",
     "wrong-password"
    ]
-  },
-  "cbsa-inqacc": {
-   "issue": "#4465",
-   "why": "the LINK target ABNDPROC (a det port) has a stub handleLink that throws UnsupportedOperationException instead of running its level",
-   "scenarios": [
-    "null-statement-date"
-   ]
-  },
-  "genapp-lgupdb01": {
-   "issue": "#4465",
-   "why": "the LINK target LGUPVS01 (a det port) has a stub handleLink that throws UnsupportedOperationException instead of running its level",
-   "scenarios": [
-    "stale-lastchanged",
-    "update-endowment",
-    "update-house",
-    "update-motor"
-   ]
   }
  }
 }

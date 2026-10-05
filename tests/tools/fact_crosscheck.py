@@ -130,8 +130,24 @@ def engine_extras(ir: Any, ef: Any, records: list[tuple[Any, str, int]]) -> dict
     for f in [ef, *closure]:
         for it in f.data_items:
             by_loc.setdefault((f.file_path, it.line, it.level), (f, it))
+    # #4472: a section-level COPY ... REPLACING lays out the REPLACED records (ef.records, entries in
+    # ef.copied_items), not the copybook's own: key each replaced root by the copybook root it came from.
+    replaced_at: dict[tuple[str, int, int], list[Any]] = {}
+    for st in sorted(ef.copy_statements, key=lambda c: c.line):
+        cb, roots = ir._copy_roots(st.member, ef, ef, 0, st.library)
+        roots = roots or (cb.template_records if cb is not None else [])
+        copied = {id(it) for it in ef.copied_items}
+        replaced = [r for r in ef.records if r.line == st.line and id(r) in copied]
+        if cb is None or len(replaced) != len(roots):
+            continue
+        for src, new in zip(roots, replaced):  # one COPY per statement: the record's name picks among them
+            replaced_at.setdefault((cb.file_path, src.line, src.level), []).append(new)
     for rec, file, line in records:
         hit = by_loc.get((file, line, rec.level))
+        cands = replaced_at.get((file, line, rec.level))
+        if cands:
+            new = next((r for r in cands if (r.name or "").upper() == rec.name.upper()), None)
+            hit = (ef, new) if new is not None else hit
         if hit is None:
             out["offsets"].add(f"{rec.name} (record) not read")
             continue
@@ -456,7 +472,8 @@ def gate_failures(new: list[str], problems: list[str], gone: list[str]) -> list[
                    "`assign` the disagreement a cause (side + issue).")  # fmt: skip
     if gone:
         out.append(f"{len(gone)} ledgered disagreement(s) no longer reproduce (listed as GONE). Run "
-                   "`python tests/tools/fact_crosscheck.py update` to lower the ledger, and commit it in this PR.")  # fmt: skip
+                   "`python tests/tools/fact_crosscheck.py update` (no --corpus: it drops them from every corpus) to lower "
+                   "the ledger, and commit it in this PR.")  # fmt: skip
     if problems:
         out.append(f"{len(problems)} ledger problem(s) (listed as LEDGER).")
     return out
@@ -606,7 +623,9 @@ def main(argv: Optional[list[str]] = None) -> int:
     if args.cmd == "update":
         full = load_ledger(args.ledger)
         ids = {d["id"] for d in result["disagreements"]}
-        kept = {k: v for k, v in full["disagreements"].items() if not args.corpus or not k.startswith(keep)}
+        # a full run judges every corpus it ran (so stale entries drop); `--corpus` only those named
+        ran = tuple(f"{c} :: " for c in result["corpora"])
+        kept = {k: v for k, v in full["disagreements"].items() if not k.startswith(ran)}
         kept.update({i: full["disagreements"].get(i) for i in ids})
         full["disagreements"] = kept
         used = set(kept.values())

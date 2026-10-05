@@ -220,3 +220,65 @@ def test_translator_adapter_on_a_toy_program(tmp_path: Path) -> None:
     assert "L7 WS-B COMP" in f["usage"] and "L6 WS-A = AB" in f["value"]
     # the translator's storage: POINTER is 8 bytes (GnuCOBOL x86-64), so WS-REC is 4 + 2 + 8
     assert {"WS-REC (record) +14", "WS-REC/WS-A @0+4", "WS-REC/WS-B @4+2", "WS-T/T-TWO @3+2"} <= f["offsets"]
+
+
+def _run_stub(monkeypatch, corpora: list[str], now: list[str]) -> None:
+    monkeypatch.setattr(
+        X, "run_all",
+        lambda *a, **k: {"corpora": {c: {} for c in corpora}, "disagreements": [{"id": i} for i in now], "seconds": {}},
+    )  # fmt: skip
+
+
+def test_update_drops_stale_entries_from_every_corpus_without_corpus(monkeypatch, tmp_path: Path) -> None:
+    """#4472: a plain `update` is a full run, so a fix lowers the ledger without `--corpus`."""
+    ledger = tmp_path / "ledger.json"
+    keep, gone_a, gone_b = (
+        "a :: units | A.cbl | engine | P1",
+        "a :: units | A.cbl | engine | P9",
+        "b :: units | B.cbl | engine | Q9",
+    )
+    X.save_ledger(_ledger({keep: "c", gone_a: "c", gone_b: "c"}), ledger)
+    _run_stub(monkeypatch, ["a", "b"], [keep])
+    assert X.main(["update", "--no-crucible", "--ledger", str(ledger)]) == 0
+    assert list(X.load_ledger(ledger)["disagreements"]) == [keep]
+
+
+def test_update_with_corpus_judges_only_the_named_corpus(monkeypatch, tmp_path: Path) -> None:
+    ledger = tmp_path / "ledger.json"
+    gone_a, other_b = "a :: units | A.cbl | engine | P9", "b :: units | B.cbl | engine | Q9"
+    X.save_ledger(_ledger({gone_a: "c", other_b: "c"}), ledger)
+    _run_stub(monkeypatch, ["a"], [])
+    assert X.main(["update", "--no-crucible", "--corpus", "a", "--ledger", str(ledger)]) == 0
+    assert list(X.load_ledger(ledger)["disagreements"]) == [other_b]
+
+
+def test_engine_offsets_for_a_copy_replacing_read_the_replaced_record() -> None:
+    """#4472: the program's record is the REPLACED one (ef.records / copied_items), found from the copybook
+    record the translator laid out, picked by name when one member is COPYed under several REPLACINGs."""
+    from types import SimpleNamespace as NS
+
+    def item(name: str, line: int) -> NS:
+        return NS(name=name, line=line, level=1)
+
+    cb_root = item("TPL-REC", 3)
+    cb = NS(file_path="cb.cpy", data_items=[cb_root], records=[cb_root], template_records=[], copy_deps=[])
+    new_a, new_b = item("A-REC", 10), item("B-REC", 20)
+    ef = NS(
+        file_path="p.cbl", data_items=[], copy_deps=[], data_moves=[], records=[new_a, new_b],
+        copied_items=[new_a, new_b],
+        copy_statements=[NS(member="CB", line=10, library=None), NS(member="CB", line=20, library=None)],
+    )  # fmt: skip
+
+    class IR:
+        _copy_files = staticmethod(lambda f: [cb] if f is ef else [])
+        _copy_roots = staticmethod(lambda *a: (cb, [cb_root]))
+        _copy_extension = staticmethod(lambda *a: None)
+
+        @staticmethod
+        def record_layout(owner, it, ext):
+            assert owner is ef
+            return {"fields": [], "bytes": 5 if it is new_a else 7}
+
+    recs = [(NS(name="B-REC", level=1), "cb.cpy", 3), (NS(name="A-REC", level=1), "cb.cpy", 3)]
+    out = X.engine_extras(IR, ef, recs)["offsets"]
+    assert out == {"A-REC (record) +5", "B-REC (record) +7"}

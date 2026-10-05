@@ -44,7 +44,7 @@ Each check is pass / fail (found, an attribute differs) / missing / phantom (rec
 in the key, or a fact the key says must NOT be recorded) / unscored (the key states it, the DB
 has no column for it). A horror passes when every check tagged with it passes.
 
-Not a CI gate yet (#4317 phase 5). A failing check is a finding against the engine OR the key:
+A CI gate since #4317 phase 5: tests/tools/estate_crucible_gate.py ratchets this score against tests/estate_crucible/baseline.json. A failing check is a finding against the engine OR the key:
 the key comes from a generator that can share the engine's blind spots, so read both.
 """
 

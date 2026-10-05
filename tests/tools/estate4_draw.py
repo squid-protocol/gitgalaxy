@@ -337,7 +337,7 @@ def compute_hard(paths: list[str], programs: int) -> int:
     pli = any(p.endswith((".pli", ".pl1")) for p in low)
     asm_dirs = {"asm", "assembler", "assembly", "hlasm"}
     asm = any(p.endswith((".asm", ".mac")) for p in low) or any(
-        p.endswith(".s") and asm_dirs & set(c[:-1]) for p, c in zip(low, comps, strict=True)
+        p.endswith(".s") and asm_dirs & set(c[:-1]) for p, c in zip(low, comps)  # comps is built from low: same length
     )
     db2 = any(p.endswith((".dcl", ".sql", ".dbd", ".psb")) for p in low)
     return int(jcl) + int(pli) + int(asm) + int(db2) + int(programs >= 50)

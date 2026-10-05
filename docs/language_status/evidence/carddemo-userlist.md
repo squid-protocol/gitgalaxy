@@ -8,15 +8,15 @@ The status above judges the record alone (policy: ported_unproven = block). Whet
 
 | | |
 |---|---|
-| proof | proven at 2026-10-05T06:04:35Z, harness `d03da8b743917a29a13e48709fb0c7f6ad778528+uncommitted` |
-| inputs digest | `0ccd511a366307f8080008f960c4982e36a413d4c50bf109bb3a0a34a5d9679e` |
-| port | 1 files `842bfd4306037caa` |
+| proof | proven at 2026-10-05T13:07:12Z, harness `cd9f91d69baf8ca7b91b01e16bc0dd428ff5dad5+uncommitted` |
+| inputs digest | `a4cc2a3b16004b1f37ef984f6f157405a13c56b39326e78cc7eac98045fc95e5` |
+| port | 1 files `54a4d30ec16f799d` |
 | case | 2 files `e6ba475aa5d7c7ef` |
 | corpus | aws-mainframe-modernization-carddemo @ `59cc6c2fd7ebd7ef7925cad552a01a4b8b6e4d5e` `d0c4803872ec126e` |
 | differences |  `4f53cda18c2baa0c` |
 | harness | 11 files `1764f900744b3e9c` |
 | oracle | 16 files `b1be686cf96bbdce` |
-| generator | 60 files `674777fda7f1a297` |
+| generator | 60 files `c83b4a4881a70211` |
 | oracle run | gnucobol-models: cobc (GnuCOBOL) 3.1.2.0, image `sha256:d7e387df360c` (matches pin: True) |
 | written by | model `claude-sonnet-5-5`, attempt 1 |
 
@@ -50,10 +50,10 @@ The status above judges the record alone (policy: ported_unproven = block). Whet
 
 | class | method | line | kind |
 |---|---|---|---|
-| Cousr00cService | `handleTransaction` | 64 | left_as_generated |
-| Cousr00cService | `handleLink` | 79 | left_as_generated |
-| Cousr00cService | `browseUsrsec` | 115 | left_as_generated |
-| Cousr00cService | `browseBackUsrsec` | 119 | left_as_generated |
+| Cousr00cService | `handleTransaction` | 91 | left_as_generated |
+| Cousr00cService | `handleLink` | 106 | left_as_generated |
+| Cousr00cService | `browseUsrsec` | 142 | left_as_generated |
+| Cousr00cService | `browseBackUsrsec` | 146 | left_as_generated |
 
 ## Uncovered branches
 

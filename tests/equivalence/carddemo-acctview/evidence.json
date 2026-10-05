@@ -7,7 +7,7 @@
   "paths": [
    "tests/equivalence/carddemo-acctview/port/service/CoactvwcService.java"
   ],
-  "sha256": "c1734f35fe73bed715f2381de3e27b2d743e24d988cf1c43f882bacf8d1edc4e",
+  "sha256": "3c995a6650d61800e9118cc5fae5b46221824337906bc83e79986fc18523f8a4",
   "entry_points": [
    "runTask"
   ]
@@ -18,7 +18,7 @@
     "tests/equivalence/carddemo-acctview/port/**"
    ],
    "files": 1,
-   "sha256": "c1734f35fe73bed715f2381de3e27b2d743e24d988cf1c43f882bacf8d1edc4e"
+   "sha256": "3c995a6650d61800e9118cc5fae5b46221824337906bc83e79986fc18523f8a4"
   },
   "case": {
    "paths": [
@@ -62,7 +62,7 @@
     "gitgalaxy/tools/cobol_to_java/**"
    ],
    "files": 60,
-   "sha256": "674777fda7f1a297b554ec1935d0b26aa8d37f65f65e150a94fab7dd570a0866"
+   "sha256": "c83b4a4881a7021116a376da6fdc0e9f5fdc00e671841ff7ea6e605dd2b29bb1"
   },
   "corpus": {
    "name": "aws-mainframe-modernization-carddemo",
@@ -72,10 +72,10 @@
   "differences": {
    "sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
   },
-  "digest": "fdf094c6f0044c90b0199c18a15a8bf3bc7f970412e0a271af5633820d2a9428"
+  "digest": "ceda8200b151ce378d6122d358bb2d9aaf39ca68efe24c2993fdb2f5878e789d"
  },
  "proof": {
-  "at": "2026-10-05T05:52:49Z",
+  "at": "2026-10-05T13:05:16Z",
   "verdict": "proven",
   "runs": 20,
   "fault_runs": 6,
@@ -166,8 +166,8 @@
   "sysout_compared": null,
   "attributes_compared": null,
   "java_failed": false,
-  "harness_commit": "d03da8b743917a29a13e48709fb0c7f6ad778528",
-  "inputs_digest": "fdf094c6f0044c90b0199c18a15a8bf3bc7f970412e0a271af5633820d2a9428"
+  "harness_commit": "cd9f91d69baf8ca7b91b01e16bc0dd428ff5dad5+uncommitted",
+  "inputs_digest": "ceda8200b151ce378d6122d358bb2d9aaf39ca68efe24c2993fdb2f5878e789d"
  },
  "coverage": {
   "paragraphs": {
@@ -263,7 +263,7 @@
    "total": 1
   },
   "source": "the proof's own traced COBOL runs (cobol_coverage.py)",
-  "inputs_digest": "fdf094c6f0044c90b0199c18a15a8bf3bc7f970412e0a271af5633820d2a9428"
+  "inputs_digest": "ceda8200b151ce378d6122d358bb2d9aaf39ca68efe24c2993fdb2f5878e789d"
  },
  "reach": {
   "entry_points": [
@@ -273,25 +273,25 @@
    {
     "class": "CoactvwcService",
     "method": "handleTransaction",
-    "line": 57,
+    "line": 84,
     "kind": "left_as_generated"
    },
    {
     "class": "CoactvwcService",
     "method": "handleLink",
-    "line": 381,
+    "line": 408,
     "kind": "left_as_generated"
    },
    {
     "class": "CoactvwcService",
     "method": "onAbendL264",
-    "line": 418,
+    "line": 445,
     "kind": "stub"
    },
    {
     "class": "CoactvwcService",
     "method": "abendLegacy9999L934",
-    "line": 428,
+    "line": 455,
     "kind": "left_as_generated"
    }
   ],
@@ -301,7 +301,7 @@
    "ported_unproven": 0
   },
   "generated_compared": true,
-  "port_sha256": "c1734f35fe73bed715f2381de3e27b2d743e24d988cf1c43f882bacf8d1edc4e"
+  "port_sha256": "3c995a6650d61800e9118cc5fae5b46221824337906bc83e79986fc18523f8a4"
  },
  "mutation": {
   "commit": "9c21df6c3",

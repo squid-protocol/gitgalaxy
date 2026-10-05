@@ -7,7 +7,7 @@
   "paths": [
    "tests/equivalence/carddemo-menu/port/service/Comen01cService.java"
   ],
-  "sha256": "0e006d59cc0c36a22eccb3c53b6523ee8d9327aa9c6e38ec0c6ce95692e1e2d3",
+  "sha256": "8b209981608b042692ad3315ff834c921d3fbc744dec6231ea4fa65e85747577",
   "entry_points": [
    "runTask"
   ]
@@ -18,7 +18,7 @@
     "tests/equivalence/carddemo-menu/port/**"
    ],
    "files": 1,
-   "sha256": "0e006d59cc0c36a22eccb3c53b6523ee8d9327aa9c6e38ec0c6ce95692e1e2d3"
+   "sha256": "8b209981608b042692ad3315ff834c921d3fbc744dec6231ea4fa65e85747577"
   },
   "case": {
    "paths": [
@@ -62,7 +62,7 @@
     "gitgalaxy/tools/cobol_to_java/**"
    ],
    "files": 60,
-   "sha256": "674777fda7f1a297b554ec1935d0b26aa8d37f65f65e150a94fab7dd570a0866"
+   "sha256": "c83b4a4881a7021116a376da6fdc0e9f5fdc00e671841ff7ea6e605dd2b29bb1"
   },
   "corpus": {
    "name": "aws-mainframe-modernization-carddemo",
@@ -72,10 +72,10 @@
   "differences": {
    "sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
   },
-  "digest": "3f0f4d7b3014f6cdbd6ad76496474960165c3a7d535c1db677f25903b3a0fb39"
+  "digest": "dae8afb8c71afcec9f2dea6f44ce878bc750e28dcbfa27d35f74dec011040d0c"
  },
  "proof": {
-  "at": "2026-10-05T05:57:11Z",
+  "at": "2026-10-05T13:04:58Z",
   "verdict": "proven",
   "runs": 16,
   "fault_runs": 2,
@@ -150,8 +150,8 @@
   "sysout_compared": null,
   "attributes_compared": null,
   "java_failed": false,
-  "harness_commit": "d03da8b743917a29a13e48709fb0c7f6ad778528+uncommitted",
-  "inputs_digest": "3f0f4d7b3014f6cdbd6ad76496474960165c3a7d535c1db677f25903b3a0fb39"
+  "harness_commit": "cd9f91d69baf8ca7b91b01e16bc0dd428ff5dad5",
+  "inputs_digest": "dae8afb8c71afcec9f2dea6f44ce878bc750e28dcbfa27d35f74dec011040d0c"
  },
  "coverage": {
   "paragraphs": {
@@ -199,7 +199,7 @@
    "total": 0
   },
   "source": "the proof's own traced COBOL runs (cobol_coverage.py)",
-  "inputs_digest": "3f0f4d7b3014f6cdbd6ad76496474960165c3a7d535c1db677f25903b3a0fb39"
+  "inputs_digest": "dae8afb8c71afcec9f2dea6f44ce878bc750e28dcbfa27d35f74dec011040d0c"
  },
  "reach": {
   "entry_points": [
@@ -209,13 +209,13 @@
    {
     "class": "Comen01cService",
     "method": "handleTransaction",
-    "line": 59,
+    "line": 81,
     "kind": "left_as_generated"
    },
    {
     "class": "Comen01cService",
     "method": "handleLink",
-    "line": 74,
+    "line": 96,
     "kind": "left_as_generated"
    }
   ],
@@ -225,7 +225,7 @@
    "ported_unproven": 0
   },
   "generated_compared": true,
-  "port_sha256": "0e006d59cc0c36a22eccb3c53b6523ee8d9327aa9c6e38ec0c6ce95692e1e2d3"
+  "port_sha256": "8b209981608b042692ad3315ff834c921d3fbc744dec6231ea4fa65e85747577"
  },
  "mutation": {
   "commit": "9c21df6c3",
@@ -357,11 +357,11 @@
   "porting_rules_sha256": null,
   "proposed_at": "2026-10-01T15:07:08+00:00",
   "generator_version": null,
-  "edited_after": "none: the files are the model's answer as the loop stored it",
+  "edited_after": "the deployed entry points (facades) were brought to the generator's by tests/tools/port_surface.py (#4343; see history 'resurfaced'); runTask and the logic it runs are the model's answer",
   "provenance_file": {
    "path": "tests/equivalence/carddemo-menu/port/provenance.json",
    "format": "porting-loop-provenance/1",
-   "sha256": "572ed6d5eb9fc283553e263c78086bf75d171289d6625523c74edbeb6bac2478"
+   "sha256": "5cb953f5ba6b00db06375bec3e0e9f40bf0c1317474c9e88d822c8d429e4b02b"
   }
  },
  "approvals": []

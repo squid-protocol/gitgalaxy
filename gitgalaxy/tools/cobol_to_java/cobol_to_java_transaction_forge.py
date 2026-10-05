@@ -176,6 +176,7 @@ public class CicsTask {
     private java.nio.file.Path faultLog;
     private final java.util.Set<String> held = new java.util.HashSet<>();  // files a readForUpdate holds (the root's)
     private boolean syncpointed;                                            // a SYNCPOINT committed (the root's)
+    private boolean dplServer;                          // #4437: LINKed from outside the region (the root's)
     private Runnable rollbackHook;                                          // how a rollback undoes (the root's)
     private final Map<String, Integer> faultSeen = new HashMap<>();
     private Object returnedArea;                                             // #4343: the level-1 RETURN's COMMAREA
@@ -1032,8 +1033,25 @@ public class CicsTask {
         return root().browses.remove(file) != null ? 0 : 16;
     }
 
+    /** #4437: the task runs a program LINKed from outside the region -- a distributed program link's server. */
+    public CicsTask asDplServer() {
+        this.dplServer = true;
+        return this;
+    }
+
+    /** #4437: a DPL server's SYNCPOINT (or ROLLBACK) is INVREQ, RESP2 200, unless the client LINKed with SYNCONRETURN
+     *  (IBM CICS TS API Reference, SYNCPOINT / SYNCPOINT ROLLBACK conditions). The region does not know how its client
+     *  LINKed, so it refuses rather than answer NORMAL or INVREQ by guess. In the region, NORMAL is the only outcome. */
+    private void refuseInDplServer(String command) {
+        if (root().dplServer) {
+            throw new UnsupportedOperationException(command + " in a program LINKed from outside the region: INVREQ "
+                    + "(RESP2 200) unless the client LINKed with SYNCONRETURN, which the region does not know");
+        }
+    }
+
     /** SYNCPOINT: the unit of work is committed; a later rollback() cannot undo it. */
     public void syncpoint() {
+        refuseInDplServer("SYNCPOINT");
         root().held.clear();
         root().syncpointed = true;
         event("SYNCPOINT");
@@ -1043,6 +1061,7 @@ public class CicsTask {
      *  rollback (the hook, set by whoever runs the task). A rollback after a syncpoint would undo only part of
      *  the task's work, which this runtime does not model: it refuses rather than undo too much. */
     public void rollback() {
+        refuseInDplServer("SYNCPOINT ROLLBACK");
         if (root().syncpointed) {
             throw new UnsupportedOperationException("SYNCPOINT ROLLBACK after a SYNCPOINT is not modelled");
         }
@@ -1419,7 +1438,7 @@ public class CicsTask {
         @Override
         public CicsTask linked(String program, Object commarea) {
             return new CicsTask("CSMI", null, commarea, null, Map.of()).withTempStorage(storage)
-                    .withClock(clock.get()).withProgram(program);
+                    .withClock(clock.get()).withProgram(program).asDplServer();
         }
 
         @Override

@@ -89,7 +89,11 @@ OPTIONS: dict[str, frozenset | None] = {
     # MAIN / AUXILIARY: where CICS keeps the item, not what it holds; NOSUSPEND: one task, a queue never waits
     "WRITEQ TS": _TS | {"FROM", "REWRITE", "MAIN", "AUXILIARY", "NOSUSPEND"} | _RESP,
     "READQ TS": _TS | {"INTO", "NEXT"} | _RESP,
-    # #4411 left open: RESP / RESP2 on SYNCPOINT are not written (CBSA DBCRFUN, INQACC, XFRFUN -- proven ports)
+    # #4437: RESP / RESP2 written NORMAL (Cics.command). IBM's conditions (CICS TS API Reference) do not arise in the
+    # region the port runs in: INVREQ (RESP2 200) needs a program LINKed from a remote system without SYNCONRETURN --
+    # CicsTask refuses a SYNCPOINT in a program LINKed from outside the region -- or one defined EXECUTIONSET(DPLSUBSET),
+    # which the region does not model (docs/language_status/oracle_assumptions.md, X3); ROLLEDBACK (commit only) needs
+    # a remote system that cannot commit, and none takes part.
     "SYNCPOINT": frozenset({"ROLLBACK"}) | _RESP,
     "SYNCPOINT ROLLBACK": _RESP,
 }
@@ -725,7 +729,13 @@ class Cics:
                 and "TD" not in words:  # fmt: skip
             return self.ts_queue(verb.split()[0], opts, ind)
         if verb in ("SYNCPOINT", "SYNCPOINT ROLLBACK"):
-            return [f"{ind}task.{'rollback' if verb == 'SYNCPOINT ROLLBACK' or 'ROLLBACK' in opts else 'syncpoint'}();"]
+            # #4437: NORMAL -- the only outcome in this region (OPTIONS says why); EIBRESP / RESP / RESP2 written as
+            # CICS writes them, never left as the previous command set them
+            call = f"{ind}task.{'rollback' if verb == 'SYNCPOINT ROLLBACK' or 'ROLLBACK' in opts else 'syncpoint'}();"
+            out = [call, *self.outcome({**opts, "NOHANDLE": None}, "0", "0", ind)]  # (NORMAL raises no condition)
+            if "RESP2" in opts and "RESP" not in opts:  # RESP2 alone is written too
+                out.append(ind + self.g.store_into(self.ref(_arg(opts["RESP2"])), "BigDecimal.valueOf(0)", False))
+            return out
         raise CicsError(f"EXEC CICS {verb} not modelled")
 
     def ts_queue(self, verb: str, opts: dict, ind: str) -> list[str]:

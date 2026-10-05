@@ -471,6 +471,10 @@ _REDEFINES_CLAUSE = re.compile(
 # (`ZERO`, `SPACES`, `HIGH-VALUES`, `-1`, `12.5`). #4277: a numeric literal may open
 # with its sign (`VALUE +0`, `VALUE -1`, GenApp lgicdb01.cbl:35); before, the sign could
 # not start the bareword and the VALUE was dropped.
+# #4354: a literal may carry a class prefix glued to its opening quote -- `G'...'` (DBCS), `N'...'`
+# (national), `NX'...'` / `X'...'` (hex), `B'...'` (binary), `Z'...'` (null-terminated). The prefix is part
+# of the literal, so it is kept (`G'漢字欄名'`); before, the bareword alternative read it as the value `G`.
+# Group 1 prefix, 2 / 3 the single / double quoted body, 4 the bareword.
 # #3943: `VALUES [ARE]` too -- the plural condition-names use (`88 OK VALUES 1, 2, 3.`); a COBOL-name
 # boundary, not `\b`, so `HIGH-VALUES` is never read as the keyword.
 _VALUE_CLAUSE = re.compile(
@@ -478,7 +482,7 @@ _VALUE_CLAUSE = re.compile(
     + NATIONAL
     + WIDE_DIGITS
     + WIDE_HYPHENS
-    + r"0-9-])VALUES?[ \t\n\u3000]+(?:(?:IS|ARE)[ \t\n\u3000]+)?(?:'([^']*)'|\"([^\"]*)\"|((?:[+-](?=\.?[0-9]))?(?:\.(?=[0-9]))?[A-Z"
+    + r"0-9-])VALUES?[ \t\n\u3000]+(?:(?:IS|ARE)[ \t\n\u3000]+)?(?:(?:(NX|[BGNXZ])(?=['\"]))?(?:'([^']*)'|\"([^\"]*)\")|((?:[+-](?=\.?[0-9]))?(?:\.(?=[0-9]))?[A-Z"
     + NATIONAL
     + WIDE_DIGITS
     + r"0-9][A-Z"
@@ -1117,15 +1121,20 @@ def _cobol_records(code_stream: str, decimal_comma: Optional[bool] = None) -> li
         value_match = _VALUE_CLAUSE.search(window)
         value = None
         if value_match:
-            if value_match.group(1) is not None or value_match.group(2) is not None:
+            if value_match.group(2) is not None or value_match.group(3) is not None:
                 # A quoted literal is kept verbatim (it may legitimately end in a period).
-                value = value_match.group(1) if value_match.group(1) is not None else value_match.group(2)
+                value = value_match.group(2) if value_match.group(2) is not None else value_match.group(3)
+                if value_match.group(1):
+                    # #4354: a prefixed literal (G / N / NX / X / B / Z) keeps its prefix and quotes, so it
+                    # is not mistaken for a plain character literal of the same body.
+                    quote = "'" if value_match.group(2) is not None else '"'
+                    value = value_match.group(1) + quote + value + quote
             else:
                 # A bareword numeric / figurative constant: strip the clause-terminating
                 # period the character class swallowed (`VALUE 0.` -> `0`, not `0.`).
-                value = value_match.group(3).rstrip(".")
-                fraction = _COMMA_FRACTION.match(window, value_match.end(3)) if keep_comma else None
-                if fraction and _NUMERIC_BAREWORD.fullmatch(value_match.group(3)):
+                value = value_match.group(4).rstrip(".")
+                fraction = _COMMA_FRACTION.match(window, value_match.end(4)) if keep_comma else None
+                if fraction and _NUMERIC_BAREWORD.fullmatch(value_match.group(4)):
                     value += fraction.group(0)  # #3911: `12345,67` -- the comma is the decimal point
 
         # #3355: the copybook(s) that expand right after this entry. Searched only

@@ -2284,6 +2284,9 @@
       "jcl/cobol-programming-course/CBLDB21R.jcl": [
         "exec:cobol/cobol-programming-course/CBLDB21.cbl"
       ],
+      "jcl/cobol-programming-course/CBLDB22R.jcl": [
+        "exec:cobol/cobol-programming-course/CBLDB22.cbl"
+      ],
       "jcl/cobol-programming-course/CBLDB23R.jcl": [
         "exec:cobol/cobol-programming-course/CBLDB23.cbl"
       ],

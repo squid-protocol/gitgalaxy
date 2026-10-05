@@ -42812,7 +42812,6 @@
           "GET-TODAYS-DATE",
           "DELETE-DB2-ROWS",
           "PROGRAM-DONE",
-          "TEST",
           "DEFINE-ACC"
         ],
         "A999@675": [],
@@ -44658,7 +44657,6 @@
       "cobol/gnucobol/CBL_OC_DUMP.cob": {
         "MAIN00@101": [
           "C",
-          "end-if",
           "CBL_GC_PRINTABLE"
         ],
         "MAIN@100": []
@@ -51642,7 +51640,6 @@
         "210-PROCESS-ADD-TRAN@315": [
           "720-POSITION-CUST-FILE",
           "299-REPORT-BAD-TRAN",
-          "TEST",
           "740-WRITE-CUSTOUT-FILE"
         ],
         "220-PROCESS-DELETE-TRAN@335": [

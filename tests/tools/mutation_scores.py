@@ -14,7 +14,7 @@ A survivor's verdict is one of
   unreachable  dead code: no input reaches it, given the program's own data or the oracle's limits (with evidence)
 
     python tests/tools/mutation_scores.py build --runs DIR [DIR ...] --triage T.json --commit SHA [--out FILE]
-                                                [--rejudged DIR ... --rejudged-commit SHA]
+                                                [--rejudged DIR ... --rejudged-commit SHA] [--keep-others]
     python tests/tools/mutation_scores.py table [--results FILE] [--doc FILE]     # re-render the doc's table
 
 `build` writes the compact results file (default docs/language_status/mutation_scores.json) and the table;
@@ -156,6 +156,7 @@ def main(argv: list[str] | None = None) -> int:
     b.add_argument("--commit", required=True, help="the gitgalaxy commit the mutants ran on")
     b.add_argument("--out", type=Path, default=RESULTS)
     b.add_argument("--doc", type=Path, default=DOC)
+    b.add_argument("--keep-others", action="store_true", help="keep --out's entries for ports these runs do not cover")
     b.add_argument("--rejudged", nargs="*", type=Path, default=[], help="#4049: runs judging some mutants again")
     b.add_argument("--rejudged-commit", help="the gitgalaxy commit the --rejudged runs ran on")
     t = sub.add_parser("table")
@@ -180,6 +181,10 @@ def main(argv: list[str] | None = None) -> int:
                 entry["rejudged"] = {"commit": args.rejudged_commit, "issue": "#4049", "mutants": len(redo),
                                      "killed": sum(x["verdict"] in ("killed", "timeout") for x in redo.values())}  # fmt: skip
             ports.append(entry)
+        if args.keep_others and args.out.exists():
+            done = {(q["case"], q["program"]) for q in ports}
+            ports += [q for q in json.loads(args.out.read_text(encoding="utf-8"))["ports"]
+                      if (q["case"], q["program"]) not in done]  # fmt: skip
         results = {"format": "gitgalaxy-mutation-scores/1", "issue": "#4047",
                    "ports": sorted(ports, key=lambda p: (p["case"].startswith("crucible:"), p["case"], p["program"]))}  # fmt: skip
         args.out.write_text(json.dumps(results, indent=None, separators=(",", ":")).replace(',{"case"', ',\n{"case"')

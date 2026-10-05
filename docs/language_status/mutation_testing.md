@@ -126,11 +126,11 @@ results file is accepted as a triage input, so a re-run keeps the verdicts of mu
 | CSUTLDTC (carddemo-dateutil) | equivalence | 211/211 | 145/195 (74%) | 145/145 (100%) | 0 / 0 / 10 / 40 / 0 |
 | COMEN01C (carddemo-menu) | equivalence | 150/331 | 86/136 (63%) | 86/93 (92%) | 7 / 0 / 36 / 7 / 0 |
 | CALINK (ca-link-lengths) | crucible | 24/165 | 19/22 (86%) | 19/22 (86%) | 3 / 0 / 0 / 0 / 0 |
-| CASUB (ca-link-lengths) | crucible | 24/40 | 14/24 (58%) | 14/16 (88%) | 1 / 1 / 7 / 1 / 0 |
+| CASUB (ca-link-lengths) | crucible | 24/40 | 15/24 (62%) | 15/16 (94%) | 1 / 0 / 7 / 1 / 0 |
 | CAXA (ca-xctl-versions) | crucible | 24/75 | 17/21 (81%) | 17/19 (89%) | 2 / 0 / 2 / 0 / 0 |
-| CAXB (ca-xctl-versions) | crucible | 24/139 | 14/23 (61%) | 14/19 (74%) | 4 / 1 / 3 / 1 / 0 |
-| GTSTART (gt-start-retrieve) | crucible | 24/88 | 14/22 (64%) | 14/19 (74%) | 4 / 1 / 3 / 0 / 0 |
-| GTWORK (gt-start-retrieve) | crucible | 24/84 | 18/21 (86%) | 18/21 (86%) | 2 / 1 / 0 / 0 / 0 |
+| CAXB (ca-xctl-versions) | crucible | 24/139 | 15/23 (65%) | 15/19 (79%) | 4 / 0 / 3 / 1 / 0 |
+| GTSTART (gt-start-retrieve) | crucible | 24/88 | 15/22 (68%) | 15/19 (79%) | 4 / 0 / 3 / 0 / 0 |
+| GTWORK (gt-start-retrieve) | crucible | 24/84 | 19/21 (90%) | 19/21 (90%) | 2 / 0 / 0 / 0 / 0 |
 | GTSHOW (gt-terminal-coalesce) | crucible | 24/66 | 19/24 (79%) | 19/20 (95%) | 1 / 0 / 4 / 0 / 0 |
 | GTTERM (gt-terminal-coalesce) | crucible | 24/85 | 13/21 (62%) | 13/20 (65%) | 7 / 0 / 1 / 0 / 0 |
 | HCMAIN (hc-abend-link) | crucible | 24/173 | 10/23 (43%) | 10/11 (91%) | 1 / 0 / 4 / 8 / 0 |
@@ -142,9 +142,9 @@ results file is accepted as a triage input, so a re-run keeps the verdicts of mu
 | PCMENU (pc-aid-menu) | crucible | 24/147 | 14/22 (64%) | 14/15 (93%) | 1 / 0 / 5 / 2 / 0 |
 | PCCONF (pc-wizard) | crucible | 24/247 | 14/23 (61%) | 14/17 (82%) | 3 / 0 / 6 / 0 / 0 |
 | PCWIZ (pc-wizard) | crucible | 24/177 | 11/21 (52%) | 11/16 (69%) | 5 / 0 / 3 / 2 / 0 |
-| **all crucible** | | 408 run | **254/381 (67%)** | **254/301 (84%)** | 43 / 4 / 58 / 22 / 0 |
+| **all crucible** | | 408 run | **258/381 (68%)** | **258/301 (86%)** | 43 / 0 / 58 / 22 / 0 |
 | **all equivalence** | | 511 run | **336/460 (73%)** | **336/351 (96%)** | 15 / 0 / 62 / 47 / 0 |
-| **all estate** | | 919 run | **590/841 (70%)** | **590/652 (90%)** | 58 / 4 / 120 / 69 / 0 |
+| **all estate** | | 919 run | **594/841 (71%)** | **594/652 (91%)** | 58 / 0 / 120 / 69 / 0 |
 
 | operator | caught / judged | without equivalent + unreachable |
 |---|---|---|
@@ -153,7 +153,7 @@ results file is accepted as a triage input, so a re-run keeps the verdicts of mu
 | CON | 90/162 (56%) | 90/97 (93%) |
 | COR | 28/51 (55%) | 28/39 (72%) |
 | DEL | 79/116 (68%) | 79/99 (80%) |
-| LIT | 106/140 (76%) | 106/112 (95%) |
+| LIT | 110/140 (79%) | 110/112 (98%) |
 | NEG | 120/135 (89%) | 120/121 (99%) |
 | RET | 8/17 (47%) | 8/13 (62%) |
 | ROR | 104/146 (71%) | 104/111 (94%) |
@@ -191,13 +191,11 @@ What the triage found:
 Re-run 2026-10-05 on gitgalaxy `d69a63419` (after #4343 regenerated the crucible ports' facades): the 13 crucible ports
 other than PCCONF, PCWIZ, PCMENU and PCDETL (#4427 is changing those; they are re-run after it merges), 24 mutants each,
 seed 0, cics-crucible v0.2.0. The table rows above are these runs; the four PC* rows still hold the 2026-10-03 run and
-their evidence records mark it stale. 201 caught of 291 judged (69%); 90 survivors: 34 case gaps (19 fault-reachable,
-which need the fault plan the crucible lacks), 4 harness gaps, 35 equivalent, 17 unreachable, none untriaged (the
-table's all-crucible row also holds the four stale PC* ports).
-The 4 harness gaps are one finding: `mutation_crucible.py` proves mutants with `--sides java-ported`, which enters a port
-by `runTask`, so a mutant inside a facade body (`handleTransaction`, `handleLink`) is never run. Run on the java-facade
-side too, all four are killed (the runner refuses the facade's region request). Until the tool runs both sides, facade
-bodies cannot be killed by it, and `test_proof_reach.py` pins these four.
+their evidence records mark it stale. 205 caught of 291 judged (70%); 86 survivors: 34 case gaps (19 fault-reachable,
+which need the fault plan the crucible lacks), 0 harness gaps, 35 equivalent, 17 unreachable, none untriaged.
+`mutation_crucible.py` now proves each mutant on the java-ported and the java-facade side: the first run used
+java-ported alone, which never runs a facade body (`handleTransaction`, `handleLink`), and four mutants inside one
+(CASUB, CAXB, GTSTART, GTWORK) survived for that reason; the java-facade side kills them.
 
 A score is quoted with its case and seed, never alone. Every survivor is triaged as a case gap, a
 harness gap, an equivalent mutant (with the reason) or dead code.

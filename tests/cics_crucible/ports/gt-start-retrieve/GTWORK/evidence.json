@@ -144,24 +144,24 @@
   "port_sha256": "7875f3122ec257eb34241c522a561963b07f3601ef6609d82a4a32b3a35bf601"
  },
  "mutation": {
-  "commit": "d69a634194bbc62da07959b054cfe2987ef6db86",
+  "commit": "4e63ca8c5f2ea80fd3ff2bf73164fd9f8b5f80bd",
   "rejudged": null,
   "seed": 0,
   "mode": null,
   "mutants": 84,
   "chosen": 24,
-  "killed": 18,
-  "survived": 3,
+  "killed": 19,
+  "survived": 2,
   "stillborn": 3,
   "survivors": {
    "case_gap": 2,
-   "harness_gap": 1,
+   "harness_gap": 0,
    "equivalent": 0,
    "unreachable": 0,
    "untriaged": 0
   },
-  "score_raw": "18/21",
-  "score_adjusted": "18/21",
+  "score_raw": "19/21",
+  "score_adjusted": "19/21",
   "source": "docs/language_status/mutation_scores.json#crucible:gt-start-retrieve/GTWORK",
   "inputs": {
    "port": {

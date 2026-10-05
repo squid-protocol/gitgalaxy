@@ -132,24 +132,24 @@
   "port_sha256": "97c88b3be96e38b70178422d76b6d05c8cac10cbf7f231d42d781de94acb8d29"
  },
  "mutation": {
-  "commit": "d69a634194bbc62da07959b054cfe2987ef6db86",
+  "commit": "4e63ca8c5f2ea80fd3ff2bf73164fd9f8b5f80bd",
   "rejudged": null,
   "seed": 0,
   "mode": null,
   "mutants": 139,
   "chosen": 24,
-  "killed": 14,
-  "survived": 9,
+  "killed": 15,
+  "survived": 8,
   "stillborn": 1,
   "survivors": {
    "case_gap": 4,
-   "harness_gap": 1,
+   "harness_gap": 0,
    "equivalent": 3,
    "unreachable": 1,
    "untriaged": 0
   },
-  "score_raw": "14/23",
-  "score_adjusted": "14/19",
+  "score_raw": "15/23",
+  "score_adjusted": "15/19",
   "source": "docs/language_status/mutation_scores.json#crucible:ca-xctl-versions/CAXB",
   "inputs": {
    "port": {

@@ -44,7 +44,7 @@
 # tests/tools_recorders/test_edge_data.py asserts.
 # ==============================================================================
 from pathlib import Path
-from typing import Any
+from typing import Any, Optional
 
 from gitgalaxy.core.mainframe_boundary import TRANSACTION_ROUTING_VERBS
 from gitgalaxy.core.path_proximity import nearest_path
@@ -136,8 +136,38 @@ def _pli_included_procedures(parsed_files: list[dict[str, Any]]) -> set[str]:
     return nested - outer
 
 
+def _pick_program(
+    candidates: list[str],
+    target: str,
+    src_path: str,
+    ambiguities: Optional[list[dict[str, Any]]] = None,
+) -> Optional[str]:
+    """The file a call to `target` runs, among the `candidates` declaring that name (#4419).
+
+    Real estates keep forks of a program (`ORDV#OLD`, `ORDVAL2`) whose source still says
+    the original PROGRAM-ID, so several members hold it. The program object a CALL loads is
+    built from the member of that name (Enterprise COBOL Programming Guide: the PROGRAM-ID
+    must equal the program object's name), so a member whose stem IS the target is the
+    evidence and wins, nearest first. When no member is named for it the old rule stands --
+    the nearest declarer -- but the pick is a guess, so it is recorded in `ambiguities`
+    (for the scan summary) instead of being made silently. One candidate is never ambiguous."""
+    if len(candidates) <= 1:
+        return nearest_path(candidates, src_path)
+    name = nfc(target.upper())
+    named = [c for c in candidates if nfc(Path(c).stem.upper()) == name]
+    if named:
+        return nearest_path(named, src_path)
+    chosen = nearest_path(candidates, src_path)
+    if ambiguities is not None and chosen is not None:
+        ambiguities.append(
+            {"src_path": src_path, "target": name, "chosen": chosen, "candidates": sorted(set(candidates))}
+        )
+    return chosen
+
+
 def resolve_invocations(
     parsed_files: list[dict[str, Any]],
+    ambiguities: Optional[list[dict[str, Any]]] = None,
 ) -> tuple[list[dict[str, Any]], list[dict[str, Any]]]:
     """Resolve every extracted call site, and aggregate the resolved ones into edges.
 
@@ -150,6 +180,9 @@ def resolve_invocations(
         nowhere", answered: they are rows, not silence.
       - `edges` is one row per (src, dst, kind) pair with a `call_sites` count,
         shaped like #2992's import edges so edge_data takes them unchanged.
+
+    `ambiguities`, when given, collects the sites whose PROGRAM-ID several members declare
+    and none is named for (#4419): src_path, target, the chosen path and all candidates.
     """
     index = _program_index(parsed_files)
     included = _pli_included_procedures(parsed_files)
@@ -169,7 +202,7 @@ def resolve_invocations(
             # never matched against the PROGRAM-ID index here. It still rides in
             # call_site_data as a row, just with no program destination.
             if target and site.get("verb") not in TRANSACTION_ROUTING_VERBS:
-                resolved = nearest_path(index.get(nfc(str(target).upper()), []), src_path)
+                resolved = _pick_program(index.get(nfc(str(target).upper()), []), str(target), src_path, ambiguities)
                 # A program calling itself is recursion, not an edge: the
                 # import graph drops self-edges for the same reason.
                 if resolved == src_path:
@@ -217,7 +250,9 @@ def resolve_transactions(parsed_files: list[dict[str, Any]]) -> list[dict[str, A
         src_path = f.get("path", "")
         for txn in f.get("transaction_defs", []) or []:
             program = txn.get("program")
-            resolved = nearest_path(index.get(nfc(str(program).upper()), []), src_path) if program else None
+            resolved = (
+                _pick_program(index.get(nfc(str(program).upper()), []), str(program), src_path) if program else None
+            )
             record = dict(txn)
             record["src_path"] = src_path
             record["resolved_path"] = resolved

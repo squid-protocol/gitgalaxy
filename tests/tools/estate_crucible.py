@@ -26,6 +26,15 @@ GalaxyIR, and diffs every fact channel of the key against it:
                   its base or with its relative generation)
   file_control    file_control_data SELECTs;  entry_points  entry_point_data
   file_edges      edge_data kinds 'call' (CALL / LINK / XCTL) and 'exec' (EXEC PGM)
+  copy_collisions the scan's `copy_member_collisions` report (#4265): a second, --audit-only
+                  scan writes it, since the master DB does not hold it
+  gaps            a reference the estate cannot answer: no edge_data edge from the member to
+                  a member of that name
+  dead            a paragraph: function_data.usage_status 1 (unused); a program or copybook:
+                  no edge_data edge of any kind into its member
+
+The scan is told the estate's code pages (`code_pages`) and copy libraries (`copy_libraries`,
+v0.4.0+; derived from the library naming rule for older keys).
 
 Units, edges, copies, data items and layouts are scored for COBOL and PL/I members; the
 engine's own unit model of JCL / BMS / CSD is outside these channels. A key fact marked
@@ -84,6 +93,10 @@ CHANNELS = (
     "entry_points",
     "file_edges",
     "data_moves",
+    # phase 3 (estate realism)
+    "copy_collisions",
+    "gaps",
+    "dead",
 )
 RESOLVED_VERBS = ("CALL", "LINK", "XCTL", "EXEC PGM")
 
@@ -167,7 +180,11 @@ _LIBRARY_DIRS = (("copybook", "CPY"), ("dclgen", "DCL"))
 
 
 def copy_library_declaration(manifest: dict[str, Any]) -> dict[str, Any]:
-    """The `galaxyscope --copy-libraries` declaration of the estate the manifest describes."""
+    """The `galaxyscope --copy-libraries` declaration of the estate the manifest describes: the key's
+    own (`copy_libraries`, v0.4.0+: per-program SYSLIB orders, retired OLD libraries), else derived
+    from the naming rule."""
+    if manifest.get("copy_libraries"):
+        return dict(manifest["copy_libraries"])
     libraries: dict[str, list[str]] = {}
     apps: dict[str, list[str]] = {}
     for path, member in sorted(manifest["members"].items()):
@@ -193,6 +210,9 @@ def copy_library_declaration(manifest: dict[str, Any]) -> dict[str, Any]:
     return {"libraries": libraries, "syslib": syslib}
 
 
+COLLISIONS_FILE = "copy_member_collisions.json"
+
+
 def scan(crucible: Path, scan_dir: Path) -> Path:
     from gitgalaxy.tools.cobol_to_cobol.galaxy_ir import scan_to_db
 
@@ -200,20 +220,54 @@ def scan(crucible: Path, scan_dir: Path) -> Path:
     scan_dir.mkdir(parents=True, exist_ok=True)
     declaration = scan_dir / "copy_libraries.json"
     declaration.write_text(json.dumps(copy_library_declaration(manifest), indent=1) + "\n", encoding="utf-8")
+    extra = [*source_encoding_arg(manifest), "--copy-libraries", str(declaration)]
 
     saved = os.environ.get("PYTHONPATH")
     os.environ["PYTHONPATH"] = os.pathsep.join(p for p in (str(REPO_ROOT), saved) if p)
     try:
-        return scan_to_db(
-            crucible / "estate",
-            scan_dir,
-            extra_args=[*source_encoding_arg(manifest), "--copy-libraries", str(declaration)],
-        )
+        db = scan_to_db(crucible / "estate", scan_dir, extra_args=extra)
+        if _keys_channel(crucible, "copy_collisions"):
+            write_collisions(crucible / "estate", scan_dir, extra)
+        return db
     finally:
         if saved is None:
             os.environ.pop("PYTHONPATH")
         else:
             os.environ["PYTHONPATH"] = saved
+
+
+def _keys_channel(crucible: Path, channel: str) -> bool:
+    manifest = json.loads((crucible / "key" / "manifest.json").read_text(encoding="utf-8"))
+    return bool((manifest.get("fact_totals") or {}).get(channel))
+
+
+def write_collisions(estate: Path, scan_dir: Path, extra: list[str]) -> None:
+    """The scan's COPY collision report (`copy_member_collisions`, #4265) is in the run summary, which
+    the master DB does not hold: a second, audit-only scan writes it, and it is kept beside the DB."""
+    out = scan_dir / "audit"
+    env = dict(os.environ)
+    env.setdefault("GITGALAXY_DISABLE_GIT_HISTORY", "1")
+    subprocess.run(  # noqa: S603 -- this interpreter + fixed module; paths are argv entries, no shell
+        [sys.executable, "-m", "gitgalaxy.galaxyscope", str(estate), "--audit-only", "--output", str(out), *extra],
+        check=True,
+        env=env,
+        timeout=3600,
+        capture_output=True,
+    )
+    report = next(out.glob("*_galaxy_audit.json"))
+    found: Optional[list[Any]] = None
+
+    def walk(o: Any) -> None:
+        nonlocal found
+        if isinstance(o, dict):
+            for k, v in o.items():
+                if k == "copy_member_collisions" and isinstance(v, list):
+                    found = v
+                else:
+                    walk(v)
+
+    walk(json.loads(report.read_text(encoding="utf-8")))
+    (scan_dir / COLLISIONS_FILE).write_text(json.dumps(found or [], indent=1) + "\n", encoding="utf-8")
 
 
 class Engine:
@@ -225,6 +279,11 @@ class Engine:
 
         self.ir = load_galaxy_ir(db)
         self.files = self.ir.files
+        # the scan's COPY collision report (write_collisions), when one sits beside the DB
+        report = Path(db).parent / COLLISIONS_FILE
+        self.collisions: Optional[list[dict[str, Any]]] = (
+            json.loads(report.read_text(encoding="utf-8")) if report.is_file() else None
+        )
         conn = sqlite3.connect(f"file:{db}?mode=ro", uri=True)
         try:
             ids = {
@@ -241,10 +300,10 @@ class Engine:
                         self.raw_imports[ids[fid]] = [str(x) for x in json.loads(raw or "[]")]
                     except ValueError:
                         self.raw_imports[ids[fid]] = []
-            # (path, unit) -> {"start", "end", "calls", "transfers"}
+            # (path, unit) -> {"start", "end", "calls", "transfers", "usage"}
             self.units: dict[str, list[dict[str, Any]]] = defaultdict(list)
-            for fid, name, start, loc, calls, transfers in conn.execute(
-                "SELECT file_id, func_name, start_line, loc, calls_out_to, transfers_to FROM function_data"
+            for fid, name, start, loc, calls, transfers, usage in conn.execute(
+                "SELECT file_id, func_name, start_line, loc, calls_out_to, transfers_to, usage_status FROM function_data"
             ):
                 if fid in ids:
                     self.units[ids[fid]].append(
@@ -255,6 +314,8 @@ class Engine:
                             "calls": _json_list(calls),
                             "transfers": _json_list(transfers),
                             "synthetic": False,
+                            # detector: 0 normal, 1 orphan / unused, 2 duplicate
+                            "usage": usage,
                         }
                     )
             self.synthetic: dict[str, list[dict[str, Any]]] = defaultdict(list)
@@ -274,11 +335,15 @@ class Engine:
                     )
             # #3200 / #3237: resolved invocation edges between files, by kind
             self.file_edges: dict[str, set] = defaultdict(set)
-            for src, dst, kind in conn.execute(
-                "SELECT src_file_id, dst_file_id, edge_kind FROM edge_data WHERE edge_kind IN ('call', 'exec')"
-            ):
+            # every resolved edge (import, call, exec, ...) by source and by target (gaps, dead)
+            self.out_edges: dict[str, set] = defaultdict(set)
+            self.in_edges: dict[str, set] = defaultdict(set)
+            for src, dst, kind in conn.execute("SELECT src_file_id, dst_file_id, edge_kind FROM edge_data"):
                 if src in ids and dst in ids:
-                    self.file_edges[ids[src]].add((ids[dst], kind))
+                    if kind in ("call", "exec"):
+                        self.file_edges[ids[src]].add((ids[dst], kind))
+                    self.out_edges[ids[src]].add((ids[dst], kind or "import"))
+                    self.in_edges[ids[dst]].add((ids[src], kind or "import"))
             self.excluded: dict[str, str] = {}
             for path, reason in conn.execute("SELECT file_path, exclusion_reason FROM excluded_artifacts"):
                 self.excluded[str(path).replace("\\", "/")] = reason or ""
@@ -973,8 +1038,108 @@ def score_file_edges(sc: Score, path: str, entry: dict[str, Any], eng: Engine) -
         ok = (f["target"], f["kind"]) in got
         got.discard((f["target"], f["kind"]))
         sc.add("file_edges", path, label, "pass" if ok else "missing", f.get("horror"), "", f.get("depends_on"))
+    explicit = {(p["target"], p["kind"]): p for p in _phantoms(entry, "file_edges")}
     for dst, kind in sorted(got):
-        sc.add("file_edges", path, f"{kind} -> {dst}", "phantom", None, "not in the key")
+        p = explicit.get((dst, kind))
+        sc.add(
+            "file_edges",
+            path,
+            f"{kind} -> {dst}",
+            "phantom",
+            p.get("horror") if p else None,
+            p["why"] if p else "not in the key",
+        )
+
+
+def score_copy_collisions(sc: Score, path: str, entry: dict[str, Any], eng: Engine) -> None:
+    """#4265: the key's collisions against the scan's `copy_member_collisions` report."""
+    if eng.collisions is None:
+        for f in entry.get("copy_collisions", []):
+            sc.add(
+                "copy_collisions",
+                path,
+                f"{f['member']} @{f['line']}",
+                "unscored",
+                f.get("horror"),
+                "no collision report beside the DB",
+                f.get("depends_on"),
+            )
+        return
+    reported: dict[str, dict[str, Any]] = {}
+    for r in eng.collisions:
+        if str(r.get("importer", "")).replace("\\", "/") == path:
+            reported.setdefault(str(r.get("member", "")).upper(), r)
+    for f in entry.get("copy_collisions", []):
+        label = f"{f['member']} @{f['line']}"
+        r = reported.pop(f["member"].upper(), None)
+        if r is None:
+            sc.add("copy_collisions", path, label, "missing", f.get("horror"), "not reported", f.get("depends_on"))
+            continue
+        shadowed = sorted(str(x.get("library", "")).upper() for x in r.get("shadowed") or [])
+        d = _diff(
+            [
+                ("resolved", f["resolves_to"], r.get("resolved")),
+                ("library", f["library"].upper(), str(r.get("library", "")).upper()),
+                ("shadowed", sorted(x["library"].upper() for x in f["shadowed"]), shadowed),
+            ]
+        )
+        sc.add("copy_collisions", path, label, "fail" if d else "pass", f.get("horror"), d, f.get("depends_on"))
+    for member in sorted(reported):
+        sc.add("copy_collisions", path, f"{member} (reported)", "phantom", None, "not a collision in the key")
+
+
+def _stem(p: str) -> str:
+    return p.rsplit("/", 1)[-1].rsplit(".", 1)[0].upper()
+
+
+def score_gaps(sc: Score, path: str, entry: dict[str, Any], eng: Engine) -> None:
+    """A gap: a reference the estate cannot answer. It passes when the scan resolves it to nothing:
+    no edge from this member to a member of that name (a program found for a missing copybook, a
+    stale copy for a missing program)."""
+    for f in entry.get("gaps", []):
+        hits = sorted({dst for dst, _kind in eng.out_edges.get(path, set()) if _stem(dst) == f["name"].upper()})
+        sc.add(
+            "gaps",
+            path,
+            f"{f['kind']} {f['name']} @{f['line']}",
+            "fail" if hits else "pass",
+            f.get("horror"),
+            f"resolved to {', '.join(hits)}" if hits else "",
+            f.get("depends_on"),
+        )
+
+
+def score_dead(sc: Score, path: str, entry: dict[str, Any], eng: Engine) -> None:
+    """Dead code: a paragraph passes when the engine marks its unit unused (usage_status 1); a program
+    or copybook passes when no edge of any kind points at its member."""
+    for f in entry.get("dead", []):
+        label = f"{f['kind']} {f['name']} @{f['line']}"
+        if f["kind"] == "paragraph":
+            u = next((x for x in eng.units.get(path, []) if _u(x["name"]) == _u(f["name"])), None)
+            if u is None:
+                sc.add("dead", path, label, "missing", f.get("horror"), "no such unit", f.get("depends_on"))
+                continue
+            ok = u.get("usage") == 1
+            sc.add(
+                "dead",
+                path,
+                label,
+                "pass" if ok else "fail",
+                f.get("horror"),
+                "" if ok else f"usage_status {u.get('usage')}",
+                f.get("depends_on"),
+            )
+            continue
+        callers = sorted(f"{src} ({kind})" for src, kind in eng.in_edges.get(path, set()))
+        sc.add(
+            "dead",
+            path,
+            label,
+            "fail" if callers else "pass",
+            f.get("horror"),
+            f"reached from {', '.join(callers)}" if callers else "",
+            f.get("depends_on"),
+        )
 
 
 SOURCE_LANGUAGES = ("cobol", "pli")
@@ -996,6 +1161,9 @@ SCORERS = (
     score_entry_points,
     score_file_edges,
     score_data_moves,
+    score_copy_collisions,
+    score_gaps,
+    score_dead,
 )
 
 
@@ -1064,6 +1232,8 @@ def horror_verdicts(sc: Score, crucible: Path) -> list[dict[str, Any]]:
             {
                 "id": h["id"],
                 "issue": h.get("issue"),
+                # a phase-3 realism horror imitates real estates rather than a filed defect
+                "source": "realism" if h.get("realism") else (f"#{h['issue']}" if h.get("issue") else ""),
                 "title": h["title"],
                 "verdict": "FAIL" if bad else "PASS",
                 "counts": dict(counts),
@@ -1106,7 +1276,7 @@ def markdown(sc: Score, crucible: Path) -> str:
         why = "; ".join(f"{c['status']} {c['channel']} `{c['fact']}`" for c in h["failing"][:4])
         more = f" (+{len(h['failing']) - 4} more)" if len(h["failing"]) > 4 else ""
         casc = f"; cascade: {len(h['cascade'])} check(s) elsewhere" if h["cascade"] else ""
-        out.append(f"| {h['id']} | #{h['issue']} | {h['verdict']} | {n} | {why}{more}{casc} |")
+        out.append(f"| {h['id']} | {h['source']} | {h['verdict']} | {n} | {why}{more}{casc} |")
     untagged = [
         c for c in sc.checks if c.horror is None and not c.depends_on and c.status in ("fail", "missing", "phantom")
     ]
@@ -1126,7 +1296,7 @@ def text(sc: Score, crucible: Path) -> str:
         lines.append(f"{ch:<16}" + "".join(f"{cnt[s]:>10}" for s in STATUSES))
     lines.append("")
     for h in horror_verdicts(sc, crucible):
-        lines.append(f"{h['id']} #{h['issue']} {h['verdict']:<4} {h['title']}")
+        lines.append(f"{h['id']} {h['source'] or '-'} {h['verdict']:<4} {h['title']}")
         for c in h["failing"]:
             lines.append(
                 f"    {c['status']:<8} {c['channel']:<12} {c['member']} {c['fact']}"

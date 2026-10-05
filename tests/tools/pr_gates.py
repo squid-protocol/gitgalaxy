@@ -9,6 +9,10 @@ lint rule, a secret-scanner hit or a golden-master drift from CI, one push at a 
     python tests/tools/pr_gates.py --e2e            # add the equivalence proofs (Docker GnuCOBOL + JDK 17)
     python tests/tools/pr_gates.py --vs-main        # re-run each failing gate on a fresh origin/main worktree and
                                                     # label it "caused by branch" or "pre-existing on main@<sha>"
+    python tests/tools/pr_gates.py --ratchets       # every ratchet a fix may move, in order: ports compile, estate-crucible
+                                                    # gate, fact cross-check, corpus completeness pins, ground-truth ledger;
+                                                    # prints pass/fail and the exact update command per failure
+                                                    # (--only-ratchets ports estate ... to pick; skips say "not available: why")
 
 The environment the gates need is set up here, not remembered: the corpora beside the main checkout
 (KEYWORD_ROSETTA_PATH, LANGUAGE_CRUCIBLE_PATH, GITGALAXY_MAINFRAME_CORPORA), the interpreter's bin on
@@ -19,6 +23,7 @@ for --e2e. Run it from the worktree to check, with the project's venv python.
 from __future__ import annotations
 
 import argparse
+import importlib.util
 import os
 import re
 import shutil
@@ -117,6 +122,126 @@ def version_warnings(pins: dict[str, str | None], local: dict[str, str | None]) 
     return msgs
 
 
+class Ratchet:
+    """One ratchet: its check command, the command that moves it, and what it needs (None = available)."""
+
+    def __init__(self, name: str, cmd: list[str], update: str, needs: Callable[[dict[str, str]], str | None]):
+        self.name, self.cmd, self.update, self.needs = name, cmd, update, needs
+
+
+def _corpora_root(env: dict[str, str]) -> Path:
+    return Path(env.get("GITGALAXY_MAINFRAME_CORPORA") or REPO / ".mainframe_corpora")
+
+
+def _need_corpora(env: dict[str, str]) -> str | None:
+    root = _corpora_root(env)
+    if not any(root.glob("*/.git")):
+        return f"no mainframe corpus fetched under {root} (python tests/tools/mainframe_corpus.py fetch, or set GITGALAXY_MAINFRAME_CORPORA)"
+    return None
+
+
+def _need_corpora_and_pytest(env: dict[str, str]) -> str | None:
+    if importlib.util.find_spec("pytest") is None:
+        return f"pytest is not installed for {PY} (pip install -e .[full,translator] plus pytest)"
+    return _need_corpora(env)
+
+
+def _need_crucible(var: str, name: str, marker: str) -> Callable[[dict[str, str]], str | None]:
+    def check(env: dict[str, str]) -> str | None:
+        path = Path(env.get(var) or _main_checkout().parent / name)
+        if not (path / marker).exists():
+            return f"no {name} checkout at {path} (set {var}; tests/tools/box/sync-pins.sh aligns it with the pin)"
+        return None
+
+    return check
+
+
+def _need_ports(env: dict[str, str]) -> str | None:
+    if not shutil.which("mvn", path=env.get("PATH")):
+        return "mvn (Maven + JDK 17) is not on PATH"
+    return _need_crucible("CICS_CRUCIBLE_PATH", "cics-crucible", ".git")(env)
+
+
+def ratchets() -> list[Ratchet]:
+    """The ratchets a fix may move, in the order to run them. Each reuses its tool's own entry point."""
+    t = "tests/tools/"
+    return [
+        Ratchet(
+            "ports",
+            [PY, t + "ports_compile_check.py"],
+            "fix the generator or the port overlays; re-check one case: python tests/tools/ports_compile_check.py --cases <case>",
+            _need_ports,
+        ),  # fmt: skip
+        Ratchet(
+            "estate",
+            [PY, t + "estate_crucible_gate.py"],
+            "python tests/tools/estate_crucible_gate.py --update-baseline   (commit tests/estate_crucible/baseline.json)",
+            _need_crucible("ESTATE_CRUCIBLE_PATH", "estate-crucible", "key/manifest.json"),
+        ),  # fmt: skip
+        Ratchet(
+            "fact-crosscheck",
+            [PY, t + "fact_crosscheck.py", "check"],
+            "python tests/tools/fact_crosscheck.py update   (two-way: also drops fixed entries; run unscoped, see #4472 re --corpus)",
+            _need_corpora,
+        ),  # fmt: skip
+        Ratchet(
+            "completeness",
+            [
+                PY,
+                "-m",
+                "pytest",
+                "-q",
+                "-p",
+                "no:cacheprovider",
+                "tests/cobol_mainframe/test_completeness.py",
+                "-k",
+                "pinned_corpus_completeness",
+            ],
+            "edit PINNED in tests/cobol_mainframe/test_completeness.py to the new (resolved, total); some corpora only run in CI",
+            _need_corpora_and_pytest,
+        ),  # fmt: skip
+        Ratchet(
+            "ground-truth",
+            [PY, t + "ground_truth_ledger.py", "check"],
+            "python tests/tools/ground_truth_ledger.py update   (then `assign` a cause to each UNTRIAGED entry)",
+            _need_corpora,
+        ),  # fmt: skip
+    ]
+
+
+def run_ratchets(chosen: list[str] | None, env: dict[str, str]) -> int:
+    """Runs the ratchets in order; prints a PASS / FAIL / SKIP table and the update command per failure."""
+    plan = ratchets()
+    unknown = sorted(set(chosen or []) - {r.name for r in plan})
+    if unknown:
+        print(f"unknown ratchet(s) {unknown}; ratchets are {[r.name for r in plan]}", file=sys.stderr)
+        return 2
+    rows: list[tuple[str, str, str]] = []  # (name, status, detail)
+    for r in plan:
+        if chosen and r.name not in chosen:
+            continue
+        why = r.needs(env)
+        if why:
+            rows.append((r.name, "SKIP", f"not available: {why}"))
+            print(f"SKIP  {r.name:<16} not available: {why}", flush=True)
+            continue
+        t0 = time.time()
+        ok, tail = run_gate([r.cmd], REPO, env)
+        rows.append((r.name, "PASS" if ok else "FAIL", r.update if not ok else ""))
+        print(f"{'PASS' if ok else 'FAIL'}  {r.name:<16} {time.time() - t0:6.0f}s", flush=True)
+        if not ok:
+            print("      " + tail.replace("\n", "\n      "), flush=True)
+    failed = [n for n, st, _ in rows if st == "FAIL"]
+    skipped = [n for n, st, _ in rows if st == "SKIP"]
+    print("\nratchet           status")
+    for name, st, detail in rows:
+        print(f"{name:<17} {st}")
+        if st == "FAIL":
+            print(f"    update: {detail}")
+    print(f"\n{len(rows) - len(failed) - len(skipped)} pass, {len(failed)} fail, {len(skipped)} skipped (not checked)")
+    return 1 if failed else 0
+
+
 def run_gate(cmds: list[list[str]], root: Path, env: dict[str, str]) -> tuple[bool, str]:
     """Runs one gate's commands in `root`; returns (ok, output tail of the first failure)."""
     for cmd in cmds:
@@ -180,7 +305,7 @@ def gates_at(root: Path, args: argparse.Namespace, env: dict[str, str]) -> dict[
     return gates(args, env)
 
 
-def main() -> int:
+def main(argv: list[str] | None = None) -> int:
     ap = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     ap.add_argument("--only", nargs="+", help="run only these gates")
     ap.add_argument("--fast", action="store_true", help="skip the golden masters and the full suite")
@@ -190,9 +315,13 @@ def main() -> int:
         action="store_true",
         help="label each failing gate caused-by-branch / pre-existing on a fresh origin/main",
     )
+    ap.add_argument("--ratchets", action="store_true", help="run every ratchet a fix may move, then exit")
+    ap.add_argument("--only-ratchets", nargs="+", metavar="NAME", help="with --ratchets: only these")
     ap.add_argument("--e2e", action="store_true", help="the full suite also runs the equivalence proofs")
-    args = ap.parse_args()
+    args = ap.parse_args(argv)
     env = environment(args.e2e)
+    if args.ratchets or args.only_ratchets:
+        return run_ratchets(args.only_ratchets, env)
     plan = gates(args, env)
     chosen = args.only or [g for g in plan if not (args.fast and g in ("golden", "suite"))]
     unknown = sorted(set(chosen) - set(plan))

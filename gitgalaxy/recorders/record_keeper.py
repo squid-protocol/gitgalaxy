@@ -774,7 +774,8 @@ class RecordKeeper:
                 declared_names TEXT,
                 source_encoding TEXT,
                 source_decode TEXT,
-                namespace_imports TEXT
+                namespace_imports TEXT,
+                import_libraries TEXT
             )
         """)
 
@@ -825,6 +826,9 @@ class RecordKeeper:
         _ensure_columns(cursor, "file_data", ["source_encoding TEXT", "source_decode TEXT"])
         # #3788: JS/TS namespace-import aliases, so a delta scan keeps `ns.f()` resolution.
         _ensure_columns(cursor, "file_data", ["namespace_imports TEXT"])
+        # #4265: per COPY member, the library-names its COPY statements name (`COPY X IN LIB`; "" for an
+        # unqualified COPY), so a delta scan resolves a library-qualified COPY the same way. NULL if none.
+        _ensure_columns(cursor, "file_data", ["import_libraries TEXT"])
 
         # #3313 step 4: the wrapper-aware count -- per rule, the call sites in this
         # file that reach the rule's behaviour through a project wrapper recorded in
@@ -932,6 +936,7 @@ class RecordKeeper:
                 weight REAL,
                 import_statements INTEGER,
                 entity_imports INTEGER,
+                copy_libraries TEXT,
                 FOREIGN KEY(src_file_id) REFERENCES file_data(id) ON DELETE CASCADE,
                 FOREIGN KEY(dst_file_id) REFERENCES file_data(id) ON DELETE CASCADE
             )
@@ -939,6 +944,10 @@ class RecordKeeper:
         cursor.execute("CREATE INDEX IF NOT EXISTS idx_edge_src_file_id ON edge_data(src_file_id);")
         cursor.execute("CREATE INDEX IF NOT EXISTS idx_edge_dst_file_id ON edge_data(dst_file_id);")
         cursor.execute("CREATE INDEX IF NOT EXISTS idx_edge_snapshot ON edge_data(repo_name, commit_hash);")
+        # #4265: on an import edge resolved through declared COPY libraries (--copy-libraries), the
+        # COPY forms it carries: a JSON list of library-names, "" for an unqualified COPY (`COPY X` and
+        # `COPY X IN LIB` of one member can reach different files). NULL otherwise.
+        _ensure_columns(cursor, "edge_data", ["copy_libraries TEXT"])
 
         # #3200: one row per mainframe INVOCATION SITE -- COBOL `CALL`, CICS
         # `LINK`/`XCTL PROGRAM(...)`, JCL `EXEC PGM=`. edge_data carries the
@@ -1082,6 +1091,7 @@ class RecordKeeper:
                 attributes TEXT,
                 copy_members TEXT,
                 sign_separate INTEGER,
+                copy_libraries TEXT,
                 FOREIGN KEY(file_id) REFERENCES file_data(id) ON DELETE CASCADE
             )
         """)
@@ -1097,6 +1107,9 @@ class RecordKeeper:
         # takes a byte of its own, after the digits), 2 for SIGN LEADING SEPARATE (before them),
         # NULL otherwise; widths are the reader's job (galaxy_ir).
         _ensure_columns(cursor, "record_data", ["sign_separate INTEGER"])
+        # #4265: `copy_libraries` -- the library-name each `copy_members` COPY names (`COPY X IN LIB`),
+        # comma-separated in the same order, "" for an unqualified COPY; NULL when none names one.
+        _ensure_columns(cursor, "record_data", ["copy_libraries TEXT"])
         cursor.execute("CREATE INDEX IF NOT EXISTS idx_record_file_id ON record_data(file_id);")
         cursor.execute("CREATE INDEX IF NOT EXISTS idx_record_snapshot ON record_data(repo_name, commit_hash);")
 
@@ -2604,6 +2617,9 @@ class RecordKeeper:
             # #3788: a JS/TS file's namespace-import aliases ({alias: specifier}), NULL if none.
             namespaces = file_data.get("namespace_imports")
             row_data.append(json.dumps(namespaces, sort_keys=True) if namespaces else None)
+            # #4265: {member: [library-name or "" per distinct COPY form]}, NULL if no COPY names a library.
+            libraries = file_data.get("import_libraries")
+            row_data.append(json.dumps(libraries, sort_keys=True) if libraries else None)
 
             # #3183 (B1): accumulate the row and precompute its AUTOINCREMENT id
             # (assigned in list order by the executemany after the loop) instead
@@ -2721,7 +2737,7 @@ class RecordKeeper:
                     {", ".join([f"pct_vec_{r.replace('-', '_')}" for r in self.RISK_SCHEMA])},
                     rel_guard_balance, rel_alloc_cleanup, mitigation_telemetry, doc_umbrella, raw_imports,
                     wrapper_facts, wrapped_debug_prints, wrapped_panics_and_aborts, wrapped_memory_alloc,
-                    declared_names, source_encoding, source_decode, namespace_imports
+                    declared_names, source_encoding, source_decode, namespace_imports, import_libraries
                 ) VALUES ({file_placeholders})
             """,  # noqa: S608
                 all_file_rows,
@@ -2777,6 +2793,7 @@ class RecordKeeper:
                         float(edge.get("weight", 0.0)),
                         int(edge.get("import_statements", 0)),
                         int(edge.get("entity_imports", 0)),
+                        json.dumps(edge["copy_libraries"]) if edge.get("copy_libraries") else None,  # #4265
                     )
                 )
             edges_unrecorded = len(dependency_edges) - len(edge_rows)
@@ -2790,8 +2807,8 @@ class RecordKeeper:
                     """
                     INSERT INTO edge_data (
                         repo_name, commit_hash, src_file_id, dst_file_id,
-                        edge_kind, weight, import_statements, entity_imports
-                    ) VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+                        edge_kind, weight, import_statements, entity_imports, copy_libraries
+                    ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
                 """,
                     edge_rows,
                 )
@@ -3001,6 +3018,7 @@ class RecordKeeper:
                 "attributes",
                 "copy_members",
                 "sign_separate",
+                "copy_libraries",
             ),
             "record_layouts",
             lambda it: (
@@ -3021,6 +3039,7 @@ class RecordKeeper:
                 it.get("attributes"),
                 it.get("copy_members"),  # #3355
                 int(it["sign_separate"]) if it.get("sign_separate") else None,  # #3694: 1 trailing, 2 leading
+                it.get("copy_libraries"),  # #4265
             ),
         )
 

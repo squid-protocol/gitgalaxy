@@ -517,6 +517,18 @@ _COPY_IN_ENTRY = re.compile(
     + r"0-9@#$-]*)",
     re.I,
 )
+# #4265: the `IN|OF library-name` after a COPY's text-name (closing quote allowed).
+_COPY_LIBRARY = re.compile(
+    r"['\"]?[ \t\n\u3000]+(?:IN|OF)[ \t\n\u3000]+['\"]?([A-Z"
+    + NATIONAL
+    + WIDE_DIGITS
+    + r"0-9@#$][A-Z"
+    + NATIONAL
+    + WIDE_DIGITS
+    + WIDE_HYPHENS
+    + r"0-9@#$-]*)",
+    re.I,
+)
 # The special levels: 88 condition-names and 66 RENAMES describe the item above
 # them rather than nesting by level number, so they attach to the last real
 # item and are never pushed as a potential parent themselves.
@@ -1127,7 +1139,12 @@ def _cobol_records(code_stream: str, decimal_comma: Optional[bool] = None) -> li
             if nxt < len(offsets):
                 copy_stop = min(copy_stop, offsets[nxt])
         copy_window = code_stream[level_match.end() : max(copy_stop, level_match.end())]
-        copy_members = [m.group(1).upper() for m in _COPY_IN_ENTRY.finditer(copy_window)]
+        copy_matches = list(_COPY_IN_ENTRY.finditer(copy_window))
+        copy_members = [m.group(1).upper() for m in copy_matches]
+        # #4265: the library-name a COPY names (`COPY DATEWS IN SHRCPY`), "" when none, per member above
+        copy_libraries = [
+            (lib.group(1).upper() if (lib := _COPY_LIBRARY.match(copy_window, m.end())) else "") for m in copy_matches
+        ]
 
         section, fd_name = _context(start)
         records.append(
@@ -1148,6 +1165,8 @@ def _cobol_records(code_stream: str, decimal_comma: Optional[bool] = None) -> li
                 "line": _line_of(start),
                 # Presence-keyed: an entry with no COPY after it keeps its pre-#3355 shape.
                 **({"copy_members": ",".join(copy_members)} if copy_members else {}),
+                # #4265: presence-keyed -- only when a COPY names its library.
+                **({"copy_libraries": ",".join(copy_libraries)} if any(copy_libraries) else {}),
                 # #3694: presence-keyed likewise -- only a SEPARATE sign is recorded.
                 # (1 a TRAILING separate sign, 2 a LEADING one)
                 **({"sign_separate": _sign_separate(window)} if _sign_separate(window) else {}),

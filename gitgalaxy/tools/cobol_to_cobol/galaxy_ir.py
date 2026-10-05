@@ -1842,10 +1842,15 @@ class GalaxyIR:
             # roots land at the first level that holds them: here, as `item`'s children after
             # `child` -- or, when they are no deeper than `item`, they close `item` too.
             leaf = _last_entry(child)
+            # #4458: a member that opens its own 01 was moved off `leaf.copy_members` to `section_copies`
+            # (#4330); it closes `child` and `item` all the same (CardDemo COTRN02C: `10 CSUTLDTC-RESULT-MSG`,
+            # `COPY COCOM01Y.`, then the `05 CDEMO-CT02-INFO` that continues the copied record)
             if (
                 leaf is not child
-                and leaf.copy_members
-                and self._copy_closes(leaf, child, ef, origin, depth)
+                and (
+                    (leaf.copy_members and self._copy_closes(leaf, child, ef, origin, depth))
+                    or any(o == leaf.ordinal for _, o in ef.section_copies)
+                )
                 and _copies(leaf, ef, depth)
             ):
                 break

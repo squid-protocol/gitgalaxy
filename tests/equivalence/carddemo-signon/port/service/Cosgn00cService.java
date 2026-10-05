@@ -51,12 +51,34 @@ public class Cosgn00cService {
     private final SecUserDataRepository secUserDataRepository;
 
     /** A CICS transaction entered the program (#4343): one task of it in the region (CicsTask.region()),
-     *  ENTER pressed, started from a cleared screen, run through runTask. */
-    public void handleTransaction(String transid) {
+     *  ENTER pressed -- `request` its COMMAREA, null when started from a cleared screen -- run through runTask. Returns the COMMAREA its RETURN passes on (null: none).
+     *  The COMMAREA crosses programs (#4427): COBOL passes bytes, and each program reads them through its
+     *  own record, so a port may pass either record -- the facade carries it as Object where a flow
+     *  presents another class, and runTask reads it (task.commarea(..)). The flows:
+     *  out: RETURN TRANSID(CPVS) COMMAREA(CARDDEMO-COMMAREA) at app/app-authorization-ims-db2-mq/cbl/COPAUS0C.cbl:254 -> app/app-authorization-ims-db2-mq/cbl/COPAUS0C.cbl, after an XCTL from app/cbl/COSGN00C.cbl (Copaus0cCarddemoCommarea besides CarddemoCommarea).
+     *  out: RETURN TRANSID(CPVD) COMMAREA(CARDDEMO-COMMAREA) at app/app-authorization-ims-db2-mq/cbl/COPAUS1C.cbl:202 -> app/app-authorization-ims-db2-mq/cbl/COPAUS1C.cbl, after an XCTL from app/cbl/COSGN00C.cbl (Copaus1cCarddemoCommarea besides CarddemoCommarea).
+     *  out: RETURN TRANSID(CTLI) COMMAREA(WS-COMMAREA) at app/app-transaction-type-db2/cbl/COTRTLIC.cbl:910 -> app/app-transaction-type-db2/cbl/COTRTLIC.cbl, after an XCTL from app/cbl/COSGN00C.cbl (CotrtlicCommarea besides CarddemoCommarea).
+     *  out: RETURN TRANSID(CTTU) COMMAREA(WS-COMMAREA) at app/app-transaction-type-db2/cbl/COTRTUPC.cbl:567 -> app/app-transaction-type-db2/cbl/COTRTUPC.cbl, after an XCTL from app/cbl/COSGN00C.cbl (CotrtupcCommarea besides CarddemoCommarea).
+     *  out: RETURN TRANSID(CAUP) COMMAREA(WS-COMMAREA) at app/cbl/COACTUPC.cbl:1015 -> app/cbl/COACTUPC.cbl, after an XCTL from app/cbl/COSGN00C.cbl (CoactupcCommarea besides CarddemoCommarea).
+     *  out: RETURN TRANSID(CAVW) COMMAREA(WS-COMMAREA) at app/cbl/COACTVWC.cbl:402 -> app/cbl/COACTVWC.cbl, after an XCTL from app/cbl/COSGN00C.cbl (CoactvwcCommarea besides CarddemoCommarea).
+     *  out: RETURN TRANSID(CB00) COMMAREA(CARDDEMO-COMMAREA) at app/cbl/COBIL00C.cbl:146 -> app/cbl/COBIL00C.cbl, after an XCTL from app/cbl/COSGN00C.cbl (Cobil00cCarddemoCommarea besides CarddemoCommarea).
+     *  out: RETURN TRANSID(CCLI) COMMAREA(WS-COMMAREA) at app/cbl/COCRDLIC.cbl:615 -> app/cbl/COCRDLIC.cbl, after an XCTL from app/cbl/COSGN00C.cbl (CocrdlicCommarea besides CarddemoCommarea).
+     *  out: RETURN TRANSID(CCDL) COMMAREA(WS-COMMAREA) at app/cbl/COCRDSLC.cbl:402 -> app/cbl/COCRDSLC.cbl, after an XCTL from app/cbl/COSGN00C.cbl (CocrdslcCommarea besides CarddemoCommarea).
+     *  out: RETURN TRANSID(CCUP) COMMAREA(WS-COMMAREA) at app/cbl/COCRDUPC.cbl:554 -> app/cbl/COCRDUPC.cbl, after an XCTL from app/cbl/COSGN00C.cbl (CocrdupcCommarea besides CarddemoCommarea).
+     *  out: RETURN TRANSID(CT00) COMMAREA(CARDDEMO-COMMAREA) at app/cbl/COTRN00C.cbl:138 -> app/cbl/COTRN00C.cbl, after an XCTL from app/cbl/COSGN00C.cbl (Cotrn00cCarddemoCommarea besides CarddemoCommarea).
+     *  out: RETURN TRANSID(CT01) COMMAREA(CARDDEMO-COMMAREA) at app/cbl/COTRN01C.cbl:136 -> app/cbl/COTRN01C.cbl, after an XCTL from app/cbl/COSGN00C.cbl (Cotrn01cCarddemoCommarea besides CarddemoCommarea).
+     *  out: RETURN TRANSID(CT02) COMMAREA(CARDDEMO-COMMAREA) at app/cbl/COTRN02C.cbl:156 -> app/cbl/COTRN02C.cbl, after an XCTL from app/cbl/COSGN00C.cbl (Cotrn02cCarddemoCommarea besides CarddemoCommarea).
+     *  out: RETURN TRANSID(CT02) COMMAREA(CARDDEMO-COMMAREA) at app/cbl/COTRN02C.cbl:530 -> app/cbl/COTRN02C.cbl, after an XCTL from app/cbl/COSGN00C.cbl (Cotrn02cCarddemoCommarea besides CarddemoCommarea).
+     *  out: RETURN TRANSID(CU00) COMMAREA(CARDDEMO-COMMAREA) at app/cbl/COUSR00C.cbl:141 -> app/cbl/COUSR00C.cbl, after an XCTL from app/cbl/COSGN00C.cbl (Cousr00cCarddemoCommarea besides CarddemoCommarea).
+     *  out: RETURN TRANSID(CU02) COMMAREA(CARDDEMO-COMMAREA) at app/cbl/COUSR02C.cbl:135 -> app/cbl/COUSR02C.cbl, after an XCTL from app/cbl/COSGN00C.cbl (Cousr02cCarddemoCommarea besides CarddemoCommarea).
+     *  out: RETURN TRANSID(CU03) COMMAREA(CARDDEMO-COMMAREA) at app/cbl/COUSR03C.cbl:134 -> app/cbl/COUSR03C.cbl, after an XCTL from app/cbl/COSGN00C.cbl (Cousr03cCarddemoCommarea besides CarddemoCommarea).
+     */
+    public Object handleTransaction(String transid, CarddemoCommarea request) {
         log.info("Cosgn00c: handleTransaction");
         CicsTask.Region region = CicsTask.region();
-        CicsTask task = region.transaction(transid, null);
+        CicsTask task = region.transaction(transid, request);
         region.run(task, "COSGN00C", this::runTask);
+        return task.returned(Object.class);
     }
 
     /** The program's working storage for one task. */
@@ -285,12 +307,13 @@ public class Cosgn00cService {
     }
 
     /** Another program LINKed / XCTLed to this one (#4343): the program at that level in the region
-     *  (CicsTask.region()), run through runTask on no COMMAREA. */
-    public void handleLink() {
+     *  (CicsTask.region()), run through runTask on `request`, passed by reference -- what it changes, the caller sees. */
+    public CarddemoCommarea handleLink(CarddemoCommarea request) {
         log.info("Cosgn00c: handleLink");
         CicsTask.Region region = CicsTask.region();
-        CicsTask task = region.linked("COSGN00C", null);
+        CicsTask task = region.linked("COSGN00C", request);
         region.run(task, "COSGN00C", this::runTask);
+        return request;
     }
 
     /** EXEC CICS XCTL PROGRAM(COADM01C) at app/cbl/COSGN00C.cbl:231. XCTL transfers control: nothing after it runs in the caller.

@@ -197,15 +197,15 @@
 <text class="bar-value-label" x="726.0" y="463">1712</text>
 <text class="lang-label" x="20" y="495.5">cobol</text>
 <rect class="bar-track" x="154" y="475" width="88" height="34" rx="2"/>
-<rect x="154" y="475" width="64.9" height="10" rx="2" fill="#2a78d6"/>
-<text class="bar-value-label" x="198.0" y="483">9841</text>
+<rect x="154" y="475" width="64.8" height="10" rx="2" fill="#2a78d6"/>
+<text class="bar-value-label" x="198.0" y="483">9827</text>
 <rect x="154" y="487" width="88.0" height="10" rx="2" fill="#1baf7a"/>
 <text class="bar-value-label" x="198.0" y="495">13346</text>
 <rect class="bar-track" x="286" y="475" width="88" height="34" rx="2"/>
 <rect x="286" y="475" width="88.0" height="10" rx="2" fill="#2a78d6"/>
-<text class="bar-value-label" x="330.0" y="483">9841/9841</text>
-<rect x="286" y="487" width="64.8" height="10" rx="2" fill="#1baf7a"/>
-<text class="bar-value-label" x="330.0" y="495">9828/13346</text>
+<text class="bar-value-label" x="330.0" y="483">9827/9827</text>
+<rect x="286" y="487" width="64.7" height="10" rx="2" fill="#1baf7a"/>
+<text class="bar-value-label" x="330.0" y="495">9814/13346</text>
 <circle cx="390.0" cy="492.0" r="8" fill="#2a78d6"/>
 <text class="badge-label" x="390.0" y="495.0">G</text>
 <rect class="bar-track" x="418" y="475" width="88" height="34" rx="2"/>

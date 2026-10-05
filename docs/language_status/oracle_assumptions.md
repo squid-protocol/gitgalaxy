@@ -416,6 +416,10 @@ The length READQ TS returns on ITEMERR or QIDERR is not documented, so it is not
   default) that overwrites whatever follows in storage; GnuCOBOL's layout is not IBM's.
 - **Effect.** The det port stops (an index error), so such a scenario can never be proven by accident; the case leaves
   it out and says so. A COBOL-side check (GnuCOBOL's EC-BOUND-REF-MOD) would turn it into a refusal by name.
+- **A subscript past its table is the same** (#4463): CardDemo COMEN01C rejects an option above 11, then still reads
+  `CDEMO-MENU-OPT-USRTYPE(WS-OPTION)`; option 99 reads 4K past the record. carddemo-menu's `option-12-typed-over` sent
+  99 from #4049 on, and its det port stopped there (an index error) -- the case now sends 12, inside the 12-entry
+  table. GnuCOBOL's EC-BOUND-SUBSCRIPT would make the COBOL side refuse such a scenario by name.
 
 ### X9. Named counters — MATCHED
 - GET COUNTER returns the counter's value and then adds one (IBM CICS TS, GET COUNTER); a counter the region does not

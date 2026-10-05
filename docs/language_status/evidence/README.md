@@ -47,7 +47,7 @@ One record per ported program (#4048): docs/language_status/evidence_records.md 
 | [HCQREAD](crucible-hc-perform-range-HCQREAD.md) | crucible:hc-perform-range/HCQREAD | crucible | proven, unapproved |  | 4 | 8/8 / 0/0 | 12/21 / 12/12 | 0 | - |
 | [HXATTR](crucible-hx-attr-bytes-HXATTR.md) | crucible:hx-attr-bytes/HXATTR | crucible | proven, unapproved |  | 4 | 4/4 / 6/6 | 10/20 / 10/10 | 0 | - |
 | [HXEXT](crucible-hx-extended-cursor-HXEXT.md) | crucible:hx-extended-cursor/HXEXT | crucible | proven, unapproved |  | 3 | 3/3 / 6/6 | 14/22 / 14/19 | 0 | - |
-| [PCDETL](crucible-pc-aid-menu-PCDETL.md) | crucible:pc-aid-menu/PCDETL | crucible | not-proven | the proof failed | 3 | 1/1 / 2/2 | 14/24 / 14/14 | 0 | - |
-| [PCMENU](crucible-pc-aid-menu-PCMENU.md) | crucible:pc-aid-menu/PCMENU | crucible | not-proven | the proof failed | 4 | 4/4 / 9/9 | 14/22 / 14/15 | 0 | - |
-| [PCCONF](crucible-pc-wizard-PCCONF.md) | crucible:pc-wizard/PCCONF | crucible | not-proven | the proof failed | 5 | 5/5 / 14/14 | 14/23 / 14/17 | 0 | - |
-| [PCWIZ](crucible-pc-wizard-PCWIZ.md) | crucible:pc-wizard/PCWIZ | crucible | not-proven | the proof failed | 6 | 5/5 / 10/10 | 11/21 / 11/16 | 0 | - |
+| [PCDETL](crucible-pc-aid-menu-PCDETL.md) | crucible:pc-aid-menu/PCDETL | crucible | proven, unapproved |  | 3 | 1/1 / 2/2 | 14/24 / 14/14 | 0 | - |
+| [PCMENU](crucible-pc-aid-menu-PCMENU.md) | crucible:pc-aid-menu/PCMENU | crucible | proven, unapproved |  | 4 | 4/4 / 9/9 | 14/22 / 14/15 | 0 | - |
+| [PCCONF](crucible-pc-wizard-PCCONF.md) | crucible:pc-wizard/PCCONF | crucible | proven, unapproved |  | 5 | 5/5 / 14/14 | 14/23 / 14/17 | 0 | - |
+| [PCWIZ](crucible-pc-wizard-PCWIZ.md) | crucible:pc-wizard/PCWIZ | crucible | proven, unapproved |  | 6 | 5/5 / 10/10 | 11/21 / 11/16 | 0 | - |

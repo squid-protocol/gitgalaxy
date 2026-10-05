@@ -1969,16 +1969,23 @@ class CicsForge:
         otherwise that side is Object -- the COMMAREA as whichever record the port passed, read by runTask
         through task.commarea(..). The flows are the skeleton's commarea_contracts rows (verb RETURN TRANSID)."""
         by_file = {p.path: p for p in self.programs.values()}
-        record_dto = {(sig[0].upper(), sig[1]): name for sig, name in self._by_signature.items()}
+        record_dtos: dict[tuple[str, str], set[str]] = {}
+        for sig, name in self._by_signature.items():
+            record_dtos.setdefault((sig[0].upper(), sig[1]), set()).add(name)
 
         def classes(row: dict) -> set[str | None]:
             sender, receiver = by_file.get(row.get("caller", "")), by_file.get(row.get("callee", ""))
             if sender is not None and sender is receiver:  # a program RETURNing to itself: its own record
                 return {sender.commarea_dto}
+            # the sender presents its record as its own COMMAREA DTO when that is one of the record's DTOs, else as
+            # the record's only DTO; a record with several DTOs (extended copies) and no planned sender: unknown
             rec = row.get("caller_record") or {}
-            sent = record_dto.get((str(rec.get("name") or row.get("commarea") or "").upper(), rec.get("file") or ""))
-            if sent is None and sender is not None:
+            dtos = record_dtos.get((str(rec.get("name") or row.get("commarea") or "").upper(), rec.get("file") or ""),
+                                   set())  # fmt: skip
+            if sender is not None and (sender.commarea_dto in dtos or len(dtos) != 1):
                 sent = sender.commarea_dto
+            else:
+                sent = next(iter(dtos)) if len(dtos) == 1 else None
             return {sent, receiver.commarea_dto if receiver is not None else None}
 
         # every RETURN TRANSID with a COMMAREA, and every XCTL, the estate's skeletons know (each lists its own sites
@@ -2023,7 +2030,7 @@ class CicsForge:
                     as_ = f" ({', '.join(other)} besides {own})" if other else f" (no DTO besides {own})"
                     via = "" if side == "in" or r.get("caller") == prog.path else f", after an XCTL from {prog.path}"
                     line = (f"{side}: RETURN TRANSID({r.get('target')}) COMMAREA({rec}) at {r.get('caller')}:"
-                            f"{r.get('line')} -> {r.get('callee')}{via}{as_}")  # fmt: skip
+                            f"{r.get('line')} -> {r.get('callee') or 'a program the estate does not resolve'}{via}{as_}")  # fmt: skip
                     if line not in prog.crossings:
                         prog.crossings.append(line)
 

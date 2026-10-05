@@ -1308,7 +1308,7 @@
         },
         {
           "ordinal": 67,
-          "parent": 66,
+          "parent": null,
           "level": 77,
           "name": "I",
           "section": "WORKING-STORAGE",
@@ -1324,7 +1324,7 @@
         },
         {
           "ordinal": 68,
-          "parent": 66,
+          "parent": null,
           "level": 77,
           "name": "I2",
           "section": "WORKING-STORAGE",
@@ -1335,7 +1335,7 @@
           "occurs_max": null,
           "occurs_depending_on": null,
           "redefines": null,
-          "value": null,
+          "value": "+001",
           "line": 106
         },
         {
@@ -1618,7 +1618,7 @@
           "section": "WORKING-STORAGE",
           "fd": null,
           "pic": "X(55)",
-          "usage": "DISPLAY",
+          "usage": null,
           "occurs_min": null,
           "occurs_max": null,
           "occurs_depending_on": null,
@@ -1632,7 +1632,9 @@
       "sql": false,
       "verification": {
         "status": "validated",
-        "notes": [],
+        "notes": [
+          "#4393: records re-drafted by the fixed reader (signed / prefixed / continued VALUE literals, no VALUE or USAGE read past the DATA DIVISION, implicit FILLER #4246, 77 as a root #4359); every changed field matches the engine and the #4377 referee panel"
+        ],
         "tier": "cross_verified",
         "cross_by": "claude-opus-5.5 blind reviewers (dsf census)",
         "cross_at": "2026-09-24",
@@ -2468,7 +2470,7 @@
         },
         {
           "ordinal": 36,
-          "parent": 35,
+          "parent": null,
           "level": 77,
           "name": "TRK-AKK",
           "section": "WORKING-STORAGE",
@@ -2484,7 +2486,7 @@
         },
         {
           "ordinal": 37,
-          "parent": 35,
+          "parent": null,
           "level": 77,
           "name": "SIDE-AKK",
           "section": "WORKING-STORAGE",
@@ -2500,7 +2502,7 @@
         },
         {
           "ordinal": 38,
-          "parent": 35,
+          "parent": null,
           "level": 77,
           "name": "LINJE-AKK",
           "section": "WORKING-STORAGE",
@@ -2516,7 +2518,7 @@
         },
         {
           "ordinal": 39,
-          "parent": 35,
+          "parent": null,
           "level": 77,
           "name": "TKNR-TEST",
           "section": "WORKING-STORAGE",
@@ -2532,7 +2534,7 @@
         },
         {
           "ordinal": 40,
-          "parent": 35,
+          "parent": null,
           "level": 77,
           "name": "SVAR",
           "section": "WORKING-STORAGE",
@@ -2548,7 +2550,7 @@
         },
         {
           "ordinal": 41,
-          "parent": 35,
+          "parent": null,
           "level": 77,
           "name": "TRK-NR",
           "section": "WORKING-STORAGE",
@@ -2564,7 +2566,7 @@
         },
         {
           "ordinal": 42,
-          "parent": 35,
+          "parent": null,
           "level": 77,
           "name": "TRK-NAVN",
           "section": "WORKING-STORAGE",
@@ -2580,7 +2582,7 @@
         },
         {
           "ordinal": 43,
-          "parent": 35,
+          "parent": null,
           "level": 77,
           "name": "SW-ALLE",
           "section": "WORKING-STORAGE",
@@ -2596,7 +2598,7 @@
         },
         {
           "ordinal": 44,
-          "parent": 35,
+          "parent": null,
           "level": 77,
           "name": "FORINNT-AKK",
           "section": "WORKING-STORAGE",
@@ -2612,7 +2614,7 @@
         },
         {
           "ordinal": 45,
-          "parent": 35,
+          "parent": null,
           "level": 77,
           "name": "X-FELT",
           "section": "WORKING-STORAGE",
@@ -2628,7 +2630,7 @@
         },
         {
           "ordinal": 46,
-          "parent": 35,
+          "parent": null,
           "level": 77,
           "name": "X-ALDER",
           "section": "WORKING-STORAGE",
@@ -3071,7 +3073,7 @@
           "occurs_max": null,
           "occurs_depending_on": null,
           "redefines": null,
-          "value": "ST\u00d8NADSMOTTAKERE ETTER KA\n    ",
+          "value": "ST\u00d8NADSMOTTAKERE ETTER KAP. 7, 8, 10, ELLER KAP. 11 MED TILLEGGSPENSJON ",
           "line": 116
         },
         {
@@ -3087,7 +3089,7 @@
           "occurs_max": null,
           "occurs_depending_on": null,
           "redefines": null,
-          "value": "(TILLEGGSYTELSE) ELLER MED\n    ",
+          "value": "(TILLEGGSYTELSE) ELLER MED REDUSERT YTELSE                  ",
           "line": 118
         },
         {
@@ -3183,7 +3185,7 @@
           "occurs_max": null,
           "occurs_depending_on": null,
           "redefines": null,
-          "value": ". JF   RIKSTRYGDEVERKETS B\n    ",
+          "value": ". JF   RIKSTRYGDEVERKETS BREV AV ",
           "line": 125
         },
         {
@@ -5498,7 +5500,7 @@
           "section": "WORKING-STORAGE",
           "fd": null,
           "pic": "X(27)",
-          "usage": "DISPLAY",
+          "usage": null,
           "occurs_min": null,
           "occurs_max": null,
           "occurs_depending_on": null,
@@ -5512,7 +5514,9 @@
       "sql": false,
       "verification": {
         "status": "validated",
-        "notes": [],
+        "notes": [
+          "#4393: records re-drafted by the fixed reader (signed / prefixed / continued VALUE literals, no VALUE or USAGE read past the DATA DIVISION, implicit FILLER #4246, 77 as a root #4359); every changed field matches the engine and the #4377 referee panel"
+        ],
         "tier": "cross_verified",
         "cross_by": "claude-opus-5.5 blind reviewers (dsf census)",
         "cross_at": "2026-09-24",

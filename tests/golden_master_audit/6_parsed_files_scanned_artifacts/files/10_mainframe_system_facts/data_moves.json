@@ -2,16 +2,12 @@
   "groups": {
     "cobol/CICS-Cobol": {
       "cobol/CICS-Cobol/CBL0104v01ProcedureDivision.cbl": [
-        "L17 MOVE \"ARQUITECTURA HOST \" -> WS",
-        "L17 MOVE \"ARQUITECTURA HOST \" -> NAME"
+        "L17 MOVE \"ARQUITECTURA HOST \" -> WS_NAME"
       ],
       "cobol/CICS-Cobol/CBL0105v01DeclararElementoGrupo.cbl": [
-        "L20 MOVE \"ARQUITECTURA ALTAMIRA \" -> WS",
-        "L20 MOVE \"ARQUITECTURA ALTAMIRA \" -> HOST",
-        "L21 MOVE \"BM\" -> WS",
-        "L21 MOVE \"BM\" -> CANAL",
-        "L22 MOVE \"20181113\" -> WS",
-        "L22 MOVE \"20181113\" -> FECHA"
+        "L20 MOVE \"ARQUITECTURA ALTAMIRA \" -> WS_HOST",
+        "L21 MOVE \"BM\" -> WS_CANAL",
+        "L22 MOVE \"20181113\" -> WS_FECHA"
       ],
       "cobol/CICS-Cobol/CBL0106v01ClausulaImagen.cbl": [
         "L19 MOVE 156.955 -> WS-NUM1",
@@ -202,10 +198,8 @@
       ],
       "cobol/CICS-Cobol/CBL0703v01StatementString.cbl": [
         "L21 MOVE \"STATEMENT STRING\" -> WS-TEMA",
-        "L27 STRING WS-STR -> WS-STR",
-        "L27 STRING IN1 -> WS-STR",
-        "L27 STRING WS-STR -> WS-STR",
-        "L27 STRING IN2 -> WS-STR"
+        "L27 STRING WS-STR_IN1 -> WS-STR_OUT",
+        "L27 STRING WS-STR_IN2 -> WS-STR_OUT"
       ],
       "cobol/CICS-Cobol/CBL0704v01StatementNotString.cbl": [
         "L23 MOVE \"STATEMENT UNSTRING\" -> WS-TEMA",
@@ -4664,7 +4658,6 @@
         "L614 MOVE \"COMPLETE ENTITY\" -> RE-MARK",
         "L621 MOVE \"DEBUG-LINE-TEST-01\" -> PAR-NAME",
         "L624 MOVE \"CONSECUTIVE DEBUG LINES\" -> RE-MARK",
-        "L627 SUBTRACT 1 -> D",
         "L632 MOVE \"DEBUG-LINE-TEST-02\" -> PAR-NAME",
         "L635 MOVE \"BROKEN STATEMENTS\" -> RE-MARK",
         "L644 MOVE \"DEBUG-LINE-TEST-03\" -> PAR-NAME",

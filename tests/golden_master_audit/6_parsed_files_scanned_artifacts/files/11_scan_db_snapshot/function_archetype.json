@@ -6703,9 +6703,6 @@
       "cobol/che-che4z_lsp_project_fixtures/REPLACING.CBL": {
         "MAINLINE@21": "Interface Declarations"
       },
-      "cobol/che-che4z_lsp_project_fixtures/RES.cbl": {
-        "FILE-CONTROsL@6": "State Mutators"
-      },
       "cobol/che-che4z_lsp_project_fixtures/TEST.CBL": {
         "MAINLINE@22": "Interface Declarations"
       },
@@ -6749,8 +6746,7 @@
       },
       "cobol/che-che4z_lsp_project_fixtures/USER2.cbl": {
         "000-Main-Logic@28": "Interface Declarations",
-        "100-Print-User@32": "Interface Declarations",
-        "Program1-id@15": "State Mutators"
+        "100-Print-User@32": "Interface Declarations"
       },
       "cobol/che-che4z_lsp_project_fixtures/USERC1F.cbl": {
         "000-Main-Logic@30": "Interface Declarations",
@@ -6784,8 +6780,6 @@
         "PARA1@29": "Interface Declarations"
       },
       "cobol/che-che4z_lsp_project_fixtures/cobol-daco_DACOSMPL.cbl": {
-        "IDMS-CONTROL@7": "Interface Declarations",
-        "PROTOCOL@8": "Interface Declarations",
         "S310-000@41": "I/O & Config Routines",
         "S310-500@45": "Interface Declarations",
         "S310-999@51": "Interface Declarations",
@@ -6800,13 +6794,7 @@
         "S312-999@92": "Interface Declarations",
         "S312@66": "Interface Declarations"
       },
-      "cobol/che-che4z_lsp_project_fixtures/cobol-dc_ABCD.cbl": {
-        "IDMS-CONTROL@7": "Interface Declarations",
-        "PROTOCOL@8": "Interface Declarations"
-      },
       "cobol/che-che4z_lsp_project_fixtures/cobol-idms_DACOSMPL.cbl": {
-        "IDMS-CONTROL@7": "Interface Declarations",
-        "PROTOCOL@8": "Interface Declarations",
         "S310-000@41": "I/O & Config Routines",
         "S310-500@45": "Interface Declarations",
         "S310-999@51": "Interface Declarations",
@@ -6822,8 +6810,6 @@
         "S312@66": "Interface Declarations"
       },
       "cobol/che-che4z_lsp_project_fixtures/cobol-idms_IDMSSMPL.cbl": {
-        "IDMS-CONTROL@6": "Interface Declarations",
-        "PROTOCOL@7": "Interface Declarations",
         "S410-000@33": "I/O & Config Routines",
         "S410-999@48": "Interface Declarations",
         "S410@32": "Interface Declarations",
@@ -6843,8 +6829,6 @@
         "S3@37": "Interface Declarations"
       },
       "cobol/che-che4z_lsp_project_fixtures/cobol-vanila_DACOSMPL.cbl": {
-        "IDMS-CONTROL@7": "Interface Declarations",
-        "PROTOCOL@8": "Interface Declarations",
         "S310-000@40": "I/O & Config Routines",
         "S310-500@44": "Interface Declarations",
         "S310-999@50": "Interface Declarations",
@@ -6860,8 +6844,6 @@
         "S312@65": "Interface Declarations"
       },
       "cobol/che-che4z_lsp_project_fixtures/cobol-vanila_IDMSSMPL.cbl": {
-        "IDMS-CONTROL@6": "Interface Declarations",
-        "PROTOCOL@7": "Interface Declarations",
         "S410-000@33": "I/O & Config Routines",
         "S410-999@48": "Interface Declarations",
         "S410@32": "Interface Declarations",
@@ -7030,11 +7012,9 @@
         "DEBUG-LINE-DELETE-05@674": "Interface Declarations",
         "DEBUG-LINE-TEST-01@613": "Interface Declarations",
         "DEBUG-LINE-TEST-02@623": "Interface Declarations",
-        "DEBUG-LINE-TEST-03@634": "Interface Declarations",
-        "DEBUG-LINE-TEST-03A@638": "Interface Declarations",
+        "DEBUG-LINE-TEST-03@634": "I/O & Config Routines",
         "DEBUG-LINE-TEST-04-B@653": "Interface Declarations",
         "DEBUG-LINE-TEST-04@646": "I/O & Config Routines",
-        "DEBUG-LINE-TEST-05-A@665": "Interface Declarations",
         "DEBUG-LINE-TEST-05-C@671": "Interface Declarations",
         "DEBUG-LINE-TEST-05@661": "I/O & Config Routines",
         "DEBUG-LINE-TESTS-INIT@611": "I/O & Config Routines",
@@ -15251,7 +15231,7 @@
         "GET-TODAYS-DATE@1392": "Interface Declarations",
         "GOD010@881": "I/O & Config Routines",
         "GOD999@923": "Interface Declarations",
-        "GTD010@1393": "Interface Declarations",
+        "GTD010@1393": "I/O & Config Routines",
         "GTD999@1403": "Interface Declarations",
         "IA010@931": "I/O & Config Routines",
         "IA999@1177": "Interface Declarations",

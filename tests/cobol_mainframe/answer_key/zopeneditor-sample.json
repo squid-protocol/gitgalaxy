@@ -364,7 +364,8 @@
         "notes": [
           "OPEN INPUT TRANSACTION-FILE CUSTOMER-FILE OUTPUT CUSTOMER-FILE-OUT REPORT-FILE: CUSTOUT and CUSTRPT are outputs.",
           "CALL SAM2 goes through 05 SAM2 PIC X(8) VALUE 'SAM2'.",
-          "CALL target PROGRAM-ID is shared by two programs (one per workspace root); the nearest is taken."
+          "CALL target PROGRAM-ID is shared by two programs (one per workspace root); the nearest is taken.",
+          "#4393: records re-drafted by the fixed reader (signed / prefixed / continued VALUE literals, no VALUE or USAGE read past the DATA DIVISION, implicit FILLER #4246, 77 as a root #4359); every changed field matches the engine and the #4377 referee panel"
         ],
         "tier": "cross_verified",
         "cross_by": "claude-opus-5.5, fresh-context subagent given only the brief (blind; same model family as the author)",
@@ -580,7 +581,7 @@
           "occurs_max": null,
           "occurs_depending_on": null,
           "redefines": null,
-          "value": null,
+          "value": "+0",
           "line": 93
         },
         {
@@ -596,7 +597,7 @@
           "occurs_max": null,
           "occurs_depending_on": null,
           "redefines": null,
-          "value": null,
+          "value": "+0",
           "line": 94
         },
         {
@@ -612,7 +613,7 @@
           "occurs_max": null,
           "occurs_depending_on": null,
           "redefines": null,
-          "value": null,
+          "value": "+0",
           "line": 95
         },
         {
@@ -628,7 +629,7 @@
           "occurs_max": null,
           "occurs_depending_on": null,
           "redefines": null,
-          "value": null,
+          "value": "+0",
           "line": 96
         },
         {
@@ -644,7 +645,7 @@
           "occurs_max": null,
           "occurs_depending_on": null,
           "redefines": null,
-          "value": null,
+          "value": "+0",
           "line": 97
         },
         {
@@ -660,7 +661,7 @@
           "occurs_max": null,
           "occurs_depending_on": null,
           "redefines": null,
-          "value": null,
+          "value": "+0",
           "line": 98
         },
         {
@@ -676,7 +677,7 @@
           "occurs_max": null,
           "occurs_depending_on": null,
           "redefines": null,
-          "value": null,
+          "value": "+0",
           "line": 99
         },
         {
@@ -692,7 +693,7 @@
           "occurs_max": null,
           "occurs_depending_on": null,
           "redefines": null,
-          "value": null,
+          "value": "+0",
           "line": 100
         },
         {
@@ -708,7 +709,7 @@
           "occurs_max": null,
           "occurs_depending_on": null,
           "redefines": null,
-          "value": null,
+          "value": "+0",
           "line": 101
         },
         {
@@ -724,7 +725,7 @@
           "occurs_max": null,
           "occurs_depending_on": null,
           "redefines": null,
-          "value": null,
+          "value": "+0",
           "line": 102
         },
         {
@@ -740,7 +741,7 @@
           "occurs_max": null,
           "occurs_depending_on": null,
           "redefines": null,
-          "value": null,
+          "value": "+0",
           "line": 103
         },
         {
@@ -756,7 +757,7 @@
           "occurs_max": null,
           "occurs_depending_on": null,
           "redefines": null,
-          "value": null,
+          "value": "+0",
           "line": 104
         },
         {
@@ -772,7 +773,7 @@
           "occurs_max": null,
           "occurs_depending_on": null,
           "redefines": null,
-          "value": null,
+          "value": "+0",
           "line": 105
         },
         {
@@ -788,7 +789,7 @@
           "occurs_max": null,
           "occurs_depending_on": null,
           "redefines": null,
-          "value": null,
+          "value": "+0",
           "line": 106
         },
         {
@@ -1060,7 +1061,7 @@
           "occurs_max": null,
           "occurs_depending_on": null,
           "redefines": null,
-          "value": null,
+          "value": "+0",
           "line": 128
         },
         {
@@ -2031,7 +2032,7 @@
           "section": "WORKING-STORAGE",
           "fd": null,
           "pic": "X(80)",
-          "usage": "DISPLAY",
+          "usage": null,
           "occurs_min": null,
           "occurs_max": null,
           "occurs_depending_on": null,
@@ -2425,7 +2426,8 @@
         "at": "2026-09-19",
         "notes": [
           "COPY DATETIME IN MYFILE and COPY REPTTOTL IN MYLIB resolve through zapp.yaml to COPYLIB/ and COPYLIB-MVS/.",
-          "CALL target PROGRAM-ID is shared by two programs (one per workspace root); the nearest is taken."
+          "CALL target PROGRAM-ID is shared by two programs (one per workspace root); the nearest is taken.",
+          "#4393: records re-drafted by the fixed reader (signed / prefixed / continued VALUE literals, no VALUE or USAGE read past the DATA DIVISION, implicit FILLER #4246, 77 as a root #4359); every changed field matches the engine and the #4377 referee panel"
         ],
         "tier": "cross_verified",
         "cross_by": "claude-opus-5.5, fresh-context subagent given only the brief (blind; same model family as the author)",
@@ -2721,7 +2723,7 @@
           "occurs_max": null,
           "occurs_depending_on": null,
           "redefines": null,
-          "value": null,
+          "value": "+0",
           "line": 111
         },
         {
@@ -3692,7 +3694,7 @@
           "section": "WORKING-STORAGE",
           "fd": null,
           "pic": "X(80)",
-          "usage": "DISPLAY",
+          "usage": null,
           "occurs_min": null,
           "occurs_max": null,
           "occurs_depending_on": null,
@@ -3799,7 +3801,9 @@
         "status": "validated",
         "by": "claude-opus-5 (agent standing in for a human reviewer)",
         "at": "2026-09-19",
-        "notes": [],
+        "notes": [
+          "#4393: records re-drafted by the fixed reader (signed / prefixed / continued VALUE literals, no VALUE or USAGE read past the DATA DIVISION, implicit FILLER #4246, 77 as a root #4359); every changed field matches the engine and the #4377 referee panel"
+        ],
         "tier": "cross_verified",
         "cross_by": "claude-opus-5.5, fresh-context subagent given only the brief (blind; same model family as the author)",
         "cross_at": "2026-09-23",
@@ -3838,7 +3842,7 @@
           "occurs_max": null,
           "occurs_depending_on": null,
           "redefines": null,
-          "value": null,
+          "value": "+0",
           "line": 34
         },
         {
@@ -4346,7 +4350,8 @@
         "by": "claude-opus-5 (agent standing in for a human reviewer)",
         "at": "2026-09-19",
         "notes": [
-          "CALL target PROGRAM-ID is shared by two programs (one per workspace root); the nearest is taken."
+          "CALL target PROGRAM-ID is shared by two programs (one per workspace root); the nearest is taken.",
+          "#4393: records re-drafted by the fixed reader (signed / prefixed / continued VALUE literals, no VALUE or USAGE read past the DATA DIVISION, implicit FILLER #4246, 77 as a root #4359); every changed field matches the engine and the #4377 referee panel"
         ],
         "tier": "cross_verified",
         "cross_by": "claude-opus-5.5, fresh-context subagent given only the brief (blind; same model family as the author)",
@@ -4802,7 +4807,7 @@
           "occurs_max": null,
           "occurs_depending_on": null,
           "redefines": null,
-          "value": null,
+          "value": "+0",
           "line": 119
         },
         {
@@ -4850,7 +4855,7 @@
           "occurs_max": null,
           "occurs_depending_on": null,
           "redefines": null,
-          "value": null,
+          "value": "+0",
           "line": 123
         },
         {
@@ -4866,7 +4871,7 @@
           "occurs_max": null,
           "occurs_depending_on": null,
           "redefines": null,
-          "value": null,
+          "value": "+0",
           "line": 124
         },
         {
@@ -4882,7 +4887,7 @@
           "occurs_max": null,
           "occurs_depending_on": null,
           "redefines": null,
-          "value": null,
+          "value": "+0",
           "line": 125
         },
         {
@@ -4898,7 +4903,7 @@
           "occurs_max": null,
           "occurs_depending_on": null,
           "redefines": null,
-          "value": null,
+          "value": "+0",
           "line": 126
         },
         {
@@ -4914,7 +4919,7 @@
           "occurs_max": null,
           "occurs_depending_on": null,
           "redefines": null,
-          "value": null,
+          "value": "+0",
           "line": 127
         },
         {
@@ -4930,7 +4935,7 @@
           "occurs_max": null,
           "occurs_depending_on": null,
           "redefines": null,
-          "value": null,
+          "value": "+0",
           "line": 128
         },
         {
@@ -4946,7 +4951,7 @@
           "occurs_max": null,
           "occurs_depending_on": null,
           "redefines": null,
-          "value": null,
+          "value": "+0",
           "line": 129
         },
         {
@@ -4962,7 +4967,7 @@
           "occurs_max": null,
           "occurs_depending_on": null,
           "redefines": null,
-          "value": null,
+          "value": "+0",
           "line": 130
         },
         {
@@ -4978,7 +4983,7 @@
           "occurs_max": null,
           "occurs_depending_on": null,
           "redefines": null,
-          "value": null,
+          "value": "+0",
           "line": 131
         },
         {
@@ -4994,7 +4999,7 @@
           "occurs_max": null,
           "occurs_depending_on": null,
           "redefines": null,
-          "value": null,
+          "value": "+0",
           "line": 132
         },
         {
@@ -5010,7 +5015,7 @@
           "occurs_max": null,
           "occurs_depending_on": null,
           "redefines": null,
-          "value": null,
+          "value": "+0",
           "line": 133
         },
         {
@@ -5026,7 +5031,7 @@
           "occurs_max": null,
           "occurs_depending_on": null,
           "redefines": null,
-          "value": null,
+          "value": "+0",
           "line": 134
         },
         {
@@ -5042,7 +5047,7 @@
           "occurs_max": null,
           "occurs_depending_on": null,
           "redefines": null,
-          "value": null,
+          "value": "+0",
           "line": 135
         },
         {
@@ -5058,7 +5063,7 @@
           "occurs_max": null,
           "occurs_depending_on": null,
           "redefines": null,
-          "value": null,
+          "value": "+0",
           "line": 136
         },
         {
@@ -5074,7 +5079,7 @@
           "occurs_max": null,
           "occurs_depending_on": null,
           "redefines": null,
-          "value": null,
+          "value": "+0",
           "line": 137
         },
         {
@@ -5090,7 +5095,7 @@
           "occurs_max": null,
           "occurs_depending_on": null,
           "redefines": null,
-          "value": null,
+          "value": "+0",
           "line": 138
         },
         {
@@ -6285,7 +6290,7 @@
           "section": "WORKING-STORAGE",
           "fd": null,
           "pic": "X(87)",
-          "usage": "DISPLAY",
+          "usage": null,
           "occurs_min": null,
           "occurs_max": null,
           "occurs_depending_on": null,
@@ -6400,7 +6405,9 @@
         "status": "validated",
         "by": "claude-opus-5 (agent standing in for a human reviewer)",
         "at": "2026-09-19",
-        "notes": [],
+        "notes": [
+          "#4393: records re-drafted by the fixed reader (signed / prefixed / continued VALUE literals, no VALUE or USAGE read past the DATA DIVISION, implicit FILLER #4246, 77 as a root #4359); every changed field matches the engine and the #4377 referee panel"
+        ],
         "tier": "cross_verified",
         "cross_by": "claude-opus-5.5, fresh-context subagent given only the brief (blind; same model family as the author)",
         "cross_at": "2026-09-23",
@@ -6439,7 +6446,7 @@
           "occurs_max": null,
           "occurs_depending_on": null,
           "redefines": null,
-          "value": null,
+          "value": "+0",
           "line": 34
         },
         {

@@ -6703,9 +6703,6 @@
       "cobol/che-che4z_lsp_project_fixtures/REPLACING.CBL": {
         "MAINLINE@21": 1
       },
-      "cobol/che-che4z_lsp_project_fixtures/RES.cbl": {
-        "FILE-CONTROsL@6": 1
-      },
       "cobol/che-che4z_lsp_project_fixtures/TEST.CBL": {
         "MAINLINE@22": 1
       },
@@ -6749,8 +6746,7 @@
       },
       "cobol/che-che4z_lsp_project_fixtures/USER2.cbl": {
         "000-Main-Logic@28": 1,
-        "100-Print-User@32": 0,
-        "Program1-id@15": 1
+        "100-Print-User@32": 0
       },
       "cobol/che-che4z_lsp_project_fixtures/USERC1F.cbl": {
         "000-Main-Logic@30": 1,
@@ -6784,8 +6780,6 @@
         "PARA1@29": 1
       },
       "cobol/che-che4z_lsp_project_fixtures/cobol-daco_DACOSMPL.cbl": {
-        "IDMS-CONTROL@7": 1,
-        "PROTOCOL@8": 1,
         "S310-000@41": 1,
         "S310-500@45": 1,
         "S310-999@51": 1,
@@ -6800,13 +6794,7 @@
         "S312-999@92": 0,
         "S312@66": 0
       },
-      "cobol/che-che4z_lsp_project_fixtures/cobol-dc_ABCD.cbl": {
-        "IDMS-CONTROL@7": 1,
-        "PROTOCOL@8": 1
-      },
       "cobol/che-che4z_lsp_project_fixtures/cobol-idms_DACOSMPL.cbl": {
-        "IDMS-CONTROL@7": 1,
-        "PROTOCOL@8": 1,
         "S310-000@41": 1,
         "S310-500@45": 1,
         "S310-999@51": 1,
@@ -6822,8 +6810,6 @@
         "S312@66": 0
       },
       "cobol/che-che4z_lsp_project_fixtures/cobol-idms_IDMSSMPL.cbl": {
-        "IDMS-CONTROL@6": 1,
-        "PROTOCOL@7": 1,
         "S410-000@33": 1,
         "S410-999@48": 0,
         "S410@32": 1,
@@ -6843,8 +6829,6 @@
         "S3@37": 0
       },
       "cobol/che-che4z_lsp_project_fixtures/cobol-vanila_DACOSMPL.cbl": {
-        "IDMS-CONTROL@7": 1,
-        "PROTOCOL@8": 1,
         "S310-000@40": 1,
         "S310-500@44": 1,
         "S310-999@50": 1,
@@ -6860,8 +6844,6 @@
         "S312@65": 0
       },
       "cobol/che-che4z_lsp_project_fixtures/cobol-vanila_IDMSSMPL.cbl": {
-        "IDMS-CONTROL@6": 1,
-        "PROTOCOL@7": 1,
         "S410-000@33": 1,
         "S410-999@48": 0,
         "S410@32": 1,
@@ -7031,10 +7013,8 @@
         "DEBUG-LINE-TEST-01@613": 0,
         "DEBUG-LINE-TEST-02@623": 0,
         "DEBUG-LINE-TEST-03@634": 0,
-        "DEBUG-LINE-TEST-03A@638": 1,
         "DEBUG-LINE-TEST-04-B@653": 1,
         "DEBUG-LINE-TEST-04@646": 0,
-        "DEBUG-LINE-TEST-05-A@665": 1,
         "DEBUG-LINE-TEST-05-C@671": 1,
         "DEBUG-LINE-TEST-05@661": 0,
         "DEBUG-LINE-TESTS-INIT@611": 1,

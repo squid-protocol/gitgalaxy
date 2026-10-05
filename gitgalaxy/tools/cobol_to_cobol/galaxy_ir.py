@@ -855,6 +855,12 @@ class EngineFile:
     calls: list = field(default_factory=list)  # EngineCall, #3200
     datasets: list = field(default_factory=list)  # EngineDataset, #3201
     data_items: list = field(default_factory=list)  # EngineDataItem, flat source order, #3246
+    # #4330: COPY members that stand at section level, not inside the entry above them: a member whose
+    # own first entry is an 01 / 77 (it opens a record of its own), or a later member of a run that did
+    # not resolve. Moved out of that entry's `copy_members` by GalaxyIR._settle_copy_members, as
+    # (member, ordinal of the entry the COPY follows) -- `_copy_extension` still finds a copied record
+    # continued in the program from there.
+    section_copies: list = field(default_factory=list)
     records: list = field(default_factory=list)  # EngineDataItem tree roots (01/77), #3246
     # #3348: the DB has record_data, so an empty `data_items` means "no items", not "not read".
     records_read: bool = False
@@ -1460,6 +1466,7 @@ class GalaxyIR:
         ch = {"resolved": 0, "total": 0, "system": 0, "gaps": {"missing copybook": 0}}
         for f in cobol:
             members = {m for it in f.data_items for m in (it.copy_members or "").split(",") if m}
+            members |= {m for m, _ in f.section_copies}  # #4330
             sym = {s.file_path.rsplit("#", 1)[-1] for s in f.symbolic_copies}
             for m in sorted(members):
                 if m in stems or m in sym:
@@ -1722,6 +1729,43 @@ class GalaxyIR:
         symbolic maps generated for the BMS mapsets it COPYs (#3490)."""
         return [self.files[p] for p in ef.copy_deps if p in self.files] + ef.symbolic_copies
 
+    def _settle_copy_members(self) -> None:
+        """#4330: the COPY members that belong to the entry they follow.
+
+        The extractor lists every COPY between an entry and the next level number on that entry
+        (`copy_members`); it cannot see the members' own levels. A level-01 (or 77) entry in copied
+        text begins a new record (Enterprise COBOL), so a member whose first data entry is an 01 / 77
+        ends the entry above it -- CICS `01 WS-COMMAREA.` + `COPY CUSTCOMM.` + `COPY CUSTMS.` (a
+        symbolic map) + `COPY DFHAID.`: only CUSTCOMM is WS-COMMAREA's. A member that does not
+        resolve to records is not guessed at: the first one stays with the entry (a gap in its
+        layout, as before), a later one is a section-level copy. Every member after a moved one
+        moves too (it follows the record the moved one opened). Moved members are kept on
+        `EngineFile.section_copies` with the entry they follow, where they still close the record
+        above them (`_expanded_children`) and a copied record continued in the program is still
+        found (`_copy_extension`)."""
+        for ef in self.files.values():
+            if ef.language != "cobol":
+                continue
+            for it in ef.data_items:
+                forms = [(*f, r) for f, r in zip(_copy_forms(it), _copy_replacings(it)) if f[0]]
+                if not forms:
+                    continue
+                keep: list = []
+                for i, (member, library, replacing) in enumerate(forms):
+                    cb, roots = self._copy_roots(member, ef, ef, 0, library)
+                    if replacing and cb is not None and not roots:
+                        roots = cb.template_records  # #4265: a REPLACING template's levels are its own
+                    # once one member stands at section level, the ones after it follow it there
+                    if len(keep) == i and ((roots[0].level not in (1, 77)) if roots else i == 0):
+                        keep.append((member, library, replacing))
+                    else:
+                        ef.section_copies.append((member, it.ordinal))
+                if len(keep) != len(forms):
+                    it.copy_members = ",".join(m for m, _, _ in keep) or None
+                    # #4265: the library-names and REPLACING operands stay parallel to the members kept
+                    it.copy_libraries = ",".join(lib or "" for _, lib, _ in keep) if any(k[1] for k in keep) else None
+                    it.copy_replacing = json.dumps([r for _, _, r in keep]) if any(k[2] for k in keep) else None
+
     def _copy_roots(
         self, member: str, ef: EngineFile, origin: EngineFile, depth: int, library: Optional[str] = None
     ) -> tuple:
@@ -1751,6 +1795,8 @@ class GalaxyIR:
             """Append `owner`'s COPY members; True when one closes `item`. A copied root that is elementary and is
             followed in its copybook by a COPY of its own (IBM DBB EPSMTCOM: `10 PROCESS-INDICATOR` then `COPY
             EPSMTINP.` and `COPY EPSMTOUT.`) has those members after it, as its siblings, resolved from the copybook."""
+            # #4330: section-level members the extractor recorded on `owner` close `item` after the kept ones
+            moved = any(o == owner.ordinal for _, o in owner_ef.section_copies)
             for (member, library), replacing in zip(_copy_forms(owner), _copy_replacings(owner)):
                 if not member:
                     continue
@@ -1773,7 +1819,7 @@ class GalaxyIR:
                             return True
                 elif roots:
                     return True
-            return False
+            return moved
 
         if not _is_elementary(item) and _copies(item, ef, depth):
             return kids
@@ -1834,8 +1880,10 @@ class GalaxyIR:
         if not roots:
             return []
         by_ordinal = {it.ordinal: it for it in ef.data_items}
+        # #4330: a member that opens its own 01 is a section-level copy now, kept with its entry's ordinal
+        moved = {o for m, o in ef.section_copies if nfc(m) == member}
         for it in ef.data_items:
-            if member not in nfc(it.copy_members or "").split(","):
+            if member not in nfc(it.copy_members or "").split(",") and it.ordinal not in moved:
                 continue
             # The COPY is recorded on the entry just before it. A 66 / 88 there (COUSR02C: `88 USR-MODIFIED-NO`
             # right above `COPY COCOM01Y`) has no PIC but is no group: the record continues after the data item
@@ -2569,6 +2617,11 @@ class GalaxyIR:
                 commarea["alternatives"] = [
                     {"record": o[3], "file": o[2], "bytes": o[4]["bytes"], "sources": o[5]} for o in options[1:]
                 ]
+                own = self._dfhcommarea(ef)
+                if own is not None and any(src["verb"] in ("LINK", "XCTL") for src in sources):
+                    # a LINKed / XCTLed-to program only knows its own LINKAGE: its DTO is named after this, whatever
+                    # the caller passes (a RETURN TRANSID hands the next task the caller's own record: that name stays)
+                    commarea["declared_record"] = own.name
             else:
                 own = self._dfhcommarea(ef)
                 area = "the main procedure's parameter area" if ef.language == "pli" else "DFHCOMMAREA"
@@ -6305,7 +6358,9 @@ def load_galaxy_ir(db_path: Path, repo_name: Optional[str] = None) -> GalaxyIR:
     _attach_symbolic_maps(files)
     _name_pli_programs(files)
     _attribute_programs(files)
-    return GalaxyIR(db_path, repo_name, commit_hash, files, source_pages=source_pages)
+    ir = GalaxyIR(db_path, repo_name, commit_hash, files, source_pages=source_pages)
+    ir._settle_copy_members()  # #4330: needs the resolved COPY edges and symbolic maps above
+    return ir
 
 
 # #4265: a pseudo-text tag in a copybook entry's name (`:TAG:-ID`), replaced by COPY ... REPLACING.
@@ -6325,23 +6380,30 @@ def _copy_replacings(item: EngineDataItem) -> list:
 def _replace_text(text: Optional[str], pairs: list) -> Optional[str]:
     """#4265: `text` after a COPY's REPLACING. A pseudo-text operand delimited by `:` or `( )` (a
     tag: `:TAG:-ID`) replaces partial words; LEADING / TRAILING replace a word's start / end; any
-    other operand replaces whole words only. Applied pair by pair, each once, as the compiler does."""
+    other operand replaces whole words only. One left-to-right pass, as the compiler does: at each
+    position the first pair that matches is applied, and replaced text is never matched again."""
     if not text:
         return text
+    patterns: list[str] = []
+    targets: list[str] = []
     for pair in pairs:
         src, dst = pair[0], pair[1]
         mode = pair[2] if len(pair) > 2 else None
         if not src:
             continue
         if mode == "LEADING":
-            text = re.sub(rf"(?<![\w-]){re.escape(src)}", dst, text, flags=re.I)
+            patterns.append(rf"(?<![\w-]){re.escape(src)}")
         elif mode == "TRAILING":
-            text = re.sub(rf"{re.escape(src)}(?![\w-])", dst, text, flags=re.I)
+            patterns.append(rf"{re.escape(src)}(?![\w-])")
         elif src[:1] in ":(" and src[-1:] in ":)":
-            text = re.sub(re.escape(src), dst, text, flags=re.I)
+            patterns.append(re.escape(src))
         else:
-            text = re.sub(rf"(?<![\w-]){re.escape(src)}(?![\w-])", dst, text, flags=re.I)
-    return text
+            patterns.append(rf"(?<![\w-]){re.escape(src)}(?![\w-])")
+        targets.append(dst)
+    if not patterns:
+        return text
+    combined = re.compile("|".join(f"(?P<p{i}>{p})" for i, p in enumerate(patterns)), re.I)
+    return combined.sub(lambda m: targets[int((m.lastgroup or "p0")[1:])], text)
 
 
 def _replaced(item: EngineDataItem, pairs: list) -> EngineDataItem:

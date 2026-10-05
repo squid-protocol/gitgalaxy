@@ -11,11 +11,6 @@
       "kind": "deliberate",
       "summary": "A GO TO back to the paragraph it is in (a read loop) is not recorded: the engine drops a unit's transfer to itself like recursion (detector, #3362 contract). The key keeps it, since it is a real edge."
     },
-    "engine_inline_perform_phantom_callee": {
-      "issue": 4305,
-      "kind": "defect",
-      "summary": "An inline PERFORM form (PERFORM TEST AFTER / WITH TEST ...) is read as an out-of-line PERFORM of a paragraph named TEST."
-    },
     "engine_main_line_in_no_unit": {
       "issue": 4302,
       "kind": "defect",
@@ -1111,10 +1106,7 @@
         "engine | dead | src/base/cobol_src/UPDCUST.cbl | PTD010 | fn": "engine_dead_is_unreferenced_by_name",
         "engine | dead | src/base/cobol_src/UPDCUST.cbl | PTD999 | fn": "engine_dead_is_unreferenced_by_name",
         "engine | dead | src/base/cobol_src/XFRFUN.cbl | A999 | fn": "engine_dead_is_unreferenced_by_name",
-        "engine | dead | src/base/cobol_src/XFRFUN.cbl | GMOOH999 | fn": "engine_dead_is_unreferenced_by_name",
-        "engine | intra-program edges | src/base/cobol_src/BANKDATA.cbl | A010 -> PERFORM TEST | fp": "engine_inline_perform_phantom_callee",
-        "engine | unit extents | src/base/cobol_src/BANKDATA.cbl | CDW010 L1407-1433 | fn": "engine_unit_end_counts_noncode_lines",
-        "engine | unit extents | src/base/cobol_src/BANKDATA.cbl | CDW010 L1407-1436 | fp": "engine_unit_end_counts_noncode_lines"
+        "engine | dead | src/base/cobol_src/XFRFUN.cbl | GMOOH999 | fn": "engine_dead_is_unreferenced_by_name"
       },
       "scoreboard": {
         "BMS screen fields": {
@@ -1454,7 +1446,7 @@
         },
         "intra-program edges": {
           "engine": {
-            "got": 374,
+            "got": 373,
             "tp": 373,
             "truth": 373
           },
@@ -1527,7 +1519,7 @@
           "engine": {
             "got": 680,
             "outside": 0,
-            "tp": 679,
+            "tp": 680,
             "truth": 680
           },
           "forge": null,
@@ -3418,10 +3410,7 @@
         "engine | dead | COBOL/SAM1.cbl | 000-MAIN | fp": "engine_dead_is_unreferenced_by_name",
         "engine | dead | COBOL/SAM1LIB.cbl | 000-MAIN | fp": "engine_dead_is_unreferenced_by_name",
         "engine | dead | COBOL/SAM2.cbl | 000-MAIN | fp": "engine_dead_is_unreferenced_by_name",
-        "engine | dead | multiroot/sam/SAM2.cbl | 000-MAIN | fp": "engine_dead_is_unreferenced_by_name",
-        "engine | intra-program edges | COBOL/SAM1.cbl | 210-PROCESS-ADD-TRAN -> PERFORM TEST | fp": "engine_inline_perform_phantom_callee",
-        "engine | intra-program edges | COBOL/SAM1LIB.cbl | 210-PROCESS-ADD-TRAN -> PERFORM TEST | fp": "engine_inline_perform_phantom_callee",
-        "engine | intra-program edges | multiroot/sam/SAM1.cbl | 210-PROCESS-ADD-TRAN -> PERFORM TEST | fp": "engine_inline_perform_phantom_callee"
+        "engine | dead | multiroot/sam/SAM2.cbl | 000-MAIN | fp": "engine_dead_is_unreferenced_by_name"
       },
       "scoreboard": {
         "BMS screen fields": {
@@ -3737,7 +3726,7 @@
         },
         "intra-program edges": {
           "engine": {
-            "got": 96,
+            "got": 93,
             "tp": 93,
             "truth": 93
           },

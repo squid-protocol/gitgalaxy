@@ -127,7 +127,7 @@ def test_the_manifest_traces_real_generated_code_to_its_cobol(tmp_path):
     assert any("no COMMAREA layout" in t for t in endpoint["todos"])  # MENU declares no DFHCOMMAREA
     link = arts["MenuService#linkAcctinq"]
     assert link["facts"][0]["source"] == "cbl/MENU.cbl:8" and link["facts"][0]["ledger_field"] == "call targets"
-    field = arts["AcctCommarea#caAcctId"]
+    field = arts["AcctinqDfhcommarea#caAcctId"]
     assert field["facts"][0]["item"] == "CA-ACCT-ID @0+11" and field["facts"][0]["ledger_field"] == "record fields"
     assert manifest["summary"]["artifacts"] == len(manifest["artifacts"])
     audit = (java / "java_migration_audit.txt").read_text(encoding="utf-8")

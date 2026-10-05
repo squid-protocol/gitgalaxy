@@ -10,10 +10,10 @@
       "Callbacks & Closures Files": 61,
       "Compute Cores Files": 73,
       "Data / Markup / Trivial": 685,
-      "Declarative / Non-Code": 739,
+      "Declarative / Non-Code": 740,
       "Encapsulated Accessors Files": 61,
       "Generic / Templated Code Files": 73,
-      "Interface Declarations Files": 430,
+      "Interface Declarations Files": 429,
       "Large Core Modules": 334,
       "Large Core Modules (2)": 247,
       "Large Core Modules (3)": 295,
@@ -25,7 +25,7 @@
     "repo_composition_archetype": "Unvalidated",
     "repo_composition_z": 0.0,
     "total_files": 3737,
-    "total_loc": 925304,
+    "total_loc": 925234,
     "verified_files": 3340,
     "volatility_index": 0.0
   }

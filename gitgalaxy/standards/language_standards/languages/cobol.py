@@ -394,8 +394,16 @@ DEFINITION: dict[str, Any] = {
         #    MortgageApplication) or `"NAME"`. A quote is no word character, so
         #    `\b` refused it and the program recorded no class. An optional quote
         #    on each side; the capture stays the bare name.
+        # 5. #4307: the separator period is optional. Enterprise COBOL accepts a PROGRAM-ID whose name
+        #    is followed by blanks (a fixed-format line padded to column 72, `PROGRAM-ID.    CBLDB22`) and
+        #    no period, and a `PROGRAM-ID TEST16.` with no period after the keyword. The terminator
+        #    lookahead now allows trailing blanks before the newline, and PROGRAM-ID / CLASS-ID /
+        #    INTERFACE-ID take an optional keyword period. FACTORY / OBJECT keep it required: they are
+        #    bare markers and `OBJECT <word>` is ordinary data-description syntax.
         "class_start": re.compile(
-            r"^(?:[0-9a-zA-Z" + NATIONAL + r" \t]{6}[ \-]?)?[ \t]*(?:PROGRAM-ID|CLASS-ID|INTERFACE-ID|FACTORY|OBJECT)\."
+            r"^(?:[0-9a-zA-Z"
+            + NATIONAL
+            + r" \t]{6}[ \-]?)?[ \t]*(?:(?:PROGRAM-ID|CLASS-ID|INTERFACE-ID)\.?|(?:FACTORY|OBJECT)\.)"
             r"(?:[ \t]+|(?:[ \t]+\S{1,8})?[ \t]*\n(?:[0-9a-zA-Z" + NATIONAL + r" \t]{6}[ \-]?)?[ \t]*)"
             r"['\"]?\b([0-9_"
             + WIDE_DIGITS
@@ -410,7 +418,7 @@ DEFINITION: dict[str, Any] = {
             + NATIONAL
             + WIDE_DIGITS
             + WIDE_HYPHENS
-            + r"a-z0-9_-]+){0,6}(?=[ \t]*\.|\n|$)",
+            + r"a-z0-9_-]+){0,6}(?=[ \t]*(?:\.|\n|$))",
             re.I | re.M,
         ),
         # --- PHASE 2: RISK & STRUCTURAL INTEGRITY ---
@@ -656,13 +664,17 @@ DEFINITION: dict[str, Any] = {
         # TEST.CBL:18), each occurrence its own match. After a period only `COPY` and the full
         # `EXEC SQL INCLUDE` count: a bare INCLUDE is the second line of the two-line EXEC SQL form.
         "import": re.compile(
-            r"(?:^(?:[0-9a-zA-Z" + NATIONAL + r" \t]{6}[ \-]?)?[ \t]*(?:EXEC[ \t]+SQL[ \t]+)?(?:COPY|INCLUDE)"
-            r"|(?<=\.)[ \t]+(?:COPY|EXEC[ \t]+SQL[ \t]+INCLUDE))\b",
+            r"(?:^(?:[0-9a-zA-Z"
+            + NATIONAL
+            + r" \t]{6}[ \-]?)?[ \t\u3000]*(?:EXEC[ \t\u3000]+SQL[ \t\u3000]+)?(?:COPY|INCLUDE)"
+            r"|(?<=\.)[ \t\u3000]+(?:COPY|EXEC[ \t\u3000]+SQL[ \t\u3000]+INCLUDE))\b",
             re.I | re.M,
         ),
         "_dependency_capture": re.compile(
-            r"(?:^(?:[0-9a-zA-Z" + NATIONAL + r" \t]{6}[ \-]?)?[ \t]*(?:EXEC[ \t]+SQL[ \t]+)?(?:COPY|INCLUDE)"
-            r"|(?<=\.)[ \t]+(?:COPY|EXEC[ \t]+SQL[ \t]+INCLUDE))[ \t\n]+['\"]?([A-Z"
+            r"(?:^(?:[0-9a-zA-Z"
+            + NATIONAL
+            + r" \t]{6}[ \-]?)?[ \t\u3000]*(?:EXEC[ \t\u3000]+SQL[ \t\u3000]+)?(?:COPY|INCLUDE)"
+            r"|(?<=\.)[ \t\u3000]+(?:COPY|EXEC[ \t\u3000]+SQL[ \t\u3000]+INCLUDE))[ \t\n\u3000]+['\"]?([A-Z"
             + NATIONAL
             + WIDE_DIGITS
             + WIDE_HYPHENS
@@ -891,12 +903,21 @@ DEFINITION: dict[str, Any] = {
         # #3359: `(?<![\w-])`, not `\b` -- the scope terminators `END-PERFORM` /
         # `END-CALL` end in the verb, so `\b` let the NEXT statement's first word
         # (`END-PERFORM` newline `MOVE ...`) be captured as a callee.
+        # #4305: three inline PERFORM forms name no paragraph either. `EXIT PERFORM [CYCLE]` leaves an
+        # inline loop: it is consumed by its own alternative, which captures nothing (an empty callee,
+        # dropped by the detector). `PERFORM WS-N TIMES` / `PERFORM 3 TIMES` count an inline loop: a
+        # name followed by TIMES is the count, while `PERFORM PARA-X 3 TIMES` keeps PARA-X. The name
+        # must end at a word end, so backtracking can never shorten `WS-N` to `WS-` to dodge TIMES.
         "calls_out": re.compile(
-            r"(?i)(?<![\w-])(?:PERFORM|CALL)\s+['\"]?([A-Z"
+            r"(?i)(?<![\w-])(?:EXIT\s+PERFORM(?:\s+CYCLE)?(?![\w-])|(?:PERFORM|CALL)\s+['\"]?([A-Z"
             + NATIONAL
             + WIDE_DIGITS
             + WIDE_HYPHENS
-            + r"a-z0-9_-]+)['\"]?"
+            + r"a-z0-9_-]+)(?![A-Z"
+            + NATIONAL
+            + WIDE_DIGITS
+            + WIDE_HYPHENS
+            + r"a-z0-9_-])(?!\s+TIMES(?![\w-]))['\"]?)"
         ),
         # #3393: in `CALL 'SUBPROG'` the literal IS the callee (as JCL's PGM=
         # is), but the literal shield blanked it before calls_out ran, so only
@@ -917,6 +938,10 @@ DEFINITION: dict[str, Any] = {
                 "varying",
                 "until",
                 "with",
+                # #4305: `PERFORM TEST BEFORE|AFTER ...` (WITH omitted) and GnuCOBOL / Micro Focus
+                # `PERFORM FOREVER` are inline loops too.
+                "test",
+                "forever",
             }
         ),
         # #3362: GO TO <paragraph|section> -- an unconditional transfer of control.

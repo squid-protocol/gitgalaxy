@@ -7,7 +7,7 @@ import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import com.gitgalaxy.modernized.cics.CicsTask;
-import com.gitgalaxy.modernized.dto.contract.FxchainWsState;
+import com.gitgalaxy.modernized.dto.contract.FxlastDfhcommarea;
 import org.springframework.transaction.annotation.Transactional;
 
 @Service
@@ -27,13 +27,13 @@ public class FxlastService {
      *  and record what the program does through the task -- sendMap, sendText, returnTransid,
      *  link, xctl, abend -- in the order it does it. */
     public void runTask(CicsTask task) {
-        String name = task.commarea(FxchainWsState.class).getWsName().split(" ", 2)[0];
+        String name = task.commarea(FxlastDfhcommarea.class).getWsName().split(" ", 2)[0];
         task.sendText(String.format(java.util.Locale.ROOT, "%-20s", "DONE " + name), 20, "ERASE");
         task.returnTransid(null, null);
     }
 
     /** Another program LINKed / XCTLed to this one. TODO: [AI AGENT] implement from the program's business rules. */
-    public FxchainWsState handleLink(FxchainWsState request) {
+    public FxlastDfhcommarea handleLink(FxlastDfhcommarea request) {
         log.info("Fxlast: handleLink");
         return request;
     }

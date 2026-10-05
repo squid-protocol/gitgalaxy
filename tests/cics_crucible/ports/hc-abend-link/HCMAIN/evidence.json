@@ -162,28 +162,28 @@
   "port_sha256": "b31ec5119e769149f7f2aca4809ff6ee16a86114e0f624a17e7905b88e3fa8b4"
  },
  "mutation": {
-  "commit": "be2561306",
+  "commit": "d69a634194bbc62da07959b054cfe2987ef6db86",
   "rejudged": null,
   "seed": 0,
   "mode": null,
-  "mutants": 196,
+  "mutants": 173,
   "chosen": 24,
-  "killed": 12,
-  "survived": 12,
-  "stillborn": 0,
+  "killed": 10,
+  "survived": 13,
+  "stillborn": 1,
   "survivors": {
-   "case_gap": 2,
+   "case_gap": 1,
    "harness_gap": 0,
    "equivalent": 4,
-   "unreachable": 6,
+   "unreachable": 8,
    "untriaged": 0
   },
-  "score_raw": "12/24",
-  "score_adjusted": "12/14",
+  "score_raw": "10/23",
+  "score_adjusted": "10/11",
   "source": "docs/language_status/mutation_scores.json#crucible:hc-abend-link/HCMAIN",
   "inputs": {
    "port": {
-    "sha256": "4ca82a76c8f2eb704ab391f9178968aa48542b39206ce7f94f6db49388650498"
+    "sha256": "a5b31421982bb3e9a63b36a4f823bd04f615482c50f5207b2fe1f6e2dd88dd0a"
    },
    "case": {
     "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
@@ -192,7 +192,7 @@
     "sha256": "085be5a9f372ecb979d4f8dda1d8c749e85d01abb85e227fca4127844db9c5b6"
    },
    "harness": {
-    "sha256": "e67f03b7e18455d8d525349b25ec5e46d20bc2fb812f2c84299141fe89296d36"
+    "sha256": "a3ae3d6d7e938e36cd15639224926bf86762c0f436c35667909f895cbe77382c"
    },
    "oracle": {
     "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"

@@ -6,6 +6,7 @@ from __future__ import annotations
 
 import copy
 import json
+import os
 import re
 import sys
 from pathlib import Path
@@ -261,7 +262,7 @@ def test_venv_env_drops_inherited_engine_and_prepends_bin(tmp_path):
     env = kit.venv_env(base, py)
     assert "PYTHONPATH" not in env and "PYTHONHOME" not in env
     assert env["VIRTUAL_ENV"] == str(py.parent.parent)
-    assert env["PATH"].split(":")[:2] == [str(py.parent), "/usr/bin"] and env["K"] == "v"
+    assert env["PATH"].split(os.pathsep)[:2] == [str(py.parent), "/usr/bin"] and env["K"] == "v"
     assert base["PYTHONPATH"] == "/live/v6"  # input untouched
 
 

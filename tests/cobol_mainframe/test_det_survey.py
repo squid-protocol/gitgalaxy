@@ -1,6 +1,7 @@
 """#4172: det_survey keys work directories by the program's path in its corpus (no race between same-named members
 under --jobs) and takes javac's classpath from the estate's declared dependencies, not every ~/.m2 jar."""
 
+import os
 import sys
 from pathlib import Path
 
@@ -15,6 +16,8 @@ def test_same_named_members_in_different_folders_get_different_work_dirs():
 
 def test_the_classpath_comes_from_the_estate_not_every_m2_jar(tmp_path, monkeypatch):
     (tmp_path / "target").mkdir()
-    (tmp_path / "target" / "survey-classpath.txt").write_text("/m2/spring-core.jar:/m2/lombok.jar\n", encoding="utf-8")
+    (tmp_path / "target" / "survey-classpath.txt").write_text(
+        f"/m2/spring-core.jar{os.pathsep}/m2/lombok.jar\n", encoding="utf-8"
+    )
     cp = ds.classpath(tmp_path)
-    assert cp == f"{tmp_path / 'target/classes'}:/m2/spring-core.jar:/m2/lombok.jar"
+    assert cp == f"{tmp_path / 'target/classes'}{os.pathsep}/m2/spring-core.jar{os.pathsep}/m2/lombok.jar"

@@ -1,3 +1,6 @@
+---
+description: "Most legacy modernization efforts fail because they feed raw, monolithic COBOL directly into an LLM. This leads to architectural hallucinations, memory..."
+---
 # How to Scaffold Compilable Spring Boot from Legacy COBOL
 
 Most legacy modernization efforts fail because they feed raw, monolithic COBOL directly into an LLM. This leads to architectural hallucinations, memory leaks, and Java code that simply does not compile. 

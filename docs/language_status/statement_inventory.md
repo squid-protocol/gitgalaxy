@@ -1,3 +1,6 @@
+---
+description: "The porting loop proves a port by running it against the original, whoever wrote it -- the model, a person or the"
+---
 # Statement inventory: how much of a port a deterministic translator could write
 
 The porting loop proves a port by running it against the original, whoever wrote it -- the model, a person or the

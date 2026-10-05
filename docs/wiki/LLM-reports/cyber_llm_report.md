@@ -1,3 +1,6 @@
+---
+description: "The `cyber` repository represents a compiler and virtual machine runtime implemented predominantly in Zig (61.2%), with supporting lower-level..."
+---
 # Architectural Brief: cyber
 
 ## 1. Information Flow & Purpose (The Executive Summary)

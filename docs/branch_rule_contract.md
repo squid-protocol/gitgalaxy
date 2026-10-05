@@ -1,3 +1,6 @@
+---
+description: "> **One hit is a keyword or operator that opens a runtime choice between"
+---
 # The `branch` rule contract (#2822)
 
 > **One hit is a keyword or operator that opens a runtime choice between

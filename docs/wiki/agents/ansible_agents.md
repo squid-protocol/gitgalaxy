@@ -1,3 +1,6 @@
+---
+description: "You are operating within `ansible`, a configuration management and automation ecosystem primarily composed of YAML (41.5%) and Python (36.2%)."
+---
 # AGENTS.md: ansible Architectural Context & Engagement Rules
 
 ## 1. System Context & Paradigm

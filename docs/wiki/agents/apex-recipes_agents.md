@@ -1,3 +1,6 @@
+---
+description: "You are operating within `apex-recipes`, a demonstration and best-practices repository primarily composed of XML metadata (47.6%), Apex backend logic..."
+---
 # AGENTS.md: apex-recipes Architectural Context & Engagement Rules
 
 ## 1. System Context & Paradigm

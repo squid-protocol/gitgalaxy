@@ -1,3 +1,6 @@
+---
+description: "You are operating within the `vscode` repository, the core codebase for Microsoft's Visual Studio Code editor. The architecture is overwhelmingly..."
+---
 # AGENTS.md: vscode Architectural Context & Engagement Rules
 
 ## 1. Information Flow & Purpose (The Executive Summary)

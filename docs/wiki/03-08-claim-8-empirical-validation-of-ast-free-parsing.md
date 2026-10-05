@@ -1,3 +1,6 @@
+---
+description: "The software engineering industry operates on a long-held axiom: *you cannot reliably parse code with regular expressions*. Traditional wisdom dictates..."
+---
 # Claim 8: Empirical Validation of AST-Free Parsing
 
 The software engineering industry operates on a long-held axiom: *you cannot reliably parse code with regular expressions*. Traditional wisdom dictates that analyzing source code requires compiling an Abstract Syntax Tree (AST). 

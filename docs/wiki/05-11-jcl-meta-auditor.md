@@ -1,3 +1,6 @@
+---
+description: "> **File Reference:** [gitgalaxy/tools/cobol_to_cobol/cobol_jcl_auditor.py](https://github.com/squid-protocol/gitgalaxy/blob/main/gitgalaxy/tools/cobol_..."
+---
 # JCL Security & Reduction Auditor
 
 > **File Reference:** [gitgalaxy/tools/cobol_to_cobol/cobol_jcl_auditor.py](https://github.com/squid-protocol/gitgalaxy/blob/main/gitgalaxy/tools/cobol_to_cobol/cobol_jcl_auditor.py)

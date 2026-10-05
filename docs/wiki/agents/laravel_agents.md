@@ -1,3 +1,6 @@
+---
+description: "You are operating within the `laravel/laravel` repository. It is critical to understand that this is the **application scaffolding** repository, not..."
+---
 # AGENTS.md: laravel Architectural Context & Engagement Rules
 
 ## 1. Information Flow & Purpose (The Executive Summary)

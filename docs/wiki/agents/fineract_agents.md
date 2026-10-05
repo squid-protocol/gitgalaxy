@@ -1,3 +1,6 @@
+---
+description: "You are operating within `fineract`, an open-source core banking platform. The repository is massively dominated by Java (91.6%), structured around..."
+---
 # AGENTS.md: fineract Architectural Context & Engagement Rules
 
 ## 1. System Context & Paradigm

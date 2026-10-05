@@ -1,3 +1,6 @@
+---
+description: "In modern enterprise compliance (like SOC2 or Executive Order 14028), generating a Software Bill of Materials (SBOM) is mandatory. However, standard..."
+---
 # How to Generate a Zero-Trust SBOM (Software Bill of Materials)
 
 In modern enterprise compliance (like SOC2 or Executive Order 14028), generating a Software Bill of Materials (SBOM) is mandatory. However, standard SBOM generators are fundamentally flawed: they blindly trust manifest files (`package.json`, `requirements.txt`, `Cargo.toml`). 

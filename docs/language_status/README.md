@@ -1,3 +1,6 @@
+---
+description: "One doc per language describing what GitGalaxy's structural-signature engine actually covers —"
+---
 # Language Status
 
 One doc per language describing what GitGalaxy's structural-signature engine actually covers —

@@ -1,3 +1,6 @@
+---
+description: "> **File Reference:** [gitgalaxy/tools/cobol_to_cobol/cobol_agent_task_forge.py](https://github.com/squid-protocol/gitgalaxy/blob/main/gitgalaxy/tools/c..."
+---
 # Autonomous Agent Remediation Task Generator
 
 > **File Reference:** [gitgalaxy/tools/cobol_to_cobol/cobol_agent_task_forge.py](https://github.com/squid-protocol/gitgalaxy/blob/main/gitgalaxy/tools/cobol_to_cobol/cobol_agent_task_forge.py)

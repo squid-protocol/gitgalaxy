@@ -127,6 +127,25 @@ docstring for why the pin is deliberately duplicated.
 public), so it runs for real on a fork PR too. Every other check — `full-suite`, the `smoke-test` matrix,
 `ruff-audit`, `mypy-audit`, `ast-accuracy-audit` — runs normally on a fork PR too.
 
+### Engine bug fixes: `tests/tools/bugfix_kit.py`
+
+For an engine bug fix, one command runs every corpus-backed check a reviewer will ask about,
+each in an environment that matches its CI job:
+
+```bash
+python tests/tools/bugfix_kit.py all <worktree>      # or: setup | bless | ledger | estate | audit | evidence
+```
+
+It runs `crucible_check.py --update --yes` and then `crucible_check.py` for both
+golden-crucible legs in parallel (each against its own corpus clone at `PINNED_TAG`),
+optionally `scope_check.py --expect <langs>`, updates and checks the mainframe ground-truth ledger, scores
+estate-crucible's horrors before and after the change, runs the mypy / ruff / dead-key audits,
+and prints the PR-body evidence (golden diff by channel and file, ledger delta, horror deltas).
+`bugfix_kit.py train <worktree> <branch>...` integrates several finished fixes on one branch
+with per-fix golden / horror attribution and a single regen. The checklist around it --
+reproduce first, golden and ledger rules, PR body, draft PRs -- is the
+[`engine-bugfix` skill](.claude/skills/engine-bugfix/SKILL.md).
+
 ---
 
 ## 🐛 Reporting Discrepancies

@@ -1,3 +1,8 @@
+---
+description: "You are operating within `angr`, a heavily coupled binary analysis and symbolic execution framework primarily composed of Python (78.7%)."
+title: "Angr Agent Context & Architecture Rules"
+
+---
 # AGENTS.md: angr Architectural Context & Engagement Rules
 
 ## 1. System Context & Paradigm

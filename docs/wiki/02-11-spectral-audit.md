@@ -1,3 +1,6 @@
+---
+description: "> **File Reference:** [`gitgalaxy/metrics/statistical_auditor.py`](https://github.com/squid-protocol/gitgalaxy/blob/main/gitgalaxy/metrics/statistical_a..."
+---
 # Statistical Quality Auditor & Bayesian Data Validation
 
 > **File Reference:** [`gitgalaxy/metrics/statistical_auditor.py`](https://github.com/squid-protocol/gitgalaxy/blob/main/gitgalaxy/metrics/statistical_auditor.py)

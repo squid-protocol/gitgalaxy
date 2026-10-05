@@ -1,3 +1,6 @@
+---
+description: "You are operating within `abap-cleaner`, a repository overwhelmingly composed of Java (97.3%)."
+---
 # AGENTS.md
 
 ## 1. System Context & Paradigm

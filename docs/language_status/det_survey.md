@@ -1,3 +1,6 @@
+---
+description: "`python tests/tools/det_survey.py --work DIR` translates every COBOL program of each corpus (not only those with an"
+---
 # Deterministic translation survey: every program of the six mainframe corpora
 
 `python tests/tools/det_survey.py --work DIR` translates every COBOL program of each corpus (not only those with an

@@ -1,3 +1,6 @@
+---
+description: "> Filed as [#2773](https://github.com/squid-protocol/gitgalaxy/issues/2773). Same shape as"
+---
 # The `args` rule's contract
 
 > Filed as [#2773](https://github.com/squid-protocol/gitgalaxy/issues/2773). Same shape as

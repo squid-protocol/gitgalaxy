@@ -1,3 +1,6 @@
+---
+description: "In the context of legacy modernization, much of the industry's focus is spent on translating the business logic of COBOL monoliths. However, the most..."
+---
 # Cookbook: Mainframe ETL Unpacking via Deterministic RAG Pipelines
 
 ## 1. Architecture of a Deterministic RAG Engine

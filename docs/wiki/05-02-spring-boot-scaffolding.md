@@ -1,3 +1,6 @@
+---
+description: "> **File Reference:** [`gitgalaxy/cobol_to_java_controller.py`](https://github.com/squid-protocol/gitgalaxy/blob/main/gitgalaxy/cobol_to_java_controller..."
+---
 # Spring Boot Scaffolding Architecture
 
 > **File Reference:** [`gitgalaxy/cobol_to_java_controller.py`](https://github.com/squid-protocol/gitgalaxy/blob/main/gitgalaxy/cobol_to_java_controller.py)

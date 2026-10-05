@@ -1,3 +1,6 @@
+---
+description: "> **File Reference:** [`gitgalaxy/metrics/chronometer.py`](https://github.com/squid-protocol/gitgalaxy/blob/main/gitgalaxy/metrics/chronometer.py)"
+---
 # Chronometer (Git History Analysis)
 
 > **File Reference:** [`gitgalaxy/metrics/chronometer.py`](https://github.com/squid-protocol/gitgalaxy/blob/main/gitgalaxy/metrics/chronometer.py)

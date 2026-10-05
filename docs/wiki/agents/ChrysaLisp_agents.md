@@ -1,3 +1,6 @@
+---
+description: "You are operating within `ChrysaLisp`, an experimental, parallel 64-bit OS/GUI/IDE written as a Lisp dialect embedded within C++ (88.1%). The..."
+---
 # AGENTS.md: ChrysaLisp Architectural Context & Engagement Rules
 
 ## 1. System Context & Paradigm

@@ -30,6 +30,7 @@ from typing import Any, Optional, Union, cast
 
 from gitgalaxy.core.aperture import DENIED_EXTENSION, ApertureFilter, InaccessibleArtifactError
 from gitgalaxy.core.call_resolver import confident_file_pairs, resolve_calls
+from gitgalaxy.core.copy_libraries import load_copy_libraries
 from gitgalaxy.core.detector import HAS_TIKTOKEN, _compiled_rules
 from gitgalaxy.core.function_graph import attach_function_metrics, function_metrics
 from gitgalaxy.core.guidestar_lens import GuideStarLens
@@ -69,6 +70,7 @@ from gitgalaxy.standards.language_standards import (
     LANGUAGE_DEFINITIONS,
     PROJECT_OVERRIDES,
 )
+from gitgalaxy.standards.language_standards.identifiers import NATIONAL
 from gitgalaxy.tools.network_auditing.full_api_network_map import run_api_audit
 from gitgalaxy.tools.supply_chain_security.binary_anomaly_detector import run_xray_audit
 from gitgalaxy.tools.supply_chain_security.supply_chain_firewall import (
@@ -390,6 +392,33 @@ def extract_raw_imports(import_regex: "re.Pattern[str]", content: str, lang_def:
                 if item:
                     tokens.add(item)
     return tokens
+
+
+# #4265: `COPY member IN|OF library` -- the library-name after a COPY's text-name (Enterprise COBOL
+# Language Reference, COPY statement). A language opts in with `import_library_qualifier`.
+_IMPORT_LIBRARY = re.compile(
+    r"['\"]?[ \t\n]+(?:IN|OF)[ \t\n]+['\"]?([A-Z"
+    + NATIONAL
+    + r"0-9@#$-]{1,30})['\"]?(?![A-Z"
+    + NATIONAL
+    + r"0-9@#$-])",
+    re.I,
+)
+
+
+def extract_import_libraries(import_regex: "re.Pattern[str]", content: str) -> dict[str, list[str]]:
+    """#4265: `{MEMBER: sorted library-names}` for the COPY statements of `content` -- "" stands for a
+    COPY with no library-name -- or {} when no COPY names a library (the common case)."""
+    found: dict[str, set[str]] = {}
+    for match in import_regex.finditer(content):
+        member = next((g for g in match.groups() if g), None)
+        if not member:
+            continue
+        lib = _IMPORT_LIBRARY.match(content, match.end())
+        found.setdefault(member.upper(), set()).add(lib.group(1).upper() if lib else "")
+    if not any(lib for libs in found.values() for lib in libs):
+        return {}
+    return {m: sorted(libs) for m, libs in sorted(found.items())}
 
 
 # #3788: a JS/TS namespace import binds an ALIAS to a whole module -- `import * as ns from "x"`,
@@ -912,6 +941,7 @@ def _process_file_worker(rel_path: str) -> dict[str, Any]:
             # Phase 6: Raw Imports & Named Tokens
             t_imports = time.perf_counter()
             raw_imports = set()
+            import_libraries: dict[str, list[str]] = {}  # #4265: COPY ... IN|OF library-names
             named_tokens = set()  # <--- NEW: Initialize token tracker
             # #3660: top-level names the file declares beyond its functions and
             # classes (Kotlin properties), for declaration-import resolution.
@@ -961,6 +991,8 @@ def _process_file_worker(rel_path: str) -> dict[str, Any]:
                     raw_imports.update(
                         extract_raw_imports(import_regex, cast(str, import_source), lang_defs.get(lang_id, {}))
                     )
+                    if lang_defs.get(lang_id, {}).get("import_library_qualifier"):
+                        import_libraries = extract_import_libraries(import_regex, cast(str, import_source))
                 except Exception:
                     logging.exception("Import extraction failed for language '%s'.", lang_id)
 
@@ -1116,6 +1148,7 @@ def _process_file_worker(rel_path: str) -> dict[str, Any]:
             "named_tokens": sorted(named_tokens),
             "declared_names": sorted(declared_names),
             "namespace_imports": namespace_imports,
+            "import_libraries": import_libraries,  # #4265
             # #3813: how the file's bytes became text -- the codec, and whether it was certain
             # (bom / utf-8 / utf-16-heuristic / declared) or a legacy guess (cp1252 / latin-1).
             "source_encoding": source.encoding,
@@ -1275,6 +1308,8 @@ class Orchestrator:
         self.network_sensor = NetworkRiskSensor(parent_logger=logger)
         # #3665: lets the resolver see that two candidate paths are one file (a symlink).
         self.network_sensor.root = str(self.root if self.root.is_dir() else self.root.parent)
+        # #4265: the estate's declared COPY libraries (--copy-libraries), None for the default resolver.
+        self.network_sensor.copy_libraries = config.get("COPY_LIBRARIES")
 
         # ==============================================================================
         # THE EXIT STRATEGY (Recorders & Payload Generation)
@@ -1553,6 +1588,8 @@ class Orchestrator:
             t_phase = time.time()
             summary = self.processor.summarize_galaxy_metrics(repository_graph, total_unparsable)
             summary["network_macro"] = network_macro
+            if self.network_sensor.copy_libraries is not None:  # #4265: only when libraries are declared
+                summary["copy_member_collisions"] = self.network_sensor.copy_collisions
 
             # #371/#1159: the repo baseline is repo-wide (only knowable once summary
             # is computed), but record_keeper.py/llm_recorder.py read it per-file
@@ -3634,6 +3671,8 @@ class Orchestrator:
             # 7. Synthesis and Database Forging
             summary = self.processor.summarize_galaxy_metrics(repository_graph, unparsable_audits)
             summary["network_macro"] = network_macro
+            if self.network_sensor.copy_libraries is not None:  # #4265: only when libraries are declared
+                summary["copy_member_collisions"] = self.network_sensor.copy_collisions
 
             # #371/#1159: see the identical backfill in the main pipeline above.
             repo_macro = summary.get("repo_macro_species", {})
@@ -3834,6 +3873,18 @@ def main():
             "before the cp1252 / Latin-1 guesses: one codec for every file (e.g. shift_jis), or "
             "comma-separated GLOB=CODEC pairs, first match wins (e.g. 'legacy/**=cp1252,*.sjis=shift_jis'). "
             "In .galaxyscope.yaml, `source_encoding:` also takes a {glob: codec} map."
+        ),
+    )
+    parser.add_argument(
+        "--copy-libraries",
+        default=None,
+        metavar="FILE",
+        help=(
+            "The estate's COPY library concatenation (#4265): a JSON / YAML file mapping each library-name "
+            "to its directories and each program glob to its SYSLIB search order (gitgalaxy/core/copy_libraries.py). "
+            "A COPY then resolves to the first library in the program's order holding the member, "
+            "`COPY X IN LIB` to that library only, and members found in several libraries are reported. "
+            "Without it, same-named members are narrowed by language, program-ness and proximity."
         ),
     )
     parser.add_argument("--config", type=str, help="Path to project-level configuration file (e.g., .galaxyscope.yaml)")
@@ -4062,6 +4113,8 @@ def main():
             "DEPENDENCY_SCAN_BUDGET": args.dependency_scan_budget,
             # #3813: validated here, so an unknown codec fails the scan before any file is read.
             "SOURCE_ENCODING": parse_source_encoding(args.source_encoding),
+            # #4265: validated here too, so a bad declaration fails before any file is read.
+            "COPY_LIBRARIES": load_copy_libraries(args.copy_libraries),
         }
 
         # ---------------------------------------------------------

@@ -1,3 +1,6 @@
+---
+description: "> **File Reference:** [`gitgalaxy/core/detector.py`](https://github.com/squid-protocol/gitgalaxy/blob/main/gitgalaxy/core/detector.py)"
+---
 # Structural Code Analyzer & Spatial Cartographer
 
 > **File Reference:** [`gitgalaxy/core/detector.py`](https://github.com/squid-protocol/gitgalaxy/blob/main/gitgalaxy/core/detector.py)

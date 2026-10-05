@@ -1,3 +1,6 @@
+---
+description: "**Executive Summary:** The Weather Research and Forecasting (WRF) model is a computational titan. Our **Static Code Analysis** reveals a massive 1.2..."
+---
 # X-Raying WRF-Fortran: Technical Debt and God Nodes in a Legacy Weather Monolith
 
 **Executive Summary:** The Weather Research and Forecasting (WRF) model is a computational titan. Our **Static Code Analysis** reveals a massive 1.2 million-line ecosystem built primarily in Fortran. While the repository maintains surprisingly robust component separation (Modularity: 0.6018) and a secure perimeter, the GitGalaxy engine identified severe **Technical Debt**, 83 critical articulation points, and massive "God Nodes" isolated within extreme single-developer silos.

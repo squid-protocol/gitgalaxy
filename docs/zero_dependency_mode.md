@@ -1,3 +1,6 @@
+---
+description: "`pip install gitgalaxy` installs **nothing else**. For teams where every third-party package is a supply-chain review, that is the point: the engine..."
+---
 # Zero-Dependency Mode
 
 `pip install gitgalaxy` installs **nothing else**. For teams where every third-party package is a supply-chain review, that is the point: the engine runs on the Python standard library alone. A handful of measurements do need optional engines, though. When any of them is missing, the scan runs in **Zero-Dependency Mode**. This page lists, field by field, what that costs, so you can tell which numbers you can trust.

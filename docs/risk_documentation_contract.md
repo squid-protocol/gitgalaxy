@@ -1,3 +1,6 @@
+---
+description: "> **`risk_documentation` is the share of a file's extracted units — functions, methods,"
+---
 # The `risk_documentation` score contract (#2908)
 
 > **`risk_documentation` is the share of a file's extracted units — functions, methods,

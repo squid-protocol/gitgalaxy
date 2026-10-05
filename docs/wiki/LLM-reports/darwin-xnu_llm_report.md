@@ -1,3 +1,6 @@
+---
+description: "The `darwin-xnu` repository houses the core operating system kernel for macOS and iOS. The codebase is heavily dominated by C (68.5%) and C++ (7.6%),..."
+---
 # Architectural Brief: darwin-xnu
 
 ## 1. Information Flow & Purpose (The Executive Summary)

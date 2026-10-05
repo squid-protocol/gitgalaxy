@@ -1,3 +1,6 @@
+---
+description: "You are operating within `cytoscape.js`, a graph theory (a.k.e. network) library for analysis and visualization. The repository is predominantly..."
+---
 # AGENTS.md: cytoscape.js Architectural Context & Engagement Rules
 
 ## 1. System Context & Paradigm

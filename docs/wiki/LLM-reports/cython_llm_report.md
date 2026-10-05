@@ -1,3 +1,6 @@
+---
+description: "The `cython` repository functions as a static compiler that translates Python-like syntax into optimized C/C++ code. The codebase is heavily dominated..."
+---
 # Architectural Brief: cython
 
 ## 1. Information Flow & Purpose (The Executive Summary)

@@ -183,6 +183,11 @@ DEPENDENCY_VALID = [
     ("//DD1 DD DSN=PROD.LIB(MEM1),DISP=SHR", "PROD.LIB(MEM1)"),
     ("//DD1 DD DSN=A.B.C,DISP=SHR\n//    DD DSN=D.E.F,DISP=SHR", "A.B.C"),
     ("//DD1 DD DSN=&ENV..MY.DATA,DISP=SHR", "&ENV..MY.DATA"),
+    ("//DD1 DD DSN=PROD.ACCT.MASTER(+1),DISP=(NEW,CATLG,DELETE)", "PROD.ACCT.MASTER"),  # #4331: (+n) -> base DSN
+    ("//DD1 DD DSN=PROD.ACCT.HIST(-1),DISP=SHR", "PROD.ACCT.HIST"),  # #4331: (-n) -> base DSN
+    ("//DD1 DD DSN=PROD.ACCT.MASTER(0),DISP=SHR", "PROD.ACCT.MASTER"),  # #4331: (0) -> base DSN
+    ("//DD1 DD DSN=PROD.ACCT.MASTER(+12),DISP=SHR", "PROD.ACCT.MASTER"),  # #4331: multi-digit generation
+    ("//DD1 DD DSN=&ENV..LIB(&MEM),DISP=SHR", "&ENV..LIB(&MEM)"),  # #4331: a symbolic member stays whole
 ]
 
 DEPENDENCY_INVALID = [
@@ -207,3 +212,25 @@ def test_jcl_dependency_valid(payload, expected_name):
 @pytest.mark.parametrize("payload", DEPENDENCY_INVALID)
 def test_jcl_dependency_invalid(payload):
     assert_invalid_no_match(JCL_RULES["_dependency_capture"], payload, "jcl.dependency")
+
+
+def test_jcl_dependency_capture_gdg_generations_join_the_base_4331():
+    """#4331: (0) / (+1) / (-1) of one GDG base are the same dependency, never a dangling `X(`."""
+    dep = LANGUAGE_DEFINITIONS["jcl"]["rules"]["_dependency_capture"]
+    jcl = (
+        "//GDGJOB   JOB (ACCT),'GDG',CLASS=A,MSGCLASS=X\n"
+        "//STEP1    EXEC PGM=IEBGENER\n"
+        "//SYSUT1   DD DSN=PROD.ACCT.MASTER(0),DISP=SHR\n"
+        "//SYSUT2   DD DSN=PROD.ACCT.MASTER(+1),DISP=(NEW,CATLG,DELETE),\n"
+        "//            SPACE=(CYL,(5,5),RLSE)\n"
+        "//SYSUT3   DD DSN=PROD.ACCT.HIST(-1),DISP=SHR\n"
+    )
+    found = [m[-1] for m in dep.findall(jcl)]
+    assert found == ["PROD.ACCT.MASTER", "PROD.ACCT.MASTER", "PROD.ACCT.HIST"]
+    assert not any(f.endswith("(") for f in found)
+
+
+def test_jcl_dependency_capture_pds_member_still_whole_4331():
+    """Near miss: a real PDS member (`LIB(MEM1)`, even digit-bearing `LIB(A1)`) is not a generation."""
+    dep = LANGUAGE_DEFINITIONS["jcl"]["rules"]["_dependency_capture"]
+    assert [m[-1] for m in dep.findall("//D DD DSN=PROD.LIB(A1),DISP=SHR")] == ["PROD.LIB(A1)"]

@@ -1,3 +1,6 @@
+---
+description: "You are operating within `assemblyscript`, a compiler toolchain that compiles a strict variant of TypeScript to WebAssembly. The repository is..."
+---
 # AGENTS.md: assemblyscript Architectural Context & Engagement Rules
 
 ## 1. System Context & Paradigm

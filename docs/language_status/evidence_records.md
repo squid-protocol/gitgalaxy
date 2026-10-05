@@ -1,3 +1,6 @@
+---
+description: "Each ported program has one **evidence record**: a JSON file committed beside the port. It is the unit a customer"
+---
 # Evidence records: what a ported program's proof claims, and who accepted it (#4048)
 
 Each ported program has one **evidence record**: a JSON file committed beside the port. It is the unit a customer

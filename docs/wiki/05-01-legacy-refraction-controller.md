@@ -1,3 +1,6 @@
+---
+description: "> **File Reference:** [`gitgalaxy/cobol_refractor_controller.py`](https://github.com/squid-protocol/gitgalaxy/blob/main/gitgalaxy/cobol_refractor_contro..."
+---
 # COBOL Refactoring Controller
 
 > **File Reference:** [`gitgalaxy/cobol_refractor_controller.py`](https://github.com/squid-protocol/gitgalaxy/blob/main/gitgalaxy/cobol_refractor_controller.py)

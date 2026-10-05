@@ -1,3 +1,6 @@
+---
+description: "The `Adafruit_CircuitPython_Bundle` repository functions primarily as a documentation, configuration, and distribution hub rather than a complex..."
+---
 # Architectural Brief: Adafruit_CircuitPython_Bundle
 
 ## 1. Information Flow & Purpose (The Executive Summary)

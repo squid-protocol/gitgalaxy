@@ -1,3 +1,6 @@
+---
+description: "The ultimate realization of the GitGalaxy standard is the transition"
+---
 ## 7. Impacts & Future Outlooks
 
 ### 7.1 Integration into the publishing pipeline for 24/7 Risk Exposure Analyses

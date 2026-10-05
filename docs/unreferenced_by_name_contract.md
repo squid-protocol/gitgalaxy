@@ -1,3 +1,6 @@
+---
+description: "> Filed as [#2806](https://github.com/squid-protocol/gitgalaxy/issues/2806). Same shape as"
+---
 # The `unreferenced_by_name` census contract
 
 > Filed as [#2806](https://github.com/squid-protocol/gitgalaxy/issues/2806). Same shape as

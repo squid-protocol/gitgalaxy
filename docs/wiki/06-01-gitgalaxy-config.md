@@ -1,3 +1,6 @@
+---
+description: "> **File Reference:** [`gitgalaxy/standards/gitgalaxy_config.py`](https://github.com/squid-protocol/gitgalaxy/blob/main/gitgalaxy/standards/gitgalaxy_co..."
+---
 # GitGalaxy Configuration Registry
 
 > **File Reference:** [`gitgalaxy/standards/gitgalaxy_config.py`](https://github.com/squid-protocol/gitgalaxy/blob/main/gitgalaxy/standards/gitgalaxy_config.py)

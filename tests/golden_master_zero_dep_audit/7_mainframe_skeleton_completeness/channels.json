@@ -15,39 +15,39 @@
     },
     "batch entry": {
       "Gaps": {
-        "batch program no JCL step runs": 258
+        "batch program no JCL step runs": 261
       },
-      "Ratio": "3.0%",
-      "Resolved": 8,
+      "Ratio": "3.3%",
+      "Resolved": 9,
       "System Names (Not Gaps)": 0,
-      "Total": 266
+      "Total": 270
     },
     "copybooks": {
       "Gaps": {
         "missing copybook": 30
       },
-      "Ratio": "90.6%",
-      "Resolved": 288,
+      "Ratio": "91.7%",
+      "Resolved": 333,
       "System Names (Not Gaps)": 1,
-      "Total": 318
+      "Total": 363
     },
     "data flows": {
       "Gaps": {
-        "unresolved operand": 1161
+        "unresolved operand": 118
       },
-      "Ratio": "95.7%",
-      "Resolved": 25985,
+      "Ratio": "99.6%",
+      "Resolved": 27021,
       "System Names (Not Gaps)": 750,
-      "Total": 27146
+      "Total": 27139
     },
     "program calls": {
       "Gaps": {
         "dynamic target": 11,
-        "missing program": 207,
+        "missing program": 206,
         "non-COBOL program not linked": 0
       },
-      "Ratio": "62.2%",
-      "Resolved": 358,
+      "Ratio": "62.3%",
+      "Resolved": 359,
       "System Names (Not Gaps)": 220,
       "Total": 576
     },

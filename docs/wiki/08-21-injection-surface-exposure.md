@@ -1,3 +1,6 @@
+---
+description: "> **Status:** This metric no longer exists. `injection_surface` and its"
+---
 # Injection Surface Exposure — REMOVED (#1020)
 
 > **Status:** This metric no longer exists. `injection_surface` and its

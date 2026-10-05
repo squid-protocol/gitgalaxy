@@ -1,7 +1,7 @@
 {
   "groups": {
     "abap": {
-      "abap/SOURCES.md": -10953.92
+      "abap/SOURCES.md": -10953.89
     },
     "abap/abapGit": {
       "abap/abapGit/package.devc.xml": -1905.79,
@@ -91,17 +91,17 @@
       "apex/SOURCES.md": 12922.64
     },
     "apex/apex-recipes": {
-      "apex/apex-recipes/AuraEnabledRecipes_Tests.cls": -4621.77,
-      "apex/apex-recipes/LICENSE.md": -4733.77,
-      "apex/apex-recipes/QueueableRecipes.cls": -4447.52,
-      "apex/apex-recipes/SOQLRecipes.cls": -4664.05,
-      "apex/apex-recipes/SOQLRecipes.cls-meta.xml": -4045.94,
-      "apex/apex-recipes/SOQLRecipes_Tests.cls": -4425.94,
-      "apex/apex-recipes/project-scratch-def.json": -4962.84,
-      "apex/apex-recipes/sfdx-project.json": -4226.11
+      "apex/apex-recipes/AuraEnabledRecipes_Tests.cls": -4621.28,
+      "apex/apex-recipes/LICENSE.md": -4733.29,
+      "apex/apex-recipes/QueueableRecipes.cls": -4447.04,
+      "apex/apex-recipes/SOQLRecipes.cls": -4663.56,
+      "apex/apex-recipes/SOQLRecipes.cls-meta.xml": -4045.46,
+      "apex/apex-recipes/SOQLRecipes_Tests.cls": -4425.45,
+      "apex/apex-recipes/project-scratch-def.json": -4962.35,
+      "apex/apex-recipes/sfdx-project.json": -4225.62
     },
     "assembly": {
-      "assembly/SOURCES.md": -2601.88
+      "assembly/SOURCES.md": -2601.65
     },
     "assembly/blst_generated_asm": {
       "assembly/blst_generated_asm/add_mod_256-x86_64.s": -929.54,
@@ -164,26 +164,26 @@
       "assembly/cosmopolitan_syscalls/calls_sys_aio_mlock.S": 655.84
     },
     "assembly/cpm65_6502": {
-      "assembly/cpm65_6502/apps_adm3adrv.S": -4588.58,
-      "assembly/cpm65_6502/apps_adm3atst.asm": -3791.78,
-      "assembly/cpm65_6502/apps_bedit.asm": -4582.15,
-      "assembly/cpm65_6502/apps_capsdrv.asm": -5113.74,
-      "assembly/cpm65_6502/apps_cls.asm": -3765.99,
-      "assembly/cpm65_6502/apps_cpuinfo.asm": -4427.8,
-      "assembly/cpm65_6502/apps_devices.asm": -4766.57,
-      "assembly/cpm65_6502/apps_dinfo.asm": -4509.92,
-      "assembly/cpm65_6502/apps_dump.asm": -3713.89,
-      "assembly/cpm65_6502/apps_kbdtest.asm": -4946.49,
-      "assembly/cpm65_6502/apps_ls.asm": -4394.37,
-      "assembly/cpm65_6502/apps_more.asm": -3830.42,
-      "assembly/cpm65_6502/apps_scrntest.asm": -4851.12,
-      "assembly/cpm65_6502/apps_scrvt100.S": -4192.5,
-      "assembly/cpm65_6502/apps_vt52drv.asm": -3954.74,
-      "assembly/cpm65_6502/apps_vt52test.asm": -4091.28,
-      "assembly/cpm65_6502/apps_xrecv.asm": -4305.09,
-      "assembly/cpm65_6502/apps_xsend.asm": -4055.97,
-      "assembly/cpm65_6502/cpmfs_hello.asm": -4444.26,
-      "assembly/cpm65_6502/lib_bdos.S": -4960.0
+      "assembly/cpm65_6502/apps_adm3adrv.S": -4588.03,
+      "assembly/cpm65_6502/apps_adm3atst.asm": -3791.24,
+      "assembly/cpm65_6502/apps_bedit.asm": -4581.6,
+      "assembly/cpm65_6502/apps_capsdrv.asm": -5113.19,
+      "assembly/cpm65_6502/apps_cls.asm": -3765.45,
+      "assembly/cpm65_6502/apps_cpuinfo.asm": -4427.25,
+      "assembly/cpm65_6502/apps_devices.asm": -4766.03,
+      "assembly/cpm65_6502/apps_dinfo.asm": -4509.37,
+      "assembly/cpm65_6502/apps_dump.asm": -3713.34,
+      "assembly/cpm65_6502/apps_kbdtest.asm": -4945.94,
+      "assembly/cpm65_6502/apps_ls.asm": -4393.82,
+      "assembly/cpm65_6502/apps_more.asm": -3829.87,
+      "assembly/cpm65_6502/apps_scrntest.asm": -4850.57,
+      "assembly/cpm65_6502/apps_scrvt100.S": -4191.96,
+      "assembly/cpm65_6502/apps_vt52drv.asm": -3954.19,
+      "assembly/cpm65_6502/apps_vt52test.asm": -4090.74,
+      "assembly/cpm65_6502/apps_xrecv.asm": -4304.54,
+      "assembly/cpm65_6502/apps_xsend.asm": -4055.43,
+      "assembly/cpm65_6502/cpmfs_hello.asm": -4443.71,
+      "assembly/cpm65_6502/lib_bdos.S": -4959.46
     },
     "assembly/freebsd_kernel_arch": {
       "assembly/freebsd_kernel_arch/COPYRIGHT": -5267.89,
@@ -260,25 +260,25 @@
       "assembly/hellosilicon_aarch64/Chapter_09_debug.s": 7064.83
     },
     "assembly/linux_1_0_kernel": {
-      "assembly/linux_1_0_kernel/COPYING": -9375.43,
-      "assembly/linux_1_0_kernel/boot_bootsect.S": -8295.04,
-      "assembly/linux_1_0_kernel/boot_head.S": -8008.44,
-      "assembly/linux_1_0_kernel/boot_setup.S": -8581.33,
-      "assembly/linux_1_0_kernel/drivers_FPU-emu_div_small.S": -7986.02,
-      "assembly/linux_1_0_kernel/drivers_FPU-emu_poly_div.S": -7863.33,
-      "assembly/linux_1_0_kernel/drivers_FPU-emu_poly_mul64.S": -7939.46,
-      "assembly/linux_1_0_kernel/drivers_FPU-emu_polynomial.S": -9003.23,
-      "assembly/linux_1_0_kernel/drivers_FPU-emu_reg_div.S": -8656.21,
-      "assembly/linux_1_0_kernel/drivers_FPU-emu_reg_norm.S": -8312.59,
-      "assembly/linux_1_0_kernel/drivers_FPU-emu_reg_round.S": -8854.09,
-      "assembly/linux_1_0_kernel/drivers_FPU-emu_reg_u_add.S": -9140.07,
-      "assembly/linux_1_0_kernel/drivers_FPU-emu_reg_u_div.S": -8489.54,
-      "assembly/linux_1_0_kernel/drivers_FPU-emu_reg_u_mul.S": -8239.66,
-      "assembly/linux_1_0_kernel/drivers_FPU-emu_reg_u_sub.S": -8087.72,
-      "assembly/linux_1_0_kernel/drivers_FPU-emu_wm_shrx.S": -9157.89,
-      "assembly/linux_1_0_kernel/drivers_FPU-emu_wm_sqrt.S": -9002.12,
-      "assembly/linux_1_0_kernel/kernel_ksyms.S": -8672.07,
-      "assembly/linux_1_0_kernel/kernel_sys_call.S": -8824.49
+      "assembly/linux_1_0_kernel/COPYING": -9375.38,
+      "assembly/linux_1_0_kernel/boot_bootsect.S": -8294.99,
+      "assembly/linux_1_0_kernel/boot_head.S": -8008.4,
+      "assembly/linux_1_0_kernel/boot_setup.S": -8581.29,
+      "assembly/linux_1_0_kernel/drivers_FPU-emu_div_small.S": -7985.98,
+      "assembly/linux_1_0_kernel/drivers_FPU-emu_poly_div.S": -7863.29,
+      "assembly/linux_1_0_kernel/drivers_FPU-emu_poly_mul64.S": -7939.41,
+      "assembly/linux_1_0_kernel/drivers_FPU-emu_polynomial.S": -9003.19,
+      "assembly/linux_1_0_kernel/drivers_FPU-emu_reg_div.S": -8656.17,
+      "assembly/linux_1_0_kernel/drivers_FPU-emu_reg_norm.S": -8312.54,
+      "assembly/linux_1_0_kernel/drivers_FPU-emu_reg_round.S": -8854.05,
+      "assembly/linux_1_0_kernel/drivers_FPU-emu_reg_u_add.S": -9140.03,
+      "assembly/linux_1_0_kernel/drivers_FPU-emu_reg_u_div.S": -8489.49,
+      "assembly/linux_1_0_kernel/drivers_FPU-emu_reg_u_mul.S": -8239.61,
+      "assembly/linux_1_0_kernel/drivers_FPU-emu_reg_u_sub.S": -8087.68,
+      "assembly/linux_1_0_kernel/drivers_FPU-emu_wm_shrx.S": -9157.85,
+      "assembly/linux_1_0_kernel/drivers_FPU-emu_wm_sqrt.S": -9002.07,
+      "assembly/linux_1_0_kernel/kernel_ksyms.S": -8672.03,
+      "assembly/linux_1_0_kernel/kernel_sys_call.S": -8824.44
     },
     "assembly/nasm_testsuite": {
       "assembly/nasm_testsuite/a32offs.asm": -5887.56,
@@ -301,28 +301,28 @@
       "assembly/nasm_testsuite/avx512pf.asm": -5557.77
     },
     "assembly/os_tutorial_x86": {
-      "assembly/os_tutorial_x86/01-bootsector-barebones_boot_sect_simple.asm": -7036.55,
-      "assembly/os_tutorial_x86/02-bootsector-print_boot_sect_hello.asm": -7708.8,
-      "assembly/os_tutorial_x86/03-bootsector-memory_boot_sect_memory.asm": -7770.32,
-      "assembly/os_tutorial_x86/03-bootsector-memory_boot_sect_memory_org.asm": -7542.07,
-      "assembly/os_tutorial_x86/04-bootsector-stack_boot_sect_stack.asm": -7511.8,
-      "assembly/os_tutorial_x86/05-bootsector-functions-strings_boot_sect_main.asm": -7988.95,
-      "assembly/os_tutorial_x86/05-bootsector-functions-strings_boot_sect_print.asm": -8172.75,
-      "assembly/os_tutorial_x86/05-bootsector-functions-strings_boot_sect_print_hex.asm": -7815.46,
-      "assembly/os_tutorial_x86/06-bootsector-segmentation_boot_sect_segmentation.asm": -7158.25,
-      "assembly/os_tutorial_x86/07-bootsector-disk_boot_sect_disk.asm": -7316.26,
-      "assembly/os_tutorial_x86/07-bootsector-disk_boot_sect_main.asm": -7330.98,
-      "assembly/os_tutorial_x86/08-32bit-print_32bit-print.asm": -6946.92,
-      "assembly/os_tutorial_x86/09-32bit-gdt_32bit-gdt.asm": -8115.18,
-      "assembly/os_tutorial_x86/10-32bit-enter_32bit-main.asm": -7640.41,
-      "assembly/os_tutorial_x86/10-32bit-enter_32bit-switch.asm": -8340.96,
-      "assembly/os_tutorial_x86/13-kernel-barebones_bootsect.asm": -7690.28,
-      "assembly/os_tutorial_x86/13-kernel-barebones_kernel_entry.asm": -7008.12,
-      "assembly/os_tutorial_x86/14-checkpoint_boot_32bit_print.asm": -7954.33,
-      "assembly/os_tutorial_x86/14-checkpoint_boot_bootsect.asm": -7001.93,
-      "assembly/os_tutorial_x86/14-checkpoint_boot_disk.asm": -7331.62,
-      "assembly/os_tutorial_x86/14-checkpoint_boot_gdt.asm": -6713.93,
-      "assembly/os_tutorial_x86/14-checkpoint_boot_kernel_entry.asm": -8089.06
+      "assembly/os_tutorial_x86/01-bootsector-barebones_boot_sect_simple.asm": -7036.5,
+      "assembly/os_tutorial_x86/02-bootsector-print_boot_sect_hello.asm": -7708.75,
+      "assembly/os_tutorial_x86/03-bootsector-memory_boot_sect_memory.asm": -7770.27,
+      "assembly/os_tutorial_x86/03-bootsector-memory_boot_sect_memory_org.asm": -7542.02,
+      "assembly/os_tutorial_x86/04-bootsector-stack_boot_sect_stack.asm": -7511.75,
+      "assembly/os_tutorial_x86/05-bootsector-functions-strings_boot_sect_main.asm": -7988.9,
+      "assembly/os_tutorial_x86/05-bootsector-functions-strings_boot_sect_print.asm": -8172.7,
+      "assembly/os_tutorial_x86/05-bootsector-functions-strings_boot_sect_print_hex.asm": -7815.41,
+      "assembly/os_tutorial_x86/06-bootsector-segmentation_boot_sect_segmentation.asm": -7158.2,
+      "assembly/os_tutorial_x86/07-bootsector-disk_boot_sect_disk.asm": -7316.21,
+      "assembly/os_tutorial_x86/07-bootsector-disk_boot_sect_main.asm": -7330.93,
+      "assembly/os_tutorial_x86/08-32bit-print_32bit-print.asm": -6946.87,
+      "assembly/os_tutorial_x86/09-32bit-gdt_32bit-gdt.asm": -8115.13,
+      "assembly/os_tutorial_x86/10-32bit-enter_32bit-main.asm": -7640.36,
+      "assembly/os_tutorial_x86/10-32bit-enter_32bit-switch.asm": -8340.91,
+      "assembly/os_tutorial_x86/13-kernel-barebones_bootsect.asm": -7690.23,
+      "assembly/os_tutorial_x86/13-kernel-barebones_kernel_entry.asm": -7008.07,
+      "assembly/os_tutorial_x86/14-checkpoint_boot_32bit_print.asm": -7954.28,
+      "assembly/os_tutorial_x86/14-checkpoint_boot_bootsect.asm": -7001.88,
+      "assembly/os_tutorial_x86/14-checkpoint_boot_disk.asm": -7331.57,
+      "assembly/os_tutorial_x86/14-checkpoint_boot_gdt.asm": -6713.88,
+      "assembly/os_tutorial_x86/14-checkpoint_boot_kernel_entry.asm": -8089.01
     },
     "assembly/rpi_smartstart_baremetal": {
       "assembly/rpi_smartstart_baremetal/10_virtualmemory_SmartStart32.S": 10730.41,
@@ -337,29 +337,29 @@
       "assembly/rpi_smartstart_baremetal/SimpleSched_SmartStart32.S": 10258.24
     },
     "assembly/x86_bare_metal": {
-      "assembly/x86_bare_metal/LICENSE.adoc": -1586.96,
-      "assembly/x86_bare_metal/apm_shutdown.S": -835.66,
-      "assembly/x86_bare_metal/apm_shutdown2.S": -1284.99,
-      "assembly/x86_bare_metal/bios_background.S": -1123.53,
-      "assembly/x86_bare_metal/bios_carriage_return.S": -1433.02,
-      "assembly/x86_bare_metal/bios_clear_screen.S": -1107.24,
-      "assembly/x86_bare_metal/bios_color.S": -466.05,
-      "assembly/x86_bare_metal/bios_cursor_position.S": -1273.53,
-      "assembly/x86_bare_metal/bios_detect_memory.S": -885.94,
-      "assembly/x86_bare_metal/bios_disk_load.S": -1361.9,
-      "assembly/x86_bare_metal/bios_disk_load2.S": -27.0,
-      "assembly/x86_bare_metal/bios_hello_world.S": -345.38,
-      "assembly/x86_bare_metal/bios_initial_state.S": -1632.55,
-      "assembly/x86_bare_metal/bios_keyboard.S": -1040.79,
-      "assembly/x86_bare_metal/bios_keyboard_loop.S": -939.73,
-      "assembly/x86_bare_metal/bios_newline.S": -597.03,
-      "assembly/x86_bare_metal/bios_pixel.S": -339.99,
-      "assembly/x86_bare_metal/bios_pixel_line.S": -688.21,
-      "assembly/x86_bare_metal/bios_putc.S": -1439.81,
-      "assembly/x86_bare_metal/bios_scroll.S": -659.27,
-      "assembly/x86_bare_metal/bios_serial.S": -929.04,
-      "assembly/x86_bare_metal/bios_sleep.S": -240.57,
-      "assembly/x86_bare_metal/c_hello_world_entry.S": -303.74
+      "assembly/x86_bare_metal/LICENSE.adoc": -1586.83,
+      "assembly/x86_bare_metal/apm_shutdown.S": -835.53,
+      "assembly/x86_bare_metal/apm_shutdown2.S": -1284.86,
+      "assembly/x86_bare_metal/bios_background.S": -1123.41,
+      "assembly/x86_bare_metal/bios_carriage_return.S": -1432.89,
+      "assembly/x86_bare_metal/bios_clear_screen.S": -1107.12,
+      "assembly/x86_bare_metal/bios_color.S": -465.92,
+      "assembly/x86_bare_metal/bios_cursor_position.S": -1273.4,
+      "assembly/x86_bare_metal/bios_detect_memory.S": -885.81,
+      "assembly/x86_bare_metal/bios_disk_load.S": -1361.77,
+      "assembly/x86_bare_metal/bios_disk_load2.S": -26.88,
+      "assembly/x86_bare_metal/bios_hello_world.S": -345.25,
+      "assembly/x86_bare_metal/bios_initial_state.S": -1632.42,
+      "assembly/x86_bare_metal/bios_keyboard.S": -1040.66,
+      "assembly/x86_bare_metal/bios_keyboard_loop.S": -939.6,
+      "assembly/x86_bare_metal/bios_newline.S": -596.9,
+      "assembly/x86_bare_metal/bios_pixel.S": -339.86,
+      "assembly/x86_bare_metal/bios_pixel_line.S": -688.09,
+      "assembly/x86_bare_metal/bios_putc.S": -1439.68,
+      "assembly/x86_bare_metal/bios_scroll.S": -659.15,
+      "assembly/x86_bare_metal/bios_serial.S": -928.91,
+      "assembly/x86_bare_metal/bios_sleep.S": -240.44,
+      "assembly/x86_bare_metal/c_hello_world_entry.S": -303.61
     },
     "assembly/xv6_x86_kernel": {
       "assembly/xv6_x86_kernel/bootasm.S": -2598.7,
@@ -371,7 +371,7 @@
       "assembly/xv6_x86_kernel/usys.S": -2759.67
     },
     "batch": {
-      "batch/SOURCES.md": -11631.24
+      "batch/SOURCES.md": -11631.2
     },
     "batch/cpython/Tools/buildbot": {
       "batch/cpython/Tools/buildbot/clean.bat": -9540.93
@@ -384,11 +384,11 @@
       "blueprint/SOURCES.md": 3298.2
     },
     "blueprint/ghostty": {
-      "blueprint/ghostty/command-palette.blp": -10477.84,
-      "blueprint/ghostty/imgui-widget.blp": -10208.13,
-      "blueprint/ghostty/split-tree-split.blp": -10740.31,
-      "blueprint/ghostty/split-tree.blp": -9996.96,
-      "blueprint/ghostty/window.blp": -10308.61
+      "blueprint/ghostty/command-palette.blp": -10477.79,
+      "blueprint/ghostty/imgui-widget.blp": -10208.09,
+      "blueprint/ghostty/split-tree-split.blp": -10740.27,
+      "blueprint/ghostty/split-tree.blp": -9996.92,
+      "blueprint/ghostty/window.blp": -10308.57
     },
     "bms": {
       "bms/SOURCES.md": 12551.33
@@ -409,20 +409,20 @@
       "bms/genapp/ssmap.bms": 11737.1
     },
     "c": {
-      "c/SOURCES.md": -4668.34
+      "c/SOURCES.md": -4667.94
     },
     "c/cosmopolitan_intrin": {
       "c/cosmopolitan_intrin/countbits.c": 658.22
     },
     "c/cpython": {
-      "c/cpython/Makefile.pre.in": -5825.48,
-      "c/cpython/ceval.c": -5440.39,
-      "c/cpython/compile.c": -4950.13,
-      "c/cpython/dictobject.c": -5837.63,
-      "c/cpython/frameobject.c": -6026.11,
-      "c/cpython/gc.c": -5694.14,
-      "c/cpython/object.c": -5165.35,
-      "c/cpython/typeobject.c": -5482.61
+      "c/cpython/Makefile.pre.in": -5824.9,
+      "c/cpython/ceval.c": -5439.82,
+      "c/cpython/compile.c": -4949.55,
+      "c/cpython/dictobject.c": -5837.06,
+      "c/cpython/frameobject.c": -6025.54,
+      "c/cpython/gc.c": -5693.56,
+      "c/cpython/object.c": -5164.77,
+      "c/cpython/typeobject.c": -5482.04
     },
     "c/doom": {
       "c/doom/LICENSE.TXT": -7501.53,
@@ -609,80 +609,80 @@
       "cobol/che-che4z-lsp-for-cobol/SQLDA.cpy": -5767.6
     },
     "cobol/che-che4z_lsp_project_fixtures": {
-      "cobol/che-che4z_lsp_project_fixtures/ABCD.cbl": -1058.75,
-      "cobol/che-che4z_lsp_project_fixtures/ADSORT.cbl": -752.54,
-      "cobol/che-che4z_lsp_project_fixtures/BASIC.cbl": -234.92,
-      "cobol/che-che4z_lsp_project_fixtures/CALL.cbl": -1345.66,
-      "cobol/che-che4z_lsp_project_fixtures/CFAST.cbl": -1368.61,
-      "cobol/che-che4z_lsp_project_fixtures/DIAGNOSTIC_TEST_A.CBL": -452.43,
-      "cobol/che-che4z_lsp_project_fixtures/DIAGNOSTIC_TEST_B.CBL": -1975.96,
-      "cobol/che-che4z_lsp_project_fixtures/DIAGNOSTIC_TEST_C.CBL": -1133.47,
-      "cobol/che-che4z_lsp_project_fixtures/HELLO-WORLD.cbl": -705.34,
-      "cobol/che-che4z_lsp_project_fixtures/HOVER.CBL": -1801.0,
-      "cobol/che-che4z_lsp_project_fixtures/HOVER_COPYBOOK_NESTED.CBL": -674.52,
-      "cobol/che-che4z_lsp_project_fixtures/HOVER_PARA.CBL": -876.27,
-      "cobol/che-che4z_lsp_project_fixtures/LICENSE.md": -1659.73,
-      "cobol/che-che4z_lsp_project_fixtures/PAYLIB.CBL": -1506.52,
-      "cobol/che-che4z_lsp_project_fixtures/REPLA.CBL": -2296.14,
-      "cobol/che-che4z_lsp_project_fixtures/REPLACING.CBL": -529.87,
-      "cobol/che-che4z_lsp_project_fixtures/RES.cbl": -157.65,
-      "cobol/che-che4z_lsp_project_fixtures/SNIPPET.cbl": -1949.88,
-      "cobol/che-che4z_lsp_project_fixtures/SNIPPET2.cbl": -1238.06,
-      "cobol/che-che4z_lsp_project_fixtures/SNIPPET_IDMS.cbl": -602.1,
-      "cobol/che-che4z_lsp_project_fixtures/TEST.CBL": -1256.39,
-      "cobol/che-che4z_lsp_project_fixtures/TEST1.CBL": -2436.6,
-      "cobol/che-che4z_lsp_project_fixtures/TEST10.CBL": -454.73,
-      "cobol/che-che4z_lsp_project_fixtures/TEST14.CBL": -1863.42,
-      "cobol/che-che4z_lsp_project_fixtures/TEST15.CBL": -603.88,
-      "cobol/che-che4z_lsp_project_fixtures/TEST16.CBL": -1683.74,
-      "cobol/che-che4z_lsp_project_fixtures/TEST2.CBL": -2192.76,
-      "cobol/che-che4z_lsp_project_fixtures/TEST21.CBL": -2258.53,
-      "cobol/che-che4z_lsp_project_fixtures/TEST3.CBL": -898.77,
-      "cobol/che-che4z_lsp_project_fixtures/TEST4.CBL": -1135.26,
-      "cobol/che-che4z_lsp_project_fixtures/TEST5.CBL": -526.53,
-      "cobol/che-che4z_lsp_project_fixtures/TEST51.CBL": -2093.4,
-      "cobol/che-che4z_lsp_project_fixtures/TEST6.CBL": -1914.74,
-      "cobol/che-che4z_lsp_project_fixtures/TEST61.CBL": -1840.29,
-      "cobol/che-che4z_lsp_project_fixtures/TEST7.CBL": -1520.03,
-      "cobol/che-che4z_lsp_project_fixtures/TEST8.CBL": -2514.13,
-      "cobol/che-che4z_lsp_project_fixtures/TESTCPY1.cbl": -863.15,
-      "cobol/che-che4z_lsp_project_fixtures/TESTCPY2.cbl": -2102.05,
-      "cobol/che-che4z_lsp_project_fixtures/TEST_TITLE.CBL": -307.87,
-      "cobol/che-che4z_lsp_project_fixtures/USER1.cbl": -2315.73,
-      "cobol/che-che4z_lsp_project_fixtures/USER2.cbl": -1595.63,
-      "cobol/che-che4z_lsp_project_fixtures/USERC1F.cbl": -766.14,
-      "cobol/che-che4z_lsp_project_fixtures/USERC1N1.cbl": -2234.52,
-      "cobol/che-che4z_lsp_project_fixtures/USERC1N2.cbl": -455.43,
-      "cobol/che-che4z_lsp_project_fixtures/USERC1R.cbl": -2090.95,
-      "cobol/che-che4z_lsp_project_fixtures/VAR.cbl": -191.7,
-      "cobol/che-che4z_lsp_project_fixtures/XML1.cbl": -1746.74,
-      "cobol/che-che4z_lsp_project_fixtures/XML2.cbl": -900.47,
-      "cobol/che-che4z_lsp_project_fixtures/XML3.cbl": -1026.81,
-      "cobol/che-che4z_lsp_project_fixtures/cobol-daco_DACOSMPL.cbl": -1303.82,
-      "cobol/che-che4z_lsp_project_fixtures/cobol-dc_ABCD.cbl": -2363.17,
-      "cobol/che-che4z_lsp_project_fixtures/cobol-idms_DACOSMPL.cbl": -1524.02,
-      "cobol/che-che4z_lsp_project_fixtures/cobol-idms_IDMSSMPL.cbl": -1387.7,
-      "cobol/che-che4z_lsp_project_fixtures/cobol-sample_SAMPLE1.cbl": -391.41,
-      "cobol/che-che4z_lsp_project_fixtures/cobol-vanila_DACOSMPL.cbl": -1286.03,
-      "cobol/che-che4z_lsp_project_fixtures/cobol-vanila_IDMSSMPL.cbl": -1540.16,
-      "cobol/che-che4z_lsp_project_fixtures/copy-daco_DACOSMPL_PDRTPY-DXY.cpy": -1643.23,
-      "cobol/che-che4z_lsp_project_fixtures/copy-idms_DABPA11N_SUBSCHEMA-NAMES.cpy": -2560.66,
-      "cobol/che-che4z_lsp_project_fixtures/copy-sample_COPY1.cpy": 50.71,
-      "cobol/che-che4z_lsp_project_fixtures/copybook-analysis_mainfile1.cbl": -1911.68,
-      "cobol/che-che4z_lsp_project_fixtures/copybook-analysis_mainfile2.cbl": -170.13,
-      "cobol/che-che4z_lsp_project_fixtures/outline.cbl": -54.92,
-      "cobol/che-che4z_lsp_project_fixtures/special_schema.cbl": -1090.26,
-      "cobol/che-che4z_lsp_project_fixtures/subroutines_SUB1.cob": -1094.14,
-      "cobol/che-che4z_lsp_project_fixtures/testing_A.cpy": -617.76,
-      "cobol/che-che4z_lsp_project_fixtures/testing_ASTRO.cpy": -954.15,
-      "cobol/che-che4z_lsp_project_fixtures/testing_CHOPIN.CPY": -2414.93,
-      "cobol/che-che4z_lsp_project_fixtures/testing_CHOPIN1.CPY": -1862.96,
-      "cobol/che-che4z_lsp_project_fixtures/testing_CPY1.cpy": -2131.15,
-      "cobol/che-che4z_lsp_project_fixtures/testing_DIAGNOS.CPY": -22.1
+      "cobol/che-che4z_lsp_project_fixtures/ABCD.cbl": -1127.72,
+      "cobol/che-che4z_lsp_project_fixtures/ADSORT.cbl": -752.94,
+      "cobol/che-che4z_lsp_project_fixtures/BASIC.cbl": -1248.86,
+      "cobol/che-che4z_lsp_project_fixtures/CALL.cbl": -1837.38,
+      "cobol/che-che4z_lsp_project_fixtures/CFAST.cbl": -697.66,
+      "cobol/che-che4z_lsp_project_fixtures/DIAGNOSTIC_TEST_A.CBL": -1982.42,
+      "cobol/che-che4z_lsp_project_fixtures/DIAGNOSTIC_TEST_B.CBL": -1086.84,
+      "cobol/che-che4z_lsp_project_fixtures/DIAGNOSTIC_TEST_C.CBL": -881.29,
+      "cobol/che-che4z_lsp_project_fixtures/HELLO-WORLD.cbl": -1297.97,
+      "cobol/che-che4z_lsp_project_fixtures/HOVER.CBL": -1800.37,
+      "cobol/che-che4z_lsp_project_fixtures/HOVER_COPYBOOK_NESTED.CBL": -2018.63,
+      "cobol/che-che4z_lsp_project_fixtures/HOVER_PARA.CBL": -197.36,
+      "cobol/che-che4z_lsp_project_fixtures/LICENSE.md": -456.35,
+      "cobol/che-che4z_lsp_project_fixtures/PAYLIB.CBL": -239.3,
+      "cobol/che-che4z_lsp_project_fixtures/REPLA.CBL": -865.9,
+      "cobol/che-che4z_lsp_project_fixtures/REPLACING.CBL": -1267.42,
+      "cobol/che-che4z_lsp_project_fixtures/RES.cbl": -1636.39,
+      "cobol/che-che4z_lsp_project_fixtures/SNIPPET.cbl": -537.36,
+      "cobol/che-che4z_lsp_project_fixtures/SNIPPET2.cbl": -2306.37,
+      "cobol/che-che4z_lsp_project_fixtures/SNIPPET_IDMS.cbl": -454.14,
+      "cobol/che-che4z_lsp_project_fixtures/TEST.CBL": -2170.76,
+      "cobol/che-che4z_lsp_project_fixtures/TEST1.CBL": -458.05,
+      "cobol/che-che4z_lsp_project_fixtures/TEST10.CBL": -1603.69,
+      "cobol/che-che4z_lsp_project_fixtures/TEST14.CBL": -605.36,
+      "cobol/che-che4z_lsp_project_fixtures/TEST15.CBL": -1688.93,
+      "cobol/che-che4z_lsp_project_fixtures/TEST16.CBL": -1370.17,
+      "cobol/che-che4z_lsp_project_fixtures/TEST2.CBL": -82.9,
+      "cobol/che-che4z_lsp_project_fixtures/TEST21.CBL": -1122.59,
+      "cobol/che-che4z_lsp_project_fixtures/TEST3.CBL": -2334.59,
+      "cobol/che-che4z_lsp_project_fixtures/TEST4.CBL": -583.83,
+      "cobol/che-che4z_lsp_project_fixtures/TEST5.CBL": -2499.3,
+      "cobol/che-che4z_lsp_project_fixtures/TEST51.CBL": -767.34,
+      "cobol/che-che4z_lsp_project_fixtures/TEST6.CBL": -1574.37,
+      "cobol/che-che4z_lsp_project_fixtures/TEST61.CBL": -482.02,
+      "cobol/che-che4z_lsp_project_fixtures/TEST7.CBL": -294.97,
+      "cobol/che-che4z_lsp_project_fixtures/TEST8.CBL": -142.18,
+      "cobol/che-che4z_lsp_project_fixtures/TESTCPY1.cbl": -2161.51,
+      "cobol/che-che4z_lsp_project_fixtures/TESTCPY2.cbl": -415.46,
+      "cobol/che-che4z_lsp_project_fixtures/TEST_TITLE.CBL": -2475.39,
+      "cobol/che-che4z_lsp_project_fixtures/USER1.cbl": -1443.24,
+      "cobol/che-che4z_lsp_project_fixtures/USER2.cbl": -2073.21,
+      "cobol/che-che4z_lsp_project_fixtures/USERC1F.cbl": -1125.22,
+      "cobol/che-che4z_lsp_project_fixtures/USERC1N1.cbl": -768.48,
+      "cobol/che-che4z_lsp_project_fixtures/USERC1N2.cbl": -2237.84,
+      "cobol/che-che4z_lsp_project_fixtures/USERC1R.cbl": -1992.62,
+      "cobol/che-che4z_lsp_project_fixtures/VAR.cbl": -1894.61,
+      "cobol/che-che4z_lsp_project_fixtures/XML1.cbl": -1746.08,
+      "cobol/che-che4z_lsp_project_fixtures/XML2.cbl": -900.82,
+      "cobol/che-che4z_lsp_project_fixtures/XML3.cbl": -1027.03,
+      "cobol/che-che4z_lsp_project_fixtures/cobol-daco_DACOSMPL.cbl": -1303.71,
+      "cobol/che-che4z_lsp_project_fixtures/cobol-dc_ABCD.cbl": -1055.37,
+      "cobol/che-che4z_lsp_project_fixtures/cobol-idms_DACOSMPL.cbl": -1523.1,
+      "cobol/che-che4z_lsp_project_fixtures/cobol-idms_IDMSSMPL.cbl": -1387.27,
+      "cobol/che-che4z_lsp_project_fixtures/cobol-sample_SAMPLE1.cbl": -1837.9,
+      "cobol/che-che4z_lsp_project_fixtures/cobol-vanila_DACOSMPL.cbl": -1286.0,
+      "cobol/che-che4z_lsp_project_fixtures/cobol-vanila_IDMSSMPL.cbl": -1539.48,
+      "cobol/che-che4z_lsp_project_fixtures/copy-daco_DACOSMPL_PDRTPY-DXY.cpy": -1642.95,
+      "cobol/che-che4z_lsp_project_fixtures/copy-idms_DABPA11N_SUBSCHEMA-NAMES.cpy": -2560.02,
+      "cobol/che-che4z_lsp_project_fixtures/copy-sample_COPY1.cpy": 50.28,
+      "cobol/che-che4z_lsp_project_fixtures/copybook-analysis_mainfile1.cbl": -2321.07,
+      "cobol/che-che4z_lsp_project_fixtures/copybook-analysis_mainfile2.cbl": -850.02,
+      "cobol/che-che4z_lsp_project_fixtures/outline.cbl": -2261.8,
+      "cobol/che-che4z_lsp_project_fixtures/special_schema.cbl": -1867.71,
+      "cobol/che-che4z_lsp_project_fixtures/subroutines_SUB1.cob": -247.29,
+      "cobol/che-che4z_lsp_project_fixtures/testing_A.cpy": -617.9,
+      "cobol/che-che4z_lsp_project_fixtures/testing_ASTRO.cpy": -954.17,
+      "cobol/che-che4z_lsp_project_fixtures/testing_CHOPIN.CPY": -2414.35,
+      "cobol/che-che4z_lsp_project_fixtures/testing_CHOPIN1.CPY": -1862.62,
+      "cobol/che-che4z_lsp_project_fixtures/testing_CPY1.cpy": -2130.7,
+      "cobol/che-che4z_lsp_project_fixtures/testing_DIAGNOS.CPY": -22.49
     },
     "cobol/che-che4z_nist_ccvs85": {
       "cobol/che-che4z_nist_ccvs85/DB1024.2.cbl": -343.01,
-      "cobol/che-che4z_nist_ccvs85/DB1034.2.cbl": 1008.53,
+      "cobol/che-che4z_nist_ccvs85/DB1034.2.cbl": 1008.45,
       "cobol/che-che4z_nist_ccvs85/DB1044.2.cbl": 170.0,
       "cobol/che-che4z_nist_ccvs85/DB3014.2.cbl": -1637.97,
       "cobol/che-che4z_nist_ccvs85/DB3024.2.cbl": 106.33,
@@ -834,72 +834,72 @@
       "cobol/che-che4z_nist_ccvs85/ST3014.2.cbl": -1136.64
     },
     "cobol/cics-banking-sample-application-cbsa": {
-      "cobol/cics-banking-sample-application-cbsa/ABNDINFO.cpy": -4927.82,
-      "cobol/cics-banking-sample-application-cbsa/ABNDPROC.cbl": -5689.44,
-      "cobol/cics-banking-sample-application-cbsa/ACCDB2.cpy": -5225.16,
-      "cobol/cics-banking-sample-application-cbsa/ACCOUNT.cpy": -6009.43,
-      "cobol/cics-banking-sample-application-cbsa/ACCTCTRL.cpy": -4861.23,
-      "cobol/cics-banking-sample-application-cbsa/BANKDATA.cbl": -4781.57,
-      "cobol/cics-banking-sample-application-cbsa/BANKMAP.cpy": -6268.09,
-      "cobol/cics-banking-sample-application-cbsa/BNK1CAC.cbl": -5832.15,
-      "cobol/cics-banking-sample-application-cbsa/BNK1CCA.cbl": -5922.6,
-      "cobol/cics-banking-sample-application-cbsa/BNK1CCS.cbl": -5326.89,
+      "cobol/cics-banking-sample-application-cbsa/ABNDINFO.cpy": -4927.81,
+      "cobol/cics-banking-sample-application-cbsa/ABNDPROC.cbl": -5689.38,
+      "cobol/cics-banking-sample-application-cbsa/ACCDB2.cpy": -5225.14,
+      "cobol/cics-banking-sample-application-cbsa/ACCOUNT.cpy": -6009.39,
+      "cobol/cics-banking-sample-application-cbsa/ACCTCTRL.cpy": -4861.22,
+      "cobol/cics-banking-sample-application-cbsa/BANKDATA.cbl": -4781.44,
+      "cobol/cics-banking-sample-application-cbsa/BANKMAP.cpy": -6268.04,
+      "cobol/cics-banking-sample-application-cbsa/BNK1CAC.cbl": -5832.1,
+      "cobol/cics-banking-sample-application-cbsa/BNK1CCA.cbl": -5922.56,
+      "cobol/cics-banking-sample-application-cbsa/BNK1CCS.cbl": -5326.87,
       "cobol/cics-banking-sample-application-cbsa/BNK1CRA.cbl": -4725.45,
-      "cobol/cics-banking-sample-application-cbsa/BNK1DAC.cbl": -5919.15,
-      "cobol/cics-banking-sample-application-cbsa/BNK1DCS.cbl": -5597.0,
+      "cobol/cics-banking-sample-application-cbsa/BNK1DAC.cbl": -5919.11,
+      "cobol/cics-banking-sample-application-cbsa/BNK1DCS.cbl": -5596.96,
       "cobol/cics-banking-sample-application-cbsa/BNK1DDM.cpy": -4265.99,
-      "cobol/cics-banking-sample-application-cbsa/BNK1TFN.cbl": -5590.6,
-      "cobol/cics-banking-sample-application-cbsa/BNK1UAC.cbl": -5017.01,
-      "cobol/cics-banking-sample-application-cbsa/BNKMENU.cbl": -4959.38,
-      "cobol/cics-banking-sample-application-cbsa/CONTDB2.cpy": -6561.48,
+      "cobol/cics-banking-sample-application-cbsa/BNK1TFN.cbl": -5590.58,
+      "cobol/cics-banking-sample-application-cbsa/BNK1UAC.cbl": -5017.0,
+      "cobol/cics-banking-sample-application-cbsa/BNKMENU.cbl": -4959.37,
+      "cobol/cics-banking-sample-application-cbsa/CONTDB2.cpy": -6561.44,
       "cobol/cics-banking-sample-application-cbsa/CONTROLI.cpy": -4164.13,
-      "cobol/cics-banking-sample-application-cbsa/CRDTAGY1.cbl": -4829.07,
+      "cobol/cics-banking-sample-application-cbsa/CRDTAGY1.cbl": -4829.06,
       "cobol/cics-banking-sample-application-cbsa/CRDTAGY2.cbl": -4455.54,
-      "cobol/cics-banking-sample-application-cbsa/CRDTAGY3.cbl": -6188.85,
-      "cobol/cics-banking-sample-application-cbsa/CRDTAGY4.cbl": -6036.46,
-      "cobol/cics-banking-sample-application-cbsa/CRDTAGY5.cbl": -5061.83,
-      "cobol/cics-banking-sample-application-cbsa/CREACC.cbl": -5122.67,
-      "cobol/cics-banking-sample-application-cbsa/CREACC.cpy": -5251.21,
-      "cobol/cics-banking-sample-application-cbsa/CRECUST.cbl": -5282.9,
-      "cobol/cics-banking-sample-application-cbsa/CRECUST.cpy": -6332.09,
+      "cobol/cics-banking-sample-application-cbsa/CRDTAGY3.cbl": -6188.8,
+      "cobol/cics-banking-sample-application-cbsa/CRDTAGY4.cbl": -6036.42,
+      "cobol/cics-banking-sample-application-cbsa/CRDTAGY5.cbl": -5061.81,
+      "cobol/cics-banking-sample-application-cbsa/CREACC.cbl": -5122.68,
+      "cobol/cics-banking-sample-application-cbsa/CREACC.cpy": -5251.18,
+      "cobol/cics-banking-sample-application-cbsa/CRECUST.cbl": -5282.88,
+      "cobol/cics-banking-sample-application-cbsa/CRECUST.cpy": -6332.05,
       "cobol/cics-banking-sample-application-cbsa/CUSTCTRL.cpy": -4202.94,
-      "cobol/cics-banking-sample-application-cbsa/CUSTMAP.cpy": -4714.52,
-      "cobol/cics-banking-sample-application-cbsa/CUSTOMER.cpy": -5945.16,
-      "cobol/cics-banking-sample-application-cbsa/DBCRFUN.cbl": -4663.14,
+      "cobol/cics-banking-sample-application-cbsa/CUSTMAP.cpy": -4714.51,
+      "cobol/cics-banking-sample-application-cbsa/CUSTOMER.cpy": -5945.12,
+      "cobol/cics-banking-sample-application-cbsa/DBCRFUN.cbl": -4663.17,
       "cobol/cics-banking-sample-application-cbsa/DELACC.cbl": -4706.43,
-      "cobol/cics-banking-sample-application-cbsa/DELACC.cpy": -4598.22,
-      "cobol/cics-banking-sample-application-cbsa/DELACCZ.cpy": -6376.03,
-      "cobol/cics-banking-sample-application-cbsa/DELCUS.cbl": -6153.98,
-      "cobol/cics-banking-sample-application-cbsa/DELCUS.cpy": -5492.53,
+      "cobol/cics-banking-sample-application-cbsa/DELACC.cpy": -4598.21,
+      "cobol/cics-banking-sample-application-cbsa/DELACCZ.cpy": -6375.98,
+      "cobol/cics-banking-sample-application-cbsa/DELCUS.cbl": -6153.94,
+      "cobol/cics-banking-sample-application-cbsa/DELCUS.cpy": -5492.5,
       "cobol/cics-banking-sample-application-cbsa/GETCOMPY.cbl": -4463.16,
-      "cobol/cics-banking-sample-application-cbsa/GETCOMPY.cpy": -5681.51,
-      "cobol/cics-banking-sample-application-cbsa/GETSCODE.cbl": -5588.97,
-      "cobol/cics-banking-sample-application-cbsa/GETSCODE.cpy": -5791.58,
+      "cobol/cics-banking-sample-application-cbsa/GETCOMPY.cpy": -5681.48,
+      "cobol/cics-banking-sample-application-cbsa/GETSCODE.cbl": -5588.94,
+      "cobol/cics-banking-sample-application-cbsa/GETSCODE.cpy": -5791.54,
       "cobol/cics-banking-sample-application-cbsa/INQACC.cbl": -4515.83,
       "cobol/cics-banking-sample-application-cbsa/INQACC.cpy": -4393.81,
-      "cobol/cics-banking-sample-application-cbsa/INQACCCU.cbl": -5786.9,
-      "cobol/cics-banking-sample-application-cbsa/INQACCCU.cpy": -5478.19,
-      "cobol/cics-banking-sample-application-cbsa/INQACCCZ.cpy": -5840.54,
+      "cobol/cics-banking-sample-application-cbsa/INQACCCU.cbl": -5786.87,
+      "cobol/cics-banking-sample-application-cbsa/INQACCCU.cpy": -5478.17,
+      "cobol/cics-banking-sample-application-cbsa/INQACCCZ.cpy": -5840.5,
       "cobol/cics-banking-sample-application-cbsa/INQACCZ.cpy": -4215.68,
-      "cobol/cics-banking-sample-application-cbsa/INQCUST.cbl": -5402.09,
-      "cobol/cics-banking-sample-application-cbsa/INQCUST.cpy": -4275.22,
-      "cobol/cics-banking-sample-application-cbsa/INQCUSTZ.cpy": -6486.03,
-      "cobol/cics-banking-sample-application-cbsa/NEWACCNO.cpy": -5061.27,
-      "cobol/cics-banking-sample-application-cbsa/NEWCUSNO.cpy": -4601.01,
-      "cobol/cics-banking-sample-application-cbsa/PAYDBCR.cpy": -6139.62,
+      "cobol/cics-banking-sample-application-cbsa/INQCUST.cbl": -5402.06,
+      "cobol/cics-banking-sample-application-cbsa/INQCUST.cpy": -4275.21,
+      "cobol/cics-banking-sample-application-cbsa/INQCUSTZ.cpy": -6485.99,
+      "cobol/cics-banking-sample-application-cbsa/NEWACCNO.cpy": -5061.25,
+      "cobol/cics-banking-sample-application-cbsa/NEWCUSNO.cpy": -4601.0,
+      "cobol/cics-banking-sample-application-cbsa/PAYDBCR.cpy": -6139.58,
       "cobol/cics-banking-sample-application-cbsa/PROCDB2.cpy": -4053.81,
-      "cobol/cics-banking-sample-application-cbsa/PROCISRT.cpy": -6061.56,
-      "cobol/cics-banking-sample-application-cbsa/PROCTRAN.cpy": -5149.6,
+      "cobol/cics-banking-sample-application-cbsa/PROCISRT.cpy": -6061.52,
+      "cobol/cics-banking-sample-application-cbsa/PROCTRAN.cpy": -5149.58,
       "cobol/cics-banking-sample-application-cbsa/RESPSTR.cpy": -4398.32,
-      "cobol/cics-banking-sample-application-cbsa/SORTCODE.cpy": -6542.88,
+      "cobol/cics-banking-sample-application-cbsa/SORTCODE.cpy": -6542.83,
       "cobol/cics-banking-sample-application-cbsa/STCUSTNO.cpy": -4037.09,
-      "cobol/cics-banking-sample-application-cbsa/UPDACC.cbl": -5876.23,
-      "cobol/cics-banking-sample-application-cbsa/UPDACC.cpy": -6358.07,
-      "cobol/cics-banking-sample-application-cbsa/UPDCUST.cbl": -5305.12,
-      "cobol/cics-banking-sample-application-cbsa/UPDCUST.cpy": -4445.53,
-      "cobol/cics-banking-sample-application-cbsa/WAZI.cpy": -4600.26,
-      "cobol/cics-banking-sample-application-cbsa/XFRFUN.cbl": -5425.52,
-      "cobol/cics-banking-sample-application-cbsa/XFRFUN.cpy": -6246.81
+      "cobol/cics-banking-sample-application-cbsa/UPDACC.cbl": -5876.19,
+      "cobol/cics-banking-sample-application-cbsa/UPDACC.cpy": -6358.02,
+      "cobol/cics-banking-sample-application-cbsa/UPDCUST.cbl": -5305.1,
+      "cobol/cics-banking-sample-application-cbsa/UPDCUST.cpy": -4445.52,
+      "cobol/cics-banking-sample-application-cbsa/WAZI.cpy": -4600.24,
+      "cobol/cics-banking-sample-application-cbsa/XFRFUN.cbl": -5425.49,
+      "cobol/cics-banking-sample-application-cbsa/XFRFUN.cpy": -6246.77
     },
     "cobol/cics-genapp": {
       "cobol/cics-genapp/README.md": 9095.04,
@@ -949,55 +949,55 @@
       "cobol/cics-genapp/soavpio.cpy": 9408.61
     },
     "cobol/cics-java-jcics-samples": {
-      "cobol/cics-java-jcics-samples/EC01.cbl": -10500.19,
-      "cobol/cics-java-jcics-samples/EDUCHAN.cbl": -10289.29
+      "cobol/cics-java-jcics-samples/EC01.cbl": -10500.16,
+      "cobol/cics-java-jcics-samples/EDUCHAN.cbl": -10289.25
     },
     "cobol/cobol-check": {
-      "cobol/cobol-check/TESTPRG.CBL": -7074.51,
-      "cobol/cobol-check/copybooks_CCHECKPD.CPY": -8200.52,
-      "cobol/cobol-check/copybooks_CCHECKWS.CPY": -8121.74,
-      "cobol/cobol-check/copybooks_DFHEIBLK.CPY": -6656.05,
-      "cobol/cobol-check/src_main_cobol_ALPHA.CBL": -6473.47,
-      "cobol/cobol-check/src_main_cobol_BIPM012.CBL": -7228.51,
-      "cobol/cobol-check/src_main_cobol_DB2PROG.cbl": -6798.15,
-      "cobol/cobol-check/src_main_cobol_DPICNUMBERS.CBL": -7651.27,
-      "cobol/cobol-check/src_main_cobol_FileCopy.cbl": -7530.45,
-      "cobol/cobol-check/src_main_cobol_GREETING.CBL": -7342.65,
-      "cobol/cobol-check/src_main_cobol_LONGLINESANDNUMBERS.CBL": -6653.32,
-      "cobol/cobol-check/src_main_cobol_MOCK.CBL": -7074.1,
-      "cobol/cobol-check/src_main_cobol_MOCKPARA.CBL": -6550.03,
-      "cobol/cobol-check/src_main_cobol_MOCKTEST.CBL": -7304.36,
-      "cobol/cobol-check/src_main_cobol_NUMBERS.CBL": -7679.58,
-      "cobol/cobol-check/src_main_cobol_REPLAC.CBL": -7166.83,
-      "cobol/cobol-check/src_main_cobol_RETURNCODE.CBL": -5976.42,
-      "cobol/cobol-check/src_main_cobol_TESTNESTED.CBL": -7637.89,
-      "cobol/cobol-check/src_main_cobol_WS88LEVEL.CBL": -6149.64,
-      "cobol/cobol-check/src_main_cobol_copy_BADCOPY-padded.CBL": -6875.56,
-      "cobol/cobol-check/src_main_cobol_copy_BADCOPY.CBL": -7852.06,
-      "cobol/cobol-check/src_main_cobol_copy_BIPM012I.CBL": -6370.8,
-      "cobol/cobol-check/src_main_cobol_copy_COPY001-padded.CBL": -7598.11,
-      "cobol/cobol-check/src_main_cobol_copy_COPY001.CBL": -6231.38,
-      "cobol/cobol-check/src_main_cobol_copy_COPY002-padded.CBL": -6165.32,
-      "cobol/cobol-check/src_main_cobol_copy_COPY002.CBL": -8032.32,
-      "cobol/cobol-check/src_main_cobol_copy_COPY003.CBL": -6064.9,
-      "cobol/cobol-check/src_main_cobol_copy_COPY004.CBL": -7788.6,
-      "cobol/cobol-check/src_main_cobol_copy_COPY005-padded.CBL": -7085.4,
-      "cobol/cobol-check/src_main_cobol_copy_COPY005.CBL": -6345.72,
-      "cobol/cobol-check/src_main_cobol_copy_COPY006.CBL": -7763.83,
-      "cobol/cobol-check/src_main_cobol_copy_COPYP001-padded.CBL": -7473.44,
-      "cobol/cobol-check/src_main_cobol_copy_COPYP001.CBL": -7132.14,
-      "cobol/cobol-check/src_main_cobol_copy_COPYP002-padded.CBL": -6502.41,
-      "cobol/cobol-check/src_main_cobol_copy_COPYP002.CBL": -7851.45,
-      "cobol/cobol-check/src_main_cobol_copy_COPYR001-padded.CBL": -7943.04,
-      "cobol/cobol-check/src_main_cobol_copy_COPYR001.CBL": -6198.12,
-      "cobol/cobol-check/src_main_cobol_copy_EX002-padded.CBL": -6881.45,
-      "cobol/cobol-check/src_main_cobol_copy_EX002.CBL": -6635.79,
-      "cobol/cobol-check/src_main_cobol_copy_EX005-padded.CBL": -6828.55,
-      "cobol/cobol-check/src_main_cobol_copy_EX005.CBL": -6880.96,
-      "cobol/cobol-check/src_main_cobol_copy_EXP01-padded.CBL": -6538.2,
-      "cobol/cobol-check/src_main_cobol_copy_EXP01.CBL": -7068.92,
-      "cobol/cobol-check/src_main_cobol_copy_EXR001-padded.CBL": -7452.9,
-      "cobol/cobol-check/src_main_cobol_copy_EXR001.CBL": -7418.29
+      "cobol/cobol-check/TESTPRG.CBL": -7074.46,
+      "cobol/cobol-check/copybooks_CCHECKPD.CPY": -8200.48,
+      "cobol/cobol-check/copybooks_CCHECKWS.CPY": -8121.7,
+      "cobol/cobol-check/copybooks_DFHEIBLK.CPY": -6656.01,
+      "cobol/cobol-check/src_main_cobol_ALPHA.CBL": -6473.42,
+      "cobol/cobol-check/src_main_cobol_BIPM012.CBL": -7228.47,
+      "cobol/cobol-check/src_main_cobol_DB2PROG.cbl": -6798.1,
+      "cobol/cobol-check/src_main_cobol_DPICNUMBERS.CBL": -7651.22,
+      "cobol/cobol-check/src_main_cobol_FileCopy.cbl": -7530.4,
+      "cobol/cobol-check/src_main_cobol_GREETING.CBL": -7342.6,
+      "cobol/cobol-check/src_main_cobol_LONGLINESANDNUMBERS.CBL": -6653.27,
+      "cobol/cobol-check/src_main_cobol_MOCK.CBL": -7074.05,
+      "cobol/cobol-check/src_main_cobol_MOCKPARA.CBL": -6549.98,
+      "cobol/cobol-check/src_main_cobol_MOCKTEST.CBL": -7304.31,
+      "cobol/cobol-check/src_main_cobol_NUMBERS.CBL": -7679.53,
+      "cobol/cobol-check/src_main_cobol_REPLAC.CBL": -7166.78,
+      "cobol/cobol-check/src_main_cobol_RETURNCODE.CBL": -5976.38,
+      "cobol/cobol-check/src_main_cobol_TESTNESTED.CBL": -7637.84,
+      "cobol/cobol-check/src_main_cobol_WS88LEVEL.CBL": -6149.59,
+      "cobol/cobol-check/src_main_cobol_copy_BADCOPY-padded.CBL": -6875.51,
+      "cobol/cobol-check/src_main_cobol_copy_BADCOPY.CBL": -7852.01,
+      "cobol/cobol-check/src_main_cobol_copy_BIPM012I.CBL": -6370.75,
+      "cobol/cobol-check/src_main_cobol_copy_COPY001-padded.CBL": -7598.06,
+      "cobol/cobol-check/src_main_cobol_copy_COPY001.CBL": -6231.33,
+      "cobol/cobol-check/src_main_cobol_copy_COPY002-padded.CBL": -6165.27,
+      "cobol/cobol-check/src_main_cobol_copy_COPY002.CBL": -8032.28,
+      "cobol/cobol-check/src_main_cobol_copy_COPY003.CBL": -6064.85,
+      "cobol/cobol-check/src_main_cobol_copy_COPY004.CBL": -7788.55,
+      "cobol/cobol-check/src_main_cobol_copy_COPY005-padded.CBL": -7085.35,
+      "cobol/cobol-check/src_main_cobol_copy_COPY005.CBL": -6345.67,
+      "cobol/cobol-check/src_main_cobol_copy_COPY006.CBL": -7763.78,
+      "cobol/cobol-check/src_main_cobol_copy_COPYP001-padded.CBL": -7473.39,
+      "cobol/cobol-check/src_main_cobol_copy_COPYP001.CBL": -7132.09,
+      "cobol/cobol-check/src_main_cobol_copy_COPYP002-padded.CBL": -6502.36,
+      "cobol/cobol-check/src_main_cobol_copy_COPYP002.CBL": -7851.4,
+      "cobol/cobol-check/src_main_cobol_copy_COPYR001-padded.CBL": -7942.99,
+      "cobol/cobol-check/src_main_cobol_copy_COPYR001.CBL": -6198.08,
+      "cobol/cobol-check/src_main_cobol_copy_EX002-padded.CBL": -6881.4,
+      "cobol/cobol-check/src_main_cobol_copy_EX002.CBL": -6635.74,
+      "cobol/cobol-check/src_main_cobol_copy_EX005-padded.CBL": -6828.5,
+      "cobol/cobol-check/src_main_cobol_copy_EX005.CBL": -6880.92,
+      "cobol/cobol-check/src_main_cobol_copy_EXP01-padded.CBL": -6538.16,
+      "cobol/cobol-check/src_main_cobol_copy_EXP01.CBL": -7068.87,
+      "cobol/cobol-check/src_main_cobol_copy_EXR001-padded.CBL": -7452.85,
+      "cobol/cobol-check/src_main_cobol_copy_EXR001.CBL": -7418.24
     },
     "cobol/cobol-programming-course": {
       "cobol/cobol-programming-course/CBL0106.cbl": -7659.81,
@@ -1080,7 +1080,7 @@
       "cobol/zopeneditor-sample/TRANREC.cpy": 1601.63
     },
     "cpp": {
-      "cpp/SOURCES.md": -11094.93
+      "cpp/SOURCES.md": -11094.89
     },
     "cpp/NVDA": {
       "cpp/NVDA/CODE_OF_CONDUCT.md": 3016.41,
@@ -1115,13 +1115,13 @@
       "cpp/godot/variant.h": -4741.03
     },
     "cpp/mlir": {
-      "cpp/mlir/flatbuffer_export.cc": -598.44,
-      "cpp/mlir/glob_lit_test.bzl": -345.18,
-      "cpp/mlir/mlir_bridge_rollout_policy.cc": -1141.12,
-      "cpp/mlir/mlir_graph_optimization_pass.cc": -942.9,
-      "cpp/mlir/stablehlo.cc": -752.7,
-      "cpp/mlir/tf_mlir_opt_main.cc": -173.63,
-      "cpp/mlir/tf_tfl_translate.cc": -585.64
+      "cpp/mlir/flatbuffer_export.cc": -598.4,
+      "cpp/mlir/glob_lit_test.bzl": -345.13,
+      "cpp/mlir/mlir_bridge_rollout_policy.cc": -1141.08,
+      "cpp/mlir/mlir_graph_optimization_pass.cc": -942.86,
+      "cpp/mlir/stablehlo.cc": -752.66,
+      "cpp/mlir/tf_mlir_opt_main.cc": -173.58,
+      "cpp/mlir/tf_tfl_translate.cc": -585.6
     },
     "cpp/powertoys": {
       "cpp/powertoys/FancyZones.cpp": -7270.09,
@@ -1168,7 +1168,7 @@
       "csharp/roslyn/Workspace.cs": 8138.32
     },
     "css": {
-      "css/SOURCES.md": -6641.31
+      "css/SOURCES.md": -6640.71
     },
     "css/bootstrap_dist": {
       "css/bootstrap_dist/bootstrap-grid.css": 834.26,
@@ -1204,11 +1204,11 @@
       "css/odoo/icons-baseline.css": 10213.05
     },
     "css/tailwindcss_atrules": {
-      "css/tailwindcss_atrules/index.css": -5698.7,
-      "css/tailwindcss_atrules/playground_vite_index.css": -5440.7,
-      "css/tailwindcss_atrules/preflight.css": -5852.48,
-      "css/tailwindcss_atrules/theme.css": -5453.06,
-      "css/tailwindcss_atrules/utilities.css": -5231.47
+      "css/tailwindcss_atrules/index.css": -5698.19,
+      "css/tailwindcss_atrules/playground_vite_index.css": -5440.19,
+      "css/tailwindcss_atrules/preflight.css": -5851.98,
+      "css/tailwindcss_atrules/theme.css": -5452.55,
+      "css/tailwindcss_atrules/utilities.css": -5230.97
     },
     "css/threejs_app_ui": {
       "css/threejs_app_ui/editor_main.css": -6830.56,
@@ -1219,7 +1219,7 @@
       "css/wordpress/LICENSE.txt": -5880.22
     },
     "dart": {
-      "dart/SOURCES.md": -10235.01
+      "dart/SOURCES.md": -10234.97
     },
     "dart/flutter": {
       "dart/flutter/editable_text.dart": 1945.24,
@@ -1234,16 +1234,16 @@
       "db2_sql/SOURCES.md": 7187.61
     },
     "db2_sql/db2unit": {
-      "db2_sql/db2unit/00-Prereqs.sql": -9259.59,
-      "db2_sql/db2unit/01-ObjectsAdmin.sql": -9517.02,
-      "db2_sql/db2unit/02-Objects.sql": -9037.47,
-      "db2_sql/db2unit/03-Headers.sql": -9499.97,
-      "db2_sql/db2unit/06-AssertsNoMessage.sql": -9311.61,
-      "db2_sql/db2unit/07-Version.sql": -9422.64,
-      "db2_sql/db2unit/98-Clean.sql": -9734.29,
-      "db2_sql/db2unit/99-CleanAdmin.sql": -8739.1,
-      "db2_sql/db2unit/LICENSE.txt": -8889.04,
-      "db2_sql/db2unit/PROVENANCE.md": -9860.43
+      "db2_sql/db2unit/00-Prereqs.sql": -9259.54,
+      "db2_sql/db2unit/01-ObjectsAdmin.sql": -9516.97,
+      "db2_sql/db2unit/02-Objects.sql": -9037.43,
+      "db2_sql/db2unit/03-Headers.sql": -9499.93,
+      "db2_sql/db2unit/06-AssertsNoMessage.sql": -9311.57,
+      "db2_sql/db2unit/07-Version.sql": -9422.59,
+      "db2_sql/db2unit/98-Clean.sql": -9734.25,
+      "db2_sql/db2unit/99-CleanAdmin.sql": -8739.06,
+      "db2_sql/db2unit/LICENSE.txt": -8889.0,
+      "db2_sql/db2unit/PROVENANCE.md": -9860.39
     },
     "dockerfile": {
       "dockerfile/SOURCES.md": 9276.09
@@ -1281,18 +1281,18 @@
       "dockerfile/moby/builder/dockerfile/utils_test.go": -3024.91
     },
     "dockerfile/moby/builder/remotecontext": {
-      "dockerfile/moby/builder/remotecontext/archive.go": -9295.27,
-      "dockerfile/moby/builder/remotecontext/detect.go": -8788.74,
-      "dockerfile/moby/builder/remotecontext/detect_test.go": -8374.17,
-      "dockerfile/moby/builder/remotecontext/filehash.go": -9101.9,
-      "dockerfile/moby/builder/remotecontext/git.go": -8273.12,
-      "dockerfile/moby/builder/remotecontext/lazycontext.go": -8995.29,
-      "dockerfile/moby/builder/remotecontext/mimetype.go": -8539.13,
-      "dockerfile/moby/builder/remotecontext/mimetype_test.go": -8667.57,
-      "dockerfile/moby/builder/remotecontext/remote.go": -8808.52,
-      "dockerfile/moby/builder/remotecontext/remote_test.go": -9105.48,
-      "dockerfile/moby/builder/remotecontext/tarsum_test.go": -8567.02,
-      "dockerfile/moby/builder/remotecontext/utils_test.go": -9386.24
+      "dockerfile/moby/builder/remotecontext/archive.go": -9295.22,
+      "dockerfile/moby/builder/remotecontext/detect.go": -8788.7,
+      "dockerfile/moby/builder/remotecontext/detect_test.go": -8374.12,
+      "dockerfile/moby/builder/remotecontext/filehash.go": -9101.85,
+      "dockerfile/moby/builder/remotecontext/git.go": -8273.07,
+      "dockerfile/moby/builder/remotecontext/lazycontext.go": -8995.24,
+      "dockerfile/moby/builder/remotecontext/mimetype.go": -8539.08,
+      "dockerfile/moby/builder/remotecontext/mimetype_test.go": -8667.53,
+      "dockerfile/moby/builder/remotecontext/remote.go": -8808.48,
+      "dockerfile/moby/builder/remotecontext/remote_test.go": -9105.43,
+      "dockerfile/moby/builder/remotecontext/tarsum_test.go": -8566.97,
+      "dockerfile/moby/builder/remotecontext/utils_test.go": -9386.2
     },
     "dockerfile/moby/builder/remotecontext/git": {
       "dockerfile/moby/builder/remotecontext/git/gitutils.go": -8356.95,
@@ -1373,7 +1373,7 @@
       "go/core/value.go": 6801.34
     },
     "go/go_runtime_rand": {
-      "go/go_runtime_rand/rand.go": 187.63
+      "go/go_runtime_rand/rand.go": 187.62
     },
     "go/kubernetes": {
       "go/kubernetes/csi_plugin.go": 4724.87,
@@ -1781,16 +1781,16 @@
       "hlasm/zecs/ZECSNC.asm": 2403.58
     },
     "hlasm/zopeneditor_sample": {
-      "hlasm/zopeneditor_sample/ASAM1.asm": -11068.83,
-      "hlasm/zopeneditor_sample/REGISTRS.asm": -11349.61
+      "hlasm/zopeneditor_sample/ASAM1.asm": -11068.79,
+      "hlasm/zopeneditor_sample/REGISTRS.asm": -11349.57
     },
     "hlo": {
       "hlo/SOURCES.md": -8762.19
     },
     "hlo/xla/gpu_emitters": {
-      "hlo/xla/gpu_emitters/f4e2m1fn_intrinsics.hlo": -9964.36,
-      "hlo/xla/gpu_emitters/reduction_groups_two_in_same_group.hlo": -9951.7,
-      "hlo/xla/gpu_emitters/side_output.hlo": -10188.28
+      "hlo/xla/gpu_emitters/f4e2m1fn_intrinsics.hlo": -9964.32,
+      "hlo/xla/gpu_emitters/reduction_groups_two_in_same_group.hlo": -9951.66,
+      "hlo/xla/gpu_emitters/side_output.hlo": -10188.24
     },
     "html": {
       "html/SOURCES.md": -6968.3
@@ -1827,13 +1827,13 @@
       "html/html5_boilerplate/src_index.html": 7488.28
     },
     "html/jquery_test_fixtures": {
-      "html/jquery_test_fixtures/LICENSE.txt": 391.15,
-      "html/jquery_test_fixtures/csp-nonce.html": 1.12,
-      "html/jquery_test_fixtures/iframe.html": 811.33,
-      "html/jquery_test_fixtures/name.html": 331.73,
-      "html/jquery_test_fixtures/qunit-fixture.html": 270.5,
-      "html/jquery_test_fixtures/table.html": 458.01,
-      "html/jquery_test_fixtures/trusted-html.html": 682.06
+      "html/jquery_test_fixtures/LICENSE.txt": 391.12,
+      "html/jquery_test_fixtures/csp-nonce.html": 1.09,
+      "html/jquery_test_fixtures/iframe.html": 811.29,
+      "html/jquery_test_fixtures/name.html": 331.7,
+      "html/jquery_test_fixtures/qunit-fixture.html": 270.47,
+      "html/jquery_test_fixtures/table.html": 457.97,
+      "html/jquery_test_fixtures/trusted-html.html": 682.02
     },
     "html/odoo_mako": {
       "html/odoo_mako/LICENSE.txt": -3502.26,
@@ -1842,12 +1842,12 @@
       "html/odoo_mako/status_display.html": -3239.43
     },
     "html/playwright_dom_fixtures": {
-      "html/playwright_dom_fixtures/csp.html": -3121.45,
-      "html/playwright_dom_fixtures/dynamic-oopif.html": -3661.0,
-      "html/playwright_dom_fixtures/headings.html": -3512.79,
-      "html/playwright_dom_fixtures/historyapi.html": -3270.93,
-      "html/playwright_dom_fixtures/overflow-large.html": -3544.11,
-      "html/playwright_dom_fixtures/window-stop.html": -3936.63
+      "html/playwright_dom_fixtures/csp.html": -3121.14,
+      "html/playwright_dom_fixtures/dynamic-oopif.html": -3660.7,
+      "html/playwright_dom_fixtures/headings.html": -3512.49,
+      "html/playwright_dom_fixtures/historyapi.html": -3270.62,
+      "html/playwright_dom_fixtures/overflow-large.html": -3543.81,
+      "html/playwright_dom_fixtures/window-stop.html": -3936.33
     },
     "html/polyglot_emscripten": {
       "html/polyglot_emscripten/LICENSE.txt": -8807.48,
@@ -1951,16 +1951,16 @@
       "javascript/react/build.js": -4755.09
     },
     "javascript/react_error_codes": {
-      "javascript/react_error_codes/extract-errors.js": -1668.15
+      "javascript/react_error_codes/extract-errors.js": -1667.98
     },
     "javascript/threejs": {
-      "javascript/threejs/BufferGeometry.js": -9337.67,
-      "javascript/threejs/Editor.js": -8362.62,
-      "javascript/threejs/GLTFLoader.js": -8875.03,
-      "javascript/threejs/Matrix4.js": -8781.33,
-      "javascript/threejs/Nodes.js": -9014.32,
-      "javascript/threejs/WebGLProgram.js": -8515.89,
-      "javascript/threejs/WebGLRenderer.js": -9176.86
+      "javascript/threejs/BufferGeometry.js": -9337.59,
+      "javascript/threejs/Editor.js": -8362.54,
+      "javascript/threejs/GLTFLoader.js": -8874.96,
+      "javascript/threejs/Matrix4.js": -8781.25,
+      "javascript/threejs/Nodes.js": -9014.24,
+      "javascript/threejs/WebGLProgram.js": -8515.81,
+      "javascript/threejs/WebGLRenderer.js": -9176.78
     },
     "jcl/cash-account-cobol": {
       "jcl/cash-account-cobol/DB2BIND.jcl": -7105.64,
@@ -2290,49 +2290,49 @@
       "lua/SOURCES.md": 4296.47
     },
     "lua/cosmopolitan": {
-      "lua/cosmopolitan/all.lua": -2447.72,
-      "lua/cosmopolitan/api.lua": -3335.99,
-      "lua/cosmopolitan/attrib.lua": -2815.98,
-      "lua/cosmopolitan/big.lua": -4038.38,
-      "lua/cosmopolitan/binarytrees.lua": -2157.19,
-      "lua/cosmopolitan/bitwise.lua": -2400.76,
-      "lua/cosmopolitan/bwcoercion.lua": -3450.82,
-      "lua/cosmopolitan/call-lua-module.lua": -3229.39,
-      "lua/cosmopolitan/calls.lua": -3696.12,
-      "lua/cosmopolitan/closedsource.lua": -3653.43,
-      "lua/cosmopolitan/closure.lua": -3896.63,
-      "lua/cosmopolitan/code.lua": -3518.91,
-      "lua/cosmopolitan/constructs.lua": -3692.38,
-      "lua/cosmopolitan/coroutine.lua": -3101.61,
-      "lua/cosmopolitan/crashreport.lua": -3762.56,
-      "lua/cosmopolitan/cstack.lua": -3824.23,
-      "lua/cosmopolitan/db.lua": -2983.79,
-      "lua/cosmopolitan/errors.lua": -2441.33,
-      "lua/cosmopolitan/events.lua": -2574.23,
-      "lua/cosmopolitan/fetch.lua": -3943.35,
-      "lua/cosmopolitan/files.lua": -2805.85,
-      "lua/cosmopolitan/finger.lua": -2327.22,
-      "lua/cosmopolitan/gc.lua": -3321.2,
-      "lua/cosmopolitan/gengc.lua": -2837.51,
-      "lua/cosmopolitan/gensvg.lua": -1983.85,
-      "lua/cosmopolitan/goto.lua": -3971.19,
-      "lua/cosmopolitan/heavy.lua": -2189.81,
-      "lua/cosmopolitan/hitcounter.lua": -3030.6,
-      "lua/cosmopolitan/literals.lua": -2181.53,
-      "lua/cosmopolitan/locals.lua": -3563.91,
-      "lua/cosmopolitan/main.lua": -3641.01,
-      "lua/cosmopolitan/math.lua": -3220.31,
-      "lua/cosmopolitan/maxmind.lua": -3373.41,
-      "lua/cosmopolitan/mymodule.lua": -2180.27,
-      "lua/cosmopolitan/nextvar.lua": -2789.68,
-      "lua/cosmopolitan/opensource.lua": -1930.34,
-      "lua/cosmopolitan/pm.lua": -2346.4,
-      "lua/cosmopolitan/printpayload.lua": -4181.13,
-      "lua/cosmopolitan/redbean-form.lua": -2905.44,
-      "lua/cosmopolitan/sort.lua": -3132.46,
-      "lua/cosmopolitan/strings.lua": -3078.54,
-      "lua/cosmopolitan/tpack.lua": -2584.43,
-      "lua/cosmopolitan/tracegc.lua": -2544.51
+      "lua/cosmopolitan/all.lua": -2447.23,
+      "lua/cosmopolitan/api.lua": -3335.51,
+      "lua/cosmopolitan/attrib.lua": -2815.49,
+      "lua/cosmopolitan/big.lua": -4037.89,
+      "lua/cosmopolitan/binarytrees.lua": -2156.7,
+      "lua/cosmopolitan/bitwise.lua": -2400.27,
+      "lua/cosmopolitan/bwcoercion.lua": -3450.34,
+      "lua/cosmopolitan/call-lua-module.lua": -3228.9,
+      "lua/cosmopolitan/calls.lua": -3695.63,
+      "lua/cosmopolitan/closedsource.lua": -3652.95,
+      "lua/cosmopolitan/closure.lua": -3896.15,
+      "lua/cosmopolitan/code.lua": -3518.43,
+      "lua/cosmopolitan/constructs.lua": -3691.89,
+      "lua/cosmopolitan/coroutine.lua": -3101.13,
+      "lua/cosmopolitan/crashreport.lua": -3762.07,
+      "lua/cosmopolitan/cstack.lua": -3823.74,
+      "lua/cosmopolitan/db.lua": -2983.31,
+      "lua/cosmopolitan/errors.lua": -2440.84,
+      "lua/cosmopolitan/events.lua": -2573.75,
+      "lua/cosmopolitan/fetch.lua": -3942.86,
+      "lua/cosmopolitan/files.lua": -2805.36,
+      "lua/cosmopolitan/finger.lua": -2326.73,
+      "lua/cosmopolitan/gc.lua": -3320.71,
+      "lua/cosmopolitan/gengc.lua": -2837.02,
+      "lua/cosmopolitan/gensvg.lua": -1983.36,
+      "lua/cosmopolitan/goto.lua": -3970.7,
+      "lua/cosmopolitan/heavy.lua": -2189.33,
+      "lua/cosmopolitan/hitcounter.lua": -3030.11,
+      "lua/cosmopolitan/literals.lua": -2181.04,
+      "lua/cosmopolitan/locals.lua": -3563.42,
+      "lua/cosmopolitan/main.lua": -3640.52,
+      "lua/cosmopolitan/math.lua": -3219.83,
+      "lua/cosmopolitan/maxmind.lua": -3372.92,
+      "lua/cosmopolitan/mymodule.lua": -2179.79,
+      "lua/cosmopolitan/nextvar.lua": -2789.19,
+      "lua/cosmopolitan/opensource.lua": -1929.85,
+      "lua/cosmopolitan/pm.lua": -2345.91,
+      "lua/cosmopolitan/printpayload.lua": -4180.64,
+      "lua/cosmopolitan/redbean-form.lua": -2904.96,
+      "lua/cosmopolitan/sort.lua": -3131.98,
+      "lua/cosmopolitan/strings.lua": -3078.05,
+      "lua/cosmopolitan/tpack.lua": -2583.94,
+      "lua/cosmopolitan/tracegc.lua": -2544.02
     },
     "lua/darwin-xnu": {
       "lua/darwin-xnu/benchmark.lua": 6695.58,
@@ -2392,27 +2392,27 @@
       "lua/pandoc/writer-template.lua": 4328.21
     },
     "lua/redis": {
-      "lua/redis/COPYRIGHT": -3239.96,
-      "lua/redis/README": -2694.96,
-      "lua/redis/bisect.lua": -2270.61,
-      "lua/redis/cf.lua": -2401.55,
-      "lua/redis/echo.lua": -2161.42,
-      "lua/redis/env.lua": -3455.6,
-      "lua/redis/factorial.lua": -2920.51,
-      "lua/redis/fib.lua": -2390.2,
-      "lua/redis/fibfor.lua": -2159.42,
-      "lua/redis/globals.lua": -2513.56,
-      "lua/redis/hello.lua": -2168.93,
-      "lua/redis/life.lua": -2654.91,
-      "lua/redis/luac.lua": -2000.29,
-      "lua/redis/printf.lua": -3118.2,
-      "lua/redis/readonly.lua": -2790.24,
-      "lua/redis/sort.lua": -2891.11,
-      "lua/redis/strict.lua": -2628.93,
-      "lua/redis/table.lua": -3313.1,
-      "lua/redis/trace-calls.lua": -3173.96,
-      "lua/redis/trace-globals.lua": -2825.5,
-      "lua/redis/xd.lua": -3233.31
+      "lua/redis/COPYRIGHT": -3239.65,
+      "lua/redis/README": -2694.64,
+      "lua/redis/bisect.lua": -2270.29,
+      "lua/redis/cf.lua": -2401.23,
+      "lua/redis/echo.lua": -2161.1,
+      "lua/redis/env.lua": -3455.28,
+      "lua/redis/factorial.lua": -2920.19,
+      "lua/redis/fib.lua": -2389.88,
+      "lua/redis/fibfor.lua": -2159.1,
+      "lua/redis/globals.lua": -2513.24,
+      "lua/redis/hello.lua": -2168.61,
+      "lua/redis/life.lua": -2654.59,
+      "lua/redis/luac.lua": -1999.97,
+      "lua/redis/printf.lua": -3117.88,
+      "lua/redis/readonly.lua": -2789.92,
+      "lua/redis/sort.lua": -2890.8,
+      "lua/redis/strict.lua": -2628.61,
+      "lua/redis/table.lua": -3312.78,
+      "lua/redis/trace-calls.lua": -3173.64,
+      "lua/redis/trace-globals.lua": -2825.18,
+      "lua/redis/xd.lua": -3232.99
     },
     "m4": {
       "m4/SOURCES.md": -10155.82
@@ -2422,11 +2422,11 @@
       "m4/curl/configure.ac": 8324.23
     },
     "m4/curl/m4": {
-      "m4/curl/m4/curl-confopts.m4": -11156.06,
-      "m4/curl/m4/curl-mbedtls.m4": -10871.66,
-      "m4/curl/m4/curl-sysconfig.m4": -11398.14,
-      "m4/curl/m4/xc-am-iface.m4": -10662.79,
-      "m4/curl/m4/zz40-xc-ovr.m4": -10929.28
+      "m4/curl/m4/curl-confopts.m4": -11156.02,
+      "m4/curl/m4/curl-mbedtls.m4": -10871.62,
+      "m4/curl/m4/curl-sysconfig.m4": -11398.1,
+      "m4/curl/m4/xc-am-iface.m4": -10662.75,
+      "m4/curl/m4/zz40-xc-ovr.m4": -10929.24
     },
     "m4/gnucobol": {
       "m4/gnucobol/COPYING": -5581.55,
@@ -2453,13 +2453,13 @@
       "matlab/SOURCES.md": 2557.23
     },
     "matlab/eeglab": {
-      "matlab/eeglab/README.md": -9707.1,
-      "matlab/eeglab/eeg_eval.m": -10083.78,
-      "matlab/eeglab/eeglab.m": -9597.98,
-      "matlab/eeglab/eegobj.m": -9118.59,
-      "matlab/eeglab/pop_loadset.m": -9306.17,
-      "matlab/eeglab/runica.m": -9921.42,
-      "matlab/eeglab/supergui.m": -9589.73
+      "matlab/eeglab/README.md": -9707.06,
+      "matlab/eeglab/eeg_eval.m": -10083.74,
+      "matlab/eeglab/eeglab.m": -9597.94,
+      "matlab/eeglab/eegobj.m": -9118.56,
+      "matlab/eeglab/pop_loadset.m": -9306.14,
+      "matlab/eeglab/runica.m": -9921.38,
+      "matlab/eeglab/supergui.m": -9589.69
     },
     "mlir": {
       "mlir/SOURCES.md": -10720.24
@@ -2469,15 +2469,15 @@
       "mlir/tensorflow/compiler/mlir/tfrt/tests/xla_rewrite.mlir": 9634.84
     },
     "mlir/tensorflow/compiler/mlir/tfrt/tests/mlrt": {
-      "mlir/tensorflow/compiler/mlir/tfrt/tests/mlrt/tpu_conversions.mlir": -5958.2
+      "mlir/tensorflow/compiler/mlir/tfrt/tests/mlrt/tpu_conversions.mlir": -5957.68
     },
     "nix": {
       "nix/SOURCES.md": -1561.02
     },
     "nix/bun": {
-      "nix/bun/LICENSE.md": -10725.83,
-      "nix/bun/flake.nix": -10764.5,
-      "nix/bun/shell.nix": -10981.63
+      "nix/bun/LICENSE.md": -10725.79,
+      "nix/bun/flake.nix": -10764.46,
+      "nix/bun/shell.nix": -10981.59
     },
     "nix/ghostty": {
       "nix/ghostty/build.zig": 8475.34,
@@ -2497,11 +2497,11 @@
       "objective-c/worldwideweb/TcpAccess.m": -5653.69
     },
     "perl": {
-      "perl/SOURCES.md": 713.11
+      "perl/SOURCES.md": 713.07
     },
     "perl/ack3_tests": {
-      "perl/ack3_tests/LICENSE.md": -3252.66,
-      "perl/ack3_tests/file-permission.t": -3027.18
+      "perl/ack3_tests/LICENSE.md": -3252.37,
+      "perl/ack3_tests/file-permission.t": -3026.89
     },
     "perl/bugzilla": {
       "perl/bugzilla/Auth.pm": 8233.95,
@@ -2519,11 +2519,11 @@
       "perl/exiftool/exiftool": 2840.26
     },
     "perl/mojo": {
-      "perl/mojo/IOLoop.pm": -9710.55,
-      "perl/mojo/Makefile.PL": -10221.46,
-      "perl/mojo/Promise.pm": -10011.49,
-      "perl/mojo/Template.pm": -9706.65,
-      "perl/mojo/WebSocket.pm": -9399.7
+      "perl/mojo/IOLoop.pm": -9710.51,
+      "perl/mojo/Makefile.PL": -10221.42,
+      "perl/mojo/Promise.pm": -10011.45,
+      "perl/mojo/Template.pm": -9706.61,
+      "perl/mojo/WebSocket.pm": -9399.66
     },
     "perl/spamassassin": {
       "perl/spamassassin/AsyncLoop.pm": 7507.68,
@@ -2536,7 +2536,7 @@
       "perl/spamassassin/SpamAssassin.pm": 7346.06
     },
     "php": {
-      "php/SOURCES.md": -10782.21
+      "php/SOURCES.md": -10782.17
     },
     "php/guzzle": {
       "php/guzzle/Client.php": 8706.29,
@@ -2572,16 +2572,16 @@
       "php/magento2/ObjectManager.php": -5707.47
     },
     "php/symfony": {
-      "php/symfony/Application.php": -2532.71,
-      "php/symfony/ContainerBuilder.php": -2913.6,
-      "php/symfony/EventDispatcher.php": -3124.59,
-      "php/symfony/HttpKernel.php": -2088.68,
-      "php/symfony/Parser.php": -2274.7,
-      "php/symfony/Request.php": -2620.04,
-      "php/symfony/Router.php": -2711.14
+      "php/symfony/Application.php": -2532.44,
+      "php/symfony/ContainerBuilder.php": -2913.34,
+      "php/symfony/EventDispatcher.php": -3124.33,
+      "php/symfony/HttpKernel.php": -2088.41,
+      "php/symfony/Parser.php": -2274.44,
+      "php/symfony/Request.php": -2619.77,
+      "php/symfony/Router.php": -2710.88
     },
     "php/symfony_emoji_data": {
-      "php/symfony_emoji_data/emoji-ccp.php": -3991.62
+      "php/symfony_emoji_data/emoji-ccp.php": -3991.3
     },
     "php/wordpress": {
       "php/wordpress/admin-ajax.php": 5790.44,
@@ -2616,18 +2616,18 @@
       "pli/SOURCES.md": 12228.99
     },
     "pli/dsf_cics_admin": {
-      "pli/dsf_cics_admin/LICENSE.md": -1368.1,
-      "pli/dsf_cics_admin/PROVENANCE.md": -1453.59,
-      "pli/dsf_cics_admin/R0010301.pli": -1613.48,
-      "pli/dsf_cics_admin/R0010420.pli": -1759.39,
-      "pli/dsf_cics_admin/R0010421.pli": -1012.73,
-      "pli/dsf_cics_admin/R0010422.pli": -1885.14,
-      "pli/dsf_cics_admin/R0010423.pli": -1592.99,
-      "pli/dsf_cics_admin/R0010424.pli": -2111.84,
-      "pli/dsf_cics_admin/R0010425.pli": -1317.96,
-      "pli/dsf_cics_admin/R0010426.pli": -1887.33,
-      "pli/dsf_cics_admin/R0010427.pli": -2167.54,
-      "pli/dsf_cics_admin/R001TK62.pli": -1187.94
+      "pli/dsf_cics_admin/LICENSE.md": -1367.91,
+      "pli/dsf_cics_admin/PROVENANCE.md": -1453.39,
+      "pli/dsf_cics_admin/R0010301.pli": -1613.29,
+      "pli/dsf_cics_admin/R0010420.pli": -1759.2,
+      "pli/dsf_cics_admin/R0010421.pli": -1012.54,
+      "pli/dsf_cics_admin/R0010422.pli": -1884.94,
+      "pli/dsf_cics_admin/R0010423.pli": -1592.8,
+      "pli/dsf_cics_admin/R0010424.pli": -2111.64,
+      "pli/dsf_cics_admin/R0010425.pli": -1317.77,
+      "pli/dsf_cics_admin/R0010426.pli": -1887.13,
+      "pli/dsf_cics_admin/R0010427.pli": -2167.35,
+      "pli/dsf_cics_admin/R001TK62.pli": -1187.74
     },
     "pli/zopeneditor_sample": {
       "pli/zopeneditor_sample/PROVENANCE.md": -6862.83,
@@ -2636,7 +2636,7 @@
       "pli/zopeneditor_sample/PSAM2.pli": -7058.07
     },
     "powershell": {
-      "powershell/SOURCES.md": -1214.82
+      "powershell/SOURCES.md": -1214.72
     },
     "powershell/PowerToys": {
       "powershell/PowerToys/Build-Awake.ps1": -4613.83,
@@ -2776,12 +2776,12 @@
       "powershell/runtime/update-machine-certs.ps1": -2527.97
     },
     "proto": {
-      "proto/SOURCES.md": -10954.34
+      "proto/SOURCES.md": -10954.37
     },
     "proto/tensorflow/framework": {
-      "proto/tensorflow/framework/dataset.proto": -6399.41,
-      "proto/tensorflow/framework/graph.proto": -6176.59,
-      "proto/tensorflow/framework/tensor.proto": -6197.7
+      "proto/tensorflow/framework/dataset.proto": -6398.82,
+      "proto/tensorflow/framework/graph.proto": -6176.0,
+      "proto/tensorflow/framework/tensor.proto": -6197.11
     },
     "protobuf": {
       "protobuf/SOURCES.md": 2031.38
@@ -2793,10 +2793,10 @@
       "python/SOURCES.md": 12975.11
     },
     "python/airflow": {
-      "python/airflow/NOTICE": -9640.91,
-      "python/airflow/dag.py": -9882.12,
-      "python/airflow/s3.py": -10221.85,
-      "python/airflow/scheduler_job_runner.py": -9951.23
+      "python/airflow/NOTICE": -9640.94,
+      "python/airflow/dag.py": -9882.15,
+      "python/airflow/s3.py": -10221.88,
+      "python/airflow/scheduler_job_runner.py": -9951.26
     },
     "python/airflow_ai_providers": {
       "python/airflow_ai_providers/NOTICE": 0.99,
@@ -3069,14 +3069,14 @@
       "python/homeassistant_ble_integrations/utils.py": -7365.75
     },
     "python/langchain_agents": {
-      "python/langchain_agents/langchain_agents_middleware_model_fallback.py": -484.53,
-      "python/langchain_agents/langchain_agents_middleware_tool_emulator.py": -254.17,
-      "python/langchain_agents/tests_integration_tests_chat_models_test_base.py": -198.13
+      "python/langchain_agents/langchain_agents_middleware_model_fallback.py": -484.52,
+      "python/langchain_agents/langchain_agents_middleware_tool_emulator.py": -254.16,
+      "python/langchain_agents/tests_integration_tests_chat_models_test_base.py": -198.12
     },
     "python/micropython_usb_tls": {
-      "python/micropython_usb_tls/ssl_verify_callback.py": -11158.52,
-      "python/micropython_usb_tls/tls_dtls.py": -11198.45,
-      "python/micropython_usb_tls/usb_simple_host_pyusb.py": -11450.31
+      "python/micropython_usb_tls/ssl_verify_callback.py": -11158.48,
+      "python/micropython_usb_tls/tls_dtls.py": -11198.4,
+      "python/micropython_usb_tls/usb_simple_host_pyusb.py": -11450.27
     },
     "python/numpy": {
       "python/numpy/LICENSE.txt": 468.85,
@@ -3111,17 +3111,17 @@
       "python/scikit-learn_examples/svm_plot_custom_kernel.py": 2735.4
     },
     "python/tensorflow_ml_ops": {
-      "python/tensorflow_ml_ops/core_tfrt_saved_model_tests_gen_matmul_gpu.py": 682.03,
-      "python/tensorflow_ml_ops/lite_testing_op_tests_einsum.py": 932.09
+      "python/tensorflow_ml_ops/core_tfrt_saved_model_tests_gen_matmul_gpu.py": 681.97,
+      "python/tensorflow_ml_ops/lite_testing_op_tests_einsum.py": 932.02
     },
     "python/tensorflow_model_fixtures": {
       "python/tensorflow_model_fixtures/lite_testdata_multi_add.pb": 8348.76,
       "python/tensorflow_model_fixtures/python_compiler_mlir_multi_add.tflite": 8017.1
     },
     "python/thealgorithms_machine_learning": {
-      "python/thealgorithms_machine_learning/LICENSE.md": -2242.84,
-      "python/thealgorithms_machine_learning/logistic_regression.py": -2513.48,
-      "python/thealgorithms_machine_learning/lstm_lstm_prediction.py": -2271.39
+      "python/thealgorithms_machine_learning/LICENSE.md": -2242.63,
+      "python/thealgorithms_machine_learning/logistic_regression.py": -2513.28,
+      "python/thealgorithms_machine_learning/lstm_lstm_prediction.py": -2271.19
     },
     "python/twisted": {
       "python/twisted/defer.py": 1736.97,
@@ -3155,28 +3155,28 @@
       "rexx/hercules_hyperion/hrecurs.rexx": 8213.98
     },
     "rexx/ibm_z_zos": {
-      "rexx/ibm_z_zos/LICENSE.md": -8438.34,
-      "rexx/ibm_z_zos/bpxget.rexx": -8743.42,
-      "rexx/ibm_z_zos/bpxput.rexx": -8388.88,
-      "rexx/ibm_z_zos/bpxwtabs.rexx": -9633.25,
-      "rexx/ibm_z_zos/colonies.rexx": -8766.84,
-      "rexx/ibm_z_zos/devinfo.rexx": -8970.37,
-      "rexx/ibm_z_zos/domchk.rexx": -9261.07,
-      "rexx/ibm_z_zos/ftpget.rexx": -8290.5,
-      "rexx/ibm_z_zos/i.rexx": -8382.29,
-      "rexx/ibm_z_zos/jobwait.rexx": -9078.79,
-      "rexx/ibm_z_zos/rangelks.rexx": -8663.13,
-      "rexx/ibm_z_zos/rangelks2.rexx": -8552.19,
-      "rexx/ibm_z_zos/which.rexx": -9621.19,
-      "rexx/ibm_z_zos/wjsacl.rexx": -9481.99,
-      "rexx/ibm_z_zos/wjscrck.rexx": -9125.94,
-      "rexx/ibm_z_zos/wjsdvino.rexx": -9834.24,
-      "rexx/ibm_z_zos/wjssh.rexx": -9435.74,
-      "rexx/ibm_z_zos/wjssmfr.rexx": -9312.66,
-      "rexx/ibm_z_zos/wjsst92.rexx": -8990.83
+      "rexx/ibm_z_zos/LICENSE.md": -8438.29,
+      "rexx/ibm_z_zos/bpxget.rexx": -8743.37,
+      "rexx/ibm_z_zos/bpxput.rexx": -8388.84,
+      "rexx/ibm_z_zos/bpxwtabs.rexx": -9633.2,
+      "rexx/ibm_z_zos/colonies.rexx": -8766.79,
+      "rexx/ibm_z_zos/devinfo.rexx": -8970.32,
+      "rexx/ibm_z_zos/domchk.rexx": -9261.02,
+      "rexx/ibm_z_zos/ftpget.rexx": -8290.46,
+      "rexx/ibm_z_zos/i.rexx": -8382.24,
+      "rexx/ibm_z_zos/jobwait.rexx": -9078.74,
+      "rexx/ibm_z_zos/rangelks.rexx": -8663.08,
+      "rexx/ibm_z_zos/rangelks2.rexx": -8552.14,
+      "rexx/ibm_z_zos/which.rexx": -9621.15,
+      "rexx/ibm_z_zos/wjsacl.rexx": -9481.95,
+      "rexx/ibm_z_zos/wjscrck.rexx": -9125.89,
+      "rexx/ibm_z_zos/wjsdvino.rexx": -9834.19,
+      "rexx/ibm_z_zos/wjssh.rexx": -9435.69,
+      "rexx/ibm_z_zos/wjssmfr.rexx": -9312.61,
+      "rexx/ibm_z_zos/wjsst92.rexx": -8990.78
     },
     "ruby": {
-      "ruby/SOURCES.md": -3426.78
+      "ruby/SOURCES.md": -3426.49
     },
     "ruby/rails": {
       "ruby/rails/MIT-LICENSE": 11463.49,
@@ -3193,7 +3193,7 @@
       "ruby/rails_http_token_auth/http_token_authentication_test.rb": 9256.46
     },
     "rust": {
-      "rust/SOURCES.md": -11609.23
+      "rust/SOURCES.md": -11609.19
     },
     "rust/bevy": {
       "rust/bevy/LICENSE-APACHE": 7189.29,
@@ -3233,14 +3233,14 @@
       "rust/serde/test_annotations.rs": 8309.11
     },
     "rust/syn": {
-      "rust/syn/LICENSE-APACHE": -10662.28,
-      "rust/syn/bigint.rs": -10814.48,
-      "rust/syn/buffer.rs": -10404.83,
-      "rust/syn/classify.rs": -10095.04,
-      "rust/syn/custom_keyword.rs": -9894.9,
-      "rust/syn/custom_punctuation.rs": -10487.3,
-      "rust/syn/data.rs": -10655.62,
-      "rust/syn/derive.rs": -10300.8
+      "rust/syn/LICENSE-APACHE": -10662.24,
+      "rust/syn/bigint.rs": -10814.43,
+      "rust/syn/buffer.rs": -10404.79,
+      "rust/syn/classify.rs": -10095.0,
+      "rust/syn/custom_keyword.rs": -9894.85,
+      "rust/syn/custom_punctuation.rs": -10487.26,
+      "rust/syn/data.rs": -10655.57,
+      "rust/syn/derive.rs": -10300.76
     },
     "rust/tokio": {
       "rust/tokio/addr_of.rs": 9686.81,
@@ -3260,10 +3260,10 @@
       "rust/tokio_util_rand/rand.rs": 12869.3
     },
     "rust/wasmtime": {
-      "rust/wasmtime/wasmtime_component_macro.rs": -1044.43,
-      "rust/wasmtime/wasmtime_instance.rs": -1289.31,
-      "rust/wasmtime/wasmtime_isle_parser.rs": -1666.66,
-      "rust/wasmtime/wasmtime_pulley_interp.rs": -1356.81
+      "rust/wasmtime/wasmtime_component_macro.rs": -1044.29,
+      "rust/wasmtime/wasmtime_instance.rs": -1289.17,
+      "rust/wasmtime/wasmtime_isle_parser.rs": -1666.52,
+      "rust/wasmtime/wasmtime_pulley_interp.rs": -1356.66
     },
     "scala": {
       "scala/SOURCES.md": 4122.96
@@ -3290,7 +3290,7 @@
       "scheme/racket/thread.rkt": 4483.7
     },
     "shell": {
-      "shell/SOURCES.md": -477.5
+      "shell/SOURCES.md": -477.47
     },
     "shell/ansible": {
       "shell/ansible/COPYING": 9853.49,
@@ -3545,29 +3545,29 @@
       "shell/reactos/remaster.sh": 6646.95
     },
     "shell/serenity": {
-      "shell/serenity/BuildFuzzers.sh": -6797.77,
-      "shell/serenity/ClassiCube__package.sh": -6001.22,
-      "shell/serenity/FAudio__package.sh": -6328.49,
-      "shell/serenity/ObjFW__package.sh": -6631.08,
-      "shell/serenity/OpenJDK__package.sh": -6984.12,
-      "shell/serenity/RISCVEmu__package.sh": -7063.81,
-      "shell/serenity/RetroArch__package.sh": -6147.1,
-      "shell/serenity/SDL2-GNUBoy__package.sh": -5718.76,
-      "shell/serenity/SDL2__package.sh": -6953.24,
-      "shell/serenity/SDL2_gfx__package.sh": -5965.14,
-      "shell/serenity/SDL2_image__package.sh": -5945.28,
-      "shell/serenity/SDL2_mixer__package.sh": -6238.25,
-      "shell/serenity/SDL2_net__package.sh": -6587.43,
-      "shell/serenity/SDL2_sound__package.sh": -5859.25,
-      "shell/serenity/SDL2_ttf__package.sh": -7296.52,
-      "shell/serenity/SDLPoP__package.sh": -6644.02,
-      "shell/serenity/SDL_mixer__package.sh": -7140.36,
-      "shell/serenity/analyze-qemu-coverage.sh": -6530.01,
-      "shell/serenity/builtin.sh": -6571.25,
-      "shell/serenity/embedmap.sh": -7214.49,
-      "shell/serenity/install.sh": -6271.68,
-      "shell/serenity/package.sh": -7110.05,
-      "shell/serenity/run-tests-and-shutdown.sh": -6811.75
+      "shell/serenity/BuildFuzzers.sh": -6797.67,
+      "shell/serenity/ClassiCube__package.sh": -6001.13,
+      "shell/serenity/FAudio__package.sh": -6328.4,
+      "shell/serenity/ObjFW__package.sh": -6630.99,
+      "shell/serenity/OpenJDK__package.sh": -6984.03,
+      "shell/serenity/RISCVEmu__package.sh": -7063.72,
+      "shell/serenity/RetroArch__package.sh": -6147.01,
+      "shell/serenity/SDL2-GNUBoy__package.sh": -5718.67,
+      "shell/serenity/SDL2__package.sh": -6953.15,
+      "shell/serenity/SDL2_gfx__package.sh": -5965.05,
+      "shell/serenity/SDL2_image__package.sh": -5945.19,
+      "shell/serenity/SDL2_mixer__package.sh": -6238.16,
+      "shell/serenity/SDL2_net__package.sh": -6587.34,
+      "shell/serenity/SDL2_sound__package.sh": -5859.15,
+      "shell/serenity/SDL2_ttf__package.sh": -7296.43,
+      "shell/serenity/SDLPoP__package.sh": -6643.92,
+      "shell/serenity/SDL_mixer__package.sh": -7140.27,
+      "shell/serenity/analyze-qemu-coverage.sh": -6529.91,
+      "shell/serenity/builtin.sh": -6571.16,
+      "shell/serenity/embedmap.sh": -7214.4,
+      "shell/serenity/install.sh": -6271.59,
+      "shell/serenity/package.sh": -7109.96,
+      "shell/serenity/run-tests-and-shutdown.sh": -6811.66
     },
     "shell/sqlite": {
       "shell/sqlite/LICENSE.md": -1286.21,
@@ -3586,7 +3586,7 @@
       "shell/sqlite/warnings-clang.sh": -1729.88
     },
     "solidity": {
-      "solidity/SOURCES.md": -5469.45
+      "solidity/SOURCES.md": -5468.97
     },
     "solidity/openzeppelin": {
       "solidity/openzeppelin/AccessControl.sol": -6962.03,
@@ -3598,7 +3598,7 @@
       "solidity/openzeppelin/StorageSlot.sol": -7413.12
     },
     "sql": {
-      "sql/SOURCES.md": -10926.33
+      "sql/SOURCES.md": -10926.29
     },
     "sql/baseline": {
       "sql/baseline/schema.php": -10490.63
@@ -3608,8 +3608,8 @@
       "sql/mediawiki_mysql/blobs.sql": 7327.27
     },
     "sql/mediawiki_postgresql": {
-      "sql/mediawiki_postgresql/COPYING": -1186.11,
-      "sql/mediawiki_postgresql/tables.sql": -935.69
+      "sql/mediawiki_postgresql/COPYING": -1186.02,
+      "sql/mediawiki_postgresql/tables.sql": -935.6
     },
     "sql/spamassassin_mysql": {
       "sql/spamassassin_mysql/NOTICE": 8622.07,
@@ -3658,23 +3658,23 @@
       "sqlite/mediawiki_sqlite_alterpatches/patch-pagelinks-drop-pl_title.sql": 6597.85
     },
     "sqlite/mediawiki_sqlite_tables": {
-      "sqlite/mediawiki_sqlite_tables/COPYING": -4180.9,
-      "sqlite/mediawiki_sqlite_tables/patch-block_target.sql": -3633.13,
-      "sqlite/mediawiki_sqlite_tables/patch-collation.sql": -4275.12,
-      "sqlite/mediawiki_sqlite_tables/patch-existencelinks.sql": -3105.52,
-      "sqlite/mediawiki_sqlite_tables/patch-file.sql": -3945.86,
-      "sqlite/mediawiki_sqlite_tables/patch-user-user_is_temp.sql": -3454.04,
-      "sqlite/mediawiki_sqlite_tables/patch-user_autocreate_serial-uas_year.sql": -3219.22,
-      "sqlite/mediawiki_sqlite_tables/patch-watchlist_label.sql": -3903.8,
-      "sqlite/mediawiki_sqlite_tables/searchindex-fts3.sql": -3873.57,
-      "sqlite/mediawiki_sqlite_tables/searchindex-no-fts.sql": -3444.29,
-      "sqlite/mediawiki_sqlite_tables/tables-generated.sql": -3644.16
+      "sqlite/mediawiki_sqlite_tables/COPYING": -4180.54,
+      "sqlite/mediawiki_sqlite_tables/patch-block_target.sql": -3632.76,
+      "sqlite/mediawiki_sqlite_tables/patch-collation.sql": -4274.75,
+      "sqlite/mediawiki_sqlite_tables/patch-existencelinks.sql": -3105.15,
+      "sqlite/mediawiki_sqlite_tables/patch-file.sql": -3945.49,
+      "sqlite/mediawiki_sqlite_tables/patch-user-user_is_temp.sql": -3453.68,
+      "sqlite/mediawiki_sqlite_tables/patch-user_autocreate_serial-uas_year.sql": -3218.86,
+      "sqlite/mediawiki_sqlite_tables/patch-watchlist_label.sql": -3903.44,
+      "sqlite/mediawiki_sqlite_tables/searchindex-fts3.sql": -3873.2,
+      "sqlite/mediawiki_sqlite_tables/searchindex-no-fts.sql": -3443.92,
+      "sqlite/mediawiki_sqlite_tables/tables-generated.sql": -3643.8
     },
     "sqlite/prisma_sqlite_migrations": {
-      "sqlite/prisma_sqlite_migrations/provider-switch-postgresql-to-sqlite__20210215145936_hello.sql": -9645.01,
-      "sqlite/prisma_sqlite_migrations/schema-folder-sqlite-db-exists__20240527130802_init.sql": -9840.39,
-      "sqlite/prisma_sqlite_migrations/schema-folder-sqlite-migration-exists__20240527130802_init.sql": -9658.36,
-      "sqlite/prisma_sqlite_migrations/schema-folder-sqlite-migration-failed__20240527130802_init.sql": -9393.98
+      "sqlite/prisma_sqlite_migrations/provider-switch-postgresql-to-sqlite__20210215145936_hello.sql": -9644.93,
+      "sqlite/prisma_sqlite_migrations/schema-folder-sqlite-db-exists__20240527130802_init.sql": -9840.31,
+      "sqlite/prisma_sqlite_migrations/schema-folder-sqlite-migration-exists__20240527130802_init.sql": -9658.28,
+      "sqlite/prisma_sqlite_migrations/schema-folder-sqlite-migration-failed__20240527130802_init.sql": -9393.9
     },
     "sqlite/prisma_typed_sql": {
       "sqlite/prisma_typed_sql/findBigInt.sql": -2793.26,
@@ -3728,13 +3728,13 @@
       "swift/SOURCES.md": 9875.43
     },
     "swift/alamofire": {
-      "swift/alamofire/AFError.swift": -10394.12,
-      "swift/alamofire/Alamofire.podspec": -9422.9,
-      "swift/alamofire/Package.swift": -10062.91,
-      "swift/alamofire/ParameterEncoder.swift": -9642.85,
-      "swift/alamofire/Request.swift": -10156.19,
-      "swift/alamofire/Response.swift": -9838.97,
-      "swift/alamofire/Session.swift": -9900.12
+      "swift/alamofire/AFError.swift": -10394.07,
+      "swift/alamofire/Alamofire.podspec": -9422.86,
+      "swift/alamofire/Package.swift": -10062.86,
+      "swift/alamofire/ParameterEncoder.swift": -9642.8,
+      "swift/alamofire/Request.swift": -10156.14,
+      "swift/alamofire/Response.swift": -9838.92,
+      "swift/alamofire/Session.swift": -9900.07
     },
     "tabular": {
       "tabular/SOURCES.md": -6381.25
@@ -3807,7 +3807,7 @@
       "tcl/sqlite_json_triggers/LICENSE.md": 1266.15
     },
     "tcl/sqlite_query_planner": {
-      "tcl/sqlite_query_planner/LICENSE.md": -10244.31
+      "tcl/sqlite_query_planner/LICENSE.md": -10244.24
     },
     "tcl/sqlite_rtree": {
       "tcl/sqlite_rtree/LICENSE.md": -460.07
@@ -3816,8 +3816,8 @@
       "td/SOURCES.md": -8547.37
     },
     "td/tensorflow/compiler/mlir/tfrt": {
-      "td/tensorflow/compiler/mlir/tfrt/tf_mlrt_ops.td": -10504.59,
-      "td/tensorflow/compiler/mlir/tfrt/tf_mlrt_tpu_ops.td": -10714.89
+      "td/tensorflow/compiler/mlir/tfrt/tf_mlrt_ops.td": -10504.62,
+      "td/tensorflow/compiler/mlir/tfrt/tf_mlrt_tpu_ops.td": -10714.92
     },
     "td/tensorflow/core/ir": {
       "td/tensorflow/core/ir/dialect.td": -256.67,
@@ -3833,7 +3833,7 @@
       "typescript/SOURCES.md": 8834.53
     },
     "typescript/angular_zonejs_mocha": {
-      "typescript/angular_zonejs_mocha/mocha.ts": -10418.95
+      "typescript/angular_zonejs_mocha/mocha.ts": -10418.91
     },
     "typescript/assemblyscript": {
       "typescript/assemblyscript/asconfig.json": 5163.78,
@@ -3846,9 +3846,9 @@
       "typescript/effect_ai_anthropic/AnthropicTokenizer.ts": 4545.7
     },
     "typescript/excalibur_math": {
-      "typescript/excalibur_math/LICENSE.md": -10418.33,
-      "typescript/excalibur_math/collision_colliders_separating-axis.ts": -10421.27,
-      "typescript/excalibur_math/math_ray.ts": -10669.1
+      "typescript/excalibur_math/LICENSE.md": -10418.3,
+      "typescript/excalibur_math/collision_colliders_separating-axis.ts": -10421.24,
+      "typescript/excalibur_math/math_ray.ts": -10669.07
     },
     "typescript/excalidraw_text_wrapping": {
       "typescript/excalidraw_text_wrapping/textWrapping.ts": 10656.46
@@ -3865,7 +3865,7 @@
       "typescript/nx_util_ai/util-ai_src_lib_moderation.ts": -8541.16
     },
     "typescript/pixijs_examples": {
-      "typescript/pixijs_examples/events_dragging.ts": -10541.67
+      "typescript/pixijs_examples/events_dragging.ts": -10541.7
     },
     "typescript/playwright": {
       "typescript/playwright/NOTICE": 1002.93,
@@ -3885,17 +3885,17 @@
       "typescript/typescript_compiler/package.json": 12191.72
     },
     "typescript/vscode": {
-      "typescript/vscode/LICENSE.txt": -8416.47,
-      "typescript/vscode/async.ts": -8620.67,
-      "typescript/vscode/codeEditorWidget.ts": -8657.23,
-      "typescript/vscode/eslint.config.js": -8104.13,
-      "typescript/vscode/extHost.api.impl.ts": -8951.34,
-      "typescript/vscode/gulpfile.vscode.ts": -8152.36,
-      "typescript/vscode/instantiationService.ts": -8806.19,
-      "typescript/vscode/ipc.ts": -8405.83,
-      "typescript/vscode/lifecycle.ts": -9218.61,
-      "typescript/vscode/package.json": -9262.91,
-      "typescript/vscode/vscode.d.ts": -8926.66
+      "typescript/vscode/LICENSE.txt": -8416.43,
+      "typescript/vscode/async.ts": -8620.63,
+      "typescript/vscode/codeEditorWidget.ts": -8657.19,
+      "typescript/vscode/eslint.config.js": -8104.09,
+      "typescript/vscode/extHost.api.impl.ts": -8951.3,
+      "typescript/vscode/gulpfile.vscode.ts": -8152.32,
+      "typescript/vscode/instantiationService.ts": -8806.15,
+      "typescript/vscode/ipc.ts": -8405.79,
+      "typescript/vscode/lifecycle.ts": -9218.57,
+      "typescript/vscode/package.json": -9262.87,
+      "typescript/vscode/vscode.d.ts": -8926.62
     },
     "typescript/zod": {
       "typescript/zod/package.json": -6165.71,
@@ -3920,7 +3920,7 @@
       "xml/jenkins/excludesFilter.xml": -9573.05
     },
     "xml/odoo": {
-      "xml/odoo/__manifest__.py": -10666.79
+      "xml/odoo/__manifest__.py": -10666.75
     },
     "xml/odoo/views": {
       "xml/odoo/views/menu.xml": 9054.61,
@@ -3958,8 +3958,8 @@
       "yaml/ansible/COPYING": -6628.31
     },
     "yaml/ansible/blocks": {
-      "yaml/ansible/blocks/block_fail_tasks.yml": -10726.89,
-      "yaml/ansible/blocks/block_in_rescue.yml": -10507.71
+      "yaml/ansible/blocks/block_fail_tasks.yml": -10726.84,
+      "yaml/ansible/blocks/block_in_rescue.yml": -10507.67
     },
     "yaml/ansible/include_import_tasks/tasks": {
       "yaml/ansible/include_import_tasks/tasks/test_include_dupe_loop.yml": 7394.47,
@@ -3969,29 +3969,29 @@
       "yaml/ansible/yaml_parsing/playbook.yml": 8291.29
     },
     "yaml/ansible/yaml_parsing/tasks": {
-      "yaml/ansible/yaml_parsing/tasks/main.yml": -5243.53,
-      "yaml/ansible/yaml_parsing/tasks/unsafe.yml": -5009.05
+      "yaml/ansible/yaml_parsing/tasks/main.yml": -5243.02,
+      "yaml/ansible/yaml_parsing/tasks/unsafe.yml": -5008.55
     },
     "yaml/black_action": {
       "yaml/black_action/action.yml": -7997.14
     },
     "yaml/grafana_compose": {
-      "yaml/grafana_compose/docker_ha-test-unified-alerting_docker-compose.yaml": -4492.0,
-      "yaml/grafana_compose/frontend-service_docker-compose.yaml": -4217.47,
-      "yaml/grafana_compose/local_cdn_docker-compose.yaml": -4178.84
+      "yaml/grafana_compose/docker_ha-test-unified-alerting_docker-compose.yaml": -4491.61,
+      "yaml/grafana_compose/frontend-service_docker-compose.yaml": -4217.09,
+      "yaml/grafana_compose/local_cdn_docker-compose.yaml": -4178.45
     },
     "yaml/moby_workflows": {
-      "yaml/moby_workflows/arm64.yml": -9854.45,
-      "yaml/moby_workflows/bin-image.yml": -10413.78,
-      "yaml/moby_workflows/buildkit.yml": -9943.49,
-      "yaml/moby_workflows/ci.yml": -10152.66,
-      "yaml/moby_workflows/codeql.yml": -9539.73,
-      "yaml/moby_workflows/labeler.yml": -9341.81,
-      "yaml/moby_workflows/test.yml": -9698.39,
-      "yaml/moby_workflows/validate-pr.yml": -10199.94,
-      "yaml/moby_workflows/vm.yml": -10081.14,
-      "yaml/moby_workflows/windows-2022.yml": -9656.8,
-      "yaml/moby_workflows/windows-2025.yml": -10457.7
+      "yaml/moby_workflows/arm64.yml": -9854.41,
+      "yaml/moby_workflows/bin-image.yml": -10413.74,
+      "yaml/moby_workflows/buildkit.yml": -9943.45,
+      "yaml/moby_workflows/ci.yml": -10152.62,
+      "yaml/moby_workflows/codeql.yml": -9539.69,
+      "yaml/moby_workflows/labeler.yml": -9341.77,
+      "yaml/moby_workflows/test.yml": -9698.35,
+      "yaml/moby_workflows/validate-pr.yml": -10199.9,
+      "yaml/moby_workflows/vm.yml": -10081.09,
+      "yaml/moby_workflows/windows-2022.yml": -9656.75,
+      "yaml/moby_workflows/windows-2025.yml": -10457.65
     },
     "yaml/serenity_composite_actions": {
       "yaml/serenity_composite_actions/cache-restore_action.yml": 11962.18,
@@ -3999,7 +3999,7 @@
       "yaml/serenity_composite_actions/setup_action.yml": 12134.32
     },
     "yaml/sqlmap_openapi": {
-      "yaml/sqlmap_openapi/sqlmapapi.yaml": -11431.93
+      "yaml/sqlmap_openapi/sqlmapapi.yaml": -11431.89
     },
     "yaml/vscode_workflows": {
       "yaml/vscode_workflows/LICENSE.txt": 1930.61,
@@ -4038,18 +4038,18 @@
       "zig/mach/win32.zig": -6835.92
     },
     "zig/tigerbeetle": {
-      "zig/tigerbeetle/aof.zig": -7456.04,
-      "zig/tigerbeetle/build.zig": -7655.79,
-      "zig/tigerbeetle/build_multiversion.zig": -7209.86,
-      "zig/tigerbeetle/cluster.zig": -8015.69,
-      "zig/tigerbeetle/config.zig": -7457.42,
-      "zig/tigerbeetle/constants.zig": -8243.67,
-      "zig/tigerbeetle/copyhound.zig": -7917.27,
-      "zig/tigerbeetle/counting_allocator.zig": -8296.92,
-      "zig/tigerbeetle/direction.zig": -7113.58,
-      "zig/tigerbeetle/download.sh": -7971.42,
-      "zig/tigerbeetle/download.win.ps1": -7487.41,
-      "zig/tigerbeetle/state_machine.zig": -7739.83
+      "zig/tigerbeetle/aof.zig": -7455.96,
+      "zig/tigerbeetle/build.zig": -7655.71,
+      "zig/tigerbeetle/build_multiversion.zig": -7209.78,
+      "zig/tigerbeetle/cluster.zig": -8015.61,
+      "zig/tigerbeetle/config.zig": -7457.34,
+      "zig/tigerbeetle/constants.zig": -8243.59,
+      "zig/tigerbeetle/copyhound.zig": -7917.18,
+      "zig/tigerbeetle/counting_allocator.zig": -8296.83,
+      "zig/tigerbeetle/direction.zig": -7113.5,
+      "zig/tigerbeetle/download.sh": -7971.33,
+      "zig/tigerbeetle/download.win.ps1": -7487.33,
+      "zig/tigerbeetle/state_machine.zig": -7739.75
     },
     "zig/zig": {
       "zig/zig/Compilation.zig": -4568.92,

@@ -1,3 +1,6 @@
+---
+description: "> **The Flaw in Modern RAG**"
+---
 # The Structural RAG Graph (Mapping the Magnitude)
 
 > **The Flaw in Modern RAG**

@@ -1,3 +1,6 @@
+---
+description: "> **File Reference:** [gitgalaxy/security/security_auditor.py](https://github.com/squid-protocol/gitgalaxy/blob/main/gitgalaxy/security/security_auditor..."
+---
 # Security Architecture & Competitive Analysis
 
 > **File Reference:** [gitgalaxy/security/security_auditor.py](https://github.com/squid-protocol/gitgalaxy/blob/main/gitgalaxy/security/security_auditor.py)

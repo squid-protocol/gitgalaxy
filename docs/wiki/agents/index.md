@@ -1,3 +1,6 @@
+---
+description: "These files aren't your standard, manually written documentation. We used data from our proprietary **blAST engine**—powered by a custom AST-free,..."
+---
 # GitGalaxy Agent Directives (agents.md)
 
 ## How These Are Generated (The blAST Engine)

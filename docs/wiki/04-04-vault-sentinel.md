@@ -1,3 +1,6 @@
+---
+description: "> **File Reference:** [gitgalaxy/tools/supply_chain_security/vault_sentinel.py](https://github.com/squid-protocol/gitgalaxy/blob/main/gitgalaxy/tools/su..."
+---
 # Vault Sentinel (High-Speed Secrets Scanner)
 
 > **File Reference:** [gitgalaxy/tools/supply_chain_security/vault_sentinel.py](https://github.com/squid-protocol/gitgalaxy/blob/main/gitgalaxy/tools/supply_chain_security/vault_sentinel.py)

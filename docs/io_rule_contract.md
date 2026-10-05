@@ -1,3 +1,6 @@
+---
+description: "> **One hit is an operation that moves data between the program and a system"
+---
 # The `io` rule contract (#2841)
 
 > **One hit is an operation that moves data between the program and a system

@@ -1,3 +1,6 @@
+---
+description: "You are operating within `Babylon.js`, a massive, high-performance 3D rendering engine primarily composed of TypeScript (81.2%)."
+---
 # AGENTS.md: Babylon.js Architectural Context & Engagement Rules
 
 ## 1. System Context & Paradigm

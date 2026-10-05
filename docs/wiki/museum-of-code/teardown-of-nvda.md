@@ -1,3 +1,6 @@
+---
+description: "**Executive Summary:** We performed a deep **static code analysis** on the NVDA (NonVisual Desktop Access) repository. By mapping its structural..."
+---
 # X-Raying NVDA: Technical Debt and God Nodes in an Accessibility Monolith
 
 **Executive Summary:** We performed a deep **static code analysis** on the NVDA (NonVisual Desktop Access) repository. By mapping its structural physics, we uncover the extreme **technical debt**, complex **software architecture**, and deeply embedded "God Nodes" that power one of the world's most vital accessibility tools. This teardown exposes the raw **code smells**, tight system coupling, and structural realities of an application that bridges high-level Python logic with low-level Windows APIs.

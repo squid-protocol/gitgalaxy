@@ -1,3 +1,6 @@
+---
+description: "You are operating within `gradle`, a highly complex build automation tool. The repository is massive (1.48M+ LOC) and is primarily composed of Java..."
+---
 # AGENTS.md: gradle Architectural Context & Engagement Rules
 
 ## 1. System Context & Paradigm

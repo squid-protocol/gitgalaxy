@@ -1,3 +1,6 @@
+---
+description: "Snapshot generated 2026-08-31 against `main`. Source:"
+---
 # Groovy — Structural Signature Coverage
 
 Snapshot generated 2026-08-31 against `main`. Source:

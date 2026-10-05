@@ -11,6 +11,7 @@ from collections import defaultdict
 from pathlib import Path
 from typing import Any, Optional
 
+from gitgalaxy.core.copy_libraries import CopyLibraries, MemberIndex
 from gitgalaxy.core.graph_engine import (
     GraphIndex,
     WorkBudget,
@@ -59,6 +60,9 @@ CASE_INSENSITIVE_IMPORT_LANGS = frozenset(
 # A member is source in the importing language by construction, so an ambiguous
 # copied name is resolved within that language or not at all. Declared per
 # language via the "imports_are_source_members" flag on each DEFINITION.
+# #4265: "the copy-library declaration does not cover this COPY" -- resolve it the default way.
+_NO_DECLARATION = object()
+
 SOURCE_MEMBER_IMPORT_LANGS = frozenset(
     lang_id for lang_id, definition in LANGUAGE_DEFINITIONS.items() if definition.get("imports_are_source_members")
 )
@@ -213,6 +217,11 @@ class NetworkRiskSensor:
         self.root: Optional[str] = None
         # #3789: scan-relative directory -> the package.json that owns it (None: none does)
         self._packages: dict[str, Optional[Package]] = {}
+        # #4265: the estate's declared COPY libraries (galaxyscope --copy-libraries), or None: the
+        # default resolver. `copy_collisions` lists the members a program's search order finds in
+        # more than one library (the first wins, as on z/OS) from the latest _resolve_edges pass.
+        self.copy_libraries: Optional[CopyLibraries] = None
+        self.copy_collisions: list[dict[str, Any]] = []
 
     def _build_resolution_map(self, files: list[dict[str, Any]]) -> dict[str, list[str]]:
         """
@@ -625,6 +634,19 @@ class NetworkRiskSensor:
                 if folded_hit:
                     stem, cmp_path = stem.lower(), cmp_path.lower()
                 if not (stem == cmp_path or stem.endswith("/" + cmp_path)):
+                    return None
+            # #4265: a source member (COBOL COPY, PL/I %INCLUDE, HLASM COPY) is source in the
+            # importer's own language -- the rule `_narrow_ambiguous` applies to several
+            # candidates holds for one too. The only `A` in the repository being A.hlasm does
+            # not make it what COBOL's `COPY A` copies (che4z lsp fixtures: TEST.CBL,
+            # testing_A.cpy -> A.hlasm / B.hlasm); like #3001's Python `import base64` ->
+            # base64.c, a cross-language name match is no edge.
+            # A BMS mapset is the one exception for COBOL: its symbolic map is a copybook generated
+            # from it (`source_members_generated_from`).
+            if file_facts and src_lang in SOURCE_MEMBER_IMPORT_LANGS:
+                cand_lang = (file_facts.get(candidates[0]) or ("", False))[0]
+                generated_from = LANGUAGE_DEFINITIONS.get(src_lang or "", {}).get("source_members_generated_from", ())
+                if cand_lang != src_lang and cand_lang not in generated_from:
                     return None
             return candidates[0]
 
@@ -1186,6 +1208,8 @@ class NetworkRiskSensor:
         file_facts = self._build_file_facts(parsed_files)
         edges: dict[tuple[str, str], dict[str, Any]] = {}
         self.namespace_aliases = {}
+        self.copy_collisions = []
+        members = MemberIndex([f.get("path", "") for f in parsed_files]) if self.copy_libraries else None
 
         for f in parsed_files:
             curr_path = f.get("path", "")
@@ -1212,19 +1236,41 @@ class NetworkRiskSensor:
                     target_token = imp
                     entity = None
 
-                target_path = self._resolve_target(
-                    target_token,
-                    resolution_map,
-                    curr_path,
-                    folded_maps=folded_maps,
-                    fold_lang=fold_lang,
-                    src_lang=src_lang,
-                    file_facts=file_facts,
-                )
-                if target_path and target_path != curr_path:
+                targets: list[Optional[str]] = []
+                if members is not None and src_lang in SOURCE_MEMBER_IMPORT_LANGS and isinstance(target_token, str):
+                    # #4265: each COPY form of the member (`COPY X` and `COPY X IN LIB` can both occur)
+                    # resolves through the declared libraries; _NO_DECLARATION falls back below.
+                    libs = (f.get("import_libraries") or {}).get(target_token.upper(), [""])
+                    targets = [
+                        self._resolve_in_libraries(target_token, lib, curr_path, src_lang, file_facts, members)
+                        for lib in libs
+                    ]
+                if not targets or _NO_DECLARATION in targets:
+                    default = self._resolve_target(
+                        target_token,
+                        resolution_map,
+                        curr_path,
+                        folded_maps=folded_maps,
+                        fold_lang=fold_lang,
+                        src_lang=src_lang,
+                        file_facts=file_facts,
+                    )
+                    targets = [default if t is _NO_DECLARATION else t for t in targets] or [default]
+                forms = (f.get("import_libraries") or {}).get(target_token.upper(), [""]) if members else []
+                for n, target_path in enumerate(targets):
+                    if not isinstance(target_path, str) or target_path == curr_path:
+                        continue
+                    if targets.index(target_path) != n:  # one edge per target; its forms still count below
+                        edges[(curr_path, target_path)].setdefault("copy_libraries", []).append(forms[n])
+                        continue
                     edge = edges.setdefault(
                         (curr_path, target_path), {"weight": 0.0, "import_statements": 0, "entity_imports": 0}
                     )
+                    if members is not None and n < len(forms) and src_lang in SOURCE_MEMBER_IMPORT_LANGS:
+                        # #4265: the COPY form(s) that reached this target, for the record reader
+                        libs = edge.setdefault("copy_libraries", [])
+                        if forms[n] not in libs:
+                            libs.append(forms[n])
                     # Edge weight can be increased if specific entities are highly coupled
                     edge["weight"] += 1.5 if entity else 1.0
                     edge["import_statements"] += 1
@@ -1232,6 +1278,60 @@ class NetworkRiskSensor:
                         edge["entity_imports"] += 1
 
         return edges
+
+    def _resolve_in_libraries(
+        self,
+        member: str,
+        library: str,
+        importer: str,
+        src_lang: str,
+        file_facts: dict[str, tuple[str, bool]],
+        members: MemberIndex,
+    ) -> Any:
+        """#4265: the file `COPY member [IN library]` in `importer` names under the declared copy
+        libraries; None when the declaration says it is in none of them (no edge, as the compiler
+        would not find it either); _NO_DECLARATION when the declaration does not cover it."""
+        libs = self.copy_libraries
+        if libs is None:
+            return _NO_DECLARATION
+        generated_from = LANGUAGE_DEFINITIONS.get(src_lang, {}).get("source_members_generated_from", ())
+
+        def pick(paths: list[str]) -> list[str]:
+            # a library member is source in the importer's language (#3199 / #4366), and never a program
+            same = [p for p in paths if (file_facts.get(p) or ("", False))[0] in (src_lang, *generated_from)]
+            if len(same) > 1:
+                same = [p for p in same if not (file_facts.get(p) or ("", False))[1]] or same
+            if len(same) > 1:
+                same = [p for p in same if (file_facts.get(p) or ("", False))[0] == src_lang] or same
+            return same
+
+        if library:
+            if not libs.knows(library):
+                return _NO_DECLARATION
+            hits = pick(members.members(libs, library, member))
+            return hits[0] if len(hits) == 1 else None
+        order = libs.order_for(importer)
+        if order is None:
+            return _NO_DECLARATION
+        found = [(name, hits) for name in order for hits in [pick(members.members(libs, name, member))] if hits]
+        if not found:
+            return _NO_DECLARATION  # e.g. SQLCA, DFHAID: supplied by the runtime, or outside the declaration
+        chosen = found[0][1][0] if len(found[0][1]) == 1 else None
+        if len(found) > 1:
+            self.copy_collisions.append(
+                {
+                    "importer": importer,
+                    "member": member.upper(),
+                    "resolved": chosen,
+                    "library": found[0][0],
+                    "shadowed": [{"library": name, "paths": hits} for name, hits in found[1:]],
+                }
+            )
+            self.logger.warning(
+                f"COPY {member.upper()} in {importer}: found in libraries "
+                f"{', '.join(name for name, _ in found)}; the first in its search order wins ({found[0][0]})."
+            )
+        return chosen
 
     def _publish_edges(self, edges: dict[tuple[str, str], dict[str, Any]]) -> None:
         """#2992: exposes the resolved edges as `self.dependency_edges` for the recorder."""

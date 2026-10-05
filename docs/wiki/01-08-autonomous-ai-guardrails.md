@@ -1,3 +1,6 @@
+---
+description: "> **The Inherency of Deterministic Control**"
+---
 # 01-08: Autonomous AI Guardrails (The Deterministic Firewall)
 
 > **The Inherency of Deterministic Control**

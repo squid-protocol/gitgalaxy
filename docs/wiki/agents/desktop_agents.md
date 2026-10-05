@@ -1,3 +1,6 @@
+---
+description: "You are operating within the `desktop` repository, the source code for GitHub Desktop. This is a heavy client application built primarily on TypeScript..."
+---
 # AGENTS.md: GitHub Desktop Architectural Context & Engagement Rules
 
 ## 1. System Context & Paradigm

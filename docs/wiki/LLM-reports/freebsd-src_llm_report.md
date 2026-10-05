@@ -1,3 +1,6 @@
+---
+description: "The `freebsd-src` repository contains the source code for the FreeBSD operating system, encompassing both the kernel and userland utilities. The system..."
+---
 # Architectural Brief: freebsd-src
 
 ## 1. Information Flow & Purpose (The Executive Summary)

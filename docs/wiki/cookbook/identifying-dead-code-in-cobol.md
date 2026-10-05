@@ -1,3 +1,6 @@
+---
+description: "Enterprise legacy modernization projects—specifically migrating decades-old COBOL mainframes to the cloud—frequently stall or fail due to sheer..."
+---
 # Cookbook: COBOL Dead Code Elimination for Legacy Modernization
 
 ## 1. The Legacy Modernization Crisis

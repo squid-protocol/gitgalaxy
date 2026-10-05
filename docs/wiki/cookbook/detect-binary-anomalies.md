@@ -1,3 +1,6 @@
+---
+description: "Sophisticated attackers rarely commit plain-text malware into a repository. To bypass standard security scanners, they employ stealth vectors like..."
+---
 # How to Hunt Encrypted Payloads and Binary Anomalies
 
 Sophisticated attackers rarely commit plain-text malware into a repository. To bypass standard security scanners, they employ stealth vectors like **Steganography** (hiding executable code inside an image file) or **Cryptographic Packing** (encrypting the payload into a dense string and decrypting it at runtime).

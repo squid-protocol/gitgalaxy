@@ -1,3 +1,6 @@
+---
+description: "You are operating within `bootstrap`, the world's most popular CSS framework. The repository is a highly structured blend of CSS/SCSS (42.7%),..."
+---
 # AGENTS.md: bootstrap Architectural Context & Engagement Rules
 
 ## 1. System Context & Paradigm

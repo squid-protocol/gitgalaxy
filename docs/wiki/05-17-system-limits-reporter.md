@@ -1,3 +1,6 @@
+---
+description: "> **File Reference:** [gitgalaxy/tools/cobol_to_cobol/cobol_system_limits_reporter.py](https://github.com/squid-protocol/gitgalaxy/blob/main/gitgalaxy/t..."
+---
 # Architectural Anomaly & Boundary Detector
 
 > **File Reference:** [gitgalaxy/tools/cobol_to_cobol/cobol_system_limits_reporter.py](https://github.com/squid-protocol/gitgalaxy/blob/main/gitgalaxy/tools/cobol_to_cobol/cobol_system_limits_reporter.py)

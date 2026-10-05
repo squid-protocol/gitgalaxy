@@ -52,6 +52,14 @@ DEFINITION: dict[str, Any] = {
     # map's own build JCL. Every other language keeps unconstrained
     # cross-language resolution (an HTML page importing a .css file).
     "imports_are_source_members": True,
+    # #4265: `COPY member IN|OF library` names the library to search (galaxyscope records it per
+    # member as `import_libraries`; it resolves through a --copy-libraries declaration).
+    "import_library_qualifier": True,
+    # #4265: the one other language a COBOL member can come from. A BMS mapset's symbolic map is a
+    # COBOL copybook GENERATED from the .bms source at build time (`COPY CUSTMS` in a CICS program);
+    # when the repository's only `CUSTMS` is the mapset, the COPY names it -- the edge estate-crucible's
+    # key accepts (`alternatives`). Any other language (an HLASM `A.hlasm` for `COPY A`) is not.
+    "source_members_generated_from": ("bms",),
     # #3198: COBOL's own identifier lexicon, for the `unreferenced_by_name`
     # census. Names are case-insensitive (`perform a-para` reaches `A-PARA`),
     # and `-` is a name character -- without that, `B-PARA-EXIT` counted as a
@@ -302,7 +310,14 @@ DEFINITION: dict[str, Any] = {
             # or 8-digit (cols 73-80) sequence field before a lone period (CardDemo
             # `045100 .`) is never one. A continued numeric VALUE line (`1000.`) does
             # not begin a sentence, so the cobol_sentence_start filter drops it.
-            r"(?:\b|(?<=[0-9]{6}[ \-Dd]))([0-9_"
+            # #4203: `\b` is not a NAME boundary -- a hyphen is a name character, so the margin-eater
+            # could still split `LOOKUP-RATE` before `-RATE`. The name must start where no name
+            # character precedes it.
+            r"(?:(?<![A-Z"
+            + NATIONAL
+            + WIDE_DIGITS
+            + WIDE_HYPHENS
+            + r"a-z0-9_-])|(?<=[0-9]{6}[ \-Dd]))([0-9_"
             + WIDE_DIGITS
             + WIDE_HYPHENS
             + r"-]*[A-Z"
@@ -379,8 +394,16 @@ DEFINITION: dict[str, Any] = {
         #    MortgageApplication) or `"NAME"`. A quote is no word character, so
         #    `\b` refused it and the program recorded no class. An optional quote
         #    on each side; the capture stays the bare name.
+        # 5. #4307: the separator period is optional. Enterprise COBOL accepts a PROGRAM-ID whose name
+        #    is followed by blanks (a fixed-format line padded to column 72, `PROGRAM-ID.    CBLDB22`) and
+        #    no period, and a `PROGRAM-ID TEST16.` with no period after the keyword. The terminator
+        #    lookahead now allows trailing blanks before the newline, and PROGRAM-ID / CLASS-ID /
+        #    INTERFACE-ID take an optional keyword period. FACTORY / OBJECT keep it required: they are
+        #    bare markers and `OBJECT <word>` is ordinary data-description syntax.
         "class_start": re.compile(
-            r"^(?:[0-9a-zA-Z" + NATIONAL + r" \t]{6}[ \-]?)?[ \t]*(?:PROGRAM-ID|CLASS-ID|INTERFACE-ID|FACTORY|OBJECT)\."
+            r"^(?:[0-9a-zA-Z"
+            + NATIONAL
+            + r" \t]{6}[ \-]?)?[ \t]*(?:(?:PROGRAM-ID|CLASS-ID|INTERFACE-ID)\.?|(?:FACTORY|OBJECT)\.)"
             r"(?:[ \t]+|(?:[ \t]+\S{1,8})?[ \t]*\n(?:[0-9a-zA-Z" + NATIONAL + r" \t]{6}[ \-]?)?[ \t]*)"
             r"['\"]?\b([0-9_"
             + WIDE_DIGITS
@@ -395,7 +418,7 @@ DEFINITION: dict[str, Any] = {
             + NATIONAL
             + WIDE_DIGITS
             + WIDE_HYPHENS
-            + r"a-z0-9_-]+){0,6}(?=[ \t]*\.|\n|$)",
+            + r"a-z0-9_-]+){0,6}(?=[ \t]*(?:\.|\n|$))",
             re.I | re.M,
         ),
         # --- PHASE 2: RISK & STRUCTURAL INTEGRITY ---
@@ -636,14 +659,22 @@ DEFINITION: dict[str, Any] = {
         # (`EXEC SQL` / `INCLUDE X`, CBSA's style) satisfies. CardDemo's
         # app-transaction-type-db2 programs use the one-line form, so 6 copybook
         # edges (CSDB2RWY, CSDB2RPY and the DCLGEN .dcl members) were lost.
+        # #4303: a COPY / EXEC SQL INCLUDE also opens a statement after a separator period on the
+        # same line (`01  WS-REC.  COPY CPYB.`, `01 PARENT. COPY A. COPY B. COPY C.` -- lsp fixtures
+        # TEST.CBL:18), each occurrence its own match. After a period only `COPY` and the full
+        # `EXEC SQL INCLUDE` count: a bare INCLUDE is the second line of the two-line EXEC SQL form.
         "import": re.compile(
-            r"^(?:[0-9a-zA-Z" + NATIONAL + r" \t]{6}[ \-]?)?[ \t]*(?:EXEC[ \t]+SQL[ \t]+)?(?:COPY|INCLUDE)\b",
+            r"(?:^(?:[0-9a-zA-Z"
+            + NATIONAL
+            + r" \t]{6}[ \-]?)?[ \t\u3000]*(?:EXEC[ \t\u3000]+SQL[ \t\u3000]+)?(?:COPY|INCLUDE)"
+            r"|(?<=\.)[ \t\u3000]+(?:COPY|EXEC[ \t\u3000]+SQL[ \t\u3000]+INCLUDE))\b",
             re.I | re.M,
         ),
         "_dependency_capture": re.compile(
-            r"^(?:[0-9a-zA-Z"
+            r"(?:^(?:[0-9a-zA-Z"
             + NATIONAL
-            + r" \t]{6}[ \-]?)?[ \t]*(?:EXEC[ \t]+SQL[ \t]+)?(?:COPY|INCLUDE)[ \t\n]+['\"]?([A-Z"
+            + r" \t]{6}[ \-]?)?[ \t\u3000]*(?:EXEC[ \t\u3000]+SQL[ \t\u3000]+)?(?:COPY|INCLUDE)"
+            r"|(?<=\.)[ \t\u3000]+(?:COPY|EXEC[ \t\u3000]+SQL[ \t\u3000]+INCLUDE))[ \t\n\u3000]+['\"]?([A-Z"
             + NATIONAL
             + WIDE_DIGITS
             + WIDE_HYPHENS
@@ -872,18 +903,34 @@ DEFINITION: dict[str, Any] = {
         # #3359: `(?<![\w-])`, not `\b` -- the scope terminators `END-PERFORM` /
         # `END-CALL` end in the verb, so `\b` let the NEXT statement's first word
         # (`END-PERFORM` newline `MOVE ...`) be captured as a callee.
+        # #4305: three inline PERFORM forms name no paragraph either. `EXIT PERFORM [CYCLE]` leaves an
+        # inline loop: it is consumed by its own alternative, which captures nothing (an empty callee,
+        # dropped by the detector). `PERFORM WS-N TIMES` / `PERFORM 3 TIMES` count an inline loop: a
+        # name followed by TIMES is the count, while `PERFORM PARA-X 3 TIMES` keeps PARA-X. The name
+        # must end at a word end, so backtracking can never shorten `WS-N` to `WS-` to dodge TIMES.
         "calls_out": re.compile(
-            r"(?i)(?<![\w-])(?:PERFORM|CALL)\s+['\"]?([A-Z"
+            r"(?i)(?<![\w-])(?:EXIT\s+PERFORM(?:\s+CYCLE)?(?![\w-])|(?:PERFORM|CALL)\s+['\"]?([A-Z"
             + NATIONAL
             + WIDE_DIGITS
             + WIDE_HYPHENS
-            + r"a-z0-9_-]+)['\"]?"
+            + r"a-z0-9_-]+)(?![A-Z"
+            + NATIONAL
+            + WIDE_DIGITS
+            + WIDE_HYPHENS
+            + r"a-z0-9_-])(?!\s+TIMES(?![\w-]))['\"]?)"
         ),
         # #3393: in `CALL 'SUBPROG'` the literal IS the callee (as JCL's PGM=
         # is), but the literal shield blanked it before calls_out ran, so only
         # `CALL WS-PGM` and PERFORM reached calls_out_to. A literal right after
         # this verb is kept (detector._blank_literals_except_callee).
         "_calls_out_literal_callee": re.compile(r"(?i)(?<![\w-])CALL\s+$"),
+        # #4304: an `EXEC SQL CALL MYSCHEMA.GETCUST (...)` / `EXEC SQL CALL UPDPROC END-EXEC` is a DB2
+        # stored-procedure call, not a COBOL CALL -- read as one, the schema qualifier became a callee.
+        # Every EXEC ... END-EXEC block (SQL, CICS, DLI, ...) is blanked before calls_out scans the unit.
+        # A block never runs across another EXEC, so a missing END-EXEC masks nothing beyond it.
+        "_calls_out_masked_blocks": re.compile(
+            r"(?i)(?<![\w-])EXEC\s+\w+(?:(?!(?<![\w-])EXEC\s)[\s\S])*?(?<![\w-])END-EXEC(?![\w-])"
+        ),
         # #3359 (contract C2): the inline PERFORM forms (`PERFORM VARYING ...`,
         # `PERFORM UNTIL ...`, `PERFORM WITH TEST ...`) name no paragraph.
         "_calls_out_ignore": frozenset(
@@ -891,6 +938,10 @@ DEFINITION: dict[str, Any] = {
                 "varying",
                 "until",
                 "with",
+                # #4305: `PERFORM TEST BEFORE|AFTER ...` (WITH omitted) and GnuCOBOL / Micro Focus
+                # `PERFORM FOREVER` are inline loops too.
+                "test",
+                "forever",
             }
         ),
         # #3362: GO TO <paragraph|section> -- an unconditional transfer of control.

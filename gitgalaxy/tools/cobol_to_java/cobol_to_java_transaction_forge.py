@@ -1904,7 +1904,12 @@ class CicsForge:
                 use = f"The COMMAREA {cls} receives as its main procedure's parameter ({commarea['record']})."
             else:
                 use = f"The DFHCOMMAREA {cls} declares in its LINKAGE SECTION."
-            prog.commarea_dto = self._dto_for(commarea["record"], commarea["file"], commarea, cls, doc, use)
+            record, file = commarea["record"], commarea["file"]
+            if commarea.get("declared_record"):
+                # CICS hands a LINKed program only its own LINKAGE: the contract DTO is named after the callee's
+                # DFHCOMMAREA (HcsubDfhcommarea), never the record the caller happens to pass (HcsubWsCa)
+                record, file = commarea["declared_record"], path
+            prog.commarea_dto = self._dto_for(record, file, commarea, cls, doc, use)
         else:
             prog.commarea_gap = interface.get("commarea_gap")
 

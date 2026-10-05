@@ -1,3 +1,6 @@
+---
+description: "**Executive Summary:** We performed a deep **static code analysis** on Apache Fineract. By mapping its structural physics, we uncover the extreme..."
+---
 # The Architecture of Apache Fineract: A Structural Physics Teardown of a Core Banking Monolith
 
 **Executive Summary:** We performed a deep **static code analysis** on Apache Fineract. By mapping its structural physics, we uncover the extreme **technical debt**, tightly coupled **software architecture**, and massive "God Nodes" that power one of the world's most widely adopted open-source core banking platforms. This teardown exposes the raw **code smells**, domain coupling, and structural realities hiding within a half-million lines of enterprise Java.

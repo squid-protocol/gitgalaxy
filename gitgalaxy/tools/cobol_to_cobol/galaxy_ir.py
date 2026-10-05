@@ -151,6 +151,7 @@
 # to dead-code masking. See docs/refraction_engine_differential.md for the
 # measured deltas.
 # ==============================================================================
+import bisect
 import fnmatch
 import json
 import os
@@ -337,6 +338,9 @@ class EngineDataItem:
     # #3355: the COPY member(s) that expand right after this entry, comma-separated
     # (`01 DFHCOMMAREA.` + `COPY INQCUST.` -> 'INQCUST'); None when no COPY follows.
     copy_members: Optional[str] = None
+    # #4265: the library-name each `copy_members` COPY names (`COPY DATEWS IN SHRCPY`), comma-separated in
+    # the same order, "" for an unqualified COPY; None when none names one (record_data.copy_libraries).
+    copy_libraries: Optional[str] = None
     # #3694: the item codes SIGN ... SEPARATE, so a DISPLAY sign takes a byte of its own --
     # before the digits when `sign_leading` (SIGN LEADING SEPARATE), else after them.
     sign_separate: bool = False
@@ -345,6 +349,10 @@ class EngineDataItem:
     # uses; a string of None means the estate declares that symbol with different
     # strings, so its width is unknown. Empty when the PIC uses none.
     currency: dict = field(default_factory=dict)
+    # #4245: the PROGRAM-ID whose DATA DIVISION declares the item, in a source holding several
+    # programs (nested, or batch-compiled siblings); None in a one-program source or a copybook.
+    # Derived from `line` and the programs' PROCEDURE DIVISION lines (_attribute_programs).
+    program: Optional[str] = None
 
     @property
     def is_group(self) -> bool:
@@ -830,6 +838,9 @@ class EngineFile:
     program_ids: list[str] = field(default_factory=list)
     units: list[EngineUnit] = field(default_factory=list)
     copy_deps: list[str] = field(default_factory=list)
+    # #4265: per copy_deps path, the COPY forms its edge carries when the scan declared copy libraries
+    # (library-names, "" for an unqualified COPY): `COPY X` and `COPY X IN LIB` can reach two files.
+    copy_dep_libraries: dict[str, list[str]] = field(default_factory=dict)
     # #3720: every %INCLUDE member a PL/I file names, found or not (file_data.raw_imports);
     # copy_deps holds only the ones the scan resolved to a file. Empty for other languages.
     includes: list[str] = field(default_factory=list)
@@ -837,6 +848,12 @@ class EngineFile:
     calls: list = field(default_factory=list)  # EngineCall, #3200
     datasets: list = field(default_factory=list)  # EngineDataset, #3201
     data_items: list = field(default_factory=list)  # EngineDataItem, flat source order, #3246
+    # #4330: COPY members that stand at section level, not inside the entry above them: a member whose
+    # own first entry is an 01 / 77 (it opens a record of its own), or a later member of a run that did
+    # not resolve. Moved out of that entry's `copy_members` by GalaxyIR._settle_copy_members, as
+    # (member, ordinal of the entry the COPY follows) -- `_copy_extension` still finds a copied record
+    # continued in the program from there.
+    section_copies: list = field(default_factory=list)
     records: list = field(default_factory=list)  # EngineDataItem tree roots (01/77), #3246
     # #3348: the DB has record_data, so an empty `data_items` means "no items", not "not read".
     records_read: bool = False
@@ -1336,7 +1353,7 @@ class GalaxyIR:
         return out
 
     # ---- #3355: the COMMAREA contract ----------------------------------------
-    def _copybook_file(self, member: str, *contexts: EngineFile) -> Optional[EngineFile]:
+    def _copybook_file(self, member: str, *contexts: EngineFile, library: Optional[str] = None) -> Optional[EngineFile]:
         """The copybook file a `COPY member` in one of `contexts` resolved to.
 
         Read off each context's resolved COPY edges (copy_deps) by file stem, in
@@ -1347,6 +1364,9 @@ class GalaxyIR:
         member = nfc(member)  # #3815: a member name and a file stem meet in NFC
         for ctx in contexts:
             hits = [p for p in ctx.copy_deps if nfc(Path(p).stem.upper()) == member]
+            if len(hits) > 1 and library is not None and ctx.copy_dep_libraries:
+                # #4265: the edge the COPY's own form (its library-name, or none) resolved to
+                hits = [p for p in hits if library in ctx.copy_dep_libraries.get(p, ())] or hits
             if len(hits) == 1 and hits[0] in self.files:
                 return self.files[hits[0]]
         for ctx in contexts:  # #3490: a symbolic map generated from BMS source
@@ -1439,6 +1459,7 @@ class GalaxyIR:
         ch = {"resolved": 0, "total": 0, "system": 0, "gaps": {"missing copybook": 0}}
         for f in cobol:
             members = {m for it in f.data_items for m in (it.copy_members or "").split(",") if m}
+            members |= {m for m, _ in f.section_copies}  # #4330
             sym = {s.file_path.rsplit("#", 1)[-1] for s in f.symbolic_copies}
             for m in sorted(members):
                 if m in stems or m in sym:
@@ -1701,9 +1722,45 @@ class GalaxyIR:
         symbolic maps generated for the BMS mapsets it COPYs (#3490)."""
         return [self.files[p] for p in ef.copy_deps if p in self.files] + ef.symbolic_copies
 
-    def _copy_roots(self, member: str, ef: EngineFile, origin: EngineFile, depth: int) -> tuple:
-        """(copybook file, its record roots) for `COPY member`, or (None, [])."""
-        cb = self._copybook_file(member, ef, origin) if depth < _COPY_DEPTH else None
+    def _settle_copy_members(self) -> None:
+        """#4330: the COPY members that belong to the entry they follow.
+
+        The extractor lists every COPY between an entry and the next level number on that entry
+        (`copy_members`); it cannot see the members' own levels. A level-01 (or 77) entry in copied
+        text begins a new record (Enterprise COBOL), so a member whose first data entry is an 01 / 77
+        ends the entry above it -- CICS `01 WS-COMMAREA.` + `COPY CUSTCOMM.` + `COPY CUSTMS.` (a
+        symbolic map) + `COPY DFHAID.`: only CUSTCOMM is WS-COMMAREA's. A member that does not
+        resolve to records is not guessed at: the first one stays with the entry (a gap in its
+        layout, as before), a later one is a section-level copy. Every member after a moved one
+        moves too (it follows the record the moved one opened). Moved members are kept on
+        `EngineFile.section_copies` with the entry they follow, where they still close the record
+        above them (`_expanded_children`) and a copied record continued in the program is still
+        found (`_copy_extension`)."""
+        for ef in self.files.values():
+            if ef.language != "cobol":
+                continue
+            for it in ef.data_items:
+                forms = [f for f in _copy_forms(it) if f[0]]
+                if not forms:
+                    continue
+                keep: list = []
+                for i, (member, library) in enumerate(forms):
+                    _cb, roots = self._copy_roots(member, ef, ef, 0, library)
+                    # once one member stands at section level, the ones after it follow it there
+                    if len(keep) == i and ((roots[0].level not in (1, 77)) if roots else i == 0):
+                        keep.append((member, library))
+                    else:
+                        ef.section_copies.append((member, it.ordinal))
+                if len(keep) != len(forms):
+                    it.copy_members = ",".join(m for m, _ in keep) or None
+                    # #4265: the library-names stay parallel to the members kept
+                    it.copy_libraries = ",".join(lib or "" for _, lib in keep) if any(lib for _, lib in keep) else None
+
+    def _copy_roots(
+        self, member: str, ef: EngineFile, origin: EngineFile, depth: int, library: Optional[str] = None
+    ) -> tuple:
+        """(copybook file, its record roots) for `COPY member [IN library]`, or (None, [])."""
+        cb = self._copybook_file(member, ef, origin, library=library) if depth < _COPY_DEPTH else None
         if cb is None:
             return None, []
         return cb, [r for r in cb.records if r.level not in (66, 88)]
@@ -1728,13 +1785,20 @@ class GalaxyIR:
             """Append `owner`'s COPY members; True when one closes `item`. A copied root that is elementary and is
             followed in its copybook by a COPY of its own (IBM DBB EPSMTCOM: `10 PROCESS-INDICATOR` then `COPY
             EPSMTINP.` and `COPY EPSMTOUT.`) has those members after it, as its siblings, resolved from the copybook."""
-            for member in (owner.copy_members or "").split(","):
+            # #4330: section-level members the extractor recorded on `owner` close `item` after the kept ones
+            moved = any(o == owner.ordinal for _, o in owner_ef.section_copies)
+            for member, library in _copy_forms(owner):
                 if not member:
                     continue
-                cb, roots = self._copy_roots(member, owner_ef, origin, d)
+                cb, roots = self._copy_roots(member, owner_ef, origin, d, library)
                 if cb is None:
-                    if owner is item:
-                        kids.append((None, member))
+                    if owner is not item and _SYSTEM_COPYBOOK.match(nfc(member)):
+                        # #4278: a runtime member after an entry (`EXEC SQL INCLUDE SQLCA`,
+                        # `COPY DFHAID`) is its own 01 record: it closes `item`.
+                        return True
+                    # #4278: any other member that did not resolve is a gap in `item` --
+                    # reported, never silently skipped (the fields after it would sit early).
+                    kids.append((None, member))
                     continue
                 if roots and all(r.level > item.level for r in roots):
                     for root in roots:
@@ -1743,15 +1807,44 @@ class GalaxyIR:
                             return True
                 elif roots:
                     return True
-            return False
+            return moved
 
         if not _is_elementary(item) and _copies(item, ef, depth):
             return kids
         for child in item.children:
             kids.append((ef, child))
-            if _is_elementary(child) and _copies(child, ef, depth):
+            if _is_elementary(child):
+                # #4278: a COPY after the item's 88 conditions is recorded on the last 88.
+                cond = _last_entry(child)
+                if _copies(child, ef, depth) or (cond is not child and _copies(cond, ef, depth)):
+                    break
+                continue
+            # #4278: a COPY after the LAST entry of a group child's subtree (carddemo COTRTLIC:
+            # `15 FILLER ... VALUE ')'.` then `EXEC SQL INCLUDE CSDB2RWY` of `05` roots) closes
+            # every group deeper than its roots, so the child's own expansion stops there. Its
+            # roots land at the first level that holds them: here, as `item`'s children after
+            # `child` -- or, when they are no deeper than `item`, they close `item` too.
+            leaf = _last_entry(child)
+            if (
+                leaf is not child
+                and leaf.copy_members
+                and self._copy_closes(leaf, child, ef, origin, depth)
+                and _copies(leaf, ef, depth)
+            ):
                 break
         return kids
+
+    def _copy_closes(
+        self, leaf: EngineDataItem, group: EngineDataItem, ef: EngineFile, origin: EngineFile, depth: int
+    ) -> bool:
+        """Whether a resolved COPY recorded on `leaf` (the last entry of `group`'s subtree) has
+        roots no deeper than `group` -- the copybook opened entries at `group`'s level or above."""
+        for member, library in _copy_forms(leaf):
+            if member:
+                _, roots = self._copy_roots(member, ef, origin, depth, library)
+                if roots and not all(r.level > group.level for r in roots):
+                    return True
+        return False
 
     def _copy_extension(self, ef: EngineFile, cb: EngineFile) -> list:
         """The entries of program `ef` that continue copybook `cb`'s LAST record.
@@ -1767,8 +1860,10 @@ class GalaxyIR:
         if not roots:
             return []
         by_ordinal = {it.ordinal: it for it in ef.data_items}
+        # #4330: a member that opens its own 01 is a section-level copy now, kept with its entry's ordinal
+        moved = {o for m, o in ef.section_copies if nfc(m) == member}
         for it in ef.data_items:
-            if member not in nfc(it.copy_members or "").split(","):
+            if member not in nfc(it.copy_members or "").split(",") and it.ordinal not in moved:
                 continue
             # The COPY is recorded on the entry just before it. A 66 / 88 there (COUSR02C: `88 USR-MODIFIED-NO`
             # right above `COPY COCOM01Y`) has no PIC but is no group: the record continues after the data item
@@ -1920,7 +2015,8 @@ class GalaxyIR:
         `name`, `level`, `pic`, `usage`, `class`, `offset`, `bytes`, `occurs`,
         `file`), `unexpanded` (COPY members that did not resolve to a copybook in
         the repository) and `copybooks` (the ones that did). A REDEFINES item
-        overlays storage and is skipped, like 66/88 entries. Fields inside an
+        overlays storage and is skipped, like 66/88 entries, but an overlay wider
+        than its target widens the shared storage (#4280). Fields inside an
         OCCURS group are listed once; the group's width carries the repetition.
         `extension` is (file, item) entries appended to the record's own children
         (a copied record continued in the program -- `_copy_extension`).
@@ -1933,7 +2029,10 @@ class GalaxyIR:
         state = {"variable": False, "unknown": False}
         extension_files = sorted({f.file_path for f, _ in extension or []})
 
-        def _walk(owner: EngineFile, it: EngineDataItem, offset: int, depth: int) -> int:
+        def _walk(owner: EngineFile, it: EngineDataItem, offset: int, depth: int, sink: Optional[list] = None) -> int:
+            """`it`'s width; its elementary fields go to `sink` (`fields`, or a throwaway list
+            when only an overlay's width is wanted)."""
+            out = fields if sink is None else sink
             if it.level in (66, 88):
                 return 0
             if it.occurs_depending_on:
@@ -1945,6 +2044,11 @@ class GalaxyIR:
                 kids = kids + list(extension)
             if kids:
                 size = 0
+                # #4280: the storage a REDEFINES group shares -- (start, width) of the item last
+                # redefined. An overlay WIDER than its target extends it: the region is the max of
+                # the target and all its overlays (carddemo COADM02Y: 6 option rows of data, a
+                # 9-row OCCURS overlay -- 272 -> 407 bytes; CORPT00C JOB-DATA-2's 1000 x 80 lines).
+                region: Optional[list] = None
                 for kid_file, kid in kids:
                     if kid_file is None:
                         unexpanded.append(kid)
@@ -1952,15 +2056,25 @@ class GalaxyIR:
                         continue
                     if kid_file is not owner and kid_file.file_path not in copybooks + extension_files:
                         copybooks.append(kid_file.file_path)
-                    if kid.redefines or kid.level in (66, 88):
+                    if kid.level in (66, 88):
                         continue
-                    size += _walk(kid_file, kid, offset + size, depth + (kid_file is not owner))
+                    kid_depth = depth + (kid_file is not owner)
+                    if kid.redefines:
+                        if region is not None and region[2] == kid.redefines.upper():
+                            wide = _walk(kid_file, kid, region[0], kid_depth, [])
+                            if wide > region[1]:
+                                size += wide - region[1]
+                                region[1] = wide
+                        continue
+                    kid_width = _walk(kid_file, kid, offset + size, kid_depth, sink)
+                    region = [offset + size, kid_width, kid.name.upper()]
+                    size += kid_width
                 return size * times
             width = _elementary_bytes(it)
             if width is None:
                 state["unknown"] = True
                 width = 0
-            fields.append(
+            out.append(
                 {
                     "name": it.name,
                     "level": it.level,
@@ -1986,18 +2100,55 @@ class GalaxyIR:
             "copybooks": copybooks,
         }
 
-    def _find_item(self, ef: EngineFile, name: str, qualifier: Optional[str]) -> list:
+    def _program_at(self, ef: EngineFile, line: Optional[int]) -> Optional[str]:
+        """#4245: the program of a multi-program source whose PROCEDURE DIVISION holds a statement
+        at `line`, or None in a one-program source (or with no line)."""
+        bounds = _program_bounds(ef)
+        if not bounds or not line:
+            return None
+        return ef.program_ids[max(bisect.bisect_right(bounds, line) - 1, 0)]
+
+    @staticmethod
+    def _program_scope(ef: EngineFile, program: Optional[str]) -> list:
+        """#4245: the programs whose storage a name written in `program` can mean, in the order
+        COBOL looks: the program itself, then the programs before it in the source, nearest
+        first -- the candidates for the containing programs whose GLOBAL items a nested program
+        sees (IC228A-1 reads IC228A's `01 GLOBAL-DATA IS GLOBAL`). A name a program does not
+        declare can only be such a GLOBAL item (the compiler rejects anything else), so the
+        nearest earlier declaration is taken only when the program's own storage has none.
+        [None] when there is no program to scope by."""
+        if not program:
+            return [None]
+        ids = [p.upper() for p in ef.program_ids]
+        at = ids.index(program.upper()) if program.upper() in ids else 0
+        return [ef.program_ids[i] for i in range(at, -1, -1)]
+
+    def _find_item(
+        self, ef: EngineFile, name: str, qualifier: Optional[str], program: Optional[str] = None, exact: bool = False
+    ) -> list:
         """Every (file, item, extension) named `name` visible to program `ef`: its
         own DATA DIVISION first, then the copybooks it COPYs (an 01-level COPY
         carries the record's name only in the copybook -- carddemo's `COPY
         COCOM01Y`), with the entries `ef` continues that record with
-        (`_copy_extension`) or None."""
+        (`_copy_extension`) or None.
+
+        #4245: with `program` (a PROGRAM-ID of a multi-program source), only that
+        program's own items answer -- a sibling's same-named item is other storage --
+        else the nearest earlier program's (`_program_scope`); `exact` stops there."""
+        if program and not exact:
+            for scope in self._program_scope(ef, program):
+                found = self._find_item(ef, name, qualifier, scope, exact=True)
+                if found:
+                    return found
+            return []
 
         def _matches(owner: EngineFile) -> list:
             by_ordinal = {it.ordinal: it for it in owner.data_items}
             out = []
             for it in owner.data_items:
                 if it.name != name or it.level in (66, 88):
+                    continue
+                if program and it.program and it.program != program:
                     continue
                 if qualifier:
                     parent, seen = by_ordinal.get(it.parent_ordinal), 0
@@ -2446,6 +2597,11 @@ class GalaxyIR:
                 commarea["alternatives"] = [
                     {"record": o[3], "file": o[2], "bytes": o[4]["bytes"], "sources": o[5]} for o in options[1:]
                 ]
+                own = self._dfhcommarea(ef)
+                if own is not None and any(src["verb"] in ("LINK", "XCTL") for src in sources):
+                    # a LINKed / XCTLed-to program only knows its own LINKAGE: its DTO is named after this, whatever
+                    # the caller passes (a RETURN TRANSID hands the next task the caller's own record: that name stays)
+                    commarea["declared_record"] = own.name
             else:
                 own = self._dfhcommarea(ef)
                 area = "the main procedure's parameter area" if ef.language == "pli" else "DFHCOMMAREA"
@@ -4068,17 +4224,20 @@ class GalaxyIR:
                 out.append({"dataset": name, "producer": p, "consumer": c, "same_job": same})
         return out
 
-    def _item_bytes(self, ef: EngineFile, operand: str) -> tuple[Optional[int], bool, Optional[str]]:
+    def _item_bytes(
+        self, ef: EngineFile, operand: str, program: Optional[str] = None
+    ) -> tuple[Optional[int], bool, Optional[str]]:
         """(bytes, variable, name) of one USING operand as seen from `ef`: a data
         item (COPY-expanded record_layout), a literal's own length, or (None, False,
-        None) for ADDRESS OF / LENGTH OF / OMITTED and names not found."""
+        None) for ADDRESS OF / LENGTH OF / OMITTED and names not found. #4245:
+        `program` scopes the name to one program of a multi-program source."""
         text = operand.split(":", 1)[1] if operand.split(":", 1)[0] in ("CONTENT", "VALUE") else operand
         if text[:1] in "'\"":
             return len(text) - 2, False, text
         if text.startswith(("ADDRESS OF", "LENGTH OF")) or text == "OMITTED":
             return None, False, text
         name, _, qual = text.partition(" OF ")
-        found = self._find_item(ef, name, qual.split(" OF ")[0] or None)
+        found = self._find_item(ef, name, qual.split(" OF ")[0] or None, program)
         if not found:
             return None, False, name
         owner, item, extension = found[0]
@@ -4113,8 +4272,15 @@ class GalaxyIR:
                         for e in callee.entry_points
                         if e.kind == "ENTRY" and e.entry_name == (call.target or "").upper()
                     ]
-                    entry = named[0] if named else next((e for e in callee.entry_points if e.kind == "PROCEDURE"), None)
+                    procs = sorted((e for e in callee.entry_points if e.kind == "PROCEDURE"), key=lambda e: e.line)
+                    # #4245: a CALL of one program of a multi-program source enters that program.
+                    callee_prog = _program_named(callee, call.target)
+                    if callee_prog and not named:
+                        named = [procs[[p.upper() for p in callee.program_ids].index(callee_prog)]]
+                    entry = named[0] if named else (procs[0] if procs else None)
                 params = entry.parameters if entry else []
+                call_prog = self._program_at(f, call.line)
+                callee_prog = _program_named(callee, call.target) if callee is not None else None
                 if callee is None:
                     status = "callee_unresolved"
                 elif not params and call.using:
@@ -4129,9 +4295,9 @@ class GalaxyIR:
                 for i in range(max(len(call.using), len(params))):
                     a = call.using[i] if i < len(call.using) else None
                     p = params[i] if i < len(params) else None
-                    a_bytes, a_var, _ = self._item_bytes(f, a) if a else (None, False, None)
+                    a_bytes, a_var, _ = self._item_bytes(f, a, call_prog) if a else (None, False, None)
                     p_bytes, p_var, _ = (
-                        self._item_bytes(callee, p) if (p and callee is not None) else (None, False, None)
+                        self._item_bytes(callee, p, callee_prog) if (p and callee is not None) else (None, False, None)
                     )
                     known = a_bytes is not None and p_bytes is not None and not a_var and not p_var
                     args.append(
@@ -4157,13 +4323,14 @@ class GalaxyIR:
                 )
         return out
 
-    def _value_text(self, ef: EngineFile, name: Optional[str]) -> Optional[str]:
+    def _value_text(self, ef: EngineFile, name: Optional[str], program: Optional[str] = None) -> Optional[str]:
         """The text data-name `name` holds at load: its VALUE literal, or for a group
         its elementary children's VALUEs in order, each padded / cut to its width
-        (`?` for a child with no VALUE). None when the item or a width is unknown."""
+        (`?` for a child with no VALUE). None when the item or a width is unknown.
+        #4245: `program` scopes the name to one program of a multi-program source."""
         if not name:
             return None
-        found = self._find_item(ef, name.split(" OF ")[0], None)
+        found = self._find_item(ef, name.split(" OF ")[0], None, program)
         if not found:
             return None
         _owner, item, _ext = found[0]
@@ -4202,11 +4369,12 @@ class GalaxyIR:
         return "".join(parts) if walk(item) else ("".join(parts) or None)
 
     # ---- #3493: data-driven LINK / XCTL / CALL targets --------------------------
-    def _table_values(self, ef: EngineFile, name: str) -> list:
+    def _table_values(self, ef: EngineFile, name: str, program: Optional[str] = None) -> list:
         """The per-occurrence VALUEs of `name` when it is an element of an OCCURS
         table that REDEFINES a VALUE-filled group (carddemo COMEN02Y's
-        CDEMO-MENU-OPT-PGMNAME over CDEMO-MENU-OPTIONS-DATA), else []."""
-        found = self._find_item(ef, name, None)
+        CDEMO-MENU-OPT-PGMNAME over CDEMO-MENU-OPTIONS-DATA), else []. #4245:
+        `program` scopes the name to one program of a multi-program source."""
+        found = self._find_item(ef, name, None, program)
         if len(found) != 1:
             return []
         owner, item, _ = found[0]
@@ -4410,16 +4578,19 @@ class GalaxyIR:
                 for f in sorted(scopes, key=lambda x: x.file_path):
                     cands: dict = {}
                     others: set = set()
-                    value = self._value_text(f, name)
+                    prog = self._program_at(f, c.line) if f is home else None  # #4245
+                    value = self._value_text(f, name, prog)
                     if value and value.strip() and "?" not in value:
                         cands.setdefault(value.strip(), "value")
-                    for v in self._table_values(f, name):
+                    for v in self._table_values(f, name, prog):
                         cands.setdefault(v, "table")
                     for fl in moves.get((f.file_path, name), []):
+                        if prog and fl["copybook"] is None and self._program_at(f, fl["line"]) != prog:
+                            continue  # a sibling program's MOVE into its own same-named item
                         if fl["source_kind"] == "literal" and (fl["source"] or "")[:1] in "'\"":
                             cands.setdefault(fl["source"].strip("'\"").strip().upper(), "moves")
                         elif fl["source_kind"] == "item":
-                            v = self._value_text(f, fl["source"].split(" OF ")[0])
+                            v = self._value_text(f, fl["source"].split(" OF ")[0], prog)
                             if v and v.strip() and "?" not in v:
                                 cands.setdefault(v.strip().upper(), "moves")
                             else:
@@ -4457,7 +4628,7 @@ class GalaxyIR:
             for d in f.dli_calls:
                 function = d.function
                 if d.interface == "CALL" and d.function_operand:
-                    value = self._value_text(f, d.function_operand)
+                    value = self._value_text(f, d.function_operand, self._program_at(f, d.line))
                     function = value.strip() or None if value and "?" not in value else None
                 segments = []
                 if d.interface == "EXEC":
@@ -4470,7 +4641,7 @@ class GalaxyIR:
                         segments.append({"segment": seg, "qualification": qual, "command_codes": None, "ssa": None})
                 else:
                     for ssa in [x for x in (d.ssas or "").split(",") if x]:
-                        text = self._value_text(f, ssa) or ""
+                        text = self._value_text(f, ssa, self._program_at(f, d.line)) or ""
                         seg = text[:8].strip() or None
                         mark = text[8:9]
                         qual = codes = None
@@ -4528,7 +4699,9 @@ class GalaxyIR:
         """id(EngineDataItem) -> (record key, offset, bytes, one occurrence's bytes) for every item program
         `ef` can see, COPY-expanded: its own 01 / 77 records, then the records of
         the copybooks it COPYs that no own record already reached. The record key
-        is (defining file, root name). A REDEFINES item takes the offset of the
+        is (defining file, root name, owning program) -- the program (#4245) is None
+        except for the own records of a source holding several programs, whose
+        same-named records are different storage. A REDEFINES item takes the offset of the
         item it overlays; bytes is None when a width inside is unknown. Cached."""
         cache = self.__dict__.setdefault("_span_cache", {})
         # Keyed by the object too: a synthetic symbolic map (#3490) is rebuilt per call.
@@ -4554,6 +4727,7 @@ class GalaxyIR:
             if kids:
                 size: Optional[int] = 0
                 at: dict = {}
+                region: Optional[list] = None  # #4280: [target name, shared width] -- as record_layout
                 for kid_file, kid in kids:
                     if kid_file is None:
                         size = None
@@ -4563,10 +4737,20 @@ class GalaxyIR:
                     if kid.redefines:
                         base = at.get(kid.redefines.upper())
                         at_base = base if base is not None else offset + (size or 0)
-                        walk(kid_file, kid, key, at_base, depth + 1, None, (it.name, *path))
+                        wide = walk(kid_file, kid, key, at_base, depth + 1, None, (it.name, *path))
+                        if (
+                            region is not None
+                            and region[0] == kid.redefines.upper()
+                            and wide is not None
+                            and region[1] is not None
+                            and wide > region[1]
+                        ):
+                            size = None if size is None else size + wide - region[1]
+                            region[1] = wide
                         continue
                     at[kid.name.upper()] = offset + (size or 0)
                     width = walk(kid_file, kid, key, offset + (size or 0), depth + 1, None, (it.name, *path))
+                    region = [kid.name.upper(), width]
                     size = None if size is None or width is None else size + width
                 total = None if size is None else size * times
             else:
@@ -4582,7 +4766,7 @@ class GalaxyIR:
         if ef.language == "pli":  # #3720: PL/I structure mapping, bit offsets rounded to bytes
             for root in (r for r in ef.records if not r.redefines and r.level not in (66, 88)):
                 lay, children = self._pli_mapping(root, ef)
-                key = (ef.file_path, root.name)
+                key = (ef.file_path, root.name, None)
 
                 def fill(it: EngineDataItem, path: tuple, lay=lay, key=key, children=children) -> None:
                     off, bits = lay.get(id(it), (None, None)) if lay else (None, None)
@@ -4608,13 +4792,14 @@ class GalaxyIR:
                 # `01 B REDEFINES A` overlays record A: same storage, same record key;
                 # so do the 01 records of one FD, whose buffer they share (#3492).
                 name = root.redefines or (fd_first.setdefault(root.fd_name, root.name) if root.fd_name else root.name)
-                walk(ef, root, (ef.file_path, name), 0, 0, None, ())
+                # #4245: the owning program keeps sibling programs' same-named records apart.
+                walk(ef, root, (ef.file_path, name, root.program), 0, 0, None, ())
         for cb in self._copy_files(ef):
             roots = [r for r in cb.records if r.level not in (66, 88)]
             for root in roots:
                 if id(root) not in spans:
                     ext = self._copy_extension(ef, cb) if roots[-1:] == [root] else None
-                    walk(cb, root, (cb.file_path, root.name), 0, 0, ext, ())
+                    walk(cb, root, (cb.file_path, root.name, None), 0, 0, ext, ())
         cache[(ef.file_path, id(ef))] = (spans, ef)  # ef held so its id is never reused
         self.__dict__.setdefault("_span_paths", {})[ef.file_path] = paths
         self.__dict__.setdefault("_span_items", {})[ef.file_path] = items
@@ -4625,7 +4810,9 @@ class GalaxyIR:
         """The most specific item of program `file_path` at `span`: the deepest one
         with exactly its offset and width, else the smallest one containing it."""
         self._storage_spans(self.files[file_path])
-        entries = self.__dict__["_span_items"][file_path].get((span["record_file"], span["record"]), [])
+        entries = self.__dict__["_span_items"][file_path].get(
+            (span["record_file"], span["record"], span.get("program")), []
+        )
         exact = [e for e in entries if e[0] == span["offset"] and e[1] == span["bytes"]]
         if exact:
             return max(exact, key=lambda e: e[2])[3]
@@ -4633,41 +4820,73 @@ class GalaxyIR:
         inside = [e for e in entries if e[1] is not None and e[0] <= span["offset"] and end <= e[0] + e[1]]
         return min(inside, key=lambda e: (e[1], -e[2]))[3] if inside else None
 
-    def _operand_span(self, ef: EngineFile, operand: Optional[str]) -> tuple[Optional[dict], str]:
+    def _operand_span(
+        self, ef: EngineFile, operand: Optional[str], program: Optional[str] = None
+    ) -> tuple[Optional[dict], str]:
         """(span, status) of one data-name operand as seen from `ef`: span is
-        {record, record_file, offset, bytes (the whole table for an OCCURS item),
+        {record, record_file, program, offset, bytes (the whole table for an OCCURS item),
         occurrence_bytes, item, item_class (_item_class, or group)}, status resolved | unresolved | ambiguous (several
         items answer to the name and its qualifiers) | system (an unresolved name
         the runtime supplies: EIB / DIB / SQLCA fields, DFH constants, special
-        registers)."""
+        registers).
+
+        #4245: `program` is the PROGRAM-ID of a multi-program source the operand is
+        written in (`_program_at`); only that program's storage answers, so a sibling's
+        same-named record is not a second candidate. The span's `program` names the
+        program whose record holds it (None in a one-program source, and for a
+        copybook record no program record of the source reached)."""
         if not operand:
             return None, "unresolved"
         parts = operand.upper().split(" OF ")
         spans = self._storage_spans(ef)
-        if len(parts) > 1:
-            # Qualifiers are matched against the STORAGE ancestors, so a copybook
-            # item expanded under the program's own group (`01 DFHCOMMAREA.` + `COPY
-            # PAYDBCR.`) answers to that group, which its copybook never names. Every
-            # placement of a same-named item is a candidate: the program's own, each
-            # copybook's, a nested COPY's, and each record a copybook is COPYed under
-            # (#4204: IBM DBB EPSCMORT's `EPSPCOM-ERRMSG OF W-COMMUNICATION-AREA` lives
-            # in EPSMTOUT, nested in EPSMTCOM, which is COPYed under both
-            # W-COMMUNICATION-AREA and DFHCOMMAREA).
-            found = [
-                (it, sp)
-                for at in self.__dict__["_span_placed"][ef.file_path].values()
-                for it, sp, path in at
-                if it.name == parts[0] and it.level not in (66, 88) and _in_order(parts[1:], path)
-            ]
-        else:
-            found = [(it, spans.get(id(it))) for _, it, _ in self._find_item(ef, parts[0], None)]
+
+        def resolve(program: Optional[str]) -> list:
+            """(item, span) candidates of the operand in `program`'s own storage (any, without one)."""
+
+            def visible(sp: Optional[tuple]) -> bool:
+                return sp is None or not program or sp[0][2] in (None, program)
+
+            if len(parts) > 1:
+                # Qualifiers are matched against the STORAGE ancestors, so a copybook
+                # item expanded under the program's own group (`01 DFHCOMMAREA.` + `COPY
+                # PAYDBCR.`) answers to that group, which its copybook never names. Every
+                # placement of a same-named item is a candidate: the program's own, each
+                # copybook's, a nested COPY's, and each record a copybook is COPYed under
+                # (#4204: IBM DBB EPSCMORT's `EPSPCOM-ERRMSG OF W-COMMUNICATION-AREA` lives
+                # in EPSMTOUT, nested in EPSMTCOM, which is COPYed under both
+                # W-COMMUNICATION-AREA and DFHCOMMAREA).
+                return [
+                    (it, sp)
+                    for at in self.__dict__["_span_placed"][ef.file_path].values()
+                    for it, sp, path in at
+                    if it.name == parts[0] and it.level not in (66, 88) and _in_order(parts[1:], path) and visible(sp)
+                ]
+            if program:
+                # Every placement in the program's own storage: a copybook COPYed by several
+                # programs of the source is laid out under each one's record.
+                placed = self.__dict__["_span_placed"][ef.file_path]
+                out: list = []
+                for _, it, _ in self._find_item(ef, parts[0], None, program, exact=True):
+                    at = [sp for _, sp, _ in placed.get(id(it), []) if visible(sp)]
+                    out += [(it, sp) for sp in at] if at else ([] if placed.get(id(it)) else [(it, None)])
+                return out
+            return [(it, spans.get(id(it))) for _, it, _ in self._find_item(ef, parts[0], None)]
+
+        found: list = []
+        for scope in self._program_scope(ef, program):  # the program, then its GLOBAL candidates
+            found = resolve(scope)
+            if found:
+                break
         if not found:
             return None, ("system" if _SYSTEM_NAME.match(parts[0]) else "unresolved")
         hits = {sp: it for it, sp in found if sp is not None}
         if len(hits) != 1:
             return None, ("ambiguous" if len(hits) > 1 else "unresolved")
         (key, offset, size, unit), item = next(iter(hits.items()))
-        span = {"record": key[1], "record_file": key[0], "offset": offset, "bytes": size, "item": parts[0]}
+        span = {
+            "record": key[1], "record_file": key[0], "program": key[2], "offset": offset, "bytes": size,
+            "item": parts[0],
+        }  # fmt: skip
         cls = _item_class(item) if _is_elementary(item) else "group"
         return dict(span, occurrence_bytes=unit, item_class=cls), "resolved"
 
@@ -4702,12 +4921,18 @@ class GalaxyIR:
                 scopes.extend((h, g) for h in sorted(includers[g.file_path], key=lambda x: x.file_path))
         for f, home in sorted(scopes, key=lambda x: (x[0].file_path, x[1] is not x[0], x[1].file_path)):
             for m in home.data_moves:
-                target, t_status = self._operand_span(f, m.target)
+                # #4245: a statement of a multi-program source reads its own program's storage.
+                prog = self._program_at(f, m.line) if home is f else None
+                target, t_status = self._operand_span(f, m.target, prog)
                 if m.source_kind == "item":
-                    source, s_status = self._operand_span(f, m.source)
+                    source, s_status = self._operand_span(f, m.source, prog)
                 elif m.source_kind == "file":  # READ / RETURN INTO: the file's FD record (#3492)
-                    fd = next((r for r in f.records if (r.fd_name or "").upper() == (m.source or "").upper()), None)
-                    source, s_status = self._operand_span(f, fd.name) if fd is not None else (None, "unresolved")
+                    fd = next(
+                        (r for r in f.records
+                         if (r.fd_name or "").upper() == (m.source or "").upper() and r.program in (None, prog)),
+                        None,
+                    )  # fmt: skip
+                    source, s_status = self._operand_span(f, fd.name, prog) if fd is not None else (None, "unresolved")
                 else:
                     source, s_status = None, "resolved"
                 status = "resolved"
@@ -4756,28 +4981,30 @@ class GalaxyIR:
         out = []
         for root in ef.records:
             if root.fd_name:
-                span, _ = self._operand_span(ef, root.name)
+                span, _ = self._operand_span(ef, root.name, root.program)
                 if span:
                     out.append((span, f"file FD {root.fd_name}"))
         for st in ef.sql_statements:
             for hv in st.host_variables if isinstance(st.host_variables, list) else []:
                 parts = hv.lstrip(":").split(":")[0].split(".")  # :GROUP.ITEM:INDICATOR
-                span, _ = self._operand_span(ef, " OF ".join(reversed(parts)))
+                span, _ = self._operand_span(ef, " OF ".join(reversed(parts)), self._program_at(ef, st.line))
                 if span:
                     out.append((span, f"sql {st.verb} {st.table or '-'}"))
         for d in ef.dli_calls:
             if d.io_area:
-                span, _ = self._operand_span(ef, d.io_area)
+                span, _ = self._operand_span(ef, d.io_area, self._program_at(ef, d.line))
                 if span:
                     out.append((span, f"ims {d.function or d.function_operand} {d.segments or d.ssas or '-'}"))
         for op in ef.cics_resources:
             if op.record and op.kind in ("FILE", "MAP", "QUEUE", "CONTAINER"):
-                span, _ = self._operand_span(ef, op.record)
+                span, _ = self._operand_span(ef, op.record, self._program_at(ef, op.line))
                 if span:
                     out.append((span, f"cics {op.kind} {op.name or op.operand or '-'} {op.access}"))
         return out
 
-    def field_lineage(self, file_path: str, item: str, direction: str = "forward", max_hops: int = 400) -> list:
+    def field_lineage(
+        self, file_path: str, item: str, direction: str = "forward", max_hops: int = 400, program: Optional[str] = None
+    ) -> list:
         """Where the data in `item` of program `file_path` goes (`forward`) or comes
         from (`backward`), following storage, not names (#3452).
 
@@ -4793,17 +5020,19 @@ class GalaxyIR:
         whose storage overlaps it) and `resolved`. A move whose other operand is not
         declared in the repository (a generated BMS symbolic map, an EIB field)
         ends the trail in a hop with `resolved` False, `item` that name and no
-        storage. Returns [] when `item` does not resolve."""
+        storage. Returns [] when `item` does not resolve. #4245: in a source holding several
+        programs, `program` names the one whose `item` is meant (each hop's `program` says
+        whose storage it is)."""
         ef = self.files.get(file_path)
         if ef is None:
             return []
-        start, _ = self._operand_span(ef, item)
+        start, _ = self._operand_span(ef, item, program.upper() if program else None)
         if start is None:
             return []
         forward = direction == "forward"
 
         def overlap(a: dict, b: dict) -> bool:
-            if (a["record_file"], a["record"]) != (b["record_file"], b["record"]):
+            if (a["record_file"], a["record"], a.get("program")) != (b["record_file"], b["record"], b.get("program")):
                 return False
             a_end = a["offset"] + (a["bytes"] or 1)
             b_end = b["offset"] + (b["bytes"] or 1)
@@ -4836,8 +5065,8 @@ class GalaxyIR:
             for a in c.get("args", []):
                 arg, param = a.get("argument") or "", a.get("parameter") or ""
                 by_ref = ":" not in arg
-                a_span, _ = self._operand_span(caller, arg.split(":")[-1])
-                p_span, _ = self._operand_span(callee, param.split(":")[-1])
+                a_span, _ = self._operand_span(caller, arg.split(":")[-1], self._program_at(caller, c["line"]))
+                p_span, _ = self._operand_span(callee, param.split(":")[-1], _program_named(callee, c.get("target")))
                 if not (a_span and p_span):
                     continue
                 via = {"kind": "call", "verb": "CALL", "line": c["line"], "file": c["caller"]}
@@ -4850,8 +5079,8 @@ class GalaxyIR:
             caller, callee = self.files.get(c["caller"]), self.files.get(c["callee"])
             if caller is None or callee is None:
                 continue
-            a_span, _ = self._operand_span(caller, c["commarea"])
-            p_span, _ = self._operand_span(callee, "DFHCOMMAREA")
+            a_span, _ = self._operand_span(caller, c["commarea"], self._program_at(caller, c["line"]))
+            p_span, _ = self._operand_span(callee, "DFHCOMMAREA", _program_named(callee, c.get("target")))
             if a_span and p_span:
                 via = {"kind": "commarea", "verb": c["verb"], "line": c["line"], "file": c["caller"]}
                 links.setdefault(c["caller"], []).append((a_span, c["callee"], p_span, via))
@@ -4864,9 +5093,9 @@ class GalaxyIR:
             return sorted({label for sp, label in endpoints[file] if overlap(sp, span)})
 
         def key(file: str, span: dict) -> tuple:
-            return (file, span["record_file"], span["record"], span["offset"], span["bytes"])
+            return (file, span["record_file"], span["record"], span.get("program"), span["offset"], span["bytes"])
 
-        start = {k: start[k] for k in ("record", "record_file", "offset", "bytes", "item")}
+        start = {k: start[k] for k in ("record", "record_file", "program", "offset", "bytes", "item")}
         hops = [dict(start, file=file_path, depth=0, via=None, endpoints=tag(file_path, start), resolved=True)]
         seen = {key(file_path, start)}
         queue = [hops[0]]
@@ -4885,7 +5114,7 @@ class GalaxyIR:
                     if (forward or fl["source_kind"] == "item") and (node["file"], None, name) not in seen:
                         seen.add((node["file"], None, name))
                         hops.append(
-                            {"record": None, "record_file": None, "offset": None, "bytes": None, "item": name,
+                            {"record": None, "record_file": None, "program": None, "offset": None, "bytes": None, "item": name,
                              "file": node["file"], "depth": node["depth"] + 1, "via": via, "endpoints": [],
                              "resolved": False}
                         )  # fmt: skip
@@ -4900,7 +5129,7 @@ class GalaxyIR:
                 if overlap(this, node):
                     nxt.append((other, carried(node, this, that), via))
             for file, span, via in nxt:
-                span = {k: span.get(k) for k in ("record", "record_file", "offset", "bytes", "item")}
+                span = {k: span.get(k) for k in ("record", "record_file", "program", "offset", "bytes", "item")}
                 k = key(file, span)
                 if k in seen:
                     continue
@@ -4964,7 +5193,7 @@ class GalaxyIR:
                     out.setdefault(by_pid[g.program], set()).add(g.psb_name)
             for d in f.dli_calls:
                 if d.function == "SCHD" and d.psb:
-                    value = d.psb if d.psb[:1] in "'\"" else self._value_text(f, d.psb)
+                    value = d.psb if d.psb[:1] in "'\"" else self._value_text(f, d.psb, self._program_at(f, d.line))
                     name = (value or "").strip(" '\"").upper()
                     if name and "?" not in name:
                         out.setdefault(f.file_path, set()).add(name)
@@ -5162,6 +5391,14 @@ def _in_order(wanted: list, path: tuple) -> bool:
         if at < len(wanted) and name == wanted[at]:
             at += 1
     return at == len(wanted)
+
+
+def _last_entry(item: EngineDataItem) -> EngineDataItem:
+    """The last entry in `item`'s subtree in source order (88 / 66 conditions included: a
+    COPY after an `88` is recorded on it)."""
+    while item.children:
+        item = item.children[-1]
+    return item
 
 
 def _is_elementary(item: EngineDataItem) -> bool:
@@ -5426,13 +5663,17 @@ def load_galaxy_ir(db_path: Path, repo_name: Optional[str] = None) -> GalaxyIR:
         # 'exec' rows alongside the 'import' ones, and copy_deps means COPY /
         # EXEC SQL INCLUDE only -- without this filter a CICS LINK would read as
         # a copybook dependency.
-        for src, dst in cur.execute(
-            "SELECT src_file_id, dst_file_id FROM edge_data "
+        # #4265: `copy_libraries` is NULL on a DB written before the column existed.
+        libs_col = "copy_libraries" if _has_column(cur, "edge_data", "copy_libraries") else "NULL"
+        for src, dst, libs in cur.execute(
+            f"SELECT src_file_id, dst_file_id, {libs_col} FROM edge_data "  # noqa: S608 -- one of two literals
             "WHERE repo_name = ? AND commit_hash = ? AND COALESCE(edge_kind, 'import') = 'import'",
             (repo_name, commit_hash),
         ):
             if src in by_id and dst in by_id:
                 by_id[src].copy_deps.append(by_id[dst].file_path)
+                if libs:
+                    by_id[src].copy_dep_libraries[by_id[dst].file_path] = json.loads(libs)
         for ef in files.values():
             ef.copy_deps.sort()
         source_pages: dict[str, str] = {}
@@ -5565,6 +5806,8 @@ def load_galaxy_ir(db_path: Path, repo_name: Optional[str] = None) -> GalaxyIR:
             copy_col = "copy_members" if _has_column(cur, "record_data", "copy_members") else "NULL"
             # #3694: `sign_separate` likewise (an older DB sizes every sign as embedded).
             sign_col = "sign_separate" if _has_column(cur, "record_data", "sign_separate") else "NULL"
+            # #4265: `copy_libraries` likewise.
+            lib_col = "copy_libraries" if _has_column(cur, "record_data", "copy_libraries") else "NULL"
             for (
                 file_id,
                 ordinal,
@@ -5584,10 +5827,12 @@ def load_galaxy_ir(db_path: Path, repo_name: Optional[str] = None) -> GalaxyIR:
                 attrs,
                 copies,
                 sign_sep,
+                copy_libs,
             ) in cur.execute(
                 "SELECT file_id, ordinal, parent_ordinal, level_number, item_name, section, fd_name, pic, "  # noqa: S608 -- attributes_col is one of two literals; values are bound
                 "usage, occurs_min, occurs_max, occurs_depending_on, redefines, value_literal, line_number, "
-                f"{attributes_col}, {copy_col}, {sign_col} FROM record_data WHERE repo_name = ? AND commit_hash = ? "
+                f"{attributes_col}, {copy_col}, {sign_col}, {lib_col} FROM record_data "
+                "WHERE repo_name = ? AND commit_hash = ? "
                 "ORDER BY file_id, ordinal",
                 (repo_name, commit_hash),
             ):
@@ -5613,6 +5858,7 @@ def load_galaxy_ir(db_path: Path, repo_name: Optional[str] = None) -> GalaxyIR:
                         copy_members=copies,
                         sign_separate=bool(sign_sep),
                         sign_leading=sign_sep == 2,
+                        copy_libraries=copy_libs,
                     )
                 )
             # Thread children onto parents and collect the roots. `data_items` is
@@ -6083,7 +6329,48 @@ def load_galaxy_ir(db_path: Path, repo_name: Optional[str] = None) -> GalaxyIR:
 
     _attach_symbolic_maps(files)
     _name_pli_programs(files)
-    return GalaxyIR(db_path, repo_name, commit_hash, files, source_pages=source_pages)
+    _attribute_programs(files)
+    ir = GalaxyIR(db_path, repo_name, commit_hash, files, source_pages=source_pages)
+    ir._settle_copy_members()  # #4330: needs the resolved COPY edges and symbolic maps above
+    return ir
+
+
+def _copy_forms(item: EngineDataItem) -> list[tuple[str, Optional[str]]]:
+    """#4265: (member, library-name) per COPY recorded on `item` -- "" for an unqualified COPY. A library
+    only narrows anything where the scan declared copy libraries (EngineFile.copy_dep_libraries)."""
+    members = (item.copy_members or "").split(",")
+    libs = (item.copy_libraries or "").split(",")
+    return [(m, libs[i] if i < len(libs) else "") for i, m in enumerate(members)]
+
+
+def _program_bounds(ef: EngineFile) -> list[int]:
+    """#4245: the PROCEDURE DIVISION lines of a COBOL source that holds several programs, one per
+    PROGRAM-ID in source order, or [] for a one-program source (or when the two do not pair up,
+    a program with no PROCEDURE DIVISION: then nothing is scoped, the pre-#4245 reading).
+
+    Each program's DATA DIVISION ends at its own PROCEDURE DIVISION, so an item belongs to the
+    first program whose PROCEDURE DIVISION follows it, and a statement to the last program whose
+    PROCEDURE DIVISION precedes it -- nested programs (which follow their container's procedure
+    statements, up to END PROGRAM) and batch-compiled siblings alike."""
+    if ef.language != "cobol" or len(ef.program_ids) < 2:
+        return []
+    procs = sorted(e.line for e in ef.entry_points if e.kind == "PROCEDURE")
+    return procs if len(procs) == len(ef.program_ids) else []
+
+
+def _program_named(ef: EngineFile, name: Optional[str]) -> Optional[str]:
+    """#4245: `name` as one of the programs of multi-program source `ef`, else None."""
+    up = (name or "").strip("'\"").upper()
+    return up if _program_bounds(ef) and up in {p.upper() for p in ef.program_ids} else None
+
+
+def _attribute_programs(files: dict[str, EngineFile]) -> None:
+    """#4245: name the owning program of every data item of a multi-program source."""
+    for ef in files.values():
+        bounds = _program_bounds(ef)
+        if bounds:
+            for it in ef.data_items:
+                it.program = ef.program_ids[min(bisect.bisect_left(bounds, it.line), len(bounds) - 1)]
 
 
 def _name_pli_programs(files: dict[str, EngineFile]) -> None:

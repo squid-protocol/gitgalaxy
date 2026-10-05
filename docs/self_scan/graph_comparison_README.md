@@ -1,3 +1,6 @@
+---
+description: "The call graph and the import graph are compared against tree-sitter the way structural"
+---
 # Graph comparison: calls and imports, reconciled like the tri-comparison
 
 The call graph and the import graph are compared against tree-sitter the way structural

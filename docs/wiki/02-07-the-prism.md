@@ -1,3 +1,6 @@
+---
+description: "> **File Reference:** [`gitgalaxy/core/prism.py`](https://github.com/squid-protocol/gitgalaxy/blob/main/gitgalaxy/core/prism.py)"
+---
 # Lexical Stream Splicer
 
 > **File Reference:** [`gitgalaxy/core/prism.py`](https://github.com/squid-protocol/gitgalaxy/blob/main/gitgalaxy/core/prism.py)

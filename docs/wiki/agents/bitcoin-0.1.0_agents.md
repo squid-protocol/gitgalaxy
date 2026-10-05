@@ -1,3 +1,6 @@
+---
+description: "You are operating within `bitcoin-0.1.0`, the historical original release of the Bitcoin software, primarily composed of monolithic C++ (78.8%)."
+---
 # AGENTS.md: bitcoin-0.1.0 Architectural Context & Engagement Rules
 
 ## 1. System Context & Paradigm

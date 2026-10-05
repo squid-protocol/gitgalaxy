@@ -1,3 +1,6 @@
+---
+description: "You are operating within `Alamofire`, an ecosystem primarily composed of Swift (67.4%)."
+---
 # AGENTS.md: Alamofire Architectural Context & Engagement Rules
 
 ## 1. System Context & Paradigm

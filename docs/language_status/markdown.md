@@ -1,3 +1,6 @@
+---
+description: "Markdown is GitGalaxy's canonical **literary language**: it is deliberately measured on its own"
+---
 # Markdown (CommonMark / GFM / AsciiDoc)
 
 ## 1. At a glance

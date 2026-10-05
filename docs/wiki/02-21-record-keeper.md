@@ -1,3 +1,6 @@
+---
+description: "> **File Reference:** [`gitgalaxy/recorders/record_keeper.py`](https://github.com/squid-protocol/gitgalaxy/blob/main/gitgalaxy/recorders/record_keeper.py)"
+---
 # Record Keeper
 
 > **File Reference:** [`gitgalaxy/recorders/record_keeper.py`](https://github.com/squid-protocol/gitgalaxy/blob/main/gitgalaxy/recorders/record_keeper.py)

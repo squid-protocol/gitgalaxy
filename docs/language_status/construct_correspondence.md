@@ -1,3 +1,6 @@
+---
+description: "Generated with `tests/tools/construct_map.py` (scan, then analyze) on 2026-10-02. It covers 49 converted programs"
+---
 # Construct correspondence: what each COBOL construct becomes in Java
 
 Generated with `tests/tools/construct_map.py` (scan, then analyze) on 2026-10-02. It covers 49 converted programs

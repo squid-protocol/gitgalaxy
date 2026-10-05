@@ -1,3 +1,6 @@
+---
+description: "You are operating within `curl`, the ubiquitous command-line tool and library for transferring data with URLs. The repository is primarily composed of..."
+---
 # AGENTS.md: curl Architectural Context & Engagement Rules
 
 ## 1. System Context & Paradigm

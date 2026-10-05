@@ -1,3 +1,6 @@
+---
+description: "With the rise of localized AI, enterprise engineering teams are increasingly downloading open-source LLM weights (like `.safetensors`, `.gguf`, or..."
+---
 # How to Audit Local AI Models (Without OOM Crashes)
 
 With the rise of localized AI, enterprise engineering teams are increasingly downloading open-source LLM weights (like `.safetensors`, `.gguf`, or `.onnx`) and committing them directly to internal repositories or Docker images. 

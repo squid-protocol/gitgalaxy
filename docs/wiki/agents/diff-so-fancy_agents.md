@@ -1,3 +1,6 @@
+---
+description: "You are operating within `diff-so-fancy`, a highly focused CLI utility designed to parse and format `git diff` output. The execution logic of the..."
+---
 # AGENTS.md: diff-so-fancy Architectural Context & Engagement Rules
 
 ## 1. System Context & Paradigm

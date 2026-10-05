@@ -1,3 +1,6 @@
+---
+description: "GitGalaxy's two graphs, the file-level **import graph** (PageRank, blast radius, popularity,"
+---
 # Graph accuracy gates
 
 GitGalaxy's two graphs, the file-level **import graph** (PageRank, blast radius, popularity,

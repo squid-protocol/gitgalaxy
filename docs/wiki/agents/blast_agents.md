@@ -1,3 +1,6 @@
+---
+description: "You are operating within `blast`, the NCBI Basic Local Alignment Search Tool repository, primarily composed of C++ (40.1%) and C (11.6%)."
+---
 # AGENTS.md: blast Architectural Context & Engagement Rules
 
 ## 1. System Context & Paradigm

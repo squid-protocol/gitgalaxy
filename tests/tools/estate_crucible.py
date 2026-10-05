@@ -21,6 +21,15 @@ GalaxyIR, and diffs every fact channel of the key against it:
                   elementary field's offset / length (REDEFINES overlays: unscored, the
                   layout reader skips them by design)
   sql_statements, sql_tables, jcl_steps, jcl_dds, screen_fields, csd_resources, transactions
+  cics_resources  cics_resource_data (MAP / FILE / QUEUE commands)
+  jcl_datasets    a JCL member's DSN references in file_data.raw_imports (a GDG reference as
+                  its base or with its relative generation)
+  file_control    file_control_data SELECTs;  entry_points  entry_point_data
+  file_edges      edge_data kinds 'call' (CALL / LINK / XCTL) and 'exec' (EXEC PGM)
+
+Units, edges, copies, data items and layouts are scored for COBOL and PL/I members; the
+engine's own unit model of JCL / BMS / CSD is outside these channels. A key fact marked
+`depends_on` (it can only pass once that horror is fixed) is reported as the horror's cascade.
 
 Each check is pass / fail (found, an attribute differs) / missing / phantom (recorded but not
 in the key, or a fact the key says must NOT be recorded) / unscored (the key states it, the DB
@@ -69,6 +78,12 @@ CHANNELS = (
     "screen_fields",
     "csd_resources",
     "transactions",
+    "cics_resources",
+    "jcl_datasets",
+    "file_control",
+    "entry_points",
+    "file_edges",
+    "data_moves",
 )
 RESOLVED_VERBS = ("CALL", "LINK", "XCTL", "EXEC PGM")
 
@@ -136,13 +151,64 @@ def load_key(crucible: Path) -> tuple[dict[str, Any], dict[str, dict[str, Any]]]
     return manifest, members
 
 
+def source_encoding_arg(manifest: dict[str, Any]) -> list[str]:
+    """`--source-encoding PATH=CODEC,...` for every member the key says is not UTF-8: nothing in
+    a raw EBCDIC member's bytes names its code page, so the scan is told, as an estate would be."""
+    pages = manifest.get("code_pages") or {}
+    if not pages:
+        return []
+    return ["--source-encoding", ",".join(f"{path}={codec}" for path, codec in sorted(pages.items()))]
+
+
+# #4265: the estate's copy libraries, by its own naming rule (README "Copy libraries"): `<APP>CPY` is an
+# app's copybook/ directory, `<APP>DCL` its dclgen/, `SHRCPY` shared/copylib/; a program's SYSLIB is its
+# app's two libraries, then SHRCPY.
+_LIBRARY_DIRS = (("copybook", "CPY"), ("dclgen", "DCL"))
+
+
+def copy_library_declaration(manifest: dict[str, Any]) -> dict[str, Any]:
+    """The `galaxyscope --copy-libraries` declaration of the estate the manifest describes."""
+    libraries: dict[str, list[str]] = {}
+    apps: dict[str, list[str]] = {}
+    for path, member in sorted(manifest["members"].items()):
+        directory = path.rsplit("/", 1)[0]
+        if member.get("library") == "copylib":
+            libraries.setdefault("SHRCPY", [])
+            if directory not in libraries["SHRCPY"]:
+                libraries["SHRCPY"].append(directory)
+        for kind, suffix in _LIBRARY_DIRS:
+            if member.get("library") == kind and member.get("app"):
+                name = f"{member['app']}{suffix}"
+                libraries.setdefault(name, [directory])
+                apps.setdefault(member["app"], [])
+                if name not in apps[member["app"]]:
+                    apps[member["app"]].append(name)
+        if member.get("app"):
+            apps.setdefault(member["app"], [])
+    shared = ["SHRCPY"] if "SHRCPY" in libraries else []
+    syslib = [
+        {"programs": f"apps/{app}/*", "order": sorted(names, key=lambda n: n.endswith("DCL")) + shared}
+        for app, names in sorted(apps.items())
+    ]
+    return {"libraries": libraries, "syslib": syslib}
+
+
 def scan(crucible: Path, scan_dir: Path) -> Path:
     from gitgalaxy.tools.cobol_to_cobol.galaxy_ir import scan_to_db
+
+    manifest = json.loads((crucible / "key" / "manifest.json").read_text(encoding="utf-8"))
+    scan_dir.mkdir(parents=True, exist_ok=True)
+    declaration = scan_dir / "copy_libraries.json"
+    declaration.write_text(json.dumps(copy_library_declaration(manifest), indent=1) + "\n", encoding="utf-8")
 
     saved = os.environ.get("PYTHONPATH")
     os.environ["PYTHONPATH"] = os.pathsep.join(p for p in (str(REPO_ROOT), saved) if p)
     try:
-        return scan_to_db(crucible / "estate", scan_dir)
+        return scan_to_db(
+            crucible / "estate",
+            scan_dir,
+            extra_args=[*source_encoding_arg(manifest), "--copy-libraries", str(declaration)],
+        )
     finally:
         if saved is None:
             os.environ.pop("PYTHONPATH")
@@ -206,6 +272,13 @@ class Engine:
                             "synthetic": True,
                         }
                     )
+            # #3200 / #3237: resolved invocation edges between files, by kind
+            self.file_edges: dict[str, set] = defaultdict(set)
+            for src, dst, kind in conn.execute(
+                "SELECT src_file_id, dst_file_id, edge_kind FROM edge_data WHERE edge_kind IN ('call', 'exec')"
+            ):
+                if src in ids and dst in ids:
+                    self.file_edges[ids[src]].add((ids[dst], kind))
             self.excluded: dict[str, str] = {}
             for path, reason in conn.execute("SELECT file_path, exclusion_reason FROM excluded_artifacts"):
                 self.excluded[str(path).replace("\\", "/")] = reason or ""
@@ -256,17 +329,23 @@ def score_programs(sc: Score, path: str, entry: dict[str, Any], eng: Engine) -> 
 
 
 def _owner(eng: Engine, path: str, unit: Optional[str], start: Optional[int]) -> Optional[dict[str, Any]]:
+    """The engine unit that holds a key unit: by name (the one nearest `start` when a member
+    holds several programs with the same paragraph names), or, for the main line (no name),
+    a synthetic_unit_data row or a function_data unit at its first line."""
     if unit is not None:
         hits = [u for u in eng.units.get(path, []) if u["name"].upper() == unit.upper()]
+        if start is not None and hits:
+            return min(hits, key=lambda u: abs(u["start"] - start))
         return hits[0] if hits else None
-    for u in eng.synthetic.get(path, []):
-        return u
-    hits = [u for u in eng.units.get(path, []) if start is not None and u["start"] in (start - 1, start)]
-    return hits[0] if hits else None
+    cands = eng.synthetic.get(path, []) + eng.units.get(path, [])
+    if start is None:
+        return eng.synthetic[path][0] if eng.synthetic.get(path) else None
+    near = [u for u in cands if start - 2 <= u["start"] <= start]
+    return max(near, key=lambda u: u["start"]) if near else None
 
 
 def score_units(sc: Score, path: str, entry: dict[str, Any], eng: Engine) -> None:
-    keyed = set()
+    keyed: set[int] = set()
     for f in entry.get("units", []):
         label = f["name"] or "(main line)"
         h = f.get("horror")
@@ -275,13 +354,13 @@ def score_units(sc: Score, path: str, entry: dict[str, Any], eng: Engine) -> Non
             if u is None:
                 sc.add("units", path, label, "missing", h, f"lines {f['start_line']}-{f['end_line']}: no unit")
                 continue
-            keyed.add(u["name"].upper())
+            keyed.add(id(u))
             sc.add("units", path, label, "pass", h, "synthetic unit" if u["synthetic"] else f"unit {u['name']}")
             continue
-        keyed.add(f["name"].upper())
-        if u is None:
+        if u is None or id(u) in keyed:
             sc.add("units", path, label, "missing", h)
             continue
+        keyed.add(id(u))
         d = _diff([("start_line", f["start_line"], u["start"]), ("end_line", f["end_line"], u["end"])])
         sc.add("units", path, label, "fail" if d else "pass", h, d)
     explicit = {p["name"].upper(): p for p in _phantoms(entry, "units")}
@@ -289,7 +368,7 @@ def score_units(sc: Score, path: str, entry: dict[str, Any], eng: Engine) -> Non
         if not any(u["name"].upper() == p["name"].upper() for u in eng.units.get(path, [])):
             sc.add("units", path, f"not {p['name']}", "pass", p.get("horror"))
     for u in eng.units.get(path, []):
-        if u["name"].upper() not in keyed:
+        if id(u) not in keyed:
             p = explicit.get(u["name"].upper())
             sc.add(
                 "units",
@@ -302,12 +381,12 @@ def score_units(sc: Score, path: str, entry: dict[str, Any], eng: Engine) -> Non
 
 
 def score_edges(sc: Score, path: str, entry: dict[str, Any], eng: Engine) -> None:
-    unit_starts = {f["name"]: f["start_line"] for f in entry.get("units", [])}
+    unit_starts = {(f.get("program"), f["name"]): f["start_line"] for f in entry.get("units", [])}
     claimed: dict[int, set] = defaultdict(set)  # id(owner) -> {(list, TARGET)}
     for f in entry.get("edges", []):
         lst = "transfers" if f["kind"] == "goto" else "calls"
         label = f"{f['from'] or '(main line)'} -{f['kind']}-> {f['target']} @{f['line']}"
-        u = _owner(eng, path, f["from"], unit_starts.get(f["from"]))
+        u = _owner(eng, path, f["from"], unit_starts.get((f.get("program"), f["from"])))
         if u is None:
             sc.add("edges", path, label, "missing", f.get("horror"), "the owning unit is not recorded")
             continue
@@ -408,7 +487,7 @@ def score_copies(sc: Score, path: str, entry: dict[str, Any], eng: Engine) -> No
         else:
             status = "fail"
             detail = "no import edge to " + str(f["resolves_to"]) if has_raw else "import edge, but no raw import"
-        sc.add("copies", path, label, status, f.get("horror"), detail)
+        sc.add("copies", path, label, status, f.get("horror"), detail, f.get("depends_on"))
     explicit = {p["member"].upper(): p for p in _phantoms(entry, "copies")}
     for r in sorted(raw - want_raw):
         p = explicit.get(r)
@@ -424,7 +503,18 @@ def score_copies(sc: Score, path: str, entry: dict[str, Any], eng: Engine) -> No
         if m not in raw:
             sc.add("copies", path, f"not {m}", "pass", p.get("horror"))
     for d in sorted(deps - want_dep):
-        sc.add("copies", path, f"import edge -> {d}", "phantom", None, "not in the key")
+        # an edge to the wrong same-named member is that COPY's failure, attributed like it
+        stem = d.rsplit("/", 1)[-1].rsplit(".", 1)[0].upper()
+        f = next((x for x in entry.get("copies", []) if x["member"].upper() == stem), {})
+        sc.add(
+            "copies",
+            path,
+            f"import edge -> {d}",
+            "phantom",
+            f.get("horror"),
+            "not in the key" + (f" (COPY {stem} resolves elsewhere)" if f else ""),
+            f.get("depends_on"),
+        )
 
 
 def score_data_items(sc: Score, path: str, entry: dict[str, Any], eng: Engine) -> None:
@@ -438,7 +528,7 @@ def score_data_items(sc: Score, path: str, entry: dict[str, Any], eng: Engine) -
         exact = [i for i in cands if i.line == f["line"]]
         it = (exact or [i for i in cands if i.level == f["level"]] or [None])[0]
         if it is None:
-            sc.add("data_items", path, label, "missing", f.get("horror"))
+            sc.add("data_items", path, label, "missing", f.get("horror"), "", f.get("depends_on"))
             continue
         used.add(id(it))
         pairs = [
@@ -457,8 +547,13 @@ def score_data_items(sc: Score, path: str, entry: dict[str, Any], eng: Engine) -
         ]
         if is_program:
             pairs.append(("section", f.get("section"), it.section))
+        if "sign_separate" in f:
+            pairs += [
+                ("sign_separate", f["sign_separate"], bool(it.sign_separate)),
+                ("sign_leading", f["sign_leading"], bool(it.sign_leading)),
+            ]
         d = _diff(pairs)
-        sc.add("data_items", path, label, "fail" if d else "pass", f.get("horror"), d)
+        sc.add("data_items", path, label, "fail" if d else "pass", f.get("horror"), d, f.get("depends_on"))
     for it in items:
         if id(it) not in used:
             sc.add("data_items", path, f"{it.level:02d} {it.name} @{it.line}", "phantom", None, "not in the key")
@@ -472,7 +567,7 @@ def score_layouts(sc: Score, path: str, entry: dict[str, Any], eng: Engine) -> N
             (r for r in (ef.records if ef else []) if _u(r.name) == _u(f["record"]) and r.line == f["line"]), None
         )
         if root is None or ef is None:
-            sc.add("layouts", path, label, "missing", f.get("horror"), "no 01 entry recorded")
+            sc.add("layouts", path, label, "missing", f.get("horror"), "no 01 entry recorded", f.get("depends_on"))
             continue
         lay = eng.ir.record_layout(ef, root)
         want = [x for x in f["fields"] if not x.get("overlay")]
@@ -497,7 +592,15 @@ def score_layouts(sc: Score, path: str, entry: dict[str, Any], eng: Engine) -> N
                 break
         if len(got) > len(want) and not problems:
             problems.append(f"engine has {len(got) - len(want)} extra field(s), first {got[len(want)]['name']}")
-        sc.add("layouts", path, label, "fail" if problems else "pass", f.get("horror"), "; ".join(problems))
+        sc.add(
+            "layouts",
+            path,
+            label,
+            "fail" if problems else "pass",
+            f.get("horror"),
+            "; ".join(problems),
+            f.get("depends_on"),
+        )
         overlays = [x for x in f["fields"] if x.get("overlay")]
         if overlays:
             sc.add(
@@ -694,7 +797,188 @@ def score_cics(sc: Score, path: str, entry: dict[str, Any], eng: Engine) -> None
             sc.add("transactions", path, t.transid, "phantom", None, "not in the key")
 
 
-COBOL_ONLY = (score_programs, score_units, score_edges, score_copies, score_data_items, score_layouts)
+def score_cics_resources(sc: Score, path: str, entry: dict[str, Any], eng: Engine) -> None:
+    ef = eng.files.get(path)
+    rows = list(ef.cics_resources) if ef else []
+    used: set = set()
+    for f in entry.get("cics_resources", []):
+        label = f"{f['verb']} {f['kind']} {f['name']} @{f['line']}"
+        r = next(
+            (
+                x
+                for x in rows
+                if _u(x.verb) == f["verb"] and _u(x.kind) == f["kind"] and x.line == f["line"] and id(x) not in used
+            ),
+            None,
+        )
+        if r is None:
+            sc.add("cics_resources", path, label, "missing", f.get("horror"))
+            continue
+        used.add(id(r))
+        d = _diff(
+            [
+                ("name", _u(f["name"]), _u(r.name)),
+                ("qualifier", _u(f.get("qualifier")), _u(r.qualifier)),
+                ("record", _u(f.get("record")), _u(r.record)),
+                ("access", f["access"], r.access),
+            ]
+        )
+        sc.add("cics_resources", path, label, "fail" if d else "pass", f.get("horror"), d)
+    for r in rows:
+        if id(r) not in used:
+            sc.add("cics_resources", path, f"{r.verb} {r.kind} {r.name} @{r.line}", "phantom", None, "not in the key")
+
+
+def score_jcl_datasets(sc: Score, path: str, entry: dict[str, Any], eng: Engine) -> None:
+    """A JCL member's dataset references, against file_data.raw_imports: a GDG reference may
+    be recorded as its base or with its relative generation, never anything else."""
+    if entry["language"] != "jcl":
+        return
+    raw = {r.upper() for r in eng.raw_imports.get(path, [])}
+    accepted: set = set()
+    for f in entry.get("jcl_datasets", []):
+        forms = {f["dsn"].upper()} | ({f"{f['dsn']}({f['generation']})".upper()} if f.get("generation") else set())
+        accepted |= forms
+        label = f"{f['step']}.{f['dd']} {f['dsn']}" + (f"({f['generation']})" if f.get("generation") else "")
+        ok = bool(forms & raw)
+        sc.add(
+            "jcl_datasets",
+            path,
+            label,
+            "pass" if ok else "missing",
+            f.get("horror"),
+            "" if ok else f"none of {sorted(forms)} in raw_imports",
+            f.get("depends_on"),
+        )
+    horrors = sorted({f["horror"] for f in entry.get("jcl_datasets", []) if f.get("horror")})
+    for r in sorted(raw - accepted):
+        h = next((f.get("horror") for f in entry.get("jcl_datasets", []) if r.startswith(f["dsn"].upper())), None)
+        sc.add(
+            "jcl_datasets",
+            path,
+            f"raw import {r}",
+            "phantom",
+            h or (horrors[0] if horrors and "(" in r else None),
+            "not a dataset reference the member makes",
+        )
+
+
+def score_file_control(sc: Score, path: str, entry: dict[str, Any], eng: Engine) -> None:
+    ef = eng.files.get(path)
+    rows = list(ef.file_control) if ef else []
+    used: set = set()
+    for f in entry.get("file_control", []):
+        label = f"SELECT {f['select']} @{f['line']}"
+        r = next((x for x in rows if _u(x.select_name) == f["select"] and id(x) not in used), None)
+        if r is None:
+            sc.add("file_control", path, label, "missing", f.get("horror"))
+            continue
+        used.add(id(r))
+        d = _diff(
+            [
+                ("assign", _u(f["assign"]), _u(r.assign)),
+                ("organization", _u(f["organization"]), _u(r.organization)),
+                ("access_mode", _u(f.get("access_mode")), _u(r.access_mode)),
+                ("record_key", _u(f.get("record_key")), _u(r.record_key)),
+                ("file_status", _u(f["file_status"]), _u(r.file_status)),
+                ("fd_copies", sorted(_u(c) for c in f["fd_copies"]), sorted(_u(c) for c in (r.fd_copies or []))),
+                ("line", f["line"], r.line),
+            ]
+        )
+        sc.add("file_control", path, label, "fail" if d else "pass", f.get("horror"), d)
+    for r in rows:
+        if id(r) not in used:
+            sc.add("file_control", path, f"SELECT {r.select_name} @{r.line}", "phantom", None, "not in the key")
+
+
+def score_entry_points(sc: Score, path: str, entry: dict[str, Any], eng: Engine) -> None:
+    ef = eng.files.get(path)
+    rows = list(ef.entry_points) if ef else []
+    used: set = set()
+    for f in entry.get("entry_points", []):
+        label = f"{f['kind']} {f['program']} @{f['line']}"
+        r = next((x for x in rows if _u(x.kind) == f["kind"] and x.line == f["line"] and id(x) not in used), None)
+        if r is None:
+            sc.add("entry_points", path, label, "missing", f.get("horror"))
+            continue
+        used.add(id(r))
+        d = _diff([("params", [_u(p) for p in f["params"]], [_u(p) for p in r.parameters])])
+        sc.add("entry_points", path, label, "fail" if d else "pass", f.get("horror"), d)
+    for r in rows:
+        if id(r) not in used:
+            sc.add("entry_points", path, f"{r.kind} {r.entry_name} @{r.line}", "phantom", None, "not in the key")
+
+
+def _norm(v: Any) -> Any:
+    return " ".join(v.split()).upper() if isinstance(v, str) else v
+
+
+def score_data_moves(sc: Score, path: str, entry: dict[str, Any], eng: Engine) -> None:
+    """data_move_data: one row per source -> target pair of a data-moving statement."""
+    ef = eng.files.get(path)
+    rows = list(ef.data_moves) if ef else []
+    used: set = set()
+    for f in entry.get("data_moves", []):
+        label = f"{f['verb']} {f['source']} -> {f['target']} @{f['line']}"
+        r = next(
+            (
+                x
+                for x in rows
+                if id(x) not in used
+                and _u(x.verb) == f["verb"]
+                and x.line == f["line"]
+                and _norm(x.target) == _norm(f["target"])
+                and _norm(x.source) == _norm(f["source"])
+            ),
+            None,
+        )
+        if r is None:
+            sc.add("data_moves", path, label, "missing", f.get("horror"), "", f.get("depends_on"))
+            continue
+        used.add(id(r))
+        d = _diff(
+            [
+                ("source_kind", f["source_kind"], r.source_kind),
+                ("corresponding", f["corresponding"], bool(r.corresponding)),
+                ("source_refmod", f["source_refmod"], bool(r.source_refmod)),
+                ("target_refmod", f["target_refmod"], bool(r.target_refmod)),
+                ("source_refmod_text", f["source_refmod_text"], r.source_refmod_text),
+            ]
+        )
+        sc.add("data_moves", path, label, "fail" if d else "pass", f.get("horror"), d, f.get("depends_on"))
+    explicit = {_norm(p["target"]): p for p in _phantoms(entry, "data_moves")}
+    seen = set()
+    for r in rows:
+        if id(r) not in used:
+            p = explicit.get(_norm(r.target))
+            if p:
+                seen.add(_norm(r.target))
+            sc.add(
+                "data_moves",
+                path,
+                f"{r.verb} {r.source} -> {r.target} @{r.line}",
+                "phantom",
+                p.get("horror") if p else None,
+                p["why"] if p else "not in the key",
+            )
+    for t, p in explicit.items():
+        if t not in seen:
+            sc.add("data_moves", path, f"not -> {p['target']}", "pass", p.get("horror"))
+
+
+def score_file_edges(sc: Score, path: str, entry: dict[str, Any], eng: Engine) -> None:
+    got = set(eng.file_edges.get(path, set()))
+    for f in entry.get("file_edges", []):
+        label = f"{f['kind']} -> {f['target']}"
+        ok = (f["target"], f["kind"]) in got
+        got.discard((f["target"], f["kind"]))
+        sc.add("file_edges", path, label, "pass" if ok else "missing", f.get("horror"), "", f.get("depends_on"))
+    for dst, kind in sorted(got):
+        sc.add("file_edges", path, f"{kind} -> {dst}", "phantom", None, "not in the key")
+
+
+SOURCE_LANGUAGES = ("cobol", "pli")
+COBOL_ONLY = (score_programs, score_units, score_edges, score_copies, score_data_items, score_layouts, score_data_moves)
 SCORERS = (
     score_programs,
     score_units,
@@ -706,6 +990,12 @@ SCORERS = (
     score_sql,
     score_jcl,
     score_cics,
+    score_cics_resources,
+    score_jcl_datasets,
+    score_file_control,
+    score_entry_points,
+    score_file_edges,
+    score_data_moves,
 )
 
 
@@ -749,7 +1039,7 @@ def score(crucible: Path, db: Path) -> Score:
                     )
             continue
         for fn in SCORERS:
-            if entry["language"] != "cobol" and fn in COBOL_ONLY:
+            if entry["language"] not in SOURCE_LANGUAGES and fn in COBOL_ONLY:
                 continue  # the engine's own model of JCL / BMS / CSD units is not what these channels key
             fn(sc, path, entry, eng)
     for path in sorted(set(eng.files) - set(key)):
@@ -767,7 +1057,8 @@ def horror_verdicts(sc: Score, crucible: Path) -> list[dict[str, Any]]:
         h = json.loads(p.read_text(encoding="utf-8"))
         checks = [c for c in sc.checks if c.horror == h["id"]]
         counts = Counter(c.status for c in checks)
-        bad = [c for c in checks if c.status in ("fail", "missing", "phantom")]
+        # a failing check that depends on another horror is that horror's cascade, not this one's failure
+        bad = [c for c in checks if c.status in ("fail", "missing", "phantom") and not c.depends_on]
         cascade = [c for c in sc.checks if h["id"] in c.depends_on and c.status in ("fail", "missing", "phantom")]
         out.append(
             {

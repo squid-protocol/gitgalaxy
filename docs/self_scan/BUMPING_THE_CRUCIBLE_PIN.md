@@ -1,3 +1,6 @@
+---
+description: "This is the complete, ordered procedure for moving GitGalaxy's pinned"
+---
 # Bumping the language-crucible pin: the full checklist
 
 This is the complete, ordered procedure for moving GitGalaxy's pinned

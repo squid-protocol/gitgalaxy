@@ -1,3 +1,6 @@
+---
+description: "A proof says a port and its COBOL program agree on the case's runs. It proves only what those runs look at."
+---
 # Mutation testing of the proven ports (#4047)
 
 A proof says a port and its COBOL program agree on the case's runs. It proves only what those runs look at.

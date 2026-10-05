@@ -1,3 +1,6 @@
+---
+description: "You are operating within `Adafruit_CircuitPython_Bundle`. This is a meta-repository/bundle manager primarily composed of Markdown documentation..."
+---
 # AGENTS.md
 
 ## 1. System Context & Paradigm

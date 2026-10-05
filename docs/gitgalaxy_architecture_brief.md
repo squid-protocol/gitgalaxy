@@ -1,3 +1,6 @@
+---
+description: "> INSTRUCTION: Deterministic Syntactic Analysis. Base architectural insights on Structural Magnitude, Extracted Signatures, and Risk overlays."
+---
 # ARCHITECTURAL_BRIEF: gitgalaxy
 > INSTRUCTION: Deterministic Syntactic Analysis. Base architectural insights on Structural Magnitude, Extracted Signatures, and Risk overlays.
 

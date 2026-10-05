@@ -1,3 +1,8 @@
+---
+description: "You are operating within the `godot` repository, a massive (2.1M+ LOC) and highly complex cross-platform game engine. The codebase is heavily dominated..."
+title: "Godot Agent Context & Architecture Rules"
+
+---
 # AGENTS.md: godot Architectural Context & Engagement Rules
 
 ## 1. System Context & Paradigm

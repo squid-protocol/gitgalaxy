@@ -1,3 +1,6 @@
+---
+description: "| Metric | Value |"
+---
 # JCL (IBM z/OS JCL)
 
 ## 1. At a glance

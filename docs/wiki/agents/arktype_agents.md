@@ -1,3 +1,6 @@
+---
+description: "You are operating within `arktype`, a highly specialized TypeScript runtime validation and schema inference library (82.7% TypeScript)."
+---
 # AGENTS.md: arktype Architectural Context & Engagement Rules
 
 ## 1. System Context & Paradigm

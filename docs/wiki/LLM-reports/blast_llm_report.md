@@ -1,3 +1,8 @@
+---
+description: "The `blast` repository is the core execution engine for the Basic Local Alignment Search Tool (BLAST) provided by NCBI. It is a highly optimized..."
+title: "BLAST Architectural Brief & LLM Report"
+
+---
 # Architectural Brief: blast
 
 ## 1. Information Flow & Purpose (The Executive Summary)

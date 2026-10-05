@@ -1,3 +1,6 @@
+---
+description: "You are operating within `x86-bare-metal-examples`, a repository dedicated to low-level hardware interaction, bootloaders, and kernel fundamentals..."
+---
 # AGENTS.md: x86-bare-metal-examples Architectural Context & Engagement Rules
 
 ## 1. System Context & Paradigm

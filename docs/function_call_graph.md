@@ -1,3 +1,6 @@
+---
+description: "GitGalaxy's file graph is built from import statements. Its function graph is"
+---
 # The function call graph (Epic #3265)
 
 GitGalaxy's file graph is built from import statements. Its function graph is

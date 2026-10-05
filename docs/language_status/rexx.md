@@ -1,3 +1,6 @@
+---
+description: "Snapshot written 2026-09-16 with the language's addition (#2504, under the legacy-mainframe"
+---
 # REXX — Structural Signature Coverage
 
 Snapshot written 2026-09-16 with the language's addition (#2504, under the legacy-mainframe

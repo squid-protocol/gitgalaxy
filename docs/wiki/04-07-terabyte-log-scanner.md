@@ -1,3 +1,6 @@
+---
+description: "> **File Reference:** [gitgalaxy/tools/terabyte_log_scanning/terabyte_log_scanner.py](https://github.com/squid-protocol/gitgalaxy/blob/main/gitgalaxy/to..."
+---
 # Terabyte Log Scanner (High-Volume Telemetry & Dead Code Validator)
 
 > **File Reference:** [gitgalaxy/tools/terabyte_log_scanning/terabyte_log_scanner.py](https://github.com/squid-protocol/gitgalaxy/blob/main/gitgalaxy/tools/terabyte_log_scanning/terabyte_log_scanner.py)

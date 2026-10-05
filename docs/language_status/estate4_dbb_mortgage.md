@@ -1,3 +1,6 @@
+---
+description: "*2026-10-03. A fourth public COBOL/CICS estate, from a different IBM team than CBSA and GenApp, onboarded to test how"
+---
 # Estate 4: IBM DBB MortgageApplication
 
 *2026-10-03. A fourth public COBOL/CICS estate, from a different IBM team than CBSA and GenApp, onboarded to test how

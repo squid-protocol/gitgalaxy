@@ -1,3 +1,6 @@
+---
+description: "> **File Reference:** [`gitgalaxy/tools/cobol_to_cobol/cobol_dag_architect.py`](https://github.com/squid-protocol/gitgalaxy/blob/main/gitgalaxy/tools/co..."
+---
 # DAG Architect (Data Lineage)
 
 > **File Reference:** [`gitgalaxy/tools/cobol_to_cobol/cobol_dag_architect.py`](https://github.com/squid-protocol/gitgalaxy/blob/main/gitgalaxy/tools/cobol_to_cobol/cobol_dag_architect.py)

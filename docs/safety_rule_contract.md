@@ -1,3 +1,6 @@
+---
+description: "> **A site that handles or forestalls a runtime failure at the value level —"
+---
 # The `safety` rule contract (#2869)
 
 > **A site that handles or forestalls a runtime failure at the value level —

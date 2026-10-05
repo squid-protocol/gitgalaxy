@@ -1,3 +1,6 @@
+---
+description: "> Filed as [#2765](https://github.com/squid-protocol/gitgalaxy/issues/2765), Phase 3 of the contract"
+---
 # The `state_mutation` rule's contract
 
 > Filed as [#2765](https://github.com/squid-protocol/gitgalaxy/issues/2765), Phase 3 of the contract

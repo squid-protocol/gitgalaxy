@@ -1,3 +1,6 @@
+---
+description: "You are operating within `capstone`, a multi-architecture disassembly framework. The execution core is heavily dominated by C (368k+ LOC), complemented..."
+---
 # AGENTS.md: capstone Architectural Context & Engagement Rules
 
 ## 1. System Context & Paradigm

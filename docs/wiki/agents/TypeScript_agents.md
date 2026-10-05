@@ -1,3 +1,6 @@
+---
+description: "You are operating within the `TypeScript` repository, the core compiler (`tsc`) and language service (`tsserver`) ecosystem for the TypeScript..."
+---
 # AGENTS.md: TypeScript Architectural Context & Engagement Rules
 
 ## 1. Information Flow & Purpose (The Executive Summary)

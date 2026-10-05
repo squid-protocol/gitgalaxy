@@ -1,3 +1,6 @@
+---
+description: "You are operating within `iwubi`, a compact, Python-based input method engine (likely for IBus). The repository is extremely concentrated, consisting..."
+---
 # AGENTS.md: iwubi Architectural Context & Engagement Rules
 
 ## 1. System Context & Paradigm

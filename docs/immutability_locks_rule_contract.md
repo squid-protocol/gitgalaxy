@@ -1,3 +1,6 @@
+---
+description: "> **One hit is an added marker or lock call that prevents a binding or value"
+---
 # The `immutability_locks` rule contract (#2772, rule half)
 
 > **One hit is an added marker or lock call that prevents a binding or value

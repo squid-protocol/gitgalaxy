@@ -1,3 +1,6 @@
+---
+description: "The `flask` repository contains the source code for the widely used Python microframework. Written primarily in Python (66.9%) with supporting HTML..."
+---
 # Architectural Brief: Flask
 
 ## 1. Information Flow & Purpose (The Executive Summary)

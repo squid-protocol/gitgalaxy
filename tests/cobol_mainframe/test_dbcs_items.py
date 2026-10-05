@@ -245,3 +245,46 @@ def test_national_after_the_entry_is_not_its_usage():
                PROCESSING PROCEDURE P.
 """
     assert extract_boundary("cobol", src)["records"][1]["usage"] is None
+
+
+def _values(src: str) -> dict[str, object]:
+    return {r["name"]: r["value"] for r in extract_boundary("cobol", src)["records"]}
+
+
+def test_a_prefixed_literal_value_keeps_its_prefix_4354():
+    """#4354 (KYUYO01.cbl:12): `VALUE G'...'` was read as the bareword `G`; N / NX / X likewise."""
+    src = """
+       01 R.
+          05 KANJI PIC G(4) VALUE G'漢字欄名'.
+          05 NAT   PIC N(3) VALUE N'あいう'.
+          05 HEX   PIC X(2) VALUE X'C1C2'.
+          05 NHEX  PIC N(2) VALUE NX'30423044'.
+          05 DQ    PIC G(2) VALUE IS G"漢字".
+          05 SPLIT PIC G(2) VALUE
+             G'漢字'.
+"""
+    v = _values(src)
+    assert v["KANJI"] == "G'漢字欄名'"
+    assert v["NAT"] == "N'あいう'"
+    assert v["HEX"] == "X'C1C2'"
+    assert v["NHEX"] == "NX'30423044'"
+    assert v["DQ"] == 'G"漢字"'
+    assert v["SPLIT"] == "G'漢字'"
+
+
+def test_plain_and_bareword_values_are_unchanged_by_the_prefix_reader_4354():
+    """Near misses: a plain literal is still bare, and a bareword that merely starts with G/N/X is not a prefix."""
+    src = """
+       01 R.
+          05 A PIC X(4) VALUE 'GOOD'.
+          05 B PIC X(4) VALUE SPACES.
+          05 C PIC 9(2) VALUE 0.
+          05 D PIC X(4) VALUE NULLS.
+          05 E PIC X(4) VALUE GLOBAL-NAME.
+"""
+    v = _values(src)
+    assert v["A"] == "GOOD"
+    assert v["B"] == "SPACES"
+    assert v["C"] == "0"
+    assert v["D"] == "NULLS"
+    assert v["E"] == "GLOBAL-NAME"

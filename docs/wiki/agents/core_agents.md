@@ -1,3 +1,6 @@
+---
+description: "You are operating within the `vuejs/core` repository, the foundational implementation of the Vue 3 framework. The codebase is heavily dominated by..."
+---
 # AGENTS.md: vuejs/core Architectural Context & Engagement Rules
 
 ## 1. System Context & Paradigm

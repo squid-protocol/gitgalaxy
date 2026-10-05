@@ -1,3 +1,6 @@
+---
+description: "You are operating within `cesium`, a massive 3D geospatial visualization engine composed primarily of JavaScript (44.5%), HTML documentation/examples..."
+---
 # AGENTS.md: cesium Architectural Context & Engagement Rules
 
 ## 1. System Context & Paradigm

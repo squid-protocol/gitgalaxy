@@ -1,3 +1,6 @@
+---
+description: "> Filed as [#2730](https://github.com/squid-protocol/gitgalaxy/issues/2730). This document is the"
+---
 # The `api` rule's contract
 
 > Filed as [#2730](https://github.com/squid-protocol/gitgalaxy/issues/2730). This document is the

@@ -1,3 +1,6 @@
+---
+description: "> **File Reference:** [`gitgalaxy/tools/cobol_to_java/det/`](https://github.com/squid-protocol/gitgalaxy/tree/main/gitgalaxy/tools/cobol_to_java/det) ·..."
+---
 # Proven COBOL-to-Java Ports
 
 > **File Reference:** [`gitgalaxy/tools/cobol_to_java/det/`](https://github.com/squid-protocol/gitgalaxy/tree/main/gitgalaxy/tools/cobol_to_java/det) · [`tests/tools/det_port.py`](https://github.com/squid-protocol/gitgalaxy/blob/main/tests/tools/det_port.py) · [`tests/tools/equivalence.py`](https://github.com/squid-protocol/gitgalaxy/blob/main/tests/tools/equivalence.py) · [`tests/tools/proof_sweep.py`](https://github.com/squid-protocol/gitgalaxy/blob/main/tests/tools/proof_sweep.py)

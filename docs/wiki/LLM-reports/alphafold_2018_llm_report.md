@@ -1,3 +1,6 @@
+---
+description: "The `alphafold_2018` repository contains the source code for DeepMind's first iteration of AlphaFold, developed for the CASP13 protein folding..."
+---
 # Architectural Brief: alphafold_2018
 
 ## 1. Information Flow & Purpose (The Executive Summary)

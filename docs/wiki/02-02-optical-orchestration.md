@@ -1,3 +1,6 @@
+---
+description: "> **File Reference:** [`gitgalaxy/galaxyscope.py`](https://github.com/squid-protocol/gitgalaxy/blob/main/gitgalaxy/galaxyscope.py)"
+---
 # Pipeline Orchestration Framework
 
 > **File Reference:** [`gitgalaxy/galaxyscope.py`](https://github.com/squid-protocol/gitgalaxy/blob/main/gitgalaxy/galaxyscope.py)

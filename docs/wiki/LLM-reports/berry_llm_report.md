@@ -1,3 +1,6 @@
+---
+description: "The `berry` repository is the codebase for Yarn v2+ (Berry), a modern, plug-and-play package manager for the JavaScript ecosystem. Comprising over 47k..."
+---
 # Architectural Brief: berry
 
 ## 1. Information Flow & Purpose (The Executive Summary)

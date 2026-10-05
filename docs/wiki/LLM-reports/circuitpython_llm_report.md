@@ -1,3 +1,6 @@
+---
+description: "The `circuitpython` repository is an embedded systems implementation of Python tailored for microcontrollers. Composed primarily of C (67.5%) and..."
+---
 # Architectural Brief: CircuitPython
 
 ## 1. Information Flow & Purpose (The Executive Summary)

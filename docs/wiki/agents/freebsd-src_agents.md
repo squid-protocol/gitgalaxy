@@ -1,3 +1,6 @@
+---
+description: "You are operating within `freebsd-src`, the core operating system repository for FreeBSD. This is a massive, highly complex, low-level systems codebase..."
+---
 # AGENTS.md: freebsd-src Architectural Context & Engagement Rules
 
 ## 1. System Context & Paradigm

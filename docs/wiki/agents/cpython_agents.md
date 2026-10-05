@@ -1,3 +1,6 @@
+---
+description: "You are operating within `cpython`, the reference implementation of the Python programming language. The repository is a massive, highly optimized C..."
+---
 # AGENTS.md: cpython Architectural Context & Engagement Rules
 
 ## 1. System Context & Paradigm

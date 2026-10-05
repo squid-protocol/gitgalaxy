@@ -1,3 +1,6 @@
+---
+description: "You are operating within `three.js`, a highly mature and massively adopted 3D JavaScript library. The repository is heavily dominated by JavaScript..."
+---
 # AGENTS.md: three.js Architectural Context & Engagement Rules
 
 ## 1. System Context & Paradigm

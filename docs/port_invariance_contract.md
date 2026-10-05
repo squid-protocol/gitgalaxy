@@ -1,3 +1,6 @@
+---
+description: "GitGalaxy reads COBOL and Java with the same rules, so a COBOL program and its deterministic Java port should"
+---
 # Port invariance contract
 
 GitGalaxy reads COBOL and Java with the same rules, so a COBOL program and its deterministic Java port should

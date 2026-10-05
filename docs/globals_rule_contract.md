@@ -1,3 +1,6 @@
+---
+description: "> **One hit is a declaration of a binding with program lifetime — file,"
+---
 # The `globals` rule contract (#2858)
 
 > **One hit is a declaration of a binding with program lifetime — file,

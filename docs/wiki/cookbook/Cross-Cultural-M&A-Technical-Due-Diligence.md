@@ -1,3 +1,6 @@
+---
+description: "During Mergers and Acquisitions (M&A), technical due diligence is frequently reduced to a superficial checklist. Evaluating teams run standard static..."
+---
 # Cookbook: Cross-Cultural M&A Technical Due Diligence via Deterministic RAG
 
 ## 1. The M&A Blind Spot: Code vs. Intent

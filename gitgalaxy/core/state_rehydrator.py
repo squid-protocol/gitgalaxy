@@ -275,6 +275,12 @@ class StateRehydrator:
                         if "namespace_imports" in row_keys and f["namespace_imports"]
                         else {}
                     ),
+                    # #4265: library-qualified COPY members, so a delta scan resolves them the same way.
+                    "import_libraries": (
+                        json.loads(f["import_libraries"])
+                        if "import_libraries" in row_keys and f["import_libraries"]
+                        else {}
+                    ),
                     "risk_vector": risk_vector,
                     "hit_vector": hit_vector,
                     "equations": equations,
@@ -555,6 +561,12 @@ class StateRehydrator:
                     if _has_table(cursor, "record_data") and _has_column(cursor, "record_data", "sign_separate")
                     else "NULL"
                 )
+                # #4265: `copy_libraries` likewise.
+                lib_col = (
+                    "rd.copy_libraries"
+                    if _has_table(cursor, "record_data") and _has_column(cursor, "record_data", "copy_libraries")
+                    else "NULL"
+                )
                 records_by_file = _restore_child_table(
                     cursor,
                     repo_name,
@@ -564,7 +576,7 @@ class StateRehydrator:
                     "rd.level_number AS level, rd.item_name AS name, rd.pic, rd.usage, rd.occurs_min, "
                     "rd.occurs_max, rd.occurs_depending_on, rd.redefines, rd.value_literal AS value, "
                     f"rd.line_number AS line, {attributes_col} AS attributes, {copy_col} AS copy_members, "
-                    f"{sign_col} AS sign_separate "
+                    f"{sign_col} AS sign_separate, {lib_col} AS copy_libraries "
                     "FROM record_data rd JOIN file_data fd ON rd.file_id = fd.id "
                     "WHERE fd.repo_name = ? AND fd.commit_hash = ? ORDER BY rd.file_id, rd.ordinal",
                     lambda r: {
@@ -585,6 +597,7 @@ class StateRehydrator:
                         "attributes": r["attributes"],
                         **({"copy_members": r["copy_members"]} if r["copy_members"] else {}),
                         **({"sign_separate": int(r["sign_separate"])} if r["sign_separate"] else {}),
+                        **({"copy_libraries": r["copy_libraries"]} if r["copy_libraries"] else {}),
                     },
                 )
                 # #3211-followup: the CSD transaction definitions, restored per

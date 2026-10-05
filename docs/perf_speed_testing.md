@@ -1,3 +1,6 @@
+---
+description: "How to measure a performance change to the scan hot path without fooling yourself —"
+---
 # Speed-testing the engine
 
 How to measure a performance change to the scan hot path without fooling yourself —

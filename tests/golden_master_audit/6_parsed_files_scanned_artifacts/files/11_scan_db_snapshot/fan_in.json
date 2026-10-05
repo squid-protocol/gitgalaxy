@@ -6703,9 +6703,6 @@
       "cobol/che-che4z_lsp_project_fixtures/REPLACING.CBL": {
         "MAINLINE@21": 0
       },
-      "cobol/che-che4z_lsp_project_fixtures/RES.cbl": {
-        "FILE-CONTROsL@6": 0
-      },
       "cobol/che-che4z_lsp_project_fixtures/TEST.CBL": {
         "MAINLINE@22": 0
       },
@@ -6749,8 +6746,7 @@
       },
       "cobol/che-che4z_lsp_project_fixtures/USER2.cbl": {
         "000-Main-Logic@28": 0,
-        "100-Print-User@32": 1,
-        "Program1-id@15": 0
+        "100-Print-User@32": 1
       },
       "cobol/che-che4z_lsp_project_fixtures/USERC1F.cbl": {
         "000-Main-Logic@30": 0,
@@ -6784,8 +6780,6 @@
         "PARA1@29": 0
       },
       "cobol/che-che4z_lsp_project_fixtures/cobol-daco_DACOSMPL.cbl": {
-        "IDMS-CONTROL@7": 0,
-        "PROTOCOL@8": 0,
         "S310-000@41": 0,
         "S310-500@45": 0,
         "S310-999@51": 0,
@@ -6800,13 +6794,7 @@
         "S312-999@92": 2,
         "S312@66": 1
       },
-      "cobol/che-che4z_lsp_project_fixtures/cobol-dc_ABCD.cbl": {
-        "IDMS-CONTROL@7": 0,
-        "PROTOCOL@8": 0
-      },
       "cobol/che-che4z_lsp_project_fixtures/cobol-idms_DACOSMPL.cbl": {
-        "IDMS-CONTROL@7": 0,
-        "PROTOCOL@8": 0,
         "S310-000@41": 0,
         "S310-500@45": 0,
         "S310-999@51": 0,
@@ -6822,8 +6810,6 @@
         "S312@66": 1
       },
       "cobol/che-che4z_lsp_project_fixtures/cobol-idms_IDMSSMPL.cbl": {
-        "IDMS-CONTROL@6": 0,
-        "PROTOCOL@7": 0,
         "S410-000@33": 0,
         "S410-999@48": 1,
         "S410@32": 0,
@@ -6843,8 +6829,6 @@
         "S3@37": 0
       },
       "cobol/che-che4z_lsp_project_fixtures/cobol-vanila_DACOSMPL.cbl": {
-        "IDMS-CONTROL@7": 0,
-        "PROTOCOL@8": 0,
         "S310-000@40": 0,
         "S310-500@44": 0,
         "S310-999@50": 0,
@@ -6860,8 +6844,6 @@
         "S312@65": 1
       },
       "cobol/che-che4z_lsp_project_fixtures/cobol-vanila_IDMSSMPL.cbl": {
-        "IDMS-CONTROL@6": 0,
-        "PROTOCOL@7": 0,
         "S410-000@33": 0,
         "S410-999@48": 1,
         "S410@32": 0,
@@ -7031,18 +7013,16 @@
         "DEBUG-LINE-TEST-01@613": 0,
         "DEBUG-LINE-TEST-02@623": 0,
         "DEBUG-LINE-TEST-03@634": 0,
-        "DEBUG-LINE-TEST-03A@638": 0,
         "DEBUG-LINE-TEST-04-B@653": 0,
         "DEBUG-LINE-TEST-04@646": 0,
-        "DEBUG-LINE-TEST-05-A@665": 0,
         "DEBUG-LINE-TEST-05-C@671": 0,
         "DEBUG-LINE-TEST-05@661": 0,
         "DEBUG-LINE-TESTS-INIT@611": 0,
         "DEBUG-LINE-WRITE-01@620": 1,
         "DEBUG-LINE-WRITE-02@631": 1,
-        "DEBUG-LINE-WRITE-03@643": 2,
-        "DEBUG-LINE-WRITE-04@658": 2,
-        "DEBUG-LINE-WRITE-05@676": 2,
+        "DEBUG-LINE-WRITE-03@643": 1,
+        "DEBUG-LINE-WRITE-04@658": 1,
+        "DEBUG-LINE-WRITE-05@676": 1,
         "DO-NOTHING-1@555": 0,
         "DO-NOTHING@553": 2,
         "END-ROUTINE-12@299": 0,
@@ -7053,7 +7033,7 @@
         "FAIL-ROUTINE-EX@345": 1,
         "FAIL-ROUTINE-WRITE@342": 1,
         "FAIL-ROUTINE@336": 1,
-        "FAIL@263": 15,
+        "FAIL@263": 10,
         "FALL-THROUGH-AND-SERIES@221": 0,
         "FALL-THROUGH-DELETE@400": 0,
         "FALL-THROUGH-TEST@381": 0,

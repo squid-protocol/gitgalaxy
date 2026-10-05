@@ -1,3 +1,6 @@
+---
+description: "engine's `<repo>_galaxy_master.db` as its IR instead of its own COBOL parsers. The issue"
+---
 # Refraction pipeline vs. engine DB: the #3120 differential
 
 #3120 asked the COBOL refraction pipeline (`cobol-refractor` → `cobol-to-java`) to use the
@@ -453,6 +456,7 @@ a cause is never a fourth parser's opinion:
 | `system_copybook` | a `DFH`/`CEE`/`SQLCA`/`SQLDA` member, unresolvable by construction | D3 |
 | `bms_symbolic_map` | a member generated from a `.bms` map at build time | D3 |
 | `forge_flat_schema` | a DATA DIVISION field the engine carries that the forge's flat single-line `cobol_schema_forge` reader drops (group item, continuation-line PIC, copybook layout) | #3246 |
+| `forge_first_program` | a schema delta of a multi-program source that the engine's schema over the FIRST program alone does not show: the forge renders only the first program's DATA DIVISION, the engine reads every program's | #4245 |
 | `stated_absence` | every `forge_only` datum (since #3348: the DD files requested and the orphaned-variable count) and the CICS/SQL flags — the DB carries no equivalent (`galaxy_ir.py` SCOPE) | D4 |
 
 **A verdict from the key.** Where the corpus has a *validated* answer key (#3210), a delta on an

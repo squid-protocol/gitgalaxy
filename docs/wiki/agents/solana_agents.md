@@ -1,3 +1,6 @@
+---
+description: "You are operating within the `solana` repository, the high-performance blockchain node, validator, and core SDK implementation. The codebase is heavily..."
+---
 # AGENTS.md: solana Architectural Context & Engagement Rules
 
 ## 1. Information Flow & Purpose (The Executive Summary)

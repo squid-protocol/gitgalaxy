@@ -1,3 +1,6 @@
+---
+description: "You are operating within `Carbon`, a widely adopted PHP API extension for DateTime. The codebase is almost exclusively PHP (99.1%)."
+---
 # AGENTS.md: Carbon Architectural Context & Engagement Rules
 
 ## 1. System Context & Paradigm

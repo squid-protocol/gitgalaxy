@@ -1,3 +1,6 @@
+---
+description: "You are operating within `AFNetworking`, a heavily coupled network communication framework primarily composed of Objective-C (57.8%)."
+---
 # AGENTS.md: AFNetworking Architectural Context & Engagement Rules
 
 ## 1. System Context & Paradigm

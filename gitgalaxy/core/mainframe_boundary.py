@@ -258,6 +258,10 @@ _CALL_IDENTIFIER = re.compile(
     re.I,
 )
 
+# #4304: any EXEC ... END-EXEC block (SQL, CICS, DLI, ...): a CALL inside one is not a COBOL CALL.
+# A block never runs across another EXEC, so a missing END-EXEC masks nothing beyond it.
+_EXEC_BLOCK = re.compile(r"(?<![\w-])EXEC\s+\w+(?:(?!(?<![\w-])EXEC\s)[\s\S])*?(?<![\w-])END-EXEC(?![\w-])", re.I)
+
 # An `EXEC CICS LINK`/`XCTL` block, up to its END-EXEC. The body bound is
 # generous enough for the real multi-option blocks (PROGRAM/COMMAREA/RESP/
 # RESP2/SYNCONRETURN) and hard-capped so an unterminated EXEC cannot scan the
@@ -448,14 +452,15 @@ _USAGE_CLAUSE = re.compile(
 )
 # `OCCURS <n> [TO <m>] [TIMES]` plus the optional `DEPENDING [ON] <name>`.
 _OCCURS_CLAUSE = re.compile(r"\bOCCURS[ \t\n\u3000]+(\d+)(?:[ \t\n\u3000]+TO[ \t\n\u3000]+(\d+))?", re.I)
+_COBOL_NAME = r"[A-Z" + NATIONAL + r"][A-Z" + NATIONAL + WIDE_DIGITS + WIDE_HYPHENS + r"0-9-]*"
+# #4282: the DEPENDING ON object keeps its qualifiers (`B OF A`, `X IN Y OF Z`, cobol-check
+# EXR001.CBL:5 `DEPENDING ON BETA OF ALPHA`) -- a bare `BETA` can name a different item.
 _DEPENDING_CLAUSE = re.compile(
-    r"\bDEPENDING[ \t\n\u3000]+(?:ON[ \t\n\u3000]+)?([A-Z"
-    + NATIONAL
-    + r"][A-Z"
-    + NATIONAL
-    + WIDE_DIGITS
-    + WIDE_HYPHENS
-    + r"0-9-]*)",
+    r"\bDEPENDING[ \t\n\u3000]+(?:ON[ \t\n\u3000]+)?("
+    + _COBOL_NAME
+    + r"(?:[ \t\n\u3000]+(?:OF|IN)[ \t\n\u3000]+"
+    + _COBOL_NAME
+    + r"){0,15})",
     re.I,
 )
 # `REDEFINES <name>` -- the storage-overlay pointer.
@@ -463,7 +468,13 @@ _REDEFINES_CLAUSE = re.compile(
     r"\bREDEFINES[ \t\n\u3000]+([A-Z" + NATIONAL + r"][A-Z" + NATIONAL + WIDE_DIGITS + WIDE_HYPHENS + r"0-9-]*)", re.I
 )
 # `VALUE [IS] <literal>`: a quoted string, or a numeric / figurative constant
-# (`ZERO`, `SPACES`, `HIGH-VALUES`, `-1`, `12.5`).
+# (`ZERO`, `SPACES`, `HIGH-VALUES`, `-1`, `12.5`). #4277: a numeric literal may open
+# with its sign (`VALUE +0`, `VALUE -1`, GenApp lgicdb01.cbl:35); before, the sign could
+# not start the bareword and the VALUE was dropped.
+# #4354: a literal may carry a class prefix glued to its opening quote -- `G'...'` (DBCS), `N'...'`
+# (national), `NX'...'` / `X'...'` (hex), `B'...'` (binary), `Z'...'` (null-terminated). The prefix is part
+# of the literal, so it is kept (`G'漢字欄名'`); before, the bareword alternative read it as the value `G`.
+# Group 1 prefix, 2 / 3 the single / double quoted body, 4 the bareword.
 # #3943: `VALUES [ARE]` too -- the plural condition-names use (`88 OK VALUES 1, 2, 3.`); a COBOL-name
 # boundary, not `\b`, so `HIGH-VALUES` is never read as the keyword.
 _VALUE_CLAUSE = re.compile(
@@ -471,7 +482,7 @@ _VALUE_CLAUSE = re.compile(
     + NATIONAL
     + WIDE_DIGITS
     + WIDE_HYPHENS
-    + r"0-9-])VALUES?[ \t\n\u3000]+(?:(?:IS|ARE)[ \t\n\u3000]+)?(?:'([^']*)'|\"([^\"]*)\"|([A-Z"
+    + r"0-9-])VALUES?[ \t\n\u3000]+(?:(?:IS|ARE)[ \t\n\u3000]+)?(?:(?:(NX|[BGNXZ])(?=['\"]))?(?:'([^']*)'|\"([^\"]*)\")|((?:[+-](?=\.?[0-9]))?(?:\.(?=[0-9]))?[A-Z"
     + NATIONAL
     + WIDE_DIGITS
     + r"0-9][A-Z"
@@ -485,18 +496,72 @@ _VALUE_CLAUSE = re.compile(
 # (`VALUE 12345,67`), which the bareword above stops at. A comma followed by a space separates
 # (`VALUES 1, 2, 3`), so only a comma touching a digit on both sides continues the literal.
 _COMMA_FRACTION = re.compile(r",[0-9]{1,31}")
+
+
+def _continued_literal(code_stream: str, open_at: int) -> Optional[str]:
+    """#4391: the value of the nonnumeric literal whose opening quote is at `open_at` when it is
+    continued (Enterprise COBOL LR, "Continuation lines"): its first line's characters after the
+    quote through column 72, then each continuation line's (`-` in column 7) characters after its
+    first quote -- through column 72 again, until a line closes the literal. None when the source is
+    not that shape (a free-format literal, a missing indicator): the raw text is then kept."""
+    quote = code_stream[open_at]
+    line_start = code_stream.rfind("\n", 0, open_at) + 1
+    col = open_at - line_start
+    if col >= 72:
+        return None
+    line_end = code_stream.find("\n", open_at)
+    line = code_stream[line_start : line_end if line_end != -1 else len(code_stream)]
+    parts = [line[col + 1 : 72].ljust(72 - col - 1)]
+    pos = line_end
+    for _ in range(50):  # a literal is at most 160 characters; bounded either way
+        if pos == -1:
+            return None
+        nxt_end = code_stream.find("\n", pos + 1)
+        nxt = code_stream[pos + 1 : nxt_end if nxt_end != -1 else len(code_stream)]
+        if len(nxt) < 8 or nxt[6] != "-":
+            return None
+        resume = nxt.find(quote, 7)
+        if resume == -1 or resume >= 72:
+            return None
+        close = nxt.find(quote, resume + 1)
+        while close != -1 and close + 1 < len(nxt) and nxt[close + 1] == quote:  # a doubled quote
+            close = nxt.find(quote, close + 2)
+        if close != -1 and close < 72:
+            parts.append(nxt[resume + 1 : close])
+            return "".join(parts)
+        parts.append(nxt[resume + 1 : 72].ljust(72 - resume - 1))
+        pos = nxt_end
+    return None
+
+
 _NUMERIC_BAREWORD = re.compile(r"[+-]?[0-9]{0,31}")
 # #3355: `COPY <member>` inside one data-description entry's window -- the
 # copybook that expands at that point (`01 DFHCOMMAREA.` + `COPY INQCUST.`). The
 # member is recorded on the entry it follows (`copy_members`); expanding it is the
 # reader's job (galaxy_ir), exactly as for every other cross-file layout. Quotes
 # and a trailing `OF/IN library` are allowed; the member name is what is kept.
+# #4278: `EXEC SQL INCLUDE member END-EXEC` expands a member in place exactly as
+# COPY does (carddemo COTRTLIC.cbl:304 `EXEC SQL INCLUDE CSDB2RWY END-EXEC`, GenApp
+# `01 DFHCOMMAREA.` + `EXEC SQL INCLUDE LGCMAREA END-EXEC.`), so it is recorded the
+# same way.
 _COPY_IN_ENTRY = re.compile(
     r"(?<![A-Z"
     + NATIONAL
     + WIDE_DIGITS
     + WIDE_HYPHENS
-    + r"0-9-])COPY[ \t\n\u3000]+['\"]?([A-Z"
+    + r"0-9-])(?:COPY|EXEC[ \t\n\u3000]+SQL[ \t\n\u3000]+INCLUDE)[ \t\n\u3000]+['\"]?([A-Z"
+    + NATIONAL
+    + WIDE_DIGITS
+    + r"0-9@#$][A-Z"
+    + NATIONAL
+    + WIDE_DIGITS
+    + WIDE_HYPHENS
+    + r"0-9@#$-]*)",
+    re.I,
+)
+# #4265: the `IN|OF library-name` after a COPY's text-name (closing quote allowed).
+_COPY_LIBRARY = re.compile(
+    r"['\"]?[ \t\n\u3000]+(?:IN|OF)[ \t\n\u3000]+['\"]?([A-Z"
     + NATIONAL
     + WIDE_DIGITS
     + r"0-9@#$][A-Z"
@@ -688,6 +753,16 @@ def _cobol_calls(code_stream: str, values: dict[str, str], cics_only: bool = Fal
         line_start = newlines[index - 1] + 1 if index else 0
         return _opens_inside_literal(code_stream, line_start, offset)
 
+    # #4304: a CALL inside an EXEC ... END-EXEC block is that block's language -- `EXEC SQL CALL
+    # MYSCHEMA.GETCUST (...)` is a DB2 stored procedure (sql_statement_data records it), not a
+    # COBOL CALL whose identifier operand is the schema.
+    exec_spans = [(m.start(), m.end()) for m in _EXEC_BLOCK.finditer(code_stream) if not _shielded(m.start())]
+    exec_starts = [s for s, _ in exec_spans]
+
+    def _in_exec(offset: int) -> bool:
+        i = bisect.bisect_right(exec_starts, offset) - 1
+        return i >= 0 and offset < exec_spans[i][1]
+
     # 1. EXEC CICS LINK / XCTL. Read first so the PROGRAM(...) operand is
     #    attributed to its own verb, and recorded at the line of the EXEC.
     for match in _CICS_TRANSFER.finditer(code_stream):
@@ -743,7 +818,7 @@ def _cobol_calls(code_stream: str, values: dict[str, str], cics_only: bool = Fal
 
     # 2. CALL 'LITERAL'
     for match in () if cics_only else _CALL_LITERAL.finditer(code_stream):
-        if _shielded(match.start()):
+        if _shielded(match.start()) or _in_exec(match.start()):
             continue
         literal = match.group(1) if match.group(1) is not None else match.group(2)
         literal = (literal or "").strip()
@@ -760,7 +835,7 @@ def _cobol_calls(code_stream: str, values: dict[str, str], cics_only: bool = Fal
 
     # 3. CALL IDENTIFIER
     for match in () if cics_only else _CALL_IDENTIFIER.finditer(code_stream):
-        if _shielded(match.start()):
+        if _shielded(match.start()) or _in_exec(match.start()):
             continue
         operand = match.group(1).upper()
         calls.append(
@@ -952,6 +1027,26 @@ def _cobol_records(code_stream: str, decimal_comma: Optional[bool] = None) -> li
     data_start = dd_match.end() if dd_match else 0
     proc_match = _PROCEDURE_DIVISION.search(code_stream, data_start)
     data_end = proc_match.start() if proc_match else len(code_stream)
+    # #4245: a source may hold several programs (nested, or batch-compiled siblings -- DBB
+    # epscsmrd.cbl has 13 PROGRAM-IDs), each with its own DATA DIVISION. Every program's
+    # window is read, not only the first one's; the owning program is the PROGRAM-ID the
+    # entry's line falls under (derivable from `line`, as galaxy_ir does for units).
+    windows: list[tuple[int, int]] = []
+    if dd_match:
+        for dd in _DATA_DIVISION.finditer(code_stream):
+            if windows and dd.start() < windows[-1][1]:
+                continue
+            nxt_proc = _PROCEDURE_DIVISION.search(code_stream, dd.end())
+            windows.append((dd.end(), nxt_proc.start() if nxt_proc else len(code_stream)))
+    else:
+        windows.append((data_start, data_end))
+    window_starts = [w[0] for w in windows]
+
+    def _window_end(offset: int) -> Optional[int]:
+        """The end of the DATA DIVISION window holding `offset`, or None when it is in none."""
+        i = bisect.bisect_right(window_starts, offset) - 1
+        return windows[i][1] if i >= 0 and windows[i][0] <= offset < windows[i][1] else None
+
     # #3942: a copybook has no SPECIAL-NAMES -- DECIMAL-POINT IS COMMA belongs to the program that COPYs it.
     # A separator comma is a comma followed by a space, so `12345,67` can only be one literal: kept as
     # written, which is right in every program that includes it (the reader applies that program's point).
@@ -995,11 +1090,16 @@ def _cobol_records(code_stream: str, decimal_comma: Optional[bool] = None) -> li
     records: list[dict[str, Any]] = []
     stack: list[tuple[int, int, Optional[str]]] = []  # (level, ordinal, usage) of the open group items
     last_item_ordinal: Optional[int] = None
+    open_window: Optional[int] = None
 
     for pos, level_match in enumerate(entries):
         start = level_match.start()
-        if start < data_start or start >= data_end:
+        entry_window_end = _window_end(start)
+        if entry_window_end is None:
             continue
+        if entry_window_end != open_window:
+            # #4245: a new program's DATA DIVISION -- nothing of the previous program stays open.
+            open_window, stack, last_item_ordinal = entry_window_end, [], None
         level = int(level_match.group(1))
         name = level_match.group(2).upper()
         # The entry body: from just after the name to the next level number -- or, for an unnamed entry
@@ -1015,7 +1115,7 @@ def _cobol_records(code_stream: str, decimal_comma: Optional[bool] = None) -> li
             parent_ordinal: Optional[int] = last_item_ordinal
             parent_usage = stack[-1][2] if stack else None
         else:
-            while stack and stack[-1][0] >= level:
+            while stack and (stack[-1][0] >= level or level == 77):
                 stack.pop()
             parent_ordinal = stack[-1][1] if stack else None
             parent_usage = stack[-1][2] if stack else None
@@ -1024,14 +1124,16 @@ def _cobol_records(code_stream: str, decimal_comma: Optional[bool] = None) -> li
         pic = pic_match.group(1).rstrip(".") if pic_match else None
         # #3816: NATIONAL counts only in this entry's own text -- before the period that ends it and outside
         # quoted literals: it is also prose (NIST's `VALUE "... NATIONAL INSTITUTE ..."`) and a verb option
-        # (`XML PARSE ... RETURNING NATIONAL`, which the last item's window runs on into). Every other usage
-        # is found exactly as before.
+        # (`XML PARSE ... RETURNING NATIONAL`, which the last item's window runs on into).
+        # #4329: so does every other usage -- the last DATA DIVISION entry's window runs into the PROCEDURE
+        # DIVISION, where a `DISPLAY` verb or a `'BINARY'` literal became its USAGE (and `PIC 9(4)` sized
+        # as 2 bytes). A usage is read only from the entry's own text too.
         entry = _ENTRY_END.split(_QUOTED.sub(lambda q: " " * len(q.group(0)), window), maxsplit=1)[0]
         usage: Optional[str]
         if _NATIONAL_USAGE.search(entry):
             usage = "NATIONAL"
         else:
-            usage_match = _USAGE_CLAUSE.search(window)
+            usage_match = _USAGE_CLAUSE.search(entry)
             usage = usage_match.group(1).upper() if usage_match else None
 
         # #3816: PIC G is always DISPLAY-1 (DBCS); PIC N is NATIONAL unless NSYMBOL(DBCS); a group's
@@ -1053,21 +1155,30 @@ def _cobol_records(code_stream: str, decimal_comma: Optional[bool] = None) -> li
             occurs_min = int(occurs_match.group(1))
             occurs_max = int(occurs_match.group(2)) if occurs_match.group(2) else occurs_min
             dep_match = _DEPENDING_CLAUSE.search(window)
-            depending = dep_match.group(1).upper() if dep_match else None
+            depending = " ".join(dep_match.group(1).upper().split()) if dep_match else None
         redefines_match = _REDEFINES_CLAUSE.search(window)
         redefines = redefines_match.group(1).upper() if redefines_match else None
         value_match = _VALUE_CLAUSE.search(window)
         value = None
         if value_match:
-            if value_match.group(1) is not None or value_match.group(2) is not None:
+            if value_match.group(2) is not None or value_match.group(3) is not None:
                 # A quoted literal is kept verbatim (it may legitimately end in a period).
-                value = value_match.group(1) if value_match.group(1) is not None else value_match.group(2)
+                value = value_match.group(2) if value_match.group(2) is not None else value_match.group(3)
+                if "\n" in value:
+                    # #4391: a nonnumeric literal continued onto the next line(s) (`-` in column 7)
+                    group = 2 if value_match.group(2) is not None else 3
+                    value = _continued_literal(code_stream, body + value_match.start(group) - 1) or value
+                if value_match.group(1):
+                    # #4354: a prefixed literal (G / N / NX / X / B / Z) keeps its prefix and quotes, so it
+                    # is not mistaken for a plain character literal of the same body.
+                    quote = "'" if value_match.group(2) is not None else '"'
+                    value = value_match.group(1) + quote + value + quote
             else:
                 # A bareword numeric / figurative constant: strip the clause-terminating
                 # period the character class swallowed (`VALUE 0.` -> `0`, not `0.`).
-                value = value_match.group(3).rstrip(".")
-                fraction = _COMMA_FRACTION.match(window, value_match.end(3)) if keep_comma else None
-                if fraction and _NUMERIC_BAREWORD.fullmatch(value_match.group(3)):
+                value = value_match.group(4).rstrip(".")
+                fraction = _COMMA_FRACTION.match(window, value_match.end(4)) if keep_comma else None
+                if fraction and _NUMERIC_BAREWORD.fullmatch(value_match.group(4)):
                     value += fraction.group(0)  # #3911: `12345,67` -- the comma is the decimal point
 
         # #3355: the copybook(s) that expand right after this entry. Searched only
@@ -1075,13 +1186,18 @@ def _cobol_records(code_stream: str, decimal_comma: Optional[bool] = None) -> li
         # section-level `LINKAGE SECTION.` + `COPY X.` (a COPY that belongs to no
         # entry) and a procedure-division COPY are never attributed to the entry
         # above them.
-        copy_stop = min(stop, level_match.end() + _ENTRY_LIMIT, data_end)
+        copy_stop = min(stop, level_match.end() + _ENTRY_LIMIT, entry_window_end)
         for offsets in (section_offsets, fd_offsets):
             nxt = bisect.bisect_right(offsets, level_match.end())
             if nxt < len(offsets):
                 copy_stop = min(copy_stop, offsets[nxt])
         copy_window = code_stream[level_match.end() : max(copy_stop, level_match.end())]
-        copy_members = [m.group(1).upper() for m in _COPY_IN_ENTRY.finditer(copy_window)]
+        copy_matches = list(_COPY_IN_ENTRY.finditer(copy_window))
+        copy_members = [m.group(1).upper() for m in copy_matches]
+        # #4265: the library-name a COPY names (`COPY DATEWS IN SHRCPY`), "" when none, per member above
+        copy_libraries = [
+            (lib.group(1).upper() if (lib := _COPY_LIBRARY.match(copy_window, m.end())) else "") for m in copy_matches
+        ]
 
         section, fd_name = _context(start)
         records.append(
@@ -1102,6 +1218,8 @@ def _cobol_records(code_stream: str, decimal_comma: Optional[bool] = None) -> li
                 "line": _line_of(start),
                 # Presence-keyed: an entry with no COPY after it keeps its pre-#3355 shape.
                 **({"copy_members": ",".join(copy_members)} if copy_members else {}),
+                # #4265: presence-keyed -- only when a COPY names its library.
+                **({"copy_libraries": ",".join(copy_libraries)} if any(copy_libraries) else {}),
                 # #3694: presence-keyed likewise -- only a SEPARATE sign is recorded.
                 # (1 a TRAILING separate sign, 2 a LEADING one)
                 **({"sign_separate": _sign_separate(window)} if _sign_separate(window) else {}),

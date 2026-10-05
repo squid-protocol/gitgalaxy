@@ -1,3 +1,6 @@
+---
+description: "The `CICS-Cobol` repository is a collection of educational or reference COBOL programs (100% of the scanned codebase). The information flow is entirely..."
+---
 # Architectural Brief: CICS-Cobol
 
 ## 1. Information Flow & Purpose (The Executive Summary)

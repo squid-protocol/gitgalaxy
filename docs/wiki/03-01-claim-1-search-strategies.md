@@ -1,3 +1,6 @@
+---
+description: "Claim 1: Optimum Search Strategies Change with Scale"
+---
 Claim 1: Optimum Search Strategies Change with Scale
 
 > **The BLAST Philosophy**

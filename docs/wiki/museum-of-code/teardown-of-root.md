@@ -1,3 +1,6 @@
+---
+description: "**Executive Summary:** We performed a deep **static code analysis** on CERN's ROOT framework. By mapping its structural physics, we uncover the extreme..."
+---
 # The Architecture of CERN's ROOT: A Structural Physics Teardown of a Particle Physics Monolith
 
 **Executive Summary:** We performed a deep **static code analysis** on CERN's ROOT framework. By mapping its structural physics, we uncover the extreme **technical debt**, zero-modularity **software architecture**, and massive "God Nodes" that process petabytes of High-Energy Physics data. This teardown exposes the raw **code smells**, tight coupling, and structural realities hiding within over 2.6 million lines of code, revealing why modern **microservices** paradigms are frequently discarded in favor of heavy, centralized compute architectures in scientific research.

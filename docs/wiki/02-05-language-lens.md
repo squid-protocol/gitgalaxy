@@ -1,3 +1,6 @@
+---
+description: "> **File Reference:** [`gitgalaxy/standards/language_lens.py`](https://github.com/squid-protocol/gitgalaxy/blob/main/gitgalaxy/standards/language_lens.py)"
+---
 # Language Identification Engine
 
 > **File Reference:** [`gitgalaxy/standards/language_lens.py`](https://github.com/squid-protocol/gitgalaxy/blob/main/gitgalaxy/standards/language_lens.py)

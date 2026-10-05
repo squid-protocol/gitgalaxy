@@ -1,3 +1,6 @@
+---
+description: "*An observational, post-hoc study. Draft for review, 2026-10-03.*"
+---
 # COBOL → Java translation, observed: one harness, one scanner, many translators
 
 *An observational, post-hoc study. Draft for review, 2026-10-03.*

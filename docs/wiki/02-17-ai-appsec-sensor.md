@@ -1,3 +1,6 @@
+---
+description: "> **File Reference:** [`gitgalaxy/security/ai_appsec_sensor.py`](https://github.com/squid-protocol/gitgalaxy/blob/main/gitgalaxy/security/ai_appsec_sens..."
+---
 # AI AppSec Sensor
 
 > **File Reference:** [`gitgalaxy/security/ai_appsec_sensor.py`](https://github.com/squid-protocol/gitgalaxy/blob/main/gitgalaxy/security/ai_appsec_sensor.py)

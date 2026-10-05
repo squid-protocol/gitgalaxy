@@ -1,3 +1,6 @@
+---
+description: "You are operating within `kubernetes`, a massive (1.9M+ LOC) and highly complex container orchestration platform. The repository is predominantly Go..."
+---
 # AGENTS.md: kubernetes Architectural Context & Engagement Rules
 
 ## 1. System Context & Paradigm

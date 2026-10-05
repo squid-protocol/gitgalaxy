@@ -1,3 +1,6 @@
+---
+description: "**Executive Summary:** We performed a deep **static code analysis** on the SQLite repository. By mapping its structural physics, we uncover the extreme..."
+---
 # X-Raying SQLite: Technical Debt, God Nodes, and the Architecture of the World's Most Deployed Database
 
 **Executive Summary:** We performed a deep **static code analysis** on the SQLite repository. By mapping its structural physics, we uncover the extreme **technical debt**, massive **God Nodes**, and severe "Key Person" silos that power the most widely used database engine in the world. This teardown exposes the physical realities, **software architecture**, and zero-trust security perimeter of a monolithic C powerhouse.

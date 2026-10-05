@@ -1,3 +1,6 @@
+---
+description: "> **One hit is a site that explicitly destroys state or releases a held"
+---
 # The `cleanup` rule contract (#2888)
 
 > **One hit is a site that explicitly destroys state or releases a held

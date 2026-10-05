@@ -1,3 +1,6 @@
+---
+description: "The `bun` repository is a high-performance JavaScript runtime, bundler, transpiler, and package manager. The scanned architecture reveals a massive,..."
+---
 # Architectural Brief: bun
 
 ## 1. Information Flow & Purpose (The Executive Summary)

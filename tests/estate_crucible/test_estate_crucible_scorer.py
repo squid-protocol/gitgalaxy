@@ -210,3 +210,97 @@ def test_every_key_fact_is_scored_against_a_scan(tmp_path):
         json.loads((crucible / "key" / "manifest.json").read_text())["horrors"]
     )
     assert ec.markdown(sc, crucible).count("| H-") == len(verdicts)
+
+
+def test_a_gdg_reference_may_be_recorded_as_its_base_or_with_its_generation_only():
+    eng = FakeEngine(raw_imports={"j.jcl": ["PROD.A", "PROD.B(+1)", "PROD.C("]})
+    entry = {
+        "language": "jcl",
+        "jcl_datasets": [
+            {"dsn": "PROD.A", "generation": "0", "step": "S", "dd": "A", "line": 2},
+            {"dsn": "PROD.B", "generation": "+1", "step": "S", "dd": "B", "line": 3},
+            {"dsn": "PROD.C", "generation": "-1", "step": "S", "dd": "C", "line": 4, "horror": "H-0011"},
+        ],
+    }
+    sc = ec.Score()
+    ec.score_jcl_datasets(sc, "j.jcl", entry, eng)
+    assert _statuses(sc) == sorted(
+        [
+            ("jcl_datasets", "S.A PROD.A(0)", "pass", None),
+            ("jcl_datasets", "S.B PROD.B(+1)", "pass", None),
+            ("jcl_datasets", "S.C PROD.C(-1)", "missing", "H-0011"),
+            ("jcl_datasets", "raw import PROD.C(", "phantom", "H-0011"),
+        ]
+    )
+
+
+def test_file_edges_are_scored_per_target_and_kind():
+    eng = FakeEngine()
+    eng.file_edges = {"p.cbl": {("q.cbl", "call"), ("r.cbl", "call")}}
+    entry = {"file_edges": [{"kind": "call", "target": "q.cbl"}, {"kind": "exec", "target": "q.cbl"}]}
+    sc = ec.Score()
+    ec.score_file_edges(sc, "p.cbl", entry, eng)
+    assert _statuses(sc) == sorted(
+        [
+            ("file_edges", "call -> q.cbl", "pass", None),
+            ("file_edges", "exec -> q.cbl", "missing", None),
+            ("file_edges", "call -> r.cbl", "phantom", None),
+        ]
+    )
+
+
+def test_the_scan_is_told_every_non_utf8_members_code_page():
+    assert ec.source_encoding_arg({}) == []
+    manifest = {"code_pages": {"apps/N/cobol/KØB.cbl": "cp277", "apps/J/cobol/A.cbl": "cp930"}}
+    assert ec.source_encoding_arg(manifest) == [
+        "--source-encoding",
+        "apps/J/cobol/A.cbl=cp930,apps/N/cobol/KØB.cbl=cp277",
+    ]
+
+
+def test_a_data_move_is_matched_on_verb_line_source_and_target():
+    def row(verb, source, kind, target, line):
+        return SimpleNamespace(
+            verb=verb,
+            source=source,
+            source_kind=kind,
+            target=target,
+            corresponding=False,
+            source_refmod=False,
+            target_refmod=False,
+            line=line,
+            source_refmod_text=None,
+        )
+
+    eng = FakeEngine(
+        files={
+            "p.cbl": SimpleNamespace(
+                data_moves=[row("MOVE", "SPACE", "figurative", "X", 9), row("MOVE", "'A'", "literal", "Y", 8)]
+            )
+        }
+    )
+    base = {"corresponding": False, "source_refmod": False, "target_refmod": False, "source_refmod_text": None}
+    entry = {
+        "data_moves": [
+            {"verb": "MOVE", "source": "'A'", "source_kind": "literal", "target": "Y", "line": 8, **base},
+            {
+                "verb": "MOVE",
+                "source": "SPACE",
+                "source_kind": "figurative",
+                "target": "X項目",
+                "line": 9,
+                "horror": "H-0040",
+                **base,
+            },
+        ],
+        "phantoms": [{"channel": "data_moves", "target": "X", "why": "w", "horror": "H-0040"}],
+    }
+    sc = ec.Score()
+    ec.score_data_moves(sc, "p.cbl", entry, eng)
+    assert _statuses(sc) == sorted(
+        [
+            ("data_moves", "MOVE 'A' -> Y @8", "pass", None),
+            ("data_moves", "MOVE SPACE -> X項目 @9", "missing", "H-0040"),
+            ("data_moves", "MOVE SPACE -> X @9", "phantom", "H-0040"),
+        ]
+    )

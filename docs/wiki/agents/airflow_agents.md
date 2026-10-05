@@ -1,3 +1,6 @@
+---
+description: "You are operating within `airflow`, a massive data orchestration ecosystem composed primarily of Python (75.1%) and TypeScript (8.8%)."
+---
 # AGENTS.md: airflow Architectural Context & Engagement Rules
 
 ## 1. System Context & Paradigm

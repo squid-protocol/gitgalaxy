@@ -1,3 +1,6 @@
+---
+description: "You are operating within `CodeIgniter` (specifically the 3.x branch), a legacy, lightweight PHP web framework. The repository is predominantly PHP..."
+---
 # AGENTS.md: CodeIgniter Architectural Context & Engagement Rules
 
 ## 1. System Context & Paradigm

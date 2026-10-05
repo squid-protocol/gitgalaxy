@@ -1,3 +1,6 @@
+---
+description: "The `black` repository is an uncompromising, deterministic code formatter for Python, written predominantly in Python (95.1%). The primary information..."
+---
 # Architectural Brief: black
 
 ## 1. Information Flow & Purpose (The Executive Summary)

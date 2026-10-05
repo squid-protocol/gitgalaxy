@@ -1,3 +1,6 @@
+---
+description: "Enterprise DevSecOps requires continuous monitoring. Every pull request must be audited for architectural drift, security leaks, and cognitive load..."
+---
 # How to Enable 24/7 Continuous Delta Monitoring
 
 Enterprise DevSecOps requires continuous monitoring. Every pull request must be audited for architectural drift, security leaks, and cognitive load expansion. However, running a full structural scan on a massive repository for every commit wastes massive amounts of compute and paralyzes CI/CD pipelines.

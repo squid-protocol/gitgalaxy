@@ -1,3 +1,6 @@
+---
+description: "Snapshot generated 2026-08-20 against `main`. Source: `LANGUAGE_DEFINITIONS['apex']` in"
+---
 # Apex — Structural Signature Coverage
 
 Snapshot generated 2026-08-20 against `main`. Source: `LANGUAGE_DEFINITIONS["apex"]` in

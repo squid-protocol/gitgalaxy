@@ -1,3 +1,6 @@
+---
+description: "You are operating within the `cypress` monorepo, a massive End-to-End (E2E) testing framework composed of dozens of interdependent packages. The..."
+---
 # AGENTS.md: cypress Architectural Context & Engagement Rules
 
 ## 1. System Context & Paradigm

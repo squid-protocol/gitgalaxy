@@ -1,3 +1,6 @@
+---
+description: "You are operating within the `Python` repository (TheAlgorithms/Python), a comprehensive collection of mathematical algorithms, data structures, and..."
+---
 # AGENTS.md: Python Architectural Context & Engagement Rules
 
 ## 1. Information Flow & Purpose (The Executive Summary)

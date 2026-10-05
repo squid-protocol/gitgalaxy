@@ -1,3 +1,6 @@
+---
+description: "You are operating within `alphafold_2018`, a localized Machine Learning and heavy-compute ecosystem primarily composed of Python (42.4%) and massive..."
+---
 # AGENTS.md: alphafold_2018 Architectural Context & Engagement Rules
 
 ## 1. System Context & Paradigm

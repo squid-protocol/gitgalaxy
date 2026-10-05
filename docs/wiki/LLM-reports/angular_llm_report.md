@@ -1,3 +1,6 @@
+---
+description: "The `angular` repository is a massive, enterprise-grade web framework monorepo. Comprising over 480k lines of scanned code (59.5% TypeScript), the..."
+---
 # Architectural Brief: angular
 
 ## 1. Information Flow & Purpose (The Executive Summary)

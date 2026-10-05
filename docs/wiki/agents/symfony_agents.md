@@ -1,3 +1,6 @@
+---
+description: "You are operating within the `symfony` repository, the core codebase for the sprawling, enterprise-grade Symfony PHP framework. The architecture is..."
+---
 # AGENTS.md: symfony Architectural Context & Engagement Rules
 
 ## 1. System Context & Paradigm

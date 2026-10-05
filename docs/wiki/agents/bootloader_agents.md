@@ -1,3 +1,6 @@
+---
+description: "You are operating within `bootloader`, a pure-Rust (87.5%) implementation of a bootloader for x86_64 architectures, designed to bridge UEFI and legacy..."
+---
 # AGENTS.md: bootloader Architectural Context & Engagement Rules
 
 ## 1. Information Flow & Purpose (System Context)

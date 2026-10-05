@@ -1,3 +1,6 @@
+---
+description: "The `DOOM` repository contains the source code for the classic 1993 game engine. The codebase is heavily dominated by C (93.2%) with minimal supporting..."
+---
 # Architectural Brief: DOOM
 
 ## 1. Information Flow & Purpose (The Executive Summary)

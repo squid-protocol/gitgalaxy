@@ -1,3 +1,6 @@
+---
+description: "*Run 2026-10-03 with `tests/tools/devin_port.py`, against our new case `carddemo-readacct` (CardDemo's CBACT01C)."
+---
 # Devin's CBACT01C ports through the equivalence harness
 
 *Run 2026-10-03 with `tests/tools/devin_port.py`, against our new case `carddemo-readacct` (CardDemo's CBACT01C).

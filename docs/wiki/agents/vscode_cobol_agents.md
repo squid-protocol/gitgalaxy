@@ -1,3 +1,6 @@
+---
+description: "You are operating within `vscode_cobol`, a Visual Studio Code extension designed for COBOL language support. The codebase is primarily composed of..."
+---
 # AGENTS.md: vscode_cobol Architectural Context & Engagement Rules
 
 ## 1. Information Flow & Purpose (The Executive Summary)

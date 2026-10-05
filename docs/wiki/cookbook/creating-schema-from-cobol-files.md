@@ -1,3 +1,6 @@
+---
+description: "In the trenches of enterprise legacy modernization, migrating the execution logic of a 40-year-old COBOL monolith is only half the battle. The true..."
+---
 # Translating COBOL Memory into Cloud Schemas: A Deterministic RAG Stress Test
 
 In the trenches of enterprise legacy modernization, migrating the execution logic of a 40-year-old COBOL monolith is only half the battle. The true nightmare lies in the memory layer. 

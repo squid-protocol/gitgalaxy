@@ -1,3 +1,6 @@
+---
+description: "> **File Reference:** [`gitgalaxy/recorders/gpu_recorder.py`](https://github.com/squid-protocol/gitgalaxy/blob/main/gitgalaxy/recorders/gpu_recorder.py)"
+---
 # GPU Recorder
 
 > **File Reference:** [`gitgalaxy/recorders/gpu_recorder.py`](https://github.com/squid-protocol/gitgalaxy/blob/main/gitgalaxy/recorders/gpu_recorder.py)

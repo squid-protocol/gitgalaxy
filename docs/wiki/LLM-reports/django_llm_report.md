@@ -1,3 +1,8 @@
+---
+description: "The `django` repository contains the core framework for the Django Python web framework. Composed overwhelmingly of Python (82.9%) and HTML templates..."
+title: "Django Architectural Brief & LLM Report"
+
+---
 # Architectural Brief: Django
 
 ## 1. Information Flow & Purpose (The Executive Summary)

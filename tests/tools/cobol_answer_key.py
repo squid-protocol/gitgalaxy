@@ -187,7 +187,12 @@ _DD_USAGE = re.compile(
 _DD_OCCURS = re.compile(r"\bOCCURS\s+(\d+)(?:\s+TO\s+(\d+))?")
 _DD_DEPENDING = re.compile(rf"\bDEPENDING\s+(?:ON\s+)?({NAME})")
 _DD_REDEFINES = re.compile(rf"\bREDEFINES\s+({NAME})")
-_DD_VALUE = re.compile(r"\bVALUE\s+(?:IS\s+)?(?:'([^']*)'|\"([^\"]*)\"|([A-Z0-9][A-Z0-9+.-]*))")
+# #4393: a prefixed literal (`X'0D25'`, G / N / NX / B / Z) keeps its prefix and quotes (group 4), and a
+# numeric literal may be signed or start at its point (`+18`, `-1`, `.5`) -- the engine's #4354 / #4277.
+_DD_VALUE = re.compile(
+    r"\bVALUE\s+(?:IS\s+)?(?:(NX|[BGNXZ](?=['\"]))?(?:'([^']*)'|\"([^\"]*)\")"
+    r"|([+-]?\.?[A-Z0-9][A-Z0-9+.-]*))"
+)
 _DD_ENTRY_LIMIT = 600
 # #4246: an entry with no name is an implicit FILLER (`2 PIC X(40) VALUE '...'`, DBB EPSCSMRD). The word in
 # the name's place is then a clause keyword -- reserved, so never a data name -- and the clauses start there.
@@ -927,6 +932,55 @@ def is_record_field(item: dict[str, Any]) -> bool:
     )
 
 
+_AREA_WIDTH = 65  # Source.lines keep columns 8-72
+
+
+def _joined_literal(text: str, open_at: int) -> str:
+    """#4393: the nonnumeric literal opened at `open_at` in a Source's area text, continued over lines:
+    the opening line's characters through column 72 (its area padded to 65 columns), then each next
+    line's characters after its first quote, until one closes the literal."""
+    quote = text[open_at]
+    start = text.rfind("\n", 0, open_at) + 1
+    end = text.find("\n", open_at)
+    parts = [text[open_at + 1 : end].ljust(_AREA_WIDTH - (open_at - start) - 1)]
+    pos = end
+    while pos != -1 and len(parts) < 50:
+        nxt_end = text.find("\n", pos + 1)
+        line = text[pos + 1 : nxt_end if nxt_end != -1 else len(text)]
+        resume = line.find(quote)
+        if resume == -1:
+            break
+        close = line.find(quote, resume + 1)
+        if close != -1:
+            parts.append(line[resume + 1 : close])
+            break
+        parts.append(line[resume + 1 :].ljust(_AREA_WIDTH - resume - 1))
+        pos = nxt_end
+    return "".join(parts)
+
+
+def redraft_records(repo: Path, key: dict[str, Any], note: str) -> int:
+    """#4393: each program's `records` re-read by the current drafting reader, so a reader fix reaches
+    the signed-off keys without hand edits. An entry keeps the fields it was stored with (a key drafted
+    before a later field existed is not widened here); a changed program keeps its sign-off and gets
+    `note` in its verification notes -- the changed fields were confirmed outside this tool (#4393: by
+    the #4377 referee panel and the engine). Returns the number of programs changed."""
+    changed = 0
+    for rel, prog in key.get("programs", {}).items():
+        path = repo / rel
+        if not path.is_file() or "records" not in prog:
+            continue
+        new = _data_items(Source(path))
+        old = prog["records"]
+        if len(new) == len(old):
+            new = [{k: n.get(k) for k in o} for o, n in zip(old, new)]
+        if new != old:
+            prog["records"] = new
+            prog.setdefault("verification", {}).setdefault("notes", []).append(note)
+            changed += 1
+    return changed
+
+
 def _data_items(src: Source) -> list[dict[str, Any]]:
     """The DATA DIVISION item tree of one program, this tool's own reading.
 
@@ -936,10 +990,20 @@ def _data_items(src: Source) -> list[dict[str, Any]]:
     DATA DIVISION and PROCEDURE DIVISION are taken (a copybook has neither header
     and is read whole, but this runs on programs)."""
     text = src.raw_text
-    dd = _DATA_DIVISION.search(text)
-    start = dd.end() if dd else 0
-    proc = _PROC_DIVISION.search(text, start)
-    end = proc.start() if proc else len(text)
+    # #4245: every program's DATA DIVISION in a multi-program source (nested programs and
+    # batch-compiled siblings), each to its own PROCEDURE DIVISION -- not only the first one.
+    windows: list[tuple[int, int]] = []
+    for dd in _DATA_DIVISION.finditer(text):
+        if windows and dd.start() < windows[-1][1]:
+            continue
+        proc = _PROC_DIVISION.search(text, dd.end())
+        windows.append((dd.end(), proc.start() if proc else len(text)))
+    if not windows:
+        windows = [(0, len(text))]
+
+    def _window_of(off: int) -> Optional[int]:
+        return next((i for i, (a, b) in enumerate(windows) if a <= off < b), None)
+
     sections = [(m.start(), m.group(1)) for m in _DD_SECTION.finditer(text)]
     fds = [(m.start(), m.group(1)) for m in _DD_FD.finditer(text)]
 
@@ -955,9 +1019,14 @@ def _data_items(src: Source) -> list[dict[str, Any]]:
     items: list[dict[str, Any]] = []
     stack: list[tuple[int, int]] = []
     last_item = None
+    open_window = None
     for pos, m in enumerate(entries):
-        if m.start() < start or m.start() >= end:
+        window_index = _window_of(m.start())
+        if window_index is None:
             continue
+        if window_index != open_window:  # #4245: a new program -- nothing of the last one stays open
+            open_window, last_item = window_index, None
+            stack.clear()
         level = int(m.group(1))
         name = m.group(2).upper()
         if name in ("THROUGH", "THRU"):
@@ -966,6 +1035,8 @@ def _data_items(src: Source) -> list[dict[str, Any]]:
         if _DD_UNNAMED.fullmatch(name):  # #4246: an implicit FILLER; its first clause sits where a name would
             name, body = "FILLER", m.start(2)
         stop = entries[pos + 1].start() if pos + 1 < len(entries) else len(text)
+        # #4393: never past the DATA DIVISION: the last entry's clauses (a VALUE) were read from the procedure
+        stop = min(stop, windows[window_index][1])
         window = text[body : min(stop, body + _DD_ENTRY_LIMIT)]
         ordinal = len(items)
         if level in (66, 88):
@@ -988,11 +1059,16 @@ def _data_items(src: Source) -> list[dict[str, Any]]:
         val_m = _DD_VALUE.search(window)
         value = None
         if val_m:
-            value = (
-                (val_m.group(1) if val_m.group(1) is not None else val_m.group(2))
-                if (val_m.group(1) is not None or val_m.group(2) is not None)
-                else val_m.group(3).rstrip(".")
-            )
+            if val_m.group(2) is not None or val_m.group(3) is not None:
+                group = 2 if val_m.group(2) is not None else 3
+                value = val_m.group(group)
+                if "\n" in value:  # #4393: a continued literal -- joined, as the compiler reads it
+                    value = _joined_literal(text, body + val_m.start(group) - 1)
+                if val_m.group(1):
+                    quote = "'" if group == 2 else '"'
+                    value = val_m.group(1) + quote + value + quote
+            else:
+                value = val_m.group(4).rstrip(".")
         section, fd_name = _context(m.start())
         items.append(
             {
@@ -7788,6 +7864,10 @@ def main() -> int:
     xt = sub.add_parser("add-cics-tasks")
     xt.add_argument("repo", type=Path)
     xt.add_argument("--key", type=Path, required=True)
+    rr = sub.add_parser("redraft-records")  # #4393: re-read every program's records with the current reader
+    rr.add_argument("repo", type=Path)
+    rr.add_argument("--key", type=Path, required=True)
+    rr.add_argument("--note", required=True, help="the verification note each changed program gets")
     sp = sub.add_parser("sample")
     sp.add_argument("--key", type=Path, required=True)
     sp.add_argument("--n", type=int, default=25)
@@ -7825,6 +7905,11 @@ def main() -> int:
         return 0
 
     key = json.loads(args.key.read_text(encoding="utf-8"))
+    if args.cmd == "redraft-records":
+        changed = redraft_records(repo, key, args.note)
+        args.key.write_text(json.dumps(key, indent=2) + "\n", encoding="utf-8")
+        print(f"re-drafted records: {changed} program(s) changed -> {args.key}")
+        return 0
     if args.cmd == "add-extents":
         problems = add_extents(repo, key)
         if problems:

@@ -1,3 +1,6 @@
+---
+description: "> **One hit is the declaration of a named type — a class, struct, record,"
+---
 # The `class_start` rule contract (#2856)
 
 > **One hit is the declaration of a named type — a class, struct, record,

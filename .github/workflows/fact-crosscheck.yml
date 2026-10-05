@@ -74,7 +74,6 @@ jobs:
       GITGALAXY_LICENSE_KEY: COMMUNITY_FREE_TIER
       GITGALAXY_MAINFRAME_CORPORA: ${{ github.workspace }}/.mainframe_corpora
       ESTATE_CRUCIBLE_PATH: ${{ github.workspace }}/estate-crucible
-      REFEREES_CACHE: ${{ runner.temp }}/referees-cache
       PYTHONUTF8: "1"
     steps:
       - name: Checkout GitGalaxy
@@ -128,7 +127,9 @@ jobs:
       - name: Cross-check engine and translator against the ledger
         run: |
           cd gitgalaxy
-          PYTHONPATH="$PWD" python tests/tools/fact_crosscheck.py check --md "$RUNNER_TEMP/fact_crosscheck.md"
+          # the runner context is not available in job-level env: the BMS cache path is set here
+          REFEREES_CACHE="$RUNNER_TEMP/referees-cache" PYTHONPATH="$PWD" \
+            python tests/tools/fact_crosscheck.py check --md "$RUNNER_TEMP/fact_crosscheck.md"
 
       - name: Publish the report
         if: always()

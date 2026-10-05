@@ -46,17 +46,13 @@ public class CaxaService {
 
     private final ObjectProvider<CaxbService> caxbService;
 
-    public void executeCaxa(/* Parameters mapped from Controller */) {
-        log.info("Executing modernized business logic for CAXA");
-        // CAXA is a CICS-only program (transaction CA02). It has no batch or controller behaviour.
-        // Its whole PROCEDURE DIVISION (MAIN-PARA) is ported into runTask(CicsTask).
-    }
-
-    /** A CICS transaction entered the program. */
+    /** A CICS transaction entered the program (#4343): one task of it in the region (CicsTask.region()),
+     *  ENTER pressed, started from a cleared screen, run through runTask. */
     public void handleTransaction(String transid) {
-        // Transaction CA02 enters CAXA. The task itself (terminal RECEIVE, XCTL, SEND TEXT, RETURN)
-        // is ported in runTask(CicsTask). The CICS runtime drives it with the task it builds.
-        log.info("Caxa: handleTransaction {}", transid);
+        log.info("Caxa: handleTransaction");
+        CicsTask.Region region = CicsTask.region();
+        CicsTask task = region.transaction(transid, null);
+        region.run(task, "CAXA", this::runTask);
     }
 
     /** One pseudo-conversational task of this program (#3754). */

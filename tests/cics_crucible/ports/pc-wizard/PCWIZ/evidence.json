@@ -7,8 +7,9 @@
   "paths": [
    "tests/cics_crucible/ports/pc-wizard/PCWIZ/overlay/service/PcwizService.java"
   ],
-  "sha256": "62a3e30689d0dc634d875799cfef5a035251ec2bc8fa81514548bf4d4449f6d0",
+  "sha256": "6b06fe2bebba1c0decf116a37eeb5a9c97f50cc07510082c5631213b04d5d03d",
   "entry_points": [
+   "handleTransaction",
    "runTask"
   ]
  },
@@ -18,7 +19,7 @@
     "tests/cics_crucible/ports/pc-wizard/*/overlay/**"
    ],
    "files": 2,
-   "sha256": "f50313d1e6e5ee7a5368028ad749b33fbab69439beccc244e86417700f288f56"
+   "sha256": "8772654e41fdb45c29dc16c5617b5aaf83925b12ae63dfe97822e91d12840245"
   },
   "case": {
    "paths": [
@@ -44,7 +45,7 @@
     "tests/tools/cics_crucible_compare.py"
    ],
    "files": 13,
-   "sha256": "76e6774afa2c5e70a0fefbff574591dee05a4270a46d98d70433c272870f08a7"
+   "sha256": "a3ae3d6d7e938e36cd15639224926bf86762c0f436c35667909f895cbe77382c"
   },
   "oracle": {
    "paths": [],
@@ -66,21 +67,24 @@
   "differences": {
    "sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
   },
-  "digest": "c06273447a21a4087e9bb52d1a44a83ae3830b80236b81f63e65f8ff0f751fcd"
+  "digest": "9c93032df95126aff0d1eb580a7dd50b26dc7b652256fc74f6136eda43449b62"
  },
  "proof": {
-  "at": "2026-10-05T06:08:06Z",
-  "verdict": "proven",
+  "at": "2026-10-05T10:35:21Z",
+  "verdict": "not-proven",
   "runs": 6,
   "fault_runs": 0,
+  "entry_runs": [
+   "handleTransaction"
+  ],
   "environments": null,
   "outputs": {
    "back-and-fix": {
-    "equal": 1,
+    "equal": 0,
     "records": 1
    },
    "back-clear-keeps-amount": {
-    "equal": 1,
+    "equal": 0,
     "records": 1
    },
    "cancel-first-screen": {
@@ -88,15 +92,15 @@
     "records": 1
    },
    "clear-and-bad-amount": {
-    "equal": 1,
+    "equal": 0,
     "records": 1
    },
    "happy-post": {
-    "equal": 1,
+    "equal": 0,
     "records": 1
    },
    "mapfail-clear-cancel": {
-    "equal": 1,
+    "equal": 0,
     "records": 1
    }
   },
@@ -104,8 +108,8 @@
   "sysout_compared": null,
   "attributes_compared": null,
   "java_failed": false,
-  "harness_commit": "d03da8b743917a29a13e48709fb0c7f6ad778528+uncommitted",
-  "inputs_digest": "c06273447a21a4087e9bb52d1a44a83ae3830b80236b81f63e65f8ff0f751fcd"
+  "harness_commit": "78c73e6832cb8b86cd405c73457c07d62d3b266f+uncommitted",
+  "inputs_digest": "9c93032df95126aff0d1eb580a7dd50b26dc7b652256fc74f6136eda43449b62"
  },
  "coverage": {
   "paragraphs": {
@@ -120,63 +124,28 @@
   "handler_labels": null,
   "source": "tests/cics_crucible/coverage.json#programs/pc-wizard/PCWIZ",
   "ledger_sha256": "90f306b56fbea5b71e0f3ef7dbb1cbc2a591698cb2c21e58fbe604545fb07576",
-  "inputs_digest": "c06273447a21a4087e9bb52d1a44a83ae3830b80236b81f63e65f8ff0f751fcd"
+  "inputs_digest": "9c93032df95126aff0d1eb580a7dd50b26dc7b652256fc74f6136eda43449b62"
  },
  "reach": {
   "entry_points": [
+   "handleTransaction",
    "runTask"
   ],
   "unproven": [
    {
     "class": "PcwizService",
-    "method": "executePcwiz",
-    "line": 64,
-    "kind": "stub"
-   },
-   {
-    "class": "PcwizService",
-    "method": "handleTransaction",
-    "line": 73,
-    "kind": "ported_unproven"
-   },
-   {
-    "class": "PcwizService",
     "method": "handleLink",
-    "line": 81,
-    "kind": "ported_unproven"
-   },
-   {
-    "class": "PcwizService",
-    "method": "renderPcm1",
-    "line": 224,
-    "kind": "ported_unproven"
-   },
-   {
-    "class": "PcwizService",
-    "method": "submitPcm1",
-    "line": 231,
-    "kind": "ported_unproven"
-   },
-   {
-    "class": "PcwizService",
-    "method": "renderPcm2",
-    "line": 250,
-    "kind": "ported_unproven"
-   },
-   {
-    "class": "PcwizService",
-    "method": "returnedCommarea",
-    "line": 286,
-    "kind": "ported_unproven"
+    "line": 76,
+    "kind": "left_as_generated"
    }
   ],
   "counts": {
-   "stub": 1,
-   "left_as_generated": 0,
-   "ported_unproven": 6
+   "stub": 0,
+   "left_as_generated": 1,
+   "ported_unproven": 0
   },
   "generated_compared": true,
-  "port_sha256": "62a3e30689d0dc634d875799cfef5a035251ec2bc8fa81514548bf4d4449f6d0"
+  "port_sha256": "6b06fe2bebba1c0decf116a37eeb5a9c97f50cc07510082c5631213b04d5d03d"
  },
  "mutation": {
   "commit": "be2561306",
@@ -219,7 +188,7 @@
  "differences": [],
  "oracle": {
   "kind": "crucible-expected-logs",
-  "source": "cics-crucible v0.2.0: each scenario's hand-written expected event log, derived from IBM's documentation (its SPEC.md); the java-ported side is compared with it exactly",
+  "source": "cics-crucible v0.2.0: each scenario's hand-written expected event log, derived from IBM's documentation (its SPEC.md); the java-ported side (runTask) and the java-facade side (the deployed entry points, #4343) are compared with it exactly",
   "compiler": null,
   "image": null,
   "models": [],
@@ -235,11 +204,11 @@
   "porting_rules_sha256": null,
   "proposed_at": "2026-09-29T21:51:16+00:00",
   "generator_version": null,
-  "edited_after": null,
+  "edited_after": "the deployed entry points (facades) were brought to the generator's by tests/tools/port_surface.py (#4343; see history 'resurfaced'); runTask and the logic it runs are the model's answer",
   "provenance_file": {
    "path": "tests/cics_crucible/ports/pc-wizard/PCWIZ/provenance.json",
    "format": "cics-crucible-port/1",
-   "sha256": "9970fbdf1059265335447998376aae7eedf6586ea0eac00cb81f55c12761a07c"
+   "sha256": "14df3bb297766ab9ce22bd7d58de5306df69a76bfe88eb620ca02f2790630c0e"
   },
   "crucible_ref_proven": "v0.2.0 (94f2afcb)"
  },

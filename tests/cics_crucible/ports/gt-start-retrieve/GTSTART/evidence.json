@@ -7,8 +7,9 @@
   "paths": [
    "tests/cics_crucible/ports/gt-start-retrieve/GTSTART/overlay/service/GtstartService.java"
   ],
-  "sha256": "3e53fca33ac67a4de689eaec0f975c26dc667e78f5f1c2cde9e2c192f2e11b32",
+  "sha256": "9521881f07f9c6c161f31f30157a688ebe752660d3b2fbb4fa51c838264b170e",
   "entry_points": [
+   "handleTransaction",
    "runTask"
   ]
  },
@@ -18,7 +19,7 @@
     "tests/cics_crucible/ports/gt-start-retrieve/*/overlay/**"
    ],
    "files": 2,
-   "sha256": "6f3d70972099c4fb3a99a31b77fcd0f3fb6c24f4dbcde1d924f470c3f1e15d89"
+   "sha256": "3b64f63beb9eaf81cb469e51c05fa9ad9fdbbd153bc25ec0941f306a52ac3cc8"
   },
   "case": {
    "paths": [
@@ -44,7 +45,7 @@
     "tests/tools/cics_crucible_compare.py"
    ],
    "files": 13,
-   "sha256": "76e6774afa2c5e70a0fefbff574591dee05a4270a46d98d70433c272870f08a7"
+   "sha256": "a3ae3d6d7e938e36cd15639224926bf86762c0f436c35667909f895cbe77382c"
   },
   "oracle": {
    "paths": [],
@@ -66,13 +67,16 @@
   "differences": {
    "sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
   },
-  "digest": "c338d891f8ad763c7e49bbc11ccf3367c6a4363da32dfa544597e93d34f7d91d"
+  "digest": "f6d8c59a89b3c588c7f30a9d03df4d227e2680c7b3d6e41cc0fd15e9eec1950c"
  },
  "proof": {
-  "at": "2026-10-05T06:06:46Z",
+  "at": "2026-10-05T10:30:43Z",
   "verdict": "proven",
   "runs": 6,
   "fault_runs": 0,
+  "entry_runs": [
+   "handleTransaction"
+  ],
   "environments": null,
   "outputs": {
    "interval-data": {
@@ -104,8 +108,8 @@
   "sysout_compared": null,
   "attributes_compared": null,
   "java_failed": false,
-  "harness_commit": "d03da8b743917a29a13e48709fb0c7f6ad778528+uncommitted",
-  "inputs_digest": "c338d891f8ad763c7e49bbc11ccf3367c6a4363da32dfa544597e93d34f7d91d"
+  "harness_commit": "78c73e6832cb8b86cd405c73457c07d62d3b266f+uncommitted",
+  "inputs_digest": "f6d8c59a89b3c588c7f30a9d03df4d227e2680c7b3d6e41cc0fd15e9eec1950c"
  },
  "coverage": {
   "paragraphs": {
@@ -120,39 +124,28 @@
   "handler_labels": null,
   "source": "tests/cics_crucible/coverage.json#programs/gt-start-retrieve/GTSTART",
   "ledger_sha256": "44b30f0ab3988e9222a5bf43a34ffa5d0591a7ca425a77f39bf131ee15aa47f6",
-  "inputs_digest": "c338d891f8ad763c7e49bbc11ccf3367c6a4363da32dfa544597e93d34f7d91d"
+  "inputs_digest": "f6d8c59a89b3c588c7f30a9d03df4d227e2680c7b3d6e41cc0fd15e9eec1950c"
  },
  "reach": {
   "entry_points": [
+   "handleTransaction",
    "runTask"
   ],
   "unproven": [
    {
     "class": "GtstartService",
-    "method": "executeGtstart",
-    "line": 51,
-    "kind": "stub"
-   },
-   {
-    "class": "GtstartService",
-    "method": "handleTransaction",
-    "line": 57,
-    "kind": "stub"
-   },
-   {
-    "class": "GtstartService",
     "method": "abendGtabL58",
-    "line": 188,
+    "line": 183,
     "kind": "left_as_generated"
    }
   ],
   "counts": {
-   "stub": 2,
+   "stub": 0,
    "left_as_generated": 1,
    "ported_unproven": 0
   },
   "generated_compared": true,
-  "port_sha256": "3e53fca33ac67a4de689eaec0f975c26dc667e78f5f1c2cde9e2c192f2e11b32"
+  "port_sha256": "9521881f07f9c6c161f31f30157a688ebe752660d3b2fbb4fa51c838264b170e"
  },
  "mutation": {
   "commit": "be2561306",
@@ -195,7 +188,7 @@
  "differences": [],
  "oracle": {
   "kind": "crucible-expected-logs",
-  "source": "cics-crucible v0.2.0: each scenario's hand-written expected event log, derived from IBM's documentation (its SPEC.md); the java-ported side is compared with it exactly",
+  "source": "cics-crucible v0.2.0: each scenario's hand-written expected event log, derived from IBM's documentation (its SPEC.md); the java-ported side (runTask) and the java-facade side (the deployed entry points, #4343) are compared with it exactly",
   "compiler": null,
   "image": null,
   "models": [],
@@ -211,11 +204,11 @@
   "porting_rules_sha256": null,
   "proposed_at": "2026-09-29T21:46:55+00:00",
   "generator_version": null,
-  "edited_after": null,
+  "edited_after": "the deployed entry points (facades) were brought to the generator's by tests/tools/port_surface.py (#4343; see history 'resurfaced'); runTask and the logic it runs are the model's answer",
   "provenance_file": {
    "path": "tests/cics_crucible/ports/gt-start-retrieve/GTSTART/provenance.json",
    "format": "cics-crucible-port/1",
-   "sha256": "fc570f07cb50266db85e45eb856a67526a75027aae4438018b5ce8cd881a5a55"
+   "sha256": "a4aa3f6d6e9377894b9b644bcced4da3fbe3e98d48d5b90e9838e4e16da5aa28"
   },
   "crucible_ref_proven": "v0.2.0 (94f2afcb)"
  },

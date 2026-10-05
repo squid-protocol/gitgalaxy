@@ -231,7 +231,9 @@ def target(key: str) -> Target:
 def targets() -> list[Target]:
     """Every committed port: the equivalence cases with a port/, then the crucible ports."""
     out = [equivalence_target(p.parent.name) for p in sorted(CASES.glob("*/port")) if p.is_dir()]
-    out += [crucible_target(p.parent.name, p.name) for p in sorted(CRUCIBLE_PORTS.glob("*/*")) if (p / "overlay").is_dir()]
+    out += [
+        crucible_target(p.parent.name, p.name) for p in sorted(CRUCIBLE_PORTS.glob("*/*")) if (p / "overlay").is_dir()
+    ]
     return out
 
 
@@ -394,7 +396,8 @@ def oracle_section(t: Target, fp: Optional[dict[str, Any]]) -> dict[str, Any]:
     if t.kind == "crucible":
         return {"kind": "crucible-expected-logs",
                 "source": f"cics-crucible {t.corpus['ref']}: each scenario's hand-written expected event log, derived "
-                          "from IBM's documentation (its SPEC.md); the java-ported side is compared with it exactly",
+                          "from IBM's documentation (its SPEC.md); the java-ported side (runTask) and the java-facade side "
+                          "(the deployed entry points, #4343) are compared with it exactly",
                 "compiler": None, "image": None, "models": [], "assumptions": None}  # fmt: skip
     case = _case_json(t.case)
     models = _match(_files_now(), list(ORACLE), [])
@@ -410,7 +413,11 @@ def oracle_section(t: Target, fp: Optional[dict[str, Any]]) -> dict[str, Any]:
 def provenance_section(t: Target) -> dict[str, Any]:
     prov_path = (t.port_dir / "provenance.json") if t.kind != "crucible" else t.port_dir.parent / "provenance.json"
     if not prov_path.is_file():  # #4048 Q6 (default): a hand port -- a person, named by git where it can be
-        first = (_git("log", "--diff-filter=A", "--format=%an|%h|%as", "--", rel_path(t.port_dir)) or "").strip().splitlines()
+        first = (
+            (_git("log", "--diff-filter=A", "--format=%an|%h|%as", "--", rel_path(t.port_dir)) or "")
+            .strip()
+            .splitlines()
+        )
         author, commit, day = (first[-1].split("|") + ["", "", ""])[:3] if first else ("", "", "")
         return {"written_by": "person", "author": author or None, "first_commit": commit or None,
                 "first_committed": day or None, "model": None, "provenance_file": None,
@@ -559,7 +566,9 @@ def status(rec: Optional[dict[str, Any]], t: Target, *, live: bool = True,
         reasons.append("never proven")
     elif proof["verdict"] != "proven":
         st = "not-proven"
-        reasons.append("the proof failed" + (" (the Java side did not build or run)" if proof.get("java_failed") else ""))
+        reasons.append(
+            "the proof failed" + (" (the Java side did not build or run)" if proof.get("java_failed") else "")
+        )
     elif ported and policy == "block":
         st = "not-proven"
         names = ", ".join(sorted({m["method"] for m in ported}))
@@ -641,7 +650,9 @@ class ApprovalRefused(RuntimeError):
 
 def _check_approver(by: str, purpose: str, interactive: bool) -> None:
     if not by.strip() or _MODEL_NAMES.search(by):
-        raise ApprovalRefused(f"--by {by!r}: an approval names the person who takes responsibility, not a tool or model")
+        raise ApprovalRefused(
+            f"--by {by!r}: an approval names the person who takes responsibility, not a tool or model"
+        )
     if not purpose.strip():
         raise ApprovalRefused("--for: say what the evidence is accepted for (e.g. 'the Q4 pilot cut-over')")
     if not interactive:
@@ -667,7 +678,7 @@ def sign(t: Target, by: str, purpose: str, decision: str, note: Optional[str], *
         raise ApprovalRefused("reject: --note says why")
     text = claim(rec, st)
     attests = ATTESTATION.format(purpose=purpose.strip())
-    print(f"\n{text}\n\nYou ({by}) attest: \"{attests}\"\nDecision: {decision}.")
+    print(f'\n{text}\n\nYou ({by}) attest: "{attests}"\nDecision: {decision}.')
     typed = confirm(f"Type your name exactly as given to --by ({by}) to sign, anything else to stop: ")
     if typed.strip() != by.strip():
         raise ApprovalRefused("not signed: the name typed does not match --by")
@@ -716,7 +727,9 @@ def render_page(t: Target, rec: dict[str, Any]) -> str:
         lines += [f"| {u['line']} | {u['kind']} | {u['outcome']} | {u['unit']} |" for u in c["uncovered_branches"]]
     lines += ["", "## Approvals", ""]
     if not rec.get("approvals"):
-        lines.append("None. A person approves with `evidence.py approve` (see docs/language_status/evidence_records.md).")
+        lines.append(
+            "None. A person approves with `evidence.py approve` (see docs/language_status/evidence_records.md)."
+        )
     for a in rec.get("approvals") or []:
         lines.append(f"- {a['decision']} by **{a['by']}** at {a['at']} for {a.get('purpose')}: \"{a.get('attests')}\""
                      + (f" -- {a['note']}" if a.get("note") else ""))  # fmt: skip
@@ -737,7 +750,11 @@ def render_index(recs: list[tuple[Target, Optional[dict[str, Any]]]]) -> str:
             continue
         st = status(rec, t, live=False)
         p, c, m, r = rec.get("proof") or {}, rec.get("coverage"), rec.get("mutation"), rec.get("reach") or {}
-        cov = f"{c['paragraphs']['covered']}/{c['paragraphs']['live']} / {c['branches']['covered']}/{c['branches']['total']}" if c else "-"
+        cov = (
+            f"{c['paragraphs']['covered']}/{c['paragraphs']['live']} / {c['branches']['covered']}/{c['branches']['total']}"
+            if c
+            else "-"
+        )
         mut = f"{m['score_raw']} / {m['score_adjusted']}" if m else "-"
         a = st["approved"]
         lines.append(f"| [{t.program}]({t.slug}.md) | {t.key} | {t.kind} | {st['status']} | {'; '.join(st['reasons'])} "
@@ -817,7 +834,8 @@ def prove(t: Target, work_root: Path, crucible: Optional[Path] = None, offline: 
     if t.kind == "crucible":
         report_dir, keep = work / "report", work / "keep"
         argv = [sys.executable, str(TOOLS / "cics_crucible.py"), "--cases", t.case, "--program", t.program,
-                "--sides", "java-ported", "--report-dir", str(report_dir), "--keep", str(keep)]  # fmt: skip
+                "--sides", "java-ported", "java-facade",  # #4343: runTask, and the deployed entry points
+                "--report-dir", str(report_dir), "--keep", str(keep)]  # fmt: skip
         if crucible:
             argv += ["--crucible", str(crucible)]
         if offline:

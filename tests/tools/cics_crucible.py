@@ -20,6 +20,12 @@ pipeline and compares, cell by cell:
   java-ported    (scenario)  the same, with the case's committed ports laid over the services
                          (tests/cics_crucible/ports/<case>/<PROGRAM>/overlay, each proven by this
                          runner through the porting loop and kept with its provenance.json)
+  java-facade    (scenario)  #4343: the ported project again, each task entered through the program's
+                         deployed entry point -- its Spring facade: handleTransaction, and handleLink for
+                         a program a LINK / XCTL reaches -- with the scenario's region joined
+                         (CicsTask.join), so the facade's task is the scenario's own task. A program
+                         with no facade runs through runTask; the proof report lists, per program, the
+                         entry points its passing scenarios ran (`entries`).
 
 Proving one program's port for the porting loop (gitgalaxy/tools/cobol_to_java/port_runner.py):
 
@@ -643,6 +649,7 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import @PKG@.cics.CicsTask;
 import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
 import java.nio.file.Path;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
@@ -651,6 +658,7 @@ import java.util.HexFormat;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.function.Consumer;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -661,6 +669,11 @@ import org.springframework.context.ApplicationContext;
  * terminal steps run as tasks through the generated services' runTask(CicsTask): a step starts the
  * TRANSID and COMMAREA of the previous task's RETURN, else the transaction id typed as text; an XCTL
  * runs its target in the same task. Each task's events are written to out/<scenario>.json.
+ *
+ * #4343: with -Dequivalence.facades=true each task enters through the program's deployed entry point instead -- the
+ * service's handleTransaction, and handleLink for a program a LINK / XCTL reaches -- with the scenario's region
+ * joined (CicsTask.join), so the facade's task IS the scenario's task: the same events, TS, COMMAREA, screens and
+ * abend plumbing. A program with no such facade runs through runTask; out/<scenario>.json says which ran.
  */
 @SpringBootTest(properties = {"spring.jpa.show-sql=false"})
 class EquivalenceRunTest {
@@ -668,6 +681,7 @@ class EquivalenceRunTest {
     final Path in = Path.of(System.getProperty("equivalence.in"));
     final Path out = Path.of(System.getProperty("equivalence.out"));
     final ObjectMapper json = new ObjectMapper().findAndRegisterModules();
+    final boolean facades = Boolean.getBoolean("equivalence.facades");
 
     @Autowired
     ApplicationContext context;
@@ -697,6 +711,7 @@ class EquivalenceRunTest {
         final List<Map<String, Object>> tasks = new ArrayList<>();
         final List<Map<String, Object>> requests = new ArrayList<>();
         final CicsTask.TempStorage ts = new CicsTask.TempStorage();  // #4002: shared by every task
+        final List<Map<String, Object>> entries = new ArrayList<>();  // #4343: the entry point each program ran by
         int issued;
         String pending;
         Object pendingCa;
@@ -786,6 +801,7 @@ class EquivalenceRunTest {
             Map<String, List<String>> queues = new LinkedHashMap<>();
             ts.queues().forEach((q, items) -> queues.put(q, items.stream().map(b -> HexFormat.of().formatHex(b)).toList()));
             log.put("ts_queues", queues);
+            log.put("entries", entries);
             return log;
         }
 
@@ -816,6 +832,7 @@ class EquivalenceRunTest {
             } else if (program == null) {
                 events.add(error(null, "transaction " + transid + " has no program in the CSD"));
             }
+            FacadeRegion region = new FacadeRegion(tasks.size() + 1);
             CicsTask.Programs programs = new CicsTask.Programs() {  // #4004: LINK / XCTL through the services
                 public boolean defined(String p) {
                     return listed(plan.path("programs"), p);
@@ -833,6 +850,10 @@ class EquivalenceRunTest {
                     Object service = service(plan, p);
                     if (service == null) {
                         throw new IllegalStateException("no generated service for program " + p);
+                    }
+                    if (facades) {
+                        region.enter(p, task, service);
+                        return;
                     }
                     try {
                         service.getClass().getMethod("runTask", CicsTask.class).invoke(service, task);
@@ -867,7 +888,13 @@ class EquivalenceRunTest {
                 }
                 String thrown = null;
                 try {
-                    t.run(program);
+                    if (facades) {
+                        try (CicsTask.Joined joined = CicsTask.join(region)) {
+                            region.start(t, program, commarea);
+                        }
+                    } else {
+                        t.run(program);
+                    }
                 } catch (RuntimeException e) {
                     String code = abcode(e);
                     if (code != null) {
@@ -909,6 +936,130 @@ class EquivalenceRunTest {
             task.put("end", end);
             tasks.add(task);
             ended(raw, "abend".equals(end), terminal.equals(frame.get("termid")));
+        }
+
+        /** #4343: the scenario's region, joined while a facade runs: it hands the facade the task the scenario
+         *  starts (handleTransaction) or the program level a LINK / XCTL makes (handleLink), and refuses any other
+         *  -- a facade that builds a task of its own is not running the path the scenario proves. */
+        class FacadeRegion implements CicsTask.Region {
+            final int taskNo;
+            CicsTask scenarioTask;  // the task the scenario starts
+            String scenarioProgram;
+            CicsTask top;  // ... until handleTransaction asks the region for it
+            Consumer<CicsTask> firstHop;  // the facade's own runTask, for the task's first program
+            CicsTask linked;  // the level a LINK / XCTL runs, until handleLink asks for it
+            String linkedProgram;
+
+            FacadeRegion(int taskNo) {
+                this.taskNo = taskNo;
+            }
+
+            @Override
+            public CicsTask transaction(String transid, Object commarea) {
+                CicsTask t = top;
+                if (t == null || !t.transid().equals(transid) || area(t) != commarea) {
+                    throw new IllegalStateException("a facade asked the region for a task of " + transid
+                            + " that is not the one the scenario starts");
+                }
+                top = null;
+                return t;
+            }
+
+            @Override
+            public CicsTask linked(String program, Object commarea) {
+                CicsTask t = linked;
+                if (t == null || !program.equals(linkedProgram) || area(t) != commarea) {
+                    throw new IllegalStateException("a facade asked the region for a level of " + program
+                            + " that is not the LINK / XCTL the scenario made");
+                }
+                linked = null;
+                return t;
+            }
+
+            @Override
+            public void run(CicsTask task, String program, Consumer<CicsTask> self) {
+                if (task == scenarioTask && firstHop == null && top == null) {
+                    if (!program.equals(scenarioProgram)) {
+                        throw new IllegalStateException("handleTransaction of " + scenarioProgram + " ran program "
+                                + program);
+                    }
+                    firstHop = self;
+                    task.run(program);
+                } else {
+                    self.accept(task);
+                }
+            }
+
+            /** The task's first program, entered through its service's handleTransaction (else runTask). */
+            void start(CicsTask t, String program, Object commarea) {
+                Object service = service(plan, program);
+                Method one = method(service, "handleTransaction", 1);
+                Method two = method(service, "handleTransaction", 2);
+                if (one == null && two == null) {
+                    entry(program, "runTask");
+                    t.run(program);
+                    return;
+                }
+                scenarioTask = t;
+                scenarioProgram = program;
+                top = t;
+                entry(program, "handleTransaction");
+                if (commarea == null && one != null) {
+                    invoke(one, service, t.transid());
+                } else if (two != null && (commarea == null || two.getParameterTypes()[1].isInstance(commarea))) {
+                    invoke(two, service, t.transid(), commarea);
+                } else {
+                    throw new IllegalStateException("handleTransaction of " + program + " cannot take the COMMAREA ("
+                            + commarea.getClass().getName() + ") the task starts with");
+                }
+                if (top != null) {
+                    throw new IllegalStateException("handleTransaction of " + program
+                            + " did not run its task in the region");
+                }
+            }
+
+            /** A program the task runs (#4004): its first program through the facade that asked for the task, any
+             *  other -- an XCTL's target, a LINK's -- through its service's handleLink (else runTask). */
+            void enter(String p, CicsTask task, Object service) {
+                if (task == scenarioTask && firstHop != null) {
+                    Consumer<CicsTask> self = firstHop;
+                    firstHop = null;
+                    self.accept(task);
+                    return;
+                }
+                Method m = method(service, "handleLink", 1);
+                if (m == null) {
+                    entry(p, "runTask");
+                    invoke(method(service, "runTask", 1), service, task);
+                    return;
+                }
+                Object ca = area(task);
+                if (ca != null && !m.getParameterTypes()[0].isInstance(ca)) {
+                    throw new IllegalStateException("handleLink of " + p + " takes a " + m.getParameterTypes()[0]
+                            .getName() + ", the LINK / XCTL passed a " + ca.getClass().getName());
+                }
+                CicsTask outer = linked;
+                String outerProgram = linkedProgram;
+                linked = task;
+                linkedProgram = p;
+                entry(p, "handleLink");
+                invoke(m, service, ca);
+                if (linked == task) {
+                    throw new IllegalStateException("handleLink of " + p + " did not run its task in the region");
+                }
+                linked = outer;
+                linkedProgram = outerProgram;
+            }
+
+            void entry(String program, String method) {
+                Map<String, Object> e = new LinkedHashMap<>();
+                e.put("task", taskNo);
+                e.put("program", program);
+                e.put("method", method);
+                if (!entries.contains(e)) {
+                    entries.add(e);
+                }
+            }
         }
 
         /** A task ended: its STARTs become requests, its CANCELs drop them, and a terminal task's level-1
@@ -974,6 +1125,34 @@ class EquivalenceRunTest {
             return null;
         } catch (ReflectiveOperationException e) {
             return "cannot build " + cls + " from the step's fields: " + e;
+        }
+    }
+
+    static Object area(CicsTask task) {
+        return task.hasCommarea() ? task.commarea(Object.class) : null;
+    }
+
+    /** The service's public method `name` taking `params` parameters (the deployed bean: a proxy's too), or null. */
+    static Method method(Object service, String name, int params) {
+        if (service == null) {
+            return null;
+        }
+        for (Method m : service.getClass().getMethods()) {
+            if (m.getName().equals(name) && m.getParameterCount() == params) {
+                return m;
+            }
+        }
+        return null;
+    }
+
+    /** Calls a facade: what it throws (an abend, a condition) is thrown as itself. */
+    static Object invoke(Method m, Object service, Object... args) {
+        try {
+            return m.invoke(service, args);
+        } catch (InvocationTargetException e) {
+            throw e.getCause() instanceof RuntimeException r ? r : new IllegalStateException(e.getCause());
+        } catch (IllegalAccessException e) {
+            throw new IllegalStateException(e);
         }
     }
 
@@ -1254,9 +1433,11 @@ class JavaRunError(RuntimeError):
         self.detail = detail
 
 
-def run_java(case: cc.Case, project: Path, work: Path, offline: bool) -> dict[str, dict[str, Any]]:
+def run_java(case: cc.Case, project: Path, work: Path, offline: bool, facades: bool = False,
+             entries: Optional[dict[str, list[dict[str, Any]]]] = None) -> dict[str, dict[str, Any]]:  # fmt: skip
     """Every scenario through the generated services; {scenario: actual log}. Raises RuntimeError when
-    the test itself cannot run (the project does not start)."""
+    the test itself cannot run (the project does not start). #4343: `facades` enters each task through the
+    program's deployed entry point; `entries` gets, per scenario, the entry point each program ran by."""
     import equivalence_java as ej
 
     src = project / "src/main/java"
@@ -1268,6 +1449,8 @@ def run_java(case: cc.Case, project: Path, work: Path, offline: bool) -> dict[st
         d.mkdir(parents=True, exist_ok=True)
     (inputs / "plan.json").write_text(json.dumps(java_plan(case, src), indent=1), encoding="utf-8")
     props = f"-Dequivalence.in={inputs} -Dequivalence.out={out} {ej.jvm_args(ej.environment('default'))}"
+    if facades:
+        props += " -Dequivalence.facades=true"
     ok, errors = maven(project, ["test", "-Dtest=EquivalenceRunTest", "-Dsurefire.failIfNoSpecifiedTests=false",
                                  f"-DargLine={props}"], offline, work / "maven.log")  # fmt: skip
     if not ok:
@@ -1278,6 +1461,8 @@ def run_java(case: cc.Case, project: Path, work: Path, offline: bool) -> dict[st
         f = out / f"{sc['id']}.json"
         raw = json.loads(f.read_text(encoding="utf-8")) if f.is_file() else {"tasks": [], "stopped": "no output"}
         raw["_scenario"] = sc["id"]
+        if entries is not None:
+            entries[sc["id"]] = raw.get("entries") or []
         result[sc["id"]] = java_actual(case, raw, src, screens)
     return result
 
@@ -1819,11 +2004,13 @@ class PortOptions:
     overlays: list[Path] = dataclasses.field(default_factory=list)
     program: Optional[str] = None
     actual: dict[str, dict[str, Any]] = dataclasses.field(default_factory=dict)
+    entries: dict[str, list[dict[str, Any]]] = dataclasses.field(default_factory=dict)  # #4343: java-facade's
 
 
 def measure_ported(case: cc.Case, work: Path, offline: bool, opts: PortOptions,
-                   put: Any) -> None:  # fmt: skip
-    """The java-ported side: the generated project with the case's ports laid over it, scenario by scenario."""
+                   put: Any, sides: tuple[str, ...] = ("java-ported",)) -> None:  # fmt: skip
+    """The java-ported side: the generated project with the case's ports laid over it, scenario by scenario; and
+    the java-facade side (#4343): the same project, each task entered through its program's facade."""
     ported = case_overlays(opts.ports if opts.ports is not None else opts.root / case.id)
     trees = [*ported.values(), *opts.overlays]
     scenarios = [sc for sc in case.scenarios
@@ -1832,27 +2019,34 @@ def measure_ported(case: cc.Case, work: Path, offline: bool, opts: PortOptions,
     if not scenarios:
         return
     if not trees:
-        for sc in scenarios:
-            put(sc["id"], "java-ported", cc.Verdict("fail", "no port of any of its programs", needs[sc["id"]],
-                                                    "not ported"))  # fmt: skip
+        for side in sides:
+            for sc in scenarios:
+                put(sc["id"], side, cc.Verdict("fail", "no port of any of its programs", needs[sc["id"]], "not ported"))
         return
     verdict, project = forge(case, work / "forge-ported", offline, trees)
     if verdict.status != "pass" or project is None:
-        for sc in scenarios:
-            put(sc["id"], "java-ported", cc.Verdict("fail", f"the ported project: {verdict.reason}", needs[sc["id"]],
-                                                    "ported project does not compile", verdict.detail))  # fmt: skip
+        for side in sides:
+            for sc in scenarios:
+                put(sc["id"], side, cc.Verdict("fail", f"the ported project: {verdict.reason}", needs[sc["id"]],
+                                               "ported project does not compile", verdict.detail))  # fmt: skip
         return
-    try:
-        actual = run_java(case, project, work / "java-ported", offline)
-    except RuntimeError as e:
-        detail = getattr(e, "detail", "")
+    for side in sides:
+        facades = side == "java-facade"
+        got: dict[str, list[dict[str, Any]]] = {}
+        try:
+            actual = run_java(case, project, work / side, offline, facades, got)
+        except RuntimeError as e:
+            detail = getattr(e, "detail", "")
+            for sc in scenarios:
+                put(sc["id"], side, cc.Verdict("fail", str(e), needs[sc["id"]], "the Java run failed", detail))
+            continue
         for sc in scenarios:
-            put(sc["id"], "java-ported", cc.Verdict("fail", str(e), needs[sc["id"]], "the Java run failed", detail))
-        return
-    for sc in scenarios:
-        v = cc.compare(case.expected[sc["id"]], actual[sc["id"]], JAVA_CAPS, case_context(case), sc)
-        opts.actual[cc.cell_id(case.id, sc["id"], "java-ported")] = actual[sc["id"]]
-        put(sc["id"], "java-ported", v)
+            v = cc.compare(case.expected[sc["id"]], actual[sc["id"]], JAVA_CAPS, case_context(case), sc)
+            cid = cc.cell_id(case.id, sc["id"], side)
+            opts.actual[cid] = actual[sc["id"]]
+            if facades:
+                opts.entries[cid] = got.get(sc["id"], [])
+            put(sc["id"], side, v)
 
 
 def measure_case(case: cc.Case, sides: set[str], work: Path, offline: bool,
@@ -1898,8 +2092,9 @@ def measure_case(case: cc.Case, sides: set[str], work: Path, offline: bool,
                     "java",
                     _kind_java(cc.compare(case.expected[sid], actual[sid], JAVA_CAPS, ctx, sc), actual[sid]),
                 )
-    if "java-ported" in sides:
-        measure_ported(case, work, offline, ports or PortOptions(), put)
+    ported_sides = tuple(sd for sd in ("java-ported", "java-facade") if sd in sides)
+    if ported_sides:
+        measure_ported(case, work, offline, ports or PortOptions(), put, ported_sides)
     if "cobol-stub" in sides:
         translated = translate_programs(case)
         runnable, programs = [], {p: t for p, t in translated.items() if not isinstance(t, Exception)}
@@ -2154,9 +2349,11 @@ def report_md(results: dict[str, Any]) -> str:
              "with those logs, cell by cell. A cell is one side of one scenario: **engine-facts** (per case: the scan "
              "recorded its programs, transactions, maps and CICS commands), **forge-compile** (per case: the "
              "generated Spring Boot project compiles), **cobol-stub** (the COBOL on the harness's stub CICS "
-             "runtime), **java** (the generated services, task by task through `CicsTask`) and **java-ported** (the "
+             "runtime), **java** (the generated services, task by task through `CicsTask`), **java-ported** (the "
              "same, with each case's committed ports laid over the services: tests/cics_crucible/ports, the porting "
-             "loop's proven overlays, #3989). A cell passes, "
+             "loop's proven overlays, #3989) and **java-facade** (the ported services again, each task entered "
+             "through its program's deployed entry point -- the Spring facade handleTransaction, or handleLink for a "
+             "program a LINK / XCTL reaches -- whose task joins the scenario's region, #4343). A cell passes, "
              "fails at its first divergence from the log, or is *unsupported*: the harness cannot model "
              "something the scenario needs yet. The comparison is exact (SPEC 6).", "",
              "Every cell that does not pass is ledgered in `tests/cics_crucible/baseline.json`, and CI "
@@ -2192,7 +2389,7 @@ def report_md(results: dict[str, Any]) -> str:
               "than `unsupported`. **needs** counts the cells that do not pass and need the piece, **alone** the "
               "unsupported cells it unlocks by itself, and **cumulative** the unsupported cells unlocked by it and "
               "every row above it (rows are chosen greedily).", ""]  # fmt: skip
-    for side in ("cobol-stub", "java", "java-ported"):
+    for side in ("cobol-stub", "java", "java-ported", "java-facade"):
         mine = [c for c in cells if c["side"] == side]
         rows = unlock_order(mine)
         if not rows:
@@ -2206,7 +2403,7 @@ def report_md(results: dict[str, Any]) -> str:
               "Each feature a cell needs that its side does not model (`translator:` the COBOL translator refuses "
               "the command; `stub:` the stub runtime does not record it; `CicsTask:` the generated Java runtime "
               "does not; `scheduler:` the task driver).", ""]  # fmt: skip
-    for side in ("cobol-stub", "java", "java-ported"):
+    for side in ("cobol-stub", "java", "java-ported", "java-facade"):
         blocks = Counter(f for c in cells if c["side"] == side and c["status"] != "pass" for f in c["features"])
         if not blocks:
             continue
@@ -2343,18 +2540,35 @@ def proof_feedback(case: cc.Case, cells: dict[str, dict[str, Any]], actual: dict
 
 def write_proof(report_dir: Path, case: cc.Case, results: dict[str, Any], opts: PortOptions) -> bool:
     """report.json for `port_runner prove`: per scenario 1/1 or 0/1, the verdicts, and the feedback a next
-    attempt is given. Proven when every java-ported cell of the program's scenarios passes."""
-    cells = {cid: c for cid, c in results["cells"].items() if c["side"] == "java-ported"}
-    proven = bool(cells) and all(c["status"] == "pass" for c in cells.values())
+    attempt is given. Proven when every java-ported cell of the program's scenarios passes -- and, when the
+    java-facade side ran (#4343), every java-facade cell too: the scenario entered through the deployed entry
+    points. `entries` lists the facades of the program that its passing java-facade scenarios ran."""
+    cells = {cid: c for cid, c in results["cells"].items() if c["side"] in ("java-ported", "java-facade")}
+    proven = any(c["side"] == "java-ported" for c in cells.values()) and all(c["status"] == "pass"
+                                                                          for c in cells.values())  # fmt: skip
     ported = sorted(case_overlays(opts.ports if opts.ports is not None else opts.root / case.id))
+    outputs: dict[str, dict[str, int]] = {}
+    for c in cells.values():
+        o = outputs.setdefault(c["scenario"], {"equal": 1, "records": 1})
+        o["equal"] &= int(c["status"] == "pass")
+    by_method: dict[str, list[str]] = {}
+    for cid, c in cells.items():
+        if c["side"] != "java-facade" or c["status"] != "pass":
+            continue
+        for e in opts.entries.get(cid, []):
+            if e.get("program") == opts.program and e.get("method") != "runTask":
+                by_method.setdefault(e["method"], [])
+                if c["scenario"] not in by_method[e["method"]]:
+                    by_method[e["method"]].append(c["scenario"])
     report = {"format": "cics-crucible-proof/1", "case": case.id, "program": opts.program,
               "crucible_ref": results.get("crucible_ref"), "oracle": results.get("oracle"), "ports": ported,
               "overlays": [str(o) for o in opts.overlays], "proven": proven,
-              "outputs": {c["scenario"]: {"equal": int(c["status"] == "pass"), "records": 1} for c in cells.values()},
+              "outputs": outputs,
+              "entries": [{"method": m, "scenarios": sorted(sids)} for m, sids in sorted(by_method.items())],
               "cells": {cid: {k: c.get(k) for k in ("status", "reason", "kind")} for cid, c in cells.items()},
               "feedback": proof_feedback(case, cells, opts.actual)}  # fmt: skip
     if opts.program and proven:  # #4023: how much of the program the proof's scenarios execute
-        report["claim"] = ledger_claim(case.id, opts.program, sorted(c["scenario"] for c in cells.values()))
+        report["claim"] = ledger_claim(case.id, opts.program, sorted(outputs))
     report_dir.mkdir(parents=True, exist_ok=True)
     (report_dir / "report.json").write_text(json.dumps(report, indent=1, default=str) + "\n", encoding="utf-8")
     return proven

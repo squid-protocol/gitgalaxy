@@ -1407,6 +1407,7 @@ class Orchestrator:
         # source, and on any path that never reaches the resolver.
         self.call_sites: list[dict[str, Any]] = []
         self.invocation_edges: list[dict[str, Any]] = []
+        self.invocation_ambiguities: list[dict[str, Any]] = []  # #4419
         # #3313 step 3: resolved idiom wrappers (wrapper_resolver.resolve_wrappers).
         self.wrappers: list[dict[str, Any]] = []
         self.transactions: list[dict[str, Any]] = []  # #3211-followup: CICS transaction map
@@ -1539,7 +1540,8 @@ class Orchestrator:
             # #3200/#3201: the mainframe call graph (COBOL CALL, CICS LINK/XCTL, JCL
             # EXEC PGM=). Since #3237 its resolved edges enter the dependency graph
             # like #3333's function calls -- see invocation_resolver.py's header.
-            self.call_sites, self.invocation_edges = resolve_invocations(self.parsed_files)
+            self.invocation_ambiguities = []
+            self.call_sites, self.invocation_edges = resolve_invocations(self.parsed_files, self.invocation_ambiguities)
             self.parsed_files, network_macro = self.network_sensor.build_dependency_graph(
                 self.parsed_files, confident_file_pairs(self.fcall_sites), import_edges, self.invocation_edges
             )
@@ -1591,6 +1593,8 @@ class Orchestrator:
             if self.network_sensor.copy_libraries is not None:  # #4265: only when libraries are declared
                 summary["copy_member_collisions"] = self.network_sensor.copy_collisions
                 summary["copy_member_gaps"] = self.network_sensor.copy_gaps  # #4420
+            if self.invocation_ambiguities:  # #4419: a shared PROGRAM-ID no member is named for
+                summary["program_id_ambiguities"] = self.invocation_ambiguities
 
             # #371/#1159: the repo baseline is repo-wide (only knowable once summary
             # is computed), but record_keeper.py/llm_recorder.py read it per-file
@@ -3652,7 +3656,8 @@ class Orchestrator:
             import_edges = self.network_sensor.resolve_import_edges(self.parsed_files)
             self._resolve_function_calls()
             # #3200/#3201, #3237: same resolution in delta mode, into the same graph.
-            self.call_sites, self.invocation_edges = resolve_invocations(self.parsed_files)
+            self.invocation_ambiguities = []
+            self.call_sites, self.invocation_edges = resolve_invocations(self.parsed_files, self.invocation_ambiguities)
             self.parsed_files, network_macro = self.network_sensor.build_dependency_graph(
                 self.parsed_files, confident_file_pairs(self.fcall_sites), import_edges, self.invocation_edges
             )
@@ -3675,6 +3680,8 @@ class Orchestrator:
             if self.network_sensor.copy_libraries is not None:  # #4265: only when libraries are declared
                 summary["copy_member_collisions"] = self.network_sensor.copy_collisions
                 summary["copy_member_gaps"] = self.network_sensor.copy_gaps  # #4420
+            if self.invocation_ambiguities:  # #4419: a shared PROGRAM-ID no member is named for
+                summary["program_id_ambiguities"] = self.invocation_ambiguities
 
             # #371/#1159: see the identical backfill in the main pipeline above.
             repo_macro = summary.get("repo_macro_species", {})

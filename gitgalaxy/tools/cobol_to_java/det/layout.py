@@ -12,7 +12,7 @@ from dataclasses import dataclass, field
 from decimal import Decimal
 from pathlib import Path
 
-from gitgalaxy.tools.cobol_to_java.det.source import Line, as_fixed_rows, unwrap
+from gitgalaxy.tools.cobol_to_java.det.source import Line, as_fixed_rows, cobol_parser, unwrap
 
 POSITIVE = "{ABCDEFGHI"  # overpunched +0..+9 (-fsign=EBCDIC, ASCII data)
 NEGATIVE = "}JKLMNOPQR"
@@ -120,9 +120,7 @@ class Item:
 
 # ---- parsing -----------------------------------------------------------------------------------------------------
 def _parser():
-    from tree_sitter_language_pack import get_parser
-
-    return get_parser("cobol")
+    return cobol_parser()
 
 
 def _txt(node, src: bytes) -> str:

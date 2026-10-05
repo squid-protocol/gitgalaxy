@@ -40,6 +40,25 @@
     "port_sha256": "4fef1e45bdbf2feef91a2e0a27eaf1ded061c9520bfeb247bdf5edef23c3e840",
     "harness_commit": "16ae9e01515581be224b32982ceae54bc73e68fb",
     "by": "tests/tools/crucible_port_provenance.py reprove (cics_crucible.py --sides java-ported --program GTSTART --report-dir)"
+   },
+   {
+    "at": "2026-10-05T10:26:37+00:00",
+    "crucible_ref": "v0.2.0 (94f2afcb)",
+    "summary": {
+     "interval-data": "1/1",
+     "no-data": "1/1",
+     "protect-abend": "1/1",
+     "retrieve-lengerr": "1/1",
+     "time-six-hours": "1/1",
+     "unknown-mode": "1/1"
+    },
+    "port_sha256": "b066d8d52ff9535aea54881830b0c0c45bfb8848ba1a2b9fea2ce85fb01e0b76",
+    "harness_commit": "78c73e6832cb8b86cd405c73457c07d62d3b266f",
+    "by": "tests/tools/crucible_port_provenance.py reprove (cics_crucible.py --sides java-ported java-facade --program GTSTART --report-dir)",
+    "entry_points": [
+     "runTask",
+     "handleTransaction"
+    ]
    }
   ]
  },
@@ -73,6 +92,20 @@
     "retrieve-lengerr": "1/1",
     "time-six-hours": "1/1"
    }
+  },
+  {
+   "at": "2026-10-05T10:13:31+00:00",
+   "event": "resurfaced",
+   "by": "tests/tools/port_surface.py",
+   "generator_commit": "1aff9778c",
+   "generated_from": "service/GtstartService.java",
+   "replaced": [
+    "handleTransaction"
+   ],
+   "removed": [
+    "executeGtstart"
+   ]
   }
- ]
+ ],
+ "edited_after": "the deployed entry points (facades) were brought to the generator's by tests/tools/port_surface.py (#4343; see history 'resurfaced'); runTask and the logic it runs are the model's answer"
 }

@@ -60,13 +60,6 @@ public class HcsubService {
     private record Frame(CicsTask task, HcsubDfhcommarea ca) {
     }
 
-    public void executeHcsub(/* Parameters mapped from Controller */) {
-        log.info("Executing modernized business logic for HCSUB");
-        // HCSUB has no batch or controller entry of its own: it is a CICS program LINKed from HCMAIN and
-        // works only on the DFHCOMMAREA its caller passes. Its PROCEDURE DIVISION is ported in runTask.
-        log.info("HCSUB runs only as a LINK target (runTask / handleLink); no standalone business logic to run");
-    }
-
     /** This program's run at a LINK / XCTL level (#4004): task.level(), task.eibcalen(). */
     public void runTask(CicsTask task) {
         log.info("Hcsub: runTask");
@@ -93,12 +86,13 @@ public class HcsubService {
         }
     }
 
-    /** Another program LINKed / XCTLed to this one: runs HCSUB on the request itself (changed in place, as
-     *  the LINK COMMAREA is shared) as a task level of its own. */
+    /** Another program LINKed / XCTLed to this one (#4343): the program at that level in the region
+     *  (CicsTask.region()), run through runTask on `request`, passed by reference -- what it changes, the caller sees. */
     public HcsubDfhcommarea handleLink(HcsubDfhcommarea request) {
         log.info("Hcsub: handleLink");
-        CicsTask task = new CicsTask(null, null, request, null).withProgram(PROGRAM);
-        runTask(task);
+        CicsTask.Region region = CicsTask.region();
+        CicsTask task = region.linked("HCSUB", request);
+        region.run(task, "HCSUB", this::runTask);
         return request;
     }
 

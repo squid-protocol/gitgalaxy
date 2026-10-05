@@ -16,6 +16,18 @@ PROGRAM_EXTS = (".cbl", ".CBL", ".cob", ".COB")
 COPY_EXTS = COPYBOOK_EXTS + PROGRAM_EXTS
 
 
+def cobol_parser():
+    """tree-sitter's COBOL parser (det/layout.py and det/stmt.py). The language pack is the optional `translator`
+    extra, imported on first use, so a missing install says which extra to add instead of a bare ImportError."""
+    try:
+        from tree_sitter_language_pack import get_parser
+    except ImportError as exc:
+        raise ImportError(
+            "the COBOL-to-Java translator needs tree-sitter-language-pack: pip install gitgalaxy[translator]"
+        ) from exc
+    return get_parser("cobol")
+
+
 @dataclass
 class Line:
     text: str  # columns 8-72 (area A and B)

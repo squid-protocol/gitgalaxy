@@ -49,16 +49,14 @@ public class HxextService {
     private record Send(Hxm2Screen screen, CicsTask.MapSubfields subfields, String[] options) {
     }
 
-    /** HXEXT is a CICS program: it has no batch step. Its logic runs through runTask(CicsTask). */
-    public void executeHxext(/* Parameters mapped from Controller */) {
-        log.info("Executing modernized business logic for HXEXT");
-        log.info("HXEXT is a CICS program (transaction {}); it runs through runTask(CicsTask)", TRANSID);
-    }
-
-    /** A CICS transaction entered the program: the COMMAREA it returns (WS-CA, VALUE 'E'). */
+    /** A CICS transaction entered the program (#4343): one task of it in the region (CicsTask.region()),
+     *  ENTER pressed -- `request` its COMMAREA, null when started from a cleared screen -- run through runTask. Returns the COMMAREA its RETURN passes on (null: none). */
     public HxextWsCa handleTransaction(String transid, HxextWsCa request) {
         log.info("Hxext: handleTransaction");
-        return newWsCa();
+        CicsTask.Region region = CicsTask.region();
+        CicsTask task = region.transaction(transid, request);
+        region.run(task, "HXEXT", this::runTask);
+        return task.returned(HxextWsCa.class);
     }
 
     /** One pseudo-conversational task of this program (#3754). */
@@ -90,15 +88,6 @@ public class HxextService {
      *  screen as the program filled it. */
     public Hxm2Screen renderHxm2(Hxm2Screen screen) {
         return screen == null ? firstEntryScreen().screen() : screen;
-    }
-
-    /** RECEIVE MAP(HXM2) MAPSET(HXSET2) INTO(HXM2I): the screen the program sends next for the key pressed
-     *  (PF5: BLINK-MISTAKE; any other key: CHECK-INPUT). */
-    public ScreenModel submitHxm2(Hxm2Screen input, String aid) {
-        if (PF5.equals(aid)) {
-            return renderHxm2(blinkMistake().screen());
-        }
-        return renderHxm2(checkInput(input).screen());
     }
 
     // ------------------------------------------------------------------------------------------

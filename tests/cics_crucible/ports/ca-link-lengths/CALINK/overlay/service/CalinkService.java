@@ -30,20 +30,13 @@ public class CalinkService {
 
     private final ObjectProvider<CasubService> casubService;
 
-    /**
-     * CALINK is a CICS program: its only entry is PROCEDURE DIVISION (line 31), run by transaction CA01
-     * (csd/ca-link-lengths.csd). It RECEIVEs from the terminal and LINKs through CICS, so it has no batch
-     * form. Run it through {@link #runTask(CicsTask)}.
-     */
-    public void executeCalink(/* Parameters mapped from Controller */) {
-        log.info("Executing modernized business logic for CALINK");
-        throw new UnsupportedOperationException(
-                "CALINK is a CICS program (transaction CA01): run it through runTask(CicsTask)");
-    }
-
-    /** A CICS transaction entered the program. */
+    /** A CICS transaction entered the program (#4343): one task of it in the region (CicsTask.region()),
+     *  ENTER pressed, started from a cleared screen, run through runTask. */
     public void handleTransaction(String transid) {
-        log.info("Calink: handleTransaction {}", transid);
+        log.info("Calink: handleTransaction");
+        CicsTask.Region region = CicsTask.region();
+        CicsTask task = region.transaction(transid, null);
+        region.run(task, "CALINK", this::runTask);
     }
 
     /** One pseudo-conversational task of this program (#3754): the PROCEDURE DIVISION (MAIN-PARA). */

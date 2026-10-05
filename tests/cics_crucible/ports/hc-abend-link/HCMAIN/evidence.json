@@ -7,8 +7,9 @@
   "paths": [
    "tests/cics_crucible/ports/hc-abend-link/HCMAIN/overlay/service/HcmainService.java"
   ],
-  "sha256": "3a5f9a993c27f66ce25b02d8f1bdf0dd9dfdeec4a1b7cc783473b03cda3e257f",
+  "sha256": "b31ec5119e769149f7f2aca4809ff6ee16a86114e0f624a17e7905b88e3fa8b4",
   "entry_points": [
+   "handleTransaction",
    "runTask"
   ]
  },
@@ -18,7 +19,7 @@
     "tests/cics_crucible/ports/hc-abend-link/*/overlay/**"
    ],
    "files": 2,
-   "sha256": "53df11ee2eb611299d7ad83b71b2a5693b76d7cece3b301aa934ea7005b6ba8f"
+   "sha256": "a5b31421982bb3e9a63b36a4f823bd04f615482c50f5207b2fe1f6e2dd88dd0a"
   },
   "case": {
    "paths": [
@@ -44,7 +45,7 @@
     "tests/tools/cics_crucible_compare.py"
    ],
    "files": 13,
-   "sha256": "76e6774afa2c5e70a0fefbff574591dee05a4270a46d98d70433c272870f08a7"
+   "sha256": "a3ae3d6d7e938e36cd15639224926bf86762c0f436c35667909f895cbe77382c"
   },
   "oracle": {
    "paths": [],
@@ -66,13 +67,16 @@
   "differences": {
    "sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
   },
-  "digest": "2f9350ce0e0e38e22151c0da0c01f4d2fd0fb389e971ed6eaed9b6303ca0d2a6"
+  "digest": "66f11b8e976fd541fd63930761c86ebc1f7b810f338aba55c0933e14a02d849a"
  },
  "proof": {
-  "at": "2026-10-05T06:07:13Z",
+  "at": "2026-10-05T10:31:48Z",
   "verdict": "proven",
   "runs": 5,
   "fault_runs": 0,
+  "entry_runs": [
+   "handleTransaction"
+  ],
   "environments": null,
   "outputs": {
    "push-pop": {
@@ -100,8 +104,8 @@
   "sysout_compared": null,
   "attributes_compared": null,
   "java_failed": false,
-  "harness_commit": "d03da8b743917a29a13e48709fb0c7f6ad778528+uncommitted",
-  "inputs_digest": "2f9350ce0e0e38e22151c0da0c01f4d2fd0fb389e971ed6eaed9b6303ca0d2a6"
+  "harness_commit": "78c73e6832cb8b86cd405c73457c07d62d3b266f+uncommitted",
+  "inputs_digest": "66f11b8e976fd541fd63930761c86ebc1f7b810f338aba55c0933e14a02d849a"
  },
  "coverage": {
   "paragraphs": {
@@ -116,69 +120,46 @@
   "handler_labels": null,
   "source": "tests/cics_crucible/coverage.json#programs/hc-abend-link/HCMAIN",
   "ledger_sha256": "95f8d57261c6f6b47c207fc37718c23892eae9644f6e7c73974ae1a61e779575",
-  "inputs_digest": "2f9350ce0e0e38e22151c0da0c01f4d2fd0fb389e971ed6eaed9b6303ca0d2a6"
+  "inputs_digest": "66f11b8e976fd541fd63930761c86ebc1f7b810f338aba55c0933e14a02d849a"
  },
  "reach": {
   "entry_points": [
+   "handleTransaction",
    "runTask"
   ],
   "unproven": [
    {
     "class": "HcmainService",
-    "method": "executeHcmain",
-    "line": 96,
-    "kind": "ported_unproven"
-   },
-   {
-    "class": "HcmainService",
-    "method": "handleTransaction",
-    "line": 129,
-    "kind": "stub"
-   },
-   {
-    "class": "HcmainService",
     "method": "linkHcsub",
-    "line": 163,
+    "line": 133,
     "kind": "left_as_generated"
    },
    {
     "class": "HcmainService",
     "method": "readqTsHcmodeL27",
-    "line": 203,
+    "line": 173,
     "kind": "left_as_generated"
    },
    {
     "class": "HcmainService",
     "method": "readqTsHcnoneL37",
-    "line": 209,
+    "line": 179,
     "kind": "left_as_generated"
    },
    {
     "class": "HcmainService",
     "method": "readqTsHcnoneL54",
-    "line": 215,
+    "line": 185,
     "kind": "left_as_generated"
-   },
-   {
-    "class": "HcmainService",
-    "method": "seed",
-    "line": 435,
-    "kind": "ported_unproven"
-   },
-   {
-    "class": "HcmainService",
-    "method": "bridgeHcsub",
-    "line": 440,
-    "kind": "ported_unproven"
    }
   ],
   "counts": {
-   "stub": 1,
+   "stub": 0,
    "left_as_generated": 4,
-   "ported_unproven": 3
+   "ported_unproven": 0
   },
   "generated_compared": true,
-  "port_sha256": "3a5f9a993c27f66ce25b02d8f1bdf0dd9dfdeec4a1b7cc783473b03cda3e257f"
+  "port_sha256": "b31ec5119e769149f7f2aca4809ff6ee16a86114e0f624a17e7905b88e3fa8b4"
  },
  "mutation": {
   "commit": "be2561306",
@@ -221,7 +202,7 @@
  "differences": [],
  "oracle": {
   "kind": "crucible-expected-logs",
-  "source": "cics-crucible v0.2.0: each scenario's hand-written expected event log, derived from IBM's documentation (its SPEC.md); the java-ported side is compared with it exactly",
+  "source": "cics-crucible v0.2.0: each scenario's hand-written expected event log, derived from IBM's documentation (its SPEC.md); the java-ported side (runTask) and the java-facade side (the deployed entry points, #4343) are compared with it exactly",
   "compiler": null,
   "image": null,
   "models": [],
@@ -237,11 +218,11 @@
   "porting_rules_sha256": null,
   "proposed_at": "2026-09-29T22:01:48+00:00",
   "generator_version": null,
-  "edited_after": null,
+  "edited_after": "the deployed entry points (facades) were brought to the generator's by tests/tools/port_surface.py (#4343; see history 'resurfaced'); runTask and the logic it runs are the model's answer",
   "provenance_file": {
    "path": "tests/cics_crucible/ports/hc-abend-link/HCMAIN/provenance.json",
    "format": "cics-crucible-port/1",
-   "sha256": "8d770d47c6b8628d1a77f0af7daaab4ba16b79b8a0f6ecfc0872ef9aab1fc1f5"
+   "sha256": "3919cfbf466319cf4c5ecc1e24f63f34b512ae3b47c1f22824a4a172d6444e37"
   },
   "crucible_ref_proven": "v0.2.0 (94f2afcb)"
  },

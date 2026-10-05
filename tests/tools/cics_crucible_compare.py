@@ -45,7 +45,9 @@ EXPECTED_FORMAT = "cics-crucible/expected/1"
 EBCDIC = "cp037"  # SPEC section 2: every byte in every area is CCSID 037
 # `java` runs the services as generated (the unported skeletons); `java-ported` lays each case's committed
 # ports (tests/cics_crucible/ports/<case>/<PROGRAM>/, the porting loop's proven overlays) over them first.
-SIDES = ("engine-facts", "forge-compile", "cobol-stub", "java", "java-ported")
+# `java-facade` (#4343) runs that ported project again, each task entered through the program's deployed entry point
+# (its Spring facade: handleTransaction, handleLink) rather than runTask.
+SIDES = ("engine-facts", "forge-compile", "cobol-stub", "java", "java-ported", "java-facade")
 CASE_SIDES = ("engine-facts", "forge-compile")  # one cell per case, scenario "*"
 TASK_KEYS = ("transid", "program", "termid", "at", "trigger", "eibaid", "eibcalen", "commarea")
 

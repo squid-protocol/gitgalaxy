@@ -57,26 +57,14 @@ public class HxattrService {
     private static final int NULATR_LEN = 8;
     private static final int FSETF_LEN = 8;
 
-    public void executeHxattr(/* Parameters mapped from Controller */) {
-        log.info("Executing modernized business logic for HXATTR");
-        // HXATTR is a CICS transaction (HX01) with no batch entry: its whole PROCEDURE DIVISION is
-        // ported into runTask(CicsTask); there is no business logic to run outside a CICS task.
-        log.info("HXATTR runs as CICS transaction {}: use runTask(CicsTask)", TRANSID);
-    }
-
-    /** A CICS transaction entered the program with a COMMAREA and no terminal input: the task is run through
-     *  runTask with ENTER, and the COMMAREA the program passes on its RETURN (null when none) is returned. */
+    /** A CICS transaction entered the program (#4343): one task of it in the region (CicsTask.region()),
+     *  ENTER pressed -- `request` its COMMAREA, null when started from a cleared screen -- run through runTask. Returns the COMMAREA its RETURN passes on (null: none). */
     public HxattrWsCa handleTransaction(String transid, HxattrWsCa request) {
         log.info("Hxattr: handleTransaction");
-        CicsTask task = new CicsTask(transid, "ENTER", request, Map.of());
-        runTask(task);
-        HxattrWsCa passed = null;
-        for (Map<String, Object> e : task.events()) {
-            if ("RETURN".equals(e.get("event")) && e.get("commarea") instanceof HxattrWsCa ca) {
-                passed = ca;
-            }
-        }
-        return passed;
+        CicsTask.Region region = CicsTask.region();
+        CicsTask task = region.transaction(transid, request);
+        region.run(task, "HXATTR", this::runTask);
+        return task.returned(HxattrWsCa.class);
     }
 
     /** One pseudo-conversational task of this program (#3754). */
@@ -102,27 +90,6 @@ public class HxattrService {
         // pseudo-conversation ends and the next key the operator presses does not start HX01.
         // Fix: EXEC CICS RETURN TRANSID('HX01') COMMAREA(WS-CA) LENGTH(1) at the end of ECHO-SCREEN.
         task.returnTransid(null, null);
-    }
-
-    /** SEND MAP(HXM1) MAPSET(HXSET1) FROM(HXM1O) at src/HXATTR.cbl:66, src/HXATTR.cbl:83, src/HXATTR.cbl:87 (#3619).
-     *  Fills HXM1O as FIRST-SCREEN does before its SEND (line 66); MOVE LOW-VALUES TO HXM1O discards whatever
-     *  the screen held. */
-    public Hxm1Screen renderHxm1(Hxm1Screen screen) {
-        Hxm1Screen hxm1o = screen == null ? new Hxm1Screen() : screen;
-        fillFirstScreen(hxm1o, new LinkedHashMap<>());
-        return hxm1o;
-    }
-
-    /** RECEIVE MAP(HXM1) MAPSET(HXSET1) INTO(HXM1I) at src/HXATTR.cbl:74 (#3619).
-     *  CLEAR: RESET-SCREEN resends the bare map (MAPONLY: no program data). Any other key: ECHO-SCREEN,
-     *  the received map echoed back with STAT set ('NO INPUT' when nothing was received, MAPFAIL). */
-    public ScreenModel submitHxm1(Hxm1Screen input, String aid) {
-        if ("CLEAR".equals(aid)) {
-            return new Hxm1Screen();                    // RESET-SCREEN: MAPONLY, the map's own INITIAL values
-        }
-        Hxm1Screen hxm1i = new Hxm1Screen();
-        fillEchoScreen(hxm1i, new LinkedHashMap<>(), Optional.ofNullable(input));
-        return hxm1i;
     }
 
     // ------------------------------------------------------------------------------------------------

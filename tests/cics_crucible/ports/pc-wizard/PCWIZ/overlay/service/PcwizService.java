@@ -61,28 +61,24 @@ public class PcwizService {
         BigDecimal amtDigits = BigDecimal.ZERO;
     }
 
-    public void executePcwiz(/* Parameters mapped from Controller */) {
-        log.info("Executing modernized business logic for PCWIZ");
-        // PCWIZ is a CICS program with no batch entry: its PROCEDURE DIVISION is ported in runTask(CicsTask).
-        log.info("PCWIZ runs only as a CICS transaction (PC01 / PC02 / XCTL from PCCONF); see runTask");
-    }
-
-    /** A CICS transaction entered the program: runs one task with no screen input (a RECEIVE MAP is MAPFAIL)
-     *  and returns the COMMAREA the task's RETURN passes on (the request itself when it ended with a plain
-     *  RETURN). */
+    /** A CICS transaction entered the program (#4343): one task of it in the region (CicsTask.region()),
+     *  ENTER pressed -- `request` its COMMAREA, null when started from a cleared screen -- run through runTask. Returns the COMMAREA its RETURN passes on (null: none). */
     public PcwizWsState handleTransaction(String transid, PcwizWsState request) {
         log.info("Pcwiz: handleTransaction");
-        CicsTask task = new CicsTask(transid, "ENTER", request, Map.of());
-        runTask(task);
-        return returnedCommarea(task, request);
+        CicsTask.Region region = CicsTask.region();
+        CicsTask task = region.transaction(transid, request);
+        region.run(task, "PCWIZ", this::runTask);
+        return task.returned(PcwizWsState.class);
     }
 
-    /** Another program XCTLed to this one (PCCONF's PF7, still under PC03): the same PROCEDURE DIVISION. */
+    /** Another program LINKed / XCTLed to this one (#4343): the program at that level in the region
+     *  (CicsTask.region()), run through runTask on `request`, passed by reference -- what it changes, the caller sees. */
     public PcwizWsState handleLink(PcwizWsState request) {
         log.info("Pcwiz: handleLink");
-        CicsTask task = new CicsTask("PC03", "PF7", request, Map.of());
-        runTask(task);
-        return returnedCommarea(task, request);
+        CicsTask.Region region = CicsTask.region();
+        CicsTask task = region.linked("PCWIZ", request);
+        region.run(task, "PCWIZ", this::runTask);
+        return request;
     }
 
     /** One pseudo-conversational task of this program (#3754). */
@@ -219,42 +215,6 @@ public class PcwizService {
         task.returnTransid(null, null);
     }
 
-    /** SEND MAP(PCM1) MAPSET(PCSET) FROM(PCM1O) at src/PCWIZ.cbl:63 (#3619): SEND-STEP1's moves, with the
-     *  screen's msg1 as WS-MSG. */
-    public Pcm1Screen renderPcm1(Pcm1Screen screen) {
-        return buildPcm1(screen == null ? spaces(40) : screen.getMsg1());
-    }
-
-    /** RECEIVE MAP(PCM1) MAPSET(PCSET) INTO(PCM1I) at src/PCWIZ.cbl:48 (#3619): runs the PC02 task on a
-     *  step-1 state with this input and key, and returns the screen it sends next -- null when the task
-     *  sent text instead (PF3: WIZARD CANCELLED). */
-    public ScreenModel submitPcm1(Pcm1Screen input, String aid) {
-        Work w = new Work();
-        initializeWsState(w);
-        w.state.setPcStep(1);
-        Map<String, Object> received = input == null ? Map.of() : Map.of(MAP1, input);
-        CicsTask task = new CicsTask("PC02", aid, w.state, received);
-        runTask(task);
-        ScreenModel next = null;
-        List<Map<String, Object>> events = task.events();
-        for (Map<String, Object> e : events) {
-            if ("SEND-MAP".equals(e.get("event")) && e.get("screen") instanceof ScreenModel s) {
-                next = s;
-            }
-        }
-        return next;
-    }
-
-    /** SEND MAP(PCM2) MAPSET(PCSET) FROM(PCM2O) at src/PCWIZ.cbl:76 (#3619): the moves SEND-STEP2 makes,
-     *  taking PC-NAME from nameout, the amount digits from amt and WS-MSG from msg2. */
-    public Pcm2Screen renderPcm2(Pcm2Screen screen) {
-        Pcm2Screen out = new Pcm2Screen();
-        out.setNameout(alnum(screen == null ? null : screen.getNameout(), 15));
-        out.setAmt(screen == null || screen.getAmt() == null ? lowValues(7) : alnum(screen.getAmt(), 7));
-        out.setMsg2(alnum(screen == null ? null : screen.getMsg2(), 40));
-        return out;
-    }
-
     // ---- helpers ----
 
     /** INITIALIZE WS-STATE: numeric fields to zero, alphanumeric fields to spaces. */
@@ -281,16 +241,6 @@ public class PcwizService {
             s.setPcSpare(from.getPcSpare());
         }
         return s;
-    }
-
-    private static PcwizWsState returnedCommarea(CicsTask task, PcwizWsState fallback) {
-        PcwizWsState out = fallback;
-        for (Map<String, Object> e : task.events()) {
-            if ("RETURN".equals(e.get("event")) && e.get("commarea") instanceof PcwizWsState s) {
-                out = s;
-            }
-        }
-        return out;
     }
 
     /** MOVE to PIC X(n): padded with spaces or truncated on the right. */

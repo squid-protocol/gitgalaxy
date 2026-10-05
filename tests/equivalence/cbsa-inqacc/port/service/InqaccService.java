@@ -7,7 +7,7 @@ import org.slf4j.LoggerFactory;
 import com.gitgalaxy.modernized.batch.Sysout;
 import com.gitgalaxy.modernized.cics.CicsTask;
 import com.gitgalaxy.modernized.dto.contract.AbndprocDfhcommarea;
-import com.gitgalaxy.modernized.dto.contract.InqaccCommarea;
+import com.gitgalaxy.modernized.dto.contract.InqaccDfhcommarea;
 import com.gitgalaxy.modernized.entity.vsam.CobolRecords;
 import com.gitgalaxy.modernized.exception.*;
 import com.gitgalaxy.modernized.repository.db2.AccountRepository;
@@ -57,7 +57,7 @@ public class InqaccService {
 
     /** The program's WORKING-STORAGE for one task. */
     private static final class Work {
-        InqaccCommarea ca;
+        InqaccDfhcommarea ca;
         int sqlcode;
         int eibresp;
         int eibresp2;
@@ -112,8 +112,8 @@ public class InqaccService {
     public void runTask(CicsTask task) {
         log.info("Inqacc: runTask");
         Work w = new Work();
-        w.ca = task.commarea(InqaccCommarea.class);
-        InqaccCommarea ca = w.ca;
+        w.ca = task.commarea(InqaccDfhcommarea.class);
+        InqaccDfhcommarea ca = w.ca;
 
         // A010: INITIALIZE OUTPUT-DATA
         w.initOutput();
@@ -152,7 +152,7 @@ public class InqaccService {
 
     /** Another program LINKed / XCTLed to this one (#4343): the program at that level in the region
      *  (CicsTask.region()), run through runTask on `request`, passed by reference -- what it changes, the caller sees. */
-    public InqaccCommarea handleLink(InqaccCommarea request) {
+    public InqaccDfhcommarea handleLink(InqaccDfhcommarea request) {
         log.info("Inqacc: handleLink");
         CicsTask.Region region = CicsTask.region();
         CicsTask task = region.linked("INQACC", request);

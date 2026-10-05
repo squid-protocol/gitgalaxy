@@ -1042,13 +1042,56 @@ def _bless_leg(kit: Kit, leg: str, verify: bool, wt: Path | None = None) -> tupl
     return True, "crucible_check PASS"
 
 
+CRUCIBLE_VENV_DIRS = {"full": "full_precision", "zero": "zero_dependency"}
+
+
+def crucible_venv_python(wt: Path, leg: str) -> Path:
+    """The interpreter of `wt`'s own crucible venv for a leg ("full" | "zero")."""
+    return wt / ".crucible_venvs" / CRUCIBLE_VENV_DIRS[leg] / "bin" / "python"
+
+
+def scope_leg(mode: str) -> str:
+    """scope_check imports golden_diff -> gitgalaxy in its own process, so it needs one venv:
+    full-precision for full/both, zero-dependency for a zero-only run."""
+    return "full" if mode in ("full", "both") else "zero"
+
+
+def venv_env(base: dict[str, str], py: Path) -> dict[str, str]:
+    """`base` as seen from inside the venv of `py`: no inherited PYTHONPATH / VIRTUAL_ENV /
+    PYTHONHOME (they shadow the venv's editable install), venv bin first on PATH."""
+    env = {k: v for k, v in base.items() if k not in ("PYTHONPATH", "VIRTUAL_ENV", "PYTHONHOME")}
+    env["VIRTUAL_ENV"] = str(py.parent.parent)
+    env["PATH"] = f"{py.parent}{os.pathsep}{env.get('PATH', '')}"
+    return env
+
+
+def ensure_crucible_venv(kit: Kit, leg: str) -> Path:
+    """The worktree's own crucible venv python for `leg`, built by crucible_check.ensure_venv
+    (which also repoints its editable install at this worktree) when absent."""
+    py = crucible_venv_python(kit.wt, leg)
+    tools = kit.wt / "tests" / "tools"
+    if not (tools / "crucible_check.py").exists():
+        raise KitError(f"{tools / 'crucible_check.py'} is missing; cannot build the {leg} crucible venv")
+    log = kit.log(f"venv-crucible-{leg}")
+    code = f"import sys; sys.path.insert(0, {str(tools)!r}); import crucible_check; crucible_check.ensure_venv({leg!r})"
+    env = {k: v for k, v in os.environ.items() if k not in ("PYTHONPATH", "VIRTUAL_ENV", "PYTHONHOME")}
+    env["LANGUAGE_CRUCIBLE_PATH"] = str(kit.corpus_path(leg))
+    rc = kit.run([sys.executable, "-c", code], log, cwd=kit.wt, env=env)
+    if rc != 0 or not py.exists():
+        raise KitError(f"the {leg} crucible venv {py} is missing and could not be built (exit {rc}), see {log}")
+    return py
+
+
 def cmd_scope(kit: Kit, base: str, expect: str | None, mode: str) -> bool:
     """`scope_check.py`: scan this worktree and --base side by side, bucket the diff by
-    language, and (with --expect) fail on anything outside the expected languages."""
-    corpus = kit.ensure_corpus("full" if mode in ("full", "both") else "zero")
-    env = _crucible_env(kit, "full" if mode in ("full", "both") else "zero", kit.wt)
+    language, and (with --expect) fail on anything outside the expected languages. Runs under
+    THIS worktree's crucible venv, never the interpreter the kit was started with."""
+    leg = scope_leg(mode)
+    corpus = kit.ensure_corpus(leg)
+    py = ensure_crucible_venv(kit, leg)
+    env = venv_env(_crucible_env(kit, leg, kit.wt), py)
     env["LANGUAGE_CRUCIBLE_PATH"] = str(corpus)
-    cmd = [sys.executable, str(kit.wt / "tests" / "tools" / "scope_check.py"), "--base", base, "--mode", mode]
+    cmd = [str(py), str(kit.wt / "tests" / "tools" / "scope_check.py"), "--base", base, "--mode", mode]
     if expect:
         cmd += ["--expect", expect]
     log = kit.log("scope")

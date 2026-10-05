@@ -378,10 +378,16 @@ def translate_command(body: str, labels: list[str] | None = None, handle_aid: bo
             raise Unsupported("READ without FILE / INTO / RIDFLD")
         keylen = opts.get("KEYLENGTH") or f"LENGTH OF {ridfld}"
         update = "MOVE 'UPDATE' TO GG-FLAGS" if "UPDATE" in opts else "MOVE SPACES TO GG-FLAGS"  # holds the record
-        return ([name(file, "GG-NAME1"), update]
+        # #4436: LENGTH is in-out (IBM, EXEC CICS READ): in, the most INTO takes (a longer record is truncated, with
+        # LENGERR); out, the record's length, on NORMAL and LENGERR. Without it, LENGTH OF INTO (as the translator
+        # supplies it). A literal / LENGTH OF is set in a temporary no one reads.
+        length = opts.get("LENGTH")
+        settable = bool(length) and re.fullmatch(r"(?is)\d+|LENGTH\s+OF\s+.+", length.strip()) is None
+        after = ["IF GG-RESP = 0 OR GG-RESP = 22", f"    MOVE GG-LEN TO {length}", "END-IF"] if settable else []
+        return ([name(file, "GG-NAME1"), update, f"MOVE {length or f'LENGTH OF {into}'} TO GG-LEN"]
                 + _call("GGCREAD", [f"BY REFERENCE {ridfld}", f"BY VALUE {keylen}", f"BY REFERENCE {into}",
                                     f"BY VALUE LENGTH OF {into}"])
-                + _resp(opts, True, labels))  # fmt: skip
+                + after + _resp(opts, True, labels))  # fmt: skip
     if verb == "WRITE" and {"FILE", "DATASET"} & set(opts):
         for bad in ("MASSINSERT", "SYSID", "RBA", "XRBA", "RRN"):
             if bad in opts:

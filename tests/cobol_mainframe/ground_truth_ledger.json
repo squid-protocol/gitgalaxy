@@ -1,6 +1,11 @@
 {
   "about": "Mainframe ground-truth ledger (tests/tools/ground_truth_ledger.py). Every engine/forge disagreement with a hand-verified answer key, keyed '<side> | <field> | <program> | <value> | fp|fn' -> cause; every cause has a kind (defect|deliberate) and names its owning issue. CI fails on an unlisted mismatch, a listed one that no longer reproduces, an UNTRIAGED entry, a cause without an issue, or a stale scoreboard. Re-measure with `update`, triage with `assign`.",
   "causes": {
+    "answer_key_move_truncation_skips_replacing": {
+      "issue": 4470,
+      "kind": "defect",
+      "summary": "The key's MOVE-truncation reader does not apply COPY ... REPLACING, so it cannot size a record that exists only under its replaced name; the engine (after #4457) reports these real truncations (SAM1 WS-CUST-REC 387 -> WS-CUST-CONTACT-REC 69)."
+    },
     "engine_dead_is_unreferenced_by_name": {
       "issue": 2806,
       "kind": "deliberate",
@@ -3403,6 +3408,11 @@
     },
     "zopeneditor-sample": {
       "mismatches": {
+        "engine | MOVE truncation | COBOL/SAM1.cbl | L444 WS-CUST-REC -> WS-CUST-CONTACT-REC | fp": "answer_key_move_truncation_skips_replacing",
+        "engine | MOVE truncation | COBOL/SAM1LIB.cbl | L427 WS-CUST-REC -> WS-CUST-CONTACT-REC | fp": "answer_key_move_truncation_skips_replacing",
+        "engine | MOVE truncation | COBOL/SAM2.cbl | L116 TRAN-UPDATE-DATA -> CUST-NAME | fp": "answer_key_move_truncation_skips_replacing",
+        "engine | MOVE truncation | multiroot/sam/SAM1.cbl | L483 WS-CUST-REC -> WS-CUST-CONTACT-REC | fp": "answer_key_move_truncation_skips_replacing",
+        "engine | MOVE truncation | multiroot/sam/SAM2.cbl | L119 TRAN-UPDATE-DATA -> CUST-NAME | fp": "answer_key_move_truncation_skips_replacing",
         "engine | dead (non-trivial) | COBOL/SAM1.cbl | 000-MAIN | fp": "engine_dead_is_unreferenced_by_name",
         "engine | dead (non-trivial) | COBOL/SAM1LIB.cbl | 000-MAIN | fp": "engine_dead_is_unreferenced_by_name",
         "engine | dead (non-trivial) | COBOL/SAM2.cbl | 000-MAIN | fp": "engine_dead_is_unreferenced_by_name",
@@ -3520,7 +3530,7 @@
         },
         "MOVE truncation": {
           "engine": {
-            "got": 9,
+            "got": 14,
             "tp": 9,
             "truth": 9
           },

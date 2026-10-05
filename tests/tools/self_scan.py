@@ -141,6 +141,55 @@ def _prune_stale_commits(keep_hash: str) -> None:
         conn.close()
 
 
+def _file_count() -> int:
+    conn = sqlite3.connect(DB_PATH)
+    try:
+        return conn.execute("SELECT COUNT(*) FROM file_data").fetchone()[0]
+    finally:
+        conn.close()
+
+
+def _newest_baseline() -> tuple[str, int] | None:
+    """(commit, file count) of the baseline a delta scan would rehydrate (newest by commit_date)."""
+    conn = sqlite3.connect(DB_PATH)
+    try:
+        row = conn.execute(
+            "SELECT commit_hash FROM repo_data WHERE repo_name = ? ORDER BY commit_date DESC LIMIT 1", (PROJECT_NAME,)
+        ).fetchone()
+        if not row:
+            return None
+        (n,) = conn.execute(
+            "SELECT COUNT(*) FROM file_data WHERE repo_name = ? AND commit_hash = ?", (PROJECT_NAME, row[0])
+        ).fetchone()
+        return row[0], n
+    finally:
+        conn.close()
+
+
+def _delta_floor(baseline_commit: str, baseline_files: int) -> int:
+    """The fewest files a correct delta can hold: every baseline file survives except the ones
+    git reports deleted or renamed away since the baseline (added files only add, and a modified
+    file stays). #4483."""
+    lines = _git("-c", "core.quotepath=off", "diff", "--name-status", baseline_commit).splitlines()
+    gone = sum(1 for line in lines if line[:1] in ("D", "R"))
+    return baseline_files - gone
+
+
+def _run(cmd: list[str]) -> subprocess.CompletedProcess:
+    return subprocess.run(  # noqa: S603 -- galaxyscope resolved absolute via shutil.which, fixed args
+        cmd,
+        cwd=REPO_ROOT,
+        # Merge with (not replace) the parent env -- galaxyscope shells out to
+        # `git` to resolve commit_hash, which needs PATH/HOME/etc. A bare
+        # env={"GITGALAXY_LICENSE_KEY": ...} strips all of that, silently
+        # degrading commit_hash to "Unknown" instead of erroring loudly.
+        env={**os.environ, "GITGALAXY_LICENSE_KEY": "COMMUNITY_FREE_TIER"},
+        capture_output=True,
+        text=True,
+        timeout=120,
+    )
+
+
 def regenerate() -> bool:
     """Returns True if a scan actually ran, False if the existing DB was already current."""
     _check_full_precision_deps()
@@ -164,6 +213,7 @@ def regenerate() -> bool:
     if not incremental:
         DB_PATH.unlink(missing_ok=True)
 
+    baseline = _newest_baseline() if incremental else None
     cmd = [
         galaxyscope,
         str(REPO_ROOT),
@@ -177,19 +227,7 @@ def regenerate() -> bool:
         cmd += ["--incremental", str(DB_PATH)]
 
     start = time.time()
-    result = subprocess.run(  # noqa: S603 -- galaxyscope resolved absolute via shutil.which, fixed args
-        cmd,
-        cwd=REPO_ROOT,
-        # Merge with (not replace) the parent env -- galaxyscope shells out to
-        # `git` to resolve commit_hash, which needs PATH/HOME/etc. A bare
-        # env={"GITGALAXY_LICENSE_KEY": ...} strips all of that, silently
-        # degrading commit_hash to "Unknown" instead of erroring loudly.
-        env={**os.environ, "GITGALAXY_LICENSE_KEY": "COMMUNITY_FREE_TIER"},
-        capture_output=True,
-        text=True,
-        timeout=120,
-    )
-    elapsed = time.time() - start
+    result = _run(cmd)
     if result.returncode != 0 or not DB_PATH.exists():
         print(result.stdout)
         print(result.stderr, file=sys.stderr)
@@ -200,6 +238,27 @@ def regenerate() -> bool:
     # path -- and on the happy path, the keyed DELETE-then-INSERT above never touches the old
     # baseline's rows either way. Collapse to current HEAD regardless of which path ran.
     _prune_stale_commits(_current_head())
+
+    # #4483: a delta must never hold fewer files than the baseline minus what git says is gone.
+    # If it does, unchanged files went missing: warn and redo the scan in full.
+    if baseline is not None:
+        floor = _delta_floor(*baseline)
+        got = _file_count()
+        if got < floor:
+            print(
+                f"⚠️  delta scan lost files ({got} indexed, at least {floor} expected from baseline "
+                f"{baseline[0][:9]}'s {baseline[1]}): falling back to a full scan.",
+                file=sys.stderr,
+            )
+            DB_PATH.unlink(missing_ok=True)
+            incremental = False
+            result = _run([c for c in cmd if c != "--incremental" and c != str(DB_PATH)])
+            if result.returncode != 0 or not DB_PATH.exists():
+                print(result.stdout)
+                print(result.stderr, file=sys.stderr)
+                sys.exit(f"self-scan failed -- {DB_PATH} was not produced by the full-scan fallback")
+            _prune_stale_commits(_current_head())
+    elapsed = time.time() - start
 
     mode = "incremental" if incremental else "full"
     print(f"   ({mode} scan, {elapsed:.1f}s)")

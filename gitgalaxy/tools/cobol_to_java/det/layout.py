@@ -12,7 +12,7 @@ from dataclasses import dataclass, field
 from decimal import Decimal
 from pathlib import Path
 
-from gitgalaxy.tools.cobol_to_java.det.source import Line, as_fixed, cobol_parser
+from gitgalaxy.tools.cobol_to_java.det.source import Line, as_fixed_rows, cobol_parser, unwrap
 
 POSITIVE = "{ABCDEFGHI"  # overpunched +0..+9 (-fsign=EBCDIC, ASCII data)
 NEGATIVE = "}JKLMNOPQR"
@@ -124,7 +124,31 @@ def _parser():
 
 
 def _txt(node, src: bytes) -> str:
-    return src[node.start_byte : node.end_byte].decode("latin-1")
+    start = _literal_start(node, src) if "string" in node.type else node.start_byte
+    return unwrap(src[start : node.end_byte].decode("latin-1"))  # (#4412: a re-wrapped literal joined)
+
+
+_CONT_LEAD = re.compile(rb" {6}-\s*")
+
+
+def _literal_start(node, src: bytes) -> int:
+    """#4412: a literal continued over re-wrapped rows (det.source.as_fixed_rows) is, to the grammar, only its last
+    row's piece; it starts at the quote still open at the end of the first row."""
+    start = node.start_byte
+    while True:
+        row = src.rfind(b"\n", 0, start) + 1
+        if not _CONT_LEAD.fullmatch(src[row:start]) or row == 0:
+            return start
+        prev = src.rfind(b"\n", 0, row - 1) + 1
+        quote, at = None, -1
+        for i, ch in enumerate(src[prev : row - 1].decode("latin-1")):
+            if quote is None and ch in "'\"":
+                quote, at = ch, i
+            elif ch == quote:
+                quote = None
+        if quote is None:
+            return start
+        start = prev + at
 
 
 _SECTIONS = {"file_section": "FILE", "working_storage_section": "WORKING-STORAGE",
@@ -184,7 +208,7 @@ def _data_only(lines: list[Line]) -> list[Line]:
 
 def parse(lines: list[Line]) -> list[Item]:
     """The 01 / 77 records of the DATA DIVISION, each a tree of Items."""
-    text = as_fixed(_data_only(lines))
+    text, rows = as_fixed_rows(_data_only(lines))
     # the PROCEDURE DIVISION is not needed (and EXEC blocks there are not this grammar's): stop before it
     m = re.search(r"^ {7}\s*PROCEDURE\s+DIVISION\b", text, re.I | re.M)
     head = text[: m.start()] if m else text
@@ -193,9 +217,13 @@ def parse(lines: list[Line]) -> list[Item]:
     records: list[Item] = []
     errors = []
 
+    def line_of(node) -> int:  # the expanded line (1-based) of a parser row
+        r = node.start_point[0]
+        return rows[r] + 1 if r < len(rows) else r + 1
+
     def visit(node, section: str | None, fd: str | None):
         if node.type == "ERROR":
-            errors.append(node.start_point[0] + 1)
+            errors.append(line_of(node))
             return
         if node.type in _SECTIONS:
             section = _SECTIONS[node.type]
@@ -204,7 +232,7 @@ def parse(lines: list[Line]) -> list[Item]:
             fd = _txt(entry, src).split()[0].upper().rstrip(".") if entry else None
         if node.type == "data_description":
             if node.has_error:  # #4411: an ERROR / MISSING inside an entry: its clauses are not what was read
-                errors.append(node.start_point[0] + 1)
+                errors.append(line_of(node))
                 return
             records_append(node, section, fd)
             return
@@ -215,7 +243,7 @@ def parse(lines: list[Line]) -> list[Item]:
 
     def records_append(node, section, fd):
         it = _item(node, src, section or "?", fd)
-        it.line = node.start_point[0] + 1
+        it.line = line_of(node)
         if it.level == 88:
             if stack:
                 stack[-1].conditions.append(it)

@@ -173,10 +173,59 @@ def program_lines(program: Path, dirs: list[Path]) -> list[Line]:
                   chain=frozenset({program.resolve()}))  # fmt: skip
 
 
+WIDTH = 65  # columns 8-72
+
+
 def as_fixed(lines: list[Line]) -> str:
-    """The lines as fixed-format source again (for a parser): seven blank columns, then the text -- longer lines
-    are kept whole (a joined continuation), which the parser reads as free text."""
-    return "".join(f"       {ln.text}\n" for ln in lines)
+    """The lines as fixed-format source again (for a parser): seven blank columns, then the text."""
+    return as_fixed_rows(lines)[0]
+
+
+def as_fixed_rows(lines: list[Line]) -> tuple[str, list[int]]:
+    """as_fixed's text, and for each of its rows the index in `lines` it came from. A line longer than columns
+    8-72 (a joined continuation) is wrapped back into fixed form (#4412): split at a space outside literals, or a
+    literal open at column 72 continued on the next row ('-' in column 7, the quote again in column 10). The
+    grammar fails on a line run past column 72; `unwrap` joins the continued literal again."""
+    out: list[str] = []
+    rows: list[int] = []
+    for k, ln in enumerate(lines):
+        for row in _wrap(ln.text) if len(ln.text) > WIDTH else ["       " + ln.text]:
+            out.append(row + "\n")
+            rows.append(k)
+    return "".join(out), rows
+
+
+def _wrap(text: str) -> list[str]:
+    rows: list[str] = []
+    rest, cont = text, False
+    while True:
+        lead = "      -  " if cont else "       "
+        lim = 72 - len(lead)
+        if len(rest) <= lim:
+            return [*rows, lead + rest]
+        quote, last_space = None, -1
+        for i, ch in enumerate(rest[:lim]):
+            if quote:
+                quote = None if ch == quote else quote
+            elif ch in "'\"":
+                quote = ch
+            elif ch == " ":
+                last_space = i
+        if quote is not None:  # the literal runs to column 72 and reopens on the next row
+            rows.append(lead + rest[:lim])
+            rest, cont = quote + rest[lim:], True
+            continue
+        k = last_space if last_space > 0 else lim
+        rows.append(lead + rest[:k])
+        rest, cont = rest[k:].lstrip(" "), False
+
+
+_CONTINUED = re.compile(r"\n {6}-\s*['\"]")
+
+
+def unwrap(text: str) -> str:
+    """Parser text with as_fixed_rows' literal continuations joined again (a continued literal's own text)."""
+    return _CONTINUED.sub("", text)
 
 
 def bms_copybooks(bms_files: list[Path], out: Path) -> list[str]:

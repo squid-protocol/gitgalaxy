@@ -4,6 +4,7 @@ the ports themselves are proven by tests/tools/det_port.py against GnuCOBOL."""
 
 from __future__ import annotations
 
+import os
 import sys
 from decimal import Decimal
 from pathlib import Path
@@ -426,6 +427,77 @@ def test_a_parse_error_inside_a_statement_is_a_hole():
     assert kinds[0] == ("HOLE", "does not parse")  # MOVE ALL TO A: was a MOVE
     assert kinds[1] == ("IF", None) and proc.paragraphs[0].body[1].data["cond"][0] == "UNPARSED"
     assert kinds[-1] == ("GOBACK", None)
+
+
+# ---- #4412: joined continuation lines re-wrapped to fixed form for the parser ---------------------------------
+def _lines(texts: list[str]):
+    from gitgalaxy.tools.cobol_to_java.det.source import Line
+
+    return [Line(t, "t", k + 1) for k, t in enumerate(texts)]
+
+
+def test_lines_within_column_72_reach_the_parser_byte_identical():
+    from gitgalaxy.tools.cobol_to_java.det import source as SRC
+
+    lines = _lines(["01 A PIC X(10) VALUE 'ABC'.", "X" * 65, "    MOVE A TO B."])
+    text, rows = SRC.as_fixed_rows(lines)
+    assert text == "".join(f"       {ln.text}\n" for ln in lines) and rows == [0, 1, 2]
+
+
+def test_a_long_line_is_rewrapped_and_its_literal_joined_again():
+    from gitgalaxy.tools.cobol_to_java.det import source as SRC
+
+    lit = " FEATURE" + " " * 14 + "PASS  PARAGRAPH-NAME" + " " * 33 + "REMARKS" + "*" * 70
+    line = f'    02 FILLER  PIC IS X({len(lit)})    VALUE IS "{lit}".'
+    text, rows = SRC.as_fixed_rows(
+        _lines([line, "    MOVE A TO B C D E F G H I J K L M N O P Q R S T U V W X Y Z AA BB"])
+    )
+    assert all(len(r) <= 72 for r in text.splitlines())
+    assert len(rows) > 3 and set(rows[:-2]) == {0} and rows[-2:] == [1, 1]
+    assert text.splitlines()[1].startswith('      -  "')  # '-' in column 7, the quote again in column 10
+    assert SRC.unwrap(text).splitlines()[0][7:] == line
+
+
+def test_a_rewrapped_value_literal_and_statement_literal_decode_verbatim():
+    pytest.importorskip("tree_sitter_language_pack")
+    from gitgalaxy.tools.cobol_to_java.det import layout as L
+
+    v99 = " FEATURE              PASS  PARAGRAPH-NAME" + " " * 51 + "REMARKS"
+    v65 = "*" * 65
+    lines = _lines(["IDENTIFICATION DIVISION.", "PROGRAM-ID. T.", "DATA DIVISION.", "WORKING-STORAGE SECTION.",
+                    "01 R.", f'    02 F1  PIC IS X(99)    VALUE IS "{v99}".', f'    02 F2 PIC X(65) VALUE "{v65}".',
+                    "01 A PIC X(99).", "PROCEDURE DIVISION.", "P1.", f'    MOVE "{v99}" TO A.',
+                    "    GOBACK."])  # fmt: skip
+    rec = L.parse(lines)[0]
+    assert [(c.name, c.values[0][1], c.line) for c in rec.children] == [("F1", v99, 6), ("F2", v65, 7)]
+    proc = S.parse(lines)
+    move, goback = proc.paragraphs[0].body
+    assert move.data["from"] == E.Lit(v99) and move.line == 11 and goback.line == 12  # the row map keeps lines
+
+
+_CCVS85 = Path(os.environ.get("LANGUAGE_CRUCIBLE_PATH", "/nonexistent")) / "data/cobol/che-che4z_nist_ccvs85"
+
+
+@pytest.mark.skipif(not _CCVS85.is_dir(), reason="needs the language-crucible's NIST CCVS85 corpus")
+def test_nist_ccvs85_parses_with_continuations_rewrapped():
+    """#4412: with joined continuations run past column 72, 39 of the 150 NIST programs parsed (the #4378 bake-off);
+    re-wrapped, 143 parse and 136 pass the translator's front end whole (the rest: DECLARATIVES, SEARCH ... WHEN)."""
+    pytest.importorskip("tree_sitter_language_pack")
+    from gitgalaxy.tools.cobol_to_java.det import layout as L
+    from gitgalaxy.tools.cobol_to_java.det import source as SRC
+
+    ok = 0
+    progs = sorted(_CCVS85.glob("*.cbl"))
+    for p in progs:
+        try:
+            lines = SRC.program_lines(p, [_CCVS85])
+            L.parse(lines)
+            proc = S.parse(lines)
+        except Exception:  # noqa: BLE001 -- a refusal is a program that does not count
+            continue
+        ok += not any(s.kind == "HOLE" and s.data.get("why") == "does not parse"
+                      for para in proc.paragraphs for s in S.walk(para.body))  # fmt: skip
+    assert len(progs) == 150 and ok >= 130, ok
 
 
 def test_missing_language_pack_names_the_translator_extra(monkeypatch):

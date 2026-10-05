@@ -198,12 +198,16 @@ def parse(lines: list[Line]) -> list[Item]:
     def visit(node, section: str | None, fd: str | None):
         if node.type == "ERROR":
             errors.append(node.start_point[0] + 1)
+            return
         if node.type in _SECTIONS:
             section = _SECTIONS[node.type]
         if node.type == "file_description":
             entry = next((c for c in node.children if c.type == "file_description_entry"), None)
             fd = _txt(entry, src).split()[0].upper().rstrip(".") if entry else None
         if node.type == "data_description":
+            if node.has_error:  # #4411: an ERROR / MISSING inside an entry: its clauses are not what was read
+                errors.append(node.start_point[0] + 1)
+                return
             records_append(node, section, fd)
             return
         for c in node.children:
@@ -328,8 +332,8 @@ def _one(node, src: bytes):
         return ("lit", text[1:-1])
     try:
         return ("num", Decimal(text))
-    except Exception:
-        return ("lit", text)
+    except ArithmeticError as e:  # #4411: an unquoted word is no literal (VALUE NULL ...): refused, never its text
+        raise LayoutError(f"line {node.start_point[0] + 1}: VALUE {text} not modelled") from e
 
 
 def _inherit_usage(it: Item, usage: str | None) -> None:

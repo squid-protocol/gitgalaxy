@@ -246,3 +246,183 @@ def test_an_esds_browse_by_rba_is_translated_and_the_rest_refused():
     ):
         with pytest.raises(C.CicsError):
             c.command(bad, "")
+
+
+# ---- #4411: accepted-but-ignored options and swallowed parse errors are refused --------------------------------
+class _KeyCics(_RbaCics):
+    """A keyed file KSDS (key 10 bytes); KEY a 10-byte item, SHORTKEY 6, VARLEN a data item the program writes."""
+
+    SIZES = {**_RbaCics.SIZES, "KEY": 10, "SHORTKEY": 6, "REC": 56}
+
+    def __init__(self):
+        super().__init__()
+
+        class GP:
+            files = {"KSDS": ("ksdsRepository", "Ksds", None)}
+
+            def file(self, name):
+                return self.files.get(name)
+
+            def entity_key(self, entity, prop):
+                return 0, 10
+
+        class Untouched:
+            values = [("num", Decimal(10))]
+
+        def resolve(ref):
+            if ref.name == "KLEN":
+                return Untouched()
+            from gitgalaxy.tools.cobol_to_java.det.gen import Untranslatable
+
+            raise Untranslatable(f"{ref.name}: varies")
+
+        self.gp = GP()
+        self.g.resolve = resolve
+        self.g.never_written = lambda it: True
+
+    def store(self, opts):
+        return "store(F)"
+
+
+@pytest.mark.parametrize(
+    "text",
+    [
+        "RETURN IMMEDIATE",  # 9 programs: IMMEDIATE ignored
+        "RETURN TRANSID('T1') IMMEDIATE",
+        "READ FILE('KSDS') INTO(REC) RIDFLD(KEY) GTEQ",
+        "READ FILE('KSDS') INTO(REC) RIDFLD(KEY) KEYLENGTH(6) GENERIC",
+        "STARTBR FILE('KSDS') RIDFLD(KEY) GENERIC KEYLENGTH(6)",
+        "STARTBR FILE('KSDS') RIDFLD(KEY) REQID(2)",
+        "READNEXT FILE('KSDS') INTO(REC) RIDFLD(KEY) REQID(2)",
+        "ENDBR FILE('KSDS') REQID(2)",
+        "LINK PROGRAM('P') COMMAREA(REC) SYNCONRETURN",  # 10 programs, one repo
+        "LINK PROGRAM('P') COMMAREA(REC) DATALENGTH(KEY)",
+        "ASSIGN USERID(REC)",
+        "ASSIGN NETNAME(REC) APPLID(REC)",
+        "FORMATTIME ABSTIME(REC) YYYYMMDD(REC) DAYOFMONTH(KEY)",
+        "ASKTIME ABSTIME(REC) RESP(R)",
+        "RECEIVE MAP('M') MAPSET('S') INTO(REC) ASIS",
+        "WRITEQ QUEUE('Q') FROM(REC) TD",  # a TD option after the verb is not TS
+        "READQ TS QUEUE('Q') SET(PTR)",
+        "SEND TEXT FROM(REC) CURSOR(KEY)",
+        "HANDLE ABEND LABEL(X) RESP(R)",
+        "INQUIRE PROGRAM('P') STATUS(REC)",
+    ],
+)
+def test_an_option_the_translation_would_ignore_is_refused_by_name(text):
+    with pytest.raises(C.CicsError, match="not modelled"):
+        _KeyCics().command(text, "")
+
+
+@pytest.mark.parametrize(
+    ("text", "why"),
+    [
+        ("READ FILE('KSDS') INTO(REC) RIDFLD(KEY) KEYLENGTH(6)", "a partial key"),  # (CICS: INVREQ)
+        ("READ FILE('KSDS') INTO(REC) RIDFLD(KEY) KEYLENGTH(LENGTH OF SHORTKEY)", "a partial key"),
+        ("WRITE FILE('KSDS') FROM(REC) RIDFLD(KEY) KEYLENGTH(VARLEN)", "not a known length"),
+        ("DELETE FILE(WS-FILE) RIDFLD(KEY) KEYLENGTH(10)", "not a known length on a known file"),
+        ("READ FILE('KSDS') INTO(REC) RIDFLD(KEY) LENGTH(VARLEN)", "not INTO's length"),  # GenApp LGUCVS01
+        ("READ FILE('KSDS') INTO(REC) RIDFLD(KEY) LENGTH(10)", "not INTO's length"),
+    ],
+)
+def test_keylength_and_read_length_only_where_they_change_nothing(text, why):
+    with pytest.raises(C.CicsError, match=why):
+        _KeyCics().command(text, "")
+
+
+def test_full_key_keylength_and_into_length_translate_as_before():
+    c = _KeyCics()
+    plain = c.command("READ FILE('KSDS') INTO(REC) RIDFLD(KEY) RESP(R)", "")
+    for extra in (
+        "KEYLENGTH(10)",
+        "KEYLENGTH(LENGTH OF KEY)",
+        "KEYLENGTH(KLEN)",
+        "LENGTH(LENGTH OF REC)",
+        "LENGTH(56)",
+    ):
+        assert _KeyCics().command(f"READ FILE('KSDS') INTO(REC) RIDFLD(KEY) {extra} RESP(R)", "") == plain
+
+
+# A CICS option the translator recognises must be honoured or refused (#4411). IBM CICS TS API reference: the
+# options of each modelled command. Every one is either in det.cics.OPTIONS (honoured; the table says why where it
+# has no code of its own) or refused by name.
+_IBM_OPTIONS = {
+    "RETURN": "TRANSID COMMAREA LENGTH CHANNEL IMMEDIATE INPUTMSG INPUTMSGLEN ENDACTIVITY",
+    "LINK": "PROGRAM COMMAREA CHANNEL LENGTH DATALENGTH SYSID SYNCONRETURN TRANSID INPUTMSG INPUTMSGLEN",
+    "XCTL": "PROGRAM COMMAREA CHANNEL LENGTH INPUTMSG INPUTMSGLEN",
+    "READ": "FILE DATASET UNCOMMITTED CONSISTENT REPEATABLE UPDATE TOKEN INTO SET RIDFLD KEYLENGTH GENERIC SYSID "
+    "LENGTH DEBKEY DEBREC RBA RRN XRBA EQUAL GTEQ NOSUSPEND",
+    "READNEXT": "FILE DATASET UNCOMMITTED CONSISTENT REPEATABLE UPDATE TOKEN INTO SET LENGTH RIDFLD KEYLENGTH REQID "
+    "SYSID RBA RRN XRBA NOSUSPEND",
+    "STARTBR": "FILE DATASET RIDFLD KEYLENGTH GENERIC REQID SYSID DEBKEY DEBREC RBA RRN XRBA EQUAL GTEQ",
+    "ENDBR": "FILE DATASET REQID SYSID",
+    "WRITE": "FILE DATASET MASSINSERT FROM RIDFLD KEYLENGTH SYSID LENGTH RBA RRN XRBA NOSUSPEND",
+    "REWRITE": "FILE DATASET TOKEN FROM SYSID LENGTH NOSUSPEND",
+    "DELETE": "FILE DATASET TOKEN RIDFLD KEYLENGTH GENERIC NUMREC SYSID RBA RRN XRBA NOSUSPEND",
+    "ASSIGN": "ABCODE APPLID INVOKINGPROG PROGRAM SYSID USERID NETNAME OPID TERMCODE STARTCODE TWALENG CWALENG",
+    "ABEND": "ABCODE CANCEL NODUMP",
+    "FORMATTIME": "ABSTIME DATE FULLDATE DATEFORM DATESEP DAYCOUNT DAYOFMONTH DAYOFWEEK DDMMYY DDMMYYYY MILLISECONDS "
+    "MMDDYY MMDDYYYY MONTHOFYEAR STRINGFORMAT TIME TIMESEP YEAR YYDDD YYDDMM YYMMDD YYYYDDD YYYYDDMM YYYYMMDD",
+    "SEND MAP": "MAP MAPSET FROM DATAONLY MAPONLY LENGTH CURSOR FORMFIELD ERASE ERASEAUP PRINT FREEKB ALARM FRSET "
+    "MSR OUTPARTN ACTPARTN LDC FMHPARMS NLEOM REQID SET PAGING TERMINAL WAIT LAST HONEOM L40 L64 L80 ACCUM",
+    "RECEIVE MAP": "MAP MAPSET INTO SET FROMLENGTH FROM TERMINAL ASIS INPARTN",
+}
+
+
+@pytest.mark.parametrize("verb", sorted(_IBM_OPTIONS))
+def test_every_option_of_a_modelled_command_is_honoured_or_refused(verb):
+    first = verb.split()[0]
+    for opt in _IBM_OPTIONS[verb].split():
+        words, opts = [first], {opt: "X"}
+        if verb.endswith("MAP"):
+            opts = {"MAP": "'M'", opt: "X"}
+        if opt in C.OPTIONS[C.command_key(words, opts)]:
+            continue
+        with pytest.raises(C.CicsError, match=f"{opt}: option not modelled"):
+            C.check_options(words, opts)
+
+
+def test_options_honoured_without_code_say_why():
+    """An OPTIONS entry is read by the translator (its name appears in det/cics.py's code) or is one of the options
+    whose having no effect the table states."""
+    src = Path(C.__file__).read_text(encoding="utf-8")
+    code = src[src.index("def command_key") :]
+    stated = {"NODUMP", "MAIN", "AUXILIARY", "NOSUSPEND", "EQUAL", "GTEQ", "TASK", "UOW", "MAXLIFETIME", "RESOURCE",
+              "FOR", "INTERVAL", "TIME", "HOURS", "MINUTES", "SECONDS", "MILLISECS", "TS"}  # fmt: skip
+    flags = {*C.MAP_OPTIONS, *C.TEXT_OPTIONS, *C._FORMS}
+    for key, allowed in C.OPTIONS.items():
+        for opt in allowed or ():
+            read = f'"{opt}"' in code or f"'{opt}'" in code
+            assert opt in stated | flags or read, f"{key} {opt}: accepted but never read"
+
+
+def _proc(body: list[str]):
+    from gitgalaxy.tools.cobol_to_java.det.source import Line
+
+    head = ["IDENTIFICATION DIVISION.", "PROGRAM-ID. T.", "DATA DIVISION.", "WORKING-STORAGE SECTION.",
+            "01 A PIC X.", "PROCEDURE DIVISION.", "P1."]  # fmt: skip
+    return S.parse([Line(t, "t", k + 1) for k, t in enumerate(head + body)])
+
+
+@pytest.mark.parametrize(
+    "body",
+    [
+        ["    ENTRY 'DLITCBL' USING PAUTBPCB.", "    DISPLAY 'X'.", "    GOBACK."],  # DBUNLDGS: no statement kept
+        ["    PERFORM P2 THRU.", "    GOBACK.", "P2.", "    EXIT."],  # GOBACK and P2 were dropped
+        ["    CALL 'X' USING BY REFERENCE.", "    GOBACK."],
+        ["    SET A TO.", "    GOBACK."],
+    ],
+)
+def test_a_parse_error_outside_the_procedure_node_refuses_the_program(body):
+    pytest.importorskip("tree_sitter_language_pack")
+    with pytest.raises(E.ExprError, match="does not parse at line"):
+        _proc(body)
+
+
+def test_a_parse_error_inside_a_statement_is_a_hole():
+    pytest.importorskip("tree_sitter_language_pack")
+    proc = _proc(["    MOVE ALL TO A.", "    IF (A = 1 CONTINUE END-IF.", "    GOBACK."])
+    kinds = [(s.kind, s.data.get("why")) for p in proc.paragraphs for s in S.walk(p.body)]
+    assert kinds[0] == ("HOLE", "does not parse")  # MOVE ALL TO A: was a MOVE
+    assert kinds[1] == ("IF", None) and proc.paragraphs[0].body[1].data["cond"][0] == "UNPARSED"
+    assert kinds[-1] == ("GOBACK", None)

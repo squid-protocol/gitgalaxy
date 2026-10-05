@@ -105,6 +105,14 @@ def parse(lines: list[Line]) -> Procedure:
         k = node.start_point[0] - 3 + base_line  # 3 synthetic lines before
         return lines[k].line if 0 <= k < len(lines) else node.start_point[0] + 1
 
+    # #4411: a parse error outside the PROCEDURE DIVISION node is procedure text the walk below never sees (a
+    # paragraph after ENTRY ... USING, say): the program is refused, never translated without it
+    stray = next(
+        (n for n in _problems(root) if not (pd.start_byte <= n.start_byte and n.end_byte <= pd.end_byte)), None
+    )
+    if stray is not None:
+        raise E.ExprError(f"the PROCEDURE DIVISION does not parse at line {origin(stray)}")
+
     paragraphs: list[Paragraph] = [Paragraph("(MAIN)", None, 0)]
     section: str | None = None
     stack: list[_Frame] = [_Frame("PARA", None, paragraphs[0].body)]
@@ -122,6 +130,39 @@ def parse(lines: list[Line]) -> Procedure:
         if t == "ERROR":
             stack[-1].target.append(Stmt("HOLE", origin(n), node_text(n), {"why": "does not parse"}))
             continue
+        if n.has_error:  # #4411: an ERROR / MISSING node inside: the node's text is not what the grammar read
+            if t in ("paragraph_header", "section_header"):
+                raise E.ExprError(f"line {origin(n)}: {t} does not parse")
+            if t in _FRAMED:  # the frame still opens (its END closes it); its condition is a hole
+                n_text = node_text(n)
+                bad = ("UNPARSED", n_text, "does not parse")
+                if t in ("if_header", "else_if_header"):
+                    f = _pop_to_if(stack) if t == "else_if_header" else None
+                    if f is not None:
+                        f.has_else = True
+                        f.target = _node(f).orelse
+                    s = Stmt("IF", origin(n), n_text, {"cond": bad})
+                    stack[-1].target.append(s)
+                    stack.append(_Frame("IF", s, s.body))
+                elif t == "evaluate_header":
+                    s = Stmt("EVALUATE", origin(n), n_text, {"subjects": [("UNPARSED", n_text)]})
+                    stack[-1].target.append(s)
+                    stack.append(_Frame("EVALUATE", s, []))
+                elif t == "perform_statement_loop":
+                    s = Stmt("HOLE", origin(n), n_text, {"why": "does not parse"})
+                    stack[-1].target.append(s)
+                    stack.append(_Frame("PERFORM", s, s.body))
+                else:  # WHEN / WHEN OTHER: its body is reached through an unparsed object
+                    f = _pop_to(stack, "EVALUATE")
+                    body = []
+                    _node(f).whens.append(([[("UNPARSED", n_text, "does not parse", False)]], body))
+                    f.target = body
+                continue
+            if t.endswith("_statement") or t.startswith("perform_statement"):
+                stack[-1].target.append(Stmt("HOLE", origin(n), node_text(n), {"why": "does not parse"}))
+                continue
+            # a phrase, an END-x ...: as a hole it would move the statements after it to another block
+            raise E.ExprError(f"line {origin(n)}: {t} does not parse")
         if t == "paragraph_header":
             name = node_text(n).strip().rstrip(".").strip().upper()
             p = Paragraph(name, section, origin(n))
@@ -222,6 +263,22 @@ def parse(lines: list[Line]) -> Procedure:
     if not paragraphs[0].body:
         paragraphs.pop(0)
     return Procedure(paragraphs, execs, using)
+
+
+# pd children that open a frame (closed by their END_x / ELSE / WHEN, or by the period)
+_FRAMED = {"if_header", "else_if_header", "evaluate_header", "when", "when_other", "perform_statement_loop"}
+
+
+def _problems(root) -> list:
+    """The outermost ERROR and MISSING nodes of a tree."""
+    out, stack = [], [root]
+    while stack:
+        n = stack.pop()
+        if n.type == "ERROR" or n.is_missing:
+            out.append(n)
+        elif n.has_error:
+            stack.extend(n.children)
+    return out
 
 
 _PARSER = None

@@ -10,32 +10,28 @@ basic structural facts (how big is this file, how many functions does it have, w
 heaviest function here) via grep or an Explore subagent, when GitGalaxy's own engine already
 extracted that as a Structural Signature about itself.
 
-## Step 1 -- freshness check (do this before trusting any file-specific result)
+## Step 1 -- regenerate it yourself, in your own worktree, every session
 
-The DB is a snapshot of the working tree at generation time, not a live view. Check it's still
-current before relying on it for anything about a *specific* file you're about to edit (a stale
-snapshot is fine for broad orientation like "which directory group is heaviest" -- less fine for
-"how complex is this file right now"):
+The DB is a snapshot of one working tree at one moment, and `main` moves many times a day. So
+**always regenerate it at the start of your session, in the worktree you are about to edit**,
+and query only that copy. Never use a DB from CI, from another worktree, from the main checkout,
+or from a download, even if its commit looks close: it describes someone else's code. The DB is
+gitignored for this reason.
 
 ```bash
+# from your worktree root, with a venv that has `pip install -e .[full]`
+PYTHONPATH=$PWD python tests/tools/self_scan.py
+sqlite3 docs/self_scan/gitgalaxy_master.db "SELECT DISTINCT commit_hash FROM file_data;"  # must equal:
 git rev-parse HEAD
-sqlite3 docs/self_scan/gitgalaxy_master.db "SELECT DISTINCT commit_hash FROM file_data;"
-git status --porcelain   # anything uncommitted touching files you care about?
 ```
 
-If the DB is missing, `commit_hash` doesn't match current `HEAD`, or there are uncommitted
-changes to files relevant to your question, regenerate before querying:
-
-```bash
-python tests/tools/self_scan.py
-```
-
-Takes ~6-8s. Requires `galaxyscope` on PATH (an activated venv with `pip install -e .`) and
-`networkx`/`tiktoken`/`numpy`/`pandas`/`xgboost`/`pyyaml` importable -- the script itself checks
-for all six and aborts loudly with an install hint if any are missing, rather than silently
-producing a degraded (NULL pagerank/blast-radius) DB. Don't try to work around a failed
-regeneration by querying the stale DB anyway for a file-specific question -- fall back to
-grep/Read instead, and say why.
+Takes ~25s (about 1,300 files). `PYTHONPATH=$PWD` makes `galaxyscope` scan with *this* worktree's
+engine. Check with `python -c "import os,gitgalaxy;print(os.path.dirname(gitgalaxy.__file__))"`.
+It needs the `full` extra importable (`pyyaml`, `tiktoken`, `numpy`, `pandas`, `xgboost`; the
+engine no longer uses networkx, #3041). The script checks them and aborts loudly with an install
+hint rather than silently producing a degraded (NULL pagerank/blast-radius) DB. After you edit
+files, regenerate again before asking about them. If regeneration fails, don't query a stale DB
+for a file-specific question: fall back to grep/Read and say why.
 
 ## Step 2 -- always confirm schema before querying
 

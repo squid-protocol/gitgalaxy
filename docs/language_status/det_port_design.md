@@ -298,6 +298,12 @@ Only generator output, never a test case:
   `STARTBR ... RIDFLD(RID-LENGTH) RBA` "translated" 51/51 into a keyed browse of a store the project does not have.
   An ESDS browse by RBA is now CicsTask's RBA browse (`startbrRba` / `readnextRba` / `readprevRba`, register X13);
   XRBA, RRN and READ / WRITE / DELETE by RBA are holes by name.
+- #4467 (interim for #4459-#4461, found by the #4273 cross-check): the translator resolves COPY by a first-hit
+  directory search of its own. A program whose own COPY resolves otherwise than the engine resolved it (the port
+  ticket's copybooks, or GalaxyIR's copy_deps), whose member the engine reports as a collision or (in the estate) a
+  gap, or which leaves unexpanded a member the engine resolved, is refused by name (`source.CopyDisagrees`). No
+  equivalence case moves; on the corpora at a1ec00d84 it newly refuses zopeneditor-sample SAM1 / SAM2 and 19 of
+  estate-crucible's 40 programs (9 collisions, 6 COPYs not expanded, 4 other files).
 - #4436 (after #4411 refused it): `READ ... INTO LENGTH(x)` was accepted and ignored by the translator, and the
   harness's stub was handed LENGTH OF INTO in its place -- both sides agreed, so GenApp LGUCVS01 / LGUPVS01 "proved"
   without either honouring LENGTH. A keyed READ's LENGTH is now in-out on both sides (`DetCics.readInto`, GGCREAD:

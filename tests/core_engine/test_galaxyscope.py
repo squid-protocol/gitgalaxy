@@ -643,6 +643,10 @@ class TestGalaxyScopeOrchestrator(unittest.TestCase):
         MUST be completely evicted.
         """
         scope = Orchestrator(".", self.mock_config)
+        # #4483: the delta admits a changed file through the aperture filter; these paths are
+        # not on disk, so stand it in with a pass (the filter has its own tests).
+        scope.filter = MagicMock()
+        scope.filter.evaluate_path_integrity.return_value = (True, 1, None)
 
         # Baseline state
         old_ram_cache = {

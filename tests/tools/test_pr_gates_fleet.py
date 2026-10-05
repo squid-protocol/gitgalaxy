@@ -44,3 +44,33 @@ def test_attribute_failures_labels(monkeypatch):
     labels = pr_gates.attribute_failures(["lint", "audits"], lambda root: plan, {})
     assert labels == {"lint": "pre-existing on main@abc1234", "audits": "caused by branch"}
     assert any("fetch" in c for c in calls) and any("remove" in c for c in calls)
+
+
+def test_ratchets_argument_parsing(monkeypatch):
+    seen = {}
+    monkeypatch.setattr(pr_gates, "run_ratchets", lambda chosen, env: seen.update(chosen=chosen) or 0)
+    assert pr_gates.main(["--ratchets", "--only-ratchets", "estate", "ports"]) == 0
+    assert seen["chosen"] == ["estate", "ports"]
+    assert pr_gates.main(["--only-ratchets", "estate"]) == 0
+
+
+def test_ratchets_skip_when_nothing_present(monkeypatch, tmp_path, capsys):
+    env = {"GITGALAXY_MAINFRAME_CORPORA": str(tmp_path), "ESTATE_CRUCIBLE_PATH": str(tmp_path / "e"),
+           "CICS_CRUCIBLE_PATH": str(tmp_path / "c"), "PATH": str(tmp_path)}  # fmt: skip
+    ran = []
+    monkeypatch.setattr(pr_gates, "run_gate", lambda cmds, root, e: ran.append(cmds) or (True, ""))
+    assert pr_gates.run_ratchets(None, env) == 0  # skipped is not failed ...
+    out = capsys.readouterr().out
+    assert not ran  # ... and nothing was run
+    assert out.count("not available:") == 5
+    assert "not checked" in out and "mainframe_corpus.py fetch" in out and "mvn" in out
+
+
+def test_ratchet_failure_prints_update_command(monkeypatch, tmp_path, capsys):
+    env = {"GITGALAXY_MAINFRAME_CORPORA": str(tmp_path)}
+    (tmp_path / "x" / ".git").mkdir(parents=True)
+    monkeypatch.setattr(pr_gates, "run_gate", lambda cmds, root, e: (False, "drift"))
+    assert pr_gates.run_ratchets(["ground-truth"], env) == 1
+    out = capsys.readouterr().out
+    assert "FAIL  ground-truth" in out and "ground_truth_ledger.py update" in out
+    assert pr_gates.run_ratchets(["nope"], env) == 2

@@ -39,6 +39,60 @@ class CopyNotFound(Exception):
     pass
 
 
+class CopyDisagrees(CopyNotFound):
+    """#4467: the translator's resolution of a COPY is not the engine's (the program is refused by name)."""
+
+
+@dataclass(frozen=True)
+class EngineCopies:
+    """#4467: the engine's resolution of a program's own COPY statements (the scan's copy_deps: GalaxyIR, or the port
+    ticket the generator wrote from it). The translator's first-hit directory search is independent of the engine's
+    resolver (copy libraries, SYSLIB order, COPY ... IN, collisions and gaps: #4265, #4420); until the translator
+    takes the engine's resolution (#4461), a program where the two differ is refused rather than built on a member
+    the engine did not choose (#4459 a COPY not expanded, #4460 a program spliced in, #4461 the wrong library).
+
+    `root`: the estate the engine scanned (its paths are relative to it). `resolved`: member -> the files the
+    engine resolved for the program's COPY of it. `gaps` / `collisions`: the members the engine reports no declared
+    library holds, or several do (#4421; only when the scan declared copy libraries)."""
+
+    program: Path
+    root: Path
+    resolved: dict[str, tuple[Path, ...]]
+    gaps: frozenset[str] = frozenset()
+    collisions: frozenset[str] = frozenset()
+
+    def rel(self, p: Path) -> str:
+        try:
+            return p.resolve().relative_to(self.root.resolve()).as_posix()
+        except ValueError:
+            return str(p)
+
+    def check(self, name: str, member: Path, where: str) -> None:
+        """One COPY of the program's own: the member the translator found against the engine's."""
+        in_estate = self.rel(member) != str(member)  # (else a system or generated member: the engine has none)
+        if name in self.collisions:
+            raise CopyDisagrees(f"{where}: COPY {name}: the engine records a collision (several libraries hold it)")
+        if name in self.gaps and in_estate:  # (a gap the translator fills from its system members: SQLCA, DFHAID)
+            raise CopyDisagrees(f"{where}: COPY {name}: the engine records a gap (no declared library holds it), "
+                                f"translator resolved {self.rel(member)}")  # fmt: skip
+        engine = self.resolved.get(name, ())
+        if not engine:
+            if in_estate:
+                raise CopyDisagrees(f"{where}: COPY {name}: translator resolved {self.rel(member)}, "
+                                    "engine resolved nothing")  # fmt: skip
+            return
+        if member.resolve() not in {e.resolve() for e in engine}:
+            raise CopyDisagrees(f"{where}: COPY {name}: translator resolved {self.rel(member)}, engine resolved "
+                                f"{', '.join(sorted(self.rel(e) for e in engine))}")  # fmt: skip
+
+    def check_all_expanded(self, expanded: set[str]) -> None:
+        """Every member the engine resolved for the program was expanded by the translator (#4459)."""
+        for name in sorted(set(self.resolved) - expanded):
+            raise CopyDisagrees(f"{self.program}: COPY {name}: engine resolved "
+                                f"{', '.join(sorted(self.rel(e) for e in self.resolved[name]))}, "
+                                "translator expanded no COPY of it")  # fmt: skip
+
+
 def _raw_lines(path: Path) -> list[str]:
     return read_source(path).text.splitlines()
 
@@ -96,10 +150,13 @@ def _open_literal(text: str) -> bool:
 _COPY = re.compile(r"^\s*COPY\s+(['\"]?)([A-Z0-9#@$-]+)\1(?:\s+(?:OF|IN)\s+[A-Z0-9-]+)?\s*(.*)$", re.I)
 
 
-def expand(lines: list[Line], dirs: list[Path], depth: int = 0, chain: frozenset = frozenset()) -> list[Line]:
+def expand(lines: list[Line], dirs: list[Path], depth: int = 0, chain: frozenset = frozenset(),
+           engine: EngineCopies | None = None, expanded_names: set[str] | None = None) -> list[Line]:  # fmt: skip
     """COPY statements replaced by their members' lines (recursively); REPLACING ==a== BY ==b== and word-for-word
-    `a BY b` applied. A member found nowhere raises CopyNotFound."""
+    `a BY b` applied. A member found nowhere raises CopyNotFound. `engine` (#4467): each COPY in the engine's program
+    is checked against the engine's resolution (CopyDisagrees); `expanded_names` collects the members it expanded."""
     out: list[Line] = []
+    own = str(engine.program) if engine is not None else None
     i = 0
     while i < len(lines):
         ln = lines[i]
@@ -134,6 +191,10 @@ def expand(lines: list[Line], dirs: list[Path], depth: int = 0, chain: frozenset
             raise CopyNotFound(f"{ln.file}:{ln.line}: COPY {name} found in none of {[str(d) for d in dirs]}")
         if depth > 8:
             raise CopyNotFound(f"{ln.file}:{ln.line}: COPY {name} nests deeper than 8")
+        if engine is not None and ln.file == own:
+            engine.check(name, member, f"{ln.file}:{ln.line}")
+            if expanded_names is not None:
+                expanded_names.add(name)
         body = logical_lines(_raw_lines(member), str(member))
         pairs = _replacing(stmt)
         if pairs:
@@ -167,10 +228,45 @@ def _replace(text: str, old: str, new: str) -> str:
     return text.replace(old, new)
 
 
-def program_lines(program: Path, dirs: list[Path]) -> list[Line]:
-    """The whole program, expanded."""
-    return expand(logical_lines(_raw_lines(program), str(program)), [program.parent, *dirs],
-                  chain=frozenset({program.resolve()}))  # fmt: skip
+def program_lines(program: Path, dirs: list[Path], engine: EngineCopies | None = None) -> list[Line]:
+    """The whole program, expanded. `engine` (#4467): refused (CopyDisagrees) where a COPY of the program's own
+    resolves otherwise than the engine resolved it, or a member the engine resolved is never expanded."""
+    if engine is not None:
+        engine = EngineCopies(program, engine.root, engine.resolved, engine.gaps, engine.collisions)
+    names: set[str] = set()
+    out = expand(logical_lines(_raw_lines(program), str(program)), [program.parent, *dirs],
+                 chain=frozenset({program.resolve()}), engine=engine, expanded_names=names)  # fmt: skip
+    if engine is not None:
+        engine.check_all_expanded(names)
+    return out
+
+
+def engine_copies_from_ticket(project: Path, program: Path) -> EngineCopies | None:
+    """#4467: the engine's resolution of `program`'s COPYs from the port ticket the generator wrote for it
+    (ai_agent_jobs/*_port_ticket.json: source.program.file and the copybooks the scan resolved, repo-relative). None
+    where no ticket names the program (nothing to compare against)."""
+    jobs = project / "ai_agent_jobs"
+    if not jobs.is_dir():
+        return None
+    target = program.resolve().as_posix()
+    import json
+
+    for t in sorted(jobs.glob("*_port_ticket.json")):
+        try:
+            src = json.loads(t.read_text(encoding="utf-8")).get("source") or {}
+        except (OSError, ValueError):
+            continue
+        rel = (src.get("program") or {}).get("file")
+        if not rel or not target.endswith("/" + rel.replace("\\", "/")):
+            continue
+        root = Path(target[: -len(rel) - 1])
+        resolved: dict[str, list[Path]] = {}
+        for c in src.get("copybooks") or []:
+            f = c.get("file") or ""
+            if f and "#" not in f:
+                resolved.setdefault(Path(f).stem.upper(), []).append(root / f)
+        return EngineCopies(program, root, {k: tuple(v) for k, v in resolved.items()})
+    return None
 
 
 WIDTH = 65  # columns 8-72
@@ -246,3 +342,20 @@ def bms_copybooks(bms_files: list[Path], out: Path) -> list[str]:
             (out / f"{name}.cpy").write_text(text, encoding="utf-8")
             made.append(name)
     return made
+
+
+def engine_copies_from_ir(ir, rel: str, root: Path) -> EngineCopies | None:
+    """#4467: the engine's resolution of the program at `rel` (repo-relative) from GalaxyIR: its copy_deps, and the
+    collisions and gaps the scan reported for it (#4421: only when it declared copy libraries). None: no such file."""
+    ef = ir.files.get(rel)
+    if ef is None:
+        return None
+    resolved: dict[str, list[Path]] = {}
+    for dep in ef.copy_deps:
+        if "#" not in dep:
+            resolved.setdefault(Path(dep).stem.upper(), []).append(root / dep)
+    mine = [r for r in (ir.copy_member_collisions or []) if r.get("importer") == rel]
+    gaps = [r for r in (ir.copy_member_gaps or []) if r.get("importer") == rel]
+    return EngineCopies(root / rel, root, {k: tuple(v) for k, v in resolved.items()},
+                        frozenset(str(r["member"]).upper() for r in gaps),
+                        frozenset(str(r["member"]).upper() for r in mine))  # fmt: skip

@@ -7,7 +7,7 @@
   "paths": [
    "tests/equivalence/cbsa-inqacc/port/service/InqaccService.java"
   ],
-  "sha256": "83d336899208b7dde1e4468dc752aca7c725a87c8f95a7e0b4d69f057fd7e2a9",
+  "sha256": "86d5a3b55d4f1c9b6e8d5591d17b8c4f6a46fa92e5f700c0b0cca16d558fabdd",
   "entry_points": [
    "handleLink",
    "runTask"
@@ -19,7 +19,7 @@
     "tests/equivalence/cbsa-inqacc/port/**"
    ],
    "files": 1,
-   "sha256": "83d336899208b7dde1e4468dc752aca7c725a87c8f95a7e0b4d69f057fd7e2a9"
+   "sha256": "86d5a3b55d4f1c9b6e8d5591d17b8c4f6a46fa92e5f700c0b0cca16d558fabdd"
   },
   "case": {
    "paths": [
@@ -73,10 +73,10 @@
   "differences": {
    "sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
   },
-  "digest": "23b4b473ff8c6fbf247a016959792c8fb6f40d00adef010610328277eb69a683"
+  "digest": "4584435d596ac7b350d07c8c4801c9e520a34cecfc3c2bab4cbc9782acbf1b4a"
  },
  "proof": {
-  "at": "2026-10-05T14:55:54Z",
+  "at": "2026-10-05T16:05:10Z",
   "verdict": "not-proven",
   "runs": 14,
   "fault_runs": 0,
@@ -158,8 +158,8 @@
    ],
    "error": null
   },
-  "harness_commit": "af9e62c055439d3c758d2a794a211fa28ad41e41+uncommitted",
-  "inputs_digest": "23b4b473ff8c6fbf247a016959792c8fb6f40d00adef010610328277eb69a683"
+  "harness_commit": "1ca90ca26b51c8b2ba5bc2898bfa92d9443d0722+uncommitted",
+  "inputs_digest": "4584435d596ac7b350d07c8c4801c9e520a34cecfc3c2bab4cbc9782acbf1b4a"
  },
  "coverage": {
   "paragraphs": {
@@ -249,7 +249,7 @@
    "total": 1
   },
   "source": "the proof's own traced COBOL runs (cobol_coverage.py)",
-  "inputs_digest": "23b4b473ff8c6fbf247a016959792c8fb6f40d00adef010610328277eb69a683"
+  "inputs_digest": "4584435d596ac7b350d07c8c4801c9e520a34cecfc3c2bab4cbc9782acbf1b4a"
  },
  "reach": {
   "entry_points": [
@@ -312,7 +312,7 @@
    "ported_unproven": 0
   },
   "generated_compared": true,
-  "port_sha256": "83d336899208b7dde1e4468dc752aca7c725a87c8f95a7e0b4d69f057fd7e2a9"
+  "port_sha256": "86d5a3b55d4f1c9b6e8d5591d17b8c4f6a46fa92e5f700c0b0cca16d558fabdd"
  },
  "mutation": null,
  "differences": [],
@@ -411,7 +411,7 @@
   "provenance_file": {
    "path": "tests/equivalence/cbsa-inqacc/port/provenance.json",
    "format": "porting-loop-provenance/1",
-   "sha256": "cdd9bec059c7f40f22ed4166012baed701fbd013a206afae46d60f2ee8ac6baa"
+   "sha256": "51bdb112f2eb90938c3a2918fdcb2f25cb98ea194b1bcaceeb37dcbccb1b3929"
   }
  },
  "approvals": []

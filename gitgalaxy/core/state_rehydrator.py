@@ -306,6 +306,12 @@ class StateRehydrator:
                     # (these are NOT persisted columns, so row parity is unaffected).
                     "lock_tier": 1,
                     "source_proof": "Rehydrated Baseline Lock",
+                    # #4483: this file SURVIVED the baseline scan's audit (it has a file_data
+                    # row). The persisted hit/risk vectors are the post-sanitisation values
+                    # (SARIF_IGNORED_PATHS zeroes them after the audit), so re-judging the file
+                    # here reads a zero-signal row as a data dump and drops it. The statistical
+                    # auditor passes a rehydrated file through instead of re-auditing it.
+                    "rehydrated": True,
                     "intensity": 1.0,
                     "telemetry": {
                         "popularity": f["popularity"],

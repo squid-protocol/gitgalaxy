@@ -87,6 +87,7 @@ Evidence is the 2026-10-03 multi-agent day; each rule below prevents one thing t
 | `heavy-run.sh <cmd...>` | N shared slots, `N=${GG_HEAVY_SLOTS:-nproc/4}` (min 1). Wrap pr_gates, scans, full suite. |
 | `golden-lock.sh <cmd...>` | Exclusive. Golden bless/check ONLY (`crucible_check.py`). |
 | `kill-by-cwd.sh <dir> [--dry-run]` | Kill processes whose cwd is under a worktree; lists first; never itself/ancestors. |
+| `sync-pins.sh [--dry-run]` | Aligns language/cics/estate-crucible checkouts with the branch's pins, under `golden-lock.sh`; refuses on tracked modifications. |
 | `wait-pids.sh <pid...>` | Block until PIDs exit; prints statuses. |
 
 **Before launch (orchestrator)**
@@ -108,4 +109,4 @@ Evidence is the 2026-10-03 multi-agent day; each rule below prevents one thing t
 - [ ] After ANY sibling merge, re-validate every claim in the PR body (counts, "no drift", "rebased on") and edit it via `gh api -X PATCH repos/squid-protocol/gitgalaxy/pulls/<n> -f body=...` (`gh pr edit` fails on gh 2.45).
 
 **Stopping an agent**
-- [ ] Stop the agent AND its helper subagents, then `kill-by-cwd.sh /nvme-data/projects/gitgalaxy-worktrees/<slug> --dry-run`, review, run without `--dry-run`: stopping an agent left its helper subagent and its queued flock'd pr_gates running. Never `pkill -f <pattern>`: it matched and killed the caller's own shell (exit 144).
+- [ ] Stop the agent AND its helper subagents, then `kill-by-cwd.sh $PRIMARY/../gitgalaxy-worktrees/<slug> --dry-run`, review, run without `--dry-run`: stopping an agent left its helper subagent and its queued flock'd pr_gates running. Never `pkill -f <pattern>`: it matched and killed the caller's own shell (exit 144).

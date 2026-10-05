@@ -322,8 +322,10 @@ def test_an_option_the_translation_would_ignore_is_refused_by_name(text):
         ("READ FILE('KSDS') INTO(REC) RIDFLD(KEY) KEYLENGTH(LENGTH OF SHORTKEY)", "a partial key"),
         ("WRITE FILE('KSDS') FROM(REC) RIDFLD(KEY) KEYLENGTH(VARLEN)", "not a known length"),
         ("DELETE FILE(WS-FILE) RIDFLD(KEY) KEYLENGTH(10)", "not a known length on a known file"),
-        ("READ FILE('KSDS') INTO(REC) RIDFLD(KEY) LENGTH(VARLEN)", "not INTO's length"),  # GenApp LGUCVS01
-        ("READ FILE('KSDS') INTO(REC) RIDFLD(KEY) LENGTH(10)", "not INTO's length"),
+        # #4436: a keyed READ's LENGTH is modelled; READNEXT / READPREV's and an RBA browse's are not
+        ("READNEXT FILE('KSDS') INTO(REC) RIDFLD(KEY) LENGTH(VARLEN)", "not INTO's length"),
+        ("READPREV FILE('KSDS') INTO(REC) RIDFLD(KEY) LENGTH(10)", "not INTO's length"),
+        ("READNEXT FILE('KSDS') INTO(REC) RIDFLD(RID) RBA LENGTH(VARLEN)", "not INTO's length"),
     ],
 )
 def test_keylength_and_read_length_only_where_they_change_nothing(text, why):
@@ -342,6 +344,44 @@ def test_full_key_keylength_and_into_length_translate_as_before():
         "LENGTH(56)",
     ):
         assert _KeyCics().command(f"READ FILE('KSDS') INTO(REC) RIDFLD(KEY) {extra} RESP(R)", "") == plain
+
+
+class _LenCics(_KeyCics):
+    """#4436: LENGTH operands as Java ints, stores as STORE(name, value)."""
+
+    def __init__(self):
+        super().__init__()
+        self.g.store_into = lambda ref, value, _rounded: f"STORE({ref.name}, {value});"
+
+    def int_(self, text):
+        return f"INT({text})"
+
+
+def test_read_length_is_modelled_in_and_out():
+    """#4436 (GenApp LGUCVS01 / LGUPVS01: LENGTH(WS-Commarea-Len), set from EIBCALEN): IBM, EXEC CICS READ -- LENGTH
+    is "the length ... of the data area where the record is to be put. On completion ... the actual length of the
+    record"; a longer record is truncated, LENGERR RESP2 11. DetCics.readInto moves the record and answers NORMAL or
+    LENGERR; LENGTH is then set to the record's length. Refused at #4411 because it was accepted and ignored."""
+    out = _LenCics().command("READ FILE('KSDS') INTO(REC) RIDFLD(KEY) LENGTH(VARLEN) KEYLENGTH(10) RESP(R) UPDATE", "")
+    assert out == [
+        "byte[] rec2 = DetCics.bytes(f_KEY);",
+        "CicsTask.FileRead<byte[]> read1 = task.readForUpdate('KSDS'.strip(), () -> store(F).find(rec2));",
+        "int resp3 = read1.resp();",
+        "int resp24 = read1.resp2();",
+        "if (read1.record() != null) {",
+        "    resp3 = DetCics.readInto(f_REC, read1.record(), INT(VARLEN), true);",
+        "    resp24 = resp3 == 22 ? 11 : 0;",
+        "    heldKey.put('KSDS'.strip(), rec2);",
+        "    STORE(VARLEN, BigDecimal.valueOf(read1.record().length));",
+        "}",
+        "OUTCOME(resp3, resp24);",
+    ]
+
+
+def test_read_length_literal_is_the_limit_with_nothing_to_set_back():
+    out = _LenCics().command("READ FILE('KSDS') INTO(REC) RIDFLD(KEY) LENGTH(10) RESP(R)", "")
+    assert "    resp3 = DetCics.readInto(f_REC, read1.record(), INT(10), false);" in out
+    assert not any("STORE(" in line or "heldKey" in line for line in out)
 
 
 # A CICS option the translator recognises must be honoured or refused (#4411). IBM CICS TS API reference: the

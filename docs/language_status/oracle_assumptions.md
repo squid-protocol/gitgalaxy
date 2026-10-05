@@ -89,6 +89,7 @@ verdict, but it limits what the proof says about inputs outside the scenarios.
 | X11 | CICS | ASKTIME ABSTIME into a field narrower than S9(15) COMP-3 (GenApp's WS-ABSTIME) | DIFFERS | yes (GenApp error paths, #4173) |
 | X12 | CICS | A task with no COMMAREA that MOVEs DFHCOMMAREA anyway | UNDEFINED, masked | yes (DBB EPSCMORT) |
 | X13 | CICS | An ESDS browsed by RBA: fixed-length records, a record's RBA its byte offset; RBAs that address no record refused | ASSUMED (REFUSED where IBM is silent) | yes (DBB EPSMLIST) |
+| X14 | CICS | READ ... INTO LENGTH: in-out, truncation and LENGERR; a VSAM file's LENGTH need not equal its record length; LENGERR on READ UPDATE refused | ASSUMED (REFUSED where IBM is silent) | yes, NORMAL only (GenApp LGUCVS01 / LGUPVS01) |
 | L1 | LE | CEEDAYS: documented pictures only | MATCHED / REFUSED | yes |
 | L2 | LE | CEE3ABD abend codes | MATCHED | yes |
 | L3 | LE | WORKING-STORAGE with no VALUE clause: GnuCOBOL's spaces vs LE's STORAGE option on z/OS | ASSUMED | yes (CardDemo READACCT OUTFILE, 2 bytes) |
@@ -471,6 +472,26 @@ The length READQ TS returns on ITEMERR or QIDERR is not documented, so it is not
   file that is not an ESDS (a KSDS by RBA); a keyed command on an ESDS; a browse that mixes RBA and keys; an RBA RIDFLD
   shorter than a fullword. By the translators: XRBA, RRN, READ / WRITE / DELETE by RBA, GTEQ or KEYLENGTH with RBA.
 - **Reached.** Yes: mortgage-mlist (IBM DBB EPSMLIST) browses its ESDS from RBA 0 to ENDFILE.
+
+### X14. READ ... INTO LENGTH — ASSUMED, REFUSED where IBM is silent (#4436)
+- **What IBM documents** (CICS TS 6.x, EXEC CICS READ): LENGTH "specifies the length, as a halfword binary value, of
+  the data area where the record is to be put. On completion of the READ command, the LENGTH parameter contains the
+  actual length of the record"; a record longer than LENGTH is truncated to it, with LENGERR RESP2 11 ("the record is
+  truncated, and the data area supplied in the LENGTH option is set to the actual length of the record"). Both sides
+  model that for a keyed READ (`ggcics.c` GGCREAD with LENGTH in GG-LEN and set back on NORMAL / LENGERR;
+  `DetCics.readInto` in the det port). Without LENGTH it is LENGTH OF INTO, as the CICS translator supplies it.
+- **Assumed.** LENGERR RESP2 13 ("an incorrect length is specified for a file with fixed-length records") is not
+  raised for a LENGTH other than the record's length: the cases' files are VSAM KSDSs, and GenApp itself reads its
+  225- and 64-byte records with LENGTH set from EIBCALEN. The length set back is stored as a COBOL MOVE of a fullword
+  into the program's item (CICS stores a halfword): the same below 10,000 bytes in a four-digit item, as every record
+  here is.
+- **Refused by name** (exit 98 / `UnsupportedOperationException`, "... not modelled"): a negative LENGTH; a record
+  moved past the end of INTO (CICS writes the storage that follows INTO, which GnuCOBOL lays out unlike IBM's
+  compiler, as X6); LENGERR on READ UPDATE (IBM does not say whether the record is then held for the REWRITE). The
+  det translator still refuses LENGTH on READNEXT / READPREV and an RBA browse unless it is INTO's own length.
+- **Reached.** NORMAL only: GenApp LGUPVS01 (LINKed by LGUPDB01 with LENGTH 225: a 64-byte record into a 1024-byte
+  area, LENGTH set back to 64) and LGUCVS01. LENGERR is not reached by a proven scenario: every non-NORMAL READ in
+  GenApp goes to LGSTSQ (X6), and both GenApp READs are UPDATE.
 
 ## Language Environment
 

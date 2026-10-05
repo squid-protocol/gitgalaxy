@@ -68,7 +68,8 @@ OPTIONS: dict[str, frozenset | None] = {
     # control never comes back from a RETURN, so a RESP area it does not write is never read after it
     "RETURN": frozenset({"TRANSID", "COMMAREA", "LENGTH"}) | _RESP,
     "XCTL": frozenset({"PROGRAM", "COMMAREA", "LENGTH"}) | _RESP,
-    # EQUAL is READ's default; KEYLENGTH and LENGTH only where they change nothing (Cics._keylength, _read_length)
+    # EQUAL is READ's default; KEYLENGTH only where it changes nothing (Cics._keylength); a keyed READ's LENGTH is
+    # modelled (#4436, Cics.read_length), READNEXT / READPREV's and an RBA browse's only as INTO's own (_read_length)
     "READ": _FILE | {"INTO", "RIDFLD", "UPDATE", "EQUAL", "KEYLENGTH", "LENGTH"} | _RESP,
     "READNEXT": _FILE | {"INTO", "RIDFLD", "KEYLENGTH", "LENGTH"} | _RESP,
     "READPREV": _FILE | {"INTO", "RIDFLD", "KEYLENGTH", "LENGTH"} | _RESP,
@@ -971,26 +972,37 @@ class Cics:
         if n != key:
             raise CicsError(f"{verb} KEYLENGTH({arg}) = {n}, the key is {key}: a partial key is not modelled")
 
-    def _read_length(self, verb: str, opts: dict) -> None:
-        """#4411: a read's LENGTH is the longest record the program takes (longer: LENGERR) and is set to the length
-        read. Neither is modelled, so LENGTH is honoured only as the INTO area's own length, known here."""
+    def _read_length(self, verb: str, opts: dict) -> str | None:
+        """A read's LENGTH (IBM, EXEC CICS READ: "the length ... of the data area where the record is to be put. On
+        completion ... the actual length of the record"; a longer record "is truncated", LENGERR RESP2 11).
+
+        #4436: a keyed READ models it (DetCics.readInto): the LENGTH operand is returned for the code to emit, or None
+        where it changes nothing -- a literal or LENGTH OF equal to INTO's own length, nothing to set back. READNEXT /
+        READPREV and the RBA browse still honour only INTO's own length (#4411); any other is refused by name."""
         if "LENGTH" not in opts:
-            return
+            return None
         arg = _arg(opts["LENGTH"])
         n = self.constant_int(arg)
-        if n is None or n != self.size(_arg(opts.get("INTO"))):
-            raise CicsError(f"{verb} LENGTH({arg}): not INTO's length (LENGERR, the length read: not modelled)")
+        into = self.size(_arg(opts.get("INTO")))
+        fixed = re.fullmatch(r"(?is)\d+|LENGTH\s+OF\s+.+", arg.strip()) is not None
+        if n is not None and n == into and (fixed or verb != "READ" or "RBA" in opts):
+            return None
+        if verb == "READ" and "RBA" not in opts:
+            return arg
+        raise CicsError(f"{verb} LENGTH({arg}): not INTO's length (LENGERR, the length read: not modelled)")
 
     def read(self, verb: str, opts: dict, ind: str) -> list[str]:
         if self._rba(verb, opts):
             self._read_length(verb, opts)
             return self.rba_browse(verb, opts, ind)
         self._keylength(verb, opts)
-        self._read_length(verb, opts)
+        length = self._read_length(verb, opts)
         st = self.store(opts)
         file = self.name(_arg(opts.get("DATASET") or opts.get("FILE")))
         into = self.field(opts["INTO"])
         rid = self.field(opts["RIDFLD"])
+        if verb == "READ" and length is not None:
+            return self.read_length(opts, length, file, st, into, rid, ind)
         g = self.g
         r, rec = g.tmpname("read"), g.tmpname("rec")
         if verb == "READ":
@@ -1011,6 +1023,33 @@ class Cics:
                f"{ind}    {st}.find({r}.key().getBytes(CS)).ifPresent(b -> DetCics.put({into}, b));",
                f"{ind}}}"]  # fmt: skip
         return out + self.outcome(opts, f"{r}.resp()", "0", ind)
+
+    def read_length(self, opts: dict, length: str, file: str, st: str, into: str, rid: str, ind: str) -> list[str]:
+        """#4436: READ ... INTO LENGTH(length). LENGTH's value is the most the program takes: the record goes INTO,
+        truncated to it with LENGERR (22, RESP2 11) when longer, and LENGTH is set to the record's length (on NORMAL
+        and LENGERR; a literal's or LENGTH OF's temporary is set by CICS and read by no one). What IBM leaves
+        undocumented or the storage layout decides is refused at run time by DetCics.readInto (a negative LENGTH; a
+        record moved past INTO; LENGERR on READ UPDATE -- whether the record is still held)."""
+        g = self.g
+        r, rec = g.tmpname("read"), g.tmpname("rec")
+        resp, resp2 = g.tmpname("resp"), g.tmpname("resp2")
+        update = "UPDATE" in opts
+        fn = "readForUpdate" if update else "read"
+        settable = re.fullmatch(r"(?is)\d+|LENGTH\s+OF\s+.+", length.strip()) is None
+        out = [f"{ind}byte[] {rec} = DetCics.bytes({rid});",
+               f"{ind}CicsTask.FileRead<byte[]> {r} = task.{fn}({file}, () -> {st}.find({rec}));",
+               f"{ind}int {resp} = {r}.resp();",
+               f"{ind}int {resp2} = {r}.resp2();",
+               f"{ind}if ({r}.record() != null) {{",
+               f"{ind}    {resp} = DetCics.readInto({into}, {r}.record(), {self.int_(length)}, {str(update).lower()});",
+               f"{ind}    {resp2} = {resp} == 22 ? 11 : 0;"]  # fmt: skip
+        if update:
+            out.append(f"{ind}    heldKey.put({file}, {rec});")  # (LENGERR on READ UPDATE: refused above)
+        if settable:
+            set_back = g.store_into(self.ref(length), f"BigDecimal.valueOf({r}.record().length)", False)
+            out.append(f"{ind}    {set_back}")
+        out.append(f"{ind}}}")
+        return out + self.outcome(opts, resp, resp2, ind)
 
     def record_from(self, opts: dict) -> str:
         """A WRITE / REWRITE's record: FROM's bytes, or LENGTH bytes from FROM's first (as CICS reads them)."""

@@ -42,7 +42,7 @@
     "tests/tools/java_target_matrix.py"
    ],
    "files": 11,
-   "sha256": "1764f900744b3e9c121722acf2c84aee1ef8dded04fa68f429e0abc39f031fd9"
+   "sha256": "c463ca45463a591e370c97e5ec9e229da87203b2299971d6c8a02e9fd3eb421b"
   },
   "oracle": {
    "paths": [
@@ -55,14 +55,14 @@
     "tests/tools/equivalence_sql.py"
    ],
    "files": 16,
-   "sha256": "b1be686cf96bbdce71bd0b5dc4245252f64020d97a5094cee850165bf093d250"
+   "sha256": "ee924d311b67148f9104af7158c534cc2fb9a50bb35ca6f7758d6a40efda414c"
   },
   "generator": {
    "paths": [
     "gitgalaxy/tools/cobol_to_java/**"
    ],
    "files": 60,
-   "sha256": "674777fda7f1a297b554ec1935d0b26aa8d37f65f65e150a94fab7dd570a0866"
+   "sha256": "d732e7f21fab2ba4f65c7a3dcf403d1f341479111a3a0d757cbacd167c1a2daa"
   },
   "corpus": {
    "name": "cics-genapp",
@@ -72,10 +72,10 @@
   "differences": {
    "sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
   },
-  "digest": "f929b9dd7b28d6a45e732b24c38a60ab4e78d712d85679d2a439b56315a21b90"
+  "digest": "6cdddd7804ece6d03206a2f8d3183e509f004f55a9946c694a0fa0aa8ad43f33"
  },
  "proof": {
-  "at": "2026-10-05T06:06:13Z",
+  "at": "2026-10-05T13:37:07Z",
   "verdict": "proven",
   "runs": 5,
   "fault_runs": 0,
@@ -106,8 +106,8 @@
   "sysout_compared": null,
   "attributes_compared": null,
   "java_failed": false,
-  "harness_commit": "d03da8b743917a29a13e48709fb0c7f6ad778528+uncommitted",
-  "inputs_digest": "f929b9dd7b28d6a45e732b24c38a60ab4e78d712d85679d2a439b56315a21b90"
+  "harness_commit": "1079a251a0b3d8f77497f5c8c98355c3b79a9640+uncommitted",
+  "inputs_digest": "6cdddd7804ece6d03206a2f8d3183e509f004f55a9946c694a0fa0aa8ad43f33"
  },
  "coverage": {
   "paragraphs": {
@@ -251,7 +251,7 @@
    "total": 0
   },
   "source": "the proof's own traced COBOL runs (cobol_coverage.py)",
-  "inputs_digest": "f929b9dd7b28d6a45e732b24c38a60ab4e78d712d85679d2a439b56315a21b90"
+  "inputs_digest": "6cdddd7804ece6d03206a2f8d3183e509f004f55a9946c694a0fa0aa8ad43f33"
  },
  "reach": {
   "entry_points": [
@@ -333,7 +333,7 @@
    },
    {
     "path": "tests/equivalence/cics/ggcics.c",
-    "sha256": "cfd00f48166b47683c2d342e0677b0faf06a0415183c109b6df62947485267d3"
+    "sha256": "2aff8a7a22af537b24cb03caafe4d6df30c30fde1cb6f548ba376616e6617214"
    },
    {
     "path": "tests/equivalence/db2/SQLCA.cpy",

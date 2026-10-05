@@ -304,6 +304,17 @@ Only generator output, never a test case:
   gap, or which leaves unexpanded a member the engine resolved, is refused by name (`source.CopyDisagrees`). No
   equivalence case moves; on the corpora at a1ec00d84 it newly refuses zopeneditor-sample SAM1 / SAM2 and 19 of
   estate-crucible's 40 programs (9 collisions, 6 COPYs not expanded, 4 other files).
+- #4468 (the real fix after #4467; the engine owns COPY resolution, `fact_ownership.md`): the translator no longer
+  searches directories for an estate member. Every COPY in an estate file (the program's own and its copybooks')
+  takes the file the engine resolved (`GalaxyIR.copy_resolution`: copy_deps and their library-names per importer,
+  SYSLIB order, `COPY ... IN`), read from the port ticket (the skeleton's `copy_edges`) or GalaxyIR, so the two
+  resolutions cannot diverge and `CopyDisagrees` is gone. Refused by name (`source.CopyUnresolved`): a member the
+  engine reports as a collision or a gap, one it resolved to several files, one it resolved nothing for that the
+  estate holds (#4460), and a member it resolved that the translator never expands (#4459). Members outside the
+  estate (DFHAID, SQLCA, BMS symbolic maps) are still found in the translator's own directories. Text expansion
+  (REPLACING, continuation) and layout arithmetic are unchanged. Newly translating: estate-crucible ACCTPOST and
+  CUSTINQ (the wrong library before); SHPINQ / SHPINQO now refuse on their real defect (COPY SHPRATE: a gap the
+  estate fills only with a program source) instead of the library.
 - #4436 (after #4411 refused it): `READ ... INTO LENGTH(x)` was accepted and ignored by the translator, and the
   harness's stub was handed LENGTH OF INTO in its place -- both sides agreed, so GenApp LGUCVS01 / LGUPVS01 "proved"
   without either honouring LENGTH. A keyed READ's LENGTH is now in-out on both sides (`DetCics.readInto`, GGCREAD:

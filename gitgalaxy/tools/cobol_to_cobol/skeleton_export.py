@@ -176,6 +176,8 @@ class SkeletonExporter:
                 "program_ids": list(ef.program_ids),
                 "total_loc": ef.total_loc,
                 "copybooks": list(ef.copy_deps),
+                # #4468: every COPY the program reaches, as the engine resolved it (the det translator takes it)
+                **{f"copy_{k}": v for k, v in self.ir.copy_resolution(path).items()},
                 "program_id_field_testing": self.confidence.get("program_id", {}).get("status", "untested"),
             },
             "sections": sections,

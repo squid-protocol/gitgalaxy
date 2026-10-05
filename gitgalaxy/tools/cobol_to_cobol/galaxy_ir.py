@@ -1753,6 +1753,31 @@ class GalaxyIR:
             out[mapset] = {"file": sym.file_path.rsplit("#", 1)[0], "items": sorted(items)}
         return out
 
+    def copy_resolution(self, path: str) -> dict:
+        """#4468: the engine's resolution of every COPY the program at `path` reaches -- for a consumer that
+        expands the source itself (the det translator) and must take the member the engine chose, not search for
+        one. `edges`: importer (the program, then every copybook its COPYs reach, repo-relative) -> {resolved
+        file: the COPY forms' library-names (#4265; "" an unqualified COPY, empty when no libraries were
+        declared)}; BMS symbolic maps (`map.bms#MAPSET`) are left out. `gaps` / `collisions`: the sorted
+        [importer, member] pairs of those importers the scan reported (#4420 / #4421)."""
+        edges: dict[str, dict[str, list[str]]] = {}
+        todo = [path]
+        while todo:
+            f = todo.pop()
+            ef = self.files.get(f)
+            if f in edges or ef is None:
+                continue
+            edges[f] = {
+                d: sorted(ef.copy_dep_libraries.get(d, ())) for d in ef.copy_deps if not _SYMBOLIC_MAP.search(d)
+            }
+            todo += [d for d in edges[f] if d not in edges]
+
+        def pick(rows: Optional[list[dict[str, Any]]]) -> list[list[str]]:
+            return [list(t) for t in sorted({(r["importer"], str(r["member"]).upper()) for r in rows or []
+                                             if r.get("importer") in edges})]  # fmt: skip
+
+        return {"edges": edges, "gaps": pick(self.copy_member_gaps), "collisions": pick(self.copy_member_collisions)}
+
     def _copy_files(self, ef: EngineFile) -> list:
         """The copybooks program `ef` COPYs: its resolved COPY edges, then the
         symbolic maps generated for the BMS mapsets it COPYs (#3490)."""
@@ -5478,6 +5503,8 @@ _SYSTEM_PROGRAM = re.compile(
     r"(?:IDCAMS|IEB|IEF|IEH|IKJ|ICE|SORT|DFSORT|SYNCSORT|IEW|IGY|ASMA|IBMZ|CEE|DFH|DSN|DFS|ADR|IDC|IRX|EZA|IGZ|ILBO"
     r"|CSQ|IOEAGFMT|BPXBATCH|AMASPZAP|IMS|DLI|CBLTDLI|AIBTDLI|PLITDLI|MQ)[A-Z0-9@#$]*$"
 )
+# #4468: a symbolic map generated from BMS source (`map.bms#MAPSET`), not a file in the estate
+_SYMBOLIC_MAP = re.compile(r"\.bms#[^/]*$", re.I)
 _SYSTEM_COPYBOOK = re.compile(r"(?:DFH|CMQ|SQLCA|SQLDA|DSN|CEE|IGZ|DLI|DFS)[A-Z0-9@#$]*$")
 
 # #3492: file I/O that moves a whole record between the FD buffer and an area.

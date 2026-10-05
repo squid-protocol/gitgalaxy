@@ -77,12 +77,13 @@ OPTIONS: dict[str, frozenset | None] = {
     "WRITE": _FILE | {"FROM", "RIDFLD", "LENGTH", "KEYLENGTH"} | _RESP,
     "REWRITE": frozenset({"DATASET", "FILE", "FROM", "LENGTH"}) | _RESP,
     "DELETE": _FILE | {"RIDFLD", "KEYLENGTH"} | _RESP,
-    "HANDLE ABEND": frozenset({"LABEL", "CANCEL", "RESET", "PROGRAM"}),  # (PROGRAM: refused by name below)
+    # NOHANDLE where the translation raises no condition anyway (no RESP: its area would not be written)
+    "HANDLE ABEND": frozenset({"LABEL", "CANCEL", "RESET", "PROGRAM", "NOHANDLE"}),  # (PROGRAM: refused below)
     "HANDLE CONDITION": None,  # every option is a condition, each handled
     "ABEND": frozenset({"ABCODE", "CANCEL", "NODUMP"}),  # NODUMP: a dump is no state the program or its caller sees
     "ASSIGN": frozenset({"APPLID", "SYSID", "ABCODE", "PROGRAM", "INVOKINGPROG"}) | _RESP,
-    "ASKTIME": frozenset({"ABSTIME"}),
-    "FORMATTIME": frozenset({"ABSTIME", "TIME", "DATESEP", "TIMESEP", *_FORMS}),
+    "ASKTIME": frozenset({"ABSTIME", "NOHANDLE"}),
+    "FORMATTIME": frozenset({"ABSTIME", "TIME", "DATESEP", "TIMESEP", "NOHANDLE", *_FORMS}),
     "INQUIRE PROGRAM": frozenset({"PROGRAM"}) | _RESP,
     "WRITEQ TD": frozenset({"QUEUE", "FROM", "LENGTH"}) | _RESP,
     # MAIN / AUXILIARY: where CICS keeps the item, not what it holds; NOSUSPEND: one task, a queue never waits
@@ -100,6 +101,8 @@ def command_key(words: list[str], opts: dict) -> str:
     first = words[0] if words else ""
     if first in ("ENQ", "DEQ", "DELAY"):
         return first
+    if verb != "GET" and ("COUNTER" in opts or "DCOUNTER" in opts):
+        return f"{verb} COUNTER"  # (not modelled: refused whole by Cics.command)
     if first == "SEND":
         return "SEND MAP" if "MAP" in opts else "SEND TEXT" if verb in ("SEND", "SEND TEXT") else verb
     if verb in _FORM_OPTION and _FORM_OPTION[verb] in opts:

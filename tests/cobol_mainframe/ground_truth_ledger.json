@@ -474,14 +474,14 @@
         },
         "entry transactions": {
           "engine": {
-            "got": 26,
-            "tp": 26,
-            "truth": 26
+            "got": 24,
+            "tp": 24,
+            "truth": 24
           },
           "forge": {
-            "got": 26,
-            "tp": 26,
-            "truth": 26
+            "got": 24,
+            "tp": 24,
+            "truth": 24
           },
           "truth": "cross_verified"
         },
@@ -1930,14 +1930,14 @@
         },
         "entry transactions": {
           "engine": {
-            "got": 25,
-            "tp": 25,
-            "truth": 25
+            "got": 10,
+            "tp": 10,
+            "truth": 10
           },
           "forge": {
-            "got": 25,
-            "tp": 25,
-            "truth": 25
+            "got": 10,
+            "tp": 10,
+            "truth": 10
           },
           "truth": "cross_verified"
         },

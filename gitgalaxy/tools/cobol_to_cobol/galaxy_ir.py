@@ -381,8 +381,8 @@ class EngineDataItem:
 class EngineTransaction:
     """One CICS transaction definition (#3211-followup).
 
-    A `DEFINE TRANSACTION(TTTT) ... PROGRAM(PPPP)` in a CSD deck (or a PROGRAM
-    autoinstall `TRANSID(...)` pairing). `transid` is the 4-char id a user
+    A `DEFINE TRANSACTION(TTTT) ... PROGRAM(PPPP)` in a CSD deck (a PROGRAM's
+    `TRANSID(...)` attribute is the remote-DPL mirror, not a route, #4503). `transid` is the 4-char id a user
     submits; `program` is the PROGRAM-ID it routes to as written; `resolves_to`
     is the repository file declaring that PROGRAM-ID, or None for a program this
     repository does not contain (a system transaction or an external module).

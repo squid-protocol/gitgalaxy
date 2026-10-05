@@ -84,7 +84,7 @@ PINNED = {
     "aws-mainframe-modernization-carddemo": {
         # #3710: + COBTUPDT (IKJEFT01 RUN PROGRAM) and 4 IMS programs (DFSRRC00 PARM), run by jobs now
         # #4278: + the 3 EXEC SQL INCLUDE members inside records (CSDB2RWY ...), all resolved
-        "program calls": (70, 87), "copybooks": (176, 176), "transactions": (62, 73), "screens": (47, 47),
+        "program calls": (70, 87), "copybooks": (176, 176), "transactions": (49, 55), "screens": (47, 47),
         "data flows": (4945, 5054), "IMS PSBs": (7, 7), "batch entry": (16, 17),
     },
     "cics-banking-sample-application-cbsa": {
@@ -96,7 +96,7 @@ PINNED = {
     },
     "cics-genapp": {
         # #4278: + 11 EXEC SQL INCLUDE members inside records (LGCMAREA, LGPOLICY)
-        "program calls": (95, 101), "copybooks": (40, 40), "transactions": (74, 74), "screens": (52, 52),
+        "program calls": (95, 101), "copybooks": (40, 40), "transactions": (57, 57), "screens": (52, 52),
         "data flows": (1285, 1285), "IMS PSBs": (0, 0), "batch entry": (0, 0),
     },
     # #3576: PL/I main programs are scored too -- PSAM1 is run by RUNPSAM1.jcl; MACSAMP (the

@@ -429,3 +429,14 @@ def test_an_explicit_file_edge_phantom_is_attributed_to_its_horror():
     sc = ec.Score()
     ec.score_file_edges(sc, "main.cbl", entry, eng)
     assert _statuses(sc) == [("file_edges", "call -> ORDV#OLD.cbl", "phantom", "H-0050")]
+
+
+def test_a_copy_gap_ignores_the_call_edge_to_the_program_of_the_same_name():
+    """#4420: ORDMAIN's `CALL 'ORDPRICE'` is a call edge to ORDPRICE.cbl; only an import edge there fails the COPY gap."""
+    eng = FakeEngine()
+    eng.out_edges = {"p.cbl": {("apps/A/cobol/PRICE.cbl", "call")}, "q.cbl": {("apps/A/cobol/PRICE.cbl", "import")}}
+    entry = {"gaps": [{"kind": "copy", "name": "PRICE", "line": 5, "why": ""}]}
+    sc = ec.Score()
+    ec.score_gaps(sc, "p.cbl", entry, eng)
+    ec.score_gaps(sc, "q.cbl", entry, eng)
+    assert _statuses(sc) == sorted([("gaps", "copy PRICE @5", "pass", None), ("gaps", "copy PRICE @5", "fail", None)])

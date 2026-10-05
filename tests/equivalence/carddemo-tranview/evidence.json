@@ -9,6 +9,7 @@
   ],
   "sha256": "439fe14e945763ba9c51ba6a1ba2cb5b9e5962253b424bcf1bc9e6dd8cc432dc",
   "entry_points": [
+   "handleTransaction",
    "runTask"
   ]
  },
@@ -42,7 +43,7 @@
     "tests/tools/java_target_matrix.py"
    ],
    "files": 11,
-   "sha256": "1764f900744b3e9c121722acf2c84aee1ef8dded04fa68f429e0abc39f031fd9"
+   "sha256": "b1177defd3c0a7a927256daaff99217829f5a883ea0ad583cd3994073f9c6c9d"
   },
   "oracle": {
    "paths": [
@@ -72,10 +73,10 @@
   "differences": {
    "sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
   },
-  "digest": "2ea7765f761953b978833ca6eba31fd3e2bcd46a8b1d54f9d2f1679ad5bbe17a"
+  "digest": "0794abbd8d34753758b964e5ee8f6cecbc32ca8045e6e58ed6677ccca1719011"
  },
  "proof": {
-  "at": "2026-10-05T13:25:29Z",
+  "at": "2026-10-05T14:37:52Z",
   "verdict": "proven",
   "runs": 15,
   "fault_runs": 1,
@@ -146,8 +147,18 @@
   "sysout_compared": null,
   "attributes_compared": null,
   "java_failed": false,
-  "harness_commit": "94553a47d73cf994b4856a5fadf26df6cb11049b+uncommitted",
-  "inputs_digest": "2ea7765f761953b978833ca6eba31fd3e2bcd46a8b1d54f9d2f1679ad5bbe17a"
+  "facade": {
+   "verdict": "proven",
+   "runs": 15,
+   "passed": 15,
+   "entry_points": [
+    "handleTransaction"
+   ],
+   "failed": [],
+   "error": null
+  },
+  "harness_commit": "c02126e8c64eb2986ab9c7e1b976e50f120f815d+uncommitted",
+  "inputs_digest": "0794abbd8d34753758b964e5ee8f6cecbc32ca8045e6e58ed6677ccca1719011"
  },
  "coverage": {
   "paragraphs": {
@@ -171,19 +182,14 @@
    "total": 0
   },
   "source": "the proof's own traced COBOL runs (cobol_coverage.py)",
-  "inputs_digest": "2ea7765f761953b978833ca6eba31fd3e2bcd46a8b1d54f9d2f1679ad5bbe17a"
+  "inputs_digest": "0794abbd8d34753758b964e5ee8f6cecbc32ca8045e6e58ed6677ccca1719011"
  },
  "reach": {
   "entry_points": [
+   "handleTransaction",
    "runTask"
   ],
   "unproven": [
-   {
-    "class": "Cotrn01cService",
-    "method": "handleTransaction",
-    "line": 83,
-    "kind": "left_as_generated"
-   },
    {
     "class": "Cotrn01cService",
     "method": "handleLink",
@@ -193,7 +199,7 @@
   ],
   "counts": {
    "stub": 0,
-   "left_as_generated": 2,
+   "left_as_generated": 1,
    "ported_unproven": 0
   },
   "generated_compared": true,

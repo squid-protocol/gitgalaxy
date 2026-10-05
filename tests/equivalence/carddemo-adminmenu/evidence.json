@@ -9,6 +9,7 @@
   ],
   "sha256": "247e20ca326baadad09e75b605488ae4098dbbe9fe0c8654add016c0fe563efa",
   "entry_points": [
+   "handleTransaction",
    "runTask"
   ]
  },
@@ -42,7 +43,7 @@
     "tests/tools/java_target_matrix.py"
    ],
    "files": 11,
-   "sha256": "1764f900744b3e9c121722acf2c84aee1ef8dded04fa68f429e0abc39f031fd9"
+   "sha256": "b1177defd3c0a7a927256daaff99217829f5a883ea0ad583cd3994073f9c6c9d"
   },
   "oracle": {
    "paths": [
@@ -72,10 +73,10 @@
   "differences": {
    "sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
   },
-  "digest": "1cbae1fb3dc3c819de933ff67a616f592eb4b520756c875b366936648f5e79ab"
+  "digest": "b383f291adef2fb7f58c1aa54ba4aefcaf2eb546329bd82eb68e78eb0f2a5043"
  },
  "proof": {
-  "at": "2026-10-05T13:24:02Z",
+  "at": "2026-10-05T14:29:05Z",
   "verdict": "proven",
   "runs": 16,
   "fault_runs": 0,
@@ -150,8 +151,18 @@
   "sysout_compared": null,
   "attributes_compared": null,
   "java_failed": false,
-  "harness_commit": "94553a47d73cf994b4856a5fadf26df6cb11049b+uncommitted",
-  "inputs_digest": "1cbae1fb3dc3c819de933ff67a616f592eb4b520756c875b366936648f5e79ab"
+  "facade": {
+   "verdict": "proven",
+   "runs": 16,
+   "passed": 16,
+   "entry_points": [
+    "handleTransaction"
+   ],
+   "failed": [],
+   "error": null
+  },
+  "harness_commit": "c02126e8c64eb2986ab9c7e1b976e50f120f815d+uncommitted",
+  "inputs_digest": "b383f291adef2fb7f58c1aa54ba4aefcaf2eb546329bd82eb68e78eb0f2a5043"
  },
  "coverage": {
   "paragraphs": {
@@ -205,19 +216,14 @@
    "total": 1
   },
   "source": "the proof's own traced COBOL runs (cobol_coverage.py)",
-  "inputs_digest": "1cbae1fb3dc3c819de933ff67a616f592eb4b520756c875b366936648f5e79ab"
+  "inputs_digest": "b383f291adef2fb7f58c1aa54ba4aefcaf2eb546329bd82eb68e78eb0f2a5043"
  },
  "reach": {
   "entry_points": [
+   "handleTransaction",
    "runTask"
   ],
   "unproven": [
-   {
-    "class": "Coadm01cService",
-    "method": "handleTransaction",
-    "line": 81,
-    "kind": "left_as_generated"
-   },
    {
     "class": "Coadm01cService",
     "method": "handleLink",
@@ -233,7 +239,7 @@
   ],
   "counts": {
    "stub": 1,
-   "left_as_generated": 2,
+   "left_as_generated": 1,
    "ported_unproven": 0
   },
   "generated_compared": true,

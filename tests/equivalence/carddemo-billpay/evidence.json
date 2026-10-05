@@ -9,6 +9,7 @@
   ],
   "sha256": "a03e7226ba60cea34e8e4805a8cc1ef057487d01e67218420aa5030617a2adb6",
   "entry_points": [
+   "handleTransaction",
    "runTask"
   ]
  },
@@ -42,7 +43,7 @@
     "tests/tools/java_target_matrix.py"
    ],
    "files": 11,
-   "sha256": "1764f900744b3e9c121722acf2c84aee1ef8dded04fa68f429e0abc39f031fd9"
+   "sha256": "b1177defd3c0a7a927256daaff99217829f5a883ea0ad583cd3994073f9c6c9d"
   },
   "oracle": {
    "paths": [
@@ -72,10 +73,10 @@
   "differences": {
    "sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
   },
-  "digest": "035631cf9a3d1633b4ecb2ca98c9d717d1fa576799dd1eef7030ad791e7075b0"
+  "digest": "bbb728081ef418b19f8269068a04e7111137ea9510bd0e9f7b7dd66275e4844e"
  },
  "proof": {
-  "at": "2026-10-05T13:24:12Z",
+  "at": "2026-10-05T14:29:21Z",
   "verdict": "proven",
   "runs": 17,
   "fault_runs": 3,
@@ -154,8 +155,18 @@
   "sysout_compared": null,
   "attributes_compared": null,
   "java_failed": false,
-  "harness_commit": "94553a47d73cf994b4856a5fadf26df6cb11049b+uncommitted",
-  "inputs_digest": "035631cf9a3d1633b4ecb2ca98c9d717d1fa576799dd1eef7030ad791e7075b0"
+  "facade": {
+   "verdict": "proven",
+   "runs": 17,
+   "passed": 17,
+   "entry_points": [
+    "handleTransaction"
+   ],
+   "failed": [],
+   "error": null
+  },
+  "harness_commit": "c02126e8c64eb2986ab9c7e1b976e50f120f815d+uncommitted",
+  "inputs_digest": "bbb728081ef418b19f8269068a04e7111137ea9510bd0e9f7b7dd66275e4844e"
  },
  "coverage": {
   "paragraphs": {
@@ -233,19 +244,14 @@
    "total": 0
   },
   "source": "the proof's own traced COBOL runs (cobol_coverage.py)",
-  "inputs_digest": "035631cf9a3d1633b4ecb2ca98c9d717d1fa576799dd1eef7030ad791e7075b0"
+  "inputs_digest": "bbb728081ef418b19f8269068a04e7111137ea9510bd0e9f7b7dd66275e4844e"
  },
  "reach": {
   "entry_points": [
+   "handleTransaction",
    "runTask"
   ],
   "unproven": [
-   {
-    "class": "Cobil00cService",
-    "method": "handleTransaction",
-    "line": 93,
-    "kind": "left_as_generated"
-   },
    {
     "class": "Cobil00cService",
     "method": "handleLink",
@@ -267,7 +273,7 @@
   ],
   "counts": {
    "stub": 0,
-   "left_as_generated": 4,
+   "left_as_generated": 3,
    "ported_unproven": 0
   },
   "generated_compared": true,

@@ -9,6 +9,7 @@
   ],
   "sha256": "59b4111596f168c0ffbcbcb6eb25aefca4f97d551e51c8fe7146f6c8768cc06d",
   "entry_points": [
+   "handleLink",
    "runTask"
   ]
  },
@@ -42,7 +43,7 @@
     "tests/tools/java_target_matrix.py"
    ],
    "files": 11,
-   "sha256": "1764f900744b3e9c121722acf2c84aee1ef8dded04fa68f429e0abc39f031fd9"
+   "sha256": "b1177defd3c0a7a927256daaff99217829f5a883ea0ad583cd3994073f9c6c9d"
   },
   "oracle": {
    "paths": [
@@ -62,7 +63,7 @@
     "gitgalaxy/tools/cobol_to_java/**"
    ],
    "files": 60,
-   "sha256": "674777fda7f1a297b554ec1935d0b26aa8d37f65f65e150a94fab7dd570a0866"
+   "sha256": "ad526b833acb84d7b0ac17ec9188f2725ecf6e1c6cb6612b7b5cf02543682983"
   },
   "corpus": {
    "name": "cics-banking-sample-application-cbsa",
@@ -72,10 +73,10 @@
   "differences": {
    "sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
   },
-  "digest": "d42e3c81969063d6608d4d1319bb2d033d4afae55eaa67333fc09b16dba469d9"
+  "digest": "841564a7b372451f7c6c6d70f6494759be51b0485ad417a9185cbba4e1776a52"
  },
  "proof": {
-  "at": "2026-10-05T06:05:23Z",
+  "at": "2026-10-05T14:40:47Z",
   "verdict": "proven",
   "runs": 10,
   "fault_runs": 0,
@@ -126,8 +127,18 @@
   "sysout_compared": null,
   "attributes_compared": null,
   "java_failed": false,
-  "harness_commit": "d03da8b743917a29a13e48709fb0c7f6ad778528+uncommitted",
-  "inputs_digest": "d42e3c81969063d6608d4d1319bb2d033d4afae55eaa67333fc09b16dba469d9"
+  "facade": {
+   "verdict": "proven",
+   "runs": 10,
+   "passed": 10,
+   "entry_points": [
+    "handleLink"
+   ],
+   "failed": [],
+   "error": null
+  },
+  "harness_commit": "c02126e8c64eb2986ab9c7e1b976e50f120f815d+uncommitted",
+  "inputs_digest": "841564a7b372451f7c6c6d70f6494759be51b0485ad417a9185cbba4e1776a52"
  },
  "coverage": {
   "paragraphs": {
@@ -151,23 +162,17 @@
    "total": 0
   },
   "source": "the proof's own traced COBOL runs (cobol_coverage.py)",
-  "inputs_digest": "d42e3c81969063d6608d4d1319bb2d033d4afae55eaa67333fc09b16dba469d9"
+  "inputs_digest": "841564a7b372451f7c6c6d70f6494759be51b0485ad417a9185cbba4e1776a52"
  },
  "reach": {
   "entry_points": [
+   "handleLink",
    "runTask"
   ],
-  "unproven": [
-   {
-    "class": "UpdaccService",
-    "method": "handleLink",
-    "line": 50,
-    "kind": "left_as_generated"
-   }
-  ],
+  "unproven": [],
   "counts": {
    "stub": 0,
-   "left_as_generated": 1,
+   "left_as_generated": 0,
    "ported_unproven": 0
   },
   "generated_compared": true,

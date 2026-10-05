@@ -9,6 +9,7 @@
   ],
   "sha256": "5b680d104363da0d65466583eba7a37c46c0aaa05c2bb7dc4ae59c92a171dab1",
   "entry_points": [
+   "handleTransaction",
    "runTask"
   ]
  },
@@ -42,7 +43,7 @@
     "tests/tools/java_target_matrix.py"
    ],
    "files": 11,
-   "sha256": "1764f900744b3e9c121722acf2c84aee1ef8dded04fa68f429e0abc39f031fd9"
+   "sha256": "b1177defd3c0a7a927256daaff99217829f5a883ea0ad583cd3994073f9c6c9d"
   },
   "oracle": {
    "paths": [
@@ -72,10 +73,10 @@
   "differences": {
    "sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
   },
-  "digest": "36dc39bf209b24a03671d0470bd226fd7a6b10aedf3ff7ad2cc1f60e2b48079a"
+  "digest": "bfd5a360fae824ccaff54a7fcfa35487c2d9364877e7b57d56a6640c46649757"
  },
  "proof": {
-  "at": "2026-10-05T13:25:38Z",
+  "at": "2026-10-05T14:38:22Z",
   "verdict": "proven",
   "runs": 13,
   "fault_runs": 1,
@@ -138,8 +139,18 @@
   "sysout_compared": null,
   "attributes_compared": null,
   "java_failed": false,
-  "harness_commit": "94553a47d73cf994b4856a5fadf26df6cb11049b+uncommitted",
-  "inputs_digest": "36dc39bf209b24a03671d0470bd226fd7a6b10aedf3ff7ad2cc1f60e2b48079a"
+  "facade": {
+   "verdict": "proven",
+   "runs": 13,
+   "passed": 13,
+   "entry_points": [
+    "handleTransaction"
+   ],
+   "failed": [],
+   "error": null
+  },
+  "harness_commit": "c02126e8c64eb2986ab9c7e1b976e50f120f815d+uncommitted",
+  "inputs_digest": "bfd5a360fae824ccaff54a7fcfa35487c2d9364877e7b57d56a6640c46649757"
  },
  "coverage": {
   "paragraphs": {
@@ -163,19 +174,14 @@
    "total": 0
   },
   "source": "the proof's own traced COBOL runs (cobol_coverage.py)",
-  "inputs_digest": "36dc39bf209b24a03671d0470bd226fd7a6b10aedf3ff7ad2cc1f60e2b48079a"
+  "inputs_digest": "bfd5a360fae824ccaff54a7fcfa35487c2d9364877e7b57d56a6640c46649757"
  },
  "reach": {
   "entry_points": [
+   "handleTransaction",
    "runTask"
   ],
   "unproven": [
-   {
-    "class": "Cousr01cService",
-    "method": "handleTransaction",
-    "line": 79,
-    "kind": "left_as_generated"
-   },
    {
     "class": "Cousr01cService",
     "method": "handleLink",
@@ -185,7 +191,7 @@
   ],
   "counts": {
    "stub": 0,
-   "left_as_generated": 2,
+   "left_as_generated": 1,
    "ported_unproven": 0
   },
   "generated_compared": true,

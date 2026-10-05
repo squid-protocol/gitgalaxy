@@ -29,5 +29,11 @@
  "proof": "tests/tools/equivalence.py run cbsa-inqacc",
  "edited_after": "none: the files are the model's answer as the loop stored it",
  "licence": "EPL-2.0",
- "proven_after": "#4188: the loop's own verdicts were 'not proven' because a port's proof ran the LINKed program as its stub; with #4188 the stored attempt proves unedited (re-proven with --faults all)"
+ "proven_after": "#4188: the loop's own verdicts were 'not proven' because a port's proof ran the LINKed program as its stub; with #4188 the stored attempt proves unedited (re-proven with --faults all)",
+ "stale": {
+  "against": "the java-facade side (#4449)",
+  "at": "2026-10-05T14:49:40+00:00",
+  "reason": "re-proof through the deployed entry points failed: java-facade 13/14 scenarios pass (null-statement-date); runTask 14/14 pass",
+  "needs": "#4465: the LINK target ABNDPROC (a det port) has a stub handleLink that throws UnsupportedOperationException instead of running its level; then evidence.py prove cbsa-inqacc"
+ }
 }

@@ -273,6 +273,28 @@ def test_the_facade_summary_keeps_each_failing_scenario_and_why():
                              {"scenario": "c", "why": "differs (1/2 events equal, files differ)"}]  # fmt: skip
 
 
+FACADE_BASELINE = ev.CASES / "facade_baseline.json"
+
+
+def test_every_failing_facade_scenario_is_ledgered_with_its_issue():
+    """#4449: a CICS port whose java-facade side fails keeps its record honest (not proven) and its failing scenarios
+    ledgered in tests/equivalence/facade_baseline.json, each case with the issue that owns the defect, as the
+    crucible ledgers its cells (tests/cics_crucible/baseline.json). A record whose failures differ from the ledger --
+    a fix, or a new failure -- fails here: update the ledger in the same PR."""
+    ledger = json.loads(FACADE_BASELINE.read_text(encoding="utf-8"))["cases"]
+    got = {}
+    for t, rec in _records():
+        fc = ((rec or {}).get("proof") or {}).get("facade")
+        if t.kind == "cics" and fc and fc["verdict"] != "proven":
+            got[t.key] = sorted(f["scenario"] for f in fc["failed"])
+    assert got == {k: sorted(v["scenarios"]) for k, v in ledger.items()}
+    for key, v in ledger.items():
+        assert v["issue"].startswith("#") and v["why"], key
+        prov = ev.target(key).port_dir / "provenance.json"
+        if prov.is_file():  # the port's provenance says it is stale, and why
+            assert v["issue"] in json.loads(prov.read_text(encoding="utf-8")).get("stale", {}).get("needs", ""), key
+
+
 # ---- approval -------------------------------------------------------------------------------------------------------
 def _tmp_target(tmp_path, t, rec):
     tt = ev.Target(**{**t.__dict__, "record": tmp_path / "evidence.json"})

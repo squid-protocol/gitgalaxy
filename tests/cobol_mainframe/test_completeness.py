@@ -90,8 +90,9 @@ PINNED = {
     "cics-banking-sample-application-cbsa": {
         # #3710: + BANKDATA, which IKJEFT01 RUN PROGRAM runs
         # #4278: + 11 EXEC SQL INCLUDE members inside records (PROCDB2, ACCDB2, CONTDB2 ...)
+        # #4457: 4742 -> 4743 data flows -- GETSCODE's LITERAL-SORTCODE (COPY SORTCODE REPLACING) is a record now
         "program calls": (143, 151), "copybooks": (99, 99), "transactions": (42, 47), "screens": (36, 37),
-        "data flows": (4742, 4743), "IMS PSBs": (0, 0), "batch entry": (1, 1),
+        "data flows": (4743, 4743), "IMS PSBs": (0, 0), "batch entry": (1, 1),
     },
     "cics-genapp": {
         # #4278: + 11 EXEC SQL INCLUDE members inside records (LGCMAREA, LGPOLICY)
@@ -101,8 +102,10 @@ PINNED = {
     # #3576: PL/I main programs are scored too -- PSAM1 is run by RUNPSAM1.jcl; MACSAMP (the
     # macro-preprocessor showcase) and PSAM1LIB (a library copy of PSAM1) are run by no step.
     "zopeneditor-sample": {
+        # #4457: 327 -> 372 data flows -- the CUST-REC / CSTOUT-REC ... records of `COPY CUSTCOPY REPLACING
+        # ==:TAG:== BY ==CUST==` (SAM1, SAM1LIB, SAM2 and the multiroot copies) exist now
         "program calls": (8, 8), "copybooks": (6, 6), "transactions": (0, 0), "screens": (0, 0),
-        "data flows": (327, 374), "IMS PSBs": (0, 0), "batch entry": (4, 6),
+        "data flows": (372, 374), "IMS PSBs": (0, 0), "batch entry": (4, 6),
     },
     # #3576: DSF's 431 PL/I OPTIONS(MAIN) programs are scored: 310 are CICS (themselves or
     # through a %INCLUDEd member), 235 of them reached by a LINK / XCTL; with no CSD in the

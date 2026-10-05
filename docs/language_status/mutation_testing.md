@@ -122,9 +122,9 @@ results file is accepted as a triage input, so a re-run keeps the verdicts of mu
 <!-- mutation-scores -->
 | port | harness | mutants run / all | raw score | without equivalent + unreachable | survivors: case gap / harness gap / equivalent / unreachable / untriaged |
 |---|---|---|---|---|---|
-| COACTVWC (carddemo-acctview) | equivalence | 150/329 | 87/129 (67%) | 87/116 (75%) | 29 / 0 / 12 / 1 / 0 |
-| CSUTLDTC (carddemo-dateutil) | equivalence | 217/217 | 135/201 (67%) | 135/145 (93%) | 10 / 0 / 12 / 44 / 0 |
-| COMEN01C (carddemo-menu) | equivalence | 150/359 | 72/136 (53%) | 72/84 (86%) | 12 / 0 / 36 / 16 / 0 |
+| COACTVWC (carddemo-acctview) | equivalence | 150/328 | 105/129 (81%) | 105/113 (93%) | 8 / 0 / 16 / 0 / 0 |
+| CSUTLDTC (carddemo-dateutil) | equivalence | 211/211 | 145/195 (74%) | 145/145 (100%) | 0 / 0 / 10 / 40 / 0 |
+| COMEN01C (carddemo-menu) | equivalence | 150/331 | 86/136 (63%) | 86/93 (92%) | 7 / 0 / 36 / 7 / 0 |
 | CALINK (ca-link-lengths) | crucible | 24/165 | 19/22 (86%) | 19/21 (90%) | 2 / 0 / 1 / 0 / 0 |
 | CASUB (ca-link-lengths) | crucible | 24/43 | 12/24 (50%) | 12/14 (86%) | 2 / 0 / 6 / 4 / 0 |
 | CAXA (ca-xctl-versions) | crucible | 24/74 | 18/21 (86%) | 18/20 (90%) | 2 / 0 / 1 / 0 / 0 |
@@ -143,20 +143,20 @@ results file is accepted as a triage input, so a re-run keeps the verdicts of mu
 | PCCONF (pc-wizard) | crucible | 24/247 | 14/23 (61%) | 14/17 (82%) | 3 / 0 / 6 / 0 / 0 |
 | PCWIZ (pc-wizard) | crucible | 24/177 | 11/21 (52%) | 11/16 (69%) | 5 / 0 / 3 / 2 / 0 |
 | **all crucible** | | 408 run | **242/380 (64%)** | **242/282 (86%)** | 40 / 0 / 65 / 33 / 0 |
-| **all equivalence** | | 517 run | **294/466 (63%)** | **294/345 (85%)** | 51 / 0 / 60 / 61 / 0 |
-| **all estate** | | 925 run | **536/846 (63%)** | **536/627 (85%)** | 91 / 0 / 125 / 94 / 0 |
+| **all equivalence** | | 511 run | **336/460 (73%)** | **336/351 (96%)** | 15 / 0 / 62 / 47 / 0 |
+| **all estate** | | 919 run | **578/840 (69%)** | **578/633 (91%)** | 55 / 0 / 127 / 80 / 0 |
 
 | operator | caught / judged | without equivalent + unreachable |
 |---|---|---|
-| AOR | 52/65 (80%) | 52/57 (91%) |
+| AOR | 55/66 (83%) | 55/59 (93%) |
 | BDM | 1/9 (11%) | 1/2 (50%) |
-| CON | 80/167 (48%) | 80/94 (85%) |
-| COR | 26/51 (51%) | 26/37 (70%) |
-| DEL | 67/117 (57%) | 67/93 (72%) |
-| LIT | 97/142 (68%) | 97/106 (92%) |
-| NEG | 112/133 (84%) | 112/116 (97%) |
+| CON | 86/162 (53%) | 86/93 (92%) |
+| COR | 28/51 (55%) | 28/37 (76%) |
+| DEL | 76/116 (66%) | 76/95 (80%) |
+| LIT | 108/140 (77%) | 108/111 (97%) |
+| NEG | 114/133 (86%) | 114/116 (98%) |
 | RET | 8/17 (47%) | 8/13 (62%) |
-| ROR | 93/145 (64%) | 93/109 (85%) |
+| ROR | 102/146 (70%) | 102/107 (95%) |
 <!-- /mutation-scores -->
 
 Run on gitgalaxy `416fb6420` (2026-10-03): CSUTLDTC all 217 mutants; COMEN01C and COACTVWC 150 each (seed 0);

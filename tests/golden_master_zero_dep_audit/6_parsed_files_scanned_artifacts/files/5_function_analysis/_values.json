@@ -78794,21 +78794,7 @@
           "Structural Impact": 1.1
         }
       ],
-      "cobol/che-che4z_lsp_project_fixtures/RES.cbl": [
-        {
-          "Control Flow Branches": 0,
-          "Control Flow Ratio": "0.0%",
-          "End Line": 6,
-          "Function Name": "FILE-CONTROsL",
-          "Input Parameters": 0,
-          "Is Documented": 0,
-          "Is Public": 0,
-          "Lines of Code (LOC)": 1,
-          "Reflection Hits": 0,
-          "Start Line": 6,
-          "Structural Impact": 1.1
-        }
-      ],
+      "cobol/che-che4z_lsp_project_fixtures/RES.cbl": [],
       "cobol/che-che4z_lsp_project_fixtures/SNIPPET.cbl": [],
       "cobol/che-che4z_lsp_project_fixtures/SNIPPET2.cbl": [],
       "cobol/che-che4z_lsp_project_fixtures/SNIPPET_IDMS.cbl": [],
@@ -79053,19 +79039,6 @@
           "Reflection Hits": 0,
           "Start Line": 32,
           "Structural Impact": 1.9
-        },
-        {
-          "Control Flow Branches": 0,
-          "Control Flow Ratio": "0.0%",
-          "End Line": 15,
-          "Function Name": "Program1-id",
-          "Input Parameters": 0,
-          "Is Documented": 0,
-          "Is Public": 0,
-          "Lines of Code (LOC)": 1,
-          "Reflection Hits": 0,
-          "Start Line": 15,
-          "Structural Impact": 1.1
         },
         {
           "Control Flow Branches": 0,
@@ -79374,32 +79347,6 @@
         {
           "Control Flow Branches": 0,
           "Control Flow Ratio": "0.0%",
-          "End Line": 7,
-          "Function Name": "IDMS-CONTROL",
-          "Input Parameters": 0,
-          "Is Documented": 0,
-          "Is Public": 0,
-          "Lines of Code (LOC)": 1,
-          "Reflection Hits": 0,
-          "Start Line": 7,
-          "Structural Impact": 1.1
-        },
-        {
-          "Control Flow Branches": 0,
-          "Control Flow Ratio": "0.0%",
-          "End Line": 10,
-          "Function Name": "PROTOCOL",
-          "Input Parameters": 0,
-          "Is Documented": 0,
-          "Is Public": 0,
-          "Lines of Code (LOC)": 3,
-          "Reflection Hits": 0,
-          "Start Line": 8,
-          "Structural Impact": 1.1
-        },
-        {
-          "Control Flow Branches": 0,
-          "Control Flow Ratio": "0.0%",
           "End Line": 40,
           "Function Name": "S310",
           "Input Parameters": 0,
@@ -79489,34 +79436,7 @@
           "Structural Impact": 1.1
         }
       ],
-      "cobol/che-che4z_lsp_project_fixtures/cobol-dc_ABCD.cbl": [
-        {
-          "Control Flow Branches": 0,
-          "Control Flow Ratio": "0.0%",
-          "End Line": 7,
-          "Function Name": "IDMS-CONTROL",
-          "Input Parameters": 0,
-          "Is Documented": 0,
-          "Is Public": 0,
-          "Lines of Code (LOC)": 1,
-          "Reflection Hits": 0,
-          "Start Line": 7,
-          "Structural Impact": 1.1
-        },
-        {
-          "Control Flow Branches": 0,
-          "Control Flow Ratio": "0.0%",
-          "End Line": 10,
-          "Function Name": "PROTOCOL",
-          "Input Parameters": 0,
-          "Is Documented": 0,
-          "Is Public": 0,
-          "Lines of Code (LOC)": 3,
-          "Reflection Hits": 0,
-          "Start Line": 8,
-          "Structural Impact": 1.1
-        }
-      ],
+      "cobol/che-che4z_lsp_project_fixtures/cobol-dc_ABCD.cbl": [],
       "cobol/che-che4z_lsp_project_fixtures/cobol-idms_DACOSMPL.cbl": [
         {
           "Control Flow Branches": 2,
@@ -79595,32 +79515,6 @@
           "Reflection Hits": 0,
           "Start Line": 67,
           "Structural Impact": 1.2
-        },
-        {
-          "Control Flow Branches": 0,
-          "Control Flow Ratio": "0.0%",
-          "End Line": 7,
-          "Function Name": "IDMS-CONTROL",
-          "Input Parameters": 0,
-          "Is Documented": 0,
-          "Is Public": 0,
-          "Lines of Code (LOC)": 1,
-          "Reflection Hits": 0,
-          "Start Line": 7,
-          "Structural Impact": 1.1
-        },
-        {
-          "Control Flow Branches": 0,
-          "Control Flow Ratio": "0.0%",
-          "End Line": 10,
-          "Function Name": "PROTOCOL",
-          "Input Parameters": 0,
-          "Is Documented": 0,
-          "Is Public": 0,
-          "Lines of Code (LOC)": 3,
-          "Reflection Hits": 0,
-          "Start Line": 8,
-          "Structural Impact": 1.1
         },
         {
           "Control Flow Branches": 0,
@@ -79753,32 +79647,6 @@
           "Reflection Hits": 0,
           "Start Line": 62,
           "Structural Impact": 2.4
-        },
-        {
-          "Control Flow Branches": 0,
-          "Control Flow Ratio": "0.0%",
-          "End Line": 10,
-          "Function Name": "PROTOCOL",
-          "Input Parameters": 0,
-          "Is Documented": 0,
-          "Is Public": 0,
-          "Lines of Code (LOC)": 4,
-          "Reflection Hits": 0,
-          "Start Line": 7,
-          "Structural Impact": 1.2
-        },
-        {
-          "Control Flow Branches": 0,
-          "Control Flow Ratio": "0.0%",
-          "End Line": 6,
-          "Function Name": "IDMS-CONTROL",
-          "Input Parameters": 0,
-          "Is Documented": 0,
-          "Is Public": 0,
-          "Lines of Code (LOC)": 1,
-          "Reflection Hits": 0,
-          "Start Line": 6,
-          "Structural Impact": 1.1
         },
         {
           "Control Flow Branches": 0,
@@ -80021,32 +79889,6 @@
         {
           "Control Flow Branches": 0,
           "Control Flow Ratio": "0.0%",
-          "End Line": 7,
-          "Function Name": "IDMS-CONTROL",
-          "Input Parameters": 0,
-          "Is Documented": 0,
-          "Is Public": 0,
-          "Lines of Code (LOC)": 1,
-          "Reflection Hits": 0,
-          "Start Line": 7,
-          "Structural Impact": 1.1
-        },
-        {
-          "Control Flow Branches": 0,
-          "Control Flow Ratio": "0.0%",
-          "End Line": 10,
-          "Function Name": "PROTOCOL",
-          "Input Parameters": 0,
-          "Is Documented": 0,
-          "Is Public": 0,
-          "Lines of Code (LOC)": 3,
-          "Reflection Hits": 0,
-          "Start Line": 8,
-          "Structural Impact": 1.1
-        },
-        {
-          "Control Flow Branches": 0,
-          "Control Flow Ratio": "0.0%",
           "End Line": 39,
           "Function Name": "S310",
           "Input Parameters": 0,
@@ -80175,32 +80017,6 @@
           "Reflection Hits": 0,
           "Start Line": 62,
           "Structural Impact": 2.4
-        },
-        {
-          "Control Flow Branches": 0,
-          "Control Flow Ratio": "0.0%",
-          "End Line": 10,
-          "Function Name": "PROTOCOL",
-          "Input Parameters": 0,
-          "Is Documented": 0,
-          "Is Public": 0,
-          "Lines of Code (LOC)": 4,
-          "Reflection Hits": 0,
-          "Start Line": 7,
-          "Structural Impact": 1.2
-        },
-        {
-          "Control Flow Branches": 0,
-          "Control Flow Ratio": "0.0%",
-          "End Line": 6,
-          "Function Name": "IDMS-CONTROL",
-          "Input Parameters": 0,
-          "Is Documented": 0,
-          "Is Public": 0,
-          "Lines of Code (LOC)": 1,
-          "Reflection Hits": 0,
-          "Start Line": 6,
-          "Structural Impact": 1.1
         },
         {
           "Control Flow Branches": 0,

@@ -223,7 +223,7 @@
     "| docs | 47044 | 669 | 5 | `dart/flutter/framework.dart` |",
     "| debt | 12093 | 1063 | 7 | `shell/curl/ech_tests.sh` |",
     "| mutation | 209326 | 2335 | 137 | `fortran/wrf/module_initialize_real.F` |",
-    "| dead_code | 17740 | 1583 | 12 | `rust/wasmtime/wasmtime_pulley_interp.rs` |",
+    "| dead_code | 17726 | 1581 | 12 | `rust/wasmtime/wasmtime_pulley_interp.rs` |",
     "| credential | 123 | 65 | 0 | `powershell/core/packaging.psm1` |",
     "| threat | 8508 | 803 | 7 | `go/core/value.go` |",
     "| ml_ai | 2871 | 305 | 0 | `lua/cosmopolitan/math.lua` |",

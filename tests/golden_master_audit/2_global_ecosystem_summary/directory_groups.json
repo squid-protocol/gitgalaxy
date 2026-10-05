@@ -882,20 +882,20 @@
       "avg_exposures": {
         "api_exposure": 0.56,
         "churn": 0.0,
-        "cognitive_load": 5.39,
+        "cognitive_load": 5.34,
         "concurrency": 0.0,
         "dead_code": 3.54,
-        "documentation": 29.29,
+        "documentation": 27.86,
         "safety_score": 43.11,
         "secrets_risk": 0.0,
         "spec_match": 0.0,
         "stability": 49.29,
         "state_flux": 31.89,
-        "tech_debt": 40.18,
+        "tech_debt": 37.54,
         "verification": 1.7
       },
       "file_count": 70,
-      "total_mass": 789.93
+      "total_mass": 802.33
     },
     "cobol/che-che4z_nist_ccvs85": {
       "avg_exposures": {

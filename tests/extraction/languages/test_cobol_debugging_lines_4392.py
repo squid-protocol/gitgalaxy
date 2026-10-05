@@ -54,3 +54,9 @@ def test_debugging_lines_are_comments_without_debugging_mode():
 def test_debugging_lines_are_code_with_debugging_mode():
     assert _extents(_program(ON))["A-PARA"] == (10, 13)
     assert "DISPLAY" in _PRISM.split_streams(_program(ON), "cobol")["code_stream"]
+
+
+def test_a_data_name_in_column_7_is_not_a_debugging_indicator():
+    # cobol-check COPYR001.CBL:4 -- code from column 1, so columns 1-6 are no sequence area
+    src = "01  A.\n  02  B    PIC S99.\n  02  D    PIC S9999 OCCURS 1 TO 52 TIMES\n      DEPENDING ON B OF A.\n"
+    assert "  02  D    PIC" in _PRISM.split_streams(src, "cobol")["code_stream"]

@@ -1739,8 +1739,11 @@ class Prism:
             formats = line_formats(text)
             plain = "\n".join(ln for ln in text.split("\n") if not (len(ln) >= 7 and ln[6] in "*/"))
             if not _DEBUGGING_MODE.search(plain):
+                # Columns 1-6 must be a sequence area -- blank, or one unbroken field (`064000`): in
+                # `  02  D    PIC S9999` (cobol-check COPYR001) the `D` in column 7 is a data name.
                 debug_comments = [
-                    f == "fixed" and len(ln) >= 7 and ln[6] in "Dd" for ln, f in zip(text.split("\n"), formats)
+                    f == "fixed" and len(ln) >= 7 and ln[6] in "Dd" and (not ln[:6].strip() or " " not in ln[:6])
+                    for ln, f in zip(text.split("\n"), formats)
                 ]
 
         for n, line in enumerate(text.split("\n")):

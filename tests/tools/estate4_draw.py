@@ -15,6 +15,8 @@ Blindness rule: no candidate code or README is ever read. Allowed endpoints:
   GET /repos/{o}/{r}/license        (only the SPDX id is used)
   GET /repos/{o}/{r}/git/trees/{ref}?recursive=1   (paths only)
   GET /users/{owner}
+  GET /repos/{o}/{r}/git/ref/heads/{branch}   (commit sha)
+  GET /repos/{o}/{r}/git/commits/{sha}        (ONLY tree.sha is kept; nothing else stored)
 Pre-registration: docs/language_status/estate4_preregistration.md
 """
 
@@ -35,6 +37,9 @@ from pathlib import Path
 from typing import Any
 
 ROOT = Path(__file__).resolve().parents[2]
+sys.path.insert(0, str(ROOT))
+
+from gitgalaxy.core.source_text import read_source  # noqa: E402
 DOCS = ROOT / "docs" / "language_status"
 CANDIDATES_JSON = DOCS / "estate4_candidates.json"
 CANDIDATES_MD = DOCS / "estate4_candidates.md"
@@ -54,6 +59,9 @@ ALLOWED = [
     re.compile(rf"^/repos/{SEG}/{SEG}/license$"),
     re.compile(rf"^/repos/{SEG}/{SEG}/git/trees/[A-Za-z0-9_./-]+\?recursive=1$"),
     re.compile(rf"^/users/{SEG}$"),
+    # commit-id pinning (owner-approved): ref -> commit sha; commit -> only tree.sha is used
+    re.compile(rf"^/repos/{SEG}/{SEG}/git/ref/heads/[A-Za-z0-9_./-]+$"),
+    re.compile(rf"^/repos/{SEG}/{SEG}/git/commits/[0-9a-f]{{40}}$"),
 ]
 FORBIDDEN_FRAGMENTS = (
     "/contents",
@@ -147,12 +155,15 @@ class ApiClient:
                 if status >= 500:
                     time.sleep(5 * (attempt + 1))
                     continue
-                self.cache[url] = {"status": status, "body": body if status != 403 else {}}
+                if status not in (403, 429):
+                    self.cache[url] = {"status": status, "body": body}
                 return status, body
             except (urllib.error.URLError, TimeoutError, ConnectionError):
                 time.sleep(5 * (attempt + 1))
                 continue
             self.log.append({"method": "GET", "url": url, "status": status})
+            if "/git/commits/" in path and status == 200:
+                body = {"tree": {"sha": body["tree"]["sha"]}}  # drop message/author
             self.cache[url] = {"status": status, "body": body}
             if remaining is not None and int(remaining) < 3 and reset:
                 time.sleep(max(1, int(reset) - int(time.time()) + 2))
@@ -451,7 +462,7 @@ def cmd_inputs(args: argparse.Namespace) -> int:
     for f in sources:
         if not f.exists():
             continue
-        for o, r in GH_URL_RE.findall(f.read_text(errors="replace")):
+        for o, r in GH_URL_RE.findall(read_source(f).text):
             r = r.removesuffix(".git").rstrip(".")
             repos.setdefault(f"{o}/{r}".lower(), set()).add(str(f).replace(str(gg) + "/", "").replace(str(ROOT) + "/", ""))
     DEVDATA_JSON.write_text(
@@ -587,6 +598,16 @@ def cmd_build(args: argparse.Namespace) -> int:
     out: list[dict[str, Any]] = []
     for k, v in sorted(s8.items()):
         m = v["meta"]
+        o, r = m["full_name"].split("/")
+        st, ref = client.get(f"/repos/{o}/{r}/git/ref/heads/{urllib.parse.quote(m['default_branch'], safe='/')}")
+        commit_sha = ref["object"]["sha"] if st == 200 else ""
+        st, com = client.get(f"/repos/{o}/{r}/git/commits/{commit_sha}") if commit_sha else (0, {})
+        # `git/trees/{branch}` reports the resolved commit's sha as `sha`; it must equal the ref's commit.
+        if commit_sha != v["tree_sha"] or st != 200:
+            print(f"BRANCH MOVED since crawl: {k}; invalidate its cache entries and re-run", file=sys.stderr)
+            client.save()
+            return 5
+        root_tree = com["tree"]["sha"]
         st, user = client.get(f"/users/{m['owner']['login']}")
         loc = user.get("location") if st == 200 else None
         topics = m.get("topics") or []
@@ -595,8 +616,8 @@ def cmd_build(args: argparse.Namespace) -> int:
         out.append({
             "full_name": k,
             "default_branch": m["default_branch"],
-            "default_branch_sha": v["tree_sha"],
-            "default_branch_sha_kind": "root tree sha (commit sha is not available from allowed endpoints)",
+            "default_branch_sha": commit_sha,
+            "root_tree_sha": root_tree,
             "license": v["license"],
             "cobol_bytes": v["cobol_bytes"],
             "cobol_programs": v["stats"]["programs"],
@@ -685,13 +706,14 @@ def write_md(doc: dict[str, Any], n_requests: int) -> None:
         "- Rule 5/4 counts come from the default-branch git tree (paths only). If GitHub truncated a tree (`tree_truncated` in the JSON), counts are lower bounds.",
         "- Rule 7 input: `estate4_devdata_repos.json` (every GitHub repo cited by our corpora provenance files, deliberately over-inclusive).",
         "- Rule 8 basenames: lowercase file stem of `.cbl/.cob/.cobol/.cpy` files; the fraction is matches / the candidate's such files, against each burned estate separately (`estate4_burned_basenames.json`, names only). A repo named after a burned estate (`dbb`, `zecs`, ...) at any owner is also excluded under rule 6.",
-        "- The `default_branch_sha` field is the **root tree SHA** of the default branch. A commit SHA is not available from the allowed endpoints; it is resolved at trial start.",
+        "- `default_branch_sha` is the default-branch **commit SHA** (`git/ref/heads/{branch}`); `git/commits/{sha}` was read only for `tree.sha`, which is recorded as `root_tree_sha`; the commit SHA was checked to equal the SHA the crawl's tree read resolved to, so the counted tree is the pinned commit's. Those two endpoints are the only additions to the allow-list.",
+        "- **Known limit:** the search pool covers only repos whose GitHub *primary* language is COBOL, so a repo where another language dominates is out of reach of `/search/repositories`.",
         "",
         "## Weighting (declared before the draw)",
         "",
         "`weight = 1 + foreign + hard`.",
         "- `foreign` (0-3): +1 if description/topics contain a non-ASCII letter or `non_english()` is true (>= 2 distinctive words from a small Portuguese/Spanish/French/German/Italian/Dutch/Turkish/Polish word list and more of them than English function words); +1 if any file path has a non-ASCII character; +1 if the owner's profile `location` names a place outside US/UK/Canada/Australia/Ireland/NZ (keyword tables `ANGLO_*` and `FOREIGN_*` in `tests/tools/estate4_draw.py`; empty or unrecognised locations score 0).",
-        "- `hard` (0-4): +1 each for JCL (`.jcl` or a `jcl/` folder), PL/I (`.pli`, `.pl1`), assembler (`.asm`, `.mac`, or `.s` under an `asm`/`assembler`/`assembly`/`hlasm` folder), Db2/IMS (`.dcl`, `.sql`, `.dbd`, `.psb`); +1 if COBOL programs >= 50. The brief says 0-4 but lists five +1 terms; all five are applied, so `hard` can reach 5 (owner to confirm).",
+        "- `hard` (0-5): +1 each for JCL (`.jcl` or a `jcl/` folder), PL/I (`.pli`, `.pl1`), assembler (`.asm`, `.mac`, or `.s` under an `asm`/`assembler`/`assembly`/`hlasm` folder), Db2/IMS (`.dcl`, `.sql`, `.dbd`, `.psb`); +1 if COBOL programs >= 50.",
         "",
         "## Filter stages",
         "",
@@ -722,12 +744,12 @@ def write_md(doc: dict[str, Any], n_requests: int) -> None:
         "",
         "## Eligible candidates",
         "",
-        "| repo | tree sha | license | COBOL bytes | programs | bms | csd | foreign | hard | weight |",
+        "| repo | commit sha | license | COBOL bytes | programs | bms | csd | foreign | hard | weight |",
         "|---|---|---|---|---|---|---|---|---|---|",
     ]
     for x in doc["candidates"]:
         L.append(
-            f"| {x['full_name']} | `{x['default_branch_sha'][:12]}` | {x['license']} | {x['cobol_bytes']} | "
+            f"| {x['full_name']} | `{x['default_branch_sha']}` | {x['license']} | {x['cobol_bytes']} | "
             f"{x['cobol_programs']} | {x['bms_files']} | {x['csd_files']} | {x['foreign']} | {x['hard']} | {x['weight']} |"
         )
     CANDIDATES_MD.write_text("\n".join(L) + "\n")

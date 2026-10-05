@@ -63,6 +63,11 @@ def test_target_round_arithmetic():
         "https://raw.githubusercontent.com/o/r/main/x",
         "https://api.github.com/search/code?q=x",
         "https://api.github.com/repos/o/r/git/trees/main",
+        "https://api.github.com/repos/o/r/git/blobs/" + "a" * 40,
+        "https://api.github.com/repos/o/r/git/commits/main",
+        "https://api.github.com/repos/o/r/git/commits/" + "a" * 40 + "/comments",
+        "https://api.github.com/repos/o/r/commits/main",
+        "https://api.github.com/repos/o/r/git/ref/tags/v1",
     ],
 )
 def test_allow_list_blocks_content_endpoints(url):
@@ -77,6 +82,8 @@ def test_allow_list_permits_metadata_endpoints():
         "https://api.github.com/repos/o/r/license",
         "https://api.github.com/repos/o/r/git/trees/main?recursive=1",
         "https://api.github.com/users/o",
+        "https://api.github.com/repos/o/r/git/ref/heads/main",
+        "https://api.github.com/repos/o/r/git/commits/" + "a" * 40,
     ]
     assert all(e4.is_allowed("GET", u) for u in ok)
     assert not e4.is_allowed("POST", ok[0])

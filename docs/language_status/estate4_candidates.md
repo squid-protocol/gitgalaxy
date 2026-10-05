@@ -20,13 +20,14 @@ Implementation notes (declared, deterministic):
 - Rule 5/4 counts come from the default-branch git tree (paths only). If GitHub truncated a tree (`tree_truncated` in the JSON), counts are lower bounds.
 - Rule 7 input: `estate4_devdata_repos.json` (every GitHub repo cited by our corpora provenance files, deliberately over-inclusive).
 - Rule 8 basenames: lowercase file stem of `.cbl/.cob/.cobol/.cpy` files; the fraction is matches / the candidate's such files, against each burned estate separately (`estate4_burned_basenames.json`, names only). A repo named after a burned estate (`dbb`, `zecs`, ...) at any owner is also excluded under rule 6.
-- The `default_branch_sha` field is the **root tree SHA** of the default branch. A commit SHA is not available from the allowed endpoints; it is resolved at trial start.
+- `default_branch_sha` is the default-branch **commit SHA** (`git/ref/heads/{branch}`); `git/commits/{sha}` was read only for `tree.sha`, which is recorded as `root_tree_sha`; the commit SHA was checked to equal the SHA the crawl's tree read resolved to, so the counted tree is the pinned commit's. Those two endpoints are the only additions to the allow-list.
+- **Known limit:** the search pool covers only repos whose GitHub *primary* language is COBOL, so a repo where another language dominates is out of reach of `/search/repositories`.
 
 ## Weighting (declared before the draw)
 
 `weight = 1 + foreign + hard`.
 - `foreign` (0-3): +1 if description/topics contain a non-ASCII letter or `non_english()` is true (>= 2 distinctive words from a small Portuguese/Spanish/French/German/Italian/Dutch/Turkish/Polish word list and more of them than English function words); +1 if any file path has a non-ASCII character; +1 if the owner's profile `location` names a place outside US/UK/Canada/Australia/Ireland/NZ (keyword tables `ANGLO_*` and `FOREIGN_*` in `tests/tools/estate4_draw.py`; empty or unrecognised locations score 0).
-- `hard` (0-4): +1 each for JCL (`.jcl` or a `jcl/` folder), PL/I (`.pli`, `.pl1`), assembler (`.asm`, `.mac`, or `.s` under an `asm`/`assembler`/`assembly`/`hlasm` folder), Db2/IMS (`.dcl`, `.sql`, `.dbd`, `.psb`); +1 if COBOL programs >= 50. The brief says 0-4 but lists five +1 terms; all five are applied, so `hard` can reach 5 (owner to confirm).
+- `hard` (0-5): +1 each for JCL (`.jcl` or a `jcl/` folder), PL/I (`.pli`, `.pl1`), assembler (`.asm`, `.mac`, or `.s` under an `asm`/`assembler`/`assembly`/`hlasm` folder), Db2/IMS (`.dcl`, `.sql`, `.dbd`, `.psb`); +1 if COBOL programs >= 50.
 
 ## Filter stages
 
@@ -59,26 +60,26 @@ Run on the target round, not before: `python tests/tools/estate4_draw.py draw --
 
 ## Request log
 
-`estate4_candidates_requests.json` lists every GitHub request made by `build` (5450 requests: method, URL, status). It contains no content endpoints (`/contents`, `/readme`, `/git/blobs`, `raw.githubusercontent.com`, `/search/code`); `tests/cobol_mainframe/test_estate4_draw.py` fails if any appear.
+`estate4_candidates_requests.json` lists every GitHub request made by `build` (5508 requests: method, URL, status). It contains no content endpoints (`/contents`, `/readme`, `/git/blobs`, `raw.githubusercontent.com`, `/search/code`); `tests/cobol_mainframe/test_estate4_draw.py` fails if any appear.
 
 ## Eligible candidates
 
-| repo | tree sha | license | COBOL bytes | programs | bms | csd | foreign | hard | weight |
+| repo | commit sha | license | COBOL bytes | programs | bms | csd | foreign | hard | weight |
 |---|---|---|---|---|---|---|---|---|---|
-| bhbandam/az-legacy-engineering | `4e3df78be3ad` | MIT | 573673 | 30 | 2 | 0 | 0 | 1 | 2 |
-| billybillymc/masquerade-cobol | `685c484124ff` | MIT | 4557921 | 290 | 31 | 5 | 0 | 4 | 5 |
-| dhineshpalanisamy/fintechapp | `1e2e14a64b6d` | Apache-2.0 | 735102 | 41 | 8 | 0 | 0 | 3 | 4 |
-| henryzheng1998/cobol-mainframe-courses | `df116fa60e39` | MIT | 313735 | 34 | 5 | 0 | 0 | 1 | 2 |
-| ibm/example-health-apis | `9cfe321e2028` | Apache-2.0 | 859630 | 58 | 1 | 0 | 0 | 2 | 3 |
-| ibm/idz-utilities | `2bf82cd19a1e` | Apache-2.0 | 2166942 | 6 | 7 | 0 | 0 | 2 | 3 |
-| jdgrillo/ghcp-modernization-labs | `801c5593d0e7` | MIT | 94519 | 8 | 2 | 0 | 0 | 2 | 3 |
-| jvcampos-stf/murach-study | `d9e2e532ca96` | MIT | 224169 | 16 | 10 | 0 | 1 | 0 | 2 |
-| ken206can/repo2 | `18feee379db4` | Apache-2.0 | 2166942 | 6 | 7 | 0 | 0 | 2 | 3 |
-| replatformtech/murachos | `21472620d696` | MIT | 224169 | 16 | 10 | 0 | 0 | 0 | 1 |
-| shubham-sn2/zos-connect-and-requester-api | `426abf6ad29b` | Apache-2.0 | 864343 | 8 | 0 | 1 | 0 | 1 | 2 |
-| stf-app-test/murach-shopping-list | `39710ba85c39` | MIT | 224169 | 16 | 10 | 0 | 1 | 0 | 2 |
-| strongbacktraining/idz-git-training | `d847aff8cb70` | Apache-2.0 | 79334 | 11 | 1 | 0 | 0 | 2 | 3 |
-| tbattiva/reference-bank | `9f7d5f1655af` | MIT | 32136 | 7 | 1 | 3 | 0 | 1 | 2 |
-| ynaka-accenture/raichodemo | `9e9a24c8dfca` | Apache-2.0 | 403072 | 42 | 6 | 0 | 0 | 3 | 4 |
-| zosconnect/sample-cics-api-first | `85fb75dc4748` | Apache-2.0 | 168737 | 10 | 0 | 1 | 0 | 0 | 1 |
-| zosconnect/sample-oas3-requester | `6d1053c29454` | Apache-2.0 | 864343 | 8 | 0 | 1 | 0 | 1 | 2 |
+| bhbandam/az-legacy-engineering | `4e3df78be3ad24cfab8f52caf722f38de817fd55` | MIT | 573673 | 30 | 2 | 0 | 0 | 1 | 2 |
+| billybillymc/masquerade-cobol | `685c484124ffeb1f6a06447c54ed55ea152ec13b` | MIT | 4557921 | 290 | 31 | 5 | 0 | 4 | 5 |
+| dhineshpalanisamy/fintechapp | `1e2e14a64b6df36ddb199575c96ce32199e35783` | Apache-2.0 | 735102 | 41 | 8 | 0 | 0 | 3 | 4 |
+| henryzheng1998/cobol-mainframe-courses | `df116fa60e3956a80c76d42896a7c412dd5d60fc` | MIT | 313735 | 34 | 5 | 0 | 0 | 1 | 2 |
+| ibm/example-health-apis | `9cfe321e2028f4f91a780bbb7d4cbb8393565f76` | Apache-2.0 | 859630 | 58 | 1 | 0 | 0 | 2 | 3 |
+| ibm/idz-utilities | `2bf82cd19a1e640f2f3802d6583de6dd06fd0f6a` | Apache-2.0 | 2166942 | 6 | 7 | 0 | 0 | 2 | 3 |
+| jdgrillo/ghcp-modernization-labs | `801c5593d0e797bceff5e8c5e237e599984938b5` | MIT | 94519 | 8 | 2 | 0 | 0 | 2 | 3 |
+| jvcampos-stf/murach-study | `d9e2e532ca96bbcad7b466765c94b6b1a6f8694b` | MIT | 224169 | 16 | 10 | 0 | 1 | 0 | 2 |
+| ken206can/repo2 | `18feee379db486d57e47816429e6d16fa07ae155` | Apache-2.0 | 2166942 | 6 | 7 | 0 | 0 | 2 | 3 |
+| replatformtech/murachos | `21472620d6961b323c2295afcce17720f266f1e3` | MIT | 224169 | 16 | 10 | 0 | 0 | 0 | 1 |
+| shubham-sn2/zos-connect-and-requester-api | `426abf6ad29b5ef7bd1633c9286c296b59e3dad7` | Apache-2.0 | 864343 | 8 | 0 | 1 | 0 | 1 | 2 |
+| stf-app-test/murach-shopping-list | `39710ba85c39fbb9a62cbff46982057c39f87d32` | MIT | 224169 | 16 | 10 | 0 | 1 | 0 | 2 |
+| strongbacktraining/idz-git-training | `d847aff8cb70bfe3ac8c3598efa53dfe8fbe39d5` | Apache-2.0 | 79334 | 11 | 1 | 0 | 0 | 2 | 3 |
+| tbattiva/reference-bank | `9f7d5f1655afa9ee78af3358a13c4c8761a05774` | MIT | 32136 | 7 | 1 | 3 | 0 | 1 | 2 |
+| ynaka-accenture/raichodemo | `9e9a24c8dfcad6998f0fa98400eb0d4a1b736cee` | Apache-2.0 | 403072 | 42 | 6 | 0 | 0 | 3 | 4 |
+| zosconnect/sample-cics-api-first | `85fb75dc474845761e202fbed9928d09a31472fe` | Apache-2.0 | 168737 | 10 | 0 | 1 | 0 | 0 | 1 |
+| zosconnect/sample-oas3-requester | `6d1053c294542408b332cbbcf8c373217f8143f8` | Apache-2.0 | 864343 | 8 | 0 | 1 | 0 | 1 | 2 |

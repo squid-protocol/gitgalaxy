@@ -16,6 +16,10 @@ on:
       - "tests/golden_diff.py"
       - "tests/_crucible_pin.py"
       - ".github/workflows/crucible-path-independence.yml"
+      # never read by a scan: the COBOL-to-Java translator and its entry point, and prose
+      - "!gitgalaxy/tools/cobol_to_java/**"
+      - "!gitgalaxy/cobol_to_java_controller.py"
+      - "!**/*.md"
   workflow_dispatch:
 
 concurrency:
@@ -28,7 +32,7 @@ permissions:
 jobs:
   path-independence:
     runs-on: ubuntu-latest
-    timeout-minutes: 20
+    timeout-minutes: 10  # ~5 min in CI (two crucible scans); a hang should fail fast
     steps:
       - name: Checkout GitGalaxy PR
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1

@@ -1,0 +1,257 @@
+{
+ "format": "estate-crucible-baseline/1",
+ "pinned_ref": "v0.4.0",
+ "key_generator": {
+  "version": "0.4.0",
+  "seed": 1,
+  "size": "small"
+ },
+ "horrors": {
+  "H-0001": "PASS",
+  "H-0002": "PASS",
+  "H-0003": "PASS",
+  "H-0004": "PASS",
+  "H-0005": "PASS",
+  "H-0006": "PASS",
+  "H-0007": "PASS",
+  "H-0008": "PASS",
+  "H-0009": "PASS",
+  "H-0010": "PASS",
+  "H-0011": "PASS",
+  "H-0012": "PASS",
+  "H-0013": "PASS",
+  "H-0014": "PASS",
+  "H-0015": "PASS",
+  "H-0016": "PASS",
+  "H-0017": "PASS",
+  "H-0018": "PASS",
+  "H-0019": "PASS",
+  "H-0020": "PASS",
+  "H-0021": "PASS",
+  "H-0022": "PASS",
+  "H-0023": "PASS",
+  "H-0024": "PASS",
+  "H-0025": "PASS",
+  "H-0026": "PASS",
+  "H-0027": "PASS",
+  "H-0028": "PASS",
+  "H-0029": "PASS",
+  "H-0030": "PASS",
+  "H-0031": "PASS",
+  "H-0032": "PASS",
+  "H-0033": "PASS",
+  "H-0034": "PASS",
+  "H-0035": "PASS",
+  "H-0036": "PASS",
+  "H-0037": "PASS",
+  "H-0038": "PASS",
+  "H-0039": "PASS",
+  "H-0040": "PASS",
+  "H-0041": "PASS",
+  "H-0042": "PASS",
+  "H-0043": "PASS",
+  "H-0044": "PASS",
+  "H-0045": "PASS",
+  "H-0046": "PASS",
+  "H-0047": "PASS",
+  "H-0048": "PASS",
+  "H-0049": "PASS",
+  "H-0050": "PASS",
+  "H-0051": "PASS",
+  "H-0052": "PASS",
+  "H-0053": "PASS",
+  "H-0054": "PASS",
+  "H-0055": "PASS",
+  "H-0056": "PASS",
+  "H-0057": "PASS",
+  "H-0058": "PASS",
+  "H-0059": "PASS",
+  "H-0060": "PASS"
+ },
+ "channels": {
+  "programs": {
+   "pass": 45,
+   "fail": 0,
+   "missing": 0,
+   "phantom": 0,
+   "unscored": 0
+  },
+  "units": {
+   "pass": 136,
+   "fail": 0,
+   "missing": 0,
+   "phantom": 0,
+   "unscored": 0
+  },
+  "edges": {
+   "pass": 109,
+   "fail": 0,
+   "missing": 0,
+   "phantom": 0,
+   "unscored": 0
+  },
+  "call_sites": {
+   "pass": 47,
+   "fail": 2,
+   "missing": 0,
+   "phantom": 0,
+   "unscored": 0
+  },
+  "copies": {
+   "pass": 63,
+   "fail": 0,
+   "missing": 0,
+   "phantom": 0,
+   "unscored": 0
+  },
+  "data_items": {
+   "pass": 449,
+   "fail": 0,
+   "missing": 0,
+   "phantom": 0,
+   "unscored": 0
+  },
+  "layouts": {
+   "pass": 143,
+   "fail": 0,
+   "missing": 0,
+   "phantom": 0,
+   "unscored": 5
+  },
+  "sql_statements": {
+   "pass": 5,
+   "fail": 0,
+   "missing": 0,
+   "phantom": 0,
+   "unscored": 2
+  },
+  "sql_tables": {
+   "pass": 2,
+   "fail": 0,
+   "missing": 0,
+   "phantom": 0,
+   "unscored": 0
+  },
+  "jcl_steps": {
+   "pass": 22,
+   "fail": 0,
+   "missing": 0,
+   "phantom": 0,
+   "unscored": 0
+  },
+  "jcl_dds": {
+   "pass": 33,
+   "fail": 0,
+   "missing": 0,
+   "phantom": 0,
+   "unscored": 11
+  },
+  "screen_fields": {
+   "pass": 16,
+   "fail": 0,
+   "missing": 0,
+   "phantom": 0,
+   "unscored": 0
+  },
+  "csd_resources": {
+   "pass": 18,
+   "fail": 0,
+   "missing": 0,
+   "phantom": 0,
+   "unscored": 0
+  },
+  "transactions": {
+   "pass": 6,
+   "fail": 0,
+   "missing": 0,
+   "phantom": 0,
+   "unscored": 0
+  },
+  "cics_resources": {
+   "pass": 7,
+   "fail": 0,
+   "missing": 0,
+   "phantom": 0,
+   "unscored": 0
+  },
+  "jcl_datasets": {
+   "pass": 33,
+   "fail": 0,
+   "missing": 0,
+   "phantom": 0,
+   "unscored": 0
+  },
+  "file_control": {
+   "pass": 9,
+   "fail": 0,
+   "missing": 0,
+   "phantom": 0,
+   "unscored": 0
+  },
+  "entry_points": {
+   "pass": 45,
+   "fail": 0,
+   "missing": 0,
+   "phantom": 0,
+   "unscored": 0
+  },
+  "file_edges": {
+   "pass": 24,
+   "fail": 0,
+   "missing": 0,
+   "phantom": 0,
+   "unscored": 0
+  },
+  "data_moves": {
+   "pass": 132,
+   "fail": 0,
+   "missing": 0,
+   "phantom": 0,
+   "unscored": 0
+  },
+  "copy_collisions": {
+   "pass": 9,
+   "fail": 0,
+   "missing": 0,
+   "phantom": 0,
+   "unscored": 0
+  },
+  "gaps": {
+   "pass": 17,
+   "fail": 0,
+   "missing": 0,
+   "phantom": 0,
+   "unscored": 0
+  },
+  "dead": {
+   "pass": 11,
+   "fail": 0,
+   "missing": 0,
+   "phantom": 0,
+   "unscored": 0
+  }
+ },
+ "not_passing": {
+  "call_sites|apps/PAYR/cobol/PAYMAIN.cbl|CALL PAYCALC @42": "fail",
+  "call_sites|apps/PAYR/cobol/PAYMAIN.cbl|CALL PAYRPT @43": "fail",
+  "jcl_dds|apps/ACCT/jcl/ACCTDLY.jcl|STEP030.SYSOUT @13": "unscored",
+  "jcl_dds|apps/ACCT/jcl/ACCTDLY.jcl|STEP040.RPTOUT @17": "unscored",
+  "jcl_dds|apps/ACCT/proclib/ACCTPRC.prc|POST.SYSOUT @8": "unscored",
+  "jcl_dds|apps/BILL/jcl/BILLMTH.jcl|CALC.SYSOUT @10": "unscored",
+  "jcl_dds|apps/INVN/jcl/INVDB.jcl|STATS.SYSPRINT @5": "unscored",
+  "jcl_dds|apps/LOAN/jcl/LNBATCH.jcl|RESET.SYSOUT @7": "unscored",
+  "jcl_dds|apps/ORDR/jcl/ORDNITE.jcl|STEP010.SYSOUT @8": "unscored",
+  "jcl_dds|apps/PCED/jcl/PCEDLOAD.jcl|LOAD.SYSOUT @6": "unscored",
+  "jcl_dds|apps/RPTS/jcl/RPTMTH.jcl|HEAD.RPTOUT @6": "unscored",
+  "jcl_dds|apps/TAXR/jcl/TAXQTR.jcl|CALC.SYSOUT @7": "unscored",
+  "jcl_dds|shared/proclib/AUDLOG.prc|LOG.SYSPRINT @4": "unscored",
+  "layouts|apps/ACCT/cobol/ACCTPOST.cbl|ACCT-OUT-REC @32 overlays": "unscored",
+  "layouts|apps/ACCT/cobol/ACCTPOST.cbl|WS-ACCOUNT @46 overlays": "unscored",
+  "layouts|apps/ACCT/cobol/ACCTPOST.cbl|WS-DATE-AREA @44 overlays": "unscored",
+  "layouts|apps/CUST/cobol/CUSTINQ.cbl|WS-DATE-AREA @16 overlays": "unscored",
+  "layouts|apps/PAYR/cobol/PAYMAIN.cbl|WS-SHARED-DATE @34 overlays": "unscored",
+  "sql_statements|apps/CUST/cobol/CUSTDBIO.cbl|CALL @38 procedure PRODPROC.CUSTBAL": "unscored",
+  "sql_statements|apps/CUST/cobol/CUSTDBIO.cbl|CALL @42 procedure CUSTAUDT": "unscored"
+ },
+ "checks_total": 1398
+}

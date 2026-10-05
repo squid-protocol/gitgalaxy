@@ -33,7 +33,7 @@ One record per ported program (#4048): docs/language_status/evidence_records.md 
 | [UPDACC](cbsa-updacc.md) | cbsa-updacc | cics | proven, unapproved |  | 10 | 7/7 / 5/6 | - | 0 | - |
 | [LGAPVS01](genapp-lgapvs01.md) | genapp-lgapvs01 | cics | proven, unapproved |  | 8 | 2/3 / 5/9 | - | 0 | - |
 | [LGICDB01](genapp-lgicdb01.md) | genapp-lgicdb01 | cics | proven, unapproved |  | 12 | 3/4 / 4/12 | - | 0 | - |
-| [LGUPDB01](genapp-lgupdb01.md) | genapp-lgupdb01 | cics | not-proven | not proven through its deployed entry points (handleLink / handleTransaction): the proof predates the java-facade side (#4449); re-prove it | 5 | 8/9 / 17/38 | - | 0 | - |
+| [LGUPDB01](genapp-lgupdb01.md) | genapp-lgupdb01 | cics | not-proven | the proof failed through its deployed entry points (java-facade: 1/5 scenarios pass) | 5 | 8/9 / 17/38 | - | 0 | - |
 | [CALINK](crucible-ca-link-lengths-CALINK.md) | crucible:ca-link-lengths/CALINK | crucible | proven, unapproved |  | 4 | 1/1 / 4/4 | 19/22 / 19/22 | 0 | - |
 | [CASUB](crucible-ca-link-lengths-CASUB.md) | crucible:ca-link-lengths/CASUB | crucible | proven, unapproved |  | 3 | 1/1 / 4/4 | 15/24 / 15/16 | 0 | - |
 | [CAXA](crucible-ca-xctl-versions-CAXA.md) | crucible:ca-xctl-versions/CAXA | crucible | proven, unapproved |  | 3 | 1/1 / 3/3 | 17/21 / 17/19 | 0 | - |

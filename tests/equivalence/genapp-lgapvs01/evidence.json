@@ -43,7 +43,7 @@
     "tests/tools/java_target_matrix.py"
    ],
    "files": 11,
-   "sha256": "b1177defd3c0a7a927256daaff99217829f5a883ea0ad583cd3994073f9c6c9d"
+   "sha256": "cd0c22f11e735f25b3d655aac6b89670b07cba2e23856c7c825291b64fa994c5"
   },
   "oracle": {
    "paths": [
@@ -56,14 +56,14 @@
     "tests/tools/equivalence_sql.py"
    ],
    "files": 16,
-   "sha256": "b1be686cf96bbdce71bd0b5dc4245252f64020d97a5094cee850165bf093d250"
+   "sha256": "ee924d311b67148f9104af7158c534cc2fb9a50bb35ca6f7758d6a40efda414c"
   },
   "generator": {
    "paths": [
     "gitgalaxy/tools/cobol_to_java/**"
    ],
    "files": 60,
-   "sha256": "ad526b833acb84d7b0ac17ec9188f2725ecf6e1c6cb6612b7b5cf02543682983"
+   "sha256": "d732e7f21fab2ba4f65c7a3dcf403d1f341479111a3a0d757cbacd167c1a2daa"
   },
   "corpus": {
    "name": "cics-genapp",
@@ -73,10 +73,10 @@
   "differences": {
    "sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
   },
-  "digest": "aa4c94abd6a0dc533b0676a9bf8d599c10a20d27ff0a7f53d1827a2a7fbe1d0d"
+  "digest": "66f5ca4f0d3b1c8fe2096a890ee562910ab8717bdac5da78db8bb175ef73c2e5"
  },
  "proof": {
-  "at": "2026-10-05T14:39:32Z",
+  "at": "2026-10-05T14:55:19Z",
   "verdict": "proven",
   "runs": 8,
   "fault_runs": 0,
@@ -129,8 +129,8 @@
    "failed": [],
    "error": null
   },
-  "harness_commit": "c02126e8c64eb2986ab9c7e1b976e50f120f815d+uncommitted",
-  "inputs_digest": "aa4c94abd6a0dc533b0676a9bf8d599c10a20d27ff0a7f53d1827a2a7fbe1d0d"
+  "harness_commit": "af9e62c055439d3c758d2a794a211fa28ad41e41+uncommitted",
+  "inputs_digest": "66f5ca4f0d3b1c8fe2096a890ee562910ab8717bdac5da78db8bb175ef73c2e5"
  },
  "coverage": {
   "paragraphs": {
@@ -172,7 +172,7 @@
    "total": 0
   },
   "source": "the proof's own traced COBOL runs (cobol_coverage.py)",
-  "inputs_digest": "aa4c94abd6a0dc533b0676a9bf8d599c10a20d27ff0a7f53d1827a2a7fbe1d0d"
+  "inputs_digest": "66f5ca4f0d3b1c8fe2096a890ee562910ab8717bdac5da78db8bb175ef73c2e5"
  },
  "reach": {
   "entry_points": [
@@ -237,7 +237,7 @@
    },
    {
     "path": "tests/equivalence/cics/ggcics.c",
-    "sha256": "cfd00f48166b47683c2d342e0677b0faf06a0415183c109b6df62947485267d3"
+    "sha256": "2aff8a7a22af537b24cb03caafe4d6df30c30fde1cb6f548ba376616e6617214"
    },
    {
     "path": "tests/equivalence/db2/SQLCA.cpy",

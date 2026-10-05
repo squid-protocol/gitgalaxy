@@ -43,7 +43,7 @@
     "tests/tools/java_target_matrix.py"
    ],
    "files": 11,
-   "sha256": "b1177defd3c0a7a927256daaff99217829f5a883ea0ad583cd3994073f9c6c9d"
+   "sha256": "cd0c22f11e735f25b3d655aac6b89670b07cba2e23856c7c825291b64fa994c5"
   },
   "oracle": {
    "paths": [
@@ -56,14 +56,14 @@
     "tests/tools/equivalence_sql.py"
    ],
    "files": 16,
-   "sha256": "b1be686cf96bbdce71bd0b5dc4245252f64020d97a5094cee850165bf093d250"
+   "sha256": "ee924d311b67148f9104af7158c534cc2fb9a50bb35ca6f7758d6a40efda414c"
   },
   "generator": {
    "paths": [
     "gitgalaxy/tools/cobol_to_java/**"
    ],
    "files": 60,
-   "sha256": "ad526b833acb84d7b0ac17ec9188f2725ecf6e1c6cb6612b7b5cf02543682983"
+   "sha256": "d732e7f21fab2ba4f65c7a3dcf403d1f341479111a3a0d757cbacd167c1a2daa"
   },
   "corpus": {
    "name": "cics-banking-sample-application-cbsa",
@@ -73,10 +73,10 @@
   "differences": {
    "sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
   },
-  "digest": "71e9b49441e1d348e64d392fef3c6fc04e111d90e6662ad6b437958ae7347fb9"
+  "digest": "23b4b473ff8c6fbf247a016959792c8fb6f40d00adef010610328277eb69a683"
  },
  "proof": {
-  "at": "2026-10-05T14:40:21Z",
+  "at": "2026-10-05T14:55:54Z",
   "verdict": "not-proven",
   "runs": 14,
   "fault_runs": 0,
@@ -158,8 +158,8 @@
    ],
    "error": null
   },
-  "harness_commit": "c02126e8c64eb2986ab9c7e1b976e50f120f815d+uncommitted",
-  "inputs_digest": "71e9b49441e1d348e64d392fef3c6fc04e111d90e6662ad6b437958ae7347fb9"
+  "harness_commit": "af9e62c055439d3c758d2a794a211fa28ad41e41+uncommitted",
+  "inputs_digest": "23b4b473ff8c6fbf247a016959792c8fb6f40d00adef010610328277eb69a683"
  },
  "coverage": {
   "paragraphs": {
@@ -249,7 +249,7 @@
    "total": 1
   },
   "source": "the proof's own traced COBOL runs (cobol_coverage.py)",
-  "inputs_digest": "71e9b49441e1d348e64d392fef3c6fc04e111d90e6662ad6b437958ae7347fb9"
+  "inputs_digest": "23b4b473ff8c6fbf247a016959792c8fb6f40d00adef010610328277eb69a683"
  },
  "reach": {
   "entry_points": [
@@ -344,7 +344,7 @@
    },
    {
     "path": "tests/equivalence/cics/ggcics.c",
-    "sha256": "cfd00f48166b47683c2d342e0677b0faf06a0415183c109b6df62947485267d3"
+    "sha256": "2aff8a7a22af537b24cb03caafe4d6df30c30fde1cb6f548ba376616e6617214"
    },
    {
     "path": "tests/equivalence/db2/SQLCA.cpy",
@@ -411,7 +411,7 @@
   "provenance_file": {
    "path": "tests/equivalence/cbsa-inqacc/port/provenance.json",
    "format": "porting-loop-provenance/1",
-   "sha256": "288b25574cd4480ff21867e1ebb9156d44e7ab1a28a818977f5384db64cdcc5a"
+   "sha256": "cdd9bec059c7f40f22ed4166012baed701fbd013a206afae46d60f2ee8ac6baa"
   }
  },
  "approvals": []

@@ -125,38 +125,38 @@ results file is accepted as a triage input, so a re-run keeps the verdicts of mu
 | COACTVWC (carddemo-acctview) | equivalence | 150/328 | 105/129 (81%) | 105/113 (93%) | 8 / 0 / 16 / 0 / 0 |
 | CSUTLDTC (carddemo-dateutil) | equivalence | 211/211 | 145/195 (74%) | 145/145 (100%) | 0 / 0 / 10 / 40 / 0 |
 | COMEN01C (carddemo-menu) | equivalence | 150/331 | 86/136 (63%) | 86/93 (92%) | 7 / 0 / 36 / 7 / 0 |
-| CALINK (ca-link-lengths) | crucible | 24/165 | 19/22 (86%) | 19/21 (90%) | 2 / 0 / 1 / 0 / 0 |
-| CASUB (ca-link-lengths) | crucible | 24/43 | 12/24 (50%) | 12/14 (86%) | 2 / 0 / 6 / 4 / 0 |
-| CAXA (ca-xctl-versions) | crucible | 24/74 | 18/21 (86%) | 18/20 (90%) | 2 / 0 / 1 / 0 / 0 |
-| CAXB (ca-xctl-versions) | crucible | 24/153 | 15/24 (62%) | 15/19 (79%) | 4 / 0 / 2 / 3 / 0 |
-| GTSTART (gt-start-retrieve) | crucible | 24/87 | 14/22 (64%) | 14/18 (78%) | 4 / 0 / 4 / 0 / 0 |
-| GTWORK (gt-start-retrieve) | crucible | 24/87 | 17/21 (81%) | 17/19 (89%) | 2 / 0 / 1 / 1 / 0 |
-| GTSHOW (gt-terminal-coalesce) | crucible | 24/65 | 20/24 (83%) | 20/21 (95%) | 1 / 0 / 3 / 0 / 0 |
-| GTTERM (gt-terminal-coalesce) | crucible | 24/84 | 13/21 (62%) | 13/19 (68%) | 6 / 0 / 1 / 1 / 0 |
-| HCMAIN (hc-abend-link) | crucible | 24/196 | 12/24 (50%) | 12/14 (86%) | 2 / 0 / 4 / 6 / 0 |
-| HCSUB (hc-abend-link) | crucible | 24/83 | 13/24 (54%) | 13/14 (93%) | 1 / 0 / 5 / 5 / 0 |
-| HCQREAD (hc-perform-range) | crucible | 24/201 | 12/21 (57%) | 12/12 (100%) | 0 / 0 / 4 / 5 / 0 |
-| HXATTR (hx-attr-bytes) | crucible | 24/152 | 10/20 (50%) | 10/10 (100%) | 0 / 0 / 7 / 3 / 0 |
-| HXEXT (hx-extended-cursor) | crucible | 24/105 | 14/22 (64%) | 14/19 (74%) | 5 / 0 / 3 / 0 / 0 |
+| CALINK (ca-link-lengths) | crucible | 24/165 | 19/22 (86%) | 19/22 (86%) | 3 / 0 / 0 / 0 / 0 |
+| CASUB (ca-link-lengths) | crucible | 24/40 | 15/24 (62%) | 15/16 (94%) | 1 / 0 / 7 / 1 / 0 |
+| CAXA (ca-xctl-versions) | crucible | 24/75 | 17/21 (81%) | 17/19 (89%) | 2 / 0 / 2 / 0 / 0 |
+| CAXB (ca-xctl-versions) | crucible | 24/139 | 15/23 (65%) | 15/19 (79%) | 4 / 0 / 3 / 1 / 0 |
+| GTSTART (gt-start-retrieve) | crucible | 24/88 | 15/22 (68%) | 15/19 (79%) | 4 / 0 / 3 / 0 / 0 |
+| GTWORK (gt-start-retrieve) | crucible | 24/84 | 19/21 (90%) | 19/21 (90%) | 2 / 0 / 0 / 0 / 0 |
+| GTSHOW (gt-terminal-coalesce) | crucible | 24/66 | 19/24 (79%) | 19/20 (95%) | 1 / 0 / 4 / 0 / 0 |
+| GTTERM (gt-terminal-coalesce) | crucible | 24/85 | 13/21 (62%) | 13/20 (65%) | 7 / 0 / 1 / 0 / 0 |
+| HCMAIN (hc-abend-link) | crucible | 24/173 | 10/23 (43%) | 10/11 (91%) | 1 / 0 / 4 / 8 / 0 |
+| HCSUB (hc-abend-link) | crucible | 24/85 | 18/24 (75%) | 18/19 (95%) | 1 / 0 / 3 / 2 / 0 |
+| HCQREAD (hc-perform-range) | crucible | 24/201 | 10/21 (48%) | 10/12 (83%) | 2 / 0 / 6 / 3 / 0 |
+| HXATTR (hx-attr-bytes) | crucible | 24/140 | 21/23 (91%) | 21/22 (95%) | 1 / 0 / 1 / 0 / 0 |
+| HXEXT (hx-extended-cursor) | crucible | 24/105 | 14/22 (64%) | 14/19 (74%) | 5 / 0 / 1 / 2 / 0 |
 | PCDETL (pc-aid-menu) | crucible | 24/60 | 14/24 (58%) | 14/14 (100%) | 0 / 0 / 9 / 1 / 0 |
 | PCMENU (pc-aid-menu) | crucible | 24/147 | 14/22 (64%) | 14/15 (93%) | 1 / 0 / 5 / 2 / 0 |
 | PCCONF (pc-wizard) | crucible | 24/247 | 14/23 (61%) | 14/17 (82%) | 3 / 0 / 6 / 0 / 0 |
 | PCWIZ (pc-wizard) | crucible | 24/177 | 11/21 (52%) | 11/16 (69%) | 5 / 0 / 3 / 2 / 0 |
-| **all crucible** | | 408 run | **242/380 (64%)** | **242/282 (86%)** | 40 / 0 / 65 / 33 / 0 |
+| **all crucible** | | 408 run | **258/381 (68%)** | **258/301 (86%)** | 43 / 0 / 58 / 22 / 0 |
 | **all equivalence** | | 511 run | **336/460 (73%)** | **336/351 (96%)** | 15 / 0 / 62 / 47 / 0 |
-| **all estate** | | 919 run | **578/840 (69%)** | **578/633 (91%)** | 55 / 0 / 127 / 80 / 0 |
+| **all estate** | | 919 run | **594/841 (71%)** | **594/652 (91%)** | 58 / 0 / 120 / 69 / 0 |
 
 | operator | caught / judged | without equivalent + unreachable |
 |---|---|---|
-| AOR | 55/66 (83%) | 55/59 (93%) |
+| AOR | 54/65 (83%) | 54/58 (93%) |
 | BDM | 1/9 (11%) | 1/2 (50%) |
-| CON | 86/162 (53%) | 86/93 (92%) |
-| COR | 28/51 (55%) | 28/37 (76%) |
-| DEL | 76/116 (66%) | 76/95 (80%) |
-| LIT | 108/140 (77%) | 108/111 (97%) |
-| NEG | 114/133 (86%) | 114/116 (98%) |
+| CON | 90/162 (56%) | 90/97 (93%) |
+| COR | 28/51 (55%) | 28/39 (72%) |
+| DEL | 79/116 (68%) | 79/99 (80%) |
+| LIT | 110/140 (79%) | 110/112 (98%) |
+| NEG | 120/135 (89%) | 120/121 (99%) |
 | RET | 8/17 (47%) | 8/13 (62%) |
-| ROR | 102/146 (70%) | 102/107 (95%) |
+| ROR | 104/146 (71%) | 104/111 (94%) |
 <!-- /mutation-scores -->
 
 Run on gitgalaxy `416fb6420` (2026-10-03): CSUTLDTC all 217 mutants; COMEN01C and COACTVWC 150 each (seed 0);
@@ -187,6 +187,15 @@ What the triage found:
   are dead in the shipped Java as the harness drives it (#4255).
 - **Equivalent (125).** These are mostly padding and truncation that the compare hides: `pad(x, 26)` on an X(25)
   field, a rounding mode on a value already at scale 2, or an initial value that is overwritten before it is read.
+
+Re-run 2026-10-05 on gitgalaxy `d69a63419` (after #4343 regenerated the crucible ports' facades): the 13 crucible ports
+other than PCCONF, PCWIZ, PCMENU and PCDETL (#4427 is changing those; they are re-run after it merges), 24 mutants each,
+seed 0, cics-crucible v0.2.0. The table rows above are these runs; the four PC* rows still hold the 2026-10-03 run and
+their evidence records mark it stale. 205 caught of 291 judged (70%); 86 survivors: 34 case gaps (19 fault-reachable,
+which need the fault plan the crucible lacks), 0 harness gaps, 35 equivalent, 17 unreachable, none untriaged.
+`mutation_crucible.py` now proves each mutant on the java-ported and the java-facade side: the first run used
+java-ported alone, which never runs a facade body (`handleTransaction`, `handleLink`), and four mutants inside one
+(CASUB, CAXB, GTSTART, GTWORK) survived for that reason; the java-facade side kills them.
 
 A score is quoted with its case and seed, never alone. Every survivor is triaged as a case gap, a
 harness gap, an equivalent mutant (with the reason) or dead code.

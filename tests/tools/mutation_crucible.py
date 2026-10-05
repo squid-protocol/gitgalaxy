@@ -4,10 +4,10 @@ r"""
 
 `tests/tools/mutation.py` mutates an equivalence case's port and proves each mutant with `equivalence.py`. The 17
 crucible ports (tests/cics_crucible/ports/<case>/<PROGRAM>/overlay) are proven by a different harness: the crucible
-runner's java-ported side, against the hand-written, IBM-doc-cited expected event logs. This tool uses the same
+runner's java-ported and java-facade sides (#4343: the facade bodies run only on the second), against the hand-written, IBM-doc-cited expected event logs. This tool uses the same
 mutants (`mutation.all_mutants`, the same operators and seeded sample) and proves each one with that runner:
 
-    python tests/cics_crucible.py --cases <case> --sides java-ported --overlay <mutant> --program <PROGRAM>
+    python tests/cics_crucible.py --cases <case> --sides java-ported java-facade --overlay <mutant> --program <PROGRAM>
 
 Verdicts, as in mutation.py:
   killed     the runner says "not proven"; `killed_by` names the scenarios that failed
@@ -79,7 +79,7 @@ STRENGTHENED = False  # #4049: --strengthened
 
 def prove(case: str, prog: str, overlay: Path, out: Path, timeout: float) -> tuple[str, list[str], float]:
     out.mkdir(parents=True, exist_ok=True)
-    cmd = [sys.executable, str(RUNNER), "--cases", case, "--sides", "java-ported", "--overlay", str(overlay),
+    cmd = [sys.executable, str(RUNNER), "--cases", case, "--sides", "java-ported", "java-facade", "--overlay", str(overlay),
            "--program", prog, "--report-dir", str(out), *(["--strengthened"] if STRENGTHENED else [])]  # fmt: skip
     t0 = time.monotonic()
     with open(out / "log.txt", "w", encoding="utf-8") as log:
@@ -126,7 +126,7 @@ def run_port(case: str, prog: str, overlay: Path, work: Path, args) -> dict:
         results = list(pool.map(one, chosen))
     res = {"case": f"crucible:{case}", "program": prog, "mutants": len(every), "chosen": len(chosen),
            "seed": args.seed, "seconds": round(time.monotonic() - t0), "baseline_seconds": round(base_s, 1),
-           "coverage": "cics-crucible v0.2.0 java-ported scenarios (100% paragraphs and branches, #4023)",
+           "coverage": "cics-crucible v0.2.0 java-ported + java-facade scenarios (100% paragraphs and branches, #4023)",
            "results": sorted(results, key=lambda r: (r["file"], r["line"], r["id"]))}  # fmt: skip
     (pw / "mutation.json").write_text(json.dumps(res, indent=1) + "\n", encoding="utf-8")
     (pw / "mutation.md").write_text(mu.mutation_md(res), encoding="utf-8")

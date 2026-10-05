@@ -59,11 +59,17 @@ import re
 from typing import Any, Optional
 
 from gitgalaxy.core.db2_declare_table import _blank_sequence_fields
+from gitgalaxy.standards.language_standards.identifiers import NATIONAL, WIDE_DIGITS, WIDE_HYPHENS
 
 _LITERAL = r"[XNGZ]?'[^'\n]{0,320}'?|[XNGZ]?\"[^\"\n]{0,320}\"?"
 _NUMBER = r"[+-]?[0-9]*\.[0-9]+|[+-]?[0-9]+"
-_WORD = r"[A-Z0-9][A-Z0-9-]{0,62}"
-_NUMBER_TOKEN = rf"(?:{_NUMBER})(?![A-Z0-9-])"  # a number, not the head of a name (1ST-X)
+# #4353: a COBOL word takes the record reader's national, CJK and full-width characters (#3955 /
+# #3991): `MOVE '000001' TO 社員コード` drew no row and `X項目` was cut to `X`.
+_NAME_START = "A-Z" + NATIONAL + WIDE_DIGITS + "0-9"
+_NAME_CHAR = _NAME_START + WIDE_HYPHENS + "-"
+_WORD = rf"[{_NAME_START}][{_NAME_CHAR}]{{0,62}}"
+_HAS_LETTER = re.compile(f"[A-Z{NATIONAL}]", re.I)  # a name has a letter (national ones too, #4353)
+_NUMBER_TOKEN = rf"(?:{_NUMBER})(?![{_NAME_CHAR}])"  # a number, not the head of a name (1ST-X)
 _OPERATOR = r"\*\*|[()=:+*/,.<>-]"
 _TOKEN = re.compile("|".join((_LITERAL, _NUMBER_TOKEN, _WORD, _OPERATOR)), re.I)
 _STATEMENT_TOKENS = 600
@@ -180,7 +186,7 @@ class _Stream:
             self._skip_parens()
             arg = "".join(tok[0] for tok in self.toks[start + 1 : self.i - 1]).upper()
             return f"{t}({arg})", "cics_constant", False
-        if not re.fullmatch(_WORD, raw, re.I) or not re.search(r"[A-Z]", t):
+        if not re.fullmatch(_WORD, raw, re.I) or not _HAS_LETTER.search(t):
             return None
         name = t
         self.i += 1
@@ -235,7 +241,7 @@ class _Stream:
             if t == "FUNCTION":
                 self.i += 2
                 continue
-            if t in _NOISE or not re.search(r"[A-Z]", t) or t in _FIGURATIVE:
+            if t in _NOISE or not _HAS_LETTER.search(t) or t in _FIGURATIVE:
                 self.i += 1
                 continue
             op = self.operand()
@@ -475,7 +481,7 @@ def rounding_facts(code_stream: str) -> list[dict[str, Any]]:
             elif t == "SIZE" and j + 1 < end and toks[j + 1][0].upper() == "ERROR":
                 size_error = True
                 break  # what follows is the imperative statement run on SIZE ERROR
-            elif re.fullmatch(_WORD, t, re.I) and re.search(r"[A-Z]", t) and t not in _NOISE and t not in _STOPS:
+            elif re.fullmatch(_WORD, t, re.I) and _HAS_LETTER.search(t) and t not in _NOISE and t not in _STOPS:
                 last_name = toks[j][0]
             j += 1
         if rounded or size_error:

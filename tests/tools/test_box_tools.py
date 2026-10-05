@@ -86,3 +86,11 @@ def test_wait_pids_reports_status():
     )  # noqa: S603
     assert f"{p.pid} exit=" in out.stdout
     p.wait()
+
+
+def test_sync_pins_dry_run_changes_nothing():
+    out = subprocess.run([str(BOX / "sync-pins.sh"), "--dry-run"], capture_output=True, text=True, check=False)  # noqa: S603
+    assert out.returncode == 0, out.stderr
+    for name in ("language-crucible", "cics-crucible", "estate-crucible"):
+        assert name in out.stdout
+    assert subprocess.run([str(BOX / "sync-pins.sh"), "--bogus"], capture_output=True, check=False).returncode == 2  # noqa: S603

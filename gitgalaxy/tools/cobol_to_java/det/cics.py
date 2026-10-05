@@ -48,6 +48,87 @@ class CicsError(Exception):
     pass
 
 
+# #4411: every option each modelled command accepts. An option outside its command's set is refused by name (the
+# statement becomes a hole), never accepted and ignored: a silently divergent port is worse than a visible hole.
+# Options accepted with no code of their own say why they cannot change what the program sees.
+_RESP = frozenset({"RESP", "RESP2", "NOHANDLE"})
+_FILE = frozenset({"DATASET", "FILE", "RBA", "RRN", "XRBA"})  # (RBA / RRN / XRBA: refused or browsed in Cics._rba)
+_FORMS = ("YYYYMMDD", "MMDDYYYY", "DDMMYYYY", "YYMMDD", "MMDDYY", "DDMMYY")
+_TS = frozenset({"TS", "QUEUE", "QNAME", "LENGTH", "ITEM", "NUMITEMS"})
+OPTIONS: dict[str, frozenset | None] = {
+    # one task in the region: ENQ / DEQ never wait; a task takes no time, a DELAY included
+    "ENQ": frozenset({"RESOURCE", "LENGTH", "NOSUSPEND", "TASK", "UOW", "MAXLIFETIME"}) | _RESP,
+    "DEQ": frozenset({"RESOURCE", "LENGTH", "TASK", "UOW", "MAXLIFETIME"}) | _RESP,
+    "DELAY": frozenset({"FOR", "INTERVAL", "TIME", "HOURS", "MINUTES", "SECONDS", "MILLISECS"}) | _RESP,
+    "GET COUNTER": frozenset({"COUNTER", "POOL", "VALUE", "RESP", "NOHANDLE"}),
+    "SEND MAP": frozenset({"MAP", "MAPSET", "FROM", "CURSOR", *MAP_OPTIONS}) | _RESP,
+    "SEND TEXT": frozenset({"FROM", "LENGTH", *TEXT_OPTIONS}) | _RESP,
+    "RECEIVE MAP": frozenset({"MAP", "MAPSET", "INTO"}) | _RESP,
+    "LINK": frozenset({"PROGRAM", "COMMAREA", "LENGTH"}) | _RESP,
+    # control never comes back from a RETURN, so a RESP area it does not write is never read after it
+    "RETURN": frozenset({"TRANSID", "COMMAREA", "LENGTH"}) | _RESP,
+    "XCTL": frozenset({"PROGRAM", "COMMAREA", "LENGTH"}) | _RESP,
+    # EQUAL is READ's default; KEYLENGTH and LENGTH only where they change nothing (Cics._keylength, _read_length)
+    "READ": _FILE | {"INTO", "RIDFLD", "UPDATE", "EQUAL", "KEYLENGTH", "LENGTH"} | _RESP,
+    "READNEXT": _FILE | {"INTO", "RIDFLD", "KEYLENGTH", "LENGTH"} | _RESP,
+    "READPREV": _FILE | {"INTO", "RIDFLD", "KEYLENGTH", "LENGTH"} | _RESP,
+    "STARTBR": _FILE | {"RIDFLD", "EQUAL", "GTEQ", "KEYLENGTH"} | _RESP,  # GTEQ: STARTBR's default
+    "ENDBR": frozenset({"DATASET", "FILE"}) | _RESP,
+    "WRITE": _FILE | {"FROM", "RIDFLD", "LENGTH", "KEYLENGTH"} | _RESP,
+    "REWRITE": frozenset({"DATASET", "FILE", "FROM", "LENGTH"}) | _RESP,
+    "DELETE": _FILE | {"RIDFLD", "KEYLENGTH"} | _RESP,
+    # NOHANDLE where the translation raises no condition anyway (no RESP: its area would not be written)
+    "HANDLE ABEND": frozenset({"LABEL", "CANCEL", "RESET", "PROGRAM", "NOHANDLE"}),  # (PROGRAM: refused below)
+    "HANDLE CONDITION": None,  # every option is a condition, each handled
+    "ABEND": frozenset({"ABCODE", "CANCEL", "NODUMP"}),  # NODUMP: a dump is no state the program or its caller sees
+    "ASSIGN": frozenset({"APPLID", "SYSID", "ABCODE", "PROGRAM", "INVOKINGPROG"}) | _RESP,
+    "ASKTIME": frozenset({"ABSTIME", "NOHANDLE"}),
+    "FORMATTIME": frozenset({"ABSTIME", "TIME", "DATESEP", "TIMESEP", "NOHANDLE", *_FORMS}),
+    "INQUIRE PROGRAM": frozenset({"PROGRAM"}) | _RESP,
+    "WRITEQ TD": frozenset({"QUEUE", "FROM", "LENGTH"}) | _RESP,
+    # MAIN / AUXILIARY: where CICS keeps the item, not what it holds; NOSUSPEND: one task, a queue never waits
+    "WRITEQ TS": _TS | {"FROM", "REWRITE", "MAIN", "AUXILIARY", "NOSUSPEND"} | _RESP,
+    "READQ TS": _TS | {"INTO", "NEXT"} | _RESP,
+    # #4411 left open: RESP / RESP2 on SYNCPOINT are not written (CBSA DBCRFUN, INQACC, XFRFUN -- proven ports)
+    "SYNCPOINT": frozenset({"ROLLBACK"}) | _RESP,
+    "SYNCPOINT ROLLBACK": _RESP,
+}
+
+
+def command_key(words: list[str], opts: dict) -> str:
+    """The OPTIONS key of a parsed command (the verb words, plus the option that names the form: SEND MAP)."""
+    verb = " ".join(words)
+    first = words[0] if words else ""
+    if first in ("ENQ", "DEQ", "DELAY"):
+        return first
+    if verb != "GET" and ("COUNTER" in opts or "DCOUNTER" in opts):
+        return f"{verb} COUNTER"  # (not modelled: refused whole by Cics.command)
+    if first == "SEND":
+        return "SEND MAP" if "MAP" in opts else "SEND TEXT" if verb in ("SEND", "SEND TEXT") else verb
+    if verb in _FORM_OPTION and _FORM_OPTION[verb] in opts:
+        return f"{verb} {_FORM_OPTION[verb]}"
+    if verb in ("WRITEQ", "READQ"):  # (a TD option after the verb is refused, never read as TS)
+        return f"{verb} TS"
+    return verb
+
+
+_FORM_OPTION = {"RECEIVE": "MAP", "GET": "COUNTER", "INQUIRE": "PROGRAM"}
+
+
+def check_options(words: list[str], opts: dict) -> None:
+    """#4411: refuse, by name, an option the command's translation would not honour. (A command not in OPTIONS is
+    refused whole by Cics.command.)"""
+    key = command_key(words, opts)
+    if key not in OPTIONS:
+        return
+    allowed = OPTIONS[key]
+    if allowed is None:
+        return
+    bad = [o for o in opts if o not in allowed]
+    if bad:
+        raise CicsError(f"{' '.join(words)} {' '.join(bad)}: option not modelled")
+
+
 # ---- the EXEC text ----------------------------------------------------------------------------------------------
 def _arg(v: str | None) -> str:
     """An EXEC CICS option's argument text; a bare option where one is needed is an error."""
@@ -476,19 +557,12 @@ class Cics:
     def command(self, text: str, ind: str) -> list[str]:
         words, opts = parse_exec(text)
         verb = " ".join(words)
+        check_options(words, opts)  # #4411: an option the translation would ignore is refused first
         if verb.split()[0] in ("ENQ", "DEQ", "DELAY"):  # (DELAY FOR SECONDS(n): words DELAY FOR)
-            # one task in the region: ENQ / DEQ never wait; a task takes no time, a DELAY included
-            allowed = {"ENQ": {"RESOURCE", "LENGTH", "NOSUSPEND", "TASK", "UOW", "MAXLIFETIME"},
-                       "DEQ": {"RESOURCE", "LENGTH", "TASK", "UOW", "MAXLIFETIME"},
-                       "DELAY": {"FOR", "INTERVAL", "TIME", "HOURS", "MINUTES", "SECONDS", "MILLISECS"}}[verb.split()[0]]  # fmt: skip
-            bad = [o for o in opts if o not in allowed | {*words, "RESP", "RESP2", "NOHANDLE"}]
-            if bad:
-                raise CicsError(f"{verb} {' '.join(bad)}")
-            return self.outcome(opts, "0", "0", ind)
+            return self.outcome(opts, "0", "0", ind)  # (OPTIONS: one task in the region, nothing waits)
         if verb == "GET" and "COUNTER" in opts:  # GET COUNTER: its value, then +1; NOTFND for a counter not defined
-            bad = [o for o in opts if o not in ("GET", "COUNTER", "POOL", "VALUE", "RESP", "NOHANDLE")]
-            if bad or not opts.get("VALUE"):
-                raise CicsError(f"GET COUNTER {' '.join(bad) or 'without VALUE'}")
+            if not opts.get("VALUE"):
+                raise CicsError("GET COUNTER without VALUE")
             v = self.g.tmpname("counter")
             pool = self.name(_arg(opts["POOL"])) if opts.get("POOL") else '""'
             return [f"{ind}Long {v} = task.getCounter({pool}, {self.name(_arg(opts['COUNTER']))});",
@@ -503,6 +577,9 @@ class Cics:
         if verb == "SEND" and "MAP" in opts:
             return self.send_map(opts, ind)
         if verb == "SEND" or verb == "SEND TEXT":
+            for o in ("CURSOR", "CTLCHAR"):  # (passed on as flags: a value would be dropped)
+                if opts.get(o):
+                    raise CicsError(f"SEND TEXT {o}({opts[o]}): its value is not modelled")
             f = self.read_field(_arg(opts["FROM"]))
             n = self.int_(_arg(opts["LENGTH"])) if opts.get("LENGTH") else str(self.size(_arg(opts["FROM"])))
             flags = [o for o in TEXT_OPTIONS if o in opts]
@@ -845,9 +922,61 @@ class Cics:
                 f"{ind}}}",
                 *self.outcome(opts, f"{r}.resp()", f"{r}.resp2()", ind)]  # fmt: skip
 
+    def constant_int(self, text: str) -> int | None:
+        """An option's value when the translator knows it: an integer literal, LENGTH OF an item, or a data item
+        with a numeric VALUE the program never changes; else None."""
+        from gitgalaxy.tools.cobol_to_java.det.gen import Untranslatable
+
+        unknown = (CicsError, E.ExprError, KeyError, Untranslatable)  # (None: the caller refuses)
+        t = text.strip()
+        if re.fullmatch(r"\d+", t):
+            return int(t)
+        m = re.fullmatch(r"(?is)LENGTH\s+OF\s+(.+)", t)
+        if m:
+            try:
+                return self.size(m.group(1))
+            except unknown:
+                return None
+        try:
+            it = self.g.resolve(self.ref(t))
+        except unknown:
+            return None
+        vals = getattr(it, "values", None) or []
+        if len(vals) == 1 and vals[0][0] == "num" and self.g.never_written(it):
+            return int(vals[0][1])
+        return None
+
+    def _keylength(self, verb: str, opts: dict) -> None:
+        """#4411: KEYLENGTH is honoured only as what it changes nothing for, the file's full key (a shorter one is a
+        generic key, an unequal one INVREQ): a known value equal to the key's length, on a file the port knows."""
+        if "KEYLENGTH" not in opts:
+            return
+        arg = _arg(opts["KEYLENGTH"])
+        n = self.constant_int(arg)
+        name = self.constant(opts.get("DATASET") or opts.get("FILE"))
+        mapped = self.gp.file(name) if name is not None else None
+        if n is None or mapped is None:
+            raise CicsError(f"{verb} KEYLENGTH({arg}): not a known length on a known file, so maybe not the full key")
+        _, key = self.gp.entity_key(mapped[1], mapped[2])
+        if n != key:
+            raise CicsError(f"{verb} KEYLENGTH({arg}) = {n}, the key is {key}: a partial key is not modelled")
+
+    def _read_length(self, verb: str, opts: dict) -> None:
+        """#4411: a read's LENGTH is the longest record the program takes (longer: LENGERR) and is set to the length
+        read. Neither is modelled, so LENGTH is honoured only as the INTO area's own length, known here."""
+        if "LENGTH" not in opts:
+            return
+        arg = _arg(opts["LENGTH"])
+        n = self.constant_int(arg)
+        if n is None or n != self.size(_arg(opts.get("INTO"))):
+            raise CicsError(f"{verb} LENGTH({arg}): not INTO's length (LENGERR, the length read: not modelled)")
+
     def read(self, verb: str, opts: dict, ind: str) -> list[str]:
         if self._rba(verb, opts):
+            self._read_length(verb, opts)
             return self.rba_browse(verb, opts, ind)
+        self._keylength(verb, opts)
+        self._read_length(verb, opts)
         st = self.store(opts)
         file = self.name(_arg(opts.get("DATASET") or opts.get("FILE")))
         into = self.field(opts["INTO"])
@@ -883,6 +1012,7 @@ class Cics:
     def file_update(self, verb: str, opts: dict, ind: str) -> list[str]:
         if self._rba(verb, opts):
             return self.rba_browse(verb, opts, ind)
+        self._keylength(verb, opts)
         st = self.store(opts)
         file = self.name(_arg(opts.get("DATASET") or opts.get("FILE")))
         g = self.g

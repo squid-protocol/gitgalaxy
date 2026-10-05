@@ -108,11 +108,6 @@ public class InqaccService {
         }
     }
 
-    public void executeInqacc(/* Parameters mapped from Controller */) {
-        log.info("Executing modernized business logic for INQACC");
-        // The PROCEDURE DIVISION runs in runTask(CicsTask): INQACC is a CICS program with no other entry.
-    }
-
     /** PROCEDURE DIVISION USING DFHCOMMAREA (section PREMIERE, paragraph A010). */
     public void runTask(CicsTask task) {
         log.info("Inqacc: runTask");
@@ -155,9 +150,13 @@ public class InqaccService {
         task.returnTransid(null, null);
     }
 
-    /** Another program LINKed / XCTLed to this one. TODO: [AI AGENT] implement from the program's business rules. */
+    /** Another program LINKed / XCTLed to this one (#4343): the program at that level in the region
+     *  (CicsTask.region()), run through runTask on `request`, passed by reference -- what it changes, the caller sees. */
     public InqaccCommarea handleLink(InqaccCommarea request) {
         log.info("Inqacc: handleLink");
+        CicsTask.Region region = CicsTask.region();
+        CicsTask task = region.linked("INQACC", request);
+        region.run(task, "INQACC", this::runTask);
         return request;
     }
 
@@ -180,7 +179,7 @@ public class InqaccService {
         }
         if (w.sqlcode != 0) {
             String sd = signSeparate(w.sqlcode);
-            return abendSequence(task, w, "HRAC",
+            return abendSequence(task, w, this::dispatchWsAbendPgmL321, "HRAC",
                     "RAD010 -Failure when attempting to OPEN DB2 " + "CURSOR. Check SQLCODE. " + "SQLCODE=" + sd,
                     "Failure when attempting to open DB2 CURSOR " + "ACC-CURSOR. With SQL code=" + sd,
                     true);
@@ -195,7 +194,7 @@ public class InqaccService {
         w.sqlcode = 0;
         if (w.sqlcode != 0) {   // a CLOSE of an open cursor cannot fail here; port kept for review
             String sd = signSeparate(w.sqlcode);
-            return abendSequence(task, w, "HRAC",
+            return abendSequence(task, w, this::dispatchWsAbendPgmL401, "HRAC",
                     "RAD010 -Failure when attempting to CLOSE DB2 " + "CURSOR (ACC-CUSOR). Check SQLCODE" + "SQLCODE=" + sd,
                     "Failure when attempting to close the DB2 CURSOR" + " ACC-CURSOR. With SQL code=" + sd,
                     true);
@@ -229,7 +228,7 @@ public class InqaccService {
         if (w.sqlcode != 0) {
             checkForStormDrain(w);
             String sd = signSeparate(w.sqlcode);
-            return abendSequence(task, w, "HRAC",
+            return abendSequence(task, w, this::dispatchWsAbendPgmL516, "HRAC",
                     "FD010 -Failure when attempting to FETCH from " + "DB2 CURSOR (ACC-CURSOR). Check SQLCODE" + "SQLCODE=" + sd,
                     "Failure when attempting to FETCH from the DB2 " + "CURSOR ACC-CURSOR. With SQL code=" + sd,
                     false);
@@ -260,7 +259,7 @@ public class InqaccService {
 
         if (w.sqlcode != 0) {   // IF SQLCODE IS NOT EQUAL TO ZERO (+100 included)
             String sd = signSeparate(w.sqlcode);
-            return abendSequence(task, w, "HNCS",
+            return abendSequence(task, w, this::dispatchWsAbendPgmL924, "HNCS",
                     "GLAD010 -ACCOUNT NCS " + NCS_ACC_NO_NAME + " CANNOT be accessed and DB2 " + " SELECT failed. SQLCODE=" + sd,
                     "INQACC - ACCOUNT NCS " + NCS_ACC_NO_NAME + " CANNOT BE ACCESSED AND DB2 SELECT FAILED. SQLCODE=" + sd,
                     false);
@@ -323,7 +322,7 @@ public class InqaccService {
                 String freeform = "AH010 -Unable to perform SYNCPOINT ROLLBACK." + " Possible integrity issue following VSAM RLS "
                         + " abend." + " EIBRESP=" + signSeparate(w.eibresp) + " RESP2=" + signSeparate(w.eibresp2);
                 AbndprocDfhcommarea rec = buildAbndRec(task, w, "HROL", 0, freeform);
-                if (linkAbndproc(task, w, rec)) {
+                if (linkAbndproc(task, w, rec, this::dispatchWsAbendPgmL738)) {
                     return true;
                 }
                 Sysout.display("INQACC: Unable to perform Syncpoint " + "Rollback. Possible Integrity issue "
@@ -343,7 +342,7 @@ public class InqaccService {
         if ("N".equals(w.stormDrain)) {
             String freeform = "AH010 -WVS-STORM-DRAIN=N" + " EIBRESP=" + signSeparate(w.eibresp) + " RESP2=" + signSeparate(w.eibresp2);
             AbndprocDfhcommarea rec = buildAbndRec(task, w, myAbendCode, 0, freeform);
-            if (linkAbndproc(task, w, rec)) {
+            if (linkAbndproc(task, w, rec, this::dispatchWsAbendPgmL810)) {
                 return true;
             }
             task.abendCancel(myAbendCode);
@@ -361,9 +360,9 @@ public class InqaccService {
      * optionally CHECK-FOR-STORM-DRAIN-DB2, EXEC CICS ABEND ... CANCEL.
      * @return always true: the task has ended or an abend exit took over.
      */
-    private boolean abendSequence(CicsTask task, Work w, String abcode, String freeform, String display, boolean stormAfterDisplay) {
+    private boolean abendSequence(CicsTask task, Work w, AbendLink site, String abcode, String freeform, String display, boolean stormAfterDisplay) {
         AbndprocDfhcommarea rec = buildAbndRec(task, w, abcode, w.sqlcode, freeform);
-        if (linkAbndproc(task, w, rec)) {
+        if (linkAbndproc(task, w, rec, site)) {
             return true;
         }
         Sysout.display(display);
@@ -374,9 +373,15 @@ public class InqaccService {
         return true;
     }
 
-    /** EXEC CICS LINK PROGRAM(WS-ABEND-PGM) COMMAREA(ABNDINFO-REC). @return true when runTask must stop. */
-    private boolean linkAbndproc(CicsTask task, Work w, AbndprocDfhcommarea rec) {
-        task.link(WS_ABEND_PGM, rec, 681);
+    /** The LINK PROGRAM(WS-ABEND-PGM) of one COBOL site: its dispatcher (#4342). */
+    private interface AbendLink {
+        String link(CicsTask task, String program, Object commarea, int length);
+    }
+
+    /** EXEC CICS LINK PROGRAM(WS-ABEND-PGM) COMMAREA(ABNDINFO-REC), through the site's dispatcher `site` (#4342).
+     *  @return true when runTask must stop. */
+    private boolean linkAbndproc(CicsTask task, Work w, AbndprocDfhcommarea rec, AbendLink site) {
+        site.link(task, WS_ABEND_PGM, rec, 681);
         String exit = task.abendExit();
         if (exit != null) {
             // an abend in the abend program reached this program's HANDLE ABEND exit: GO TO ABEND-HANDLING
@@ -514,70 +519,58 @@ public class InqaccService {
         return o == null ? "" : o.toString();
     }
 
-    /** LINK PROGRAM(WS-ABEND-PGM) at src/base/cobol_src/INQACC.cbl:321: the target is data-driven. Candidates: ABNDPROC (value).
+    /** EXEC CICS LINK PROGRAM(WS-ABEND-PGM) at src/base/cobol_src/INQACC.cbl:321, COMMAREA(ABNDINFO-REC): the target is data-driven (candidates the engine found: ABNDPROC (value)).
+     *  CICS resolves the name when the command runs (#4342): `program` is the PROGRAM field as the
+     *  COBOL holds it, its trailing blanks the name's padding. Returns the command's condition
+     *  (NORMAL, PGMIDERR, ...).
      *  Dynamic call targets field testing: open (5 public / 0 private estates). */
-    public Object dispatchWsAbendPgmL321(String program, Object request) {
-        switch (program.trim().toUpperCase(Locale.ROOT)) {
-            case "ABNDPROC":
-                return abndprocService.getObject().handleLink((AbndprocDfhcommarea) request);
-            default:
-                throw new IllegalArgumentException("LINK PROGRAM(WS-ABEND-PGM) at src/base/cobol_src/INQACC.cbl:321: no known target " + program);
-        }
+    public String dispatchWsAbendPgmL321(CicsTask task, String program, Object commarea, int length) {
+        return task.link(program.stripTrailing(), commarea, length);
     }
 
-    /** LINK PROGRAM(WS-ABEND-PGM) at src/base/cobol_src/INQACC.cbl:401: the target is data-driven. Candidates: ABNDPROC (value).
+    /** EXEC CICS LINK PROGRAM(WS-ABEND-PGM) at src/base/cobol_src/INQACC.cbl:401, COMMAREA(ABNDINFO-REC): the target is data-driven (candidates the engine found: ABNDPROC (value)).
+     *  CICS resolves the name when the command runs (#4342): `program` is the PROGRAM field as the
+     *  COBOL holds it, its trailing blanks the name's padding. Returns the command's condition
+     *  (NORMAL, PGMIDERR, ...).
      *  Dynamic call targets field testing: open (5 public / 0 private estates). */
-    public Object dispatchWsAbendPgmL401(String program, Object request) {
-        switch (program.trim().toUpperCase(Locale.ROOT)) {
-            case "ABNDPROC":
-                return abndprocService.getObject().handleLink((AbndprocDfhcommarea) request);
-            default:
-                throw new IllegalArgumentException("LINK PROGRAM(WS-ABEND-PGM) at src/base/cobol_src/INQACC.cbl:401: no known target " + program);
-        }
+    public String dispatchWsAbendPgmL401(CicsTask task, String program, Object commarea, int length) {
+        return task.link(program.stripTrailing(), commarea, length);
     }
 
-    /** LINK PROGRAM(WS-ABEND-PGM) at src/base/cobol_src/INQACC.cbl:516: the target is data-driven. Candidates: ABNDPROC (value).
+    /** EXEC CICS LINK PROGRAM(WS-ABEND-PGM) at src/base/cobol_src/INQACC.cbl:516, COMMAREA(ABNDINFO-REC): the target is data-driven (candidates the engine found: ABNDPROC (value)).
+     *  CICS resolves the name when the command runs (#4342): `program` is the PROGRAM field as the
+     *  COBOL holds it, its trailing blanks the name's padding. Returns the command's condition
+     *  (NORMAL, PGMIDERR, ...).
      *  Dynamic call targets field testing: open (5 public / 0 private estates). */
-    public Object dispatchWsAbendPgmL516(String program, Object request) {
-        switch (program.trim().toUpperCase(Locale.ROOT)) {
-            case "ABNDPROC":
-                return abndprocService.getObject().handleLink((AbndprocDfhcommarea) request);
-            default:
-                throw new IllegalArgumentException("LINK PROGRAM(WS-ABEND-PGM) at src/base/cobol_src/INQACC.cbl:516: no known target " + program);
-        }
+    public String dispatchWsAbendPgmL516(CicsTask task, String program, Object commarea, int length) {
+        return task.link(program.stripTrailing(), commarea, length);
     }
 
-    /** LINK PROGRAM(WS-ABEND-PGM) at src/base/cobol_src/INQACC.cbl:738: the target is data-driven. Candidates: ABNDPROC (value).
+    /** EXEC CICS LINK PROGRAM(WS-ABEND-PGM) at src/base/cobol_src/INQACC.cbl:738, COMMAREA(ABNDINFO-REC): the target is data-driven (candidates the engine found: ABNDPROC (value)).
+     *  CICS resolves the name when the command runs (#4342): `program` is the PROGRAM field as the
+     *  COBOL holds it, its trailing blanks the name's padding. Returns the command's condition
+     *  (NORMAL, PGMIDERR, ...).
      *  Dynamic call targets field testing: open (5 public / 0 private estates). */
-    public Object dispatchWsAbendPgmL738(String program, Object request) {
-        switch (program.trim().toUpperCase(Locale.ROOT)) {
-            case "ABNDPROC":
-                return abndprocService.getObject().handleLink((AbndprocDfhcommarea) request);
-            default:
-                throw new IllegalArgumentException("LINK PROGRAM(WS-ABEND-PGM) at src/base/cobol_src/INQACC.cbl:738: no known target " + program);
-        }
+    public String dispatchWsAbendPgmL738(CicsTask task, String program, Object commarea, int length) {
+        return task.link(program.stripTrailing(), commarea, length);
     }
 
-    /** LINK PROGRAM(WS-ABEND-PGM) at src/base/cobol_src/INQACC.cbl:810: the target is data-driven. Candidates: ABNDPROC (value).
+    /** EXEC CICS LINK PROGRAM(WS-ABEND-PGM) at src/base/cobol_src/INQACC.cbl:810, COMMAREA(ABNDINFO-REC): the target is data-driven (candidates the engine found: ABNDPROC (value)).
+     *  CICS resolves the name when the command runs (#4342): `program` is the PROGRAM field as the
+     *  COBOL holds it, its trailing blanks the name's padding. Returns the command's condition
+     *  (NORMAL, PGMIDERR, ...).
      *  Dynamic call targets field testing: open (5 public / 0 private estates). */
-    public Object dispatchWsAbendPgmL810(String program, Object request) {
-        switch (program.trim().toUpperCase(Locale.ROOT)) {
-            case "ABNDPROC":
-                return abndprocService.getObject().handleLink((AbndprocDfhcommarea) request);
-            default:
-                throw new IllegalArgumentException("LINK PROGRAM(WS-ABEND-PGM) at src/base/cobol_src/INQACC.cbl:810: no known target " + program);
-        }
+    public String dispatchWsAbendPgmL810(CicsTask task, String program, Object commarea, int length) {
+        return task.link(program.stripTrailing(), commarea, length);
     }
 
-    /** LINK PROGRAM(WS-ABEND-PGM) at src/base/cobol_src/INQACC.cbl:924: the target is data-driven. Candidates: ABNDPROC (value).
+    /** EXEC CICS LINK PROGRAM(WS-ABEND-PGM) at src/base/cobol_src/INQACC.cbl:924, COMMAREA(ABNDINFO-REC): the target is data-driven (candidates the engine found: ABNDPROC (value)).
+     *  CICS resolves the name when the command runs (#4342): `program` is the PROGRAM field as the
+     *  COBOL holds it, its trailing blanks the name's padding. Returns the command's condition
+     *  (NORMAL, PGMIDERR, ...).
      *  Dynamic call targets field testing: open (5 public / 0 private estates). */
-    public Object dispatchWsAbendPgmL924(String program, Object request) {
-        switch (program.trim().toUpperCase(Locale.ROOT)) {
-            case "ABNDPROC":
-                return abndprocService.getObject().handleLink((AbndprocDfhcommarea) request);
-            default:
-                throw new IllegalArgumentException("LINK PROGRAM(WS-ABEND-PGM) at src/base/cobol_src/INQACC.cbl:924: no known target " + program);
-        }
+    public String dispatchWsAbendPgmL924(CicsTask task, String program, Object commarea, int length) {
+        return task.link(program.stripTrailing(), commarea, length);
     }
 
     /**

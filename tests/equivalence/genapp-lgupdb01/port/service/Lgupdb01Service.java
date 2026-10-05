@@ -73,15 +73,14 @@ public class Lgupdb01Service {
         Object rid;
     }
 
-    /** The logic of LGUPDB01 runs in runTask(CicsTask); there is no batch entry. */
-    public void executeLgupdb01(/* Parameters mapped from Controller */) {
-        log.info("Executing modernized business logic for lgupdb01");
-    }
-
-    /** A CICS transaction entered the program. TODO: [AI AGENT] implement from the program's business rules. */
+    /** A CICS transaction entered the program (#4343): one task of it in the region (CicsTask.region()),
+     *  ENTER pressed -- `request` its COMMAREA, null when started from a cleared screen -- run through runTask. Returns the COMMAREA its RETURN passes on (null: none). */
     public Lgupdb01Dfhcommarea handleTransaction(String transid, Lgupdb01Dfhcommarea request) {
         log.info("Lgupdb01: handleTransaction");
-        return request;
+        CicsTask.Region region = CicsTask.region();
+        CicsTask task = region.transaction(transid, request);
+        region.run(task, "LGUPDB01", this::runTask);
+        return task.returned(Lgupdb01Dfhcommarea.class);
     }
 
     /** MAINLINE SECTION, one task. */
@@ -120,7 +119,7 @@ public class Lgupdb01Service {
         vs.setCaReturnCode(ca.getCaReturnCode());
         vs.setCaCustomerNum(ca.getCaCustomerNum());
         vs.setCaRequestSpecific(ca.getCaRequestSpecific());
-        String resp = task.link("LGUPVS01", vs, 225);
+        String resp = dispatchLgupvs01L209(task, "LGUPVS01", vs, 225);   // PROGRAM(LGUPVS01): 77 LGUPVS01 VALUE 'LGUPVS01'
         if (!"NORMAL".equals(resp)) {
             task.abendOnCondition(resp);
             return;
@@ -468,9 +467,13 @@ public class Lgupdb01Service {
         return -904;
     }
 
-    /** Another program LINKed / XCTLed to this one. TODO: [AI AGENT] implement from the program's business rules. */
+    /** Another program LINKed / XCTLed to this one (#4343): the program at that level in the region
+     *  (CicsTask.region()), run through runTask on `request`, passed by reference -- what it changes, the caller sees. */
     public Lgupdb01Dfhcommarea handleLink(Lgupdb01Dfhcommarea request) {
         log.info("Lgupdb01: handleLink");
+        CicsTask.Region region = CicsTask.region();
+        CicsTask task = region.linked("LGUPDB01", request);
+        region.run(task, "LGUPDB01", this::runTask);
         return request;
     }
 
@@ -487,15 +490,13 @@ public class Lgupdb01Service {
         return lgstsqService.getObject().handleLink(request);
     }
 
-    /** LINK PROGRAM(LGUPVS01) at base/src/lgupdb01.cbl:209: the target is data-driven. Candidates: LGUPVS01 (value).
+    /** EXEC CICS LINK PROGRAM(LGUPVS01) at base/src/lgupdb01.cbl:209, COMMAREA(DFHCOMMAREA) LENGTH(225): the target is data-driven (candidates the engine found: LGUPVS01 (value)).
+     *  CICS resolves the name when the command runs (#4342): `program` is the PROGRAM field as the
+     *  COBOL holds it, its trailing blanks the name's padding. Returns the command's condition
+     *  (NORMAL, PGMIDERR, ...).
      *  Dynamic call targets field testing: open (5 public / 0 private estates). */
-    public Object dispatchLgupvs01L209(String program, Object request) {
-        switch (program.trim().toUpperCase(Locale.ROOT)) {
-            case "LGUPVS01":
-                return lgupvs01Service.getObject().handleLink((Lgupvs01Dfhcommarea) request);
-            default:
-                throw new IllegalArgumentException("LINK PROGRAM(LGUPVS01) at base/src/lgupdb01.cbl:209: no known target " + program);
-        }
+    public String dispatchLgupvs01L209(CicsTask task, String program, Object commarea, int length) {
+        return task.link(program.stripTrailing(), commarea, length);
     }
 
     /**

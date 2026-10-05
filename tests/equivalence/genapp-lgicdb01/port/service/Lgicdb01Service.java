@@ -39,15 +39,14 @@ public class Lgicdb01Service {
     private final ObjectProvider<LgstsqService> lgstsqService;
     private final CustomerRepository customerRepository;
 
-    /** The program is a CICS transaction (DSCI) with no batch entry: its logic is in runTask. */
-    public void executeLgicdb01(/* Parameters mapped from Controller */) {
-        log.info("Executing modernized business logic for lgicdb01");
-    }
-
-    /** A CICS transaction entered the program. */
+    /** A CICS transaction entered the program (#4343): one task of it in the region (CicsTask.region()),
+     *  ENTER pressed -- `request` its COMMAREA, null when started from a cleared screen -- run through runTask. Returns the COMMAREA its RETURN passes on (null: none). */
     public Lgicdb01Dfhcommarea handleTransaction(String transid, Lgicdb01Dfhcommarea request) {
         log.info("Lgicdb01: handleTransaction");
-        return request;
+        CicsTask.Region region = CicsTask.region();
+        CicsTask task = region.transaction(transid, request);
+        region.run(task, "LGICDB01", this::runTask);
+        return task.returned(Lgicdb01Dfhcommarea.class);
     }
 
     /** One task of LGICDB01: MAINLINE SECTION, GET-CUSTOMER-INFO, WRITE-ERROR-MESSAGE. */
@@ -249,9 +248,13 @@ public class Lgicdb01Service {
         return -1;
     }
 
-    /** Another program LINKed / XCTLed to this one. */
+    /** Another program LINKed / XCTLed to this one (#4343): the program at that level in the region
+     *  (CicsTask.region()), run through runTask on `request`, passed by reference -- what it changes, the caller sees. */
     public Lgicdb01Dfhcommarea handleLink(Lgicdb01Dfhcommarea request) {
         log.info("Lgicdb01: handleLink");
+        CicsTask.Region region = CicsTask.region();
+        CicsTask task = region.linked("LGICDB01", request);
+        region.run(task, "LGICDB01", this::runTask);
         return request;
     }
 

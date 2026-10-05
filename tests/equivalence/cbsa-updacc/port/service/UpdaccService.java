@@ -32,11 +32,6 @@ public class UpdaccService {
 
     private final AccountRepository accountRepository;
 
-    public void executeUpdacc(/* Parameters mapped from Controller */) {
-        log.info("Executing modernized business logic for UPDACC");
-        // UPDACC has no entry other than the CICS task (runTask) and LINK (handleLink); nothing to do here.
-    }
-
     /** PROCEDURE DIVISION run as a CICS task: PREMIERE / A010, then GET-ME-OUT-OF-HERE (EXEC CICS RETURN). */
     public void runTask(CicsTask task) {
         log.info("Updacc: runTask");
@@ -50,10 +45,13 @@ public class UpdaccService {
         task.returnTransid(null, null);   // GET-ME-OUT-OF-HERE: EXEC CICS RETURN
     }
 
-    /** Another program LINKed / XCTLed to this one: the same logic on the caller's COMMAREA. */
+    /** Another program LINKed / XCTLed to this one (#4343): the program at that level in the region
+     *  (CicsTask.region()), run through runTask on `request`, passed by reference -- what it changes, the caller sees. */
     public UpdaccDfhcommarea handleLink(UpdaccDfhcommarea request) {
         log.info("Updacc: handleLink");
-        updateAccount(request);
+        CicsTask.Region region = CicsTask.region();
+        CicsTask task = region.linked("UPDACC", request);
+        region.run(task, "UPDACC", this::runTask);
         return request;
     }
 

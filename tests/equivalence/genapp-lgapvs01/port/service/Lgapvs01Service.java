@@ -5,7 +5,7 @@ import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import com.gitgalaxy.modernized.cics.CicsTask;
-import com.gitgalaxy.modernized.dto.contract.Lgacdb01CaErrorMsg;
+import com.gitgalaxy.modernized.dto.contract.LgstsqDfhcommarea;
 import com.gitgalaxy.modernized.dto.contract.Lgapvs01Dfhcommarea;
 import com.gitgalaxy.modernized.entity.vsam.CobolEdit;
 import com.gitgalaxy.modernized.entity.vsam.WfPolicyInfo;
@@ -147,7 +147,7 @@ public class Lgapvs01Service {
         // EXEC CICS LINK PROGRAM('LGSTSQ') COMMAREA(ERROR-MSG) LENGTH(LENGTH OF ERROR-MSG)
         // TODO: layout mismatch kept from the source: LGSTSQ's commarea is CA-ERROR-MSG (90 data bytes);
         // the first 90 bytes of ERROR-MSG are mapped onto caData.
-        Lgacdb01CaErrorMsg first = new Lgacdb01CaErrorMsg();
+        LgstsqDfhcommarea first = new LgstsqDfhcommarea();
         first.setCaData(fit(errorMsg, 0, 90));
         task.link("LGSTSQ", first, 101);
 
@@ -156,7 +156,7 @@ public class Lgapvs01Service {
         int len = eibcalen == null ? 32500 : eibcalen;
         if (len > 0) {
             String whole = commareaText(ca);
-            Lgacdb01CaErrorMsg msg = new Lgacdb01CaErrorMsg();
+            LgstsqDfhcommarea msg = new LgstsqDfhcommarea();
             if (len < 91) {
                 // MOVE DFHCOMMAREA(1:EIBCALEN) TO CA-DATA (space padded)
                 msg.setCaData(fit(whole, 0, len) + " ".repeat(90 - len));
@@ -205,7 +205,7 @@ public class Lgapvs01Service {
     /** EXEC CICS LINK PROGRAM(LGSTSQ) at base/src/lgapvs01.cbl:169, base/src/lgapvs01.cbl:176, base/src/lgapvs01.cbl:182.
      *  Call targets field testing: open (6 public / 0 private estates). */
     // TODO: this site passes ERROR-MSG; LGSTSQ receives CA-ERROR-MSG (base/src/lgacdb01.cbl) -- map one layout onto the other
-    public Lgacdb01CaErrorMsg linkLgstsq(Lgacdb01CaErrorMsg request) {
+    public LgstsqDfhcommarea linkLgstsq(LgstsqDfhcommarea request) {
         return lgstsqService.getObject().handleLink(request);
     }
 

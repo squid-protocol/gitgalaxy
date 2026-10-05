@@ -15,8 +15,8 @@ Every cell that does not pass is ledgered in `tests/cics_crucible/baseline.json`
 | cobol-stub | 44 | 0 | 0 | 44 |
 | java | 0 | 44 | 0 | 44 |
 | java-ported | 44 | 0 | 0 | 44 |
-| java-facade | 38 | 6 | 0 | 44 |
-| **all** | **146** | **50** | **0** | **196** |
+| java-facade | 44 | 0 | 0 | 44 |
+| **all** | **152** | **44** | **0** | **196** |
 
 ## By trap and case
 
@@ -32,8 +32,8 @@ Pass counts per side (scenario sides: passing / scenarios).
 | ghost-tasks | `gt-terminal-coalesce` | pass | pass | 4 / 4 | 0 / 4 | 4 / 4 | 4 / 4 |
 | hex-attributes | `hx-attr-bytes` | pass | pass | 4 / 4 | 0 / 4 | 4 / 4 | 4 / 4 |
 | hex-attributes | `hx-extended-cursor` | pass | pass | 3 / 3 | 0 / 3 | 3 / 3 | 3 / 3 |
-| pseudo-conversational | `pc-aid-menu` | pass | pass | 4 / 4 | 0 / 4 | 4 / 4 | 3 / 4 |
-| pseudo-conversational | `pc-wizard` | pass | pass | 6 / 6 | 0 / 6 | 6 / 6 | 1 / 6 |
+| pseudo-conversational | `pc-aid-menu` | pass | pass | 4 / 4 | 0 / 4 | 4 / 4 | 4 / 4 |
+| pseudo-conversational | `pc-wizard` | pass | pass | 6 / 6 | 0 / 6 | 6 / 6 | 6 / 6 |
 
 ## COBOL coverage
 
@@ -72,10 +72,6 @@ Each feature a cell needs that its side does not model (`translator:` the COBOL 
 | side | reason | cells |
 |---|---|---|
 | java | runTask records no events (the generated stub: PROCEDURE DIVISION not ported) | 44 |
-| java-facade | RECEIVE-MAP expected, other event | 3 |
-| java-facade | SEND-MAP expected, other event | 1 |
-| java-facade | SEND-TEXT expected, other event | 1 |
-| java-facade | extra event | 1 |
 
 ## Every cell that does not pass
 
@@ -119,15 +115,9 @@ Each feature a cell needs that its side does not model (`translator:` the COBOL 
 | `pc-aid-menu/invalid-option/java` | fail | task 1 (PC11) event 1: SEND-MAP expected, the side recorded no further event |
 | `pc-aid-menu/option1-xctl/java` | fail | task 1 (PC11) event 1: SEND-MAP expected, the side recorded no further event |
 | `pc-aid-menu/option2-next-transid/java` | fail | task 1 (PC11) event 1: SEND-MAP expected, the side recorded no further event |
-| `pc-aid-menu/option2-next-transid/java-facade` | fail | task 2 (PC11) event 4: no further event expected, got DRIVER-ERROR (the task RETURNed a com.gitgalaxy.modernized.dto.contract.PcdetlWsCa, not a com.gitgalaxy.modernized.dto.contract.PcmenuWsCa) |
 | `pc-wizard/back-and-fix/java` | fail | task 1 (PC01) event 1: SEND-MAP expected, the side recorded no further event |
-| `pc-wizard/back-and-fix/java-facade` | fail | task 3 (PC03) event 1: RECEIVE-MAP expected, got DRIVER-ERROR (handleTransaction of PCCONF cannot take the COMMAREA (com.gitgalaxy.modernized.dto.contract.PcwizWsState) the task starts with) |
 | `pc-wizard/back-clear-keeps-amount/java` | fail | task 1 (PC01) event 1: SEND-MAP expected, the side recorded no further event |
-| `pc-wizard/back-clear-keeps-amount/java-facade` | fail | task 3 (PC03) event 1: RECEIVE-MAP expected, got DRIVER-ERROR (handleTransaction of PCCONF cannot take the COMMAREA (com.gitgalaxy.modernized.dto.contract.PcwizWsState) the task starts with) |
 | `pc-wizard/cancel-first-screen/java` | fail | task 1 (PC01) event 1: SEND-MAP expected, the side recorded no further event |
 | `pc-wizard/clear-and-bad-amount/java` | fail | task 1 (PC01) event 1: SEND-MAP expected, the side recorded no further event |
-| `pc-wizard/clear-and-bad-amount/java-facade` | fail | task 3 (PC03) event 1: SEND-MAP expected, got DRIVER-ERROR (handleTransaction of PCCONF cannot take the COMMAREA (com.gitgalaxy.modernized.dto.contract.PcwizWsState) the task starts with) |
 | `pc-wizard/happy-post/java` | fail | task 1 (PC01) event 1: SEND-MAP expected, the side recorded no further event |
-| `pc-wizard/happy-post/java-facade` | fail | task 3 (PC03) event 1: RECEIVE-MAP expected, got DRIVER-ERROR (handleTransaction of PCCONF cannot take the COMMAREA (com.gitgalaxy.modernized.dto.contract.PcwizWsState) the task starts with) |
 | `pc-wizard/mapfail-clear-cancel/java` | fail | task 1 (PC01) event 1: SEND-MAP expected, the side recorded no further event |
-| `pc-wizard/mapfail-clear-cancel/java-facade` | fail | task 5 (PC03) event 1: SEND-TEXT expected, got DRIVER-ERROR (handleTransaction of PCCONF cannot take the COMMAREA (com.gitgalaxy.modernized.dto.contract.PcwizWsState) the task starts with) |

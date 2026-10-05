@@ -60,13 +60,20 @@ public class PcconfService {
     }
 
     /** A CICS transaction entered the program (#4343): one task of it in the region (CicsTask.region()),
-     *  ENTER pressed -- `request` its COMMAREA, null when started from a cleared screen -- run through runTask. Returns the COMMAREA its RETURN passes on (null: none). */
-    public PcconfWsState handleTransaction(String transid, PcconfWsState request) {
+     *  ENTER pressed -- `request` its COMMAREA, null when started from a cleared screen -- run through runTask. Returns the COMMAREA its RETURN passes on (null: none).
+     *  The COMMAREA crosses programs (#4427): COBOL passes bytes, and each program reads them through its
+     *  own record, so a port may pass either record -- the facade carries it as Object where a flow
+     *  presents another class, and runTask reads it (task.commarea(..)). The flows:
+     *  in: RETURN TRANSID(PC03) COMMAREA(WS-STATE) at src/PCWIZ.cbl:78 -> src/PCCONF.cbl (PcwizWsState besides PcconfWsState).
+     *  out: RETURN TRANSID(PC02) COMMAREA(WS-STATE) at src/PCWIZ.cbl:65 -> src/PCWIZ.cbl, after an XCTL from src/PCCONF.cbl (PcwizWsState besides PcconfWsState).
+     *  out: RETURN TRANSID(PC03) COMMAREA(WS-STATE) at src/PCWIZ.cbl:78 -> src/PCCONF.cbl, after an XCTL from src/PCCONF.cbl (PcwizWsState besides PcconfWsState).
+     */
+    public Object handleTransaction(String transid, Object request) {
         log.info("Pcconf: handleTransaction");
         CicsTask.Region region = CicsTask.region();
         CicsTask task = region.transaction(transid, request);
         region.run(task, "PCCONF", this::runTask);
-        return task.returned(PcconfWsState.class);
+        return task.returned(Object.class);
     }
 
     /** One pseudo-conversational task of this program (#3754). */

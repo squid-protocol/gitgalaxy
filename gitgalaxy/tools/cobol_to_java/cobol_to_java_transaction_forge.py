@@ -1705,6 +1705,11 @@ class CicsProgram:
     containers: list[dict] = field(default_factory=list)
     status: dict[str, str] = field(default_factory=dict)  # section -> field-testing text
     sections: dict[str, Any] = field(default_factory=dict)
+    # #4427: the COMMAREA at the program's transaction boundary -- what handleTransaction takes and answers. The
+    # program's own DTO, unless a RETURN TRANSID carries the COMMAREA across programs (`crossings`): then Object.
+    txn_request: str | None = None
+    txn_response: str | None = None
+    crossings: list[str] = field(default_factory=list)  # the RETURN TRANSID flows that cross, as sentences
 
 
 def incoming_links(skeleton: dict) -> list[dict]:
@@ -1763,6 +1768,7 @@ class CicsForge:
         self.dtos: dict[str, Dto] = {}
         self._by_signature: dict[tuple, str] = {}
         self.programs = {key: self._plan(key, sk) for key, sk in sorted(skeletons.items()) if is_cics_program(sk)}
+        self._plan_conversations()
 
     # ---- DTOs ---------------------------------------------------------------
     def _dto_for(self, record: str, file: str, layout: dict, owner_cls: str, javadoc: list[str], use: str = "") -> str:
@@ -1952,6 +1958,82 @@ class CicsForge:
                 prog.channel_out = name
         return prog
 
+    def _plan_conversations(self) -> None:
+        """#4427: the COMMAREA a pseudo-conversation carries across programs. `RETURN TRANSID(t) COMMAREA(ws)` starts
+        the next task in whichever program owns `t`, and that program reads the same bytes through its own record:
+        COBOL passes bytes, never a type. So at a transaction boundary the COMMAREA may arrive -- and leave -- as the
+        sending program's record (its RETURN's `ws`) or the receiving program's (its DFHCOMMAREA): a port may present
+        it in either. handleTransaction takes the program's own DTO only when every RETURN TRANSID into its
+        transactions presents no other class, and answers with it only when every RETURN TRANSID its task can end in
+        does the same -- its own, and those of every program an XCTL chain from it reaches (an XCTL keeps the task);
+        otherwise that side is Object -- the COMMAREA as whichever record the port passed, read by runTask
+        through task.commarea(..). The flows are the skeleton's commarea_contracts rows (verb RETURN TRANSID)."""
+        by_file = {p.path: p for p in self.programs.values()}
+        record_dtos: dict[tuple[str, str], set[str]] = {}
+        for sig, name in self._by_signature.items():
+            record_dtos.setdefault((sig[0].upper(), sig[1]), set()).add(name)
+
+        def classes(row: dict) -> set[str | None]:
+            sender, receiver = by_file.get(row.get("caller", "")), by_file.get(row.get("callee", ""))
+            if sender is not None and sender is receiver:  # a program RETURNing to itself: its own record
+                return {sender.commarea_dto}
+            # the sender presents its record as its own COMMAREA DTO when that is one of the record's DTOs, else as
+            # the record's only DTO; a record with several DTOs (extended copies) and no planned sender: unknown
+            rec = row.get("caller_record") or {}
+            dtos = record_dtos.get((str(rec.get("name") or row.get("commarea") or "").upper(), rec.get("file") or ""),
+                                   set())  # fmt: skip
+            if sender is not None and (sender.commarea_dto in dtos or len(dtos) != 1):
+                sent = sender.commarea_dto
+            else:
+                sent = next(iter(dtos)) if len(dtos) == 1 else None
+            return {sent, receiver.commarea_dto if receiver is not None else None}
+
+        # every RETURN TRANSID with a COMMAREA, and every XCTL, the estate's skeletons know (each lists its own sites
+        # and those reaching it): an XCTL keeps the task, so the task's RETURN may be any program XCTLed to's
+        returns: dict[tuple, dict] = {}
+        xctl: dict[str, set[str]] = {}
+        for q in self.programs.values():
+            for r in (q.sections.get("commarea_contracts") or {}).get("facts", []):
+                if r.get("verb") == "RETURN TRANSID":
+                    returns.setdefault((r.get("caller", ""), r.get("line") or 0, r.get("target") or ""), r)
+            for r in (q.sections.get("navigation") or {}).get("facts", []):
+                if r.get("verb") == "XCTL" and r.get("from") and r.get("to"):
+                    xctl.setdefault(r["from"], set()).add(r["to"])
+        flows = [returns[k] for k in sorted(returns)]
+
+        def task_programs(path: str) -> set[str]:
+            """The programs a task started in `path` can end in: itself and every program an XCTL chain reaches."""
+            seen, todo = {path}, [path]
+            while todo:
+                for nxt in sorted(xctl.get(todo.pop(), ())):
+                    if nxt not in seen:
+                        seen.add(nxt)
+                        todo.append(nxt)
+            return seen
+
+        for prog in self.programs.values():
+            own = prog.commarea_dto
+            prog.txn_request = prog.txn_response = own
+            if not own or not prog.transactions:
+                continue
+            ends = task_programs(prog.path)
+            sides = (("in", "txn_request", [r for r in flows if r.get("callee") == prog.path]),
+                     ("out", "txn_response", [r for r in flows if r.get("caller") in ends]))  # fmt: skip
+            for side, attr, rows in sides:
+                for r in rows:
+                    seen = classes(r)
+                    if seen == {own}:
+                        continue
+                    setattr(prog, attr, "Object")
+                    rec = (r.get("caller_record") or {}).get("name") or r.get("commarea") or "a COMMAREA"
+                    other = sorted(c for c in seen if c and c != own)
+                    as_ = f" ({', '.join(other)} besides {own})" if other else f" (no DTO besides {own})"
+                    via = "" if side == "in" or r.get("caller") == prog.path else f", after an XCTL from {prog.path}"
+                    line = (f"{side}: RETURN TRANSID({r.get('target')}) COMMAREA({rec}) at {r.get('caller')}:"
+                            f"{r.get('line')} -> {r.get('callee') or 'a program the estate does not resolve'}{via}{as_}")  # fmt: skip
+                    if line not in prog.crossings:
+                        prog.crossings.append(line)
+
     # ---- Java ---------------------------------------------------------------
     def dto_sources(self) -> dict[str, str]:
         """DTO class name -> Java source (package <pkg>.dto.contract)."""
@@ -2052,8 +2134,11 @@ class CicsForge:
             )
             java.append(f"    /** CICS transaction {txn['transid']} -> {cls} (CSD {defs}). */")
             java.append(f'    @PostMapping("/transactions/{txn["segment"]}")')
+            # #4427: the facade answers Object where a RETURN TRANSID carries the COMMAREA across programs; the
+            # endpoint's body stays the program's own record (JSON needs a concrete class)
+            treq, tresp = (req, prog.txn_response) if resp == req and req and prog.txn_response else (req, resp)
             java += self._endpoint(f"transaction{txn['segment']}", svc, "handleTransaction",
-                                   json.dumps(txn["transid"]), req, resp)  # fmt: skip
+                                   json.dumps(txn["transid"]), treq, tresp)  # fmt: skip
             if self.trace:
                 facts = [
                     {
@@ -2244,18 +2329,28 @@ class CicsForge:
         if prog.transactions and facade:
             # #4343: the deployed entry point runs the program -- one task of it in the region -- so it is comparable
             # with the COBOL (the CICS crucible drives scenarios through it); #4342: never an entry that does nothing
-            params = "String transid" + (f", {req} request" if req else "")
+            # #4427: the COMMAREA the estate's RETURN TRANSID flows carry -- Object where one crosses programs
+            treq, tresp = (prog.txn_request, prog.txn_response) if resp == req and req else (req, None)
+            params = "String transid" + (f", {treq} request" if treq else "")
+            crossing = [
+                "     *  The COMMAREA crosses programs (#4427): COBOL passes bytes, and each program reads them through its",
+                "     *  own record, so a port may pass either record -- the facade carries it as Object where a flow",
+                "     *  presents another class, and runTask reads it (task.commarea(..)). The flows:",
+                *[f"     *  {c}." for c in prog.crossings],
+            ] if prog.crossings else []  # fmt: skip
             methods += [
                 "    /** A CICS transaction entered the program (#4343): one task of it in the region (CicsTask.region()),",
-                "     *  ENTER pressed" + (" -- `request` its COMMAREA, null when started from a cleared screen --" if req
+                "     *  ENTER pressed" + (" -- `request` its COMMAREA, null when started from a cleared screen --" if treq
                                           else ", started from a cleared screen,") + " run through runTask"
-                + (". Returns the COMMAREA its RETURN passes on (null: none). */" if resp == req and req else ". */"),
-                f"    public {resp if resp == req and req else 'void'} handleTransaction({params}) {{",
+                + (". Returns the COMMAREA its RETURN passes on (null: none)." if tresp else ".")
+                + ("" if crossing else " */"),
+                *crossing, *(["     */"] if crossing else []),
+                f"    public {tresp or 'void'} handleTransaction({params}) {{",
                 f'        log.info("{prog.cls}: handleTransaction");',
                 "        CicsTask.Region region = CicsTask.region();",
-                f"        CicsTask task = region.transaction(transid, {'request' if req else 'null'});",
+                f"        CicsTask task = region.transaction(transid, {'request' if treq else 'null'});",
                 f"        region.run(task, {name}, this::runTask);",
-                *([f"        return task.returned({req}.class);"] if resp == req and req else []),
+                *([f"        return task.returned({tresp}.class);"] if tresp else []),
                 "    }\n",
             ]  # fmt: skip
         elif prog.transactions:

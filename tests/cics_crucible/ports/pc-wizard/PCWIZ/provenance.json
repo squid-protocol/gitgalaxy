@@ -38,14 +38,28 @@
     "port_sha256": "e08b8607ad47b94bbbfae8b3bd7d0b58ff13f1a107727e6f03a4b3ec835fcefb",
     "harness_commit": "16ae9e01515581be224b32982ceae54bc73e68fb",
     "by": "tests/tools/crucible_port_provenance.py reprove (cics_crucible.py --sides java-ported --program PCWIZ --report-dir)"
+   },
+   {
+    "at": "2026-10-05T11:41:18+00:00",
+    "crucible_ref": "v0.2.0 (94f2afcb)",
+    "summary": {
+     "back-and-fix": "1/1",
+     "back-clear-keeps-amount": "1/1",
+     "cancel-first-screen": "1/1",
+     "clear-and-bad-amount": "1/1",
+     "happy-post": "1/1",
+     "mapfail-clear-cancel": "1/1"
+    },
+    "port_sha256": "d7df727126898e4e9fdde8fa3be58a528f9985b8320870bc7eab752990a1284f",
+    "harness_commit": "b85fc0e2ec987f60b87a38a72bda9faaee2120e2",
+    "by": "tests/tools/crucible_port_provenance.py reprove (cics_crucible.py --sides java-ported java-facade --program PCWIZ --report-dir)",
+    "entry_points": [
+     "runTask",
+     "handleLink",
+     "handleTransaction"
+    ]
    }
-  ],
-  "stale": {
-   "against": "v0.2.0",
-   "at": "2026-10-05T10:34:40+00:00",
-   "reason": "re-proof at v0.2.0 (94f2afcb) failed: {'back-and-fix': '0/1', 'back-clear-keeps-amount': '0/1', 'cancel-first-screen': '1/1', 'clear-and-bad-amount': '0/1', 'happy-post': '0/1', 'mapfail-clear-cancel': '0/1'}",
-   "needs": "#4427: the generated handleTransaction types the COMMAREA as the program's own DTO, so a deployed facade cannot take (PCCONF: PCWIZ's PcwizWsState at PC03) or return (PCMENU: PcdetlWsCa for PC12) the COMMAREA the pseudo-conversation carries across programs; runTask (java-ported) passes every scenario. Fix the generator, regenerate (port_surface.py crucible), then reprove"
-  }
+  ]
  },
  "approved": false,
  "history": [
@@ -92,6 +106,16 @@
    ],
    "helpers_removed": [
     "returnedCommarea"
+   ]
+  },
+  {
+   "at": "2026-10-05T11:22:20+00:00",
+   "event": "resurfaced",
+   "by": "tests/tools/port_surface.py",
+   "generator_commit": "d69a63419",
+   "generated_from": "service/PcwizService.java",
+   "replaced": [
+    "handleTransaction"
    ]
   }
  ],

@@ -35,14 +35,25 @@
     "port_sha256": "db446c6f55fe8752de1b7f98f58cb9bb110ead23a8ad74b37dff52e0bb0be6ae",
     "harness_commit": "16ae9e01515581be224b32982ceae54bc73e68fb",
     "by": "tests/tools/crucible_port_provenance.py reprove (cics_crucible.py --sides java-ported --program PCDETL --report-dir)"
+   },
+   {
+    "at": "2026-10-05T11:40:47+00:00",
+    "crucible_ref": "v0.2.0 (94f2afcb)",
+    "summary": {
+     "aid-keys": "1/1",
+     "option1-xctl": "1/1",
+     "option2-next-transid": "1/1"
+    },
+    "port_sha256": "ee94ffd3b9535cbcc0fb6df629aa84816029e16c56d617b1a42031b771c74919",
+    "harness_commit": "b85fc0e2ec987f60b87a38a72bda9faaee2120e2",
+    "by": "tests/tools/crucible_port_provenance.py reprove (cics_crucible.py --sides java-ported java-facade --program PCDETL --report-dir)",
+    "entry_points": [
+     "runTask",
+     "handleLink",
+     "handleTransaction"
+    ]
    }
-  ],
-  "stale": {
-   "against": "v0.2.0",
-   "at": "2026-10-05T10:34:09+00:00",
-   "reason": "re-proof at v0.2.0 (94f2afcb) failed: {'aid-keys': '1/1', 'option1-xctl': '1/1', 'option2-next-transid': '0/1'}",
-   "needs": "#4427: the generated handleTransaction types the COMMAREA as the program's own DTO, so a deployed facade cannot take (PCCONF: PCWIZ's PcwizWsState at PC03) or return (PCMENU: PcdetlWsCa for PC12) the COMMAREA the pseudo-conversation carries across programs; runTask (java-ported) passes every scenario. Fix the generator, regenerate (port_surface.py crucible), then reprove"
-  }
+  ]
  },
  "approved": false,
  "history": [
@@ -99,6 +110,16 @@
    ],
    "removed": [
     "executePcdetl"
+   ]
+  },
+  {
+   "at": "2026-10-05T11:22:20+00:00",
+   "event": "resurfaced",
+   "by": "tests/tools/port_surface.py",
+   "generator_commit": "d69a63419",
+   "generated_from": "service/PcdetlService.java",
+   "replaced": [
+    "handleTransaction"
    ]
   }
  ],

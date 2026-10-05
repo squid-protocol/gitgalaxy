@@ -8986,6 +8986,10 @@ class StructuralExtractor:
     _COBOL_DIVISION_HEADER: ClassVar[re.Pattern[str]] = re.compile(
         r"(IDENTIFICATION|ID|ENVIRONMENT|DATA|PROCEDURE)[ \t]+DIVISION\b", re.I
     )
+    _COBOL_DIVISION_WORD: ClassVar[re.Pattern[str]] = re.compile(r"DIVISION\b", re.I)
+    _COBOL_DIVISION_NAMES: ClassVar[frozenset[str]] = frozenset(
+        {"IDENTIFICATION", "ID", "ENVIRONMENT", "DATA", "PROCEDURE"}
+    )
     _COBOL_FREE_DATA_ENTRY: ClassVar[re.Pattern[str]] = re.compile(r"[ \t]*(?:[0-9]{1,2}|FD|SD|RD|CD)[ \t]", re.I)
 
     def _cobol_sentence_start_offsets(self, code: str) -> set[int]:
@@ -9015,6 +9019,7 @@ class StructuralExtractor:
         """
         starts: set[int] = set()
         outside_procedure = False  # #4306: inside an IDENTIFICATION / ENVIRONMENT / DATA division
+        pending_division: Optional[str] = None  # #4306: a division name alone on the previous content line
         opens_sentence = True  # the first line of the stream
         pos = 0
         # #4264: only a fixed-format line ends at column 72; a free-format one runs on, and its
@@ -9037,6 +9042,16 @@ class StructuralExtractor:
                 division = self._COBOL_DIVISION_HEADER.match(text)
                 if division:
                     outside_procedure = division.group(1).upper() != "PROCEDURE"
+                    pending_division = None
+                elif pending_division and self._COBOL_DIVISION_WORD.match(text):
+                    # #4306: the header split over lines -- `PROCEDURE` / `DIVISION` / `.` (NIST NC1134.2.cbl
+                    # lines 116-118): the division word on its own line, DIVISION on the next one.
+                    outside_procedure = pending_division != "PROCEDURE"
+                    pending_division = None
+                else:
+                    words = text.split()
+                    lone = words[0].upper() if len(words) == 1 else ""
+                    pending_division = lone if lone in self._COBOL_DIVISION_NAMES else None
                 # A continuation line (`-` in column 7) belongs to the sentence
                 # above it, and a blank line decides nothing -- only a line with
                 # real content updates the verdict.

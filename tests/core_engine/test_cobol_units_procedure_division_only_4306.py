@@ -52,7 +52,9 @@ def test_idms_control_protocol_and_schema_are_not_units():
 
 
 def test_idms_dc_map_section_is_not_a_unit():
-    code = IDMSSCH.replace("       WORKING-STORAGE SECTION.", "       MAP SECTION.\n       MAP-X.\n       WORKING-STORAGE SECTION.")
+    code = IDMSSCH.replace(
+        "       WORKING-STORAGE SECTION.", "       MAP SECTION.\n       MAP-X.\n       WORKING-STORAGE SECTION."
+    )
     assert _units(code) == ["MAIN-PARA"]
 
 
@@ -98,3 +100,26 @@ def test_a_nested_program_resets_to_its_own_divisions():
         + "       PROCEDURE DIVISION.\n       INNER-PARA.\n           GOBACK.\n"
     )
     assert _units(code) == ["MAIN-PARA", "INNER-PARA"]
+
+
+def test_a_division_header_split_over_lines_is_still_the_procedure_division():
+    # NIST che-che4z_nist_ccvs85/NC1134.2.cbl:116-118 writes `PROCEDURE` / `DIVISION` / `.` on three
+    # lines; reading only one-line headers dropped every one of its 29 paragraphs.
+    code = (
+        "000100    IDENTIFICATION DIVISION.                                      NC1134.2\n"
+        "000200    PROGRAM-ID. NC1134.                                           NC1134.2\n"
+        "003600    DATA                                                          NC1134.2\n"
+        "003700     DIVISION.                                                    NC1134.2\n"
+        "003800    WORKING-STORAGE SECTION.                                      NC1134.2\n"
+        "003900    01  WS-A PIC X.                                               NC1134.2\n"
+        "011900    PROCEDURE                                                     NC1134.2\n"
+        "012000      DIVISION                                                    NC1134.2\n"
+        "012100               .                                                  NC1134.2\n"
+        "012200    OPEN-FILES.                                                   NC1134.2\n"
+        "012300     OPEN     OUTPUT PRINT-FILE.                                  NC1134.2\n"
+        "012400    CLOSE-FILES.                                                  NC1134.2\n"
+        "012500     CLOSE    PRINT-FILE.                                         NC1134.2\n"
+    )
+    assert _units(code) == ["OPEN-FILES", "CLOSE-FILES"]
+    # the split DATA header still closes the units that a header shape inside it would open
+    assert "WORKING-STORAGE" not in _units(code)

@@ -7,7 +7,7 @@
   "paths": [
    "tests/equivalence/carddemo-intcalc/port/service/Cbact04cService.java"
   ],
-  "sha256": "c47deb88dc1a5b9f997323fc4d13a693714758009b000fd33f4919c2e529016d",
+  "sha256": "a938f51b2ce5831f293fe23e3949277ef7e8c2538568d6d4abe9768154676642",
   "entry_points": [
    "runBatch"
   ]
@@ -18,7 +18,7 @@
     "tests/equivalence/carddemo-intcalc/port/**"
    ],
    "files": 1,
-   "sha256": "c47deb88dc1a5b9f997323fc4d13a693714758009b000fd33f4919c2e529016d"
+   "sha256": "a938f51b2ce5831f293fe23e3949277ef7e8c2538568d6d4abe9768154676642"
   },
   "case": {
    "paths": [
@@ -42,7 +42,7 @@
     "tests/tools/java_target_matrix.py"
    ],
    "files": 11,
-   "sha256": "609073a350a3120d63bf3cb3e7f6a1050a9fc8a91964ac548b2826356f319cbc"
+   "sha256": "1764f900744b3e9c121722acf2c84aee1ef8dded04fa68f429e0abc39f031fd9"
   },
   "oracle": {
    "paths": [
@@ -62,7 +62,7 @@
     "gitgalaxy/tools/cobol_to_java/**"
    ],
    "files": 60,
-   "sha256": "880250850d919c29f8ace3eb0d7183156a05354438ea79f72a417febb9e57e68"
+   "sha256": "674777fda7f1a297b554ec1935d0b26aa8d37f65f65e150a94fab7dd570a0866"
   },
   "corpus": {
    "name": "aws-mainframe-modernization-carddemo",
@@ -72,10 +72,10 @@
   "differences": {
    "sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
   },
-  "digest": "f2df77e879f5d5c843b96218bf2e7db4e0a70c202c0f5e74ec7cdaaadc3fdae7"
+  "digest": "2481ea184488283dd4831ae2371b261cc37e73b1ef0e3ad36858fd8f6598033b"
  },
  "proof": {
-  "at": "2026-10-04T15:30:58Z",
+  "at": "2026-10-05T05:57:02Z",
   "verdict": "proven",
   "runs": 20,
   "fault_runs": 19,
@@ -94,8 +94,8 @@
   "sysout_compared": true,
   "attributes_compared": null,
   "java_failed": false,
-  "harness_commit": "b2054a86377f7ca2f42496e4c64cad8091ae4818",
-  "inputs_digest": "f2df77e879f5d5c843b96218bf2e7db4e0a70c202c0f5e74ec7cdaaadc3fdae7"
+  "harness_commit": "d03da8b743917a29a13e48709fb0c7f6ad778528+uncommitted",
+  "inputs_digest": "2481ea184488283dd4831ae2371b261cc37e73b1ef0e3ad36858fd8f6598033b"
  },
  "coverage": {
   "paragraphs": {
@@ -119,7 +119,7 @@
    "total": 0
   },
   "source": "the proof's own traced COBOL runs (cobol_coverage.py)",
-  "inputs_digest": "f2df77e879f5d5c843b96218bf2e7db4e0a70c202c0f5e74ec7cdaaadc3fdae7"
+  "inputs_digest": "2481ea184488283dd4831ae2371b261cc37e73b1ef0e3ad36858fd8f6598033b"
  },
  "reach": {
   "entry_points": [
@@ -128,42 +128,36 @@
   "unproven": [
    {
     "class": "Cbact04cService",
-    "method": "executeCbact04c",
-    "line": 87,
-    "kind": "stub"
-   },
-   {
-    "class": "Cbact04cService",
     "method": "readAccountFile",
-    "line": 91,
+    "line": 87,
     "kind": "left_as_generated"
    },
    {
     "class": "Cbact04cService",
     "method": "rewriteAccountFile",
-    "line": 95,
+    "line": 91,
     "kind": "left_as_generated"
    },
    {
     "class": "Cbact04cService",
     "method": "readXrefFile",
-    "line": 99,
+    "line": 95,
     "kind": "left_as_generated"
    },
    {
     "class": "Cbact04cService",
     "method": "readDiscgrpFile",
-    "line": 103,
+    "line": 99,
     "kind": "left_as_generated"
    }
   ],
   "counts": {
-   "stub": 1,
+   "stub": 0,
    "left_as_generated": 4,
    "ported_unproven": 0
   },
   "generated_compared": true,
-  "port_sha256": "c47deb88dc1a5b9f997323fc4d13a693714758009b000fd33f4919c2e529016d"
+  "port_sha256": "a938f51b2ce5831f293fe23e3949277ef7e8c2538568d6d4abe9768154676642"
  },
  "mutation": null,
  "differences": [],
@@ -251,7 +245,7 @@
  "provenance": {
   "written_by": "person",
   "author": "Joe Esquibel",
-  "first_commit": "0c2e0018",
+  "first_commit": "0c2e00183",
   "first_committed": "2026-09-26",
   "model": null,
   "provenance_file": null,

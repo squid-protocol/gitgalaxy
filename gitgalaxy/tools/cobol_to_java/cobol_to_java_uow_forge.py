@@ -438,6 +438,11 @@ class UowForge:
                     )
 
             elif kind == "HANDLE_ABEND":
+                # #4342: HANDLE ABEND CANCEL / RESET (no LABEL, no PROGRAM) deactivates / reactivates the exit an
+                # earlier HANDLE ABEND set up; CICS never transfers control to it, so it gets no handler method (the
+                # port writes it inline: task.handleAbendCancel() / handleAbendReset())
+                if h.get("target_kind") in ("CANCEL", "RESET") or not h.get("target"):
+                    continue
                 self.counts["handlers"] += 1
                 method_code = [
                     "    /**",
@@ -468,9 +473,11 @@ class UowForge:
                     )
 
             elif kind == "HANDLE_CONDITION":
-                self.counts["handlers"] += 1
-                if not condition:
+                # #4342: a condition named with no label (target_kind DEFAULT) restores CICS's default action for it;
+                # nothing receives control, so no handler method
+                if not condition or h.get("target_kind") == "DEFAULT" or not h.get("target"):
                     continue
+                self.counts["handlers"] += 1
                 sanitized_cond = java_class_base(re.sub(r"[^A-Za-z0-9]", "", condition))
                 method_code = [
                     "    /**",

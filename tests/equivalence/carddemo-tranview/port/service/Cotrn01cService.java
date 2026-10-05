@@ -6,11 +6,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import com.gitgalaxy.modernized.batch.Sysout;
 import com.gitgalaxy.modernized.cics.CicsTask;
-import com.gitgalaxy.modernized.dto.contract.CarddemoCommarea;
-import com.gitgalaxy.modernized.dto.contract.Cotrn00cCarddemoCommarea;
 import com.gitgalaxy.modernized.dto.contract.Cotrn01cCarddemoCommarea;
 import com.gitgalaxy.modernized.dto.screen.Cotrn1aScreen;
-import com.gitgalaxy.modernized.dto.screen.ScreenModel;
 import com.gitgalaxy.modernized.entity.vsam.CobolEdit;
 import com.gitgalaxy.modernized.entity.vsam.CobolRecords;
 import com.gitgalaxy.modernized.entity.vsam.TranRecord;
@@ -18,10 +15,8 @@ import com.gitgalaxy.modernized.repository.vsam.TranRecordRepository;
 import com.gitgalaxy.modernized.util.CobolCompare;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
-import java.util.List;
 import java.util.Locale;
 import java.util.Optional;
-import org.springframework.beans.factory.ObjectProvider;
 import org.springframework.transaction.annotation.Transactional;
 
 /**
@@ -44,9 +39,6 @@ public class Cotrn01cService {
     private static final String CCDA_TITLE02 = "              CardDemo                  ";
     private static final String CCDA_MSG_INVALID_KEY = "Invalid key pressed. Please see below...         ";
 
-    private final ObjectProvider<Comen01cService> comen01cService;
-    private final ObjectProvider<Cosgn00cService> cosgn00cService;
-    private final ObjectProvider<Cotrn00cService> cotrn00cService;
     private final TranRecordRepository tranRecordRepository;
 
     /** The program's working storage for one task. */
@@ -59,15 +51,14 @@ public class Cotrn01cService {
         boolean cursor;                // TRNIDINL = -1
     }
 
-    public void executeCotrn01c(/* Parameters mapped from Controller */) {
-        log.info("Executing modernized business logic for COTRN01C");
-        // The program's logic is a CICS task: it is ported in runTask(CicsTask).
-    }
-
-    /** A CICS transaction entered the program. TODO: [AI AGENT] implement from the program's business rules. */
+    /** A CICS transaction entered the program (#4343): one task of it in the region (CicsTask.region()),
+     *  ENTER pressed -- `request` its COMMAREA, null when started from a cleared screen -- run through runTask. Returns the COMMAREA its RETURN passes on (null: none). */
     public Cotrn01cCarddemoCommarea handleTransaction(String transid, Cotrn01cCarddemoCommarea request) {
         log.info("Cotrn01c: handleTransaction");
-        return request;
+        CicsTask.Region region = CicsTask.region();
+        CicsTask task = region.transaction(transid, request);
+        region.run(task, "COTRN01C", this::runTask);
+        return task.returned(Cotrn01cCarddemoCommarea.class);
     }
 
     /** One pseudo-conversational task of this program (#3754): MAIN-PARA. */
@@ -190,7 +181,7 @@ public class Cotrn01cService {
         cc.setCdemoFromTranid(x(WS_TRANID, 4));
         cc.setCdemoFromProgram(x(WS_PGMNAME, 8));
         cc.setCdemoPgmContext(0);
-        String resp = c.task.xctl(cc.getCdemoToProgram().trim(), cc);
+        String resp = dispatchCdemoToProgramL205(c.task, cc.getCdemoToProgram(), cc);   // line 205
         if (!"NORMAL".equals(resp)) {
             // no RESP on the XCTL: the condition takes CICS's default action
             c.task.abendOnCondition(resp);
@@ -371,44 +362,28 @@ public class Cotrn01cService {
         return cc;
     }
 
-    /** Another program LINKed / XCTLed to this one. TODO: [AI AGENT] implement from the program's business rules. */
+    /** Another program LINKed / XCTLed to this one (#4343): the program at that level in the region
+     *  (CicsTask.region()), run through runTask on `request`, passed by reference -- what it changes, the caller sees. */
     public Cotrn01cCarddemoCommarea handleLink(Cotrn01cCarddemoCommarea request) {
         log.info("Cotrn01c: handleLink");
+        CicsTask.Region region = CicsTask.region();
+        CicsTask task = region.linked("COTRN01C", request);
+        region.run(task, "COTRN01C", this::runTask);
         return request;
     }
 
-    /** XCTL PROGRAM(CDEMO-TO-PROGRAM) at app/cbl/COTRN01C.cbl:205: the target is data-driven. Candidates: COMEN01C (moves), COSGN00C (moves), COTRN00C (moves).
-     *  Also MOVEd from CDEMO-FROM-PROGRAM, whose content is not known statically: those names reach the default branch.
+    /** EXEC CICS XCTL PROGRAM(CDEMO-TO-PROGRAM) at app/cbl/COTRN01C.cbl:205, COMMAREA(CARDDEMO-COMMAREA): the target is data-driven (candidates the engine found: COMEN01C (moves), COSGN00C (moves), COTRN00C (moves)).
+     *  Also MOVEd from CDEMO-FROM-PROGRAM, whose content is not known statically.
+     *  CICS resolves the name when the command runs (#4342): `program` is the PROGRAM field as the
+     *  COBOL holds it, its trailing blanks the name's padding. Returns the command's condition
+     *  (NORMAL, PGMIDERR, ...).
      *  Dynamic call targets field testing: open (5 public / 0 private estates). */
-    public Object dispatchCdemoToProgramL205(String program, Object request) {
-        switch (program.trim().toUpperCase(Locale.ROOT)) {
-            case "COMEN01C":
-                return comen01cService.getObject().handleLink((CarddemoCommarea) request);
-            case "COSGN00C":
-                cosgn00cService.getObject().handleLink();
-                return null;
-            case "COTRN00C":
-                return cotrn00cService.getObject().handleLink((Cotrn00cCarddemoCommarea) request);
-            default:
-                throw new IllegalArgumentException("XCTL PROGRAM(CDEMO-TO-PROGRAM) at app/cbl/COTRN01C.cbl:205: no known target " + program);
-        }
+    public String dispatchCdemoToProgramL205(CicsTask task, String program, Object commarea) {
+        return task.xctl(program.stripTrailing(), commarea);
     }
 
     /** AWS.M2.CARDDEMO.TRANSACT.VSAM.KSDS as CICS file TRANSACT at app/cbl/COTRN01C.cbl:269; VSAM defines field testing: open (3 public / 0 private estates). */
     public Optional<TranRecord> readTransact(String key) {
         return tranRecordRepository.findById(key);
     }
-
-    /** SEND MAP(COTRN1A) MAPSET(COTRN01) FROM(COTRN1AO) at app/cbl/COTRN01C.cbl:219 (#3619); the logic that
-     *  fills COTRN1AO is in runTask / sendTrnviewScreen. */
-    public Cotrn1aScreen renderCotrn1a(Cotrn1aScreen screen) {
-        return screen;
-    }
-
-    /** RECEIVE MAP(COTRN1A) MAPSET(COTRN01) INTO(COTRN1AI) at app/cbl/COTRN01C.cbl:232 (#3619); the
-     *  pseudo-conversational logic is in runTask. */
-    public ScreenModel submitCotrn1a(Cotrn1aScreen input, String aid) {
-        return renderCotrn1a(input);
-    }
-
 }

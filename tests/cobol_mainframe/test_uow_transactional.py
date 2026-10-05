@@ -1,3 +1,4 @@
+import json
 import pytest
 import shutil
 from pathlib import Path
@@ -29,6 +30,9 @@ def uow_corpus(tmp_path: Path) -> Path:
            END-IF.
            EXEC CICS READ DATASET('FILE2') INTO(WS-DATA) RIDFLD(WS-KEY) RESP(WS-RESP) END-EXEC.
            EXEC CICS RETURN END-EXEC.
+           EXEC CICS HANDLE ABEND CANCEL END-EXEC.
+           EXEC CICS HANDLE ABEND RESET END-EXEC.
+           EXEC CICS HANDLE CONDITION NOTFND END-EXEC.
        ERR-PARA.
            CONTINUE.
 """)
@@ -84,6 +88,16 @@ def test_uow_transactional(uow_corpus: Path, tmp_path: Path):
     assert "public void abendAbc1L7()" in uow_cics
     assert "public void onAbendL8(CicsAbendException e)" in uow_cics
     assert "public void onConditionNotfndL9(CicsConditionException e)" in uow_cics
+    # #4342: HANDLE ABEND CANCEL / RESET and a condition named with no label set up no exit -- CICS never transfers
+    # control to them -- so they get no handler method (the port writes them inline through its task)
+    assert "onAbendL16" not in uow_cics and "onAbendL17" not in uow_cics and "onConditionNotfndL18" not in uow_cics
+    assert uow_cics.count("public void onAbendL") == 1 and uow_cics.count("public void onCondition") == 1
+    # the skeleton the forge read does carry the three (the check above is not vacuous)
+    facts = json.loads((clean / "06_skeleton/UOWCICS_skeleton.json").read_text())["sections"]["uow_handlers"]["facts"]
+    assert {(f["line"], f["target_kind"]) for f in facts if f["line"] in (16, 17, 18)} == {
+        (16, "CANCEL"), (17, "RESET"), (18, "DEFAULT")}  # fmt: skip
+    # a CICS program has no batch form: no executeX (#4342); a batch one with no JCL keeps the generic one
+    assert "executeUowcics" not in uow_cics
     assert "READ at line 10 tests NORMAL" in uow_cics
     assert "TODO: the RESP of READ at line 14 (paragraph MAIN-SECTION) is never tested" in uow_cics
 

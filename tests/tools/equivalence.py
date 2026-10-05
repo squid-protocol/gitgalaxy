@@ -61,8 +61,9 @@ equivalence_cics.fault_lines).
 
 #4048 follow-up -- entry runs: a batch case's `"entries"` ([{method, why}]) each run the step once more through
 that no-argument method of the service (a controller's entry, executeX) instead of runBatch, compared with the
-same COBOL run: the same abend, or RETURN-CODE 0 -- the method returns none, so it ends the step 0 when it
-returns normally -- and every output equal. The evidence record counts each as run by the proof (proof_reach).
+same COBOL run: the same abend, or the same RETURN-CODE -- the one an int method returns (#4342: the generated
+executeX returns runBatch's), 0 for a void method that returns normally -- and every output equal. The evidence
+record counts each as run by the proof (proof_reach).
 
 A case with `"kind": "cics"` is an online program (#3754, equivalence_cics.py): its
 EXEC CICS is translated to calls into a stub runtime, each scenario (COMMAREA, key

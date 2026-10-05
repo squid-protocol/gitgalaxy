@@ -963,12 +963,6 @@ def _translate(program: Path, copy_dirs: list[Path], stub: str, package: str, es
         f"        return Cobol.num({gen.ids[id(rc)]}, CS).intValue();",
         "    }",
         "",
-        f"    public void execute{service[: -len('Service')]}() {{",
-        "        runBatch(List.of(), null);"
-        if batch
-        else "        // a CICS / CALLed program: see runTask / handleCall",
-        "    }",
-        "",
         *call_entry,
         *cics_entry,
         "",

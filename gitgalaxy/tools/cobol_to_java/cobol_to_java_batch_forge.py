@@ -333,11 +333,16 @@ class BatchForge:
         return f"steps.utility({head}, {_jstr(st.program)}, {_jstr(todo.split(': ', 1)[-1])})"
 
     # ---- services -------------------------------------------------------------------------------
+    def has_entry(self, key: str) -> bool:
+        """#4342: whether the program gets a batch entry (runBatch): a JCL step runs it, or it is a main program of
+        an estate with JCL jobs that no step names. Only where the batch runtime is generated: a JCL-free estate's
+        file programs keep their upload controllers (#3992)."""
+        runs = any(st.key == key for j in self.applications for st in j.steps)
+        return runs or (bool(self.applications) and key in self.unscheduled)
+
     def service_extras(self, key: str) -> dict[str, Any] | None:
         runs = [(j, st) for j in self.applications for st in j.steps if st.key == key]
         subs = self.submissions.get(key, []) if self.enabled else []
-        # only where the batch runtime is generated (an estate with JCL jobs): a JCL-free estate's file programs keep
-        # their upload controllers (#3992)
         unscheduled = bool(self.applications) and not runs and key in self.unscheduled
         if not runs and not subs and not unscheduled:
             return None

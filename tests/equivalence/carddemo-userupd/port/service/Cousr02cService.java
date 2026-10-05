@@ -9,7 +9,6 @@ import com.gitgalaxy.modernized.cics.CicsTask;
 import com.gitgalaxy.modernized.dto.contract.CarddemoCommarea;
 import com.gitgalaxy.modernized.dto.contract.Cousr02cCarddemoCommarea;
 import com.gitgalaxy.modernized.dto.screen.Cousr2aScreen;
-import com.gitgalaxy.modernized.dto.screen.ScreenModel;
 import com.gitgalaxy.modernized.entity.vsam.CobolRecords;
 import com.gitgalaxy.modernized.entity.vsam.SecUserData;
 import com.gitgalaxy.modernized.repository.vsam.SecUserDataRepository;
@@ -17,11 +16,9 @@ import com.gitgalaxy.modernized.util.CobolCompare;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.HashSet;
-import java.util.List;
 import java.util.Locale;
 import java.util.Optional;
 import java.util.Set;
-import org.springframework.beans.factory.ObjectProvider;
 import org.springframework.transaction.annotation.Transactional;
 
 /**
@@ -52,19 +49,16 @@ public class Cousr02cService {
     /** Screen order of the fields whose length can hold -1 (cursor request). */
     private static final String[] CURSOR_ORDER = {"USRIDIN", "FNAME", "LNAME", "PASSWD", "USRTYPE"};
 
-    private final ObjectProvider<Coadm01cService> coadm01cService;
-    private final ObjectProvider<Cosgn00cService> cosgn00cService;
     private final SecUserDataRepository secUserDataRepository;
 
-    /** The program's logic is a CICS task: see runTask. Nothing to do outside a task. */
-    public void executeCousr02c(/* Parameters mapped from Controller */) {
-        log.info("Executing modernized business logic for COUSR02C: the logic runs in runTask");
-    }
-
-    /** A CICS transaction entered the program. TODO: [AI AGENT] implement from the program's business rules. */
+    /** A CICS transaction entered the program (#4343): one task of it in the region (CicsTask.region()),
+     *  ENTER pressed -- `request` its COMMAREA, null when started from a cleared screen -- run through runTask. Returns the COMMAREA its RETURN passes on (null: none). */
     public Cousr02cCarddemoCommarea handleTransaction(String transid, Cousr02cCarddemoCommarea request) {
         log.info("Cousr02c: handleTransaction");
-        return request;
+        CicsTask.Region region = CicsTask.region();
+        CicsTask task = region.transaction(transid, request);
+        region.run(task, "COUSR02C", this::runTask);
+        return task.returned(Cousr02cCarddemoCommarea.class);
     }
 
     /** Working storage of one task (a task starts with fresh storage). */
@@ -272,8 +266,7 @@ public class Cousr02cService {
         w.ca.setCdemoFromTranid(WS_TRANID);
         w.ca.setCdemoFromProgram(WS_PGMNAME);
         w.ca.setCdemoPgmContext(0);
-        String target = fit(w.ca.getCdemoToProgram(), 8).trim();
-        String resp = task.xctl(target, w.ca);
+        String resp = dispatchCdemoToProgramL258(task, fit(w.ca.getCdemoToProgram(), 8), w.ca);   // line 258
         if (!"NORMAL".equals(resp)) {
             // no RESP clause: the unhandled condition takes CICS's default action
             task.abendOnCondition(resp);
@@ -534,25 +527,24 @@ public class Cousr02cService {
         return c;
     }
 
-    /** Another program LINKed / XCTLed to this one. TODO: [AI AGENT] implement from the program's business rules. */
+    /** Another program LINKed / XCTLed to this one (#4343): the program at that level in the region
+     *  (CicsTask.region()), run through runTask on `request`, passed by reference -- what it changes, the caller sees. */
     public Cousr02cCarddemoCommarea handleLink(Cousr02cCarddemoCommarea request) {
         log.info("Cousr02c: handleLink");
+        CicsTask.Region region = CicsTask.region();
+        CicsTask task = region.linked("COUSR02C", request);
+        region.run(task, "COUSR02C", this::runTask);
         return request;
     }
 
-    /** XCTL PROGRAM(CDEMO-TO-PROGRAM) at app/cbl/COUSR02C.cbl:258: the target is data-driven. Candidates: COADM01C (moves), COSGN00C (moves).
-     *  Also MOVEd from CDEMO-FROM-PROGRAM, whose content is not known statically: those names reach the default branch.
+    /** EXEC CICS XCTL PROGRAM(CDEMO-TO-PROGRAM) at app/cbl/COUSR02C.cbl:258, COMMAREA(CARDDEMO-COMMAREA): the target is data-driven (candidates the engine found: COADM01C (moves), COSGN00C (moves)).
+     *  Also MOVEd from CDEMO-FROM-PROGRAM, whose content is not known statically.
+     *  CICS resolves the name when the command runs (#4342): `program` is the PROGRAM field as the
+     *  COBOL holds it, its trailing blanks the name's padding. Returns the command's condition
+     *  (NORMAL, PGMIDERR, ...).
      *  Dynamic call targets field testing: open (5 public / 0 private estates). */
-    public Object dispatchCdemoToProgramL258(String program, Object request) {
-        switch (program.trim().toUpperCase(Locale.ROOT)) {
-            case "COADM01C":
-                return coadm01cService.getObject().handleLink((CarddemoCommarea) request);
-            case "COSGN00C":
-                cosgn00cService.getObject().handleLink();
-                return null;
-            default:
-                throw new IllegalArgumentException("XCTL PROGRAM(CDEMO-TO-PROGRAM) at app/cbl/COUSR02C.cbl:258: no known target " + program);
-        }
+    public String dispatchCdemoToProgramL258(CicsTask task, String program, Object commarea) {
+        return task.xctl(program.stripTrailing(), commarea);
     }
 
     /** AWS.M2.CARDDEMO.USRSEC.VSAM.KSDS as CICS file USRSEC at app/cbl/COUSR02C.cbl:322, 360; VSAM defines field testing: open (3 public / 0 private estates). */
@@ -563,17 +555,4 @@ public class Cousr02cService {
     public SecUserData rewriteUsrsec(SecUserData record) {
         return secUserDataRepository.save(record);
     }
-
-    /** SEND MAP(COUSR2A) MAPSET(COUSR02) FROM(COUSR2AO) at app/cbl/COUSR02C.cbl:272 (#3619): the screen
-     *  is filled and sent by runTask (SEND-USRUPD-SCREEN). */
-    public Cousr2aScreen renderCousr2a(Cousr2aScreen screen) {
-        return screen;
-    }
-
-    /** RECEIVE MAP(COUSR2A) MAPSET(COUSR02) INTO(COUSR2AI) at app/cbl/COUSR02C.cbl:285 (#3619): the
-     *  AID handling is done by runTask. */
-    public ScreenModel submitCousr2a(Cousr2aScreen input, String aid) {
-        return renderCousr2a(input);
-    }
-
 }

@@ -7,9 +7,8 @@
   "paths": [
    "tests/equivalence/carddemo-readcard/port/service/Cbact02cService.java"
   ],
-  "sha256": "125e87edcbfc14c1eb75c429a2f4aba250d564b9db9dbc0a29650f76013a47bf",
+  "sha256": "0942dcb088e42c34ba2f4e671a927722c6fe3bb4999542e03dd744a2dcbed19f",
   "entry_points": [
-   "executeCbact02c",
    "runBatch"
   ]
  },
@@ -19,14 +18,14 @@
     "tests/equivalence/carddemo-readcard/port/**"
    ],
    "files": 1,
-   "sha256": "125e87edcbfc14c1eb75c429a2f4aba250d564b9db9dbc0a29650f76013a47bf"
+   "sha256": "0942dcb088e42c34ba2f4e671a927722c6fe3bb4999542e03dd744a2dcbed19f"
   },
   "case": {
    "paths": [
     "tests/equivalence/carddemo-readcard/**"
    ],
    "files": 1,
-   "sha256": "2cfb988ddbbefbf6b4aa30ccb3ab393d9aa1652d25cbf0abe2404d3724e5461f"
+   "sha256": "836aba2b1cb0d3b255c9f758494abe31c5974e822d87ee84b9d1ea1df5d5bead"
   },
   "harness": {
    "paths": [
@@ -43,7 +42,7 @@
     "tests/tools/java_target_matrix.py"
    ],
    "files": 11,
-   "sha256": "609073a350a3120d63bf3cb3e7f6a1050a9fc8a91964ac548b2826356f319cbc"
+   "sha256": "1764f900744b3e9c121722acf2c84aee1ef8dded04fa68f429e0abc39f031fd9"
   },
   "oracle": {
    "paths": [
@@ -63,7 +62,7 @@
     "gitgalaxy/tools/cobol_to_java/**"
    ],
    "files": 60,
-   "sha256": "880250850d919c29f8ace3eb0d7183156a05354438ea79f72a417febb9e57e68"
+   "sha256": "674777fda7f1a297b554ec1935d0b26aa8d37f65f65e150a94fab7dd570a0866"
   },
   "corpus": {
    "name": "aws-mainframe-modernization-carddemo",
@@ -73,24 +72,21 @@
   "differences": {
    "sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
   },
-  "digest": "d2d28fa46439920092e205a245214e8456ac6bff27196f79c73dee74738d5e9b"
+  "digest": "dc219adf91d2941289919d8b35d616d4fc772ca94de50493f086ebf925e7bafe"
  },
  "proof": {
-  "at": "2026-10-04T15:31:58Z",
+  "at": "2026-10-05T06:00:12Z",
   "verdict": "proven",
   "runs": 7,
   "fault_runs": 6,
-  "entry_runs": [
-   "executeCbact02c"
-  ],
   "environments": null,
   "outputs": {},
   "return_code_equal": true,
   "sysout_compared": true,
   "attributes_compared": null,
   "java_failed": false,
-  "harness_commit": "b2054a86377f7ca2f42496e4c64cad8091ae4818+uncommitted",
-  "inputs_digest": "d2d28fa46439920092e205a245214e8456ac6bff27196f79c73dee74738d5e9b"
+  "harness_commit": "d03da8b743917a29a13e48709fb0c7f6ad778528+uncommitted",
+  "inputs_digest": "dc219adf91d2941289919d8b35d616d4fc772ca94de50493f086ebf925e7bafe"
  },
  "coverage": {
   "paragraphs": {
@@ -114,11 +110,10 @@
    "total": 0
   },
   "source": "the proof's own traced COBOL runs (cobol_coverage.py)",
-  "inputs_digest": "d2d28fa46439920092e205a245214e8456ac6bff27196f79c73dee74738d5e9b"
+  "inputs_digest": "dc219adf91d2941289919d8b35d616d4fc772ca94de50493f086ebf925e7bafe"
  },
  "reach": {
   "entry_points": [
-   "executeCbact02c",
    "runBatch"
   ],
   "unproven": [],
@@ -128,7 +123,7 @@
    "ported_unproven": 0
   },
   "generated_compared": true,
-  "port_sha256": "125e87edcbfc14c1eb75c429a2f4aba250d564b9db9dbc0a29650f76013a47bf"
+  "port_sha256": "0942dcb088e42c34ba2f4e671a927722c6fe3bb4999542e03dd744a2dcbed19f"
  },
  "mutation": null,
  "differences": [],

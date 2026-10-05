@@ -27,14 +27,6 @@ public class CsutldtcService {
     private static final Feedback FC_BAD_PIC_STRING = new Feedback(3, 0x09D6);
     private static final Feedback FC_NON_NUMERIC_DATA = new Feedback(3, 0x09D8);
 
-    public void executeCsutldtc(/* Parameters mapped from Controller */) {
-        log.info("Executing modernized business logic for CSUTLDTC");
-        // The program is only entered by CALL (handleCall); without parameters it runs on blank items.
-        CobolRef<String> result = CobolRef.of(" ".repeat(80));
-        int rc = handleCall(CobolRef.of(" ".repeat(10)), CobolRef.of(" ".repeat(10)), result);
-        log.info("Csutldtc: return code {} result {}", rc, result.get());
-    }
-
     /** PROCEDURE DIVISION USING LS-DATE, LS-DATE-FORMAT, LS-RESULT; returns RETURN-CODE. */
     public int handleCall(CobolRef<String> lsDate, CobolRef<String> lsDateFormat, CobolRef<String> lsResult) {
         log.info("Csutldtc: handleCall");
@@ -216,5 +208,4 @@ public class CsutldtcService {
         }
         return s.substring(0, e);
     }
-
 }

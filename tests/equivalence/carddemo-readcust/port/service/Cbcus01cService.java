@@ -15,7 +15,6 @@ import java.math.BigDecimal;
 import java.nio.charset.Charset;
 import java.util.Iterator;
 import java.util.List;
-import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
@@ -27,11 +26,6 @@ public class Cbcus01cService {
 
     private final CustomerRecordRepository customerRecordRepository;
     private final CobolFiles cobolFiles;
-
-    public void executeCbcus01c(/* Parameters mapped from Controller */) {
-        log.info("Executing modernized business logic for CBCUS01C");
-        runBatch(List.of(), null);
-    }
 
     /** AWS.M2.CARDDEMO.CUSTDATA.VSAM.KSDS as BATCH SELECT CUSTFILE-FILE at app/cbl/CBCUS01C.cbl (SELECT CUSTFILE-FILE); VSAM defines field testing: open (3 public / 0 private estates). */
     // The program's FD-CUSTFILE-REC (500 bytes) is read INTO CUSTOMER-RECORD (500 bytes): the entity codec
@@ -152,5 +146,4 @@ public class Cbcus01cService {
         CustomerRecord c = s.customer;
         return new String(c.toRecord(cs), cs);
     }
-
 }

@@ -6,10 +6,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import com.gitgalaxy.modernized.batch.Sysout;
 import com.gitgalaxy.modernized.cics.CicsTask;
-import com.gitgalaxy.modernized.dto.contract.CarddemoCommarea;
 import com.gitgalaxy.modernized.dto.contract.Cousr03cCarddemoCommarea;
 import com.gitgalaxy.modernized.dto.screen.Cousr3aScreen;
-import com.gitgalaxy.modernized.dto.screen.ScreenModel;
 import com.gitgalaxy.modernized.entity.vsam.CobolRecords;
 import com.gitgalaxy.modernized.entity.vsam.SecUserData;
 import com.gitgalaxy.modernized.repository.vsam.SecUserDataRepository;
@@ -18,11 +16,9 @@ import java.math.BigDecimal;
 import java.nio.charset.Charset;
 import java.time.LocalDateTime;
 import java.util.LinkedHashSet;
-import java.util.List;
 import java.util.Locale;
 import java.util.Optional;
 import java.util.Set;
-import org.springframework.beans.factory.ObjectProvider;
 import org.springframework.transaction.annotation.Transactional;
 
 /**
@@ -48,20 +44,16 @@ public class Cousr03cService {
     private static final String CCDA_TITLE02 = "              CardDemo                  ";
     private static final String CCDA_MSG_INVALID_KEY = "Invalid key pressed. Please see below...         ";
 
-    private final ObjectProvider<Coadm01cService> coadm01cService;
-    private final ObjectProvider<Cosgn00cService> cosgn00cService;
     private final SecUserDataRepository secUserDataRepository;
 
-    public void executeCousr03c(/* Parameters mapped from Controller */) {
-        log.info("Executing modernized business logic for COUSR03C");
-        // COUSR03C is a pseudo-conversational CICS program with no parameters mapped from a
-        // controller: its whole PROCEDURE DIVISION is ported in runTask(CicsTask).
-    }
-
-    /** A CICS transaction entered the program. TODO: [AI AGENT] implement from the program's business rules. */
+    /** A CICS transaction entered the program (#4343): one task of it in the region (CicsTask.region()),
+     *  ENTER pressed -- `request` its COMMAREA, null when started from a cleared screen -- run through runTask. Returns the COMMAREA its RETURN passes on (null: none). */
     public Cousr03cCarddemoCommarea handleTransaction(String transid, Cousr03cCarddemoCommarea request) {
         log.info("Cousr03c: handleTransaction");
-        return request;
+        CicsTask.Region region = CicsTask.region();
+        CicsTask task = region.transaction(transid, request);
+        region.run(task, "COUSR03C", this::runTask);
+        return task.returned(Cousr03cCarddemoCommarea.class);
     }
 
     /** One pseudo-conversational task of this program (#3754): MAIN-PARA and the paragraphs it performs. */
@@ -70,25 +62,24 @@ public class Cousr03cService {
         new Run(task).mainPara();
     }
 
-    /** Another program LINKed / XCTLed to this one. TODO: [AI AGENT] implement from the program's business rules. */
+    /** Another program LINKed / XCTLed to this one (#4343): the program at that level in the region
+     *  (CicsTask.region()), run through runTask on `request`, passed by reference -- what it changes, the caller sees. */
     public Cousr03cCarddemoCommarea handleLink(Cousr03cCarddemoCommarea request) {
         log.info("Cousr03c: handleLink");
+        CicsTask.Region region = CicsTask.region();
+        CicsTask task = region.linked("COUSR03C", request);
+        region.run(task, "COUSR03C", this::runTask);
         return request;
     }
 
-    /** XCTL PROGRAM(CDEMO-TO-PROGRAM) at app/cbl/COUSR03C.cbl:205: the target is data-driven. Candidates: COADM01C (moves), COSGN00C (moves).
-     *  Also MOVEd from CDEMO-FROM-PROGRAM, whose content is not known statically: those names reach the default branch.
+    /** EXEC CICS XCTL PROGRAM(CDEMO-TO-PROGRAM) at app/cbl/COUSR03C.cbl:205, COMMAREA(CARDDEMO-COMMAREA): the target is data-driven (candidates the engine found: COADM01C (moves), COSGN00C (moves)).
+     *  Also MOVEd from CDEMO-FROM-PROGRAM, whose content is not known statically.
+     *  CICS resolves the name when the command runs (#4342): `program` is the PROGRAM field as the
+     *  COBOL holds it, its trailing blanks the name's padding. Returns the command's condition
+     *  (NORMAL, PGMIDERR, ...).
      *  Dynamic call targets field testing: open (5 public / 0 private estates). */
-    public Object dispatchCdemoToProgramL205(String program, Object request) {
-        switch (program.trim().toUpperCase(Locale.ROOT)) {
-            case "COADM01C":
-                return coadm01cService.getObject().handleLink((CarddemoCommarea) request);
-            case "COSGN00C":
-                cosgn00cService.getObject().handleLink();
-                return null;
-            default:
-                throw new IllegalArgumentException("XCTL PROGRAM(CDEMO-TO-PROGRAM) at app/cbl/COUSR03C.cbl:205: no known target " + program);
-        }
+    public String dispatchCdemoToProgramL205(CicsTask task, String program, Object commarea) {
+        return task.xctl(program.stripTrailing(), commarea);
     }
 
     /** AWS.M2.CARDDEMO.USRSEC.VSAM.KSDS as CICS file USRSEC at app/cbl/COUSR03C.cbl:269, 307; VSAM defines field testing: open (3 public / 0 private estates). */
@@ -98,21 +89,6 @@ public class Cousr03cService {
 
     public void deleteUsrsec(String key) {
         secUserDataRepository.deleteById(key);
-    }
-
-    /** SEND MAP(COUSR3A) MAPSET(COUSR03) FROM(COUSR3AO) at app/cbl/COUSR03C.cbl:219 (#3619).
-     *  TODO: port the logic that fills COUSR3AO before the SEND.
-     *  BMS screen fields field testing: open (3 public / 0 private estates). */
-    public Cousr3aScreen renderCousr3a(Cousr3aScreen screen) {
-        return screen;
-    }
-
-    /** RECEIVE MAP(COUSR3A) MAPSET(COUSR03) INTO(COUSR3AI) at app/cbl/COUSR03C.cbl:232 (#3619).
-     *  `aid` is the key the user pressed (EIBAID): ENTER, PF1-PF24, CLEAR, PA1-PA3.
-     *  TODO: port the logic that reads COUSR3AI after the RECEIVE, and return the screen to show next.
-     *  BMS screen fields field testing: open (3 public / 0 private estates). */
-    public ScreenModel submitCousr3a(Cousr3aScreen input, String aid) {
-        return renderCousr3a(input);
     }
 
     // ------------------------------------------------------------------------------------------
@@ -134,14 +110,6 @@ public class Cousr03cService {
     /** IF field = SPACES OR LOW-VALUES */
     private static boolean blankOrLow(String v, int width) {
         return CobolCompare.eq(v, "") || CobolCompare.eq(v, CobolCompare.lowValues(width));
-    }
-
-    private static String rtrim(String v) {
-        int n = v.length();
-        while (n > 0 && v.charAt(n - 1) == ' ') {
-            n--;
-        }
-        return v.substring(0, n);
     }
 
     private static int nz(Integer v) {
@@ -326,7 +294,7 @@ public class Cousr03cService {
             cc.setCdemoFromTranid(fit(WS_TRANID, 4));
             cc.setCdemoFromProgram(fit(WS_PGMNAME, 8));
             cc.setCdemoPgmContext(0);
-            task.xctl(rtrim(cc.getCdemoToProgram()), cc);   // XCTL PROGRAM(CDEMO-TO-PROGRAM) COMMAREA
+            dispatchCdemoToProgramL205(task, cc.getCdemoToProgram(), cc);   // XCTL PROGRAM(CDEMO-TO-PROGRAM) COMMAREA, line 205
         }
 
         // SEND-USRDEL-SCREEN

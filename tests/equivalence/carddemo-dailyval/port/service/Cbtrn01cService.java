@@ -49,11 +49,6 @@ public class Cbtrn01cService {
     private final CobolFiles files;
     private final ApplicationContext ctx;
 
-    public void executeCbtrn01c(/* Parameters mapped from Controller */) {
-        log.info("Executing modernized business logic for CBTRN01C");
-        // The business logic of CBTRN01C is the batch main line: see runBatch.
-    }
-
     /** Working storage of one run. */
     private static final class Run {
         final Charset cs = CobolRecords.charset();

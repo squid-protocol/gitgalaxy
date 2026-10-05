@@ -99,7 +99,8 @@ def _cics_task(tmp_path: Path, main_body: str) -> str:
 
     pkg = tmp_path / "src" / "t" / "cics"
     pkg.mkdir(parents=True)
-    (pkg / "CicsTask.java").write_text(CICS_TASK_JAVA.replace("__PACKAGE__", "t"), encoding="utf-8")
+    runtime = CICS_TASK_JAVA.replace("__PACKAGE__", "t").replace("__ZONE__", "UTC")
+    (pkg / "CicsTask.java").write_text(runtime, encoding="utf-8")
     (pkg / "Main.java").write_text("package t.cics;\n\npublic class Main {\n    public static void main(String[] a) {\n"
                                    + main_body + "\n    }\n}\n", encoding="utf-8")  # fmt: skip
     classes = tmp_path / "classes"
@@ -1002,4 +1003,77 @@ def test_cics_task_browses_an_esds_by_rba_as_the_stub_does(tmp_path):
         "STARTBR RBA 2 on F: no record starts there: not modelled",
         "STARTBR RBA 12 on F: no record starts there: not modelled",
         "STARTBR RBA on G, not an ESDS: not modelled",
+    ]
+
+
+@needs_javac
+def test_cics_task_facades_run_their_task_in_the_region_joined_or_deployed(tmp_path):
+    """#4343: a facade (handleTransaction, handleLink) gets its task from CicsTask.region() and runs it there. With
+    nothing deployed, a region of the program alone: started from a cleared screen, the task's input is the transid
+    typed; with a COMMAREA it is the whole record; a LINK elsewhere is PGMIDERR; returned() is the RETURN's COMMAREA.
+    A deployed region shares one temporary storage across tasks and reaches its programs; a joined one (a harness's)
+    wins on its thread until closed."""
+    out = _cics_task(
+        tmp_path,
+        """
+        java.util.function.Consumer<CicsTask> prog = task -> {
+            String in = task.hasCommarea() ? task.commarea(StringBuilder.class).append("+").toString()
+                    : task.receiveText(8).data();
+            System.out.println(task.transid() + " calen=" + task.eibcalen() + " in=" + in + " link="
+                    + task.link("OTHER") + " ts=" + task.writeqTs("Q", new byte[] {1}).item());
+            task.returnTransid("TX01", new StringBuilder(in));
+        };
+        CicsTask.Region local = CicsTask.region();
+        CicsTask first = local.transaction("TX01", null);
+        local.run(first, "PROG", prog);
+        System.out.println(first.returned(StringBuilder.class));
+        CicsTask b = local.transaction("TX01", new StringBuilder("CA"));
+        local.run(b, "PROG", prog);
+        try {
+            b.returned(String.class);
+        } catch (IllegalStateException e) {
+            System.out.println("refused: " + e.getMessage());
+        }
+        CicsTask.Programs both = new CicsTask.Programs() {
+            public boolean defined(String p) {
+                return p.equals("PROG") || p.equals("OTHER");
+            }
+
+            public void run(String p, CicsTask task) {
+                if (p.equals("PROG")) {
+                    prog.accept(task);
+                } else {
+                    task.returnTransid(null, null);
+                }
+            }
+        };
+        CicsTask.deploy(new CicsTask.LocalRegion(both, "T001", null));
+        for (int i = 0; i < 2; i++) {
+            CicsTask.Region r = CicsTask.region();
+            CicsTask t = r.transaction("TX01", null);
+            r.run(t, "PROG", prog);
+        }
+        CicsTask.Region mine = new CicsTask.LocalRegion(null, null,
+                () -> java.time.LocalDateTime.of(2022, 7, 18, 10, 30));
+        try (CicsTask.Joined j = CicsTask.join(mine)) {
+            System.out.println(CicsTask.region() == mine);
+            System.out.println(CicsTask.region().transaction("TX01", null).now());
+        }
+        System.out.println(CicsTask.region() != mine);
+        CicsTask l = CicsTask.region().linked("PROG", new StringBuilder("L"));
+        CicsTask.region().run(l, "PROG", prog);
+        System.out.println(l.level() + " " + l.aid());""",
+    )
+    assert out.splitlines() == [
+        "TX01 calen=0 in=TX01 link=PGMIDERR ts=1",  # a cleared screen: the transid typed; no other program
+        "TX01",
+        "TX01 calen=null in=CA+ link=PGMIDERR ts=2",  # the whole record; the region's one TS
+        "refused: the task RETURNed a java.lang.StringBuilder, not a java.lang.String",
+        "TX01 calen=0 in=TX01 link=NORMAL ts=1",  # deployed: OTHER is reached, and one TS across tasks
+        "TX01 calen=0 in=TX01 link=NORMAL ts=2",
+        "true",
+        "2022-07-18T10:30",  # the region's clock, not the JVM's
+        "true",
+        "CSMI calen=null in=L+ link=NORMAL ts=3",  # a LINK from outside: the mirror's task, the deployed region's TS
+        "1 null",
     ]

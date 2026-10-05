@@ -37,7 +37,6 @@ import java.util.Arrays;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Locale;
-import java.util.Optional;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
@@ -89,10 +88,6 @@ public class Cbtrn02cService {
         this.tranRecordRepository = tranRecordRepository;
         this.datasets = datasets;
         this.files = files;
-    }
-
-    public void executeCbtrn02c() {
-        log.info("CBTRN02C runs as a batch step: see runBatch");
     }
 
     /** The program's working storage between statements (CARD-XREF-RECORD, ACCOUNT-RECORD, the counters). */

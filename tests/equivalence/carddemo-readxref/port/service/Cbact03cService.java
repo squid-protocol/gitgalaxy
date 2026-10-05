@@ -16,7 +16,6 @@ import java.math.BigDecimal;
 import java.nio.charset.Charset;
 import java.util.Iterator;
 import java.util.List;
-import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
@@ -34,11 +33,6 @@ public class Cbact03cService {
         String endOfFile = "N";                 // END-OF-FILE PIC X(01) VALUE 'N'
         CardXrefRecord cardXrefRecord;          // CARD-XREF-RECORD (READ INTO target: the program's own copy)
         Iterator<CardXrefRecord> cursor;        // the sequential cursor of XREFFILE-FILE
-    }
-
-    public void executeCbact03c(/* Parameters mapped from Controller */) {
-        log.info("Executing modernized business logic for CBACT03C");
-        runBatch(List.of(), null);
     }
 
     /** AWS.M2.CARDDEMO.CARDXREF.VSAM.KSDS as BATCH SELECT XREFFILE-FILE at app/cbl/CBACT03C.cbl (SELECT XREFFILE-FILE); VSAM defines field testing: open (3 public / 0 private estates). */
@@ -153,5 +147,4 @@ public class Cbact03cService {
             Sysout.display("FILE STATUS IS: NNNN", "00" + stat1 + stat2);
         }
     }
-
 }

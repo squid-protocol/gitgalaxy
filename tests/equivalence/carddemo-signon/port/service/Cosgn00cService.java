@@ -7,15 +7,12 @@ import org.slf4j.LoggerFactory;
 import com.gitgalaxy.modernized.cics.CicsTask;
 import com.gitgalaxy.modernized.dto.contract.CarddemoCommarea;
 import com.gitgalaxy.modernized.dto.screen.Cosgn0aScreen;
-import com.gitgalaxy.modernized.dto.screen.ScreenModel;
 import com.gitgalaxy.modernized.entity.vsam.CobolRecords;
 import com.gitgalaxy.modernized.entity.vsam.SecUserData;
 import com.gitgalaxy.modernized.repository.vsam.SecUserDataRepository;
 import com.gitgalaxy.modernized.util.CobolCompare;
-import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
-import java.util.List;
 import java.util.Locale;
 import java.util.Optional;
 import org.springframework.beans.factory.ObjectProvider;
@@ -53,14 +50,13 @@ public class Cosgn00cService {
     private final ObjectProvider<Comen01cService> comen01cService;
     private final SecUserDataRepository secUserDataRepository;
 
-    /** COSGN00C is a CICS program: its logic runs in runTask(CicsTask). */
-    public void executeCosgn00c(/* Parameters mapped from Controller */) {
-        log.info("Executing modernized business logic for COSGN00C (see runTask)");
-    }
-
-    /** A CICS transaction entered the program: handled by runTask. */
+    /** A CICS transaction entered the program (#4343): one task of it in the region (CicsTask.region()),
+     *  ENTER pressed, started from a cleared screen, run through runTask. */
     public void handleTransaction(String transid) {
         log.info("Cosgn00c: handleTransaction");
+        CicsTask.Region region = CicsTask.region();
+        CicsTask task = region.transaction(transid, null);
+        region.run(task, "COSGN00C", this::runTask);
     }
 
     /** The program's working storage for one task. */
@@ -288,9 +284,13 @@ public class Cosgn00cService {
         return b.toString();
     }
 
-    /** Another program LINKed / XCTLed to this one: COSGN00C reads no COMMAREA, nothing to do. */
+    /** Another program LINKed / XCTLed to this one (#4343): the program at that level in the region
+     *  (CicsTask.region()), run through runTask on no COMMAREA. */
     public void handleLink() {
         log.info("Cosgn00c: handleLink");
+        CicsTask.Region region = CicsTask.region();
+        CicsTask task = region.linked("COSGN00C", null);
+        region.run(task, "COSGN00C", this::runTask);
     }
 
     /** EXEC CICS XCTL PROGRAM(COADM01C) at app/cbl/COSGN00C.cbl:231. XCTL transfers control: nothing after it runs in the caller.
@@ -309,17 +309,4 @@ public class Cosgn00cService {
     public Optional<SecUserData> readUsrsec(String key) {
         return secUserDataRepository.findById(key);
     }
-
-    /** SEND MAP(COSGN0A) MAPSET(COSGN00) FROM(COSGN0AO) at app/cbl/COSGN00C.cbl:151 (#3619).
-     *  The screen is filled and sent by runTask (SEND-SIGNON-SCREEN / POPULATE-HEADER-INFO). */
-    public Cosgn0aScreen renderCosgn0a(Cosgn0aScreen screen) {
-        return screen;
-    }
-
-    /** RECEIVE MAP(COSGN0A) MAPSET(COSGN00) at app/cbl/COSGN00C.cbl:110 (#3619).
-     *  The sign-on logic after the RECEIVE runs in runTask (PROCESS-ENTER-KEY). */
-    public ScreenModel submitCosgn0a(Cosgn0aScreen input, String aid) {
-        return renderCosgn0a(input);
-    }
-
 }

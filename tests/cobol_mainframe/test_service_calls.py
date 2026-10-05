@@ -11,6 +11,7 @@ Compiling the generated Java is the compile matrix's job (java_target_matrix.py 
 """
 
 import json
+import re
 import shutil
 from unittest.mock import patch
 
@@ -183,19 +184,36 @@ def test_calls_become_service_calls(scanned, tmp_path):
     )
     ref = (src / "call/CobolRef.java").read_text(encoding="utf-8")
     assert "public final class CobolRef<T>" in ref and "public void set(T value)" in ref
-    # the data-driven XCTL: a switch over the candidates, anything else refused
-    assert "public Object dispatchWsNextL" in menu
-    assert 'case "ACCTUPD":' in menu and "acctupdService.getObject().handleLink((AcctupdDfhcommarea) request)" in menu
+    # #4342: the data-driven XCTL of a CICS program is the command itself, through the program's task -- the path its
+    # proof drives: CICS resolves the name when it runs (PGMIDERR for one the region does not define), so no switch
+    # over the candidates and no case mapping (CICS program names are case-sensitive)
+    assert "public String dispatchWsNextL" in menu
+    assert "(CicsTask task, String program, Object commarea) {\n        return task.xctl(program.stripTrailing(), commarea);" in menu
+    assert "candidates the engine found: ACCTINQ (moves), ACCTUPD (moves)" in menu
+    assert "toUpperCase" not in menu and "no known target" not in menu
     # ACCTUPD is reached only through the data-driven XCTL, so it was resolved to its own DFHCOMMAREA:
-    # the record this site passes differs, and the case says so rather than hiding it
-    assert "TODO: this site passes WS-COMM; ACCTUPD receives DFHCOMMAREA (cbl/ACCTUPD.cbl)" in menu
-    assert "no known target" in menu
+    # the record this site passes differs, and the dispatcher says so rather than hiding it
+    assert "ACCTUPD: TODO: this site passes WS-COMM; ACCTUPD receives DFHCOMMAREA (cbl/ACCTUPD.cbl)" in menu
     # the remote DPL LINK: a client for region AOR1
     assert "private final Aor1RemoteClient aor1RemoteClient;" in menu
     assert "return aor1RemoteClient.linkAudit(request);" in menu
     client = (src / "client/Aor1RemoteClient.java").read_text(encoding="utf-8")
     assert '@Value("${gitgalaxy.remote.aor1.url:http://localhost:8080}")' in client
     assert 'rest.postForObject(baseUrl + "/api/v1/audit/link", request, AuditDfhcommarea.class)' in client
+    # #4342: MENU is a CICS program and SUBPGM a CALLed one: neither has a batch form, so neither service has an
+    # executeX, and SUBPGM gets no generic controller calling one (its entry is handleCall)
+    assert "executeMenu" not in menu and "executeCblSubpgm" not in sub
+    assert not list(src.glob("controller/*Subpgm*Controller.java"))
+    # #4342 / #4343: the CICS entry points run the program -- one task of it in the region -- never a log line alone
+    assert ('        CicsTask task = region.transaction(transid, null);\n        region.run(task, "MENU", this::runTask);'
+            in menu)
+    inq = (src / "service/AcctinqService.java").read_text(encoding="utf-8")
+    assert re.search(r"public (\w+) handleLink\(\1 request\) \{", inq), inq
+    assert ('CicsTask task = region.linked("ACCTINQ", request);\n        region.run(task, "ACCTINQ", this::runTask);\n'
+            "        return request;") in inq
+    region = (src / "cics/CicsRegion.java").read_text(encoding="utf-8")
+    assert 'case "ACCTINQ" -> context.getBean(AcctinqService.class).runTask(task);' in region
+    assert "CicsTask.deploy(new CicsTask.LocalRegion(this, null,\n                at.isEmpty() ? () -> LocalDateTime.now(zone)" in region
     audit = (java / "java_migration_audit.txt").read_text(encoding="utf-8")
     assert "Service calls (#3616)    : 1 LINK, 0 XCTL, 1 CALL, 1 data-driven dispatch, 1 remote; 1 remote" in audit
 

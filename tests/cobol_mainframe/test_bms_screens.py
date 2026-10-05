@@ -101,10 +101,10 @@ def test_the_view_model_and_the_handlers(scanned, tmp_path):
     assert "Symbolic map USERIDI, USERIDO." in vm
     assert "@Size" not in vm  # ui.flavour none: no validator on the classpath, no annotations
     svc = (java / SRC / "service/SgnonService.java").read_text(encoding="utf-8")
-    assert "public Sgn0aScreen renderSgn0a(Sgn0aScreen screen) {" in svc
-    assert "public ScreenModel submitSgn0a(Sgn0aScreen input, String aid) {" in svc
-    assert "        return renderSgn0a(input);" in svc  # the program also SENDs the map it RECEIVEs
-    assert "RECEIVE MAP(SGN0A) MAPSET(SGN00) INTO(SGN0AI) at cbl/SGNON.cbl:8" in svc
+    # #4342: with ui.flavour none no screen controller calls render / submit, so the service has neither -- they would
+    # be entry points with no COBOL behaviour behind them; the program SENDs and RECEIVEs its maps in runTask
+    assert "renderSgn0a" not in svc and "submitSgn0a" not in svc and "ScreenModel" not in svc
+    assert "import com.gitgalaxy.modernized.dto.screen.Sgn0aScreen;" in svc  # the view model, for the port
     assert "SEND MAP GHOST (mapset NOSUCH) at cbl/SGNON.cbl:12: no single BMS source defines it" in svc
     # the mapset's name sent as a map (CBSA BNK1CCS's CLEAR branch): the maps the mapset does define
     assert (
@@ -117,7 +117,7 @@ def test_the_view_model_and_the_handlers(scanned, tmp_path):
 
     manifest = json.loads((java / "traceability.json").read_text(encoding="utf-8"))
     kinds = {a["kind"] for a in manifest["artifacts"]}
-    assert {"screen-view-model", "screen-field", "screen-send", "screen-receive"} <= kinds
+    assert {"screen-view-model", "screen-field"} <= kinds and not {"screen-send", "screen-receive"} & kinds
     field = next(a for a in manifest["artifacts"] if a["symbol"] == "Sgn0aScreen#userid")
     assert field["facts"][0]["source"] == "bms/SGN00.bms:5" and field["facts"][0]["ledger_field"] == "BMS screen fields"
     worklist = json.loads((java / "migration_worklist.json").read_text(encoding="utf-8"))
@@ -133,6 +133,14 @@ def test_thymeleaf_adds_pages_validation_and_its_starters(scanned, tmp_path):
     ctl = (java / SRC / "controller/screen/SgnonScreenController.java").read_text(encoding="utf-8")
     assert '@RequestMapping("/screens/sgnon")' in ctl and "@Controller" in ctl
     assert "ScreenModel next = sgnonService.submitSgn0a(Sgn0aScreen.fromValues(form), aid);" in ctl
+    # the controller's entry points: the service's render / submit, each citing its COBOL lines
+    svc = (java / SRC / "service/SgnonService.java").read_text(encoding="utf-8")
+    assert "public Sgn0aScreen renderSgn0a(Sgn0aScreen screen) {" in svc
+    assert "public ScreenModel submitSgn0a(Sgn0aScreen input, String aid) {" in svc
+    assert "        return renderSgn0a(input);" in svc  # the program also SENDs the map it RECEIVEs
+    assert "RECEIVE MAP(SGN0A) MAPSET(SGN00) INTO(SGN0AI) at cbl/SGNON.cbl:8" in svc
+    kinds = {a["kind"] for a in json.loads((java / "traceability.json").read_text(encoding="utf-8"))["artifacts"]}
+    assert {"screen-send", "screen-receive"} <= kinds
     page = (java / "src/main/resources/templates/screen.html").read_text(encoding="utf-8")
     assert 'th:each="c : ${cells}"' in page and 'value="PF3"' in page
     pom = (java / "pom.xml").read_text(encoding="utf-8")

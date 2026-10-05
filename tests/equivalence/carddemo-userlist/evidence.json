@@ -7,7 +7,7 @@
   "paths": [
    "tests/equivalence/carddemo-userlist/port/service/Cousr00cService.java"
   ],
-  "sha256": "6da6863a868b18a1821b3c458ab9e679f99a4f63c4684bc7090077cc83160e74",
+  "sha256": "842bfd4306037caaafcf5db760af3453ab67c76673baedca3815ac8e3636a216",
   "entry_points": [
    "runTask"
   ]
@@ -18,7 +18,7 @@
     "tests/equivalence/carddemo-userlist/port/**"
    ],
    "files": 1,
-   "sha256": "6da6863a868b18a1821b3c458ab9e679f99a4f63c4684bc7090077cc83160e74"
+   "sha256": "842bfd4306037caaafcf5db760af3453ab67c76673baedca3815ac8e3636a216"
   },
   "case": {
    "paths": [
@@ -42,7 +42,7 @@
     "tests/tools/java_target_matrix.py"
    ],
    "files": 11,
-   "sha256": "609073a350a3120d63bf3cb3e7f6a1050a9fc8a91964ac548b2826356f319cbc"
+   "sha256": "1764f900744b3e9c121722acf2c84aee1ef8dded04fa68f429e0abc39f031fd9"
   },
   "oracle": {
    "paths": [
@@ -62,7 +62,7 @@
     "gitgalaxy/tools/cobol_to_java/**"
    ],
    "files": 60,
-   "sha256": "880250850d919c29f8ace3eb0d7183156a05354438ea79f72a417febb9e57e68"
+   "sha256": "674777fda7f1a297b554ec1935d0b26aa8d37f65f65e150a94fab7dd570a0866"
   },
   "corpus": {
    "name": "aws-mainframe-modernization-carddemo",
@@ -72,10 +72,10 @@
   "differences": {
    "sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
   },
-  "digest": "e7265038143d9ba0304d6820f59a381831ed6921468195d9f36d7dd7d3c8a2af"
+  "digest": "0ccd511a366307f8080008f960c4982e36a413d4c50bf109bb3a0a34a5d9679e"
  },
  "proof": {
-  "at": "2026-10-04T15:44:17Z",
+  "at": "2026-10-05T06:04:35Z",
   "verdict": "proven",
   "runs": 21,
   "fault_runs": 3,
@@ -170,8 +170,8 @@
   "sysout_compared": null,
   "attributes_compared": null,
   "java_failed": false,
-  "harness_commit": "cdad33370dc73ea44e5bf1348d88c9404a14c2d2+uncommitted",
-  "inputs_digest": "e7265038143d9ba0304d6820f59a381831ed6921468195d9f36d7dd7d3c8a2af"
+  "harness_commit": "d03da8b743917a29a13e48709fb0c7f6ad778528+uncommitted",
+  "inputs_digest": "0ccd511a366307f8080008f960c4982e36a413d4c50bf109bb3a0a34a5d9679e"
  },
  "coverage": {
   "paragraphs": {
@@ -285,7 +285,7 @@
    "total": 0
   },
   "source": "the proof's own traced COBOL runs (cobol_coverage.py)",
-  "inputs_digest": "e7265038143d9ba0304d6820f59a381831ed6921468195d9f36d7dd7d3c8a2af"
+  "inputs_digest": "0ccd511a366307f8080008f960c4982e36a413d4c50bf109bb3a0a34a5d9679e"
  },
  "reach": {
   "entry_points": [
@@ -294,72 +294,36 @@
   "unproven": [
    {
     "class": "Cousr00cService",
-    "method": "executeCousr00c",
-    "line": 72,
-    "kind": "stub"
-   },
-   {
-    "class": "Cousr00cService",
     "method": "handleTransaction",
-    "line": 77,
-    "kind": "stub"
+    "line": 64,
+    "kind": "left_as_generated"
    },
    {
     "class": "Cousr00cService",
     "method": "handleLink",
-    "line": 88,
-    "kind": "stub"
-   },
-   {
-    "class": "Cousr00cService",
-    "method": "dispatchCdemoToProgramL196",
-    "line": 95,
-    "kind": "left_as_generated"
-   },
-   {
-    "class": "Cousr00cService",
-    "method": "dispatchCdemoToProgramL206",
-    "line": 113,
-    "kind": "left_as_generated"
-   },
-   {
-    "class": "Cousr00cService",
-    "method": "dispatchCdemoToProgramL514",
-    "line": 131,
+    "line": 79,
     "kind": "left_as_generated"
    },
    {
     "class": "Cousr00cService",
     "method": "browseUsrsec",
-    "line": 148,
+    "line": 115,
     "kind": "left_as_generated"
    },
    {
     "class": "Cousr00cService",
     "method": "browseBackUsrsec",
-    "line": 152,
-    "kind": "left_as_generated"
-   },
-   {
-    "class": "Cousr00cService",
-    "method": "renderCousr0a",
-    "line": 158,
-    "kind": "left_as_generated"
-   },
-   {
-    "class": "Cousr00cService",
-    "method": "submitCousr0a",
-    "line": 164,
+    "line": 119,
     "kind": "left_as_generated"
    }
   ],
   "counts": {
-   "stub": 3,
-   "left_as_generated": 7,
+   "stub": 0,
+   "left_as_generated": 4,
    "ported_unproven": 0
   },
   "generated_compared": true,
-  "port_sha256": "6da6863a868b18a1821b3c458ab9e679f99a4f63c4684bc7090077cc83160e74"
+  "port_sha256": "842bfd4306037caaafcf5db760af3453ab67c76673baedca3815ac8e3636a216"
  },
  "mutation": null,
  "differences": [],

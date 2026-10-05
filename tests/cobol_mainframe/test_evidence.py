@@ -156,6 +156,14 @@ def _dateutil():
     return t, copy.deepcopy(rec)
 
 
+def _with_unproven(rec):
+    """The record with a ported method no proof runs (the generator's executeX that #4342 removed from the port)."""
+    unproven = [*rec["reach"]["unproven"],
+                {"class": "CsutldtcService", "method": "executeCsutldtc", "line": 30, "kind": "ported_unproven"}]
+    counts = {**rec["reach"]["counts"], "ported_unproven": rec["reach"]["counts"]["ported_unproven"] + 1}
+    return {**rec, "reach": {**rec["reach"], "unproven": unproven, "counts": counts}}
+
+
 def _current(t, rec):
     """The record made current and fully proven (as if re-proven now with every ported method reached)."""
     rec["inputs"] = ev.compute_inputs(t, rec.get("differences"))
@@ -261,7 +269,8 @@ def test_an_approval_is_refused_to_a_script_a_model_or_no_purpose(tmp_path, by, 
 
 def test_only_a_proven_current_record_can_be_approved(tmp_path):
     t, rec = _dateutil()
-    tt = _tmp_target(tmp_path, t, rec)  # as committed: a ported_unproven method, so not proven
+    rec = _with_unproven(rec)  # a ported_unproven method: not proven
+    tt = _tmp_target(tmp_path, t, rec)
     with pytest.raises(ev.ApprovalRefused, match="only a current proof"):
         ev.sign(tt, "Jane Reviewer", "the pilot", "approved", None, interactive=True, confirm=lambda p: "Jane Reviewer")
 
@@ -279,8 +288,10 @@ def test_the_claim_is_derived_from_the_numbers():
     t, rec = _dateutil()
     text = ev.claim(rec, ev.status(rec, t, live=False))
     assert text.startswith("**CSUTLDTC**: byte-identical on **17 calls**")
-    assert "Proven through **handleCall** only" in text and "executeCsutldtc" in text
-    assert "not-proven" in text
+    assert "Proven through **handleCall** only; **0 ported method(s) that no proof runs**" in text
+    rec = _with_unproven(rec)
+    text = ev.claim(rec, ev.status(rec, t, live=False))
+    assert "**1 ported method(s) that no proof runs** (executeCsutldtc)" in text and "not-proven" in text
 
 
 def test_a_tree_digest_is_path_and_bytes_and_order_free():
@@ -292,22 +303,27 @@ def test_a_tree_digest_is_path_and_bytes_and_order_free():
 
 # ---- entry runs: a batch step proven through its controller's no-argument method too ------------------------------
 def test_an_entry_method_is_reached_only_when_the_proof_ran_it():
-    t = ev.equivalence_target("carddemo-readcard")
+    t = ev.equivalence_target("carddemo-acctview")
     without = ev.reach_section(t)
-    assert [m["method"] for m in without["unproven"] if m["kind"] == "ported_unproven"] == ["executeCbact02c"]
-    run = ev.reach_section(t, entries=["executeCbact02c"])
-    assert run["counts"]["ported_unproven"] == 0 and "executeCbact02c" in run["entry_points"], run
+    assert "handleTransaction" in {m["method"] for m in without["unproven"]}
+    run = ev.reach_section(t, entries=["handleTransaction"])
+    assert "handleTransaction" not in {m["method"] for m in run["unproven"]} and "handleTransaction" in run["entry_points"]
 
 
-def test_the_generated_test_drives_each_entry_and_refuses_a_parm():
+def test_the_generated_test_drives_each_entry_and_refuses_a_parm(monkeypatch):
     import equivalence_java as ej  # noqa: PLC0415
 
     case = json.loads((REPO / "tests/equivalence/carddemo-readcard/case.json").read_text(encoding="utf-8"))
     case["name"] = "carddemo-readcard"
+    case["entries"] = [{"method": "executeCbact02c", "why": "a test"}]
+    monkeypatch.setattr(ej, "_entry_returns", lambda case, svc: {"executeCbact02c": "int"})
     src = ej.equivalence_test(case)
     assert 'System.getProperty("equivalence.entry", "")' in src
-    assert 'case "executeCbact02c" -> cbact02cService.executeCbact02c();' in src
-    assert "rc = 0;" in src and "runBatch(List.of(" in src
+    # #4342: the generated executeX returns runBatch's RETURN-CODE, and the entry run compares that one
+    assert 'case "executeCbact02c" -> rc = cbact02cService.executeCbact02c();' in src and "runBatch(List.of(" in src
+    monkeypatch.setattr(ej, "_entry_returns", lambda case, svc: {"executeCbact02c": "void"})
+    void = ej.equivalence_test(case)  # a void entry that returns normally ends the step RETURN-CODE 0
+    assert "cbact02cService.executeCbact02c();\n                    rc = 0;" in void
     assert "equivalence.entry" not in ej.equivalence_test({**case, "entries": []})
     with pytest.raises(SystemExit, match="passes no PARM"):
         ej.entry_names({**case, "parm": "2022071800"})

@@ -151,22 +151,31 @@ def _port_dir(case: str, program: str) -> Path:
     return eq if eq.is_dir() else REPO / "tests" / "cics_crucible" / "ports" / case / program / "overlay"
 
 
-# The examples #4255 names, and the port each sits in.
+# The examples #4255 names that the proof still never runs, and the port each sits in (the crucible ports' are
+# regenerated with their facade proofs, #4343).
 NAMED = {
-    ("carddemo-acctview", "COACTVWC"): {"dispatchCdemoToProgramL349"},
-    ("carddemo-dateutil", "CSUTLDTC"): {"executeCsutldtc"},
     ("ca-link-lengths", "CASUB"): {"executeCasub", "handleLink", "writeqTsCatraceL22"},
     ("hc-abend-link", "HCMAIN"): {"executeHcmain", "bridgeHcsub"},
     ("hc-abend-link", "HCSUB"): {"readqTsHcnoneL37"},
     ("gt-start-retrieve", "GTWORK"): {"executeGtwork"},
 }
 # Named by #4255 too, and run by the proof since: runTask takes each handled condition / abend through the handler
-# the port defines for it (the evidence records' ported_unproven methods, #4316 follow-up).
+# the port defines for it (the evidence records' ported_unproven methods, #4316 follow-up), and (#4342) its
+# data-driven XCTL through the dispatcher the generator writes for it.
 NOW_REACHED = {
+    ("carddemo-acctview", "COACTVWC"): {"dispatchCdemoToProgramL349"},
     ("hc-abend-link", "HCMAIN"): {"onAbendL26", "onConditionQiderrL25"},
     ("hc-abend-link", "HCSUB"): {"onAbendL32"},
     ("hc-perform-range", "HCQREAD"): {"onConditionQiderrL25", "onConditionItemerrL25", "onConditionErrorL25",
                                       "onConditionItemerrL56", "current"},
+}
+# #4342: methods with no COBOL behaviour behind them, which the generator no longer writes: gone from the ports. A batch
+# executeX of a CICS / CALLed program, the handler of a HANDLE ABEND CANCEL, and a screen's render / submit that no
+# controller calls (ui.flavour none).
+REMOVED = {
+    ("carddemo-dateutil", "CSUTLDTC"): {"executeCsutldtc"},
+    ("carddemo-cardview", "COCRDSLC"): {"executeCocrdslc", "onAbendL871", "renderCcrdsla", "submitCcrdsla"},
+    ("carddemo-acctview", "COACTVWC"): {"executeCoactvwc", "onAbendL930", "renderCactvwa", "submitCactvwa"},
 }
 
 
@@ -177,6 +186,12 @@ def test_the_committed_ports_keep_the_entry_points_the_issue_names(case, program
     unproven = {m["method"] for m in report[cls]["unproven"]}
     assert NAMED[(case, program)] <= unproven
     assert "runTask" not in unproven and "handleCall" not in unproven
+
+
+@pytest.mark.parametrize("case,program", sorted(REMOVED))
+def test_the_ports_have_no_method_the_generator_no_longer_writes(case, program):
+    (unit,) = [R.parse_java(p) for p in R.java_files([_port_dir(case, program)])]
+    assert not REMOVED[(case, program)] & {m.name for m in unit.methods}
 
 
 @pytest.mark.parametrize("case,program", sorted(NOW_REACHED))
@@ -218,6 +233,10 @@ def test_every_survivor_in_code_no_proof_runs_was_triaged_as_out_of_the_proofs_r
     flagged = _flagged_survivors()
     verdicts = [s["verdict"] for _, s in flagged]
     assert "case_gap" not in verdicts and "harness_gap" not in verdicts
-    # 37 when #4255 counted them; the 8 in hc-abend-link and hc-perform-range left with their ports' changes (their
-    # handlers now run), until the next mutation run judges those ports again
-    assert verdicts.count("unreachable") >= 29
+    # 37 when #4255 counted them. The 8 in hc-abend-link and hc-perform-range left with their ports' changes (their
+    # handlers now run, #4325; those ports are re-judged with #4343). #4342 took 14 more with the code they sat in:
+    # COMEN01C's 9 and COACTVWC's 1 were in data-driven dispatchers no proof called, which runTask now XCTLs through;
+    # CSUTLDTC's 4 were in executeCsutldtc, which is gone. The three ports were mutated again at #4342 and none of
+    # their survivors sits in code no proof runs any more -- so the 15 below are all there are, not a lowered bar.
+    assert verdicts.count("unreachable") >= 15
+    assert not {prog for prog, _ in flagged} & {"COACTVWC", "COMEN01C", "CSUTLDTC"}

@@ -84,10 +84,6 @@ public class Cbact04cService {
         this.files = files;
     }
 
-    public void executeCbact04c() {
-        log.info("CBACT04C runs as a batch step: see runBatch");
-    }
-
     public Optional<AccountRecord> readAccountFile(Long key) {
         return accountRecordRepository.findById(key);
     }

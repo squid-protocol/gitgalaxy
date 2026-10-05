@@ -7,7 +7,7 @@
   "paths": [
    "tests/equivalence/carddemo-useradd/port/service/Cousr01cService.java"
   ],
-  "sha256": "035c33bee31627f924b4ac8b7185dabb406200fffd1a59807df68efbaedcde01",
+  "sha256": "463547727a5f6af38dbd0052fdb6c69b0425e7299967d03a2f7259d5e4a1a835",
   "entry_points": [
    "runTask"
   ]
@@ -18,7 +18,7 @@
     "tests/equivalence/carddemo-useradd/port/**"
    ],
    "files": 1,
-   "sha256": "035c33bee31627f924b4ac8b7185dabb406200fffd1a59807df68efbaedcde01"
+   "sha256": "463547727a5f6af38dbd0052fdb6c69b0425e7299967d03a2f7259d5e4a1a835"
   },
   "case": {
    "paths": [
@@ -42,7 +42,7 @@
     "tests/tools/java_target_matrix.py"
    ],
    "files": 11,
-   "sha256": "609073a350a3120d63bf3cb3e7f6a1050a9fc8a91964ac548b2826356f319cbc"
+   "sha256": "1764f900744b3e9c121722acf2c84aee1ef8dded04fa68f429e0abc39f031fd9"
   },
   "oracle": {
    "paths": [
@@ -62,7 +62,7 @@
     "gitgalaxy/tools/cobol_to_java/**"
    ],
    "files": 60,
-   "sha256": "880250850d919c29f8ace3eb0d7183156a05354438ea79f72a417febb9e57e68"
+   "sha256": "674777fda7f1a297b554ec1935d0b26aa8d37f65f65e150a94fab7dd570a0866"
   },
   "corpus": {
    "name": "aws-mainframe-modernization-carddemo",
@@ -72,10 +72,10 @@
   "differences": {
    "sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
   },
-  "digest": "1012a3a591871a48880df2ade12e6bd7948bfd65461d2f08ac1c3b7fca1faaff"
+  "digest": "c8fe3be961ded6e3d3521a813ffce23404b0279865c22bab316c3f42c6b7588c"
  },
  "proof": {
-  "at": "2026-10-04T15:31:18Z",
+  "at": "2026-10-05T06:04:15Z",
   "verdict": "proven",
   "runs": 13,
   "fault_runs": 1,
@@ -138,8 +138,8 @@
   "sysout_compared": null,
   "attributes_compared": null,
   "java_failed": false,
-  "harness_commit": "b2054a86377f7ca2f42496e4c64cad8091ae4818+uncommitted",
-  "inputs_digest": "1012a3a591871a48880df2ade12e6bd7948bfd65461d2f08ac1c3b7fca1faaff"
+  "harness_commit": "d03da8b743917a29a13e48709fb0c7f6ad778528+uncommitted",
+  "inputs_digest": "c8fe3be961ded6e3d3521a813ffce23404b0279865c22bab316c3f42c6b7588c"
  },
  "coverage": {
   "paragraphs": {
@@ -163,7 +163,7 @@
    "total": 0
   },
   "source": "the proof's own traced COBOL runs (cobol_coverage.py)",
-  "inputs_digest": "1012a3a591871a48880df2ade12e6bd7948bfd65461d2f08ac1c3b7fca1faaff"
+  "inputs_digest": "c8fe3be961ded6e3d3521a813ffce23404b0279865c22bab316c3f42c6b7588c"
  },
  "reach": {
   "entry_points": [
@@ -172,48 +172,24 @@
   "unproven": [
    {
     "class": "Cousr01cService",
-    "method": "executeCousr01c",
-    "line": 61,
-    "kind": "stub"
-   },
-   {
-    "class": "Cousr01cService",
     "method": "handleTransaction",
-    "line": 67,
-    "kind": "stub"
+    "line": 57,
+    "kind": "left_as_generated"
    },
    {
     "class": "Cousr01cService",
     "method": "handleLink",
-    "line": 327,
-    "kind": "stub"
-   },
-   {
-    "class": "Cousr01cService",
-    "method": "dispatchCdemoToProgramL175",
-    "line": 334,
-    "kind": "left_as_generated"
-   },
-   {
-    "class": "Cousr01cService",
-    "method": "renderCousr1a",
-    "line": 354,
-    "kind": "left_as_generated"
-   },
-   {
-    "class": "Cousr01cService",
-    "method": "submitCousr1a",
-    "line": 361,
+    "line": 321,
     "kind": "left_as_generated"
    }
   ],
   "counts": {
-   "stub": 3,
-   "left_as_generated": 3,
+   "stub": 0,
+   "left_as_generated": 2,
    "ported_unproven": 0
   },
   "generated_compared": true,
-  "port_sha256": "035c33bee31627f924b4ac8b7185dabb406200fffd1a59807df68efbaedcde01"
+  "port_sha256": "463547727a5f6af38dbd0052fdb6c69b0425e7299967d03a2f7259d5e4a1a835"
  },
  "mutation": null,
  "differences": [],

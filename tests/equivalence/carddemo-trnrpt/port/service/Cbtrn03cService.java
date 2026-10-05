@@ -60,11 +60,6 @@ public class Cbtrn03cService {
     private final CobolFiles files;
     private final DatasetResolver datasetResolver;
 
-    public void executeCbtrn03c(/* Parameters mapped from Controller */) {
-        log.info("Executing modernized business logic for CBTRN03C");
-        // The program is a batch main line only: its whole PROCEDURE DIVISION is ported in runBatch.
-    }
-
     /** AWS.M2.CARDDEMO.CARDXREF.VSAM.KSDS as BATCH SELECT XREF-FILE at app/cbl/CBTRN03C.cbl (SELECT XREF-FILE); VSAM defines field testing: open (3 public / 0 private estates). */
     // FD-CARDXREF-REC (key 16 + data 34) is read INTO CARD-XREF-RECORD: the entity follows CARD-XREF-RECORD.
     public Optional<CardXrefRecord> readXrefFile(String key) {
@@ -525,5 +520,4 @@ public class Cbtrn03cService {
             }
         }
     }
-
 }

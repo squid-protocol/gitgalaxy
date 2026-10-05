@@ -8,15 +8,15 @@ The status above judges the record alone (policy: ported_unproven = block). Whet
 
 | | |
 |---|---|
-| proof | proven at 2026-10-04T15:46:14Z, harness `cdad33370dc73ea44e5bf1348d88c9404a14c2d2+uncommitted` |
-| inputs digest | `fb184d9bc34b1309d757481b14843a5a3ed7d2959a1efa82afcfc1333142c480` |
+| proof | proven at 2026-10-05T06:07:39Z, harness `d03da8b743917a29a13e48709fb0c7f6ad778528+uncommitted` |
+| inputs digest | `b4de5d92cabf2533971f2df5acb775c415eb39748d9b5121b8ace90f2100b676` |
 | port | 1 files `a4d02fd02a5ae3a9` |
 | case | 0 files `e3b0c44298fc1c14` |
 | corpus | cics-crucible @ `v0.2.0` `085be5a9f372ecb9` |
 | differences |  `4f53cda18c2baa0c` |
-| harness | 13 files `1549c810f2072e53` |
+| harness | 13 files `76e6774afa2c5e70` |
 | oracle | 0 files `e3b0c44298fc1c14` |
-| generator | 60 files `880250850d919c29` |
+| generator | 60 files `674777fda7f1a297` |
 | oracle run | crucible-expected-logs: cics-crucible v0.2.0: each scenario's hand-written expected event log, derived from IBM's documentation (its SPEC.md); the java-ported side is compared with it exactly |
 | written by | model `claude-opus-5-5`, attempt 1 |
 

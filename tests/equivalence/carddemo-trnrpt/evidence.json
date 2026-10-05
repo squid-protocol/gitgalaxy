@@ -7,7 +7,7 @@
   "paths": [
    "tests/equivalence/carddemo-trnrpt/port/service/Cbtrn03cService.java"
   ],
-  "sha256": "4a58403d89fb0e6b73a4000d2b421dc16d41c609a9f1f858a22b0074c2d77375",
+  "sha256": "b4dd0ffc57bd02e01bbd236c0149d6b277d072df8c84f5e5f3d7c09f01afa98a",
   "entry_points": [
    "runBatch"
   ]
@@ -18,7 +18,7 @@
     "tests/equivalence/carddemo-trnrpt/port/**"
    ],
    "files": 1,
-   "sha256": "4a58403d89fb0e6b73a4000d2b421dc16d41c609a9f1f858a22b0074c2d77375"
+   "sha256": "b4dd0ffc57bd02e01bbd236c0149d6b277d072df8c84f5e5f3d7c09f01afa98a"
   },
   "case": {
    "paths": [
@@ -42,7 +42,7 @@
     "tests/tools/java_target_matrix.py"
    ],
    "files": 11,
-   "sha256": "609073a350a3120d63bf3cb3e7f6a1050a9fc8a91964ac548b2826356f319cbc"
+   "sha256": "1764f900744b3e9c121722acf2c84aee1ef8dded04fa68f429e0abc39f031fd9"
   },
   "oracle": {
    "paths": [
@@ -62,7 +62,7 @@
     "gitgalaxy/tools/cobol_to_java/**"
    ],
    "files": 60,
-   "sha256": "880250850d919c29f8ace3eb0d7183156a05354438ea79f72a417febb9e57e68"
+   "sha256": "674777fda7f1a297b554ec1935d0b26aa8d37f65f65e150a94fab7dd570a0866"
   },
   "corpus": {
    "name": "aws-mainframe-modernization-carddemo",
@@ -72,10 +72,10 @@
   "differences": {
    "sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
   },
-  "digest": "d39e203aa50fc507066de2474d0c23533c5fbb4ff6ab9be7596b58f67e39a75e"
+  "digest": "fd2523f752ae5f40190cf5bf4d56bc55e3567653a7c53a56cd93a1fd711b3fac"
  },
  "proof": {
-  "at": "2026-10-04T15:43:56Z",
+  "at": "2026-10-05T06:04:06Z",
   "verdict": "proven",
   "runs": 25,
   "fault_runs": 24,
@@ -90,8 +90,8 @@
   "sysout_compared": true,
   "attributes_compared": null,
   "java_failed": false,
-  "harness_commit": "cdad33370dc73ea44e5bf1348d88c9404a14c2d2+uncommitted",
-  "inputs_digest": "d39e203aa50fc507066de2474d0c23533c5fbb4ff6ab9be7596b58f67e39a75e"
+  "harness_commit": "d03da8b743917a29a13e48709fb0c7f6ad778528+uncommitted",
+  "inputs_digest": "fd2523f752ae5f40190cf5bf4d56bc55e3567653a7c53a56cd93a1fd711b3fac"
  },
  "coverage": {
   "paragraphs": {
@@ -115,27 +115,20 @@
    "total": 0
   },
   "source": "the proof's own traced COBOL runs (cobol_coverage.py)",
-  "inputs_digest": "d39e203aa50fc507066de2474d0c23533c5fbb4ff6ab9be7596b58f67e39a75e"
+  "inputs_digest": "fd2523f752ae5f40190cf5bf4d56bc55e3567653a7c53a56cd93a1fd711b3fac"
  },
  "reach": {
   "entry_points": [
    "runBatch"
   ],
-  "unproven": [
-   {
-    "class": "Cbtrn03cService",
-    "method": "executeCbtrn03c",
-    "line": 63,
-    "kind": "stub"
-   }
-  ],
+  "unproven": [],
   "counts": {
-   "stub": 1,
+   "stub": 0,
    "left_as_generated": 0,
    "ported_unproven": 0
   },
   "generated_compared": true,
-  "port_sha256": "4a58403d89fb0e6b73a4000d2b421dc16d41c609a9f1f858a22b0074c2d77375"
+  "port_sha256": "b4dd0ffc57bd02e01bbd236c0149d6b277d072df8c84f5e5f3d7c09f01afa98a"
  },
  "mutation": null,
  "differences": [],

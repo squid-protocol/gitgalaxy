@@ -360,12 +360,16 @@ public interface ScreenModel {{
             return None
         pkg = f"{self.package}.{SCREEN_SUBPACKAGE}"
         imports = [f"import {pkg}.{s.cls};" for s in screens]
-        if any(any(r["key"] == key for r in s.receives) for s in screens):
+        # #4342: render / submit are the screen controllers' entry points; with ui.flavour none no controller calls
+        # them, and they would be methods with no COBOL behaviour behind them (the program SENDs and RECEIVEs its
+        # maps inside its task: runTask). The view models stay, for the port.
+        handlers = key in self.controllers
+        if handlers and any(any(r["key"] == key for r in s.receives) for s in screens):
             imports.append(f"import {pkg}.ScreenModel;")
         methods: list[str] = []
         svc = f"{java_class_base(key)}Service"
         status = self.status.get(key, "untested")
-        for s in screens:
+        for s in screens if handlers else []:
             sends = [x for x in s.sends if x["key"] == key]
             receives = [x for x in s.receives if x["key"] == key]
             if sends:

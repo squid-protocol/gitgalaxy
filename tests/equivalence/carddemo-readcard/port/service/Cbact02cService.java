@@ -33,11 +33,6 @@ public class Cbact02cService {
         Iterator<CardRecord> cursor;          // sequential position in CARDFILE-FILE
     }
 
-    public void executeCbact02c(/* Parameters mapped from Controller */) {
-        log.info("Executing modernized business logic for CBACT02C");
-        runBatch(List.of(), null);
-    }
-
     /** AWS.M2.CARDDEMO.CARDDATA.VSAM.KSDS as BATCH SELECT CARDFILE-FILE at app/cbl/CBACT02C.cbl (SELECT CARDFILE-FILE); VSAM defines field testing: open (3 public / 0 private estates). */
     // The program reads FD-CARDFILE-REC (150 bytes) INTO CARD-RECORD (150 bytes): same layout, mapped by fromRecord / toRecord.
     // Sequential READ: in key order, CARD-NUM as cp037 bytes (#3945, #3822).
@@ -153,5 +148,4 @@ public class Cbact02cService {
     private static boolean isDigit(char c) {
         return c >= '0' && c <= '9';
     }
-
 }

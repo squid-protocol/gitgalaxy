@@ -113,6 +113,7 @@ def commarea_alternative_todos(commarea: dict) -> list[str]:
 CICS_TASK_JAVA = """package __PACKAGE__.cics;
 
 import java.time.LocalDateTime;
+import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -122,6 +123,8 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.function.Consumer;
+import java.util.function.Supplier;
 import java.util.function.UnaryOperator;
 
 /**
@@ -175,6 +178,7 @@ public class CicsTask {
     private boolean syncpointed;                                            // a SYNCPOINT committed (the root's)
     private Runnable rollbackHook;                                          // how a rollback undoes (the root's)
     private final Map<String, Integer> faultSeen = new HashMap<>();
+    private Object returnedArea;                                             // #4343: the level-1 RETURN's COMMAREA
 
     /** `aid` is ENTER, CLEAR, PF1-PF24 or PA1-PA3; `received` maps a map name to its input screen. The
      *  COMMAREA, if any, is its whole record (as long as its DTO's layout). */
@@ -1310,8 +1314,127 @@ public class CicsTask {
         } else {
             event("RETURN", "transid", transid, "commarea", snapshot.apply(commarea), "length",
                     commarea == null ? null : length);
+            root().returnedArea = commarea;
         }
         ended = true;
+    }
+
+    /** The COMMAREA the task's level-1 RETURN passed on (#4343: what handleTransaction answers), as `type`; null when
+     *  the task RETURNed none, or has not RETURNed. A COMMAREA of another class is refused, never converted. */
+    public <T> T returned(Class<T> type) {
+        Object area = root().returnedArea;
+        if (area != null && !type.isInstance(area)) {
+            throw new IllegalStateException("the task RETURNed a " + area.getClass().getName() + ", not a "
+                    + type.getName());
+        }
+        return type.cast(area);
+    }
+
+    // ---- #4343: the region a program's deployed entry points run their task in -----------------------------------
+    /** Where a facade -- a program's deployed entry point: handleTransaction, handleLink -- gets its task and runs it:
+     *  the region the program runs in, with its temporary storage, the programs a LINK / XCTL reaches, its clock and
+     *  terminal. A deployment installs one (deploy, once: the generated CicsRegion bean does). A harness joins one on
+     *  its thread (join), so a facade's task is the scenario's own -- the same events, TS, COMMAREA, screens, abend and
+     *  condition plumbing -- and is compared with the COBOL like any task the harness starts itself. */
+    public interface Region {
+        /** A task of transaction `transid` at the region's terminal, ENTER pressed. With no COMMAREA it is the
+         *  transaction started from a cleared screen: its terminal input is the transaction id typed. With one (its
+         *  whole record: EIBCALEN is the record's length) it goes on with the conversation: ENTER on the screen the
+         *  last task sent, nothing typed. */
+        CicsTask transaction(String transid, Object commarea);
+
+        /** The program level `program` runs at when another program LINKs (or XCTLs) to it with `commarea` (null:
+         *  none) -- the whole record, passed by reference: what the program changes in it, the caller sees. */
+        CicsTask linked(String program, Object commarea);
+
+        /** Runs `program` on `task`: `self` is the program's own runTask; a LINK / XCTL reaches the region's others. */
+        void run(CicsTask task, String program, Consumer<CicsTask> self);
+    }
+
+    /** The region joined on this thread until closed (#4343). */
+    public interface Joined extends AutoCloseable {
+        @Override
+        void close();
+    }
+
+    private static final ThreadLocal<Region> JOINED = new ThreadLocal<>();
+    private static volatile Region deployed;
+
+    /** The region a facade runs its task in (#4343): the one joined on this thread, else the deployed one, else a
+     *  region of the program alone (a LINK / XCTL to any other program is PGMIDERR). */
+    public static Region region() {
+        Region r = JOINED.get();
+        if (r != null) {
+            return r;
+        }
+        Region d = deployed;
+        return d != null ? d : new LocalRegion(null, null, null);
+    }
+
+    /** A deployment's region, from now on (#4343). */
+    public static void deploy(Region region) {
+        deployed = region;
+    }
+
+    /** Joins `region` on this thread (#4343): a facade called before the handle is closed runs its task there. */
+    public static Joined join(Region region) {
+        Region before = JOINED.get();
+        JOINED.set(region);
+        return () -> {
+            if (before == null) {
+                JOINED.remove();
+            } else {
+                JOINED.set(before);
+            }
+        };
+    }
+
+    /** A region in this JVM (#4343): one temporary storage for every task, the clock `clock` (null: the wall clock in
+     *  the mainframe's zone, __ZONE__ -- never the JVM's), the programs `programs` runs (null: none but the program a
+     *  facade runs), and the terminal `termid` (null: none). */
+    public static class LocalRegion implements Region {
+        private final Programs programs;
+        private final String termid;
+        private final Supplier<LocalDateTime> clock;
+        private final TempStorage storage = new TempStorage();
+
+        public LocalRegion(Programs programs, String termid, Supplier<LocalDateTime> clock) {
+            this.programs = programs;
+            this.termid = termid;
+            this.clock = clock != null ? clock : () -> LocalDateTime.now(ZoneId.of("__ZONE__"));
+        }
+
+        @Override
+        public CicsTask transaction(String transid, Object commarea) {
+            CicsTask t = new CicsTask(transid, "ENTER", commarea, null, Map.of()).withTempStorage(storage)
+                    .withTermid(termid).withClock(clock.get());
+            if (commarea == null) {
+                t.withTerminalInput(transid);
+            }
+            return t;
+        }
+
+        /** A LINK from outside the region (a distributed program link): the program runs at level 1 of a task of
+         *  its own, the mirror transaction CSMI's, with no terminal. */
+        @Override
+        public CicsTask linked(String program, Object commarea) {
+            return new CicsTask("CSMI", null, commarea, null, Map.of()).withTempStorage(storage)
+                    .withClock(clock.get()).withProgram(program);
+        }
+
+        @Override
+        public void run(CicsTask task, String program, Consumer<CicsTask> self) {
+            task.withPrograms(programs != null ? programs : new Programs() {
+                public boolean defined(String p) {
+                    return program.equals(p);
+                }
+
+                public void run(String p, CicsTask t) {
+                    self.accept(t);
+                }
+            });
+            task.run(program);
+        }
     }
 
     /** XCTL PROGRAM(program) COMMAREA(commarea), the COMMAREA being its whole record. */
@@ -2006,10 +2129,97 @@ class CicsForge:
 
     def runtime_sources(self) -> dict[str, str]:
         """#3754: CicsTask (package <pkg>.cics), when there is a CICS program to run as a task (#4004: or at a
-        LINK / XCTL level)."""
+        LINK / XCTL level); #4343: and CicsRegion, the deployment's region the programs' facades run their tasks in."""
         if not self.programs:
             return {}
-        return {"CicsTask": CICS_TASK_JAVA.replace("__PACKAGE__", self.package)}
+        out = {"CicsTask": CICS_TASK_JAVA.replace("__PACKAGE__", self.package).replace("__ZONE__", self.zone)}
+        if self.target.features.services:  # the region runs the programs' services
+            out["CicsRegion"] = self.region_source()
+        return out
+
+    @property
+    def zone(self) -> str:
+        """#3824: the mainframe's time zone (the target's culture.zone), the region's clock -- never the JVM's."""
+        return self.target.culture.zone
+
+    @staticmethod
+    def program_name(prog: CicsProgram) -> str:
+        """The name the CSD and a LINK / XCTL give the program: its PROGRAM-ID, else its key."""
+        return (prog.program_ids[0] if prog.program_ids else prog.key).upper()
+
+    def region_source(self) -> str:
+        """#4343: the deployment's region (CicsTask.LocalRegion): every CICS program of the estate, run through its
+        service's runTask, so a facade's LINK / XCTL reaches the others as CICS does; installed when Spring makes it."""
+        progs = sorted(self.programs.values(), key=lambda p: (self.program_name(p), p.path))
+        by_name: dict[str, list[CicsProgram]] = {}
+        for p in progs:
+            by_name.setdefault(self.program_name(p), []).append(p)
+        names = ", ".join(json.dumps(n) for n in by_name)
+        transids = sorted({t["transid"] for p in progs for t in p.transactions})
+        arms = []
+        for name, same in by_name.items():
+            if len(same) == 1:
+                arms.append(
+                    f"            case {json.dumps(name)} -> context.getBean({same[0].cls}Service.class).runTask(task);"
+                )
+                continue
+            # two sources under one program name: the region's CSD installs one of them, and the estate does not say
+            # which -- so the region runs neither rather than pick one (CICS itself never holds two)
+            srcs = ", ".join(p.path for p in same)
+            arms.append(
+                f"            case {json.dumps(name)} -> throw new IllegalStateException("
+                f"{json.dumps(f'program {name} has more than one source ({srcs}); the CSD decides which one runs')});"
+            )
+        imports = [
+            f"import {self.package}.service.{same[0].cls}Service;" for same in by_name.values() if len(same) == 1
+        ]
+        return "\n".join([
+            f"package {self.package}.cics;", "",
+            *sorted(set(imports)),
+            "import java.time.LocalDateTime;",
+            "import java.time.ZoneId;",
+            "import java.util.Set;",
+            "import org.springframework.beans.factory.annotation.Value;",
+            "import org.springframework.context.ApplicationContext;",
+            "import org.springframework.stereotype.Component;", "",
+            "/**",
+            " * The region this application's CICS programs run in (#4343): every program's facade (handleTransaction,",
+            " * handleLink) runs its task here -- one temporary storage, and a LINK / XCTL reaching the other programs",
+            " * through their services' runTask, as the CSD-defined programs of a CICS region reach each other. Spring makes",
+            " * it once, which deploys it (CicsTask.deploy); a test harness joins a region of its own instead (CicsTask.join).",
+            " * Its clock is the mainframe's, as MainframeClock's (#3824): `gitgalaxy.clock` (an ISO local date-time) when",
+            f" * set, else the wall clock in `gitgalaxy.zone`, else `gitgalaxy.culture.zone`, else {self.zone} -- never the JVM's.",
+            " */",
+            "@Component",
+            "public class CicsRegion implements CicsTask.Programs {", "",
+            f"    static final Set<String> PROGRAMS = Set.of({names});",
+            f"    static final Set<String> TRANSACTIONS = Set.of({', '.join(json.dumps(t) for t in transids)});", "",
+            "    private final ApplicationContext context;", "",
+            "    public CicsRegion(ApplicationContext context, @Value(\"${gitgalaxy.clock:}\") String pinned,",
+            f"                      @Value(\"${{gitgalaxy.zone:${{gitgalaxy.culture.zone:{self.zone}}}}}\") String zoneId) {{",
+            "        this.context = context;",
+            f"        ZoneId zone = ZoneId.of(zoneId == null || zoneId.isBlank() ? {json.dumps(self.zone)} : zoneId.trim());",
+            "        String at = pinned == null ? \"\" : pinned.trim();",
+            "        CicsTask.deploy(new CicsTask.LocalRegion(this, null,",
+            "                at.isEmpty() ? () -> LocalDateTime.now(zone) : () -> LocalDateTime.parse(at)));",
+            "    }", "",
+            "    @Override",
+            "    public boolean defined(String program) {",
+            "        return PROGRAMS.contains(program);",
+            "    }", "",
+            "    @Override",
+            "    public boolean transaction(String transid) {",
+            "        return TRANSACTIONS.contains(transid);",
+            "    }", "",
+            "    @Override",
+            "    public void run(String program, CicsTask task) {",
+            "        switch (program) {",
+            *arms,
+            '            default -> throw new IllegalStateException("no service runs program " + program);',
+            "        }",
+            "    }",
+            "}", "",
+        ])  # fmt: skip
 
     def service_extras(self, prog: CicsProgram) -> dict:
         """The imports and methods the program's @Service gains: the handlers its endpoints call."""
@@ -2029,7 +2239,26 @@ class CicsForge:
                 )
             methods.append("    }\n")
 
-        if prog.transactions:
+        name = json.dumps(self.program_name(prog))
+        facade = not (prog.channel_in or prog.channel_out) or bool(prog.commarea_dto)  # a channel: no task runtime
+        if prog.transactions and facade:
+            # #4343: the deployed entry point runs the program -- one task of it in the region -- so it is comparable
+            # with the COBOL (the CICS crucible drives scenarios through it); #4342: never an entry that does nothing
+            params = "String transid" + (f", {req} request" if req else "")
+            methods += [
+                "    /** A CICS transaction entered the program (#4343): one task of it in the region (CicsTask.region()),",
+                "     *  ENTER pressed" + (" -- `request` its COMMAREA, null when started from a cleared screen --" if req
+                                          else ", started from a cleared screen,") + " run through runTask"
+                + (". Returns the COMMAREA its RETURN passes on (null: none). */" if resp == req and req else ". */"),
+                f"    public {resp if resp == req and req else 'void'} handleTransaction({params}) {{",
+                f'        log.info("{prog.cls}: handleTransaction");',
+                "        CicsTask.Region region = CicsTask.region();",
+                f"        CicsTask task = region.transaction(transid, {'request' if req else 'null'});",
+                f"        region.run(task, {name}, this::runTask);",
+                *([f"        return task.returned({req}.class);"] if resp == req and req else []),
+                "    }\n",
+            ]  # fmt: skip
+        elif prog.transactions:
             handler("handleTransaction", "String transid", req, resp, "A CICS transaction entered the program.")
         # #3754: the whole task -- the port's target, and what the equivalence harness drives; #4004: a program
         # reached only by LINK / XCTL runs the same way, at its level
@@ -2046,7 +2275,21 @@ class CicsForge:
             "        // TODO: [AI AGENT] port the PROCEDURE DIVISION into this task",
             "    }\n",
         ]
-        if self.has_link_handler(prog):
+        if self.has_link_handler(prog) and facade:
+            methods += [
+                "    /** Another program LINKed / XCTLed to this one (#4343): the program at that level in the region",
+                "     *  (CicsTask.region()), run through runTask on " + ("`request`, passed by reference -- what it changes,"
+                                                                       " the caller sees." if req else "no COMMAREA.")
+                + " */",
+                f"    public {req if resp == req and req else 'void'} handleLink({f'{req} request' if req else ''}) {{",
+                f'        log.info("{prog.cls}: handleLink");',
+                "        CicsTask.Region region = CicsTask.region();",
+                f"        CicsTask task = region.linked({name}, {'request' if req else 'null'});",
+                f"        region.run(task, {name}, this::runTask);",
+                *(["        return request;"] if resp == req and req else []),
+                "    }\n",
+            ]  # fmt: skip
+        elif self.has_link_handler(prog):
             handler("handleLink", None, req, resp, "Another program LINKed / XCTLed to this one.")
         if (prog.channel_in or prog.channel_out) and (req, resp) != (prog.channel_in, prog.channel_out):
             handler("handleChannel", None, prog.channel_in, prog.channel_out, "The program's channel.")

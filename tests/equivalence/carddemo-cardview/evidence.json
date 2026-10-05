@@ -7,7 +7,7 @@
   "paths": [
    "tests/equivalence/carddemo-cardview/port/service/CocrdslcService.java"
   ],
-  "sha256": "f97363e815ff91b3794a2fca68f8ca079f85c1569938b5a0cf96c6709713c98d",
+  "sha256": "76b000a8ffc38a93452d456a3a9f751f861c785b7a153acfb484ab6f6bae378b",
   "entry_points": [
    "runTask"
   ]
@@ -18,7 +18,7 @@
     "tests/equivalence/carddemo-cardview/port/**"
    ],
    "files": 1,
-   "sha256": "f97363e815ff91b3794a2fca68f8ca079f85c1569938b5a0cf96c6709713c98d"
+   "sha256": "76b000a8ffc38a93452d456a3a9f751f861c785b7a153acfb484ab6f6bae378b"
   },
   "case": {
    "paths": [
@@ -42,7 +42,7 @@
     "tests/tools/java_target_matrix.py"
    ],
    "files": 11,
-   "sha256": "609073a350a3120d63bf3cb3e7f6a1050a9fc8a91964ac548b2826356f319cbc"
+   "sha256": "1764f900744b3e9c121722acf2c84aee1ef8dded04fa68f429e0abc39f031fd9"
   },
   "oracle": {
    "paths": [
@@ -62,7 +62,7 @@
     "gitgalaxy/tools/cobol_to_java/**"
    ],
    "files": 60,
-   "sha256": "880250850d919c29f8ace3eb0d7183156a05354438ea79f72a417febb9e57e68"
+   "sha256": "674777fda7f1a297b554ec1935d0b26aa8d37f65f65e150a94fab7dd570a0866"
   },
   "corpus": {
    "name": "aws-mainframe-modernization-carddemo",
@@ -72,10 +72,10 @@
   "differences": {
    "sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
   },
-  "digest": "043cf9b428c462b9ebd79ee983f30e103f269a2752d7397b364e287eba72e64b"
+  "digest": "4f8fc0bae63741c907b39aafa77d88229cc475ed623c014c51b40639d55111b5"
  },
  "proof": {
-  "at": "2026-10-04T15:31:08Z",
+  "at": "2026-10-05T05:53:29Z",
   "verdict": "proven",
   "runs": 22,
   "fault_runs": 3,
@@ -174,8 +174,8 @@
   "sysout_compared": null,
   "attributes_compared": null,
   "java_failed": false,
-  "harness_commit": "b2054a86377f7ca2f42496e4c64cad8091ae4818+uncommitted",
-  "inputs_digest": "043cf9b428c462b9ebd79ee983f30e103f269a2752d7397b364e287eba72e64b"
+  "harness_commit": "d03da8b743917a29a13e48709fb0c7f6ad778528+uncommitted",
+  "inputs_digest": "4f8fc0bae63741c907b39aafa77d88229cc475ed623c014c51b40639d55111b5"
  },
  "coverage": {
   "paragraphs": {
@@ -253,7 +253,7 @@
    "total": 1
   },
   "source": "the proof's own traced COBOL runs (cobol_coverage.py)",
-  "inputs_digest": "043cf9b428c462b9ebd79ee983f30e103f269a2752d7397b364e287eba72e64b"
+  "inputs_digest": "4f8fc0bae63741c907b39aafa77d88229cc475ed623c014c51b40639d55111b5"
  },
  "reach": {
   "entry_points": [
@@ -262,66 +262,36 @@
   "unproven": [
    {
     "class": "CocrdslcService",
-    "method": "executeCocrdslc",
-    "line": 93,
-    "kind": "stub"
-   },
-   {
-    "class": "CocrdslcService",
     "method": "handleTransaction",
-    "line": 99,
-    "kind": "stub"
+    "line": 91,
+    "kind": "left_as_generated"
    },
    {
     "class": "CocrdslcService",
     "method": "handleLink",
-    "line": 581,
-    "kind": "stub"
-   },
-   {
-    "class": "CocrdslcService",
-    "method": "dispatchCdemoToProgramL331",
-    "line": 589,
+    "line": 577,
     "kind": "left_as_generated"
    },
    {
     "class": "CocrdslcService",
     "method": "readCardaix",
-    "line": 599,
+    "line": 596,
     "kind": "left_as_generated"
-   },
-   {
-    "class": "CocrdslcService",
-    "method": "onAbendL871",
-    "line": 625,
-    "kind": "ported_unproven"
    },
    {
     "class": "CocrdslcService",
     "method": "abendLegacy9999L875",
-    "line": 639,
-    "kind": "left_as_generated"
-   },
-   {
-    "class": "CocrdslcService",
-    "method": "renderCcrdsla",
-    "line": 645,
-    "kind": "left_as_generated"
-   },
-   {
-    "class": "CocrdslcService",
-    "method": "submitCcrdsla",
-    "line": 651,
+    "line": 623,
     "kind": "left_as_generated"
    }
   ],
   "counts": {
-   "stub": 3,
-   "left_as_generated": 5,
-   "ported_unproven": 1
+   "stub": 0,
+   "left_as_generated": 4,
+   "ported_unproven": 0
   },
   "generated_compared": true,
-  "port_sha256": "f97363e815ff91b3794a2fca68f8ca079f85c1569938b5a0cf96c6709713c98d"
+  "port_sha256": "76b000a8ffc38a93452d456a3a9f751f861c785b7a153acfb484ab6f6bae378b"
  },
  "mutation": null,
  "differences": [],

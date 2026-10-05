@@ -29,11 +29,11 @@ One record per ported program (#4048): docs/language_status/evidence_records.md 
 | [COUSR03C](carddemo-userdel.md) | carddemo-userdel | cics | proven, unapproved |  | 18 | 11/11 / 30/32 | - | 0 | - |
 | [COUSR00C](carddemo-userlist.md) | carddemo-userlist | cics | proven, unapproved |  | 21 | 16/16 / 84/100 | - | 0 | - |
 | [COUSR02C](carddemo-userupd.md) | carddemo-userupd | cics | proven, unapproved |  | 23 | 11/11 / 44/46 | - | 0 | - |
-| INQACC | cbsa-inqacc | cics | no record | | | | | | |
-| UPDACC | cbsa-updacc | cics | no record | | | | | | |
+| [INQACC](cbsa-inqacc.md) | cbsa-inqacc | cics | proven, unapproved |  | 14 | 22/25 / 13/25 | - | 0 | - |
+| [UPDACC](cbsa-updacc.md) | cbsa-updacc | cics | not-proven | 1 ported_unproven method (handleLink) | 10 | 7/7 / 5/6 | - | 1 | - |
 | [LGAPVS01](genapp-lgapvs01.md) | genapp-lgapvs01 | cics | proven, unapproved |  | 8 | 2/3 / 5/9 | - | 0 | - |
-| LGICDB01 | genapp-lgicdb01 | cics | no record | | | | | | |
-| LGUPDB01 | genapp-lgupdb01 | cics | no record | | | | | | |
+| [LGICDB01](genapp-lgicdb01.md) | genapp-lgicdb01 | cics | proven, unapproved |  | 12 | 3/4 / 4/12 | - | 0 | - |
+| [LGUPDB01](genapp-lgupdb01.md) | genapp-lgupdb01 | cics | proven, unapproved |  | 5 | 8/9 / 17/38 | - | 0 | - |
 | [CALINK](crucible-ca-link-lengths-CALINK.md) | crucible:ca-link-lengths/CALINK | crucible | not-proven | 1 ported_unproven method (executeCalink) | 4 | 1/1 / 4/4 | 19/22 / 19/21 | 1 | - |
 | [CASUB](crucible-ca-link-lengths-CASUB.md) | crucible:ca-link-lengths/CASUB | crucible | not-proven | 2 ported_unproven methods (executeCasub, handleLink) | 3 | 1/1 / 4/4 | 12/24 / 12/14 | 2 | - |
 | [CAXA](crucible-ca-xctl-versions-CAXA.md) | crucible:ca-xctl-versions/CAXA | crucible | proven, unapproved |  | 3 | 1/1 / 3/3 | 18/21 / 18/20 | 0 | - |

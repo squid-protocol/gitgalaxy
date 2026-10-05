@@ -1,13 +1,13 @@
 {
  "format": "gitgalaxy-evidence/1",
- "case": "genapp-lgapvs01",
- "program": "LGAPVS01",
+ "case": "cbsa-updacc",
+ "program": "UPDACC",
  "kind": "cics",
  "port": {
   "paths": [
-   "tests/equivalence/genapp-lgapvs01/port/service/Lgapvs01Service.java"
+   "tests/equivalence/cbsa-updacc/port/service/UpdaccService.java"
   ],
-  "sha256": "6d843715c2be5b400440bfc07656cff2505fdb0d1d5127b42596e6ceadea0afe",
+  "sha256": "a2ba9e05b4fd46096244161c9d070afb160e4a6ad408bbaeef0739214d6bb788",
   "entry_points": [
    "runTask"
   ]
@@ -15,17 +15,17 @@
  "inputs": {
   "port": {
    "paths": [
-    "tests/equivalence/genapp-lgapvs01/port/**"
+    "tests/equivalence/cbsa-updacc/port/**"
    ],
    "files": 1,
-   "sha256": "6d843715c2be5b400440bfc07656cff2505fdb0d1d5127b42596e6ceadea0afe"
+   "sha256": "a2ba9e05b4fd46096244161c9d070afb160e4a6ad408bbaeef0739214d6bb788"
   },
   "case": {
    "paths": [
-    "tests/equivalence/genapp-lgapvs01/**"
+    "tests/equivalence/cbsa-updacc/**"
    ],
    "files": 2,
-   "sha256": "43ffec29fa8c2a0550158fe549d117033843e9741c072eae52f4d08209b5d2a0"
+   "sha256": "d0e0d5193ee3b4c8761dd37a70edb3fe5e1d78c5a785ea583e685637a21047f3"
   },
   "harness": {
    "paths": [
@@ -65,51 +65,59 @@
    "sha256": "4bce659e864447a8a4bd52045c7ee9117b016f7bef661231777be32946c64e41"
   },
   "corpus": {
-   "name": "cics-genapp",
-   "ref": "f6f3f4b2580d31b7d8dcc31ce3e3676f4cceaaaa",
-   "sha256": "c5e4d52071fad96bed24e9ba06f30417340bfc5e998e7c1cd5f2383be73d6ff6"
+   "name": "cics-banking-sample-application-cbsa",
+   "ref": "417334533178ab6e753cc64b0e0e5cf0b4952704",
+   "sha256": "7a4c86e6d6688f1516ec00cbd81941457457c861bf900e2b3a7f269c6bf9058b"
   },
   "differences": {
    "sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
   },
-  "digest": "4f869ca07d3cb95c98d1a7dcb6805d476167df0bb1921931b5e3f310cd2db6d8"
+  "digest": "6682e2130b7bb7d40f024ec0ae8f5fc3f10fb3fffa19cb37188d712892124374"
  },
  "proof": {
-  "at": "2026-10-05T05:25:21Z",
+  "at": "2026-10-05T05:06:05Z",
   "verdict": "proven",
-  "runs": 8,
+  "runs": 10,
   "fault_runs": 0,
   "environments": null,
   "outputs": {
-   "add-endowment": {
+   "update-type-overdraft-rate": {
     "equal": 2,
     "records": 2
    },
-   "add-house": {
+   "update-negative-balance-account": {
     "equal": 2,
     "records": 2
    },
-   "add-motor": {
+   "update-max-values": {
     "equal": 2,
     "records": 2
    },
-   "add-commercial": {
+   "leap-day-opened": {
     "equal": 2,
     "records": 2
    },
-   "add-other-type": {
+   "account-not-found": {
     "equal": 2,
     "records": 2
    },
-   "add-key-zero": {
+   "other-sort-code-not-found": {
     "equal": 2,
     "records": 2
    },
-   "add-key-max": {
+   "blank-account-type": {
     "equal": 2,
     "records": 2
    },
-   "add-same-numbers-other-type": {
+   "type-starts-with-space": {
+    "equal": 2,
+    "records": 2
+   },
+   "null-statement-date": {
+    "equal": 2,
+    "records": 2
+   },
+   "mortgage-update": {
     "equal": 2,
     "records": 2
    }
@@ -118,42 +126,24 @@
   "sysout_compared": null,
   "attributes_compared": null,
   "java_failed": false,
-  "harness_commit": "897492446205da110ba4cb976070b3f186997a80+uncommitted",
-  "inputs_digest": "4f869ca07d3cb95c98d1a7dcb6805d476167df0bb1921931b5e3f310cd2db6d8"
+  "harness_commit": "7d9f9ad4029581c5bb198f11be6a6308cd80a591",
+  "inputs_digest": "6682e2130b7bb7d40f024ec0ae8f5fc3f10fb3fffa19cb37188d712892124374"
  },
  "coverage": {
   "paragraphs": {
-   "covered": 2,
-   "live": 3
+   "covered": 7,
+   "live": 7
   },
   "branches": {
    "covered": 5,
-   "total": 9
+   "total": 6
   },
   "uncovered_branches": [
    {
-    "line": 173,
+    "line": 290,
     "kind": "IF",
     "outcome": "true",
-    "unit": "WRITE-ERROR-MESSAGE"
-   },
-   {
-    "line": 173,
-    "kind": "IF",
-    "outcome": "false",
-    "unit": "WRITE-ERROR-MESSAGE"
-   },
-   {
-    "line": 174,
-    "kind": "IF",
-    "outcome": "true",
-    "unit": "WRITE-ERROR-MESSAGE"
-   },
-   {
-    "line": 174,
-    "kind": "IF",
-    "outcome": "false",
-    "unit": "WRITE-ERROR-MESSAGE"
+    "unit": "UAD010"
    }
   ],
   "handler_labels": {
@@ -161,7 +151,7 @@
    "total": 0
   },
   "source": "the proof's own traced COBOL runs (cobol_coverage.py)",
-  "inputs_digest": "4f869ca07d3cb95c98d1a7dcb6805d476167df0bb1921931b5e3f310cd2db6d8"
+  "inputs_digest": "6682e2130b7bb7d40f024ec0ae8f5fc3f10fb3fffa19cb37188d712892124374"
  },
  "reach": {
   "entry_points": [
@@ -169,43 +159,25 @@
   ],
   "unproven": [
    {
-    "class": "Lgapvs01Service",
-    "method": "executeLgapvs01",
-    "line": 39,
+    "class": "UpdaccService",
+    "method": "executeUpdacc",
+    "line": 35,
     "kind": "stub"
    },
    {
-    "class": "Lgapvs01Service",
-    "method": "handleTransaction",
-    "line": 45,
-    "kind": "stub"
-   },
-   {
-    "class": "Lgapvs01Service",
+    "class": "UpdaccService",
     "method": "handleLink",
-    "line": 200,
-    "kind": "stub"
-   },
-   {
-    "class": "Lgapvs01Service",
-    "method": "linkLgstsq",
-    "line": 208,
-    "kind": "left_as_generated"
-   },
-   {
-    "class": "Lgapvs01Service",
-    "method": "writeKsdspoly",
-    "line": 213,
-    "kind": "left_as_generated"
+    "line": 54,
+    "kind": "ported_unproven"
    }
   ],
   "counts": {
-   "stub": 3,
-   "left_as_generated": 2,
-   "ported_unproven": 0
+   "stub": 1,
+   "left_as_generated": 0,
+   "ported_unproven": 1
   },
   "generated_compared": true,
-  "port_sha256": "6d843715c2be5b400440bfc07656cff2505fdb0d1d5127b42596e6ceadea0afe"
+  "port_sha256": "a2ba9e05b4fd46096244161c9d070afb160e4a6ad408bbaeef0739214d6bb788"
  },
  "mutation": null,
  "differences": [],
@@ -216,8 +188,8 @@
   "flags": "-std=ibm -fsign=EBCDIC",
   "compiler_options": null,
   "image": {
-   "name": "gitgalaxy-gnucobol:3",
-   "id": "sha256:d7e387df360c519ce8945a1f6d748c8dafab06f50551b23ddf85d6373a4dcd6e",
+   "name": "gitgalaxy-gnucobol-db2:3",
+   "id": "sha256:3d1d5e13c632545d0e1bc4d215c3fb8dd1d68d0ff8647b56880f1593353bc7dc",
    "base": "debian:bookworm-slim@sha256:3783cc01769c7b2b1b83a5c5ad96c815348e28ed7da68e2e3687004faa906251",
    "matches_pin": true,
    "mismatches": []
@@ -296,15 +268,15 @@
   "backend": "claude-code-headless: claude -p, no tools, only the ticket's prompt",
   "attempt": 1,
   "attempts": 1,
-  "ticket_sha256": "b03177770a3425c101a82dca803aa14e76829123968f8232260b23b6c097af01",
+  "ticket_sha256": "e9b880bccd60e2bde150bb21663bad3865897f31d074b9b712ce05916985ec5d",
   "porting_rules_sha256": null,
-  "proposed_at": "2026-10-02T20:44:17+00:00",
+  "proposed_at": "2026-10-02T19:14:10+00:00",
   "generator_version": null,
   "edited_after": "none: the files are the model's answer as the loop stored it",
   "provenance_file": {
-   "path": "tests/equivalence/genapp-lgapvs01/port/provenance.json",
+   "path": "tests/equivalence/cbsa-updacc/port/provenance.json",
    "format": "porting-loop-provenance/1",
-   "sha256": "b8993ebff4159746fe7a45fc40978fc7a3c929fc64192aaf6728509bb18a99d0"
+   "sha256": "8324f6c1940a1be28d48ee812a435e6cd89d5e0684cecfc427c8415111823450"
   }
  },
  "approvals": []

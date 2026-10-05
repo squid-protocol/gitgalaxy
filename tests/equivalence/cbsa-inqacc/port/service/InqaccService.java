@@ -6,7 +6,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import com.gitgalaxy.modernized.batch.Sysout;
 import com.gitgalaxy.modernized.cics.CicsTask;
-import com.gitgalaxy.modernized.dto.contract.AbndprocAbndinfoRec;
+import com.gitgalaxy.modernized.dto.contract.AbndprocDfhcommarea;
 import com.gitgalaxy.modernized.dto.contract.InqaccCommarea;
 import com.gitgalaxy.modernized.entity.vsam.CobolRecords;
 import com.gitgalaxy.modernized.exception.*;
@@ -322,7 +322,7 @@ public class InqaccService {
             if (resp != 0) {   // IF WS-CICS-RESP NOT = DFHRESP(NORMAL); rollback always answers NORMAL here
                 String freeform = "AH010 -Unable to perform SYNCPOINT ROLLBACK." + " Possible integrity issue following VSAM RLS "
                         + " abend." + " EIBRESP=" + signSeparate(w.eibresp) + " RESP2=" + signSeparate(w.eibresp2);
-                AbndprocAbndinfoRec rec = buildAbndRec(task, w, "HROL", 0, freeform);
+                AbndprocDfhcommarea rec = buildAbndRec(task, w, "HROL", 0, freeform);
                 if (linkAbndproc(task, w, rec)) {
                     return true;
                 }
@@ -342,7 +342,7 @@ public class InqaccService {
         // AH010: IF WS-STORM-DRAIN = 'N'
         if ("N".equals(w.stormDrain)) {
             String freeform = "AH010 -WVS-STORM-DRAIN=N" + " EIBRESP=" + signSeparate(w.eibresp) + " RESP2=" + signSeparate(w.eibresp2);
-            AbndprocAbndinfoRec rec = buildAbndRec(task, w, myAbendCode, 0, freeform);
+            AbndprocDfhcommarea rec = buildAbndRec(task, w, myAbendCode, 0, freeform);
             if (linkAbndproc(task, w, rec)) {
                 return true;
             }
@@ -362,7 +362,7 @@ public class InqaccService {
      * @return always true: the task has ended or an abend exit took over.
      */
     private boolean abendSequence(CicsTask task, Work w, String abcode, String freeform, String display, boolean stormAfterDisplay) {
-        AbndprocAbndinfoRec rec = buildAbndRec(task, w, abcode, w.sqlcode, freeform);
+        AbndprocDfhcommarea rec = buildAbndRec(task, w, abcode, w.sqlcode, freeform);
         if (linkAbndproc(task, w, rec)) {
             return true;
         }
@@ -375,7 +375,7 @@ public class InqaccService {
     }
 
     /** EXEC CICS LINK PROGRAM(WS-ABEND-PGM) COMMAREA(ABNDINFO-REC). @return true when runTask must stop. */
-    private boolean linkAbndproc(CicsTask task, Work w, AbndprocAbndinfoRec rec) {
+    private boolean linkAbndproc(CicsTask task, Work w, AbndprocDfhcommarea rec) {
         task.link(WS_ABEND_PGM, rec, 681);
         String exit = task.abendExit();
         if (exit != null) {
@@ -387,9 +387,9 @@ public class InqaccService {
     }
 
     /** INITIALIZE ABNDINFO-REC and the MOVEs / STRING that fill it, with POPULATE-TIME-DATE (PTD010). */
-    private AbndprocAbndinfoRec buildAbndRec(CicsTask task, Work w, String abcode, int sqlcode, String freeform) {
+    private AbndprocDfhcommarea buildAbndRec(CicsTask task, Work w, String abcode, int sqlcode, String freeform) {
         java.nio.charset.Charset cs = CobolRecords.charset();
-        AbndprocAbndinfoRec r = new AbndprocAbndinfoRec();
+        AbndprocDfhcommarea r = new AbndprocDfhcommarea();
         r.setAbndUtimeKey(0L);
         r.setAbndTasknoKey(0);
         r.setAbndApplid(CobolRecords.fit("", 8, cs));
@@ -519,7 +519,7 @@ public class InqaccService {
     public Object dispatchWsAbendPgmL321(String program, Object request) {
         switch (program.trim().toUpperCase(Locale.ROOT)) {
             case "ABNDPROC":
-                return abndprocService.getObject().handleLink((AbndprocAbndinfoRec) request);
+                return abndprocService.getObject().handleLink((AbndprocDfhcommarea) request);
             default:
                 throw new IllegalArgumentException("LINK PROGRAM(WS-ABEND-PGM) at src/base/cobol_src/INQACC.cbl:321: no known target " + program);
         }
@@ -530,7 +530,7 @@ public class InqaccService {
     public Object dispatchWsAbendPgmL401(String program, Object request) {
         switch (program.trim().toUpperCase(Locale.ROOT)) {
             case "ABNDPROC":
-                return abndprocService.getObject().handleLink((AbndprocAbndinfoRec) request);
+                return abndprocService.getObject().handleLink((AbndprocDfhcommarea) request);
             default:
                 throw new IllegalArgumentException("LINK PROGRAM(WS-ABEND-PGM) at src/base/cobol_src/INQACC.cbl:401: no known target " + program);
         }
@@ -541,7 +541,7 @@ public class InqaccService {
     public Object dispatchWsAbendPgmL516(String program, Object request) {
         switch (program.trim().toUpperCase(Locale.ROOT)) {
             case "ABNDPROC":
-                return abndprocService.getObject().handleLink((AbndprocAbndinfoRec) request);
+                return abndprocService.getObject().handleLink((AbndprocDfhcommarea) request);
             default:
                 throw new IllegalArgumentException("LINK PROGRAM(WS-ABEND-PGM) at src/base/cobol_src/INQACC.cbl:516: no known target " + program);
         }
@@ -552,7 +552,7 @@ public class InqaccService {
     public Object dispatchWsAbendPgmL738(String program, Object request) {
         switch (program.trim().toUpperCase(Locale.ROOT)) {
             case "ABNDPROC":
-                return abndprocService.getObject().handleLink((AbndprocAbndinfoRec) request);
+                return abndprocService.getObject().handleLink((AbndprocDfhcommarea) request);
             default:
                 throw new IllegalArgumentException("LINK PROGRAM(WS-ABEND-PGM) at src/base/cobol_src/INQACC.cbl:738: no known target " + program);
         }
@@ -563,7 +563,7 @@ public class InqaccService {
     public Object dispatchWsAbendPgmL810(String program, Object request) {
         switch (program.trim().toUpperCase(Locale.ROOT)) {
             case "ABNDPROC":
-                return abndprocService.getObject().handleLink((AbndprocAbndinfoRec) request);
+                return abndprocService.getObject().handleLink((AbndprocDfhcommarea) request);
             default:
                 throw new IllegalArgumentException("LINK PROGRAM(WS-ABEND-PGM) at src/base/cobol_src/INQACC.cbl:810: no known target " + program);
         }
@@ -574,7 +574,7 @@ public class InqaccService {
     public Object dispatchWsAbendPgmL924(String program, Object request) {
         switch (program.trim().toUpperCase(Locale.ROOT)) {
             case "ABNDPROC":
-                return abndprocService.getObject().handleLink((AbndprocAbndinfoRec) request);
+                return abndprocService.getObject().handleLink((AbndprocDfhcommarea) request);
             default:
                 throw new IllegalArgumentException("LINK PROGRAM(WS-ABEND-PGM) at src/base/cobol_src/INQACC.cbl:924: no known target " + program);
         }

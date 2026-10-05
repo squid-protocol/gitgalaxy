@@ -1,13 +1,13 @@
 {
  "format": "gitgalaxy-evidence/1",
- "case": "genapp-lgapvs01",
- "program": "LGAPVS01",
+ "case": "genapp-lgicdb01",
+ "program": "LGICDB01",
  "kind": "cics",
  "port": {
   "paths": [
-   "tests/equivalence/genapp-lgapvs01/port/service/Lgapvs01Service.java"
+   "tests/equivalence/genapp-lgicdb01/port/service/Lgicdb01Service.java"
   ],
-  "sha256": "6d843715c2be5b400440bfc07656cff2505fdb0d1d5127b42596e6ceadea0afe",
+  "sha256": "2f5103f9e72c3eb09996f20d5c36ae920a21320506ef4db58ab8630fa49e79d3",
   "entry_points": [
    "runTask"
   ]
@@ -15,17 +15,17 @@
  "inputs": {
   "port": {
    "paths": [
-    "tests/equivalence/genapp-lgapvs01/port/**"
+    "tests/equivalence/genapp-lgicdb01/port/**"
    ],
    "files": 1,
-   "sha256": "6d843715c2be5b400440bfc07656cff2505fdb0d1d5127b42596e6ceadea0afe"
+   "sha256": "2f5103f9e72c3eb09996f20d5c36ae920a21320506ef4db58ab8630fa49e79d3"
   },
   "case": {
    "paths": [
-    "tests/equivalence/genapp-lgapvs01/**"
+    "tests/equivalence/genapp-lgicdb01/**"
    ],
-   "files": 2,
-   "sha256": "43ffec29fa8c2a0550158fe549d117033843e9741c072eae52f4d08209b5d2a0"
+   "files": 1,
+   "sha256": "006fc6e96c5aa78ac54aa15f16be202c12f90beb19cc4118a6bf54ee6c29fd3a"
   },
   "harness": {
    "paths": [
@@ -72,44 +72,60 @@
   "differences": {
    "sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
   },
-  "digest": "4f869ca07d3cb95c98d1a7dcb6805d476167df0bb1921931b5e3f310cd2db6d8"
+  "digest": "4e08cd18d367609756ed23c58daaf0b710812b0e68ad88820a3601e9cd75261f"
  },
  "proof": {
-  "at": "2026-10-05T05:25:21Z",
+  "at": "2026-10-05T05:09:29Z",
   "verdict": "proven",
-  "runs": 8,
+  "runs": 12,
   "fault_runs": 0,
   "environments": null,
   "outputs": {
-   "add-endowment": {
+   "customer-1": {
     "equal": 2,
     "records": 2
    },
-   "add-house": {
+   "customer-2-mobile-blank": {
     "equal": 2,
     "records": 2
    },
-   "add-motor": {
+   "customer-4-no-email": {
     "equal": 2,
     "records": 2
    },
-   "add-commercial": {
+   "customer-7-no-phones": {
     "equal": 2,
     "records": 2
    },
-   "add-other-type": {
+   "customer-9-sparse": {
     "equal": 2,
     "records": 2
    },
-   "add-key-zero": {
+   "customer-10-last": {
     "equal": 2,
     "records": 2
    },
-   "add-key-max": {
+   "prefilled-commarea-overwritten": {
     "equal": 2,
     "records": 2
    },
-   "add-same-numbers-other-type": {
+   "request-id-ignored": {
+    "equal": 2,
+    "records": 2
+   },
+   "customer-not-found": {
+    "equal": 2,
+    "records": 2
+   },
+   "customer-zero": {
+    "equal": 2,
+    "records": 2
+   },
+   "customer-max-int": {
+    "equal": 2,
+    "records": 2
+   },
+   "not-found-keeps-prefill": {
     "equal": 2,
     "records": 2
    }
@@ -118,39 +134,63 @@
   "sysout_compared": null,
   "attributes_compared": null,
   "java_failed": false,
-  "harness_commit": "897492446205da110ba4cb976070b3f186997a80+uncommitted",
-  "inputs_digest": "4f869ca07d3cb95c98d1a7dcb6805d476167df0bb1921931b5e3f310cd2db6d8"
+  "harness_commit": "7d9f9ad4029581c5bb198f11be6a6308cd80a591+uncommitted",
+  "inputs_digest": "4e08cd18d367609756ed23c58daaf0b710812b0e68ad88820a3601e9cd75261f"
  },
  "coverage": {
   "paragraphs": {
-   "covered": 2,
-   "live": 3
+   "covered": 3,
+   "live": 4
   },
   "branches": {
-   "covered": 5,
-   "total": 9
+   "covered": 4,
+   "total": 12
   },
   "uncovered_branches": [
    {
-    "line": 173,
+    "line": 119,
+    "kind": "IF",
+    "outcome": "true",
+    "unit": "MAINLINE"
+   },
+   {
+    "line": 140,
+    "kind": "IF",
+    "outcome": "true",
+    "unit": "MAINLINE"
+   },
+   {
+    "line": 192,
+    "kind": "EVALUATE",
+    "outcome": "WHEN@197",
+    "unit": "GET-CUSTOMER-INFO"
+   },
+   {
+    "line": 192,
+    "kind": "EVALUATE",
+    "outcome": "OTHER",
+    "unit": "GET-CUSTOMER-INFO"
+   },
+   {
+    "line": 230,
     "kind": "IF",
     "outcome": "true",
     "unit": "WRITE-ERROR-MESSAGE"
    },
    {
-    "line": 173,
+    "line": 230,
     "kind": "IF",
     "outcome": "false",
     "unit": "WRITE-ERROR-MESSAGE"
    },
    {
-    "line": 174,
+    "line": 231,
     "kind": "IF",
     "outcome": "true",
     "unit": "WRITE-ERROR-MESSAGE"
    },
    {
-    "line": 174,
+    "line": 231,
     "kind": "IF",
     "outcome": "false",
     "unit": "WRITE-ERROR-MESSAGE"
@@ -161,7 +201,7 @@
    "total": 0
   },
   "source": "the proof's own traced COBOL runs (cobol_coverage.py)",
-  "inputs_digest": "4f869ca07d3cb95c98d1a7dcb6805d476167df0bb1921931b5e3f310cd2db6d8"
+  "inputs_digest": "4e08cd18d367609756ed23c58daaf0b710812b0e68ad88820a3601e9cd75261f"
  },
  "reach": {
   "entry_points": [
@@ -169,33 +209,33 @@
   ],
   "unproven": [
    {
-    "class": "Lgapvs01Service",
-    "method": "executeLgapvs01",
-    "line": 39,
+    "class": "Lgicdb01Service",
+    "method": "executeLgicdb01",
+    "line": 43,
     "kind": "stub"
    },
    {
-    "class": "Lgapvs01Service",
+    "class": "Lgicdb01Service",
     "method": "handleTransaction",
-    "line": 45,
+    "line": 48,
     "kind": "stub"
    },
    {
-    "class": "Lgapvs01Service",
+    "class": "Lgicdb01Service",
     "method": "handleLink",
-    "line": 200,
+    "line": 253,
     "kind": "stub"
    },
    {
-    "class": "Lgapvs01Service",
+    "class": "Lgicdb01Service",
     "method": "linkLgstsq",
-    "line": 208,
+    "line": 259,
     "kind": "left_as_generated"
    },
    {
-    "class": "Lgapvs01Service",
-    "method": "writeKsdspoly",
-    "line": 213,
+    "class": "Lgicdb01Service",
+    "method": "abendLgcaL122",
+    "line": 267,
     "kind": "left_as_generated"
    }
   ],
@@ -205,7 +245,7 @@
    "ported_unproven": 0
   },
   "generated_compared": true,
-  "port_sha256": "6d843715c2be5b400440bfc07656cff2505fdb0d1d5127b42596e6ceadea0afe"
+  "port_sha256": "2f5103f9e72c3eb09996f20d5c36ae920a21320506ef4db58ab8630fa49e79d3"
  },
  "mutation": null,
  "differences": [],
@@ -216,8 +256,8 @@
   "flags": "-std=ibm -fsign=EBCDIC",
   "compiler_options": null,
   "image": {
-   "name": "gitgalaxy-gnucobol:3",
-   "id": "sha256:d7e387df360c519ce8945a1f6d748c8dafab06f50551b23ddf85d6373a4dcd6e",
+   "name": "gitgalaxy-gnucobol-db2:3",
+   "id": "sha256:3d1d5e13c632545d0e1bc4d215c3fb8dd1d68d0ff8647b56880f1593353bc7dc",
    "base": "debian:bookworm-slim@sha256:3783cc01769c7b2b1b83a5c5ad96c815348e28ed7da68e2e3687004faa906251",
    "matches_pin": true,
    "mismatches": []
@@ -296,15 +336,15 @@
   "backend": "claude-code-headless: claude -p, no tools, only the ticket's prompt",
   "attempt": 1,
   "attempts": 1,
-  "ticket_sha256": "b03177770a3425c101a82dca803aa14e76829123968f8232260b23b6c097af01",
+  "ticket_sha256": "f8f3c55e8a0c8db3768ed55c428459cf424a31a91b73e2ad8cf080a45566fabe",
   "porting_rules_sha256": null,
-  "proposed_at": "2026-10-02T20:44:17+00:00",
+  "proposed_at": "2026-10-02T20:43:41+00:00",
   "generator_version": null,
   "edited_after": "none: the files are the model's answer as the loop stored it",
   "provenance_file": {
-   "path": "tests/equivalence/genapp-lgapvs01/port/provenance.json",
+   "path": "tests/equivalence/genapp-lgicdb01/port/provenance.json",
    "format": "porting-loop-provenance/1",
-   "sha256": "b8993ebff4159746fe7a45fc40978fc7a3c929fc64192aaf6728509bb18a99d0"
+   "sha256": "c6291a90510733dffa22697367dd972266becdfa696d8c5fa0c4ef601a56dd6b"
   }
  },
  "approvals": []

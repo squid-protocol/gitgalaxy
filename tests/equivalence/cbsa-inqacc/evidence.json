@@ -1,13 +1,13 @@
 {
  "format": "gitgalaxy-evidence/1",
- "case": "genapp-lgapvs01",
- "program": "LGAPVS01",
+ "case": "cbsa-inqacc",
+ "program": "INQACC",
  "kind": "cics",
  "port": {
   "paths": [
-   "tests/equivalence/genapp-lgapvs01/port/service/Lgapvs01Service.java"
+   "tests/equivalence/cbsa-inqacc/port/service/InqaccService.java"
   ],
-  "sha256": "6d843715c2be5b400440bfc07656cff2505fdb0d1d5127b42596e6ceadea0afe",
+  "sha256": "d0193820a4f3a00ed6b11754ecbe18f092baccd2588a964d352ef8cca2d7a94a",
   "entry_points": [
    "runTask"
   ]
@@ -15,17 +15,17 @@
  "inputs": {
   "port": {
    "paths": [
-    "tests/equivalence/genapp-lgapvs01/port/**"
+    "tests/equivalence/cbsa-inqacc/port/**"
    ],
    "files": 1,
-   "sha256": "6d843715c2be5b400440bfc07656cff2505fdb0d1d5127b42596e6ceadea0afe"
+   "sha256": "d0193820a4f3a00ed6b11754ecbe18f092baccd2588a964d352ef8cca2d7a94a"
   },
   "case": {
    "paths": [
-    "tests/equivalence/genapp-lgapvs01/**"
+    "tests/equivalence/cbsa-inqacc/**"
    ],
-   "files": 2,
-   "sha256": "43ffec29fa8c2a0550158fe549d117033843e9741c072eae52f4d08209b5d2a0"
+   "files": 3,
+   "sha256": "a39d307ace7093196d4217da06487c426d80acc673d572f5697f7a0c8d23af97"
   },
   "harness": {
    "paths": [
@@ -65,103 +65,175 @@
    "sha256": "4bce659e864447a8a4bd52045c7ee9117b016f7bef661231777be32946c64e41"
   },
   "corpus": {
-   "name": "cics-genapp",
-   "ref": "f6f3f4b2580d31b7d8dcc31ce3e3676f4cceaaaa",
-   "sha256": "c5e4d52071fad96bed24e9ba06f30417340bfc5e998e7c1cd5f2383be73d6ff6"
+   "name": "cics-banking-sample-application-cbsa",
+   "ref": "417334533178ab6e753cc64b0e0e5cf0b4952704",
+   "sha256": "7a4c86e6d6688f1516ec00cbd81941457457c861bf900e2b3a7f269c6bf9058b"
   },
   "differences": {
    "sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
   },
-  "digest": "4f869ca07d3cb95c98d1a7dcb6805d476167df0bb1921931b5e3f310cd2db6d8"
+  "digest": "5a30bbbf7f5d70a075af415fd66e9b987bdeb26aff83581b2716faa0c1083e40"
  },
  "proof": {
-  "at": "2026-10-05T05:25:21Z",
+  "at": "2026-10-05T05:07:58Z",
   "verdict": "proven",
-  "runs": 8,
+  "runs": 14,
   "fault_runs": 0,
   "environments": null,
   "outputs": {
-   "add-endowment": {
+   "current-found": {
     "equal": 2,
     "records": 2
    },
-   "add-house": {
+   "saving-found": {
     "equal": 2,
     "records": 2
    },
-   "add-motor": {
+   "loan-negative-balance": {
     "equal": 2,
     "records": 2
    },
-   "add-commercial": {
+   "mortgage-found": {
     "equal": 2,
     "records": 2
    },
-   "add-other-type": {
+   "max-values-leap-day": {
     "equal": 2,
     "records": 2
    },
-   "add-key-zero": {
+   "overdraft-past-picture": {
     "equal": 2,
     "records": 2
    },
-   "add-key-max": {
+   "negative-overdraft": {
     "equal": 2,
     "records": 2
    },
-   "add-same-numbers-other-type": {
+   "account-zero": {
     "equal": 2,
     "records": 2
+   },
+   "account-99999998": {
+    "equal": 2,
+    "records": 2
+   },
+   "last-account-sentinel": {
+    "equal": 2,
+    "records": 2
+   },
+   "not-found": {
+    "equal": 2,
+    "records": 2
+   },
+   "other-sort-code-not-found": {
+    "equal": 2,
+    "records": 2
+   },
+   "blank-account-type": {
+    "equal": 2,
+    "records": 2
+   },
+   "null-statement-date": {
+    "equal": 3,
+    "records": 3
    }
   },
   "return_code_equal": null,
   "sysout_compared": null,
   "attributes_compared": null,
   "java_failed": false,
-  "harness_commit": "897492446205da110ba4cb976070b3f186997a80+uncommitted",
-  "inputs_digest": "4f869ca07d3cb95c98d1a7dcb6805d476167df0bb1921931b5e3f310cd2db6d8"
+  "harness_commit": "7d9f9ad4029581c5bb198f11be6a6308cd80a591+uncommitted",
+  "inputs_digest": "5a30bbbf7f5d70a075af415fd66e9b987bdeb26aff83581b2716faa0c1083e40"
  },
  "coverage": {
   "paragraphs": {
-   "covered": 2,
-   "live": 3
+   "covered": 22,
+   "live": 25
   },
   "branches": {
-   "covered": 5,
-   "total": 9
+   "covered": 13,
+   "total": 25
   },
   "uncovered_branches": [
    {
-    "line": 173,
+    "line": 273,
     "kind": "IF",
     "outcome": "true",
-    "unit": "WRITE-ERROR-MESSAGE"
+    "unit": "RAD010"
    },
    {
-    "line": 173,
-    "kind": "IF",
-    "outcome": "false",
-    "unit": "WRITE-ERROR-MESSAGE"
-   },
-   {
-    "line": 174,
+    "line": 353,
     "kind": "IF",
     "outcome": "true",
-    "unit": "WRITE-ERROR-MESSAGE"
+    "unit": "RAD010"
    },
    {
-    "line": 174,
+    "line": 604,
+    "kind": "EVALUATE",
+    "outcome": "WHEN@606",
+    "unit": "CFSDCD010"
+   },
+   {
+    "line": 616,
+    "kind": "IF",
+    "outcome": "true",
+    "unit": "CFSDCD010"
+   },
+   {
+    "line": 646,
+    "kind": "EVALUATE",
+    "outcome": "WHEN@651",
+    "unit": "AH010"
+   },
+   {
+    "line": 646,
+    "kind": "EVALUATE",
+    "outcome": "WHEN@672",
+    "unit": "AH010"
+   },
+   {
+    "line": 646,
+    "kind": "EVALUATE",
+    "outcome": "none",
+    "unit": "AH010"
+   },
+   {
+    "line": 687,
+    "kind": "IF",
+    "outcome": "true",
+    "unit": "AH010"
+   },
+   {
+    "line": 687,
     "kind": "IF",
     "outcome": "false",
-    "unit": "WRITE-ERROR-MESSAGE"
+    "unit": "AH010"
+   },
+   {
+    "line": 763,
+    "kind": "IF",
+    "outcome": "true",
+    "unit": "AH010"
+   },
+   {
+    "line": 763,
+    "kind": "IF",
+    "outcome": "false",
+    "unit": "AH010"
+   },
+   {
+    "line": 874,
+    "kind": "IF",
+    "outcome": "true",
+    "unit": "GLAD010"
    }
   ],
   "handler_labels": {
    "covered": 0,
-   "total": 0
+   "total": 1
   },
   "source": "the proof's own traced COBOL runs (cobol_coverage.py)",
-  "inputs_digest": "4f869ca07d3cb95c98d1a7dcb6805d476167df0bb1921931b5e3f310cd2db6d8"
+  "inputs_digest": "5a30bbbf7f5d70a075af415fd66e9b987bdeb26aff83581b2716faa0c1083e40"
  },
  "reach": {
   "entry_points": [
@@ -169,43 +241,109 @@
   ],
   "unproven": [
    {
-    "class": "Lgapvs01Service",
-    "method": "executeLgapvs01",
-    "line": 39,
+    "class": "InqaccService",
+    "method": "executeInqacc",
+    "line": 111,
     "kind": "stub"
    },
    {
-    "class": "Lgapvs01Service",
-    "method": "handleTransaction",
-    "line": 45,
-    "kind": "stub"
-   },
-   {
-    "class": "Lgapvs01Service",
+    "class": "InqaccService",
     "method": "handleLink",
-    "line": 200,
+    "line": 159,
     "kind": "stub"
    },
    {
-    "class": "Lgapvs01Service",
-    "method": "linkLgstsq",
-    "line": 208,
+    "class": "InqaccService",
+    "method": "onAbendL210",
+    "line": 289,
+    "kind": "stub"
+   },
+   {
+    "class": "InqaccService",
+    "method": "dispatchWsAbendPgmL321",
+    "line": 519,
     "kind": "left_as_generated"
    },
    {
-    "class": "Lgapvs01Service",
-    "method": "writeKsdspoly",
-    "line": 213,
+    "class": "InqaccService",
+    "method": "dispatchWsAbendPgmL401",
+    "line": 530,
+    "kind": "left_as_generated"
+   },
+   {
+    "class": "InqaccService",
+    "method": "dispatchWsAbendPgmL516",
+    "line": 541,
+    "kind": "left_as_generated"
+   },
+   {
+    "class": "InqaccService",
+    "method": "dispatchWsAbendPgmL738",
+    "line": 552,
+    "kind": "left_as_generated"
+   },
+   {
+    "class": "InqaccService",
+    "method": "dispatchWsAbendPgmL810",
+    "line": 563,
+    "kind": "left_as_generated"
+   },
+   {
+    "class": "InqaccService",
+    "method": "dispatchWsAbendPgmL924",
+    "line": 574,
+    "kind": "left_as_generated"
+   },
+   {
+    "class": "InqaccService",
+    "method": "rollbackL682",
+    "line": 587,
+    "kind": "left_as_generated"
+   },
+   {
+    "class": "InqaccService",
+    "method": "abendHracL335",
+    "line": 596,
+    "kind": "left_as_generated"
+   },
+   {
+    "class": "InqaccService",
+    "method": "abendHracL415",
+    "line": 605,
+    "kind": "left_as_generated"
+   },
+   {
+    "class": "InqaccService",
+    "method": "abendHracL524",
+    "line": 614,
+    "kind": "left_as_generated"
+   },
+   {
+    "class": "InqaccService",
+    "method": "abendHrolL748",
+    "line": 623,
+    "kind": "left_as_generated"
+   },
+   {
+    "class": "InqaccService",
+    "method": "abendMyabendcodeL814",
+    "line": 632,
+    "kind": "left_as_generated"
+   },
+   {
+    "class": "InqaccService",
+    "method": "abendHncsL932",
+    "line": 641,
     "kind": "left_as_generated"
    }
   ],
   "counts": {
    "stub": 3,
-   "left_as_generated": 2,
+   "left_as_generated": 13,
    "ported_unproven": 0
   },
   "generated_compared": true,
-  "port_sha256": "6d843715c2be5b400440bfc07656cff2505fdb0d1d5127b42596e6ceadea0afe"
+  "port_sha256": "d0193820a4f3a00ed6b11754ecbe18f092baccd2588a964d352ef8cca2d7a94a"
  },
  "mutation": null,
  "differences": [],
@@ -216,8 +354,8 @@
   "flags": "-std=ibm -fsign=EBCDIC",
   "compiler_options": null,
   "image": {
-   "name": "gitgalaxy-gnucobol:3",
-   "id": "sha256:d7e387df360c519ce8945a1f6d748c8dafab06f50551b23ddf85d6373a4dcd6e",
+   "name": "gitgalaxy-gnucobol-db2:3",
+   "id": "sha256:3d1d5e13c632545d0e1bc4d215c3fb8dd1d68d0ff8647b56880f1593353bc7dc",
    "base": "debian:bookworm-slim@sha256:3783cc01769c7b2b1b83a5c5ad96c815348e28ed7da68e2e3687004faa906251",
    "matches_pin": true,
    "mismatches": []
@@ -294,17 +432,17 @@
   "written_by": "model",
   "model": "claude-sonnet-5-5",
   "backend": "claude-code-headless: claude -p, no tools, only the ticket's prompt",
-  "attempt": 1,
-  "attempts": 1,
-  "ticket_sha256": "b03177770a3425c101a82dca803aa14e76829123968f8232260b23b6c097af01",
+  "attempt": 2,
+  "attempts": 4,
+  "ticket_sha256": "e42b66036432cef4fa3364da11ed9f1881c5dd9b7041d87b2264d95d0951ff3c",
   "porting_rules_sha256": null,
-  "proposed_at": "2026-10-02T20:44:17+00:00",
+  "proposed_at": "2026-10-02T19:19:58+00:00",
   "generator_version": null,
   "edited_after": "none: the files are the model's answer as the loop stored it",
   "provenance_file": {
-   "path": "tests/equivalence/genapp-lgapvs01/port/provenance.json",
+   "path": "tests/equivalence/cbsa-inqacc/port/provenance.json",
    "format": "porting-loop-provenance/1",
-   "sha256": "b8993ebff4159746fe7a45fc40978fc7a3c929fc64192aaf6728509bb18a99d0"
+   "sha256": "288b25574cd4480ff21867e1ebb9156d44e7ab1a28a818977f5384db64cdcc5a"
   }
  },
  "approvals": []

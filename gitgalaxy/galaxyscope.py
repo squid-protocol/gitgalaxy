@@ -732,7 +732,8 @@ def _process_file_worker(rel_path: str) -> dict[str, Any]:
             # a checkout under `.../vendor/...` would otherwise blank every file it holds.
             safe_path = "/" + rel_path.replace("\\", "/")
 
-            if re.search(r"\.min\.[a-z]+$", full_path_str, re.I) or any(v in safe_path for v in vendor_paths):
+            # #4249: the `.min.` filename test reads rel_path too, never the absolute path.
+            if re.search(r"\.min\.[a-z]+$", rel_path, re.I) or any(v in safe_path for v in vendor_paths):
                 is_minified = True
 
             # #3313 step 3: the file's idiom-wrapper facts; stays None for a

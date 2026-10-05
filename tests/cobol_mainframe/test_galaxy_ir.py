@@ -2368,3 +2368,43 @@ def test_completeness_scores_pli_and_hlasm_programs(tmp_path):
     assert (batch["total"], batch["resolved"]) == (2, 1)  # BATCH1 run by STEP1; BATCH2 by nothing
     unreached = next(m for m in report["missing_inputs"] if m["input"].startswith("CSD extract"))
     assert unreached["examples"] == ["asm/ASMPGM.asm", "pli/ONLINE1.pli"]
+
+
+# ==============================================================================
+# #4503: DEFINE PROGRAM ... TRANSID is the remote-DPL mirror, not a transaction route
+# ==============================================================================
+CC00_CSD = """\
+ DEFINE PROGRAM(COCRDLIC) GROUP(CARDDEMO)
+        LANGUAGE(COBOL) DYNAMIC(NO) TRANSID(CC00)
+ DEFINE PROGRAM(COSGN00C) GROUP(CARDDEMO)
+        LANGUAGE(COBOL) DYNAMIC(NO) TRANSID(CC00)
+ DEFINE TRANSACTION(CC00) GROUP(CARDDEMO)
+        PROGRAM(COSGN00C) STATUS(ENABLED)
+"""
+
+
+def _cobol_stub(pid):
+    return f"       IDENTIFICATION DIVISION.\n       PROGRAM-ID. {pid}.\n       PROCEDURE DIVISION.\n           STOP RUN.\n"
+
+
+def test_program_transid_attribute_is_not_a_route_cc00_resolves_to_cosgn00c(tmp_path):
+    """CardDemo's CC00: COCRDLIC and COSGN00C both carry TRANSID(CC00) as a program
+    attribute; only the DEFINE TRANSACTION routes it, so CC00 -> COSGN00C alone."""
+    repo = tmp_path / "carddemo"
+    for rel, text in {
+        "src/COCRDLIC.cbl": _cobol_stub("COCRDLIC"),
+        "src/COSGN00C.cbl": _cobol_stub("COSGN00C"),
+        "csd/CARDDEMO.csd": CC00_CSD,
+    }.items():
+        path = repo / rel
+        path.parent.mkdir(parents=True, exist_ok=True)
+        path.write_text(text, encoding="utf-8")
+    ir = load_galaxy_ir(scan_to_db(repo, tmp_path / "scan"))
+    assert [(t["transid"], t["program"], t["resolves_to"]) for t in ir.transaction_map()] == [
+        ("CC00", "COSGN00C", "src/COSGN00C.cbl")
+    ]
+    assert ir._transaction_program("CC00") == "src/COSGN00C.cbl"
+    # The attribute stays readable as program metadata on the csd_resources record.
+    progs = {r["name"]: r for r in ir.csd_resources("PROGRAM")}
+    assert set(progs) == {"COCRDLIC", "COSGN00C"}
+    assert all(r.get("transid") == "CC00" for r in progs.values())

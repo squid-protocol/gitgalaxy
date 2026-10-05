@@ -1702,8 +1702,8 @@ class RecordKeeper:
 
         # #3211-followup: the CICS transaction map -- which 4-char transaction id a
         # user submits and which program CICS routes it to. Extracted from the CSD
-        # `DEFINE TRANSACTION(TTTT) ... PROGRAM(PPPP)` records (and PROGRAM
-        # autoinstall `TRANSID(...)` pairings), then resolved to the program's file
+        # `DEFINE TRANSACTION(TTTT) ... PROGRAM(PPPP)` records (a PROGRAM's
+        # `TRANSID(...)` is the remote-DPL mirror, not a route, #4503), then resolved to the program's file
         # by invocation_resolver.resolve_transactions.
         #   file_id     -- the .csd/JCL deck the definition lives in
         #   transid     -- the transaction id (like dataset_data.dd_name, a name,

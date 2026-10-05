@@ -161,6 +161,60 @@ def test_each_entry_runs_with_its_programs_trunc(tmp_path):
     assert out.index("finally") < out.index("void other()") and 'x("{");' in out
 
 
+def test_cics_facades_run_the_program_in_the_region():
+    """#4465: a det port keeps the generated stub's handleTransaction / handleLink for their callers, and each runs the
+    program -- one task of it in the region, through runTask -- as the generator's own facades do (#4343), never a
+    stub that does nothing or throws (#4342). Return values follow the stub's signature."""
+    from gitgalaxy.tools.cobol_to_java.det import program as P
+
+    stub = (
+        "public class MenuService {\n"
+        "    public CaDto handleTransaction(String transid, CaDto request) {\n"
+        '        log.info("Menu: handleTransaction");\n'
+        "        CicsTask.Region region = CicsTask.region();\n"
+        "        CicsTask task = region.transaction(transid, request);\n"
+        '        region.run(task, "COMEN01C", this::runTask);\n'
+        "        return task.returned(CaDto.class);\n    }\n"
+        "    public void runTask(CicsTask task) {\n    }\n"
+        "    public CaDto handleLink(CaDto request) {\n"
+        "        CicsTask.Region region = CicsTask.region();\n"
+        '        CicsTask task = region.linked("COMEN01C", request);\n'
+        '        region.run(task, "COMEN01C", this::runTask);\n'
+        "        return request;\n    }\n}\n"
+    )
+    java = "\n".join(P.facades(stub))
+    assert (
+        "    public CaDto handleTransaction(String transid, CaDto request) {\n"
+        "        CicsTask.Region region = CicsTask.region();\n"
+        "        CicsTask task = region.transaction(transid, request);\n"
+        '        region.run(task, "COMEN01C", this::runTask);\n'
+        "        return task.returned(CaDto.class);\n    }"
+    ) in java
+    assert (
+        "    public CaDto handleLink(CaDto request) {\n"
+        "        CicsTask.Region region = CicsTask.region();\n"
+        '        CicsTask task = region.linked("COMEN01C", request);\n'
+        '        region.run(task, "COMEN01C", this::runTask);\n'
+        "        return request;\n    }"
+    ) in java
+    assert "UnsupportedOperationException" not in java and "log." not in java
+
+    # no COMMAREA: a void transaction started from a cleared screen, a LINK with none
+    bare = (
+        "    public void handleTransaction(String transid) {\n"
+        '        region.run(task, "ABNDPROC", this::runTask);\n    }\n'
+        "    public void handleLink() {\n    }\n"
+    )
+    java = "\n".join(P.facades(bare))
+    assert "CicsTask task = region.transaction(transid, null);" in java
+    assert 'CicsTask task = region.linked("ABNDPROC", null);' in java
+    assert java.count('region.run(task, "ABNDPROC", this::runTask);') == 2 and "return" not in java
+
+    # a channel program's handler (no region facade in the stub): the entry stops by name, it never returns as if run
+    java = "\n".join(P.facades("    public void handleLink(ChanIn request) {\n    }\n"))
+    assert "throw new UnsupportedOperationException" in java and "region" not in java
+
+
 def test_an_item_nothing_uses_has_no_field():
     """A Field is a view of its storage's bytes: one nothing reads or writes is dead code, so it is not emitted. The
     storage keeps every byte (its image and its length), so the proof sees the same bytes; only the view goes."""

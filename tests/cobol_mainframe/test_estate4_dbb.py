@@ -73,6 +73,11 @@ def test_a_program_id_without_its_period_gets_the_one_ibm_assumes():
     assert out[1] == "       PROGRAM-ID. EPSNBRVL." and out[3] == "       PROGRAM-ID. OK."
 
 
+@pytest.mark.skipif(
+    sys.platform == "win32",
+    reason="stages `epsnbrpm.cpy` and `EPSNBRPM.cpy` side by side for GnuCOBOL on Linux; a case-insensitive Windows "
+    "file system holds one of them",
+)
 def test_a_lower_case_copybook_is_staged_under_its_member_name(tmp_path):
     corpus = tmp_path / "corpus"
     (corpus / "copybook").mkdir(parents=True)

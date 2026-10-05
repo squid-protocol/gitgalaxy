@@ -3,13 +3,17 @@ batched catalog reads and dumps, and the per-estate cache (a restored refactor i
 
 from __future__ import annotations
 
-import fcntl
 import json
 import subprocess
 import sys
 from pathlib import Path
 
 import pytest
+
+try:
+    import fcntl
+except ImportError:  # Windows
+    fcntl = None
 
 ROOT = Path(__file__).resolve().parents[2]
 sys.path.insert(0, str(ROOT / "tests" / "tools"))
@@ -34,6 +38,9 @@ def test_pool_names_and_size(monkeypatch):
     assert db2.pool() == ["GGDB"]  # at least the container's own
 
 
+@pytest.mark.skipif(
+    fcntl is None, reason="the Db2 pool's database locks are fcntl.flock (Unix; the Db2 harness is Linux-only)"
+)
 def test_a_case_takes_the_first_free_database(monkeypatch, fresh_lock):
     monkeypatch.setenv(db2.POOL_ENV, "3")
     # GGDB keeps the lock file older checkouts take, so they and the pool never share a database

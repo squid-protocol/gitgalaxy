@@ -1224,10 +1224,37 @@ def _cics_parts(gen: G.Gen, records: list, roots: dict, proc: S.Procedure,
         "    }",
         "",
     ]
+    return members, entry + facades(stub)
+
+
+def facades(stub: str) -> list[str]:
+    """The stub's handleTransaction / handleLink, kept for their callers (#4465): each runs the program -- one task of
+    it in the region, as the generator's own facades do (#4343: CicsTask.region(), region.transaction / region.linked,
+    region.run(task, NAME, this::runTask)) -- and returns what the generated signature says: the COMMAREA its RETURN
+    passes on (task.returned) for a transaction, the caller's own `request`, changed by reference, for a LINK.
+
+    A stub whose entry has no region facade (a channel program's handler, #4343) is one no task runtime carries: the
+    entry stops by name rather than return as if the program had run (#4342: no generated entry that does nothing)."""
+    name = re.search(r'region\.run\(task, ("(?:[^"\\]|\\.)*"), this::runTask\)', stub)
+    out: list[str] = []
     for meth in ("handleTransaction", "handleLink"):
         m = re.search(rf"public (\S+) {meth}\(([^)]*)\)", stub)
-        if m:
-            body = ("        // this port runs as runTask(CicsTask)" if m.group(1) == "void"
-                    else f'        throw new UnsupportedOperationException("{meth}: this port runs as runTask");')  # fmt: skip
-            entry += [f"    public {m.group(1)} {meth}({m.group(2)}) {{", body, "    }", ""]
-    return members, entry
+        if not m:
+            continue
+        ret, params = m.group(1), m.group(2)
+        req = re.search(r"(\w+) request\b", params)
+        arg = "request" if req else "null"
+        if name is None:
+            body = [(f'        throw new UnsupportedOperationException("{meth}: the program has no task facade (a channel '
+                     'program); it runs as runTask");')]  # fmt: skip
+        else:
+            task = (f"region.transaction(transid, {arg})" if meth == "handleTransaction"
+                    else f"region.linked({name.group(1)}, {arg})")  # fmt: skip
+            body = ["        CicsTask.Region region = CicsTask.region();",
+                    f"        CicsTask task = {task};",
+                    f"        region.run(task, {name.group(1)}, this::runTask);"]  # fmt: skip
+            if ret != "void":
+                body.append("        return request;" if meth == "handleLink" and req and ret == req.group(1)
+                            else f"        return task.returned({ret}.class);")  # fmt: skip
+        out += [f"    public {ret} {meth}({params}) {{", *body, "    }", ""]
+    return out

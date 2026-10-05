@@ -33,7 +33,7 @@ def test_the_command_line_is_the_ports_own():
     port = {"now": "%Y-%m-%d %H:%M:%S"}
     dds = {"ACCTFILE": Path("/w/ACCTFILE.dat"), "TRANSACT": Path("/w/TRANSACT.dat")}
     argv = dp.command(port, dp._dd_launcher("CBACT04C"), CASE, dds, Path("/w/out"))
-    assert argv == ["CBACT04C", "--dd", "ACCTFILE=/w/ACCTFILE.dat", "--dd", "TRANSACT=/w/TRANSACT.dat",
+    assert argv == ["CBACT04C", "--dd", f"ACCTFILE={dds['ACCTFILE']}", "--dd", f"TRANSACT={dds['TRANSACT']}",
                     "--parm", "2022071800", "--now", "2022-07-18 10:30:15"]  # fmt: skip
 
 
@@ -50,7 +50,9 @@ def test_hex_packed_lines_become_the_copybook_record():
     line = b"A" * 90 + b"0000000252500C" + b" " * 10 + b"\n"
     rec = dp.lines_hex_packed(line, 107, [(90, 7)])
     assert len(rec) == 107 and rec[90:97] == bytes.fromhex("0000000252500C") and rec[97:] == b" " * 10
-    assert dp.lines_hex_packed(b"A" * 90 + b"ZZZZZZZZZZZZZZ" + b" " * 10 + b"\n", 107, [(90, 7)]).startswith(b"A" * 90 + b"Z")
+    assert dp.lines_hex_packed(b"A" * 90 + b"ZZZZZZZZZZZZZZ" + b" " * 10 + b"\n", 107, [(90, 7)]).startswith(
+        b"A" * 90 + b"Z"
+    )
 
 
 def test_a_zos_rdw_is_reframed_as_gnucobol_frames_it():

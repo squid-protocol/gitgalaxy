@@ -154,9 +154,9 @@ def parse(lines: list[Line]) -> Procedure:
                     stack.append(_Frame("PERFORM", s, s.body))
                 else:  # WHEN / WHEN OTHER: its body is reached through an unparsed object
                     f = _pop_to(stack, "EVALUATE")
-                    body = []
-                    _node(f).whens.append(([[("UNPARSED", n_text, "does not parse", False)]], body))
-                    f.target = body
+                    unparsed_body: list = []
+                    _node(f).whens.append(([[("UNPARSED", n_text, "does not parse", False)]], unparsed_body))
+                    f.target = unparsed_body
                 continue
             if t.endswith("_statement") or t.startswith("perform_statement"):
                 stack[-1].target.append(Stmt("HOLE", origin(n), node_text(n), {"why": "does not parse"}))

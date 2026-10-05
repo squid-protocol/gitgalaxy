@@ -416,7 +416,12 @@ int GGCSYNC(gg_cics *c) {
     return 0;
 }
 
-/* READ FILE(name1) RIDFLD INTO: the first record whose key equals RIDFLD. */
+/* READ FILE(name1) RIDFLD INTO LENGTH(c->len): the first record whose key equals RIDFLD (IBM, EXEC CICS READ).
+ * #4436: LENGTH is in-out -- in, the most the program takes (LENGTH OF INTO when the program gives none); the record
+ * goes INTO, truncated to it with LENGERR (RESP2 11) when longer; out, the record's length (NORMAL and LENGERR).
+ * Stops as not modelled: a negative LENGTH; a record moved past INTO (intolen: the storage after INTO, which GnuCOBOL
+ * lays out unlike IBM's compiler, oracle_assumptions.md X6); LENGERR on READ UPDATE (IBM does not say whether the
+ * record is then held). */
 int GGCREAD(gg_cics *c, char *ridfld, int keylen, char *into, int intolen) {
     char want[9], line[4096], name[64], path[3000], ev[320];
     int reclen, keyoff, klen, fresp, fresp2;
@@ -447,8 +452,15 @@ int GGCREAD(gg_cics *c, char *ridfld, int keylen, char *into, int intolen) {
             int cmp = keylen < klen ? keylen : klen;
             while (data && rec && fread(rec, 1, (size_t)reclen, data) == (size_t)reclen) {
                 if (memcmp(rec + keyoff, ridfld, (size_t)cmp) == 0) {
-                    memcpy(into, rec, (size_t)(reclen < intolen ? reclen : intolen));
-                    c->resp = reclen > intolen ? LENGERR : NORMAL;
+                    int max = c->len, moved = reclen < max ? reclen : max;
+                    if (max < 0) refuse("READ LENGTH (negative)");
+                    if (moved > intolen) refuse("READ INTO LENGTH: a record moved past INTO");
+                    if (reclen > max && strstr(c->flags, "UPDATE"))
+                        refuse("READ UPDATE LENGERR (whether the record is held)");
+                    memcpy(into, rec, (size_t)moved);
+                    c->resp = reclen > max ? LENGERR : NORMAL;
+                    c->resp2 = reclen > max ? 11 : 0;
+                    c->len = reclen;
                     if (c->resp == NORMAL && strstr(c->flags, "UPDATE")) hold(want, rec + keyoff, klen);
                     break;
                 }

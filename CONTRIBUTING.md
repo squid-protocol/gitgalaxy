@@ -105,6 +105,10 @@ corpus rather than just this repo:
 - `tree-sitter-accuracy-audit`
 - `tri-comparison-audit`
 
+A fifth, `crucible-path-independence`, scans the corpus from two parent paths (one under
+`tmp/docs/vendor/src/`) and fails if the results differ; run it locally with
+`python tests/tools/crucible_path_check.py` (#4248).
+
 **These now run normally on fork PRs.** They clone the corpus at a ref taken from the
 `LANGUAGE_CRUCIBLE_REF` Actions variable, and GitHub withholds repository variables — like
 secrets — from `pull_request` runs raised from a fork. The corpus repo is public and needs no

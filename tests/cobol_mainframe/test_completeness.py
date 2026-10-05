@@ -126,8 +126,10 @@ PINNED = {
     # 11 are EPSCSMRD's XML PARSE special registers (XML-TEXT / XML-NTEXT read as items) and 7
     # are EPSCSMRT's; `MOVE XML-CODE TO ERROR-CODE` now resolves its target and counts as
     # `system`, out of the denominator.
+    # #4447: CALLs between the sibling programs of one member now resolve (epscsmrd.cbl holds 13
+    # programs, eleven siblings and two nested): program calls 7 -> 18 of 19.
     "dbb-mortgage-application": {
-        "program calls": (7, 19), "copybooks": (11, 11), "transactions": (2, 4), "screens": (7, 7),
+        "program calls": (18, 19), "copybooks": (11, 11), "transactions": (2, 4), "screens": (7, 7),
         "data flows": (549, 567), "IMS PSBs": (0, 0), "batch entry": (0, 1),
     },
     # #3512: ECS001 ("Sample CICS program initiated via a terminal") issues only

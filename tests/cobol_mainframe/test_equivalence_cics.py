@@ -23,10 +23,24 @@ from gitgalaxy.tools.cobol_to_cobol.galaxy_ir import load_galaxy_ir, scan_to_db 
 def test_a_read_becomes_a_stub_call_and_its_resp_is_the_programs():
     got = ec.translate_command(" READ DATASET (LIT-ACCTFILENAME) RIDFLD (WS-KEY) KEYLENGTH (LENGTH OF WS-KEY)"
                                " INTO (ACCOUNT-RECORD) RESP (WS-RESP-CD) RESP2 (WS-REAS-CD) ")  # fmt: skip
-    assert got[:3] == ["MOVE LIT-ACCTFILENAME TO GG-NAME1", "MOVE SPACES TO GG-FLAGS",  # not UPDATE: holds nothing
-                       "CALL 'GGCREAD' USING GG-CICS"]  # fmt: skip
+    assert got[:4] == ["MOVE LIT-ACCTFILENAME TO GG-NAME1", "MOVE SPACES TO GG-FLAGS",  # not UPDATE: holds nothing
+                       "MOVE LENGTH OF ACCOUNT-RECORD TO GG-LEN", "CALL 'GGCREAD' USING GG-CICS"]  # fmt: skip
     assert "    BY VALUE LENGTH OF WS-KEY" in got and "    BY REFERENCE ACCOUNT-RECORD" in got
     assert got[-2:] == ["MOVE GG-RESP TO WS-RESP-CD", "MOVE GG-RESP2 TO WS-REAS-CD"]
+
+
+def test_a_reads_length_goes_in_and_comes_back():
+    """#4436 (GenApp LGUCVS01: LENGTH(WS-Commarea-Len)): IBM, EXEC CICS READ -- LENGTH is the most INTO takes (a
+    longer record is truncated, LENGERR) and is set to the record's length, on NORMAL and LENGERR only. Before, the
+    stub was given LENGTH OF INTO and LENGTH was never set. A literal / LENGTH OF has nothing to set back."""
+    got = ec.translate_command("READ FILE('KSDSCUST') INTO(WS-AREA) LENGTH(WS-LEN) RIDFLD(K) KEYLENGTH(10) RESP(R)")
+    assert got[2:4] == ["MOVE WS-LEN TO GG-LEN", "CALL 'GGCREAD' USING GG-CICS"]
+    assert "    BY VALUE LENGTH OF WS-AREA" in got  # the stub refuses a record moved past INTO
+    at = got.index("IF GG-RESP = 0 OR GG-RESP = 22")
+    assert got[at : at + 4] == ["IF GG-RESP = 0 OR GG-RESP = 22", "    MOVE GG-LEN TO WS-LEN", "END-IF",
+                                "MOVE GG-RESP TO EIBRESP"]  # fmt: skip
+    lit = ec.translate_command("READ FILE(F) INTO(A) LENGTH(10) RIDFLD(K) RESP(R)")
+    assert "MOVE 10 TO GG-LEN" in lit and not any(ln.startswith("    MOVE GG-LEN") for ln in lit)
 
 
 def test_an_untested_condition_goes_to_the_stubs_condition_handling():
@@ -466,7 +480,8 @@ def test_the_generated_test_runs_runtask_unless_the_facade_side_is_asked_for(tmp
 # ---- file updates: WRITE, REWRITE, READ UPDATE, SYNCPOINT (CardDemo's update programs) -----------------------
 def test_file_updates_translate_to_stub_calls():
     upd = ec.translate_command("READ DATASET(WS-F) INTO(R) RIDFLD(K) UPDATE RESP(X)")
-    assert upd[:3] == ["MOVE WS-F TO GG-NAME1", "MOVE 'UPDATE' TO GG-FLAGS", "CALL 'GGCREAD' USING GG-CICS"]
+    assert upd[:4] == ["MOVE WS-F TO GG-NAME1", "MOVE 'UPDATE' TO GG-FLAGS", "MOVE LENGTH OF R TO GG-LEN",
+                       "CALL 'GGCREAD' USING GG-CICS"]  # fmt: skip
     w = ec.translate_command("WRITE DATASET(F) FROM(REC) RIDFLD(K) RESP(X)")
     assert w[:2] == ["MOVE F TO GG-NAME1", "CALL 'GGCWRIT' USING GG-CICS"] and "    BY REFERENCE REC" in w
     rw = ec.translate_command("REWRITE FILE(F) FROM(REC) RESP(X) RESP2(Y)")

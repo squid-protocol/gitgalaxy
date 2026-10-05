@@ -192,7 +192,9 @@ def test_carddemo_intcalc_is_equivalent_end_to_end(tmp_path):
                            str(tmp_path)], capture_output=True, text=True, check=False)  # fmt: skip
     assert proc.returncode == 0, proc.stdout[-3000:] + proc.stderr[-3000:]
     report = json.loads((tmp_path / "report.json").read_text())
-    assert all(o["equal"] == o["records"] == 50 for o in report["outputs"].values())
+    # #4079 appended the #4049 loop's records to the case (account 51, ...): 52 accounts, 53 interest transactions
+    assert {dd: (o["equal"], o["records"]) for dd, o in report["outputs"].items()} == {
+        "ACCTFILE": (52, 52), "TRANSACT": (53, 53)}  # fmt: skip
     # #4023 follow-up: every injected file fault is proven too -- the port takes the COBOL's error path
     assert len(report["faults"]) == 19 and all(f["ok"] for f in report["faults"]), report["faults"]
 
@@ -209,8 +211,9 @@ def test_carddemo_posttran_is_equivalent_end_to_end(tmp_path):
     assert proc.returncode == 0, proc.stdout[-3000:] + proc.stderr[-3000:]
     report = json.loads((tmp_path / "report.json").read_text())
     assert report["return_code"] == {"cobol": "4", "java": "4"}
+    # #4079 appended the #4049 loop's daily transactions to the case: TRANFILE 264 records, DALYREJS 41
     assert {dd: (o["equal"], o["records"]) for dd, o in report["outputs"].items()} == {
-        "ACCTFILE": (50, 50), "TCATBALF": (100, 100), "TRANFILE": (262, 262), "DALYREJS": (38, 38)}  # fmt: skip
+        "ACCTFILE": (50, 50), "TCATBALF": (100, 100), "TRANFILE": (264, 264), "DALYREJS": (41, 41)}  # fmt: skip
     assert len(report["faults"]) == 28 and all(f["ok"] for f in report["faults"]), report["faults"]
 
 

@@ -20,7 +20,7 @@ from gitgalaxy.tools.cobol_to_java.det import expr as E
 from gitgalaxy.tools.cobol_to_java.det import gen as G
 from gitgalaxy.tools.cobol_to_java.det import layout as L
 from gitgalaxy.tools.cobol_to_java.det import stmt as S
-from gitgalaxy.tools.cobol_to_java.det.source import Line, program_lines
+from gitgalaxy.tools.cobol_to_java.det.source import Line, engine_copies_from_ticket, program_lines
 
 RUNTIME = Path(__file__).parent / "cobolrt"
 
@@ -415,7 +415,9 @@ def liftable(records: list, excluded: set[str], rc: L.Item) -> dict[int, str]:
 def _translate(program: Path, copy_dirs: list[Path], stub: str, package: str, estate: dict[str, str] | None,
                project: Path | None, style: str, typed: bool, excluded: set[str],
                groups: bool = False, options: list[str] | None = None) -> Result:  # fmt: skip
-    lines = program_lines(program, [*copy_dirs, C.COPY])
+    # #4467: a COPY the translator resolves otherwise than the engine did refuses the program (CopyDisagrees)
+    engine = engine_copies_from_ticket(project, program) if project is not None else None
+    lines = program_lines(program, [*copy_dirs, C.COPY], engine)
     records = L.parse(lines)
     is_cics = "runTask(CicsTask" in stub
     batch = has_batch(project)

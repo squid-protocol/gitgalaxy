@@ -64,6 +64,11 @@ OPTIONS: dict[str, frozenset | None] = {
     "SEND MAP": frozenset({"MAP", "MAPSET", "FROM", "CURSOR", *MAP_OPTIONS}) | _RESP,
     "SEND TEXT": frozenset({"FROM", "LENGTH", *TEXT_OPTIONS}) | _RESP,
     "RECEIVE MAP": frozenset({"MAP", "MAPSET", "INTO"}) | _RESP,
+    # #4413: terminal control. SEND CONTROL's device controls (IBM's minimum-BMS options; PRINT, FORMFEED, ALTERNATE /
+    # DEFAULT and the partition / LDC / ACCUM / PAGING ones are refused); RECEIVE of unformatted terminal input
+    # (ASIS / BUFFER and the APPC / LU6.1 options refused)
+    "SEND CONTROL": frozenset({"ERASE", "ERASEAUP", "FREEKB", "ALARM", "CURSOR", "FRSET"}) | _RESP,
+    "RECEIVE": frozenset({"INTO", "SET", "LENGTH", "FLENGTH", "MAXLENGTH", "MAXFLENGTH", "NOTRUNCATE"}) | _RESP,
     "LINK": frozenset({"PROGRAM", "COMMAREA", "LENGTH"}) | _RESP,
     # control never comes back from a RETURN, so a RESP area it does not write is never read after it
     "RETURN": frozenset({"TRANSID", "COMMAREA", "LENGTH"}) | _RESP,
@@ -142,6 +147,10 @@ def _arg(v: str | None) -> str:
     return v
 
 
+# an option with no argument that can come first, so is never a verb word (#4413: RECEIVE NOTRUNCATE INTO(...))
+_BARE_OPTIONS = ("NOTRUNCATE",)
+
+
 def parse_exec(text: str) -> tuple[list[str], dict[str, str | None]]:
     """EXEC CICS VERB [VERB2] OPT(arg) OPT ... END-EXEC -> ([verb words], {option: arg text or None})."""
     body = re.sub(r"(?is)^\s*EXEC\s+CICS\s+|\s*END-EXEC\s*\.?\s*$", "", text).strip()
@@ -178,7 +187,7 @@ def parse_exec(text: str) -> tuple[list[str], dict[str, str | None]]:
                 k += 1
             opts[name] = body[j + 1 : k].strip()
             i = k + 1
-        elif not opts and len(words) < 2 and name not in MAP_OPTIONS:
+        elif not opts and len(words) < 2 and name not in MAP_OPTIONS and name not in _BARE_OPTIONS:
             words.append(name)
         else:
             opts[name] = None
@@ -737,7 +746,72 @@ class Cics:
             if "RESP2" in opts and "RESP" not in opts:  # RESP2 alone is written too
                 out.append(ind + self.g.store_into(self.ref(_arg(opts["RESP2"])), "BigDecimal.valueOf(0)", False))
             return out
+        if verb == "SEND CONTROL":
+            return self.send_control(opts, ind)
+        if verb == "RECEIVE":
+            return self.receive(opts, ind)
         raise CicsError(f"EXEC CICS {verb} not modelled")
+
+    # -- #4413: terminal control without a map
+    def send_control(self, opts: dict, ind: str) -> list[str]:
+        """SEND CONTROL (IBM, EXEC CICS SEND CONTROL): device controls, recorded with CicsTask.sendControl. CURSOR
+        names an offset ("a halfword binary value that specifies the cursor position relative to zero"); without
+        one IBM documents no meaning (symbolic cursor positioning needs a map), so it is refused. No condition it
+        documents arises on a plain terminal: NORMAL."""
+        cursor = "null"
+        if "CURSOR" in opts:
+            if not opts["CURSOR"]:
+                raise CicsError("SEND CONTROL CURSOR without a value: not modelled")
+            cursor = self.int_(opts["CURSOR"])
+        flags = [o for o in OPTIONS["SEND CONTROL"] if o in opts and o not in _RESP]  # (sorted by the runtime)
+        return [f"{ind}task.sendControl({cursor}{''.join(', ' + G_jstr(x) for x in sorted(flags))});",
+                *self.outcome(opts, "0", "0", ind)]  # fmt: skip
+
+    def receive(self, opts: dict, ind: str) -> list[str]:
+        """A terminal RECEIVE (IBM, EXEC CICS RECEIVE (3270 logical), (LUTYPE2/LUTYPE3)) on CicsTask.receive.
+
+        INTO: the most taken is MAXLENGTH, else LENGTH's value, else INTO's length; the data goes into INTO's first
+        bytes. SET(ADDRESS OF record): the LINKAGE record addresses the data (DetCics.receivedSet); it needs MAXLENGTH
+        -- without it IBM's "the value indicated in the LENGTH option is assumed" reads LENGTH, which SET only sets
+        -- and LENGTH(data-area). LENGTH / FLENGTH is set to the length the runtime returns (the data's, or under
+        LENGERR the original length). LENGERR (22) and EOC (6, an LUTYPE2 terminal; ignored by default) go through
+        RESP / HANDLE CONDITION like any condition."""
+        if "LENGTH" in opts and "FLENGTH" in opts or "MAXLENGTH" in opts and "MAXFLENGTH" in opts:
+            raise CicsError("RECEIVE with both LENGTH and FLENGTH, or MAXLENGTH and MAXFLENGTH")
+        length = opts.get("LENGTH") or opts.get("FLENGTH")
+        if ("LENGTH" in opts or "FLENGTH" in opts) and not length:
+            raise CicsError("RECEIVE LENGTH needs an argument")
+        most = opts.get("MAXLENGTH") or opts.get("MAXFLENGTH")
+        if ("MAXLENGTH" in opts or "MAXFLENGTH" in opts) and not most:
+            raise CicsError("RECEIVE MAXLENGTH needs an argument")
+        settable = length is not None and re.fullmatch(r"(?is)[+-]?\d+|LENGTH\s+OF\s+.+", length.strip()) is None
+        g = self.g
+        if opts.get("INTO") and "SET" not in opts:
+            target = self.field(opts["INTO"])
+            limit = self.int_(most) if most else self.int_(length) if length else str(self.size(opts["INTO"]))
+            put = "received"
+        elif opts.get("SET") and "INTO" not in opts:
+            m = re.fullmatch(r"(?is)ADDRESS\s+OF\s+([A-Z0-9-]+)", opts["SET"].strip())
+            if m is None:
+                raise CicsError(f"RECEIVE SET({opts['SET']}): pointers are not modelled, only SET(ADDRESS OF record)")
+            item = g.resolve(E.Ref(m.group(1).upper()))
+            if getattr(item, "section", None) != "LINKAGE" or getattr(item, "level", None) != 1:
+                raise CicsError(f"RECEIVE SET(ADDRESS OF {m.group(1)}): not a LINKAGE 01 record")
+            if not most:
+                raise CicsError("RECEIVE SET without MAXLENGTH: the most it takes is not documented")
+            if not settable:
+                raise CicsError("RECEIVE SET without LENGTH(data-area)")
+            target = self.field(m.group(1))
+            limit = self.int_(most)
+            put = "receivedSet"
+        else:
+            raise CicsError("RECEIVE needs one of INTO / SET")
+        r = g.tmpname("received")
+        out = [f"{ind}CicsTask.Received {r} = task.receive({limit}, {str('NOTRUNCATE' in opts).lower()});",
+               f"{ind}DetCics.{put}({target}, {r}.data(), CS);"]  # fmt: skip
+        if settable:
+            out.append(ind + g.store_into(self.ref(length), f"BigDecimal.valueOf({r}.length())", False))
+        return out + self.outcome(opts, f"DetCics.resp({r}.resp())", "0", ind)
 
     def ts_queue(self, verb: str, opts: dict, ind: str) -> list[str]:
         """WRITEQ TS / READQ TS on the task's temporary storage (CicsTask): an item is the program's own bytes.

@@ -413,6 +413,55 @@ def test_cics_task_receive_text_records_the_event_and_truncates_with_lengerr(tmp
     )
 
 
+@needs_javac
+def test_cics_task_receive_notruncate_eoc_and_send_control(tmp_path):
+    """#4413, IBM EXEC CICS RECEIVE (3270 logical / LUTYPE2): MAXLENGTH with NOTRUNCATE returns the first bytes NORMAL
+    with the length returned and keeps the rest for the next RECEIVE of the task; a negative limit is zero; an
+    LUTYPE2 terminal's RECEIVE returning the input's last byte raises EOC, and one leaving data retained there is
+    refused (undocumented). SEND CONTROL records its options sorted and its CURSOR offset."""
+    out = _cics_task(
+        tmp_path,
+        """
+        CicsTask t = new CicsTask("HC05", "ENTER", null, null).withTerminalInput("HC05 ABCDEFG");
+        System.out.println(t.receive(5, true));
+        System.out.println(t.receive(4, true));
+        System.out.println(t.receive(4, true));
+        try {
+            t.receive(4, true);
+        } catch (IllegalStateException e) {
+            System.out.println("waits");
+        }
+        CicsTask z = new CicsTask("HC05", "ENTER", null, null).withTerminalInput("HC05");
+        System.out.println(z.receive(-3, false));
+        CicsTask l = new CicsTask("HC05", "ENTER", null, null).withTerminalInput("HC05 X").withEndOfChain(true);
+        System.out.println(l.receive(80, false));
+        CicsTask m = new CicsTask("HC05", "ENTER", null, null).withTerminalInput("HC05 X").withEndOfChain(true);
+        System.out.println(m.receive(2, false));
+        CicsTask n = new CicsTask("HC05", "ENTER", null, null).withTerminalInput("HC05 X").withEndOfChain(true);
+        try {
+            n.receive(2, true);
+        } catch (IllegalStateException e) {
+            System.out.println("refused");
+        }
+        t.sendControl(null, "FREEKB", "ERASE");
+        t.sendControl(85, "CURSOR", "ALARM");
+        System.out.println(t.events());""",
+    )
+    assert out.splitlines() == [
+        "Received[resp=NORMAL, length=5, data=HC05 ]",
+        "Received[resp=NORMAL, length=4, data=ABCD]",
+        "Received[resp=NORMAL, length=3, data=EFG]",
+        "waits",
+        "Received[resp=LENGERR, length=4, data=]",
+        "Received[resp=EOC, length=6, data=HC05 X]",
+        "Received[resp=LENGERR, length=6, data=HC]",
+        "refused",
+        "[{event=RECEIVE, resp=NORMAL, length=5, data=HC05 }, {event=RECEIVE, resp=NORMAL, length=4, data=ABCD}, "
+        "{event=RECEIVE, resp=NORMAL, length=3, data=EFG}, {event=SEND-CONTROL, options=[ERASE, FREEKB], cursor=null}, "
+        "{event=SEND-CONTROL, options=[ALARM, CURSOR], cursor=85}]",
+    ]
+
+
 # ---- #4002: temporary storage -----------------------------------------------------------------------
 _TS_MAIN = r"""
 #include <stdio.h>

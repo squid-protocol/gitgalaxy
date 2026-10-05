@@ -165,6 +165,8 @@ public class CicsTask {
     private final Map<String, LocalDateTime> ownRequests = new HashMap<>();
     private String terminalInput;
     private boolean terminalRead;
+    private String terminalRest;                            // #4413: input a RECEIVE NOTRUNCATE left (the task's root)
+    private boolean endOfChain;                             // #4413: an LUTYPE2 terminal: input ends a chain (EOC)
     private TempStorage tempStorage = new TempStorage();
     private String abcode = "    ";
     private String termid;                                  // #3989: EIBTRMID (the task's root); null without one
@@ -632,21 +634,74 @@ public class CicsTask {
         this.terminalRead = true;
     }
 
+    /** #4413: the terminal is an SNA 3270 display logical unit (CSD DEVICE(LUTYPE2)), not a 3270 logical unit: the
+     *  input message it sends is one chain, so the RECEIVE that returns its last byte raises EOC (IBM, EXEC CICS
+     *  RECEIVE (LUTYPE2/LUTYPE3): EOC "occurs when a request/response unit (RU) is received with end-of-chain-
+     *  indicator set"; RECEIVE (3270 logical) has no EOC). EOC's default action is to ignore it. */
+    public CicsTask withEndOfChain(boolean lutype2) {
+        this.endOfChain = lutype2;
+        return this;
+    }
+
     /** RECEIVE INTO LENGTH(maxLength) (#4005): the terminal input, unformatted, read once per task. Input
      *  longer than maxLength is truncated to it and raises LENGERR, and the length is then the input's full
      *  length (IBM, EXEC CICS RECEIVE: "the data area specified in the LENGTH option is set to the original
      *  length of data"). */
     public Received receiveText(int maxLength) {
+        return receive(maxLength, false);
+    }
+
+    /** #4413: a terminal RECEIVE [INTO | SET] [LENGTH] [MAXLENGTH] [NOTRUNCATE] (IBM, EXEC CICS RECEIVE (3270
+     *  logical) and (LUTYPE2/LUTYPE3)). `maxLength` is the most the program takes -- MAXLENGTH, else LENGTH's value,
+     *  else INTO's length; below zero, zero ("If the value specified is less than zero, zero is assumed"). Longer
+     *  input: under NOTRUNCATE the first maxLength bytes, NORMAL, the length the data returned, and "CICS retains the
+     *  remaining data and uses it to satisfy subsequent RECEIVE commands"; else truncated, LENGERR, and the length the
+     *  original one. The operator's input is read once per task: a RECEIVE with nothing retained would wait for more
+     *  input, which a task here cannot get (refused). On an LUTYPE2 terminal (withEndOfChain) the RECEIVE returning
+     *  the input's last byte raises EOC instead of NORMAL; whether one that leaves data retained does is not
+     *  documented, and is refused. */
+    public Received receive(int maxLength, boolean notruncate) {
         CicsTask task = root();  // the terminal is the task's, whichever level reads it
-        if (task.terminalRead) {
+        String text;
+        if (task.terminalRest != null) {
+            text = task.terminalRest;
+            task.terminalRest = null;
+        } else if (task.terminalRead) {
             throw new IllegalStateException("a second terminal RECEIVE waits for more input from the operator");
+        } else {
+            task.terminalRead = true;
+            text = task.terminalInput == null ? "" : task.terminalInput;
         }
-        task.terminalRead = true;
-        String text = task.terminalInput == null ? "" : task.terminalInput;
-        String data = text.length() > maxLength ? text.substring(0, Math.max(maxLength, 0)) : text;
-        String resp = text.length() > maxLength ? "LENGERR" : "NORMAL";
-        event("RECEIVE", "resp", resp, "length", text.length(), "data", data);
-        return new Received(resp, text.length(), data);
+        int max = Math.max(maxLength, 0);
+        String data = text.length() > max ? text.substring(0, max) : text;
+        String resp;
+        int length;
+        if (text.length() > max && notruncate) {
+            if (task.endOfChain) {
+                throw new IllegalStateException("RECEIVE NOTRUNCATE on an LUTYPE2 terminal leaving data retained: "
+                        + "whether it raises EOC is not documented");
+            }
+            task.terminalRest = text.substring(max);
+            resp = "NORMAL";
+            length = max;
+        } else if (text.length() > max) {
+            resp = "LENGERR";
+            length = text.length();
+        } else {
+            resp = task.endOfChain ? "EOC" : "NORMAL";
+            length = text.length();
+        }
+        event("RECEIVE", "resp", resp, "length", length, "data", data);
+        return new Received(resp, length, data);
+    }
+
+    /** #4413: SEND CONTROL with its options (ERASE, ERASEAUP, FREEKB, ALARM, FRSET; CURSOR with `cursor`, its
+     *  offset, else null). It sends device controls only; none of its conditions (IBM, EXEC CICS SEND CONTROL:
+     *  INVREQ for a BMS logical message, partitions, LDCs, SET / PAGING) can arise for a task's plain terminal. */
+    public void sendControl(Integer cursor, String... options) {
+        List<String> opts = new ArrayList<>(List.of(options));
+        Collections.sort(opts);
+        event("SEND-CONTROL", "options", opts, "cursor", cursor);
     }
 
     /** A terminal RECEIVE's outcome: its condition, the LENGTH it sets, and the data it moved INTO. */

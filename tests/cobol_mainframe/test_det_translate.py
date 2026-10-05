@@ -408,6 +408,10 @@ _IBM_OPTIONS = {
     "SEND MAP": "MAP MAPSET FROM DATAONLY MAPONLY LENGTH CURSOR FORMFIELD ERASE ERASEAUP PRINT FREEKB ALARM FRSET "
     "MSR OUTPARTN ACTPARTN LDC FMHPARMS NLEOM REQID SET PAGING TERMINAL WAIT LAST HONEOM L40 L64 L80 ACCUM",
     "RECEIVE MAP": "MAP MAPSET INTO SET FROMLENGTH FROM TERMINAL ASIS INPARTN",
+    # #4413: terminal control (SEND CONTROL; RECEIVE (3270 logical), (LUTYPE2/LUTYPE3), z/OS Communications Server)
+    "SEND CONTROL": "CURSOR FORMFEED ERASE DEFAULT ALTERNATE ERASEAUP PRINT FREEKB ALARM FRSET MSR OUTPARTN "
+    "ACTPARTN LDC ACCUM TERMINAL SET PAGING WAIT LAST REQID HONEOM L40 L64 L80",
+    "RECEIVE": "INTO SET LENGTH FLENGTH MAXLENGTH MAXFLENGTH NOTRUNCATE ASIS BUFFER CONVID SESSION PARTN LDC",
 }
 
 
@@ -415,7 +419,7 @@ _IBM_OPTIONS = {
 def test_every_option_of_a_modelled_command_is_honoured_or_refused(verb):
     first = verb.split()[0]
     for opt in _IBM_OPTIONS[verb].split():
-        words, opts = [first], {opt: "X"}
+        words, opts = ([first] if verb.endswith("MAP") else verb.split()), {opt: "X"}
         if verb.endswith("MAP"):
             opts = {"MAP": "'M'", opt: "X"}
         if opt in C.OPTIONS[C.command_key(words, opts)]:
@@ -645,6 +649,7 @@ _RESP_SAMPLES = {
     "INQUIRE PROGRAM": "INQUIRE PROGRAM('P')", "WRITEQ TD": "WRITEQ TD QUEUE('Q') FROM(REC)",
     "WRITEQ TS": "WRITEQ TS QUEUE('Q') FROM(REC)", "READQ TS": "READQ TS QUEUE('Q') INTO(REC)",
     "GET COUNTER": "GET COUNTER(KEY) VALUE(REC)", "SYNCPOINT": "SYNCPOINT", "SYNCPOINT ROLLBACK": "SYNCPOINT ROLLBACK",
+    "SEND CONTROL": "SEND CONTROL ERASE", "RECEIVE": "RECEIVE INTO(REC)",
 }  # fmt: skip
 _RESP_ELSEWHERE = {
     "RETURN": "control never comes back from a RETURN (OPTIONS)",
@@ -663,6 +668,102 @@ def test_every_command_that_accepts_resp_writes_it(key):
     c = _RespCics()
     out = c.command(f"{_RESP_SAMPLES[key]} RESP(R)", "")
     assert any("OUTCOME(" in line for line in out) and any("RESP" in o for o in c.outcomes), out
+
+
+# ---- #4413: SEND CONTROL and terminal RECEIVE (no map) ---------------------------------------------------------------
+class _TermCics(_LenCics):
+    """LS-REC a LINKAGE 01 record, WS-REC a WORKING-STORAGE one; INTO / SET targets as f_<name>."""
+
+    def __init__(self):
+        super().__init__()
+        from gitgalaxy.tools.cobol_to_java.det import layout as L
+
+        items = {"LS-REC": L.Item(1, "LS-REC", "LINKAGE"), "WS-REC": L.Item(1, "WS-REC", "WORKING-STORAGE"),
+                 "LS-PART": L.Item(5, "LS-PART", "LINKAGE")}  # fmt: skip
+        self.g.resolve = lambda ref: items[ref.name]
+
+    def ref(self, text):
+        return E.Ref(text.strip())
+
+
+def test_send_control_records_its_options_and_cursor():
+    """IBM, EXEC CICS SEND CONTROL ("sends device controls to a terminal"): CBSA's BNK1* send ERASE FREEKB before a
+    RETURN. CURSOR(n) is the offset "relative to zero"; no condition IBM lists arises on a plain terminal."""
+    c = _TermCics()
+    assert c.command("SEND CONTROL ERASE FREEKB", "") == [
+        'task.sendControl(null, "ERASE", "FREEKB");',
+        "OUTCOME(0, 0);",
+    ]
+    assert c.command("SEND CONTROL CURSOR(CPOS) ALARM FRSET ERASEAUP RESP(R)", "") == [
+        'task.sendControl(INT(CPOS), "ALARM", "CURSOR", "ERASEAUP", "FRSET");', "OUTCOME(0, 0);"]  # fmt: skip
+    for bad, why in (("SEND CONTROL CURSOR", "without a value"), ("SEND CONTROL ERASE PRINT", "PRINT: option not"),
+                     ("SEND CONTROL ACCUM PAGING", "option not modelled")):  # fmt: skip
+        with pytest.raises(C.CicsError, match=why):
+            c.command(bad, "")
+
+
+def test_receive_into_length_is_in_out_with_its_conditions():
+    """IBM, EXEC CICS RECEIVE: with INTO and no MAXLENGTH, LENGTH "specifies the maximum length that the program
+    accepts"; "When the data has been received, the data area is set to the length of the data" (LENGERR: "the
+    original length of data"). GenApp LGSETUP / LGSTSQ / LGICVS01 / LGIPVS01: INTO LENGTH RESP."""
+    out = _TermCics().command("RECEIVE INTO(WS-REC) LENGTH(RLEN) RESP(R)", "")
+    assert out == [
+        "CicsTask.Received received1 = task.receive(INT(RLEN), false);",
+        "DetCics.received(f_WS-REC, received1.data(), CS);",
+        "STORE(RLEN, BigDecimal.valueOf(received1.length()));",
+        "OUTCOME(DetCics.resp(received1.resp()), 0);",
+    ]
+    # no LENGTH: INTO's length is the limit, nothing set back; a literal LENGTH is the limit only
+    out = _TermCics().command("RECEIVE INTO(REC)", "")
+    assert out[0] == "CicsTask.Received received1 = task.receive(56, false);" and not any("STORE" in x for x in out)
+    out = _TermCics().command("RECEIVE INTO(REC) LENGTH(20)", "")
+    assert out[0] == "CicsTask.Received received1 = task.receive(INT(20), false);" and not any(
+        "STORE" in x for x in out
+    )
+    # MAXLENGTH overrides LENGTH as the limit; NOTRUNCATE keeps the rest (also when it comes first)
+    for text in ("RECEIVE INTO(REC) LENGTH(RLEN) MAXLENGTH(10) NOTRUNCATE", "RECEIVE NOTRUNCATE INTO(REC) "
+                 "FLENGTH(RLEN) MAXFLENGTH(10)"):  # fmt: skip
+        out = _TermCics().command(text, "")
+        assert out[0] == "CicsTask.Received received1 = task.receive(INT(10), true);"
+        assert out[2] == "STORE(RLEN, BigDecimal.valueOf(received1.length()));"
+
+
+def test_receive_set_addresses_a_linkage_record_and_the_rest_is_refused():
+    out = _TermCics().command("RECEIVE SET(ADDRESS OF LS-REC) LENGTH(RLEN) MAXLENGTH(80)", "")
+    assert out[:3] == ["CicsTask.Received received1 = task.receive(INT(80), false);",
+                       "DetCics.receivedSet(f_LS-REC, received1.data(), CS);",
+                       "STORE(RLEN, BigDecimal.valueOf(received1.length()));"]  # fmt: skip
+    for bad, why in (
+        ("RECEIVE SET(PTR) LENGTH(RLEN) MAXLENGTH(80)", "pointers are not modelled"),
+        ("RECEIVE SET(ADDRESS OF WS-REC) LENGTH(RLEN) MAXLENGTH(80)", "not a LINKAGE 01"),
+        ("RECEIVE SET(ADDRESS OF LS-PART) LENGTH(RLEN) MAXLENGTH(80)", "not a LINKAGE 01"),
+        ("RECEIVE SET(ADDRESS OF LS-REC) LENGTH(RLEN)", "without MAXLENGTH"),
+        ("RECEIVE SET(ADDRESS OF LS-REC) MAXLENGTH(80)", "without LENGTH"),
+        ("RECEIVE LENGTH(RLEN)", "one of INTO / SET"),
+        ("RECEIVE INTO(REC) SET(ADDRESS OF LS-REC) LENGTH(RLEN)", "one of INTO / SET"),
+        ("RECEIVE INTO(REC) LENGTH(RLEN) FLENGTH(RLEN)", "both"),
+        ("RECEIVE INTO(REC) ASIS", "ASIS: option not modelled"),
+        ("RECEIVE INTO(REC) BUFFER", "BUFFER: option not modelled"),
+    ):
+        with pytest.raises(C.CicsError, match=why):
+            _TermCics().command(bad, "")
+
+
+def test_eoc_is_ignored_by_default_and_handled_like_any_condition():
+    """IBM, RECEIVE (LUTYPE2/LUTYPE3): EOC (RESP 6), "Default action: ignore the condition". The program's
+    condition() goes on (-1) for it when no HANDLE CONDITION names it; DetCics knows its RESP value."""
+    import re
+
+    from gitgalaxy.tools.cobol_to_java.det import program as P
+
+    src = Path(P.__file__).read_text(encoding="utf-8")
+    body = src[src.index("private int condition(String cond)") :]
+    assert (
+        body.index("handlers.get(cond)") < body.index("DetCics.ignoredByDefault(cond)") < body.index("abendOnCondition")
+    )
+    rt = (Path(C.__file__).parent / "cobolrt/cics/DetCics.java").read_text(encoding="utf-8")
+    assert 'case 6 -> "EOC";' in rt and 'case "EOC" -> 6;' in rt
+    assert re.search(r'ignoredByDefault\(String condition\) \{\s*return "EOC"\.equals\(condition\);', rt)
 
 
 def _proc(body: list[str]):

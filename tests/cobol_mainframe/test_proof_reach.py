@@ -254,15 +254,41 @@ def test_every_survivor_in_code_no_proof_runs_was_triaged_as_out_of_the_proofs_r
     # 37 when #4255 counted them. The 8 in hc-abend-link and hc-perform-range left with their ports' changes (their
     # handlers now run, #4325). #4342 took 14 more with the code they sat in: COMEN01C's 9 and COACTVWC's 1 were in
     # data-driven dispatchers no proof called, which runTask now XCTLs through; CSUTLDTC's 4 were in executeCsutldtc,
-    # which is gone. The last 15 (CASUB 4, CAXB 3, HXATTR 3, PCWIZ 2, GTWORK, PCDETL, PCMENU) sat in the crucible ports'
-    # old facades -- executeX, handleTransaction / handleLink running a task of their own, render / submit -- which
-    # #4343 regenerated (tests/tools/port_surface.py) and now proves through the java-facade side. Every crucible
-    # port changed, so its mutation run judged other code: its survivors are skipped until the next run re-judges it.
+    # which is gone. The last 15 sat in the crucible ports' old facades, which #4343 regenerated
+    # (tests/tools/port_surface.py) and now proves through the java-facade side. Every crucible port then changed, and
+    # its recorded mutation run judged other code: all 17 were stale until re-run.
+    #
+    # The re-run (13 of the 17: every crucible port but the four PC* ones, which #4427 is changing and which are
+    # re-run after it merges; seed 0, 24 mutants each, cics-crucible v0.2.0, mutants proven on the java-ported AND
+    # java-facade sides) leaves 3 flagged survivors, all unreachable: dead helpers no code calls (CASUB
+    # writeqTsCatraceL22, HCQREAD writeqTsHcworkL37 and readqTsHcworkL57), the kind #4255 counted. No case_gap and no
+    # harness_gap: a mutant inside a facade body survived on the java-ported side alone (4 of them), and the java-facade
+    # side, which runs those bodies, now kills them.
     crucible = {(p["case"], p["program"]) for p in json.loads(SCORES.read_text(encoding="utf-8"))["ports"]
                 if p["case"].startswith("crucible:")}  # fmt: skip
-    assert crucible and not any(_mutated_port_is_current(c, prog) for c, prog in crucible)
-    assert verdicts.count("unreachable") == len(verdicts)
+    stale = {prog for c, prog in crucible if not _mutated_port_is_current(c, prog)}
+    # only the ports not yet re-run are stale: their survivors are skipped until the next run judges them again
+    assert crucible and stale == {"PCCONF", "PCWIZ", "PCMENU", "PCDETL"}
+    assert len(flagged) == 3 and verdicts.count("unreachable") == 3
     assert not {prog for prog, _ in flagged} & {"COACTVWC", "COMEN01C", "CSUTLDTC"}
+
+
+def test_the_re_run_crucible_ports_keep_their_measured_floor():
+    """The 13 crucible ports re-run after #4343 (seed 0, 24 mutants each): exact counts, so a regeneration that moves
+    a port's mutants shows up as a stale record here, not as a silent change. Killed / survived per port, and the
+    harness gaps (none: the facade bodies are proven on the java-facade side too)."""
+    expected = {
+        "CALINK": (19, 3), "CASUB": (15, 9), "CAXA": (17, 4), "CAXB": (15, 8), "GTSTART": (15, 7),
+        "GTWORK": (19, 2), "GTSHOW": (19, 5), "GTTERM": (13, 8), "HCMAIN": (10, 13), "HCSUB": (18, 6),
+        "HCQREAD": (10, 11), "HXATTR": (21, 2), "HXEXT": (14, 8),
+    }  # fmt: skip
+    ports = {p["program"]: p for p in json.loads(SCORES.read_text(encoding="utf-8"))["ports"]}
+    for prog, (killed, survived) in expected.items():
+        t = ports[prog]["total"]
+        assert (t["killed"], t["survived"]) == (killed, survived), prog
+        assert t["untriaged"] == 0 and _mutated_port_is_current(ports[prog]["case"], prog), prog
+    assert sum(ports[p]["total"]["harness_gap"] for p in expected) == 0
+    assert sum(k for k, _ in expected.values()) == 205 and sum(s for _, s in expected.values()) == 86
 
 
 @pytest.mark.parametrize("case,program", sorted(FACADES))

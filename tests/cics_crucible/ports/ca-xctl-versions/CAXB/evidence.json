@@ -132,28 +132,28 @@
   "port_sha256": "97c88b3be96e38b70178422d76b6d05c8cac10cbf7f231d42d781de94acb8d29"
  },
  "mutation": {
-  "commit": "be2561306",
+  "commit": "4e63ca8c5f2ea80fd3ff2bf73164fd9f8b5f80bd",
   "rejudged": null,
   "seed": 0,
   "mode": null,
-  "mutants": 153,
+  "mutants": 139,
   "chosen": 24,
   "killed": 15,
-  "survived": 9,
-  "stillborn": 0,
+  "survived": 8,
+  "stillborn": 1,
   "survivors": {
    "case_gap": 4,
    "harness_gap": 0,
-   "equivalent": 2,
-   "unreachable": 3,
+   "equivalent": 3,
+   "unreachable": 1,
    "untriaged": 0
   },
-  "score_raw": "15/24",
+  "score_raw": "15/23",
   "score_adjusted": "15/19",
   "source": "docs/language_status/mutation_scores.json#crucible:ca-xctl-versions/CAXB",
   "inputs": {
    "port": {
-    "sha256": "638a103de511bdd3f6121a9e80088f2a9b77aa5d59bb9c9b7ef5f4b3b3da8994"
+    "sha256": "392ca9388c286093ebb4015cfd5e11ccc49e5d09e54de5e96048bf599ab9e50e"
    },
    "case": {
     "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
@@ -162,7 +162,7 @@
     "sha256": "085be5a9f372ecb979d4f8dda1d8c749e85d01abb85e227fca4127844db9c5b6"
    },
    "harness": {
-    "sha256": "e67f03b7e18455d8d525349b25ec5e46d20bc2fb812f2c84299141fe89296d36"
+    "sha256": "a3ae3d6d7e938e36cd15639224926bf86762c0f436c35667909f895cbe77382c"
    },
    "oracle": {
     "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"

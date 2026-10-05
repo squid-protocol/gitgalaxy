@@ -683,11 +683,15 @@ def test_the_fixture_runs_through_every_side(tmp_path):
                    "fx-text-chain/three-visits/cobol-stub": "pass", "fx-text-chain/three-visits/java": "fail",
                    # #3989: the ports laid over the generated services (RETURN LENGTH, an XCTL to a second port)
                    "fx-text-chain/three-visits/java-ported": "pass",
+                   # #4343: the fixture's ports keep the old log-only facades: entered through them, nothing runs
+                   "fx-text-chain/three-visits/java-facade": "fail",
                    # #4005 / #4002: terminal RECEIVE, TS seeding, READQ LENGERR / QIDERR, the final queue
                    "fx-ts-queue/*/engine-facts": "pass", "fx-ts-queue/*/forge-compile": "pass",
                    "fx-ts-queue/seeded/cobol-stub": "pass", "fx-ts-queue/seeded/java": "fail",
-                   "fx-ts-queue/seeded/java-ported": "fail"}  # fmt: skip
+                   "fx-ts-queue/seeded/java-ported": "fail", "fx-ts-queue/seeded/java-facade": "fail"}  # fmt: skip
     assert res["cells"]["fx-ts-queue/seeded/java-ported"]["kind"] == "not ported"
+    assert "handleTransaction of FXCHAIN did not run its task in the region" in \
+        res["cells"]["fx-text-chain/three-visits/java-facade"]["reason"]  # fmt: skip
     java = res["cells"]["fx-text-chain/three-visits/java"]
     assert java["reason"] == "task 1 (FX01) event 1: SEND-TEXT expected, the side recorded no further event"
     assert java["kind"].startswith("runTask records no events")
@@ -1003,3 +1007,41 @@ def test_a_proof_reports_per_scenario_and_feeds_back_the_first_divergence(tmp_pa
     assert '"WS-COUNT": 3' in fb  # what the port recorded in that task
     results["cells"][cid].update(status="pass", reason="")
     assert runner.write_proof(tmp_path / "proof", case, results, opts) is True
+
+
+def test_a_facade_proof_needs_both_paths_and_names_the_facades_it_entered_by(tmp_path):
+    """#4343: with the java-facade side, a scenario is proven only when it passes through runTask AND through the
+    deployed entry points; `entries` names the program's facades its passing java-facade scenarios ran."""
+    case = _case()
+
+    def cell(side, status):
+        return {"case": case.id, "trap": case.trap, "scenario": "three-visits", "side": side, "status": status,
+                "reason": "" if status == "pass" else "task 1 (FX01) event 1: DRIVER-ERROR", "features": [],
+                "kind": None}  # fmt: skip
+
+    ported, facade = "fx-text-chain/three-visits/java-ported", "fx-text-chain/three-visits/java-facade"
+    results = {
+        "crucible_ref": "v0",
+        "cells": {ported: cell("java-ported", "pass"), facade: cell("java-facade", "fail")},
+    }
+    opts = runner.PortOptions(ports=tmp_path / "ports", program="FXCHAIN")
+    opts.entries[facade] = [{"task": 1, "program": "FXCHAIN", "method": "handleTransaction"},
+                            {"task": 3, "program": "FXLAST", "method": "handleLink"},
+                            {"task": 2, "program": "FXCHAIN", "method": "runTask"}]  # fmt: skip
+    assert runner.write_proof(tmp_path / "proof", case, results, opts) is False
+    report = json.loads((tmp_path / "proof" / "report.json").read_text())
+    assert report["outputs"] == {"three-visits": {"equal": 0, "records": 1}} and report["entries"] == []
+    results["cells"][facade] = cell("java-facade", "pass")
+    assert runner.write_proof(tmp_path / "proof", case, results, opts) is True
+    report = json.loads((tmp_path / "proof" / "report.json").read_text())
+    assert report["entries"] == [{"method": "handleTransaction", "scenarios": ["three-visits"]}]  # FXCHAIN's own
+
+
+def test_the_java_test_enters_tasks_through_the_facades_only_when_asked():
+    """#4343: the generated test joins the scenario's region and calls handleTransaction / handleLink under
+    -Dequivalence.facades=true; a facade that builds its own task is refused, not silently run."""
+    src = runner._JAVA_TEST
+    assert 'Boolean.getBoolean("equivalence.facades")' in src and "CicsTask.join(region)" in src
+    assert '"handleTransaction"' in src and '"handleLink"' in src
+    assert "did not run its task in the region" in src and "that is not the one the scenario starts" in src
+    assert "java-facade" in cc.SIDES

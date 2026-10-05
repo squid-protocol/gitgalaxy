@@ -22,10 +22,12 @@ def test_every_port_provenance_is_at_the_pinned_crucible():
 
 
 def test_a_re_proof_names_the_port_it_proved():
-    """A `reproven` entry is a claim about one port tree: the committed overlay must still be that tree."""
+    """A `reproven` entry is a claim about one port tree: the committed overlay must still be that tree -- unless the
+    record says, with a stale mark at the pin, that its latest re-proof failed (#4343: the port is not proven now)."""
     for path in cpp.records():
-        again = (json.loads(path.read_text(encoding="utf-8")).get("proof") or {}).get("reproven") or []
-        if again:
+        proof = json.loads(path.read_text(encoding="utf-8")).get("proof") or {}
+        again = proof.get("reproven") or []
+        if again and (proof.get("stale") or {}).get("against") != cpp.PINNED_REF:
             assert again[-1]["port_sha256"] == cpp.tree_sha256(path.parent / "overlay"), (
                 f"{path.relative_to(cpp.PORTS)}: the port changed since its last re-proof; run "
                 "tests/tools/crucible_port_provenance.py reprove"

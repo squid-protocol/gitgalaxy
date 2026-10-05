@@ -44,6 +44,17 @@ The index of every record is [`evidence/README.md`](evidence/README.md). The pag
   more through that method and is compared with the same COBOL run. The method returns no RETURN-CODE, so the
   run counts as RETURN-CODE 0 when it returns normally. Only a method that an entry run actually ran counts as
   reached.
+
+  **Which entry points "proven" covers (#4343).** A CICS crucible port is proven through two paths, and both must
+  pass every scenario of its program. The first is runTask: the harness builds each task and calls it (the
+  `java-ported` side). The second is the port's deployed entry points, the Spring facades a deployment calls: the
+  harness enters each task through the program's `handleTransaction`, and every program a LINK or XCTL reaches
+  through its `handleLink`, with the scenario's region joined (`CicsTask.join`) so the facade's task is the
+  scenario's own (the `java-facade` side). A facade that builds a task of its own, or does not run its task in the
+  region, fails the scenario. The record's `entry_points` (and `proof.entry_runs`) name the facades the passing
+  scenarios actually entered by; a facade no scenario enters by (for example the `handleLink` of a program no
+  scenario LINKs to) is not counted as reached. The equivalence cases (CardDemo, GenApp, CBSA) are still proven
+  through runTask / handleCall / runBatch only.
 - **Mutation (#4047).** The port's entry of `mutation_scores.json`, with the inputs it was judged against
   (recomputed at its commit from git history).
 - **Provenance.** Who or what wrote the port: the model, backend, attempt and ticket hash, citing the loop's

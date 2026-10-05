@@ -7,8 +7,10 @@
   "paths": [
    "tests/cics_crucible/ports/pc-aid-menu/PCDETL/overlay/service/PcdetlService.java"
   ],
-  "sha256": "00b7a075d06b72fd07be54284ab435e3cd2dce40c9fb4777935d4c225ae52767",
+  "sha256": "5e627cfba3c64b4a3783dba610588266e0d02ffaaa03d06db42e0fb901c6ea6b",
   "entry_points": [
+   "handleLink",
+   "handleTransaction",
    "runTask"
   ]
  },
@@ -18,7 +20,7 @@
     "tests/cics_crucible/ports/pc-aid-menu/*/overlay/**"
    ],
    "files": 2,
-   "sha256": "5b5a9321aa7f3216c74f1352ee5bf37502387c26cf88542b675bd37eac07e2a5"
+   "sha256": "76087f21ac6a0f956378a1d64168ef3e7b460f4f8dd865d24c7a0544a7d3ca64"
   },
   "case": {
    "paths": [
@@ -44,7 +46,7 @@
     "tests/tools/cics_crucible_compare.py"
    ],
    "files": 13,
-   "sha256": "76e6774afa2c5e70a0fefbff574591dee05a4270a46d98d70433c272870f08a7"
+   "sha256": "a3ae3d6d7e938e36cd15639224926bf86762c0f436c35667909f895cbe77382c"
   },
   "oracle": {
    "paths": [],
@@ -66,13 +68,17 @@
   "differences": {
    "sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
   },
-  "digest": "c51a067ddffb224424b5b1121ada28aad2c84817e3e0455c781fe6617bad0239"
+  "digest": "fb85526a5e68cbcfb9fb58b9a8b58be76665dca39b7d010c31a8248c759af0e8"
  },
  "proof": {
-  "at": "2026-10-05T06:07:46Z",
-  "verdict": "proven",
+  "at": "2026-10-05T10:34:50Z",
+  "verdict": "not-proven",
   "runs": 3,
   "fault_runs": 0,
+  "entry_runs": [
+   "handleLink",
+   "handleTransaction"
+  ],
   "environments": null,
   "outputs": {
    "aid-keys": {
@@ -84,7 +90,7 @@
     "records": 1
    },
    "option2-next-transid": {
-    "equal": 1,
+    "equal": 0,
     "records": 1
    }
   },
@@ -92,8 +98,8 @@
   "sysout_compared": null,
   "attributes_compared": null,
   "java_failed": false,
-  "harness_commit": "d03da8b743917a29a13e48709fb0c7f6ad778528+uncommitted",
-  "inputs_digest": "c51a067ddffb224424b5b1121ada28aad2c84817e3e0455c781fe6617bad0239"
+  "harness_commit": "78c73e6832cb8b86cd405c73457c07d62d3b266f+uncommitted",
+  "inputs_digest": "fb85526a5e68cbcfb9fb58b9a8b58be76665dca39b7d010c31a8248c759af0e8"
  },
  "coverage": {
   "paragraphs": {
@@ -108,39 +114,22 @@
   "handler_labels": null,
   "source": "tests/cics_crucible/coverage.json#programs/pc-aid-menu/PCDETL",
   "ledger_sha256": "7e84773fcc0ea91e7c202508d32b419f56f6723aa0cdccc570061d636889223f",
-  "inputs_digest": "c51a067ddffb224424b5b1121ada28aad2c84817e3e0455c781fe6617bad0239"
+  "inputs_digest": "fb85526a5e68cbcfb9fb58b9a8b58be76665dca39b7d010c31a8248c759af0e8"
  },
  "reach": {
   "entry_points": [
+   "handleLink",
+   "handleTransaction",
    "runTask"
   ],
-  "unproven": [
-   {
-    "class": "PcdetlService",
-    "method": "executePcdetl",
-    "line": 53,
-    "kind": "stub"
-   },
-   {
-    "class": "PcdetlService",
-    "method": "handleTransaction",
-    "line": 63,
-    "kind": "ported_unproven"
-   },
-   {
-    "class": "PcdetlService",
-    "method": "handleLink",
-    "line": 76,
-    "kind": "stub"
-   }
-  ],
+  "unproven": [],
   "counts": {
-   "stub": 2,
+   "stub": 0,
    "left_as_generated": 0,
-   "ported_unproven": 1
+   "ported_unproven": 0
   },
   "generated_compared": true,
-  "port_sha256": "00b7a075d06b72fd07be54284ab435e3cd2dce40c9fb4777935d4c225ae52767"
+  "port_sha256": "5e627cfba3c64b4a3783dba610588266e0d02ffaaa03d06db42e0fb901c6ea6b"
  },
  "mutation": {
   "commit": "be2561306",
@@ -183,7 +172,7 @@
  "differences": [],
  "oracle": {
   "kind": "crucible-expected-logs",
-  "source": "cics-crucible v0.2.0: each scenario's hand-written expected event log, derived from IBM's documentation (its SPEC.md); the java-ported side is compared with it exactly",
+  "source": "cics-crucible v0.2.0: each scenario's hand-written expected event log, derived from IBM's documentation (its SPEC.md); the java-ported side (runTask) and the java-facade side (the deployed entry points, #4343) are compared with it exactly",
   "compiler": null,
   "image": null,
   "models": [],
@@ -199,11 +188,11 @@
   "porting_rules_sha256": null,
   "proposed_at": "2026-09-29T22:00:53+00:00",
   "generator_version": null,
-  "edited_after": null,
+  "edited_after": "the deployed entry points (facades) were brought to the generator's by tests/tools/port_surface.py (#4343; see history 'resurfaced'); runTask and the logic it runs are the model's answer",
   "provenance_file": {
    "path": "tests/cics_crucible/ports/pc-aid-menu/PCDETL/provenance.json",
    "format": "cics-crucible-port/1",
-   "sha256": "92883bc28d0f65916f24074c1db2e3790f3524c0f910baad4cafbc815dc5055f"
+   "sha256": "79ff0532f9bc9a354ebc64e6923f6886283b5b76a31fd752def41a1c643e8ae3"
   },
   "crucible_ref_proven": "v0.2.0 (94f2afcb)"
  },

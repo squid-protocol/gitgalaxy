@@ -37,6 +37,23 @@
     "port_sha256": "511ebb8d76a70f01485ee20db475ec5746cc5289bbdfa9b9d05295d234c3d406",
     "harness_commit": "16ae9e01515581be224b32982ceae54bc73e68fb",
     "by": "tests/tools/crucible_port_provenance.py reprove (cics_crucible.py --sides java-ported --program GTTERM --report-dir)"
+   },
+   {
+    "at": "2026-10-05T10:27:07+00:00",
+    "crucible_ref": "v0.2.0 (94f2afcb)",
+    "summary": {
+     "cancel-in-time": "1/1",
+     "cancel-too-late": "1/1",
+     "staggered": "1/1",
+     "three-in-one": "1/1"
+    },
+    "port_sha256": "c952a9ed224e884ac4c96c3b72efa9ba029964f4327f9c5a588ee4c119a49ae6",
+    "harness_commit": "78c73e6832cb8b86cd405c73457c07d62d3b266f",
+    "by": "tests/tools/crucible_port_provenance.py reprove (cics_crucible.py --sides java-ported java-facade --program GTTERM --report-dir)",
+    "entry_points": [
+     "runTask",
+     "handleTransaction"
+    ]
    }
   ]
  },

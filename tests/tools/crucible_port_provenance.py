@@ -19,7 +19,7 @@ on them). Only `reprove` -- which RUNS the proof -- appends a `reproven` entry; 
     python tests/tools/crucible_port_provenance.py check
     python tests/tools/crucible_port_provenance.py reprove [--cases CASE ...]   # needs Docker, a JDK 17, Maven
 
-`reprove` runs `cics_crucible.py --cases C --program P --sides java-ported --report-dir ...` for each committed
+`reprove` runs `cics_crucible.py --cases C --program P --sides java-ported java-facade --report-dir ...` for each committed
 port, at the pinned checkout (the runner refuses any other), and writes the result into the record: a `reproven`
 entry when every scenario that runs the program passes, else a `stale` mark with the failing summary.
 """
@@ -39,6 +39,8 @@ from typing import Any, Optional
 REPO_ROOT = Path(__file__).resolve().parents[2]
 PORTS = REPO_ROOT / "tests" / "cics_crucible" / "ports"
 RUNNER = REPO_ROOT / "tests" / "tools" / "cics_crucible.py"
+# #4343: a port is proven through runTask (java-ported) and through its deployed entry points (java-facade)
+SIDES = ("java-ported", "java-facade")
 sys.path.insert(0, str(REPO_ROOT / "tests"))
 from _cics_crucible_pin import PINNED_REF  # noqa: E402
 
@@ -48,7 +50,7 @@ def records(ports: Path = PORTS) -> list[Path]:
 
 
 def ref_tag(ref: Optional[str]) -> Optional[str]:
-    """"v0.2.0 (94f2afcb)" -> "v0.2.0"; a bare commit stays as it is."""
+    """ "v0.2.0 (94f2afcb)" -> "v0.2.0"; a bare commit stays as it is."""
     return ref.split(" ", 1)[0] if ref else None
 
 
@@ -93,12 +95,13 @@ def _now() -> str:
     return datetime.datetime.now(datetime.timezone.utc).replace(microsecond=0).isoformat()
 
 
-def reprove_one(path: Path, crucible: Path, work: Path, extra: tuple[str, ...] = ()) -> dict[str, Any]:
+def reprove_one(path: Path, crucible: Path, work: Path, extra: tuple[str, ...] = (),
+                needs: Optional[str] = None) -> dict[str, Any]:  # fmt: skip
     """Run the program's proof at the pinned crucible and write the outcome into its provenance.json."""
     case, program = path.parent.parent.name, path.parent.name
     report_dir = work / case / program
     argv = [sys.executable, str(RUNNER), "--crucible", str(crucible), "--cases", case, "--program", program,
-            "--sides", "java-ported", "--report-dir", str(report_dir), "--keep", str(work / "keep" / case / program), *extra]  # fmt: skip
+            "--sides", *SIDES, "--report-dir", str(report_dir), "--keep", str(work / "keep" / case / program), *extra]  # fmt: skip
     proc = subprocess.run(argv, capture_output=True, text=True, check=False)  # noqa: S603
     prov = json.loads(path.read_text(encoding="utf-8"))
     proof = prov.setdefault("proof", {})
@@ -110,8 +113,9 @@ def reprove_one(path: Path, crucible: Path, work: Path, extra: tuple[str, ...] =
     if report and report.get("proven") and ref_tag(ref) == PINNED_REF:
         entry = {"at": _now(), "crucible_ref": ref, "summary": summary,
                  "port_sha256": tree_sha256(path.parent / "overlay"), "harness_commit": _git_head(),
-                 "by": "tests/tools/crucible_port_provenance.py reprove (cics_crucible.py --sides java-ported "
-                       f"--program {program} --report-dir)"}  # fmt: skip
+                 "by": f"tests/tools/crucible_port_provenance.py reprove (cics_crucible.py --sides {' '.join(SIDES)} "
+                       f"--program {program} --report-dir)",
+                 "entry_points": ["runTask", *(e["method"] for e in report.get("entries") or [])]}  # fmt: skip
         proof.setdefault("reproven", []).append(entry)
         proof.pop("stale", None)
         outcome = {"program": f"{case}/{program}", "reproven": True, "summary": summary}
@@ -120,8 +124,8 @@ def reprove_one(path: Path, crucible: Path, work: Path, extra: tuple[str, ...] =
         reason = (f"re-proof at {ref or PINNED_REF} failed: {summary}" if report
                   else f"re-proof at {PINNED_REF} did not run: {' | '.join(tail)}")  # fmt: skip
         proof["stale"] = {"against": PINNED_REF, "at": _now(), "reason": reason,
-                          "needs": "a port that passes every scenario of the program at the pinned crucible "
-                                   "(port_runner prove), then reprove"}  # fmt: skip
+                          "needs": needs or "a port that passes every scenario of the program at the pinned crucible "
+                                            "(port_runner prove), then reprove"}  # fmt: skip
         outcome = {"program": f"{case}/{program}", "reproven": False, "reason": reason}
     path.write_text(json.dumps(prov, indent=1) + "\n", encoding="utf-8")
     return outcome
@@ -136,6 +140,8 @@ def main(argv: Optional[list[str]] = None) -> int:
     r.add_argument("--cases", nargs="+", help="only these cases")
     r.add_argument("--offline", action="store_true", help="run Maven offline")
     r.add_argument("--work", type=Path, help="keep the proofs' work trees here")
+    r.add_argument("--needs", help="what a port that fails its re-proof needs (an issue, a fix), recorded in its "
+                   "stale mark instead of the generic text")  # fmt: skip
     args = ap.parse_args(argv)
     if args.cmd == "check":
         found = problems()
@@ -153,7 +159,7 @@ def main(argv: Optional[list[str]] = None) -> int:
     for path in records():
         if args.cases and path.parent.parent.name not in args.cases:
             continue
-        got = reprove_one(path, crucible, work, extra)
+        got = reprove_one(path, crucible, work, extra, args.needs)
         failed += not got["reproven"]
         print(f"{got['program']}: " + (f"re-proven at {PINNED_REF} {got['summary']}" if got["reproven"]
                                        else f"STALE -- {got['reason']}"))  # fmt: skip

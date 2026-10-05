@@ -47,6 +47,22 @@
     "port_sha256": "2e95685769e9286fe3f58bb33992c37c47475eb00c80b060882fa9bb88d9df1d",
     "harness_commit": "356f7d105baa91e7fa7e46b333ed10ba7bbcbcb0",
     "by": "tests/tools/crucible_port_provenance.py reprove (cics_crucible.py --sides java-ported --program HCSUB --report-dir)"
+   },
+   {
+    "at": "2026-10-05T10:27:27+00:00",
+    "crucible_ref": "v0.2.0 (94f2afcb)",
+    "summary": {
+     "sub-own-exit": "1/1",
+     "sub-resp": "1/1",
+     "sub-unhandled": "1/1"
+    },
+    "port_sha256": "5bf36f30f07b20185f395782b13a9445edd83a65cc68f3dec51f209053883af6",
+    "harness_commit": "78c73e6832cb8b86cd405c73457c07d62d3b266f",
+    "by": "tests/tools/crucible_port_provenance.py reprove (cics_crucible.py --sides java-ported java-facade --program HCSUB --report-dir)",
+    "entry_points": [
+     "runTask",
+     "handleLink"
+    ]
    }
   ]
  },

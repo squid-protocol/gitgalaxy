@@ -39,7 +39,13 @@
     "harness_commit": "16ae9e01515581be224b32982ceae54bc73e68fb",
     "by": "tests/tools/crucible_port_provenance.py reprove (cics_crucible.py --sides java-ported --program PCWIZ --report-dir)"
    }
-  ]
+  ],
+  "stale": {
+   "against": "v0.2.0",
+   "at": "2026-10-05T10:34:40+00:00",
+   "reason": "re-proof at v0.2.0 (94f2afcb) failed: {'back-and-fix': '0/1', 'back-clear-keeps-amount': '0/1', 'cancel-first-screen': '1/1', 'clear-and-bad-amount': '0/1', 'happy-post': '0/1', 'mapfail-clear-cancel': '0/1'}",
+   "needs": "#4427: the generated handleTransaction types the COMMAREA as the program's own DTO, so a deployed facade cannot take (PCCONF: PCWIZ's PcwizWsState at PC03) or return (PCMENU: PcdetlWsCa for PC12) the COMMAREA the pseudo-conversation carries across programs; runTask (java-ported) passes every scenario. Fix the generator, regenerate (port_surface.py crucible), then reprove"
+  }
  },
  "approved": false,
  "history": [

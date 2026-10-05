@@ -7,8 +7,9 @@
   "paths": [
    "tests/cics_crucible/ports/hx-attr-bytes/HXATTR/overlay/service/HxattrService.java"
   ],
-  "sha256": "8203656d93e1bc83bf399846263a32338a53b8763d984790ac30bf493f792789",
+  "sha256": "d87d718df62e22861f38561f4b1419ccc1fda26012cb6c4ae505320a1fcc83e1",
   "entry_points": [
+   "handleTransaction",
    "runTask"
   ]
  },
@@ -18,7 +19,7 @@
     "tests/cics_crucible/ports/hx-attr-bytes/*/overlay/**"
    ],
    "files": 1,
-   "sha256": "8203656d93e1bc83bf399846263a32338a53b8763d984790ac30bf493f792789"
+   "sha256": "d87d718df62e22861f38561f4b1419ccc1fda26012cb6c4ae505320a1fcc83e1"
   },
   "case": {
    "paths": [
@@ -44,7 +45,7 @@
     "tests/tools/cics_crucible_compare.py"
    ],
    "files": 13,
-   "sha256": "76e6774afa2c5e70a0fefbff574591dee05a4270a46d98d70433c272870f08a7"
+   "sha256": "a3ae3d6d7e938e36cd15639224926bf86762c0f436c35667909f895cbe77382c"
   },
   "oracle": {
    "paths": [],
@@ -66,13 +67,16 @@
   "differences": {
    "sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
   },
-  "digest": "129dd8239fc7355d26315b9c89e26fb38b6ce88b7a307439372afe6dfcd31bc7"
+  "digest": "8b51ba199cd9d87893352bb1149cbc84b0802deefbcfcb4e090ac1645badc577"
  },
  "proof": {
-  "at": "2026-10-05T06:07:33Z",
+  "at": "2026-10-05T10:32:34Z",
   "verdict": "proven",
   "runs": 4,
   "fault_runs": 0,
+  "entry_runs": [
+   "handleTransaction"
+  ],
   "environments": null,
   "outputs": {
    "clear-maponly": {
@@ -96,8 +100,8 @@
   "sysout_compared": null,
   "attributes_compared": null,
   "java_failed": false,
-  "harness_commit": "d03da8b743917a29a13e48709fb0c7f6ad778528+uncommitted",
-  "inputs_digest": "129dd8239fc7355d26315b9c89e26fb38b6ce88b7a307439372afe6dfcd31bc7"
+  "harness_commit": "78c73e6832cb8b86cd405c73457c07d62d3b266f+uncommitted",
+  "inputs_digest": "8b51ba199cd9d87893352bb1149cbc84b0802deefbcfcb4e090ac1645badc577"
  },
  "coverage": {
   "paragraphs": {
@@ -112,45 +116,21 @@
   "handler_labels": null,
   "source": "tests/cics_crucible/coverage.json#programs/hx-attr-bytes/HXATTR",
   "ledger_sha256": "bb7ee89941298c8a93bde34eefdc5bb79e0c7eae176731f6cfc684f2b6b8a71b",
-  "inputs_digest": "129dd8239fc7355d26315b9c89e26fb38b6ce88b7a307439372afe6dfcd31bc7"
+  "inputs_digest": "8b51ba199cd9d87893352bb1149cbc84b0802deefbcfcb4e090ac1645badc577"
  },
  "reach": {
   "entry_points": [
+   "handleTransaction",
    "runTask"
   ],
-  "unproven": [
-   {
-    "class": "HxattrService",
-    "method": "executeHxattr",
-    "line": 60,
-    "kind": "stub"
-   },
-   {
-    "class": "HxattrService",
-    "method": "handleTransaction",
-    "line": 69,
-    "kind": "ported_unproven"
-   },
-   {
-    "class": "HxattrService",
-    "method": "renderHxm1",
-    "line": 110,
-    "kind": "ported_unproven"
-   },
-   {
-    "class": "HxattrService",
-    "method": "submitHxm1",
-    "line": 119,
-    "kind": "ported_unproven"
-   }
-  ],
+  "unproven": [],
   "counts": {
-   "stub": 1,
+   "stub": 0,
    "left_as_generated": 0,
-   "ported_unproven": 3
+   "ported_unproven": 0
   },
   "generated_compared": true,
-  "port_sha256": "8203656d93e1bc83bf399846263a32338a53b8763d984790ac30bf493f792789"
+  "port_sha256": "d87d718df62e22861f38561f4b1419ccc1fda26012cb6c4ae505320a1fcc83e1"
  },
  "mutation": {
   "commit": "be2561306",
@@ -193,7 +173,7 @@
  "differences": [],
  "oracle": {
   "kind": "crucible-expected-logs",
-  "source": "cics-crucible v0.2.0: each scenario's hand-written expected event log, derived from IBM's documentation (its SPEC.md); the java-ported side is compared with it exactly",
+  "source": "cics-crucible v0.2.0: each scenario's hand-written expected event log, derived from IBM's documentation (its SPEC.md); the java-ported side (runTask) and the java-facade side (the deployed entry points, #4343) are compared with it exactly",
   "compiler": null,
   "image": null,
   "models": [],
@@ -209,11 +189,11 @@
   "porting_rules_sha256": null,
   "proposed_at": "2026-09-29T21:43:30+00:00",
   "generator_version": null,
-  "edited_after": null,
+  "edited_after": "the deployed entry points (facades) were brought to the generator's by tests/tools/port_surface.py (#4343; see history 'resurfaced'); runTask and the logic it runs are the model's answer",
   "provenance_file": {
    "path": "tests/cics_crucible/ports/hx-attr-bytes/HXATTR/provenance.json",
    "format": "cics-crucible-port/1",
-   "sha256": "e3828588c12f52f251bc57d538ec2312e5408005f0bab292c97b6a7312adb586"
+   "sha256": "4395483aac904acc7dab702509fed311a003cc68027fe94652b6e62ead6e32bf"
   },
   "crucible_ref_proven": "v0.2.0 (94f2afcb)"
  },

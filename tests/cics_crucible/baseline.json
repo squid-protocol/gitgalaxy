@@ -41,11 +41,17 @@
   "pc-aid-menu/invalid-option/java": {"status": "fail", "reason": "task 1 (PC11) event 1: SEND-MAP expected, the side recorded no further event"},
   "pc-aid-menu/option1-xctl/java": {"status": "fail", "reason": "task 1 (PC11) event 1: SEND-MAP expected, the side recorded no further event"},
   "pc-aid-menu/option2-next-transid/java": {"status": "fail", "reason": "task 1 (PC11) event 1: SEND-MAP expected, the side recorded no further event"},
+  "pc-aid-menu/option2-next-transid/java-facade": {"status": "fail", "reason": "task 2 (PC11) event 4: no further event expected, got DRIVER-ERROR (the task RETURNed a com.gitgalaxy.modernized.dto.contract.PcdetlWsCa, not a com.gitgalaxy.modernized.dto.contract.PcmenuWsCa)"},
   "pc-wizard/back-and-fix/java": {"status": "fail", "reason": "task 1 (PC01) event 1: SEND-MAP expected, the side recorded no further event"},
+  "pc-wizard/back-and-fix/java-facade": {"status": "fail", "reason": "task 3 (PC03) event 1: RECEIVE-MAP expected, got DRIVER-ERROR (handleTransaction of PCCONF cannot take the COMMAREA (com.gitgalaxy.modernized.dto.contract.PcwizWsState) the task starts with)"},
   "pc-wizard/back-clear-keeps-amount/java": {"status": "fail", "reason": "task 1 (PC01) event 1: SEND-MAP expected, the side recorded no further event"},
+  "pc-wizard/back-clear-keeps-amount/java-facade": {"status": "fail", "reason": "task 3 (PC03) event 1: RECEIVE-MAP expected, got DRIVER-ERROR (handleTransaction of PCCONF cannot take the COMMAREA (com.gitgalaxy.modernized.dto.contract.PcwizWsState) the task starts with)"},
   "pc-wizard/cancel-first-screen/java": {"status": "fail", "reason": "task 1 (PC01) event 1: SEND-MAP expected, the side recorded no further event"},
   "pc-wizard/clear-and-bad-amount/java": {"status": "fail", "reason": "task 1 (PC01) event 1: SEND-MAP expected, the side recorded no further event"},
+  "pc-wizard/clear-and-bad-amount/java-facade": {"status": "fail", "reason": "task 3 (PC03) event 1: SEND-MAP expected, got DRIVER-ERROR (handleTransaction of PCCONF cannot take the COMMAREA (com.gitgalaxy.modernized.dto.contract.PcwizWsState) the task starts with)"},
   "pc-wizard/happy-post/java": {"status": "fail", "reason": "task 1 (PC01) event 1: SEND-MAP expected, the side recorded no further event"},
-  "pc-wizard/mapfail-clear-cancel/java": {"status": "fail", "reason": "task 1 (PC01) event 1: SEND-MAP expected, the side recorded no further event"}
+  "pc-wizard/happy-post/java-facade": {"status": "fail", "reason": "task 3 (PC03) event 1: RECEIVE-MAP expected, got DRIVER-ERROR (handleTransaction of PCCONF cannot take the COMMAREA (com.gitgalaxy.modernized.dto.contract.PcwizWsState) the task starts with)"},
+  "pc-wizard/mapfail-clear-cancel/java": {"status": "fail", "reason": "task 1 (PC01) event 1: SEND-MAP expected, the side recorded no further event"},
+  "pc-wizard/mapfail-clear-cancel/java-facade": {"status": "fail", "reason": "task 5 (PC03) event 1: SEND-TEXT expected, got DRIVER-ERROR (handleTransaction of PCCONF cannot take the COMMAREA (com.gitgalaxy.modernized.dto.contract.PcwizWsState) the task starts with)"}
  }
 }

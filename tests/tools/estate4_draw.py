@@ -378,7 +378,7 @@ DRAND_BASE = "https://api.drand.sh"
 CHAIN_HASH = "8990e7a9aaed2ffed73dbd7092123d6f289930540d7651336225dc172e51b2ce"
 DRAND_PERIOD = 30
 DRAND_GENESIS = 1595431050
-TARGET_TIME = dt.datetime(2026, 10, 7, 12, 0, 0, tzinfo=dt.UTC)
+TARGET_TIME = dt.datetime(2026, 10, 7, 12, 0, 0, tzinfo=dt.timezone.utc)
 
 
 def round_for_time(t: dt.datetime, genesis: int = DRAND_GENESIS, period: int = DRAND_PERIOD) -> int:
@@ -388,7 +388,7 @@ def round_for_time(t: dt.datetime, genesis: int = DRAND_GENESIS, period: int = D
 
 
 def round_time(r: int, genesis: int = DRAND_GENESIS, period: int = DRAND_PERIOD) -> dt.datetime:
-    return dt.datetime.fromtimestamp(genesis + (r - 1) * period, tz=dt.UTC)
+    return dt.datetime.fromtimestamp(genesis + (r - 1) * period, tz=dt.timezone.utc)
 
 
 def compute_seed(randomness_hex: str, candidates_bytes: bytes) -> str:
@@ -651,7 +651,7 @@ def cmd_build(args: argparse.Namespace) -> int:
         return 4
     doc = {
         "about": "Blind candidate list for the 4th CICS estate trial. Metadata only; no code or README read.",
-        "built_utc": dt.datetime.now(dt.UTC).strftime("%Y-%m-%dT%H:%M:%SZ"),
+        "built_utc": dt.datetime.now(dt.timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ"),
         "filter_counts": counts,
         "total_weight": sum(c["weight"] for c in out),
         "candidates": out,

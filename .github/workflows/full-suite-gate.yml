@@ -149,7 +149,10 @@ jobs:
           pip install PyYAML networkx tiktoken "pandas>=2.0.0" xgboost pytest pytest-xdist
           # the COBOL translator's parser: without it every det-translator test importorskips and the
           # suite passes without running them (a stale emitter expectation reached main that way)
-          pip install "tree-sitter-language-pack==1.20.0"
+          # 1.20.0 ships no py3.9 wheel; on 3.9 the translator tests importorskip and skip cleanly
+          if python -c "import sys; sys.exit(0 if sys.version_info >= (3, 10) else 1)"; then
+            pip install "tree-sitter-language-pack==1.20.0"
+          fi
           pip install --no-build-isolation -e .
 
       - name: Full Suite (${{ matrix.os }}, Python ${{ matrix.python-version }})

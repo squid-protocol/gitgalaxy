@@ -19,7 +19,6 @@ key lets parallel runs build it once; the newest KEEP entries of each kind are k
 
 from __future__ import annotations
 
-import fcntl
 import hashlib
 import json
 import os
@@ -28,6 +27,11 @@ import sqlite3
 import subprocess
 import sys
 from pathlib import Path
+
+try:
+    import fcntl
+except ImportError:  # Windows: no flock; parallel runs may then build one entry twice (the same bytes)
+    fcntl = None  # type: ignore[assignment]
 
 TOOLS = Path(__file__).resolve().parent
 REPO_ROOT = TOOLS.parent.parent
@@ -79,7 +83,8 @@ def _entry(kind: str, corpus: Path, build, extra: str = "") -> Path:  # noqa: AN
     k = key(kind, corpus, extra)
     entry = base / f"{corpus.name}-{k}"
     with (base / f"{corpus.name}-{k}.lock").open("w") as fh:
-        fcntl.flock(fh, fcntl.LOCK_EX)
+        if fcntl is not None:
+            fcntl.flock(fh, fcntl.LOCK_EX)
         if not (entry / "DONE").is_file():
             shutil.rmtree(entry, ignore_errors=True)
             entry.mkdir(parents=True)

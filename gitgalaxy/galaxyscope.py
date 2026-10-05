@@ -2269,7 +2269,7 @@ class Orchestrator:
                         reason = "Excluded: Neighborhood Micro-Mass Limit Exceeded"
                 # ------------------------------------------------
 
-                rel_p = str(full_p.relative_to(self.root))
+                rel_p = full_p.relative_to(self.root).as_posix()
                 # #3815: the census, and everything after it, keys a file by its NFC path.
                 rel_p, is_valid, reason = self._stored_path(rel_p, is_valid, reason)
 

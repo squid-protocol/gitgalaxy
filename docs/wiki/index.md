@@ -115,6 +115,7 @@ This is a curated subset for first-time visitors, not the complete page list -- 
 * [05-17: System Limits Reporter](05-17-system-limits-reporter.md)
 * [05-18: COBOL ↔ Java Scan Parity](05-18-cobol-java-scan-parity.md)
 * [05-19: Proven COBOL-to-Java Ports](05-19-proven-cobol-to-java-ports.md)
+* [05-20: The Equivalence Harness](05-20-equivalence-harness.md)
 
 ### Mathematical Physics (3D Geometry)
 * [07-01: Code Complexity](07-01-code-complexity.md)
@@ -178,6 +179,7 @@ This is a curated subset for first-time visitors, not the complete page list -- 
 * [Creating Schema from COBOL Files](cookbook/creating-schema-from-cobol-files.md)
 * [Identifying Dead Code in COBOL](cookbook/identifying-dead-code-in-cobol.md)
 * [Prove Dead Code Logs](cookbook/prove-dead-code-logs.md)
+* [COBOL Equivalence Testing](cookbook/cobol-equivalence-testing.md)
 * [Unpacking ETL from CBL Files](cookbook/unpacking-etl-from-cbl-files.md)
 * [COBOL to Java: Automated Spring Boot Build System](cookbook/cobol-to-java-automated-spring-boot-build-system.md)
 * [COBOL to Java: Mainframe Data Serialization Forge](cookbook/cobol-to-java-mainframe-data-serialization-forge.md)

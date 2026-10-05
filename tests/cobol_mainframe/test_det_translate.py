@@ -741,7 +741,7 @@ def test_receive_set_addresses_a_linkage_record_and_the_rest_is_refused():
         ("RECEIVE SET(ADDRESS OF LS-REC) MAXLENGTH(80)", "without LENGTH"),
         ("RECEIVE LENGTH(RLEN)", "one of INTO / SET"),
         ("RECEIVE INTO(REC) SET(ADDRESS OF LS-REC) LENGTH(RLEN)", "one of INTO / SET"),
-        ("RECEIVE INTO(REC) LENGTH(RLEN) FLENGTH(RLEN)", "both"),
+        ("RECEIVE INTO(REC) LENGTH(RLEN) FLENGTH(RLEN)", "together"),
         ("RECEIVE INTO(REC) ASIS", "ASIS: option not modelled"),
         ("RECEIVE INTO(REC) BUFFER", "BUFFER: option not modelled"),
     ):

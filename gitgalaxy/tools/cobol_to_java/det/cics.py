@@ -776,14 +776,8 @@ class Cics:
         -- and LENGTH(data-area). LENGTH / FLENGTH is set to the length the runtime returns (the data's, or under
         LENGERR the original length). LENGERR (22) and EOC (6, an LUTYPE2 terminal; ignored by default) go through
         RESP / HANDLE CONDITION like any condition."""
-        if "LENGTH" in opts and "FLENGTH" in opts or "MAXLENGTH" in opts and "MAXFLENGTH" in opts:
-            raise CicsError("RECEIVE with both LENGTH and FLENGTH, or MAXLENGTH and MAXFLENGTH")
-        length = opts.get("LENGTH") or opts.get("FLENGTH")
-        if ("LENGTH" in opts or "FLENGTH" in opts) and not length:
-            raise CicsError("RECEIVE LENGTH needs an argument")
-        most = opts.get("MAXLENGTH") or opts.get("MAXFLENGTH")
-        if ("MAXLENGTH" in opts or "MAXFLENGTH" in opts) and not most:
-            raise CicsError("RECEIVE MAXLENGTH needs an argument")
+        length = _one_of(opts, "LENGTH", "FLENGTH")  # (FLENGTH / MAXFLENGTH: the fullword forms)
+        most = _one_of(opts, "MAXLENGTH", "MAXFLENGTH")
         settable = length is not None and re.fullmatch(r"(?is)[+-]?\d+|LENGTH\s+OF\s+.+", length.strip()) is None
         g = self.g
         if opts.get("INTO") and "SET" not in opts:
@@ -1162,6 +1156,17 @@ class Cics:
         else:  # ENDBR
             out = [f"{ind}int {r} = task.endbr({file});"]
         return out + self.outcome(opts, r, "0", ind)
+
+
+def _one_of(opts: dict, name: str, alt: str) -> str | None:
+    """#4413: the argument of option `name` or its alternative form `alt` (LENGTH / FLENGTH), None when neither is
+    given; both, or one without an argument, refused."""
+    given = [o for o in (name, alt) if o in opts]
+    if len(given) > 1:
+        raise CicsError(f"{name} and {alt} together")
+    if given and not opts[given[0]]:
+        raise CicsError(f"{given[0]} needs an argument")
+    return opts[given[0]] if given else None
 
 
 def _literal(text: str | None) -> str | None:

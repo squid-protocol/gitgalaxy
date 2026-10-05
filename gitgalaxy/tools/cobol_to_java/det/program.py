@@ -1238,8 +1238,8 @@ def facades(stub: str) -> list[str]:
         req = re.search(r"(\w+) request\b", params)
         arg = "request" if req else "null"
         if name is None:
-            body = [f'        throw new UnsupportedOperationException("{meth}: the program has no task facade (a channel '
-                    'program); it runs as runTask");']  # fmt: skip
+            body = [(f'        throw new UnsupportedOperationException("{meth}: the program has no task facade (a channel '
+                     'program); it runs as runTask");')]  # fmt: skip
         else:
             task = (f"region.transaction(transid, {arg})" if meth == "handleTransaction"
                     else f"region.linked({name.group(1)}, {arg})")  # fmt: skip

@@ -63,7 +63,7 @@
     "gitgalaxy/tools/cobol_to_java/**"
    ],
    "files": 60,
-   "sha256": "d732e7f21fab2ba4f65c7a3dcf403d1f341479111a3a0d757cbacd167c1a2daa"
+   "sha256": "ccb4fd2cdd5affdf5bf83e5134413c40a7ebbe96ecc44f6506c2ca6f1fe9dfeb"
   },
   "corpus": {
    "name": "cics-genapp",
@@ -73,11 +73,11 @@
   "differences": {
    "sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
   },
-  "digest": "75e93c7e37daffab0112b348233f94a219b4130ac3afbbd92d479decc301afff"
+  "digest": "68dae296dba7e7acfd12712979cd3cff879190599ed97c621efb8ce456b2e637"
  },
  "proof": {
-  "at": "2026-10-05T14:57:13Z",
-  "verdict": "not-proven",
+  "at": "2026-10-05T18:24:37Z",
+  "verdict": "proven",
   "runs": 5,
   "fault_runs": 0,
   "environments": null,
@@ -108,34 +108,17 @@
   "attributes_compared": null,
   "java_failed": false,
   "facade": {
-   "verdict": "not-proven",
+   "verdict": "proven",
    "runs": 5,
-   "passed": 1,
+   "passed": 5,
    "entry_points": [
     "handleLink"
    ],
-   "failed": [
-    {
-     "scenario": "stale-lastchanged",
-     "why": "refused: handleLink of LGUPVS01 threw before it ran its level: java.lang.UnsupportedOperationException: handleLink: this port runs as runTask"
-    },
-    {
-     "scenario": "update-endowment",
-     "why": "refused: handleLink of LGUPVS01 threw before it ran its level: java.lang.UnsupportedOperationException: handleLink: this port runs as runTask"
-    },
-    {
-     "scenario": "update-house",
-     "why": "refused: handleLink of LGUPVS01 threw before it ran its level: java.lang.UnsupportedOperationException: handleLink: this port runs as runTask"
-    },
-    {
-     "scenario": "update-motor",
-     "why": "refused: handleLink of LGUPVS01 threw before it ran its level: java.lang.UnsupportedOperationException: handleLink: this port runs as runTask"
-    }
-   ],
+   "failed": [],
    "error": null
   },
-  "harness_commit": "af9e62c055439d3c758d2a794a211fa28ad41e41+uncommitted",
-  "inputs_digest": "75e93c7e37daffab0112b348233f94a219b4130ac3afbbd92d479decc301afff"
+  "harness_commit": "fa95bb09562affe68502c54e1461cd869e9ecbe9+uncommitted",
+  "inputs_digest": "68dae296dba7e7acfd12712979cd3cff879190599ed97c621efb8ce456b2e637"
  },
  "coverage": {
   "paragraphs": {
@@ -279,7 +262,7 @@
    "total": 0
   },
   "source": "the proof's own traced COBOL runs (cobol_coverage.py)",
-  "inputs_digest": "75e93c7e37daffab0112b348233f94a219b4130ac3afbbd92d479decc301afff"
+  "inputs_digest": "68dae296dba7e7acfd12712979cd3cff879190599ed97c621efb8ce456b2e637"
  },
  "reach": {
   "entry_points": [
@@ -423,7 +406,7 @@
   "provenance_file": {
    "path": "tests/equivalence/genapp-lgupdb01/port/provenance.json",
    "format": "porting-loop-provenance/1",
-   "sha256": "1ed216f96eba7a902ede9d0bf1eecc2de0ba4910d9f4e17ba0359769370e5dcf"
+   "sha256": "99dc0ec84fbe85199f9d042d5438a338e6d954083d9877142feb594099c22a8a"
   }
  },
  "approvals": []

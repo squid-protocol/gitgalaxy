@@ -176,6 +176,28 @@ public final class DetCics {
         System.arraycopy(data, 0, f.storage().bytes, f.offset(), Math.min(data.length, f.length()));
     }
 
+    /** READ ... INTO(into) LENGTH(max) (#4436; IBM, EXEC CICS READ): the record goes INTO, truncated to `max` when
+     *  longer, the rest of INTO left as it was. Returns the RESP: 0 (NORMAL), or 22 (LENGERR, RESP2 11) for a record
+     *  longer than `max`. Refused, as not modelled: a negative LENGTH; a record moved past INTO (CICS writes the
+     *  storage that follows it, which GnuCOBOL lays out unlike IBM's compiler: oracle_assumptions.md X6); LENGERR on
+     *  READ UPDATE (`update`), since IBM does not say whether the record is then held. */
+    public static int readInto(Field into, byte[] record, int max, boolean update) {
+        if (max < 0) {
+            throw new UnsupportedOperationException("READ LENGTH " + max + " (negative): not modelled");
+        }
+        int moved = Math.min(record.length, max);
+        if (moved > into.length()) {
+            throw new UnsupportedOperationException("READ INTO LENGTH: " + moved + " bytes past INTO's "
+                    + into.length() + ": not modelled");
+        }
+        boolean lengerr = record.length > max;
+        if (lengerr && update) {
+            throw new UnsupportedOperationException("READ UPDATE LENGERR (whether the record is held): not modelled");
+        }
+        System.arraycopy(record, 0, into.storage().bytes, into.offset(), moved);
+        return lengerr ? 22 : 0;
+    }
+
     /** Text into the first bytes of a field, the rest left as it was (ASSIGN SYSID: 4 bytes into an 8-byte area). */
     public static void putText(Field f, String text, Charset cs) {
         put(f, text.getBytes(cs));

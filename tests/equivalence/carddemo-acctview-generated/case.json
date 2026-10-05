@@ -1,0 +1,111 @@
+{
+ "kind": "cics",
+ "corpus": "aws-mainframe-modernization-carddemo",
+ "program": "COACTVWC",
+ "program_source": "app/cbl/COACTVWC.cbl",
+ "copy_dirs": [
+  "app/cpy",
+  "app/cpy-bms"
+ ],
+ "port_from": "carddemo-acctview",
+ "transid": "CAVW",
+ "clock": "2022/07/18 10:30:15.00",
+ "datasets": {
+  "AWS.M2.CARDDEMO.ACCTDATA.VSAM.KSDS": {
+   "input": "@generate",
+   "entity": "AccountRecord",
+   "copybook": "app/cpy/CVACT01Y.cpy",
+   "record": "ACCOUNT-RECORD",
+   "generate": {
+    "copybook": "app/cpy/CVACT01Y.cpy",
+    "record": "ACCOUNT-RECORD",
+    "records": 30,
+    "seed": 3804
+   }
+  },
+  "AWS.M2.CARDDEMO.CUSTDATA.VSAM.KSDS": {
+   "input": "@generate",
+   "entity": "CustomerRecord",
+   "copybook": "app/cpy/CVCUS01Y.cpy",
+   "record": "CUSTOMER-RECORD",
+   "generate": {
+    "copybook": "app/cpy/CVCUS01Y.cpy",
+    "record": "CUSTOMER-RECORD",
+    "records": 30,
+    "seed": 3804,
+    "fields": {
+     "CUST-DOB-YYYY-MM-DD": {
+      "date": "YYYY-MM-DD"
+     }
+    }
+   }
+  },
+  "AWS.M2.CARDDEMO.CARDXREF.VSAM.KSDS": {
+   "input": "@generate",
+   "entity": "CardXrefRecord",
+   "copybook": "app/cpy/CVACT03Y.cpy",
+   "record": "CARD-XREF-RECORD",
+   "generate": {
+    "copybook": "app/cpy/CVACT03Y.cpy",
+    "record": "CARD-XREF-RECORD",
+    "records": 30,
+    "seed": 3804,
+    "fields": {
+     "XREF-ACCT-ID": {
+      "from": "AWS.M2.CARDDEMO.ACCTDATA.VSAM.KSDS.ACCT-ID"
+     },
+     "XREF-CUST-ID": {
+      "from": "AWS.M2.CARDDEMO.CUSTDATA.VSAM.KSDS.CUST-ID",
+      "miss": 0.2
+     },
+     "XREF-CARD-NUM": {
+      "digits": true
+     }
+    }
+   }
+  }
+ },
+ "commarea": {
+  "segments": [
+   {
+    "copybook": "app/cpy/COCOM01Y.cpy",
+    "record": "CARDDEMO-COMMAREA"
+   },
+   {
+    "copybook": "app/cbl/COACTVWC.cbl",
+    "record": "WS-THIS-PROGCOMMAREA"
+   }
+  ]
+ },
+ "screens": {
+  "CACTVWA": {
+   "copybook": "app/cpy-bms/COACTVW.CPY",
+   "input": "CACTVWAI",
+   "output": "CACTVWAO"
+  }
+ },
+ "scenarios": [],
+ "scenario_generate": {
+  "seed": 3804,
+  "count": 24,
+  "prefix": "generated",
+  "aid": "DFHENTER",
+  "commarea": {
+   "CDEMO-FROM-TRANID": "CAVW",
+   "CDEMO-FROM-PROGRAM": "COACTVWC",
+   "CDEMO-USER-ID": "USER0001",
+   "CDEMO-USER-TYPE": "U",
+   "CDEMO-PGM-CONTEXT": 1
+  },
+  "receive": {
+   "CACTVWA": {
+    "ACCTSIDI": {
+     "from": "AWS.M2.CARDDEMO.ACCTDATA.VSAM.KSDS.ACCT-ID",
+     "miss": 0.2,
+     "bad": 0.25
+    }
+   }
+  }
+ },
+ "notes": "CardDemo's account view (CAVW) on GENERATED inputs (#3804), proving the carddemo-acctview port on data it was not written against: accounts, customers and card cross-references built from their record layouts (a cross-reference to an account only some of the time, a fifth pointing at a customer that is not on file), and 24 generated re-entries whose typed account id is one on file, one that is not, or not a number (letters, blanks, signs, a decimal point). The generated card numbers are steered to digits (\"digits\": true): the port's readAcct parses the cross-reference's card number as a number and throws on letters or blanks where the COBOL's MOVE does not (#4491, found by this case's first run). Derived from CardDemo (Apache-2.0; Copyright Amazon.com, Inc. or its affiliates): LICENSE and NOTICE here are the source's own."
+}

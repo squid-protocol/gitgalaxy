@@ -1,0 +1,2 @@
+Derived from IBM Dependency Based Build samples (github.com/IBM/dbb, zBuilder/MortgageApplication), Copyright IBM Corp., Apache-2.0.
+The EPSMORTF company records and the COMMAREAs are generated from the repository's record layouts by tests/tools/equivalence_inputs.py (#3804); the repository ships no data.

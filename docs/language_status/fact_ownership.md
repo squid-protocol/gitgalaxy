@@ -56,6 +56,8 @@ definition).
 | cics_commands (censused verbs) | 611 | 0 | 0 | 100.0% | 100.0 / 100.0 | 100.0 / 100.0 | 0 | 0 | 0 |
 | cics_files (verb + dataset) | 74 | 0 | 0 | 100.0% | 100.0 / 100.0 | 100.0 / 100.0 | 0 | 0 | 0 |
 
+**After #4468** (the translator takes the engine's COPY resolution, and so does the cross-check's translator side): copy_resolution 433 both, 0 on either side only (100%; translator 100 / 100 vs the keys); offsets: translator 100 / 100 vs the key on the records it lays out, and all 78 translator-wrong entries are gone. The ledger shrank from 816 to 702 entries: 131 fixed and 17 new `status` refusals on estate-crucible. The new refusals are 9 SYSLIB collisions (#4486), 3 unexpanded COPY forms (#4459), 3 code-page sources (#4462) and 2 COPY SHPRATE gaps (#4460).
+
 Plus 32 `status` entries: sources the translator refuses (never silently, #4411): 28 translator
 coverage gaps (#4462) and 4 vendor copybooks the estates do not ship (definitional).
 
@@ -70,7 +72,7 @@ engine-owned rows below.
 | PROGRAM-ID | **engine** | the translator has no PROGRAM-ID fact (its caller names the program) | — |
 | units, unit extents, PERFORM / GO TO edges | **engine** | 100% precision against the keys; the translator's misses are sources it cannot read as one program (estate-crucible PAYMAIN: nested programs) | check. Known engine gap: the main line has no extent (#4302); the translator and the key have it |
 | CALL / LINK / XCTL, call targets | **engine** | 100% / 100% on both sides; only the engine resolves an identifier target through its VALUE | check |
-| COPY members and their resolution | **engine** | engine 100 / 100 vs the keys; the translator searches a flat directory list and takes the wrong member when one exists in two libraries (estate-crucible H-0034, H-0052: 98.3 / 97.8), splices a program source as a copybook, and misses two COPY statement forms | should consume the engine's resolution (#4461, #4460, #4459) |
+| COPY members and their resolution | **engine** | engine 100 / 100 vs the keys; the translator searches a flat directory list and takes the wrong member when one exists in two libraries (estate-crucible H-0034, H-0052: 98.3 / 97.8), splices a program source as a copybook, and misses two COPY statement forms | consumes the engine's resolution since #4468 (`GalaxyIR.copy_resolution`); refuses collisions, gaps and #4459's unexpanded forms by name. The cross-check's translator side takes it too |
 | data items: PIC, USAGE (as written), OCCURS, REDEFINES | **engine** | 100% vs the keys on every attribute; the translator agrees on 99.8–100% (its misses come from the COPY defects above) | check |
 | VALUE | **engine** for analysis (as written); **translator** for translation (parsed) | the 18 disagreements are spelling: `0225` vs 225, `ALL` vs `ALL '#'` | both kept |
 | record layouts / offsets | **translator** for its own translation; **engine** for analysis, checked by this gate | 96.2% agreement on 16,153 values. Engine wrong on 337: section-level COPY REPLACING (#4457) and a COPY continuation (#4458). Translator wrong on 78, every one from COPY resolution or expansion, none from the layout arithmetic. POINTER width (228) is a platform setting: 4 on z/OS, 8 in the GnuCOBOL storage the proofs run on (`oracle_assumptions.md` C9) | revisit having the translator consume engine layouts once #4457 / #4458 are fixed and POINTER width is a parameter: the engine would then match the translator everywhere on these corpora |

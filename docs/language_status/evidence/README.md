@@ -20,7 +20,7 @@ One record per ported program (#4048): docs/language_status/evidence_records.md 
 | [CBCUS01C](carddemo-readcust.md) | carddemo-readcust | batch | proven, unapproved |  | 7 | 5/5 / 21/22 | - | 0 | - |
 | [CBACT03C](carddemo-readxref.md) | carddemo-readxref | batch | proven, unapproved |  | 7 | 5/5 / 21/22 | - | 0 | - |
 | [CORPT00C](carddemo-report.md) | carddemo-report | cics | proven, unapproved |  | 16 | 10/10 / 40/59 | - | 0 | - |
-| [COSGN00C](carddemo-signon.md) | carddemo-signon | cics | not-proven | the proof failed through its deployed entry points (java-facade: 1/12 scenarios pass) | 12 | 6/6 / 17/17 | - | 0 | - |
+| [COSGN00C](carddemo-signon.md) | carddemo-signon | cics | proven, unapproved |  | 12 | 6/6 / 17/17 | - | 0 | - |
 | [COTRN02C](carddemo-tranadd.md) | carddemo-tranadd | cics | proven, unapproved |  | 31 | 18/18 / 56/75 | - | 0 | - |
 | [COTRN00C](carddemo-tranlist.md) | carddemo-tranlist | cics | proven, unapproved |  | 21 | 16/16 / 85/101 | - | 0 | - |
 | [COTRN01C](carddemo-tranview.md) | carddemo-tranview | cics | proven, unapproved |  | 15 | 9/9 / 23/24 | - | 0 | - |

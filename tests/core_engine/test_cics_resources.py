@@ -332,11 +332,23 @@ def test_an_unterminated_exec_is_capped_and_linear():
     assert time.perf_counter() - start < 2.0
 
 
+def _best_boundary_time(statements: int, repeats: int = 3) -> float:
+    src = "           MOVE 'X' TO " * statements + "\n           EXEC CICS READ FILE(A) END-EXEC\n"
+    best = float("inf")
+    for _ in range(repeats):
+        start = time.perf_counter()
+        extract_boundary("cobol", src)
+        best = min(best, time.perf_counter() - start)
+    return best
+
+
 def test_many_move_statements_stay_linear():
-    src = "           MOVE 'X' TO " * 20000
-    start = time.perf_counter()
-    extract_boundary("cobol", src + "\n           EXEC CICS READ FILE(A) END-EXEC\n")
-    assert time.perf_counter() - start < 2.0
+    """Linearity as a ratio, not an absolute wall-clock bound (#4477: `< 2.0` s failed on every shared runner,
+    whatever the code did). 4x the statements must cost about 4x (linear), nowhere near 16x (quadratic); the
+    best of a few repeats keeps scheduling noise out, and the same run's small case calibrates the machine."""
+    small, large = 10_000, 40_000
+    ratio = _best_boundary_time(large) / _best_boundary_time(small)
+    assert ratio < 8, f"{large} MOVEs cost {ratio:.1f}x {small} MOVEs: linear is ~4x, quadratic ~16x"
 
 
 # ---- WEB / SERVICE / TRANSFORM (#3512) ----------------------------------------

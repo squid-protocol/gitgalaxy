@@ -437,6 +437,97 @@ def test_options_honoured_without_code_say_why():
             assert opt in stated | flags or read, f"{key} {opt}: accepted but never read"
 
 
+# ---- #4467 (in the #4411 audit): a COPY resolved otherwise than the engine resolved it refuses the program ---------
+from gitgalaxy.tools.cobol_to_java.det import source as SRC  # noqa: E402
+
+
+def _fixed(*body: str) -> str:
+    return "".join(f"       {b}\n" for b in body)
+
+
+def _estate(tmp_path, program_body, files):
+    """An estate: cbl/PROG.cbl and the given members; returns (program, root)."""
+    root = tmp_path / "estate"
+    for rel, text in files.items():
+        (root / rel).parent.mkdir(parents=True, exist_ok=True)
+        (root / rel).write_text(text, encoding="utf-8")
+    prog = root / "cbl" / "PROG.cbl"
+    prog.parent.mkdir(parents=True, exist_ok=True)
+    head = ("IDENTIFICATION DIVISION.", "PROGRAM-ID. PROG.", "DATA DIVISION.", "WORKING-STORAGE SECTION.")
+    prog.write_text(_fixed(*head, *program_body), encoding="utf-8")
+    return prog, root
+
+
+def _engine(prog, root, resolved, **kw):
+    return SRC.EngineCopies(prog, root, {k: tuple(root / p for p in v) for k, v in resolved.items()}, **kw)
+
+
+_MEMBER = _fixed("05 A-FIELD PIC X(4).")
+
+
+def test_copy_resolution_agreeing_with_the_engine_translates(tmp_path):
+    prog, root = _estate(tmp_path, ["01 WS-A.", "COPY AREC."], {"cpy/AREC.cpy": _MEMBER})
+    lines = SRC.program_lines(prog, [root / "cpy"], _engine(prog, root, {"AREC": ["cpy/AREC.cpy"]}))
+    assert any("A-FIELD" in ln.text for ln in lines)
+
+
+def test_a_member_in_two_libraries_taken_from_the_wrong_one_is_refused(tmp_path):
+    """#4461 (estate-crucible H-0034: DATEWS in apps/PAYR/copybook and shared/copylib): the translator's first-hit
+    search takes the first directory's member; the engine resolved the other library's."""
+    prog, root = _estate(tmp_path, ["01 WS-A.", "COPY DATEWS."],
+                         {"payr/DATEWS.cpy": _MEMBER, "shared/DATEWS.cpy": _MEMBER})  # fmt: skip
+    eng = _engine(prog, root, {"DATEWS": ["shared/DATEWS.cpy"]})
+    with pytest.raises(SRC.CopyDisagrees, match="COPY DATEWS: translator resolved payr/DATEWS.cpy, engine resolved "
+                       "shared/DATEWS.cpy"):  # fmt: skip
+        SRC.program_lines(prog, [root / "payr", root / "shared"], eng)
+
+
+def test_a_program_source_spliced_in_for_a_copy_is_refused(tmp_path):
+    """#4460 (estate-crucible SHPINQ `COPY SHPRATE.` -> the program SHPRATE.cbl): the engine resolved no member."""
+    prog, root = _estate(tmp_path, ["01 WS-RATE-PARM.", "COPY SHPRATE."],
+                         {"cbl/SHPRATE.cbl": _fixed("IDENTIFICATION DIVISION.", "PROGRAM-ID. SHPRATE.")})  # fmt: skip
+    with pytest.raises(SRC.CopyDisagrees, match="COPY SHPRATE: translator resolved cbl/SHPRATE.cbl, engine resolved "
+                       "nothing"):  # fmt: skip
+        SRC.program_lines(prog, [], _engine(prog, root, {}))
+
+
+@pytest.mark.parametrize("body", [["01 WS-RPT-HEAD.  COPY RPTHDR."], ["01 WS-RPT-HEAD.", "COPY", "RPTHDR."]])
+def test_a_copy_the_translator_never_expands_is_refused(tmp_path, body):
+    """#4459 (estate-crucible ACCTRPT / ACCTUPD): a COPY after other text on its line, or with its member on the next
+    line, is not expanded and the record comes out empty; the engine resolved the member."""
+    prog, root = _estate(tmp_path, body, {"cpy/RPTHDR.cpy": _MEMBER})
+    with pytest.raises(SRC.CopyDisagrees, match="COPY RPTHDR: engine resolved cpy/RPTHDR.cpy, translator expanded no "
+                       "COPY of it"):  # fmt: skip
+        SRC.program_lines(prog, [root / "cpy"], _engine(prog, root, {"RPTHDR": ["cpy/RPTHDR.cpy"]}))
+
+
+@pytest.mark.parametrize(("kw", "why"), [({"gaps": frozenset({"AREC"})}, "gap"),
+                                         ({"collisions": frozenset({"AREC"})}, "collision")])  # fmt: skip
+def test_a_member_the_engine_reports_as_a_gap_or_collision_is_refused(tmp_path, kw, why):
+    prog, root = _estate(tmp_path, ["01 WS-A.", "COPY AREC."], {"cpy/AREC.cpy": _MEMBER})
+    with pytest.raises(SRC.CopyDisagrees, match=f"COPY AREC: the engine records a {why}"):
+        SRC.program_lines(prog, [root / "cpy"], _engine(prog, root, {"AREC": ["cpy/AREC.cpy"]}, **kw))
+
+
+def test_a_system_member_outside_the_estate_needs_no_engine_resolution(tmp_path):
+    """DFHAID / DFHEIBLK and symbolic maps generated from BMS live outside the estate: the engine has none of them,
+    and reports DFHAID as a gap where the scan declared copy libraries (estate-crucible CUSTINQ)."""
+    prog, root = _estate(tmp_path, ["01 WS-A.", "COPY DFHAID."], {})
+    lines = SRC.program_lines(prog, [C.COPY], _engine(prog, root, {}, gaps=frozenset({"DFHAID"})))
+    assert len(lines) > 5
+
+
+def test_engine_copies_from_the_port_ticket(tmp_path):
+    prog, root = _estate(tmp_path, ["01 WS-A.", "COPY AREC."], {"cpy/AREC.cpy": _MEMBER})
+    jobs = tmp_path / "project" / "ai_agent_jobs"
+    jobs.mkdir(parents=True)
+    ticket = {"source": {"program": {"file": "cbl/PROG.cbl"}, "copybooks": [{"file": "cpy/AREC.cpy"}]}}
+    (jobs / "PROG_port_ticket.json").write_text(__import__("json").dumps(ticket), encoding="utf-8")
+    eng = SRC.engine_copies_from_ticket(tmp_path / "project", prog)
+    assert eng is not None and eng.root == root and eng.resolved == {"AREC": (root / "cpy/AREC.cpy",)}
+    assert SRC.engine_copies_from_ticket(tmp_path / "project", root / "cbl" / "OTHER.cbl") is None
+
+
 # ---- #4437: RESP / RESP2 on SYNCPOINT are written, and every command that accepts RESP writes it ---------------
 class _RespCics(_KeyCics):
     """Records the options each outcome() was given; stores (RESP2 alone) as STORE(name, value)."""

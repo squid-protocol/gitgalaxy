@@ -8981,6 +8981,15 @@ class StructuralExtractor:
     # sequence-area slot swallows a free-format indent plus the level number
     # (`    01` of CobolCraft's `    01 VALUE-BYTES.`), which steps past its
     # level-number shield and reads the data name as a paragraph.
+    # #4306: a division header at the start of a line's content. Used to tell the PROCEDURE DIVISION (where
+    # paragraphs and sections are units) from the IDENTIFICATION / ENVIRONMENT / DATA divisions.
+    _COBOL_DIVISION_HEADER: ClassVar[re.Pattern[str]] = re.compile(
+        r"(IDENTIFICATION|ID|ENVIRONMENT|DATA|PROCEDURE)[ \t]+DIVISION\b", re.I
+    )
+    _COBOL_DIVISION_WORD: ClassVar[re.Pattern[str]] = re.compile(r"DIVISION\b", re.I)
+    _COBOL_DIVISION_NAMES: ClassVar[frozenset[str]] = frozenset(
+        {"IDENTIFICATION", "ID", "ENVIRONMENT", "DATA", "PROCEDURE"}
+    )
     _COBOL_FREE_DATA_ENTRY: ClassVar[re.Pattern[str]] = re.compile(r"[ \t]*(?:[0-9]{1,2}|FD|SD|RD|CD)[ \t]", re.I)
 
     def _cobol_sentence_start_offsets(self, code: str) -> set[int]:
@@ -9000,8 +9009,17 @@ class StructuralExtractor:
         A line with no fixed-format sequence area that opens with a level
         number or FD / SD / RD / CD is a free-format data description entry,
         never a header, though it may begin a sentence (#4203).
+
+        #4306: a header is only a unit in the PROCEDURE DIVISION. Once an IDENTIFICATION, ENVIRONMENT or
+        DATA DIVISION header has been read, no line is a header until the next PROCEDURE DIVISION --
+        IDMS's `IDMS-CONTROL SECTION.` / `PROTOCOL.` (ENVIRONMENT) and `SCHEMA SECTION.` / `MAP SECTION.`
+        (DATA) are dictionary-driven entries no reserved-name list could finish. A stream with no
+        division header yet (a fragment, a copybook) keeps every candidate, as before. A nested program
+        starts over at its own IDENTIFICATION DIVISION.
         """
         starts: set[int] = set()
+        outside_procedure = False  # #4306: inside an IDENTIFICATION / ENVIRONMENT / DATA division
+        pending_division: Optional[str] = None  # #4306: a division name alone on the previous content line
         opens_sentence = True  # the first line of the stream
         pos = 0
         # #4264: only a fixed-format line ends at column 72; a free-format one runs on, and its
@@ -9014,13 +9032,26 @@ class StructuralExtractor:
             free_data_entry = not self._COBOL_SEQUENCE_AREA.match(content) and self._COBOL_FREE_DATA_ENTRY.match(
                 content
             )
-            if opens_sentence and not free_data_entry:
+            if opens_sentence and not free_data_entry and not outside_procedure:
                 starts.add(pos)
             if self._COBOL_SEQUENCE_AREA.match(content):
                 indicator = content[6:7]
                 content = content[7:] if indicator and indicator not in " -" else content[6:]
             text = content.strip()
             if text:
+                division = self._COBOL_DIVISION_HEADER.match(text)
+                if division:
+                    outside_procedure = division.group(1).upper() != "PROCEDURE"
+                    pending_division = None
+                elif pending_division and self._COBOL_DIVISION_WORD.match(text):
+                    # #4306: the header split over lines -- `PROCEDURE` / `DIVISION` / `.` (NIST NC1134.2.cbl
+                    # lines 116-118): the division word on its own line, DIVISION on the next one.
+                    outside_procedure = pending_division != "PROCEDURE"
+                    pending_division = None
+                else:
+                    words = text.split()
+                    lone = words[0].upper() if len(words) == 1 else ""
+                    pending_division = lone if lone in self._COBOL_DIVISION_NAMES else None
                 # A continuation line (`-` in column 7) belongs to the sentence
                 # above it, and a blank line decides nothing -- only a line with
                 # real content updates the verdict.

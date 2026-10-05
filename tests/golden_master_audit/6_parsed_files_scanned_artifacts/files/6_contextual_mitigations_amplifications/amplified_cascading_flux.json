@@ -318,14 +318,14 @@
       "cobol/che-che4z_nist_ccvs85/ST1184.2.cbl": "44 instances"
     },
     "cobol/cics-banking-sample-application-cbsa": {
-      "cobol/cics-banking-sample-application-cbsa/BANKDATA.cbl": "46 instances",
+      "cobol/cics-banking-sample-application-cbsa/BANKDATA.cbl": "51 instances",
       "cobol/cics-banking-sample-application-cbsa/BNK1CAC.cbl": "104 instances",
       "cobol/cics-banking-sample-application-cbsa/BNK1CCA.cbl": "48 instances",
       "cobol/cics-banking-sample-application-cbsa/BNK1CCS.cbl": "165 instances",
       "cobol/cics-banking-sample-application-cbsa/BNK1CRA.cbl": "84 instances",
       "cobol/cics-banking-sample-application-cbsa/BNK1DAC.cbl": "63 instances",
       "cobol/cics-banking-sample-application-cbsa/BNK1DCS.cbl": "110 instances",
-      "cobol/cics-banking-sample-application-cbsa/BNK1TFN.cbl": "84 instances",
+      "cobol/cics-banking-sample-application-cbsa/BNK1TFN.cbl": "85 instances",
       "cobol/cics-banking-sample-application-cbsa/BNK1UAC.cbl": "107 instances",
       "cobol/cics-banking-sample-application-cbsa/BNKMENU.cbl": "52 instances",
       "cobol/cics-banking-sample-application-cbsa/CRDTAGY1.cbl": "3 instances",

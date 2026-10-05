@@ -914,26 +914,26 @@
         "verification": 57.37
       },
       "file_count": 151,
-      "total_mass": 47383.94
+      "total_mass": 47380.44
     },
     "cobol/cics-banking-sample-application-cbsa": {
       "avg_exposures": {
         "api_exposure": 9.56,
         "churn": 0.0,
-        "cognitive_load": 37.83,
+        "cognitive_load": 37.85,
         "concurrency": 7.15,
         "dead_code": 4.2,
         "documentation": 45.45,
-        "safety_score": 37.42,
+        "safety_score": 37.44,
         "secrets_risk": 0.0,
         "spec_match": 0.0,
         "stability": 50.0,
-        "state_flux": 41.39,
-        "tech_debt": 15.91,
+        "state_flux": 41.4,
+        "tech_debt": 15.96,
         "verification": 22.33
       },
       "file_count": 66,
-      "total_mass": 9726.77
+      "total_mass": 9728.37
     },
     "cobol/cics-genapp": {
       "avg_exposures": {

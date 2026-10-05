@@ -1816,7 +1816,7 @@
         "Testing Exposure": "57.37%",
         "Volatility Exposure": "0.0%"
       },
-      "Directory Group Magnitude": 47383.94,
+      "Directory Group Magnitude": 47380.44,
       "Ecosystem Fingerprint (Archetypes)": {
         "Static: Literature & Documentation": "0.7%",
         "file_cluster_11": "22.5%",
@@ -1982,20 +1982,20 @@
     "cobol/cics-banking-sample-application-cbsa": {
       "Average Risk Exposures": {
         "API Exposure": "9.56%",
-        "Cognitive Load Exposure": "37.83%",
+        "Cognitive Load Exposure": "37.85%",
         "Commented Logic Exposure": "4.2%",
         "Concurrency Exposure": "7.15%",
         "Documentation Exposure": "45.45%",
-        "Error & Exception Exposure": "37.42%",
+        "Error & Exception Exposure": "37.44%",
         "Hardcoded Payload Artifacts": "0.0%",
         "Instability Exposure": "50.0%",
         "Specification Exposure": "0.0%",
-        "State Flux Exposure": "41.39%",
-        "Tech Debt Exposure": "15.91%",
+        "State Flux Exposure": "41.4%",
+        "Tech Debt Exposure": "15.96%",
         "Testing Exposure": "22.33%",
         "Volatility Exposure": "0.0%"
       },
-      "Directory Group Magnitude": 9726.77,
+      "Directory Group Magnitude": 9728.37,
       "Ecosystem Fingerprint (Archetypes)": {
         "Unclassified": "1.5%",
         "file_cluster_11": "28.8%",

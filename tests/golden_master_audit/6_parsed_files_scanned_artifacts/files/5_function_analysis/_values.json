@@ -81789,14 +81789,14 @@
         {
           "Control Flow Branches": 0,
           "Control Flow Ratio": "0.0%",
-          "End Line": 652,
-          "Function Name": "DEBUG-LINE-TEST-04",
+          "End Line": 640,
+          "Function Name": "DEBUG-LINE-TEST-03",
           "Input Parameters": 0,
           "Is Documented": 0,
           "Is Public": 0,
           "Lines of Code (LOC)": 7,
           "Reflection Hits": 0,
-          "Start Line": 646,
+          "Start Line": 634,
           "Structural Impact": 1.4
         },
         {
@@ -81979,19 +81979,6 @@
           "Lines of Code (LOC)": 5,
           "Reflection Hits": 0,
           "Start Line": 613,
-          "Structural Impact": 1.2
-        },
-        {
-          "Control Flow Branches": 0,
-          "Control Flow Ratio": "0.0%",
-          "End Line": 637,
-          "Function Name": "DEBUG-LINE-TEST-03",
-          "Input Parameters": 0,
-          "Is Documented": 0,
-          "Is Public": 0,
-          "Lines of Code (LOC)": 4,
-          "Reflection Hits": 0,
-          "Start Line": 634,
           "Structural Impact": 1.2
         },
         {
@@ -82595,19 +82582,6 @@
         {
           "Control Flow Branches": 0,
           "Control Flow Ratio": "0.0%",
-          "End Line": 640,
-          "Function Name": "DEBUG-LINE-TEST-03A",
-          "Input Parameters": 0,
-          "Is Documented": 0,
-          "Is Public": 0,
-          "Lines of Code (LOC)": 3,
-          "Reflection Hits": 0,
-          "Start Line": 638,
-          "Structural Impact": 1.1
-        },
-        {
-          "Control Flow Branches": 0,
-          "Control Flow Ratio": "0.0%",
           "End Line": 642,
           "Function Name": "DEBUG-LINE-DELETE-03",
           "Input Parameters": 0,
@@ -82629,6 +82603,19 @@
           "Lines of Code (LOC)": 3,
           "Reflection Hits": 0,
           "Start Line": 643,
+          "Structural Impact": 1.1
+        },
+        {
+          "Control Flow Branches": 0,
+          "Control Flow Ratio": "0.0%",
+          "End Line": 647,
+          "Function Name": "DEBUG-LINE-TEST-04",
+          "Input Parameters": 0,
+          "Is Documented": 0,
+          "Is Public": 0,
+          "Lines of Code (LOC)": 2,
+          "Reflection Hits": 0,
+          "Start Line": 646,
           "Structural Impact": 1.1
         },
         {
@@ -82681,19 +82668,6 @@
           "Lines of Code (LOC)": 2,
           "Reflection Hits": 0,
           "Start Line": 661,
-          "Structural Impact": 1.1
-        },
-        {
-          "Control Flow Branches": 0,
-          "Control Flow Ratio": "0.0%",
-          "End Line": 667,
-          "Function Name": "DEBUG-LINE-TEST-05-A",
-          "Input Parameters": 0,
-          "Is Documented": 0,
-          "Is Public": 0,
-          "Lines of Code (LOC)": 3,
-          "Reflection Hits": 0,
-          "Start Line": 665,
           "Structural Impact": 1.1
         },
         {
@@ -184958,7 +184932,7 @@
       "cobol/cics-banking-sample-application-cbsa/ABNDPROC.cbl": [
         {
           "Control Flow Branches": 1,
-          "Control Flow Ratio": "10.0%",
+          "Control Flow Ratio": "16.7%",
           "End Line": 163,
           "Function Name": "A010",
           "Input Parameters": 0,
@@ -185054,7 +185028,7 @@
         },
         {
           "Control Flow Branches": 10,
-          "Control Flow Ratio": "25.0%",
+          "Control Flow Ratio": "33.3%",
           "End Line": 673,
           "Function Name": "A010",
           "Input Parameters": 0,
@@ -185067,7 +185041,7 @@
         },
         {
           "Control Flow Branches": 7,
-          "Control Flow Ratio": "53.8%",
+          "Control Flow Ratio": "63.6%",
           "End Line": 872,
           "Function Name": "PA010",
           "Input Parameters": 0,
@@ -185076,11 +185050,11 @@
           "Lines of Code (LOC)": 156,
           "Reflection Hits": 2,
           "Start Line": 717,
-          "Structural Impact": 15.0
+          "Structural Impact": 14.0
         },
         {
           "Control Flow Branches": 2,
-          "Control Flow Ratio": "50.0%",
+          "Control Flow Ratio": "100.0%",
           "End Line": 922,
           "Function Name": "GOD010",
           "Input Parameters": 0,
@@ -185089,11 +185063,11 @@
           "Lines of Code (LOC)": 42,
           "Reflection Hits": 0,
           "Start Line": 881,
-          "Structural Impact": 5.1
+          "Structural Impact": 4.5
         },
         {
           "Control Flow Branches": 2,
-          "Control Flow Ratio": "33.3%",
+          "Control Flow Ratio": "66.7%",
           "End Line": 708,
           "Function Name": "DA010",
           "Input Parameters": 0,
@@ -185106,16 +185080,16 @@
         },
         {
           "Control Flow Branches": 1,
-          "Control Flow Ratio": "33.3%",
-          "End Line": 1436,
+          "Control Flow Ratio": "100.0%",
+          "End Line": 1433,
           "Function Name": "CDW010",
           "Input Parameters": 0,
           "Is Documented": 0,
           "Is Public": 0,
-          "Lines of Code (LOC)": 30,
+          "Lines of Code (LOC)": 27,
           "Reflection Hits": 0,
           "Start Line": 1407,
-          "Structural Impact": 3.5
+          "Structural Impact": 3.0
         },
         {
           "Control Flow Branches": 0,
@@ -186166,7 +186140,7 @@
         },
         {
           "Control Flow Branches": 3,
-          "Control Flow Ratio": "30.0%",
+          "Control Flow Ratio": "33.3%",
           "End Line": 570,
           "Function Name": "RM010",
           "Input Parameters": 0,
@@ -186175,7 +186149,7 @@
           "Lines of Code (LOC)": 190,
           "Reflection Hits": 9,
           "Start Line": 381,
-          "Structural Impact": 9.5
+          "Structural Impact": 9.0
         },
         {
           "Control Flow Branches": 2,
@@ -187102,7 +187076,7 @@
           "Lines of Code (LOC)": 13,
           "Reflection Hits": 2,
           "Start Line": 1146,
-          "Structural Impact": 1.6
+          "Structural Impact": 1.5
         },
         {
           "Control Flow Branches": 0,
@@ -187577,19 +187551,6 @@
         {
           "Control Flow Branches": 0,
           "Control Flow Ratio": "0.0%",
-          "End Line": 1937,
-          "Function Name": "PTD10",
-          "Input Parameters": 0,
-          "Is Documented": 0,
-          "Is Public": 0,
-          "Lines of Code (LOC)": 13,
-          "Reflection Hits": 2,
-          "Start Line": 1925,
-          "Structural Impact": 1.6
-        },
-        {
-          "Control Flow Branches": 0,
-          "Control Flow Ratio": "0.0%",
           "End Line": 1398,
           "Function Name": "UCD010",
           "Input Parameters": 0,
@@ -187598,6 +187559,19 @@
           "Lines of Code (LOC)": 77,
           "Reflection Hits": 0,
           "Start Line": 1322,
+          "Structural Impact": 1.5
+        },
+        {
+          "Control Flow Branches": 0,
+          "Control Flow Ratio": "0.0%",
+          "End Line": 1937,
+          "Function Name": "PTD10",
+          "Input Parameters": 0,
+          "Is Documented": 0,
+          "Is Public": 0,
+          "Lines of Code (LOC)": 13,
+          "Reflection Hits": 2,
+          "Start Line": 1925,
           "Structural Impact": 1.5
         },
         {
@@ -188112,7 +188086,7 @@
       "cobol/cics-banking-sample-application-cbsa/BNK1TFN.cbl": [
         {
           "Control Flow Branches": 14,
-          "Control Flow Ratio": "87.5%",
+          "Control Flow Ratio": "100.0%",
           "End Line": 1204,
           "Function Name": "VA010",
           "Input Parameters": 0,
@@ -188121,7 +188095,7 @@
           "Lines of Code (LOC)": 216,
           "Reflection Hits": 0,
           "Start Line": 989,
-          "Structural Impact": 23.5
+          "Structural Impact": 22.5
         },
         {
           "Control Flow Branches": 10,
@@ -189035,7 +189009,7 @@
           "Lines of Code (LOC)": 13,
           "Reflection Hits": 2,
           "Start Line": 1299,
-          "Structural Impact": 1.6
+          "Structural Impact": 1.5
         },
         {
           "Control Flow Branches": 0,
@@ -189898,7 +189872,7 @@
         },
         {
           "Control Flow Branches": 6,
-          "Control Flow Ratio": "37.5%",
+          "Control Flow Ratio": "42.9%",
           "End Line": 765,
           "Function Name": "FNA010",
           "Input Parameters": 0,
@@ -189907,7 +189881,7 @@
           "Lines of Code (LOC)": 336,
           "Reflection Hits": 20,
           "Start Line": 430,
-          "Structural Impact": 15.5
+          "Structural Impact": 14.5
         },
         {
           "Control Flow Branches": 5,
@@ -189990,19 +189964,6 @@
         {
           "Control Flow Branches": 0,
           "Control Flow Ratio": "0.0%",
-          "End Line": 1244,
-          "Function Name": "PTD2010",
-          "Input Parameters": 0,
-          "Is Documented": 0,
-          "Is Public": 1,
-          "Lines of Code (LOC)": 13,
-          "Reflection Hits": 2,
-          "Start Line": 1232,
-          "Structural Impact": 1.6
-        },
-        {
-          "Control Flow Branches": 0,
-          "Control Flow Ratio": "0.0%",
           "End Line": 1092,
           "Function Name": "CAC010",
           "Input Parameters": 0,
@@ -190011,6 +189972,19 @@
           "Lines of Code (LOC)": 12,
           "Reflection Hits": 1,
           "Start Line": 1081,
+          "Structural Impact": 1.5
+        },
+        {
+          "Control Flow Branches": 0,
+          "Control Flow Ratio": "0.0%",
+          "End Line": 1244,
+          "Function Name": "PTD2010",
+          "Input Parameters": 0,
+          "Is Documented": 0,
+          "Is Public": 1,
+          "Lines of Code (LOC)": 13,
+          "Reflection Hits": 2,
+          "Start Line": 1232,
           "Structural Impact": 1.5
         },
         {
@@ -190356,7 +190330,7 @@
       "cobol/cics-banking-sample-application-cbsa/CRECUST.cbl": [
         {
           "Control Flow Branches": 40,
-          "Control Flow Ratio": "59.7%",
+          "Control Flow Ratio": "60.6%",
           "End Line": 1062,
           "Function Name": "CC010",
           "Input Parameters": 0,
@@ -190441,7 +190415,7 @@
           "Is Documented": 0,
           "Is Public": 1,
           "Lines of Code (LOC)": 19,
-          "Reflection Hits": 2,
+          "Reflection Hits": 1,
           "Start Line": 522,
           "Structural Impact": 3.0
         },
@@ -190461,19 +190435,6 @@
         {
           "Control Flow Branches": 0,
           "Control Flow Ratio": "0.0%",
-          "End Line": 1494,
-          "Function Name": "PTD2010",
-          "Input Parameters": 0,
-          "Is Documented": 0,
-          "Is Public": 1,
-          "Lines of Code (LOC)": 13,
-          "Reflection Hits": 2,
-          "Start Line": 1482,
-          "Structural Impact": 1.6
-        },
-        {
-          "Control Flow Branches": 0,
-          "Control Flow Ratio": "0.0%",
           "End Line": 493,
           "Function Name": "PTD010",
           "Input Parameters": 0,
@@ -190482,6 +190443,19 @@
           "Lines of Code (LOC)": 12,
           "Reflection Hits": 2,
           "Start Line": 482,
+          "Structural Impact": 1.5
+        },
+        {
+          "Control Flow Branches": 0,
+          "Control Flow Ratio": "0.0%",
+          "End Line": 1494,
+          "Function Name": "PTD2010",
+          "Input Parameters": 0,
+          "Is Documented": 0,
+          "Is Public": 1,
+          "Lines of Code (LOC)": 13,
+          "Reflection Hits": 2,
+          "Start Line": 1482,
           "Structural Impact": 1.5
         },
         {
@@ -190869,7 +190843,7 @@
       "cobol/cics-banking-sample-application-cbsa/DBCRFUN.cbl": [
         {
           "Control Flow Branches": 8,
-          "Control Flow Ratio": "61.5%",
+          "Control Flow Ratio": "72.7%",
           "End Line": 441,
           "Function Name": "UAD010",
           "Input Parameters": 0,
@@ -190878,7 +190852,7 @@
           "Lines of Code (LOC)": 206,
           "Reflection Hits": 2,
           "Start Line": 236,
-          "Structural Impact": 16.0
+          "Structural Impact": 15.0
         },
         {
           "Control Flow Branches": 7,
@@ -192274,7 +192248,7 @@
           "Lines of Code (LOC)": 13,
           "Reflection Hits": 2,
           "Start Line": 867,
-          "Structural Impact": 1.6
+          "Structural Impact": 1.5
         },
         {
           "Control Flow Branches": 0,
@@ -192504,7 +192478,7 @@
       "cobol/cics-banking-sample-application-cbsa/INQCUST.cbl": [
         {
           "Control Flow Branches": 12,
-          "Control Flow Ratio": "63.2%",
+          "Control Flow Ratio": "66.7%",
           "End Line": 422,
           "Function Name": "RCV010",
           "Input Parameters": 0,
@@ -192543,7 +192517,7 @@
         },
         {
           "Control Flow Branches": 6,
-          "Control Flow Ratio": "50.0%",
+          "Control Flow Ratio": "54.5%",
           "End Line": 240,
           "Function Name": "P010",
           "Input Parameters": 0,

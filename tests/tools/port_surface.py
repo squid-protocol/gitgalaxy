@@ -18,16 +18,23 @@ This rewrites ONLY that surface, from a fresh generation of the same program, an
   * a facade the generator writes and the port lacks is added before runTask;
   * a private helper only the removed or replaced code called is removed with it (seed / bridgeHcsub of HCMAIN's
     old executeHcmain);
-  * the generated file's imports the port lacks are added.
+  * the generated file's imports the port lacks and the written facades use are added.
 
     python tests/tools/port_surface.py apply  --port PORT.java --generated GENERATED.java [--check]
     python tests/tools/port_surface.py crucible --work DIR [--cases CASE ...] [--check]
+    python tests/tools/port_surface.py equivalence --work DIR [--cases CASE ...] [--check]
 
 `crucible` runs the CICS crucible's java-ported side once (cics_crucible.py --keep DIR) to get each case's fresh
 generation (generated_before_overlay/), then applies this to every committed port under tests/cics_crucible/ports
 and appends a `resurfaced` event to its provenance.json (the methods replaced, removed, added). The port must then be
 re-proven: `crucible_port_provenance.py reprove` and `evidence.py prove`. `--check` changes nothing and exits 1 when
 a port's surface differs from the generator's.
+
+`equivalence` (#4441) does the same for the equivalence ports (tests/equivalence/<case>/port: the CardDemo, CBSA and
+GenApp model and det ports): each corpus's project is generated once, as the equivalence harness generates it
+(ports_compile_check.generate: refactor, h2, the case's culture), and each port file is resurfaced against the
+generated file at the same path. A port with a provenance.json gets the `resurfaced` event; a hand port without one
+(carddemo-acctview, #3754) is resurfaced all the same and says so. Re-prove each changed case: `evidence.py prove`.
 """
 
 from __future__ import annotations
@@ -36,6 +43,7 @@ import argparse
 import datetime
 import json
 import re
+import shutil
 import subprocess
 import sys
 from dataclasses import dataclass, field
@@ -50,7 +58,7 @@ from gitgalaxy.tools.cobol_to_java import proof_reach  # noqa: E402
 # The entry points the generator writes around runTask / handleCall / runBatch (cobol_to_java_*_forge.py).
 FACADE = re.compile(r"handleTransaction|handleLink|execute[A-Z]\w*|render[A-Z]\w*|submit[A-Z]\w*")
 _LEAD_MARKS = ("/**", "*", "*/", "//", "@")  # a Javadoc / comment / annotation line starts so
-_IMPORT = re.compile(r"^import\s+[\w.*]+\s*;\s*$", re.M)
+_IMPORT = re.compile(r"^import\s+[\w.*]+\s*;[ \t]*$", re.M)  # (#4441: [ \t], never the newline: lines compare as equal)
 
 
 @dataclass
@@ -110,6 +118,12 @@ def _cut(lines: list[str], span: Span) -> None:
     del lines[span.start : end]
 
 
+def _uses(text: str, imp: str) -> bool:
+    """Whether Java `text` names what the import line `imp` imports (any wildcard import counts)."""
+    name = imp.split()[-1].rstrip(";").rsplit(".", 1)[-1]
+    return name == "*" or re.search(rf"\b{re.escape(name)}\b", text) is not None
+
+
 def resurface(port: Path, generated: Path, text: Optional[str] = None) -> tuple[str, Change]:
     """The port's text with its facades brought to the generated file's, and what changed."""
     src = port.read_text(encoding="utf-8") if text is None else text
@@ -161,7 +175,10 @@ def resurface(port: Path, generated: Path, text: Optional[str] = None) -> tuple[
             ch.helpers_removed.append(s.name)
     text_now = "\n".join(lines)
     have = set(_IMPORT.findall(text_now))
-    need = [i for i in _IMPORT.findall(gen) if i not in have]
+    # #4441: only the imports the facades it wrote use -- never the generated file's others, which the model's
+    # logic chose not to (a batch port's unused List / Optional is no part of its surface)
+    written = "\n".join(gen_facades[n] for n in (*ch.replaced, *ch.added))
+    need = [i for i in _IMPORT.findall(gen) if i not in have and _uses(written, i)]
     if need:
         last = list(_IMPORT.finditer(text_now))[-1]
         text_now = text_now[: last.end()] + "\n" + "\n".join(need) + text_now[last.end() :]
@@ -178,6 +195,9 @@ def _now() -> str:
 def record(prov_path: Path, ch: Change, generated_from: str) -> None:
     """Append the `resurfaced` event to the port's provenance.json, and say the port is no longer the model's
     answer alone (edited_after)."""
+    if not prov_path.is_file():  # a hand port (#3754's acctview) has no provenance: its evidence record says it
+        print(f"  {prov_path.parent.relative_to(REPO_ROOT).as_posix()}: no provenance.json; resurfaced unrecorded")
+        return
     prov = json.loads(prov_path.read_text(encoding="utf-8"))
     head = (subprocess.run(["git", "-C", str(REPO_ROOT), "rev-parse", "--short", "HEAD"], capture_output=True,  # noqa: S603, S607
                            text=True, check=False).stdout.strip())  # fmt: skip
@@ -218,6 +238,42 @@ def crucible(work: Path, cases: Optional[list[str]], check: bool, offline: bool)
     return 1 if check and differs else 0
 
 
+def equivalence(work: Path, cases: Optional[list[str]], check: bool) -> int:
+    """#4441: resurface the equivalence ports against their corpus's fresh generation."""
+    sys.path.insert(0, str(REPO_ROOT / "tests" / "tools"))
+    import equivalence_java as ej
+    import ports_compile_check as pcc
+
+    groups: dict[str, list[dict]] = {}
+    for case in pcc.equivalence_ports(set(cases) if cases else None):
+        groups.setdefault(json.dumps([case["corpus"], case.get("culture")], sort_keys=True), []).append(case)
+    differs = 0
+    for n, (key, members) in enumerate(sorted(groups.items())):
+        corpus, culture = json.loads(key)
+        out = work / f"{n}_{corpus}"
+        if out.exists():  # this tool's own scratch from an earlier run: the refactor will not write over it
+            shutil.rmtree(out)
+        root = pcc.generate(corpus, culture, out) / "src" / "main" / "java" / ej.PKG_DIR
+        for case in members:
+            port_dir: Path = case["_port"]
+            for port in sorted(port_dir.rglob("*.java"), key=lambda p: p.parts):
+                rel = port.relative_to(port_dir)
+                gen = root / rel
+                if not gen.is_file():
+                    print(f"{case['_name']}: no fresh generation of {rel.as_posix()} under {root}", file=sys.stderr)
+                    return 2
+                text, ch = resurface(port, gen)
+                if ch.empty():
+                    print(f"{case['_name']}: {rel.as_posix()}: surface is the generator's")
+                    continue
+                differs += 1
+                print(f"{case['_name']}: {rel.as_posix()}: {json.dumps(ch.as_dict())}")
+                if not check:
+                    port.write_text(text, encoding="utf-8")
+                    record(port_dir / "provenance.json", ch, rel.as_posix())
+    return 1 if check and differs else 0
+
+
 def main(argv: Optional[list[str]] = None) -> int:
     ap = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     sub = ap.add_subparsers(dest="cmd", required=True)
@@ -230,6 +286,10 @@ def main(argv: Optional[list[str]] = None) -> int:
     c.add_argument("--cases", nargs="+")
     c.add_argument("--check", action="store_true")
     c.add_argument("--offline", action="store_true")
+    e = sub.add_parser("equivalence")
+    e.add_argument("--work", type=Path, required=True)
+    e.add_argument("--cases", nargs="+")
+    e.add_argument("--check", action="store_true")
     opts = ap.parse_args(argv)
     if opts.cmd == "apply":
         text, ch = resurface(opts.port, opts.generated)
@@ -237,6 +297,8 @@ def main(argv: Optional[list[str]] = None) -> int:
         if not opts.check and not ch.empty():
             opts.port.write_text(text, encoding="utf-8")
         return 1 if opts.check and not ch.empty() else 0
+    if opts.cmd == "equivalence":
+        return equivalence(opts.work.resolve(), opts.cases, opts.check)
     return crucible(opts.work.resolve(), opts.cases, opts.check, opts.offline)
 
 

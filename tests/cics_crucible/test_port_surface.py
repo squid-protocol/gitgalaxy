@@ -83,3 +83,55 @@ def test_facades_come_from_the_generator_and_the_ported_logic_stays(tmp_path):
     port.write_text(text, encoding="utf-8")
     again, ch2 = ps.resurface(port, gen)
     assert ch2.empty() and again == text
+
+
+CROSSING = (
+    GENERATED.replace("public XWsCa handleTransaction", "public Object handleTransaction")
+    .replace("task.returned(XWsCa.class)", "task.returned(Object.class)")
+    .replace("import p.dto.XWsCa;", "import p.dto.XWsCa;\nimport java.util.List;")
+)
+
+
+def test_only_the_imports_the_written_facades_use_are_added(tmp_path):
+    """#4441: an import of the generated file that no written facade uses is the model's choice, never surface."""
+    port, gen = tmp_path / "port" / "XService.java", tmp_path / "gen" / "XService.java"
+    for f, text in ((port, GENERATED.replace("import p.dto.XWsCa;\n", "")), (gen, CROSSING)):
+        f.parent.mkdir()
+        f.write_text(text, encoding="utf-8")
+    text, ch = ps.resurface(port, gen)
+    assert ch.replaced == ["handleTransaction"] and ch.imports_added == ["p.dto.XWsCa"]  # the request still names it
+    assert "import java.util.List;" not in text and "public Object handleTransaction" in text
+    port.write_text(GENERATED.replace("import p.dto.XWsCa;\n", "").replace("XWsCa", "Object"), encoding="utf-8")
+    gen.write_text(CROSSING.replace("XWsCa", "Object"), encoding="utf-8")
+    assert ps.resurface(port, gen)[1].empty()  # facades equal: List is not added on its own
+
+
+def test_equivalence_resurfaces_each_case_port_and_records_it(tmp_path, monkeypatch):
+    """#4441: the equivalence ports are resurfaced against their corpus's generation; provenance gets the event."""
+    import json
+
+    import ports_compile_check as pcc
+
+    cases = tmp_path / "equivalence"
+    port = cases / "c1" / "port" / "service" / "XService.java"
+    port.parent.mkdir(parents=True)
+    port.write_text(GENERATED, encoding="utf-8")
+    (cases / "c1" / "case.json").write_text(json.dumps({"name": "c1", "corpus": "k"}), encoding="utf-8")
+    (cases / "c1" / "port" / "provenance.json").write_text(json.dumps({"edited_after": "none"}), encoding="utf-8")
+
+    def generate(corpus, culture, work):
+        root = work / "proj"
+        gen = root / "src" / "main" / "java" / "com" / "gitgalaxy" / "modernized" / "service" / "XService.java"
+        gen.parent.mkdir(parents=True)
+        gen.write_text(CROSSING, encoding="utf-8")
+        return root
+
+    monkeypatch.setattr(pcc, "EQUIVALENCE", cases)
+    monkeypatch.setattr(pcc, "generate", generate)
+    assert ps.equivalence(tmp_path / "work", None, check=True) == 1
+    assert "public XWsCa handleTransaction" in port.read_text(encoding="utf-8")  # --check writes nothing
+    assert ps.equivalence(tmp_path / "work", None, check=False) == 0
+    assert "public Object handleTransaction" in port.read_text(encoding="utf-8")
+    prov = json.loads((cases / "c1" / "port" / "provenance.json").read_text(encoding="utf-8"))
+    assert prov["history"][-1]["event"] == "resurfaced" and prov["history"][-1]["replaced"] == ["handleTransaction"]
+    assert ps.equivalence(tmp_path / "work", None, check=True) == 0

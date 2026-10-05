@@ -19,6 +19,18 @@
  "ticket_sha256": "216f34369a9c4f768fec21843cc545cc1c329180804e092848bcda62e06f61b0",
  "prompt_tokens": 120933,
  "proof": "tests/tools/equivalence.py run carddemo-cardlist",
- "edited_after": "none: the files are the model's answer as the loop stored it",
- "licence": "derived from CardDemo (Apache-2.0; Copyright Amazon.com, Inc. or its affiliates) -- see LICENSE and NOTICE in this case's directory"
+ "edited_after": "the deployed entry points (facades) were brought to the generator's by tests/tools/port_surface.py (#4343; see history 'resurfaced'); runTask and the logic it runs are the model's answer",
+ "licence": "derived from CardDemo (Apache-2.0; Copyright Amazon.com, Inc. or its affiliates) -- see LICENSE and NOTICE in this case's directory",
+ "history": [
+  {
+   "at": "2026-10-05T13:03:36+00:00",
+   "event": "resurfaced",
+   "by": "tests/tools/port_surface.py",
+   "generator_commit": "83756783c",
+   "generated_from": "service/CocrdlicService.java",
+   "replaced": [
+    "handleTransaction"
+   ]
+  }
+ ]
 }

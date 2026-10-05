@@ -85,6 +85,9 @@ def test_debug_line_operand_and_paragraph():
     # opens a paragraph whose name follows the indicator directly.
     src = """000100 IDENTIFICATION DIVISION.
 000200 PROGRAM-ID. DB1024.
+004500 SOURCE-COMPUTER.
+004600     XXXXX082
+004700         WITH DEBUGGING MODE.
 000300 PROCEDURE DIVISION.
 063700 DEBUG-LINE-TEST-03.
 063900     PERFORM
@@ -102,7 +105,8 @@ def test_debug_line_operand_and_paragraph():
     units = _units(src)
     assert units["DEBUG-LINE-TEST-03"]["calls_out_to"] == ["PASS"]
     assert units["DEBUG-LINE-TEST-03-A"]["calls_out_to"] == ["FAIL"]
-    assert units["DEBUG-LINE-TEST-03-A"]["start_line"] == 7
+    # #4392: DB1024 compiles WITH DEBUGGING MODE (lines 45-47) -- without it the `D` lines are comments
+    assert units["DEBUG-LINE-TEST-03-A"]["start_line"] == 10
 
 
 def test_blanking_keeps_offsets_and_only_touches_numbered_fixed_lines():

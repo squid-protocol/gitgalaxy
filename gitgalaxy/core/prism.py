@@ -64,6 +64,10 @@ CPP_LITERAL_MASK_PATTERN = (
 )
 
 
+# #4392: `SOURCE-COMPUTER. ... WITH DEBUGGING MODE` turns column-7 `D` lines into code.
+_DEBUGGING_MODE = re.compile(r"(?<![\w-])DEBUGGING[ \t\n]+MODE(?![\w-])", re.I)
+
+
 class PrismResult(TypedDict):
     """
     The dual-output of the Prism.
@@ -1726,7 +1730,20 @@ class Prism:
             col1_anchors = self.POSITIONAL_ANCHORS
             col7_anchors = None
 
-        for line in text.split("\n"):
+        # #4392: a fixed-format line with `D` / `d` in column 7 is a debugging line: code only when
+        # SOURCE-COMPUTER says WITH DEBUGGING MODE, otherwise the compiler reads it as a comment (Enterprise
+        # COBOL LR, "Debugging lines"). Read as code, CBSA BANKDATA's trailing `D    DISPLAY` lines extended
+        # CDW010 past its last statement.
+        debug_comments: Optional[list[bool]] = None
+        if cobol_mode and ("D" in text or "d" in text):
+            formats = line_formats(text)
+            plain = "\n".join(ln for ln in text.split("\n") if not (len(ln) >= 7 and ln[6] in "*/"))
+            if not _DEBUGGING_MODE.search(plain):
+                debug_comments = [
+                    f == "fixed" and len(ln) >= 7 and ln[6] in "Dd" for ln, f in zip(text.split("\n"), formats)
+                ]
+
+        for n, line in enumerate(text.split("\n")):
             # 1. Legacy Column-1 (Fortran/COBOL) or Column-7 (COBOL only) anchors
             # (Fixed Form). Column 7 is COBOL's indicator area ('*' = comment) --
             # real fixed-form Fortran 77 has no such convention (its only comment
@@ -1742,6 +1759,7 @@ class Prism:
                 (len(line) >= 1 and line[0] in col1_anchors)
                 or (col7_anchors is not None and len(line) >= 7 and line[6] in col7_anchors)
                 or (bms_mode and line.startswith(".*"))
+                or (debug_comments is not None and debug_comments[n])
             ):
                 code.append("")
                 lits.append(line)

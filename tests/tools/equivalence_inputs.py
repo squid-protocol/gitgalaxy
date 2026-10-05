@@ -24,12 +24,17 @@ A case steers what the program must meet:
                             "XREF-ACCT-ID": {"from": "ACCTFILE.ACCT-ID", "miss": 0.1},
                             "KTO-DATUM": {"date": "DD.MM.YYYY"}}}
 
-`date` (#3829) gives a field valid dates in a shape -- YYYY, YY, MM and DD, anything else literal --
+`"digits": true` fills a text field with digits only -- a card number, an account id kept as text -- which its
+PICTURE (X) cannot say. `date` (#3829) gives a field valid dates in a shape -- YYYY, YY, MM and DD, anything else literal --
 text or numeric (`PIC 9(8)` as DDMMYYYY), whatever the field is called; its width must be the field's.
 `from` draws a field from another dataset's values (generated first), so a join finds its
 row -- and, with `miss`, sometimes does not, so the not-found path runs too. The primary key
 (the case's first `keys` entry) is unique, and an indexed dataset is written in key order,
 as a KSDS loads.
+
+CICS cases (#3804; prepare_cics_case): a dataset `@generate`d takes its record length and key from the
+program's CICS file, and a `scenario_generate` block makes scenarios whose COMMAREA and map input come from the
+same layouts -- a typed account id that is on file, is not, or is not a number at all.
 """
 
 from __future__ import annotations
@@ -170,6 +175,8 @@ def generate_dataset(
             rule = rules.get(f["name"], {})
             if "values" in rule:  # `every` k: the value changes each k rows (a cartesian fill)
                 v = rule["values"][(row // rule.get("every", 1)) % len(rule["values"])]
+            elif rule.get("digits"):  # a text field that holds a number (a card number): digits only
+                v = "".join(rng.choice("0123456789") for _ in range(f["bytes"]))
             elif "date" in rule:
                 v = date_value(rng, rule["date"])
                 if len(v) != f["bytes"]:
@@ -214,7 +221,7 @@ def generate_dataset(
 def _order(datasets: dict[str, dict[str, Any]]) -> list[str]:
     """Generated datasets, each after the ones its `from` rules draw on."""
     deps = {
-        dd: {r["from"].split(".", 1)[0] for r in spec["generate"].get("fields", {}).values() if "from" in r}
+        dd: {r["from"].rsplit(".", 1)[0] for r in spec["generate"].get("fields", {}).values() if "from" in r}
         for dd, spec in datasets.items()
     }
     out: list[str] = []
@@ -228,6 +235,11 @@ def _order(datasets: dict[str, dict[str, Any]]) -> list[str]:
 
 def generate_inputs(case: dict[str, Any], corpus: Path) -> dict[str, bytes]:
     """{dd: fixed-length records} for every dataset whose input is `@generate`."""
+    return generate_all(case, corpus)[0]
+
+
+def generate_all(case: dict[str, Any], corpus: Path) -> tuple[dict[str, bytes], dict[str, list[Any]]]:
+    """(generate_inputs, {DD.FIELD: the values it holds}) -- the values a scenario's keys are drawn from."""
     todo = {dd: spec for dd, spec in case["datasets"].items() if spec.get("input") == "@generate"}
     pools: dict[str, list[Any]] = {}
     out: dict[str, bytes] = {}
@@ -241,4 +253,98 @@ def generate_inputs(case: dict[str, Any], corpus: Path) -> dict[str, bytes]:
             dd, spec, fields, pools, case.get("code_page", "cp037"), common.data_encoding(case)
         )
         pools.update(values)
-    return out
+    return out, pools
+
+
+# ---- CICS cases (#3804): files and scenarios generated from the layouts -------------------------------------
+# what a user types into a field the program reads as a number, when it is not one
+_BAD_TEXT = ("ABC", "1A2", "", "   ", "1 2", "-1", "1.5", "0", "*", "A", "00", "12345678901234567890", "O", "1,0")
+
+
+def _typed(rng: random.Random, rule: dict[str, Any], width: int, pool: list[Any], i: int) -> str:
+    """One generated line of typed map input: a value the file holds, one it does not, or not a number."""
+    r = rng.random()
+    if "values" in rule:
+        return str(rule["values"][i % len(rule["values"])])
+    if r < rule.get("bad", 0):
+        bad = _BAD_TEXT[(i + int(r * 1000)) % len(_BAD_TEXT)]
+        return bad[:width]
+    numeric = all(isinstance(v, Decimal) for v in pool) if pool else True
+    held = {str(int(v)) if isinstance(v, Decimal) else str(v).strip() for v in pool}
+    if r < rule.get("bad", 0) + rule.get("miss", 0) or not pool:
+        for _ in range(100):
+            v = "".join(rng.choice("0123456789" if numeric else _TEXT) for _ in range(width))
+            if (str(int(v)) if numeric else v.strip()) not in held:
+                return v
+        raise ValueError(f"no value of {width} characters is missing from the file")
+    v = rng.choice(pool)
+    return f"{int(v):0{width}d}" if isinstance(v, Decimal) else str(v)
+
+
+def prepare_cics_case(case: dict[str, Any], corpus: Path, files: list[dict[str, Any]]) -> dict[str, Any]:
+    """A CICS case with its generated parts made concrete. A dataset whose input is `@generate` takes its
+    record length and key from the program's CICS file (the stub's `files`); a `scenario_generate` block adds
+    `count` scenarios whose COMMAREA and map input are generated the same way:
+
+        "scenario_generate": {"seed": 7, "count": 16, "aid": "DFHENTER",
+            "commarea": {"CDEMO-FROM-TRANID": "CAVW", "CDEMO-PGM-CONTEXT": 1},
+            "receive": {"CACTVWA": {"ACCTSIDI": {"from": "AWS.ACCTDATA.ACCT-ID", "miss": 0.2, "bad": 0.25}}}}
+
+    A map field's rule gives what the user typed: a value `from` the generated file's field, one it does not hold
+    (`miss`), or not a number (`bad`: letters, blanks, signs, a decimal point ...) -- as a share of the scenarios;
+    or `values`, in turn. A COMMAREA field's rule is `values` / `edge` (the PICTURE's edge values, in turn) / `from` (it is a typed record: the port's DTO
+    holds numbers there, so no non-numeric text)."""
+    by_base = {f["base"]: f for f in files}
+    datasets = {}
+    for dd, spec in case.get("datasets", {}).items():
+        if spec.get("input") == "@generate":
+            f = by_base.get(dd)
+            if f is None:
+                raise ValueError(f"{dd}: generated, but the program has no CICS file with that dataset name")
+            keyed = f["key_length"] > 0  # an ESDS has no key: its records are in arrival order
+            spec = {"organization": "indexed" if keyed else "sequential", "reclen": f["reclen"],
+                    "keys": [{"offset": f["key_offset"], "length": f["key_length"]}] if keyed else [], **spec}  # fmt: skip
+        datasets[dd] = spec
+    case = {**case, "datasets": datasets}
+    gen = case.get("scenario_generate")
+    if not gen:
+        return case
+    import equivalence_cics as cx
+
+    _, pools = generate_all(case, corpus)
+    ca_layout = {f["name"]: f for f in cx.commarea_fields(corpus, case)} if gen.get("commarea") else {}
+    scenarios = []
+    for i in range(gen.get("count", 12)):
+        name = f"{gen.get('prefix', 'generated')}-{i + 1:02d}"
+        rng = random.Random(f"{gen.get('seed', 0)}:{name}")
+        sc: dict[str, Any] = {"name": name, "aid": gen.get("aid", "DFHENTER"), "generated": True}
+        if gen.get("commarea") is not None:
+            commarea: dict[str, Any] = {}
+            for fname, v in gen["commarea"].items():
+                if isinstance(v, dict):
+                    if "values" in v:
+                        v = v["values"][i % len(v["values"])]
+                    elif v.get("edge"):  # the field's own edge values by its PICTURE, in turn (field_value)
+                        v = field_value(rng, ca_layout[fname], i)
+                    elif "from" in v:
+                        pool = pools.get(v["from"])
+                        if not pool:
+                            raise ValueError(f"{name}.{fname}: nothing generated for {v['from']}")
+                        v = rng.choice(pool)
+                    else:
+                        raise ValueError(f"{name}.{fname}: a COMMAREA rule is `values` or `from`, not {sorted(v)}")
+                commarea[fname] = str(v) if isinstance(v, Decimal) else v  # JSON: the report writes the scenario
+            sc["commarea"] = commarea
+        receive: dict[str, dict[str, str]] = {}
+        for m, typed in (gen.get("receive") or {}).items():
+            layout = {f["name"]: f for f in cx.screen_fields(corpus, case, m, "input")}
+            receive[m] = {}
+            for fname, rule in typed.items():
+                if fname not in layout:
+                    raise ValueError(f"{name}: map {m} has no input field {fname}")
+                rule = rule if isinstance(rule, dict) else {"values": [rule]}
+                receive[m][fname] = _typed(rng, rule, layout[fname]["bytes"], pools.get(rule.get("from", ""), []), i)
+        if receive:
+            sc["receive"] = receive
+        scenarios.append(sc)
+    return {**case, "scenarios": [*case.get("scenarios", []), *scenarios]}

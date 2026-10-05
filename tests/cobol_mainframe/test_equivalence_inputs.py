@@ -112,3 +112,68 @@ def test_the_intcalc_port_holds_on_generated_inputs(tmp_path):
     assert {dd: (o["equal"], o["records"]) for dd, o in report["outputs"].items()} == {
         "ACCTFILE": (30, 30), "TRANSACT": (37, 37)}  # fmt: skip
     assert "DISCLOSURE GROUP RECORD MISSING" in (tmp_path / "cobol" / "stdout.txt").read_text()
+
+
+def test_digits_fills_a_text_field_with_digits_only():
+    spec = _spec(15, {"XREF-CARD": {"digits": True}}, key_len=6)
+    spec["reclen"] = 11
+    data, _ = ei.generate_dataset("XREF", spec, XREF, {})
+    cards = [r[:6] for r in _rows(data, 11)]
+    assert len(cards) == 15 and all(c.isdigit() for c in cards)
+
+
+def test_a_dataset_name_with_dots_is_a_join_source():
+    """CICS datasets are named by their dsname (AWS.M2.CARDDEMO.ACCTDATA.VSAM.KSDS): the field is after the last dot."""
+    dd = "AWS.M2.ACCTDATA.KSDS"
+    ds = {"X": {"generate": {"fields": {"F": {"from": f"{dd}.ACCT-ID"}}}}, dd: {"generate": {}}}
+    assert ei._order(ds) == [dd, "X"]
+
+
+def test_typed_map_input_is_a_value_on_file_one_that_is_not_or_not_a_number():
+    pool = [Decimal(n) for n in (1, 22, 333)]
+    rng = random.Random(5)
+    got = [ei._typed(rng, {"miss": 0.3, "bad": 0.3}, 5, pool, i) for i in range(200)]
+    held = {f"{n:05d}" for n in (1, 22, 333)}
+    on_file = [v for v in got if v in held]
+    not_numbers = [v for v in got if not v.isdigit() or not v.strip("0")]
+    missing = [v for v in got if v.isdigit() and v not in held and v.strip("0")]
+    assert on_file and not_numbers and missing
+    assert any(v == "" or v.isalpha() for v in not_numbers)
+    assert all(len(v) <= 5 for v in got)
+
+
+def test_a_cics_case_takes_its_generated_files_key_and_length_from_the_program_files(tmp_path):
+    files = [{"base": "VS.CUST", "reclen": 40, "key_offset": 0, "key_length": 10},
+             {"base": "VS.LOG", "reclen": 56, "key_offset": 0, "key_length": 0}]  # fmt: skip
+    case = {"datasets": {"VS.CUST": {"input": "@generate", "generate": {}}, "VS.LOG": {"input": "@generate", "generate": {}},
+                         "VS.OLD": {"input": "@case/x.txt"}}}  # fmt: skip
+    out = ei.prepare_cics_case(case, tmp_path, files)["datasets"]
+    assert out["VS.CUST"]["organization"] == "indexed" and out["VS.CUST"]["keys"] == [{"offset": 0, "length": 10}]
+    assert out["VS.LOG"]["organization"] == "sequential" and out["VS.LOG"]["keys"] == []  # an ESDS: no key
+    assert out["VS.CUST"]["reclen"] == 40 and out["VS.OLD"] == {"input": "@case/x.txt"}
+    with pytest.raises(ValueError, match="no CICS file"):
+        ei.prepare_cics_case({"datasets": {"VS.NONE": {"input": "@generate"}}}, tmp_path, files)
+
+
+@pytest.mark.skipif(__import__("os").environ.get("EQUIVALENCE_E2E") != "1",
+                    reason="needs Docker (GnuCOBOL) and a JDK + Maven")  # fmt: skip
+@pytest.mark.parametrize("case, expect", [
+    ("carddemo-posttran-generated", {"ACCTFILE": 30, "TCATBALF": 34, "TRANFILE": 16, "DALYREJS": 84}),
+    ("carddemo-acctview-generated", None),
+])  # fmt: skip
+def test_the_hand_written_ports_hold_on_generated_inputs(tmp_path, case, expect):
+    """POSTTRAN (batch) and the account view (CICS: generated files, and generated COMMAREA / map input, the
+    non-numeric account ids among them) prove on inputs generated from their record layouts."""
+    import json
+    import subprocess
+
+    proc = subprocess.run([sys.executable, str(Path(eq.__file__)), "run", case, "--keep", str(tmp_path)],  # noqa: S603
+                          capture_output=True, text=True, check=False)  # fmt: skip
+    assert proc.returncode == 0, proc.stdout[-3000:] + proc.stderr[-3000:]
+    report = json.loads((tmp_path / "report.json").read_text())
+    assert report["proven"] is True
+    if expect:
+        assert {dd: o["records"] for dd, o in report["outputs"].items()} == expect
+        assert all(o["equal"] == o["records"] for o in report["outputs"].values())
+    else:
+        assert len(report["outputs"]) == 24

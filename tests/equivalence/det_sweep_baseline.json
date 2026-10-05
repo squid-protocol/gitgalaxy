@@ -10,6 +10,10 @@
    "issue": "#4465",
    "why": "runTask proof passes on every scenario; the java-facade proof fails because the det-generated facade is a stub (handleTransaction/handleLink throw before the scenario's task runs)"
   },
+  "carddemo-acctview-generated": {
+   "issue": "#4465",
+   "why": "runTask proof passes on every scenario; the java-facade proof fails because the det-generated facade is a stub (handleTransaction/handleLink throw before the scenario's task runs)"
+  },
   "carddemo-adminmenu": {
    "issue": "#4465",
    "why": "runTask proof passes on every scenario; the java-facade proof fails because the det-generated facade is a stub (handleTransaction/handleLink throw before the scenario's task runs)"
@@ -103,6 +107,10 @@
    "why": "runTask proof passes on every scenario; the java-facade proof fails because the det-generated facade is a stub (handleTransaction/handleLink throw before the scenario's task runs)"
   },
   "mortgage-mlist": {
+   "issue": "#4465",
+   "why": "runTask proof passes on every scenario; the java-facade proof fails because the det-generated facade is a stub (handleTransaction/handleLink throw before the scenario's task runs)"
+  },
+  "mortgage-mlist-generated": {
    "issue": "#4465",
    "why": "runTask proof passes on every scenario; the java-facade proof fails because the det-generated facade is a stub (handleTransaction/handleLink throw before the scenario's task runs)"
   },

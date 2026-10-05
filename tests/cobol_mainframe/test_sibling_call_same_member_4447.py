@@ -15,7 +15,9 @@ def _member(path, pids, calls=()):
 
 def test_plain_and_literal_siblings_resolve_to_their_member_without_an_edge():
     m = "apps/PAYR/cobol/PAYMAIN.cbl"
-    sites, edges = resolve_invocations([_member(m, ["PAYMAIN", "PAYCALC", "PAYRPT"], [_site("PAYCALC"), _site("PAYRPT")])])
+    sites, edges = resolve_invocations(
+        [_member(m, ["PAYMAIN", "PAYCALC", "PAYRPT"], [_site("PAYCALC"), _site("PAYRPT")])]
+    )
     assert [s["resolved_path"] for s in sites] == [m, m]
     assert edges == []
 

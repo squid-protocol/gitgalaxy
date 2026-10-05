@@ -10178,7 +10178,9 @@ class StructuralExtractor:
             dict.fromkeys(
                 c
                 for c in raw_calls
-                if c not in _CALLS_OUT_GLOBAL_IGNORE
+                # #4305: a pattern alternative that only consumes text (COBOL `EXIT PERFORM`) captures ""
+                if c
+                and c not in _CALLS_OUT_GLOBAL_IGNORE
                 and (c.casefold() if _fold_ignore else c) not in lang_ignore
                 and c != self_name
             )

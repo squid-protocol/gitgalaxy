@@ -325,6 +325,34 @@ def test_aperture_admits_text_with_a_stray_nul(filter_engine, tmp_path):
     assert "Binary Format Detected" not in (result.get("reason") or "")
 
 
+def test_a_short_member_with_a_few_stray_nuls_stays_source_4351(filter_engine, tmp_path):
+    """#4351 (estate-crucible H-0037): a 168-byte PL/I member with two NULs at the end of its
+    first comment is 12 NULs per 1000 characters -- over the density bar -- yet it is text."""
+    src = tmp_path / "nulrest.py"  # the fixture registry's extension; the gate is extension-blind
+    content = (
+        " /* NULREST - RESTSALDO. OVERFOERT MED FTP (BINAER).\x00\x00               */\n"
+        " NULREST: PROC OPTIONS(MAIN);\n   DCL SALDO FIXED DEC(9,2);\n   SALDO = 0;\n END NULREST;\n"
+    )
+    src.write_text(content, encoding="utf-8")
+    result = filter_engine.is_in_scope(src, content=content)
+    assert "Binary Format Detected" not in (result.get("reason") or "")
+    # five NULs is more than a handful: dense enough, it is binary again
+    content5 = content.replace("\x00\x00", "\x00\x00\x00\x00\x00")
+    assert "Binary Format Detected" in (filter_engine.is_in_scope(src, content=content5).get("reason") or "")
+
+
+def test_a_short_binary_with_few_nuls_is_still_blocked_4351(filter_engine, tmp_path):
+    """#4351: a binary blob carries control bytes beyond its NULs, so a handful of NULs alone
+    does not make it text."""
+    blob = tmp_path / "small_dat.py"
+    content = (
+        "".join(chr(b) for b in (0x7F, 0x45, 0x4C, 0x46, 0x02, 0x01, 0x01, 0x00, 0x03, 0x05, 0x10, 0x1B, 0x06)) * 3
+    )
+    content = content.replace("\x00", "", 1) + "\x00"
+    blob.write_text(content, encoding="utf-8")
+    assert "Binary Format Detected" in (filter_engine.is_in_scope(blob, content=content).get("reason") or "")
+
+
 # ==============================================================================
 def test_aperture_binary_and_monolith_shields(filter_engine, tmp_path):
     """
@@ -332,7 +360,8 @@ def test_aperture_binary_and_monolith_shields(filter_engine, tmp_path):
     """
     # 1. Opaque Binary Detected
     bin_file = tmp_path / "script.py"
-    content = "print('hello')\x00\x00"
+    # #4351: more than a handful of NULs -- two alone in short text are transfer damage, not a binary
+    content = "print('hello')\x00\x00\x00\x00\x00"
     bin_file.write_text(content, encoding="utf-8")
 
     result = filter_engine.is_in_scope(bin_file, content=content)

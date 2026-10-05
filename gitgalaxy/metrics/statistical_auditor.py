@@ -395,7 +395,9 @@ class StatisticalAuditor:
                     artifact["_rho"] = signal_hits / total_physical_loc
 
                     # Polyglot Defense: Only add pure files to the statistical baseline
-                    if not self._is_highly_blended(artifact):
+                    # #4483: a rehydrated file with no recorded signal (sanitised, not measured) would
+                    # drag the baseline toward zero; one with signal still belongs to it.
+                    if not self._is_highly_blended(artifact) and not (artifact.get("rehydrated") and not signal_hits):
                         rhos.append(artifact["_rho"])
                 except Exception as e:  # noqa: PERF203 -- per-iteration isolation: one artifact's failure shouldn't drop the group's stats
                     self.logger.warning(
@@ -451,6 +453,12 @@ class StatisticalAuditor:
             # 3. Evaluate each artifact against the baseline
             for artifact in group:
                 rho = artifact.pop("_rho", 0.0)
+                if artifact.get("rehydrated"):
+                    # #4483: an unchanged file restored from the baseline already passed this
+                    # audit when it was scanned. Its persisted signal counts are post-sanitisation
+                    # (zeroed for SARIF_IGNORED_PATHS), so judging them again would drop it.
+                    verified_files.append(artifact)
+                    continue
                 is_outlier = False
                 relegation_reason = ""
 

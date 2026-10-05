@@ -786,6 +786,32 @@
       "found_by": "review",
       "issue": 4264,
       "summary": "Columns 73-80 of a fixed-format line (the identification area the compiler ignores: NIST CCVS `NC1314.2`) reached the COBOL readers, and no reader knew fixed from free format (no >>SOURCE FORMAT handling). On the crucible's NIST CCVS85 set ~2,500 phantom data-flow operands came from it (`MOVE \".\" -> NC1314`), CALL USING gained a `CONTENT:IC2244` operand, and 198 dataset bindings took the identification tag as their DD name (`DB1044` for `ASSIGN TO` / `XXXXX055` on the next line; with the tag gone the reader then saw the next line's sequence area and read `TO`, so it now blanks sequence fields as file_control does). Prism now blanks the identification area of fixed lines only, the format detected per file and switched by directives. Found by the 2026-10-03 engine audit, not by a keyed estate (the ledger did not move)."
+    },
+    {
+      "id": "D045",
+      "estate": "cics-banking-sample-application-cbsa",
+      "side": "engine",
+      "fields": [
+        "record fields"
+      ],
+      "language": "cobol",
+      "severity": "fact",
+      "found_by": "engine-vs-translator cross-check (#4273)",
+      "issue": 4457,
+      "summary": "A section-level COPY ... REPLACING was not applied to the 01 records it copies: CBSA INQACC's `COPY INQACC REPLACING INQACC-COMMAREA BY DFHCOMMAREA` left the record named INQACC-COMMAREA, GETSCODE's SORTCODE stayed SORTCODE; on zopeneditor-sample the :TAG: template CUSTCOPY gave SAM1 / SAM1LIB / SAM2 no CUST-REC, CSTOUT-REC or WS-CUST-REC record at all (22 records). In-group REPLACING (#4265) was already right."
+    },
+    {
+      "id": "D046",
+      "estate": "aws-mainframe-modernization-carddemo",
+      "side": "engine",
+      "fields": [
+        "record fields"
+      ],
+      "language": "cobol",
+      "severity": "fact",
+      "found_by": "engine-vs-translator cross-check (#4273)",
+      "issue": 4458,
+      "summary": "Entries continuing a COPYed record after a section-level COPY (COTRN02C: `COPY COCOM01Y.` + `05 CDEMO-CT02-INFO`) were laid out under the program's preceding 01 as well as under the copied record: record_layout gave CSUTLDTC-PARM 158 bytes, not 100. The #4279 fix covered a COPY that closes a nested group, not this shape."
     }
   ],
   "fields": {

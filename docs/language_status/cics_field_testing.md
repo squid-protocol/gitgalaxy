@@ -47,7 +47,7 @@ counted in it (their fact counts are not recorded here).
 | units | 7 | 0 | 4 | 2,058 | 7 | 4 | 0 | 0 | - | open | 2 more clean fresh round(s), 300 more clean fresh facts |
 | MOVE truncation | 6 | 0 | 3 | 165 | 1 | 0 | 0 | 0 | - | open | 2 more clean fresh round(s), 300 more clean fresh facts |
 | data moves | 6 | 0 | 3 | 12,583 | 4 | 0 | 0 | 0 | - | open | 2 more clean fresh round(s), 300 more clean fresh facts |
-| record fields | 6 | 0 | 3 | 5,475 | 4 | 2 | 0 | 0 | - | open | 2 more clean fresh round(s), 300 more clean fresh facts |
+| record fields | 6 | 0 | 3 | 5,475 | 6 | 2 | 0 | 0 | - | open | 2 more clean fresh round(s), 300 more clean fresh facts |
 | CALL USING | 5 | 0 | 2 | 103 | 1 | 0 | 0 | 0 | - | open | 2 more clean fresh round(s), 300 more clean fresh facts |
 | CICS RIDFLD | 5 | 0 | 0 | 781 | 0 | 0 | 0 | 0 | - | open | 2 more clean fresh round(s), 300 more clean fresh facts |
 | CICS resources | 5 | 0 | 3 | 3,588 | 1 | 0 | 0 | 0 | - | open | 2 more clean fresh round(s), 300 more clean fresh facts |
@@ -76,8 +76,8 @@ counted in it (their fact counts are not recorded here).
 | round | estate | kind | facts reviewers checked | key errors | engine | forge | brief gaps |
 |---|---|---|---|---|---|---|---|
 | 1 | zopeneditor-sample | public | 967 | 3 | 1 | 1 | 1 |
-| 2 | cics-banking-sample-application-cbsa | public | 3,674 | 43 | 1 | 1 | 0 |
-| 3 | aws-mainframe-modernization-carddemo | public | 4,880 | 26 | 7 | 4 | 1 |
+| 2 | cics-banking-sample-application-cbsa | public | 3,674 | 43 | 2 | 1 | 0 |
+| 3 | aws-mainframe-modernization-carddemo | public | 4,880 | 26 | 8 | 4 | 1 |
 | 4 | cics-genapp | public | 2,294 | 11 | 4 | 1 | 0 |
 | 5 | zecs | public | 1,293 | 43 | 0 | 0 | 2 |
 | 6 | dsf | public | 2,018 | 4 | 7 | 1 | 0 |
@@ -135,6 +135,8 @@ counted in it (their fact counts are not recorded here).
 | D042 | 7 | engine | fact | record fields | #4246 | An unnamed data description entry (an implicit FILLER: `2 PIC X(40) USAGE DISPLAY VALUE '...'`, IBM DBB EPSCSMRD L24 / L27 / L30) was read as an item named PIC with no PICTURE: the clause keyword standing where the name goes was taken for the name, and the entry's clauses were read from after it. Found onboarding EPSCSMRD into the key (#4226); the key's own reader made the same misreading. |
 | D043 | 7 | forge | fact | units, dead | #4243 | cobol_graveyard_finder read a multi-program source as one program: IBM DBB epscsmrd.cbl (eleven siblings, two nested, each opening with MAINLINE SECTION) gave the later programs' AUTHOR / INSTALLATION / LINKAGE headers as units of the first, one MAINLINE for thirteen, and reachability across programs. Its reader also had the gaps the key's draft fixed on the same file (#4206): a consuming GO TO match swallowed the later GO TO ... DEPENDING ON targets, a DEPENDING ON anywhere in a sentence hid a plain GO TO after it, and XML PARSE PROCESSING PROCEDURE reached nothing. 973 forge unit / dead mismatches against the draft; 0 after. |
 | D044 | review, after 7 | engine | fact | data moves, CALL USING, DD names | #4264 | Columns 73-80 of a fixed-format line (the identification area the compiler ignores: NIST CCVS `NC1314.2`) reached the COBOL readers, and no reader knew fixed from free format (no >>SOURCE FORMAT handling). On the crucible's NIST CCVS85 set ~2,500 phantom data-flow operands came from it (`MOVE "." -> NC1314`), CALL USING gained a `CONTENT:IC2244` operand, and 198 dataset bindings took the identification tag as their DD name (`DB1044` for `ASSIGN TO` / `XXXXX055` on the next line; with the tag gone the reader then saw the next line's sequence area and read `TO`, so it now blanks sequence fields as file_control does). Prism now blanks the identification area of fixed lines only, the format detected per file and switched by directives. Found by the 2026-10-03 engine audit, not by a keyed estate (the ledger did not move). |
+| D045 | 2 | engine | fact | record fields | #4457 | A section-level COPY ... REPLACING was not applied to the 01 records it copies: CBSA INQACC's `COPY INQACC REPLACING INQACC-COMMAREA BY DFHCOMMAREA` left the record named INQACC-COMMAREA, GETSCODE's SORTCODE stayed SORTCODE; on zopeneditor-sample the :TAG: template CUSTCOPY gave SAM1 / SAM1LIB / SAM2 no CUST-REC, CSTOUT-REC or WS-CUST-REC record at all (22 records). In-group REPLACING (#4265) was already right. |
+| D046 | 3 | engine | fact | record fields | #4458 | Entries continuing a COPYed record after a section-level COPY (COTRN02C: `COPY COCOM01Y.` + `05 CDEMO-CT02-INFO`) were laid out under the program's preceding 01 as well as under the copied record: record_layout gave CSUTLDTC-PARM 158 bytes, not 100. The #4279 fix covered a COPY that closes a nested group, not this shape. |
 
 Key errors (the census's findings against the answer key itself) are counted from each key's
 rulings, not logged by hand. The engine agreeing with a key is only as good as the key: a key

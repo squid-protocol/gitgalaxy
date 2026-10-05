@@ -222,6 +222,9 @@ class NetworkRiskSensor:
         # more than one library (the first wins, as on z/OS) from the latest _resolve_edges pass.
         self.copy_libraries: Optional[CopyLibraries] = None
         self.copy_collisions: list[dict[str, Any]] = []
+        # #4420: the COPYs a declared SYSLIB cannot satisfy (a member in none of the importer's
+        # libraries, or not in the one `IN LIB` names): no edge, and a row here instead.
+        self.copy_gaps: list[dict[str, Any]] = []
 
     def _build_resolution_map(self, files: list[dict[str, Any]]) -> dict[str, list[str]]:
         """
@@ -1209,6 +1212,7 @@ class NetworkRiskSensor:
         edges: dict[tuple[str, str], dict[str, Any]] = {}
         self.namespace_aliases = {}
         self.copy_collisions = []
+        self.copy_gaps = []
         members = MemberIndex([f.get("path", "") for f in parsed_files]) if self.copy_libraries else None
 
         for f in parsed_files:
@@ -1309,13 +1313,19 @@ class NetworkRiskSensor:
             if not libs.knows(library):
                 return _NO_DECLARATION
             hits = pick(members.members(libs, library, member))
+            if not hits:
+                self._note_copy_gap(importer, member, [library.upper()])
             return hits[0] if len(hits) == 1 else None
         order = libs.order_for(importer)
         if order is None:
             return _NO_DECLARATION
         found = [(name, hits) for name in order for hits in [pick(members.members(libs, name, member))] if hits]
         if not found:
-            return _NO_DECLARATION  # e.g. SQLCA, DFHAID: supplied by the runtime, or outside the declaration
+            # #4420: the importer's SYSLIB is declared and holds no such member (SQLCA, DFHAID: supplied
+            # by the runtime), so the compiler finds none either. No fallback to the default resolver,
+            # which could link the COPY to a PROGRAM source of the same name.
+            self._note_copy_gap(importer, member, list(order))
+            return None
         chosen = found[0][1][0] if len(found[0][1]) == 1 else None
         if len(found) > 1:
             self.copy_collisions.append(
@@ -1332,6 +1342,11 @@ class NetworkRiskSensor:
                 f"{', '.join(name for name, _ in found)}; the first in its search order wins ({found[0][0]})."
             )
         return chosen
+
+    def _note_copy_gap(self, importer: str, member: str, searched: list[str]) -> None:
+        gap = {"importer": importer, "member": member.upper(), "searched": searched}
+        if gap not in self.copy_gaps:
+            self.copy_gaps.append(gap)
 
     def _publish_edges(self, edges: dict[tuple[str, str], dict[str, Any]]) -> None:
         """#2992: exposes the resolved edges as `self.dependency_edges` for the recorder."""

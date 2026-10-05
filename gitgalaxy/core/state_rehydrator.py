@@ -1188,6 +1188,16 @@ class StateRehydrator:
             except sqlite3.Error as fc_err:
                 print(f"⚠️ Could not rehydrate functions/classes (structure counts may drift): {fc_err}")
 
+            # #4421: the --copy-libraries reports of the baseline (None: none were declared)
+            copy_reports: dict[str, Any] = {}
+            for key in ("copy_member_collisions", "copy_member_gaps"):
+                raw = None
+                if _has_column(cursor, "repo_data", key):
+                    raw = cursor.execute(
+                        f"SELECT {key} FROM repo_data WHERE repo_name = ? AND commit_hash = ?",  # noqa: S608 -- literal key
+                        (repo_name, baseline_hash),
+                    ).fetchone()[0]
+                copy_reports[key] = _json_list(raw) if raw else None
             conn.close()
 
             # #3815: a baseline written before stored paths were NFC can hold an NFD path. Key
@@ -1196,7 +1206,7 @@ class StateRehydrator:
                 ram_state = {nfc(p): {**node, "path": nfc(p)} for p, node in ram_state.items()}
 
             # Return the standardized payload
-            return {"commit_hash": baseline_hash, "ram_cache": ram_state}
+            return {"commit_hash": baseline_hash, "ram_cache": ram_state, **copy_reports}
 
         except (sqlite3.Error, ValueError, TypeError, KeyError, IndexError) as e:
             # Broadened beyond sqlite3.Error: a structurally valid DB can still

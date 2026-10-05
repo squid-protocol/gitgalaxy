@@ -37,6 +37,7 @@ from pathlib import Path
 sys.path.insert(0, str(Path(__file__).parent.parent))
 import golden_diff
 import golden_store
+import golden_timeout_guard
 from _crucible_pin import PINNED_TAG, pin_mismatch
 
 from gitgalaxy.galaxyscope import HAS_PYYAML, HAS_TIKTOKEN
@@ -60,6 +61,11 @@ def main():
         "--yes",
         action="store_true",
         help="Skip the interactive confirmation prompt (the diff summary is still printed either way).",
+    )
+    parser.add_argument(
+        "--allow-timeouts",
+        action="store_true",
+        help="Bless even though a regex timeout excluded files in this run (#4247). Deliberate use only.",
     )
     args = parser.parse_args()
 
@@ -121,6 +127,15 @@ def main():
 
         old_data = golden_diff.load_and_sanitize(str(golden_master_path)) if golden_master_path.exists() else {}
         new_data = golden_diff.load_and_sanitize(str(new_output_path))
+
+        # #4247: refuse to bless load-induced phantom diffs.
+        timed_out = golden_timeout_guard.timeout_exclusions(new_data)
+        if timed_out:
+            message = golden_timeout_guard.refusal_message(timed_out, "bless")
+            if not (args.allow_timeouts or golden_timeout_guard.forced()):
+                print(f"❌ {message}")
+                sys.exit(1)
+            print(f"⚠️  FORCED past a timeout exclusion:\n{message}")
 
         if golden_master_path.exists() and golden_diff.generate_deterministic_hash(
             old_data

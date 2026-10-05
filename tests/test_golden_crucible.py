@@ -26,6 +26,7 @@ from gitgalaxy.security.security_auditor import ML_AVAILABLE
 sys.path.insert(0, str(Path(__file__).parent))
 import golden_diff
 import golden_store
+import golden_timeout_guard
 from _crucible_pin import PINNED_TAG, pin_mismatch
 
 pytestmark = pytest.mark.golden_crucible
@@ -99,6 +100,11 @@ def test_golden_crucible_matches_baseline(crucible_audit):
 
     golden_data = golden_diff.load_and_sanitize(str(golden_master_path))
     actual_data = golden_diff.load_and_sanitize(str(crucible_audit))
+
+    # #4247: a timeout exclusion fakes thousands of diffs; name the files, not the diffs.
+    timed_out = golden_timeout_guard.timeout_exclusions(actual_data)
+    if timed_out:
+        pytest.fail(golden_timeout_guard.refusal_message(timed_out, "check"), pytrace=False)
 
     if golden_diff.generate_deterministic_hash(golden_data) == golden_diff.generate_deterministic_hash(actual_data):
         return

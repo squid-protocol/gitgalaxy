@@ -59,6 +59,7 @@ import re
 from typing import Any, Optional
 
 from gitgalaxy.core.db2_declare_table import _blank_sequence_fields
+from gitgalaxy.core.special_names import special_names
 from gitgalaxy.standards.language_standards.identifiers import NATIONAL, WIDE_DIGITS, WIDE_HYPHENS
 
 _LITERAL = r"[XNGZ]?'[^'\n]{0,320}'?|[XNGZ]?\"[^\"\n]{0,320}\"?"
@@ -72,6 +73,10 @@ _HAS_LETTER = re.compile(f"[A-Z{NATIONAL}]", re.I)  # a name has a letter (natio
 _NUMBER_TOKEN = rf"(?:{_NUMBER})(?![{_NAME_CHAR}])"  # a number, not the head of a name (1ST-X)
 _OPERATOR = r"\*\*|[()=:+*/,.<>-]"
 _TOKEN = re.compile("|".join((_LITERAL, _NUMBER_TOKEN, _WORD, _OPERATOR)), re.I)
+# #4355: under DECIMAL-POINT IS COMMA, `0,5` is one numeric literal (a separator comma is followed by
+# a space). The tokenizer split it into `0` `,` `5`, and `MOVE 0,5 TO T-WERT` drew no row.
+_NUMBER_COMMA = r"[+-]?[0-9]*,[0-9]+|" + _NUMBER
+_TOKEN_COMMA = re.compile("|".join((_LITERAL, rf"(?:{_NUMBER_COMMA})(?![{_NAME_CHAR}])", _WORD, _OPERATOR)), re.I)
 _STATEMENT_TOKENS = 600
 _VERBS = frozenset(
     {
@@ -130,8 +135,8 @@ def _is_literal(raw: str) -> bool:
 
 
 class _Stream:
-    def __init__(self, toks: list[tuple[str, int]], start: int, end: int):
-        self.toks, self.i, self.end = toks, start, end
+    def __init__(self, toks: list[tuple[str, int]], start: int, end: int, number: str = _NUMBER):
+        self.toks, self.i, self.end, self.number = toks, start, end, number
 
     def peek(self, k: int = 0) -> str:
         j = self.i + k
@@ -152,7 +157,7 @@ class _Stream:
         if _is_literal(raw):
             self.i += 1
             return raw, "literal", False
-        if re.fullmatch(_NUMBER, raw):
+        if re.fullmatch(self.number, raw):
             self.i += 1
             return raw, "literal", False
         # `ALL 'x'`, `ALL X'00'` (#4205: a hexadecimal literal, IBM DBB EPSCSMRD) or `ALL SPACES`.
@@ -383,7 +388,8 @@ def data_moves(code_stream: str) -> list[dict[str, Any]]:
         return []
     text = _procedure_text(code_stream)
     newlines = [i for i, ch in enumerate(text) if ch == "\n"]
-    toks = [(m.group(0), m.start()) for m in _TOKEN.finditer(text)]
+    comma = any(sn["clause"] == "DECIMAL-POINT" for sn in special_names(code_stream))  # #4355
+    toks = [(m.group(0), m.start()) for m in (_TOKEN_COMMA if comma else _TOKEN).finditer(text)]
     rows: list[dict[str, Any]] = []
     i = 0
     while i < len(toks):
@@ -397,7 +403,7 @@ def data_moves(code_stream: str) -> list[dict[str, Any]]:
             i += 1
             continue
         line = bisect.bisect_left(newlines, toks[i][1]) + 1
-        s = _Stream(toks, i + 1, min(len(toks), i + 1 + _STATEMENT_TOKENS))
+        s = _Stream(toks, i + 1, min(len(toks), i + 1 + _STATEMENT_TOKENS), _NUMBER_COMMA if comma else _NUMBER)
         for src, target, corr in _rows_of(word, s):
             rows.append(
                 {

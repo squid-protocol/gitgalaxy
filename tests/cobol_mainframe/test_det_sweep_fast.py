@@ -1,4 +1,4 @@
-"""#4463 follow-up: the det sweep's shards, its plan, and the COBOL-step cache key."""
+"""#4463 follow-up: the det sweep's shards and its plan; #4476: --reuse runs a step the earlier run did not run."""
 
 from __future__ import annotations
 
@@ -13,7 +13,6 @@ ROOT = Path(__file__).resolve().parents[2]
 sys.path.insert(0, str(ROOT / "tests" / "tools"))
 
 import det_sweep_plan as plan  # noqa: E402
-import equivalence_cobol_cache as cc  # noqa: E402
 import equivalence_common as common  # noqa: E402
 import proof_sweep as ps  # noqa: E402
 
@@ -133,9 +132,7 @@ def test_the_cli_reads_the_diff_and_falls_back_to_full(tmp_path):
     assert json.loads(bad.stdout)["mode"] == "full"  # cannot diff: everything
 
 
-# ---- the COBOL-step cache key ------------------------------------------------------------------------------
-
-ORACLE = {"base": "debian@sha256:aaa", "gnucobol3": "3.1.2-5+b1", "cobc": "cobc (GnuCOBOL) 3.1.2.0"}
+# ---- #4476: --reuse falls back to a fresh COBOL step ---------------------------------------------------------
 
 
 def _work(tmp_path: Path, **files: str) -> Path:
@@ -146,85 +143,17 @@ def _work(tmp_path: Path, **files: str) -> Path:
     return work
 
 
-def test_key_is_stable_and_a_changed_input_oracle_or_harness_misses(tmp_path):
-    k = cc.step_key(cc.snapshot(_work(tmp_path)), ORACLE, "h1")
-    assert k == cc.step_key(cc.snapshot(_work(tmp_path)), ORACLE, "h1")
-    assert k != cc.step_key(cc.snapshot(_work(tmp_path, **{"IN.in": "2"})), ORACLE, "h1")  # a case input
-    assert k != cc.step_key(cc.snapshot(_work(tmp_path, **{"src/PROGRAM.cbl": "B"})), ORACLE, "h1")  # the program
-    assert k != cc.step_key(cc.snapshot(_work(tmp_path, **{"run.sh": "cobc y\n"})), ORACLE, "h1")  # the script
-    work = _work(tmp_path)
-    assert k != cc.step_key(cc.snapshot(work), {**ORACLE, "cobc": "cobc (GnuCOBOL) 3.2"}, "h1")  # the compiler
-    assert k != cc.step_key(cc.snapshot(work), {**ORACLE, "gnucobol3": "3.1.2-6"}, "h1")  # the package
-    assert k != cc.step_key(cc.snapshot(work), {**ORACLE, "base": "debian@sha256:bbb"}, "h1")  # the image digest
-    assert k != cc.step_key(cc.snapshot(work), ORACLE, "h2")  # the harness version
-
-
-def test_the_image_id_is_not_part_of_the_oracle_identity():
-    fp = {"image": {"id": "sha256:1"}, **{k: v for k, v in ORACLE.items()}}
-    assert cc.oracle_identity(fp) == cc.oracle_identity({**fp, "image": {"id": "sha256:2"}})
-
-
-def test_harness_version_covers_the_harness_modules():
-    assert len(cc.harness_version()) == 64
-    assert all((cc.TOOLS / f).is_file() for f in cc.HARNESS_FILES)
-
-
-def _stepper(monkeypatch, tmp_path, runs, oracle=ORACLE):
-    import equivalence_oracle
-
-    monkeypatch.setenv(cc.ENV, str(tmp_path / "cache"))
-    monkeypatch.setattr(equivalence_oracle, "fingerprint", lambda image: {**oracle, "mismatches": []})
-
-    def fake_docker(work, image, docker_args):
-        runs.append(work)
-        (work / "OUT.out").write_text("out:" + (work / "IN.in").read_text(), encoding="utf-8")
-        (work / "program").write_bytes(b"\x7fELFxx")  # a compiled binary: not kept
-        (work / "scen" / "out").mkdir(parents=True)
-        return subprocess.CompletedProcess(["docker"], 0, "", "")
-
-    monkeypatch.setattr(common, "_docker_run", fake_docker)
-
-
-def test_a_step_is_cached_and_a_changed_input_or_oracle_runs_again(monkeypatch, tmp_path):
-    runs: list[Path] = []
-    _stepper(monkeypatch, tmp_path, runs)
-    w1 = _work(tmp_path / "a")
-    assert common.run_cobol_step(w1).args == ["docker"]  # miss: runs
-    w2 = _work(tmp_path / "b")
-    p = common.run_cobol_step(w2)
-    assert p.args[0] == "cache" and len(runs) == 1  # hit: no run
-    assert (w2 / "OUT.out").read_text(encoding="utf-8") == "out:1" and (w2 / "scen" / "out").is_dir()
-    assert not (w2 / "program").exists()  # compiled binaries are not kept
-    common.run_cobol_step(_work(tmp_path / "c", **{"IN.in": "2"}))
-    assert len(runs) == 2  # a changed case input misses
-    _stepper(monkeypatch, tmp_path, runs, {**ORACLE, "cobc": "cobc (GnuCOBOL) 3.2.0.0"})
-    common.run_cobol_step(_work(tmp_path / "d"))
-    assert len(runs) == 3  # a changed oracle misses
-    monkeypatch.setenv(cc.ENV, "off")
-    common.run_cobol_step(_work(tmp_path / "e"))
-    assert len(runs) == 4  # off: never cached
-
-
-def test_a_failed_step_is_not_cached(monkeypatch, tmp_path):
-    import equivalence_oracle
-
-    monkeypatch.setenv(cc.ENV, str(tmp_path / "cache"))
-    monkeypatch.setattr(equivalence_oracle, "fingerprint", lambda image: {**ORACLE, "mismatches": []})
-    monkeypatch.setattr(common, "_docker_run", lambda *a: subprocess.CompletedProcess(["docker"], 1, "", "boom"))
-    common.run_cobol_step(_work(tmp_path / "a"))
-    assert not list((tmp_path / "cache").glob("*/DONE"))
-
-
 def test_reuse_falls_back_to_a_fresh_step_when_the_earlier_run_sh_differs(monkeypatch, tmp_path):
     """#4476: a CICS case's second pass overwrote the first pass's run.sh, so --reuse found none that matched."""
     runs: list[Path] = []
-    _stepper(monkeypatch, tmp_path, runs)
-    monkeypatch.setenv(cc.ENV, "off")
+    monkeypatch.setattr(
+        common, "_docker_run", lambda work, *a: runs.append(work) or subprocess.CompletedProcess(["docker"], 0, "", "")
+    )
     earlier = _work(tmp_path / "earlier", **{"run.sh": "pass 2\n"})
     (earlier / "report.json").write_text("{}", encoding="utf-8")
     work = _work(tmp_path / "now")  # run.sh "cobc x\n": not the earlier run's
     monkeypatch.setattr(common, "_REUSE", (work.resolve(), earlier.resolve()))
     assert not common.step_reused(work)
-    assert common.run_cobol_step(work).args == ["docker"]  # ran afresh instead of raising
+    assert common.run_cobol_step(work).args == ["docker"] and runs == [work]  # ran afresh instead of raising
     (work / "run.sh").write_text("pass 2\n", encoding="utf-8")
-    assert common.step_reused(work) and common.run_cobol_step(work).args[0] == "reuse"
+    assert common.step_reused(work) and common.run_cobol_step(work).args[0] == "reuse" and len(runs) == 1

@@ -15,8 +15,8 @@ name: Det Sweep
 # proves just those cases (and the cases that take their ports); anything else, and every nightly, proves all
 # of them (tests/tools/det_sweep_plan.py: when in doubt, full). `shard` proves the plan on up to 6 runners
 # (proof_sweep.py --shard I/N, balanced by tests/equivalence/det_sweep_durations.json), each with the GnuCOBOL image
-# and the COBOL-side outputs restored from cache (the oracle's runs do not change with the translator:
-# tests/tools/equivalence_cobol_cache.py, keyed by the step's inputs + oracle fingerprint + harness version).
+# restored from cache. (A cache of the COBOL-side step outputs was tried and dropped: it saved no measurable time --
+# the Java build and the fault runs dominate a proof, not the COBOL step.)
 # `det` (the required check, named as before) merges the shards' results and applies the two-way ratchet.
 #
 # Pull requests run it only when what a det proof reads changes: the translator and the generator it builds on,
@@ -92,7 +92,6 @@ jobs:
       PYTHONUTF8: "1"
       GITGALAXY_ORACLE_STRICT: "1"
       GITGALAXY_MAINFRAME_CORPORA: ${{ github.workspace }}/.mainframe_corpora
-      GITGALAXY_COBOL_CACHE: ${{ github.workspace }}/.cobol-cache
     steps:
       - name: Checkout GitGalaxy
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
@@ -159,17 +158,6 @@ jobs:
           python gitgalaxy/tests/tools/equivalence_oracle.py --strict
           echo "GITGALAXY_ORACLE_PREBUILT=1" >> "$GITHUB_ENV"  # the harness need not rebuild it per proof
 
-      # The COBOL-side outputs, one entry per step, keyed by its inputs + the oracle + the harness. The cache key only
-      # selects which saved set to start from; a step whose inputs changed misses inside it.
-      - name: Restore the COBOL-side cache
-        uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
-        with:
-          path: .cobol-cache
-          key: det-cobol-${{ hashFiles('gitgalaxy/tests/equivalence/gnucobol.Dockerfile', 'gitgalaxy/tests/tools/equivalence*.py') }}-${{ strategy.job-index }}-${{ github.run_id }}
-          restore-keys: |
-            det-cobol-${{ hashFiles('gitgalaxy/tests/equivalence/gnucobol.Dockerfile', 'gitgalaxy/tests/tools/equivalence*.py') }}-${{ strategy.job-index }}-
-            det-cobol-${{ hashFiles('gitgalaxy/tests/equivalence/gnucobol.Dockerfile', 'gitgalaxy/tests/tools/equivalence*.py') }}-
-
       - name: Re-prove this shard's det ports (no Db2)
         shell: bash  # -eo pipefail: the sweep's exit status, not tee's
         env:
@@ -180,7 +168,6 @@ jobs:
           if [ "$CASES" != "all" ]; then only=(--cases "$CASES"); fi
           python tests/tools/proof_sweep.py --det-only --skip-db2 --jobs 4 --shard "${{ matrix.shard }}" "${only[@]}" \
             --no-ratchet --work "$RUNNER_TEMP/sweep" | tee "$RUNNER_TEMP/sweep.txt"
-          python tests/tools/equivalence_cobol_cache.py prune --max-gb 1
 
       - name: Summary
         if: always()

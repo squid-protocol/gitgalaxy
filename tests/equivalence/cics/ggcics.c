@@ -880,37 +880,80 @@ int GGCRECV(gg_cics *c, char *into, int intolen) {
 }
 
 /* RECEIVE INTO LENGTH (#4005): the terminal's input, unformatted. c->len is the most INTO
- * takes; on return it is the data's length. Longer data is truncated to c->len and raises
- * LENGERR, with c->len set to the full length (IBM, RECEIVE (3270 logical): "the data is
- * truncated ... the length data area is set to the original length of the data"). The
- * input is read once per task: a second RECEIVE would wait for the operator, which a
- * scenario step cannot express, so it is recorded as RECEIVE-WAIT for the driver to refuse. */
+ * takes (MAXLENGTH, else LENGTH, else INTO's length; below zero, zero); on return it is the
+ * LENGTH CICS sets. Longer data: under NOTRUNCATE (GG-FLAGS, #4413) the first c->len bytes,
+ * NORMAL, LENGTH the length returned, and the rest kept for the next RECEIVE of the task;
+ * else truncated, LENGERR, LENGTH the original length (IBM, EXEC CICS RECEIVE (3270
+ * logical): "the data is truncated ... the data area specified in the LENGTH option is set
+ * to the original length of data"). On an LUTYPE2 terminal (GGCICS_LU2=1: the case CSD's
+ * TYPETERM DEVICE(LUTYPE2)) the RECEIVE returning the input's last byte raises EOC (RECEIVE
+ * (LUTYPE2/LUTYPE3)); one leaving data retained there is undocumented and refused. The
+ * operator's input is read once per task: a RECEIVE with nothing retained would wait for the
+ * operator, which a scenario step cannot express, so it is recorded as RECEIVE-WAIT for the
+ * driver to refuse. */
 static int terminal_read = 0;
+static char terminal_buf[32768];
+static int terminal_at = 0, terminal_n = 0; /* the input not yet returned: terminal_buf[at..n) */
+static char set_buf[32768];                  /* RECEIVE SET's data, valid until the next RECEIVE */
 
-int GGCRECT(gg_cics *c, char *into) {
-    char path[4096], ev[96], buf[32768];
-    int n = 0, max = c->len;
-    FILE *f;
+enum { EOC = 6 };
+
+static int terminal_receive(gg_cics *c, char *into) {
+    char path[4096], ev[96], flags[41];
+    int max = c->len < 0 ? 0 : c->len, notruncate, lu2 = getenv("GGCICS_LU2") != NULL;
+    trim(c->flags, 40, flags);
+    notruncate = strstr(flags, "NOTRUNCATE") != NULL;
     c->resp = NORMAL;
     c->resp2 = 0;
-    if (terminal_read) {
+    if (terminal_at >= terminal_n && terminal_read) {
         c->len = 0;
         event("RECEIVE-WAIT", NULL, 0);
-        return 0;
+        return -1;
     }
-    terminal_read = 1;
-    snprintf(path, sizeof path, "%s/terminal.in", dir_in());
-    f = fopen(path, "rb");
-    if (f) {
-        n = (int)fread(buf, 1, sizeof buf, f);
-        fclose(f);
+    if (!terminal_read) {
+        FILE *f;
+        terminal_read = 1;
+        snprintf(path, sizeof path, "%s/terminal.in", dir_in());
+        f = fopen(path, "rb");
+        if (f) {
+            terminal_n = (int)fread(terminal_buf, 1, sizeof terminal_buf, f);
+            fclose(f);
+        }
+        terminal_at = 0;
     }
-    int copied = n < max ? n : (max > 0 ? max : 0);
-    memcpy(into, buf, (size_t)copied);
-    if (n > max) c->resp = LENGERR;
-    c->len = n;
-    snprintf(ev, sizeof ev, "RECEIVE resp=%d len=%d copied=%d", c->resp, n, copied);
+    int n = terminal_n - terminal_at;
+    int copied = n < max ? n : max;
+    memcpy(into, terminal_buf + terminal_at, (size_t)copied);
+    if (n > max && notruncate) {
+        if (lu2) {
+            c->len = 0;
+            event("RECEIVE-REFUSED", NULL, 0); /* EOC on a partial RECEIVE is not documented */
+            return -1;
+        }
+        terminal_at += copied;
+        c->len = copied;
+    } else {
+        if (n > max) c->resp = LENGERR;
+        else if (lu2) c->resp = EOC;
+        terminal_at = terminal_n;
+        c->len = n;
+    }
+    snprintf(ev, sizeof ev, "RECEIVE resp=%d len=%d copied=%d", c->resp, c->len, copied);
     event(ev, into, copied);
+    return copied;
+}
+
+int GGCRECT(gg_cics *c, char *into) {
+    terminal_receive(c, into);
+    return 0;
+}
+
+/* RECEIVE SET(ADDRESS OF record) (#4413): the data in a buffer of the stub's, its address
+ * into *ptr for the program's SET ADDRESS OF; the bytes past the data are X'00'. */
+int GGCRECS(gg_cics *c, void **ptr) {
+    memset(set_buf, 0, sizeof set_buf);
+    terminal_receive(c, set_buf);
+    *ptr = set_buf;
     return 0;
 }
 
@@ -1048,6 +1091,17 @@ int GGCSMAP(gg_cics *c, char *from, int len) {
     snprintf(ev, sizeof ev, "SEND-MAP map=%s mapset=%s len=%d cursor=%d opts=%s", map, mapset, len, c->len, flags);
     event(ev, from, len);
     c->resp = NORMAL;
+    return 0;
+}
+
+/* SEND CONTROL (#4413): its options (GG-FLAGS) and CURSOR's value (c->len, -1 when none). */
+int GGCSCTL(gg_cics *c) {
+    char flags[41], ev[128];
+    trim(c->flags, 40, flags);
+    snprintf(ev, sizeof ev, "SEND-CONTROL cursor=%d opts=%s", c->len, flags);
+    event(ev, NULL, 0);
+    c->resp = NORMAL;
+    c->resp2 = 0;
     return 0;
 }
 
@@ -1340,6 +1394,9 @@ int GGCCOND(gg_cics *c) {
     c->go_to = 0;
     if (st == -1) return 0;
     if (st > 0) { c->go_to = st; return 0; }
+    /* #4413: EOC's default action is to ignore it (IBM, RECEIVE (LUTYPE2/LUTYPE3)); ERROR takes
+     * only a condition whose "default action ... terminates the task abnormally" (HANDLE CONDITION) */
+    if (cond == EOC) return 0;
     if (h->cond[ERRCOND] > 0) { c->go_to = h->cond[ERRCOND]; return 0; }
     abend(c, condition_abcode(cond), "condition", cond, 0);
     return 0;

@@ -505,17 +505,26 @@ def translate_command(body: str, labels: list[str] | None = None, handle_aid: bo
                 + _call("GGCRECV", [f"BY REFERENCE {into}", f"BY VALUE LENGTH OF {into}"])
                 + _resp(opts, True, labels) + (_aid(opts, labels) if handle_aid else []))  # fmt: skip
     if verb == "RECEIVE":  # #4005: terminal input, unformatted (SPEC 5: the step's `text`)
-        for bad in ("SET", "NOTRUNCATE", "BUFFER", "PARTN", "SESSION", "CONVID", "LDC"):
+        for bad in ("BUFFER", "ASIS", "PARTN", "SESSION", "CONVID", "LDC"):
             if bad in opts:
                 raise Unsupported(f"RECEIVE {bad}", [f"RECEIVE {bad}"])
-        into = opts.get("INTO")
-        if not into:
-            raise Unsupported("RECEIVE without INTO", ["RECEIVE"])
+        into, setp = opts.get("INTO"), opts.get("SET")
         # LENGTH / FLENGTH is in-out: in, the most INTO takes (unless MAXLENGTH / MAXFLENGTH says so);
         # out, the length of the data. COBOL may omit it: the translator supplies LENGTH OF INTO.
         length = opts.get("LENGTH") or opts.get("FLENGTH")
-        limit = opts.get("MAXLENGTH") or opts.get("MAXFLENGTH") or length or f"LENGTH OF {into}"
-        lines = [f"MOVE {limit} TO GG-LEN"] + _call("GGCRECT", [f"BY REFERENCE {into}"])
+        most = opts.get("MAXLENGTH") or opts.get("MAXFLENGTH")
+        flags = "MOVE 'NOTRUNCATE' TO GG-FLAGS" if "NOTRUNCATE" in opts else "MOVE SPACES TO GG-FLAGS"  # #4413
+        if setp:  # #4413: SET(ADDRESS OF record), MAXLENGTH and LENGTH(data-area) required (det/cics.py says why)
+            m = re.fullmatch(r"ADDRESS\s+OF\s+([A-Z0-9-]+)", setp, re.I)
+            if into or not m or not most or not length:
+                raise Unsupported("RECEIVE SET other than ADDRESS OF with MAXLENGTH and LENGTH", ["RECEIVE SET"])
+            return ([flags, f"MOVE {most} TO GG-LEN"] + _call("GGCRECS", ["BY REFERENCE GG-PTR"])
+                    + [f"SET ADDRESS OF {m.group(1)} TO GG-PTR", f"MOVE GG-LEN TO {length}"]
+                    + _resp(opts, True, labels))  # fmt: skip
+        if not into:
+            raise Unsupported("RECEIVE without INTO", ["RECEIVE"])
+        limit = most or length or f"LENGTH OF {into}"
+        lines = [flags, f"MOVE {limit} TO GG-LEN"] + _call("GGCRECT", [f"BY REFERENCE {into}"])
         if length:
             lines.append(f"MOVE GG-LEN TO {length}")
         return lines + _resp(opts, True, labels) + (_aid(opts, labels) if handle_aid else [])
@@ -545,6 +554,15 @@ def translate_command(body: str, labels: list[str] | None = None, handle_aid: bo
                 raise Unsupported("SEND MAP(data-name) without FROM")
             args = [f"BY REFERENCE {src}", f"BY VALUE {opts.get('LENGTH') or f'LENGTH OF {src}'}"]
         return lines + _call("GGCSMAP", args) + _resp(opts, can_fail=False)
+    if verb == "SEND" and "CONTROL" in opts:  # #4413: device controls; CURSOR's value in GG-LEN, -1: none
+        bad = [o for o in opts if o not in ("SEND", "CONTROL", "ERASE", "ERASEAUP", "FREEKB", "ALARM", "FRSET",
+                                            "CURSOR", "RESP", "RESP2", "NOHANDLE")]  # fmt: skip
+        if bad or ("CURSOR" in opts and not opts["CURSOR"]):
+            raise Unsupported(f"SEND CONTROL {' '.join(bad) or 'CURSOR without a value'}", ["SEND CONTROL"])
+        ctl = sorted(o for o in opts if o in ("ERASE", "ERASEAUP", "FREEKB", "ALARM", "FRSET", "CURSOR"))
+        return ([f"MOVE '{' '.join(ctl)[:40]}' TO GG-FLAGS" if ctl else "MOVE SPACES TO GG-FLAGS",
+                 f"MOVE {opts.get('CURSOR') or '-1'} TO GG-LEN"]
+                + _call("GGCSCTL", []) + _resp(opts, can_fail=False))  # fmt: skip
     if verb == "SEND" and ("TEXT" in opts or "FROM" in opts) and "CONTROL" not in opts:
         src = opts.get("FROM")
         if not src:

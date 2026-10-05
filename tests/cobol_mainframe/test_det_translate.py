@@ -766,6 +766,32 @@ def test_eoc_is_ignored_by_default_and_handled_like_any_condition():
     assert re.search(r'ignoredByDefault\(String condition\) \{\s*return "EOC"\.equals\(condition\);', rt)
 
 
+def test_a_terminal_only_cics_program_translates_whole_and_imports_only_packages_that_exist(tmp_path):
+    """#4413: CBSA's BNK1* SEND CONTROL ERASE FREEKB and GenApp's RECEIVE INTO LENGTH translate with no hole; an estate
+    with no screens, contracts or repositories (a terminal-only program) gets no import of those packages, which
+    javac refuses when they do not exist."""
+    from gitgalaxy.tools.cobol_to_java.det import program as P
+
+    (tmp_path / "T1.cbl").write_text(
+        "       IDENTIFICATION DIVISION.\n       PROGRAM-ID. T1.\n       DATA DIVISION.\n"
+        "       WORKING-STORAGE SECTION.\n       01  WS-IN                 PIC X(10) VALUE SPACES.\n"
+        "       01  WS-LEN                PIC S9(4) COMP VALUE 10.\n       PROCEDURE DIVISION.\n"
+        "           EXEC CICS SEND CONTROL ERASE FREEKB END-EXEC\n"
+        "           EXEC CICS RECEIVE INTO(WS-IN) LENGTH(WS-LEN) END-EXEC\n           EXEC CICS RETURN END-EXEC.\n",
+        encoding="utf-8",
+    )
+    vsam = tmp_path / "proj/src/main/java/com/x/entity/vsam"
+    vsam.mkdir(parents=True)
+    (vsam / "CobolRecords.java").write_text("package com.x.entity.vsam; public class CobolRecords {}\n")
+    stub = "package com.x.service;\nimport com.x.cics.CicsTask;\npublic class T1Service {\n" \
+           "    public void runTask(CicsTask task) {}\n}\n"  # fmt: skip
+    r = P.translate(tmp_path / "T1.cbl", [], stub, "com.x", {}, tmp_path / "proj")
+    assert (r.stats["statements"], r.stats["translated"], r.stats["holes"]) == (3, 3, [])
+    assert [x for x in r.java.splitlines() if x.startswith("import com.x.") and "*" in x] == [
+        "import com.x.entity.vsam.*;"]  # fmt: skip
+    assert 'task.sendControl(null, "ERASE", "FREEKB");' in r.java and "task.receive(" in r.java
+
+
 def _proc(body: list[str]):
     from gitgalaxy.tools.cobol_to_java.det.source import Line
 

@@ -6703,9 +6703,6 @@
       "cobol/che-che4z_lsp_project_fixtures/REPLACING.CBL": {
         "MAINLINE@21": 0
       },
-      "cobol/che-che4z_lsp_project_fixtures/RES.cbl": {
-        "FILE-CONTROsL@6": 0
-      },
       "cobol/che-che4z_lsp_project_fixtures/TEST.CBL": {
         "MAINLINE@22": 0
       },
@@ -6749,8 +6746,7 @@
       },
       "cobol/che-che4z_lsp_project_fixtures/USER2.cbl": {
         "000-Main-Logic@28": 1,
-        "100-Print-User@32": 0,
-        "Program1-id@15": 0
+        "100-Print-User@32": 0
       },
       "cobol/che-che4z_lsp_project_fixtures/USERC1F.cbl": {
         "000-Main-Logic@30": 1,
@@ -6784,8 +6780,6 @@
         "PARA1@29": 0
       },
       "cobol/che-che4z_lsp_project_fixtures/cobol-daco_DACOSMPL.cbl": {
-        "IDMS-CONTROL@7": 0,
-        "PROTOCOL@8": 0,
         "S310-000@41": 0,
         "S310-500@45": 2,
         "S310-999@51": 0,
@@ -6800,13 +6794,7 @@
         "S312-999@92": 0,
         "S312@66": 0
       },
-      "cobol/che-che4z_lsp_project_fixtures/cobol-dc_ABCD.cbl": {
-        "IDMS-CONTROL@7": 0,
-        "PROTOCOL@8": 0
-      },
       "cobol/che-che4z_lsp_project_fixtures/cobol-idms_DACOSMPL.cbl": {
-        "IDMS-CONTROL@7": 0,
-        "PROTOCOL@8": 0,
         "S310-000@41": 0,
         "S310-500@45": 2,
         "S310-999@51": 0,
@@ -6822,8 +6810,6 @@
         "S312@66": 0
       },
       "cobol/che-che4z_lsp_project_fixtures/cobol-idms_IDMSSMPL.cbl": {
-        "IDMS-CONTROL@6": 0,
-        "PROTOCOL@7": 0,
         "S410-000@33": 1,
         "S410-999@48": 0,
         "S410@32": 0,
@@ -6843,8 +6829,6 @@
         "S3@37": 0
       },
       "cobol/che-che4z_lsp_project_fixtures/cobol-vanila_DACOSMPL.cbl": {
-        "IDMS-CONTROL@7": 0,
-        "PROTOCOL@8": 0,
         "S310-000@40": 0,
         "S310-500@44": 2,
         "S310-999@50": 0,
@@ -6860,8 +6844,6 @@
         "S312@65": 0
       },
       "cobol/che-che4z_lsp_project_fixtures/cobol-vanila_IDMSSMPL.cbl": {
-        "IDMS-CONTROL@6": 0,
-        "PROTOCOL@7": 0,
         "S410-000@33": 1,
         "S410-999@48": 0,
         "S410@32": 0,

@@ -1704,25 +1704,25 @@
     "cobol/che-che4z_lsp_project_fixtures": {
       "Average Risk Exposures": {
         "API Exposure": "0.56%",
-        "Cognitive Load Exposure": "5.39%",
+        "Cognitive Load Exposure": "5.34%",
         "Commented Logic Exposure": "3.54%",
         "Concurrency Exposure": "0.0%",
-        "Documentation Exposure": "29.29%",
+        "Documentation Exposure": "27.86%",
         "Error & Exception Exposure": "43.11%",
         "Hardcoded Payload Artifacts": "0.0%",
         "Instability Exposure": "49.29%",
         "Specification Exposure": "0.0%",
         "State Flux Exposure": "31.89%",
-        "Tech Debt Exposure": "40.18%",
+        "Tech Debt Exposure": "37.54%",
         "Testing Exposure": "1.7%",
         "Volatility Exposure": "0.0%"
       },
-      "Directory Group Magnitude": 789.93,
+      "Directory Group Magnitude": 802.33,
       "Ecosystem Fingerprint (Archetypes)": {
         "Static: Literature & Documentation": "1.4%",
         "Unclassified": "4.3%",
-        "file_cluster_11": "42.9%",
-        "file_cluster_2": "38.6%",
+        "file_cluster_11": "41.4%",
+        "file_cluster_2": "40.0%",
         "file_cluster_7": "8.6%",
         "file_cluster_9": "4.3%"
       },

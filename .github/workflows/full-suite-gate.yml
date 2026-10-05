@@ -30,15 +30,27 @@ name: Full Suite Gate (All OS x Python)
 # matrix exists to catch -- a version-specific syntax/stdlib break that the
 # every-push ubuntu/3.12 full-suite cannot see -- while cutting macOS from
 # three jobs to two.
-# On a `v*` tag: the untrimmed 9-way matrix, unchanged.
+# On a `v*` tag, a push to main or the nightly run: the untrimmed 9-way matrix.
 # On a manual run: the trimmed grid, or the untrimmed one with
 # `-f full_matrix=true`.
 on:
-  pull_request:
-    types: [labeled]
+  # #4518: no longer a pull_request trigger. `gh pr create --label` fired the
+  # 7-leg matrix on EVERY PR (labels are always attached), which on a 2-3
+  # runner pool starved the whole PR queue. PRs keep the lean smoke set and the
+  # ubuntu full-suite in smoke-test.yml; this grid runs on main, nightly,
+  # on release tags and on demand.
   push:
+    branches: [main]
+    paths:
+      - "gitgalaxy/**"
+      - "tests/**"
+      - "pyproject.toml"
+      - "requirements.txt"
+      - ".github/workflows/full-suite-gate.yml"
     tags:
       - "v*"
+  schedule:
+    - cron: "43 4 * * *"  # nightly
   workflow_dispatch:
     inputs:
       full_matrix:
@@ -81,7 +93,7 @@ jobs:
         id: pick
         shell: bash
         run: |
-          if [ "${{ github.event_name }}" = "push" ] || [ "${{ inputs.full_matrix }}" = "true" ]; then
+          if [ "${{ github.event_name }}" = "push" ] || [ "${{ github.event_name }}" = "schedule" ] || [ "${{ inputs.full_matrix }}" = "true" ]; then
             # Release tag, or a manual run that asked for it: every supported
             # environment, untrimmed.
             include='[
@@ -96,7 +108,7 @@ jobs:
               {"os":"macos-latest","python-version":"3.12"}
             ]'
           else
-            # PR label, or a plain manual re-run: full Python coverage on
+            # plain manual re-run: full Python coverage on
             # ubuntu, floor+ceiling elsewhere.
             include='[
               {"os":"ubuntu-latest","python-version":"3.10"},

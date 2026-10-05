@@ -317,7 +317,7 @@
       "tested_on_public": 5
     },
     "entry transactions": {
-      "clean_fresh_facts": 30,
+      "clean_fresh_facts": 15,
       "clean_fresh_rounds": 2,
       "engine_defects": 0,
       "fresh_rounds": 2,

@@ -27,9 +27,9 @@ counted in it (their fact counts are not recorded here).
 | JCL resolved DSNs | 5 | 0 | 2 | 752 | 1 | 0 | 1 | 102 | 2.9% | open | 1 more clean fresh round(s), 198 more clean fresh facts |
 | file I/O moves | 3 | 0 | 1 | 247 | 0 | 0 | 1 | 38 | 7.9% | open | 1 more clean fresh round(s), 262 more clean fresh facts |
 | dead | 5 | 0 | 3 | 144 | 0 | 7 | 3 | 35 | 8.6% | open | 265 more clean fresh facts |
-| entry transactions | 4 | 0 | 2 | 70 | 0 | 0 | 2 | 30 | 10.0% | open | 270 more clean fresh facts |
 | DB2 table access | 3 | 0 | 1 | 58 | 0 | 0 | 1 | 21 | 14.3% | open | 1 more clean fresh round(s), 279 more clean fresh facts |
 | dynamic call targets | 5 | 0 | 2 | 232 | 0 | 0 | 2 | 16 | 18.8% | open | 284 more clean fresh facts |
+| entry transactions | 4 | 0 | 2 | 53 | 0 | 0 | 2 | 15 | 20.0% | open | 285 more clean fresh facts |
 | inputs | 3 | 0 | 1 | 55 | 0 | 2 | 1 | 13 | 23.1% | open | 1 more clean fresh round(s), 287 more clean fresh facts |
 | dead (non-trivial) | 5 | 0 | 3 | 28 | 0 | 0 | 3 | 10 | 30.0% | open | 290 more clean fresh facts |
 | copybook paths | 6 | 0 | 3 | 431 | 3 | 1 | 1 | 9 | 33.3% | open | 1 more clean fresh round(s), 291 more clean fresh facts |

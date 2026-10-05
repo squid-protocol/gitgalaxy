@@ -528,8 +528,8 @@ what lets `transaction` adjudicate a verdict (an INDEPENDENT key field):
   the key keeps, `PROGRAM`/`TRANSID`, are bare names, so it needs no paren-balanced attribute scan).
 
 All three read a repo's `.csd` decks (standalone files and DFHCSDUP SYSIN carried inline in JCL),
-the `DEFINE TRANSACTION(T) ... PROGRAM(P)` records plus the `DEFINE PROGRAM(P) ... TRANSID(T)`
-autoinstall pairing, excluding `DEFINE DB2TRAN`'s TRANSID. On the pinned corpora the three agree
+the `DEFINE TRANSACTION(T) ... PROGRAM(P)` records, excluding `DEFINE DB2TRAN`'s TRANSID and (#4503)
+`DEFINE PROGRAM(P) ... TRANSID(T)`, the remote-DPL mirror attribute that routes nothing. On the pinned corpora the three agree
 exactly — CBSA 14/14 (14 of its 17 transactions route to in-repo COBOL programs; 3 are external),
 carddemo 33/33, zopeneditor none — so the datum adds **0** unexplained deltas and the `--corpus`
 gate holds at its prior counts. The CBSA and zopeneditor answer keys carry the `transactions` field

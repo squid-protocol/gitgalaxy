@@ -21,19 +21,28 @@ The declaration is a JSON (or YAML, with PyYAML) file::
 `libraries` maps a library-name (as `COPY ... IN` writes it) to the scan-relative directories
 that hold its members (a PDS is flat: a member is a file directly in one of them, any
 extension). `syslib` lists search orders; a program takes the FIRST entry whose `programs`
-glob (fnmatch, `*` crosses `/`) matches its scan-relative path. A program no entry matches, a
-library-name the declaration does not know, and an unqualified member found in none of the
-program's libraries all fall back to the default resolver -- the declaration only ever adds
-what it says.
+glob (fnmatch, `*` crosses `/`) matches its scan-relative path. A program no entry matches and a
+library-name the declaration does not know fall back to the default resolver. An unqualified
+member found in none of the program's declared libraries draws NO edge (#4420): the compiler would
+not find it either, and the default resolver would link it to a same-named program source. It is
+reported as a gap (`copy_member_gaps`), except a runtime-supplied name (SQLCA, DFHAID, ...), which
+stays unresolved without a report. Collisions and gaps are persisted in `copy_library_finding_data`
+(#4421).
 """
 
 from __future__ import annotations
 
 import fnmatch
 import json
+import re
 from dataclasses import dataclass, field
 from pathlib import Path
 from typing import Any
+
+# #4420: COPY members the runtime or the compiler supplies, never held by an estate's libraries
+# (CICS DFHAID / DFHBMSCA / DFHEIBLK, the SQLCA / SQLDA, Language Environment CEEIGZCT...).
+# An unqualified COPY of one is left unresolved with no fallback and is not a gap.
+RUNTIME_COPY_MEMBER = re.compile(r"(?:DFH|CEE|EIB|DIB)[A-Z0-9#@$-]*$|SQL(?:CA|DA)$", re.IGNORECASE)
 
 
 class CopyLibraryError(ValueError):

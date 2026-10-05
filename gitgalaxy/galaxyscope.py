@@ -1594,6 +1594,7 @@ class Orchestrator:
                 summary["call_target_ambiguities"] = self.call_ambiguities
             if self.network_sensor.copy_libraries is not None:  # #4265: only when libraries are declared
                 summary["copy_member_collisions"] = self.network_sensor.copy_collisions
+                summary["copy_member_gaps"] = self.network_sensor.copy_gaps  # #4420
 
             # #371/#1159: the repo baseline is repo-wide (only knowable once summary
             # is computed), but record_keeper.py/llm_recorder.py read it per-file
@@ -3680,6 +3681,7 @@ class Orchestrator:
                 summary["call_target_ambiguities"] = self.call_ambiguities
             if self.network_sensor.copy_libraries is not None:  # #4265: only when libraries are declared
                 summary["copy_member_collisions"] = self.network_sensor.copy_collisions
+                summary["copy_member_gaps"] = self.network_sensor.copy_gaps  # #4420
 
             # #371/#1159: see the identical backfill in the main pipeline above.
             repo_macro = summary.get("repo_macro_species", {})

@@ -940,6 +940,17 @@ class GalaxyIR:
     # #3909: {file_path: code page} of each file the scan decoded with the estate's declared page
     # (file_data.source_decode 'declared'), so every later read of it decodes it the same way.
     source_pages: dict[str, str] = field(default_factory=dict)
+    # #4421: what --copy-libraries resolution reported (copy_library_finding_data): dicts with `kind`
+    # 'collision' (importer, member, library, resolved, shadowed) or 'gap' (importer, member, searched).
+    copy_findings: list[dict] = field(default_factory=list)
+
+    def copy_member_collisions(self) -> list[dict]:
+        """#4421: an unqualified COPY found in several libraries of the importer's SYSLIB (the first won)."""
+        return [f for f in self.copy_findings if f["kind"] == "collision"]
+
+    def copy_member_gaps(self) -> list[dict]:
+        """#4420/#4421: an unqualified COPY found in none of the importer's declared libraries (no edge)."""
+        return [f for f in self.copy_findings if f["kind"] == "gap"]
 
     def source_page(self, file_path: str) -> Optional[str]:
         """#3909: the declared code page the scan decoded `file_path` (repo-relative) with; None for a
@@ -6365,8 +6376,33 @@ def load_galaxy_ir(db_path: Path, repo_name: Optional[str] = None) -> GalaxyIR:
     _name_pli_programs(files)
     _attribute_programs(files)
     ir = GalaxyIR(db_path, repo_name, commit_hash, files, source_pages=source_pages)
+    ir.copy_findings = _read_copy_findings(db_path, repo_name, commit_hash)
     ir._settle_copy_members()  # #4330: needs the resolved COPY edges and symbolic maps above
     return ir
+
+
+def _read_copy_findings(db_path: Path, repo_name: str, commit_hash: str) -> list[dict]:
+    """#4421: the copy_library_finding_data rows of a snapshot; none on a DB written before the table."""
+    conn = sqlite3.connect(f"file:{db_path}?mode=ro", uri=True)
+    try:
+        cur = conn.cursor()
+        if not _has_table(cur, "copy_library_finding_data"):
+            return []
+        out: list[dict] = []
+        for kind, importer, member, library, resolved, shadowed, searched in cur.execute(
+            "SELECT kind, importer, member, library, resolved_path, shadowed, searched "
+            "FROM copy_library_finding_data WHERE repo_name = ? AND commit_hash = ? ORDER BY id",
+            (repo_name, commit_hash),
+        ):
+            row: dict = {"kind": kind, "importer": importer, "member": member}
+            if kind == "collision":
+                row.update(library=library, resolved=resolved, shadowed=json.loads(shadowed or "[]"))
+            else:
+                row["searched"] = json.loads(searched or "[]")
+            out.append(row)
+        return out
+    finally:
+        conn.close()
 
 
 # #4265: a pseudo-text tag in a copybook entry's name (`:TAG:-ID`), replaced by COPY ... REPLACING.

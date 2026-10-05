@@ -949,6 +949,33 @@ class RecordKeeper:
         # `COPY X IN LIB` of one member can reach different files). NULL otherwise.
         _ensure_columns(cursor, "edge_data", ["copy_libraries TEXT"])
 
+        # #4421: what --copy-libraries resolution reported, so a --db-only scan (and anything reading the
+        # master DB later) keeps it instead of only the run summary. One row per finding of `kind`:
+        #   'collision' -- an unqualified COPY found in several libraries of the importer's SYSLIB:
+        #                  `library` / `resolved_path` are the library and file that won (the first in the
+        #                  search order), `shadowed` a JSON list of {library, paths} it hid
+        #   'gap'       -- an unqualified COPY found in none of the importer's declared libraries (#4420):
+        #                  no edge; `searched` is the JSON list of library-names tried
+        # Paths, not file_data FKs, and no FK to repo_data (its INSERT OR REPLACE would cascade-delete
+        # these): a gap has no resolved file, and the rows are wiped per snapshot below.
+        cursor.execute("""
+            CREATE TABLE IF NOT EXISTS copy_library_finding_data (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                repo_name TEXT,
+                commit_hash TEXT,
+                kind TEXT,
+                importer TEXT,
+                member TEXT,
+                library TEXT,
+                resolved_path TEXT,
+                shadowed TEXT,
+                searched TEXT
+            )
+        """)
+        cursor.execute(
+            "CREATE INDEX IF NOT EXISTS idx_copy_finding_snapshot ON copy_library_finding_data(repo_name, commit_hash);"
+        )
+
         # #3200: one row per mainframe INVOCATION SITE -- COBOL `CALL`, CICS
         # `LINK`/`XCTL PROGRAM(...)`, JCL `EXEC PGM=`. edge_data carries the
         # resolved program-to-program edges aggregated from these, but it
@@ -2085,6 +2112,10 @@ class RecordKeeper:
         )
         cursor.execute(
             "DELETE FROM fcall_rate_data WHERE repo_name = ? AND commit_hash = ?",
+            (repo_name, commit_hash),
+        )
+        cursor.execute(
+            "DELETE FROM copy_library_finding_data WHERE repo_name = ? AND commit_hash = ?",
             (repo_name, commit_hash),
         )
         # #3328: fcall_data is the largest cascade child; one indexed pass by file.
@@ -3656,6 +3687,45 @@ class RecordKeeper:
                 m.get("target_refmod_text"),
             ),
         )
+
+        # #4421: the --copy-libraries collisions and gaps, carried on the summary (set only when
+        # libraries are declared). Resolved cross-file, so recomputed every scan, delta included.
+        findings = [
+            (
+                repo_name,
+                commit_hash,
+                "collision",
+                c.get("importer"),
+                c.get("member"),
+                c.get("library"),
+                c.get("resolved"),
+                json.dumps(c.get("shadowed") or []),
+                None,
+            )
+            for c in (summary or {}).get("copy_member_collisions") or []
+        ] + [
+            (
+                repo_name,
+                commit_hash,
+                "gap",
+                g.get("importer"),
+                g.get("member"),
+                None,
+                None,
+                None,
+                json.dumps(g.get("searched") or []),
+            )
+            for g in (summary or {}).get("copy_member_gaps") or []
+        ]
+        if findings:
+            cursor.executemany(
+                """
+                INSERT INTO copy_library_finding_data (
+                    repo_name, commit_hash, kind, importer, member, library, resolved_path, shadowed, searched
+                ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
+            """,
+                findings,
+            )
 
         # #3211-followup: the transaction map, resolved cross-file (transid ->
         # program -> the program's file) like call_sites, so it is passed in

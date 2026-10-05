@@ -952,6 +952,7 @@ def _process_file_worker(rel_path: str) -> dict[str, Any]:
             call_sites: list = []
             dataset_bindings: list = []
             record_layouts: list = []
+            section_copies: list = []  # #4457: section-level COPY ... REPLACING (cobol)
             transaction_defs: list = []
             sql_tables: list = []  # #3344: DB2 DECLARE TABLE / DCLGEN columns
             sql_statements: list = []  # #3446: embedded SQL statements -> table access
@@ -1055,6 +1056,7 @@ def _process_file_worker(rel_path: str) -> dict[str, Any]:
                     # with a default so a dialect that predates the channel (or
                     # carries no records, like JCL) is not a missing-key error.
                     record_layouts = boundary.get("records", [])
+                    section_copies = boundary.get("section_copies", [])  # #4457
                     # #3211-followup: CSD transaction definitions (csd deck, or a
                     # DFHCSDUP deck inline in JCL), same default-read discipline.
                     transaction_defs = boundary.get("transactions", [])
@@ -1160,6 +1162,7 @@ def _process_file_worker(rel_path: str) -> dict[str, Any]:
             "call_sites": call_sites,
             "dataset_bindings": dataset_bindings,
             "record_layouts": record_layouts,
+            "section_copies": section_copies,  # #4457 -> copy_statement_data
             # #3211-followup: CSD transaction definitions, resolved to programs
             # cross-file at aggregation (resolve_transactions).
             "transaction_defs": transaction_defs,

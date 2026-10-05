@@ -678,6 +678,22 @@ class EngineSpecialName:
 
 
 @dataclass
+class EngineCopyStatement:
+    """A section-level `COPY member [IN library] REPLACING ...` (#4457): one no record_data entry carries
+    (`copy_statement_data`), or one carried by the entry above it whose member opens its own 01 (`moved`).
+    `replacing` is [[from, to(, LEADING|TRAILING)], ...]; `after_ordinal` the entry above it, if any."""
+
+    member: str
+    library: Optional[str]
+    replacing: list
+    section: Optional[str]
+    fd_name: Optional[str]
+    after_ordinal: Optional[int]
+    line: int
+    moved: bool = False
+
+
+@dataclass
 class EngineCompilerOption:
     """One CBL / PROCESS card option (#3828), from `compiler_options_data`: the full option
     name (abbreviations spelled out), its parenthesised value as written, the option as written."""
@@ -861,6 +877,14 @@ class EngineFile:
     # (member, ordinal of the entry the COPY follows) -- `_copy_extension` still finds a copied record
     # continued in the program from there.
     section_copies: list = field(default_factory=list)
+    # #4457: the section-level COPY ... REPLACING statements (EngineCopyStatement, source order). GalaxyIR
+    # materializes each one's replaced records: their roots join `records` (in source order), every entry
+    # of them is in `copied_items` -- never in `data_items`, which stays the text the program itself holds.
+    # `replaced_members` are the (NFC) members whose unreplaced copybook records the program must not also
+    # see under their own names.
+    copy_statements: list = field(default_factory=list)
+    copied_items: list = field(default_factory=list)
+    replaced_members: set = field(default_factory=set)
     records: list = field(default_factory=list)  # EngineDataItem tree roots (01/77), #3246
     # #3348: the DB has record_data, so an empty `data_items` means "no items", not "not read".
     records_read: bool = False
@@ -1765,11 +1789,75 @@ class GalaxyIR:
                         keep.append((member, library, replacing))
                     else:
                         ef.section_copies.append((member, it.ordinal))
+                        if replacing:  # #4457: the REPLACING rode the entry above; it is still this COPY's
+                            ef.copy_statements.append(
+                                EngineCopyStatement(
+                                    member,
+                                    library or None,
+                                    replacing,
+                                    it.section,
+                                    it.fd_name,
+                                    it.ordinal,
+                                    it.line,
+                                    True,
+                                )
+                            )
                 if len(keep) != len(forms):
                     it.copy_members = ",".join(m for m, _, _ in keep) or None
                     # #4265: the library-names and REPLACING operands stay parallel to the members kept
                     it.copy_libraries = ",".join(lib or "" for _, lib, _ in keep) if any(k[1] for k in keep) else None
                     it.copy_replacing = json.dumps([r for _, _, r in keep]) if any(k[2] for k in keep) else None
+            self._materialize_replaced_copies(ef)
+
+    def _materialize_replaced_copies(self, ef: EngineFile) -> None:
+        """#4457: the records a section-level `COPY member REPLACING ...` brings into program `ef`.
+
+        The copybook keeps its own names (`01 INQACC-COMMAREA`, or a `:TAG:` template whose entries are no
+        data-names until replaced): the program's records are those entries with the REPLACING applied
+        (`COPY INQACC REPLACING INQACC-COMMAREA BY DFHCOMMAREA` -> `01 DFHCOMMAREA`), in the section and FD
+        the COPY stands in. Each becomes a root in `ef.records` in source order (its entries in
+        `copied_items`, with ordinals of their own). The copybook's unreplaced records are hidden from `ef` (`replaced_members`) unless a plain
+        COPY of the same member also stands in it."""
+        if not ef.copy_statements:
+            return
+        bounds = _program_bounds(ef)
+        next_ordinal = max((it.ordinal for it in ef.data_items), default=-1) + 1
+        plain: dict = {}
+        for it in ef.data_items:
+            for m in filter(None, (it.copy_members or "").split(",")):
+                plain[nfc(m)] = plain.get(nfc(m), 0) + 1
+        for m, _ in ef.section_copies:
+            plain[nfc(m)] = plain.get(nfc(m), 0) + 1
+        for st in ef.copy_statements:
+            if st.moved:
+                plain[nfc(st.member)] = plain.get(nfc(st.member), 0) - 1
+        done: set = set()
+        groups: list = []  # (statement line, the replaced entries, root first)
+        for st in sorted(ef.copy_statements, key=lambda c: c.line):
+            cb, roots = self._copy_roots(st.member, ef, ef, 0, st.library)
+            roots = roots or (cb.template_records if cb is not None else [])
+            if cb is None or not roots:
+                continue
+            program = ef.program_ids[min(bisect.bisect_left(bounds, st.line), len(bounds) - 1)] if bounds else None
+            flat: list = []
+
+            def adopt(it: EngineDataItem, parent: Optional[int], st=st, program=program, flat=flat) -> None:
+                nonlocal next_ordinal
+                it.ordinal, it.parent_ordinal, next_ordinal = next_ordinal, parent, next_ordinal + 1
+                it.section, it.fd_name, it.line, it.program = st.section, st.fd_name, st.line, program
+                flat.append(it)
+                for child in it.children:
+                    adopt(child, it.ordinal)
+
+            for root in roots:
+                new = _replaced(root, st.replacing)
+                adopt(new, None)
+                ef.records.insert(bisect.bisect_right([r.line for r in ef.records], st.line), new)
+            groups.append((st.line, flat))
+            done.add(nfc(st.member))
+        for _, flat in groups:
+            ef.copied_items += flat
+        ef.replaced_members |= {m for m in done if plain.get(m, 0) <= 0}
 
     def _copy_roots(
         self, member: str, ef: EngineFile, origin: EngineFile, depth: int, library: Optional[str] = None
@@ -2168,9 +2256,10 @@ class GalaxyIR:
             return []
 
         def _matches(owner: EngineFile) -> list:
-            by_ordinal = {it.ordinal: it for it in owner.data_items}
+            items = [*owner.data_items, *owner.copied_items]  # #4457: a COPY ... REPLACING's records too
+            by_ordinal = {it.ordinal: it for it in items}
             out = []
-            for it in owner.data_items:
+            for it in items:
                 if it.name != name or it.level in (66, 88):
                     continue
                 if program and it.program and it.program != program:
@@ -2188,6 +2277,8 @@ class GalaxyIR:
         if found:
             return found
         for cb in self._copy_files(ef):
+            if nfc(Path(cb.file_path).stem.upper()) in ef.replaced_members:
+                continue  # #4457: its records are the program's, under their replaced names
             for owner, it, _ in _matches(cb):
                 # The copied record the program continues past the COPY (its last root).
                 last = [r for r in cb.records if r.level not in (66, 88)][-1:]
@@ -4820,6 +4911,8 @@ class GalaxyIR:
                 # #4245: the owning program keeps sibling programs' same-named records apart.
                 walk(ef, root, (ef.file_path, name, root.program), 0, 0, None, ())
         for cb in self._copy_files(ef):
+            if nfc(Path(cb.file_path).stem.upper()) in ef.replaced_members:
+                continue  # #4457
             roots = [r for r in cb.records if r.level not in (66, 88)]
             for root in roots:
                 if id(root) not in spans:
@@ -6076,6 +6169,21 @@ def load_galaxy_ir(db_path: Path, repo_name: Optional[str] = None) -> GalaxyIR:
                 if row[0] in by_id:
                     fields = dict(zip(_WEB_FIELDS, row[1:-1]))
                     by_id[row[0]].web_services.append(EngineWebService(**fields, line=int(row[-1] or 0)))
+        # #4457: section-level COPY ... REPLACING statements. A pre-#4457 database has none.
+        if _has_table(cur, "copy_statement_data"):
+            for row in cur.execute(
+                "SELECT file_id, member, library, replacing, section, fd_name, after_ordinal, line_number "
+                "FROM copy_statement_data WHERE repo_name = ? AND commit_hash = ? ORDER BY file_id, id",
+                (repo_name, commit_hash),
+            ):
+                if row[0] in by_id and row[1]:
+                    try:
+                        pairs = json.loads(row[3]) if row[3] else []
+                    except ValueError:
+                        pairs = []
+                    by_id[row[0]].copy_statements.append(
+                        EngineCopyStatement(row[1], row[2] or None, pairs, row[4], row[5], row[6], int(row[7] or 0))
+                    )
         # #3820: SPECIAL-NAMES currency strings / decimal point. A pre-#3820 database has none.
         if _has_table(cur, "special_names_data"):
             for row in cur.execute(

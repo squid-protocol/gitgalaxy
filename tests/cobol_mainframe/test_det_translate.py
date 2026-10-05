@@ -468,8 +468,8 @@ _MEMBER = _fixed("05 A-FIELD PIC X(4).")
 
 
 def _from(lines, name):
-    return {Path(ln.file).relative_to(ln.file.split("/estate/")[0] + "/estate").as_posix()
-            for ln in lines if name in ln.text}  # fmt: skip
+    # posix before splitting: on Windows ln.file has backslashes
+    return {Path(ln.file).as_posix().split("/estate/", 1)[1] for ln in lines if name in ln.text}
 
 
 def test_copy_resolved_by_the_engine_translates(tmp_path):

@@ -130,8 +130,19 @@ def engine_extras(ir: Any, ef: Any, records: list[tuple[Any, str, int]]) -> dict
     for f in [ef, *closure]:
         for it in f.data_items:
             by_loc.setdefault((f.file_path, it.line, it.level), (f, it))
+    # #4472: a section-level COPY ... REPLACING lays out the REPLACED records GalaxyIR built (ef.copied_items,
+    # roots in ef.records), not the copybook's own item at the translator's (file, line): they sit at the COPY
+    # statement's line, under their replaced names.
+    copied = {id(it) for it in ef.copied_items}
+    replaced_roots: dict[tuple[str, int], Any] = {}
+    for r in ef.records:
+        if id(r) in copied:
+            replaced_roots.setdefault(((r.name or "").upper(), r.level), r)
     for rec, file, line in records:
         hit = by_loc.get((file, line, rec.level))
+        root = replaced_roots.get(((rec.name or "").upper(), rec.level))
+        if root is not None:
+            hit = (ef, root)
         if hit is None:
             out["offsets"].add(f"{rec.name} (record) not read")
             continue
@@ -614,7 +625,7 @@ def main(argv: Optional[list[str]] = None) -> int:
     if args.cmd == "update":
         full = load_ledger(args.ledger)
         ids = {d["id"] for d in result["disagreements"]}
-        # (#4472: a full run drops every entry that no longer reproduces; a partial run keeps the corpora it skipped)
+        # #4472: a full run re-judges every entry (stale ones drop); a --corpus run only its corpora's.
         kept = {k: v for k, v in full["disagreements"].items() if args.corpus and not k.startswith(keep)}
         kept.update({i: full["disagreements"].get(i) for i in ids})
         full["disagreements"] = kept

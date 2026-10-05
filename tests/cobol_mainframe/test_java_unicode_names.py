@@ -153,3 +153,20 @@ def test_a_class_named_from_national_names_compiles(tmp_path):
                           capture_output=True, text=True, timeout=600)  # fmt: skip  # a shared Windows runner took over 120 s
     assert proc.returncode == 0, proc.stderr
     assert (tmp_path / "out" / f"{cls}.class").is_file()
+
+
+# JLS 3.9: the keywords (contextual ones such as `var` / `record` are legal field names) and the literals.
+_JAVA_KEYWORDS = (
+    "abstract assert boolean break byte case catch char class const continue default do double else enum extends "
+    "final finally float for goto if implements import instanceof int interface long native new package private "
+    "protected public return short static strictfp super switch synchronized this throw throws transient try void "
+    "volatile while true false null"
+).split()
+
+
+@pytest.mark.parametrize("word", _JAVA_KEYWORDS)
+def test_a_cobol_name_that_is_a_java_keyword_becomes_a_legal_field(word):
+    """#4463: IBM DBB EPSCSMRD's CURRENT-CONDITION field CASE became `private Integer case;` (every MortgageApplication
+    port stopped compiling once #4245 read every program of the multi-program source)."""
+    name = java_identifier(word.upper())
+    assert name not in _JAVA_KEYWORDS and name.isidentifier(), name

@@ -3636,6 +3636,15 @@ class Orchestrator:
             # 3. Target the New/Modified files for Pass 1 (Surgical Strike)
             for disk_rel in added + modified:
                 rel_path = nfc(disk_rel)  # #3815: stored in NFC, opened by its on-disk name
+                # #4483: the full scan's census admits a file only through the aperture filter
+                # (denied extension, oversize, ignored directory...); a delta must too, or an
+                # added/modified file a full scan would exclude gets indexed. One that fails now
+                # is evicted along with its stale baseline entry.
+                is_valid, _size, _reason = self.filter.evaluate_path_integrity(self.root / disk_rel)
+                if not is_valid:
+                    self.ram_cache.pop(rel_path, None)
+                    logger.info(f"DELTA_EXCLUDED: {rel_path} ({_reason})")
+                    continue
                 if rel_path != disk_rel:
                     self.disk_paths[rel_path] = disk_rel
                 stem = Path(rel_path).stem.lower()
@@ -4197,7 +4206,7 @@ def main():
 
                         if status.startswith("A"):
                             added.append(_clean(parts[1]))
-                        elif status.startswith("M"):
+                        elif status.startswith(("M", "T")):  # T: type change (symlink <-> file)
                             modified.append(_clean(parts[1]))
                         elif status.startswith("D"):
                             deleted.append(_clean(parts[1]))
@@ -4210,6 +4219,29 @@ def main():
                     logging.info(
                         f"📊 Delta extraction: {len(added)} Added, {len(modified)} Modified, {len(deleted)} Deleted"
                     )
+                    # #4483: `git diff <commit>` compares the WORKING TREE to the baseline, so staged
+                    # and unstaged edits to tracked files (and `git add`ed new files) are re-scanned.
+                    # An untracked file is not: a full scan's census is `git ls-files` and never sees
+                    # it either, so scanning it here would break delta == full. Say so loudly.
+                    try:
+                        untracked = [
+                            u
+                            for u in subprocess.check_output(  # noqa: S603 -- _GIT_BIN absolute, fixed args
+                                [_GIT_BIN, "ls-files", "-z", "--others", "--exclude-standard"],
+                                cwd=target_path,
+                                text=True,
+                                stderr=subprocess.DEVNULL,
+                            ).split("\0")
+                            if u
+                        ]
+                    except (subprocess.CalledProcessError, OSError):
+                        untracked = []
+                    if untracked:
+                        logging.warning(
+                            f"⚠️ {len(untracked)} untracked file(s) are NOT scanned (git ls-files, the census "
+                            f"a full scan uses, does not list them either); `git add` to include: "
+                            f"{', '.join(untracked[:5])}{' ...' if len(untracked) > 5 else ''}"
+                        )
                     scope.execute_incremental_scan(ram_cache, added, modified, deleted, db_out_path)
 
                 except subprocess.CalledProcessError:

@@ -1,0 +1,114 @@
+{
+ "format": "det-sweep-baseline/1",
+ "about": "#4463: the det ports `proof_sweep.py --det-only` does not prove, each with the issue that owns it. A two-way ratchet: CI fails on a port not listed here that is not proven, and on a listed port that is now proven. When a fix lands, run `python tests/tools/proof_sweep.py --det-only --skip-db2 --work DIR --update-baseline` and commit the shortened file; a new entry is only ever added by hand, with its true cause.",
+ "det": {
+  "carddemo-acctupdate": {
+   "issue": "#4465",
+   "why": "runTask proof passes on every scenario; the java-facade proof fails because the det-generated facade is a stub (handleTransaction/handleLink throw before the scenario's task runs)"
+  },
+  "carddemo-acctview": {
+   "issue": "#4465",
+   "why": "runTask proof passes on every scenario; the java-facade proof fails because the det-generated facade is a stub (handleTransaction/handleLink throw before the scenario's task runs)"
+  },
+  "carddemo-adminmenu": {
+   "issue": "#4465",
+   "why": "runTask proof passes on every scenario; the java-facade proof fails because the det-generated facade is a stub (handleTransaction/handleLink throw before the scenario's task runs)"
+  },
+  "carddemo-billpay": {
+   "issue": "#4465",
+   "why": "runTask proof passes on every scenario; the java-facade proof fails because the det-generated facade is a stub (handleTransaction/handleLink throw before the scenario's task runs)"
+  },
+  "carddemo-cardlist": {
+   "issue": "#4465",
+   "why": "runTask proof passes on every scenario; the java-facade proof fails because the det-generated facade is a stub (handleTransaction/handleLink throw before the scenario's task runs)"
+  },
+  "carddemo-cardupdate": {
+   "issue": "#4085",
+   "why": "COCRDUPC writes blanks into a PIC 9(3) CVV a typed DTO field cannot hold"
+  },
+  "carddemo-cardview": {
+   "issue": "#4465",
+   "why": "runTask proof passes on every scenario; the java-facade proof fails because the det-generated facade is a stub (handleTransaction/handleLink throw before the scenario's task runs)"
+  },
+  "carddemo-intcalc-generated": {
+   "issue": null,
+   "why": "generated card numbers mix letters and digits: ASCII vs EBCDIC key order picks different duplicates (oracle_assumptions.md D1)"
+  },
+  "carddemo-menu": {
+   "issue": "#4465",
+   "why": "runTask proof passes on every scenario; the java-facade proof fails because the det-generated facade is a stub (handleTransaction/handleLink throw before the scenario's task runs)"
+  },
+  "carddemo-report": {
+   "issue": "#4465",
+   "why": "runTask proof passes on every scenario; the java-facade proof fails because the det-generated facade is a stub (handleTransaction/handleLink throw before the scenario's task runs)"
+  },
+  "carddemo-signon": {
+   "issue": "#4465",
+   "why": "runTask proof passes on every scenario; the java-facade proof fails because the det-generated facade is a stub (handleTransaction/handleLink throw before the scenario's task runs); COSGN00C also re-enters with a COMMAREA the stub cannot take (#4464 on the committed port)"
+  },
+  "carddemo-tranadd": {
+   "issue": "#4465",
+   "why": "runTask proof passes on every scenario; the java-facade proof fails because the det-generated facade is a stub (handleTransaction/handleLink throw before the scenario's task runs)"
+  },
+  "carddemo-tranlist": {
+   "issue": "#4465",
+   "why": "runTask proof passes on every scenario; the java-facade proof fails because the det-generated facade is a stub (handleTransaction/handleLink throw before the scenario's task runs)"
+  },
+  "carddemo-tranview": {
+   "issue": "#4465",
+   "why": "runTask proof passes on every scenario; the java-facade proof fails because the det-generated facade is a stub (handleTransaction/handleLink throw before the scenario's task runs)"
+  },
+  "carddemo-useradd": {
+   "issue": "#4465",
+   "why": "runTask proof passes on every scenario; the java-facade proof fails because the det-generated facade is a stub (handleTransaction/handleLink throw before the scenario's task runs)"
+  },
+  "carddemo-userdel": {
+   "issue": "#4465",
+   "why": "runTask proof passes on every scenario; the java-facade proof fails because the det-generated facade is a stub (handleTransaction/handleLink throw before the scenario's task runs)"
+  },
+  "carddemo-userlist": {
+   "issue": "#4465",
+   "why": "runTask proof passes on every scenario; the java-facade proof fails because the det-generated facade is a stub (handleTransaction/handleLink throw before the scenario's task runs)"
+  },
+  "carddemo-userupd": {
+   "issue": "#4465",
+   "why": "runTask proof passes on every scenario; the java-facade proof fails because the det-generated facade is a stub (handleTransaction/handleLink throw before the scenario's task runs)"
+  },
+  "cbsa-abndproc": {
+   "issue": "#4465",
+   "why": "runTask proof passes on every scenario; the java-facade proof fails because the det-generated facade is a stub (handleTransaction/handleLink throw before the scenario's task runs)"
+  },
+  "cbsa-updcust": {
+   "issue": "#4465",
+   "why": "runTask proof passes on every scenario; the java-facade proof fails because the det-generated facade is a stub (handleTransaction/handleLink throw before the scenario's task runs)"
+  },
+  "genapp-lgacvs01": {
+   "issue": "#4465",
+   "why": "runTask proof passes on every scenario; the java-facade proof fails because the det-generated facade is a stub (handleTransaction/handleLink throw before the scenario's task runs)"
+  },
+  "genapp-lgapvs01": {
+   "issue": "#4465",
+   "why": "runTask proof passes on every scenario; the java-facade proof fails because the det-generated facade is a stub (handleTransaction/handleLink throw before the scenario's task runs)"
+  },
+  "genapp-lgdpvs01": {
+   "issue": "#4465",
+   "why": "runTask proof passes on every scenario; the java-facade proof fails because the det-generated facade is a stub (handleTransaction/handleLink throw before the scenario's task runs)"
+  },
+  "genapp-lgucvs01": {
+   "issue": "#4465",
+   "why": "runTask proof passes on every scenario; the java-facade proof fails because the det-generated facade is a stub (handleTransaction/handleLink throw before the scenario's task runs)"
+  },
+  "genapp-lgupvs01": {
+   "issue": "#4465",
+   "why": "runTask proof passes on every scenario; the java-facade proof fails because the det-generated facade is a stub (handleTransaction/handleLink throw before the scenario's task runs)"
+  },
+  "mortgage-mlist": {
+   "issue": "#4465",
+   "why": "runTask proof passes on every scenario; the java-facade proof fails because the det-generated facade is a stub (handleTransaction/handleLink throw before the scenario's task runs)"
+  },
+  "mortgage-mpmt": {
+   "issue": "#4271",
+   "why": "IBM DBB EPSMPMT computes its payment through a COMP-1 item: z/OS evaluates both COMPUTEs in hexadecimal floating point, GnuCOBOL in truncated decimal, so the det translator refuses float items by name (oracle_assumptions.md C6; its CBL NUMPROC(MIG) is now modelled, C5)"
+  }
+ }
+}

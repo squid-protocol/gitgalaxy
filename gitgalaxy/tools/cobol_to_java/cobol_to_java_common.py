@@ -140,6 +140,31 @@ _RESERVED_VARS = {
     "null",
     "true",
     "false",
+    # #4463: the rest of the JLS 3.9 keywords. IBM DBB EPSCSMRD's CURRENT-CONDITION has a field CASE: since
+    # #4245 reads every program of a multi-program source, its entity declared `private Integer case;`, which broke
+    # the build of every MortgageApplication port.
+    "abstract",
+    "assert",
+    "break",
+    "case",
+    "continue",
+    "do",
+    "else",
+    "extends",
+    "final",
+    "for",
+    "if",
+    "implements",
+    "instanceof",
+    "native",
+    "strictfp",
+    "switch",
+    "synchronized",
+    "throw",
+    "throws",
+    "transient",
+    "volatile",
+    "while",
 }
 
 

@@ -73,7 +73,10 @@ def parse_csv(text: str, root: Path) -> dict[str, dict[str, set[str]]]:
     for row in rows:
         if row[0] in ("PGM", "FUNCTION", "CLASS") and len(row) >= 4 and row[2] in files:
             prog_file[row[1]] = files[row[2]]
-            facts_of(files[row[2]])["program_ids"].add(row[3].strip().upper())
+            pid = row[3].strip().strip("'\"").upper()  # a literal PROGRAM-ID keeps its quotes in mapa's CSV
+            facts = facts_of(files[row[2]])
+            if pid:
+                facts["program_ids"].add(pid)
     for row in rows:
         kind = row[0]
         if len(row) < 4:
@@ -103,20 +106,15 @@ def copy_dirs(root: Path) -> list[Path]:
     return sorted(dirs)
 
 
-def mapa_doc(corpus: str, root: Path, key: dict[str, Any]) -> dict[str, Any]:
-    jar = Path(os.environ.get(JAR_ENV) or "")
-    if not jar.is_file():
-        raise SystemExit(f"{JAR_ENV} does not name mapa's CallTree.jar (see tests/tools/referees/README.md)")
-    rels = sorted(key.get("programs", {}))
-    channels = ["program_ids", "copybooks", "call_targets", "sql_access", "cics_files"]
-    doc = F.new_doc("mapa", mapa_version(jar), corpus, channels)
+def run_calltree(jar: Path, paths: list[Path], libs: list[Path], root: Path) -> tuple[dict[str, dict[str, set[str]]], float, str]:
+    """One CallTree run over `paths`: (facts by absolute path, wall seconds, error tail)."""
     scratch = os.environ.get("REFEREES_CACHE")
     if scratch:
         Path(scratch).mkdir(parents=True, exist_ok=True)
     work = Path(tempfile.mkdtemp(prefix="mapa-", dir=scratch))
     try:
-        (work / "files").write_text("\n".join(str((root / r).resolve()) for r in rels) + "\n", encoding="utf-8")
-        (work / "libs").write_text("\n".join(str(d.resolve()) for d in copy_dirs(root)) + "\n", encoding="utf-8")
+        (work / "files").write_text("\n".join(str(p.resolve()) for p in paths) + "\n", encoding="utf-8")
+        (work / "libs").write_text("\n".join(str(d.resolve()) for d in libs) + "\n", encoding="utf-8")
         t0 = time.perf_counter()
         proc = subprocess.run(
             ["java", "-jar", str(jar), "-fileList", "files", "-copyList", "libs", "-out", "out.csv"],
@@ -125,17 +123,40 @@ def mapa_doc(corpus: str, root: Path, key: dict[str, Any]) -> dict[str, Any]:
         wall = time.perf_counter() - t0
         csv_path = work / "out.csv"
         found = parse_csv(csv_path.read_text(encoding="utf-8"), root) if csv_path.is_file() else {}
-        err_tail = (proc.stderr or proc.stdout or "")[-300:]
+        tail = (proc.stderr or proc.stdout or "").strip().splitlines()
+        err = f"exit {proc.returncode}: " + " | ".join(ln.strip() for ln in tail[:2])[:240] if proc.returncode else ""
     finally:
         shutil.rmtree(work, ignore_errors=True)
+    return found, wall, err
+
+
+def mapa_doc(corpus: str, root: Path, key: dict[str, Any]) -> dict[str, Any]:
+    jar = Path(os.environ.get(JAR_ENV) or "")
+    if not jar.is_file():
+        raise SystemExit(f"{JAR_ENV} does not name mapa's CallTree.jar (see tests/tools/referees/README.md)")
+    rels = sorted(key.get("programs", {}))
+    channels = ["program_ids", "copybooks", "call_targets", "sql_access", "cics_files"]
+    doc = F.new_doc("mapa", mapa_version(jar), corpus, channels)
+    libs = copy_dirs(root)
+    found, wall, err = run_calltree(jar, [root / r for r in rels], libs, root)
+    per = {rel: wall / max(len(rels), 1) for rel in rels}
+    errors = dict.fromkeys(rels, err)
+    if err and not found:
+        # one member that crashes CallTree (an uncaught exception) aborts the whole run:
+        # fall back to one run per member so the others still count
+        found, wall = {}, 0.0
+        for rel in rels:
+            f1, w1, e1 = run_calltree(jar, [root / rel], libs, root)
+            found.update(f1)
+            per[rel], errors[rel] = w1, e1
+            wall += w1
     doc["wall_seconds"] = wall
-    per = wall / max(len(rels), 1)
     for rel in rels:
         facts = found.get(str((root / rel).resolve()))
         if not facts or not facts["program_ids"]:
-            F.add_file(doc, rel, {}, status="fail", seconds=per, error=f"no PGM record (exit {proc.returncode}): {err_tail}")
+            F.add_file(doc, rel, {}, status="fail", seconds=per[rel], error=f"no PGM record ({errors[rel] or 'no error'})")
         else:
-            F.add_file(doc, rel, facts, seconds=per)
+            F.add_file(doc, rel, facts, seconds=per[rel])
     return doc
 
 

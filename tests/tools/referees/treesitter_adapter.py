@@ -39,7 +39,9 @@ import facts as F
 LIB_ENV = "TS_COBOL_ENTERPRISE_LIB"
 NAME_TYPES = ("WORD", "numeric_name")
 HEADER_TYPES = ("paragraph", "section")
-_SQL_TABLE = re.compile(r"\b(FROM|JOIN|INTO|UPDATE)\s+([A-Z0-9_#@$]+(?:\.[A-Z0-9_#@$]+)?)", re.I)
+_TABLE = r"[A-Z0-9_#@$]+(?:\.[A-Z0-9_#@$]+)?"
+# a FROM list may name several tables (`FROM POLICY, MOTOR`), each with an optional alias
+_SQL_TABLE = re.compile(rf"\b(FROM|JOIN|INTO|UPDATE)\s+({_TABLE}(?:\s+(?!WHERE\b|ORDER\b|GROUP\b)[A-Z][A-Z0-9_]*)?(?:\s*,\s*{_TABLE}(?:\s+(?!WHERE\b)[A-Z][A-Z0-9_]*)?)*)", re.I)
 _SQL_ACCESS = {"sql_select": "read", "sql_declare_cursor": "read", "sql_insert": "insert",
                "sql_update": "update", "sql_delete_sql": "delete"}  # fmt: skip
 
@@ -262,11 +264,12 @@ class Program:
                 access = _SQL_ACCESS.get(st.type)
                 if access is None:
                     continue
-                for kw, table in _SQL_TABLE.findall(text(st)):
+                for kw, tables in _SQL_TABLE.findall(text(st)):
                     kw = kw.upper()
-                    if (access == "read" and kw in ("FROM", "JOIN")) or (access == "insert" and kw == "INTO") or \
-                       (access == "update" and kw == "UPDATE") or (access == "delete" and kw == "FROM"):  # fmt: skip
-                        facts["sql_access"].add(f"{access} {table.upper()}")
+                    for table in (t.split()[0] for t in tables.split(",") if t.strip()):
+                        if (access == "read" and kw in ("FROM", "JOIN")) or (access == "insert" and kw == "INTO") or \
+                           (access == "update" and kw == "UPDATE") or (access == "delete" and kw == "FROM"):  # fmt: skip
+                            facts["sql_access"].add(f"{access} {table.upper()}")
 
 
 def file_facts(parser: Any, path: Path) -> tuple[str, dict[str, set[str]], Optional[str]]:

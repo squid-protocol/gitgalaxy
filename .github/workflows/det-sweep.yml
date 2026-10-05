@@ -1,0 +1,129 @@
+name: Det Sweep
+
+# #4463: every det port re-proven against GnuCOBOL, so a det port that stops proving is caught by CI. Before this
+# workflow, nothing ran the det sweep: four ports (carddemo-menu, mortgage-cmort / mlist / nbrvl) stopped proving
+# on 2026-10-04 (a scenario past its table, X8; a Java keyword as a field name) and stayed broken until a local
+# sweep found them.
+#
+# `proof_sweep.py --det-only --skip-db2` translates each equivalence case with the det translator
+# (gitgalaxy/tools/cobol_to_java/det) and proves it with tests/tools/equivalence.py, then checks the verdicts against
+# proof_sweep.KNOWN_UNPROVEN (the cases not proven on purpose): a case that stops proving, or a listed one that now
+# proves, fails the run. The Db2 cases are left out (IBM's Db2 container takes minutes to start); the nightly
+# Evidence Refresh and a local `proof_sweep.py` cover them. The model-written ports are re-proven by Evidence Refresh.
+#
+# Pull requests run it only when what a det proof reads changes: the translator and the generator it builds on,
+# the harness and oracle, the cases, the corpus pin.
+
+on:
+  pull_request:
+    branches: [main]
+    paths:
+      - "gitgalaxy/tools/cobol_to_java/**"
+      - "tests/tools/det_port.py"
+      - "tests/tools/det_parity.py"
+      - "tests/tools/proof_sweep.py"
+      - "tests/tools/equivalence*.py"
+      - "tests/tools/mainframe_corpus.py"
+      - "tests/equivalence/**"
+      - "tests/cobol_mainframe/corpora.json"
+      - ".github/workflows/det-sweep.yml"
+      - "!**/*.md"
+  schedule:
+    - cron: "41 4 * * *"  # nightly: the scan engine moves too (#4245 broke the mortgage ports from an engine change)
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
+
+jobs:
+  det:
+    runs-on: ubuntu-latest
+    timeout-minutes: 60  # ~15 min locally at --jobs 4; a hang should fail, not hold a runner for 6 h
+    env:
+      GITGALAXY_LICENSE_KEY: COMMUNITY_FREE_TIER
+      PYTHONUTF8: "1"
+      GITGALAXY_ORACLE_STRICT: "1"
+      GITGALAXY_MAINFRAME_CORPORA: ${{ github.workspace }}/.mainframe_corpora
+    steps:
+      - name: Checkout GitGalaxy
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          path: gitgalaxy
+          persist-credentials: false
+
+      - name: Setup Python
+        uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97 # v7.0.0
+        with:
+          python-version: "3.12"
+          cache: "pip"
+
+      - name: Install GitGalaxy with the translator
+        run: |
+          python -m pip install --upgrade pip
+          pip install -e "./gitgalaxy[translator]"
+
+      - name: Setup JDK 17
+        uses: actions/setup-java@de7274f081f381c8f8158605e0321c36c376e2e6 # v6.0.1
+        with:
+          distribution: temurin
+          java-version: "17"
+
+      - name: Cache Maven dependencies
+        uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
+        with:
+          path: ~/.m2/repository
+          key: det-sweep-m2-${{ hashFiles('gitgalaxy/gitgalaxy/tools/cobol_to_java/cobol_to_java_build_forge.py') }}
+          restore-keys: |
+            det-sweep-m2-
+            evidence-m2-
+            java-compile-m2-
+
+      - name: Cache the pinned corpora
+        uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
+        with:
+          path: .mainframe_corpora
+          key: mainframe-corpora-${{ hashFiles('gitgalaxy/tests/cobol_mainframe/corpora.json') }}
+
+      - name: Fetch the pinned corpora
+        run: |
+          cd gitgalaxy
+          rm -rf "$GITGALAXY_MAINFRAME_CORPORA/_scans"
+          PYTHONPATH="$PWD" python tests/tools/mainframe_corpus.py fetch
+
+      - name: Build the oracle image and check it against its pin (#4309)
+        run: |
+          docker build -q -t gitgalaxy-gnucobol:3 -f gitgalaxy/tests/equivalence/gnucobol.Dockerfile gitgalaxy/tests/equivalence
+          python gitgalaxy/tests/tools/equivalence_oracle.py --strict
+
+      - name: Re-prove every det port (no Db2)
+        shell: bash  # -eo pipefail: the sweep's exit status, not tee's
+        run: |
+          cd gitgalaxy
+          python tests/tools/proof_sweep.py --det-only --skip-db2 --jobs 4 --work "$RUNNER_TEMP/sweep" \
+            | tee "$RUNNER_TEMP/sweep.txt"
+
+      - name: Summary
+        if: always()
+        run: |
+          {
+            echo "## Det sweep"
+            echo '```'
+            grep -v '^ *$' "$RUNNER_TEMP/sweep.txt" 2>/dev/null | tail -40 || echo "(no output)"
+            echo '```'
+          } >> "$GITHUB_STEP_SUMMARY"
+
+      - name: Keep the failing proofs' logs
+        if: failure()
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        with:
+          name: det-sweep-logs
+          path: |
+            ${{ runner.temp }}/sweep/sweep.json
+            ${{ runner.temp }}/sweep/det/*/proof.log
+            ${{ runner.temp }}/sweep/det/*/proof/report.json
+            ${{ runner.temp }}/sweep/det/*/proof/java/maven.log
+          retention-days: 7

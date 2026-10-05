@@ -25,7 +25,7 @@
     "tests/equivalence/carddemo-menu/**"
    ],
    "files": 1,
-   "sha256": "19ee80b9d049321890df89247de08268b817d4e6334f9b06c006cbe502e3cf69"
+   "sha256": "0438494a837c763cc0022729ec4d25806bf2d816126c90ad6a6d4f43357742c4"
   },
   "harness": {
    "paths": [
@@ -42,7 +42,7 @@
     "tests/tools/java_target_matrix.py"
    ],
    "files": 11,
-   "sha256": "1764f900744b3e9c121722acf2c84aee1ef8dded04fa68f429e0abc39f031fd9"
+   "sha256": "c463ca45463a591e370c97e5ec9e229da87203b2299971d6c8a02e9fd3eb421b"
   },
   "oracle": {
    "paths": [
@@ -55,14 +55,14 @@
     "tests/tools/equivalence_sql.py"
    ],
    "files": 16,
-   "sha256": "b1be686cf96bbdce71bd0b5dc4245252f64020d97a5094cee850165bf093d250"
+   "sha256": "ee924d311b67148f9104af7158c534cc2fb9a50bb35ca6f7758d6a40efda414c"
   },
   "generator": {
    "paths": [
     "gitgalaxy/tools/cobol_to_java/**"
    ],
    "files": 60,
-   "sha256": "ad526b833acb84d7b0ac17ec9188f2725ecf6e1c6cb6612b7b5cf02543682983"
+   "sha256": "b3ec3dd4d75a81b1ee025c2ad1ad33d00df0cd8db32c437c204e8c84facf424b"
   },
   "corpus": {
    "name": "aws-mainframe-modernization-carddemo",
@@ -72,10 +72,10 @@
   "differences": {
    "sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
   },
-  "digest": "d233c4fe997b54afcb31d733210b9eca059d9554876351b457318eb88aadaf3a"
+  "digest": "b84398687c2a7fa3de2ea361837f5bc133783c202f2fc5d768faa75e24588d55"
  },
  "proof": {
-  "at": "2026-10-05T13:24:42Z",
+  "at": "2026-10-05T14:28:34Z",
   "verdict": "proven",
   "runs": 16,
   "fault_runs": 2,
@@ -150,8 +150,8 @@
   "sysout_compared": null,
   "attributes_compared": null,
   "java_failed": false,
-  "harness_commit": "94553a47d73cf994b4856a5fadf26df6cb11049b+uncommitted",
-  "inputs_digest": "d233c4fe997b54afcb31d733210b9eca059d9554876351b457318eb88aadaf3a"
+  "harness_commit": "0440595ee10293ad309d4b823ce4bdfb4f4f3522+uncommitted",
+  "inputs_digest": "b84398687c2a7fa3de2ea361837f5bc133783c202f2fc5d768faa75e24588d55"
  },
  "coverage": {
   "paragraphs": {
@@ -199,7 +199,7 @@
    "total": 0
   },
   "source": "the proof's own traced COBOL runs (cobol_coverage.py)",
-  "inputs_digest": "d233c4fe997b54afcb31d733210b9eca059d9554876351b457318eb88aadaf3a"
+  "inputs_digest": "b84398687c2a7fa3de2ea361837f5bc133783c202f2fc5d768faa75e24588d55"
  },
  "reach": {
   "entry_points": [
@@ -294,7 +294,7 @@
    },
    {
     "path": "tests/equivalence/cics/ggcics.c",
-    "sha256": "cfd00f48166b47683c2d342e0677b0faf06a0415183c109b6df62947485267d3"
+    "sha256": "2aff8a7a22af537b24cb03caafe4d6df30c30fde1cb6f548ba376616e6617214"
    },
    {
     "path": "tests/equivalence/db2/SQLCA.cpy",

@@ -302,6 +302,11 @@ Only generator output, never a test case:
   harness's stub was handed LENGTH OF INTO in its place -- both sides agreed, so GenApp LGUCVS01 / LGUPVS01 "proved"
   without either honouring LENGTH. A keyed READ's LENGTH is now in-out on both sides (`DetCics.readInto`, GGCREAD:
   truncation, LENGERR RESP2 11, the record's length set back; register X14).
+- #4463: four det ports stopped proving on 2026-10-04 and no CI ran the det sweep. carddemo-menu: a #4049 scenario
+  sent option 99, which COMEN01C still uses as a subscript of its 12-entry table, 4K past the record (X8: the det
+  port stops; the case now sends 12). mortgage-cmort / mlist / nbrvl: #4245 read every program of EPSCSMRD's
+  multi-program source, and its field CASE became the Java field `case` (the generator's keyword list was partial).
+  `.github/workflows/det-sweep.yml` now runs the sweep (no Db2) on translator / harness / case changes and nightly.
 
 ### Keyed reads
 

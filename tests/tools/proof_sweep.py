@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """Re-prove every port after a change that can move them all (the runtime, the harness, an oracle model).
 
-    python tests/tools/proof_sweep.py --work DIR [--det-only | --model-only] [--jobs 2] [--faults all]
+    python tests/tools/proof_sweep.py --work DIR [--det-only | --model-only] [--jobs 2] [--faults all] [--skip-db2]
 
 Two sweeps, as the det-port skill's checklists ask after a runtime or harness change:
   det    every equivalence case translated and proven (det_port.py run --all-cases);
@@ -10,6 +10,7 @@ Two sweeps, as the det-port skill's checklists ask after a runtime or harness ch
 DIR/sweep.json holds each case's verdict and coverage line; the summary compares them with KNOWN_UNPROVEN, the cases
 not proven on purpose (each with its reason): exit 1 when a case not listed there is not proven, or a listed one now
 is (the list is then stale). Db2 cases each take a database of the pool (equivalence_db2.hold_lock), waiting when every one is taken.
+--skip-db2 leaves out the cases with a "db2" section (IBM's Db2 container is slow to start): CI's det-sweep workflow (#4463).
 """
 
 from __future__ import annotations
@@ -53,8 +54,16 @@ def _coverage(log: Path) -> str:
     return lines[-1].split("COBOL coverage:", 1)[-1].strip() if lines else ""
 
 
-def det_sweep(work: Path, jobs: int, faults: str) -> dict[str, dict]:
-    argv = [sys.executable, str(TOOLS / "det_port.py"), "run", "--all-cases", "--jobs", str(jobs), "--faults", faults,
+def is_db2(case: str) -> bool:
+    """A case with a "db2" section: its proof needs IBM's Db2 container."""
+    return "db2" in json.loads((CASES / case / "case.json").read_text(encoding="utf-8"))
+
+
+def det_sweep(work: Path, jobs: int, faults: str, skip_db2: bool = False) -> dict[str, dict]:
+    which = ["--all-cases"]
+    if skip_db2:
+        which = sorted(p.parent.name for p in CASES.glob("*/case.json") if not is_db2(p.parent.name))
+    argv = [sys.executable, str(TOOLS / "det_port.py"), "run", *which, "--jobs", str(jobs), "--faults", faults,
             "--work", str(work)]  # fmt: skip
     subprocess.run(argv, cwd=REPO_ROOT, env=_env(), check=False, stdout=subprocess.DEVNULL)  # noqa: S603
     summary = json.loads((work / "summary.json").read_text(encoding="utf-8"))
@@ -66,10 +75,12 @@ def det_sweep(work: Path, jobs: int, faults: str) -> dict[str, dict]:
     return out
 
 
-def model_sweep(work: Path, faults: str) -> dict[str, dict]:
+def model_sweep(work: Path, faults: str, skip_db2: bool = False) -> dict[str, dict]:
     out = {}
     for port in sorted(CASES.glob("*/port")):
         case = port.parent.name
+        if skip_db2 and is_db2(case):
+            continue
         keep, log = work / case, work / f"{case}.log"
         argv = [sys.executable, str(TOOLS / "equivalence.py"), "run", case, "--keep", str(keep), "--faults", faults]
         with log.open("wb") as fh:
@@ -102,14 +113,15 @@ def main() -> int:
     which = ap.add_mutually_exclusive_group()
     which.add_argument("--det-only", action="store_true")
     which.add_argument("--model-only", action="store_true")
+    ap.add_argument("--skip-db2", action="store_true", help='leave out the cases with a "db2" section')
     args = ap.parse_args()
     args.work.mkdir(parents=True, exist_ok=True)
     results: dict[str, dict[str, dict]] = {}
     if not args.model_only:
-        results["det"] = det_sweep(args.work / "det", args.jobs, args.faults)
+        results["det"] = det_sweep(args.work / "det", args.jobs, args.faults, args.skip_db2)
     if not args.det_only:
         (args.work / "model").mkdir(exist_ok=True)
-        results["model"] = model_sweep(args.work / "model", args.faults)
+        results["model"] = model_sweep(args.work / "model", args.faults, args.skip_db2)
     (args.work / "sweep.json").write_text(json.dumps(results, indent=2) + "\n", encoding="utf-8")
     for sweep, cases in results.items():
         n = sum(r["proved"] for r in cases.values())

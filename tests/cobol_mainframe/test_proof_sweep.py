@@ -24,3 +24,8 @@ def test_unexpected_failures_and_stale_entries_are_named():
 def test_every_known_entry_names_a_case_and_a_reason():
     for (sweep, case), why in ps.KNOWN_UNPROVEN.items():
         assert sweep in ("det", "model") and (ps.CASES / case / "case.json").is_file() and len(why) > 20
+
+
+def test_skip_db2_leaves_out_exactly_the_db2_cases():
+    """#4463: CI's det-sweep workflow runs without IBM's Db2 container (--skip-db2)."""
+    assert ps.is_db2("genapp-lgupdb01") and not ps.is_db2("carddemo-menu")

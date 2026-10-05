@@ -410,7 +410,9 @@ def save_ledger(doc: dict[str, Any], path: Path = LEDGER) -> None:
 
 ABOUT = ("Every known engine-vs-translator fact disagreement (tests/tools/fact_crosscheck.py, #4273): id -> cause. "
          "A cause names the side that is wrong (engine / translator / definitional) and its issue. "
-         "Regenerate with `fact_crosscheck.py update`; triage with `assign`.")  # fmt: skip
+         "A two-way ratchet: CI fails on a new disagreement AND on one listed here that no longer reproduces, so a "
+         "PR that fixes a disagreement must lower this ledger (`fact_crosscheck.py update`) in the same PR. "
+         "Triage new ones with `assign`.")  # fmt: skip
 
 
 def validate_ledger(doc: dict[str, Any]) -> list[str]:
@@ -442,6 +444,22 @@ def gate(ledger: dict[str, Any], now: list[dict[str, str]]) -> tuple[list[str], 
     gone = sorted(set(known) - ids)
     problems = [e for e in validate_ledger(ledger) if "is used by no disagreement" not in e or not gone]
     return new, problems, gone
+
+
+def gate_failures(new: list[str], problems: list[str], gone: list[str]) -> list[str]:
+    """Why `check` fails: the ledger is a two-way ratchet. A new disagreement fails (a regression on either
+    side, or a new shape), and so does a ledgered one that no longer reproduces: a fix must lower the ledger
+    in the same PR, so the ledger only shrinks and a later regression cannot hide behind a stale id."""
+    out = []
+    if new:
+        out.append(f"{len(new)} new disagreement(s). Read the source: fix the side that is wrong, or `update` and "
+                   "`assign` the disagreement a cause (side + issue).")  # fmt: skip
+    if gone:
+        out.append(f"{len(gone)} ledgered disagreement(s) no longer reproduce (listed as GONE). Run "
+                   "`python tests/tools/fact_crosscheck.py update` to lower the ledger, and commit it in this PR.")  # fmt: skip
+    if problems:
+        out.append(f"{len(problems)} ledger problem(s) (listed as LEDGER).")
+    return out
 
 
 # ------------------------------------------------------------------------------
@@ -613,10 +631,11 @@ def main(argv: Optional[list[str]] = None) -> int:
         for x in problems[:50]:
             print(f"LEDGER {x}")
         for x in gone[:50]:
-            print(f"no longer reproduces (run update to ratchet): {x}")
-        if new or problems:
-            print(f"FAIL: {len(new)} new disagreement(s), {len(problems)} ledger problem(s). Read the source: fix the side "
-                  "that is wrong, or `update` and `assign` the disagreement a cause (side + issue).")  # fmt: skip
+            print(f"GONE {x}")
+        fail = gate_failures(new, problems, gone)
+        for line in fail:
+            print(f"FAIL: {line}")
+        if fail:
             return 1
     return 0
 

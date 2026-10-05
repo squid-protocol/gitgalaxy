@@ -1,6 +1,6 @@
 {
  "schema": "fact-crosscheck-ledger/1",
- "about": "Every known engine-vs-translator fact disagreement (tests/tools/fact_crosscheck.py, #4273): id -> cause. A cause names the side that is wrong (engine / translator / definitional) and its issue. Regenerate with `fact_crosscheck.py update`; triage with `assign`.",
+ "about": "Every known engine-vs-translator fact disagreement (tests/tools/fact_crosscheck.py, #4273): id -> cause. A cause names the side that is wrong (engine / translator / definitional) and its issue. A two-way ratchet: CI fails on a new disagreement AND on one listed here that no longer reproduces, so a PR that fixes a disagreement must lower this ledger (`fact_crosscheck.py update`) in the same PR. Triage new ones with `assign`.",
  "causes": {
   "cvda-dfhvalue": {
    "side": "definitional",

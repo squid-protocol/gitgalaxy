@@ -85,7 +85,11 @@ every channel, and the gate keeps them honest against each other.
 - `python tests/tools/fact_crosscheck.py check` fails on any disagreement the ledger does not list
   (an engine change that moves a fact the translator also reads, a translator change that moves one
   the engine reads, or a new estate shape), and on a ledger entry with no cause.
-- A ledgered disagreement that stops reproducing (a fix) does not fail: `update` drops it.
+- The ledger is a **two-way ratchet**: a ledgered disagreement that stops reproducing (a fix) also
+  fails `check`, listing the ids. **A PR that fixes a disagreement must lower the ledger in the same
+  PR** (`python tests/tools/fact_crosscheck.py update`, then commit the ledger), so the ledger only
+  shrinks and a later regression cannot hide behind a stale id. The engine fixes (#4457, #4458) and
+  translator fixes (#4459–#4462, #4467) will each do this.
 - New disagreements: read the source, fix the side that is wrong, or `update` and
   `assign CAUSE 'REGEX' --side engine|translator|definitional --issue N --summary ...`. Never mark a
   defect definitional to get green.

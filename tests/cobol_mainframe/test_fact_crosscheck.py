@@ -97,6 +97,29 @@ def test_gate_fails_on_new_and_lists_gone_without_failing() -> None:
     assert new == ["z"] and gone == ["b"] and problems == []
 
 
+def test_check_is_a_two_way_ratchet() -> None:
+    led = _ledger({"a": "c", "b": "c"})
+    new, problems, gone = X.gate(led, [{"id": "a"}])
+    fail = X.gate_failures(new, problems, gone)
+    assert gone == ["b"] and len(fail) == 1 and "fact_crosscheck.py update" in fail[0]
+    assert X.gate_failures(*X.gate(led, [{"id": "a"}, {"id": "b"}])) == []
+    assert X.gate_failures(*X.gate(led, [{"id": "a"}, {"id": "b"}, {"id": "z"}]))[0].startswith("1 new")
+
+
+def test_check_fails_on_a_stale_ledger_entry(monkeypatch, tmp_path: Path, capsys) -> None:
+    ledger = tmp_path / "ledger.json"
+    X.save_ledger(
+        _ledger({"toy :: units | A.cbl | engine | P2": "c", "toy :: units | A.cbl | engine | P9": "c"}), ledger
+    )
+    now = [{"id": "toy :: units | A.cbl | engine | P2"}]
+    monkeypatch.setattr(X, "run_all", lambda *a, **k: {"corpora": {}, "disagreements": now, "seconds": {}})
+    assert X.main(["check", "--no-crucible", "--ledger", str(ledger)]) == 1
+    out = capsys.readouterr().out
+    assert "GONE toy :: units | A.cbl | engine | P9" in out and "fact_crosscheck.py update" in out
+    X.save_ledger(_ledger({"toy :: units | A.cbl | engine | P2": "c"}), ledger)
+    assert X.main(["check", "--no-crucible", "--ledger", str(ledger)]) == 0
+
+
 def test_ledger_rejects_untriaged_unknown_and_incomplete_causes() -> None:
     led = _ledger({"a": None, "b": "nope", "c": "bad"}, {"bad": {"side": "neither", "issue": "x", "summary": ""}})
     errs = X.validate_ledger(led)

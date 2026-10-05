@@ -8,8 +8,8 @@ name: Fact Cross-check
 # pin, and fails on a disagreement tests/cobol_mainframe/fact_crosscheck_ledger.json does not list
 # (each listed one names the side that is wrong and its issue). A regression on EITHER side fails:
 # an engine change that moves a fact the translator also reads, or a translator change that moves
-# one the engine reads. A ledgered disagreement that stops reproducing is reported, not failed;
-# ratchet it with `fact_crosscheck.py update`. Ownership per channel:
+# one the engine reads. It is a two-way ratchet: a ledgered disagreement that stops reproducing fails
+# too, so a fix lowers the ledger (`fact_crosscheck.py update`) in the same PR. Ownership per channel:
 # docs/language_status/fact_ownership.md.
 #
 # Unlike estate-crucible.yml this workflow does watch the translator (gitgalaxy/tools/cobol_to_java/**

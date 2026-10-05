@@ -1,9 +1,13 @@
 name: Muninn Security Scan
 
 on:
+  # #4520: PRs to main with code changes only; main is covered by the weekly scan.
   pull_request:
-  push:
     branches: [main]
+    paths-ignore: ["docs/**", "**/*.md"]
+  schedule:
+    - cron: "17 5 * * 1"  # weekly, Monday
+  workflow_dispatch:
 
 permissions:
   contents: read

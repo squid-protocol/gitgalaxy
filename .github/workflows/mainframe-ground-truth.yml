@@ -9,7 +9,7 @@ name: Mainframe Ground Truth
 # listed one stops reproducing (an improvement -- ratchet it in with
 # `python tests/tools/ground_truth_ledger.py update`, then commit the ledger).
 #
-# Runs on every PR, with no paths filter: the scores depend on the whole engine
+# Runs on every code PR (docs/markdown-only changes are skipped): the scores depend on the whole engine
 # (detection, the COBOL/JCL/BMS/CSD registries, the resolver, the DB writer),
 # and the full fetch + scan + score of all three corpora takes well under a
 # minute. The same job also runs tests/cobol_mainframe/ with the corpora
@@ -23,8 +23,10 @@ name: Mainframe Ground Truth
 on:
   pull_request:
     branches: [main]
+    paths-ignore: ["docs/**", "**/*.md"]
   push:
     branches: [main]
+    paths-ignore: ["docs/**", "**/*.md"]
   workflow_dispatch:
 
 permissions:
@@ -58,6 +60,7 @@ jobs:
         with:
           python-version: "3.12"
           cache: "pip"
+          cache-dependency-path: gitgalaxy/pyproject.toml
 
       - name: Install GitGalaxy
         run: |

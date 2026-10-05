@@ -54,9 +54,7 @@ for p in (str(REPO_ROOT), str(HERE.parent), str(HERE)):
 import facts as F
 
 EXTRA_CHANNELS = ("offsets", "moves", "copy_resolution")
-CHANNELS = tuple(
-    ch for ch in F.CHANNELS if ch not in ("program_ids", "call_targets", "sql_access")
-) + EXTRA_CHANNELS
+CHANNELS = tuple(ch for ch in F.CHANNELS if ch not in ("program_ids", "call_targets", "sql_access")) + EXTRA_CHANNELS
 COPY_SUFFIXES = {".cpy", ".copy", ".cbl", ".cob", ".dcl", ""}
 SYNTHETIC = "<fact-crosscheck>"
 _INCLUDE = re.compile(r"^\s*EXEC\s+SQL\s+INCLUDE\s+([A-Z0-9#@$-]+)", re.I)
@@ -66,6 +64,12 @@ _FIG = {"SPACE": "SPACES", "SPACES": "SPACES", "ZERO": "ZEROES", "ZEROS": "ZEROE
         "HIGH-VALUES": "HIGH-VALUES", "QUOTE": "QUOTES", "QUOTES": "QUOTES", "NULL": "NULLS", "NULLS": "NULLS"}  # fmt: skip
 _DET_FIG = {"SPACES": "SPACES", "ZEROS": "ZEROES", "LOW": "LOW-VALUES", "HIGH": "HIGH-VALUES", "QUOTES": "QUOTES"}
 _DET_USAGE = {"BINARY": "COMP", "PACKED": "COMP-3"}
+
+
+def _copy_not_found(e: Exception) -> str:
+    """`COPY NAME` of a CopyNotFound, without the machine's directory list (the ledger must be portable)."""
+    m = re.search(r"COPY \S+", str(e))
+    return m.group(0) if m else str(e).split(" found in")[0][-80:]
 
 
 def det():
@@ -133,7 +137,7 @@ def canon_number(text: str) -> str:
         v = Decimal(text)
     except ArithmeticError:
         return text
-    return str(v.normalize()) if v == v.to_integral() else str(v)
+    return str(int(v)) if v == v.to_integral() else str(v)
 
 
 def canon_text_operand(src: Optional[str]) -> str:
@@ -185,7 +189,8 @@ def canon_operand(o: Any) -> str:
 
 
 def move_value(line: int, source: str, target: str) -> str:
-    return f"L{line} MOVE {source} -> {target}"
+    """Upper case throughout: the key folds a literal's case (cobol_answer_key.data_move_keys)."""
+    return f"L{line} MOVE {source} -> {target}".upper()
 
 
 # ------------------------------------------------------------------------------
@@ -280,7 +285,7 @@ def copybook_layouts(path: Path, dirs: list[Path]) -> tuple[Optional[set[str]], 
     try:
         body = S.expand(S.logical_lines(S._raw_lines(path), str(path)), dirs, chain=frozenset({path.resolve()}))
     except S.CopyNotFound as e:
-        return None, f"CopyNotFound: {e}"
+        return None, f"CopyNotFound: {_copy_not_found(e)}"
     first = next((re.match(r"\s*(\d+)\s", ln.text) for ln in body if re.match(r"\s*\d+\s", ln.text)), None)
     wrap = first is not None and int(first.group(1)) not in (1, 77)
     head = ["IDENTIFICATION DIVISION.", "PROGRAM-ID. GGXCHK.", "DATA DIVISION.", "WORKING-STORAGE SECTION."]
@@ -303,7 +308,9 @@ def copybook_layouts(path: Path, dirs: list[Path]) -> tuple[Optional[set[str]], 
 # ------------------------------------------------------------------------------
 # One program
 # ------------------------------------------------------------------------------
-def program_facts(root: Path, prog: Path, dirs: list[Path], key_prog: Optional[dict[str, Any]] = None) -> dict[str, Any]:
+def program_facts(
+    root: Path, prog: Path, dirs: list[Path], key_prog: Optional[dict[str, Any]] = None
+) -> dict[str, Any]:
     """{status, error, seconds, facts: {channel: set}, records: [(root Item, file, line)]} for one program."""
     import cobol_answer_key as ak
 
@@ -321,7 +328,7 @@ def program_facts(root: Path, prog: Path, dirs: list[Path], key_prog: Optional[d
     try:
         lines = S.program_lines(prog, dirs)
     except S.CopyNotFound as e:
-        out.update(status="fail", error=f"CopyNotFound: {str(e).split(': ', 1)[-1][:160]}", failed=["copy", "data", "procedure"])
+        out.update(status="fail", error=f"CopyNotFound: {_copy_not_found(e)}", failed=["copy", "data", "procedure"])
         out["seconds"] = round(time.monotonic() - t0, 3)
         return out
 
@@ -396,13 +403,16 @@ def program_facts(root: Path, prog: Path, dirs: list[Path], key_prog: Optional[d
         pd_line = next((ln.line for ln in own if re.match(r"\s*PROCEDURE\s+DIVISION\b", ln.text, re.I)), None)
 
         def header_file(p: Any) -> Optional[str]:
-            pat = re.compile(rf"^\s*{re.escape(p.name)}(\s+SECTION)?\s*\.", re.I)
+            # the header's period may stand on the next line (`2000-SEND-MAP` / `.`, CardDemo COTRTLIC)
+            pat = re.compile(rf"^\s*{re.escape(p.name)}(\s+SECTION)?\s*(\.|$)", re.I)
             hit = next((ln.file for ln in lines if ln.line == p.line and pat.match(ln.text)), None)
             return hit
 
         named = [(p, header_file(p)) for p in proc.paragraphs if p.name != "(MAIN)"]
         heads = sorted(p.line for p, hf in named if hf == progfile)
-        own_lines = [ln.line for ln in own]
+        # code lines of the source itself: a procedure-division COPY statement is code (its lines are replaced by
+        # the member's in `lines`)
+        own_lines = sorted({ln.line for ln in own} | {ln.line for ln in own_logical})
 
         def extent_end(start: int) -> int:
             nxt = next((h for h in heads if h > start), None)
@@ -460,7 +470,10 @@ def program_facts(root: Path, prog: Path, dirs: list[Path], key_prog: Optional[d
                         f["cics_commands"].add(F.cics_command(s.line, verb))
                     if verb in ("LINK", "XCTL") and opts.get("PROGRAM"):
                         a = opts["PROGRAM"] or ""
-                        f["calls"].add(F.call_value(verb, "literal" if a[:1] in "'\"" else "identifier", a))
+                        lit = a[:1] in "'\""
+                        f["calls"].add(
+                            F.call_value(verb, "literal" if lit else "identifier", a if lit else canon_name(a))
+                        )
                     if verb in F.CICS_FILE_VERBS:
                         a = opts.get("FILE") or opts.get("DATASET")
                         if a:
@@ -477,6 +490,7 @@ def program_facts(root: Path, prog: Path, dirs: list[Path], key_prog: Optional[d
     return out
 
 
+_WEB_VERBS = frozenset({"OPEN", "CLOSE", "CONVERSE", "SEND", "RECEIVE", "READ", "WRITE"})  # not PARSE / EXTRACT
 _TASK_VERBS = frozenset({"START", "RETRIEVE", "DELAY", "ENQ", "DEQ", "CANCEL", "RUN", "FETCH"})
 
 
@@ -498,7 +512,7 @@ def census_kind(words: list[str], opts: dict[str, Optional[str]]) -> Optional[st
         return "PROGRAM"
     if verb in _TASK_VERBS:
         return "TASK"
-    if verb == "WEB":
+    if verb == "WEB" and len(words) > 1 and words[1] in _WEB_VERBS:
         return "WEB"
     return None
 
@@ -541,7 +555,11 @@ def main() -> int:
     ap.add_argument("--root", type=Path, required=True)
     ap.add_argument("--key", type=Path, required=True)
     ap.add_argument("--out", type=Path, required=True)
-    ap.add_argument("--cache", type=Path, default=Path(os.environ.get("REFEREES_CACHE", Path.home() / ".cache" / "gitgalaxy-referees")))
+    ap.add_argument(
+        "--cache",
+        type=Path,
+        default=Path(os.environ.get("REFEREES_CACHE", Path.home() / ".cache" / "gitgalaxy-referees")),
+    )
     args = ap.parse_args()
     key = json.loads(args.key.read_text(encoding="utf-8"))
     doc, _ = translator_doc(args.root, args.corpus, key, args.cache)

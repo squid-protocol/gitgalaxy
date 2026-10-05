@@ -13,6 +13,7 @@ the repository and invoked as an external, unmodified tool.
 | `treesitter_adapter.py` | Spantree tree-sitter-cobol-enterprise: units, extents, edges, calls, COPY, data items, typed EXEC CICS / SQL |
 | `che4z_adapter.py` | Eclipse Che4z COBOL LSP's headless `analysis` CLI: units, extents, edges, COPY, data items |
 | `mapa_adapter.py` | mapa's CallTree: PROGRAM-IDs, COPY / INCLUDE, CALL / LINK / XCTL targets, DB2 tables, CICS file commands |
+| `translator_adapter.py` | the det COBOL-to-Java translator's own parse (not a referee: the engine's sibling inside GitGalaxy), for the engine-vs-translator cross-check `tests/tools/fact_crosscheck.py` (#4273) |
 | `estate_key.py` | estate-crucible's generated key (#4317) in the answer-key shape, so every adapter runs on it unchanged |
 | `score.py` | the scorecard: each source vs the key, agreement with the engine, disagreements for adjudication |
 

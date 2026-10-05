@@ -89,7 +89,10 @@ def case_programs() -> dict[str, dict[str, list[str]]]:
         if not d.get("program_source") or not d.get("corpus"):
             continue
         dirs = list(d.get("copy_dirs", [])) + list((d.get("db2") or {}).get("include_dirs", []))
-        for src in [d["program_source"], *[p["program_source"] for p in d.get("programs", []) if p.get("program_source")]]:
+        for src in [
+            d["program_source"],
+            *[p["program_source"] for p in d.get("programs", []) if p.get("program_source")],
+        ]:
             out[d["corpus"]].setdefault(src, dirs)
     return dict(out)
 
@@ -197,14 +200,25 @@ def key_side(key: dict[str, Any], crucible_members: Optional[dict[str, Any]] = N
             for v in dm.get("moves", []):
                 m = _KEY_MOVE.match(v)
                 if m and " CORR " not in v:
-                    moves.add(TA.move_value(int(m.group(1)), TA.canon_text_operand(m.group(2)), TA.canon_name(m.group(3))))
+                    moves.add(
+                        TA.move_value(int(m.group(1)), TA.canon_text_operand(m.group(2)), TA.canon_name(m.group(3)))
+                    )
             entry["facts"]["moves"] = sorted(moves)
         if crucible_members is not None and rel in crucible_members:
+            entry["facts"]["copy_resolution"] = sorted(
+                f"{c['member'].upper()} -> {c['resolves_to']}"
+                for c in crucible_members[rel].get("copies", []) if c.get("resolves_to")
+            )  # fmt: skip
             offs = set()
             for lay in crucible_members[rel].get("layouts", []):
                 r = lay["record"].upper()
-                offs.add(f"{r} (record) +{lay['bytes']}")
+                offs.add(f"{r} (record) +{lay['bytes'] if lay.get('bytes') is not None else '?'}")
+                kept: list[tuple[int, int]] = []
                 for fld in lay.get("fields", []):
+                    lo, hi = fld["offset"], fld["offset"] + fld["bytes"]
+                    if any(lo < b and a < hi for a, b in kept):
+                        continue  # a REDEFINES overlay: unscored on both sides (record_layout skips overlays)
+                    kept.append((lo, hi))
                     if fld.get("pic") and fld.get("name") and fld["name"].upper() != "FILLER":
                         offs.add(f"{r}/{fld['name'].upper()} @{fld['offset']}+{fld['bytes']}")
             entry["facts"]["offsets"] = sorted(offs)
@@ -225,7 +239,21 @@ def _vals(entry: dict[str, Any], ch: str, verbs: Optional[set[str]]) -> set[str]
     return v
 
 
-def compare(corpus: str, eng: dict[str, Any], tr: dict[str, Any], key: dict[str, Any], keyed: set[str]) -> dict[str, Any]:
+def _record_of(value: str) -> str:
+    return re.split(r"/| \(record\)", value, maxsplit=1)[0]
+
+
+def _records(values: set[str]) -> set[str]:
+    return {_record_of(v) for v in values}
+
+
+def _only_records(values: set[str], records: set[str]) -> set[str]:
+    return {v for v in values if _record_of(v) in records}
+
+
+def compare(
+    corpus: str, eng: dict[str, Any], tr: dict[str, Any], key: dict[str, Any], keyed: set[str]
+) -> dict[str, Any]:
     """Per channel: compared files, both / engine-only / translator-only counts, each side's tp / reported /
     true against the key (keyed files only), and the disagreements."""
     verbs = {v.split(" ", 1)[-1] for e in key["files"].values() for v in e["facts"].get("cics_commands", [])}
@@ -240,8 +268,12 @@ def compare(corpus: str, eng: dict[str, Any], tr: dict[str, Any], key: dict[str,
         if e["status"] == "fail":
             dis.append({"channel": "status", "file": rel, "only": "translator", "value": f"engine: {e['error']}"})
             continue
+        if {"data", "procedure"} <= failed:
+            failed.add("copy")  # a program refused whole was not read as COBOL (code page, free format ...)
         if failed:
-            dis.append({"channel": "status", "file": rel, "only": "engine", "value": f"translator refused: {t['error']}"})
+            dis.append(
+                {"channel": "status", "file": rel, "only": "engine", "value": f"translator refused: {t['error']}"}
+            )
         kentry = key["files"].get(rel) if rel in keyed else None
         for ch in COMPARED:
             if (ch in DATA_CHANNELS and "data" in failed) or (ch in PROC_CHANNELS and "procedure" in failed):
@@ -266,6 +298,10 @@ def compare(corpus: str, eng: dict[str, Any], tr: dict[str, Any], key: dict[str,
                     dis.append({"channel": ch, "file": rel, "only": only, "value": val})
             if kentry is not None and ch in kentry["facts"]:
                 truth = _vals(kentry, ch, v)
+                if ch == "offsets":
+                    # the records the key lays out (every 01 a program writes) that both sides laid out
+                    both_recs = _records(ev) & _records(tv) & _records(truth)
+                    truth, ev, tv = (_only_records(x, both_recs) for x in (truth, ev, tv))
                 s["key_files"] += 1
                 s["true"] += len(truth)
                 s["engine_reported"] += len(ev)
@@ -423,18 +459,30 @@ def totals(result: dict[str, Any]) -> dict[str, Counter]:
     return out
 
 
-def markdown(result: dict[str, Any], ledger: dict[str, Any], new: list[str], problems: list[str], gone: list[str]) -> str:
+def markdown(
+    result: dict[str, Any], ledger: dict[str, Any], new: list[str], problems: list[str], gone: list[str]
+) -> str:
     tot = totals(result)
     lines = ["# Engine vs translator fact cross-check (#4273)", ""]
-    lines.append("| channel | files | both | engine only | translator only | agreement | engine vs key P / R | translator vs key P / R |")
+    lines.append(
+        "| channel | files | both | engine only | translator only | agreement | engine vs key P / R | translator vs key P / R |"
+    )
     lines.append("|---|---:|---:|---:|---:|---:|---:|---:|")
     for ch in COMPARED:
         s = tot.get(ch, Counter())
         if not s.get("files"):
             continue
         union = s["both"] + s["engine_only"] + s["translator_only"]
-        ek = (f"{_pct(s['engine_tp'], s['engine_reported'])} / {_pct(s['engine_tp'], s['true'])}" if s.get("key_files") else "n/a")
-        tk = (f"{_pct(s['translator_tp'], s['translator_reported'])} / {_pct(s['translator_tp'], s['true'])}" if s.get("key_files") else "n/a")
+        ek = (
+            f"{_pct(s['engine_tp'], s['engine_reported'])} / {_pct(s['engine_tp'], s['true'])}"
+            if s.get("key_files")
+            else "n/a"
+        )
+        tk = (
+            f"{_pct(s['translator_tp'], s['translator_reported'])} / {_pct(s['translator_tp'], s['true'])}"
+            if s.get("key_files")
+            else "n/a"
+        )
         lines.append(f"| {ch} | {s['files']} | {s['both']} | {s['engine_only']} | {s['translator_only']} | "
                      f"{_pct(s['both'], union)} | {ek} | {tk} |")  # fmt: skip
     lines += ["", "| corpus | programs | det-port case programs | translator status | disagreements | seconds |",
@@ -444,7 +492,13 @@ def markdown(result: dict[str, Any], ledger: dict[str, Any], new: list[str], pro
         lines.append(f"| {name} | {res['programs']} | {res['case_programs']} | {st} | {len(res['disagreements'])} | "
                      f"{result['seconds'][name]['total']} |")  # fmt: skip
     by_cause = Counter(ledger["disagreements"].get(d["id"]) for d in result["disagreements"])
-    lines += ["", "## Known disagreements by cause", "", "| cause | side wrong | issue | count | summary |", "|---|---|---|---:|---|"]
+    lines += [
+        "",
+        "## Known disagreements by cause",
+        "",
+        "| cause | side wrong | issue | count | summary |",
+        "|---|---|---|---:|---|",
+    ]
     for cid, n in sorted(by_cause.items(), key=lambda kv: (-kv[1], str(kv[0]))):
         if cid is None:
             continue
@@ -452,7 +506,11 @@ def markdown(result: dict[str, Any], ledger: dict[str, Any], new: list[str], pro
         lines.append(f"| `{cid}` | {c.get('side', '?')} | #{c.get('issue', '?')} | {n} | {c.get('summary', '')} |")
     lines += ["", f"**{len(new)} new** disagreement(s), {len(problems)} ledger problem(s), "
               f"{len(gone)} ledgered disagreement(s) no longer reproduce."]  # fmt: skip
-    for title, items in (("New (not in the ledger)", new), ("Ledger problems", problems), ("No longer reproduce", gone)):
+    for title, items in (
+        ("New (not in the ledger)", new),
+        ("Ledger problems", problems),
+        ("No longer reproduce", gone),
+    ):
         if items:
             lines += ["", f"### {title}", ""] + [f"- `{x}`" for x in items[:200]]
             if len(items) > 200:
@@ -501,7 +559,13 @@ def main(argv: Optional[list[str]] = None) -> int:
         led = load_ledger(args.ledger)
         if args.side or args.issue or args.summary:
             c = led["causes"].setdefault(args.cause, {})
-            c.update({k: v for k, v in (("side", args.side), ("issue", args.issue), ("summary", args.summary)) if v is not None})
+            c.update(
+                {
+                    k: v
+                    for k, v in (("side", args.side), ("issue", args.issue), ("summary", args.summary))
+                    if v is not None
+                }
+            )
         elif args.cause not in led["causes"]:
             raise SystemExit(f"cause {args.cause} is new: give --side, --issue and --summary")
         rx = re.compile(args.pattern)
@@ -538,7 +602,9 @@ def main(argv: Optional[list[str]] = None) -> int:
     if args.md:
         args.md.write_text(md, encoding="utf-8")
     if args.json:
-        args.json.write_text(json.dumps({k: v for k, v in result.items()}, indent=1, default=str) + "\n", encoding="utf-8")
+        args.json.write_text(
+            json.dumps({k: v for k, v in result.items()}, indent=1, default=str) + "\n", encoding="utf-8"
+        )
     print(md if args.cmd == "run" else md.split("## Known disagreements")[0])
     print(f"total {result['seconds']['all']} s")
     if args.cmd == "check":

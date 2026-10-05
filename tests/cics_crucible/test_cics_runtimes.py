@@ -1077,3 +1077,37 @@ def test_cics_task_facades_run_their_task_in_the_region_joined_or_deployed(tmp_p
         "CSMI calen=null in=L+ link=NORMAL ts=3",  # a LINK from outside: the mirror's task, the deployed region's TS
         "1 null",
     ]
+
+
+@needs_javac
+def test_a_syncpoint_in_a_program_linked_from_outside_the_region_is_refused(tmp_path):
+    """#4437: IBM's SYNCPOINT / SYNCPOINT ROLLBACK raise INVREQ (RESP2 200) in a program LINKed from a remote system
+    that did not give SYNCONRETURN. The region does not know how its client LINKed, so a program LINKed from outside
+    (LocalRegion.linked: the mirror's task) refuses both, by name; a task the region starts itself commits and rolls
+    back as before (NORMAL, the only outcome there)."""
+    out = _cics_task(
+        tmp_path,
+        """
+        CicsTask.Region r = new CicsTask.LocalRegion(null, null, null);
+        for (String cmd : new String[] {"SYNCPOINT", "ROLLBACK"}) {
+            CicsTask l = r.linked("PROG", null);
+            try {
+                if (cmd.equals("SYNCPOINT")) l.syncpoint(); else l.rollback();
+                System.out.println("ran");
+            } catch (UnsupportedOperationException e) {
+                System.out.println(e.getMessage());
+            }
+        }
+        CicsTask t = r.transaction("TX01", null);
+        t.rollback();
+        CicsTask u = r.transaction("TX01", null);
+        u.syncpoint();
+        System.out.println("local ok");""",
+    )
+    assert out.splitlines() == [
+        "SYNCPOINT in a program LINKed from outside the region: INVREQ (RESP2 200) unless the client LINKed with "
+        "SYNCONRETURN, which the region does not know",
+        "SYNCPOINT ROLLBACK in a program LINKed from outside the region: INVREQ (RESP2 200) unless the client LINKed "
+        "with SYNCONRETURN, which the region does not know",
+        "local ok",
+    ]

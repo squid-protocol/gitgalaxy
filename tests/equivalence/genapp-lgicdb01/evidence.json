@@ -1,0 +1,351 @@
+{
+ "format": "gitgalaxy-evidence/1",
+ "case": "genapp-lgicdb01",
+ "program": "LGICDB01",
+ "kind": "cics",
+ "port": {
+  "paths": [
+   "tests/equivalence/genapp-lgicdb01/port/service/Lgicdb01Service.java"
+  ],
+  "sha256": "2f5103f9e72c3eb09996f20d5c36ae920a21320506ef4db58ab8630fa49e79d3",
+  "entry_points": [
+   "runTask"
+  ]
+ },
+ "inputs": {
+  "port": {
+   "paths": [
+    "tests/equivalence/genapp-lgicdb01/port/**"
+   ],
+   "files": 1,
+   "sha256": "2f5103f9e72c3eb09996f20d5c36ae920a21320506ef4db58ab8630fa49e79d3"
+  },
+  "case": {
+   "paths": [
+    "tests/equivalence/genapp-lgicdb01/**"
+   ],
+   "files": 1,
+   "sha256": "006fc6e96c5aa78ac54aa15f16be202c12f90beb19cc4118a6bf54ee6c29fd3a"
+  },
+  "harness": {
+   "paths": [
+    "tests/tools/equivalence.py",
+    "tests/tools/equivalence_common.py",
+    "tests/tools/equivalence_java.py",
+    "tests/tools/equivalence_inputs.py",
+    "tests/tools/equivalence_cics.py",
+    "tests/tools/equivalence_call.py",
+    "tests/tools/equivalence_cache.py",
+    "tests/tools/equivalence_db2.py",
+    "tests/tools/equivalence_oracle.py",
+    "tests/tools/cobol_coverage.py",
+    "tests/tools/java_target_matrix.py"
+   ],
+   "files": 11,
+   "sha256": "609073a350a3120d63bf3cb3e7f6a1050a9fc8a91964ac548b2826356f319cbc"
+  },
+  "oracle": {
+   "paths": [
+    "tests/equivalence/gnucobol.Dockerfile",
+    "tests/equivalence/gnucobol-db2.Dockerfile",
+    "tests/equivalence/cics/**",
+    "tests/equivalence/le/**",
+    "tests/equivalence/faults/**",
+    "tests/equivalence/db2/**",
+    "tests/tools/equivalence_sql.py"
+   ],
+   "files": 16,
+   "sha256": "b1be686cf96bbdce71bd0b5dc4245252f64020d97a5094cee850165bf093d250"
+  },
+  "generator": {
+   "paths": [
+    "gitgalaxy/tools/cobol_to_java/**"
+   ],
+   "files": 60,
+   "sha256": "4bce659e864447a8a4bd52045c7ee9117b016f7bef661231777be32946c64e41"
+  },
+  "corpus": {
+   "name": "cics-genapp",
+   "ref": "f6f3f4b2580d31b7d8dcc31ce3e3676f4cceaaaa",
+   "sha256": "c5e4d52071fad96bed24e9ba06f30417340bfc5e998e7c1cd5f2383be73d6ff6"
+  },
+  "differences": {
+   "sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+  },
+  "digest": "4e08cd18d367609756ed23c58daaf0b710812b0e68ad88820a3601e9cd75261f"
+ },
+ "proof": {
+  "at": "2026-10-05T05:09:29Z",
+  "verdict": "proven",
+  "runs": 12,
+  "fault_runs": 0,
+  "environments": null,
+  "outputs": {
+   "customer-1": {
+    "equal": 2,
+    "records": 2
+   },
+   "customer-2-mobile-blank": {
+    "equal": 2,
+    "records": 2
+   },
+   "customer-4-no-email": {
+    "equal": 2,
+    "records": 2
+   },
+   "customer-7-no-phones": {
+    "equal": 2,
+    "records": 2
+   },
+   "customer-9-sparse": {
+    "equal": 2,
+    "records": 2
+   },
+   "customer-10-last": {
+    "equal": 2,
+    "records": 2
+   },
+   "prefilled-commarea-overwritten": {
+    "equal": 2,
+    "records": 2
+   },
+   "request-id-ignored": {
+    "equal": 2,
+    "records": 2
+   },
+   "customer-not-found": {
+    "equal": 2,
+    "records": 2
+   },
+   "customer-zero": {
+    "equal": 2,
+    "records": 2
+   },
+   "customer-max-int": {
+    "equal": 2,
+    "records": 2
+   },
+   "not-found-keeps-prefill": {
+    "equal": 2,
+    "records": 2
+   }
+  },
+  "return_code_equal": null,
+  "sysout_compared": null,
+  "attributes_compared": null,
+  "java_failed": false,
+  "harness_commit": "7d9f9ad4029581c5bb198f11be6a6308cd80a591+uncommitted",
+  "inputs_digest": "4e08cd18d367609756ed23c58daaf0b710812b0e68ad88820a3601e9cd75261f"
+ },
+ "coverage": {
+  "paragraphs": {
+   "covered": 3,
+   "live": 4
+  },
+  "branches": {
+   "covered": 4,
+   "total": 12
+  },
+  "uncovered_branches": [
+   {
+    "line": 119,
+    "kind": "IF",
+    "outcome": "true",
+    "unit": "MAINLINE"
+   },
+   {
+    "line": 140,
+    "kind": "IF",
+    "outcome": "true",
+    "unit": "MAINLINE"
+   },
+   {
+    "line": 192,
+    "kind": "EVALUATE",
+    "outcome": "WHEN@197",
+    "unit": "GET-CUSTOMER-INFO"
+   },
+   {
+    "line": 192,
+    "kind": "EVALUATE",
+    "outcome": "OTHER",
+    "unit": "GET-CUSTOMER-INFO"
+   },
+   {
+    "line": 230,
+    "kind": "IF",
+    "outcome": "true",
+    "unit": "WRITE-ERROR-MESSAGE"
+   },
+   {
+    "line": 230,
+    "kind": "IF",
+    "outcome": "false",
+    "unit": "WRITE-ERROR-MESSAGE"
+   },
+   {
+    "line": 231,
+    "kind": "IF",
+    "outcome": "true",
+    "unit": "WRITE-ERROR-MESSAGE"
+   },
+   {
+    "line": 231,
+    "kind": "IF",
+    "outcome": "false",
+    "unit": "WRITE-ERROR-MESSAGE"
+   }
+  ],
+  "handler_labels": {
+   "covered": 0,
+   "total": 0
+  },
+  "source": "the proof's own traced COBOL runs (cobol_coverage.py)",
+  "inputs_digest": "4e08cd18d367609756ed23c58daaf0b710812b0e68ad88820a3601e9cd75261f"
+ },
+ "reach": {
+  "entry_points": [
+   "runTask"
+  ],
+  "unproven": [
+   {
+    "class": "Lgicdb01Service",
+    "method": "executeLgicdb01",
+    "line": 43,
+    "kind": "stub"
+   },
+   {
+    "class": "Lgicdb01Service",
+    "method": "handleTransaction",
+    "line": 48,
+    "kind": "stub"
+   },
+   {
+    "class": "Lgicdb01Service",
+    "method": "handleLink",
+    "line": 253,
+    "kind": "stub"
+   },
+   {
+    "class": "Lgicdb01Service",
+    "method": "linkLgstsq",
+    "line": 259,
+    "kind": "left_as_generated"
+   },
+   {
+    "class": "Lgicdb01Service",
+    "method": "abendLgcaL122",
+    "line": 267,
+    "kind": "left_as_generated"
+   }
+  ],
+  "counts": {
+   "stub": 3,
+   "left_as_generated": 2,
+   "ported_unproven": 0
+  },
+  "generated_compared": true,
+  "port_sha256": "2f5103f9e72c3eb09996f20d5c36ae920a21320506ef4db58ab8630fa49e79d3"
+ },
+ "mutation": null,
+ "differences": [],
+ "oracle": {
+  "kind": "gnucobol-models",
+  "compiler": "cobc (GnuCOBOL) 3.1.2.0",
+  "package": "3.1.2-5+b1",
+  "flags": "-std=ibm -fsign=EBCDIC",
+  "compiler_options": null,
+  "image": {
+   "name": "gitgalaxy-gnucobol-db2:3",
+   "id": "sha256:3d1d5e13c632545d0e1bc4d215c3fb8dd1d68d0ff8647b56880f1593353bc7dc",
+   "base": "debian:bookworm-slim@sha256:3783cc01769c7b2b1b83a5c5ad96c815348e28ed7da68e2e3687004faa906251",
+   "matches_pin": true,
+   "mismatches": []
+  },
+  "models": [
+   {
+    "path": "tests/equivalence/cics/DFHAID.cpy",
+    "sha256": "630c4f2cb617984403b2750dde4022c2e5b56bee0d9367049092af1f80def3c3"
+   },
+   {
+    "path": "tests/equivalence/cics/DFHBMSCA.cpy",
+    "sha256": "716274032abeec7783c189067cef6010ca9832c44072d2010493e3c430523a6a"
+   },
+   {
+    "path": "tests/equivalence/cics/DFHEIBLK.cpy",
+    "sha256": "fa4e0e29e8155a653c685420eb159fc5ec491ccf8eba13ccac1eb4962692fcf0"
+   },
+   {
+    "path": "tests/equivalence/cics/ggcics.c",
+    "sha256": "cfd00f48166b47683c2d342e0677b0faf06a0415183c109b6df62947485267d3"
+   },
+   {
+    "path": "tests/equivalence/db2/SQLCA.cpy",
+    "sha256": "2feec0cb41ec13473904f76885f8550b8e518016678ba6ab8deec378568a3674"
+   },
+   {
+    "path": "tests/equivalence/db2/SQLDA.cpy",
+    "sha256": "2f0c5b623926aa9767764344fc9d10fbbad8f9a404e2198c920a37baad8a6b6c"
+   },
+   {
+    "path": "tests/equivalence/db2/ggsql.c",
+    "sha256": "9f1776b4ce806a072af60706165d14e7bd3abd1698a383d7a728cc41982f8fab"
+   },
+   {
+    "path": "tests/equivalence/db2/ggsqlrun.c",
+    "sha256": "6029d1bf8da9b69c143e7d5fda194d50956bb261cd9ce37d7aa814f5511f47ea"
+   },
+   {
+    "path": "tests/equivalence/faults/ggabend.c",
+    "sha256": "6ef6042ded87f2651bcd38ce997895d277164501252756b0e5ee565765dc75bf"
+   },
+   {
+    "path": "tests/equivalence/faults/ggdisplay.c",
+    "sha256": "27101f274ac2f1e81cf0b5b4567caeb25311b17a8cd16447791be76b0cf51797"
+   },
+   {
+    "path": "tests/equivalence/faults/ggfault.c",
+    "sha256": "82f3e785fe10be99567675d29eb5b5d164c48df9a839394e9d85cfa5ef3a5049"
+   },
+   {
+    "path": "tests/equivalence/gnucobol-db2.Dockerfile",
+    "sha256": "d27c27d8e66a0f2e0b7b18de53405f067e5ad2dbd4dfbcacaaba62a1dce50009"
+   },
+   {
+    "path": "tests/equivalence/gnucobol.Dockerfile",
+    "sha256": "d1d845f5c839b4534553b8fe1abe146804a284b28842a63354643779de083109"
+   },
+   {
+    "path": "tests/equivalence/le/ceedays.c",
+    "sha256": "a2007e47ac1539ad72b612036453b5297708209198267dcc9bfb58350b63964a"
+   },
+   {
+    "path": "tests/equivalence/le/cobdatft.c",
+    "sha256": "df75c2ffbfbfad769135bb5044edf2b9b22440f3ff47e163b515605d2281edf4"
+   },
+   {
+    "path": "tests/tools/equivalence_sql.py",
+    "sha256": "f559af88445cfae17e422e4eef5c4cef57fc43ecc06263646cd26ceae4feafc9"
+   }
+  ],
+  "assumptions": null
+ },
+ "provenance": {
+  "written_by": "model",
+  "model": "claude-sonnet-5-5",
+  "backend": "claude-code-headless: claude -p, no tools, only the ticket's prompt",
+  "attempt": 1,
+  "attempts": 1,
+  "ticket_sha256": "f8f3c55e8a0c8db3768ed55c428459cf424a31a91b73e2ad8cf080a45566fabe",
+  "porting_rules_sha256": null,
+  "proposed_at": "2026-10-02T20:43:41+00:00",
+  "generator_version": null,
+  "edited_after": "none: the files are the model's answer as the loop stored it",
+  "provenance_file": {
+   "path": "tests/equivalence/genapp-lgicdb01/port/provenance.json",
+   "format": "porting-loop-provenance/1",
+   "sha256": "c6291a90510733dffa22697367dd972266becdfa696d8c5fa0c4ef601a56dd6b"
+  }
+ },
+ "approvals": []
+}

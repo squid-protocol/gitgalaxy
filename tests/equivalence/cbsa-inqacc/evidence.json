@@ -1,0 +1,449 @@
+{
+ "format": "gitgalaxy-evidence/1",
+ "case": "cbsa-inqacc",
+ "program": "INQACC",
+ "kind": "cics",
+ "port": {
+  "paths": [
+   "tests/equivalence/cbsa-inqacc/port/service/InqaccService.java"
+  ],
+  "sha256": "d0193820a4f3a00ed6b11754ecbe18f092baccd2588a964d352ef8cca2d7a94a",
+  "entry_points": [
+   "runTask"
+  ]
+ },
+ "inputs": {
+  "port": {
+   "paths": [
+    "tests/equivalence/cbsa-inqacc/port/**"
+   ],
+   "files": 1,
+   "sha256": "d0193820a4f3a00ed6b11754ecbe18f092baccd2588a964d352ef8cca2d7a94a"
+  },
+  "case": {
+   "paths": [
+    "tests/equivalence/cbsa-inqacc/**"
+   ],
+   "files": 3,
+   "sha256": "a39d307ace7093196d4217da06487c426d80acc673d572f5697f7a0c8d23af97"
+  },
+  "harness": {
+   "paths": [
+    "tests/tools/equivalence.py",
+    "tests/tools/equivalence_common.py",
+    "tests/tools/equivalence_java.py",
+    "tests/tools/equivalence_inputs.py",
+    "tests/tools/equivalence_cics.py",
+    "tests/tools/equivalence_call.py",
+    "tests/tools/equivalence_cache.py",
+    "tests/tools/equivalence_db2.py",
+    "tests/tools/equivalence_oracle.py",
+    "tests/tools/cobol_coverage.py",
+    "tests/tools/java_target_matrix.py"
+   ],
+   "files": 11,
+   "sha256": "609073a350a3120d63bf3cb3e7f6a1050a9fc8a91964ac548b2826356f319cbc"
+  },
+  "oracle": {
+   "paths": [
+    "tests/equivalence/gnucobol.Dockerfile",
+    "tests/equivalence/gnucobol-db2.Dockerfile",
+    "tests/equivalence/cics/**",
+    "tests/equivalence/le/**",
+    "tests/equivalence/faults/**",
+    "tests/equivalence/db2/**",
+    "tests/tools/equivalence_sql.py"
+   ],
+   "files": 16,
+   "sha256": "b1be686cf96bbdce71bd0b5dc4245252f64020d97a5094cee850165bf093d250"
+  },
+  "generator": {
+   "paths": [
+    "gitgalaxy/tools/cobol_to_java/**"
+   ],
+   "files": 60,
+   "sha256": "4bce659e864447a8a4bd52045c7ee9117b016f7bef661231777be32946c64e41"
+  },
+  "corpus": {
+   "name": "cics-banking-sample-application-cbsa",
+   "ref": "417334533178ab6e753cc64b0e0e5cf0b4952704",
+   "sha256": "7a4c86e6d6688f1516ec00cbd81941457457c861bf900e2b3a7f269c6bf9058b"
+  },
+  "differences": {
+   "sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+  },
+  "digest": "5a30bbbf7f5d70a075af415fd66e9b987bdeb26aff83581b2716faa0c1083e40"
+ },
+ "proof": {
+  "at": "2026-10-05T05:07:58Z",
+  "verdict": "proven",
+  "runs": 14,
+  "fault_runs": 0,
+  "environments": null,
+  "outputs": {
+   "current-found": {
+    "equal": 2,
+    "records": 2
+   },
+   "saving-found": {
+    "equal": 2,
+    "records": 2
+   },
+   "loan-negative-balance": {
+    "equal": 2,
+    "records": 2
+   },
+   "mortgage-found": {
+    "equal": 2,
+    "records": 2
+   },
+   "max-values-leap-day": {
+    "equal": 2,
+    "records": 2
+   },
+   "overdraft-past-picture": {
+    "equal": 2,
+    "records": 2
+   },
+   "negative-overdraft": {
+    "equal": 2,
+    "records": 2
+   },
+   "account-zero": {
+    "equal": 2,
+    "records": 2
+   },
+   "account-99999998": {
+    "equal": 2,
+    "records": 2
+   },
+   "last-account-sentinel": {
+    "equal": 2,
+    "records": 2
+   },
+   "not-found": {
+    "equal": 2,
+    "records": 2
+   },
+   "other-sort-code-not-found": {
+    "equal": 2,
+    "records": 2
+   },
+   "blank-account-type": {
+    "equal": 2,
+    "records": 2
+   },
+   "null-statement-date": {
+    "equal": 3,
+    "records": 3
+   }
+  },
+  "return_code_equal": null,
+  "sysout_compared": null,
+  "attributes_compared": null,
+  "java_failed": false,
+  "harness_commit": "7d9f9ad4029581c5bb198f11be6a6308cd80a591+uncommitted",
+  "inputs_digest": "5a30bbbf7f5d70a075af415fd66e9b987bdeb26aff83581b2716faa0c1083e40"
+ },
+ "coverage": {
+  "paragraphs": {
+   "covered": 22,
+   "live": 25
+  },
+  "branches": {
+   "covered": 13,
+   "total": 25
+  },
+  "uncovered_branches": [
+   {
+    "line": 273,
+    "kind": "IF",
+    "outcome": "true",
+    "unit": "RAD010"
+   },
+   {
+    "line": 353,
+    "kind": "IF",
+    "outcome": "true",
+    "unit": "RAD010"
+   },
+   {
+    "line": 604,
+    "kind": "EVALUATE",
+    "outcome": "WHEN@606",
+    "unit": "CFSDCD010"
+   },
+   {
+    "line": 616,
+    "kind": "IF",
+    "outcome": "true",
+    "unit": "CFSDCD010"
+   },
+   {
+    "line": 646,
+    "kind": "EVALUATE",
+    "outcome": "WHEN@651",
+    "unit": "AH010"
+   },
+   {
+    "line": 646,
+    "kind": "EVALUATE",
+    "outcome": "WHEN@672",
+    "unit": "AH010"
+   },
+   {
+    "line": 646,
+    "kind": "EVALUATE",
+    "outcome": "none",
+    "unit": "AH010"
+   },
+   {
+    "line": 687,
+    "kind": "IF",
+    "outcome": "true",
+    "unit": "AH010"
+   },
+   {
+    "line": 687,
+    "kind": "IF",
+    "outcome": "false",
+    "unit": "AH010"
+   },
+   {
+    "line": 763,
+    "kind": "IF",
+    "outcome": "true",
+    "unit": "AH010"
+   },
+   {
+    "line": 763,
+    "kind": "IF",
+    "outcome": "false",
+    "unit": "AH010"
+   },
+   {
+    "line": 874,
+    "kind": "IF",
+    "outcome": "true",
+    "unit": "GLAD010"
+   }
+  ],
+  "handler_labels": {
+   "covered": 0,
+   "total": 1
+  },
+  "source": "the proof's own traced COBOL runs (cobol_coverage.py)",
+  "inputs_digest": "5a30bbbf7f5d70a075af415fd66e9b987bdeb26aff83581b2716faa0c1083e40"
+ },
+ "reach": {
+  "entry_points": [
+   "runTask"
+  ],
+  "unproven": [
+   {
+    "class": "InqaccService",
+    "method": "executeInqacc",
+    "line": 111,
+    "kind": "stub"
+   },
+   {
+    "class": "InqaccService",
+    "method": "handleLink",
+    "line": 159,
+    "kind": "stub"
+   },
+   {
+    "class": "InqaccService",
+    "method": "onAbendL210",
+    "line": 289,
+    "kind": "stub"
+   },
+   {
+    "class": "InqaccService",
+    "method": "dispatchWsAbendPgmL321",
+    "line": 519,
+    "kind": "left_as_generated"
+   },
+   {
+    "class": "InqaccService",
+    "method": "dispatchWsAbendPgmL401",
+    "line": 530,
+    "kind": "left_as_generated"
+   },
+   {
+    "class": "InqaccService",
+    "method": "dispatchWsAbendPgmL516",
+    "line": 541,
+    "kind": "left_as_generated"
+   },
+   {
+    "class": "InqaccService",
+    "method": "dispatchWsAbendPgmL738",
+    "line": 552,
+    "kind": "left_as_generated"
+   },
+   {
+    "class": "InqaccService",
+    "method": "dispatchWsAbendPgmL810",
+    "line": 563,
+    "kind": "left_as_generated"
+   },
+   {
+    "class": "InqaccService",
+    "method": "dispatchWsAbendPgmL924",
+    "line": 574,
+    "kind": "left_as_generated"
+   },
+   {
+    "class": "InqaccService",
+    "method": "rollbackL682",
+    "line": 587,
+    "kind": "left_as_generated"
+   },
+   {
+    "class": "InqaccService",
+    "method": "abendHracL335",
+    "line": 596,
+    "kind": "left_as_generated"
+   },
+   {
+    "class": "InqaccService",
+    "method": "abendHracL415",
+    "line": 605,
+    "kind": "left_as_generated"
+   },
+   {
+    "class": "InqaccService",
+    "method": "abendHracL524",
+    "line": 614,
+    "kind": "left_as_generated"
+   },
+   {
+    "class": "InqaccService",
+    "method": "abendHrolL748",
+    "line": 623,
+    "kind": "left_as_generated"
+   },
+   {
+    "class": "InqaccService",
+    "method": "abendMyabendcodeL814",
+    "line": 632,
+    "kind": "left_as_generated"
+   },
+   {
+    "class": "InqaccService",
+    "method": "abendHncsL932",
+    "line": 641,
+    "kind": "left_as_generated"
+   }
+  ],
+  "counts": {
+   "stub": 3,
+   "left_as_generated": 13,
+   "ported_unproven": 0
+  },
+  "generated_compared": true,
+  "port_sha256": "d0193820a4f3a00ed6b11754ecbe18f092baccd2588a964d352ef8cca2d7a94a"
+ },
+ "mutation": null,
+ "differences": [],
+ "oracle": {
+  "kind": "gnucobol-models",
+  "compiler": "cobc (GnuCOBOL) 3.1.2.0",
+  "package": "3.1.2-5+b1",
+  "flags": "-std=ibm -fsign=EBCDIC",
+  "compiler_options": null,
+  "image": {
+   "name": "gitgalaxy-gnucobol-db2:3",
+   "id": "sha256:3d1d5e13c632545d0e1bc4d215c3fb8dd1d68d0ff8647b56880f1593353bc7dc",
+   "base": "debian:bookworm-slim@sha256:3783cc01769c7b2b1b83a5c5ad96c815348e28ed7da68e2e3687004faa906251",
+   "matches_pin": true,
+   "mismatches": []
+  },
+  "models": [
+   {
+    "path": "tests/equivalence/cics/DFHAID.cpy",
+    "sha256": "630c4f2cb617984403b2750dde4022c2e5b56bee0d9367049092af1f80def3c3"
+   },
+   {
+    "path": "tests/equivalence/cics/DFHBMSCA.cpy",
+    "sha256": "716274032abeec7783c189067cef6010ca9832c44072d2010493e3c430523a6a"
+   },
+   {
+    "path": "tests/equivalence/cics/DFHEIBLK.cpy",
+    "sha256": "fa4e0e29e8155a653c685420eb159fc5ec491ccf8eba13ccac1eb4962692fcf0"
+   },
+   {
+    "path": "tests/equivalence/cics/ggcics.c",
+    "sha256": "cfd00f48166b47683c2d342e0677b0faf06a0415183c109b6df62947485267d3"
+   },
+   {
+    "path": "tests/equivalence/db2/SQLCA.cpy",
+    "sha256": "2feec0cb41ec13473904f76885f8550b8e518016678ba6ab8deec378568a3674"
+   },
+   {
+    "path": "tests/equivalence/db2/SQLDA.cpy",
+    "sha256": "2f0c5b623926aa9767764344fc9d10fbbad8f9a404e2198c920a37baad8a6b6c"
+   },
+   {
+    "path": "tests/equivalence/db2/ggsql.c",
+    "sha256": "9f1776b4ce806a072af60706165d14e7bd3abd1698a383d7a728cc41982f8fab"
+   },
+   {
+    "path": "tests/equivalence/db2/ggsqlrun.c",
+    "sha256": "6029d1bf8da9b69c143e7d5fda194d50956bb261cd9ce37d7aa814f5511f47ea"
+   },
+   {
+    "path": "tests/equivalence/faults/ggabend.c",
+    "sha256": "6ef6042ded87f2651bcd38ce997895d277164501252756b0e5ee565765dc75bf"
+   },
+   {
+    "path": "tests/equivalence/faults/ggdisplay.c",
+    "sha256": "27101f274ac2f1e81cf0b5b4567caeb25311b17a8cd16447791be76b0cf51797"
+   },
+   {
+    "path": "tests/equivalence/faults/ggfault.c",
+    "sha256": "82f3e785fe10be99567675d29eb5b5d164c48df9a839394e9d85cfa5ef3a5049"
+   },
+   {
+    "path": "tests/equivalence/gnucobol-db2.Dockerfile",
+    "sha256": "d27c27d8e66a0f2e0b7b18de53405f067e5ad2dbd4dfbcacaaba62a1dce50009"
+   },
+   {
+    "path": "tests/equivalence/gnucobol.Dockerfile",
+    "sha256": "d1d845f5c839b4534553b8fe1abe146804a284b28842a63354643779de083109"
+   },
+   {
+    "path": "tests/equivalence/le/ceedays.c",
+    "sha256": "a2007e47ac1539ad72b612036453b5297708209198267dcc9bfb58350b63964a"
+   },
+   {
+    "path": "tests/equivalence/le/cobdatft.c",
+    "sha256": "df75c2ffbfbfad769135bb5044edf2b9b22440f3ff47e163b515605d2281edf4"
+   },
+   {
+    "path": "tests/tools/equivalence_sql.py",
+    "sha256": "f559af88445cfae17e422e4eef5c4cef57fc43ecc06263646cd26ceae4feafc9"
+   }
+  ],
+  "assumptions": null
+ },
+ "provenance": {
+  "written_by": "model",
+  "model": "claude-sonnet-5-5",
+  "backend": "claude-code-headless: claude -p, no tools, only the ticket's prompt",
+  "attempt": 2,
+  "attempts": 4,
+  "ticket_sha256": "e42b66036432cef4fa3364da11ed9f1881c5dd9b7041d87b2264d95d0951ff3c",
+  "porting_rules_sha256": null,
+  "proposed_at": "2026-10-02T19:19:58+00:00",
+  "generator_version": null,
+  "edited_after": "none: the files are the model's answer as the loop stored it",
+  "provenance_file": {
+   "path": "tests/equivalence/cbsa-inqacc/port/provenance.json",
+   "format": "porting-loop-provenance/1",
+   "sha256": "288b25574cd4480ff21867e1ebb9156d44e7ab1a28a818977f5384db64cdcc5a"
+  }
+ },
+ "approvals": []
+}

@@ -323,9 +323,34 @@ def proof_section(t: Target, report: dict[str, Any], digest: str) -> dict[str, A
         "sysout_compared": sysout.get("compared") if isinstance(sysout, dict) else None,
         "attributes_compared": None,  # #4053: not reported by the harness yet
         "java_failed": bool(report.get("java_failed")),
+        # #4449: a CICS port proven through its deployed entry points too (equivalence_cics java-facade side)
+        **({"facade": facade_summary(report["facade"])} if report.get("facade") is not None else {}),
         "harness_commit": harness_commit(),
         "inputs_digest": digest,
     }  # fmt: skip
+
+
+def facade_summary(fc: dict[str, Any]) -> dict[str, Any]:
+    """#4449: the java-facade side of a CICS proof, as the record keeps it."""
+    outs = fc.get("outputs") or {}
+    failed = [{"scenario": n, "why": ("refused: " + o["refused"]) if o.get("refused") else
+               f"differs ({o['equal']}/{o['records']} events equal{', files differ' if o.get('files') else ''})"}
+              for n, o in sorted(outs.items()) if not o.get("pass")]  # fmt: skip
+    return {"verdict": "proven" if fc.get("proven") else "not-proven", "runs": len(outs),
+            "passed": sum(1 for o in outs.values() if o.get("pass")),
+            "entry_points": [e["method"] for e in fc.get("entry_points") or []],
+            "failed": failed, "error": (fc.get("error") or "")[-500:] or None}  # fmt: skip
+
+
+_FACADE = re.compile(r"public\s+[\w<>.]+\s+(handleTransaction|handleLink)\s*\(")
+
+
+def port_facades(t: Target) -> list[str]:
+    """#4449: the deployed entry points (Spring facades) a CICS equivalence port's own files declare."""
+    if t.kind != "cics" or not t.port_dir.is_dir():
+        return []
+    return sorted({m for f in sorted(t.port_dir.rglob("*.java"), key=lambda q: q.parts)
+                   for m in _FACADE.findall(f.read_text(encoding="utf-8"))})  # fmt: skip
 
 
 def coverage_section(t: Target, report: dict[str, Any], digest: str) -> Optional[dict[str, Any]]:
@@ -498,7 +523,8 @@ def record_proof(t: Target, report: dict[str, Any], work: Optional[Path] = None)
         "inputs": inputs,
         "proof": proof_section(t, report, inputs["digest"]),
         "coverage": coverage_section(t, report, inputs["digest"]),
-        "reach": reach_section(t, work, [e["method"] for e in report.get("entries") or []]),
+        "reach": reach_section(t, work, [e["method"] for e in report.get("entries") or []]
+                               + [e["method"] for e in (report.get("facade") or {}).get("entry_points") or []]),
         "mutation": mutation_section(t),
         "oracle": oracle_section(t, report.get("oracle")),
         "provenance": provenance_section(t),
@@ -566,9 +592,22 @@ def status(rec: Optional[dict[str, Any]], t: Target, *, live: bool = True,
         reasons.append("never proven")
     elif proof["verdict"] != "proven":
         st = "not-proven"
+        fc = proof.get("facade") or {}
         reasons.append(
-            "the proof failed" + (" (the Java side did not build or run)" if proof.get("java_failed") else "")
+            "the proof failed"
+            + (" (the Java side did not build or run)" if proof.get("java_failed") else "")
+            + (
+                f" through its deployed entry points (java-facade: {fc['passed']}/{fc['runs']} scenarios pass"
+                + (", the run failed" if fc.get("error") else "")
+                + ")"
+                if fc.get("verdict") == "not-proven"
+                else ""
+            )
         )
+    elif t.kind == "cics" and proof.get("facade") is None and port_facades(t):
+        st = "not-proven"  # #4449: a CICS online port is proven through its deployed entry points too
+        reasons.append(f"not proven through its deployed entry points ({' / '.join(port_facades(t))}): the proof "
+                       "predates the java-facade side (#4449); re-prove it")  # fmt: skip
     elif ported and policy == "block":
         st = "not-proven"
         names = ", ".join(sorted({m["method"] for m in ported}))
@@ -625,6 +664,11 @@ def claim(rec: dict[str, Any], st: dict[str, Any]) -> str:
                      f"survivors: {s['case_gap']} case gaps, {s['harness_gap']} harness gaps, {s['equivalent']} "
                      f"equivalent, {s['unreachable']} unreachable, {s['untriaged']} untriaged)"
                      + (f" -- **{note}**" if note.startswith("stale") else "") + ".")  # fmt: skip
+    fc = p.get("facade")
+    if fc:
+        parts.append(f"Through its deployed entry points (java-facade, #4449): **{fc['passed']}/{fc['runs']} "
+                     f"scenarios pass**" + (f", entered by {' / '.join(fc['entry_points'])}" if fc["entry_points"]
+                                            else "") + ".")  # fmt: skip
     r = rec.get("reach")
     if r:
         k = r["counts"]
@@ -717,6 +761,14 @@ def render_page(t: Target, rec: dict[str, Any]) -> str:
     lines.append(f"| written by | {who} |")
     lines += ["", "## Proof outputs", "", "| output | equal | compared |", "|---|---|---|"]
     lines += [f"| {k} | {v['equal']} | {v['records']} |" for k, v in sorted((p.get("outputs") or {}).items())]
+    fc = p.get("facade")
+    if fc:  # #4449
+        lines += ["", "## Through the deployed entry points (java-facade, #4449)", "",
+                  f"{fc['passed']}/{fc['runs']} scenarios pass, entered by "
+                  f"{' / '.join(fc['entry_points']) or '(no passing scenario)'}."]  # fmt: skip
+        if fc.get("failed"):
+            lines += ["", "| scenario | why it fails |", "|---|---|"]
+            lines += [f"| {f['scenario']} | {f['why']} |" for f in fc["failed"]]
     r = rec.get("reach") or {}
     if r.get("unproven"):
         lines += ["", "## Methods no proof runs (#4255)", "", "| class | method | line | kind |", "|---|---|---|---|"]

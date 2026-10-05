@@ -1675,6 +1675,215 @@ DB2_JAVA = """    @Autowired org.springframework.jdbc.core.namedparam.NamedParam
 """
 
 
+# #4449: the java-facade side's region (the CICS crucible's, #4343, for the equivalence harness's one-task scenarios).
+FACADE_JAVA = """    /** #4449: a facade did not run the scenario's task the way its deployed entry point must. */
+    static final class FacadeRefused extends RuntimeException {
+        FacadeRefused(String message) {
+            super(message);
+        }
+    }
+
+    /** #4449: the scenario's region, joined while the program's facade runs (-Dequivalence.facades=true). It hands
+     *  handleTransaction the very task the scenario built (its COMMAREA, key, screen input, files, faults), or
+     *  handleLink the level a LINK makes, and refuses any other: a facade that builds a task of its own, runs
+     *  another program, or never runs its task here is not running the path the scenario proves. A LINKed program
+     *  (a case's `"linked": true`) is entered by handleLink, any other by handleTransaction; a service with neither
+     *  runs through runTask, and `entries` says so. */
+    static final class FacadeRegion implements CicsTask.Region {
+        final CicsTask scenario;
+        final Object commarea;
+        final String program;
+        final boolean linkedEntry;
+        final List<Map<String, Object>> entries = new ArrayList<>();
+        CicsTask top;  // the scenario's task, until handleTransaction asks the region for it
+        CicsTask linked;  // the level a LINK runs, until handleLink asks for it
+        String linkedProgram;
+        boolean started;  // the scenario's first program began ...
+        boolean ended;  // ... and returned normally
+        String refused;
+
+        FacadeRegion(CicsTask scenario, Object commarea, String program, boolean linkedEntry) {
+            this.scenario = scenario;
+            this.commarea = commarea;
+            this.program = program;
+            this.linkedEntry = linkedEntry;
+        }
+
+        @Override
+        public CicsTask transaction(String transid, Object ca) {
+            CicsTask t = top;
+            if (t == null || !t.transid().equals(transid) || ca != commarea) {
+                throw new FacadeRefused("a facade asked the region for a task of " + transid
+                        + " that is not the one the scenario starts");
+            }
+            top = null;
+            return t;
+        }
+
+        @Override
+        public CicsTask linked(String p, Object ca) {
+            CicsTask t = linked;
+            if (t == null || !p.equals(linkedProgram) || area(t) != ca) {
+                throw new FacadeRefused("a facade asked the region for a level of " + p
+                        + " that is not the LINK the scenario made");
+            }
+            linked = null;
+            return t;
+        }
+
+        @Override
+        public void run(CicsTask task, String p, Consumer<CicsTask> self) {
+            if (task == scenario && !started) {
+                if (!p.equals(program)) {
+                    throw new FacadeRefused("the facade of " + program + " ran program " + p);
+                }
+                started = true;
+                self.accept(task);
+                ended = true;
+                return;
+            }
+            self.accept(task);
+        }
+
+        /** The scenario's program, entered through its facade. */
+        void start(Object service) {
+            if (linkedEntry) {
+                Method m = method(service, "handleLink", 1);
+                if (m == null) {
+                    runTask(service);
+                    return;
+                }
+                if (commarea != null && !m.getParameterTypes()[0].isInstance(commarea)) {
+                    throw new FacadeRefused("handleLink of " + program + " takes a " + m.getParameterTypes()[0].getName()
+                            + ", the scenario's COMMAREA is a " + commarea.getClass().getName());
+                }
+                linked = scenario;
+                linkedProgram = program;
+                entry(program, "handleLink");
+                Object got = call(m, service, commarea);
+                if (linked != null) {
+                    throw new FacadeRefused("handleLink of " + program + " did not run its task in the region");
+                }
+                if (m.getReturnType() != void.class && got != commarea) {
+                    throw new FacadeRefused("handleLink of " + program
+                            + " answered a COMMAREA other than the one passed to it by reference");
+                }
+                return;
+            }
+            Method one = method(service, "handleTransaction", 1);
+            Method two = method(service, "handleTransaction", 2);
+            if (one == null && two == null) {
+                runTask(service);
+                return;
+            }
+            top = scenario;
+            entry(program, "handleTransaction");
+            Method used;
+            Object got;
+            if (commarea == null && one != null) {
+                used = one;
+                got = call(one, service, scenario.transid());
+            } else if (two != null && (commarea == null || two.getParameterTypes()[1].isInstance(commarea))) {
+                used = two;
+                got = call(two, service, scenario.transid(), commarea);
+            } else {
+                throw new FacadeRefused("handleTransaction of " + program + " cannot take the COMMAREA ("
+                        + commarea.getClass().getName() + ") the task starts with");
+            }
+            if (top != null) {
+                throw new FacadeRefused("handleTransaction of " + program + " did not run its task in the region");
+            }
+            if (used.getReturnType() != void.class && got != scenario.returned(Object.class)) {
+                throw new FacadeRefused("handleTransaction of " + program
+                        + " answered a COMMAREA other than the one its RETURN passes on");
+            }
+        }
+
+        /** A service with no facade: the scenario through its runTask, as the runTask side runs it. */
+        void runTask(Object service) {
+            entry(program, "runTask");
+            started = true;
+            call(method(service, "runTask", 1), service, scenario);
+            ended = true;
+        }
+
+        /** A program the task LINKs to (the case's `programs`), through its service's handleLink (else runTask). */
+        void enter(String p, CicsTask task, Object service) {
+            Method m = method(service, "handleLink", 1);
+            if (m == null) {
+                entry(p, "runTask");
+                call(method(service, "runTask", 1), service, task);
+                return;
+            }
+            Object ca = area(task);
+            if (ca != null && !m.getParameterTypes()[0].isInstance(ca)) {
+                throw new FacadeRefused("handleLink of " + p + " takes a " + m.getParameterTypes()[0].getName()
+                        + ", the LINK passed a " + ca.getClass().getName());
+            }
+            CicsTask outer = linked;
+            String outerProgram = linkedProgram;
+            linked = task;
+            linkedProgram = p;
+            entry(p, "handleLink");
+            try {
+                call(m, service, ca);
+            } catch (RuntimeException e) {
+                if (linked == task && !(e instanceof FacadeRefused)) {  // it never asked the region for its level
+                    throw new FacadeRefused("handleLink of " + p + " threw before it ran its level: " + e);
+                }
+                throw e;
+            }
+            if (linked == task) {
+                throw new FacadeRefused("handleLink of " + p + " did not run its task in the region");
+            }
+            linked = outer;
+            linkedProgram = outerProgram;
+        }
+
+        void entry(String p, String method) {
+            Map<String, Object> e = new LinkedHashMap<>();
+            e.put("program", p);
+            e.put("method", method);
+            if (!entries.contains(e)) {
+                entries.add(e);
+            }
+        }
+
+        /** Calls a facade: what the program throws (an abend, a condition) is thrown as itself; what the facade
+         *  throws before the scenario's task ran (a task of its own failing) or after its program returned normally
+         *  (e.g. task.returned(..) refusing the COMMAREA) is a refusal. */
+        Object call(Method m, Object service, Object... args) {
+            try {
+                return m.invoke(service, args);
+            } catch (InvocationTargetException e) {
+                Throwable cause = e.getCause();
+                if ((!started || ended) && !(cause instanceof FacadeRefused)) {
+                    throw new FacadeRefused(m.getName() + " of " + program + " threw "
+                            + (started ? "after its task ended: " : "before it ran the scenario's task: ") + cause);
+                }
+                throw cause instanceof RuntimeException r ? r : new IllegalStateException(cause);
+            } catch (IllegalAccessException e) {
+                throw new IllegalStateException(e);
+            }
+        }
+    }
+
+    static Object area(CicsTask task) {
+        return task.hasCommarea() ? task.commarea(Object.class) : null;
+    }
+
+    /** The service's public method `name` taking `params` parameters (the deployed bean: a proxy's too), or null. */
+    static Method method(Object service, String name, int params) {
+        for (Method m : service.getClass().getMethods()) {
+            if (m.getName().equals(name) && m.getParameterCount() == params) {
+                return m;
+            }
+        }
+        return null;
+    }
+"""
+
+
 def _svc_var(program: str) -> str:
     """The test's field for a program's service (a LINK target the case runs)."""
     import equivalence_java as ej
@@ -1708,8 +1917,10 @@ def cics_equivalence_test(case: dict[str, Any], src: Path, files: list[dict[str,
         csd_java += f"            task.withTdQueues(java.util.Set.of({names}));\n"
     extras = [x["program"].upper() for x in case.get("programs", [])]
     runs = "".join(
-        f'                    if ("{p}".equals(program)) {{ {_svc_var(p)}.runTask(t); return; }}\n' for p in extras
-    )  # the case's other programs (a LINK's target), each through its service
+        f'                    if ("{p}".equals(program)) {{ if (facades) {{ region.enter("{p}", t, {_svc_var(p)}); }} '
+        f"else {{ {_svc_var(p)}.runTask(t); }} return; }}\n"
+        for p in extras
+    )  # the case's other programs (a LINK's target), each through its service (#4449: java-facade: its handleLink)
     if programs is not None or extras:  # the CSD's programs: an XCTL / LINK / INQUIRE of any other is PGMIDERR
         defined = (f"java.util.Set.of({', '.join(f'{chr(34)}{p}{chr(34)}' for p in programs)}).contains(program)"
                    if programs is not None else "true")  # fmt: skip
@@ -1772,6 +1983,9 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.function.BiFunction;
+import java.util.function.Consumer;
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -1785,6 +1999,8 @@ class EquivalenceRunTest {{
     final Path in = Path.of(System.getProperty("equivalence.in"));
     final Path out = Path.of(System.getProperty("equivalence.out"));
     final ObjectMapper json = new ObjectMapper().findAndRegisterModules();
+    // #4449: java-facade -- each task entered through the program's deployed entry point (FacadeRegion)
+    final boolean facades = Boolean.getBoolean("equivalence.facades");
 
     @Autowired {pkg}.service.{svc} {var};
 {"".join(f"    @Autowired {pkg}.service.{ej._service_class(p)} {_svc_var(p)};{chr(10)}" for p in extras)}
@@ -1838,6 +2054,7 @@ class EquivalenceRunTest {{
                                 t.setPropagationBehavior(org.springframework.transaction.TransactionDefinition.PROPAGATION_REQUIRES_NEW);
                                 t.executeWithoutResult(s -> change.run());
                             }});
+            FacadeRegion region = new FacadeRegion(task, commarea, "{case["program"]}", {"true" if case.get("linked") else "false"});
 {csd_java}
             List<String> faults = new ArrayList<>();  // #4023 follow-up: the scenario's injected conditions
             sc.path("faults").forEach(f -> faults.add(f.asText()));
@@ -1859,10 +2076,20 @@ class EquivalenceRunTest {{
             {db2_begin}new org.springframework.transaction.support.TransactionTemplate(transactions).executeWithoutResult(status -> {{
                 task.onRollback(() -> {{ status.setRollbackOnly(); {db2_rollback}}});
                 try {{
-                    {var}.runTask(task);
+                    if (facades) {{
+                        try (CicsTask.Joined joined = CicsTask.join(region)) {{
+                            region.start({var});
+                        }}
+                    }} else {{
+                        {var}.runTask(task);
+                    }}
                 }} catch (NotRun e) {{
                     // #4173: the LINKed program is not run here; the task's events end at its LINK
-                }}{abend_catch} catch (RuntimeException e) {{
+                }}{abend_catch} catch (FacadeRefused e) {{
+                    region.refused = e.getMessage();  // #4449: the facade did not run the scenario's task as deployed
+                    status.setRollbackOnly();  // what it threw would end the unit of work
+                    {db2_rollback}
+                }} catch (RuntimeException e) {{
                     // #4173: a derived SQL-fault task that reaches a det port's named hole (an untranslated
                     // statement) is not judged -- recorded, never passed; any other failure stays a failure
                     if (!sc.path("derived").asBoolean() || !"Hole".equals(e.getClass().getSimpleName())) {{
@@ -1894,10 +2121,17 @@ class EquivalenceRunTest {{
                 events.add(left);
             }}
             json.writeValue(out.resolve(sc.get("name").asText() + ".json").toFile(), events);
+            if (facades) {{  // #4449: the entry points the task ran by, and a facade's refusal
+                json.writeValue(out.resolve(sc.get("name").asText() + ".entries.json").toFile(), region.entries);
+                if (region.refused != null) {{
+                    Files.writeString(out.resolve(sc.get("name").asText() + ".refused"), region.refused);
+                }}
+            }}
         }}
     }}
 
 {db2_methods}
+{FACADE_JAVA}
     static java.util.Map<String, Long> counters(JsonNode sc) {{
         java.util.Map<String, Long> out = new java.util.HashMap<>();
         sc.path("counters").fields().forEachRemaining(e -> out.put(e.getKey(), e.getValue().asLong()));
@@ -1961,9 +2195,16 @@ def sql_unjudged(plan: list[str], seams: set[str]) -> str:
 
 
 def run_java_cics(case: dict[str, Any], corpus: Path, work: Path, cobol_work: Path, files: list[dict[str, Any]],
-                  port: bool = True, port_dir: Path | None = None) -> dict[str, list[dict[str, Any]]]:  # fmt: skip
+                  port: bool = True, port_dir: Path | None = None,
+                  facade: Optional[dict[str, Any]] = None) -> dict[str, list[dict[str, Any]]]:  # fmt: skip
     """The generated project runs every scenario as a CicsTask; {scenario: its events}, each
-    COMMAREA mapped back to COBOL field names through the DTO's own comments."""
+    COMMAREA mapped back to COBOL field names through the DTO's own comments.
+
+    #4449: with `facade` (a dict to fill) the same project runs every scenario once more, the java-facade side: the
+    task entered through the program's deployed entry point (handleTransaction, or handleLink for a LINKed program;
+    a LINK target the case runs through its handleLink) with the scenario's region joined. `facade` gets `events`
+    ({scenario: events}, as above), `entries` ({scenario: [{program, method}]}), `refused` ({scenario: why}) and
+    `out` (the run's output directory); or `error` when that run itself fails."""
     import json
 
     import equivalence_java as ej
@@ -2019,6 +2260,28 @@ def run_java_cics(case: dict[str, Any], corpus: Path, work: Path, cobol_work: Pa
             for t, n in ((t, equivalence_db2.columns(t)) for t in case["db2"].get("compare", []))), encoding="latin-1")  # fmt: skip
         props = f"{props} {equivalence_db2.java_props(case)}"
     out = ej.run_maven(project, work, inputs, props=props)
+    result = _java_events(case, out, shape)
+    if facade is not None:  # #4449: the java-facade side, the same project and inputs
+        try:
+            fout = ej.run_maven(project, work / "facade", inputs, props=f"{props} -Dequivalence.facades=true")
+        except RuntimeError as e:
+            facade["error"] = str(e)
+            return result
+        facade["out"] = fout
+        facade["events"] = _java_events(case, fout, shape)
+        facade["entries"], facade["refused"] = {}, {}
+        for sc in case["scenarios"]:
+            ent, why = fout / f"{sc['name']}.entries.json", fout / f"{sc['name']}.refused"
+            facade["entries"][sc["name"]] = json.loads(ent.read_text(encoding="utf-8")) if ent.is_file() else []
+            if why.is_file():
+                facade["refused"][sc["name"]] = why.read_text(encoding="utf-8")
+    return result
+
+
+def _java_events(case: dict[str, Any], out: Path, shape: dict[str, Any]) -> dict[str, list[dict[str, Any]]]:
+    """{scenario: the events the Java run wrote to out/<scenario>.json}, each COMMAREA by COBOL field names."""
+    import json
+
     result = {}
     for sc in case["scenarios"]:
         f = out / f"{sc['name']}.json"
@@ -2287,6 +2550,19 @@ def report_markdown(case: dict[str, Any], report: dict[str, Any]) -> str:
              "| scenario | events equal | total |", "|---|---|---|"]  # fmt: skip
     for name, d in report["outputs"].items():
         lines.append(f"| {name} | {d['equal']} | {d['records']} |")
+    fc = report.get("facade")
+    if fc is not None:  # #4449
+        lines += ["", "## Through the deployed entry points (java-facade, #4449)", "",
+                  "Every scenario once more, entered through the program's Spring facade with the scenario's task "
+                  "handed to it through the joined region.", ""]  # fmt: skip
+        if fc.get("error"):
+            lines += ["The java-facade run failed:", "", "```", fc["error"][-3000:], "```"]
+        else:
+            lines += ["| scenario | events equal | total | entered by | verdict |", "|---|---|---|---|---|"]
+            for name, d in fc["outputs"].items():
+                by = ", ".join(f"{e['program']}.{e['method']}" for e in d.get("entries", []))
+                verdict = "pass" if d["pass"] else ("refused: " + d["refused"] if d.get("refused") else "differs")
+                lines.append(f"| {name} | {d['equal']} | {d['records']} | {by} | {verdict} |")
     lines += cov.report_lines(report.get("coverage"), len(report["outputs"]), report.get("proven", False), "scenario")
     for name, d in report["outputs"].items():
         if d["diffs"]:
@@ -2332,6 +2608,25 @@ def feedback_md(case: dict[str, Any], report: dict[str, Any], limit: int = 6) ->
                     f"- event {x['event']} ({x.get('kind')}) {fd['field']}: COBOL `{fd['cobol']}`, Java `{fd['java']}`"
                 )
         out.append("")
+    fc = report.get("facade") or {}
+    if fc.get("error"):  # #4449: the java-facade side
+        out += ["### Through the deployed entry point (java-facade): the run failed", "", fc["error"][-1500:], ""]
+    for name, o in (fc.get("outputs") or {}).items():
+        if o.get("pass"):
+            continue
+        out += [f"### Scenario {name}, through the deployed entry point (java-facade): {o['equal']}/{o['records']} "
+                "events equal", ""]  # fmt: skip
+        if o.get("refused"):
+            out.append(f"- the facade refused: {o['refused']}")
+        for x in o["diffs"][:limit]:
+            if "fields" not in x:
+                out.append(f"- event {x['event']}: COBOL `{x.get('cobol')}`, Java `{x.get('java')}`")
+            for fd in x.get("fields", [])[:10]:
+                out.append(f"- event {x['event']} ({x.get('kind')}) {fd['field']}: COBOL `{fd['cobol']}`, "
+                           f"Java `{fd['java']}`")  # fmt: skip
+        for fname, f in (o.get("files") or {}).items():
+            out.append(f"- {fname}: {f['equal']}/{f['records']} records equal")
+        out.append("")
     return "\n".join(out).strip()
 
 
@@ -2373,9 +2668,79 @@ def _fired(log: Path) -> list[str]:
     return sorted(x for x in log.read_text(encoding="ascii").splitlines() if x.strip()) if log.is_file() else []
 
 
+FACADE_WHY = ("#4449: the scenario once more through the program's deployed entry point (its Spring facade), the "
+              "task the scenario builds handed to it through the joined region")  # fmt: skip
+
+
+def judge_facade(case: dict[str, Any], corpus: Path, files: list[dict[str, Any]], cobol: dict[str, Any],
+                 facade: dict[str, Any], refused: dict[str, str], cobol_work: Path) -> dict[str, Any]:  # fmt: skip
+    """#4449: the java-facade side against the same COBOL tasks as the runTask side, compared the same way (events,
+    files, tables, injected faults); a facade's refusal (FacadeRegion) fails its scenario. `entry_points`: per
+    facade method of the case's program, the passing scenarios that entered by it (report `entries`)."""
+    if "error" in facade:
+        print(f"{case['program']} java-facade: the run failed -- {facade['error'].splitlines()[0]}")
+        return {"proven": False, "error": facade["error"], "outputs": {}, "entry_points": []}
+    out: Path = facade["out"]
+    outputs: dict[str, Any] = {}
+    by_method: dict[str, list[str]] = {}
+    ok_all = True
+    for name, res in cobol.items():
+        if name in refused:
+            continue
+        sc = next(x for x in case["scenarios"] if x["name"] == name)
+        clock = [0]
+        cev = mask_clock_events(case, linked_result(case, cobol_events(res)), clock)
+        jev = mask_clock_events(case, linked_result(case, facade["events"].get(name, [])), clock)
+        if sc.get("prefix_link"):
+            cev, jev = _to_link(cev, sc["prefix_link"]), _to_link(jev, sc["prefix_link"])
+        cev, jev = mask_absent_commarea(sc, cev, jev, [0])
+        d = compare_events(cev, jev)
+        o: dict[str, Any] = {"equal": d["equal"], "records": d["events"], "diffs": d["diffs"], "java": jev,
+                             "entries": facade["entries"].get(name, [])}  # fmt: skip
+        ok = d["equal"] == d["events"]
+        why = facade["refused"].get(name)
+        if why:
+            o["refused"] = why
+            ok = False
+        if sc.get("prefix_link"):
+            area = _link_area(case, res, facade["events"].get(name, []), sc["prefix_link"])
+            if area.get("equal") is False:
+                o["link_area"] = area
+                ok = False
+        if sc.get("faults") or sc.get("sql_plan"):
+            fired = {"cobol": _fired(cobol_work / "scenarios" / name / "out" / "faults.txt"),
+                     "java": _fired(out / f"{name}.faults")}  # fmt: skip
+            o["fired"] = fired
+            ok &= bool(fired["cobol"]) and fired["cobol"] == fired["java"]
+        if not sc.get("prefix_link"):
+            changed = compare_files(case, corpus, files, res.get("files", {}), out, name)
+            changed.update(compare_db2(case, res.get("db2", {}), out, name, clock))
+            if changed:
+                o["files"] = changed
+                ok = False
+        o["pass"] = ok
+        ok_all &= ok
+        outputs[name] = o
+        print(
+            f"{case['program']} {name} [java-facade]: {d['equal']}/{d['events']} events equal"
+            + (f"; REFUSED: {why}" if why else "")
+            + ("" if ok or why or d["equal"] != d["events"] else "; differs")
+        )
+        if ok:
+            for e in o["entries"]:
+                if e.get("program") == case["program"] and e.get("method") != "runTask":
+                    by_method.setdefault(e["method"], []).append(name)
+    return {"proven": ok_all, "outputs": outputs,
+            "entry_points": [{"method": m, "why": FACADE_WHY, "scenarios": sorted(sids)}
+                             for m, sids in sorted(by_method.items())]}  # fmt: skip
+
+
 def run_case(case: dict[str, Any], corpus: Path, work: Path, port: bool = True, port_dir: Path | None = None,
-             cobol_only: bool = False, sql_faults: str = "auto") -> int:  # fmt: skip
-    """A CICS case end to end: facts -> stub files, the COBOL tasks, the Java tasks, the report."""
+             cobol_only: bool = False, sql_faults: str = "auto", facades: bool = False) -> int:  # fmt: skip
+    """A CICS case end to end: facts -> stub files, the COBOL tasks, the Java tasks, the report.
+
+    #4449: `facades` (with a port) runs the java-facade side too -- every scenario again, entered through the
+    program's deployed entry point -- and the case is proven only when both sides are (report `facade`)."""
     import json
 
     import equivalence_cache
@@ -2405,7 +2770,8 @@ def run_case(case: dict[str, Any], corpus: Path, work: Path, port: bool = True, 
             print(f"{name}: " + "; ".join(res["events"]))
         return 0
     try:
-        java = run_java_cics(case, corpus, work / "java", work / "cobol", files, port, port_dir)
+        facade: Optional[dict[str, Any]] = {} if facades and port else None
+        java = run_java_cics(case, corpus, work / "java", work / "cobol", files, port, port_dir, facade)
     except RuntimeError as e:  # the port does not compile, or its run fails: the loop's feedback, not a crash
         failed = common.java_failure_report(case, work, str(e))
         (work / "report.json").write_text(json.dumps(failed, indent=2) + "\n", encoding="utf-8")
@@ -2481,8 +2847,11 @@ def run_case(case: dict[str, Any], corpus: Path, work: Path, port: bool = True, 
             for base, fd in changed.items():
                 print(f"{case['program']} {name}: file {base}: {fd['equal']}/{fd['records']} records equal")
     report["proven"] = ok
+    if facade is not None:  # #4449: proven through runTask AND through the deployed entry points
+        report["facade"] = judge_facade(case, corpus, files, cobol, facade, refused, work / "cobol")
+        report["proven"] = ok and report["facade"]["proven"]
     report["oracle"] = equivalence_oracle.for_case(case)  # #4309: which GnuCOBOL produced the expected outputs
-    report["feedback"] = feedback_md(case, report) if not ok else ""
+    report["feedback"] = feedback_md(case, report) if not report["proven"] else ""
     covered = work / "cobol" / "coverage.json"  # #4023
     report["coverage"] = json.loads(covered.read_text(encoding="utf-8")) if covered.is_file() else None
     if report["coverage"] and "error" in report["coverage"]:
@@ -2492,4 +2861,4 @@ def run_case(case: dict[str, Any], corpus: Path, work: Path, port: bool = True, 
     if report["coverage"]:
         print(f"{case['program']} COBOL coverage: {cov.headline(report['coverage'], len(cobol), ok, 'scenario')}")
     print(f"report: {work / 'report.json'}")
-    return 0 if ok else 1
+    return 0 if report["proven"] else 1

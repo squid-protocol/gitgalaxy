@@ -9,6 +9,7 @@
   ],
   "sha256": "f1cf65ded3af82954f294f6e1531f5828ee34850dc255fc2cce8b72ac30dcb61",
   "entry_points": [
+   "handleTransaction",
    "runTask"
   ]
  },
@@ -42,7 +43,7 @@
     "tests/tools/java_target_matrix.py"
    ],
    "files": 11,
-   "sha256": "1764f900744b3e9c121722acf2c84aee1ef8dded04fa68f429e0abc39f031fd9"
+   "sha256": "cd0c22f11e735f25b3d655aac6b89670b07cba2e23856c7c825291b64fa994c5"
   },
   "oracle": {
    "paths": [
@@ -55,14 +56,14 @@
     "tests/tools/equivalence_sql.py"
    ],
    "files": 16,
-   "sha256": "b1be686cf96bbdce71bd0b5dc4245252f64020d97a5094cee850165bf093d250"
+   "sha256": "ee924d311b67148f9104af7158c534cc2fb9a50bb35ca6f7758d6a40efda414c"
   },
   "generator": {
    "paths": [
     "gitgalaxy/tools/cobol_to_java/**"
    ],
    "files": 60,
-   "sha256": "ad526b833acb84d7b0ac17ec9188f2725ecf6e1c6cb6612b7b5cf02543682983"
+   "sha256": "d732e7f21fab2ba4f65c7a3dcf403d1f341479111a3a0d757cbacd167c1a2daa"
   },
   "corpus": {
    "name": "aws-mainframe-modernization-carddemo",
@@ -72,10 +73,10 @@
   "differences": {
    "sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
   },
-  "digest": "5cb89cf3ef38ed8dc785246c3b8ed245c239e8f1a5cdfad1d1aa3a0673e7c639"
+  "digest": "450bf23b9020b29c519f5b9e64db90189227012615f0608f2961ec210d72f6b8"
  },
  "proof": {
-  "at": "2026-10-05T13:24:23Z",
+  "at": "2026-10-05T14:51:58Z",
   "verdict": "proven",
   "runs": 43,
   "fault_runs": 5,
@@ -258,8 +259,18 @@
   "sysout_compared": null,
   "attributes_compared": null,
   "java_failed": false,
-  "harness_commit": "94553a47d73cf994b4856a5fadf26df6cb11049b+uncommitted",
-  "inputs_digest": "5cb89cf3ef38ed8dc785246c3b8ed245c239e8f1a5cdfad1d1aa3a0673e7c639"
+  "facade": {
+   "verdict": "proven",
+   "runs": 43,
+   "passed": 43,
+   "entry_points": [
+    "handleTransaction"
+   ],
+   "failed": [],
+   "error": null
+  },
+  "harness_commit": "af9e62c055439d3c758d2a794a211fa28ad41e41+uncommitted",
+  "inputs_digest": "450bf23b9020b29c519f5b9e64db90189227012615f0608f2961ec210d72f6b8"
  },
  "coverage": {
   "paragraphs": {
@@ -319,19 +330,14 @@
    "total": 0
   },
   "source": "the proof's own traced COBOL runs (cobol_coverage.py)",
-  "inputs_digest": "5cb89cf3ef38ed8dc785246c3b8ed245c239e8f1a5cdfad1d1aa3a0673e7c639"
+  "inputs_digest": "450bf23b9020b29c519f5b9e64db90189227012615f0608f2961ec210d72f6b8"
  },
  "reach": {
   "entry_points": [
+   "handleTransaction",
    "runTask"
   ],
   "unproven": [
-   {
-    "class": "CocrdlicService",
-    "method": "handleTransaction",
-    "line": 179,
-    "kind": "left_as_generated"
-   },
    {
     "class": "CocrdlicService",
     "method": "handleLink",
@@ -353,7 +359,7 @@
   ],
   "counts": {
    "stub": 0,
-   "left_as_generated": 4,
+   "left_as_generated": 3,
    "ported_unproven": 0
   },
   "generated_compared": true,
@@ -389,7 +395,7 @@
    },
    {
     "path": "tests/equivalence/cics/ggcics.c",
-    "sha256": "cfd00f48166b47683c2d342e0677b0faf06a0415183c109b6df62947485267d3"
+    "sha256": "2aff8a7a22af537b24cb03caafe4d6df30c30fde1cb6f548ba376616e6617214"
    },
    {
     "path": "tests/equivalence/db2/SQLCA.cpy",

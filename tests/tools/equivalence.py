@@ -70,6 +70,13 @@ EXEC CICS is translated to calls into a stub runtime, each scenario (COMMAREA, k
 pressed, screen input) runs as one task on both sides -- the Java as a CicsTask through
 the service's runTask -- and the tasks' events (SEND MAP, SEND TEXT, RETURN, XCTL, ABEND)
 are compared field by field.
+
+#4449 -- the java-facade side: a CICS case's port is proven through its deployed entry points too. The same project
+runs every scenario once more, the task entered through the program's Spring facade -- handleTransaction, or
+handleLink for a LINKed program (`"linked": true`), and a LINK target the case runs through its handleLink -- with
+the scenario's region joined (CicsTask.join), so the facade's task IS the scenario's task. It is compared with the
+same COBOL tasks, exactly as the runTask side is, and the case is proven only when both sides are (report
+`facade`). `--no-facades` leaves it out (never with --record).
 """
 
 from __future__ import annotations
@@ -671,6 +678,9 @@ def main() -> int:
                    "verdict is the same, the report names only that run (mutation testing)")  # fmt: skip
     r.add_argument("--generated-only", action="store_true",
                    help="run the generated service as generated (no port): the generator's own baseline")  # fmt: skip
+    r.add_argument("--no-facades", action="store_true", help="#4449: a CICS case's port is proven through runTask "
+                   "only, without the java-facade side (every scenario again through the program's deployed entry "
+                   "point: handleTransaction / handleLink)")  # fmt: skip
     r.add_argument("--record", action="store_true", help="#4048: write the case's evidence record "
                    "(tests/equivalence/CASE/evidence.json) from this run -- the committed port on the committed case "
                    "only")  # fmt: skip
@@ -684,9 +694,11 @@ def main() -> int:
 
     if args.record and (args.port or args.case_file or args.reuse or args.first_difference or args.generated_only
                         or args.cobol_only or args.faults not in (None, "all") or args.environments
-                        or args.sql_faults != "auto" or args.source_encoding or args.data_encoding):  # fmt: skip
+                        or args.sql_faults != "auto" or args.source_encoding or args.data_encoding
+                        or args.no_facades):  # fmt: skip
         raise SystemExit("--record proves the committed port on the committed case as it is: drop --port / "
-                         "--case-file / --reuse / --first-difference / --generated-only / --cobol-only and the overrides")
+                         "--case-file / --reuse / --first-difference / --generated-only / --cobol-only / --no-facades "
+                         "and the overrides")
     case = load_case(args.case, args.case_file)
     for key in ("source_encoding", "data_encoding"):  # #3815: the CLI overrides the case
         if getattr(args, key):
@@ -715,7 +727,8 @@ def main() -> int:
 
         return _recorded(args, work, ec.run_case(case, corpus, work, port=not args.generated_only,
                                                  port_dir=args.port, cobol_only=args.cobol_only,
-                                                 sql_faults=args.sql_faults))  # fmt: skip
+                                                 sql_faults=args.sql_faults,
+                                                 facades=not args.no_facades))  # fmt: skip
     faults = selected_faults(case, args.faults)
     if case.get("db2"):  # the case's tables, created from its DDL on the harness's Db2 (equivalence_db2.py)
         equivalence_db2.create(case, corpus)

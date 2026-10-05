@@ -244,3 +244,33 @@ def test_render_evidence_full_document_with_train():
 
 def test_fmt_secs():
     assert kit.fmt_secs(5) == "5s" and kit.fmt_secs(125) == "2m05s"
+
+
+# ----------------------------------------------------------------------------- venv selection
+
+
+def test_scope_leg_and_crucible_venv_python(tmp_path):
+    assert [kit.scope_leg(m) for m in ("full", "both", "zero")] == ["full", "full", "zero"]
+    assert kit.crucible_venv_python(tmp_path, "full") == tmp_path / ".crucible_venvs/full_precision/bin/python"
+    assert kit.crucible_venv_python(tmp_path, "zero") == tmp_path / ".crucible_venvs/zero_dependency/bin/python"
+
+
+def test_venv_env_drops_inherited_engine_and_prepends_bin(tmp_path):
+    py = tmp_path / "wt" / ".crucible_venvs" / "full_precision" / "bin" / "python"
+    base = {"PYTHONPATH": "/live/v6", "VIRTUAL_ENV": "/live/v6/.venv", "PYTHONHOME": "/x", "PATH": "/usr/bin", "K": "v"}
+    env = kit.venv_env(base, py)
+    assert "PYTHONPATH" not in env and "PYTHONHOME" not in env
+    assert env["VIRTUAL_ENV"] == str(py.parent.parent)
+    assert env["PATH"].split(":")[:2] == [str(py.parent), "/usr/bin"] and env["K"] == "v"
+    assert base["PYTHONPATH"] == "/live/v6"  # input untouched
+
+
+def test_ensure_crucible_venv_errors_clearly_without_crucible_check(tmp_path):
+    class FakeKit:
+        wt = tmp_path
+
+        def log(self, name):
+            return tmp_path / f"{name}.log"
+
+    with pytest.raises(kit.KitError, match="crucible_check.py is missing"):
+        kit.ensure_crucible_venv(FakeKit(), "full")  # type: ignore[arg-type]

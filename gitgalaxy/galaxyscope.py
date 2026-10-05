@@ -1592,6 +1592,7 @@ class Orchestrator:
             summary["network_macro"] = network_macro
             if self.network_sensor.copy_libraries is not None:  # #4265: only when libraries are declared
                 summary["copy_member_collisions"] = self.network_sensor.copy_collisions
+                summary["copy_member_gaps"] = self.network_sensor.copy_gaps  # #4420
             if self.invocation_ambiguities:  # #4419: a shared PROGRAM-ID no member is named for
                 summary["program_id_ambiguities"] = self.invocation_ambiguities
 
@@ -3678,6 +3679,7 @@ class Orchestrator:
             summary["network_macro"] = network_macro
             if self.network_sensor.copy_libraries is not None:  # #4265: only when libraries are declared
                 summary["copy_member_collisions"] = self.network_sensor.copy_collisions
+                summary["copy_member_gaps"] = self.network_sensor.copy_gaps  # #4420
             if self.invocation_ambiguities:  # #4419: a shared PROGRAM-ID no member is named for
                 summary["program_id_ambiguities"] = self.invocation_ambiguities
 

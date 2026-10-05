@@ -164,7 +164,7 @@ import unicodedata
 from collections.abc import Sequence
 from dataclasses import asdict, dataclass, field
 from pathlib import Path
-from typing import Optional
+from typing import Any, Optional
 
 from gitgalaxy.core.compiler_options import effective as effective_options
 from gitgalaxy.core.jcl_runners import systsin_programs
@@ -940,6 +940,11 @@ class GalaxyIR:
     # #3909: {file_path: code page} of each file the scan decoded with the estate's declared page
     # (file_data.source_decode 'declared'), so every later read of it decodes it the same way.
     source_pages: dict[str, str] = field(default_factory=dict)
+    # #4421: the --copy-libraries reports persisted with the snapshot (repo_data): the members a
+    # program's search order finds in several libraries (#4265) and the COPYs no declared library
+    # holds (#4420). None: the scan declared no copy libraries (or the DB predates the columns).
+    copy_member_collisions: Optional[list[dict[str, Any]]] = None
+    copy_member_gaps: Optional[list[dict[str, Any]]] = None
 
     def source_page(self, file_path: str) -> Optional[str]:
         """#3909: the declared code page the scan decoded `file_path` (repo-relative) with; None for a
@@ -6358,6 +6363,15 @@ def load_galaxy_ir(db_path: Path, repo_name: Optional[str] = None) -> GalaxyIR:
                         line=int(row[14] or 0),
                     )
                 )
+        copy_reports: dict[str, Optional[list[dict[str, Any]]]] = {}
+        for key in ("copy_member_collisions", "copy_member_gaps"):  # #4421
+            raw = None
+            if _has_column(cur, "repo_data", key):
+                raw = cur.execute(
+                    f"SELECT {key} FROM repo_data WHERE repo_name = ? AND commit_hash = ?",  # noqa: S608 -- literal key
+                    (repo_name, commit_hash),
+                ).fetchone()[0]
+            copy_reports[key] = json.loads(raw) if raw else None
     finally:
         conn.close()
 
@@ -6365,6 +6379,8 @@ def load_galaxy_ir(db_path: Path, repo_name: Optional[str] = None) -> GalaxyIR:
     _name_pli_programs(files)
     _attribute_programs(files)
     ir = GalaxyIR(db_path, repo_name, commit_hash, files, source_pages=source_pages)
+    ir.copy_member_collisions = copy_reports["copy_member_collisions"]  # #4421
+    ir.copy_member_gaps = copy_reports["copy_member_gaps"]
     ir._settle_copy_members()  # #4330: needs the resolved COPY edges and symbolic maps above
     return ir
 

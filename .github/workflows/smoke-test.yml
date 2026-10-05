@@ -4,6 +4,13 @@ on:
   pull_request:
     branches: [main]
     paths-ignore: ["docs/**"]
+  # #4518: the full 3 OS x 3 Python smoke grid runs here; PRs get a lean set.
+  push:
+    branches: [main]
+    paths-ignore: ["docs/**"]
+  schedule:
+    - cron: "23 4 * * *"  # nightly
+  workflow_dispatch:
 
 permissions:
   contents: read
@@ -25,7 +32,7 @@ jobs:
   # installs, CLI entry points, syntax floor) across the full matrix. Does
   # NOT run the full pytest suite -- see full-suite (single env, below) for
   # every-push regression coverage, and full-suite-gate.yml for the full
-  # matrix x full-suite backup run (fires on any PR label or a release tag).
+  # matrix x full-suite backup run (fires on main, nightly, release tags and manual runs).
   # This split exists because most of tests/ (extraction/core_engine regex
   # rules) has zero OS-dependency: running it 12x per push added CI cost
   # that scaled with every language added to the extraction-hardening epic
@@ -38,9 +45,10 @@ jobs:
       GITGALAXY_LICENSE_KEY: "COMMUNITY_FREE_TIER"
     strategy:
       fail-fast: false
+      # #4518: PRs run each OS on the newest Python plus Linux on the oldest
+      # supported one (4 legs); main/nightly/manual run the full 9-way grid.
       matrix:
-        os: [ubuntu-latest, windows-latest, macos-latest]
-        python-version: ["3.10", "3.11", "3.12"]
+        include: ${{ fromJSON(github.event_name == 'pull_request' && '[{"os":"ubuntu-latest","python-version":"3.12"},{"os":"windows-latest","python-version":"3.12"},{"os":"macos-latest","python-version":"3.12"},{"os":"ubuntu-latest","python-version":"3.10"}]' || '[{"os":"ubuntu-latest","python-version":"3.10"},{"os":"ubuntu-latest","python-version":"3.11"},{"os":"ubuntu-latest","python-version":"3.12"},{"os":"windows-latest","python-version":"3.10"},{"os":"windows-latest","python-version":"3.11"},{"os":"windows-latest","python-version":"3.12"},{"os":"macos-latest","python-version":"3.10"},{"os":"macos-latest","python-version":"3.11"},{"os":"macos-latest","python-version":"3.12"}]') }}
 
     steps:
       - name: Check out repository code

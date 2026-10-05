@@ -64,6 +64,11 @@ full = ["PyYAML>=6.0", "tiktoken", "xgboost", "pandas>=2.0.0", "numpy"]
 # neither, so this doesn't touch the "0 dependencies" claim in README.md's proof strip.
 tri-comparison = ["tree-sitter-language-pack"]
 
+# The deterministic COBOL-to-Java translator (gitgalaxy/tools/cobol_to_java/det) parses COBOL with
+# tree-sitter's grammar. Imported lazily on first translation, never by a scan; deliberately not in
+# `full`, which is the scan engines only.
+translator = ["tree-sitter-language-pack"]
+
 [project.urls]
 "Homepage" = "https://gitgalaxy.io"
 "Documentation" = "https://squid-protocol.github.io/gitgalaxy/"

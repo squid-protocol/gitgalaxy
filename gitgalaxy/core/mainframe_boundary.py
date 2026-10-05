@@ -73,6 +73,7 @@
 # pattern anchored inside a single bounded string.
 # ==============================================================================
 import bisect
+import json
 import re
 from typing import Any, Optional
 
@@ -138,7 +139,24 @@ _COBOL_AREA_A = r"^(?:[0-9a-zA-Z" + NATIONAL + r" \t]{6}[ \-]?)?[ \t\u3000]*"
 # name is any word with a letter in it -- a bare number (a continued VALUE list) is not.
 _LEVEL_START = re.compile(
     _COBOL_AREA_A
-    + r"(\d{1,2})[ \t\u3000]+((?=[0-9"
+    + r"(\d{1,2})[ \t\u3000]+("
+    # #4265: a copybook written for COPY ... REPLACING names its entries with a pseudo-text tag
+    # (`05 :TAG:-ID PIC X(6).`, replaced by `COPY PAYTPL REPLACING ==:TAG:== BY ==EMP==`): the name
+    # is kept as written, tag included, and the reader applies the REPLACING (galaxy_ir).
+    + r"(?=[^\s.]*:[A-Z"
+    + NATIONAL
+    + r"0-9][A-Z"
+    + NATIONAL
+    + r"0-9-]*:)(?:[A-Z"
+    + NATIONAL
+    + WIDE_DIGITS
+    + WIDE_HYPHENS
+    + r"0-9-]|:[A-Z"
+    + NATIONAL
+    + r"0-9][A-Z"
+    + NATIONAL
+    + r"0-9-]*:)+"
+    + r"|(?=[0-9"
     + WIDE_DIGITS
     + WIDE_HYPHENS
     + r"-]*[A-Z"
@@ -154,7 +172,7 @@ _LEVEL_START = re.compile(
     + NATIONAL
     + WIDE_DIGITS
     + WIDE_HYPHENS
-    + r"0-9-])",
+    + r"0-9:-])",
     re.I | re.M,
 )
 
@@ -529,6 +547,42 @@ _COPY_LIBRARY = re.compile(
     + r"0-9@#$-]*)",
     re.I,
 )
+# #4265: `REPLACING operand BY operand ...` after a COPY's text-name (and library): each operand is
+# ==pseudo-text== or a single word / literal. Read up to the statement's separator period.
+_COPY_REPLACING_HEAD = re.compile(
+    r"['\"]?(?:[ \t\n\u3000]+(?:IN|OF)[ \t\n\u3000]+['\"]?[^\s.'\"]+['\"]?)?[ \t\n\u3000]+REPLACING(?![\w-])", re.I
+)
+_REPLACING_OPERAND = r"==(.*?)==|('[^'\n]*'|\"[^\"\n]*\"|[^\s.=]+(?:\.[^\s.=]+)*)"
+_REPLACING_PAIR = re.compile(
+    r"[ \t\n\u3000]+(?:(LEADING|TRAILING)[ \t\n\u3000]+)?(?:"
+    + _REPLACING_OPERAND
+    + r")[ \t\n\u3000]+BY[ \t\n\u3000]+(?:"
+    + _REPLACING_OPERAND
+    + r")",
+    re.I | re.S,
+)
+
+
+def _copy_replacing(window: str, at: int) -> Optional[list[list[str]]]:
+    """#4265: the [from, to] pairs of the REPLACING phrase of the COPY whose text-name ends at `at` -- a
+    third element LEADING / TRAILING when the phrase says so (partial-word replacement)."""
+    head = _COPY_REPLACING_HEAD.match(window, at)
+    if not head:
+        return None
+    pairs: list[list[str]] = []
+    pos = head.end()
+    while len(pairs) < 50:
+        m = _REPLACING_PAIR.match(window, pos)
+        if not m:
+            break
+        mode, src = m.group(1), (m.group(2) if m.group(2) is not None else m.group(3))
+        dst = m.group(4) if m.group(4) is not None else (m.group(5) or "")
+        pair = [" ".join(src.split()), " ".join(dst.split())]
+        pairs.append([*pair, mode.upper()] if mode else pair)
+        pos = m.end()
+    return pairs or None
+
+
 # The special levels: 88 condition-names and 66 RENAMES describe the item above
 # them rather than nesting by level number, so they attach to the last real
 # item and are never pushed as a potential parent themselves.
@@ -1145,6 +1199,9 @@ def _cobol_records(code_stream: str, decimal_comma: Optional[bool] = None) -> li
         copy_libraries = [
             (lib.group(1).upper() if (lib := _COPY_LIBRARY.match(copy_window, m.end())) else "") for m in copy_matches
         ]
+        # #4265: each COPY's REPLACING operands, [[from, to], ...] as written (pseudo-text without its
+        # `==` delimiters), or None when the COPY replaces nothing.
+        copy_replacing = [_copy_replacing(copy_window, m.end()) for m in copy_matches]
 
         section, fd_name = _context(start)
         records.append(
@@ -1167,6 +1224,8 @@ def _cobol_records(code_stream: str, decimal_comma: Optional[bool] = None) -> li
                 **({"copy_members": ",".join(copy_members)} if copy_members else {}),
                 # #4265: presence-keyed -- only when a COPY names its library.
                 **({"copy_libraries": ",".join(copy_libraries)} if any(copy_libraries) else {}),
+                # #4265: presence-keyed likewise -- only when a COPY replaces something.
+                **({"copy_replacing": json.dumps(copy_replacing)} if any(copy_replacing) else {}),
                 # #3694: presence-keyed likewise -- only a SEPARATE sign is recorded.
                 # (1 a TRAILING separate sign, 2 a LEADING one)
                 **({"sign_separate": _sign_separate(window)} if _sign_separate(window) else {}),

@@ -53,8 +53,17 @@ The index of every record is [`evidence/README.md`](evidence/README.md). The pag
   scenario's own (the `java-facade` side). A facade that builds a task of its own, or does not run its task in the
   region, fails the scenario. The record's `entry_points` (and `proof.entry_runs`) name the facades the passing
   scenarios actually entered by; a facade no scenario enters by (for example the `handleLink` of a program no
-  scenario LINKs to) is not counted as reached. The equivalence cases (CardDemo, GenApp, CBSA) are still proven
-  through runTask / handleCall / runBatch only.
+  scenario LINKs to) is not counted as reached.
+
+  **The equivalence cases' CICS ports (#4449).** A CICS equivalence port (CardDemo, CBSA, GenApp online programs)
+  is proven the same way. `equivalence.py run` runs every scenario a second time through the program's deployed
+  entry point: `handleTransaction`, or `handleLink` for a case marked `"linked": true` (a program another LINKs to),
+  plus `handleLink` for each LINK target the case runs. The scenario's region is joined, so the facade gets the very
+  task the scenario built. The scenario is compared with the same COBOL task as the runTask side, events, files,
+  tables and injected faults alike. The case is proven only when both sides pass. The record keeps the second side
+  as `proof.facade`: scenarios run and passed, the methods entered, and each failing scenario with its reason. A
+  CICS port that declares a facade but whose proof has no `proof.facade` is **not proven**: its proof predates
+  the java-facade side, so re-prove it. Batch and CALL ports have no facade and are unaffected.
 - **Mutation (#4047).** The port's entry of `mutation_scores.json`, with the inputs it was judged against
   (recomputed at its commit from git history).
 - **Provenance.** Who or what wrote the port: the model, backend, attempt and ticket hash, citing the loop's

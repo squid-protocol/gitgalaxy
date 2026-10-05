@@ -9,6 +9,7 @@
   ],
   "sha256": "59b4111596f168c0ffbcbcb6eb25aefca4f97d551e51c8fe7146f6c8768cc06d",
   "entry_points": [
+   "handleLink",
    "runTask"
   ]
  },
@@ -42,7 +43,7 @@
     "tests/tools/java_target_matrix.py"
    ],
    "files": 11,
-   "sha256": "1764f900744b3e9c121722acf2c84aee1ef8dded04fa68f429e0abc39f031fd9"
+   "sha256": "cd0c22f11e735f25b3d655aac6b89670b07cba2e23856c7c825291b64fa994c5"
   },
   "oracle": {
    "paths": [
@@ -55,14 +56,14 @@
     "tests/tools/equivalence_sql.py"
    ],
    "files": 16,
-   "sha256": "b1be686cf96bbdce71bd0b5dc4245252f64020d97a5094cee850165bf093d250"
+   "sha256": "ee924d311b67148f9104af7158c534cc2fb9a50bb35ca6f7758d6a40efda414c"
   },
   "generator": {
    "paths": [
     "gitgalaxy/tools/cobol_to_java/**"
    ],
    "files": 60,
-   "sha256": "674777fda7f1a297b554ec1935d0b26aa8d37f65f65e150a94fab7dd570a0866"
+   "sha256": "d732e7f21fab2ba4f65c7a3dcf403d1f341479111a3a0d757cbacd167c1a2daa"
   },
   "corpus": {
    "name": "cics-banking-sample-application-cbsa",
@@ -72,10 +73,10 @@
   "differences": {
    "sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
   },
-  "digest": "d42e3c81969063d6608d4d1319bb2d033d4afae55eaa67333fc09b16dba469d9"
+  "digest": "e2ba2b1d996d144c0b7c6665767d0e7d01ece64c797b3d676ebfdec430ca23ae"
  },
  "proof": {
-  "at": "2026-10-05T06:05:23Z",
+  "at": "2026-10-05T14:56:17Z",
   "verdict": "proven",
   "runs": 10,
   "fault_runs": 0,
@@ -126,8 +127,18 @@
   "sysout_compared": null,
   "attributes_compared": null,
   "java_failed": false,
-  "harness_commit": "d03da8b743917a29a13e48709fb0c7f6ad778528+uncommitted",
-  "inputs_digest": "d42e3c81969063d6608d4d1319bb2d033d4afae55eaa67333fc09b16dba469d9"
+  "facade": {
+   "verdict": "proven",
+   "runs": 10,
+   "passed": 10,
+   "entry_points": [
+    "handleLink"
+   ],
+   "failed": [],
+   "error": null
+  },
+  "harness_commit": "af9e62c055439d3c758d2a794a211fa28ad41e41+uncommitted",
+  "inputs_digest": "e2ba2b1d996d144c0b7c6665767d0e7d01ece64c797b3d676ebfdec430ca23ae"
  },
  "coverage": {
   "paragraphs": {
@@ -151,23 +162,17 @@
    "total": 0
   },
   "source": "the proof's own traced COBOL runs (cobol_coverage.py)",
-  "inputs_digest": "d42e3c81969063d6608d4d1319bb2d033d4afae55eaa67333fc09b16dba469d9"
+  "inputs_digest": "e2ba2b1d996d144c0b7c6665767d0e7d01ece64c797b3d676ebfdec430ca23ae"
  },
  "reach": {
   "entry_points": [
+   "handleLink",
    "runTask"
   ],
-  "unproven": [
-   {
-    "class": "UpdaccService",
-    "method": "handleLink",
-    "line": 50,
-    "kind": "left_as_generated"
-   }
-  ],
+  "unproven": [],
   "counts": {
    "stub": 0,
-   "left_as_generated": 1,
+   "left_as_generated": 0,
    "ported_unproven": 0
   },
   "generated_compared": true,
@@ -203,7 +208,7 @@
    },
    {
     "path": "tests/equivalence/cics/ggcics.c",
-    "sha256": "cfd00f48166b47683c2d342e0677b0faf06a0415183c109b6df62947485267d3"
+    "sha256": "2aff8a7a22af537b24cb03caafe4d6df30c30fde1cb6f548ba376616e6617214"
    },
    {
     "path": "tests/equivalence/db2/SQLCA.cpy",

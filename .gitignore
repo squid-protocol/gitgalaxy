@@ -160,6 +160,7 @@ museum_2/
 !tests/cics_crucible/ports/*/*/provenance.json
 # #4048: the evidence record of each ported program (tests/tools/evidence.py) is source, not output
 !tests/equivalence/*/evidence.json
+!tests/equivalence/facade_baseline.json
 !tests/cics_crucible/ports/*/*/evidence.json
 !tests/cics_crucible/fixture/**/*.json
 *_llm.md

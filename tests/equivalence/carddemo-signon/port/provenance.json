@@ -16,5 +16,11 @@
  "prompt_tokens": 59684,
  "proof": "tests/tools/equivalence.py run carddemo-signon",
  "edited_after": "none: the files are the model's answer as the loop stored it",
- "licence": "derived from CardDemo (Apache-2.0; Copyright Amazon.com, Inc. or its affiliates) -- see LICENSE and NOTICE in this case's directory"
+ "licence": "derived from CardDemo (Apache-2.0; Copyright Amazon.com, Inc. or its affiliates) -- see LICENSE and NOTICE in this case's directory",
+ "stale": {
+  "against": "the java-facade side (#4449)",
+  "at": "2026-10-05T15:00:50+00:00",
+  "reason": "re-proof through the deployed entry points failed: java-facade 1/12 scenarios pass (admin-signs-on, both-empty, invalid-key, lowercase-credentials, password-empty, pf3-thank-you, user-file-io-error, user-id-empty, user-not-found, user-signs-on, wrong-password); runTask 12/12 pass",
+  "needs": "#4464: the generated handleTransaction(String) / handleLink() take no COMMAREA, but COSGN00C's RETURN TRANSID(CC00) COMMAREA(CARDDEMO-COMMAREA) re-enters it with one (opaque ODO DFHCOMMAREA): every re-entry is refused; then evidence.py prove carddemo-signon"
+ }
 }

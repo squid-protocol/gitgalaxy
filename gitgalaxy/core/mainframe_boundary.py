@@ -496,6 +496,44 @@ _VALUE_CLAUSE = re.compile(
 # (`VALUE 12345,67`), which the bareword above stops at. A comma followed by a space separates
 # (`VALUES 1, 2, 3`), so only a comma touching a digit on both sides continues the literal.
 _COMMA_FRACTION = re.compile(r",[0-9]{1,31}")
+
+
+def _continued_literal(code_stream: str, open_at: int) -> Optional[str]:
+    """#4391: the value of the nonnumeric literal whose opening quote is at `open_at` when it is
+    continued (Enterprise COBOL LR, "Continuation lines"): its first line's characters after the
+    quote through column 72, then each continuation line's (`-` in column 7) characters after its
+    first quote -- through column 72 again, until a line closes the literal. None when the source is
+    not that shape (a free-format literal, a missing indicator): the raw text is then kept."""
+    quote = code_stream[open_at]
+    line_start = code_stream.rfind("\n", 0, open_at) + 1
+    col = open_at - line_start
+    if col >= 72:
+        return None
+    line_end = code_stream.find("\n", open_at)
+    line = code_stream[line_start : line_end if line_end != -1 else len(code_stream)]
+    parts = [line[col + 1 : 72].ljust(72 - col - 1)]
+    pos = line_end
+    for _ in range(50):  # a literal is at most 160 characters; bounded either way
+        if pos == -1:
+            return None
+        nxt_end = code_stream.find("\n", pos + 1)
+        nxt = code_stream[pos + 1 : nxt_end if nxt_end != -1 else len(code_stream)]
+        if len(nxt) < 8 or nxt[6] != "-":
+            return None
+        resume = nxt.find(quote, 7)
+        if resume == -1 or resume >= 72:
+            return None
+        close = nxt.find(quote, resume + 1)
+        while close != -1 and close + 1 < len(nxt) and nxt[close + 1] == quote:  # a doubled quote
+            close = nxt.find(quote, close + 2)
+        if close != -1 and close < 72:
+            parts.append(nxt[resume + 1 : close])
+            return "".join(parts)
+        parts.append(nxt[resume + 1 : 72].ljust(72 - resume - 1))
+        pos = nxt_end
+    return None
+
+
 _NUMERIC_BAREWORD = re.compile(r"[+-]?[0-9]{0,31}")
 # #3355: `COPY <member>` inside one data-description entry's window -- the
 # copybook that expands at that point (`01 DFHCOMMAREA.` + `COPY INQCUST.`). The
@@ -1114,6 +1152,10 @@ def _cobol_records(code_stream: str, decimal_comma: Optional[bool] = None) -> li
             if value_match.group(2) is not None or value_match.group(3) is not None:
                 # A quoted literal is kept verbatim (it may legitimately end in a period).
                 value = value_match.group(2) if value_match.group(2) is not None else value_match.group(3)
+                if "\n" in value:
+                    # #4391: a nonnumeric literal continued onto the next line(s) (`-` in column 7)
+                    group = 2 if value_match.group(2) is not None else 3
+                    value = _continued_literal(code_stream, body + value_match.start(group) - 1) or value
                 if value_match.group(1):
                     # #4354: a prefixed literal (G / N / NX / X / B / Z) keeps its prefix and quotes, so it
                     # is not mistaken for a plain character literal of the same body.

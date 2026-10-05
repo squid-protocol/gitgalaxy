@@ -8,15 +8,15 @@ The status above judges the record alone (policy: ported_unproven = block). Whet
 
 | | |
 |---|---|
-| proof | proven at 2026-10-05T13:05:48Z, harness `cd9f91d69baf8ca7b91b01e16bc0dd428ff5dad5+uncommitted` |
-| inputs digest | `06f9edd77a2bffc5397942e41e0e2e8ed795ae0645a47e79256332ea83d3f209` |
+| proof | proven at 2026-10-05T13:24:23Z, harness `94553a47d73cf994b4856a5fadf26df6cb11049b+uncommitted` |
+| inputs digest | `5cb89cf3ef38ed8dc785246c3b8ed245c239e8f1a5cdfad1d1aa3a0673e7c639` |
 | port | 1 files `f1cf65ded3af8295` |
 | case | 1 files `866c5efc4fba263e` |
 | corpus | aws-mainframe-modernization-carddemo @ `59cc6c2fd7ebd7ef7925cad552a01a4b8b6e4d5e` `d0c4803872ec126e` |
 | differences |  `4f53cda18c2baa0c` |
 | harness | 11 files `1764f900744b3e9c` |
 | oracle | 16 files `b1be686cf96bbdce` |
-| generator | 60 files `c83b4a4881a70211` |
+| generator | 60 files `ad526b833acb84d7` |
 | oracle run | gnucobol-models: cobc (GnuCOBOL) 3.1.2.0, image `sha256:d7e387df360c` (matches pin: True) |
 | written by | model `claude-sonnet-5-5`, attempt 2 |
 

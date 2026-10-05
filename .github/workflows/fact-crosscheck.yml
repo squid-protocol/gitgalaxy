@@ -1,0 +1,137 @@
+name: Fact Cross-check
+
+# #4273: the engine (the scanner) and the det COBOL-to-Java translator each derive the same facts
+# from the same COBOL -- paragraphs and extents, PERFORM / GO TO edges, CALL / LINK / XCTL, COPY
+# members and the files they resolve to, data items (PIC / USAGE / OCCURS / REDEFINES / VALUE),
+# record offsets, MOVEs, EXEC CICS commands. tests/tools/fact_crosscheck.py compares them program by
+# program on every keyed mainframe corpus, every det-port case program and estate-crucible at its
+# pin, and fails on a disagreement tests/cobol_mainframe/fact_crosscheck_ledger.json does not list
+# (each listed one names the side that is wrong and its issue). A regression on EITHER side fails:
+# an engine change that moves a fact the translator also reads, or a translator change that moves
+# one the engine reads. It is a two-way ratchet: a ledgered disagreement that stops reproducing fails
+# too, so a fix lowers the ledger (`fact_crosscheck.py update`) in the same PR. Ownership per channel:
+# docs/language_status/fact_ownership.md.
+#
+# Unlike estate-crucible.yml this workflow does watch the translator (gitgalaxy/tools/cobol_to_java/**
+# and its controller): it is half of what is compared. The translator needs the `translator` extra
+# (tree-sitter-language-pack, #4430); without it the tool exits non-zero, it never skips.
+
+on:
+  pull_request:
+    branches: [main]
+    paths:
+      - "gitgalaxy/**"
+      - "pyproject.toml"
+      - "tests/tools/fact_crosscheck.py"
+      - "tests/tools/referees/translator_adapter.py"
+      - "tests/tools/referees/engine_adapter.py"
+      - "tests/tools/referees/facts.py"
+      - "tests/tools/referees/estate_key.py"
+      - "tests/tools/cobol_answer_key.py"
+      - "tests/tools/mainframe_corpus.py"
+      - "tests/tools/estate_crucible.py"
+      - "tests/_estate_crucible_pin.py"
+      - "tests/cobol_mainframe/fact_crosscheck_ledger.json"
+      - "tests/cobol_mainframe/corpora.json"
+      - "tests/cobol_mainframe/answer_key/**"
+      - "tests/equivalence/*/case.json"
+      - ".github/workflows/fact-crosscheck.yml"
+      - "!**/*.md"
+  push:
+    branches: [main]
+    paths:
+      - "gitgalaxy/**"
+      - "pyproject.toml"
+      - "tests/tools/fact_crosscheck.py"
+      - "tests/tools/referees/translator_adapter.py"
+      - "tests/tools/referees/engine_adapter.py"
+      - "tests/tools/referees/facts.py"
+      - "tests/tools/referees/estate_key.py"
+      - "tests/tools/cobol_answer_key.py"
+      - "tests/tools/mainframe_corpus.py"
+      - "tests/tools/estate_crucible.py"
+      - "tests/_estate_crucible_pin.py"
+      - "tests/cobol_mainframe/fact_crosscheck_ledger.json"
+      - "tests/cobol_mainframe/corpora.json"
+      - "tests/cobol_mainframe/answer_key/**"
+      - "tests/equivalence/*/case.json"
+      - ".github/workflows/fact-crosscheck.yml"
+      - "!**/*.md"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
+
+jobs:
+  crosscheck:
+    runs-on: ubuntu-latest
+    timeout-minutes: 12  # install + 7 corpus scans + the crucible scan + ~10 s of comparison; a hang should fail fast
+    env:
+      GITGALAXY_LICENSE_KEY: COMMUNITY_FREE_TIER
+      GITGALAXY_MAINFRAME_CORPORA: ${{ github.workspace }}/.mainframe_corpora
+      ESTATE_CRUCIBLE_PATH: ${{ github.workspace }}/estate-crucible
+      PYTHONUTF8: "1"
+    steps:
+      - name: Checkout GitGalaxy
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          path: gitgalaxy
+          persist-credentials: false
+
+      - name: Clone estate-crucible at the pin
+        run: |
+          # One line, one literal form in the pin file: see tests/_estate_crucible_pin.py.
+          ref=$(sed -n 's/^PINNED_REF = "\(.*\)"/\1/p' gitgalaxy/tests/_estate_crucible_pin.py)
+          if [ -z "$ref" ]; then
+            echo "::error title=Estate crucible pin unavailable::No PINNED_REF in gitgalaxy/tests/_estate_crucible_pin.py."
+            exit 1
+          fi
+          git init -q estate-crucible
+          git -C estate-crucible remote add origin https://github.com/squid-protocol/estate-crucible.git
+          if echo "$ref" | grep -Eq '^[0-9a-f]{40}$'; then
+            git -C estate-crucible fetch -q --depth 1 origin "$ref"
+          else
+            git -C estate-crucible fetch -q --depth 1 origin "+refs/tags/$ref:refs/tags/$ref"
+          fi
+          git -C estate-crucible checkout -q --detach FETCH_HEAD
+          echo "estate-crucible at $ref ($(git -C estate-crucible rev-parse HEAD))"
+
+      - name: Setup Python
+        uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97 # v7.0.0
+        with:
+          python-version: "3.12"
+          cache: "pip"
+
+      - name: Install GitGalaxy with the translator extra
+        run: |
+          python -m pip install --upgrade pip
+          pip install -e "./gitgalaxy[translator]"
+
+      - name: Cache the pinned corpora
+        uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
+        with:
+          path: .mainframe_corpora
+          # Clones only; scans are keyed by engine state and pruned below.
+          key: mainframe-corpora-${{ hashFiles('gitgalaxy/tests/cobol_mainframe/corpora.json') }}
+
+      - name: Fetch the pinned corpora
+        run: |
+          cd gitgalaxy
+          rm -rf "$GITGALAXY_MAINFRAME_CORPORA/_scans"
+          PYTHONPATH="$PWD" python tests/tools/mainframe_corpus.py fetch
+
+      - name: Cross-check engine and translator against the ledger
+        run: |
+          cd gitgalaxy
+          # the runner context is not available in job-level env: the BMS cache path is set here
+          REFEREES_CACHE="$RUNNER_TEMP/referees-cache" PYTHONPATH="$PWD" \
+            python tests/tools/fact_crosscheck.py check --md "$RUNNER_TEMP/fact_crosscheck.md"
+
+      - name: Publish the report
+        if: always()
+        run: |
+          if [ -f "$RUNNER_TEMP/fact_crosscheck.md" ]; then cat "$RUNNER_TEMP/fact_crosscheck.md" >> "$GITHUB_STEP_SUMMARY"; fi

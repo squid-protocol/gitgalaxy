@@ -26,10 +26,11 @@ GalaxyIR, and diffs every fact channel of the key against it:
                   its base or with its relative generation)
   file_control    file_control_data SELECTs;  entry_points  entry_point_data
   file_edges      edge_data kinds 'call' (CALL / LINK / XCTL) and 'exec' (EXEC PGM)
-  copy_collisions the scan's `copy_member_collisions` report (#4265): a second, --audit-only
-                  scan writes it, since the master DB does not hold it
+  copy_collisions the scan's `copy_member_collisions` report (#4265), read from the master DB
+                  (copy_library_finding_data, #4421) -- no second scan
   gaps            a reference the estate cannot answer: no edge_data edge from the member to
-                  a member of that name
+                  a member of that name (a COPY gap: no import edge -- a CALL / LINK to the
+                  program of the same name is a different relation, #4420)
   dead            a paragraph: function_data.usage_status 1 (unused); a program or copybook:
                   no edge_data edge of any kind into its member
 
@@ -210,9 +211,6 @@ def copy_library_declaration(manifest: dict[str, Any]) -> dict[str, Any]:
     return {"libraries": libraries, "syslib": syslib}
 
 
-COLLISIONS_FILE = "copy_member_collisions.json"
-
-
 def scan(crucible: Path, scan_dir: Path) -> Path:
     from gitgalaxy.tools.cobol_to_cobol.galaxy_ir import scan_to_db
 
@@ -226,48 +224,12 @@ def scan(crucible: Path, scan_dir: Path) -> Path:
     os.environ["PYTHONPATH"] = os.pathsep.join(p for p in (str(REPO_ROOT), saved) if p)
     try:
         db = scan_to_db(crucible / "estate", scan_dir, extra_args=extra)
-        if _keys_channel(crucible, "copy_collisions"):
-            write_collisions(crucible / "estate", scan_dir, extra)
         return db
     finally:
         if saved is None:
             os.environ.pop("PYTHONPATH")
         else:
             os.environ["PYTHONPATH"] = saved
-
-
-def _keys_channel(crucible: Path, channel: str) -> bool:
-    manifest = json.loads((crucible / "key" / "manifest.json").read_text(encoding="utf-8"))
-    return bool((manifest.get("fact_totals") or {}).get(channel))
-
-
-def write_collisions(estate: Path, scan_dir: Path, extra: list[str]) -> None:
-    """The scan's COPY collision report (`copy_member_collisions`, #4265) is in the run summary, which
-    the master DB does not hold: a second, audit-only scan writes it, and it is kept beside the DB."""
-    out = scan_dir / "audit"
-    env = dict(os.environ)
-    env.setdefault("GITGALAXY_DISABLE_GIT_HISTORY", "1")
-    subprocess.run(  # noqa: S603 -- this interpreter + fixed module; paths are argv entries, no shell
-        [sys.executable, "-m", "gitgalaxy.galaxyscope", str(estate), "--audit-only", "--output", str(out), *extra],
-        check=True,
-        env=env,
-        timeout=3600,
-        capture_output=True,
-    )
-    report = next(out.glob("*_galaxy_audit.json"))
-    found: Optional[list[Any]] = None
-
-    def walk(o: Any) -> None:
-        nonlocal found
-        if isinstance(o, dict):
-            for k, v in o.items():
-                if k == "copy_member_collisions" and isinstance(v, list):
-                    found = v
-                else:
-                    walk(v)
-
-    walk(json.loads(report.read_text(encoding="utf-8")))
-    (scan_dir / COLLISIONS_FILE).write_text(json.dumps(found or [], indent=1) + "\n", encoding="utf-8")
 
 
 class Engine:
@@ -279,11 +241,8 @@ class Engine:
 
         self.ir = load_galaxy_ir(db)
         self.files = self.ir.files
-        # the scan's COPY collision report (write_collisions), when one sits beside the DB
-        report = Path(db).parent / COLLISIONS_FILE
-        self.collisions: Optional[list[dict[str, Any]]] = (
-            json.loads(report.read_text(encoding="utf-8")) if report.is_file() else None
-        )
+        # the scan's COPY collision report, persisted in the DB (#4421)
+        self.collisions: Optional[list[dict[str, Any]]] = self.ir.copy_member_collisions()
         conn = sqlite3.connect(f"file:{db}?mode=ro", uri=True)
         try:
             ids = {
@@ -1097,7 +1056,15 @@ def score_gaps(sc: Score, path: str, entry: dict[str, Any], eng: Engine) -> None
     no edge from this member to a member of that name (a program found for a missing copybook, a
     stale copy for a missing program)."""
     for f in entry.get("gaps", []):
-        hits = sorted({dst for dst, _kind in eng.out_edges.get(path, set()) if _stem(dst) == f["name"].upper()})
+        # a missing COPY member is answered by an import edge only: the same-named program a CALL or
+        # LINK of this member reaches is that call's target, not the copybook (#4420)
+        hits = sorted(
+            {
+                dst
+                for dst, kind in eng.out_edges.get(path, set())
+                if _stem(dst) == f["name"].upper() and (f["kind"] != "copy" or kind == "import")
+            }
+        )
         sc.add(
             "gaps",
             path,

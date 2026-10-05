@@ -366,6 +366,13 @@ verdict, but it limits what the proof says about inputs outside the scenarios.
 - **Fixed 2026-10-02.** Until then the COBOL model backed out every file, and the Java side backed out nothing on an
   abend that terminated the task (only on SYNCPOINT ROLLBACK). No proven scenario had changed a file and then abended.
 - **Not modelled.** Temporary storage is not backed out (CICS backs out recoverable TS queues).
+- **SYNCPOINT's response (#4437).** Both sides answer SYNCPOINT and SYNCPOINT ROLLBACK with NORMAL (RESP 0,
+  RESP2 0, EIBRESP too); the det port writes it where it used to leave RESP / RESP2 as they were. IBM documents
+  INVREQ (RESP2 200: a program LINKed from a remote system without SYNCONRETURN, or one defined
+  EXECUTIONSET(DPLSUBSET)) and, for SYNCPOINT only, ROLLEDBACK (a remote system cannot commit). In the modelled
+  region a LINK is local and no remote system takes part. A program LINKed from outside the region (CicsTask's DPL
+  server, `LocalRegion.linked`) refuses SYNCPOINT, since the region does not know whether its client gave
+  SYNCONRETURN. EXECUTIONSET is not read: CBSA's CSD defines its programs FULLAPI (`BANK.csd`).
 
 ### X4. Time — ASSUMED
 - **What.** EIBDATE and EIBTIME are the case's clock at dispatch. ASKTIME leaves them unchanged (a task takes no time),

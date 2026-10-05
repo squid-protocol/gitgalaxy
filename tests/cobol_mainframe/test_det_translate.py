@@ -397,6 +397,79 @@ def test_options_honoured_without_code_say_why():
             assert opt in stated | flags or read, f"{key} {opt}: accepted but never read"
 
 
+# ---- #4437: RESP / RESP2 on SYNCPOINT are written, and every command that accepts RESP writes it ---------------
+class _RespCics(_KeyCics):
+    """Records the options each outcome() was given; stores (RESP2 alone) as STORE(name, value)."""
+
+    def __init__(self):
+        super().__init__()
+        self.outcomes = []
+        self.g.store_into = lambda ref, value, _rounded: f"STORE({ref.name}, {value});"
+        self.g.p = type("P", (), {"name": "PROG"})()
+
+    def outcome(self, opts, resp, resp2, ind):
+        self.outcomes.append(dict(opts))
+        return [f"{ind}OUTCOME({resp}, {resp2});"]
+
+
+@pytest.mark.parametrize(
+    ("text", "call"),
+    [
+        ("SYNCPOINT ROLLBACK RESP(R) RESP2(R2)", "task.rollback();"),  # CBSA DBCRFUN 564, INQACC 682
+        ("SYNCPOINT ROLLBACK RESP(R) RESP2(R2)".replace("SYNCPOINT ROLLBACK", "SYNCPOINT ROLLBACK NOHANDLE"),
+         "task.rollback();"),
+        ("SYNCPOINT RESP(R) RESP2(R2)", "task.syncpoint();"),  # XFRFUN 407
+        ("SYNCPOINT", "task.syncpoint();"),
+    ],
+)  # fmt: skip
+def test_syncpoint_writes_normal_into_eibresp_resp_and_resp2(text, call):
+    """#4437 (left by #4411): RESP / RESP2 on SYNCPOINT [ROLLBACK] were accepted and never written, so a program
+    testing `WS-CICS-RESP NOT = DFHRESP(NORMAL)` read what the previous command left there. In the region NORMAL is
+    the only outcome (det.cics.OPTIONS says why); it is written as CICS writes it, and no condition is raised."""
+    c = _RespCics()
+    assert c.command(text, "") == [call, "OUTCOME(0, 0);"]
+    (opts,) = c.outcomes
+    assert "NOHANDLE" in opts  # NORMAL raises nothing: no HANDLE CONDITION dispatch
+    assert ("RESP" in opts) == ("RESP(" in text) and ("RESP2" in opts) == ("RESP2(" in text)
+
+
+def test_syncpoint_resp2_alone_is_written_too():
+    assert _RespCics().command("SYNCPOINT ROLLBACK RESP2(R2)", "") == [
+        "task.rollback();", "OUTCOME(0, 0);", "STORE(R2, BigDecimal.valueOf(0));"]  # fmt: skip
+
+
+# A sample of each modelled command that accepts RESP; the commands this double cannot translate say why their RESP
+# is written (or need not be).
+_RESP_SAMPLES = {
+    "ENQ": "ENQ RESOURCE(REC) LENGTH(10)", "DEQ": "DEQ RESOURCE(REC) LENGTH(10)", "DELAY": "DELAY FOR SECONDS(1)",
+    "SEND TEXT": "SEND TEXT FROM(REC)", "XCTL": "XCTL PROGRAM('P')", "ASSIGN": "ASSIGN APPLID(REC)",
+    "READ": "READ FILE('KSDS') INTO(REC) RIDFLD(KEY)", "READNEXT": "READNEXT FILE('KSDS') INTO(REC) RIDFLD(KEY)",
+    "READPREV": "READPREV FILE('KSDS') INTO(REC) RIDFLD(KEY)", "STARTBR": "STARTBR FILE('KSDS') RIDFLD(KEY)",
+    "ENDBR": "ENDBR FILE('KSDS')", "WRITE": "WRITE FILE('KSDS') FROM(REC) RIDFLD(KEY)",
+    "REWRITE": "REWRITE FILE('KSDS') FROM(REC)", "DELETE": "DELETE FILE('KSDS') RIDFLD(KEY)",
+    "INQUIRE PROGRAM": "INQUIRE PROGRAM('P')", "WRITEQ TD": "WRITEQ TD QUEUE('Q') FROM(REC)",
+    "WRITEQ TS": "WRITEQ TS QUEUE('Q') FROM(REC)", "READQ TS": "READQ TS QUEUE('Q') INTO(REC)",
+    "GET COUNTER": "GET COUNTER(KEY) VALUE(REC)", "SYNCPOINT": "SYNCPOINT", "SYNCPOINT ROLLBACK": "SYNCPOINT ROLLBACK",
+}  # fmt: skip
+_RESP_ELSEWHERE = {
+    "RETURN": "control never comes back from a RETURN (OPTIONS)",
+    "SEND MAP": "Cics.send_map ends in outcome() (screens: covered by the det ports' CICS proofs)",
+    "RECEIVE MAP": "Cics.receive_map ends in outcome() (covered by the det ports' CICS proofs)",
+    "LINK": "Cics.link ends in outcome() (covered by the CBSA / GenApp LINK proofs)",
+}
+
+
+@pytest.mark.parametrize("key", sorted(k for k, a in C.OPTIONS.items() if a is not None and "RESP" in a))
+def test_every_command_that_accepts_resp_writes_it(key):
+    """#4437: an accepted RESP is honoured. Accepting RESP and never writing it is a silent divergence."""
+    if key in _RESP_ELSEWHERE:
+        return
+    assert key in _RESP_SAMPLES, f"{key} accepts RESP: add a sample, or say in _RESP_ELSEWHERE why it is written"
+    c = _RespCics()
+    out = c.command(f"{_RESP_SAMPLES[key]} RESP(R)", "")
+    assert any("OUTCOME(" in line for line in out) and any("RESP" in o for o in c.outcomes), out
+
+
 def _proc(body: list[str]):
     from gitgalaxy.tools.cobol_to_java.det.source import Line
 

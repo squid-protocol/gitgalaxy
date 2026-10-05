@@ -527,14 +527,46 @@ def test_a_program_source_spliced_in_for_a_copy_is_refused(tmp_path):
         SRC.program_lines(prog, [], _engine(prog, root, {"cbl/PROG.cbl": []}))
 
 
-@pytest.mark.parametrize("body", [["01 WS-RPT-HEAD.  COPY RPTHDR."], ["01 WS-RPT-HEAD.", "COPY", "RPTHDR."]])
-def test_a_copy_the_translator_never_expands_is_refused(tmp_path, body):
-    """#4459 (estate-crucible ACCTRPT / ACCTUPD): a COPY after other text on its line, or with its member on the next
-    line, is not expanded and the record comes out empty; the engine resolved the member."""
-    prog, root = _estate(tmp_path, body, {"cpy/RPTHDR.cpy": _MEMBER})
-    with pytest.raises(SRC.CopyUnresolved, match="COPY RPTHDR: engine resolved cpy/RPTHDR.cpy, translator expanded no "
-                       "COPY of it"):  # fmt: skip
-        SRC.program_lines(prog, [root / "cpy"], _engine(prog, root, {"cbl/PROG.cbl": ["cpy/RPTHDR.cpy"]}))
+def test_a_copy_after_other_text_on_its_line_is_expanded(tmp_path):
+    """#4459 (estate-crucible ACCTRPT): `01 WS-RPT-HEAD.  COPY RPTHDR.` left the record empty; two COPYs on one
+    line both expand, and the text before the first stays."""
+    prog, root = _estate(tmp_path, ["01 WS-RPT-HEAD.  COPY RPTHDR.", "01 WS-RPT-TOTALS.  COPY RPTTOT. COPY RPTCNT."],
+                         {"cpy/RPTHDR.cpy": _MEMBER, "cpy/RPTTOT.cpy": _fixed("05 T-FIELD PIC X.", "05 T2 PIC X."),
+                          "cpy/RPTCNT.cpy": _fixed("05 C-FIELD PIC X.")})  # fmt: skip
+    deps = {"cbl/PROG.cbl": ["cpy/RPTHDR.cpy", "cpy/RPTTOT.cpy", "cpy/RPTCNT.cpy"]}
+    lines = SRC.program_lines(prog, [root / "cpy"], _engine(prog, root, deps))
+    texts = [ln.text.strip() for ln in lines]
+    assert texts[4:] == ["01 WS-RPT-HEAD.", "05 A-FIELD PIC X(4).", "01 WS-RPT-TOTALS.", "05 T-FIELD PIC X.",
+                         "05 T2 PIC X.", "05 C-FIELD PIC X."]  # fmt: skip
+
+
+def test_a_copy_with_its_member_on_the_next_line_is_expanded(tmp_path):
+    """#4459 (estate-crucible ACCTUPD): `COPY` / `UPDCTL.` left the record empty."""
+    prog, root = _estate(tmp_path, ["01 WS-UPD-CONTROL.", "COPY", "RPTHDR."], {"cpy/RPTHDR.cpy": _MEMBER})
+    lines = SRC.program_lines(prog, [root / "cpy"], _engine(prog, root, {"cbl/PROG.cbl": ["cpy/RPTHDR.cpy"]}))
+    assert _from(lines, "A-FIELD") == {"cpy/RPTHDR.cpy"}
+
+
+def test_copy_inside_a_literal_is_not_a_copy(tmp_path):
+    prog, root = _estate(tmp_path, ["01 WS-A PIC X(9) VALUE 'COPY RPTHDR.'."], {"cpy/RPTHDR.cpy": _MEMBER})
+    lines = SRC.program_lines(prog, [root / "cpy"], None)
+    assert not _from(lines, "A-FIELD")
+
+
+@pytest.mark.parametrize("engine", [False, True])
+def test_a_copy_member_that_is_a_program_is_refused(tmp_path, engine):
+    """#4460: a member with IDENTIFICATION DIVISION / PROGRAM-ID is a program; `.cbl` copy members stay allowed."""
+    prog_text = _fixed("IDENTIFICATION DIVISION.", "PROGRAM-ID. SHPRATE.", "DATA DIVISION.")
+    prog, root = _estate(tmp_path, ["01 WS-RATE-PARM.", "COPY SHPRATE."], {"cbl/SHPRATE.cbl": prog_text})
+    eng = _engine(prog, root, {"cbl/PROG.cbl": ["cbl/SHPRATE.cbl"]}) if engine else None
+    with pytest.raises(SRC.CopyNotFound, match="COPY SHPRATE.*is a program"):
+        SRC.program_lines(prog, [root / "cbl"], eng)
+
+
+def test_a_cbl_copy_member_that_is_not_a_program_still_expands(tmp_path):
+    prog, root = _estate(tmp_path, ["01 WS-A.", "COPY AREC."], {"cbl/AREC.cbl": _MEMBER})
+    lines = SRC.program_lines(prog, [root / "cbl"], None)
+    assert _from(lines, "A-FIELD") == {"cbl/AREC.cbl"}
 
 
 @pytest.mark.parametrize(("kw", "why"), [({"gaps": [("cbl/PROG.cbl", "AREC")]}, "gap"),

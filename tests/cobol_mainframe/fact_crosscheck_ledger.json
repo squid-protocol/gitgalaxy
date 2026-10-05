@@ -319,8 +319,6 @@
   "dsf :: unit_extents | src/GML/FO04D1X1.cobol | translator | (procedure division) L125-132": "engine-main-line-no-extent",
   "dsf :: unit_extents | src/GML/PLUKKFR.cobol | translator | (procedure division) L73-75": "engine-main-line-no-extent",
   "dsf :: unit_extents | src/GML/PLUKKFRN.cobol | translator | (procedure division) L73-75": "engine-main-line-no-extent",
-  "estate-crucible :: status | apps/ACCT/cobol/ACCTRPT.cbl | engine | translator refused: CopyNotFound: COPY RPTCNT:": "translator-copy-statement-forms",
-  "estate-crucible :: status | apps/ACCT/cobol/ACCTUPD.cbl | engine | translator refused: CopyNotFound: COPY UPDCTL:": "translator-copy-statement-forms",
   "estate-crucible :: status | apps/DEUT/cobol/ZINSBER.cbl | engine | translator refused: CopyNotFound: COPY ZINSSATZ:": "translator-refuses-estate-shape",
   "estate-crucible :: status | apps/GULF/cobol/GULFINQ.cbl | engine | translator refused: CopyNotFound: COPY GULFMS:": "translator-refuses-estate-shape",
   "estate-crucible :: status | apps/KYUY/cobol/KYUYJP.cbl | engine | translator refused: layout: UnicodeEncodeError: 'latin-1' codec can't encode characters in position 54-57: ordinal not in range(256); procedure: UnicodeEncodeError: 'latin-1' codec can't encode characters in position 92-94: ordinal not in range(256)": "translator-refuses-estate-shape",

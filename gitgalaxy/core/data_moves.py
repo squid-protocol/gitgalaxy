@@ -103,6 +103,21 @@ _DATA_VERBS = ("MOVE", "COMPUTE", "ADD", "SUBTRACT", "MULTIPLY", "DIVIDE", "STRI
 # #3492: the file-I/O verbs above move a whole record, as a MOVE does.
 IO_VERBS = frozenset({"READ", "RETURN", "WRITE", "REWRITE", "RELEASE", "ACCEPT"})
 _READ_PHRASE = frozenset({"NEXT", "PREVIOUS", "RECORD", "KEY", "IS", "WITH", "NO", "LOCK", "IGNORE"})
+# #4403: statement keywords that are not standard COBOL (IDMS DML, vendor/preprocessor verbs). A
+# statement ends at an unrecognized next word only when it is known, so a receiver list stops here
+# instead of reading `OBTAIN CALC LOAN` as three receivers. Extensible: add a word here. Hyphenated
+# names (OBTAIN-FLAG) are other tokens and unaffected; the word only ends a list that already has an
+# operand, so a first operand named like a verb still resolves. COBOL/SQL-meaning words stay out:
+# ACCEPT / RETURN / READ / WRITE are in _VERBS already, EXEC SQL is skipped as a block.
+EXTENSION_STATEMENT_WORDS = frozenset(
+    {
+        # IDMS/DML
+        "OBTAIN", "FIND", "GET", "STORE", "MODIFY", "ERASE", "CONNECT", "DISCONNECT", "BIND", "READY",
+        "FINISH", "COMMIT", "ROLLBACK", "KEEP", "ATTACH",
+        # other vendor extensions (Micro Focus EXHIBIT, Unisys/IBM TRANSFORM)
+        "EXHIBIT", "TRANSFORM",
+    }
+)  # fmt: skip
 _STOPS = frozenset({"ON", "NOT", "SIZE", "OVERFLOW", "EXCEPTION", "INVALID", "AT"})
 _FIGURATIVE = frozenset(
     {
@@ -228,11 +243,13 @@ class _Stream:
         return colon
 
     def operands(self, stop: frozenset) -> list[tuple[str, str, bool]]:
-        out = []
+        out: list[tuple[str, str, Any]] = []
         while not self.done() and self.peek() not in stop:
             if self.peek() in (",", "ROUNDED"):
                 self.i += 1
                 continue
+            if out and self.peek() in EXTENSION_STATEMENT_WORDS:
+                break
             op = self.operand()
             if op is None:
                 break

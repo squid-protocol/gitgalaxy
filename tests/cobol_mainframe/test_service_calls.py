@@ -163,8 +163,9 @@ def test_calls_become_service_calls(scanned, tmp_path):
     menu = (src / "service/MenuService.java").read_text(encoding="utf-8")
     # a static LINK: the target's handleLink, through a cycle-safe ObjectProvider
     assert "private final ObjectProvider<AcctinqService> acctinqService;" in menu
-    # ACCTINQ receives what MENU passes (WS-COMM, named after MENU, which declares it): no mapping needed
-    assert "public MenuWsComm linkAcctinq(MenuWsComm request) {" in menu
+    # ACCTINQ receives what MENU passes (WS-COMM): no mapping needed. The DTO is named after the callee's own
+    # DFHCOMMAREA, all CICS knows of it, never after the caller's WS-COMM
+    assert "public AcctinqDfhcommarea linkAcctinq(AcctinqDfhcommarea request) {" in menu
     assert "return acctinqService.getObject().handleLink(request);" in menu
     assert "/** EXEC CICS LINK PROGRAM(ACCTINQ) at cbl/MENU.cbl:" in menu
     # a CALL: typed by the callee's USING items (an elementary item maps to its Java type). Two
@@ -194,7 +195,7 @@ def test_calls_become_service_calls(scanned, tmp_path):
     assert "return aor1RemoteClient.linkAudit(request);" in menu
     client = (src / "client/Aor1RemoteClient.java").read_text(encoding="utf-8")
     assert '@Value("${gitgalaxy.remote.aor1.url:http://localhost:8080}")' in client
-    assert 'rest.postForObject(baseUrl + "/api/v1/audit/link", request, MenuWsComm.class)' in client
+    assert 'rest.postForObject(baseUrl + "/api/v1/audit/link", request, AuditDfhcommarea.class)' in client
     audit = (java / "java_migration_audit.txt").read_text(encoding="utf-8")
     assert "Service calls (#3616)    : 1 LINK, 0 XCTL, 1 CALL, 1 data-driven dispatch, 1 remote; 1 remote" in audit
 

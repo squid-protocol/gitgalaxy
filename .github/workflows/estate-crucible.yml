@@ -24,6 +24,10 @@ on:
       - "tests/estate_crucible/**"
       - "tests/_estate_crucible_pin.py"
       - ".github/workflows/estate-crucible.yml"
+      # never read by a scan: the COBOL-to-Java translator and its entry point, and prose
+      - "!gitgalaxy/tools/cobol_to_java/**"
+      - "!gitgalaxy/cobol_to_java_controller.py"
+      - "!**/*.md"
   push:
     branches: [main]
     paths:
@@ -33,6 +37,10 @@ on:
       - "tests/estate_crucible/**"
       - "tests/_estate_crucible_pin.py"
       - ".github/workflows/estate-crucible.yml"
+      # never read by a scan: the COBOL-to-Java translator and its entry point, and prose
+      - "!gitgalaxy/tools/cobol_to_java/**"
+      - "!gitgalaxy/cobol_to_java_controller.py"
+      - "!**/*.md"
   workflow_dispatch:
 
 permissions:
@@ -45,7 +53,7 @@ concurrency:
 jobs:
   estate:
     runs-on: ubuntu-latest
-    timeout-minutes: 15
+    timeout-minutes: 5  # the job takes ~40 s; a hang should fail fast
     env:
       GITGALAXY_LICENSE_KEY: COMMUNITY_FREE_TIER
       PYTHONUTF8: "1"

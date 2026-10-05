@@ -2159,14 +2159,20 @@ class CicsForge:
         arms = []
         for name, same in by_name.items():
             if len(same) == 1:
-                arms.append(f"            case {json.dumps(name)} -> context.getBean({same[0].cls}Service.class).runTask(task);")
+                arms.append(
+                    f"            case {json.dumps(name)} -> context.getBean({same[0].cls}Service.class).runTask(task);"
+                )
                 continue
             # two sources under one program name: the region's CSD installs one of them, and the estate does not say
             # which -- so the region runs neither rather than pick one (CICS itself never holds two)
             srcs = ", ".join(p.path for p in same)
-            arms.append(f"            case {json.dumps(name)} -> throw new IllegalStateException("
-                        f"{json.dumps(f'program {name} has more than one source ({srcs}); the CSD decides which one runs')});")
-        imports = [f"import {self.package}.service.{same[0].cls}Service;" for same in by_name.values() if len(same) == 1]
+            arms.append(
+                f"            case {json.dumps(name)} -> throw new IllegalStateException("
+                f"{json.dumps(f'program {name} has more than one source ({srcs}); the CSD decides which one runs')});"
+            )
+        imports = [
+            f"import {self.package}.service.{same[0].cls}Service;" for same in by_name.values() if len(same) == 1
+        ]
         return "\n".join([
             f"package {self.package}.cics;", "",
             *sorted(set(imports)),

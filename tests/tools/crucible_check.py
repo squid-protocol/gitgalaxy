@@ -287,8 +287,12 @@ def run_check(mode_key: str, py: Path) -> bool:
         # pytest.fail()'s own "Structural drift detected" message (already capped at 50
         # diff lines by the test itself) instead of guessing how many lines to keep.
         combined = result.stdout + result.stderr
-        marker = "Structural drift detected"
+        # #4247: a timeout exclusion is reported ahead of any drift (it causes the drift).
+        marker = "Regex timeout exclusion"
         idx = combined.find(marker)
+        if idx == -1:
+            marker = "Structural drift detected"
+            idx = combined.find(marker)
         if idx != -1:
             print(combined[idx : idx + 4000])
         else:
@@ -296,11 +300,15 @@ def run_check(mode_key: str, py: Path) -> bool:
     return passed
 
 
-def run_update(mode_key: str, py: Path, yes: bool) -> None:
+def run_update(mode_key: str, py: Path, yes: bool, allow_timeouts: bool = False) -> bool:
+    """Bless one leg. False when update_golden_master.py refused or failed (#4247: a
+    regex-timeout exclusion in the run), so a refusal never reads as a successful bless."""
     args = [str(py), str(REPO_ROOT / "tests" / "tools" / "update_golden_master.py")]
     if yes:
         args.append("--yes")
-    subprocess.run(args, cwd=REPO_ROOT, env=_venv_env(py), check=False)
+    if allow_timeouts:
+        args.append("--allow-timeouts")
+    return subprocess.run(args, cwd=REPO_ROOT, env=_venv_env(py), check=False).returncode == 0
 
 
 def main() -> int:
@@ -310,6 +318,11 @@ def main() -> int:
         "--update", action="store_true", help="Regenerate (bless) the fixture(s) instead of just checking."
     )
     parser.add_argument("--yes", action="store_true", help="Skip update_golden_master.py's confirmation prompt.")
+    parser.add_argument(
+        "--allow-timeouts",
+        action="store_true",
+        help="Bless even if a regex timeout excluded files in the run (#4247). Deliberate use only.",
+    )
     args = parser.parse_args()
 
     if not (CRUCIBLE_PATH / "data").exists():
@@ -324,11 +337,15 @@ def main() -> int:
     mode_keys = ["full", "zero"] if args.mode == "both" else [args.mode]
 
     if args.update:
+        blessed = True
         for mode_key in mode_keys:
             py = ensure_venv(mode_key)
             _check_unsafe_corpus_path(py)
-            run_update(mode_key, py, args.yes)
-        return 0
+            if not run_update(mode_key, py, args.yes, args.allow_timeouts):
+                blessed = False
+                print(f"❌ {MODES[mode_key][0]}: bless refused or failed; no further legs are blessed.")
+                break
+        return 0 if blessed else 1
 
     results = []
     for mode_key in mode_keys:

@@ -456,9 +456,11 @@ def test_cics_task_receive_notruncate_eoc_and_send_control(tmp_path):
         "Received[resp=EOC, length=6, data=HC05 X]",
         "Received[resp=LENGERR, length=6, data=HC]",
         "refused",
-        "[{event=RECEIVE, resp=NORMAL, length=5, data=HC05 }, {event=RECEIVE, resp=NORMAL, length=4, data=ABCD}, "
-        "{event=RECEIVE, resp=NORMAL, length=3, data=EFG}, {event=SEND-CONTROL, options=[ERASE, FREEKB], cursor=null}, "
-        "{event=SEND-CONTROL, options=[ALARM, CURSOR], cursor=85}]",
+        (
+            "[{event=RECEIVE, resp=NORMAL, length=5, data=HC05 }, {event=RECEIVE, resp=NORMAL, length=4, data=ABCD}, "
+            "{event=RECEIVE, resp=NORMAL, length=3, data=EFG}, {event=SEND-CONTROL, options=[ERASE, FREEKB], "
+            "cursor=null}, {event=SEND-CONTROL, options=[ALARM, CURSOR], cursor=85}]"
+        ),
     ]
 
 

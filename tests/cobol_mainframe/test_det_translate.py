@@ -753,8 +753,10 @@ def test_receive_into_length_is_in_out_with_its_conditions():
         "STORE" in x for x in out
     )
     # MAXLENGTH overrides LENGTH as the limit; NOTRUNCATE keeps the rest (also when it comes first)
-    for text in ("RECEIVE INTO(REC) LENGTH(RLEN) MAXLENGTH(10) NOTRUNCATE", "RECEIVE NOTRUNCATE INTO(REC) "
-                 "FLENGTH(RLEN) MAXFLENGTH(10)"):  # fmt: skip
+    for text in (
+        "RECEIVE INTO(REC) LENGTH(RLEN) MAXLENGTH(10) NOTRUNCATE",
+        "RECEIVE NOTRUNCATE INTO(REC) FLENGTH(RLEN) MAXFLENGTH(10)",
+    ):
         out = _TermCics().command(text, "")
         assert out[0] == "CicsTask.Received received1 = task.receive(INT(10), true);"
         assert out[2] == "STORE(RLEN, BigDecimal.valueOf(received1.length()));"
@@ -802,6 +804,7 @@ def test_a_terminal_only_cics_program_translates_whole_and_imports_only_packages
     """#4413: CBSA's BNK1* SEND CONTROL ERASE FREEKB and GenApp's RECEIVE INTO LENGTH translate with no hole; an estate
     with no screens, contracts or repositories (a terminal-only program) gets no import of those packages, which
     javac refuses when they do not exist."""
+    pytest.importorskip("tree_sitter_language_pack")
     from gitgalaxy.tools.cobol_to_java.det import program as P
 
     (tmp_path / "T1.cbl").write_text(

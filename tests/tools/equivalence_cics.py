@@ -1819,7 +1819,14 @@ FACADE_JAVA = """    /** #4449: a facade did not run the scenario's task the way
             linked = task;
             linkedProgram = p;
             entry(p, "handleLink");
-            call(m, service, ca);
+            try {
+                call(m, service, ca);
+            } catch (RuntimeException e) {
+                if (linked == task && !(e instanceof FacadeRefused)) {  // it never asked the region for its level
+                    throw new FacadeRefused("handleLink of " + p + " threw before it ran its level: " + e);
+                }
+                throw e;
+            }
             if (linked == task) {
                 throw new FacadeRefused("handleLink of " + p + " did not run its task in the region");
             }

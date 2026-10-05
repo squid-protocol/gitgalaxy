@@ -225,6 +225,54 @@ def test_a_failed_proof_is_not_proven_and_a_missing_record_says_so():
     assert ev.status(None, t)["status"] == "no-record"
 
 
+def _menu():
+    t = ev.target("carddemo-menu")
+    rec = ev.load(t)
+    if rec is None:
+        pytest.skip("no carddemo-menu record")
+    return t, copy.deepcopy(rec)
+
+
+def test_a_cics_port_with_facades_is_proven_only_through_them_too():
+    """#4449: a CICS online port whose facades (handleTransaction / handleLink) no proof entered is not proven --
+    as #4343 made the crucible's ports; a proof that ran the java-facade side and passed is."""
+    t, rec = _menu()
+    assert ev.port_facades(t) == ["handleLink", "handleTransaction"]
+    rec = _current(t, rec)
+    rec["proof"].pop("facade", None)
+    st = ev.status(rec, t)
+    assert st["status"] == "not-proven"
+    assert st["reasons"][0].startswith("not proven through its deployed entry points (handleLink / handleTransaction)")
+    rec["proof"]["facade"] = {"verdict": "proven", "runs": 16, "passed": 16, "entry_points": ["handleTransaction"],
+                              "failed": [], "error": None}  # fmt: skip
+    assert ev.status(rec, t)["status"] == "proven, unapproved"
+    failed = copy.deepcopy(rec)
+    failed["proof"]["verdict"] = "not-proven"
+    failed["proof"]["facade"].update(verdict="not-proven", passed=15,
+                                     failed=[{"scenario": "x", "why": "refused: ..."}])  # fmt: skip
+    st = ev.status(failed, t)
+    assert st["status"] == "not-proven"
+    assert "through its deployed entry points (java-facade: 15/16 scenarios pass)" in st["reasons"][0]
+
+
+def test_a_batch_or_call_port_needs_no_facade():
+    t, rec = _dateutil()
+    assert ev.port_facades(t) == []
+    assert ev.status(_current(t, rec), t)["status"] == "proven, unapproved"
+
+
+def test_the_facade_summary_keeps_each_failing_scenario_and_why():
+    fc = {"proven": False, "entry_points": [{"method": "handleTransaction", "scenarios": ["a"]}],
+          "outputs": {"a": {"pass": True, "equal": 2, "records": 2},
+                      "b": {"pass": False, "equal": 1, "records": 2, "refused": "handleTransaction of P threw"},
+                      "c": {"pass": False, "equal": 1, "records": 2, "files": {"F": {}}}}}  # fmt: skip
+    got = ev.facade_summary(fc)
+    assert got["verdict"] == "not-proven" and (got["runs"], got["passed"]) == (3, 1)
+    assert got["entry_points"] == ["handleTransaction"]
+    assert got["failed"] == [{"scenario": "b", "why": "refused: handleTransaction of P threw"},
+                             {"scenario": "c", "why": "differs (1/2 events equal, files differ)"}]  # fmt: skip
+
+
 # ---- approval -------------------------------------------------------------------------------------------------------
 def _tmp_target(tmp_path, t, rec):
     tt = ev.Target(**{**t.__dict__, "record": tmp_path / "evidence.json"})

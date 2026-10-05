@@ -371,6 +371,96 @@ def test_carddemo_account_view_is_equivalent_end_to_end(tmp_path):
     assert all(e == r for e, r in got.values()), got
     assert {"enter-from-menu": (2, 2), "view-account": (3, 3), "account-not-on-file": (3, 3),
             "account-not-numeric": (3, 3), "pf3-back-to-menu": (1, 1)}.items() <= got.items()  # fmt: skip
+    # #4449: and through its deployed entry point, every scenario entered by handleTransaction
+    assert report["facade"]["proven"], report["facade"]
+    assert [e["method"] for e in report["facade"]["entry_points"]] == ["handleTransaction"]
+
+
+@pytest.mark.skipif(__import__("os").environ.get("EQUIVALENCE_E2E") != "1",
+                    reason="needs Docker (GnuCOBOL) and a JDK + Maven")  # fmt: skip
+def test_a_facade_that_builds_its_own_task_fails_the_java_facade_side(tmp_path):
+    """#4449: COMEN01C's port with a handleTransaction that runs runTask on a task of its own (not the region's):
+    every runTask scenario still passes, every java-facade scenario is refused, and the case is not proven."""
+    import json
+    import shutil
+    import subprocess
+
+    port = tmp_path / "port"
+    shutil.copytree(eq.CASES / "carddemo-menu" / "port", port)
+    (port / "provenance.json").unlink()
+    svc = port / "service" / "Comen01cService.java"
+    text = svc.read_text(encoding="utf-8")
+    joined = '        CicsTask task = region.transaction(transid, request);\n        region.run(task, "COMEN01C", this::runTask);'
+    assert joined in text
+    svc.write_text(text.replace(joined, '        CicsTask task = new CicsTask(transid, "ENTER", request, null, '
+                                        "java.util.Map.of());\n        runTask(task);"), encoding="utf-8")  # fmt: skip
+    proc = subprocess.run([sys.executable, str(Path(eq.__file__)), "run", "carddemo-menu", "--port", str(port),  # noqa: S603
+                           "--keep", str(tmp_path / "w")], capture_output=True, text=True, check=False)  # fmt: skip
+    report = json.loads((tmp_path / "w" / "report.json").read_text())
+    assert proc.returncode == 1 and report["proven"] is False
+    assert all(o["equal"] == o["records"] for o in report["outputs"].values())  # runTask: unchanged, passes
+    facade = report["facade"]["outputs"]
+    assert facade and all(not o["pass"] and o.get("refused") for o in facade.values())
+    assert report["facade"]["entry_points"] == []
+
+
+# ---- #4449: the java-facade side's verdicts -------------------------------------------------------------------
+def _facade_case():
+    return {"name": "x", "program": "PROG", "transid": "T001", "scenarios": [{"name": "a"}, {"name": "b"}],
+            "datasets": {}}  # fmt: skip
+
+
+def _cobol_task():
+    return {"events": ["SEND-TEXT", "RETURN level=1"], "screens": [], "text": ["HELLO"],
+            "return": {"transid": "T001", "commarea": None}}  # fmt: skip
+
+
+def test_the_facade_side_passes_a_scenario_only_when_it_matches_and_was_not_refused(tmp_path):
+    same = [{"event": "SEND-TEXT", "text": "HELLO"}, {"event": "RETURN", "transid": "T001", "commarea": None}]
+    entered = [{"program": "PROG", "method": "handleTransaction"}]
+    facade = {"out": tmp_path, "events": {"a": same, "b": same}, "entries": {"a": entered, "b": entered},
+              "refused": {"b": "handleTransaction of PROG did not run its task in the region"}}  # fmt: skip
+    got = ec.judge_facade(_facade_case(), tmp_path, [], {"a": _cobol_task(), "b": _cobol_task()}, facade, {},
+                          tmp_path)  # fmt: skip
+    assert got["outputs"]["a"]["pass"] and not got["outputs"]["b"]["pass"]
+    assert got["outputs"]["b"]["refused"].startswith("handleTransaction of PROG")
+    assert got["proven"] is False
+    assert got["entry_points"] == [{"method": "handleTransaction", "why": ec.FACADE_WHY, "scenarios": ["a"]}]
+
+
+def test_the_facade_side_fails_a_differing_task_and_a_failed_run(tmp_path):
+    other = [{"event": "SEND-TEXT", "text": "BYE"}, {"event": "RETURN", "transid": "T001", "commarea": None}]
+    facade = {"out": tmp_path, "events": {"a": other, "b": other}, "entries": {}, "refused": {}}
+    got = ec.judge_facade(_facade_case(), tmp_path, [], {"a": _cobol_task()}, facade, {}, tmp_path)
+    assert got["proven"] is False and got["outputs"]["a"]["diffs"]
+    failed = ec.judge_facade(_facade_case(), tmp_path, [], {"a": _cobol_task()}, {"error": "Java side failed"}, {},
+                             tmp_path)  # fmt: skip
+    assert failed["proven"] is False and failed["error"] == "Java side failed"
+
+
+def test_the_generated_test_runs_runtask_unless_the_facade_side_is_asked_for(tmp_path):
+    """The runTask side is the default (-Dequivalence.facades unset) and runs as before; the facade side joins the
+    scenario's region and enters the program -- by handleLink when the case is LINKed -- and a LINK target the case
+    runs through its handleLink."""
+    import equivalence_java as ej
+
+    svc = tmp_path / "service" / f"{ej._service_class('PROG')}.java"
+    svc.parent.mkdir(parents=True)
+    svc.write_text("public void handleTransaction(String transid, ProgCa request) {}", encoding="utf-8")
+    case = {**_facade_case(), "clock": "2026/10/01 10:30:15.00", "screens": {},
+            "programs": [{"program": "LINKED", "program_source": "x.cbl"}]}  # fmt: skip
+    java = ec.cics_equivalence_test(case, tmp_path, [])
+    assert 'final boolean facades = Boolean.getBoolean("equivalence.facades");' in java
+    assert 'new FacadeRegion(task, commarea, "PROG", false)' in java
+    runs = java[java.index("if (facades) {\n                        try (CicsTask.Joined") :]
+    assert (
+        "region.start(" in runs
+        and f"}} else {{\n                        {ej._service_class('PROG')[0].lower()}" in runs
+    )
+    assert 'if (facades) { region.enter("LINKED", t, ' in java and ".runTask(t); } return; }" in java
+    linked = ec.cics_equivalence_test({**case, "linked": True}, tmp_path, [])
+    assert 'new FacadeRegion(task, commarea, "PROG", true)' in linked
+    assert ec.FACADE_JAVA in java
 
 
 # ---- file updates: WRITE, REWRITE, READ UPDATE, SYNCPOINT (CardDemo's update programs) -----------------------

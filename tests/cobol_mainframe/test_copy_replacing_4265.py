@@ -27,6 +27,8 @@ PAYMAIN = """\
        01  WS-PLAIN.
            COPY PLAIN REPLACING ==AMT-X== BY ==AMT-Y==
                                 LEADING ==PFX== BY ==NEW==.
+       01  WS-RAW.
+           COPY PLAIN.
        PROCEDURE DIVISION.
            GOBACK.
 """
@@ -40,6 +42,7 @@ PLAIN = "           05  AMT-X   PIC 9(4).\n           05  AMT-XX  PIC 9(2).\n   
 
 def test_the_extractor_keeps_each_copys_replacing_operands():
     rows = {r["name"]: r for r in extract_boundary("cobol", PAYMAIN)["records"]}
+    assert "copy_replacing" not in rows["WS-RAW"]  # presence-keyed: a plain COPY keeps its old shape
     assert json.loads(rows["WS-EMP"]["copy_replacing"]) == [[[":TAG:", "EMP"]]]
     assert json.loads(rows["WS-PLAIN"]["copy_replacing"]) == [[["AMT-X", "AMT-Y"], ["PFX", "NEW", "LEADING"]]]
 
@@ -56,6 +59,8 @@ def test_operand_forms():
     assert _replace_text("AMT-XX", [["AMT-X", "AMT-Y"]]) == "AMT-XX"
     assert _replace_text("AMT-X", [["AMT-X", "AMT-Y"]]) == "AMT-Y"
     assert _replace_text(":TAG:-ID", [[":TAG:", "EMP"]]) == "EMP-ID"
+    # one left-to-right pass: replaced text is not matched again, and the first matching pair wins
+    assert _replace_text("A-1 B-1", [["A-1", "B-1"], ["B-1", "C-1"]]) == "B-1 C-1"
 
 
 @pytest.fixture(scope="module")
@@ -92,3 +97,9 @@ def test_the_template_entries_are_not_data_names(ir):
     tpl = ir.files["cpy/PAYTPL.cpy"]
     assert tpl.data_items == [] and tpl.records == []
     assert [r.name for r in tpl.template_records] == [":TAG:-ID", ":TAG:-NAME", ":TAG:-RATE"]
+
+
+def test_a_copy_without_replacing_is_unchanged(ir):
+    # the nearest negative: the same copybook copied plainly keeps its own names, and stays data_items
+    assert [f["name"] for f in _layout(ir, "WS-RAW")["fields"] if f.get("pic")] == ["AMT-X", "AMT-XX", "PFX-CODE"]
+    assert [it.name for it in ir.files["cpy/PLAIN.cpy"].data_items] == ["AMT-X", "AMT-XX", "PFX-CODE"]

@@ -51,8 +51,10 @@
 #     WRITE without FROM moves no program data (the FD record is the buffer).
 #   - Sequence fields, comment and debugging lines are blanked first. Bounded per
 #     statement. Pseudo-text awaiting COPY REPLACING (`(TAG)-NAME`) is not an
-#     operand, and names a COPY ... REPLACING would produce are not resolved by
-#     the reader (record_data keeps the copybook's own names).
+#     operand. record_data keeps the copybook's own names and each COPY's
+#     REPLACING operands (`copy_replacing`, #4265); GalaxyIR.record_layout
+#     applies them, but the data-flow reader does not yet resolve an operand
+#     only a REPLACING produces to its copied entry.
 # ==============================================================================
 import bisect
 import re

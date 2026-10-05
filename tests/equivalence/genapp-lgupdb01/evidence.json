@@ -9,6 +9,7 @@
   ],
   "sha256": "c3630947411885221e3099fe1e0de07547da8f2e8a34802513f108fce25de6bc",
   "entry_points": [
+   "handleLink",
    "runTask"
   ]
  },
@@ -42,7 +43,7 @@
     "tests/tools/java_target_matrix.py"
    ],
    "files": 11,
-   "sha256": "c463ca45463a591e370c97e5ec9e229da87203b2299971d6c8a02e9fd3eb421b"
+   "sha256": "cd0c22f11e735f25b3d655aac6b89670b07cba2e23856c7c825291b64fa994c5"
   },
   "oracle": {
    "paths": [
@@ -72,11 +73,11 @@
   "differences": {
    "sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
   },
-  "digest": "6cdddd7804ece6d03206a2f8d3183e509f004f55a9946c694a0fa0aa8ad43f33"
+  "digest": "75e93c7e37daffab0112b348233f94a219b4130ac3afbbd92d479decc301afff"
  },
  "proof": {
-  "at": "2026-10-05T13:37:07Z",
-  "verdict": "proven",
+  "at": "2026-10-05T14:57:13Z",
+  "verdict": "not-proven",
   "runs": 5,
   "fault_runs": 0,
   "environments": null,
@@ -106,8 +107,35 @@
   "sysout_compared": null,
   "attributes_compared": null,
   "java_failed": false,
-  "harness_commit": "1079a251a0b3d8f77497f5c8c98355c3b79a9640+uncommitted",
-  "inputs_digest": "6cdddd7804ece6d03206a2f8d3183e509f004f55a9946c694a0fa0aa8ad43f33"
+  "facade": {
+   "verdict": "not-proven",
+   "runs": 5,
+   "passed": 1,
+   "entry_points": [
+    "handleLink"
+   ],
+   "failed": [
+    {
+     "scenario": "stale-lastchanged",
+     "why": "refused: handleLink of LGUPVS01 threw before it ran its level: java.lang.UnsupportedOperationException: handleLink: this port runs as runTask"
+    },
+    {
+     "scenario": "update-endowment",
+     "why": "refused: handleLink of LGUPVS01 threw before it ran its level: java.lang.UnsupportedOperationException: handleLink: this port runs as runTask"
+    },
+    {
+     "scenario": "update-house",
+     "why": "refused: handleLink of LGUPVS01 threw before it ran its level: java.lang.UnsupportedOperationException: handleLink: this port runs as runTask"
+    },
+    {
+     "scenario": "update-motor",
+     "why": "refused: handleLink of LGUPVS01 threw before it ran its level: java.lang.UnsupportedOperationException: handleLink: this port runs as runTask"
+    }
+   ],
+   "error": null
+  },
+  "harness_commit": "af9e62c055439d3c758d2a794a211fa28ad41e41+uncommitted",
+  "inputs_digest": "75e93c7e37daffab0112b348233f94a219b4130ac3afbbd92d479decc301afff"
  },
  "coverage": {
   "paragraphs": {
@@ -251,10 +279,11 @@
    "total": 0
   },
   "source": "the proof's own traced COBOL runs (cobol_coverage.py)",
-  "inputs_digest": "6cdddd7804ece6d03206a2f8d3183e509f004f55a9946c694a0fa0aa8ad43f33"
+  "inputs_digest": "75e93c7e37daffab0112b348233f94a219b4130ac3afbbd92d479decc301afff"
  },
  "reach": {
   "entry_points": [
+   "handleLink",
    "runTask"
   ],
   "unproven": [
@@ -262,12 +291,6 @@
     "class": "Lgupdb01Service",
     "method": "handleTransaction",
     "line": 78,
-    "kind": "left_as_generated"
-   },
-   {
-    "class": "Lgupdb01Service",
-    "method": "handleLink",
-    "line": 472,
     "kind": "left_as_generated"
    },
    {
@@ -297,7 +320,7 @@
   ],
   "counts": {
    "stub": 0,
-   "left_as_generated": 6,
+   "left_as_generated": 5,
    "ported_unproven": 0
   },
   "generated_compared": true,

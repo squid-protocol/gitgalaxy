@@ -9,6 +9,7 @@
   ],
   "sha256": "2930523c0654230a1c1cf08c259b85454aadea1b87545bb86960592022dedf1d",
   "entry_points": [
+   "handleTransaction",
    "runTask"
   ]
  },
@@ -42,7 +43,7 @@
     "tests/tools/java_target_matrix.py"
    ],
    "files": 11,
-   "sha256": "1764f900744b3e9c121722acf2c84aee1ef8dded04fa68f429e0abc39f031fd9"
+   "sha256": "cd0c22f11e735f25b3d655aac6b89670b07cba2e23856c7c825291b64fa994c5"
   },
   "oracle": {
    "paths": [
@@ -55,14 +56,14 @@
     "tests/tools/equivalence_sql.py"
    ],
    "files": 16,
-   "sha256": "b1be686cf96bbdce71bd0b5dc4245252f64020d97a5094cee850165bf093d250"
+   "sha256": "ee924d311b67148f9104af7158c534cc2fb9a50bb35ca6f7758d6a40efda414c"
   },
   "generator": {
    "paths": [
     "gitgalaxy/tools/cobol_to_java/**"
    ],
    "files": 60,
-   "sha256": "674777fda7f1a297b554ec1935d0b26aa8d37f65f65e150a94fab7dd570a0866"
+   "sha256": "d732e7f21fab2ba4f65c7a3dcf403d1f341479111a3a0d757cbacd167c1a2daa"
   },
   "corpus": {
    "name": "aws-mainframe-modernization-carddemo",
@@ -72,11 +73,11 @@
   "differences": {
    "sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
   },
-  "digest": "1c2394569e6b6a057fdaeb5ed49691b2c89f91d895ab20477a2cd68f46778530"
+  "digest": "e07b2eb201c6ead23beac35d6908fc074d2def7af4fd9621498c1e4bdae9915b"
  },
  "proof": {
-  "at": "2026-10-05T06:01:37Z",
-  "verdict": "proven",
+  "at": "2026-10-05T14:53:03Z",
+  "verdict": "not-proven",
   "runs": 12,
   "fault_runs": 1,
   "environments": null,
@@ -134,8 +135,63 @@
   "sysout_compared": null,
   "attributes_compared": null,
   "java_failed": false,
-  "harness_commit": "d03da8b743917a29a13e48709fb0c7f6ad778528+uncommitted",
-  "inputs_digest": "1c2394569e6b6a057fdaeb5ed49691b2c89f91d895ab20477a2cd68f46778530"
+  "facade": {
+   "verdict": "not-proven",
+   "runs": 12,
+   "passed": 1,
+   "entry_points": [
+    "handleTransaction"
+   ],
+   "failed": [
+    {
+     "scenario": "admin-signs-on",
+     "why": "refused: handleTransaction of COSGN00C cannot take the COMMAREA (com.gitgalaxy.modernized.dto.contract.CarddemoCommarea) the task starts with"
+    },
+    {
+     "scenario": "both-empty",
+     "why": "refused: handleTransaction of COSGN00C cannot take the COMMAREA (com.gitgalaxy.modernized.dto.contract.CarddemoCommarea) the task starts with"
+    },
+    {
+     "scenario": "invalid-key",
+     "why": "refused: handleTransaction of COSGN00C cannot take the COMMAREA (com.gitgalaxy.modernized.dto.contract.CarddemoCommarea) the task starts with"
+    },
+    {
+     "scenario": "lowercase-credentials",
+     "why": "refused: handleTransaction of COSGN00C cannot take the COMMAREA (com.gitgalaxy.modernized.dto.contract.CarddemoCommarea) the task starts with"
+    },
+    {
+     "scenario": "password-empty",
+     "why": "refused: handleTransaction of COSGN00C cannot take the COMMAREA (com.gitgalaxy.modernized.dto.contract.CarddemoCommarea) the task starts with"
+    },
+    {
+     "scenario": "pf3-thank-you",
+     "why": "refused: handleTransaction of COSGN00C cannot take the COMMAREA (com.gitgalaxy.modernized.dto.contract.CarddemoCommarea) the task starts with"
+    },
+    {
+     "scenario": "user-file-io-error",
+     "why": "refused: handleTransaction of COSGN00C cannot take the COMMAREA (com.gitgalaxy.modernized.dto.contract.CarddemoCommarea) the task starts with"
+    },
+    {
+     "scenario": "user-id-empty",
+     "why": "refused: handleTransaction of COSGN00C cannot take the COMMAREA (com.gitgalaxy.modernized.dto.contract.CarddemoCommarea) the task starts with"
+    },
+    {
+     "scenario": "user-not-found",
+     "why": "refused: handleTransaction of COSGN00C cannot take the COMMAREA (com.gitgalaxy.modernized.dto.contract.CarddemoCommarea) the task starts with"
+    },
+    {
+     "scenario": "user-signs-on",
+     "why": "refused: handleTransaction of COSGN00C cannot take the COMMAREA (com.gitgalaxy.modernized.dto.contract.CarddemoCommarea) the task starts with"
+    },
+    {
+     "scenario": "wrong-password",
+     "why": "refused: handleTransaction of COSGN00C cannot take the COMMAREA (com.gitgalaxy.modernized.dto.contract.CarddemoCommarea) the task starts with"
+    }
+   ],
+   "error": null
+  },
+  "harness_commit": "af9e62c055439d3c758d2a794a211fa28ad41e41+uncommitted",
+  "inputs_digest": "e07b2eb201c6ead23beac35d6908fc074d2def7af4fd9621498c1e4bdae9915b"
  },
  "coverage": {
   "paragraphs": {
@@ -152,19 +208,14 @@
    "total": 0
   },
   "source": "the proof's own traced COBOL runs (cobol_coverage.py)",
-  "inputs_digest": "1c2394569e6b6a057fdaeb5ed49691b2c89f91d895ab20477a2cd68f46778530"
+  "inputs_digest": "e07b2eb201c6ead23beac35d6908fc074d2def7af4fd9621498c1e4bdae9915b"
  },
  "reach": {
   "entry_points": [
+   "handleTransaction",
    "runTask"
   ],
   "unproven": [
-   {
-    "class": "Cosgn00cService",
-    "method": "handleTransaction",
-    "line": 55,
-    "kind": "left_as_generated"
-   },
    {
     "class": "Cosgn00cService",
     "method": "handleLink",
@@ -186,7 +237,7 @@
   ],
   "counts": {
    "stub": 0,
-   "left_as_generated": 4,
+   "left_as_generated": 3,
    "ported_unproven": 0
   },
   "generated_compared": true,
@@ -222,7 +273,7 @@
    },
    {
     "path": "tests/equivalence/cics/ggcics.c",
-    "sha256": "cfd00f48166b47683c2d342e0677b0faf06a0415183c109b6df62947485267d3"
+    "sha256": "2aff8a7a22af537b24cb03caafe4d6df30c30fde1cb6f548ba376616e6617214"
    },
    {
     "path": "tests/equivalence/db2/SQLCA.cpy",
@@ -289,7 +340,7 @@
   "provenance_file": {
    "path": "tests/equivalence/carddemo-signon/port/provenance.json",
    "format": "porting-loop-provenance/1",
-   "sha256": "042c1d657db34d78992935b45cae4ff5fc85a391d3c3af3e5fcf32bd1c85ef92"
+   "sha256": "41f7e616b2d0ff6f3efd2e11d75ce57fa29f27e2b04b5f735390e595a7cd319e"
   }
  },
  "approvals": []

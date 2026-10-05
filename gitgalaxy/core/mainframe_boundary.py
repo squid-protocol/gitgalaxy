@@ -1047,8 +1047,15 @@ def _sign_separate(window: str) -> Optional[int]:
     return 2 if m.group(1) else 1
 
 
-def _cobol_records(code_stream: str, decimal_comma: Optional[bool] = None) -> list[dict[str, Any]]:
+def _cobol_records(
+    code_stream: str, decimal_comma: Optional[bool] = None, section_copies: Optional[list[dict[str, Any]]] = None
+) -> list[dict[str, Any]]:
     """The DATA DIVISION item tree and FD record layouts of one COBOL file (#3246).
+
+    #4457: `section_copies`, when given, is filled with the `COPY ... REPLACING` statements no entry
+    carries (`copy_replacing` rides the entry a COPY follows; a COPY after a section header / FD, or
+    before the first entry of one, follows none): {member, library, replacing, line, section, fd_name,
+    after_ordinal} -- `after_ordinal` the entry above it (None when no entry of its window precedes it).
 
     #3911: `decimal_comma` is the file's DECIMAL-POINT IS COMMA (read from its SPECIAL-NAMES when None):
     a numeric VALUE keeps its comma as written (`12345,67`); the reader of the literal applies it.
@@ -1142,6 +1149,8 @@ def _cobol_records(code_stream: str, decimal_comma: Optional[bool] = None) -> li
     is_dbcs = effective(compiler_options(code_stream)).get("NSYMBOL") == "DBCS"
 
     records: list[dict[str, Any]] = []
+    entry_starts: list[tuple[int, int]] = []  # (offset, ordinal) of each entry, for the #4457 section COPYs
+    captured: set[int] = set()  # offsets of the COPY statements an entry carries
     stack: list[tuple[int, int, Optional[str]]] = []  # (level, ordinal, usage) of the open group items
     last_item_ordinal: Optional[int] = None
     open_window: Optional[int] = None
@@ -1248,6 +1257,8 @@ def _cobol_records(code_stream: str, decimal_comma: Optional[bool] = None) -> li
         copy_window = code_stream[level_match.end() : max(copy_stop, level_match.end())]
         copy_matches = list(_COPY_IN_ENTRY.finditer(copy_window))
         copy_members = [m.group(1).upper() for m in copy_matches]
+        entry_starts.append((start, ordinal))
+        captured.update(level_match.end() + m.start() for m in copy_matches)
         # #4265: the library-name a COPY names (`COPY DATEWS IN SHRCPY`), "" when none, per member above
         copy_libraries = [
             (lib.group(1).upper() if (lib := _COPY_LIBRARY.match(copy_window, m.end())) else "") for m in copy_matches
@@ -1284,6 +1295,31 @@ def _cobol_records(code_stream: str, decimal_comma: Optional[bool] = None) -> li
                 **({"sign_separate": _sign_separate(window)} if _sign_separate(window) else {}),
             }
         )
+    if section_copies is not None:
+        offsets = [e[0] for e in entry_starts]
+        for w_start, w_end in windows:
+            for m in _COPY_IN_ENTRY.finditer(code_stream, w_start, w_end):
+                if m.start() in captured:
+                    continue
+                replacing = _copy_replacing(code_stream, m.end())
+                if not replacing:
+                    continue
+                lib = _COPY_LIBRARY.match(code_stream, m.end())
+                section, fd_name = _context(m.start())
+                above = bisect.bisect_left(offsets, m.start()) - 1
+                section_copies.append(
+                    {
+                        "member": m.group(1).upper(),
+                        "library": lib.group(1).upper() if lib else "",
+                        "replacing": json.dumps(replacing),
+                        "line": _line_of(m.start()),
+                        "section": section,
+                        "fd_name": fd_name,
+                        "after_ordinal": entry_starts[above][1]
+                        if above >= 0 and entry_starts[above][0] >= w_start
+                        else None,
+                    }
+                )
     return records
 
 
@@ -2561,8 +2597,10 @@ def extract_boundary(dialect: str, code_stream: str) -> dict[str, list[dict[str,
     if dialect == "cobol":
         values = _cobol_value_map(code_stream)
         specials = special_names(code_stream)
-        records = _cobol_records(code_stream, any(sn["clause"] == "DECIMAL-POINT" for sn in specials))
+        section_copies: list[dict[str, Any]] = []
+        records = _cobol_records(code_stream, any(sn["clause"] == "DECIMAL-POINT" for sn in specials), section_copies)
         return {
+            "section_copies": section_copies,  # #4457
             "calls": _cobol_calls(code_stream, values),
             "datasets": _cobol_datasets(code_stream),
             "records": records,

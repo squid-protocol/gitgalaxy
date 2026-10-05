@@ -91,8 +91,8 @@
    "unscored": 0
   },
   "call_sites": {
-   "pass": 47,
-   "fail": 2,
+   "pass": 49,
+   "fail": 0,
    "missing": 0,
    "phantom": 0,
    "unscored": 0
@@ -232,8 +232,6 @@
   }
  },
  "not_passing": {
-  "call_sites|apps/PAYR/cobol/PAYMAIN.cbl|CALL PAYCALC @42": "fail",
-  "call_sites|apps/PAYR/cobol/PAYMAIN.cbl|CALL PAYRPT @43": "fail",
   "jcl_dds|apps/ACCT/jcl/ACCTDLY.jcl|STEP030.SYSOUT @13": "unscored",
   "jcl_dds|apps/ACCT/jcl/ACCTDLY.jcl|STEP040.RPTOUT @17": "unscored",
   "jcl_dds|apps/ACCT/proclib/ACCTPRC.prc|POST.SYSOUT @8": "unscored",

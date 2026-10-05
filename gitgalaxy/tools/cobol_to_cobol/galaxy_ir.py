@@ -1778,6 +1778,12 @@ class GalaxyIR:
 
         return {"edges": edges, "gaps": pick(self.copy_member_gaps), "collisions": pick(self.copy_member_collisions)}
 
+    def copy_pages(self, path: str) -> dict[str, str]:
+        """#4462: {file: declared code page} over the program at `path` and every copybook its COPYs reach, for
+        the files the scan decoded with the estate's declaration (`source_page`); empty when it declared none. A
+        consumer that reads the sources again (the det translator) decodes them as the scan did."""
+        return {f: p for f in self.copy_resolution(path)["edges"] if (p := self.source_page(f))}
+
     def _copy_files(self, ef: EngineFile) -> list:
         """The copybooks program `ef` COPYs: its resolved COPY edges, then the
         symbolic maps generated for the BMS mapsets it COPYs (#3490)."""

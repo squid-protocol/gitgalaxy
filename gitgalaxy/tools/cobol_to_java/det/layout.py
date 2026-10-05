@@ -12,7 +12,7 @@ from dataclasses import dataclass, field
 from decimal import Decimal
 from pathlib import Path
 
-from gitgalaxy.tools.cobol_to_java.det.source import Line, as_fixed_rows, cobol_parser, unwrap
+from gitgalaxy.tools.cobol_to_java.det.source import Line, as_fixed_rows, cobol_parser, unmodelled, unwrap
 
 POSITIVE = "{ABCDEFGHI"  # overpunched +0..+9 (-fsign=EBCDIC, ASCII data)
 NEGATIVE = "}JKLMNOPQR"
@@ -208,6 +208,9 @@ def _data_only(lines: list[Line]) -> list[Line]:
 
 def parse(lines: list[Line]) -> list[Item]:
     """The 01 / 77 records of the DATA DIVISION, each a tree of Items."""
+    why = unmodelled(lines)  # #4462: national / DBCS text, DECIMAL-POINT IS COMMA: refused by name
+    if why:
+        raise LayoutError(why)
     text, rows = as_fixed_rows(_data_only(lines))
     # the PROCEDURE DIVISION is not needed (and EXEC blocks there are not this grammar's): stop before it
     m = re.search(r"^ {7}\s*PROCEDURE\s+DIVISION\b", text, re.I | re.M)
@@ -343,7 +346,10 @@ def _one(node, src: bytes):
     if t == "x_string":
         return ("hex", bytes.fromhex(re.sub(r"^X['\"]|['\"]$", "", text, flags=re.I)))
     if t == "number":
-        return ("num", Decimal(text))
+        try:
+            return ("num", Decimal(text))
+        except ArithmeticError as e:  # #4462: never an InvalidOperation out of the translator
+            raise LayoutError(f"line {node.start_point[0] + 1}: VALUE {text} not modelled") from e
     if up.startswith(("SPACE",)):
         return ("fig", "SPACES")
     if up.startswith(("ZERO",)):

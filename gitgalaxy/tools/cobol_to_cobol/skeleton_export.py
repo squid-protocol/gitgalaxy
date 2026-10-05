@@ -178,6 +178,8 @@ class SkeletonExporter:
                 "copybooks": list(ef.copy_deps),
                 # #4468: every COPY the program reaches, as the engine resolved it (the det translator takes it)
                 **{f"copy_{k}": v for k, v in self.ir.copy_resolution(path).items()},
+                # #4462: the code pages the scan decoded them with (only where the estate declares one)
+                **({"copy_pages": pages} if (pages := self.ir.copy_pages(path)) else {}),
                 "program_id_field_testing": self.confidence.get("program_id", {}).get("status", "untested"),
             },
             "sections": sections,

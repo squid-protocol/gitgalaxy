@@ -283,7 +283,7 @@ def copybook_layouts(path: Path, dirs: list[Path], engine: Any = None) -> tuple[
     01 when its first entry is not one, each top-level entry then laid out from its own offset)."""
     _, _, L, S, _ = det()
     try:
-        body = S.expand(S.logical_lines(S._raw_lines(path), str(path)), dirs, chain=frozenset({path.resolve()}),
+        body = S.expand(S.logical_lines(S._raw_lines(path, engine), str(path)), dirs, chain=frozenset({path.resolve()}),
                         engine=engine)  # fmt: skip
     except S.CopyNotFound as e:
         return None, f"CopyNotFound: {_copy_not_found(e)}"
@@ -337,7 +337,7 @@ def program_facts(
 
     # copybooks: the members the program's own text COPYs / INCLUDEs (the translator's own COPY pattern), and
     # the file in the corpus each expanded to (system / BMS-generated members resolve outside it: name only)
-    own_logical = S.logical_lines(S._raw_lines(prog), progfile)
+    own_logical = S.logical_lines(S._raw_lines(prog, engine), progfile)
     direct = S.copy_names(own_logical)
     for i, ln in enumerate(own_logical):
         if S._copy_match(ln.text):

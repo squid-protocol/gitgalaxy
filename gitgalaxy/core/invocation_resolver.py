@@ -136,6 +136,15 @@ def _pli_included_procedures(parsed_files: list[dict[str, Any]]) -> set[str]:
     return nested - outer
 
 
+def _declares_siblings(f: dict[str, Any]) -> bool:
+    """#4447: True when this COBOL member declares more than one program (nested programs
+    or several in one source member), so a CALL naming one of them may be a sibling call."""
+    if str(f.get("lang_id", "")).lower() not in PROGRAM_DECLARING_LANGUAGES:
+        return False
+    names = {str(c.get("name", "")).strip().upper() for c in f.get("classes", []) or []}
+    return len(names - {""}) > 1
+
+
 def _pick_program(
     candidates: list[str],
     target: str,
@@ -204,8 +213,12 @@ def resolve_invocations(
             if target and site.get("verb") not in TRANSACTION_ROUTING_VERBS:
                 resolved = _pick_program(index.get(nfc(str(target).upper()), []), str(target), src_path, ambiguities)
                 # A program calling itself is recursion, not an edge: the
-                # import graph drops self-edges for the same reason.
-                if resolved == src_path:
+                # import graph drops self-edges for the same reason. #4447: but a member
+                # that holds SEVERAL programs (nested / batched, `END PROGRAM`-closed) can
+                # CALL a sibling declared in the same member -- the target IS this member,
+                # and the site resolves to it (the answer key's `resolves_to`). The pair
+                # still draws no edge below (a file does not depend on itself).
+                if resolved == src_path and not _declares_siblings(f):
                     resolved = None
 
             record = dict(site)
@@ -213,7 +226,7 @@ def resolve_invocations(
             record["resolved_path"] = resolved
             sites.append(record)
 
-            if not resolved:
+            if not resolved or resolved == src_path:
                 continue
             kind = "exec" if site.get("verb") in _EXEC_VERBS else "call"
             edge = edges.setdefault(

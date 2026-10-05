@@ -1,0 +1,714 @@
+{
+ "about": "GitHub repos cited by our own corpora (rule 7). Over-inclusive on purpose.",
+ "repos": {
+  "abapgit/abapgit": [
+   "language-crucible/data/PROVENANCE.json",
+   "language-crucible/data/abap/SOURCES.md"
+  ],
+  "abitofhelp/functional": [
+   "language-crucible/data/PROVENANCE.json",
+   "language-crucible/data/ada/SOURCES.md"
+  ],
+  "absaoss/cobrix": [
+   "language-crucible/data/PROVENANCE.json",
+   "language-crucible/data/cobol/SOURCES.md"
+  ],
+  "alamofire/alamofire": [
+   "language-crucible/data/PROVENANCE.json",
+   "language-crucible/data/swift/SOURCES.md"
+  ],
+  "alire-project/alire": [
+   "language-crucible/data/PROVENANCE.json",
+   "language-crucible/data/ada/SOURCES.md"
+  ],
+  "angoca/db2unit": [
+   "language-crucible/data/PROVENANCE.json",
+   "language-crucible/data/db2_sql/SOURCES.md"
+  ],
+  "angular/angular": [
+   "language-crucible/data/PROVENANCE.json",
+   "language-crucible/data/html/SOURCES.md",
+   "language-crucible/data/typescript/SOURCES.md"
+  ],
+  "ansible/ansible": [
+   "language-crucible/data/PROVENANCE.json",
+   "language-crucible/data/plaintext/SOURCES.md",
+   "language-crucible/data/shell/SOURCES.md",
+   "language-crucible/data/yaml/SOURCES.md"
+  ],
+  "apache/airflow": [
+   "language-crucible/data/PROVENANCE.json",
+   "language-crucible/data/markdown/SOURCES.md",
+   "language-crucible/data/python/SOURCES.md"
+  ],
+  "apache/fineract": [
+   "language-crucible/data/PROVENANCE.json",
+   "language-crucible/data/groovy/SOURCES.md"
+  ],
+  "apache/kafka": [
+   "language-crucible/data/PROVENANCE.json",
+   "language-crucible/data/json/SOURCES.md",
+   "language-crucible/data/scala/SOURCES.md"
+  ],
+  "apache/spamassassin": [
+   "language-crucible/data/PROVENANCE.json",
+   "language-crucible/data/perl/SOURCES.md",
+   "language-crucible/data/sql/SOURCES.md"
+  ],
+  "apple/darwin-xnu": [
+   "language-crucible/data/PROVENANCE.json",
+   "language-crucible/data/lua/SOURCES.md",
+   "language-crucible/data/shell/SOURCES.md"
+  ],
+  "assemblyscript/assemblyscript": [
+   "language-crucible/data/PROVENANCE.json",
+   "language-crucible/data/typescript/SOURCES.md"
+  ],
+  "aws-samples/aws-mainframe-modernization-carddemo": [
+   "gitgalaxy-worktrees/estate4-draw/tests/cobol_mainframe/corpora.json",
+   "language-crucible/data/PROVENANCE.json",
+   "language-crucible/data/csd/SOURCES.md"
+  ],
+  "below/hellosilicon": [
+   "language-crucible/data/PROVENANCE.json",
+   "language-crucible/data/assembly/SOURCES.md"
+  ],
+  "bevyengine/bevy": [
+   "language-crucible/data/PROVENANCE.json",
+   "language-crucible/data/rust/SOURCES.md"
+  ],
+  "beyondgrep/ack3": [
+   "language-crucible/data/PROVENANCE.json",
+   "language-crucible/data/perl/SOURCES.md"
+  ],
+  "bugzilla/bugzilla": [
+   "language-crucible/data/PROVENANCE.json",
+   "language-crucible/data/perl/SOURCES.md"
+  ],
+  "bytecodealliance/wasmtime": [
+   "language-crucible/data/PROVENANCE.json",
+   "language-crucible/data/rust/SOURCES.md"
+  ],
+  "cesiumgs/cesium": [
+   "language-crucible/data/PROVENANCE.json",
+   "language-crucible/data/html/SOURCES.md",
+   "language-crucible/data/javascript/SOURCES.md"
+  ],
+  "cfenollosa/os-tutorial": [
+   "language-crucible/data/PROVENANCE.json",
+   "language-crucible/data/assembly/SOURCES.md"
+  ],
+  "chadsec1/holylang": [
+   "language-crucible/data/PROVENANCE.json",
+   "language-crucible/data/rust/SOURCES.md"
+  ],
+  "chrislgarry/apollo-11": [
+   "language-crucible/data/PROVENANCE.json",
+   "language-crucible/data/agc_assembly/SOURCES.md"
+  ],
+  "cicsdev/cics-banking-sample-application-cbsa": [
+   "gitgalaxy-worktrees/estate4-draw/tests/cobol_mainframe/corpora.json",
+   "language-crucible/data/PROVENANCE.json",
+   "language-crucible/data/bms/SOURCES.md",
+   "language-crucible/data/cobol/SOURCES.md",
+   "language-crucible/data/csd/SOURCES.md",
+   "language-crucible/data/jcl/SOURCES.md"
+  ],
+  "cicsdev/cics-genapp": [
+   "gitgalaxy-worktrees/estate4-draw/tests/cobol_mainframe/corpora.json",
+   "language-crucible/data/PROVENANCE.json",
+   "language-crucible/data/bms/SOURCES.md",
+   "language-crucible/data/cobol/SOURCES.md",
+   "language-crucible/data/jcl/SOURCES.md"
+  ],
+  "cicsdev/cics-java-jcics-samples": [
+   "language-crucible/data/PROVENANCE.json",
+   "language-crucible/data/cobol/SOURCES.md",
+   "language-crucible/data/jcl/SOURCES.md"
+  ],
+  "cirosantilli/x86-bare-metal-examples": [
+   "language-crucible/data/PROVENANCE.json",
+   "language-crucible/data/assembly/SOURCES.md"
+  ],
+  "colinhacks/zod": [
+   "language-crucible/data/PROVENANCE.json",
+   "language-crucible/data/typescript/SOURCES.md"
+  ],
+  "curl/curl": [
+   "language-crucible/data/PROVENANCE.json",
+   "language-crucible/data/m4/SOURCES.md",
+   "language-crucible/data/shell/SOURCES.md"
+  ],
+  "cython/cython": [
+   "language-crucible/data/PROVENANCE.json",
+   "language-crucible/data/python/SOURCES.md"
+  ],
+  "cytoscape/cytoscape.js": [
+   "language-crucible/data/PROVENANCE.json",
+   "language-crucible/data/css/SOURCES.md"
+  ],
+  "davidgiven/cpm65": [
+   "language-crucible/data/PROVENANCE.json",
+   "language-crucible/data/assembly/SOURCES.md"
+  ],
+  "django/django": [
+   "language-crucible/data/PROVENANCE.json",
+   "language-crucible/data/plaintext/SOURCES.md",
+   "language-crucible/data/python/SOURCES.md"
+  ],
+  "dotnet/roslyn": [
+   "language-crucible/data/PROVENANCE.json",
+   "language-crucible/data/csharp/SOURCES.md",
+   "language-crucible/data/powershell/SOURCES.md"
+  ],
+  "dotnet/runtime": [
+   "language-crucible/data/PROVENANCE.json",
+   "language-crucible/data/powershell/SOURCES.md"
+  ],
+  "dtolnay/syn": [
+   "language-crucible/data/PROVENANCE.json",
+   "language-crucible/data/rust/SOURCES.md"
+  ],
+  "eclipse-che4z/che-che4z-lsp-for-cobol": [
+   "language-crucible/data/PROVENANCE.json",
+   "language-crucible/data/cobol/SOURCES.md"
+  ],
+  "eclipse-che4z/che-che4z-lsp-for-hlasm": [
+   "language-crucible/data/PROVENANCE.json",
+   "language-crucible/data/hlasm/SOURCES.md"
+  ],
+  "effect-ts/effect": [
+   "language-crucible/data/PROVENANCE.json",
+   "language-crucible/data/typescript/SOURCES.md"
+  ],
+  "elemefe/element": [
+   "language-crucible/data/PROVENANCE.json",
+   "language-crucible/data/css/SOURCES.md"
+  ],
+  "excaliburjs/excalibur": [
+   "language-crucible/data/PROVENANCE.json",
+   "language-crucible/data/typescript/SOURCES.md"
+  ],
+  "excalidraw/excalidraw": [
+   "language-crucible/data/PROVENANCE.json",
+   "language-crucible/data/typescript/SOURCES.md"
+  ],
+  "exiftool/exiftool": [
+   "language-crucible/data/PROVENANCE.json",
+   "language-crucible/data/perl/SOURCES.md"
+  ],
+  "facebook/react": [
+   "language-crucible/data/PROVENANCE.json",
+   "language-crucible/data/javascript/SOURCES.md"
+  ],
+  "flutter/flutter": [
+   "language-crucible/data/PROVENANCE.json",
+   "language-crucible/data/dart/SOURCES.md",
+   "language-crucible/data/groovy/SOURCES.md",
+   "language-crucible/data/java/SOURCES.md"
+  ],
+  "freebsd/freebsd-src": [
+   "language-crucible/data/PROVENANCE.json",
+   "language-crucible/data/assembly/SOURCES.md",
+   "language-crucible/data/c/SOURCES.md",
+   "language-crucible/data/lua/SOURCES.md",
+   "language-crucible/data/makefile/SOURCES.md",
+   "language-crucible/data/shell/SOURCES.md",
+   "language-crucible/data/yacc/SOURCES.md"
+  ],
+  "gcanti/fp-ts": [
+   "language-crucible/data/PROVENANCE.json",
+   "language-crucible/data/typescript/SOURCES.md"
+  ],
+  "ghostty-org/ghostty": [
+   "language-crucible/data/PROVENANCE.json",
+   "language-crucible/data/blueprint/SOURCES.md",
+   "language-crucible/data/nix/SOURCES.md"
+  ],
+  "godotengine/godot": [
+   "language-crucible/data/PROVENANCE.json",
+   "language-crucible/data/cpp/SOURCES.md",
+   "language-crucible/data/groovy/SOURCES.md"
+  ],
+  "golang/go": [
+   "language-crucible/data/PROVENANCE.json",
+   "language-crucible/data/go/SOURCES.md"
+  ],
+  "gradle/gradle": [
+   "language-crucible/data/PROVENANCE.json",
+   "language-crucible/data/groovy/SOURCES.md"
+  ],
+  "grafana/grafana": [
+   "language-crucible/data/PROVENANCE.json",
+   "language-crucible/data/yaml/SOURCES.md"
+  ],
+  "guzzle/guzzle": [
+   "language-crucible/data/PROVENANCE.json",
+   "language-crucible/data/php/SOURCES.md"
+  ],
+  "h5bp/html5-boilerplate": [
+   "language-crucible/data/PROVENANCE.json",
+   "language-crucible/data/html/SOURCES.md"
+  ],
+  "haiku/haiku": [
+   "language-crucible/data/PROVENANCE.json",
+   "language-crucible/data/shell/SOURCES.md"
+  ],
+  "hakimel/reveal.js": [
+   "language-crucible/data/PROVENANCE.json",
+   "language-crucible/data/css/SOURCES.md",
+   "language-crucible/data/html/SOURCES.md"
+  ],
+  "hercules-390/hyperion": [
+   "language-crucible/data/PROVENANCE.json",
+   "language-crucible/data/rexx/SOURCES.md"
+  ],
+  "hexops/mach": [
+   "language-crucible/data/PROVENANCE.json",
+   "language-crucible/data/zig/SOURCES.md"
+  ],
+  "home-assistant/core": [
+   "language-crucible/data/PROVENANCE.json",
+   "language-crucible/data/python/SOURCES.md"
+  ],
+  "homebrew/brew": [
+   "language-crucible/data/PROVENANCE.json",
+   "language-crucible/data/shell/SOURCES.md"
+  ],
+  "ibm/dbb": [
+   "gitgalaxy-worktrees/estate4-draw/tests/cobol_mainframe/corpora.json"
+  ],
+  "ibm/ibm-z-zos": [
+   "language-crucible/data/PROVENANCE.json",
+   "language-crucible/data/rexx/SOURCES.md"
+  ],
+  "ibm/zopeneditor-sample": [
+   "gitgalaxy-worktrees/estate4-draw/tests/cobol_mainframe/corpora.json",
+   "language-crucible/data/PROVENANCE.json",
+   "language-crucible/data/cobol/SOURCES.md",
+   "language-crucible/data/hlasm/SOURCES.md",
+   "language-crucible/data/jcl/SOURCES.md",
+   "language-crucible/data/pli/SOURCES.md"
+  ],
+  "ibmstocktrader/cash-account-cobol": [
+   "language-crucible/data/PROVENANCE.json",
+   "language-crucible/data/cobol/SOURCES.md",
+   "language-crucible/data/jcl/SOURCES.md"
+  ],
+  "id-software/doom": [
+   "language-crucible/data/PROVENANCE.json",
+   "language-crucible/data/c/SOURCES.md"
+  ],
+  "igvteam/igv.js": [
+   "language-crucible/data/PROVENANCE.json",
+   "language-crucible/data/tabular/SOURCES.md"
+  ],
+  "illumos/illumos-gate": [
+   "language-crucible/data/PROVENANCE.json",
+   "language-crucible/data/shell/SOURCES.md"
+  ],
+  "jart/cosmopolitan": [
+   "language-crucible/data/PROVENANCE.json",
+   "language-crucible/data/assembly/SOURCES.md",
+   "language-crucible/data/c/SOURCES.md",
+   "language-crucible/data/lua/SOURCES.md"
+  ],
+  "jenkinsci/jenkins": [
+   "language-crucible/data/PROVENANCE.json",
+   "language-crucible/data/groovy/SOURCES.md",
+   "language-crucible/data/java/SOURCES.md",
+   "language-crucible/data/xml/SOURCES.md"
+  ],
+  "jetbrains/kotlin": [
+   "language-crucible/data/PROVENANCE.json",
+   "language-crucible/data/groovy/SOURCES.md"
+  ],
+  "jgm/pandoc": [
+   "language-crucible/data/PROVENANCE.json",
+   "language-crucible/data/haskell/SOURCES.md",
+   "language-crucible/data/lua/SOURCES.md"
+  ],
+  "jquery/jquery": [
+   "language-crucible/data/PROVENANCE.json",
+   "language-crucible/data/html/SOURCES.md",
+   "language-crucible/data/javascript/SOURCES.md"
+  ],
+  "kalamangga-net/linux-1.0": [
+   "language-crucible/data/PROVENANCE.json",
+   "language-crucible/data/assembly/SOURCES.md"
+  ],
+  "kubernetes/kubernetes": [
+   "language-crucible/data/PROVENANCE.json",
+   "language-crucible/data/go/SOURCES.md",
+   "language-crucible/data/markdown/SOURCES.md",
+   "language-crucible/data/shell/SOURCES.md"
+  ],
+  "langchain-ai/langchain": [
+   "language-crucible/data/PROVENANCE.json",
+   "language-crucible/data/python/SOURCES.md"
+  ],
+  "laravel/framework": [
+   "language-crucible/data/PROVENANCE.json",
+   "language-crucible/data/php/SOURCES.md"
+  ],
+  "ldb-ecm/raspberry-pi": [
+   "language-crucible/data/PROVENANCE.json",
+   "language-crucible/data/assembly/SOURCES.md"
+  ],
+  "livecode/livecode": [
+   "language-crucible/data/PROVENANCE.json",
+   "language-crucible/data/livecode/SOURCES.md"
+  ],
+  "macports/macports-base": [
+   "language-crucible/data/PROVENANCE.json",
+   "language-crucible/data/tcl/SOURCES.md"
+  ],
+  "magento/magento2": [
+   "language-crucible/data/PROVENANCE.json",
+   "language-crucible/data/php/SOURCES.md"
+  ],
+  "mainframe-projects/cics-cobol": [
+   "language-crucible/data/PROVENANCE.json",
+   "language-crucible/data/cobol/SOURCES.md"
+  ],
+  "micropython/micropython": [
+   "language-crucible/data/PROVENANCE.json",
+   "language-crucible/data/c/SOURCES.md",
+   "language-crucible/data/python/SOURCES.md"
+  ],
+  "microsoft/playwright": [
+   "language-crucible/data/PROVENANCE.json",
+   "language-crucible/data/html/SOURCES.md",
+   "language-crucible/data/typescript/SOURCES.md"
+  ],
+  "microsoft/powertoys": [
+   "language-crucible/data/PROVENANCE.json",
+   "language-crucible/data/batch/SOURCES.md",
+   "language-crucible/data/cpp/SOURCES.md",
+   "language-crucible/data/powershell/SOURCES.md",
+   "language-crucible/data/xml/SOURCES.md"
+  ],
+  "microsoft/typescript": [
+   "language-crucible/data/PROVENANCE.json",
+   "language-crucible/data/typescript/SOURCES.md"
+  ],
+  "microsoft/vscode": [
+   "language-crucible/data/PROVENANCE.json",
+   "language-crucible/data/html/SOURCES.md",
+   "language-crucible/data/typescript/SOURCES.md",
+   "language-crucible/data/yaml/SOURCES.md"
+  ],
+  "mit-pdos/xv6-public": [
+   "language-crucible/data/PROVENANCE.json",
+   "language-crucible/data/assembly/SOURCES.md"
+  ],
+  "moby/moby": [
+   "language-crucible/data/PROVENANCE.json",
+   "language-crucible/data/dockerfile/SOURCES.md",
+   "language-crucible/data/shell/SOURCES.md",
+   "language-crucible/data/yaml/SOURCES.md"
+  ],
+  "mojolicious/mojo": [
+   "language-crucible/data/PROVENANCE.json",
+   "language-crucible/data/perl/SOURCES.md"
+  ],
+  "mrdoob/three.js": [
+   "language-crucible/data/PROVENANCE.json",
+   "language-crucible/data/css/SOURCES.md",
+   "language-crucible/data/html/SOURCES.md",
+   "language-crucible/data/javascript/SOURCES.md"
+  ],
+  "nanochess/bootos": [
+   "language-crucible/data/PROVENANCE.json",
+   "language-crucible/data/assembly/SOURCES.md"
+  ],
+  "navikt/dsf": [
+   "gitgalaxy-worktrees/estate4-draw/tests/cobol_mainframe/corpora.json",
+   "language-crucible/data/PROVENANCE.json",
+   "language-crucible/data/pli/SOURCES.md"
+  ],
+  "netwide-assembler/nasm": [
+   "language-crucible/data/PROVENANCE.json",
+   "language-crucible/data/assembly/SOURCES.md"
+  ],
+  "nodejs/node": [
+   "language-crucible/data/PROVENANCE.json",
+   "language-crucible/data/javascript/SOURCES.md"
+  ],
+  "nrwl/nx": [
+   "language-crucible/data/PROVENANCE.json",
+   "language-crucible/data/typescript/SOURCES.md"
+  ],
+  "numpy/numpy": [
+   "language-crucible/data/PROVENANCE.json",
+   "language-crucible/data/python/SOURCES.md"
+  ],
+  "nvaccess/nvda": [
+   "language-crucible/data/PROVENANCE.json",
+   "language-crucible/data/cpp/SOURCES.md",
+   "language-crucible/data/powershell/SOURCES.md"
+  ],
+  "ocamlpro/gnucobol": [
+   "language-crucible/data/PROVENANCE.json",
+   "language-crucible/data/m4/SOURCES.md"
+  ],
+  "odoo/odoo": [
+   "language-crucible/data/PROVENANCE.json",
+   "language-crucible/data/css/SOURCES.md",
+   "language-crucible/data/html/SOURCES.md",
+   "language-crucible/data/tabular/SOURCES.md",
+   "language-crucible/data/xml/SOURCES.md"
+  ],
+  "opencv/opencv": [
+   "language-crucible/data/PROVENANCE.json",
+   "language-crucible/data/plaintext/SOURCES.md",
+   "language-crucible/data/python/SOURCES.md"
+  ],
+  "openmainframeproject/cobol-check": [
+   "language-crucible/data/PROVENANCE.json",
+   "language-crucible/data/cobol/SOURCES.md"
+  ],
+  "openmainframeproject/cobol-programming-course": [
+   "language-crucible/data/PROVENANCE.json",
+   "language-crucible/data/cobol/SOURCES.md",
+   "language-crucible/data/jcl/SOURCES.md"
+  ],
+  "openzeppelin/openzeppelin-contracts": [
+   "language-crucible/data/PROVENANCE.json",
+   "language-crucible/data/solidity/SOURCES.md"
+  ],
+  "oven-sh/bun": [
+   "language-crucible/data/PROVENANCE.json",
+   "language-crucible/data/nix/SOURCES.md",
+   "language-crucible/data/zig/SOURCES.md"
+  ],
+  "pallets/flask": [
+   "language-crucible/data/PROVENANCE.json",
+   "language-crucible/data/sqlite/SOURCES.md"
+  ],
+  "paulsmith/gnucobol": [
+   "language-crucible/data/PROVENANCE.json",
+   "language-crucible/data/cobol/SOURCES.md"
+  ],
+  "perldancer/dancer2": [
+   "language-crucible/data/PROVENANCE.json",
+   "language-crucible/data/sqlite/SOURCES.md"
+  ],
+  "philhp/z-sms-gateway": [
+   "language-crucible/data/PROVENANCE.json",
+   "language-crucible/data/cobol/SOURCES.md",
+   "language-crucible/data/csd/SOURCES.md"
+  ],
+  "pixijs/pixijs": [
+   "language-crucible/data/PROVENANCE.json",
+   "language-crucible/data/typescript/SOURCES.md"
+  ],
+  "powershell/powershell": [
+   "language-crucible/data/PROVENANCE.json",
+   "language-crucible/data/powershell/SOURCES.md"
+  ],
+  "prisma/prisma": [
+   "language-crucible/data/PROVENANCE.json",
+   "language-crucible/data/sqlite/SOURCES.md"
+  ],
+  "psf/black": [
+   "language-crucible/data/PROVENANCE.json",
+   "language-crucible/data/yaml/SOURCES.md"
+  ],
+  "pypa/pip": [
+   "language-crucible/data/PROVENANCE.json",
+   "language-crucible/data/python/SOURCES.md"
+  ],
+  "python/cpython": [
+   "language-crucible/data/PROVENANCE.json",
+   "language-crucible/data/batch/SOURCES.md",
+   "language-crucible/data/c/SOURCES.md",
+   "language-crucible/data/html/SOURCES.md",
+   "language-crucible/data/plaintext/SOURCES.md"
+  ],
+  "racket/racket": [
+   "language-crucible/data/PROVENANCE.json",
+   "language-crucible/data/scheme/SOURCES.md"
+  ],
+  "rails/rails": [
+   "language-crucible/data/PROVENANCE.json",
+   "language-crucible/data/ruby/SOURCES.md"
+  ],
+  "reactos/reactos": [
+   "language-crucible/data/PROVENANCE.json",
+   "language-crucible/data/shell/SOURCES.md"
+  ],
+  "redis/redis": [
+   "language-crucible/data/PROVENANCE.json",
+   "language-crucible/data/lua/SOURCES.md"
+  ],
+  "satwikkansal/wtfpython": [
+   "language-crucible/data/PROVENANCE.json",
+   "language-crucible/data/python/SOURCES.md"
+  ],
+  "sccn/eeglab": [
+   "language-crucible/data/PROVENANCE.json",
+   "language-crucible/data/matlab/SOURCES.md"
+  ],
+  "scikit-learn/scikit-learn": [
+   "language-crucible/data/PROVENANCE.json",
+   "language-crucible/data/python/SOURCES.md"
+  ],
+  "sdl-hercules-390/hyperion": [
+   "language-crucible/data/PROVENANCE.json",
+   "language-crucible/data/rexx/SOURCES.md"
+  ],
+  "seleniumhq/selenium": [
+   "language-crucible/data/PROVENANCE.json",
+   "language-crucible/data/java/SOURCES.md"
+  ],
+  "serde-rs/serde": [
+   "language-crucible/data/PROVENANCE.json",
+   "language-crucible/data/rust/SOURCES.md"
+  ],
+  "serenityos/serenity": [
+   "language-crucible/data/PROVENANCE.json",
+   "language-crucible/data/cpp/SOURCES.md",
+   "language-crucible/data/shell/SOURCES.md",
+   "language-crucible/data/yaml/SOURCES.md"
+  ],
+  "simonw/1991-www-next-implementation": [
+   "language-crucible/data/PROVENANCE.json",
+   "language-crucible/data/objective-c/SOURCES.md"
+  ],
+  "spockframework/spock": [
+   "language-crucible/data/PROVENANCE.json",
+   "language-crucible/data/groovy/SOURCES.md"
+  ],
+  "spring-projects/spring-boot": [
+   "language-crucible/data/PROVENANCE.json",
+   "language-crucible/data/groovy/SOURCES.md",
+   "language-crucible/data/java/SOURCES.md",
+   "language-crucible/data/xml/SOURCES.md"
+  ],
+  "sqitchers/sqitch": [
+   "language-crucible/data/PROVENANCE.json",
+   "language-crucible/data/sqlite/SOURCES.md"
+  ],
+  "sqlite/sqlite": [
+   "language-crucible/data/PROVENANCE.json",
+   "language-crucible/data/c/SOURCES.md",
+   "language-crucible/data/shell/SOURCES.md",
+   "language-crucible/data/sql/SOURCES.md",
+   "language-crucible/data/sqlite/SOURCES.md",
+   "language-crucible/data/tcl/SOURCES.md"
+  ],
+  "sqlmapproject/sqlmap": [
+   "language-crucible/data/PROVENANCE.json",
+   "language-crucible/data/sql/SOURCES.md",
+   "language-crucible/data/yaml/SOURCES.md"
+  ],
+  "square/okhttp": [
+   "language-crucible/data/PROVENANCE.json",
+   "language-crucible/data/kotlin/SOURCES.md"
+  ],
+  "square/retrofit": [
+   "language-crucible/data/PROVENANCE.json",
+   "language-crucible/data/groovy/SOURCES.md"
+  ],
+  "squid-protocol/language-crucible": [
+   "language-crucible/SOURCES.md"
+  ],
+  "supranational/blst": [
+   "language-crucible/data/PROVENANCE.json",
+   "language-crucible/data/assembly/SOURCES.md"
+  ],
+  "symfony/symfony": [
+   "language-crucible/data/PROVENANCE.json",
+   "language-crucible/data/php/SOURCES.md"
+  ],
+  "tailwindlabs/tailwindcss": [
+   "language-crucible/data/PROVENANCE.json",
+   "language-crucible/data/css/SOURCES.md"
+  ],
+  "tensorflow/tensorflow": [
+   "language-crucible/data/PROVENANCE.json",
+   "language-crucible/data/cpp/SOURCES.md",
+   "language-crucible/data/hlo/SOURCES.md",
+   "language-crucible/data/mlir/SOURCES.md",
+   "language-crucible/data/proto/SOURCES.md",
+   "language-crucible/data/python/SOURCES.md",
+   "language-crucible/data/td/SOURCES.md"
+  ],
+  "thealgorithms/python": [
+   "language-crucible/data/PROVENANCE.json",
+   "language-crucible/data/python/SOURCES.md"
+  ],
+  "tiangolo/fastapi": [
+   "language-crucible/data/PROVENANCE.json",
+   "language-crucible/data/python/SOURCES.md"
+  ],
+  "tigerbeetle/tigerbeetle": [
+   "language-crucible/data/PROVENANCE.json",
+   "language-crucible/data/zig/SOURCES.md"
+  ],
+  "tokio-rs/tokio": [
+   "language-crucible/data/PROVENANCE.json",
+   "language-crucible/data/rust/SOURCES.md"
+  ],
+  "torvalds/linux": [
+   "language-crucible/data/PROVENANCE.json",
+   "language-crucible/data/shell/SOURCES.md"
+  ],
+  "trailheadapps/apex-recipes": [
+   "language-crucible/data/PROVENANCE.json",
+   "language-crucible/data/apex/SOURCES.md",
+   "language-crucible/data/xml/SOURCES.md"
+  ],
+  "trekhleb/javascript-algorithms": [
+   "language-crucible/data/PROVENANCE.json",
+   "language-crucible/data/javascript/SOURCES.md"
+  ],
+  "twbs/bootstrap": [
+   "language-crucible/data/PROVENANCE.json",
+   "language-crucible/data/css/SOURCES.md"
+  ],
+  "twisted/twisted": [
+   "language-crucible/data/PROVENANCE.json",
+   "language-crucible/data/python/SOURCES.md"
+  ],
+  "walmartlabs/zecs": [
+   "gitgalaxy-worktrees/estate4-draw/tests/cobol_mainframe/corpora.json",
+   "language-crucible/data/PROVENANCE.json",
+   "language-crucible/data/cobol/SOURCES.md",
+   "language-crucible/data/hlasm/SOURCES.md"
+  ],
+  "wikimedia/mediawiki": [
+   "language-crucible/data/PROVENANCE.json",
+   "language-crucible/data/css/SOURCES.md",
+   "language-crucible/data/sql/SOURCES.md",
+   "language-crucible/data/sqlite/SOURCES.md"
+  ],
+  "wordpress/gutenberg": [
+   "language-crucible/data/PROVENANCE.json",
+   "language-crucible/data/css/SOURCES.md"
+  ],
+  "wordpress/wordpress": [
+   "language-crucible/data/PROVENANCE.json",
+   "language-crucible/data/css/SOURCES.md",
+   "language-crucible/data/html/SOURCES.md",
+   "language-crucible/data/php/SOURCES.md"
+  ],
+  "wrf-model/wrf": [
+   "language-crucible/data/PROVENANCE.json",
+   "language-crucible/data/fortran/SOURCES.md"
+  ],
+  "yiisoft/yii2": [
+   "language-crucible/data/PROVENANCE.json",
+   "language-crucible/data/sqlite/SOURCES.md"
+  ],
+  "ziglang/zig": [
+   "language-crucible/data/PROVENANCE.json",
+   "language-crucible/data/zig/SOURCES.md"
+  ],
+  "zigtools/zls": [
+   "language-crucible/data/PROVENANCE.json",
+   "language-crucible/data/zig/SOURCES.md"
+  ]
+ }
+}

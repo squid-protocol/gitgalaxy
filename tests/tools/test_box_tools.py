@@ -2,10 +2,15 @@
 
 import os
 import subprocess
+import sys
 import time
 from pathlib import Path
 
 import pytest
+
+pytestmark = pytest.mark.skipif(
+    sys.platform == "win32", reason="the box tools are bash scripts (flock, kill, ps) for the Linux box"
+)
 
 BOX = Path(__file__).resolve().parent / "box"
 

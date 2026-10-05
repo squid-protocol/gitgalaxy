@@ -15,7 +15,7 @@ name: Full Suite Gate (All OS x Python)
 #     the matrix -- #3207's Windows fix merged that way. Re-run it on a PR's
 #     current head with:
 #       gh workflow run "Full Suite Gate (All OS x Python)" --ref <branch>
-#     Add `-f full_matrix=true` for the untrimmed 12-way grid. Keeping this
+#     Add `-f full_matrix=true` for the untrimmed 9-way grid. Keeping this
 #     manual preserves the queue saving the label-only rule bought; triggering
 #     on `synchronize` would hand it back.
 #
@@ -25,12 +25,12 @@ name: Full Suite Gate (All OS x Python)
 # macOS, the scarcest pool) into the queue for a single SHA. Deduplication
 # is handled by `concurrency` below; this trims what one run costs.
 #
-# On a PR label: all four Python versions still run, on ubuntu; windows and
+# On a PR label: all three Python versions still run, on ubuntu; windows and
 # macOS cover the version floor and ceiling only. That keeps the thing the
 # matrix exists to catch -- a version-specific syntax/stdlib break that the
 # every-push ubuntu/3.12 full-suite cannot see -- while cutting macOS from
-# four jobs to two.
-# On a `v*` tag: the untrimmed 12-way matrix, unchanged.
+# three jobs to two.
+# On a `v*` tag: the untrimmed 9-way matrix, unchanged.
 # On a manual run: the trimmed grid, or the untrimmed one with
 # `-f full_matrix=true`.
 on:
@@ -42,7 +42,7 @@ on:
   workflow_dispatch:
     inputs:
       full_matrix:
-        description: "Run the untrimmed 12-way grid instead of the trimmed PR grid"
+        description: "Run the untrimmed 9-way grid instead of the trimmed PR grid"
         type: boolean
         default: false
 
@@ -69,7 +69,7 @@ concurrency:
   cancel-in-progress: false
 
 jobs:
-  # Emits the matrix for this checkpoint. A tag push gets the full 12-way
+  # Emits the matrix for this checkpoint. A tag push gets the full 9-way
   # grid; a PR label gets the trimmed grid described in the header comment.
   matrix:
     runs-on: ubuntu-latest
@@ -85,15 +85,12 @@ jobs:
             # Release tag, or a manual run that asked for it: every supported
             # environment, untrimmed.
             include='[
-              {"os":"ubuntu-latest","python-version":"3.9"},
               {"os":"ubuntu-latest","python-version":"3.10"},
               {"os":"ubuntu-latest","python-version":"3.11"},
               {"os":"ubuntu-latest","python-version":"3.12"},
-              {"os":"windows-latest","python-version":"3.9"},
               {"os":"windows-latest","python-version":"3.10"},
               {"os":"windows-latest","python-version":"3.11"},
               {"os":"windows-latest","python-version":"3.12"},
-              {"os":"macos-latest","python-version":"3.9"},
               {"os":"macos-latest","python-version":"3.10"},
               {"os":"macos-latest","python-version":"3.11"},
               {"os":"macos-latest","python-version":"3.12"}
@@ -102,13 +99,12 @@ jobs:
             # PR label, or a plain manual re-run: full Python coverage on
             # ubuntu, floor+ceiling elsewhere.
             include='[
-              {"os":"ubuntu-latest","python-version":"3.9"},
               {"os":"ubuntu-latest","python-version":"3.10"},
               {"os":"ubuntu-latest","python-version":"3.11"},
               {"os":"ubuntu-latest","python-version":"3.12"},
-              {"os":"windows-latest","python-version":"3.9"},
+              {"os":"windows-latest","python-version":"3.10"},
               {"os":"windows-latest","python-version":"3.12"},
-              {"os":"macos-latest","python-version":"3.9"},
+              {"os":"macos-latest","python-version":"3.10"},
               {"os":"macos-latest","python-version":"3.12"}
             ]'
           fi

@@ -161,6 +161,60 @@ def test_each_entry_runs_with_its_programs_trunc(tmp_path):
     assert out.index("finally") < out.index("void other()") and 'x("{");' in out
 
 
+def test_cics_facades_run_the_program_in_the_region():
+    """#4465: a det port keeps the generated stub's handleTransaction / handleLink for their callers, and each runs the
+    program -- one task of it in the region, through runTask -- as the generator's own facades do (#4343), never a
+    stub that does nothing or throws (#4342). Return values follow the stub's signature."""
+    from gitgalaxy.tools.cobol_to_java.det import program as P
+
+    stub = (
+        "public class MenuService {\n"
+        "    public CaDto handleTransaction(String transid, CaDto request) {\n"
+        '        log.info("Menu: handleTransaction");\n'
+        "        CicsTask.Region region = CicsTask.region();\n"
+        "        CicsTask task = region.transaction(transid, request);\n"
+        '        region.run(task, "COMEN01C", this::runTask);\n'
+        "        return task.returned(CaDto.class);\n    }\n"
+        "    public void runTask(CicsTask task) {\n    }\n"
+        "    public CaDto handleLink(CaDto request) {\n"
+        "        CicsTask.Region region = CicsTask.region();\n"
+        '        CicsTask task = region.linked("COMEN01C", request);\n'
+        '        region.run(task, "COMEN01C", this::runTask);\n'
+        "        return request;\n    }\n}\n"
+    )
+    java = "\n".join(P.facades(stub))
+    assert (
+        "    public CaDto handleTransaction(String transid, CaDto request) {\n"
+        "        CicsTask.Region region = CicsTask.region();\n"
+        "        CicsTask task = region.transaction(transid, request);\n"
+        '        region.run(task, "COMEN01C", this::runTask);\n'
+        "        return task.returned(CaDto.class);\n    }"
+    ) in java
+    assert (
+        "    public CaDto handleLink(CaDto request) {\n"
+        "        CicsTask.Region region = CicsTask.region();\n"
+        '        CicsTask task = region.linked("COMEN01C", request);\n'
+        '        region.run(task, "COMEN01C", this::runTask);\n'
+        "        return request;\n    }"
+    ) in java
+    assert "UnsupportedOperationException" not in java and "log." not in java
+
+    # no COMMAREA: a void transaction started from a cleared screen, a LINK with none
+    bare = (
+        "    public void handleTransaction(String transid) {\n"
+        '        region.run(task, "ABNDPROC", this::runTask);\n    }\n'
+        "    public void handleLink() {\n    }\n"
+    )
+    java = "\n".join(P.facades(bare))
+    assert "CicsTask task = region.transaction(transid, null);" in java
+    assert 'CicsTask task = region.linked("ABNDPROC", null);' in java
+    assert java.count('region.run(task, "ABNDPROC", this::runTask);') == 2 and "return" not in java
+
+    # a channel program's handler (no region facade in the stub): the entry stops by name, it never returns as if run
+    java = "\n".join(P.facades("    public void handleLink(ChanIn request) {\n    }\n"))
+    assert "throw new UnsupportedOperationException" in java and "region" not in java
+
+
 def test_an_item_nothing_uses_has_no_field():
     """A Field is a view of its storage's bytes: one nothing reads or writes is dead code, so it is not emitted. The
     storage keeps every byte (its image and its length), so the proof sees the same bytes; only the view goes."""
@@ -527,14 +581,46 @@ def test_a_program_source_spliced_in_for_a_copy_is_refused(tmp_path):
         SRC.program_lines(prog, [], _engine(prog, root, {"cbl/PROG.cbl": []}))
 
 
-@pytest.mark.parametrize("body", [["01 WS-RPT-HEAD.  COPY RPTHDR."], ["01 WS-RPT-HEAD.", "COPY", "RPTHDR."]])
-def test_a_copy_the_translator_never_expands_is_refused(tmp_path, body):
-    """#4459 (estate-crucible ACCTRPT / ACCTUPD): a COPY after other text on its line, or with its member on the next
-    line, is not expanded and the record comes out empty; the engine resolved the member."""
-    prog, root = _estate(tmp_path, body, {"cpy/RPTHDR.cpy": _MEMBER})
-    with pytest.raises(SRC.CopyUnresolved, match="COPY RPTHDR: engine resolved cpy/RPTHDR.cpy, translator expanded no "
-                       "COPY of it"):  # fmt: skip
-        SRC.program_lines(prog, [root / "cpy"], _engine(prog, root, {"cbl/PROG.cbl": ["cpy/RPTHDR.cpy"]}))
+def test_a_copy_after_other_text_on_its_line_is_expanded(tmp_path):
+    """#4459 (estate-crucible ACCTRPT): `01 WS-RPT-HEAD.  COPY RPTHDR.` left the record empty; two COPYs on one
+    line both expand, and the text before the first stays."""
+    prog, root = _estate(tmp_path, ["01 WS-RPT-HEAD.  COPY RPTHDR.", "01 WS-RPT-TOTALS.  COPY RPTTOT. COPY RPTCNT."],
+                         {"cpy/RPTHDR.cpy": _MEMBER, "cpy/RPTTOT.cpy": _fixed("05 T-FIELD PIC X.", "05 T2 PIC X."),
+                          "cpy/RPTCNT.cpy": _fixed("05 C-FIELD PIC X.")})  # fmt: skip
+    deps = {"cbl/PROG.cbl": ["cpy/RPTHDR.cpy", "cpy/RPTTOT.cpy", "cpy/RPTCNT.cpy"]}
+    lines = SRC.program_lines(prog, [root / "cpy"], _engine(prog, root, deps))
+    texts = [ln.text.strip() for ln in lines]
+    assert texts[4:] == ["01 WS-RPT-HEAD.", "05 A-FIELD PIC X(4).", "01 WS-RPT-TOTALS.", "05 T-FIELD PIC X.",
+                         "05 T2 PIC X.", "05 C-FIELD PIC X."]  # fmt: skip
+
+
+def test_a_copy_with_its_member_on_the_next_line_is_expanded(tmp_path):
+    """#4459 (estate-crucible ACCTUPD): `COPY` / `UPDCTL.` left the record empty."""
+    prog, root = _estate(tmp_path, ["01 WS-UPD-CONTROL.", "COPY", "RPTHDR."], {"cpy/RPTHDR.cpy": _MEMBER})
+    lines = SRC.program_lines(prog, [root / "cpy"], _engine(prog, root, {"cbl/PROG.cbl": ["cpy/RPTHDR.cpy"]}))
+    assert _from(lines, "A-FIELD") == {"cpy/RPTHDR.cpy"}
+
+
+def test_copy_inside_a_literal_is_not_a_copy(tmp_path):
+    prog, root = _estate(tmp_path, ["01 WS-A PIC X(9) VALUE 'COPY RPTHDR.'."], {"cpy/RPTHDR.cpy": _MEMBER})
+    lines = SRC.program_lines(prog, [root / "cpy"], None)
+    assert not _from(lines, "A-FIELD")
+
+
+@pytest.mark.parametrize("engine", [False, True])
+def test_a_copy_member_that_is_a_program_is_refused(tmp_path, engine):
+    """#4460: a member with IDENTIFICATION DIVISION / PROGRAM-ID is a program; `.cbl` copy members stay allowed."""
+    prog_text = _fixed("IDENTIFICATION DIVISION.", "PROGRAM-ID. SHPRATE.", "DATA DIVISION.")
+    prog, root = _estate(tmp_path, ["01 WS-RATE-PARM.", "COPY SHPRATE."], {"cbl/SHPRATE.cbl": prog_text})
+    eng = _engine(prog, root, {"cbl/PROG.cbl": ["cbl/SHPRATE.cbl"]}) if engine else None
+    with pytest.raises(SRC.CopyNotFound, match="COPY SHPRATE.*is a program"):
+        SRC.program_lines(prog, [root / "cbl"], eng)
+
+
+def test_a_cbl_copy_member_that_is_not_a_program_still_expands(tmp_path):
+    prog, root = _estate(tmp_path, ["01 WS-A.", "COPY AREC."], {"cbl/AREC.cbl": _MEMBER})
+    lines = SRC.program_lines(prog, [root / "cbl"], None)
+    assert _from(lines, "A-FIELD") == {"cbl/AREC.cbl"}
 
 
 @pytest.mark.parametrize(("kw", "why"), [({"gaps": [("cbl/PROG.cbl", "AREC")]}, "gap"),

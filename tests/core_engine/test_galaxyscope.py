@@ -1610,8 +1610,8 @@ class TestGalaxyScopeOrchestrator(unittest.TestCase):
         # Assertions
         self.assertEqual(len(scope.census), 2, "Fallback walk failed to populate the census!")
 
-        # Cross-platform compatibility for Windows CI/CD runners
-        expected_path = os.path.join("src", "main.py")
+        # census keys are posix on every OS (#4494)
+        expected_path = "src/main.py"
         self.assertIn(expected_path, scope.stem_map, "Fallback walk missed nested files!")
 
         self.assertEqual(len(scope.unparsable_files), 1, "Fallback walk failed to route excluded files!")

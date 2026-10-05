@@ -104,9 +104,9 @@ def port_files(case: dict[str, Any]) -> dict[str, Path]:
     return files
 
 
-def estate(corpus_name: str, culture: Optional[dict[str, Any]], work: Path,
-           offline: bool) -> tuple[Optional[Path], Optional[str], str]:  # fmt: skip
-    """The corpus's generated project, built: (target/classes, its compile classpath, '') or (None, None, errors)."""
+def generate(corpus_name: str, culture: Optional[dict[str, Any]], work: Path) -> Path:
+    """The corpus's generated Spring project, as the equivalence harness generates it (equivalence_java.prepare_project:
+    refactor, config h2, the case's culture); not built. tests/tools/port_surface.py resurfaces ports against it."""
     import equivalence_cache
     import java_target_matrix as jtm
     import mainframe_corpus as mc
@@ -117,7 +117,13 @@ def estate(corpus_name: str, culture: Optional[dict[str, Any]], work: Path,
     with cx.quiet(work / "generate.log"):
         clean = equivalence_cache.refactor(corpus, work, scan=True)
         config = {**jtm.MATRIX["h2"], "culture": culture} if culture else jtm.MATRIX["h2"]
-        project = jtm.generate(clean, "h2", config, work)
+        return jtm.generate(clean, "h2", config, work)
+
+
+def estate(corpus_name: str, culture: Optional[dict[str, Any]], work: Path,
+           offline: bool) -> tuple[Optional[Path], Optional[str], str]:  # fmt: skip
+    """The corpus's generated project, built: (target/classes, its compile classpath, '') or (None, None, errors)."""
+    project = generate(corpus_name, culture, work)
     cp_file = work / "classpath.txt"
     ok, errors = cx.maven(project, ["compile", "dependency:build-classpath", f"-Dmdep.outputFile={cp_file}"],
                           offline, work / "compile.log")  # fmt: skip

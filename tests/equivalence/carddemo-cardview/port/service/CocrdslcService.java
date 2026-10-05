@@ -87,13 +87,40 @@ public class CocrdslcService {
     }
 
     /** A CICS transaction entered the program (#4343): one task of it in the region (CicsTask.region()),
-     *  ENTER pressed -- `request` its COMMAREA, null when started from a cleared screen -- run through runTask. Returns the COMMAREA its RETURN passes on (null: none). */
-    public CocrdslcCommarea handleTransaction(String transid, CocrdslcCommarea request) {
+     *  ENTER pressed -- `request` its COMMAREA, null when started from a cleared screen -- run through runTask. Returns the COMMAREA its RETURN passes on (null: none).
+     *  The COMMAREA crosses programs (#4427): COBOL passes bytes, and each program reads them through its
+     *  own record, so a port may pass either record -- the facade carries it as Object where a flow
+     *  presents another class, and runTask reads it (task.commarea(..)). The flows:
+     *  out: RETURN TRANSID(CPVS) COMMAREA(CARDDEMO-COMMAREA) at app/app-authorization-ims-db2-mq/cbl/COPAUS0C.cbl:254 -> app/app-authorization-ims-db2-mq/cbl/COPAUS0C.cbl, after an XCTL from app/cbl/COCRDSLC.cbl (Copaus0cCarddemoCommarea besides CocrdslcCommarea).
+     *  out: RETURN TRANSID(CPVD) COMMAREA(CARDDEMO-COMMAREA) at app/app-authorization-ims-db2-mq/cbl/COPAUS1C.cbl:202 -> a program the estate does not resolve, after an XCTL from app/cbl/COCRDSLC.cbl (Copaus1cCarddemoCommarea besides CocrdslcCommarea).
+     *  out: RETURN TRANSID(CTLI) COMMAREA(WS-COMMAREA) at app/app-transaction-type-db2/cbl/COTRTLIC.cbl:910 -> app/app-transaction-type-db2/cbl/COTRTLIC.cbl, after an XCTL from app/cbl/COCRDSLC.cbl (CotrtlicCommarea besides CocrdslcCommarea).
+     *  out: RETURN TRANSID(CTTU) COMMAREA(WS-COMMAREA) at app/app-transaction-type-db2/cbl/COTRTUPC.cbl:567 -> app/app-transaction-type-db2/cbl/COTRTUPC.cbl, after an XCTL from app/cbl/COCRDSLC.cbl (CotrtupcCommarea besides CocrdslcCommarea).
+     *  out: RETURN TRANSID(CAUP) COMMAREA(WS-COMMAREA) at app/cbl/COACTUPC.cbl:1015 -> app/cbl/COACTUPC.cbl, after an XCTL from app/cbl/COCRDSLC.cbl (CoactupcCommarea besides CocrdslcCommarea).
+     *  out: RETURN TRANSID(CAVW) COMMAREA(WS-COMMAREA) at app/cbl/COACTVWC.cbl:402 -> app/cbl/COACTVWC.cbl, after an XCTL from app/cbl/COCRDSLC.cbl (CoactvwcCommarea besides CocrdslcCommarea).
+     *  out: RETURN TRANSID(CA00) COMMAREA(CARDDEMO-COMMAREA) at app/cbl/COADM01C.cbl:111 -> app/cbl/COADM01C.cbl, after an XCTL from app/cbl/COCRDSLC.cbl (CarddemoCommarea besides CocrdslcCommarea).
+     *  out: RETURN TRANSID(CA00) COMMAREA(CARDDEMO-COMMAREA) at app/cbl/COADM01C.cbl:280 -> app/cbl/COADM01C.cbl, after an XCTL from app/cbl/COCRDSLC.cbl (CarddemoCommarea besides CocrdslcCommarea).
+     *  out: RETURN TRANSID(CB00) COMMAREA(CARDDEMO-COMMAREA) at app/cbl/COBIL00C.cbl:146 -> app/cbl/COBIL00C.cbl, after an XCTL from app/cbl/COCRDSLC.cbl (Cobil00cCarddemoCommarea besides CocrdslcCommarea).
+     *  out: RETURN TRANSID(CCLI) COMMAREA(WS-COMMAREA) at app/cbl/COCRDLIC.cbl:615 -> app/cbl/COCRDLIC.cbl, after an XCTL from app/cbl/COCRDSLC.cbl (CocrdlicCommarea besides CocrdslcCommarea).
+     *  out: RETURN TRANSID(CCUP) COMMAREA(WS-COMMAREA) at app/cbl/COCRDUPC.cbl:554 -> app/cbl/COCRDUPC.cbl, after an XCTL from app/cbl/COCRDSLC.cbl (CocrdupcCommarea besides CocrdslcCommarea).
+     *  out: RETURN TRANSID(CM00) COMMAREA(CARDDEMO-COMMAREA) at app/cbl/COMEN01C.cbl:107 -> app/cbl/COMEN01C.cbl, after an XCTL from app/cbl/COCRDSLC.cbl (CarddemoCommarea besides CocrdslcCommarea).
+     *  out: RETURN TRANSID(CR00) COMMAREA(CARDDEMO-COMMAREA) at app/cbl/CORPT00C.cbl:199 -> app/cbl/CORPT00C.cbl, after an XCTL from app/cbl/COCRDSLC.cbl (CarddemoCommarea besides CocrdslcCommarea).
+     *  out: RETURN TRANSID(CR00) COMMAREA(CARDDEMO-COMMAREA) at app/cbl/CORPT00C.cbl:587 -> app/cbl/CORPT00C.cbl, after an XCTL from app/cbl/COCRDSLC.cbl (CarddemoCommarea besides CocrdslcCommarea).
+     *  out: RETURN TRANSID(CC00) COMMAREA(CARDDEMO-COMMAREA) at app/cbl/COSGN00C.cbl:98 -> a program the estate does not resolve, after an XCTL from app/cbl/COCRDSLC.cbl (no DTO besides CocrdslcCommarea).
+     *  out: RETURN TRANSID(CT00) COMMAREA(CARDDEMO-COMMAREA) at app/cbl/COTRN00C.cbl:138 -> app/cbl/COTRN00C.cbl, after an XCTL from app/cbl/COCRDSLC.cbl (Cotrn00cCarddemoCommarea besides CocrdslcCommarea).
+     *  out: RETURN TRANSID(CT01) COMMAREA(CARDDEMO-COMMAREA) at app/cbl/COTRN01C.cbl:136 -> app/cbl/COTRN01C.cbl, after an XCTL from app/cbl/COCRDSLC.cbl (Cotrn01cCarddemoCommarea besides CocrdslcCommarea).
+     *  out: RETURN TRANSID(CT02) COMMAREA(CARDDEMO-COMMAREA) at app/cbl/COTRN02C.cbl:156 -> app/cbl/COTRN02C.cbl, after an XCTL from app/cbl/COCRDSLC.cbl (Cotrn02cCarddemoCommarea besides CocrdslcCommarea).
+     *  out: RETURN TRANSID(CT02) COMMAREA(CARDDEMO-COMMAREA) at app/cbl/COTRN02C.cbl:530 -> app/cbl/COTRN02C.cbl, after an XCTL from app/cbl/COCRDSLC.cbl (Cotrn02cCarddemoCommarea besides CocrdslcCommarea).
+     *  out: RETURN TRANSID(CU00) COMMAREA(CARDDEMO-COMMAREA) at app/cbl/COUSR00C.cbl:141 -> app/cbl/COUSR00C.cbl, after an XCTL from app/cbl/COCRDSLC.cbl (Cousr00cCarddemoCommarea besides CocrdslcCommarea).
+     *  out: RETURN TRANSID(CU01) COMMAREA(CARDDEMO-COMMAREA) at app/cbl/COUSR01C.cbl:107 -> app/cbl/COUSR01C.cbl, after an XCTL from app/cbl/COCRDSLC.cbl (CarddemoCommarea besides CocrdslcCommarea).
+     *  out: RETURN TRANSID(CU02) COMMAREA(CARDDEMO-COMMAREA) at app/cbl/COUSR02C.cbl:135 -> app/cbl/COUSR02C.cbl, after an XCTL from app/cbl/COCRDSLC.cbl (Cousr02cCarddemoCommarea besides CocrdslcCommarea).
+     *  out: RETURN TRANSID(CU03) COMMAREA(CARDDEMO-COMMAREA) at app/cbl/COUSR03C.cbl:134 -> app/cbl/COUSR03C.cbl, after an XCTL from app/cbl/COCRDSLC.cbl (Cousr03cCarddemoCommarea besides CocrdslcCommarea).
+     */
+    public Object handleTransaction(String transid, CocrdslcCommarea request) {
         log.info("Cocrdslc: handleTransaction");
         CicsTask.Region region = CicsTask.region();
         CicsTask task = region.transaction(transid, request);
         region.run(task, "COCRDSLC", this::runTask);
-        return task.returned(CocrdslcCommarea.class);
+        return task.returned(Object.class);
     }
 
     /** One pseudo-conversational task of this program (#3754): paragraph 0000-MAIN. */

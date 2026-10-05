@@ -15,6 +15,18 @@
  "ticket_sha256": "ea1db843f624221ff8761c8bc616b1a1571127655a29a74ba473ae0a1818485d",
  "prompt_tokens": 72422,
  "proof": "tests/tools/equivalence.py run carddemo-billpay",
- "edited_after": "none: the files are the model's answer as the loop stored it",
- "licence": "derived from CardDemo (Apache-2.0; Copyright Amazon.com, Inc. or its affiliates) -- see LICENSE and NOTICE in this case's directory"
+ "edited_after": "the deployed entry points (facades) were brought to the generator's by tests/tools/port_surface.py (#4343; see history 'resurfaced'); runTask and the logic it runs are the model's answer",
+ "licence": "derived from CardDemo (Apache-2.0; Copyright Amazon.com, Inc. or its affiliates) -- see LICENSE and NOTICE in this case's directory",
+ "history": [
+  {
+   "at": "2026-10-05T13:03:36+00:00",
+   "event": "resurfaced",
+   "by": "tests/tools/port_surface.py",
+   "generator_commit": "83756783c",
+   "generated_from": "service/Cobil00cService.java",
+   "replaced": [
+    "handleTransaction"
+   ]
+  }
+ ]
 }

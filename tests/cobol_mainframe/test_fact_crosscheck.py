@@ -120,6 +120,54 @@ def test_check_fails_on_a_stale_ledger_entry(monkeypatch, tmp_path: Path, capsys
     assert X.main(["check", "--no-crucible", "--ledger", str(ledger)]) == 0
 
 
+def test_update_without_corpus_drops_stale_entries(monkeypatch, tmp_path: Path) -> None:
+    """#4472: a plain `update` lowers the ledger; a --corpus one only touches its own corpora."""
+    ledger = tmp_path / "ledger.json"
+    old = {
+        "toy :: units | A.cbl | engine | P2": "c",
+        "toy :: units | A.cbl | engine | P9": "c",
+        "zoo :: units | B.cbl | engine | Q": "c",
+    }
+    now = [{"id": "toy :: units | A.cbl | engine | P2"}]
+    monkeypatch.setattr(X, "run_all", lambda *a, **k: {"corpora": {}, "disagreements": now, "seconds": {}})
+    X.save_ledger(_ledger(old), ledger)
+    assert X.main(["update", "--no-crucible", "--corpus", "toy", "--ledger", str(ledger)]) == 0
+    assert set(X.load_ledger(ledger)["disagreements"]) == {
+        "toy :: units | A.cbl | engine | P2",
+        "zoo :: units | B.cbl | engine | Q",
+    }
+    X.save_ledger(_ledger(old), ledger)
+    assert X.main(["update", "--no-crucible", "--ledger", str(ledger)]) == 0
+    assert set(X.load_ledger(ledger)["disagreements"]) == {"toy :: units | A.cbl | engine | P2"}
+
+
+def test_engine_extras_lays_out_the_replaced_records_of_a_section_copy() -> None:
+    """#4472: the copybook's own item sits at the translator's (file, line); the replaced record
+    (ef.copied_items / ef.records, at the COPY line) is what the engine lays out."""
+    from types import SimpleNamespace as NS
+
+    def item(name: str, line: int) -> NS:
+        return NS(name=name, level=1, line=line)
+
+    own, replaced = item("CB-COMMAREA", 8), item("DFHCOMMAREA", 200)
+    cb = NS(file_path="cb.cpy", data_items=[own], records=[own])
+    ef = NS(file_path="p.cbl", data_items=[], copied_items=[replaced], records=[replaced], data_moves=[], copy_deps=[])
+    laid: list[str] = []
+
+    class IR:
+        def _copy_files(self, f: object) -> list:
+            return [cb] if f is ef else []
+
+        def record_layout(self, owner: object, it: NS, ext: object) -> dict:
+            laid.append(it.name)
+            return {"fields": [{"pic": "X", "name": "F", "offset": 0, "bytes": 4}], "bytes": 4}
+
+    rec = NS(name="DFHCOMMAREA", level=1)
+    out = X.engine_extras(IR(), ef, [(rec, "cb.cpy", 8)])
+    assert laid == ["DFHCOMMAREA"]
+    assert out["offsets"] == {"DFHCOMMAREA/F @0+4", "DFHCOMMAREA (record) +4"}
+
+
 def test_ledger_rejects_untriaged_unknown_and_incomplete_causes() -> None:
     led = _ledger({"a": None, "b": "nope", "c": "bad"}, {"bad": {"side": "neither", "issue": "x", "summary": ""}})
     errs = X.validate_ledger(led)

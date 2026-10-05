@@ -182,14 +182,14 @@ def test_a_transaction_becomes_an_endpoint_and_a_link_target_takes_the_commarea(
 
     acct = (src / "controller/AcctinqController.java").read_text(encoding="utf-8")
     assert '@PostMapping("/link")' in acct and "LINK at cbl/MENU.cbl:8" in acct
-    assert "public ResponseEntity<AcctCommarea> link(@RequestBody AcctCommarea request)" in acct
-    dto = (src / "dto/contract/AcctCommarea.java").read_text(encoding="utf-8")
+    assert "public ResponseEntity<AcctinqDfhcommarea> link(@RequestBody AcctinqDfhcommarea request)" in acct
+    dto = (src / "dto/contract/AcctinqDfhcommarea.java").read_text(encoding="utf-8")
     assert "// CA-ACCT-ID: PIC 9(11), offset 0, 11 bytes (cpy/ACCTCOM.cpy)" in dto
     assert "private Long caAcctId;" in dto and "private BigDecimal caBalance;" in dto
     assert "private String caName;" in dto and "filler" not in dto.lower().split("*/")[1]
     assert "as passed by LINK at cbl/MENU.cbl:8" in dto
     service = (src / "service/AcctinqService.java").read_text(encoding="utf-8")
-    assert "public AcctCommarea handleLink(AcctCommarea request) {" in service
+    assert "public AcctinqDfhcommarea handleLink(AcctinqDfhcommarea request) {" in service
 
     chan = (src / "controller/ChanpgmController.java").read_text(encoding="utf-8")
     assert "ResponseEntity<ChanpgmChannelOut> transactionCHAN(@RequestBody ChanpgmChannelIn request)" in chan
@@ -226,8 +226,8 @@ def test_a_transaction_becomes_an_endpoint_and_a_link_target_takes_the_commarea(
 
 def test_the_target_style_reaches_the_cics_dtos(scanned, tmp_path):
     _, src = _java(scanned, tmp_path, {"java": {"data_classes": "plain", "dto_style": "record"}})
-    dto = (src / "dto/contract/AcctCommarea.java").read_text(encoding="utf-8")
-    assert "public record AcctCommarea(" in dto and "lombok" not in dto
+    dto = (src / "dto/contract/AcctinqDfhcommarea.java").read_text(encoding="utf-8")
+    assert "public record AcctinqDfhcommarea(" in dto and "lombok" not in dto
     acct = (src / "controller/AcctinqController.java").read_text(encoding="utf-8")
     assert "public AcctinqController(AcctinqService acctinqService)" in acct
 
@@ -262,3 +262,25 @@ def test_one_dto_serves_every_program_passed_the_same_copybook_record():
     assert [forge.programs[k].commarea_dto for k in ("P1", "P2", "P3")] == ["SharedArea", "SharedArea", "SharedArea2"]
     shared = forge.dto_sources()["SharedArea"]
     assert "The COMMAREA P1 receives" in shared and "The COMMAREA P2 receives" in shared
+
+
+def test_a_called_programs_dto_is_named_after_its_own_dfhcommarea_not_the_callers_record():
+    # the callee only knows its own LINKAGE: the caller's WS-CA must not name the callee's contract DTO (the
+    # hc-abend-link crucible's hand-written overlay for HCSUB takes HcsubDfhcommarea)
+    fld = [{"name": "CA-X", "pic": "X(4)", "class": "X", "offset": 0, "bytes": 4, "file": "c.cpy"}]
+    linked = _skeleton("HCSUB.cbl", "HCMAIN.cbl", fld)
+    linked["sections"]["interface"]["facts"]["commarea"].update(record="WS-CA", declared_record="DFHCOMMAREA")
+    returned = _skeleton("HXATTR.cbl", "HXATTR.cbl", fld)  # RETURN TRANSID to itself: no LINK / XCTL source
+    returned["sections"]["interface"]["facts"]["commarea"].update(
+        record="WS-CA", sources=[{"caller": "HXATTR.cbl", "line": 1, "verb": "RETURN"}])  # fmt: skip
+    forge = CicsForge({"HCSUB": linked, "HXATTR": returned}, "com.acme", target_from_dict({}))
+    assert forge.programs["HCSUB"].commarea_dto == "HcsubDfhcommarea"
+    assert forge.programs["HXATTR"].commarea_dto == "HxattrWsCa"  # not called: the record it carries keeps its name
+
+
+def test_the_engine_names_the_declared_dfhcommarea_only_for_a_linked_callee(scanned):
+    _, db = scanned
+    interfaces = load_galaxy_ir(db).program_interfaces()
+    acct = interfaces["cbl/ACCTINQ.cbl"]["commarea"]
+    assert acct["basis"] == "caller_record" and acct["record"] == "ACCT-COMMAREA"  # the caller's layout stands
+    assert acct["declared_record"] == "DFHCOMMAREA"  # ... under the callee's own name

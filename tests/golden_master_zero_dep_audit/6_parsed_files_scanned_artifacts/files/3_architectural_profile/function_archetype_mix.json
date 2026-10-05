@@ -1796,9 +1796,7 @@
       "cobol/che-che4z_lsp_project_fixtures/REPLACING.CBL": {
         "Interface Declarations": 1
       },
-      "cobol/che-che4z_lsp_project_fixtures/RES.cbl": {
-        "State Mutators": 1
-      },
+      "cobol/che-che4z_lsp_project_fixtures/RES.cbl": {},
       "cobol/che-che4z_lsp_project_fixtures/SNIPPET.cbl": {},
       "cobol/che-che4z_lsp_project_fixtures/SNIPPET2.cbl": {},
       "cobol/che-che4z_lsp_project_fixtures/SNIPPET_IDMS.cbl": {},
@@ -1850,8 +1848,7 @@
         "Interface Declarations": 2
       },
       "cobol/che-che4z_lsp_project_fixtures/USER2.cbl": {
-        "Interface Declarations": 2,
-        "State Mutators": 1
+        "Interface Declarations": 2
       },
       "cobol/che-che4z_lsp_project_fixtures/USERC1F.cbl": {
         "Interface Declarations": 2
@@ -1882,18 +1879,16 @@
       },
       "cobol/che-che4z_lsp_project_fixtures/cobol-daco_DACOSMPL.cbl": {
         "I/O & Config Routines": 6,
-        "Interface Declarations": 9
+        "Interface Declarations": 7
       },
-      "cobol/che-che4z_lsp_project_fixtures/cobol-dc_ABCD.cbl": {
-        "Interface Declarations": 2
-      },
+      "cobol/che-che4z_lsp_project_fixtures/cobol-dc_ABCD.cbl": {},
       "cobol/che-che4z_lsp_project_fixtures/cobol-idms_DACOSMPL.cbl": {
         "I/O & Config Routines": 6,
-        "Interface Declarations": 9
+        "Interface Declarations": 7
       },
       "cobol/che-che4z_lsp_project_fixtures/cobol-idms_IDMSSMPL.cbl": {
         "I/O & Config Routines": 3,
-        "Interface Declarations": 8,
+        "Interface Declarations": 6,
         "State Mutators": 1
       },
       "cobol/che-che4z_lsp_project_fixtures/cobol-sample_SAMPLE1.cbl": {
@@ -1902,11 +1897,11 @@
       },
       "cobol/che-che4z_lsp_project_fixtures/cobol-vanila_DACOSMPL.cbl": {
         "I/O & Config Routines": 6,
-        "Interface Declarations": 9
+        "Interface Declarations": 7
       },
       "cobol/che-che4z_lsp_project_fixtures/cobol-vanila_IDMSSMPL.cbl": {
         "I/O & Config Routines": 3,
-        "Interface Declarations": 8,
+        "Interface Declarations": 6,
         "State Mutators": 1
       },
       "cobol/che-che4z_lsp_project_fixtures/copy-daco_DACOSMPL_PDRTPY-DXY.cpy": {},
@@ -1946,8 +1941,8 @@
       },
       "cobol/che-che4z_nist_ccvs85/DB1034.2.cbl": {
         "Compute Cores": 1,
-        "I/O & Config Routines": 31,
-        "Interface Declarations": 62,
+        "I/O & Config Routines": 32,
+        "Interface Declarations": 59,
         "State Mutators": 3
       },
       "cobol/che-che4z_nist_ccvs85/DB1044.2.cbl": {
@@ -2772,8 +2767,8 @@
       "cobol/cics-banking-sample-application-cbsa/ACCOUNT.cpy": {},
       "cobol/cics-banking-sample-application-cbsa/ACCTCTRL.cpy": {},
       "cobol/cics-banking-sample-application-cbsa/BANKDATA.cbl": {
-        "I/O & Config Routines": 8,
-        "Interface Declarations": 20
+        "I/O & Config Routines": 9,
+        "Interface Declarations": 19
       },
       "cobol/cics-banking-sample-application-cbsa/BANKMAP.cpy": {},
       "cobol/cics-banking-sample-application-cbsa/BNK1CAC.cbl": {

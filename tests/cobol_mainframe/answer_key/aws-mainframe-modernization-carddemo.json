@@ -851,7 +851,7 @@
           "occurs_max": null,
           "occurs_depending_on": null,
           "redefines": null,
-          "value": null,
+          "value": "+2",
           "line": 82
         },
         {
@@ -1312,7 +1312,8 @@
         "by": "claude-opus-5.5 (agent standing in for a human reviewer)",
         "at": "2026-09-23",
         "notes": [
-          "MAIN-PARA ends in GOBACK., so it never falls through. The first draft counted the IF inside END-IF and treated it as conditional (fixed)."
+          "MAIN-PARA ends in GOBACK., so it never falls through. The first draft counted the IF inside END-IF and treated it as conditional (fixed).",
+          "#4393: records re-drafted by the fixed reader (signed / prefixed / continued VALUE literals, no VALUE or USAGE read past the DATA DIVISION, implicit FILLER #4246, 77 as a root #4359); every changed field matches the engine and the #4377 referee panel"
         ],
         "cross_by": "claude-opus-5.5, fresh-context subagent given only the brief (blind; same model family as the author)",
         "cross_at": "2026-09-23",
@@ -2736,7 +2737,7 @@
           "occurs_max": null,
           "occurs_depending_on": null,
           "redefines": null,
-          "value": null,
+          "value": "+1",
           "line": 84
         },
         {
@@ -3903,7 +3904,8 @@
         "by": "claude-opus-5.5 (agent standing in for a human reviewer)",
         "at": "2026-09-23",
         "notes": [
-          "END-CALL is not a CALL. The first draft read END-CALL IF as a dynamic CALL of IF (fixed)."
+          "END-CALL is not a CALL. The first draft read END-CALL IF as a dynamic CALL of IF (fixed).",
+          "#4393: records re-drafted by the fixed reader (signed / prefixed / continued VALUE literals, no VALUE or USAGE read past the DATA DIVISION, implicit FILLER #4246, 77 as a root #4359); every changed field matches the engine and the #4377 referee panel"
         ],
         "cross_by": "claude-opus-5.5, fresh-context subagent given only the brief (blind; same model family as the author)",
         "cross_at": "2026-09-23",
@@ -5051,7 +5053,7 @@
           "occurs_max": null,
           "occurs_depending_on": null,
           "redefines": null,
-          "value": null,
+          "value": "+1",
           "line": 77
         },
         {
@@ -5849,7 +5851,9 @@
         "tier": "cross_verified",
         "by": "claude-opus-5.5 (agent standing in for a human reviewer)",
         "at": "2026-09-23",
-        "notes": [],
+        "notes": [
+          "#4393: records re-drafted by the fixed reader (signed / prefixed / continued VALUE literals, no VALUE or USAGE read past the DATA DIVISION, implicit FILLER #4246, 77 as a root #4359); every changed field matches the engine and the #4377 referee panel"
+        ],
         "cross_by": "claude-opus-5.5, fresh-context subagent given only the brief (blind; same model family as the author)",
         "cross_at": "2026-09-23",
         "census": {
@@ -6672,10 +6676,10 @@
           "ordinal": 24,
           "parent": 23,
           "level": 10,
-          "name": "PIC",
+          "name": "FILLER",
           "section": "WORKING-STORAGE",
           "fd": null,
-          "pic": null,
+          "pic": "X(20)",
           "usage": null,
           "occurs_min": null,
           "occurs_max": null,
@@ -6688,10 +6692,10 @@
           "ordinal": 25,
           "parent": 23,
           "level": 10,
-          "name": "PIC",
+          "name": "FILLER",
           "section": "WORKING-STORAGE",
           "fd": null,
-          "pic": null,
+          "pic": "X(20)",
           "usage": null,
           "occurs_min": null,
           "occurs_max": null,
@@ -6704,10 +6708,10 @@
           "ordinal": 26,
           "parent": 23,
           "level": 10,
-          "name": "PIC",
+          "name": "FILLER",
           "section": "WORKING-STORAGE",
           "fd": null,
-          "pic": null,
+          "pic": "X(20)",
           "usage": null,
           "occurs_min": null,
           "occurs_max": null,
@@ -6720,10 +6724,10 @@
           "ordinal": 27,
           "parent": 23,
           "level": 10,
-          "name": "PIC",
+          "name": "FILLER",
           "section": "WORKING-STORAGE",
           "fd": null,
-          "pic": null,
+          "pic": "X(20)",
           "usage": null,
           "occurs_min": null,
           "occurs_max": null,
@@ -6736,10 +6740,10 @@
           "ordinal": 28,
           "parent": 23,
           "level": 10,
-          "name": "PIC",
+          "name": "FILLER",
           "section": "WORKING-STORAGE",
           "fd": null,
-          "pic": null,
+          "pic": "X(20)",
           "usage": null,
           "occurs_min": null,
           "occurs_max": null,
@@ -6752,10 +6756,10 @@
           "ordinal": 29,
           "parent": 23,
           "level": 10,
-          "name": "PIC",
+          "name": "FILLER",
           "section": "WORKING-STORAGE",
           "fd": null,
-          "pic": null,
+          "pic": "X(20)",
           "usage": null,
           "occurs_min": null,
           "occurs_max": null,
@@ -6768,10 +6772,10 @@
           "ordinal": 30,
           "parent": 23,
           "level": 10,
-          "name": "PIC",
+          "name": "FILLER",
           "section": "WORKING-STORAGE",
           "fd": null,
-          "pic": null,
+          "pic": "X(20)",
           "usage": null,
           "occurs_min": null,
           "occurs_max": null,
@@ -6784,10 +6788,10 @@
           "ordinal": 31,
           "parent": 23,
           "level": 10,
-          "name": "PIC",
+          "name": "FILLER",
           "section": "WORKING-STORAGE",
           "fd": null,
-          "pic": null,
+          "pic": "X(20)",
           "usage": null,
           "occurs_min": null,
           "occurs_max": null,
@@ -6800,10 +6804,10 @@
           "ordinal": 32,
           "parent": 23,
           "level": 10,
-          "name": "PIC",
+          "name": "FILLER",
           "section": "WORKING-STORAGE",
           "fd": null,
-          "pic": null,
+          "pic": "X(20)",
           "usage": null,
           "occurs_min": null,
           "occurs_max": null,
@@ -6816,10 +6820,10 @@
           "ordinal": 33,
           "parent": 23,
           "level": 10,
-          "name": "PIC",
+          "name": "FILLER",
           "section": "WORKING-STORAGE",
           "fd": null,
-          "pic": null,
+          "pic": "X(20)",
           "usage": null,
           "occurs_min": null,
           "occurs_max": null,
@@ -6937,7 +6941,7 @@
           "occurs_max": null,
           "occurs_depending_on": null,
           "redefines": null,
-          "value": null,
+          "value": "+1",
           "line": 78
         },
         {
@@ -7591,7 +7595,9 @@
         "tier": "cross_verified",
         "by": "claude-opus-5.5 (agent standing in for a human reviewer)",
         "at": "2026-09-23",
-        "notes": [],
+        "notes": [
+          "#4393: records re-drafted by the fixed reader (signed / prefixed / continued VALUE literals, no VALUE or USAGE read past the DATA DIVISION, implicit FILLER #4246, 77 as a root #4359); every changed field matches the engine and the #4377 referee panel"
+        ],
         "cross_by": "claude-opus-5.5, fresh-context subagent given only the brief (blind; same model family as the author)",
         "cross_at": "2026-09-23",
         "census": {
@@ -11343,7 +11349,7 @@
           "section": "LINKAGE",
           "fd": null,
           "pic": "X(1)",
-          "usage": "DISPLAY",
+          "usage": null,
           "occurs_min": null,
           "occurs_max": null,
           "occurs_depending_on": null,
@@ -11361,7 +11367,8 @@
         "by": "claude-opus-5.5 (agent standing in for a human reviewer)",
         "at": "2026-09-23",
         "notes": [
-          "PERFORM 3200-INSERT-IMS-CALL THRU 3200-EXIT is not a CALL of THRU (first draft, fixed; the forge still does this, #3420)."
+          "PERFORM 3200-INSERT-IMS-CALL THRU 3200-EXIT is not a CALL of THRU (first draft, fixed; the forge still does this, #3420).",
+          "#4393: records re-drafted by the fixed reader (signed / prefixed / continued VALUE literals, no VALUE or USAGE read past the DATA DIVISION, implicit FILLER #4246, 77 as a root #4359); every changed field matches the engine and the #4377 referee panel"
         ],
         "cross_by": "claude-opus-5.5, fresh-context subagent given only the brief (blind; same model family as the author)",
         "cross_at": "2026-09-23",
@@ -13205,7 +13212,7 @@
           "section": "WORKING-STORAGE",
           "fd": null,
           "pic": "X(50)",
-          "usage": "DISPLAY",
+          "usage": null,
           "occurs_min": null,
           "occurs_max": null,
           "occurs_depending_on": null,
@@ -13222,7 +13229,9 @@
         "tier": "cross_verified",
         "by": "claude-opus-5.5 (agent standing in for a human reviewer)",
         "at": "2026-09-23",
-        "notes": [],
+        "notes": [
+          "#4393: records re-drafted by the fixed reader (signed / prefixed / continued VALUE literals, no VALUE or USAGE read past the DATA DIVISION, implicit FILLER #4246, 77 as a root #4359); every changed field matches the engine and the #4377 referee panel"
+        ],
         "cross_by": "claude-opus-5.5, fresh-context subagent given only the brief (blind; same model family as the author)",
         "cross_at": "2026-09-23",
         "census": {
@@ -14749,7 +14758,7 @@
         },
         {
           "ordinal": 26,
-          "parent": 25,
+          "parent": null,
           "level": 77,
           "name": "LIT-ALPHA-SPACES-TO",
           "section": "WORKING-STORAGE",
@@ -14765,7 +14774,7 @@
         },
         {
           "ordinal": 27,
-          "parent": 25,
+          "parent": null,
           "level": 77,
           "name": "LIT-ALPHANUM-SPACES-TO",
           "section": "WORKING-STORAGE",
@@ -14781,7 +14790,7 @@
         },
         {
           "ordinal": 28,
-          "parent": 25,
+          "parent": null,
           "level": 77,
           "name": "LIT-NUM-SPACES-TO",
           "section": "WORKING-STORAGE",
@@ -18363,7 +18372,8 @@
           "9450-CLOSE-FORWARD-CURSOR THRU -EXIT is PERFORMed at line 1721 from the live 8000-READ-FORWARD, right after an END-PERFORM, so it is live. The first draft and the forge read the END-PERFORM as a PERFORM of the word PERFORM (#3420).",
           "PROGRAM-ID. stands alone on line 25 and the name COTRTLIC is on line 26. The engine reads 002600 (#3418).",
           "The one-line EXEC SQL INCLUDE CSDB2RWY / DCLTRTYP / CSDB2RPY ... END-EXEC resolve to app-transaction-type-db2/cpy and dcl. The engine misses all three (#3416).",
-          "SEND-LONG-TEXT-EXIT is a THRU end whose range start ends in EXEC CICS RETURN, so it is dead although it is named at line 689."
+          "SEND-LONG-TEXT-EXIT is a THRU end whose range start ends in EXEC CICS RETURN, so it is dead although it is named at line 689.",
+          "#4393: records re-drafted by the fixed reader (signed / prefixed / continued VALUE literals, no VALUE or USAGE read past the DATA DIVISION, implicit FILLER #4246, 77 as a root #4359); every changed field matches the engine and the #4377 referee panel"
         ],
         "cross_by": "claude-opus-5.5, fresh-context subagent given only the brief (blind; same model family as the author)",
         "cross_at": "2026-09-23",
@@ -21130,7 +21140,7 @@
         },
         {
           "ordinal": 110,
-          "parent": 109,
+          "parent": null,
           "level": 77,
           "name": "LIT-ALPHA-SPACES-TO",
           "section": "WORKING-STORAGE",
@@ -21146,7 +21156,7 @@
         },
         {
           "ordinal": 111,
-          "parent": 109,
+          "parent": null,
           "level": 77,
           "name": "LIT-ALPHANUM-SPACES-TO",
           "section": "WORKING-STORAGE",
@@ -21162,7 +21172,7 @@
         },
         {
           "ordinal": 112,
-          "parent": 109,
+          "parent": null,
           "level": 77,
           "name": "LIT-NUM-SPACES-TO",
           "section": "WORKING-STORAGE",
@@ -21717,7 +21727,8 @@
         "at": "2026-09-23",
         "notes": [
           "PROGRAM-ID. stands alone on line 22 and the name COTRTUPC is on line 23. The engine and the forge read the cols 73-80 id 00220000 (#3418).",
-          "ABEND-ROUTINE-EXIT: its range start ends in EXEC CICS ABEND, so it is dead. The forge's IF/END-IF miscount makes that start look non-terminal (#3420)."
+          "ABEND-ROUTINE-EXIT: its range start ends in EXEC CICS ABEND, so it is dead. The forge's IF/END-IF miscount makes that start look non-terminal (#3420).",
+          "#4393: records re-drafted by the fixed reader (signed / prefixed / continued VALUE literals, no VALUE or USAGE read past the DATA DIVISION, implicit FILLER #4246, 77 as a root #4359); every changed field matches the engine and the #4377 referee panel"
         ],
         "cross_by": "claude-opus-5.5, fresh-context subagent given only the brief (blind; same model family as the author)",
         "cross_at": "2026-09-23",
@@ -26675,7 +26686,7 @@
           "section": "WORKING-STORAGE",
           "fd": null,
           "pic": "X(10)",
-          "usage": "DISPLAY",
+          "usage": null,
           "occurs_min": null,
           "occurs_max": null,
           "occurs_depending_on": null,
@@ -26693,7 +26704,8 @@
         "by": "claude-opus-5.5 (agent standing in for a human reviewer)",
         "at": "2026-09-23",
         "notes": [
-          "'*CALL ASSEMBLER PROGRAM ...' is a comment line, not a CALL. The forge reads it as one (#3420)."
+          "'*CALL ASSEMBLER PROGRAM ...' is a comment line, not a CALL. The forge reads it as one (#3420).",
+          "#4393: records re-drafted by the fixed reader (signed / prefixed / continued VALUE literals, no VALUE or USAGE read past the DATA DIVISION, implicit FILLER #4246, 77 as a root #4359); every changed field matches the engine and the #4377 referee panel"
         ],
         "cross_by": "claude-opus-5.5, fresh-context subagent given only the brief (blind; same model family as the author)",
         "cross_at": "2026-09-23",
@@ -29657,7 +29669,7 @@
           "section": "LINKAGE",
           "fd": null,
           "pic": "X(10)",
-          "usage": "DISPLAY",
+          "usage": null,
           "occurs_min": null,
           "occurs_max": null,
           "occurs_depending_on": null,
@@ -29674,7 +29686,9 @@
         "tier": "cross_verified",
         "by": "claude-opus-5.5 (agent standing in for a human reviewer)",
         "at": "2026-09-23",
-        "notes": [],
+        "notes": [
+          "#4393: records re-drafted by the fixed reader (signed / prefixed / continued VALUE literals, no VALUE or USAGE read past the DATA DIVISION, implicit FILLER #4246, 77 as a root #4359); every changed field matches the engine and the #4377 referee panel"
+        ],
         "cross_by": "claude-opus-5.5, fresh-context subagent given only the brief (blind; same model family as the author)",
         "cross_at": "2026-09-23",
         "census": {
@@ -31429,7 +31443,7 @@
           "section": "WORKING-STORAGE",
           "fd": null,
           "pic": "9(09)",
-          "usage": "DISPLAY",
+          "usage": null,
           "occurs_min": null,
           "occurs_max": null,
           "occurs_depending_on": null,
@@ -31446,7 +31460,9 @@
         "tier": "cross_verified",
         "by": "claude-opus-5.5 (agent standing in for a human reviewer)",
         "at": "2026-09-23",
-        "notes": [],
+        "notes": [
+          "#4393: records re-drafted by the fixed reader (signed / prefixed / continued VALUE literals, no VALUE or USAGE read past the DATA DIVISION, implicit FILLER #4246, 77 as a root #4359); every changed field matches the engine and the #4377 referee panel"
+        ],
         "cross_by": "claude-opus-5.5, fresh-context subagent given only the brief (blind; same model family as the author)",
         "cross_at": "2026-09-23",
         "census": {
@@ -32473,7 +32489,7 @@
           "section": "WORKING-STORAGE",
           "fd": null,
           "pic": "X(43)",
-          "usage": "DISPLAY",
+          "usage": null,
           "occurs_min": null,
           "occurs_max": null,
           "occurs_depending_on": null,
@@ -32490,7 +32506,9 @@
         "tier": "cross_verified",
         "by": "claude-opus-5.5 (agent standing in for a human reviewer)",
         "at": "2026-09-23",
-        "notes": [],
+        "notes": [
+          "#4393: records re-drafted by the fixed reader (signed / prefixed / continued VALUE literals, no VALUE or USAGE read past the DATA DIVISION, implicit FILLER #4246, 77 as a root #4359); every changed field matches the engine and the #4377 referee panel"
+        ],
         "cross_by": "claude-opus-5.5, fresh-context subagent given only the brief (blind; same model family as the author)",
         "cross_at": "2026-09-23",
         "census": {
@@ -34656,7 +34674,7 @@
           "occurs_max": null,
           "occurs_depending_on": null,
           "redefines": null,
-          "value": "<TABLE  ALIGN=\"CENTER\" FRAME=\"BOX\" STYL\n             ",
+          "value": "<TABLE  ALIGN=\"CENTER\" FRAME=\"BOX\" STYLE=\"WIDTH:70%; FONT:12PX SEGOE UI,SANS-SERIF;\">",
           "line": 157
         },
         {
@@ -34736,7 +34754,7 @@
           "occurs_max": null,
           "occurs_depending_on": null,
           "redefines": null,
-          "value": "<TD COLSPAN=\"3\" STYLE=\"PADDING:0PX 5PX;\n             ",
+          "value": "<TD COLSPAN=\"3\" STYLE=\"PADDING:0PX 5PX;BACKGROUND-COLOR:#1D1D96B3;\">",
           "line": 163
         },
         {
@@ -34752,7 +34770,7 @@
           "occurs_max": null,
           "occurs_depending_on": null,
           "redefines": null,
-          "value": "<TD COLSPAN=\"3\" STYLE=\"PADDING:0PX 5PX;\n             ",
+          "value": "<TD COLSPAN=\"3\" STYLE=\"PADDING:0PX 5PX;BACKGROUND-COLOR:#FFAF33;\">",
           "line": 165
         },
         {
@@ -34816,7 +34834,7 @@
           "occurs_max": null,
           "occurs_depending_on": null,
           "redefines": null,
-          "value": "<TD COLSPAN=\"3\" STYLE=\"PADDING:0PX 5PX;\n              ",
+          "value": "<TD COLSPAN=\"3\" STYLE=\"PADDING:0PX 5PX;BACKGROUND-COLOR:#F2F2F2;\">",
           "line": 173
         },
         {
@@ -34832,7 +34850,7 @@
           "occurs_max": null,
           "occurs_depending_on": null,
           "redefines": null,
-          "value": "<TD COLSPAN=\"3\" STYLE=\"PADDING:0PX 5PX;\n              ",
+          "value": "<TD COLSPAN=\"3\" STYLE=\"PADDING:0PX 5PX;BACKGROUND-COLOR:#33FFD1; TEXT-ALIGN:CENTER;\">",
           "line": 176
         },
         {
@@ -34880,7 +34898,7 @@
           "occurs_max": null,
           "occurs_depending_on": null,
           "redefines": null,
-          "value": "<TD STYLE=\"WIDTH:25%; PADDING:0PX 5PX; BACKGROUND-\n              ",
+          "value": "<TD STYLE=\"WIDTH:25%; PADDING:0PX 5PX; BACKGROUND-COLOR:#33FF5E; TEXT-ALIGN:LEFT;\">",
           "line": 183
         },
         {
@@ -34912,7 +34930,7 @@
           "occurs_max": null,
           "occurs_depending_on": null,
           "redefines": null,
-          "value": "<TD STYLE=\"WIDTH:55%; PADDING:0PX 5PX; BACKGROUND-\n              ",
+          "value": "<TD STYLE=\"WIDTH:55%; PADDING:0PX 5PX; BACKGROUND-COLOR:#33FF5E; TEXT-ALIGN:LEFT;\">",
           "line": 188
         },
         {
@@ -34944,7 +34962,7 @@
           "occurs_max": null,
           "occurs_depending_on": null,
           "redefines": null,
-          "value": "<TD STYLE=\"WIDTH:20%; PADDING:0PX 5PX; BACKGROUND-\n              ",
+          "value": "<TD STYLE=\"WIDTH:20%; PADDING:0PX 5PX; BACKGROUND-COLOR:#33FF5E; TEXT-ALIGN:RIGHT;\">",
           "line": 193
         },
         {
@@ -34976,7 +34994,7 @@
           "occurs_max": null,
           "occurs_depending_on": null,
           "redefines": null,
-          "value": "<TD STYLE=\"WIDTH:25%; PADDING:0PX 5PX; BACKGROUND-\n              ",
+          "value": "<TD STYLE=\"WIDTH:25%; PADDING:0PX 5PX; BACKGROUND-COLOR:#F2F2F2; TEXT-ALIGN:LEFT;\">",
           "line": 198
         },
         {
@@ -34992,7 +35010,7 @@
           "occurs_max": null,
           "occurs_depending_on": null,
           "redefines": null,
-          "value": "<TD STYLE=\"WIDTH:55%; PADDING:0PX 5PX; BACKGROUND-\n              ",
+          "value": "<TD STYLE=\"WIDTH:55%; PADDING:0PX 5PX; BACKGROUND-COLOR:#F2F2F2; TEXT-ALIGN:LEFT;\">",
           "line": 201
         },
         {
@@ -35008,7 +35026,7 @@
           "occurs_max": null,
           "occurs_depending_on": null,
           "redefines": null,
-          "value": "<TD STYLE=\"WIDTH:20%; PADDING:0PX 5PX; BACKGROUND-\n              ",
+          "value": "<TD STYLE=\"WIDTH:20%; PADDING:0PX 5PX; BACKGROUND-COLOR:#F2F2F2; TEXT-ALIGN:RIGHT;\">",
           "line": 204
         },
         {
@@ -35755,7 +35773,7 @@
           "section": "LINKAGE",
           "fd": null,
           "pic": null,
-          "usage": "DISPLAY",
+          "usage": null,
           "occurs_min": null,
           "occurs_max": null,
           "occurs_depending_on": null,
@@ -35772,7 +35790,9 @@
         "tier": "cross_verified",
         "by": "claude-opus-5.5 (agent standing in for a human reviewer)",
         "at": "2026-09-23",
-        "notes": [],
+        "notes": [
+          "#4393: records re-drafted by the fixed reader (signed / prefixed / continued VALUE literals, no VALUE or USAGE read past the DATA DIVISION, implicit FILLER #4246, 77 as a root #4359); every changed field matches the engine and the #4377 referee panel"
+        ],
         "cross_by": "claude-opus-5.5, fresh-context subagent given only the brief (blind; same model family as the author)",
         "cross_at": "2026-09-23",
         "census": {
@@ -38021,7 +38041,7 @@
           "section": "WORKING-STORAGE",
           "fd": null,
           "pic": "9(04)",
-          "usage": "DISPLAY",
+          "usage": null,
           "occurs_min": null,
           "occurs_max": null,
           "occurs_depending_on": null,
@@ -38038,7 +38058,9 @@
         "tier": "cross_verified",
         "by": "claude-opus-5.5 (agent standing in for a human reviewer)",
         "at": "2026-09-23",
-        "notes": [],
+        "notes": [
+          "#4393: records re-drafted by the fixed reader (signed / prefixed / continued VALUE literals, no VALUE or USAGE read past the DATA DIVISION, implicit FILLER #4246, 77 as a root #4359); every changed field matches the engine and the #4377 referee panel"
+        ],
         "cross_by": "claude-opus-5.5, fresh-context subagent given only the brief (blind; same model family as the author)",
         "cross_at": "2026-09-23",
         "census": {
@@ -40055,7 +40077,7 @@
           "section": "WORKING-STORAGE",
           "fd": null,
           "pic": "X(01)",
-          "usage": "DISPLAY",
+          "usage": null,
           "occurs_min": null,
           "occurs_max": null,
           "occurs_depending_on": null,
@@ -40072,7 +40094,9 @@
         "tier": "cross_verified",
         "by": "claude-opus-5.5 (agent standing in for a human reviewer)",
         "at": "2026-09-23",
-        "notes": [],
+        "notes": [
+          "#4393: records re-drafted by the fixed reader (signed / prefixed / continued VALUE literals, no VALUE or USAGE read past the DATA DIVISION, implicit FILLER #4246, 77 as a root #4359); every changed field matches the engine and the #4377 referee panel"
+        ],
         "cross_by": "claude-opus-5.5, fresh-context subagent given only the brief (blind; same model family as the author)",
         "cross_at": "2026-09-23",
         "census": {
@@ -50223,7 +50247,7 @@
         },
         {
           "ordinal": 410,
-          "parent": 409,
+          "parent": null,
           "level": 77,
           "name": "LIT-ALPHA-SPACES-TO",
           "section": "WORKING-STORAGE",
@@ -50239,7 +50263,7 @@
         },
         {
           "ordinal": 411,
-          "parent": 409,
+          "parent": null,
           "level": 77,
           "name": "LIT-ALPHANUM-SPACES-TO",
           "section": "WORKING-STORAGE",
@@ -50255,7 +50279,7 @@
         },
         {
           "ordinal": 412,
-          "parent": 409,
+          "parent": null,
           "level": 77,
           "name": "LIT-NUM-SPACES-TO",
           "section": "WORKING-STORAGE",
@@ -52923,7 +52947,8 @@
         "notes": [
           "COPY 'CSUTLDWY'. and COPY 'CSSTRPFY' are quoted members. The first draft lost them to literal blanking (fixed).",
           "COPY CSLKPCDY. (line 602) resolves to app/cpy/CSLKPCDY.cpy. The engine drops the edge because it excludes that data-only copybook as zero-density (#3417).",
-          "ABEND-ROUTINE-EXIT is dead: its range start ends in EXEC CICS ABEND."
+          "ABEND-ROUTINE-EXIT is dead: its range start ends in EXEC CICS ABEND.",
+          "#4393: records re-drafted by the fixed reader (signed / prefixed / continued VALUE literals, no VALUE or USAGE read past the DATA DIVISION, implicit FILLER #4246, 77 as a root #4359); every changed field matches the engine and the #4377 referee panel"
         ],
         "cross_by": "claude-opus-5.5, fresh-context subagent given only the brief (blind; same model family as the author)",
         "cross_at": "2026-09-23",
@@ -56701,7 +56726,7 @@
           "occurs_max": null,
           "occurs_depending_on": null,
           "redefines": null,
-          "value": "FROM",
+          "value": null,
           "line": 31
         }
       ],
@@ -56713,7 +56738,9 @@
         "tier": "cross_verified",
         "by": "claude-opus-5.5 (agent standing in for a human reviewer)",
         "at": "2026-09-23",
-        "notes": [],
+        "notes": [
+          "#4393: records re-drafted by the fixed reader (signed / prefixed / continued VALUE literals, no VALUE or USAGE read past the DATA DIVISION, implicit FILLER #4246, 77 as a root #4359); every changed field matches the engine and the #4377 referee panel"
+        ],
         "cross_by": "claude-opus-5.5, fresh-context subagent given only the brief (blind; same model family as the author)",
         "cross_at": "2026-09-23",
         "census": {
@@ -74458,7 +74485,7 @@
           "occurs_max": null,
           "occurs_depending_on": null,
           "redefines": null,
-          "value": "X",
+          "value": "X'0000000000000000'",
           "line": 62
         },
         {
@@ -74474,7 +74501,7 @@
           "occurs_max": null,
           "occurs_depending_on": null,
           "redefines": null,
-          "value": "X",
+          "value": "X'000309CB59C3C5C5'",
           "line": 63
         },
         {
@@ -74490,7 +74517,7 @@
           "occurs_max": null,
           "occurs_depending_on": null,
           "redefines": null,
-          "value": "X",
+          "value": "X'000309CC59C3C5C5'",
           "line": 64
         },
         {
@@ -74506,7 +74533,7 @@
           "occurs_max": null,
           "occurs_depending_on": null,
           "redefines": null,
-          "value": "X",
+          "value": "X'000309CD59C3C5C5'",
           "line": 65
         },
         {
@@ -74522,7 +74549,7 @@
           "occurs_max": null,
           "occurs_depending_on": null,
           "redefines": null,
-          "value": "X",
+          "value": "X'000309D159C3C5C5'",
           "line": 66
         },
         {
@@ -74538,7 +74565,7 @@
           "occurs_max": null,
           "occurs_depending_on": null,
           "redefines": null,
-          "value": "X",
+          "value": "X'000309D559C3C5C5'",
           "line": 67
         },
         {
@@ -74554,7 +74581,7 @@
           "occurs_max": null,
           "occurs_depending_on": null,
           "redefines": null,
-          "value": "X",
+          "value": "X'000309D659C3C5C5'",
           "line": 68
         },
         {
@@ -74570,7 +74597,7 @@
           "occurs_max": null,
           "occurs_depending_on": null,
           "redefines": null,
-          "value": "X",
+          "value": "X'000309D859C3C5C5'",
           "line": 69
         },
         {
@@ -74586,7 +74613,7 @@
           "occurs_max": null,
           "occurs_depending_on": null,
           "redefines": null,
-          "value": "X",
+          "value": "X'000309D959C3C5C5'",
           "line": 70
         },
         {
@@ -74790,7 +74817,9 @@
         "tier": "cross_verified",
         "by": "claude-opus-5.5 (agent standing in for a human reviewer)",
         "at": "2026-09-23",
-        "notes": [],
+        "notes": [
+          "#4393: records re-drafted by the fixed reader (signed / prefixed / continued VALUE literals, no VALUE or USAGE read past the DATA DIVISION, implicit FILLER #4246, 77 as a root #4359); every changed field matches the engine and the #4377 referee panel"
+        ],
         "cross_by": "claude-opus-5.5, fresh-context subagent given only the brief (blind; same model family as the author)",
         "cross_at": "2026-09-23",
         "census": {

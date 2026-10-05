@@ -213,7 +213,7 @@ def test_calls_become_service_calls(scanned, tmp_path):
             "        return request;") in inq
     region = (src / "cics/CicsRegion.java").read_text(encoding="utf-8")
     assert 'case "ACCTINQ" -> context.getBean(AcctinqService.class).runTask(task);' in region
-    assert "CicsTask.deploy(new CicsTask.LocalRegion(this, null));" in region
+    assert "CicsTask.deploy(new CicsTask.LocalRegion(this, null,\n                at.isEmpty() ? () -> LocalDateTime.now(zone)" in region
     audit = (java / "java_migration_audit.txt").read_text(encoding="utf-8")
     assert "Service calls (#3616)    : 1 LINK, 0 XCTL, 1 CALL, 1 data-driven dispatch, 1 remote; 1 remote" in audit
 

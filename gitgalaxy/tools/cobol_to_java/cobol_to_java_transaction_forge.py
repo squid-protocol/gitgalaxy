@@ -113,6 +113,7 @@ def commarea_alternative_todos(commarea: dict) -> list[str]:
 CICS_TASK_JAVA = """package __PACKAGE__.cics;
 
 import java.time.LocalDateTime;
+import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -123,6 +124,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.function.Consumer;
+import java.util.function.Supplier;
 import java.util.function.UnaryOperator;
 
 /**
@@ -1366,7 +1368,7 @@ public class CicsTask {
             return r;
         }
         Region d = deployed;
-        return d != null ? d : new LocalRegion(null, null);
+        return d != null ? d : new LocalRegion(null, null, null);
     }
 
     /** A deployment's region, from now on (#4343). */
@@ -1387,22 +1389,25 @@ public class CicsTask {
         };
     }
 
-    /** A region in this JVM (#4343): one temporary storage for every task, the wall clock, the programs `programs`
-     *  runs (null: none but the program a facade runs), and the terminal `termid` (null: none). */
+    /** A region in this JVM (#4343): one temporary storage for every task, the clock `clock` (null: the wall clock in
+     *  the mainframe's zone, __ZONE__ -- never the JVM's), the programs `programs` runs (null: none but the program a
+     *  facade runs), and the terminal `termid` (null: none). */
     public static class LocalRegion implements Region {
         private final Programs programs;
         private final String termid;
+        private final Supplier<LocalDateTime> clock;
         private final TempStorage storage = new TempStorage();
 
-        public LocalRegion(Programs programs, String termid) {
+        public LocalRegion(Programs programs, String termid, Supplier<LocalDateTime> clock) {
             this.programs = programs;
             this.termid = termid;
+            this.clock = clock != null ? clock : () -> LocalDateTime.now(ZoneId.of("__ZONE__"));
         }
 
         @Override
         public CicsTask transaction(String transid, Object commarea) {
             CicsTask t = new CicsTask(transid, "ENTER", commarea, null, Map.of()).withTempStorage(storage)
-                    .withTermid(termid).withClock(LocalDateTime.now());
+                    .withTermid(termid).withClock(clock.get());
             if (commarea == null) {
                 t.withTerminalInput(transid);
             }
@@ -1414,7 +1419,7 @@ public class CicsTask {
         @Override
         public CicsTask linked(String program, Object commarea) {
             return new CicsTask("CSMI", null, commarea, null, Map.of()).withTempStorage(storage)
-                    .withClock(LocalDateTime.now()).withProgram(program);
+                    .withClock(clock.get()).withProgram(program);
         }
 
         @Override
@@ -2127,10 +2132,15 @@ class CicsForge:
         LINK / XCTL level); #4343: and CicsRegion, the deployment's region the programs' facades run their tasks in."""
         if not self.programs:
             return {}
-        out = {"CicsTask": CICS_TASK_JAVA.replace("__PACKAGE__", self.package)}
+        out = {"CicsTask": CICS_TASK_JAVA.replace("__PACKAGE__", self.package).replace("__ZONE__", self.zone)}
         if self.target.features.services:  # the region runs the programs' services
             out["CicsRegion"] = self.region_source()
         return out
+
+    @property
+    def zone(self) -> str:
+        """#3824: the mainframe's time zone (the target's culture.zone), the region's clock -- never the JVM's."""
+        return self.target.culture.zone
 
     @staticmethod
     def program_name(prog: CicsProgram) -> str:
@@ -2140,16 +2150,30 @@ class CicsForge:
     def region_source(self) -> str:
         """#4343: the deployment's region (CicsTask.LocalRegion): every CICS program of the estate, run through its
         service's runTask, so a facade's LINK / XCTL reaches the others as CICS does; installed when Spring makes it."""
-        progs = sorted(self.programs.values(), key=self.program_name)
-        names = ", ".join(json.dumps(self.program_name(p)) for p in progs)
+        progs = sorted(self.programs.values(), key=lambda p: (self.program_name(p), p.path))
+        by_name: dict[str, list[CicsProgram]] = {}
+        for p in progs:
+            by_name.setdefault(self.program_name(p), []).append(p)
+        names = ", ".join(json.dumps(n) for n in by_name)
         transids = sorted({t["transid"] for p in progs for t in p.transactions})
-        arms = [f"            case {json.dumps(self.program_name(p))} -> context.getBean({p.cls}Service.class).runTask(task);"
-                for p in progs]  # fmt: skip
-        imports = [f"import {self.package}.service.{p.cls}Service;" for p in progs]
+        arms = []
+        for name, same in by_name.items():
+            if len(same) == 1:
+                arms.append(f"            case {json.dumps(name)} -> context.getBean({same[0].cls}Service.class).runTask(task);")
+                continue
+            # two sources under one program name: the region's CSD installs one of them, and the estate does not say
+            # which -- so the region runs neither rather than pick one (CICS itself never holds two)
+            srcs = ", ".join(p.path for p in same)
+            arms.append(f"            case {json.dumps(name)} -> throw new IllegalStateException("
+                        f"{json.dumps(f'program {name} has more than one source ({srcs}); the CSD decides which one runs')});")
+        imports = [f"import {self.package}.service.{same[0].cls}Service;" for same in by_name.values() if len(same) == 1]
         return "\n".join([
             f"package {self.package}.cics;", "",
             *sorted(set(imports)),
+            "import java.time.LocalDateTime;",
+            "import java.time.ZoneId;",
             "import java.util.Set;",
+            "import org.springframework.beans.factory.annotation.Value;",
             "import org.springframework.context.ApplicationContext;",
             "import org.springframework.stereotype.Component;", "",
             "/**",
@@ -2157,15 +2181,21 @@ class CicsForge:
             " * handleLink) runs its task here -- one temporary storage, and a LINK / XCTL reaching the other programs",
             " * through their services' runTask, as the CSD-defined programs of a CICS region reach each other. Spring makes",
             " * it once, which deploys it (CicsTask.deploy); a test harness joins a region of its own instead (CicsTask.join).",
+            " * Its clock is the mainframe's, as MainframeClock's (#3824): `gitgalaxy.clock` (an ISO local date-time) when",
+            f" * set, else the wall clock in `gitgalaxy.zone`, else `gitgalaxy.culture.zone`, else {self.zone} -- never the JVM's.",
             " */",
             "@Component",
             "public class CicsRegion implements CicsTask.Programs {", "",
             f"    static final Set<String> PROGRAMS = Set.of({names});",
             f"    static final Set<String> TRANSACTIONS = Set.of({', '.join(json.dumps(t) for t in transids)});", "",
             "    private final ApplicationContext context;", "",
-            "    public CicsRegion(ApplicationContext context) {",
+            "    public CicsRegion(ApplicationContext context, @Value(\"${gitgalaxy.clock:}\") String pinned,",
+            f"                      @Value(\"${{gitgalaxy.zone:${{gitgalaxy.culture.zone:{self.zone}}}}}\") String zoneId) {{",
             "        this.context = context;",
-            "        CicsTask.deploy(new CicsTask.LocalRegion(this, null));",
+            f"        ZoneId zone = ZoneId.of(zoneId == null || zoneId.isBlank() ? {json.dumps(self.zone)} : zoneId.trim());",
+            "        String at = pinned == null ? \"\" : pinned.trim();",
+            "        CicsTask.deploy(new CicsTask.LocalRegion(this, null,",
+            "                at.isEmpty() ? () -> LocalDateTime.now(zone) : () -> LocalDateTime.parse(at)));",
             "    }", "",
             "    @Override",
             "    public boolean defined(String program) {",

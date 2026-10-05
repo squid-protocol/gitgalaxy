@@ -99,7 +99,8 @@ def _cics_task(tmp_path: Path, main_body: str) -> str:
 
     pkg = tmp_path / "src" / "t" / "cics"
     pkg.mkdir(parents=True)
-    (pkg / "CicsTask.java").write_text(CICS_TASK_JAVA.replace("__PACKAGE__", "t"), encoding="utf-8")
+    runtime = CICS_TASK_JAVA.replace("__PACKAGE__", "t").replace("__ZONE__", "UTC")
+    (pkg / "CicsTask.java").write_text(runtime, encoding="utf-8")
     (pkg / "Main.java").write_text("package t.cics;\n\npublic class Main {\n    public static void main(String[] a) {\n"
                                    + main_body + "\n    }\n}\n", encoding="utf-8")  # fmt: skip
     classes = tmp_path / "classes"
@@ -1046,15 +1047,17 @@ def test_cics_task_facades_run_their_task_in_the_region_joined_or_deployed(tmp_p
                 }
             }
         };
-        CicsTask.deploy(new CicsTask.LocalRegion(both, "T001"));
+        CicsTask.deploy(new CicsTask.LocalRegion(both, "T001", null));
         for (int i = 0; i < 2; i++) {
             CicsTask.Region r = CicsTask.region();
             CicsTask t = r.transaction("TX01", null);
             r.run(t, "PROG", prog);
         }
-        CicsTask.Region mine = new CicsTask.LocalRegion(null, null);
+        CicsTask.Region mine = new CicsTask.LocalRegion(null, null,
+                () -> java.time.LocalDateTime.of(2022, 7, 18, 10, 30));
         try (CicsTask.Joined j = CicsTask.join(mine)) {
             System.out.println(CicsTask.region() == mine);
+            System.out.println(CicsTask.region().transaction("TX01", null).now());
         }
         System.out.println(CicsTask.region() != mine);
         CicsTask l = CicsTask.region().linked("PROG", new StringBuilder("L"));
@@ -1069,6 +1072,7 @@ def test_cics_task_facades_run_their_task_in_the_region_joined_or_deployed(tmp_p
         "TX01 calen=0 in=TX01 link=NORMAL ts=1",  # deployed: OTHER is reached, and one TS across tasks
         "TX01 calen=0 in=TX01 link=NORMAL ts=2",
         "true",
+        "2022-07-18T10:30",  # the region's clock, not the JVM's
         "true",
         "CSMI calen=null in=L+ link=NORMAL ts=3",  # a LINK from outside: the mirror's task, the deployed region's TS
         "1 null",

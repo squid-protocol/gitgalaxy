@@ -19,7 +19,6 @@ key lets parallel runs build it once; the newest KEEP entries of each kind are k
 
 from __future__ import annotations
 
-import fcntl
 import hashlib
 import json
 import os
@@ -28,6 +27,11 @@ import sqlite3
 import subprocess
 import sys
 from pathlib import Path
+
+try:
+    import fcntl
+except ImportError:  # Windows: no flock; parallel runs may then build one entry twice (the same bytes)
+    fcntl = None  # type: ignore[assignment]
 
 TOOLS = Path(__file__).resolve().parent
 REPO_ROOT = TOOLS.parent.parent
@@ -79,7 +83,8 @@ def _entry(kind: str, corpus: Path, build, extra: str = "") -> Path:  # noqa: AN
     k = key(kind, corpus, extra)
     entry = base / f"{corpus.name}-{k}"
     with (base / f"{corpus.name}-{k}.lock").open("w") as fh:
-        fcntl.flock(fh, fcntl.LOCK_EX)
+        if fcntl is not None:
+            fcntl.flock(fh, fcntl.LOCK_EX)
         if not (entry / "DONE").is_file():
             shutil.rmtree(entry, ignore_errors=True)
             entry.mkdir(parents=True)
@@ -143,6 +148,11 @@ def refactor(corpus: Path, work: Path, scan: bool = False) -> Path:
     made = entry / "made"
     old = (entry / _ROOT_FILE).read_text(encoding="utf-8").encode()
     new = str(work).encode()
+    # a path recorded in JSON is escaped (`C:\\Users` on Windows); rewrite that form too
+    swaps = [(old, new)]
+    esc_old, esc_new = (json.dumps(x.decode())[1:-1].encode() for x in (old, new))
+    if esc_old != old:
+        swaps.append((esc_old, esc_new))
     work.mkdir(parents=True, exist_ok=True)
     copied = []
     for item in made.iterdir():
@@ -156,11 +166,13 @@ def refactor(corpus: Path, work: Path, scan: bool = False) -> Path:
         for dest in copied:
             for f in [dest] if dest.is_file() else (p for p in dest.rglob("*") if p.is_file() and not p.is_symlink()):
                 data = f.read_bytes()
-                if old not in data:
+                if not any(o in data for o, _ in swaps):
                     continue
                 if b"\0" in data:  # a path inside a binary file (a database) cannot be rewritten in place
                     raise ValueError(f"{f} records the cached refactor's path")
-                f.write_bytes(data.replace(old, new))
+                for o, n in swaps:
+                    data = data.replace(o, n)
+                f.write_bytes(data)
     except ValueError:  # never seen: refactor afresh rather than hand over a copy that is not the same
         for dest in copied:
             shutil.rmtree(dest) if dest.is_dir() else dest.unlink()

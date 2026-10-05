@@ -113,7 +113,7 @@ One row per `EXEC CICS` command in a COBOL/PL/I source that names a resource. `r
 
 ### `transaction_data` — the CICS transaction map (#3211-followup)
 
-The CSD `DEFINE TRANSACTION(TTTT) ... PROGRAM(PPPP)` records (and PROGRAM autoinstall `TRANSID(...)` pairings), from `.csd` decks and DFHCSDUP SYSIN inside JCL. This is the external front door: which 4-char transaction id a user submits and which program CICS routes it to — the entry points a modernizer turns into service/API boundaries.
+The CSD `DEFINE TRANSACTION(TTTT) ... PROGRAM(PPPP)` records (a PROGRAM's `TRANSID(...)` is the remote-DPL mirror, not a route, #4503), from `.csd` decks and DFHCSDUP SYSIN inside JCL. This is the external front door: which 4-char transaction id a user submits and which program CICS routes it to — the entry points a modernizer turns into service/API boundaries.
 
 | column | meaning |
 |---|---|

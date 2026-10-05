@@ -55,3 +55,10 @@ tests/cobol_mainframe/port_invariance/**/java/** -text linguist-generated=true
 tests/cobol_mainframe/refraction_snapshot/** text eol=lf
 tests/unicode_gauntlet/baseline.txt merge=union
 tests/cultural_gauntlet/baseline.txt merge=union
+
+# Evidence and port-provenance records hash these files' bytes (tests/tools/evidence.py,
+# crucible_port_provenance.py): a Windows checkout with core.autocrlf=true would turn the LF the ports were
+# proven with into CRLF and read every record as stale (#4494). text=auto leaves binary files alone.
+tests/equivalence/** text=auto eol=lf
+tests/cics_crucible/ports/** text=auto eol=lf
+tests/cics_crucible/strengthened/** text=auto eol=lf

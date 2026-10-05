@@ -26,11 +26,13 @@ def _plain(pattern: re.Pattern) -> re.Pattern:
     return re.compile(pattern.pattern, pattern.flags)
 
 
-def _detonate(pattern: re.Pattern, payload: str, result_queue: multiprocessing.Queue):
+def _detonate(pattern: re.Pattern, payload: str, result_queue: multiprocessing.Queue, started=None):
     """
     Executes a regex against a payload inside an isolated OS process.
     Passes the duration back via a multiprocessing Queue.
     """
+    if started is not None:
+        started.set()  # the parent's clock starts here, not at spawn (slow on Windows, #4494)
     start = time.perf_counter()
     list(pattern.finditer(payload))
     result_queue.put(time.perf_counter() - start)
@@ -44,9 +46,13 @@ def assert_redos_immune(pattern: re.Pattern, payload: str, timeout_sec: float = 
     """
     ctx = multiprocessing.get_context("spawn")
     result_queue = ctx.Queue()
+    started = ctx.Event()
 
-    p = ctx.Process(target=_detonate, args=(_plain(pattern), payload, result_queue))
+    p = ctx.Process(target=_detonate, args=(_plain(pattern), payload, result_queue, started))
     p.start()
+    # The timeout bounds the regex, not interpreter start-up: a spawned child on a loaded Windows runner
+    # can take over a second before it runs anything (#4494).
+    assert started.wait(60), "the ReDoS child process never started"
     p.join(timeout_sec)
 
     if p.is_alive():

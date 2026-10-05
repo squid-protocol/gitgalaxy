@@ -15,8 +15,9 @@ job -- that yields the transaction -> program map. It does NOT import the engine
 (`gitgalaxy.core.mainframe_boundary`) or the answer key, so the differential
 compares two independent parses of the same decks. The parse mirrors the engine's
 `_csd_transactions` reading (record splitting with no continuation character,
-paren-balanced attribute values, DB2TRAN exclusion, the `DEFINE PROGRAM ... TRANSID`
-autoinstall pairing) so a delta is a real disagreement, not a modelling choice.
+paren-balanced attribute values, DB2TRAN exclusion; a `DEFINE PROGRAM ... TRANSID`
+is the remote-DPL mirror attribute, not a route, #4503) so a delta is a real
+disagreement, not a modelling choice.
 
 Every regex is bounded and line/record-scoped (the #3200/#3201 forge discipline).
 """
@@ -42,7 +43,6 @@ _CSD_ATTR_SYNONYMS = {"DESC": "DESCRIPTION"}
 # A DFHCSDUP/CEDA deck runs DFHCSDUP; a JCL that does not is not a CSD deck.
 _DFHCSDUP = re.compile(r"\bPGM=DFHCSDUP\b", re.I)
 _TXN_RESOURCE = "TRANSACTION"
-_PGM_RESOURCE = "PROGRAM"
 # DEFINE DB2TRAN/DB2ENTRY/DB2CONN carry a TRANSID(...) that is a DB2 attribute, not
 # a CICS transaction definition, and must be excluded.
 _EXCLUDED_RESOURCES = frozenset({"DB2TRAN", "DB2ENTRY", "DB2CONN"})
@@ -136,8 +136,6 @@ def _deck_transactions(text: str) -> list[tuple[str, Optional[str]]]:
         attrs = _csd_attributes(record)
         if resource == _TXN_RESOURCE:
             out.append((name, (attrs.get("PROGRAM") or "").upper() or None))
-        elif resource == _PGM_RESOURCE and attrs.get("TRANSID"):
-            out.append((attrs["TRANSID"].upper(), name))
     return out
 
 

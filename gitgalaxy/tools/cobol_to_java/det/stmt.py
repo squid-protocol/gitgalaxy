@@ -15,7 +15,7 @@ from dataclasses import dataclass, field
 from typing import Any
 
 from gitgalaxy.tools.cobol_to_java.det import expr as E
-from gitgalaxy.tools.cobol_to_java.det.source import Line, as_fixed
+from gitgalaxy.tools.cobol_to_java.det.source import Line, as_fixed_rows, unwrap
 
 
 @dataclass
@@ -64,7 +64,7 @@ class _Frame:
 def parse(lines: list[Line]) -> Procedure:
     from tree_sitter_language_pack import get_parser
 
-    text = as_fixed(lines)
+    text, rows = as_fixed_rows(lines)
     m = re.search(r"^ {7}\s*PROCEDURE\s+DIVISION\b[^.]*\.", text, re.I | re.M)
     if not m:
         raise E.ExprError("no PROCEDURE DIVISION")
@@ -77,7 +77,7 @@ def parse(lines: list[Line]) -> Procedure:
     execs: dict[int, str] = {}
 
     def ph(mm):
-        execs[len(execs) + 1] = mm.group(0)
+        execs[len(execs) + 1] = unwrap(mm.group(0))
         # as many lines as the block: every later statement keeps its own line (a multi-line EXEC SQL / CICS block
         # had shifted them -- the Db2 repositories' methods are found by the statement's line)
         return f"CALL 'GGEXEC{len(execs):04d}'" + "\x01" * mm.group(0).count("\n")
@@ -102,8 +102,8 @@ def parse(lines: list[Line]) -> Procedure:
         raise E.ExprError("the PROCEDURE DIVISION does not parse")
 
     def origin(node) -> int:
-        k = node.start_point[0] - 3 + base_line  # 3 synthetic lines before
-        return lines[k].line if 0 <= k < len(lines) else node.start_point[0] + 1
+        k = node.start_point[0] - 3 + base_line  # 3 synthetic lines before; a row of `text`
+        return lines[rows[k]].line if 0 <= k < len(rows) else node.start_point[0] + 1
 
     # #4411: a parse error outside the PROCEDURE DIVISION node is procedure text the walk below never sees (a
     # paragraph after ENTRY ... USING, say): the program is refused, never translated without it
@@ -121,7 +121,7 @@ def parse(lines: list[Line]) -> Procedure:
         del stack[1:]
 
     def node_text(n) -> str:
-        return src[n.start_byte : n.end_byte].decode("latin-1")
+        return unwrap(src[n.start_byte : n.end_byte].decode("latin-1"))
 
     for n in pd.children:
         t = n.type
@@ -256,7 +256,7 @@ def parse(lines: list[Line]) -> Procedure:
             if s.kind == "CALL" and re.match(r"GGEXEC\d{4}$", s.data.get("program") or ""):
                 s = Stmt("EXEC", s.line, execs[int(s.data["program"][6:])])
             elif s.kind == "CALL" and re.match(r"GGSORT\d{4}$", s.data.get("program") or ""):
-                s = _sort_merge(sorts[int(s.data["program"][6:])], s.line)
+                s = _sort_merge(unwrap(sorts[int(s.data["program"][6:])]), s.line)
             stack[-1].target.append(s)
             continue
         stack[-1].target.append(Stmt("HOLE", origin(n), node_text(n), {"why": f"grammar node {t}"}))

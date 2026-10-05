@@ -15,7 +15,7 @@ from dataclasses import dataclass, field
 from typing import Any
 
 from gitgalaxy.tools.cobol_to_java.det import expr as E
-from gitgalaxy.tools.cobol_to_java.det.source import Line, as_fixed
+from gitgalaxy.tools.cobol_to_java.det.source import Line, as_fixed, cobol_parser
 
 
 @dataclass
@@ -62,7 +62,7 @@ class _Frame:
 
 
 def parse(lines: list[Line]) -> Procedure:
-    from tree_sitter_language_pack import get_parser
+    parser = _parser_cache()  # first: a missing translator extra fails here, before any work
 
     text = as_fixed(lines)
     m = re.search(r"^ {7}\s*PROCEDURE\s+DIVISION\b[^.]*\.", text, re.I | re.M)
@@ -95,7 +95,7 @@ def parse(lines: list[Line]) -> Procedure:
     # line numbers: map back to the expanded program's lines
     # (src row 3 is the text line after the header's last; it had been two lines early)
     base_line = text[: m.end()].count("\n") + 1
-    root = _parser_cache(get_parser).parse(src).root_node
+    root = parser.parse(src).root_node
     prog = next((c for c in root.children if c.type == "program_definition"), root)
     pd = next((c for c in prog.children if c.type == "procedure_division"), None)
     if pd is None:
@@ -227,10 +227,10 @@ def parse(lines: list[Line]) -> Procedure:
 _PARSER = None
 
 
-def _parser_cache(get_parser):
+def _parser_cache():
     global _PARSER
     if _PARSER is None:
-        _PARSER = get_parser("cobol")
+        _PARSER = cobol_parser()
     return _PARSER
 
 

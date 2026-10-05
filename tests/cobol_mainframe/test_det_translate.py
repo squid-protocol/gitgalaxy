@@ -246,3 +246,15 @@ def test_an_esds_browse_by_rba_is_translated_and_the_rest_refused():
     ):
         with pytest.raises(C.CicsError):
             c.command(bad, "")
+
+
+def test_missing_language_pack_names_the_translator_extra(monkeypatch):
+    # tree-sitter-language-pack is the optional `translator` extra: without it both parsers say how to install it
+    from gitgalaxy.tools.cobol_to_java.det import layout as L
+    from gitgalaxy.tools.cobol_to_java.det.source import Line
+
+    monkeypatch.setitem(sys.modules, "tree_sitter_language_pack", None)  # import raises ImportError
+    monkeypatch.setattr(S, "_PARSER", None)
+    for call in (L._parser, lambda: S.parse([Line("PROCEDURE DIVISION.", "x", 1)])):
+        with pytest.raises(ImportError, match=r"pip install gitgalaxy\[translator\]"):
+            call()

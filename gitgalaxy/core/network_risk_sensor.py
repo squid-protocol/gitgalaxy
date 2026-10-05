@@ -11,7 +11,7 @@ from collections import defaultdict
 from pathlib import Path
 from typing import Any, Optional
 
-from gitgalaxy.core.copy_libraries import CopyLibraries, MemberIndex
+from gitgalaxy.core.copy_libraries import RUNTIME_COPY_MEMBER, CopyLibraries, MemberIndex
 from gitgalaxy.core.graph_engine import (
     GraphIndex,
     WorkBudget,
@@ -222,6 +222,8 @@ class NetworkRiskSensor:
         # more than one library (the first wins, as on z/OS) from the latest _resolve_edges pass.
         self.copy_libraries: Optional[CopyLibraries] = None
         self.copy_collisions: list[dict[str, Any]] = []
+        # #4420: unqualified COPYs no declared library of the importer holds (no edge, a gap)
+        self.copy_gaps: list[dict[str, Any]] = []
 
     def _build_resolution_map(self, files: list[dict[str, Any]]) -> dict[str, list[str]]:
         """
@@ -1209,6 +1211,7 @@ class NetworkRiskSensor:
         edges: dict[tuple[str, str], dict[str, Any]] = {}
         self.namespace_aliases = {}
         self.copy_collisions = []
+        self.copy_gaps = []
         members = MemberIndex([f.get("path", "") for f in parsed_files]) if self.copy_libraries else None
 
         for f in parsed_files:
@@ -1315,7 +1318,14 @@ class NetworkRiskSensor:
             return _NO_DECLARATION
         found = [(name, hits) for name in order for hits in [pick(members.members(libs, name, member))] if hits]
         if not found:
-            return _NO_DECLARATION  # e.g. SQLCA, DFHAID: supplied by the runtime, or outside the declaration
+            # #4420: the importer's SYSLIB is declared and holds no such member: the compiler would fail
+            # too, so no edge (the default resolver would link a same-named PROGRAM source). A runtime-
+            # supplied name (SQLCA, DFHAID) is simply left unresolved; any other is a recorded gap.
+            if not RUNTIME_COPY_MEMBER.match(member):
+                gap = {"importer": importer, "member": member.upper(), "searched": list(order)}
+                if gap not in self.copy_gaps:
+                    self.copy_gaps.append(gap)
+            return None
         chosen = found[0][1][0] if len(found[0][1]) == 1 else None
         if len(found) > 1:
             self.copy_collisions.append(

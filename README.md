@@ -588,6 +588,7 @@ GitGalaxy is designed for local and air-gapped operation.
 ``` bash
 pip install gitgalaxy            # zero install dependencies
 pip install "gitgalaxy[full]"    # + tiktoken, xgboost, pandas, numpy, pyyaml
+pip install "gitgalaxy[translator]"  # + tree-sitter-language-pack, for the COBOL-to-Java translator
 ```
 
 See the [documentation](https://squid-protocol.github.io/gitgalaxy/) for

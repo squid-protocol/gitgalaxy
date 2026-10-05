@@ -34,6 +34,23 @@
     "port_sha256": "e820f6a144ed2505f6c990cdc99b905c0e0a5aecbe897d1c9a4b99c437c111af",
     "harness_commit": "16ae9e01515581be224b32982ceae54bc73e68fb",
     "by": "tests/tools/crucible_port_provenance.py reprove (cics_crucible.py --sides java-ported --program CAXB --report-dir)"
+   },
+   {
+    "at": "2026-10-05T10:26:27+00:00",
+    "crucible_ref": "v0.2.0 (94f2afcb)",
+    "summary": {
+     "direct-entry": "1/1",
+     "long-overread": "1/1",
+     "short-upgrade": "1/1"
+    },
+    "port_sha256": "38c15dbfd6f77a5972f324ccc52eaca565e36dd2598fe84ba4b2b44ad4d42919",
+    "harness_commit": "78c73e6832cb8b86cd405c73457c07d62d3b266f",
+    "by": "tests/tools/crucible_port_provenance.py reprove (cics_crucible.py --sides java-ported java-facade --program CAXB --report-dir)",
+    "entry_points": [
+     "runTask",
+     "handleLink",
+     "handleTransaction"
+    ]
    }
   ]
  },
@@ -94,6 +111,24 @@
     "long-overread": "1/1",
     "short-upgrade": "1/1"
    }
+  },
+  {
+   "at": "2026-10-05T10:13:31+00:00",
+   "event": "resurfaced",
+   "by": "tests/tools/port_surface.py",
+   "generator_commit": "1aff9778c",
+   "generated_from": "service/CaxbService.java",
+   "replaced": [
+    "handleTransaction",
+    "handleLink"
+   ],
+   "removed": [
+    "executeCaxb"
+   ],
+   "helpers_removed": [
+    "returnedCommarea"
+   ]
   }
- ]
+ ],
+ "edited_after": "the deployed entry points (facades) were brought to the generator's by tests/tools/port_surface.py (#4343; see history 'resurfaced'); runTask and the logic it runs are the model's answer"
 }

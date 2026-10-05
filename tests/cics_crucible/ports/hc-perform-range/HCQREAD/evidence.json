@@ -7,8 +7,9 @@
   "paths": [
    "tests/cics_crucible/ports/hc-perform-range/HCQREAD/overlay/service/HcqreadService.java"
   ],
-  "sha256": "69d8b11c009c8e50c6016a5cc05545ba9c25d2d9917536c70f09704c65cf1639",
+  "sha256": "ccfc85eb5d85790d6ae2ce5c1fb3dfe1981a5489bdd8530248dee620a907509e",
   "entry_points": [
+   "handleTransaction",
    "runTask"
   ]
  },
@@ -18,7 +19,7 @@
     "tests/cics_crucible/ports/hc-perform-range/*/overlay/**"
    ],
    "files": 1,
-   "sha256": "69d8b11c009c8e50c6016a5cc05545ba9c25d2d9917536c70f09704c65cf1639"
+   "sha256": "ccfc85eb5d85790d6ae2ce5c1fb3dfe1981a5489bdd8530248dee620a907509e"
   },
   "case": {
    "paths": [
@@ -44,7 +45,7 @@
     "tests/tools/cics_crucible_compare.py"
    ],
    "files": 13,
-   "sha256": "76e6774afa2c5e70a0fefbff574591dee05a4270a46d98d70433c272870f08a7"
+   "sha256": "a3ae3d6d7e938e36cd15639224926bf86762c0f436c35667909f895cbe77382c"
   },
   "oracle": {
    "paths": [],
@@ -66,13 +67,16 @@
   "differences": {
    "sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
   },
-  "digest": "55ce7c5d8decdf71ad862f476a2051c0a43ff08973e78403d8a210270a17cecc"
+  "digest": "ac11c7c27ec27e308d2ca2f0c95d400cdcfe23c93b77e556a0423d2c464675b5"
  },
  "proof": {
-  "at": "2026-10-05T06:07:26Z",
+  "at": "2026-10-05T10:32:22Z",
   "verdict": "proven",
   "runs": 4,
   "fault_runs": 0,
+  "entry_runs": [
+   "handleTransaction"
+  ],
   "environments": null,
   "outputs": {
    "five-items": {
@@ -96,8 +100,8 @@
   "sysout_compared": null,
   "attributes_compared": null,
   "java_failed": false,
-  "harness_commit": "d03da8b743917a29a13e48709fb0c7f6ad778528+uncommitted",
-  "inputs_digest": "55ce7c5d8decdf71ad862f476a2051c0a43ff08973e78403d8a210270a17cecc"
+  "harness_commit": "78c73e6832cb8b86cd405c73457c07d62d3b266f+uncommitted",
+  "inputs_digest": "ac11c7c27ec27e308d2ca2f0c95d400cdcfe23c93b77e556a0423d2c464675b5"
  },
  "coverage": {
   "paragraphs": {
@@ -112,63 +116,52 @@
   "handler_labels": null,
   "source": "tests/cics_crucible/coverage.json#programs/hc-perform-range/HCQREAD",
   "ledger_sha256": "de06f16c516e0fb3d5eadf97476bbcad970863d0323555c5f8f9af0de7ae67b5",
-  "inputs_digest": "55ce7c5d8decdf71ad862f476a2051c0a43ff08973e78403d8a210270a17cecc"
+  "inputs_digest": "ac11c7c27ec27e308d2ca2f0c95d400cdcfe23c93b77e556a0423d2c464675b5"
  },
  "reach": {
   "entry_points": [
+   "handleTransaction",
    "runTask"
   ],
   "unproven": [
    {
     "class": "HcqreadService",
-    "method": "executeHcqread",
-    "line": 46,
-    "kind": "ported_unproven"
-   },
-   {
-    "class": "HcqreadService",
-    "method": "handleTransaction",
-    "line": 54,
-    "kind": "ported_unproven"
-   },
-   {
-    "class": "HcqreadService",
     "method": "writeqTsHcworkL37",
-    "line": 124,
+    "line": 118,
     "kind": "left_as_generated"
    },
    {
     "class": "HcqreadService",
     "method": "readqTsHcworkL41",
-    "line": 130,
+    "line": 124,
     "kind": "left_as_generated"
    },
    {
     "class": "HcqreadService",
     "method": "readqTsHcworkL49",
-    "line": 136,
+    "line": 130,
     "kind": "left_as_generated"
    },
    {
     "class": "HcqreadService",
     "method": "readqTsHcworkL57",
-    "line": 142,
+    "line": 136,
     "kind": "left_as_generated"
    },
    {
     "class": "HcqreadService",
     "method": "readqTsHcq1L65",
-    "line": 148,
+    "line": 142,
     "kind": "left_as_generated"
    }
   ],
   "counts": {
    "stub": 0,
    "left_as_generated": 5,
-   "ported_unproven": 2
+   "ported_unproven": 0
   },
   "generated_compared": true,
-  "port_sha256": "69d8b11c009c8e50c6016a5cc05545ba9c25d2d9917536c70f09704c65cf1639"
+  "port_sha256": "ccfc85eb5d85790d6ae2ce5c1fb3dfe1981a5489bdd8530248dee620a907509e"
  },
  "mutation": {
   "commit": "be2561306",
@@ -211,7 +204,7 @@
  "differences": [],
  "oracle": {
   "kind": "crucible-expected-logs",
-  "source": "cics-crucible v0.2.0: each scenario's hand-written expected event log, derived from IBM's documentation (its SPEC.md); the java-ported side is compared with it exactly",
+  "source": "cics-crucible v0.2.0: each scenario's hand-written expected event log, derived from IBM's documentation (its SPEC.md); the java-ported side (runTask) and the java-facade side (the deployed entry points, #4343) are compared with it exactly",
   "compiler": null,
   "image": null,
   "models": [],
@@ -227,11 +220,11 @@
   "porting_rules_sha256": null,
   "proposed_at": "2026-09-29T21:51:20+00:00",
   "generator_version": null,
-  "edited_after": null,
+  "edited_after": "the deployed entry points (facades) were brought to the generator's by tests/tools/port_surface.py (#4343; see history 'resurfaced'); runTask and the logic it runs are the model's answer",
   "provenance_file": {
    "path": "tests/cics_crucible/ports/hc-perform-range/HCQREAD/provenance.json",
    "format": "cics-crucible-port/1",
-   "sha256": "f0436dc6599ea78f983df0cd1bd4270a7411b2abbce99fd928aa1cdda53f73c3"
+   "sha256": "3d40e235b57be1bbb085ca46643ca282b910050335f70243d90ab92ffad6561f"
   },
   "crucible_ref_proven": "v0.2.0 (94f2afcb)"
  },

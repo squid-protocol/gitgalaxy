@@ -91,43 +91,13 @@ public class HcmainService {
     // Entry points
     // =====================================================================================
 
-    /** Runs one HC02 task outside a CICS region: the TS queues are taken from the TempStorage bean (item 1,
-     *  the only item HCMAIN reads), HCSUB is reached through linkHcsub, and the SEND TEXT is logged. */
-    public void executeHcmain(/* Parameters mapped from Controller */) {
-        log.info("Executing modernized business logic for HCMAIN");
-        CicsTask.TempStorage storage = new CicsTask.TempStorage();
-        seed(storage, "HCMODE", readqTsHcmodeL27());
-        seed(storage, "HCNONE", readqTsHcnoneL54());
-        CicsTask task = new CicsTask(TRANSID, "ENTER", null, null)
-                .withTempStorage(storage)
-                .withPrograms(new CicsTask.Programs() {
-                    @Override
-                    public boolean defined(String program) {
-                        return PROGRAM.equals(program) || HCSUB.equals(program);
-                    }
-
-                    @Override
-                    public void run(String program, CicsTask t) {
-                        if (PROGRAM.equals(program)) {
-                            runTask(t);
-                        } else {
-                            bridgeHcsub(t);
-                        }
-                    }
-                });
-        task.run(PROGRAM);
-        for (Map<String, Object> e : task.events()) {
-            if ("SEND-TEXT".equals(e.get("event"))) {
-                log.info("HCMAIN SEND TEXT: [{}]", e.get("text"));
-            } else if ("ABEND".equals(e.get("event"))) {
-                log.info("HCMAIN ABEND {} ({})", e.get("abcode"), e.get("outcome"));
-            }
-        }
-    }
-
-    /** A CICS transaction entered the program. TODO: [AI AGENT] implement from the program's business rules. */
+    /** A CICS transaction entered the program (#4343): one task of it in the region (CicsTask.region()),
+     *  ENTER pressed, started from a cleared screen, run through runTask. */
     public void handleTransaction(String transid) {
         log.info("Hcmain: handleTransaction");
+        CicsTask.Region region = CicsTask.region();
+        CicsTask task = region.transaction(transid, null);
+        region.run(task, "HCMAIN", this::runTask);
     }
 
     /** One task of HC02 (#3754). HCMAIN takes no COMMAREA and reads no map; it reads TS, LINKs, sends
@@ -431,24 +401,4 @@ public class HcmainService {
         return new String(data, EBCDIC);
     }
 
-    /** executeHcmain: a TS queue as the TempStorage bean holds it (item 1 only; absent = QIDERR). */
-    private static void seed(CicsTask.TempStorage storage, String queue, Optional<String> item1) {
-        item1.ifPresent(text -> storage.seed(queue, List.of(text.getBytes(EBCDIC))));
-    }
-
-    /** executeHcmain: runs HCSUB at the linked level through linkHcsub, on the caller's WS-CA itself. */
-    private void bridgeHcsub(CicsTask callee) {
-        HcsubDfhcommarea ca = callee.commarea(HcsubDfhcommarea.class);
-        if (ca == null) {
-            return;
-        }
-        HcsubDfhcommarea out = linkHcsub(ca);
-        if (out != null && out != ca) {
-            ca.setCaMode(out.getCaMode());
-            ca.setCaTrail(out.getCaTrail());
-            ca.setCaResult(out.getCaResult());
-            ca.setCaCount(out.getCaCount());
-            ca.setCaSpare(out.getCaSpare());
-        }
-    }
 }

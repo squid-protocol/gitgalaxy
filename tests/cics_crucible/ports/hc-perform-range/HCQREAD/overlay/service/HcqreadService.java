@@ -43,19 +43,13 @@ public class HcqreadService {
 
     private final TempStorage tempStorage;
 
-    public void executeHcqread(/* Parameters mapped from Controller */) {
-        log.info("Executing modernized business logic for HCQREAD");
-        // HCQREAD is a CICS program (transaction HC01, group CRUCHC1): it has no batch or COMMAREA
-        // interface, so a call from the controller runs one HC01 task with no COMMAREA.
-        handleTransaction("HC01");
-    }
-
-    /** A CICS transaction entered the program: one task, no COMMAREA (EIBCALEN = 0), ENTER. */
+    /** A CICS transaction entered the program (#4343): one task of it in the region (CicsTask.region()),
+     *  ENTER pressed, started from a cleared screen, run through runTask. */
     public void handleTransaction(String transid) {
         log.info("Hcqread: handleTransaction");
-        CicsTask task = new CicsTask(transid, "ENTER", null, null);
-        runTask(task);
-        log.info("Hcqread: task {} ended after {} CICS commands", transid, task.events().size());
+        CicsTask.Region region = CicsTask.region();
+        CicsTask task = region.transaction(transid, null);
+        region.run(task, "HCQREAD", this::runTask);
     }
 
     /** One task of this program (#3754): the PROCEDURE DIVISION from MAIN-PARA. */

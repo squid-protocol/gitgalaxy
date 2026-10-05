@@ -53,6 +53,24 @@
     "port_sha256": "004f0b4ec4bf8e4618c4db3a98b8124f2526d9efc46221d6ac81eb38d7ed5e46",
     "harness_commit": "356f7d105baa91e7fa7e46b333ed10ba7bbcbcb0",
     "by": "tests/tools/crucible_port_provenance.py reprove (cics_crucible.py --sides java-ported --program HCMAIN --report-dir)"
+   },
+   {
+    "at": "2026-10-05T10:27:17+00:00",
+    "crucible_ref": "v0.2.0 (94f2afcb)",
+    "summary": {
+     "push-pop": "1/1",
+     "pushed-abend": "1/1",
+     "sub-own-exit": "1/1",
+     "sub-resp": "1/1",
+     "sub-unhandled": "1/1"
+    },
+    "port_sha256": "143df406ad68a3fda932636d678bdc0a59127bea92bdd1f797bf072ca92d5e51",
+    "harness_commit": "78c73e6832cb8b86cd405c73457c07d62d3b266f",
+    "by": "tests/tools/crucible_port_provenance.py reprove (cics_crucible.py --sides java-ported java-facade --program HCMAIN --report-dir)",
+    "entry_points": [
+     "runTask",
+     "handleTransaction"
+    ]
    }
   ]
  },
@@ -104,6 +122,24 @@
     "sub-resp": "1/1",
     "sub-unhandled": "1/1"
    }
+  },
+  {
+   "at": "2026-10-05T10:13:31+00:00",
+   "event": "resurfaced",
+   "by": "tests/tools/port_surface.py",
+   "generator_commit": "1aff9778c",
+   "generated_from": "service/HcmainService.java",
+   "replaced": [
+    "handleTransaction"
+   ],
+   "removed": [
+    "executeHcmain"
+   ],
+   "helpers_removed": [
+    "bridgeHcsub",
+    "seed"
+   ]
   }
- ]
+ ],
+ "edited_after": "the deployed entry points (facades) were brought to the generator's by tests/tools/port_surface.py (#4343; see history 'resurfaced'); runTask and the logic it runs are the model's answer"
 }

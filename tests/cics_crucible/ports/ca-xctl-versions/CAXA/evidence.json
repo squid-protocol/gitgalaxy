@@ -7,8 +7,9 @@
   "paths": [
    "tests/cics_crucible/ports/ca-xctl-versions/CAXA/overlay/service/CaxaService.java"
   ],
-  "sha256": "5a8a796701a1984ddf6cea8d21f93092bfc05fc6251a2bf1470322a9c05ab654",
+  "sha256": "87f182406c0f0383d48c57d064539c8ce19d99832f2931cf656d648377309999",
   "entry_points": [
+   "handleTransaction",
    "runTask"
   ]
  },
@@ -18,7 +19,7 @@
     "tests/cics_crucible/ports/ca-xctl-versions/*/overlay/**"
    ],
    "files": 2,
-   "sha256": "638a103de511bdd3f6121a9e80088f2a9b77aa5d59bb9c9b7ef5f4b3b3da8994"
+   "sha256": "392ca9388c286093ebb4015cfd5e11ccc49e5d09e54de5e96048bf599ab9e50e"
   },
   "case": {
    "paths": [
@@ -44,7 +45,7 @@
     "tests/tools/cics_crucible_compare.py"
    ],
    "files": 13,
-   "sha256": "76e6774afa2c5e70a0fefbff574591dee05a4270a46d98d70433c272870f08a7"
+   "sha256": "a3ae3d6d7e938e36cd15639224926bf86762c0f436c35667909f895cbe77382c"
   },
   "oracle": {
    "paths": [],
@@ -66,13 +67,16 @@
   "differences": {
    "sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
   },
-  "digest": "985a0a98428a0bad7989258413c519cb85ae319271aade49e759c29638f3a093"
+  "digest": "a9edc2a3eeaebbee7963412091164abec60181b6064c02ab9e6d58709f2437a8"
  },
  "proof": {
-  "at": "2026-10-05T06:06:33Z",
+  "at": "2026-10-05T10:30:04Z",
   "verdict": "proven",
   "runs": 3,
   "fault_runs": 0,
+  "entry_runs": [
+   "handleTransaction"
+  ],
   "environments": null,
   "outputs": {
    "length-range": {
@@ -92,8 +96,8 @@
   "sysout_compared": null,
   "attributes_compared": null,
   "java_failed": false,
-  "harness_commit": "d03da8b743917a29a13e48709fb0c7f6ad778528+uncommitted",
-  "inputs_digest": "985a0a98428a0bad7989258413c519cb85ae319271aade49e759c29638f3a093"
+  "harness_commit": "78c73e6832cb8b86cd405c73457c07d62d3b266f+uncommitted",
+  "inputs_digest": "a9edc2a3eeaebbee7963412091164abec60181b6064c02ab9e6d58709f2437a8"
  },
  "coverage": {
   "paragraphs": {
@@ -108,39 +112,28 @@
   "handler_labels": null,
   "source": "tests/cics_crucible/coverage.json#programs/ca-xctl-versions/CAXA",
   "ledger_sha256": "b041eb81e33650ada94387af852ac6f6392b6c4d12697d4f71e7365825bffc30",
-  "inputs_digest": "985a0a98428a0bad7989258413c519cb85ae319271aade49e759c29638f3a093"
+  "inputs_digest": "a9edc2a3eeaebbee7963412091164abec60181b6064c02ab9e6d58709f2437a8"
  },
  "reach": {
   "entry_points": [
+   "handleTransaction",
    "runTask"
   ],
   "unproven": [
    {
     "class": "CaxaService",
-    "method": "executeCaxa",
-    "line": 49,
-    "kind": "stub"
-   },
-   {
-    "class": "CaxaService",
-    "method": "handleTransaction",
-    "line": 56,
-    "kind": "stub"
-   },
-   {
-    "class": "CaxaService",
     "method": "xctlCaxb",
-    "line": 219,
+    "line": 215,
     "kind": "left_as_generated"
    }
   ],
   "counts": {
-   "stub": 2,
+   "stub": 0,
    "left_as_generated": 1,
    "ported_unproven": 0
   },
   "generated_compared": true,
-  "port_sha256": "5a8a796701a1984ddf6cea8d21f93092bfc05fc6251a2bf1470322a9c05ab654"
+  "port_sha256": "87f182406c0f0383d48c57d064539c8ce19d99832f2931cf656d648377309999"
  },
  "mutation": {
   "commit": "be2561306",
@@ -183,7 +176,7 @@
  "differences": [],
  "oracle": {
   "kind": "crucible-expected-logs",
-  "source": "cics-crucible v0.2.0: each scenario's hand-written expected event log, derived from IBM's documentation (its SPEC.md); the java-ported side is compared with it exactly",
+  "source": "cics-crucible v0.2.0: each scenario's hand-written expected event log, derived from IBM's documentation (its SPEC.md); the java-ported side (runTask) and the java-facade side (the deployed entry points, #4343) are compared with it exactly",
   "compiler": null,
   "image": null,
   "models": [],
@@ -199,11 +192,11 @@
   "porting_rules_sha256": null,
   "proposed_at": "2026-09-29T22:05:08+00:00",
   "generator_version": null,
-  "edited_after": null,
+  "edited_after": "the deployed entry points (facades) were brought to the generator's by tests/tools/port_surface.py (#4343; see history 'resurfaced'); runTask and the logic it runs are the model's answer",
   "provenance_file": {
    "path": "tests/cics_crucible/ports/ca-xctl-versions/CAXA/provenance.json",
    "format": "cics-crucible-port/1",
-   "sha256": "9c9d692f456883b8a04c0548473bc9bc59bdf586734706e4238e535e184c5dbf"
+   "sha256": "19170902c9ec1cc223968053c08fd183f191e97e170d2bfa5dd5753c525061f7"
   },
   "crucible_ref_proven": "v0.2.0 (94f2afcb)"
  },

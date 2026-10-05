@@ -151,13 +151,18 @@ def _port_dir(case: str, program: str) -> Path:
     return eq if eq.is_dir() else REPO / "tests" / "cics_crucible" / "ports" / case / program / "overlay"
 
 
-# The examples #4255 names that the proof still never runs, and the port each sits in (the crucible ports' are
-# regenerated with their facade proofs, #4343).
+# The examples #4255 names that runTask still never runs, and the port each sits in. #4343: CASUB's handleLink is the
+# deployed entry point the facade proof enters by (FACADES below), not runTask.
 NAMED = {
-    ("ca-link-lengths", "CASUB"): {"executeCasub", "handleLink", "writeqTsCatraceL22"},
-    ("hc-abend-link", "HCMAIN"): {"executeHcmain", "bridgeHcsub"},
+    ("ca-link-lengths", "CASUB"): {"handleLink", "writeqTsCatraceL22"},
     ("hc-abend-link", "HCSUB"): {"readqTsHcnoneL37"},
-    ("gt-start-retrieve", "GTWORK"): {"executeGtwork"},
+}
+# #4343: the facades the crucible's java-facade side enters each port by (the evidence records' entry_points): with
+# them as roots, the deployed entry point is reached, and so is the runTask it runs.
+FACADES = {
+    ("ca-link-lengths", "CASUB"): {"handleLink"},
+    ("ca-link-lengths", "CALINK"): {"handleTransaction"},
+    ("hx-extended-cursor", "HXEXT"): {"handleTransaction"},
 }
 # Named by #4255 too, and run by the proof since: runTask takes each handled condition / abend through the handler
 # the port defines for it (the evidence records' ported_unproven methods, #4316 follow-up), and (#4342) its
@@ -166,8 +171,13 @@ NOW_REACHED = {
     ("carddemo-acctview", "COACTVWC"): {"dispatchCdemoToProgramL349"},
     ("hc-abend-link", "HCMAIN"): {"onAbendL26", "onConditionQiderrL25"},
     ("hc-abend-link", "HCSUB"): {"onAbendL32"},
-    ("hc-perform-range", "HCQREAD"): {"onConditionQiderrL25", "onConditionItemerrL25", "onConditionErrorL25",
-                                      "onConditionItemerrL56", "current"},
+    ("hc-perform-range", "HCQREAD"): {
+        "onConditionQiderrL25",
+        "onConditionItemerrL25",
+        "onConditionErrorL25",
+        "onConditionItemerrL56",
+        "current",
+    },
 }
 # #4342: methods with no COBOL behaviour behind them, which the generator no longer writes: gone from the ports. A batch
 # executeX of a CICS / CALLed program, the handler of a HANDLE ABEND CANCEL, and a screen's render / submit that no
@@ -176,6 +186,14 @@ REMOVED = {
     ("carddemo-dateutil", "CSUTLDTC"): {"executeCsutldtc"},
     ("carddemo-cardview", "COCRDSLC"): {"executeCocrdslc", "onAbendL871", "renderCcrdsla", "submitCcrdsla"},
     ("carddemo-acctview", "COACTVWC"): {"executeCoactvwc", "onAbendL930", "renderCactvwa", "submitCactvwa"},
+    # #4343: the crucible ports' facades regenerated (tests/tools/port_surface.py): the executeX #4255 named, and the
+    # helpers only they ran; render / submit that rebuilt screens outside runTask
+    ("ca-link-lengths", "CASUB"): {"executeCasub"},
+    ("hc-abend-link", "HCMAIN"): {"executeHcmain", "bridgeHcsub", "seed"},
+    ("gt-start-retrieve", "GTWORK"): {"executeGtwork"},
+    ("hx-attr-bytes", "HXATTR"): {"executeHxattr", "renderHxm1", "submitHxm1"},
+    ("hx-extended-cursor", "HXEXT"): {"executeHxext", "submitHxm2"},
+    ("pc-wizard", "PCWIZ"): {"executePcwiz", "renderPcm1", "submitPcm1", "renderPcm2", "returnedCommarea"},
 }
 
 
@@ -234,9 +252,22 @@ def test_every_survivor_in_code_no_proof_runs_was_triaged_as_out_of_the_proofs_r
     verdicts = [s["verdict"] for _, s in flagged]
     assert "case_gap" not in verdicts and "harness_gap" not in verdicts
     # 37 when #4255 counted them. The 8 in hc-abend-link and hc-perform-range left with their ports' changes (their
-    # handlers now run, #4325; those ports are re-judged with #4343). #4342 took 14 more with the code they sat in:
-    # COMEN01C's 9 and COACTVWC's 1 were in data-driven dispatchers no proof called, which runTask now XCTLs through;
-    # CSUTLDTC's 4 were in executeCsutldtc, which is gone. The three ports were mutated again at #4342 and none of
-    # their survivors sits in code no proof runs any more -- so the 15 below are all there are, not a lowered bar.
-    assert verdicts.count("unreachable") >= 15
+    # handlers now run, #4325). #4342 took 14 more with the code they sat in: COMEN01C's 9 and COACTVWC's 1 were in
+    # data-driven dispatchers no proof called, which runTask now XCTLs through; CSUTLDTC's 4 were in executeCsutldtc,
+    # which is gone. The last 15 (CASUB 4, CAXB 3, HXATTR 3, PCWIZ 2, GTWORK, PCDETL, PCMENU) sat in the crucible ports'
+    # old facades -- executeX, handleTransaction / handleLink running a task of their own, render / submit -- which
+    # #4343 regenerated (tests/tools/port_surface.py) and now proves through the java-facade side. Every crucible
+    # port changed, so its mutation run judged other code: its survivors are skipped until the next run re-judges it.
+    crucible = {(p["case"], p["program"]) for p in json.loads(SCORES.read_text(encoding="utf-8"))["ports"]
+                if p["case"].startswith("crucible:")}  # fmt: skip
+    assert crucible and not any(_mutated_port_is_current(c, prog) for c, prog in crucible)
+    assert verdicts.count("unreachable") == len(verdicts)
     assert not {prog for prog, _ in flagged} & {"COACTVWC", "COMEN01C", "CSUTLDTC"}
+
+
+@pytest.mark.parametrize("case,program", sorted(FACADES))
+def test_the_facades_the_crucible_enters_by_are_reached(case, program):
+    report = R.analyse([_port_dir(case, program)], roots=(*R.PROOF_ROOTS, *FACADES[(case, program)]))
+    (cls,) = report
+    unproven = {m["method"] for m in report[cls]["unproven"]}
+    assert not FACADES[(case, program)] & unproven and "runTask" not in unproven

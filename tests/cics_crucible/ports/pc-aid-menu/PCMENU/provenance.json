@@ -37,7 +37,13 @@
     "harness_commit": "16ae9e01515581be224b32982ceae54bc73e68fb",
     "by": "tests/tools/crucible_port_provenance.py reprove (cics_crucible.py --sides java-ported --program PCMENU --report-dir)"
    }
-  ]
+  ],
+  "stale": {
+   "against": "v0.2.0",
+   "at": "2026-10-05T10:34:19+00:00",
+   "reason": "re-proof at v0.2.0 (94f2afcb) failed: {'aid-keys': '1/1', 'invalid-option': '1/1', 'option1-xctl': '1/1', 'option2-next-transid': '0/1'}",
+   "needs": "#4427: the generated handleTransaction types the COMMAREA as the program's own DTO, so a deployed facade cannot take (PCCONF: PCWIZ's PcwizWsState at PC03) or return (PCMENU: PcdetlWsCa for PC12) the COMMAREA the pseudo-conversation carries across programs; runTask (java-ported) passes every scenario. Fix the generator, regenerate (port_surface.py crucible), then reprove"
+  }
  },
  "approved": false,
  "history": [
@@ -81,6 +87,21 @@
     "option1-xctl": "1/1",
     "option2-next-transid": "1/1"
    }
+  },
+  {
+   "at": "2026-10-05T10:13:31+00:00",
+   "event": "resurfaced",
+   "by": "tests/tools/port_surface.py",
+   "generator_commit": "1aff9778c",
+   "generated_from": "service/PcmenuService.java",
+   "replaced": [
+    "handleTransaction"
+   ],
+   "removed": [
+    "executePcmenu",
+    "submitPcmn"
+   ]
   }
- ]
+ ],
+ "edited_after": "the deployed entry points (facades) were brought to the generator's by tests/tools/port_surface.py (#4343; see history 'resurfaced'); runTask and the logic it runs are the model's answer"
 }

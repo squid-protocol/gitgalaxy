@@ -180,7 +180,54 @@ def _open_literal(text: str) -> bool:
     return quote is not None
 
 
-_COPY = re.compile(r"^\s*COPY\s+(['\"]?)([A-Z0-9#@$-]+)\1(?:\s+(?:OF|IN)\s+([A-Z0-9-]+))?\s*(.*)$", re.I)
+# #4459: a COPY anywhere on its line (`01 WS-HEAD.  COPY RPTHDR.`), never inside a literal; its member may be on the
+# next line (`COPY` / `UPDCTL.`, joined by `expand`)
+_COPY = re.compile(r"(?<![A-Z0-9#@$-])COPY\s+(['\"]?)([A-Z0-9#@$-]+)\1(?:\s+(?:OF|IN)\s+([A-Z0-9-]+))?", re.I)
+_COPY_ALONE = re.compile(r"(?<![A-Z0-9#@$-])COPY\s*$", re.I)
+_PROGRAM_MARK = re.compile(r"^\s*(?:IDENTIFICATION|ID)\s+DIVISION\b|^\s*PROGRAM-ID\b", re.I)
+
+
+def _copy_match(text: str):
+    """The COPY statement in `text` (not inside a literal), or None."""
+    for m in _COPY.finditer(text):
+        if not _open_literal(text[: m.start()]):
+            return m
+    return None
+
+
+def copy_names(lines: list[Line]) -> set[str]:
+    """The members the COPY statements of `lines` name (each form `expand` reads: after other text, several to a
+    line, the member on the next line)."""
+    names: set[str] = set()
+    for i, ln in enumerate(lines):
+        text = ln.text
+        if _COPY_ALONE.search(text) and not _open_literal(text) and i + 1 < len(lines):
+            text = text.rstrip() + " " + lines[i + 1].text.lstrip()
+        for m in _COPY.finditer(text):
+            if not _open_literal(text[: m.start()]):
+                names.add(m.group(2).upper())
+    return names
+
+
+def _statement_end(stmt: str, start: int) -> int:
+    """Index just past the period that ends the COPY statement beginning at `start` (-1: not ended yet); a period
+    inside ==pseudo-text== or a literal does not end it."""
+    quote, pseudo, k = None, False, start
+    while k < len(stmt):
+        ch = stmt[k]
+        if pseudo:
+            if stmt.startswith("==", k):
+                pseudo, k = False, k + 1
+        elif quote:
+            quote = None if ch == quote else quote
+        elif stmt.startswith("==", k):
+            pseudo, k = True, k + 1
+        elif ch in "'\"":
+            quote = ch
+        elif ch == "." and (k + 1 == len(stmt) or stmt[k + 1].isspace()):
+            return k + 1
+        k += 1
+    return -1
 
 
 def expand(lines: list[Line], dirs: list[Path], depth: int = 0, chain: frozenset = frozenset(),
@@ -194,7 +241,11 @@ def expand(lines: list[Line], dirs: list[Path], depth: int = 0, chain: frozenset
     i = 0
     while i < len(lines):
         ln = lines[i]
-        m = _COPY.match(ln.text)
+        if _COPY_ALONE.search(ln.text) and not _open_literal(ln.text) and i + 1 < len(lines):
+            # #4459: the member name on the next line
+            ln = Line(ln.text.rstrip() + " " + lines[i + 1].text.lstrip(), ln.file, ln.line)
+            lines = [*lines[:i], ln, *lines[i + 2 :]]
+        m = _copy_match(ln.text)
         if not m and re.match(r"\s*EXEC\s+SQL\b", ln.text, re.I):
             # EXEC SQL INCLUDE member END-EXEC is a COPY of the member (Db2's precompiler includes it the same way)
             j, block = i, ln.text
@@ -205,15 +256,19 @@ def expand(lines: list[Line], dirs: list[Path], depth: int = 0, chain: frozenset
             if inc:
                 lines = [*lines[:i], Line(f"COPY {inc.group(1)}.", ln.file, ln.line), *lines[j + 1 :]]
                 ln = lines[i]
-                m = _COPY.match(ln.text)
+                m = _copy_match(ln.text)
         if not m:
             out.append(ln)
             i += 1
             continue
         stmt, j = ln.text, i
-        while not re.search(r"\.\s*$", re.sub(r"==.*?==|'[^']*'", "", stmt)) and j + 1 < len(lines):
+        end = _statement_end(stmt, m.start())
+        while end < 0 and j + 1 < len(lines):
             j += 1
             stmt += " " + lines[j].text
+            end = _statement_end(stmt, m.start())
+        tail = stmt[end:] if end > 0 else ""
+        stmt = stmt[m.start() : end] if end > 0 else stmt[m.start() :]
         name = m.group(2).upper()
         # never a file being expanded already (the including program or copybook itself)
         # a copybook's extensions in every directory before a program's: CBSA keeps a program INQCUST.cbl next to
@@ -235,6 +290,10 @@ def expand(lines: list[Line], dirs: list[Path], depth: int = 0, chain: frozenset
         if engine is not None and ln.file == own and expanded_names is not None:
             expanded_names.add(name)
         body = logical_lines(_raw_lines(member), str(member))
+        if any(_PROGRAM_MARK.match(b.text) for b in body):
+            # #4460: a program, not a copybook: splicing it in would give the includer another program's records
+            raise CopyNotFound(f"{where}: COPY {name} resolves to {member}, which is a program (IDENTIFICATION "
+                               "DIVISION / PROGRAM-ID), not a copybook")  # fmt: skip
         pairs = _replacing(stmt)
         if pairs:
             for b in body:
@@ -246,6 +305,8 @@ def expand(lines: list[Line], dirs: list[Path], depth: int = 0, chain: frozenset
         if head.strip():
             out.append(Line(head, ln.file, ln.line))
         out += expanded
+        if tail.strip():  # what follows the COPY's period (`COPY A. COPY B.`) is read on
+            lines = [*lines[: j + 1], Line(tail.lstrip(), ln.file, lines[j].line), *lines[j + 1 :]]
         i = j + 1
     return out
 

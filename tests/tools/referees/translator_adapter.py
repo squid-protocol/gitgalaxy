@@ -337,13 +337,12 @@ def program_facts(
 
     # copybooks: the members the program's own text COPYs / INCLUDEs (the translator's own COPY pattern), and
     # the file in the corpus each expanded to (system / BMS-generated members resolve outside it: name only)
-    direct = set()
     own_logical = S.logical_lines(S._raw_lines(prog), progfile)
+    direct = S.copy_names(own_logical)
     for i, ln in enumerate(own_logical):
-        m = S._COPY.match(ln.text)
-        if m:
-            direct.add(m.group(2).upper())
-        elif re.match(r"\s*EXEC\s+SQL\b", ln.text, re.I):
+        if S._copy_match(ln.text):
+            continue
+        if re.match(r"\s*EXEC\s+SQL\b", ln.text, re.I):
             block, j = ln.text, i  # an EXEC SQL INCLUDE block over several lines, joined as det.source.expand does
             while not re.search(r"\bEND-EXEC\b", block, re.I) and j + 1 < len(own_logical):
                 j += 1

@@ -1106,9 +1106,7 @@
         "engine | dead | src/base/cobol_src/UPDCUST.cbl | PTD010 | fn": "engine_dead_is_unreferenced_by_name",
         "engine | dead | src/base/cobol_src/UPDCUST.cbl | PTD999 | fn": "engine_dead_is_unreferenced_by_name",
         "engine | dead | src/base/cobol_src/XFRFUN.cbl | A999 | fn": "engine_dead_is_unreferenced_by_name",
-        "engine | dead | src/base/cobol_src/XFRFUN.cbl | GMOOH999 | fn": "engine_dead_is_unreferenced_by_name",
-        "engine | unit extents | src/base/cobol_src/BANKDATA.cbl | CDW010 L1407-1433 | fn": "engine_unit_end_counts_noncode_lines",
-        "engine | unit extents | src/base/cobol_src/BANKDATA.cbl | CDW010 L1407-1436 | fp": "engine_unit_end_counts_noncode_lines"
+        "engine | dead | src/base/cobol_src/XFRFUN.cbl | GMOOH999 | fn": "engine_dead_is_unreferenced_by_name"
       },
       "scoreboard": {
         "BMS screen fields": {
@@ -1521,7 +1519,7 @@
           "engine": {
             "got": 680,
             "outside": 0,
-            "tp": 679,
+            "tp": 680,
             "truth": 680
           },
           "forge": null,

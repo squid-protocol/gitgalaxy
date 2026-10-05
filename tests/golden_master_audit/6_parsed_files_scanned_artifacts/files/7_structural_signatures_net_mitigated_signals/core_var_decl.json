@@ -835,7 +835,7 @@
     },
     "cobol/cics-banking-sample-application-cbsa": {
       "cobol/cics-banking-sample-application-cbsa/ABNDINFO.cpy": 0,
-      "cobol/cics-banking-sample-application-cbsa/ABNDPROC.cbl": 2,
+      "cobol/cics-banking-sample-application-cbsa/ABNDPROC.cbl": 1,
       "cobol/cics-banking-sample-application-cbsa/ACCDB2.cpy": 0,
       "cobol/cics-banking-sample-application-cbsa/ACCOUNT.cpy": 0,
       "cobol/cics-banking-sample-application-cbsa/ACCTCTRL.cpy": 0,
@@ -881,7 +881,7 @@
       "cobol/cics-banking-sample-application-cbsa/INQACCCU.cpy": 0,
       "cobol/cics-banking-sample-application-cbsa/INQACCCZ.cpy": 0,
       "cobol/cics-banking-sample-application-cbsa/INQACCZ.cpy": 0,
-      "cobol/cics-banking-sample-application-cbsa/INQCUST.cbl": 15,
+      "cobol/cics-banking-sample-application-cbsa/INQCUST.cbl": 13,
       "cobol/cics-banking-sample-application-cbsa/INQCUST.cpy": 0,
       "cobol/cics-banking-sample-application-cbsa/INQCUSTZ.cpy": 0,
       "cobol/cics-banking-sample-application-cbsa/NEWACCNO.cpy": 0,

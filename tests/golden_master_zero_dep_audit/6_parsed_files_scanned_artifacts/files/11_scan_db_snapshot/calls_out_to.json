@@ -23667,28 +23667,18 @@
           "DE-LETE"
         ],
         "DEBUG-LINE-TEST-01@613": [
-          "PASS",
-          "FAIL"
+          "PASS"
         ],
         "DEBUG-LINE-TEST-02@623": [
-          "PASS",
-          "FAIL"
+          "PASS"
         ],
         "DEBUG-LINE-TEST-03@634": [
-          "FAIL"
-        ],
-        "DEBUG-LINE-TEST-03A@638": [
           "PASS"
         ],
         "DEBUG-LINE-TEST-04-B@653": [
           "PASS"
         ],
-        "DEBUG-LINE-TEST-04@646": [
-          "FAIL"
-        ],
-        "DEBUG-LINE-TEST-05-A@665": [
-          "FAIL"
-        ],
+        "DEBUG-LINE-TEST-04@646": [],
         "DEBUG-LINE-TEST-05-C@671": [
           "PASS"
         ],

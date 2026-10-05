@@ -839,7 +839,7 @@
       "cobol/cics-banking-sample-application-cbsa/ACCDB2.cpy": 1,
       "cobol/cics-banking-sample-application-cbsa/ACCOUNT.cpy": 0,
       "cobol/cics-banking-sample-application-cbsa/ACCTCTRL.cpy": 0,
-      "cobol/cics-banking-sample-application-cbsa/BANKDATA.cbl": 21,
+      "cobol/cics-banking-sample-application-cbsa/BANKDATA.cbl": 18,
       "cobol/cics-banking-sample-application-cbsa/BANKMAP.cpy": 0,
       "cobol/cics-banking-sample-application-cbsa/BNK1CAC.cbl": 1,
       "cobol/cics-banking-sample-application-cbsa/BNK1CCA.cbl": 0,

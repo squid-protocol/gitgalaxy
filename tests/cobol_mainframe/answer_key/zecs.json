@@ -5819,7 +5819,7 @@
           "occurs_max": null,
           "occurs_depending_on": null,
           "redefines": null,
-          "value": "X",
+          "value": "X'0D25'",
           "line": 45
         },
         {
@@ -5835,7 +5835,7 @@
           "occurs_max": null,
           "occurs_depending_on": null,
           "redefines": null,
-          "value": "X",
+          "value": "X'00'",
           "line": 46
         },
         {
@@ -10728,7 +10728,9 @@
       "sql": false,
       "verification": {
         "status": "validated",
-        "notes": [],
+        "notes": [
+          "#4393: records re-drafted by the fixed reader (signed / prefixed / continued VALUE literals, no VALUE or USAGE read past the DATA DIVISION, implicit FILLER #4246, 77 as a root #4359); every changed field matches the engine and the #4377 referee panel"
+        ],
         "tier": "cross_verified",
         "cross_by": "claude-opus-5.5 blind reviewers (zecs census)",
         "cross_at": "2026-09-24",
@@ -11228,7 +11230,7 @@
           "occurs_max": null,
           "occurs_depending_on": null,
           "redefines": null,
-          "value": "X",
+          "value": "X'0D25'",
           "line": 49
         },
         {
@@ -12613,7 +12615,9 @@
       "sql": false,
       "verification": {
         "status": "validated",
-        "notes": [],
+        "notes": [
+          "#4393: records re-drafted by the fixed reader (signed / prefixed / continued VALUE literals, no VALUE or USAGE read past the DATA DIVISION, implicit FILLER #4246, 77 as a root #4359); every changed field matches the engine and the #4377 referee panel"
+        ],
         "tier": "cross_verified",
         "cross_by": "claude-opus-5.5 blind reviewers (zecs census)",
         "cross_at": "2026-09-24",

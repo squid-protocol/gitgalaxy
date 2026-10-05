@@ -21,11 +21,21 @@ re-derive context.
    what the *scanner* detects in a target codebase, not repo-hygiene meta-labels -- don't
    conflate the two).
 
+4. **Locate the code before writing the issue.** This is where a filer saves the fixer the most
+   exploration. Regenerate GitGalaxy's self-scan DB in your checkout
+   (`PYTHONPATH=$PWD python tests/tools/self_scan.py`, ~25s, needs the `full` extra) and use the
+   `self-scan-query` skill to find which files and functions are involved, what calls them, and
+   their blast radius; confirm exact lines with grep/Read. Put the file, function and callers in
+   the issue body. (Experiment #4479: fixers gained nothing from the DB once an issue already
+   named its files, so the payoff is here, at filing time.)
+5. Apply labels (type, area, `priority: ...`) **and the current milestone** to every issue you file.
+
 ## Issue shape
 
 - Title: short, specific, matches the existing style (`[TYPE] Component: specific problem`,
   or for epic sub-issues, the pattern used by issues like #602-#618 -- check a few recent
-  closed issues in the same family with `gh issue view <n>` before writing the title).
+  closed issues in the same family with `gh api repos/squid-protocol/gitgalaxy/issues/<n> --jq '{title,body}'`
+  before writing the title; `gh issue view` fails on this repo (Projects-classic GraphQL)).
 - Body: enough detail that the issue is actionable without the finding source open next to it
   -- exact file/line, the failing input or command, expected vs. actual. Link back to the epic
   or audit run it came from if there is one.

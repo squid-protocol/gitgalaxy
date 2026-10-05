@@ -5897,8 +5897,14 @@ def load_galaxy_ir(db_path: Path, repo_name: Optional[str] = None) -> GalaxyIR:
                         ef.records.append(item)
                 # #4265: a copybook written for COPY ... REPLACING (`05 :TAG:-ID`) is a template: its
                 # tagged entries are not data-names until a COPY replaces the tag, so they are kept
-                # apart (`template_records`) and only expanded through a REPLACING.
-                if ef.language == "cobol" and any(_PSEUDO_TAG.search(it.name) for it in ef.data_items):
+                # apart (`template_records`) and only expanded through a REPLACING. A program is never
+                # a template: its tagged entries await its own REPLACE statement (cobol-check REPLAC.CBL),
+                # and its other entries stay the data-names its procedure code moves.
+                if (
+                    ef.language == "cobol"
+                    and not ef.is_program
+                    and any(_PSEUDO_TAG.search(it.name) for it in ef.data_items)
+                ):
                     ef.template_records, ef.records, ef.data_items = ef.records, [], []
 
         # #3211-followup: the CICS transaction map. Hangs off the DEFINING deck's

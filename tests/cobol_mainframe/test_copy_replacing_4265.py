@@ -37,6 +37,18 @@ PAYTPL = (
     "           05  :TAG:-NAME             PIC X(30).\n"
     "           05  :TAG:-RATE             PIC S9(5)V99 COMP-3.\n"
 )
+# a program whose tagged entries await its own REPLACE statement (cobol-check REPLAC.CBL): not a template
+REPDEMO = """\
+       IDENTIFICATION DIVISION.
+       PROGRAM-ID. REPDEMO.
+       DATA DIVISION.
+       WORKING-STORAGE SECTION.
+       01  WS-GREETING             PIC X(5).
+       01  :PROGRAM:-PARAM         PIC X(10).
+       PROCEDURE DIVISION.
+           MOVE 'HELLO' TO WS-GREETING
+           GOBACK.
+"""
 PLAIN = "           05  AMT-X   PIC 9(4).\n           05  AMT-XX  PIC 9(2).\n           05  PFX-CODE PIC X(3).\n"
 
 
@@ -67,7 +79,7 @@ def test_operand_forms():
 def ir(tmp_path_factory):
     base = tmp_path_factory.mktemp("copy_replacing")
     repo = base / "estate"
-    for rel, text in {"cbl/PAYMAIN.cbl": PAYMAIN, "cpy/PAYTPL.cpy": PAYTPL, "cpy/PLAIN.cpy": PLAIN}.items():
+    for rel, text in {"cbl/PAYMAIN.cbl": PAYMAIN, "cpy/PAYTPL.cpy": PAYTPL, "cpy/PLAIN.cpy": PLAIN, "cbl/REPDEMO.cbl": REPDEMO}.items():
         (repo / rel).parent.mkdir(parents=True, exist_ok=True)
         (repo / rel).write_text(text, encoding="utf-8")
     db = scan_to_db(repo, base / "scan")
@@ -103,3 +115,9 @@ def test_a_copy_without_replacing_is_unchanged(ir):
     # the nearest negative: the same copybook copied plainly keeps its own names, and stays data_items
     assert [f["name"] for f in _layout(ir, "WS-RAW")["fields"] if f.get("pic")] == ["AMT-X", "AMT-XX", "PFX-CODE"]
     assert [it.name for it in ir.files["cpy/PLAIN.cpy"].data_items] == ["AMT-X", "AMT-XX", "PFX-CODE"]
+
+
+def test_a_program_with_tagged_entries_is_not_a_template(ir):
+    ef = ir.files["cbl/REPDEMO.cbl"]
+    assert ef.template_records == []
+    assert [it.name for it in ef.data_items] == ["WS-GREETING", ":PROGRAM:-PARAM"]

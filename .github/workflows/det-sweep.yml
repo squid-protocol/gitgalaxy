@@ -11,6 +11,14 @@ name: Det Sweep
 # proves, fails the run. The Db2 cases are left out (IBM's Db2 container takes minutes to start); the nightly
 # Evidence Refresh and a local `proof_sweep.py` cover them. The model-written ports are re-proven by Evidence Refresh.
 #
+# Fast (#4463 follow-up): three jobs. `plan` reads the diff: a pull request that touches only tests/equivalence/<case>/
+# proves just those cases (and the cases that take their ports); anything else, and every nightly, proves all
+# of them (tests/tools/det_sweep_plan.py: when in doubt, full). `shard` proves the plan on up to 6 runners
+# (proof_sweep.py --shard I/N, balanced by tests/equivalence/det_sweep_durations.json), each with the GnuCOBOL image
+# and the COBOL-side outputs restored from cache (the oracle's runs do not change with the translator:
+# tests/tools/equivalence_cobol_cache.py, keyed by the step's inputs + oracle fingerprint + harness version).
+# `det` (the required check, named as before) merges the shards' results and applies the two-way ratchet.
+#
 # Pull requests run it only when what a det proof reads changes: the translator and the generator it builds on,
 # the harness and oracle, the cases, the corpus pin.
 
@@ -40,14 +48,51 @@ concurrency:
   cancel-in-progress: ${{ github.event_name == 'pull_request' }}
 
 jobs:
-  det:
+  plan:
+    name: plan
     runs-on: ubuntu-latest
-    timeout-minutes: 60  # ~15 min locally at --jobs 4; a hang should fail, not hold a runner for 6 h
+    timeout-minutes: 5
+    outputs:
+      mode: ${{ steps.plan.outputs.mode }}
+      cases: ${{ steps.plan.outputs.cases }}
+      matrix: ${{ steps.plan.outputs.matrix }}
+      shards: ${{ steps.plan.outputs.shards }}
+    steps:
+      - name: Checkout GitGalaxy
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          fetch-depth: 0  # git diff origin/main...HEAD needs the merge base
+          persist-credentials: false
+
+      - name: Plan the sweep
+        id: plan
+        run: |
+          git fetch --no-tags origin main:refs/remotes/origin/main 2>/dev/null || true
+          python3 tests/tools/det_sweep_plan.py --event "$GITHUB_EVENT_NAME" --base origin/main \
+            --github-output "$GITHUB_OUTPUT" | tee plan.json
+          {
+            echo "## Det sweep plan"
+            echo '```json'
+            cat plan.json
+            echo '```'
+          } >> "$GITHUB_STEP_SUMMARY"
+
+  shard:
+    name: shard ${{ matrix.shard }}
+    needs: plan
+    if: needs.plan.outputs.shards != '0'
+    runs-on: ubuntu-latest
+    timeout-minutes: 30  # a shard is ~1/6 of the old 30 min sweep; a hang should fail, not hold a runner for 6 h
+    strategy:
+      fail-fast: false
+      matrix:
+        shard: ${{ fromJSON(needs.plan.outputs.matrix) }}
     env:
       GITGALAXY_LICENSE_KEY: COMMUNITY_FREE_TIER
       PYTHONUTF8: "1"
       GITGALAXY_ORACLE_STRICT: "1"
       GITGALAXY_MAINFRAME_CORPORA: ${{ github.workspace }}/.mainframe_corpora
+      GITGALAXY_COBOL_CACHE: ${{ github.workspace }}/.cobol-cache
     steps:
       - name: Checkout GitGalaxy
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
@@ -94,36 +139,125 @@ jobs:
           rm -rf "$GITGALAXY_MAINFRAME_CORPORA/_scans"
           PYTHONPATH="$PWD" python tests/tools/mainframe_corpus.py fetch
 
-      - name: Build the oracle image and check it against its pin (#4309)
-        run: |
-          docker build -q -t gitgalaxy-gnucobol:3 -f gitgalaxy/tests/equivalence/gnucobol.Dockerfile gitgalaxy/tests/equivalence
-          python gitgalaxy/tests/tools/equivalence_oracle.py --strict
+      # The oracle image is built once per Dockerfile: saved with `docker save` under the Dockerfile's hash, loaded by
+      # every later run and shard. The fingerprint check below is still the pin (#4309): a stale image fails it.
+      - name: Cache the GnuCOBOL oracle image
+        id: image
+        uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
+        with:
+          path: ${{ runner.temp }}/gnucobol-image.tar
+          key: gnucobol-image-${{ hashFiles('gitgalaxy/tests/equivalence/gnucobol.Dockerfile') }}
 
-      - name: Re-prove every det port (no Db2)
+      - name: Load or build the oracle image, and check it against its pin (#4309)
+        run: |
+          if [ "${{ steps.image.outputs.cache-hit }}" = "true" ]; then
+            docker load -i "$RUNNER_TEMP/gnucobol-image.tar"
+          else
+            docker build -q -t gitgalaxy-gnucobol:3 -f gitgalaxy/tests/equivalence/gnucobol.Dockerfile gitgalaxy/tests/equivalence
+            docker save -o "$RUNNER_TEMP/gnucobol-image.tar" gitgalaxy-gnucobol:3
+          fi
+          python gitgalaxy/tests/tools/equivalence_oracle.py --strict
+          echo "GITGALAXY_ORACLE_PREBUILT=1" >> "$GITHUB_ENV"  # the harness need not rebuild it per proof
+
+      # The COBOL-side outputs, one entry per step, keyed by its inputs + the oracle + the harness. The cache key only
+      # selects which saved set to start from; a step whose inputs changed misses inside it.
+      - name: Restore the COBOL-side cache
+        uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
+        with:
+          path: .cobol-cache
+          key: det-cobol-${{ hashFiles('gitgalaxy/tests/equivalence/gnucobol.Dockerfile', 'gitgalaxy/tests/tools/equivalence*.py') }}-${{ strategy.job-index }}-${{ github.run_id }}
+          restore-keys: |
+            det-cobol-${{ hashFiles('gitgalaxy/tests/equivalence/gnucobol.Dockerfile', 'gitgalaxy/tests/tools/equivalence*.py') }}-${{ strategy.job-index }}-
+            det-cobol-${{ hashFiles('gitgalaxy/tests/equivalence/gnucobol.Dockerfile', 'gitgalaxy/tests/tools/equivalence*.py') }}-
+
+      - name: Re-prove this shard's det ports (no Db2)
         shell: bash  # -eo pipefail: the sweep's exit status, not tee's
+        env:
+          CASES: ${{ needs.plan.outputs.cases }}
         run: |
           cd gitgalaxy
-          python tests/tools/proof_sweep.py --det-only --skip-db2 --jobs 4 --work "$RUNNER_TEMP/sweep" \
-            | tee "$RUNNER_TEMP/sweep.txt"
+          only=()
+          if [ "$CASES" != "all" ]; then only=(--cases "$CASES"); fi
+          python tests/tools/proof_sweep.py --det-only --skip-db2 --jobs 4 --shard "${{ matrix.shard }}" "${only[@]}" \
+            --no-ratchet --work "$RUNNER_TEMP/sweep" | tee "$RUNNER_TEMP/sweep.txt"
+          python tests/tools/equivalence_cobol_cache.py prune --max-gb 1
 
       - name: Summary
         if: always()
         run: |
           {
-            echo "## Det sweep"
+            echo "## Det sweep, shard ${{ matrix.shard }}"
             echo '```'
-            grep -v '^ *$' "$RUNNER_TEMP/sweep.txt" 2>/dev/null | tail -40 || echo "(no output)"
+            grep -v '^ *$' "$RUNNER_TEMP/sweep.txt" 2>/dev/null | tail -60 || echo "(no output)"
             echo '```'
           } >> "$GITHUB_STEP_SUMMARY"
 
-      - name: Keep the failing proofs' logs
-        if: failure()
+      - name: Keep this shard's results
+        if: always()
         uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
         with:
-          name: det-sweep-logs
+          name: det-sweep-shard-${{ strategy.job-index }}
+          path: ${{ runner.temp }}/sweep/sweep.json
+          if-no-files-found: ignore
+          retention-days: 7
+
+      - name: Keep the proofs' logs
+        if: always()
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        with:
+          name: det-sweep-logs-${{ strategy.job-index }}
           path: |
-            ${{ runner.temp }}/sweep/sweep.json
             ${{ runner.temp }}/sweep/det/*/proof.log
             ${{ runner.temp }}/sweep/det/*/proof/report.json
             ${{ runner.temp }}/sweep/det/*/proof/java/maven.log
+          if-no-files-found: ignore
           retention-days: 7
+
+  # The required check (its name, `det`, is what it was when this was one job): the shards' verdicts, merged, against
+  # the two-way ratchet in tests/equivalence/det_sweep_baseline.json -- a new not-proven port fails, a baselined port
+  # that now proves fails -- and a case with no result (a shard that died before reporting) fails.
+  det:
+    needs: [plan, shard]
+    if: always()
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - name: Checkout GitGalaxy
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+
+      - name: Setup Python
+        uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97 # v7.0.0
+        with:
+          python-version: "3.12"
+
+      - name: Download the shards' results
+        if: needs.plan.outputs.shards != '0'
+        uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8.0.1
+        with:
+          pattern: det-sweep-shard-*
+          path: shards
+        continue-on-error: true  # no shard reported: the merge below names every case missing
+
+      - name: Apply the ratchet to the merged sweep
+        shell: bash
+        env:
+          PLAN_RESULT: ${{ needs.plan.result }}
+          MODE: ${{ needs.plan.outputs.mode }}
+          CASES: ${{ needs.plan.outputs.cases }}
+          SHARDS: ${{ needs.plan.outputs.shards }}
+        run: |
+          if [ "$PLAN_RESULT" != "success" ]; then echo "the plan job did not succeed ($PLAN_RESULT)"; exit 1; fi
+          if [ "$SHARDS" = "0" ]; then echo "no det-sweep case is affected by this change: nothing to prove"; exit 0; fi
+          expect=all
+          if [ "$MODE" != "full" ]; then expect="$CASES"; fi
+          found=$(ls shards/*/sweep.json 2>/dev/null || true)
+          if [ -z "$found" ]; then echo "no shard reported a sweep.json"; exit 1; fi
+          PYTHONPATH="$PWD" python tests/tools/proof_sweep.py --aggregate $found --expect "$expect" | tee agg.txt
+          {
+            echo "## Det sweep (merged)"
+            echo '```'
+            grep -v '^ *$' agg.txt | tail -80
+            echo '```'
+          } >> "$GITHUB_STEP_SUMMARY"

@@ -16,6 +16,7 @@ from __future__ import annotations
 
 import codecs
 import functools
+import os
 import re
 import shutil
 import subprocess
@@ -720,17 +721,57 @@ def reused(work: Path) -> Path | None:
     return earlier / work.resolve().relative_to(root)
 
 
+def step_reused(work: Path) -> bool:
+    """Whether run_cobol_step(work) will take the earlier run's outputs (--reuse, and the same run.sh)."""
+    earlier = reused(work)
+    script = earlier / "run.sh" if earlier is not None else None
+    return script is not None and script.is_file() and script.read_bytes() == (work / "run.sh").read_bytes()
+
+
+def _docker_run(work: Path, image: str, docker_args: tuple[str, ...]) -> subprocess.CompletedProcess[str]:
+    # the step runs as root: what it wrote is handed back to the caller (chown), so a cached or reused step can be
+    # copied over it and the work directory removed (#4476: the copy over a root-owned pass-1 file was refused)
+    owner = f"{os.getuid()}:{os.getgid()}" if hasattr(os, "getuid") else "0:0"
+    keep_status = 'bash /work/run.sh; rc=$?; chown -R "$0" /work 2>/dev/null; exit $rc'
+    return subprocess.run(["docker", "run", "--rm", *docker_args, "-v", f"{work}:/work", image, "bash", "-c",  # noqa: S603, S607
+                           keep_status, owner], capture_output=True, text=True, check=False)  # fmt: skip
+
+
+def _cached_step(work: Path, image: str, docker_args: tuple[str, ...]) -> subprocess.CompletedProcess[str]:
+    """A fresh COBOL step, from the step cache (equivalence_cobol_cache.py) when the same inputs ran on the same
+    pinned oracle and harness before; run -- and kept -- otherwise. Db2 steps (another image, a network) are not kept."""
+    import equivalence_cobol_cache as cc
+    import equivalence_oracle
+
+    base = cc.root()
+    if base is None or image != IMAGE or docker_args:
+        return _docker_run(work, image, docker_args)
+    try:
+        fp = equivalence_oracle.fingerprint(image)
+    except Exception:  # no docker, no image: the run itself says so
+        return _docker_run(work, image, docker_args)
+    if fp["mismatches"] or not (fp.get("cobc") and fp.get("gnucobol3") and fp.get("base")):
+        return _docker_run(work, image, docker_args)  # only the pinned oracle's outputs are kept
+    pre = cc.snapshot(work)
+    pre_dirs = cc.dirs_of(work)
+    key = cc.step_key(pre, cc.oracle_identity(fp))
+    if cc.lookup(base, key, work):
+        return subprocess.CompletedProcess(["cache", key], 0, "", "")
+    proc = _docker_run(work, image, docker_args)
+    if proc.returncode == 0:
+        cc.store(base, key, work, pre, pre_dirs)
+    return proc
+
+
 def run_cobol_step(
     work: Path, image: str = IMAGE, docker_args: tuple[str, ...] = ()
 ) -> subprocess.CompletedProcess[str]:
     """Run work/run.sh in the GnuCOBOL image (`image`: a Db2 case's, on `docker_args`' network) -- or, with --reuse,
-    copy in what the earlier run's identical step wrote."""
+    copy in what the earlier run's identical step wrote; a step the earlier run did not run (#4476: a CICS case's
+    second pass, with the derived SQL-fault tasks, overwrote the first pass's run.sh) runs afresh, from the step cache."""
+    if not step_reused(work):
+        return _cached_step(work, image, docker_args)
     earlier = reused(work)
-    if earlier is None:
-        return subprocess.run(["docker", "run", "--rm", *docker_args, "-v", f"{work}:/work", image, "bash",  # noqa: S603, S607
-                               "/work/run.sh"], capture_output=True, text=True, check=False)  # fmt: skip
-    script = earlier / "run.sh"
-    if not script.is_file() or script.read_bytes() != (work / "run.sh").read_bytes():
-        raise RuntimeError(f"--reuse: {earlier} did not run this COBOL step (its run.sh differs or is missing)")
+    assert earlier is not None
     shutil.copytree(earlier, work, dirs_exist_ok=True)
     return subprocess.CompletedProcess(["reuse", str(earlier)], 0, "", "")

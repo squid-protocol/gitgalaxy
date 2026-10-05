@@ -1,0 +1,115 @@
+#!/usr/bin/env python3
+"""Which det-sweep cases a change needs proven, and on how many runners (the "plan" job of det-sweep.yml, #4463).
+
+    python tests/tools/det_sweep_plan.py [--event pull_request] [--base origin/main] [--files FILE ...] [--github-output PATH]
+
+A pull request that changes only files under tests/equivalence/<case>/ re-proves those cases (and the cases that
+take that case's port: `port_from`, `uses_ports`, transitively). Anything else -- the translator, the harness, the tools,
+the corpora pin, the workflow, the baseline, a file straight under tests/equivalence/, a case directory with no case.json
+(a case added or removed), an unreadable diff -- is a full sweep, as is every event that is not a pull request (nightly,
+manual). When in doubt, full. Stdlib only: the job runs before anything is installed.
+
+Prints JSON {mode, cases, shards, matrix, reason}: `cases` is "all" or the names; `matrix` the shard labels "I/N".
+"""
+
+from __future__ import annotations
+
+import argparse
+import json
+import subprocess
+import sys
+from pathlib import Path
+
+REPO_ROOT = Path(__file__).resolve().parents[2]
+CASES = REPO_ROOT / "tests" / "equivalence"
+MAX_SHARDS = 6  # full sweep: runners
+PER_SHARD = 3  # narrow: about this many cases per runner
+IGNORED = {"tests/equivalence/det_sweep_durations.json"}  # only balances shards, never a verdict
+
+
+def case_dirs(cases_dir: Path = CASES) -> dict[str, dict]:
+    return {p.parent.name: json.loads(p.read_text(encoding="utf-8")) for p in sorted(cases_dir.glob("*/case.json"))}
+
+
+def is_db2(case: dict) -> bool:
+    return "db2" in case
+
+
+def dependents(changed: set[str], cases: dict[str, dict]) -> set[str]:
+    """`changed` and every case that takes a changed case's port (port_from / uses_ports), transitively."""
+    out = set(changed)
+    while True:
+        more = {
+            n
+            for n, c in cases.items()
+            if n not in out and (c.get("port_from") in out or set(c.get("uses_ports", [])) & out)
+        }
+        if not more:
+            return out
+        out |= more
+
+
+def plan(files: list[str], event: str, cases: dict[str, dict]) -> dict:
+    """The plan for `files` (repo-relative, as git prints them) on `event`."""
+    full = {"mode": "full", "cases": "all"}
+    if event != "pull_request":
+        return {**full, "reason": f"{event}: always a full sweep"}
+    files = [f for f in files if f not in IGNORED]
+    touched: set[str] = set()
+    for f in files:
+        parts = f.split("/")
+        if len(parts) < 4 or parts[:2] != ["tests", "equivalence"] or parts[2] not in cases:
+            return {**full, "reason": f"{f} is not inside one existing case directory"}
+        touched.add(parts[2])
+    affected = sorted(dependents(touched, cases))
+    runnable = [c for c in affected if not is_db2(cases[c])]  # (the sweep is --skip-db2)
+    return {"mode": "narrow", "cases": runnable,
+            "reason": f"only case files changed: {', '.join(sorted(touched)) or 'none'}"
+                      + (f" (+ dependents {', '.join(sorted(set(affected) - touched))})" if set(affected) - touched else "")}  # fmt: skip
+
+
+def shards_for(p: dict) -> list[str]:
+    """The runner labels for a plan: MAX_SHARDS for a full sweep, one per PER_SHARD cases when narrow, none for no cases."""
+    if p["mode"] == "full":
+        n = MAX_SHARDS
+    else:
+        n = min(MAX_SHARDS, -(-len(p["cases"]) // PER_SHARD))
+    return [f"{i}/{n}" for i in range(1, n + 1)]
+
+
+def changed_files(base: str) -> list[str]:
+    proc = subprocess.run(["git", "diff", "--name-only", f"{base}...HEAD"], cwd=REPO_ROOT,  # noqa: S603, S607
+                          capture_output=True, text=True, check=False)  # fmt: skip
+    if proc.returncode != 0:
+        raise RuntimeError(proc.stderr.strip() or "git diff failed")
+    return [ln for ln in proc.stdout.splitlines() if ln.strip()]
+
+
+def main() -> int:
+    ap = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
+    ap.add_argument("--event", default="pull_request")
+    ap.add_argument("--base", default="origin/main")
+    ap.add_argument("--files", nargs="*", help="the changed files, instead of git diff --name-only BASE...HEAD")
+    ap.add_argument("--github-output", type=Path, help="append mode / cases / matrix / shards for later jobs")
+    args = ap.parse_args()
+    cases = case_dirs()
+    try:
+        files = args.files if args.files is not None else changed_files(args.base)
+        p = plan(files, args.event, cases) if files or args.event != "pull_request" else {
+            "mode": "full", "cases": "all", "reason": "no changed files found (the diff is unreadable or empty)"}  # fmt: skip
+    except RuntimeError as e:  # cannot tell what changed: everything
+        p = {"mode": "full", "cases": "all", "reason": f"cannot diff ({e})"}
+    p["matrix"] = shards_for(p)
+    p["shards"] = len(p["matrix"])
+    print(json.dumps(p, indent=1))
+    if args.github_output:
+        with args.github_output.open("a", encoding="utf-8") as fh:
+            fh.write(f"mode={p['mode']}\n")
+            fh.write(f"cases={'all' if p['cases'] == 'all' else ','.join(p['cases'])}\n")
+            fh.write(f"matrix={json.dumps(p['matrix'])}\n")
+            fh.write(f"shards={p['shards']}\n")
+    return 0
+
+
+if __name__ == "__main__":
+    sys.exit(main())

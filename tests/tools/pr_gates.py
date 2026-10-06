@@ -283,8 +283,11 @@ def _announce(tool: str, exe: Path, bin_dir: Path) -> None:
     """Prints `<tool> used: <version> (<path>)`, resolved under the same clean PATH the gate runs with."""
     clean_path = f"{bin_dir}:/usr/bin:/bin"
     found = shutil.which(exe.name, path=clean_path) if not exe.is_absolute() else str(exe)
+    if not found:
+        print(f"NOTE  {tool} used: NOT FOUND on {clean_path}", flush=True)
+        return
     ver = subprocess.run(  # noqa: S603
-        [found or str(exe), "--version"], capture_output=True, text=True, check=False, env={"PATH": clean_path}
+        [found, "--version"], capture_output=True, text=True, check=False, env={"PATH": clean_path}
     ).stdout.strip()
     print(f"NOTE  {tool} used: {ver} ({found})", flush=True)
 

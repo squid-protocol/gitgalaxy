@@ -57,7 +57,7 @@
     "gitgalaxy/tools/cobol_to_java/**"
    ],
    "files": 60,
-   "sha256": "071b21b91e2f7f513cbe95166b9a4663c10da7fb3df6e5cf92980bef1d4cb55a"
+   "sha256": "db5857c1139a1229fc97eb2b2fde7f0646683a1cc153233322f565126f421899"
   },
   "corpus": {
    "name": "cics-crucible",
@@ -67,10 +67,10 @@
   "differences": {
    "sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
   },
-  "digest": "e80173b6480a89b95610c332cf2cb94c698f5df21254d75ffd7f050131006e38"
+  "digest": "09af28ab98e9a9eec91d537961b4c00474f411525320bf71fc69b5ee19cf44a7"
  },
  "proof": {
-  "at": "2026-10-06T02:56:56Z",
+  "at": "2026-10-06T03:38:11Z",
   "verdict": "proven",
   "runs": 4,
   "fault_runs": 0,
@@ -100,8 +100,8 @@
   "sysout_compared": null,
   "attributes_compared": null,
   "java_failed": false,
-  "harness_commit": "be5abb59e4da63b91341029ac5433dc68af0a2de+uncommitted",
-  "inputs_digest": "e80173b6480a89b95610c332cf2cb94c698f5df21254d75ffd7f050131006e38"
+  "harness_commit": "538b176dfba01e8d7b1984501f2e07a032bc33c0+uncommitted",
+  "inputs_digest": "09af28ab98e9a9eec91d537961b4c00474f411525320bf71fc69b5ee19cf44a7"
  },
  "coverage": {
   "paragraphs": {
@@ -116,7 +116,7 @@
   "handler_labels": null,
   "source": "tests/cics_crucible/coverage.json#programs/pc-aid-menu/PCMENU",
   "ledger_sha256": "3507a37672aaaa5813c020bbe64d8937ff518cfa3c377af8b85c04629aa93eb6",
-  "inputs_digest": "e80173b6480a89b95610c332cf2cb94c698f5df21254d75ffd7f050131006e38"
+  "inputs_digest": "09af28ab98e9a9eec91d537961b4c00474f411525320bf71fc69b5ee19cf44a7"
  },
  "reach": {
   "entry_points": [

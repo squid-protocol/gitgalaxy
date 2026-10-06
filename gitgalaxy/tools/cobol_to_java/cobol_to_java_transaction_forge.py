@@ -2348,7 +2348,7 @@ class CicsForge:
                 # #4449: the answer stays the program's own DTO when every other record its task can RETURN reads
                 # through it by layout (task.returned converts); else Object, as #4427 has it
                 if side == "out" and all(self._reads_through(own, seen - {own}) for _, seen in crossed):
-                    prog.txn_converts = sorted({c for _, seen in crossed for c in seen if c != own})
+                    prog.txn_converts = sorted({c for _, seen in crossed for c in seen if c is not None and c != own})
                 else:
                     setattr(prog, attr, "Object")
                 for r, seen in crossed:

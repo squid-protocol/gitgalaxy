@@ -730,7 +730,7 @@ def _drive(scenario: dict, script: dict):
     runs = []
 
     def run_one(frame, transid, commarea, step, data, requests):
-        runs.append((transid, frame["at"][11:], frame["termid"], frame["trigger"], [d.decode() for d in data]))
+        runs.append((transid, frame["at"][11:], frame["termid"], frame["trigger"], [d["data"].decode() for d in data]))
         got = script.get(transid, [])
         events = got(frame, requests) if callable(got) else got
         end = "abend" if any(e.get("outcome") == "terminated" for e in events) else "normal"

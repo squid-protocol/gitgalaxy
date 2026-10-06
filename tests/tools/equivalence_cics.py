@@ -333,37 +333,76 @@ def _ts_command(verb: str, opts: dict[str, str | None], labels: list[str] | None
     return lines + after + _resp(opts, True, labels)
 
 
+def _run_transid(opts: dict[str, str | None], labels: list[str]) -> list[str]:
+    """#4270 slice 2: RUN TRANSID(x) CHILD(area) -> GGCRUNT (the child is an event; the runner's scheduler runs it
+    once this task has ended). CHANNEL (the child's copy of a channel) is refused, as is any option IBM's RUN TRANSID
+    lists beyond TRANSID / CHILD."""
+    bad = [o for o in opts if o not in ("RUN", "TRANSID", "CHILD", "RESP", "RESP2", "NOHANDLE")]
+    if bad or not opts.get("TRANSID") or not opts.get("CHILD"):
+        raise Unsupported(f"RUN {' '.join(bad) or 'without TRANSID / CHILD'}", [f"RUN {o}" for o in bad] or ["RUN"])
+    return (
+        [f"MOVE {opts['TRANSID']} TO GG-NAME1"]
+        + _call("GGCRUNT", [f"BY REFERENCE {opts['CHILD']}"])
+        + _resp(opts, True, labels)
+    )
+
+
 def _interval_command(verb: str, opts: dict[str, str | None], labels: list[str]) -> list[str]:
     """#4006: START -> GGCSTRT (the request is an event; the runner's scheduler dispatches it), RETRIEVE
-    -> GGCRTRV (LENGTH in-out, set back on NORMAL / LENGERR), CANCEL REQID -> GGCCNCL."""
-    refused = {"START": ("AFTER", "AT", "HOURS", "MINUTES", "SECONDS", "RTRANSID", "RTERMID", "QUEUE", "SYSID",
-                         "USERID", "CHANNEL", "NOCHECK", "ATTACH", "BREXIT"),
-               "RETRIEVE": ("SET", "RTRANSID", "RTERMID", "QUEUE", "WAIT"),
+    -> GGCRTRV (LENGTH in-out, set back on NORMAL / LENGERR), CANCEL REQID -> GGCCNCL. #4270: AFTER / AT HOURS /
+    MINUTES / SECONDS (GG-HOURS / GG-MINS / GG-SECS, -999999999 when not given) and the data options RTRANSID /
+    RTERMID / QUEUE (GG-RTRAN / GG-RTERM / GG-RQUEUE, named in GG-FLAGS) on both."""
+    refused = {"START": ("SYSID", "USERID", "CHANNEL", "NOCHECK", "ATTACH", "BREXIT", "FMH"),
+               "RETRIEVE": ("SET", "WAIT"),
                "CANCEL": ("TRANSID", "SYSID", "ACTIVITY", "ACQACTIVITY", "ACQPROCESS")}[verb]  # fmt: skip
     bad = [o for o in refused if o in opts]
     if bad:
         raise Unsupported(f"{verb} {' '.join(bad)}", [f"{verb} {o}" for o in bad])
+    named = [o for o in ("RTRANSID", "RTERMID", "QUEUE") if o in opts]
+    if any(not opts.get(o) for o in named):
+        raise Unsupported(f"{verb} {' '.join(named)} without a value", [f"{verb} {o}" for o in named])
+    data_in = {"RTRANSID": "GG-RTRAN", "RTERMID": "GG-RTERM", "QUEUE": "GG-RQUEUE"}
     if verb == "START":
         if not opts.get("TRANSID"):
             raise Unsupported("START without TRANSID", ["START"])
+        whens = [w for w in ("INTERVAL", "TIME", "AFTER", "AT") if w in opts]
+        if len(whens) > 1:
+            raise Unsupported(f"START {' and '.join(whens)}", ["START " + " ".join(whens)])
+        when = whens[0] if whens else "INTERVAL"
+        hms = [o for o in ("HOURS", "MINUTES", "SECONDS") if o in opts]
+        if (when in ("AFTER", "AT")) != bool(hms) or any(not opts.get(o) for o in hms):
+            raise Unsupported(f"START {when} {' '.join(hms)}", [f"START {when}"])
         area = opts.get("FROM")
-        when = "TIME" if opts.get("TIME") is not None else "INTERVAL"
-        flags = " ".join([when] + (["PROTECT"] if "PROTECT" in opts else []))
+        flags = " ".join([when] + (["PROTECT"] if "PROTECT" in opts else []) + named)
         length = opts.get("LENGTH") or opts.get("FLENGTH") or (f"LENGTH OF {area}" if area else "0")
         lines = [f"MOVE {opts['TRANSID']} TO GG-NAME1",
                  f"MOVE {opts['TERMID']} TO GG-NAME2" if opts.get("TERMID") else "MOVE SPACES TO GG-NAME2",
                  f"MOVE {opts['REQID']} TO GG-QNAME" if opts.get("REQID") else "MOVE SPACES TO GG-QNAME",
-                 f"MOVE {opts.get(when) or 0} TO GG-NUM", f"MOVE '{flags}' TO GG-FLAGS", f"MOVE {length} TO GG-LEN",
+                 f"MOVE {opts.get(when) or 0} TO GG-NUM",  # (AFTER / AT: GG-HOURS ...)
+                 f"MOVE '{flags}' TO GG-FLAGS", f"MOVE {length} TO GG-LEN",
                  f"MOVE {1 if area else 0} TO GG-ITEM"]  # fmt: skip
+        if hms:
+            lines += [f"MOVE {opts.get(o) or -999999999} TO {f}"
+                      for o, f in (("HOURS", "GG-HOURS"), ("MINUTES", "GG-MINS"), ("SECONDS", "GG-SECS"))]  # fmt: skip
+        lines += [f"MOVE {opts[o]} TO {data_in[o]}" for o in named]
+        lines += _past_from(opts.get("LENGTH") or opts.get("FLENGTH"), area, "START")
         return lines + _call("GGCSTRT", [f"BY REFERENCE {area or 'GG-FLAGS'}"]) + _resp(opts, True, labels)
     if verb == "RETRIEVE":
         into = opts.get("INTO")
-        if not into:
-            raise Unsupported("RETRIEVE without INTO", ["RETRIEVE"])
         length = opts.get("LENGTH") or opts.get("FLENGTH")
-        lines = [f"MOVE {length or f'LENGTH OF {into}'} TO GG-LEN"] + _call("GGCRTRV", [f"BY REFERENCE {into}"])
+        if not into and (not named or length):
+            raise Unsupported("RETRIEVE without INTO", ["RETRIEVE"])
+        flags = " ".join((["INTO"] if into else []) + named)
+        lines = [f"MOVE '{flags}' TO GG-FLAGS", f"MOVE {length or (f'LENGTH OF {into}' if into else '0')} TO GG-LEN"]
+        lines += _call("GGCRTRV", [f"BY REFERENCE {into or 'GG-FLAGS'}"])
         if length:
             lines += ["IF GG-RESP = 0 OR GG-RESP = 22", f"    MOVE GG-LEN TO {length}", "END-IF"]
+        if named:
+            lines += [
+                "IF GG-RESP = 0 OR GG-RESP = 22",
+                *[f"    MOVE {data_in[o]} TO {opts[o]}" for o in named],
+                "END-IF",
+            ]
         return lines + _resp(opts, True, labels)
     if not opts.get("REQID"):
         raise Unsupported("CANCEL without REQID", ["CANCEL without REQID"])
@@ -611,6 +650,8 @@ def translate_command(body: str, labels: list[str] | None = None, handle_aid: bo
         return ([name(target, "GG-NAME1"), f"MOVE {1 if area else 0} TO GG-ITEM", "MOVE SPACES TO GG-FLAGS"]
                 + _call("GGCXCTL", args)
                 + ["IF GG-RESP = 0", "    GOBACK", "END-IF"] + _resp(opts, True, labels))  # fmt: skip
+    if verb == "RUN":  # #4270 slice 2: RUN TRANSID CHILD (a channel copy and FETCH: later)
+        return _run_transid(opts, labels)
     if verb in ("START", "RETRIEVE", "CANCEL"):  # #4006: interval control
         return _interval_command(verb, opts, labels)
     if verb == "LINK":  # #4004: a new level runs the program on the caller's own COMMAREA storage

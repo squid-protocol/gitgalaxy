@@ -108,13 +108,34 @@ def test_interval_control_commands_become_stub_calls():
                          "MOVE 'TIME' TO GG-FLAGS", "MOVE 0 TO GG-LEN", "MOVE 0 TO GG-ITEM"]  # fmt: skip
     assert ec.translate_command("START TRANSID('GT02')")[3] == "MOVE 0 TO GG-NUM"
     r = ec.translate_command("RETRIEVE INTO(WS-DATA) LENGTH(WS-LEN) RESP(WS-RESP)")
-    assert r[:5] == ["MOVE WS-LEN TO GG-LEN", "CALL 'GGCRTRV' USING GG-CICS", "    BY REFERENCE WS-DATA",
-                     "IF GG-RESP = 0 OR GG-RESP = 22", "    MOVE GG-LEN TO WS-LEN"]  # fmt: skip
+    assert r[:6] == ["MOVE 'INTO' TO GG-FLAGS", "MOVE WS-LEN TO GG-LEN", "CALL 'GGCRTRV' USING GG-CICS",
+                     "    BY REFERENCE WS-DATA", "IF GG-RESP = 0 OR GG-RESP = 22", "    MOVE GG-LEN TO WS-LEN"]  # fmt: skip
     assert ec.translate_command("CANCEL REQID('GTREQ001')")[:2] == ["MOVE 'GTREQ001' TO GG-QNAME",
                                                                    "CALL 'GGCCNCL' USING GG-CICS"]  # fmt: skip
-    for body in ("START TRANSID('X') AFTER SECONDS(5)", "RETRIEVE SET(P) LENGTH(L)", "CANCEL", "START INTERVAL(0)"):
+    for body in ("RETRIEVE SET(P) LENGTH(L)", "CANCEL", "START INTERVAL(0)", "START TRANSID('X') SYSID('R')",
+                 "START TRANSID('X') AFTER", "START TRANSID('X') HOURS(1)", "START TRANSID('X') INTERVAL(1) AT HOURS(1)",
+                 "RETRIEVE LENGTH(L)", "RETRIEVE RTRANSID(T) LENGTH(L)", "RETRIEVE INTO(A) WAIT"):  # fmt: skip
         with pytest.raises(ec.Unsupported):
             ec.translate_command(body)
+
+
+def test_start_after_at_and_the_data_options_become_stub_calls():
+    """#4270 slice 2: AFTER / AT HOURS / MINUTES / SECONDS go to GG-HOURS / GG-MINS / GG-SECS (-999999999: not
+    given), RTRANSID / RTERMID / QUEUE to GG-RTRAN / GG-RTERM / GG-RQUEUE, each named in GG-FLAGS; RETRIEVE moves the
+    values asked for back on NORMAL / LENGERR only, and may name no INTO."""
+    got = ec.translate_command("START TRANSID('GT02') AFTER MINUTES(1) RTRANSID('GT03') QUEUE(WS-Q) RESP(R)")
+    assert got[:10] == ["MOVE 'GT02' TO GG-NAME1", "MOVE SPACES TO GG-NAME2", "MOVE SPACES TO GG-QNAME",
+                        "MOVE 0 TO GG-NUM", "MOVE 'AFTER RTRANSID QUEUE' TO GG-FLAGS", "MOVE 0 TO GG-LEN",
+                        "MOVE 0 TO GG-ITEM", "MOVE -999999999 TO GG-HOURS", "MOVE 1 TO GG-MINS",
+                        "MOVE -999999999 TO GG-SECS"]  # fmt: skip
+    assert got[10:12] == ["MOVE 'GT03' TO GG-RTRAN", "MOVE WS-Q TO GG-RQUEUE"]
+    at = ec.translate_command("START TRANSID('GT02') AT HOURS(H) SECONDS(30) FROM(A) LENGTH(N) PROTECT")
+    assert "MOVE 'AT PROTECT' TO GG-FLAGS" in at and "MOVE H TO GG-HOURS" in at and "IF GG-LEN > LENGTH OF A" in at
+    r = ec.translate_command("RETRIEVE RTRANSID(WS-T) RTERMID(WS-M) RESP(R)")
+    assert r[:4] == ["MOVE 'RTRANSID RTERMID' TO GG-FLAGS", "MOVE 0 TO GG-LEN", "CALL 'GGCRTRV' USING GG-CICS",
+                     "    BY REFERENCE GG-FLAGS"]  # fmt: skip
+    assert r[4:8] == ["IF GG-RESP = 0 OR GG-RESP = 22", "    MOVE GG-RTRAN TO WS-T", "    MOVE GG-RTERM TO WS-M",
+                      "END-IF"]  # fmt: skip
 
 
 def test_the_task_driver_and_dispatcher_are_generated_for_the_cases_programs():

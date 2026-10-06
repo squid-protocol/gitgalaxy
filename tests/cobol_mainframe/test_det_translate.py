@@ -470,6 +470,12 @@ _IBM_OPTIONS = {
     "PUT CONTAINER": "CONTAINER CHANNEL FROM FLENGTH BIT CHAR DATATYPE FROMCCSID FROMCODEPAGE APPEND PREPEND",
     "GET CONTAINER": "CONTAINER CHANNEL INTO SET NODATA FLENGTH BYTEOFFSET INTOCCSID INTOCODEPAGE CONVERTST CCSID",
     "DELETE CONTAINER": "CONTAINER CHANNEL",
+    # #4270 slice 2: interval control (START, RETRIEVE, CANCEL)
+    "START": "TRANSID INTERVAL TIME AFTER AT HOURS MINUTES SECONDS FROM LENGTH FLENGTH FMH TERMID USERID SYSID "
+    "RTRANSID RTERMID QUEUE REQID NOCHECK PROTECT ATTACH BREXIT CHANNEL",
+    "RETRIEVE": "INTO SET LENGTH RTRANSID RTERMID QUEUE WAIT",
+    "CANCEL": "ACTIVITY ACQACTIVITY ACQPROCESS REQID SYSID TRANSID",
+    "RUN": "TRANSID CHANNEL CHILD",
 }
 
 
@@ -833,6 +839,8 @@ _RESP_SAMPLES = {
     "PUSH HANDLE": "PUSH HANDLE", "POP HANDLE": "POP HANDLE",
     "PUT CONTAINER": "PUT CONTAINER('C') FROM(REC)", "GET CONTAINER": "GET CONTAINER('C') INTO(REC)",
     "DELETE CONTAINER": "DELETE CONTAINER('C')",
+    "START": "START TRANSID('T')", "RETRIEVE": "RETRIEVE INTO(REC)", "CANCEL": "CANCEL REQID('R')",
+    "RUN": "RUN TRANSID('T') CHILD(REC)",
 }  # fmt: skip
 _RESP_ELSEWHERE = {
     "RETURN": "control never comes back from a RETURN (OPTIONS)",
@@ -1068,6 +1076,92 @@ def test_the_container_conditions_are_known_by_resp_and_abend_code():
     from gitgalaxy.tools.cobol_to_java import cobol_to_java_transaction_forge as F
 
     assert 'case "CONTAINERERR" -> "AEZJ";' in F.CICS_TASK_JAVA and 'case "CHANNELERR" -> "AEZV";' in F.CICS_TASK_JAVA
+
+
+# ---- #4270 slice 2: interval control -----------------------------------------------------------------------------
+def test_start_builds_its_request_and_takes_its_outcome():
+    """IBM, EXEC CICS START: TRANSID, INTERVAL / TIME (a literal's leading zeros dropped: no octal), AFTER / AT HOURS
+    MINUTES SECONDS (null: not given), TERMID, REQID, the data options, PROTECT; FROM's first LENGTH bytes in the
+    region's page; INVREQ's RESP2 4 / 5 / 6 through the outcome."""
+    out = _ChanCics().command("START TRANSID('GT02') INTERVAL(0) FROM(REC) LENGTH(20) RESP(R)", "")
+    assert out == ["CicsTask.StartResult start1 = task.startRequest('GT02'.strip()).interval(0)"
+                   ".from(DetCics.toRegion(DetCics.startData(f_REC, INT(20)), CS, REGION)).issue();",
+                   "OUTCOME(DetCics.resp(start1.resp()), start1.resp2());"]  # fmt: skip
+    out = _ChanCics().command("START TRANSID(TR) TIME(093000) TERMID(TM) REQID(RQ) PROTECT RTRANSID('GT03') "
+                              "RTERMID(TM) QUEUE(Q) NOHANDLE", "")  # fmt: skip
+    assert out[0] == ("CicsTask.StartResult start1 = task.startRequest(TR.strip()).time(93000).termid(TM.strip())"
+                      ".reqid(RQ.strip()).rtransid('GT03'.strip()).rtermid(TM.strip()).queue(Q.strip()).protect(true)"
+                      ".issue();")  # fmt: skip
+    assert ".after(null, 1, null).issue();" in _ChanCics().command("START TRANSID('S') AFTER MINUTES(1)", "")[0]
+    assert ".at(INT(H), null, 30).issue();" in _ChanCics().command("START TRANSID('S') AT HOURS(H) SECONDS(30)", "")[0]
+    assert _ChanCics().command("START TRANSID('S')", "")[0].endswith("task.startRequest('S'.strip()).issue();")
+
+
+def test_retrieve_moves_the_data_its_length_and_the_values_asked_for():
+    """IBM, EXEC CICS RETRIEVE: INTO takes at most LENGTH's value (else INTO's length), back in the storage's page;
+    LENGTH is set to the data's length on NORMAL / LENGERR; RTRANSID / QUEUE padded into their areas; CANCEL REQID."""
+    out = _ChanCics().command("RETRIEVE INTO(AREA) LENGTH(LN) RESP(R) RESP2(R2)", "")
+    assert out == ["CicsTask.RetrieveResult retrieved1 = task.retrieve(INT(LN), false, false, false);",
+                   "if (retrieved1.data() != null) DetCics.put(f_AREA, DetCics.fromRegion(retrieved1.data(), REGION, CS));",
+                   "if (retrieved1.length() >= 0) STORE(LN, BigDecimal.valueOf(retrieved1.length()));",
+                   "OUTCOME(DetCics.resp(retrieved1.resp()), 0);"]  # fmt: skip
+    assert (
+        _ChanCics().command("RETRIEVE INTO(AREA) NOHANDLE", "")[0].endswith("task.retrieve(20, false, false, false);")
+    )
+    out = _ChanCics().command("RETRIEVE RTRANSID(REC) QUEUE(AREA)", "")
+    assert out[:3] == ["CicsTask.RetrieveResult retrieved1 = task.retrieve(null, true, false, true);",
+                       "if (retrieved1.rtransid() != null) DetCics.putPadded(f_REC, retrieved1.rtransid(), CS);",
+                       "if (retrieved1.queue() != null) DetCics.putPadded(f_AREA, retrieved1.queue(), CS);"]  # fmt: skip
+    assert _ChanCics().command("CANCEL REQID('R1') RESP(R)", "") == [
+        "int cancelled1 = DetCics.resp(task.cancel('R1'.strip()));",
+        "OUTCOME(cancelled1, 0);",
+    ]
+
+
+@pytest.mark.parametrize(
+    ("text", "why"),
+    [
+        ("START TRANSID('T') CHANNEL(CH)", "started task's channel"),
+        ("START TRANSID('T') USERID(U)", "surrogate security"),
+        ("START TRANSID('T') SYSID(S)", "remote system"),
+        ("START TRANSID('T') NOCHECK", "NOCHECK"),
+        ("START TRANSID('T') INTERVAL(1) TIME(1)", "one expiry option"),
+        ("START TRANSID('T') HOURS(1)", "go with AFTER / AT"),
+        ("START TRANSID('T') AFTER", "go with AFTER / AT"),
+        ("START INTERVAL(0)", "without TRANSID"),
+        ("START TRANSID('T') LENGTH(4)", "LENGTH without FROM"),
+        ("RETRIEVE SET(P) LENGTH(L)", "pointer"),
+        ("RETRIEVE INTO(AREA) WAIT", "WAIT"),
+        ("RETRIEVE LENGTH(LN)", "without INTO"),
+        ("CANCEL TRANSID('T')", "only CANCEL REQID"),
+        ("CANCEL", "only CANCEL REQID"),
+        ("RUN TRANSID('T') CHILD(REC) CHANNEL(CH)", "copy of the channel"),
+        ("FETCH CHILD(REC) CHANNEL(CH) COMPSTATUS(C)", "waiting for its child task"),
+        ("FETCH ANY(REC)", "waiting for its child task"),
+    ],
+)
+def test_what_interval_control_does_not_model_is_refused_by_name(text, why):
+    """#4270 slice 2: START CHANNEL / USERID / SYSID / NOCHECK / ATTACH, RETRIEVE SET / WAIT and CANCEL of anything
+    but a REQID are refused with their reason."""
+    with pytest.raises(C.CicsError, match=why):
+        _ChanCics().command(text, "")
+
+
+def test_run_transid_puts_the_child_token_and_takes_its_outcome():
+    """#4270 slice 2, IBM RUN TRANSID: CHILD's area gets the child token on NORMAL; TRANSIDERR's RESP2 through the
+    outcome."""
+    out = _ChanCics().command("RUN TRANSID('GT24') CHILD(REC) RESP(R) RESP2(R2)", "")
+    assert out == ["CicsTask.RunResult run1 = task.runTransid('GT24'.strip());",
+                   "if (run1.child() != null) DetCics.putPadded(f_REC, run1.child(), CS);",
+                   "OUTCOME(DetCics.resp(run1.resp()), run1.resp2());"]  # fmt: skip
+
+
+def test_the_interval_conditions_are_known_by_resp():
+    """IBM RESP values: TERMIDERR 11, IOERR 17, TRANSIDERR 28, ENDDATA 29, ENVDEFERR 56 -- both ways in DetCics."""
+    rt = (Path(C.__file__).parent / "cobolrt/cics/DetCics.java").read_text(encoding="utf-8")
+    for name in ("TERMIDERR", "TRANSIDERR", "ENDDATA", "ENVDEFERR"):
+        assert f'case {C.DFHRESP[name]} -> "{name}";' in rt and f'case "{name}" -> {C.DFHRESP[name]};' in rt
+    assert 'case "IOERR" -> 17;' in rt
 
 
 def test_a_channel_program_translates_whole(tmp_path):

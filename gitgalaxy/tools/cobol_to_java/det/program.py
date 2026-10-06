@@ -1354,6 +1354,8 @@ def _cics_parts(gen: G.Gen, records: list, roots: dict, proc: S.Procedure,
         "        heldKey.clear();",
         "        initialState();",
         f"        Cobol.move(task.transid(), {gen.eib('EIBTRNID')}, CS);",
+        # #4270 slice 2: the task's terminal (a START TERMID(EIBTRMID)), blanks for a task with none (as the stub's)
+        f'        Cobol.move(task.termid() == null ? "" : task.termid(), {gen.eib("EIBTRMID")}, CS);',
         "        java.time.LocalDateTime now = task.now();",
         f"        Cobol.store({gen.eib('EIBDATE')}, BigDecimal.valueOf((now.getYear() - 1900) * 1000L + now.getDayOfYear()), false, CS);",
         f"        Cobol.store({gen.eib('EIBTIME')}, BigDecimal.valueOf(now.getHour() * 10000L + now.getMinute() * 100L + now.getSecond()), false, CS);",

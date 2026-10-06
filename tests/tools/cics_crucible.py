@@ -140,6 +140,11 @@ SEND_OPTIONS = ("ERASE", "ERASEAUP", "MAPONLY", "DATAONLY", "FREEKB", "ALARM", "
 # each comes from, the fields DATAONLY leaves out, and the cursor (cics_bms.send_map)
 BMS_KEYS = frozenset({"map", "mapset", "options", "cursor", "fields", "fields.omission"} |
                      {f"fields.{k}" for k in cc.FIELD_KEYS})  # fmt: skip
+# #4006 / #4270: what START / RETRIEVE events carry on both sides (the data options only where the program named them)
+_START_KEYS = frozenset(
+    "transid termid interval time from reqid protect resp resp2 expires rtransid rtermid queue".split()
+)
+_RETRIEVE_KEYS = frozenset("resp length data rtransid rtermid queue".split())
 COBOL_CAPS = cc.Capabilities(
     layer="stub",
     task_keys=frozenset(cc.TASK_KEYS) | {"end"},
@@ -156,11 +161,10 @@ COBOL_CAPS = cc.Capabilities(
         "READ": frozenset({"file", "ridfld", "resp"}),
         "READQ-TS": frozenset({"queue", "item", "resp", "length", "data"}),
         "WRITEQ-TS": frozenset({"queue", "data", "resp", "item"}),
-        "START": frozenset(
-            {"transid", "termid", "interval", "time", "from", "reqid", "protect", "resp", "resp2", "expires"}
-        ),
-        "RETRIEVE": frozenset({"resp", "length", "data"}),
+        "START": _START_KEYS,
+        "RETRIEVE": _RETRIEVE_KEYS,
         "CANCEL": frozenset({"reqid", "resp"}),
+        "RUN": frozenset({"transid", "resp", "resp2"}),  # #4270
     },
     ts_queues=True,
     start_tasks=True,
@@ -180,11 +184,10 @@ JAVA_CAPS = cc.Capabilities(
         "ABEND": frozenset({"abcode", "cause", "condition", "outcome", "exit"}),
         "READQ-TS": frozenset({"queue", "item", "resp", "length", "data"}),
         "WRITEQ-TS": frozenset({"queue", "data", "resp", "item"}),
-        "START": frozenset(
-            {"transid", "termid", "interval", "time", "from", "reqid", "protect", "resp", "resp2", "expires"}
-        ),
-        "RETRIEVE": frozenset({"resp", "length", "data"}),
+        "START": _START_KEYS,
+        "RETRIEVE": _RETRIEVE_KEYS,
         "CANCEL": frozenset({"reqid", "resp"}),
+        "RUN": frozenset({"transid", "resp", "resp2"}),  # #4270
     },
     ts_queues=True,
     start_tasks=True,
@@ -749,14 +752,16 @@ class EquivalenceRunTest {
                             : expired.stream().filter(r -> r.get("transid").equals(first.get("transid"))
                                     && first.get("termid").equals(r.get("termid"))).sorted(EXPIRY).toList();
                     requests.removeAll(group);
-                    List<byte[]> data = new ArrayList<>();
+                    List<CicsTask.StartData> data = new ArrayList<>();  // #4270: a record per START with data options
                     group.forEach(r -> {
-                        if (r.get("data") != null) {
-                            data.add((byte[]) r.get("data"));
+                        if (r.get("data") != null || r.get("rtransid") != null || r.get("rtermid") != null
+                                || r.get("queue") != null) {
+                            data.add(new CicsTask.StartData((byte[]) r.get("data"), (String) r.get("rtransid"),
+                                    (String) r.get("rtermid"), (String) r.get("queue")));
                         }
                     });
                     Map<String, Object> trigger = new LinkedHashMap<>();
-                    trigger.put("kind", "start");
+                    trigger.put("kind", first.getOrDefault("kind", "start"));  // #4270: "run" for a RUN TRANSID child
                     trigger.put("task", first.get("task"));
                     trigger.put("event", first.get("event"));
                     runOne(frame((String) first.get("termid"), trigger, null), (String) first.get("transid"), null,
@@ -819,7 +824,7 @@ class EquivalenceRunTest {
         }
 
         void runOne(Map<String, Object> frame, String transid, Object commarea, Integer calen, JsonNode step,
-                List<byte[]> data) {
+                List<CicsTask.StartData> data) {
             String program = plan.path("transactions").path(transid).asText(null);
             Map<String, Object> task = new LinkedHashMap<>(frame);
             task.put("transid", transid);
@@ -881,7 +886,8 @@ class EquivalenceRunTest {
                         .withTempStorage(ts)
                         .withPrograms(programs).withSnapshot(EquivalenceRunTest.this::snapshot).withClock(now)
                         .withTermid((String) frame.get("termid"))
-                        .withRetrieveData(data).withRequests(unexpired);
+                        .withStartData(data).withRequests(unexpired)
+                        .withRunChild(frame.get("trigger") instanceof Map<?, ?> tr && "run".equals(tr.get("kind")));
                 if (step != null && step.has("text")) {
                     t.withTerminalInput(step.get("text").asText());
                 }
@@ -1084,6 +1090,22 @@ class EquivalenceRunTest {
                     r.put("expires", LocalDateTime.parse((String) e.get("expires")));
                     r.put("reqid", e.get("reqid"));
                     r.put("data", e.get("from"));
+                    for (String k : List.of("rtransid", "rtermid", "queue")) {  // #4270: START's data options
+                        r.put(k, e.get(k));
+                    }
+                    r.put("task", tasks.size());
+                    r.put("event", j);
+                    requests.add(r);
+                } else if ("RUN".equals(e.get("event")) && "NORMAL".equals(e.get("resp"))) {
+                    // #4270: a RUN TRANSID child -- attached at once, run once its parent has ended (SPEC 4)
+                    Map<String, Object> r = new LinkedHashMap<>();
+                    r.put("issue", ++issued);
+                    r.put("transid", e.get("transid"));
+                    r.put("termid", null);
+                    r.put("expires", now);
+                    r.put("reqid", null);
+                    r.put("data", null);
+                    r.put("kind", "run");
                     r.put("task", tasks.size());
                     r.put("event", j);
                     requests.add(r);
@@ -1423,14 +1445,17 @@ def java_actual(case: cc.Case, raw: dict[str, Any], src: Path,
             elif kind == "START":  # #4006: FROM data as base64, EBCDIC bytes; REQID only if the program named one
                 b64 = e.get("from")
                 ev.update({k: e[k] for k in ("transid", "termid", "interval", "time", "reqid", "protect", "resp",
-                                              "expires") if k in e})  # fmt: skip
+                                              "resp2", "expires", "rtransid", "rtermid", "queue") if k in e})  # fmt: skip
                 ev["from"] = cc.RawArea(base64.b64decode(b64), cc.EBCDIC) if b64 is not None else None
             elif kind == "RETRIEVE":
                 b64 = e.get("data")
                 ev.update(resp=e.get("resp"), length=e.get("length"),
                           data=cc.RawArea(base64.b64decode(b64), cc.EBCDIC) if b64 is not None else None)  # fmt: skip
+                ev.update({k: e[k] for k in ("rtransid", "rtermid", "queue") if k in e})  # #4270: only those asked for
             elif kind == "CANCEL":
                 ev.update(reqid=e.get("reqid"), resp=e.get("resp"))
+            elif kind == "RUN":  # #4270
+                ev.update({k: e[k] for k in ("transid", "resp", "resp2") if k in e})
             elif kind == "ABEND":  # #4003: cause, condition, outcome and the exit, as CicsTask records them
                 ev.update({k: e[k] for k in ("abcode", "cause", "condition", "outcome", "exit") if k in e})
             else:
@@ -1663,17 +1688,27 @@ def _cobol_events(out: Path, program: str, screens: Optional[dict[str, Screen]] 
                   "message": "a second terminal RECEIVE in one task waits for input no scenario step gives"}  # fmt: skip
         elif verb == "START":  # #4006: INTERVAL or TIME as given (hhmmss), REQID only if the program named one
             resp = names.get(int(arg("resp") or 0), arg("resp"))
-            ev.update(transid=arg("transid"), termid=arg("termid") or None,
-                      **({"time": arg("time")} if arg("time") else {"interval": arg("interval")}),
+            when = "time" if re.search(r"\btime=", args) else "interval"  # #4270: empty for an AFTER / AT out of range
+            ev.update(transid=arg("transid"), termid=arg("termid") or None, **{when: arg(when) or None},
                       **({"reqid": arg("reqid")} if arg("reqid") else {}),
                       protect=arg("protect") == "1", resp=resp, expires=arg("expires") if resp == "NORMAL" else None,
                       **{"from": cc.RawArea(data, "latin-1") if arg("area") == "1" else None})  # fmt: skip
+            if resp == "INVREQ" and arg("resp2") not in ("", "0"):  # #4270: RESP2 4 / 5 / 6, which IBM documents
+                ev["resp2"] = int(arg("resp2"))
+            ev.update(_named(args, ("rtransid", "rtermid", "queue")))
         elif verb == "RETRIEVE":
             n = int(arg("len") or -1)
-            ev.update(resp=names.get(int(arg("resp") or 0), arg("resp")), length=n if n >= 0 else None,
-                      data=cc.RawArea(data, "latin-1") if n >= 0 else None)  # fmt: skip
+            into = arg("into") != "0"  # #4270: a RETRIEVE with no INTO sets no LENGTH and moves no data
+            ev.update(resp=names.get(int(arg("resp") or 0), arg("resp")), length=n if n >= 0 and into else None,
+                      data=cc.RawArea(data, "latin-1") if n >= 0 and into else None)  # fmt: skip
+            ev.update(_named(args, ("rtransid", "rtermid", "queue")))
         elif verb == "CANCEL":
             ev.update(reqid=arg("reqid"), resp=names.get(int(arg("resp") or 0), arg("resp")))
+        elif verb == "RUN":  # #4270: RUN TRANSID; RESP2 where IBM documents it (not NORMAL)
+            resp = names.get(int(arg("resp") or 0), arg("resp"))
+            ev.update(
+                transid=arg("transid"), resp=resp, **({"resp2": int(arg("resp2") or 0)} if resp != "NORMAL" else {})
+            )
         elif verb == "NOPROGRAM":
             ev = {"event": "DRIVER-ERROR", "program": arg("target"),
                   "message": f"{arg('target')} is not a translated program of the case"}  # fmt: skip
@@ -1802,6 +1837,24 @@ def _epoch(when: datetime.datetime) -> int:
     return calendar.timegm(when.timetuple())
 
 
+def _named(args: str, keys: tuple[str, ...]) -> dict[str, str]:
+    """#4270: the stub's `key=<hex>` values (RTRANSID / RTERMID / QUEUE, each only when the command named it),
+    decoded and trimmed."""
+    out = {}
+    for k in keys:
+        m = re.search(rf"\b{k}=([0-9A-Fa-f]*)(?:\s|$)", args)
+        if m:
+            out[k] = bytes.fromhex(m.group(1)).decode("latin-1").rstrip()
+    return out
+
+
+def _record(r: dict[str, Any]) -> Optional[dict[str, Any]]:
+    """#4270: a START request's data record -- FROM's bytes and RTRANSID / RTERMID / QUEUE -- or None when it gave
+    none of them (IBM, EXEC CICS RETRIEVE: such a START stores no data, RETRIEVE gets ENDDATA)."""
+    rec = {k: r.get(k) for k in ("data", "rtransid", "rtermid", "queue")}
+    return rec if any(v is not None for v in rec.values()) else None
+
+
 def drive_scenario(case: cc.Case, sc: dict[str, Any], run_one: Any) -> tuple[list[dict[str, Any]], Optional[str]]:
     """The scheduler of SPEC section 4, for either side: (tasks in dispatch order, why it stopped early).
 
@@ -1836,7 +1889,12 @@ def drive_scenario(case: cc.Case, sc: dict[str, Any], run_one: Any) -> tuple[lis
                 requests.append({"issue": issued, "transid": e["transid"], "termid": e.get("termid"),
                                  "expires": datetime.datetime.fromisoformat(e["expires"]), "reqid": e.get("reqid"),
                                  "data": e["from"].data if e.get("from") is not None else None,
+                                 **{k: e.get(k) for k in ("rtransid", "rtermid", "queue")},  # #4270
                                  "task": len(tasks), "event": j})  # fmt: skip
+            elif e["event"] == "RUN" and e.get("resp") == "NORMAL":  # #4270: a RUN TRANSID child, attached at once
+                issued += 1
+                requests.append({"issue": issued, "transid": e["transid"], "termid": None, "expires": at,
+                                 "reqid": None, "data": None, "kind": "run", "task": len(tasks), "event": j})  # fmt: skip
             elif e["event"] == "CANCEL" and e.get("resp") == "NORMAL":
                 r = next((r for r in requests if r["reqid"] == e["reqid"] and r["expires"] > at), None)
                 if r is not None:
@@ -1847,7 +1905,7 @@ def drive_scenario(case: cc.Case, sc: dict[str, Any], run_one: Any) -> tuple[lis
             pending_ca = last["commarea"].data if pending and last is not None and last["commarea"] else None
 
     def run(frame: dict[str, Any], transid: str, commarea: Optional[bytes], step: Optional[dict[str, Any]],
-            data: list[bytes], at: datetime.datetime) -> None:  # fmt: skip
+            data: list[Any], at: datetime.datetime) -> None:  # fmt: skip
         unexpired = [(r["reqid"], _epoch(r["expires"])) for r in requests if r["reqid"] and r["expires"] > at]
         task = run_one(frame, transid, commarea, step, data, unexpired)
         tasks.append(task)
@@ -1864,8 +1922,9 @@ def drive_scenario(case: cc.Case, sc: dict[str, Any], run_one: Any) -> tuple[lis
             for r in group:
                 requests.remove(r)
             frame = {"termid": first["termid"], "at": now.strftime("%Y-%m-%dT%H:%M:%S"),
-                     "trigger": {"kind": "start", "task": first["task"], "event": first["event"]}, "eibaid": None}  # fmt: skip
-            run(frame, first["transid"], None, None, [r["data"] for r in group if r["data"] is not None], now)
+                     "trigger": {"kind": first.get("kind", "start"), "task": first["task"], "event": first["event"]},
+                     "eibaid": None}  # fmt: skip
+            run(frame, first["transid"], None, None, [_record(r) for r in group if _record(r) is not None], now)
             continue
         nxt = min((r["expires"] for r in requests), default=None)
         if steps:
@@ -1897,7 +1956,7 @@ def run_scenario(case: cc.Case, sc: dict[str, Any], box: "Container", work: Path
     count = iter(range(1000))
 
     def run_one(frame: dict[str, Any], transid: str, commarea: Optional[bytes], step: Optional[dict[str, Any]],
-                data: list[bytes], requests: list[tuple[str, int]]) -> dict[str, Any]:  # fmt: skip
+                data: list[Any], requests: list[tuple[str, int]]) -> dict[str, Any]:  # fmt: skip
         rel = f"runs/{sc['id']}/{next(count):02d}"
         return run_task(
             case, box, work, rel, ts, transid, frame, commarea, step, data, requests, task_faults(sc, transid)
@@ -1908,7 +1967,7 @@ def run_scenario(case: cc.Case, sc: dict[str, Any], box: "Container", work: Path
 
 
 def run_task(case: cc.Case, box: "Container", work: Path, rel: str, ts: str, transid: str, frame: dict[str, Any],
-             commarea: Optional[bytes], step: Optional[dict[str, Any]], data: Optional[list[bytes]] = None,
+             commarea: Optional[bytes], step: Optional[dict[str, Any]], data: Optional[list[Any]] = None,
              requests: Optional[list[tuple[str, int]]] = None,
              faults: Optional[list[str]] = None) -> dict[str, Any]:  # fmt: skip
     """One task in one process: its inputs in `rel` (the COMMAREA, the terminal's input -- a step's text or
@@ -1930,8 +1989,18 @@ def run_task(case: cc.Case, box: "Container", work: Path, rel: str, ts: str, tra
     (d / "transactions.cfg").write_text("".join(f"{t}\n" for t in sorted(case.csd["transactions"])), encoding="ascii")
     (d / "terminals.cfg").write_text(f"{case.data['terminal']}\n", encoding="ascii")
     (d / "requests.cfg").write_text("".join(f"{r} {e}\n" for r, e in requests or []), encoding="ascii")
-    for i, item in enumerate(data or [], 1):
-        (d / f"retrieve_{i:03d}.bin").write_bytes(item)
+    for i, item in enumerate(data or [], 1):  # #4270: a record's FROM data, and its other data options beside it
+        rec = item if isinstance(item, dict) else {"data": item}
+        if rec.get("data") is not None:
+            (d / f"retrieve_{i:03d}.bin").write_bytes(rec["data"])
+        named = {k: rec[k] for k in ("rtransid", "rtermid", "queue") if rec.get(k) is not None}
+        if named or rec.get("data") is None:
+            (d / f"retrieve_{i:03d}.opt").write_text(
+                f"from={int(rec.get('data') is not None)}"
+                + "".join(f" {k}={v.encode('latin-1').hex()}" for k, v in named.items())
+                + "\n",
+                encoding="ascii",
+            )
     if commarea:
         (d / "commarea.in").write_bytes(commarea)
     step = step or {}
@@ -1951,6 +2020,7 @@ def run_task(case: cc.Case, box: "Container", work: Path, rel: str, ts: str, tra
     box.sh(f"cd /work && {cov.trace_env(f'/work/{rel}/{cov.TRACE_NAME}')}"
            f"GGCICS_DIR=/work/{rel} GGCICS_OUT=/work/{rel}/out EIBIN=/work/{rel}/eib.in "
            f"{'GGCICS_LU2=1 ' if terminal_device(case) == 'LUTYPE2' else ''}"  # #4413: EOC on RECEIVE
+           f"{'GGCICS_RUNCHILD=1 ' if (frame.get('trigger') or {}).get('kind') == 'run' else ''}"  # #4270
            f"GGCICS_TS=/work/{ts} GGCICS_NOW={frame['at']} COB_CURRENT_DATE='{when.strftime('%Y/%m/%d %H:%M:%S')}.00' ./bin/task "
            f"> /work/{rel}/stdout.txt 2>&1")  # fmt: skip
     task["events"] = _cobol_events(d / "out", program, screens)

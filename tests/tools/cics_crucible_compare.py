@@ -61,9 +61,11 @@ EVENT_KEYS: dict[str, tuple[str, ...]] = {
     "LINK": ("target", "length", "commarea", "resp", "resp2"),
     "XCTL": ("target", "length", "commarea", "resp", "resp2"),
     "RETURN": ("level", "transid", "commarea", "caller_commarea"),
-    "START": ("transid", "termid", "interval", "time", "from", "reqid", "protect", "resp", "resp2", "expires"),
-    "RETRIEVE": ("resp", "length", "data"),
+    # #4270: the data options (rtransid, rtermid, queue) only where the program named them
+    "START": tuple("transid termid interval time from reqid protect resp resp2 expires rtransid rtermid queue".split()),
+    "RETRIEVE": ("resp", "length", "data", "rtransid", "rtermid", "queue"),
     "CANCEL": ("reqid", "resp"),
+    "RUN": ("transid", "resp", "resp2"),  # #4270: RUN TRANSID (its child token is not observable)
     "READQ-TS": ("queue", "item", "resp", "length", "data"),
     "WRITEQ-TS": ("queue", "data", "resp", "item"),
     "READ": ("file", "ridfld", "resp"),
@@ -324,7 +326,7 @@ def blockers(expected: dict[str, Any], caps: Capabilities, scenario: Optional[di
     if scenario and (scenario.get("initial") or {}).get("ts_queues") and not caps.ts_queues:
         need(f"{caps.layer}: TS queue seeding")
     for task in expected["tasks"]:
-        if task["trigger"]["kind"] == "start" and not caps.start_tasks:
+        if task["trigger"]["kind"] in ("start", "run") and not caps.start_tasks:  # (#4270: a RUN TRANSID child)
             need(f"scheduler: START-triggered tasks ({caps.layer})")
         for key in TASK_KEYS:
             if key not in caps.task_keys:

@@ -145,6 +145,34 @@ OPTIONS: dict[str, frozenset | None] = {
     | _RESP,
     "GET CONTAINER": frozenset({"CONTAINER", "CHANNEL", "INTO", "FLENGTH", "NODATA"}) | _RESP,
     "DELETE CONTAINER": frozenset({"CONTAINER", "CHANNEL"}) | _RESP,
+    # #4270 slice 2: interval control (Cics.start / retrieve / cancel) on CicsTask's requests; the harness's scheduler
+    # runs a started task once its request has expired and its starter has ended (SPEC section 4)
+    "START": frozenset(
+        {
+            "TRANSID",
+            "TERMID",
+            "FROM",
+            "LENGTH",
+            "FLENGTH",
+            "INTERVAL",
+            "TIME",
+            "AFTER",
+            "AT",
+            "HOURS",
+            "MINUTES",
+            "SECONDS",
+            "REQID",
+            "PROTECT",
+            "RTRANSID",
+            "RTERMID",
+            "QUEUE",
+        }
+    )
+    | _RESP,
+    "RETRIEVE": frozenset({"INTO", "LENGTH", "FLENGTH", "RTRANSID", "RTERMID", "QUEUE"}) | _RESP,
+    "CANCEL": frozenset({"REQID"}) | _RESP,
+    # #4270 slice 2: RUN TRANSID's child, run by the harness's scheduler once this task has ended (Cics.run_transid)
+    "RUN": frozenset({"TRANSID", "CHILD"}) | _RESP,
 }
 
 # #4270: why an option of a modelled command is refused, where "option not modelled" alone would not say
@@ -158,6 +186,14 @@ _REFUSED_WHY = {
     "SET": "the address of CICS's copy of the data (a pointer) is not modelled",
     "BYTEOFFSET": "a partial GET is not modelled (no corpus program uses it)",
     "PREPEND": "not modelled (no corpus program uses it)",
+    # #4270 slice 2: interval control
+    "WAIT": "a RETRIEVE waiting for START data still to expire is not modelled (one task runs at a time)",
+    "NOCHECK": "less error checking for a START on a remote system is not modelled (no corpus program uses it)",
+    "SYSID": "a remote system is not modelled",
+    "USERID": "a started task's user (surrogate security) is not modelled",
+    "ATTACH": "a START that keeps its data after RETRIEVE is not modelled",
+    "BREXIT": "the 3270 bridge is not modelled",
+    "FMH": "function management headers are not modelled",
 }
 
 
@@ -197,6 +233,12 @@ def check_options(words: list[str], opts: dict) -> None:
         why = "; ".join(f"{o}: {_REFUSED_WHY[o]}" for o in bad if o in _REFUSED_WHY)
         if key == "RETURN" and "CHANNEL" in bad:
             why = "RETURN CHANNEL: the next task's channel is not modelled (no corpus program uses it)"
+        if key == "START" and "CHANNEL" in bad:  # #4270 slice 2
+            why = "START CHANNEL: a started task's channel is not modelled (no corpus program uses it)"
+        if key == "RUN" and "CHANNEL" in bad:
+            why = "RUN CHANNEL: the child task's copy of the channel is not modelled (#4270: a later slice)"
+        if key == "CANCEL":
+            why = "CANCEL of a TRANSID / an activity: only CANCEL REQID is modelled"
         raise CicsError(f"{key} {' '.join(bad)}: option not modelled" + (f" ({why})" if why else ""))
 
 
@@ -712,6 +754,14 @@ class Cics:
         if key == "MOVE CONTAINER" or words[:1] in (["STARTBROWSE"], ["GETNEXT"], ["ENDBROWSE"]):
             # #4270: no non-burned corpus program MOVEs a container; one browses (with GETMAIN / SOAPFAULT beside)
             raise CicsError(f"EXEC CICS {key} not modelled (#4270: container MOVE / browse, a later slice)")
+        if verb == "RUN":  # #4270 slice 2
+            return self.run_transid(opts, ind)
+        if words[:1] == ["FETCH"] or verb == "FREE CHILD":
+            raise CicsError(
+                f"EXEC CICS {verb} not modelled (#4270: a parent waiting for its child task, a later slice)"
+            )
+        if verb in ("START", "RETRIEVE", "CANCEL"):  # #4270 slice 2: interval control
+            return {"START": self.start, "RETRIEVE": self.retrieve, "CANCEL": self.cancel}[verb](opts, ind)
         if verb.split()[0] in ("ENQ", "DEQ", "DELAY"):  # (DELAY FOR SECONDS(n): words DELAY FOR)
             return self.outcome(opts, "0", "0", ind)  # (OPTIONS: one task in the region, nothing waits)
         if verb == "GET" and "COUNTER" in opts:  # GET COUNTER: its value, then +1; NOTFND for a counter not defined
@@ -955,6 +1005,104 @@ class Cics:
         else:
             out.append(f"{ind}CicsTask.ContainerResult {r} = task.deleteContainer({chan}, {name});")
         return out + self.outcome(opts, f"DetCics.resp({r}.resp())", f"{r}.resp2()", ind)
+
+    # -- #4270 slice 2: interval control
+    def _number(self, text: str) -> str:
+        """An INTERVAL / TIME / HOURS ... value as a Java int expression (a literal's leading zeros dropped)."""
+        t = text.strip()
+        return str(int(t)) if re.fullmatch(r"\d+", t) else self.int_(t)
+
+    def start(self, opts: dict, ind: str) -> list[str]:
+        """START TRANSID (IBM CICS TS, EXEC CICS START) on CicsTask.startRequest: INTERVAL(hhmmss) / TIME(hhmmss) /
+        AFTER or AT HOURS MINUTES SECONDS (none: INTERVAL(0)), TERMID, REQID, PROTECT, FROM's first LENGTH bytes (no
+        LENGTH: FROM's length), and the data options RTRANSID / RTERMID / QUEUE the started task RETRIEVEs. The
+        request's expiry, INVREQ RESP2 4 / 5 / 6, LENGERR, TRANSIDERR, TERMIDERR and IOERR are CicsTask's, through
+        RESP / HANDLE CONDITION. FROM's bytes go in the region's page, as a TS item's do (#4528): the started task's
+        RETRIEVE reads them back into its own storage's page."""
+        if not opts.get("TRANSID"):
+            raise CicsError("START without TRANSID")
+        whens = [w for w in ("INTERVAL", "TIME", "AFTER", "AT") if w in opts]
+        if len(whens) > 1:
+            raise CicsError(f"START {' and '.join(whens)}: one expiry option")
+        when = whens[0] if whens else "INTERVAL"
+        hms = [o for o in ("HOURS", "MINUTES", "SECONDS") if o in opts]
+        if (when in ("AFTER", "AT")) != bool(hms):
+            raise CicsError(f"START {when} {' '.join(hms)}: HOURS / MINUTES / SECONDS go with AFTER / AT")
+        chain = f"task.startRequest({self.name(_arg(opts['TRANSID']))})"
+        if hms:
+            vals = [self._number(_arg(opts[o])) if o in opts else "null" for o in ("HOURS", "MINUTES", "SECONDS")]
+            chain += f".{when.lower()}({', '.join(vals)})"
+        elif when in opts:
+            chain += f".{when.lower()}({self._number(_arg(opts[when]))})"
+        for o in ("TERMID", "REQID", "RTRANSID", "RTERMID", "QUEUE"):
+            if o in opts:
+                chain += f".{o.lower()}({self.name(_arg(opts[o]))})"
+        if "FROM" in opts:
+            frm = _arg(opts["FROM"])
+            f = self.read_field(frm)
+            length = _one_of(opts, "LENGTH", "FLENGTH")
+            n = self.int_(length) if length else str(self.size(frm))
+            self.region_used = True
+            chain += f".from(DetCics.toRegion(DetCics.startData({f}, {n}), CS, REGION))"
+        elif "LENGTH" in opts or "FLENGTH" in opts:
+            raise CicsError("START LENGTH without FROM")
+        if "PROTECT" in opts:
+            chain += ".protect(true)"
+        r = self.g.tmpname("start")
+        return [f"{ind}CicsTask.StartResult {r} = {chain}.issue();",
+                *self.outcome(opts, f"DetCics.resp({r}.resp())", f"{r}.resp2()", ind)]  # fmt: skip
+
+    def retrieve(self, opts: dict, ind: str) -> list[str]:
+        """RETRIEVE (IBM CICS TS, EXEC CICS RETRIEVE) on CicsTask.retrieve: INTO takes at most LENGTH's value (else
+        INTO's length) -- the data into INTO's first bytes, back in the storage's page; LENGTH, a data area, is set to
+        the data's length on NORMAL and LENGERR ("On completion of the retrieval operation, the data area is set to
+        the original length of the data"); RTRANSID / RTERMID / QUEUE get the values the START gave. ENDDATA,
+        ENVDEFERR and LENGERR through RESP / HANDLE CONDITION. SET (a pointer) and WAIT are refused (OPTIONS)."""
+        into = opts.get("INTO")
+        length = _one_of(opts, "LENGTH", "FLENGTH")
+        named = [o for o in ("RTRANSID", "RTERMID", "QUEUE") if o in opts]
+        if not into and (not named or length is not None):
+            raise CicsError("RETRIEVE without INTO")
+        g = self.g
+        r = g.tmpname("retrieved")
+        most = "null"
+        if into:
+            most = self.int_(length) if length else str(self.size(into))
+        flags = ", ".join(str(o in named).lower() for o in ("RTRANSID", "RTERMID", "QUEUE"))
+        out = [f"{ind}CicsTask.RetrieveResult {r} = task.retrieve({most}, {flags});"]
+        if into:
+            self.region_used = True
+            out.append(f"{ind}if ({r}.data() != null) DetCics.put({self.field(into)}, "
+                       f"DetCics.fromRegion({r}.data(), REGION, CS));")  # fmt: skip
+            settable = length is not None and re.fullmatch(r"(?is)[+-]?\d+|LENGTH\s+OF\s+.+", length.strip()) is None
+            if settable and length is not None:
+                set_back = g.store_into(self.ref(length), f"BigDecimal.valueOf({r}.length())", False)
+                out.append(f"{ind}if ({r}.length() >= 0) {set_back}")
+        out += [f"{ind}if ({r}.{o.lower()}() != null) DetCics.putPadded({self.field(_arg(opts[o]))}, "
+                f"{r}.{o.lower()}(), CS);" for o in named]  # fmt: skip
+        return out + self.outcome(opts, f"DetCics.resp({r}.resp())", "0", ind)
+
+    def run_transid(self, opts: dict, ind: str) -> list[str]:
+        """RUN TRANSID CHILD (IBM CICS TS, EXEC CICS RUN TRANSID) on CicsTask.runTransid: the child task runs once this task
+        has ended (the harness's scheduler); CHILD's 16-character area gets the child token on NORMAL; TRANSIDERR
+        RESP2 1 through RESP / HANDLE CONDITION."""
+        transid, child = _option(opts, "TRANSID"), _option(opts, "CHILD")
+        if not transid or not child:
+            raise CicsError("RUN without TRANSID / CHILD")
+        r = self.g.tmpname("run")
+        return [f"{ind}CicsTask.RunResult {r} = task.runTransid({self.name(transid)});",
+                f"{ind}if ({r}.child() != null) DetCics.putPadded({self.field(child)}, {r}.child(), CS);",
+                *self.outcome(opts, f"DetCics.resp({r}.resp())", f"{r}.resp2()", ind)]  # fmt: skip
+
+    def cancel(self, opts: dict, ind: str) -> list[str]:
+        """CANCEL REQID (IBM CICS TS, EXEC CICS CANCEL) on CicsTask.cancel: NORMAL for a request not yet expired,
+        NOTFND when none matches "an unexpired interval control command"."""
+        reqid = _option(opts, "REQID")
+        if not reqid:
+            raise CicsError("CANCEL without REQID: only CANCEL REQID is modelled")
+        r = self.g.tmpname("cancelled")
+        return [f"{ind}int {r} = DetCics.resp(task.cancel({self.name(reqid)}));",
+                *self.outcome(opts, r, "0", ind)]  # fmt: skip
 
     # -- #4413: terminal control without a map
     def send_control(self, opts: dict, ind: str) -> list[str]:

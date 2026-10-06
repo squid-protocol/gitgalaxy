@@ -338,7 +338,7 @@ def test_cics_task_interval_control_follows_start_retrieve_and_cancel(tmp_path):
         "[event, expires, from, interval, protect, reqid, resp, termid, transid] 000130null",
         "[event, expires, from, protect, resp, termid, time, transid] null093000",
         "[event, expires, from, protect, resp, termid, time, transid] null030000",
-        "[event, expires, from, interval, protect, resp, termid, transid] 000170null",
+        "[event, expires, from, interval, protect, resp, resp2, termid, transid] 000170null",  # #4270: RESP2 6
     ]
 
 
@@ -605,7 +605,8 @@ _IC_MAIN = r"""
 #include <stdio.h>
 #include <string.h>
 typedef struct { int resp; int resp2; char name1[8]; char name2[8]; char flags[40]; int len;
-                 char qname[16]; int item; int num; int go_to; } gg_cics;
+                 char qname[16]; int item; int num; int go_to; char chan[16]; int hours, mins, secs;
+                 char rtran[4], rterm[4], rqueue[8]; } gg_cics;
 int GGCSTRT(gg_cics *c, char *from); int GGCRTRV(gg_cics *c, char *into); int GGCCNCL(gg_cics *c);
 static gg_cics c;
 static void blank(char *f, int n, const char *v) { memset(f, ' ', n); memcpy(f, v, strlen(v)); }
@@ -632,6 +633,7 @@ int main(void) {
     for (int i = 0; i < 3; i++) {
         memset(into, '.', sizeof into);
         c.len = 4;
+        blank(c.flags, 40, "INTO");
         GGCRTRV(&c, into);
         printf("%d/%d/%.6s ", c.resp, c.len, into);
     }
@@ -664,8 +666,8 @@ def test_the_stub_interval_control_follows_start_retrieve_and_cancel(tmp_path):
                        "2026-03-03T03:00:00", "", "", ""]  # fmt: skip
     assert "interval=000130 reqid=R1 protect=1 resp=0" in events[1] and "termid=T001" in events[1]
     assert "time=093000" in events[3]
-    assert events[-3] == "013 RETRIEVE pgm= resp=22 len=5 copied=4"
-    assert events[-1] == "015 RETRIEVE pgm= resp=29 len=-1 copied=0"
+    assert events[-3] == "013 RETRIEVE pgm= resp=22 len=5 copied=4 into=1"
+    assert events[-1] == "015 RETRIEVE pgm= resp=29 len=-1 copied=0 into=1"
 
 
 # ---- #4008: XCTL RESP / LENGTH ---------------------------------------------------------------------------
@@ -1280,3 +1282,195 @@ def test_cics_task_channels_and_containers(tmp_path):
         "refused",
         "{event=LINK, target=SUB, length=0, commarea=null, resp=NORMAL, resp2=null, issuer=MAIN}",
     ]
+
+
+# ---- #4270 slice 2: START AFTER / AT, the data options, ENVDEFERR, IOERR ---------------------------------------
+_IC2_MAIN = r"""
+#include <stdio.h>
+#include <string.h>
+typedef struct { int resp; int resp2; char name1[8]; char name2[8]; char flags[40]; int len;
+                 char qname[16]; int item; int num; int go_to; char chan[16]; int hours, mins, secs;
+                 char rtran[4], rterm[4], rqueue[8]; } gg_cics;
+int GGCSTRT(gg_cics *c, char *from); int GGCRTRV(gg_cics *c, char *into);
+#define NG (-999999999)
+static gg_cics c;
+static void blank(char *f, int n, const char *v) { memset(f, ' ', n); memcpy(f, v, strlen(v)); }
+static void start(const char *how, int h, int m, int s, int num, const char *reqid, int from) {
+    blank(c.name1, 8, "GT02"); blank(c.name2, 8, ""); blank(c.qname, 16, reqid); blank(c.flags, 40, how);
+    c.hours = h; c.mins = m; c.secs = s; c.num = num; c.item = from; c.len = 3;
+    blank(c.rtran, 4, "GT03"); blank(c.rterm, 4, "T001"); blank(c.rqueue, 8, "QNAME");
+    GGCSTRT(&c, "ABC");
+    printf("%d/%d ", c.resp, c.resp2);
+}
+int main(void) {
+    char into[8];
+    start("AFTER", NG, 1, NG, 0, "", 0);           /* MINUTES(1): 000100 */
+    start("AFTER", NG, 90, NG, 0, "", 0);          /* MINUTES alone up to 5999: 013000 */
+    start("AFTER", 1, 90, NG, 0, "", 0);           /* with HOURS, MINUTES 0-59: INVREQ 5 */
+    start("AFTER", 100, NG, NG, 0, "", 0);         /* INVREQ 4 */
+    start("AFTER", NG, 1, 60, 0, "", 0);           /* INVREQ 6 */
+    start("AT", 25, NG, NG, 0, "", 0);             /* a later day: tomorrow 01:00 */
+    start("TIME", 0, 0, 0, 250000, "", 0);         /* the same as TIME */
+    start("INTERVAL RTRANSID QUEUE", 0, 0, 0, 0, "R1", 1);
+    start("INTERVAL", 0, 0, 0, 0, "R1", 1);        /* the REQID of this task's own START with FROM, again: IOERR */
+    memset(into, '.', sizeof into); blank(c.rtran, 4, ""); blank(c.rqueue, 8, "");
+    blank(c.flags, 40, "INTO RTRANSID QUEUE"); c.len = 8; GGCRTRV(&c, into);
+    printf("%d/%d/%.4s/%.4s/%.8s ", c.resp, c.len, into, c.rtran, c.rqueue);
+    blank(c.flags, 40, "RTERMID"); GGCRTRV(&c, into); printf("%d ", c.resp);  /* not given on its START */
+    printf("\n");
+    return 0;
+}
+"""
+
+
+@needs_cc
+def test_the_stub_start_after_at_and_the_data_options_follow_ibm(tmp_path):
+    """#4270 slice 2, IBM EXEC CICS START / RETRIEVE, "Expiration times": AFTER / AT ranges (one option alone or a
+    combination) with INVREQ RESP2 4 / 5 / 6; an hours component over 23 is a later day; a REQID this task used with
+    FROM, used again with FROM, is IOERR; RETRIEVE returns RTRANSID / QUEUE and is ENVDEFERR for an option its START
+    did not give."""
+    exe = _stub(tmp_path, _IC2_MAIN)
+    (tmp_path / "transactions.cfg").write_text("GT02\n")
+    (tmp_path / "retrieve_001.bin").write_bytes(b"ALPHA")
+    (tmp_path / "retrieve_001.opt").write_text(f"from=1 rtransid={b'GT03'.hex()} queue={b'QNAME'.hex()}\n")
+    (tmp_path / "retrieve_002.opt").write_text(f"from=0 rtransid={b'GT04'.hex()}\n")
+    out = subprocess.run([str(exe)], env={"GGCICS_DIR": str(tmp_path), "GGCICS_OUT": str(tmp_path),
+                                          "GGCICS_NOW": "2026-03-02T10:00:00"},
+                         capture_output=True, text=True, check=True).stdout  # fmt: skip
+    assert out.split() == ["0/0", "0/0", "16/5", "16/4", "16/6", "0/0", "0/0", "0/0", "17/0",
+                           "0/5/ALPH/GT03/QNAME", "56"]  # fmt: skip
+    events = (tmp_path / "events.txt").read_text().splitlines()
+    assert "interval=000100" in events[0] and "expires=2026-03-02T10:01:00" in events[0]
+    assert "interval=013000" in events[1] and "interval= " in events[2] and "resp2=5" in events[2]
+    assert "time=250000" in events[5] and "expires=2026-03-03T01:00:00" in events[5]
+    assert "expires=2026-03-03T01:00:00" in events[6]
+    assert events[7].endswith(f"rtransid={b'GT03'.hex().upper()} queue={b'QNAME'.hex().upper()}")
+    assert events[9].endswith(f"into=1 rtransid={b'GT03'.hex().upper()} queue={b'QNAME'.hex().upper()}")
+    assert " resp=56 len=-1 copied=0 into=0" in events[10]
+
+
+@needs_javac
+def test_cics_task_start_after_at_and_the_data_options(tmp_path):
+    """#4270 slice 2: CicsTask's START / RETRIEVE as the stub's (above), and what IBM leaves open refused."""
+    out = _cics_task(
+        tmp_path,
+        """
+        CicsTask t = new CicsTask("GT01", "ENTER", null, null).withClock(java.time.LocalDateTime.of(2026, 3, 2, 10, 0))
+                .withStartData(java.util.List.of(new CicsTask.StartData("ALPHA".getBytes(), "GT03", null, "QNAME"),
+                        new CicsTask.StartData(null, "GT04", null, null)));
+        StringBuilder b = new StringBuilder();
+        for (CicsTask.StartResult r : java.util.List.of(t.startRequest("GT02").after(null, 1, null).issue(),
+                t.startRequest("GT02").after(null, 90, null).issue(), t.startRequest("GT02").after(1, 90, null).issue(),
+                t.startRequest("GT02").after(100, null, null).issue(), t.startRequest("GT02").after(null, 1, 60).issue(),
+                t.startRequest("GT02").at(25, null, null).issue(), t.startRequest("GT02").time(250000).issue(),
+                t.startRequest("GT02").reqid("R1").from("ABC".getBytes()).rtransid("GT03").queue("QNAME").issue(),
+                t.startRequest("GT02").reqid("R1").from("ABC".getBytes()).issue())) {
+            b.append(r.resp()).append('/').append(r.resp2()).append('/').append(r.expires()).append(' ');
+        }
+        System.out.println(b.toString().trim());
+        CicsTask.RetrieveResult r = t.retrieve(8, true, false, true);
+        System.out.println(r.resp() + " " + r.length() + " " + new String(r.data()) + " " + r.rtransid() + " "
+                + r.queue() + " " + t.retrieve(null, false, true, false).resp());
+        try {
+            t.retrieve(8);
+        } catch (UnsupportedOperationException e) {
+            System.out.println("refused after ENVDEFERR");
+        }
+        try {
+            t.startRequest("GT02").reqid("R1").issue();
+        } catch (UnsupportedOperationException e) {
+            System.out.println("refused REQID reuse");
+        }
+        for (java.util.Map<String, Object> e : t.events().subList(0, 3)) {
+            System.out.println(e.get("interval") + " " + e.get("resp2"));
+        }""",
+    )
+    assert out.splitlines() == [
+        "NORMAL/0/2026-03-02T10:01 NORMAL/0/2026-03-02T11:30 INVREQ/5/null INVREQ/4/null INVREQ/6/null "
+        "NORMAL/0/2026-03-03T01:00 NORMAL/0/2026-03-03T01:00 NORMAL/0/2026-03-02T10:00 IOERR/0/null",
+        "NORMAL 5 ALPHA GT03 QNAME ENVDEFERR",
+        "refused after ENVDEFERR",
+        "refused REQID reuse",
+        "000100 null",
+        "013000 null",
+        "null 5",
+    ]
+
+
+def test_scheduler_passes_each_starts_data_options_as_its_record():
+    """#4270 slice 2: a START's RTRANSID / RTERMID / QUEUE travel with its FROM data as one record; a START with none
+    of them (nor FROM) stores none (the started task's RETRIEVE: ENDDATA)."""
+    import cics_crucible as runner
+
+    assert runner._record({"data": None, "rtransid": None, "rtermid": None, "queue": None}) is None
+    assert runner._record({"data": b"X", "rtransid": "GT03"}) == {"data": b"X", "rtransid": "GT03", "rtermid": None,
+                                                                  "queue": None}  # fmt: skip
+    assert runner._named("resp=0 rtransid=47543033 queue=", ("rtransid", "rtermid", "queue")) == {
+        "rtransid": "GT03",
+        "queue": "",
+    }
+
+
+_RUN_MAIN = r"""
+#include <stdio.h>
+#include <string.h>
+typedef struct { int resp; int resp2; char name1[8]; char name2[8]; char flags[40]; int len;
+                 char qname[16]; int item; int num; int go_to; char chan[16]; int hours, mins, secs;
+                 char rtran[4], rterm[4], rqueue[8]; } gg_cics;
+int GGCRUNT(gg_cics *c, char *child);
+static gg_cics c;
+int main(void) {
+    char child[17] = "................";
+    memset(c.name1, ' ', 8); memcpy(c.name1, "GT24", 4); GGCRUNT(&c, child); printf("%d/%d/%.16s ", c.resp, c.resp2, child);
+    memset(c.name1, ' ', 8); memcpy(c.name1, "NONE", 4); GGCRUNT(&c, child); printf("%d/%d\n", c.resp, c.resp2);
+    return 0;
+}
+"""
+
+
+@needs_cc
+def test_the_stub_run_transid_attaches_a_child_or_is_transiderr(tmp_path):
+    """#4270 slice 2, IBM RUN TRANSID: a defined transaction gets a child token in CHILD's 16 bytes; an undefined one
+    is TRANSIDERR RESP2 1. The child is the runner's to schedule (the event)."""
+    exe = _stub(tmp_path, _RUN_MAIN)
+    (tmp_path / "transactions.cfg").write_text("GT24\n")
+    out = subprocess.run([str(exe)], env={"GGCICS_DIR": str(tmp_path), "GGCICS_OUT": str(tmp_path)},
+                         capture_output=True, text=True, check=True).stdout  # fmt: skip
+    assert out.split() == ["0/0/GGCHILD000000001", "28/1"]
+    assert (tmp_path / "events.txt").read_text().splitlines() == [
+        "001 RUN pgm= transid=GT24 resp=0 resp2=0",
+        "002 RUN pgm= transid=NONE resp=28 resp2=1",
+    ]
+
+
+@needs_javac
+def test_cics_task_run_transid_as_the_stubs_and_a_childs_retrieve_is_refused(tmp_path):
+    """#4270 slice 2: CicsTask.runTransid as the stub's GGCRUNT; a RETRIEVE in a RUN child is refused (undocumented)."""
+    out = _cics_task(
+        tmp_path,
+        """
+        CicsTask t = new CicsTask("GT21", "ENTER", null, null).withPrograms(new CicsTask.Programs() {
+            public boolean defined(String p) {
+                return true;
+            }
+
+            public boolean transaction(String tr) {
+                return tr.equals("GT24");
+            }
+
+            public void run(String p, CicsTask s) {
+            }
+        });
+        CicsTask.RunResult r1 = t.runTransid("GT24");
+        CicsTask.RunResult r2 = t.runTransid("NONE");
+        System.out.println(r1.resp() + "/" + r1.resp2() + "/" + r1.child() + " " + r2.resp() + "/" + r2.resp2() + "/"
+                + r2.child());
+        System.out.println(new java.util.TreeMap<>(t.events().get(1)));
+        try {
+            new CicsTask("GT24", null, null, null).withRunChild(true).retrieve(4);
+        } catch (UnsupportedOperationException e) {
+            System.out.println("refused");
+        }""",
+    )
+    assert out.splitlines() == ["NORMAL/0/GGCHILD000000001 TRANSIDERR/1/null",
+                                "{event=RUN, resp=TRANSIDERR, resp2=1, transid=NONE}", "refused"]  # fmt: skip

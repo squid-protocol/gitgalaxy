@@ -112,7 +112,7 @@ def data_entries(content: str) -> list[dict]:
 
     code = _blank_literals("\n".join(_code_lines(content)))
     entries = []
-    groups: list[tuple[int, Optional[str]]] = []  # #4525: (level, effective usage) of the open groups
+    groups: list[tuple[int, str | None]] = []  # #4525: (level, effective usage) of the open groups
     for raw in re.split(r"\.(?=\s|$)", code):
         m = _LEVEL_ENTRY.match(raw)
         if not m:

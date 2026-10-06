@@ -2183,8 +2183,8 @@ class GalaxyIR:
             it: EngineDataItem,
             offset: int,
             depth: int,
-            sink: Optional[list] = None,
-            inherited: Optional[str] = None,
+            sink: list | None = None,
+            inherited: str | None = None,
         ) -> int:
             """`it`'s width; its elementary fields go to `sink` (`fields`, or a throwaway list
             when only an overlay's width is wanted). `inherited` is the enclosing group's USAGE (#4525)."""
@@ -4881,9 +4881,9 @@ class GalaxyIR:
             key: tuple,
             offset: int,
             depth: int,
-            ext: Optional[list],
+            ext: list | None,
             path: tuple,
-            inherited: Optional[str] = None,
+            inherited: str | None = None,
         ):
             if it.level in (66, 88) or depth > 12:
                 return 0
@@ -5573,7 +5573,7 @@ def _last_entry(item: EngineDataItem) -> EngineDataItem:
     return item
 
 
-def _is_elementary(item: EngineDataItem, inherited: Optional[str] = None) -> bool:
+def _is_elementary(item: EngineDataItem, inherited: str | None = None) -> bool:
     """Whether `item` is an elementary item: it has a PIC, or a usage that needs none (COMP-1/2,
     POINTER, INDEX) and no subordinate items. #4525: the usage may be a group's -- `inherited`, or
     stored on a nested group by the extractor -- so a usage alone does not make an item elementary:
@@ -5585,7 +5585,7 @@ def _is_elementary(item: EngineDataItem, inherited: Optional[str] = None) -> boo
     return not any(c.level not in (66, 88) for c in item.children)
 
 
-def _usage_under(item: EngineDataItem, inherited: Optional[str]) -> Optional[str]:
+def _usage_under(item: EngineDataItem, inherited: str | None) -> str | None:
     """#4525: `item`'s effective USAGE -- its own, else the nearest enclosing group's (`inherited`,
     IBM Enterprise COBOL: a group's USAGE applies to every elementary item under it without one).
     The extractor already resolves this within a source; a COPY member's items only learn the
@@ -5595,7 +5595,7 @@ def _usage_under(item: EngineDataItem, inherited: Optional[str]) -> Optional[str
     return inherited
 
 
-def _item_class(item: EngineDataItem, inherited: Optional[str] = None) -> str:
+def _item_class(item: EngineDataItem, inherited: str | None = None) -> str:
     """A coarse storage class for shape comparison: X alnum, 9 zoned, P packed,
     B binary, F float, N national, A address, T bit string (PL/I); `?` when unknown.
     `inherited` is the enclosing group's USAGE (#4525), used when the item has none."""
@@ -5620,7 +5620,7 @@ def _item_class(item: EngineDataItem, inherited: Optional[str] = None) -> str:
     return "9"
 
 
-def _elementary_bytes(item: EngineDataItem, inherited: Optional[str] = None) -> Optional[int]:
+def _elementary_bytes(item: EngineDataItem, inherited: str | None = None) -> int | None:
     """One occurrence's storage width of an elementary item, or None when unknown.
     `inherited` is the enclosing group's USAGE (#4525), used when the item has none."""
     if item.attributes is not None:  # #3720: a PL/I item (attributes is None for COBOL)

@@ -8929,6 +8929,17 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#vendored-code" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Vendored code
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#declared-ports" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -12211,6 +12222,26 @@
 - Directory blacklisting (<code>.gitignore</code> integration and <code>BLACK_HOLES</code> registry).
 - Stateful caching to preserve whitelist locks for explicitly referenced configurations.
 Secondary content gates include shebang processing, binary header inspection (X-Ray gate reading 8KB chunks), and minified code detection (line length density).</p>
+<h2 id="vendored-code">Vendored code</h2>
+<p>Vendored copies of other projects are <strong>excluded</strong> from the scan, not flagged, so every first-party metric (size,
+complexity tails, risk, SARIF) reads first-party code only. This is how <code>vendor/</code>, <code>node_modules/</code> and <code>third_party/</code>
+were always treated; #4545 extends it to the other common spellings.</p>
+<ul>
+<li><strong>By name</strong> (<code>IGNORED_DIRECTORIES</code>): <code>third_party</code>, <code>third-party</code>, <code>thirdparty</code>, <code>3rdparty</code>, <code>3rd_party</code>,
+  <code>3rd-party</code>, <code>vendor</code>, <code>vendored</code>. <strong>By suffix:</strong> an Apple <code>*.framework</code> bundle.</li>
+<li><strong>On evidence</strong> (<code>VendorDirectoryDetector</code>): names that are also ordinary first-party names count only when the
+  directory holds a separate project, meaning a license file of its own whose text differs from the scan root's
+  license. A repo with no root license gives no evidence.</li>
+<li>A container (<code>libraries/</code>, <code>libs/</code>, <code>deps/</code>, <code>extern/</code>, <code>external/</code>, <code>externals/</code>) is excluded whole when at
+    least half of its non-empty subdirectories carry such a license (gzdoom's <code>libraries/</code>: bzip2, cppdap, webp,
+    ZMusic, ZVulkan, ...). A <code>libs/</code> of the repo's own packages carries no license, or the root's, and stays.</li>
+<li>A versioned directory (<code>SDL2-2.32.10/</code>, <code>SDL2_mixer-2.8.2/</code>) is excluded when it carries such a license.
+    id Software's <code>linuxdoom-1.10/</code> is versioned too, but its license sits at the root, so it stays.</li>
+<li>The scan root itself is never a candidate. Only the directories under it are tested.</li>
+</ul>
+<p>Not covered: a single vendored file inside first-party code (Eternity's <code>source/nlohmann/json.hpp</code>), a bare library
+directory at the root (<code>zlib/</code>, <code>libpng/</code>), and a vendored library whose license text matches the root's (both GPL)
+in a container that is otherwise unlicensed. Add these with <code>exclude_dirs</code> in a project config.</p>
 <h2 id="declared-ports">Declared ports</h2>
 <p>A deterministic COBOL-to-Java port (<code>gitgalaxy/tools/cobol_to_java/det</code>) is machine-translated by design. Its
 indentation is uniform and its compound conditions are spelled out in full, so three generated-noise gates would

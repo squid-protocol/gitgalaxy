@@ -44,6 +44,11 @@ TEXT_OPTIONS = ("ERASE", "FREEKB", "ALARM", "CURSOR", "PRINT", "LAST", "WAIT", "
                 "CTLCHAR")  # fmt: skip
 
 
+# #4414: the keys HANDLE AID names (IBM, EXEC CICS HANDLE AID), as the equivalence harness's stub has them
+AID_KEYS = frozenset(["ANYKEY", "ENTER", "CLEAR", "CLRPARTN", "LIGHTPEN", "OPERID", "TRIGGER", "PA1", "PA2", "PA3"]
+                     + [f"PF{n}" for n in range(1, 25)])  # fmt: skip
+
+
 class CicsError(Exception):
     pass
 
@@ -87,6 +92,12 @@ OPTIONS: dict[str, frozenset | None] = {
     # NOHANDLE where the translation raises no condition anyway (no RESP: its area would not be written)
     "HANDLE ABEND": frozenset({"LABEL", "CANCEL", "RESET", "PROGRAM", "NOHANDLE"}),  # (PROGRAM: refused below)
     "HANDLE CONDITION": None,  # every option is a condition, each handled
+    # #4414: every option a condition / an attention key (checked by Cics.conditions / handle_aid_). PUSH / POP HANDLE
+    # raise INVREQ only (POP with nothing pushed), through RESP / HANDLE CONDITION like any condition
+    "IGNORE CONDITION": None,
+    "HANDLE AID": None,
+    "PUSH HANDLE": _RESP,
+    "POP HANDLE": _RESP,
     "ABEND": frozenset({"ABCODE", "CANCEL", "NODUMP"}),  # NODUMP: a dump is no state the program or its caller sees
     "ASSIGN": frozenset({"APPLID", "SYSID", "ABCODE", "PROGRAM", "INVOKINGPROG"}) | _RESP,
     "ASKTIME": frozenset({"ABSTIME", "NOHANDLE"}),
@@ -377,6 +388,10 @@ class Cics:
         self.stores: dict[str, str] = {}  # CICS file -> the Java Store expression
         self.repos: dict[str, str] = {}  # repository class -> field
         self.used_screens: set[str] = set()
+        # #4414: the program issues HANDLE AID (its input commands consult the keys' labels) / PUSH HANDLE (its
+        # handler state is stacked); set by program._translate from the source before any statement is translated
+        self.handle_aid = False
+        self.push_handle = False
 
     # -- operands
     def operand(self, text: str):
@@ -436,6 +451,67 @@ class Cics:
         out.append(f"{ind}    if (to >= 0) {self.g.jump('to')}")
         out.append(f"{ind}}}")
         return out
+
+    # -- #4414: IGNORE CONDITION, HANDLE AID, PUSH / POP HANDLE
+    def conditions(self, verb: str, opts: dict, ignore: bool = False) -> list[str]:
+        """The conditions a HANDLE / IGNORE CONDITION names: each one IBM documents (DFHRESP), never NORMAL. IGNORE
+        CONDITION names no label (IBM, EXEC CICS IGNORE CONDITION: "condition -- the name of the condition to be
+        ignored"). IGNORE CONDITION ERROR is refused: IBM's HANDLE CONDITION takes "the action for ERROR" for a
+        condition with no action of its own whose default is an abend, but does not say whether an IGNORE of ERROR is
+        such an action (docs/language_status/oracle_assumptions.md X16)."""
+        for cond, label in opts.items():
+            if cond not in DFHRESP or cond == "NORMAL":
+                raise CicsError(f"{verb} {cond}: not a documented condition")
+            if ignore and label is not None:
+                raise CicsError(f"{verb} {cond}({label}): IGNORE CONDITION names no label")
+            if ignore and cond == "ERROR":
+                raise CicsError("IGNORE CONDITION ERROR: whether ERROR's action can be to ignore is not documented")
+        return list(opts)
+
+    def handle_aid_(self, opts: dict, ind: str) -> list[str]:
+        """HANDLE AID key(label) ... (IBM, EXEC CICS HANDLE AID): each key's label, taken after an input command
+        (input_outcome); a key with no label is deactivated ("To ignore an AID, issue a HANDLE AID command that
+        specifies the associated option without a label"). Only the attention keys: RESP / NOHANDLE are refused too
+        (no key; HANDLE AID raises no condition here)."""
+        out = []
+        for key, label in opts.items():
+            if key not in AID_KEYS:
+                raise CicsError(f"HANDLE AID {key}: not an attention key")
+            if label is None:  # (-1: deactivated, which DetCics.aidLabel tells from never handled)
+                out.append(f"{ind}aids.put({G_jstr(key)}, -1);")
+                continue
+            if label.upper() not in self.g.para_index:
+                raise CicsError(f"HANDLE AID {key}({label}): no such paragraph")
+            out.append(f"{ind}aids.put({G_jstr(key)}, {self.g.para_index[label.upper()]});")
+        return out
+
+    def push_pop(self, verb: str, opts: dict, ind: str) -> list[str]:
+        """PUSH HANDLE suspends the program's HANDLE CONDITION, IGNORE CONDITION, HANDLE AID and HANDLE ABEND state;
+        POP HANDLE restores the one last pushed, INVREQ when none was (IBM, EXEC CICS PUSH HANDLE / POP HANDLE). The
+        HANDLE ABEND part is CicsTask's (pushHandle / popHandle), the rest the program's own (handlers, aids)."""
+        r = self.g.tmpname("resp")
+        if verb == "PUSH HANDLE":
+            out = [f"{ind}pushed.push(new DetCics.Handlers(handlers, aids));",
+                   f"{ind}handlers.clear();", f"{ind}aids.clear();",
+                   f"{ind}int {r} = DetCics.resp(task.pushHandle());"]  # fmt: skip
+        else:
+            out = [f"{ind}int {r} = DetCics.resp(task.popHandle());",
+                   f"{ind}if ({r} == 0) {{",
+                   f"{ind}    pushed.pop().restore(handlers, aids);",
+                   f"{ind}}}"]  # fmt: skip
+        return out + self.outcome(opts, r, "0", ind)
+
+    def input_outcome(self, opts: dict, resp: str, ind: str) -> list[str]:
+        """#4414: after an input command (RECEIVE MAP, terminal RECEIVE): its outcome, then -- in a program that
+        issues HANDLE AID, unless RESP or NOHANDLE ("no action is to be taken for any condition or attention
+        identifier (AID)") -- the label of the key pressed, else ANYKEY's for a PA / PF key or CLEAR ("Control is
+        passed after the input command is completed"). Which comes first when the command also raised a condition
+        is not documented: the program's aid() refuses that before the condition is acted on (X16)."""
+        if not self.handle_aid or "RESP" in opts or "NOHANDLE" in opts:
+            return self.outcome(opts, resp, "0", ind)
+        to = self.g.tmpname("aidTo")
+        return [f"{ind}aid({resp});", *self.outcome(opts, resp, "0", ind),
+                f"{ind}int {to} = aid({resp});", f"{ind}if ({to} >= 0) {self.g.jump(to)}"]  # fmt: skip
 
     # -- COMMAREA codecs
     def codec(self, cls: str) -> str:
@@ -677,6 +753,7 @@ class Cics:
             raise CicsError("HANDLE ABEND PROGRAM")
         if verb == "HANDLE CONDITION":
             out = []
+            self.conditions(verb, opts)
             for cond, target in opts.items():
                 if target is None:
                     out.append(f"{ind}handlers.remove({G_jstr(cond)});")
@@ -685,6 +762,12 @@ class Cics:
                     raise CicsError(f"HANDLE CONDITION {cond}({target}): no such paragraph")
                 out.append(f"{ind}handlers.put({G_jstr(cond)}, {g.para_index[target.upper()]});")
             return out
+        if verb == "IGNORE CONDITION":
+            return [f"{ind}handlers.put({G_jstr(c)}, -1);" for c in self.conditions(verb, opts, ignore=True)]
+        if verb == "HANDLE AID":
+            return self.handle_aid_(opts, ind)
+        if verb in ("PUSH HANDLE", "POP HANDLE"):
+            return self.push_pop(verb, opts, ind)
         if verb == "ABEND":
             code = self.name(_arg(opts["ABCODE"])) if opts.get("ABCODE") else '""'
             fn = "abendCancel" if "CANCEL" in opts else "abend"
@@ -806,7 +889,7 @@ class Cics:
                f"{ind}DetCics.{put}({target}, {r}.data(), CS);"]  # fmt: skip
         if settable and length is not None:
             out.append(ind + g.store_into(self.ref(length), f"BigDecimal.valueOf({r}.length())", False))
-        return out + self.outcome(opts, f"DetCics.resp({r}.resp())", "0", ind)
+        return out + self.input_outcome(opts, f"DetCics.resp({r}.resp())", ind)
 
     def ts_queue(self, verb: str, opts: dict, ind: str) -> list[str]:
         """WRITEQ TS / READQ TS on the task's temporary storage (CicsTask): an item is the program's own bytes.
@@ -963,7 +1046,7 @@ class Cics:
             out.append(f"{ind}        DetCics.typed({i}, {ln or 'null'}, {vals}.get({G_jstr(name)}), CS);")
             out.append(f"{ind}    }}")
         out.append(f"{ind}}}")
-        return out + self.outcome(opts, resp, "0", ind)
+        return out + self.input_outcome(opts, resp, ind)
 
     # -- #4213: an ESDS browsed by relative byte address (IBM DBB EPSMLIST)
     def _rba(self, verb: str, opts: dict) -> bool:

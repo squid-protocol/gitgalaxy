@@ -736,6 +736,7 @@ _RESP_SAMPLES = {
     "WRITEQ TS": "WRITEQ TS QUEUE('Q') FROM(REC)", "READQ TS": "READQ TS QUEUE('Q') INTO(REC)",
     "GET COUNTER": "GET COUNTER(KEY) VALUE(REC)", "SYNCPOINT": "SYNCPOINT", "SYNCPOINT ROLLBACK": "SYNCPOINT ROLLBACK",
     "SEND CONTROL": "SEND CONTROL ERASE", "RECEIVE": "RECEIVE INTO(REC)",
+    "PUSH HANDLE": "PUSH HANDLE", "POP HANDLE": "POP HANDLE",
 }  # fmt: skip
 _RESP_ELSEWHERE = {
     "RETURN": "control never comes back from a RETURN (OPTIONS)",
@@ -879,6 +880,132 @@ def test_a_terminal_only_cics_program_translates_whole_and_imports_only_packages
     assert [x for x in r.java.splitlines() if x.startswith("import com.x.") and "*" in x] == [
         "import com.x.entity.vsam.*;"]  # fmt: skip
     assert 'task.sendControl(null, "ERASE", "FREEKB");' in r.java and "task.receive(" in r.java
+
+
+# ---- #4414 / #4502: IGNORE CONDITION, HANDLE AID, PUSH / POP HANDLE, HANDLE CONDITION ERROR ---------------------------
+class _HandleCics(_TermCics):
+    """Paragraphs GOT-PF7 (3), GOT-ANY (4), GOT-ERR (5); a transfer as GOTO(to)."""
+
+    def __init__(self, handle_aid=False):
+        super().__init__()
+        self.g.para_index = {"GOT-PF7": 3, "GOT-ANY": 4, "GOT-ERR": 5}
+        self.g.jump = lambda target: f"GOTO({target});"
+        self.handle_aid = handle_aid
+
+
+def test_ignore_condition_marks_each_condition_ignored_and_refuses_what_ibm_does_not_document():
+    """IBM, EXEC CICS IGNORE CONDITION: "no action is taken if a condition occurs ... control returns to the
+    instruction following the command"; the last HANDLE or IGNORE for a condition wins (both share `handlers`, -1 for
+    IGNORE, which condition() returns as "go on"). IGNORE CONDITION ERROR is refused: whether ERROR's action can be to
+    ignore is not documented (oracle_assumptions X16)."""
+    c = _HandleCics()
+    assert c.command("IGNORE CONDITION LENGERR MAPFAIL", "") == [
+        'handlers.put("LENGERR", -1);', 'handlers.put("MAPFAIL", -1);']  # fmt: skip
+    assert c.command("HANDLE CONDITION ERROR(GOT-ERR) LENGERR", "") == [
+        'handlers.put("ERROR", 5);', 'handlers.remove("LENGERR");']  # fmt: skip
+    for bad, why in (("IGNORE CONDITION ERROR", "IGNORE CONDITION ERROR"),
+                     ("IGNORE CONDITION LENGERR(GOT-ERR)", "names no label"),
+                     ("IGNORE CONDITION NOSUCH", "not a documented condition"),
+                     ("HANDLE CONDITION NOSUCH(GOT-ERR)", "not a documented condition"),
+                     ("IGNORE CONDITION NORMAL", "not a documented condition")):  # fmt: skip
+        with pytest.raises(C.CicsError, match=why):
+            c.command(bad, "")
+
+
+def test_handle_aid_records_each_keys_label_or_deactivates_it():
+    """IBM, EXEC CICS HANDLE AID: a key's label; "To ignore an AID, issue a HANDLE AID command that specifies the
+    associated option without a label" (-1: deactivated, told from never handled by DetCics.aidLabel)."""
+    c = _HandleCics()
+    assert c.command("HANDLE AID PF7(GOT-PF7) ANYKEY(GOT-ANY) CLEAR", "") == [
+        'aids.put("PF7", 3);', 'aids.put("ANYKEY", 4);', 'aids.put("CLEAR", -1);']  # fmt: skip
+    for bad, why in (("HANDLE AID PF25(GOT-PF7)", "not an attention key"),
+                     ("HANDLE AID PF7(NOWHERE)", "no such paragraph"),
+                     ("HANDLE AID PF7(GOT-PF7) RESP(R)", "RESP: not an attention key")):  # fmt: skip
+        with pytest.raises(C.CicsError, match=why):
+            c.command(bad, "")
+
+
+def test_push_and_pop_handle_stack_the_programs_handlers_and_the_tasks_abend_exit():
+    """IBM, EXEC CICS PUSH HANDLE suspends "the current effect of the IGNORE CONDITION, HANDLE ABEND, HANDLE AID, and
+    HANDLE CONDITION commands"; POP HANDLE restores them, INVREQ when nothing was pushed ("no matching PUSH HANDLE
+    command has been executed at the current link level"), through RESP / HANDLE CONDITION like any condition."""
+    c = _HandleCics()
+    assert c.command("PUSH HANDLE", "") == [
+        "pushed.push(new DetCics.Handlers(handlers, aids));", "handlers.clear();", "aids.clear();",
+        "int resp1 = DetCics.resp(task.pushHandle());", "OUTCOME(resp1, 0);"]  # fmt: skip
+    assert c.command("POP HANDLE RESP(R)", "") == [
+        "int resp2 = DetCics.resp(task.popHandle());", "if (resp2 == 0) {",
+        "    pushed.pop().restore(handlers, aids);", "}", "OUTCOME(resp2, 0);"]  # fmt: skip
+
+
+def test_an_input_command_takes_the_aid_label_after_its_outcome_unless_resp_or_nohandle():
+    """IBM, HANDLE AID: "Control is passed after the input command is completed" -- the data moved and LENGTH set,
+    then the outcome, then the key's label (aid()). The same aid() before the outcome refuses a label that applies
+    while the command raised a condition (which comes first is not documented). RESP / NOHANDLE: none of it (IBM,
+    RESP: "NOHANDLE overrides both the HANDLE AID and the HANDLE CONDITION command"). A program with no HANDLE AID
+    gets no aid() at all."""
+    out = _HandleCics(handle_aid=True).command("RECEIVE INTO(WS-REC) LENGTH(RLEN)", "")
+    assert out[1:] == [
+        "DetCics.received(f_WS-REC, received1.data(), CS);",
+        "STORE(RLEN, BigDecimal.valueOf(received1.length()));",
+        "aid(DetCics.resp(received1.resp()));",
+        "OUTCOME(DetCics.resp(received1.resp()), 0);",
+        "int aidTo2 = aid(DetCics.resp(received1.resp()));",
+        "if (aidTo2 >= 0) GOTO(aidTo2);",
+    ]
+    for text in ("RECEIVE INTO(WS-REC) LENGTH(RLEN) RESP(R)", "RECEIVE INTO(WS-REC) LENGTH(RLEN) NOHANDLE"):
+        assert not any("aid(" in x for x in _HandleCics(handle_aid=True).command(text, ""))
+    assert not any("aid(" in x for x in _HandleCics().command("RECEIVE INTO(WS-REC) LENGTH(RLEN)", ""))
+
+
+def test_condition_takes_the_error_label_only_for_a_condition_whose_default_is_an_abend():
+    """#4502, IBM HANDLE CONDITION: "if the default action for such a condition terminates the task abnormally, and
+    the condition ERROR has been specified, the action for ERROR is taken". condition(): the condition's own HANDLE /
+    IGNORE, then a default of ignore (EOC), then ERROR's label, then the abend. DetCics.aidLabel: the key's label,
+    else ANYKEY's for a PA / PF key or CLEAR (not ENTER); a deactivated key under an ANYKEY label is refused."""
+    import re
+
+    from gitgalaxy.tools.cobol_to_java.det import program as P
+
+    src = Path(P.__file__).read_text(encoding="utf-8")
+    body = src[src.index("private int condition(String cond)") :]
+    order = [body.index(x) for x in ("handlers.get(cond)", "DetCics.ignoredByDefault(cond)",
+                                     'handlers.get("ERROR")', "task.abendOnCondition(cond)")]  # fmt: skip
+    assert order == sorted(order)
+    rt = (Path(C.__file__).parent / "cobolrt/cics/DetCics.java").read_text(encoding="utf-8")
+    m = re.search(r"public static Integer aidLabel\(.*?\n    \}\n", rt, re.S)
+    assert m and '"CLEAR".equals(key)' in m.group(0) and "ENTER" not in m.group(0).split("{", 1)[1]
+    assert "ANYKEY takes the key is not documented" in m.group(0)
+    assert "public record Handlers(" in rt and "public void restore(" in rt
+
+
+def test_a_program_with_handle_aid_ignore_and_push_pop_translates_whole(tmp_path):
+    """#4414: HANDLE AID, IGNORE CONDITION, PUSH / POP HANDLE and HANDLE CONDITION ERROR translate with no hole; the
+    port declares the AID map and the PUSH HANDLE stack it uses, and clears them for each task."""
+    pytest.importorskip("tree_sitter_language_pack")
+    from gitgalaxy.tools.cobol_to_java.det import program as P
+
+    (tmp_path / "T2.cbl").write_text(
+        "       IDENTIFICATION DIVISION.\n       PROGRAM-ID. T2.\n       DATA DIVISION.\n"
+        "       WORKING-STORAGE SECTION.\n       01  WS-IN                 PIC X(10) VALUE SPACES.\n"
+        "       01  WS-LEN                PIC S9(4) COMP VALUE 10.\n       PROCEDURE DIVISION.\n"
+        "       MAIN-PARA.\n"
+        "           EXEC CICS HANDLE AID PF7(GOT-KEY) ANYKEY(GOT-KEY) END-EXEC\n"
+        "           EXEC CICS HANDLE CONDITION ERROR(GOT-KEY) END-EXEC\n"
+        "           EXEC CICS IGNORE CONDITION LENGERR END-EXEC\n"
+        "           EXEC CICS PUSH HANDLE END-EXEC\n           EXEC CICS POP HANDLE END-EXEC\n"
+        "           EXEC CICS RECEIVE INTO(WS-IN) LENGTH(WS-LEN) END-EXEC.\n"
+        "       GOT-KEY.\n           EXEC CICS RETURN END-EXEC.\n",
+        encoding="utf-8",
+    )
+    (tmp_path / "proj/src/main/java/com/x").mkdir(parents=True)
+    stub = "package com.x.service;\nimport com.x.cics.CicsTask;\npublic class T2Service {\n" \
+           "    public void runTask(CicsTask task) {}\n}\n"  # fmt: skip
+    r = P.translate(tmp_path / "T2.cbl", [], stub, "com.x", {}, tmp_path / "proj")
+    assert (r.stats["statements"], r.stats["translated"], r.stats["holes"]) == (7, 7, [])
+    for line in ("private final java.util.Map<String, Integer> aids", "java.util.ArrayDeque<DetCics.Handlers> pushed",
+                 "private int aid(int resp)", "aids.clear();", "pushed.clear();", 'handlers.put("LENGERR", -1);'):  # fmt: skip
+        assert line in r.java, line
 
 
 def _proc(body: list[str]):

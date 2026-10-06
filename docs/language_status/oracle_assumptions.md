@@ -91,6 +91,7 @@ verdict, but it limits what the proof says about inputs outside the scenarios.
 | X13 | CICS | An ESDS browsed by RBA: fixed-length records, a record's RBA its byte offset; RBAs that address no record refused | ASSUMED (REFUSED where IBM is silent) | yes (DBB EPSMLIST) |
 | X14 | CICS | READ ... INTO LENGTH: in-out, truncation and LENGERR; a VSAM file's LENGTH need not equal its record length; LENGERR on READ UPDATE refused | ASSUMED (REFUSED where IBM is silent) | yes, NORMAL only (GenApp LGUCVS01 / LGUPVS01) |
 | X15 | CICS | Terminal RECEIVE (INTO / SET, LENGTH, MAXLENGTH, NOTRUNCATE; LENGERR, EOC on an LUTYPE2 terminal) and SEND CONTROL | ASSUMED (REFUSED where IBM is silent) | yes (cics-crucible hc-terminal-receive, hc-terminal-eoc) |
+| X16 | CICS | HANDLE AID, IGNORE CONDITION, PUSH / POP HANDLE and HANDLE CONDITION ERROR on the det port | MATCHED (REFUSED where IBM is silent) | yes (cics-crucible hc-handle-aid, hc-ignore-error, hc-eoc-error) |
 | L1 | LE | CEEDAYS: documented pictures only | MATCHED / REFUSED | yes |
 | L2 | LE | CEE3ABD abend codes | MATCHED | yes |
 | L3 | LE | WORKING-STORAGE with no VALUE clause: GnuCOBOL's spaces vs LE's STORAGE option on z/OS | ASSUMED | yes (CardDemo READACCT OUTFILE, 2 bytes) |
@@ -523,6 +524,32 @@ The length READQ TS returns on ITEMERR or QIDERR is not documented, so it is not
 - **Reached.** cics-crucible hc-terminal-receive (7 scenarios: LENGERR by RESP, by HANDLE CONDITION and by default,
   NOTRUNCATE pieces, SET, SEND CONTROL with CURSOR) and hc-terminal-eoc (3: EOC by RESP, HANDLE CONDITION, ignored by
   default), cobol-stub and the det port both passing the hand-written logs.
+
+### X16. HANDLE AID, IGNORE CONDITION, PUSH / POP HANDLE, HANDLE CONDITION ERROR — MATCHED, REFUSED where IBM is silent (#4414, #4502)
+- **What IBM documents** (CICS TS, EXEC CICS HANDLE AID, IGNORE CONDITION, HANDLE CONDITION, PUSH HANDLE, POP
+  HANDLE; RESP and RESP2 options). HANDLE AID: a key's label, taken "after the input command is completed; that is,
+  after any data received in addition to the AID has been passed to the application program"; ANYKEY is "any PA key,
+  any PF key, or the CLEAR key, but not ENTER"; a key named without a label is deactivated; a task an AID started
+  gets its input buffer on the first RECEIVE "(even if the length of the data is zero)"; RESP implies NOHANDLE, which
+  "overrides both the HANDLE AID and the HANDLE CONDITION command". IGNORE CONDITION: control returns after the
+  command with the EIB set; the last HANDLE or IGNORE for a condition wins. HANDLE CONDITION ERROR: "if the default
+  action for such a condition terminates the task abnormally, and the condition ERROR has been specified, the action
+  for ERROR is taken" (so not for EOC, ignored by default). PUSH HANDLE suspends the IGNORE CONDITION, HANDLE ABEND,
+  HANDLE AID and HANDLE CONDITION state; POP HANDLE restores it, INVREQ when no PUSH HANDLE was executed at the
+  current link level. Both sides model it: `ggcics.c` GGCHCND / GGCHAID / GGCAID / GGCPUSH / GGCPOP / GGCCOND (#4003,
+  #4007), and the det port's `handlers` (-1: IGNORE), `aids` and `pushed` with `condition()` / `aid()` and
+  DetCics.aidLabel / Handlers (#4414; the ERROR step of `condition()`, #4502).
+- **Refused by name** (`CicsError` / `Unsupported` at translation, a DRIVER-ERROR or IllegalStateException at run
+  time): IGNORE CONDITION ERROR (IBM does not say whether ERROR's action can be to ignore); a condition name IBM does
+  not document; a HANDLE AID key that is no attention key, or RESP / NOHANDLE on it; at run time, a HANDLE AID label
+  that applies to the key of an input command that also raised a condition (IBM does not say which CICS acts on
+  first: MAPFAIL on a RECEIVE MAP after CLEAR or a PA key is the common case), and a key deactivated while ANYKEY
+  has a label (IBM does not say whether ANYKEY then takes it). The stub took the condition first and gave the
+  deactivated key to ANYKEY before #4414; both are refused on both sides now.
+- **Reached.** cics-crucible hc-handle-aid (9: a key's own label, ANYKEY not ENTER, a deactivated key, RESP, PUSH /
+  POP HANDLE, CLEAR and PA1 with no data), hc-ignore-error (9: IGNORE, ERROR, a condition's own HANDLE or IGNORE
+  before ERROR, IGNORE overriding HANDLE, PUSH suspending IGNORE and ERROR, POP restoring, POP with nothing pushed)
+  and hc-eoc-error (2: ERROR does not take EOC), cobol-stub and the det port both passing the hand-written logs.
 
 ## Language Environment
 

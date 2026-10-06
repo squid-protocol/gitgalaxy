@@ -1651,6 +1651,11 @@ def _cobol_events(out: Path, program: str, screens: Optional[dict[str, Screen]] 
         elif verb == "RECEIVE-REFUSED":  # #4413
             ev = {"event": "DRIVER-ERROR", "program": issuer,
                   "message": "RECEIVE NOTRUNCATE leaving data retained on an LUTYPE2 terminal: EOC is not documented"}  # fmt: skip
+        elif verb == "AID-REFUSED":  # #4414: what IBM's HANDLE AID does not say
+            ev = {"event": "DRIVER-ERROR", "program": issuer,
+                  "message": "HANDLE AID: a key deactivated while ANYKEY has a label" if arg("deactivated") else
+                             "a HANDLE AID label and a condition on one input command: which CICS takes first is "
+                             "not documented"}  # fmt: skip
         elif verb == "RECEIVE-WAIT":
             ev = {"event": "DRIVER-ERROR", "program": issuer,
                   "message": "a second terminal RECEIVE in one task waits for input no scenario step gives"}  # fmt: skip

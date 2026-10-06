@@ -326,6 +326,14 @@ Only generator output, never a test case:
   register X15). A CICS port of an estate with no screens / contracts / repositories no longer imports those
   packages. Proven through cics-crucible hc-terminal-receive (7) and hc-terminal-eoc (3): the cobol-stub side and
   the det port both pass the hand-written logs.
+- #4414 / #4502: `HANDLE AID` (71 PL/I + 5 COBOL programs) and `IGNORE CONDITION` were refused, and `PUSH` / `POP
+  HANDLE` with them; `HANDLE CONDITION ERROR(label)` was accepted but never taken -- a condition with no handler of its
+  own abended the port where CICS goes to the ERROR label. All now run on the port (`handlers` with -1 for IGNORE,
+  `aids`, a `pushed` stack of DetCics.Handlers beside CicsTask's own HANDLE ABEND stack; `condition()` takes the
+  condition's HANDLE / IGNORE, then a default of ignore, then ERROR, then the abend; `aid()` after RECEIVE MAP and
+  terminal RECEIVE). What IBM does not say is refused by name on both sides (register X16): an AID label beside a
+  condition on one input command, a key deactivated under ANYKEY, IGNORE CONDITION ERROR. Proven through
+  cics-crucible hc-handle-aid (9), hc-ignore-error (9) and hc-eoc-error (2) on the cobol-stub side and the det port.
 - #4463: four det ports stopped proving on 2026-10-04 and no CI ran the det sweep. carddemo-menu: a #4049 scenario
   sent option 99, which COMEN01C still uses as a subscript of its 12-entry table, 4K past the record (X8: the det
   port stops; the case now sends 12). mortgage-cmort / mlist / nbrvl: #4245 read every program of EPSCSMRD's

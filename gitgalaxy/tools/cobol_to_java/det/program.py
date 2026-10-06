@@ -472,6 +472,10 @@ def _translate(program: Path, copy_dirs: list[Path], stub: str, package: str, es
         if project is None:
             raise ValueError("a CICS program needs the generated project")
         gen.cics = C.Cics(gen, C.Generated(project, stub), package)
+        # #4414: HANDLE AID / PUSH HANDLE anywhere in the program, before its input commands are translated
+        execs = [s.text for p in proc.paragraphs for s in S.walk(p.body) if s.kind == "EXEC"]
+        gen.cics.handle_aid = any(re.match(r"(?is)\s*EXEC\s+CICS\s+HANDLE\s+AID\b", t) for t in execs)
+        gen.cics.push_handle = any(re.match(r"(?is)\s*EXEC\s+CICS\s+(PUSH|POP)\s+HANDLE\b", t) for t in execs)
     if gen.cics is not None:
         gen.dto_codecs = gen.cics
     elif project is not None:
@@ -1130,7 +1134,19 @@ def _cics_parts(gen: G.Gen, records: list, roots: dict, proc: S.Procedure,
     store_cases = [f'            case "{n}" -> {e};' for n, e in cx.stores.items()]
     members = [
         "    private CicsTask task;",
+        # HANDLE CONDITION labels; -1: IGNORE CONDITION (#4414)
         "    private final java.util.Map<String, Integer> handlers = new java.util.HashMap<>();",
+        # #4414: HANDLE AID labels, and PUSH HANDLE's saved states -- only in a program that issues them
+        *(
+            ["    private final java.util.Map<String, Integer> aids = new java.util.HashMap<>();"]
+            if cx.handle_aid or cx.push_handle
+            else []
+        ),
+        *(
+            ["    private final java.util.ArrayDeque<DetCics.Handlers> pushed = new java.util.ArrayDeque<>();"]
+            if cx.push_handle
+            else []
+        ),
         "    private final java.util.Map<String, DetCics.Store<?>> stores = new java.util.HashMap<>();",
         "    private final java.util.Map<String, byte[]> heldKey = new java.util.HashMap<>();",
         "    /** Writes the COMMAREA's bytes back into the object the task carries (a LINKed program's is its caller's). */",
@@ -1168,9 +1184,11 @@ def _cics_parts(gen: G.Gen, records: list, roots: dict, proc: S.Procedure,
         "        return i;",
         "    }",
         "",
-        "    /** A condition the command neither returned in RESP nor ignored: its HANDLE CONDITION label, or CICS's",
-        "     *  default action -- -1 (go on) for one whose default is to ignore it (#4413: EOC), else an abend, to this",
-        "     *  program's HANDLE ABEND exit or ending the task. */",
+        "    /** A condition the command did not return in RESP: its HANDLE CONDITION label, or -1 (go on) when IGNOREd",
+        "     *  (#4414); else CICS's default action -- -1 for one whose default is to ignore it (#4413: EOC); else the",
+        '     *  ERROR label (#4502: IBM, HANDLE CONDITION: "if the default action for such a condition terminates the',
+        '     *  task abnormally, and the condition ERROR has been specified, the action for ERROR is taken"); else an',
+        "     *  abend, to this program's HANDLE ABEND exit or ending the task. */",
         "    private int condition(String cond) {",
         "        Integer h = handlers.get(cond);",
         "        if (h != null) {",
@@ -1179,6 +1197,10 @@ def _cics_parts(gen: G.Gen, records: list, roots: dict, proc: S.Procedure,
         "        if (DetCics.ignoredByDefault(cond)) {",
         "            return -1;",
         "        }",
+        '        Integer error = handlers.get("ERROR");',
+        "        if (error != null) {",
+        "            return error;",
+        "        }",
         "        String label = task.abendOnCondition(cond);",
         "        if (label == null) {",
         "            throw new Goback();",
@@ -1186,6 +1208,26 @@ def _cics_parts(gen: G.Gen, records: list, roots: dict, proc: S.Procedure,
         "        return paragraph(label);",
         "    }",
         "",
+        *(
+            [
+                "    /** #4414: after an input command, the HANDLE AID label of the key pressed (DetCics.aidLabel), else -1.",
+                "     *  The command also raised a condition (resp): which IBM acts on first is not documented -- refused. */",
+                "    private int aid(int resp) {",
+                "        Integer h = DetCics.aidLabel(aids, task.aid());",
+                "        if (h == null) {",
+                "            return -1;",
+                "        }",
+                "        if (resp != 0) {",
+                '            throw new IllegalStateException("HANDLE AID " + task.aid() + " and condition " + DetCics.condition(resp)',
+                '                    + " on one input command: which CICS takes first is not documented");',
+                "        }",
+                "        return h;",
+                "    }",
+                "",
+            ]
+            if cx.handle_aid
+            else []
+        ),
         "    private static int cx(CicsTask task, int whole) {",
         "        return task.eibcalen() == null ? whole : task.eibcalen();",
         "    }",
@@ -1200,6 +1242,8 @@ def _cics_parts(gen: G.Gen, records: list, roots: dict, proc: S.Procedure,
         *(["        DetSql.closeAll();  // a task's cursors are its own"] if gen.sql is not None else []),
         "        caBack = () -> { };",
         "        handlers.clear();",
+        *(["        aids.clear();"] if cx.handle_aid or cx.push_handle else []),
+        *(["        pushed.clear();"] if cx.push_handle else []),
         "        heldKey.clear();",
         "        initialState();",
         f"        Cobol.move(task.transid(), {gen.eib('EIBTRNID')}, CS);",

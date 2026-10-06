@@ -22,6 +22,7 @@ on:
       - "tests/cobol_mainframe/corpora.json"
       - "tests/_cics_crucible_pin.py"
       - "tests/tools/ports_compile_check.py"
+      - "tests/tools/port_surface.py"
       - "tests/tools/cics_crucible.py"
       - "tests/tools/equivalence_java.py"
       - "tests/tools/equivalence_cache.py"
@@ -36,6 +37,7 @@ on:
       - "tests/equivalence/*/port/**"
       - "tests/equivalence/*/case.json"
       - "tests/tools/ports_compile_check.py"
+      - "tests/tools/port_surface.py"
       - ".github/workflows/ports-compile.yml"
   workflow_dispatch:
 
@@ -124,6 +126,14 @@ jobs:
           python tests/tools/ports_compile_check.py --crucible ../cics-crucible --keep "$RUNNER_TEMP/ports_compile" \
             | tee "$RUNNER_TEMP/ports_compile.txt"
           exit "${PIPESTATUS[0]}"
+        shell: bash
+
+      # #4530: the committed equivalence ports keep the facades the generator writes now (a generator change that moves
+      # one is resurfaced with `port_surface.py equivalence --work DIR`, then re-proven). Same corpora, no Maven.
+      - name: Equivalence ports carry the generator's facades
+        run: |
+          cd gitgalaxy
+          python tests/tools/port_surface.py equivalence --work "$RUNNER_TEMP/port_surface" --check
         shell: bash
 
       - name: Summary

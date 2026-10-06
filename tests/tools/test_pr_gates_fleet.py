@@ -12,14 +12,20 @@ import pr_gates
 def test_ci_pins_reads_workflows():
     pins = pr_gates.ci_pins()
     assert pins["python"] and pins["ruff"]  # ruff is pinned in ruff-audit.yml
+    assert pins["mypy"]  # mypy is pinned in tests/requirements-mypy.txt
+
+
+def test_mypy_workflow_installs_from_the_pin_file():
+    yml = (pr_gates.REPO / ".github" / "workflows" / "mypy-audit.yml").read_text(encoding="utf-8")
+    assert "pip install -r tests/requirements-mypy.txt" in yml
 
 
 def test_version_warnings_flag_drift_and_print_private_venv():
-    pins = {"python": "3.12", "ruff": "0.16.0", "mypy": None}
+    pins = {"python": "3.12", "ruff": "0.16.0", "mypy": "2.4.0"}
     msgs = pr_gates.version_warnings(pins, {"python": "3.12.3", "ruff": "0.15.1", "mypy": "1.0"})
     text = "\n".join(msgs)
     assert "ruff: local 0.15.1 != CI 0.16.0" in text
-    assert "UNPINNED" in text and "PRIVATE venv" in text and "ruff==0.16.0" in text
+    assert "PRIVATE venv" in text and "ruff==0.16.0" in text
     assert "python:" not in text  # 3.12.3 matches 3.12
 
 
@@ -62,7 +68,7 @@ def test_ratchets_skip_when_nothing_present(monkeypatch, tmp_path, capsys):
     assert pr_gates.run_ratchets(None, env) == 0  # skipped is not failed ...
     out = capsys.readouterr().out
     assert not ran  # ... and nothing was run
-    assert out.count("not available:") == 5
+    assert out.count("not available:") == 6
     assert "not checked" in out and "mainframe_corpus.py fetch" in out and "mvn" in out
 
 

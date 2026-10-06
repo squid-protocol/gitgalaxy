@@ -198,7 +198,7 @@ class ApertureFilter:
         self.machine_gen_pattern = re.compile(
             r"(?i)^(?:"
             r"@generated\b"
-            r"|(?:code\s+)?(?:auto-?|automatically\s+)?generated\s+(?:by|from|using|with)\b"
+            r"|(?:code\s+)?(?:auto-?|automatically\s+)?generated\s+by\s+\S"
             r"|auto-?generated\b|automatically\s+generated\b"
             r"|do\s+not\s+edit\b"
             r"|this\s+(?:file|code|source)\s+(?:is|was)\s+(?:auto-?|automatically\s+)?generated\b"

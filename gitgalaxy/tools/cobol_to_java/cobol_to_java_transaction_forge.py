@@ -270,8 +270,10 @@ public class CicsTask {
     private Map<String, Channel> channels = new HashMap<>();  // #4270: the channels in this program's scope, by name
     private java.util.Set<String> droppedChannels = java.util.Set.of();  // #4270: left behind by an XCTL
     private LocalDateTime now;                              // #4006: the virtual clock (the task's root)
-    private List<byte[]> retrieveData = List.of();
+    private List<StartData> retrieveData = List.of();
     private int retrieved;
+    private boolean retrieveRefused;                        // #4270: a RETRIEVE raised ENVDEFERR (the root's)
+    private final java.util.Set<String> ownWithData = new java.util.HashSet<>();  // #4270: own REQIDs with FROM
     private Map<String, LocalDateTime> unexpired = Map.of();
     private final Map<String, LocalDateTime> ownRequests = new HashMap<>();
     private String terminalInput;
@@ -554,8 +556,25 @@ public class CicsTask {
 
     /** The FROM data of the START requests this task was started for, in expiry order (#4006). */
     public CicsTask withRetrieveData(List<byte[]> data) {
-        this.retrieveData = data == null ? List.of() : data;
+        List<StartData> records = new ArrayList<>();
+        if (data != null) {
+            data.forEach(d -> records.add(new StartData(d, null, null, null)));
+        }
+        return withStartData(records);
+    }
+
+    /** #4270: the data records of the START requests this task was started for, in expiry order -- each one's FROM
+     *  data and RTRANSID / RTERMID / QUEUE values, null where its START did not give one. A START that gave none of
+     *  them stored no record (IBM, EXEC CICS RETRIEVE: ENDDATA for "a START command that did not specify any of the
+     *  data options FROM, RTRANSID, RTERMID, or QUEUE"). */
+    public CicsTask withStartData(List<StartData> records) {
+        this.retrieveData = records == null ? List.of() : records;
         return this;
+    }
+
+    /** #4270: one START request's data record: FROM's bytes and the RTRANSID / RTERMID / QUEUE values (each null
+     *  when the START did not give it). */
+    public record StartData(byte[] from, String rtransid, String rtermid, String queue) {
     }
 
     /** The region's unexpired interval-control requests by REQID (#4006: what CANCEL can still find). */
@@ -570,36 +589,191 @@ public class CicsTask {
      *  the request expires at now + INTERVAL; the harness's scheduler runs it once the starting task has
      *  ended (a PROTECT request only if it ended normally). `termid`, `from` and `reqid` may be null. */
     public StartResult start(String transid, String termid, int interval, byte[] from, String reqid, boolean protect) {
-        return start(transid, termid, interval, false, from, reqid, protect);
+        return startRequest(transid).termid(termid).interval(interval).from(from).reqid(reqid).protect(protect).issue();
     }
 
-    /** START ... TIME(hhmmss): today at that time; a TIME not later than now but within the preceding six hours
-     *  expires at once ("if the START gets triggered at any time within 6 hours after the time specified on
-     *  the START, it runs immediately"), an earlier one tomorrow. */
+    /** START ... TIME(hhmmss): see StartRequest.time. */
     public StartResult startAt(String transid, String termid, int time, byte[] from, String reqid, boolean protect) {
-        return start(transid, termid, time, true, from, reqid, protect);
+        return startRequest(transid).termid(termid).time(time).from(from).reqid(reqid).protect(protect).issue();
     }
 
-    private StartResult start(String transid, String termid, int hhmmss, boolean isTime, byte[] from, String reqid,
-            boolean protect) {
+    /** #4270: a START TRANSID(transid) request, its options set one by one, then issued (IBM CICS TS, EXEC CICS
+     *  START). Without INTERVAL / TIME / AFTER / AT it is INTERVAL(0). */
+    public StartRequest startRequest(String transid) {
+        return new StartRequest(this, transid);
+    }
+
+    /** #4270: the options of one START. */
+    public static final class StartRequest {
+        private final CicsTask task;
+        private final String transid;
+        private String termid;
+        private String reqid;
+        private String rtransid;
+        private String rtermid;
+        private String queue;
+        private byte[] from;
+        private boolean protect;
+        private String when = "INTERVAL";
+        private int hhmmss;
+        private Integer hours;
+        private Integer minutes;
+        private Integer seconds;
+
+        private StartRequest(CicsTask task, String transid) {
+            this.task = task;
+            this.transid = transid;
+        }
+
+        /** INTERVAL(hhmmss): now + hh hours, mm minutes, ss seconds; mm / ss above 59 is INVREQ RESP2 5 / 6. */
+        public StartRequest interval(int hhmmss) {
+            this.when = "INTERVAL";
+            this.hhmmss = hhmmss;
+            return this;
+        }
+
+        /** TIME(hhmmss): "If you specify a time with an hours component that is greater than 23, you are specifying
+         *  a time on a day following the current one"; a time of today not later than now but within the preceding
+         *  six hours expires at once ("If you specify a task to start at any time within the previous six hours,
+         *  it starts immediately"), an earlier one tomorrow (IBM CICS TS, "Expiration times"). */
+        public StartRequest time(int hhmmss) {
+            this.when = "TIME";
+            this.hhmmss = hhmmss;
+            return this;
+        }
+
+        /** AFTER HOURS / MINUTES / SECONDS (null: not given): "A combination of at least two of HOURS(0 - 99),
+         *  MINUTES(0 - 59), and SECONDS(0 - 59)", or "one of HOURS(0 - 99), MINUTES(0 - 5999), or SECONDS(0 -
+         *  359999)"; out of range, INVREQ RESP2 4 / 5 / 6. The interval it amounts to. */
+        public StartRequest after(Integer hours, Integer minutes, Integer seconds) {
+            return hms("AFTER", hours, minutes, seconds);
+        }
+
+        /** AT HOURS / MINUTES / SECONDS: the time of day they amount to, as TIME. */
+        public StartRequest at(Integer hours, Integer minutes, Integer seconds) {
+            return hms("AT", hours, minutes, seconds);
+        }
+
+        private StartRequest hms(String how, Integer h, Integer m, Integer s) {
+            if (h == null && m == null && s == null) {
+                throw new UnsupportedOperationException("START " + how + " with none of HOURS / MINUTES / SECONDS");
+            }
+            this.when = how;
+            this.hours = h;
+            this.minutes = m;
+            this.seconds = s;
+            return this;
+        }
+
+        public StartRequest termid(String termid) {
+            this.termid = termid;
+            return this;
+        }
+
+        public StartRequest reqid(String reqid) {
+            this.reqid = reqid;
+            return this;
+        }
+
+        /** FROM's bytes (null: no FROM). */
+        public StartRequest from(byte[] from) {
+            this.from = from;
+            return this;
+        }
+
+        public StartRequest protect(boolean protect) {
+            this.protect = protect;
+            return this;
+        }
+
+        /** RTRANSID / RTERMID / QUEUE: values the started task RETRIEVEs (null: not given). */
+        public StartRequest rtransid(String rtransid) {
+            this.rtransid = rtransid;
+            return this;
+        }
+
+        public StartRequest rtermid(String rtermid) {
+            this.rtermid = rtermid;
+            return this;
+        }
+
+        public StartRequest queue(String queue) {
+            this.queue = queue;
+            return this;
+        }
+
+        public StartResult issue() {
+            return task.issueStart(this);
+        }
+    }
+
+    /** #4270: AFTER / AT's HOURS, MINUTES, SECONDS as hhmmss, or -4 / -5 / -6 (INVREQ's RESP2, negated) for the
+     *  first one out of range (IBM, EXEC CICS START, AFTER). */
+    static int hhmmss(Integer h, Integer m, Integer s) {
+        int given = (h != null ? 1 : 0) + (m != null ? 1 : 0) + (s != null ? 1 : 0);
+        if (h != null && (h < 0 || h > 99)) {
+            return -4;
+        }
+        if (m != null && (m < 0 || m > (given == 1 ? 5999 : 59))) {
+            return -5;
+        }
+        if (s != null && (s < 0 || s > (given == 1 ? 359999 : 59))) {
+            return -6;
+        }
+        int total = (h == null ? 0 : h) * 3600 + (m == null ? 0 : m) * 60 + (s == null ? 0 : s);
+        return total / 3600 * 10000 + total / 60 % 60 * 100 + total % 60;
+    }
+
+    private StartResult issueStart(StartRequest q) {
+        CicsTask task = root();
+        String how = q.when;
+        int hhmmss = q.hhmmss;
+        int resp2 = 0;
+        if ("AFTER".equals(how) || "AT".equals(how)) {
+            hhmmss = hhmmss(q.hours, q.minutes, q.seconds);
+            if (hhmmss < 0) {
+                resp2 = -hhmmss;
+            }
+        } else if (hhmmss < 0 || hhmmss / 10000 > 99) {
+            resp2 = 4;
+        } else if (hhmmss / 100 % 100 > 59) {
+            resp2 = 5;
+        } else if (hhmmss % 100 > 59) {
+            resp2 = 6;
+        }
+        boolean isTime = "TIME".equals(how) || "AT".equals(how);
         int hh = hhmmss / 10000, mm = hhmmss / 100 % 100, ss = hhmmss % 100;
         LocalDateTime clock = now();
         LocalDateTime at = null;
         String resp = "NORMAL";
         int[] planned;
-        if (hhmmss < 0 || mm > 59 || ss > 59 || hh > (isTime ? 23 : 99)) {
+        if (q.reqid != null && (task.ownRequests.containsKey(q.reqid) || task.unexpired.containsKey(q.reqid))) {
+            // IBM: IOERR when "A START operation uses a REQID name that exists. This condition occurs only when the
+            // FROM option is also used" -- a REQID this task already used with FROM; any other reuse is not settled
+            if (q.from == null || !task.ownWithData.contains(q.reqid)) {
+                throw new UnsupportedOperationException("START REQID(" + q.reqid + ") of a request that exists"
+                        + (q.from == null ? ", without FROM" : ", not this task's own with FROM") + ": not modelled");
+            }
+        }
+        int range = resp2;
+        if (range != 0) {
             resp = "INVREQ";
-        } else if (from != null && (from.length < 1 || from.length > 32763)) {
+        } else if (q.from != null && q.from.length < 1) {  // IBM: LENGERR "if LENGTH is not greater than zero"
             resp = "LENGERR";
-        } else if (programs != null && !programs.transaction(transid)) {
+        } else if (q.from != null && q.from.length > 32763) {
+            resp = "LENGERR";
+        } else if (programs != null && !programs.transaction(q.transid)) {
             resp = "TRANSIDERR";
-        } else if (termid != null && programs != null && !programs.terminal(termid)) {
+        } else if (q.termid != null && programs != null && !programs.terminal(q.termid)) {
             resp = "TERMIDERR";
-        } else if ((planned = root().injected("START", transid.stripTrailing())) != null) {
+        } else if ((planned = task.injected("START", q.transid.stripTrailing())) != null) {
             resp = respName(planned[0]);  // #4049: a planned condition; nothing is started
+            resp2 = planned[1];
+        } else if (q.reqid != null && q.from != null && task.ownWithData.contains(q.reqid)) {
+            resp = "IOERR";
         } else if (isTime) {
-            at = clock.toLocalDate().atTime(hh, mm, ss);
-            if (!at.isAfter(clock)) {
+            at = clock.toLocalDate().atStartOfDay().plusHours(hh).plusMinutes(mm).plusSeconds(ss);
+            if (hh <= 23 && !at.isAfter(clock)) {
                 at = at.isBefore(clock.minusHours(6)) ? at.plusDays(1) : clock;
             }
         } else {
@@ -607,32 +781,66 @@ public class CicsTask {
         }
         Map<String, Object> e = new LinkedHashMap<>();
         e.put("event", "START");
-        e.put("transid", transid);
-        e.put("termid", termid);
-        e.put(isTime ? "time" : "interval", String.format(java.util.Locale.ROOT, "%06d", hhmmss));
-        e.put("from", from == null ? null : from.clone());
-        if (reqid != null) {
-            e.put("reqid", reqid);
+        e.put("transid", q.transid);
+        e.put("termid", q.termid);
+        // an AFTER / AT is recorded as the interval / time it amounts to; out of range, it amounts to none
+        e.put(isTime ? "time" : "interval", hhmmss < 0 ? null : String.format(java.util.Locale.ROOT, "%06d", hhmmss));
+        e.put("from", q.from == null ? null : q.from.clone());
+        if (q.reqid != null) {
+            e.put("reqid", q.reqid);
             if (at != null) {
-                root().ownRequests.put(reqid, at);
+                task.ownRequests.put(q.reqid, at);
+                if (q.from != null) {
+                    task.ownWithData.add(q.reqid);
+                }
             }
         }
-        e.put("protect", protect);
+        // #4270: the data options, only those the program named
+        if (q.rtransid != null) {
+            e.put("rtransid", q.rtransid);
+        }
+        if (q.rtermid != null) {
+            e.put("rtermid", q.rtermid);
+        }
+        if (q.queue != null) {
+            e.put("queue", q.queue);
+        }
+        e.put("protect", q.protect);
         e.put("resp", resp);
+        if (range != 0) {
+            e.put("resp2", range);  // (SPEC 6.2: where IBM documents it -- INVREQ RESP2 4 / 5 / 6)
+        }
         e.put("expires", at == null ? null : at.format(ISO));
         add(e);
-        return new StartResult(resp, at);
+        return new StartResult(resp, at, resp2);
     }
 
-    /** A START's outcome: its condition and when the request expires (null unless NORMAL). */
-    public record StartResult(String resp, LocalDateTime expires) {
+    /** A START's outcome: its condition, when the request expires (null unless NORMAL) and RESP2 (#4270). */
+    public record StartResult(String resp, LocalDateTime expires, int resp2) {
+        public StartResult(String resp, LocalDateTime expires) {
+            this(resp, expires, 0);
+        }
     }
 
     /** RETRIEVE INTO LENGTH(maxLength) (#4006, IBM EXEC CICS RETRIEVE): the next data record of the requests
      *  the task was started for, truncated with LENGERR when longer (the length is then the record's own);
      *  ENDDATA when none is left, as for a task no START started. */
     public RetrieveResult retrieve(int maxLength) {
+        return retrieve(Integer.valueOf(maxLength), false, false, false);
+    }
+
+    /** #4270: RETRIEVE [INTO LENGTH(maxLength)] [RTRANSID] [RTERMID] [QUEUE] (IBM CICS TS, EXEC CICS RETRIEVE):
+     *  `maxLength` null without INTO. The next data record: ENDDATA when none is left; ENVDEFERR when the command
+     *  names RTRANSID / RTERMID / QUEUE and the record's START did not give it ("occurs when a RETRIEVE command
+     *  specifies an option not specified by the corresponding START command"); else FROM's data truncated to
+     *  maxLength with LENGERR, and the values asked for. What IBM does not say is refused: INTO for a record whose
+     *  START gave no FROM, and any RETRIEVE after an ENVDEFERR (whether that record was used up). */
+    public RetrieveResult retrieve(Integer maxLength, boolean rtransid, boolean rtermid, boolean queue) {
         CicsTask task = root();
+        if (task.retrieveRefused) {
+            throw new UnsupportedOperationException("RETRIEVE after ENVDEFERR: whether the record is still there is "
+                    + "not documented");
+        }
         int[] planned = task.injected("RETRIEVE", "-");  // #4049: a planned condition; nothing is retrieved
         if (planned != null) {
             event("RETRIEVE", "resp", respName(planned[0]), "length", null, "data", null);
@@ -642,15 +850,50 @@ public class CicsTask {
             event("RETRIEVE", "resp", "ENDDATA", "length", null, "data", null);
             return new RetrieveResult("ENDDATA", -1, null);
         }
-        byte[] stored = task.retrieveData.get(task.retrieved++);
-        byte[] data = stored.length > maxLength ? Arrays.copyOf(stored, Math.max(maxLength, 0)) : stored.clone();
-        String resp = stored.length > maxLength ? "LENGERR" : "NORMAL";
-        event("RETRIEVE", "resp", resp, "length", stored.length, "data", data);
-        return new RetrieveResult(resp, stored.length, data);
+        StartData record = task.retrieveData.get(task.retrieved);
+        if (maxLength != null && record.from() == null) {
+            throw new UnsupportedOperationException("RETRIEVE INTO the record of a START with no FROM: whether that "
+                    + "is ENVDEFERR is not documented");
+        }
+        if ((rtransid && record.rtransid() == null) || (rtermid && record.rtermid() == null)
+                || (queue && record.queue() == null)) {
+            task.retrieveRefused = true;
+            event("RETRIEVE", "resp", "ENVDEFERR", "length", null, "data", null);
+            return new RetrieveResult("ENVDEFERR", -1, null);
+        }
+        task.retrieved++;
+        byte[] stored = record.from();
+        byte[] data = null;
+        String resp = "NORMAL";
+        if (maxLength != null) {
+            data = stored.length > maxLength ? Arrays.copyOf(stored, Math.max(maxLength, 0)) : stored.clone();
+            resp = stored.length > maxLength ? "LENGERR" : "NORMAL";
+        }
+        Map<String, Object> e = new LinkedHashMap<>();
+        e.put("event", "RETRIEVE");
+        e.put("resp", resp);
+        e.put("length", maxLength == null ? null : stored.length);
+        e.put("data", data);
+        if (rtransid) {
+            e.put("rtransid", record.rtransid());
+        }
+        if (rtermid) {
+            e.put("rtermid", record.rtermid());
+        }
+        if (queue) {
+            e.put("queue", record.queue());
+        }
+        add(e);
+        return new RetrieveResult(resp, maxLength == null ? -1 : stored.length, data,
+                rtransid ? record.rtransid() : null, rtermid ? record.rtermid() : null, queue ? record.queue() : null);
     }
 
-    /** A RETRIEVE's outcome: its condition, the LENGTH it sets (-1 when none) and the data moved INTO. */
-    public record RetrieveResult(String resp, int length, byte[] data) {
+    /** A RETRIEVE's outcome: its condition, the LENGTH it sets (-1 when none), the data moved INTO, and (#4270) the
+     *  RTRANSID / RTERMID / QUEUE values it returns (null when not asked for or not returned). */
+    public record RetrieveResult(String resp, int length, byte[] data, String rtransid, String rtermid, String queue) {
+        public RetrieveResult(String resp, int length, byte[] data) {
+            this(resp, length, data, null, null, null);
+        }
     }
 
     /** CANCEL REQID(reqid) (#4006, IBM EXEC CICS CANCEL): NORMAL for a request that has not expired yet (the

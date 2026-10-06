@@ -194,6 +194,29 @@ public final class DetCics {
         return most;
     }
 
+    /** #4270 slice 2: START FROM(f) LENGTH(n): the first n bytes of the area, none for n below one (CicsTask answers
+     *  LENGERR: IBM, "Occurs if LENGTH is not greater than zero"). A LENGTH past FROM's end reads the bytes that
+     *  follow the item in storage, which GnuCOBOL lays out unlike IBM's compiler: refused, as the stub refuses it
+     *  (oracle_assumptions.md X6). */
+    public static byte[] startData(Field f, int n) {
+        if (n > f.length()) {
+            throw new UnsupportedOperationException("START LENGTH " + n + " > FROM's " + f.length()
+                    + " bytes: not modelled");
+        }
+        return n <= 0 ? new byte[0] : bytes(f, n);
+    }
+
+    /** #4270 slice 2: text into a whole field, padded with spaces or truncated -- a COBOL MOVE of the 4- / 8-byte
+     *  value RETRIEVE RTRANSID / RTERMID / QUEUE returns into the program's area. */
+    public static void putPadded(Field f, String text, Charset cs) {
+        StringBuilder b = new StringBuilder(text);
+        while (b.length() < f.length()) {
+            b.append(' ');
+        }
+        byte[] data = b.toString().getBytes(cs);
+        System.arraycopy(data, 0, f.storage().bytes, f.offset(), f.length());
+    }
+
     public static void put(Field f, byte[] data) {
         System.arraycopy(data, 0, f.storage().bytes, f.offset(), Math.min(data.length, f.length()));
     }
@@ -350,6 +373,7 @@ public final class DetCics {
         return switch (resp) {
             case 0 -> "NORMAL";
             case 6 -> "EOC";
+            case 11 -> "TERMIDERR";  // #4270 slice 2
             case 12 -> "FILENOTFOUND";
             case 13 -> "NOTFND";
             case 14 -> "DUPREC";
@@ -362,8 +386,11 @@ public final class DetCics {
             case 22 -> "LENGERR";
             case 26 -> "ITEMERR";
             case 27 -> "PGMIDERR";
+            case 28 -> "TRANSIDERR";  // #4270 slice 2
+            case 29 -> "ENDDATA";
             case 36 -> "MAPFAIL";
             case 44 -> "QIDERR";
+            case 56 -> "ENVDEFERR";  // #4270 slice 2
             case 70 -> "NOTAUTH";
             case 84 -> "DISABLED";
             case 110 -> "CONTAINERERR";  // #4270
@@ -377,12 +404,17 @@ public final class DetCics {
         return switch (condition) {
             case "NORMAL" -> 0;
             case "EOC" -> 6;
+            case "TERMIDERR" -> 11;  // #4270 slice 2
             case "NOTFND" -> 13;
             case "INVREQ" -> 16;
+            case "IOERR" -> 17;
             case "LENGERR" -> 22;
             case "ITEMERR" -> 26;
             case "PGMIDERR" -> 27;
+            case "TRANSIDERR" -> 28;  // #4270 slice 2
+            case "ENDDATA" -> 29;
             case "QIDERR" -> 44;
+            case "ENVDEFERR" -> 56;
             case "NOTAUTH" -> 70;
             case "SYSIDERR" -> 53;
             case "TERMERR" -> 81;

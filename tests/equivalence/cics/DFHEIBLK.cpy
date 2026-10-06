@@ -55,6 +55,15 @@
            05 GG-GOTO   PIC S9(9) COMP-5.
       * #4270: a channel's name (CHANNEL in; ASSIGN CHANNEL out).
            05 GG-CHAN   PIC X(16).
+      * #4270 slice 2: START AFTER / AT's HOURS, MINUTES, SECONDS
+      * (-999999999: not given) and the data options of START /
+      * RETRIEVE (RTRANSID, RTERMID, QUEUE; GG-FLAGS names which).
+           05 GG-HOURS  PIC S9(9) COMP-5.
+           05 GG-MINS   PIC S9(9) COMP-5.
+           05 GG-SECS   PIC S9(9) COMP-5.
+           05 GG-RTRAN  PIC X(4).
+           05 GG-RTERM  PIC X(4).
+           05 GG-RQUEUE PIC X(8).
       * ASKTIME / FORMATTIME (CardDemo's bill payment): the translator
       * computes them in COBOL from the task's clock (CURRENT-DATE is the
       * case's clock), ABSTIME being milliseconds since 00:00 on

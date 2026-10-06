@@ -61,8 +61,9 @@ EVENT_KEYS: dict[str, tuple[str, ...]] = {
     "LINK": ("target", "length", "commarea", "resp", "resp2"),
     "XCTL": ("target", "length", "commarea", "resp", "resp2"),
     "RETURN": ("level", "transid", "commarea", "caller_commarea"),
-    "START": ("transid", "termid", "interval", "time", "from", "reqid", "protect", "resp", "resp2", "expires"),
-    "RETRIEVE": ("resp", "length", "data"),
+    # #4270: the data options (rtransid, rtermid, queue) only where the program named them
+    "START": tuple("transid termid interval time from reqid protect resp resp2 expires rtransid rtermid queue".split()),
+    "RETRIEVE": ("resp", "length", "data", "rtransid", "rtermid", "queue"),
     "CANCEL": ("reqid", "resp"),
     "READQ-TS": ("queue", "item", "resp", "length", "data"),
     "WRITEQ-TS": ("queue", "data", "resp", "item"),

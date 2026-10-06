@@ -80,6 +80,8 @@ typedef struct {
     int num;        /* out: NUMITEMS */
     int go_to;      /* out: the label index a condition / abend exit transfers to (#4003) */
     char chan[16];  /* #4270: a channel's name (in: CHANNEL; out: ASSIGN CHANNEL) */
+    int hours, mins, secs;  /* #4270 slice 2: START AFTER / AT's HOURS, MINUTES, SECONDS (-1: not given) */
+    char rtran[4], rterm[4], rqueue[8];  /* START / RETRIEVE RTRANSID, RTERMID, QUEUE (GG-FLAGS names which) */
 } gg_cics;
 
 enum { NORMAL = 0, NOTFND = 13, LENGERR = 22, FILENOTFOUND = 12, MAPFAIL = 36, ITEMERR = 26, QIDERR = 44,
@@ -1837,7 +1839,7 @@ int GGCASCH(gg_cics *c) {
  * The virtual clock is $GGCICS_NOW; a task takes no time (SPEC 4). START records its request
  * as an event (with its expiry); the runner's scheduler keeps the requests and dispatches
  * them. RETRIEVE reads the data of the requests the task was started for. */
-enum { TRANSIDERR = 28, TERMIDERR = 11 };
+enum { TRANSIDERR = 28, TERMIDERR = 11, IOERR = 17, ENVDEFERR = 56 };
 
 static time_t now_epoch(void) {
     const char *s = getenv("GGCICS_NOW");
@@ -1871,32 +1873,101 @@ static int listed(const char *file, const char *name) {
 }
 
 /* This task's own STARTs with a REQID, for a CANCEL in the same task. */
-static struct { char reqid[17]; time_t expires; int cancelled; } own[64];
+static struct { char reqid[17]; time_t expires; int cancelled; int data; } own[64];
 static int nown = 0;
 
-/* START TRANSID(name1) [TERMID(name2)] [REQID(qname)] INTERVAL(hhmmss) | TIME(hhmmss) (GG-NUM,
- * GG-FLAGS says which) [FROM LENGTH: GG-ITEM 1] [PROTECT] (IBM, EXEC CICS START): the request
- * expires at now + INTERVAL, or at TIME today -- a TIME not later than now but within the
- * preceding six hours expires at once ("if the START gets triggered at any time within 6 hours
- * after the time specified on the START, it runs immediately"); one earlier than that is
- * tomorrow's. INVREQ for hours / minutes / seconds out of range, TRANSIDERR for a transaction
- * the CSD does not define, TERMIDERR for a terminal other than the region's. */
+/* #4270: AFTER / AT's HOURS, MINUTES, SECONDS (-1: not given) as hhmmss, or -4 / -5 / -6 (INVREQ's RESP2,
+ * negated) for the first one out of range (IBM, EXEC CICS START, AFTER: "A combination of at least two of
+ * HOURS(0 - 99), MINUTES(0 - 59), and SECONDS(0 - 59)", or "one of HOURS(0 - 99), MINUTES(0 - 5999), or
+ * SECONDS(0 - 359999)"). */
+#define NOT_GIVEN (-999999999) /* the translator's GG-HOURS / GG-MINS / GG-SECS for an option not given */
+static int hms(int h, int m, int s) {
+    int given = (h != NOT_GIVEN) + (m != NOT_GIVEN) + (s != NOT_GIVEN), total;
+    if (h != NOT_GIVEN && (h < 0 || h > 99)) return -4;
+    if (m != NOT_GIVEN && (m < 0 || m > (given == 1 ? 5999 : 59))) return -5;
+    if (s != NOT_GIVEN && (s < 0 || s > (given == 1 ? 359999 : 59))) return -6;
+    total = (h != NOT_GIVEN ? h : 0) * 3600 + (m != NOT_GIVEN ? m : 0) * 60 + (s != NOT_GIVEN ? s : 0);
+    return total / 3600 * 10000 + total / 60 % 60 * 100 + total % 60;
+}
+
+/* Whether the blank-separated GG-FLAGS words include `w`. */
+static int flag_word(const char *flags, const char *w) {
+    size_t n = strlen(w);
+    for (const char *p = flags; (p = strstr(p, w)) != NULL; p += n) {
+        if ((p == flags || p[-1] == ' ') && (p[n] == ' ' || p[n] == '\0')) return 1;
+    }
+    return 0;
+}
+
+/* `key=<hex>` for an event line, the value trimmed (#4270: RTRANSID / RTERMID / QUEUE). */
+static void hexarg(char *out, size_t size, const char *key, const char *v, int n) {
+    char t[17];
+    size_t at;
+    trim(v, n, t);
+    at = (size_t)snprintf(out, size, " %s=", key);
+    for (int i = 0; t[i] && at + 3 < size; i++) at += (size_t)snprintf(out + at, size - at, "%02X", (unsigned char)t[i]);
+}
+
+/* START TRANSID(name1) [TERMID(name2)] [REQID(qname)] INTERVAL(hhmmss) | TIME(hhmmss) (GG-NUM) | AFTER / AT
+ * HOURS MINUTES SECONDS (GG-HOURS / GG-MINS / GG-SECS; GG-FLAGS says which) [FROM LENGTH: GG-ITEM 1] [PROTECT]
+ * [RTRANSID RTERMID QUEUE: GG-RTRAN / GG-RTERM / GG-RQUEUE, flagged] (IBM, EXEC CICS START): the request expires at
+ * now + INTERVAL (or AFTER), or at TIME (or AT) -- "If you specify a time with an hours component that is greater
+ * than 23, you are specifying a time on a day following the current one"; a time of today not later than now but
+ * within the preceding six hours expires at once ("If you specify a task to start at any time within the previous
+ * six hours, it starts immediately"), an earlier one tomorrow (IBM, "Expiration times"). INVREQ RESP2 4 / 5 / 6 for
+ * hours / minutes / seconds out of range, LENGERR for a LENGTH not greater than zero, TRANSIDERR for a transaction
+ * the CSD does not define, TERMIDERR for a terminal other than the region's, IOERR for a REQID this task already
+ * used with FROM, used again with FROM ("A START operation uses a REQID name that exists. This condition occurs only
+ * when the FROM option is also used"); any other REQID that exists is refused. */
 int GGCSTRT(gg_cics *c, char *from) {
-    char transid[9], termid[9], reqid[17], flags[41], ev[256], expires[32] = "";
-    int hhmmss = c->num, has = c->item != 0, len = has ? c->len : 0;
-    int hh = hhmmss / 10000, mm = hhmmss / 100 % 100, ss = hhmmss % 100;
-    int is_time = 0, protect, fresp, fresp2;
+    char transid[9], termid[9], reqid[17], flags[41], ev[512], expires[32] = "", hhmm[16] = "", named[128] = "";
+    int has = c->item != 0, len = has ? c->len : 0, hhmmss = c->num, resp2 = 0;
+    int is_time, protect, fresp, fresp2, reused = -1, after;
     time_t now = now_epoch(), at = now;
     trim(c->name1, 8, transid);
     trim(c->name2, 8, termid);
     trim(c->qname, 8, reqid);
     trim(c->flags, 40, flags);
-    is_time = strstr(flags, "TIME") != NULL;
-    protect = strstr(flags, "PROTECT") != NULL;
+    after = flag_word(flags, "AFTER") || flag_word(flags, "AT");
+    is_time = flag_word(flags, "TIME") || flag_word(flags, "AT");
+    protect = flag_word(flags, "PROTECT");
+    if (after) {
+        hhmmss = hms(c->hours, c->mins, c->secs);
+        if (hhmmss < 0) resp2 = -hhmmss;
+    } else if (hhmmss < 0 || hhmmss / 10000 > 99) {
+        resp2 = 4;
+    } else if (hhmmss / 100 % 100 > 59) {
+        resp2 = 5;
+    } else if (hhmmss % 100 > 59) {
+        resp2 = 6;
+    }
+    int hh = hhmmss / 10000, mm = hhmmss / 100 % 100, ss = hhmmss % 100;
+    if (reqid[0]) {
+        char rq[256];
+        for (int i = 0; i < nown && reused < 0; i++) {
+            if (!own[i].cancelled && strcmp(own[i].reqid, reqid) == 0) reused = own[i].data;
+        }
+        if (reused < 0) {
+            char path[4096], line[128], word[64];
+            long ex;
+            snprintf(path, sizeof path, "%s/requests.cfg", dir_in());
+            FILE *f = fopen(path, "r");
+            while (f && reused < 0 && fgets(line, sizeof line, f)) {
+                if (sscanf(line, "%63s %ld", word, &ex) == 2 && strcmp(word, reqid) == 0 && ex > now) reused = 0;
+            }
+            if (f) fclose(f);
+        }
+        if (reused >= 0 && !(has && reused == 1)) {
+            snprintf(rq, sizeof rq, "START REQID(%s) of a request that exists, %s", reqid,
+                     has ? "not this task's own with FROM" : "without FROM");
+            refuse(rq);
+        }
+    }
     c->resp = NORMAL;
     c->resp2 = 0;
-    if (hhmmss < 0 || mm > 59 || ss > 59 || (is_time && hh > 23) || hh > 99) {
+    if (resp2) {
         c->resp = INVREQ;
+        c->resp2 = resp2;
     } else if (has && (len < 1 || len > 32763)) {
         c->resp = LENGERR;
     } else if (!listed("transactions.cfg", transid)) {
@@ -1906,14 +1977,16 @@ int GGCSTRT(gg_cics *c, char *from) {
     } else if (injected("START", transid, &fresp, &fresp2)) {  /* #4049: a planned condition; nothing is started */
         c->resp = fresp;
         c->resp2 = fresp2;
+    } else if (reused == 1) {
+        c->resp = IOERR;
     } else if (is_time) {
         struct tm t;
         gmtime_r(&now, &t);
-        t.tm_hour = hh;
-        t.tm_min = mm;
-        t.tm_sec = ss;
-        at = timegm(&t);
-        if (at <= now) {
+        t.tm_hour = 0;
+        t.tm_min = 0;
+        t.tm_sec = 0;
+        at = timegm(&t) + hh * 3600 + mm * 60 + ss;
+        if (hh <= 23 && at <= now) {
             if (now - at <= 6 * 3600) at = now;
             else at += 24 * 3600;
         }
@@ -1925,24 +1998,59 @@ int GGCSTRT(gg_cics *c, char *from) {
         if (reqid[0] && nown < 64) {
             snprintf(own[nown].reqid, sizeof own[nown].reqid, "%s", reqid);
             own[nown].expires = at;
+            own[nown].data = has;
             own[nown++].cancelled = 0;
         }
     }
-    snprintf(ev, sizeof ev, "START transid=%s termid=%s %s=%06d reqid=%s protect=%d resp=%d expires=%s len=%d area=%d",
-             transid, termid, is_time ? "time" : "interval", hhmmss, reqid, protect, c->resp, expires, len, has);
+    if (hhmmss >= 0) snprintf(hhmm, sizeof hhmm, "%06d", hhmmss);
+    if (flag_word(flags, "RTRANSID")) hexarg(named, sizeof named, "rtransid", c->rtran, 4);
+    if (flag_word(flags, "RTERMID")) hexarg(named + strlen(named), sizeof named - strlen(named), "rtermid", c->rterm, 4);
+    if (flag_word(flags, "QUEUE")) hexarg(named + strlen(named), sizeof named - strlen(named), "queue", c->rqueue, 8);
+    snprintf(ev, sizeof ev, "START transid=%s termid=%s %s=%s reqid=%s protect=%d resp=%d resp2=%d expires=%s len=%d "
+             "area=%d%s", transid, termid, is_time ? "time" : "interval", hhmm, reqid, protect, c->resp,
+             c->resp == INVREQ ? resp2 : 0, expires, len, has, named);
     event(ev, has ? from : NULL, has && c->resp == NORMAL ? len : 0);
     return 0;
 }
 
-/* RETRIEVE INTO LENGTH(c->len) (IBM, EXEC CICS RETRIEVE): the next data record of the requests
- * the task was started for, in expiry order -- truncated with LENGERR when longer than LENGTH,
- * which is then set to the record's length; ENDDATA when there is none left (also for a task no
- * START started). */
-static int retrieved = 0;
+/* RETRIEVE [INTO LENGTH(c->len)] [RTRANSID RTERMID QUEUE] (GG-FLAGS: INTO and the options named; IBM, EXEC CICS
+ * RETRIEVE): the next data record of the requests the task was started for, in expiry order -- retrieve_NNN.bin
+ * its FROM data, retrieve_NNN.opt (#4270, when the START gave RTRANSID / RTERMID / QUEUE or no FROM) its other data
+ * options. ENDDATA when none is left (also for a task no START started); ENVDEFERR when the command names RTRANSID
+ * / RTERMID / QUEUE and the record's START did not give it ("occurs when a RETRIEVE command specifies an option not
+ * specified by the corresponding START command"); else the data truncated with LENGERR when longer than LENGTH,
+ * which is then set to the record's length, and the values asked for into GG-RTRAN / GG-RTERM / GG-RQUEUE. Refused:
+ * INTO for a record with no FROM, and any RETRIEVE after an ENVDEFERR (IBM does not say whether either is
+ * ENVDEFERR, or whether that record was used up). */
+static int retrieved = 0, envdeferr = 0;
+
+static int opt_value(const char *opts, const char *key, char *out, int n) {
+    char pat[16];
+    const char *p;
+    snprintf(pat, sizeof pat, " %s=", key);
+    p = strstr(opts, pat);
+    if (!p) return 0;
+    p += strlen(pat);
+    memset(out, ' ', (size_t)n);
+    for (int i = 0; i < n && p[0] && p[1] && p[0] != ' ' && p[0] != '\n'; i++, p += 2) {
+        unsigned v;
+        sscanf(p, "%2x", &v);
+        out[i] = (char)v;
+    }
+    return 1;
+}
 
 int GGCRTRV(gg_cics *c, char *into) {
-    char path[4096], ev[96], buf[32768];
-    int n = -1, max = c->len, copied = 0, fresp, fresp2;
+    char path[4096], ev[256], buf[32768], opts[256] = " from=1", flags[41], named[128] = "";
+    char rtran[4], rterm[4], rqueue[8];
+    int n = -1, max = c->len, copied = 0, fresp, fresp2, has_from = 1;
+    int want_into, want_tran, want_term, want_queue;
+    trim(c->flags, 40, flags);
+    want_into = flag_word(flags, "INTO");
+    want_tran = flag_word(flags, "RTRANSID");
+    want_term = flag_word(flags, "RTERMID");
+    want_queue = flag_word(flags, "QUEUE");
+    if (envdeferr) refuse("RETRIEVE after ENVDEFERR: whether the record is still there is not documented");
     snprintf(path, sizeof path, "%s/retrieve_%03d.bin", dir_in(), retrieved + 1);
     c->resp2 = 0;
     if (injected("RETRIEVE", "-", &fresp, &fresp2)) {  /* #4049: a planned condition; nothing is retrieved */
@@ -1953,18 +2061,65 @@ int GGCRTRV(gg_cics *c, char *into) {
         return 0;
     }
     FILE *f = fopen(path, "rb");
-    if (!f) {
+    {
+        char opath[4096];
+        snprintf(opath, sizeof opath, "%s/retrieve_%03d.opt", dir_in(), retrieved + 1);
+        FILE *o = fopen(opath, "r");
+        if (o) {
+            opts[0] = ' ';
+            if (!fgets(opts + 1, sizeof opts - 1, o)) opts[1] = '\0';
+            fclose(o);
+            has_from = strstr(opts, " from=1") != NULL;
+        } else if (!f) {
+            has_from = -1;  /* no record */
+        }
+    }
+    if (has_from < 0) {
         c->resp = ENDDATA;
     } else {
-        n = (int)fread(buf, 1, sizeof buf, f);
-        fclose(f);
-        retrieved++;
-        copied = n < max ? n : (max > 0 ? max : 0);
-        memcpy(into, buf, (size_t)copied);
-        c->resp = n > max ? LENGERR : NORMAL;
-        c->len = n;
+        int t = opt_value(opts, "rtransid", rtran, 4), m = opt_value(opts, "rtermid", rterm, 4);
+        int q = opt_value(opts, "queue", rqueue, 8);
+        if (want_into && !has_from) {
+            if (f) fclose(f);
+            refuse("RETRIEVE INTO the record of a START with no FROM: whether that is ENVDEFERR is not documented");
+        }
+        if ((want_tran && !t) || (want_term && !m) || (want_queue && !q)) {
+            if (f) fclose(f);
+            f = NULL;
+            envdeferr = 1;
+            c->resp = ENVDEFERR;
+        } else {
+            n = 0;
+            if (f) {
+                n = (int)fread(buf, 1, sizeof buf, f);
+                fclose(f);
+                f = NULL;
+            }
+            retrieved++;
+            c->resp = NORMAL;
+            if (want_into) {
+                copied = n < max ? n : (max > 0 ? max : 0);
+                memcpy(into, buf, (size_t)copied);
+                c->resp = n > max ? LENGERR : NORMAL;
+                c->len = n;
+            }
+            if (want_tran) {
+                memcpy(c->rtran, rtran, 4);
+                hexarg(named, sizeof named, "rtransid", rtran, 4);
+            }
+            if (want_term) {
+                memcpy(c->rterm, rterm, 4);
+                hexarg(named + strlen(named), sizeof named - strlen(named), "rtermid", rterm, 4);
+            }
+            if (want_queue) {
+                memcpy(c->rqueue, rqueue, 8);
+                hexarg(named + strlen(named), sizeof named - strlen(named), "queue", rqueue, 8);
+            }
+        }
     }
-    snprintf(ev, sizeof ev, "RETRIEVE resp=%d len=%d copied=%d", c->resp, n, copied);
+    if (f) fclose(f);
+    if (c->resp != NORMAL && c->resp != LENGERR) n = -1;
+    snprintf(ev, sizeof ev, "RETRIEVE resp=%d len=%d copied=%d into=%d%s", c->resp, n, copied, want_into, named);
     event(ev, into, copied);
     return 0;
 }

@@ -1798,7 +1798,7 @@ FACADE_JAVA = """    /** #4449: a facade did not run the scenario's task the way
             if (top != null) {
                 throw new FacadeRefused("handleTransaction of " + program + " did not run its task in the region");
             }
-            if (used.getReturnType() != void.class && got != scenario.returned(Object.class)) {
+            if (used.getReturnType() != void.class && !answered(got, scenario, used.getReturnType())) {
                 throw new FacadeRefused("handleTransaction of " + program
                         + " answered a COMMAREA other than the one its RETURN passes on");
             }
@@ -1870,6 +1870,25 @@ FACADE_JAVA = """    /** #4449: a facade did not run the scenario's task the way
             } catch (IllegalAccessException e) {
                 throw new IllegalStateException(e);
             }
+        }
+    }
+
+    /** Whether a facade answered the COMMAREA its task's RETURN passed on: that very object -- or, where the facade
+     *  answers its own DTO and the task RETURNed another record (#4449), those bytes read through it (task.returned):
+     *  a fresh object of the facade's type, laid out as the same bytes. */
+    static boolean answered(Object got, CicsTask task, Class<?> type) {
+        Object raw = task.returned(Object.class);
+        if (got == raw) {
+            return true;
+        }
+        if (raw == null || got == null || type.isInstance(raw) || got.getClass() != type) {
+            return false;
+        }
+        try {
+            Method bytes = type.getMethod("toCommarea");
+            return java.util.Arrays.equals((byte[]) bytes.invoke(got), (byte[]) bytes.invoke(task.returned(type)));
+        } catch (ReflectiveOperationException | RuntimeException e) {
+            return false;
         }
     }
 

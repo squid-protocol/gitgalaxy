@@ -149,6 +149,17 @@ def _raw_lines(path: Path, engine: EngineCopies | None = None) -> list[str]:
 
 
 _ID_DIVISION = re.compile(r"^(\s*)ID\s+DIVISION(?=\s*\.)", re.I)
+# #4462: `PROGRAM-ID LNCALC.` (estate-crucible LOAN), the header's period left out: IBM Enterprise COBOL accepts it
+# (a warning), the grammar does not
+_PROGRAM_ID_NO_PERIOD = re.compile(r"^(\s*PROGRAM-ID)(?=\s+[^\s.])", re.I)
+
+
+def _headers(code: str) -> str:
+    """IDENTIFICATION DIVISION headers in the one form the parser downstream knows: `ID DIVISION.` (IBM's
+    abbreviation, IBM DBB MortgageApplication) in full, and PROGRAM-ID's period put back."""
+    if _ID_DIVISION.match(code):
+        code = _ID_DIVISION.sub(lambda m: m.group(1) + "IDENTIFICATION DIVISION", code, count=1)
+    return _PROGRAM_ID_NO_PERIOD.sub(lambda m: m.group(1) + ".", code, count=1)
 
 
 # `>>SOURCE FORMAT FREE` / `>>SOURCE FORMAT IS FIXED` / `>>SOURCE FREE` (IBM Enterprise COBOL 6.3+, GnuCOBOL)
@@ -186,9 +197,7 @@ def logical_lines(raw: list[str], file: str) -> list[Line]:
         if free:
             code = _free_code(line).rstrip()
             if code.strip() and not code.lstrip().startswith(">>D "):  # (a debugging line, as indicator D)
-                if _ID_DIVISION.match(code):
-                    code = _ID_DIVISION.sub(lambda m: m.group(1) + "IDENTIFICATION DIVISION", code, count=1)
-                out.append(Line(code, file, n))
+                out.append(Line(_headers(code), file, n))
             continue
         if len(line) < 7:
             continue
@@ -207,12 +216,14 @@ def logical_lines(raw: list[str], file: str) -> list[Line]:
             continue
         if not body.strip():
             continue
-        if _ID_DIVISION.match(body):
-            # `ID DIVISION.`: IBM's abbreviation of IDENTIFICATION DIVISION (IBM DBB MortgageApplication), which the
-            # parser downstream knows only in full
-            body = _ID_DIVISION.sub(lambda m: m.group(1) + "IDENTIFICATION DIVISION", body, count=1)
+        body = _headers(body)
         out.append(Line(body.rstrip() if not _open_literal(body) else body, file, n))
     return out
+
+
+# #4523: a quotation mark inside a quotation-mark literal, as the grammar is handed it (`unwrap` restores `""`): the
+# grammar splits `"IT""S"` into two literals (a VALUE read as two, a MOVE refused), though it reads `'IT''S'` whole
+QQ = "\x1e"
 
 
 _DECIMAL_COMMA = re.compile(r"\bDECIMAL-POINT\s+(?:IS\s+)?COMMA\b", re.I)
@@ -243,6 +254,7 @@ def unmodelled(lines: list[Line]) -> str | None:
       only, and refused the line unnamed.
     - DECIMAL-POINT IS COMMA (DEUT ZINSBER): `1000,00` and `0,5` are numbers and an edited PIC's `.` and `,` swap
       roles; not modelled, so never read as a list of integers.
+    - #4523: the control character U+001E, which the grammar is handed for a doubled `""` (as_fixed_rows).
 
     The IDENTIFICATION DIVISION's paragraphs after PROGRAM-ID (AUTHOR, REMARKS ...) are free text no parser reads."""
     in_id = False
@@ -254,6 +266,8 @@ def unmodelled(lines: list[Line]) -> str | None:
             in_id = False
         elif in_id and not head.startswith("PROGRAM-ID"):
             continue
+        if QQ in ln.text:  # #4523: the character the grammar is handed for `""` (never read as one)
+            return f"{Path(ln.file).name}:{ln.line}: the control character U+001E is not modelled"
         wide = next((c for c in ln.text if ord(c) > 0xFF), None)
         if wide is not None:
             return (f"{Path(ln.file).name}:{ln.line}: national / DBCS text ({wide!r}, U+{ord(wide):04X}) is not modelled: the "
@@ -487,14 +501,65 @@ def as_fixed_rows(lines: list[Line]) -> tuple[str, list[int]]:
     """as_fixed's text, and for each of its rows the index in `lines` it came from. A line longer than columns
     8-72 (a joined continuation) is wrapped back into fixed form (#4412): split at a space outside literals, or a
     literal open at column 72 continued on the next row ('-' in column 7, the quote again in column 10). The
-    grammar fails on a line run past column 72; `unwrap` joins the continued literal again."""
+    grammar fails on a line run past column 72; `unwrap` joins the continued literal again. #4523: the grammar
+    continues a literal only in quotation marks, so a wrapped line's apostrophe literals are written in them (same
+    value), and reads `""` inside one only as QQ (`_grammar_literals`); an EXEC block's line keeps its own text (in
+    SQL an apostrophe is a string, a quotation mark a name)."""
     out: list[str] = []
     rows: list[int] = []
+    in_exec = False
     for k, ln in enumerate(lines):
-        for row in _wrap(ln.text) if len(ln.text) > WIDTH else ["       " + ln.text]:
+        bare = _outside_literals(ln.text)
+        opens = _EXEC.search(bare)
+        # SQL / CICS text keeps its own quote style (the grammar never reads it: blanked, or a placeholder CALL)
+        code = ln.text if in_exec or opens else _grammar_literals(ln.text, apostrophes=len(ln.text) > WIDTH)
+        wrapped = _wrap(code) if len(code) > WIDTH else ["       " + code]
+        for row in wrapped:
             out.append(row + "\n")
             rows.append(k)
+        if opens or in_exec:
+            in_exec = not _END_EXEC.search(bare[opens.end() :] if opens else bare)
     return "".join(out), rows
+
+
+_EXEC = re.compile(r"\bEXEC(?:UTE)?\s+(?:CICS|SQL|DLI)\b", re.I)
+_END_EXEC = re.compile(r"\bEND-EXEC\b", re.I)
+
+
+def _grammar_literals(text: str, apostrophes: bool) -> str:
+    """`text` with each quotation-mark literal's doubled `""` written QQ, and (`apostrophes`) each apostrophe
+    literal written in quotation marks, its value unchanged (`''` undoubled, a `"` written QQ): the grammar continues
+    a literal only in quotation marks, and every reader of a literal takes its delimiter from its first character
+    (expr._unquote, layout._one). An unterminated literal is kept as it is."""
+    out: list[str] = []
+    i, n = 0, len(text)
+    while i < n:
+        q = text[i]
+        if q not in "'\"" or (q == "'" and not apostrophes):
+            if q == "'":  # an apostrophe literal kept: copied whole (a `"` inside it is its own)
+                j = i + 1
+                while j < n and not (text[j] == "'" and text[j + 1 : j + 2] != "'"):
+                    j += 2 if text[j] == "'" else 1
+                out.append(text[i : j + 1])
+                i = j + 1
+                continue
+            out.append(q)
+            i += 1
+            continue
+        j, value = i + 1, []
+        while j < n:
+            if text[j] == q:
+                if text[j + 1 : j + 2] != q:
+                    break
+                j += 1
+            value.append(text[j])
+            j += 1
+        if j >= n:  # unterminated: as it is
+            out.append(text[i:])
+            break
+        out.append('"' + "".join(value).replace('"', QQ) + '"')
+        i = j + 1
+    return "".join(out)
 
 
 def _wrap(text: str) -> list[str]:
@@ -505,14 +570,20 @@ def _wrap(text: str) -> list[str]:
         lim = 72 - len(lead)
         if len(rest) <= lim:
             return [*rows, lead + rest]
-        quote, last_space = None, -1
+        quote, last_space, closed = None, -1, -1
         for i, ch in enumerate(rest[:lim]):
             if quote:
-                quote = None if ch == quote else quote
+                quote, closed = (None, i) if ch == quote else (quote, closed)
             elif ch in "'\"":
                 quote = ch
             elif ch == " ":
                 last_space = i
+        if quote is None and closed == lim - 1 and rest[lim : lim + 1] == rest[closed]:
+            # #4523: column 72 holds the first of a doubled quote: the literal is still open; the row ends a column
+            # early so the pair stays together on the next (the grammar's row is short; `unwrap` joins it exactly)
+            rows.append(lead + rest[: lim - 1])
+            rest, cont = rest[closed] + rest[lim - 1 :], True
+            continue
         if quote is not None:  # the literal runs to column 72 and reopens on the next row
             rows.append(lead + rest[:lim])
             rest, cont = quote + rest[lim:], True
@@ -527,7 +598,7 @@ _CONTINUED = re.compile(r"\n {6}-\s*['\"]")
 
 def unwrap(text: str) -> str:
     """Parser text with as_fixed_rows' literal continuations joined again (a continued literal's own text)."""
-    return _CONTINUED.sub("", text)
+    return _CONTINUED.sub("", text).replace(QQ, '""')
 
 
 def bms_copybooks(bms_files: list[Path], out: Path) -> list[str]:

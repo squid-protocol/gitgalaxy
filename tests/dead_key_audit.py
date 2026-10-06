@@ -78,6 +78,10 @@ ALLOWLIST = {
     # the producer is the npm package author, never a literal in this repo.
     "exports": "package.json `exports` field, read from the scanned repo's manifest (#3789)",
     "module": "package.json `module` field, read from the scanned repo's manifest (#3789)",
+    # Cargo.toml keys read from a manifest on disk (core/rust_modules.py, #4544): the producer is
+    # the crate author, never a literal in this repo.
+    "build": "Cargo.toml [package] `build` script path, read from the scanned repo's manifest (#4544)",
+    "workspace": "Cargo.toml dependency `workspace = true`, read from the scanned repo's manifest (#4544)",
     "inheritance_parents": "class_data DB column, copied into the restored class dict by the rehydrator's generic column loop, then folded into `inheritance` (#3786)",
     "COUNTER": "EXEC CICS option keyword parsed from source (det/cics.py parse_exec: GET COUNTER)",
     # --- Parsed source keywords (not a producer/consumer dict contract) ---

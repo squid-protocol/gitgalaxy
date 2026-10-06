@@ -200,3 +200,93 @@ def test_a_det_main_program_has_the_seam(tmp_path):
     src = tmp_path / "src"
     _service(src, "Lgacdb01Service", 'DetSql.update("LGACDB01:240", s);')
     assert ec.sql_seam_programs({"program": "LGACDB01"}, src) == {"LGACDB01"}
+
+
+BINARY_MAIN = """package ggtest;
+
+import ggtest.cobolrt.Cobol;
+import ggtest.cobolrt.Field;
+import ggtest.cobolrt.Storage;
+import ggtest.cobolrt.sql.DetSql;
+import java.math.BigDecimal;
+import java.nio.charset.StandardCharsets;
+import java.util.LinkedHashMap;
+import java.util.Map;
+
+public class Main {
+    static int sqlcode(Field ca) {
+        byte[] b = ca.storage().bytes;
+        return (b[12] & 0xFF) | (b[13] & 0xFF) << 8 | (b[14] & 0xFF) << 16 | b[15] << 24;
+    }
+
+    static void run(String label, int digits, boolean signed, boolean nativeBin, boolean trunc, String value) {
+        Field ca = Field.group(new Storage(136), 0, 136);
+        Field host = Field.binary(new Storage(8), 0, digits, 0, signed, nativeBin);
+        Map<String, Object> row = new LinkedHashMap<>();
+        row.put("C", new BigDecimal(value));
+        boolean before = Cobol.swapTruncBinary(trunc);
+        boolean ok = DetSql.into(ca, row, "N", new Field[] {host}, new Field[1], null, StandardCharsets.ISO_8859_1);
+        boolean after = Cobol.swapTruncBinary(before);
+        System.out.println(label + " " + value + " sqlcode " + sqlcode(ca) + " ok " + ok + " trunc-kept " + after
+                + (ok ? " holds " + Cobol.num(host, StandardCharsets.ISO_8859_1) : ""));
+    }
+
+    public static void main(String[] a) {
+        for (boolean trunc : new boolean[] {true, false}) {
+            for (String v : new String[] {"2147483647", "-2147483648", "2147483648", "-2147483649"}) {
+                run("S9(9)COMP/" + trunc, 9, true, false, trunc, v);
+            }
+            for (String v : new String[] {"32767", "-32768", "32768", "-32769"}) {
+                run("S9(4)COMP/" + trunc, 4, true, false, trunc, v);
+            }
+            for (String v : new String[] {"9223372036854775807", "9223372036854775808"}) {
+                run("S9(18)COMP/" + trunc, 18, true, false, trunc, v);
+            }
+            for (String v : new String[] {"2147483647", "2147483648"}) {
+                run("S9(9)COMP-5/" + trunc, 9, true, true, trunc, v);
+            }
+        }
+    }
+}
+"""
+
+
+def _binary_run(tmp_path):
+    rt = TOOLS.parent.parent / "gitgalaxy" / "tools" / "cobol_to_java" / "det" / "cobolrt"
+    src = tmp_path / "src" / "ggtest"
+    for sub in ("", "sql"):
+        (src / "cobolrt" / sub).mkdir(parents=True, exist_ok=True)
+        for f in (rt / sub).glob("*.java"):
+            (src / "cobolrt" / sub / f.name).write_text(f.read_text(encoding="utf-8").replace("__PACKAGE__", "ggtest"),
+                                                        encoding="utf-8")  # fmt: skip
+    (src / "Main.java").write_text(BINARY_MAIN, encoding="utf-8")
+    jdk = _jdk()
+    files = [str(p) for p in (tmp_path / "src").rglob("*.java")]
+    javac = subprocess.run([str(jdk / "javac"), "-nowarn", "-d", str(tmp_path / "classes"), *files],  # noqa: S603
+                           capture_output=True, text=True, check=False)  # fmt: skip
+    assert javac.returncode == 0, javac.stderr[:3000]
+    return subprocess.run([str(jdk / "java"), "-cp", str(tmp_path / "classes"), "ggtest.Main"],  # noqa: S603
+                          capture_output=True, text=True, check=True).stdout.splitlines()  # fmt: skip
+
+
+@pytest.mark.skipif(_jdk() is None, reason="no JDK (JDK_17 / JAVA_HOME)")
+def test_detsql_assigns_a_binary_host_variable_by_its_bytes_not_its_picture_digits(tmp_path):
+    """#4579: SELECT INTO a COMP host variable -- -304 only beyond the halfword / fullword / doubleword, under TRUNC(STD)
+    and TRUNC(BIN) alike (Db2 types the host variable by its length); the program's TRUNC is left as it was."""
+    out = _binary_run(tmp_path)
+    for trunc in ("true", "false"):
+        want = [
+            f"S9(9)COMP/{trunc} 2147483647 sqlcode 0 ok true trunc-kept {trunc} holds 2147483647",
+            f"S9(9)COMP/{trunc} -2147483648 sqlcode 0 ok true trunc-kept {trunc} holds -2147483648",
+            f"S9(9)COMP/{trunc} 2147483648 sqlcode -304 ok false trunc-kept {trunc}",
+            f"S9(9)COMP/{trunc} -2147483649 sqlcode -304 ok false trunc-kept {trunc}",
+            f"S9(4)COMP/{trunc} 32767 sqlcode 0 ok true trunc-kept {trunc} holds 32767",
+            f"S9(4)COMP/{trunc} -32768 sqlcode 0 ok true trunc-kept {trunc} holds -32768",
+            f"S9(4)COMP/{trunc} 32768 sqlcode -304 ok false trunc-kept {trunc}",
+            f"S9(4)COMP/{trunc} -32769 sqlcode -304 ok false trunc-kept {trunc}",
+            f"S9(18)COMP/{trunc} 9223372036854775807 sqlcode 0 ok true trunc-kept {trunc} holds 9223372036854775807",
+            f"S9(18)COMP/{trunc} 9223372036854775808 sqlcode -304 ok false trunc-kept {trunc}",
+            f"S9(9)COMP-5/{trunc} 2147483647 sqlcode 0 ok true trunc-kept {trunc} holds 2147483647",
+            f"S9(9)COMP-5/{trunc} 2147483648 sqlcode -304 ok false trunc-kept {trunc}",
+        ]
+        assert [line for line in out if f"/{trunc} " in line] == want

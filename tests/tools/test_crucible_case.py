@@ -2,6 +2,7 @@
 
 import json
 import os
+import re
 import shutil
 import subprocess
 import sys
@@ -116,7 +117,7 @@ def test_new_scaffolds_a_case(tmp_path):
     prog = (d / "src" / "GTDEMO.cbl").read_text()
     assert "PROGRAM-ID. GTDEMO." in prog and all(len(ln) <= 72 for ln in prog.splitlines())
     notes = (d / "NOTES.md").read_text()
-    assert all(f"## {s}" in notes for s in ccase.NOTES_SECTIONS) and "ibm.com" in notes
+    assert all(f"## {s}" in notes for s in ccase.NOTES_SECTIONS) and re.search(r"https://(?:www\.)?ibm\.com/", notes)
     assert (d / "expected").is_dir() and (d / "copy").is_dir()
     assert ccase.hand_derived_problems(gen.read_text()) == []
     subprocess.run([sys.executable, str(gen), str(d)], check=True)  # noqa: S603

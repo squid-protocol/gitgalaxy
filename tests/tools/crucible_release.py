@@ -76,10 +76,23 @@ def _extract(repo: Path, ref: str, paths: list[str], dest: Path) -> None:
     data = subprocess.run(["git", "-C", str(repo), "archive", "--format=tar", ref, "--", *paths],  # noqa: S603, S607
                           capture_output=True, check=True).stdout  # fmt: skip
     with tarfile.open(fileobj=io.BytesIO(data)) as tf:
+        members = _safe_members(tf, dest)
         try:
-            tf.extractall(dest, filter="data")
-        except TypeError:  # Python < 3.10.12 / 3.11.4: no extraction filters (a git archive of our own refs)
-            tf.extractall(dest)  # noqa: S202
+            tf.extractall(dest, members=members, filter="data")
+        except TypeError:  # Python < 3.10.12 / 3.11.4: no extraction filters; the members are checked above
+            tf.extractall(dest, members=members)  # noqa: S202
+
+
+def _safe_members(tf: tarfile.TarFile, dest: Path) -> list[tarfile.TarInfo]:
+    """The archive's members, refused unless each is a plain file or directory that lands inside `dest` (no
+    absolute path, no `..`, no link or device): a tag of another repository is input, not trusted code."""
+    root = dest.resolve()
+    members = tf.getmembers()
+    for m in members:
+        target = (root / m.name).resolve()
+        if not (m.isfile() or m.isdir()) or Path(m.name).is_absolute() or not target.is_relative_to(root):
+            raise ValueError(f"refusing archive member {m.name!r}: not a plain file or directory inside {dest}")
+    return members
 
 
 def validate(repo: Path, tools_ref: str, cases_ref: str) -> tuple[bool, str]:

@@ -411,3 +411,159 @@ def test_move_all_of_a_hex_literal_is_read():
         .body
     )
     assert body[0].kind == "MOVE" and body[0].data["from"] == E.Fig("ALL", "\x00", hex=True)
+
+
+# ---- slice 3: SEARCH / SEARCH ALL, OS/VS alphabets, LABEL RECORD ARE, EXHIBIT, a missing period ------------------
+def _program(*body: str, head=("IDENTIFICATION DIVISION.", "PROGRAM-ID. PROG.")) -> list:
+    return [SRC.Line(t, "/x/PROG.cbl", n) for n, t in enumerate((*head, *body), 1)]
+
+
+TABLE = ("DATA DIVISION.", "WORKING-STORAGE SECTION.", "01  T.",
+         "    05 E OCCURS 5 TIMES ASCENDING KEY IS K1 DESCENDING K2", "         INDEXED BY IX, IY.",
+         "       10 K1 PIC X.", "          88 K1-A VALUE 'A'.", "       10 K2 PIC 9.", "       10 V PIC X.",
+         "01  W PIC X.", "01  N PIC 9.")  # fmt: skip
+
+
+def test_occurs_keys_and_indexes_are_read():
+    pytest.importorskip("tree_sitter_language_pack")
+    from gitgalaxy.tools.cobol_to_java.det import layout as L
+
+    items = {it.name: it for r in L.parse(_program(*TABLE, "PROCEDURE DIVISION.", "    GOBACK.")) for it in r.walk()}
+    assert items["E"].keys == [(True, "K1"), (False, "K2")] and items["E"].indexed_by == ["IX", "IY"]
+    assert items["K1"].keys == [] and items["K1"].indexed_by == []
+
+
+def test_search_and_search_all_are_statements_with_their_whens():
+    """CardDemo COPAUS1C's SEARCH ALL ... AT END ... WHEN (the WHEN was read as EVALUATE's: 'no open EVALUATE'),
+    serial SEARCH's several WHENs, and a SEARCH ALL inside an EVALUATE: its one WHEN is its own, the next the
+    EVALUATE's."""
+    pytest.importorskip("tree_sitter_language_pack")
+    from gitgalaxy.tools.cobol_to_java.det import stmt as ST
+
+    proc = ST.parse(_program(*TABLE, "PROCEDURE DIVISION.",
+                             "    SEARCH ALL E AT END MOVE 'N' TO W",
+                             "        WHEN K1 (IX) = 'A' AND K2 (IX) = 3 MOVE V (IX) TO W",
+                             "    END-SEARCH",
+                             "    SEARCH E VARYING IY AT END MOVE 'N' TO W",
+                             "        WHEN K1 (IY) = 'B' MOVE 'B' TO W",
+                             "        WHEN K2 (IY) = 1 IF W = 'Q' MOVE 'Q' TO W END-IF",
+                             "        WHEN V (IY) = 'C' CONTINUE",
+                             "    END-SEARCH",
+                             "    EVALUATE N",
+                             "        WHEN 1 SEARCH ALL E WHEN K1 (IX) = 'A' MOVE 'A' TO W",
+                             "        WHEN 2 MOVE '2' TO W",
+                             "    END-EVALUATE",
+                             "    GOBACK."))  # fmt: skip
+    body = proc.paragraphs[0].body
+    assert [s.kind for s in body] == ["SEARCH", "SEARCH", "EVALUATE", "GOBACK"]
+    a, b, ev = body[0], body[1], body[2]
+    assert a.data["all"] and a.data["table"].name == "E" and len(a.whens) == 1
+    assert [s.kind for s in a.phrases["AT-END"]] == ["MOVE"] and [s.kind for s in a.whens[0][1]] == ["MOVE"]
+    assert not b.data["all"] and b.data["varying"].name == "IY" and len(b.whens) == 3
+    assert [s.kind for s in b.whens[1][1]] == ["IF"]
+    assert len(ev.whens) == 2 and [s.kind for s in ev.whens[0][1]] == ["SEARCH"]
+    assert [s.kind for s in ev.whens[1][1]] == ["MOVE"]
+
+
+@pytest.mark.parametrize(
+    "search, why",
+    [
+        ("SEARCH ALL E WHEN K2 (IX) = 3 CONTINUE", "not the leading keys"),
+        ("SEARCH ALL E WHEN K1 (IX) = 'A' OR K2 (IX) = 3 CONTINUE", "WHEN must be KEY = value"),
+        ("SEARCH ALL E WHEN V (IX) = 'A' CONTINUE", "WHEN must be KEY = value"),
+        ("SEARCH ALL E WHEN K1 (IY) = 'A' CONTINUE", "WHEN must be KEY = value"),
+        ("SEARCH E VARYING N WHEN V (IX) = 'A' CONTINUE", "SEARCH VARYING N: IBM and GnuCOBOL"),
+    ],
+)  # fmt: skip
+def test_a_search_the_translator_cannot_model_is_refused_by_name(search, why, tmp_path):
+    pytest.importorskip("tree_sitter_language_pack")
+    from gitgalaxy.tools.cobol_to_java.det import program as P
+
+    src = tmp_path / "PROG.cbl"
+    src.write_text(_fixed("IDENTIFICATION DIVISION.", "PROGRAM-ID. PROG.", *TABLE, "PROCEDURE DIVISION.",
+                          f"    {search}", "    END-SEARCH", "    GOBACK."))  # fmt: skip
+    r = P.translate(src, [], "public class ProgService {\n}\n", "p", None, tmp_path / "project")
+    assert len(r.stats["holes"]) == 1 and why in r.stats["holes"][0], r.stats["holes"]
+
+
+def test_search_all_translates_a_key_condition_name(tmp_path):
+    pytest.importorskip("tree_sitter_language_pack")
+    from gitgalaxy.tools.cobol_to_java.det import program as P
+
+    src = tmp_path / "PROG.cbl"
+    src.write_text(_fixed("IDENTIFICATION DIVISION.", "PROGRAM-ID. PROG.", *TABLE, "PROCEDURE DIVISION.",
+                          "    SEARCH ALL E AT END MOVE 'N' TO W", "        WHEN K1-A (IX) MOVE V (IX) TO W",
+                          "    END-SEARCH", "    SET N TO IX", "    GOBACK."))  # fmt: skip
+    r = P.translate(src, [], "public class ProgService {\n}\n", "p", None, tmp_path / "project")
+    assert not r.stats["holes"], r.stats["holes"]
+
+
+SPECIAL = ("ENVIRONMENT DIVISION.", "CONFIGURATION SECTION.", "OBJECT-COMPUTER. IBM-370,",
+           "    PROGRAM COLLATING SEQUENCE IS IDIOT.", "SPECIAL-NAMES.", "    C01 IS KANAL-1",
+           "    , IDIOT IS 'ABCDEFGHIJKLMNOPQRSTUVWXYZÆØÅ'", "    CURRENCY SIGN IS '$'",
+           "    CLASS HEXA IS '0' THRU '9' 'A' THRU 'F'", "    ALPHABET KEYED IS NATIVE", "    OLD IS STANDARD-1.",
+           "DATA DIVISION.", "WORKING-STORAGE SECTION.", "01  W PIC X.", "PROCEDURE DIVISION.", "    GOBACK.")  # fmt: skip
+
+
+def test_an_os_vs_alphabet_without_the_alphabet_keyword_is_read():
+    """DSF PLUKKFR / PLUKKFRN: `IDIOT IS 'ABC...ÆØÅ'` in SPECIAL-NAMES (COBOL-74, no ALPHABET) refused the DATA
+    DIVISION; it is an alphabet (program.alphabets, the collating model SORT and comparisons read), a mnemonic and
+    the other clauses are left alone."""
+    pytest.importorskip("tree_sitter_language_pack")
+    from gitgalaxy.tools.cobol_to_java.det import layout as L
+    from gitgalaxy.tools.cobol_to_java.det import program as P
+
+    lines = _program(*SPECIAL)
+    assert [r.name for r in L.parse(lines)] == ["W"]
+    names, collating = P.alphabets(lines)
+    assert collating == "IDIOT"
+    assert names == {"IDIOT": ["'ABCDEFGHIJKLMNOPQRSTUVWXYZÆØÅ'"], "KEYED": ["NATIVE"], "OLD": ["STANDARD-1"]}
+    fixed = SRC.alphabet_keywords(lines)
+    assert [ln.text.strip() for ln in fixed if ln.text != lines[fixed.index(ln)].text] == [
+        ", ALPHABET IDIOT IS 'ABCDEFGHIJKLMNOPQRSTUVWXYZÆØÅ'",
+        "ALPHABET OLD IS STANDARD-1.",
+    ]
+
+
+@pytest.mark.parametrize("label", ["LABEL RECORD ARE STANDARD", "LABEL RECORDS IS OMITTED", "LABEL RECORD IS OMITTED",
+                                   "LABEL RECORDS STANDARD"])  # fmt: skip
+def test_label_record_with_is_or_are_is_read(label):
+    """DSF FO04D1X1's `LABEL RECORD ARE STANDARD` (IBM takes IS or ARE after RECORD or RECORDS; the grammar only
+    RECORD IS / RECORDS ARE)."""
+    pytest.importorskip("tree_sitter_language_pack")
+    from gitgalaxy.tools.cobol_to_java.det import layout as L
+
+    lines = _program("ENVIRONMENT DIVISION.", "INPUT-OUTPUT SECTION.", "FILE-CONTROL.",
+                     "    SELECT F ASSIGN TO UT-S-F.", "DATA DIVISION.", "FILE SECTION.", "FD  F", f"    {label}",
+                     "    BLOCK CONTAINS 0 RECORDS.", "01  R PIC X(10).", "WORKING-STORAGE SECTION.",
+                     "01  W PIC X VALUE 'LABEL RECORD ARE'.", "PROCEDURE DIVISION.", "    GOBACK.")  # fmt: skip
+    recs = {r.name: r for r in L.parse(lines)}
+    assert recs["R"].fd == "F" and recs["R"].size == 10
+    assert SRC.label_records("VALUE 'LABEL RECORD ARE'") == "VALUE 'LABEL RECORD ARE'"
+
+
+def test_exhibit_is_a_statement_and_changed_is_refused_by_name():
+    """DSF R001BYDL's `EXHIBIT NAMED T-FNR IN I-REC IP-STATUS W-IP-KEY` (OS/VS COBOL; the grammar has no EXHIBIT:
+    the PROCEDURE DIVISION was refused). EXHIBIT NAMED translates (test_det_programs EXHIBIT proves it against
+    GnuCOBOL); EXHIBIT CHANGED, which GnuCOBOL does not implement, is a hole by name."""
+    pytest.importorskip("tree_sitter_language_pack")
+    from gitgalaxy.tools.cobol_to_java.det import stmt as ST
+
+    body = ST.parse(_lines("01  A PIC X.", "01  R.", "    05 B PIC X.", "PROCEDURE DIVISION.",
+                           "    IF A NOT = ' '", "        EXHIBIT NAMED B IN R A 'LIT'", "        MOVE ' ' TO A.",
+                           "    EXHIBIT CHANGED NAMED A", "    EXHIBIT CHANGED A.", "    GOBACK.")).paragraphs[0].body  # fmt: skip
+    assert [s.kind for s in body] == ["IF", "HOLE", "HOLE", "GOBACK"]
+    ex = body[0].body[0]
+    assert ex.kind == "EXHIBIT" and ex.data["named"] and [w for w, _ in ex.data["operands"]] == ["B IN R", "A", "'LIT'"]
+    assert [s.kind for s in body[0].body] == ["EXHIBIT", "MOVE"]
+    assert "EXHIBIT CHANGED" in body[1].data["why"]
+
+
+def test_a_data_entry_without_its_period_is_refused_as_a_source_defect():
+    """GenApp polloo2.cpy's `03 CA-CUSPOL-REQUEST` with no period before `05 CA-POLICIES ...`: refused by name."""
+    pytest.importorskip("tree_sitter_language_pack")
+    from gitgalaxy.tools.cobol_to_java.det import layout as L
+
+    with pytest.raises(L.LayoutError, match=r"source defect: data entry 03 REQ \(PROG.cbl:6\) has no period"):
+        L.parse(_lines("01  R.", "    03 REQ", "    05 P OCCURS 5 TIMES.", "       07 N PIC 9.",
+                       "PROCEDURE DIVISION.", "    GOBACK."))  # fmt: skip

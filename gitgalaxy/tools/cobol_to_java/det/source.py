@@ -732,6 +732,72 @@ def unwrap(text: str) -> str:
     return _CONTINUED.sub("", text).replace(QQ, '""').replace('"' + HX, 'X"')
 
 
+# #4462: the COBOL-74 / OS/VS alphabet clause, `alphabet-name IS {literal ... | STANDARD-1 | NATIVE ...}` with no
+# ALPHABET keyword (IBM OS/VS COBOL; DSF PLUKKFR's `IDIOT IS 'ABCDEFGHIJKLMNOPQRSTUVWXYZÆØÅ'`)
+_SPECIAL_NAMES = re.compile(r"^\s*SPECIAL-NAMES\s*\.", re.I)
+_SPECIAL_TOKEN = re.compile(r"'[^']*'?|\"[^\"]*\"?|[A-Z0-9][A-Z0-9-]*|\S", re.I)
+_ALPHABET_NAMED = {"STANDARD-1", "STANDARD-2", "NATIVE", "EBCDIC", "ASCII"}
+# words before IS that never name an alphabet: other clauses' (CURRENCY SIGN IS '$', CLASS c IS 'A' THRU 'Z',
+# ALPHABET a FOR ALPHANUMERIC IS ...); an alphabet already introduced by ALPHABET
+_NOT_ALPHABET_NAMES = {"CURRENCY", "SIGN", "DECIMAL-POINT", "ALPHANUMERIC", "NATIONAL", "SYMBOLIC", "CHARACTERS"}
+_NOT_AFTER = {"ALPHABET", "CLASS", "CURRENCY", "SYMBOLIC", "CHARACTERS"}
+
+
+def alphabet_keywords(lines: list[Line]) -> list[Line]:
+    """#4462: `lines` with ALPHABET written before each alphabet clause of SPECIAL-NAMES that has none (the OS/VS
+    COBOL form IBM's compilers accept; the grammar and program.alphabets read only `ALPHABET name IS ...`). A clause
+    is an alphabet when a name not introduced by another clause's word is followed by IS and a literal or STANDARD-1
+    / STANDARD-2 / NATIVE / EBCDIC / ASCII (a mnemonic, `C01 IS KANAL-1`, is followed by a name). Other lines are
+    the same objects."""
+    out = list(lines)
+    k = next((i for i, ln in enumerate(lines) if _SPECIAL_NAMES.match(ln.text)), None)
+    if k is None:
+        return out
+    toks: list[tuple[int, int, str]] = []  # (line index, column, token) up to the paragraph's period
+    first = True
+    for i in range(k, len(lines)):
+        text = lines[i].text
+        start = _SPECIAL_NAMES.match(text).end() if first else 0  # type: ignore[union-attr]
+        first = False
+        ended = False
+        for m in _SPECIAL_TOKEN.finditer(text, start):
+            if m.group(0) == ".":
+                ended = True
+                break
+            toks.append((i, m.start(), m.group(0)))
+        if ended:
+            break
+    inserts: dict[int, list[int]] = {}
+    for j in range(len(toks) - 2):
+        w, nxt, obj = toks[j][2].upper(), toks[j + 1][2].upper(), toks[j + 2][2]
+        if nxt != "IS" or not w[:1].isalpha() or w in _NOT_ALPHABET_NAMES:
+            continue
+        if j > 0 and toks[j - 1][2].upper() in _NOT_AFTER:
+            continue
+        if obj[:1] in "'\"" or obj.upper() in _ALPHABET_NAMED:
+            inserts.setdefault(toks[j][0], []).append(toks[j][1])
+    for i, cols in inserts.items():
+        text = lines[i].text
+        for c in sorted(cols, reverse=True):
+            text = text[:c] + "ALPHABET " + text[c:]
+        out[i] = Line(text, lines[i].file, lines[i].line)
+    return out
+
+
+# #4462: LABEL RECORD ARE / LABEL RECORDS IS (IBM accepts IS or ARE with either; the grammar wants RECORD IS /
+# RECORDS ARE): the optional word dropped, at the same length
+_LABEL_RECORDS = re.compile(r"\b(LABEL\s+RECORDS?)(\s+(?:IS|ARE))\b", re.I)
+
+
+def label_records(text: str) -> str:
+    """#4462: `text` with LABEL RECORD[S] IS / ARE written LABEL RECORD[S] and blanks (DSF FO04D1X1's `LABEL RECORD
+    ARE STANDARD`), outside literals."""
+    bare = _outside_literals(text)
+    for m in reversed(list(_LABEL_RECORDS.finditer(bare))):
+        text = text[: m.start(2)] + " " * len(m.group(2)) + text[m.end(2) :]
+    return text
+
+
 def bms_copybooks(bms_files: list[Path], out: Path) -> list[str]:
     """The symbolic-map copybooks (gitgalaxy.core.bms_symbolic, the BMS assembler's DSECT layout) of the BMS
     sources, written to `out` as <MAPSET>.cpy -- a build artefact most estates do not check in (CBSA ships none).

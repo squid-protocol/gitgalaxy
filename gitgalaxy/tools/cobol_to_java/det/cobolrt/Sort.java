@@ -199,6 +199,31 @@ public final class Sort {
             return 0;
         }
 
+        /**
+         * A relation condition's nonnumeric operands under PROGRAM COLLATING SEQUENCE (#4539; IBM Enterprise COBOL 6.4
+         * Language Reference, OBJECT-COMPUTER paragraph and "Comparison of alphanumeric operands"): the shorter padded
+         * with spaces, then compared position by position in this sequence. Two operands IBM's sequence and
+         * GnuCOBOL's order differently, or one holding a byte with no EBCDIC character, stop the run by name
+         * (register D1).
+         */
+        public int relation(byte[] a, byte[] b, Charset cs) {
+            int n = Math.max(a.length, b.length);
+            byte[] x = Arrays.copyOf(a, n);
+            byte[] y = Arrays.copyOf(b, n);
+            byte sp = " ".getBytes(cs)[0];
+            Arrays.fill(x, a.length, n, sp);
+            Arrays.fill(y, b.length, n, sp);
+            int i = compare(x, y, ibm);
+            int o = compare(x, y, oracle);
+            if (i == Integer.MIN_VALUE || i != o) {
+                throw new NotModelled("PROGRAM COLLATING SEQUENCE " + name + ": operands \"" + new String(x, cs)
+                        + "\" and \"" + new String(y, cs) + "\"" + (i == Integer.MIN_VALUE
+                        ? " hold a byte with no EBCDIC character" : " are ordered differently by IBM and by GnuCOBOL")
+                        + " (register D1)");
+            }
+            return i;
+        }
+
         /** Two keys' bytes (one item: the same length) in this sequence; a comparison IBM's sequence and GnuCOBOL's
          *  decide differently, or one over a byte with no EBCDIC character, stops the run by name. */
         int compare(byte[] a, byte[] b, String sort) {

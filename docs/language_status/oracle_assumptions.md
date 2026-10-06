@@ -296,6 +296,16 @@ verdict, but it limits what the proof says about inputs outside the scenarios.
   under an alphabet must hold characters only (a packed or binary byte is the same byte in both code pages).
 - **In-program comparisons.** `Cobol.compare` is byte order in the data's code page. No audit has counted the
   relational comparisons whose result could change between ASCII and EBCDIC.
+- **PROGRAM COLLATING SEQUENCE in relation conditions (#4539).** Under an EBCDIC or a literal alphabet, the
+  nonnumeric comparisons of IF, EVALUATE (conditions and THRU ranges), PERFORM UNTIL and condition-names (88 THRU
+  ranges) go through `Sort.Collating` as SORT keys do: the shorter operand padded with spaces, IBM's order taken,
+  a pair of operands the two order differently stopped by name. Numeric comparisons stay by value; national data
+  is refused by the translator. An equality consults the alphabet only when it has ALSO (otherwise each character
+  has a position of its own). Refused by name: HIGH-VALUE / LOW-VALUE under a literal alphabet (the characters of
+  its highest / lowest position; GnuCOBOL's LOW-VALUE is the alphabet's first character), an ordering of an item
+  holding packed / binary / signed items, a comparison with an ALL literal, and an ordinal alphabet. Under EBCDIC,
+  HIGH-VALUE is X'FF' on both sides, but the harness's byte X'FF' is 'ÿ' (cp037 X'DF'): an ordering of HIGH-VALUE
+  against a character cp037 places above X'DF' (S-Z, digits) stops the run by name. SEARCH is not translated.
 - **A migration decision as much as an oracle gap.** A port that will run on ASCII data either keeps ASCII order (a
   declared difference, #4051) or compares in cp037 order.
 - **To settle.**

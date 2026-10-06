@@ -173,6 +173,9 @@ class Gen:
         # SEQUENCE: a SORT / MERGE's collating sequence
         self.alphabets: dict[str, list[str]] = {}
         self.program_collating: str | None = None
+        # the PROGRAM COLLATING SEQUENCE's Sort.Collating once a relation condition compares under it (#4539): the
+        # service's COLLATING constant
+        self.pcs_used: str | None = None
 
     # ---- references ---------------------------------------------------------------------------------------------
     def resolve(self, ref: E.Ref) -> L.Item:
@@ -411,7 +414,7 @@ class Gen:
             if e.kind == "ALL":
                 pat = e.all_literal or " "
                 return jstr((pat * (n // len(pat) + 1))[:n])
-            return jstr(FIG_CHAR[e.kind] * n)
+            return jstr(str(self.fig_char(e.kind)) * n)
         return None
 
     def bin_value(self, it: L.Item, v: Decimal) -> int:
@@ -522,24 +525,25 @@ class Gen:
                 return f"BigDecimal.valueOf({name}).compareTo({self.num(b)}) {jop} 0"
             return self.violate(it)
         # an alphanumeric item: COBOL's comparison of nonnumeric operands
+        c = self.coll(jop, b)
         t = self.lift_text(b, it.size) if not (isinstance(b, E.Lit) and isinstance(b.value, Decimal)) else None
         if (
             t is not None
             and isinstance(b, (E.Lit, E.Fig))
             and (not isinstance(b, E.Lit) or len(str(b.value)) <= it.size)
         ):
-            if jop == "==":
+            if jop == "==" and not c:
                 return f"{name}.equals({t})"
-            return f"Cobol.compareText({name}, {t}, CS) {jop} 0"
+            return f"Cobol.compareText({name}, {t}, CS{c}) {jop} 0"
         if lb and lb[0] == "X":
-            return f"Cobol.compareText({name}, {lb[1]}, CS) {jop} 0"
+            return f"Cobol.compareText({name}, {lb[1]}, CS{c}) {jop} 0"
         if isinstance(b, E.Ref):
             flipped = {"==": "==", ">": "<", "<": ">", ">=": "<=", "<=": ">="}[jop]
-            return f"Cobol.compare({self.field_expr(b)}, {name}, CS) {flipped} 0"
+            return f"Cobol.compare({self.field_expr(b)}, {name}, CS{c}) {flipped} 0"
         if isinstance(b, E.Lit) and isinstance(b.value, str):  # a literal longer than the item
-            return f"Cobol.compareText({name}, {jstr(b.value)}, CS) {jop} 0"
+            return f"Cobol.compareText({name}, {jstr(b.value)}, CS{c}) {jop} 0"
         if isinstance(b, E.Func):
-            return f"Cobol.compareText({name}, {self.text(b)}, CS) {jop} 0"
+            return f"Cobol.compareText({name}, {self.text(b)}, CS{c}) {jop} 0"
         return self.violate(it)
 
     def eib(self, name: str) -> str:
@@ -707,31 +711,92 @@ class Gen:
             self.is_numeric(b) and isinstance(a, E.Fig) and a.kind == "ZEROS"):  # fmt: skip
             return f"{self.num(a)}.compareTo({self.num(b)}) {jop} 0"
         if isinstance(a, E.Ref):
-            return f"{self.cmp(a, b)} {jop} 0"
+            return f"{self.cmp(a, b, jop)} {jop} 0"
         if isinstance(b, E.Ref):
             flipped = {"==": "==", ">": "<", "<": ">", ">=": "<=", "<=": ">="}[jop]
-            return f"{self.cmp(b, a)} {flipped} 0"
+            return f"{self.cmp(b, a, jop)} {flipped} 0"
         if isinstance(a, E.Func) or isinstance(b, E.Func):
+            c = self.coll(jop)
+            if c:
+                return f"Cobol.compareText({self.text(a)}, {self.text(b)}, CS{c}) {jop} 0"
             return f"Cobol.compareText({self.text(a)}, {self.text(b)}) {jop} 0"
         raise Untranslatable("comparison of two non-data operands")
 
-    def cmp(self, a: E.Ref, b) -> str:
+    def cmp(self, a: E.Ref, b, jop: str = "<") -> str:
+        """A comparison of `a` with `b` as an int (<0, 0, >0); `jop` the relation it is for: an alphanumeric one is
+        made under the PROGRAM COLLATING SEQUENCE where that can change its result (self.coll)."""
         fa = self.field_expr(a)
+        numeric = self.is_numeric(a) and (
+            self.is_numeric(b) or (isinstance(b, E.Fig) and b.kind == "ZEROS") or isinstance(b, (E.Bin, E.Neg))
+        )
+        c = "" if numeric else self.coll(jop, a, b)
         if isinstance(b, E.Ref):
-            return f"Cobol.compare({fa}, {self.field_expr(b)}, CS)"
+            return f"Cobol.compare({fa}, {self.field_expr(b)}, CS{c})"
         if isinstance(b, E.Lit):
             if isinstance(b.value, Decimal):
-                return f"Cobol.compare({fa}, {self.const(b.value)}, CS)"
-            return f"Cobol.compare({fa}, {self.text(b)}, CS)"
+                return f"Cobol.compare({fa}, {self.const(b.value)}, CS{c})"
+            return f"Cobol.compare({fa}, {self.text(b)}, CS{c})"
         if isinstance(b, E.Fig):
             if b.kind == "ALL":
+                if c:
+                    raise Untranslatable(f"comparison with ALL literal, under PROGRAM COLLATING SEQUENCE "
+                                         f"{self.program_collating}: not modelled")  # fmt: skip
                 return f"Cobol.compareAll({fa}, {jstr(b.all_literal or '')}, CS)"
-            return f"Cobol.compareFigurative({fa}, Figurative.{_fig(b.kind)}, CS)"
+            return f"Cobol.compareFigurative({fa}, Figurative.{self.fig(b.kind)}, CS{c})"
         if isinstance(b, E.Func):
+            if c:
+                return f"Cobol.compareText(Cobol.text({fa}, CS), {self.text(b)}, CS{c})"
             return f"Cobol.compareText(Cobol.text({fa}, CS), {self.text(b)})"
         if isinstance(b, (E.Bin, E.Neg)):
             return f"Cobol.num({fa}, CS).compareTo({self.num(b)})"
         raise Untranslatable(f"comparison with {type(b).__name__}")
+
+    # ---- PROGRAM COLLATING SEQUENCE (#4539) -------------------------------------------------------------------
+    def coll(self, jop: str, *operands) -> str:
+        """The argument suffix ', COLLATING' when a nonnumeric relation `jop` compares under the PROGRAM COLLATING
+        SEQUENCE, else ''.
+
+        IBM (Enterprise COBOL 6.4 Language Reference, OBJECT-COMPUTER paragraph; "Comparison of alphanumeric
+        operands"): the program collating sequence orders the nonnumeric comparisons of relation conditions
+        (condition-names, EVALUATE, PERFORM UNTIL and SEARCH conditions are relation conditions), never a numeric one
+        (by value) nor a national one (the translator refuses national data). NATIVE, STANDARD-1 and STANDARD-2 are
+        the data's byte order (register D1; Gen.collating). Under an EBCDIC or a literal alphabet an ordering relation
+        (<, >, <=, >=, a THRU range) is made in the alphabet (Sort.Collating: IBM's order, refused by name where
+        GnuCOBOL's differs); an equality only when the alphabet has ALSO -- without it each character has a position
+        of its own, so equal positions are equal bytes. Each item operand must hold characters only (an alphabet
+        orders characters; a packed or binary byte is no character)."""
+        name = self.program_collating
+        if name is None or (jop == "==" and "ALSO" not in self.alphabets.get(name, [])):
+            return ""
+        expr = self.collating("relation condition: PROGRAM", name)
+        if expr is None:
+            return ""
+        for e in operands:
+            if isinstance(e, E.Ref):
+                it = self.resolve(e)
+                if not (_text_item(it) or _unsigned_zoned(it)):
+                    raise Untranslatable(f"{e.name} compared under PROGRAM COLLATING SEQUENCE {name}: holds "
+                                         f"numeric or national items: not modelled")  # fmt: skip
+        self.pcs_used = expr
+        return ", COLLATING"
+
+    def fig(self, kind: str) -> str:
+        """The runtime's Figurative constant, refused by name where the PROGRAM COLLATING SEQUENCE defines it."""
+        self.fig_char(kind)
+        return _fig(kind)
+
+    def fig_char(self, kind: str) -> str | None:
+        """A figurative's character (None for ALL). HIGH-VALUE and LOW-VALUE are the characters of the highest and
+        the lowest position in the program collating sequence (IBM: Language Reference, "Figurative constant
+        values"; GnuCOBOL likewise: LOW-VALUE is a literal alphabet's first character). Under a literal alphabet
+        they are not X'FF' / X'00': refused by name. Under EBCDIC they are the native ones on both sides."""
+        name = self.program_collating
+        if kind in ("HIGH", "LOW") and name is not None:
+            defn = self.alphabets.get(name) or ["?"]
+            if defn[0] not in ("NATIVE", "STANDARD-1", "STANDARD-2", "EBCDIC"):
+                raise Untranslatable(f"{kind}-VALUE under PROGRAM COLLATING SEQUENCE {name} (the character of its "
+                                     f"{'highest' if kind == 'HIGH' else 'lowest'} position): not modelled")  # fmt: skip
+        return FIG_CHAR.get(kind)
 
     def cond_field(self, cn: L.Item, subscripts=()) -> str:
         """The item an 88 tests, its subscripts applied (the 88's own, as written on the condition-name)."""
@@ -805,21 +870,33 @@ class Gen:
         for v in cn.values:
             if v[0] == "range":
                 lo, hi = v[1], v[2]
-                tests.append(f"({self.vcmp(f, lo)} >= 0 && {self.vcmp(f, hi)} <= 0)")
+                tests.append(f"({self.vcmp(f, lo, cn, '<')} >= 0 && {self.vcmp(f, hi, cn, '<')} <= 0)")
             else:
-                tests.append(f"{self.vcmp(f, v)} == 0")
+                tests.append(f"{self.vcmp(f, v, cn, '==')} == 0")
         return "(" + " || ".join(tests) + ")" if len(tests) > 1 else tests[0]
 
-    def vcmp(self, f: str, v) -> str:
+    def vcmp(self, f: str, v, cn: L.Item | None = None, jop: str = "==") -> str:
+        """An 88 value against its item as an int; a nonnumeric one under the PROGRAM COLLATING SEQUENCE where that
+        can change the result (a THRU range: `jop` "<"; a value: "==")."""
         kind = v[0]
+        parent = cn.parent if cn is not None else None
+        numeric = (
+            parent is not None and parent.category == "NUMERIC" and (kind == "num" or tuple(v) == ("fig", "ZEROS"))
+        )
+        c = ""
+        if cn is not None and parent is not None and not numeric:
+            c = self.coll(jop)
+            if c and not (_text_item(parent) or _unsigned_zoned(parent)):
+                raise Untranslatable(f"88 {cn.name} under PROGRAM COLLATING SEQUENCE {self.program_collating}: "
+                                     f"{parent.name} holds numeric or national items: not modelled")  # fmt: skip
         if kind == "num":
-            return f"Cobol.compare({f}, {self.const(v[1])}, CS)"
+            return f"Cobol.compare({f}, {self.const(v[1])}, CS{c})"
         if kind == "lit":
-            return f"Cobol.compare({f}, {jstr(v[1])}, CS)"
+            return f"Cobol.compare({f}, {jstr(v[1])}, CS{c})"
         if kind == "fig":
-            return f"Cobol.compareFigurative({f}, Figurative.{_fig(v[1])}, CS)"
+            return f"Cobol.compareFigurative({f}, Figurative.{self.fig(v[1])}, CS{c})"
         if kind == "hex":
-            return f"Cobol.compare({f}, {jstr(v[1].decode('latin-1'))}, CS)"
+            return f"Cobol.compare({f}, {jstr(v[1].decode('latin-1'))}, CS{c})"
         raise Untranslatable(f"88 value {kind}")
 
     # ---- moves --------------------------------------------------------------------------------------------------
@@ -849,7 +926,7 @@ class Gen:
         if isinstance(src, E.Fig):
             if src.kind == "ALL":
                 return f"Cobol.moveAll({jstr(src.all_literal or '')}, {ft}, CS);"
-            return f"Cobol.moveFigurative(Figurative.{_fig(src.kind)}, {ft}, CS);"
+            return f"Cobol.moveFigurative(Figurative.{self.fig(src.kind)}, {ft}, CS);"
         if isinstance(src, E.Func):
             if self.is_numeric(src):
                 return f"Cobol.move({self.num(src)}, {ft}, CS);"
@@ -1119,7 +1196,7 @@ class Gen:
         if kind == "lit":
             return f"Cobol.move({jstr(v[1])}, {f}, CS);"
         if kind == "fig":
-            return f"Cobol.moveFigurative(Figurative.{_fig(v[1])}, {f}, CS);"
+            return f"Cobol.moveFigurative(Figurative.{self.fig(v[1])}, {f}, CS);"
         if kind == "hex":
             return f"Cobol.move({jstr(v[1].decode('latin-1'))}, {f}, CS);"
         raise Untranslatable(f"value {kind}")
@@ -1236,7 +1313,7 @@ class Gen:
                 return jstr(str(o.value))
             return self.text(o)
         if isinstance(o, E.Fig):
-            ch = {"SPACES": " ", "ZEROS": "0", "QUOTES": '"', "LOW": "\x00", "HIGH": "\xff"}.get(o.kind)
+            ch = self.fig_char(o.kind)
             if ch is None:
                 raise Untranslatable("DISPLAY ALL")
             return jstr(ch)
@@ -1535,7 +1612,7 @@ class Gen:
 
     def text_or_field(self, e) -> str:
         if isinstance(e, E.Fig):
-            ch = {"SPACES": " ", "ZEROS": "0", "QUOTES": '"', "LOW": "\x00", "HIGH": "\xff"}.get(e.kind)
+            ch = self.fig_char(e.kind)
             if ch is None:
                 raise Untranslatable("STRING ALL")
             return jstr(ch)
@@ -1548,7 +1625,7 @@ class Gen:
         def txt(e, like=None) -> str:
             """An INSPECT operand as text; a figurative as long as the operand it stands against."""
             if isinstance(e, E.Fig) and e.kind != "ALL":
-                ch = FIG_CHAR[e.kind]
+                ch = str(self.fig_char(e.kind))
                 n = len(like.value) if isinstance(like, E.Lit) and isinstance(like.value, str) else 1
                 return jstr(ch * n)
             if isinstance(e, E.Fig):
@@ -1924,6 +2001,11 @@ def _text_item(it: L.Item) -> bool:
         return all(_text_item(c) for c in it.children)
     return (it.usage == "DISPLAY" and not set(it.picture()) & set("NG")
             and it.category in ("ALPHANUMERIC", "ALPHABETIC", "NUMERIC-EDITED", "ALPHANUMERIC-EDITED"))  # fmt: skip
+
+
+def _unsigned_zoned(it: L.Item) -> bool:
+    """An unsigned zoned decimal item (USAGE DISPLAY): its bytes are digit characters, as an alphanumeric item's."""
+    return not it.children and it.category == "NUMERIC" and it.usage == "DISPLAY" and "S" not in it.picture()
 
 
 def _b(v: bool) -> str:

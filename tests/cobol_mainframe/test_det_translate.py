@@ -466,6 +466,10 @@ _IBM_OPTIONS = {
     "SEND CONTROL": "CURSOR FORMFEED ERASE DEFAULT ALTERNATE ERASEAUP PRINT FREEKB ALARM FRSET MSR OUTPARTN "
     "ACTPARTN LDC ACCUM TERMINAL SET PAGING WAIT LAST REQID HONEOM L40 L64 L80",
     "RECEIVE": "INTO SET LENGTH FLENGTH MAXLENGTH MAXFLENGTH NOTRUNCATE ASIS BUFFER CONVID SESSION PARTN LDC",
+    # #4270: channels and containers (PUT / GET / DELETE CONTAINER (CHANNEL))
+    "PUT CONTAINER": "CONTAINER CHANNEL FROM FLENGTH BIT CHAR DATATYPE FROMCCSID FROMCODEPAGE APPEND PREPEND",
+    "GET CONTAINER": "CONTAINER CHANNEL INTO SET NODATA FLENGTH BYTEOFFSET INTOCCSID INTOCODEPAGE CONVERTST CCSID",
+    "DELETE CONTAINER": "CONTAINER CHANNEL",
 }
 
 
@@ -827,6 +831,8 @@ _RESP_SAMPLES = {
     "GET COUNTER": "GET COUNTER(KEY) VALUE(REC)", "SYNCPOINT": "SYNCPOINT", "SYNCPOINT ROLLBACK": "SYNCPOINT ROLLBACK",
     "SEND CONTROL": "SEND CONTROL ERASE", "RECEIVE": "RECEIVE INTO(REC)",
     "PUSH HANDLE": "PUSH HANDLE", "POP HANDLE": "POP HANDLE",
+    "PUT CONTAINER": "PUT CONTAINER('C') FROM(REC)", "GET CONTAINER": "GET CONTAINER('C') INTO(REC)",
+    "DELETE CONTAINER": "DELETE CONTAINER('C')",
 }  # fmt: skip
 _RESP_ELSEWHERE = {
     "RETURN": "control never comes back from a RETURN (OPTIONS)",
@@ -970,6 +976,137 @@ def test_a_terminal_only_cics_program_translates_whole_and_imports_only_packages
     assert [x for x in r.java.splitlines() if x.startswith("import com.x.") and "*" in x] == [
         "import com.x.entity.vsam.*;"]  # fmt: skip
     assert 'task.sendControl(null, "ERASE", "FREEKB");' in r.java and "task.receive(" in r.java
+
+
+# ---- #4270: channels and containers -------------------------------------------------------------------------------
+class _ChanCics(_TermCics):
+    SIZES = {**_TermCics.SIZES, "AREA": 20}
+
+    def __init__(self):
+        super().__init__()
+        self.g.jump = lambda target: f"JUMP({target});"
+        self.g.p = type("P", (), {"name": "PROG"})()
+
+
+def test_put_container_is_the_programs_bytes_on_the_task_channel():
+    """IBM, PUT CONTAINER (CHANNEL): FROM's first FLENGTH bytes (FLENGTH omitted: FROM's length), into the named
+    channel -- created when it does not exist -- or, with no CHANNEL, the current one; BIT / CHAR /
+    DATATYPE(DFHVALUE(..)), APPEND. CicsTask answers NORMAL / INVREQ / LENGERR with their RESP2."""
+    out = _ChanCics().command("PUT CONTAINER('REQ') CHANNEL(CH) FROM(REC) CHAR RESP(R) RESP2(R2)", "")
+    assert out == ["int flen2 = 56;",
+                   "CicsTask.ContainerResult cont1 = task.putContainer(CH.strip(), 'REQ'.strip(), "
+                   'DetCics.containerData(f_REC, flen2), flen2, "CHAR", false);',
+                   "OUTCOME(DetCics.resp(cont1.resp()), cont1.resp2());"]  # fmt: skip
+    out = _ChanCics().command("PUT CONTAINER(CN) FROM(REC) FLENGTH(N) DATATYPE(DFHVALUE(BIT)) APPEND", "")
+    assert out[0] == "int flen2 = INT(N);" and out[1].endswith('flen2, "BIT", true);') and "(null, " in out[1]
+    assert ", null, false);" in _ChanCics().command("PUT CONTAINER(CN) FROM(REC)", "")[1]
+
+
+def test_get_container_flength_is_in_out_and_nodata_reads_the_length():
+    """IBM, GET CONTAINER (CHANNEL): FLENGTH in -- the most INTO takes (else INTO's length) -- and out, "the length
+    of the data in the container", set back on NORMAL and LENGERR (CicsTask's length is -1 otherwise); NODATA moves
+    nothing. The data goes into INTO's first bytes."""
+    out = _ChanCics().command("GET CONTAINER(CN) CHANNEL(CH) INTO(AREA) FLENGTH(FL) RESP(R)", "")
+    assert out == ["CicsTask.ContainerResult cont1 = task.getContainer(CH.strip(), CN.strip(), "
+                   "DetCics.containerLimit(f_AREA, INT(FL)));",
+                   "if (cont1.data() != null) DetCics.put(f_AREA, cont1.data());",
+                   "if (cont1.length() >= 0) STORE(FL, BigDecimal.valueOf(cont1.length()));",
+                   "OUTCOME(DetCics.resp(cont1.resp()), cont1.resp2());"]  # fmt: skip
+    out = _ChanCics().command("GET CONTAINER(CN) INTO(AREA)", "")
+    assert "DetCics.containerLimit(f_AREA, 20)" in out[0] and not any("STORE" in x for x in out)
+    out = _ChanCics().command("GET CONTAINER(CN) NODATA FLENGTH(FL)", "")
+    assert out[0].endswith("task.getContainer(null, CN.strip(), -1);") and "STORE(FL" in out[1]
+    out = _ChanCics().command("DELETE CONTAINER(CN) RESP(R)", "")
+    assert out[0] == "CicsTask.ContainerResult cont1 = task.deleteContainer(null, CN.strip());"
+
+
+def test_link_and_xctl_pass_a_channel_and_assign_reads_it():
+    """IBM, LINK / XCTL CHANNEL: the channel is "made available to the called program" as its current channel;
+    ASSIGN CHANNEL returns its name (blanks without one). CHANNEL beside COMMAREA is refused."""
+    c = _ChanCics()
+    link = c.command("LINK PROGRAM('SUB') CHANNEL(CH) RESP(R)", "")
+    assert link[0] == "String lr1 = task.linkChannel('SUB'.strip(), CH.strip());" and "task.abendExit();" in link[1]
+    xctl = c.command("XCTL PROGRAM('XB') CHANNEL(CH)", "")
+    assert xctl[:2] == ["String xr4 = task.xctlChannel('XB'.strip(), CH.strip());",
+                        'if ("NORMAL".equals(xr4)) throw new Goback();']  # fmt: skip
+    assert c.command("ASSIGN CHANNEL(REC)", "") == ["DetCics.putText(f_REC, task.assignChannel(), CS);"]
+    for bad in ("LINK PROGRAM('P') CHANNEL(CH) COMMAREA(REC)", "XCTL PROGRAM('P') CHANNEL(CH) COMMAREA(REC)"):
+        with pytest.raises(C.CicsError, match="one or the other"):
+            c.command(bad, "")
+
+
+@pytest.mark.parametrize(
+    ("text", "why"),
+    [
+        ("GET CONTAINER(CN) INTO(AREA) INTOCCSID(1140)", "code-page conversion"),
+        ("GET CONTAINER(CN) INTO(AREA) INTOCODEPAGE('UTF-8')", "code-page conversion"),
+        ("PUT CONTAINER(CN) FROM(REC) FROMCCSID(1208) CHAR", "code-page conversion"),
+        ("GET CONTAINER(CN) SET(PTR) FLENGTH(FL)", "pointer"),
+        ("GET CONTAINER(CN) INTO(AREA) BYTEOFFSET(4)", "partial GET"),
+        ("PUT CONTAINER(CN) FROM(REC) PREPEND", "PREPEND"),
+        ("GET CONTAINER(CN) FLENGTH(FL)", "one of INTO / NODATA"),
+        ("PUT CONTAINER(CN) FROM(REC) BIT CHAR", "one data type"),
+        ("PUT CONTAINER(CN) FROM(REC) DATATYPE(WS-TYPE)", "DFHVALUE"),
+        ("RETURN TRANSID('T') CHANNEL(CH)", "next task's channel"),
+        ("MOVE CONTAINER(A) AS(B)", "MOVE CONTAINER not modelled"),
+        ("STARTBROWSE CONTAINER BROWSETOKEN(T)", "browse"),
+        ("GETNEXT CONTAINER(N) BROWSETOKEN(T)", "browse"),
+    ],
+)
+def test_what_the_container_commands_do_not_model_is_refused_by_name(text, why):
+    """#4270: CHAR conversion (FROMCCSID / INTOCCSID / code pages / CONVERTST), SET, BYTEOFFSET, PREPEND, RETURN
+    CHANNEL, MOVE CONTAINER and the container browse are refused with their reason, never accepted and ignored."""
+    with pytest.raises(C.CicsError, match=why):
+        _ChanCics().command(text, "")
+
+
+def test_the_container_conditions_are_known_by_resp_and_abend_code():
+    """IBM: CONTAINERERR is RESP 110 (abend AEZJ, "CONTAINERERR condition not handled"), CHANNELERR 122 (AEZV)."""
+    assert C.DFHRESP["CONTAINERERR"] == 110 and C.DFHRESP["CHANNELERR"] == 122
+    rt = (Path(C.__file__).parent / "cobolrt/cics/DetCics.java").read_text(encoding="utf-8")
+    assert 'case 110 -> "CONTAINERERR";' in rt and 'case "CHANNELERR" -> 122;' in rt
+    from gitgalaxy.tools.cobol_to_java import cobol_to_java_transaction_forge as F
+
+    assert 'case "CONTAINERERR" -> "AEZJ";' in F.CICS_TASK_JAVA and 'case "CHANNELERR" -> "AEZV";' in F.CICS_TASK_JAVA
+
+
+def test_a_channel_program_translates_whole(tmp_path):
+    """#4270: a program that PUTs and GETs containers, LINKs with a channel and reads its current channel's name
+    translates with no hole (the census's GET / PUT CONTAINER programs were refused whole)."""
+    pytest.importorskip("tree_sitter_language_pack")
+    from gitgalaxy.tools.cobol_to_java.det import program as P
+
+    (tmp_path / "T2.cbl").write_text(
+        "       IDENTIFICATION DIVISION.\n       PROGRAM-ID. T2.\n       DATA DIVISION.\n"
+        "       WORKING-STORAGE SECTION.\n       01  WS-CH                 PIC X(16) VALUE 'CH1'.\n"
+        "       01  WS-AREA               PIC X(10) VALUE 'ABCDEFGHIJ'.\n"
+        "       01  WS-LEN                PIC S9(8) COMP VALUE 10.\n"
+        "       01  WS-RESP               PIC S9(8) COMP.\n       PROCEDURE DIVISION.\n"
+        "           EXEC CICS PUT CONTAINER('IN') CHANNEL(WS-CH)\n"
+        "                     FROM(WS-AREA) CHAR END-EXEC\n"
+        "           EXEC CICS LINK PROGRAM('T3') CHANNEL(WS-CH) END-EXEC\n"
+        "           EXEC CICS GET CONTAINER('OUT') CHANNEL(WS-CH)\n"
+        "                     INTO(WS-AREA) FLENGTH(WS-LEN) RESP(WS-RESP)\n"
+        "           END-EXEC\n"
+        "           EXEC CICS DELETE CONTAINER('IN') CHANNEL(WS-CH)\n           END-EXEC\n"
+        "           EXEC CICS ASSIGN CHANNEL(WS-CH) END-EXEC\n           EXEC CICS RETURN END-EXEC.\n",
+        encoding="utf-8",
+    )
+    vsam = tmp_path / "proj/src/main/java/com/x/entity/vsam"
+    vsam.mkdir(parents=True)
+    (vsam / "CobolRecords.java").write_text("package com.x.entity.vsam; public class CobolRecords {}\n")
+    stub = "package com.x.service;\nimport com.x.cics.CicsTask;\npublic class T2Service {\n" \
+           "    public void runTask(CicsTask task) {}\n}\n"  # fmt: skip
+    r = P.translate(tmp_path / "T2.cbl", [], stub, "com.x", {}, tmp_path / "proj")
+    assert (r.stats["statements"], r.stats["translated"], r.stats["holes"]) == (6, 6, [])
+    for call in (
+        "task.putContainer(",
+        "task.linkChannel(",
+        "task.getContainer(",
+        "task.deleteContainer(",
+        "task.assignChannel()",
+    ):
+        assert call in r.java, call
 
 
 # ---- #4414 / #4502: IGNORE CONDITION, HANDLE AID, PUSH / POP HANDLE, HANDLE CONDITION ERROR ---------------------------

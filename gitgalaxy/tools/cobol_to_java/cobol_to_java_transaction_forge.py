@@ -265,6 +265,10 @@ public class CicsTask {
     private String xctlTarget;
     private Object xctlCommarea;
     private Integer xctlLength;
+    private Channel xctlChannel;                            // #4270: the channel an XCTL passed (null: none)
+    private Channel currentChannel;                         // #4270: the channel this program was passed
+    private Map<String, Channel> channels = new HashMap<>();  // #4270: the channels in this program's scope, by name
+    private java.util.Set<String> droppedChannels = java.util.Set.of();  // #4270: left behind by an XCTL
     private LocalDateTime now;                              // #4006: the virtual clock (the task's root)
     private List<byte[]> retrieveData = List.of();
     private int retrieved;
@@ -383,6 +387,10 @@ public class CicsTask {
      *  given `area` reads and writes those bytes as its DFHCOMMAREA -- every byte, the ones its contract DTO does
      *  not name too (a caller's record laid out unlike the target's contract). The event carries them (base64). */
     public String link(String program, Object commarea, int length, byte[] area) {
+        return link(program, commarea, length, area, null);
+    }
+
+    private String link(String program, Object commarea, int length, byte[] area, Channel linkChannel) {
         String resp = "NORMAL";
         Integer resp2 = null;
         int len = commarea == null ? 0 : length;
@@ -406,13 +414,16 @@ public class CicsTask {
         callee.invoker = this.program;
         callee.linkLength = len;
         callee.linkArea = area;
+        callee.passChannel(linkChannel, java.util.Set.of());  // #4270: LINK CHANNEL (none: the callee has no channel)
         for (int hop = 0; callee != null && hop < 32; hop++) {
             programs.run(callee.program, callee);
             if (callee.xctlTarget != null) {
+                CicsTask prev = callee;
                 String by = callee.program;
                 callee = new CicsTask(this, level + 1, callee.xctlTarget, callee.xctlCommarea, callee.xctlLength,
                         commarea);
                 callee.invoker = by;
+                callee.passChannel(prev.xctlChannel, prev.inScope());  // #4270
                 callee.linkLength = len;
             } else {
                 if (!callee.ended) {
@@ -435,6 +446,7 @@ public class CicsTask {
                     : new CicsTask(this, 1, current.xctlTarget, current.xctlCommarea, current.xctlLength, null);
             if (next != null) {
                 next.invoker = current.program;
+                next.passChannel(current.xctlChannel, current.inScope());  // #4270
             }
             current = next;
         }
@@ -662,6 +674,210 @@ public class CicsTask {
     /** LINK PROGRAM(program) with no COMMAREA: the callee's EIBCALEN is 0. */
     public String link(String program) {
         return link(program, null, 0);
+    }
+
+    // ---- #4270: channels and containers (IBM CICS TS: PUT / GET / DELETE CONTAINER (CHANNEL), LINK / XCTL CHANNEL,
+    // ASSIGN CHANNEL, "Scope of a channel"). A container holds bytes, exactly as the program put them: a BIT container
+    // is never converted, and a CHAR one put and got with no FROMCCSID / INTOCCSID is in the region's CCSID both ways
+    // (GET CONTAINER: "If INTOCCSID and INTOCODEPAGE are not specified, the value for conversion defaults to the CCSID
+    // of the region"), so it is not converted either. The CCSID options are refused by the translator.
+
+    /** A channel: its name and its containers, in creation order. */
+    public static final class Channel {
+        private final String name;
+        private final Map<String, Container> containers = new LinkedHashMap<>();
+
+        public Channel(String name) {
+            this.name = name;
+        }
+
+        public String name() {
+            return name;
+        }
+
+        /** The containers, by name (a copy). */
+        public Map<String, byte[]> containers() {
+            Map<String, byte[]> out = new LinkedHashMap<>();
+            containers.forEach((k, v) -> out.put(k, v.data.clone()));
+            return out;
+        }
+    }
+
+    private static final class Container {
+        private byte[] data;
+        private final boolean bit;
+
+        private Container(byte[] data, boolean bit) {
+            this.data = data;
+            this.bit = bit;
+        }
+    }
+
+    /** A container command's outcome: its condition and RESP2, the container's length (GET: FLENGTH's value on
+     *  NORMAL / LENGERR, else -1) and the bytes it moves INTO (GET, else null). */
+    public record ContainerResult(String resp, int resp2, int length, byte[] data) {
+        public boolean normal() {
+            return "NORMAL".equals(resp);
+        }
+    }
+
+    /** A channel or container name as CICS compares it: the 16-character value without its trailing blanks. One
+     *  with nothing else, or with an embedded blank, is refused (CHANNELERR / CONTAINERERR "illegal character"
+     *  is IBM's, but which characters its names allow is not modelled). */
+    private static String channelName(String name, String what) {
+        String n = name == null ? "" : name;
+        int end = n.length();
+        while (end > 0 && (n.charAt(end - 1) == ' ' || n.charAt(end - 1) == 0)) {
+            end--;
+        }
+        n = n.substring(0, end);
+        if (n.isEmpty() || n.contains(" ") || n.length() > 16) {
+            throw new UnsupportedOperationException(what + " name '" + name + "': not modelled");
+        }
+        return n;
+    }
+
+    private java.util.Set<String> inScope() {
+        java.util.Set<String> all = new java.util.HashSet<>(channels.keySet());
+        all.addAll(droppedChannels);
+        return all;
+    }
+
+    /** This program's channel: `passed` (LINK / XCTL CHANNEL), the only one in its scope; `before` the names in
+     *  the XCTLing program's scope, which an XCTL leaves behind. IBM shows a channel passed on XCTL in the scope of
+     *  both programs ("Scope of a channel") but says nothing of the others: naming one is refused, never guessed. */
+    private void passChannel(Channel passed, java.util.Set<String> before) {
+        currentChannel = passed;
+        channels = new HashMap<>();
+        if (passed != null) {
+            channels.put(passed.name, passed);
+        }
+        java.util.Set<String> dropped = new java.util.HashSet<>(before);
+        if (passed != null) {
+            dropped.remove(passed.name);
+        }
+        droppedChannels = dropped;
+    }
+
+    /** The channel `name` names in this program's scope; `create`: a new, empty one when there is none (PUT
+     *  CONTAINER: "If the channel does not exist, it is created"; LINK / XCTL CHANNEL: "a new empty channel is
+     *  created"); else null. */
+    private Channel scopeChannel(String name, boolean create) {
+        String n = channelName(name, "channel");
+        if (droppedChannels.contains(n)) {
+            throw new UnsupportedOperationException("channel " + n + " after an XCTL that did not pass it: its scope "
+                    + "is not documented, not modelled");
+        }
+        Channel ch = channels.get(n);
+        if (ch == null && create) {
+            ch = new Channel(n);
+            channels.put(n, ch);
+        }
+        return ch;
+    }
+
+    /** PUT CONTAINER(container) [CHANNEL(channel)] FROM FLENGTH [BIT | CHAR | no data type] [APPEND] (IBM, EXEC
+     *  CICS PUT CONTAINER (CHANNEL)). `channel` null: the current channel, INVREQ RESP2 4 without one (1 when a data
+     *  type was named). FLENGTH below zero: LENGERR RESP2 1. A new container takes the data type given, else BIT
+     *  ("the default value, unless FROMCCSID or FROMCODEPAGE option is specified"); an existing one keeps its own.
+     *  Naming the other type for an existing container is refused: IBM says both that DATATYPE "applies only to new
+     *  containers" and that "an attempt ... to change the data-type of an existing container" is INVREQ RESP2 33.
+     *  The data replaces the container's, or with APPEND follows it. */
+    public ContainerResult putContainer(String channel, String container, byte[] data, int flength, String type,
+                                        boolean append) {
+        Channel ch = channel == null ? currentChannel : scopeChannel(channel, true);
+        String name = channelName(container, "container");
+        if (ch == null) {
+            return new ContainerResult("INVREQ", type == null ? 4 : 1, -1, null);
+        }
+        if (flength < 0) {
+            return new ContainerResult("LENGERR", 1, -1, null);
+        }
+        Container c = ch.containers.get(name);
+        if (c != null && type != null && c.bit != "BIT".equals(type)) {
+            throw new UnsupportedOperationException("PUT CONTAINER " + type + " on an existing container of the other "
+                    + "data type: ignored or INVREQ RESP2 33 is not settled by IBM's documentation, not modelled");
+        }
+        if (c == null) {
+            ch.containers.put(name, new Container(data.clone(), !"CHAR".equals(type)));
+        } else if (append) {
+            byte[] joined = Arrays.copyOf(c.data, c.data.length + data.length);
+            System.arraycopy(data, 0, joined, c.data.length, data.length);
+            c.data = joined;
+        } else {
+            c.data = data.clone();
+        }
+        return new ContainerResult("NORMAL", 0, -1, null);
+    }
+
+    /** GET CONTAINER(container) [CHANNEL(channel)] INTO FLENGTH | NODATA FLENGTH (IBM, EXEC CICS GET CONTAINER
+     *  (CHANNEL)). `maxLength` is the most INTO takes -- FLENGTH's value, else INTO's length -- or -1 for NODATA.
+     *  CHANNELERR RESP2 2 for a channel not in scope, INVREQ RESP2 4 with no CHANNEL and no current channel,
+     *  CONTAINERERR RESP2 10 for a container the channel does not have. Longer data is truncated to INTO with
+     *  LENGERR RESP2 11; FLENGTH "returns the length of the data in the container" (NORMAL, LENGERR). */
+    public ContainerResult getContainer(String channel, String container, int maxLength) {
+        Channel ch = channel == null ? currentChannel : scopeChannel(channel, false);
+        String name = channelName(container, "container");
+        if (ch == null) {
+            return channel == null ? new ContainerResult("INVREQ", 4, -1, null)
+                    : new ContainerResult("CHANNELERR", 2, -1, null);
+        }
+        Container c = ch.containers.get(name);
+        if (c == null) {
+            return new ContainerResult("CONTAINERERR", 10, -1, null);
+        }
+        if (maxLength < 0) {
+            return new ContainerResult("NORMAL", 0, c.data.length, null);
+        }
+        if (c.data.length > maxLength) {
+            return new ContainerResult("LENGERR", 11, c.data.length, Arrays.copyOf(c.data, maxLength));
+        }
+        return new ContainerResult("NORMAL", 0, c.data.length, c.data.clone());
+    }
+
+    /** DELETE CONTAINER(container) [CHANNEL(channel)] (IBM, EXEC CICS DELETE CONTAINER (CHANNEL)): CHANNELERR
+     *  RESP2 2, INVREQ RESP2 4 ("issued outside the scope of a currently-active channel"), CONTAINERERR RESP2 10. */
+    public ContainerResult deleteContainer(String channel, String container) {
+        Channel ch = channel == null ? currentChannel : scopeChannel(channel, false);
+        String name = channelName(container, "container");
+        if (ch == null) {
+            return channel == null ? new ContainerResult("INVREQ", 4, -1, null)
+                    : new ContainerResult("CHANNELERR", 2, -1, null);
+        }
+        if (ch.containers.remove(name) == null) {
+            return new ContainerResult("CONTAINERERR", 10, -1, null);
+        }
+        return new ContainerResult("NORMAL", 0, -1, null);
+    }
+
+    /** ASSIGN CHANNEL: "the 16-character name of the current channel of the program, if one exists; otherwise,
+     *  blanks". */
+    public String assignChannel() {
+        return String.format(java.util.Locale.ROOT, "%-16s", currentChannel == null ? "" : currentChannel.name);
+    }
+
+    /** The current channel (null: none), for a caller that drives the task (#4270). */
+    public Channel currentChannel() {
+        return currentChannel;
+    }
+
+    /** Starts this level with `channel` as its current channel: what a program LINKed with a channel from outside
+     *  the region, or started with one, receives (#4270). */
+    public CicsTask withChannel(Channel channel) {
+        passChannel(channel, java.util.Set.of());
+        return this;
+    }
+
+    /** LINK PROGRAM(program) CHANNEL(channel) (IBM, EXEC CICS LINK: "the name ... of a channel that is to be made
+     *  available to the called program"; one that does not exist is created empty): the callee's current channel,
+     *  and the only one in its scope; what it puts there, the caller sees. EIBCALEN 0. */
+    public String linkChannel(String program, String channel) {
+        return link(program, null, 0, null, scopeChannel(channel, true));
+    }
+
+    /** XCTL PROGRAM(program) CHANNEL(channel): as LINK CHANNEL, at the same level. */
+    public String xctlChannel(String program, String channel) {
+        return xctl(program, null, null, scopeChannel(channel, true));
     }
 
     /** The bytes of the COMMAREA this program was LINKed with, when its caller passed them (by reference: what it
@@ -1656,6 +1872,10 @@ public class CicsTask {
      *  item (#4008). It fails, and the program goes on, with LENGERR (RESP2 11) for a LENGTH outside 0-32763 or
      *  PGMIDERR (RESP2 1) for a program the CSD does not define; the result is the condition. */
     public String xctl(String program, Object commarea, Integer length) {
+        return xctl(program, commarea, length, null);
+    }
+
+    private String xctl(String program, Object commarea, Integer length, Channel pendingChannel) {
         String resp = "NORMAL";
         Integer resp2 = null;
         if (commarea != null && length != null && (length < 0 || length > 32763)) {
@@ -1677,6 +1897,7 @@ public class CicsTask {
             xctlTarget = program;
             xctlCommarea = commarea;
             xctlLength = commarea == null ? Integer.valueOf(0) : length;
+            xctlChannel = pendingChannel;
             ended = true;
         }
         return resp;
@@ -1817,6 +2038,8 @@ public class CicsTask {
             case 56 -> "ENVDEFERR";
             case 70 -> "NOTAUTH";
             case 100 -> "LOCKED";
+            case 110 -> "CONTAINERERR";
+            case 122 -> "CHANNELERR";
             default -> throw new IllegalArgumentException("no condition name known for RESP " + resp);
         };
     }
@@ -1832,6 +2055,8 @@ public class CicsTask {
             case "ENDDATA" -> "AEI2";
             case "PGMIDERR" -> "AEI0";
             case "INVREQ" -> "AEIP";
+            case "CONTAINERERR" -> "AEZJ";  // #4270: IBM abend codes AEZJ "CONTAINERERR condition not handled"
+            case "CHANNELERR" -> "AEZV";    // and AEZV "CHANNELERR condition not handled"
             default -> throw new IllegalArgumentException("no abend code known for condition " + condition);
         };
     }

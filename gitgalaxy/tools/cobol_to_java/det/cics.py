@@ -32,7 +32,7 @@ DFHRESP = {"NORMAL": 0, "ERROR": 1, "EOF": 4, "EODS": 5, "EOC": 6, "INBFMH": 7, 
            "STRELERR": 86, "OPENERR": 87, "SPOLBUSY": 88, "SPOLERR": 89, "NODEIDERR": 90, "TASKIDERR": 91,
            "TCIDERR": 92, "DSNNOTFOUND": 93, "LOADING": 94, "MODELIDERR": 95, "OUTDESCRERR": 96,
            "PARTNERIDERR": 97, "PROFILEIDERR": 98, "NETNAMEIDERR": 99, "LOCKED": 100, "RECORDBUSY": 101,
-           "UOWNOTFOUND": 102, "UOWLNOTFOUND": 103,
+           "UOWNOTFOUND": 102, "UOWLNOTFOUND": 103, "CONTAINERERR": 110,
            # IBM CICS TS API Reference, RESP values (BUSY 128 / INCOMPLETE 126 in its SPI table; the others as the
            # equivalence harness's own table, tests/tools/equivalence_cics.py, which agrees on every shared name)
            "RDATT": 2, "WRBRK": 3, "DSIDERR": 12, "CHANNELERR": 122, "CCSIDERR": 123, "TIMEDOUT": 124,
@@ -98,10 +98,11 @@ OPTIONS: dict[str, frozenset | None] = {
     # (ASIS / BUFFER and the APPC / LU6.1 options refused)
     "SEND CONTROL": _SEND_CONTROL | _RESP,
     "RECEIVE": frozenset({"INTO", "SET", "LENGTH", "FLENGTH", "MAXLENGTH", "MAXFLENGTH", "NOTRUNCATE"}) | _RESP,
-    "LINK": frozenset({"PROGRAM", "COMMAREA", "LENGTH"}) | _RESP,
+    # #4270: CHANNEL (one or the other: a COMMAREA beside it is refused in Cics.command)
+    "LINK": frozenset({"PROGRAM", "COMMAREA", "LENGTH", "CHANNEL"}) | _RESP,
     # control never comes back from a RETURN, so a RESP area it does not write is never read after it
     "RETURN": frozenset({"TRANSID", "COMMAREA", "LENGTH"}) | _RESP,
-    "XCTL": frozenset({"PROGRAM", "COMMAREA", "LENGTH"}) | _RESP,
+    "XCTL": frozenset({"PROGRAM", "COMMAREA", "LENGTH", "CHANNEL"}) | _RESP,
     # EQUAL is READ's default; KEYLENGTH only where it changes nothing (Cics._keylength); a keyed READ's LENGTH is
     # modelled (#4436, Cics.read_length), READNEXT / READPREV's and an RBA browse's only as INTO's own (_read_length)
     "READ": _FILE | {"INTO", "RIDFLD", "UPDATE", "EQUAL", "KEYLENGTH", "LENGTH"} | _RESP,
@@ -122,7 +123,7 @@ OPTIONS: dict[str, frozenset | None] = {
     "PUSH HANDLE": _RESP,
     "POP HANDLE": _RESP,
     "ABEND": frozenset({"ABCODE", "CANCEL", "NODUMP"}),  # NODUMP: a dump is no state the program or its caller sees
-    "ASSIGN": frozenset({"APPLID", "SYSID", "ABCODE", "PROGRAM", "INVOKINGPROG"}) | _RESP,
+    "ASSIGN": frozenset({"APPLID", "SYSID", "ABCODE", "PROGRAM", "INVOKINGPROG", "CHANNEL"}) | _RESP,
     "ASKTIME": frozenset({"ABSTIME", "NOHANDLE"}),
     "FORMATTIME": frozenset({"ABSTIME", "TIME", "DATESEP", "TIMESEP", "NOHANDLE", *_FORMS}),
     "INQUIRE PROGRAM": frozenset({"PROGRAM"}) | _RESP,
@@ -137,6 +138,26 @@ OPTIONS: dict[str, frozenset | None] = {
     # a remote system that cannot commit, and none takes part.
     "SYNCPOINT": frozenset({"ROLLBACK"}) | _RESP,
     "SYNCPOINT ROLLBACK": _RESP,
+    # #4270: channels and containers (Cics.container). Container data is bytes: BIT, or CHAR with no CCSID option --
+    # in the region's CCSID both ways, so never converted (CicsTask's channel section says why); BIT / CHAR are
+    # DATATYPE's short forms
+    "PUT CONTAINER": frozenset({"CONTAINER", "CHANNEL", "FROM", "FLENGTH", "BIT", "CHAR", "DATATYPE", "APPEND"})
+    | _RESP,
+    "GET CONTAINER": frozenset({"CONTAINER", "CHANNEL", "INTO", "FLENGTH", "NODATA"}) | _RESP,
+    "DELETE CONTAINER": frozenset({"CONTAINER", "CHANNEL"}) | _RESP,
+}
+
+# #4270: why an option of a modelled command is refused, where "option not modelled" alone would not say
+_REFUSED_WHY = {
+    "FROMCCSID": "code-page conversion of a CHAR container is not modelled",
+    "FROMCODEPAGE": "code-page conversion of a CHAR container is not modelled",
+    "INTOCCSID": "code-page conversion of a CHAR container is not modelled",
+    "INTOCODEPAGE": "code-page conversion of a CHAR container is not modelled",
+    "CONVERTST": "code-page conversion of a CHAR container is not modelled",
+    "CCSID": "code-page conversion of a CHAR container is not modelled",
+    "SET": "the address of CICS's copy of the data (a pointer) is not modelled",
+    "BYTEOFFSET": "a partial GET is not modelled (no corpus program uses it)",
+    "PREPEND": "not modelled (no corpus program uses it)",
 }
 
 
@@ -146,6 +167,8 @@ def command_key(words: list[str], opts: dict) -> str:
     first = words[0] if words else ""
     if first in ("ENQ", "DEQ", "DELAY"):
         return first
+    if first in ("GET", "PUT", "DELETE", "MOVE") and "CONTAINER" in opts:  # #4270 (DELETE CONTAINER is no file's)
+        return f"{first} CONTAINER"
     if verb != "GET" and ("COUNTER" in opts or "DCOUNTER" in opts):
         return f"{verb} COUNTER"  # (not modelled: refused whole by Cics.command)
     if first == "SEND":
@@ -171,7 +194,10 @@ def check_options(words: list[str], opts: dict) -> None:
         return
     bad = [o for o in opts if o not in allowed]
     if bad:
-        raise CicsError(f"{' '.join(words)} {' '.join(bad)}: option not modelled")
+        why = "; ".join(f"{o}: {_REFUSED_WHY[o]}" for o in bad if o in _REFUSED_WHY)
+        if key == "RETURN" and "CHANNEL" in bad:
+            why = "RETURN CHANNEL: the next task's channel is not modelled (no corpus program uses it)"
+        raise CicsError(f"{key} {' '.join(bad)}: option not modelled" + (f" ({why})" if why else ""))
 
 
 # ---- the EXEC text ----------------------------------------------------------------------------------------------
@@ -680,6 +706,12 @@ class Cics:
         words, opts = parse_exec(text)
         verb = " ".join(words)
         check_options(words, opts)  # #4411: an option the translation would ignore is refused first
+        key = command_key(words, opts)
+        if key in ("PUT CONTAINER", "GET CONTAINER", "DELETE CONTAINER"):
+            return self.container(key, opts, ind)
+        if key == "MOVE CONTAINER" or words[:1] in (["STARTBROWSE"], ["GETNEXT"], ["ENDBROWSE"]):
+            # #4270: no non-burned corpus program MOVEs a container; one browses (with GETMAIN / SOAPFAULT beside)
+            raise CicsError(f"EXEC CICS {key} not modelled (#4270: container MOVE / browse, a later slice)")
         if verb.split()[0] in ("ENQ", "DEQ", "DELAY"):  # (DELAY FOR SECONDS(n): words DELAY FOR)
             return self.outcome(opts, "0", "0", ind)  # (OPTIONS: one task in the region, nothing waits)
         if verb == "GET" and "COUNTER" in opts:  # GET COUNTER: its value, then +1; NOTFND for a counter not defined
@@ -717,12 +749,14 @@ class Cics:
             # COMMAREA's DTO is typed for -- the name the LINK uses at run time is still the item's
             prog_lit = _literal(opts.get("PROGRAM")) or self._value_name(opts.get("PROGRAM"))
             prog = self.name(_arg(opts.get("PROGRAM")))
-            if "CHANNEL" in opts or "INPUTMSG" in opts:
-                raise CicsError("LINK with CHANNEL / INPUTMSG")
             g = self.g
             r, ca = g.tmpname("lr"), g.tmpname("ca")
             out: list[str] = []
-            if "COMMAREA" in opts:
+            if "CHANNEL" in opts:  # #4270: the callee's current channel (CicsTask.linkChannel)
+                if "COMMAREA" in opts or "LENGTH" in opts:
+                    raise CicsError("LINK CHANNEL with COMMAREA / LENGTH: one or the other")
+                out.append(f"{ind}String {r} = task.linkChannel({prog}, {self.name(_arg(opts['CHANNEL']))});")
+            elif "COMMAREA" in opts:
                 area = self.ref(_arg(opts["COMMAREA"]))
                 cls = self.dto_for(area, self.size(_arg(opts["COMMAREA"])), prog_lit)
                 f = g.field_expr(area)
@@ -759,7 +793,11 @@ class Cics:
         if verb == "XCTL":
             prog_lit = _literal(opts["PROGRAM"])
             prog = self.name(_arg(opts["PROGRAM"]))
-            if "COMMAREA" in opts:
+            if "CHANNEL" in opts:  # #4270: the target's current channel (CicsTask.xctlChannel)
+                if "COMMAREA" in opts or "LENGTH" in opts:
+                    raise CicsError("XCTL CHANNEL with COMMAREA / LENGTH: one or the other")
+                call = f"task.xctlChannel({prog}, {self.name(_arg(opts['CHANNEL']))})"
+            elif "COMMAREA" in opts:
                 dto, length = self.commarea_out(opts, prog_lit)
                 call = f"task.xctl({prog}, {dto}, {length})" if length != "null" else f"task.xctl({prog}, {dto})"
             else:
@@ -813,7 +851,8 @@ class Cics:
                 src = {"APPLID": "task.assignApplid()", "SYSID": "task.assignSysid()", "ABCODE": "task.abcode()",
                        # the running program's own name, 8 characters
                        "PROGRAM": G_jstr(f"{self.g.p.name[:8]:<8}"),
-                       "INVOKINGPROG": "task.invokingProgram()"}.get(k)  # fmt: skip
+                       "INVOKINGPROG": "task.invokingProgram()",
+                       "CHANNEL": "task.assignChannel()"}.get(k)  # #4270: 16 characters, blanks without one  # fmt: skip
                 if src is None:
                     raise CicsError(f"ASSIGN {k}")
                 out.append(f"{ind}DetCics.putText({self.field(_arg(v))}, {src}, CS);")
@@ -866,6 +905,57 @@ class Cics:
         if verb == "RECEIVE":
             return self.receive(opts, ind)
         raise CicsError(f"EXEC CICS {verb} not modelled")
+
+    # -- #4270: channels and containers
+    def container(self, key: str, opts: dict, ind: str) -> list[str]:
+        """PUT / GET / DELETE CONTAINER (IBM CICS TS, EXEC CICS PUT CONTAINER (CHANNEL), GET CONTAINER (CHANNEL),
+        DELETE CONTAINER (CHANNEL)) on CicsTask's channels. No CHANNEL: the current channel. The data is the
+        program's own bytes, never converted (OPTIONS: BIT, or CHAR in the region's CCSID both ways); CHANNELERR,
+        CONTAINERERR, INVREQ and LENGERR come back as CicsTask documents them, with their RESP2, through RESP /
+        HANDLE CONDITION like any condition (AEZV / AEZJ / AEIP / AEIV by default).
+
+        PUT: FROM's first FLENGTH bytes (FLENGTH omitted: FROM's length), the data type BIT / CHAR /
+        DATATYPE(DFHVALUE(..)) or none, APPEND. GET: INTO takes at most FLENGTH's value (else INTO's length) -- the
+        data into INTO's first bytes, longer data truncated with LENGERR RESP2 11 -- or NODATA; FLENGTH, a data
+        area, is set to the container's length on NORMAL and LENGERR (IBM: "As an output field, FLENGTH returns
+        the length of the data in the container"; on another condition IBM does not say, so it is left alone)."""
+        g = self.g
+        name = self.name(_arg(opts.get("CONTAINER")))
+        chan = self.name(_arg(opts["CHANNEL"])) if "CHANNEL" in opts else "null"
+        r = g.tmpname("cont")
+        out: list[str] = []
+        if key == "PUT CONTAINER":
+            frm = _arg(opts.get("FROM"))
+            f = self.read_field(frm)
+            n = self.int_(_arg(opts["FLENGTH"])) if "FLENGTH" in opts else str(self.size(frm))
+            dtype = _datatype(opts)
+            ln = g.tmpname("flen")
+            out += [f"{ind}int {ln} = {n};",
+                    f"{ind}CicsTask.ContainerResult {r} = task.putContainer({chan}, {name}, "
+                    f"DetCics.containerData({f}, {ln}), {ln}, {G_jstr(dtype) if dtype else 'null'}, "
+                    f"{str('APPEND' in opts).lower()});"]  # fmt: skip
+        elif key == "GET CONTAINER":
+            into, nodata = opts.get("INTO"), "NODATA" in opts
+            if bool(into) == nodata:
+                raise CicsError("GET CONTAINER needs one of INTO / NODATA")
+            flen = opts.get("FLENGTH")
+            if "FLENGTH" in opts and not flen:
+                raise CicsError("FLENGTH needs an argument")
+            settable = flen is not None and re.fullmatch(r"(?is)[+-]?\d+|LENGTH\s+OF\s+.+", flen.strip()) is None
+            if nodata:
+                out.append(f"{ind}CicsTask.ContainerResult {r} = task.getContainer({chan}, {name}, -1);")
+            else:
+                target = self.field(into)
+                most = self.int_(flen) if flen else str(self.size(into))
+                out += [f"{ind}CicsTask.ContainerResult {r} = task.getContainer({chan}, {name}, "
+                        f"DetCics.containerLimit({target}, {most}));",
+                        f"{ind}if ({r}.data() != null) DetCics.put({target}, {r}.data());"]  # fmt: skip
+            if settable:
+                set_back = g.store_into(self.ref(flen), f"BigDecimal.valueOf({r}.length())", False)
+                out.append(f"{ind}if ({r}.length() >= 0) {set_back}")
+        else:
+            out.append(f"{ind}CicsTask.ContainerResult {r} = task.deleteContainer({chan}, {name});")
+        return out + self.outcome(opts, f"DetCics.resp({r}.resp())", f"{r}.resp2()", ind)
 
     # -- #4413: terminal control without a map
     def send_control(self, opts: dict, ind: str) -> list[str]:
@@ -1274,6 +1364,21 @@ class Cics:
         else:  # ENDBR
             out = [f"{ind}int {r} = task.endbr({file});"]
         return out + self.outcome(opts, r, "0", ind)
+
+
+def _datatype(opts: dict) -> str | None:
+    """#4270: PUT CONTAINER's data type -- BIT, CHAR, DATATYPE(DFHVALUE(BIT | CHAR)) -- or None when none is named."""
+    given = [t for t in ("BIT", "CHAR") if t in opts]
+    if opts.get("DATATYPE"):
+        m = re.fullmatch(r"(?is)\s*DFHVALUE\s*\(\s*(BIT|CHAR)\s*\)\s*", opts["DATATYPE"])
+        if m is None:
+            raise CicsError(f"PUT CONTAINER DATATYPE({opts['DATATYPE']}): only DFHVALUE(BIT / CHAR) is modelled")
+        given.append(m.group(1).upper())
+    elif "DATATYPE" in opts:
+        raise CicsError("DATATYPE needs an argument")
+    if len(given) > 1:
+        raise CicsError(f"PUT CONTAINER {' and '.join(given)}: one data type")
+    return given[0] if given else None
 
 
 def _one_of(opts: dict, name: str, alt: str) -> str | None:

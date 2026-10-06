@@ -1170,3 +1170,113 @@ def test_a_syncpoint_in_a_program_linked_from_outside_the_region_is_refused(tmp_
         "with SYNCONRETURN, which the region does not know",
         "local ok",
     ]
+
+
+# ---- #4270: channels and containers ---------------------------------------------------------------------
+_CONT_MAIN = r"""
+#include <stdio.h>
+#include <string.h>
+typedef struct { int resp; int resp2; char name1[8]; char name2[8]; char flags[40]; int len;
+                 char qname[16]; int item; int num; int go_to; char chan[16]; } gg_cics;
+int GGCPUTC(gg_cics *c, char *from); int GGCGETC(gg_cics *c, char *into); int GGCDELC(gg_cics *c);
+int GGCASCH(gg_cics *c); int GGCTASK(gg_cics *c); int GGCLINK(gg_cics *c, char *area);
+int GGCNEXT(gg_cics *c, char **area); int GGCLRET(gg_cics *c);
+static gg_cics c;
+static void blank(char *f, int n, const char *v) { memset(f, ' ', n); memcpy(f, v, strlen(v)); }
+static void op(const char *cont, const char *chan, const char *flags, int len) {
+    blank(c.qname, 16, cont); blank(c.chan, 16, chan); blank(c.flags, 40, flags); c.len = len;
+}
+int main(void) {
+    char into[16], *area = NULL;
+    blank(c.name1, 8, "MAIN"); c.len = 0; GGCTASK(&c); GGCNEXT(&c, &area);
+    op("REQ", "", "", 4); GGCGETC(&c, into); printf("%d/%d ", c.resp, c.resp2);         /* no current channel */
+    GGCASCH(&c); printf("[%.16s] ", c.chan);
+    op("REQ", "CH1", "CHANNEL CHAR", 6); GGCPUTC(&c, "ABCDEF"); printf("%d ", c.resp);
+    op("REQ", "CH1", "CHANNEL APPEND", 2); GGCPUTC(&c, "GH"); printf("%d ", c.resp);
+    op("REQ", "CH1", "CHANNEL", -1); GGCPUTC(&c, "X"); printf("%d/%d ", c.resp, c.resp2);  /* LENGERR 1 */
+    op("REQ", "", "", 1); GGCPUTC(&c, "X"); printf("%d/%d ", c.resp, c.resp2);             /* INVREQ 4 */
+    op("REQ", "", "BIT", 1); GGCPUTC(&c, "X"); printf("%d/%d ", c.resp, c.resp2);          /* INVREQ 1 */
+    blank(c.name1, 8, "SUB"); c.item = 0; c.len = 0; blank(c.flags, 40, "CHANNEL"); blank(c.chan, 16, "CH1");
+    GGCLINK(&c, NULL); GGCNEXT(&c, &area);
+    GGCASCH(&c); printf("[%.3s] ", c.chan);
+    memset(into, '.', sizeof into);
+    op("REQ", "", "", 16); GGCGETC(&c, into); printf("%d/%d/%.10s ", c.resp, c.len, into); /* the current channel */
+    memset(into, '.', sizeof into);
+    op("REQ", "", "", 3); GGCGETC(&c, into); printf("%d/%d/%d/%.5s ", c.resp, c.resp2, c.len, into);
+    op("REQ", "", "NODATA", 0); GGCGETC(&c, into); printf("%d/%d ", c.resp, c.len);
+    op("NONE", "", "", 4); GGCGETC(&c, into); printf("%d/%d ", c.resp, c.resp2);           /* CONTAINERERR 10 */
+    op("REQ", "OTHER", "CHANNEL", 4); GGCGETC(&c, into); printf("%d/%d ", c.resp, c.resp2); /* CHANNELERR 2 */
+    op("OUT", "", "", 2); GGCPUTC(&c, "OK"); printf("%d ", c.resp);
+    op("REQ", "", "", 0); GGCDELC(&c); printf("%d ", c.resp);
+    GGCLRET(&c);
+    op("OUT", "CH1", "CHANNEL", 8); GGCGETC(&c, into); printf("%d/%d/%.2s ", c.resp, c.len, into);
+    op("REQ", "CH1", "CHANNEL", 0); GGCDELC(&c); printf("%d/%d\n", c.resp, c.resp2);
+    return 0;
+}
+"""
+
+
+@needs_cc
+def test_the_stub_channels_and_containers_follow_ibm(tmp_path):
+    """#4270, IBM PUT / GET / DELETE CONTAINER (CHANNEL), LINK CHANNEL, ASSIGN CHANNEL: no current channel is INVREQ
+    RESP2 4 (1 with a data type) and blanks; PUT creates the channel; APPEND appends; FLENGTH below zero is LENGERR
+    RESP2 1; the LINKed program's current channel is the one passed, and what it puts and deletes its caller sees;
+    GET truncates with LENGERR RESP2 11 and returns the container's length; NODATA; CONTAINERERR 10; CHANNELERR 2."""
+    exe = _stub(tmp_path, _CONT_MAIN)
+    out = _run_stub(exe, tmp_path)
+    assert out == ["16/4 [                ] 0 0 22/1 16/4 16/1 [CH1] 0/8/ABCDEFGH.. 22/11/8/ABC.. 0/8 110/10 122/2 0 0 "
+                   "0/2/OK 110/10"]  # fmt: skip
+
+
+@needs_javac
+def test_cics_task_channels_and_containers(tmp_path):
+    """#4270: CicsTask's channels, as the stub's (above): the current channel through LINK / XCTL CHANNEL, the
+    containers byte for byte, the conditions with their RESP2; a data type other than an existing container's is
+    refused (IBM leaves it unsettled)."""
+    out = _cics_task(
+        tmp_path,
+        """
+        java.util.List<String> seen = new java.util.ArrayList<>();
+        CicsTask t = new CicsTask("CA05", "ENTER", null, null).withProgram("MAIN").withPrograms(new CicsTask.Programs() {
+            public boolean defined(String p) {
+                return true;
+            }
+
+            public void run(String p, CicsTask s) {
+                if (p.equals("XB")) {
+                    seen.add("XB:" + s.assignChannel().strip() + ":" + s.getContainer(null, "OUT", 8).resp());
+                    return;
+                }
+                CicsTask.ContainerResult g = s.getContainer(null, "REQ", 16);
+                seen.add(s.assignChannel().strip() + ":" + g.resp() + "/" + g.length() + "/" + new String(g.data()));
+                CicsTask.ContainerResult h = s.getContainer(null, "REQ", 3);
+                seen.add(h.resp() + "/" + h.resp2() + "/" + h.length() + "/" + new String(h.data()));
+                seen.add(s.getContainer(null, "REQ", -1).length() + " " + s.getContainer("OTHER", "REQ", 4).resp()
+                        + " " + s.getContainer(null, "NONE", 4).resp2());
+                s.putContainer(null, "OUT", "OK".getBytes(), 2, null, false);
+                seen.add(s.deleteContainer(null, "REQ").resp());
+                seen.add(s.xctlChannel("XB", "CH1"));
+            }
+        });
+        System.out.println(t.getContainer(null, "REQ", 4).resp2() + " [" + t.assignChannel() + "]");
+        System.out.println(t.putContainer("CH1", "REQ", "ABCDEF".getBytes(), 6, "CHAR", false).resp() + " "
+                + t.putContainer("CH1", "REQ", "GH".getBytes(), 2, null, true).resp() + " "
+                + t.putContainer("CH1", "REQ", new byte[0], -1, null, false).resp2() + " "
+                + t.putContainer(null, "REQ", new byte[0], 0, "BIT", false).resp2());
+        System.out.println(t.linkChannel("SUB", "CH1") + " " + seen);
+        System.out.println(t.getContainer("CH1", "OUT", 8).resp() + " " + t.deleteContainer("CH1", "REQ").resp());
+        try {
+            t.putContainer("CH1", "OUT", new byte[0], 0, "CHAR", false);
+        } catch (UnsupportedOperationException e) {
+            System.out.println("refused");
+        }
+        System.out.println(t.events().get(0));""",
+    )
+    assert out.splitlines() == [
+        "4 [                ]",
+        "NORMAL NORMAL 1 1",
+        "NORMAL [CH1:NORMAL/8/ABCDEFGH, LENGERR/11/8/ABC, 8 CHANNELERR 10, NORMAL, NORMAL, XB:CH1:NORMAL]",
+        "NORMAL CONTAINERERR",
+        "refused",
+        "{event=LINK, target=SUB, length=0, commarea=null, resp=NORMAL, resp2=null, issuer=MAIN}",
+    ]

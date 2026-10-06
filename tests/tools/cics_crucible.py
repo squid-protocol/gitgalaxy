@@ -130,7 +130,9 @@ STUB_DIR = REPO_ROOT / "tests" / "equivalence" / "cics"
 
 # SPEC 6.2: the abend code CICS gives an unhandled condition (the AEIA topic of IBM's abend codes).
 CONDITION_ABCODE = {"NOTFND": "AEIM", "LENGERR": "AEIV", "ITEMERR": "AEIZ", "QIDERR": "AEYH", "MAPFAIL": "AEI9",
-                    "ENDDATA": "AEI2", "PGMIDERR": "AEI0", "INVREQ": "AEIP"}  # fmt: skip
+                    "ENDDATA": "AEI2", "PGMIDERR": "AEI0", "INVREQ": "AEIP",
+                    # #4270: IBM abend codes AEZJ / AEZV ("CONTAINERERR / CHANNELERR condition not handled")
+                    "CONTAINERERR": "AEZJ", "CHANNELERR": "AEZV"}  # fmt: skip
 SEND_OPTIONS = ("ERASE", "ERASEAUP", "MAPONLY", "DATAONLY", "FREEKB", "ALARM", "FRSET", "CURSOR", "WAIT", "LAST")
 
 # What each scenario side records (see cics_crucible_compare.Capabilities).

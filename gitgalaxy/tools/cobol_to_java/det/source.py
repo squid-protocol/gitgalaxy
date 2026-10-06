@@ -40,6 +40,12 @@ class CopyNotFound(Exception):
     pass
 
 
+class CopyAmbiguous(CopyNotFound):
+    """#4461: no engine answer decided a COPY (a run without an engine, or a member outside the estate) and the
+    directories searched hold the member in more than one: the translator does not pick the first, it refuses by
+    name and lists the candidates. A single match still resolves."""
+
+
 class CopyUnresolved(CopyNotFound):
     """#4468: a COPY the engine did not resolve to one file (a gap, a collision, several files), or that the translator
     never expanded where the engine resolved it: the program is refused by name, never built on a guessed member."""
@@ -358,6 +364,34 @@ def _statement_end(stmt: str, start: int) -> int:
     return -1
 
 
+_SHIPPED_COPY = (Path(__file__).parent / "copy").resolve()  # DFHEIBLK, DFHAID, DFHBMSCA: a fallback, never a rival
+
+
+def _search_member(name: str, dirs: list[Path], chain: frozenset, where: str) -> Path | None:
+    """#4461: the one file `COPY name` names in `dirs` (no engine answer). A copybook extension beats a program
+    extension (CBSA keeps a program INQCUST.cbl beside its sources and the copybook INQCUST.cpy elsewhere); the
+    translator's shipped system members (DFHAID ...) are consulted only where no other directory holds the member.
+    The same file reached through several directories is one candidate; several distinct files are CopyAmbiguous."""
+    for shipped in (False, True):
+        for exts in (COPYBOOK_EXTS, PROGRAM_EXTS):
+            found: dict[Path, Path] = {}  # resolved -> as found; one per directory (its first name/extension)
+            for d in dirs:
+                if (d.resolve() == _SHIPPED_COPY) != shipped:
+                    continue
+                hit = next((d / f"{nm}{ext}" for nm in dict.fromkeys((name, name.lower())) for ext in exts
+                            if (d / f"{nm}{ext}").is_file() and (d / f"{nm}{ext}").resolve() not in chain), None)  # fmt: skip
+                if hit is not None:
+                    found.setdefault(hit.resolve(), hit)
+            if len(found) > 1:
+                raise CopyAmbiguous(
+                    f"{where}: COPY {name} is ambiguous: no engine resolution decides it and "
+                    f"{len(found)} directories hold it: {', '.join(sorted(map(str, found.values())))}"
+                )
+            if found:
+                return next(iter(found.values()))
+    return None
+
+
 def expand(lines: list[Line], dirs: list[Path], depth: int = 0, chain: frozenset = frozenset(),
            engine: EngineCopies | None = None, expanded_names: set[str] | None = None) -> list[Line]:  # fmt: skip
     """COPY statements replaced by their members' lines (recursively); REPLACING ==a== BY ==b== and word-for-word
@@ -406,9 +440,7 @@ def expand(lines: list[Line], dirs: list[Path], depth: int = 0, chain: frozenset
         if member is not None and member.resolve() in chain:
             raise CopyNotFound(f"{where}: COPY {name} resolves to {member}, which is being expanded already")
         if member is None:
-            member = next((d / f"{nm}{ext}" for exts in (COPYBOOK_EXTS, PROGRAM_EXTS) for d in dirs
-                           for nm in dict.fromkeys((name, name.lower())) for ext in exts
-                           if (d / f"{nm}{ext}").is_file() and (d / f"{nm}{ext}").resolve() not in chain), None)  # fmt: skip
+            member = _search_member(name, dirs, chain, where)
             if member is None:
                 raise CopyNotFound(f"{where}: COPY {name} found in none of {[str(d) for d in dirs]}")
             if engine is not None and engine.in_estate(Path(ln.file)):

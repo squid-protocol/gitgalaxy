@@ -261,18 +261,18 @@ def translate(program: Path, copy_dirs: list[Path], stub: str, package: str,
         excluded |= out.names
 
 
-def trunc_std(program: Path, options: list[str] | None = None) -> bool:
+def trunc_std(program: Path, options: list[str] | None = None, declared: str | None = None) -> bool:
     """Whether binary items keep only their PICTURE's digits (#4102): the TRUNC option in effect -- the program's
     CBL / PROCESS cards over `options` (the compile step's PARM, as a case states it), else IBM's default, STD."""
     from gitgalaxy.core.compiler_options import DEFAULTS, compiler_options, effective, parse_options
     from gitgalaxy.core.source_text import read_source
 
     rows = [{"option": o, "value": v} for text in options or [] for o, v, _ in parse_options(text)]
-    rows += compiler_options(read_source(program).text)
+    rows += compiler_options(read_source(program, declared=declared).text)  # (#4462: the estate's code page)
     return str(effective(rows).get("TRUNC") or DEFAULTS["TRUNC"]).upper() == "STD"
 
 
-def numproc_pfd(program: Path, options: list[str] | None = None) -> bool:
+def numproc_pfd(program: Path, options: list[str] | None = None, declared: str | None = None) -> bool:
     """Whether the program runs under NUMPROC(PFD) (#4271): the NUMPROC option in effect -- its CBL / PROCESS cards over
     `options` (the compile step's PARM), else IBM's default, NOPFD. NUMPROC(MIG) is NOPFD: Enterprise COBOL 5 and 6 no
     longer support it and compile the default instead (Enterprise COBOL 6.4 Migration Guide, GC27-8715-03, Table 18;
@@ -281,7 +281,7 @@ def numproc_pfd(program: Path, options: list[str] | None = None) -> bool:
     from gitgalaxy.core.source_text import read_source
 
     rows = [{"option": o, "value": v} for text in options or [] for o, v, _ in parse_options(text)]
-    rows += compiler_options(read_source(program).text)
+    rows += compiler_options(read_source(program, declared=declared).text)  # (#4462: the estate's code page)
     return str(effective(rows).get("NUMPROC") or "").upper() == "PFD"
 
 
@@ -1024,7 +1024,9 @@ def _translate(program: Path, copy_dirs: list[Path], stub: str, package: str, es
     stats["program"] = prog.name
     stats["inferred"] = inferred
     java = drop_unused_fields("\n".join(out))
-    return Result(with_trunc(java, trunc_std(program, options), numproc_pfd(program, options)), service, stats)
+    page = engine.page(program) if engine is not None else None  # #4462: the card read in the declared code page
+    return Result(with_trunc(java, trunc_std(program, options, page), numproc_pfd(program, options, page)), service,
+                  stats)  # fmt: skip
 
 
 def _record_io(proc: S.Procedure, fd: G.FileDef, records: list) -> bool:

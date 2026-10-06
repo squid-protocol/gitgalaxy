@@ -15,7 +15,7 @@ from dataclasses import dataclass, field
 from typing import Any
 
 from gitgalaxy.tools.cobol_to_java.det import expr as E
-from gitgalaxy.tools.cobol_to_java.det.source import Line, as_fixed_rows, cobol_parser, unwrap
+from gitgalaxy.tools.cobol_to_java.det.source import Line, as_fixed_rows, cobol_parser, unmodelled, unwrap
 
 
 @dataclass
@@ -64,6 +64,9 @@ class _Frame:
 def parse(lines: list[Line]) -> Procedure:
     parser = _parser_cache()  # first: a missing translator extra fails here, before any work
 
+    why = unmodelled(lines)  # #4462: national / DBCS text, DECIMAL-POINT IS COMMA: refused by name
+    if why:
+        raise E.ExprError(why)
     text, rows = as_fixed_rows(lines)
     m = re.search(r"^ {7}\s*PROCEDURE\s+DIVISION\b[^.]*\.", text, re.I | re.M)
     if not m:

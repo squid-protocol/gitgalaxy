@@ -225,7 +225,7 @@ public class CoactvwcService {
         }
         CardXrefRecord x = xref.record();
         ca.setCdemoCustId(x.getXrefCustId());
-        ca.setCdemoCardNum(Long.parseLong(x.getXrefCardNum().trim()));
+        ca.setCdemoCardNum(alnumToUnsigned(x.getXrefCardNum(), 16));  // MOVE X(16) TO 9(16): never validated
         CicsTask.FileRead<AccountRecord> acct = task.read("ACCTDAT", () -> readAcctdat(ca.getCdemoAcctId()));
         if (acct.normal()) {
             w.foundAcct = true;
@@ -359,6 +359,50 @@ public class CoactvwcService {
     /** MOVE of a DFHRESP code (PIC S9(9) COMP) to ERROR-RESP (PIC X(10)): nine digits, then a space. */
     private static String resp(int code) {
         return String.format("%09d ", code);
+    }
+
+    /**
+     * MOVE of a PIC X item to an unsigned PIC 9(digits) one, as libcob does it (no validation, no exception): leading
+     * spaces and a sign character are skipped, then characters are copied right-aligned while the receiver has room --
+     * digits kept, spaces and commas ignored, any other character met before the receiver is full leaves ZERO.
+     */
+    private static long alnumToUnsigned(String text, int digits) {
+        String s = text == null ? "" : text;
+        int n = s.length();
+        int i = 0;
+        while (i < n && Character.isWhitespace(s.charAt(i))) {
+            i++;
+        }
+        if (i < n && (s.charAt(i) == '+' || s.charAt(i) == '-')) {
+            i++;
+        }
+        int count = 0;
+        for (int j = i; j < n && s.charAt(j) != '.'; j++) {
+            if (s.charAt(j) >= '0' && s.charAt(j) <= '9') {
+                count++;
+            }
+        }
+        for (int skip = count; skip > digits; skip--) {   // high-order digits that do not fit
+            while (i < n && !(s.charAt(i) >= '0' && s.charAt(i) <= '9')) {
+                i++;
+            }
+            i++;
+        }
+        long v = 0;
+        int filled = Math.max(0, digits - count);
+        boolean point = false;
+        for (; i < n && filled < digits; i++) {
+            char c = s.charAt(i);
+            if (c >= '0' && c <= '9') {
+                v = v * 10 + (c - '0');
+                filled++;
+            } else if (c == '.' && !point) {
+                point = true;
+            } else if (!(Character.isWhitespace(c) || c == ',')) {
+                return 0L;
+            }
+        }
+        return v;
     }
 
     private static String fit(String s, int n) {

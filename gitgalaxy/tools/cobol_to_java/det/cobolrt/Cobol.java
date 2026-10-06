@@ -117,7 +117,8 @@ public final class Cobol {
                 insertEdit(to, sourceText(from, fc, cs), cs);
                 break;
             case NUMERIC:
-                store(to, source(from, fc, cs), cs);
+                boolean zoned = to.kind == Field.Kind.NUMERIC_DISPLAY && fc != NUMERIC && fc != NUM_EDITED;
+                store(to, zoned ? alnumToDisplay(from.raw(), to, cs) : source(from, fc, cs), cs);
                 break;
             default:
                 edit(to, source(from, fc, cs), cs);
@@ -272,6 +273,55 @@ public final class Cobol {
             }
         }
         return new Codec.Num(v, f.scale, neg);
+    }
+
+    /**
+     * An alphanumeric item MOVEd into a zoned (USAGE DISPLAY) numeric one, as libcob 3 (cob_move_alphanum_to_display) does it, byte for byte:
+     * leading spaces and one sign character are skipped; the digits before the first '.' fix where the number is
+     * aligned (high-order ones that do not fit are skipped); then characters are copied while the receiver has room --
+     * digits are kept, one '.' starts the decimals, spaces and ',' are ignored, and any other character met before the
+     * receiver is full (a second '.', a letter, a sign inside the number) leaves the receiver ZERO and positive. No
+     * validation: a field of letters is 0, never an error. Characters after the receiver is full are never looked at. (A packed or binary receiver reads the whole text instead: any stray
+     * character anywhere makes it zero -- parseAlnum.)
+     */
+    private static Codec.Num alnumToDisplay(byte[] raw, Field to, Charset cs) {
+        int total = to.digits;
+        int scale = to.scale;
+        if (scale < 0 || scale > total) return parseAlnum(raw, cs);
+        String s = new String(raw, cs);
+        int n = s.length();
+        int i = 0;
+        while (i < n && Character.isWhitespace(s.charAt(i))) i++;
+        boolean neg = false;
+        if (i < n && (s.charAt(i) == '+' || s.charAt(i) == '-')) neg = s.charAt(i++) == '-';
+        int count = 0;
+        for (int j = i; j < n && s.charAt(j) != '.'; j++) {
+            if (s.charAt(j) >= '0' && s.charAt(j) <= '9') count++;
+        }
+        int size = total - scale;
+        char[] out = new char[total];
+        Arrays.fill(out, '0');
+        int pos = 0;
+        if (count < size) {
+            pos = size - count;
+        } else {
+            for (int c = count; c > size; c--) {
+                while (i < n && !(s.charAt(i) >= '0' && s.charAt(i) <= '9')) i++;
+                i++;
+            }
+        }
+        boolean point = false;
+        for (; i < n && pos < total; i++) {
+            char c = s.charAt(i);
+            if (c >= '0' && c <= '9') {
+                out[pos++] = c;
+            } else if (c == '.' && !point) {
+                point = true;
+            } else if (!(Character.isWhitespace(c) || c == ',')) {
+                return new Codec.Num(BigInteger.ZERO, scale, false);
+            }
+        }
+        return new Codec.Num(total == 0 ? BigInteger.ZERO : new BigInteger(new String(out)), scale, neg);
     }
 
     private static Codec.Num parseAlnum(byte[] raw, Charset cs) {

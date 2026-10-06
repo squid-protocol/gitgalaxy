@@ -1,7 +1,7 @@
 # Design: one declarative CICS command spec (#4270)
 
-**Status: proposal (2026-10-06), no code yet.** It asks the owner to decide the questions under "Open questions"
-before PR 1. All line numbers are against origin/main `b6c3e4ea8`.
+**Status: design accepted with the owner's decisions (2026-10-06, section 9); no code yet.** All line numbers are
+against origin/main `b6c3e4ea8`.
 
 Every #4270 slice teaches the det port one more EXEC CICS command by writing the same facts about that command
 again in five to seven places, in three languages. The engine pulls CICS facts out of the same commands with its own
@@ -63,9 +63,13 @@ from its programs to the modules and tables they load.
 
 ## 2. The format: Python data (frozen dataclasses)
 
-The spec lives at **`gitgalaxy/standards/cics/`**: `model.py` holds the dataclasses and `commands/*.py` holds one
-module per command family (`containers.py`, `interval.py`, `assign.py`, ...). `resp.py` holds DFHRESP and the
-default abend codes.
+The spec lives at **`gitgalaxy/standards/cics/`**, a neutral, data-only package that the engine owns and ships.
+`model.py` holds the dataclasses and `commands/*.py` holds one module per command family (`containers.py`,
+`interval.py`, `assign.py`, ...). `resp.py` holds DFHRESP and the default abend codes. Every consumer imports it
+directly: the engine walkers, the translator, the runtime generators and the harness. There are no per-consumer
+copies and no drift test between copies. Review of the folder goes to the translator side through a CODEOWNERS
+entry (PR 1), so spec changes are reviewed as translator changes. Later siblings follow the same pattern:
+`standards/sql/`, intrinsic functions and file status.
 
 | | YAML | JSON | **Python data** |
 |---|---|---|---|
@@ -73,12 +77,11 @@ default abend codes.
 | comments that quote IBM next to each value (today's convention) | yes | no | yes |
 | checked when built (unknown key, wrong kind, a typo in a condition name) | needs a schema | needs a schema | dataclass `__post_init__` + mypy + import time |
 | shared values (`_RESP`, `_FILE`, `_LOGICAL_MESSAGE`) | anchors | no | ordinary constants |
-| readable by non-Python consumers | yes | yes | through `python -m gitgalaxy.standards.cics emit --json / --java / --c` |
+| readable by non-Python consumers | yes | yes | through the committed generated Java / C (`cics_spec regen`) and `emit --json` |
 
-The only consumers outside Python are the Java runtime, which is already a Python template string (`CICS_TASK_JAVA`,
-forge `:220`), and the C stub, which the harness compiles in its container (`equivalence_cics.py:1384`). Both get
-**generated tables**, so a neutral file format buys nothing. A JSON export (`emit --json`) exists for tooling and
-review, and is never committed.
+The only consumers outside Python are the Java runtime and the C stub. Both get **generated, committed** tables
+(section 3), so a neutral file format buys nothing. A JSON export (`emit --json`) exists for tooling and review, and
+is never committed.
 
 ### 2.1 The model
 
@@ -277,8 +280,8 @@ unstated fact with the same text on both sides.
 |---|---|---|---|
 | engine (`cics_resources`, `cics_tasks`, `mainframe_boundary`, `jcics`, `hlasm_cics`) | `engine`, `options` (bare flags worth keeping), RESP noise | **table-driven** at import: `_FILE_VERBS`, `_CONTAINER_VERBS`, `_TASK_VERBS`, `_CHANNEL_VERBS`, `_FLAGS`, `_NOISE` are built from the spec | name resolution, STRING patterns, JCICS object tracking |
 | det translator (`det/cics.py`) | `options`, `refused`, `groups`, `outcomes`, `Arg.kind`, `DFHRESP` | **table-driven**: `OPTIONS`, every `*_REFUSED_WHY`, `check_options` (one generic loop, no per-verb `if`), group checks, `DFHRESP`, `settable` | the per-command Java it emits (`Cics.container`, `Cics.start`, ...) |
-| Java runtime (`CICS_TASK_JAVA`, `DetCics.java`) | `DFHRESP`, abend codes, `facts`, `runtime_refusals` texts | **generated** at forge time: `DetCics.condition` / `resp`, `respName`, `abcodeFor`, the refusal message constants | channel scope, the start scheduler, browses: all semantics |
-| C stub (`ggcics.c`) | the same | **generated** `ggcics_spec.h` (DFHRESP enum, `condition_abcode`, refusal strings), written into the build's `src/` by `equivalence_cics.py` next to `ggcics.c` | GGC* entry points |
+| Java runtime (`CICS_TASK_JAVA`, `DetCics.java`) | `DFHRESP`, abend codes, `facts`, `runtime_refusals` texts | **generated and committed**: one `CicsSpec.java` (RESP / abend switches, refusal constants) that `DetCics.condition` / `resp`, `respName` and `abcodeFor` delegate to | channel scope, the start scheduler, browses: all semantics |
+| C stub (`ggcics.c`) | the same | **generated and committed** `tests/equivalence/cics/ggcics_spec.h` (DFHRESP enum, `condition_abcode`, refusal strings) | GGC* entry points |
 | stub translator (`equivalence_cics.py`) | `options`, `refused`, `groups`, `DFHRESP` | **table-driven** refusals and their reasons (it gains the reasons it lacks today) | GG-FLAGS marshalling per command |
 | crucible runner (`cics_crucible.py`) | `facts`, `CONDITION_ABCODE` | **table-driven** fact wiring | the scheduler |
 | X-register | `register`, `refused`, `runtime_refusals` | **checked, not generated**: `cics_spec check-register` fails when an option the spec refuses under Xnn is missing from Xnn's "Refused by name" text, or the text names one the spec does not refuse | all prose and IBM quotes |
@@ -286,7 +289,9 @@ unstated fact with the same text on both sides.
 
 ### 3.1 Generated or table-driven: the rule
 
-**Tables are generated. Semantics are not.** A value-to-value mapping (a RESP number, an abend code, an option set,
+**Tables are generated. Semantics are not.** The generated Java and C files are committed. `cics_spec regen`
+rewrites them, and a drift test fails, ratchet-style, when one is stale. The tables are small and rarely conflict,
+reviewers see the Java / C diff, and committed ports and evidence can be reproduced from the repo alone. A value-to-value mapping (a RESP number, an abend code, an option set,
 a refusal text) is generated or table-driven on every side. Anything with control flow stays hand-written in each
 runtime: what happens to a container on APPEND, when a request expires, how a browse moves. The reasons:
 
@@ -343,9 +348,11 @@ RESP / RESP2 and refusals are identical. What differs is the front end:
 Each front end maps `Arg.kind` to its own type system. The spec has one optional `hosts=("cobol", "pli")` field for
 the rare option that exists in one language only. What PL/I gets at once, with no PL/I translator:
 
-1. **Engine facts.** PR 8 adds `LOAD` / `RELEASE` (`PROGRAM`, `SET` pointer, `HOLD`) as `engine-only` entries with
-   `EngineFacts(edge="load", target_option="PROGRAM")`. PL/I and COBOL programs gain load edges to the modules and
-   tables they load, the gap named in 1.2.
+1. **Engine facts.** The spec has full `LOAD` / `RELEASE` entries (`PROGRAM`, `SET` pointer, `HOLD`) with
+   `EngineFacts(edge="load", target_option="PROGRAM")` from PR 2. The engine emits the new load edges only in PR 8b,
+   one engine batch **after the blind 4th-estate trial**: the golden master regen and score shifts are unwanted during
+   the pre-freeze. PL/I and COBOL programs then gain load edges to the modules and tables they load, the gap named in
+   1.2.
 2. **The census.** `cics_census.py --pli` classifies PL/I options against the same spec, so we can measure how far a
    PL/I front end would get before anyone writes one.
 3. **A PL/I det front end later** reads the same `options` / `groups` / `refused` and needs only its own `Arg.kind`
@@ -374,11 +381,12 @@ it says what **we** model. These rules keep it out of the oracle:
 
 ## 7. Migration: small PRs, identical verdicts at each step
 
-"Identical verdicts" is the bar for every PR before PR 8:
+"Identical verdicts" is the bar for every PR before PR 8b:
 
 - the det survey's holes, deduplicated and without line numbers (`cics_census.py compare`), are byte-identical before
   and after;
-- every `CicsError` / `Unsupported` message in `test_det_translate.py` / `test_equivalence_cics.py` is unchanged;
+- every `CicsError` message is unchanged, and so is every `Unsupported` message except PR 3's intended change, which
+  adds the reasons and is rebaselined once;
 - `pr_gates.py --ratchets` and the full gate pass;
 - when a runtime changes, `proof_sweep.py --det-only --skip-db2` and `cics_crucible.py` give the same cells as the
   baseline.
@@ -387,14 +395,15 @@ Each PR is "Part of #4270".
 
 | PR | content | consumers changed | verdict check |
 |---|---|---|---|
-| **1** | `gitgalaxy/standards/cics/` model + `resp.py` (DFHRESP, abend codes) + entries for the slice 1-4 commands, with today's text word for word; `cics_spec` CLI (`emit`, `check`); **drift tests** that assert the spec equals every existing copy (both Python DFHRESP tables, the Java switches scraped from `CICS_TASK_JAVA` / `DetCics.java`, the C enum, `OPTIONS`, the `*_REFUSED_WHY` tables, `_CONTAINER_OPTIONS`, the harness's refused tuples); the crucible import-denial test | none | unit tests only |
-| **2** | backfill entries for the other 35 `OPTIONS` commands; the translator reads `OPTIONS`, every refusal table, `check_options` (the five special cases become per-command `refused` entries), groups, `DFHRESP` from the spec | translator | messages unchanged; survey compare identical over all estates; ratchets |
-| 3 | `equivalence_cics.py` refusals / options / DFHRESP from the spec. The harness gains reasons in `Unsupported` messages, the one intended change: the feature keys stay the same and the text grows | stub translator | feature keys identical; cobol-stub cells identical |
-| 4 | generated runtime tables: `DetCics` condition / resp, `respName`, `abcodeFor`, `ggcics_spec.h`; the drift tests for those copies are deleted | both runtimes | `proof_sweep --det-only`; crucible cells identical |
+| **1** | `gitgalaxy/standards/cics/` model + `resp.py` (DFHRESP, abend codes) + entries for the slice 1-4 commands, with today's text word for word; a CODEOWNERS entry for the folder; `cics_spec` CLI (`emit`, `check`, `regen`); **transitional equality tests** asserting the spec equals each existing copy (both Python DFHRESP tables, the Java switches scraped from `CICS_TASK_JAVA` / `DetCics.java`, the C enum, `OPTIONS`, the `*_REFUSED_WHY` tables, `_CONTAINER_OPTIONS`, the harness's refused tuples), each deleted in the PR that makes its copy import the spec; the crucible import-denial test | none | unit tests only |
+| **2** | full entries for the other 35 `OPTIONS` commands + LOAD / RELEASE (45 in all); **name-only refusal entries** (name, IBM URL, reason) for the other CICS application (API) commands, about 125 of them, with no SPI / system-programming commands, so an unknown verb gets a specific reason; the translator imports `OPTIONS`, every refusal table, `check_options` (the five special cases become per-command `refused` entries), groups and `DFHRESP` from the spec | translator | messages unchanged except a whole-verb refusal now naming its reason (rebaselined); survey compare identical in translated / holes counts; ratchets |
+| 3 | `equivalence_cics.py` refusals / options / DFHRESP from the spec. `Unsupported` carries the same reason as `CicsError`, the one intended change: one rebaseline of message snapshots, with feature keys and verdicts unchanged | stub translator | feature keys identical; cobol-stub cells identical |
+| 4 | **generated, committed** runtime tables: `CicsSpec.java` (delegated to by `DetCics` condition / resp, `respName`, `abcodeFor`) and `ggcics_spec.h`; `cics_spec regen` + a drift test that fails on a stale file (ratchet-style, in `pr_gates.py --ratchets`) | both runtimes | `proof_sweep --det-only`; crucible cells identical |
 | 5 | `Fact` wiring in `cics_crucible.py`; refusals of unstated facts share their text | runner, both runtimes | crucible cells identical |
-| 6 | outcome conformance check (3.2), report-only for one week, then failing | harness | must find 0 undeclared outcomes on the current baseline before it gates |
-| 7 | `check-register` in `pr_gates.py`; the slice skill's checklist says "spec entry first" | docs, skill | — |
-| 8 | engine verb tables from the spec (same rows), then **separately** LOAD / RELEASE engine-only entries (new rows; golden master regenerated with `crucible_check.py --update --yes` + `scope_check.py --expect`) | engine | fact_crosscheck ledger identical (the first half); golden diff reviewed (the second) |
+| 6 | outcome conformance check (3.2), report-only for one week, then an undeclared `(RESP, RESP2)` fails the crucible cell; the spec-vs-oracle cross-check (section 6 rule 3) in CI, report-only | harness, CI | must find 0 undeclared outcomes on the current baseline before it gates |
+| 7 | `check-register` in `pr_gates.py`; the slice skill's checklist says "spec entry first", with full entries only where the blocker ranking (`cics_census.py blockers`, #4587) calls for a command | docs, skill | — |
+| 8a | engine walkers import their verb tables from the spec (same rows; may land before the trial) | engine | fact_crosscheck ledger identical |
+| 8b | **after the blind 4th-estate trial**, one engine batch of new edge kinds: LOAD, START TRANSID, MQ queues, dynamic CALL (golden master regenerated with `crucible_check.py --update --yes` + `scope_check.py --expect`) | engine | golden diff and score shifts reviewed |
 
 PRs 1-2 are the first two: PR 1 changes no behaviour and makes every existing copy provably equal to the spec. PR 2
 then removes the largest source of drift, the translator's tables. Each later slice adds a spec entry and deletes a
@@ -408,10 +417,11 @@ that removes roughly 15-25% of each slice's diff and every place two copies can 
 ## 8. Risks
 
 - **Message drift breaks survey comparisons.** `cics_census.py compare` deduplicates holes by text. PR 2 must
-  reproduce every message exactly; the drift tests from PR 1 are the safety net.
-- **Generated Java / C is harder to read and debug.** It is mitigated by generating only switches and constants,
-  emitting them with a "generated from gitgalaxy/standards/cics, do not edit" banner, and `cics_spec emit --java/--c`
-  for local inspection.
+  reproduce every option-level message exactly (the equality tests from PR 1 are the safety net); the only text
+  changes are whole-verb refusals gaining their name-only entry's reason (PR 2) and the stub's reasons (PR 3), each
+  rebaselined once.
+- **A stale committed generated file.** It is mitigated by the drift test in the ratchets, a "generated from
+  gitgalaxy/standards/cics by `cics_spec regen`, do not edit" banner, and generating only switches and constants.
 - **The spec becomes the oracle by accident.** Section 6's rules 1-3 are tests, not conventions. Nothing in the spec
   is shaped like an expected log.
 - **Over-modelling.** A field nobody reads goes stale. Every field in `model.py` must have a consumer in sections
@@ -422,31 +432,35 @@ that removes roughly 15-25% of each slice's diff and every place two copies can 
 - **Cross-repo.** cics-crucible's schema and `validate.py` do not change. Only the report in section 6 rule 3 looks
   at both repos.
 
-## 9. Open questions for the owner
+## 9. Decisions (2026-10-06)
 
-1. **Location and ownership.** `gitgalaxy/standards/cics/` (the engine owns it and it ships in the wheel), or under
-   `tools/cobol_to_java/`? The engine reading it argues for `standards/`.
-2. **Generated runtime tables: built or committed?** The proposal generates them at forge / build time with no
-   committed copies. The alternative commits them with a drift test, which makes them easier to read in review but
-   adds files that tend to conflict.
-3. **Refusal text on the stub side.** Should `Unsupported` carry the same reason as `CicsError`? This changes the
-   harness's messages, not its verdicts, and needs one rebaseline of anything that snapshots them.
-4. **Spec coverage.** Should it cover only commands seen in the censused corpora (proposed: 43 plus LOAD / RELEASE),
-   or every IBM command with every option, so that unknown options get a reason instead of the generic one?
-5. **PL/I implied lengths and the LOAD edge kind.** Does a new `load` edge in the engine's call graph affect scoring
-   or the golden master in ways you want to schedule (PR 8b)? And is PL/I CICS on the roadmap soon enough to justify
-   `hosts` now?
-6. **Conformance check as a gate (3.2).** Is it acceptable for an undeclared `(RESP, RESP2)` to fail a crucible cell
-   once the report-only week is over?
-7. **`ABEND_FOR` in `crucible_events.py`** lacks CONTAINERERR / CHANNELERR. That is the crucible's SPEC 6.2 call;
-   should the cross-check (section 6 rule 3) run in CI, report-only, so such gaps surface?
+1. **Location: `gitgalaxy/standards/cics/`.** It is a neutral, data-only package that the engine owns and ships, and
+   every consumer imports it directly. There are no separate engine tables and no drift test between copies. A
+   CODEOWNERS entry routes review of the folder to the translator side. Siblings (`standards/sql/`, intrinsic
+   functions, file status) follow the same pattern later.
+2. **Generated runtime tables are committed**: the Java RESP / abend switches with the refusal constants, and C
+   `ggcics_spec.h`. A regenerate command and a ratchet-style drift test fail when a file is stale.
+3. **The stub's refusal text matches the translator's.** `Unsupported` carries the same reason as `CicsError`. The
+   messages change and the verdicts do not, at the cost of one rebaseline of message snapshots.
+4. **Coverage.** The 43 modelled commands and LOAD / RELEASE (45) get full entries. The other CICS application (API)
+   commands, about 125, get name-only refusal entries (name, IBM URL, reason). SPI / system-programming commands are
+   left out. A name-only entry becomes a full one only when the blocker ranking (`cics_census.py blockers`, #4587)
+   calls for that command.
+5. **New engine edge kinds wait.** LOAD, START TRANSID, MQ queues and dynamic CALL come as one engine batch (PR 8b)
+   **after the blind 4th-estate trial**. PR 8a (same rows, ledger identical) may go before it. The `hosts` field
+   stays, since it costs little.
+6. **The conformance check gates.** After the report-only week, an undeclared `(RESP, RESP2)` fails a crucible cell.
+7. **The spec-vs-oracle cross-check runs in CI, report-only.** The missing AEZJ / AEZV in `ABEND_FOR` stay the
+   crucible's own decision.
 
 ## 10. Rough effort
 
 Agent-days, each PR with its proofs:
 
-| PR | 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 |
-|---|---|---|---|---|---|---|---|---|
-| days | 1.5 | 2 | 1 | 1.5 | 0.5 | 1 | 0.5 | 1 + 1 |
+| PR | 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8a | 8b |
+|---|---|---|---|---|---|---|---|---|---|
+| days | 1.5 | 3 | 1 | 2 | 0.5 | 1 | 0.5 | 1 | 2 |
 
-That totals about 11 agent-days. PRs 1-2 deliver most of the value: about 3.5 days, with no change in behaviour.
+That totals about 12.5 agent-days. PR 2 grows by the ~125 name-only entries, PR 4 by the committed files and their
+drift test, and PR 8b by its wider edge batch, which comes after the trial. PRs 1-2 deliver most of the value: about
+4.5 days.

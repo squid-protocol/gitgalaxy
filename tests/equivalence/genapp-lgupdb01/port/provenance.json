@@ -27,7 +27,7 @@
  "ticket_sha256": "4876c514393f3e61b082c4f0b633d600829b1683c1fd220b3a2b7f288cf1a15a",
  "prompt_tokens": 53261,
  "proof": "tests/tools/equivalence.py run genapp-lgupdb01",
- "edited_after": "none: the files are the model's answer as the loop stored it",
+ "edited_after": "the deployed entry points (facades) were brought to the generator's by tests/tools/port_surface.py (#4343; see history 'resurfaced'); runTask and the logic it runs are the model's answer",
  "licence": "EPL-2.0",
  "proven_after": "#4188: the loop's own verdicts were 'not proven' because a port's proof ran the LINKed program as its stub; with #4188 the stored attempt proves unedited (re-proven with --faults all)",
  "stale": {
@@ -35,5 +35,17 @@
   "at": "2026-10-05T15:00:50+00:00",
   "reason": "re-proof through the deployed entry points failed: java-facade 1/5 scenarios pass (stale-lastchanged, update-endowment, update-house, update-motor); runTask 5/5 pass",
   "needs": "#4465: the LINK target LGUPVS01 (a det port) has a stub handleLink that throws UnsupportedOperationException instead of running its level; then evidence.py prove genapp-lgupdb01"
- }
+ },
+ "history": [
+  {
+   "at": "2026-10-06T04:27:47+00:00",
+   "event": "resurfaced",
+   "by": "tests/tools/port_surface.py",
+   "generator_commit": "3c9c8b7df",
+   "generated_from": "service/Lgupdb01Service.java",
+   "removed": [
+    "handleTransaction"
+   ]
+  }
+ ]
 }

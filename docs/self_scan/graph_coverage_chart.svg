@@ -385,7 +385,7 @@
 <text class="n" x="324" y="631">n=211 imports</text>
 <text class="n" x="324" y="643">repos 1 · files 71</text>
 </g>
-<g><title>rust callee names: precision 96.6% of 7,439, recall 99.9% of 7,194 (raw 96.6% / 99.9%; 8 shapes without a verdict)</title>
+<g><title>rust callee names: precision 96.6% of 7,439, recall 99.9% of 7,194 (raw 96.6% / 99.9%; 9 shapes without a verdict)</title>
 <text class="pr" x="426" y="630.5">Precision</text>
 <rect class="track" x="472" y="623" width="110" height="8" rx="2"/>
 <rect x="472" y="623" width="106.3" height="8" rx="2" fill="#4a3aa7"/>

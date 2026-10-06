@@ -130,6 +130,8 @@ final class Codec {
                 int sign = d[f.off + f.len - 1] & 0x0F;
                 return new Num(v, f.scale, f.signed && (sign == 0x0D || sign == 0x0B));
             }
+            case NUMERIC_FLOAT:
+                return Num.of(Hfp.read(f));
             case NUMERIC_BINARY: {
                 byte[] b = new byte[f.len];
                 for (int i = 0; i < f.len; i++) {
@@ -178,6 +180,9 @@ final class Codec {
                 }
                 return;
             }
+            case NUMERIC_FLOAT: // an integer (MOVE ZERO); Cobol.store and Cobol.move hand a float's value to Hfp whole
+                Hfp.store(f, new BigDecimal(neg ? m.negate() : m));
+                return;
             case NUMERIC_BINARY: {
                 BigInteger v = f.nativeBin || !truncBinary ? m : m.mod(limit);
                 if (neg && f.signed) v = v.negate();

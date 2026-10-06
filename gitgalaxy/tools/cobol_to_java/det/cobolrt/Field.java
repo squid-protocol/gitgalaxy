@@ -4,7 +4,7 @@ package __PACKAGE__.cobolrt;
 public final class Field {
     public enum Kind {
         GROUP, ALPHANUMERIC, ALPHABETIC, NUMERIC_DISPLAY, NUMERIC_PACKED, NUMERIC_BINARY, NUMERIC_EDITED,
-        ALPHANUMERIC_EDITED
+        ALPHANUMERIC_EDITED, NUMERIC_FLOAT
     }
 
     final Storage st;
@@ -72,6 +72,12 @@ public final class Field {
                 native_, false, false, null);
     }
 
+    /** COMP-1 (`long_` false: 4 bytes) or COMP-2 (8 bytes): IBM hexadecimal floating point (Hfp, #4271). */
+    public static Field hfp(Storage s, int offset, boolean long_) {
+        return new Field(s, offset, long_ ? 8 : 4, Kind.NUMERIC_FLOAT, 0, 0, true, false, false, false, false, false,
+                null);
+    }
+
     public static Field numericEdited(Storage s, int offset, int length, String picture, boolean blankWhenZero) {
         int[] shape = Editing.shape(picture);
         return new Field(s, offset, length, Kind.NUMERIC_EDITED, shape[0] + shape[1], shape[1], false, false, false,
@@ -129,7 +135,8 @@ public final class Field {
     }
 
     public boolean isNumeric() {
-        return kind == Kind.NUMERIC_DISPLAY || kind == Kind.NUMERIC_PACKED || kind == Kind.NUMERIC_BINARY;
+        return kind == Kind.NUMERIC_DISPLAY || kind == Kind.NUMERIC_PACKED || kind == Kind.NUMERIC_BINARY
+                || kind == Kind.NUMERIC_FLOAT;
     }
 
     /** A copy of the item's bytes. */

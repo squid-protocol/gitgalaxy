@@ -105,6 +105,10 @@ public final class Cobol {
             return;
         }
         int fc = cat(from);
+        if (from.kind == Field.Kind.NUMERIC_FLOAT || to.kind == Field.Kind.NUMERIC_FLOAT) {
+            moveFloat(from, fc, to, cs);
+            return;
+        }
         switch (cat(to)) {
             case ALNUM:
                 padCopy(sourceText(from, fc, cs), to, to.justRight, cs);
@@ -119,6 +123,25 @@ public final class Cobol {
             default:
                 edit(to, source(from, fc, cs), cs);
         }
+    }
+
+    /** A MOVE with a COMP-1 / COMP-2 sender or receiver (#4271, Hfp): a number into a float converted to its
+     *  precision; a float into a fixed-point or numeric-edited item rounded in the receiver's low-order position (9 /
+     *  18 significant digits at most). Any other MOVE of a float (its bytes) is refused by name -- the translator
+     *  refuses it first. */
+    private static void moveFloat(Field from, int fc, Field to, Charset cs) {
+        if (to.kind == Field.Kind.NUMERIC_FLOAT && (fc == NUMERIC || fc == NUM_EDITED)) {
+            Hfp.store(to, source(from, fc, cs).value());
+            return;
+        }
+        if (from.kind == Field.Kind.NUMERIC_FLOAT && (cat(to) == NUMERIC || cat(to) == NUM_EDITED)) {
+            BigDecimal v = Hfp.toFixed(Hfp.read(from), to.scale, from.len == 4 ? 9 : 18);
+            if (cat(to) == NUMERIC) Codec.write(to, v.unscaledValue().abs(), v.signum() < 0, cs);
+            else edit(to, Codec.Num.of(v), cs);
+            return;
+        }
+        throw new UnsupportedOperationException("MOVE of a COMP-1 / COMP-2 item's bytes (IBM hexadecimal floating "
+                + "point, register C6) is not modelled");
     }
 
     public static void move(String nonnumericLiteral, Field to, Charset cs) {
@@ -139,6 +162,10 @@ public final class Cobol {
         byte b = figByte(fig, cs);
         switch (cat(to)) {
             case NUMERIC:
+                if (to.kind == Field.Kind.NUMERIC_FLOAT && fig != Figurative.ZEROS) {
+                    throw new UnsupportedOperationException("MOVE " + fig + " to a COMP-1 / COMP-2 item (its bytes, "
+                            + "register C6) is not modelled");
+                }
                 if (fig == Figurative.ZEROS) {
                     Codec.write(to, BigInteger.ZERO, false, cs);
                 } else {
@@ -188,6 +215,9 @@ public final class Cobol {
     /** The sending item as the bytes an alphanumeric receiver gets. */
     private static byte[] sourceText(Field from, int fc, Charset cs) {
         if (fc != NUMERIC) return from.raw();
+        if (from.kind == Field.Kind.NUMERIC_FLOAT) {
+            throw new UnsupportedOperationException("a COMP-1 / COMP-2 item as text (register C6) is not modelled");
+        }
         if (from.kind == Field.Kind.NUMERIC_DISPLAY) {
             // GnuCOBOL (as IBM for an integer): the digit bytes as they are -- invalid data included -- the
             // overpunched sign turned back into its digit, a separate sign dropped, no decimal point
@@ -349,6 +379,10 @@ public final class Cobol {
 
     /** Stores `n` into a numeric item: aligned on the decimal point, extra decimals and high digits dropped. */
     private static void store(Field to, Codec.Num n, Charset cs) {
+        if (to.kind == Field.Kind.NUMERIC_FLOAT) {
+            Hfp.store(to, n.value());
+            return;
+        }
         BigInteger m = new BigDecimal(n.mag, n.scale).setScale(to.scale, RoundingMode.DOWN).unscaledValue();
         Codec.write(to, m, n.neg, cs);
     }
@@ -390,6 +424,10 @@ public final class Cobol {
     /** No ON SIZE ERROR: low-order digits beyond the scale dropped (or rounded half away from zero), high-order
      *  digits beyond the PICTURE lost. */
     public static void store(Field to, BigDecimal value, boolean rounded, Charset cs) {
+        if (to.kind == Field.Kind.NUMERIC_FLOAT) { // a float receiver: the value converted to its precision (Hfp)
+            Hfp.store(to, value);
+            return;
+        }
         BigDecimal v = value.setScale(to.scale, rounded ? RoundingMode.HALF_UP : RoundingMode.DOWN);
         if (cat(to) == NUM_EDITED) {
             edit(to, Codec.Num.of(v), cs);
@@ -400,6 +438,10 @@ public final class Cobol {
 
     /** ON SIZE ERROR: true, `to` unchanged, when the value does not fit. */
     public static boolean storeChecked(Field to, BigDecimal value, boolean rounded, Charset cs) {
+        if (to.kind == Field.Kind.NUMERIC_FLOAT) { // an exponent overflow is refused by name in Hfp, never a size error
+            store(to, value, rounded, cs);
+            return false;
+        }
         BigDecimal v = value.setScale(to.scale, rounded ? RoundingMode.HALF_UP : RoundingMode.DOWN);
         BigInteger m = v.unscaledValue().abs();
         if (cat(to) == NUM_EDITED ? m.compareTo(BigInteger.TEN.pow(to.digits)) >= 0 : !Codec.fits(to, m, v.signum() < 0)) {
@@ -435,7 +477,12 @@ public final class Cobol {
     /** As {@link #compare(Field, Field, Charset)}; a nonnumeric comparison under `coll` (PROGRAM COLLATING
      *  SEQUENCE), a numeric one by value whatever the sequence. */
     public static int compare(Field a, Field b, Charset cs, Sort.Collating coll) {
-        if (cat(a) == NUMERIC && cat(b) == NUMERIC) return Integer.signum(num(a, cs).compareTo(num(b, cs)));
+        if (cat(a) == NUMERIC && cat(b) == NUMERIC) {
+            if (a.kind == Field.Kind.NUMERIC_FLOAT || b.kind == Field.Kind.NUMERIC_FLOAT) {
+                return Integer.signum(floatOperand(a, cs).compareTo(floatOperand(b, cs)));
+            }
+            return Integer.signum(num(a, cs).compareTo(num(b, cs)));
+        }
         return cmpBytes(a.raw(), b.raw(), cs, coll);
     }
 
@@ -540,7 +587,14 @@ public final class Cobol {
             // GnuCOBOL: an alphanumeric item against a numeric literal is a text comparison with the literal's digits
             return cmpBytes(a.raw(), numericLiteral.unscaledValue().abs().toString().getBytes(cs), cs, coll);
         }
+        if (a.kind == Field.Kind.NUMERIC_FLOAT) return Integer.signum(num(a, cs).compareTo(Hfp.of(numericLiteral)));
         return Integer.signum(num(a, cs).compareTo(numericLiteral));
+    }
+
+    /** A comparand of a floating-point comparison (IBM: "in floating-point arithmetic if either comparand is a
+     *  floating-point value"): a float as it is, a fixed-point item converted to long HFP. */
+    private static BigDecimal floatOperand(Field f, Charset cs) {
+        return f.kind == Field.Kind.NUMERIC_FLOAT ? num(f, cs) : Hfp.of(num(f, cs));
     }
 
     /** `a` against an ALL literal (#4557; IBM Enterprise COBOL 6.4 Language Reference, "Figurative constants": ALL
@@ -666,6 +720,8 @@ public final class Cobol {
      */
     public static String displayText(Field f, Charset cs) {
         switch (f.kind) {
+            case NUMERIC_FLOAT: // IBM: as external floating point -.9(8)E-99 (COMP-1) / -.9(17)E-99 (COMP-2)
+                return Hfp.display(Hfp.read(f), f.len == 8);
             case NUMERIC_PACKED:
             case NUMERIC_BINARY: {
                 Codec.Num n = Codec.read(f, cs);

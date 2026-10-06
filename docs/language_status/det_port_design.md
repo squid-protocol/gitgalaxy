@@ -286,6 +286,14 @@ Only generator output, never a test case:
 - A numeric DISPLAY item MOVEd to an alphanumeric one is its digit bytes as they are -- invalid data included, the
   sign de-punched (GnuCOBOL, checked): the runtime had decoded `ABC` as `123`.
 - DIVIDE's intermediate follows GnuCOBOL's cob_decimal_div (the dividend shifted 38 digits, truncated).
+- #4501 (found proving #4413 through cics-crucible): a COMP-5 VALUE was written truncated to its PICTURE and
+  big-endian while the runtime reads COMP-5 little-endian, so CAXA's `S9(4) COMP-5 VALUE 32767` reached XCTL LENGTH
+  as -12534. The image now holds the whole value in the runtime's order (register C7).
+- #4271 slice 1: COMP-1 / COMP-2 are IBM hexadecimal floating point in the runtime (`Hfp`, `Field.hfp`); the
+  translator picks each statement's floating-point mode by IBM's rule and refuses a float's bytes by name (register
+  C6). Writing the oracle test found GnuCOBOL 3.1.2 dropping terms of float expressions with a multiplication or a
+  parenthesised division, and misjudging a comparison of a float expression: the oracle decides floats only on
+  simple statements.
 - PERFORM: when control falls off a paragraph, the innermost active PERFORM whose range ends there returns,
   abandoning those inside it. COACTUPC GOes TO the end of its caller's range from inside a nested PERFORM; the port
   looped where COBOL returned (GOTOOUT in test_det_programs.py).

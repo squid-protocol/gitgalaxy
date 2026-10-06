@@ -67,6 +67,22 @@
      "runTask",
      "handleLink"
     ]
+   },
+   {
+    "at": "2026-10-06T17:15:26+00:00",
+    "crucible_ref": "v0.4.0 (2d01515a)",
+    "summary": {
+     "long-500": "1/1",
+     "no-commarea": "1/1",
+     "short-100": "1/1"
+    },
+    "port_sha256": "9c47123e2d46cad9ea0abd956a66cee93e67ca74f9422598a26d33657e46ccd0",
+    "harness_commit": "8b3a701a563c9283d444cea33bb378cd7d08fe4d",
+    "by": "tests/tools/crucible_port_provenance.py reprove (cics_crucible.py --sides java-ported java-facade --program CASUB --report-dir)",
+    "entry_points": [
+     "runTask",
+     "handleLink"
+    ]
    }
   ]
  },

@@ -1,8 +1,14 @@
 {
  "format": "cics-crucible-baseline/1",
- "crucible_ref": "v0.3.0 (f8aaf95f)",
+ "crucible_ref": "v0.4.0 (2d01515a)",
  "note": "#3989: the CICS crucible cells that do not pass yet -- a ratchet (tests/tools/cics_crucible.py). CI fails on a cell not listed here, and on a listed cell that now passes: regenerate with --update-baseline, which only ever shrinks this as phase 3 lands.",
  "cells": {
+  "ca-channel-containers/round-trip/java": {"status": "fail", "reason": "task 1 (CA05) event 1: WRITEQ-TS expected, the side recorded no further event"},
+  "ca-channel-containers/round-trip/java-facade": {"status": "fail", "reason": "no port of any of its programs"},
+  "ca-channel-containers/round-trip/java-ported": {"status": "fail", "reason": "no port of any of its programs"},
+  "ca-channel-containers/unhandled-containererr/java": {"status": "fail", "reason": "task 1 (CA06) event 1: WRITEQ-TS expected, the side recorded no further event"},
+  "ca-channel-containers/unhandled-containererr/java-facade": {"status": "fail", "reason": "no port of any of its programs"},
+  "ca-channel-containers/unhandled-containererr/java-ported": {"status": "fail", "reason": "no port of any of its programs"},
   "ca-link-lengths/long-500/java": {"status": "fail", "reason": "task 1 (CA01) event 1: RECEIVE expected, the side recorded no further event"},
   "ca-link-lengths/no-commarea/java": {"status": "fail", "reason": "task 1 (CA01) event 1: RECEIVE expected, the side recorded no further event"},
   "ca-link-lengths/short-100/java": {"status": "fail", "reason": "task 1 (CA01) event 1: RECEIVE expected, the side recorded no further event"},

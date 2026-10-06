@@ -1,8 +1,64 @@
 {
  "format": "cics-crucible-coverage/1",
- "crucible_ref": "v0.3.0 (f8aaf95f)",
+ "crucible_ref": "v0.4.0 (2d01515a)",
  "note": "#4023: the COBOL each passing cobol-stub scenario executes (live paragraphs and sections entered; branch outcomes as LINE:OUTCOME of the crucible's source) -- a ratchet (tests/tools/cics_crucible.py --ci). Regenerate with --update-baseline.",
  "programs": {
+  "ca-channel-containers/CACHAN": {
+   "live": 3,
+   "outcomes": 0,
+   "scenarios": {
+    "round-trip": {
+     "units": [
+      "LOG-ENTRY",
+      "LOG-RESP",
+      "MAIN-PARA"
+     ],
+     "outcomes": []
+    }
+   }
+  },
+  "ca-channel-containers/CACHERR": {
+   "live": 2,
+   "outcomes": 0,
+   "scenarios": {
+    "unhandled-containererr": {
+     "units": [
+      "ERR-MAIN",
+      "LOG-ENTRY"
+     ],
+     "outcomes": []
+    }
+   }
+  },
+  "ca-channel-containers/CACHSUB": {
+   "live": 4,
+   "outcomes": 0,
+   "scenarios": {
+    "round-trip": {
+     "units": [
+      "LOG-ENTRY",
+      "LOG-RESP",
+      "SUB-MAIN",
+      "SUB-NOCONT"
+     ],
+     "outcomes": []
+    }
+   }
+  },
+  "ca-channel-containers/CACHXB": {
+   "live": 3,
+   "outcomes": 0,
+   "scenarios": {
+    "round-trip": {
+     "units": [
+      "LOG-ENTRY",
+      "LOG-RESP",
+      "XB-MAIN"
+     ],
+     "outcomes": []
+    }
+   }
+  },
   "ca-link-lengths/CALINK": {
    "live": 1,
    "outcomes": 4,

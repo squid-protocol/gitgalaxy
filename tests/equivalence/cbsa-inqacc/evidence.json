@@ -43,7 +43,7 @@
     "tests/tools/java_target_matrix.py"
    ],
    "files": 11,
-   "sha256": "249e4a8bebd7bd775ceb7111b8def5ff1462f84dd924342e664e75c64fe588b0"
+   "sha256": "1a2e9735dceec17daf4867d241017a78c0ce513cbf71382364d4caef4c9c5b29"
   },
   "oracle": {
    "paths": [
@@ -56,14 +56,14 @@
     "tests/tools/equivalence_sql.py"
    ],
    "files": 16,
-   "sha256": "c98a85faa221cf56f339a4086dfaa32a0e9c996c361a39574913f1a6031c3e80"
+   "sha256": "b8d42a4a28b643ce7df90a0b2cbd48f73e4437cc6727c99b195861311bdf5cc8"
   },
   "generator": {
    "paths": [
     "gitgalaxy/tools/cobol_to_java/**"
    ],
    "files": 62,
-   "sha256": "3c8155b508f453e3efab9dc0e48aabc0913679617e4a8240123b689adff83feb"
+   "sha256": "635e2d6c8d95f8d99629f635d4b932145847dd2a04240c900a6c8eb58515242d"
   },
   "corpus": {
    "name": "cics-banking-sample-application-cbsa",
@@ -73,10 +73,10 @@
   "differences": {
    "sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
   },
-  "digest": "d9a9717fcdb19778570f0d787bdd8dbe968abb73b15b8def8849833b8030bf03"
+  "digest": "444c021f1f56d81384baf0941a56384c8fa44937648a920c37c2232879978a7a"
  },
  "proof": {
-  "at": "2026-10-06T16:53:34Z",
+  "at": "2026-10-06T17:25:18Z",
   "verdict": "proven",
   "runs": 14,
   "fault_runs": 0,
@@ -153,8 +153,8 @@
    "failed": [],
    "error": null
   },
-  "harness_commit": "59750bc5f97a93029e5139f715f0357437d0a8db+uncommitted",
-  "inputs_digest": "d9a9717fcdb19778570f0d787bdd8dbe968abb73b15b8def8849833b8030bf03"
+  "harness_commit": "b141138e182ff7da68a70a056f39c1d383404dbd+uncommitted",
+  "inputs_digest": "444c021f1f56d81384baf0941a56384c8fa44937648a920c37c2232879978a7a"
  },
  "coverage": {
   "paragraphs": {
@@ -244,7 +244,7 @@
    "total": 1
   },
   "source": "the proof's own traced COBOL runs (cobol_coverage.py)",
-  "inputs_digest": "d9a9717fcdb19778570f0d787bdd8dbe968abb73b15b8def8849833b8030bf03"
+  "inputs_digest": "444c021f1f56d81384baf0941a56384c8fa44937648a920c37c2232879978a7a"
  },
  "reach": {
   "entry_points": [
@@ -335,11 +335,11 @@
    },
    {
     "path": "tests/equivalence/cics/DFHEIBLK.cpy",
-    "sha256": "ab7fe78f8e8496673924ed6a663619a320a48efcc474899b033c92c9fda48461"
+    "sha256": "f54ce5a2592064ac4a39cd25a479499879b61ae499024cb191960692c23022da"
    },
    {
     "path": "tests/equivalence/cics/ggcics.c",
-    "sha256": "5d1950c7e6a9a0053304c0020175888ce25961f59235ee78799691df2036a1ee"
+    "sha256": "5f127e1ddb94e48ecb5e7831bbf9173cda7e398633e11e5d7ed09c9194dc7cdc"
    },
    {
     "path": "tests/equivalence/db2/SQLCA.cpy",

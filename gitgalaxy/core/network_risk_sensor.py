@@ -32,6 +32,7 @@ from gitgalaxy.core.package_self_reference import (
     split_specifier,
 )
 from gitgalaxy.core.path_proximity import proximity_rank
+from gitgalaxy.core.rust_modules import RustModules
 from gitgalaxy.core.unicode_paths import nfc
 from gitgalaxy.standards.analysis_lens import RECORDING_SCHEMAS
 from gitgalaxy.standards.language_standards import LANGUAGE_DEFINITIONS
@@ -106,6 +107,10 @@ _DOTTED_MODULE = re.compile(r"\.{0,16}(?:[A-Za-z_]\w{0,255}(?:\.[A-Za-z_]\w{0,25
 # #3554: the module name of a Rust `mod name;` declaration.
 _MODULE_NAME = re.compile(r"[A-Za-z_]\w{0,127}")
 _MODULE_TREE_OWNERS = frozenset({"mod.rs", "lib.rs", "main.rs", "build.rs"})
+# #4544: the languages whose import paths core/rust_modules.py resolves.
+MODULE_TREE_LANGS = frozenset(
+    lang_id for lang_id, definition in LANGUAGE_DEFINITIONS.items() if definition.get("imports_follow_module_tree")
+)
 _CRATE_ROOT_DIRS = frozenset({"tests", "examples", "benches"})
 
 # #3552: an ESM import spells a TypeScript source by its EMITTED name
@@ -211,6 +216,8 @@ class NetworkRiskSensor:
         # of the scanned files, built on first use -- does a dotted name spell a
         # package directory of this repo?
         self._dir_tails: Optional[set[str]] = None
+        # #4544: the Rust module resolver of the latest _build_resolution_map, or None.
+        self._rust: RustModules | None = None
         # #3665: the scanned directory, when the caller has one (galaxyscope sets
         # it). Only used to tell two same-named candidates apart as ONE file: a
         # symlinked header (`include/X.h -> ../Core/X.h`) is scanned at both paths.
@@ -265,6 +272,12 @@ class NetworkRiskSensor:
             if stem:
                 resolution_map[stem].append(path)
 
+        # #4544: Rust paths resolve by the module tree and Cargo manifests (core/rust_modules.py).
+        self._rust = (
+            RustModules(files, self._by_norm_path, self.root)
+            if any(str(f.get("lang_id", "")).lower() in MODULE_TREE_LANGS for f in files)
+            else None
+        )
         return resolution_map
 
     def _build_folded_resolution_map(self, files: list[dict[str, Any]]) -> dict[str, dict[str, list[str]]]:
@@ -392,6 +405,15 @@ class NetworkRiskSensor:
             module = target_token[2:]
             if _MODULE_NAME.fullmatch(module):
                 return self._resolve_module_tree(module, curr_path)
+        # #4544: `#[path = "x.rs"] mod m;` (recorded `./x.rs` / `../x.rs`) is exactly that
+        # file beside the declaring one; any other Rust token is a path (`crate::a::B`,
+        # `super::x`, `other_crate::y`) the module tree and the Cargo manifests resolve --
+        # never the name search, which read `crate::render::Node` as a file called Node.
+        if src_def.get("imports_follow_module_tree"):
+            if target_token.startswith(("./", "../")):
+                here = posixpath.dirname(curr_path.replace("\\", "/"))
+                return self._by_norm_path.get(posixpath.normpath(posixpath.join(here, target_token)))
+            return self._rust.resolve(target_token, curr_path) if self._rust is not None else None
 
         # #3597: Dart `package:name/path.dart` is <name>/lib/path.dart, found as a
         # path tail; any other scheme (`dart:io`) is the SDK.

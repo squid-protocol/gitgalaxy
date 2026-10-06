@@ -58,7 +58,7 @@ DFHRESP = {
     "STRELERR": 86, "OPENERR": 87, "SPOLBUSY": 88, "SPOLERR": 89, "NODEIDERR": 90, "TASKIDERR": 91,
     "TCIDERR": 92, "DSNNOTFOUND": 93, "LOADING": 94, "MODELIDERR": 95, "OUTDESCRERR": 96, "PARTNERIDERR": 97,
     "PROFILEIDERR": 98, "NETNAMEIDERR": 99, "LOCKED": 100, "RECORDBUSY": 101, "UOWNOTFOUND": 102,
-    "UOWLNOTFOUND": 103, "CHANNELERR": 122, "CCSIDERR": 123, "TIMEDOUT": 124, "CODEPAGEERR": 125,
+    "UOWLNOTFOUND": 103, "CONTAINERERR": 110, "CHANNELERR": 122, "CCSIDERR": 123, "TIMEDOUT": 124, "CODEPAGEERR": 125,
     "INCOMPLETE": 126, "APPNOTFOUND": 127, "BUSY": 128,
 }  # fmt: skip
 
@@ -218,13 +218,16 @@ def _handle(pairs: list[tuple[str, str | None]], labels: list[str]) -> list[str]
     if verb == "ASSIGN":  # ABCODE (#4003); APPLID / SYSID: the region's identity, from the case's "region";
         # PROGRAM: the name of the program running (IBM CICS TS, ASSIGN: "the name of the current program")
         asked = [(n, v) for n, v in pairs[1:] if n not in ("RESP", "RESP2", "NOHANDLE")]
-        other = [n for n, _v in asked if n not in ("ABCODE", "APPLID", "SYSID", "PROGRAM", "INVOKINGPROG")]
+        other = [n for n, _v in asked if n not in ("ABCODE", "APPLID", "SYSID", "PROGRAM", "INVOKINGPROG", "CHANNEL")]
         if other or not asked or not all(v for _n, v in asked):
             raise Unsupported(
                 f"ASSIGN {' '.join(other) or 'without a target'}", [f"ASSIGN {n}" for n in other or ["?"]]
             )
         lines: list[str] = []
         for n, target in asked:
+            if n == "CHANNEL":  # #4270: the current channel's name, blanks without one (GGCASCH)
+                lines += _call("GGCASCH", []) + [f"MOVE GG-CHAN TO {target}"]
+                continue
             width = {"ABCODE": 4, "APPLID": 8, "SYSID": 4, "PROGRAM": 8, "INVOKINGPROG": 8}[n]
             lines += ["MOVE SPACES TO GG-NAME2" if n == "ABCODE" else f"MOVE '{n}' TO GG-NAME2"] + _call("GGCASGN", [])
             lines.append(f"MOVE GG-NAME1(1:{width}) TO {target}")
@@ -588,9 +591,16 @@ def translate_command(body: str, labels: list[str] | None = None, handle_aid: bo
     if verb in ("RETURN", "XCTL"):
         if verb == "XCTL" and not opts.get("PROGRAM"):
             raise Unsupported("XCTL without PROGRAM")
-        for bad in ("CHANNEL", "INPUTMSG", "IMMEDIATE", "ENDACTIVITY"):
+        for bad in ("INPUTMSG", "IMMEDIATE", "ENDACTIVITY") + (("CHANNEL",) if verb == "RETURN" else ()):
             if bad in opts:
                 raise Unsupported(f"{verb} {bad}")
+        if verb == "XCTL" and opts.get("CHANNEL"):  # #4270: the target's current channel (GGCXCTL)
+            if opts.get("COMMAREA"):
+                raise Unsupported("XCTL CHANNEL with COMMAREA", ["XCTL CHANNEL"])
+            return ([name(opts["PROGRAM"], "GG-NAME1"), "MOVE 0 TO GG-ITEM", "MOVE 'CHANNEL' TO GG-FLAGS",
+                     f"MOVE {opts['CHANNEL']} TO GG-CHAN"]
+                    + _call("GGCXCTL", ["BY REFERENCE GG-FLAGS", "BY VALUE 0"])
+                    + ["IF GG-RESP = 0", "    GOBACK", "END-IF"] + _resp(opts, True, labels))  # fmt: skip
         target = opts.get("TRANSID") if verb == "RETURN" else opts.get("PROGRAM")
         area = opts.get("COMMAREA")
         args = ([f"BY REFERENCE {area}", f"BY VALUE {opts.get('LENGTH') or f'LENGTH OF {area}'}"] if area
@@ -598,21 +608,30 @@ def translate_command(body: str, labels: list[str] | None = None, handle_aid: bo
         if verb == "RETURN":
             return [name(target, "GG-NAME1")] + _call("GGCRETN", args) + ["GOBACK"]
         # #4008: a failed XCTL (LENGERR, PGMIDERR) leaves control here, through the condition handling
-        return ([name(target, "GG-NAME1"), f"MOVE {1 if area else 0} TO GG-ITEM"] + _call("GGCXCTL", args)
+        return ([name(target, "GG-NAME1"), f"MOVE {1 if area else 0} TO GG-ITEM", "MOVE SPACES TO GG-FLAGS"]
+                + _call("GGCXCTL", args)
                 + ["IF GG-RESP = 0", "    GOBACK", "END-IF"] + _resp(opts, True, labels))  # fmt: skip
     if verb in ("START", "RETRIEVE", "CANCEL"):  # #4006: interval control
         return _interval_command(verb, opts, labels)
     if verb == "LINK":  # #4004: a new level runs the program on the caller's own COMMAREA storage
-        for bad in ("SYSID", "TRANSID", "SYNCONRETURN", "CHANNEL", "INPUTMSG", "INPUTMSGLEN", "DATALENGTH"):
+        for bad in ("SYSID", "TRANSID", "SYNCONRETURN", "INPUTMSG", "INPUTMSGLEN", "DATALENGTH"):
             if bad in opts:
                 raise Unsupported(f"LINK {bad}", [f"LINK {bad}"])
         if not opts.get("PROGRAM"):
             raise Unsupported("LINK without PROGRAM", ["LINK"])
+        if "CHANNEL" in opts and (opts.get("COMMAREA") or not opts["CHANNEL"]):
+            raise Unsupported("LINK CHANNEL with COMMAREA", ["LINK CHANNEL"])
         area = opts.get("COMMAREA")
+        # #4270: CHANNEL -- the callee's current channel (GGCLINK)
+        chan = (
+            ["MOVE 'CHANNEL' TO GG-FLAGS", f"MOVE {opts['CHANNEL']} TO GG-CHAN"]
+            if opts.get("CHANNEL")
+            else ["MOVE SPACES TO GG-FLAGS"]
+        )
         length = opts.get("LENGTH") or opts.get("FLENGTH") or (f"LENGTH OF {area}" if area else "0")
         ref = area or "GG-FLAGS"
         return ([name(opts["PROGRAM"], "GG-NAME1"), f"MOVE {length} TO GG-LEN", f"MOVE {1 if area else 0} TO GG-ITEM"]
-                + _call("GGCLINK", [f"BY REFERENCE {ref}"])
+                + chan + _call("GGCLINK", [f"BY REFERENCE {ref}"])
                 + ["IF GG-RESP = 0", f"    CALL 'GGCRUN' USING {ref}", "    CALL 'GGCLRET' USING GG-CICS"]
                 + [f"    {ln}" for ln in _transfer(labels)]
                 + ["    IF GG-GOTO < 0", "        GOBACK", "    END-IF", "END-IF"]
@@ -626,7 +645,72 @@ def translate_command(body: str, labels: list[str] | None = None, handle_aid: bo
         or verb == "ASSIGN"
     ):
         return _handle(pairs, labels)  # fmt: skip
+    if verb in ("PUT", "GET", "DELETE") and "CONTAINER" in opts:  # #4270
+        return _container_command(verb, opts, labels)
     raise Unsupported(" ".join(n for n, _ in pairs[:2]), [_feature(pairs)])
+
+
+_CONTAINER_OPTIONS = {
+    "PUT": {"CONTAINER", "CHANNEL", "FROM", "FLENGTH", "BIT", "CHAR", "DATATYPE", "APPEND"},
+    "GET": {"CONTAINER", "CHANNEL", "INTO", "FLENGTH", "NODATA"},
+    "DELETE": {"CONTAINER", "CHANNEL"},
+}
+
+
+def _container_command(verb: str, opts: dict[str, str | None], labels: list[str] | None) -> list[str]:
+    """#4270: PUT / GET / DELETE CONTAINER -> GGCPUTC / GGCGETC / GGCDELC. The container's name in GG-QNAME, the
+    channel's in GG-CHAN (GG-FLAGS 'CHANNEL'; none: the current channel), the data type, APPEND and NODATA in
+    GG-FLAGS, FLENGTH in GG-LEN (PUT: the bytes FROM gives; GET: the most INTO takes, then the container's length,
+    set back on NORMAL / LENGERR). The CCSID options (code-page conversion), SET (a pointer), BYTEOFFSET and PREPEND
+    are refused, as det/cics.py refuses them; so is an FLENGTH past FROM / INTO (storage GnuCOBOL lays out unlike
+    IBM's compiler)."""
+    feature = f"{verb} CONTAINER"
+    bad = sorted(o for o in opts if o not in _CONTAINER_OPTIONS[verb] | {verb, "RESP", "RESP2", "NOHANDLE"})
+    if bad or not opts.get("CONTAINER"):
+        raise Unsupported(f"{feature} {' '.join(bad) or 'without a name'}", [f"{feature} {o}" for o in bad or ["?"]])
+    flags = ["CHANNEL"] if opts.get("CHANNEL") else []
+    lines = [f"MOVE {opts['CONTAINER']} TO GG-QNAME",
+             f"MOVE {opts['CHANNEL']} TO GG-CHAN" if opts.get("CHANNEL") else "MOVE SPACES TO GG-CHAN"]  # fmt: skip
+    if verb == "DELETE":
+        return (
+            lines
+            + [f"MOVE '{' '.join(flags)}' TO GG-FLAGS" if flags else "MOVE SPACES TO GG-FLAGS"]
+            + _call("GGCDELC", [])
+            + _resp(opts, True, labels)
+        )
+    flength = opts.get("FLENGTH")
+    if verb == "PUT":
+        frm = opts.get("FROM")
+        if not frm:
+            raise Unsupported("PUT CONTAINER without FROM", [feature])
+        types = [t for t in ("BIT", "CHAR") if t in opts]
+        if opts.get("DATATYPE"):
+            m = re.fullmatch(r"\s*DFHVALUE\s*\(\s*(BIT|CHAR)\s*\)\s*", opts["DATATYPE"], re.I)
+            if m is None:
+                raise Unsupported(f"PUT CONTAINER DATATYPE({opts['DATATYPE']})", [f"{feature} DATATYPE"])
+            types.append(m.group(1).upper())
+        if len(types) > 1:
+            raise Unsupported("PUT CONTAINER with two data types", [feature])
+        flags += types + (["APPEND"] if "APPEND" in opts else [])
+        return (lines + [f"MOVE '{' '.join(flags)}' TO GG-FLAGS" if flags else "MOVE SPACES TO GG-FLAGS",
+                         f"MOVE {flength or f'LENGTH OF {frm}'} TO GG-LEN"]
+                + _past_from(flength, frm, "PUT CONTAINER") + _call("GGCPUTC", [f"BY REFERENCE {frm}"])
+                + _resp(opts, True, labels))  # fmt: skip
+    into, nodata = opts.get("INTO"), "NODATA" in opts
+    if bool(into) == nodata:
+        raise Unsupported("GET CONTAINER needs one of INTO / NODATA", [feature])
+    flags += ["NODATA"] if nodata else []
+    settable = bool(flength) and re.fullmatch(r"(?is)[+-]?\d+|LENGTH\s+OF\s+.+", flength.strip()) is None
+    lines += [
+        f"MOVE '{' '.join(flags)}' TO GG-FLAGS" if flags else "MOVE SPACES TO GG-FLAGS",
+        "MOVE 0 TO GG-LEN" if nodata else f"MOVE {flength or f'LENGTH OF {into}'} TO GG-LEN",
+    ]
+    if into and flength:
+        lines += _past_from(flength, into, "GET CONTAINER")
+    lines += _call("GGCGETC", [f"BY REFERENCE {into or 'GG-FLAGS'}"])
+    if settable:
+        lines += ["IF GG-RESP = 0 OR GG-RESP = 22", f"    MOVE GG-LEN TO {flength}", "END-IF"]
+    return lines + _resp(opts, True, labels)
 
 
 def _exec_blocks(lines: list[str]) -> Iterator[tuple[int, int, str, str, str]]:

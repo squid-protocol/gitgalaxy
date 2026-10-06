@@ -44,6 +44,10 @@ TRAP_PREFIX = {"condition-handling": "HC", "hex-attributes": "HX", "commarea-mis
 NOTES_SECTIONS = ("The trap", "Why a naive translation breaks", "Expected behaviour", "What a correct port must do",
                   "Avoided ambiguities", "Citations")  # fmt: skip  # cics-crucible tools/validate.py NOTES_SECTIONS
 ALLOWED_EXTRA = {"crucible_events", "__future__"}
+# #4270 (cics_command_spec.md section 6 rule 1): the CICS command spec says what gitgalaxy MODELS, never what IBM
+# does; a log must never come from it. Named here, and checked before ALLOWED_EXTRA, so that no future allow-list
+# entry (a "gitgalaxy" one included) can let it through.
+DENIED_SPEC = "gitgalaxy.standards.cics"
 DENIED_MODULES = {"subprocess", "importlib", "runpy", "ctypes", "multiprocessing", "concurrent", "pty", "code",
                   "codeop", "socket", "urllib", "http", "xmlrpc", "ftplib", "telnetlib", "smtplib", "webbrowser",
                   "imp", "zipimport", "pkgutil", "site", "sysconfig", "venv", "ensurepip", "pydoc"}  # fmt: skip
@@ -231,6 +235,13 @@ def hand_derived_problems(source: str, name: str = "<script>") -> list[str]:
                 problems.append(f"{name}:{node.lineno}: relative import (from {'.' * node.level}{node.module or ''})")
                 continue
             mods = [node.module or ""]
+        named = mods + ([f"{node.module}.{a.name}" for a in node.names] if isinstance(node, ast.ImportFrom) else [])
+        for m in named:  # (`from gitgalaxy.standards import cics` names it too)
+            if m == DENIED_SPEC or m.startswith(DENIED_SPEC + "."):
+                problems.append(f"{name}:{line}: imports {m}: the CICS command spec is an implementation artifact, "
+                                "never the oracle (cics_command_spec.md section 6)")  # fmt: skip
+                mods = []
+                break
         for m in mods:
             top = m.split(".")[0]
             if top in ALLOWED_EXTRA:

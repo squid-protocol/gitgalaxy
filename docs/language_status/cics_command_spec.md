@@ -1,7 +1,7 @@
 # Design: one declarative CICS command spec (#4270)
 
-**Status: design accepted with the owner's decisions (2026-10-06, section 9); no code yet.** All line numbers are
-against origin/main `b6c3e4ea8`.
+**Status: design accepted with the owner's decisions (2026-10-06, section 9); PR 1 (the package, its CLI and the
+transitional equality tests) in review.** All line numbers are against origin/main `b6c3e4ea8`.
 
 Every #4270 slice teaches the det port one more EXEC CICS command by writing the same facts about that command
 again in five to seven places, in three languages. The engine pulls CICS facts out of the same commands with its own
@@ -67,9 +67,9 @@ The spec lives at **`gitgalaxy/standards/cics/`**, a neutral, data-only package 
 `model.py` holds the dataclasses and `commands/*.py` holds one module per command family (`containers.py`,
 `interval.py`, `assign.py`, ...). `resp.py` holds DFHRESP and the default abend codes. Every consumer imports it
 directly: the engine walkers, the translator, the runtime generators and the harness. There are no per-consumer
-copies and no drift test between copies. Review of the folder goes to the translator side through a CODEOWNERS
-entry (PR 1), so spec changes are reviewed as translator changes. Later siblings follow the same pattern:
-`standards/sql/`, intrinsic functions and file status.
+copies and no drift test between copies. A spec change is reviewed as a translator change (no CODEOWNERS entry:
+the owner is the only maintainer). Later siblings follow the same pattern: `standards/sql/`, intrinsic functions
+and file status.
 
 | | YAML | JSON | **Python data** |
 |---|---|---|---|
@@ -395,8 +395,8 @@ Each PR is "Part of #4270".
 
 | PR | content | consumers changed | verdict check |
 |---|---|---|---|
-| **1** | `gitgalaxy/standards/cics/` model + `resp.py` (DFHRESP, abend codes) + entries for the slice 1-4 commands, with today's text word for word; a CODEOWNERS entry for the folder; `cics_spec` CLI (`emit`, `check`, `regen`); **transitional equality tests** asserting the spec equals each existing copy (both Python DFHRESP tables, the Java switches scraped from `CICS_TASK_JAVA` / `DetCics.java`, the C enum, `OPTIONS`, the `*_REFUSED_WHY` tables, `_CONTAINER_OPTIONS`, the harness's refused tuples), each deleted in the PR that makes its copy import the spec; the crucible import-denial test | none | unit tests only |
-| **2** | full entries for the other 35 `OPTIONS` commands + LOAD / RELEASE (45 in all); **name-only refusal entries** (name, IBM URL, reason) for the other CICS application (API) commands, about 125 of them, with no SPI / system-programming commands, so an unknown verb gets a specific reason; the translator imports `OPTIONS`, every refusal table, `check_options` (the five special cases become per-command `refused` entries), groups and `DFHRESP` from the spec | translator | messages unchanged except a whole-verb refusal now naming its reason (rebaselined); survey compare identical in translated / holes counts; ratchets |
+| **1** | `gitgalaxy/standards/cics/` model + `resp.py` (DFHRESP, abend codes) + entries for the slice 1-4 commands, with today's text word for word; `cics_spec` CLI (`emit`, `check`, `regen`); **transitional equality tests** asserting the spec equals each existing copy (both Python DFHRESP tables, the Java switches scraped from `CICS_TASK_JAVA` / `DetCics.java`, the C enum, `OPTIONS`, the `*_REFUSED_WHY` tables, `_CONTAINER_OPTIONS`, the harness's refused tuples), each deleted in the PR that makes its copy import the spec; the crucible import-denial test | none | unit tests only |
+| **2** | full entries for the other 34 `OPTIONS` commands (PR 1 has the 9 of slices 1-4) + LOAD / RELEASE (45 in all); **name-only refusal entries** (name, IBM URL, reason) for the other CICS application (API) commands, about 125 of them, with no SPI / system-programming commands, so an unknown verb gets a specific reason; the translator imports `OPTIONS`, every refusal table, `check_options` (the five special cases become per-command `refused` entries), groups and `DFHRESP` from the spec | translator | messages unchanged except a whole-verb refusal now naming its reason (rebaselined); survey compare identical in translated / holes counts; ratchets |
 | 3 | `equivalence_cics.py` refusals / options / DFHRESP from the spec. `Unsupported` carries the same reason as `CicsError`, the one intended change: one rebaseline of message snapshots, with feature keys and verdicts unchanged | stub translator | feature keys identical; cobol-stub cells identical |
 | 4 | **generated, committed** runtime tables: `CicsSpec.java` (delegated to by `DetCics` condition / resp, `respName`, `abcodeFor`) and `ggcics_spec.h`; `cics_spec regen` + a drift test that fails on a stale file (ratchet-style, in `pr_gates.py --ratchets`) | both runtimes | `proof_sweep --det-only`; crucible cells identical |
 | 5 | `Fact` wiring in `cics_crucible.py`; refusals of unstated facts share their text | runner, both runtimes | crucible cells identical |
@@ -435,9 +435,9 @@ that removes roughly 15-25% of each slice's diff and every place two copies can 
 ## 9. Decisions (2026-10-06)
 
 1. **Location: `gitgalaxy/standards/cics/`.** It is a neutral, data-only package that the engine owns and ships, and
-   every consumer imports it directly. There are no separate engine tables and no drift test between copies. A
-   CODEOWNERS entry routes review of the folder to the translator side. Siblings (`standards/sql/`, intrinsic
-   functions, file status) follow the same pattern later.
+   every consumer imports it directly. There are no separate engine tables and no drift test between copies. No
+   CODEOWNERS entry (the owner is the only maintainer). Siblings (`standards/sql/`, intrinsic functions, file
+   status) follow the same pattern later.
 2. **Generated runtime tables are committed**: the Java RESP / abend switches with the refusal constants, and C
    `ggcics_spec.h`. A regenerate command and a ratchet-style drift test fail when a file is stale.
 3. **The stub's refusal text matches the translator's.** `Unsupported` carries the same reason as `CicsError`. The

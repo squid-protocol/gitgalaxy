@@ -184,3 +184,41 @@ def test_check_hand_derived_accepts_a_formatter(tmp_path, capsys):
     assert ccase.main(["check-hand-derived", str(ok)]) == 0
     assert ccase.main(["check-hand-derived", str(ok), str(bad)]) == 1
     assert "bad.py:1: imports cics_crucible" in capsys.readouterr().out
+
+
+# ---- #4270: the CICS command spec never reaches the oracle (cics_command_spec.md section 6 rule 1) ---------------
+@pytest.mark.parametrize(
+    "src",
+    [
+        "import gitgalaxy.standards.cics",
+        "import gitgalaxy.standards.cics.resp as R",
+        "from gitgalaxy.standards.cics import COMMANDS",
+        "from gitgalaxy.standards.cics.commands import containers",
+        "from gitgalaxy.standards import cics",
+    ],
+)
+def test_check_hand_derived_denies_the_cics_spec_by_name(src, monkeypatch):
+    """The spec is named in the denied set, ahead of the allow-list: even an allow-list that let gitgalaxy through
+    would not let the spec through."""
+    monkeypatch.setattr(ccase, "ALLOWED_EXTRA", ccase.ALLOWED_EXTRA | {"gitgalaxy"})
+    problems = ccase.hand_derived_problems(src, "gen.py")
+    assert len(problems) == 1 and "the CICS command spec is an implementation artifact" in problems[0]
+
+
+def test_crucible_events_imports_only_the_stdlib():
+    """crucible_events.py (the oracle's event constructors) imports the standard library only: never the spec,
+    never gitgalaxy."""
+    src = (Path(__file__).resolve().parent / "crucible_events.py").read_text(encoding="utf-8")
+    assert ccase.hand_derived_problems(src, "crucible_events.py") == []
+    assert "gitgalaxy" not in {n.split(".")[0] for n in re.findall(r"^\s*(?:from|import)\s+([\w.]+)", src, re.M)}
+
+
+def test_the_crucibles_python_never_imports_the_spec():
+    """Every Python file of the cics-crucible checkout (its tools; any log script a case keeps) is free of the spec
+    (skipped without a checkout)."""
+    crucible = _crucible()
+    if crucible is None:
+        pytest.skip("no cics-crucible checkout (CICS_CRUCIBLE_PATH)")
+    for script in sorted(crucible.rglob("*.py")):
+        src = script.read_text(encoding="utf-8", errors="replace")
+        assert not any("CICS command spec" in p for p in ccase.hand_derived_problems(src, str(script))), script

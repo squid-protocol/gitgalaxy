@@ -16,6 +16,7 @@ from typing import Any, Optional, TypedDict, Union
 
 from gitgalaxy.core.model_magic import MODEL_EXTENSIONS, sniff_model_format
 from gitgalaxy.core.source_text import open_source
+from gitgalaxy.standards.gitgalaxy_config import LEXICAL_FAMILY_HEURISTICS
 
 # ==============================================================================
 # GitGalaxy Phase 0.1: Ingestion & Filtering (The Aperture Filter)
@@ -41,6 +42,57 @@ def declared_port(content: Optional[str], rel_path: str) -> Optional[str]:
         return None
     m = _DET_PORT_LINE.match(content[:200])
     return m.group(1) if m else None
+
+
+# --- VIRTUALENV DETECTION (#4542) ---
+# `venv` / `.venv` stay in IGNORED_DIRECTORIES by name: nobody names a source directory that.
+# These names are also ordinary source directory names (room4doom's `gameplay/src/env/` holds
+# 3,646 lines of doors, floors and lights; pypa/virtualenv's package is `src/virtualenv/`), so a
+# directory with one of them is a virtualenv only when it carries a virtualenv's markers.
+VIRTUALENV_CANDIDATE_NAMES = frozenset({"env", ".env", "virtualenv"})
+
+
+def looks_like_virtualenv(directory: Path) -> bool:
+    """True when `directory` carries a Python virtualenv's (or conda env's) on-disk markers."""
+    try:
+        if not directory.is_dir():
+            return False
+        if (directory / "pyvenv.cfg").is_file() or (directory / "conda-meta").is_dir():
+            return True
+        for activate in ("bin/activate", "Scripts/activate", "Scripts/activate.bat"):
+            if (directory / activate).is_file():
+                return True
+        if (directory / "Lib" / "site-packages").is_dir():
+            return True
+        lib = directory / "lib"
+        return lib.is_dir() and any(
+            p.name.startswith("python") and (p / "site-packages").is_dir() for p in lib.iterdir()
+        )
+    except OSError:
+        return False
+
+
+# --- COMMENT LINES IN THE SATURATION GATE (#4543) ---
+# Gate 4.1 blocks a file whose head carries a line longer than MAX_LINE_LENGTH: minifier output
+# and data payloads. A long line that is wholly a comment in the file's own syntax is neither (a
+# 684-char paragraph inside crispy-doom's hexen p_map.c block comment, room4doom's `//!` module
+# docs), so it does not count -- up to MAX_COMMENT_LINE_LENGTH, and only while it reads as prose
+# (spaced words, not a base64 / inline source-map blob).
+# family -> (line comment tokens, block comment (open, close) pairs)
+_FAMILY_COMMENT_SYNTAX: dict[str, tuple[tuple[str, ...], tuple[tuple[str, str], ...]]] = {
+    "standard_block": (("//",), (("/*", "*/"),)),
+    "recursive_block": (("//",), (("/*", "*/"),)),
+    "recursive_block_rexx": (("--",), (("/*", "*/"),)),
+    "multi_style_dash": (("--",), (("/*", "*/"),)),
+    "multi_style_live": (("#", "--", "//"), (("/*", "*/"),)),
+    "embedded_syntax": (("#",), (("<#", "#>"),)),
+    "recursive_block_haskell": (("--",), (("{-", "-}"),)),
+    "recursive_block_lisp": ((";",), (("#|", "|#"),)),
+    "line_exclusive_dash": (("--",), ()),
+    "block_exclusive": ((), (("<!--", "-->"),)),
+}
+# A prose comment has a space at least this often (characters per space).
+_PROSE_CHARS_PER_SPACE = 30
 
 
 # --- CUSTOM EXCEPTION HIERARCHY ---
@@ -180,6 +232,11 @@ class ApertureFilter:
         for data in self.registry.values():
             self.whitelisted_extensions.update(data.get("extensions", []))
             self.exact_match_files.update(data.get("exact_matches", []))
+
+        # #4542: candidate-named directories (rel path -> is it a virtualenv), probed once each.
+        self._virtualenv_cache: dict[str, bool] = {}
+        # #4543: extension -> the comment syntax every language claiming it agrees on.
+        self._comment_syntax = self._build_comment_syntax()
 
         self.ignore_patterns = self._load_gitignore_patterns()
 
@@ -501,16 +558,28 @@ class ApertureFilter:
             max_line = self.config.get("DECLARED_PORT_MAX_LINE_LENGTH", 5000)
         is_prose = low_path.endswith((".md", ".markdown", ".txt", ".json", ".csv", ".rst", ".sql", ".svg"))
 
-        for i, line in enumerate(lines_list[:100]):
-            if len(line) > max_line and not is_prose:
-                report.update(
-                    {
-                        "valid": False,
-                        "classification": "oversized_minified",
-                        "reason": f"Blocked (Saturation: Line {i + 1} exceeds {max_line} chars)",
-                    }
-                )
-                return report
+        head = lines_list[:100]
+        long_lines = [i for i, line in enumerate(head) if len(line) > max_line] if not is_prose else []
+        if long_lines:
+            # #4543: a long line that is wholly a prose comment is not minifier output or a payload.
+            syntax = self._comment_syntax.get(os.path.splitext(low_path)[1])
+            if syntax:
+                comment = self._comment_lines(head, syntax)
+                max_comment = self.config.get("MAX_COMMENT_LINE_LENGTH", 5000)
+                long_lines = [
+                    i
+                    for i in long_lines
+                    if not (i in comment and len(head[i]) <= max_comment and self._reads_as_prose(head[i]))
+                ]
+        if long_lines:
+            report.update(
+                {
+                    "valid": False,
+                    "classification": "oversized_minified",
+                    "reason": f"Blocked (Saturation: Line {long_lines[0] + 1} exceeds {max_line} chars)",
+                }
+            )
+            return report
 
         head_sample = "\n".join(lines_list[:100])
 
@@ -608,6 +677,83 @@ class ApertureFilter:
         # stops at the first control character past the limit
         return all(n <= cls._STRAY_NULS for n, _ in enumerate(cls._CONTROL_CHARS.finditer(content), 1))
 
+    def _is_virtualenv(self, rel_dir: str) -> bool:
+        """#4542: a candidate-named directory is excluded only when it is really a virtualenv."""
+        hit = self._virtualenv_cache.get(rel_dir)
+        if hit is None:
+            hit = self._virtualenv_cache[rel_dir] = looks_like_virtualenv(self.root.joinpath(*rel_dir.split("/")))
+        return hit
+
+    def _build_comment_syntax(self) -> dict[str, tuple[tuple[str, ...], tuple[tuple[str, str], ...]]]:
+        """#4543: per extension, the comment tokens shared by every language that claims it.
+
+        An extension two languages claim (`.h`: c, cpp, objective-c) gets only the tokens both
+        agree on, so no language's code line (C's `#define`) can pass as another's comment.
+        """
+        families: dict[str, Any] = dict(LEXICAL_FAMILY_HEURISTICS.get("lexical_families", {}))
+        per_lang: dict[str, list[str]] = families.get("line_exclusive", {}).get("language_delimiters", {})
+        Syntax = tuple[frozenset[str], frozenset[tuple[str, str]]]
+        by_ext: dict[str, list[Syntax]] = {}
+        for lang_id, data in self.registry.items():
+            family = data.get("lexical_family")
+            syntax: Syntax
+            if family == "line_exclusive":
+                tokens = [t for t in per_lang.get(lang_id, []) if t not in ("=begin", "=end")]
+                syntax = (frozenset(tokens), frozenset())
+            elif family in _FAMILY_COMMENT_SYNTAX:
+                family_lines, family_blocks = _FAMILY_COMMENT_SYNTAX[family]
+                syntax = (frozenset(family_lines), frozenset(family_blocks))
+            else:
+                syntax = (frozenset(), frozenset())
+            for ext in data.get("extensions", []):
+                by_ext.setdefault(ext.lower(), []).append(syntax)
+        result: dict[str, tuple[tuple[str, ...], tuple[tuple[str, str], ...]]] = {}
+        for ext, syntaxes in by_ext.items():
+            shared_lines = frozenset.intersection(*(s[0] for s in syntaxes))
+            shared_blocks = frozenset.intersection(*(s[1] for s in syntaxes))
+            if shared_lines or shared_blocks:
+                result[ext] = (tuple(sorted(shared_lines, key=len, reverse=True)), tuple(sorted(shared_blocks)))
+        return result
+
+    @staticmethod
+    def _comment_lines(lines: list[str], syntax: tuple[tuple[str, ...], tuple[tuple[str, str], ...]]) -> set[int]:
+        """#4543: indexes of the lines that are wholly comment (a line comment, or inside/one block)."""
+        line_tokens, blocks = syntax
+        comment: set[int] = set()
+        open_block: tuple[str, str] | None = None
+        for i, line in enumerate(lines):
+            text = line.strip()
+            if open_block is not None:
+                close = text.find(open_block[1])
+                if close < 0:
+                    comment.add(i)
+                    continue
+                rest = text[close + len(open_block[1]) :].strip()
+                open_block = None
+                if not rest:
+                    comment.add(i)
+                continue
+            if line_tokens and text.startswith(line_tokens):
+                comment.add(i)
+                continue
+            for opener, closer in blocks:
+                if text.startswith(opener):
+                    close = text.find(closer, len(opener))
+                    if close < 0:
+                        open_block = (opener, closer)
+                        comment.add(i)
+                    elif not text[close + len(closer) :].strip():
+                        comment.add(i)
+                    break
+        return comment
+
+    @staticmethod
+    def _reads_as_prose(line: str) -> bool:
+        """#4543: a comment line of spaced words, not a base64 / inline source-map payload."""
+        if "base64," in line or "sourceMappingURL=data:" in line:
+            return False
+        return line.count(" ") * _PROSE_CHARS_PER_SPACE >= len(line)
+
     def _check_ignore_rules(self, rel_path: str, has_intent: bool = False) -> bool:
         """
         Determines if the path is in a blocked, ignored, or dynamically
@@ -618,9 +764,11 @@ class ApertureFilter:
 
         # 1. Static Ignored Directories & Hidden Paths (CI trees exempt, #3278)
         in_ci_tree = not self._CI_CONFIG_DIRS.isdisjoint(parts)
-        for part in parts:
+        for i, part in enumerate(parts):
             low_part = part.lower()
             if low_part in self.ignored_directories:
+                return False
+            if low_part in VIRTUALENV_CANDIDATE_NAMES and self._is_virtualenv("/".join(parts[: i + 1])):
                 return False
 
             if (

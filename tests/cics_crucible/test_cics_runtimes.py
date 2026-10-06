@@ -1409,3 +1409,68 @@ def test_scheduler_passes_each_starts_data_options_as_its_record():
         "rtransid": "GT03",
         "queue": "",
     }
+
+
+_RUN_MAIN = r"""
+#include <stdio.h>
+#include <string.h>
+typedef struct { int resp; int resp2; char name1[8]; char name2[8]; char flags[40]; int len;
+                 char qname[16]; int item; int num; int go_to; char chan[16]; int hours, mins, secs;
+                 char rtran[4], rterm[4], rqueue[8]; } gg_cics;
+int GGCRUNT(gg_cics *c, char *child);
+static gg_cics c;
+int main(void) {
+    char child[17] = "................";
+    memset(c.name1, ' ', 8); memcpy(c.name1, "GT24", 4); GGCRUNT(&c, child); printf("%d/%d/%.16s ", c.resp, c.resp2, child);
+    memset(c.name1, ' ', 8); memcpy(c.name1, "NONE", 4); GGCRUNT(&c, child); printf("%d/%d\n", c.resp, c.resp2);
+    return 0;
+}
+"""
+
+
+@needs_cc
+def test_the_stub_run_transid_attaches_a_child_or_is_transiderr(tmp_path):
+    """#4270 slice 2, IBM RUN TRANSID: a defined transaction gets a child token in CHILD's 16 bytes; an undefined one
+    is TRANSIDERR RESP2 1. The child is the runner's to schedule (the event)."""
+    exe = _stub(tmp_path, _RUN_MAIN)
+    (tmp_path / "transactions.cfg").write_text("GT24\n")
+    out = subprocess.run([str(exe)], env={"GGCICS_DIR": str(tmp_path), "GGCICS_OUT": str(tmp_path)},
+                         capture_output=True, text=True, check=True).stdout  # fmt: skip
+    assert out.split() == ["0/0/GGCHILD000000001", "28/1"]
+    assert (tmp_path / "events.txt").read_text().splitlines() == [
+        "001 RUN pgm= transid=GT24 resp=0 resp2=0",
+        "002 RUN pgm= transid=NONE resp=28 resp2=1",
+    ]
+
+
+@needs_javac
+def test_cics_task_run_transid_as_the_stubs_and_a_childs_retrieve_is_refused(tmp_path):
+    """#4270 slice 2: CicsTask.runTransid as the stub's GGCRUNT; a RETRIEVE in a RUN child is refused (undocumented)."""
+    out = _cics_task(
+        tmp_path,
+        """
+        CicsTask t = new CicsTask("GT21", "ENTER", null, null).withPrograms(new CicsTask.Programs() {
+            public boolean defined(String p) {
+                return true;
+            }
+
+            public boolean transaction(String tr) {
+                return tr.equals("GT24");
+            }
+
+            public void run(String p, CicsTask s) {
+            }
+        });
+        CicsTask.RunResult r1 = t.runTransid("GT24");
+        CicsTask.RunResult r2 = t.runTransid("NONE");
+        System.out.println(r1.resp() + "/" + r1.resp2() + "/" + r1.child() + " " + r2.resp() + "/" + r2.resp2() + "/"
+                + r2.child());
+        System.out.println(new java.util.TreeMap<>(t.events().get(1)));
+        try {
+            new CicsTask("GT24", null, null, null).withRunChild(true).retrieve(4);
+        } catch (UnsupportedOperationException e) {
+            System.out.println("refused");
+        }""",
+    )
+    assert out.splitlines() == ["NORMAL/0/GGCHILD000000001 TRANSIDERR/1/null",
+                                "{event=RUN, resp=TRANSIDERR, resp2=1, transid=NONE}", "refused"]  # fmt: skip

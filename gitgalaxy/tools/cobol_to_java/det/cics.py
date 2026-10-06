@@ -171,6 +171,8 @@ OPTIONS: dict[str, frozenset | None] = {
     | _RESP,
     "RETRIEVE": frozenset({"INTO", "LENGTH", "FLENGTH", "RTRANSID", "RTERMID", "QUEUE"}) | _RESP,
     "CANCEL": frozenset({"REQID"}) | _RESP,
+    # #4270 slice 2: RUN TRANSID's child, run by the harness's scheduler once this task has ended (Cics.run_transid)
+    "RUN": frozenset({"TRANSID", "CHILD"}) | _RESP,
 }
 
 # #4270: why an option of a modelled command is refused, where "option not modelled" alone would not say
@@ -233,6 +235,8 @@ def check_options(words: list[str], opts: dict) -> None:
             why = "RETURN CHANNEL: the next task's channel is not modelled (no corpus program uses it)"
         if key == "START" and "CHANNEL" in bad:  # #4270 slice 2
             why = "START CHANNEL: a started task's channel is not modelled (no corpus program uses it)"
+        if key == "RUN" and "CHANNEL" in bad:
+            why = "RUN CHANNEL: the child task's copy of the channel is not modelled (#4270: a later slice)"
         if key == "CANCEL":
             why = "CANCEL of a TRANSID / an activity: only CANCEL REQID is modelled"
         raise CicsError(f"{key} {' '.join(bad)}: option not modelled" + (f" ({why})" if why else ""))
@@ -750,6 +754,12 @@ class Cics:
         if key == "MOVE CONTAINER" or words[:1] in (["STARTBROWSE"], ["GETNEXT"], ["ENDBROWSE"]):
             # #4270: no non-burned corpus program MOVEs a container; one browses (with GETMAIN / SOAPFAULT beside)
             raise CicsError(f"EXEC CICS {key} not modelled (#4270: container MOVE / browse, a later slice)")
+        if verb == "RUN":  # #4270 slice 2
+            return self.run_transid(opts, ind)
+        if words[:1] == ["FETCH"] or verb == "FREE CHILD":
+            raise CicsError(
+                f"EXEC CICS {verb} not modelled (#4270: a parent waiting for its child task, a later slice)"
+            )
         if verb in ("START", "RETRIEVE", "CANCEL"):  # #4270 slice 2: interval control
             return {"START": self.start, "RETRIEVE": self.retrieve, "CANCEL": self.cancel}[verb](opts, ind)
         if verb.split()[0] in ("ENQ", "DEQ", "DELAY"):  # (DELAY FOR SECONDS(n): words DELAY FOR)
@@ -1072,6 +1082,17 @@ class Cics:
             out.append(f"{ind}if ({r}.{o.lower()}() != null) DetCics.putPadded({self.field(_arg(opts[o]))}, "
                        f"{r}.{o.lower()}(), CS);")  # fmt: skip
         return out + self.outcome(opts, f"DetCics.resp({r}.resp())", "0", ind)
+
+    def run_transid(self, opts: dict, ind: str) -> list[str]:
+        """RUN TRANSID CHILD (IBM CICS TS, EXEC CICS RUN TRANSID) on CicsTask.runTransid: the child task runs once this task
+        has ended (the harness's scheduler); CHILD's 16-character area gets the child token on NORMAL; TRANSIDERR
+        RESP2 1 through RESP / HANDLE CONDITION."""
+        if not opts.get("TRANSID") or not opts.get("CHILD"):
+            raise CicsError("RUN without TRANSID / CHILD")
+        r = self.g.tmpname("run")
+        return [f"{ind}CicsTask.RunResult {r} = task.runTransid({self.name(_arg(opts['TRANSID']))});",
+                f"{ind}if ({r}.child() != null) DetCics.putPadded({self.field(_arg(opts['CHILD']))}, {r}.child(), CS);",
+                *self.outcome(opts, f"DetCics.resp({r}.resp())", f"{r}.resp2()", ind)]  # fmt: skip
 
     def cancel(self, opts: dict, ind: str) -> list[str]:
         """CANCEL REQID (IBM CICS TS, EXEC CICS CANCEL) on CicsTask.cancel: NORMAL for a request not yet expired,

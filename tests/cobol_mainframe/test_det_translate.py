@@ -475,6 +475,7 @@ _IBM_OPTIONS = {
     "RTRANSID RTERMID QUEUE REQID NOCHECK PROTECT ATTACH BREXIT CHANNEL",
     "RETRIEVE": "INTO SET LENGTH RTRANSID RTERMID QUEUE WAIT",
     "CANCEL": "ACTIVITY ACQACTIVITY ACQPROCESS REQID SYSID TRANSID",
+    "RUN": "TRANSID CHANNEL CHILD",
 }
 
 
@@ -839,6 +840,7 @@ _RESP_SAMPLES = {
     "PUT CONTAINER": "PUT CONTAINER('C') FROM(REC)", "GET CONTAINER": "GET CONTAINER('C') INTO(REC)",
     "DELETE CONTAINER": "DELETE CONTAINER('C')",
     "START": "START TRANSID('T')", "RETRIEVE": "RETRIEVE INTO(REC)", "CANCEL": "CANCEL REQID('R')",
+    "RUN": "RUN TRANSID('T') CHILD(REC)",
 }  # fmt: skip
 _RESP_ELSEWHERE = {
     "RETURN": "control never comes back from a RETURN (OPTIONS)",
@@ -1133,6 +1135,9 @@ def test_retrieve_moves_the_data_its_length_and_the_values_asked_for():
         ("RETRIEVE LENGTH(LN)", "without INTO"),
         ("CANCEL TRANSID('T')", "only CANCEL REQID"),
         ("CANCEL", "only CANCEL REQID"),
+        ("RUN TRANSID('T') CHILD(REC) CHANNEL(CH)", "copy of the channel"),
+        ("FETCH CHILD(REC) CHANNEL(CH) COMPSTATUS(C)", "waiting for its child task"),
+        ("FETCH ANY(REC)", "waiting for its child task"),
     ],
 )
 def test_what_interval_control_does_not_model_is_refused_by_name(text, why):
@@ -1140,6 +1145,15 @@ def test_what_interval_control_does_not_model_is_refused_by_name(text, why):
     but a REQID are refused with their reason."""
     with pytest.raises(C.CicsError, match=why):
         _ChanCics().command(text, "")
+
+
+def test_run_transid_puts_the_child_token_and_takes_its_outcome():
+    """#4270 slice 2, IBM RUN TRANSID: CHILD's area gets the child token on NORMAL; TRANSIDERR's RESP2 through the
+    outcome."""
+    out = _ChanCics().command("RUN TRANSID('GT24') CHILD(REC) RESP(R) RESP2(R2)", "")
+    assert out == ["CicsTask.RunResult run1 = task.runTransid('GT24'.strip());",
+                   "if (run1.child() != null) DetCics.putPadded(f_REC, run1.child(), CS);",
+                   "OUTCOME(DetCics.resp(run1.resp()), run1.resp2());"]  # fmt: skip
 
 
 def test_the_interval_conditions_are_known_by_resp():

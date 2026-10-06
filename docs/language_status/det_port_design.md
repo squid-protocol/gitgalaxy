@@ -361,6 +361,13 @@ Only generator output, never a test case:
   byte for byte, CONTAINERERR / CHANNELERR / LENGERR / INVREQ with IBM's RESP2 through `condition()` (AEZJ / AEZV by
   default). Code-page conversion, SET, BYTEOFFSET, RETURN CHANNEL, MOVE and the container browse are refused by name
   (register X17). Proven through cics-crucible ca-channel-containers (2) on the cobol-stub side and the det port.
+- #4270 slice 2: interval control was refused whole -- START / RETRIEVE / RUN / FETCH in 10 census programs (3 outside
+  the burned estates, all RUN / FETCH). `START` (INTERVAL / TIME / AFTER / AT, TERMID, REQID, PROTECT, FROM / LENGTH,
+  RTRANSID / RTERMID / QUEUE), `RETRIEVE` (INTO / LENGTH, the data options), `CANCEL REQID` and `RUN TRANSID CHILD` now
+  run on CicsTask (`startRequest`, `retrieve`, `cancel`, `runTransid`) and the stub (GGCSTRT / GGCRTRV / GGCCNCL /
+  GGCRUNT), with INVREQ RESP2 4 / 5 / 6, IOERR, ENDDATA and ENVDEFERR through `condition()`; the det port sets EIBTRMID.
+  FETCH, RUN / START CHANNEL and RETRIEVE SET / WAIT are refused by name (register X18). Proven through cics-crucible
+  gt-start-retrieve (6), gt-terminal-coalesce (4) and gt-start-options (7) on the cobol-stub side and the det port.
 - #4463: four det ports stopped proving on 2026-10-04 and no CI ran the det sweep. carddemo-menu: a #4049 scenario
   sent option 99, which COMEN01C still uses as a subscript of its 12-entry table, 4K past the record (X8: the det
   port stops; the case now sends 12). mortgage-cmort / mlist / nbrvl: #4245 read every program of EPSCSMRD's

@@ -2009,7 +2009,7 @@ int GGCSTRT(gg_cics *c, char *from) {
     snprintf(ev, sizeof ev, "START transid=%s termid=%s %s=%s reqid=%s protect=%d resp=%d resp2=%d expires=%s len=%d "
              "area=%d%s", transid, termid, is_time ? "time" : "interval", hhmm, reqid, protect, c->resp,
              c->resp == INVREQ ? resp2 : 0, expires, len, has, named);
-    event(ev, has ? from : NULL, has && c->resp == NORMAL ? len : 0);
+    event(ev, has ? from : NULL, has && len > 0 && len <= 32763 ? len : 0);  /* FROM as given, whatever the outcome */
     return 0;
 }
 
@@ -2050,6 +2050,7 @@ int GGCRTRV(gg_cics *c, char *into) {
     want_tran = flag_word(flags, "RTRANSID");
     want_term = flag_word(flags, "RTERMID");
     want_queue = flag_word(flags, "QUEUE");
+    if (getenv("GGCICS_RUNCHILD")) refuse("RETRIEVE in a RUN TRANSID child task: not documented");
     if (envdeferr) refuse("RETRIEVE after ENVDEFERR: whether the record is still there is not documented");
     snprintf(path, sizeof path, "%s/retrieve_%03d.bin", dir_in(), retrieved + 1);
     c->resp2 = 0;
@@ -2121,6 +2122,30 @@ int GGCRTRV(gg_cics *c, char *into) {
     if (c->resp != NORMAL && c->resp != LENGERR) n = -1;
     snprintf(ev, sizeof ev, "RETRIEVE resp=%d len=%d copied=%d into=%d%s", c->resp, n, copied, want_into, named);
     event(ev, into, copied);
+    return 0;
+}
+
+/* #4270 slice 2: RUN TRANSID(name1) CHILD(child) (IBM, EXEC CICS RUN TRANSID): it "starts a task on the local
+ * system ... The started task (child task) runs asynchronously with the starting task", and CICS places "the child
+ * token that represents the child task" in CHILD's 16-character area. TRANSIDERR RESP2 1 for a transaction the CSD
+ * does not define. The event is the runner's: its scheduler runs the child as a non-terminal task once this task has
+ * ended. The token's bytes are the harness's own (IBM does not document them), as CicsTask.runTransid makes them. */
+static int nchildren = 0;
+
+int GGCRUNT(gg_cics *c, char *child) {
+    char transid[9], ev[96], token[17];
+    trim(c->name1, 8, transid);
+    c->resp = NORMAL;
+    c->resp2 = 0;
+    if (!listed("transactions.cfg", transid)) {
+        c->resp = TRANSIDERR;
+        c->resp2 = 1;
+    } else {
+        snprintf(token, sizeof token, "GGCHILD%09d", ++nchildren);
+        memcpy(child, token, 16);
+    }
+    snprintf(ev, sizeof ev, "RUN transid=%s resp=%d resp2=%d", transid, c->resp, c->resp2);
+    event(ev, NULL, 0);
     return 0;
 }
 

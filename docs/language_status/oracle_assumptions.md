@@ -93,6 +93,7 @@ verdict, but it limits what the proof says about inputs outside the scenarios.
 | X15 | CICS | Terminal RECEIVE (INTO / SET, LENGTH, MAXLENGTH, NOTRUNCATE; LENGERR, EOC on an LUTYPE2 terminal) and SEND CONTROL | ASSUMED (REFUSED where IBM is silent) | yes (cics-crucible hc-terminal-receive, hc-terminal-eoc) |
 | X16 | CICS | HANDLE AID, IGNORE CONDITION, PUSH / POP HANDLE and HANDLE CONDITION ERROR on the det port | MATCHED (REFUSED where IBM is silent) | yes (cics-crucible hc-handle-aid, hc-ignore-error, hc-eoc-error) |
 | X17 | CICS | Channels and containers: PUT / GET / DELETE CONTAINER, LINK / XCTL CHANNEL, ASSIGN CHANNEL; bytes never converted; CCSID options, SET, BYTEOFFSET, RETURN CHANNEL, MOVE and browse refused | ASSUMED (REFUSED where IBM is silent) | yes (cics-crucible ca-channel-containers, unreleased) |
+| X18 | CICS | Interval control on the det port: START (INTERVAL / TIME / AFTER / AT, TERMID, REQID, PROTECT, FROM, RTRANSID / RTERMID / QUEUE), RETRIEVE (INTO / LENGTH, the data options, ENVDEFERR), CANCEL REQID, RUN TRANSID CHILD; TIME RESP2 and the order of out-of-range checks assumed; FETCH, RUN / START CHANNEL, RETRIEVE SET / WAIT refused | ASSUMED (REFUSED where IBM is silent) | yes (cics-crucible gt-start-retrieve, gt-terminal-coalesce, gt-start-options, unreleased) |
 | L1 | LE | CEEDAYS: documented pictures only | MATCHED / REFUSED | yes |
 | L2 | LE | CEE3ABD abend codes | MATCHED | yes |
 | L3 | LE | WORKING-STORAGE with no VALUE clause: GnuCOBOL's spaces vs LE's STORAGE option on z/OS | ASSUMED | yes (CardDemo READACCT OUTFILE, 2 bytes) |
@@ -648,6 +649,41 @@ The length READQ TS returns on ITEMERR or QIDERR is not documented, so it is not
   current channel, truncation and LENGERR, NODATA, CONTAINERERR / CHANNELERR / INVREQ by RESP and by HANDLE
   CONDITION, AEZJ by default), cobol-stub and the det port both passing the hand-written logs (crucible branch
   `cases/channel-containers`, not yet released or pinned).
+
+### X18. Interval control: START / RETRIEVE / CANCEL / RUN TRANSID — ASSUMED, REFUSED where IBM is silent (#4270 slice 2)
+- **What IBM documents** (CICS TS, EXEC CICS START, RETRIEVE, CANCEL, RUN TRANSID, "Expiration times"). START: INTERVAL
+  "the expiration time as an interval of time that is to elapse from the time at which the START command is issued"
+  ("The mm and ss are each in the range 0 - 59"); TIME / AT a time of day, "If you specify a time with an hours
+  component that is greater than 23, you are specifying a time on a day following the current one", and "If you
+  specify a task to start at any time within the previous six hours, it starts immediately"; AFTER / AT as "A
+  combination of at least two of HOURS(0 - 99), MINUTES(0 - 59), and SECONDS(0 - 59)" or "one of HOURS(0 - 99),
+  MINUTES(0 - 5999), or SECONDS(0 - 359999)"; INVREQ RESP2 4 / 5 / 6 for HOURS / hh, MINUTES / mm, SECONDS / ss out of
+  range; LENGERR "if LENGTH is not greater than zero"; TRANSIDERR, TERMIDERR; IOERR when "A START operation uses a
+  REQID name that exists. This condition occurs only when the FROM option is also used". RETRIEVE: the data and the
+  RTRANSID / RTERMID / QUEUE values, LENGERR with "the data area is set to the original length of the data", ENDDATA
+  (also for a START "that did not specify any of the data options FROM, RTRANSID, RTERMID, or QUEUE"), ENVDEFERR when
+  "a RETRIEVE command specifies an option not specified by the corresponding START command"; "Tasks without
+  terminals access only a single data record". RUN TRANSID: a child task that "runs asynchronously with the starting
+  task", its token in CHILD's 16-character area, TRANSIDERR RESP2 1. Both sides model it: `ggcics.c` GGCSTRT /
+  GGCRTRV / GGCCNCL / GGCRUNT and CicsTask startRequest / retrieve / cancel / runTransid; the det translator ports the
+  commands onto CicsTask (`Cics.start`, `retrieve`, `cancel`, `run_transid`) and sets EIBTRMID from the task.
+- **Assumed.** A TIME whose mm / ss is out of range is INVREQ with RESP2 5 / 6, as INTERVAL's (IBM names RESP2 for
+  INTERVAL / AFTER / AT only); several values out of range on one START report the first of hours, minutes, seconds;
+  the RTRANSID / RTERMID / QUEUE values come back on LENGERR too; a RUN child runs once its parent has ended (a parent
+  that never FETCHes it cannot tell, SPEC 4); the child token's bytes are the harness's own, the same on both sides.
+  A START's FROM bytes travel in the region's page, as a TS item's (#4528).
+- **Refused by name** (`CicsError` / `Unsupported` at translation, exit 98 / UnsupportedOperationException at run
+  time): FETCH CHILD / ANY and FREE CHILD (a parent waiting for its child: a later #4270 slice); RUN / START CHANNEL
+  (the child's copy of a channel); START USERID / SYSID / NOCHECK / ATTACH / BREXIT / FMH; RETRIEVE SET (a pointer)
+  and WAIT; CANCEL of anything but a REQID. At run time: a START LENGTH past FROM's end (X6); a REQID that exists
+  other than this task's own with FROM, reused with FROM; RETRIEVE INTO for a record whose START gave no FROM
+  (whether that is ENVDEFERR); any RETRIEVE after ENVDEFERR (whether the record was used up); a RETRIEVE in a RUN
+  child. The default abend codes of TRANSIDERR / TERMIDERR / IOERR / ENVDEFERR are not modelled: a program reaching
+  one unhandled stops.
+- **Reached.** cics-crucible gt-start-retrieve (6) and gt-terminal-coalesce (4) on the det port as on cobol-stub, and
+  gt-start-options (7: data options, ENVDEFERR, RETRIEVE with no INTO, AFTER / AT and TIME(250000), INVREQ RESP2 6 / 5
+  / 6 / 4, REQID IOERR, RUN TRANSID and its TRANSIDERR), cobol-stub and the det port both passing the hand-written
+  logs (crucible branch `cases/start-retrieve-4270`, squid-protocol/cics-crucible#7, not yet released or pinned).
 
 ## Language Environment
 

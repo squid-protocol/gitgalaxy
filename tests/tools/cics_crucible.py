@@ -164,6 +164,7 @@ COBOL_CAPS = cc.Capabilities(
         "START": _START_KEYS,
         "RETRIEVE": _RETRIEVE_KEYS,
         "CANCEL": frozenset({"reqid", "resp"}),
+        "RUN": frozenset({"transid", "resp", "resp2"}),  # #4270
     },
     ts_queues=True,
     start_tasks=True,
@@ -186,6 +187,7 @@ JAVA_CAPS = cc.Capabilities(
         "START": _START_KEYS,
         "RETRIEVE": _RETRIEVE_KEYS,
         "CANCEL": frozenset({"reqid", "resp"}),
+        "RUN": frozenset({"transid", "resp", "resp2"}),  # #4270
     },
     ts_queues=True,
     start_tasks=True,
@@ -759,7 +761,7 @@ class EquivalenceRunTest {
                         }
                     });
                     Map<String, Object> trigger = new LinkedHashMap<>();
-                    trigger.put("kind", "start");
+                    trigger.put("kind", first.getOrDefault("kind", "start"));  // #4270: "run" for a RUN TRANSID child
                     trigger.put("task", first.get("task"));
                     trigger.put("event", first.get("event"));
                     runOne(frame((String) first.get("termid"), trigger, null), (String) first.get("transid"), null,
@@ -884,7 +886,8 @@ class EquivalenceRunTest {
                         .withTempStorage(ts)
                         .withPrograms(programs).withSnapshot(EquivalenceRunTest.this::snapshot).withClock(now)
                         .withTermid((String) frame.get("termid"))
-                        .withStartData(data).withRequests(unexpired);
+                        .withStartData(data).withRequests(unexpired)
+                        .withRunChild(frame.get("trigger") instanceof Map<?, ?> tr && "run".equals(tr.get("kind")));
                 if (step != null && step.has("text")) {
                     t.withTerminalInput(step.get("text").asText());
                 }
@@ -1090,6 +1093,19 @@ class EquivalenceRunTest {
                     for (String k : List.of("rtransid", "rtermid", "queue")) {  // #4270: START's data options
                         r.put(k, e.get(k));
                     }
+                    r.put("task", tasks.size());
+                    r.put("event", j);
+                    requests.add(r);
+                } else if ("RUN".equals(e.get("event")) && "NORMAL".equals(e.get("resp"))) {
+                    // #4270: a RUN TRANSID child -- attached at once, run once its parent has ended (SPEC 4)
+                    Map<String, Object> r = new LinkedHashMap<>();
+                    r.put("issue", ++issued);
+                    r.put("transid", e.get("transid"));
+                    r.put("termid", null);
+                    r.put("expires", now);
+                    r.put("reqid", null);
+                    r.put("data", null);
+                    r.put("kind", "run");
                     r.put("task", tasks.size());
                     r.put("event", j);
                     requests.add(r);
@@ -1438,6 +1454,8 @@ def java_actual(case: cc.Case, raw: dict[str, Any], src: Path,
                 ev.update({k: e[k] for k in ("rtransid", "rtermid", "queue") if k in e})  # #4270: only those asked for
             elif kind == "CANCEL":
                 ev.update(reqid=e.get("reqid"), resp=e.get("resp"))
+            elif kind == "RUN":  # #4270
+                ev.update({k: e[k] for k in ("transid", "resp", "resp2") if k in e})
             elif kind == "ABEND":  # #4003: cause, condition, outcome and the exit, as CicsTask records them
                 ev.update({k: e[k] for k in ("abcode", "cause", "condition", "outcome", "exit") if k in e})
             else:
@@ -1686,6 +1704,11 @@ def _cobol_events(out: Path, program: str, screens: Optional[dict[str, Screen]] 
             ev.update(_named(args, ("rtransid", "rtermid", "queue")))
         elif verb == "CANCEL":
             ev.update(reqid=arg("reqid"), resp=names.get(int(arg("resp") or 0), arg("resp")))
+        elif verb == "RUN":  # #4270: RUN TRANSID; RESP2 where IBM documents it (not NORMAL)
+            resp = names.get(int(arg("resp") or 0), arg("resp"))
+            ev.update(
+                transid=arg("transid"), resp=resp, **({"resp2": int(arg("resp2") or 0)} if resp != "NORMAL" else {})
+            )
         elif verb == "NOPROGRAM":
             ev = {"event": "DRIVER-ERROR", "program": arg("target"),
                   "message": f"{arg('target')} is not a translated program of the case"}  # fmt: skip
@@ -1868,6 +1891,10 @@ def drive_scenario(case: cc.Case, sc: dict[str, Any], run_one: Any) -> tuple[lis
                                  "data": e["from"].data if e.get("from") is not None else None,
                                  **{k: e.get(k) for k in ("rtransid", "rtermid", "queue")},  # #4270
                                  "task": len(tasks), "event": j})  # fmt: skip
+            elif e["event"] == "RUN" and e.get("resp") == "NORMAL":  # #4270: a RUN TRANSID child, attached at once
+                issued += 1
+                requests.append({"issue": issued, "transid": e["transid"], "termid": None, "expires": at,
+                                 "reqid": None, "data": None, "kind": "run", "task": len(tasks), "event": j})  # fmt: skip
             elif e["event"] == "CANCEL" and e.get("resp") == "NORMAL":
                 r = next((r for r in requests if r["reqid"] == e["reqid"] and r["expires"] > at), None)
                 if r is not None:
@@ -1895,7 +1922,8 @@ def drive_scenario(case: cc.Case, sc: dict[str, Any], run_one: Any) -> tuple[lis
             for r in group:
                 requests.remove(r)
             frame = {"termid": first["termid"], "at": now.strftime("%Y-%m-%dT%H:%M:%S"),
-                     "trigger": {"kind": "start", "task": first["task"], "event": first["event"]}, "eibaid": None}  # fmt: skip
+                     "trigger": {"kind": first.get("kind", "start"), "task": first["task"], "event": first["event"]},
+                     "eibaid": None}  # fmt: skip
             run(frame, first["transid"], None, None, [_record(r) for r in group if _record(r) is not None], now)
             continue
         nxt = min((r["expires"] for r in requests), default=None)
@@ -1992,6 +2020,7 @@ def run_task(case: cc.Case, box: "Container", work: Path, rel: str, ts: str, tra
     box.sh(f"cd /work && {cov.trace_env(f'/work/{rel}/{cov.TRACE_NAME}')}"
            f"GGCICS_DIR=/work/{rel} GGCICS_OUT=/work/{rel}/out EIBIN=/work/{rel}/eib.in "
            f"{'GGCICS_LU2=1 ' if terminal_device(case) == 'LUTYPE2' else ''}"  # #4413: EOC on RECEIVE
+           f"{'GGCICS_RUNCHILD=1 ' if (frame.get('trigger') or {}).get('kind') == 'run' else ''}"  # #4270
            f"GGCICS_TS=/work/{ts} GGCICS_NOW={frame['at']} COB_CURRENT_DATE='{when.strftime('%Y/%m/%d %H:%M:%S')}.00' ./bin/task "
            f"> /work/{rel}/stdout.txt 2>&1")  # fmt: skip
     task["events"] = _cobol_events(d / "out", program, screens)

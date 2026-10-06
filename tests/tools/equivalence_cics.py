@@ -333,6 +333,20 @@ def _ts_command(verb: str, opts: dict[str, str | None], labels: list[str] | None
     return lines + after + _resp(opts, True, labels)
 
 
+def _run_transid(opts: dict[str, str | None], labels: list[str]) -> list[str]:
+    """#4270 slice 2: RUN TRANSID(x) CHILD(area) -> GGCRUNT (the child is an event; the runner's scheduler runs it
+    once this task has ended). CHANNEL (the child's copy of a channel) is refused, as is any option IBM's RUN TRANSID
+    lists beyond TRANSID / CHILD."""
+    bad = [o for o in opts if o not in ("RUN", "TRANSID", "CHILD", "RESP", "RESP2", "NOHANDLE")]
+    if bad or not opts.get("TRANSID") or not opts.get("CHILD"):
+        raise Unsupported(f"RUN {' '.join(bad) or 'without TRANSID / CHILD'}", [f"RUN {o}" for o in bad] or ["RUN"])
+    return (
+        [f"MOVE {opts['TRANSID']} TO GG-NAME1"]
+        + _call("GGCRUNT", [f"BY REFERENCE {opts['CHILD']}"])
+        + _resp(opts, True, labels)
+    )
+
+
 def _interval_command(verb: str, opts: dict[str, str | None], labels: list[str]) -> list[str]:
     """#4006: START -> GGCSTRT (the request is an event; the runner's scheduler dispatches it), RETRIEVE
     -> GGCRTRV (LENGTH in-out, set back on NORMAL / LENGERR), CANCEL REQID -> GGCCNCL. #4270: AFTER / AT HOURS /
@@ -636,6 +650,8 @@ def translate_command(body: str, labels: list[str] | None = None, handle_aid: bo
         return ([name(target, "GG-NAME1"), f"MOVE {1 if area else 0} TO GG-ITEM", "MOVE SPACES TO GG-FLAGS"]
                 + _call("GGCXCTL", args)
                 + ["IF GG-RESP = 0", "    GOBACK", "END-IF"] + _resp(opts, True, labels))  # fmt: skip
+    if verb == "RUN":  # #4270 slice 2: RUN TRANSID CHILD (a channel copy and FETCH: later)
+        return _run_transid(opts, labels)
     if verb in ("START", "RETRIEVE", "CANCEL"):  # #4006: interval control
         return _interval_command(verb, opts, labels)
     if verb == "LINK":  # #4004: a new level runs the program on the caller's own COMMAREA storage

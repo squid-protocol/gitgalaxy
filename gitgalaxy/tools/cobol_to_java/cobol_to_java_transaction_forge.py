@@ -273,6 +273,8 @@ public class CicsTask {
     private List<StartData> retrieveData = List.of();
     private int retrieved;
     private boolean retrieveRefused;                        // #4270: a RETRIEVE raised ENVDEFERR (the root's)
+    private boolean runChild;                               // #4270: a RUN TRANSID child task (the root's)
+    private int children;                                   // #4270: the RUN TRANSID children it attached
     private final java.util.Set<String> ownWithData = new java.util.HashSet<>();  // #4270: own REQIDs with FROM
     private Map<String, LocalDateTime> unexpired = Map.of();
     private final Map<String, LocalDateTime> ownRequests = new HashMap<>();
@@ -822,6 +824,45 @@ public class CicsTask {
         }
     }
 
+    /** #4270: the task is a RUN TRANSID child: IBM documents no RETRIEVE for it (its data comes by channel), so
+     *  one is refused. */
+    public CicsTask withRunChild(boolean child) {
+        this.runChild = child;
+        return this;
+    }
+
+    /** #4270 slice 2: RUN TRANSID(transid) CHILD (IBM CICS TS, EXEC CICS RUN TRANSID): it "starts a task on the
+     *  local system ... The started task (child task) runs asynchronously with the starting task", and CICS places
+     *  "the child token that represents the child task" in CHILD's 16-character area. TRANSIDERR RESP2 1 for a
+     *  transaction not defined. The harness's scheduler runs the child as a non-terminal task once this task has
+     *  ended: a parent that never FETCHes it cannot tell when it ran (SPEC section 4, no ties). The token's bytes are
+     *  the harness's own (IBM does not document them), the same on both sides. */
+    public RunResult runTransid(String transid) {
+        CicsTask task = root();
+        String resp = "NORMAL";
+        int resp2 = 0;
+        String child = null;
+        if (programs != null && !programs.transaction(transid)) {
+            resp = "TRANSIDERR";
+            resp2 = 1;
+        } else {
+            child = String.format(java.util.Locale.ROOT, "GGCHILD%09d", ++task.children);
+        }
+        Map<String, Object> e = new LinkedHashMap<>();
+        e.put("event", "RUN");
+        e.put("transid", transid);
+        e.put("resp", resp);
+        if (resp2 != 0) {
+            e.put("resp2", resp2);
+        }
+        add(e);
+        return new RunResult(resp, resp2, child);
+    }
+
+    /** #4270: a RUN TRANSID's outcome: its condition, RESP2 and the child token (null unless NORMAL). */
+    public record RunResult(String resp, int resp2, String child) {
+    }
+
     /** RETRIEVE INTO LENGTH(maxLength) (#4006, IBM EXEC CICS RETRIEVE): the next data record of the requests
      *  the task was started for, truncated with LENGERR when longer (the length is then the record's own);
      *  ENDDATA when none is left, as for a task no START started. */
@@ -837,6 +878,9 @@ public class CicsTask {
      *  START gave no FROM, and any RETRIEVE after an ENVDEFERR (whether that record was used up). */
     public RetrieveResult retrieve(Integer maxLength, boolean rtransid, boolean rtermid, boolean queue) {
         CicsTask task = root();
+        if (task.runChild) {
+            throw new UnsupportedOperationException("RETRIEVE in a RUN TRANSID child task: not documented");
+        }
         if (task.retrieveRefused) {
             throw new UnsupportedOperationException("RETRIEVE after ENVDEFERR: whether the record is still there is "
                     + "not documented");

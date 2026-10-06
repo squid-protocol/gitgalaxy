@@ -3198,7 +3198,7 @@
     "rust/bevy": {
       "rust/bevy/LICENSE-APACHE": 0,
       "rust/bevy/LICENSE-MIT": 0,
-      "rust/bevy/bevy_ecs_macros.rs": 31,
+      "rust/bevy/bevy_ecs_macros.rs": 32,
       "rust/bevy/bevy_ecs_query.rs": 55,
       "rust/bevy/bevy_ecs_table.rs": 6,
       "rust/bevy/bevy_ecs_world.rs": 151,
@@ -3230,7 +3230,7 @@
       "rust/serde/serde_derive_de.rs": 42,
       "rust/serde/serde_internals_ast.rs": 7,
       "rust/serde/serde_internals_attr.rs": 21,
-      "rust/serde/test_annotations.rs": 28
+      "rust/serde/test_annotations.rs": 30
     },
     "rust/syn": {
       "rust/syn/LICENSE-APACHE": 0,

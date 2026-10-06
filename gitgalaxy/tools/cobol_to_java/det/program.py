@@ -466,12 +466,14 @@ def _translate(program: Path, copy_dirs: list[Path], stub: str, package: str, es
         gen.lifted = liftable(records, excluded | {"GG-SORT-RETURN"}, rc)
     gen.alphabets, gen.program_collating = alphabets(lines)
     gen.copy_dirs = [program.parent, *copy_dirs, C.COPY]
+    gen.engine = engine
     gen.java_root = (project / "src/main/java") if project is not None else None
     gen.clock = "clock.currentDate()" if batch else "Funcs.currentDate(java.time.LocalDateTime.now())"
     if is_cics:
         if project is None:
             raise ValueError("a CICS program needs the generated project")
         gen.cics = C.Cics(gen, C.Generated(project, stub), package)
+        gen.cics.region = C.region_page(engine.page(program) if engine is not None else None)  # #4528
         # #4414: HANDLE AID / PUSH HANDLE anywhere in the program, before its input commands are translated
         execs = [s.text for p in proc.paragraphs for s in S.walk(p.body) if s.kind == "EXEC"]
         gen.cics.handle_aid = any(re.match(r"(?is)\s*EXEC\s+CICS\s+HANDLE\s+AID\b", t) for t in execs)
@@ -1134,6 +1136,8 @@ def _cics_parts(gen: G.Gen, records: list, roots: dict, proc: S.Procedure,
     store_cases = [f'            case "{n}" -> {e};' for n, e in cx.stores.items()]
     members = [
         "    private CicsTask task;",
+        # #4528: the region's code page, which TS items are in (only in a program that issues a TS command)
+        *([f'    private static final Charset REGION = DetCics.region("{cx.region}");'] if cx.region_used else []),
         # HANDLE CONDITION labels; -1: IGNORE CONDITION (#4414)
         "    private final java.util.Map<String, Integer> handlers = new java.util.HashMap<>();",
         # #4414: HANDLE AID labels, and PUSH HANDLE's saved states -- only in a program that issues them

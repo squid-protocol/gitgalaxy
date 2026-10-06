@@ -7,7 +7,7 @@
   "paths": [
    "tests/equivalence/carddemo-acctview/port/service/CoactvwcService.java"
   ],
-  "sha256": "c87f9fe91e4cb800958b84e024068dcb9bdd39139e6a293a19bbf35a74430b82",
+  "sha256": "27850a55de9e241e7fa2cf55c8187fdf9005a3f4291fc841413c24a13e86f6f6",
   "entry_points": [
    "handleTransaction",
    "runTask"
@@ -19,7 +19,7 @@
     "tests/equivalence/carddemo-acctview/port/**"
    ],
    "files": 1,
-   "sha256": "c87f9fe91e4cb800958b84e024068dcb9bdd39139e6a293a19bbf35a74430b82"
+   "sha256": "27850a55de9e241e7fa2cf55c8187fdf9005a3f4291fc841413c24a13e86f6f6"
   },
   "case": {
    "paths": [
@@ -43,7 +43,7 @@
     "tests/tools/java_target_matrix.py"
    ],
    "files": 11,
-   "sha256": "304049dfdcedf444507b3d008cb8a9e020ba663f927b0d53954ff5c7ef95f7ea"
+   "sha256": "67d72ccabb13fb58b3f62d89103fdd814ac98de4040a9d2ec6c5992b1135e934"
   },
   "oracle": {
    "paths": [
@@ -63,7 +63,7 @@
     "gitgalaxy/tools/cobol_to_java/**"
    ],
    "files": 60,
-   "sha256": "6eab156270c21ef910bcf2883406275e52c707d5fd6bdbb7518744dc30ddaa48"
+   "sha256": "f9b723c382e04184a2be64c29b2c916bfd46786b4146c5e4b7a25129ce27ee65"
   },
   "corpus": {
    "name": "aws-mainframe-modernization-carddemo",
@@ -73,10 +73,10 @@
   "differences": {
    "sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
   },
-  "digest": "2d3f6f6d82e2015104444c93ba83c32a8c515302ec0e6f20d19d1462be7efe32"
+  "digest": "d1625868a3858464f6f62d2e1528897118f8a054d29b59d90a128029d09e30d4"
  },
  "proof": {
-  "at": "2026-10-06T10:20:23Z",
+  "at": "2026-10-06T14:45:30Z",
   "verdict": "proven",
   "runs": 20,
   "fault_runs": 6,
@@ -177,8 +177,8 @@
    "failed": [],
    "error": null
   },
-  "harness_commit": "ca529169609d6e48c2124510473d4539ea576c8e",
-  "inputs_digest": "2d3f6f6d82e2015104444c93ba83c32a8c515302ec0e6f20d19d1462be7efe32"
+  "harness_commit": "a8d9c220ff2464374724a076549469a9b6d2207f+uncommitted",
+  "inputs_digest": "d1625868a3858464f6f62d2e1528897118f8a054d29b59d90a128029d09e30d4"
  },
  "coverage": {
   "paragraphs": {
@@ -274,7 +274,7 @@
    "total": 1
   },
   "source": "the proof's own traced COBOL runs (cobol_coverage.py)",
-  "inputs_digest": "2d3f6f6d82e2015104444c93ba83c32a8c515302ec0e6f20d19d1462be7efe32"
+  "inputs_digest": "d1625868a3858464f6f62d2e1528897118f8a054d29b59d90a128029d09e30d4"
  },
  "reach": {
   "entry_points": [
@@ -285,19 +285,19 @@
    {
     "class": "CoactvwcService",
     "method": "handleLink",
-    "line": 408,
+    "line": 452,
     "kind": "left_as_generated"
    },
    {
     "class": "CoactvwcService",
     "method": "onAbendL264",
-    "line": 445,
+    "line": 489,
     "kind": "stub"
    },
    {
     "class": "CoactvwcService",
     "method": "abendLegacy9999L934",
-    "line": 455,
+    "line": 499,
     "kind": "left_as_generated"
    }
   ],
@@ -307,7 +307,7 @@
    "ported_unproven": 0
   },
   "generated_compared": true,
-  "port_sha256": "c87f9fe91e4cb800958b84e024068dcb9bdd39139e6a293a19bbf35a74430b82"
+  "port_sha256": "27850a55de9e241e7fa2cf55c8187fdf9005a3f4291fc841413c24a13e86f6f6"
  },
  "mutation": {
   "commit": "9c21df6c3",
@@ -329,7 +329,23 @@
   "score_raw": "105/129",
   "score_adjusted": "105/113",
   "source": "docs/language_status/mutation_scores.json#carddemo-acctview/COACTVWC",
-  "inputs": null
+  "inputs": {
+   "port": {
+    "sha256": "c1734f35fe73bed715f2381de3e27b2d743e24d988cf1c43f882bacf8d1edc4e"
+   },
+   "case": {
+    "sha256": "148af5f69abed6acc72e8cd672a301fd075be981f27b382789fbe3c9da821e48"
+   },
+   "corpus": {
+    "sha256": "d0c4803872ec126eb56a170212f76207beff5ab8c2b6507dd6df4a084cdeb919"
+   },
+   "harness": {
+    "sha256": "1764f900744b3e9c121722acf2c84aee1ef8dded04fa68f429e0abc39f031fd9"
+   },
+   "oracle": {
+    "sha256": "b1be686cf96bbdce71bd0b5dc4245252f64020d97a5094cee850165bf093d250"
+   }
+  }
  },
  "differences": [],
  "oracle": {
@@ -340,7 +356,7 @@
   "compiler_options": null,
   "image": {
    "name": "gitgalaxy-gnucobol:3",
-   "id": "sha256:d81f386912111e825d75a5f9856f571118ca4586049923555526cf7419454be3",
+   "id": "sha256:d7e387df360c519ce8945a1f6d748c8dafab06f50551b23ddf85d6373a4dcd6e",
    "base": "debian:bookworm-slim@sha256:3783cc01769c7b2b1b83a5c5ad96c815348e28ed7da68e2e3687004faa906251",
    "matches_pin": true,
    "mismatches": []
@@ -416,7 +432,7 @@
  "provenance": {
   "written_by": "person",
   "author": "Joe Esquibel",
-  "first_commit": "d40084d8",
+  "first_commit": "d40084d8c",
   "first_committed": "2026-09-26",
   "model": null,
   "provenance_file": null,

@@ -451,6 +451,25 @@ public final class Cobol {
         return false;
     }
 
+    /** A Db2 value assigned to a host variable (#4579): as {@link #storeChecked}, but a binary host variable (COMP,
+     *  COMP-4, BINARY, COMP-5) takes any value its 2 / 4 / 8 bytes hold whatever TRUNC says -- the PICTURE's digits do
+     *  not limit it. Db2 for z/OS declares the host variable by its data type (the precompiler maps S9(4) COMP to
+     *  SMALLINT, S9(9) COMP to INTEGER, S9(18) COMP to BIGINT) and raises SQLCODE -304 only for a value outside that
+     *  type (IBM Db2 for z/OS SQL Reference, "Assignments and comparisons": numeric assignment, SQLSTATE 22003); the
+     *  COBOL side's num_store (tests/equivalence/db2/ggsql.c) does the same. A true return means -304. */
+    public static boolean storeHostChecked(Field to, BigDecimal value, boolean rounded, Charset cs) {
+        if (to.kind != Field.Kind.NUMERIC_BINARY) {
+            return storeChecked(to, value, rounded, cs);
+        }
+        boolean before = Codec.truncBinary;
+        Codec.truncBinary = false;  // the byte-width range for the check and the store; the caller's TRUNC restored
+        try {
+            return storeChecked(to, value, rounded, cs);
+        } finally {
+            Codec.truncBinary = before;
+        }
+    }
+
     // ---------------------------------------------------------------------------------------------- compare
 
     private static int cmpBytes(byte[] a, byte[] b, Charset cs) {

@@ -84,6 +84,7 @@ from __future__ import annotations
 import argparse
 import codecs
 import json
+import os
 import re
 import shutil
 import subprocess
@@ -119,6 +120,7 @@ from equivalence_common import (
     reuse,
     reused,
     run_cobol_step,
+    step_reused,
 )
 
 
@@ -299,7 +301,7 @@ def run_cobol(
         elif spec.get("compare"):
             script.append(f"[ ! -e /work/{dd}.idx ] || cp /work/{dd}.idx /work/{dd}.out")
     (work / "run.sh").write_text("\n".join(script) + "\n", encoding="ascii")
-    if db2 and reused(work) is None:
+    if db2 and not step_reused(work):
         equivalence_db2.reset(case, corpus)
     proc = (run_cobol_step(work, equivalence_db2.COBOL_IMAGE, tuple(equivalence_db2.cobol_docker_args(case))) if db2
             else run_cobol_step(work))  # fmt: skip
@@ -351,7 +353,16 @@ def cobol_coverage(case: dict[str, Any], corpus: Path, traces: list[Path], out: 
                                   copybooks=corpus, encoding=staged)  # fmt: skip
 
 
+PREBUILT_ENV = "GITGALAXY_ORACLE_PREBUILT"
+
+
 def build_image() -> None:
+    """Build the oracle image -- unless CI says it loaded it from its cache (GITGALAXY_ORACLE_PREBUILT=1) and it is
+    there: the fingerprint check (equivalence_oracle.py --strict) is what vouches it is the pinned oracle."""
+    if os.environ.get(PREBUILT_ENV) == "1" and subprocess.run(
+        ["docker", "image", "inspect", IMAGE], capture_output=True, check=False  # noqa: S603, S607
+    ).returncode == 0:  # fmt: skip
+        return
     subprocess.run(
         ["docker", "build", "-q", "-t", IMAGE, "-f", str(CASES / "gnucobol.Dockerfile"), str(CASES)],
         check=True, capture_output=True,
@@ -696,9 +707,11 @@ def main() -> int:
                         or args.cobol_only or args.faults not in (None, "all") or args.environments
                         or args.sql_faults != "auto" or args.source_encoding or args.data_encoding
                         or args.no_facades):  # fmt: skip
-        raise SystemExit("--record proves the committed port on the committed case as it is: drop --port / "
-                         "--case-file / --reuse / --first-difference / --generated-only / --cobol-only / --no-facades "
-                         "and the overrides")
+        raise SystemExit(
+            "--record proves the committed port on the committed case as it is: drop --port / "
+            "--case-file / --reuse / --first-difference / --generated-only / --cobol-only / --no-facades "
+            "and the overrides"
+        )
     case = load_case(args.case, args.case_file)
     for key in ("source_encoding", "data_encoding"):  # #3815: the CLI overrides the case
         if getattr(args, key):
@@ -785,8 +798,10 @@ def main() -> int:
     faults_made = [f for f in faults if f"fault:{f['name']}" in runs]  # are not made
     entries_made = [e for e in entries if f"entry:{e}" in runs]
     if len(made) < len(envs) or len(faults_made) < len(faults) or len(entries_made) < len(entries):
-        report["stopped"] = (f"at the first difference: {len(made) + len(faults_made) + len(entries_made)} of "
-                             f"{len(envs) + len(faults) + len(entries)} runs")
+        report["stopped"] = (
+            f"at the first difference: {len(made) + len(faults_made) + len(entries_made)} of "
+            f"{len(envs) + len(faults) + len(entries)} runs"
+        )
     for i, env in enumerate(made):
         run = compare_run(case, corpus, cobol, runs[env["name"]])
         if i == 0:  # the first environment's outputs are the report's, as before #3821

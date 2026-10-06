@@ -55,6 +55,7 @@ _RESP = frozenset({"RESP", "RESP2", "NOHANDLE"})
 _FILE = frozenset({"DATASET", "FILE", "RBA", "RRN", "XRBA"})  # (RBA / RRN / XRBA: refused or browsed in Cics._rba)
 _FORMS = ("YYYYMMDD", "MMDDYYYY", "DDMMYYYY", "YYMMDD", "MMDDYY", "DDMMYY")
 _TS = frozenset({"TS", "QUEUE", "QNAME", "LENGTH", "ITEM", "NUMITEMS"})
+_SEND_CONTROL = frozenset({"ERASE", "ERASEAUP", "FREEKB", "ALARM", "CURSOR", "FRSET"})  # #4413: its device controls
 OPTIONS: dict[str, frozenset | None] = {
     # one task in the region: ENQ / DEQ never wait; a task takes no time, a DELAY included
     "ENQ": frozenset({"RESOURCE", "LENGTH", "NOSUSPEND", "TASK", "UOW", "MAXLIFETIME"}) | _RESP,
@@ -67,7 +68,7 @@ OPTIONS: dict[str, frozenset | None] = {
     # #4413: terminal control. SEND CONTROL's device controls (IBM's minimum-BMS options; PRINT, FORMFEED, ALTERNATE /
     # DEFAULT and the partition / LDC / ACCUM / PAGING ones are refused); RECEIVE of unformatted terminal input
     # (ASIS / BUFFER and the APPC / LU6.1 options refused)
-    "SEND CONTROL": frozenset({"ERASE", "ERASEAUP", "FREEKB", "ALARM", "CURSOR", "FRSET"}) | _RESP,
+    "SEND CONTROL": _SEND_CONTROL | _RESP,
     "RECEIVE": frozenset({"INTO", "SET", "LENGTH", "FLENGTH", "MAXLENGTH", "MAXFLENGTH", "NOTRUNCATE"}) | _RESP,
     "LINK": frozenset({"PROGRAM", "COMMAREA", "LENGTH"}) | _RESP,
     # control never comes back from a RETURN, so a RESP area it does not write is never read after it
@@ -763,7 +764,7 @@ class Cics:
             if not opts["CURSOR"]:
                 raise CicsError("SEND CONTROL CURSOR without a value: not modelled")
             cursor = self.int_(opts["CURSOR"])
-        flags = [o for o in OPTIONS["SEND CONTROL"] if o in opts and o not in _RESP]  # (sorted by the runtime)
+        flags = [o for o in _SEND_CONTROL if o in opts]  # (sorted by the runtime)
         return [f"{ind}task.sendControl({cursor}{''.join(', ' + G_jstr(x) for x in sorted(flags))});",
                 *self.outcome(opts, "0", "0", ind)]  # fmt: skip
 
@@ -803,7 +804,7 @@ class Cics:
         r = g.tmpname("received")
         out = [f"{ind}CicsTask.Received {r} = task.receive({limit}, {str('NOTRUNCATE' in opts).lower()});",
                f"{ind}DetCics.{put}({target}, {r}.data(), CS);"]  # fmt: skip
-        if settable:
+        if settable and length is not None:
             out.append(ind + g.store_into(self.ref(length), f"BigDecimal.valueOf({r}.length())", False))
         return out + self.outcome(opts, f"DetCics.resp({r}.resp())", "0", ind)
 

@@ -79,8 +79,15 @@ RESOLUTION RULES (the language's, never the engine's)
               or spec/ directory, or the repo root).
   rust        `mod a;` -> a.rs or a/mod.rs beside a mod.rs or crate root (lib/main/
               build.rs, a file in tests/, examples/, benches/ or src/bin/), else in
-              the file's own stem directory. A `#[path = "..."]` override is not
-              read (such a `mod` is left unscored). `use` paths are not scored.
+              the file's own stem directory; `#[path = "p"] mod a;` -> p beside the
+              file. `use` paths (#4544), from the use tree: `crate::`/`self::`/`super::`
+              (inline `mod x { }` blocks counted) or a child module, else a crate --
+              a Cargo.toml path dependency, a `[workspace.dependencies]` one, or any
+              package's lib name -- else external; Rust 2015 (no `edition`) is
+              crate-relative. A path is the deepest module that is a file
+              (a/b.rs, a/b/mod.rs under the crate dir), plus, for an item below it,
+              what that module's own `use`s of the name and globs mean (re-exports,
+              two hops). `extern crate x` -> x's lib root.
   perl        `use A::B` / `require A::B` -> a file ending in A/B.pm.
   objective-c the C rule (`#import` is `#include` once); `@import Module;` is a
               framework module, external.
@@ -622,6 +629,277 @@ def ruby_imports(src: bytes, rel: str, group: Group) -> list[set[str]]:
     return out
 
 
+# ----- rust (#4544): `mod`, `#[path]`, `use` and `extern crate`, by the module tree + Cargo.toml
+_CARGO_SECTION = re.compile(r"^\s*\[\[?\s*([^\]]+?)\s*\]\]?\s*$")
+_CARGO_STR = re.compile(r'^\s*([A-Za-z0-9_\-]+)\s*=\s*"([^"]*)"')
+_CARGO_DEP_PATH = re.compile(r'^\s*([A-Za-z0-9_\-]+)\s*=\s*\{[^}]*\bpath\s*=\s*"([^"]*)"')
+_CARGO_DEP_WS = re.compile(r"^\s*([A-Za-z0-9_\-]+)(?:\.workspace\s*=\s*true|\s*=\s*\{[^}]*\bworkspace\s*=\s*true)")
+_RUST_ROOT_DIRS = ("tests", "examples", "benches")
+
+
+def _cargo(group: Group, d: str) -> Optional[dict[str, Any]]:
+    """The Cargo.toml in group directory `d` (from disk: a scan does not record it), or None:
+    {package, edition, lib, deps: {name: dir}, ws_deps: {name: dir}, ws_inherit: {names}}."""
+    cache = group._cache.setdefault("cargo", {})
+    if d in cache:
+        return cache[d]
+    out: Optional[dict[str, Any]] = None
+    path = (group.root / d / "Cargo.toml") if group.root is not None else None
+    if path is not None and path.is_file():
+        out = {"package": None, "edition": False, "lib": "src/lib.rs", "deps": {}, "ws_deps": {}, "inherit": set()}
+        section = ""
+        try:
+            text = read_source(path).text
+        except OSError:
+            text = ""
+        for line in text.splitlines():
+            m = _CARGO_SECTION.match(line)
+            if m:
+                section = m.group(1).strip()
+                continue
+            kv = _CARGO_STR.match(line)
+            if section == "package" and kv and kv.group(1) == "name":
+                out["package"] = kv.group(2)
+            if section == "package" and line.strip().startswith("edition"):
+                out["edition"] = True
+            if section == "lib" and kv and kv.group(1) in ("name", "path"):
+                out["lib_" + kv.group(1)] = kv.group(2)
+            dep = _CARGO_DEP_PATH.match(line)
+            if dep and section.endswith("dependencies"):
+                rel = posixpath.normpath(posixpath.join(d, dep.group(2)))
+                (out["ws_deps"] if section == "workspace.dependencies" else out["deps"])[
+                    dep.group(1).replace("-", "_")
+                ] = rel
+            ws = _CARGO_DEP_WS.match(line)
+            if ws and section.endswith("dependencies") and section != "workspace.dependencies":
+                out["inherit"].add(ws.group(1).replace("-", "_"))
+        out["lib"] = out.get("lib_path", out["lib"])
+        out["name"] = (out.get("lib_name") or out["package"] or "").replace("-", "_")
+    cache[d] = out
+    return out
+
+
+def _rust_package(group: Group, d: str) -> Optional[str]:
+    """The directory of the nearest Cargo.toml with a [package] at or above `d`."""
+    while True:
+        c = _cargo(group, d)
+        if c is not None and c["package"] is not None:
+            return d
+        if not d:
+            return None
+        d = posixpath.dirname(d)
+
+
+def _rust_crate(rel: str, group: Group) -> tuple[str, Optional[str]]:
+    """(crate directory, crate root file) of file `rel`, by Cargo's target layout."""
+    d = posixpath.dirname(rel)
+    pkg = _rust_package(group, d)
+    if pkg is None:
+        cur = d
+        while True:
+            for name in ("lib.rs", "main.rs"):
+                if posixpath.join(cur, name) in group.files:
+                    return cur, posixpath.join(cur, name)
+            if not cur:
+                return d, None
+            cur = posixpath.dirname(cur)
+    parts = (rel[len(pkg) + 1 :] if pkg else rel).split("/")
+    join = lambda *p: posixpath.normpath(posixpath.join(pkg, *p))  # noqa: E731
+    if parts[0] == "src" and len(parts) >= 3 and parts[1] == "bin":
+        if len(parts) == 3:
+            return d, rel
+        return join("src", "bin", parts[2]), (group.exact(join("src", "bin", parts[2], "main.rs")) or {None}).pop()
+    if parts[0] in _RUST_ROOT_DIRS and len(parts) >= 2:
+        if len(parts) == 2:
+            return d, rel
+        if join(parts[0], parts[1], "main.rs") in group.files:
+            return join(parts[0], parts[1]), join(parts[0], parts[1], "main.rs")
+        return join(parts[0]), None
+    lib = join(_cargo(group, pkg)["lib"])
+    for root in (lib, join("src", "main.rs"), join("build.rs")):
+        if root == rel:
+            return d, rel
+    for root in (lib, join("src", "main.rs")):
+        rd = posixpath.dirname(root)
+        if root in group.files and (not rd or rel.startswith(rd + "/")):
+            return rd, root
+    return (join("src") if rel.startswith(join("src") + "/") else d), None
+
+
+def _rust_module_of(rel: str, crate_dir: str, root: Optional[str]) -> list[str]:
+    if rel == root:
+        return []
+    mods = [p for p in posixpath.splitext(rel[len(crate_dir) + 1 :] if crate_dir else rel)[0].split("/") if p]
+    return mods[:-1] if mods and mods[-1] == "mod" else mods
+
+
+def _rust_mod_file(group: Group, crate_dir: str, root: Optional[str], mods: list[str]) -> Optional[str]:
+    if not mods:
+        return root
+    stem = posixpath.join(crate_dir, *mods)
+    return next(iter(group.exact(stem + ".rs") or group.exact(stem + "/mod.rs")), None)
+
+
+def _rust_extern(group: Group, name: str, rel: str) -> Optional[tuple[str, str]]:
+    """(crate dir, lib root) of the scanned crate `name` the file's package can use."""
+    pkg = _rust_package(group, posixpath.dirname(rel))
+    target = None
+    if pkg is not None:
+        c = _cargo(group, pkg)
+        target = c["deps"].get(name)
+        if target is None and name in c["inherit"]:
+            w = pkg
+            while True:
+                wc = _cargo(group, w)
+                if wc is not None and name in wc["ws_deps"]:
+                    target = wc["ws_deps"][name]
+                    break
+                if not w:
+                    break
+                w = posixpath.dirname(w)
+        if target is None and c["name"] == name:
+            target = pkg
+    if target is None:
+        names = group._cache.get("rust_libs")
+        if names is None:
+            names = {}
+            for f in sorted(group.files):
+                if f.endswith(".rs"):
+                    p = _rust_package(group, posixpath.dirname(f))
+                    if p is not None:
+                        names.setdefault(_cargo(group, p)["name"], p)
+            group._cache["rust_libs"] = names
+        target = names.get(name)
+    c = _cargo(group, target) if target is not None else None
+    if c is None or c["package"] is None:
+        return None
+    lib = posixpath.normpath(posixpath.join(target, c["lib"]))
+    return (posixpath.dirname(lib), lib) if lib in group.files else None
+
+
+def _rust_use_paths(node: Any, src: bytes) -> list[list[str]]:
+    """The full paths a use tree names (`a::{b, c::{self, *}}` -> a::b, a::c, a::c::*)."""
+    t = node.type
+    if t in ("identifier", "crate", "self", "super", "metavariable"):
+        return [[_text(node, src)]]
+    if t == "scoped_identifier":
+        kids = [c for c in node.children if c.type != "::"]
+        prefix = _rust_use_paths(kids[0], src)[0] if len(kids) == 2 else [""]
+        return [prefix + [_text(kids[-1], src)]]
+    if t == "use_as_clause":
+        return _rust_use_paths(node.children[0], src)
+    if t == "use_wildcard":
+        kids = [c for c in node.children if c.type not in ("::", "*")]
+        return [(_rust_use_paths(kids[0], src)[0] if kids else []) + ["*"]]
+    if t == "use_list":
+        return [p for c in node.named_children if c.type != "comment" for p in _rust_use_paths(c, src)]
+    if t == "scoped_use_list":
+        kids = [c for c in node.children if c.type != "::"]
+        prefix = _rust_use_paths(kids[0], src)[0] if len(kids) == 2 else []
+        return [prefix if item == ["self"] else prefix + item for item in _rust_use_paths(kids[-1], src)]
+    return []
+
+
+def _rust_items(rel: str, group: Group, src: Optional[bytes] = None) -> dict[str, Any]:
+    """Per file, parsed once: `uses` [(inline module path, path)], `mods` [(inline, name, #[path])],
+    `externs` [names]. `src` is the file's text; another file (a re-export hop) is read from disk."""
+    cache = group._cache.setdefault("rust_items", {})
+    if rel in cache:
+        return cache[rel]
+    out: dict[str, Any] = {"uses": [], "mods": [], "externs": []}
+    cache[rel] = out
+    if src is None:
+        try:
+            src = (group.root / rel).read_bytes() if group.root is not None else b""
+        except OSError:
+            return out
+    stack: list[tuple[Any, list[str]]] = [(_ts_tree("rust", src), [])]
+    while stack:
+        node, inline = stack.pop()
+        attr_path = None
+        for c in node.children:
+            if c.type == "attribute_item":
+                a = next((x for x in c.named_children if x.type == "attribute"), None)
+                if a is not None and a.children and _text(a.children[0], src) == "path":
+                    lit = next((x for x in a.children if x.type == "string_literal"), None)
+                    attr_path = _string_value(lit, src) if lit is not None else None
+                continue
+            if c.type == "mod_item":
+                ident = next((x for x in c.children if x.type == "identifier"), None)
+                body = next((x for x in c.children if x.type == "declaration_list"), None)
+                if body is not None and ident is not None:
+                    stack.append((body, inline + [_text(ident, src)]))
+                elif ident is not None:
+                    out["mods"].append((inline, _text(ident, src), attr_path))
+            elif c.type == "use_declaration":
+                arg = [x for x in c.named_children if x.type != "visibility_modifier"]
+                for p in _rust_use_paths(arg[0], src) if arg else []:
+                    out["uses"].append((inline, p))
+            elif c.type == "extern_crate_declaration":
+                ident = next((x for x in c.children if x.type == "identifier"), None)
+                if ident is not None:
+                    out["externs"].append(_text(ident, src))
+            elif c.type not in ("line_comment", "block_comment"):
+                stack.append((c, inline))
+            attr_path = None
+    return out
+
+
+def _rust_resolve(group: Group, rel: str, cur: list[str], path: list[str], hops: int = 0) -> set[str]:
+    """The files a `use` path in module `cur` of file `rel` can mean: the deepest module of it
+    that is a file, plus -- for an item below that module -- what the module's own `use`s of
+    that name and globs resolve to (re-exports), two hops deep."""
+    if not path:
+        return set()
+    if path[-1] == "*":
+        path = path[:-1]
+    if not path:
+        return set()
+    crate_dir, root = _rust_crate(rel, group)
+    pkg = _rust_package(group, posixpath.dirname(rel))
+    old = pkg is not None and not _cargo(group, pkg)["edition"]
+    head = path[0]
+    if head == "crate":
+        base, rest = [], path[1:]
+    elif head == "self":
+        base, rest = cur, path[1:]
+    elif head == "super":
+        n = 0
+        while n < len(path) and path[n] == "super":
+            n += 1
+        if n > len(cur):
+            return set()
+        base, rest = cur[: len(cur) - n], path[n:]
+    elif head != "" and _rust_mod_file(group, crate_dir, root, cur + [head]) is not None:
+        base, rest = cur, path
+    else:
+        names = path[1:] if head == "" else path
+        ext = _rust_extern(group, names[0], rel) if names else None
+        if ext is not None:
+            crate_dir, root = ext
+            base, rest = [], names[1:]
+        elif old:
+            base, rest = [], names
+        else:
+            return set()
+    full = base + rest
+    for k in range(len(full), -1, -1):
+        hit = _rust_mod_file(group, crate_dir, root, full[:k])
+        if hit is not None:
+            break
+    else:
+        return set()
+    out = {hit}
+    if k < len(full) and hops < 2:
+        name = full[k]
+        hit_crate, hit_root = _rust_crate(hit, group)
+        mod = _rust_module_of(hit, hit_crate, hit_root)
+        for inline, p in _rust_items(hit, group)["uses"]:
+            if not inline and p and p[-1] in (name, "*"):
+                out |= _rust_resolve(group, hit, mod, p, hops + 1)
+    return out
+
+
 def rust_imports(src: bytes, rel: str, group: Group) -> list[set[str]]:
     out = []
     d, name = posixpath.split(rel)
@@ -629,14 +907,20 @@ def rust_imports(src: bytes, rel: str, group: Group) -> list[set[str]]:
     crate_root = posixpath.basename(d) in ("tests", "examples", "benches") or d == "src/bin" or d.endswith("/src/bin")
     owns = name in ("mod.rs", "lib.rs", "main.rs", "build.rs") or crate_root
     owner = d if owns else posixpath.join(d, posixpath.splitext(name)[0])
-    for n in _walk(_ts_tree("rust", src)):
-        if n.type == "mod_item" and not any(c.type == "declaration_list" for c in n.children):
-            ident = next((c for c in n.children if c.type == "identifier"), None)
-            if ident is not None:
-                m = _text(ident, src)
-                out.append(
-                    group.exact(posixpath.join(owner, m + ".rs")) | group.exact(posixpath.join(owner, m, "mod.rs"))
-                )
+    items = _rust_items(rel, group, src)
+    crate_dir, root = _rust_crate(rel, group)
+    module = _rust_module_of(rel, crate_dir, root)
+    for inline, m, attr_path in items["mods"]:
+        if attr_path is not None:  # #4544: `#[path]` is relative to the declaring file's directory
+            out.append(group.exact(posixpath.join(d, attr_path)) if not inline else set())
+        else:
+            out.append(group.exact(posixpath.join(owner, m + ".rs")) | group.exact(posixpath.join(owner, m, "mod.rs")))
+    # #4544: a path naming this file itself (`mod tests { use super::*; }`) is no edge.
+    for inline, p in items["uses"]:
+        out.append(_rust_resolve(group, rel, module + inline, p) - {rel})
+    for crate in items["externs"]:
+        ext = _rust_extern(group, crate, rel)
+        out.append({ext[1]} - {rel} if ext is not None else set())
     return out
 
 

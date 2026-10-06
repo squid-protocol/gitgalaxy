@@ -121,7 +121,84 @@ SORTCS_LOAD = [
     "    END-PERFORM.",
 ]  # fmt: skip
 
+
+def pcs_program(name: str, special: list[str], pcs: str, data: list[str], proc: list[str]) -> str:
+    """A program whose OBJECT-COMPUTER names a PROGRAM COLLATING SEQUENCE (#4539): SPECIAL-NAMES, WORKING-STORAGE
+    and PROCEDURE DIVISION lines from column 8 (a statement indented four more)."""
+    lines = ["IDENTIFICATION DIVISION.", f"PROGRAM-ID. {name}.", "ENVIRONMENT DIVISION.", "CONFIGURATION SECTION.",
+             "OBJECT-COMPUTER. GG", f"    PROGRAM COLLATING SEQUENCE IS {pcs}.", "SPECIAL-NAMES.",
+             *[f"    {x}" for x in special], "DATA DIVISION.", "WORKING-STORAGE SECTION.", *data,
+             "PROCEDURE DIVISION.", *[f"    {x}" for x in proc], "    GOBACK."]  # fmt: skip
+    return "\n".join(f"       {x}" for x in lines) + "\n"
+
+
+# #4539: relation conditions under a PROGRAM COLLATING SEQUENCE (IBM Enterprise COBOL 6.4 Language Reference,
+# OBJECT-COMPUTER paragraph; "Comparison of alphanumeric operands"): IF, EVALUATE (a condition and a THRU range),
+# PERFORM UNTIL and 88 THRU ranges, over items, literals, figurative constants, operands of unequal length (the
+# shorter padded with spaces), a group, an unsigned zoned item against an alphanumeric one (nonnumeric) and two
+# numeric items (by value, untouched by the sequence). Each line's answer differs between some of the sequences
+# and the data's byte order, and no pair of operands is one IBM's sequence and GnuCOBOL's order differently
+PCS_DATA = ["01  A   PIC X VALUE 'a'.", "01  B   PIC X VALUE 'b'.", "01  UA  PIC X VALUE 'A'.",
+            "01  Q1  PIC X VALUE 'Q'.", "01  Z1  PIC X VALUE 'Z'.", "01  D9  PIC X VALUE '9'.",
+            "01  S3  PIC X(3) VALUE 'ab'.", "01  N2  PIC 9(2) VALUE 9.", "01  N3  PIC 9(2) VALUE 10.",
+            "01  X2  PIC X(2) VALUE '10'.", "01  G.", "    05 G1 PIC X VALUE 'Z'.", "    05 G2 PIC X VALUE 'a'.",
+            "01  T   PIC X(4) VALUE 'Z9aX'.", "01  TT REDEFINES T.", "    05 TC PIC X OCCURS 4.",
+            "01  I   PIC 9.", "01  K   PIC X VALUE '7'.", "    88 K-DESC VALUE '9' THRU '5'.",
+            "    88 K-ASC  VALUE '5' THRU '9'.", "01  L   PIC X VALUE 'e'.", "    88 L-DESC VALUE 'k' THRU 'c'.",
+            "    88 L-ASC  VALUE 'c' THRU 'k'."]  # fmt: skip
+PCS_PROC = [
+    "IF A < B DISPLAY 'R1 Y' ELSE DISPLAY 'R1 N' END-IF",
+    "IF UA < A DISPLAY 'R2 Y' ELSE DISPLAY 'R2 N' END-IF",
+    "IF D9 > Z1 DISPLAY 'R3 Y' ELSE DISPLAY 'R3 N' END-IF",
+    "IF Q1 = 'q' DISPLAY 'R4 Y' ELSE DISPLAY 'R4 N' END-IF",
+    "IF S3 > 'abZ' DISPLAY 'R5 Y' ELSE DISPLAY 'R5 N' END-IF",
+    "IF Z1 < SPACE DISPLAY 'R6 Y' ELSE DISPLAY 'R6 N' END-IF",
+    "IF UA < ZERO DISPLAY 'R7 Y' ELSE DISPLAY 'R7 N' END-IF",
+    "IF N2 < N3 DISPLAY 'R8 Y' ELSE DISPLAY 'R8 N' END-IF",
+    "IF N2 < X2 DISPLAY 'R9 Y' ELSE DISPLAY 'R9 N' END-IF",
+    "IF G < 'ZZ' DISPLAY 'RA Y' ELSE DISPLAY 'RA N' END-IF",
+    "IF NOT S3 <= 'abZ' DISPLAY 'RB Y' ELSE DISPLAY 'RB N' END-IF",
+    "EVALUATE TRUE",
+    "    WHEN A < B DISPLAY 'E1 LT'",
+    "    WHEN OTHER DISPLAY 'E1 GE'",
+    "END-EVALUATE",
+    "EVALUATE L",
+    "    WHEN 'c' THRU 'k' DISPLAY 'E2 ASC'",
+    "    WHEN 'k' THRU 'c' DISPLAY 'E2 DESC'",
+    "    WHEN OTHER DISPLAY 'E2 NONE'",
+    "END-EVALUATE",
+    "PERFORM VARYING I FROM 1 BY 1 UNTIL I > 4 OR TC(I) < 'Y'",
+    "    CONTINUE",
+    "END-PERFORM",
+    "DISPLAY 'P1 ' I",
+    "IF K-DESC DISPLAY 'K1 Y' ELSE DISPLAY 'K1 N' END-IF",
+    "IF K-ASC DISPLAY 'K2 Y' ELSE DISPLAY 'K2 N' END-IF",
+    "IF L-DESC DISPLAY 'L1 Y' ELSE DISPLAY 'L1 N' END-IF",
+    "IF L-ASC DISPLAY 'L2 Y' ELSE DISPLAY 'L2 N' END-IF",
+]  # fmt: skip
+# a literal alphabet: a multi-character literal, SPACE, ALSO, descending THRU ranges of digits and of letters
+# (GnuCOBOL does not parse a literal alphabet followed by an EBCDIC one: EBCDIC first)
+PCS_LITERAL = ["ALPHABET LT IS 'XYZ' SPACE 'Q' ALSO 'q'", "    '9' THRU '0' 'm' THRU 'a'."]
+
 PROGRAMS = {
+    # #4539: relation conditions under a PROGRAM COLLATING SEQUENCE: EBCDIC (and HIGH-VALUE against an item, its
+    # native X'FF'), a literal alphabet, STANDARD-2 (the data's byte order), and the issue's repro ('z' THRU 'a')
+    "PCSEB": pcs_program(
+        "PCSEB",
+        ["ALPHABET EB IS EBCDIC", *PCS_LITERAL],
+        "EB",
+        PCS_DATA,
+        [*PCS_PROC, "IF UA < HIGH-VALUE DISPLAY 'H1 Y' ELSE DISPLAY 'H1 N' END-IF"],
+    ),
+    "PCSLT": pcs_program("PCSLT", ["ALPHABET EB IS EBCDIC", *PCS_LITERAL], "LT", PCS_DATA, PCS_PROC),
+    "PCSS2": pcs_program("PCSS2", ["ALPHABET S2 IS STANDARD-2."], "S2", PCS_DATA, PCS_PROC),
+    "PCSRV": pcs_program(
+        "PCSRV",
+        ["ALPHABET RV IS 'z' THRU 'a'."],
+        "RV",
+        ["01  A PIC X VALUE 'a'.", "01  B PIC X VALUE 'b'."],
+        ["IF A < B DISPLAY 'A<B' ELSE DISPLAY 'A>=B' END-IF"],
+    ),
     # SORT with INPUT / OUTPUT PROCEDUREs: an ascending zoned major key and a descending packed minor key WITH
     # DUPLICATES IN ORDER (three records tie: they come back in RELEASE order), RETURN with and without INTO, a
     # THRU range, a descending and an ascending alphanumeric key (unique: no DUPLICATES needed), COLLATING
@@ -584,6 +661,128 @@ PROGRAMS = {
             "SUBTRACT 1 FROM BIG MOVE BIG TO N5 DISPLAY N5",
         ],
     ),
+    # #4462: SEARCH ALL (a binary search) on an ASCENDING alphanumeric and a DESCENDING numeric key, INDEXED BY:
+    # found at every position, missing below / between / above, a key's condition-name, the first key only, a
+    # table whose size is a DEPENDING ON item (and one of size 0); serial SEARCH from the index's value (SET), with
+    # several WHENs, AT END, VARYING another index of the table; a SEARCH inside an IF
+    "SRCHALL": program(
+        "SRCHALL",
+        [
+            "01  WS-DATA.",
+            *[
+                f"    05 FILLER PIC X(6) VALUE '{v}'."
+                for v in ("ALF09A", "BRA07B", "BRA05C", "CHA03D", "DEL09E", "ECH01F", "FOX00G")
+            ],
+            "01  WS-TAB REDEFINES WS-DATA.",
+            "    05 ENT OCCURS 7 TIMES ASCENDING KEY IS E-K1",
+            "           DESCENDING KEY E-K2 INDEXED BY IX, IY.",
+            "       10 E-K1 PIC X(3).",
+            "          88 E-IS-CHA VALUE 'CHA'.",
+            "       10 E-K2 PIC 9(2).",
+            "       10 E-TAG PIC X.",
+            "01  WS-N    PIC 9(2) VALUE 0.",
+            "01  WS-K1   PIC X(3).",
+            "01  WS-K2   PIC 9(2).",
+            "01  WS-D.",
+            "    05 D-N  PIC 9(2) VALUE 5.",
+            "    05 D-ENT OCCURS 0 TO 9 TIMES DEPENDING ON D-N",
+            "           ASCENDING KEY D-K INDEXED BY DX.",
+            "       10 D-K PIC 9(3).",
+        ],
+        [
+            *[
+                x
+                for k1, k2 in (
+                    ("ALF", 9),
+                    ("BRA", 7),
+                    ("BRA", 5),
+                    ("CHA", 3),
+                    ("DEL", 9),
+                    ("ECH", 1),
+                    ("FOX", 0),
+                    ("BRA", 6),
+                    ("AAA", 1),
+                    ("ZZZ", 1),
+                    ("CHA", 4),
+                    ("BRA", 8),
+                    ("DEL", 2),
+                )
+                for x in (
+                    f"MOVE '{k1}' TO WS-K1",
+                    f"MOVE {k2} TO WS-K2",
+                    "SEARCH ALL ENT AT END DISPLAY WS-K1 WS-K2 ' MISSING'",
+                    "    WHEN E-K1 (IX) = WS-K1 AND E-K2 (IX) = WS-K2",
+                    "        SET WS-N TO IX",
+                    "        DISPLAY WS-K1 WS-K2 ' AT ' WS-N ' ' E-TAG (IX)",
+                    "END-SEARCH",
+                )
+            ],
+            "SEARCH ALL ENT WHEN E-IS-CHA (IX)",
+            "    SET WS-N TO IX DISPLAY 'CHA AT ' WS-N END-SEARCH",
+            "SEARCH ALL ENT AT END DISPLAY 'NO GOLF'",
+            "    WHEN E-K1 (IX) = 'GOL' DISPLAY 'GOLF?'",
+            "END-SEARCH",
+            "SEARCH ALL ENT WHEN E-K1 (IX) = 'DEL'",
+            "    SET WS-N TO IX DISPLAY 'DEL AT ' WS-N END-SEARCH",
+            "PERFORM VARYING WS-N FROM 1 BY 1 UNTIL WS-N > 9",
+            "    COMPUTE D-K (WS-N) = WS-N * 10",
+            "END-PERFORM",
+            *[
+                x
+                for v in (10, 30, 50, 60, 5)
+                for x in (
+                    f"MOVE {v} TO WS-K2",
+                    "SEARCH ALL D-ENT AT END DISPLAY WS-K2 ' NOT IN D'",
+                    "    WHEN D-K (DX) = WS-K2 SET WS-N TO DX",
+                    "        DISPLAY WS-K2 ' IN D AT ' WS-N",
+                    "END-SEARCH",
+                )
+            ],
+            "MOVE 0 TO D-N",
+            "SEARCH ALL D-ENT AT END DISPLAY 'EMPTY D'",
+            "    WHEN D-K (DX) = 10 DISPLAY 'IN EMPTY?' END-SEARCH",
+            "SET IX TO 2",
+            "SEARCH ENT AT END DISPLAY 'SERIAL END'",
+            "    WHEN E-TAG (IX) = 'Z' DISPLAY 'Z?'",
+            "    WHEN E-K2 (IX) = 9 SET WS-N TO IX",
+            "        DISPLAY 'FIRST 09 FROM 2 AT ' WS-N",
+            "    WHEN E-K1 (IX) = 'BRA' SET WS-N TO IX",
+            "        DISPLAY 'BRA FROM 2 AT ' WS-N",
+            "END-SEARCH",
+            "SET IX TO 6",
+            "SEARCH ENT AT END DISPLAY 'SERIAL END FROM 6'",
+            "    WHEN E-K2 (IX) = 9 DISPLAY 'NINE?'",
+            "END-SEARCH",
+            "SET IX TO 1",
+            "SEARCH ENT",
+            "    WHEN E-TAG (IX) = 'E' SET WS-N TO IX DISPLAY 'E AT ' WS-N",
+            "END-SEARCH",
+            "SET IY TO 3",
+            "SEARCH ENT VARYING IY",
+            "    WHEN E-K1 (IY) = 'ECH' SET WS-N TO IY",
+            "        DISPLAY 'ECH VIA IY AT ' WS-N",
+            "END-SEARCH",
+            "SET IX TO 1",
+            "SET IX UP BY 3",
+            "IF E-K1 (IX) = 'CHA'",
+            "    SEARCH ENT WHEN E-K1 (IX) = 'FOX'",
+            "        SET WS-N TO IX DISPLAY 'FOX AT ' WS-N END-SEARCH",
+            "    DISPLAY 'AFTER SEARCH IN IF'",
+            "END-IF",
+        ],
+    ),
+    # #4462: OS/VS COBOL's EXHIBIT NAMED: `name = value` per identifier, a literal as its value, one line
+    "EXHIBIT": program(
+        "EXHIBIT",
+        ["01  WS-A PIC X(3) VALUE 'ABC'.", "01  WS-B PIC 9(2) VALUE 7.", "01  WS-C PIC X(4) VALUE 'C D'."],
+        [
+            "EXHIBIT NAMED WS-A",
+            "EXHIBIT NAMED WS-A WS-B 'LIT' WS-C",
+            "MOVE 'XYZ' TO WS-A",
+            "EXHIBIT NAMED WS-B WS-A",
+            "DISPLAY 'END'",
+        ],
+    ),
 }
 
 
@@ -1012,6 +1211,73 @@ def test_sort_under_an_alphabet_refuses_what_ibm_and_gnucobol_order_differently(
     with pytest.raises(subprocess.CalledProcessError) as e:
         _java_run("SORTCS", src, tmp_path)
     assert f"COLLATING SEQUENCE {alphabet}: keys" in e.value.stderr
+    assert "ordered differently by IBM and by GnuCOBOL (register D1): not modelled" in e.value.stderr
+
+
+def _pcs_holes(tmp_path: Path, src: str) -> list[str]:
+    from gitgalaxy.tools.cobol_to_java.det import program as P
+
+    (tmp_path / "PCSX.cbl").write_text(src)
+    (tmp_path / "project").mkdir(exist_ok=True)
+    return P.translate(tmp_path / "PCSX.cbl", [], "public class PcsxService {\n}\n", PKG, None,
+                       tmp_path / "project").stats["holes"]  # fmt: skip
+
+
+@pytest.mark.parametrize(
+    ("special", "pcs", "data", "proc", "why"),
+    [
+        # HIGH-VALUE / LOW-VALUE are the characters of the sequence's highest / lowest position (GnuCOBOL: LOW-VALUE
+        # is a literal alphabet's first character): under a literal alphabet not X'FF' / X'00'
+        (PCS_LITERAL, "LT", ["01  X PIC X."], ["MOVE LOW-VALUE TO X"], "LOW-VALUE under PROGRAM COLLATING SEQUENCE LT"),
+        (PCS_LITERAL, "LT", ["01  X PIC X."], ["IF X < HIGH-VALUE DISPLAY 'Y' END-IF"],
+         "HIGH-VALUE under PROGRAM COLLATING SEQUENCE LT"),
+        # an alphabet orders characters: a packed item's bytes are none
+        (PCS_LITERAL, "LT", ["01  X PIC X(3).", "01  P PIC S9(5) COMP-3."], ["IF X < P DISPLAY 'Y' END-IF"],
+         "P compared under PROGRAM COLLATING SEQUENCE LT: holds numeric or national items"),
+        (PCS_LITERAL, "LT", ["01  X PIC X(3).", "    88 XR VALUE 'a' THRU 'c'.", "01  P REDEFINES X.",
+                             "    05 P1 PIC S9(5) COMP-3."], ["IF XR DISPLAY 'Y' END-IF", "IF P < 'a' DISPLAY 'Y' END-IF"],
+         "P compared under PROGRAM COLLATING SEQUENCE LT"),
+        # an ordinal names a code of the native character set (EBCDIC on z/OS): an ordering under it is refused
+        (["ALPHABET OD IS 'A' 1 THRU 65."], "OD", ["01  X PIC X."], ["IF X < 'B' DISPLAY 'Y' END-IF"],
+         "relation condition: PROGRAM COLLATING SEQUENCE OD: 1 in"),
+    ],
+)  # fmt: skip
+def test_pcs_refuses_by_name_what_it_does_not_model(special, pcs, data, proc, why, tmp_path):
+    """#4539: what a PROGRAM COLLATING SEQUENCE changes and the port does not model is a hole by name."""
+    pytest.importorskip("tree_sitter_language_pack")
+    holes = _pcs_holes(tmp_path, pcs_program("PCSX", special, pcs, data, proc))
+    assert any(why in h for h in holes), holes
+
+
+def test_pcs_leaves_equality_and_numeric_comparisons_alone(tmp_path):
+    """#4539: without ALSO each character has a position of its own, so an equality is the bytes' (an ordinal
+    alphabet's too); a numeric comparison is by value. Neither consults the sequence, nor is refused."""
+    pytest.importorskip("tree_sitter_language_pack")
+    src = pcs_program("PCSX", ["ALPHABET OD IS 'A' 1 THRU 65."], "OD", ["01  X PIC X.", "01  N PIC S9(3) COMP-3."],
+                      ["IF X = 'B' DISPLAY 'Y' END-IF", "IF N < 5 DISPLAY 'Y' END-IF"])  # fmt: skip
+    assert not _pcs_holes(tmp_path, src)
+
+
+def test_pcs_value_high_value_under_a_literal_alphabet_refuses_the_program(tmp_path):
+    """#4539: VALUE HIGH-VALUE is laid out before any statement: under a literal alphabet the program is refused."""
+    pytest.importorskip("tree_sitter_language_pack")
+    from gitgalaxy.tools.cobol_to_java.det import layout as L
+
+    src = pcs_program("PCSX", PCS_LITERAL, "LT", ["01  X PIC X VALUE HIGH-VALUE."], ["DISPLAY X"])
+    with pytest.raises(L.LayoutError, match="X VALUE HIGH-VALUE under PROGRAM COLLATING SEQUENCE LT"):
+        _pcs_holes(tmp_path, src)
+
+
+@pytest.mark.skipif(_java() is None, reason="needs a JDK 17 (JAVA_HOME / JDK_17)")
+def test_pcs_refuses_what_ibm_and_gnucobol_order_differently(tmp_path):
+    """#4539: PCSLT with 'n' for 'a': 'A' and 'n' are both unnamed by LT, so they follow it in native order --
+    EBCDIC on z/OS ('n' first), the data's bytes in GnuCOBOL ('A' first). The run stops by name (register D1)."""
+    pytest.importorskip("tree_sitter_language_pack")
+    src = PROGRAMS["PCSLT"].replace("01  A   PIC X VALUE 'a'.", "01  A   PIC X VALUE 'n'.")
+    assert src != PROGRAMS["PCSLT"]
+    with pytest.raises(subprocess.CalledProcessError) as e:
+        _java_run("PCSLT", src, tmp_path)
+    assert 'PROGRAM COLLATING SEQUENCE LT: operands "A" and "n"' in e.value.stderr
     assert "ordered differently by IBM and by GnuCOBOL (register D1): not modelled" in e.value.stderr
 
 

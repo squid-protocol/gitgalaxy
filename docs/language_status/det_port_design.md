@@ -394,6 +394,22 @@ Only generator output, never a test case:
   COPAUS1C), DSF's `IDIOT IS 'ABC...'` alphabet without ALPHABET (PLUKKFR, PLUKKFRN), `LABEL RECORD ARE` (FO04D1X1),
   OS/VS `EXHIBIT NAMED` (R001BYDL), and GenApp polloo2.cpy's missing period after `03 CA-CUSPOL-REQUEST` (a source
   defect).
+- #4462 slice 3. *SEARCH / SEARCH ALL*: an OCCURS item keeps its ASCENDING / DESCENDING KEYs and INDEXED BY names
+  (`Item.keys`, `Item.indexed_by`); each index name is an item of its own holding the occurrence number (initially
+  1, as GnuCOBOL; IBM leaves it undefined). The statement builder opens a SEARCH frame for its AT END and WHENs (a
+  SEARCH ALL takes one WHEN; the next belongs to the EVALUATE around it); END-SEARCH or the period closes it. A serial
+  SEARCH walks the table from the index's value; SEARCH ALL is a binary search whose WHEN must be `key = value` (or
+  a key's condition-name) for the leading keys, subscripted by the first index, joined by AND (else a hole by name),
+  stepping on the first unequal key in KEY order -- GnuCOBOL's loop (head 0, tail size + 1, index (head + tail) / 2).
+  SEARCH VARYING a counter or another table's index is refused by name: IBM steps it with the index, GnuCOBOL sets
+  it to the index's value. *OS/VS forms*: an alphabet clause without ALPHABET (`IDIOT IS 'ABC...ÆØÅ'`) gets the
+  keyword (`source.alphabet_keywords`) for the grammar and for `program.alphabets`, the model SORT and comparisons
+  read; `LABEL RECORD ARE` / `LABEL RECORDS IS` drop the optional word (`source.label_records`); `EXHIBIT NAMED a
+  'lit' b` is one DISPLAY line `A = value lit B = value` (GnuCOBOL's spelling) for plain names and nonnumeric
+  literals, a qualified or subscripted name and EXHIBIT CHANGED (GnuCOBOL does not implement it) are holes by name.
+  *Source defects*: a data entry with no period before the next level number is refused by name ("source defect",
+  GenApp polloo2.cpy). Newly read: CardDemo COPAUS1C, DSF PLUKKFR, PLUKKFRN, FO04D1X1, R001BYDL; the cross-check
+  ledger's `translator-refuses-grammar` cause is empty and gone.
 - #4528: a TS item is the bytes the program wrote "in the region's code page" (CicsTask), and the COBOL side's
   region keeps it in CCSID 037 (cics-crucible SPEC 2; the stub transcodes its Latin-1 storage at the boundary). The
   det port handed CicsTask its storage's bytes (CS, CobolRecords.charset()) as they were: WS-ONE VALUE 'W' reached

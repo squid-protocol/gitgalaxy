@@ -72,6 +72,100 @@ def looks_like_virtualenv(directory: Path) -> bool:
         return False
 
 
+# --- VENDORED CODE DETECTION (#4545) ---
+# Vendored code is EXCLUDED from the scan, like `third_party/` and `vendor/` always were (they sit
+# in IGNORED_DIRECTORIES), not flagged: every first-party metric (size, complexity tails, risk,
+# SARIF) then reads first-party code only. The unambiguous spellings (`third-party`, `thirdparty`,
+# `3rdparty`, `vendored`, ...) are in IGNORED_DIRECTORIES by name; an Apple `*.framework` bundle is
+# excluded by its suffix. Two kinds of name are also ordinary first-party names, so they count only
+# on evidence of a separate project -- a license file of its own that differs from the scan root's
+# (no root license, no evidence):
+#   - a container (`libraries/`, `libs/`, `deps/`, `extern(al)/`) when at least half of its
+#     non-empty subdirectories carry such a license (gzdoom's `libraries/`: bzip2, cppdap, webp,
+#     ZMusic, ZVulkan, ...; an Nx-style `libs/` of first-party packages carries none, or the root's);
+#   - a versioned directory (`SDL2-2.32.10/`, `SDL2_mixer-2.8.2/`) carrying one itself. id's own
+#     `linuxdoom-1.10/` is versioned too but has no license of its own: it stays scanned.
+# The scan root itself is never a candidate: only the directories under it are tested.
+VENDOR_CONTAINER_NAMES = frozenset({"libraries", "libs", "deps", "extern", "external", "externals"})
+_VERSIONED_DIR = re.compile(r"^[A-Za-z][\w+.-]*?-v?\d+(?:\.\d+)+[a-z]?$")
+_LICENSE_FILE = re.compile(r"^(?:licen[cs]e|copying|unlicense)(?:[-_.][\w.-]*)?$", re.I)
+_LICENSE_DIRS = frozenset({"licenses", "licences"})
+_LICENSE_READ_BYTES = 262144
+
+
+class VendorDirectoryDetector:
+    """#4545: decides whether a directory under `root` is a vendored copy of another project."""
+
+    def __init__(self, root: Union[str, Path]):
+        self.root = Path(root)
+        self._cache: dict[str, bool] = {}
+        self._root_licenses: Optional[frozenset[str]] = None
+
+    @staticmethod
+    def is_candidate_name(name: str) -> bool:
+        """Cheap name test; only candidate names are probed on disk."""
+        low = name.lower()
+        return low.endswith(".framework") or low in VENDOR_CONTAINER_NAMES or bool(_VERSIONED_DIR.match(name))
+
+    def is_vendored(self, rel_dir: str) -> bool:
+        """`rel_dir` is a POSIX path relative to the root (never empty: the root is not a candidate)."""
+        hit = self._cache.get(rel_dir)
+        if hit is None:
+            hit = self._cache[rel_dir] = self._probe(rel_dir)
+        return hit
+
+    def _probe(self, rel_dir: str) -> bool:
+        name = rel_dir.rsplit("/", 1)[-1]
+        if not rel_dir or not self.is_candidate_name(name):
+            return False
+        directory = self.root.joinpath(*rel_dir.split("/"))
+        try:
+            if not directory.is_dir():
+                return False
+            low = name.lower()
+            if low.endswith(".framework"):
+                return True
+            if low in VENDOR_CONTAINER_NAMES:
+                children = [
+                    c for c in directory.iterdir() if c.is_dir() and not c.name.startswith(".") and any(c.iterdir())
+                ]
+                foreign = sum(1 for c in children if self._has_foreign_license(c))
+                return foreign > 0 and 2 * foreign >= len(children)
+            return self._has_foreign_license(directory)
+        except OSError:
+            return False
+
+    @staticmethod
+    def _license_texts(directory: Path) -> tuple[set[str], bool]:
+        """Normalized texts of the license files directly in `directory`, and whether it has a licenses/ dir."""
+        texts: set[str] = set()
+        has_dir = False
+        for entry in directory.iterdir():
+            if entry.is_dir():
+                has_dir = has_dir or entry.name.lower() in _LICENSE_DIRS
+            elif _LICENSE_FILE.match(entry.name):
+                try:
+                    with open(entry, "rb") as fh:
+                        raw = fh.read(_LICENSE_READ_BYTES)
+                except OSError:
+                    continue
+                texts.add(" ".join(raw.decode("utf-8", "ignore").split()).lower())
+        return texts, has_dir
+
+    def _has_foreign_license(self, directory: Path) -> bool:
+        if self._root_licenses is None:
+            try:
+                root_texts, root_dir = self._license_texts(self.root)
+            except OSError:
+                root_texts, root_dir = set(), False
+            # a root with only a licenses/ directory still declares a license of its own
+            self._root_licenses = frozenset(root_texts | ({""} if root_dir else set()))
+        if not self._root_licenses:
+            return False
+        texts, has_dir = self._license_texts(directory)
+        return has_dir or any(t not in self._root_licenses for t in texts)
+
+
 # --- COMMENT LINES IN THE SATURATION GATE (#4543) ---
 # Gate 4.1 blocks a file whose head carries a line longer than MAX_LINE_LENGTH: minifier output
 # and data payloads. A long line that is wholly a comment in the file's own syntax is neither (a
@@ -253,6 +347,8 @@ class ApertureFilter:
 
         # #4542: candidate-named directories (rel path -> is it a virtualenv), probed once each.
         self._virtualenv_cache: dict[str, bool] = {}
+        # #4545: vendored copies of other projects under non-reserved names.
+        self._vendor_dirs = VendorDirectoryDetector(self.root)
         # #4543: extension -> the comment syntax every language claiming it agrees on.
         self._comment_syntax = self._build_comment_syntax()
 
@@ -801,6 +897,10 @@ class ApertureFilter:
             if low_part in self.ignored_directories:
                 return False
             if low_part in VIRTUALENV_CANDIDATE_NAMES and self._is_virtualenv("/".join(parts[: i + 1])):
+                return False
+            if VendorDirectoryDetector.is_candidate_name(part) and self._vendor_dirs.is_vendored(
+                "/".join(parts[: i + 1])
+            ):
                 return False
 
             if (

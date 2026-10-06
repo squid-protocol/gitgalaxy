@@ -22,7 +22,7 @@ import re
 from pathlib import Path
 from typing import Any, Optional, Union
 
-from gitgalaxy.core.aperture import VIRTUALENV_CANDIDATE_NAMES, looks_like_virtualenv
+from gitgalaxy.core.aperture import VIRTUALENV_CANDIDATE_NAMES, VendorDirectoryDetector, looks_like_virtualenv
 from gitgalaxy.core.source_text import open_source, read_source
 from gitgalaxy.standards.gitgalaxy_config import GUIDESTAR_CONFIG
 
@@ -489,13 +489,19 @@ class GuideStarLens:
 
         ignored_directories_lower = {d.lower() for d in self._gs_config.get("IGNORED_DIRECTORIES", set())}
 
+        vendor_dirs = VendorDirectoryDetector(self.root)
         for root_dir, dirs, files in os.walk(self.root):
             # #4542: an `env`/`virtualenv` directory is pruned only when it is a real virtualenv.
+            # #4545: vendored copies of other projects are pruned as the aperture excludes them.
             dirs[:] = [
                 d
                 for d in dirs
                 if d.lower() not in ignored_directories_lower
                 and not (d.lower() in VIRTUALENV_CANDIDATE_NAMES and looks_like_virtualenv(Path(root_dir) / d))
+                and not (
+                    VendorDirectoryDetector.is_candidate_name(d)
+                    and vendor_dirs.is_vendored((Path(root_dir) / d).relative_to(self.root).as_posix())
+                )
             ]
 
             dir_path = Path(root_dir)

@@ -62,7 +62,7 @@ def test_ratchets_skip_when_nothing_present(monkeypatch, tmp_path, capsys):
     assert pr_gates.run_ratchets(None, env) == 0  # skipped is not failed ...
     out = capsys.readouterr().out
     assert not ran  # ... and nothing was run
-    assert out.count("not available:") == 5
+    assert out.count("not available:") == 6
     assert "not checked" in out and "mainframe_corpus.py fetch" in out and "mvn" in out
 
 

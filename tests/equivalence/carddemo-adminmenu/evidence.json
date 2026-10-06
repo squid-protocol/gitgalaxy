@@ -7,7 +7,7 @@
   "paths": [
    "tests/equivalence/carddemo-adminmenu/port/service/Coadm01cService.java"
   ],
-  "sha256": "247e20ca326baadad09e75b605488ae4098dbbe9fe0c8654add016c0fe563efa",
+  "sha256": "2295c617f181b59d867a652e1ad038998e79aea653cf66c0555433503d6c9a5d",
   "entry_points": [
    "handleTransaction",
    "runTask"
@@ -19,7 +19,7 @@
     "tests/equivalence/carddemo-adminmenu/port/**"
    ],
    "files": 1,
-   "sha256": "247e20ca326baadad09e75b605488ae4098dbbe9fe0c8654add016c0fe563efa"
+   "sha256": "2295c617f181b59d867a652e1ad038998e79aea653cf66c0555433503d6c9a5d"
   },
   "case": {
    "paths": [
@@ -43,7 +43,7 @@
     "tests/tools/java_target_matrix.py"
    ],
    "files": 11,
-   "sha256": "cd0c22f11e735f25b3d655aac6b89670b07cba2e23856c7c825291b64fa994c5"
+   "sha256": "304049dfdcedf444507b3d008cb8a9e020ba663f927b0d53954ff5c7ef95f7ea"
   },
   "oracle": {
    "paths": [
@@ -56,14 +56,14 @@
     "tests/tools/equivalence_sql.py"
    ],
    "files": 16,
-   "sha256": "ee924d311b67148f9104af7158c534cc2fb9a50bb35ca6f7758d6a40efda414c"
+   "sha256": "fe66479a555d6d3a4a6e9604c387f1b5da27762b8d6a8b2deacfa0c502130280"
   },
   "generator": {
    "paths": [
     "gitgalaxy/tools/cobol_to_java/**"
    ],
    "files": 60,
-   "sha256": "d732e7f21fab2ba4f65c7a3dcf403d1f341479111a3a0d757cbacd167c1a2daa"
+   "sha256": "4fa390383fcd211159dbd10b63062eca5b1046c24dfec7b7186e96819cac6e49"
   },
   "corpus": {
    "name": "aws-mainframe-modernization-carddemo",
@@ -73,10 +73,10 @@
   "differences": {
    "sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
   },
-  "digest": "941aae29581d86d1c561014fb41908c387b291a1d50a8e8b70522dd1d6b4c78e"
+  "digest": "039e316b7ab9100feb400963416d2dd79ea0f0a930e56fecdccf6673edd882ce"
  },
  "proof": {
-  "at": "2026-10-05T14:51:09Z",
+  "at": "2026-10-06T04:32:00Z",
   "verdict": "proven",
   "runs": 16,
   "fault_runs": 0,
@@ -161,8 +161,8 @@
    "failed": [],
    "error": null
   },
-  "harness_commit": "af9e62c055439d3c758d2a794a211fa28ad41e41+uncommitted",
-  "inputs_digest": "941aae29581d86d1c561014fb41908c387b291a1d50a8e8b70522dd1d6b4c78e"
+  "harness_commit": "3c9c8b7dff17234bdfcf1e11088bcbe460580372+uncommitted",
+  "inputs_digest": "039e316b7ab9100feb400963416d2dd79ea0f0a930e56fecdccf6673edd882ce"
  },
  "coverage": {
   "paragraphs": {
@@ -216,7 +216,7 @@
    "total": 1
   },
   "source": "the proof's own traced COBOL runs (cobol_coverage.py)",
-  "inputs_digest": "941aae29581d86d1c561014fb41908c387b291a1d50a8e8b70522dd1d6b4c78e"
+  "inputs_digest": "039e316b7ab9100feb400963416d2dd79ea0f0a930e56fecdccf6673edd882ce"
  },
  "reach": {
   "entry_points": [
@@ -227,13 +227,13 @@
    {
     "class": "Coadm01cService",
     "method": "handleLink",
-    "line": 136,
+    "line": 135,
     "kind": "left_as_generated"
    },
    {
     "class": "Coadm01cService",
     "method": "onConditionPgmiderrL77",
-    "line": 266,
+    "line": 265,
     "kind": "stub"
    }
   ],
@@ -243,7 +243,7 @@
    "ported_unproven": 0
   },
   "generated_compared": true,
-  "port_sha256": "247e20ca326baadad09e75b605488ae4098dbbe9fe0c8654add016c0fe563efa"
+  "port_sha256": "2295c617f181b59d867a652e1ad038998e79aea653cf66c0555433503d6c9a5d"
  },
  "mutation": null,
  "differences": [],
@@ -271,11 +271,11 @@
    },
    {
     "path": "tests/equivalence/cics/DFHEIBLK.cpy",
-    "sha256": "fa4e0e29e8155a653c685420eb159fc5ec491ccf8eba13ccac1eb4962692fcf0"
+    "sha256": "ab7fe78f8e8496673924ed6a663619a320a48efcc474899b033c92c9fda48461"
    },
    {
     "path": "tests/equivalence/cics/ggcics.c",
-    "sha256": "2aff8a7a22af537b24cb03caafe4d6df30c30fde1cb6f548ba376616e6617214"
+    "sha256": "5d1950c7e6a9a0053304c0020175888ce25961f59235ee78799691df2036a1ee"
    },
    {
     "path": "tests/equivalence/db2/SQLCA.cpy",
@@ -342,7 +342,7 @@
   "provenance_file": {
    "path": "tests/equivalence/carddemo-adminmenu/port/provenance.json",
    "format": "porting-loop-provenance/1",
-   "sha256": "4e31ce04d8fbfb3f4b02b04dd4eee4f25c9e8890e0eaf0b47af4500d0b341961"
+   "sha256": "4624840a0011ab73ea5c0f680b4d4342bf53f9bf927fa4c359b63d1e62812c35"
   }
  },
  "approvals": []

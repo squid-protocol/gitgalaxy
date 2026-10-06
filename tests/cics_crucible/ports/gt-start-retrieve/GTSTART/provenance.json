@@ -97,6 +97,25 @@
      "runTask",
      "handleTransaction"
     ]
+   },
+   {
+    "at": "2026-10-06T19:33:23+00:00",
+    "crucible_ref": "v0.5.0 (9ee42d11)",
+    "summary": {
+     "interval-data": "1/1",
+     "no-data": "1/1",
+     "protect-abend": "1/1",
+     "retrieve-lengerr": "1/1",
+     "time-six-hours": "1/1",
+     "unknown-mode": "1/1"
+    },
+    "port_sha256": "b066d8d52ff9535aea54881830b0c0c45bfb8848ba1a2b9fea2ce85fb01e0b76",
+    "harness_commit": "36fc5c2673b74b94d8ad16eb2ab2b5f2db38f4c3",
+    "by": "tests/tools/crucible_port_provenance.py reprove (cics_crucible.py --sides java-ported java-facade --program GTSTART --report-dir)",
+    "entry_points": [
+     "runTask",
+     "handleTransaction"
+    ]
    }
   ]
  },

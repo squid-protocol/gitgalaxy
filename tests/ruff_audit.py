@@ -89,7 +89,7 @@ BASELINE_PATH = Path(__file__).resolve().parent / "ruff_audit_baseline.json"
 def parse_ruff_json(stdout: str, repo_root: Path) -> dict[str, Finding]:
     """Turns `ruff check --output-format=json` output into {content key: Finding}."""
     findings = []
-    for item in json.loads(stdout or "[]"):
+    for item in json.loads(lint_baseline.strip_ansi(stdout).strip() or "[]"):
         rel_path = Path(item["filename"]).resolve().relative_to(repo_root).as_posix()
         location = item.get("location") or {}
         findings.append(
@@ -107,12 +107,19 @@ def parse_ruff_json(stdout: str, repo_root: Path) -> dict[str, Finding]:
 def run_ruff_findings(scan_root: Path = SCAN_ROOT, repo_root: Path = REPO_ROOT) -> dict[str, Finding]:
     """Returns {content key: Finding} for every lint finding ruff reports."""
     result = subprocess.run(
-        ["ruff", "check", str(scan_root), "--output-format=json"],
+        ["ruff", "check", str(scan_root), "--output-format=json", "--no-cache", "--color=never"],
         capture_output=True,
         text=True,
         cwd=repo_root,
+        env=lint_baseline.colourless_env(),
     )
-    return parse_ruff_json(result.stdout, repo_root)
+    # ruff: 0 = clean, 1 = findings; anything else is a tool failure, never a pass.
+    if result.returncode not in (0, 1):
+        lint_baseline.require_parsed("ruff", result.stdout + result.stderr, result.returncode, 0)
+    findings = parse_ruff_json(result.stdout, repo_root)
+    if not findings and result.returncode == 1:
+        lint_baseline.require_parsed("ruff", result.stdout + result.stderr, result.returncode, 0)
+    return findings
 
 
 def run_ruff_check() -> dict[str, str]:
@@ -123,10 +130,11 @@ def run_ruff_check() -> dict[str, str]:
 def run_ruff_format_check() -> bool:
     """Returns True if every file already matches `ruff format`'s output (zero-tolerance, not baselined)."""
     result = subprocess.run(
-        ["ruff", "format", str(SCAN_ROOT), "--check"],
+        ["ruff", "format", str(SCAN_ROOT), "--check", "--no-cache", "--color=never"],
         capture_output=True,
         text=True,
         cwd=REPO_ROOT,
+        env=lint_baseline.colourless_env(),
     )
     if result.returncode != 0:
         print(result.stdout)

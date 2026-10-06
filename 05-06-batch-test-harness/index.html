@@ -497,6 +497,8 @@
       
         
       
+        
+      
     
     
     
@@ -1145,6 +1147,34 @@
     
   
     COBOL Service Forge
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../cookbook/cobol-equivalence-testing/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    COBOL Equivalence Testing
   
 
     
@@ -10135,6 +10165,8 @@
       
         
       
+        
+      
     
     
     
@@ -10859,6 +10891,34 @@
     
   
     Proven COBOL-to-Java Ports
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../05-20-equivalence-harness/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    The Equivalence Harness
   
 
     
@@ -12187,7 +12247,7 @@
 <p><strong>File Reference:</strong> <a href="https://github.com/squid-protocol/gitgalaxy/blob/main/gitgalaxy/tools/cobol_to_java/batch_test_harness.py"><code>gitgalaxy/tools/cobol_to_java/batch_test_harness.py</code></a></p>
 </blockquote>
 <h2 id="engineering-summary">Engineering Summary</h2>
-<p>This subsystem is an automated verification framework that executes the entire end-to-end modernization pipeline across multiple repositories. It solves the problem of detecting regressions in static analysis or code generation logic by compiling the output artifacts. It exists to guarantee that changes to the core engine do not break downstream compilability. It checks that the generated project compiles; whether a ported program behaves like the COBOL is checked by the equivalence harness (<a href="../05-19-proven-cobol-to-java-ports/">Proven COBOL-to-Java Ports</a>).</p>
+<p>This subsystem is an automated verification framework that executes the entire end-to-end modernization pipeline across multiple repositories. It solves the problem of detecting regressions in static analysis or code generation logic by compiling the output artifacts. It exists to guarantee that changes to the core engine do not break downstream compilability. It checks that the generated project compiles; whether a ported program behaves like the COBOL is checked by the equivalence harness (<a href="../05-20-equivalence-harness/">The Equivalence Harness</a>; results in <a href="../05-19-proven-cobol-to-java-ports/">Proven COBOL-to-Java Ports</a>).</p>
 <h2 id="purpose">Purpose</h2>
 <p>To stress-test the modernization pipeline and verify that static analysis extraction and Java code generation produce 100% compilable Spring Boot applications.</p>
 <h2 id="problem-being-solved">Problem Being Solved</h2>
@@ -12217,18 +12277,19 @@
 </ul>
 <h2 id="limitations">Limitations</h2>
 <ul>
-<li>Only validates syntax and compilability. Functional equivalence is the equivalence harness's job (<code>tests/tools/equivalence.py</code>, <code>det_port.py</code>, <code>proof_sweep.py</code>), and every supported target config is compile-checked by <code>tests/tools/java_target_matrix.py</code>.</li>
+<li>Only validates syntax and compilability. Functional equivalence is the equivalence harness's job (<a href="../05-20-equivalence-harness/">05-20</a>; <code>tests/tools/equivalence.py</code>, <code>det_port.py</code>, <code>proof_sweep.py</code>), and every supported target config is compile-checked by <code>tests/tools/java_target_matrix.py</code>.</li>
 </ul>
 <h2 id="performance-notes">Performance Notes</h2>
 <p>Test execution is bounded by the speed of Maven compilation and JDK startup overhead. Bounded by a 5-minute timeout per project to prevent blocking CI/CD runners.</p>
 <h2 id="future-work">Future Work</h2>
 <ul>
-<li>Running the equivalence harness's cases from this harness for estates that have them.</li>
+<li>Running the equivalence harness's cases (<a href="../05-20-equivalence-harness/">05-20</a>) from this harness for estates that have them.</li>
 </ul>
 <h2 id="related-components">Related Components</h2>
 <ul>
 <li><code>cobol_refractor_controller.py</code></li>
 <li><code>cobol_to_java_controller.py</code></li>
+<li><a href="../05-20-equivalence-harness/">The Equivalence Harness</a></li>
 </ul>
 
 

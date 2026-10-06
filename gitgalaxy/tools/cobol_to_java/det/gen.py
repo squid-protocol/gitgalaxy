@@ -20,6 +20,7 @@ from gitgalaxy.tools.cobol_to_java.det import stmt as S
 
 if TYPE_CHECKING:
     from gitgalaxy.tools.cobol_to_java.det.cics import Cics
+    from gitgalaxy.tools.cobol_to_java.det.source import EngineCopies
 
 
 class Untranslatable(Exception):
@@ -147,6 +148,7 @@ class Gen:
         self.cur = 0
         self.cics: Cics | None = None
         self.copy_dirs: list = []
+        self.engine: EngineCopies | None = None  # #4528: the estate's declared code pages
         self.lifted: dict[int, str] = {}  # id(item) -> "X" (a String of its length) | "BIN" (a long) -- B3
         self.violations: set[str] = set()  # lifted items used through their bytes: this translation is discarded
         # typed groups: a group holding lifted items keeps its bytes for whole-group uses -- packed from the typed

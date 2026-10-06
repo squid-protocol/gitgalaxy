@@ -53,6 +53,29 @@ class CicsError(Exception):
     pass
 
 
+# #4528: CICS's default CCSID, the region's page when the estate declares no EBCDIC one (cics-crucible SPEC 2: "every
+# byte in every area is CCSID 037")
+REGION_PAGE = "cp037"
+
+
+def region_page(declared: str | None) -> str:
+    """#4528: the JDK name of the region's code page -- the page a TS item's bytes are in on the COBOL side: the
+    estate's declared code page for the program when it is an EBCDIC one (cp273, cp277 ...: EngineCopies.page, the
+    page the engine decoded it with), else CCSID 037. An ASCII-family declaration says how the source was
+    transferred, not which page the region runs."""
+    from gitgalaxy.core.ebcdic_codecs import java_charset_name, register
+
+    register()
+    page = REGION_PAGE
+    if declared:
+        try:
+            if " ".encode(declared) == b"\x40":
+                page = declared
+        except (LookupError, UnicodeError):
+            pass
+    return java_charset_name(page)
+
+
 # #4411: every option each modelled command accepts. An option outside its command's set is refused by name (the
 # statement becomes a hole), never accepted and ignored: a silently divergent port is worse than a visible hole.
 # Options accepted with no code of their own say why they cannot change what the program sees.
@@ -392,6 +415,10 @@ class Cics:
         # handler state is stacked); set by program._translate from the source before any statement is translated
         self.handle_aid = False
         self.push_handle = False
+        # #4528: the region's code page (region_page), set by program._translate; `region_used`: the port declares
+        # REGION (a TS command moves bytes between the program's storage and the region)
+        self.region = region_page(None)
+        self.region_used = False
 
     # -- operands
     def operand(self, text: str):
@@ -562,7 +589,7 @@ class Cics:
 
     def declared(self, leaf: Leaf) -> L.Item:
         """A DTO field's item as the copybook the generator read it from declares it."""
-        from gitgalaxy.tools.cobol_to_java.det.source import logical_lines
+        from gitgalaxy.tools.cobol_to_java.det.source import _raw_lines, logical_lines
 
         name = Path(leaf.source or "").name
         path = next((d / name for d in self.g.copy_dirs if name and (d / name).is_file()), None)
@@ -570,7 +597,8 @@ class Cics:
             raise CicsError(f"{leaf.cobol}: {leaf.size} bytes, PIC {leaf.pic} is not; its copybook {name!r} not found")
         raw = ["       IDENTIFICATION DIVISION.", "       PROGRAM-ID. GGDTO.", "       DATA DIVISION.",
                "       WORKING-STORAGE SECTION.", "       01 GG-DTO-RECORD."]  # fmt: skip
-        raw += path.read_text(encoding="latin-1").splitlines()
+        # #4528: decoded with the code page the estate declares for it, as the engine and the source reader do
+        raw += _raw_lines(path, self.g.engine)
         for rec in L.parse(logical_lines(raw, str(path))):
             for it in rec.walk():
                 if it.name == leaf.cobol and it.size == leaf.size:
@@ -892,8 +920,9 @@ class Cics:
         return out + self.input_outcome(opts, f"DetCics.resp({r}.resp())", ind)
 
     def ts_queue(self, verb: str, opts: dict, ind: str) -> list[str]:
-        """WRITEQ TS / READQ TS on the task's temporary storage (CicsTask): an item is the program's own bytes.
-        (The proofs cover no TS command yet: declared in docs/language_status/det_port_design.md.)"""
+        """WRITEQ TS / READQ TS on the task's temporary storage (CicsTask): an item is the program's own bytes in the
+        region's code page (#4528: REGION, region_page) -- written from the storage's page (CS) and read back into
+        it, character by character, as the COBOL side's region moves them."""
         q = opts.get("QUEUE") or opts.get("QNAME")
         if q is None:
             raise CicsError(f"{verb} TS without QUEUE / QNAME")
@@ -901,10 +930,12 @@ class Cics:
         g = self.g
         r = g.tmpname("ts")
         out: list[str] = []
+        self.region_used = True
         if verb == "WRITEQ":
             f = self.read_field(_arg(opts.get("FROM")))
             n = self.int_(_arg(opts["LENGTH"])) if opts.get("LENGTH") else f"{f}.length()"
-            data = f"DetCics.bytes({f}, {n})"
+            # #4528: the item in the region's page, as the COBOL side's region keeps it
+            data = f"DetCics.toRegion(DetCics.bytes({f}, {n}), CS, REGION)"
             if "REWRITE" in opts:
                 out.append(
                     f"{ind}CicsTask.TsResult {r} = task.rewriteqTs({queue}, {self.int_(_arg(opts.get('ITEM')))}, {data});"
@@ -924,7 +955,7 @@ class Cics:
                 out.append(
                     f"{ind}CicsTask.TsResult {r} = task.readqTs({queue}, {self.int_(_arg(opts['ITEM']))}, {maxlen});"
                 )
-            out.append(f"{ind}if ({r}.data() != null) DetCics.put({into}, {r}.data());")
+            out.append(f"{ind}if ({r}.data() != null) DetCics.put({into}, DetCics.fromRegion({r}.data(), REGION, CS));")
             if opts.get("LENGTH"):
                 out.append(f"{ind}if ({r}.length() >= 0) Cobol.store({self.field(_arg(opts['LENGTH']))}, "
                            f"BigDecimal.valueOf({r}.length()), false, CS);")  # fmt: skip

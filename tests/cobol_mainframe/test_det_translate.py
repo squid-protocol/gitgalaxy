@@ -1238,3 +1238,114 @@ def test_missing_language_pack_names_the_translator_extra(monkeypatch):
     for call in (L._parser, lambda: S.parse([Line("PROCEDURE DIVISION.", "x", 1)])):
         with pytest.raises(ImportError, match=r"pip install gitgalaxy\[translator\]"):
             call()
+
+
+# ---- #4528: TS items in the region's code page; DTO copybooks in their declared page --------------------------------
+class _TsCics(_RespCics):
+    def int_(self, text):
+        return f"INT({text})"
+
+
+def test_ts_items_move_between_the_storage_page_and_the_regions():
+    """#4528: a TS item is "the bytes the program wrote, in the region's code page" (CicsTask), as the COBOL side's
+    region keeps it (cics-crucible SPEC 2: CCSID 037). The port's storage is in CS (CobolRecords.charset()): WRITEQ
+    hands the region the item in REGION's page, READQ moves it back into CS. hc-perform-range: WS-ONE VALUE 'W' was
+    written as X'57' ('ï' in CCSID 037), and an item 'A' read back as X'C1' ('Á' in Latin-1)."""
+    c = _TsCics()
+    assert not c.region_used and c.region == "IBM037"
+    out = c.command("WRITEQ TS QUEUE('Q') FROM(REC) LENGTH(10)", "")
+    assert (
+        out[0]
+        == "CicsTask.TsResult ts1 = task.writeqTs('Q'.strip(), DetCics.toRegion(DetCics.bytes(f_REC, INT(10)), CS, REGION));"
+    )
+    out = c.command("WRITEQ TS QUEUE('Q') FROM(REC) ITEM(3) REWRITE", "")
+    assert "DetCics.toRegion(DetCics.bytes(f_REC, f_REC.length()), CS, REGION)" in out[0]
+    out = c.command("READQ TS QUEUE('Q') INTO(REC) LENGTH(VARLEN) ITEM(2)", "")
+    assert "if (ts3.data() != null) DetCics.put(f_REC, DetCics.fromRegion(ts3.data(), REGION, CS));" in out
+    assert c.region_used
+
+
+@pytest.mark.parametrize(
+    ("declared", "page"),
+    [(None, "IBM037"), ("cp037", "IBM037"), ("cp273", "IBM273"), ("cp277", "IBM277"), ("cp1047", "IBM1047"),
+     ("cp1140", "IBM01140"), ("latin-1", "IBM037"), ("utf-8", "IBM037"), ("no-such-page", "IBM037")],
+)  # fmt: skip
+def test_the_region_page_is_the_estates_declared_ebcdic_page_else_ccsid_037(declared, page):
+    """#4528: the estate's declared code page for the program (EngineCopies.page, #4462) names the region's when it
+    is an EBCDIC page; an ASCII-family declaration says how the source was transferred, not which page the region
+    runs, so CICS's default CCSID 037 stands."""
+    assert C.region_page(declared) == page
+
+
+def test_a_dto_copybook_is_read_in_its_declared_page(tmp_path):
+    """#4528 (left by #4462): Cics.declared read a DTO's copybook as Latin-1 while the engine and the source reader
+    take the estate's declared page; an EBCDIC copybook was garbage. It is now read the way the program is."""
+    pytest.importorskip("tree_sitter_language_pack")
+    from gitgalaxy.tools.cobol_to_java.det.source import EngineCopies
+
+    member = "       05  CA-AMT  PIC S9(5) SIGN LEADING SEPARATE.\n       05  CA-NAME PIC X(10).\n"
+    (tmp_path / "CACOPY.cpy").write_bytes(member.encode("cp037"))
+    c = _TsCics()
+    c.g.copy_dirs = [tmp_path]
+    c.g.engine = EngineCopies(tmp_path / "P.cbl", tmp_path, {}, frozenset(), frozenset(), {"CACOPY.cpy": "cp037"})
+    leaf = C.Leaf("caAmt", "BigDecimal", "CA-AMT", "S9(5)", "DISPLAY", 0, 6, "CACOPY.cpy")
+    it = c.declared(leaf)
+    assert (it.name, it.size, it.sign_leading, it.sign_separate) == ("CA-AMT", 6, True, True)
+
+
+def _javac() -> Path | None:
+    home = os.environ.get("JDK_17") or os.environ.get("JAVA_HOME")
+    return Path(home) / "bin" if home and (Path(home) / "bin/javac").is_file() else None
+
+
+@pytest.mark.skipif(_javac() is None, reason="needs a JDK 17 (JAVA_HOME / JDK_17)")
+def test_det_cics_moves_ts_bytes_between_pages_strictly(tmp_path):
+    """#4528: DetCics.toRegion / fromRegion: Latin-1 storage <-> CCSID 037, every byte both ways (each page holds the
+    other's 256 characters), NL (X'15') as NEL -- the COBOL side's cp037, not the JDK's LF; the same page is the bytes
+    as they are; a byte one page cannot carry, or part of a multi-byte character, stops the run by name -- never a
+    substituted '?'. gitgalaxy.cics.charset names another region page."""
+    from gitgalaxy.tools.cobol_to_java.cobol_to_java_transaction_forge import CICS_TASK_JAVA
+    from gitgalaxy.tools.cobol_to_java.det import program as P
+
+    src = tmp_path / "src"
+    files = {"t/cics/CicsTask.java": CICS_TASK_JAVA.replace("__PACKAGE__", "t").replace("__ZONE__", "UTC"),
+             **{f"t/{k}": v for k, v in P.runtime_files("t", batch=False).items()}}  # fmt: skip
+    files["Main.java"] = """
+import java.nio.charset.Charset;
+import t.cobolrt.cics.DetCics;
+public class Main {
+    static String hex(byte[] b) { StringBuilder s = new StringBuilder(); for (byte x : b) s.append(String.format("%02X", x)); return s.toString(); }
+    public static void main(String[] a) {
+        Charset l1 = Charset.forName("ISO-8859-1"), region = DetCics.region("IBM037");
+        System.out.println(region + " " + hex(DetCics.toRegion("W A".getBytes(l1), l1, region)));
+        byte[] all = new byte[256];
+        for (int i = 0; i < 256; i++) all[i] = (byte) i;
+        System.out.println(java.util.Arrays.equals(all, DetCics.fromRegion(DetCics.toRegion(all, l1, region), region, l1)));
+        System.out.println(hex(DetCics.fromRegion(new byte[] {(byte) 0xC1, 0x40}, region, l1)));
+        System.out.println(DetCics.toRegion(all, region, region) == all);
+        System.out.println(hex(DetCics.fromRegion(new byte[] {0x15, 0x25}, region, l1)));
+        System.out.println(hex(DetCics.toRegion(all, l1, region)));
+        try { DetCics.toRegion(new byte[] {(byte) 0xC3, (byte) 0xA9}, Charset.forName("UTF-8"), region); }
+        catch (UnsupportedOperationException e) { System.out.println("refused: " + e.getMessage()); }
+        try { DetCics.toRegion(new byte[] {(byte) 0x80}, Charset.forName("windows-1252"), region); }
+        catch (UnsupportedOperationException e) { System.out.println("refused"); }
+        System.setProperty("gitgalaxy.cics.charset", "IBM273");
+        System.out.println(DetCics.region("IBM037"));
+    }
+}
+"""
+    for rel, text in files.items():
+        (src / rel).parent.mkdir(parents=True, exist_ok=True)
+        (src / rel).write_text(text, encoding="utf-8")
+    jdk = _javac()
+    import subprocess
+
+    built = subprocess.run([str(jdk / "javac"), "-nowarn", "-d", str(tmp_path / "classes"),  # noqa: S603
+                            *map(str, src.rglob("*.java"))], capture_output=True, text=True, check=False)  # fmt: skip
+    assert built.returncode == 0, built.stderr
+    out = subprocess.run([str(jdk / "java"), "-cp", str(tmp_path / "classes"), "Main"], capture_output=True,  # noqa: S603
+                         text=True, check=True).stdout.splitlines()  # fmt: skip
+    assert out[:5] == ["IBM037 E640C1", "true", "4120", "true", "850A"]  # NL is NEL, as Python's cp037 has it
+    assert out[5] == bytes(range(256)).decode("latin-1").encode("cp037").hex().upper()  # the stub's own table
+    assert out[6] == "refused: byte C3 is no character of UTF-8 on its own: not modelled"
+    assert out[7:] == ["refused", "IBM273"]

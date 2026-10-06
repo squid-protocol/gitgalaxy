@@ -598,6 +598,18 @@ class Gen:
         raise Untranslatable(f"expression {type(e).__name__}")
 
     def func(self, f: E.Func) -> str:
+        refmod = next((a[1] for a in f.args if isinstance(a, tuple) and a[0] == "REFMOD"), None)
+        if refmod is None:
+            return self._func(f)
+        # #4462: FUNCTION CURRENT-DATE (1:4): the characters of the function's text (an alphanumeric function only)
+        if f.name not in ("UPPER-CASE", "LOWER-CASE", "TRIM", "REVERSE", "CURRENT-DATE"):
+            raise Untranslatable(f"FUNCTION {f.name} with a reference modification")
+        start, length = refmod
+        at = f"{self.int_expr(start)} - 1"
+        end = f", {at} + {self.int_expr(length)}" if length is not None else ""
+        return f"{self._func(f)}.substring({at}{end})"
+
+    def _func(self, f: E.Func) -> str:
         name = f.name
         args = [a for a in f.args if not (isinstance(a, tuple) and a[0] == "REFMOD")]
         if name == "TRIM" and len(args) == 2 and isinstance(args[1], E.Ref) and args[1].name in ("LEADING", "TRAILING"):
@@ -991,6 +1003,10 @@ class Gen:
                     raise Untranslatable(f"GO TO {name}: no such paragraph")
                 sw.append(f"{ind}    case {i}: return GOTO | {self.para_index[name]};")
             return [*sw, f"{ind}    default: break;", f"{ind}}}"]
+        if k == "ENTRY":  # #4462 (stmt._entry): the program's first statement is its entry, else not modelled
+            if s.data.get("first"):
+                return [c]
+            raise Untranslatable(f"ENTRY {s.data['name']}: an alternate entry point is not modelled")
         if k in ("EXIT", "CONTINUE"):
             what = s.data.get("what") or []
             if k == "EXIT" and what[:1] == ["PROGRAM"]:

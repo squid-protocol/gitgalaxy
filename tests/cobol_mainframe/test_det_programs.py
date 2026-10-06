@@ -615,14 +615,17 @@ def _cobol(src: str, work: Path) -> str:
     return run.stdout
 
 
-def _java_run(name: str, src: str, work: Path, typed: bool = False, groups: bool = False) -> str:
+def _java_run(
+    name: str, src: str, work: Path, typed: bool = False, groups: bool = False, unit: str | None = None
+) -> str:
     from gitgalaxy.tools.cobol_to_java.det import program as P
 
     (work / f"{name}.cbl").write_text(src)
     project = work / "project"  # no generated project: the standalone runtime
     project.mkdir()
-    r = P.translate(work / f"{name}.cbl", [], f"public class {name.title()}Service {{\n}}\n", PKG, None, project,
-                    typed=typed, groups=groups)  # fmt: skip
+    cls = (unit or name).title()
+    r = P.translate(work / f"{name}.cbl", [], f"public class {cls}Service {{\n}}\n", PKG, None, project,
+                    typed=typed, groups=groups, unit=unit)  # fmt: skip
     assert not r.stats["holes"], r.stats["holes"]
     srcdir = work / "java"
     java = r.java.replace("import org.springframework.stereotype.Service;\n", "").replace("@Service\n", "")
@@ -915,3 +918,50 @@ def test_sort_under_an_alphabet_refuses_what_ibm_and_gnucobol_order_differently(
         _java_run("SORTCS", src, tmp_path)
     assert f"COLLATING SEQUENCE {alphabet}: keys" in e.value.stderr
     assert "ordered differently by IBM and by GnuCOBOL (register D1): not modelled" in e.value.stderr
+
+
+# ---- #4462: a multi-program source, one program at a time; a reference modification of an intrinsic function -----
+MULTI = """\
+       IDENTIFICATION DIVISION.
+       PROGRAM-ID.    MULTI.
+       DATA DIVISION.
+       WORKING-STORAGE SECTION.
+       01  WS-UP                  PIC X(4).
+       01  WS-SRC                 PIC X(8) VALUE 'abcdefgh'.
+       PROCEDURE DIVISION.
+           MOVE FUNCTION UPPER-CASE(WS-SRC) (3:4) TO WS-UP
+           DISPLAY 'MULTI ' WS-UP
+           MOVE FUNCTION CURRENT-DATE (1:2) TO WS-UP
+           IF WS-UP(1:2) = '20' DISPLAY 'CENTURY 20' END-IF
+           MOVE ALL X'4142' TO WS-UP
+           DISPLAY WS-UP
+           GOBACK.
+       IDENTIFICATION DIVISION.
+       PROGRAM-ID.    INNER.
+       DATA DIVISION.
+       WORKING-STORAGE SECTION.
+       01  WS-I                   PIC 9(4) VALUE 41.
+       PROCEDURE DIVISION.
+           ADD 1 TO WS-I
+           DISPLAY 'INNER ' WS-I
+           GOBACK.
+       END PROGRAM INNER.
+       END PROGRAM MULTI.
+       IDENTIFICATION DIVISION.
+       PROGRAM-ID.    SIBLING.
+       DATA DIVISION.
+       WORKING-STORAGE SECTION.
+       01  WS-LINES               PIC 9(4) VALUE 7.
+       PROCEDURE DIVISION.
+           DISPLAY 'SIBLING ' WS-LINES
+           GOBACK.
+       END PROGRAM SIBLING.
+"""
+
+
+@pytest.mark.skipif(_java() is None, reason="needs a JDK 17 (JAVA_HOME / JDK_17)")
+@pytest.mark.parametrize("unit, want", [(None, "MULTI CDEF\nCENTURY 20\nABAB\n"), ("INNER", "INNER 0042\n"),
+                                        ("SIBLING", "SIBLING 0007\n")])  # fmt: skip
+def test_each_program_of_a_multi_program_source_translates_and_runs_on_its_own(unit, want, tmp_path):
+    pytest.importorskip("tree_sitter_language_pack")
+    assert _java_run("MULTI", MULTI, tmp_path, unit=unit) == want

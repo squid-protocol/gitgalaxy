@@ -27,6 +27,7 @@ import re
 import shutil
 import subprocess
 import sys
+import time
 from concurrent.futures import ThreadPoolExecutor
 from pathlib import Path
 from typing import Any
@@ -127,6 +128,13 @@ def _parity(port: Path, corpus: Path, programs: list[tuple[str, str]]) -> dict[s
 
 
 def prove(name: str, work: Path, faults: str) -> dict[str, Any]:
+    t0 = time.monotonic()
+    out = _prove(name, work, faults)
+    out["proof_seconds"] = round(time.monotonic() - t0, 1)  # (the sweep balances its shards by it)
+    return out
+
+
+def _prove(name: str, work: Path, faults: str) -> dict[str, Any]:
     keep = work / name / "proof"
     shutil.rmtree(keep, ignore_errors=True)  # equivalence.py --keep wants a fresh directory
     argv = [
@@ -203,7 +211,11 @@ def check(args: argparse.Namespace) -> int:
     """Translate every case with the current code and with the base, and list the ports that changed."""
     work: Path = args.work
     work.mkdir(parents=True, exist_ok=True)
-    flags = ["--style", args.style] + (["--typed"] if args.typed else ["--no-typed"]) + (["--groups"] if args.groups else [])
+    flags = (
+        ["--style", args.style]
+        + (["--typed"] if args.typed else ["--no-typed"])
+        + (["--groups"] if args.groups else [])
+    )
     cases = args.cases or all_cases()
 
     def translate(repo: Path, out: Path) -> None:
@@ -308,7 +320,11 @@ def main() -> int:
             where = args.work if cname == "aws-mainframe-modernization-carddemo" else args.work / f"estate-{cname}"
             estates[cname] = (corpus, estate(corpus, where))
         corpus, project = estates[cname]
+        t0 = time.monotonic()
         results.append(port_case(n, args.work, project, corpus, args.style, args.typed, args.groups))
+        results[-1]["translate_seconds"] = round(
+            time.monotonic() - t0, 1
+        )  # (the estate, shared by a corpus's cases, is not counted)
     if not args.translate_only:
         eq.build_image()
         todo = [x for x in results if x.get("statements") is not None]

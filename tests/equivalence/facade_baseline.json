@@ -1,23 +1,5 @@
 {
  "format": "equivalence-facade-baseline/1",
  "about": "#4449: the java-facade scenarios (each CICS scenario entered through the program's deployed entry point) that fail on committed equivalence ports, each case with the issue that owns the defect. tests/cobol_mainframe/test_evidence.py checks it against the evidence records.",
- "cases": {
-  "carddemo-signon": {
-   "issue": "#4464",
-   "why": "the generated handleTransaction(String) / handleLink() take no COMMAREA, but COSGN00C's RETURN TRANSID(CC00) COMMAREA(CARDDEMO-COMMAREA) re-enters it with one (opaque ODO DFHCOMMAREA): every re-entry is refused",
-   "scenarios": [
-    "admin-signs-on",
-    "both-empty",
-    "invalid-key",
-    "lowercase-credentials",
-    "password-empty",
-    "pf3-thank-you",
-    "user-file-io-error",
-    "user-id-empty",
-    "user-not-found",
-    "user-signs-on",
-    "wrong-password"
-   ]
-  }
- }
+ "cases": {}
 }

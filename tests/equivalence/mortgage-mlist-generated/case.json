@@ -1,0 +1,95 @@
+{
+ "kind": "cics",
+ "corpus": "dbb-mortgage-application",
+ "program": "EPSMLIST",
+ "program_source": "zBuilder/MortgageApplication/cobol/epsmlist.cbl",
+ "copy_dirs": [
+  "zBuilder/MortgageApplication/copybook"
+ ],
+ "transid": "EPSP",
+ "clock": "2026/10/03 10:30:15.00",
+ "linked": true,
+ "datasets": {
+  "EPSMORTF": {
+   "input": "@generate",
+   "copybook": "zBuilder/MortgageApplication/copybook/epsmortf.cpy",
+   "record": "MORTGAGE-COMPANY-INFO",
+   "csd": {
+    "organization": "ESDS",
+    "reclen": 56,
+    "why": "the repository ships no CSD or IDCAMS DEFINE for EPSMORTF; EPSMLIST browses it by RBA (STARTBR ... RBA, which IBM allows only on an ESDS or a KSDS base) and reads it INTO MORTGAGE-COMPANY-INFO (COPY EPSMORTF), 56 bytes: an ESDS of fixed 56-byte records, the four companies in arrival order"
+   },
+   "generate": {
+    "copybook": "zBuilder/MortgageApplication/copybook/epsmortf.cpy",
+    "record": "MORTGAGE-COMPANY-INFO",
+    "records": 12,
+    "seed": 3804,
+    "fields": {
+     "MORT-FILE-RATE": {
+      "values": [
+       20,
+       25.5,
+       99.99,
+       20.01
+      ]
+     },
+     "MORT-FILE-LOAN": {
+      "values": [
+       0,
+       1,
+       250000.5
+      ]
+     }
+    }
+   }
+  }
+ },
+ "commarea": {
+  "segments": [
+   {
+    "copybook": "zBuilder/MortgageApplication/cobol/epsmlist.cbl",
+    "record": "DFHCOMMAREA"
+   }
+  ]
+ },
+ "screens": {
+  "EPSMLIS": {
+   "copybook": "@bms/EPSMLIS.cpy",
+   "input": "EPSMLISI",
+   "output": "EPSMLISO"
+  }
+ },
+ "scenarios": [],
+ "scenario_generate": {
+  "seed": 3804,
+  "count": 12,
+  "prefix": "generated",
+  "aid": "DFHENTER",
+  "commarea": {
+   "PROCESS-INDICATOR": "9",
+   "EPSPCOM-PRINCIPLE-DATA": {
+    "edge": true
+   },
+   "EPSPCOM-NUMBER-OF-YEARS": {
+    "edge": true
+   },
+   "EPSPCOM-QUOTED-INTEREST-RATE": {
+    "values": [
+     0,
+     1.5,
+     3.5,
+     5.125,
+     9.999,
+     15
+    ]
+   },
+   "EPSPCOM-YEAR-MONTH-IND": {
+    "values": [
+     "Y",
+     "M"
+    ]
+   }
+  }
+ },
+ "notes": "EPSMLIST (the mortgage company list) on GENERATED inputs alone (#3804): the dbb-mortgage-application estate ships no data and no CSD, so everything the case holds is generated from record layouts -- twelve company records (MORTGAGE-COMPANY-INFO: text, rates and loans from the field edge values) in the ESDS the case states, and twelve COMMAREAs (EPSMTCOM: the principal and years at the PICTURE's edge values, in turn, a quoted rate and a year / month indicator in turn). The generated rates are 20.00 and above and the quoted rates 15 and below, so no company passes A150's test and the LINK to EPSCSMRT (not resolved by the engine, see mortgage-mlist) is never reached: the proof judges the browse by its outcomes, as mortgage-mlist does. Derived from the IBM DBB MortgageApplication sample (Apache-2.0): LICENSE here is the corpus's own, NOTICE names the source and what was derived."
+}

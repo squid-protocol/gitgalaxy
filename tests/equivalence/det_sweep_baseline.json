@@ -10,10 +10,6 @@
    "issue": null,
    "why": "generated card numbers mix letters and digits: ASCII vs EBCDIC key order picks different duplicates (oracle_assumptions.md D1)"
   },
-  "carddemo-signon": {
-   "issue": "#4464",
-   "why": "runTask proof passes on every scenario; the java-facade proof is refused: the generated handleTransaction(String) takes no COMMAREA, but COSGN00C's RETURN TRANSID(CC00) COMMAREA(CARDDEMO-COMMAREA) re-enters it with one (the det facades run the region since #4465; the signature is the generator's)"
-  },
   "mortgage-mpmt": {
    "issue": "#4271",
    "why": "IBM DBB EPSMPMT computes its payment through a COMP-1 item: z/OS evaluates both COMPUTEs in hexadecimal floating point, GnuCOBOL in truncated decimal, so the det translator refuses float items by name (oracle_assumptions.md C6; its CBL NUMPROC(MIG) is now modelled, C5)"

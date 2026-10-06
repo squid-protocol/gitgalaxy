@@ -43,7 +43,7 @@
     "tests/tools/java_target_matrix.py"
    ],
    "files": 11,
-   "sha256": "cd0c22f11e735f25b3d655aac6b89670b07cba2e23856c7c825291b64fa994c5"
+   "sha256": "733393649ad5cf8392151d669c2a1254e0de3b8476f8d43a4ea7343515a4f235"
   },
   "oracle": {
    "paths": [
@@ -63,7 +63,7 @@
     "gitgalaxy/tools/cobol_to_java/**"
    ],
    "files": 60,
-   "sha256": "a587c11e1101e13b8d697f1a56f852184b2b6fa4763efa88c2ac9d2fc59cb3fd"
+   "sha256": "a4354cd07d83a95b7ab13ebb635f3aad5a97a660b0616b88c208795cf28bbce7"
   },
   "corpus": {
    "name": "aws-mainframe-modernization-carddemo",
@@ -73,10 +73,10 @@
   "differences": {
    "sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
   },
-  "digest": "74209608de8f93dc17fc1a1d59a49f084158b1f6e4ef41b53dfffe8c0444342e"
+  "digest": "77ff8af7b0910a8be10dd81a504ab75a263f4a15430b6c312089622686915eea"
  },
  "proof": {
-  "at": "2026-10-05T20:23:46Z",
+  "at": "2026-10-05T23:49:23Z",
   "verdict": "proven",
   "runs": 12,
   "fault_runs": 1,
@@ -145,8 +145,8 @@
    "failed": [],
    "error": null
   },
-  "harness_commit": "49879e50de07a3359d9efcc4b5c72cd221f41c39+uncommitted",
-  "inputs_digest": "74209608de8f93dc17fc1a1d59a49f084158b1f6e4ef41b53dfffe8c0444342e"
+  "harness_commit": "3f125ccd99d1a92a8e885a75493ef81b5dd4a2f9+uncommitted",
+  "inputs_digest": "77ff8af7b0910a8be10dd81a504ab75a263f4a15430b6c312089622686915eea"
  },
  "coverage": {
   "paragraphs": {
@@ -163,7 +163,7 @@
    "total": 0
   },
   "source": "the proof's own traced COBOL runs (cobol_coverage.py)",
-  "inputs_digest": "74209608de8f93dc17fc1a1d59a49f084158b1f6e4ef41b53dfffe8c0444342e"
+  "inputs_digest": "77ff8af7b0910a8be10dd81a504ab75a263f4a15430b6c312089622686915eea"
  },
  "reach": {
   "entry_points": [

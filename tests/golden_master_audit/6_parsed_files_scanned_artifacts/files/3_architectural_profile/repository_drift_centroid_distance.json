@@ -3214,12 +3214,12 @@
     },
     "rust/holylang": {
       "rust/holylang/ast.rs": 5.99,
-      "rust/holylang/compile.rs": 6.563,
+      "rust/holylang/compile.rs": 6.576,
       "rust/holylang/error.rs": 4.465,
       "rust/holylang/main.rs": 6.498,
-      "rust/holylang/parser.rs": 5.427,
-      "rust/holylang/semantic.rs": 8.234,
-      "rust/holylang/transpiler.rs": 9.534
+      "rust/holylang/parser.rs": 5.408,
+      "rust/holylang/semantic.rs": 8.225,
+      "rust/holylang/transpiler.rs": 9.526
     },
     "rust/serde": {
       "rust/serde/LICENSE-APACHE": 0.0,
@@ -3240,21 +3240,21 @@
       "rust/syn/custom_keyword.rs": 7.427,
       "rust/syn/custom_punctuation.rs": 7.392,
       "rust/syn/data.rs": 9.832,
-      "rust/syn/derive.rs": 12.516
+      "rust/syn/derive.rs": 12.506
     },
     "rust/tokio": {
       "rust/tokio/addr_of.rs": 6.1,
       "rust/tokio/block_on.rs": 8.673,
-      "rust/tokio/blocking.rs": 7.298,
-      "rust/tokio/builder.rs": 7.06,
-      "rust/tokio/config.rs": 6.67,
-      "rust/tokio/fuzz.rs": 4.436,
-      "rust/tokio/interval.rs": 8.364,
+      "rust/tokio/blocking.rs": 7.236,
+      "rust/tokio/builder.rs": 7.048,
+      "rust/tokio/config.rs": 6.603,
+      "rust/tokio/fuzz.rs": 4.474,
+      "rust/tokio/interval.rs": 8.332,
       "rust/tokio/lib.rs": 5.47,
       "rust/tokio/maybe_done.rs": 6.218,
-      "rust/tokio/tests.rs": 5.951,
-      "rust/tokio/tokio_mpsc_bounded.rs": 7.554,
-      "rust/tokio/tokio_named_pipe.rs": 7.488
+      "rust/tokio/tests.rs": 5.94,
+      "rust/tokio/tokio_mpsc_bounded.rs": 7.54,
+      "rust/tokio/tokio_named_pipe.rs": 7.478
     },
     "rust/tokio_util_rand": {
       "rust/tokio_util_rand/rand.rs": 7.622

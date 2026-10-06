@@ -4236,6 +4236,22 @@
         "fcall:rust/bevy/bevy_ecs_world.rs"
       ]
     },
+    "rust/holylang": {
+      "rust/holylang/compile.rs": [
+        "import:rust/holylang/error.rs"
+      ],
+      "rust/holylang/parser.rs": [
+        "import:rust/holylang/ast.rs",
+        "import:rust/holylang/error.rs"
+      ],
+      "rust/holylang/semantic.rs": [
+        "import:rust/holylang/ast.rs",
+        "import:rust/holylang/error.rs"
+      ],
+      "rust/holylang/transpiler.rs": [
+        "import:rust/holylang/ast.rs"
+      ]
+    },
     "rust/serde": {
       "rust/serde/serde_core_de_impls.rs": [
         "fcall:rust/serde/serde_core_de_mod.rs"
@@ -4247,10 +4263,39 @@
         "fcall:rust/serde/serde_core_de_mod.rs"
       ]
     },
+    "rust/syn": {
+      "rust/syn/derive.rs": [
+        "import:rust/syn/data.rs"
+      ]
+    },
     "rust/tokio": {
+      "rust/tokio/blocking.rs": [
+        "import:rust/tokio/lib.rs"
+      ],
+      "rust/tokio/builder.rs": [
+        "import:rust/tokio/lib.rs"
+      ],
+      "rust/tokio/config.rs": [
+        "import:rust/tokio/lib.rs"
+      ],
+      "rust/tokio/fuzz.rs": [
+        "import:rust/tokio/lib.rs"
+      ],
+      "rust/tokio/interval.rs": [
+        "import:rust/tokio/lib.rs"
+      ],
       "rust/tokio/lib.rs": [
         "import:rust/tokio/blocking.rs",
         "import:rust/tokio/fuzz.rs"
+      ],
+      "rust/tokio/tests.rs": [
+        "import:rust/tokio/lib.rs"
+      ],
+      "rust/tokio/tokio_mpsc_bounded.rs": [
+        "import:rust/tokio/lib.rs"
+      ],
+      "rust/tokio/tokio_named_pipe.rs": [
+        "import:rust/tokio/lib.rs"
       ]
     },
     "scala/kafka": {

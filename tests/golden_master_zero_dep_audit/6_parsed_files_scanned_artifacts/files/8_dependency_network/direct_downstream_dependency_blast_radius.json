@@ -3213,9 +3213,9 @@
       "rust/bevy_asset_examples/rotation.rs": 0
     },
     "rust/holylang": {
-      "rust/holylang/ast.rs": 0,
+      "rust/holylang/ast.rs": 3,
       "rust/holylang/compile.rs": 0,
-      "rust/holylang/error.rs": 1,
+      "rust/holylang/error.rs": 4,
       "rust/holylang/main.rs": 0,
       "rust/holylang/parser.rs": 0,
       "rust/holylang/semantic.rs": 0,
@@ -3239,7 +3239,7 @@
       "rust/syn/classify.rs": 0,
       "rust/syn/custom_keyword.rs": 0,
       "rust/syn/custom_punctuation.rs": 0,
-      "rust/syn/data.rs": 0,
+      "rust/syn/data.rs": 1,
       "rust/syn/derive.rs": 0
     },
     "rust/tokio": {
@@ -3250,7 +3250,7 @@
       "rust/tokio/config.rs": 0,
       "rust/tokio/fuzz.rs": 1,
       "rust/tokio/interval.rs": 0,
-      "rust/tokio/lib.rs": 2,
+      "rust/tokio/lib.rs": 10,
       "rust/tokio/maybe_done.rs": 0,
       "rust/tokio/tests.rs": 1,
       "rust/tokio/tokio_mpsc_bounded.rs": 0,

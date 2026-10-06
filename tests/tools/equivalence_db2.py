@@ -402,8 +402,8 @@ def outputs(case: dict[str, Any]) -> dict[str, bytes]:
 #                                               "ACCOUNT_CUSTOMER_NUMBER": {"from": "IBMUSER.CUSTOMER.CUSTNO"},
 #                                               "ACCOUNT_OPENED": {"null": false}}}}}}
 #
-# Each column's values, in row order: its type's boundary values first, then NULL (a nullable column), then values
-# in between --
+# Each column's values, in row order: its type's boundary values first, then NULL (a nullable column; each at a row of
+# its own), then values in between --
 #   CHAR(n)            n characters, blanks, a short value                  (the full length, and the empty value)
 #   VARCHAR(n)         empty, n characters (at most 4000), a short value, one with trailing blanks
 #   DECIMAL(p,s)       0, 1, the largest (10^(p-s) - 10^-s), its negative, the smallest fraction, its negative, halves
@@ -722,6 +722,7 @@ def generate_rows(case: dict[str, Any], corpus: Path, tables: dict[str, dict[str
         idents = {c["name"]: c["identity"] for c in cols if c["identity"] and "values" not in rules.get(c["name"], {})}
         keys = [k for k in t["keys"] if not set(k) & set(idents)]
         key_cols = {c for k in keys for c in k}
+        nullable = [c["name"] for c in cols if c["nullable"] and c["name"] not in key_cols]
         seen: list[set[tuple[Any, ...]]] = [set() for _ in keys]
         made: list[dict[str, Any]] = []
         idx = dict.fromkeys((c["name"] for c in cols), 0)  # each column's next value in its sequence
@@ -756,7 +757,9 @@ def generate_rows(case: dict[str, Any], corpus: Path, tables: dict[str, dict[str
                     v = "".join(rng.choice("0123456789") for _ in range(c.get("length", 1)))
                 else:
                     edges = [] if rule.get("edges") is False else _edges(c)
-                    null_at = len(edges) if c["nullable"] and cn not in key_cols and rule.get("null", True) else -1
+                    # NULL after the boundaries, each nullable column at a row of its own (one NULL at a time:
+                    # a program that tests its columns one by one meets each test alone)
+                    null_at = len(edges) + nullable.index(cn) if cn in nullable and rule.get("null", True) else -1
                     # the boundaries in turn, each column from its own place in its list (so one row is not
                     # every column's first boundary), then NULL, then values in between
                     j = cols.index(c)
@@ -895,15 +898,17 @@ def compare_outcomes(cobol: list[dict[str, Any]], java: list[dict[str, Any]]) ->
         a = cobol[i] if i < len(cobol) else None
         b = java[i] if i < len(java) else None
         if a is None or b is None:
-            diffs.append({"statement": i + 1, "missing": "cobol" if a is None else "java", "cobol": a, "java": b})
+            diffs.append({"statement": i + 1, "record": i + 1, "missing": "cobol" if a is None else "java",
+                          "cobol": a, "java": b})  # fmt: skip
             continue
         fields = [{"field": f, "cobol": a[f], "java": b[f]} for f in ("verb", "sqlcode", "sqlstate")
                   if a[f] != b[f]]  # fmt: skip
         if a["rows"] is not None and b["rows"] is not None and a["rows"] != b["rows"]:
             fields.append({"field": "rows", "cobol": a["rows"], "java": b["rows"]})
         if fields:
-            diffs.append({"statement": i + 1, "fields": fields})
-    return {"statements": n, "equal": n - len(diffs), "diffs": diffs[:20], "cobol": cobol, "java": java}
+            diffs.append({"statement": i + 1, "record": i + 1, "fields": fields})
+    # (`records` / `record` too: a batch report's outputs are read as record diffs, a statement a record)
+    return {"statements": n, "records": n, "equal": n - len(diffs), "diffs": diffs[:20], "cobol": cobol, "java": java}
 
 
 def generated_pools(case: dict[str, Any], corpus: Path) -> dict[str, list[Any]]:

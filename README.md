@@ -264,6 +264,16 @@ A port that is not proven is not done, and a person approves every port.
    what was exercised. [Mutation testing](docs/language_status/mutation_testing.md) breaks
    the port on purpose and counts how many broken ports the proof still catches.
 
+The same harness is meant as translation you can verify, with an audit trail. It takes the
+original program's recorded outputs as the answer key, so no one writes expected values. It
+builds inputs from the exact record layouts, compares every output field by field, reports
+which branches the runs reached, and writes an evidence record with hashes of everything
+it ran against. Checking another vendor's replacement needs it to be callable one transaction at a time,
+plus an adapter per interface, which does not exist yet ([how it works](docs/wiki/05-20-equivalence-harness.md),
+[cookbook](docs/wiki/cookbook/cobol-equivalence-testing.md)). The limits are in that page: the
+answer key is GnuCOBOL with stubs rather than z/OS, and a proof covers the inputs tried,
+not all inputs.
+
 **Proven so far, deterministic ports** (2026-10-02, [cases](tests/equivalence); all of them, and the model-written ports, are re-proven in one
 command by [`tests/tools/proof_sweep.py`](tests/tools/proof_sweep.py)):
 

@@ -120,6 +120,7 @@ nav:
       - 'COBOL to Java REST API': "cookbook/cobol-to-java-REST-API-generation.md"
       - 'COBOL Entity Forge': "cookbook/cobol-to-java-spring-boot-entity-forge.md"
       - 'COBOL Service Forge': "cookbook/cobol-to-java-spring-boot-service-forge.md"
+      - 'COBOL Equivalence Testing': "cookbook/cobol-equivalence-testing.md"
       - 'Create DAG from COBOL': "cookbook/creating-dag-from-cobol-files.md"
       - 'Create JCL from COBOL': "cookbook/creating-jcl-from-cobol-files.md"
       - 'Create Schema from COBOL': "cookbook/creating-schema-from-cobol-files.md"
@@ -403,6 +404,7 @@ nav:
         - 'System Limits Reporter': "05-17-system-limits-reporter.md"
         - 'COBOL ↔ Java Scan Parity': "05-18-cobol-java-scan-parity.md"
         - 'Proven COBOL-to-Java Ports': "05-19-proven-cobol-to-java-ports.md"
+        - 'The Equivalence Harness': "05-20-equivalence-harness.md"
     - '6. Configurations & Standards':
         - 'GitGalaxy Config': "06-01-gitgalaxy-config.md"
         - 'Language Standards': "06-02-language-standards.md"

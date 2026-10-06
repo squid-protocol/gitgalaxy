@@ -690,27 +690,29 @@ class ApertureFilter:
         An extension two languages claim (`.h`: c, cpp, objective-c) gets only the tokens both
         agree on, so no language's code line (C's `#define`) can pass as another's comment.
         """
-        line_exclusive = LEXICAL_FAMILY_HEURISTICS.get("lexical_families", {}).get("line_exclusive", {})
-        per_lang = line_exclusive.get("language_delimiters", {})
-        by_ext: dict[str, list[tuple[frozenset[str], frozenset[tuple[str, str]]]]] = {}
+        families: dict[str, Any] = dict(LEXICAL_FAMILY_HEURISTICS.get("lexical_families", {}))
+        per_lang: dict[str, list[str]] = families.get("line_exclusive", {}).get("language_delimiters", {})
+        Syntax = tuple[frozenset[str], frozenset[tuple[str, str]]]
+        by_ext: dict[str, list[Syntax]] = {}
         for lang_id, data in self.registry.items():
             family = data.get("lexical_family")
+            syntax: Syntax
             if family == "line_exclusive":
                 tokens = [t for t in per_lang.get(lang_id, []) if t not in ("=begin", "=end")]
                 syntax = (frozenset(tokens), frozenset())
             elif family in _FAMILY_COMMENT_SYNTAX:
-                line_tokens, blocks = _FAMILY_COMMENT_SYNTAX[family]
-                syntax = (frozenset(line_tokens), frozenset(blocks))
+                family_lines, family_blocks = _FAMILY_COMMENT_SYNTAX[family]
+                syntax = (frozenset(family_lines), frozenset(family_blocks))
             else:
                 syntax = (frozenset(), frozenset())
             for ext in data.get("extensions", []):
                 by_ext.setdefault(ext.lower(), []).append(syntax)
-        result = {}
+        result: dict[str, tuple[tuple[str, ...], tuple[tuple[str, str], ...]]] = {}
         for ext, syntaxes in by_ext.items():
-            line_tokens = frozenset.intersection(*(s[0] for s in syntaxes))
-            blocks = frozenset.intersection(*(s[1] for s in syntaxes))
-            if line_tokens or blocks:
-                result[ext] = (tuple(sorted(line_tokens, key=len, reverse=True)), tuple(sorted(blocks)))
+            shared_lines = frozenset.intersection(*(s[0] for s in syntaxes))
+            shared_blocks = frozenset.intersection(*(s[1] for s in syntaxes))
+            if shared_lines or shared_blocks:
+                result[ext] = (tuple(sorted(shared_lines, key=len, reverse=True)), tuple(sorted(shared_blocks)))
         return result
 
     @staticmethod

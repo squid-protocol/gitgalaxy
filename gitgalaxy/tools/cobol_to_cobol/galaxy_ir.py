@@ -2178,17 +2178,25 @@ class GalaxyIR:
         state = {"variable": False, "unknown": False}
         extension_files = sorted({f.file_path for f, _ in extension or []})
 
-        def _walk(owner: EngineFile, it: EngineDataItem, offset: int, depth: int, sink: Optional[list] = None) -> int:
+        def _walk(
+            owner: EngineFile,
+            it: EngineDataItem,
+            offset: int,
+            depth: int,
+            sink: list | None = None,
+            inherited: str | None = None,
+        ) -> int:
             """`it`'s width; its elementary fields go to `sink` (`fields`, or a throwaway list
-            when only an overlay's width is wanted)."""
+            when only an overlay's width is wanted). `inherited` is the enclosing group's USAGE (#4525)."""
             out = fields if sink is None else sink
             if it.level in (66, 88):
                 return 0
             if it.occurs_depending_on:
                 state["variable"] = True
             times = it.occurs_max or 1
+            usage = _usage_under(it, inherited)
             # An elementary item's only children are its 88/66 conditions.
-            kids = [] if _is_elementary(it) else self._expanded_children(owner, it, ef, depth)
+            kids = [] if _is_elementary(it, usage) else self._expanded_children(owner, it, ef, depth)
             if it is item and extension:
                 kids = kids + list(extension)
             if kids:
@@ -2210,16 +2218,16 @@ class GalaxyIR:
                     kid_depth = depth + (kid_file is not owner)
                     if kid.redefines:
                         if region is not None and region[2] == kid.redefines.upper():
-                            wide = _walk(kid_file, kid, region[0], kid_depth, [])
+                            wide = _walk(kid_file, kid, region[0], kid_depth, [], usage)
                             if wide > region[1]:
                                 size += wide - region[1]
                                 region[1] = wide
                         continue
-                    kid_width = _walk(kid_file, kid, offset + size, kid_depth, sink)
+                    kid_width = _walk(kid_file, kid, offset + size, kid_depth, sink, usage)
                     region = [offset + size, kid_width, kid.name.upper()]
                     size += kid_width
                 return size * times
-            width = _elementary_bytes(it)
+            width = _elementary_bytes(it, usage)
             if width is None:
                 state["unknown"] = True
                 width = 0
@@ -2228,8 +2236,8 @@ class GalaxyIR:
                     "name": it.name,
                     "level": it.level,
                     "pic": it.pic,
-                    "usage": it.usage,
-                    "class": _item_class(it),
+                    "usage": usage,
+                    "class": _item_class(it, usage),
                     "offset": offset,
                     "bytes": width * times,
                     "occurs": it.occurs_max,
@@ -4868,12 +4876,20 @@ class GalaxyIR:
         items: dict = {}  # record key -> [(offset, bytes, depth, name)]
 
         def walk(
-            owner: EngineFile, it: EngineDataItem, key: tuple, offset: int, depth: int, ext: Optional[list], path: tuple
+            owner: EngineFile,
+            it: EngineDataItem,
+            key: tuple,
+            offset: int,
+            depth: int,
+            ext: list | None,
+            path: tuple,
+            inherited: str | None = None,
         ):
             if it.level in (66, 88) or depth > 12:
                 return 0
             times = it.occurs_max or 1
-            kids = [] if _is_elementary(it) else self._expanded_children(owner, it, ef, depth)
+            usage = _usage_under(it, inherited)  # #4525: a group's USAGE reaches its COPYed members too
+            kids = [] if _is_elementary(it, usage) else self._expanded_children(owner, it, ef, depth)
             if ext:
                 kids = kids + list(ext)
             if kids:
@@ -4889,7 +4905,7 @@ class GalaxyIR:
                     if kid.redefines:
                         base = at.get(kid.redefines.upper())
                         at_base = base if base is not None else offset + (size or 0)
-                        wide = walk(kid_file, kid, key, at_base, depth + 1, None, (it.name, *path))
+                        wide = walk(kid_file, kid, key, at_base, depth + 1, None, (it.name, *path), usage)
                         if (
                             region is not None
                             and region[0] == kid.redefines.upper()
@@ -4901,12 +4917,12 @@ class GalaxyIR:
                             region[1] = wide
                         continue
                     at[kid.name.upper()] = offset + (size or 0)
-                    width = walk(kid_file, kid, key, offset + (size or 0), depth + 1, None, (it.name, *path))
+                    width = walk(kid_file, kid, key, offset + (size or 0), depth + 1, None, (it.name, *path), usage)
                     region = [kid.name.upper(), width]
                     size = None if size is None or width is None else size + width
                 total = None if size is None else size * times
             else:
-                width = _elementary_bytes(it)
+                width = _elementary_bytes(it, usage)
                 total = None if width is None else width * times
             # One occurrence's width rides along: a subscripted reference moves one.
             spans[id(it)] = (key, offset, total, None if total is None else total // times)
@@ -5557,16 +5573,35 @@ def _last_entry(item: EngineDataItem) -> EngineDataItem:
     return item
 
 
-def _is_elementary(item: EngineDataItem) -> bool:
-    return bool(item.pic) or (item.usage or "").upper() in _PICLESS_USAGES
+def _is_elementary(item: EngineDataItem, inherited: str | None = None) -> bool:
+    """Whether `item` is an elementary item: it has a PIC, or a usage that needs none (COMP-1/2,
+    POINTER, INDEX) and no subordinate items. #4525: the usage may be a group's -- `inherited`, or
+    stored on a nested group by the extractor -- so a usage alone does not make an item elementary:
+    `01 PTRS POINTER.` + `05 P1.` + `05 P2.` is a group of two pointers."""
+    if item.pic:
+        return True
+    if (item.usage or inherited or "").upper() not in _PICLESS_USAGES:
+        return False
+    return not any(c.level not in (66, 88) for c in item.children)
 
 
-def _item_class(item: EngineDataItem) -> str:
+def _usage_under(item: EngineDataItem, inherited: str | None) -> str | None:
+    """#4525: `item`'s effective USAGE -- its own, else the nearest enclosing group's (`inherited`,
+    IBM Enterprise COBOL: a group's USAGE applies to every elementary item under it without one).
+    The extractor already resolves this within a source; a COPY member's items only learn the
+    usage of the group they are COPYed under here. PL/I attributes are not inherited this way."""
+    if item.usage or item.attributes is not None or item.level in (66, 88):
+        return item.usage
+    return inherited
+
+
+def _item_class(item: EngineDataItem, inherited: str | None = None) -> str:
     """A coarse storage class for shape comparison: X alnum, 9 zoned, P packed,
-    B binary, F float, N national, A address, T bit string (PL/I); `?` when unknown."""
+    B binary, F float, N national, A address, T bit string (PL/I); `?` when unknown.
+    `inherited` is the enclosing group's USAGE (#4525), used when the item has none."""
     if item.attributes is not None:  # #3720: a PL/I item
         return pli_mapping.item_class(item.usage, item.pic, item.attributes)
-    usage = (item.usage or "DISPLAY").upper()
+    usage = (item.usage or inherited or "DISPLAY").upper()
     if usage in ("COMP-3", "COMPUTATIONAL-3", "PACKED-DECIMAL"):
         return "P"
     if usage in ("COMP", "COMPUTATIONAL", "COMP-4", "COMPUTATIONAL-4", "COMP-5", "COMPUTATIONAL-5", "BINARY"):
@@ -5585,12 +5620,13 @@ def _item_class(item: EngineDataItem) -> str:
     return "9"
 
 
-def _elementary_bytes(item: EngineDataItem) -> Optional[int]:
-    """One occurrence's storage width of an elementary item, or None when unknown."""
+def _elementary_bytes(item: EngineDataItem, inherited: str | None = None) -> int | None:
+    """One occurrence's storage width of an elementary item, or None when unknown.
+    `inherited` is the enclosing group's USAGE (#4525), used when the item has none."""
     if item.attributes is not None:  # #3720: a PL/I item (attributes is None for COBOL)
         el = pli_mapping.element(item.usage, item.pic, item.attributes, False)
         return None if el is None else (el[0] + 7) // 8
-    usage = (item.usage or "DISPLAY").upper()
+    usage = (item.usage or inherited or "DISPLAY").upper()
     if usage in ("COMP-1", "COMPUTATIONAL-1", "POINTER", "INDEX"):
         return 4
     if usage in ("COMP-2", "COMPUTATIONAL-2"):
@@ -5613,7 +5649,7 @@ def _elementary_bytes(item: EngineDataItem) -> Optional[int]:
     if any(p not in _PIC_SYMBOLS and p not in item.currency and not _is_currency_sign(p) for p in positions):
         return None
     digits = sum(1 for p in positions if p == "9")
-    cls = _item_class(item)
+    cls = _item_class(item, usage)
     if cls == "P":
         return digits // 2 + 1
     if cls == "B":

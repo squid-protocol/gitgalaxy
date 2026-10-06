@@ -12,11 +12,6 @@
    "issue": 3362,
    "summary": "A GO TO back to its own paragraph (a read loop): the engine drops a unit's transfer to itself like recursion (#3362 contract, ground-truth ledger 'deliberate'); the translator and the key keep it."
   },
-  "engine-group-usage-not-inherited": {
-   "side": "engine",
-   "issue": 4525,
-   "summary": "A group's USAGE (01 X COMP.) is not applied to its elementary items by the engine (GalaxyIR.record_layout reads each item's own USAGE): they are sized as DISPLAY (S9(4) 4 bytes, not 2 COMP; S9(9)V99 11, not 6 COMP-3). The translator inherits it, as IBM COBOL does."
-  },
   "engine-main-line-no-extent": {
    "side": "engine",
    "issue": 4302,
@@ -70,24 +65,10 @@
  },
  "disagreements": {
   "aws-mainframe-modernization-carddemo :: edges | app/cbl/CBSTM03A.CBL | translator | 8500-READTRNX-READ -> GO TO 8500-READTRNX-READ": "engine-drops-self-transfer",
-  "aws-mainframe-modernization-carddemo :: offsets | app/cbl/CBSTM03A.CBL | engine | COMP-VARIABLES (record) +16": "engine-group-usage-not-inherited",
-  "aws-mainframe-modernization-carddemo :: offsets | app/cbl/CBSTM03A.CBL | engine | COMP-VARIABLES/CR-CNT @0+4": "engine-group-usage-not-inherited",
-  "aws-mainframe-modernization-carddemo :: offsets | app/cbl/CBSTM03A.CBL | engine | COMP-VARIABLES/CR-JMP @8+4": "engine-group-usage-not-inherited",
-  "aws-mainframe-modernization-carddemo :: offsets | app/cbl/CBSTM03A.CBL | engine | COMP-VARIABLES/TR-CNT @4+4": "engine-group-usage-not-inherited",
-  "aws-mainframe-modernization-carddemo :: offsets | app/cbl/CBSTM03A.CBL | engine | COMP-VARIABLES/TR-JMP @12+4": "engine-group-usage-not-inherited",
-  "aws-mainframe-modernization-carddemo :: offsets | app/cbl/CBSTM03A.CBL | engine | COMP3-VARIABLES (record) +11": "engine-group-usage-not-inherited",
-  "aws-mainframe-modernization-carddemo :: offsets | app/cbl/CBSTM03A.CBL | engine | COMP3-VARIABLES/WS-TOTAL-AMT @0+11": "engine-group-usage-not-inherited",
   "aws-mainframe-modernization-carddemo :: offsets | app/cbl/CBSTM03A.CBL | engine | PSA-BLOCK (record) +540": "pointer-width",
   "aws-mainframe-modernization-carddemo :: offsets | app/cbl/CBSTM03A.CBL | engine | PSAPTR (record) +4": "pointer-width",
   "aws-mainframe-modernization-carddemo :: offsets | app/cbl/CBSTM03A.CBL | engine | TCB-BLOCK (record) +16": "pointer-width",
   "aws-mainframe-modernization-carddemo :: offsets | app/cbl/CBSTM03A.CBL | engine | TIOT-INDEX (record) +4": "pointer-width",
-  "aws-mainframe-modernization-carddemo :: offsets | app/cbl/CBSTM03A.CBL | translator | COMP-VARIABLES (record) +8": "engine-group-usage-not-inherited",
-  "aws-mainframe-modernization-carddemo :: offsets | app/cbl/CBSTM03A.CBL | translator | COMP-VARIABLES/CR-CNT @0+2": "engine-group-usage-not-inherited",
-  "aws-mainframe-modernization-carddemo :: offsets | app/cbl/CBSTM03A.CBL | translator | COMP-VARIABLES/CR-JMP @4+2": "engine-group-usage-not-inherited",
-  "aws-mainframe-modernization-carddemo :: offsets | app/cbl/CBSTM03A.CBL | translator | COMP-VARIABLES/TR-CNT @2+2": "engine-group-usage-not-inherited",
-  "aws-mainframe-modernization-carddemo :: offsets | app/cbl/CBSTM03A.CBL | translator | COMP-VARIABLES/TR-JMP @6+2": "engine-group-usage-not-inherited",
-  "aws-mainframe-modernization-carddemo :: offsets | app/cbl/CBSTM03A.CBL | translator | COMP3-VARIABLES (record) +6": "engine-group-usage-not-inherited",
-  "aws-mainframe-modernization-carddemo :: offsets | app/cbl/CBSTM03A.CBL | translator | COMP3-VARIABLES/WS-TOTAL-AMT @0+6": "engine-group-usage-not-inherited",
   "aws-mainframe-modernization-carddemo :: offsets | app/cbl/CBSTM03A.CBL | translator | PSA-BLOCK (record) +544": "pointer-width",
   "aws-mainframe-modernization-carddemo :: offsets | app/cbl/CBSTM03A.CBL | translator | PSAPTR (record) +8": "pointer-width",
   "aws-mainframe-modernization-carddemo :: offsets | app/cbl/CBSTM03A.CBL | translator | TCB-BLOCK (record) +20": "pointer-width",

@@ -1199,16 +1199,28 @@ def _cobol_records(
             usage_match = _USAGE_CLAUSE.search(entry)
             usage = usage_match.group(1).upper() if usage_match else None
 
-        # #3816: PIC G is always DISPLAY-1 (DBCS); PIC N is NATIONAL unless NSYMBOL(DBCS); a group's
-        # USAGE NATIONAL / DISPLAY-1 applies to its members. (Other group usages are not inherited here.)
+        # #3816: PIC G is always DISPLAY-1 (DBCS); PIC N is NATIONAL unless NSYMBOL(DBCS).
         if usage is None and pic and _NATIONAL_PICTURE.fullmatch(pic.upper()):
             # (a real national picture only: GnuCOBOL's malformed `PIC USAGE BINARY-SHORT` has a G in it)
             usage = "DISPLAY-1" if "G" in pic.upper() or is_dbcs else "NATIONAL"
-        if usage is None and parent_usage in ("NATIONAL", "DISPLAY-1"):
+        # #4525: a group's USAGE applies to every item under it that has none of its own (IBM Enterprise
+        # COBOL, COBOL 2002): `01 COMP-VARIABLES COMP.` + `05 CR-CNT PIC S9(4).` is a 2-byte binary, not
+        # 4 zoned bytes. The nearest enclosing group's (effective) usage wins -- `parent_usage` is already
+        # inherited itself -- so a nested group's own USAGE overrides an outer one for its members. A
+        # 66 / 88 entry (no storage) keeps the #3816 shape: only a NATIONAL / DISPLAY-1 usage rides on it.
+        # An inherited DISPLAY is the default anyway: it is not recorded, but it still stops an outer
+        # group's usage (`01 G COMP.` + `05 S DISPLAY.` + `10 X PIC 9.` is one zoned byte).
+        in_force = usage or parent_usage
+        if (
+            usage is None
+            and parent_usage
+            and parent_usage.upper() != "DISPLAY"
+            and (level not in _CONDITION_LEVELS or parent_usage in ("NATIONAL", "DISPLAY-1"))
+        ):
             usage = parent_usage
 
         if level not in _CONDITION_LEVELS:
-            stack.append((level, ordinal, usage))
+            stack.append((level, ordinal, in_force))
             last_item_ordinal = ordinal
 
         occurs_match = _OCCURS_CLAUSE.search(window)

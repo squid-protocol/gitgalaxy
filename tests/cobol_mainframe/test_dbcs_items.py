@@ -200,14 +200,14 @@ def test_schema_types():
     assert parse_cobol_picture("X(10)", False, None)["sql"] == "VARCHAR(10)"
 
 
-def test_other_group_usages_are_not_pushed_onto_members():
-    """#3816 scope: only NATIONAL / DISPLAY-1 groups pass their usage down; a COMP-3 group's members are unchanged."""
+def test_other_group_usages_are_pushed_onto_members_too():
+    """#4525 (widening #3816's NATIONAL / DISPLAY-1 rule): every group USAGE applies to its members."""
     src = """
        01 R COMP-3.
           05 A PIC S9(5).
 """
     records = extract_boundary("cobol", src)["records"]
-    assert records[1]["usage"] is None
+    assert records[1]["usage"] == "COMP-3"
 
 
 def test_national_in_a_value_literal_is_not_a_usage():

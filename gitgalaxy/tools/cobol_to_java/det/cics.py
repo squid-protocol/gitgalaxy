@@ -589,10 +589,13 @@ class Cics:
 
     def declared(self, leaf: Leaf) -> L.Item:
         """A DTO field's item as the copybook the generator read it from declares it."""
-        from gitgalaxy.tools.cobol_to_java.det.source import _raw_lines, logical_lines
+        from gitgalaxy.tools.cobol_to_java.det.source import CopyAmbiguous, _raw_lines, _search_member, logical_lines
 
         name = Path(leaf.source or "").name
-        path = next((d / name for d in self.g.copy_dirs if name and (d / name).is_file()), None)
+        try:  # #4461: the member the source reader resolves, never the first directory holding the name
+            path = _search_member(name, self.g.copy_dirs, frozenset(), f"{leaf.cobol} DTO field") if name else None
+        except CopyAmbiguous as e:
+            raise CicsError(str(e)) from e
         if path is None:
             raise CicsError(f"{leaf.cobol}: {leaf.size} bytes, PIC {leaf.pic} is not; its copybook {name!r} not found")
         raw = ["       IDENTIFICATION DIVISION.", "       PROGRAM-ID. GGDTO.", "       DATA DIVISION.",

@@ -47,8 +47,9 @@ class CopyAmbiguous(CopyNotFound):
 
 
 class CopyUnresolved(CopyNotFound):
-    """#4468: a COPY the engine did not resolve to one file (a gap, a collision, several files), or that the translator
-    never expanded where the engine resolved it: the program is refused by name, never built on a guessed member."""
+    """#4468: a COPY the engine did not resolve to one file (a gap, several files; a collision in strict mode, #4486),
+    or that the translator never expanded where the engine resolved it: the program is refused by name, never built
+    on a guessed member."""
 
 
 @dataclass(frozen=True)
@@ -64,7 +65,13 @@ class EngineCopies:
     empty: not recorded), ...). `gaps` / `collisions`: (importer, member) the engine reports no declared library
     holds, or several do (#4421; only when the scan declared copy libraries). `pages` (#4462): repo-relative file ->
     the code page the estate declares for it and the engine decoded it with (`--source-encoding`, #3909), so the
-    translator reads the program and its members the same way."""
+    translator reads the program and its members the same way.
+
+    #4486: a collision is no error on z/OS -- the compiler takes the first library of the SYSLIB order holding the
+    member, and the engine resolves it the same way. The translator takes the engine's member and records a warning
+    in `warnings` (the member, the library chosen, the other libraries holding it in search order:
+    `collision_libraries`). `strict`: refuse every collision by name instead (CopyUnresolved), as before #4486. A gap
+    (no library holds the member) is refused in both modes."""
 
     program: Path
     root: Path
@@ -72,12 +79,16 @@ class EngineCopies:
     gaps: frozenset[tuple[str, str]] = frozenset()
     collisions: frozenset[tuple[str, str]] = frozenset()
     pages: dict[str, str] = field(default_factory=dict)
+    collision_libraries: dict[tuple[str, str], tuple[str, tuple[str, ...]]] = field(default_factory=dict)
+    strict: bool = False
+    warnings: list[str] = field(default_factory=list, compare=False)
 
     @classmethod
     def of(cls, program: Path, root: Path, deps: dict[str, dict[str, list[str]] | list[str]],
-           gaps=(), collisions=(), pages: dict[str, str] | None = None) -> EngineCopies:  # fmt: skip
+           gaps=(), collisions=(), pages: dict[str, str] | None = None, strict: bool = False) -> EngineCopies:  # fmt: skip
         """From importer -> its resolved COPY files (repo-relative; a list, or file -> library-names). A symbolic
-        map generated from BMS (`map.bms#MAPSET`) is not an estate file: the translator generates its own."""
+        map generated from BMS (`map.bms#MAPSET`) is not an estate file: the translator generates its own.
+        `collisions`: (importer, member[, library chosen, [other libraries]]) rows (GalaxyIR.copy_resolution)."""
         edges: dict[str, dict[str, list[tuple[Path, frozenset[str]]]]] = {}
         for imp, files in deps.items():
             mine = edges.setdefault(imp, {})
@@ -86,8 +97,10 @@ class EngineCopies:
                     libs = files.get(f) if isinstance(files, dict) else None
                     mine.setdefault(Path(f).stem.upper(), []).append((root / f, frozenset(libs or ())))
         return cls(program, root, {i: {m: tuple(v) for m, v in e.items()} for i, e in edges.items()},
-                   frozenset((i, m.upper()) for i, m in gaps), frozenset((i, m.upper()) for i, m in collisions),
-                   {_nfc(f): p for f, p in (pages or {}).items() if p})  # fmt: skip
+                   frozenset((i, m.upper()) for i, m in gaps), frozenset((c[0], c[1].upper()) for c in collisions),
+                   {_nfc(f): p for f, p in (pages or {}).items() if p},
+                   {(c[0], c[1].upper()): (str(c[2] or "?"), tuple(str(x) for x in c[3] or ()))
+                    for c in collisions if len(c) >= 4}, strict)  # fmt: skip
 
     @property
     def resolved(self) -> dict[str, tuple[Path, ...]]:
@@ -106,7 +119,8 @@ class EngineCopies:
         return self.pages.get(_nfc(self.rel(p))) if self.pages else None
 
     def with_program(self, program: Path) -> EngineCopies:
-        return EngineCopies(program, self.root, self.edges, self.gaps, self.collisions, self.pages)
+        return EngineCopies(program, self.root, self.edges, self.gaps, self.collisions, self.pages,
+                            self.collision_libraries, self.strict, self.warnings)  # fmt: skip
 
     def in_estate(self, p: Path) -> bool:
         return self.rel(p) != str(p)
@@ -116,7 +130,9 @@ class EngineCopies:
         for it -- a system or generated member outside the estate (DFHAID, SQLCA, a BMS symbolic map), which the
         caller then finds itself; an estate file it would find instead is refused (`unresolved`)."""
         imp = self.rel(Path(importer))
-        if (imp, name) in self.collisions:
+        # (a collision is the SYSLIB search's: `COPY name IN library` searches that library only)
+        collision = not library and (imp, name) in self.collisions
+        if collision and self.strict:
             raise CopyUnresolved(f"{where}: COPY {name}: the engine records a collision (several libraries hold it)")
         hits = self.edges.get(imp, {}).get(name, ())
         if len(hits) > 1:  # #4265: `COPY X` and `COPY X IN LIB` in one file reach two files; the COPY's own form picks
@@ -124,7 +140,19 @@ class EngineCopies:
         if len(hits) > 1:
             raise CopyUnresolved(f"{where}: COPY {name}: the engine resolved several files: "
                                  f"{', '.join(sorted(self.rel(f) for f, _ in hits))}")  # fmt: skip
+        if collision:
+            if not hits:  # (the first library holds several files of the member: the engine chose none)
+                raise CopyUnresolved(f"{where}: COPY {name}: the engine records a collision and resolved no member")
+            self.collided(name, imp, hits[0][0])
         return hits[0][0] if hits else None
+
+    def collided(self, name: str, importer: str, chosen: Path) -> None:
+        """#4486: the warning for a collision translated through the first library's member."""
+        lib, others = self.collision_libraries.get((importer, name), ("?", ()))
+        note = (f"COPY {name} in {importer}: SYSLIB collision -- took {self.rel(chosen)} from library {lib} (first in "
+                f"search order); also in {', '.join(others) or 'another library'}")  # fmt: skip
+        if note not in self.warnings:
+            self.warnings.append(note)
 
     def unresolved(self, importer: str, name: str, found: Path, where: str) -> None:
         """A member the engine resolved nothing for, found by the translator's own search: refused when it is an
@@ -607,12 +635,13 @@ def several_programs(lines: list[Line]) -> str | None:
     return None
 
 
-def engine_copies_from_ticket(project: Path, program: Path) -> EngineCopies | None:
+def engine_copies_from_ticket(project: Path, program: Path, strict: bool = False) -> EngineCopies | None:
     """#4468: the engine's resolution of `program`'s COPYs from the port ticket the generator wrote for it
     (ai_agent_jobs/*_port_ticket.json, repo-relative): the skeleton's `copy_edges` (every estate file the program's
     COPYs reach, with library-names) and its gaps and collisions; a ticket without them (written before #4468): the
     program's own copybooks. None where no ticket names the program (the translator then searches `dirs`).
-    `copy_pages` (#4462): the code pages the scan decoded the program and its members with."""
+    `copy_pages` (#4462): the code pages the scan decoded the program and its members with. `strict` (#4486):
+    refuse a SYSLIB collision instead of taking the first library's member (EngineCopies.strict)."""
     jobs = project / "ai_agent_jobs"
     if not jobs.is_dir():
         return None
@@ -635,7 +664,7 @@ def engine_copies_from_ticket(project: Path, program: Path) -> EngineCopies | No
             edges = {rel: [c.get("file") or "" for c in src.get("copybooks") or [] if c.get("file")]}
         return EngineCopies.of(program, root, edges, [tuple(g) for g in facts.get("copy_gaps") or []],
                                [tuple(c) for c in facts.get("copy_collisions") or []],
-                               facts.get("copy_pages"))  # fmt: skip
+                               facts.get("copy_pages"), strict)  # fmt: skip
     return None
 
 
@@ -850,11 +879,11 @@ def bms_copybooks(bms_files: list[Path], out: Path) -> list[str]:
     return made
 
 
-def engine_copies_from_ir(ir, rel: str, root: Path) -> EngineCopies | None:
+def engine_copies_from_ir(ir, rel: str, root: Path, strict: bool = False) -> EngineCopies | None:
     """#4468: the engine's resolution of every COPY the program at `rel` (repo-relative) reaches, from GalaxyIR
-    (GalaxyIR.copy_resolution). None: no such file."""
+    (GalaxyIR.copy_resolution). None: no such file. `strict` (#4486): EngineCopies.strict."""
     if ir.files.get(rel) is None:
         return None
     res = ir.copy_resolution(rel)
     return EngineCopies.of(root / rel, root, res["edges"], [tuple(g) for g in res["gaps"]],
-                           [tuple(c) for c in res["collisions"]], ir.copy_pages(rel))  # fmt: skip
+                           [tuple(c) for c in res["collisions"]], ir.copy_pages(rel), strict)  # fmt: skip

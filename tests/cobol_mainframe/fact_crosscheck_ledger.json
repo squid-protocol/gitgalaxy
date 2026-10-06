@@ -32,11 +32,6 @@
    "issue": 4460,
    "summary": "COPY SHPRATE / COPY ORDPRICE find only a program source. Before #4468, det.source spliced that whole program in. Since #4468 the engine's gap (no declared library holds the member) refuses the program by name instead (CopyUnresolved)."
   },
-  "translator-refuses-copy-collision": {
-   "side": "translator",
-   "issue": 4486,
-   "summary": "Refused by name since #4468 (CopyUnresolved): a COPY whose member the engine reports as a SYSLIB collision (estate-crucible H-0052 ORDREC / ADDRREC, H-0034 DATEWS). The engine and the key resolve it to the first library, as z/OS does; whether the translator takes it is #4486."
-  },
   "translator-refuses-idms": {
    "side": "translator",
    "issue": 4532,
@@ -341,17 +336,9 @@
   "estate-crucible :: status | apps/KYUY/cobol/KYUYO01.cbl | engine | translator refused: layout: LayoutError: KYUYO01.cbl:10: national / DBCS text ('処', U+51E6) is not modelled: the translator reads a single-byte code page; procedure: ExprError: KYUYO01.cbl:10: national / DBCS text ('処', U+51E6) is not modelled: the translator reads a single-byte code page": "translator-refuses-national-text",
   "estate-crucible :: status | apps/KYUY/cobol/KYUYO02.cbl | engine | translator refused: layout: LayoutError: KYUYO02.cbl:8: national / DBCS text ('賞', U+8CDE) is not modelled: the translator reads a single-byte code page; procedure: ExprError: KYUYO02.cbl:8: national / DBCS text ('賞', U+8CDE) is not modelled: the translator reads a single-byte code page": "translator-refuses-national-text",
   "estate-crucible :: status | apps/LOAN/cobol/LNIDMS01.cbl | engine | translator refused: layout: LayoutError: LNIDMS01.cbl:8: IDMS DML not supported (an IDMS-DC / DMLC program: IDMS-CONTROL SECTION.); procedure: ExprError: LNIDMS01.cbl:8: IDMS DML not supported (an IDMS-DC / DMLC program: IDMS-CONTROL SECTION.)": "translator-refuses-idms",
-  "estate-crucible :: status | apps/ORDR/cobol/ORDMAIN.cbl | engine | translator refused: CopyNotFound: COPY ORDREC:": "translator-refuses-copy-collision",
-  "estate-crucible :: status | apps/ORDR/cobol/ORDPRICE.cbl | engine | translator refused: CopyNotFound: COPY ORDREC:": "translator-refuses-copy-collision",
-  "estate-crucible :: status | apps/ORDR/cobol/ORDV#OLD.cbl | engine | translator refused: CopyNotFound: COPY ORDREC:": "translator-refuses-copy-collision",
-  "estate-crucible :: status | apps/ORDR/cobol/ORDVAL.cbl | engine | translator refused: CopyNotFound: COPY ORDREC:": "translator-refuses-copy-collision",
-  "estate-crucible :: status | apps/ORDR/cobol/ORDVALV2.cbl | engine | translator refused: CopyNotFound: COPY ORDREC:": "translator-refuses-copy-collision",
-  "estate-crucible :: status | apps/ORDR/cobol/ORDVOLD.cbl | engine | translator refused: CopyNotFound: COPY ORDREC:": "translator-refuses-copy-collision",
-  "estate-crucible :: status | apps/PAYR/cobol/PAYMAIN.cbl | engine | translator refused: CopyNotFound: COPY DATEWS:": "translator-refuses-copy-collision",
+  "estate-crucible :: status | apps/ORDR/cobol/ORDMAIN.cbl | engine | translator refused: CopyNotFound: COPY ORDPRICE:": "translator-copy-program-member",
   "estate-crucible :: status | apps/SHIP/cobol/SHPINQ.cbl | engine | translator refused: CopyNotFound: COPY SHPRATE:": "translator-copy-program-member",
   "estate-crucible :: status | apps/SHIP/cobol/SHPINQO.cbl | engine | translator refused: CopyNotFound: COPY SHPRATE:": "translator-copy-program-member",
-  "estate-crucible :: status | apps/TAXR/cobol/TAXCALC.cbl | engine | translator refused: CopyNotFound: COPY ADDRREC:": "translator-refuses-copy-collision",
-  "estate-crucible :: status | apps/TAXR/cobol/TAXCALC2.cbl | engine | translator refused: CopyNotFound: COPY ADDRREC:": "translator-refuses-copy-collision",
   "estate-crucible :: unit_extents | apps/ACCT/cobol/ACCTPOST.cbl | translator | (procedure division) L49-55": "engine-main-line-no-extent",
   "zecs :: moves | Source/ECS001.cbl | engine | L144 MOVE DFHVALUE -> METHOD-CDVA": "cvda-dfhvalue",
   "zecs :: moves | Source/ECS001.cbl | engine | L146 MOVE DFHVALUE -> METHOD-CDVA": "cvda-dfhvalue",

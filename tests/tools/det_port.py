@@ -80,8 +80,9 @@ def port_case(name: str, work: Path, project: Path, corpus: Path, style: str = "
     out: dict[str, Any] = {"case": name, "program": case["program"]}
     port = work / name / "port"
     try:
+        # case.json `strict_copy` (#4486): refuse a SYSLIB collision instead of taking the first library's member
         r = P.translate(corpus / case["program_source"], dirs, stub, PKG, P.estate_files(project), project, style, typed,
-                        groups, case.get("compiler_options"))  # fmt: skip
+                        groups, case.get("compiler_options"), strict_copy=bool(case.get("strict_copy")))  # fmt: skip
     except Exception as e:
         out.update({"translated": False, "error": f"{type(e).__name__}: {e}"})
         return out
@@ -92,7 +93,8 @@ def port_case(name: str, work: Path, project: Path, corpus: Path, style: str = "
         x_stub = (project / "src/main/java" / PKG_DIR / "service" / f"{x_svc}.java").read_text(encoding="utf-8")
         try:
             x = P.translate(corpus / extra["program_source"], dirs, x_stub, PKG, P.estate_files(project), project,
-                            style, typed, groups, case.get("compiler_options"))  # fmt: skip
+                            style, typed, groups, case.get("compiler_options"),
+                            strict_copy=bool(case.get("strict_copy")))  # fmt: skip
         except Exception as e:
             out.update({"translated": False, "error": f"{extra['program']}: {type(e).__name__}: {e}"})
             return out
@@ -100,11 +102,14 @@ def port_case(name: str, work: Path, project: Path, corpus: Path, style: str = "
         r.stats["statements"] += x.stats["statements"]
         r.stats["translated"] += x.stats["translated"]
         r.stats["holes"] += x.stats["holes"]
+        r.stats["warnings"] = [*r.stats.get("warnings", []), *x.stats.get("warnings", [])]
     for rel, text in P.runtime_files(PKG, P.has_batch(project)).items():
         (port / rel).parent.mkdir(parents=True, exist_ok=True)
         (port / rel).write_text(text, encoding="utf-8")
     out.update({"statements": r.stats["statements"], "translated_statements": r.stats["translated"],
                 "holes": r.stats["holes"]})  # fmt: skip
+    if r.stats.get("warnings"):  # #4486: the SYSLIB collisions taken through the first library's member
+        out["warnings"] = r.stats["warnings"]
     out.update(_parity(port, corpus, [(case["program"], case["program_source"])]
                        + [(x["program"], x["program_source"]) for x in case.get("programs", [])]))  # fmt: skip
     return out

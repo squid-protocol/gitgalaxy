@@ -155,6 +155,8 @@ def corpus_dirs(roots: list[Path]) -> list[tuple[str, Path]]:
 
 
 def usage(roots: list[Path], verbs: list[str], all_options: bool = False, pli: bool = False) -> list[ProgramUse]:
+    from gitgalaxy.core.source_text import read_source
+
     burned = burned_names()
     vws = {v: verb_words(v) for v in verbs}
     out = []
@@ -163,7 +165,7 @@ def usage(roots: list[Path], verbs: list[str], all_options: bool = False, pli: b
                        and ".git" not in p.relative_to(corpus).parts)  # fmt: skip
         for prog in progs:
             try:
-                text = prog.read_text(encoding="utf-8", errors="replace")
+                text = read_source(prog).text
             except OSError:
                 continue
             is_pli = prog.suffix.lower() in PLI_EXTS

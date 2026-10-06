@@ -34,7 +34,7 @@ class Line:
     text: str  # columns 8-72 (area A and B)
     file: str
     line: int
-    cut: str = ""  # #4462: the text in columns 73-80 of a line whose columns 8-72 end inside a literal
+    cut: str = ""  # #4462: the text past column 72 of a line whose columns 8-72 end inside a literal
 
 
 class CopyNotFound(Exception):
@@ -223,7 +223,7 @@ def logical_lines(raw: list[str], file: str) -> list[Line]:
     (indicator '-') joined to the line before: a continued literal resumes after the continuation's first quote.
     #4462: after `>>SOURCE FORMAT FREE` (until `>>SOURCE FORMAT FIXED`) a line is code from column 1, of any length,
     up to a `*>` comment. Listing-control statements (EJECT, SKIPn, TITLE) are dropped; a line whose columns 8-72
-    end inside a literal keeps its columns 73-80 in `cut` (cut_literal)."""
+    end inside a literal keeps its text past column 72 in `cut` (cut_literal)."""
     out: list[Line] = []
     # Compiler-option cards (CBL / PROCESS, before the program or after an END PROGRAM) are not COBOL text. The
     # engine's own reader decides which lines they are: a card may start in any column from 1, so IBM DBB's
@@ -266,14 +266,15 @@ def logical_lines(raw: list[str], file: str) -> list[Line]:
 
 
 def cut_literal(lines: list[Line]) -> str | None:
-    """#4462: a literal left open where its line's program-text area ends (column 72) with more text in columns 73-80
-    and no continuation line closing it (NexusBank's `MOVE '...coincidere.'` with `e.'` in columns 73-75): fixed-form
-    COBOL does not read columns 73-80, so the program does not compile as written. A source defect, refused by name
-    (the PROCEDURE DIVISION had failed to parse, unnamed). None: no such line."""
+    """#4462: a literal left open where its line's program-text area ends (column 72) with more text past it and no
+    continuation line closing it (NexusBank's `MOVE '...coincidere.'` with `e.'` in columns 73-75): fixed-form
+    COBOL does not read past column 72, so the program does not compile as written. A source defect, refused by name
+    (the PROCEDURE DIVISION had failed to parse, unnamed); a `>>SOURCE FORMAT FREE` program has no column limit and
+    is read whole. None: no such line."""
     for ln in lines:
         if ln.cut.strip() and _open_literal(ln.text):
-            return (f"{Path(ln.file).name}:{ln.line}: source defect: a literal runs past column 72 (columns 73-80 hold "
-                    f"`{ln.cut.strip()}`, which fixed-form COBOL does not read): the literal is left open")  # fmt: skip
+            return (f"{Path(ln.file).name}:{ln.line}: source defect: source text past column 72 (`{ln.cut.strip()}`) cuts "
+                    "a literal open: fixed-form COBOL reads columns 8-72 only")  # fmt: skip
     return None
 
 

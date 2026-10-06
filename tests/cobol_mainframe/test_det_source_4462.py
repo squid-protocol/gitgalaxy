@@ -605,7 +605,7 @@ def test_a_literal_cut_at_column_72_is_refused_as_a_source_defect():
     raw = _fixed(*HEAD, "01  A PIC X(80).", "PROCEDURE DIVISION.", cut + "N 73.'", "        TO A.",
                  "    GOBACK.").splitlines()  # fmt: skip
     lines = SRC.logical_lines(raw, "/x/PROG.cbl")
-    why = r"PROG\.cbl:7: source defect: a literal runs past column 72 \(columns 73-80 hold `N 73\.'`"
+    why = r"PROG\.cbl:7: source defect: source text past column 72 \(`N 73\.'`\) cuts a literal open"
     with pytest.raises(L.LayoutError, match=why):
         L.parse(lines)
     with pytest.raises(E.ExprError, match=why):

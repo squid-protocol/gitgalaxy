@@ -457,7 +457,7 @@ Only generator output, never a test case:
   *JSON / XML*: JSON PARSE / GENERATE and XML PARSE / GENERATE (with their ON EXCEPTION phrases, to END-JSON /
   END-XML or the period) are holes by name -- name matching, conversions and the JSON-CODE / XML-CODE registers are
   not modelled -- so the statements around them translate. *Refused by name*: a literal left open at column 72 with
-  text in columns 73-80 and no continuation line ("source defect": fixed-form COBOL does not read columns 73-80, so
+  text past it and no continuation line ("source defect": fixed-form COBOL reads columns 8-72 only, so
   the program does not compile as written), and a source with no PROGRAM-ID ("not a program": a copybook saved
   with a program's extension, `program_unit`).
 - #4528: a TS item is the bytes the program wrote "in the region's code page" (CicsTask), and the COBOL side's

@@ -60,7 +60,7 @@ PHRASES = {"at_end": "AT-END", "not_at_end": "NOT-AT-END", "invalid_key": "INVAL
            "not_on_exception": "NOT-EXCEPTION", "at_eop": "AT-EOP", "not_at_eop": "NOT-AT-EOP"}  # fmt: skip
 STATEMENT_ENDS = {"END_READ", "END_WRITE", "END_REWRITE", "END_DELETE", "END_START", "END_COMPUTE", "END_ADD",
                   "END_SUBTRACT", "END_MULTIPLY", "END_DIVIDE", "END_STRING", "END_UNSTRING", "END_CALL",
-                  "END_RETURN", "END_SEARCH", "END_ACCEPT", "END_DISPLAY"}  # fmt: skip
+                  "END_RETURN", "END_ACCEPT", "END_DISPLAY"}  # fmt: skip
 
 
 class _Frame:
@@ -103,6 +103,10 @@ def parse(lines: list[Line]) -> Procedure:
     # the grammar's; a placeholder CALL too, its text parsed here (_entry)
     entries: dict[int, str] = {}
     proc_text = _entry_placeholders(proc_text, entries)
+    # #4462: OS/VS COBOL's EXHIBIT {NAMED | CHANGED NAMED | CHANGED} operand ...: no statement of the grammar's; a
+    # placeholder CALL too, its text parsed here (_exhibit)
+    exhibits: dict[int, str] = {}
+    proc_text = _exhibit_placeholders(proc_text, exhibits)
     # the block's lines back after the rest of its last line (its period stays with the CALL), as blank lines
     proc_text = re.sub(r"(\x01+)([^\n]*\n)", lambda mm: mm.group(2) + "       \n" * len(mm.group(1)), proc_text)
     proc_text = re.sub(r"\bNOT=", "NOT =", proc_text, flags=re.I)  # the grammar wants a space after NOT
@@ -177,9 +181,13 @@ def parse(lines: list[Line]) -> Procedure:
                     s = Stmt("HOLE", origin(n), n_text, {"why": "does not parse"})
                     stack[-1].target.append(s)
                     stack.append(_Frame("PERFORM", s, s.body))
+                elif t == "when" and (sf := _search_frame(stack)) is not None:  # a SEARCH's WHEN: condition a hole
+                    unparsed_body: list = []
+                    _node(sf).whens.append((("UNPARSED", n_text, "does not parse"), unparsed_body))
+                    sf.target = unparsed_body
                 else:  # WHEN / WHEN OTHER: its body is reached through an unparsed object
                     f = _pop_to(stack, "EVALUATE")
-                    unparsed_body: list = []
+                    unparsed_body = []
                     _node(f).whens.append(([[("UNPARSED", n_text, "does not parse", False)]], unparsed_body))
                     f.target = unparsed_body
                 continue
@@ -232,10 +240,16 @@ def parse(lines: list[Line]) -> Procedure:
             stack[-1].target.append(s)
             stack.append(_Frame("EVALUATE", s, []))
             continue
+        if t == "when" and (sf := _search_frame(stack)) is not None:
+            # #4462: a SEARCH's WHEN (SEARCH ALL has one): its condition, its body
+            body: list = []
+            _node(sf).whens.append((_cond(re.sub(r"(?i)^\s*WHEN\b", "", node_text(n))), body))
+            sf.target = body
+            continue
         if t in ("when", "when_other"):
             f = _pop_to(stack, "EVALUATE")
             ev = _node(f)
-            body: list = []
+            body = []
             if t == "when_other":
                 ev.whens.append((None, body))
             else:
@@ -265,12 +279,30 @@ def parse(lines: list[Line]) -> Procedure:
             name = PHRASES[t]
             while stack[-1].kind == "PHRASE":
                 stack.pop()
+            if t == "at_end" and stack[-1].kind == "SEARCH" and not _node(stack[-1]).whens:
+                # #4462: SEARCH ... AT END (before its WHENs): the SEARCH's own phrase
+                search = _node(stack[-1])
+                stack.append(_Frame("PHRASE", search, search.phrases.setdefault(name, [])))
+                continue
             owner = next((x for x in reversed(stack[-1].target) if x.kind not in ("HOLE",)), None)
             if owner is None:
                 stack[-1].target.append(Stmt("HOLE", origin(n), node_text(n), {"why": "phrase with no statement"}))
                 continue
             body = owner.phrases.setdefault(name, [])
             stack.append(_Frame("PHRASE", owner, body))
+            continue
+        if t == "search_statement":
+            # #4462: SEARCH [ALL] table [VARYING x]: a frame, its AT END and WHENs (_search_frame) inside, closed by
+            # END-SEARCH or the period
+            s = _search(node_text(n), origin(n))
+            stack[-1].target.append(s)
+            stack.append(_Frame("SEARCH", s, []))
+            continue
+        if t == "END_SEARCH":
+            while stack[-1].kind == "PHRASE":
+                stack.pop()
+            _pop_to(stack, "SEARCH")
+            stack.pop()
             continue
         if t in STATEMENT_ENDS:
             while stack[-1].kind == "PHRASE":
@@ -284,6 +316,8 @@ def parse(lines: list[Line]) -> Procedure:
                 s = _sort_merge(unwrap(sorts[int(s.data["program"][6:])]), s.line)
             elif s.kind == "CALL" and re.match(r"GGENTR\d{4}$", s.data.get("program") or ""):
                 s = _entry(unwrap(entries[int(s.data["program"][6:])]), s.line)
+            elif s.kind == "CALL" and re.match(r"GGEXHB\d{4}$", s.data.get("program") or ""):
+                s = _exhibit(unwrap(exhibits[int(s.data["program"][6:])]), s.line)
             stack[-1].target.append(s)
             continue
         stack[-1].target.append(Stmt("HOLE", origin(n), node_text(n), {"why": f"grammar node {t}"}))
@@ -328,6 +362,37 @@ def _node(f: _Frame) -> Stmt:
     if f.node is None:
         raise E.ExprError(f"{f.kind} frame has no statement")
     return f.node
+
+
+def _search_frame(stack: list[_Frame]) -> _Frame | None:
+    """#4462: the SEARCH a WHEN belongs to: the innermost open SEARCH or EVALUATE is a SEARCH (the frames above it,
+    an IF in the previous WHEN's body ..., are closed by the WHEN), and it may take one more WHEN (SEARCH ALL has
+    one: a second WHEN after it closes it and belongs to the EVALUATE around it). None: an EVALUATE's WHEN."""
+    k = next((i for i in range(len(stack) - 1, 0, -1) if stack[i].kind in ("SEARCH", "EVALUATE")), None)
+    if k is None or stack[k].kind != "SEARCH":
+        return None
+    search = _node(stack[k])
+    del stack[k + 1 :]
+    if search.data["all"] and search.whens:
+        stack.pop()
+        return _search_frame(stack)
+    return stack[k]
+
+
+def _search(text: str, line: int) -> Stmt:
+    """SEARCH [ALL] table [VARYING identifier] (the phrases and WHENs follow as nodes of their own). data: table
+    (Ref), all, varying (Ref | None); whens [(condition, body)]; phrases AT-END."""
+    p = E.Parser(E.tokenize(text)[1:])
+    every = bool(p.accept("ALL"))
+    d: dict[str, Any] = {"table": None, "all": every, "varying": None, "error": None}
+    try:  # an unreadable header still opens the frame (its WHENs are its own); gen refuses the statement
+        d["table"] = p.ref()
+        d["varying"] = p.ref() if p.accept("VARYING") else None
+        if not p.done():
+            raise E.ExprError(f"left over {' '.join(p.t[p.i :])}")
+    except E.ExprError as e:
+        d["error"] = str(e)
+    return Stmt("SEARCH", line, text, d)
 
 
 def _pop_to_if(stack: list[_Frame]) -> _Frame:
@@ -867,7 +932,7 @@ _SORT_WORDS = {"ON", "ASCENDING", "DESCENDING", "KEY", "IS", "WITH", "DUPLICATES
                "SEQUENCE", "INPUT", "OUTPUT", "PROCEDURE", "THRU", "THROUGH", "USING", "GIVING", "OF"}  # fmt: skip
 # reserved words that begin a statement or end a scope: a SORT / MERGE stops before one (a data name cannot be one)
 _STATEMENT_WORDS = {"ACCEPT", "ADD", "ALTER", "CALL", "CANCEL", "CLOSE", "COMPUTE", "CONTINUE", "DELETE", "DISPLAY",
-                    "DIVIDE", "ELSE", "ENTRY", "EVALUATE", "EXEC", "EXIT", "GO", "GOBACK", "IF", "INITIALIZE",
+                    "DIVIDE", "ELSE", "ENTRY", "EVALUATE", "EXEC", "EXHIBIT", "EXIT", "GO", "GOBACK", "IF", "INITIALIZE",
                     "INSPECT", "MERGE", "MOVE", "MULTIPLY", "NEXT", "NOT", "OPEN", "PERFORM", "READ", "RELEASE",
                     "RETURN", "REWRITE", "SEARCH", "SET", "SORT", "START", "STOP", "STRING", "SUBTRACT", "UNSTRING",
                     "WHEN", "WRITE", "AT", "INVALID"}  # fmt: skip
@@ -970,6 +1035,52 @@ def _entry_placeholders(text: str, entries: dict[int, str]) -> str:
             continue
         i += 1
     return "".join(out) + text[last:]
+
+
+def _exhibit_placeholders(text: str, exhibits: dict[int, str]) -> str:
+    """#4462: each EXHIBIT statement in `text` (`EXHIBIT {NAMED | CHANGED NAMED | CHANGED} operand ...`, up to the
+    period or the next statement's verb) replaced by `CALL 'GGEXHBnnnn'` and \\x01 per line end, as
+    _sort_placeholders."""
+    toks = list(_SORT_TOKEN.finditer(text))
+    out, last, i = [], 0, 0
+    while i < len(toks):
+        if toks[i].group(0).upper() == "EXHIBIT" and i + 1 < len(toks) and toks[i + 1].group(0).upper() in (
+                "NAMED", "CHANGED"):  # fmt: skip
+            j = i + 2
+            while j < len(toks):
+                w = toks[j].group(0)
+                if w == "." or w.upper() in _STATEMENT_WORDS or w.upper().startswith("END-"):
+                    break
+                j += 1
+            start, end = toks[i].start(), toks[j - 1].end()
+            exhibits[len(exhibits) + 1] = text[start:end]
+            out += [text[last:start], f"CALL 'GGEXHB{len(exhibits):04d}'" + "\x01" * text[start:end].count("\n")]
+            last, i = end, j
+            continue
+        i += 1
+    return "".join(out) + text[last:]
+
+
+def _exhibit(text: str, line: int) -> Stmt:
+    """EXHIBIT {NAMED | CHANGED NAMED | CHANGED} {identifier | literal} ... (IBM OS/VS COBOL, a debugging statement
+    Enterprise COBOL dropped). data: named, changed, operands [(the operand as written, operand)]. Each execution of
+    EXHIBIT NAMED displays one line: each identifier as `name = value`, each literal as its value, separated by a
+    space (GnuCOBOL's output; IBM: each identifier "followed by an equal sign and its current value", on one line in
+    the order written). EXHIBIT CHANGED displays only what changed since the statement last ran: not modelled."""
+    p = E.Parser(E.tokenize(text)[1:])
+    changed = bool(p.accept("CHANGED"))
+    named = bool(p.accept("NAMED"))
+    ops = []
+    try:
+        while not p.done():
+            at = p.i
+            o = p.operand()
+            ops.append((" ".join(p.t[at : p.i]), o))
+    except E.ExprError as e:
+        return Stmt("HOLE", line, text, {"why": f"EXHIBIT: {e}"})
+    if changed:
+        return Stmt("HOLE", line, text, {"why": "EXHIBIT CHANGED (OS/VS COBOL: display on change) not modelled"})
+    return Stmt("EXHIBIT", line, text, {"named": named, "changed": changed, "operands": ops})
 
 
 def _entry(text: str, line: int) -> Stmt:

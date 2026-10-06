@@ -11,6 +11,7 @@ import base64
 import re
 from collections import Counter
 from dataclasses import dataclass
+from decimal import Decimal
 from pathlib import Path
 from typing import Any
 
@@ -20,7 +21,13 @@ from gitgalaxy.tools.cobol_to_java.det import expr as E
 from gitgalaxy.tools.cobol_to_java.det import gen as G
 from gitgalaxy.tools.cobol_to_java.det import layout as L
 from gitgalaxy.tools.cobol_to_java.det import stmt as S
-from gitgalaxy.tools.cobol_to_java.det.source import Line, engine_copies_from_ticket, program_lines, program_unit
+from gitgalaxy.tools.cobol_to_java.det.source import (
+    Line,
+    alphabet_keywords,
+    engine_copies_from_ticket,
+    program_lines,
+    program_unit,
+)
 
 RUNTIME = Path(__file__).parent / "cobolrt"
 
@@ -124,7 +131,8 @@ def alphabets(lines: list[Line]) -> tuple[dict[str, list[str]], str | None]:
     alphabet's literals -- quotes kept -- with THRU / ALSO and figurative constants), and OBJECT-COMPUTER's PROGRAM
     COLLATING SEQUENCE alphabet-name (or None). A literal alphabet runs to the period or the next clause's word; a
     token no literal alphabet has (a hexadecimal literal ...) ends it with "?", which the translator refuses."""
-    text = " ".join(ln.text for ln in lines)
+    # #4462: an OS/VS alphabet clause with no ALPHABET keyword is read as if it had one
+    text = " ".join(ln.text for ln in alphabet_keywords(lines))
     m = re.search(r"\bPROCEDURE\s+DIVISION\b", text, re.I)
     head = text[: m.start()] if m else text
     names: dict[str, list[str]] = {}
@@ -456,6 +464,17 @@ def _translate(program: Path, copy_dirs: list[Path], stub: str, package: str, es
     rc = L.Item(1, "GG-RETURN-CODE", "WORKING-STORAGE", pic="S9(4)", usage="BINARY")
     L.layout(rc)
     records.append(rc)
+    # #4462: each INDEXED BY index name, as an item of its own holding the occurrence number it points at (IBM's
+    # index holds the displacement; every use the translator reads -- SET, a subscript, SEARCH, a comparison --
+    # sees the occurrence number)
+    declared = {it.name for r in records for it in r.walk()}
+    for ix in [x for r in records for it in r.walk() for x in it.indexed_by]:
+        if ix not in declared:
+            declared.add(ix)
+            # (initially 1, as GnuCOBOL sets it; IBM leaves it undefined until SET / SEARCH)
+            idx = L.Item(1, ix, "WORKING-STORAGE", pic="S9(9)", usage="BINARY", values=[("num", Decimal(1))])
+            L.layout(idx)
+            records.append(idx)
     proc = S.parse(lines)
     # SORT-RETURN: the special register, S9(4) BINARY (IBM: 0 after a successful SORT / MERGE) -- only in a program
     # that sorts or names it, so no other port's storage changes

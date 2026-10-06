@@ -1026,6 +1026,20 @@ class Gen:
             ops = [self.display_operand(o) for o in s.data["operands"]]
             fn = "displayNoAdvancing" if s.data["no_advancing"] else "display"
             return [c, f"{ind}Sysout.{fn}({', '.join(ops)});"]
+        if k == "SEARCH":
+            return [c, *self.search(s, ind)]
+        if k == "EXHIBIT":  # #4462 (stmt._exhibit): EXHIBIT NAMED, one DISPLAY line of `name = value` / literal
+            parts: list[str] = []
+            for written, o in s.data["operands"]:
+                if parts:
+                    parts.append(jstr(" "))
+                if isinstance(o, E.Ref) and not o.qualifiers and not o.subscripts and o.refmod is None:
+                    parts += [jstr(f"{written} = "), self.display_operand(o)]
+                elif isinstance(o, E.Lit) and isinstance(o.value, str):
+                    parts.append(self.display_operand(o))
+                else:  # a qualified / subscripted name: IBM shows it as written, GnuCOBOL respells it ("A in R")
+                    raise Untranslatable(f"EXHIBIT NAMED of {written}: only plain names and nonnumeric literals")
+            return [c, f"{ind}Sysout.display({', '.join(parts)});"]
         if k == "COMPUTE":
             return [c, *self.store_all(s, s.data["targets"], self.num(s.data["expr"]), ind)]
         if k == "ARITH":
@@ -1111,6 +1125,106 @@ class Gen:
         raise Untranslatable(f"value {kind}")
 
     @_reads
+    # ---- SEARCH / SEARCH ALL (#4462) --------------------------------------------------------------------------
+    def search(self, s: S.Stmt, ind: str) -> list[str]:
+        """SEARCH table [VARYING index] [AT END ...] WHEN c ... and SEARCH ALL table [AT END ...] WHEN keys ...: the
+        table's first INDEXED BY index (or the VARYING one of its own) walks it (IBM Enterprise COBOL 6.4 Language Reference, SEARCH statement;
+        GnuCOBOL's code, the harness's oracle, the same loops). The table's size is its OCCURS, or the DEPENDING ON
+        item's value."""
+        d = s.data
+        if d.get("error") or d["table"] is None:
+            raise Untranslatable(f"SEARCH: {d.get('error')}")
+        table = self.resolve(d["table"])
+        if not (table.occurs > 1 or table.depending):
+            raise Untranslatable(f"SEARCH {table.name}: no OCCURS")
+        if not table.indexed_by:
+            raise Untranslatable(f"SEARCH {table.name}: no INDEXED BY")
+        if not s.whens:
+            raise Untranslatable("SEARCH with no WHEN")
+        dep = table.depending
+        size = self.int_expr(E.Parser(E.tokenize(dep)).ref()) if dep else str(table.occurs)
+        idx = E.Ref(table.indexed_by[0])
+        varying = d.get("varying")
+        if varying is not None and varying.name in table.indexed_by:
+            idx, varying = varying, None  # VARYING one of the table's own indexes: it walks the table
+        elif varying is not None:  # IBM steps it with the index; GnuCOBOL (the oracle) sets it to the index's value
+            raise Untranslatable(f"SEARCH VARYING {varying.name}: IBM and GnuCOBOL step it differently")
+        fi = self.field_expr(idx)
+        loop = self.tmpname("search")
+        at_end = self.block(s.phrases.get("AT-END", []), ind + "        ")
+        if d["all"]:
+            return self.search_all(s, table, idx, fi, size, loop, at_end, ind)
+        out = [f"{ind}{loop}: while (true) {{",
+               f"{ind}    if ({self.int_expr(idx)} > {size}) {{", *at_end, f"{ind}        break {loop};",
+               f"{ind}    }}"]  # fmt: skip
+        for i, (cond, body) in enumerate(s.whens):
+            out += [f"{ind}    {'} else ' if i else ''}if ({self.cond(cond)}) {{", *self.block(body, ind + "        "),
+                    f"{ind}        break {loop};"]  # fmt: skip
+        out.append(f"{ind}    }}")
+        out.append(f"{ind}    Cobol.store({fi}, Cobol.num({fi}, CS).add(BigDecimal.ONE), false, CS);")
+        return [*out, f"{ind}}}"]
+
+    def search_all(self, s: S.Stmt, table: L.Item, idx: E.Ref, fi: str, size: str, loop: str, at_end: list[str],
+                   ind: str) -> list[str]:  # fmt: skip
+        """SEARCH ALL: a binary search of the occurrences 1..size. Its WHEN is `key = value` (or a key's
+        condition-name) for the leading keys of the table's KEY phrase, each key subscripted by the index, joined by
+        AND -- anything else is refused. Each step sets the index to (head + tail) / 2; the WHEN true runs its body;
+        else the first key, in KEY order, not equal to its value moves head up (an ASCENDING key below its value, a
+        DESCENDING one above) or tail down. head >= tail - 1: AT END. A table out of key order, or keys equal in
+        several occurrences, leave IBM's result undefined; this is GnuCOBOL's walk."""
+        cond, body = s.whens[0]
+        keys = {name: asc for asc, name in table.keys}
+        if not keys:
+            raise Untranslatable(f"SEARCH ALL {table.name}: no ASCENDING / DESCENDING KEY")
+        terms: list = []
+
+        def conj(c):
+            if isinstance(c, E.And):
+                conj(c.left)
+                conj(c.right)
+            else:
+                terms.append(c)
+
+        conj(cond)
+        named: dict[str, tuple[E.Ref, object]] = {}
+        for t in terms:
+            key = value = None
+            if isinstance(t, E.Rel) and t.op == "=":
+                for a, b in ((t.left, t.right), (t.right, t.left)):
+                    if isinstance(a, E.Ref) and a.name in keys:
+                        key, value = a, b
+                        break
+            elif isinstance(t, E.CondName) and t.abbrev is None:
+                cn = self.resolve_cond(t.ref)
+                if cn is not None and cn.parent is not None and cn.parent.name in keys and len(cn.values) == 1 \
+                        and cn.values[0][0] != "range":  # fmt: skip
+                    key, value = E.Ref(cn.parent.name, list(t.ref.qualifiers), list(t.ref.subscripts)), \
+                        self.value_node(cn.values[0])  # fmt: skip
+            if key is None or not key.subscripts or key.subscripts[-1] != idx or key.refmod is not None:
+                raise Untranslatable(f"SEARCH ALL {table.name}: WHEN must be KEY = value AND ... (on {idx.name})")
+            if key.name in named:
+                raise Untranslatable(f"SEARCH ALL {table.name}: key {key.name} named twice")
+            named[key.name] = (key, value)
+        order = [name for _, name in table.keys]
+        if set(named) != set(order[: len(named)]):
+            raise Untranslatable(f"SEARCH ALL {table.name}: WHEN names keys {sorted(named)}, not the leading keys")
+        head, tail, mid = self.tmpname("head"), self.tmpname("tail"), self.tmpname("mid")
+        out = [f"{ind}int {head} = 0, {tail} = {size} + 1;",
+               f"{ind}{loop}: while (true) {{",
+               f"{ind}    if ({head} >= {tail} - 1) {{", *at_end, f"{ind}        break {loop};", f"{ind}    }}",
+               f"{ind}    int {mid} = ({head} + {tail}) / 2;",
+               f"{ind}    Cobol.store({fi}, BigDecimal.valueOf({mid}), false, CS);",
+               f"{ind}    if ({self.cond(cond)}) {{", *self.block(body, ind + "        "),
+               f"{ind}        break {loop};", f"{ind}    }}"]  # fmt: skip
+        for i, name in enumerate(order[: len(named)]):
+            key, value = named[name]
+            low = self.rel("<" if keys[name] else ">", key, value)
+            out += [f"{ind}    {'} else ' if i else ''}if (!({self.rel('=', key, value)})) {{",
+                    f"{ind}        if ({low}) {head} = {mid}; else {tail} = {mid};"]  # fmt: skip
+        # (every key equal and the WHEN false cannot be: the WHEN is those equalities)
+        out += [f"{ind}    }} else {{", f"{ind}        break {loop};", f"{ind}    }}", f"{ind}}}"]
+        return [f"{ind}{{", *[("    " + x) for x in out], f"{ind}}}"]
+
     def display_operand(self, o) -> str:
         lo = self.lift(o)
         if lo and lo[0] == "X":

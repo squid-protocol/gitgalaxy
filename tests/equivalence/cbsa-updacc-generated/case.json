@@ -1,0 +1,88 @@
+{
+ "kind": "cics",
+ "corpus": "cics-banking-sample-application-cbsa",
+ "program": "UPDACC",
+ "program_source": "src/base/cobol_src/UPDACC.cbl",
+ "copy_dirs": [
+  "src/base/cobol_copy"
+ ],
+ "transid": "OUAC",
+ "clock": "2026/10/01 10:30:15.00",
+ "db2": {
+  "ddl": [
+   "etc/install/base/db2jcl/CRETB01.jcl",
+   "etc/install/base/db2jcl/CREI101.jcl"
+  ],
+  "seed": "@generate",
+  "compare": [
+   "IBMUSER.ACCOUNT"
+  ],
+  "qualifier": "IBMUSER",
+  "compare_sql": true,
+  "generate": {
+   "seed": 4507,
+   "tables": {
+    "IBMUSER.ACCOUNT": {
+     "rows": 30,
+     "columns": {
+      "ACCOUNT_SORTCODE": {
+       "values": [
+        "987654",
+        "987654",
+        "987654",
+        "123456"
+       ]
+      },
+      "ACCOUNT_NUMBER": {
+       "digits": true
+      }
+     }
+    }
+   }
+  }
+ },
+ "commarea": {
+  "segments": [
+   {
+    "copybook": "src/base/cobol_src/UPDACC.cbl",
+    "record": "DFHCOMMAREA"
+   }
+  ]
+ },
+ "linked": true,
+ "screens": {},
+ "notes": "CBSA's update-account service (UPDACC) on GENERATED Db2 rows (#4507), proving the cbsa-updacc port on data it was not written against: 30 IBMUSER.ACCOUNT rows built from CRETB01's CREATE TABLE and CREI101's unique index (sort code + account number unique together) -- each column's boundaries (CHAR at full length and blank, DECIMAL(12,2) at +/-9999999999.99 and +/-0.01, INTEGER at 2147483647 and -2147483648, DATE 0001-01-01 / 9999-12-31 / 2024-02-29) and a NULL in every nullable column, then values in between; a quarter under another sort code. 40 generated LINKs: the account number each row's in turn (a fifth of the time one they do not hold: SELECT +100), the account type valid, blank or starting with a space, overdraft and rate at their PICTUREs' edges. A NULL date, eyecatcher or rate reaches the SELECT's -305 (no indicator variables); an INTEGER overdraft beyond S9(9) COMP its -304. Every task's statements are compared with what Db2 answered (compare_sql), and the table after every task, column by column.",
+ "port_from": "cbsa-updacc",
+ "scenario_generate": {
+  "seed": 4507,
+  "count": 40,
+  "prefix": "generated",
+  "commarea": {
+   "COMM-EYE": "ACCT",
+   "COMM-SCODE": "987654",
+   "COMM-ACCNO": {
+    "from": "IBMUSER.ACCOUNT.ACCOUNT_NUMBER",
+    "miss": 0.2,
+    "turn": true
+   },
+   "COMM-ACC-TYPE": {
+    "values": [
+     "SAVING",
+     "CURRENT",
+     "",
+     "LOAN",
+     "MORTGAGE",
+     " ISA",
+     "ISA"
+    ]
+   },
+   "COMM-OVERDRAFT": {
+    "edge": true
+   },
+   "COMM-INT-RATE": {
+    "edge": true
+   }
+  }
+ },
+ "scenarios": []
+}

@@ -92,8 +92,10 @@ def entry_names(case: dict[str, Any]) -> list[str]:
     so a case with one cannot have entries."""
     names = [e["method"] for e in case.get("entries", [])]
     if names and case.get("parm") is not None:
-        raise SystemExit(f"{case['name']}: an entry method passes no PARM, so it is not the step the COBOL ran "
-                         f"(PARM={case['parm']!r}): drop `entries`")
+        raise SystemExit(
+            f"{case['name']}: an entry method passes no PARM, so it is not the step the COBOL ran "
+            f"(PARM={case['parm']!r}): drop `entries`"
+        )
     bad = [n for n in names if not re.fullmatch(r"[a-z][A-Za-z0-9_]*", n)]
     if bad:
         raise SystemExit(f"{case['name']}: entries {bad} are not Java method names")
@@ -143,7 +145,8 @@ def equivalence_test(case: dict[str, Any]) -> str:
         entry_call = (
             '            String entry = System.getProperty("equivalence.entry", "");\n'
             "            if (entry.isEmpty()) {\n    " + entry_call + "            } else {\n"
-            "                switch (entry) {\n" + arms
+            "                switch (entry) {\n"
+            + arms
             + '                    default -> throw new IllegalStateException("no entry " + entry);\n'
             "                }\n"
             "            }\n"
@@ -557,6 +560,10 @@ def _run_area(case: dict[str, Any], project: Path, area: Path, inputs: Path, env
 
         equivalence_db2.reset(case, Path("."))
         props = f"{props} {equivalence_db2.java_props(case)}"
+        if case["db2"].get("compare_sql"):  # #4507: the run's statements as Db2 answered them (EquivalenceDb2Config)
+            sqlout = area / "out" / "sqlout.txt"
+            sqlout.unlink(missing_ok=True)
+            props = f"{props} -Dgitgalaxy.db2.sqllog={sqlout}"
     out = run_maven(project, area, inputs, env, f"{props} -Dgitgalaxy.sysout={sysout} {data_charset_arg(case)}".strip())
     outs = {dd: out / f"{dd}.out" for dd, spec in case["datasets"].items() if spec.get("compare")}
     for extra in ("RETURN-CODE", "ABEND", "FAULTS"):
@@ -565,6 +572,9 @@ def _run_area(case: dict[str, Any], project: Path, area: Path, inputs: Path, env
     read["SYSOUT"] = sysout.read_bytes() if sysout.is_file() else b""
     if case.get("db2"):
         read.update(equivalence_db2.outputs(case))
+        if case["db2"].get("compare_sql"):
+            sqlout = area / "out" / "sqlout.txt"
+            read["SQL"] = sqlout.read_bytes() if sqlout.is_file() else b""
     for extra in ("RETURN-CODE", "ABEND"):  # a code, not a record: whitespace is not data
         if extra in read:
             read[extra] = read[extra].strip()

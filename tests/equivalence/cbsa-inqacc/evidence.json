@@ -43,7 +43,7 @@
     "tests/tools/java_target_matrix.py"
    ],
    "files": 11,
-   "sha256": "cd0c22f11e735f25b3d655aac6b89670b07cba2e23856c7c825291b64fa994c5"
+   "sha256": "1a2e9735dceec17daf4867d241017a78c0ce513cbf71382364d4caef4c9c5b29"
   },
   "oracle": {
    "paths": [
@@ -56,14 +56,14 @@
     "tests/tools/equivalence_sql.py"
    ],
    "files": 16,
-   "sha256": "ee924d311b67148f9104af7158c534cc2fb9a50bb35ca6f7758d6a40efda414c"
+   "sha256": "b8d42a4a28b643ce7df90a0b2cbd48f73e4437cc6727c99b195861311bdf5cc8"
   },
   "generator": {
    "paths": [
     "gitgalaxy/tools/cobol_to_java/**"
    ],
-   "files": 60,
-   "sha256": "3b378f8d6fbe884d332b76134e2dbcb0e5848d4f95ac01da63a5c8289cd412dd"
+   "files": 62,
+   "sha256": "635e2d6c8d95f8d99629f635d4b932145847dd2a04240c900a6c8eb58515242d"
   },
   "corpus": {
    "name": "cics-banking-sample-application-cbsa",
@@ -73,10 +73,10 @@
   "differences": {
    "sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
   },
-  "digest": "d95e8741102beb159d089b11e513b769102ffddd0fe355693c37c01299d1ad06"
+  "digest": "444c021f1f56d81384baf0941a56384c8fa44937648a920c37c2232879978a7a"
  },
  "proof": {
-  "at": "2026-10-05T20:30:20Z",
+  "at": "2026-10-06T17:25:18Z",
   "verdict": "proven",
   "runs": 14,
   "fault_runs": 0,
@@ -153,8 +153,8 @@
    "failed": [],
    "error": null
   },
-  "harness_commit": "48d55c669739c4ee09408123dcb79640f4790a4d+uncommitted",
-  "inputs_digest": "d95e8741102beb159d089b11e513b769102ffddd0fe355693c37c01299d1ad06"
+  "harness_commit": "b141138e182ff7da68a70a056f39c1d383404dbd+uncommitted",
+  "inputs_digest": "444c021f1f56d81384baf0941a56384c8fa44937648a920c37c2232879978a7a"
  },
  "coverage": {
   "paragraphs": {
@@ -244,7 +244,7 @@
    "total": 1
   },
   "source": "the proof's own traced COBOL runs (cobol_coverage.py)",
-  "inputs_digest": "d95e8741102beb159d089b11e513b769102ffddd0fe355693c37c01299d1ad06"
+  "inputs_digest": "444c021f1f56d81384baf0941a56384c8fa44937648a920c37c2232879978a7a"
  },
  "reach": {
   "entry_points": [
@@ -335,11 +335,11 @@
    },
    {
     "path": "tests/equivalence/cics/DFHEIBLK.cpy",
-    "sha256": "fa4e0e29e8155a653c685420eb159fc5ec491ccf8eba13ccac1eb4962692fcf0"
+    "sha256": "f54ce5a2592064ac4a39cd25a479499879b61ae499024cb191960692c23022da"
    },
    {
     "path": "tests/equivalence/cics/ggcics.c",
-    "sha256": "2aff8a7a22af537b24cb03caafe4d6df30c30fde1cb6f548ba376616e6617214"
+    "sha256": "5f127e1ddb94e48ecb5e7831bbf9173cda7e398633e11e5d7ed09c9194dc7cdc"
    },
    {
     "path": "tests/equivalence/db2/SQLCA.cpy",
@@ -351,7 +351,7 @@
    },
    {
     "path": "tests/equivalence/db2/ggsql.c",
-    "sha256": "9f1776b4ce806a072af60706165d14e7bd3abd1698a383d7a728cc41982f8fab"
+    "sha256": "a42be2e7fa475ba5ed70209d64f78dae9ef9fe611c72e3edc2f1d1e594d29405"
    },
    {
     "path": "tests/equivalence/db2/ggsqlrun.c",

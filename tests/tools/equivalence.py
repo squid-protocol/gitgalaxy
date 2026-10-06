@@ -287,8 +287,11 @@ def run_cobol(
     # the step's RETURN-CODE is an output like any other (CBTRN02C sets 4 when it rejects): recorded, not fatal
     sqlenv = equivalence_db2.cobol_env("/work/stmts.txt") if db2 else ""
     if db2:  # #4173: each statement the step runs traced; a fault run's SQL faults, those that fire logged
-        sqlenv += "GGSQL_TRACE=/work/sqltrace.txt GGSQL_FAULTS_LOG=/work/FAULTS "
+        # #4507: and what Db2 answered each one (equivalence_db2.cobol_outcomes)
+        sqlenv += "GGSQL_TRACE=/work/sqltrace.txt GGSQL_OUTCOMES=/work/sqlout.txt GGSQL_FAULTS_LOG=/work/FAULTS "
         (work / "sqltrace.txt").unlink(missing_ok=True)
+        if not step_reused(work):
+            (work / "sqlout.txt").unlink(missing_ok=True)
         if fault is not None and fault.get("sql_plan"):
             (work / "sqlfaults.cfg").write_text("".join(x + "\n" for x in fault["sql_plan"]), encoding="ascii")
             sqlenv += "GGSQL_FAULTS=/work/sqlfaults.cfg "
@@ -319,6 +322,8 @@ def run_cobol(
             f = saved / f"DB2_{t}"
             outs[f"DB2 {t}"] = f.read_bytes() if f.is_file() else b""
     outs["SYSOUT"] = (work / "stdout.txt").read_bytes() if (work / "stdout.txt").is_file() else b""  # #4056
+    if db2 and db2.get("compare_sql"):  # #4507: what Db2 answered the step's statements
+        outs["SQL"] = (work / "sqlout.txt").read_bytes() if (work / "sqlout.txt").is_file() else b""
     # A CALL to a routine nothing here provides (CBACT01C's assembler COBDATFT) ends the run in libcob's own
     # "module not found": that is GnuCOBOL's failure, never the program's behaviour -- refused, not recorded as the
     # oracle (SYSOUT leaves libcob's lines out, so a port imitating the crash would otherwise prove).
@@ -605,6 +610,16 @@ def compare_run(case: dict[str, Any], corpus: Path, cobol: dict[str, bytes], jav
             diffs, rows = d["diffs"], d["records"]
             if diffs:
                 why.append(f"DB2 {t}: {rows - len(diffs)}/{rows} rows equal")
+        # #4507: what Db2 answered each side's statements (not a run with planned SQL faults: those are compared as
+        # fired faults)
+        if (case.get("db2") or {}).get("compare_sql") and not (fault or {}).get("sql_plan"):
+            q = equivalence_db2.compare_outcomes(
+                equivalence_db2.cobol_outcomes(cobol.get("SQL", b"").decode("latin-1")),
+                equivalence_db2.java_outcomes(java.get("SQL", b"").decode("latin-1")),
+            )
+            run["outputs"]["SQL"] = q
+            if q["equal"] != q["statements"]:
+                why.append(f"SQL: {q['equal']}/{q['statements']} statements answered alike")
     if case.get("sysout", True):  # #4056: the job log too, after an abend as well (its messages say why)
         s = compare_sysout(cobol.get("SYSOUT", b""), java.get("SYSOUT", b""), data_encoding(case))
         run["sysout"] = s

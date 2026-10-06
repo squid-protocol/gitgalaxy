@@ -191,6 +191,15 @@ APERTURE_CONFIG = {
         "Pods",
         "Carthage",
         "third_party",
+        # #4545: the other spellings of third_party. Vendored code is excluded, not flagged; the
+        # evidence-based names (libraries/, libs/, versioned SDL2-2.32.10/, *.framework) are decided
+        # by aperture.VendorDirectoryDetector.
+        "third-party",
+        "thirdparty",
+        "3rdparty",
+        "3rd_party",
+        "3rd-party",
+        "vendored",
         ".npm",
         # 3. Virtual Environments
         # #4542: only the unambiguous names. `env`, `.env` and `virtualenv` are also real source

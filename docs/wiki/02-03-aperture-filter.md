@@ -23,6 +23,27 @@ Enforces a multi-tiered hierarchy:
 - Stateful caching to preserve whitelist locks for explicitly referenced configurations.
 Secondary content gates include shebang processing, binary header inspection (X-Ray gate reading 8KB chunks), and minified code detection (line length density).
 
+## Vendored code
+Vendored copies of other projects are **excluded** from the scan, not flagged, so every first-party metric (size,
+complexity tails, risk, SARIF) reads first-party code only. This is how `vendor/`, `node_modules/` and `third_party/`
+were always treated; #4545 extends it to the other common spellings.
+
+- **By name** (`IGNORED_DIRECTORIES`): `third_party`, `third-party`, `thirdparty`, `3rdparty`, `3rd_party`,
+  `3rd-party`, `vendor`, `vendored`. **By suffix:** an Apple `*.framework` bundle.
+- **On evidence** (`VendorDirectoryDetector`): names that are also ordinary first-party names count only when the
+  directory holds a separate project, meaning a license file of its own whose text differs from the scan root's
+  license. A repo with no root license gives no evidence.
+  - A container (`libraries/`, `libs/`, `deps/`, `extern/`, `external/`, `externals/`) is excluded whole when at
+    least half of its non-empty subdirectories carry such a license (gzdoom's `libraries/`: bzip2, cppdap, webp,
+    ZMusic, ZVulkan, ...). A `libs/` of the repo's own packages carries no license, or the root's, and stays.
+  - A versioned directory (`SDL2-2.32.10/`, `SDL2_mixer-2.8.2/`) is excluded when it carries such a license.
+    id Software's `linuxdoom-1.10/` is versioned too, but its license sits at the root, so it stays.
+- The scan root itself is never a candidate. Only the directories under it are tested.
+
+Not covered: a single vendored file inside first-party code (Eternity's `source/nlohmann/json.hpp`), a bare library
+directory at the root (`zlib/`, `libpng/`), and a vendored library whose license text matches the root's (both GPL)
+in a container that is otherwise unlicensed. Add these with `exclude_dirs` in a project config.
+
 ## Declared ports
 A deterministic COBOL-to-Java port (`gitgalaxy/tools/cobol_to_java/det`) is machine-translated by design. Its
 indentation is uniform and its compound conditions are spelled out in full, so three generated-noise gates would

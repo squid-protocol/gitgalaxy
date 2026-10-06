@@ -22,7 +22,7 @@ import time
 from pathlib import Path
 from typing import Any, Optional
 
-from gitgalaxy.core.aperture import VIRTUALENV_CANDIDATE_NAMES, looks_like_virtualenv
+from gitgalaxy.core.aperture import VIRTUALENV_CANDIDATE_NAMES, VendorDirectoryDetector, looks_like_virtualenv
 from gitgalaxy.core.source_text import open_source
 from gitgalaxy.core.unicode_paths import nfc
 from gitgalaxy.standards.config_resolver import resolve_config
@@ -242,14 +242,19 @@ class Chronometer:
 
         min_t, max_t = float("inf"), 0.0
         count = 0
+        vendor_dirs = VendorDirectoryDetector(self.root)
         for root, dirs, files in os.walk(self.root):
-            # Skip noise sectors dynamically
+            # Skip noise sectors dynamically (#4545: vendored copies of other projects too)
             dirs[:] = [
                 d
                 for d in dirs
                 if not d.startswith(".")
                 and d not in ignored_dirs
                 and not (d.lower() in VIRTUALENV_CANDIDATE_NAMES and looks_like_virtualenv(Path(root) / d))
+                and not (
+                    VendorDirectoryDetector.is_candidate_name(d)
+                    and vendor_dirs.is_vendored((Path(root) / d).relative_to(self.root).as_posix())
+                )
             ]
             for f in files:
                 try:

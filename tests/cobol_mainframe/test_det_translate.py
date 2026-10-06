@@ -1111,6 +1111,123 @@ def test_nist_ccvs85_parses_with_continuations_rewrapped():
     assert len(progs) == 150 and ok >= 130, ok
 
 
+# ---- #4523: a continued literal in either quote style ----------------------------------------------------------
+def _fixed_rows(rows: list[str]) -> list[str]:
+    """Fixed-format source rows: `-` first is a continuation row (indicator column 7), else code from column 8."""
+    return [("      " + r) if r.startswith("-") else ("       " + r) for r in rows]
+
+
+def _continued(q: str, head: str, tail: str, cont_col: int) -> list[str]:
+    """`01 F PIC X(n) VALUE <q>head...` run to column 72, its continuation's quote in column `cont_col`."""
+    first = f"01 F PIC X({len(head) + len(tail)}) VALUE {q}"
+    first = (first + head)[:65]
+    return [first, "-" + " " * (cont_col - 8) + q + tail + q + "."]
+
+
+def _value_and_move(raw_data: list[str], raw_proc: list[str]):
+    from gitgalaxy.tools.cobol_to_java.det import layout as L
+    from gitgalaxy.tools.cobol_to_java.det import source as SRC
+
+    raw = _fixed_rows(["IDENTIFICATION DIVISION.", "PROGRAM-ID. T.", "DATA DIVISION.", "WORKING-STORAGE SECTION.",
+                  *raw_data, "01 A PIC X(200).", "PROCEDURE DIVISION.", "P1.", *raw_proc, "    GOBACK."])  # fmt: skip
+    lines = SRC.logical_lines(raw, "t")
+    rec = L.parse(lines)[0]
+    proc = S.parse(lines)
+    return rec.values[0][1], proc.paragraphs[0].body
+
+
+@pytest.mark.parametrize("q", ["'", '"'])
+@pytest.mark.parametrize("cont_col", [12, 20])  # the continuation's quote in Area B (column 12 on)
+def test_a_continued_literal_parses_in_either_quote_style(q, cont_col):
+    pytest.importorskip("tree_sitter_language_pack")
+    head = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ"
+    raw_data = _continued(q, head, "TAIL-END", cont_col)
+    want = (raw_data[0][raw_data[0].index(q) + 1 :]).ljust(65 - raw_data[0].index(q) - 1) + "TAIL-END"
+    move = [f"    MOVE {q}{'M' * 50}", "-" + " " * (cont_col - 8) + f"{q}MORE{q} TO A."]
+    move[0] = move[0].ljust(65)
+    value, body = _value_and_move(raw_data, move)
+    assert value == want
+    assert body[0].kind == "MOVE" and body[0].data["from"] == E.Lit(
+        "M" * 50 + " " * (65 - len(move[0].rstrip())) + "MORE"
+    )
+
+
+@pytest.mark.parametrize("q", ["'", '"'])
+def test_a_continued_literal_keeps_a_doubled_quote_and_the_other_quote(q):
+    pytest.importorskip("tree_sitter_language_pack")
+    other = '"' if q == "'" else "'"
+    head = f"IT{q}{q}S A {other}QUOTED{other} WORD AND MORE TEXT TO REACH COLUMN SEVENTY-TWO"
+    raw_data = _continued(q, head, f"END{q}{q}X", 12)
+    value, _ = _value_and_move(raw_data, [])
+    text = raw_data[0][raw_data[0].index(q) + 1 :].ljust(65 - raw_data[0].index(q) - 1) + f"END{q}{q}X"
+    assert value == text.replace(q * 2, q) and f"IT{q}S A {other}QUOTED{other}" in value
+
+
+@pytest.mark.parametrize("q", ["'", '"'])
+def test_a_doubled_quote_at_column_72_of_a_rewrapped_row_stays_together(q):
+    pytest.importorskip("tree_sitter_language_pack")
+    from gitgalaxy.tools.cobol_to_java.det import layout as L
+    from gitgalaxy.tools.cobol_to_java.det import source as SRC
+
+    lead = f"01 F PIC X(90) VALUE {q}"
+    lit = "A" * (65 - len(lead) - 1) + q * 2 + "B" * 40  # the pair in columns 72-73 of one long joined line
+    lines = _lines(["IDENTIFICATION DIVISION.", "PROGRAM-ID. T.", "DATA DIVISION.", "WORKING-STORAGE SECTION.",
+                    lead + lit + q + ".", "PROCEDURE DIVISION.", "    GOBACK."])  # fmt: skip
+    text, _ = SRC.as_fixed_rows(lines)
+    assert all(len(r) <= 72 for r in text.splitlines())
+    assert L.parse(lines)[0].values[0][1] == lit.replace(q * 2, q)
+
+
+def test_a_doubled_quotation_mark_is_one_literal_in_a_value_and_a_statement():
+    # the grammar had split VALUE "IT""S" into two values ("IT", "S") and refused MOVE "IT""S"
+    pytest.importorskip("tree_sitter_language_pack")
+    value, body = _value_and_move(['01 F PIC X(4) VALUE "IT""S".'], ['    MOVE "IT""S" TO A.'])
+    assert value == 'IT"S' and body[0].data["from"] == E.Lit('IT"S')
+
+
+def test_the_doubled_quotation_mark_stand_in_is_refused_by_name_in_the_source():
+    from gitgalaxy.tools.cobol_to_java.det import source as SRC
+
+    assert "U+001E" in SRC.unmodelled(_lines([f"    MOVE 'A{SRC.QQ}B' TO A."]))
+
+
+def test_an_exec_sql_line_keeps_its_apostrophes_when_rewrapped():
+    from gitgalaxy.tools.cobol_to_java.det import source as SRC
+
+    sql = "    EXEC SQL SELECT A INTO :A FROM T WHERE B = '" + "X" * 60 + "' END-EXEC."
+    text, _ = SRC.as_fixed_rows(_lines([sql, "    DISPLAY '" + "Y" * 70 + "'."]))
+    joined = SRC.unwrap(text).splitlines()
+    assert joined[0][7:] == sql and joined[1][7:] == '    DISPLAY "' + "Y" * 70 + '".'
+
+
+def test_a_hex_literal_on_a_rewrapped_line_keeps_its_value():
+    pytest.importorskip("tree_sitter_language_pack")
+    from gitgalaxy.tools.cobol_to_java.det import layout as L
+
+    def value(v: str):
+        return L.parse(_lines(["IDENTIFICATION DIVISION.", "PROGRAM-ID. T.", "DATA DIVISION.",
+                               "WORKING-STORAGE SECTION.", f"01 F PIC X(2) VALUE {v}.", "PROCEDURE DIVISION.",
+                               "    GOBACK."]))[0].values  # fmt: skip
+
+    # past column 72 (the line is re-wrapped, its apostrophe literals written in quotation marks)
+    assert value("X'C1C2'" + " " * 60 + "") == value("X'C1C2'") == [("hex", b"\xc1\xc2")]
+
+
+# ---- #4462: PROGRAM-ID without its period (estate-crucible LOAN LNCALC) ------------------------------------------
+@pytest.mark.parametrize("header", ["PROGRAM-ID LNCALC.", "PROGRAM-ID   LNCALC IS INITIAL.", "PROGRAM-ID. LNCALC."])
+def test_program_id_without_its_period_parses(header):
+    pytest.importorskip("tree_sitter_language_pack")
+    from gitgalaxy.tools.cobol_to_java.det import layout as L
+    from gitgalaxy.tools.cobol_to_java.det import source as SRC
+
+    raw = _fixed_rows(["IDENTIFICATION DIVISION.", header, "AUTHOR.       LOAN SYSTEMS.", "DATA DIVISION.",
+                  "WORKING-STORAGE SECTION.", "01  WS-RATE PIC S9(3)V9(8) COMP-3.", "PROCEDURE DIVISION.",
+                  "    GOBACK."])  # fmt: skip
+    lines = SRC.logical_lines(raw, "t")
+    assert lines[1].text.startswith("PROGRAM-ID.") and lines[1].text.split()[1].rstrip(".") == "LNCALC"
+    assert [r.name for r in L.parse(lines)] == ["WS-RATE"]
+
+
 def test_missing_language_pack_names_the_translator_extra(monkeypatch):
     # tree-sitter-language-pack is the optional `translator` extra: without it both parsers say how to install it
     from gitgalaxy.tools.cobol_to_java.det import layout as L

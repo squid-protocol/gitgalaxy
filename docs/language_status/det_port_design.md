@@ -351,8 +351,20 @@ Only generator output, never a test case:
   UnicodeEncodeError), because the translator lays records out and hands the grammar its text one byte a character;
   a national letter in a name (`BETRÄGE`: the grammar reads ASCII words only); DECIMAL-POINT IS COMMA (`1000,00`,
   `0,5` must never be read as integers). A national letter inside a literal or a comment is read. Still refused, with
-  a cause in the cross-check ledger: several programs in one source (PAYMAIN), IDMS (LNIDMS01), `PROGRAM-ID LNCALC.`
-  without its period, and the grammar gaps the ledger lists (`translator-refuses-grammar`).
+  a cause in the cross-check ledger: several programs in one source (PAYMAIN), IDMS (LNIDMS01), and the grammar gaps
+  the ledger lists (`translator-refuses-grammar`). `PROGRAM-ID LNCALC.` without its period is read since #4523
+  (`source.logical_lines` puts the period back, as Enterprise COBOL tolerates it). DECIMAL-POINT IS COMMA stays
+  refused: it needs a comma-aware numeric tokenizer in the statement grammar (`MOVE 0,5 TO X` against `A, B`), the
+  layout's VALUE parsing and edited PICTUREs with `.` and `,` swapped, and the runtime's edited moves and DISPLAY;
+  its one program (estate-crucible ZINSBER) would still be refused for its national-letter name `BETRÄGE`.
+- #4523: the grammar continues a literal only in quotation marks (`'...` at column 72 with `-    '...` on the next
+  row did not parse), and reads `""` inside one as two literals (`VALUE "IT""S"` was two values, `MOVE "IT""S"` did
+  not parse), though it reads `'IT''S'` whole. `source.as_fixed_rows` now hands the grammar every literal of a
+  re-wrapped line in quotation marks (same value: `''` undoubled) and every `""` as U+001E (`QQ`), which `unwrap`
+  turns back into `""`; a source holding U+001E is refused by name. An EXEC block's lines keep their own text (in
+  SQL an apostrophe is a string, a quotation mark a name; the grammar never reads them). When column 72 of a
+  re-wrapped row would split a doubled quote, the row ends a column early. Newly translating: CardDemo CBSTM03A, DSF
+  FO04F1X1, estate-crucible RPTHDR and LNCALC; CBSTM03A's cross-check found the engine's group USAGE gap (#4525).
 
 ### Keyed reads
 

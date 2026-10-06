@@ -1075,32 +1075,33 @@ class Cics:
             out.append(f"{ind}if ({r}.data() != null) DetCics.put({self.field(into)}, "
                        f"DetCics.fromRegion({r}.data(), REGION, CS));")  # fmt: skip
             settable = length is not None and re.fullmatch(r"(?is)[+-]?\d+|LENGTH\s+OF\s+.+", length.strip()) is None
-            if settable:
+            if settable and length is not None:
                 set_back = g.store_into(self.ref(length), f"BigDecimal.valueOf({r}.length())", False)
                 out.append(f"{ind}if ({r}.length() >= 0) {set_back}")
-        for o in named:
-            out.append(f"{ind}if ({r}.{o.lower()}() != null) DetCics.putPadded({self.field(_arg(opts[o]))}, "
-                       f"{r}.{o.lower()}(), CS);")  # fmt: skip
+        out += [f"{ind}if ({r}.{o.lower()}() != null) DetCics.putPadded({self.field(_arg(opts[o]))}, "
+                f"{r}.{o.lower()}(), CS);" for o in named]  # fmt: skip
         return out + self.outcome(opts, f"DetCics.resp({r}.resp())", "0", ind)
 
     def run_transid(self, opts: dict, ind: str) -> list[str]:
         """RUN TRANSID CHILD (IBM CICS TS, EXEC CICS RUN TRANSID) on CicsTask.runTransid: the child task runs once this task
         has ended (the harness's scheduler); CHILD's 16-character area gets the child token on NORMAL; TRANSIDERR
         RESP2 1 through RESP / HANDLE CONDITION."""
-        if not opts.get("TRANSID") or not opts.get("CHILD"):
+        transid, child = _option(opts, "TRANSID"), _option(opts, "CHILD")
+        if not transid or not child:
             raise CicsError("RUN without TRANSID / CHILD")
         r = self.g.tmpname("run")
-        return [f"{ind}CicsTask.RunResult {r} = task.runTransid({self.name(_arg(opts['TRANSID']))});",
-                f"{ind}if ({r}.child() != null) DetCics.putPadded({self.field(_arg(opts['CHILD']))}, {r}.child(), CS);",
+        return [f"{ind}CicsTask.RunResult {r} = task.runTransid({self.name(transid)});",
+                f"{ind}if ({r}.child() != null) DetCics.putPadded({self.field(child)}, {r}.child(), CS);",
                 *self.outcome(opts, f"DetCics.resp({r}.resp())", f"{r}.resp2()", ind)]  # fmt: skip
 
     def cancel(self, opts: dict, ind: str) -> list[str]:
         """CANCEL REQID (IBM CICS TS, EXEC CICS CANCEL) on CicsTask.cancel: NORMAL for a request not yet expired,
         NOTFND when none matches "an unexpired interval control command"."""
-        if not opts.get("REQID"):
+        reqid = _option(opts, "REQID")
+        if not reqid:
             raise CicsError("CANCEL without REQID: only CANCEL REQID is modelled")
         r = self.g.tmpname("cancelled")
-        return [f"{ind}int {r} = DetCics.resp(task.cancel({self.name(_arg(opts['REQID']))}));",
+        return [f"{ind}int {r} = DetCics.resp(task.cancel({self.name(reqid)}));",
                 *self.outcome(opts, r, "0", ind)]  # fmt: skip
 
     # -- #4413: terminal control without a map

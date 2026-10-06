@@ -728,6 +728,7 @@ public class CicsTask {
 
     private StartResult issueStart(StartRequest q) {
         CicsTask task = root();
+        String transid = q.transid;
         String how = q.when;
         int hhmmss = q.hhmmss;
         int resp2 = 0;
@@ -768,7 +769,7 @@ public class CicsTask {
             resp = "TRANSIDERR";
         } else if (q.termid != null && programs != null && !programs.terminal(q.termid)) {
             resp = "TERMIDERR";
-        } else if ((planned = task.injected("START", q.transid.stripTrailing())) != null) {
+        } else if ((planned = task.injected("START", transid.stripTrailing())) != null) {
             resp = respName(planned[0]);  // #4049: a planned condition; nothing is started
             resp2 = planned[1];
         } else if (q.reqid != null && q.from != null && task.ownWithData.contains(q.reqid)) {

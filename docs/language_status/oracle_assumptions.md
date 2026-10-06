@@ -72,6 +72,7 @@ verdict, but it limits what the proof says about inputs outside the scenarios.
 | D1 | data | Text order is ASCII (Latin-1), not EBCDIC | DIFFERS | keys: no; comparisons: not audited |
 | D2 | data | Hex literals that name EBCDIC characters (`X'40'`) | DIFFERS | no |
 | D3 | data | Zoned signs in ASCII data (`{`, `}`, A–R overpunch) | MATCHED | yes |
+| D4 | data | An alphanumeric literal holding a character no single-byte code page holds (a UTF-8 em dash): the statement is a hole by name, the program translates; in a VALUE, a national / DBCS literal or a name the program stays refused (#4272) | REFUSED (the statement) | no |
 | F1 | files | Natural FILE STATUS values come from GnuCOBOL's BDB files | ASSUMED | yes (00, 10, 23, 22) |
 | F2 | files | Fault FILE STATUS values are injected on both sides | MATCHED | yes |
 | F3 | files | RECFM=VB: records compared by content, framed as GnuCOBOL frames them, not as a z/OS RDW | ASSUMED | yes (CardDemo READACCT VBRCFILE) |
@@ -359,6 +360,28 @@ verdict, but it limits what the proof says about inputs outside the scenarios.
 ### D3. Zoned signs in ASCII data — MATCHED
 - `-fsign=EBCDIC` reads the corpora's ASCII data with EBCDIC-style overpunch (`{` = +0, A–I positive, `}` J–R
   negative), as the data was unloaded from z/OS.
+
+### D4. A character no single-byte code page holds, in an alphanumeric literal — REFUSED (the statement, #4272)
+- **What.** A UTF-8 source with an em dash (U+2014) in `MOVE 'Conto bloccato — operazione negata' TO WS-MSG` (a
+  census estate's CICS messages, 2026-10-06). Enterprise COBOL reads its source in the single-byte EBCDIC code page
+  of its CODEPAGE option, and an alphanumeric literal's length is its bytes in that page (Enterprise COBOL for z/OS
+  Language Reference, "Alphanumeric literals"; DBCS characters only as a mixed literal
+  between shift-out / shift-in under the DBCS option). No SBCS EBCDIC page (037, 1140, 280 / 1144 ...) and not
+  Latin-1, the det runtime's record charset, holds U+2014.
+- **Why refused.** COBOL does not decide what the literal is: the transfer of the source to the compiler does. A
+  transcoding transfer substitutes one byte (SUB, X'3F') or fails; a binary one keeps three bytes (X'E28094', read as
+  EBCDIC characters); GnuCOBOL takes the three UTF-8 bytes as written. The literal's bytes and its length (so the
+  receiver's padding or truncation) differ between them; guessing one would make a port agree with one toolchain and
+  not the estate's. Even column 72 moves: the translator counts a character a column, a compiler reading the UTF-8
+  bytes counts the em dash as three.
+- **What the translator does.** `source.narrowed` hands the grammar a stand-in (U+001D) for the character, column
+  for column, and the statement holding the literal (a MOVE, an IF's or a WHEN's condition, an EXEC block) is
+  `throw new Hole(...)` with gen.WIDE_WHY; the rest of the program translates. The literal never reaches Java.
+- **Still refused whole** (`source.unmodelled`): the character in a VALUE (it lays the program's storage out), in a
+  national / DBCS literal (N'…', G'…', NX'…', U'…': national data is not modelled, #4272) or in a name. In a `*>`
+  comment it is read (no parser reads a comment).
+- **To settle.** An estate that states how its source reached the compiler (its transfer code page, or GnuCOBOL with
+  UTF-8 source) decides the bytes; then the literal can be translated to them.
 
 ## Files
 

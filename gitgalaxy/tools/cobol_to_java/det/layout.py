@@ -12,7 +12,14 @@ from dataclasses import dataclass, field
 from decimal import Decimal
 from pathlib import Path
 
-from gitgalaxy.tools.cobol_to_java.det.source import Line, as_fixed_rows, cobol_parser, unmodelled, unwrap
+from gitgalaxy.tools.cobol_to_java.det.source import (
+    Line,
+    as_fixed_rows,
+    cobol_parser,
+    several_programs,
+    unmodelled,
+    unwrap,
+)
 
 POSITIVE = "{ABCDEFGHI"  # overpunched +0..+9 (-fsign=EBCDIC, ASCII data)
 NEGATIVE = "}JKLMNOPQR"
@@ -208,7 +215,8 @@ def _data_only(lines: list[Line]) -> list[Line]:
 
 def parse(lines: list[Line]) -> list[Item]:
     """The 01 / 77 records of the DATA DIVISION, each a tree of Items."""
-    why = unmodelled(lines)  # #4462: national / DBCS text, DECIMAL-POINT IS COMMA: refused by name
+    # #4462: national / DBCS text, DECIMAL-POINT IS COMMA, IDMS, several programs (each read on its own): refused by name
+    why = unmodelled(lines) or several_programs(lines)
     if why:
         raise LayoutError(why)
     text, rows = as_fixed_rows(_data_only(lines))
@@ -340,11 +348,11 @@ def _one(node, src: bytes):
     if text[:1] not in "'\"":
         text = text.rstrip(",;")  # `VALUES 0, 1`: the grammar hands the separator over with the value
     up = text.upper()
+    if t == "x_string" or (t == "string" and re.match(r"X['\"]", text, re.I)):  # (#4462: a re-wrapped hex literal)
+        return ("hex", bytes.fromhex(re.sub(r"^X['\"]|['\"]$", "", text, flags=re.I)))
     if t in ("string",):
         q = text[0]
         return ("lit", text[1:-1].replace(q * 2, q))
-    if t == "x_string":
-        return ("hex", bytes.fromhex(re.sub(r"^X['\"]|['\"]$", "", text, flags=re.I)))
     if t == "number":
         try:
             return ("num", Decimal(text))

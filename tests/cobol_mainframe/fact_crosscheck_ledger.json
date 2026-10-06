@@ -37,15 +37,15 @@
    "issue": 4486,
    "summary": "Refused by name since #4468 (CopyUnresolved): a COPY whose member the engine reports as a SYSLIB collision (estate-crucible H-0052 ORDREC / ADDRREC, H-0034 DATEWS). The engine and the key resolve it to the first library, as z/OS does; whether the translator takes it is #4486."
   },
-  "translator-refuses-estate-shape": {
-   "side": "translator",
-   "issue": 4462,
-   "summary": "Refused (never silent): IDMS (LNIDMS01); several programs in one source (PAYMAIN, refused first by its COPY collision). (Declared code pages and free format are read since #4462; PROGRAM-ID without its period (LNCALC) and RPTHDR's continued apostrophe literal since #4523.)"
-  },
   "translator-refuses-grammar": {
    "side": "translator",
    "issue": 4462,
-   "summary": "Refused (never silent): the tree-sitter grammar or the statement builder cannot read the DATA / PROCEDURE DIVISION (SEARCH ALL 'no open EVALUATE', DL/I, DSF's ALPHABET / FD shapes, FUNCTION CURRENT-DATE (1:4): a reference modification on an intrinsic function, estate-crucible KØBREG). Continued apostrophe literals are read since #4523."
+   "summary": "Refused (never silent): the tree-sitter grammar or the statement builder cannot read the DATA / PROCEDURE DIVISION: SEARCH ALL's WHEN ('no open EVALUATE', CardDemo COPAUS1C), DSF's alphabet without ALPHABET (PLUKKFR, PLUKKFRN) and LABEL RECORD ARE (FO04D1X1), OS/VS EXHIBIT NAMED (R001BYDL), GenApp polloo2.cpy's missing period (a source defect). Read since #4462 slice 2: ENTRY 'DLITCBL', FUNCTION f (1:4), lower-case x'00'; continued apostrophe literals since #4523."
+  },
+  "translator-refuses-idms": {
+   "side": "translator",
+   "issue": 4532,
+   "summary": "Refused by name since #4462 (source.unmodelled, 'IDMS DML not supported'): an IDMS-DC program (IDMS-CONTROL / SCHEMA SECTION; estate-crucible LOAN LNIDMS01). Its DML (BIND RUN-UNIT, READY, OBTAIN CALC, FINISH, DC RETURN) and subschema records are not modelled; IDMS support is #4532."
   },
   "translator-refuses-national-text": {
    "side": "translator",
@@ -75,12 +75,8 @@
   "aws-mainframe-modernization-carddemo :: offsets | app/cbl/CBSTM03A.CBL | translator | TIOT-INDEX (record) +8": "pointer-width",
   "aws-mainframe-modernization-carddemo :: status | app/app-authorization-ims-db2-mq/cbl/COPAUA0C.cbl | engine | translator refused: CopyNotFound: COPY CMQODV": "translator-refuses-vendor-copybook",
   "aws-mainframe-modernization-carddemo :: status | app/app-authorization-ims-db2-mq/cbl/COPAUS1C.cbl | engine | translator refused: procedure: ExprError: no open EVALUATE": "translator-refuses-grammar",
-  "aws-mainframe-modernization-carddemo :: status | app/app-authorization-ims-db2-mq/cbl/DBUNLDGS.CBL | engine | translator refused: procedure: ExprError: the PROCEDURE DIVISION does not parse at line 164": "translator-refuses-grammar",
-  "aws-mainframe-modernization-carddemo :: status | app/app-authorization-ims-db2-mq/cbl/PAUDBLOD.CBL | engine | translator refused: procedure: ExprError: the PROCEDURE DIVISION does not parse at line 169": "translator-refuses-grammar",
-  "aws-mainframe-modernization-carddemo :: status | app/app-authorization-ims-db2-mq/cbl/PAUDBUNL.CBL | engine | translator refused: procedure: ExprError: the PROCEDURE DIVISION does not parse at line 157": "translator-refuses-grammar",
   "aws-mainframe-modernization-carddemo :: status | app/app-vsam-mq/cbl/COACCT01.cbl | engine | translator refused: CopyNotFound: COPY CMQGMOV": "translator-refuses-vendor-copybook",
   "aws-mainframe-modernization-carddemo :: status | app/app-vsam-mq/cbl/CODATE01.cbl | engine | translator refused: CopyNotFound: COPY CMQGMOV": "translator-refuses-vendor-copybook",
-  "aws-mainframe-modernization-carddemo :: status | app/cbl/CBIMPORT.cbl | engine | translator refused: procedure: ExprError: the PROCEDURE DIVISION does not parse": "translator-refuses-grammar",
   "aws-mainframe-modernization-carddemo :: unit_extents | app/cbl/CBACT01C.cbl | translator | (procedure division) L140-160": "engine-main-line-no-extent",
   "aws-mainframe-modernization-carddemo :: unit_extents | app/cbl/CBACT02C.cbl | translator | (procedure division) L70-87": "engine-main-line-no-extent",
   "aws-mainframe-modernization-carddemo :: unit_extents | app/cbl/CBACT03C.cbl | translator | (procedure division) L70-87": "engine-main-line-no-extent",
@@ -320,7 +316,6 @@
   "cics-genapp :: offsets | base/src/lgupol01.cbl | engine | WS-HEADER/WS-CALEN @36+2": "pointer-width",
   "cics-genapp :: offsets | base/src/lgupol01.cbl | translator | WS-HEADER (record) +42": "pointer-width",
   "cics-genapp :: offsets | base/src/lgupol01.cbl | translator | WS-HEADER/WS-CALEN @40+2": "pointer-width",
-  "cics-genapp :: status | base/src/lgtestc1.cbl | engine | translator refused: procedure: ExprError: the PROCEDURE DIVISION does not parse": "translator-refuses-grammar",
   "cics-genapp :: status | base/src/polloo2.cpy | engine | translator refused: LayoutError: DATA DIVISION does not parse near expanded line(s) [6]": "translator-refuses-grammar",
   "cics-genapp :: value | base/src/lgacvs01.cbl | engine | L49 CUSTOMER-RECORD-SIZE = 0225": "numeric-value-spelling",
   "cics-genapp :: value | base/src/lgacvs01.cbl | translator | L49 CUSTOMER-RECORD-SIZE = 225": "numeric-value-spelling",
@@ -339,7 +334,7 @@
   "dsf :: status | src/GML/FO04D1X1.cobol | engine | translator refused: layout: LayoutError: DATA DIVISION does not parse near expanded line(s) [52]": "translator-refuses-grammar",
   "dsf :: status | src/GML/PLUKKFR.cobol | engine | translator refused: layout: LayoutError: DATA DIVISION does not parse near expanded line(s) [18]": "translator-refuses-grammar",
   "dsf :: status | src/GML/PLUKKFRN.cobol | engine | translator refused: layout: LayoutError: DATA DIVISION does not parse near expanded line(s) [18]": "translator-refuses-grammar",
-  "dsf :: status | src/GML/R001BYDL.cobol | engine | translator refused: procedure: ExprError: the PROCEDURE DIVISION does not parse at line 154": "translator-refuses-grammar",
+  "dsf :: status | src/GML/R001BYDL.cobol | engine | translator refused: procedure: ExprError: the PROCEDURE DIVISION does not parse at line 193": "translator-refuses-grammar",
   "dsf :: unit_extents | src/GML/FO04D1X1.cobol | translator | (procedure division) L125-132": "engine-main-line-no-extent",
   "dsf :: unit_extents | src/GML/PLUKKFR.cobol | translator | (procedure division) L73-75": "engine-main-line-no-extent",
   "dsf :: unit_extents | src/GML/PLUKKFRN.cobol | translator | (procedure division) L73-75": "engine-main-line-no-extent",
@@ -347,8 +342,7 @@
   "estate-crucible :: status | apps/KYUY/cobol/KYUYJP.cbl | engine | translator refused: layout: LayoutError: KYUYJP.cbl:2: national / DBCS text ('給', U+7D66) is not modelled: the translator reads a single-byte code page; procedure: ExprError: KYUYJP.cbl:2: national / DBCS text ('給', U+7D66) is not modelled: the translator reads a single-byte code page": "translator-refuses-national-text",
   "estate-crucible :: status | apps/KYUY/cobol/KYUYO01.cbl | engine | translator refused: layout: LayoutError: KYUYO01.cbl:10: national / DBCS text ('処', U+51E6) is not modelled: the translator reads a single-byte code page; procedure: ExprError: KYUYO01.cbl:10: national / DBCS text ('処', U+51E6) is not modelled: the translator reads a single-byte code page": "translator-refuses-national-text",
   "estate-crucible :: status | apps/KYUY/cobol/KYUYO02.cbl | engine | translator refused: layout: LayoutError: KYUYO02.cbl:8: national / DBCS text ('賞', U+8CDE) is not modelled: the translator reads a single-byte code page; procedure: ExprError: KYUYO02.cbl:8: national / DBCS text ('賞', U+8CDE) is not modelled: the translator reads a single-byte code page": "translator-refuses-national-text",
-  "estate-crucible :: status | apps/LOAN/cobol/LNIDMS01.cbl | engine | translator refused: layout: LayoutError: DATA DIVISION does not parse near expanded line(s) [5, 9]; procedure: ExprError: the PROCEDURE DIVISION does not parse at line 18": "translator-refuses-estate-shape",
-  "estate-crucible :: status | apps/NORD/cobol/KØBREG.cbl | engine | translator refused: procedure: ExprError: the PROCEDURE DIVISION does not parse at line 23": "translator-refuses-grammar",
+  "estate-crucible :: status | apps/LOAN/cobol/LNIDMS01.cbl | engine | translator refused: layout: LayoutError: LNIDMS01.cbl:8: IDMS DML not supported (an IDMS-DC / DMLC program: IDMS-CONTROL SECTION.); procedure: ExprError: LNIDMS01.cbl:8: IDMS DML not supported (an IDMS-DC / DMLC program: IDMS-CONTROL SECTION.)": "translator-refuses-idms",
   "estate-crucible :: status | apps/ORDR/cobol/ORDMAIN.cbl | engine | translator refused: CopyNotFound: COPY ORDREC:": "translator-refuses-copy-collision",
   "estate-crucible :: status | apps/ORDR/cobol/ORDPRICE.cbl | engine | translator refused: CopyNotFound: COPY ORDREC:": "translator-refuses-copy-collision",
   "estate-crucible :: status | apps/ORDR/cobol/ORDV#OLD.cbl | engine | translator refused: CopyNotFound: COPY ORDREC:": "translator-refuses-copy-collision",

@@ -20,7 +20,7 @@ from gitgalaxy.tools.cobol_to_java.det import expr as E
 from gitgalaxy.tools.cobol_to_java.det import gen as G
 from gitgalaxy.tools.cobol_to_java.det import layout as L
 from gitgalaxy.tools.cobol_to_java.det import stmt as S
-from gitgalaxy.tools.cobol_to_java.det.source import Line, engine_copies_from_ticket, program_lines
+from gitgalaxy.tools.cobol_to_java.det.source import Line, engine_copies_from_ticket, program_lines, program_unit
 
 RUNTIME = Path(__file__).parent / "cobolrt"
 
@@ -241,8 +241,9 @@ def write_only_pointers(records: list, proc) -> set[str]:
 def translate(program: Path, copy_dirs: list[Path], stub: str, package: str,
               estate: dict[str, str] | None = None, project: Path | None = None,
               style: str = "dispatch", typed: bool = False, groups: bool = False,
-              options: list[str] | None = None) -> Result:  # fmt: skip
-    """`style`: "dispatch" (paragraphs numbered, run by a PERFORM / GO TO dispatcher) or "structured" (paragraphs
+              options: list[str] | None = None, unit: str | None = None) -> Result:  # fmt: skip
+    """`unit` (#4462): the program of a multi-program source to translate (its PROGRAM-ID; None: the first), each
+    nested or batch-compiled program on its own (det.source.program_unit). `style`: "dispatch" (paragraphs numbered, run by a PERFORM / GO TO dispatcher) or "structured" (paragraphs
     as named methods called directly, fields by their COBOL names) -- structured only where `structurable`.
     `typed` (B3): standalone WORKING-STORAGE items held as typed Java fields -- an alphanumeric item a String of
     its length, a binary integer a long -- where every use of the item has a typed form; an item used any other way
@@ -253,7 +254,9 @@ def translate(program: Path, copy_dirs: list[Path], stub: str, package: str,
     """
     excluded: set[str] = set()
     while True:
-        out = _attempt(program, copy_dirs, stub, package, estate, project, style, typed, excluded, groups, options)
+        out = _attempt(
+            program, copy_dirs, stub, package, estate, project, style, typed, excluded, groups, options, unit
+        )
         if isinstance(out, Result):
             return out
         if out.names <= excluded:
@@ -414,10 +417,11 @@ def liftable(records: list, excluded: set[str], rc: L.Item) -> dict[int, str]:
 
 def _translate(program: Path, copy_dirs: list[Path], stub: str, package: str, estate: dict[str, str] | None,
                project: Path | None, style: str, typed: bool, excluded: set[str],
-               groups: bool = False, options: list[str] | None = None) -> Result:  # fmt: skip
+               groups: bool = False, options: list[str] | None = None, unit: str | None = None) -> Result:  # fmt: skip
     # #4467: a COPY the translator resolves otherwise than the engine did refuses the program (CopyDisagrees)
     engine = engine_copies_from_ticket(project, program) if project is not None else None
-    lines = program_lines(program, [*copy_dirs, C.COPY], engine)
+    # #4462: one program of the source (the first, or `unit`): a nested or batch-compiled program is its own class
+    lines = program_unit(program_lines(program, [*copy_dirs, C.COPY], engine), unit)
     records = L.parse(lines)
     is_cics = "runTask(CicsTask" in stub
     batch = has_batch(project)
@@ -440,7 +444,7 @@ def _translate(program: Path, copy_dirs: list[Path], stub: str, package: str, es
     if svc_m is None:
         raise ValueError("the stub has no public class")
     service = svc_m.group(1)
-    prog = G.Program(program.stem.upper(), service, package, records, proc)
+    prog = G.Program(unit.upper() if unit else program.stem.upper(), service, package, records, proc)
 
     # storages: each 01 / 77 that is not a REDEFINES of another; the FD's records share the first one's
     roots: dict[int, L.Item] = {}

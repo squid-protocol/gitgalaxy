@@ -93,6 +93,34 @@ SORT_LOAD = [
     "    EXIT.",
 ]  # fmt: skip
 
+# SORT under an alphabet: an alphanumeric, a group (of characters only), a zoned, an edited key; eight records
+SORTCS_SD = ["SD  SORT-FILE.", "01  SR.", "    05 SR-A PIC X(2).", "    05 SR-G.", "       10 SR-G1 PIC X.",
+             "       10 SR-G2 PIC X(2).", "    05 SR-N PIC S9(2).", "    05 SR-E PIC Z9.", "    05 SR-T PIC X(3)."]  # fmt: skip
+SORTCS_DATA = ["01  I   PIC 9(2).", "01  EOF PIC X.", "01  NE  PIC -99.",
+               "01  RECS.",
+               *[f"    05 FILLER PIC X(12) VALUE '{v}'." for v in (
+                   "abaQ5-3 7T01", "BBZR11212T02", "b ZQ4 2 3T03", "-xxQ5-370T04", "X9 A0 0 9T05",
+                   "c YB1 9 0T06", "Y0cB1 910T07", "zzbB2-9 1T08")],
+               "01  RECT REDEFINES RECS.", "    05 REC PIC X(12) OCCURS 8."]  # fmt: skip
+SORTCS_LOAD = [
+    "LOAD-CS.",
+    "    PERFORM VARYING I FROM 1 BY 1 UNTIL I > 8",
+    "        MOVE REC(I)(1:5) TO SR(1:5)",
+    "        MOVE FUNCTION NUMVAL(REC(I)(6:2)) TO SR-N",
+    "        MOVE REC(I)(8:5) TO SR(8:5)",
+    "        RELEASE SR",
+    "    END-PERFORM.",
+    "SHOW-CS.",
+    "    MOVE 'N' TO EOF",
+    "    PERFORM UNTIL EOF = 'Y'",
+    "        RETURN SORT-FILE AT END MOVE 'Y' TO EOF",
+    "            NOT AT END",
+    "                MOVE SR-N TO NE",
+    "                DISPLAY SR-T ' ' SR-A ' ' SR-G ' ' NE ' ' SR-E",
+    "        END-RETURN",
+    "    END-PERFORM.",
+]  # fmt: skip
+
 PROGRAMS = {
     # SORT with INPUT / OUTPUT PROCEDUREs: an ascending zoned major key and a descending packed minor key WITH
     # DUPLICATES IN ORDER (three records tie: they come back in RELEASE order), RETURN with and without INTO, a
@@ -125,6 +153,68 @@ PROGRAMS = {
             "    GOBACK.",
             *SORT_LOAD,
         ],
+    ),
+    # SORT under an alphabet (IBM Enterprise COBOL 6.4 Language Reference, ALPHABET clause, SORT COLLATING
+    # SEQUENCE): EBCDIC, and a literal alphabet (a multi-character literal, SPACE, ALSO, a descending THRU, the
+    # characters it does not name after it) on an alphanumeric key, a descending group key, a numeric key (by value,
+    # untouched by the alphabet) with an edited minor key, and an edited key. The records are such that IBM's
+    # sequences and GnuCOBOL's agree (the port refuses a pair they order differently, register D1)
+    "SORTCS": fprogram(
+        "SORTCS",
+        ["ALPHABET EB IS EBCDIC", "ALPHABET LT IS 'XYZ' SPACE 'b' ALSO 'B' ALSO 'c'", "    '9' THRU '0'."],
+        ["SELECT SORT-FILE ASSIGN TO SORTWK1."],
+        SORTCS_SD,
+        SORTCS_DATA,
+        [
+            "MAIN-PARA.",
+            "    DISPLAY 'EB A'",
+            "    SORT SORT-FILE ON ASCENDING KEY SR-A WITH DUPLICATES",
+            "         COLLATING SEQUENCE IS EB",
+            "         INPUT PROCEDURE LOAD-CS OUTPUT PROCEDURE SHOW-CS",
+            "    DISPLAY 'LT A'",
+            "    SORT SORT-FILE ON ASCENDING KEY SR-A WITH DUPLICATES",
+            "         COLLATING SEQUENCE LT",
+            "         INPUT PROCEDURE LOAD-CS OUTPUT PROCEDURE SHOW-CS",
+            "    DISPLAY 'LT G DESC'",
+            "    SORT SORT-FILE ON DESCENDING KEY SR-G WITH DUPLICATES",
+            "         COLLATING SEQUENCE LT",
+            "         INPUT PROCEDURE LOAD-CS OUTPUT PROCEDURE SHOW-CS",
+            "    DISPLAY 'LT N E'",
+            "    SORT SORT-FILE ON ASCENDING KEY SR-N SR-E",
+            "         COLLATING SEQUENCE LT",
+            "         INPUT PROCEDURE LOAD-CS OUTPUT PROCEDURE SHOW-CS",
+            "    DISPLAY 'LT E'",
+            "    SORT SORT-FILE ON ASCENDING KEY SR-E",
+            "         COLLATING SEQUENCE LT",
+            "         INPUT PROCEDURE LOAD-CS OUTPUT PROCEDURE SHOW-CS",
+            "    DISPLAY 'EB G DESC'",
+            "    SORT SORT-FILE ON DESCENDING KEY SR-G",
+            "         COLLATING SEQUENCE EB",
+            "         INPUT PROCEDURE LOAD-CS OUTPUT PROCEDURE SHOW-CS",
+            "    GOBACK.",
+            *SORTCS_LOAD,
+        ],
+    ),
+    # PROGRAM COLLATING SEQUENCE: a SORT without the phrase orders by it ('z' THRU 'a': the lower-case letters
+    # first, descending, then every other character)
+    "SORTPC": fprogram(
+        "SORTPC",
+        ["ALPHABET RV IS 'z' THRU 'a'."],
+        ["SELECT SORT-FILE ASSIGN TO SORTWK1."],
+        SORTCS_SD,
+        SORTCS_DATA,
+        [
+            "MAIN-PARA.",
+            "    SORT SORT-FILE ON ASCENDING KEY SR-A WITH DUPLICATES",
+            "         INPUT PROCEDURE LOAD-CS OUTPUT PROCEDURE SHOW-CS",
+            "    SORT SORT-FILE ON DESCENDING KEY SR-G SR-T",
+            "         INPUT PROCEDURE LOAD-CS OUTPUT PROCEDURE SHOW-CS",
+            "    GOBACK.",
+            *SORTCS_LOAD,
+        ],
+    ).replace(
+        "CONFIGURATION SECTION.\n",
+        "CONFIGURATION SECTION.\n       OBJECT-COMPUTER. GG\n           PROGRAM COLLATING SEQUENCE IS RV.\n",
     ),
     # FUNCTION TRIM: spaces only, an all-space argument zero-length (COACTUPC's alphabetic-field check)
     "TRIMS": program(
@@ -719,9 +809,15 @@ def _holes(tmp_path: Path, src: str) -> list[str]:
 @pytest.mark.parametrize(
     ("proc", "special", "why"),
     [
-        # IBM: an alphabet other than NATIVE / STANDARD-1 orders text in a sequence the harness does not model
-        (["    SORT SORT-FILE ASCENDING SR-NAME COLLATING SEQUENCE EB", "         INPUT PROCEDURE LOAD-RECS",
-          "         OUTPUT PROCEDURE SHOW-RECS"], ["ALPHABET EB IS EBCDIC."], "COLLATING SEQUENCE EB (EBCDIC)"),
+        # an ordinal names a code of the native character set: EBCDIC on z/OS, ISO-8859-1 here (register D1)
+        (["    SORT SORT-FILE ASCENDING SR-NAME COLLATING SEQUENCE OD", "         INPUT PROCEDURE LOAD-RECS",
+          "         OUTPUT PROCEDURE SHOW-RECS"], ["ALPHABET OD IS 'A' 1 THRU 65."], "COLLATING SEQUENCE OD: 1 in"),
+        # an alphabet orders characters: a group key holding a packed item is not all characters
+        (["    SORT SORT-FILE ASCENDING SORT-REC COLLATING SEQUENCE EB", "         INPUT PROCEDURE LOAD-RECS",
+          "         OUTPUT PROCEDURE SHOW-RECS"], ["ALPHABET EB IS EBCDIC."], "holds numeric or national items"),
+        # an alphabet of HIGH-VALUE: defined by the collating sequence it is in
+        (["    SORT SORT-FILE ASCENDING SR-NAME COLLATING SEQUENCE HV", "         INPUT PROCEDURE LOAD-RECS",
+          "         OUTPUT PROCEDURE SHOW-RECS"], ["ALPHABET HV IS 'A' HIGH-VALUE."], "HIGH-VALUE in"),
         # IBM: 16 in SORT-RETURN ends the sort at the next RELEASE / RETURN
         (["    MOVE 16 TO SORT-RETURN"], None, "SORT-RETURN set by the program"),
         # format 2: a table, not an SD file
@@ -780,6 +876,48 @@ def test_merge_refuses_an_input_out_of_order(tmp_path):
     with pytest.raises(subprocess.CalledProcessError) as e:
         _java_run_batch("SORTUG", src, tmp_path, FILE_DDS["SORTUG"])
     assert "MERGE SORT-FILE: an input file out of key order" in e.value.stderr
+
+
+def test_alphabets_keep_each_definition_whole():
+    """program.alphabets: a word definition, a literal alphabet's tokens (doubled quotes kept, FOR ALPHANUMERIC,
+    across lines) up to the next clause, and "?" for a token no literal alphabet has (a hexadecimal literal)."""
+    from gitgalaxy.tools.cobol_to_java.det.program import alphabets
+    from gitgalaxy.tools.cobol_to_java.det.source import logical_lines
+
+    src = fprogram("ALPH", ["ALPHABET EB IS EBCDIC", "ALPHABET LT FOR ALPHANUMERIC IS 'A' ALSO 'a' 'it''s'",
+                            "    SPACE 'z' THRU 'q' 7", "ALPHABET HX IS 'A' X'C1'", "CLASS DIGIT IS '0' THRU '9'."],
+                   [], [], [], ["MAIN-PARA.", "    GOBACK."]).replace("CONFIGURATION SECTION.\n",
+                   "CONFIGURATION SECTION.\n       OBJECT-COMPUTER. GG PROGRAM COLLATING SEQUENCE LT.\n")  # fmt: skip
+    names, pcs = alphabets(logical_lines(src.splitlines(), "a.cbl"))
+    assert pcs == "LT"
+    assert names["EB"] == ["EBCDIC"]
+    assert names["LT"] == ["'A'", "ALSO", "'a'", "'it''s'", "SPACE", "'z'", "THRU", "'q'", "7"]
+    assert names["HX"] == ["'A'", "?"]
+
+
+@pytest.mark.parametrize(
+    ("key", "alphabet"),
+    [
+        # '^': EBCDIC code page 037 puts it after the lower-case letters (X'B0'), GnuCOBOL's EBCDIC table before
+        # them (X'5F')
+        ("^b", "EB"),
+        # 'A' and 'z', neither named by LT: after LT's characters in native order -- EBCDIC on z/OS ('z' first),
+        # the data's bytes in GnuCOBOL ('A' first)
+        ("Ab", "LT"),
+    ],
+)
+def test_sort_under_an_alphabet_refuses_what_ibm_and_gnucobol_order_differently(key, alphabet, tmp_path):
+    """SORTCS with one key changed so that IBM's sequence and GnuCOBOL's order two records differently: the port
+    does not pick one, the run stops by name (register D1)."""
+    pytest.importorskip("tree_sitter_language_pack")
+    if _java() is None:
+        pytest.skip("needs JAVA_HOME / JDK_17")
+    src = PROGRAMS["SORTCS"].replace("'abaQ5-3 7T01'", f"'{key}aQ5-3 7T01'")
+    assert src != PROGRAMS["SORTCS"]
+    with pytest.raises(subprocess.CalledProcessError) as e:
+        _java_run("SORTCS", src, tmp_path)
+    assert f"COLLATING SEQUENCE {alphabet}: keys" in e.value.stderr
+    assert "ordered differently by IBM and by GnuCOBOL (register D1): not modelled" in e.value.stderr
 
 
 # ---- #4462: a multi-program source, one program at a time; a reference modification of an intrinsic function -----

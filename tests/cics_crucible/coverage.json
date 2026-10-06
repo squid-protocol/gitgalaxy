@@ -1,6 +1,6 @@
 {
  "format": "cics-crucible-coverage/1",
- "crucible_ref": "v0.2.0 (94f2afcb)",
+ "crucible_ref": "v0.3.0 (f8aaf95f)",
  "note": "#4023: the COBOL each passing cobol-stub scenario executes (live paragraphs and sections entered; branch outcomes as LINE:OUTCOME of the crucible's source) -- a ratchet (tests/tools/cics_crucible.py --ci). Regenerate with --update-baseline.",
  "programs": {
   "ca-link-lengths/CALINK": {
@@ -404,6 +404,226 @@
     }
    }
   },
+  "hc-eoc-error/HCEOE": {
+   "live": 4,
+   "outcomes": 2,
+   "scenarios": {
+    "eoc-not-error": {
+     "units": [
+      "MAIN-PARA",
+      "SEND-TRAIL"
+     ],
+     "outcomes": [
+      "23:false"
+     ]
+    },
+    "eoc-own-label": {
+     "units": [
+      "GOT-EOC",
+      "MAIN-PARA",
+      "SEND-TRAIL"
+     ],
+     "outcomes": [
+      "23:true"
+     ]
+    }
+   }
+  },
+  "hc-handle-aid/HCAID": {
+   "live": 6,
+   "outcomes": 7,
+   "scenarios": {
+    "anykey-not-enter": {
+     "units": [
+      "MAIN-PARA",
+      "NOTE-INPUT",
+      "SEND-TRAIL"
+     ],
+     "outcomes": [
+      "26:WHEN@28"
+     ]
+    },
+    "own-label": {
+     "units": [
+      "GOT-PF7",
+      "MAIN-PARA",
+      "NOTE-INPUT",
+      "SEND-TRAIL"
+     ],
+     "outcomes": [
+      "26:WHEN@28"
+     ]
+    },
+    "anykey-pf": {
+     "units": [
+      "GOT-ANY",
+      "MAIN-PARA",
+      "NOTE-INPUT",
+      "SEND-TRAIL"
+     ],
+     "outcomes": [
+      "26:WHEN@28"
+     ]
+    },
+    "deactivated": {
+     "units": [
+      "MAIN-PARA",
+      "NOTE-INPUT",
+      "SEND-TRAIL"
+     ],
+     "outcomes": [
+      "26:WHEN@37"
+     ]
+    },
+    "resp-no-aid": {
+     "units": [
+      "MAIN-PARA",
+      "NOTE-INPUT",
+      "SEND-TRAIL"
+     ],
+     "outcomes": [
+      "26:WHEN@46"
+     ]
+    },
+    "push-suspends": {
+     "units": [
+      "MAIN-PARA",
+      "NOTE-INPUT",
+      "SEND-TRAIL"
+     ],
+     "outcomes": [
+      "26:WHEN@56"
+     ]
+    },
+    "pop-restores": {
+     "units": [
+      "GOT-PF7",
+      "MAIN-PARA",
+      "NOTE-INPUT",
+      "SEND-TRAIL"
+     ],
+     "outcomes": [
+      "26:WHEN@65"
+     ]
+    },
+    "clear-no-data": {
+     "units": [
+      "GOT-CLEAR",
+      "MAIN-PARA",
+      "NOTE-INPUT",
+      "SEND-TRAIL"
+     ],
+     "outcomes": [
+      "26:OTHER",
+      "26:WHEN@75"
+     ]
+    },
+    "pa1-anykey": {
+     "units": [
+      "GOT-ANY",
+      "MAIN-PARA",
+      "NOTE-INPUT",
+      "SEND-TRAIL"
+     ],
+     "outcomes": [
+      "26:OTHER",
+      "26:WHEN@75"
+     ]
+    }
+   }
+  },
+  "hc-ignore-error/HCIGN": {
+   "live": 5,
+   "outcomes": 9,
+   "scenarios": {
+    "ignored": {
+     "units": [
+      "MAIN-PARA",
+      "NOTE-INPUT",
+      "SEND-TRAIL"
+     ],
+     "outcomes": [
+      "26:WHEN@28"
+     ]
+    },
+    "error-label": {
+     "units": [
+      "GOT-ERROR",
+      "MAIN-PARA",
+      "SEND-TRAIL"
+     ],
+     "outcomes": [
+      "26:WHEN@31"
+     ]
+    },
+    "own-before-error": {
+     "units": [
+      "GOT-LEN",
+      "MAIN-PARA",
+      "SEND-TRAIL"
+     ],
+     "outcomes": [
+      "26:WHEN@34"
+     ]
+    },
+    "ignore-before-error": {
+     "units": [
+      "MAIN-PARA",
+      "NOTE-INPUT",
+      "SEND-TRAIL"
+     ],
+     "outcomes": [
+      "26:WHEN@39"
+     ]
+    },
+    "push-suspends-ignore": {
+     "units": [
+      "MAIN-PARA"
+     ],
+     "outcomes": [
+      "26:WHEN@43"
+     ]
+    },
+    "pop-restores-ignore": {
+     "units": [
+      "MAIN-PARA",
+      "NOTE-INPUT",
+      "SEND-TRAIL"
+     ],
+     "outcomes": [
+      "26:WHEN@47"
+     ]
+    },
+    "pop-nothing-pushed": {
+     "units": [
+      "GOT-ERROR",
+      "MAIN-PARA",
+      "SEND-TRAIL"
+     ],
+     "outcomes": [
+      "26:WHEN@52"
+     ]
+    },
+    "ignore-overrides-handle": {
+     "units": [
+      "MAIN-PARA",
+      "NOTE-INPUT",
+      "SEND-TRAIL"
+     ],
+     "outcomes": [
+      "26:WHEN@59"
+     ]
+    },
+    "push-suspends-error": {
+     "units": [
+      "MAIN-PARA"
+     ],
+     "outcomes": [
+      "26:OTHER"
+     ]
+    }
+   }
+  },
   "hc-perform-range/HCQREAD": {
    "live": 8,
    "outcomes": 0,
@@ -451,6 +671,125 @@
       "SEND-TRAIL"
      ],
      "outcomes": []
+    }
+   }
+  },
+  "hc-terminal-eoc/HCEOC": {
+   "live": 4,
+   "outcomes": 3,
+   "scenarios": {
+    "eoc-resp": {
+     "units": [
+      "MAIN-PARA",
+      "NOTE-INPUT",
+      "SEND-TRAIL"
+     ],
+     "outcomes": [
+      "25:WHEN@26"
+     ]
+    },
+    "eoc-handled": {
+     "units": [
+      "GOT-EOC",
+      "MAIN-PARA",
+      "SEND-TRAIL"
+     ],
+     "outcomes": [
+      "25:WHEN@34"
+     ]
+    },
+    "eoc-default": {
+     "units": [
+      "MAIN-PARA",
+      "NOTE-INPUT",
+      "SEND-TRAIL"
+     ],
+     "outcomes": [
+      "25:OTHER"
+     ]
+    }
+   }
+  },
+  "hc-terminal-receive/HCTERM": {
+   "live": 10,
+   "outcomes": 6,
+   "scenarios": {
+    "lengerr-resp": {
+     "units": [
+      "BY-RESP",
+      "MAIN-PARA",
+      "NOTE-RESULT",
+      "SEND-TRAIL"
+     ],
+     "outcomes": [
+      "37:WHEN@38"
+     ]
+    },
+    "lengerr-handled": {
+     "units": [
+      "BY-HANDLE",
+      "MAIN-PARA",
+      "NOTE-RESULT",
+      "SEND-TRAIL",
+      "TOO-LONG"
+     ],
+     "outcomes": [
+      "37:WHEN@40"
+     ]
+    },
+    "handler-unused": {
+     "units": [
+      "BY-HANDLE",
+      "MAIN-PARA",
+      "NOTE-RESULT",
+      "SEND-TRAIL"
+     ],
+     "outcomes": [
+      "37:WHEN@40"
+     ]
+    },
+    "lengerr-default": {
+     "units": [
+      "MAIN-PARA",
+      "NO-HANDLER",
+      "NOTE-RESULT"
+     ],
+     "outcomes": [
+      "37:WHEN@42"
+     ]
+    },
+    "in-pieces": {
+     "units": [
+      "IN-PIECES",
+      "MAIN-PARA",
+      "NOTE-RESULT",
+      "SEND-TRAIL"
+     ],
+     "outcomes": [
+      "37:WHEN@44"
+     ]
+    },
+    "set-address": {
+     "units": [
+      "BY-SET",
+      "MAIN-PARA",
+      "NOTE-RESULT",
+      "SEND-TRAIL"
+     ],
+     "outcomes": [
+      "37:WHEN@46"
+     ]
+    },
+    "device-controls": {
+     "units": [
+      "DEVICE-CTL",
+      "MAIN-PARA",
+      "NOTE-RESULT",
+      "SEND-TRAIL"
+     ],
+     "outcomes": [
+      "37:OTHER"
+     ]
     }
    }
   },

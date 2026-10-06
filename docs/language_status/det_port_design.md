@@ -315,6 +315,18 @@ Only generator output, never a test case:
   (REPLACING, continuation) and layout arithmetic are unchanged. Newly translating: estate-crucible ACCTPOST and
   CUSTINQ (the wrong library before); SHPINQ / SHPINQO now refuse on their real defect (COPY SHPRATE: a gap the
   estate fills only with a program source) instead of the library.
+- #4486 (owner decision: translate): a SYSLIB collision -- an unqualified COPY whose member sits in more than one
+  library of the program's search order -- is no error on z/OS: the compiler takes the first library's member, and
+  the engine resolves it the same way. The translator now takes the engine's member and records a warning per
+  collision (the member, the library chosen, the other libraries in search order: the skeleton's `copy_collisions`
+  rows carry them) in the translation's `stats["warnings"]`, which `port_runner run --backend det` logs and prints
+  and `det_port.py` reports. Strict mode refuses every collision by name as before (`program.translate(...,
+  strict_copy=True)`, `port_runner --strict-copy`, a case's `"strict_copy": true`). A gap, and a collision whose
+  first library holds several files, stay refused in both modes; `COPY x IN lib` is never a collision. Newly
+  translating on estate-crucible, each agreeing with the engine on every channel: ORDPRICE, ORDV#OLD, ORDVAL,
+  ORDVALV2, ORDVOLD, TAXCALC, TAXCALC2 and PAYMAIN (with its nested PAYCALC and batch-compiled PAYRPT, after the
+  layout learned to skip an I-O-CONTROL `APPLY WRITE-ONLY` hint); ORDMAIN now refuses on its real defect, COPY
+  ORDPRICE (a gap only a program source fills, H-0053, #4460).
 - #4436 (after #4411 refused it): `READ ... INTO LENGTH(x)` was accepted and ignored by the translator, and the
   harness's stub was handed LENGTH OF INTO in its place -- both sides agreed, so GenApp LGUCVS01 / LGUPVS01 "proved"
   without either honouring LENGTH. A keyed READ's LENGTH is now in-out on both sides (`DetCics.readInto`, GGCREAD:
@@ -375,8 +387,8 @@ Only generator output, never a test case:
   `stmt.parse` refuse a source holding several by name (before, they silently read the first program's records and
   paragraphs), and `program.translate(..., unit=)` translates one program (default: the first) as its own class. A
   nested program whose container declares GLOBAL items is refused (`UnitRefused`): its view of them is not modelled.
-  The cross-check reads every unit, each paragraph's extent ending with its program. estate-crucible PAYMAIN is still
-  refused first by its COPY DATEWS collision (#4486). *Grammar gaps*: `ENTRY 'DLITCBL' USING pcb ...` (IMS DL/I batch)
+  The cross-check reads every unit, each paragraph's extent ending with its program. estate-crucible PAYMAIN, refused
+  first by its COPY DATEWS collision until #4486, now translates. *Grammar gaps*: `ENTRY 'DLITCBL' USING pcb ...` (IMS DL/I batch)
   is read as a statement (a placeholder CALL, as SORT); as the program's first statement with no PROCEDURE DIVISION
   USING it is the program's entry, its USING the program's parameters; elsewhere it translates as a hole. A reference
   modification of an intrinsic function (`FUNCTION CURRENT-DATE (1:4)`, `FUNCTION UPPER-CASE(A) (2:3)`) is handed to

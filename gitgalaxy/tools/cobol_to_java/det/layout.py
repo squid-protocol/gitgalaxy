@@ -211,6 +211,16 @@ def _data_only(lines: list[Line]) -> list[Line]:
                 if done:
                     break
             continue
+        if re.match(r"APPLY\s+(WRITE-ONLY|CORE-INDEX|RECORD-OVERFLOW|REORG-CRITERIA)\b", t):
+            # #4486 (estate-crucible PAYMAIN): an I-O-CONTROL APPLY clause is an IBM buffering / access hint with no
+            # storage of its own, which the grammar does not read
+            while k < len(out):
+                ended = out[k].text.rstrip().endswith(".")
+                out[k].text = ""
+                k += 1
+                if ended:
+                    break
+            continue
         if re.match(r"[A-Z0-9-]+\s+SECTION\s*\.$", t):
             nxt = next((x.text.strip().upper() for x in out[k + 1 :] if x.text.strip()), "")
             if re.match(r"([A-Z0-9-]+\s+SECTION|[A-Z]+\s+DIVISION)\b", nxt):

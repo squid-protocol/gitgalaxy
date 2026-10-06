@@ -517,9 +517,9 @@ def _estate(tmp_path, program_body, files):
     return prog, root
 
 
-def _engine(prog, root, deps, gaps=(), collisions=()):
+def _engine(prog, root, deps, gaps=(), collisions=(), strict=False):
     """deps: importer -> its resolved files (a list, or file -> library-names); members are (importer, member)."""
-    return SRC.EngineCopies.of(prog, root, deps, gaps, collisions)
+    return SRC.EngineCopies.of(prog, root, deps, gaps, collisions, strict=strict)
 
 
 _MEMBER = _fixed("05 A-FIELD PIC X(4).")
@@ -627,13 +627,61 @@ def test_a_cbl_copy_member_that_is_not_a_program_still_expands(tmp_path):
     assert _from(lines, "A-FIELD") == {"cbl/AREC.cbl"}
 
 
-@pytest.mark.parametrize(("kw", "why"), [({"gaps": [("cbl/PROG.cbl", "AREC")]}, "gap"),
-                                         ({"collisions": [("cbl/PROG.cbl", "AREC")]}, "collision")])  # fmt: skip
-def test_a_member_the_engine_reports_as_a_gap_or_collision_is_refused(tmp_path, kw, why):
+@pytest.mark.parametrize("strict", [False, True])
+def test_a_member_the_engine_reports_as_a_gap_is_refused_in_both_modes(tmp_path, strict):
+    """#4486: a gap (no library of the search order holds the member) has no answer to take: refused by name."""
     prog, root = _estate(tmp_path, ["01 WS-A.", "COPY AREC."], {"cpy/AREC.cpy": _MEMBER})
-    deps = {"cbl/PROG.cbl": [] if why == "gap" else ["cpy/AREC.cpy"]}
-    with pytest.raises(SRC.CopyUnresolved, match=f"COPY AREC: the engine (records a {why})"):
-        SRC.program_lines(prog, [root / "cpy"], _engine(prog, root, deps, **kw))
+    eng = _engine(prog, root, {"cbl/PROG.cbl": []}, gaps=[("cbl/PROG.cbl", "AREC")], strict=strict)
+    with pytest.raises(SRC.CopyUnresolved, match="COPY AREC: the engine records a gap"):
+        SRC.program_lines(prog, [root / "cpy"], eng)
+
+
+# #4486 (estate-crucible H-0052 ORDREC / ADDRREC, H-0034 DATEWS): the member is in two libraries of the program's
+# SYSLIB order; the engine took the first library's, as the compiler does
+_COLLISION = [("cbl/PROG.cbl", "AREC", "ORDRCPY", ["SHRCPY"])]
+_TWO_LIBS = {"ord/AREC.cpy": _MEMBER, "shared/AREC.cpy": _fixed("05 S-FIELD PIC X(4).")}
+
+
+def test_a_syslib_collision_takes_the_first_librarys_member_with_a_warning(tmp_path):
+    prog, root = _estate(tmp_path, ["01 WS-A.", "COPY AREC."], _TWO_LIBS)
+    eng = _engine(prog, root, {"cbl/PROG.cbl": {"ord/AREC.cpy": [""]}}, collisions=_COLLISION)
+    lines = SRC.program_lines(prog, [root / "shared", root / "ord"], eng)
+    assert _from(lines, "A-FIELD") == {"ord/AREC.cpy"} and not _from(lines, "S-FIELD")
+    assert eng.warnings == ["COPY AREC in cbl/PROG.cbl: SYSLIB collision -- took ord/AREC.cpy from library ORDRCPY "
+                            "(first in search order); also in SHRCPY"]  # fmt: skip
+
+
+@pytest.mark.parametrize("strict", [False, True])
+def test_a_copy_in_a_library_is_no_collision(tmp_path, strict):
+    """#4486 (estate-crucible PAYMAIN: `COPY DATEWS.` and `COPY DATEWS IN SHRCPY.`): the IN form searches that one
+    library, so only the unqualified COPY is the collision -- warned (or refused in strict mode) once."""
+    prog, root = _estate(tmp_path, ["01 WS-A.", "COPY AREC IN SHRCPY."], _TWO_LIBS)
+    eng = _engine(prog, root, {"cbl/PROG.cbl": {"shared/AREC.cpy": ["SHRCPY"]}}, collisions=_COLLISION, strict=strict)
+    assert _from(SRC.program_lines(prog, [], eng), "S-FIELD") == {"shared/AREC.cpy"} and eng.warnings == []
+
+
+def test_a_syslib_collision_is_refused_in_strict_mode(tmp_path):
+    prog, root = _estate(tmp_path, ["01 WS-A.", "COPY AREC."], _TWO_LIBS)
+    eng = _engine(prog, root, {"cbl/PROG.cbl": {"ord/AREC.cpy": [""]}}, collisions=_COLLISION, strict=True)
+    with pytest.raises(SRC.CopyUnresolved, match="COPY AREC: the engine records a collision"):
+        SRC.program_lines(prog, [root / "ord"], eng)
+    assert eng.warnings == []
+
+
+def test_a_collision_the_engine_resolved_no_member_for_is_refused(tmp_path):
+    """The first library holds several files of the member: the engine chose none, so neither does the translator."""
+    prog, root = _estate(tmp_path, ["01 WS-A.", "COPY AREC."], _TWO_LIBS)
+    eng = _engine(prog, root, {"cbl/PROG.cbl": []}, collisions=[("cbl/PROG.cbl", "AREC")])
+    with pytest.raises(SRC.CopyUnresolved, match="COPY AREC: the engine records a collision and resolved no member"):
+        SRC.program_lines(prog, [root / "ord"], eng)
+
+
+@pytest.mark.parametrize("strict", [False, True])
+def test_a_member_in_a_single_library_is_unchanged_by_the_collision_policy(tmp_path, strict):
+    prog, root = _estate(tmp_path, ["01 WS-A.", "COPY AREC."], _TWO_LIBS)
+    eng = _engine(prog, root, {"cbl/PROG.cbl": {"shared/AREC.cpy": [""]}}, strict=strict)
+    lines = SRC.program_lines(prog, [root / "ord"], eng)
+    assert _from(lines, "S-FIELD") == {"shared/AREC.cpy"} and eng.warnings == []
 
 
 def test_a_system_member_outside_the_estate_needs_no_engine_resolution(tmp_path):
@@ -666,6 +714,41 @@ def test_engine_copies_from_the_port_ticket(tmp_path):
     assert eng.gaps == frozenset({("cpy/AREC.cpy", "SQLCA")})
 
 
+def test_an_i_o_control_apply_hint_is_read_past(tmp_path):
+    """#4486 (estate-crucible PAYMAIN, unblocked by the collision policy, refused next by its I-O-CONTROL): `APPLY
+    WRITE-ONLY ON f` is a buffering hint with no storage; the grammar does not read it, the layout skips it."""
+    from gitgalaxy.tools.cobol_to_java.det import layout as L
+
+    prog = tmp_path / "P.cbl"
+    prog.write_text(_fixed("IDENTIFICATION DIVISION.", "PROGRAM-ID. P.", "ENVIRONMENT DIVISION.",
+                           "INPUT-OUTPUT SECTION.", "FILE-CONTROL.", "    SELECT F ASSIGN TO FOUT.", "I-O-CONTROL.",
+                           "    APPLY WRITE-ONLY", "        ON F.", "DATA DIVISION.", "FILE SECTION.", "FD  F.",
+                           "01  R PIC X(80).", "WORKING-STORAGE SECTION.", "01  W PIC X(2).", "PROCEDURE DIVISION.",
+                           "    GOBACK."), encoding="utf-8")  # fmt: skip
+    recs = {r.name: r for r in L.parse(SRC.program_lines(prog, []))}
+    assert recs["R"].fd == "F" and recs["R"].size == 80 and recs["W"].size == 2
+
+
+@pytest.mark.parametrize("strict", [False, True])
+def test_the_port_tickets_collisions_carry_their_libraries_and_the_strict_mode(tmp_path, strict):
+    """#4486: the skeleton's copy_collisions rows name the library chosen and the others; strict comes from the
+    translator option (det.program.translate strict_copy, port_runner --strict-copy, a case's `strict_copy`)."""
+    prog, root = _estate(tmp_path, ["01 WS-A.", "COPY AREC."], _TWO_LIBS)
+    jobs = tmp_path / "project" / "ai_agent_jobs"
+    jobs.mkdir(parents=True)
+    ticket = {"source": {"program": {"file": "cbl/PROG.cbl"}},
+              "facts": {"program": {"copy_edges": {"cbl/PROG.cbl": {"ord/AREC.cpy": [""]}, "ord/AREC.cpy": {}},
+                                    "copy_gaps": [], "copy_collisions": [list(_COLLISION[0])]}}}  # fmt: skip
+    (jobs / "PROG_port_ticket.json").write_text(json.dumps(ticket), encoding="utf-8")
+    eng = SRC.engine_copies_from_ticket(tmp_path / "project", prog, strict=strict)
+    assert eng.strict is strict and eng.collision_libraries == {("cbl/PROG.cbl", "AREC"): ("ORDRCPY", ("SHRCPY",))}
+    if strict:
+        with pytest.raises(SRC.CopyUnresolved, match="collision"):
+            SRC.program_lines(prog, [], eng)
+    else:
+        assert _from(SRC.program_lines(prog, [], eng), "A-FIELD") == {"ord/AREC.cpy"} and len(eng.warnings) == 1
+
+
 def test_galaxy_ir_copy_resolution_walks_every_copybook_the_program_reaches():
     from types import SimpleNamespace as NS
 
@@ -680,6 +763,12 @@ def test_galaxy_ir_copy_resolution_walks_every_copybook_the_program_reaches():
     assert GalaxyIR.copy_resolution(ir, "cbl/P.cbl") == {
         "edges": {"cbl/P.cbl": {"cpy/A.cpy": ["", "LIB"]}, "cpy/A.cpy": {"cpy/B.cpy": []}, "cpy/B.cpy": {}},
         "gaps": [["cpy/A.cpy", "X"]], "collisions": []}  # fmt: skip
+    # #4486: a collision carries the library chosen and the others holding the member, in search order
+    ir.copy_member_collisions = [{"importer": "cbl/P.cbl", "member": "a", "resolved": "cpy/A.cpy", "library": "LIB",
+                                  "shadowed": [{"library": "SHR", "paths": ["shr/A.cpy"]},
+                                               {"library": "OLD", "paths": ["old/A.cpy"]}]},
+                                 {"importer": "cbl/Q.cbl", "member": "C", "library": "X", "shadowed": []}]  # fmt: skip
+    assert GalaxyIR.copy_resolution(ir, "cbl/P.cbl")["collisions"] == [["cbl/P.cbl", "A", "LIB", ["SHR", "OLD"]]]
 
 
 # ---- #4437: RESP / RESP2 on SYNCPOINT are written, and every command that accepts RESP writes it ---------------

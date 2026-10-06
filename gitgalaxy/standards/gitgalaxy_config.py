@@ -193,11 +193,11 @@ APERTURE_CONFIG = {
         "third_party",
         ".npm",
         # 3. Virtual Environments
+        # #4542: only the unambiguous names. `env`, `.env` and `virtualenv` are also real source
+        # directory names; aperture.looks_like_virtualenv excludes one only when it carries a
+        # virtualenv's markers (pyvenv.cfg, bin/activate, lib/python*/site-packages, ...).
         "venv",
         ".venv",
-        "env",
-        ".env",
-        "virtualenv",
         ".tox",
         ".nox",
         # 4. Caches, Meta-Frameworks & Bytecode
@@ -369,6 +369,9 @@ APERTURE_CONFIG = {
     # A declared deterministic port (aperture.declared_port) may carry longer lines -- compound
     # conditions spelled out in full -- up to this bound.
     "DECLARED_PORT_MAX_LINE_LENGTH": 5000,
+    # #4543: a line over MAX_LINE_LENGTH that is wholly a prose comment in the file's own syntax
+    # does not trip the saturation gate, up to this bound.
+    "MAX_COMMENT_LINE_LENGTH": 5000,
     "MINIFICATION_SCAN_LIMIT": 50,
     # Soft ceiling: content-based classifiers (binary/minified/monotony/array
     # shields) decide whether a file over this size is real signal or noise.

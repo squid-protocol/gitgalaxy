@@ -115,6 +115,31 @@ def test_rust_mod_declaration_follows_the_module_tree(tmp_path):
 
 
 @needs_ts
+def test_rust_use_paths_follow_the_module_tree_and_cargo(tmp_path):
+    # #4544: crate::/super::, a sibling crate by its package name, a re-export, std (external),
+    # and `use super::*` inside an inline test module (this file: no import).
+    g = _group(
+        tmp_path,
+        {
+            "a/Cargo.toml": '[package]\nname = "a-core"\nedition = "2021"\n',
+            "a/src/lib.rs": "mod geom;\npub use geom::Point;\n",
+            "a/src/geom.rs": "pub struct Point;\n",
+            "a/src/geom/shape.rs": "",
+            "b/Cargo.toml": '[package]\nname = "b"\nedition = "2021"\n[dependencies]\na-core = { path = "../a" }\n',
+            "b/src/main.rs": "",
+        },
+    )
+    src = b"use super::Point;\nuse crate::geom::shape;\nuse std::io;\nmod tests { use super::*; }\n"
+    assert iga.rust_imports(src, "a/src/geom/shape.rs", g) == [
+        {"a/src/geom.rs"},
+        set(),  # crate::geom::shape is this file
+        set(),
+        set(),
+    ]
+    assert iga.rust_imports(b"use a_core::Point;\n", "b/src/main.rs", g) == [{"a/src/lib.rs", "a/src/geom.rs"}]
+
+
+@needs_ts
 def test_java_nested_class_import_lives_in_the_outer_class_file(tmp_path):
     g = _group(tmp_path, {"src/com/acme/TestTypes.java": "", "src/com/acme/Util.java": ""})
     src = b"import com.acme.TestTypes.BagOfPrimitives;\nimport static com.acme.Util.helper;\n"

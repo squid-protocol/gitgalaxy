@@ -50,6 +50,12 @@ DEFINITION: dict[str, Any] = {
     # it as `./name`, a LOCAL token, so the supply-chain firewall and the typosquat radar
     # never read a module file name as an external crate.
     "local_module_capture_group": 2,
+    # #4544: group 3 is a `#[path = "..."] mod name;` file, recorded as `./<path>` (or the
+    # `../` path as written): relative to the declaring file's directory, never a crate.
+    "module_path_capture_group": 3,
+    # #4544: a `self::`/`super::` path inside an inline `mod name { ... }` (`mod tests { use
+    # super::*; }`) is relative to that module; the extractor rewrites it relative to the file.
+    "inline_module_scopes": True,
     # `crate::` / `self::` / `super::` paths name this crate by keyword: never an external
     # package, so the typosquat radar never tallies them (#3595).
     "local_import_prefixes": ("crate::", "self::", "super::"),
@@ -329,7 +335,14 @@ DEFINITION: dict[str, Any] = {
             # no file, so the `;` is required. The import COUNT is unchanged: that is
             # the `import` rule's, and it counts `use` (docs/import_rule_contract.md).
             r"\b(?:pub[ \t]+)?use\s+([a-zA-Z0-9_:{},*\s]+);"
-            r"|\b(?:pub(?:\([a-z:]{1,40}\))?[ \t]+)?mod[ \t]+([" + ID_START + r"][" + ID_CONTINUE + r"]{0,127})[ \t]*;",
+            r"|\b(?:pub(?:\([a-z:]{1,40}\))?[ \t]+)?mod[ \t]+([" + ID_START + r"][" + ID_CONTINUE + r"]{0,127})[ \t]*;"
+            # #4544: `#[path = "x/y.rs"] mod name;` -- group 3, the file, relative to the
+            # declaring file's directory (`module_path_capture_group`); other attributes may
+            # sit between. `extern crate name;` -- group 4, the crate (`as` alias dropped).
+            r"|#\[[ \t]*path[ \t]*=[ \t]*\"([^\"\n]{1,512})\"[ \t]*\](?:[ \t\n]*#\[[^\]\n]{0,200}\])*[ \t\n]*"
+            r"(?:pub(?:\([a-z:]{1,40}\))?[ \t]+)?mod[ \t]+[" + ID_START + r"][" + ID_CONTINUE + r"]{0,127}[ \t]*;"
+            r"|\bextern[ \t]+crate[ \t]+([" + ID_START + r"][" + ID_CONTINUE + r"]{0,127})"
+            r"(?:[ \t]+as[ \t]+[" + ID_START + r"][" + ID_CONTINUE + r"]{0,127})?[ \t]*;",
             re.M,
         ),
         # 25. ownership (Authorship Metadata)

@@ -449,6 +449,17 @@ Only generator output, never a test case:
   *Source defects*: a data entry with no period before the next level number is refused by name ("source defect",
   GenApp polloo2.cpy). Newly read: CardDemo COPAUS1C, DSF PLUKKFR, PLUKKFRN, FO04D1X1, R001BYDL; the cross-check
   ledger's `translator-refuses-grammar` cause is empty and gone.
+- #4462 slice 4 (ranked by `cics_census.py blockers`). *Listing control*: EJECT, SKIP1 / SKIP2 / SKIP3 and `TITLE
+  literal`, each the only statement on its line, direct the compiler's listing and are dropped with the comment
+  lines (`source._LISTING`; an EJECT after a paragraph's EXIT had refused a PROCEDURE DIVISION, a TITLE before the
+  IDENTIFICATION DIVISION a DATA DIVISION). *Code pointers*: USAGE PROCEDURE-POINTER / FUNCTION-POINTER are laid out
+  as POINTER (8 bytes; oracle_assumptions C9 says where IBM differs); setting or calling through one stays a hole.
+  *JSON / XML*: JSON PARSE / GENERATE and XML PARSE / GENERATE (with their ON EXCEPTION phrases, to END-JSON /
+  END-XML or the period) are holes by name -- name matching, conversions and the JSON-CODE / XML-CODE registers are
+  not modelled -- so the statements around them translate. *Refused by name*: a literal left open at column 72 with
+  text in columns 73-80 and no continuation line ("source defect": fixed-form COBOL does not read columns 73-80, so
+  the program does not compile as written), and a source with no PROGRAM-ID ("not a program": a copybook saved
+  with a program's extension, `program_unit`).
 - #4528: a TS item is the bytes the program wrote "in the region's code page" (CicsTask), and the COBOL side's
   region keeps it in CCSID 037 (cics-crucible SPEC 2; the stub transcodes its Latin-1 storage at the boundary). The
   det port handed CicsTask its storage's bytes (CS, CobolRecords.charset()) as they were: WS-ONE VALUE 'W' reached

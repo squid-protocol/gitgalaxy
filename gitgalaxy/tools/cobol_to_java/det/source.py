@@ -34,6 +34,7 @@ class Line:
     text: str  # columns 8-72 (area A and B)
     file: str
     line: int
+    cut: str = ""  # #4462: the text in columns 73-80 of a line whose columns 8-72 end inside a literal
 
 
 class CopyNotFound(Exception):
@@ -210,11 +211,19 @@ def _free_code(line: str) -> str:
     return line
 
 
+# #4462: IBM's listing-control statements -- EJECT, SKIP1 / SKIP2 / SKIP3, TITLE literal -- each the only statement on
+# its line (Area A or B, an optional separator period): they direct the compiler's listing, not the program, and the
+# grammar has none of them (cics-java-jcics-samples EC01's EJECT after a paragraph, cics-java-recgen EDUPGM's TITLE
+# before its IDENTIFICATION DIVISION)
+_LISTING = re.compile(r"\s*(?:EJECT|SKIP[123]|TITLE\s+(?:'[^']*'|\"[^\"]*\"))\s*\.?\s*", re.I)
+
+
 def logical_lines(raw: list[str], file: str) -> list[Line]:
     """Columns 8-72 of each code line; comment (* /), debugging (D) and blank lines dropped; a continuation line
     (indicator '-') joined to the line before: a continued literal resumes after the continuation's first quote.
     #4462: after `>>SOURCE FORMAT FREE` (until `>>SOURCE FORMAT FIXED`) a line is code from column 1, of any length,
-    up to a `*>` comment."""
+    up to a `*>` comment. Listing-control statements (EJECT, SKIPn, TITLE) are dropped; a line whose columns 8-72
+    end inside a literal keeps its columns 73-80 in `cut` (cut_literal)."""
     out: list[Line] = []
     # Compiler-option cards (CBL / PROCESS, before the program or after an END PROGRAM) are not COBOL text. The
     # engine's own reader decides which lines they are: a card may start in any column from 1, so IBM DBB's
@@ -230,7 +239,7 @@ def logical_lines(raw: list[str], file: str) -> list[Line]:
             continue
         if free:
             code = _free_code(line).rstrip()
-            if code.strip() and not code.lstrip().startswith(">>D "):  # (a debugging line, as indicator D)
+            if code.strip() and not code.lstrip().startswith(">>D ") and not _LISTING.fullmatch(code):
                 out.append(Line(_headers(code), file, n))
             continue
         if len(line) < 7:
@@ -248,11 +257,24 @@ def logical_lines(raw: list[str], file: str) -> list[Line]:
             else:
                 prev.text = prev.text.rstrip() + " " + cont
             continue
-        if not body.strip():
+        if not body.strip() or _LISTING.fullmatch(body):
             continue
         body = _headers(body)
-        out.append(Line(body.rstrip() if not _open_literal(body) else body, file, n))
+        is_open = _open_literal(body)
+        out.append(Line(body if is_open else body.rstrip(), file, n, line[72:].rstrip() if is_open else ""))
     return out
+
+
+def cut_literal(lines: list[Line]) -> str | None:
+    """#4462: a literal left open where its line's program-text area ends (column 72) with more text in columns 73-80
+    and no continuation line closing it (NexusBank's `MOVE '...coincidere.'` with `e.'` in columns 73-75): fixed-form
+    COBOL does not read columns 73-80, so the program does not compile as written. A source defect, refused by name
+    (the PROCEDURE DIVISION had failed to parse, unnamed). None: no such line."""
+    for ln in lines:
+        if ln.cut.strip() and _open_literal(ln.text):
+            return (f"{Path(ln.file).name}:{ln.line}: source defect: a literal runs past column 72 (columns 73-80 hold "
+                    f"`{ln.cut.strip()}`, which fixed-form COBOL does not read): the literal is left open")  # fmt: skip
+    return None
 
 
 # #4523: a quotation mark inside a quotation-mark literal, as the grammar is handed it (`unwrap` restores `""`): the
@@ -605,6 +627,8 @@ _GLOBAL = re.compile(r"\bGLOBAL\b", re.I)
 def program_unit(lines: list[Line], name: str | None = None) -> list[Line]:
     """#4462: the lines of one program of a source (`name`: its PROGRAM-ID; None: the first). A nested program whose
     containers declare GLOBAL items (or files) is refused: it can name them, and its own lines do not hold them."""
+    if lines and not any(_PROGRAM_ID.match(ln.text) for ln in lines):
+        raise UnitRefused(f"{Path(lines[0].file).name}: no PROGRAM-ID: a member to be copied, not a program")
     units = program_units(lines)
     want = units[0].name if name is None else name.upper()
     unit = next((u for u in units if u.name == want), None)

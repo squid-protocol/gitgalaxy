@@ -567,3 +567,124 @@ def test_a_data_entry_without_its_period_is_refused_as_a_source_defect():
     with pytest.raises(L.LayoutError, match=r"source defect: data entry 03 REQ \(PROG.cbl:6\) has no period"):
         L.parse(_lines("01  R.", "    03 REQ", "    05 P OCCURS 5 TIMES.", "       07 N PIC 9.",
                        "PROCEDURE DIVISION.", "    GOBACK."))  # fmt: skip
+
+
+@pytest.mark.parametrize("stmt", ["EJECT", "EJECT.", "SKIP1", "SKIP2.", "skip3", "TITLE 'A SAMPLE, WITH A PERIOD.'",
+                                  'TITLE "T".'])  # fmt: skip
+def test_listing_control_statements_are_not_cobol_text(stmt):
+    """#4462 slice 4: IBM's listing-control statements (EJECT, SKIP1/2/3, TITLE literal) -- each the only statement on
+    its line, in Area A or B, optionally ended by a period -- direct the compiler's listing and nothing else. The
+    grammar has none of them (cics-java-jcics-samples EC01's `EJECT` after a paragraph's `EXIT.` refused the PROCEDURE
+    DIVISION; cics-java-recgen EDUPGM's `TITLE '...'` before the IDENTIFICATION DIVISION the DATA DIVISION)."""
+    pytest.importorskip("tree_sitter_language_pack")
+    from gitgalaxy.tools.cobol_to_java.det import layout as L
+    from gitgalaxy.tools.cobol_to_java.det import stmt as ST
+
+    raw = _fixed(stmt, *HEAD, "01  A PIC X.", stmt, "PROCEDURE DIVISION.", "P1.", "    MOVE 'X' TO A.",
+                 f"    {stmt}", "P1-EXIT.", "    EXIT.", f"    {stmt}").splitlines()  # fmt: skip
+    lines = SRC.logical_lines(raw, "/x/PROG.cbl")
+    assert not any(ln.text.strip().upper().startswith(("EJECT", "SKIP", "TITLE")) for ln in lines)
+    assert [r.name for r in L.parse(lines)] == ["A"]
+    assert [(p.name, [s.kind for s in p.body]) for p in ST.parse(lines).paragraphs] == [
+        ("P1", ["MOVE"]), ("P1-EXIT", ["EXIT"])]  # fmt: skip
+    # a data name or a literal that only starts like one is text
+    kept = SRC.logical_lines(_fixed("01  EJECT-COUNT PIC 9.", "    MOVE 'EJECT' TO A").splitlines(), "/x/P.cbl")
+    assert [ln.text.strip() for ln in kept] == ["01  EJECT-COUNT PIC 9.", "MOVE 'EJECT' TO A"]
+
+
+def test_a_literal_cut_at_column_72_is_refused_as_a_source_defect():
+    """NexusBank's `MOVE '...coincidere.'` whose closing quote (and period) sit in columns 73-75: fixed-form COBOL
+    reads columns 8-72 only, so the literal is left open (the PROCEDURE DIVISION did not parse, unnamed). Refused by
+    name; a literal continued on a `-` line, with sequence numbers in columns 73-80, is read."""
+    pytest.importorskip("tree_sitter_language_pack")
+    from gitgalaxy.tools.cobol_to_java.det import expr as E
+    from gitgalaxy.tools.cobol_to_java.det import layout as L
+    from gitgalaxy.tools.cobol_to_java.det import stmt as ST
+
+    cut = ("    MOVE '" + "A LITERAL RUNNING ON " * 3)[:65]  # (columns 8-72)
+    raw = _fixed(*HEAD, "01  A PIC X(80).", "PROCEDURE DIVISION.", cut + "N 73.'", "        TO A.",
+                 "    GOBACK.").splitlines()  # fmt: skip
+    lines = SRC.logical_lines(raw, "/x/PROG.cbl")
+    why = r"PROG\.cbl:7: source defect: a literal runs past column 72 \(columns 73-80 hold `N 73\.'`"
+    with pytest.raises(L.LayoutError, match=why):
+        L.parse(lines)
+    with pytest.raises(E.ExprError, match=why):
+        ST.parse(lines)
+    # continued properly, sequence numbers in columns 73-80: read
+    raw[6] = "       " + cut + "00000700"
+    raw[7] = "      -    'N 73.'" + " " * 54 + "00000800"
+    raw[8] = "           TO A."
+    ok = SRC.logical_lines(raw, "/x/PROG.cbl")
+    move = ST.parse(ok).paragraphs[0].body[0]
+    assert move.kind == "MOVE" and move.data["from"].value == cut[10:] + "N 73."
+
+
+@pytest.mark.parametrize(
+    "stmt, verb",
+    [
+        (("JSON PARSE A(1:B) INTO R",), "JSON PARSE"),
+        (("JSON PARSE A INTO R WITH DETAIL NAME OF C IS 'c' SUPPRESS D",
+          "    ON EXCEPTION DISPLAY 'BAD' MOVE 1 TO B", "    NOT ON EXCEPTION DISPLAY 'OK'", "END-JSON"), "JSON PARSE"),
+        (("JSON GENERATE A FROM R COUNT IN B SUPPRESS C WHEN SPACES",), "JSON GENERATE"),
+        (("XML GENERATE A FROM R COUNT IN B ON EXCEPTION DISPLAY 'X'", "END-XML"), "XML GENERATE"),
+        (("XML PARSE A PROCESSING PROCEDURE P2",), "XML PARSE"),
+    ],
+)  # fmt: skip
+def test_json_and_xml_statements_are_holes_by_name(stmt, verb):
+    """#4462 slice 4: JSON PARSE / JSON GENERATE (Enterprise COBOL 6.1+) and XML PARSE / XML GENERATE: the grammar has
+    none of them (cics-java-liberty-loans-and-scoring GETQUOTE / GETSCORE's `JSON PARSE`: the PROCEDURE DIVISION was
+    refused). Not modelled -- a hole by name, with the statements around it read."""
+    pytest.importorskip("tree_sitter_language_pack")
+    from gitgalaxy.tools.cobol_to_java.det import stmt as ST
+
+    body = ST.parse(_lines("01  A PIC X(80).", "01  B PIC 9(4) BINARY.", "01  R.", "    05 C PIC X.",
+                           "    05 D PIC X.", "PROCEDURE DIVISION.", "P1.", "    MOVE 1 TO B", "    IF B = 1",
+                           *(f"        {s}" for s in stmt), "        MOVE 2 TO B", "    END-IF",
+                           f"    {stmt[0]}.", "    GOBACK.", "P2.", "    EXIT.")).paragraphs[0].body  # fmt: skip
+    assert [s.kind for s in body] == ["MOVE", "IF", "HOLE", "GOBACK"]
+    assert [s.kind for s in body[1].body] == ["HOLE", "MOVE"]
+    for hole in (body[1].body[0], body[2]):
+        assert hole.data["why"].startswith(f"{verb} (Enterprise COBOL")
+        assert hole.text.startswith(stmt[0].split()[0])
+    assert body[1].body[0].text.rstrip().endswith(stmt[-1])
+
+
+@pytest.mark.parametrize("usage", ["PROCEDURE-POINTER", "USAGE PROCEDURE-POINTER", "USAGE IS FUNCTION-POINTER",
+                                   "FUNCTION-POINTER"])  # fmt: skip
+def test_procedure_and_function_pointers_are_laid_out_as_pointers(usage):
+    """#4462 slice 4: DBB MortgageApplication epscsmrd's `1 ROUTINE PROCEDURE-POINTER.` (the grammar knows POINTER
+    only: the DATA DIVISION was refused). Laid out as the translator lays out POINTER -- GnuCOBOL's 8 bytes, the size
+    oracle_assumptions C9 states for every pointer; what is set into one and called through it stays unmodelled."""
+    pytest.importorskip("tree_sitter_language_pack")
+    from gitgalaxy.tools.cobol_to_java.det import layout as L
+
+    recs = L.parse(_lines(f"01  ROUTINE {usage}.", "01  X-PROCEDURE-POINTER PIC X(17) VALUE 'PROCEDURE-POINTER'.",
+                          "01  G.", "    05 F PIC X.", f"    05 R {usage}.", "    05 L PIC X.",
+                          "PROCEDURE DIVISION.", "    GOBACK."))  # fmt: skip
+    items = {it.name: it for r in recs for it in r.walk()}
+    assert (items["ROUTINE"].usage, items["ROUTINE"].size) == ("POINTER", 8)
+    assert items["X-PROCEDURE-POINTER"].values == [("lit", "PROCEDURE-POINTER")]
+    assert (items["R"].offset, items["L"].offset, items["G"].size) == (1, 9, 10)
+
+
+def test_a_source_with_no_program_id_is_refused_as_not_a_program():
+    """cics-java-recgen EDUCPY.cbl: a copybook's data entries saved with a program's extension (no IDENTIFICATION
+    DIVISION, no PROGRAM-ID): refused by name, never parsed as a program."""
+    lines = SRC.logical_lines(_fixed("03  DATA-PAYLOAD.", "    05 B PIC X.").splitlines(), "/x/EDUCPY.cbl")
+    with pytest.raises(SRC.UnitRefused, match=r"EDUCPY\.cbl: no PROGRAM-ID: a member to be copied, not a program"):
+        SRC.program_unit(lines)
+
+
+def test_set_a_pointer_to_an_entry_is_a_hole_by_name():
+    """DBB MortgageApplication epscsmrd's `SET ROUTINE TO ENTRY 'EPSCSMRF'` (the grammar has no SET ... TO ENTRY: the
+    PROCEDURE DIVISION was refused): a hole by name, the statements after it read."""
+    pytest.importorskip("tree_sitter_language_pack")
+    from gitgalaxy.tools.cobol_to_java.det import stmt as ST
+
+    body = ST.parse(_lines("01  ROUTINE PROCEDURE-POINTER.", "01  F FUNCTION-POINTER.", "01  A PIC X.",
+                           "PROCEDURE DIVISION.", "    SET ROUTINE TO ENTRY 'EPSCSMRF'", "    SET F TO ENTRY A",
+                           "    MOVE 'X' TO A", "    GOBACK.")).paragraphs[0].body  # fmt: skip
+    assert [s.kind for s in body] == ["HOLE", "HOLE", "MOVE", "GOBACK"]
+    assert (
+        body[0].text.strip() == "SET ROUTINE TO ENTRY 'EPSCSMRF'" and "pointers are not modelled" in body[0].data["why"]
+    )

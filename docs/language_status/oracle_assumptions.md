@@ -278,6 +278,11 @@ verdict, but it limits what the proof says about inputs outside the scenarios.
   after a POINTER: the task stops by name when it gets one.
 - **Waiting on it.** CBSA's INQACCCU, DELCUS and CREACC pass COMMAREAs with data after a POINTER. They need the COBOL
   side on 4-byte pointers (a 32-bit GnuCOBOL build) before they can be proven.
+- **Procedure and function pointers** (#4462): the det translator lays out USAGE PROCEDURE-POINTER and
+  FUNCTION-POINTER as it lays out POINTER, 8 bytes (GnuCOBOL's `sizeof(void *)` for both). IBM's procedure pointer
+  is 8 bytes and its function pointer 4 (Enterprise COBOL Language Reference, USAGE clause), so offsets after a
+  FUNCTION-POINTER differ the way they do after a POINTER. What is set into either (SET ... TO ENTRY) and a CALL
+  through one are not modelled.
 
 ### C10. Zoned signs written by INITIALIZE and VALUE ZERO — DIFFERS (tolerated where declared)
 - **What.** GnuCOBOL's INITIALIZE and VALUE ZERO leave a signed zoned item's last byte with the unsigned `F` zone;

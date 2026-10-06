@@ -797,6 +797,55 @@ FILE_PROGRAMS = {
         ],
     ),
 }
+# #4557: a relation with an ALL literal (IBM Enterprise COBOL 6.4 Language Reference, "Figurative constants": the
+# literal repeated, or cut, to the length of the other operand), and the figuratives ALL SPACES / ZEROS / QUOTES,
+# against items of 1, 2, 3, 5 and 6 bytes (one the same length as the literal, and numeric DISPLAY ones), each by
+# =, < and >, the item on either side
+ALL_ITEMS = [("A1", "PIC X(1)", "'a'"), ("X1", "PIC X(1)", "'x'"), ("Y1", "PIC X(1)", "'y'"),
+             ("A2", "PIC X(2)", "'ab'"), ("B2", "PIC X(2)", "'ba'"), ("X2", "PIC X(2)", "'xx'"),
+             ("A3", "PIC X(3)", "'aba'"), ("B3", "PIC X(3)", "'abb'"), ("X3", "PIC X(3)", "'xxx'"),
+             ("S3", "PIC X(3)", "'ab '"), ("A5", "PIC X(5)", "'ababa'"), ("B5", "PIC X(5)", "'abaab'"),
+             ("X5", "PIC X(5)", "'xxxxx'"), ("S5", "PIC X(5)", "SPACES"), ("A6", "PIC X(6)", "'ababab'"),
+             ("Z3", "PIC X(3)", "'   '"), ("Q2", "PIC X(2)", "QUOTES"), ("N3", "PIC 9(3)", "0"),
+             ("N5", "PIC 9(5)", "12345")]  # fmt: skip
+ALL_LITERALS = ["ALL 'x'", "ALL 'ab'", "ALL SPACES", "ALL ZEROS", "ALL QUOTES"]
+
+
+def _all_proc(items, literals) -> list[str]:
+    proc = []
+    for name, _, _ in items:
+        for m, lit in enumerate(literals):
+            tag = f"'{name}.{m}'"
+            for jop in ("=", "<", ">"):
+                proc += [f"IF {name} {jop} {lit}", f"    DISPLAY {tag} ' {jop} Y'", "ELSE", f"    DISPLAY {tag} ' {jop} N'",
+                         "END-IF"]  # fmt: skip
+            proc += [f"IF {lit} < {name}", f"    DISPLAY {tag} ' R Y'", "ELSE", f"    DISPLAY {tag} ' R N'", "END-IF"]
+    return proc
+
+
+def _all_data(items) -> list[str]:
+    return [f"01  {n} {pic} VALUE {v}." for n, pic, v in items]
+
+
+PROGRAMS["CMPALL"] = program("CMPALL", _all_data(ALL_ITEMS), _all_proc(ALL_ITEMS, ALL_LITERALS))
+# the same under a PROGRAM COLLATING SEQUENCE (EBCDIC; letters and spaces only, which IBM and GnuCOBOL order alike),
+# and with an ALSO alphabet where an equality consults the sequence too
+_ALL_LETTERS = [i for i in ALL_ITEMS if i[0][0] != "N"]
+PROGRAMS["CMPALE"] = pcs_program(
+    "CMPALE",
+    ["ALPHABET EB IS EBCDIC."],
+    "EB",
+    _all_data(_ALL_LETTERS),
+    _all_proc(_ALL_LETTERS, ["ALL 'x'", "ALL 'ab'", "ALL SPACES"]),
+)
+PROGRAMS["CMPALT"] = pcs_program(
+    "CMPALT",
+    ["ALPHABET EB IS EBCDIC", "ALPHABET LT IS 'xy' SPACE 'a' ALSO 'q'."],
+    "LT",
+    _all_data(_ALL_LETTERS),
+    _all_proc(_ALL_LETTERS, ["ALL 'x'", "ALL 'ab'", "ALL SPACES"]),
+)
+
 FILE_DDS = {"SORTUG": ["INFILE", "OUTFILE", "M1FILE", "M2FILE", "MGFILE"]}
 
 
@@ -923,6 +972,38 @@ def test_program_output_is_gnucobols(name, mode, tmp_path):
     want = _cobol(PROGRAMS[name], cob)
     got = _java_run(name, PROGRAMS[name], tmp_path, mode != "bytes", mode == "groups")
     assert got == want, f"java {got!r} != cobol {want!r}"
+
+
+@pytest.mark.skipif(_java() is None, reason="needs a JDK 17 (JAVA_HOME / JDK_17)")
+def test_all_literal_relation_emits_compilable_java_with_and_without_a_collating_sequence(tmp_path):
+    """#4557: `X = ALL 'ab'` translates to Cobol.compareAll, which the runtime has: the emitted Java compiles (javac in
+    _java_run), under a PROGRAM COLLATING SEQUENCE too (it was refused by name there, and a compile error without)."""
+    pytest.importorskip("tree_sitter_language_pack")
+    for name in ("CMPALL", "CMPALE"):
+        work = tmp_path / name
+        work.mkdir()
+        assert _java_run(name, PROGRAMS[name], work)
+    assert "compareAll" in (ROOT / "gitgalaxy/tools/cobol_to_java/det/cobolrt/Cobol.java").read_text()
+
+
+def test_every_cobol_method_the_generator_emits_exists_in_the_runtime():
+    """#4557: gen.py emitted Cobol.compareAll with no such method; every `Cobol.<method>(` it writes is declared."""
+    det = ROOT / "gitgalaxy/tools/cobol_to_java/det"
+    emitted = set()
+    for py in det.glob("*.py"):
+        emitted |= set(re.findall(r"Cobol\.([a-z][A-Za-z0-9_]*)\(", py.read_text()))
+    runtime = (det / "cobolrt/Cobol.java").read_text()
+    missing = sorted(m for m in emitted if not re.search(rf"\b{m}\(", runtime))
+    assert not missing, missing
+
+
+def test_display_of_a_numeric_function_is_refused_by_name_not_emitted_uncompilable(tmp_path):
+    """#4557: the generator emitted Cobol.displayNumber, which the runtime lacks; GnuCOBOL shows each numeric function
+    in a picture of its own (ABS(-12.50) as 01250+, INTEGER(-12.5) as -0000000013), so the port refuses it by name."""
+    pytest.importorskip("tree_sitter_language_pack")
+    src = program("DNUM", ["01  X PIC X(7) VALUE 'abc'."], ["DISPLAY FUNCTION LENGTH(X)"])
+    holes = _pcs_holes(tmp_path, src.replace("DNUM", "PCSX"))
+    assert any("DISPLAY of numeric FUNCTION LENGTH" in h for h in holes), holes
 
 
 def _byte_storage(java: str, name: str) -> bool:

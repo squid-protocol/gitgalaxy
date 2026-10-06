@@ -163,6 +163,18 @@ def _extensions_can_name_the_same_file(token_ext: str, candidate_ext: str) -> bo
     return any(token_langs & pair and candidate_langs & pair for pair in _INTERCHANGEABLE_LANGUAGES)
 
 
+class RegexFuseTimeout(BaseException):
+    """Raised by the ReDoS fuse's SIGALRM handler (#4555).
+
+    Deliberately a BaseException, not a TimeoutError: the detector and lenses isolate a failing
+    rule with `except Exception`, which swallowed the fuse's TimeoutError, dropped that one rule's
+    count and let the file finish as a normal, parsed, quietly wrong record. Under load that was
+    `css::safety` on bootstrap.rtl.css (176 -> 0), a false golden drift with no excluded-queue
+    entry for the #4247 guard to see. As a BaseException the fuse can only be caught by the
+    worker's own handler, which relegates the file to the excluded queue (which that guard refuses).
+    """
+
+
 def execution_timeout_failsafe(_signum, _frame):
     """
     Hardware-level OS interrupt for Catastrophic Backtracking (ReDoS) protection.
@@ -171,7 +183,7 @@ def execution_timeout_failsafe(_signum, _frame):
     process if a malformed file traps the regex engine in an exponential evaluation loop
     for more than 15 seconds, preventing pipeline starvation.
     """
-    raise TimeoutError("Structural Saturation (ReDoS Timeout)")
+    raise RegexFuseTimeout("Structural Saturation (ReDoS Timeout)")
 
 
 def _init_worker(
@@ -1134,7 +1146,7 @@ def _process_file_worker(rel_path: str) -> dict[str, Any]:
                 logic_data["regex_telemetry"][f"{lang_id}::Worker_Imports"] = t_token - t_imports
                 logic_data["regex_telemetry"][f"{lang_id}::Worker_Popularity_Tokens"] = t_end - t_token
 
-        except TimeoutError:
+        except (TimeoutError, RegexFuseTimeout):
             logger.warning(f"TIMEOUT FAILSAFE: '{rel_path}' exceeded 15s. Relegating to Unparsable Artifacts.")
             observation["status"] = "parser_bypass"
             observation["reason"] = "Unparsable (Structural Saturation / Global Regex Timeout)"

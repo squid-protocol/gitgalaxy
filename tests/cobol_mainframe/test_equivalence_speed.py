@@ -145,8 +145,27 @@ def fake_refactor(corpus: Path, work: Path, scan: bool = False) -> Path:
 
 
 def tree(root: Path) -> dict[str, bytes]:
-    return {p.relative_to(root).as_posix(): p.read_bytes().replace(str(root).encode(), b"<WORK>")
-            for p in sorted(root.rglob("*")) if p.is_file()}  # fmt: skip
+    """Every file's bytes, the root's path (raw, and as JSON escapes it on Windows) made `<WORK>`."""
+    swaps = [(o, b"<WORK>") for o, _ in ec.path_swaps(str(root).encode(), b"")]
+    out = {}
+    for p in sorted(root.rglob("*")):
+        if p.is_file():
+            data = p.read_bytes()
+            for o, n in swaps:
+                data = data.replace(o, n)
+            out[p.relative_to(root).as_posix()] = data
+    return out
+
+
+def test_a_windows_path_is_rewritten_in_its_json_escaped_form():
+    old, new = rb"C:\Users\a\fresh", rb"C:\Users\a\one"
+    recorded = json.dumps({"path": old.decode() + "\\estate\\PROG.cbl"}).encode()
+    assert old not in recorded  # the raw form never matches inside JSON
+    data = recorded
+    for o, n in ec.path_swaps(old, new):
+        data = data.replace(o, n)
+    assert json.loads(data)["path"] == new.decode() + "\\estate\\PROG.cbl"
+    assert ec.path_swaps(b"/tmp/x", b"/tmp/y") == [(b"/tmp/x", b"/tmp/y")]  # POSIX: nothing to escape
 
 
 def test_a_restored_refactor_is_the_fresh_one(monkeypatch, tmp_path):

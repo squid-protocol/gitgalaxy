@@ -130,6 +130,16 @@ def scan_db(corpus: Path, out_dir: Path) -> Path:
 _ROOT_FILE = "ROOT"  # the directory the cached refactor ran in (the absolute paths its clean room records)
 
 
+def path_swaps(old: bytes, new: bytes) -> list[tuple[bytes, bytes]]:
+    """The byte forms a recorded path takes, each paired with its replacement: the raw path, and its JSON-escaped
+    form (`C:\\\\Users` for `C:\\Users` on Windows), which the raw form never matches."""
+    swaps = [(old, new)]
+    esc_old, esc_new = (json.dumps(x.decode())[1:-1].encode() for x in (old, new))
+    if esc_old != old:
+        swaps.append((esc_old, esc_new))
+    return swaps
+
+
 def refactor(corpus: Path, work: Path, scan: bool = False) -> Path:
     """java_target_matrix.refactor(corpus, work, scan), from the cache: the corpus copy and its clean room laid in
     `work`, their recorded paths rewritten to it; the clean room's path."""
@@ -148,11 +158,7 @@ def refactor(corpus: Path, work: Path, scan: bool = False) -> Path:
     made = entry / "made"
     old = (entry / _ROOT_FILE).read_text(encoding="utf-8").encode()
     new = str(work).encode()
-    # a path recorded in JSON is escaped (`C:\\Users` on Windows); rewrite that form too
-    swaps = [(old, new)]
-    esc_old, esc_new = (json.dumps(x.decode())[1:-1].encode() for x in (old, new))
-    if esc_old != old:
-        swaps.append((esc_old, esc_new))
+    swaps = path_swaps(old, new)
     work.mkdir(parents=True, exist_ok=True)
     copied = []
     for item in made.iterdir():

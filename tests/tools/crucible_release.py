@@ -200,7 +200,8 @@ def pin_mentions(repo: Path, tag: str) -> tuple[list[str], list[str]]:
     """(cics-context mentions, other mentions) of `tag` -- `path:line: text` -- minus provenance history."""
     out = subprocess.run(["git", "-C", str(repo), "grep", "-n", "-I", "-E", re.escape(tag) + r"([^0-9]|$)"],  # noqa: S603, S607
                          capture_output=True, text=True, check=False).stdout  # fmt: skip
-    cics, other = [], []
+    cics: list[str] = []
+    other: list[str] = []
     for ln in out.splitlines():
         path, _, rest = ln.partition(":")
         lineno, _, text = rest.partition(":")

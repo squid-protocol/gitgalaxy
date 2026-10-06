@@ -223,6 +223,7 @@ def hand_derived_problems(source: str, name: str = "<script>") -> list[str]:
     problems = []
     for node in ast.walk(tree):
         mods: list[str] = []
+        line = getattr(node, "lineno", 0)
         if isinstance(node, ast.Import):
             mods = [a.name for a in node.names]
         elif isinstance(node, ast.ImportFrom):
@@ -235,9 +236,9 @@ def hand_derived_problems(source: str, name: str = "<script>") -> list[str]:
             if top in ALLOWED_EXTRA:
                 continue
             if top in DENIED_MODULES:
-                problems.append(f"{name}:{node.lineno}: imports {m}: it can run an implementation")
+                problems.append(f"{name}:{line}: imports {m}: it can run an implementation")
             elif top not in stdlib:
-                problems.append(f"{name}:{node.lineno}: imports {m}: only the standard library and crucible_events "
+                problems.append(f"{name}:{line}: imports {m}: only the standard library and crucible_events "
                                 "(a log is traced by hand, never computed by gitgalaxy or a runtime)")  # fmt: skip
         if isinstance(node, ast.Call):
             called = _dotted(node.func)

@@ -57,7 +57,7 @@
     "gitgalaxy/tools/cobol_to_java/**"
    ],
    "files": 60,
-   "sha256": "b842148fa97e54545ffc6cfeaf97395462414b82c5fb0f297fd4d6b91324a1ad"
+   "sha256": "6eab156270c21ef910bcf2883406275e52c707d5fd6bdbb7518744dc30ddaa48"
   },
   "corpus": {
    "name": "cics-crucible",
@@ -67,10 +67,10 @@
   "differences": {
    "sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
   },
-  "digest": "64ac840e7dbcc870c25cf1bbb0eee84deb19191afffebe206bb7e2aa9dbc251d"
+  "digest": "83a5034f73c8059fad3ad886023b215eb922108fe8f1936ff55e585f15a19ec6"
  },
  "proof": {
-  "at": "2026-10-06T07:15:06Z",
+  "at": "2026-10-06T10:48:09Z",
   "verdict": "proven",
   "runs": 3,
   "fault_runs": 0,
@@ -96,8 +96,8 @@
   "sysout_compared": null,
   "attributes_compared": null,
   "java_failed": false,
-  "harness_commit": "ec59ee06445dcb380e628c2a1ec7583fe8b09fb1+uncommitted",
-  "inputs_digest": "64ac840e7dbcc870c25cf1bbb0eee84deb19191afffebe206bb7e2aa9dbc251d"
+  "harness_commit": "ca529169609d6e48c2124510473d4539ea576c8e+uncommitted",
+  "inputs_digest": "83a5034f73c8059fad3ad886023b215eb922108fe8f1936ff55e585f15a19ec6"
  },
  "coverage": {
   "paragraphs": {
@@ -112,7 +112,7 @@
   "handler_labels": null,
   "source": "tests/cics_crucible/coverage.json#programs/gt-terminal-coalesce/GTSHOW",
   "ledger_sha256": "02e7ec4873f61e13439093925a3cf702f7654c0a67bc74194e0363955858c5ca",
-  "inputs_digest": "64ac840e7dbcc870c25cf1bbb0eee84deb19191afffebe206bb7e2aa9dbc251d"
+  "inputs_digest": "83a5034f73c8059fad3ad886023b215eb922108fe8f1936ff55e585f15a19ec6"
  },
  "reach": {
   "entry_points": [

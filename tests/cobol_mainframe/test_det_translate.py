@@ -1349,3 +1349,45 @@ public class Main {
     assert out[5] == bytes(range(256)).decode("latin-1").encode("cp037").hex().upper()  # the stub's own table
     assert out[6] == "refused: byte C3 is no character of UTF-8 on its own: not modelled"
     assert out[7:] == ["refused", "IBM273"]
+
+
+# ---- #4534: a LINKed program's COMMAREA writes survive its abend --------------------------------------------------
+def test_an_abend_ending_the_program_throws_through_abended():
+    """#4534: ABEND with no exit at this level, and a LINK an abend below unwound past this level, end the program
+    through abended() -- which hands a LINKed program's COMMAREA back to its caller first -- not a bare Goback."""
+    c = _HandleCics()
+    assert c.command("ABEND ABCODE('HCX1')", "") == [
+        "String exit1 = task.abend('HCX1'.strip());", "if (exit1 == null) throw abended();", "if (true) GOTO(paragraph(exit1));"]  # fmt: skip
+    out = c.command("LINK PROGRAM('SUB')", "")
+    assert "if (task.ended()) throw abended();" in out and not any("new Goback()" in x for x in out)
+
+
+def test_a_linked_programs_commarea_goes_back_to_its_caller_when_an_abend_ends_it(tmp_path):
+    """#4534 (cics-crucible hc-abend-link sub-unhandled): IBM, COMMAREA in LINK and XCTL commands -- "the address of
+    the area is passed", so HCSUB's MOVE 's' TO CA-TRAIL before its QIDERR abend is in HCMAIN's storage when HCMAIN's
+    abend exit runs. caBack (the write-back RETURN runs) also runs when an abend ends the program at a LINK level
+    (level > 1): ABEND, an unhandled condition's default abend, an abend below unwound past it. Level 1 (a transaction,
+    a DPL mirror task) keeps nothing, as before: no local caller shares its COMMAREA."""
+    pytest.importorskip("tree_sitter_language_pack")
+    from gitgalaxy.tools.cobol_to_java.det import program as P
+
+    (tmp_path / "T3.cbl").write_text(
+        "       IDENTIFICATION DIVISION.\n       PROGRAM-ID. T3.\n       DATA DIVISION.\n"
+        "       WORKING-STORAGE SECTION.\n       01  WS-J                  PIC X(8)  VALUE SPACES.\n"
+        "       LINKAGE SECTION.\n       01  DFHCOMMAREA.\n           05  CA-TRAIL          PIC X(9).\n"
+        "       PROCEDURE DIVISION.\n       MAIN-PARA.\n           MOVE 's' TO CA-TRAIL(1:1)\n"
+        "           EXEC CICS READQ TS QUEUE('NONE') INTO(WS-J) ITEM(1) END-EXEC\n"
+        "           EXEC CICS ABEND ABCODE('HCX1') END-EXEC\n           EXEC CICS RETURN END-EXEC.\n",
+        encoding="utf-8",
+    )
+    (tmp_path / "proj/src/main/java/com/x").mkdir(parents=True)
+    stub = "package com.x.service;\nimport com.x.cics.CicsTask;\npublic class T3Service {\n" \
+           "    public void runTask(CicsTask task) {}\n}\n"  # fmt: skip
+    r = P.translate(tmp_path / "T3.cbl", [], stub, "com.x", {}, tmp_path / "proj")
+    assert r.stats["holes"] == []
+    body = r.java[r.java.index("private Goback abended()") :]
+    body = body[: body.index("\n    }\n")]
+    assert "if (task.level() > 1) {" in body and "caBack.run();" in body and "return new Goback();" in body
+    cond = r.java[r.java.index("private int condition(String cond)") :]
+    assert "if (label == null) {\n            throw abended();" in cond[: cond.index("\n    }\n")]
+    assert "throw abended();" in r.java[r.java.index("task.abend(") :]

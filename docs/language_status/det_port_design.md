@@ -319,6 +319,13 @@ Only generator output, never a test case:
   harness's stub was handed LENGTH OF INTO in its place -- both sides agreed, so GenApp LGUCVS01 / LGUPVS01 "proved"
   without either honouring LENGTH. A keyed READ's LENGTH is now in-out on both sides (`DetCics.readInto`, GGCREAD:
   truncation, LENGERR RESP2 11, the record's length set back; register X14).
+- #4413: `SEND CONTROL` and plain terminal `RECEIVE` (INTO / SET(ADDRESS OF) / LENGTH / FLENGTH / MAXLENGTH /
+  MAXFLENGTH / NOTRUNCATE) were refused whole. They now run on CicsTask (`sendControl`, `receive`: NOTRUNCATE keeps
+  the rest for the task's next RECEIVE; LENGERR; EOC on an LUTYPE2 terminal) and the stub (GGCSCTL, GGCRECT /
+  GGCRECS), with EOC's default action -- ignore it -- in the port's `condition()` (`DetCics.ignoredByDefault`;
+  register X15). A CICS port of an estate with no screens / contracts / repositories no longer imports those
+  packages. Proven through cics-crucible hc-terminal-receive (7) and hc-terminal-eoc (3): the cobol-stub side and
+  the det port both pass the hand-written logs.
 - #4463: four det ports stopped proving on 2026-10-04 and no CI ran the det sweep. carddemo-menu: a #4049 scenario
   sent option 99, which COMEN01C still uses as a subscript of its 12-entry table, 4K past the record (X8: the det
   port stops; the case now sends 12). mortgage-cmort / mlist / nbrvl: #4245 read every program of EPSCSMRD's

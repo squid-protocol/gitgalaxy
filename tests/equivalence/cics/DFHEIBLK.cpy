@@ -73,3 +73,6 @@
               10 GG-SS  PIC 9(2).
               10 GG-CS  PIC 9(2).
            05 GG-OUT    PIC X(10).
+      * #4413: the address of the data a RECEIVE SET received (GGCRECS),
+      * for the translator's SET ADDRESS OF ... TO GG-PTR.
+       01  GG-PTR       USAGE POINTER.

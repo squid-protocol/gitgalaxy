@@ -872,10 +872,13 @@ def _translate(program: Path, copy_dirs: list[Path], stub: str, package: str, es
             [
                 f"import {pkg}.cics.CicsTask;",
                 f"import {pkg}.cobolrt.cics.DetCics;",
-                f"import {pkg}.dto.screen.*;",
-                f"import {pkg}.dto.contract.*;",
-                f"import {pkg}.entity.vsam.*;",
-                f"import {pkg}.repository.vsam.*;",
+                # #4413: a package the generated project lacks (an estate with no screens: terminal I/O only) is
+                # not imported -- javac refuses an import-on-demand of a package that does not exist
+                *(
+                    f"import {pkg}.{sub}.*;"
+                    for sub in ("dto.screen", "dto.contract", "entity.vsam", "repository.vsam")
+                    if project is None or any(project.glob(f"src/main/java/**/{sub.replace('.', '/')}/*.java"))
+                ),
             ]
             if is_cics
             else []
@@ -1166,11 +1169,15 @@ def _cics_parts(gen: G.Gen, records: list, roots: dict, proc: S.Procedure,
         "    }",
         "",
         "    /** A condition the command neither returned in RESP nor ignored: its HANDLE CONDITION label, or CICS's",
-        "     *  default action -- an abend, to this program's HANDLE ABEND exit or ending the task. */",
+        "     *  default action -- -1 (go on) for one whose default is to ignore it (#4413: EOC), else an abend, to this",
+        "     *  program's HANDLE ABEND exit or ending the task. */",
         "    private int condition(String cond) {",
         "        Integer h = handlers.get(cond);",
         "        if (h != null) {",
         "            return h;",
+        "        }",
+        "        if (DetCics.ignoredByDefault(cond)) {",
+        "            return -1;",
         "        }",
         "        String label = task.abendOnCondition(cond);",
         "        if (label == null) {",

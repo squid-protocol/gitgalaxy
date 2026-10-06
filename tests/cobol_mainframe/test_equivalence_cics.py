@@ -178,12 +178,33 @@ def test_send_map_records_its_options_and_area():
 def test_a_terminal_receive_passes_its_length_in_and_takes_the_datas_length_back():
     """#4005: LENGTH is in-out -- in, the most INTO takes; out, the data's length (IBM, EXEC CICS RECEIVE)."""
     got = ec.translate_command("RECEIVE INTO(WS-INPUT) LENGTH(WS-INLEN)")
-    assert got[:3] == ["MOVE WS-INLEN TO GG-LEN", "CALL 'GGCRECT' USING GG-CICS", "    BY REFERENCE WS-INPUT"]
-    assert got[3] == "MOVE GG-LEN TO WS-INLEN" and got[-5] == "    CALL 'GGCCOND' USING GG-CICS"
-    assert ec.translate_command("RECEIVE INTO(WS-I) LENGTH(WS-L) MAXLENGTH(30)")[0] == "MOVE 30 TO GG-LEN"
+    assert got[:4] == ["MOVE SPACES TO GG-FLAGS", "MOVE WS-INLEN TO GG-LEN", "CALL 'GGCRECT' USING GG-CICS",
+                       "    BY REFERENCE WS-INPUT"]  # fmt: skip
+    assert got[4] == "MOVE GG-LEN TO WS-INLEN" and got[-5] == "    CALL 'GGCCOND' USING GG-CICS"
+    assert ec.translate_command("RECEIVE INTO(WS-I) LENGTH(WS-L) MAXLENGTH(30)")[1] == "MOVE 30 TO GG-LEN"
     omitted = ec.translate_command("RECEIVE INTO(WS-I) RESP(WS-R)")
-    assert omitted[0] == "MOVE LENGTH OF WS-I TO GG-LEN" and "MOVE GG-RESP TO WS-R" in omitted
+    assert omitted[1] == "MOVE LENGTH OF WS-I TO GG-LEN" and "MOVE GG-RESP TO WS-R" in omitted
     assert not any(ln.startswith("MOVE GG-LEN") for ln in omitted)
+
+
+def test_receive_notruncate_and_set_and_send_control():
+    """#4413: NOTRUNCATE goes to the stub in GG-FLAGS; SET(ADDRESS OF record) takes the stub's buffer through GG-PTR
+    (MAXLENGTH and LENGTH required, as det/cics.py); SEND CONTROL passes its options and CURSOR's value."""
+    got = ec.translate_command("RECEIVE INTO(WS-I) LENGTH(WS-L) MAXLENGTH(4) NOTRUNCATE")
+    assert got[:2] == ["MOVE 'NOTRUNCATE' TO GG-FLAGS", "MOVE 4 TO GG-LEN"]
+    got = ec.translate_command("RECEIVE SET(ADDRESS OF LS-IN) LENGTH(WS-L) MAXLENGTH(20) RESP(WS-R)")
+    assert got[:6] == ["MOVE SPACES TO GG-FLAGS", "MOVE 20 TO GG-LEN", "CALL 'GGCRECS' USING GG-CICS",
+                       "    BY REFERENCE GG-PTR", "SET ADDRESS OF LS-IN TO GG-PTR", "MOVE GG-LEN TO WS-L"]  # fmt: skip
+    for bad in ("RECEIVE SET(ADDRESS OF LS-IN) LENGTH(WS-L)", "RECEIVE SET(ADDRESS OF LS-IN) MAXLENGTH(9)"):
+        with pytest.raises(ec.Unsupported):
+            ec.translate_command(bad)
+    assert ec.translate_command("SEND CONTROL FREEKB ERASE")[:3] == [
+        "MOVE 'ERASE FREEKB' TO GG-FLAGS", "MOVE -1 TO GG-LEN", "CALL 'GGCSCTL' USING GG-CICS"]  # fmt: skip
+    assert ec.translate_command("SEND CONTROL CURSOR(WS-C) ALARM")[:2] == ["MOVE 'ALARM CURSOR' TO GG-FLAGS",
+                                                                           "MOVE WS-C TO GG-LEN"]  # fmt: skip
+    for bad in ("SEND CONTROL PRINT", "SEND CONTROL CURSOR"):
+        with pytest.raises(ec.Unsupported):
+            ec.translate_command(bad)
 
 
 def test_ts_commands_pass_length_item_and_numitems_in_and_out():
@@ -210,7 +231,7 @@ def test_ts_commands_pass_length_item_and_numitems_in_and_out():
                                   "HANDLE ABEND PROGRAM('X')", "ASSIGN USERID(U)", "HANDLE CONDITION NOSUCH(X)",
                                   "WRITEQ TS QUEUE(Q) FROM(A) SYSID(S)", "WRITEQ TS QUEUE(Q) FROM(A) REWRITE",
                                   "READQ TD QUEUE(Q) INTO(A)",
-                                  "RECEIVE INTO(X) LENGTH(L) NOTRUNCATE", "RECEIVE SET(P) LENGTH(L)", "STARTBR FILE(F) RIDFLD(K) REQID(1)",
+                                  "RECEIVE INTO(X) LENGTH(L) BUFFER", "RECEIVE SET(P) LENGTH(L)", "STARTBR FILE(F) RIDFLD(K) REQID(1)",
                                   "DELETE FILE('X') RIDFLD(K) GENERIC KEYLENGTH(2)", "LINK PROGRAM('X') SYSID('S')"])  # fmt: skip
 def test_an_unmodelled_command_is_refused_by_name(body):
     with pytest.raises(ec.Unsupported):

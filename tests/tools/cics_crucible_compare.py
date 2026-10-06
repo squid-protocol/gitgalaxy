@@ -55,7 +55,7 @@ TASK_KEYS = ("transid", "program", "termid", "at", "trigger", "eibaid", "eibcale
 EVENT_KEYS: dict[str, tuple[str, ...]] = {
     "SEND-MAP": ("map", "mapset", "options", "cursor", "fields"),
     "SEND-TEXT": ("text", "length", "options"),
-    "SEND-CONTROL": ("options",),
+    "SEND-CONTROL": ("options", "cursor"),  # #4413: cursor {"offset": n} with the CURSOR option
     "RECEIVE-MAP": ("map", "mapset", "resp"),
     "RECEIVE": ("resp", "length", "data"),
     "LINK": ("target", "length", "commarea", "resp", "resp2"),
@@ -80,10 +80,14 @@ class CaseError(Exception):
 # ---- reading a case ------------------------------------------------------------------------
 def parse_csd(text: str) -> dict[str, Any]:
     """The DFHCSDUP input of a case: {"programs": set, "transactions": {transid: program},
-    "mapsets": set}. Comment lines start with `*`; a DEFINE may continue on following lines."""
+    "mapsets": set, "terminals": {termid: DEVICE of its TYPETERM}}. Comment lines start with `*`; a
+    DEFINE may continue on following lines. #4413: a TYPETERM's DEVICE (3270 when not given) says
+    whether a terminal RECEIVE raises EOC (SPEC section 2: DEVICE(LUTYPE2) does)."""
     programs: set[str] = set()
     mapsets: set[str] = set()
     transactions: dict[str, str] = {}
+    devices: dict[str, str] = {}
+    terminal_types: dict[str, str] = {}
     body = " ".join(ln for ln in text.splitlines() if not ln.lstrip().startswith("*"))
     for m in re.finditer(r"\bDEFINE\s+(\w+)\s*\(\s*([^)\s]+)\s*\)(.*?)(?=\bDEFINE\b|$)", body, re.I | re.S):
         kind, name, rest = m.group(1).upper(), m.group(2).upper(), m.group(3)
@@ -95,7 +99,15 @@ def parse_csd(text: str) -> dict[str, Any]:
             prog = re.search(r"\bPROGRAM\s*\(\s*([^)\s]+)\s*\)", rest, re.I)
             if prog:
                 transactions[name] = prog.group(1).upper()
-    return {"programs": programs, "transactions": transactions, "mapsets": mapsets}
+        elif kind == "TYPETERM":
+            dev = re.search(r"\bDEVICE\s*\(\s*([^)\s]+)\s*\)", rest, re.I)
+            devices[name] = dev.group(1).upper() if dev else "3270"
+        elif kind == "TERMINAL":
+            tt = re.search(r"\bTYPETERM\s*\(\s*([^)\s]+)\s*\)", rest, re.I)
+            if tt:
+                terminal_types[name] = tt.group(1).upper()
+    terminals = {t: devices.get(tt, "3270") for t, tt in terminal_types.items()}
+    return {"programs": programs, "transactions": transactions, "mapsets": mapsets, "terminals": terminals}
 
 
 @dataclass

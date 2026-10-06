@@ -730,6 +730,9 @@ int main(void) {
     press('9'); press('_'); press('\''); press('%');  /* ANYKEY: PF9, CLEAR, not ENTER, PA1 */
     handle("PF5", 0); press('5');                 /* no label: deactivated, ANYKEY takes it */
     GGCPUSH(&c); press('3'); GGCPOP(&c); press('3');  /* PUSH suspends HANDLE AID; POP restores it */
+    handle("PF9", -1); press('9');                /* #4414: deactivated under ANYKEY: refused, 0 */
+    c.resp = 36; press('3');                      /* #4414: a label and a condition: refused, 0 */
+    c.resp = 36; press('\'');                     /* a condition, no label for ENTER: 0 */
     printf("\n");
     return 0;
 }
@@ -739,10 +742,14 @@ int main(void) {
 @needs_cc
 def test_the_stub_handle_aid_gives_each_key_its_label(tmp_path):
     """IBM, HANDLE AID: control goes to the key's label after the input command; a key without a label is
-    left to the program; ANYKEY is any PA or PF key or CLEAR, not ENTER; an option without a label
-    deactivates it; PUSH HANDLE suspends it."""
+    left to the program; ANYKEY is any PA or PF key or CLEAR, not ENTER; an option never given a label is
+    ANYKEY's; PUSH HANDLE suspends it."""
     exe = _stub(tmp_path, _AID_MAIN)
-    assert [ln.strip() for ln in _run_stub(exe, tmp_path)] == ["0 1 2 0 0 3 3 0 3 3 0 2"]
+    assert [ln.strip() for ln in _run_stub(exe, tmp_path)] == ["0 1 2 0 0 3 3 0 3 3 0 2 0 0 0"]
+    # #4414: what IBM does not say is refused, for the driver: a key deactivated (-1) while ANYKEY has a label, and a
+    # label that applies to the key of an input command that raised a condition
+    events = [ln.split(" ", 1)[1] for ln in (tmp_path / "out" / "events.txt").read_text().splitlines()]
+    assert events == ["AID-REFUSED pgm= deactivated=1", "AID-REFUSED pgm= resp=36"]
 
 
 def test_the_stubs_aid_bytes_are_the_harness_dfhaid():

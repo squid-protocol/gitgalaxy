@@ -302,6 +302,49 @@ public final class DetCics {
         return "EOC".equals(condition);
     }
 
+    /** #4414: the label HANDLE AID gives the key pressed (EIBAID's name: ENTER, CLEAR, PA1-PA3, PF1-PF24), else
+     *  ANYKEY's -- "any PA key, any PF key, or the CLEAR key, but not ENTER" (IBM CICS TS, EXEC CICS HANDLE AID);
+     *  null when neither has one ("control returns to the application program at the instruction immediately
+     *  following the input command"). A key deactivated by a HANDLE AID without a label is -1 in `aids`: IBM
+     *  ("This deactivates the effect of that option") does not say whether ANYKEY's label then takes it, so that
+     *  is refused by name. */
+    public static Integer aidLabel(java.util.Map<String, Integer> aids, String key) {
+        if (key == null) {
+            return null;
+        }
+        Integer h = aids.get(key);
+        if (h != null && h >= 0) {
+            return h;
+        }
+        Integer any = key.startsWith("PA") || key.startsWith("PF") || "CLEAR".equals(key) ? aids.get("ANYKEY") : null;
+        if (any == null || any < 0) {
+            return null;
+        }
+        if (h != null) {
+            throw new IllegalStateException("HANDLE AID " + key + " deactivated while ANYKEY has a label: whether "
+                    + "ANYKEY takes the key is not documented");
+        }
+        return any;
+    }
+
+    /** #4414: what PUSH HANDLE saves of a program's own handler state (IBM CICS TS, EXEC CICS PUSH HANDLE: "suspend
+     *  the current effect of the IGNORE CONDITION, HANDLE ABEND, HANDLE AID, and HANDLE CONDITION commands"): its
+     *  HANDLE / IGNORE CONDITION entries and its HANDLE AID labels, copied; HANDLE ABEND is CicsTask's own. */
+    public record Handlers(java.util.Map<String, Integer> conditions, java.util.Map<String, Integer> aids) {
+        public Handlers {
+            conditions = new java.util.HashMap<>(conditions);
+            aids = new java.util.HashMap<>(aids);
+        }
+
+        /** POP HANDLE: the state saved replaces the program's. */
+        public void restore(java.util.Map<String, Integer> intoConditions, java.util.Map<String, Integer> intoAids) {
+            intoConditions.clear();
+            intoConditions.putAll(conditions);
+            intoAids.clear();
+            intoAids.putAll(aids);
+        }
+    }
+
     /** #4413: a terminal RECEIVE INTO: the data received into the first bytes of the area, the rest left as it was
      *  (IBM moves the data it received, no more). */
     public static void received(Field into, String data, Charset cs) {

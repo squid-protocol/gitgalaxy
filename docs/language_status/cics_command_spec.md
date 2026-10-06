@@ -1,7 +1,8 @@
 # Design: one declarative CICS command spec (#4270)
 
 **Status: design accepted with the owner's decisions (2026-10-06, section 9); PR 1 (the package, its CLI and the
-transitional equality tests) in review.** All line numbers are against origin/main `b6c3e4ea8`.
+transitional equality tests) merged (#4589); PR 2 (the translator reads the spec; 45 full entries, 206 name-only) in
+review.** All line numbers are against origin/main `b6c3e4ea8`.
 
 Every #4270 slice teaches the det port one more EXEC CICS command by writing the same facts about that command
 again in five to seven places, in three languages. The engine pulls CICS facts out of the same commands with its own
@@ -396,7 +397,7 @@ Each PR is "Part of #4270".
 | PR | content | consumers changed | verdict check |
 |---|---|---|---|
 | **1** | `gitgalaxy/standards/cics/` model + `resp.py` (DFHRESP, abend codes) + entries for the slice 1-4 commands, with today's text word for word; `cics_spec` CLI (`emit`, `check`, `regen`); **transitional equality tests** asserting the spec equals each existing copy (both Python DFHRESP tables, the Java switches scraped from `CICS_TASK_JAVA` / `DetCics.java`, the C enum, `OPTIONS`, the `*_REFUSED_WHY` tables, `_CONTAINER_OPTIONS`, the harness's refused tuples), each deleted in the PR that makes its copy import the spec; the crucible import-denial test | none | unit tests only |
-| **2** | full entries for the other 34 `OPTIONS` commands (PR 1 has the 9 of slices 1-4) + LOAD / RELEASE (45 in all); **name-only refusal entries** (name, IBM URL, reason) for the other CICS application (API) commands, about 125 of them, with no SPI / system-programming commands, so an unknown verb gets a specific reason; the translator imports `OPTIONS`, every refusal table, `check_options` (the five special cases become per-command `refused` entries), groups and `DFHRESP` from the spec | translator | messages unchanged except a whole-verb refusal now naming its reason (rebaselined); survey compare identical in translated / holes counts; ratchets |
+| **2** | full entries for the other 34 `OPTIONS` commands (PR 1 has the 9 of slices 1-4) + LOAD / RELEASE (45 in all); **name-only refusal entries** (name, IBM URL, reason) for the other CICS application (API) commands, 206 of them (counted in PR 2: IBM's CICS TS 6.x command summary lists 336 API topics, 259 command names once the device / role variants are one name; 44 have full entries, 9 are forms of a modelled command; see `commands/api.py`), with no SPI / system-programming commands, so an unknown verb gets a specific reason; the translator imports `OPTIONS`, every refusal table, `check_options` (the five special cases become per-command `refused` entries), groups and `DFHRESP` from the spec | translator | messages unchanged except a whole-verb refusal now naming its reason (rebaselined); survey compare identical in translated / holes counts; ratchets |
 | 3 | `equivalence_cics.py` refusals / options / DFHRESP from the spec. `Unsupported` carries the same reason as `CicsError`, the one intended change: one rebaseline of message snapshots, with feature keys and verdicts unchanged | stub translator | feature keys identical; cobol-stub cells identical |
 | 4 | **generated, committed** runtime tables: `CicsSpec.java` (delegated to by `DetCics` condition / resp, `respName`, `abcodeFor`) and `ggcics_spec.h`; `cics_spec regen` + a drift test that fails on a stale file (ratchet-style, in `pr_gates.py --ratchets`) | both runtimes | `proof_sweep --det-only`; crucible cells identical |
 | 5 | `Fact` wiring in `cics_crucible.py`; refusals of unstated facts share their text | runner, both runtimes | crucible cells identical |
@@ -443,7 +444,7 @@ that removes roughly 15-25% of each slice's diff and every place two copies can 
 3. **The stub's refusal text matches the translator's.** `Unsupported` carries the same reason as `CicsError`. The
    messages change and the verdicts do not, at the cost of one rebaseline of message snapshots.
 4. **Coverage.** The 43 modelled commands and LOAD / RELEASE (45) get full entries. The other CICS application (API)
-   commands, about 125, get name-only refusal entries (name, IBM URL, reason). SPI / system-programming commands are
+   commands, 206 (PR 2's count of IBM's command summary; this page said "about 125" before), get name-only refusal entries (name, IBM URL, reason). SPI / system-programming commands are
    left out. A name-only entry becomes a full one only when the blocker ranking (`cics_census.py blockers`, #4587)
    calls for that command.
 5. **New engine edge kinds wait.** LOAD, START TRANSID, MQ queues and dynamic CALL come as one engine batch (PR 8b)
@@ -461,6 +462,6 @@ Agent-days, each PR with its proofs:
 |---|---|---|---|---|---|---|---|---|---|
 | days | 1.5 | 3 | 1 | 2 | 0.5 | 1 | 0.5 | 1 | 2 |
 
-That totals about 12.5 agent-days. PR 2 grows by the ~125 name-only entries, PR 4 by the committed files and their
+That totals about 12.5 agent-days. PR 2 grows by the 206 name-only entries, PR 4 by the committed files and their
 drift test, and PR 8b by its wider edge batch, which comes after the trial. PRs 1-2 deliver most of the value: about
 4.5 days.

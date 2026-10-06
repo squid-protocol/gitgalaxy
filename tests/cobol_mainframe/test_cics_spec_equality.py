@@ -1,10 +1,10 @@
-"""#4270 spec PR 1: TRANSITIONAL equality tests -- gitgalaxy/standards/cics equals every hand copy it will replace.
+"""#4270 spec PRs 1-2: TRANSITIONAL equality tests -- gitgalaxy/standards/cics equals every hand copy it will replace.
 
 docs/language_status/cics_command_spec.md section 7. Each test names the copy it reads and the spec PR that makes
 that copy import the spec; that PR DELETES the test (the copy is gone, so there is nothing left to compare):
 
     PR 2  det/cics.py (DFHRESP, OPTIONS, _REFUSED_WHY / _ASSIGN_REFUSED_WHY / _SEND_TEXT_REFUSED_WHY, check_options,
-          the option-group messages)
+          the option-group messages): DONE, det/cics.py imports them and their tests are gone
     PR 3  tests/tools/equivalence_cics.py (DFHRESP, CICS_RESP, _CONTAINER_OPTIONS, the refused tuples / sets)
     PR 4  the Java switches (DetCics.condition / resp, CicsTask.respName / abcodeFor), ggcics.c's enums and
           condition_abcode
@@ -14,7 +14,7 @@ that copy import the spec; that PR DELETES the test (the copy is gone, so there 
 
 Where today's copies disagree with each other, the spec does not silently pick one: the difference is listed here
 (the `*_DIFFERENCES` tables, each with its reason) and asserted to be exactly that, so it can neither grow nor be
-fixed unnoticed. No behaviour changes in PR 1: nothing reads the spec yet."""
+fixed unnoticed."""
 
 from __future__ import annotations
 
@@ -40,7 +40,6 @@ from gitgalaxy.standards.cics.commands.shared import RESP_OPTIONS  # noqa: E402
 from gitgalaxy.tools.cobol_to_java import cobol_to_java_transaction_forge as forge  # noqa: E402
 from gitgalaxy.tools.cobol_to_java.det import cics as det  # noqa: E402
 
-DET_SRC = (ROOT / "gitgalaxy/tools/cobol_to_java/det/cics.py").read_text(encoding="utf-8")
 HARNESS_SRC = (ROOT / "tests/tools/equivalence_cics.py").read_text(encoding="utf-8")
 DETCICS_JAVA = (ROOT / "gitgalaxy/tools/cobol_to_java/det/cobolrt/cics/DetCics.java").read_text(encoding="utf-8")
 GGCICS_C = (ROOT / "tests/equivalence/cics/ggcics.c").read_text(encoding="utf-8")
@@ -62,11 +61,6 @@ DFHRESP_DIFFERENCES = {
     # are missing. No case names them, so no verdict depends on it; PR 3 imports the spec's table.
     "harness": {"VOLIDERR": 71, "RESIDERR": 75, "NOSPOOL": 80},
 }
-
-
-def test_det_dfhresp_equals_the_spec():
-    """Deleted in PR 2 (det/cics.py imports DFHRESP from the spec)."""
-    assert dict(det.DFHRESP) == dict(DFHRESP)
 
 
 def test_harness_dfhresp_equals_the_spec_but_for_its_listed_gaps():
@@ -126,7 +120,7 @@ def test_crucible_runner_condition_abcode_equals_the_spec():
     assert runner.CONDITION_ABCODE == dict(spec_resp.CONDITION_ABEND)
 
 
-# ---- options and refusals: the det translator ------------------------------------------------------------------
+# ---- options and refusals: the slice 1-4 commands the harness keeps its own copies of ---------------------------
 _BASE = {  # a minimal body of each command, to which one option is added
     "PUT CONTAINER": "PUT CONTAINER('C') FROM(WS-A)",
     "GET CONTAINER": "GET CONTAINER('C') INTO(WS-A)",
@@ -138,7 +132,7 @@ _BASE = {  # a minimal body of each command, to which one option is added
     "ASSIGN": "ASSIGN USERID(WS-U)",
     "SEND TEXT": "SEND TEXT FROM(WS-A)",
 }
-KEYS = sorted(COMMANDS)
+KEYS = sorted(_BASE)
 
 
 def _check(body: str) -> str | None:
@@ -150,105 +144,17 @@ def _check(body: str) -> str | None:
     return None
 
 
-def test_every_spec_command_has_a_base_body():
-    assert sorted(_BASE) == KEYS
-
-
-@pytest.mark.parametrize("key", KEYS)
-def test_det_options_equal_the_spec(key):
-    """Deleted in PR 2 (OPTIONS is built from the spec)."""
-    assert det.OPTIONS[key] == frozenset(COMMANDS[key].options)
-
-
-@pytest.mark.parametrize("key", KEYS)
-def test_det_accepts_every_option_the_spec_honours(key):
-    """Deleted in PR 2."""
-    for o in COMMANDS[key].options:
-        assert _check(f"{_BASE[key]} {o}(WS-X)") is None, o
-
-
-@pytest.mark.parametrize("key", KEYS)
-def test_det_refusal_messages_equal_the_spec(key):
-    """Deleted in PR 2. Each refused option alone, all of them together, and an option in neither table: the
-    message check_options raises today, word for word, is the one the spec renders."""
-    c = COMMANDS[key]
-    for o in c.refused:
-        assert _check(f"{_BASE[key]} {o}(WS-X)") == c.refusal_message([o]), o
-    if c.refused:
-        together = " ".join(f"{o}(WS-X)" for o in c.refused)
-        assert _check(f"{_BASE[key]} {together}") == c.refusal_message(list(c.refused))
-    assert _check(f"{_BASE[key]} GGNOSUCH(WS-X)") == c.refusal_message(["GGNOSUCH"])
-
-
-def _leaks() -> dict[str, dict[str, str]]:
-    """The cross-command reasons check_options shows today: _REFUSED_WHY is keyed by option alone, so on a command
-    whose own refusals carry no default reason, an option of ANOTHER command's table gets that table's reason."""
-    out: dict[str, dict[str, str]] = {}
-    for key, c in COMMANDS.items():
-        if key in ("ASSIGN", "SEND TEXT", "CANCEL"):  # (their own table / whole reason wins)
-            continue
-        leaked = {o: why for o, why in det._REFUSED_WHY.items() if o not in c.options and o not in c.refused}
-        if leaked:
-            out[key] = leaked
-    return out
-
-
-# Disagreements inside the translator: what the spec records per command, the translator keys by option alone
-DET_DIFFERENCES = {
-    # an option of another command's _REFUSED_WHY entry shows that entry's reason on these commands (GET CONTAINER
-    # WAIT: "a RETRIEVE waiting for START data ..."): every _REFUSED_WHY option the command does not list itself.
-    # The spec gives these no reason (default_refusal None). PR 2
-    # must choose: keep the leak (a global fallback table) or rebaseline these messages -- none occurs in a corpus.
-    "cross_command_reasons": {
-        "PUT CONTAINER": 13, "GET CONTAINER": 10, "DELETE CONTAINER": 16, "START": 10, "RETRIEVE": 14, "RUN": 16,
-    },
-}  # fmt: skip
-
-
-def test_det_cross_command_refusal_reasons_are_the_listed_difference():
-    """Deleted in PR 2. The leak is exactly DET_DIFFERENCES["cross_command_reasons"] (option counts per command),
-    and each leaked option's message is today's _REFUSED_WHY reason where the spec has none."""
-    leaks = _leaks()
-    assert {k: len(v) for k, v in leaks.items()} == DET_DIFFERENCES["cross_command_reasons"]
-    for key, leaked in leaks.items():
-        for o, why in leaked.items():
-            assert _check(f"{_BASE[key]} {o}(WS-X)") == f"{key} {o}: option not modelled ({o}: {why})"
-            assert COMMANDS[key].refusal_message([o]) == f"{key} {o}: option not modelled"
-
-
-def test_det_refusal_tables_equal_the_spec():
-    """Deleted in PR 2. Every reason in _REFUSED_WHY is a spec refusal of a slice command with the same text (and
-    the other way round); _ASSIGN_REFUSED_WHY and _SEND_TEXT_REFUSED_WHY are their commands' tables exactly."""
-    general: dict[str, set[str]] = {}
-    for key, c in COMMANDS.items():
-        if key in ("ASSIGN", "SEND TEXT"):
-            continue
-        for o, r in c.refused.items():
-            if not r.whole:
-                general.setdefault(o, set()).add(r.why)
-    assert {o: {why} for o, why in det._REFUSED_WHY.items()} == general
-    assert det._ASSIGN_REFUSED_WHY == {o: r.why for o, r in COMMANDS["ASSIGN"].refused.items()}
-    assert det._SEND_TEXT_REFUSED_WHY == {o: r.why for o, r in COMMANDS["SEND TEXT"].refused.items()}
-    assert det.TEXT_OPTIONS == spec_send_text.TEXT_OPTIONS
-
-
 def _template(msg: str) -> re.Pattern[str]:
     """A group message as it appears in source: each `{}` an f-string placeholder."""
     return re.compile(r"\{[^{}]*\}".join(re.escape(p) for p in msg.split("{}")))
 
 
-@pytest.mark.parametrize("key", KEYS)
-def test_det_group_messages_are_the_spec(key):
-    """Deleted in PR 2 (the group checks are built from the spec). Each group's message is in det/cics.py."""
-    for g in COMMANDS[key].groups:
-        assert _template(g.msg).search(DET_SRC), g.msg
-
-
-def test_assign_terminal_options_are_the_copies():
-    """Deleted in PR 2 / 3. `raised_by` of ASSIGN's INVREQ RESP2 5 is the tuple both translators hard-code."""
+def test_assign_terminal_options_are_the_harness_copy():
+    """Deleted in PR 3. `raised_by` of ASSIGN's INVREQ RESP2 5 is the tuple the harness hard-codes (det/cics.py
+    imports it: TERMINAL_OPTIONS)."""
     (invreq,) = [o for o in COMMANDS["ASSIGN"].outcomes if o.condition == "INVREQ"]
     literal = repr(invreq.raised_by).replace("'", '"')
-    assert literal in DET_SRC and literal in HARNESS_SRC
+    assert literal in HARNESS_SRC
 
 
 # ---- options and refusals: the equivalence harness (the stub's translator) ----------------------------------------
@@ -351,7 +257,7 @@ def test_harness_group_messages_are_the_spec_or_listed():
     wording, None: refused as a bare feature) or a rule the stub does not check."""
     worded: dict[str, str | None] = HARNESS_DIFFERENCES["group_messages"]  # type: ignore[assignment]
     seen = set()
-    for c in COMMANDS.values():
+    for c in (COMMANDS[k] for k in KEYS):
         for g in c.groups:
             seen.add(g.msg)
             if g.msg in HARNESS_DIFFERENCES["unchecked_groups"]:
@@ -399,8 +305,10 @@ def test_engine_verb_tables_equal_the_spec():
         if e is None:
             continue
         verb = key.split()[0]
-        if e.resource == "CONTAINER":
-            assert cics_resources._CONTAINER_VERBS[verb] == e.access, key
+        if e.resource is not None:
+            table = {"CONTAINER": cics_resources._CONTAINER_VERBS, "FILE": cics_resources._FILE_VERBS,
+                     "MAP": cics_resources._MAP_VERBS, "QUEUE": cics_resources._QUEUE_VERBS}[e.resource]  # fmt: skip
+            assert table[verb] == e.access, key
         if e.task_verb is not None:
             assert cics_tasks._TASK_VERBS[e.task_verb] == (e.target_option, e.handle_option), key
         assert cics_resources._CHANNEL_VERBS.get(verb) == e.channel_option, key

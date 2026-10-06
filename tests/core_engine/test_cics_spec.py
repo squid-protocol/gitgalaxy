@@ -1,5 +1,6 @@
-"""#4270 spec PR 1: gitgalaxy/standards/cics on its own -- the model's checks, the rendered refusal messages, the
-cics_spec CLI, and the package's cost: stdlib only, lazily loaded, imported by nothing in the engine yet.
+"""#4270 spec PRs 1-2: gitgalaxy/standards/cics on its own -- the model's checks, the rendered refusal messages, the
+entries (45 full, the name-only API commands), the cics_spec CLI, and the package's cost: stdlib only, lazily
+loaded, imported only by its listed consumers (spec PR 2: the det translator), none of them the engine.
 
 (The proofs that the spec equals today's hand copies are transitional and live in
 tests/cobol_mainframe/test_cics_spec_equality.py.)"""
@@ -73,12 +74,12 @@ def test_the_spec_imports_only_the_stdlib():
             ), f"{py.name}: imports {mod}"
 
 
-# Who may import the spec. Spec PR 1: nobody (no behaviour change). Each later PR adds its consumer here: PR 2 the
-# det translator, PR 8a the engine walkers (lazily, inside the CICS walkers only).
-IMPORTERS: set[str] = set()
+# Who may import the spec. Each spec PR adds its consumer here: PR 2 the det translator, PR 8a the engine walkers
+# (lazily, inside the CICS walkers only).
+IMPORTERS: set[str] = {"gitgalaxy/tools/cobol_to_java/det/cics.py"}
 
 
-def test_nothing_in_gitgalaxy_imports_the_spec_yet():
+def test_only_the_listed_consumers_import_the_spec():
     found = set()
     for py in (ROOT / "gitgalaxy").rglob("*.py"):
         if PACKAGE in py.parents:
@@ -108,6 +109,9 @@ def test_nothing_in_gitgalaxy_imports_the_spec_yet():
         (lambda: Command("X", _DOC, "modelled", outcomes=(Outcome("NORMAL", 0, "", writes=("INTO",)),)),
          "is not an option it honours"),
         (lambda: Command("X", _DOC, "modelled", state=("browse",)), "unknown state"),
+        (lambda: Command("X", _DOC, "refused"), "whole-command reason"),
+        (lambda: Command("X", _DOC, "modelled", why="w"), "whole-command reason"),
+        (lambda: Command("X", _DOC, "refused", why="w", options={"A": Arg("flag")}), "name-only entry"),
     ],
 )  # fmt: skip
 def test_the_model_refuses_a_wrong_entry_when_built(build, why):
@@ -129,7 +133,8 @@ def test_refusal_messages_render_as_the_translator_words_them():
 def test_every_entry_is_consistent():
     assert cli.problems() == []
     for c in COMMANDS.values():
-        assert re.fullmatch(r"https://www\.ibm\.com/docs/en/cics-ts/6\.x\?topic=summary-[a-z-]+", c.ibm.url), c.key
+        assert re.fullmatch(r"https://www\.ibm\.com/docs/en/cics-ts/6\.x\?topic=(summary|commands)-[a-z0-9-]+",
+                            c.ibm.url), c.key  # fmt: skip
         assert all(o.condition in DFHRESP for o in c.outcomes)
 
 
@@ -142,7 +147,7 @@ def test_resp_tables():
 # ---- the CLI -------------------------------------------------------------------------------------------------------
 def test_cli_check_and_emit(capsys):
     assert cli.main(["check"]) == 0
-    assert "9 commands, ok" in capsys.readouterr().out
+    assert "251 commands, ok" in capsys.readouterr().out
     assert cli.main(["emit", "--json", "GET CONTAINER"]) == 0
     data = json.loads(capsys.readouterr().out)
     assert list(data["commands"]) == ["GET CONTAINER"]
@@ -162,6 +167,56 @@ def test_cli_regen_writes_the_runtime_tables(tmp_path):
 
 
 def test_python_m_runs_the_cli():
-    assert "cics spec: 9 commands, ok" in _run("import runpy, sys; sys.argv = ['x', 'check']\n"
+    assert "cics spec: 251 commands, ok" in _run("import runpy, sys; sys.argv = ['x', 'check']\n"
                                                "try:\n    runpy.run_module('gitgalaxy.standards.cics', run_name='__main__')\n"
                                                "except SystemExit as e:\n    assert e.code == 0")  # fmt: skip
+
+
+# ---- spec PR 2: the coverage (cics_command_spec.md section 9, decision 4) ------------------------------------------
+def test_coverage_45_full_entries_and_the_name_only_api_commands():
+    by_status: dict[str, list[str]] = {}
+    for c in COMMANDS.values():
+        by_status.setdefault(c.status, []).append(c.key)
+    assert len(by_status["modelled"]) == 43 and sorted(by_status["engine-only"]) == ["LOAD", "RELEASE"]
+    # IBM's CICS TS 6.x command summary: 259 API command names, 44 with full entries (+ INQUIRE PROGRAM, SPI), 9
+    # forms of a modelled command (api.py's docstring), the other 206 name-only
+    assert len(by_status["refused"]) == 206
+    for key in by_status["refused"]:
+        c = COMMANDS[key]
+        assert c.why and not c.options and not c.refused and not c.outcomes, key
+
+
+def test_a_whole_command_refusal_names_its_reason():
+    from gitgalaxy.standards.cics.commands import whole_refusal
+
+    getmain = whole_refusal("GETMAIN", "GETMAIN", "SET")
+    assert getmain is not None and getmain.whole_message("GETMAIN") == (
+        "EXEC CICS GETMAIN not modelled (storage CICS acquires for the task, addressed by a pointer, is not modelled)"
+    )
+    # a verb and its first option: IBM's WAIT JOURNALNAME, ADDRESS SET (the most specific form wins)
+    assert whole_refusal("WAIT", "WAIT", "JOURNALNAME").key == "WAIT JOURNALNAME"  # type: ignore[union-attr]
+    assert whole_refusal("ADDRESS", "ADDRESS", "SET").key == "ADDRESS SET"  # type: ignore[union-attr]
+    assert whole_refusal("ADDRESS", "ADDRESS", "EIB").key == "ADDRESS"  # type: ignore[union-attr]
+    assert whole_refusal("LOAD", "LOAD", "PROGRAM").status == "engine-only"  # type: ignore[union-attr]
+    # a modelled command, or a name that is no API command (an SPI one): no whole-command entry
+    assert whole_refusal("READ", "READ", "FILE") is None
+    assert whole_refusal("INQUIRE", "INQUIRE FILE", None) is None
+
+
+def test_group_lookup():
+    assert COMMANDS["START"].group("required", "TRANSID").msg == "START without TRANSID"
+    with pytest.raises(KeyError):
+        COMMANDS["START"].group("one_of", "TRANSID")
+
+
+def test_each_command_keeps_its_own_refusal_reasons():
+    """Owner decision (spec PR 2, disagreement 2): no global table -- GET CONTAINER WAIT shows no RETRIEVE reason;
+    a read's SET and a file command's SYSID keep the reason that is true for them."""
+    assert COMMANDS["GET CONTAINER"].refusal_message(["WAIT"]) == "GET CONTAINER WAIT: option not modelled"
+    assert COMMANDS["READ"].refusal_message(["SET"]) == (
+        "READ SET: option not modelled (SET: the address of CICS's copy of the data (a pointer) is not modelled)"
+    )
+    assert (
+        COMMANDS["LINK"].refusal_message(["SYSID"])
+        == "LINK SYSID: option not modelled (SYSID: a remote system is not modelled)"
+    )

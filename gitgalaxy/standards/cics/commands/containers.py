@@ -11,7 +11,7 @@
 
 from __future__ import annotations
 
-from gitgalaxy.standards.cics.commands.shared import CODEPAGE, POINTER, RESP_OPTIONS, ibm
+from gitgalaxy.standards.cics.commands.shared import CODEPAGE, NEEDS_ARGUMENT, POINTER, RESP_OPTIONS, ibm
 from gitgalaxy.standards.cics.model import (
     Arg,
     Command,
@@ -25,8 +25,6 @@ from gitgalaxy.standards.cics.model import (
     required,
 )
 
-# the translator's message for a required option given no argument (det/cics.py _arg)
-_NEEDS_ARGUMENT = "EXEC CICS option needs an argument"
 _NAME = Arg("name", width=16)  # "the name (1 - 16 characters)"
 
 # what every container command refuses while running: a channel an XCTL left behind, an illegal name
@@ -66,8 +64,8 @@ PUT_CONTAINER = Command(
         "PREPEND": Refusal("not modelled (no corpus program uses it)", "X17"),
     },
     groups=(
-        required("CONTAINER", msg=_NEEDS_ARGUMENT),
-        required("FROM", msg=_NEEDS_ARGUMENT),
+        required("CONTAINER", msg=NEEDS_ARGUMENT),
+        required("FROM", msg=NEEDS_ARGUMENT),
         at_most_one("BIT", "CHAR", "DATATYPE", msg="PUT CONTAINER {}: one data type"),
     ),
     outcomes=(
@@ -115,7 +113,7 @@ GET_CONTAINER = Command(
         "BYTEOFFSET": Refusal("a partial GET is not modelled (no corpus program uses it)", "X17"),
     },
     groups=(
-        required("CONTAINER", msg=_NEEDS_ARGUMENT),
+        required("CONTAINER", msg=NEEDS_ARGUMENT),
         one_of("INTO", "NODATA", msg="GET CONTAINER needs one of INTO / NODATA"),
     ),
     outcomes=(
@@ -146,7 +144,7 @@ DELETE_CONTAINER = Command(
     status="modelled",
     register="X17",
     options={"CONTAINER": _NAME, "CHANNEL": _NAME, **RESP_OPTIONS},
-    groups=(required("CONTAINER", msg=_NEEDS_ARGUMENT),),
+    groups=(required("CONTAINER", msg=NEEDS_ARGUMENT),),
     outcomes=(
         Outcome("NORMAL", 0, ""),
         Outcome("CHANNELERR", 2, "the channel is not in the program's scope"),

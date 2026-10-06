@@ -43,7 +43,7 @@
     "tests/tools/java_target_matrix.py"
    ],
    "files": 11,
-   "sha256": "304049dfdcedf444507b3d008cb8a9e020ba663f927b0d53954ff5c7ef95f7ea"
+   "sha256": "1a2e9735dceec17daf4867d241017a78c0ce513cbf71382364d4caef4c9c5b29"
   },
   "oracle": {
    "paths": [
@@ -56,14 +56,14 @@
     "tests/tools/equivalence_sql.py"
    ],
    "files": 16,
-   "sha256": "fe66479a555d6d3a4a6e9604c387f1b5da27762b8d6a8b2deacfa0c502130280"
+   "sha256": "b8d42a4a28b643ce7df90a0b2cbd48f73e4437cc6727c99b195861311bdf5cc8"
   },
   "generator": {
    "paths": [
     "gitgalaxy/tools/cobol_to_java/**"
    ],
-   "files": 60,
-   "sha256": "4fa390383fcd211159dbd10b63062eca5b1046c24dfec7b7186e96819cac6e49"
+   "files": 62,
+   "sha256": "635e2d6c8d95f8d99629f635d4b932145847dd2a04240c900a6c8eb58515242d"
   },
   "corpus": {
    "name": "cics-genapp",
@@ -73,10 +73,10 @@
   "differences": {
    "sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
   },
-  "digest": "a52f790efe02e54d950d309075d7432183e6a1f266987765ad2385bef3c0d38a"
+  "digest": "6d480d806c801f27647e234bc39fe24c4d1f3e07811908316a6dae8826fadd32"
  },
  "proof": {
-  "at": "2026-10-06T04:42:25Z",
+  "at": "2026-10-06T17:26:01Z",
   "verdict": "proven",
   "runs": 12,
   "fault_runs": 0,
@@ -145,8 +145,8 @@
    "failed": [],
    "error": null
   },
-  "harness_commit": "3c9c8b7dff17234bdfcf1e11088bcbe460580372+uncommitted",
-  "inputs_digest": "a52f790efe02e54d950d309075d7432183e6a1f266987765ad2385bef3c0d38a"
+  "harness_commit": "b141138e182ff7da68a70a056f39c1d383404dbd+uncommitted",
+  "inputs_digest": "6d480d806c801f27647e234bc39fe24c4d1f3e07811908316a6dae8826fadd32"
  },
  "coverage": {
   "paragraphs": {
@@ -212,7 +212,7 @@
    "total": 0
   },
   "source": "the proof's own traced COBOL runs (cobol_coverage.py)",
-  "inputs_digest": "a52f790efe02e54d950d309075d7432183e6a1f266987765ad2385bef3c0d38a"
+  "inputs_digest": "6d480d806c801f27647e234bc39fe24c4d1f3e07811908316a6dae8826fadd32"
  },
  "reach": {
   "entry_points": [
@@ -267,11 +267,11 @@
    },
    {
     "path": "tests/equivalence/cics/DFHEIBLK.cpy",
-    "sha256": "ab7fe78f8e8496673924ed6a663619a320a48efcc474899b033c92c9fda48461"
+    "sha256": "f54ce5a2592064ac4a39cd25a479499879b61ae499024cb191960692c23022da"
    },
    {
     "path": "tests/equivalence/cics/ggcics.c",
-    "sha256": "5d1950c7e6a9a0053304c0020175888ce25961f59235ee78799691df2036a1ee"
+    "sha256": "5f127e1ddb94e48ecb5e7831bbf9173cda7e398633e11e5d7ed09c9194dc7cdc"
    },
    {
     "path": "tests/equivalence/db2/SQLCA.cpy",
@@ -283,7 +283,7 @@
    },
    {
     "path": "tests/equivalence/db2/ggsql.c",
-    "sha256": "9f1776b4ce806a072af60706165d14e7bd3abd1698a383d7a728cc41982f8fab"
+    "sha256": "a42be2e7fa475ba5ed70209d64f78dae9ef9fe611c72e3edc2f1d1e594d29405"
    },
    {
     "path": "tests/equivalence/db2/ggsqlrun.c",

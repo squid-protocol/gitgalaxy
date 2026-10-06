@@ -10,6 +10,10 @@
    "issue": null,
    "why": "generated card numbers mix letters and digits: ASCII vs EBCDIC key order picks different duplicates (oracle_assumptions.md D1)"
   },
+  "cbsa-updacc-generated": {
+   "issue": "#4579",
+   "why": "generated ACCOUNT rows hold INTEGER 2147483647 / -2147483648: DetSql checks a binary (S9(9) COMP) host variable against its PICTURE's digits and gives -304 where Db2 (and ggsql.c) assign the fullword"
+  },
   "mortgage-mpmt": {
    "issue": "#4271",
    "why": "IBM DBB EPSMPMT computes its payment through a COMP-1 item in hexadecimal floating point on z/OS, truncated decimal on GnuCOBOL. The det runtime models HFP since #4271 slice 1 (its interest COMPUTE translates), but the payment's (1 + C) ** N, N with decimal places, is a floating-point exponentiation IBM does not document bit for bit: a named hole (oracle_assumptions.md C6; its CBL NUMPROC(MIG) is modelled, C5)"

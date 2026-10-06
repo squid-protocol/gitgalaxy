@@ -281,6 +281,20 @@ def _typed(rng: random.Random, rule: dict[str, Any], width: int, pool: list[Any]
     return f"{int(v):0{width}d}" if isinstance(v, Decimal) else str(v)
 
 
+def _missing(rng: random.Random, pool: list[Any], field: dict[str, Any] | None) -> Any:
+    """#4507: a value like the pool's (digits when they are all digits; the field's width) that it does not hold."""
+    held = {str(v).strip() for v in pool}
+    numeric = all(isinstance(v, (int, Decimal)) or str(v).strip().isdigit() for v in pool)
+    width = max(len(str(v)) for v in pool)
+    if field is not None and field.get("bytes"):
+        width = min(width, field["bytes"]) if not numeric else field["bytes"]
+    for _ in range(200):
+        v = "".join(rng.choice("0123456789" if numeric else _TEXT) for _ in range(width))
+        if v.strip() not in held and (not numeric or str(int(v)) not in {str(int(h)) for h in held if h.isdigit()}):
+            return v
+    raise ValueError(f"no value of {width} characters is missing from the pool")
+
+
 def prepare_cics_case(case: dict[str, Any], corpus: Path, files: list[dict[str, Any]]) -> dict[str, Any]:
     """A CICS case with its generated parts made concrete. A dataset whose input is `@generate` takes its
     record length and key from the program's CICS file (the stub's `files`); a `scenario_generate` block adds
@@ -293,7 +307,9 @@ def prepare_cics_case(case: dict[str, Any], corpus: Path, files: list[dict[str, 
     A map field's rule gives what the user typed: a value `from` the generated file's field, one it does not hold
     (`miss`), or not a number (`bad`: letters, blanks, signs, a decimal point ...) -- as a share of the scenarios;
     or `values`, in turn. A COMMAREA field's rule is `values` / `edge` (the PICTURE's edge values, in turn) / `from` (it is a typed record: the port's DTO
-    holds numbers there, so no non-numeric text)."""
+    holds numbers there, so no non-numeric text). #4507: `from` may name a generated Db2 table's column
+    (SCHEMA.TABLE.COLUMN, equivalence_db2.generate_rows), with `miss` (a share of values it does not hold) and
+    `turn` (its values in turn)."""
     by_base = {f["base"]: f for f in files}
     datasets = {}
     for dd, spec in case.get("datasets", {}).items():
@@ -312,6 +328,9 @@ def prepare_cics_case(case: dict[str, Any], corpus: Path, files: list[dict[str, 
     import equivalence_cics as cx
 
     _, pools = generate_all(case, corpus)
+    import equivalence_db2
+
+    pools = {**pools, **equivalence_db2.generated_pools(case, corpus)}  # #4507: a generated table's columns too
     ca_layout = {f["name"]: f for f in cx.commarea_fields(corpus, case)} if gen.get("commarea") else {}
     scenarios = []
     for i in range(gen.get("count", 12)):
@@ -330,9 +349,18 @@ def prepare_cics_case(case: dict[str, Any], corpus: Path, files: list[dict[str, 
                         pool = pools.get(v["from"])
                         if not pool:
                             raise ValueError(f"{name}.{fname}: nothing generated for {v['from']}")
-                        v = rng.choice(pool)
+                        # #4507: `miss`, that share of the time a value the source does not hold (+100 for a
+                        # SELECT / UPDATE / DELETE by it, -530 for an INSERT naming it as a parent); otherwise one
+                        # it does (a duplicate key, -803, for an INSERT); `turn`: the source's values in turn (each
+                        # generated row reached), not at random
+                        if rng.random() < v.get("miss", 0):
+                            v = _missing(rng, pool, ca_layout.get(fname))
+                        else:
+                            v = pool[i % len(pool)] if v.get("turn") else rng.choice(pool)
                     else:
-                        raise ValueError(f"{name}.{fname}: a COMMAREA rule is `values` or `from`, not {sorted(v)}")
+                        raise ValueError(
+                            f"{name}.{fname}: a COMMAREA rule is `values`, `edge` or `from`, not {sorted(v)}"
+                        )
                 commarea[fname] = str(v) if isinstance(v, Decimal) else v  # JSON: the report writes the scenario
             sc["commarea"] = commarea
         receive: dict[str, dict[str, str]] = {}

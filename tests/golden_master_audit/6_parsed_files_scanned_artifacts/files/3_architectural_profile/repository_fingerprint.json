@@ -1054,6 +1054,26 @@
         "file_cluster_8": 32.199,
         "file_cluster_9": 11.558
       },
+      "ada/functional/functional_tests_config.ads": {
+        "file_cluster_0": 9.487,
+        "file_cluster_1": 100.67,
+        "file_cluster_10": 8.24,
+        "file_cluster_11": 7.408,
+        "file_cluster_12": 9.8,
+        "file_cluster_13": 7.447,
+        "file_cluster_14": 20.695,
+        "file_cluster_15": 7.3,
+        "file_cluster_16": 7.994,
+        "file_cluster_17": 5.809,
+        "file_cluster_2": 6.089,
+        "file_cluster_3": 53.51,
+        "file_cluster_4": 12.546,
+        "file_cluster_5": 13.413,
+        "file_cluster_6": 19.989,
+        "file_cluster_7": 12.918,
+        "file_cluster_8": 32.191,
+        "file_cluster_9": 11.775
+      },
       "ada/functional/test_framework.adb": {
         "file_cluster_0": 9.868,
         "file_cluster_1": 100.639,
@@ -7128,7 +7148,30 @@
         "file_cluster_7": 19.749,
         "file_cluster_8": 17.338,
         "file_cluster_9": 17.2
+      },
+      "c/sqlite/parse.y": {
+        "file_cluster_0": 11.627,
+        "file_cluster_1": 99.102,
+        "file_cluster_10": 10.809,
+        "file_cluster_11": 10.071,
+        "file_cluster_12": 9.807,
+        "file_cluster_13": 10.542,
+        "file_cluster_14": 20.499,
+        "file_cluster_15": 8.934,
+        "file_cluster_16": 9.6,
+        "file_cluster_17": 10.576,
+        "file_cluster_2": 9.958,
+        "file_cluster_3": 51.913,
+        "file_cluster_4": 10.609,
+        "file_cluster_5": 13.668,
+        "file_cluster_6": 18.162,
+        "file_cluster_7": 13.75,
+        "file_cluster_8": 30.525,
+        "file_cluster_9": 12.833
       }
+    },
+    "cobol": {
+      "cobol/SOURCES.md": {}
     },
     "cobol/CICS-Cobol": {
       "cobol/CICS-Cobol/CBL0102v01DivisionAmbiente.cbl": {
@@ -22553,6 +22596,9 @@
         "file_cluster_9": 8.766
       }
     },
+    "groovy": {
+      "groovy/SOURCES.md": {}
+    },
     "groovy/fineract_gradle_plugin": {
       "groovy/fineract_gradle_plugin/LICENSE_RELEASE": {},
       "groovy/fineract_gradle_plugin/org_apache_fineract_gradle_FineractPluginExtension.groovy": {
@@ -31336,6 +31382,9 @@
         "file_cluster_9": 16.685
       }
     },
+    "jcl": {
+      "jcl/SOURCES.md": {}
+    },
     "jcl/cash-account-cobol": {
       "jcl/cash-account-cobol/DB2BIND.jcl": {
         "file_cluster_0": 9.663,
@@ -39305,6 +39354,26 @@
         "file_cluster_8": 36.501,
         "file_cluster_9": 21.708
       },
+      "lua/redis/sieve.lua": {
+        "file_cluster_0": 10.746,
+        "file_cluster_1": 100.71,
+        "file_cluster_10": 6.912,
+        "file_cluster_11": 9.611,
+        "file_cluster_12": 10.432,
+        "file_cluster_13": 9.72,
+        "file_cluster_14": 21.19,
+        "file_cluster_15": 8.706,
+        "file_cluster_16": 9.645,
+        "file_cluster_17": 10.099,
+        "file_cluster_2": 9.406,
+        "file_cluster_3": 53.532,
+        "file_cluster_4": 12.604,
+        "file_cluster_5": 14.157,
+        "file_cluster_6": 20.001,
+        "file_cluster_7": 14.033,
+        "file_cluster_8": 32.206,
+        "file_cluster_9": 12.051
+      },
       "lua/redis/sort.lua": {
         "file_cluster_0": 10.184,
         "file_cluster_1": 100.568,
@@ -44039,6 +44108,26 @@
         "file_cluster_7": 13.355,
         "file_cluster_8": 32.363,
         "file_cluster_9": 12.132
+      },
+      "powershell/runtime/processrc.ps1": {
+        "file_cluster_0": 10.395,
+        "file_cluster_1": 100.68,
+        "file_cluster_10": 5.428,
+        "file_cluster_11": 9.346,
+        "file_cluster_12": 10.289,
+        "file_cluster_13": 9.216,
+        "file_cluster_14": 21.118,
+        "file_cluster_15": 8.864,
+        "file_cluster_16": 9.367,
+        "file_cluster_17": 9.257,
+        "file_cluster_2": 8.293,
+        "file_cluster_3": 53.518,
+        "file_cluster_4": 12.764,
+        "file_cluster_5": 13.897,
+        "file_cluster_6": 20.069,
+        "file_cluster_7": 13.678,
+        "file_cluster_8": 32.209,
+        "file_cluster_9": 12.032
       },
       "powershell/runtime/run-benchmark.ps1": {
         "file_cluster_0": 8.807,
@@ -49393,6 +49482,26 @@
         "file_cluster_8": 32.883,
         "file_cluster_9": 14.963
       },
+      "python/numpy/generate_umath.py": {
+        "file_cluster_0": 16.855,
+        "file_cluster_1": 87.061,
+        "file_cluster_10": 16.507,
+        "file_cluster_11": 16.304,
+        "file_cluster_12": 14.887,
+        "file_cluster_13": 16.497,
+        "file_cluster_14": 22.42,
+        "file_cluster_15": 14.801,
+        "file_cluster_16": 15.364,
+        "file_cluster_17": 16.586,
+        "file_cluster_2": 15.949,
+        "file_cluster_3": 39.699,
+        "file_cluster_4": 7.309,
+        "file_cluster_5": 17.277,
+        "file_cluster_6": 6.775,
+        "file_cluster_7": 17.524,
+        "file_cluster_8": 18.228,
+        "file_cluster_9": 16.294
+      },
       "python/numpy/generate_umath_doc.py": {
         "file_cluster_0": 9.556,
         "file_cluster_1": 100.688,
@@ -51541,6 +51650,26 @@
         "file_cluster_8": 30.364,
         "file_cluster_9": 13.466
       },
+      "rust/wasmtime/wasmtime_ir_instructions.rs": {
+        "file_cluster_0": 9.2,
+        "file_cluster_1": 100.007,
+        "file_cluster_10": 12.074,
+        "file_cluster_11": 11.886,
+        "file_cluster_12": 8.299,
+        "file_cluster_13": 11.237,
+        "file_cluster_14": 16.737,
+        "file_cluster_15": 10.399,
+        "file_cluster_16": 11.565,
+        "file_cluster_17": 12.697,
+        "file_cluster_2": 12.264,
+        "file_cluster_3": 52.906,
+        "file_cluster_4": 12.092,
+        "file_cluster_5": 7.782,
+        "file_cluster_6": 19.387,
+        "file_cluster_7": 11.167,
+        "file_cluster_8": 31.628,
+        "file_cluster_9": 13.841
+      },
       "rust/wasmtime/wasmtime_isle_parser.rs": {
         "file_cluster_0": 16.443,
         "file_cluster_1": 86.552,
@@ -53289,6 +53418,26 @@
         "file_cluster_8": 32.01,
         "file_cluster_9": 12.058
       },
+      "shell/freebsd-src/ckscripts.sh": {
+        "file_cluster_0": 22.666,
+        "file_cluster_1": 102.402,
+        "file_cluster_10": 21.971,
+        "file_cluster_11": 22.119,
+        "file_cluster_12": 16.333,
+        "file_cluster_13": 22.054,
+        "file_cluster_14": 5.075,
+        "file_cluster_15": 22.015,
+        "file_cluster_16": 22.032,
+        "file_cluster_17": 22.005,
+        "file_cluster_2": 21.717,
+        "file_cluster_3": 56.692,
+        "file_cluster_4": 22.665,
+        "file_cluster_5": 14.968,
+        "file_cluster_6": 27.204,
+        "file_cluster_7": 11.353,
+        "file_cluster_8": 37.202,
+        "file_cluster_9": 23.004
+      },
       "shell/freebsd-src/cp_test.sh": {
         "file_cluster_0": 11.214,
         "file_cluster_1": 100.764,
@@ -54576,6 +54725,26 @@
         "file_cluster_7": 7.643,
         "file_cluster_8": 34.156,
         "file_cluster_9": 17.254
+      },
+      "shell/illumos-gate/inetd-upgrade.sh": {
+        "file_cluster_0": 18.035,
+        "file_cluster_1": 101.554,
+        "file_cluster_10": 17.163,
+        "file_cluster_11": 17.299,
+        "file_cluster_12": 11.654,
+        "file_cluster_13": 17.19,
+        "file_cluster_14": 5.092,
+        "file_cluster_15": 17.184,
+        "file_cluster_16": 17.27,
+        "file_cluster_17": 17.067,
+        "file_cluster_2": 16.594,
+        "file_cluster_3": 55.152,
+        "file_cluster_4": 18.441,
+        "file_cluster_5": 11.099,
+        "file_cluster_6": 23.877,
+        "file_cluster_7": 6.721,
+        "file_cluster_8": 34.82,
+        "file_cluster_9": 18.661
       },
       "shell/illumos-gate/mkerror.sh": {
         "file_cluster_0": 13.966,
@@ -56688,6 +56857,26 @@
         "file_cluster_7": 13.026,
         "file_cluster_8": 32.255,
         "file_cluster_9": 11.842
+      },
+      "shell/serenity/generate_manpages.sh": {
+        "file_cluster_0": 19.575,
+        "file_cluster_1": 101.162,
+        "file_cluster_10": 18.816,
+        "file_cluster_11": 18.894,
+        "file_cluster_12": 13.309,
+        "file_cluster_13": 18.906,
+        "file_cluster_14": 8.507,
+        "file_cluster_15": 18.431,
+        "file_cluster_16": 18.392,
+        "file_cluster_17": 18.981,
+        "file_cluster_2": 18.343,
+        "file_cluster_3": 54.773,
+        "file_cluster_4": 18.667,
+        "file_cluster_5": 13.232,
+        "file_cluster_6": 23.703,
+        "file_cluster_7": 10.331,
+        "file_cluster_8": 34.5,
+        "file_cluster_9": 17.2
       },
       "shell/serenity/install.sh": {
         "file_cluster_0": 12.252,
@@ -59082,6 +59271,9 @@
         "file_cluster_9": 10.94
       }
     },
+    "tcl": {
+      "tcl/SOURCES.md": {}
+    },
     "tcl/macports_port_api": {
       "tcl/macports_port_api/fetch_common.tcl": {
         "file_cluster_0": 17.777,
@@ -60330,6 +60522,7 @@
       }
     },
     "typescript/typescript_compiler": {
+      "typescript/typescript_compiler/LICENSE.txt": {},
       "typescript/typescript_compiler/binder.ts": {
         "file_cluster_0": 15.677,
         "file_cluster_1": 90.757,

@@ -66,6 +66,7 @@
       "ada/functional/functional-try.adb": "utf-8",
       "ada/functional/functional-try.ads": "utf-8",
       "ada/functional/functional.ads": "utf-8",
+      "ada/functional/functional_tests_config.ads": "utf-8",
       "ada/functional/test_framework.adb": "utf-8",
       "ada/functional/test_framework.ads": "utf-8",
       "ada/functional/test_try_map_to_result.adb": "utf-8"
@@ -459,7 +460,11 @@
     "c/sqlite": {
       "c/sqlite/LICENSE.md": "utf-8",
       "c/sqlite/README.md": "utf-8",
-      "c/sqlite/lemon.c": "utf-8"
+      "c/sqlite/lemon.c": "utf-8",
+      "c/sqlite/parse.y": "utf-8"
+    },
+    "cobol": {
+      "cobol/SOURCES.md": "utf-8"
     },
     "cobol/CICS-Cobol": {
       "cobol/CICS-Cobol/CBL0102v01DivisionAmbiente.cbl": "cp1252",
@@ -1387,6 +1392,9 @@
     "go/kubernetes_kubectl_tls": {
       "go/kubernetes_kubectl_tls/create_secret_tls_test.go": "utf-8"
     },
+    "groovy": {
+      "groovy/SOURCES.md": "utf-8"
+    },
     "groovy/fineract_gradle_plugin": {
       "groovy/fineract_gradle_plugin/LICENSE_RELEASE": "utf-8",
       "groovy/fineract_gradle_plugin/org_apache_fineract_gradle_FineractPluginExtension.groovy": "utf-8",
@@ -1962,6 +1970,9 @@
       "javascript/threejs/WebGLProgram.js": "utf-8",
       "javascript/threejs/WebGLRenderer.js": "utf-8"
     },
+    "jcl": {
+      "jcl/SOURCES.md": "utf-8"
+    },
     "jcl/cash-account-cobol": {
       "jcl/cash-account-cobol/DB2BIND.jcl": "utf-8",
       "jcl/cash-account-cobol/DB2DDL.jcl": "utf-8",
@@ -2407,6 +2418,7 @@
       "lua/redis/luac.lua": "utf-8",
       "lua/redis/printf.lua": "utf-8",
       "lua/redis/readonly.lua": "utf-8",
+      "lua/redis/sieve.lua": "utf-8",
       "lua/redis/sort.lua": "utf-8",
       "lua/redis/strict.lua": "utf-8",
       "lua/redis/table.lua": "utf-8",
@@ -2772,6 +2784,7 @@
       "powershell/runtime/generateredefinesfile.ps1": "utf-8",
       "powershell/runtime/generateversionscript.ps1": "utf-8",
       "powershell/runtime/getRefPackFolderFromArtifacts.ps1": "utf-8",
+      "powershell/runtime/processrc.ps1": "utf-8",
       "powershell/runtime/run-benchmark.ps1": "utf-8",
       "powershell/runtime/update-machine-certs.ps1": "utf-8"
     },
@@ -3090,6 +3103,7 @@
       "python/numpy/genapi.py": "utf-8",
       "python/numpy/generate_numpy_api.py": "utf-8",
       "python/numpy/generate_ufunc_api.py": "utf-8",
+      "python/numpy/generate_umath.py": "utf-8",
       "python/numpy/generate_umath_doc.py": "utf-8",
       "python/numpy/lapack_litemodule.c": "utf-8",
       "python/numpy/numpy_api.py": "utf-8",
@@ -3262,6 +3276,7 @@
     "rust/wasmtime": {
       "rust/wasmtime/wasmtime_component_macro.rs": "utf-8",
       "rust/wasmtime/wasmtime_instance.rs": "utf-8",
+      "rust/wasmtime/wasmtime_ir_instructions.rs": "utf-8",
       "rust/wasmtime/wasmtime_isle_parser.rs": "utf-8",
       "rust/wasmtime/wasmtime_pulley_interp.rs": "utf-8"
     },
@@ -3376,6 +3391,7 @@
       "shell/freebsd-src/COPYRIGHT": "utf-8",
       "shell/freebsd-src/chflags_test.sh": "utf-8",
       "shell/freebsd-src/chmod_test.sh": "utf-8",
+      "shell/freebsd-src/ckscripts.sh": "utf-8",
       "shell/freebsd-src/cp_test.sh": "utf-8",
       "shell/freebsd-src/ctfconvert_test.sh": "utf-8",
       "shell/freebsd-src/dd2_test.sh": "utf-8",
@@ -3448,6 +3464,7 @@
       "shell/illumos-gate/exportfs.sh": "utf-8",
       "shell/illumos-gate/ikecert.sh": "utf-8",
       "shell/illumos-gate/illumos_13434_chunked_heredoc.sh": "utf-8",
+      "shell/illumos-gate/inetd-upgrade.sh": "utf-8",
       "shell/illumos-gate/mkerror.sh": "utf-8",
       "shell/illumos-gate/newvers.sh": "utf-8",
       "shell/illumos-gate/nfsfind.sh": "utf-8",
@@ -3565,6 +3582,7 @@
       "shell/serenity/analyze-qemu-coverage.sh": "utf-8",
       "shell/serenity/builtin.sh": "utf-8",
       "shell/serenity/embedmap.sh": "utf-8",
+      "shell/serenity/generate_manpages.sh": "utf-8",
       "shell/serenity/install.sh": "utf-8",
       "shell/serenity/package.sh": "utf-8",
       "shell/serenity/run-tests-and-shutdown.sh": "utf-8"
@@ -3754,6 +3772,9 @@
     "tabular/tsv_genomics": {
       "tabular/tsv_genomics/B.cell_eQTL.tsv": "utf-8"
     },
+    "tcl": {
+      "tcl/SOURCES.md": "utf-8"
+    },
     "tcl/macports_port_api": {
       "tcl/macports_port_api/fetch_common.tcl": "utf-8",
       "tcl/macports_port_api/library.tcl": "utf-8",
@@ -3881,6 +3902,7 @@
       "typescript/playwright/protocol.ts": "utf-8"
     },
     "typescript/typescript_compiler": {
+      "typescript/typescript_compiler/LICENSE.txt": "utf-8",
       "typescript/typescript_compiler/binder.ts": "utf-8",
       "typescript/typescript_compiler/package.json": "utf-8"
     },

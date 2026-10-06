@@ -66,6 +66,7 @@
       "ada/functional/functional-try.adb": "Single Indicator (Ext: .adb)",
       "ada/functional/functional-try.ads": "Single Indicator (Ext: .ads)",
       "ada/functional/functional.ads": "Single Indicator (Ext: .ads)",
+      "ada/functional/functional_tests_config.ads": "Single Indicator (Ext: .ads)",
       "ada/functional/test_framework.adb": "Single Indicator (Ext: .adb)",
       "ada/functional/test_framework.ads": "Single Indicator (Ext: .ads)",
       "ada/functional/test_try_map_to_result.adb": "Single Indicator (Ext: .adb)"
@@ -459,7 +460,11 @@
     "c/sqlite": {
       "c/sqlite/LICENSE.md": "Prose Extension (.md)",
       "c/sqlite/README.md": "Prose Extension (.md)",
-      "c/sqlite/lemon.c": "Ecosystem Consensus Lock (100% Local Dominance)"
+      "c/sqlite/lemon.c": "Ecosystem Consensus Lock (100% Local Dominance)",
+      "c/sqlite/parse.y": "Single Indicator (Internal Signature)"
+    },
+    "cobol": {
+      "cobol/SOURCES.md": "Prose Extension (.md)"
     },
     "cobol/CICS-Cobol": {
       "cobol/CICS-Cobol/CBL0102v01DivisionAmbiente.cbl": "Single Indicator (Ext: .cbl)",
@@ -1387,6 +1392,9 @@
     "go/kubernetes_kubectl_tls": {
       "go/kubernetes_kubectl_tls/create_secret_tls_test.go": "Single Indicator (Ext: .go)"
     },
+    "groovy": {
+      "groovy/SOURCES.md": "Prose Extension (.md)"
+    },
     "groovy/fineract_gradle_plugin": {
       "groovy/fineract_gradle_plugin/LICENSE_RELEASE": "Prose Anchor (LICENSE_RELEASE)",
       "groovy/fineract_gradle_plugin/org_apache_fineract_gradle_FineractPluginExtension.groovy": "Single Indicator (Ext: .groovy)",
@@ -1962,6 +1970,9 @@
       "javascript/threejs/WebGLProgram.js": "Single Indicator (Ext: .js)",
       "javascript/threejs/WebGLRenderer.js": "Single Indicator (Ext: .js)"
     },
+    "jcl": {
+      "jcl/SOURCES.md": "Prose Extension (.md)"
+    },
     "jcl/cash-account-cobol": {
       "jcl/cash-account-cobol/DB2BIND.jcl": "Single Indicator (Ext: .jcl)",
       "jcl/cash-account-cobol/DB2DDL.jcl": "Single Indicator (Ext: .jcl)",
@@ -2407,6 +2418,7 @@
       "lua/redis/luac.lua": "Single Indicator (Ext: .lua)",
       "lua/redis/printf.lua": "Single Indicator (Ext: .lua)",
       "lua/redis/readonly.lua": "Single Indicator (Ext: .lua)",
+      "lua/redis/sieve.lua": "Single Indicator (Ext: .lua)",
       "lua/redis/sort.lua": "Single Indicator (Ext: .lua)",
       "lua/redis/strict.lua": "Single Indicator (Ext: .lua)",
       "lua/redis/table.lua": "Single Indicator (Ext: .lua)",
@@ -2772,6 +2784,7 @@
       "powershell/runtime/generateredefinesfile.ps1": "Single Indicator (Ext: .ps1)",
       "powershell/runtime/generateversionscript.ps1": "Single Indicator (Ext: .ps1)",
       "powershell/runtime/getRefPackFolderFromArtifacts.ps1": "Single Indicator (Ext: .ps1)",
+      "powershell/runtime/processrc.ps1": "Single Indicator (Ext: .ps1)",
       "powershell/runtime/run-benchmark.ps1": "Single Indicator (Ext: .ps1)",
       "powershell/runtime/update-machine-certs.ps1": "Single Indicator (Ext: .ps1)"
     },
@@ -3090,6 +3103,7 @@
       "python/numpy/genapi.py": "Ecosystem Consensus Lock (100% Local Dominance)",
       "python/numpy/generate_numpy_api.py": "Single Indicator (Shebang)",
       "python/numpy/generate_ufunc_api.py": "Ecosystem Consensus Lock (100% Local Dominance)",
+      "python/numpy/generate_umath.py": "Ecosystem Consensus Lock (100% Local Dominance)",
       "python/numpy/generate_umath_doc.py": "Ecosystem Consensus Lock (100% Local Dominance)",
       "python/numpy/lapack_litemodule.c": "Ecosystem Consensus Lock (100% Local Dominance)",
       "python/numpy/numpy_api.py": "Ecosystem Consensus Lock (100% Local Dominance)",
@@ -3262,6 +3276,7 @@
     "rust/wasmtime": {
       "rust/wasmtime/wasmtime_component_macro.rs": "Single Indicator (Ext: .rs)",
       "rust/wasmtime/wasmtime_instance.rs": "Single Indicator (Ext: .rs)",
+      "rust/wasmtime/wasmtime_ir_instructions.rs": "Single Indicator (Ext: .rs)",
       "rust/wasmtime/wasmtime_isle_parser.rs": "Single Indicator (Ext: .rs)",
       "rust/wasmtime/wasmtime_pulley_interp.rs": "Single Indicator (Ext: .rs)"
     },
@@ -3376,6 +3391,7 @@
       "shell/freebsd-src/COPYRIGHT": "Metadata Anchor (COPYRIGHT)",
       "shell/freebsd-src/chflags_test.sh": "Single Indicator (Ext: .sh)",
       "shell/freebsd-src/chmod_test.sh": "Single Indicator (Ext: .sh)",
+      "shell/freebsd-src/ckscripts.sh": "Absolute Consensus (Ext + Shebang)",
       "shell/freebsd-src/cp_test.sh": "Single Indicator (Ext: .sh)",
       "shell/freebsd-src/ctfconvert_test.sh": "Single Indicator (Ext: .sh)",
       "shell/freebsd-src/dd2_test.sh": "Single Indicator (Ext: .sh)",
@@ -3448,6 +3464,7 @@
       "shell/illumos-gate/exportfs.sh": "Absolute Consensus (Ext + Shebang)",
       "shell/illumos-gate/ikecert.sh": "Absolute Consensus (Ext + Shebang)",
       "shell/illumos-gate/illumos_13434_chunked_heredoc.sh": "Single Indicator (Ext: .sh)",
+      "shell/illumos-gate/inetd-upgrade.sh": "Absolute Consensus (Ext + Shebang)",
       "shell/illumos-gate/mkerror.sh": "Absolute Consensus (Ext + Shebang)",
       "shell/illumos-gate/newvers.sh": "Absolute Consensus (Ext + Shebang)",
       "shell/illumos-gate/nfsfind.sh": "Absolute Consensus (Ext + Shebang)",
@@ -3565,6 +3582,7 @@
       "shell/serenity/analyze-qemu-coverage.sh": "Absolute Consensus (Ext + Shebang)",
       "shell/serenity/builtin.sh": "Absolute Consensus (Ext + Shebang)",
       "shell/serenity/embedmap.sh": "Absolute Consensus (Ext + Shebang)",
+      "shell/serenity/generate_manpages.sh": "Absolute Consensus (Ext + Shebang)",
       "shell/serenity/install.sh": "Absolute Consensus (Ext + Shebang)",
       "shell/serenity/package.sh": "Absolute Consensus (Ext + Shebang)",
       "shell/serenity/run-tests-and-shutdown.sh": "Absolute Consensus (Ext + Shebang)"
@@ -3754,6 +3772,9 @@
     "tabular/tsv_genomics": {
       "tabular/tsv_genomics/B.cell_eQTL.tsv": "Single Indicator (Ext: .tsv)"
     },
+    "tcl": {
+      "tcl/SOURCES.md": "Prose Extension (.md)"
+    },
     "tcl/macports_port_api": {
       "tcl/macports_port_api/fetch_common.tcl": "Single Indicator (Ext: .tcl)",
       "tcl/macports_port_api/library.tcl": "Single Indicator (Ext: .tcl)",
@@ -3881,6 +3902,7 @@
       "typescript/playwright/protocol.ts": "Single Indicator (Ext: .ts)"
     },
     "typescript/typescript_compiler": {
+      "typescript/typescript_compiler/LICENSE.txt": "Prose Extension (.txt)",
       "typescript/typescript_compiler/binder.ts": "Single Indicator (Ext: .ts)",
       "typescript/typescript_compiler/package.json": "Single Indicator (Exact Match)"
     },

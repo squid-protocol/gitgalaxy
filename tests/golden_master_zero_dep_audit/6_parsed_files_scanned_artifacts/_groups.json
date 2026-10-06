@@ -142,29 +142,30 @@
     },
     "ada/functional": {
       "Average Risk Exposures": {
-        "API Exposure": "2.97%",
-        "Cognitive Load Exposure": "5.3%",
-        "Commented Logic Exposure": "7.13%",
+        "API Exposure": "3.0%",
+        "Cognitive Load Exposure": "5.07%",
+        "Commented Logic Exposure": "6.82%",
         "Concurrency Exposure": "0.0%",
-        "Documentation Exposure": "59.09%",
-        "Error & Exception Exposure": "6.43%",
+        "Documentation Exposure": "56.52%",
+        "Error & Exception Exposure": "6.15%",
         "Hardcoded Payload Artifacts": "0.0%",
         "Instability Exposure": "50.0%",
         "Specification Exposure": "0.0%",
-        "State Flux Exposure": "6.01%",
-        "Tech Debt Exposure": "21.0%",
-        "Testing Exposure": "12.93%",
+        "State Flux Exposure": "5.74%",
+        "Tech Debt Exposure": "20.09%",
+        "Testing Exposure": "12.47%",
         "Volatility Exposure": "0.0%"
       },
-      "Directory Group Magnitude": 665.26,
+      "Directory Group Magnitude": 681.5,
       "Ecosystem Fingerprint (Archetypes)": {
-        "file_cluster_0": "40.9%",
-        "file_cluster_11": "13.6%",
-        "file_cluster_13": "4.5%",
-        "file_cluster_15": "27.3%",
-        "file_cluster_2": "13.6%"
+        "file_cluster_0": "39.1%",
+        "file_cluster_11": "13.0%",
+        "file_cluster_13": "4.3%",
+        "file_cluster_15": "26.1%",
+        "file_cluster_17": "4.3%",
+        "file_cluster_2": "13.0%"
       },
-      "File Count": 22,
+      "File Count": 23,
       "Files": [
         "ada/functional/functional-either.adb",
         "ada/functional/functional-either.ads",
@@ -185,6 +186,7 @@
         "ada/functional/functional-try.adb",
         "ada/functional/functional-try.ads",
         "ada/functional/functional.ads",
+        "ada/functional/functional_tests_config.ads",
         "ada/functional/test_framework.adb",
         "ada/functional/test_framework.ads",
         "ada/functional/test_try_map_to_result.adb"
@@ -1406,30 +1408,57 @@
     },
     "c/sqlite": {
       "Average Risk Exposures": {
-        "API Exposure": "2.81%",
-        "Cognitive Load Exposure": "29.87%",
-        "Commented Logic Exposure": "1.79%",
+        "API Exposure": "2.11%",
+        "Cognitive Load Exposure": "44.71%",
+        "Commented Logic Exposure": "1.35%",
         "Concurrency Exposure": "0.0%",
-        "Documentation Exposure": "16.53%",
-        "Error & Exception Exposure": "33.28%",
+        "Documentation Exposure": "24.89%",
+        "Error & Exception Exposure": "48.86%",
         "Hardcoded Payload Artifacts": "0.0%",
-        "Instability Exposure": "16.67%",
+        "Instability Exposure": "25.0%",
         "Specification Exposure": "0.0%",
-        "State Flux Exposure": "33.33%",
-        "Tech Debt Exposure": "2.68%",
-        "Testing Exposure": "26.67%",
+        "State Flux Exposure": "50.0%",
+        "Tech Debt Exposure": "2.01%",
+        "Testing Exposure": "40.0%",
         "Volatility Exposure": "0.0%"
       },
-      "Directory Group Magnitude": 8048.88,
+      "Directory Group Magnitude": 9289.08,
       "Ecosystem Fingerprint (Archetypes)": {
-        "Static: Literature & Documentation": "66.7%",
-        "file_cluster_6": "33.3%"
+        "Static: Literature & Documentation": "50.0%",
+        "file_cluster_15": "25.0%",
+        "file_cluster_6": "25.0%"
       },
-      "File Count": 3,
+      "File Count": 4,
       "Files": [
         "c/sqlite/LICENSE.md",
         "c/sqlite/README.md",
-        "c/sqlite/lemon.c"
+        "c/sqlite/lemon.c",
+        "c/sqlite/parse.y"
+      ]
+    },
+    "cobol": {
+      "Average Risk Exposures": {
+        "API Exposure": "0.0%",
+        "Cognitive Load Exposure": "0.0%",
+        "Commented Logic Exposure": "0.0%",
+        "Concurrency Exposure": "0.0%",
+        "Documentation Exposure": "0.0%",
+        "Error & Exception Exposure": "0.0%",
+        "Hardcoded Payload Artifacts": "0.0%",
+        "Instability Exposure": "0.0%",
+        "Specification Exposure": "0.0%",
+        "State Flux Exposure": "0.0%",
+        "Tech Debt Exposure": "0.0%",
+        "Testing Exposure": "0.0%",
+        "Volatility Exposure": "0.0%"
+      },
+      "Directory Group Magnitude": 1.48,
+      "Ecosystem Fingerprint (Archetypes)": {
+        "Static: Literature & Documentation": "100.0%"
+      },
+      "File Count": 1,
+      "Files": [
+        "cobol/SOURCES.md"
       ]
     },
     "cobol/CICS-Cobol": {
@@ -3784,6 +3813,31 @@
         "go/kubernetes_kubectl_tls/create_secret_tls_test.go"
       ]
     },
+    "groovy": {
+      "Average Risk Exposures": {
+        "API Exposure": "0.0%",
+        "Cognitive Load Exposure": "0.0%",
+        "Commented Logic Exposure": "0.0%",
+        "Concurrency Exposure": "0.0%",
+        "Documentation Exposure": "0.0%",
+        "Error & Exception Exposure": "0.0%",
+        "Hardcoded Payload Artifacts": "0.0%",
+        "Instability Exposure": "0.0%",
+        "Specification Exposure": "0.0%",
+        "State Flux Exposure": "0.0%",
+        "Tech Debt Exposure": "0.0%",
+        "Testing Exposure": "0.0%",
+        "Volatility Exposure": "0.0%"
+      },
+      "Directory Group Magnitude": 1.0,
+      "Ecosystem Fingerprint (Archetypes)": {
+        "Static: Literature & Documentation": "100.0%"
+      },
+      "File Count": 1,
+      "Files": [
+        "groovy/SOURCES.md"
+      ]
+    },
     "groovy/fineract_gradle_plugin": {
       "Average Risk Exposures": {
         "API Exposure": "0.0%",
@@ -5639,6 +5693,31 @@
         "javascript/threejs/WebGLRenderer.js"
       ]
     },
+    "jcl": {
+      "Average Risk Exposures": {
+        "API Exposure": "0.0%",
+        "Cognitive Load Exposure": "0.0%",
+        "Commented Logic Exposure": "0.0%",
+        "Concurrency Exposure": "0.0%",
+        "Documentation Exposure": "0.0%",
+        "Error & Exception Exposure": "0.0%",
+        "Hardcoded Payload Artifacts": "0.0%",
+        "Instability Exposure": "0.0%",
+        "Specification Exposure": "0.0%",
+        "State Flux Exposure": "0.0%",
+        "Tech Debt Exposure": "0.0%",
+        "Testing Exposure": "0.0%",
+        "Volatility Exposure": "0.0%"
+      },
+      "Directory Group Magnitude": 1.0,
+      "Ecosystem Fingerprint (Archetypes)": {
+        "Static: Literature & Documentation": "100.0%"
+      },
+      "File Count": 1,
+      "Files": [
+        "jcl/SOURCES.md"
+      ]
+    },
     "jcl/cash-account-cobol": {
       "Average Risk Exposures": {
         "API Exposure": "0.0%",
@@ -6513,30 +6592,30 @@
     },
     "lua/redis": {
       "Average Risk Exposures": {
-        "API Exposure": "3.57%",
-        "Cognitive Load Exposure": "20.87%",
-        "Commented Logic Exposure": "2.68%",
-        "Concurrency Exposure": "2.54%",
-        "Documentation Exposure": "42.86%",
-        "Error & Exception Exposure": "48.96%",
+        "API Exposure": "3.66%",
+        "Cognitive Load Exposure": "22.15%",
+        "Commented Logic Exposure": "2.56%",
+        "Concurrency Exposure": "6.54%",
+        "Documentation Exposure": "45.45%",
+        "Error & Exception Exposure": "50.29%",
         "Hardcoded Payload Artifacts": "0.0%",
-        "Instability Exposure": "45.24%",
+        "Instability Exposure": "45.45%",
         "Specification Exposure": "0.0%",
-        "State Flux Exposure": "44.57%",
-        "Tech Debt Exposure": "4.62%",
-        "Testing Exposure": "2.23%",
+        "State Flux Exposure": "47.05%",
+        "Tech Debt Exposure": "4.41%",
+        "Testing Exposure": "2.24%",
         "Volatility Exposure": "0.0%"
       },
-      "Directory Group Magnitude": 389.76,
+      "Directory Group Magnitude": 421.5,
       "Ecosystem Fingerprint (Archetypes)": {
-        "Static: Literature & Documentation": "9.5%",
-        "file_cluster_10": "19.0%",
-        "file_cluster_14": "14.3%",
-        "file_cluster_15": "19.0%",
-        "file_cluster_2": "28.6%",
-        "file_cluster_7": "9.5%"
+        "Static: Literature & Documentation": "9.1%",
+        "file_cluster_10": "22.7%",
+        "file_cluster_14": "13.6%",
+        "file_cluster_15": "18.2%",
+        "file_cluster_2": "27.3%",
+        "file_cluster_7": "9.1%"
       },
-      "File Count": 21,
+      "File Count": 22,
       "Files": [
         "lua/redis/COPYRIGHT",
         "lua/redis/README",
@@ -6553,6 +6632,7 @@
         "lua/redis/luac.lua",
         "lua/redis/printf.lua",
         "lua/redis/readonly.lua",
+        "lua/redis/sieve.lua",
         "lua/redis/sort.lua",
         "lua/redis/strict.lua",
         "lua/redis/table.lua",
@@ -8008,31 +8088,31 @@
     },
     "powershell/runtime": {
       "Average Risk Exposures": {
-        "API Exposure": "0.57%",
-        "Cognitive Load Exposure": "29.72%",
-        "Commented Logic Exposure": "1.7%",
+        "API Exposure": "0.55%",
+        "Cognitive Load Exposure": "31.24%",
+        "Commented Logic Exposure": "2.05%",
         "Concurrency Exposure": "0.0%",
-        "Documentation Exposure": "29.43%",
-        "Error & Exception Exposure": "67.27%",
+        "Documentation Exposure": "32.14%",
+        "Error & Exception Exposure": "68.49%",
         "Hardcoded Payload Artifacts": "0.0%",
-        "Instability Exposure": "48.0%",
+        "Instability Exposure": "48.08%",
         "Specification Exposure": "0.0%",
-        "State Flux Exposure": "69.22%",
-        "Tech Debt Exposure": "1.38%",
-        "Testing Exposure": "8.44%",
+        "State Flux Exposure": "70.41%",
+        "Tech Debt Exposure": "1.33%",
+        "Testing Exposure": "8.2%",
         "Volatility Exposure": "0.0%"
       },
-      "Directory Group Magnitude": 1245.62,
+      "Directory Group Magnitude": 1324.2,
       "Ecosystem Fingerprint (Archetypes)": {
-        "Static: Literature & Documentation": "4.0%",
-        "file_cluster_10": "48.0%",
-        "file_cluster_12": "4.0%",
-        "file_cluster_2": "32.0%",
-        "file_cluster_3": "4.0%",
-        "file_cluster_6": "4.0%",
-        "file_cluster_9": "4.0%"
+        "Static: Literature & Documentation": "3.8%",
+        "file_cluster_10": "50.0%",
+        "file_cluster_12": "3.8%",
+        "file_cluster_2": "30.8%",
+        "file_cluster_3": "3.8%",
+        "file_cluster_6": "3.8%",
+        "file_cluster_9": "3.8%"
       },
-      "File Count": 25,
+      "File Count": 26,
       "Files": [
         "powershell/runtime/Build-IssueComment.ps1",
         "powershell/runtime/Build-Local.ps1",
@@ -8057,6 +8137,7 @@
         "powershell/runtime/generateredefinesfile.ps1",
         "powershell/runtime/generateversionscript.ps1",
         "powershell/runtime/getRefPackFolderFromArtifacts.ps1",
+        "powershell/runtime/processrc.ps1",
         "powershell/runtime/run-benchmark.ps1",
         "powershell/runtime/update-machine-certs.ps1"
       ]
@@ -8768,35 +8849,35 @@
     },
     "python/numpy": {
       "Average Risk Exposures": {
-        "API Exposure": "14.46%",
-        "Cognitive Load Exposure": "34.89%",
-        "Commented Logic Exposure": "5.45%",
+        "API Exposure": "14.06%",
+        "Cognitive Load Exposure": "34.71%",
+        "Commented Logic Exposure": "5.43%",
         "Concurrency Exposure": "0.0%",
-        "Documentation Exposure": "31.06%",
-        "Error & Exception Exposure": "72.22%",
+        "Documentation Exposure": "31.55%",
+        "Error & Exception Exposure": "72.84%",
         "Hardcoded Payload Artifacts": "0.0%",
-        "Instability Exposure": "44.44%",
+        "Instability Exposure": "44.74%",
         "Specification Exposure": "0.0%",
-        "State Flux Exposure": "72.04%",
-        "Tech Debt Exposure": "15.76%",
-        "Testing Exposure": "40.92%",
+        "State Flux Exposure": "73.51%",
+        "Tech Debt Exposure": "15.37%",
+        "Testing Exposure": "42.98%",
         "Volatility Exposure": "0.0%"
       },
-      "Directory Group Magnitude": 16570.06,
+      "Directory Group Magnitude": 17186.78,
       "Ecosystem Fingerprint (Archetypes)": {
-        "Static: Literature & Documentation": "11.1%",
-        "Unclassified": "5.6%",
-        "file_cluster_11": "5.6%",
-        "file_cluster_12": "33.3%",
-        "file_cluster_2": "5.6%",
-        "file_cluster_3": "5.6%",
-        "file_cluster_4": "11.1%",
-        "file_cluster_6": "5.6%",
-        "file_cluster_7": "5.6%",
-        "file_cluster_8": "5.6%",
-        "file_cluster_9": "5.6%"
+        "Static: Literature & Documentation": "10.5%",
+        "Unclassified": "5.3%",
+        "file_cluster_11": "5.3%",
+        "file_cluster_12": "31.6%",
+        "file_cluster_2": "5.3%",
+        "file_cluster_3": "5.3%",
+        "file_cluster_4": "10.5%",
+        "file_cluster_6": "10.5%",
+        "file_cluster_7": "5.3%",
+        "file_cluster_8": "5.3%",
+        "file_cluster_9": "5.3%"
       },
-      "File Count": 18,
+      "File Count": 19,
       "Files": [
         "python/numpy/LICENSE.txt",
         "python/numpy/__init__.py",
@@ -8809,6 +8890,7 @@
         "python/numpy/genapi.py",
         "python/numpy/generate_numpy_api.py",
         "python/numpy/generate_ufunc_api.py",
+        "python/numpy/generate_umath.py",
         "python/numpy/generate_umath_doc.py",
         "python/numpy/lapack_litemodule.c",
         "python/numpy/numpy_api.py",
@@ -9532,30 +9614,32 @@
     },
     "rust/wasmtime": {
       "Average Risk Exposures": {
-        "API Exposure": "7.1%",
-        "Cognitive Load Exposure": "10.13%",
-        "Commented Logic Exposure": "6.32%",
-        "Concurrency Exposure": "8.52%",
-        "Documentation Exposure": "81.48%",
-        "Error & Exception Exposure": "45.95%",
+        "API Exposure": "7.89%",
+        "Cognitive Load Exposure": "9.26%",
+        "Commented Logic Exposure": "6.06%",
+        "Concurrency Exposure": "6.82%",
+        "Documentation Exposure": "71.3%",
+        "Error & Exception Exposure": "47.71%",
         "Hardcoded Payload Artifacts": "0.0%",
         "Instability Exposure": "50.0%",
         "Specification Exposure": "0.0%",
-        "State Flux Exposure": "38.44%",
-        "Tech Debt Exposure": "74.25%",
-        "Testing Exposure": "60.58%",
+        "State Flux Exposure": "37.69%",
+        "Tech Debt Exposure": "70.98%",
+        "Testing Exposure": "64.47%",
         "Volatility Exposure": "0.0%"
       },
-      "Directory Group Magnitude": 3766.88,
+      "Directory Group Magnitude": 4255.06,
       "Ecosystem Fingerprint (Archetypes)": {
-        "file_cluster_0": "50.0%",
-        "file_cluster_13": "25.0%",
-        "file_cluster_6": "25.0%"
+        "file_cluster_0": "40.0%",
+        "file_cluster_13": "20.0%",
+        "file_cluster_5": "20.0%",
+        "file_cluster_6": "20.0%"
       },
-      "File Count": 4,
+      "File Count": 5,
       "Files": [
         "rust/wasmtime/wasmtime_component_macro.rs",
         "rust/wasmtime/wasmtime_instance.rs",
+        "rust/wasmtime/wasmtime_ir_instructions.rs",
         "rust/wasmtime/wasmtime_isle_parser.rs",
         "rust/wasmtime/wasmtime_pulley_interp.rs"
       ]
@@ -9892,34 +9976,35 @@
     },
     "shell/freebsd-src": {
       "Average Risk Exposures": {
-        "API Exposure": "0.83%",
-        "Cognitive Load Exposure": "23.25%",
-        "Commented Logic Exposure": "0.58%",
-        "Concurrency Exposure": "14.74%",
-        "Documentation Exposure": "85.19%",
-        "Error & Exception Exposure": "67.68%",
+        "API Exposure": "0.8%",
+        "Cognitive Load Exposure": "23.44%",
+        "Commented Logic Exposure": "0.56%",
+        "Concurrency Exposure": "14.21%",
+        "Documentation Exposure": "82.14%",
+        "Error & Exception Exposure": "68.79%",
         "Hardcoded Payload Artifacts": "0.0%",
-        "Instability Exposure": "48.15%",
+        "Instability Exposure": "48.21%",
         "Specification Exposure": "0.0%",
-        "State Flux Exposure": "51.34%",
-        "Tech Debt Exposure": "71.79%",
-        "Testing Exposure": "3.42%",
+        "State Flux Exposure": "53.05%",
+        "Tech Debt Exposure": "69.23%",
+        "Testing Exposure": "3.39%",
         "Volatility Exposure": "0.0%"
       },
-      "Directory Group Magnitude": 1543.24,
+      "Directory Group Magnitude": 1566.3,
       "Ecosystem Fingerprint (Archetypes)": {
-        "Static: Literature & Documentation": "3.7%",
-        "file_cluster_11": "22.2%",
-        "file_cluster_12": "22.2%",
-        "file_cluster_14": "22.2%",
-        "file_cluster_2": "14.8%",
-        "file_cluster_7": "14.8%"
+        "Static: Literature & Documentation": "3.6%",
+        "file_cluster_11": "21.4%",
+        "file_cluster_12": "21.4%",
+        "file_cluster_14": "25.0%",
+        "file_cluster_2": "14.3%",
+        "file_cluster_7": "14.3%"
       },
-      "File Count": 27,
+      "File Count": 28,
       "Files": [
         "shell/freebsd-src/COPYRIGHT",
         "shell/freebsd-src/chflags_test.sh",
         "shell/freebsd-src/chmod_test.sh",
+        "shell/freebsd-src/ckscripts.sh",
         "shell/freebsd-src/cp_test.sh",
         "shell/freebsd-src/ctfconvert_test.sh",
         "shell/freebsd-src/dd2_test.sh",
@@ -10026,27 +10111,27 @@
     },
     "shell/illumos-gate": {
       "Average Risk Exposures": {
-        "API Exposure": "0.41%",
-        "Cognitive Load Exposure": "28.58%",
-        "Commented Logic Exposure": "7.03%",
-        "Concurrency Exposure": "0.72%",
-        "Documentation Exposure": "25.0%",
-        "Error & Exception Exposure": "79.74%",
+        "API Exposure": "0.4%",
+        "Cognitive Load Exposure": "29.92%",
+        "Commented Logic Exposure": "7.18%",
+        "Concurrency Exposure": "0.69%",
+        "Documentation Exposure": "24.0%",
+        "Error & Exception Exposure": "80.53%",
         "Hardcoded Payload Artifacts": "0.0%",
         "Instability Exposure": "50.0%",
         "Specification Exposure": "0.0%",
-        "State Flux Exposure": "68.21%",
+        "State Flux Exposure": "69.49%",
         "Tech Debt Exposure": "0.0%",
-        "Testing Exposure": "8.91%",
+        "Testing Exposure": "8.65%",
         "Volatility Exposure": "0.0%"
       },
-      "Directory Group Magnitude": 878.84,
+      "Directory Group Magnitude": 964.38,
       "Ecosystem Fingerprint (Archetypes)": {
-        "file_cluster_14": "66.7%",
-        "file_cluster_2": "16.7%",
-        "file_cluster_7": "16.7%"
+        "file_cluster_14": "68.0%",
+        "file_cluster_2": "16.0%",
+        "file_cluster_7": "16.0%"
       },
-      "File Count": 24,
+      "File Count": 25,
       "Files": [
         "shell/illumos-gate/Run.sh",
         "shell/illumos-gate/acct.sh",
@@ -10066,6 +10151,7 @@
         "shell/illumos-gate/exportfs.sh",
         "shell/illumos-gate/ikecert.sh",
         "shell/illumos-gate/illumos_13434_chunked_heredoc.sh",
+        "shell/illumos-gate/inetd-upgrade.sh",
         "shell/illumos-gate/mkerror.sh",
         "shell/illumos-gate/newvers.sh",
         "shell/illumos-gate/nfsfind.sh",
@@ -10145,7 +10231,7 @@
         "Specification Exposure": "0.0%",
         "State Flux Exposure": "51.28%",
         "Tech Debt Exposure": "0.0%",
-        "Testing Exposure": "5.68%",
+        "Testing Exposure": "5.69%",
         "Volatility Exposure": "0.0%"
       },
       "Directory Group Magnitude": 724.38,
@@ -10268,29 +10354,29 @@
     },
     "shell/serenity": {
       "Average Risk Exposures": {
-        "API Exposure": "0.96%",
-        "Cognitive Load Exposure": "13.4%",
+        "API Exposure": "1.07%",
+        "Cognitive Load Exposure": "13.67%",
         "Commented Logic Exposure": "0.0%",
-        "Concurrency Exposure": "5.57%",
-        "Documentation Exposure": "65.22%",
-        "Error & Exception Exposure": "78.84%",
+        "Concurrency Exposure": "5.33%",
+        "Documentation Exposure": "66.67%",
+        "Error & Exception Exposure": "79.54%",
         "Hardcoded Payload Artifacts": "0.0%",
         "Instability Exposure": "50.0%",
         "Specification Exposure": "0.0%",
-        "State Flux Exposure": "90.37%",
-        "Tech Debt Exposure": "56.59%",
-        "Testing Exposure": "2.36%",
+        "State Flux Exposure": "90.43%",
+        "Tech Debt Exposure": "54.23%",
+        "Testing Exposure": "2.37%",
         "Volatility Exposure": "0.0%"
       },
-      "Directory Group Magnitude": 503.14,
+      "Directory Group Magnitude": 524.34,
       "Ecosystem Fingerprint (Archetypes)": {
-        "file_cluster_11": "34.8%",
-        "file_cluster_12": "8.7%",
-        "file_cluster_14": "8.7%",
-        "file_cluster_2": "34.8%",
-        "file_cluster_7": "13.0%"
+        "file_cluster_11": "33.3%",
+        "file_cluster_12": "8.3%",
+        "file_cluster_14": "12.5%",
+        "file_cluster_2": "33.3%",
+        "file_cluster_7": "12.5%"
       },
-      "File Count": 23,
+      "File Count": 24,
       "Files": [
         "shell/serenity/BuildFuzzers.sh",
         "shell/serenity/ClassiCube__package.sh",
@@ -10312,6 +10398,7 @@
         "shell/serenity/analyze-qemu-coverage.sh",
         "shell/serenity/builtin.sh",
         "shell/serenity/embedmap.sh",
+        "shell/serenity/generate_manpages.sh",
         "shell/serenity/install.sh",
         "shell/serenity/package.sh",
         "shell/serenity/run-tests-and-shutdown.sh"
@@ -11122,6 +11209,31 @@
         "tabular/tsv_genomics/B.cell_eQTL.tsv"
       ]
     },
+    "tcl": {
+      "Average Risk Exposures": {
+        "API Exposure": "0.0%",
+        "Cognitive Load Exposure": "0.0%",
+        "Commented Logic Exposure": "0.0%",
+        "Concurrency Exposure": "0.0%",
+        "Documentation Exposure": "0.0%",
+        "Error & Exception Exposure": "0.0%",
+        "Hardcoded Payload Artifacts": "0.0%",
+        "Instability Exposure": "0.0%",
+        "Specification Exposure": "0.0%",
+        "State Flux Exposure": "0.0%",
+        "Tech Debt Exposure": "0.0%",
+        "Testing Exposure": "0.0%",
+        "Volatility Exposure": "0.0%"
+      },
+      "Directory Group Magnitude": 1.0,
+      "Ecosystem Fingerprint (Archetypes)": {
+        "Static: Literature & Documentation": "100.0%"
+      },
+      "File Count": 1,
+      "Files": [
+        "tcl/SOURCES.md"
+      ]
+    },
     "tcl/macports_port_api": {
       "Average Risk Exposures": {
         "API Exposure": "10.41%",
@@ -11807,27 +11919,28 @@
     },
     "typescript/typescript_compiler": {
       "Average Risk Exposures": {
-        "API Exposure": "2.9%",
-        "Cognitive Load Exposure": "26.11%",
-        "Commented Logic Exposure": "3.14%",
+        "API Exposure": "1.93%",
+        "Cognitive Load Exposure": "17.41%",
+        "Commented Logic Exposure": "2.1%",
         "Concurrency Exposure": "0.0%",
-        "Documentation Exposure": "45.33%",
-        "Error & Exception Exposure": "41.98%",
+        "Documentation Exposure": "30.22%",
+        "Error & Exception Exposure": "27.99%",
         "Hardcoded Payload Artifacts": "0.0%",
-        "Instability Exposure": "25.0%",
+        "Instability Exposure": "16.67%",
         "Specification Exposure": "0.0%",
-        "State Flux Exposure": "49.95%",
-        "Tech Debt Exposure": "4.17%",
-        "Testing Exposure": "40.0%",
+        "State Flux Exposure": "33.3%",
+        "Tech Debt Exposure": "2.78%",
+        "Testing Exposure": "26.67%",
         "Volatility Exposure": "0.0%"
       },
-      "Directory Group Magnitude": 2957.68,
+      "Directory Group Magnitude": 2958.8,
       "Ecosystem Fingerprint (Archetypes)": {
-        "Static: Literature & Documentation": "50.0%",
-        "file_cluster_4": "50.0%"
+        "Static: Literature & Documentation": "66.7%",
+        "file_cluster_4": "33.3%"
       },
-      "File Count": 2,
+      "File Count": 3,
       "Files": [
+        "typescript/typescript_compiler/LICENSE.txt",
         "typescript/typescript_compiler/binder.ts",
         "typescript/typescript_compiler/package.json"
       ]

@@ -66,6 +66,7 @@
       "ada/functional/functional-try.adb": "Spaces",
       "ada/functional/functional-try.ads": "Spaces",
       "ada/functional/functional.ads": "Neutral / No Indentation",
+      "ada/functional/functional_tests_config.ads": "Spaces",
       "ada/functional/test_framework.adb": "Spaces",
       "ada/functional/test_framework.ads": "Spaces",
       "ada/functional/test_try_map_to_result.adb": "Spaces"
@@ -459,7 +460,11 @@
     "c/sqlite": {
       "c/sqlite/LICENSE.md": "Neutral / No Indentation",
       "c/sqlite/README.md": "Neutral / No Indentation",
-      "c/sqlite/lemon.c": "Spaces"
+      "c/sqlite/lemon.c": "Spaces",
+      "c/sqlite/parse.y": "Spaces"
+    },
+    "cobol": {
+      "cobol/SOURCES.md": "Neutral / No Indentation"
     },
     "cobol/CICS-Cobol": {
       "cobol/CICS-Cobol/CBL0102v01DivisionAmbiente.cbl": "Spaces",
@@ -1387,6 +1392,9 @@
     "go/kubernetes_kubectl_tls": {
       "go/kubernetes_kubectl_tls/create_secret_tls_test.go": "Tabs"
     },
+    "groovy": {
+      "groovy/SOURCES.md": "Neutral / No Indentation"
+    },
     "groovy/fineract_gradle_plugin": {
       "groovy/fineract_gradle_plugin/LICENSE_RELEASE": "Neutral / No Indentation",
       "groovy/fineract_gradle_plugin/org_apache_fineract_gradle_FineractPluginExtension.groovy": "Spaces",
@@ -1962,6 +1970,9 @@
       "javascript/threejs/WebGLProgram.js": "Tabs",
       "javascript/threejs/WebGLRenderer.js": "Tabs"
     },
+    "jcl": {
+      "jcl/SOURCES.md": "Neutral / No Indentation"
+    },
     "jcl/cash-account-cobol": {
       "jcl/cash-account-cobol/DB2BIND.jcl": "Spaces",
       "jcl/cash-account-cobol/DB2DDL.jcl": "Spaces",
@@ -2407,6 +2418,7 @@
       "lua/redis/luac.lua": "Neutral / No Indentation",
       "lua/redis/printf.lua": "Neutral / No Indentation",
       "lua/redis/readonly.lua": "Neutral / No Indentation",
+      "lua/redis/sieve.lua": "Spaces",
       "lua/redis/sort.lua": "Spaces",
       "lua/redis/strict.lua": "Spaces",
       "lua/redis/table.lua": "Neutral / No Indentation",
@@ -2772,6 +2784,7 @@
       "powershell/runtime/generateredefinesfile.ps1": "Spaces",
       "powershell/runtime/generateversionscript.ps1": "Spaces",
       "powershell/runtime/getRefPackFolderFromArtifacts.ps1": "Spaces",
+      "powershell/runtime/processrc.ps1": "Spaces",
       "powershell/runtime/run-benchmark.ps1": "Neutral / No Indentation",
       "powershell/runtime/update-machine-certs.ps1": "Spaces"
     },
@@ -3090,6 +3103,7 @@
       "python/numpy/genapi.py": "Spaces",
       "python/numpy/generate_numpy_api.py": "Spaces",
       "python/numpy/generate_ufunc_api.py": "Spaces",
+      "python/numpy/generate_umath.py": "Spaces",
       "python/numpy/generate_umath_doc.py": "Spaces",
       "python/numpy/lapack_litemodule.c": "Spaces",
       "python/numpy/numpy_api.py": "Spaces",
@@ -3262,6 +3276,7 @@
     "rust/wasmtime": {
       "rust/wasmtime/wasmtime_component_macro.rs": "Spaces",
       "rust/wasmtime/wasmtime_instance.rs": "Spaces",
+      "rust/wasmtime/wasmtime_ir_instructions.rs": "Spaces",
       "rust/wasmtime/wasmtime_isle_parser.rs": "Spaces",
       "rust/wasmtime/wasmtime_pulley_interp.rs": "Spaces"
     },
@@ -3376,6 +3391,7 @@
       "shell/freebsd-src/COPYRIGHT": "Neutral / No Indentation",
       "shell/freebsd-src/chflags_test.sh": "Tabs",
       "shell/freebsd-src/chmod_test.sh": "Tabs",
+      "shell/freebsd-src/ckscripts.sh": "Tabs",
       "shell/freebsd-src/cp_test.sh": "Tabs",
       "shell/freebsd-src/ctfconvert_test.sh": "Tabs",
       "shell/freebsd-src/dd2_test.sh": "Tabs",
@@ -3448,6 +3464,7 @@
       "shell/illumos-gate/exportfs.sh": "Tabs",
       "shell/illumos-gate/ikecert.sh": "Tabs",
       "shell/illumos-gate/illumos_13434_chunked_heredoc.sh": "Tabs",
+      "shell/illumos-gate/inetd-upgrade.sh": "Mixed (1.3% Spaces / 98.7% Tabs)",
       "shell/illumos-gate/mkerror.sh": "Mixed (12.5% Spaces / 87.5% Tabs)",
       "shell/illumos-gate/newvers.sh": "Neutral / No Indentation",
       "shell/illumos-gate/nfsfind.sh": "Mixed (33.3% Spaces / 66.7% Tabs)",
@@ -3565,6 +3582,7 @@
       "shell/serenity/analyze-qemu-coverage.sh": "Spaces",
       "shell/serenity/builtin.sh": "Spaces",
       "shell/serenity/embedmap.sh": "Neutral / No Indentation",
+      "shell/serenity/generate_manpages.sh": "Spaces",
       "shell/serenity/install.sh": "Spaces",
       "shell/serenity/package.sh": "Spaces",
       "shell/serenity/run-tests-and-shutdown.sh": "Spaces"
@@ -3754,6 +3772,9 @@
     "tabular/tsv_genomics": {
       "tabular/tsv_genomics/B.cell_eQTL.tsv": "Neutral / No Indentation"
     },
+    "tcl": {
+      "tcl/SOURCES.md": "Neutral / No Indentation"
+    },
     "tcl/macports_port_api": {
       "tcl/macports_port_api/fetch_common.tcl": "Spaces",
       "tcl/macports_port_api/library.tcl": "Spaces",
@@ -3881,6 +3902,7 @@
       "typescript/playwright/protocol.ts": "Spaces"
     },
     "typescript/typescript_compiler": {
+      "typescript/typescript_compiler/LICENSE.txt": "Neutral / No Indentation",
       "typescript/typescript_compiler/binder.ts": "Spaces",
       "typescript/typescript_compiler/package.json": "Neutral / No Indentation"
     },

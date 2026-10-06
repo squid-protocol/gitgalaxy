@@ -36,14 +36,6 @@
       "Size": "2316 bytes"
     },
     {
-      "Diagnostic Reason": "Blocked (Machine-Generated Source Code Signature: 21 LOC)",
-      "Discovery Proof": "Radar Scan",
-      "Forensic Category": "Excluded Artifact",
-      "Identity Confidence": "0.0%",
-      "Path": "ada/functional/functional_tests_config.ads",
-      "Size": "597 bytes"
-    },
-    {
       "Diagnostic Reason": "Blocked (System Exclusion, Hidden Directory, or Dynamic Ignored Dir)",
       "Discovery Proof": "Radar Scan",
       "Forensic Category": "Excluded Artifact",
@@ -252,28 +244,12 @@
       "Size": "3389 bytes"
     },
     {
-      "Diagnostic Reason": "Blocked (Machine-Generated Source Code Signature: 2161 LOC)",
-      "Discovery Proof": "Radar Scan",
-      "Forensic Category": "Excluded Artifact",
-      "Identity Confidence": "0.0%",
-      "Path": "c/sqlite/parse.y",
-      "Size": "76434 bytes"
-    },
-    {
       "Diagnostic Reason": "Blocked (System Exclusion, Hidden Directory, or Dynamic Ignored Dir)",
       "Discovery Proof": "Radar Scan",
       "Forensic Category": "Excluded Artifact",
       "Identity Confidence": "0.0%",
       "Path": "cobol/CICS-Cobol/LICENSE",
       "Size": "18092 bytes"
-    },
-    {
-      "Diagnostic Reason": "Blocked (Machine-Generated Source Code Signature: 74 LOC)",
-      "Discovery Proof": "Radar Scan",
-      "Forensic Category": "Excluded Artifact",
-      "Identity Confidence": "0.0%",
-      "Path": "cobol/SOURCES.md",
-      "Size": "9144 bytes"
     },
     {
       "Diagnostic Reason": "Blocked (System Exclusion, Hidden Directory, or Dynamic Ignored Dir)",
@@ -796,14 +772,6 @@
       "Size": "11358 bytes"
     },
     {
-      "Diagnostic Reason": "Blocked (Machine-Generated Source Code Signature: 39 LOC)",
-      "Discovery Proof": "Radar Scan",
-      "Forensic Category": "Excluded Artifact",
-      "Identity Confidence": "0.0%",
-      "Path": "groovy/SOURCES.md",
-      "Size": "6283 bytes"
-    },
-    {
       "Diagnostic Reason": "Blocked (System Exclusion, Hidden Directory, or Dynamic Ignored Dir)",
       "Discovery Proof": "Radar Scan",
       "Forensic Category": "Excluded Artifact",
@@ -1020,14 +988,6 @@
       "Size": "1081 bytes"
     },
     {
-      "Diagnostic Reason": "Blocked (Machine-Generated Source Code Signature: 48 LOC)",
-      "Discovery Proof": "Radar Scan",
-      "Forensic Category": "Excluded Artifact",
-      "Identity Confidence": "0.0%",
-      "Path": "jcl/SOURCES.md",
-      "Size": "3748 bytes"
-    },
-    {
       "Diagnostic Reason": "Blocked (System Exclusion, Hidden Directory, or Dynamic Ignored Dir)",
       "Discovery Proof": "Radar Scan",
       "Forensic Category": "Excluded Artifact",
@@ -1122,14 +1082,6 @@
       "Identity Confidence": "0.0%",
       "Path": "lua/darwin-xnu/LICENSE",
       "Size": "19829 bytes"
-    },
-    {
-      "Diagnostic Reason": "Blocked (Machine-Generated Source Code Signature: 30 LOC)",
-      "Discovery Proof": "Radar Scan",
-      "Forensic Category": "Excluded Artifact",
-      "Identity Confidence": "0.0%",
-      "Path": "lua/redis/sieve.lua",
-      "Size": "774 bytes"
     },
     {
       "Diagnostic Reason": "Blocked (Unsupported Extension: '.am')",
@@ -1340,14 +1292,6 @@
       "Size": "1120 bytes"
     },
     {
-      "Diagnostic Reason": "Blocked (Machine-Generated Source Code Signature: 99 LOC)",
-      "Discovery Proof": "Radar Scan",
-      "Forensic Category": "Excluded Artifact",
-      "Identity Confidence": "0.0%",
-      "Path": "powershell/runtime/processrc.ps1",
-      "Size": "3191 bytes"
-    },
-    {
       "Diagnostic Reason": "Blocked (System Exclusion, Hidden Directory, or Dynamic Ignored Dir)",
       "Discovery Proof": "Radar Scan",
       "Forensic Category": "Excluded Artifact",
@@ -1492,14 +1436,6 @@
       "Size": "9874 bytes"
     },
     {
-      "Diagnostic Reason": "Blocked (Machine-Generated Source Code Signature: 1695 LOC)",
-      "Discovery Proof": "Radar Scan",
-      "Forensic Category": "Excluded Artifact",
-      "Identity Confidence": "0.0%",
-      "Path": "python/numpy/generate_umath.py",
-      "Size": "55081 bytes"
-    },
-    {
       "Diagnostic Reason": "Blocked (Unsupported Extension: '.i')",
       "Discovery Proof": "Radar Scan",
       "Forensic Category": "Excluded Artifact",
@@ -1596,14 +1532,6 @@
       "Size": "12243 bytes"
     },
     {
-      "Diagnostic Reason": "Blocked (Machine-Generated Source Code Signature: 1541 LOC)",
-      "Discovery Proof": "Radar Scan",
-      "Forensic Category": "Excluded Artifact",
-      "Identity Confidence": "0.0%",
-      "Path": "rust/wasmtime/wasmtime_ir_instructions.rs",
-      "Size": "54752 bytes"
-    },
-    {
       "Diagnostic Reason": "Blocked (System Exclusion, Hidden Directory, or Dynamic Ignored Dir)",
       "Discovery Proof": "Radar Scan",
       "Forensic Category": "Excluded Artifact",
@@ -1644,14 +1572,6 @@
       "Size": "2327 bytes"
     },
     {
-      "Diagnostic Reason": "Blocked (Machine-Generated Source Code Signature: 37 LOC)",
-      "Discovery Proof": "Radar Scan",
-      "Forensic Category": "Excluded Artifact",
-      "Identity Confidence": "0.0%",
-      "Path": "shell/freebsd-src/ckscripts.sh",
-      "Size": "903 bytes"
-    },
-    {
       "Diagnostic Reason": "Blocked (Lexical Monotony: High structural repetition detected in 2116 LOC)",
       "Discovery Proof": "Radar Scan",
       "Forensic Category": "Excluded Artifact",
@@ -1674,14 +1594,6 @@
       "Identity Confidence": "0.0%",
       "Path": "shell/illumos-gate/OPENSOLARIS.LICENSE",
       "Size": "18924 bytes"
-    },
-    {
-      "Diagnostic Reason": "Blocked (Machine-Generated Source Code Signature: 203 LOC)",
-      "Discovery Proof": "Radar Scan",
-      "Forensic Category": "Excluded Artifact",
-      "Identity Confidence": "0.0%",
-      "Path": "shell/illumos-gate/inetd-upgrade.sh",
-      "Size": "5862 bytes"
     },
     {
       "Diagnostic Reason": "Blocked (System Exclusion, Hidden Directory, or Dynamic Ignored Dir)",
@@ -1780,14 +1692,6 @@
       "Size": "1341 bytes"
     },
     {
-      "Diagnostic Reason": "Blocked (Machine-Generated Source Code Signature: 50 LOC)",
-      "Discovery Proof": "Radar Scan",
-      "Forensic Category": "Excluded Artifact",
-      "Identity Confidence": "0.0%",
-      "Path": "shell/serenity/generate_manpages.sh",
-      "Size": "1172 bytes"
-    },
-    {
       "Diagnostic Reason": "Blocked (System Exclusion, Hidden Directory, or Dynamic Ignored Dir)",
       "Discovery Proof": "Radar Scan",
       "Forensic Category": "Excluded Artifact",
@@ -1858,14 +1762,6 @@
       "Identity Confidence": "0.0%",
       "Path": "tabular/tsv_genomics/gwas_sample.tsv",
       "Size": "8022 bytes"
-    },
-    {
-      "Diagnostic Reason": "Blocked (Machine-Generated Source Code Signature: 29 LOC)",
-      "Discovery Proof": "Radar Scan",
-      "Forensic Category": "Excluded Artifact",
-      "Identity Confidence": "0.0%",
-      "Path": "tcl/SOURCES.md",
-      "Size": "3689 bytes"
     },
     {
       "Diagnostic Reason": "Blocked (System Exclusion, Hidden Directory, or Dynamic Ignored Dir)",
@@ -2882,14 +2778,6 @@
       "Identity Confidence": "0.0%",
       "Path": "typescript/playwright/LICENSE",
       "Size": "11601 bytes"
-    },
-    {
-      "Diagnostic Reason": "Blocked (Machine-Generated Source Code Signature: 56 LOC)",
-      "Discovery Proof": "Radar Scan",
-      "Forensic Category": "Excluded Artifact",
-      "Identity Confidence": "0.0%",
-      "Path": "typescript/typescript_compiler/LICENSE.txt",
-      "Size": "9197 bytes"
     },
     {
       "Diagnostic Reason": "Blocked (Monolithic Amalgamation: 54435 LOC exceeds safe regex boundaries)",

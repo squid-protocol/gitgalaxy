@@ -66,6 +66,7 @@
       "ada/functional/functional-try.adb": "ada",
       "ada/functional/functional-try.ads": "ada",
       "ada/functional/functional.ads": "ada",
+      "ada/functional/functional_tests_config.ads": "ada",
       "ada/functional/test_framework.adb": "ada",
       "ada/functional/test_framework.ads": "ada",
       "ada/functional/test_try_map_to_result.adb": "ada"
@@ -459,7 +460,11 @@
     "c/sqlite": {
       "c/sqlite/LICENSE.md": "markdown",
       "c/sqlite/README.md": "markdown",
-      "c/sqlite/lemon.c": "markdown"
+      "c/sqlite/lemon.c": "markdown",
+      "c/sqlite/parse.y": "markdown"
+    },
+    "cobol": {
+      "cobol/SOURCES.md": "markdown"
     },
     "cobol/CICS-Cobol": {
       "cobol/CICS-Cobol/CBL0102v01DivisionAmbiente.cbl": "cobol",
@@ -1387,6 +1392,9 @@
     "go/kubernetes_kubectl_tls": {
       "go/kubernetes_kubectl_tls/create_secret_tls_test.go": "go"
     },
+    "groovy": {
+      "groovy/SOURCES.md": "markdown"
+    },
     "groovy/fineract_gradle_plugin": {
       "groovy/fineract_gradle_plugin/LICENSE_RELEASE": "groovy",
       "groovy/fineract_gradle_plugin/org_apache_fineract_gradle_FineractPluginExtension.groovy": "groovy",
@@ -1962,6 +1970,9 @@
       "javascript/threejs/WebGLProgram.js": "javascript",
       "javascript/threejs/WebGLRenderer.js": "javascript"
     },
+    "jcl": {
+      "jcl/SOURCES.md": "markdown"
+    },
     "jcl/cash-account-cobol": {
       "jcl/cash-account-cobol/DB2BIND.jcl": "jcl",
       "jcl/cash-account-cobol/DB2DDL.jcl": "jcl",
@@ -2407,6 +2418,7 @@
       "lua/redis/luac.lua": "lua",
       "lua/redis/printf.lua": "lua",
       "lua/redis/readonly.lua": "lua",
+      "lua/redis/sieve.lua": "lua",
       "lua/redis/sort.lua": "lua",
       "lua/redis/strict.lua": "lua",
       "lua/redis/table.lua": "lua",
@@ -2772,6 +2784,7 @@
       "powershell/runtime/generateredefinesfile.ps1": "powershell",
       "powershell/runtime/generateversionscript.ps1": "powershell",
       "powershell/runtime/getRefPackFolderFromArtifacts.ps1": "powershell",
+      "powershell/runtime/processrc.ps1": "powershell",
       "powershell/runtime/run-benchmark.ps1": "powershell",
       "powershell/runtime/update-machine-certs.ps1": "powershell"
     },
@@ -3090,6 +3103,7 @@
       "python/numpy/genapi.py": "python",
       "python/numpy/generate_numpy_api.py": "python",
       "python/numpy/generate_ufunc_api.py": "python",
+      "python/numpy/generate_umath.py": "python",
       "python/numpy/generate_umath_doc.py": "python",
       "python/numpy/lapack_litemodule.c": "python",
       "python/numpy/numpy_api.py": "python",
@@ -3258,6 +3272,7 @@
     "rust/wasmtime": {
       "rust/wasmtime/wasmtime_component_macro.rs": "rust",
       "rust/wasmtime/wasmtime_instance.rs": "rust",
+      "rust/wasmtime/wasmtime_ir_instructions.rs": "rust",
       "rust/wasmtime/wasmtime_isle_parser.rs": "rust",
       "rust/wasmtime/wasmtime_pulley_interp.rs": "rust"
     },
@@ -3372,6 +3387,7 @@
       "shell/freebsd-src/COPYRIGHT": "shell",
       "shell/freebsd-src/chflags_test.sh": "shell",
       "shell/freebsd-src/chmod_test.sh": "shell",
+      "shell/freebsd-src/ckscripts.sh": "shell",
       "shell/freebsd-src/cp_test.sh": "shell",
       "shell/freebsd-src/ctfconvert_test.sh": "shell",
       "shell/freebsd-src/dd2_test.sh": "shell",
@@ -3444,6 +3460,7 @@
       "shell/illumos-gate/exportfs.sh": "shell",
       "shell/illumos-gate/ikecert.sh": "shell",
       "shell/illumos-gate/illumos_13434_chunked_heredoc.sh": "shell",
+      "shell/illumos-gate/inetd-upgrade.sh": "shell",
       "shell/illumos-gate/mkerror.sh": "shell",
       "shell/illumos-gate/newvers.sh": "shell",
       "shell/illumos-gate/nfsfind.sh": "shell",
@@ -3561,6 +3578,7 @@
       "shell/serenity/analyze-qemu-coverage.sh": "shell",
       "shell/serenity/builtin.sh": "shell",
       "shell/serenity/embedmap.sh": "shell",
+      "shell/serenity/generate_manpages.sh": "shell",
       "shell/serenity/install.sh": "shell",
       "shell/serenity/package.sh": "shell",
       "shell/serenity/run-tests-and-shutdown.sh": "shell"
@@ -3750,6 +3768,9 @@
     "tabular/tsv_genomics": {
       "tabular/tsv_genomics/B.cell_eQTL.tsv": "csv"
     },
+    "tcl": {
+      "tcl/SOURCES.md": "markdown"
+    },
     "tcl/macports_port_api": {
       "tcl/macports_port_api/fetch_common.tcl": "tcl",
       "tcl/macports_port_api/library.tcl": "tcl",
@@ -3877,8 +3898,9 @@
       "typescript/playwright/protocol.ts": "typescript"
     },
     "typescript/typescript_compiler": {
-      "typescript/typescript_compiler/binder.ts": "typescript",
-      "typescript/typescript_compiler/package.json": "typescript"
+      "typescript/typescript_compiler/LICENSE.txt": "plaintext",
+      "typescript/typescript_compiler/binder.ts": "plaintext",
+      "typescript/typescript_compiler/package.json": "plaintext"
     },
     "typescript/vscode": {
       "typescript/vscode/LICENSE.txt": "typescript",

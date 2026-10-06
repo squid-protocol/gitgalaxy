@@ -66,6 +66,7 @@
       "ada/functional/functional-try.adb": 2,
       "ada/functional/functional-try.ads": 2,
       "ada/functional/functional.ads": 2,
+      "ada/functional/functional_tests_config.ads": 2,
       "ada/functional/test_framework.adb": 2,
       "ada/functional/test_framework.ads": 2,
       "ada/functional/test_try_map_to_result.adb": 2
@@ -459,7 +460,11 @@
     "c/sqlite": {
       "c/sqlite/LICENSE.md": 1,
       "c/sqlite/README.md": 1,
-      "c/sqlite/lemon.c": 1.5
+      "c/sqlite/lemon.c": 1.5,
+      "c/sqlite/parse.y": 2
+    },
+    "cobol": {
+      "cobol/SOURCES.md": 1
     },
     "cobol/CICS-Cobol": {
       "cobol/CICS-Cobol/CBL0102v01DivisionAmbiente.cbl": 2,
@@ -1387,6 +1392,9 @@
     "go/kubernetes_kubectl_tls": {
       "go/kubernetes_kubectl_tls/create_secret_tls_test.go": 2
     },
+    "groovy": {
+      "groovy/SOURCES.md": 1
+    },
     "groovy/fineract_gradle_plugin": {
       "groovy/fineract_gradle_plugin/LICENSE_RELEASE": 1,
       "groovy/fineract_gradle_plugin/org_apache_fineract_gradle_FineractPluginExtension.groovy": 2,
@@ -1962,6 +1970,9 @@
       "javascript/threejs/WebGLProgram.js": 2,
       "javascript/threejs/WebGLRenderer.js": 2
     },
+    "jcl": {
+      "jcl/SOURCES.md": 1
+    },
     "jcl/cash-account-cobol": {
       "jcl/cash-account-cobol/DB2BIND.jcl": 2,
       "jcl/cash-account-cobol/DB2DDL.jcl": 2,
@@ -2407,6 +2418,7 @@
       "lua/redis/luac.lua": 2,
       "lua/redis/printf.lua": 2,
       "lua/redis/readonly.lua": 2,
+      "lua/redis/sieve.lua": 2,
       "lua/redis/sort.lua": 2,
       "lua/redis/strict.lua": 2,
       "lua/redis/table.lua": 2,
@@ -2772,6 +2784,7 @@
       "powershell/runtime/generateredefinesfile.ps1": 2,
       "powershell/runtime/generateversionscript.ps1": 2,
       "powershell/runtime/getRefPackFolderFromArtifacts.ps1": 2,
+      "powershell/runtime/processrc.ps1": 2,
       "powershell/runtime/run-benchmark.ps1": 2,
       "powershell/runtime/update-machine-certs.ps1": 2
     },
@@ -3090,6 +3103,7 @@
       "python/numpy/genapi.py": 1.5,
       "python/numpy/generate_numpy_api.py": 2,
       "python/numpy/generate_ufunc_api.py": 1.5,
+      "python/numpy/generate_umath.py": 1.5,
       "python/numpy/generate_umath_doc.py": 1.5,
       "python/numpy/lapack_litemodule.c": 1.5,
       "python/numpy/numpy_api.py": 1.5,
@@ -3262,6 +3276,7 @@
     "rust/wasmtime": {
       "rust/wasmtime/wasmtime_component_macro.rs": 2,
       "rust/wasmtime/wasmtime_instance.rs": 2,
+      "rust/wasmtime/wasmtime_ir_instructions.rs": 2,
       "rust/wasmtime/wasmtime_isle_parser.rs": 2,
       "rust/wasmtime/wasmtime_pulley_interp.rs": 2
     },
@@ -3376,6 +3391,7 @@
       "shell/freebsd-src/COPYRIGHT": 1,
       "shell/freebsd-src/chflags_test.sh": 2,
       "shell/freebsd-src/chmod_test.sh": 2,
+      "shell/freebsd-src/ckscripts.sh": 0,
       "shell/freebsd-src/cp_test.sh": 2,
       "shell/freebsd-src/ctfconvert_test.sh": 2,
       "shell/freebsd-src/dd2_test.sh": 2,
@@ -3448,6 +3464,7 @@
       "shell/illumos-gate/exportfs.sh": 0,
       "shell/illumos-gate/ikecert.sh": 0,
       "shell/illumos-gate/illumos_13434_chunked_heredoc.sh": 2,
+      "shell/illumos-gate/inetd-upgrade.sh": 0,
       "shell/illumos-gate/mkerror.sh": 0,
       "shell/illumos-gate/newvers.sh": 0,
       "shell/illumos-gate/nfsfind.sh": 0,
@@ -3565,6 +3582,7 @@
       "shell/serenity/analyze-qemu-coverage.sh": 0,
       "shell/serenity/builtin.sh": 0,
       "shell/serenity/embedmap.sh": 0,
+      "shell/serenity/generate_manpages.sh": 0,
       "shell/serenity/install.sh": 0,
       "shell/serenity/package.sh": 0,
       "shell/serenity/run-tests-and-shutdown.sh": 0
@@ -3754,6 +3772,9 @@
     "tabular/tsv_genomics": {
       "tabular/tsv_genomics/B.cell_eQTL.tsv": 2
     },
+    "tcl": {
+      "tcl/SOURCES.md": 1
+    },
     "tcl/macports_port_api": {
       "tcl/macports_port_api/fetch_common.tcl": 2,
       "tcl/macports_port_api/library.tcl": 2,
@@ -3881,6 +3902,7 @@
       "typescript/playwright/protocol.ts": 2
     },
     "typescript/typescript_compiler": {
+      "typescript/typescript_compiler/LICENSE.txt": 1,
       "typescript/typescript_compiler/binder.ts": 2,
       "typescript/typescript_compiler/package.json": 2
     },

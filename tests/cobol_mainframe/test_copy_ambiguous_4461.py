@@ -101,3 +101,32 @@ def test_an_engine_answer_still_decides_without_a_search(tmp_path):
     eng = SRC.EngineCopies.of(prog, root, {"cbl/PROG.cbl": ["shared/DATEWS.cpy"]})
     lines = SRC.program_lines(prog, [root / "apps", root / "shared"], eng)
     assert any("KEY-REC" in ln.text for ln in lines) and not any("OTHER-REC" in ln.text for ln in lines)
+
+
+def _declared(dirs, source="DATEWS.cpy"):
+    from types import SimpleNamespace
+
+    from gitgalaxy.tools.cobol_to_java.det import cics as C
+
+    cics = C.Cics.__new__(C.Cics)
+    cics.g = SimpleNamespace(copy_dirs=dirs, engine=None)
+    leaf = C.Leaf("wsDate", "String", "WS-DATE", "X(16)", "DISPLAY", 0, 16, source)
+    return C, cics.declared(leaf)
+
+
+def test_the_cics_dto_field_lookup_refuses_a_member_held_by_two_directories(tmp_path):
+    _write(tmp_path, "a/DATEWS.cpy", "01 WS-DATE PIC X(16).")
+    _write(tmp_path, "b/DATEWS.cpy", "01 WS-DATE PIC X(18).")
+    from gitgalaxy.tools.cobol_to_java.det import cics as C
+
+    for order in ([tmp_path / "a", tmp_path / "b"], [tmp_path / "b", tmp_path / "a"]):
+        with pytest.raises(C.CicsError, match="COPY DATEWS.cpy is ambiguous"):
+            _declared(order)
+
+
+def test_the_cics_dto_field_lookup_resolves_a_single_member(tmp_path):
+    pytest.importorskip("tree_sitter_language_pack")
+    _write(tmp_path, "a/DATEWS.cpy", "01 WS-DATE PIC X(16).")
+    (tmp_path / "b").mkdir()
+    _, item = _declared([tmp_path / "b", tmp_path / "a"])
+    assert item.name == "WS-DATE" and item.size == 16

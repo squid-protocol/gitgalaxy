@@ -1758,8 +1758,10 @@ class GalaxyIR:
         expands the source itself (the det translator) and must take the member the engine chose, not search for
         one. `edges`: importer (the program, then every copybook its COPYs reach, repo-relative) -> {resolved
         file: the COPY forms' library-names (#4265; "" an unqualified COPY, empty when no libraries were
-        declared)}; BMS symbolic maps (`map.bms#MAPSET`) are left out. `gaps` / `collisions`: the sorted
-        [importer, member] pairs of those importers the scan reported (#4420 / #4421)."""
+        declared)}; BMS symbolic maps (`map.bms#MAPSET`) are left out. `gaps`: the sorted [importer, member] pairs
+        of those importers the scan reported (#4420). `collisions` (#4421): the sorted [importer, member, the
+        library the search order took it from, [the other libraries holding it, in search order]] rows (#4486:
+        the det translator takes the first library's member, as the compiler does, and warns with these)."""
         edges: dict[str, dict[str, list[str]]] = {}
         todo = [path]
         while todo:
@@ -1776,7 +1778,13 @@ class GalaxyIR:
             return [list(t) for t in sorted({(r["importer"], str(r["member"]).upper()) for r in rows or []
                                              if r.get("importer") in edges})]  # fmt: skip
 
-        return {"edges": edges, "gaps": pick(self.copy_member_gaps), "collisions": pick(self.copy_member_collisions)}
+        libraries: dict[tuple[str, str], list[Any]] = {}
+        for r in self.copy_member_collisions or []:
+            if r.get("importer") in edges:
+                libraries.setdefault((r["importer"], str(r["member"]).upper()), [
+                    r.get("library"), [str(x.get("library")) for x in r.get("shadowed") or []]])  # fmt: skip
+        collisions = [[i, m, *libraries[(i, m)]] for i, m in pick(self.copy_member_collisions)]
+        return {"edges": edges, "gaps": pick(self.copy_member_gaps), "collisions": collisions}
 
     def copy_pages(self, path: str) -> dict[str, str]:
         """#4462: {file: declared code page} over the program at `path` and every copybook its COPYs reach, for

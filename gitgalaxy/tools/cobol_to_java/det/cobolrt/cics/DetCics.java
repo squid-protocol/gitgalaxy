@@ -198,6 +198,78 @@ public final class DetCics {
         return lengerr ? 22 : 0;
     }
 
+    /** #4528: the region's code page -- the one TS items are in (CicsTask: "the bytes the program wrote, in the
+     *  region's code page"). `declared` is the estate's EBCDIC page for the program, else CCSID 037; the system
+     *  property gitgalaxy.cics.charset names another. A deployment fact, like CobolRecords.charset(). */
+    public static Charset region(String declared) {
+        return Charset.forName(System.getProperty("gitgalaxy.cics.charset", declared));
+    }
+
+    /** #4528: the program's bytes (in `cs`, its storage's page) as the region's (`region`), byte by byte: how the
+     *  COBOL side's region moves a TS item between its storage and the queue. Each byte must be one character of
+     *  both pages: anything else stops the run by name, never a substituted byte. */
+    public static byte[] toRegion(byte[] data, Charset cs, Charset region) {
+        return transcode(data, cs, region);
+    }
+
+    /** #4528: a region's bytes (a TS item read) in the program's page: toRegion's inverse. */
+    public static byte[] fromRegion(byte[] data, Charset region, Charset cs) {
+        return transcode(data, region, cs);
+    }
+
+    private static byte[] transcode(byte[] data, Charset from, Charset to) {
+        if (data == null || from.equals(to)) {
+            return data;
+        }
+        java.nio.charset.CharsetEncoder enc = to.newEncoder()
+                .onMalformedInput(java.nio.charset.CodingErrorAction.REPORT)
+                .onUnmappableCharacter(java.nio.charset.CodingErrorAction.REPORT);
+        byte[] out = new byte[data.length];
+        for (int i = 0; i < data.length; i++) {
+            char c = character(from, data[i]);
+            if (usesLfForNl(to) && (c == '\n' || c == '\u0085')) {
+                out[i] = (byte) (c == '\n' ? 0x25 : 0x15);  // CDRA's LF and NEL, as the COBOL side's cp037
+                continue;
+            }
+            try {
+                java.nio.ByteBuffer b = enc.encode(java.nio.CharBuffer.wrap(new char[] {c}));
+                if (b.remaining() != 1) {
+                    throw new java.nio.charset.CharacterCodingException();
+                }
+                out[i] = b.get();
+            } catch (java.nio.charset.CharacterCodingException e) {
+                throw new UnsupportedOperationException(String.format("byte %02X in %s is U+%04X, not one byte in %s:"
+                        + " not modelled", data[i] & 0xFF, from, (int) c, to), e);
+            }
+        }
+        return out;
+    }
+
+    /** Whether `page` is one of the JDK's EBCDIC pages that take NL (X'15') for LF -- decoding both X'15' and X'25'
+     *  as LF and encoding LF as X'15' (a USS convenience). CDRA's -- and the COBOL side's (Python's cp037) -- NL is
+     *  NEL (U+0085) and LF is X'25': transcode keeps those. */
+    private static boolean usesLfForNl(Charset page) {
+        return new String(new byte[] {0x15}, page).equals("\n") && new String(new byte[] {0x25}, page).equals("\n");
+    }
+
+    /** The one character a byte is in `page` (X'15' NEL on a page usesLfForNl). */
+    private static char character(Charset page, byte b) {
+        java.nio.charset.CharsetDecoder dec = page.newDecoder()
+                .onMalformedInput(java.nio.charset.CodingErrorAction.REPORT)
+                .onUnmappableCharacter(java.nio.charset.CodingErrorAction.REPORT);
+        try {
+            java.nio.CharBuffer c = dec.decode(java.nio.ByteBuffer.wrap(new byte[] {b}));
+            if (c.remaining() != 1) {
+                throw new java.nio.charset.CharacterCodingException();
+            }
+            char ch = c.get();
+            return b == 0x15 && usesLfForNl(page) ? '\u0085' : ch;
+        } catch (java.nio.charset.CharacterCodingException e) {
+            throw new UnsupportedOperationException(String.format("byte %02X is no character of %s on its own: not"
+                    + " modelled", b & 0xFF, page), e);
+        }
+    }
+
     /** Text into the first bytes of a field, the rest left as it was (ASSIGN SYSID: 4 bytes into an 8-byte area). */
     public static void putText(Field f, String text, Charset cs) {
         put(f, text.getBytes(cs));
@@ -255,6 +327,7 @@ public final class DetCics {
     public static String condition(int resp) {
         return switch (resp) {
             case 0 -> "NORMAL";
+            case 6 -> "EOC";
             case 12 -> "FILENOTFOUND";
             case 13 -> "NOTFND";
             case 14 -> "DUPREC";
@@ -279,6 +352,7 @@ public final class DetCics {
     public static int resp(String condition) {
         return switch (condition) {
             case "NORMAL" -> 0;
+            case "EOC" -> 6;
             case "NOTFND" -> 13;
             case "INVREQ" -> 16;
             case "LENGERR" -> 22;
@@ -291,5 +365,71 @@ public final class DetCics {
             case "ROLLEDBACK" -> 82;
             default -> throw new IllegalArgumentException("no RESP value known for condition " + condition);
         };
+    }
+
+    /** #4413: a condition whose default action -- with no HANDLE CONDITION label for it -- is to ignore it, the
+     *  command going on as if it had completed normally (IBM CICS TS, EXEC CICS RECEIVE (LUTYPE2/LUTYPE3): EOC,
+     *  "Default action: ignore the condition"). Every other condition's default is an abend. */
+    public static boolean ignoredByDefault(String condition) {
+        return "EOC".equals(condition);
+    }
+
+    /** #4414: the label HANDLE AID gives the key pressed (EIBAID's name: ENTER, CLEAR, PA1-PA3, PF1-PF24), else
+     *  ANYKEY's -- "any PA key, any PF key, or the CLEAR key, but not ENTER" (IBM CICS TS, EXEC CICS HANDLE AID);
+     *  null when neither has one ("control returns to the application program at the instruction immediately
+     *  following the input command"). A key deactivated by a HANDLE AID without a label is -1 in `aids`: IBM
+     *  ("This deactivates the effect of that option") does not say whether ANYKEY's label then takes it, so that
+     *  is refused by name. */
+    public static Integer aidLabel(java.util.Map<String, Integer> aids, String key) {
+        if (key == null) {
+            return null;
+        }
+        Integer h = aids.get(key);
+        if (h != null && h >= 0) {
+            return h;
+        }
+        Integer any = key.startsWith("PA") || key.startsWith("PF") || "CLEAR".equals(key) ? aids.get("ANYKEY") : null;
+        if (any == null || any < 0) {
+            return null;
+        }
+        if (h != null) {
+            throw new IllegalStateException("HANDLE AID " + key + " deactivated while ANYKEY has a label: whether "
+                    + "ANYKEY takes the key is not documented");
+        }
+        return any;
+    }
+
+    /** #4414: what PUSH HANDLE saves of a program's own handler state (IBM CICS TS, EXEC CICS PUSH HANDLE: "suspend
+     *  the current effect of the IGNORE CONDITION, HANDLE ABEND, HANDLE AID, and HANDLE CONDITION commands"): its
+     *  HANDLE / IGNORE CONDITION entries and its HANDLE AID labels, copied; HANDLE ABEND is CicsTask's own. */
+    public record Handlers(java.util.Map<String, Integer> conditions, java.util.Map<String, Integer> aids) {
+        public Handlers {
+            conditions = new java.util.HashMap<>(conditions);
+            aids = new java.util.HashMap<>(aids);
+        }
+
+        /** POP HANDLE: the state saved replaces the program's. */
+        public void restore(java.util.Map<String, Integer> intoConditions, java.util.Map<String, Integer> intoAids) {
+            intoConditions.clear();
+            intoConditions.putAll(conditions);
+            intoAids.clear();
+            intoAids.putAll(aids);
+        }
+    }
+
+    /** #4413: a terminal RECEIVE INTO: the data received into the first bytes of the area, the rest left as it was
+     *  (IBM moves the data it received, no more). */
+    public static void received(Field into, String data, Charset cs) {
+        put(into, data.getBytes(cs));
+    }
+
+    /** #4413: a terminal RECEIVE SET(ADDRESS OF record): the record now addresses the data CICS received (valid "until
+     *  the next receive command or the end of task"). The port's record keeps its own storage, so the data is copied
+     *  into it; a byte past the data is not CICS's to define and is X'00' here (a program reading past LENGTH reads
+     *  undefined storage on CICS, docs/language_status/oracle_assumptions.md X15). */
+    public static void receivedSet(Field record, String data, Charset cs) {
+        byte[] b = data.getBytes(cs);
+        Arrays.fill(record.storage().bytes, record.offset(), record.offset() + record.length(), (byte) 0);
+        System.arraycopy(b, 0, record.storage().bytes, record.offset(), Math.min(b.length, record.length()));
     }
 }

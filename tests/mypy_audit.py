@@ -21,7 +21,8 @@ USAGE
                                          # what CI runs.
 
 IMPORTANT: regenerate the baseline in the SAME environment mypy-audit.yml
-uses -- `pip install mypy PyYAML && pip install -e .`, nothing else.
+uses -- `pip install -r tests/requirements-mypy.txt && pip install -e .`, nothing else
+(pr_gates.py builds exactly that in ~/.cache/gitgalaxy/mypy-<version>).
 Confirmed the hard way (PR #436): regenerating it in a "full-precision"
 env (networkx/tiktoken/pandas/xgboost also installed) silently changed
 mypy's resolution for at least one line (galaxyscope.py's `importlib.util`
@@ -82,7 +83,7 @@ _ERROR_LINE = re.compile(r"^(?P<file>[^:]+):(?P<line>\d+): error: (?P<message>.+
 def parse_mypy_output(stdout: str, repo_root: Path) -> dict[str, Finding]:
     """Turns mypy's text output into {content key: Finding}."""
     findings = []
-    for line in stdout.splitlines():
+    for line in lint_baseline.strip_ansi(stdout).splitlines():
         match = _ERROR_LINE.match(line)
         if not match:
             continue
@@ -101,12 +102,19 @@ def parse_mypy_output(stdout: str, repo_root: Path) -> dict[str, Finding]:
 def run_mypy_findings() -> dict[str, Finding]:
     """Returns {content key: Finding} for every error mypy reports."""
     result = subprocess.run(
-        ["mypy", str(SCAN_ROOT), "--ignore-missing-imports"],
+        ["mypy", str(SCAN_ROOT), "--ignore-missing-imports", "--no-color-output"],
         capture_output=True,
         text=True,
         cwd=REPO_ROOT,
+        env=lint_baseline.colourless_env(),
     )
-    return parse_mypy_output(result.stdout, REPO_ROOT)
+    findings = parse_mypy_output(result.stdout, REPO_ROOT)
+    # mypy exits 0 = clean, 1 = errors found; anything else (or errors with none parsed) is a false pass.
+    if result.returncode not in (0, 1):
+        lint_baseline.require_parsed("mypy", result.stdout + result.stderr, result.returncode, 0)
+    if not findings and result.returncode == 1:
+        lint_baseline.require_parsed("mypy", result.stdout + result.stderr, result.returncode, 0)
+    return findings
 
 
 def run_mypy() -> dict[str, str]:

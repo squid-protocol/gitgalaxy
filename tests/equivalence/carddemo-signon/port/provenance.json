@@ -15,12 +15,26 @@
  "ticket_sha256": "e366af420f24507c3b04fdfe3f5ad09ab46788eaa71a7110cbf389232a3c9121",
  "prompt_tokens": 59684,
  "proof": "tests/tools/equivalence.py run carddemo-signon",
- "edited_after": "none: the files are the model's answer as the loop stored it",
+ "edited_after": "the deployed entry points (facades) were brought to the generator's by tests/tools/port_surface.py (#4343; see history 'resurfaced'); runTask and the logic it runs are the model's answer",
  "licence": "derived from CardDemo (Apache-2.0; Copyright Amazon.com, Inc. or its affiliates) -- see LICENSE and NOTICE in this case's directory",
- "stale": {
-  "against": "the java-facade side (#4449)",
-  "at": "2026-10-05T15:00:50+00:00",
-  "reason": "re-proof through the deployed entry points failed: java-facade 1/12 scenarios pass (admin-signs-on, both-empty, invalid-key, lowercase-credentials, password-empty, pf3-thank-you, user-file-io-error, user-id-empty, user-not-found, user-signs-on, wrong-password); runTask 12/12 pass",
-  "needs": "#4464: the generated handleTransaction(String) / handleLink() take no COMMAREA, but COSGN00C's RETURN TRANSID(CC00) COMMAREA(CARDDEMO-COMMAREA) re-enters it with one (opaque ODO DFHCOMMAREA): every re-entry is refused; then evidence.py prove carddemo-signon"
- }
+ "history": [
+  {
+   "at": "2026-10-05T20:21:44+00:00",
+   "event": "resurfaced",
+   "by": "tests/tools/port_surface.py",
+   "generator_commit": "49879e50d",
+   "generated_from": "service/Cosgn00cService.java",
+   "replaced": [
+    "handleTransaction",
+    "handleLink"
+   ]
+  },
+  {
+   "at": "2026-10-05T20:22:50+00:00",
+   "event": "reproven",
+   "by": "tests/tools/evidence.py prove carddemo-signon",
+   "summary": "runTask 12/12, java-facade 12/12 (handleTransaction takes the COMMAREA, #4464)",
+   "cleared_stale": "the java-facade side (#4449) -- re-proof through the deployed entry points failed: java-facade 1/12 scenarios pass (admin-signs-on, both-empty, invalid-key, lowercase-credentials, password-empty, pf3-thank-you, user-file-io-error, user-id-empty, user-not-found, user-signs-on, wrong-password); runTask 12/12 pass"
+  }
+ ]
 }

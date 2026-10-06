@@ -462,6 +462,10 @@ _IBM_OPTIONS = {
     "SEND MAP": "MAP MAPSET FROM DATAONLY MAPONLY LENGTH CURSOR FORMFIELD ERASE ERASEAUP PRINT FREEKB ALARM FRSET "
     "MSR OUTPARTN ACTPARTN LDC FMHPARMS NLEOM REQID SET PAGING TERMINAL WAIT LAST HONEOM L40 L64 L80 ACCUM",
     "RECEIVE MAP": "MAP MAPSET INTO SET FROMLENGTH FROM TERMINAL ASIS INPARTN",
+    # #4413: terminal control (SEND CONTROL; RECEIVE (3270 logical), (LUTYPE2/LUTYPE3), z/OS Communications Server)
+    "SEND CONTROL": "CURSOR FORMFEED ERASE DEFAULT ALTERNATE ERASEAUP PRINT FREEKB ALARM FRSET MSR OUTPARTN "
+    "ACTPARTN LDC ACCUM TERMINAL SET PAGING WAIT LAST REQID HONEOM L40 L64 L80",
+    "RECEIVE": "INTO SET LENGTH FLENGTH MAXLENGTH MAXFLENGTH NOTRUNCATE ASIS BUFFER CONVID SESSION PARTN LDC",
 }
 
 
@@ -469,7 +473,7 @@ _IBM_OPTIONS = {
 def test_every_option_of_a_modelled_command_is_honoured_or_refused(verb):
     first = verb.split()[0]
     for opt in _IBM_OPTIONS[verb].split():
-        words, opts = [first], {opt: "X"}
+        words, opts = ([first] if verb.endswith("MAP") else verb.split()), {opt: "X"}
         if verb.endswith("MAP"):
             opts = {"MAP": "'M'", opt: "X"}
         if opt in C.OPTIONS[C.command_key(words, opts)]:
@@ -731,6 +735,8 @@ _RESP_SAMPLES = {
     "INQUIRE PROGRAM": "INQUIRE PROGRAM('P')", "WRITEQ TD": "WRITEQ TD QUEUE('Q') FROM(REC)",
     "WRITEQ TS": "WRITEQ TS QUEUE('Q') FROM(REC)", "READQ TS": "READQ TS QUEUE('Q') INTO(REC)",
     "GET COUNTER": "GET COUNTER(KEY) VALUE(REC)", "SYNCPOINT": "SYNCPOINT", "SYNCPOINT ROLLBACK": "SYNCPOINT ROLLBACK",
+    "SEND CONTROL": "SEND CONTROL ERASE", "RECEIVE": "RECEIVE INTO(REC)",
+    "PUSH HANDLE": "PUSH HANDLE", "POP HANDLE": "POP HANDLE",
 }  # fmt: skip
 _RESP_ELSEWHERE = {
     "RETURN": "control never comes back from a RETURN (OPTIONS)",
@@ -751,6 +757,257 @@ def test_every_command_that_accepts_resp_writes_it(key):
     assert any("OUTCOME(" in line for line in out) and any("RESP" in o for o in c.outcomes), out
 
 
+# ---- #4413: SEND CONTROL and terminal RECEIVE (no map) ---------------------------------------------------------------
+class _TermCics(_LenCics):
+    """LS-REC a LINKAGE 01 record, WS-REC a WORKING-STORAGE one; INTO / SET targets as f_<name>."""
+
+    def __init__(self):
+        super().__init__()
+        from gitgalaxy.tools.cobol_to_java.det import layout as L
+
+        items = {"LS-REC": L.Item(1, "LS-REC", "LINKAGE"), "WS-REC": L.Item(1, "WS-REC", "WORKING-STORAGE"),
+                 "LS-PART": L.Item(5, "LS-PART", "LINKAGE")}  # fmt: skip
+        self.g.resolve = lambda ref: items[ref.name]
+
+    def ref(self, text):
+        return E.Ref(text.strip())
+
+
+def test_send_control_records_its_options_and_cursor():
+    """IBM, EXEC CICS SEND CONTROL ("sends device controls to a terminal"): CBSA's BNK1* send ERASE FREEKB before a
+    RETURN. CURSOR(n) is the offset "relative to zero"; no condition IBM lists arises on a plain terminal."""
+    c = _TermCics()
+    assert c.command("SEND CONTROL ERASE FREEKB", "") == [
+        'task.sendControl(null, "ERASE", "FREEKB");',
+        "OUTCOME(0, 0);",
+    ]
+    assert c.command("SEND CONTROL CURSOR(CPOS) ALARM FRSET ERASEAUP RESP(R)", "") == [
+        'task.sendControl(INT(CPOS), "ALARM", "CURSOR", "ERASEAUP", "FRSET");', "OUTCOME(0, 0);"]  # fmt: skip
+    for bad, why in (("SEND CONTROL CURSOR", "without a value"), ("SEND CONTROL ERASE PRINT", "PRINT: option not"),
+                     ("SEND CONTROL ACCUM PAGING", "option not modelled")):  # fmt: skip
+        with pytest.raises(C.CicsError, match=why):
+            c.command(bad, "")
+
+
+def test_receive_into_length_is_in_out_with_its_conditions():
+    """IBM, EXEC CICS RECEIVE: with INTO and no MAXLENGTH, LENGTH "specifies the maximum length that the program
+    accepts"; "When the data has been received, the data area is set to the length of the data" (LENGERR: "the
+    original length of data"). GenApp LGSETUP / LGSTSQ / LGICVS01 / LGIPVS01: INTO LENGTH RESP."""
+    out = _TermCics().command("RECEIVE INTO(WS-REC) LENGTH(RLEN) RESP(R)", "")
+    assert out == [
+        "CicsTask.Received received1 = task.receive(INT(RLEN), false);",
+        "DetCics.received(f_WS-REC, received1.data(), CS);",
+        "STORE(RLEN, BigDecimal.valueOf(received1.length()));",
+        "OUTCOME(DetCics.resp(received1.resp()), 0);",
+    ]
+    # no LENGTH: INTO's length is the limit, nothing set back; a literal LENGTH is the limit only
+    out = _TermCics().command("RECEIVE INTO(REC)", "")
+    assert out[0] == "CicsTask.Received received1 = task.receive(56, false);" and not any("STORE" in x for x in out)
+    out = _TermCics().command("RECEIVE INTO(REC) LENGTH(20)", "")
+    assert out[0] == "CicsTask.Received received1 = task.receive(INT(20), false);" and not any(
+        "STORE" in x for x in out
+    )
+    # MAXLENGTH overrides LENGTH as the limit; NOTRUNCATE keeps the rest (also when it comes first)
+    for text in (
+        "RECEIVE INTO(REC) LENGTH(RLEN) MAXLENGTH(10) NOTRUNCATE",
+        "RECEIVE NOTRUNCATE INTO(REC) FLENGTH(RLEN) MAXFLENGTH(10)",
+    ):
+        out = _TermCics().command(text, "")
+        assert out[0] == "CicsTask.Received received1 = task.receive(INT(10), true);"
+        assert out[2] == "STORE(RLEN, BigDecimal.valueOf(received1.length()));"
+
+
+def test_receive_set_addresses_a_linkage_record_and_the_rest_is_refused():
+    out = _TermCics().command("RECEIVE SET(ADDRESS OF LS-REC) LENGTH(RLEN) MAXLENGTH(80)", "")
+    assert out[:3] == ["CicsTask.Received received1 = task.receive(INT(80), false);",
+                       "DetCics.receivedSet(f_LS-REC, received1.data(), CS);",
+                       "STORE(RLEN, BigDecimal.valueOf(received1.length()));"]  # fmt: skip
+    for bad, why in (
+        ("RECEIVE SET(PTR) LENGTH(RLEN) MAXLENGTH(80)", "pointers are not modelled"),
+        ("RECEIVE SET(ADDRESS OF WS-REC) LENGTH(RLEN) MAXLENGTH(80)", "not a LINKAGE 01"),
+        ("RECEIVE SET(ADDRESS OF LS-PART) LENGTH(RLEN) MAXLENGTH(80)", "not a LINKAGE 01"),
+        ("RECEIVE SET(ADDRESS OF LS-REC) LENGTH(RLEN)", "without MAXLENGTH"),
+        ("RECEIVE SET(ADDRESS OF LS-REC) MAXLENGTH(80)", "without LENGTH"),
+        ("RECEIVE LENGTH(RLEN)", "one of INTO / SET"),
+        ("RECEIVE INTO(REC) SET(ADDRESS OF LS-REC) LENGTH(RLEN)", "one of INTO / SET"),
+        ("RECEIVE INTO(REC) LENGTH(RLEN) FLENGTH(RLEN)", "together"),
+        ("RECEIVE INTO(REC) ASIS", "ASIS: option not modelled"),
+        ("RECEIVE INTO(REC) BUFFER", "BUFFER: option not modelled"),
+    ):
+        with pytest.raises(C.CicsError, match=why):
+            _TermCics().command(bad, "")
+
+
+def test_eoc_is_ignored_by_default_and_handled_like_any_condition():
+    """IBM, RECEIVE (LUTYPE2/LUTYPE3): EOC (RESP 6), "Default action: ignore the condition". The program's
+    condition() goes on (-1) for it when no HANDLE CONDITION names it; DetCics knows its RESP value."""
+    import re
+
+    from gitgalaxy.tools.cobol_to_java.det import program as P
+
+    src = Path(P.__file__).read_text(encoding="utf-8")
+    body = src[src.index("private int condition(String cond)") :]
+    assert (
+        body.index("handlers.get(cond)") < body.index("DetCics.ignoredByDefault(cond)") < body.index("abendOnCondition")
+    )
+    rt = (Path(C.__file__).parent / "cobolrt/cics/DetCics.java").read_text(encoding="utf-8")
+    assert 'case 6 -> "EOC";' in rt and 'case "EOC" -> 6;' in rt
+    assert re.search(r'ignoredByDefault\(String condition\) \{\s*return "EOC"\.equals\(condition\);', rt)
+
+
+def test_a_terminal_only_cics_program_translates_whole_and_imports_only_packages_that_exist(tmp_path):
+    """#4413: CBSA's BNK1* SEND CONTROL ERASE FREEKB and GenApp's RECEIVE INTO LENGTH translate with no hole; an estate
+    with no screens, contracts or repositories (a terminal-only program) gets no import of those packages, which
+    javac refuses when they do not exist."""
+    pytest.importorskip("tree_sitter_language_pack")
+    from gitgalaxy.tools.cobol_to_java.det import program as P
+
+    (tmp_path / "T1.cbl").write_text(
+        "       IDENTIFICATION DIVISION.\n       PROGRAM-ID. T1.\n       DATA DIVISION.\n"
+        "       WORKING-STORAGE SECTION.\n       01  WS-IN                 PIC X(10) VALUE SPACES.\n"
+        "       01  WS-LEN                PIC S9(4) COMP VALUE 10.\n       PROCEDURE DIVISION.\n"
+        "           EXEC CICS SEND CONTROL ERASE FREEKB END-EXEC\n"
+        "           EXEC CICS RECEIVE INTO(WS-IN) LENGTH(WS-LEN) END-EXEC\n           EXEC CICS RETURN END-EXEC.\n",
+        encoding="utf-8",
+    )
+    vsam = tmp_path / "proj/src/main/java/com/x/entity/vsam"
+    vsam.mkdir(parents=True)
+    (vsam / "CobolRecords.java").write_text("package com.x.entity.vsam; public class CobolRecords {}\n")
+    stub = "package com.x.service;\nimport com.x.cics.CicsTask;\npublic class T1Service {\n" \
+           "    public void runTask(CicsTask task) {}\n}\n"  # fmt: skip
+    r = P.translate(tmp_path / "T1.cbl", [], stub, "com.x", {}, tmp_path / "proj")
+    assert (r.stats["statements"], r.stats["translated"], r.stats["holes"]) == (3, 3, [])
+    assert [x for x in r.java.splitlines() if x.startswith("import com.x.") and "*" in x] == [
+        "import com.x.entity.vsam.*;"]  # fmt: skip
+    assert 'task.sendControl(null, "ERASE", "FREEKB");' in r.java and "task.receive(" in r.java
+
+
+# ---- #4414 / #4502: IGNORE CONDITION, HANDLE AID, PUSH / POP HANDLE, HANDLE CONDITION ERROR ---------------------------
+class _HandleCics(_TermCics):
+    """Paragraphs GOT-PF7 (3), GOT-ANY (4), GOT-ERR (5); a transfer as GOTO(to)."""
+
+    def __init__(self, handle_aid=False):
+        super().__init__()
+        self.g.para_index = {"GOT-PF7": 3, "GOT-ANY": 4, "GOT-ERR": 5}
+        self.g.jump = lambda target: f"GOTO({target});"
+        self.handle_aid = handle_aid
+
+
+def test_ignore_condition_marks_each_condition_ignored_and_refuses_what_ibm_does_not_document():
+    """IBM, EXEC CICS IGNORE CONDITION: "no action is taken if a condition occurs ... control returns to the
+    instruction following the command"; the last HANDLE or IGNORE for a condition wins (both share `handlers`, -1 for
+    IGNORE, which condition() returns as "go on"). IGNORE CONDITION ERROR is refused: whether ERROR's action can be to
+    ignore is not documented (oracle_assumptions X16)."""
+    c = _HandleCics()
+    assert c.command("IGNORE CONDITION LENGERR MAPFAIL", "") == [
+        'handlers.put("LENGERR", -1);', 'handlers.put("MAPFAIL", -1);']  # fmt: skip
+    assert c.command("HANDLE CONDITION ERROR(GOT-ERR) LENGERR", "") == [
+        'handlers.put("ERROR", 5);', 'handlers.remove("LENGERR");']  # fmt: skip
+    for bad, why in (("IGNORE CONDITION ERROR", "IGNORE CONDITION ERROR"),
+                     ("IGNORE CONDITION LENGERR(GOT-ERR)", "names no label"),
+                     ("IGNORE CONDITION NOSUCH", "not a documented condition"),
+                     ("HANDLE CONDITION NOSUCH(GOT-ERR)", "not a documented condition"),
+                     ("IGNORE CONDITION NORMAL", "not a documented condition")):  # fmt: skip
+        with pytest.raises(C.CicsError, match=why):
+            c.command(bad, "")
+
+
+def test_handle_aid_records_each_keys_label_or_deactivates_it():
+    """IBM, EXEC CICS HANDLE AID: a key's label; "To ignore an AID, issue a HANDLE AID command that specifies the
+    associated option without a label" (-1: deactivated, told from never handled by DetCics.aidLabel)."""
+    c = _HandleCics()
+    assert c.command("HANDLE AID PF7(GOT-PF7) ANYKEY(GOT-ANY) CLEAR", "") == [
+        'aids.put("PF7", 3);', 'aids.put("ANYKEY", 4);', 'aids.put("CLEAR", -1);']  # fmt: skip
+    for bad, why in (("HANDLE AID PF25(GOT-PF7)", "not an attention key"),
+                     ("HANDLE AID PF7(NOWHERE)", "no such paragraph"),
+                     ("HANDLE AID PF7(GOT-PF7) RESP(R)", "RESP: not an attention key")):  # fmt: skip
+        with pytest.raises(C.CicsError, match=why):
+            c.command(bad, "")
+
+
+def test_push_and_pop_handle_stack_the_programs_handlers_and_the_tasks_abend_exit():
+    """IBM, EXEC CICS PUSH HANDLE suspends "the current effect of the IGNORE CONDITION, HANDLE ABEND, HANDLE AID, and
+    HANDLE CONDITION commands"; POP HANDLE restores them, INVREQ when nothing was pushed ("no matching PUSH HANDLE
+    command has been executed at the current link level"), through RESP / HANDLE CONDITION like any condition."""
+    c = _HandleCics()
+    assert c.command("PUSH HANDLE", "") == [
+        "pushed.push(new DetCics.Handlers(handlers, aids));", "handlers.clear();", "aids.clear();",
+        "int resp1 = DetCics.resp(task.pushHandle());", "OUTCOME(resp1, 0);"]  # fmt: skip
+    assert c.command("POP HANDLE RESP(R)", "") == [
+        "int resp2 = DetCics.resp(task.popHandle());", "if (resp2 == 0) {",
+        "    pushed.pop().restore(handlers, aids);", "}", "OUTCOME(resp2, 0);"]  # fmt: skip
+
+
+def test_an_input_command_takes_the_aid_label_after_its_outcome_unless_resp_or_nohandle():
+    """IBM, HANDLE AID: "Control is passed after the input command is completed" -- the data moved and LENGTH set,
+    then the outcome, then the key's label (aid()). The same aid() before the outcome refuses a label that applies
+    while the command raised a condition (which comes first is not documented). RESP / NOHANDLE: none of it (IBM,
+    RESP: "NOHANDLE overrides both the HANDLE AID and the HANDLE CONDITION command"). A program with no HANDLE AID
+    gets no aid() at all."""
+    out = _HandleCics(handle_aid=True).command("RECEIVE INTO(WS-REC) LENGTH(RLEN)", "")
+    assert out[1:] == [
+        "DetCics.received(f_WS-REC, received1.data(), CS);",
+        "STORE(RLEN, BigDecimal.valueOf(received1.length()));",
+        "aid(DetCics.resp(received1.resp()));",
+        "OUTCOME(DetCics.resp(received1.resp()), 0);",
+        "int aidTo2 = aid(DetCics.resp(received1.resp()));",
+        "if (aidTo2 >= 0) GOTO(aidTo2);",
+    ]
+    for text in ("RECEIVE INTO(WS-REC) LENGTH(RLEN) RESP(R)", "RECEIVE INTO(WS-REC) LENGTH(RLEN) NOHANDLE"):
+        assert not any("aid(" in x for x in _HandleCics(handle_aid=True).command(text, ""))
+    assert not any("aid(" in x for x in _HandleCics().command("RECEIVE INTO(WS-REC) LENGTH(RLEN)", ""))
+
+
+def test_condition_takes_the_error_label_only_for_a_condition_whose_default_is_an_abend():
+    """#4502, IBM HANDLE CONDITION: "if the default action for such a condition terminates the task abnormally, and
+    the condition ERROR has been specified, the action for ERROR is taken". condition(): the condition's own HANDLE /
+    IGNORE, then a default of ignore (EOC), then ERROR's label, then the abend. DetCics.aidLabel: the key's label,
+    else ANYKEY's for a PA / PF key or CLEAR (not ENTER); a deactivated key under an ANYKEY label is refused."""
+    import re
+
+    from gitgalaxy.tools.cobol_to_java.det import program as P
+
+    src = Path(P.__file__).read_text(encoding="utf-8")
+    body = src[src.index("private int condition(String cond)") :]
+    order = [body.index(x) for x in ("handlers.get(cond)", "DetCics.ignoredByDefault(cond)",
+                                     'handlers.get("ERROR")', "task.abendOnCondition(cond)")]  # fmt: skip
+    assert order == sorted(order)
+    rt = (Path(C.__file__).parent / "cobolrt/cics/DetCics.java").read_text(encoding="utf-8")
+    m = re.search(r"public static Integer aidLabel\(.*?\n    \}\n", rt, re.S)
+    assert m and '"CLEAR".equals(key)' in m.group(0) and "ENTER" not in m.group(0).split("{", 1)[1]
+    assert "ANYKEY takes the key is not documented" in m.group(0)
+    assert "public record Handlers(" in rt and "public void restore(" in rt
+
+
+def test_a_program_with_handle_aid_ignore_and_push_pop_translates_whole(tmp_path):
+    """#4414: HANDLE AID, IGNORE CONDITION, PUSH / POP HANDLE and HANDLE CONDITION ERROR translate with no hole; the
+    port declares the AID map and the PUSH HANDLE stack it uses, and clears them for each task."""
+    pytest.importorskip("tree_sitter_language_pack")
+    from gitgalaxy.tools.cobol_to_java.det import program as P
+
+    (tmp_path / "T2.cbl").write_text(
+        "       IDENTIFICATION DIVISION.\n       PROGRAM-ID. T2.\n       DATA DIVISION.\n"
+        "       WORKING-STORAGE SECTION.\n       01  WS-IN                 PIC X(10) VALUE SPACES.\n"
+        "       01  WS-LEN                PIC S9(4) COMP VALUE 10.\n       PROCEDURE DIVISION.\n"
+        "       MAIN-PARA.\n"
+        "           EXEC CICS HANDLE AID PF7(GOT-KEY) ANYKEY(GOT-KEY) END-EXEC\n"
+        "           EXEC CICS HANDLE CONDITION ERROR(GOT-KEY) END-EXEC\n"
+        "           EXEC CICS IGNORE CONDITION LENGERR END-EXEC\n"
+        "           EXEC CICS PUSH HANDLE END-EXEC\n           EXEC CICS POP HANDLE END-EXEC\n"
+        "           EXEC CICS RECEIVE INTO(WS-IN) LENGTH(WS-LEN) END-EXEC.\n"
+        "       GOT-KEY.\n           EXEC CICS RETURN END-EXEC.\n",
+        encoding="utf-8",
+    )
+    (tmp_path / "proj/src/main/java/com/x").mkdir(parents=True)
+    stub = "package com.x.service;\nimport com.x.cics.CicsTask;\npublic class T2Service {\n" \
+           "    public void runTask(CicsTask task) {}\n}\n"  # fmt: skip
+    r = P.translate(tmp_path / "T2.cbl", [], stub, "com.x", {}, tmp_path / "proj")
+    assert (r.stats["statements"], r.stats["translated"], r.stats["holes"]) == (7, 7, [])
+    for line in ("private final java.util.Map<String, Integer> aids", "java.util.ArrayDeque<DetCics.Handlers> pushed",
+                 "private int aid(int resp)", "aids.clear();", "pushed.clear();", 'handlers.put("LENGERR", -1);'):  # fmt: skip
+        assert line in r.java, line
+
+
 def _proc(body: list[str]):
     from gitgalaxy.tools.cobol_to_java.det.source import Line
 
@@ -762,7 +1019,6 @@ def _proc(body: list[str]):
 @pytest.mark.parametrize(
     "body",
     [
-        ["    ENTRY 'DLITCBL' USING PAUTBPCB.", "    DISPLAY 'X'.", "    GOBACK."],  # DBUNLDGS: no statement kept
         ["    PERFORM P2 THRU.", "    GOBACK.", "P2.", "    EXIT."],  # GOBACK and P2 were dropped
         ["    CALL 'X' USING BY REFERENCE.", "    GOBACK."],
         ["    SET A TO.", "    GOBACK."],
@@ -843,15 +1099,133 @@ def test_nist_ccvs85_parses_with_continuations_rewrapped():
     ok = 0
     progs = sorted(_CCVS85.glob("*.cbl"))
     for p in progs:
-        try:
-            lines = SRC.program_lines(p, [_CCVS85])
-            L.parse(lines)
-            proc = S.parse(lines)
+        try:  # #4462: a source of several programs (IC2244 ...: a CALLed one after it; IC4014: a nested one), each
+            procs = []
+            for unit in SRC.program_units(SRC.program_lines(p, [_CCVS85])):
+                L.parse(unit.lines)
+                procs.append(S.parse(unit.lines))
         except Exception:  # noqa: BLE001 -- a refusal is a program that does not count
             continue
         ok += not any(s.kind == "HOLE" and s.data.get("why") == "does not parse"
-                      for para in proc.paragraphs for s in S.walk(para.body))  # fmt: skip
+                      for proc in procs for para in proc.paragraphs for s in S.walk(para.body))  # fmt: skip
     assert len(progs) == 150 and ok >= 130, ok
+
+
+# ---- #4523: a continued literal in either quote style ----------------------------------------------------------
+def _fixed_rows(rows: list[str]) -> list[str]:
+    """Fixed-format source rows: `-` first is a continuation row (indicator column 7), else code from column 8."""
+    return [("      " + r) if r.startswith("-") else ("       " + r) for r in rows]
+
+
+def _continued(q: str, head: str, tail: str, cont_col: int) -> list[str]:
+    """`01 F PIC X(n) VALUE <q>head...` run to column 72, its continuation's quote in column `cont_col`."""
+    first = f"01 F PIC X({len(head) + len(tail)}) VALUE {q}"
+    first = (first + head)[:65]
+    return [first, "-" + " " * (cont_col - 8) + q + tail + q + "."]
+
+
+def _value_and_move(raw_data: list[str], raw_proc: list[str]):
+    from gitgalaxy.tools.cobol_to_java.det import layout as L
+    from gitgalaxy.tools.cobol_to_java.det import source as SRC
+
+    raw = _fixed_rows(["IDENTIFICATION DIVISION.", "PROGRAM-ID. T.", "DATA DIVISION.", "WORKING-STORAGE SECTION.",
+                  *raw_data, "01 A PIC X(200).", "PROCEDURE DIVISION.", "P1.", *raw_proc, "    GOBACK."])  # fmt: skip
+    lines = SRC.logical_lines(raw, "t")
+    rec = L.parse(lines)[0]
+    proc = S.parse(lines)
+    return rec.values[0][1], proc.paragraphs[0].body
+
+
+@pytest.mark.parametrize("q", ["'", '"'])
+@pytest.mark.parametrize("cont_col", [12, 20])  # the continuation's quote in Area B (column 12 on)
+def test_a_continued_literal_parses_in_either_quote_style(q, cont_col):
+    pytest.importorskip("tree_sitter_language_pack")
+    head = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ"
+    raw_data = _continued(q, head, "TAIL-END", cont_col)
+    want = (raw_data[0][raw_data[0].index(q) + 1 :]).ljust(65 - raw_data[0].index(q) - 1) + "TAIL-END"
+    move = [f"    MOVE {q}{'M' * 50}", "-" + " " * (cont_col - 8) + f"{q}MORE{q} TO A."]
+    move[0] = move[0].ljust(65)
+    value, body = _value_and_move(raw_data, move)
+    assert value == want
+    assert body[0].kind == "MOVE" and body[0].data["from"] == E.Lit(
+        "M" * 50 + " " * (65 - len(move[0].rstrip())) + "MORE"
+    )
+
+
+@pytest.mark.parametrize("q", ["'", '"'])
+def test_a_continued_literal_keeps_a_doubled_quote_and_the_other_quote(q):
+    pytest.importorskip("tree_sitter_language_pack")
+    other = '"' if q == "'" else "'"
+    head = f"IT{q}{q}S A {other}QUOTED{other} WORD AND MORE TEXT TO REACH COLUMN SEVENTY-TWO"
+    raw_data = _continued(q, head, f"END{q}{q}X", 12)
+    value, _ = _value_and_move(raw_data, [])
+    text = raw_data[0][raw_data[0].index(q) + 1 :].ljust(65 - raw_data[0].index(q) - 1) + f"END{q}{q}X"
+    assert value == text.replace(q * 2, q) and f"IT{q}S A {other}QUOTED{other}" in value
+
+
+@pytest.mark.parametrize("q", ["'", '"'])
+def test_a_doubled_quote_at_column_72_of_a_rewrapped_row_stays_together(q):
+    pytest.importorskip("tree_sitter_language_pack")
+    from gitgalaxy.tools.cobol_to_java.det import layout as L
+    from gitgalaxy.tools.cobol_to_java.det import source as SRC
+
+    lead = f"01 F PIC X(90) VALUE {q}"
+    lit = "A" * (65 - len(lead) - 1) + q * 2 + "B" * 40  # the pair in columns 72-73 of one long joined line
+    lines = _lines(["IDENTIFICATION DIVISION.", "PROGRAM-ID. T.", "DATA DIVISION.", "WORKING-STORAGE SECTION.",
+                    lead + lit + q + ".", "PROCEDURE DIVISION.", "    GOBACK."])  # fmt: skip
+    text, _ = SRC.as_fixed_rows(lines)
+    assert all(len(r) <= 72 for r in text.splitlines())
+    assert L.parse(lines)[0].values[0][1] == lit.replace(q * 2, q)
+
+
+def test_a_doubled_quotation_mark_is_one_literal_in_a_value_and_a_statement():
+    # the grammar had split VALUE "IT""S" into two values ("IT", "S") and refused MOVE "IT""S"
+    pytest.importorskip("tree_sitter_language_pack")
+    value, body = _value_and_move(['01 F PIC X(4) VALUE "IT""S".'], ['    MOVE "IT""S" TO A.'])
+    assert value == 'IT"S' and body[0].data["from"] == E.Lit('IT"S')
+
+
+def test_the_doubled_quotation_mark_stand_in_is_refused_by_name_in_the_source():
+    from gitgalaxy.tools.cobol_to_java.det import source as SRC
+
+    assert "U+001E" in SRC.unmodelled(_lines([f"    MOVE 'A{SRC.QQ}B' TO A."]))
+
+
+def test_an_exec_sql_line_keeps_its_apostrophes_when_rewrapped():
+    from gitgalaxy.tools.cobol_to_java.det import source as SRC
+
+    sql = "    EXEC SQL SELECT A INTO :A FROM T WHERE B = '" + "X" * 60 + "' END-EXEC."
+    text, _ = SRC.as_fixed_rows(_lines([sql, "    DISPLAY '" + "Y" * 70 + "'."]))
+    joined = SRC.unwrap(text).splitlines()
+    assert joined[0][7:] == sql and joined[1][7:] == '    DISPLAY "' + "Y" * 70 + '".'
+
+
+def test_a_hex_literal_on_a_rewrapped_line_keeps_its_value():
+    pytest.importorskip("tree_sitter_language_pack")
+    from gitgalaxy.tools.cobol_to_java.det import layout as L
+
+    def value(v: str):
+        return L.parse(_lines(["IDENTIFICATION DIVISION.", "PROGRAM-ID. T.", "DATA DIVISION.",
+                               "WORKING-STORAGE SECTION.", f"01 F PIC X(2) VALUE {v}.", "PROCEDURE DIVISION.",
+                               "    GOBACK."]))[0].values  # fmt: skip
+
+    # past column 72 (the line is re-wrapped, its apostrophe literals written in quotation marks)
+    assert value("X'C1C2'" + " " * 60 + "") == value("X'C1C2'") == [("hex", b"\xc1\xc2")]
+
+
+# ---- #4462: PROGRAM-ID without its period (estate-crucible LOAN LNCALC) ------------------------------------------
+@pytest.mark.parametrize("header", ["PROGRAM-ID LNCALC.", "PROGRAM-ID   LNCALC IS INITIAL.", "PROGRAM-ID. LNCALC."])
+def test_program_id_without_its_period_parses(header):
+    pytest.importorskip("tree_sitter_language_pack")
+    from gitgalaxy.tools.cobol_to_java.det import layout as L
+    from gitgalaxy.tools.cobol_to_java.det import source as SRC
+
+    raw = _fixed_rows(["IDENTIFICATION DIVISION.", header, "AUTHOR.       LOAN SYSTEMS.", "DATA DIVISION.",
+                  "WORKING-STORAGE SECTION.", "01  WS-RATE PIC S9(3)V9(8) COMP-3.", "PROCEDURE DIVISION.",
+                  "    GOBACK."])  # fmt: skip
+    lines = SRC.logical_lines(raw, "t")
+    assert lines[1].text.startswith("PROGRAM-ID.") and lines[1].text.split()[1].rstrip(".") == "LNCALC"
+    assert [r.name for r in L.parse(lines)] == ["WS-RATE"]
 
 
 def test_missing_language_pack_names_the_translator_extra(monkeypatch):
@@ -864,3 +1238,156 @@ def test_missing_language_pack_names_the_translator_extra(monkeypatch):
     for call in (L._parser, lambda: S.parse([Line("PROCEDURE DIVISION.", "x", 1)])):
         with pytest.raises(ImportError, match=r"pip install gitgalaxy\[translator\]"):
             call()
+
+
+# ---- #4528: TS items in the region's code page; DTO copybooks in their declared page --------------------------------
+class _TsCics(_RespCics):
+    def int_(self, text):
+        return f"INT({text})"
+
+
+def test_ts_items_move_between_the_storage_page_and_the_regions():
+    """#4528: a TS item is "the bytes the program wrote, in the region's code page" (CicsTask), as the COBOL side's
+    region keeps it (cics-crucible SPEC 2: CCSID 037). The port's storage is in CS (CobolRecords.charset()): WRITEQ
+    hands the region the item in REGION's page, READQ moves it back into CS. hc-perform-range: WS-ONE VALUE 'W' was
+    written as X'57' ('ï' in CCSID 037), and an item 'A' read back as X'C1' ('Á' in Latin-1)."""
+    c = _TsCics()
+    assert not c.region_used and c.region == "IBM037"
+    out = c.command("WRITEQ TS QUEUE('Q') FROM(REC) LENGTH(10)", "")
+    assert (
+        out[0]
+        == "CicsTask.TsResult ts1 = task.writeqTs('Q'.strip(), DetCics.toRegion(DetCics.bytes(f_REC, INT(10)), CS, REGION));"
+    )
+    out = c.command("WRITEQ TS QUEUE('Q') FROM(REC) ITEM(3) REWRITE", "")
+    assert "DetCics.toRegion(DetCics.bytes(f_REC, f_REC.length()), CS, REGION)" in out[0]
+    out = c.command("READQ TS QUEUE('Q') INTO(REC) LENGTH(VARLEN) ITEM(2)", "")
+    assert "if (ts3.data() != null) DetCics.put(f_REC, DetCics.fromRegion(ts3.data(), REGION, CS));" in out
+    assert c.region_used
+
+
+@pytest.mark.parametrize(
+    ("declared", "page"),
+    [(None, "IBM037"), ("cp037", "IBM037"), ("cp273", "IBM273"), ("cp277", "IBM277"), ("cp1047", "IBM1047"),
+     ("cp1140", "IBM01140"), ("latin-1", "IBM037"), ("utf-8", "IBM037"), ("no-such-page", "IBM037")],
+)  # fmt: skip
+def test_the_region_page_is_the_estates_declared_ebcdic_page_else_ccsid_037(declared, page):
+    """#4528: the estate's declared code page for the program (EngineCopies.page, #4462) names the region's when it
+    is an EBCDIC page; an ASCII-family declaration says how the source was transferred, not which page the region
+    runs, so CICS's default CCSID 037 stands."""
+    assert C.region_page(declared) == page
+
+
+def test_a_dto_copybook_is_read_in_its_declared_page(tmp_path):
+    """#4528 (left by #4462): Cics.declared read a DTO's copybook as Latin-1 while the engine and the source reader
+    take the estate's declared page; an EBCDIC copybook was garbage. It is now read the way the program is."""
+    pytest.importorskip("tree_sitter_language_pack")
+    from gitgalaxy.tools.cobol_to_java.det.source import EngineCopies
+
+    member = "       05  CA-AMT  PIC S9(5) SIGN LEADING SEPARATE.\n       05  CA-NAME PIC X(10).\n"
+    (tmp_path / "CACOPY.cpy").write_bytes(member.encode("cp037"))
+    c = _TsCics()
+    c.g.copy_dirs = [tmp_path]
+    c.g.engine = EngineCopies(tmp_path / "P.cbl", tmp_path, {}, frozenset(), frozenset(), {"CACOPY.cpy": "cp037"})
+    leaf = C.Leaf("caAmt", "BigDecimal", "CA-AMT", "S9(5)", "DISPLAY", 0, 6, "CACOPY.cpy")
+    it = c.declared(leaf)
+    assert (it.name, it.size, it.sign_leading, it.sign_separate) == ("CA-AMT", 6, True, True)
+
+
+def _javac() -> Path | None:
+    home = os.environ.get("JDK_17") or os.environ.get("JAVA_HOME")
+    return Path(home) / "bin" if home and (Path(home) / "bin/javac").is_file() else None
+
+
+@pytest.mark.skipif(_javac() is None, reason="needs a JDK 17 (JAVA_HOME / JDK_17)")
+def test_det_cics_moves_ts_bytes_between_pages_strictly(tmp_path):
+    """#4528: DetCics.toRegion / fromRegion: Latin-1 storage <-> CCSID 037, every byte both ways (each page holds the
+    other's 256 characters), NL (X'15') as NEL -- the COBOL side's cp037, not the JDK's LF; the same page is the bytes
+    as they are; a byte one page cannot carry, or part of a multi-byte character, stops the run by name -- never a
+    substituted '?'. gitgalaxy.cics.charset names another region page."""
+    from gitgalaxy.tools.cobol_to_java.cobol_to_java_transaction_forge import CICS_TASK_JAVA
+    from gitgalaxy.tools.cobol_to_java.det import program as P
+
+    src = tmp_path / "src"
+    files = {"t/cics/CicsTask.java": CICS_TASK_JAVA.replace("__PACKAGE__", "t").replace("__ZONE__", "UTC"),
+             **{f"t/{k}": v for k, v in P.runtime_files("t", batch=False).items()}}  # fmt: skip
+    files["Main.java"] = """
+import java.nio.charset.Charset;
+import t.cobolrt.cics.DetCics;
+public class Main {
+    static String hex(byte[] b) { StringBuilder s = new StringBuilder(); for (byte x : b) s.append(String.format("%02X", x)); return s.toString(); }
+    public static void main(String[] a) {
+        Charset l1 = Charset.forName("ISO-8859-1"), region = DetCics.region("IBM037");
+        System.out.println(region + " " + hex(DetCics.toRegion("W A".getBytes(l1), l1, region)));
+        byte[] all = new byte[256];
+        for (int i = 0; i < 256; i++) all[i] = (byte) i;
+        System.out.println(java.util.Arrays.equals(all, DetCics.fromRegion(DetCics.toRegion(all, l1, region), region, l1)));
+        System.out.println(hex(DetCics.fromRegion(new byte[] {(byte) 0xC1, 0x40}, region, l1)));
+        System.out.println(DetCics.toRegion(all, region, region) == all);
+        System.out.println(hex(DetCics.fromRegion(new byte[] {0x15, 0x25}, region, l1)));
+        System.out.println(hex(DetCics.toRegion(all, l1, region)));
+        try { DetCics.toRegion(new byte[] {(byte) 0xC3, (byte) 0xA9}, Charset.forName("UTF-8"), region); }
+        catch (UnsupportedOperationException e) { System.out.println("refused: " + e.getMessage()); }
+        try { DetCics.toRegion(new byte[] {(byte) 0x80}, Charset.forName("windows-1252"), region); }
+        catch (UnsupportedOperationException e) { System.out.println("refused"); }
+        System.setProperty("gitgalaxy.cics.charset", "IBM273");
+        System.out.println(DetCics.region("IBM037"));
+    }
+}
+"""
+    for rel, text in files.items():
+        (src / rel).parent.mkdir(parents=True, exist_ok=True)
+        (src / rel).write_text(text, encoding="utf-8")
+    jdk = _javac()
+    import subprocess
+
+    built = subprocess.run([str(jdk / "javac"), "-nowarn", "-d", str(tmp_path / "classes"),  # noqa: S603
+                            *map(str, src.rglob("*.java"))], capture_output=True, text=True, check=False)  # fmt: skip
+    assert built.returncode == 0, built.stderr
+    out = subprocess.run([str(jdk / "java"), "-cp", str(tmp_path / "classes"), "Main"], capture_output=True,  # noqa: S603
+                         text=True, check=True).stdout.splitlines()  # fmt: skip
+    assert out[:5] == ["IBM037 E640C1", "true", "4120", "true", "850A"]  # NL is NEL, as Python's cp037 has it
+    assert out[5] == bytes(range(256)).decode("latin-1").encode("cp037").hex().upper()  # the stub's own table
+    assert out[6] == "refused: byte C3 is no character of UTF-8 on its own: not modelled"
+    assert out[7:] == ["refused", "IBM273"]
+
+
+# ---- #4534: a LINKed program's COMMAREA writes survive its abend --------------------------------------------------
+def test_an_abend_ending_the_program_throws_through_abended():
+    """#4534: ABEND with no exit at this level, and a LINK an abend below unwound past this level, end the program
+    through abended() -- which hands a LINKed program's COMMAREA back to its caller first -- not a bare Goback."""
+    c = _HandleCics()
+    assert c.command("ABEND ABCODE('HCX1')", "") == [
+        "String exit1 = task.abend('HCX1'.strip());", "if (exit1 == null) throw abended();", "if (true) GOTO(paragraph(exit1));"]  # fmt: skip
+    out = c.command("LINK PROGRAM('SUB')", "")
+    assert "if (task.ended()) throw abended();" in out and not any("new Goback()" in x for x in out)
+
+
+def test_a_linked_programs_commarea_goes_back_to_its_caller_when_an_abend_ends_it(tmp_path):
+    """#4534 (cics-crucible hc-abend-link sub-unhandled): IBM, COMMAREA in LINK and XCTL commands -- "the address of
+    the area is passed", so HCSUB's MOVE 's' TO CA-TRAIL before its QIDERR abend is in HCMAIN's storage when HCMAIN's
+    abend exit runs. caBack (the write-back RETURN runs) also runs when an abend ends the program at a LINK level
+    (level > 1): ABEND, an unhandled condition's default abend, an abend below unwound past it. Level 1 (a transaction,
+    a DPL mirror task) keeps nothing, as before: no local caller shares its COMMAREA."""
+    pytest.importorskip("tree_sitter_language_pack")
+    from gitgalaxy.tools.cobol_to_java.det import program as P
+
+    (tmp_path / "T3.cbl").write_text(
+        "       IDENTIFICATION DIVISION.\n       PROGRAM-ID. T3.\n       DATA DIVISION.\n"
+        "       WORKING-STORAGE SECTION.\n       01  WS-J                  PIC X(8)  VALUE SPACES.\n"
+        "       LINKAGE SECTION.\n       01  DFHCOMMAREA.\n           05  CA-TRAIL          PIC X(9).\n"
+        "       PROCEDURE DIVISION.\n       MAIN-PARA.\n           MOVE 's' TO CA-TRAIL(1:1)\n"
+        "           EXEC CICS READQ TS QUEUE('NONE') INTO(WS-J) ITEM(1) END-EXEC\n"
+        "           EXEC CICS ABEND ABCODE('HCX1') END-EXEC\n           EXEC CICS RETURN END-EXEC.\n",
+        encoding="utf-8",
+    )
+    (tmp_path / "proj/src/main/java/com/x").mkdir(parents=True)
+    stub = "package com.x.service;\nimport com.x.cics.CicsTask;\npublic class T3Service {\n" \
+           "    public void runTask(CicsTask task) {}\n}\n"  # fmt: skip
+    r = P.translate(tmp_path / "T3.cbl", [], stub, "com.x", {}, tmp_path / "proj")
+    assert r.stats["holes"] == []
+    body = r.java[r.java.index("private Goback abended()") :]
+    body = body[: body.index("\n    }\n")]
+    assert "if (task.level() > 1) {" in body and "caBack.run();" in body and "return new Goback();" in body
+    cond = r.java[r.java.index("private int condition(String cond)") :]
+    assert "if (label == null) {\n            throw abended();" in cond[: cond.index("\n    }\n")]
+    assert "throw abended();" in r.java[r.java.index("task.abend(") :]

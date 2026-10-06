@@ -1,0 +1,6 @@
+# The ONE place the mypy audit's toolchain is pinned. Read by:
+#   .github/workflows/mypy-audit.yml  (pip install -r tests/requirements-mypy.txt, then pip install -e .)
+#   tests/tools/pr_gates.py           (builds/reuses ~/.cache/gitgalaxy/mypy-<version> when local mypy differs)
+# Bump mypy here, regenerate tests/mypy_audit_baseline.json in the pinned venv, and land both together.
+mypy==2.4.0
+PyYAML==6.0.3

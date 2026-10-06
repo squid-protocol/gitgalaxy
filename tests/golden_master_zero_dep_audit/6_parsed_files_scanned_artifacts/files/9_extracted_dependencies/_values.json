@@ -13832,6 +13832,7 @@
         "crate::component::map_entities",
         "crate::query_data::derive_query_data_impl",
         "crate::query_filter::derive_query_filter_impl",
+        "proc_macro",
         "proc_macro2::Ident",
         "proc_macro2::Span",
         "proc_macro::TokenStream",
@@ -14058,11 +14059,11 @@
         "filtered_resource::*",
         "identifier::WorldId",
         "log::warn",
+        "self::FromWorld",
+        "self::World",
         "spawn_batch::*",
         "std::println",
         "std::sync::Mutex",
-        "super::FromWorld",
-        "super::World",
         "unsafe_world_cell::UnsafeEntityCell",
         "unsafe_world_cell::UnsafeWorldCell"
       ],
@@ -14072,7 +14073,7 @@
         "core::num::ParseIntError",
         "core::str::from_utf8_unchecked",
         "crate::path::ParsedPath",
-        "super::*",
+        "self::*",
         "super::Access",
         "super::ReflectPathError",
         "thiserror::Error"
@@ -14082,7 +14083,7 @@
         "bevy_math::Mat4",
         "bevy_math::Vec3",
         "bevy_math::Vec4",
-        "super::ViewRangefinder3d"
+        "self::ViewRangefinder3d"
       ],
       "rust/bevy/bevy_schedule_graph.rs": [
         "alloc::vec::Vec",
@@ -14091,8 +14092,8 @@
         "crate::schedule::graph::DiGraph",
         "crate::schedule::graph::Direction",
         "crate::schedule::graph::GraphNodeId",
-        "smallvec::SmallVec",
-        "super::*"
+        "self::*",
+        "smallvec::SmallVec"
       ]
     },
     "rust/bevy_asset_examples": {
@@ -14297,6 +14298,9 @@
         "Exp::*",
         "Test::*",
         "desugared::Test",
+        "self::*",
+        "self::flatten::*",
+        "self::flatten::enum_::*",
         "serde::de",
         "serde::de::Deserialize",
         "serde::de::Deserializer",
@@ -14319,8 +14323,7 @@
         "std::convert::TryFrom",
         "std::fmt",
         "std::iter::FromIterator",
-        "std::marker::PhantomData",
-        "super::*"
+        "std::marker::PhantomData"
       ]
     },
     "rust/syn": {
@@ -14518,6 +14521,7 @@
       ],
       "rust/tokio/maybe_done.rs": [
         "pin_project_lite::pin_project",
+        "self::maybe_done",
         "std::future::Future",
         "std::future::IntoFuture",
         "std::pin::Pin",
@@ -14525,8 +14529,7 @@
         "std::task::Context",
         "std::task::Poll",
         "std::task::Wake",
-        "std::task::ready",
-        "super::maybe_done"
+        "std::task::ready"
       ],
       "rust/tokio/tests.rs": [
         "crate::fs::mocks::*",
@@ -14675,9 +14678,9 @@
         "done::DoneReason",
         "done::TrapKind",
         "pulley_macros::interp_disable_if_cfg",
-        "super::Encode",
-        "super::Interpreter",
-        "super::MachineState",
+        "self::Encode",
+        "self::Interpreter",
+        "self::MachineState",
         "wasmtime_core::alloc::TryVec",
         "wasmtime_core::error::OutOfMemory",
         "wasmtime_core::math::WasmFloat",

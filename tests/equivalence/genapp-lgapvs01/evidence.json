@@ -7,7 +7,7 @@
   "paths": [
    "tests/equivalence/genapp-lgapvs01/port/service/Lgapvs01Service.java"
   ],
-  "sha256": "b8a9f07239a09035b95ba05c9c97fb644e77c9e47d81b45a826cd8a8c6f6fc3d",
+  "sha256": "1113c4e2f3bef8ffb8e63d6fe8d0b28afc6c2f1e348f96721b0cc960a1cbadfd",
   "entry_points": [
    "handleLink",
    "runTask"
@@ -19,7 +19,7 @@
     "tests/equivalence/genapp-lgapvs01/port/**"
    ],
    "files": 1,
-   "sha256": "b8a9f07239a09035b95ba05c9c97fb644e77c9e47d81b45a826cd8a8c6f6fc3d"
+   "sha256": "1113c4e2f3bef8ffb8e63d6fe8d0b28afc6c2f1e348f96721b0cc960a1cbadfd"
   },
   "case": {
    "paths": [
@@ -43,7 +43,7 @@
     "tests/tools/java_target_matrix.py"
    ],
    "files": 11,
-   "sha256": "cd0c22f11e735f25b3d655aac6b89670b07cba2e23856c7c825291b64fa994c5"
+   "sha256": "304049dfdcedf444507b3d008cb8a9e020ba663f927b0d53954ff5c7ef95f7ea"
   },
   "oracle": {
    "paths": [
@@ -56,14 +56,14 @@
     "tests/tools/equivalence_sql.py"
    ],
    "files": 16,
-   "sha256": "ee924d311b67148f9104af7158c534cc2fb9a50bb35ca6f7758d6a40efda414c"
+   "sha256": "fe66479a555d6d3a4a6e9604c387f1b5da27762b8d6a8b2deacfa0c502130280"
   },
   "generator": {
    "paths": [
     "gitgalaxy/tools/cobol_to_java/**"
    ],
    "files": 60,
-   "sha256": "d732e7f21fab2ba4f65c7a3dcf403d1f341479111a3a0d757cbacd167c1a2daa"
+   "sha256": "6eab156270c21ef910bcf2883406275e52c707d5fd6bdbb7518744dc30ddaa48"
   },
   "corpus": {
    "name": "cics-genapp",
@@ -73,10 +73,10 @@
   "differences": {
    "sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
   },
-  "digest": "66f5ca4f0d3b1c8fe2096a890ee562910ab8717bdac5da78db8bb175ef73c2e5"
+  "digest": "ff83e46ebd95da718c40333d1af7deb43e83b8aac2dd04e6e25640fc03eb0de7"
  },
  "proof": {
-  "at": "2026-10-05T14:55:19Z",
+  "at": "2026-10-06T10:45:45Z",
   "verdict": "proven",
   "runs": 8,
   "fault_runs": 0,
@@ -129,8 +129,8 @@
    "failed": [],
    "error": null
   },
-  "harness_commit": "af9e62c055439d3c758d2a794a211fa28ad41e41+uncommitted",
-  "inputs_digest": "66f5ca4f0d3b1c8fe2096a890ee562910ab8717bdac5da78db8bb175ef73c2e5"
+  "harness_commit": "ca529169609d6e48c2124510473d4539ea576c8e+uncommitted",
+  "inputs_digest": "ff83e46ebd95da718c40333d1af7deb43e83b8aac2dd04e6e25640fc03eb0de7"
  },
  "coverage": {
   "paragraphs": {
@@ -172,7 +172,7 @@
    "total": 0
   },
   "source": "the proof's own traced COBOL runs (cobol_coverage.py)",
-  "inputs_digest": "66f5ca4f0d3b1c8fe2096a890ee562910ab8717bdac5da78db8bb175ef73c2e5"
+  "inputs_digest": "ff83e46ebd95da718c40333d1af7deb43e83b8aac2dd04e6e25640fc03eb0de7"
  },
  "reach": {
   "entry_points": [
@@ -182,30 +182,24 @@
   "unproven": [
    {
     "class": "Lgapvs01Service",
-    "method": "handleTransaction",
-    "line": 40,
-    "kind": "left_as_generated"
-   },
-   {
-    "class": "Lgapvs01Service",
     "method": "linkLgstsq",
-    "line": 210,
+    "line": 200,
     "kind": "left_as_generated"
    },
    {
     "class": "Lgapvs01Service",
     "method": "writeKsdspoly",
-    "line": 215,
+    "line": 205,
     "kind": "left_as_generated"
    }
   ],
   "counts": {
    "stub": 0,
-   "left_as_generated": 3,
+   "left_as_generated": 2,
    "ported_unproven": 0
   },
   "generated_compared": true,
-  "port_sha256": "b8a9f07239a09035b95ba05c9c97fb644e77c9e47d81b45a826cd8a8c6f6fc3d"
+  "port_sha256": "1113c4e2f3bef8ffb8e63d6fe8d0b28afc6c2f1e348f96721b0cc960a1cbadfd"
  },
  "mutation": null,
  "differences": [],
@@ -217,7 +211,7 @@
   "compiler_options": null,
   "image": {
    "name": "gitgalaxy-gnucobol:3",
-   "id": "sha256:d7e387df360c519ce8945a1f6d748c8dafab06f50551b23ddf85d6373a4dcd6e",
+   "id": "sha256:d81f386912111e825d75a5f9856f571118ca4586049923555526cf7419454be3",
    "base": "debian:bookworm-slim@sha256:3783cc01769c7b2b1b83a5c5ad96c815348e28ed7da68e2e3687004faa906251",
    "matches_pin": true,
    "mismatches": []
@@ -233,11 +227,11 @@
    },
    {
     "path": "tests/equivalence/cics/DFHEIBLK.cpy",
-    "sha256": "fa4e0e29e8155a653c685420eb159fc5ec491ccf8eba13ccac1eb4962692fcf0"
+    "sha256": "ab7fe78f8e8496673924ed6a663619a320a48efcc474899b033c92c9fda48461"
    },
    {
     "path": "tests/equivalence/cics/ggcics.c",
-    "sha256": "2aff8a7a22af537b24cb03caafe4d6df30c30fde1cb6f548ba376616e6617214"
+    "sha256": "5d1950c7e6a9a0053304c0020175888ce25961f59235ee78799691df2036a1ee"
    },
    {
     "path": "tests/equivalence/db2/SQLCA.cpy",
@@ -300,11 +294,11 @@
   "porting_rules_sha256": null,
   "proposed_at": "2026-10-02T20:44:17+00:00",
   "generator_version": null,
-  "edited_after": "none: the files are the model's answer as the loop stored it",
+  "edited_after": "the deployed entry points (facades) were brought to the generator's by tests/tools/port_surface.py (#4343; see history 'resurfaced'); runTask and the logic it runs are the model's answer",
   "provenance_file": {
    "path": "tests/equivalence/genapp-lgapvs01/port/provenance.json",
    "format": "porting-loop-provenance/1",
-   "sha256": "b8993ebff4159746fe7a45fc40978fc7a3c929fc64192aaf6728509bb18a99d0"
+   "sha256": "e978456090c1b2adff289f726c43cb912a31afaea2ec84efc36fc7f5a6dc4182"
   }
  },
  "approvals": []

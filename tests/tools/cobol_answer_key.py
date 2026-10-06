@@ -6764,9 +6764,8 @@ _CSD_EXCLUDED = frozenset({"DB2TRAN", "DB2ENTRY", "DB2CONN"})
 def _csd_pairs(text: str) -> list[tuple[str, str]]:
     """The (transid, program) pairs a CSD deck declares. A DEFINE record has no
     continuation character, so it runs to the next command / `*` comment / `//`
-    line / blank line. Both record shapes yield the same edge:
-    `DEFINE TRANSACTION(T) ... PROGRAM(P)` and the `DEFINE PROGRAM(P) ...
-    TRANSID(T)` autoinstall pairing; `DEFINE DB2TRAN`'s TRANSID is excluded."""
+    line / blank line. Only `DEFINE TRANSACTION(T) ... PROGRAM(P)` routes (#4503: a
+    `DEFINE PROGRAM`'s TRANSID is the remote-DPL mirror); `DEFINE DB2TRAN`'s TRANSID is excluded."""
     pairs: list[tuple[str, str]] = []
     lines = text.split("\n")
     i = 0
@@ -6789,8 +6788,7 @@ def _csd_pairs(text: str) -> list[tuple[str, str]]:
             operands = {m.group(1).upper(): m.group(2).upper() for m in _CSD_OPERAND.finditer("\n".join(record))}
             if resource == "TRANSACTION" and operands.get("PROGRAM"):
                 pairs.append((name, operands["PROGRAM"]))
-            elif resource == "PROGRAM" and operands.get("TRANSID"):
-                pairs.append((operands["TRANSID"], name))
+            # #4503: a DEFINE PROGRAM's TRANSID is the remote-DPL mirror, not a route.
         i = j
     return pairs
 

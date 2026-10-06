@@ -35,6 +35,7 @@ from collections.abc import Iterator
 import cobol_coverage as cov  # #4023
 import equivalence_common as common
 import equivalence_db2
+import equivalence_inputs  # #3804
 import equivalence_oracle
 import equivalence_sql
 
@@ -167,12 +168,22 @@ AID_KEYS = frozenset(["ANYKEY", "ENTER", "CLEAR", "CLRPARTN", "LIGHTPEN", "OPERI
 def _aid(opts: dict[str, str | None], labels: list[str]) -> list[str]:
     """#4007: after an input command (RECEIVE MAP, terminal RECEIVE) that completed normally, HANDLE AID's
     label for the key pressed -- unless RESP or NOHANDLE suspends the handlers (IBM, RESP: "RESP implies
-    NOHANDLE"). A condition the command raised is handled first (_resp); which one wins when both apply is
-    not documented, and the crucible never has both."""
+    NOHANDLE"; NOHANDLE: "no action is to be taken for any condition or attention identifier (AID)")."""
     if opts.get("RESP") or "NOHANDLE" in opts:
         return []
     return (["IF GG-RESP = 0", "    MOVE EIBAID TO GG-NAME1", "    CALL 'GGCAID' USING GG-CICS"]
             + [f"    {ln}" for ln in _transfer(labels)] + ["END-IF"])  # fmt: skip
+
+
+def _input_resp(opts: dict[str, str | None], labels: list[str], handle_aid: bool) -> list[str]:
+    """#4414: an input command's outcome (_resp) and, in a program that issues HANDLE AID, its AID (_aid). Which
+    CICS acts on first when the command also raised a condition and a HANDLE AID label applies to the key is not
+    documented: GGCAID, called first with the condition, records AID-REFUSED for the driver to refuse."""
+    if not handle_aid:
+        return _resp(opts, True, labels)
+    first = ([] if opts.get("RESP") or "NOHANDLE" in opts
+             else ["IF GG-RESP NOT = 0", "    MOVE EIBAID TO GG-NAME1", "    CALL 'GGCAID' USING GG-CICS", "END-IF"])  # fmt: skip
+    return first + _resp(opts, True, labels) + _aid(opts, labels)
 
 
 # #4003: the commands whose options name the labels a program's handlers transfer to.
@@ -223,7 +234,7 @@ def _handle(pairs: list[tuple[str, str | None]], labels: list[str]) -> list[str]
         for key, label in pairs[2:]:
             if key not in AID_KEYS:
                 raise Unsupported(f"HANDLE AID {key}: not an attention key", ["HANDLE AID"])
-            index = labels.index(label.upper()) + 1 if label else 0
+            index = labels.index(label.upper()) + 1 if label else -1  # #4414: -1 deactivated (GGCAID)
             lines += [f"MOVE '{key}' TO GG-NAME1", f"MOVE {index} TO GG-ITEM"] + _call("GGCHAID", [])
         return lines
     if kind == "ABEND":
@@ -238,6 +249,8 @@ def _handle(pairs: list[tuple[str, str | None]], labels: list[str]) -> list[str]
     for cond, label in pairs[2:]:
         if cond not in DFHRESP or cond == "NORMAL":
             raise Unsupported(f"{verb} CONDITION {cond}: not a documented condition", [f"{verb} CONDITION"])
+        if verb == "IGNORE" and cond == "ERROR":  # #4414: IBM does not say whether ERROR's action can be to ignore
+            raise Unsupported("IGNORE CONDITION ERROR: not documented", ["IGNORE CONDITION ERROR"])
         index = -1 if verb == "IGNORE" else (labels.index(label.upper()) + 1 if label else 0)
         lines += [f"MOVE {DFHRESP[cond]} TO GG-NUM", f"MOVE {index} TO GG-ITEM"] + _call("GGCHCND", [])
     return lines
@@ -503,22 +516,31 @@ def translate_command(body: str, labels: list[str] | None = None, handle_aid: bo
             raise Unsupported("RECEIVE MAP(data-name) without INTO")
         return ([name(opts["MAP"], "GG-NAME1"), name(opts.get("MAPSET") or opts["MAP"], "GG-NAME2")]
                 + _call("GGCRECV", [f"BY REFERENCE {into}", f"BY VALUE LENGTH OF {into}"])
-                + _resp(opts, True, labels) + (_aid(opts, labels) if handle_aid else []))  # fmt: skip
+                + _input_resp(opts, labels, handle_aid))  # fmt: skip
     if verb == "RECEIVE":  # #4005: terminal input, unformatted (SPEC 5: the step's `text`)
-        for bad in ("SET", "NOTRUNCATE", "BUFFER", "PARTN", "SESSION", "CONVID", "LDC"):
+        for bad in ("BUFFER", "ASIS", "PARTN", "SESSION", "CONVID", "LDC"):
             if bad in opts:
                 raise Unsupported(f"RECEIVE {bad}", [f"RECEIVE {bad}"])
-        into = opts.get("INTO")
-        if not into:
-            raise Unsupported("RECEIVE without INTO", ["RECEIVE"])
+        into, setp = opts.get("INTO"), opts.get("SET")
         # LENGTH / FLENGTH is in-out: in, the most INTO takes (unless MAXLENGTH / MAXFLENGTH says so);
         # out, the length of the data. COBOL may omit it: the translator supplies LENGTH OF INTO.
         length = opts.get("LENGTH") or opts.get("FLENGTH")
-        limit = opts.get("MAXLENGTH") or opts.get("MAXFLENGTH") or length or f"LENGTH OF {into}"
-        lines = [f"MOVE {limit} TO GG-LEN"] + _call("GGCRECT", [f"BY REFERENCE {into}"])
+        most = opts.get("MAXLENGTH") or opts.get("MAXFLENGTH")
+        flags = "MOVE 'NOTRUNCATE' TO GG-FLAGS" if "NOTRUNCATE" in opts else "MOVE SPACES TO GG-FLAGS"  # #4413
+        if setp:  # #4413: SET(ADDRESS OF record), MAXLENGTH and LENGTH(data-area) required (det/cics.py says why)
+            m = re.fullmatch(r"ADDRESS\s+OF\s+([A-Z0-9-]+)", setp, re.I)
+            if into or not m or not most or not length:
+                raise Unsupported("RECEIVE SET other than ADDRESS OF with MAXLENGTH and LENGTH", ["RECEIVE SET"])
+            return ([flags, f"MOVE {most} TO GG-LEN"] + _call("GGCRECS", ["BY REFERENCE GG-PTR"])
+                    + [f"SET ADDRESS OF {m.group(1)} TO GG-PTR", f"MOVE GG-LEN TO {length}"]
+                    + _input_resp(opts, labels, handle_aid))  # fmt: skip
+        if not into:
+            raise Unsupported("RECEIVE without INTO", ["RECEIVE"])
+        limit = most or length or f"LENGTH OF {into}"
+        lines = [flags, f"MOVE {limit} TO GG-LEN"] + _call("GGCRECT", [f"BY REFERENCE {into}"])
         if length:
             lines.append(f"MOVE GG-LEN TO {length}")
-        return lines + _resp(opts, True, labels) + (_aid(opts, labels) if handle_aid else [])
+        return lines + _input_resp(opts, labels, handle_aid)
     if verb == "WRITEQ" and "TD" in opts:  # transient data: a record on an extrapartition / intrapartition queue
         for bad in ("SYSID",):
             if bad in opts:
@@ -545,6 +567,15 @@ def translate_command(body: str, labels: list[str] | None = None, handle_aid: bo
                 raise Unsupported("SEND MAP(data-name) without FROM")
             args = [f"BY REFERENCE {src}", f"BY VALUE {opts.get('LENGTH') or f'LENGTH OF {src}'}"]
         return lines + _call("GGCSMAP", args) + _resp(opts, can_fail=False)
+    if verb == "SEND" and "CONTROL" in opts:  # #4413: device controls; CURSOR's value in GG-LEN, -1: none
+        bad = [o for o in opts if o not in ("SEND", "CONTROL", "ERASE", "ERASEAUP", "FREEKB", "ALARM", "FRSET",
+                                            "CURSOR", "RESP", "RESP2", "NOHANDLE")]  # fmt: skip
+        if bad or ("CURSOR" in opts and not opts["CURSOR"]):
+            raise Unsupported(f"SEND CONTROL {' '.join(bad) or 'CURSOR without a value'}", ["SEND CONTROL"])
+        ctl = sorted(o for o in opts if o in ("ERASE", "ERASEAUP", "FREEKB", "ALARM", "FRSET", "CURSOR"))
+        return ([f"MOVE '{' '.join(ctl)[:40]}' TO GG-FLAGS" if ctl else "MOVE SPACES TO GG-FLAGS",
+                 f"MOVE {opts.get('CURSOR') or '-1'} TO GG-LEN"]
+                + _call("GGCSCTL", []) + _resp(opts, can_fail=False))  # fmt: skip
     if verb == "SEND" and ("TEXT" in opts or "FROM" in opts) and "CONTROL" not in opts:
         src = opts.get("FROM")
         if not src:
@@ -1145,11 +1176,15 @@ def run_cobol_cics(case: dict[str, Any], corpus: Path, work: Path, files: list[d
         for f in files
     ), encoding="ascii")  # fmt: skip
     (work / "files").mkdir(exist_ok=True)
+    generated = equivalence_inputs.generate_inputs(case, corpus)  # #3804: `@generate` files, from their layouts
     for f in files:
         spec = case.get("datasets", {}).get(f["base"])
         if spec is None:
             raise Unsupported(f"the case gives no data for {f['base']} (CICS file {f['file']})")
-        (work / "files" / f["base"]).write_bytes(case_file_records(case, corpus, spec, f["reclen"], enc))
+        data = (
+            generated[f["base"]] if f["base"] in generated else case_file_records(case, corpus, spec, f["reclen"], enc)
+        )
+        (work / "files" / f["base"]).write_bytes(data)
     ca_fields = commarea_fields(corpus, case)
     # The COBOL programs the program CALLs (COTRN02C -> CSUTLDTC), as they are, and the LE service models
     # (tests/equivalence/le: CEEDAYS) they may call in turn.
@@ -1793,7 +1828,7 @@ FACADE_JAVA = """    /** #4449: a facade did not run the scenario's task the way
             if (top != null) {
                 throw new FacadeRefused("handleTransaction of " + program + " did not run its task in the region");
             }
-            if (used.getReturnType() != void.class && got != scenario.returned(Object.class)) {
+            if (used.getReturnType() != void.class && !answered(got, scenario, used.getReturnType())) {
                 throw new FacadeRefused("handleTransaction of " + program
                         + " answered a COMMAREA other than the one its RETURN passes on");
             }
@@ -1865,6 +1900,25 @@ FACADE_JAVA = """    /** #4449: a facade did not run the scenario's task the way
             } catch (IllegalAccessException e) {
                 throw new IllegalStateException(e);
             }
+        }
+    }
+
+    /** Whether a facade answered the COMMAREA its task's RETURN passed on: that very object -- or, where the facade
+     *  answers its own DTO and the task RETURNed another record (#4449), those bytes read through it (task.returned):
+     *  a fresh object of the facade's type, laid out as the same bytes. */
+    static boolean answered(Object got, CicsTask task, Class<?> type) {
+        Object raw = task.returned(Object.class);
+        if (got == raw) {
+            return true;
+        }
+        if (raw == null || got == null || type.isInstance(raw) || got.getClass() != type) {
+            return false;
+        }
+        try {
+            Method bytes = type.getMethod("toCommarea");
+            return java.util.Arrays.equals((byte[]) bytes.invoke(got), (byte[]) bytes.invoke(task.returned(type)));
+        } catch (ReflectiveOperationException | RuntimeException e) {
+            return false;
         }
     }
 
@@ -2751,6 +2805,7 @@ def run_case(case: dict[str, Any], corpus: Path, work: Path, port: bool = True, 
     for extra in case.get("programs", []):  # the programs the task LINKs to use files of their own
         files += [f for f in stub_files(ir, extra["program_source"], case.get("datasets"))
                   if f["file"] not in {x["file"] for x in files}]  # fmt: skip
+    case = equivalence_inputs.prepare_cics_case(case, corpus, files)  # #3804: generated files and scenarios
     # #4173: SQL faults -- `auto` adds a task per SQL statement the tasks executed (enumerated_sql_faults), each run
     # on both sides; `declared` runs only the scenarios' own sql_faults; `none` drops those too
     if sql_faults == "none":

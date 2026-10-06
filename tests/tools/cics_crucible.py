@@ -144,6 +144,7 @@ COBOL_CAPS = cc.Capabilities(
     events={
         "SEND-MAP": BMS_KEYS,
         "SEND-TEXT": frozenset({"text", "length", "options"}),
+        "SEND-CONTROL": frozenset({"options", "cursor"}),  # #4413
         "RECEIVE-MAP": frozenset({"map", "mapset", "resp"}),
         "RECEIVE": frozenset({"resp", "length", "data"}),
         "RETURN": frozenset({"level", "transid", "commarea", "caller_commarea"}),
@@ -168,6 +169,7 @@ JAVA_CAPS = cc.Capabilities(
     events={
         "SEND-MAP": BMS_KEYS,  # #4001: resolved like the stub's, from what CicsTask.sendMap recorded
         "SEND-TEXT": frozenset({"text", "length", "options"}),
+        "SEND-CONTROL": frozenset({"options", "cursor"}),  # #4413
         "RECEIVE": frozenset({"resp", "length", "data"}),
         "RECEIVE-MAP": frozenset({"map", "mapset", "resp"}),  # #4009
         "RETURN": frozenset({"level", "transid", "commarea", "caller_commarea"}),
@@ -881,6 +883,7 @@ class EquivalenceRunTest {
                 if (step != null && step.has("text")) {
                     t.withTerminalInput(step.get("text").asText());
                 }
+                t.withEndOfChain("LUTYPE2".equals(plan.path("terminal_device").asText()));  // #4413
                 if (sc.path("fault_plans").has(transid)) {  // #4049: the conditions planned for this TRANSID's tasks
                     List<String> faults = new ArrayList<>();
                     sc.get("fault_plans").get(transid).forEach(f -> faults.add(f.asText()));
@@ -1245,10 +1248,17 @@ def java_plan(case: cc.Case, src: Path) -> dict[str, Any]:
         "programs": sorted(case.csd["programs"]),  # #4004: LINK's PGMIDERR
         "clock": case.data["clock"],  # #4006: the scheduler's virtual clock and terminal
         "terminal": case.data["terminal"],
+        "terminal_device": terminal_device(case),  # #4413: LUTYPE2 raises EOC on RECEIVE
         "services": services,
         "screens": screens,
         "scenarios": scenarios,
     }
+
+
+def terminal_device(case: cc.Case) -> str:
+    """#4413: the DEVICE of the case terminal's TYPETERM in the case CSD; the reference region's 3270 logical unit
+    (SPEC section 2) when the CSD does not define the terminal."""
+    return (case.csd.get("terminals") or {}).get(case.data["terminal"], "3270")
 
 
 # A generated contract DTO's field comment (cobol_to_java_transaction_forge): `// WS-CA: PIC X, offset 0, 1 bytes (...)`.
@@ -1377,6 +1387,10 @@ def java_actual(case: cc.Case, raw: dict[str, Any], src: Path,
                     ev["fields"], ev["cursor"] = java_send_map(screen, e)
             elif kind == "SEND-TEXT":  # #4009: the FROM data, its LENGTH and options
                 ev.update(text=e.get("text"), length=e.get("length"), options=e.get("options") or [])
+            elif kind == "SEND-CONTROL":  # #4413: the options, CURSOR's offset
+                ev["options"] = e.get("options") or []
+                if e.get("cursor") is not None:
+                    ev["cursor"] = {"offset": e["cursor"]}
             elif kind == "RECEIVE":  # #4005: the data as text, the area's bytes in the stub's page
                 ev.update(resp=e.get("resp"), length=e.get("length"),
                           data=cc.RawArea(str(e.get("data") or "").encode("latin-1"), "latin-1"))  # fmt: skip
@@ -1614,6 +1628,11 @@ def _cobol_events(out: Path, program: str, screens: Optional[dict[str, Screen]] 
         elif verb == "SEND-TEXT":
             text = cc.to_ebcdic(cc.RawArea(data, "latin-1"))
             ev.update(text=text, length=int(arg("len") or 0), options=[o for o in opts if o in SEND_OPTIONS])
+        elif verb == "SEND-CONTROL":  # #4413
+            ev["options"] = [o for o in opts if o in SEND_OPTIONS]
+            cur = int(arg("cursor") or -1)
+            if cur >= 0:
+                ev["cursor"] = {"offset": cur}
         elif verb == "RECEIVE-MAP":
             ev.update(map=arg("map"), mapset=arg("mapset"), resp=names.get(int(arg("resp") or 0), arg("resp")))
         elif verb == "RECEIVE":  # #4005: `len` is LENGTH after the command, the blob what went INTO
@@ -1629,6 +1648,14 @@ def _cobol_events(out: Path, program: str, screens: Optional[dict[str, Screen]] 
             resp = names.get(int(arg("resp") or 0), arg("resp"))
             ev.update(queue=bytes.fromhex(arg("queue")).decode("latin-1"), data=cc.RawArea(data, "latin-1"), resp=resp,
                       item=int(arg("item")) if resp == "NORMAL" else None)  # fmt: skip
+        elif verb == "RECEIVE-REFUSED":  # #4413
+            ev = {"event": "DRIVER-ERROR", "program": issuer,
+                  "message": "RECEIVE NOTRUNCATE leaving data retained on an LUTYPE2 terminal: EOC is not documented"}  # fmt: skip
+        elif verb == "AID-REFUSED":  # #4414: what IBM's HANDLE AID does not say
+            ev = {"event": "DRIVER-ERROR", "program": issuer,
+                  "message": "HANDLE AID: a key deactivated while ANYKEY has a label" if arg("deactivated") else
+                             "a HANDLE AID label and a condition on one input command: which CICS takes first is "
+                             "not documented"}  # fmt: skip
         elif verb == "RECEIVE-WAIT":
             ev = {"event": "DRIVER-ERROR", "program": issuer,
                   "message": "a second terminal RECEIVE in one task waits for input no scenario step gives"}  # fmt: skip
@@ -1921,6 +1948,7 @@ def run_task(case: cc.Case, box: "Container", work: Path, rel: str, ts: str, tra
                               encoding="ascii")  # fmt: skip
     box.sh(f"cd /work && {cov.trace_env(f'/work/{rel}/{cov.TRACE_NAME}')}"
            f"GGCICS_DIR=/work/{rel} GGCICS_OUT=/work/{rel}/out EIBIN=/work/{rel}/eib.in "
+           f"{'GGCICS_LU2=1 ' if terminal_device(case) == 'LUTYPE2' else ''}"  # #4413: EOC on RECEIVE
            f"GGCICS_TS=/work/{ts} GGCICS_NOW={frame['at']} COB_CURRENT_DATE='{when.strftime('%Y/%m/%d %H:%M:%S')}.00' ./bin/task "
            f"> /work/{rel}/stdout.txt 2>&1")  # fmt: skip
     task["events"] = _cobol_events(d / "out", program, screens)

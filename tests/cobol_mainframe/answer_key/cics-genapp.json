@@ -968,9 +968,7 @@
           "line": 117
         }
       ],
-      "transactions": [
-        "DSCA"
-      ],
+      "transactions": [],
       "cics": true,
       "sql": true,
       "verification": {
@@ -1734,9 +1732,7 @@
           "line": 102
         }
       ],
-      "transactions": [
-        "DSCA"
-      ],
+      "transactions": [],
       "cics": true,
       "sql": true,
       "verification": {
@@ -2858,9 +2854,7 @@
           "line": 55
         }
       ],
-      "transactions": [
-        "VSCA"
-      ],
+      "transactions": [],
       "cics": true,
       "sql": false,
       "verification": {
@@ -4124,9 +4118,7 @@
           "line": 134
         }
       ],
-      "transactions": [
-        "DSPA"
-      ],
+      "transactions": [],
       "cics": true,
       "sql": true,
       "verification": {
@@ -5692,9 +5684,7 @@
           "line": 86
         }
       ],
-      "transactions": [
-        "VSPA"
-      ],
+      "transactions": [],
       "cics": true,
       "sql": false,
       "verification": {
@@ -7073,9 +7063,7 @@
           "line": 99
         }
       ],
-      "transactions": [
-        "DSPD"
-      ],
+      "transactions": [],
       "cics": true,
       "sql": true,
       "verification": {
@@ -8285,9 +8273,7 @@
           "line": 64
         }
       ],
-      "transactions": [
-        "VSPD"
-      ],
+      "transactions": [],
       "cics": true,
       "sql": false,
       "verification": {
@@ -8954,9 +8940,7 @@
           "line": 91
         }
       ],
-      "transactions": [
-        "DSCI"
-      ],
+      "transactions": [],
       "cics": true,
       "sql": true,
       "verification": {
@@ -10406,8 +10390,7 @@
         }
       ],
       "transactions": [
-        "LGCF",
-        "VSCI"
+        "LGCF"
       ],
       "cics": true,
       "sql": false,
@@ -11941,9 +11924,7 @@
           "line": 222
         }
       ],
-      "transactions": [
-        "DSPI"
-      ],
+      "transactions": [],
       "cics": true,
       "sql": true,
       "verification": {
@@ -13119,8 +13100,7 @@
         }
       ],
       "transactions": [
-        "LGPF",
-        "VSPI"
+        "LGPF"
       ],
       "cics": true,
       "sql": false,
@@ -17834,9 +17814,7 @@
           "line": 89
         }
       ],
-      "transactions": [
-        "DSCI"
-      ],
+      "transactions": [],
       "cics": true,
       "sql": true,
       "verification": {
@@ -19033,9 +19011,7 @@
           "line": 56
         }
       ],
-      "transactions": [
-        "VSC1"
-      ],
+      "transactions": [],
       "cics": true,
       "sql": false,
       "verification": {
@@ -20157,9 +20133,7 @@
           "line": 150
         }
       ],
-      "transactions": [
-        "DSPI"
-      ],
+      "transactions": [],
       "cics": true,
       "sql": true,
       "verification": {
@@ -21847,9 +21821,7 @@
           "line": 89
         }
       ],
-      "transactions": [
-        "VSP1"
-      ],
+      "transactions": [],
       "cics": true,
       "sql": false,
       "verification": {

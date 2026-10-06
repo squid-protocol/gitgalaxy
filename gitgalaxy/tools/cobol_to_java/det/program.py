@@ -11,6 +11,7 @@ import base64
 import re
 from collections import Counter
 from dataclasses import dataclass
+from decimal import Decimal
 from pathlib import Path
 from typing import Any
 
@@ -20,7 +21,13 @@ from gitgalaxy.tools.cobol_to_java.det import expr as E
 from gitgalaxy.tools.cobol_to_java.det import gen as G
 from gitgalaxy.tools.cobol_to_java.det import layout as L
 from gitgalaxy.tools.cobol_to_java.det import stmt as S
-from gitgalaxy.tools.cobol_to_java.det.source import Line, engine_copies_from_ticket, program_lines
+from gitgalaxy.tools.cobol_to_java.det.source import (
+    Line,
+    alphabet_keywords,
+    engine_copies_from_ticket,
+    program_lines,
+    program_unit,
+)
 
 RUNTIME = Path(__file__).parent / "cobolrt"
 
@@ -112,14 +119,40 @@ def fd_entries(lines: list[Line]) -> dict[str, dict[str, Any]]:
     return out
 
 
-def alphabets(lines: list[Line]) -> tuple[dict[str, str], str | None]:
-    """SPECIAL-NAMES: alphabet-name -> its definition's first word (STANDARD-1, NATIVE, EBCDIC, a literal ...), and
-    OBJECT-COMPUTER's PROGRAM COLLATING SEQUENCE alphabet-name (or None)."""
-    text = " ".join(ln.text for ln in lines)
+# an ALPHABET clause's definition: a literal (quotes doubled inside), a word, or one other character
+_ALPHABET_TOKEN = re.compile(r"'(?:[^']|'')*'|\"(?:[^\"]|\"\")*\"|[A-Z0-9][A-Z0-9-]*|\S", re.I)
+# the words a literal alphabet is made of besides its literals: THRU / ALSO and the figurative constants
+_ALPHABET_WORDS = {"THRU", "THROUGH", "ALSO", "SPACE", "SPACES", "ZERO", "ZEROS", "ZEROES", "QUOTE", "QUOTES",
+                   "HIGH-VALUE", "HIGH-VALUES", "LOW-VALUE", "LOW-VALUES"}  # fmt: skip
+
+
+def alphabets(lines: list[Line]) -> tuple[dict[str, list[str]], str | None]:
+    """SPECIAL-NAMES: alphabet-name -> its definition's tokens ([STANDARD-1], [NATIVE], [EBCDIC], or a literal
+    alphabet's literals -- quotes kept -- with THRU / ALSO and figurative constants), and OBJECT-COMPUTER's PROGRAM
+    COLLATING SEQUENCE alphabet-name (or None). A literal alphabet runs to the period or the next clause's word; a
+    token no literal alphabet has (a hexadecimal literal ...) ends it with "?", which the translator refuses."""
+    # #4462: an OS/VS alphabet clause with no ALPHABET keyword is read as if it had one
+    text = " ".join(ln.text for ln in alphabet_keywords(lines))
     m = re.search(r"\bPROCEDURE\s+DIVISION\b", text, re.I)
     head = text[: m.start()] if m else text
-    names = {a.group(1).upper(): a.group(2).upper().rstrip(".")
-             for a in re.finditer(r"\bALPHABET\s+([A-Z0-9-]+)\s+(?:IS\s+)?(\S+)", head, re.I)}  # fmt: skip
+    names: dict[str, list[str]] = {}
+    for a in re.finditer(r"\bALPHABET\s+([A-Z0-9-]+)\s+(?:FOR\s+ALPHANUMERIC\s+)?(?:IS\s+)?", head, re.I):
+        toks = list(_ALPHABET_TOKEN.finditer(head, a.end()))
+        first = toks[0].group(0).upper() if toks else "?"
+        if first[0].isalpha() and first not in _ALPHABET_WORDS:
+            names[a.group(1).upper()] = [first.rstrip(".")]  # STANDARD-1, NATIVE, EBCDIC ...
+            continue
+        out: list[str] = []
+        for t in toks:
+            w = t.group(0)
+            if w[0] in "'\"" or w.isdigit() or w.upper() in _ALPHABET_WORDS:
+                out.append(w if w[0] in "'\"" else w.upper())
+            elif w == "." or (w[0].isalpha() and head[t.end() : t.end() + 1] not in ("'", '"')):
+                break  # the clause's period, or the next clause
+            else:
+                out.append("?")
+                break
+        names[a.group(1).upper()] = out
     pc = re.search(r"\bPROGRAM\s+COLLATING\s+SEQUENCE\s+(?:IS\s+)?([A-Z0-9-]+)", head, re.I)
     return names, pc.group(1).upper() if pc else None
 
@@ -241,8 +274,9 @@ def write_only_pointers(records: list, proc) -> set[str]:
 def translate(program: Path, copy_dirs: list[Path], stub: str, package: str,
               estate: dict[str, str] | None = None, project: Path | None = None,
               style: str = "dispatch", typed: bool = False, groups: bool = False,
-              options: list[str] | None = None) -> Result:  # fmt: skip
-    """`style`: "dispatch" (paragraphs numbered, run by a PERFORM / GO TO dispatcher) or "structured" (paragraphs
+              options: list[str] | None = None, unit: str | None = None) -> Result:  # fmt: skip
+    """`unit` (#4462): the program of a multi-program source to translate (its PROGRAM-ID; None: the first), each
+    nested or batch-compiled program on its own (det.source.program_unit). `style`: "dispatch" (paragraphs numbered, run by a PERFORM / GO TO dispatcher) or "structured" (paragraphs
     as named methods called directly, fields by their COBOL names) -- structured only where `structurable`.
     `typed` (B3): standalone WORKING-STORAGE items held as typed Java fields -- an alphanumeric item a String of
     its length, a binary integer a long -- where every use of the item has a typed form; an item used any other way
@@ -253,7 +287,9 @@ def translate(program: Path, copy_dirs: list[Path], stub: str, package: str,
     """
     excluded: set[str] = set()
     while True:
-        out = _attempt(program, copy_dirs, stub, package, estate, project, style, typed, excluded, groups, options)
+        out = _attempt(
+            program, copy_dirs, stub, package, estate, project, style, typed, excluded, groups, options, unit
+        )
         if isinstance(out, Result):
             return out
         if out.names <= excluded:
@@ -261,18 +297,18 @@ def translate(program: Path, copy_dirs: list[Path], stub: str, package: str,
         excluded |= out.names
 
 
-def trunc_std(program: Path, options: list[str] | None = None) -> bool:
+def trunc_std(program: Path, options: list[str] | None = None, declared: str | None = None) -> bool:
     """Whether binary items keep only their PICTURE's digits (#4102): the TRUNC option in effect -- the program's
     CBL / PROCESS cards over `options` (the compile step's PARM, as a case states it), else IBM's default, STD."""
     from gitgalaxy.core.compiler_options import DEFAULTS, compiler_options, effective, parse_options
     from gitgalaxy.core.source_text import read_source
 
     rows = [{"option": o, "value": v} for text in options or [] for o, v, _ in parse_options(text)]
-    rows += compiler_options(read_source(program).text)
+    rows += compiler_options(read_source(program, declared=declared).text)  # (#4462: the estate's code page)
     return str(effective(rows).get("TRUNC") or DEFAULTS["TRUNC"]).upper() == "STD"
 
 
-def numproc_pfd(program: Path, options: list[str] | None = None) -> bool:
+def numproc_pfd(program: Path, options: list[str] | None = None, declared: str | None = None) -> bool:
     """Whether the program runs under NUMPROC(PFD) (#4271): the NUMPROC option in effect -- its CBL / PROCESS cards over
     `options` (the compile step's PARM), else IBM's default, NOPFD. NUMPROC(MIG) is NOPFD: Enterprise COBOL 5 and 6 no
     longer support it and compile the default instead (Enterprise COBOL 6.4 Migration Guide, GC27-8715-03, Table 18;
@@ -281,7 +317,7 @@ def numproc_pfd(program: Path, options: list[str] | None = None) -> bool:
     from gitgalaxy.core.source_text import read_source
 
     rows = [{"option": o, "value": v} for text in options or [] for o, v, _ in parse_options(text)]
-    rows += compiler_options(read_source(program).text)
+    rows += compiler_options(read_source(program, declared=declared).text)  # (#4462: the estate's code page)
     return str(effective(rows).get("NUMPROC") or "").upper() == "PFD"
 
 
@@ -412,12 +448,27 @@ def liftable(records: list, excluded: set[str], rc: L.Item) -> dict[int, str]:
     return out
 
 
+def _pcs_figuratives(records: list[L.Item], gen: G.Gen) -> None:
+    """#4539: a VALUE HIGH-VALUE / LOW-VALUE (not an 88's: that is a comparison, refused where it is used) under a
+    PROGRAM COLLATING SEQUENCE that redefines it (Gen.fig_char) refuses the program by name: its initial bytes are
+    laid out before any statement is translated."""
+    for rec in records:
+        for it in rec.walk():
+            for v in it.values:
+                if it.level != 88 and v[0] == "fig":
+                    try:
+                        gen.fig_char(v[1])
+                    except G.Untranslatable as e:
+                        raise L.LayoutError(f"line {it.line}: {it.name} VALUE {e}") from e
+
+
 def _translate(program: Path, copy_dirs: list[Path], stub: str, package: str, estate: dict[str, str] | None,
                project: Path | None, style: str, typed: bool, excluded: set[str],
-               groups: bool = False, options: list[str] | None = None) -> Result:  # fmt: skip
+               groups: bool = False, options: list[str] | None = None, unit: str | None = None) -> Result:  # fmt: skip
     # #4467: a COPY the translator resolves otherwise than the engine did refuses the program (CopyDisagrees)
     engine = engine_copies_from_ticket(project, program) if project is not None else None
-    lines = program_lines(program, [*copy_dirs, C.COPY], engine)
+    # #4462: one program of the source (the first, or `unit`): a nested or batch-compiled program is its own class
+    lines = program_unit(program_lines(program, [*copy_dirs, C.COPY], engine), unit)
     records = L.parse(lines)
     is_cics = "runTask(CicsTask" in stub
     batch = has_batch(project)
@@ -427,6 +478,17 @@ def _translate(program: Path, copy_dirs: list[Path], stub: str, package: str, es
     rc = L.Item(1, "GG-RETURN-CODE", "WORKING-STORAGE", pic="S9(4)", usage="BINARY")
     L.layout(rc)
     records.append(rc)
+    # #4462: each INDEXED BY index name, as an item of its own holding the occurrence number it points at (IBM's
+    # index holds the displacement; every use the translator reads -- SET, a subscript, SEARCH, a comparison --
+    # sees the occurrence number)
+    declared = {it.name for r in records for it in r.walk()}
+    for ix in [x for r in records for it in r.walk() for x in it.indexed_by]:
+        if ix not in declared:
+            declared.add(ix)
+            # (initially 1, as GnuCOBOL sets it; IBM leaves it undefined until SET / SEARCH)
+            idx = L.Item(1, ix, "WORKING-STORAGE", pic="S9(9)", usage="BINARY", values=[("num", Decimal(1))])
+            L.layout(idx)
+            records.append(idx)
     proc = S.parse(lines)
     # SORT-RETURN: the special register, S9(4) BINARY (IBM: 0 after a successful SORT / MERGE) -- only in a program
     # that sorts or names it, so no other port's storage changes
@@ -440,7 +502,7 @@ def _translate(program: Path, copy_dirs: list[Path], stub: str, package: str, es
     if svc_m is None:
         raise ValueError("the stub has no public class")
     service = svc_m.group(1)
-    prog = G.Program(program.stem.upper(), service, package, records, proc)
+    prog = G.Program(unit.upper() if unit else program.stem.upper(), service, package, records, proc)
 
     # storages: each 01 / 77 that is not a REDEFINES of another; the FD's records share the first one's
     roots: dict[int, L.Item] = {}
@@ -465,13 +527,20 @@ def _translate(program: Path, copy_dirs: list[Path], stub: str, package: str, es
         gen.sync_groups = groups
         gen.lifted = liftable(records, excluded | {"GG-SORT-RETURN"}, rc)
     gen.alphabets, gen.program_collating = alphabets(lines)
+    _pcs_figuratives(records, gen)
     gen.copy_dirs = [program.parent, *copy_dirs, C.COPY]
+    gen.engine = engine
     gen.java_root = (project / "src/main/java") if project is not None else None
     gen.clock = "clock.currentDate()" if batch else "Funcs.currentDate(java.time.LocalDateTime.now())"
     if is_cics:
         if project is None:
             raise ValueError("a CICS program needs the generated project")
         gen.cics = C.Cics(gen, C.Generated(project, stub), package)
+        gen.cics.region = C.region_page(engine.page(program) if engine is not None else None)  # #4528
+        # #4414: HANDLE AID / PUSH HANDLE anywhere in the program, before its input commands are translated
+        execs = [s.text for p in proc.paragraphs for s in S.walk(p.body) if s.kind == "EXEC"]
+        gen.cics.handle_aid = any(re.match(r"(?is)\s*EXEC\s+CICS\s+HANDLE\s+AID\b", t) for t in execs)
+        gen.cics.push_handle = any(re.match(r"(?is)\s*EXEC\s+CICS\s+(PUSH|POP)\s+HANDLE\b", t) for t in execs)
     if gen.cics is not None:
         gen.dto_codecs = gen.cics
     elif project is not None:
@@ -765,12 +834,14 @@ def _translate(program: Path, copy_dirs: list[Path], stub: str, package: str, es
         ctor_repos += list(gen.cics.repos.items())
         # the codecs added constants: none (they use their own literals)
 
-    if any(f.sort for f in prog.files.values()):
+    if any(f.sort for f in prog.files.values()) or gen.pcs_used:
         extra_imports.append(f"{package}.cobolrt.Sort")
     if gen.sql is not None:  # the generated Db2 repositories the statements run on
         ctor_repos += [(c, f) for c, f in gen.sql.repos.items()]
         extra_imports.append(f"{package}.cobolrt.sql.DetSql")
     consts = [f'    private static final BigDecimal {n} = new BigDecimal("{v}");' for v, n in gen.consts.items()]
+    if gen.pcs_used:  # #4539: the PROGRAM COLLATING SEQUENCE its nonnumeric relation conditions compare under
+        consts.append(f"    private static final Sort.Collating COLLATING = {gen.pcs_used};")
     n_para = len(proc.paragraphs)
     pkg = package
     imp = sorted({imports.get(c, f"{package}.repository.vsam.{c}") for c, _ in ctor_repos if c.endswith("Repository")} |
@@ -872,10 +943,13 @@ def _translate(program: Path, copy_dirs: list[Path], stub: str, package: str, es
             [
                 f"import {pkg}.cics.CicsTask;",
                 f"import {pkg}.cobolrt.cics.DetCics;",
-                f"import {pkg}.dto.screen.*;",
-                f"import {pkg}.dto.contract.*;",
-                f"import {pkg}.entity.vsam.*;",
-                f"import {pkg}.repository.vsam.*;",
+                # #4413: a package the generated project lacks (an estate with no screens: terminal I/O only) is
+                # not imported -- javac refuses an import-on-demand of a package that does not exist
+                *(
+                    f"import {pkg}.{sub}.*;"
+                    for sub in ("dto.screen", "dto.contract", "entity.vsam", "repository.vsam")
+                    if project is None or any(project.glob(f"src/main/java/**/{sub.replace('.', '/')}/*.java"))
+                ),
             ]
             if is_cics
             else []
@@ -1021,7 +1095,9 @@ def _translate(program: Path, copy_dirs: list[Path], stub: str, package: str, es
     stats["program"] = prog.name
     stats["inferred"] = inferred
     java = drop_unused_fields("\n".join(out))
-    return Result(with_trunc(java, trunc_std(program, options), numproc_pfd(program, options)), service, stats)
+    page = engine.page(program) if engine is not None else None  # #4462: the card read in the declared code page
+    return Result(with_trunc(java, trunc_std(program, options, page), numproc_pfd(program, options, page)), service,
+                  stats)  # fmt: skip
 
 
 def _record_io(proc: S.Procedure, fd: G.FileDef, records: list) -> bool:
@@ -1125,11 +1201,36 @@ def _cics_parts(gen: G.Gen, records: list, roots: dict, proc: S.Procedure,
     store_cases = [f'            case "{n}" -> {e};' for n, e in cx.stores.items()]
     members = [
         "    private CicsTask task;",
+        # #4528: the region's code page, which TS items are in (only in a program that issues a TS command)
+        *([f'    private static final Charset REGION = DetCics.region("{cx.region}");'] if cx.region_used else []),
+        # HANDLE CONDITION labels; -1: IGNORE CONDITION (#4414)
         "    private final java.util.Map<String, Integer> handlers = new java.util.HashMap<>();",
+        # #4414: HANDLE AID labels, and PUSH HANDLE's saved states -- only in a program that issues them
+        *(
+            ["    private final java.util.Map<String, Integer> aids = new java.util.HashMap<>();"]
+            if cx.handle_aid or cx.push_handle
+            else []
+        ),
+        *(
+            ["    private final java.util.ArrayDeque<DetCics.Handlers> pushed = new java.util.ArrayDeque<>();"]
+            if cx.push_handle
+            else []
+        ),
         "    private final java.util.Map<String, DetCics.Store<?>> stores = new java.util.HashMap<>();",
         "    private final java.util.Map<String, byte[]> heldKey = new java.util.HashMap<>();",
         "    /** Writes the COMMAREA's bytes back into the object the task carries (a LINKed program's is its caller's). */",
         "    private Runnable caBack = () -> { };",
+        "",
+        # #4534: a local LINK passes the caller's own storage (IBM, COMMAREA in LINK and XCTL commands: "the address
+        # of the area is passed"), so what a LINKed program wrote there before an abend ended it stays the caller's.
+        # Level 1 (a transaction, a DPL server's mirror task) keeps nothing: no local caller shares its COMMAREA.
+        "    /** The program ends because of an abend: a LINKed program's COMMAREA writes stay its caller's. */",
+        "    private Goback abended() {",
+        "        if (task.level() > 1) {",
+        "            caBack.run();",
+        "        }",
+        "        return new Goback();",
+        "    }",
         "",
         '    @SuppressWarnings("unchecked")',
         "    private <E> DetCics.Store<E> store(String name) {",
@@ -1163,20 +1264,50 @@ def _cics_parts(gen: G.Gen, records: list, roots: dict, proc: S.Procedure,
         "        return i;",
         "    }",
         "",
-        "    /** A condition the command neither returned in RESP nor ignored: its HANDLE CONDITION label, or CICS's",
-        "     *  default action -- an abend, to this program's HANDLE ABEND exit or ending the task. */",
+        "    /** A condition the command did not return in RESP: its HANDLE CONDITION label, or -1 (go on) when IGNOREd",
+        "     *  (#4414); else CICS's default action -- -1 for one whose default is to ignore it (#4413: EOC); else the",
+        '     *  ERROR label (#4502: IBM, HANDLE CONDITION: "if the default action for such a condition terminates the',
+        '     *  task abnormally, and the condition ERROR has been specified, the action for ERROR is taken"); else an',
+        "     *  abend, to this program's HANDLE ABEND exit or ending the task. */",
         "    private int condition(String cond) {",
         "        Integer h = handlers.get(cond);",
         "        if (h != null) {",
         "            return h;",
         "        }",
+        "        if (DetCics.ignoredByDefault(cond)) {",
+        "            return -1;",
+        "        }",
+        '        Integer error = handlers.get("ERROR");',
+        "        if (error != null) {",
+        "            return error;",
+        "        }",
         "        String label = task.abendOnCondition(cond);",
         "        if (label == null) {",
-        "            throw new Goback();",
+        "            throw abended();",
         "        }",
         "        return paragraph(label);",
         "    }",
         "",
+        *(
+            [
+                "    /** #4414: after an input command, the HANDLE AID label of the key pressed (DetCics.aidLabel), else -1.",
+                "     *  The command also raised a condition (resp): which IBM acts on first is not documented -- refused. */",
+                "    private int aid(int resp) {",
+                "        Integer h = DetCics.aidLabel(aids, task.aid());",
+                "        if (h == null) {",
+                "            return -1;",
+                "        }",
+                "        if (resp != 0) {",
+                '            throw new IllegalStateException("HANDLE AID " + task.aid() + " and condition " + DetCics.condition(resp)',
+                '                    + " on one input command: which CICS takes first is not documented");',
+                "        }",
+                "        return h;",
+                "    }",
+                "",
+            ]
+            if cx.handle_aid
+            else []
+        ),
         "    private static int cx(CicsTask task, int whole) {",
         "        return task.eibcalen() == null ? whole : task.eibcalen();",
         "    }",
@@ -1191,6 +1322,8 @@ def _cics_parts(gen: G.Gen, records: list, roots: dict, proc: S.Procedure,
         *(["        DetSql.closeAll();  // a task's cursors are its own"] if gen.sql is not None else []),
         "        caBack = () -> { };",
         "        handlers.clear();",
+        *(["        aids.clear();"] if cx.handle_aid or cx.push_handle else []),
+        *(["        pushed.clear();"] if cx.push_handle else []),
         "        heldKey.clear();",
         "        initialState();",
         f"        Cobol.move(task.transid(), {gen.eib('EIBTRNID')}, CS);",

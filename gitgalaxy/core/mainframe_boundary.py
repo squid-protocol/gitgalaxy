@@ -1199,16 +1199,28 @@ def _cobol_records(
             usage_match = _USAGE_CLAUSE.search(entry)
             usage = usage_match.group(1).upper() if usage_match else None
 
-        # #3816: PIC G is always DISPLAY-1 (DBCS); PIC N is NATIONAL unless NSYMBOL(DBCS); a group's
-        # USAGE NATIONAL / DISPLAY-1 applies to its members. (Other group usages are not inherited here.)
+        # #3816: PIC G is always DISPLAY-1 (DBCS); PIC N is NATIONAL unless NSYMBOL(DBCS).
         if usage is None and pic and _NATIONAL_PICTURE.fullmatch(pic.upper()):
             # (a real national picture only: GnuCOBOL's malformed `PIC USAGE BINARY-SHORT` has a G in it)
             usage = "DISPLAY-1" if "G" in pic.upper() or is_dbcs else "NATIONAL"
-        if usage is None and parent_usage in ("NATIONAL", "DISPLAY-1"):
+        # #4525: a group's USAGE applies to every item under it that has none of its own (IBM Enterprise
+        # COBOL, COBOL 2002): `01 COMP-VARIABLES COMP.` + `05 CR-CNT PIC S9(4).` is a 2-byte binary, not
+        # 4 zoned bytes. The nearest enclosing group's (effective) usage wins -- `parent_usage` is already
+        # inherited itself -- so a nested group's own USAGE overrides an outer one for its members. A
+        # 66 / 88 entry (no storage) keeps the #3816 shape: only a NATIONAL / DISPLAY-1 usage rides on it.
+        # An inherited DISPLAY is the default anyway: it is not recorded, but it still stops an outer
+        # group's usage (`01 G COMP.` + `05 S DISPLAY.` + `10 X PIC 9.` is one zoned byte).
+        in_force = usage or parent_usage
+        if (
+            usage is None
+            and parent_usage
+            and parent_usage.upper() != "DISPLAY"
+            and (level not in _CONDITION_LEVELS or parent_usage in ("NATIONAL", "DISPLAY-1"))
+        ):
             usage = parent_usage
 
         if level not in _CONDITION_LEVELS:
-            stack.append((level, ordinal, usage))
+            stack.append((level, ordinal, in_force))
             last_item_ordinal = ordinal
 
         occurs_match = _OCCURS_CLAUSE.search(window)
@@ -2216,11 +2228,11 @@ def _csd_records(code_stream: str) -> list[tuple[int, str]]:
 def _csd_transactions(code_stream: str) -> list[dict[str, Any]]:
     """The CICS transaction map: transaction id -> program, from a CSD deck.
 
-    Two record shapes yield the same fact:
-      - `DEFINE TRANSACTION(TTTT) ... PROGRAM(PPPP)` -- the transaction names its
-        program directly.
-      - `DEFINE PROGRAM(PPPP) ... TRANSID(TTTT)` -- an autoinstall pairing that
-        declares the same edge from the program's side (carddemo's inline JCL).
+    Only `DEFINE TRANSACTION(TTTT) ... PROGRAM(PPPP)` routes a transaction (#4503).
+    `DEFINE PROGRAM(PPPP) ... TRANSID(TTTT)` is NOT a route: in CICS that attribute
+    is the mirror transaction for a remote DPL request, so several programs may
+    carry the same one (carddemo's COCRDLIC and COSGN00C both carry CC00). It stays
+    readable as a program attribute on the `csd_resources` record.
     `DEFINE DB2TRAN(...)` also carries a `TRANSID(...)`, but that is a DB2 plan
     attribute, not a CICS transaction definition, and is excluded.
     """
@@ -2236,8 +2248,6 @@ def _csd_transactions(code_stream: str) -> list[dict[str, Any]]:
         attrs = _csd_attributes(record)
         if resource == _CSD_TXN_RESOURCE:
             transid, program = name, (attrs.get("PROGRAM") or "").upper() or None
-        elif resource == _CSD_PGM_RESOURCE and attrs.get("TRANSID"):
-            transid, program = attrs["TRANSID"].upper(), name
         else:
             continue
         out.append(

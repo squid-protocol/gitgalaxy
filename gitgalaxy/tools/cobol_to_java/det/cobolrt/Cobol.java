@@ -372,9 +372,21 @@ public final class Cobol {
         return 0;
     }
 
+    /** Nonnumeric operands' bytes: in the data's byte order, or under the PROGRAM COLLATING SEQUENCE's alphabet when
+     *  `coll` is one (#4539; null: byte order). */
+    private static int cmpBytes(byte[] a, byte[] b, Charset cs, Sort.Collating coll) {
+        return coll == null ? cmpBytes(a, b, cs) : coll.relation(a, b, cs);
+    }
+
     public static int compare(Field a, Field b, Charset cs) {
+        return compare(a, b, cs, null);
+    }
+
+    /** As {@link #compare(Field, Field, Charset)}; a nonnumeric comparison under `coll` (PROGRAM COLLATING
+     *  SEQUENCE), a numeric one by value whatever the sequence. */
+    public static int compare(Field a, Field b, Charset cs, Sort.Collating coll) {
         if (cat(a) == NUMERIC && cat(b) == NUMERIC) return Integer.signum(num(a, cs).compareTo(num(b, cs)));
-        return cmpBytes(a.raw(), b.raw(), cs);
+        return cmpBytes(a.raw(), b.raw(), cs, coll);
     }
 
     // ------------------------------------------------------------------------------- typed (lifted) items
@@ -424,6 +436,15 @@ public final class Cobol {
     /** Two alphanumeric values compared as COBOL compares them: the shorter padded with spaces, byte by byte in the
      *  record charset (its collating sequence -- not Java's char order when the charset is EBCDIC). */
     public static int compareText(String a, String b, Charset cs) {
+        return compareText(a, b, cs, null);
+    }
+
+    /** As {@link #compareText(String, String, Charset)}, under `coll` (PROGRAM COLLATING SEQUENCE; null: byte
+     *  order). */
+    public static int compareText(String a, String b, Charset cs, Sort.Collating coll) {
+        if (coll != null) {
+            return coll.relation(a.getBytes(cs), b.getBytes(cs), cs);
+        }
         byte[] x = a.getBytes(cs);
         byte[] y = b.getBytes(cs);
         byte sp = " ".getBytes(cs)[0];
@@ -453,22 +474,34 @@ public final class Cobol {
     }
 
     public static int compare(Field a, String nonnumericLiteral, Charset cs) {
-        return cmpBytes(a.raw(), nonnumericLiteral.getBytes(cs), cs);
+        return compare(a, nonnumericLiteral, cs, null);
+    }
+
+    public static int compare(Field a, String nonnumericLiteral, Charset cs, Sort.Collating coll) {
+        return cmpBytes(a.raw(), nonnumericLiteral.getBytes(cs), cs, coll);
     }
 
     public static int compare(Field a, BigDecimal numericLiteral, Charset cs) {
+        return compare(a, numericLiteral, cs, null);
+    }
+
+    public static int compare(Field a, BigDecimal numericLiteral, Charset cs, Sort.Collating coll) {
         if (cat(a) == ALNUM || cat(a) == GROUP || cat(a) == ALNUM_EDITED) {
             // GnuCOBOL: an alphanumeric item against a numeric literal is a text comparison with the literal's digits
-            return cmpBytes(a.raw(), numericLiteral.unscaledValue().abs().toString().getBytes(cs), cs);
+            return cmpBytes(a.raw(), numericLiteral.unscaledValue().abs().toString().getBytes(cs), cs, coll);
         }
         return Integer.signum(num(a, cs).compareTo(numericLiteral));
     }
 
     public static int compareFigurative(Field a, Figurative f, Charset cs) {
+        return compareFigurative(a, f, cs, null);
+    }
+
+    public static int compareFigurative(Field a, Figurative f, Charset cs, Sort.Collating coll) {
         if (f == Figurative.ZEROS && cat(a) == NUMERIC) return Integer.signum(num(a, cs).signum());
         byte[] b = new byte[a.len];
         Arrays.fill(b, figByte(f, cs));
-        return cmpBytes(a.raw(), b, cs);
+        return cmpBytes(a.raw(), b, cs, coll);
     }
 
     // ----------------------------------------------------------------------------------------- class tests

@@ -75,7 +75,7 @@ verdict, but it limits what the proof says about inputs outside the scenarios.
 | F1 | files | Natural FILE STATUS values come from GnuCOBOL's BDB files | ASSUMED | yes (00, 10, 23, 22) |
 | F2 | files | Fault FILE STATUS values are injected on both sides | MATCHED | yes |
 | F3 | files | RECFM=VB: records compared by content, framed as GnuCOBOL frames them, not as a z/OS RDW | ASSUMED | yes (CardDemo READACCT VBRCFILE) |
-| F4 | files | JCL utility steps (SORT, IDCAMS, IEBGENER) are not run | — | — |
+| F4 | files | JCL utility steps (SORT, IDCAMS, IEBGENER) are not run; the COBOL SORT / MERGE verbs are translated (#4268) | REFUSED (utility steps) | — |
 | X1 | CICS | Commands, RESP/RESP2 and EIB from IBM's API reference | ASSUMED | yes |
 | X2 | CICS | Screens compared as the symbolic map, not the 3270 stream | ASSUMED | yes |
 | X3 | CICS | Backout: recoverable files and Db2 undone, RECOVERY(NONE) files kept | MATCHED | yes (CBSA INQACC) |
@@ -90,6 +90,8 @@ verdict, but it limits what the proof says about inputs outside the scenarios.
 | X12 | CICS | A task with no COMMAREA that MOVEs DFHCOMMAREA anyway | UNDEFINED, masked | yes (DBB EPSCMORT) |
 | X13 | CICS | An ESDS browsed by RBA: fixed-length records, a record's RBA its byte offset; RBAs that address no record refused | ASSUMED (REFUSED where IBM is silent) | yes (DBB EPSMLIST) |
 | X14 | CICS | READ ... INTO LENGTH: in-out, truncation and LENGERR; a VSAM file's LENGTH need not equal its record length; LENGERR on READ UPDATE refused | ASSUMED (REFUSED where IBM is silent) | yes, NORMAL only (GenApp LGUCVS01 / LGUPVS01) |
+| X15 | CICS | Terminal RECEIVE (INTO / SET, LENGTH, MAXLENGTH, NOTRUNCATE; LENGERR, EOC on an LUTYPE2 terminal) and SEND CONTROL | ASSUMED (REFUSED where IBM is silent) | yes (cics-crucible hc-terminal-receive, hc-terminal-eoc) |
+| X16 | CICS | HANDLE AID, IGNORE CONDITION, PUSH / POP HANDLE and HANDLE CONDITION ERROR on the det port | MATCHED (REFUSED where IBM is silent) | yes (cics-crucible hc-handle-aid, hc-ignore-error, hc-eoc-error) |
 | L1 | LE | CEEDAYS: documented pictures only | MATCHED / REFUSED | yes |
 | L2 | LE | CEE3ABD abend codes | MATCHED | yes |
 | L3 | LE | WORKING-STORAGE with no VALUE clause: GnuCOBOL's spaces vs LE's STORAGE option on z/OS | ASSUMED | yes (CardDemo READACCT OUTFILE, 2 bytes) |
@@ -286,8 +288,24 @@ verdict, but it limits what the proof says about inputs outside the scenarios.
   - space sorts before both.
 - **Keys.** Indexed files are browsed in ASCII order on both sides (`equivalence.COLLATION`). CardDemo's keys sort the
   same either way. Keys mixing letters and digits would not.
+- **SORT / MERGE under an alphabet (#4268).** `ALPHABET ... IS EBCDIC` orders by code page 037 on z/OS (the default
+  CODEPAGE(1140)'s order); GnuCOBOL uses its own ASCII-to-EBCDIC table, which agrees for every 7-bit character but
+  `[ ] ^ |` and for no byte above X'7F'. A literal alphabet's THRU ranges and its unnamed characters follow the
+  native set: EBCDIC on z/OS, the data's bytes in GnuCOBOL. The det runtime (`Sort.Collating`) keeps both orders,
+  sorts by IBM's, and stops by name on a pair of keys the two order differently, so a proven sort is IBM's. A key
+  under an alphabet must hold characters only (a packed or binary byte is the same byte in both code pages).
 - **In-program comparisons.** `Cobol.compare` is byte order in the data's code page. No audit has counted the
   relational comparisons whose result could change between ASCII and EBCDIC.
+- **PROGRAM COLLATING SEQUENCE in relation conditions (#4539).** Under an EBCDIC or a literal alphabet, the
+  nonnumeric comparisons of IF, EVALUATE (conditions and THRU ranges), PERFORM UNTIL and condition-names (88 THRU
+  ranges) go through `Sort.Collating` as SORT keys do: the shorter operand padded with spaces, IBM's order taken,
+  a pair of operands the two order differently stopped by name. Numeric comparisons stay by value; national data
+  is refused by the translator. An equality consults the alphabet only when it has ALSO (otherwise each character
+  has a position of its own). Refused by name: HIGH-VALUE / LOW-VALUE under a literal alphabet (the characters of
+  its highest / lowest position; GnuCOBOL's LOW-VALUE is the alphabet's first character), an ordering of an item
+  holding packed / binary / signed items, a comparison with an ALL literal, and an ordinal alphabet. Under EBCDIC,
+  HIGH-VALUE is X'FF' on both sides, but the harness's byte X'FF' is 'ÿ' (cp037 X'DF'): an ordering of HIGH-VALUE
+  against a character cp037 places above X'DF' (S-Z, digits) stops the run by name. SEARCH is not translated.
 - **A migration decision as much as an oracle gap.** A port that will run on ASCII data either keeps ASCII order (a
   declared difference, #4051) or compares in cp037 order.
 - **To settle.**
@@ -341,15 +359,32 @@ verdict, but it limits what the proof says about inputs outside the scenarios.
 
 ### F4. JCL utility steps — out of scope
 - A batch case runs one program step.
-- SORT, IDCAMS, IEBGENER and DFSORT steps are not run. The COBOL SORT verb is not translated by the det port (a
-  hole).
+- SORT, IDCAMS, IEBGENER and DFSORT steps are not run. The generated batch job refuses a utility step by name
+  (`JclSteps.utility`: the job fails on its TODO, or with `gitgalaxy.batch.skip-unimplemented` the step is logged as
+  skipped; never a silent success).
+  Next slice of #4268: DFSORT / ICETOOL control cards (SORT FIELDS, INCLUDE / OMIT, OUTREC / INREC, SUM), IEBGENER
+  and an IDCAMS REPRO / DEFINE subset in the oracle, and a multi-step job case.
+- The COBOL SORT / MERGE / RELEASE / RETURN verbs and the SD entry are translated (#4286), onto `cobolrt/Sort`:
+  - Keys compare as a relation condition compares their items: a numeric key (zoned, packed, binary, signed or
+    not) by value, any other byte by byte. WITH DUPLICATES IN ORDER is a stable sort; without it, records with
+    equal keys and different bytes stop the run by name (IBM: their order is undefined). A MERGE input out of key
+    order stops the run by name.
+  - USING / GIVING files are opened, read or written and closed implicitly; their FILE STATUS items are left as
+    they were (GnuCOBOL does not set them; IBM's depends on FASTSRT).
+  - COLLATING SEQUENCE (or PROGRAM COLLATING SEQUENCE): NATIVE, STANDARD-1 and STANDARD-2 are the data's byte order
+    (D1). EBCDIC and literal alphabets (#4268) order the alphanumeric keys; see D1 for where IBM and GnuCOBOL
+    differ.
+  - Refused by name: SORT of a table (format 2), a key under OCCURS, an SD whose records differ in length, a USING /
+    GIVING file whose records are not the SD record's length, SORT-RETURN set by the program (16 ends a sort), an
+    alphabet ordinal (a numeric literal names a native code: EBCDIC on z/OS), HIGH-VALUE / LOW-VALUE in an
+    alphabet, and a group key holding numeric items under an alphabet.
 
 ## CICS (`ggcics.c`)
 
 ### X1. Commands from IBM's documentation — ASSUMED
 - **Source.** Each command's RESP/RESP2, length handling and EIB fields follow the IBM CICS TS for z/OS 6.x API
   reference, cited in the code.
-- **Checked against.** The cics-crucible (152 doc-cited cells, v0.2.0). Not checked against a CICS region.
+- **Checked against.** The cics-crucible (192 doc-cited cells passing, v0.3.0). Not checked against a CICS region.
 
 ### X2. Screens are compared as the symbolic map — ASSUMED
 - **Compared.** Each SEND MAP's symbolic map: the data, the attribute, colour and highlight subfields, and the cursor
@@ -496,6 +531,58 @@ The length READQ TS returns on ITEMERR or QIDERR is not documented, so it is not
 - **Reached.** NORMAL only: GenApp LGUPVS01 (LINKed by LGUPDB01 with LENGTH 225: a 64-byte record into a 1024-byte
   area, LENGTH set back to 64) and LGUCVS01. LENGERR is not reached by a proven scenario: every non-NORMAL READ in
   GenApp goes to LGSTSQ (X6), and both GenApp READs are UPDATE.
+
+### X15. Terminal RECEIVE and SEND CONTROL — ASSUMED, REFUSED where IBM is silent (#4413)
+- **What IBM documents** (CICS TS, EXEC CICS RECEIVE (3270 logical) and (LUTYPE2/LUTYPE3)): with INTO and no
+  MAXLENGTH, LENGTH is "the maximum length that the program accepts" (below zero, zero); MAXLENGTH overrides it;
+  longer data is truncated with LENGERR and LENGTH "set to the original length of data", or, under NOTRUNCATE, "CICS
+  retains the remaining data and uses it to satisfy subsequent RECEIVE commands" with LENGTH the length returned.
+  On an LUTYPE2 terminal EOC "occurs when a request/response unit (RU) is received with end-of-chain-indicator set",
+  default action: ignore it (the 3270 logical unit's RECEIVE has no EOC). HANDLE CONDITION ERROR takes only a
+  condition whose default action is an abend, so not EOC. SEND CONTROL sends device controls; none of its
+  conditions can arise without a BMS logical message, partitions, LDCs or REQID. Both sides model it: `ggcics.c`
+  GGCRECT / GGCRECS / GGCSCTL, and CicsTask.receive / sendControl with `DetCics.received` / `receivedSet`.
+- **Assumed.** The terminal is the reference region's 3270 logical unit unless the case CSD defines it with a
+  TYPETERM `DEVICE(LUTYPE2)` (cics-crucible SPEC section 2): then the input message is one chain, its single RU
+  carries end-of-chain, and the RECEIVE returning its last byte raises EOC. RECEIVE INTO moves the data into INTO's
+  first bytes and leaves the rest as it was. RECEIVE SET(ADDRESS OF record): the port's LINKAGE record keeps its own
+  storage, so the data is copied into it and the bytes past the data are X'00' (on CICS they are storage IBM does not
+  describe; a program reading past LENGTH reads undefined bytes).
+- **Refused by name** (`Unsupported` / CicsError, "... not modelled"): SET of anything but ADDRESS OF a LINKAGE 01
+  record; SET without MAXLENGTH (IBM's "the value indicated in the LENGTH option is assumed" would read the LENGTH
+  that SET only sets) or without LENGTH(data-area); ASIS, BUFFER and the APPC / partition options; SEND CONTROL CURSOR
+  without a value, PRINT, FORMFEED, ALTERNATE / DEFAULT, MSR, partitions, LDC, ACCUM / PAGING / SET / REQID. At run
+  time: a RECEIVE with nothing retained (it would wait for the operator), and on an LUTYPE2 terminal a NOTRUNCATE
+  RECEIVE that leaves data retained (IBM does not say whether it raises EOC).
+- **Reached.** cics-crucible hc-terminal-receive (7 scenarios: LENGERR by RESP, by HANDLE CONDITION and by default,
+  NOTRUNCATE pieces, SET, SEND CONTROL with CURSOR) and hc-terminal-eoc (3: EOC by RESP, HANDLE CONDITION, ignored by
+  default), cobol-stub and the det port both passing the hand-written logs.
+
+### X16. HANDLE AID, IGNORE CONDITION, PUSH / POP HANDLE, HANDLE CONDITION ERROR — MATCHED, REFUSED where IBM is silent (#4414, #4502)
+- **What IBM documents** (CICS TS, EXEC CICS HANDLE AID, IGNORE CONDITION, HANDLE CONDITION, PUSH HANDLE, POP
+  HANDLE; RESP and RESP2 options). HANDLE AID: a key's label, taken "after the input command is completed; that is,
+  after any data received in addition to the AID has been passed to the application program"; ANYKEY is "any PA key,
+  any PF key, or the CLEAR key, but not ENTER"; a key named without a label is deactivated; a task an AID started
+  gets its input buffer on the first RECEIVE "(even if the length of the data is zero)"; RESP implies NOHANDLE, which
+  "overrides both the HANDLE AID and the HANDLE CONDITION command". IGNORE CONDITION: control returns after the
+  command with the EIB set; the last HANDLE or IGNORE for a condition wins. HANDLE CONDITION ERROR: "if the default
+  action for such a condition terminates the task abnormally, and the condition ERROR has been specified, the action
+  for ERROR is taken" (so not for EOC, ignored by default). PUSH HANDLE suspends the IGNORE CONDITION, HANDLE ABEND,
+  HANDLE AID and HANDLE CONDITION state; POP HANDLE restores it, INVREQ when no PUSH HANDLE was executed at the
+  current link level. Both sides model it: `ggcics.c` GGCHCND / GGCHAID / GGCAID / GGCPUSH / GGCPOP / GGCCOND (#4003,
+  #4007), and the det port's `handlers` (-1: IGNORE), `aids` and `pushed` with `condition()` / `aid()` and
+  DetCics.aidLabel / Handlers (#4414; the ERROR step of `condition()`, #4502).
+- **Refused by name** (`CicsError` / `Unsupported` at translation, a DRIVER-ERROR or IllegalStateException at run
+  time): IGNORE CONDITION ERROR (IBM does not say whether ERROR's action can be to ignore); a condition name IBM does
+  not document; a HANDLE AID key that is no attention key, or RESP / NOHANDLE on it; at run time, a HANDLE AID label
+  that applies to the key of an input command that also raised a condition (IBM does not say which CICS acts on
+  first: MAPFAIL on a RECEIVE MAP after CLEAR or a PA key is the common case), and a key deactivated while ANYKEY
+  has a label (IBM does not say whether ANYKEY then takes it). The stub took the condition first and gave the
+  deactivated key to ANYKEY before #4414; both are refused on both sides now.
+- **Reached.** cics-crucible hc-handle-aid (9: a key's own label, ANYKEY not ENTER, a deactivated key, RESP, PUSH /
+  POP HANDLE, CLEAR and PA1 with no data), hc-ignore-error (9: IGNORE, ERROR, a condition's own HANDLE or IGNORE
+  before ERROR, IGNORE overriding HANDLE, PUSH suspending IGNORE and ERROR, POP restoring, POP with nothing pushed)
+  and hc-eoc-error (2: ERROR does not take EOC), cobol-stub and the det port both passing the hand-written logs.
 
 ## Language Environment
 

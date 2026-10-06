@@ -7,7 +7,7 @@
   "paths": [
    "tests/cics_crucible/ports/pc-aid-menu/PCMENU/overlay/service/PcmenuService.java"
   ],
-  "sha256": "44cdd6bdd95d0ca3b3bab2dc148d78c3021c4bfd4262be581482f41c270ca61e",
+  "sha256": "2572bd3759c3a975e125d8afa917f5293e42ee5e2f454d324d6a93e9ccdef7a6",
   "entry_points": [
    "handleTransaction",
    "runTask"
@@ -19,7 +19,7 @@
     "tests/cics_crucible/ports/pc-aid-menu/*/overlay/**"
    ],
    "files": 2,
-   "sha256": "6a54330d26376b9ab5862e761a16e3513fca37ed18876301a4f1eefdd2d7e011"
+   "sha256": "d95064167025102fc166ea1f2dc9f42eeecf50dfa4564635c43013b42879bedb"
   },
   "case": {
    "paths": [
@@ -45,7 +45,7 @@
     "tests/tools/cics_crucible_compare.py"
    ],
    "files": 13,
-   "sha256": "a3ae3d6d7e938e36cd15639224926bf86762c0f436c35667909f895cbe77382c"
+   "sha256": "56ab4ace9f9a0b3f19e36cb809218d40b367f419b10e45972ae46dbffc82f39b"
   },
   "oracle": {
    "paths": [],
@@ -57,20 +57,20 @@
     "gitgalaxy/tools/cobol_to_java/**"
    ],
    "files": 60,
-   "sha256": "85b398e62fba1e95c3bc1a8f1af5f8e44449696b805c2587e5f4cf9daa160b2c"
+   "sha256": "6eab156270c21ef910bcf2883406275e52c707d5fd6bdbb7518744dc30ddaa48"
   },
   "corpus": {
    "name": "cics-crucible",
-   "ref": "v0.2.0",
-   "sha256": "085be5a9f372ecb979d4f8dda1d8c749e85d01abb85e227fca4127844db9c5b6"
+   "ref": "v0.3.0",
+   "sha256": "53f76718897e3b34862f10d5697b0a8dcf448092af9e46fbf52fd6cd79eb9c3a"
   },
   "differences": {
    "sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
   },
-  "digest": "86014abb7aa3b8fce25bc1d980fc66b85854c42928d1fa3fd37d485270947888"
+  "digest": "b7276a99f70d044e58d48eb380d393ab98598aae26a0bb70065007c25500bc96"
  },
  "proof": {
-  "at": "2026-10-05T11:42:02Z",
+  "at": "2026-10-06T10:50:49Z",
   "verdict": "proven",
   "runs": 4,
   "fault_runs": 0,
@@ -100,8 +100,8 @@
   "sysout_compared": null,
   "attributes_compared": null,
   "java_failed": false,
-  "harness_commit": "b85fc0e2ec987f60b87a38a72bda9faaee2120e2+uncommitted",
-  "inputs_digest": "86014abb7aa3b8fce25bc1d980fc66b85854c42928d1fa3fd37d485270947888"
+  "harness_commit": "ca529169609d6e48c2124510473d4539ea576c8e+uncommitted",
+  "inputs_digest": "b7276a99f70d044e58d48eb380d393ab98598aae26a0bb70065007c25500bc96"
  },
  "coverage": {
   "paragraphs": {
@@ -116,7 +116,7 @@
   "handler_labels": null,
   "source": "tests/cics_crucible/coverage.json#programs/pc-aid-menu/PCMENU",
   "ledger_sha256": "3507a37672aaaa5813c020bbe64d8937ff518cfa3c377af8b85c04629aa93eb6",
-  "inputs_digest": "86014abb7aa3b8fce25bc1d980fc66b85854c42928d1fa3fd37d485270947888"
+  "inputs_digest": "b7276a99f70d044e58d48eb380d393ab98598aae26a0bb70065007c25500bc96"
  },
  "reach": {
   "entry_points": [
@@ -127,7 +127,7 @@
    {
     "class": "PcmenuService",
     "method": "xctlPcdetl",
-    "line": 242,
+    "line": 245,
     "kind": "left_as_generated"
    }
   ],
@@ -137,7 +137,7 @@
    "ported_unproven": 0
   },
   "generated_compared": true,
-  "port_sha256": "44cdd6bdd95d0ca3b3bab2dc148d78c3021c4bfd4262be581482f41c270ca61e"
+  "port_sha256": "2572bd3759c3a975e125d8afa917f5293e42ee5e2f454d324d6a93e9ccdef7a6"
  },
  "mutation": {
   "commit": "be2561306",
@@ -180,7 +180,7 @@
  "differences": [],
  "oracle": {
   "kind": "crucible-expected-logs",
-  "source": "cics-crucible v0.2.0: each scenario's hand-written expected event log, derived from IBM's documentation (its SPEC.md); the java-ported side (runTask) and the java-facade side (the deployed entry points, #4343) are compared with it exactly",
+  "source": "cics-crucible v0.3.0: each scenario's hand-written expected event log, derived from IBM's documentation (its SPEC.md); the java-ported side (runTask) and the java-facade side (the deployed entry points, #4343) are compared with it exactly",
   "compiler": null,
   "image": null,
   "models": [],
@@ -200,9 +200,9 @@
   "provenance_file": {
    "path": "tests/cics_crucible/ports/pc-aid-menu/PCMENU/provenance.json",
    "format": "cics-crucible-port/1",
-   "sha256": "b3eba139829b8f5bde71a09652555d989214d710422297ab9a9e6fd4f05d099a"
+   "sha256": "06b2b783e407411951d8a50228f908e4a1c3bdfc7c09e65d90423830d0760479"
   },
-  "crucible_ref_proven": "v0.2.0 (94f2afcb)"
+  "crucible_ref_proven": "v0.3.0 (f8aaf95f)"
  },
  "approvals": []
 }

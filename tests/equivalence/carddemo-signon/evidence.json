@@ -7,7 +7,7 @@
   "paths": [
    "tests/equivalence/carddemo-signon/port/service/Cosgn00cService.java"
   ],
-  "sha256": "2930523c0654230a1c1cf08c259b85454aadea1b87545bb86960592022dedf1d",
+  "sha256": "cf5a4ab11c47dc91282e8525688948dd211fd48dc3916d68e36358b689d7239d",
   "entry_points": [
    "handleTransaction",
    "runTask"
@@ -19,7 +19,7 @@
     "tests/equivalence/carddemo-signon/port/**"
    ],
    "files": 1,
-   "sha256": "2930523c0654230a1c1cf08c259b85454aadea1b87545bb86960592022dedf1d"
+   "sha256": "cf5a4ab11c47dc91282e8525688948dd211fd48dc3916d68e36358b689d7239d"
   },
   "case": {
    "paths": [
@@ -43,7 +43,7 @@
     "tests/tools/java_target_matrix.py"
    ],
    "files": 11,
-   "sha256": "cd0c22f11e735f25b3d655aac6b89670b07cba2e23856c7c825291b64fa994c5"
+   "sha256": "304049dfdcedf444507b3d008cb8a9e020ba663f927b0d53954ff5c7ef95f7ea"
   },
   "oracle": {
    "paths": [
@@ -56,14 +56,14 @@
     "tests/tools/equivalence_sql.py"
    ],
    "files": 16,
-   "sha256": "ee924d311b67148f9104af7158c534cc2fb9a50bb35ca6f7758d6a40efda414c"
+   "sha256": "fe66479a555d6d3a4a6e9604c387f1b5da27762b8d6a8b2deacfa0c502130280"
   },
   "generator": {
    "paths": [
     "gitgalaxy/tools/cobol_to_java/**"
    ],
    "files": 60,
-   "sha256": "d732e7f21fab2ba4f65c7a3dcf403d1f341479111a3a0d757cbacd167c1a2daa"
+   "sha256": "6eab156270c21ef910bcf2883406275e52c707d5fd6bdbb7518744dc30ddaa48"
   },
   "corpus": {
    "name": "aws-mainframe-modernization-carddemo",
@@ -73,11 +73,11 @@
   "differences": {
    "sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
   },
-  "digest": "e07b2eb201c6ead23beac35d6908fc074d2def7af4fd9621498c1e4bdae9915b"
+  "digest": "c2155df2946ea69d4d17e93365b47fd9b3d2d2c481e50aaee558573c49ed44f3"
  },
  "proof": {
-  "at": "2026-10-05T14:53:03Z",
-  "verdict": "not-proven",
+  "at": "2026-10-06T10:38:03Z",
+  "verdict": "proven",
   "runs": 12,
   "fault_runs": 1,
   "environments": null,
@@ -136,62 +136,17 @@
   "attributes_compared": null,
   "java_failed": false,
   "facade": {
-   "verdict": "not-proven",
+   "verdict": "proven",
    "runs": 12,
-   "passed": 1,
+   "passed": 12,
    "entry_points": [
     "handleTransaction"
    ],
-   "failed": [
-    {
-     "scenario": "admin-signs-on",
-     "why": "refused: handleTransaction of COSGN00C cannot take the COMMAREA (com.gitgalaxy.modernized.dto.contract.CarddemoCommarea) the task starts with"
-    },
-    {
-     "scenario": "both-empty",
-     "why": "refused: handleTransaction of COSGN00C cannot take the COMMAREA (com.gitgalaxy.modernized.dto.contract.CarddemoCommarea) the task starts with"
-    },
-    {
-     "scenario": "invalid-key",
-     "why": "refused: handleTransaction of COSGN00C cannot take the COMMAREA (com.gitgalaxy.modernized.dto.contract.CarddemoCommarea) the task starts with"
-    },
-    {
-     "scenario": "lowercase-credentials",
-     "why": "refused: handleTransaction of COSGN00C cannot take the COMMAREA (com.gitgalaxy.modernized.dto.contract.CarddemoCommarea) the task starts with"
-    },
-    {
-     "scenario": "password-empty",
-     "why": "refused: handleTransaction of COSGN00C cannot take the COMMAREA (com.gitgalaxy.modernized.dto.contract.CarddemoCommarea) the task starts with"
-    },
-    {
-     "scenario": "pf3-thank-you",
-     "why": "refused: handleTransaction of COSGN00C cannot take the COMMAREA (com.gitgalaxy.modernized.dto.contract.CarddemoCommarea) the task starts with"
-    },
-    {
-     "scenario": "user-file-io-error",
-     "why": "refused: handleTransaction of COSGN00C cannot take the COMMAREA (com.gitgalaxy.modernized.dto.contract.CarddemoCommarea) the task starts with"
-    },
-    {
-     "scenario": "user-id-empty",
-     "why": "refused: handleTransaction of COSGN00C cannot take the COMMAREA (com.gitgalaxy.modernized.dto.contract.CarddemoCommarea) the task starts with"
-    },
-    {
-     "scenario": "user-not-found",
-     "why": "refused: handleTransaction of COSGN00C cannot take the COMMAREA (com.gitgalaxy.modernized.dto.contract.CarddemoCommarea) the task starts with"
-    },
-    {
-     "scenario": "user-signs-on",
-     "why": "refused: handleTransaction of COSGN00C cannot take the COMMAREA (com.gitgalaxy.modernized.dto.contract.CarddemoCommarea) the task starts with"
-    },
-    {
-     "scenario": "wrong-password",
-     "why": "refused: handleTransaction of COSGN00C cannot take the COMMAREA (com.gitgalaxy.modernized.dto.contract.CarddemoCommarea) the task starts with"
-    }
-   ],
+   "failed": [],
    "error": null
   },
-  "harness_commit": "af9e62c055439d3c758d2a794a211fa28ad41e41+uncommitted",
-  "inputs_digest": "e07b2eb201c6ead23beac35d6908fc074d2def7af4fd9621498c1e4bdae9915b"
+  "harness_commit": "ca529169609d6e48c2124510473d4539ea576c8e+uncommitted",
+  "inputs_digest": "c2155df2946ea69d4d17e93365b47fd9b3d2d2c481e50aaee558573c49ed44f3"
  },
  "coverage": {
   "paragraphs": {
@@ -208,7 +163,7 @@
    "total": 0
   },
   "source": "the proof's own traced COBOL runs (cobol_coverage.py)",
-  "inputs_digest": "e07b2eb201c6ead23beac35d6908fc074d2def7af4fd9621498c1e4bdae9915b"
+  "inputs_digest": "c2155df2946ea69d4d17e93365b47fd9b3d2d2c481e50aaee558573c49ed44f3"
  },
  "reach": {
   "entry_points": [
@@ -219,19 +174,19 @@
    {
     "class": "Cosgn00cService",
     "method": "handleLink",
-    "line": 289,
+    "line": 311,
     "kind": "left_as_generated"
    },
    {
     "class": "Cosgn00cService",
     "method": "xctlCoadm01c",
-    "line": 298,
+    "line": 321,
     "kind": "left_as_generated"
    },
    {
     "class": "Cosgn00cService",
     "method": "xctlComen01c",
-    "line": 304,
+    "line": 327,
     "kind": "left_as_generated"
    }
   ],
@@ -241,7 +196,7 @@
    "ported_unproven": 0
   },
   "generated_compared": true,
-  "port_sha256": "2930523c0654230a1c1cf08c259b85454aadea1b87545bb86960592022dedf1d"
+  "port_sha256": "cf5a4ab11c47dc91282e8525688948dd211fd48dc3916d68e36358b689d7239d"
  },
  "mutation": null,
  "differences": [],
@@ -253,7 +208,7 @@
   "compiler_options": null,
   "image": {
    "name": "gitgalaxy-gnucobol:3",
-   "id": "sha256:d7e387df360c519ce8945a1f6d748c8dafab06f50551b23ddf85d6373a4dcd6e",
+   "id": "sha256:d81f386912111e825d75a5f9856f571118ca4586049923555526cf7419454be3",
    "base": "debian:bookworm-slim@sha256:3783cc01769c7b2b1b83a5c5ad96c815348e28ed7da68e2e3687004faa906251",
    "matches_pin": true,
    "mismatches": []
@@ -269,11 +224,11 @@
    },
    {
     "path": "tests/equivalence/cics/DFHEIBLK.cpy",
-    "sha256": "fa4e0e29e8155a653c685420eb159fc5ec491ccf8eba13ccac1eb4962692fcf0"
+    "sha256": "ab7fe78f8e8496673924ed6a663619a320a48efcc474899b033c92c9fda48461"
    },
    {
     "path": "tests/equivalence/cics/ggcics.c",
-    "sha256": "2aff8a7a22af537b24cb03caafe4d6df30c30fde1cb6f548ba376616e6617214"
+    "sha256": "5d1950c7e6a9a0053304c0020175888ce25961f59235ee78799691df2036a1ee"
    },
    {
     "path": "tests/equivalence/db2/SQLCA.cpy",
@@ -336,11 +291,11 @@
   "porting_rules_sha256": null,
   "proposed_at": "2026-10-01T16:37:31+00:00",
   "generator_version": null,
-  "edited_after": "none: the files are the model's answer as the loop stored it",
+  "edited_after": "the deployed entry points (facades) were brought to the generator's by tests/tools/port_surface.py (#4343; see history 'resurfaced'); runTask and the logic it runs are the model's answer",
   "provenance_file": {
    "path": "tests/equivalence/carddemo-signon/port/provenance.json",
    "format": "porting-loop-provenance/1",
-   "sha256": "41f7e616b2d0ff6f3efd2e11d75ce57fa29f27e2b04b5f735390e595a7cd319e"
+   "sha256": "5c3835d4db3e4e9d3efe83740f26b858b3347d6b6eb3dc030e18bc5365f8b9a3"
   }
  },
  "approvals": []

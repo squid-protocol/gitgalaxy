@@ -44,8 +44,36 @@ TEXT_OPTIONS = ("ERASE", "FREEKB", "ALARM", "CURSOR", "PRINT", "LAST", "WAIT", "
                 "CTLCHAR")  # fmt: skip
 
 
+# #4414: the keys HANDLE AID names (IBM, EXEC CICS HANDLE AID), as the equivalence harness's stub has them
+AID_KEYS = frozenset(["ANYKEY", "ENTER", "CLEAR", "CLRPARTN", "LIGHTPEN", "OPERID", "TRIGGER", "PA1", "PA2", "PA3"]
+                     + [f"PF{n}" for n in range(1, 25)])  # fmt: skip
+
+
 class CicsError(Exception):
     pass
+
+
+# #4528: CICS's default CCSID, the region's page when the estate declares no EBCDIC one (cics-crucible SPEC 2: "every
+# byte in every area is CCSID 037")
+REGION_PAGE = "cp037"
+
+
+def region_page(declared: str | None) -> str:
+    """#4528: the JDK name of the region's code page -- the page a TS item's bytes are in on the COBOL side: the
+    estate's declared code page for the program when it is an EBCDIC one (cp273, cp277 ...: EngineCopies.page, the
+    page the engine decoded it with), else CCSID 037. An ASCII-family declaration says how the source was
+    transferred, not which page the region runs."""
+    from gitgalaxy.core.ebcdic_codecs import java_charset_name, register
+
+    register()
+    page = REGION_PAGE
+    if declared:
+        try:
+            if " ".encode(declared) == b"\x40":
+                page = declared
+        except (LookupError, UnicodeError):
+            pass
+    return java_charset_name(page)
 
 
 # #4411: every option each modelled command accepts. An option outside its command's set is refused by name (the
@@ -55,6 +83,7 @@ _RESP = frozenset({"RESP", "RESP2", "NOHANDLE"})
 _FILE = frozenset({"DATASET", "FILE", "RBA", "RRN", "XRBA"})  # (RBA / RRN / XRBA: refused or browsed in Cics._rba)
 _FORMS = ("YYYYMMDD", "MMDDYYYY", "DDMMYYYY", "YYMMDD", "MMDDYY", "DDMMYY")
 _TS = frozenset({"TS", "QUEUE", "QNAME", "LENGTH", "ITEM", "NUMITEMS"})
+_SEND_CONTROL = frozenset({"ERASE", "ERASEAUP", "FREEKB", "ALARM", "CURSOR", "FRSET"})  # #4413: its device controls
 OPTIONS: dict[str, frozenset | None] = {
     # one task in the region: ENQ / DEQ never wait; a task takes no time, a DELAY included
     "ENQ": frozenset({"RESOURCE", "LENGTH", "NOSUSPEND", "TASK", "UOW", "MAXLIFETIME"}) | _RESP,
@@ -64,6 +93,11 @@ OPTIONS: dict[str, frozenset | None] = {
     "SEND MAP": frozenset({"MAP", "MAPSET", "FROM", "CURSOR", *MAP_OPTIONS}) | _RESP,
     "SEND TEXT": frozenset({"FROM", "LENGTH", *TEXT_OPTIONS}) | _RESP,
     "RECEIVE MAP": frozenset({"MAP", "MAPSET", "INTO"}) | _RESP,
+    # #4413: terminal control. SEND CONTROL's device controls (IBM's minimum-BMS options; PRINT, FORMFEED, ALTERNATE /
+    # DEFAULT and the partition / LDC / ACCUM / PAGING ones are refused); RECEIVE of unformatted terminal input
+    # (ASIS / BUFFER and the APPC / LU6.1 options refused)
+    "SEND CONTROL": _SEND_CONTROL | _RESP,
+    "RECEIVE": frozenset({"INTO", "SET", "LENGTH", "FLENGTH", "MAXLENGTH", "MAXFLENGTH", "NOTRUNCATE"}) | _RESP,
     "LINK": frozenset({"PROGRAM", "COMMAREA", "LENGTH"}) | _RESP,
     # control never comes back from a RETURN, so a RESP area it does not write is never read after it
     "RETURN": frozenset({"TRANSID", "COMMAREA", "LENGTH"}) | _RESP,
@@ -81,6 +115,12 @@ OPTIONS: dict[str, frozenset | None] = {
     # NOHANDLE where the translation raises no condition anyway (no RESP: its area would not be written)
     "HANDLE ABEND": frozenset({"LABEL", "CANCEL", "RESET", "PROGRAM", "NOHANDLE"}),  # (PROGRAM: refused below)
     "HANDLE CONDITION": None,  # every option is a condition, each handled
+    # #4414: every option a condition / an attention key (checked by Cics.conditions / handle_aid_). PUSH / POP HANDLE
+    # raise INVREQ only (POP with nothing pushed), through RESP / HANDLE CONDITION like any condition
+    "IGNORE CONDITION": None,
+    "HANDLE AID": None,
+    "PUSH HANDLE": _RESP,
+    "POP HANDLE": _RESP,
     "ABEND": frozenset({"ABCODE", "CANCEL", "NODUMP"}),  # NODUMP: a dump is no state the program or its caller sees
     "ASSIGN": frozenset({"APPLID", "SYSID", "ABCODE", "PROGRAM", "INVOKINGPROG"}) | _RESP,
     "ASKTIME": frozenset({"ABSTIME", "NOHANDLE"}),
@@ -142,6 +182,10 @@ def _arg(v: str | None) -> str:
     return v
 
 
+# an option with no argument that can come first, so is never a verb word (#4413: RECEIVE NOTRUNCATE INTO(...))
+_BARE_OPTIONS = ("NOTRUNCATE",)
+
+
 def parse_exec(text: str) -> tuple[list[str], dict[str, str | None]]:
     """EXEC CICS VERB [VERB2] OPT(arg) OPT ... END-EXEC -> ([verb words], {option: arg text or None})."""
     body = re.sub(r"(?is)^\s*EXEC\s+CICS\s+|\s*END-EXEC\s*\.?\s*$", "", text).strip()
@@ -178,7 +222,7 @@ def parse_exec(text: str) -> tuple[list[str], dict[str, str | None]]:
                 k += 1
             opts[name] = body[j + 1 : k].strip()
             i = k + 1
-        elif not opts and len(words) < 2 and name not in MAP_OPTIONS:
+        elif not opts and len(words) < 2 and name not in MAP_OPTIONS and name not in _BARE_OPTIONS:
             words.append(name)
         else:
             opts[name] = None
@@ -367,6 +411,14 @@ class Cics:
         self.stores: dict[str, str] = {}  # CICS file -> the Java Store expression
         self.repos: dict[str, str] = {}  # repository class -> field
         self.used_screens: set[str] = set()
+        # #4414: the program issues HANDLE AID (its input commands consult the keys' labels) / PUSH HANDLE (its
+        # handler state is stacked); set by program._translate from the source before any statement is translated
+        self.handle_aid = False
+        self.push_handle = False
+        # #4528: the region's code page (region_page), set by program._translate; `region_used`: the port declares
+        # REGION (a TS command moves bytes between the program's storage and the region)
+        self.region = region_page(None)
+        self.region_used = False
 
     # -- operands
     def operand(self, text: str):
@@ -427,6 +479,67 @@ class Cics:
         out.append(f"{ind}}}")
         return out
 
+    # -- #4414: IGNORE CONDITION, HANDLE AID, PUSH / POP HANDLE
+    def conditions(self, verb: str, opts: dict, ignore: bool = False) -> list[str]:
+        """The conditions a HANDLE / IGNORE CONDITION names: each one IBM documents (DFHRESP), never NORMAL. IGNORE
+        CONDITION names no label (IBM, EXEC CICS IGNORE CONDITION: "condition -- the name of the condition to be
+        ignored"). IGNORE CONDITION ERROR is refused: IBM's HANDLE CONDITION takes "the action for ERROR" for a
+        condition with no action of its own whose default is an abend, but does not say whether an IGNORE of ERROR is
+        such an action (docs/language_status/oracle_assumptions.md X16)."""
+        for cond, label in opts.items():
+            if cond not in DFHRESP or cond == "NORMAL":
+                raise CicsError(f"{verb} {cond}: not a documented condition")
+            if ignore and label is not None:
+                raise CicsError(f"{verb} {cond}({label}): IGNORE CONDITION names no label")
+            if ignore and cond == "ERROR":
+                raise CicsError("IGNORE CONDITION ERROR: whether ERROR's action can be to ignore is not documented")
+        return list(opts)
+
+    def handle_aid_(self, opts: dict, ind: str) -> list[str]:
+        """HANDLE AID key(label) ... (IBM, EXEC CICS HANDLE AID): each key's label, taken after an input command
+        (input_outcome); a key with no label is deactivated ("To ignore an AID, issue a HANDLE AID command that
+        specifies the associated option without a label"). Only the attention keys: RESP / NOHANDLE are refused too
+        (no key; HANDLE AID raises no condition here)."""
+        out = []
+        for key, label in opts.items():
+            if key not in AID_KEYS:
+                raise CicsError(f"HANDLE AID {key}: not an attention key")
+            if label is None:  # (-1: deactivated, which DetCics.aidLabel tells from never handled)
+                out.append(f"{ind}aids.put({G_jstr(key)}, -1);")
+                continue
+            if label.upper() not in self.g.para_index:
+                raise CicsError(f"HANDLE AID {key}({label}): no such paragraph")
+            out.append(f"{ind}aids.put({G_jstr(key)}, {self.g.para_index[label.upper()]});")
+        return out
+
+    def push_pop(self, verb: str, opts: dict, ind: str) -> list[str]:
+        """PUSH HANDLE suspends the program's HANDLE CONDITION, IGNORE CONDITION, HANDLE AID and HANDLE ABEND state;
+        POP HANDLE restores the one last pushed, INVREQ when none was (IBM, EXEC CICS PUSH HANDLE / POP HANDLE). The
+        HANDLE ABEND part is CicsTask's (pushHandle / popHandle), the rest the program's own (handlers, aids)."""
+        r = self.g.tmpname("resp")
+        if verb == "PUSH HANDLE":
+            out = [f"{ind}pushed.push(new DetCics.Handlers(handlers, aids));",
+                   f"{ind}handlers.clear();", f"{ind}aids.clear();",
+                   f"{ind}int {r} = DetCics.resp(task.pushHandle());"]  # fmt: skip
+        else:
+            out = [f"{ind}int {r} = DetCics.resp(task.popHandle());",
+                   f"{ind}if ({r} == 0) {{",
+                   f"{ind}    pushed.pop().restore(handlers, aids);",
+                   f"{ind}}}"]  # fmt: skip
+        return out + self.outcome(opts, r, "0", ind)
+
+    def input_outcome(self, opts: dict, resp: str, ind: str) -> list[str]:
+        """#4414: after an input command (RECEIVE MAP, terminal RECEIVE): its outcome, then -- in a program that
+        issues HANDLE AID, unless RESP or NOHANDLE ("no action is to be taken for any condition or attention
+        identifier (AID)") -- the label of the key pressed, else ANYKEY's for a PA / PF key or CLEAR ("Control is
+        passed after the input command is completed"). Which comes first when the command also raised a condition
+        is not documented: the program's aid() refuses that before the condition is acted on (X16)."""
+        if not self.handle_aid or "RESP" in opts or "NOHANDLE" in opts:
+            return self.outcome(opts, resp, "0", ind)
+        to = self.g.tmpname("aidTo")
+        return [f"{ind}aid({resp});", *self.outcome(opts, resp, "0", ind),
+                f"{ind}int {to} = aid({resp});", f"{ind}if ({to} >= 0) {self.g.jump(to)}"]  # fmt: skip
+
     # -- COMMAREA codecs
     def codec(self, cls: str) -> str:
         if cls in self.codecs:
@@ -476,7 +589,7 @@ class Cics:
 
     def declared(self, leaf: Leaf) -> L.Item:
         """A DTO field's item as the copybook the generator read it from declares it."""
-        from gitgalaxy.tools.cobol_to_java.det.source import logical_lines
+        from gitgalaxy.tools.cobol_to_java.det.source import _raw_lines, logical_lines
 
         name = Path(leaf.source or "").name
         path = next((d / name for d in self.g.copy_dirs if name and (d / name).is_file()), None)
@@ -484,7 +597,8 @@ class Cics:
             raise CicsError(f"{leaf.cobol}: {leaf.size} bytes, PIC {leaf.pic} is not; its copybook {name!r} not found")
         raw = ["       IDENTIFICATION DIVISION.", "       PROGRAM-ID. GGDTO.", "       DATA DIVISION.",
                "       WORKING-STORAGE SECTION.", "       01 GG-DTO-RECORD."]  # fmt: skip
-        raw += path.read_text(encoding="latin-1").splitlines()
+        # #4528: decoded with the code page the estate declares for it, as the engine and the source reader do
+        raw += _raw_lines(path, self.g.engine)
         for rec in L.parse(logical_lines(raw, str(path))):
             for it in rec.walk():
                 if it.name == leaf.cobol and it.size == leaf.size:
@@ -625,7 +739,7 @@ class Cics:
             ex = g.tmpname("exit")
             out += [f"{ind}String {ex} = task.abendExit();",  # an abend below went to this program's exit
                     f"{ind}if ({ex} != null) {g.jump(f'paragraph({ex})')}",
-                    f"{ind}if (task.ended()) throw new Goback();"]  # fmt: skip
+                    f"{ind}if (task.ended()) throw abended();"]  # #4534: unwound past this level  # fmt: skip
             return out + self.outcome(opts, f"DetCics.resp({r})", "0", ind)
         if verb == "RETURN":
             if "TRANSID" in opts or "COMMAREA" in opts:
@@ -667,6 +781,7 @@ class Cics:
             raise CicsError("HANDLE ABEND PROGRAM")
         if verb == "HANDLE CONDITION":
             out = []
+            self.conditions(verb, opts)
             for cond, target in opts.items():
                 if target is None:
                     out.append(f"{ind}handlers.remove({G_jstr(cond)});")
@@ -675,11 +790,17 @@ class Cics:
                     raise CicsError(f"HANDLE CONDITION {cond}({target}): no such paragraph")
                 out.append(f"{ind}handlers.put({G_jstr(cond)}, {g.para_index[target.upper()]});")
             return out
+        if verb == "IGNORE CONDITION":
+            return [f"{ind}handlers.put({G_jstr(c)}, -1);" for c in self.conditions(verb, opts, ignore=True)]
+        if verb == "HANDLE AID":
+            return self.handle_aid_(opts, ind)
+        if verb in ("PUSH HANDLE", "POP HANDLE"):
+            return self.push_pop(verb, opts, ind)
         if verb == "ABEND":
             code = self.name(_arg(opts["ABCODE"])) if opts.get("ABCODE") else '""'
             fn = "abendCancel" if "CANCEL" in opts else "abend"
             lbl = g.tmpname("exit")
-            return [f"{ind}String {lbl} = task.{fn}({code});", f"{ind}if ({lbl} == null) throw new Goback();",
+            return [f"{ind}String {lbl} = task.{fn}({code});", f"{ind}if ({lbl} == null) throw abended();",
                     f"{ind}if (true) {g.jump(f'paragraph({lbl})')}"]  # fmt: skip
         if verb == "ASSIGN":
             out = []
@@ -737,11 +858,71 @@ class Cics:
             if "RESP2" in opts and "RESP" not in opts:  # RESP2 alone is written too
                 out.append(ind + self.g.store_into(self.ref(_arg(opts["RESP2"])), "BigDecimal.valueOf(0)", False))
             return out
+        if verb == "SEND CONTROL":
+            return self.send_control(opts, ind)
+        if verb == "RECEIVE":
+            return self.receive(opts, ind)
         raise CicsError(f"EXEC CICS {verb} not modelled")
 
+    # -- #4413: terminal control without a map
+    def send_control(self, opts: dict, ind: str) -> list[str]:
+        """SEND CONTROL (IBM, EXEC CICS SEND CONTROL): device controls, recorded with CicsTask.sendControl. CURSOR
+        names an offset ("a halfword binary value that specifies the cursor position relative to zero"); without
+        one IBM documents no meaning (symbolic cursor positioning needs a map), so it is refused. No condition it
+        documents arises on a plain terminal: NORMAL."""
+        cursor = "null"
+        if "CURSOR" in opts:
+            if not opts["CURSOR"]:
+                raise CicsError("SEND CONTROL CURSOR without a value: not modelled")
+            cursor = self.int_(opts["CURSOR"])
+        flags = [o for o in _SEND_CONTROL if o in opts]  # (sorted by the runtime)
+        return [f"{ind}task.sendControl({cursor}{''.join(', ' + G_jstr(x) for x in sorted(flags))});",
+                *self.outcome(opts, "0", "0", ind)]  # fmt: skip
+
+    def receive(self, opts: dict, ind: str) -> list[str]:
+        """A terminal RECEIVE (IBM, EXEC CICS RECEIVE (3270 logical), (LUTYPE2/LUTYPE3)) on CicsTask.receive.
+
+        INTO: the most taken is MAXLENGTH, else LENGTH's value, else INTO's length; the data goes into INTO's first
+        bytes. SET(ADDRESS OF record): the LINKAGE record addresses the data (DetCics.receivedSet); it needs MAXLENGTH
+        -- without it IBM's "the value indicated in the LENGTH option is assumed" reads LENGTH, which SET only sets
+        -- and LENGTH(data-area). LENGTH / FLENGTH is set to the length the runtime returns (the data's, or under
+        LENGERR the original length). LENGERR (22) and EOC (6, an LUTYPE2 terminal; ignored by default) go through
+        RESP / HANDLE CONDITION like any condition."""
+        length = _one_of(opts, "LENGTH", "FLENGTH")  # (FLENGTH / MAXFLENGTH: the fullword forms)
+        most = _one_of(opts, "MAXLENGTH", "MAXFLENGTH")
+        settable = length is not None and re.fullmatch(r"(?is)[+-]?\d+|LENGTH\s+OF\s+.+", length.strip()) is None
+        g = self.g
+        if opts.get("INTO") and "SET" not in opts:
+            target = self.field(opts["INTO"])
+            limit = self.int_(most) if most else self.int_(length) if length else str(self.size(opts["INTO"]))
+            put = "received"
+        elif opts.get("SET") and "INTO" not in opts:
+            m = re.fullmatch(r"(?is)ADDRESS\s+OF\s+([A-Z0-9-]+)", opts["SET"].strip())
+            if m is None:
+                raise CicsError(f"RECEIVE SET({opts['SET']}): pointers are not modelled, only SET(ADDRESS OF record)")
+            item = g.resolve(E.Ref(m.group(1).upper()))
+            if getattr(item, "section", None) != "LINKAGE" or getattr(item, "level", None) != 1:
+                raise CicsError(f"RECEIVE SET(ADDRESS OF {m.group(1)}): not a LINKAGE 01 record")
+            if not most:
+                raise CicsError("RECEIVE SET without MAXLENGTH: the most it takes is not documented")
+            if not settable:
+                raise CicsError("RECEIVE SET without LENGTH(data-area)")
+            target = self.field(m.group(1))
+            limit = self.int_(most)
+            put = "receivedSet"
+        else:
+            raise CicsError("RECEIVE needs one of INTO / SET")
+        r = g.tmpname("received")
+        out = [f"{ind}CicsTask.Received {r} = task.receive({limit}, {str('NOTRUNCATE' in opts).lower()});",
+               f"{ind}DetCics.{put}({target}, {r}.data(), CS);"]  # fmt: skip
+        if settable and length is not None:
+            out.append(ind + g.store_into(self.ref(length), f"BigDecimal.valueOf({r}.length())", False))
+        return out + self.input_outcome(opts, f"DetCics.resp({r}.resp())", ind)
+
     def ts_queue(self, verb: str, opts: dict, ind: str) -> list[str]:
-        """WRITEQ TS / READQ TS on the task's temporary storage (CicsTask): an item is the program's own bytes.
-        (The proofs cover no TS command yet: declared in docs/language_status/det_port_design.md.)"""
+        """WRITEQ TS / READQ TS on the task's temporary storage (CicsTask): an item is the program's own bytes in the
+        region's code page (#4528: REGION, region_page) -- written from the storage's page (CS) and read back into
+        it, character by character, as the COBOL side's region moves them."""
         q = opts.get("QUEUE") or opts.get("QNAME")
         if q is None:
             raise CicsError(f"{verb} TS without QUEUE / QNAME")
@@ -749,10 +930,12 @@ class Cics:
         g = self.g
         r = g.tmpname("ts")
         out: list[str] = []
+        self.region_used = True
         if verb == "WRITEQ":
             f = self.read_field(_arg(opts.get("FROM")))
             n = self.int_(_arg(opts["LENGTH"])) if opts.get("LENGTH") else f"{f}.length()"
-            data = f"DetCics.bytes({f}, {n})"
+            # #4528: the item in the region's page, as the COBOL side's region keeps it
+            data = f"DetCics.toRegion(DetCics.bytes({f}, {n}), CS, REGION)"
             if "REWRITE" in opts:
                 out.append(
                     f"{ind}CicsTask.TsResult {r} = task.rewriteqTs({queue}, {self.int_(_arg(opts.get('ITEM')))}, {data});"
@@ -772,7 +955,7 @@ class Cics:
                 out.append(
                     f"{ind}CicsTask.TsResult {r} = task.readqTs({queue}, {self.int_(_arg(opts['ITEM']))}, {maxlen});"
                 )
-            out.append(f"{ind}if ({r}.data() != null) DetCics.put({into}, {r}.data());")
+            out.append(f"{ind}if ({r}.data() != null) DetCics.put({into}, DetCics.fromRegion({r}.data(), REGION, CS));")
             if opts.get("LENGTH"):
                 out.append(f"{ind}if ({r}.length() >= 0) Cobol.store({self.field(_arg(opts['LENGTH']))}, "
                            f"BigDecimal.valueOf({r}.length()), false, CS);")  # fmt: skip
@@ -894,7 +1077,7 @@ class Cics:
             out.append(f"{ind}        DetCics.typed({i}, {ln or 'null'}, {vals}.get({G_jstr(name)}), CS);")
             out.append(f"{ind}    }}")
         out.append(f"{ind}}}")
-        return out + self.outcome(opts, resp, "0", ind)
+        return out + self.input_outcome(opts, resp, ind)
 
     # -- #4213: an ESDS browsed by relative byte address (IBM DBB EPSMLIST)
     def _rba(self, verb: str, opts: dict) -> bool:
@@ -1088,6 +1271,17 @@ class Cics:
         else:  # ENDBR
             out = [f"{ind}int {r} = task.endbr({file});"]
         return out + self.outcome(opts, r, "0", ind)
+
+
+def _one_of(opts: dict, name: str, alt: str) -> str | None:
+    """#4413: the argument of option `name` or its alternative form `alt` (LENGTH / FLENGTH), None when neither is
+    given; both, or one without an argument, refused."""
+    given = [o for o in (name, alt) if o in opts]
+    if len(given) > 1:
+        raise CicsError(f"{name} and {alt} together")
+    if given and not opts[given[0]]:
+        raise CicsError(f"{given[0]} needs an argument")
+    return opts[given[0]] if given else None
 
 
 def _literal(text: str | None) -> str | None:

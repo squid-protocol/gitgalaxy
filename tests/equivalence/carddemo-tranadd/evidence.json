@@ -7,7 +7,7 @@
   "paths": [
    "tests/equivalence/carddemo-tranadd/port/service/Cotrn02cService.java"
   ],
-  "sha256": "ebefa65657fa8f543c22d18b5af7776d6824dd4a61bd890a251db2e36bb1b126",
+  "sha256": "a806037669bc1dca7e00d81e73fd26426ef169488049fe91f882dbc325a7f7de",
   "entry_points": [
    "handleTransaction",
    "runTask"
@@ -20,7 +20,7 @@
     "tests/equivalence/carddemo-dateutil/port/**"
    ],
    "files": 2,
-   "sha256": "0baea33a824bc65953a11366ce1c8b8704b2ca9e4852d1a7c77b5d4333c0b9b6"
+   "sha256": "de1f2ee0125547e89d6c385f137a3036091052d26661691ed1ade53401dabd60"
   },
   "case": {
    "paths": [
@@ -44,7 +44,7 @@
     "tests/tools/java_target_matrix.py"
    ],
    "files": 11,
-   "sha256": "cd0c22f11e735f25b3d655aac6b89670b07cba2e23856c7c825291b64fa994c5"
+   "sha256": "304049dfdcedf444507b3d008cb8a9e020ba663f927b0d53954ff5c7ef95f7ea"
   },
   "oracle": {
    "paths": [
@@ -57,14 +57,14 @@
     "tests/tools/equivalence_sql.py"
    ],
    "files": 16,
-   "sha256": "ee924d311b67148f9104af7158c534cc2fb9a50bb35ca6f7758d6a40efda414c"
+   "sha256": "fe66479a555d6d3a4a6e9604c387f1b5da27762b8d6a8b2deacfa0c502130280"
   },
   "generator": {
    "paths": [
     "gitgalaxy/tools/cobol_to_java/**"
    ],
    "files": 60,
-   "sha256": "d732e7f21fab2ba4f65c7a3dcf403d1f341479111a3a0d757cbacd167c1a2daa"
+   "sha256": "6eab156270c21ef910bcf2883406275e52c707d5fd6bdbb7518744dc30ddaa48"
   },
   "corpus": {
    "name": "aws-mainframe-modernization-carddemo",
@@ -74,10 +74,10 @@
   "differences": {
    "sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
   },
-  "digest": "d07af9d2ed8d647922534769a0c1e2a042a2ad6084139f2ef11b79518b422fbd"
+  "digest": "faef946365548903fd9494160d1860b2b483b3211937814106cb063c013c0981"
  },
  "proof": {
-  "at": "2026-10-05T14:53:23Z",
+  "at": "2026-10-06T10:38:34Z",
   "verdict": "proven",
   "runs": 31,
   "fault_runs": 3,
@@ -222,8 +222,8 @@
    "failed": [],
    "error": null
   },
-  "harness_commit": "af9e62c055439d3c758d2a794a211fa28ad41e41+uncommitted",
-  "inputs_digest": "d07af9d2ed8d647922534769a0c1e2a042a2ad6084139f2ef11b79518b422fbd"
+  "harness_commit": "ca529169609d6e48c2124510473d4539ea576c8e+uncommitted",
+  "inputs_digest": "faef946365548903fd9494160d1860b2b483b3211937814106cb063c013c0981"
  },
  "coverage": {
   "paragraphs": {
@@ -355,7 +355,7 @@
    "total": 0
   },
   "source": "the proof's own traced COBOL runs (cobol_coverage.py)",
-  "inputs_digest": "d07af9d2ed8d647922534769a0c1e2a042a2ad6084139f2ef11b79518b422fbd"
+  "inputs_digest": "faef946365548903fd9494160d1860b2b483b3211937814106cb063c013c0981"
  },
  "reach": {
   "entry_points": [
@@ -388,7 +388,7 @@
    "ported_unproven": 0
   },
   "generated_compared": true,
-  "port_sha256": "ebefa65657fa8f543c22d18b5af7776d6824dd4a61bd890a251db2e36bb1b126"
+  "port_sha256": "a806037669bc1dca7e00d81e73fd26426ef169488049fe91f882dbc325a7f7de"
  },
  "mutation": null,
  "differences": [],
@@ -400,7 +400,7 @@
   "compiler_options": null,
   "image": {
    "name": "gitgalaxy-gnucobol:3",
-   "id": "sha256:d7e387df360c519ce8945a1f6d748c8dafab06f50551b23ddf85d6373a4dcd6e",
+   "id": "sha256:d81f386912111e825d75a5f9856f571118ca4586049923555526cf7419454be3",
    "base": "debian:bookworm-slim@sha256:3783cc01769c7b2b1b83a5c5ad96c815348e28ed7da68e2e3687004faa906251",
    "matches_pin": true,
    "mismatches": []
@@ -416,11 +416,11 @@
    },
    {
     "path": "tests/equivalence/cics/DFHEIBLK.cpy",
-    "sha256": "fa4e0e29e8155a653c685420eb159fc5ec491ccf8eba13ccac1eb4962692fcf0"
+    "sha256": "ab7fe78f8e8496673924ed6a663619a320a48efcc474899b033c92c9fda48461"
    },
    {
     "path": "tests/equivalence/cics/ggcics.c",
-    "sha256": "2aff8a7a22af537b24cb03caafe4d6df30c30fde1cb6f548ba376616e6617214"
+    "sha256": "5d1950c7e6a9a0053304c0020175888ce25961f59235ee78799691df2036a1ee"
    },
    {
     "path": "tests/equivalence/db2/SQLCA.cpy",
@@ -487,7 +487,7 @@
   "provenance_file": {
    "path": "tests/equivalence/carddemo-tranadd/port/provenance.json",
    "format": "porting-loop-provenance/1",
-   "sha256": "80f4be938c2417b692f766955540f5437a3ff0d2c47c77df68809d6fd3604eed"
+   "sha256": "8cf1ccce9f445b80007d71b89e3d91bfc8e67629693613e80a9be2b8964ef3eb"
   }
  },
  "approvals": []

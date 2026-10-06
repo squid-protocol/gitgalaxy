@@ -413,6 +413,57 @@ def test_cics_task_receive_text_records_the_event_and_truncates_with_lengerr(tmp
     )
 
 
+@needs_javac
+def test_cics_task_receive_notruncate_eoc_and_send_control(tmp_path):
+    """#4413, IBM EXEC CICS RECEIVE (3270 logical / LUTYPE2): MAXLENGTH with NOTRUNCATE returns the first bytes NORMAL
+    with the length returned and keeps the rest for the next RECEIVE of the task; a negative limit is zero; an
+    LUTYPE2 terminal's RECEIVE returning the input's last byte raises EOC, and one leaving data retained there is
+    refused (undocumented). SEND CONTROL records its options sorted and its CURSOR offset."""
+    out = _cics_task(
+        tmp_path,
+        """
+        CicsTask t = new CicsTask("HC05", "ENTER", null, null).withTerminalInput("HC05 ABCDEFG");
+        System.out.println(t.receive(5, true));
+        System.out.println(t.receive(4, true));
+        System.out.println(t.receive(4, true));
+        try {
+            t.receive(4, true);
+        } catch (IllegalStateException e) {
+            System.out.println("waits");
+        }
+        CicsTask z = new CicsTask("HC05", "ENTER", null, null).withTerminalInput("HC05");
+        System.out.println(z.receive(-3, false));
+        CicsTask l = new CicsTask("HC05", "ENTER", null, null).withTerminalInput("HC05 X").withEndOfChain(true);
+        System.out.println(l.receive(80, false));
+        CicsTask m = new CicsTask("HC05", "ENTER", null, null).withTerminalInput("HC05 X").withEndOfChain(true);
+        System.out.println(m.receive(2, false));
+        CicsTask n = new CicsTask("HC05", "ENTER", null, null).withTerminalInput("HC05 X").withEndOfChain(true);
+        try {
+            n.receive(2, true);
+        } catch (IllegalStateException e) {
+            System.out.println("refused");
+        }
+        t.sendControl(null, "FREEKB", "ERASE");
+        t.sendControl(85, "CURSOR", "ALARM");
+        System.out.println(t.events());""",
+    )
+    assert out.splitlines() == [
+        "Received[resp=NORMAL, length=5, data=HC05 ]",
+        "Received[resp=NORMAL, length=4, data=ABCD]",
+        "Received[resp=NORMAL, length=3, data=EFG]",
+        "waits",
+        "Received[resp=LENGERR, length=4, data=]",
+        "Received[resp=EOC, length=6, data=HC05 X]",
+        "Received[resp=LENGERR, length=6, data=HC]",
+        "refused",
+        (
+            "[{event=RECEIVE, resp=NORMAL, length=5, data=HC05 }, {event=RECEIVE, resp=NORMAL, length=4, data=ABCD}, "
+            "{event=RECEIVE, resp=NORMAL, length=3, data=EFG}, {event=SEND-CONTROL, options=[ERASE, FREEKB], "
+            "cursor=null}, {event=SEND-CONTROL, options=[ALARM, CURSOR], cursor=85}]"
+        ),
+    ]
+
+
 # ---- #4002: temporary storage -----------------------------------------------------------------------
 _TS_MAIN = r"""
 #include <stdio.h>
@@ -679,6 +730,9 @@ int main(void) {
     press('9'); press('_'); press('\''); press('%');  /* ANYKEY: PF9, CLEAR, not ENTER, PA1 */
     handle("PF5", 0); press('5');                 /* no label: deactivated, ANYKEY takes it */
     GGCPUSH(&c); press('3'); GGCPOP(&c); press('3');  /* PUSH suspends HANDLE AID; POP restores it */
+    handle("PF9", -1); press('9');                /* #4414: deactivated under ANYKEY: refused, 0 */
+    c.resp = 36; press('3');                      /* #4414: a label and a condition: refused, 0 */
+    c.resp = 36; press('\'');                     /* a condition, no label for ENTER: 0 */
     printf("\n");
     return 0;
 }
@@ -688,10 +742,14 @@ int main(void) {
 @needs_cc
 def test_the_stub_handle_aid_gives_each_key_its_label(tmp_path):
     """IBM, HANDLE AID: control goes to the key's label after the input command; a key without a label is
-    left to the program; ANYKEY is any PA or PF key or CLEAR, not ENTER; an option without a label
-    deactivates it; PUSH HANDLE suspends it."""
+    left to the program; ANYKEY is any PA or PF key or CLEAR, not ENTER; an option never given a label is
+    ANYKEY's; PUSH HANDLE suspends it."""
     exe = _stub(tmp_path, _AID_MAIN)
-    assert [ln.strip() for ln in _run_stub(exe, tmp_path)] == ["0 1 2 0 0 3 3 0 3 3 0 2"]
+    assert [ln.strip() for ln in _run_stub(exe, tmp_path)] == ["0 1 2 0 0 3 3 0 3 3 0 2 0 0 0"]
+    # #4414: what IBM does not say is refused, for the driver: a key deactivated (-1) while ANYKEY has a label, and a
+    # label that applies to the key of an input command that raised a condition
+    events = [ln.split(" ", 1)[1] for ln in (tmp_path / "out" / "events.txt").read_text().splitlines()]
+    assert events == ["AID-REFUSED pgm= deactivated=1", "AID-REFUSED pgm= resp=36"]
 
 
 def test_the_stubs_aid_bytes_are_the_harness_dfhaid():
@@ -1068,7 +1126,8 @@ def test_cics_task_facades_run_their_task_in_the_region_joined_or_deployed(tmp_p
         "TX01 calen=0 in=TX01 link=PGMIDERR ts=1",  # a cleared screen: the transid typed; no other program
         "TX01",
         "TX01 calen=null in=CA+ link=PGMIDERR ts=2",  # the whole record; the region's one TS
-        "refused: the task RETURNed a java.lang.StringBuilder, not a java.lang.String",
+        "refused: the task RETURNed a java.lang.StringBuilder, not a java.lang.String (no layout converts one into "
+        "the other)",  # #4449: neither is laid out as bytes
         "TX01 calen=0 in=TX01 link=NORMAL ts=1",  # deployed: OTHER is reached, and one TS across tasks
         "TX01 calen=0 in=TX01 link=NORMAL ts=2",
         "true",

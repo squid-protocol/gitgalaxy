@@ -73,16 +73,6 @@ public class Lgupdb01Service {
         Object rid;
     }
 
-    /** A CICS transaction entered the program (#4343): one task of it in the region (CicsTask.region()),
-     *  ENTER pressed -- `request` its COMMAREA, null when started from a cleared screen -- run through runTask. Returns the COMMAREA its RETURN passes on (null: none). */
-    public Lgupdb01Dfhcommarea handleTransaction(String transid, Lgupdb01Dfhcommarea request) {
-        log.info("Lgupdb01: handleTransaction");
-        CicsTask.Region region = CicsTask.region();
-        CicsTask task = region.transaction(transid, request);
-        region.run(task, "LGUPDB01", this::runTask);
-        return task.returned(Lgupdb01Dfhcommarea.class);
-    }
-
     /** MAINLINE SECTION, one task. */
     public void runTask(CicsTask task) {
         Charset cs = CobolRecords.charset();

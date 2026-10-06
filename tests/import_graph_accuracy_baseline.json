@@ -140,11 +140,11 @@
     "repos": "rack/rack"
   },
   "rust": {
-    "engine_edges": 36,
+    "engine_edges": 153,
     "files": 71,
     "fn": 0,
     "fp": 0,
-    "imports": 37,
+    "imports": 211,
     "precision_pct": 100.0,
     "recall_pct": 100.0,
     "repos": "serde-rs/json"

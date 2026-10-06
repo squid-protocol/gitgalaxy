@@ -36,6 +36,8 @@ from pathlib import Path
 
 REPO = Path(__file__).resolve().parents[2]
 PY = sys.executable
+MYPY_REQUIREMENTS = "tests/requirements-mypy.txt"
+MYPY_CACHE = Path(os.environ.get("GITGALAXY_MYPY_CACHE", Path.home() / ".cache" / "gitgalaxy"))
 
 
 def _main_checkout() -> Path:
@@ -77,7 +79,11 @@ def ci_pins(repo: Path = REPO) -> dict[str, str | None]:
     ruff_yml, mypy_yml = read("ruff-audit.yml"), read("mypy-audit.yml")
     py = re.search(r"python-version:\s*[\"']?([\d.]+)", ruff_yml or mypy_yml)
     ruff = re.search(r"\bruff==([\w.]+)", ruff_yml)
-    mypy = re.search(r"\bmypy==([\w.]+)", mypy_yml)
+    try:  # mypy is pinned in ONE file that the workflow installs from
+        reqs = (repo / MYPY_REQUIREMENTS).read_text(encoding="utf-8")
+    except OSError:
+        reqs = ""
+    mypy = re.search(r"^\s*mypy==([\w.]+)", reqs, re.M) or re.search(r"\bmypy==([\w.]+)", mypy_yml)
     return {"python": py and py.group(1), "ruff": ruff and ruff.group(1), "mypy": mypy and mypy.group(1)}
 
 
@@ -100,10 +106,6 @@ def version_warnings(pins: dict[str, str | None], local: dict[str, str | None]) 
     for tool in ("python", "ruff", "mypy"):
         want, have = pins.get(tool), local.get(tool)
         if want is None:
-            if tool == "mypy":
-                msgs.append(
-                    "mypy: CI installs it UNPINNED (latest on PyPI) -- a stale local mypy can pass what CI fails (#4257); keep it current."
-                )
             continue
         if tool == "python":
             same = bool(have) and have.split(".")[:2] == want.split(".")[:2]
@@ -171,6 +173,19 @@ def ratchets() -> list[Ratchet]:
             [PY, t + "ports_compile_check.py"],
             "fix the generator or the port overlays; re-check one case: python tests/tools/ports_compile_check.py --cases <case>",
             _need_ports,
+        ),  # fmt: skip
+        Ratchet(
+            "port-surface",
+            [
+                PY,
+                t + "port_surface.py",
+                "equivalence",
+                "--work",
+                str(Path(tempfile.gettempdir()) / "gitgalaxy-port-surface"),
+                "--check",
+            ],
+            "python tests/tools/port_surface.py equivalence --work DIR   (then re-prove: python tests/tools/evidence.py prove CASE ...)",
+            _need_corpora,
         ),  # fmt: skip
         Ratchet(
             "estate",
@@ -251,6 +266,79 @@ def run_gate(cmds: list[list[str]], root: Path, env: dict[str, str]) -> tuple[bo
     return True, ""
 
 
+def clean_prefix(bin_dir: Path, root: Path) -> list[str]:
+    """`env -i` plus only what the audits need: no FORCE_COLOR / TERM / caller state can reach mypy or ruff (#4551)."""
+    return [
+        "env",
+        "-i",
+        f"HOME={Path.home()}",
+        f"PATH={bin_dir}:/usr/bin:/bin",
+        f"PYTHONPATH={root}",
+        "GITGALAXY_LICENSE_KEY=COMMUNITY_FREE_TIER",
+        "NO_COLOR=1",
+    ]
+
+
+def _announce(tool: str, exe: Path, bin_dir: Path) -> None:
+    """Prints `<tool> used: <version> (<path>)`, resolved under the same clean PATH the gate runs with."""
+    clean_path = f"{bin_dir}:/usr/bin:/bin"
+    found = shutil.which(exe.name, path=clean_path) if not exe.is_absolute() else str(exe)
+    if not found:
+        print(f"NOTE  {tool} used: NOT FOUND on {clean_path}", flush=True)
+        return
+    ver = subprocess.run(  # noqa: S603
+        [found, "--version"], capture_output=True, text=True, check=False, env={"PATH": clean_path}
+    ).stdout.strip()
+    print(f"NOTE  {tool} used: {ver} ({found})", flush=True)
+
+
+def pinned_mypy_audit(root: Path, env: dict[str, str]) -> list[list[str]]:
+    """The mypy gate command, run with exactly CI's mypy (#4537) and ALWAYS in a clean environment (#4551).
+
+    When the local mypy already matches tests/requirements-mypy.txt it runs under this interpreter's bin dir;
+    otherwise it builds (once) or reuses a private venv `~/.cache/gitgalaxy/mypy-<version>` holding only the
+    pinned packages plus `-e <root>`. Either way `env -i` is used (a caller's FORCE_COLOR once made the audit
+    parse zero findings and pass) and "mypy used: <version> (<path>)" is printed. Never touches a shared venv.
+    """
+    want = ci_pins(root).get("mypy")
+    if not want or local_versions(env).get("mypy") == want:
+        bin_dir = Path(PY).parent
+        _announce("mypy", Path("mypy"), bin_dir)
+        return [[*clean_prefix(bin_dir, root), PY, "tests/mypy_audit.py", "--ci"]]
+    venv = MYPY_CACHE / f"mypy-{want}"
+    vpy, marker = venv / "bin" / "python", venv / ".editable-root"
+    if not (vpy.exists() and (venv / ".ready").exists()):
+        shutil.rmtree(venv, ignore_errors=True)
+        venv.parent.mkdir(parents=True, exist_ok=True)
+        subprocess.run([PY, "-m", "venv", str(venv)], check=True)  # noqa: S603
+        subprocess.run([str(vpy), "-m", "pip", "install", "-q", "-r", str(root / MYPY_REQUIREMENTS)], check=True)  # noqa: S603
+        (venv / ".ready").write_text(want)
+    if not marker.exists() or marker.read_text() != str(root):
+        subprocess.run([str(vpy), "-m", "pip", "install", "-q", "-e", str(root)], check=True)  # noqa: S603
+        marker.write_text(str(root))
+    _announce("mypy", venv / "bin" / "mypy", venv / "bin")
+    return [[*clean_prefix(venv / "bin", root), str(vpy), "tests/mypy_audit.py", "--ci"]]
+
+
+def pinned_ruff_lint(env: dict[str, str]) -> tuple[list[list[str]], dict[str, str]]:
+    """The lint gate command + env, ALWAYS under `env -i` (#4551); ruff at CI's pin (private venv if local differs)."""
+    want = ci_pins().get("ruff")
+    if not want or local_versions(env).get("ruff") == want:
+        bin_dir = Path(PY).parent
+        _announce("ruff", Path("ruff"), bin_dir)
+        return [[*clean_prefix(bin_dir, REPO), PY, "tests/ruff_audit.py", "--ci"]], env
+    venv = MYPY_CACHE / f"ruff-{want}"
+    if not (venv / ".ready").exists():
+        shutil.rmtree(venv, ignore_errors=True)
+        venv.parent.mkdir(parents=True, exist_ok=True)
+        subprocess.run([PY, "-m", "venv", str(venv)], check=True)  # noqa: S603
+        subprocess.run([str(venv / "bin" / "python"), "-m", "pip", "install", "-q", f"ruff=={want}"], check=True)  # noqa: S603
+        (venv / ".ready").write_text(want)
+    _announce("ruff", venv / "bin" / "ruff", venv / "bin")
+    # the audit imports gitgalaxy (lint_baseline), so it runs under this interpreter with the pinned ruff first on PATH
+    return [[*clean_prefix(venv / "bin", REPO), PY, "tests/ruff_audit.py", "--ci"]], env
+
+
 def attribute_failures(
     failed: list[str], plan_for: Callable[[Path], dict[str, list[list[str]]]], env: dict[str, str]
 ) -> dict[str, str]:
@@ -272,7 +360,7 @@ def attribute_failures(
         menv = dict(env, PYTHONPATH=str(wt))
         plan = plan_for(wt)
         for name in failed:
-            ok, _ = run_gate(plan[name], wt, menv)
+            ok, _ = run_gate(pinned_mypy_audit(wt, menv) if name == "audits" else plan[name], wt, menv)
             labels[name] = f"pre-existing on main@{sha}" if not ok else "caused by branch"
     finally:
         subprocess.run(["git", "-C", str(REPO), "worktree", "remove", "--force", str(wt)], check=False)  # noqa: S603, S607
@@ -332,7 +420,12 @@ def main(argv: list[str] | None = None) -> int:
     results: list[tuple[str, bool, float]] = []
     for name in chosen:
         t0, ok, tail = time.time(), True, ""
-        ok, tail = run_gate(plan[name], REPO, env)
+        cmds, genv = plan[name], env
+        if name == "audits":
+            cmds = pinned_mypy_audit(REPO, env)
+        elif name == "lint":
+            cmds, genv = pinned_ruff_lint(env)
+        ok, tail = run_gate(cmds, REPO, genv)
         results.append((name, ok, time.time() - t0))
         print(f"{'PASS' if ok else 'FAIL'}  {name:<9} {time.time() - t0:6.0f}s", flush=True)
         if not ok:

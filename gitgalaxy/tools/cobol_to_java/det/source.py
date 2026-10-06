@@ -4,7 +4,8 @@ debugging lines dropped, continued literals joined. Every logical line keeps whe
 from __future__ import annotations
 
 import re
-from dataclasses import dataclass
+import unicodedata
+from dataclasses import dataclass, field
 from pathlib import Path
 
 from gitgalaxy.core.compiler_options import cards
@@ -39,6 +40,12 @@ class CopyNotFound(Exception):
     pass
 
 
+class CopyAmbiguous(CopyNotFound):
+    """#4461: no engine answer decided a COPY (a run without an engine, or a member outside the estate) and the
+    directories searched hold the member in more than one: the translator does not pick the first, it refuses by
+    name and lists the candidates. A single match still resolves."""
+
+
 class CopyUnresolved(CopyNotFound):
     """#4468: a COPY the engine did not resolve to one file (a gap, a collision, several files), or that the translator
     never expanded where the engine resolved it: the program is refused by name, never built on a guessed member."""
@@ -55,17 +62,20 @@ class EngineCopies:
     `root`: the estate the engine scanned (its paths are relative to it). `edges`: importer (repo-relative, every
     estate file the program's COPYs reach) -> member -> ((file, the COPY forms' library-names: "" an unqualified COPY;
     empty: not recorded), ...). `gaps` / `collisions`: (importer, member) the engine reports no declared library
-    holds, or several do (#4421; only when the scan declared copy libraries)."""
+    holds, or several do (#4421; only when the scan declared copy libraries). `pages` (#4462): repo-relative file ->
+    the code page the estate declares for it and the engine decoded it with (`--source-encoding`, #3909), so the
+    translator reads the program and its members the same way."""
 
     program: Path
     root: Path
     edges: dict[str, dict[str, tuple[tuple[Path, frozenset[str]], ...]]]
     gaps: frozenset[tuple[str, str]] = frozenset()
     collisions: frozenset[tuple[str, str]] = frozenset()
+    pages: dict[str, str] = field(default_factory=dict)
 
     @classmethod
     def of(cls, program: Path, root: Path, deps: dict[str, dict[str, list[str]] | list[str]],
-           gaps=(), collisions=()) -> EngineCopies:  # fmt: skip
+           gaps=(), collisions=(), pages: dict[str, str] | None = None) -> EngineCopies:  # fmt: skip
         """From importer -> its resolved COPY files (repo-relative; a list, or file -> library-names). A symbolic
         map generated from BMS (`map.bms#MAPSET`) is not an estate file: the translator generates its own."""
         edges: dict[str, dict[str, list[tuple[Path, frozenset[str]]]]] = {}
@@ -76,7 +86,8 @@ class EngineCopies:
                     libs = files.get(f) if isinstance(files, dict) else None
                     mine.setdefault(Path(f).stem.upper(), []).append((root / f, frozenset(libs or ())))
         return cls(program, root, {i: {m: tuple(v) for m, v in e.items()} for i, e in edges.items()},
-                   frozenset((i, m.upper()) for i, m in gaps), frozenset((i, m.upper()) for i, m in collisions))  # fmt: skip
+                   frozenset((i, m.upper()) for i, m in gaps), frozenset((i, m.upper()) for i, m in collisions),
+                   {_nfc(f): p for f, p in (pages or {}).items() if p})  # fmt: skip
 
     @property
     def resolved(self) -> dict[str, tuple[Path, ...]]:
@@ -89,6 +100,13 @@ class EngineCopies:
             return p.resolve().relative_to(self.root.resolve()).as_posix()
         except ValueError:
             return str(p)
+
+    def page(self, p: Path) -> str | None:
+        """#4462: the code page the engine decoded `p` with (the estate's declaration); None: read unaided."""
+        return self.pages.get(_nfc(self.rel(p))) if self.pages else None
+
+    def with_program(self, program: Path) -> EngineCopies:
+        return EngineCopies(program, self.root, self.edges, self.gaps, self.collisions, self.pages)
 
     def in_estate(self, p: Path) -> bool:
         return self.rel(p) != str(p)
@@ -126,23 +144,66 @@ class EngineCopies:
                                  "translator expanded no COPY of it")  # fmt: skip
 
 
-def _raw_lines(path: Path) -> list[str]:
-    return read_source(path).text.splitlines()
+def _nfc(path: str) -> str:
+    return unicodedata.normalize("NFC", path.replace("\\", "/"))
+
+
+def _raw_lines(path: Path, engine: EngineCopies | None = None) -> list[str]:
+    """#4462: decoded the way the engine decoded it: with the code page the estate declares for the file (cp273,
+    cp037, cp277 ...: EngineCopies.pages); without a declaration, read_source's ladder (UTF-8, else a guess)."""
+    return read_source(path, declared=engine.page(path) if engine is not None else None).text.splitlines()
 
 
 _ID_DIVISION = re.compile(r"^(\s*)ID\s+DIVISION(?=\s*\.)", re.I)
+# #4462: `PROGRAM-ID LNCALC.` (estate-crucible LOAN), the header's period left out: IBM Enterprise COBOL accepts it
+# (a warning), the grammar does not
+_PROGRAM_ID_NO_PERIOD = re.compile(r"^(\s*PROGRAM-ID)(?=\s+[^\s.])", re.I)
+
+
+def _headers(code: str) -> str:
+    """IDENTIFICATION DIVISION headers in the one form the parser downstream knows: `ID DIVISION.` (IBM's
+    abbreviation, IBM DBB MortgageApplication) in full, and PROGRAM-ID's period put back."""
+    if _ID_DIVISION.match(code):
+        code = _ID_DIVISION.sub(lambda m: m.group(1) + "IDENTIFICATION DIVISION", code, count=1)
+    return _PROGRAM_ID_NO_PERIOD.sub(lambda m: m.group(1) + ".", code, count=1)
+
+
+# `>>SOURCE FORMAT FREE` / `>>SOURCE FORMAT IS FIXED` / `>>SOURCE FREE` (IBM Enterprise COBOL 6.3+, GnuCOBOL)
+_SOURCE_FORMAT = re.compile(r"\s*>>\s*SOURCE(?:\s+FORMAT)?(?:\s+IS)?\s+(FREE|FIXED)\b", re.I)
+
+
+def _free_code(line: str) -> str:
+    """A free-format line without its `*>` comment (one outside a literal)."""
+    at = line.find("*>")
+    while at >= 0:
+        if not _open_literal(line[:at]):
+            return line[:at]
+        at = line.find("*>", at + 2)
+    return line
 
 
 def logical_lines(raw: list[str], file: str) -> list[Line]:
     """Columns 8-72 of each code line; comment (* /), debugging (D) and blank lines dropped; a continuation line
-    (indicator '-') joined to the line before: a continued literal resumes after the continuation's first quote."""
+    (indicator '-') joined to the line before: a continued literal resumes after the continuation's first quote.
+    #4462: after `>>SOURCE FORMAT FREE` (until `>>SOURCE FORMAT FIXED`) a line is code from column 1, of any length,
+    up to a `*>` comment."""
     out: list[Line] = []
     # Compiler-option cards (CBL / PROCESS, before the program or after an END PROGRAM) are not COBOL text. The
     # engine's own reader decides which lines they are: a card may start in any column from 1, so IBM DBB's
     # `   CBL NUMPROC(MIG),...` (CBL in columns 4-6) is one, as GenApp's `       PROCESS SQL` is.
     card_lines = {n for n, _ in cards("\n".join(raw))}
+    free = False
     for n, line in enumerate(raw, 1):
         if n in card_lines:
+            continue
+        fmt = _SOURCE_FORMAT.match(line if free else line[6:])
+        if fmt:
+            free = fmt.group(1).upper() == "FREE"
+            continue
+        if free:
+            code = _free_code(line).rstrip()
+            if code.strip() and not code.lstrip().startswith(">>D "):  # (a debugging line, as indicator D)
+                out.append(Line(_headers(code), file, n))
             continue
         if len(line) < 7:
             continue
@@ -161,12 +222,83 @@ def logical_lines(raw: list[str], file: str) -> list[Line]:
             continue
         if not body.strip():
             continue
-        if _ID_DIVISION.match(body):
-            # `ID DIVISION.`: IBM's abbreviation of IDENTIFICATION DIVISION (IBM DBB MortgageApplication), which the
-            # parser downstream knows only in full
-            body = _ID_DIVISION.sub(lambda m: m.group(1) + "IDENTIFICATION DIVISION", body, count=1)
+        body = _headers(body)
         out.append(Line(body.rstrip() if not _open_literal(body) else body, file, n))
     return out
+
+
+# #4523: a quotation mark inside a quotation-mark literal, as the grammar is handed it (`unwrap` restores `""`): the
+# grammar splits `"IT""S"` into two literals (a VALUE read as two, a MOVE refused), though it reads `'IT''S'` whole
+QQ = "\x1e"
+# #4462: a hexadecimal literal on a re-wrapped line, as the grammar is handed it: `"<HX>C1C2"` (an alphanumeric literal,
+# which it continues onto the next row; it continues no X"..."), restored to X"C1C2" by `unwrap`
+HX = "\x1f"
+
+
+_DECIMAL_COMMA = re.compile(r"\bDECIMAL-POINT\s+(?:IS\s+)?COMMA\b", re.I)
+# #4462: an IDMS program (CA IDMS / IDMS-DC, the DMLC precompiler's input): its ENVIRONMENT DIVISION's IDMS-CONTROL
+# SECTION (PROTOCOL. MODE IS IDMS-...) or its DATA DIVISION's SCHEMA SECTION (DB subschema WITHIN schema)
+_IDMS = re.compile(r"^\s*(?:IDMS-CONTROL\s+SECTION|SCHEMA\s+SECTION)\s*\.|\bMODE\s+IS\s+IDMS(?:-DC|-CICS)?\b", re.I)
+
+
+def _outside_literals(text: str) -> str:
+    """`text` with each literal's content blanked (its quotes kept)."""
+    out, quote = [], None
+    for ch in text:
+        if quote is None:
+            quote = ch if ch in "'\"" else None
+            out.append(ch)
+        elif ch == quote:
+            quote = None
+            out.append(ch)
+        else:
+            out.append(" ")
+    return "".join(out)
+
+
+def unmodelled(lines: list[Line]) -> str | None:
+    """#4462: why the translator cannot read `lines` (a refusal by name, before the parser), or None.
+
+    - A character beyond Latin-1 (national / DBCS text: a Kanji name or literal, an ideographic space, a PIC G
+      literal; estate-crucible KYUY): the translator lays records out, and hands the parser its text, in one byte a
+      character. It had raised UnicodeEncodeError; a DBCS estate is refused, never laid out wrong.
+    - A national letter in a word outside a literal (`BETRÄGE`, read in cp273): the COBOL grammar reads ASCII words
+      only, and refused the line unnamed.
+    - DECIMAL-POINT IS COMMA (DEUT ZINSBER): `1000,00` and `0,5` are numbers and an edited PIC's `.` and `,` swap
+      roles; not modelled, so never read as a list of integers.
+    - #4462: IDMS (IDMS-CONTROL SECTION, SCHEMA SECTION; estate-crucible LOAN LNIDMS01): its DML (BIND RUN-UNIT,
+      READY, OBTAIN CALC, FINISH, DC RETURN) and subschema records are not modelled, so the program is refused by name
+      (#4532 tracks IDMS support), never parsed as COBOL with holes.
+    - #4523: the control characters U+001E and U+001F, which the grammar is handed for a doubled `""` and a hex
+      literal's `X"` (as_fixed_rows).
+
+    The IDENTIFICATION DIVISION's paragraphs after PROGRAM-ID (AUTHOR, REMARKS ...) are free text no parser reads."""
+    in_id = False
+    for ln in lines:
+        head = ln.text.lstrip().upper()
+        if re.match(r"(?:IDENTIFICATION|ID)\s+DIVISION\b", head):
+            in_id = True
+        elif re.match(r"(?:ENVIRONMENT|DATA|PROCEDURE)\s+DIVISION\b", head):
+            in_id = False
+        elif in_id and not head.startswith("PROGRAM-ID"):
+            continue
+        ctl = next((c for c in (QQ, HX) if c in ln.text), None)
+        if ctl is not None:  # #4523, #4462: a character the grammar is handed for `""` / `X"` (never read as one)
+            return f"{Path(ln.file).name}:{ln.line}: the control character U+{ord(ctl):04X} is not modelled"
+        wide = next((c for c in ln.text if ord(c) > 0xFF), None)
+        if wide is not None:
+            return (f"{Path(ln.file).name}:{ln.line}: national / DBCS text ({wide!r}, U+{ord(wide):04X}) is not modelled: the "
+                    "translator reads a single-byte code page")  # fmt: skip
+        bare = _outside_literals(ln.text)
+        word = re.search(r"[^\s.,;:()'\"=<>+*/]*[^\x00-\x7f][^\s.,;:()'\"=<>+*/]*", bare)
+        if word is not None:
+            return (f"{Path(ln.file).name}:{ln.line}: the name {word.group(0)} holds a national letter: the COBOL grammar reads "
+                    "ASCII words only")  # fmt: skip
+        if _IDMS.search(bare):
+            return f"{Path(ln.file).name}:{ln.line}: IDMS DML not supported (an IDMS-DC / DMLC program: {bare.strip()})"
+        if _DECIMAL_COMMA.search(bare):
+            return f"{Path(ln.file).name}:{ln.line}: DECIMAL-POINT IS COMMA is not modelled"
+    return None
 
 
 def _open_literal(text: str) -> bool:
@@ -182,8 +314,10 @@ def _open_literal(text: str) -> bool:
 
 # #4459: a COPY anywhere on its line (`01 WS-HEAD.  COPY RPTHDR.`), never inside a literal; its member may be on the
 # next line (`COPY` / `UPDCTL.`, joined by `expand`)
-_COPY = re.compile(r"(?<![A-Z0-9#@$-])COPY\s+(['\"]?)([A-Z0-9#@$-]+)\1(?:\s+(?:OF|IN)\s+([A-Z0-9-]+))?", re.I)
-_COPY_ALONE = re.compile(r"(?<![A-Z0-9#@$-])COPY\s*$", re.I)
+# #4462: a member's name may hold national letters (estate-crucible NORD `COPY KUNDEÅ.`, read in cp277)
+_WORD = r"(?:[^\W_]|[#@$-])"
+_COPY = re.compile(rf"(?<!{_WORD})COPY\s+(['\"]?)({_WORD}+)\1(?:\s+(?:OF|IN)\s+({_WORD}+))?", re.I)
+_COPY_ALONE = re.compile(rf"(?<!{_WORD})COPY\s*$", re.I)
 _PROGRAM_MARK = re.compile(r"^\s*(?:IDENTIFICATION|ID)\s+DIVISION\b|^\s*PROGRAM-ID\b", re.I)
 
 
@@ -228,6 +362,34 @@ def _statement_end(stmt: str, start: int) -> int:
             return k + 1
         k += 1
     return -1
+
+
+_SHIPPED_COPY = (Path(__file__).parent / "copy").resolve()  # DFHEIBLK, DFHAID, DFHBMSCA: a fallback, never a rival
+
+
+def _search_member(name: str, dirs: list[Path], chain: frozenset, where: str) -> Path | None:
+    """#4461: the one file `COPY name` names in `dirs` (no engine answer). A copybook extension beats a program
+    extension (CBSA keeps a program INQCUST.cbl beside its sources and the copybook INQCUST.cpy elsewhere); the
+    translator's shipped system members (DFHAID ...) are consulted only where no other directory holds the member.
+    The same file reached through several directories is one candidate; several distinct files are CopyAmbiguous."""
+    for shipped in (False, True):
+        for exts in (COPYBOOK_EXTS, PROGRAM_EXTS):
+            found: dict[Path, Path] = {}  # resolved -> as found; one per directory (its first name/extension)
+            for d in dirs:
+                if (d.resolve() == _SHIPPED_COPY) != shipped:
+                    continue
+                hit = next((d / f"{nm}{ext}" for nm in dict.fromkeys((name, name.lower())) for ext in exts
+                            if (d / f"{nm}{ext}").is_file() and (d / f"{nm}{ext}").resolve() not in chain), None)  # fmt: skip
+                if hit is not None:
+                    found.setdefault(hit.resolve(), hit)
+            if len(found) > 1:
+                raise CopyAmbiguous(
+                    f"{where}: COPY {name} is ambiguous: no engine resolution decides it and "
+                    f"{len(found)} directories hold it: {', '.join(sorted(map(str, found.values())))}"
+                )
+            if found:
+                return next(iter(found.values()))
+    return None
 
 
 def expand(lines: list[Line], dirs: list[Path], depth: int = 0, chain: frozenset = frozenset(),
@@ -278,9 +440,7 @@ def expand(lines: list[Line], dirs: list[Path], depth: int = 0, chain: frozenset
         if member is not None and member.resolve() in chain:
             raise CopyNotFound(f"{where}: COPY {name} resolves to {member}, which is being expanded already")
         if member is None:
-            member = next((d / f"{nm}{ext}" for exts in (COPYBOOK_EXTS, PROGRAM_EXTS) for d in dirs
-                           for nm in dict.fromkeys((name, name.lower())) for ext in exts
-                           if (d / f"{nm}{ext}").is_file() and (d / f"{nm}{ext}").resolve() not in chain), None)  # fmt: skip
+            member = _search_member(name, dirs, chain, where)
             if member is None:
                 raise CopyNotFound(f"{where}: COPY {name} found in none of {[str(d) for d in dirs]}")
             if engine is not None and engine.in_estate(Path(ln.file)):
@@ -289,7 +449,7 @@ def expand(lines: list[Line], dirs: list[Path], depth: int = 0, chain: frozenset
             raise CopyNotFound(f"{where}: COPY {name} nests deeper than 8")
         if engine is not None and ln.file == own and expanded_names is not None:
             expanded_names.add(name)
-        body = logical_lines(_raw_lines(member), str(member))
+        body = logical_lines(_raw_lines(member, engine), str(member))
         if any(_PROGRAM_MARK.match(b.text) for b in body):
             # #4460: a program, not a copybook: splicing it in would give the includer another program's records
             raise CopyNotFound(f"{where}: COPY {name} resolves to {member}, which is a program (IDENTIFICATION "
@@ -333,20 +493,126 @@ def program_lines(program: Path, dirs: list[Path], engine: EngineCopies | None =
     resolved; refused (CopyUnresolved) where the engine resolved none or several, or a member it resolved for the
     program is never expanded (#4459)."""
     if engine is not None and engine.program != program:
-        engine = EngineCopies(program, engine.root, engine.edges, engine.gaps, engine.collisions)
+        engine = engine.with_program(program)
     names: set[str] = set()
-    out = expand(logical_lines(_raw_lines(program), str(program)), [program.parent, *dirs],
+    out = expand(logical_lines(_raw_lines(program, engine), str(program)), [program.parent, *dirs],
                  chain=frozenset({program.resolve()}), engine=engine, expanded_names=names)  # fmt: skip
     if engine is not None:
         engine.check_all_expanded(names)
     return out
 
 
+class UnitRefused(ValueError):
+    """#4462: a program of a multi-program source the translator does not read on its own (a nested program that
+    can see its container's GLOBAL items; END PROGRAM markers that do not nest)."""
+
+
+@dataclass
+class Unit:
+    """#4462: one program of a source: its name (PROGRAM-ID's, upper case, unquoted), its own lines (from its
+    IDENTIFICATION DIVISION up to its END PROGRAM, without the programs nested in it or the END PROGRAM markers) and
+    the program containing it (None: an outermost program, the first or one compiled after it in a batch)."""
+
+    name: str
+    lines: list[Line]
+    parent: str | None = None
+
+
+_HEADER = re.compile(r"^\s*(?:IDENTIFICATION|ID)\s+DIVISION\s*\.", re.I)
+_PROGRAM_ID = re.compile(r"^\s*PROGRAM-ID\s*\.?\s*(?:(['\"]?)([A-Z0-9#@$-]+)\1)?", re.I)
+_END_PROGRAM = re.compile(r"^\s*END\s+PROGRAM\s+(['\"]?)([A-Z0-9#@$-]+)\1\s*\.?\s*$", re.I)
+
+
+def program_units(lines: list[Line]) -> list[Unit]:
+    """#4462: the programs of an expanded source, in source order (estate-crucible PAYMAIN: PAYCALC nested in it,
+    PAYRPT batch-compiled after its END PROGRAM). A program begins at its IDENTIFICATION DIVISION (or a PROGRAM-ID
+    with none before it); one beginning while another is open is nested in it; END PROGRAM closes the innermost open
+    program, which it must name. A source of one program is one Unit holding `lines` as they are."""
+    units: list[Unit] = []
+    stack: list[Unit] = []
+    pending: list[Line] = []  # an IDENTIFICATION DIVISION header, its PROGRAM-ID still to come
+    want_name: Unit | None = None  # `PROGRAM-ID.` with its name on the next line
+    for ln in lines:
+        if want_name is not None:
+            m = re.match(r"\s*(['\"]?)([A-Z0-9#@$-]+)\1", ln.text, re.I)
+            want_name.name, want_name = (m.group(2).upper() if m else "?"), None
+            stack[-1].lines.append(ln)
+            continue
+        if _HEADER.match(ln.text):
+            pending.append(ln)
+            continue
+        pid = _PROGRAM_ID.match(ln.text)
+        if pid:
+            u = Unit(pid.group(2).upper() if pid.group(2) else "?", [*pending, ln], stack[-1].name if stack else None)
+            pending = []
+            if not pid.group(2):
+                want_name = u
+            units.append(u)
+            stack.append(u)
+            continue
+        if pending:  # a header with no PROGRAM-ID after it: no program boundary the units can be cut at
+            return [Unit(units[0].name if units else "?", lines)]
+        end = _END_PROGRAM.match(ln.text)
+        if end:
+            name = end.group(2).upper()
+            if not stack or stack[-1].name != name:
+                raise UnitRefused(f"{Path(ln.file).name}:{ln.line}: END PROGRAM {name} closes no open program of "
+                                  f"that name ({', '.join(u.name for u in stack) or 'none open'})")  # fmt: skip
+            stack.pop()
+            continue
+        if not stack:
+            if not units:  # text before any program (no IDENTIFICATION DIVISION / PROGRAM-ID): one unit, as read
+                return [Unit("?", lines)]
+            raise UnitRefused(f"{Path(ln.file).name}:{ln.line}: text after END PROGRAM {units[-1].name}, outside "
+                              "any program")  # fmt: skip
+        stack[-1].lines.append(ln)
+    if len(units) <= 1 or pending:
+        return [Unit(units[0].name if units else "?", lines)]
+    return units
+
+
+_GLOBAL = re.compile(r"\bGLOBAL\b", re.I)
+
+
+def program_unit(lines: list[Line], name: str | None = None) -> list[Line]:
+    """#4462: the lines of one program of a source (`name`: its PROGRAM-ID; None: the first). A nested program whose
+    containers declare GLOBAL items (or files) is refused: it can name them, and its own lines do not hold them."""
+    units = program_units(lines)
+    want = units[0].name if name is None else name.upper()
+    unit = next((u for u in units if u.name == want), None)
+    if unit is None:
+        raise UnitRefused(f"no program {want} in the source (it holds {', '.join(u.name for u in units)})")
+    by_name = {u.name: u for u in units}
+    parent = unit.parent
+    while parent is not None:
+        up = by_name[parent]
+        hit = next((ln for ln in up.lines if _GLOBAL.search(_outside_literals(ln.text))), None)
+        if hit is not None:
+            raise UnitRefused(f"{Path(hit.file).name}:{hit.line}: {unit.name} is nested in {up.name}, which declares "
+                              "GLOBAL items: a nested program's view of its container's GLOBAL data is not modelled")  # fmt: skip
+        parent = up.parent
+    return unit.lines
+
+
+def several_programs(lines: list[Line]) -> str | None:
+    """#4462: why `lines` cannot be read as one program (they hold several: each is read on its own, program_unit),
+    or None."""
+    try:
+        units = program_units(lines)
+    except UnitRefused as e:
+        return str(e)
+    if len(units) > 1:
+        return (f"several programs in one source ({', '.join(u.name for u in units)}): each is translated on its own "
+                "(det.source.program_unit)")  # fmt: skip
+    return None
+
+
 def engine_copies_from_ticket(project: Path, program: Path) -> EngineCopies | None:
     """#4468: the engine's resolution of `program`'s COPYs from the port ticket the generator wrote for it
     (ai_agent_jobs/*_port_ticket.json, repo-relative): the skeleton's `copy_edges` (every estate file the program's
     COPYs reach, with library-names) and its gaps and collisions; a ticket without them (written before #4468): the
-    program's own copybooks. None where no ticket names the program (the translator then searches `dirs`)."""
+    program's own copybooks. None where no ticket names the program (the translator then searches `dirs`).
+    `copy_pages` (#4462): the code pages the scan decoded the program and its members with."""
     jobs = project / "ai_agent_jobs"
     if not jobs.is_dir():
         return None
@@ -368,7 +634,8 @@ def engine_copies_from_ticket(project: Path, program: Path) -> EngineCopies | No
         if edges is None:
             edges = {rel: [c.get("file") or "" for c in src.get("copybooks") or [] if c.get("file")]}
         return EngineCopies.of(program, root, edges, [tuple(g) for g in facts.get("copy_gaps") or []],
-                               [tuple(c) for c in facts.get("copy_collisions") or []])  # fmt: skip
+                               [tuple(c) for c in facts.get("copy_collisions") or []],
+                               facts.get("copy_pages"))  # fmt: skip
     return None
 
 
@@ -384,14 +651,77 @@ def as_fixed_rows(lines: list[Line]) -> tuple[str, list[int]]:
     """as_fixed's text, and for each of its rows the index in `lines` it came from. A line longer than columns
     8-72 (a joined continuation) is wrapped back into fixed form (#4412): split at a space outside literals, or a
     literal open at column 72 continued on the next row ('-' in column 7, the quote again in column 10). The
-    grammar fails on a line run past column 72; `unwrap` joins the continued literal again."""
+    grammar fails on a line run past column 72; `unwrap` joins the continued literal again. #4523: the grammar
+    continues a literal only in quotation marks, so a wrapped line's apostrophe literals are written in them (same
+    value), and reads `""` inside one only as QQ (`_grammar_literals`); #4462: it continues no hex literal, so a
+    wrapped line's X"C1C2" is written "<HX>C1C2" (`unwrap` restores it); an EXEC block's line keeps its own text (in
+    SQL an apostrophe is a string, a quotation mark a name)."""
     out: list[str] = []
     rows: list[int] = []
+    in_exec = False
     for k, ln in enumerate(lines):
-        for row in _wrap(ln.text) if len(ln.text) > WIDTH else ["       " + ln.text]:
+        bare = _outside_literals(ln.text)
+        opens = _EXEC.search(bare)
+        # SQL / CICS text keeps its own quote style (the grammar never reads it: blanked, or a placeholder CALL)
+        code = ln.text if in_exec or opens else _grammar_literals(ln.text, apostrophes=len(ln.text) > WIDTH)
+        wrapped = _wrap(code) if len(code) > WIDTH else ["       " + code]
+        for row in wrapped:
             out.append(row + "\n")
             rows.append(k)
+        if opens or in_exec:
+            in_exec = not _END_EXEC.search(bare[opens.end() :] if opens else bare)
     return "".join(out), rows
+
+
+_EXEC = re.compile(r"\bEXEC(?:UTE)?\s+(?:CICS|SQL|DLI)\b", re.I)
+_END_EXEC = re.compile(r"\bEND-EXEC\b", re.I)
+
+
+def _grammar_literals(text: str, apostrophes: bool) -> str:
+    """`text` with each quotation-mark literal's doubled `""` written QQ, and (`apostrophes`) each apostrophe
+    literal written in quotation marks, its value unchanged (`''` undoubled, a `"` written QQ): the grammar continues
+    a literal only in quotation marks, and every reader of a literal takes its delimiter from its first character
+    (expr._unquote, layout._one). An unterminated literal is kept as it is. #4462: a hex literal's `x` is written
+    `X` (the grammar reads no x'00': GenApp lgtestc1's INSPECT ... REPLACING ALL x'00' BY x'40')."""
+    out: list[str] = []
+    i, n = 0, len(text)
+    while i < n:
+        q = text[i]
+        hexa = (q in "'\"" and len(out) > 0 and out[-1] in ("x", "X")
+                and not re.match(r"[\w-]", out[-2][-1:] if len(out) > 1 else " "))  # fmt: skip
+        if hexa:
+            out[-1] = "X"
+        if q not in "'\"" or (q == "'" and not apostrophes):
+            if q == "'":  # an apostrophe literal kept: copied whole (a `"` inside it is its own)
+                j = i + 1
+                while j < n and not (text[j] == "'" and text[j + 1 : j + 2] != "'"):
+                    j += 2 if text[j] == "'" else 1
+                out.append(text[i : j + 1])
+                i = j + 1
+                continue
+            out.append(q)
+            i += 1
+            continue
+        j, value = i + 1, []
+        while j < n:
+            if text[j] == q:
+                if text[j + 1 : j + 2] != q:
+                    break
+                j += 1
+            value.append(text[j])
+            j += 1
+        if j >= n:  # unterminated: as it is
+            out.append(text[i:])
+            break
+        if (
+            hexa and apostrophes
+        ):  # #4462: X'C1C2' -> "<HX>C1C2", a literal the grammar continues (`unwrap` restores X"C1C2")
+            out[-1] = '"' + HX
+        else:
+            out.append('"')
+        out.append("".join(value).replace('"', QQ) + '"')
+        i = j + 1
+    return "".join(out)
 
 
 def _wrap(text: str) -> list[str]:
@@ -402,14 +732,20 @@ def _wrap(text: str) -> list[str]:
         lim = 72 - len(lead)
         if len(rest) <= lim:
             return [*rows, lead + rest]
-        quote, last_space = None, -1
+        quote, last_space, closed = None, -1, -1
         for i, ch in enumerate(rest[:lim]):
             if quote:
-                quote = None if ch == quote else quote
+                quote, closed = (None, i) if ch == quote else (quote, closed)
             elif ch in "'\"":
                 quote = ch
             elif ch == " ":
                 last_space = i
+        if quote is None and closed == lim - 1 and rest[lim : lim + 1] == rest[closed]:
+            # #4523: column 72 holds the first of a doubled quote: the literal is still open; the row ends a column
+            # early so the pair stays together on the next (the grammar's row is short; `unwrap` joins it exactly)
+            rows.append(lead + rest[: lim - 1])
+            rest, cont = rest[closed] + rest[lim - 1 :], True
+            continue
         if quote is not None:  # the literal runs to column 72 and reopens on the next row
             rows.append(lead + rest[:lim])
             rest, cont = quote + rest[lim:], True
@@ -423,8 +759,75 @@ _CONTINUED = re.compile(r"\n {6}-\s*['\"]")
 
 
 def unwrap(text: str) -> str:
-    """Parser text with as_fixed_rows' literal continuations joined again (a continued literal's own text)."""
-    return _CONTINUED.sub("", text)
+    """Parser text with as_fixed_rows' literal continuations joined again (a continued literal's own text), and its
+    stand-ins (QQ, HX) back as `""` and `X"`."""
+    return _CONTINUED.sub("", text).replace(QQ, '""').replace('"' + HX, 'X"')
+
+
+# #4462: the COBOL-74 / OS/VS alphabet clause, `alphabet-name IS {literal ... | STANDARD-1 | NATIVE ...}` with no
+# ALPHABET keyword (IBM OS/VS COBOL; DSF PLUKKFR's `IDIOT IS 'ABCDEFGHIJKLMNOPQRSTUVWXYZÆØÅ'`)
+_SPECIAL_NAMES = re.compile(r"^\s*SPECIAL-NAMES\s*\.", re.I)
+_SPECIAL_TOKEN = re.compile(r"'[^']*'?|\"[^\"]*\"?|[A-Z0-9][A-Z0-9-]*|\S", re.I)
+_ALPHABET_NAMED = {"STANDARD-1", "STANDARD-2", "NATIVE", "EBCDIC", "ASCII"}
+# words before IS that never name an alphabet: other clauses' (CURRENCY SIGN IS '$', CLASS c IS 'A' THRU 'Z',
+# ALPHABET a FOR ALPHANUMERIC IS ...); an alphabet already introduced by ALPHABET
+_NOT_ALPHABET_NAMES = {"CURRENCY", "SIGN", "DECIMAL-POINT", "ALPHANUMERIC", "NATIONAL", "SYMBOLIC", "CHARACTERS"}
+_NOT_AFTER = {"ALPHABET", "CLASS", "CURRENCY", "SYMBOLIC", "CHARACTERS"}
+
+
+def alphabet_keywords(lines: list[Line]) -> list[Line]:
+    """#4462: `lines` with ALPHABET written before each alphabet clause of SPECIAL-NAMES that has none (the OS/VS
+    COBOL form IBM's compilers accept; the grammar and program.alphabets read only `ALPHABET name IS ...`). A clause
+    is an alphabet when a name not introduced by another clause's word is followed by IS and a literal or STANDARD-1
+    / STANDARD-2 / NATIVE / EBCDIC / ASCII (a mnemonic, `C01 IS KANAL-1`, is followed by a name). Other lines are
+    the same objects."""
+    out = list(lines)
+    k = next((i for i, ln in enumerate(lines) if _SPECIAL_NAMES.match(ln.text)), None)
+    if k is None:
+        return out
+    toks: list[tuple[int, int, str]] = []  # (line index, column, token) up to the paragraph's period
+    first = True
+    for i in range(k, len(lines)):
+        text = lines[i].text
+        start = _SPECIAL_NAMES.match(text).end() if first else 0  # type: ignore[union-attr]
+        first = False
+        ended = False
+        for m in _SPECIAL_TOKEN.finditer(text, start):
+            if m.group(0) == ".":
+                ended = True
+                break
+            toks.append((i, m.start(), m.group(0)))
+        if ended:
+            break
+    inserts: dict[int, list[int]] = {}
+    for j in range(len(toks) - 2):
+        w, nxt, obj = toks[j][2].upper(), toks[j + 1][2].upper(), toks[j + 2][2]
+        if nxt != "IS" or not w[:1].isalpha() or w in _NOT_ALPHABET_NAMES:
+            continue
+        if j > 0 and toks[j - 1][2].upper() in _NOT_AFTER:
+            continue
+        if obj[:1] in "'\"" or obj.upper() in _ALPHABET_NAMED:
+            inserts.setdefault(toks[j][0], []).append(toks[j][1])
+    for i, cols in inserts.items():
+        text = lines[i].text
+        for c in sorted(cols, reverse=True):
+            text = text[:c] + "ALPHABET " + text[c:]
+        out[i] = Line(text, lines[i].file, lines[i].line)
+    return out
+
+
+# #4462: LABEL RECORD ARE / LABEL RECORDS IS (IBM accepts IS or ARE with either; the grammar wants RECORD IS /
+# RECORDS ARE): the optional word dropped, at the same length
+_LABEL_RECORDS = re.compile(r"\b(LABEL\s+RECORDS?)(\s+(?:IS|ARE))\b", re.I)
+
+
+def label_records(text: str) -> str:
+    """#4462: `text` with LABEL RECORD[S] IS / ARE written LABEL RECORD[S] and blanks (DSF FO04D1X1's `LABEL RECORD
+    ARE STANDARD`), outside literals."""
+    bare = _outside_literals(text)
+    for m in reversed(list(_LABEL_RECORDS.finditer(bare))):
+        text = text[: m.start(2)] + " " * len(m.group(2)) + text[m.end(2) :]
+    return text
 
 
 def bms_copybooks(bms_files: list[Path], out: Path) -> list[str]:
@@ -454,4 +857,4 @@ def engine_copies_from_ir(ir, rel: str, root: Path) -> EngineCopies | None:
         return None
     res = ir.copy_resolution(rel)
     return EngineCopies.of(root / rel, root, res["edges"], [tuple(g) for g in res["gaps"]],
-                           [tuple(c) for c in res["collisions"]])  # fmt: skip
+                           [tuple(c) for c in res["collisions"]], ir.copy_pages(rel))  # fmt: skip

@@ -319,11 +319,100 @@ Only generator output, never a test case:
   harness's stub was handed LENGTH OF INTO in its place -- both sides agreed, so GenApp LGUCVS01 / LGUPVS01 "proved"
   without either honouring LENGTH. A keyed READ's LENGTH is now in-out on both sides (`DetCics.readInto`, GGCREAD:
   truncation, LENGERR RESP2 11, the record's length set back; register X14).
+- #4413: `SEND CONTROL` and plain terminal `RECEIVE` (INTO / SET(ADDRESS OF) / LENGTH / FLENGTH / MAXLENGTH /
+  MAXFLENGTH / NOTRUNCATE) were refused whole. They now run on CicsTask (`sendControl`, `receive`: NOTRUNCATE keeps
+  the rest for the task's next RECEIVE; LENGERR; EOC on an LUTYPE2 terminal) and the stub (GGCSCTL, GGCRECT /
+  GGCRECS), with EOC's default action -- ignore it -- in the port's `condition()` (`DetCics.ignoredByDefault`;
+  register X15). A CICS port of an estate with no screens / contracts / repositories no longer imports those
+  packages. Proven through cics-crucible hc-terminal-receive (7) and hc-terminal-eoc (3): the cobol-stub side and
+  the det port both pass the hand-written logs.
+- #4414 / #4502: `HANDLE AID` (71 PL/I + 5 COBOL programs) and `IGNORE CONDITION` were refused, and `PUSH` / `POP
+  HANDLE` with them; `HANDLE CONDITION ERROR(label)` was accepted but never taken -- a condition with no handler of its
+  own abended the port where CICS goes to the ERROR label. All now run on the port (`handlers` with -1 for IGNORE,
+  `aids`, a `pushed` stack of DetCics.Handlers beside CicsTask's own HANDLE ABEND stack; `condition()` takes the
+  condition's HANDLE / IGNORE, then a default of ignore, then ERROR, then the abend; `aid()` after RECEIVE MAP and
+  terminal RECEIVE). What IBM does not say is refused by name on both sides (register X16): an AID label beside a
+  condition on one input command, a key deactivated under ANYKEY, IGNORE CONDITION ERROR. Proven through
+  cics-crucible hc-handle-aid (9), hc-ignore-error (9) and hc-eoc-error (2) on the cobol-stub side and the det port.
 - #4463: four det ports stopped proving on 2026-10-04 and no CI ran the det sweep. carddemo-menu: a #4049 scenario
   sent option 99, which COMEN01C still uses as a subscript of its 12-entry table, 4K past the record (X8: the det
   port stops; the case now sends 12). mortgage-cmort / mlist / nbrvl: #4245 read every program of EPSCSMRD's
   multi-program source, and its field CASE became the Java field `case` (the generator's keyword list was partial).
   `.github/workflows/det-sweep.yml` now runs the sweep (no Db2) on translator / harness / case changes and nightly.
+- #4462 (found by the #4273 cross-check): what the translator reads before it parses, decided per cause.
+  *Code pages* are modelled: the program and each member are decoded with the code page the estate declares for that
+  file, the one the engine decoded it with (`--source-encoding`; `GalaxyIR.copy_pages`, the skeleton's and port
+  ticket's `copy_pages`, `source.EngineCopies.pages`), so a raw EBCDIC source (cp037, cp273, cp277 ...) is read as
+  the scan read it (it was a cp1252 guess with no IDENTIFICATION DIVISION in it), and a COPY member's name may hold
+  national letters (`COPY 'KUNDEÅ'`). *Free format* is modelled: after `>>SOURCE FORMAT FREE` (until `... FIXED`)
+  a line is code from column 1, of any length, up to a `*>` comment. *Refused by name* (`source.unmodelled`, a
+  LayoutError / ExprError naming the file, line and character): national / DBCS text, any character beyond Latin-1
+  in a name or a literal (estate-crucible KYUY: Kanji names, PIC G, ideographic spaces; KYUYJP had raised
+  UnicodeEncodeError), because the translator lays records out and hands the grammar its text one byte a character;
+  a national letter in a name (`BETRÄGE`: the grammar reads ASCII words only); DECIMAL-POINT IS COMMA (`1000,00`,
+  `0,5` must never be read as integers). A national letter inside a literal or a comment is read. Still refused, with
+  a cause in the cross-check ledger: several programs in one source (PAYMAIN), IDMS (LNIDMS01), and the grammar gaps
+  the ledger lists (`translator-refuses-grammar`). `PROGRAM-ID LNCALC.` without its period is read since #4523
+  (`source.logical_lines` puts the period back, as Enterprise COBOL tolerates it). DECIMAL-POINT IS COMMA stays
+  refused: it needs a comma-aware numeric tokenizer in the statement grammar (`MOVE 0,5 TO X` against `A, B`), the
+  layout's VALUE parsing and edited PICTUREs with `.` and `,` swapped, and the runtime's edited moves and DISPLAY;
+  its one program (estate-crucible ZINSBER) would still be refused for its national-letter name `BETRÄGE`.
+- #4523: the grammar continues a literal only in quotation marks (`'...` at column 72 with `-    '...` on the next
+  row did not parse), and reads `""` inside one as two literals (`VALUE "IT""S"` was two values, `MOVE "IT""S"` did
+  not parse), though it reads `'IT''S'` whole. `source.as_fixed_rows` now hands the grammar every literal of a
+  re-wrapped line in quotation marks (same value: `''` undoubled) and every `""` as U+001E (`QQ`), which `unwrap`
+  turns back into `""`; a source holding U+001E is refused by name. An EXEC block's lines keep their own text (in
+  SQL an apostrophe is a string, a quotation mark a name; the grammar never reads them). When column 72 of a
+  re-wrapped row would split a doubled quote, the row ends a column early. Newly translating: CardDemo CBSTM03A, DSF
+  FO04F1X1, estate-crucible RPTHDR and LNCALC; CBSTM03A's cross-check found the engine's group USAGE gap (#4525).
+- #4462 slice 2. *Hex literals*: the grammar continues no `X'...'` (in either quote style), so a re-wrapped line's
+  hex literal is handed to it as an alphanumeric literal `"<U+001F>C1C2..."`, which it continues; `unwrap` restores
+  `X"C1C2..."` (a source holding U+001F is refused by name). A lower-case `x'00'` is handed over as `X'00'` (GenApp
+  lgtestc1). *IDMS* is refused by name, "IDMS DML not supported" (an IDMS-CONTROL or SCHEMA SECTION: estate-crucible
+  LNIDMS01); modelling its DML and subschema records is #4532. *Multi-program sources* are modelled as units:
+  `source.program_units` cuts an expanded source into its programs (a program beginning while another is open is
+  nested in it; END PROGRAM closes the innermost and must name it), each with its own lines; `layout.parse` and
+  `stmt.parse` refuse a source holding several by name (before, they silently read the first program's records and
+  paragraphs), and `program.translate(..., unit=)` translates one program (default: the first) as its own class. A
+  nested program whose container declares GLOBAL items is refused (`UnitRefused`): its view of them is not modelled.
+  The cross-check reads every unit, each paragraph's extent ending with its program. estate-crucible PAYMAIN is still
+  refused first by its COPY DATEWS collision (#4486). *Grammar gaps*: `ENTRY 'DLITCBL' USING pcb ...` (IMS DL/I batch)
+  is read as a statement (a placeholder CALL, as SORT); as the program's first statement with no PROCEDURE DIVISION
+  USING it is the program's entry, its USING the program's parameters; elsewhere it translates as a hole. A reference
+  modification of an intrinsic function (`FUNCTION CURRENT-DATE (1:4)`, `FUNCTION UPPER-CASE(A) (2:3)`) is handed to
+  the grammar as an argument list of the same length; expr reads it as the reference modification, and gen takes the
+  substring of an alphanumeric function's text (it had dropped the modification). Newly read: CardDemo DBUNLDGS,
+  PAUDBLOD, PAUDBUNL, CBIMPORT; GenApp lgtestc1; estate-crucible KØBREG. Still refused: SEARCH ALL's WHEN (CardDemo
+  COPAUS1C), DSF's `IDIOT IS 'ABC...'` alphabet without ALPHABET (PLUKKFR, PLUKKFRN), `LABEL RECORD ARE` (FO04D1X1),
+  OS/VS `EXHIBIT NAMED` (R001BYDL), and GenApp polloo2.cpy's missing period after `03 CA-CUSPOL-REQUEST` (a source
+  defect).
+- #4462 slice 3. *SEARCH / SEARCH ALL*: an OCCURS item keeps its ASCENDING / DESCENDING KEYs and INDEXED BY names
+  (`Item.keys`, `Item.indexed_by`); each index name is an item of its own holding the occurrence number (initially
+  1, as GnuCOBOL; IBM leaves it undefined). The statement builder opens a SEARCH frame for its AT END and WHENs (a
+  SEARCH ALL takes one WHEN; the next belongs to the EVALUATE around it); END-SEARCH or the period closes it. A serial
+  SEARCH walks the table from the index's value; SEARCH ALL is a binary search whose WHEN must be `key = value` (or
+  a key's condition-name) for the leading keys, subscripted by the first index, joined by AND (else a hole by name),
+  stepping on the first unequal key in KEY order -- GnuCOBOL's loop (head 0, tail size + 1, index (head + tail) / 2).
+  SEARCH VARYING a counter or another table's index is refused by name: IBM steps it with the index, GnuCOBOL sets
+  it to the index's value. *OS/VS forms*: an alphabet clause without ALPHABET (`IDIOT IS 'ABC...ÆØÅ'`) gets the
+  keyword (`source.alphabet_keywords`) for the grammar and for `program.alphabets`, the model SORT and comparisons
+  read; `LABEL RECORD ARE` / `LABEL RECORDS IS` drop the optional word (`source.label_records`); `EXHIBIT NAMED a
+  'lit' b` is one DISPLAY line `A = value lit B = value` (GnuCOBOL's spelling) for plain names and nonnumeric
+  literals, a qualified or subscripted name and EXHIBIT CHANGED (GnuCOBOL does not implement it) are holes by name.
+  *Source defects*: a data entry with no period before the next level number is refused by name ("source defect",
+  GenApp polloo2.cpy). Newly read: CardDemo COPAUS1C, DSF PLUKKFR, PLUKKFRN, FO04D1X1, R001BYDL; the cross-check
+  ledger's `translator-refuses-grammar` cause is empty and gone.
+- #4528: a TS item is the bytes the program wrote "in the region's code page" (CicsTask), and the COBOL side's
+  region keeps it in CCSID 037 (cics-crucible SPEC 2; the stub transcodes its Latin-1 storage at the boundary). The
+  det port handed CicsTask its storage's bytes (CS, CobolRecords.charset()) as they were: WS-ONE VALUE 'W' reached
+  the queue as X'57' ('ï'), an item 'A' came back as 'Á'. WRITEQ / READQ TS now move each byte between CS and
+  `REGION` (`DetCics.toRegion` / `fromRegion`): the estate's declared code page for the program when it is EBCDIC
+  (`EngineCopies.page`, #4462), else CCSID 037; the system property `gitgalaxy.cics.charset` names another. NL is
+  NEL (X'15') and LF X'25' as in CDRA and Python's cp037, not the JDK's LF for both; a byte one page cannot carry
+  stops the run by name. TD (`Cobol.text(.., CS)`), SEND TEXT, terminal RECEIVE and the COMMAREA DTO codecs already
+  went through characters. `Cics.declared` reads a DTO's copybook in its declared page too (it read Latin-1).
+  Newly passing on the det port (cics-crucible): hc-perform-range 4/4 (`length-trap` byte for byte), hc-abend-link
+  push-pop, pushed-abend, sub-own-exit, sub-resp, ca-link-lengths no-commarea.
 
 ### Keyed reads
 

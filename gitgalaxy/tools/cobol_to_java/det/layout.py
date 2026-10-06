@@ -12,7 +12,17 @@ from dataclasses import dataclass, field
 from decimal import Decimal
 from pathlib import Path
 
-from gitgalaxy.tools.cobol_to_java.det.source import Line, as_fixed_rows, cobol_parser, unwrap
+from gitgalaxy.tools.cobol_to_java.det.source import (
+    Line,
+    _outside_literals,
+    alphabet_keywords,
+    as_fixed_rows,
+    cobol_parser,
+    label_records,
+    several_programs,
+    unmodelled,
+    unwrap,
+)
 
 POSITIVE = "{ABCDEFGHI"  # overpunched +0..+9 (-fsign=EBCDIC, ASCII data)
 NEGATIVE = "}JKLMNOPQR"
@@ -33,6 +43,8 @@ class Item:
     occurs: int = 1
     occurs_min: int | None = None
     depending: str | None = None
+    keys: list = field(default_factory=list)  # OCCURS ... ASCENDING / DESCENDING KEY: [(ascending, name)] in order
+    indexed_by: list = field(default_factory=list)  # OCCURS ... INDEXED BY: the index names
     redefines: str | None = None
     values: list = field(default_factory=list)  # literal values (88: several, ranges as (lo, hi))
     sign_leading: bool = False
@@ -164,8 +176,9 @@ def _data_only(lines: list[Line]) -> list[Line]:
     """The lines the record parser needs, others blanked (kept, so each item keeps its line): the IDENTIFICATION
     DIVISION's paragraphs after PROGRAM-ID (REMARKS, DATE-COMPILED ... -- obsolete, free text), EXEC SQL blocks
     left in the DATA DIVISION (DECLARE CURSOR / TABLE: no storage; an INCLUDE was expanded as a COPY), and a
-    section header with nothing under it (an empty LINKAGE SECTION)."""
-    out = [Line(ln.text, ln.file, ln.line) for ln in lines]
+    section header with nothing under it (an empty LINKAGE SECTION). #4462: an OS/VS alphabet clause gets its
+    ALPHABET keyword (source.alphabet_keywords) and LABEL RECORD ARE its optional word dropped (source.label_records)."""
+    out = [Line(label_records(ln.text), ln.file, ln.line) for ln in alphabet_keywords(lines)]
     in_id = False
     want_name = False  # PROGRAM-ID. with its name on a later line
     for ln in out:
@@ -208,6 +221,10 @@ def _data_only(lines: list[Line]) -> list[Line]:
 
 def parse(lines: list[Line]) -> list[Item]:
     """The 01 / 77 records of the DATA DIVISION, each a tree of Items."""
+    # #4462: national / DBCS text, DECIMAL-POINT IS COMMA, IDMS, several programs (each read on its own): refused by name
+    why = unmodelled(lines) or several_programs(lines)
+    if why:
+        raise LayoutError(why)
     text, rows = as_fixed_rows(_data_only(lines))
     # the PROCEDURE DIVISION is not needed (and EXEC blocks there are not this grammar's): stop before it
     m = re.search(r"^ {7}\s*PROCEDURE\s+DIVISION\b", text, re.I | re.M)
@@ -266,6 +283,9 @@ def parse(lines: list[Line]) -> list[Item]:
 
     visit(tree.root_node, None, None)
     if errors:
+        missing = _missing_period(lines, errors)
+        if missing:
+            raise LayoutError(missing)
         raise LayoutError(f"DATA DIVISION does not parse near expanded line(s) {errors[:5]}")
     for r in records:
         _inherit_usage(r, None)
@@ -280,6 +300,26 @@ def parse(lines: list[Line]) -> list[Item]:
             r.record = target.record or target
         by_name[(r.section, r.name)] = r
     return records
+
+
+_LEVEL_ENTRY = re.compile(r"^\s*(\d{1,2})\s+([A-Z0-9][A-Z0-9-]*)", re.I)
+
+
+def _missing_period(lines: list[Line], errors: list[int]) -> str | None:
+    """#4462: a parse error at a data entry that ends with no period before the next entry's level number (GenApp
+    polloo2.cpy's `03 CA-CUSPOL-REQUEST` -- a source defect the engine reads past): refused by name, as a source
+    defect, never laid out as some reading of it."""
+    for e in errors:
+        for k in range(max(e - 2, 0), min(e + 1, len(lines))):
+            m = _LEVEL_ENTRY.match(lines[k].text)
+            if not m or "." in _outside_literals(lines[k].text):
+                continue
+            nxt = next((ln for ln in lines[k + 1 :] if ln.text.strip()), None)
+            if nxt is not None and _LEVEL_ENTRY.match(nxt.text):
+                where = f"{Path(lines[k].file).name}:{lines[k].line}"
+                return (f"source defect: data entry {m.group(1)} {m.group(2).upper()} ({where}) has no period "
+                        "before the next level number")  # fmt: skip
+    return None
 
 
 def _item(node, src: bytes, section: str, fd: str | None) -> Item:
@@ -304,6 +344,13 @@ def _item(node, src: bytes, section: str, fd: str | None) -> Item:
             it.occurs_min = ints[0] if len(ints) > 1 else None
             dep = next((g for g in c.children if g.type == "qualified_word"), None)
             it.depending = _txt(dep, src).upper() if dep else None
+            for spec in (g for g in c.children if g.type == "occurs_key_spec"):  # #4462: SEARCH / SEARCH ALL's
+                for k in spec.children:
+                    if k.type == "occurs_key":
+                        asc = not any(w.type == "DESCENDING" for w in k.children)
+                        it.keys += [(asc, _txt(w, src).upper()) for w in k.children if w.type == "qualified_word"]
+                    elif k.type == "occurs_indexed":
+                        it.indexed_by += [_txt(w, src).upper() for w in k.children if w.type == "WORD"]
         elif t == "redefines_clause":
             it.redefines = _txt(c.children[-1], src).upper()
         elif t == "value_clause":
@@ -337,13 +384,16 @@ def _one(node, src: bytes):
     if text[:1] not in "'\"":
         text = text.rstrip(",;")  # `VALUES 0, 1`: the grammar hands the separator over with the value
     up = text.upper()
+    if t == "x_string" or (t == "string" and re.match(r"X['\"]", text, re.I)):  # (#4462: a re-wrapped hex literal)
+        return ("hex", bytes.fromhex(re.sub(r"^X['\"]|['\"]$", "", text, flags=re.I)))
     if t in ("string",):
         q = text[0]
         return ("lit", text[1:-1].replace(q * 2, q))
-    if t == "x_string":
-        return ("hex", bytes.fromhex(re.sub(r"^X['\"]|['\"]$", "", text, flags=re.I)))
     if t == "number":
-        return ("num", Decimal(text))
+        try:
+            return ("num", Decimal(text))
+        except ArithmeticError as e:  # #4462: never an InvalidOperation out of the translator
+            raise LayoutError(f"line {node.start_point[0] + 1}: VALUE {text} not modelled") from e
     if up.startswith(("SPACE",)):
         return ("fig", "SPACES")
     if up.startswith(("ZERO",)):

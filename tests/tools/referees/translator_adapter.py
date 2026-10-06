@@ -8,10 +8,9 @@ a referee-facts/1 document (#4273), so the engine-vs-translator cross-check
 Nothing here re-parses COBOL: every value comes from the structures the translator builds when it
 translates a program (the expanded `Line`s, the `layout.Item` trees, the `stmt.Paragraph`s). Two
 readings are this adapter's and are kept minimal:
-- the USAGE as written. The translator stores an item's *effective* usage (a group's USAGE inherited
-  by its children); the key and the engine record it as written. `parse_layout` snapshots each
-  item's usage just before `layout._inherit_usage` runs (a wrapper, no translator change), so the
-  `usage` channel compares like with like. Sizes and offsets still use the effective usage.
+- the *effective* USAGE: a group's USAGE inherited by the items under it without their own, as the
+  translator stores it and (#4525) the engine records it too. Until #4525 the engine recorded the
+  USAGE as written, and this adapter snapshotted that before `layout._inherit_usage` ran.
 - an identifier FILE(...) operand is resolved through the single VALUE the translator parsed on
   that item, as the key and the engine do.
 
@@ -39,11 +38,9 @@ import os
 import re
 import sys
 import time
-from contextlib import contextmanager
 from decimal import Decimal
 from pathlib import Path
 from typing import Any, Optional
-from collections.abc import Iterator
 
 HERE = Path(__file__).resolve().parent
 REPO_ROOT = HERE.parents[2]
@@ -171,6 +168,8 @@ def canon_operand(o: Any) -> str:
     if isinstance(o, E.Ref):
         return " OF ".join([o.name.upper(), *[q.upper() for q in o.qualifiers]])
     if isinstance(o, E.Fig):
+        if o.all_literal is not None and getattr(o, "hex", False):
+            return "ALL X'" + o.all_literal.encode("latin-1").hex().upper() + "'"
         if o.all_literal is not None:
             return f"ALL '{o.all_literal}'"
         return _DET_FIG.get(o.kind, _FIG.get(o.kind, o.kind))
@@ -196,32 +195,10 @@ def move_value(line: int, source: str, target: str) -> str:
 # ------------------------------------------------------------------------------
 # The DATA DIVISION
 # ------------------------------------------------------------------------------
-@contextmanager
-def _written_usage() -> Iterator[dict[int, str]]:
-    """Each item's USAGE as written, recorded just before the translator applies group inheritance."""
+def parse_layout(lines: list[Any]) -> list[Any]:
+    """layout.parse(lines): the records, each item's usage effective (a group's inherited, #4525)."""
     _, _, L, _, _ = det()
-    seen: dict[int, str] = {}
-    original = L._inherit_usage
-
-    def recording(it: Any, usage: Optional[str]) -> None:
-        if usage is None:  # the record's own call, before anything was inherited
-            for x in it.walk():
-                seen.setdefault(id(x), x.usage)
-        original(it, usage)
-
-    L._inherit_usage = recording
-    try:
-        yield seen
-    finally:
-        L._inherit_usage = original
-
-
-def parse_layout(lines: list[Any]) -> tuple[list[Any], dict[int, str]]:
-    """layout.parse(lines) plus each item's written usage (id(item) -> usage)."""
-    _, _, L, _, _ = det()
-    with _written_usage() as seen:
-        records = L.parse(lines)
-    return records, seen
+    return L.parse(lines)
 
 
 def value_text(v: Any) -> Optional[str]:
@@ -283,7 +260,7 @@ def copybook_layouts(path: Path, dirs: list[Path], engine: Any = None) -> tuple[
     01 when its first entry is not one, each top-level entry then laid out from its own offset)."""
     _, _, L, S, _ = det()
     try:
-        body = S.expand(S.logical_lines(S._raw_lines(path), str(path)), dirs, chain=frozenset({path.resolve()}),
+        body = S.expand(S.logical_lines(S._raw_lines(path, engine), str(path)), dirs, chain=frozenset({path.resolve()}),
                         engine=engine)  # fmt: skip
     except S.CopyNotFound as e:
         return None, f"CopyNotFound: {_copy_not_found(e)}"
@@ -337,7 +314,7 @@ def program_facts(
 
     # copybooks: the members the program's own text COPYs / INCLUDEs (the translator's own COPY pattern), and
     # the file in the corpus each expanded to (system / BMS-generated members resolve outside it: name only)
-    own_logical = S.logical_lines(S._raw_lines(prog), progfile)
+    own_logical = S.logical_lines(S._raw_lines(prog, engine), progfile)
     direct = S.copy_names(own_logical)
     for i, ln in enumerate(own_logical):
         if S._copy_match(ln.text):
@@ -359,134 +336,150 @@ def program_facts(
                 f["copy_resolution"].add(f"{member} -> {r}")
 
     errors = []
-    # ---- the DATA DIVISION ----
+    # #4462: each program of a multi-program source (nested, or batch-compiled after an END PROGRAM) on its own
     try:
-        records, written = parse_layout(lines)
-    except Exception as e:  # noqa: BLE001 -- LayoutError, a refused VALUE (#4411): the translator's verdict
-        records, written = None, {}
-        errors.append(f"layout: {type(e).__name__}: {str(e)[:160]}")
-        out["failed"].append("data")
-    values_of: dict[str, list[str]] = {}
-    if records is not None:
-        for rec in records:
-            src = lines[rec.line - 1]
-            if not rel(src.file).startswith(".."):  # a system or BMS-generated member: not the corpus's record
-                out["records"].append((rec, rel(src.file), src.line))
-                f["offsets"] |= layout_units(rec)
-                f["offsets"].add(record_bytes(rec))
-            for it in rec.walk():
-                for x in [it, *it.conditions]:
-                    ln = lines[x.line - 1]
-                    v = value_text(x.values[0]) if x.values else None
-                    if v is not None and x.values[0][0] == "lit":
-                        values_of.setdefault(x.name, []).append(x.values[0][1])
-                    if ln.file != progfile:
+        units = S.program_units(lines)
+    except S.UnitRefused as e:
+        units = []
+        errors.append(f"units: {type(e).__name__}: {str(e)[:160]}")
+        out["failed"] += ["data", "procedure"]
+    parsed = False
+    for unit in units:
+        lines = unit.lines
+        span = [ln.line for ln in lines if ln.file == progfile]
+        lo, hi = (min(span), max(span)) if len(units) > 1 and span else (0, 1 << 30)
+        where = f"{unit.name}: " if len(units) > 1 else ""
+        # ---- the DATA DIVISION ----
+        try:
+            records = parse_layout(lines)
+        except Exception as e:  # noqa: BLE001 -- LayoutError, a refused VALUE (#4411): the translator's verdict
+            records = None
+            errors.append(f"{where}layout: {type(e).__name__}: {str(e)[:160]}")
+            out["failed"].append("data")
+        values_of: dict[str, list[str]] = {}
+        parsed = parsed or records is not None
+        if records is not None:
+            for rec in records:
+                src = lines[rec.line - 1]
+                if not rel(src.file).startswith(".."):  # a system or BMS-generated member: not the corpus's record
+                    out["records"].append((rec, rel(src.file), src.line))
+                    f["offsets"] |= layout_units(rec)
+                    f["offsets"].add(record_bytes(rec))
+                for it in rec.walk():
+                    for x in [it, *it.conditions]:
+                        ln = lines[x.line - 1]
+                        v = value_text(x.values[0]) if x.values else None
+                        if v is not None and x.values[0][0] == "lit":
+                            values_of.setdefault(x.name, []).append(x.values[0][1])
+                        if ln.file != progfile:
+                            continue
+                        u = x.usage if x.level != 88 else None
+                        has_occurs = x.occurs != 1 or x.occurs_min is not None or x.depending
+                        vals = F.item_values(
+                            ln.line, x.level, x.name, x.pic, _DET_USAGE.get(u or "", u),
+                            x.occurs_min if has_occurs else None, x.occurs if has_occurs else None,
+                            x.depending, x.redefines, None,
+                        )  # fmt: skip
+                        if v is not None:
+                            vals["value"] = f"L{ln.line} {x.name.upper()} = {v}"
+                        F.merge_item(f, vals)
+
+        # ---- the PROCEDURE DIVISION ----
+        try:
+            proc = ST.parse(lines)
+        except Exception as e:  # noqa: BLE001 -- ExprError: the translator refuses the program
+            proc = None
+            errors.append(f"{where}procedure: {type(e).__name__}: {str(e)[:160]}")
+            out["failed"].append("procedure")
+        parsed = parsed or proc is not None
+        if proc is not None:
+            own = [ln for ln in lines if ln.file == progfile]
+            pd_line = next((ln.line for ln in own if re.match(r"\s*PROCEDURE\s+DIVISION\b", ln.text, re.I)), None)
+
+            def header_file(p: Any) -> Optional[str]:
+                # the header's period may stand on the next line (`2000-SEND-MAP` / `.`, CardDemo COTRTLIC)
+                pat = re.compile(rf"^\s*{re.escape(p.name)}(\s+SECTION)?\s*(\.|$)", re.I)
+                hit = next((ln.file for ln in lines if ln.line == p.line and pat.match(ln.text)), None)
+                return hit
+
+            named = [(p, header_file(p)) for p in proc.paragraphs if p.name != "(MAIN)"]
+            heads = sorted(p.line for p, hf in named if hf == progfile)
+            # code lines of the source itself: a procedure-division COPY statement is code (its lines are replaced by
+            # the member's in `lines`)
+            own_lines = sorted({ln.line for ln in own} | {ln.line for ln in own_logical if lo <= ln.line <= hi})
+
+            def extent_end(start: int) -> int:
+                nxt = next((h for h in heads if h > start), None)
+                return max((n for n in own_lines if n >= start and (nxt is None or n < nxt)), default=start)
+
+            own_text: dict[int, str] = {ln.line: ln.text.upper() for ln in own}
+
+            def in_program(st: Any) -> bool:
+                """A statement's line is a line of its file, which the translator does not keep: one from a procedure
+                copybook (`COPY CSSETATY REPLACING ...` in a paragraph) carries the copybook's line. It is the
+                program's own when the program's line of that number holds the statement's verb."""
+                verb = (st.text.split() or [""])[0].upper()
+                return verb in own_text.get(st.line, "")
+
+            for p in proc.paragraphs:
+                if p.name == "(MAIN)":
+                    if not p.body or pd_line is None:
                         continue
-                    u = written.get(id(x), x.usage) if x.level != 88 else None
-                    has_occurs = x.occurs != 1 or x.occurs_min is not None or x.depending
-                    vals = F.item_values(
-                        ln.line, x.level, x.name, x.pic, _DET_USAGE.get(u or "", u),
-                        x.occurs_min if has_occurs else None, x.occurs if has_occurs else None,
-                        x.depending, x.redefines, None,
-                    )  # fmt: skip
-                    if v is not None:
-                        vals["value"] = f"L{ln.line} {x.name.upper()} = {v}"
-                    F.merge_item(f, vals)
-
-    # ---- the PROCEDURE DIVISION ----
-    try:
-        proc = ST.parse(lines)
-    except Exception as e:  # noqa: BLE001 -- ExprError: the translator refuses the program
-        proc = None
-        errors.append(f"procedure: {type(e).__name__}: {str(e)[:160]}")
-        out["failed"].append("procedure")
-    if proc is not None:
-        own = [ln for ln in lines if ln.file == progfile]
-        pd_line = next((ln.line for ln in own if re.match(r"\s*PROCEDURE\s+DIVISION\b", ln.text, re.I)), None)
-
-        def header_file(p: Any) -> Optional[str]:
-            # the header's period may stand on the next line (`2000-SEND-MAP` / `.`, CardDemo COTRTLIC)
-            pat = re.compile(rf"^\s*{re.escape(p.name)}(\s+SECTION)?\s*(\.|$)", re.I)
-            hit = next((ln.file for ln in lines if ln.line == p.line and pat.match(ln.text)), None)
-            return hit
-
-        named = [(p, header_file(p)) for p in proc.paragraphs if p.name != "(MAIN)"]
-        heads = sorted(p.line for p, hf in named if hf == progfile)
-        # code lines of the source itself: a procedure-division COPY statement is code (its lines are replaced by
-        # the member's in `lines`)
-        own_lines = sorted({ln.line for ln in own} | {ln.line for ln in own_logical})
-
-        def extent_end(start: int) -> int:
-            nxt = next((h for h in heads if h > start), None)
-            return max((n for n in own_lines if n >= start and (nxt is None or n < nxt)), default=start)
-
-        own_text: dict[int, str] = {ln.line: ln.text.upper() for ln in own}
-
-        def in_program(st: Any) -> bool:
-            """A statement's line is a line of its file, which the translator does not keep: one from a procedure
-            copybook (`COPY CSSETATY REPLACING ...` in a paragraph) carries the copybook's line. It is the
-            program's own when the program's line of that number holds the statement's verb."""
-            verb = (st.text.split() or [""])[0].upper()
-            return verb in own_text.get(st.line, "")
-
-        for p in proc.paragraphs:
-            if p.name == "(MAIN)":
-                if not p.body or pd_line is None:
-                    continue
-                uname, start = F.MAIN_LINE, pd_line
-                first = heads[0] if heads else None
-                f["unit_extents"].add(
-                    f"{uname} L{start}-{max((n for n in own_lines if n >= start and (first is None or n < first)), default=start)}"
-                )
-            else:
-                if header_file(p) != progfile:
-                    continue  # a paragraph a procedure copybook brought in: not this source's unit
-                uname = ak.keyed_unit_name(key_prog, p.name, p.line)
-                f["units"].add(uname)
-                f["unit_extents"].add(f"{uname} L{p.line}-{extent_end(p.line)}")
-            for s in ST.walk(p.body):
-                if s.kind == "PERFORM" and s.data.get("target") and not s.data.get("inline"):
-                    # `PERFORM A THRU B` is one edge, to A (the key's shape; B is reached by fall-through)
-                    f["edges"].add(F.edge_value(uname, "PERFORM", s.data["target"]))
-                elif s.kind == "GOTO":
-                    for t in s.data["targets"]:
-                        f["edges"].add(F.edge_value(uname, "GO_TO", t))
-                elif s.kind == "CALL":
-                    f["calls"].add(F.call_value("CALL", "literal", s.data["program"]))
-                elif s.kind == "HOLE" and s.data.get("why") == "dynamic CALL":
-                    m = re.match(r"\s*CALL\s+([A-Z0-9-]+)", s.text, re.I)
-                    if m:
-                        f["calls"].add(F.call_value("CALL", "identifier", m.group(1)))
-                elif s.kind == "MOVE" and in_program(s):
-                    for t in s.data["to"]:
-                        f["moves"].add(move_value(s.line, canon_operand(s.data["from"]), canon_operand(t)))
-                elif s.kind == "EXEC" and re.match(r"\s*EXEC\s+CICS\b", s.text, re.I):
-                    try:
-                        words, opts = C.parse_exec(s.text)
-                    except Exception:  # noqa: BLE001 -- an EXEC the translator cannot read names no command
-                        continue
-                    if not words:
-                        continue
-                    verb = words[0]
-                    if in_program(s) and census_kind(words, opts):
-                        f["cics_commands"].add(F.cics_command(s.line, verb))
-                    if verb in ("LINK", "XCTL") and opts.get("PROGRAM"):
-                        a = opts["PROGRAM"] or ""
-                        lit = a[:1] in "'\""
-                        f["calls"].add(
-                            F.call_value(verb, "literal" if lit else "identifier", a if lit else canon_name(a))
-                        )
-                    if verb in F.CICS_FILE_VERBS:
-                        a = opts.get("FILE") or opts.get("DATASET")
-                        if a:
-                            name = a.strip("'\"") if a[:1] in "'\"" else None
-                            if name is None:
-                                vals = values_of.get(canon_name(a).split(" OF ")[0], [])
-                                name = vals[0] if len(set(vals)) == 1 else None
-                            if name:
-                                f["cics_files"].add(f"{verb} {name.strip().upper()}")
+                    uname, start = F.MAIN_LINE, pd_line
+                    first = heads[0] if heads else None
+                    f["unit_extents"].add(
+                        f"{uname} L{start}-{max((n for n in own_lines if n >= start and (first is None or n < first)), default=start)}"
+                    )
+                else:
+                    if header_file(p) != progfile:
+                        continue  # a paragraph a procedure copybook brought in: not this source's unit
+                    uname = ak.keyed_unit_name(key_prog, p.name, p.line)
+                    f["units"].add(uname)
+                    f["unit_extents"].add(f"{uname} L{p.line}-{extent_end(p.line)}")
+                for s in ST.walk(p.body):
+                    if s.kind == "PERFORM" and s.data.get("target") and not s.data.get("inline"):
+                        # `PERFORM A THRU B` is one edge, to A (the key's shape; B is reached by fall-through)
+                        f["edges"].add(F.edge_value(uname, "PERFORM", s.data["target"]))
+                    elif s.kind == "GOTO":
+                        for t in s.data["targets"]:
+                            f["edges"].add(F.edge_value(uname, "GO_TO", t))
+                    elif s.kind == "CALL":
+                        f["calls"].add(F.call_value("CALL", "literal", s.data["program"]))
+                    elif s.kind == "HOLE" and s.data.get("why") == "dynamic CALL":
+                        m = re.match(r"\s*CALL\s+([A-Z0-9-]+)", s.text, re.I)
+                        if m:
+                            f["calls"].add(F.call_value("CALL", "identifier", m.group(1)))
+                    elif s.kind == "MOVE" and in_program(s):
+                        for t in s.data["to"]:
+                            f["moves"].add(move_value(s.line, canon_operand(s.data["from"]), canon_operand(t)))
+                    elif s.kind == "EXEC" and re.match(r"\s*EXEC\s+CICS\b", s.text, re.I):
+                        try:
+                            words, opts = C.parse_exec(s.text)
+                        except Exception:  # noqa: BLE001 -- an EXEC the translator cannot read names no command
+                            continue
+                        if not words:
+                            continue
+                        verb = words[0]
+                        if in_program(s) and census_kind(words, opts):
+                            f["cics_commands"].add(F.cics_command(s.line, verb))
+                        if verb in ("LINK", "XCTL") and opts.get("PROGRAM"):
+                            a = opts["PROGRAM"] or ""
+                            lit = a[:1] in "'\""
+                            f["calls"].add(
+                                F.call_value(verb, "literal" if lit else "identifier", a if lit else canon_name(a))
+                            )
+                        if verb in F.CICS_FILE_VERBS:
+                            a = opts.get("FILE") or opts.get("DATASET")
+                            if a:
+                                name = a.strip("'\"") if a[:1] in "'\"" else None
+                                if name is None:
+                                    vals = values_of.get(canon_name(a).split(" OF ")[0], [])
+                                    name = vals[0] if len(set(vals)) == 1 else None
+                                if name:
+                                    f["cics_files"].add(f"{verb} {name.strip().upper()}")
+    out["failed"] = list(dict.fromkeys(out["failed"]))
     if errors:
-        out["status"] = "fail" if records is None and proc is None else "partial"
+        out["status"] = "fail" if not parsed else "partial"
         out["error"] = "; ".join(errors)
     out["seconds"] = round(time.monotonic() - t0, 3)
     return out

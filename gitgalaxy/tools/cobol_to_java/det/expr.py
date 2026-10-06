@@ -40,6 +40,7 @@ class Fig:
 
     kind: str
     all_literal: str | None = None
+    hex: bool = False  # #4462: ALL X'00' (all_literal holds its bytes, one character each)
 
 
 @dataclass
@@ -167,6 +168,8 @@ class Parser:
             nxt = self.take()
             if nxt[:1] in "'\"":
                 return Fig("ALL", _unquote(nxt))
+            if nxt[:2].upper() in ("X'", 'X"') and len(nxt) > 3:  # #4462: MOVE ALL X'00' (estate-crucible KØBREG)
+                return Fig("ALL", bytes.fromhex(nxt[2:-1]).decode("latin-1"), hex=True)
             if nxt.upper() in FIGURATIVES:
                 return Fig(FIGURATIVES[nxt.upper()])
             raise ExprError(f"ALL {nxt}")
@@ -185,7 +188,9 @@ class Parser:
             self.i += 1
             name = self.take().upper()
             args = []
-            if self.peek() == "(":
+            # #4462: `FUNCTION CURRENT-DATE (1:4)`: a parenthesis holding a ':' is a reference modification, not
+            # the arguments (a function of no arguments)
+            if self.peek() == "(" and not self._refmod_group():
                 self.i += 1
                 while self.peek() != ")":
                     if self.peek() == ",":
@@ -194,7 +199,7 @@ class Parser:
                     args.append(self.arith())
                 self.i += 1
             ref = None
-            if (self.peek() == "(" and self.peek(2) == ":") or (self.peek() == "(" and ":" in self._group()):
+            if self.peek() == "(" and self._refmod_group():
                 ref = self._refmod()
             f = Func(name, args)
             return f if ref is None else Func(name, [*args, ("REFMOD", ref)])
@@ -221,6 +226,15 @@ class Parser:
                 raise ExprError(f"DFHVALUE({name}) is not a documented CVDA")
             return Lit(Decimal(CVDA[name]))
         return r
+
+    def _refmod_group(self) -> bool:
+        """Whether the parenthesised group at the cursor holds a ':' of its own (a reference modification)."""
+        depth = 0
+        for tok in self._group():
+            depth += {"(": 1, ")": -1}.get(tok, 0)
+            if tok == ":" and depth == 1:
+                return True
+        return False
 
     def _group(self) -> list[str]:
         """The tokens of the parenthesised group at the cursor (not consumed)."""

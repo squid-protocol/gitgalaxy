@@ -135,7 +135,7 @@ def test_handle_aid_labels_are_taken_after_an_input_command():
     assert ec.translate_command("HANDLE AID PF3(MENU-EXIT) PF5(MENU-REFRESH) PF9", labels) == [
         "MOVE 'PF3' TO GG-NAME1", "MOVE 1 TO GG-ITEM", "CALL 'GGCHAID' USING GG-CICS",
         "MOVE 'PF5' TO GG-NAME1", "MOVE 2 TO GG-ITEM", "CALL 'GGCHAID' USING GG-CICS",
-        "MOVE 'PF9' TO GG-NAME1", "MOVE 0 TO GG-ITEM", "CALL 'GGCHAID' USING GG-CICS"]  # fmt: skip
+        "MOVE 'PF9' TO GG-NAME1", "MOVE -1 TO GG-ITEM", "CALL 'GGCHAID' USING GG-CICS"]  # fmt: skip
     recv = ec.translate_command("RECEIVE MAP('PCMN') MAPSET('PCSET2') INTO(PCMNI)", labels, handle_aid=True)
     assert recv[-8:] == ["IF GG-RESP = 0", "    MOVE EIBAID TO GG-NAME1", "    CALL 'GGCAID' USING GG-CICS",
                          "    GO TO", "        MENU-EXIT", "        MENU-REFRESH", "        DEPENDING ON GG-GOTO",
@@ -146,6 +146,25 @@ def test_handle_aid_labels_are_taken_after_an_input_command():
         assert "    CALL 'GGCAID' USING GG-CICS" not in ec.translate_command(body, labels, handle_aid=True)
     with pytest.raises(ec.Unsupported):
         ec.translate_command("HANDLE AID PF99(X)", ["X"])
+
+
+def test_an_input_command_refuses_an_aid_label_beside_a_condition_and_ignore_error_is_refused():
+    """#4414: GGCAID is called first with the condition an input command raised (it records AID-REFUSED when a label
+    applies to the key: which CICS acts on first is not documented), then as before. RECEIVE SET consults HANDLE AID
+    too. IGNORE CONDITION ERROR is refused: whether ERROR's action can be to ignore is not documented."""
+    labels = ["MENU-EXIT"]
+    for body in ("RECEIVE MAP('M') INTO(X)", "RECEIVE INTO(X) LENGTH(L)",
+                 "RECEIVE SET(ADDRESS OF LS-X) LENGTH(L) MAXLENGTH(80)"):  # fmt: skip
+        out = ec.translate_command(body, labels, handle_aid=True)
+        first = out.index("IF GG-RESP NOT = 0")
+        assert out[first : first + 4] == ["IF GG-RESP NOT = 0", "    MOVE EIBAID TO GG-NAME1",
+                                          "    CALL 'GGCAID' USING GG-CICS", "END-IF"]  # fmt: skip
+        assert out.index("MOVE GG-RESP TO EIBRESP") > first and "IF GG-RESP = 0" in out
+    assert "IF GG-RESP NOT = 0" not in ec.translate_command("RECEIVE INTO(X) LENGTH(L) RESP(R)", labels, True)
+    assert ec.translate_command("IGNORE CONDITION LENGERR", []) == [
+        "MOVE 22 TO GG-NUM", "MOVE -1 TO GG-ITEM", "CALL 'GGCHCND' USING GG-CICS"]  # fmt: skip
+    with pytest.raises(ec.Unsupported, match="IGNORE CONDITION ERROR"):
+        ec.translate_command("IGNORE CONDITION ERROR", [])
 
 
 def test_a_program_names_itself_to_the_stub_as_it_starts():
@@ -178,12 +197,33 @@ def test_send_map_records_its_options_and_area():
 def test_a_terminal_receive_passes_its_length_in_and_takes_the_datas_length_back():
     """#4005: LENGTH is in-out -- in, the most INTO takes; out, the data's length (IBM, EXEC CICS RECEIVE)."""
     got = ec.translate_command("RECEIVE INTO(WS-INPUT) LENGTH(WS-INLEN)")
-    assert got[:3] == ["MOVE WS-INLEN TO GG-LEN", "CALL 'GGCRECT' USING GG-CICS", "    BY REFERENCE WS-INPUT"]
-    assert got[3] == "MOVE GG-LEN TO WS-INLEN" and got[-5] == "    CALL 'GGCCOND' USING GG-CICS"
-    assert ec.translate_command("RECEIVE INTO(WS-I) LENGTH(WS-L) MAXLENGTH(30)")[0] == "MOVE 30 TO GG-LEN"
+    assert got[:4] == ["MOVE SPACES TO GG-FLAGS", "MOVE WS-INLEN TO GG-LEN", "CALL 'GGCRECT' USING GG-CICS",
+                       "    BY REFERENCE WS-INPUT"]  # fmt: skip
+    assert got[4] == "MOVE GG-LEN TO WS-INLEN" and got[-5] == "    CALL 'GGCCOND' USING GG-CICS"
+    assert ec.translate_command("RECEIVE INTO(WS-I) LENGTH(WS-L) MAXLENGTH(30)")[1] == "MOVE 30 TO GG-LEN"
     omitted = ec.translate_command("RECEIVE INTO(WS-I) RESP(WS-R)")
-    assert omitted[0] == "MOVE LENGTH OF WS-I TO GG-LEN" and "MOVE GG-RESP TO WS-R" in omitted
+    assert omitted[1] == "MOVE LENGTH OF WS-I TO GG-LEN" and "MOVE GG-RESP TO WS-R" in omitted
     assert not any(ln.startswith("MOVE GG-LEN") for ln in omitted)
+
+
+def test_receive_notruncate_and_set_and_send_control():
+    """#4413: NOTRUNCATE goes to the stub in GG-FLAGS; SET(ADDRESS OF record) takes the stub's buffer through GG-PTR
+    (MAXLENGTH and LENGTH required, as det/cics.py); SEND CONTROL passes its options and CURSOR's value."""
+    got = ec.translate_command("RECEIVE INTO(WS-I) LENGTH(WS-L) MAXLENGTH(4) NOTRUNCATE")
+    assert got[:2] == ["MOVE 'NOTRUNCATE' TO GG-FLAGS", "MOVE 4 TO GG-LEN"]
+    got = ec.translate_command("RECEIVE SET(ADDRESS OF LS-IN) LENGTH(WS-L) MAXLENGTH(20) RESP(WS-R)")
+    assert got[:6] == ["MOVE SPACES TO GG-FLAGS", "MOVE 20 TO GG-LEN", "CALL 'GGCRECS' USING GG-CICS",
+                       "    BY REFERENCE GG-PTR", "SET ADDRESS OF LS-IN TO GG-PTR", "MOVE GG-LEN TO WS-L"]  # fmt: skip
+    for bad in ("RECEIVE SET(ADDRESS OF LS-IN) LENGTH(WS-L)", "RECEIVE SET(ADDRESS OF LS-IN) MAXLENGTH(9)"):
+        with pytest.raises(ec.Unsupported):
+            ec.translate_command(bad)
+    assert ec.translate_command("SEND CONTROL FREEKB ERASE")[:3] == [
+        "MOVE 'ERASE FREEKB' TO GG-FLAGS", "MOVE -1 TO GG-LEN", "CALL 'GGCSCTL' USING GG-CICS"]  # fmt: skip
+    assert ec.translate_command("SEND CONTROL CURSOR(WS-C) ALARM")[:2] == ["MOVE 'ALARM CURSOR' TO GG-FLAGS",
+                                                                           "MOVE WS-C TO GG-LEN"]  # fmt: skip
+    for bad in ("SEND CONTROL PRINT", "SEND CONTROL CURSOR"):
+        with pytest.raises(ec.Unsupported):
+            ec.translate_command(bad)
 
 
 def test_ts_commands_pass_length_item_and_numitems_in_and_out():
@@ -210,7 +250,7 @@ def test_ts_commands_pass_length_item_and_numitems_in_and_out():
                                   "HANDLE ABEND PROGRAM('X')", "ASSIGN USERID(U)", "HANDLE CONDITION NOSUCH(X)",
                                   "WRITEQ TS QUEUE(Q) FROM(A) SYSID(S)", "WRITEQ TS QUEUE(Q) FROM(A) REWRITE",
                                   "READQ TD QUEUE(Q) INTO(A)",
-                                  "RECEIVE INTO(X) LENGTH(L) NOTRUNCATE", "RECEIVE SET(P) LENGTH(L)", "STARTBR FILE(F) RIDFLD(K) REQID(1)",
+                                  "RECEIVE INTO(X) LENGTH(L) BUFFER", "RECEIVE SET(P) LENGTH(L)", "STARTBR FILE(F) RIDFLD(K) REQID(1)",
                                   "DELETE FILE('X') RIDFLD(K) GENERIC KEYLENGTH(2)", "LINK PROGRAM('X') SYSID('S')"])  # fmt: skip
 def test_an_unmodelled_command_is_refused_by_name(body):
     with pytest.raises(ec.Unsupported):

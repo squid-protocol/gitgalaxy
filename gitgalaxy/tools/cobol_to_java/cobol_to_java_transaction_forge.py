@@ -75,6 +75,113 @@ def _field_lines(layout: dict) -> tuple[list[str], bool]:
     return lines, requires_list
 
 
+def commarea_codec(cls: str, layout: dict, records: str, dbcs_page: str | None = None) -> Any:
+    """#4449: `toCommarea()` / `fromCommarea(byte[])` -- the COMMAREA DTO as the bytes of its layout, each field at its
+    COBOL offset, through the entities' CobolRecords (`records`: its qualified name) in the record charset -- as a
+    `methods(is_record)` callable, or None when the layout cannot be laid out exactly: its width unknown, an OCCURS
+    table, a PL/I item, an item the codec does not encode (COMP-1 / COMP-2 / POINTER, DISPLAY-1 without a code page),
+    or items that overlap (REDEFINES: which one holds the bytes is the program's choice, not the layout's).
+    fromCommarea reads the first bytes of a record at least as wide -- what a program reading the passed bytes
+    through its own record sees -- and refuses a shorter one: those bytes were never passed."""
+    from gitgalaxy.tools.cobol_to_java.cobol_to_java_repository_forge import (
+        RepositoryForge,
+        _codec_get,
+        _codec_kind,
+        _codec_put,
+    )
+
+    width = layout.get("bytes")
+    raw = layout.get("fields", [])
+    if not width or not raw or any(f.get("dialect") == "pli" or f.get("bits") is not None for f in raw):
+        return None
+    fields = RepositoryForge._fields(layout)
+    if not fields:
+        return None
+    end = 0
+    for f in sorted(fields, key=lambda f: f.offset if f.offset is not None else -1):
+        kind = _codec_kind(f) if f.offset is not None and f.bytes else None
+        if f.occurs or kind is None or (kind == "display1" and not dbcs_page) or f.offset < end:
+            return None
+        end = f.offset + f.bytes
+    if end > width:
+        return None
+
+    def q(code: str) -> str:
+        return code.replace("CobolRecords.", f"{records}.")
+
+    def methods(is_record: bool) -> list[str]:
+        store = [f"        java.nio.charset.Charset text = {records}.charset();",
+                 f"        byte[] rec = {records}.blank({width}, text);"]  # fmt: skip
+        for f in fields:
+            put = q(_codec_put(f, f.java, dbcs_page))
+            store.append(f"        {put};" if f.jtype == "String" else f"        if ({f.java} != null) {{ {put}; }}")
+        # a number left unset is stored as spaces (no digits to write), and read back as unset: never decoded
+        gets = [q(_codec_get(f, dbcs_page)) if f.jtype == "String"
+                else f"unset(rec, {f.offset}, {f.bytes}, text) ? null : {q(_codec_get(f, dbcs_page))}"
+                for f in fields]  # fmt: skip
+        if is_record:
+            load = [
+                f"        return new {cls}(",
+                *[f"                {g}," for g in gets[:-1]],
+                f"                {gets[-1]});",
+            ]
+        else:
+            load = [f"        {cls} r = new {cls}();", *[f"        r.{f.java} = {g};" for f, g in zip(fields, gets, strict=True)],
+                    "        return r;"]  # fmt: skip
+        return [
+            "",
+            f"    /** #4449: this COMMAREA as the {width} bytes of its layout -- each field at its COBOL offset, FILLER and",
+            "     *  an unset field as spaces -- in the record charset (CobolRecords.charset()). */",
+            "    public byte[] toCommarea() {",
+            *store,
+            "        return rec;",
+            "    }",
+            "",
+            f"    /** #4449: the COMMAREA these bytes are, read through this layout: the first {width} of `rec` -- what a",
+            "     *  program reading another program's record through its own sees (a number of spaces is unset: null).",
+            "     *  Fewer were never passed: refused. */",
+            f"    public static {cls} fromCommarea(byte[] rec) {{",
+            f"        if (rec.length < {width}) {{",
+            f'            throw new IllegalArgumentException(rec.length + " bytes do not fill {cls}\'s {width}-byte record");',
+            "        }",
+            f"        java.nio.charset.Charset text = {records}.charset();",
+            *load,
+            "    }",
+            "",
+            "    /** Whether `length` bytes at `offset` are all spaces: a number toCommarea left unset. */",
+            "    private static boolean unset(byte[] rec, int offset, int length, java.nio.charset.Charset text) {",
+            '        byte space = " ".getBytes(text)[0];',
+            "        for (int i = offset; i < offset + length; i++) {",
+            "            if (rec[i] != space) {",
+            "                return false;",
+            "            }",
+            "        }",
+            "        return true;",
+            "    }",
+        ]  # fmt: skip
+
+    return methods
+
+
+def _expanded_pic(pic: str | None) -> str:
+    """`X(08)` -> `XXXXXXXX`: a PICTURE as the characters it repeats, so equal pictures compare equal."""
+    p = re.sub(r"\s+", "", (pic or "").upper())
+    return re.sub(r"(.)\((\d+)\)", lambda m: m.group(1) * int(m.group(2)), p)
+
+
+def layout_partition(layout: dict) -> tuple:
+    """#4449: how a record layout cuts its bytes -- its width, and each item's offset, width, PICTURE, USAGE, SIGN and
+    OCCURS (FILLER as FILLER), names left out: two records with the same partition are the same bytes read the same
+    way, so a conversion between them by layout loses nothing."""
+    items = sorted(
+        (f.get("offset") or 0, f.get("bytes") or 0, _expanded_pic(f.get("pic")),
+         (f.get("usage") or "DISPLAY").upper(), f.get("sign"), f.get("occurs"),
+         (f.get("name") or "FILLER").upper() == "FILLER")
+        for f in layout.get("fields", [])
+    )  # fmt: skip
+    return (layout.get("bytes"), tuple(items))
+
+
 def _mismatch_text(mismatches: list) -> str:
     parts = []
     for m in mismatches:
@@ -165,6 +272,8 @@ public class CicsTask {
     private final Map<String, LocalDateTime> ownRequests = new HashMap<>();
     private String terminalInput;
     private boolean terminalRead;
+    private String terminalRest;                            // #4413: input a RECEIVE NOTRUNCATE left (the task's root)
+    private boolean endOfChain;                             // #4413: an LUTYPE2 terminal: input ends a chain (EOC)
     private TempStorage tempStorage = new TempStorage();
     private String abcode = "    ";
     private String termid;                                  // #3989: EIBTRMID (the task's root); null without one
@@ -180,6 +289,7 @@ public class CicsTask {
     private Runnable rollbackHook;                                          // how a rollback undoes (the root's)
     private final Map<String, Integer> faultSeen = new HashMap<>();
     private Object returnedArea;                                             // #4343: the level-1 RETURN's COMMAREA
+    private Integer returnedLength;                                          // #4449: its LENGTH (null: the whole record)
 
     /** `aid` is ENTER, CLEAR, PF1-PF24 or PA1-PA3; `received` maps a map name to its input screen. The
      *  COMMAREA, if any, is its whole record (as long as its DTO's layout). */
@@ -632,21 +742,74 @@ public class CicsTask {
         this.terminalRead = true;
     }
 
+    /** #4413: the terminal is an SNA 3270 display logical unit (CSD DEVICE(LUTYPE2)), not a 3270 logical unit: the
+     *  input message it sends is one chain, so the RECEIVE that returns its last byte raises EOC (IBM, EXEC CICS
+     *  RECEIVE (LUTYPE2/LUTYPE3): EOC "occurs when a request/response unit (RU) is received with end-of-chain-
+     *  indicator set"; RECEIVE (3270 logical) has no EOC). EOC's default action is to ignore it. */
+    public CicsTask withEndOfChain(boolean lutype2) {
+        this.endOfChain = lutype2;
+        return this;
+    }
+
     /** RECEIVE INTO LENGTH(maxLength) (#4005): the terminal input, unformatted, read once per task. Input
      *  longer than maxLength is truncated to it and raises LENGERR, and the length is then the input's full
      *  length (IBM, EXEC CICS RECEIVE: "the data area specified in the LENGTH option is set to the original
      *  length of data"). */
     public Received receiveText(int maxLength) {
+        return receive(maxLength, false);
+    }
+
+    /** #4413: a terminal RECEIVE [INTO | SET] [LENGTH] [MAXLENGTH] [NOTRUNCATE] (IBM, EXEC CICS RECEIVE (3270
+     *  logical) and (LUTYPE2/LUTYPE3)). `maxLength` is the most the program takes -- MAXLENGTH, else LENGTH's value,
+     *  else INTO's length; below zero, zero ("If the value specified is less than zero, zero is assumed"). Longer
+     *  input: under NOTRUNCATE the first maxLength bytes, NORMAL, the length the data returned, and "CICS retains the
+     *  remaining data and uses it to satisfy subsequent RECEIVE commands"; else truncated, LENGERR, and the length the
+     *  original one. The operator's input is read once per task: a RECEIVE with nothing retained would wait for more
+     *  input, which a task here cannot get (refused). On an LUTYPE2 terminal (withEndOfChain) the RECEIVE returning
+     *  the input's last byte raises EOC instead of NORMAL; whether one that leaves data retained does is not
+     *  documented, and is refused. */
+    public Received receive(int maxLength, boolean notruncate) {
         CicsTask task = root();  // the terminal is the task's, whichever level reads it
-        if (task.terminalRead) {
+        String text;
+        if (task.terminalRest != null) {
+            text = task.terminalRest;
+            task.terminalRest = null;
+        } else if (task.terminalRead) {
             throw new IllegalStateException("a second terminal RECEIVE waits for more input from the operator");
+        } else {
+            task.terminalRead = true;
+            text = task.terminalInput == null ? "" : task.terminalInput;
         }
-        task.terminalRead = true;
-        String text = task.terminalInput == null ? "" : task.terminalInput;
-        String data = text.length() > maxLength ? text.substring(0, Math.max(maxLength, 0)) : text;
-        String resp = text.length() > maxLength ? "LENGERR" : "NORMAL";
-        event("RECEIVE", "resp", resp, "length", text.length(), "data", data);
-        return new Received(resp, text.length(), data);
+        int max = Math.max(maxLength, 0);
+        String data = text.length() > max ? text.substring(0, max) : text;
+        String resp;
+        int length;
+        if (text.length() > max && notruncate) {
+            if (task.endOfChain) {
+                throw new IllegalStateException("RECEIVE NOTRUNCATE on an LUTYPE2 terminal leaving data retained: "
+                        + "whether it raises EOC is not documented");
+            }
+            task.terminalRest = text.substring(max);
+            resp = "NORMAL";
+            length = max;
+        } else if (text.length() > max) {
+            resp = "LENGERR";
+            length = text.length();
+        } else {
+            resp = task.endOfChain ? "EOC" : "NORMAL";
+            length = text.length();
+        }
+        event("RECEIVE", "resp", resp, "length", length, "data", data);
+        return new Received(resp, length, data);
+    }
+
+    /** #4413: SEND CONTROL with its options (ERASE, ERASEAUP, FREEKB, ALARM, FRSET; CURSOR with `cursor`, its
+     *  offset, else null). It sends device controls only; none of its conditions (IBM, EXEC CICS SEND CONTROL:
+     *  INVREQ for a BMS logical message, partitions, LDCs, SET / PAGING) can arise for a task's plain terminal. */
+    public void sendControl(Integer cursor, String... options) {
+        List<String> opts = new ArrayList<>(List.of(options));
+        Collections.sort(opts);
+        event("SEND-CONTROL", "options", opts, "cursor", cursor);
     }
 
     /** A terminal RECEIVE's outcome: its condition, the LENGTH it sets, and the data it moved INTO. */
@@ -1334,19 +1497,46 @@ public class CicsTask {
             event("RETURN", "transid", transid, "commarea", snapshot.apply(commarea), "length",
                     commarea == null ? null : length);
             root().returnedArea = commarea;
+            root().returnedLength = commarea == null ? null : length;
         }
         ended = true;
     }
 
     /** The COMMAREA the task's level-1 RETURN passed on (#4343: what handleTransaction answers), as `type`; null when
-     *  the task RETURNed none, or has not RETURNed. A COMMAREA of another class is refused, never converted. */
+     *  the task RETURNed none, or has not RETURNed. A COMMAREA of another class is converted by layout (#4449) when
+     *  both are laid out as bytes (the generator writes toCommarea / fromCommarea into the DTOs a facade converts
+     *  between): the bytes passed -- the record's, or its first LENGTH -- read through `type`, as the program reading
+     *  them through its own record sees them. Anything else is refused, never guessed: a class with no layout, or
+     *  fewer bytes than `type`'s record (never passed). */
     public <T> T returned(Class<T> type) {
         Object area = root().returnedArea;
-        if (area != null && !type.isInstance(area)) {
-            throw new IllegalStateException("the task RETURNed a " + area.getClass().getName() + ", not a "
-                    + type.getName());
+        if (area == null || type.isInstance(area)) {
+            return type.cast(area);
         }
-        return type.cast(area);
+        String refused = "the task RETURNed a " + area.getClass().getName() + ", not a " + type.getName();
+        java.lang.reflect.Method to;
+        java.lang.reflect.Method from;
+        try {
+            to = area.getClass().getMethod("toCommarea");
+            from = type.getMethod("fromCommarea", byte[].class);
+        } catch (NoSuchMethodException e) {
+            throw new IllegalStateException(refused + " (no layout converts one into the other)");
+        }
+        if (to.getReturnType() != byte[].class || !java.lang.reflect.Modifier.isStatic(from.getModifiers())) {
+            throw new IllegalStateException(refused + " (no layout converts one into the other)");
+        }
+        try {
+            byte[] bytes = (byte[]) to.invoke(area);
+            Integer length = root().returnedLength;
+            if (length != null && length < bytes.length) {
+                bytes = Arrays.copyOf(bytes, Math.max(length, 0));
+            }
+            return type.cast(from.invoke(null, (Object) bytes));
+        } catch (java.lang.reflect.InvocationTargetException e) {
+            throw new IllegalStateException(refused + ": " + e.getCause().getMessage(), e.getCause());
+        } catch (IllegalAccessException e) {
+            throw new IllegalStateException(refused, e);
+        }
     }
 
     // ---- #4343: the region a program's deployed entry points run their task in -----------------------------------
@@ -1729,6 +1919,7 @@ class CicsProgram:
     txn_request: str | None = None
     txn_response: str | None = None
     crossings: list[str] = field(default_factory=list)  # the RETURN TRANSID flows that cross, as sentences
+    txn_converts: list[str] = field(default_factory=list)  # #4449: the other DTOs txn_response is converted from
 
 
 def incoming_links(skeleton: dict) -> list[dict]:
@@ -1786,7 +1977,11 @@ class CicsForge:
         self._file_cls = {sk["program"]["file"]: java_class_base(key) for key, sk in skeletons.items()}
         self.dtos: dict[str, Dto] = {}
         self._by_signature: dict[tuple, str] = {}
+        self._shape: dict[str, tuple] = {}  # DTO name -> (bytes, field count) of the layout it was made from
+        self._codecs: dict[str, Any] = {}  # #4449: DTO name -> its layout codec (toCommarea / fromCommarea)
+        self._partition: dict[str, tuple] = {}  # #4449: DTO name -> how its layout cuts its bytes (layout_partition)
         self.programs = {key: self._plan(key, sk) for key, sk in sorted(skeletons.items()) if is_cics_program(sk)}
+        self._plan_opaque_commareas()
         self._plan_conversations()
 
     # ---- DTOs ---------------------------------------------------------------
@@ -1827,8 +2022,14 @@ class CicsForge:
             for f in layout.get("fields", [])
             if f.get("name") and f.get("name").upper() != "FILLER"
         ]
+        records = f"{self.package}.entity.vsam.CobolRecords"
+        codec = commarea_codec(name, layout, records, getattr(self.target.data, "dbcs_code_page", None))  # #4449
         self.dtos[name] = Dto(name, javadoc, body, requires_list, [use] if use else [], facts=dto_facts)
+        if codec is not None:  # written only into the DTOs a facade converts between (_plan_conversations)
+            self._codecs[name] = codec
+            self._partition[name] = layout_partition(layout)
         self._by_signature[signature] = name
+        self._shape[name] = (layout.get("bytes"), len(layout.get("fields", [])))
         return name
 
     def _record_doc(self, record: str, file: str, layout: dict, status: str) -> list[str]:
@@ -1977,6 +2178,104 @@ class CicsForge:
                 prog.channel_out = name
         return prog
 
+    @staticmethod
+    def _returns_to_itself(prog: CicsProgram, row: dict) -> bool:
+        """#4464: a RETURN TRANSID naming one of the program's own transactions re-enters the program -- also when
+        the engine leaves the flow's callee unresolved because the estate maps that transaction id ambiguously
+        (CardDemo's CSD pairs CC00 with COCRDLIC through a DEFINE PROGRAM ... TRANSID besides its TRANSACTION)."""
+        return (row.get("verb") == "RETURN TRANSID" and row.get("caller") == prog.path
+                and row.get("callee") in (None, prog.path)
+                and row.get("target") in {t["transid"] for t in prog.transactions})  # fmt: skip
+
+    def _flow_callee(self, by_file: dict[str, CicsProgram], row: dict) -> str | None:
+        """The program a contract row reaches: its resolved callee, else the sender when it RETURNs to its own
+        transaction (#4464)."""
+        sender = by_file.get(row.get("caller", ""))
+        if not row.get("callee") and sender is not None and self._returns_to_itself(sender, row):
+            return sender.path
+        return row.get("callee")
+
+    @staticmethod
+    def _opaque_dfhcommarea(prog: CicsProgram) -> dict | None:
+        """The program's LINKAGE DFHCOMMAREA when it is an opaque byte area -- one alphanumeric item, typically
+        `PIC X OCCURS 1 TO n DEPENDING ON EIBCALEN` -- else None: such an area has no record of its own."""
+        for rec in (prog.sections.get("records") or {}).get("facts", []):
+            if (
+                rec.get("section") != "LINKAGE"
+                or rec.get("level") != 1
+                or str(rec.get("name")).upper() != "DFHCOMMAREA"
+            ):
+                continue
+            leaves, todo = [], [rec]
+            while todo:
+                item = todo.pop()
+                kids = [k for k in item.get("children") or [] if k.get("level") not in (66, 88)]
+                if kids:
+                    todo += kids
+                elif item.get("pic"):
+                    leaves.append(item)
+            if len(leaves) == 1 and re.fullmatch(r"X+(\(\d+\))?", str(leaves[0]["pic"]).upper().replace(" ", "")):
+                return rec
+            return None
+        return None
+
+    def _plan_opaque_commareas(self) -> None:
+        """#4464: a program whose DFHCOMMAREA is opaque (`PIC X OCCURS ... DEPENDING ON EIBCALEN`) still receives a
+        COMMAREA: whatever the flows into it pass. The engine pairs none when no resolved LINK / XCTL / RETURN TRANSID
+        reaches it (CardDemo's COSGN00C: every XCTL to it is data-driven, and its RETURN TRANSID(CC00) to itself is
+        unresolved), so its facade took none and every re-entry was refused. Here the COMMAREA is the record those
+        flows pass: the program's RETURN TRANSID to its own transactions (what its next task starts with) and any
+        resolved LINK / XCTL / RETURN TRANSID reaching it, as the estate's DTO for that record (name, file, width,
+        field count). Data-driven sites into it name a record too (`inbound` passes): one naming another record is
+        a conflict. Where the flows disagree, or no single DTO carries the record, the gap says so by name."""
+        for prog in self.programs.values():
+            if prog.commarea_dto or prog.channel_in or prog.channel_out:
+                continue
+            area = self._opaque_dfhcommarea(prog)
+            if area is None:
+                continue
+            records: dict[tuple, list[dict]] = {}
+            for r in (prog.sections.get("commarea_contracts") or {}).get("facts", []):
+                rec = r.get("caller_record") or {}
+                if not rec.get("name") or not (self._returns_to_itself(prog, r) or r.get("callee") == prog.path):
+                    continue
+                key = (str(rec["name"]).upper(), rec.get("file"), rec.get("bytes"), rec.get("fields"))
+                records.setdefault(key, []).append(r)
+            if not records:
+                continue
+            sites = {k: ", ".join(f"{r['verb']} at {r['caller']}:{r['line']}" for r in rows)
+                     for k, rows in records.items()}  # fmt: skip
+            if len(records) > 1:
+                passed = "; ".join(f"{k[0]} ({k[1]}, {k[2]} bytes) by {sites[k]}" for k in sorted(records, key=str))
+                prog.commarea_gap = (
+                    f"DFHCOMMAREA is opaque and the flows into this program pass different records: {passed}"
+                )
+                continue
+            (key,) = records
+            name, file, width, count = key
+            others = sorted({str(i["passes"]).upper() for i in ((prog.sections.get("interface") or {}).get("facts") or {})
+                             .get("inbound", []) if i.get("passes")} - {name})  # fmt: skip
+            if others:
+                prog.commarea_gap = (f"DFHCOMMAREA is opaque; {sites[key]} pass{'es' if len(records[key]) == 1 else ''} "
+                                     f"{name} ({file}), but data-driven sites into it pass {', '.join(others)}")  # fmt: skip
+                continue
+            dtos = sorted(n for sig, n in self._by_signature.items()
+                          if (sig[0].upper(), sig[1]) == (name, file) and self._shape.get(n) == (width, count))  # fmt: skip
+            if len(dtos) != 1:
+                why = f"several DTOs carry it ({', '.join(dtos)})" if dtos else "no program's COMMAREA DTO carries it"
+                prog.commarea_gap = (f"DFHCOMMAREA is opaque; {sites[key]} pass{'es' if len(records[key]) == 1 else ''} "
+                                     f"{name} ({file}, {width} bytes), but {why}")  # fmt: skip
+                continue
+            prog.commarea_dto = dtos[0]
+            prog.commarea = {"record": name, "file": file, "basis": "flow_record", "bytes": width, "alternatives": [],
+                             "sources": [{"caller": r["caller"], "line": r["line"], "verb": r["verb"]}
+                                         for r in records[key]]}  # fmt: skip
+            prog.commarea_gap = None
+            self.dtos[dtos[0]].uses.append(
+                f"The COMMAREA {prog.cls} receives through its opaque DFHCOMMAREA (line {area.get('line')}), as "
+                f"passed by {sites[key]}."
+            )
+
     def _plan_conversations(self) -> None:
         """#4427: the COMMAREA a pseudo-conversation carries across programs. `RETURN TRANSID(t) COMMAREA(ws)` starts
         the next task in whichever program owns `t`, and that program reads the same bytes through its own record:
@@ -1986,7 +2285,9 @@ class CicsForge:
         transactions presents no other class, and answers with it only when every RETURN TRANSID its task can end in
         does the same -- its own, and those of every program an XCTL chain from it reaches (an XCTL keeps the task);
         otherwise that side is Object -- the COMMAREA as whichever record the port passed, read by runTask
-        through task.commarea(..). The flows are the skeleton's commarea_contracts rows (verb RETURN TRANSID)."""
+        through task.commarea(..). #4449: the answer keeps the program's own DTO where every other record its task can
+        RETURN cuts the bytes as its own does (_reads_through): task.returned converts it by layout, losing nothing.
+        The flows are the skeleton's commarea_contracts rows (verb RETURN TRANSID)."""
         by_file = {p.path: p for p in self.programs.values()}
         record_dtos: dict[tuple[str, str], set[str]] = {}
         for sig, name in self._by_signature.items():
@@ -1994,7 +2295,7 @@ class CicsForge:
 
         def classes(row: dict) -> set[str | None]:
             sender, receiver = by_file.get(row.get("caller", "")), by_file.get(row.get("callee", ""))
-            if sender is not None and sender is receiver:  # a program RETURNing to itself: its own record
+            if sender is not None and (sender is receiver or self._returns_to_itself(sender, row)):  # its own record
                 return {sender.commarea_dto}
             # the sender presents its record as its own COMMAREA DTO when that is one of the record's DTOs, else as
             # the record's only DTO; a record with several DTOs (extended copies) and no planned sender: unknown
@@ -2036,22 +2337,43 @@ class CicsForge:
             if not own or not prog.transactions:
                 continue
             ends = task_programs(prog.path)
-            sides = (("in", "txn_request", [r for r in flows if r.get("callee") == prog.path]),
+            sides = (("in", "txn_request", [r for r in flows if r.get("callee") == prog.path
+                                             or self._returns_to_itself(prog, r)]),
                      ("out", "txn_response", [r for r in flows if r.get("caller") in ends]))  # fmt: skip
             for side, attr, rows in sides:
-                for r in rows:
-                    seen = classes(r)
-                    if seen == {own}:
-                        continue
+                crossed = [(r, classes(r)) for r in rows]
+                crossed = [(r, seen) for r, seen in crossed if seen != {own}]
+                if not crossed:
+                    continue
+                # #4449: the answer stays the program's own DTO when every other record its task can RETURN reads
+                # through it by layout (task.returned converts); else Object, as #4427 has it
+                if side == "out" and all(self._reads_through(own, seen - {own}) for _, seen in crossed):
+                    prog.txn_converts = sorted({c for _, seen in crossed for c in seen if c is not None and c != own})
+                else:
                     setattr(prog, attr, "Object")
+                for r, seen in crossed:
                     rec = (r.get("caller_record") or {}).get("name") or r.get("commarea") or "a COMMAREA"
                     other = sorted(c for c in seen if c and c != own)
                     as_ = f" ({', '.join(other)} besides {own})" if other else f" (no DTO besides {own})"
                     via = "" if side == "in" or r.get("caller") == prog.path else f", after an XCTL from {prog.path}"
                     line = (f"{side}: RETURN TRANSID({r.get('target')}) COMMAREA({rec}) at {r.get('caller')}:"
-                            f"{r.get('line')} -> {r.get('callee') or 'a program the estate does not resolve'}{via}{as_}")  # fmt: skip
+                            f"{r.get('line')} -> {self._flow_callee(by_file, r) or 'a program the estate does not resolve'}"
+                            f"{via}{as_}")  # fmt: skip
                     if line not in prog.crossings:
                         prog.crossings.append(line)
+        for prog in self.programs.values():  # #4449: the codecs task.returned converts with, in both DTOs
+            if prog.txn_converts and prog.txn_response:
+                for name in (prog.txn_response, *prog.txn_converts):
+                    self.dtos[name].methods = self._codecs[name]
+
+    def _reads_through(self, own: str, others: set[str | None]) -> bool:
+        """#4449: whether every record in `others` reads through `own` with no byte lost: both laid out exactly as
+        bytes (commarea_codec), cut the same way (layout_partition: the same width, and each item at the same offset,
+        width, PICTURE and USAGE) -- the same COMMAREA under another program's names. A record of another width or
+        cut would be truncated, padded, or have bytes that are not a number decoded as one: those stay Object."""
+        mine = self._partition.get(own)
+        return mine is not None and bool(others) and all(o is not None and self._partition.get(o) == mine
+                                                          for o in others)  # fmt: skip
 
     # ---- Java ---------------------------------------------------------------
     def dto_sources(self) -> dict[str, str]:
@@ -2351,10 +2673,18 @@ class CicsForge:
             # #4427: the COMMAREA the estate's RETURN TRANSID flows carry -- Object where one crosses programs
             treq, tresp = (prog.txn_request, prog.txn_response) if resp == req and req else (req, None)
             params = "String transid" + (f", {treq} request" if treq else "")
+            converts = [
+                f"     *  It answers {tresp} all the same (#4449): the other records a task of it can RETURN",
+                f"     *  ({', '.join(prog.txn_converts)}) cut their bytes as {tresp} does, so task.returned converts",
+                "     *  them by layout and loses nothing.",
+            ] if prog.txn_converts and tresp else []  # fmt: skip
+            carried = [
+                "     *  own record, so a port may pass either record -- the facade carries it as Object where a flow",
+                "     *  presents another class, and runTask reads it (task.commarea(..))." + ("" if converts else " The flows:"),
+            ] if "Object" in (treq, tresp) else ["     *  own record."]  # fmt: skip
             crossing = [
                 "     *  The COMMAREA crosses programs (#4427): COBOL passes bytes, and each program reads them through its",
-                "     *  own record, so a port may pass either record -- the facade carries it as Object where a flow",
-                "     *  presents another class, and runTask reads it (task.commarea(..)). The flows:",
+                *carried, *converts, *(["     *  The flows:"] if converts else []),
                 *[f"     *  {c}." for c in prog.crossings],
             ] if prog.crossings else []  # fmt: skip
             methods += [

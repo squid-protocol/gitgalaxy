@@ -33,7 +33,7 @@ SYSIN_MEMBER = """\
  DEFINE DB2TRAN(DB2T) GROUP(BANK) TRANSID(XXXX) ENTRY(BANKENT)
 """
 
-# An autoinstall pairing declared from the program's side, plus inline JCL framing.
+# A DEFINE PROGRAM's TRANSID is the remote-DPL mirror attribute, not a route (#4503), plus inline JCL framing.
 INLINE_JCL = """\
 //CSDUP    EXEC PGM=DFHCSDUP,REGION=0M
 //SYSIN    DD *
@@ -54,9 +54,9 @@ def test_sysin_member_and_db2tran_excluded():
     assert _deck_transactions(SYSIN_MEMBER) == [("OCCS", "BNK1CCS")]
 
 
-def test_inline_jcl_autoinstall_pairing_and_comment_skipped():
+def test_inline_jcl_program_transid_is_not_a_route_and_comment_skipped():
     pairs = _deck_transactions(INLINE_JCL)
-    assert ("CC00", "COSGN00C") in pairs  # DEFINE PROGRAM ... TRANSID autoinstall
+    assert pairs == [("CAUP", "COACTUPC")]  # #4503: DEFINE PROGRAM ... TRANSID routes nothing
     assert ("CAUP", "COACTUPC") in pairs
     assert not any(t == "ZZZZ" for t, _ in pairs)  # `*`-commented DEFINE skipped
 
@@ -73,6 +73,6 @@ def test_extract_transactions_over_a_repo(tmp_path: Path):
     by_program = extract_transactions(tmp_path)
     assert by_program["BNK1CRA"] == {"OCRA"}
     assert by_program["BNK1CCS"] == {"OCCS"}
-    assert by_program["COSGN00C"] == {"CC00"}
+    assert "COSGN00C" not in by_program  # its only CSD link is a DEFINE PROGRAM TRANSID (#4503)
     assert by_program["COACTUPC"] == {"CAUP"}
     assert "X" not in by_program  # the non-DFHCSDUP JCL contributed nothing

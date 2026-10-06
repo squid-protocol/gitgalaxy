@@ -1,0 +1,45 @@
+{
+  "corpus": "aws-mainframe-modernization-carddemo",
+  "program": "CBTRN02C",
+  "program_source": "app/cbl/CBTRN02C.cbl",
+  "copy_dirs": ["app/cpy"],
+  "port_from": "carddemo-posttran",
+  "job": "POSTTRAN",
+  "step": "STEP15",
+  "parm": null,
+  "clock": "2022/07/18 10:30:15.00",
+  "datasets": {
+    "ACCTFILE": {
+      "input": "@generate", "organization": "indexed", "reclen": 300, "keys": [{"offset": 0, "length": 11}],
+      "entity": "AccountRecord", "compare": true, "copybook": "app/cpy/CVACT01Y.cpy",
+      "generate": {"copybook": "app/cpy/CVACT01Y.cpy", "record": "ACCOUNT-RECORD", "records": 30, "seed": 3804}
+    },
+    "XREFFILE": {
+      "input": "@generate", "organization": "indexed", "reclen": 50, "keys": [{"offset": 0, "length": 16}],
+      "entity": "CardXrefRecord",
+      "generate": {"copybook": "app/cpy/CVACT03Y.cpy", "record": "CARD-XREF-RECORD", "records": 30, "seed": 3804,
+                   "fields": {"XREF-ACCT-ID": {"from": "ACCTFILE.ACCT-ID", "miss": 0.25}}}
+    },
+    "TCATBALF": {
+      "input": "@generate", "organization": "indexed", "reclen": 50, "keys": [{"offset": 0, "length": 17}],
+      "entity": "FdTranCatBalRecord", "compare": true, "copybook": "app/cpy/CVTRA01Y.cpy",
+      "generate": {"copybook": "app/cpy/CVTRA01Y.cpy", "record": "TRAN-CAT-BAL-RECORD", "records": 20, "seed": 3804,
+                   "fields": {"TRANCAT-ACCT-ID": {"from": "XREFFILE.XREF-ACCT-ID"},
+                              "TRANCAT-TYPE-CD": {"values": ["01", "02"]},
+                              "TRANCAT-CD": {"values": [1, 2, 3], "every": 2}}}
+    },
+    "DALYTRAN": {
+      "input": "@generate", "organization": "sequential", "reclen": 350, "keys": [{"offset": 0, "length": 16}],
+      "generate": {"copybook": "app/cpy/CVTRA06Y.cpy", "record": "DALYTRAN-RECORD", "records": 100, "seed": 3804,
+                   "fields": {"DALYTRAN-CARD-NUM": {"from": "XREFFILE.XREF-CARD-NUM", "miss": 0.1},
+                              "DALYTRAN-TYPE-CD": {"values": ["01", "02"]},
+                              "DALYTRAN-CAT-CD": {"values": [1, 2, 3], "every": 2},
+                              "DALYTRAN-ORIG-TS": {"date": "YYYY-MM-DD 10:00:00.000000"}}}
+    },
+    "TRANFILE": {"organization": "indexed", "reclen": 350, "keys": [{"offset": 0, "length": 16}],
+                 "entity": "TranRecord", "compare": true, "copybook": "app/cpy/CVTRA05Y.cpy"},
+    "DALYREJS": {"organization": "sequential", "reclen": 430, "compare": true,
+                 "copybook": "app/cbl/CBTRN02C.cbl", "record": "FD-REJS-RECORD"}
+  },
+  "notes": "CBTRN02C on GENERATED inputs (#3804), proving the carddemo-posttran port on data it was not written against: accounts with edge-case balances, limits and expiry dates, card cross-references (a quarter pointing at an account that is not on file: reject 101), daily transactions whose card number sometimes misses the cross-reference (reject 100) and whose amounts are the PICTURE's edge values (overlimit, reject 102) against random origination dates (after expiry, reject 103), and category balances for some of the type / category pairs the transactions use, so the create and update paths both run. Derived from CardDemo (Apache-2.0; Copyright Amazon.com, Inc. or its affiliates): LICENSE and NOTICE here are the source's own."
+}

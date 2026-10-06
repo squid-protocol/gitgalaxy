@@ -38,6 +38,7 @@ from gitgalaxy.core.invocation_resolver import resolve_invocations, resolve_tran
 from gitgalaxy.core.mainframe_boundary import extract_boundary
 from gitgalaxy.core.network_risk_sensor import CASE_INSENSITIVE_IMPORT_LANGS, NetworkRiskSensor
 from gitgalaxy.core.prism import Prism
+from gitgalaxy.core.rust_modules import enclosing_modules, inline_module_spans, rescope_to_file
 from gitgalaxy.core.source_text import parse_source_encoding, read_source, resolve_declared_encoding
 from gitgalaxy.core.spatial_correlation import correlate_against_ledger
 from gitgalaxy.core.spatial_mapper import SpatialMapper
@@ -361,7 +362,18 @@ def extract_raw_imports(import_regex: "re.Pattern[str]", content: str, lang_def:
         content = re.sub(blank, lambda m: re.sub(r"[^\n]", " ", m.group()), content)
     relative_groups = lang_def.get("relative_import_groups")
     local_group = lang_def.get("local_module_capture_group")
+    path_group = lang_def.get("module_path_capture_group")
+    # #4544: Rust `mod tests { use super::*; }` -- a `self::`/`super::` path inside an
+    # inline module is rewritten relative to the file (core/rust_modules.py).
+    inline_spans = inline_module_spans(content) if lang_def.get("inline_module_scopes") else []
     for match in import_regex.finditer(content):
+        # #4544: a module whose FILE the source names (Rust `#[path = "x.rs"] mod m;`),
+        # relative to the declaring file's directory: `./x.rs`, or `../x.rs` as written.
+        if path_group and match.group(path_group):
+            module_path = match.group(path_group).strip().replace("\\", "/")
+            if module_path and not module_path.startswith("/"):
+                tokens.add(module_path if module_path.startswith(("./", "../")) else "./" + module_path)
+            continue
         if local_group and match.group(local_group):
             tokens.add("./" + match.group(local_group).strip())
             continue
@@ -386,9 +398,12 @@ def extract_raw_imports(import_regex: "re.Pattern[str]", content: str, lang_def:
                     for item in extracted_path.replace("{", "").replace("}", "").split(",")
                 ]
             quote = lang_def.get("import_name_quote")
+            inline_path = enclosing_modules(inline_spans, match.start()) if inline_spans else []
             for item in items:
                 if quote:
                     item = item.replace(quote, "")
+                if inline_path:
+                    item = rescope_to_file(item, inline_path)
                 if item:
                     tokens.add(item)
     return tokens

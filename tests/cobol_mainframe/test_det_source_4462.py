@@ -98,7 +98,8 @@ def test_engine_copies_carry_the_pages_from_the_ir_and_the_port_ticket(tmp_path)
         # estate-crucible KYUYJP (UTF-8): a Kanji name -- it raised UnicodeEncodeError from layout.parse / stmt.parse
         (("01  社員コード PIC X(6).", "PROCEDURE DIVISION.", "    MOVE '000001' TO 社員コード", "    GOBACK."),
          r"PROG\.cbl:5: national / DBCS text \('社', U\+793E\) is not modelled"),
-        (("01  F02 PIC X.", "PROCEDURE DIVISION.", "    MOVE '漢字' TO F02", "    GOBACK."),
+        # a national literal (#4272; an alphanumeric one is a statement hole: test_det_translate, #4272)
+        (("01  F02 PIC X.", "PROCEDURE DIVISION.", "    MOVE N'漢字' TO F02", "    GOBACK."),
          r"PROG\.cbl:7: national / DBCS text"),
         (("01　F02 PIC X.", "PROCEDURE DIVISION.", "    GOBACK."), r"U\+3000"),  # an ideographic space
         # ZINSBER read in cp273: a national letter in a name the grammar cannot read (it refused the line unnamed)

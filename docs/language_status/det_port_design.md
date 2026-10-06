@@ -397,7 +397,10 @@ Only generator output, never a test case:
   in a name or a literal (estate-crucible KYUY: Kanji names, PIC G, ideographic spaces; KYUYJP had raised
   UnicodeEncodeError), because the translator lays records out and hands the grammar its text one byte a character;
   a national letter in a name (`BETRÄGE`: the grammar reads ASCII words only); DECIMAL-POINT IS COMMA (`1000,00`,
-  `0,5` must never be read as integers). A national letter inside a literal or a comment is read. Still refused, with
+  `0,5` must never be read as integers). A national letter inside a literal or a comment is read. #4272: a character
+  beyond Latin-1 in a `*>` comment is read, and one inside a PROCEDURE DIVISION alphanumeric literal (a UTF-8 em
+  dash in a message) makes only its statement a hole by name (`source.narrowed`, gen.WIDE_WHY; oracle_assumptions D4:
+  its bytes and length are the source transfer's, not COBOL's), not the program. Still refused, with
   a cause in the cross-check ledger: several programs in one source (PAYMAIN), IDMS (LNIDMS01), and the grammar gaps
   the ledger lists (`translator-refuses-grammar`). `PROGRAM-ID LNCALC.` without its period is read since #4523
   (`source.logical_lines` puts the period back, as Enterprise COBOL tolerates it). DECIMAL-POINT IS COMMA stays

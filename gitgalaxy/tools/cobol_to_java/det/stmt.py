@@ -21,6 +21,7 @@ from gitgalaxy.tools.cobol_to_java.det.source import (
     as_fixed_rows,
     cobol_parser,
     cut_literal,
+    narrowed,
     several_programs,
     unmodelled,
     unwrap,
@@ -77,6 +78,7 @@ def parse(lines: list[Line]) -> Procedure:
     why = unmodelled(lines) or several_programs(lines) or cut_literal(lines)
     if why:
         raise E.ExprError(why)
+    lines = narrowed(lines)  # #4272: a wide character in a `*>` comment / a PROCEDURE DIVISION literal
     text, rows = as_fixed_rows(lines)
     m = re.search(r"^ {7}\s*PROCEDURE\s+DIVISION\b[^.]*\.", text, re.I | re.M)
     if not m:

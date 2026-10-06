@@ -1759,3 +1759,97 @@ def test_a_linked_programs_commarea_goes_back_to_its_caller_when_an_abend_ends_i
     cond = r.java[r.java.index("private int condition(String cond)") :]
     assert "if (label == null) {\n            throw abended();" in cond[: cond.index("\n    }\n")]
     assert "throw abended();" in r.java[r.java.index("task.abend(") :]
+
+
+# ---- #4272 / #4462: a character beyond the single-byte code page in a PROCEDURE DIVISION literal ----------------
+_WIDE_WHY = "an alphanumeric literal holds a character beyond the single-byte code page"
+
+
+def _wide_program(tmp_path, proc: list[str], data: tuple[str, ...] = ()) -> Path:
+    (tmp_path / "TW.cbl").write_text(
+        "".join(
+            f"       {t}\n"
+            for t in (
+                "IDENTIFICATION DIVISION.",
+                "PROGRAM-ID. TW.",
+                "DATA DIVISION.",
+                "WORKING-STORAGE SECTION.",
+                "01  WS-MSG                PIC X(40) VALUE SPACES.",
+                "01  WS-F                  PIC X VALUE 'Y'.",
+                *data,
+                "PROCEDURE DIVISION.",
+                "MAIN-PARA.",
+                *proc,
+            )
+        ),
+        encoding="utf-8",
+    )
+    (tmp_path / "proj/src/main/java/com/x").mkdir(parents=True, exist_ok=True)
+    return tmp_path / "TW.cbl"
+
+
+def _tw_stub() -> str:
+    return "package com.x.service;\nimport com.x.cics.CicsTask;\npublic class TWService {\n" \
+           "    public void runTask(CicsTask task) {}\n}\n"  # fmt: skip
+
+
+def test_an_em_dash_in_a_procedure_literal_is_a_hole_by_name_not_a_refused_program(tmp_path):
+    """A UTF-8 em dash (U+2014) in `MOVE '... \u2014 ...' TO WS-MSG` (a census estate's CICS messages): no single-byte code
+    page holds it, so the literal's bytes and length are what the source's transfer to the compiler made of it
+    (a substitute byte, or its three UTF-8 bytes), not what COBOL says. The statement is a hole naming why; the rest of
+    the program translates (it had refused the whole program before the parser). The literal never reaches Java."""
+    pytest.importorskip("tree_sitter_language_pack")
+    from gitgalaxy.tools.cobol_to_java.det import program as P
+
+    prog = _wide_program(tmp_path, [
+        "    IF WS-F = 'Y'", "        MOVE 'Conto bloccato \u2014 operazione negata' TO WS-MSG",
+        "    END-IF", "    EVALUATE WS-MSG", "        WHEN 'A \u2014 B'", "            MOVE 'N' TO WS-F",
+        "        WHEN OTHER", "            MOVE 'Y' TO WS-F", "    END-EVALUATE",
+        "    MOVE 'plain' TO WS-MSG", "    EXEC CICS RETURN END-EXEC."])  # fmt: skip
+    r = P.translate(prog, [], _tw_stub(), "com.x", {}, tmp_path / "proj")
+    holes = r.stats["holes"]
+    assert len(holes) == 2 and all(_WIDE_WHY in h for h in holes), holes
+    assert holes[0].startswith("line 10: MOVE ") and holes[1].startswith("line 12: EVALUATE ")
+    # IF, MOVE (hole), EVALUATE (hole: a WHEN holds the literal), MOVE 'plain', EXEC CICS RETURN
+    assert (r.stats["statements"], r.stats["translated"]) == (5, 3)
+    assert "\\u001d" not in r.java and "\x1d" not in r.java and "\\u2014" not in r.java
+
+
+@pytest.mark.parametrize(
+    "data, proc, why",
+    [
+        # a VALUE lays the record out: its bytes are the program's storage
+        (("01  WS-T PIC X(8) VALUE 'A \u2014 B'.",), ["    GOBACK."], "national / DBCS text"),
+        # a national / DBCS literal stays refused by name (#4272): national data is not modelled
+        ((), ["    MOVE N'\u6f22\u5b57' TO WS-MSG", "    GOBACK."], "national / DBCS text"),
+        ((), ["    MOVE G'\u6f22\u5b57' TO WS-MSG", "    GOBACK."], "national / DBCS text"),
+        # outside a literal: a name
+        ((), ["    MOVE 'A' TO WS-\u6f22", "    GOBACK."], "national / DBCS text"),
+    ],
+)  # fmt: skip
+def test_wide_text_outside_a_procedure_alphanumeric_literal_is_still_refused_whole(tmp_path, data, proc, why):
+    pytest.importorskip("tree_sitter_language_pack")
+    from gitgalaxy.tools.cobol_to_java.det import program as P
+    from gitgalaxy.tools.cobol_to_java.det.source import logical_lines, unmodelled
+
+    prog = _wide_program(tmp_path, proc, data)
+    assert why in (unmodelled(logical_lines(prog.read_text(encoding="utf-8").splitlines(), str(prog))) or "")
+    with pytest.raises(Exception, match=why):
+        P.translate(prog, [], _tw_stub(), "com.x", {}, tmp_path / "proj")
+
+
+def test_an_em_dash_in_an_inline_comment_is_read(tmp_path):
+    pytest.importorskip("tree_sitter_language_pack")
+    from gitgalaxy.tools.cobol_to_java.det import program as P
+
+    # (a fixed-format `*>` comment in the PROCEDURE DIVISION is a hole of its own, wide or not: the statement grammar)
+    prog = _wide_program(tmp_path, ["    MOVE 'A' TO WS-F", "    EXEC CICS RETURN END-EXEC."],
+                         ("01  WS-T PIC X(8) VALUE 'AB'.  *> s\u00ec \u2014 note",))  # fmt: skip
+    r = P.translate(prog, [], _tw_stub(), "com.x", {}, tmp_path / "proj")
+    assert (r.stats["statements"], r.stats["translated"], r.stats["holes"]) == (2, 2, [])
+
+
+def test_the_wide_literal_stand_in_is_refused_by_name_in_the_source():
+    from gitgalaxy.tools.cobol_to_java.det import source as SRC
+
+    assert "U+001D" in SRC.unmodelled(_lines([f"    MOVE 'A{SRC.WIDE}B' TO A."]))

@@ -284,6 +284,9 @@ QQ = "\x1e"
 # #4462: a hexadecimal literal on a re-wrapped line, as the grammar is handed it: `"<HX>C1C2"` (an alphanumeric literal,
 # which it continues onto the next row; it continues no X"..."), restored to X"C1C2" by `unwrap`
 HX = "\x1f"
+# #4272: a character beyond Latin-1 inside a PROCEDURE DIVISION alphanumeric literal, as the grammar is handed it
+# (`narrowed`): the statement holding it is a hole by name (gen.WIDE_WHY), never translated
+WIDE = "\x1d"
 
 
 _DECIMAL_COMMA = re.compile(r"\bDECIMAL-POINT\s+(?:IS\s+)?COMMA\b", re.I)
@@ -321,26 +324,32 @@ def unmodelled(lines: list[Line]) -> str | None:
       READY, OBTAIN CALC, FINISH, DC RETURN) and subschema records are not modelled, so the program is refused by name
       (#4532 tracks IDMS support), never parsed as COBOL with holes.
     - #4523: the control characters U+001E and U+001F, which the grammar is handed for a doubled `""` and a hex
-      literal's `X"` (as_fixed_rows).
+      literal's `X"` (as_fixed_rows), and U+001D, which it is handed for a wide character in a literal (`narrowed`).
+
+    #4272: not refused here -- a character beyond Latin-1 in a `*>` comment (no parser reads it), or inside an
+    alphanumeric literal of the PROCEDURE DIVISION (a UTF-8 em dash in `MOVE 'Conto — bloccato' TO MSG`): its
+    bytes and length are what the source's transfer to a single-byte code page made of it, so the statement holding
+    it is a hole by name (`narrowed`, gen.WIDE_WHY) and the rest of the program translates. A VALUE (it lays storage
+    out) and a national / DBCS literal (N'...', G'...', NX'...', U'...': national data, #4272) stay refused here.
 
     The IDENTIFICATION DIVISION's paragraphs after PROGRAM-ID (AUTHOR, REMARKS ...) are free text no parser reads."""
-    in_id = False
+    in_id = in_proc = False
     for ln in lines:
         head = ln.text.lstrip().upper()
         if re.match(r"(?:IDENTIFICATION|ID)\s+DIVISION\b", head):
-            in_id = True
+            in_id, in_proc = True, False
         elif re.match(r"(?:ENVIRONMENT|DATA|PROCEDURE)\s+DIVISION\b", head):
-            in_id = False
+            in_id, in_proc = False, head.startswith("PROCEDURE")
         elif in_id and not head.startswith("PROGRAM-ID"):
             continue
-        ctl = next((c for c in (QQ, HX) if c in ln.text), None)
-        if ctl is not None:  # #4523, #4462: a character the grammar is handed for `""` / `X"` (never read as one)
+        ctl = next((c for c in (QQ, HX, WIDE) if c in ln.text), None)
+        if ctl is not None:  # #4523, #4462, #4272: a character the grammar is handed for `""` / `X"` / a wide one
             return f"{Path(ln.file).name}:{ln.line}: the control character U+{ord(ctl):04X} is not modelled"
-        wide = next((c for c in ln.text if ord(c) > 0xFF), None)
+        wide = next((c for c in _wide_chars(ln.text, in_proc) if c[1] == "refused"), (None,))[0]
         if wide is not None:
             return (f"{Path(ln.file).name}:{ln.line}: national / DBCS text ({wide!r}, U+{ord(wide):04X}) is not modelled: the "
                     "translator reads a single-byte code page")  # fmt: skip
-        bare = _outside_literals(ln.text)
+        bare = _outside_literals(ln.text[: _comment_at(ln.text)])  # (#4272: a `*>` comment is no name)
         word = re.search(r"[^\s.,;:()'\"=<>+*/]*[^\x00-\x7f][^\s.,;:()'\"=<>+*/]*", bare)
         if word is not None:
             return (f"{Path(ln.file).name}:{ln.line}: the name {word.group(0)} holds a national letter: the COBOL grammar reads "
@@ -350,6 +359,56 @@ def unmodelled(lines: list[Line]) -> str | None:
         if _DECIMAL_COMMA.search(bare):
             return f"{Path(ln.file).name}:{ln.line}: DECIMAL-POINT IS COMMA is not modelled"
     return None
+
+
+def _comment_at(text: str) -> int:
+    """Where `text`'s `*>` comment starts (one outside a literal), or len(text)."""
+    at = text.find("*>")
+    while at >= 0:
+        if not _open_literal(text[:at]):
+            return at
+        at = text.find("*>", at + 2)
+    return len(text)
+
+
+def _wide_chars(text: str, in_proc: bool) -> list[tuple[str, str, int]]:
+    """#4272: each character beyond Latin-1 in `text`: (the character, where, its index). Where: "comment" (in a `*>`
+    comment), "literal" (inside an alphanumeric literal of the PROCEDURE DIVISION, `in_proc`: no N / G / NX / U /
+    X prefix), "refused" (anywhere else: a name, a DATA DIVISION literal, a national / DBCS literal)."""
+    out: list[tuple[str, str, int]] = []
+    end = _comment_at(text)
+    quote, plain = None, False
+    for i, ch in enumerate(text):
+        if quote is None and i < end and ch in "'\"":
+            quote = ch
+            plain = in_proc and not re.search(r"(?<![\w-])(?:N|G|NX|U|X|BX)$", text[:i], re.I)
+        elif ch == quote:
+            quote = None
+        elif ord(ch) > 0xFF:
+            out.append((ch, "comment" if i >= end else "literal" if quote is not None and plain else "refused", i))
+    return out
+
+
+def narrowed(lines: list[Line]) -> list[Line]:
+    """#4272: `lines` as the grammar can be handed them (one byte a character, after `unmodelled` let them through):
+    a character beyond Latin-1 in a `*>` comment written as a space, one inside a PROCEDURE DIVISION alphanumeric
+    literal as WIDE (a column for a column: every node keeps its place), so the statement holding the literal is a
+    hole by name (gen.WIDE_WHY), never translated with a stand-in byte."""
+    out: list[Line] = []
+    in_proc = False
+    for ln in lines:
+        head = ln.text.lstrip().upper()
+        if re.match(r"(?:IDENTIFICATION|ID|ENVIRONMENT|DATA|PROCEDURE)\s+DIVISION\b", head):
+            in_proc = head.startswith("PROCEDURE")
+        wide = _wide_chars(ln.text, in_proc)
+        if not wide:
+            out.append(ln)
+            continue
+        text = list(ln.text)
+        for _, where, i in wide:
+            text[i] = " " if where == "comment" else WIDE if where == "literal" else text[i]
+        out.append(Line("".join(text), ln.file, ln.line))
+    return out
 
 
 def _open_literal(text: str) -> bool:

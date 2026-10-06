@@ -95,6 +95,7 @@ verdict, but it limits what the proof says about inputs outside the scenarios.
 | X17 | CICS | Channels and containers: PUT / GET / DELETE CONTAINER, LINK / XCTL CHANNEL, ASSIGN CHANNEL; bytes never converted; CCSID options, SET, BYTEOFFSET, RETURN CHANNEL, MOVE and browse refused | ASSUMED (REFUSED where IBM is silent) | yes (cics-crucible ca-channel-containers, unreleased) |
 | X18 | CICS | Interval control on the det port: START (INTERVAL / TIME / AFTER / AT, TERMID, REQID, PROTECT, FROM, RTRANSID / RTERMID / QUEUE), RETRIEVE (INTO / LENGTH, the data options, ENVDEFERR), CANCEL REQID, RUN TRANSID CHILD; TIME RESP2 and the order of out-of-range checks assumed; FETCH, RUN / START CHANNEL, RETRIEVE SET / WAIT refused | ASSUMED (REFUSED where IBM is silent) | yes (cics-crucible gt-start-retrieve, gt-terminal-coalesce, gt-start-options, unreleased) |
 | X19 | CICS | ASSIGN on the det port: STARTCODE (TD / S / SD), USERID (the default user), FACILITY / SCRNHT / SCRNWD (INVREQ RESP2 5 without a terminal) from facts the harness states; no data area written when ASSIGN raises INVREQ; OPID, NETNAME, TERMCODE, FCI, the other screen sizes, work-area lengths and the rest refused | ASSUMED (REFUSED where the harness cannot decide) | yes (cics-crucible gt-assign-startcode, unreleased) |
+| X20 | CICS | SEND TEXT on the det port and the stub: TERMINAL accepted as the default output disposition (the principal facility; the event is that of SEND TEXT without it); ACCUM, PAGING, SET, REQID, HEADER, TRAILER, JUSTIFY / JUSFIRST / JUSLAST, the printer, partition and LDC options, MSR, FMHPARM, DEFAULT / ALTERNATE refused | MATCHED (REFUSED where the region cannot decide) | yes (cics-crucible gt-send-text-terminal, unreleased) |
 | L1 | LE | CEEDAYS: documented pictures only | MATCHED / REFUSED | yes |
 | L2 | LE | CEE3ABD abend codes | MATCHED | yes |
 | L3 | LE | WORKING-STORAGE with no VALUE clause: GnuCOBOL's spaces vs LE's STORAGE option on z/OS | ASSUMED | yes (CardDemo READACCT OUTFILE, 2 bytes) |
@@ -718,6 +719,29 @@ The length READQ TS returns on ITEMERR or QIDERR is not documented, so it is not
 - **Reached.** cics-crucible gt-assign-startcode (3: a terminal task, STARTs with and without FROM, a terminal START,
   a pseudo-conversational next task, an unhandled INVREQ abending AEIP), cobol-stub and the det port both passing the
   hand-written logs (crucible branch `cases/assign-4270`, not yet released or pinned).
+
+### X20. SEND TEXT: TERMINAL, the default disposition — MATCHED, REFUSED where the region cannot decide (#4270 slice 4)
+- **What IBM documents** (CICS TS 6.x, EXEC CICS SEND TEXT, https://www.ibm.com/docs/en/cics-ts/6.x?topic=summary-send-text;
+  Output disposition options: TERMINAL, SET, and PAGING,
+  https://www.ibm.com/docs/en/cics-ts/6.x?topic=command-output-disposition-options-terminal-set-paging). TERMINAL
+  "specifies that data is to be sent to the terminal that originated the transaction"; "The disposition option TERMINAL
+  sends the output to the principal facility of your task"; "TERMINAL is the default value that you get if you do not
+  specify another disposition"; "TERMINAL is the only disposition available in minimum and standard BMS".
+- **Modelled.** TERMINAL is accepted with no code of its own (det.cics.OPTIONS says why; the stub's GGCSTXT call is
+  unchanged): SEND TEXT TERMINAL sends what SEND TEXT sends, to the same place, and records the same SEND-TEXT event.
+  cics-crucible SPEC 6.2 now says so (additive: the event's options are a sorted subset of ERASE FREEKB ALARM CURSOR
+  WAIT LAST, and TERMINAL is never one). WAIT, FREEKB and ERASE are recorded as before.
+- **Avoided.** SEND TEXT in a task with no principal facility (the SEND TEXT page lists no condition for it): the
+  crucible case's started task tests for a terminal with ASSIGN FACILITY first, as SEQPNT / ASYNCPNT do.
+- **Refused by name** (`CicsError` in the det port with `_SEND_TEXT_REFUSED_WHY`'s reason; `Unsupported` in the stub):
+  ACCUM, PAGING, SET, REQID, HEADER, TRAILER, JUSTIFY, JUSFIRST, JUSLAST (a BMS logical message, completed by SEND
+  PAGE, or the pages returned to the program, is not modelled); NLEOM, FORMFEED, HONEOM, L40, L64, L80 (printer
+  formatting; the region's terminal is a 3270 display); LDC, OUTPARTN, ACTPARTN (partitions / logical device codes);
+  MSR; FMHPARM; DEFAULT / ALTERNATE (only the one screen size is modelled). In the census only PL/I programs (dsf, a
+  burned estate, outside the COBOL det translator) use ACCUM / PAGING / JUSTIFY / L80 / PRINT.
+- **Reached.** cics-crucible gt-send-text-terminal (1 scenario: SEND TEXT with and without TERMINAL, a START TERMID
+  task sending to the terminal the START named, a task with no terminal sending nothing), cobol-stub and the det port
+  both passing the hand-written log (crucible branch `cases/send-text-4270`, not yet released or pinned).
 
 ## Language Environment
 

@@ -674,6 +674,18 @@ def test_assign_applid_sysid_and_writeq_td_translate():
         ec.translate_command("ASSIGN OPID(U)")
 
 
+def test_send_text_terminal_translates_as_send_text():
+    """#4270 slice 4: TERMINAL, the default output disposition, changes nothing in the stub's call; the logical-message,
+    printer and partition options are refused by name (register X20)."""
+    plain = ec.translate_command("SEND TEXT FROM(L) WAIT FREEKB ERASE")
+    assert ec.translate_command("SEND TEXT FROM(L) TERMINAL WAIT FREEKB ERASE") == plain
+    assert plain[0] == "MOVE 'TEXT WAIT FREEKB ERASE' TO GG-FLAGS"
+    for opt in ("ACCUM", "PAGING", "HEADER(H)", "JUSTIFY(5)", "L80", "SET(P)"):
+        with pytest.raises(ec.Unsupported) as e:
+            ec.translate_command(f"SEND TEXT FROM(L) TERMINAL {opt}")
+        assert e.value.features == [f"SEND TEXT {opt.split('(')[0]}"]
+
+
 def test_assign_startcode_userid_and_the_terminal_facts_translate():
     """#4270 slice 3: STARTCODE / USERID through GGCASGN; FACILITY / SCRNHT / SCRNWD behind TERMCHK (INVREQ RESP2 5 for
     a task with no terminal, then no data area written), with the condition's handling."""

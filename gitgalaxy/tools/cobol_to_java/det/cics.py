@@ -91,7 +91,11 @@ OPTIONS: dict[str, frozenset | None] = {
     "DELAY": frozenset({"FOR", "INTERVAL", "TIME", "HOURS", "MINUTES", "SECONDS", "MILLISECS"}) | _RESP,
     "GET COUNTER": frozenset({"COUNTER", "POOL", "VALUE", "RESP", "NOHANDLE"}),
     "SEND MAP": frozenset({"MAP", "MAPSET", "FROM", "CURSOR", *MAP_OPTIONS}) | _RESP,
-    "SEND TEXT": frozenset({"FROM", "LENGTH", *TEXT_OPTIONS}) | _RESP,
+    # #4270 slice 4: TERMINAL is the default output disposition ("TERMINAL is the default value that you get if you do
+    # not specify another disposition"; it "sends the output to the principal facility of your task"), so it is
+    # accepted with no code: SEND TEXT TERMINAL and SEND TEXT send the same output to the same place. The full-BMS
+    # dispositions and logical-message options are refused with _SEND_TEXT_REFUSED_WHY's reason (register X20)
+    "SEND TEXT": frozenset({"FROM", "LENGTH", "TERMINAL", *TEXT_OPTIONS}) | _RESP,
     "RECEIVE MAP": frozenset({"MAP", "MAPSET", "INTO"}) | _RESP,
     # #4413: terminal control. SEND CONTROL's device controls (IBM's minimum-BMS options; PRINT, FORMFEED, ALTERNATE /
     # DEFAULT and the partition / LDC / ACCUM / PAGING ones are refused); RECEIVE of unformatted terminal input
@@ -237,6 +241,38 @@ _ASSIGN_REFUSED_WHY = {
 }
 
 
+# #4270 slice 4: why a SEND TEXT option is refused (docs/language_status/oracle_assumptions.md X20). IBM CICS TS 6.x,
+# EXEC CICS SEND TEXT: the region's terminal is one 24 x 80 3270 display (cics-crucible SPEC 2), and a BMS logical
+# message (ACCUM / PAGING / SET, then SEND PAGE) is not modelled
+_LOGICAL_MESSAGE = "a BMS logical message (ACCUM / PAGING, completed by SEND PAGE) is not modelled"
+_PRINTER = "printer formatting: the region's terminal is a 3270 display"
+_PARTITION = "partitions / logical device codes: the region's terminal is one unpartitioned display"
+_SEND_TEXT_REFUSED_WHY = {
+    "ACCUM": _LOGICAL_MESSAGE,
+    "PAGING": "output kept in temporary storage for terminal paging (CSPG): " + _LOGICAL_MESSAGE,
+    "SET": "the formatted pages returned to the program (RETPAGE) are not modelled: only the TERMINAL disposition",
+    "REQID": "a logical message's temporary-storage prefix: " + _LOGICAL_MESSAGE,
+    "HEADER": "page headers: " + _LOGICAL_MESSAGE,
+    "TRAILER": "page trailers: " + _LOGICAL_MESSAGE,
+    "JUSTIFY": "the line a text block starts on in a page: " + _LOGICAL_MESSAGE,
+    "JUSFIRST": "the line a text block starts on in a page: " + _LOGICAL_MESSAGE,
+    "JUSLAST": "the line a text block starts on in a page: " + _LOGICAL_MESSAGE,
+    "NLEOM": _PRINTER,
+    "FORMFEED": _PRINTER,
+    "HONEOM": _PRINTER,
+    "L40": _PRINTER,
+    "L64": _PRINTER,
+    "L80": _PRINTER,
+    "LDC": _PARTITION,
+    "OUTPARTN": _PARTITION,
+    "ACTPARTN": _PARTITION,
+    "MSR": "magnetic slot reader control is not modelled",
+    "FMHPARM": "function management headers are not modelled",
+    "DEFAULT": "the default / alternate screen size: only the one screen the region defines is modelled",
+    "ALTERNATE": "the default / alternate screen size: only the one screen the region defines is modelled",
+}
+
+
 def command_key(words: list[str], opts: dict) -> str:
     """The OPTIONS key of a parsed command (the verb words, plus the option that names the form: SEND MAP)."""
     verb = " ".join(words)
@@ -279,6 +315,10 @@ def check_options(words: list[str], opts: dict) -> None:
             why = "RUN CHANNEL: the child task's copy of the channel is not modelled (#4270: a later slice)"
         if key == "CANCEL":
             why = "CANCEL of a TRANSID / an activity: only CANCEL REQID is modelled"
+        if key == "SEND TEXT":  # #4270 slice 4
+            why = "; ".join(
+                f"{o}: {_SEND_TEXT_REFUSED_WHY.get(o, 'not modelled (no corpus program uses it)')}" for o in bad
+            )
         if key == "ASSIGN":  # #4270 slice 3
             why = "; ".join(
                 f"{o}: {_ASSIGN_REFUSED_WHY.get(o, 'not modelled (no corpus program uses it)')}" for o in bad

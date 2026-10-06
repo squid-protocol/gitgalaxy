@@ -375,6 +375,12 @@ Only generator output, never a test case:
   `assignScreen`) and the stub (GGCASGN), from facts the harness states, with INVREQ RESP2 5 for a task with no terminal
   through `condition()`. The other options are refused with a reason (register X19). Proven through cics-crucible
   gt-assign-startcode (3) on the cobol-stub side and the det port.
+- #4270 slice 4: SEND TEXT refused TERMINAL. The census's 28 COBOL SEND TEXT programs (4 outside the burned estates)
+  use FROM, LENGTH, ERASE, FREEKB, WAIT, RESP / RESP2 and TERMINAL (SEQPNT, ASYNCPNT, WEBHOME); only PL/I programs use
+  ACCUM / PAGING / JUSTIFY / L80. TERMINAL is IBM's default output disposition (the task's principal facility), so the
+  det port and the stub accept it with no code and record the same SEND-TEXT event. The logical-message, printer and
+  partition options are refused with a reason (register X20). SEQPNT now translates whole (47/47). Proven through
+  cics-crucible gt-send-text-terminal (1) on the cobol-stub side and the det port.
 - #4463: four det ports stopped proving on 2026-10-04 and no CI ran the det sweep. carddemo-menu: a #4049 scenario
   sent option 99, which COMEN01C still uses as a subscript of its 12-entry table, 4K past the record (X8: the det
   port stops; the case now sends 12). mortgage-cmort / mlist / nbrvl: #4245 read every program of EPSCSMRD's

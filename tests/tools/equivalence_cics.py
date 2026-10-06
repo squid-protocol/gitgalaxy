@@ -423,6 +423,13 @@ def _interval_command(verb: str, opts: dict[str, str | None], labels: list[str])
     return [f"MOVE {opts['REQID']} TO GG-QNAME"] + _call("GGCCNCL", []) + _resp(opts, True, labels)
 
 
+# #4270 slice 4: SEND TEXT options the stub does not model (a BMS logical message, printer formatting, partitions)
+_SEND_TEXT_REFUSED = frozenset(
+    "ACCUM PAGING SET REQID HEADER TRAILER JUSTIFY JUSFIRST JUSLAST NLEOM FORMFEED HONEOM L40 L64 L80 LDC OUTPARTN "
+    "ACTPARTN MSR FMHPARM DEFAULT ALTERNATE".split()
+)
+
+
 def translate_command(body: str, labels: list[str] | None = None, handle_aid: bool = False) -> list[str]:
     """One EXEC CICS body -> the COBOL statements that replace it. `labels` are the program's HANDLE
     labels (handler_labels), which a condition or abend exit GOes TO (#4003); by default, this
@@ -636,6 +643,11 @@ def translate_command(body: str, labels: list[str] | None = None, handle_aid: bo
         src = opts.get("FROM")
         if not src:
             raise Unsupported("SEND TEXT without FROM")
+        # #4270 slice 4: TERMINAL, the default output disposition (the principal facility), changes nothing; the
+        # full-BMS / printer / partition options are refused by name, as the det port refuses them (register X20)
+        bad = [o for o in opts if o in _SEND_TEXT_REFUSED]
+        if bad:
+            raise Unsupported(f"SEND TEXT {' '.join(bad)}", [f"SEND TEXT {o}" for o in bad])
         kind = ["TEXT"] if "TEXT" in opts else ["DATA"]
         textflags = " ".join(kind + [n for n in flags if n in ("ERASE", "FREEKB", "ALARM", "WAIT", "LAST")])
         return ([f"MOVE '{textflags[:40]}' TO GG-FLAGS"]

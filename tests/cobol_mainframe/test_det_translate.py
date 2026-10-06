@@ -478,6 +478,10 @@ _IBM_OPTIONS = {
     "RETRIEVE": "INTO SET LENGTH RTRANSID RTERMID QUEUE WAIT",
     "CANCEL": "ACTIVITY ACQACTIVITY ACQPROCESS REQID SYSID TRANSID",
     "RUN": "TRANSID CHANNEL CHILD",
+    # #4270 slice 4: SEND TEXT (minimum, standard and full BMS)
+    "SEND TEXT": "FROM LENGTH CURSOR FORMFEED ERASE DEFAULT ALTERNATE PRINT FREEKB ALARM NLEOM FMHPARM OUTPARTN "
+    "ACTPARTN LDC MSR TERMINAL SET PAGING WAIT LAST REQID HEADER TRAILER JUSTIFY JUSFIRST JUSLAST ACCUM HONEOM L40 "
+    "L64 L80",
 }
 
 
@@ -500,7 +504,8 @@ def test_options_honoured_without_code_say_why():
     src = Path(C.__file__).read_text(encoding="utf-8")
     code = src[src.index("def command_key") :]
     stated = {"NODUMP", "MAIN", "AUXILIARY", "NOSUSPEND", "EQUAL", "GTEQ", "TASK", "UOW", "MAXLIFETIME", "RESOURCE",
-              "FOR", "INTERVAL", "TIME", "HOURS", "MINUTES", "SECONDS", "MILLISECS", "TS"}  # fmt: skip
+              "FOR", "INTERVAL", "TIME", "HOURS", "MINUTES", "SECONDS", "MILLISECS", "TS",
+              "TERMINAL"}  # fmt: skip
     flags = {*C.MAP_OPTIONS, *C.TEXT_OPTIONS, *C._FORMS}
     for key, allowed in C.OPTIONS.items():
         for opt in allowed or ():
@@ -1043,6 +1048,24 @@ def test_link_and_xctl_pass_a_channel_and_assign_reads_it():
     for bad in ("LINK PROGRAM('P') CHANNEL(CH) COMMAREA(REC)", "XCTL PROGRAM('P') CHANNEL(CH) COMMAREA(REC)"):
         with pytest.raises(C.CicsError, match="one or the other"):
             c.command(bad, "")
+
+
+def test_send_text_terminal_is_the_default_disposition():
+    """#4270 slice 4, IBM "Output disposition options: TERMINAL, SET, and PAGING": TERMINAL "is the default value that
+    you get if you do not specify another disposition" and "sends the output to the principal facility of your task".
+    SEND TEXT TERMINAL translates as SEND TEXT does (census: SEQPNT, ASYNCPNT, WEBHOME), its other options recorded
+    as before; the logical-message, printer and partition options are refused with a reason (register X20)."""
+    plain = _RespCics().command("SEND TEXT FROM(REC) WAIT FREEKB ERASE RESP(R)", "")
+    terminal = _RespCics().command("SEND TEXT FROM(REC) TERMINAL WAIT FREEKB ERASE RESP(R)", "")
+    assert terminal == plain
+    assert 'task.sendText(text1.substring(0, Math.min(text1.length(), 56)), 56, "ERASE", "FREEKB", "WAIT");' in plain
+    for opt, why in (("ACCUM", "logical message"), ("PAGING", "terminal paging"), ("SET(PTR)", "RETPAGE"),
+                     ("HEADER(REC)", "page headers"), ("JUSTIFY(KEY)", "page"), ("L80", "printer"),
+                     ("NLEOM", "printer"), ("OUTPARTN(KEY)", "unpartitioned"), ("ALTERNATE", "screen size"),
+                     ("MSR(KEY)", "magnetic")):  # fmt: skip
+        name = opt.split("(")[0]
+        with pytest.raises(C.CicsError, match=f"SEND TEXT {name}: option not modelled .*{why}"):
+            _RespCics().command(f"SEND TEXT FROM(REC) TERMINAL ERASE {opt}", "")
 
 
 def test_assign_startcode_userid_and_the_terminal_facts():

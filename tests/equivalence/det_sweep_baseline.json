@@ -12,7 +12,7 @@
   },
   "mortgage-mpmt": {
    "issue": "#4271",
-   "why": "IBM DBB EPSMPMT computes its payment through a COMP-1 item: z/OS evaluates both COMPUTEs in hexadecimal floating point, GnuCOBOL in truncated decimal, so the det translator refuses float items by name (oracle_assumptions.md C6; its CBL NUMPROC(MIG) is now modelled, C5)"
+   "why": "IBM DBB EPSMPMT computes its payment through a COMP-1 item in hexadecimal floating point on z/OS, truncated decimal on GnuCOBOL. The det runtime models HFP since #4271 slice 1 (its interest COMPUTE translates), but the payment's (1 + C) ** N, N with decimal places, is a floating-point exponentiation IBM does not document bit for bit: a named hole (oracle_assumptions.md C6; its CBL NUMPROC(MIG) is modelled, C5)"
   }
  }
 }

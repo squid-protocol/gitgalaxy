@@ -63,8 +63,8 @@ verdict, but it limits what the proof says about inputs outside the scenarios.
 | C3 | compiler | An integer literal truncated to zero keeps no sign | DIFFERS | no |
 | C4 | compiler | An unsigned binary taken below zero by ADD/SUBTRACT wraps | DIFFERS | no |
 | C5 | compiler | `NUMPROC(MIG)` as Enterprise COBOL 5+ compiles it (NOPFD), `NUMPROC(PFD)` with preferred signs (#4271); `INTDATE(LILIAN)`, `ARITH(EXTEND)`, `TRUNC(OPT)` | MATCHED (NUMPROC) / REFUSED (the rest) | NUMPROC: no |
-| C6 | compiler | COMP-1 / COMP-2: IBM hexadecimal floating point, and float-mode evaluation of the whole expression | DIFFERS; the det translator refuses float items (#4271) | no (CBSA, DBB EPSMPMT use them) |
-| C7 | compiler | COMP-5 byte order: little-endian vs z/OS big-endian | DIFFERS | read as numbers only |
+| C6 | compiler | COMP-1 / COMP-2: IBM hexadecimal floating point, and float-mode evaluation of the whole expression | MODELLED in the det runtime (HFP, #4271 slice 1); the oracle DIFFERS (IEEE, decimal evaluation): proven by IBM-cited vectors and on exact values; what the oracle cannot decide REFUSED by name | no (DBB EPSMPMT: its float `**` is a hole) |
+| C7 | compiler | COMP-5 byte order: little-endian vs z/OS big-endian | DIFFERS | read as numbers only (a VALUE beyond the PICTURE: fixed, #4501) |
 | C8 | compiler | DISPLAY of signed zoned, binary and packed items | MATCHED | yes |
 | C9 | compiler | POINTER is 8 bytes in GnuCOBOL (x86-64), 4 on z/OS | DIFFERS | only NULL, trailing (CBSA) |
 | C10 | compiler | INITIALIZE / VALUE ZERO zoned items: unsigned F zone (GnuCOBOL) vs preferred C sign (z/OS) | DIFFERS (tolerated where a case declares it) | yes (CardDemo READACCT ARRYFILE) |
@@ -192,42 +192,67 @@ verdict, but it limits what the proof says about inputs outside the scenarios.
     by the documented offset of the integer-date functions. Dates before 1601 cannot run on GnuCOBOL and would be
     refused. No case needs it yet.
 
-### C6. Floating point — DIFFERS; the det translator refuses float items (#4271)
-- **What z/OS does.** COMP-1 and COMP-2 are IBM hexadecimal floating point (HFP): a short item keeps 6 hexadecimal
-  digits, so between 21 and 24 bits of precision against IEEE single's 24. More important, "If any operation in an
-  arithmetic expression is computed in floating-point arithmetic, the entire expression is computed as if all
-  operands were converted to floating point", and that happens when "a receiver or operand is COMP-1, COMP-2,
-  external floating point, or a floating-point literal" or "an exponent contains decimal places". Under ARITH(COMPAT)
-  this is long precision unless every item is COMP-1 with no multiplication or exponentiation (6.4 Programming
-  Guide, SC27-8714-03, Appendix A, "Floating-point data and intermediate results"; Chapter 3, "Fixed-point contrasted
-  with floating-point arithmetic").
-- **What the oracle does.** GnuCOBOL stores IEEE binary floats in machine (little-endian) order. It still evaluates the
+### C6. Floating point — MODELLED in the det runtime as HFP (#4271 slice 1); the oracle DIFFERS
+- **What z/OS does.** COMP-1 and COMP-2 are IBM hexadecimal floating point (HFP): a sign bit, a 7-bit characteristic
+  (the exponent of 16, excess 64) and 6 (COMP-1) or 14 (COMP-2) hexadecimal fraction digits, big-endian: between 21
+  and 24 bits of precision for a short item against IEEE single's 24 (z/Architecture Principles of Operation,
+  SA22-7832, "Hexadecimal-Floating-Point Number Representation"). "If any operation in an arithmetic expression is
+  computed in floating-point arithmetic, the entire expression is computed as if all operands were converted to
+  floating point", when "a receiver or operand is COMP-1, COMP-2, external floating point, or a floating-point
+  literal" or "an exponent contains decimal places". Under ARITH(COMPAT) "single precision is used if all receivers
+  and operands are COMP-1 data items and the expression contains no multiplication or exponentiation operations",
+  long otherwise; a comparison is floating point "if either comparand is a floating-point value" (6.4 Programming
+  Guide, SC27-8714-03, Appendix A, "Floating-point data and intermediate results"; "Fixed-point contrasted with
+  floating-point arithmetic").
+- **What the oracle does.** GnuCOBOL stores IEEE binary floats in machine (little-endian) order. It evaluates the
   expression in decimal: each float is read exactly (`cob_decimal_set_double`), each intermediate is truncated by
-  ARITHMETIC-OSVS as fixed point (C2), and the result is stored through a truncation to double and a rounding to float
-  (`cob_decimal_get_double`, then `(float)`). The oracle departs from z/OS in the evaluation mode, not only in the
-  low-order bits.
-- **Measured on IBM DBB EPSMPMT** (the payment `P * (C * (1 + C) ** N) / (((1 + C) ** N) - 1)`, C COMP-1, N
-  `9(9)V99 COMP`): GnuCOBOL's payment for a principal of 100,000,000.01 at 5.25% over 30 years is 599,550.79. The same
-  expression evaluated in exact arithmetic on the same IEEE C gives 599,550.51, which long HFP (about 16 digits) would
-  approach. The other five computed scenarios agree. On z/OS, N's decimal places also make the exponentiation a
-  floating-point one (Appendix A), computed by a run-time routine IBM does not specify bit for bit.
-- **Decision (2026-10-03, #4271): a declared difference, not an emulation.**
-  - HFP add, multiply and divide are architected (z/Architecture Principles of Operation), but four things are not
-    documented at the level a proof needs: which conversions the compiler generates between fixed point and HFP
-    (rounding or truncation), the exponentiation routine, and the floating-point intrinsic functions.
-  - No oracle here runs HFP: GnuCOBOL has none. An HFP Java port could be checked only against captured z/OS outputs
-    (#4050), and an IEEE one that copies GnuCOBOL's decimal evaluation would prove agreement with an evaluation IBM
-    documents differently.
-  - So the det translator refuses a COMP-1 / COMP-2 item by name: each statement that names one is a Hole ("COMP-1
-    floating point (IBM hexadecimal on z/OS, oracle_assumptions.md C6)"). Before #4271 it emitted a reference to a
-    Field it never declared, and the port did not compile.
-  - Model ports are not changed. No proven program uses floats.
+  ARITHMETIC-OSVS as fixed point (C2), and the result is stored through a truncation to double and a rounding to
+  float. It truncates a float MOVEd to a fixed-point item (0.1 COMP-2 to `V9(4)` is 0.0999; IBM rounds: 0.1000).
+  Measured on GnuCOBOL 3.1.2 (2026-10-06): `COMPUTE L2 = (L1 - N3) / N4` gives 0, `COMPUTE L2 = L1 / N4 + S1 * 2`
+  drops the second term, and `IF S1 + 1 > 2` is false for S1 = 6.25 -- a float expression with a multiplication,
+  a parenthesised division or in a comparison is not decided by the oracle at all.
+- **The det runtime (since #4271 slice 1)** models HFP: `cobolrt/Hfp.java`, the translator's own model
+  `det/hfp.py`.
+  - Storage: `Field.hfp`, the bytes as z/OS holds them; a VALUE is encoded at translation (`layout._put_value`).
+  - Arithmetic (`Hfp.add / subtract / multiply / divide`): ADD / SUBTRACT NORMALIZED with one hexadecimal guard
+    digit, then normalized and truncated; MULTIPLY and DIVIDE truncate the exact result (Principles of Operation,
+    "Hexadecimal-Floating-Point Instructions"). The translator picks each statement's mode by IBM's rule: fixed point,
+    short (all COMP-1, no multiplication) or long, every operand converted.
+  - Conversions: a COMP-2 to a COMP-1 is rounded (LOAD ROUNDED: IBM, "if a USAGE COMP-2 data item is moved to a
+    USAGE COMP-1 data item, rounding occurs"); a float to a fixed-point or numeric-edited item is rounded in the
+    receiver's low-order position, with at most 9 (COMP-1) or 18 (COMP-2) significant digits (6.4 Programming
+    Guide, "Conversions and precision"). Comparisons are long, unless both comparands are COMP-1.
+  - DISPLAY: "A COMP-1 item will display as if it had an external floating-point PICTURE clause of -.9(8)E-99"
+    (COMP-2: -.9(17)E-99; 6.4 Language Reference, DISPLAY statement): ` .12500000E 02`.
+  - **ASSUMED** (IBM does not document them): a fixed-point value converted to float is truncated to long (then
+    rounded to short for a COMP-1); the mantissa of DISPLAY is rounded half away from zero; an arithmetic statement
+    that stores a float result in a fixed-point receiver truncates unless ROUNDED (the COBOL rule), and a statement
+    with several receivers is one mode for all of them.
+- **How it is proven** (the oracle cannot run HFP):
+  - the byte layout and the arithmetic by hand-computed vectors from IBM's examples (1.0 = `41100000`, -118.625 =
+    `C276A000`, 0.1 = `4019999A`, the range ends `7FFFFFFF` / `00100000`, "1 - 16**-8 = 1" through the guard
+    digit), and the runtime against `det/hfp.py` bit for bit over a vector table (`test_det_hfp.py`);
+  - the behaviour against GnuCOBOL where both formats are exact (`test_det_programs.py` FLOAT, in byte, typed and
+    typed-groups modes): every MOVE direction, the four verbs with and without GIVING, COMPUTE, IF / 88 / EVALUATE
+    / sign conditions, SET TO TRUE, PERFORM VARYING, INITIALIZE of a group holding a float.
+- **REFUSED by name** (a Hole: "... IBM hexadecimal floating point on z/OS, IEEE on the oracle:
+  oracle_assumptions.md C6"): a float's bytes or those of an item over it (a group MOVE, a REDEFINES, a reference
+  modification, STRING, a CALL argument, a record written, a COMMAREA); a float MOVEd to or from a nonnumeric item;
+  a comparison with a nonnumeric operand; exponentiation in a floating-point expression (a run-time routine IBM does
+  not document bit for bit); an intrinsic function in one (IBM's floating-point functions); ON SIZE ERROR and
+  ROUNDED into a float, DIVIDE ... REMAINDER in floating point. In the runtime: an HFP exponent overflow or
+  underflow (what z/OS does depends on the program mask and Language Environment). `ggdisplay.c` still refuses the
+  DISPLAY of a float on the COBOL side (C8), so no proof compares one.
 - **Waiting on it.**
-  - `mortgage-mpmt` (EPSMPMT: both of its COMPUTEs involve its COMP-1 item; KNOWN_UNPROVEN).
-  - CBSA's CRECUST, BANKDATA, BNK1CAC, BNK1CRA, BNK1TFN and BNK1UAC.
-  - DISPLAY of a float is refused by `ggdisplay.c` too (C8).
-- **What would settle it.** A z/OS run of EPSMPMT's scenarios (#4050). With those outputs, an HFP model of the
-  runtime could be checked where the oracle cannot.
+  - `mortgage-mpmt` (EPSMPMT): its interest rate is now computed in long HFP, but the payment's `(1 + C) ** N`, N
+    with decimal places, is a floating-point exponentiation: the one hole, so the case stays in the det sweep's
+    baseline (KNOWN_UNPROVEN). It would also round where GnuCOBOL truncates.
+  - CBSA's CRECUST, BANKDATA, BNK1CAC, BNK1CRA, BNK1TFN and BNK1UAC are not cases.
+- **What would settle it.** A z/OS run of EPSMPMT's scenarios (#4050): the exponentiation, and the ASSUMED
+  conversions above, checked where the oracle cannot.
+- **Later slices of #4271** (left as they are): `NUMPROC(PFD)` with non-preferred signs (refused by name, C5),
+  `ARITH(EXTEND)`, `TRUNC(OPT)` and `INTDATE(LILIAN)` (detected from CBL / PROCESS cards and refused, C5), COMP-5's
+  z/OS byte order where bytes are observable (C7).
 
 ### C7. COMP-5 byte order — DIFFERS
 - **What.** GnuCOBOL stores COMP-5 in the machine's order, little-endian on x86; z/OS is big-endian. COMP, COMP-4
@@ -236,6 +261,11 @@ verdict, but it limits what the proof says about inputs outside the scenarios.
   file.
 - **Reached.** The harness's SQLCA declares its binary fields COMP-5, as IBM's does, and programs read them only as
   numbers. In the corpora, only CardDemo's IMSFUNCS.cpy declares COMP-5.
+- **A VALUE beyond the PICTURE (#4501, fixed).** COMP-5 holds up to its 2, 4 or 8 bytes' capacity, not the value
+  its 9s imply. The det translator wrote a COMP-5 VALUE truncated to the PICTURE and big-endian while its runtime
+  reads COMP-5 little-endian: `S9(4) COMP-5 VALUE 32767` read back as -12534 (cics-crucible `ca-xctl-versions`,
+  XCTL LENGTH). The image now holds the whole value in the runtime's (GnuCOBOL's) order; pinned by
+  `test_det_programs.py` COMP5 against GnuCOBOL.
 
 ### C9. POINTER size — DIFFERS
 - **What.** A POINTER is 8 bytes in GnuCOBOL on x86-64 and 4 on z/OS (31-bit), so every offset after one differs.

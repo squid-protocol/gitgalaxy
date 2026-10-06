@@ -10,8 +10,10 @@ from __future__ import annotations
 import re
 from dataclasses import dataclass, field
 from decimal import Decimal
+from fractions import Fraction
 from pathlib import Path
 
+from gitgalaxy.tools.cobol_to_java.det import hfp
 from gitgalaxy.tools.cobol_to_java.det.source import (
     Line,
     _outside_literals,
@@ -514,6 +516,15 @@ def _put_default(it: Item, buf: bytearray, at: int) -> None:
 def _put_value(it: Item, buf: bytearray, at: int, v, group: bool) -> None:
     n = it.size
     kind = v[0]
+    if not group and it.category == "FLOAT":  # #4271: the value's HFP bytes (det.hfp), ZERO all zero bytes
+        if kind == "num":
+            short = it.usage == "COMP-1"
+            buf[at : at + n] = hfp.encode(hfp.for_item(Fraction(v[1]), short), short)
+        elif kind == "fig" and v[1] == "ZEROS":
+            buf[at : at + n] = bytes(n)
+        else:
+            raise LayoutError(f"line {it.line}: {it.name} {it.usage} VALUE {kind}: not a number")
+        return
     if group or it.category not in ("NUMERIC",):
         if kind == "lit":
             data = v[1].encode("latin-1")
@@ -558,7 +569,18 @@ def encode_number(it: Item, value: Decimal) -> bytes:
     if it.usage == "PACKED":
         nib = s.rjust(it.size * 2 - 1, "0") + ("D" if negative else ("C" if signed else "F"))
         return bytes.fromhex(nib)
-    if it.usage in ("BINARY", "COMP-5"):
+    if it.usage == "COMP-5":
+        # #4501: COMP-5 is not limited by its PICTURE (IBM, USAGE clause: values up to the capacity of the native
+        # binary representation, 2, 4 or 8 bytes, not the value its 9s imply), and the runtime holds it
+        # little-endian, as GnuCOBOL does (register C7): S9(4) COMP-5 VALUE 32767 is x'FF7F', never the
+        # PICTURE-truncated 2767 written big-endian (which the runtime read back as -12534)
+        v = -unscaled if negative else unscaled
+        bits = 8 * it.size
+        v &= (1 << bits) - 1
+        if signed and v >= 1 << (bits - 1):
+            v -= 1 << bits
+        return v.to_bytes(it.size, "little", signed=signed or v < 0)
+    if it.usage == "BINARY":
         v = -int(s) if negative else int(s)
         return v.to_bytes(it.size, "big", signed=signed or v < 0)
     if not signed:

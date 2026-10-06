@@ -20,6 +20,7 @@ from gitgalaxy.tools.cobol_to_java.det.source import (
     alphabet_keywords,
     as_fixed_rows,
     cobol_parser,
+    cut_literal,
     label_records,
     narrowed,
     several_programs,
@@ -175,13 +176,29 @@ _USAGE = {"COMP": "BINARY", "COMP_4": "BINARY", "BINARY": "BINARY", "COMPUTATION
           "DISPLAY": "DISPLAY"}  # fmt: skip
 
 
+# #4462: USAGE PROCEDURE-POINTER / FUNCTION-POINTER (DBB MortgageApplication epscsmrd), which the grammar does not read
+_CODE_POINTER = re.compile(r"(?<![\w-])(?:PROCEDURE|FUNCTION)-POINTER(?![\w-])", re.I)
+
+
+def _code_pointers(text: str) -> str:
+    """`text` with each PROCEDURE-POINTER / FUNCTION-POINTER usage (outside a literal) handed to the grammar as
+    POINTER, padded to its length. Laid out as every pointer is (elementary_size: GnuCOBOL's 8 bytes on x86-64, which
+    the port's storage follows; IBM's is 8 for a procedure pointer, 4 for a function pointer -- oracle_assumptions
+    C9). What a program sets into one (SET ... TO ENTRY) and calls through it stays unmodelled, a hole by name."""
+    bare = _outside_literals(text)
+    for m in _CODE_POINTER.finditer(bare):
+        text = text[: m.start()] + "POINTER".ljust(m.end() - m.start()) + text[m.end() :]
+    return text
+
+
 def _data_only(lines: list[Line]) -> list[Line]:
     """The lines the record parser needs, others blanked (kept, so each item keeps its line): the IDENTIFICATION
     DIVISION's paragraphs after PROGRAM-ID (REMARKS, DATE-COMPILED ... -- obsolete, free text), EXEC SQL blocks
     left in the DATA DIVISION (DECLARE CURSOR / TABLE: no storage; an INCLUDE was expanded as a COPY), and a
     section header with nothing under it (an empty LINKAGE SECTION). #4462: an OS/VS alphabet clause gets its
-    ALPHABET keyword (source.alphabet_keywords) and LABEL RECORD ARE its optional word dropped (source.label_records)."""
-    out = [Line(label_records(ln.text), ln.file, ln.line) for ln in alphabet_keywords(lines)]
+    ALPHABET keyword (source.alphabet_keywords) and LABEL RECORD ARE its optional word dropped (source.label_records);
+    a PROCEDURE- / FUNCTION-POINTER is read as a POINTER (_code_pointers)."""
+    out = [Line(_code_pointers(label_records(ln.text)), ln.file, ln.line) for ln in alphabet_keywords(lines)]
     in_id = False
     want_name = False  # PROGRAM-ID. with its name on a later line
     for ln in out:
@@ -235,7 +252,7 @@ def _data_only(lines: list[Line]) -> list[Line]:
 def parse(lines: list[Line]) -> list[Item]:
     """The 01 / 77 records of the DATA DIVISION, each a tree of Items."""
     # #4462: national / DBCS text, DECIMAL-POINT IS COMMA, IDMS, several programs (each read on its own): refused by name
-    why = unmodelled(lines) or several_programs(lines)
+    why = unmodelled(lines) or several_programs(lines) or cut_literal(lines)
     if why:
         raise LayoutError(why)
     lines = narrowed(lines)  # #4272: a wide character in a `*>` comment / a PROCEDURE DIVISION literal

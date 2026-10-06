@@ -20,6 +20,7 @@ from gitgalaxy.tools.cobol_to_java.det.source import (
     _outside_literals,
     as_fixed_rows,
     cobol_parser,
+    cut_literal,
     narrowed,
     several_programs,
     unmodelled,
@@ -74,7 +75,7 @@ def parse(lines: list[Line]) -> Procedure:
     parser = _parser_cache()  # first: a missing translator extra fails here, before any work
 
     # #4462: national / DBCS text, DECIMAL-POINT IS COMMA, IDMS, several programs (each read on its own): refused by name
-    why = unmodelled(lines) or several_programs(lines)
+    why = unmodelled(lines) or several_programs(lines) or cut_literal(lines)
     if why:
         raise E.ExprError(why)
     lines = narrowed(lines)  # #4272: a wide character in a `*>` comment / a PROCEDURE DIVISION literal
@@ -97,6 +98,11 @@ def parse(lines: list[Line]) -> Procedure:
         return f"CALL 'GGEXEC{len(execs):04d}'" + "\x01" * mm.group(0).count("\n")
 
     proc_text = re.sub(r"\bEXEC(?:UTE)?\s+(CICS|SQL|DLI)\b.*?\bEND-EXEC\b", ph, text[m.start() :], flags=re.S | re.I)
+    # #4462: JSON PARSE / JSON GENERATE / XML PARSE / XML GENERATE and SET pointer TO ENTRY: no statements of the
+    # grammar's; a placeholder CALL, translated as a hole by name (_markup; before ENTRY's, which would take SET's
+    # `ENTRY 'x'`)
+    markups: dict[int, str] = {}
+    proc_text = _markup_placeholders(proc_text, markups)
     # SORT / MERGE: the grammar drops their later phrases (WITH DUPLICATES, OUTPUT PROCEDURE ...); each becomes a
     # placeholder CALL too, its text parsed here (_sort_merge)
     sorts: dict[int, str] = {}
@@ -320,6 +326,8 @@ def parse(lines: list[Line]) -> Procedure:
                 s = _entry(unwrap(entries[int(s.data["program"][6:])]), s.line)
             elif s.kind == "CALL" and re.match(r"GGEXHB\d{4}$", s.data.get("program") or ""):
                 s = _exhibit(unwrap(exhibits[int(s.data["program"][6:])]), s.line)
+            elif s.kind == "CALL" and re.match(r"GGMKUP\d{4}$", s.data.get("program") or ""):
+                s = _markup(unwrap(markups[int(s.data["program"][6:])]), s.line)
             stack[-1].target.append(s)
             continue
         stack[-1].target.append(Stmt("HOLE", origin(n), node_text(n), {"why": f"grammar node {t}"}))
@@ -1061,6 +1069,87 @@ def _exhibit_placeholders(text: str, exhibits: dict[int, str]) -> str:
             continue
         i += 1
     return "".join(out) + text[last:]
+
+
+_MARKUP_FIGURATIVE = {"ZERO", "ZEROS", "ZEROES", "SPACE", "SPACES", "LOW-VALUE", "LOW-VALUES", "HIGH-VALUE",
+                      "HIGH-VALUES"}  # fmt: skip
+
+
+def _markup_placeholders(text: str, markups: dict[int, str]) -> str:
+    """#4462: each JSON / XML PARSE / GENERATE statement and each `SET pointer ... TO ENTRY x` in `text` replaced by `CALL 'GGMKUPnnnn'` and \\x01 per line
+    end, as _sort_placeholders. A statement runs from its verb to its END-JSON / END-XML (when one comes before the
+    period), else to the period, the next statement's verb, an END-x or ELSE -- its [NOT] ON EXCEPTION phrases' own
+    statements included (after EXCEPTION only the period, END-x, ELSE or a WHEN ends it). `SUPPRESS ... WHEN SPACES`
+    is the statement's own WHEN."""
+    toks = list(_SORT_TOKEN.finditer(text))
+    words = [t.group(0).upper() for t in toks]
+
+    def starts(k: int) -> bool:
+        return words[k] in ("JSON", "XML") and k + 1 < len(words) and words[k + 1] in ("PARSE", "GENERATE")
+
+    out, last, i = [], 0, 0
+    while i < len(toks):
+        if words[i] == "SET":  # SET p ... TO ENTRY {literal | identifier}
+            j = i + 1
+            while j < len(words) and words[j] not in ("TO", ".") and words[j] not in _STATEMENT_WORDS:
+                j += 1
+            if j + 2 < len(words) and words[j] == "TO" and words[j + 1] == "ENTRY" and words[j + 2] != ".":
+                start, end = toks[i].start(), toks[j + 2].end()
+                markups[len(markups) + 1] = text[start:end]
+                out += [text[last:start], f"CALL 'GGMKUP{len(markups):04d}'" + "\x01" * text[start:end].count("\n")]
+                last, i = end, j + 3
+                continue
+        if not starts(i):
+            i += 1
+            continue
+        end_word = "END-" + words[i]
+        period = next((k for k in range(i, len(words)) if words[k] == "."), len(words))
+        closed = end_word in words[i + 2 : period]
+        j, depth, in_exc, suppress = i + 2, 0, False, False
+        while j < len(toks):
+            u = words[j]
+            if u == ".":
+                break
+            if closed:  # to the END-JSON / END-XML matching it
+                if starts(j) and words[j] == words[i]:
+                    depth += 1
+                elif u == end_word:
+                    if depth == 0:
+                        j += 1
+                        break
+                    depth -= 1
+                j += 1
+                continue
+            nxt = words[j + 1] if j + 1 < len(words) else ""
+            if u == "WHEN" and suppress and nxt in _MARKUP_FIGURATIVE:
+                j += 2
+                continue
+            if u.startswith("END-") or u in ("ELSE", "WHEN"):
+                break
+            if u == "EXCEPTION" or (u == "NOT" and nxt in ("ON", "EXCEPTION")):
+                in_exc = True
+            elif u == "SUPPRESS":
+                suppress = True
+            elif not in_exc and u in _STATEMENT_WORDS:
+                break
+            j += 1
+        start, end = toks[i].start(), toks[j - 1].end()
+        markups[len(markups) + 1] = text[start:end]
+        out += [text[last:start], f"CALL 'GGMKUP{len(markups):04d}'" + "\x01" * text[start:end].count("\n")]
+        last, i = end, j
+    return "".join(out) + text[last:]
+
+
+def _markup(text: str, line: int) -> Stmt:
+    """JSON PARSE / JSON GENERATE (Enterprise COBOL 6.1+) and XML PARSE / XML GENERATE: a hole by name. Not modelled:
+    their name matching and conversions (JSON PARSE INTO a group, NAME OF, SUPPRESS, CONVERTING), the special
+    registers they set (JSON-CODE, JSON-STATUS, XML-CODE, XML-EVENT ...), XML PARSE's processing procedure and the
+    encodings and code pages of the text they read and write."""
+    if text.split()[0].upper() == "SET":
+        return Stmt("HOLE", line, text, {"why": "SET TO ENTRY: procedure / function pointers are not modelled"})
+    verb = " ".join(text.split()[:2]).upper()
+    era = "Enterprise COBOL 6.1+" if verb.startswith("JSON") else "Enterprise COBOL"
+    return Stmt("HOLE", line, text, {"why": f"{verb} ({era}): not modelled"})
 
 
 def _exhibit(text: str, line: int) -> Stmt:

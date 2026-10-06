@@ -324,6 +324,20 @@ Only generator output, never a test case:
   port stops; the case now sends 12). mortgage-cmort / mlist / nbrvl: #4245 read every program of EPSCSMRD's
   multi-program source, and its field CASE became the Java field `case` (the generator's keyword list was partial).
   `.github/workflows/det-sweep.yml` now runs the sweep (no Db2) on translator / harness / case changes and nightly.
+- #4462 (found by the #4273 cross-check): what the translator reads before it parses, decided per cause.
+  *Code pages* are modelled: the program and each member are decoded with the code page the estate declares for that
+  file, the one the engine decoded it with (`--source-encoding`; `GalaxyIR.copy_pages`, the skeleton's and port
+  ticket's `copy_pages`, `source.EngineCopies.pages`), so a raw EBCDIC source (cp037, cp273, cp277 ...) is read as
+  the scan read it (it was a cp1252 guess with no IDENTIFICATION DIVISION in it), and a COPY member's name may hold
+  national letters (`COPY 'KUNDEÅ'`). *Free format* is modelled: after `>>SOURCE FORMAT FREE` (until `... FIXED`)
+  a line is code from column 1, of any length, up to a `*>` comment. *Refused by name* (`source.unmodelled`, a
+  LayoutError / ExprError naming the file, line and character): national / DBCS text, any character beyond Latin-1
+  in a name or a literal (estate-crucible KYUY: Kanji names, PIC G, ideographic spaces; KYUYJP had raised
+  UnicodeEncodeError), because the translator lays records out and hands the grammar its text one byte a character;
+  a national letter in a name (`BETRÄGE`: the grammar reads ASCII words only); DECIMAL-POINT IS COMMA (`1000,00`,
+  `0,5` must never be read as integers). A national letter inside a literal or a comment is read. Still refused, with
+  a cause in the cross-check ledger: several programs in one source (PAYMAIN), IDMS (LNIDMS01), `PROGRAM-ID LNCALC.`
+  without its period, and the grammar gaps the ledger lists (`translator-refuses-grammar`).
 
 ### Keyed reads
 

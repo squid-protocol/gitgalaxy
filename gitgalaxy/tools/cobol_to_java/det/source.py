@@ -4,7 +4,8 @@ debugging lines dropped, continued literals joined. Every logical line keeps whe
 from __future__ import annotations
 
 import re
-from dataclasses import dataclass
+import unicodedata
+from dataclasses import dataclass, field
 from pathlib import Path
 
 from gitgalaxy.core.compiler_options import cards
@@ -55,17 +56,20 @@ class EngineCopies:
     `root`: the estate the engine scanned (its paths are relative to it). `edges`: importer (repo-relative, every
     estate file the program's COPYs reach) -> member -> ((file, the COPY forms' library-names: "" an unqualified COPY;
     empty: not recorded), ...). `gaps` / `collisions`: (importer, member) the engine reports no declared library
-    holds, or several do (#4421; only when the scan declared copy libraries)."""
+    holds, or several do (#4421; only when the scan declared copy libraries). `pages` (#4462): repo-relative file ->
+    the code page the estate declares for it and the engine decoded it with (`--source-encoding`, #3909), so the
+    translator reads the program and its members the same way."""
 
     program: Path
     root: Path
     edges: dict[str, dict[str, tuple[tuple[Path, frozenset[str]], ...]]]
     gaps: frozenset[tuple[str, str]] = frozenset()
     collisions: frozenset[tuple[str, str]] = frozenset()
+    pages: dict[str, str] = field(default_factory=dict)
 
     @classmethod
     def of(cls, program: Path, root: Path, deps: dict[str, dict[str, list[str]] | list[str]],
-           gaps=(), collisions=()) -> EngineCopies:  # fmt: skip
+           gaps=(), collisions=(), pages: dict[str, str] | None = None) -> EngineCopies:  # fmt: skip
         """From importer -> its resolved COPY files (repo-relative; a list, or file -> library-names). A symbolic
         map generated from BMS (`map.bms#MAPSET`) is not an estate file: the translator generates its own."""
         edges: dict[str, dict[str, list[tuple[Path, frozenset[str]]]]] = {}
@@ -76,7 +80,8 @@ class EngineCopies:
                     libs = files.get(f) if isinstance(files, dict) else None
                     mine.setdefault(Path(f).stem.upper(), []).append((root / f, frozenset(libs or ())))
         return cls(program, root, {i: {m: tuple(v) for m, v in e.items()} for i, e in edges.items()},
-                   frozenset((i, m.upper()) for i, m in gaps), frozenset((i, m.upper()) for i, m in collisions))  # fmt: skip
+                   frozenset((i, m.upper()) for i, m in gaps), frozenset((i, m.upper()) for i, m in collisions),
+                   {_nfc(f): p for f, p in (pages or {}).items() if p})  # fmt: skip
 
     @property
     def resolved(self) -> dict[str, tuple[Path, ...]]:
@@ -89,6 +94,13 @@ class EngineCopies:
             return p.resolve().relative_to(self.root.resolve()).as_posix()
         except ValueError:
             return str(p)
+
+    def page(self, p: Path) -> str | None:
+        """#4462: the code page the engine decoded `p` with (the estate's declaration); None: read unaided."""
+        return self.pages.get(_nfc(self.rel(p))) if self.pages else None
+
+    def with_program(self, program: Path) -> EngineCopies:
+        return EngineCopies(program, self.root, self.edges, self.gaps, self.collisions, self.pages)
 
     def in_estate(self, p: Path) -> bool:
         return self.rel(p) != str(p)
@@ -126,23 +138,57 @@ class EngineCopies:
                                  "translator expanded no COPY of it")  # fmt: skip
 
 
-def _raw_lines(path: Path) -> list[str]:
-    return read_source(path).text.splitlines()
+def _nfc(path: str) -> str:
+    return unicodedata.normalize("NFC", path.replace("\\", "/"))
+
+
+def _raw_lines(path: Path, engine: EngineCopies | None = None) -> list[str]:
+    """#4462: decoded the way the engine decoded it: with the code page the estate declares for the file (cp273,
+    cp037, cp277 ...: EngineCopies.pages); without a declaration, read_source's ladder (UTF-8, else a guess)."""
+    return read_source(path, declared=engine.page(path) if engine is not None else None).text.splitlines()
 
 
 _ID_DIVISION = re.compile(r"^(\s*)ID\s+DIVISION(?=\s*\.)", re.I)
 
 
+# `>>SOURCE FORMAT FREE` / `>>SOURCE FORMAT IS FIXED` / `>>SOURCE FREE` (IBM Enterprise COBOL 6.3+, GnuCOBOL)
+_SOURCE_FORMAT = re.compile(r"\s*>>\s*SOURCE(?:\s+FORMAT)?(?:\s+IS)?\s+(FREE|FIXED)\b", re.I)
+
+
+def _free_code(line: str) -> str:
+    """A free-format line without its `*>` comment (one outside a literal)."""
+    at = line.find("*>")
+    while at >= 0:
+        if not _open_literal(line[:at]):
+            return line[:at]
+        at = line.find("*>", at + 2)
+    return line
+
+
 def logical_lines(raw: list[str], file: str) -> list[Line]:
     """Columns 8-72 of each code line; comment (* /), debugging (D) and blank lines dropped; a continuation line
-    (indicator '-') joined to the line before: a continued literal resumes after the continuation's first quote."""
+    (indicator '-') joined to the line before: a continued literal resumes after the continuation's first quote.
+    #4462: after `>>SOURCE FORMAT FREE` (until `>>SOURCE FORMAT FIXED`) a line is code from column 1, of any length,
+    up to a `*>` comment."""
     out: list[Line] = []
     # Compiler-option cards (CBL / PROCESS, before the program or after an END PROGRAM) are not COBOL text. The
     # engine's own reader decides which lines they are: a card may start in any column from 1, so IBM DBB's
     # `   CBL NUMPROC(MIG),...` (CBL in columns 4-6) is one, as GenApp's `       PROCESS SQL` is.
     card_lines = {n for n, _ in cards("\n".join(raw))}
+    free = False
     for n, line in enumerate(raw, 1):
         if n in card_lines:
+            continue
+        fmt = _SOURCE_FORMAT.match(line if free else line[6:])
+        if fmt:
+            free = fmt.group(1).upper() == "FREE"
+            continue
+        if free:
+            code = _free_code(line).rstrip()
+            if code.strip() and not code.lstrip().startswith(">>D "):  # (a debugging line, as indicator D)
+                if _ID_DIVISION.match(code):
+                    code = _ID_DIVISION.sub(lambda m: m.group(1) + "IDENTIFICATION DIVISION", code, count=1)
+                out.append(Line(code, file, n))
             continue
         if len(line) < 7:
             continue
@@ -169,6 +215,59 @@ def logical_lines(raw: list[str], file: str) -> list[Line]:
     return out
 
 
+_DECIMAL_COMMA = re.compile(r"\bDECIMAL-POINT\s+(?:IS\s+)?COMMA\b", re.I)
+
+
+def _outside_literals(text: str) -> str:
+    """`text` with each literal's content blanked (its quotes kept)."""
+    out, quote = [], None
+    for ch in text:
+        if quote is None:
+            quote = ch if ch in "'\"" else None
+            out.append(ch)
+        elif ch == quote:
+            quote = None
+            out.append(ch)
+        else:
+            out.append(" ")
+    return "".join(out)
+
+
+def unmodelled(lines: list[Line]) -> str | None:
+    """#4462: why the translator cannot read `lines` (a refusal by name, before the parser), or None.
+
+    - A character beyond Latin-1 (national / DBCS text: a Kanji name or literal, an ideographic space, a PIC G
+      literal; estate-crucible KYUY): the translator lays records out, and hands the parser its text, in one byte a
+      character. It had raised UnicodeEncodeError; a DBCS estate is refused, never laid out wrong.
+    - A national letter in a word outside a literal (`BETRÄGE`, read in cp273): the COBOL grammar reads ASCII words
+      only, and refused the line unnamed.
+    - DECIMAL-POINT IS COMMA (DEUT ZINSBER): `1000,00` and `0,5` are numbers and an edited PIC's `.` and `,` swap
+      roles; not modelled, so never read as a list of integers.
+
+    The IDENTIFICATION DIVISION's paragraphs after PROGRAM-ID (AUTHOR, REMARKS ...) are free text no parser reads."""
+    in_id = False
+    for ln in lines:
+        head = ln.text.lstrip().upper()
+        if re.match(r"(?:IDENTIFICATION|ID)\s+DIVISION\b", head):
+            in_id = True
+        elif re.match(r"(?:ENVIRONMENT|DATA|PROCEDURE)\s+DIVISION\b", head):
+            in_id = False
+        elif in_id and not head.startswith("PROGRAM-ID"):
+            continue
+        wide = next((c for c in ln.text if ord(c) > 0xFF), None)
+        if wide is not None:
+            return (f"{Path(ln.file).name}:{ln.line}: national / DBCS text ({wide!r}, U+{ord(wide):04X}) is not modelled: the "
+                    "translator reads a single-byte code page")  # fmt: skip
+        bare = _outside_literals(ln.text)
+        word = re.search(r"[^\s.,;:()'\"=<>+*/]*[^\x00-\x7f][^\s.,;:()'\"=<>+*/]*", bare)
+        if word is not None:
+            return (f"{Path(ln.file).name}:{ln.line}: the name {word.group(0)} holds a national letter: the COBOL grammar reads "
+                    "ASCII words only")  # fmt: skip
+        if _DECIMAL_COMMA.search(bare):
+            return f"{Path(ln.file).name}:{ln.line}: DECIMAL-POINT IS COMMA is not modelled"
+    return None
+
+
 def _open_literal(text: str) -> bool:
     """Whether `text` ends inside an unterminated literal."""
     quote = None
@@ -182,8 +281,10 @@ def _open_literal(text: str) -> bool:
 
 # #4459: a COPY anywhere on its line (`01 WS-HEAD.  COPY RPTHDR.`), never inside a literal; its member may be on the
 # next line (`COPY` / `UPDCTL.`, joined by `expand`)
-_COPY = re.compile(r"(?<![A-Z0-9#@$-])COPY\s+(['\"]?)([A-Z0-9#@$-]+)\1(?:\s+(?:OF|IN)\s+([A-Z0-9-]+))?", re.I)
-_COPY_ALONE = re.compile(r"(?<![A-Z0-9#@$-])COPY\s*$", re.I)
+# #4462: a member's name may hold national letters (estate-crucible NORD `COPY KUNDEÅ.`, read in cp277)
+_WORD = r"(?:[^\W_]|[#@$-])"
+_COPY = re.compile(rf"(?<!{_WORD})COPY\s+(['\"]?)({_WORD}+)\1(?:\s+(?:OF|IN)\s+({_WORD}+))?", re.I)
+_COPY_ALONE = re.compile(rf"(?<!{_WORD})COPY\s*$", re.I)
 _PROGRAM_MARK = re.compile(r"^\s*(?:IDENTIFICATION|ID)\s+DIVISION\b|^\s*PROGRAM-ID\b", re.I)
 
 
@@ -289,7 +390,7 @@ def expand(lines: list[Line], dirs: list[Path], depth: int = 0, chain: frozenset
             raise CopyNotFound(f"{where}: COPY {name} nests deeper than 8")
         if engine is not None and ln.file == own and expanded_names is not None:
             expanded_names.add(name)
-        body = logical_lines(_raw_lines(member), str(member))
+        body = logical_lines(_raw_lines(member, engine), str(member))
         if any(_PROGRAM_MARK.match(b.text) for b in body):
             # #4460: a program, not a copybook: splicing it in would give the includer another program's records
             raise CopyNotFound(f"{where}: COPY {name} resolves to {member}, which is a program (IDENTIFICATION "
@@ -333,9 +434,9 @@ def program_lines(program: Path, dirs: list[Path], engine: EngineCopies | None =
     resolved; refused (CopyUnresolved) where the engine resolved none or several, or a member it resolved for the
     program is never expanded (#4459)."""
     if engine is not None and engine.program != program:
-        engine = EngineCopies(program, engine.root, engine.edges, engine.gaps, engine.collisions)
+        engine = engine.with_program(program)
     names: set[str] = set()
-    out = expand(logical_lines(_raw_lines(program), str(program)), [program.parent, *dirs],
+    out = expand(logical_lines(_raw_lines(program, engine), str(program)), [program.parent, *dirs],
                  chain=frozenset({program.resolve()}), engine=engine, expanded_names=names)  # fmt: skip
     if engine is not None:
         engine.check_all_expanded(names)
@@ -346,7 +447,8 @@ def engine_copies_from_ticket(project: Path, program: Path) -> EngineCopies | No
     """#4468: the engine's resolution of `program`'s COPYs from the port ticket the generator wrote for it
     (ai_agent_jobs/*_port_ticket.json, repo-relative): the skeleton's `copy_edges` (every estate file the program's
     COPYs reach, with library-names) and its gaps and collisions; a ticket without them (written before #4468): the
-    program's own copybooks. None where no ticket names the program (the translator then searches `dirs`)."""
+    program's own copybooks. None where no ticket names the program (the translator then searches `dirs`).
+    `copy_pages` (#4462): the code pages the scan decoded the program and its members with."""
     jobs = project / "ai_agent_jobs"
     if not jobs.is_dir():
         return None
@@ -368,7 +470,8 @@ def engine_copies_from_ticket(project: Path, program: Path) -> EngineCopies | No
         if edges is None:
             edges = {rel: [c.get("file") or "" for c in src.get("copybooks") or [] if c.get("file")]}
         return EngineCopies.of(program, root, edges, [tuple(g) for g in facts.get("copy_gaps") or []],
-                               [tuple(c) for c in facts.get("copy_collisions") or []])  # fmt: skip
+                               [tuple(c) for c in facts.get("copy_collisions") or []],
+                               facts.get("copy_pages"))  # fmt: skip
     return None
 
 
@@ -454,4 +557,4 @@ def engine_copies_from_ir(ir, rel: str, root: Path) -> EngineCopies | None:
         return None
     res = ir.copy_resolution(rel)
     return EngineCopies.of(root / rel, root, res["edges"], [tuple(g) for g in res["gaps"]],
-                           [tuple(c) for c in res["collisions"]])  # fmt: skip
+                           [tuple(c) for c in res["collisions"]], ir.copy_pages(rel))  # fmt: skip

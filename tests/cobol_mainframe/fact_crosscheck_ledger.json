@@ -32,11 +32,6 @@
    "issue": 4460,
    "summary": "COPY SHPRATE / COPY ORDPRICE find only a program source. Before #4468, det.source spliced that whole program in. Since #4468 the engine's gap (no declared library holds the member) refuses the program by name instead (CopyUnresolved)."
   },
-  "translator-copy-statement-forms": {
-   "side": "translator",
-   "issue": 4459,
-   "summary": "COPY after other text on its line (01 X.  COPY Y.), with the member on the next line, or naming a non-ASCII member (KUNDEÅ) is not expanded by det.source; before #4468 the record was silently empty, now the program is refused by name (CopyUnresolved: engine resolved it, translator expanded no COPY of it)."
-  },
   "translator-refuses-copy-collision": {
    "side": "translator",
    "issue": 4486,
@@ -45,12 +40,17 @@
   "translator-refuses-estate-shape": {
    "side": "translator",
    "issue": 4462,
-   "summary": "Refused (never silent): a declared EBCDIC / Shift-JIS code page, free-format source, IDMS, several programs in one source (PAYMAIN: its nested programs' units are missing), PROGRAM-ID without a period; KYUYJP crashes (UnicodeEncodeError)."
+   "summary": "Refused (never silent): IDMS (LNIDMS01), several programs in one source (PAYMAIN: its nested programs' units are missing), PROGRAM-ID without a period (LNCALC), RPTHDR's DATA DIVISION. (Declared code pages and free format are read since #4462.)"
   },
   "translator-refuses-grammar": {
    "side": "translator",
    "issue": 4462,
-   "summary": "Refused (never silent): the tree-sitter grammar or the statement builder cannot read the DATA / PROCEDURE DIVISION (SEARCH ALL 'no open EVALUATE', DL/I, long continued literals, DSF)."
+   "summary": "Refused (never silent): the tree-sitter grammar or the statement builder cannot read the DATA / PROCEDURE DIVISION (SEARCH ALL 'no open EVALUATE', DL/I, long continued literals, DSF, FUNCTION CURRENT-DATE (1:4): a reference modification on an intrinsic function, estate-crucible KØBREG)."
+  },
+  "translator-refuses-national-text": {
+   "side": "translator",
+   "issue": 4462,
+   "summary": "Refused by name since #4462 (source.unmodelled), never laid out wrong: national / DBCS text (Kanji names and literals, PIC G, ideographic spaces: estate-crucible KYUY, decoded in its declared cp930 / shift_jis or UTF-8; the translator lays records out one byte a character), and DECIMAL-POINT IS COMMA (DEUT ZINSBER: 1000,00 / 0,5 are numbers). Modelling either is a translator feature."
   },
   "translator-refuses-vendor-copybook": {
    "side": "definitional",
@@ -319,15 +319,13 @@
   "dsf :: unit_extents | src/GML/FO04D1X1.cobol | translator | (procedure division) L125-132": "engine-main-line-no-extent",
   "dsf :: unit_extents | src/GML/PLUKKFR.cobol | translator | (procedure division) L73-75": "engine-main-line-no-extent",
   "dsf :: unit_extents | src/GML/PLUKKFRN.cobol | translator | (procedure division) L73-75": "engine-main-line-no-extent",
-  "estate-crucible :: status | apps/DEUT/cobol/ZINSBER.cbl | engine | translator refused: CopyNotFound: COPY ZINSSATZ:": "translator-refuses-estate-shape",
-  "estate-crucible :: status | apps/GULF/cobol/GULFINQ.cbl | engine | translator refused: CopyNotFound: COPY GULFMS:": "translator-refuses-estate-shape",
-  "estate-crucible :: status | apps/KYUY/cobol/KYUYJP.cbl | engine | translator refused: layout: UnicodeEncodeError: 'latin-1' codec can't encode characters in position 54-57: ordinal not in range(256); procedure: UnicodeEncodeError: 'latin-1' codec can't encode characters in position 92-94: ordinal not in range(256)": "translator-refuses-estate-shape",
-  "estate-crucible :: status | apps/KYUY/cobol/KYUYO01.cbl | engine | translator refused: CopyNotFound: COPY SHAINREC:": "translator-refuses-estate-shape",
-  "estate-crucible :: status | apps/KYUY/cobol/KYUYO02.cbl | engine | translator refused: layout: LayoutError: DATA DIVISION does not parse near expanded line(s) [5]; procedure: ExprError: the PROCEDURE DIVISION does not parse at line 12": "translator-refuses-estate-shape",
+  "estate-crucible :: status | apps/DEUT/cobol/ZINSBER.cbl | engine | translator refused: layout: LayoutError: ZINSBER.cbl:12: DECIMAL-POINT IS COMMA is not modelled; procedure: ExprError: ZINSBER.cbl:12: DECIMAL-POINT IS COMMA is not modelled": "translator-refuses-national-text",
+  "estate-crucible :: status | apps/KYUY/cobol/KYUYJP.cbl | engine | translator refused: layout: LayoutError: KYUYJP.cbl:2: national / DBCS text ('給', U+7D66) is not modelled: the translator reads a single-byte code page; procedure: ExprError: KYUYJP.cbl:2: national / DBCS text ('給', U+7D66) is not modelled: the translator reads a single-byte code page": "translator-refuses-national-text",
+  "estate-crucible :: status | apps/KYUY/cobol/KYUYO01.cbl | engine | translator refused: layout: LayoutError: KYUYO01.cbl:10: national / DBCS text ('処', U+51E6) is not modelled: the translator reads a single-byte code page; procedure: ExprError: KYUYO01.cbl:10: national / DBCS text ('処', U+51E6) is not modelled: the translator reads a single-byte code page": "translator-refuses-national-text",
+  "estate-crucible :: status | apps/KYUY/cobol/KYUYO02.cbl | engine | translator refused: layout: LayoutError: KYUYO02.cbl:8: national / DBCS text ('賞', U+8CDE) is not modelled: the translator reads a single-byte code page; procedure: ExprError: KYUYO02.cbl:8: national / DBCS text ('賞', U+8CDE) is not modelled: the translator reads a single-byte code page": "translator-refuses-national-text",
   "estate-crucible :: status | apps/LOAN/cobol/LNCALC.cbl | engine | translator refused: layout: LayoutError: DATA DIVISION does not parse near expanded line(s) [2]": "translator-refuses-estate-shape",
   "estate-crucible :: status | apps/LOAN/cobol/LNIDMS01.cbl | engine | translator refused: layout: LayoutError: DATA DIVISION does not parse near expanded line(s) [5, 9]; procedure: ExprError: the PROCEDURE DIVISION does not parse at line 18": "translator-refuses-estate-shape",
-  "estate-crucible :: status | apps/MODN/cobol/MODRATE.cbl | engine | translator refused: layout: LayoutError: DATA DIVISION does not parse near expanded line(s) [1]; procedure: ExprError: no PROCEDURE DIVISION": "translator-refuses-estate-shape",
-  "estate-crucible :: status | apps/NORD/cobol/KØBREG.cbl | engine | translator refused: CopyNotFound: COPY KUNDEÅ:": "translator-copy-statement-forms",
+  "estate-crucible :: status | apps/NORD/cobol/KØBREG.cbl | engine | translator refused: procedure: ExprError: the PROCEDURE DIVISION does not parse at line 23": "translator-refuses-grammar",
   "estate-crucible :: status | apps/ORDR/cobol/ORDMAIN.cbl | engine | translator refused: CopyNotFound: COPY ORDREC:": "translator-refuses-copy-collision",
   "estate-crucible :: status | apps/ORDR/cobol/ORDPRICE.cbl | engine | translator refused: CopyNotFound: COPY ORDREC:": "translator-refuses-copy-collision",
   "estate-crucible :: status | apps/ORDR/cobol/ORDV#OLD.cbl | engine | translator refused: CopyNotFound: COPY ORDREC:": "translator-refuses-copy-collision",
@@ -335,7 +333,6 @@
   "estate-crucible :: status | apps/ORDR/cobol/ORDVALV2.cbl | engine | translator refused: CopyNotFound: COPY ORDREC:": "translator-refuses-copy-collision",
   "estate-crucible :: status | apps/ORDR/cobol/ORDVOLD.cbl | engine | translator refused: CopyNotFound: COPY ORDREC:": "translator-refuses-copy-collision",
   "estate-crucible :: status | apps/PAYR/cobol/PAYMAIN.cbl | engine | translator refused: CopyNotFound: COPY DATEWS:": "translator-refuses-copy-collision",
-  "estate-crucible :: status | apps/PCED/cobol/PCEDFREE.cbl | engine | translator refused: layout: LayoutError: DATA DIVISION does not parse near expanded line(s) [1]; procedure: ExprError: no PROCEDURE DIVISION": "translator-refuses-estate-shape",
   "estate-crucible :: status | apps/RPTS/cobol/RPTHDR.cbl | engine | translator refused: layout: LayoutError: DATA DIVISION does not parse near expanded line(s) [18]": "translator-refuses-estate-shape",
   "estate-crucible :: status | apps/SHIP/cobol/SHPINQ.cbl | engine | translator refused: CopyNotFound: COPY SHPRATE:": "translator-copy-program-member",
   "estate-crucible :: status | apps/SHIP/cobol/SHPINQO.cbl | engine | translator refused: CopyNotFound: COPY SHPRATE:": "translator-copy-program-member",

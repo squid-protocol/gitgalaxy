@@ -31,6 +31,8 @@ where the finding is now.
 
 import hashlib
 import json
+import os
+import re
 from collections.abc import Iterable
 from pathlib import Path
 from typing import Callable, NamedTuple
@@ -38,6 +40,32 @@ from typing import Callable, NamedTuple
 from gitgalaxy.core.source_text import read_source
 
 HASH_LEN = 12
+
+# #4551: colour must be impossible, or the parsers silently match nothing.
+_ANSI = re.compile(r"\x1b\[[0-9;?]*[ -/]*[@-~]")
+_COLOUR_VARS = ("FORCE_COLOR", "MYPY_FORCE_COLOR", "PY_COLORS", "CLICOLOR_FORCE", "RUFF_OUTPUT_FORMAT")
+
+
+def strip_ansi(text: str) -> str:
+    """Removes ANSI escape sequences."""
+    return _ANSI.sub("", text)
+
+
+def colourless_env() -> dict[str, str]:
+    """os.environ with every colour-forcing variable removed and NO_COLOR=1 set."""
+    env = {k: v for k, v in os.environ.items() if k not in _COLOUR_VARS}
+    env["NO_COLOR"] = "1"
+    return env
+
+
+def require_parsed(tool: str, output: str, returncode: int, parsed: int) -> None:
+    """Fails loudly: the tool failed or reported errors, yet nothing was parsed (a false pass)."""
+    if parsed == 0:
+        raise SystemExit(
+            f"{tool} audit: {tool} exited {returncode} with {len(output.splitlines())} output line(s) but 0 "
+            f"findings were parsed -- refusing to report a pass (#4551). Output tail:\n"
+            + "\n".join(output.strip().splitlines()[-15:])
+        )
 
 
 class Finding(NamedTuple):

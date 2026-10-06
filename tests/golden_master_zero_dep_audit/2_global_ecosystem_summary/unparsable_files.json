@@ -4,11 +4,10 @@
     "unparsable_files"
   ],
   "value": {
-    "ambig_file_count": 397,
+    "ambig_file_count": 383,
     "binary": 0,
     "composition_by_extension_and_reason": {
       ".ads": {
-        "Blocked (Machine-Generated Source Code Signature: 21 LOC)": 1,
         "Blocked (Machine-Generated Source Code Signature: 62 LOC)": 1
       },
       ".am": {
@@ -73,7 +72,6 @@
         "Blocked (Unsupported Extension: '.lock')": 3
       },
       ".lua": {
-        "Blocked (Machine-Generated Source Code Signature: 30 LOC)": 1,
         "Blocked (System Exclusion, Hidden Directory, or Dynamic Ignored Dir)": 2
       },
       ".m": {
@@ -82,26 +80,17 @@
       ".mat": {
         "Blocked (Unsupported Extension: '.mat')": 1
       },
-      ".md": {
-        "Blocked (Machine-Generated Source Code Signature: 29 LOC)": 1,
-        "Blocked (Machine-Generated Source Code Signature: 39 LOC)": 1,
-        "Blocked (Machine-Generated Source Code Signature: 48 LOC)": 1,
-        "Blocked (Machine-Generated Source Code Signature: 74 LOC)": 1
-      },
       ".ps1": {
-        "Blocked (Machine-Generated Source Code Signature: 99 LOC)": 1,
         "Unsupported Format (.undeterminable)": 1
       },
       ".py": {
-        "Blocked (Machine-Generated Source Code Signature: 1695 LOC)": 1,
         "Blocked (Saturation: Line 96 exceeds 500 chars)": 1
       },
       ".python": {
         "Blocked (Unsupported Extension: '.python')": 1
       },
       ".rs": {
-        "Blocked (Lexical Monotony: High structural repetition detected in 2342 LOC)": 1,
-        "Blocked (Machine-Generated Source Code Signature: 1541 LOC)": 1
+        "Blocked (Lexical Monotony: High structural repetition detected in 2342 LOC)": 1
       },
       ".rst": {
         "Blocked (Unsupported Extension: '.rst')": 1
@@ -112,9 +101,6 @@
       ".sh": {
         "Blocked (Lexical Monotony: High structural repetition detected in 2116 LOC)": 1,
         "Blocked (Machine-Generated Source Code Signature: 18 LOC)": 1,
-        "Blocked (Machine-Generated Source Code Signature: 203 LOC)": 1,
-        "Blocked (Machine-Generated Source Code Signature: 37 LOC)": 1,
-        "Blocked (Machine-Generated Source Code Signature: 50 LOC)": 1,
         "Blocked (Machine-Generated Source Code Signature: 74 LOC)": 1,
         "Blocked (Saturation: Line 37 exceeds 500 chars)": 1,
         "Blocked (System Exclusion, Hidden Directory, or Dynamic Ignored Dir)": 1
@@ -152,7 +138,6 @@
         "Blocked (Saturation: Line 1 exceeds 500 chars)": 1
       },
       ".txt": {
-        "Blocked (Machine-Generated Source Code Signature: 56 LOC)": 1,
         "Blocked (System Exclusion, Hidden Directory, or Dynamic Ignored Dir)": 1
       },
       ".typed": {
@@ -160,9 +145,6 @@
       },
       ".xaml": {
         "Blocked (Unsupported Extension: '.xaml')": 3
-      },
-      ".y": {
-        "Blocked (Machine-Generated Source Code Signature: 2161 LOC)": 1
       },
       ".yaml": {
         "Blocked (System Exclusion, Hidden Directory, or Dynamic Ignored Dir)": 1

@@ -131,7 +131,8 @@
       "c/micropython/vm.c": "93 instances"
     },
     "c/sqlite": {
-      "c/sqlite/lemon.c": "1627 instances"
+      "c/sqlite/lemon.c": "1627 instances",
+      "c/sqlite/parse.y": "215 instances"
     },
     "cobol/CICS-Cobol": {
       "cobol/CICS-Cobol/CBL0501v01DeclaracioCondicionIF.cbl": "1 instances",
@@ -874,6 +875,7 @@
       "lua/redis/fib.lua": "6 instances",
       "lua/redis/life.lua": "10 instances",
       "lua/redis/luac.lua": "1 instances",
+      "lua/redis/sieve.lua": "3 instances",
       "lua/redis/sort.lua": "7 instances",
       "lua/redis/strict.lua": "5 instances",
       "lua/redis/trace-calls.lua": "4 instances"
@@ -1089,7 +1091,8 @@
       "powershell/runtime/download-tools.ps1": "3 instances",
       "powershell/runtime/generateredefinesfile.ps1": "4 instances",
       "powershell/runtime/generateversionscript.ps1": "3 instances",
-      "powershell/runtime/getRefPackFolderFromArtifacts.ps1": "1 instances"
+      "powershell/runtime/getRefPackFolderFromArtifacts.ps1": "1 instances",
+      "powershell/runtime/processrc.ps1": "21 instances"
     },
     "python/airflow": {
       "python/airflow/dag.py": "54 instances",
@@ -1188,6 +1191,7 @@
       "python/numpy/genapi.py": "101 instances",
       "python/numpy/generate_numpy_api.py": "22 instances",
       "python/numpy/generate_ufunc_api.py": "15 instances",
+      "python/numpy/generate_umath.py": "105 instances",
       "python/numpy/generate_umath_doc.py": "2 instances",
       "python/numpy/lapack_litemodule.c": "3 instances",
       "python/numpy/symbolic.py": "232 instances",
@@ -1294,6 +1298,7 @@
     },
     "rust/wasmtime": {
       "rust/wasmtime/wasmtime_instance.rs": "4 instances",
+      "rust/wasmtime/wasmtime_ir_instructions.rs": "12 instances",
       "rust/wasmtime/wasmtime_isle_parser.rs": "23 instances",
       "rust/wasmtime/wasmtime_pulley_interp.rs": "118 instances"
     },
@@ -1364,6 +1369,7 @@
       "shell/darwin-xnu/xcrun_cache.sh": "38 instances"
     },
     "shell/freebsd-src": {
+      "shell/freebsd-src/ckscripts.sh": "3 instances",
       "shell/freebsd-src/dd2_test.sh": "6 instances",
       "shell/freebsd-src/dtest.sh": "24 instances",
       "shell/freebsd-src/functional_test.sh": "2 instances",
@@ -1412,6 +1418,7 @@
       "shell/illumos-gate/dircmp.sh": "13 instances",
       "shell/illumos-gate/exportfs.sh": "11 instances",
       "shell/illumos-gate/illumos_13434_chunked_heredoc.sh": "2 instances",
+      "shell/illumos-gate/inetd-upgrade.sh": "18 instances",
       "shell/illumos-gate/mkerror.sh": "5 instances",
       "shell/illumos-gate/newvers.sh": "3 instances",
       "shell/illumos-gate/nfsfind.sh": "1 instances",
@@ -1484,6 +1491,7 @@
       "shell/serenity/OpenJDK__package.sh": "4 instances",
       "shell/serenity/analyze-qemu-coverage.sh": "11 instances",
       "shell/serenity/builtin.sh": "22 instances",
+      "shell/serenity/generate_manpages.sh": "2 instances",
       "shell/serenity/install.sh": "7 instances",
       "shell/serenity/run-tests-and-shutdown.sh": "1 instances"
     },

@@ -66,6 +66,7 @@
       "ada/functional/functional-try.adb": 0.968,
       "ada/functional/functional-try.ads": 1.395,
       "ada/functional/functional.ads": 0.0,
+      "ada/functional/functional_tests_config.ads": -0.333,
       "ada/functional/test_framework.adb": 1.159,
       "ada/functional/test_framework.ads": 0.106,
       "ada/functional/test_try_map_to_result.adb": 1.887
@@ -263,7 +264,7 @@
       "assembly/linux_1_0_kernel/COPYING": 0.0,
       "assembly/linux_1_0_kernel/boot_bootsect.S": 0.857,
       "assembly/linux_1_0_kernel/boot_head.S": 2.665,
-      "assembly/linux_1_0_kernel/boot_setup.S": 1.344,
+      "assembly/linux_1_0_kernel/boot_setup.S": 1.395,
       "assembly/linux_1_0_kernel/drivers_FPU-emu_div_small.S": -0.464,
       "assembly/linux_1_0_kernel/drivers_FPU-emu_poly_div.S": 2.092,
       "assembly/linux_1_0_kernel/drivers_FPU-emu_poly_mul64.S": -0.696,
@@ -459,7 +460,11 @@
     "c/sqlite": {
       "c/sqlite/LICENSE.md": 0.0,
       "c/sqlite/README.md": 0.0,
-      "c/sqlite/lemon.c": 0.071
+      "c/sqlite/lemon.c": 0.071,
+      "c/sqlite/parse.y": 1.176
+    },
+    "cobol": {
+      "cobol/SOURCES.md": 0.0
     },
     "cobol/CICS-Cobol": {
       "cobol/CICS-Cobol/CBL0102v01DivisionAmbiente.cbl": -0.218,
@@ -590,7 +595,7 @@
       "cobol/aws-mainframe-modernization-carddemo/CVTRA06Y.cpy": -0.184,
       "cobol/aws-mainframe-modernization-carddemo/CVTRA07Y.cpy": -0.412,
       "cobol/aws-mainframe-modernization-carddemo/DFHAID.cpy": 0.15,
-      "cobol/aws-mainframe-modernization-carddemo/DFHBMSCA.cpy": 0.046,
+      "cobol/aws-mainframe-modernization-carddemo/DFHBMSCA.cpy": 0.01,
       "cobol/aws-mainframe-modernization-carddemo/LICENSE.md": 0.0,
       "cobol/aws-mainframe-modernization-carddemo/NOTICE.md": 0.0,
       "cobol/aws-mainframe-modernization-carddemo/README.md": 0.0,
@@ -1054,10 +1059,10 @@
     },
     "cobol/gnucobol_internals": {
       "cobol/gnucobol_internals/COPYING": 0.0,
-      "cobol/gnucobol_internals/codegen.c": 0.446,
+      "cobol/gnucobol_internals/codegen.c": 0.47,
       "cobol/gnucobol_internals/fileio.c": 1.075,
       "cobol/gnucobol_internals/numeric.c": -0.125,
-      "cobol/gnucobol_internals/parser.y": 2.834,
+      "cobol/gnucobol_internals/parser.y": 2.853,
       "cobol/gnucobol_internals/scanner.l": 2.331,
       "cobol/gnucobol_internals/syn_misc.at": 0.464
     },
@@ -1295,7 +1300,7 @@
       "dockerfile/moby/builder/remotecontext/utils_test.go": -0.476
     },
     "dockerfile/moby/builder/remotecontext/git": {
-      "dockerfile/moby/builder/remotecontext/git/gitutils.go": 0.411,
+      "dockerfile/moby/builder/remotecontext/git/gitutils.go": 0.383,
       "dockerfile/moby/builder/remotecontext/git/gitutils_test.go": 0.92
     },
     "dockerfile/moby/builder/remotecontext/internal/tarsum": {
@@ -1306,7 +1311,7 @@
       "dockerfile/moby/builder/remotecontext/internal/tarsum/tarsum.go": 1.116,
       "dockerfile/moby/builder/remotecontext/internal/tarsum/tarsum_spec.md": 0.0,
       "dockerfile/moby/builder/remotecontext/internal/tarsum/tarsum_test.go": 1.196,
-      "dockerfile/moby/builder/remotecontext/internal/tarsum/versioning.go": 0.022,
+      "dockerfile/moby/builder/remotecontext/internal/tarsum/versioning.go": 0.001,
       "dockerfile/moby/builder/remotecontext/internal/tarsum/versioning_test.go": 0.189,
       "dockerfile/moby/builder/remotecontext/internal/tarsum/writercloser.go": 0.402
     },
@@ -1386,6 +1391,9 @@
     },
     "go/kubernetes_kubectl_tls": {
       "go/kubernetes_kubectl_tls/create_secret_tls_test.go": 2.496
+    },
+    "groovy": {
+      "groovy/SOURCES.md": 0.0
     },
     "groovy/fineract_gradle_plugin": {
       "groovy/fineract_gradle_plugin/LICENSE_RELEASE": 0.0,
@@ -1962,6 +1970,9 @@
       "javascript/threejs/WebGLProgram.js": -0.604,
       "javascript/threejs/WebGLRenderer.js": 0.587
     },
+    "jcl": {
+      "jcl/SOURCES.md": 0.0
+    },
     "jcl/cash-account-cobol": {
       "jcl/cash-account-cobol/DB2BIND.jcl": 3.26,
       "jcl/cash-account-cobol/DB2DDL.jcl": 2.613,
@@ -2176,7 +2187,7 @@
     },
     "kotlin/okhttp": {
       "kotlin/okhttp/Call.kt": 2.006,
-      "kotlin/okhttp/Dispatcher.kt": -0.301,
+      "kotlin/okhttp/Dispatcher.kt": -0.325,
       "kotlin/okhttp/LICENSE.txt": 0.0,
       "kotlin/okhttp/OkHttp.android.kt": 0.788,
       "kotlin/okhttp/OkHttp.jvm.kt": 0.0,
@@ -2407,6 +2418,7 @@
       "lua/redis/luac.lua": 0.0,
       "lua/redis/printf.lua": 0.0,
       "lua/redis/readonly.lua": -0.176,
+      "lua/redis/sieve.lua": 0.702,
       "lua/redis/sort.lua": 1.068,
       "lua/redis/strict.lua": 1.232,
       "lua/redis/table.lua": 0.294,
@@ -2489,7 +2501,7 @@
       "objective-c/SOURCES.md": 0.0
     },
     "objective-c/worldwideweb": {
-      "objective-c/worldwideweb/Anchor.m": 0.983,
+      "objective-c/worldwideweb/Anchor.m": 1.004,
       "objective-c/worldwideweb/HText.c": 1.092,
       "objective-c/worldwideweb/HyperManager.m": 0.694,
       "objective-c/worldwideweb/HyperText.h": 1.184,
@@ -2772,6 +2784,7 @@
       "powershell/runtime/generateredefinesfile.ps1": 0.248,
       "powershell/runtime/generateversionscript.ps1": -0.013,
       "powershell/runtime/getRefPackFolderFromArtifacts.ps1": -0.22,
+      "powershell/runtime/processrc.ps1": 0.223,
       "powershell/runtime/run-benchmark.ps1": 0.0,
       "powershell/runtime/update-machine-certs.ps1": 2.232
     },
@@ -3090,6 +3103,7 @@
       "python/numpy/genapi.py": 0.596,
       "python/numpy/generate_numpy_api.py": 1.511,
       "python/numpy/generate_ufunc_api.py": 1.152,
+      "python/numpy/generate_umath.py": -0.09,
       "python/numpy/generate_umath_doc.py": 1.151,
       "python/numpy/lapack_litemodule.c": 0.936,
       "python/numpy/numpy_api.py": -0.441,
@@ -3213,7 +3227,7 @@
       "rust/bevy_asset_examples/rotation.rs": 0.688
     },
     "rust/holylang": {
-      "rust/holylang/ast.rs": 0.365,
+      "rust/holylang/ast.rs": 0.332,
       "rust/holylang/compile.rs": -0.327,
       "rust/holylang/error.rs": -0.133,
       "rust/holylang/main.rs": 0.919,
@@ -3262,6 +3276,7 @@
     "rust/wasmtime": {
       "rust/wasmtime/wasmtime_component_macro.rs": -0.607,
       "rust/wasmtime/wasmtime_instance.rs": 1.049,
+      "rust/wasmtime/wasmtime_ir_instructions.rs": 1.843,
       "rust/wasmtime/wasmtime_isle_parser.rs": 0.346,
       "rust/wasmtime/wasmtime_pulley_interp.rs": 0.603
     },
@@ -3376,6 +3391,7 @@
       "shell/freebsd-src/COPYRIGHT": 0.0,
       "shell/freebsd-src/chflags_test.sh": 2.904,
       "shell/freebsd-src/chmod_test.sh": 2.783,
+      "shell/freebsd-src/ckscripts.sh": 1.353,
       "shell/freebsd-src/cp_test.sh": 2.299,
       "shell/freebsd-src/ctfconvert_test.sh": 2.919,
       "shell/freebsd-src/dd2_test.sh": 3.058,
@@ -3448,6 +3464,7 @@
       "shell/illumos-gate/exportfs.sh": 2.409,
       "shell/illumos-gate/ikecert.sh": 0.1,
       "shell/illumos-gate/illumos_13434_chunked_heredoc.sh": 0.356,
+      "shell/illumos-gate/inetd-upgrade.sh": -0.004,
       "shell/illumos-gate/mkerror.sh": -0.031,
       "shell/illumos-gate/newvers.sh": 0.41,
       "shell/illumos-gate/nfsfind.sh": 0.603,
@@ -3565,6 +3582,7 @@
       "shell/serenity/analyze-qemu-coverage.sh": -0.127,
       "shell/serenity/builtin.sh": 2.309,
       "shell/serenity/embedmap.sh": 0.0,
+      "shell/serenity/generate_manpages.sh": 3.257,
       "shell/serenity/install.sh": -0.475,
       "shell/serenity/package.sh": 3.296,
       "shell/serenity/run-tests-and-shutdown.sh": 1.341
@@ -3754,8 +3772,11 @@
     "tabular/tsv_genomics": {
       "tabular/tsv_genomics/B.cell_eQTL.tsv": 0.0
     },
+    "tcl": {
+      "tcl/SOURCES.md": 0.0
+    },
     "tcl/macports_port_api": {
-      "tcl/macports_port_api/fetch_common.tcl": -0.045,
+      "tcl/macports_port_api/fetch_common.tcl": -0.069,
       "tcl/macports_port_api/library.tcl": 2.976,
       "tcl/macports_port_api/portactivate.tcl": 0.954,
       "tcl/macports_port_api/portbuild.tcl": 1.355,
@@ -3767,7 +3788,7 @@
       "tcl/macports_port_api/portdestroot.tcl": 1.176,
       "tcl/macports_port_api/portdistcheck.tcl": 0.208,
       "tcl/macports_port_api/portdistfiles.tcl": 1.902,
-      "tcl/macports_port_api/portextract.tcl": 0.861,
+      "tcl/macports_port_api/portextract.tcl": 0.84,
       "tcl/macports_port_api/portfetch.tcl": -0.233,
       "tcl/macports_port_api/portinstall.tcl": 0.898,
       "tcl/macports_port_api/portlint.tcl": 1.633,
@@ -3881,6 +3902,7 @@
       "typescript/playwright/protocol.ts": 0.15
     },
     "typescript/typescript_compiler": {
+      "typescript/typescript_compiler/LICENSE.txt": 0.0,
       "typescript/typescript_compiler/binder.ts": -0.28,
       "typescript/typescript_compiler/package.json": 0.0
     },

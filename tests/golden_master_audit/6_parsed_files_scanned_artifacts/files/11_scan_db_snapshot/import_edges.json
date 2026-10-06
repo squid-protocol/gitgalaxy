@@ -242,6 +242,11 @@
     "c/sqlite": {
       "c/sqlite/lemon.c": [
         "fcall:assembly/xv6_x86_kernel/initcode.S"
+      ],
+      "c/sqlite/parse.y": [
+        "fcall:assembly/linux_1_0_kernel/boot_setup.S",
+        "fcall:cobol/gnucobol_internals/parser.y",
+        "fcall:objective-c/worldwideweb/Anchor.m"
       ]
     },
     "cobol/Z-SMS-Gateway": {

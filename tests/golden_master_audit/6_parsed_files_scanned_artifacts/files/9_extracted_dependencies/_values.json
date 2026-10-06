@@ -570,6 +570,7 @@
         "package"
       ],
       "ada/functional/functional.ads": [],
+      "ada/functional/functional_tests_config.ads": [],
       "ada/functional/test_framework.adb": [
         "Ada.Text_IO"
       ],
@@ -1456,7 +1457,13 @@
         "stdlib.h",
         "string.h",
         "unistd.h"
+      ],
+      "c/sqlite/parse.y": [
+        "sqliteInt.h"
       ]
+    },
+    "cobol": {
+      "cobol/SOURCES.md": []
     },
     "cobol/CICS-Cobol": {
       "cobol/CICS-Cobol/CBL0102v01DivisionAmbiente.cbl": [],
@@ -5489,6 +5496,9 @@
         "testing"
       ]
     },
+    "groovy": {
+      "groovy/SOURCES.md": []
+    },
     "groovy/fineract_gradle_plugin": {
       "groovy/fineract_gradle_plugin/LICENSE_RELEASE": [],
       "groovy/fineract_gradle_plugin/org_apache_fineract_gradle_FineractPluginExtension.groovy": [
@@ -8388,6 +8398,9 @@
         "./webxr/WebXRManager.js"
       ]
     },
+    "jcl": {
+      "jcl/SOURCES.md": []
+    },
     "jcl/cash-account-cobol": {
       "jcl/cash-account-cobol/DB2BIND.jcl": [
         "SYS1.DSND00A.SDSNLOAD",
@@ -9650,6 +9663,7 @@
       "lua/redis/luac.lua": [],
       "lua/redis/printf.lua": [],
       "lua/redis/readonly.lua": [],
+      "lua/redis/sieve.lua": [],
       "lua/redis/sort.lua": [],
       "lua/redis/strict.lua": [],
       "lua/redis/table.lua": [],
@@ -11461,6 +11475,7 @@
       "powershell/runtime/generateredefinesfile.ps1": [],
       "powershell/runtime/generateversionscript.ps1": [],
       "powershell/runtime/getRefPackFolderFromArtifacts.ps1": [],
+      "powershell/runtime/processrc.ps1": [],
       "powershell/runtime/run-benchmark.ps1": [],
       "powershell/runtime/update-machine-certs.ps1": []
     },
@@ -13476,6 +13491,13 @@
         "numpy_api",
         "os"
       ],
+      "python/numpy/generate_umath.py": [
+        "argparse",
+        "os",
+        "re",
+        "string",
+        "textwrap"
+      ],
       "python/numpy/generate_umath_doc.py": [
         "argparse",
         "os",
@@ -14649,6 +14671,45 @@
         "wasmtime_environ::PrimaryMap",
         "wasmtime_environ::component::*"
       ],
+      "rust/wasmtime/wasmtime_ir_instructions.rs": [
+        "alloc::string::ToString",
+        "alloc::vec::Vec",
+        "core::fmt",
+        "core::fmt::Display",
+        "core::fmt::Formatter",
+        "core::mem",
+        "core::ops::Deref",
+        "core::ops::DerefMut",
+        "core::str::FromStr",
+        "crate::bitset::ScalarBitSet",
+        "crate::constant_hash::Table",
+        "crate::constant_hash::probe",
+        "crate::constant_hash::simple_hash",
+        "crate::entity",
+        "crate::ir",
+        "crate::ir::Block",
+        "crate::ir::ExceptionTable",
+        "crate::ir::ExceptionTables",
+        "crate::ir::FuncRef",
+        "crate::ir::MemFlags",
+        "crate::ir::SigRef",
+        "crate::ir::StackSlot",
+        "crate::ir::Type",
+        "crate::ir::Value",
+        "crate::ir::condcodes::FloatCC",
+        "crate::ir::condcodes::IntCC",
+        "crate::ir::trapcode::TrapCode",
+        "crate::ir::types",
+        "crate::ir::types::*",
+        "ir::DynamicStackSlot",
+        "ir::GlobalValue",
+        "ir::JumpTable",
+        "self::*",
+        "self::OperandConstraint::*",
+        "self::ResolvedConstraint::Bound",
+        "serde_derive::Deserialize",
+        "serde_derive::Serialize"
+      ],
       "rust/wasmtime/wasmtime_isle_parser.rs": [
         "crate::ast::*",
         "crate::error::Error",
@@ -15446,6 +15507,7 @@
       "shell/freebsd-src/COPYRIGHT": [],
       "shell/freebsd-src/chflags_test.sh": [],
       "shell/freebsd-src/chmod_test.sh": [],
+      "shell/freebsd-src/ckscripts.sh": [],
       "shell/freebsd-src/cp_test.sh": [],
       "shell/freebsd-src/ctfconvert_test.sh": [],
       "shell/freebsd-src/dd2_test.sh": [],
@@ -15520,6 +15582,7 @@
       "shell/illumos-gate/exportfs.sh": [],
       "shell/illumos-gate/ikecert.sh": [],
       "shell/illumos-gate/illumos_13434_chunked_heredoc.sh": [],
+      "shell/illumos-gate/inetd-upgrade.sh": [],
       "shell/illumos-gate/mkerror.sh": [],
       "shell/illumos-gate/newvers.sh": [],
       "shell/illumos-gate/nfsfind.sh": [],
@@ -15677,6 +15740,7 @@
       "shell/serenity/analyze-qemu-coverage.sh": [],
       "shell/serenity/builtin.sh": [],
       "shell/serenity/embedmap.sh": [],
+      "shell/serenity/generate_manpages.sh": [],
       "shell/serenity/install.sh": [
         "/etc/lsb-release"
       ],
@@ -15912,6 +15976,9 @@
     },
     "tabular/tsv_genomics": {
       "tabular/tsv_genomics/B.cell_eQTL.tsv": []
+    },
+    "tcl": {
+      "tcl/SOURCES.md": []
     },
     "tcl/macports_port_api": {
       "tcl/macports_port_api/fetch_common.tcl": [
@@ -16420,6 +16487,7 @@
       "typescript/playwright/protocol.ts": []
     },
     "typescript/typescript_compiler": {
+      "typescript/typescript_compiler/LICENSE.txt": [],
       "typescript/typescript_compiler/binder.ts": [
         "./_namespaces/ts.js",
         "./_namespaces/ts.performance.js"

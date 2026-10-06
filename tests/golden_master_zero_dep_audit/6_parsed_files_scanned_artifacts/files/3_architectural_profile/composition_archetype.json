@@ -66,6 +66,7 @@
       "ada/functional/functional-try.adb": "Large Core Modules (2)",
       "ada/functional/functional-try.ads": "Encapsulated Accessors Files",
       "ada/functional/functional.ads": "Data / Markup / Trivial",
+      "ada/functional/functional_tests_config.ads": "Declarative / Non-Code",
       "ada/functional/test_framework.adb": "Interface Declarations Files",
       "ada/functional/test_framework.ads": "Declarative / Non-Code",
       "ada/functional/test_try_map_to_result.adb": "Interface Declarations Files"
@@ -459,7 +460,11 @@
     "c/sqlite": {
       "c/sqlite/LICENSE.md": "Data / Markup / Trivial",
       "c/sqlite/README.md": "Data / Markup / Trivial",
-      "c/sqlite/lemon.c": "Large Core Modules (3)"
+      "c/sqlite/lemon.c": "Large Core Modules (3)",
+      "c/sqlite/parse.y": "Large Core Modules (3)"
+    },
+    "cobol": {
+      "cobol/SOURCES.md": "Data / Markup / Trivial"
     },
     "cobol/CICS-Cobol": {
       "cobol/CICS-Cobol/CBL0102v01DivisionAmbiente.cbl": "Interface Declarations Files",
@@ -1387,6 +1392,9 @@
     "go/kubernetes_kubectl_tls": {
       "go/kubernetes_kubectl_tls/create_secret_tls_test.go": "Encapsulated Accessors Files"
     },
+    "groovy": {
+      "groovy/SOURCES.md": "Data / Markup / Trivial"
+    },
     "groovy/fineract_gradle_plugin": {
       "groovy/fineract_gradle_plugin/LICENSE_RELEASE": "Data / Markup / Trivial",
       "groovy/fineract_gradle_plugin/org_apache_fineract_gradle_FineractPluginExtension.groovy": "State Mutators Files",
@@ -1962,6 +1970,9 @@
       "javascript/threejs/WebGLProgram.js": "Large Core Modules (2)",
       "javascript/threejs/WebGLRenderer.js": "Large Core Modules (3)"
     },
+    "jcl": {
+      "jcl/SOURCES.md": "Data / Markup / Trivial"
+    },
     "jcl/cash-account-cobol": {
       "jcl/cash-account-cobol/DB2BIND.jcl": "Large Core Modules",
       "jcl/cash-account-cobol/DB2DDL.jcl": "Large Core Modules",
@@ -2407,6 +2418,7 @@
       "lua/redis/luac.lua": "Data / Markup / Trivial",
       "lua/redis/printf.lua": "Data / Markup / Trivial",
       "lua/redis/readonly.lua": "Declarative / Non-Code",
+      "lua/redis/sieve.lua": "Callbacks & Closures Files",
       "lua/redis/sort.lua": "Compute Cores Files",
       "lua/redis/strict.lua": "Interface Declarations Files",
       "lua/redis/table.lua": "Declarative / Non-Code",
@@ -2772,6 +2784,7 @@
       "powershell/runtime/generateredefinesfile.ps1": "Callbacks & Closures Files",
       "powershell/runtime/generateversionscript.ps1": "Declarative / Non-Code",
       "powershell/runtime/getRefPackFolderFromArtifacts.ps1": "Declarative / Non-Code",
+      "powershell/runtime/processrc.ps1": "Callbacks & Closures Files",
       "powershell/runtime/run-benchmark.ps1": "Data / Markup / Trivial",
       "powershell/runtime/update-machine-certs.ps1": "Large Core Modules (2)"
     },
@@ -3090,6 +3103,7 @@
       "python/numpy/genapi.py": "Large Core Modules (3)",
       "python/numpy/generate_numpy_api.py": "Large Core Modules (3)",
       "python/numpy/generate_ufunc_api.py": "Large Core Modules (3)",
+      "python/numpy/generate_umath.py": "Large Core Modules (3)",
       "python/numpy/generate_umath_doc.py": "Parameter Forwarders Files",
       "python/numpy/lapack_litemodule.c": "Interface Declarations Files",
       "python/numpy/numpy_api.py": "Interface Declarations Files",
@@ -3262,6 +3276,7 @@
     "rust/wasmtime": {
       "rust/wasmtime/wasmtime_component_macro.rs": "State Mutators Files",
       "rust/wasmtime/wasmtime_instance.rs": "Generic / Templated Code Files",
+      "rust/wasmtime/wasmtime_ir_instructions.rs": "Parameter Forwarders Files",
       "rust/wasmtime/wasmtime_isle_parser.rs": "Large Core Modules (3)",
       "rust/wasmtime/wasmtime_pulley_interp.rs": "Generic / Templated Code Files"
     },
@@ -3376,6 +3391,7 @@
       "shell/freebsd-src/COPYRIGHT": "Data / Markup / Trivial",
       "shell/freebsd-src/chflags_test.sh": "Large Core Modules",
       "shell/freebsd-src/chmod_test.sh": "Large Core Modules",
+      "shell/freebsd-src/ckscripts.sh": "Declarative / Non-Code",
       "shell/freebsd-src/cp_test.sh": "Large Core Modules",
       "shell/freebsd-src/ctfconvert_test.sh": "Large Core Modules",
       "shell/freebsd-src/dd2_test.sh": "Large Core Modules",
@@ -3448,6 +3464,7 @@
       "shell/illumos-gate/exportfs.sh": "Compute Cores Files",
       "shell/illumos-gate/ikecert.sh": "Declarative / Non-Code",
       "shell/illumos-gate/illumos_13434_chunked_heredoc.sh": "State Mutators Files",
+      "shell/illumos-gate/inetd-upgrade.sh": "Declarative / Non-Code",
       "shell/illumos-gate/mkerror.sh": "Declarative / Non-Code",
       "shell/illumos-gate/newvers.sh": "Declarative / Non-Code",
       "shell/illumos-gate/nfsfind.sh": "Declarative / Non-Code",
@@ -3565,6 +3582,7 @@
       "shell/serenity/analyze-qemu-coverage.sh": "Declarative / Non-Code",
       "shell/serenity/builtin.sh": "State Mutators Files",
       "shell/serenity/embedmap.sh": "Data / Markup / Trivial",
+      "shell/serenity/generate_manpages.sh": "Large Core Modules",
       "shell/serenity/install.sh": "Interface Declarations Files",
       "shell/serenity/package.sh": "Interface Declarations Files",
       "shell/serenity/run-tests-and-shutdown.sh": "Declarative / Non-Code"
@@ -3754,6 +3772,9 @@
     "tabular/tsv_genomics": {
       "tabular/tsv_genomics/B.cell_eQTL.tsv": "Data / Markup / Trivial"
     },
+    "tcl": {
+      "tcl/SOURCES.md": "Data / Markup / Trivial"
+    },
     "tcl/macports_port_api": {
       "tcl/macports_port_api/fetch_common.tcl": "Large Core Modules (3)",
       "tcl/macports_port_api/library.tcl": "Parameter Forwarders Files",
@@ -3881,6 +3902,7 @@
       "typescript/playwright/protocol.ts": "Declarative / Non-Code"
     },
     "typescript/typescript_compiler": {
+      "typescript/typescript_compiler/LICENSE.txt": "Data / Markup / Trivial",
       "typescript/typescript_compiler/binder.ts": "Large Core Modules (3)",
       "typescript/typescript_compiler/package.json": "Data / Markup / Trivial"
     },

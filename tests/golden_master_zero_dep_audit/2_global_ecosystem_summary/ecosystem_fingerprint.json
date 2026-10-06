@@ -6,8 +6,8 @@
   "value": {
     "ml_clusters": {
       "Unclassified": {
-        "count": 3094,
-        "pct": 92.6
+        "count": 3103,
+        "pct": 92.5
       },
       "Unknown": {
         "count": 2,
@@ -16,8 +16,8 @@
     },
     "static_mass": {
       "Static: Literature & Documentation": {
-        "count": 244,
-        "pct": 7.3
+        "count": 249,
+        "pct": 7.4
       }
     }
   }

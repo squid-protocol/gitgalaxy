@@ -131,7 +131,8 @@
       "c/micropython/vm.c": 361
     },
     "c/sqlite": {
-      "c/sqlite/lemon.c": 4995
+      "c/sqlite/lemon.c": 4995,
+      "c/sqlite/parse.y": 850
     },
     "cobol/CICS-Cobol": {
       "cobol/CICS-Cobol/CBL0501v01DeclaracioCondicionIF.cbl": 3,
@@ -874,6 +875,7 @@
       "lua/redis/fib.lua": 19,
       "lua/redis/life.lua": 43,
       "lua/redis/luac.lua": 3,
+      "lua/redis/sieve.lua": 9,
       "lua/redis/sort.lua": 22,
       "lua/redis/strict.lua": 15,
       "lua/redis/trace-calls.lua": 12
@@ -1089,7 +1091,8 @@
       "powershell/runtime/download-tools.ps1": 14,
       "powershell/runtime/generateredefinesfile.ps1": 15,
       "powershell/runtime/generateversionscript.ps1": 9,
-      "powershell/runtime/getRefPackFolderFromArtifacts.ps1": 9
+      "powershell/runtime/getRefPackFolderFromArtifacts.ps1": 9,
+      "powershell/runtime/processrc.ps1": 65
     },
     "python/airflow": {
       "python/airflow/dag.py": 198,
@@ -1188,6 +1191,7 @@
       "python/numpy/genapi.py": 345,
       "python/numpy/generate_numpy_api.py": 92,
       "python/numpy/generate_ufunc_api.py": 62,
+      "python/numpy/generate_umath.py": 382,
       "python/numpy/generate_umath_doc.py": 16,
       "python/numpy/lapack_litemodule.c": 15,
       "python/numpy/symbolic.py": 747,
@@ -1294,6 +1298,7 @@
     },
     "rust/wasmtime": {
       "rust/wasmtime/wasmtime_instance.rs": 14,
+      "rust/wasmtime/wasmtime_ir_instructions.rs": 47,
       "rust/wasmtime/wasmtime_isle_parser.rs": 69,
       "rust/wasmtime/wasmtime_pulley_interp.rs": 392
     },
@@ -1364,6 +1369,7 @@
       "shell/darwin-xnu/xcrun_cache.sh": 121
     },
     "shell/freebsd-src": {
+      "shell/freebsd-src/ckscripts.sh": 9,
       "shell/freebsd-src/dd2_test.sh": 18,
       "shell/freebsd-src/dtest.sh": 77,
       "shell/freebsd-src/functional_test.sh": 7,
@@ -1412,6 +1418,7 @@
       "shell/illumos-gate/dircmp.sh": 39,
       "shell/illumos-gate/exportfs.sh": 33,
       "shell/illumos-gate/illumos_13434_chunked_heredoc.sh": 8,
+      "shell/illumos-gate/inetd-upgrade.sh": 56,
       "shell/illumos-gate/mkerror.sh": 15,
       "shell/illumos-gate/newvers.sh": 9,
       "shell/illumos-gate/nfsfind.sh": 3,
@@ -1484,6 +1491,7 @@
       "shell/serenity/OpenJDK__package.sh": 29,
       "shell/serenity/analyze-qemu-coverage.sh": 35,
       "shell/serenity/builtin.sh": 71,
+      "shell/serenity/generate_manpages.sh": 6,
       "shell/serenity/install.sh": 21,
       "shell/serenity/run-tests-and-shutdown.sh": 4
     },

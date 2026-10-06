@@ -66,6 +66,7 @@
       "ada/functional/functional-try.adb": "file_cluster_11",
       "ada/functional/functional-try.ads": "file_cluster_0",
       "ada/functional/functional.ads": "file_cluster_13",
+      "ada/functional/functional_tests_config.ads": "file_cluster_17",
       "ada/functional/test_framework.adb": "file_cluster_11",
       "ada/functional/test_framework.ads": "file_cluster_2",
       "ada/functional/test_try_map_to_result.adb": "file_cluster_11"
@@ -459,7 +460,11 @@
     "c/sqlite": {
       "c/sqlite/LICENSE.md": "Static: Literature & Documentation",
       "c/sqlite/README.md": "Static: Literature & Documentation",
-      "c/sqlite/lemon.c": "file_cluster_6"
+      "c/sqlite/lemon.c": "file_cluster_6",
+      "c/sqlite/parse.y": "file_cluster_15"
+    },
+    "cobol": {
+      "cobol/SOURCES.md": "Static: Literature & Documentation"
     },
     "cobol/CICS-Cobol": {
       "cobol/CICS-Cobol/CBL0102v01DivisionAmbiente.cbl": "file_cluster_11",
@@ -1387,6 +1392,9 @@
     "go/kubernetes_kubectl_tls": {
       "go/kubernetes_kubectl_tls/create_secret_tls_test.go": "file_cluster_16"
     },
+    "groovy": {
+      "groovy/SOURCES.md": "Static: Literature & Documentation"
+    },
     "groovy/fineract_gradle_plugin": {
       "groovy/fineract_gradle_plugin/LICENSE_RELEASE": "Static: Literature & Documentation",
       "groovy/fineract_gradle_plugin/org_apache_fineract_gradle_FineractPluginExtension.groovy": "file_cluster_0",
@@ -1962,6 +1970,9 @@
       "javascript/threejs/WebGLProgram.js": "file_cluster_15",
       "javascript/threejs/WebGLRenderer.js": "file_cluster_4"
     },
+    "jcl": {
+      "jcl/SOURCES.md": "Static: Literature & Documentation"
+    },
     "jcl/cash-account-cobol": {
       "jcl/cash-account-cobol/DB2BIND.jcl": "file_cluster_2",
       "jcl/cash-account-cobol/DB2DDL.jcl": "file_cluster_2",
@@ -2407,6 +2418,7 @@
       "lua/redis/luac.lua": "file_cluster_2",
       "lua/redis/printf.lua": "file_cluster_15",
       "lua/redis/readonly.lua": "file_cluster_14",
+      "lua/redis/sieve.lua": "file_cluster_10",
       "lua/redis/sort.lua": "file_cluster_10",
       "lua/redis/strict.lua": "file_cluster_14",
       "lua/redis/table.lua": "file_cluster_2",
@@ -2772,6 +2784,7 @@
       "powershell/runtime/generateredefinesfile.ps1": "file_cluster_10",
       "powershell/runtime/generateversionscript.ps1": "file_cluster_10",
       "powershell/runtime/getRefPackFolderFromArtifacts.ps1": "file_cluster_10",
+      "powershell/runtime/processrc.ps1": "file_cluster_10",
       "powershell/runtime/run-benchmark.ps1": "file_cluster_2",
       "powershell/runtime/update-machine-certs.ps1": "file_cluster_10"
     },
@@ -3090,6 +3103,7 @@
       "python/numpy/genapi.py": "file_cluster_12",
       "python/numpy/generate_numpy_api.py": "file_cluster_12",
       "python/numpy/generate_ufunc_api.py": "file_cluster_7",
+      "python/numpy/generate_umath.py": "file_cluster_6",
       "python/numpy/generate_umath_doc.py": "file_cluster_11",
       "python/numpy/lapack_litemodule.c": "file_cluster_12",
       "python/numpy/numpy_api.py": "file_cluster_2",
@@ -3262,6 +3276,7 @@
     "rust/wasmtime": {
       "rust/wasmtime/wasmtime_component_macro.rs": "file_cluster_13",
       "rust/wasmtime/wasmtime_instance.rs": "file_cluster_0",
+      "rust/wasmtime/wasmtime_ir_instructions.rs": "file_cluster_5",
       "rust/wasmtime/wasmtime_isle_parser.rs": "file_cluster_6",
       "rust/wasmtime/wasmtime_pulley_interp.rs": "file_cluster_0"
     },
@@ -3376,6 +3391,7 @@
       "shell/freebsd-src/COPYRIGHT": "Static: Literature & Documentation",
       "shell/freebsd-src/chflags_test.sh": "file_cluster_11",
       "shell/freebsd-src/chmod_test.sh": "file_cluster_12",
+      "shell/freebsd-src/ckscripts.sh": "file_cluster_14",
       "shell/freebsd-src/cp_test.sh": "file_cluster_12",
       "shell/freebsd-src/ctfconvert_test.sh": "file_cluster_11",
       "shell/freebsd-src/dd2_test.sh": "file_cluster_7",
@@ -3448,6 +3464,7 @@
       "shell/illumos-gate/exportfs.sh": "file_cluster_14",
       "shell/illumos-gate/ikecert.sh": "file_cluster_2",
       "shell/illumos-gate/illumos_13434_chunked_heredoc.sh": "file_cluster_7",
+      "shell/illumos-gate/inetd-upgrade.sh": "file_cluster_14",
       "shell/illumos-gate/mkerror.sh": "file_cluster_7",
       "shell/illumos-gate/newvers.sh": "file_cluster_14",
       "shell/illumos-gate/nfsfind.sh": "file_cluster_14",
@@ -3565,6 +3582,7 @@
       "shell/serenity/analyze-qemu-coverage.sh": "file_cluster_14",
       "shell/serenity/builtin.sh": "file_cluster_14",
       "shell/serenity/embedmap.sh": "file_cluster_2",
+      "shell/serenity/generate_manpages.sh": "file_cluster_14",
       "shell/serenity/install.sh": "file_cluster_12",
       "shell/serenity/package.sh": "file_cluster_11",
       "shell/serenity/run-tests-and-shutdown.sh": "file_cluster_7"
@@ -3754,6 +3772,9 @@
     "tabular/tsv_genomics": {
       "tabular/tsv_genomics/B.cell_eQTL.tsv": "file_cluster_2"
     },
+    "tcl": {
+      "tcl/SOURCES.md": "Static: Literature & Documentation"
+    },
     "tcl/macports_port_api": {
       "tcl/macports_port_api/fetch_common.tcl": "file_cluster_6",
       "tcl/macports_port_api/library.tcl": "file_cluster_15",
@@ -3881,6 +3902,7 @@
       "typescript/playwright/protocol.ts": "file_cluster_7"
     },
     "typescript/typescript_compiler": {
+      "typescript/typescript_compiler/LICENSE.txt": "Static: Literature & Documentation",
       "typescript/typescript_compiler/binder.ts": "file_cluster_4",
       "typescript/typescript_compiler/package.json": "Static: Literature & Documentation"
     },

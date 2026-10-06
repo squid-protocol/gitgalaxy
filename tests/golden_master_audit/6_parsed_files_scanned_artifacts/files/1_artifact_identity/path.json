@@ -66,6 +66,7 @@
       "ada/functional/functional-try.adb": "ada/functional/functional-try.adb",
       "ada/functional/functional-try.ads": "ada/functional/functional-try.ads",
       "ada/functional/functional.ads": "ada/functional/functional.ads",
+      "ada/functional/functional_tests_config.ads": "ada/functional/functional_tests_config.ads",
       "ada/functional/test_framework.adb": "ada/functional/test_framework.adb",
       "ada/functional/test_framework.ads": "ada/functional/test_framework.ads",
       "ada/functional/test_try_map_to_result.adb": "ada/functional/test_try_map_to_result.adb"
@@ -459,7 +460,11 @@
     "c/sqlite": {
       "c/sqlite/LICENSE.md": "c/sqlite/LICENSE.md",
       "c/sqlite/README.md": "c/sqlite/README.md",
-      "c/sqlite/lemon.c": "c/sqlite/lemon.c"
+      "c/sqlite/lemon.c": "c/sqlite/lemon.c",
+      "c/sqlite/parse.y": "c/sqlite/parse.y"
+    },
+    "cobol": {
+      "cobol/SOURCES.md": "cobol/SOURCES.md"
     },
     "cobol/CICS-Cobol": {
       "cobol/CICS-Cobol/CBL0102v01DivisionAmbiente.cbl": "cobol/CICS-Cobol/CBL0102v01DivisionAmbiente.cbl",
@@ -1387,6 +1392,9 @@
     "go/kubernetes_kubectl_tls": {
       "go/kubernetes_kubectl_tls/create_secret_tls_test.go": "go/kubernetes_kubectl_tls/create_secret_tls_test.go"
     },
+    "groovy": {
+      "groovy/SOURCES.md": "groovy/SOURCES.md"
+    },
     "groovy/fineract_gradle_plugin": {
       "groovy/fineract_gradle_plugin/LICENSE_RELEASE": "groovy/fineract_gradle_plugin/LICENSE_RELEASE",
       "groovy/fineract_gradle_plugin/org_apache_fineract_gradle_FineractPluginExtension.groovy": "groovy/fineract_gradle_plugin/org_apache_fineract_gradle_FineractPluginExtension.groovy",
@@ -1962,6 +1970,9 @@
       "javascript/threejs/WebGLProgram.js": "javascript/threejs/WebGLProgram.js",
       "javascript/threejs/WebGLRenderer.js": "javascript/threejs/WebGLRenderer.js"
     },
+    "jcl": {
+      "jcl/SOURCES.md": "jcl/SOURCES.md"
+    },
     "jcl/cash-account-cobol": {
       "jcl/cash-account-cobol/DB2BIND.jcl": "jcl/cash-account-cobol/DB2BIND.jcl",
       "jcl/cash-account-cobol/DB2DDL.jcl": "jcl/cash-account-cobol/DB2DDL.jcl",
@@ -2407,6 +2418,7 @@
       "lua/redis/luac.lua": "lua/redis/luac.lua",
       "lua/redis/printf.lua": "lua/redis/printf.lua",
       "lua/redis/readonly.lua": "lua/redis/readonly.lua",
+      "lua/redis/sieve.lua": "lua/redis/sieve.lua",
       "lua/redis/sort.lua": "lua/redis/sort.lua",
       "lua/redis/strict.lua": "lua/redis/strict.lua",
       "lua/redis/table.lua": "lua/redis/table.lua",
@@ -2772,6 +2784,7 @@
       "powershell/runtime/generateredefinesfile.ps1": "powershell/runtime/generateredefinesfile.ps1",
       "powershell/runtime/generateversionscript.ps1": "powershell/runtime/generateversionscript.ps1",
       "powershell/runtime/getRefPackFolderFromArtifacts.ps1": "powershell/runtime/getRefPackFolderFromArtifacts.ps1",
+      "powershell/runtime/processrc.ps1": "powershell/runtime/processrc.ps1",
       "powershell/runtime/run-benchmark.ps1": "powershell/runtime/run-benchmark.ps1",
       "powershell/runtime/update-machine-certs.ps1": "powershell/runtime/update-machine-certs.ps1"
     },
@@ -3090,6 +3103,7 @@
       "python/numpy/genapi.py": "python/numpy/genapi.py",
       "python/numpy/generate_numpy_api.py": "python/numpy/generate_numpy_api.py",
       "python/numpy/generate_ufunc_api.py": "python/numpy/generate_ufunc_api.py",
+      "python/numpy/generate_umath.py": "python/numpy/generate_umath.py",
       "python/numpy/generate_umath_doc.py": "python/numpy/generate_umath_doc.py",
       "python/numpy/lapack_litemodule.c": "python/numpy/lapack_litemodule.c",
       "python/numpy/numpy_api.py": "python/numpy/numpy_api.py",
@@ -3262,6 +3276,7 @@
     "rust/wasmtime": {
       "rust/wasmtime/wasmtime_component_macro.rs": "rust/wasmtime/wasmtime_component_macro.rs",
       "rust/wasmtime/wasmtime_instance.rs": "rust/wasmtime/wasmtime_instance.rs",
+      "rust/wasmtime/wasmtime_ir_instructions.rs": "rust/wasmtime/wasmtime_ir_instructions.rs",
       "rust/wasmtime/wasmtime_isle_parser.rs": "rust/wasmtime/wasmtime_isle_parser.rs",
       "rust/wasmtime/wasmtime_pulley_interp.rs": "rust/wasmtime/wasmtime_pulley_interp.rs"
     },
@@ -3376,6 +3391,7 @@
       "shell/freebsd-src/COPYRIGHT": "shell/freebsd-src/COPYRIGHT",
       "shell/freebsd-src/chflags_test.sh": "shell/freebsd-src/chflags_test.sh",
       "shell/freebsd-src/chmod_test.sh": "shell/freebsd-src/chmod_test.sh",
+      "shell/freebsd-src/ckscripts.sh": "shell/freebsd-src/ckscripts.sh",
       "shell/freebsd-src/cp_test.sh": "shell/freebsd-src/cp_test.sh",
       "shell/freebsd-src/ctfconvert_test.sh": "shell/freebsd-src/ctfconvert_test.sh",
       "shell/freebsd-src/dd2_test.sh": "shell/freebsd-src/dd2_test.sh",
@@ -3448,6 +3464,7 @@
       "shell/illumos-gate/exportfs.sh": "shell/illumos-gate/exportfs.sh",
       "shell/illumos-gate/ikecert.sh": "shell/illumos-gate/ikecert.sh",
       "shell/illumos-gate/illumos_13434_chunked_heredoc.sh": "shell/illumos-gate/illumos_13434_chunked_heredoc.sh",
+      "shell/illumos-gate/inetd-upgrade.sh": "shell/illumos-gate/inetd-upgrade.sh",
       "shell/illumos-gate/mkerror.sh": "shell/illumos-gate/mkerror.sh",
       "shell/illumos-gate/newvers.sh": "shell/illumos-gate/newvers.sh",
       "shell/illumos-gate/nfsfind.sh": "shell/illumos-gate/nfsfind.sh",
@@ -3565,6 +3582,7 @@
       "shell/serenity/analyze-qemu-coverage.sh": "shell/serenity/analyze-qemu-coverage.sh",
       "shell/serenity/builtin.sh": "shell/serenity/builtin.sh",
       "shell/serenity/embedmap.sh": "shell/serenity/embedmap.sh",
+      "shell/serenity/generate_manpages.sh": "shell/serenity/generate_manpages.sh",
       "shell/serenity/install.sh": "shell/serenity/install.sh",
       "shell/serenity/package.sh": "shell/serenity/package.sh",
       "shell/serenity/run-tests-and-shutdown.sh": "shell/serenity/run-tests-and-shutdown.sh"
@@ -3754,6 +3772,9 @@
     "tabular/tsv_genomics": {
       "tabular/tsv_genomics/B.cell_eQTL.tsv": "tabular/tsv_genomics/B.cell_eQTL.tsv"
     },
+    "tcl": {
+      "tcl/SOURCES.md": "tcl/SOURCES.md"
+    },
     "tcl/macports_port_api": {
       "tcl/macports_port_api/fetch_common.tcl": "tcl/macports_port_api/fetch_common.tcl",
       "tcl/macports_port_api/library.tcl": "tcl/macports_port_api/library.tcl",
@@ -3881,6 +3902,7 @@
       "typescript/playwright/protocol.ts": "typescript/playwright/protocol.ts"
     },
     "typescript/typescript_compiler": {
+      "typescript/typescript_compiler/LICENSE.txt": "typescript/typescript_compiler/LICENSE.txt",
       "typescript/typescript_compiler/binder.ts": "typescript/typescript_compiler/binder.ts",
       "typescript/typescript_compiler/package.json": "typescript/typescript_compiler/package.json"
     },

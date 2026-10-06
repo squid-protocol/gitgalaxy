@@ -66,6 +66,7 @@
       "ada/functional/functional-try.adb": "Unknown Architect",
       "ada/functional/functional-try.ads": "Unknown Architect",
       "ada/functional/functional.ads": "Unknown Architect",
+      "ada/functional/functional_tests_config.ads": "Unknown Architect",
       "ada/functional/test_framework.adb": "Unknown Architect",
       "ada/functional/test_framework.ads": "Unknown Architect",
       "ada/functional/test_try_map_to_result.adb": "Unknown Architect"
@@ -459,7 +460,11 @@
     "c/sqlite": {
       "c/sqlite/LICENSE.md": "Unknown Architect",
       "c/sqlite/README.md": "Unknown Architect",
-      "c/sqlite/lemon.c": "Unknown Architect"
+      "c/sqlite/lemon.c": "Unknown Architect",
+      "c/sqlite/parse.y": "Unknown Architect"
+    },
+    "cobol": {
+      "cobol/SOURCES.md": "Unknown Architect"
     },
     "cobol/CICS-Cobol": {
       "cobol/CICS-Cobol/CBL0102v01DivisionAmbiente.cbl": "Unknown Architect",
@@ -1387,6 +1392,9 @@
     "go/kubernetes_kubectl_tls": {
       "go/kubernetes_kubectl_tls/create_secret_tls_test.go": "Unknown Architect"
     },
+    "groovy": {
+      "groovy/SOURCES.md": "Unknown Architect"
+    },
     "groovy/fineract_gradle_plugin": {
       "groovy/fineract_gradle_plugin/LICENSE_RELEASE": "Unknown Architect",
       "groovy/fineract_gradle_plugin/org_apache_fineract_gradle_FineractPluginExtension.groovy": "Unknown Architect",
@@ -1962,6 +1970,9 @@
       "javascript/threejs/WebGLProgram.js": "Unknown Architect",
       "javascript/threejs/WebGLRenderer.js": "Unknown Architect"
     },
+    "jcl": {
+      "jcl/SOURCES.md": "Unknown Architect"
+    },
     "jcl/cash-account-cobol": {
       "jcl/cash-account-cobol/DB2BIND.jcl": "Unknown Architect",
       "jcl/cash-account-cobol/DB2DDL.jcl": "Unknown Architect",
@@ -2407,6 +2418,7 @@
       "lua/redis/luac.lua": "Unknown Architect",
       "lua/redis/printf.lua": "Unknown Architect",
       "lua/redis/readonly.lua": "Unknown Architect",
+      "lua/redis/sieve.lua": "Unknown Architect",
       "lua/redis/sort.lua": "Unknown Architect",
       "lua/redis/strict.lua": "Unknown Architect",
       "lua/redis/table.lua": "Unknown Architect",
@@ -2772,6 +2784,7 @@
       "powershell/runtime/generateredefinesfile.ps1": "Unknown Architect",
       "powershell/runtime/generateversionscript.ps1": "Unknown Architect",
       "powershell/runtime/getRefPackFolderFromArtifacts.ps1": "Unknown Architect",
+      "powershell/runtime/processrc.ps1": "Unknown Architect",
       "powershell/runtime/run-benchmark.ps1": "Unknown Architect",
       "powershell/runtime/update-machine-certs.ps1": "Unknown Architect"
     },
@@ -3090,6 +3103,7 @@
       "python/numpy/genapi.py": "Unknown Architect",
       "python/numpy/generate_numpy_api.py": "Unknown Architect",
       "python/numpy/generate_ufunc_api.py": "Unknown Architect",
+      "python/numpy/generate_umath.py": "Unknown Architect",
       "python/numpy/generate_umath_doc.py": "Unknown Architect",
       "python/numpy/lapack_litemodule.c": "Unknown Architect",
       "python/numpy/numpy_api.py": "Unknown Architect",
@@ -3262,6 +3276,7 @@
     "rust/wasmtime": {
       "rust/wasmtime/wasmtime_component_macro.rs": "Unknown Architect",
       "rust/wasmtime/wasmtime_instance.rs": "Unknown Architect",
+      "rust/wasmtime/wasmtime_ir_instructions.rs": "Unknown Architect",
       "rust/wasmtime/wasmtime_isle_parser.rs": "Unknown Architect",
       "rust/wasmtime/wasmtime_pulley_interp.rs": "Unknown Architect"
     },
@@ -3376,6 +3391,7 @@
       "shell/freebsd-src/COPYRIGHT": "Unknown Architect",
       "shell/freebsd-src/chflags_test.sh": "Unknown Architect",
       "shell/freebsd-src/chmod_test.sh": "Unknown Architect",
+      "shell/freebsd-src/ckscripts.sh": "Unknown Architect",
       "shell/freebsd-src/cp_test.sh": "Unknown Architect",
       "shell/freebsd-src/ctfconvert_test.sh": "Unknown Architect",
       "shell/freebsd-src/dd2_test.sh": "Unknown Architect",
@@ -3448,6 +3464,7 @@
       "shell/illumos-gate/exportfs.sh": "Unknown Architect",
       "shell/illumos-gate/ikecert.sh": "Unknown Architect",
       "shell/illumos-gate/illumos_13434_chunked_heredoc.sh": "Unknown Architect",
+      "shell/illumos-gate/inetd-upgrade.sh": "Unknown Architect",
       "shell/illumos-gate/mkerror.sh": "Unknown Architect",
       "shell/illumos-gate/newvers.sh": "Unknown Architect",
       "shell/illumos-gate/nfsfind.sh": "Unknown Architect",
@@ -3565,6 +3582,7 @@
       "shell/serenity/analyze-qemu-coverage.sh": "Unknown Architect",
       "shell/serenity/builtin.sh": "Unknown Architect",
       "shell/serenity/embedmap.sh": "Unknown Architect",
+      "shell/serenity/generate_manpages.sh": "Unknown Architect",
       "shell/serenity/install.sh": "Unknown Architect",
       "shell/serenity/package.sh": "Unknown Architect",
       "shell/serenity/run-tests-and-shutdown.sh": "Unknown Architect"
@@ -3754,6 +3772,9 @@
     "tabular/tsv_genomics": {
       "tabular/tsv_genomics/B.cell_eQTL.tsv": "Unknown Architect"
     },
+    "tcl": {
+      "tcl/SOURCES.md": "Unknown Architect"
+    },
     "tcl/macports_port_api": {
       "tcl/macports_port_api/fetch_common.tcl": "Unknown Architect",
       "tcl/macports_port_api/library.tcl": "Unknown Architect",
@@ -3881,6 +3902,7 @@
       "typescript/playwright/protocol.ts": "Unknown Architect"
     },
     "typescript/typescript_compiler": {
+      "typescript/typescript_compiler/LICENSE.txt": "Unknown Architect",
       "typescript/typescript_compiler/binder.ts": "Unknown Architect",
       "typescript/typescript_compiler/package.json": "Unknown Architect"
     },

@@ -286,6 +286,7 @@
         "Parameter Forwarders": 3
       },
       "ada/functional/functional.ads": {},
+      "ada/functional/functional_tests_config.ads": {},
       "ada/functional/test_framework.adb": {
         "Interface Declarations": 3,
         "Many-Argument Workhorses": 1,
@@ -1427,7 +1428,20 @@
         "Parameter Forwarders": 14,
         "Stateful Encapsulated Methods": 14,
         "Type Conversions": 4
+      },
+      "c/sqlite/parse.y": {
+        "Compute Cores": 1,
+        "I/O & Config Routines": 25,
+        "Interface Declarations": 1,
+        "Many-Argument Workhorses": 1,
+        "Parameter Forwarders": 2,
+        "State Mutators": 47,
+        "Stateful Encapsulated Methods": 1,
+        "Type Conversions": 42
       }
+    },
+    "cobol": {
+      "cobol/SOURCES.md": {}
     },
     "cobol/CICS-Cobol": {
       "cobol/CICS-Cobol/CBL0102v01DivisionAmbiente.cbl": {
@@ -4448,6 +4462,9 @@
         "Stateful Encapsulated Methods": 1
       }
     },
+    "groovy": {
+      "groovy/SOURCES.md": {}
+    },
     "groovy/fineract_gradle_plugin": {
       "groovy/fineract_gradle_plugin/LICENSE_RELEASE": {},
       "groovy/fineract_gradle_plugin/org_apache_fineract_gradle_FineractPluginExtension.groovy": {
@@ -5856,6 +5873,9 @@
         "Parameter Forwarders": 1,
         "State Mutators": 12
       }
+    },
+    "jcl": {
+      "jcl/SOURCES.md": {}
     },
     "jcl/cash-account-cobol": {
       "jcl/cash-account-cobol/DB2BIND.jcl": {
@@ -7282,6 +7302,9 @@
         "Parameter Forwarders": 1
       },
       "lua/redis/readonly.lua": {},
+      "lua/redis/sieve.lua": {
+        "Callbacks & Closures": 2
+      },
       "lua/redis/sort.lua": {
         "Callbacks & Closures": 1,
         "Compute Cores": 2,
@@ -8305,6 +8328,9 @@
       },
       "powershell/runtime/generateversionscript.ps1": {},
       "powershell/runtime/getRefPackFolderFromArtifacts.ps1": {},
+      "powershell/runtime/processrc.ps1": {
+        "Callbacks & Closures": 2
+      },
       "powershell/runtime/run-benchmark.ps1": {},
       "powershell/runtime/update-machine-certs.ps1": {
         "Defensive Guards": 1
@@ -9616,6 +9642,14 @@
         "Many-Argument Workhorses": 1,
         "Parameter Forwarders": 1
       },
+      "python/numpy/generate_umath.py": {
+        "Compute Cores": 3,
+        "Defensive Guards": 1,
+        "I/O & Config Routines": 2,
+        "Many-Argument Workhorses": 3,
+        "Parameter Forwarders": 5,
+        "Stateful Encapsulated Methods": 1
+      },
       "python/numpy/generate_umath_doc.py": {
         "Interface Declarations": 1,
         "Parameter Forwarders": 2
@@ -10202,6 +10236,18 @@
         "State Mutators": 4,
         "Stateful Encapsulated Methods": 10
       },
+      "rust/wasmtime/wasmtime_ir_instructions.rs": {
+        "Annotated & Test Methods": 6,
+        "Compute Cores": 5,
+        "Defensive Guards": 1,
+        "Generic / Templated Code": 22,
+        "I/O & Config Routines": 1,
+        "Many-Argument Workhorses": 2,
+        "Parameter Forwarders": 52,
+        "State Mutators": 16,
+        "Stateful Encapsulated Methods": 1,
+        "Type Conversions": 5
+      },
       "rust/wasmtime/wasmtime_isle_parser.rs": {
         "Compute Cores": 23,
         "Defensive Guards": 6,
@@ -10516,6 +10562,7 @@
         "I/O & Config Routines": 14,
         "Parameter Forwarders": 1
       },
+      "shell/freebsd-src/ckscripts.sh": {},
       "shell/freebsd-src/cp_test.sh": {
         "Compute Cores": 1,
         "I/O & Config Routines": 80,
@@ -10679,6 +10726,7 @@
       "shell/illumos-gate/illumos_13434_chunked_heredoc.sh": {
         "State Mutators": 1
       },
+      "shell/illumos-gate/inetd-upgrade.sh": {},
       "shell/illumos-gate/mkerror.sh": {},
       "shell/illumos-gate/newvers.sh": {},
       "shell/illumos-gate/nfsfind.sh": {},
@@ -10933,6 +10981,9 @@
         "State Mutators": 2
       },
       "shell/serenity/embedmap.sh": {},
+      "shell/serenity/generate_manpages.sh": {
+        "I/O & Config Routines": 2
+      },
       "shell/serenity/install.sh": {
         "Interface Declarations": 1
       },
@@ -11202,6 +11253,9 @@
     },
     "tabular/tsv_genomics": {
       "tabular/tsv_genomics/B.cell_eQTL.tsv": {}
+    },
+    "tcl": {
+      "tcl/SOURCES.md": {}
     },
     "tcl/macports_port_api": {
       "tcl/macports_port_api/fetch_common.tcl": {
@@ -11579,6 +11633,7 @@
       "typescript/playwright/protocol.ts": {}
     },
     "typescript/typescript_compiler": {
+      "typescript/typescript_compiler/LICENSE.txt": {},
       "typescript/typescript_compiler/binder.ts": {
         "Callbacks & Closures": 1,
         "Compute Cores": 63,

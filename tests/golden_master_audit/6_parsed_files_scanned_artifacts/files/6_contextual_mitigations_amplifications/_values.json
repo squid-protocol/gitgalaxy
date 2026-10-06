@@ -35,6 +35,7 @@
       "ada/functional/functional-try.adb": "None Detected",
       "ada/functional/functional-try.ads": "None Detected",
       "ada/functional/functional.ads": "None Detected",
+      "ada/functional/functional_tests_config.ads": "None Detected",
       "ada/functional/test_framework.adb": "None Detected",
       "ada/functional/test_framework.ads": "None Detected"
     },
@@ -361,6 +362,9 @@
     "c/sqlite": {
       "c/sqlite/LICENSE.md": "None Detected",
       "c/sqlite/README.md": "None Detected"
+    },
+    "cobol": {
+      "cobol/SOURCES.md": "None Detected"
     },
     "cobol/CICS-Cobol": {
       "cobol/CICS-Cobol/CBL0102v01DivisionAmbiente.cbl": "None Detected",
@@ -896,6 +900,9 @@
     "go/kubernetes": {
       "go/kubernetes/options.go": "None Detected"
     },
+    "groovy": {
+      "groovy/SOURCES.md": "None Detected"
+    },
     "groovy/fineract_gradle_plugin": {
       "groovy/fineract_gradle_plugin/LICENSE_RELEASE": "None Detected",
       "groovy/fineract_gradle_plugin/org_apache_fineract_gradle_FineractPluginExtension.groovy": "None Detected",
@@ -1353,6 +1360,9 @@
     },
     "javascript/threejs": {
       "javascript/threejs/Nodes.js": "None Detected"
+    },
+    "jcl": {
+      "jcl/SOURCES.md": "None Detected"
     },
     "jcl/cash-account-cobol": {
       "jcl/cash-account-cobol/DB2BIND.jcl": "None Detected",
@@ -2490,6 +2500,9 @@
     "tabular/tsv_genomics": {
       "tabular/tsv_genomics/B.cell_eQTL.tsv": "None Detected"
     },
+    "tcl": {
+      "tcl/SOURCES.md": "None Detected"
+    },
     "tcl/macports_port_api": {
       "tcl/macports_port_api/portdepends.tcl": "None Detected"
     },
@@ -2567,6 +2580,7 @@
       "typescript/playwright/protocol.ts": "None Detected"
     },
     "typescript/typescript_compiler": {
+      "typescript/typescript_compiler/LICENSE.txt": "None Detected",
       "typescript/typescript_compiler/package.json": "None Detected"
     },
     "typescript/vscode": {

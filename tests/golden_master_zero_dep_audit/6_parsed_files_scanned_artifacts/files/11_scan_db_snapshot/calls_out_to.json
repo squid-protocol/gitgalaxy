@@ -21546,6 +21546,728 @@
         "writeRuleText@4397": [
           "fprintf"
         ]
+      },
+      "c/sqlite/parse.y": {
+        "anylist@1940": [],
+        "anylist@1941": [],
+        "anylist@1942": [
+          "sqlite3WithDelete"
+        ],
+        "carglist@387": [],
+        "carglist@388": [],
+        "ccons@389": [
+          "nm"
+        ],
+        "ccons@390": [
+          "scantok",
+          "term",
+          "sqlite3AddDefaultValue"
+        ],
+        "ccons@392": [
+          "LP",
+          "expr",
+          "RP",
+          "sqlite3AddDefaultValue"
+        ],
+        "ccons@394": [
+          "PLUS",
+          "scantok",
+          "term",
+          "sqlite3AddDefaultValue"
+        ],
+        "ccons@396": [
+          "MINUS",
+          "scantok",
+          "term",
+          "sqlite3PExpr",
+          "sqlite3AddDefaultValue"
+        ],
+        "ccons@400": [
+          "id",
+          "tokenExpr",
+          "sqlite3ExprIdToTrueFalse",
+          "testcase",
+          "sqlite3ExprTruthValue",
+          "sqlite3AddDefaultValue"
+        ],
+        "ccons@412": [],
+        "ccons@413": [
+          "onconf",
+          "sqlite3AddNotNull"
+        ],
+        "ccons@414": [
+          "sortorder",
+          "onconf",
+          "autoinc",
+          "sqlite3AddPrimaryKey"
+        ],
+        "ccons@416": [
+          "onconf",
+          "sqlite3CreateIndex"
+        ],
+        "ccons@418": [
+          "LP",
+          "expr",
+          "RP",
+          "sqlite3AddCheckConstraint"
+        ],
+        "ccons@419": [
+          "nm",
+          "eidlist_opt",
+          "refargs",
+          "sqlite3CreateForeignKey"
+        ],
+        "ccons@421": [
+          "defer_subclause",
+          "sqlite3DeferForeignKey"
+        ],
+        "ccons@422": [
+          "ids",
+          "sqlite3AddCollateType"
+        ],
+        "ccons@423": [],
+        "ccons@424": [],
+        "cmd@1014": [
+          "orconf",
+          "xfullname",
+          "indexed_opt",
+          "setlist",
+          "from",
+          "where_opt_ret",
+          "orderby_opt",
+          "limit_opt",
+          "sqlite3SrcListIndexedBy",
+          "sqlite3SelectNew",
+          "sqlite3SrcListAppendFromTerm",
+          "sqlite3SrcListAppendList",
+          "sqlite3ExprListCheckLength",
+          "updateDeleteLimitError",
+          "sqlite3Update"
+        ],
+        "cmd@1040": [
+          "orconf",
+          "xfullname",
+          "indexed_opt",
+          "setlist",
+          "from",
+          "where_opt_ret",
+          "sqlite3SrcListIndexedBy",
+          "sqlite3ExprListCheckLength",
+          "sqlite3SelectNew",
+          "sqlite3SrcListAppendFromTerm",
+          "sqlite3SrcListAppendList",
+          "sqlite3Update",
+          "sqlite3ExprListDelete",
+          "nm",
+          "expr",
+          "sqlite3ExprListAppend",
+          "sqlite3ExprListSetName",
+          "idlist",
+          "sqlite3ExprListAppendVector"
+        ],
+        "cmd@1082": [
+          "insert_cmd",
+          "xfullname",
+          "idlist_opt",
+          "select",
+          "upsert",
+          "sqlite3Insert"
+        ],
+        "cmd@1086": [
+          "insert_cmd",
+          "xfullname",
+          "idlist_opt",
+          "sqlite3Insert",
+          "upsert",
+          "selcollist",
+          "sqlite3AddReturning",
+          "sortlist",
+          "where_opt",
+          "setlist",
+          "sqlite3UpsertNew"
+        ],
+        "cmd@1619": [
+          "createkw",
+          "uniqueflag",
+          "ifnotexists",
+          "nm",
+          "dbnm",
+          "sortlist",
+          "where_opt",
+          "sqlite3CreateIndex",
+          "sqlite3SrcListAppend",
+          "sqlite3RenameTokenMap",
+          "sqlite3ExprListDelete",
+          "parserAddExprIdListTerm",
+          "sqlite3ExprListAppend",
+          "sqlite3ErrorMsg",
+          "sqlite3ExprListSetName"
+        ],
+        "cmd@1695": [
+          "ifexists",
+          "fullname",
+          "sqlite3DropIndex",
+          "sqlite3ExprDelete"
+        ],
+        "cmd@1702": [
+          "vinto",
+          "sqlite3Vacuum"
+        ],
+        "cmd@1703": [
+          "nm",
+          "vinto",
+          "sqlite3Vacuum",
+          "expr"
+        ],
+        "cmd@1711": [
+          "nm",
+          "dbnm",
+          "sqlite3Pragma"
+        ],
+        "cmd@1712": [
+          "nm",
+          "dbnm",
+          "nmnum",
+          "sqlite3Pragma"
+        ],
+        "cmd@1713": [
+          "nm",
+          "dbnm",
+          "nmnum",
+          "sqlite3Pragma"
+        ],
+        "cmd@1714": [
+          "nm",
+          "dbnm",
+          "minus_num",
+          "sqlite3Pragma"
+        ],
+        "cmd@1716": [
+          "nm",
+          "dbnm",
+          "minus_num",
+          "sqlite3Pragma",
+          "nmnum",
+          "plus_num",
+          "ON",
+          "DELETE",
+          "DEFAULT",
+          "number"
+        ],
+        "cmd@1733": [
+          "trigger_decl",
+          "trigger_cmd_list",
+          "END",
+          "sqlite3FinishTrigger",
+          "temp",
+          "ifnotexists",
+          "nm",
+          "dbnm",
+          "trigger_time",
+          "trigger_event",
+          "fullname",
+          "when_clause",
+          "sqlite3BeginTrigger",
+          "assert",
+          "AFTER",
+          "sqlite3IdListDelete",
+          "INSERT",
+          "UPDATE",
+          "idlist"
+        ],
+        "cmd@181": [
+          "transtype",
+          "sqlite3BeginTransaction"
+        ],
+        "cmd@1841": [
+          "ifexists",
+          "fullname",
+          "sqlite3DropTrigger"
+        ],
+        "cmd@1848": [
+          "expr",
+          "key_opt",
+          "sqlite3Attach"
+        ],
+        "cmd@1851": [
+          "expr",
+          "sqlite3Detach",
+          "sqlite3ExprDelete",
+          "key_opt"
+        ],
+        "cmd@1866": [
+          "sqlite3Reindex"
+        ],
+        "cmd@1867": [
+          "nm",
+          "dbnm",
+          "sqlite3Reindex"
+        ],
+        "cmd@1872": [
+          "sqlite3Analyze"
+        ],
+        "cmd@1873": [
+          "nm",
+          "dbnm",
+          "sqlite3Analyze"
+        ],
+        "cmd@1879": [
+          "fullname",
+          "nm",
+          "sqlite3AlterRenameTable"
+        ],
+        "cmd@1886": [
+          "alter_add",
+          "sqlite3AlterFinishAddColumn",
+          "fullname",
+          "nm",
+          "typetoken",
+          "disableLookaside",
+          "sqlite3AlterBeginAddColumn",
+          "sqlite3AddColumn"
+        ],
+        "cmd@1897": [
+          "fullname",
+          "nm",
+          "sqlite3AlterDropColumn"
+        ],
+        "cmd@190": [
+          "END",
+          "sqlite3EndTransaction"
+        ],
+        "cmd@1900": [
+          "fullname",
+          "nm",
+          "sqlite3AlterRenameColumn"
+        ],
+        "cmd@1903": [
+          "fullname",
+          "nm",
+          "sqlite3AlterDropConstraint"
+        ],
+        "cmd@1906": [
+          "fullname",
+          "nm",
+          "sqlite3AlterDropConstraint"
+        ],
+        "cmd@1909": [
+          "fullname",
+          "nm",
+          "NOT",
+          "sqlite3AlterSetNotNull"
+        ],
+        "cmd@191": [
+          "ROLLBACK",
+          "sqlite3EndTransaction"
+        ],
+        "cmd@1912": [
+          "fullname",
+          "CONSTRAINT",
+          "nm",
+          "LP",
+          "RP",
+          "sqlite3AlterAddConstraint"
+        ],
+        "cmd@1915": [
+          "fullname",
+          "CHECK",
+          "LP",
+          "RP",
+          "sqlite3AlterAddConstraint"
+        ],
+        "cmd@1927": [
+          "sqlite3VtabFinishParse"
+        ],
+        "cmd@1928": [
+          "RP",
+          "sqlite3VtabFinishParse"
+        ],
+        "cmd@195": [
+          "nm",
+          "sqlite3Savepoint"
+        ],
+        "cmd@198": [
+          "nm",
+          "sqlite3Savepoint"
+        ],
+        "cmd@201": [
+          "nm",
+          "sqlite3Savepoint"
+        ],
+        "cmd@207": [],
+        "cmd@499": [
+          "ifexists",
+          "fullname",
+          "sqlite3DropTable"
+        ],
+        "cmd@509": [
+          "createkw",
+          "temp",
+          "ifnotexists",
+          "nm",
+          "dbnm",
+          "eidlist_opt",
+          "select",
+          "sqlite3CreateView"
+        ],
+        "cmd@513": [
+          "ifexists",
+          "fullname",
+          "sqlite3DropTable"
+        ],
+        "cmd@520": [
+          "select",
+          "sqlite3ReadSchema",
+          "sqlite3Select",
+          "sqlite3SelectDelete",
+          "parserDoubleLinkSelect",
+          "assert",
+          "sqlite3ErrorMsg",
+          "sqlite3SelectOpName",
+          "attachWithToSelect",
+          "sqlite3WithDelete",
+          "parserStackRealloc",
+          "sqlite3FaultSim",
+          "sqlite3_realloc",
+          "sqlite3OomFault",
+          "parserStackFree",
+          "sqlite3_free",
+          "parserStackSizeLimit"
+        ],
+        "cmd@978": [
+          "xfullname",
+          "indexed_opt",
+          "where_opt_ret",
+          "orderby_opt",
+          "limit_opt",
+          "sqlite3SrcListIndexedBy",
+          "updateDeleteLimitError",
+          "sqlite3DeleteFrom"
+        ],
+        "cmd@991": [
+          "xfullname",
+          "indexed_opt",
+          "where_opt_ret",
+          "sqlite3SrcListIndexedBy",
+          "sqlite3DeleteFrom",
+          "sqlite3ExprDelete",
+          "where_opt",
+          "expr",
+          "selcollist",
+          "sqlite3AddReturning"
+        ],
+        "cmdlist@167": [],
+        "cmdlist@168": [],
+        "cmdx@176": [
+          "sqlite3FinishCoding"
+        ],
+        "columnlist@251": [],
+        "columnlist@252": [
+          "columnname",
+          "nm",
+          "typetoken",
+          "sqlite3AddColumn",
+          "idj",
+          "STRING",
+          "typename",
+          "RP",
+          "ids"
+        ],
+        "conslist@462": [],
+        "conslist@463": [],
+        "create_table@208": [
+          "temp",
+          "ifnotexists",
+          "nm",
+          "dbnm",
+          "sqlite3StartTable",
+          "createkw",
+          "CREATE",
+          "disableLookaside"
+        ],
+        "create_table_args@223": [
+          "conslist_opt",
+          "RP",
+          "table_option_set",
+          "sqlite3EndTable"
+        ],
+        "create_table_args@226": [
+          "select",
+          "sqlite3EndTable",
+          "sqlite3SelectDelete",
+          "table_option_set",
+          "table_option",
+          "nm",
+          "sqlite3_strnicmp",
+          "sqlite3ErrorMsg"
+        ],
+        "create_vtab@1929": [
+          "ifnotexists",
+          "nm",
+          "dbnm",
+          "sqlite3VtabBeginParse"
+        ],
+        "database_kw_opt@1860": [],
+        "database_kw_opt@1861": [],
+        "ecmd@169": [],
+        "ecmd@170": [],
+        "ecmd@172": [],
+        "explain@173": [],
+        "explain@174": [],
+        "foreach_clause@1762": [],
+        "foreach_clause@1763": [
+          "sqlite3ExprDelete",
+          "when_clause",
+          "expr",
+          "sqlite3DeleteTriggerStep",
+          "trigger_cmd_list",
+          "trigger_cmd"
+        ],
+        "generated@425": [
+          "expr",
+          "sqlite3AddGenerated"
+        ],
+        "generated@426": [
+          "expr",
+          "ID",
+          "sqlite3AddGenerated",
+          "autoinc",
+          "refargs",
+          "refarg",
+          "refact",
+          "defer_subclause",
+          "init_deferred_pred_opt",
+          "conslist_opt",
+          "COMMA"
+        ],
+        "input@166": [],
+        "kwcolumn_opt@1919": [],
+        "kwcolumn_opt@1920": [],
+        "lp@1939": [
+          "LP",
+          "sqlite3VtabArgExtend"
+        ],
+        "returning@1110": [
+          "selcollist",
+          "sqlite3AddReturning"
+        ],
+        "returning@1111": [
+          "insert_cmd",
+          "orconf",
+          "sqlite3IdListDelete",
+          "idlist_opt",
+          "idlist",
+          "nm",
+          "sqlite3IdListAppend",
+          "sqlite3ExprDelete",
+          "tokenExpr",
+          "sqlite3DbMallocRawNN",
+          "ExprClearVVAProperties",
+          "memset",
+          "memcpy",
+          "sqlite3Isquote",
+          "sqlite3DequoteExpr",
+          "sqlite3RenameTokenMap",
+          "expr",
+          "term",
+          "idj",
+          "sqlite3PExpr",
+          "sqlite3RenameTokenRemap",
+          "BLOB",
+          "STRING",
+          "INTEGER",
+          "sqlite3GetInt32",
+          "sqlite3ExprAlloc",
+          "sqlite3ExprInt32",
+          "VARIABLE",
+          "sqlite3Isdigit",
+          "sqlite3ExprAssignVarNumber",
+          "assert",
+          "parserSyntaxError",
+          "ids",
+          "sqlite3ExprAddCollateToken",
+          "typetoken",
+          "sqlite3ExprAttachSubtrees",
+          "distinct",
+          "exprlist",
+          "sqlite3ExprFunction",
+          "sortlist",
+          "sqlite3ExprAddFunctionOrderBy",
+          "sqlite3ExprAddOrderedsetFunction",
+          "sqlite3ExprListAppend",
+          "sqlite3ExprListDelete",
+          "ENC",
+          "sqlite3FindFunction",
+          "sqlite3ErrorMsg",
+          "filter_over",
+          "sqlite3WindowAttach",
+          "CTIME_KW",
+          "nexprlist",
+          "ALWAYS",
+          "sqlite3ExprAnd",
+          "OR",
+          "LE",
+          "NE",
+          "RSHIFT",
+          "MINUS",
+          "REM",
+          "CONCAT",
+          "likeop",
+          "MATCH",
+          "sqlite3PExprIsNull",
+          "sqlite3ExprDeferredDelete",
+          "sqlite3PExprIs"
+        ],
+        "savepoint_opt@193": [],
+        "savepoint_opt@194": [],
+        "signed@358": [],
+        "signed@359": [
+          "scanpt",
+          "assert",
+          "scantok"
+        ],
+        "tcons@466": [
+          "nm"
+        ],
+        "tcons@467": [
+          "sortlist",
+          "autoinc",
+          "onconf",
+          "sqlite3AddPrimaryKey"
+        ],
+        "tcons@469": [
+          "sortlist",
+          "onconf",
+          "sqlite3CreateIndex"
+        ],
+        "tcons@472": [
+          "LP",
+          "expr",
+          "RP",
+          "sqlite3AddCheckConstraint"
+        ],
+        "tcons@474": [
+          "eidlist",
+          "nm",
+          "eidlist_opt",
+          "refargs",
+          "defer_subclause_opt",
+          "sqlite3CreateForeignKey",
+          "sqlite3DeferForeignKey",
+          "defer_subclause",
+          "onconf",
+          "resolvetype",
+          "orconf",
+          "raisetype"
+        ],
+        "tconscomma@464": [],
+        "tconscomma@465": [],
+        "trans_opt@182": [],
+        "trans_opt@183": [],
+        "trans_opt@184": [
+          "transtype",
+          "DEFERRED",
+          "IMMEDIATE",
+          "EXCLUSIVE"
+        ],
+        "tridxby@1784": [],
+        "tridxby@1785": [
+          "sqlite3ErrorMsg"
+        ],
+        "tridxby@1790": [
+          "sqlite3ErrorMsg",
+          "sqlite3DeleteTriggerStep",
+          "trigger_cmd",
+          "UPDATE",
+          "orconf",
+          "xfullname",
+          "setlist",
+          "from",
+          "where_opt",
+          "scanpt",
+          "sqlite3TriggerUpdateStep",
+          "insert_cmd",
+          "idlist_opt",
+          "select",
+          "upsert",
+          "sqlite3TriggerInsertStep",
+          "DELETE",
+          "sqlite3TriggerDeleteStep",
+          "sqlite3TriggerSelectStep",
+          "expr",
+          "sqlite3PExpr",
+          "raisetype"
+        ],
+        "vtabarg@1935": [
+          "sqlite3VtabArgInit"
+        ],
+        "vtabarg@1936": [],
+        "vtabarglist@1933": [],
+        "vtabarglist@1934": [],
+        "vtabargtoken@1937": [
+          "ANY",
+          "sqlite3VtabArgExtend"
+        ],
+        "vtabargtoken@1938": [
+          "RP",
+          "sqlite3VtabArgExtend"
+        ],
+        "with@1952": [],
+        "with@1954": [
+          "wqlist",
+          "sqlite3WithPush"
+        ],
+        "with@1955": [
+          "wqlist",
+          "sqlite3WithPush",
+          "wqas",
+          "wqitem",
+          "withnm",
+          "eidlist_opt",
+          "select",
+          "sqlite3CteNew",
+          "nm",
+          "sqlite3WithAdd",
+          "sqlite3WindowListDelete",
+          "windowdefn_list",
+          "windowdefn",
+          "assert",
+          "sqlite3WindowChain",
+          "sqlite3WindowDelete",
+          "window",
+          "ALWAYS",
+          "sqlite3DbStrNDup",
+          "sqlite3ExprListDelete",
+          "sqlite3ExprDelete",
+          "nexprlist",
+          "orderby_opt",
+          "frame_opt",
+          "sqlite3WindowAssemble",
+          "sortlist",
+          "sqlite3WindowAlloc",
+          "range_or_rows",
+          "frame_bound_s",
+          "frame_exclude_opt",
+          "frame_bound_e",
+          "GROUPS",
+          "frame_bound",
+          "UNBOUNDED",
+          "expr",
+          "FOLLOWING",
+          "CURRENT",
+          "frame_exclude",
+          "NO",
+          "TIES",
+          "window_clause",
+          "filter_over",
+          "filter_clause",
+          "over_clause",
+          "sqlite3DbMallocZero",
+          "term",
+          "QNUMBER",
+          "tokenExpr",
+          "sqlite3DequoteNumber"
+        ]
       }
     },
     "cobol/CICS-Cobol": {
@@ -108839,6 +109561,18 @@
           "format"
         ]
       },
+      "lua/redis/sieve.lua": {
+        "filter@12": [
+          "wrap",
+          "g",
+          "mod",
+          "yield"
+        ],
+        "gen@5": [
+          "wrap",
+          "yield"
+        ]
+      },
       "lua/redis/sort.lua": {
         "qsort@5": [
           "random",
@@ -126613,6 +127347,12 @@
           "Write-Host"
         ]
       },
+      "powershell/runtime/processrc.ps1": {
+        "Evaluate-ComplexExpression@6": [],
+        "Evaluate-Input@30": [
+          "Write-Host"
+        ]
+      },
       "powershell/runtime/update-machine-certs.ps1": {
         "UpdateSite@6": [
           "Write-Host"
@@ -142024,6 +142764,87 @@
           "generate_api"
         ]
       },
+      "python/numpy/generate_umath.py": {
+        "TD@154": [
+          "isinstance",
+          "build_func_data",
+          "len",
+          "ValueError",
+          "zip",
+          "append",
+          "TypeDescription"
+        ],
+        "__init__@208": [
+          "extend",
+          "finish_signature",
+          "check_td_order"
+        ],
+        "__init__@39": [],
+        "__init__@69": [
+          "replace"
+        ],
+        "_check_order@95": [
+          "zip",
+          "index",
+          "TypeError"
+        ],
+        "build_func_data@150": [
+          "get"
+        ],
+        "check_td_order@126": [
+          "enumerate",
+          "_check_order"
+        ],
+        "english_upper@237": [
+          "translate"
+        ],
+        "finish_signature@85": [
+          "len",
+          "get"
+        ],
+        "get@23": [
+          "upper",
+          "replace"
+        ],
+        "indent@1398": [
+          "replace",
+          "sub"
+        ],
+        "main@1669": [
+          "ArgumentParser",
+          "add_argument",
+          "parse_args",
+          "make_code",
+          "join",
+          "getcwd",
+          "open",
+          "write"
+        ],
+        "make_arrays@1440": [
+          "sorted",
+          "keys",
+          "enumerate",
+          "english_upper",
+          "append",
+          "isinstance",
+          "ValueError",
+          "setdefault",
+          "join",
+          "items",
+          "dedent"
+        ],
+        "make_code@1634": [
+          "make_arrays",
+          "make_ufuncs",
+          "indent",
+          "dedent"
+        ],
+        "make_ufuncs@1540": [
+          "sorted",
+          "keys",
+          "dedent"
+        ]
+      },
       "python/numpy/generate_umath_doc.py": {
         "main@35": [
           "ArgumentParser",
@@ -152469,6 +153290,425 @@
           "extract_post_return",
           "resource",
           "Ok"
+        ]
+      },
+      "rust/wasmtime/wasmtime_ir_instructions.rs": {
+        "analyze_call@584": [
+          "Direct",
+          "as_slice",
+          "Indirect",
+          "DirectWithSig",
+          "signature",
+          "debug_assert",
+          "opcode",
+          "is_call"
+        ],
+        "append_argument@98": [
+          "push",
+          "into",
+          "encode_as_value"
+        ],
+        "args@108": [
+          "as_slice",
+          "iter",
+          "map",
+          "decode_from_value"
+        ],
+        "as_value@248": [
+          "Some"
+        ],
+        "atomic_rmw_op@541": [
+          "Some"
+        ],
+        "block@87": [
+          "first",
+          "unwrap",
+          "value_to_block"
+        ],
+        "block_to_value@70": [
+          "from_u32",
+          "as_u32"
+        ],
+        "branch_destination@426": [
+          "from_ref",
+          "as_slice",
+          "get",
+          "unwrap",
+          "all_branches",
+          "debug_assert",
+          "opcode",
+          "is_branch"
+        ],
+        "branch_destination_mut@448": [
+          "from_mut",
+          "as_mut_slice",
+          "get_mut",
+          "unwrap",
+          "all_branches_mut",
+          "debug_assert",
+          "opcode",
+          "is_branch"
+        ],
+        "clear@136": [
+          "truncate"
+        ],
+        "cond_code@512": [
+          "Some"
+        ],
+        "constraint_offset@776": [],
+        "constraints@1207": [
+          "assert",
+          "use_typevar_operand",
+          "requires_typevar_operand",
+          "assert_eq",
+          "num_fixed_results",
+          "num_fixed_value_arguments",
+          "result_type",
+          "value_argument_constraint",
+          "Bound",
+          "contains",
+          "panic"
+        ],
+        "constraints@311": [],
+        "contains@848": [
+          "is_dynamic_vector",
+          "try_from",
+          "log2_min_lane_count",
+          "unwrap",
+          "is_base_type",
+          "lane_type",
+          "log2_lane_count"
+        ],
+        "ctrl_typeset@806": [
+          "typeset_offset",
+          "map"
+        ],
+        "decode_from_value@234": [
+          "as_u32",
+          "Value",
+          "from_bits",
+          "TryCallRet",
+          "TryCallExn",
+          "unreachable"
+        ],
+        "deep_clone@162": [],
+        "default@413": [
+          "new"
+        ],
+        "deref@388": [],
+        "deref_mut@394": [],
+        "display@155": [],
+        "encode_as_value@222": [
+          "as_bits",
+          "assert",
+          "from_bits"
+        ],
+        "example@861": [
+          "max",
+          "unwrap_or",
+          "by",
+          "min",
+          "unwrap"
+        ],
+        "exception_table@665": [
+          "Some"
+        ],
+        "extend@141": [
+          "into_iter",
+          "map",
+          "into",
+          "encode_as_value"
+        ],
+        "fmt@176": [
+          "write",
+          "block",
+          "len",
+          "args",
+          "enumerate",
+          "Ok"
+        ],
+        "fmt@265": [
+          "write"
+        ],
+        "fmt@298": [
+          "write",
+          "opcode_name"
+        ],
+        "fmt@400": [
+          "iter",
+          "enumerate",
+          "write",
+          "Ok"
+        ],
+        "format@305": [],
+        "fp_cond_code@522": [
+          "Some"
+        ],
+        "from@275": [
+          "Value"
+        ],
+        "from_str@332": [
+          "probe",
+          "simple_hash",
+          "Err",
+          "Ok",
+          "unwrap"
+        ],
+        "inst_data_is_copy@1155": [
+          "is_copy"
+        ],
+        "inst_data_size@1161": [
+          "assert_eq",
+          "size_of"
+        ],
+        "instruction_data@1197": [
+          "assert_eq",
+          "size_of"
+        ],
+        "instruction_data_map@1308": [
+          "from_u32",
+          "new",
+          "map",
+          "assert_eq",
+          "push",
+          "panic",
+          "assert",
+          "is_empty",
+          "into"
+        ],
+        "into_value_list@376": [
+          "default",
+          "extend",
+          "iter",
+          "cloned"
+        ],
+        "is_base_type@836": [
+          "try_from",
+          "log2_lane_bits",
+          "unwrap",
+          "is_int",
+          "contains",
+          "is_float"
+        ],
+        "is_copy@1157": [],
+        "is_empty@371": [],
+        "is_polymorphic@811": [
+          "ctrl_typeset",
+          "is_some"
+        ],
+        "is_safepoint@318": [
+          "is_call",
+          "is_return"
+        ],
+        "key@349": [
+          "map"
+        ],
+        "len@103": [],
+        "len@345": [],
+        "load_store_offset@549": [
+          "Some",
+          "into"
+        ],
+        "map_block@1065": [],
+        "map_block@1117": [],
+        "map_block@1339": [
+          "from_u32",
+          "as_u32"
+        ],
+        "map_block_call@1062": [],
+        "map_block_call@1113": [],
+        "map_block_call@1333": [
+          "from_u32",
+          "new"
+        ],
+        "map_constant@1083": [],
+        "map_constant@1140": [],
+        "map_constant@1362": [
+          "from_u32",
+          "as_u32"
+        ],
+        "map_dynamic_stack_slot@1077": [],
+        "map_dynamic_stack_slot@1133": [],
+        "map_dynamic_stack_slot@1355": [
+          "from_u32",
+          "as_u32"
+        ],
+        "map_exception_table@1059": [],
+        "map_exception_table@1109": [],
+        "map_exception_table@1329": [
+          "from_u32",
+          "as_u32"
+        ],
+        "map_func_ref@1068": [],
+        "map_func_ref@1121": [],
+        "map_func_ref@1343": [
+          "from_u32",
+          "as_u32"
+        ],
+        "map_global_value@1053": [],
+        "map_global_value@1101": [],
+        "map_global_value@1321": [
+          "from_u32",
+          "as_u32"
+        ],
+        "map_immediate@1086": [],
+        "map_immediate@1144": [],
+        "map_immediate@1366": [
+          "from_u32",
+          "as_u32"
+        ],
+        "map_jump_table@1056": [],
+        "map_jump_table@1105": [],
+        "map_jump_table@1325": [
+          "from_u32",
+          "as_u32"
+        ],
+        "map_sig_ref@1071": [],
+        "map_sig_ref@1125": [],
+        "map_sig_ref@1347": [
+          "from_u32",
+          "as_u32"
+        ],
+        "map_stack_slot@1074": [],
+        "map_stack_slot@1129": [],
+        "map_stack_slot@1351": [
+          "from_u32",
+          "as_u32"
+        ],
+        "map_value@1047": [],
+        "map_value@1093": [],
+        "map_value@1313": [
+          "from_u32",
+          "as_u32"
+        ],
+        "map_value@256": [
+          "Value",
+          "f"
+        ],
+        "map_value_list@1050": [],
+        "map_value_list@1097": [],
+        "map_value_list@1317": [
+          "new"
+        ],
+        "map_values@474": [
+          "arguments_mut",
+          "f",
+          "branch_destination_mut",
+          "update_args",
+          "map_value",
+          "exception_table",
+          "contexts_mut"
+        ],
+        "mask_immediates@628": [
+          "is_invalid",
+          "bits",
+          "mask_to_width",
+          "debug_assert_eq",
+          "unsigned"
+        ],
+        "memflags@560": [
+          "Some"
+        ],
+        "new@361": [
+          "Self"
+        ],
+        "new@75": [
+          "default",
+          "push",
+          "block_to_value",
+          "extend",
+          "into_iter",
+          "map",
+          "encode_as_value"
+        ],
+        "num_fixed_results@749": [],
+        "num_fixed_value_arguments@760": [],
+        "opcodes@1168": [
+          "assert",
+          "assert_eq",
+          "format",
+          "to_string",
+          "parse",
+          "Ok",
+          "Err",
+          "size_of"
+        ],
+        "push@366": [],
+        "remove@131": [],
+        "requires_typevar_operand@743": [],
+        "resolve@916": [
+          "Bound",
+          "Free",
+          "lane_of",
+          "as_truthy",
+          "half_width",
+          "expect",
+          "double_width",
+          "is_dynamic_vector",
+          "dynamic_to_vector",
+          "split_lanes",
+          "vector_to_dynamic",
+          "merge_lanes",
+          "log2_lane_bits",
+          "default",
+          "from_range",
+          "is_int",
+          "is_float",
+          "panic",
+          "capacity"
+        ],
+        "result_type@782": [
+          "debug_assert",
+          "num_fixed_results",
+          "constraint_offset",
+          "resolve",
+          "panic"
+        ],
+        "set_block@93": [
+          "get_mut",
+          "unwrap",
+          "block_to_value"
+        ],
+        "stack_slot@573": [
+          "Some"
+        ],
+        "trap_code@501": [
+          "Some"
+        ],
+        "trap_code_mut@531": [
+          "Some"
+        ],
+        "typeset_offset@766": [
+          "from",
+          "len",
+          "Some"
+        ],
+        "update_args@119": [
+          "as_mut_slice",
+          "iter_mut",
+          "f",
+          "decode_from_value",
+          "encode_as_value"
+        ],
+        "use_typevar_operand@733": [],
+        "value_argument_constraint@795": [
+          "debug_assert",
+          "num_fixed_value_arguments",
+          "constraint_offset",
+          "num_fixed_results",
+          "resolve"
+        ],
+        "value_set@1253": [
+          "from_range",
+          "assert",
+          "contains",
+          "assert_eq",
+          "example",
+          "to_string"
+        ],
+        "value_to_block@64": [
+          "from_u32",
+          "as_u32"
         ]
       },
       "rust/wasmtime/wasmtime_isle_parser.rs": {
@@ -167866,6 +169106,10 @@
         "_complete_cd@82": [],
         "_complete_kill@74": [],
         "_complete_unalias@3": []
+      },
+      "shell/serenity/generate_manpages.sh": {
+        "Anonymous_Block_[Truncated]@23": [],
+        "exit_for_error@11": []
       },
       "shell/serenity/install.sh": {
         "install_llvm_key@22": []

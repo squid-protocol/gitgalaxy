@@ -66,6 +66,7 @@
       "ada/functional/functional-try.adb": "functional-try.adb",
       "ada/functional/functional-try.ads": "functional-try.ads",
       "ada/functional/functional.ads": "functional.ads",
+      "ada/functional/functional_tests_config.ads": "functional_tests_config.ads",
       "ada/functional/test_framework.adb": "test_framework.adb",
       "ada/functional/test_framework.ads": "test_framework.ads",
       "ada/functional/test_try_map_to_result.adb": "test_try_map_to_result.adb"
@@ -459,7 +460,11 @@
     "c/sqlite": {
       "c/sqlite/LICENSE.md": "LICENSE.md",
       "c/sqlite/README.md": "README.md",
-      "c/sqlite/lemon.c": "lemon.c"
+      "c/sqlite/lemon.c": "lemon.c",
+      "c/sqlite/parse.y": "parse.y"
+    },
+    "cobol": {
+      "cobol/SOURCES.md": "SOURCES.md"
     },
     "cobol/CICS-Cobol": {
       "cobol/CICS-Cobol/CBL0102v01DivisionAmbiente.cbl": "CBL0102v01DivisionAmbiente.cbl",
@@ -1387,6 +1392,9 @@
     "go/kubernetes_kubectl_tls": {
       "go/kubernetes_kubectl_tls/create_secret_tls_test.go": "create_secret_tls_test.go"
     },
+    "groovy": {
+      "groovy/SOURCES.md": "SOURCES.md"
+    },
     "groovy/fineract_gradle_plugin": {
       "groovy/fineract_gradle_plugin/LICENSE_RELEASE": "LICENSE_RELEASE",
       "groovy/fineract_gradle_plugin/org_apache_fineract_gradle_FineractPluginExtension.groovy": "org_apache_fineract_gradle_FineractPluginExtension.groovy",
@@ -1962,6 +1970,9 @@
       "javascript/threejs/WebGLProgram.js": "WebGLProgram.js",
       "javascript/threejs/WebGLRenderer.js": "WebGLRenderer.js"
     },
+    "jcl": {
+      "jcl/SOURCES.md": "SOURCES.md"
+    },
     "jcl/cash-account-cobol": {
       "jcl/cash-account-cobol/DB2BIND.jcl": "DB2BIND.jcl",
       "jcl/cash-account-cobol/DB2DDL.jcl": "DB2DDL.jcl",
@@ -2407,6 +2418,7 @@
       "lua/redis/luac.lua": "luac.lua",
       "lua/redis/printf.lua": "printf.lua",
       "lua/redis/readonly.lua": "readonly.lua",
+      "lua/redis/sieve.lua": "sieve.lua",
       "lua/redis/sort.lua": "sort.lua",
       "lua/redis/strict.lua": "strict.lua",
       "lua/redis/table.lua": "table.lua",
@@ -2772,6 +2784,7 @@
       "powershell/runtime/generateredefinesfile.ps1": "generateredefinesfile.ps1",
       "powershell/runtime/generateversionscript.ps1": "generateversionscript.ps1",
       "powershell/runtime/getRefPackFolderFromArtifacts.ps1": "getRefPackFolderFromArtifacts.ps1",
+      "powershell/runtime/processrc.ps1": "processrc.ps1",
       "powershell/runtime/run-benchmark.ps1": "run-benchmark.ps1",
       "powershell/runtime/update-machine-certs.ps1": "update-machine-certs.ps1"
     },
@@ -3090,6 +3103,7 @@
       "python/numpy/genapi.py": "genapi.py",
       "python/numpy/generate_numpy_api.py": "generate_numpy_api.py",
       "python/numpy/generate_ufunc_api.py": "generate_ufunc_api.py",
+      "python/numpy/generate_umath.py": "generate_umath.py",
       "python/numpy/generate_umath_doc.py": "generate_umath_doc.py",
       "python/numpy/lapack_litemodule.c": "lapack_litemodule.c",
       "python/numpy/numpy_api.py": "numpy_api.py",
@@ -3262,6 +3276,7 @@
     "rust/wasmtime": {
       "rust/wasmtime/wasmtime_component_macro.rs": "wasmtime_component_macro.rs",
       "rust/wasmtime/wasmtime_instance.rs": "wasmtime_instance.rs",
+      "rust/wasmtime/wasmtime_ir_instructions.rs": "wasmtime_ir_instructions.rs",
       "rust/wasmtime/wasmtime_isle_parser.rs": "wasmtime_isle_parser.rs",
       "rust/wasmtime/wasmtime_pulley_interp.rs": "wasmtime_pulley_interp.rs"
     },
@@ -3376,6 +3391,7 @@
       "shell/freebsd-src/COPYRIGHT": "COPYRIGHT",
       "shell/freebsd-src/chflags_test.sh": "chflags_test.sh",
       "shell/freebsd-src/chmod_test.sh": "chmod_test.sh",
+      "shell/freebsd-src/ckscripts.sh": "ckscripts.sh",
       "shell/freebsd-src/cp_test.sh": "cp_test.sh",
       "shell/freebsd-src/ctfconvert_test.sh": "ctfconvert_test.sh",
       "shell/freebsd-src/dd2_test.sh": "dd2_test.sh",
@@ -3448,6 +3464,7 @@
       "shell/illumos-gate/exportfs.sh": "exportfs.sh",
       "shell/illumos-gate/ikecert.sh": "ikecert.sh",
       "shell/illumos-gate/illumos_13434_chunked_heredoc.sh": "illumos_13434_chunked_heredoc.sh",
+      "shell/illumos-gate/inetd-upgrade.sh": "inetd-upgrade.sh",
       "shell/illumos-gate/mkerror.sh": "mkerror.sh",
       "shell/illumos-gate/newvers.sh": "newvers.sh",
       "shell/illumos-gate/nfsfind.sh": "nfsfind.sh",
@@ -3565,6 +3582,7 @@
       "shell/serenity/analyze-qemu-coverage.sh": "analyze-qemu-coverage.sh",
       "shell/serenity/builtin.sh": "builtin.sh",
       "shell/serenity/embedmap.sh": "embedmap.sh",
+      "shell/serenity/generate_manpages.sh": "generate_manpages.sh",
       "shell/serenity/install.sh": "install.sh",
       "shell/serenity/package.sh": "package.sh",
       "shell/serenity/run-tests-and-shutdown.sh": "run-tests-and-shutdown.sh"
@@ -3754,6 +3772,9 @@
     "tabular/tsv_genomics": {
       "tabular/tsv_genomics/B.cell_eQTL.tsv": "B.cell_eQTL.tsv"
     },
+    "tcl": {
+      "tcl/SOURCES.md": "SOURCES.md"
+    },
     "tcl/macports_port_api": {
       "tcl/macports_port_api/fetch_common.tcl": "fetch_common.tcl",
       "tcl/macports_port_api/library.tcl": "library.tcl",
@@ -3881,6 +3902,7 @@
       "typescript/playwright/protocol.ts": "protocol.ts"
     },
     "typescript/typescript_compiler": {
+      "typescript/typescript_compiler/LICENSE.txt": "LICENSE.txt",
       "typescript/typescript_compiler/binder.ts": "binder.ts",
       "typescript/typescript_compiler/package.json": "package.json"
     },

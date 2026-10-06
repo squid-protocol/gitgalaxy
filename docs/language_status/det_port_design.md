@@ -386,6 +386,17 @@ Only generator output, never a test case:
   COPAUS1C), DSF's `IDIOT IS 'ABC...'` alphabet without ALPHABET (PLUKKFR, PLUKKFRN), `LABEL RECORD ARE` (FO04D1X1),
   OS/VS `EXHIBIT NAMED` (R001BYDL), and GenApp polloo2.cpy's missing period after `03 CA-CUSPOL-REQUEST` (a source
   defect).
+- #4528: a TS item is the bytes the program wrote "in the region's code page" (CicsTask), and the COBOL side's
+  region keeps it in CCSID 037 (cics-crucible SPEC 2; the stub transcodes its Latin-1 storage at the boundary). The
+  det port handed CicsTask its storage's bytes (CS, CobolRecords.charset()) as they were: WS-ONE VALUE 'W' reached
+  the queue as X'57' ('ï'), an item 'A' came back as 'Á'. WRITEQ / READQ TS now move each byte between CS and
+  `REGION` (`DetCics.toRegion` / `fromRegion`): the estate's declared code page for the program when it is EBCDIC
+  (`EngineCopies.page`, #4462), else CCSID 037; the system property `gitgalaxy.cics.charset` names another. NL is
+  NEL (X'15') and LF X'25' as in CDRA and Python's cp037, not the JDK's LF for both; a byte one page cannot carry
+  stops the run by name. TD (`Cobol.text(.., CS)`), SEND TEXT, terminal RECEIVE and the COMMAREA DTO codecs already
+  went through characters. `Cics.declared` reads a DTO's copybook in its declared page too (it read Latin-1).
+  Newly passing on the det port (cics-crucible): hc-perform-range 4/4 (`length-trap` byte for byte), hc-abend-link
+  push-pop, pushed-abend, sub-own-exit, sub-resp, ca-link-lengths no-commarea.
 
 ### Keyed reads
 

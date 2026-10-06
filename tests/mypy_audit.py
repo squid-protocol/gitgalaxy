@@ -21,7 +21,8 @@ USAGE
                                          # what CI runs.
 
 IMPORTANT: regenerate the baseline in the SAME environment mypy-audit.yml
-uses -- `pip install mypy PyYAML && pip install -e .`, nothing else.
+uses -- `pip install -r tests/requirements-mypy.txt && pip install -e .`, nothing else
+(pr_gates.py builds exactly that in ~/.cache/gitgalaxy/mypy-<version>).
 Confirmed the hard way (PR #436): regenerating it in a "full-precision"
 env (networkx/tiktoken/pandas/xgboost also installed) silently changed
 mypy's resolution for at least one line (galaxyscope.py's `importlib.util`

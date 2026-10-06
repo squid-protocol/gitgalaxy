@@ -125,6 +125,7 @@ def test_the_cics_dto_field_lookup_refuses_a_member_held_by_two_directories(tmp_
 
 
 def test_the_cics_dto_field_lookup_resolves_a_single_member(tmp_path):
+    pytest.importorskip("tree_sitter_language_pack")
     _write(tmp_path, "a/DATEWS.cpy", "01 WS-DATE PIC X(16).")
     (tmp_path / "b").mkdir()
     _, item = _declared([tmp_path / "b", tmp_path / "a"])

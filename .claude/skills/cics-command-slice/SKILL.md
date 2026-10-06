@@ -34,7 +34,13 @@ Traps `--check` exists for:
 - [ ] **Census.** `$PY tests/tools/cics_census.py usage VERB [VERB ...]` -- per program the options each
       `EXEC CICS VERB` uses, totals per option, burned / non-burned. Multi-word verbs: `"SEND TEXT"` or `SEND-TEXT`.
       `--pli` adds PL/I programs (flagged: the det translator takes COBOL only). Names and counts only.
-- [ ] **Pick** the commands / options the non-burned programs need first; note what you leave refused and why.
+- [ ] **Pick by blockers, not by frequency.** Run the before survey across ALL CICS programs first (not only
+      one verb's) and rank each gap by how many programs it would make translate WHOLE: programs whose only
+      remaining holes are that command / option (non-burned first), then programs it leaves one gap from whole.
+      A gap may be a CICS verb, a grammar gap (#4462) or a missing copybook; the best next slice is whatever
+      unlocks the most programs, even when it is not a CICS command. The census above is the tiebreaker. A
+      slice that unlocks no whole program needs a stated reason (2026-10-06: ASSIGN closed every ASSIGN hole
+      and moved 7 -> 7, because each of those programs had other gaps). Note what you leave refused and why.
 - [ ] **Before survey** (now, on the unchanged branch): `$PY tests/tools/cics_census.py survey --out $SCRATCH/s
       --label before --verb VERB` (det_survey.py, translation only; ~minutes per estate; background it with
       `tests/tools/box/heavy-run.sh`).

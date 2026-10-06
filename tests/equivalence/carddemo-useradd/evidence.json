@@ -63,7 +63,7 @@
     "gitgalaxy/tools/cobol_to_java/**"
    ],
    "files": 60,
-   "sha256": "4fa390383fcd211159dbd10b63062eca5b1046c24dfec7b7186e96819cac6e49"
+   "sha256": "6eab156270c21ef910bcf2883406275e52c707d5fd6bdbb7518744dc30ddaa48"
   },
   "corpus": {
    "name": "aws-mainframe-modernization-carddemo",
@@ -73,10 +73,10 @@
   "differences": {
    "sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
   },
-  "digest": "a952d5bd9d10fc019cafca169e70be8d11d5f4b19cd8056eb979ba58c2045c05"
+  "digest": "9d6affaa25329c393bf581af5cf853ee3d663156c28c850eea3e1b9f15371bf8"
  },
  "proof": {
-  "at": "2026-10-06T04:39:49Z",
+  "at": "2026-10-06T10:43:37Z",
   "verdict": "proven",
   "runs": 13,
   "fault_runs": 1,
@@ -149,8 +149,8 @@
    "failed": [],
    "error": null
   },
-  "harness_commit": "3c9c8b7dff17234bdfcf1e11088bcbe460580372+uncommitted",
-  "inputs_digest": "a952d5bd9d10fc019cafca169e70be8d11d5f4b19cd8056eb979ba58c2045c05"
+  "harness_commit": "ca529169609d6e48c2124510473d4539ea576c8e+uncommitted",
+  "inputs_digest": "9d6affaa25329c393bf581af5cf853ee3d663156c28c850eea3e1b9f15371bf8"
  },
  "coverage": {
   "paragraphs": {
@@ -174,7 +174,7 @@
    "total": 0
   },
   "source": "the proof's own traced COBOL runs (cobol_coverage.py)",
-  "inputs_digest": "a952d5bd9d10fc019cafca169e70be8d11d5f4b19cd8056eb979ba58c2045c05"
+  "inputs_digest": "9d6affaa25329c393bf581af5cf853ee3d663156c28c850eea3e1b9f15371bf8"
  },
  "reach": {
   "entry_points": [
@@ -207,7 +207,7 @@
   "compiler_options": null,
   "image": {
    "name": "gitgalaxy-gnucobol:3",
-   "id": "sha256:d7e387df360c519ce8945a1f6d748c8dafab06f50551b23ddf85d6373a4dcd6e",
+   "id": "sha256:d81f386912111e825d75a5f9856f571118ca4586049923555526cf7419454be3",
    "base": "debian:bookworm-slim@sha256:3783cc01769c7b2b1b83a5c5ad96c815348e28ed7da68e2e3687004faa906251",
    "matches_pin": true,
    "mismatches": []

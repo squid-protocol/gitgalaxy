@@ -274,8 +274,10 @@ def write_only_pointers(records: list, proc) -> set[str]:
 def translate(program: Path, copy_dirs: list[Path], stub: str, package: str,
               estate: dict[str, str] | None = None, project: Path | None = None,
               style: str = "dispatch", typed: bool = False, groups: bool = False,
-              options: list[str] | None = None, unit: str | None = None) -> Result:  # fmt: skip
-    """`unit` (#4462): the program of a multi-program source to translate (its PROGRAM-ID; None: the first), each
+              options: list[str] | None = None, unit: str | None = None, strict_copy: bool = False) -> Result:  # fmt: skip
+    """`strict_copy` (#4486): refuse a COPY whose member sits in more than one library of the program's SYSLIB order
+    (CopyUnresolved) instead of taking the first library's member, as the compiler does; each collision taken is a
+    warning in `stats["warnings"]`. `unit` (#4462): the program of a multi-program source to translate (its PROGRAM-ID; None: the first), each
     nested or batch-compiled program on its own (det.source.program_unit). `style`: "dispatch" (paragraphs numbered, run by a PERFORM / GO TO dispatcher) or "structured" (paragraphs
     as named methods called directly, fields by their COBOL names) -- structured only where `structurable`.
     `typed` (B3): standalone WORKING-STORAGE items held as typed Java fields -- an alphanumeric item a String of
@@ -288,7 +290,19 @@ def translate(program: Path, copy_dirs: list[Path], stub: str, package: str,
     excluded: set[str] = set()
     while True:
         out = _attempt(
-            program, copy_dirs, stub, package, estate, project, style, typed, excluded, groups, options, unit
+            program,
+            copy_dirs,
+            stub,
+            package,
+            estate,
+            project,
+            style,
+            typed,
+            excluded,
+            groups,
+            options,
+            unit,
+            strict_copy,
         )
         if isinstance(out, Result):
             return out
@@ -464,9 +478,10 @@ def _pcs_figuratives(records: list[L.Item], gen: G.Gen) -> None:
 
 def _translate(program: Path, copy_dirs: list[Path], stub: str, package: str, estate: dict[str, str] | None,
                project: Path | None, style: str, typed: bool, excluded: set[str],
-               groups: bool = False, options: list[str] | None = None, unit: str | None = None) -> Result:  # fmt: skip
+               groups: bool = False, options: list[str] | None = None, unit: str | None = None,
+               strict_copy: bool = False) -> Result:  # fmt: skip
     # #4467: a COPY the translator resolves otherwise than the engine did refuses the program (CopyDisagrees)
-    engine = engine_copies_from_ticket(project, program) if project is not None else None
+    engine = engine_copies_from_ticket(project, program, strict_copy) if project is not None else None
     # #4462: one program of the source (the first, or `unit`): a nested or batch-compiled program is its own class
     lines = program_unit(program_lines(program, [*copy_dirs, C.COPY], engine), unit)
     records = L.parse(lines)
@@ -1100,6 +1115,7 @@ def _translate(program: Path, copy_dirs: list[Path], stub: str, package: str, es
     stats = dict(gen.stats)
     stats["program"] = prog.name
     stats["inferred"] = inferred
+    stats["warnings"] = list(engine.warnings) if engine is not None else []  # #4486: SYSLIB collisions taken
     java = "\n".join(out)
     if "Hfp." in java:  # #4271: the HFP runtime, imported only where a float is used (no other port changes)
         java = java.replace(

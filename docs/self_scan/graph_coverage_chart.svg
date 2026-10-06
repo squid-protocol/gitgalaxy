@@ -373,16 +373,16 @@
 </g>
 <text class="none" x="732" y="602.0">not measured</text>
 <text class="lang" x="22" y="637.0">rust</text>
-<g><title>rust imports: precision 100.0% of 36, recall 100.0% of 37; corpus serde-rs/json; small n</title>
+<g><title>rust imports: precision 100.0% of 153, recall 100.0% of 211; corpus serde-rs/json</title>
 <text class="pr" x="120" y="630.5">Precision</text>
 <rect class="track" x="166" y="623" width="110" height="8" rx="2"/>
-<rect x="166" y="623" width="110.0" height="8" rx="2" fill="#4a3aa7" opacity="0.35"/>
+<rect x="166" y="623" width="110.0" height="8" rx="2" fill="#4a3aa7"/>
 <text class="val" x="281" y="631">100.0%</text>
 <text class="pr" x="120" y="642.5">Recall</text>
 <rect class="track" x="166" y="635" width="110" height="8" rx="2"/>
-<rect x="166" y="635" width="110.0" height="8" rx="2" fill="#eda100" opacity="0.35"/>
+<rect x="166" y="635" width="110.0" height="8" rx="2" fill="#eda100"/>
 <text class="val" x="281" y="643">100.0%</text>
-<text class="n" x="324" y="631">n=37 imports</text>
+<text class="n" x="324" y="631">n=211 imports</text>
 <text class="n" x="324" y="643">repos 1 · files 71</text>
 </g>
 <g><title>rust callee names: precision 96.6% of 7,439, recall 99.9% of 7,194 (raw 96.6% / 99.9%; 8 shapes without a verdict)</title>

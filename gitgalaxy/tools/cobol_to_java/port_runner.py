@@ -23,7 +23,9 @@
 #              and {prompt_dir} placeholders (an in-house model, `agy -p`, `ollama run` ...)
 #   det        no model: the deterministic translator (cobol_to_java/det) writes the port from the COBOL
 #              source (--source-root, the estate the project was generated from) -- faithful by construction,
-#              the same port every time; --style structured / --typed make it readable without a model
+#              the same port every time; --style structured / --typed make it readable without a model;
+#              a COPY member in several libraries of the program's SYSLIB order takes the first library's,
+#              as the compiler does, with a warning in the log (--strict-copy refuses it instead, #4486)
 # or a person writes the port and `submit`s it. `refine` takes the latest PROVEN port and has a model rewrite it
 # one method at a time for a reader, every rewrite proven with the operator's proof command and kept only if it
 # proves (else retried, else reverted); each step is logged, and the result is a new attempt, proven again. The Java the answer carries is stored as a PROPOSED
@@ -310,9 +312,11 @@ def _translator_version() -> str:
 
 
 def det_port(project: Path, ticket: dict[str, Any], source_root: Path, work: Path, style: str,
-             typed: bool, groups: bool = False) -> tuple[str, dict[str, str], dict[str, Any]]:  # fmt: skip
+             typed: bool, groups: bool = False, strict_copy: bool = False) -> tuple[str, dict[str, str], dict[str, Any]]:  # fmt: skip
     """The deterministic translator's port of the ticket's program: (service Java, runtime files, stats). The
-    copybook directories are the ticket's copybooks' own, then symbolic maps generated from the estate's BMS."""
+    copybook directories are the ticket's copybooks' own, then symbolic maps generated from the estate's BMS.
+    `strict_copy` (#4486): refuse a SYSLIB collision instead of taking the first library's member; the stats'
+    `warnings` name each collision taken."""
     from gitgalaxy.tools.cobol_to_java.det import program as P
     from gitgalaxy.tools.cobol_to_java.det.source import bms_copybooks
 
@@ -334,9 +338,12 @@ def det_port(project: Path, ticket: dict[str, Any], source_root: Path, work: Pat
     m = re.search(r"^package\s+([\w.]+)\.service\s*;", stub, re.M)
     if not m:
         raise SystemExit(f"{stub_file}: no `package ....service;` line")
-    r = P.translate(program, dirs, stub, m.group(1), P.estate_files(project), project, style, typed, groups)
+    r = P.translate(program, dirs, stub, m.group(1), P.estate_files(project), project, style, typed, groups,
+                    strict_copy=strict_copy)  # fmt: skip
     stats = {"statements": r.stats["statements"], "translated": r.stats["translated"],
              "holes": len(r.stats["holes"]), "style": style, "typed": typed, "groups": groups}  # fmt: skip
+    if r.stats.get("warnings"):
+        stats["warnings"] = list(r.stats["warnings"])
     return r.java, P.runtime_files(m.group(1), P.has_batch(project)), stats
 
 
@@ -351,7 +358,7 @@ def cmd_run(opts: argparse.Namespace) -> int:
         work.mkdir(parents=True, exist_ok=True)
         started = _now()
         port_java, runtime, stats = det_port(
-            project, ticket, opts.source_root.resolve(), work, opts.style, opts.typed, opts.groups
+            project, ticket, opts.source_root.resolve(), work, opts.style, opts.typed, opts.groups, opts.strict_copy
         )
         dest = _store(project, ticket, port_java, attempt, runtime)
         log_event(project, {"event": "proposed", "ticket": opts.ticket, "attempt": attempt, "backend": "det",
@@ -360,6 +367,8 @@ def cmd_run(opts: argparse.Namespace) -> int:
         holes = f", {stats['holes']} statement(s) left as holes" if stats["holes"] else ""
         print(f"{opts.ticket}: deterministic port {dest.relative_to(project)} (attempt {attempt}): "
               f"{stats['translated']}/{stats['statements']} statements{holes}; prove it, then review it")  # fmt: skip
+        for w in stats.get("warnings", []):
+            print(f"{opts.ticket}: warning: {w}")
         return 0
     work = project / PORTS / opts.ticket / "attempts" / f"{attempt:03d}_work"
     work.mkdir(parents=True, exist_ok=True)
@@ -647,6 +656,12 @@ def main(argv: list[str] | None = None) -> int:
         "--groups",
         action="store_true",
         help="det, with --typed: items in groups used whole too (COMMAREAs, records), the group's bytes synced",
+    )
+    r.add_argument(
+        "--strict-copy",
+        action="store_true",
+        help="det: refuse a COPY member found in several libraries of the program's SYSLIB order (default: take "
+        "the first library's, as the compiler does, and warn)",
     )
     f.add_argument("--prove-command", required=True, help="the proof command, with {port_dir} / {report_dir}")
     f.add_argument("--only", help="only these methods (comma-separated)")

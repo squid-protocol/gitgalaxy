@@ -57,7 +57,7 @@
     "gitgalaxy/tools/cobol_to_java/**"
    ],
    "files": 60,
-   "sha256": "b842148fa97e54545ffc6cfeaf97395462414b82c5fb0f297fd4d6b91324a1ad"
+   "sha256": "6eab156270c21ef910bcf2883406275e52c707d5fd6bdbb7518744dc30ddaa48"
   },
   "corpus": {
    "name": "cics-crucible",
@@ -67,10 +67,10 @@
   "differences": {
    "sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
   },
-  "digest": "d40d97ee83d3e5cabb6cb58a87e253c7e4d547131a66edb0dba2d783ce484bb8"
+  "digest": "8fbfe60742c903984666510ba636452d634f176184f22c16071d69645587db03"
  },
  "proof": {
-  "at": "2026-10-06T07:13:42Z",
+  "at": "2026-10-06T10:46:06Z",
   "verdict": "proven",
   "runs": 4,
   "fault_runs": 0,
@@ -100,8 +100,8 @@
   "sysout_compared": null,
   "attributes_compared": null,
   "java_failed": false,
-  "harness_commit": "ec59ee06445dcb380e628c2a1ec7583fe8b09fb1+uncommitted",
-  "inputs_digest": "d40d97ee83d3e5cabb6cb58a87e253c7e4d547131a66edb0dba2d783ce484bb8"
+  "harness_commit": "ca529169609d6e48c2124510473d4539ea576c8e+uncommitted",
+  "inputs_digest": "8fbfe60742c903984666510ba636452d634f176184f22c16071d69645587db03"
  },
  "coverage": {
   "paragraphs": {
@@ -116,7 +116,7 @@
   "handler_labels": null,
   "source": "tests/cics_crucible/coverage.json#programs/ca-link-lengths/CALINK",
   "ledger_sha256": "1f6f6d9c217e8adca68592d3f7f88bbd26690a2247a0b743dc6477155f3aa9da",
-  "inputs_digest": "d40d97ee83d3e5cabb6cb58a87e253c7e4d547131a66edb0dba2d783ce484bb8"
+  "inputs_digest": "8fbfe60742c903984666510ba636452d634f176184f22c16071d69645587db03"
  },
  "reach": {
   "entry_points": [

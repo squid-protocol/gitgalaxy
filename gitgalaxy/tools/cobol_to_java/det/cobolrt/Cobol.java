@@ -547,6 +547,27 @@ public final class Cobol {
         return f.kind == Field.Kind.NUMERIC_FLOAT ? num(f, cs) : Hfp.of(num(f, cs));
     }
 
+    /** `a` against an ALL literal (#4557; IBM Enterprise COBOL 6.4 Language Reference, "Figurative constants": ALL
+     *  literal, "Comparison of alphanumeric operands"): the literal repeated -- or cut -- to the length of the other
+     *  operand, then compared byte by byte (no padding is left to do). A numeric item is compared as the
+     *  nonnumeric operand it is against a nonnumeric literal. */
+    public static int compareAll(Field a, String allLiteral, Charset cs) {
+        return compareAll(a, allLiteral, cs, null);
+    }
+
+    /** As {@link #compareAll(Field, String, Charset)}, under `coll` (PROGRAM COLLATING SEQUENCE; null: byte order). */
+    public static int compareAll(Field a, String allLiteral, Charset cs, Sort.Collating coll) {
+        return cmpBytes(a.raw(), repeat(allLiteral, a.len, cs), cs, coll);
+    }
+
+    /** `n` bytes of `allLiteral` repeated from its first character (a space for an empty one). */
+    private static byte[] repeat(String allLiteral, int n, Charset cs) {
+        byte[] lit = allLiteral.isEmpty() ? " ".getBytes(cs) : allLiteral.getBytes(cs);
+        byte[] b = new byte[n];
+        for (int i = 0; i < n; i++) b[i] = lit[i % lit.length];
+        return b;
+    }
+
     public static int compareFigurative(Field a, Figurative f, Charset cs) {
         return compareFigurative(a, f, cs, null);
     }

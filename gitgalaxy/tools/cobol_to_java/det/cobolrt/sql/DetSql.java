@@ -290,7 +290,7 @@ public final class DetSql {
             char kind = kinds.charAt(i);
             if (kind == 'N') {
                 BigDecimal n = v instanceof BigDecimal b ? b : new BigDecimal(v.toString());
-                if (Cobol.storeChecked(hosts[i], n, false, cs)) {  // the integer part does not fit (the fraction is cut)
+                if (Cobol.storeHostChecked(hosts[i], n, false, cs)) {  // the integer part does not fit (the fraction is cut)
                     code(ca, -304, "22003", cs);
                     return false;
                 }

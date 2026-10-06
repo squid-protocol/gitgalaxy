@@ -417,7 +417,7 @@ verdict, but it limits what the proof says about inputs outside the scenarios.
 ### X1. Commands from IBM's documentation — ASSUMED
 - **Source.** Each command's RESP/RESP2, length handling and EIB fields follow the IBM CICS TS for z/OS 6.x API
   reference, cited in the code.
-- **Checked against.** The cics-crucible (192 doc-cited cells passing, v0.3.0). Not checked against a CICS region.
+- **Checked against.** The cics-crucible (196 doc-cited cells passing, v0.4.0). Not checked against a CICS region.
 
 ### X2. Screens are compared as the symbolic map — ASSUMED
 - **Compared.** Each SEND MAP's symbolic map: the data, the attribute, colour and highlight subfields, and the cursor
@@ -758,6 +758,12 @@ The length READQ TS returns on ITEMERR or QIDERR is not documented, so it is not
   -803, -811, -532) are the same codes on z/OS. SQLERRMC tokens come from Db2 itself.
 - **Not compared to z/OS.** SQLSTATE subclasses, SQLERRD values beyond the row count, SQLERRP, and the dialect
   differences of other statements.
+
+### Q1a. A binary host variable takes what its bytes hold — MATCHED (#4579)
+- **What.** SELECT INTO / FETCH INTO a COMP / COMP-4 / BINARY / COMP-5 host variable gives SQLCODE -304 only for a value
+  outside its halfword / fullword / doubleword (Db2 types the host variable by its data type: S9(9) COMP is INTEGER), not
+  beyond its PICTURE's digits: 2147483647 into `S9(9) COMP` is assigned. That holds under TRUNC(STD) too; STD limits
+  COBOL's own MOVE / arithmetic (C1), not the SQL assignment. ggsql.c `num_store` and DetSql (`Cobol.storeHostChecked`) agree.
 
 ### Q2. EXEC SQL keeps RETURN-CODE — ASSUMED
 - The precompiled CALL preserves RETURN-CODE around the stub. Whether IBM's DSNHLI call resets it is not documented.

@@ -5,6 +5,7 @@ translator takes them whole, before and after the change -- split burned / non-b
     python tests/tools/cics_census.py usage ASSIGN ["SEND TEXT" ...] [--json]
     python tests/tools/cics_census.py survey --out DIR --label before [--verb ASSIGN ...] [--compile]
     python tests/tools/cics_census.py compare DIR --verb ASSIGN [...]
+    python tests/tools/cics_census.py blockers DIR [--label before] [--all-programs] [--json]
 
 `usage` counts, per corpus and program, the option names each `EXEC CICS <VERB>` uses, and per option the programs
 (and the non-burned ones) that use it. Names and counts only: no source text is printed. RESP / RESP2 / NOHANDLE are
@@ -18,6 +19,13 @@ corpora fetched under GITGALAXY_MAINFRAME_CORPORA). With --verb, only the corpor
 `compare` reads DIR/before-*/survey.json and DIR/after-*/survey.json and prints, for every program using the verb(s):
 translated / statements and holes before -> after, burned or not, the holes left after (deduplicated, line numbers
 stripped), and the summary counts (programs translated whole, all and non-burned).
+
+`blockers` reads DIR/<label>-*/survey.json (a survey with no --verb: every program) and ranks every gap class --
+a CICS command / option, an EXEC SQL gap, a grammar gap (#4462), a missing copybook, a refusal -- by the programs
+fixing it would make translate WHOLE: those for which it is the only gap class left (burned / non-burned), those it
+leaves one gap class from whole, and all it touches; plus programs whole / total and how many distinct gap classes
+each program has. Only programs with an EXEC CICS command unless --all-programs. Pick the next slice by this, the
+usage census is the tiebreaker.
 
 Burned / non-burned comes from ONE place: tests/tools/estate4_draw.py. A corpus is BURNED when its name is one of
 the burned estates (BURNED_NAMES: CardDemo, CBSA, GenApp, zECS, DBB MortgageApplication -- det ports exist); every
@@ -301,8 +309,9 @@ def cmd_survey(args: argparse.Namespace) -> int:
         with log.open("wb") as fh:
             res = subprocess.run(argv, cwd=REPO, env=dict(env, GITGALAXY_MAINFRAME_CORPORA=str(root)),  # noqa: S603
                                  stdout=fh, stderr=subprocess.STDOUT, check=False)  # fmt: skip
-        if res.returncode:
-            print(f"  det_survey exited {res.returncode}: see {log}", file=sys.stderr)
+        if res.returncode or not (work / "survey.json").is_file():
+            print(f"  det_survey exited {res.returncode} (survey.json written: {(work / 'survey.json').is_file()}): "
+                  f"see {log}", file=sys.stderr)  # fmt: skip
             rc = 1
     return rc
 
@@ -381,6 +390,155 @@ def cmd_compare(args: argparse.Namespace) -> int:
     return 0
 
 
+# ---- blockers ---------------------------------------------------------------------------------------------------
+_TAIL_PAREN = re.compile(r"\s*\((?:[^()]|\([^()]*\))*\)\s*$")
+_PATH = re.compile(r"(?:[A-Za-z]:)?[/\\]\S+?(?::\d+)?(?=:|\s|$)")
+_AT_LINE = re.compile(r"(?:\bat )?\bline \d+:?\s*", re.I)
+REFUSES = ("refused", "missing copybook")  # gap classes that stop the whole program (no statements translated)
+
+
+def _generic(text: str) -> str:
+    """A hole / error message without its specifics: literals, argument lists, data / paragraph / map names, numbers.
+    A name with no hyphen and no digit (DIBSTAT, CBLTDLI, an IBM routine) is kept: it often IS the gap."""
+    text = re.sub(r"'[^']*'|\"[^\"]*\"", "'…'", text)
+    text = re.sub(r"\((?:[^()]|\([^()]*\))*\)", "(…)", text)
+    text = re.sub(r"\b[A-Z][A-Za-z0-9]*\.[a-z]\w*\b", "<class>.<property>", text)  # a generated Java name
+    text = re.sub(r"\b[A-Z][A-Za-z0-9]*(?:[-_][A-Za-z0-9]+)+\b", "<name>", text)  # WS-AREA, WS-Qarea, DATA_ITEM
+    text = re.sub(r"\b[A-Z][A-Z]*\d[A-Z0-9]*\b", "<name>", text)  # BNK1CCM, C1
+    text = re.sub(r"\b(map|COMMAREA) [A-Z][\w-]*", r"\1 <name>", text)
+    text = re.sub(r"\b\d+\b", "N", text)
+    return re.sub(r"\s+", " ", text).strip(" :")
+
+
+def gap_key(hole: str) -> str:
+    """One hole -> its gap class, line numbers and specifics stripped: `EXEC CICS GETMAIN`, `EXEC CICS ASSIGN APPLID`,
+    `EXEC SQL: ...`, `EXEC DLI`, `grammar: does not parse`, `CALL CBLTDLI`, `<name>: no such item`, ..."""
+    h = _LINE_NO.sub("", hole).strip()
+    kind, _, why = h.partition(" ")
+    why = _TAIL_PAREN.sub("", why).strip()  # the issue / slice / oracle_assumptions note in parentheses
+    if kind == "EXEC" and why.startswith(("EXEC CICS", "CICS")):
+        why = why.split(":", 1)[1].strip() if ":" in why else ""
+        m = re.fullmatch(r"(?:EXEC CICS )?([A-Z][A-Z0-9 ]*?):? (?:option )?not modelled", why)
+        if m:
+            return "EXEC CICS " + m.group(1)
+        return "EXEC CICS " + (_generic(why) or "(no reason given)")
+    if kind == "EXEC" and why.startswith("EXEC SQL"):
+        return "EXEC SQL: " + _generic(why.split(":", 1)[-1].strip())
+    if kind == "EXEC":
+        return _generic(why)  # EXEC DLI, ...
+    if kind == "HOLE":  # the statement parser's own holes: grammar gaps (#4462), unmodelled verbs
+        if why in ("does not parse", "not parsed") or why.startswith("grammar node"):
+            return "grammar: " + _generic(why)
+        return _generic(why)
+    if re.fullmatch(r"[A-Z][\w-]*: no such item", why):  # a map field, DIBSTAT, ...: one class whatever the name
+        return "<name>: no such item"
+    if why.startswith(kind + " ") or re.match(r"[A-Z][\w-]*: ", why):  # CALL CALL X / MOVE ITEM: no such item
+        return _generic(why)
+    return _generic(f"{kind} {why}")
+
+
+def error_key(error: str) -> str:
+    """A program the translator refused whole -> its gap class: `missing copybook BAQRI`, `refused: ExprError: ...`."""
+    m = re.search(r"\bCOPY\s+([A-Z0-9@#$_-]+)", error, re.I)
+    if error.startswith(("CopyNotFound", "CopyAmbiguous")) and m:
+        return f"missing copybook {m.group(1).upper()}" + (" (ambiguous)" if error.startswith("CopyAmbiguous") else "")
+    etype, _, msg = error.partition(": ")
+    msg = re.sub(r"^\S+\.\w+:\d+:\s*", "", msg)  # the member and line it stopped at
+    msg = re.sub(r"\s*\[[^\]]*\]", "", _AT_LINE.sub("", _PATH.sub("<path>", msg)))
+    return f"refused: {etype}: {_generic(msg)}"[:120]
+
+
+def gap_classes(r: dict[str, Any]) -> set[str]:
+    """The distinct gap classes keeping one survey row from translating whole (empty: whole)."""
+    if "error" in r:
+        return {error_key(r["error"])}
+    if "statements" not in r:
+        return {"refused: no result"}
+    return {gap_key(h) for h in r.get("holes", [])}
+
+
+def cics_programs(roots: list[Path]) -> set[tuple[str, str]]:
+    """(corpus, program) of every COBOL program with an EXEC CICS command (names only, as `usage` reads them)."""
+    from gitgalaxy.core.source_text import read_source
+
+    out = set()
+    for name, corpus in corpus_dirs(roots):
+        for prog in corpus.rglob("*"):
+            if prog.is_file() and prog.suffix.lower() in PROGRAM_EXTS and ".git" not in prog.relative_to(corpus).parts:
+                try:
+                    if commands(read_source(prog).text):
+                        out.add((name, str(prog.relative_to(corpus))))
+                except OSError:
+                    continue
+    return out
+
+
+def blockers(rows: dict[tuple[str, str], dict[str, Any]], only: set[tuple[str, str]] | None = None) -> dict[str, Any]:
+    """Rank every gap class by the programs fixing it would make translate WHOLE: `only` = programs for which it is
+    the only gap class left (split burned / non-burned), `one_away` = programs it leaves one gap class from whole,
+    `touched` = programs with it at all. A `refused` class stops the whole program: what fixing it reveals is not
+    known yet, so its `only` count is an upper bound."""
+    burned = burned_names()
+    progs = {k: (is_burned(k[0], burned), gap_classes(r)) for k, r in rows.items() if only is None or k in only}
+    stats: dict[str, dict[str, int]] = defaultdict(lambda: defaultdict(int))
+    hist: dict[int, int] = defaultdict(int)
+    for b, classes in progs.values():
+        hist[len(classes)] += 1
+        for g in classes:
+            st, tag = stats[g], "burned" if b else "non_burned"
+            st["touched"] += 1
+            st[f"touched_{tag}"] += 1
+            if len(classes) <= 2:
+                which = "only" if len(classes) == 1 else "one_away"
+                st[which] += 1
+                st[f"{which}_{tag}"] += 1
+    keys = ("only", "only_burned", "only_non_burned", "one_away", "one_away_burned", "one_away_non_burned",
+            "touched", "touched_burned", "touched_non_burned")  # fmt: skip
+    gaps: list[dict[str, Any]] = [
+        {"gap": g, **{k: st.get(k, 0) for k in keys}, "refuses_program": g.startswith(REFUSES)}
+        for g, st in stats.items()
+    ]
+    gaps.sort(key=lambda d: (-d["only"], -d["only_non_burned"], -d["one_away"], -d["touched"], d["gap"]))
+    nb = [k for k, (b, _) in progs.items() if not b]
+    return {
+        "programs": len(progs),
+        "non_burned": len(nb),
+        "whole": sum(not g for _, g in progs.values()),
+        "whole_non_burned": sum(not progs[k][1] for k in nb),
+        "refused": sum(any(x.startswith(REFUSES) for x in g) for _, g in progs.values()),
+        "histogram": {str(n): hist[n] for n in sorted(hist)},
+        "gaps": gaps,
+    }
+
+
+def cmd_blockers(args: argparse.Namespace) -> int:
+    rows = load_surveys(args.dir, args.label)
+    if not rows:
+        raise SystemExit(f"no {args.label}-*/survey.json under {args.dir} (run `cics_census.py survey --out "
+                         f"{args.dir} --label {args.label}` first)")  # fmt: skip
+    only = None if args.all_programs else cics_programs(roots_from(args))
+    res = blockers(rows, only)
+    res["scope"] = "every surveyed program" if only is None else "programs with an EXEC CICS command"
+    if only is not None:
+        res["cics_programs_not_surveyed"] = len(only - set(rows))
+    if args.json:
+        print(json.dumps(res, indent=1))
+        return 0
+    print(f"# blockers in {args.dir}/{args.label}-*: {res['scope']}")
+    print(f"translated whole: {res['whole']} / {res['programs']} (non-burned {res['whole_non_burned']} / "
+          f"{res['non_burned']}); refused whole (no statements translated): {res['refused']}")  # fmt: skip
+    if res.get("cics_programs_not_surveyed"):
+        print(f"CICS programs with no survey row: {res['cics_programs_not_surveyed']} (a corpus left out of the run?)")
+    print("distinct gap classes per program: " + ", ".join(f"{n}: {c}" for n, c in res["histogram"].items()))
+    print(f"\n{'only gap (B/NB)':>16} {'one away (B/NB)':>16} {'touched':>8}  gap  (* = refuses the whole program: "
+          f"its count is an upper bound)")  # fmt: skip
+    for g in res["gaps"][: args.top or None]:
+        print(f"{g['only']:>6} ({g['only_burned']:>2}/{g['only_non_burned']:>2}) {g['one_away']:>6} "
+              f"({g['one_away_burned']:>2}/{g['one_away_non_burned']:>2}) {g['touched']:>8}  "
+              f"{'*' if g['refuses_program'] else ' '}{g['gap'][:110]}")  # fmt: skip
+    return 0
+
+
 def main(argv: list[str] | None = None) -> int:
     ap = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     common = argparse.ArgumentParser(add_help=False)
@@ -408,8 +566,16 @@ def main(argv: list[str] | None = None) -> int:
     c.add_argument("--before", default="before")
     c.add_argument("--after", default="after")
     c.add_argument("--json", action="store_true")
+    k = sub.add_parser("blockers", parents=[common], help="rank every gap by the programs fixing it makes whole")
+    k.add_argument("dir", type=Path)
+    k.add_argument("--label", default="before", help="the survey run prefix (DIR/<label>-*/survey.json)")
+    k.add_argument("--all-programs", action="store_true", help="every surveyed program, not only the CICS ones "
+                   "(then no corpora are read)")  # fmt: skip
+    k.add_argument("--top", type=int, default=0, help="print only the first N gaps (default: all)")
+    k.add_argument("--json", action="store_true")
     args = ap.parse_args(argv)
-    return {"usage": cmd_usage, "survey": cmd_survey, "compare": cmd_compare}[args.cmd](args)
+    cmds = {"usage": cmd_usage, "survey": cmd_survey, "compare": cmd_compare, "blockers": cmd_blockers}
+    return cmds[args.cmd](args)
 
 
 if __name__ == "__main__":

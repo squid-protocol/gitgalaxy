@@ -202,3 +202,128 @@ def test_compare_before_after(tmp_path, capsys):
         cc.main(["compare", str(s), "--verb", "ASSIGN", "--corpora", str(main), "--census-corpora", str(census)]) == 0
     )
     assert "translated whole: 1 -> 1 (non-burned 0 -> 0)" in capsys.readouterr().out
+
+
+@pytest.mark.parametrize(
+    ("hole", "key"),
+    [
+        ("line 3: EXEC EXEC CICS: ASSIGN STARTCODE: option not modelled", "EXEC CICS ASSIGN STARTCODE"),
+        ("line 4: EXEC EXEC CICS: ASSIGN APPLID", "EXEC CICS ASSIGN APPLID"),
+        ("line 5: EXEC EXEC CICS: EXEC CICS GETMAIN not modelled", "EXEC CICS GETMAIN"),
+        (
+            "line 6: EXEC EXEC CICS: RUN CHANNEL: option not modelled (RUN CHANNEL: the child's copy (#4270: later))",
+            "EXEC CICS RUN CHANNEL",
+        ),
+        (
+            "line 7: EXEC EXEC CICS: HANDLE CONDITION NOTFND(X-PARA): no such paragraph",
+            "EXEC CICS HANDLE CONDITION NOTFND(…): no such paragraph",
+        ),
+        ("line 8: HOLE does not parse", "grammar: does not parse"),
+        ("line 9: HOLE grammar node exit_statement", "grammar: grammar node exit_statement"),
+        ("line 10: MOVE WS-ITEM-1: FILLER", "<name>: FILLER"),  # one class whatever the statement
+        ("line 10: IF DIBSTAT: no such item", "<name>: no such item"),
+        (
+            "line 10: ENTRY ENTRY DLITCBL: an alternate entry point is not modelled",
+            "ENTRY DLITCBL: an alternate entry point is not modelled",
+        ),  # no hyphen, no digit: kept, it is the gap
+        ("line 10: CALL CALL CBLTDLI", "CALL CBLTDLI"),
+        (
+            "line 10: COMPUTE FUNCTION NUMVAL in a floating-point expression (oracle_assumptions.md C6)",
+            "COMPUTE FUNCTION NUMVAL in a floating-point expression",
+        ),
+        ("line 10: EXEC EXEC DLI", "EXEC DLI"),
+        ("line 10: EXEC EXEC CICS", "EXEC CICS (no reason given)"),
+        (
+            "line 10: EXEC EXEC CICS: DEFINE COUNTER: named counters are not modelled",
+            "EXEC CICS DEFINE COUNTER: named counters are not modelled",
+        ),
+        ("line 10: EXEC EXEC CICS: not a data area: Length of WS-Qarea", "EXEC CICS not a data area: Length of <name>"),
+        (
+            "line 10: EXEC EXEC CICS: no generated screen for map BNK1CCM",
+            "EXEC CICS no generated screen for map <name>",
+        ),
+        (
+            "line 10: EXEC EXEC CICS: Copaus0cCommarea.cdemoPaukeyPrevPg: a property the port cannot convert (List<String>)",
+            "EXEC CICS <class>.<property>: a property the port cannot convert",
+        ),
+        ("line 11: EXEC EXEC SQL: WHENEVER 'X' (a later slice)", "EXEC SQL: WHENEVER '…'"),
+    ],
+)
+def test_gap_key_strips_line_numbers_and_specifics(hole, key):
+    assert cc.gap_key(hole) == key
+
+
+def test_error_key_names_the_copybook_and_drops_paths():
+    assert cc.error_key("LayoutError: NBLK-ACCT.cbl:137: national / DBCS text ('—', U+2014) is not modelled: the "
+                        "translator reads a single-byte code page") == (
+        "refused: LayoutError: national / DBCS text (…) is not modelled: the translator reads a single-byte code page"
+    )  # fmt: skip
+    assert cc.error_key("LayoutError: DATA DIVISION does not parse near expanded line(s) [21]") == (
+        "refused: LayoutError: DATA DIVISION does not parse near expanded line(…)"
+    )
+    assert cc.error_key("CopyNotFound: /home/x/src/a.cbl:34: COPY BAQRI") == "missing copybook BAQRI"
+    assert cc.error_key("ExprError: line 117: paragraph_header does not parse") == (
+        "refused: ExprError: paragraph_header does not parse"
+    )
+    assert cc.error_key("ExprError: the PROCEDURE DIVISION does not parse at line 86") == (
+        "refused: ExprError: the PROCEDURE DIVISION does not parse"
+    )
+
+
+def _row(program: str, *holes: str, error: str | None = None) -> dict:
+    if error:
+        return {"program": program, "error": error}
+    return {"program": program, "statements": 9, "translated": 9 - len(holes), "holes": list(holes)}
+
+
+def test_blockers_rank_gaps_by_programs_made_whole(tmp_path, capsys):
+    getmain, applid = "line 1: EXEC EXEC CICS: EXEC CICS GETMAIN not modelled", "line 2: EXEC EXEC CICS: ASSIGN APPLID"
+    grammar = "line 3: HOLE does not parse"
+    s = tmp_path / "s"
+    _survey(s / "before-b", {"cics-genapp": [
+        _row("A.cbl"),  # whole
+        _row("B.cbl", getmain, getmain.replace("line 1", "line 40")),  # GETMAIN only (twice: one class)
+        _row("C.cbl", getmain, applid),  # one away
+    ]})  # fmt: skip
+    _survey(s / "before-nb", {"cics-async-api-redbooks": [
+        _row("D.cbl", grammar),  # grammar only, non-burned
+        _row("E.cbl", getmain, applid, grammar),  # three classes
+        _row("F.cbl", error="CopyNotFound: /x/F.cbl:3: COPY BAQRI"),
+        _row("G.cbl", getmain),  # not a CICS program: left out below
+    ]})  # fmt: skip
+    rows = cc.load_surveys(s, "before")
+    res = cc.blockers(rows, only={k for k in rows if k[1] != "G.cbl"})
+    assert (res["programs"], res["non_burned"], res["whole"], res["whole_non_burned"], res["refused"]) == (
+        6,
+        3,
+        1,
+        0,
+        1,
+    )
+    assert res["histogram"] == {"0": 1, "1": 3, "2": 1, "3": 1}
+    by = {g["gap"]: g for g in res["gaps"]}
+    # only-gap programs first, non-burned ones break the tie, then one away, then touched
+    assert [g["gap"] for g in res["gaps"]] == ["grammar: does not parse", "missing copybook BAQRI",
+                                               "EXEC CICS GETMAIN", "EXEC CICS ASSIGN APPLID"]  # fmt: skip
+    gm = by["EXEC CICS GETMAIN"]
+    assert (gm["only"], gm["only_burned"], gm["only_non_burned"], gm["one_away"], gm["touched"]) == (1, 1, 0, 1, 3)
+    assert (gm["touched_burned"], gm["touched_non_burned"]) == (2, 1)
+    assert by["grammar: does not parse"]["only_non_burned"] == 1
+    assert by["EXEC CICS ASSIGN APPLID"]["only"] == 0 and by["EXEC CICS ASSIGN APPLID"]["one_away"] == 1
+    assert by["missing copybook BAQRI"]["refuses_program"] and not gm["refuses_program"]
+    assert cc.blockers(rows)["programs"] == 7  # no filter: every surveyed program
+    assert cc.main(["blockers", str(s), "--all-programs", "--no-census", "--corpora", str(tmp_path)]) == 0
+    out = capsys.readouterr().out
+    assert "translated whole: 1 / 7 (non-burned 0 / 4)" in out and "EXEC CICS GETMAIN" in out
+
+
+def test_blockers_cli_keeps_the_cics_programs(tmp_path, capsys):
+    main, s = tmp_path / "main", tmp_path / "s"
+    corpus(main, "zecs", {"A.cbl": ASSIGN_PROG, "B.cbl": fixed("PROCEDURE DIVISION.", "    GOBACK.")})
+    _survey(s / "before-b", {"zecs": [_row("A.cbl", "line 2: EXEC EXEC CICS: ASSIGN APPLID"), _row("B.cbl")]})
+    assert cc.main(["blockers", str(s), "--corpora", str(main), "--no-census", "--json"]) == 0
+    doc = json.loads(capsys.readouterr().out)
+    assert (doc["programs"], doc["whole"], doc["scope"]) == (1, 0, "programs with an EXEC CICS command")
+    assert doc["gaps"][0]["gap"] == "EXEC CICS ASSIGN APPLID" and doc["gaps"][0]["only_burned"] == 1
+    with pytest.raises(SystemExit):
+        cc.main(["blockers", str(tmp_path / "nothing"), "--all-programs", "--no-census"])

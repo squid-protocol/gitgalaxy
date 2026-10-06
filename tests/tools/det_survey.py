@@ -195,7 +195,9 @@ def main() -> int:
         work = args.work / name
         try:
             project, built = estate(corpus, work / "estate")
-        except Exception as e:  # an estate the generator cannot take is a result too
+        except (Exception, SystemExit) as e:  # an estate the generator cannot take is a result too -- also when the
+            # refactor controller sys.exit()s ("No executable COBOL files found"), which silently ended the whole
+            # survey with status 0 and no survey.json
             rows_by[name] = [{"program": "(estate)", "error": f"generation failed: {type(e).__name__}: {e}"}]
             continue
         # the runtime for this estate (its batch adapters only where the project has a batch package)

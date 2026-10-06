@@ -80,3 +80,18 @@ def test_ratchet_failure_prints_update_command(monkeypatch, tmp_path, capsys):
     out = capsys.readouterr().out
     assert "FAIL  ground-truth" in out and "ground_truth_ledger.py update" in out
     assert pr_gates.run_ratchets(["nope"], env) == 2
+
+
+def test_audits_always_run_under_env_i_and_print_the_tool_used(monkeypatch, capsys):
+    """#4551: whether or not the local version matches, the audit is clean-env and names the tool it used."""
+    monkeypatch.setattr(
+        pr_gates,
+        "local_versions",
+        lambda env=None: {"mypy": pr_gates.ci_pins()["mypy"], "ruff": pr_gates.ci_pins()["ruff"]},
+    )
+    [cmd] = pr_gates.pinned_mypy_audit(pr_gates.REPO, {})
+    assert cmd[:2] == ["env", "-i"] and "NO_COLOR=1" in cmd and not any(a.startswith("FORCE_COLOR") for a in cmd)
+    [cmd], _ = pr_gates.pinned_ruff_lint({})
+    assert cmd[:2] == ["env", "-i"]
+    out = capsys.readouterr().out
+    assert "mypy used:" in out and "ruff used:" in out

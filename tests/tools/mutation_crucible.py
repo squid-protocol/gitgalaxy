@@ -42,8 +42,10 @@ from pathlib import Path
 HERE = Path(__file__).resolve().parent
 REPO = HERE.parent.parent
 sys.path.insert(0, str(HERE))
+sys.path.insert(0, str(HERE.parent))
 
 import mutation as mu  # noqa: E402
+from _cics_crucible_pin import PINNED_REF  # noqa: E402
 
 PORTS = REPO / "tests" / "cics_crucible" / "ports"
 RUNNER = HERE / "cics_crucible.py"
@@ -126,7 +128,7 @@ def run_port(case: str, prog: str, overlay: Path, work: Path, args) -> dict:
         results = list(pool.map(one, chosen))
     res = {"case": f"crucible:{case}", "program": prog, "mutants": len(every), "chosen": len(chosen),
            "seed": args.seed, "seconds": round(time.monotonic() - t0), "baseline_seconds": round(base_s, 1),
-           "coverage": "cics-crucible v0.2.0 java-ported + java-facade scenarios (100% paragraphs and branches, #4023)",
+           "coverage": f"cics-crucible {PINNED_REF} java-ported + java-facade scenarios (100% paragraphs and branches, #4023)",
            "results": sorted(results, key=lambda r: (r["file"], r["line"], r["id"]))}  # fmt: skip
     (pw / "mutation.json").write_text(json.dumps(res, indent=1) + "\n", encoding="utf-8")
     (pw / "mutation.md").write_text(mu.mutation_md(res), encoding="utf-8")

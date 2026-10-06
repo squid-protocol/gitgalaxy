@@ -17,4 +17,4 @@ and re-proves them on every change (tests/cics_crucible/baseline.json holds the 
 #4308: each provenance.json's `proof` is the loop's proof, at the crucible version of that day. When the pin moves,
 tests/tools/crucible_port_provenance.py reprove runs the proof again at the new pin and APPENDS a `proof.reproven`
 entry (or marks the record `proof.stale` with the reason); tests/cics_crucible/test_port_provenance.py fails while a
-record names another version than the pin and says nothing. All 17 were re-proven at v0.2.0 on 2026-10-04.
+record names another version than the pin and says nothing. All 17 were re-proven at v0.2.0 on 2026-10-04, and at v0.3.0 on 2026-10-06.

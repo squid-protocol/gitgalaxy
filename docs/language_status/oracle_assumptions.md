@@ -384,7 +384,7 @@ verdict, but it limits what the proof says about inputs outside the scenarios.
 ### X1. Commands from IBM's documentation — ASSUMED
 - **Source.** Each command's RESP/RESP2, length handling and EIB fields follow the IBM CICS TS for z/OS 6.x API
   reference, cited in the code.
-- **Checked against.** The cics-crucible (152 doc-cited cells, v0.2.0). Not checked against a CICS region.
+- **Checked against.** The cics-crucible (192 doc-cited cells passing, v0.3.0). Not checked against a CICS region.
 
 ### X2. Screens are compared as the symbolic map — ASSUMED
 - **Compared.** Each SEND MAP's symbolic map: the data, the attribute, colour and highlight subfields, and the cursor

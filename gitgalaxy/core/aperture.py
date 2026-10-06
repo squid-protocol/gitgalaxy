@@ -96,10 +96,10 @@ _LICENSE_READ_BYTES = 262144
 class VendorDirectoryDetector:
     """#4545: decides whether a directory under `root` is a vendored copy of another project."""
 
-    def __init__(self, root: Union[str, Path]):
+    def __init__(self, root: str | Path):
         self.root = Path(root)
         self._cache: dict[str, bool] = {}
-        self._root_licenses: Optional[frozenset[str]] = None
+        self._root_licenses: frozenset[str] | None = None
 
     @staticmethod
     def is_candidate_name(name: str) -> bool:

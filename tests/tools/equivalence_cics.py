@@ -218,7 +218,10 @@ def _handle(pairs: list[tuple[str, str | None]], labels: list[str]) -> list[str]
     if verb == "ASSIGN":  # ABCODE (#4003); APPLID / SYSID: the region's identity, from the case's "region";
         # PROGRAM: the name of the program running (IBM CICS TS, ASSIGN: "the name of the current program")
         asked = [(n, v) for n, v in pairs[1:] if n not in ("RESP", "RESP2", "NOHANDLE")]
-        other = [n for n, _v in asked if n not in ("ABCODE", "APPLID", "SYSID", "PROGRAM", "INVOKINGPROG", "CHANNEL")]
+        # #4270 slice 3: STARTCODE / USERID / FACILITY / SCRNHT / SCRNWD, from what the runner states (GGCASGN)
+        known = ("ABCODE", "APPLID", "SYSID", "PROGRAM", "INVOKINGPROG", "CHANNEL", "STARTCODE", "USERID", "FACILITY",
+                 "SCRNHT", "SCRNWD")  # fmt: skip
+        other = [n for n, _v in asked if n not in known]
         if other or not asked or not all(v for _n, v in asked):
             raise Unsupported(
                 f"ASSIGN {' '.join(other) or 'without a target'}", [f"ASSIGN {n}" for n in other or ["?"]]
@@ -228,10 +231,21 @@ def _handle(pairs: list[tuple[str, str | None]], labels: list[str]) -> list[str]
             if n == "CHANNEL":  # #4270: the current channel's name, blanks without one (GGCASCH)
                 lines += _call("GGCASCH", []) + [f"MOVE GG-CHAN TO {target}"]
                 continue
-            width = {"ABCODE": 4, "APPLID": 8, "SYSID": 4, "PROGRAM": 8, "INVOKINGPROG": 8}[n]
-            lines += ["MOVE SPACES TO GG-NAME2" if n == "ABCODE" else f"MOVE '{n}' TO GG-NAME2"] + _call("GGCASGN", [])
+            if n in ("SCRNHT", "SCRNWD"):  # a halfword, in GG-NUM
+                lines += [f"MOVE '{n}' TO GG-NAME2"] + _call("GGCASGN", []) + [f"MOVE GG-NUM TO {target}"]
+                continue
+            width = {"ABCODE": 4, "APPLID": 8, "SYSID": 4, "PROGRAM": 8, "INVOKINGPROG": 8, "STARTCODE": 2,
+                     "USERID": 8, "FACILITY": 4}[n]  # fmt: skip
+            lines += ["MOVE SPACES TO GG-NAME2" if n == "ABCODE" else f"MOVE '{n[:8]}' TO GG-NAME2"] + _call(
+                "GGCASGN", []
+            )
             lines.append(f"MOVE GG-NAME1(1:{width}) TO {target}")
-        return lines + _resp(opts, False)
+        if not any(n in ("FACILITY", "SCRNHT", "SCRNWD") for n, _v in asked):
+            return lines + _resp(opts, False)
+        # INVREQ RESP2 5 for a task with no terminal, and then no data area written (register X19)
+        check = ["MOVE 'TERMCHK' TO GG-NAME2"] + _call("GGCASGN", [])
+        return (check + ["IF GG-RESP = 0"] + [f"    {ln}" for ln in lines] + ["    MOVE 0 TO GG-RESP GG-RESP2", "END-IF"]
+                + _resp(opts, True, labels))  # fmt: skip
     if verb == "HANDLE" and kind == "AID":  # #4007
         lines = []
         for key, label in pairs[2:]:

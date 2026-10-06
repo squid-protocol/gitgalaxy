@@ -368,6 +368,13 @@ Only generator output, never a test case:
   GGCRUNT), with INVREQ RESP2 4 / 5 / 6, IOERR, ENDDATA and ENVDEFERR through `condition()`; the det port sets EIBTRMID.
   FETCH, RUN / START CHANNEL and RETRIEVE SET / WAIT are refused by name (register X18). Proven through cics-crucible
   gt-start-retrieve (6), gt-terminal-coalesce (4) and gt-start-options (7) on the cobol-stub side and the det port.
+- #4270 slice 3: ASSIGN refused every option but APPLID / SYSID / ABCODE / PROGRAM / INVOKINGPROG / CHANNEL. The census
+  (131 CICS programs) uses APPLID (27 programs), PROGRAM (23), ABCODE (6), SYSID (4), STARTCODE (4, 2 outside the
+  burned estates), INVOKINGPROG (3), CHANNEL (2) and USERID (1, outside). `STARTCODE`, `USERID`, `FACILITY`, `SCRNHT`
+  and `SCRNWD` now run on CicsTask (`assignStartcode`, `assignUserid`, `assignTerminalResp`, `assignFacility`,
+  `assignScreen`) and the stub (GGCASGN), from facts the harness states, with INVREQ RESP2 5 for a task with no terminal
+  through `condition()`. The other options are refused with a reason (register X19). Proven through cics-crucible
+  gt-assign-startcode (3) on the cobol-stub side and the det port.
 - #4463: four det ports stopped proving on 2026-10-04 and no CI ran the det sweep. carddemo-menu: a #4049 scenario
   sent option 99, which COMEN01C still uses as a subscript of its 12-entry table, 4K past the record (X8: the det
   port stops; the case now sends 12). mortgage-cmort / mlist / nbrvl: #4245 read every program of EPSCSMRD's

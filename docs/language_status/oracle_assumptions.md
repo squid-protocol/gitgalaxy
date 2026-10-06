@@ -94,6 +94,7 @@ verdict, but it limits what the proof says about inputs outside the scenarios.
 | X16 | CICS | HANDLE AID, IGNORE CONDITION, PUSH / POP HANDLE and HANDLE CONDITION ERROR on the det port | MATCHED (REFUSED where IBM is silent) | yes (cics-crucible hc-handle-aid, hc-ignore-error, hc-eoc-error) |
 | X17 | CICS | Channels and containers: PUT / GET / DELETE CONTAINER, LINK / XCTL CHANNEL, ASSIGN CHANNEL; bytes never converted; CCSID options, SET, BYTEOFFSET, RETURN CHANNEL, MOVE and browse refused | ASSUMED (REFUSED where IBM is silent) | yes (cics-crucible ca-channel-containers, unreleased) |
 | X18 | CICS | Interval control on the det port: START (INTERVAL / TIME / AFTER / AT, TERMID, REQID, PROTECT, FROM, RTRANSID / RTERMID / QUEUE), RETRIEVE (INTO / LENGTH, the data options, ENVDEFERR), CANCEL REQID, RUN TRANSID CHILD; TIME RESP2 and the order of out-of-range checks assumed; FETCH, RUN / START CHANNEL, RETRIEVE SET / WAIT refused | ASSUMED (REFUSED where IBM is silent) | yes (cics-crucible gt-start-retrieve, gt-terminal-coalesce, gt-start-options, unreleased) |
+| X19 | CICS | ASSIGN on the det port: STARTCODE (TD / S / SD), USERID (the default user), FACILITY / SCRNHT / SCRNWD (INVREQ RESP2 5 without a terminal) from facts the harness states; no data area written when ASSIGN raises INVREQ; OPID, NETNAME, TERMCODE, FCI, the other screen sizes, work-area lengths and the rest refused | ASSUMED (REFUSED where the harness cannot decide) | yes (cics-crucible gt-assign-startcode, unreleased) |
 | L1 | LE | CEEDAYS: documented pictures only | MATCHED / REFUSED | yes |
 | L2 | LE | CEE3ABD abend codes | MATCHED | yes |
 | L3 | LE | WORKING-STORAGE with no VALUE clause: GnuCOBOL's spaces vs LE's STORAGE option on z/OS | ASSUMED | yes (CardDemo READACCT OUTFILE, 2 bytes) |
@@ -684,6 +685,39 @@ The length READQ TS returns on ITEMERR or QIDERR is not documented, so it is not
   gt-start-options (7: data options, ENVDEFERR, RETRIEVE with no INTO, AFTER / AT and TIME(250000), INVREQ RESP2 6 / 5
   / 6 / 4, REQID IOERR, RUN TRANSID and its TRANSIDERR), cobol-stub and the det port both passing the hand-written
   logs (crucible branch `cases/start-retrieve-4270`, squid-protocol/cics-crucible#7, not yet released or pinned).
+
+### X19. ASSIGN: STARTCODE / USERID / FACILITY / SCRNHT / SCRNWD — ASSUMED, REFUSED where the harness cannot decide (#4270 slice 3)
+- **What IBM documents** (CICS TS 6.x, EXEC CICS ASSIGN, https://www.ibm.com/docs/en/cics-ts/6.x?topic=summary-assign).
+  STARTCODE "returns a 2-character value that indicates how the transaction that issued the request was started": `D`
+  / `DS` a distributed program link, `QD` "Transient data trigger level", `S` "START command that did not pass data in
+  the FROM option", `SD` "START command that passed data in the FROM option", `SZ` FEPI, `TD` "Terminal input or
+  permanent transid", `U` "User-attached task". USERID: "If no user is explicitly signed on, CICS returns the default
+  user ID" (DFLTUSER, default `CICSUSER`). FACILITY "returns a 4-byte identifier of the principal facility ... If this
+  option is specified, and no facility is allocated, INVREQ occurs"; SCRNHT / SCRNWD "the height / width of the 3270
+  screen defined for the current task. If the task is not initiated from a terminal, INVREQ occurs". INVREQ RESP2 5:
+  "The task is not associated with a terminal; or the task has no principal facility"; "Default action: terminate the
+  task abnormally" (AEIP).
+- **The harness's facts.** Each is stated by whoever runs the task, never derived inside the runtime:
+  CicsTask `withStartcode` / `withUserid` / `withScreen` and the stub's `$GGCICS_STARTCODE` / `$GGCICS_USERID` /
+  `$GGCICS_FACILITY` / `$GGCICS_SCREEN`. The crucible runner states them from its scheduler and the reference region
+  (cics-crucible SPEC 2): `TD` for a task a terminal step starts (typed input, or a pseudo-conversational RETURN
+  TRANSID's next input), `SD` / `S` for a START-triggered task by whether its request(s) passed FROM, user `CICSUSER`
+  (no security, nobody signs on), FACILITY the task's terminal, screen 24 x 80. Unstated (the equivalence harness's
+  one-task scenarios), the option is refused at run time, not guessed.
+- **Assumed.** An ASSIGN that raises INVREQ writes none of its data areas, the other options' included (IBM does not
+  say; a crucible case never reads one after INVREQ). A START that passes RTRANSID / RTERMID / QUEUE but no FROM is
+  `S` (IBM's codes are worded by FROM alone).
+- **Refused by name** (`CicsError` / `Unsupported` at translation with the reason; exit 98 /
+  UnsupportedOperationException / IllegalStateException at run time): OPID, OPCLASS, OPSECURITY, USERNAME (RACF
+  facts; the region has no security); NETNAME (the harness's terminal has no network name); TERMCODE (a device type /
+  model code); FCI (its code for a task with no terminal); DEFSCRNHT / DEFSCRNWD / ALTSCRNHT / ALTSCRNWD (only the one
+  screen size is modelled); TWALENG, TCTUALENG, CWALENG (the work areas are not modelled); TASKPRIORITY; RETURNPROG;
+  PRINSYSID; QNAME; and every other ASSIGN option (BMS, BTS, DPL and partner facts; no corpus program uses them). At
+  run time: STARTCODE in a RUN TRANSID child (IBM lists no code for one), and in a terminal task started for several
+  START requests (SPEC 4 coalescing) some with FROM and some without (which code it gets is undocumented).
+- **Reached.** cics-crucible gt-assign-startcode (3: a terminal task, STARTs with and without FROM, a terminal START,
+  a pseudo-conversational next task, an unhandled INVREQ abending AEIP), cobol-stub and the det port both passing the
+  hand-written logs (crucible branch `cases/assign-4270`, not yet released or pinned).
 
 ## Language Environment
 

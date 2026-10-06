@@ -123,7 +123,24 @@ OPTIONS: dict[str, frozenset | None] = {
     "PUSH HANDLE": _RESP,
     "POP HANDLE": _RESP,
     "ABEND": frozenset({"ABCODE", "CANCEL", "NODUMP"}),  # NODUMP: a dump is no state the program or its caller sees
-    "ASSIGN": frozenset({"APPLID", "SYSID", "ABCODE", "PROGRAM", "INVOKINGPROG", "CHANNEL"}) | _RESP,
+    # #4270 slice 3: STARTCODE / USERID / FACILITY / SCRNHT / SCRNWD from facts the harness states (Cics.assign);
+    # every other ASSIGN option is refused with _ASSIGN_REFUSED_WHY's reason
+    "ASSIGN": frozenset(
+        {
+            "APPLID",
+            "SYSID",
+            "ABCODE",
+            "PROGRAM",
+            "INVOKINGPROG",
+            "CHANNEL",
+            "STARTCODE",
+            "USERID",
+            "FACILITY",
+            "SCRNHT",
+            "SCRNWD",
+        }
+    )
+    | _RESP,
     "ASKTIME": frozenset({"ABSTIME", "NOHANDLE"}),
     "FORMATTIME": frozenset({"ABSTIME", "TIME", "DATESEP", "TIMESEP", "NOHANDLE", *_FORMS}),
     "INQUIRE PROGRAM": frozenset({"PROGRAM"}) | _RESP,
@@ -197,6 +214,29 @@ _REFUSED_WHY = {
 }
 
 
+# #4270 slice 3: why an ASSIGN option is refused (docs/language_status/oracle_assumptions.md X19)
+_ASSIGN_REFUSED_WHY = {
+    "OPID": "the operator's RACF identification: the region has no security and no signed-on operator",
+    "OPCLASS": "the operator's RACF classes: the region has no security and no signed-on operator",
+    "OPSECURITY": "the operator's RACF security keys: the region has no security",
+    "USERNAME": "the user's RACF name: the region has no security",
+    "NETNAME": "the terminal's VTAM LU name: the harness's terminal has no network name",
+    "TERMCODE": "the terminal's device type and model code: the harness's terminal is no catalogued device",
+    "FCI": "the facility control indicator's codes for a task with no terminal are not decided here",
+    "DEFSCRNHT": "default / alternate screen sizes: only the one screen the region defines is modelled",
+    "DEFSCRNWD": "default / alternate screen sizes: only the one screen the region defines is modelled",
+    "ALTSCRNHT": "default / alternate screen sizes: only the one screen the region defines is modelled",
+    "ALTSCRNWD": "default / alternate screen sizes: only the one screen the region defines is modelled",
+    "TWALENG": "the transaction work area is not modelled",
+    "TCTUALENG": "the terminal control table user area is not modelled",
+    "CWALENG": "the common work area is not modelled",
+    "TASKPRIORITY": "task priority is not modelled (one task runs at a time)",
+    "RETURNPROG": "where control returns at the end of a program (an XCTL chain's LINK level) is not modelled",
+    "PRINSYSID": "a remote system is not modelled",
+    "QNAME": "transient-data trigger-level tasks are not modelled",
+}
+
+
 def command_key(words: list[str], opts: dict) -> str:
     """The OPTIONS key of a parsed command (the verb words, plus the option that names the form: SEND MAP)."""
     verb = " ".join(words)
@@ -239,6 +279,10 @@ def check_options(words: list[str], opts: dict) -> None:
             why = "RUN CHANNEL: the child task's copy of the channel is not modelled (#4270: a later slice)"
         if key == "CANCEL":
             why = "CANCEL of a TRANSID / an activity: only CANCEL REQID is modelled"
+        if key == "ASSIGN":  # #4270 slice 3
+            why = "; ".join(
+                f"{o}: {_ASSIGN_REFUSED_WHY.get(o, 'not modelled (no corpus program uses it)')}" for o in bad
+            )
         raise CicsError(f"{key} {' '.join(bad)}: option not modelled" + (f" ({why})" if why else ""))
 
 
@@ -546,6 +590,40 @@ class Cics:
         out.append(f"{ind}    if (to >= 0) {self.g.jump('to')}")
         out.append(f"{ind}}}")
         return out
+
+    # -- ASSIGN
+    def assign(self, opts: dict, ind: str) -> list[str]:
+        """ASSIGN (IBM CICS TS, EXEC CICS ASSIGN): each option's value into its data area. #4270 slice 3: STARTCODE /
+        USERID from what the harness states (CicsTask.withStartcode / withUserid); FACILITY, SCRNHT, SCRNWD from the
+        task's terminal -- for a task with none, INVREQ RESP2 5 ("The task is not associated with a terminal; or the
+        task has no principal facility"), and then no data area is written (IBM does not say what the others hold:
+        register X19). Without a FACILITY / SCRNHT / SCRNWD, ASSIGN raises no condition: RESP is NORMAL."""
+        stores = []
+        for k, v in opts.items():
+            if k in ("RESP", "RESP2", "NOHANDLE"):
+                continue
+            if k in ("SCRNHT", "SCRNWD"):  # a halfword binary
+                n = f"BigDecimal.valueOf(task.assignScreen({'true' if k == 'SCRNWD' else 'false'}))"
+                stores.append(self.g.store_into(self.ref(_arg(v)), n, False))
+                continue
+            src = {"APPLID": "task.assignApplid()", "SYSID": "task.assignSysid()", "ABCODE": "task.abcode()",
+                   # the running program's own name, 8 characters
+                   "PROGRAM": G_jstr(f"{self.g.p.name[:8]:<8}"),
+                   "INVOKINGPROG": "task.invokingProgram()",
+                   "CHANNEL": "task.assignChannel()",  # #4270: 16 characters, blanks without one
+                   "STARTCODE": "task.assignStartcode()", "USERID": "task.assignUserid()",
+                   "FACILITY": "task.assignFacility()"}.get(k)  # fmt: skip
+            if src is None:
+                raise CicsError(f"ASSIGN {k}")
+            stores.append(f"DetCics.putText({self.field(_arg(v))}, {src}, CS);")
+        if not any(k in opts for k in ("FACILITY", "SCRNHT", "SCRNWD")):
+            return [ind + x for x in stores] + (
+                self.outcome(opts, "0", "0", ind) if "RESP" in opts or "RESP2" in opts else []
+            )
+        r = self.g.tmpname("assign")
+        return ([f"{ind}int {r} = task.assignTerminalResp();", f"{ind}if ({r} == 0) {{"]
+                + [f"{ind}    {x}" for x in stores] + [f"{ind}}}"]
+                + self.outcome(opts, r, f"({r} == 0 ? 0 : 5)", ind))  # fmt: skip
 
     # -- #4414: IGNORE CONDITION, HANDLE AID, PUSH / POP HANDLE
     def conditions(self, verb: str, opts: dict, ignore: bool = False) -> list[str]:
@@ -894,19 +972,7 @@ class Cics:
             return [f"{ind}String {lbl} = task.{fn}({code});", f"{ind}if ({lbl} == null) throw abended();",
                     f"{ind}if (true) {g.jump(f'paragraph({lbl})')}"]  # fmt: skip
         if verb == "ASSIGN":
-            out = []
-            for k, v in opts.items():
-                if k in ("RESP", "RESP2", "NOHANDLE"):
-                    continue  # ASSIGN raises no condition here: RESP is NORMAL (below)
-                src = {"APPLID": "task.assignApplid()", "SYSID": "task.assignSysid()", "ABCODE": "task.abcode()",
-                       # the running program's own name, 8 characters
-                       "PROGRAM": G_jstr(f"{self.g.p.name[:8]:<8}"),
-                       "INVOKINGPROG": "task.invokingProgram()",
-                       "CHANNEL": "task.assignChannel()"}.get(k)  # #4270: 16 characters, blanks without one  # fmt: skip
-                if src is None:
-                    raise CicsError(f"ASSIGN {k}")
-                out.append(f"{ind}DetCics.putText({self.field(_arg(v))}, {src}, CS);")
-            return out + (self.outcome(opts, "0", "0", ind) if "RESP" in opts or "RESP2" in opts else [])
+            return self.assign(opts, ind)
         if verb == "ASKTIME":
             return [
                 f"{ind}Cobol.store({self.field(_arg(opts['ABSTIME']))}, BigDecimal.valueOf(task.asktime()), false, CS);"

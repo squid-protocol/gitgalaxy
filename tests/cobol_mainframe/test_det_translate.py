@@ -353,7 +353,7 @@ class _KeyCics(_RbaCics):
         "ENDBR FILE('KSDS') REQID(2)",
         "LINK PROGRAM('P') COMMAREA(REC) SYNCONRETURN",  # 10 programs, one repo
         "LINK PROGRAM('P') COMMAREA(REC) DATALENGTH(KEY)",
-        "ASSIGN USERID(REC)",
+        "ASSIGN OPID(REC)",
         "ASSIGN NETNAME(REC) APPLID(REC)",
         "FORMATTIME ABSTIME(REC) YYYYMMDD(REC) DAYOFMONTH(KEY)",
         "ASKTIME ABSTIME(REC) RESP(R)",
@@ -455,7 +455,9 @@ _IBM_OPTIONS = {
     "WRITE": "FILE DATASET MASSINSERT FROM RIDFLD KEYLENGTH SYSID LENGTH RBA RRN XRBA NOSUSPEND",
     "REWRITE": "FILE DATASET TOKEN FROM SYSID LENGTH NOSUSPEND",
     "DELETE": "FILE DATASET TOKEN RIDFLD KEYLENGTH GENERIC NUMREC SYSID RBA RRN XRBA NOSUSPEND",
-    "ASSIGN": "ABCODE APPLID INVOKINGPROG PROGRAM SYSID USERID NETNAME OPID TERMCODE STARTCODE TWALENG CWALENG",
+    "ASSIGN": "ABCODE APPLID INVOKINGPROG PROGRAM SYSID USERID NETNAME OPID TERMCODE STARTCODE TWALENG CWALENG "
+    "CHANNEL FACILITY FCI SCRNHT SCRNWD DEFSCRNHT DEFSCRNWD ALTSCRNHT ALTSCRNWD TCTUALENG TASKPRIORITY RETURNPROG "
+    "PRINSYSID OPCLASS OPSECURITY USERNAME QNAME OPERKEYS",
     "ABEND": "ABCODE CANCEL NODUMP",
     "FORMATTIME": "ABSTIME DATE FULLDATE DATEFORM DATESEP DAYCOUNT DAYOFMONTH DAYOFWEEK DDMMYY DDMMYYYY MILLISECONDS "
     "MMDDYY MMDDYYYY MONTHOFYEAR STRINGFORMAT TIME TIMESEP YEAR YYDDD YYDDMM YYMMDD YYYYDDD YYYYDDMM YYYYMMDD",
@@ -1041,6 +1043,28 @@ def test_link_and_xctl_pass_a_channel_and_assign_reads_it():
     for bad in ("LINK PROGRAM('P') CHANNEL(CH) COMMAREA(REC)", "XCTL PROGRAM('P') CHANNEL(CH) COMMAREA(REC)"):
         with pytest.raises(C.CicsError, match="one or the other"):
             c.command(bad, "")
+
+
+def test_assign_startcode_userid_and_the_terminal_facts():
+    """#4270 slice 3, IBM EXEC CICS ASSIGN: STARTCODE / USERID from what the harness states; FACILITY / SCRNHT / SCRNWD
+    INVREQ RESP2 5 for a task with no terminal, and then no data area written (register X19). Other options are
+    refused with a reason."""
+    c = _ChanCics()
+    assert c.command("ASSIGN STARTCODE(REC) USERID(REC)", "") == [
+        "DetCics.putText(f_REC, task.assignStartcode(), CS);",
+        "DetCics.putText(f_REC, task.assignUserid(), CS);",
+    ]
+    out = c.command("ASSIGN FACILITY(REC) SCRNHT(KEY) RESP(R) RESP2(R)", "")
+    assert out[:2] == ["int assign1 = task.assignTerminalResp();", "if (assign1 == 0) {"]
+    assert out[2] == "    DetCics.putText(f_REC, task.assignFacility(), CS);"
+    assert "task.assignScreen(false)" in out[3] and out[4] == "}"
+    assert any("(assign1 == 0 ? 0 : 5)" in x for x in out[5:])
+    unhandled = _ChanCics().command("ASSIGN SCRNWD(KEY)", "")  # (OUTCOME: the condition's handling, no RESP)
+    assert "task.assignScreen(true)" in unhandled[2] and unhandled[-1] == "OUTCOME(assign1, (assign1 == 0 ? 0 : 5));"
+    for opt, why in (("OPID", "no security"), ("NETNAME", "network name"), ("TERMCODE", "device"),
+                     ("TWALENG", "transaction work area"), ("MAPCOLUMN", "no corpus program")):  # fmt: skip
+        with pytest.raises(C.CicsError, match=f"ASSIGN {opt}: option not modelled .*{why}"):
+            c.command(f"ASSIGN {opt}(REC)", "")
 
 
 @pytest.mark.parametrize(

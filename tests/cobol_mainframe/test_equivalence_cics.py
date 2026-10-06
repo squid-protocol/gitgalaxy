@@ -312,7 +312,7 @@ def test_ts_commands_pass_length_item_and_numitems_in_and_out():
 
 
 @pytest.mark.parametrize("body", ["READ FILE(F) RIDFLD(K) INTO(R) GENERIC", "READQ TS QUEUE(Q) SET(P) LENGTH(L)",
-                                  "HANDLE ABEND PROGRAM('X')", "ASSIGN USERID(U)", "HANDLE CONDITION NOSUCH(X)",
+                                  "HANDLE ABEND PROGRAM('X')", "ASSIGN OPID(U)", "HANDLE CONDITION NOSUCH(X)",
                                   "WRITEQ TS QUEUE(Q) FROM(A) SYSID(S)", "WRITEQ TS QUEUE(Q) FROM(A) REWRITE",
                                   "READQ TD QUEUE(Q) INTO(A)",
                                   "RECEIVE INTO(X) LENGTH(L) BUFFER", "RECEIVE SET(P) LENGTH(L)", "STARTBR FILE(F) RIDFLD(K) REQID(1)",
@@ -671,7 +671,20 @@ def test_assign_applid_sysid_and_writeq_td_translate():
     assert td[:4] == ["MOVE 'JOBS' TO GG-QNAME", "MOVE LENGTH OF REC TO GG-LEN", "CALL 'GGCWRTD' USING GG-CICS",
                       "    BY REFERENCE REC"]  # fmt: skip
     with pytest.raises(ec.Unsupported):
-        ec.translate_command("ASSIGN USERID(U)")
+        ec.translate_command("ASSIGN OPID(U)")
+
+
+def test_assign_startcode_userid_and_the_terminal_facts_translate():
+    """#4270 slice 3: STARTCODE / USERID through GGCASGN; FACILITY / SCRNHT / SCRNWD behind TERMCHK (INVREQ RESP2 5 for
+    a task with no terminal, then no data area written), with the condition's handling."""
+    got = ec.translate_command("ASSIGN STARTCODE(SC) USERID(U)")
+    assert got[:6] == ["MOVE 'STARTCOD' TO GG-NAME2", "CALL 'GGCASGN' USING GG-CICS", "MOVE GG-NAME1(1:2) TO SC",
+                       "MOVE 'USERID' TO GG-NAME2", "CALL 'GGCASGN' USING GG-CICS", "MOVE GG-NAME1(1:8) TO U"]  # fmt: skip
+    got = ec.translate_command("ASSIGN FACILITY(F) SCRNHT(H) RESP(R)")
+    assert got[:4] == ["MOVE 'TERMCHK' TO GG-NAME2", "CALL 'GGCASGN' USING GG-CICS", "IF GG-RESP = 0",
+                       "    MOVE 'FACILITY' TO GG-NAME2"]  # fmt: skip
+    assert "    MOVE GG-NUM TO H" in got and "MOVE GG-RESP TO R" in got
+    assert "    CALL 'GGCCOND' USING GG-CICS" in ec.translate_command("ASSIGN SCRNWD(W)")
 
 
 def test_an_esds_browse_by_rba_translates_and_the_rest_of_rba_is_refused():

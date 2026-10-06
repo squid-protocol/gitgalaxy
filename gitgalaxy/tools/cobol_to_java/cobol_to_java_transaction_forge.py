@@ -495,6 +495,72 @@ public class CicsTask {
         return String.format(java.util.Locale.ROOT, "%-4.4s", s);
     }
 
+    // #4270 slice 3: ASSIGN STARTCODE / USERID / FACILITY / SCRNHT / SCRNWD (IBM CICS TS, EXEC CICS ASSIGN), each
+    // from a fact whoever runs the task states; unstated, the option is refused, never guessed.
+    private String startcode;
+    private String userid;
+    private int[] screen;
+
+    /** How the task was started (ASSIGN STARTCODE): "TD" terminal input or permanent transid, "S" a START that
+     *  "did not pass data in the FROM option", "SD" one that did; null, not stated (refused). */
+    public CicsTask withStartcode(String startcode) {
+        this.startcode = startcode;
+        return this;
+    }
+
+    /** The task's user (ASSIGN USERID): with no user "explicitly signed on, CICS returns the default user ID". */
+    public CicsTask withUserid(String userid) {
+        this.userid = userid;
+        return this;
+    }
+
+    /** The 3270 screen of the task's terminal (ASSIGN SCRNHT / SCRNWD): rows, columns. */
+    public CicsTask withScreen(int height, int width) {
+        this.screen = new int[] {height, width};
+        return this;
+    }
+
+    /** ASSIGN STARTCODE, 2 characters. A RUN TRANSID child's is not among IBM's codes: refused. */
+    public String assignStartcode() {
+        CicsTask r = root();
+        if (r.runChild) {
+            throw refused("ASSIGN STARTCODE in a RUN TRANSID child task (IBM lists no code for one)");
+        }
+        if (r.startcode == null) {
+            throw new IllegalStateException("ASSIGN STARTCODE: how the task was started is not stated (withStartcode)");
+        }
+        return String.format(java.util.Locale.ROOT, "%-2.2s", r.startcode);
+    }
+
+    /** ASSIGN USERID, 8 characters. */
+    public String assignUserid() {
+        String u = root().userid;
+        if (u == null) {
+            throw new IllegalStateException("ASSIGN USERID: the task's user is not stated (withUserid)");
+        }
+        return String.format(java.util.Locale.ROOT, "%-8.8s", u);
+    }
+
+    /** ASSIGN FACILITY / SCRNHT / SCRNWD's condition: INVREQ (16) for a task with no terminal (RESP2 5, "The task is
+     *  not associated with a terminal; or the task has no principal facility"), else 0. */
+    public int assignTerminalResp() {
+        return termid() == null ? 16 : 0;
+    }
+
+    /** ASSIGN FACILITY: the principal facility, the task's terminal, 4 characters. */
+    public String assignFacility() {
+        return String.format(java.util.Locale.ROOT, "%-4.4s", termid());
+    }
+
+    /** ASSIGN SCRNHT (`width` false) / SCRNWD (true): the terminal's screen, a halfword. */
+    public int assignScreen(boolean width) {
+        int[] s = root().screen;
+        if (s == null) {
+            throw new IllegalStateException("ASSIGN SCRNHT / SCRNWD: the terminal's screen is not stated (withScreen)");
+        }
+        return width ? s[1] : s[0];
+    }
+
     /** The transient-data queues the CSD defines; null, every queue is defined. */
     public CicsTask withTdQueues(java.util.Set<String> queues) {
         this.tdQueues = queues;

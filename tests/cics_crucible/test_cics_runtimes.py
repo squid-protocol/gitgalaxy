@@ -1474,3 +1474,87 @@ def test_cics_task_run_transid_as_the_stubs_and_a_childs_retrieve_is_refused(tmp
     )
     assert out.splitlines() == ["NORMAL/0/GGCHILD000000001 TRANSIDERR/1/null",
                                 "{event=RUN, resp=TRANSIDERR, resp2=1, transid=NONE}", "refused"]  # fmt: skip
+
+
+# ---- #4270 slice 3: ASSIGN STARTCODE / USERID / FACILITY / SCRNHT / SCRNWD ------------------------------------------
+_ASGN_MAIN = r"""
+#include <stdio.h>
+#include <string.h>
+typedef struct { int resp; int resp2; char name1[8]; char name2[8]; char flags[40]; int len;
+                 char qname[16]; int item; int num; int go_to; char chan[16]; int hours, mins, secs;
+                 char rtran[4], rterm[4], rqueue[8]; } gg_cics;
+int GGCASGN(gg_cics *c);
+static gg_cics c;
+static void ask(const char *what) {
+    memset(c.name2, ' ', 8); memcpy(c.name2, what, strlen(what)); c.num = -1;
+    GGCASGN(&c);
+    for (int i = 0; i < 8; i++) if (c.name1[i] == ' ') c.name1[i] = '_';
+    printf("%d/%d/%.8s/%d ", c.resp, c.resp2, c.name1, c.num);
+}
+int main(int argc, char **argv) {
+    for (int i = 1; i < argc; i++) ask(argv[i]);
+    printf("\n");
+    return 0;
+}
+"""
+
+
+@needs_cc
+def test_the_stub_assign_startcode_userid_and_the_terminal_facts(tmp_path):
+    """#4270 slice 3, IBM EXEC CICS ASSIGN: STARTCODE / USERID / FACILITY / SCRNHT / SCRNWD from what the runner states;
+    TERMCHK is INVREQ RESP2 5 for a task with no terminal; an unstated fact, or a RUN child's STARTCODE, is refused."""
+    exe = _stub(tmp_path, _ASGN_MAIN)
+    base = {"GGCICS_DIR": str(tmp_path), "GGCICS_OUT": str(tmp_path), "GGCICS_USERID": "CICSUSER",
+            "GGCICS_SCREEN": "24 80"}  # fmt: skip
+
+    def run(env, *asks):
+        return subprocess.run([str(exe), *asks], env={**base, **env}, capture_output=True, text=True)
+
+    out = run({"GGCICS_STARTCODE": "TD", "GGCICS_FACILITY": "T001"}, "STARTCOD", "USERID", "TERMCHK", "FACILITY",
+              "SCRNHT", "SCRNWD").stdout  # fmt: skip
+    assert out.split() == ["0/0/TD______/-1", "0/0/CICSUSER/-1", "0/0/________/-1", "0/0/T001____/-1",
+                           "0/0/________/24", "0/0/________/80"]  # fmt: skip
+    assert run({"GGCICS_STARTCODE": "SD", "GGCICS_FACILITY": ""}, "STARTCOD", "TERMCHK").stdout.split() == [
+        "0/0/SD______/-1",
+        "16/5/________/-1",
+    ]
+    unstated = run({}, "STARTCOD")
+    assert unstated.returncode == 98 and "ASSIGN STARTCOD: not stated" in unstated.stdout
+    child = run({"GGCICS_STARTCODE": "S", "GGCICS_RUNCHILD": "1"}, "STARTCOD")
+    assert child.returncode == 98 and "RUN TRANSID child" in child.stdout
+
+
+@needs_javac
+def test_cics_task_assign_startcode_userid_and_the_terminal_facts(tmp_path):
+    """#4270 slice 3: CicsTask's ASSIGN as the stub's (above)."""
+    out = _cics_task(
+        tmp_path,
+        """
+        CicsTask t = new CicsTask("GT31", "ENTER", null, null).withTermid("T001").withStartcode("TD")
+                .withUserid("CICSUSER").withScreen(24, 80);
+        System.out.println("[" + t.assignStartcode() + "][" + t.assignUserid() + "][" + t.assignFacility() + "] "
+                + t.assignTerminalResp() + " " + t.assignScreen(false) + "x" + t.assignScreen(true));
+        CicsTask s = new CicsTask("GT32", null, null, null).withStartcode("S");
+        System.out.println("[" + s.assignStartcode() + "] " + s.assignTerminalResp());
+        try {
+            s.assignUserid();
+        } catch (IllegalStateException e) {
+            System.out.println("unstated");
+        }
+        try {
+            new CicsTask("GT24", null, null, null).withRunChild(true).withStartcode("S").assignStartcode();
+        } catch (UnsupportedOperationException e) {
+            System.out.println("refused");
+        }""",
+    )
+    assert out.splitlines() == ["[TD][CICSUSER][T001] 0 24x80", "[S ] 16", "unstated", "refused"]
+
+
+def test_scheduler_states_each_tasks_startcode():
+    """#4270 slice 3: a terminal step's task is STARTCODE TD; a START-triggered one S / SD by its requests' FROM, a
+    group that mixes them none (refused)."""
+    import cics_crucible as runner
+
+    case = type("C", (), {"data": {"clock": "2026-03-02T10:00:00", "terminal": "T001"}})()
+    assert runner.task_frame(case, 0, {"at": 0, "aid": "ENTER"})["startcode"] == "TD"
+    assert runner.REGION_USERID == "CICSUSER" and runner.REGION_SCREEN == (24, 80)

@@ -1454,6 +1454,36 @@ int GGCASGN(gg_cics *c) {
         memcpy(c->name1, p, strlen(p) < 8 ? strlen(p) : 8);
         return 0;
     }
+    /* #4270 slice 3: STARTCODE / USERID / FACILITY / SCRNHT / SCRNWD, from what the runner states for the task
+     * ($GGCICS_STARTCODE: TD, S or SD; $GGCICS_USERID; $GGCICS_FACILITY: its terminal, empty for none;
+     * $GGCICS_SCREEN: "rows cols"); unstated, the option is refused, never guessed. TERMCHK: INVREQ RESP2 5 for a
+     * task with no terminal (IBM, ASSIGN: "The task is not associated with a terminal; or the task has no
+     * principal facility"), before any FACILITY / SCRNHT / SCRNWD data area is written. */
+    if (strcmp(want, "STARTCOD") == 0 || strcmp(want, "USERID") == 0 || strcmp(want, "FACILITY") == 0
+        || strcmp(want, "TERMCHK") == 0 || strcmp(want, "SCRNHT") == 0 || strcmp(want, "SCRNWD") == 0) {
+        const char *env = getenv(strcmp(want, "STARTCOD") == 0 ? "GGCICS_STARTCODE"
+                                 : strcmp(want, "USERID") == 0 ? "GGCICS_USERID"
+                                 : strncmp(want, "SCRN", 4) == 0 ? "GGCICS_SCREEN" : "GGCICS_FACILITY");
+        int rows = 0, cols = 0;
+        if (strcmp(want, "STARTCOD") == 0 && getenv("GGCICS_RUNCHILD"))
+            refuse("ASSIGN STARTCODE in a RUN TRANSID child task: IBM lists no code for it");
+        if (!env) {
+            snprintf(line, sizeof line, "ASSIGN %s: not stated for this task", want);
+            refuse(line);
+            return 0;
+        }
+        if (strcmp(want, "TERMCHK") == 0) {
+            if (!env[0]) { c->resp = INVREQ; c->resp2 = 5; }
+            return 0;
+        }
+        if (strncmp(want, "SCRN", 4) == 0) {
+            if (sscanf(env, "%d %d", &rows, &cols) != 2) refuse("ASSIGN SCRNHT / SCRNWD: $GGCICS_SCREEN");
+            c->num = strcmp(want, "SCRNHT") == 0 ? rows : cols;
+            return 0;
+        }
+        memcpy(c->name1, env, strlen(env) < 8 ? strlen(env) : 8);
+        return 0;
+    }
     if (strcmp(want, "APPLID") != 0 && strcmp(want, "SYSID") != 0) { /* ASSIGN ABCODE */
         memcpy(c->name1, task_abcode, 4);
         return 0;

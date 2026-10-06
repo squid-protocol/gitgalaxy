@@ -127,6 +127,10 @@ COVERAGE_FORMAT = "cics-crucible-coverage/1"
 REPORT = REPO_ROOT / "docs" / "language_status" / "cics_crucible.md"
 BASELINE_FORMAT = "cics-crucible-baseline/1"
 STUB_DIR = REPO_ROOT / "tests" / "equivalence" / "cics"
+# #4270 slice 3: the reference region's (SPEC section 2) default user -- DFLTUSER's default, nobody signs on -- and its
+# terminal's 3270 screen, for ASSIGN USERID / SCRNHT / SCRNWD (the generated Java test states the same)
+REGION_USERID = "CICSUSER"
+REGION_SCREEN = (24, 80)
 
 # SPEC 6.2: the abend code CICS gives an unhandled condition (the AEIA topic of IBM's abend codes).
 CONDITION_ABCODE = {"NOTFND": "AEIM", "LENGERR": "AEIV", "ITEMERR": "AEIZ", "QIDERR": "AEYH", "MAPFAIL": "AEI9",
@@ -640,7 +644,8 @@ def task_frame(case: cc.Case, n: int, step: dict[str, Any]) -> dict[str, Any]:
     """What the scheduler decides about the task step `n` starts (SPEC section 4)."""
     clock = datetime.datetime.fromisoformat(case.data["clock"]) + datetime.timedelta(seconds=step["at"])
     return {"termid": case.data["terminal"], "at": clock.strftime("%Y-%m-%dT%H:%M:%S"),
-            "trigger": {"kind": "terminal", "step": n}, "eibaid": step["aid"]}  # fmt: skip
+            "trigger": {"kind": "terminal", "step": n}, "eibaid": step["aid"],
+            "startcode": "TD"}  # fmt: skip  # #4270 slice 3: ASSIGN STARTCODE, "Terminal input or permanent transid"
 
 
 def scenario_programs(expected: dict[str, Any]) -> list[str]:
@@ -764,8 +769,12 @@ class EquivalenceRunTest {
                     trigger.put("kind", first.getOrDefault("kind", "start"));  // #4270: "run" for a RUN TRANSID child
                     trigger.put("task", first.get("task"));
                     trigger.put("event", first.get("event"));
-                    runOne(frame((String) first.get("termid"), trigger, null), (String) first.get("transid"), null,
-                            null, null, data);
+                    Map<String, Object> f = frame((String) first.get("termid"), trigger, null);
+                    // #4270 slice 3: ASSIGN STARTCODE -- "S" a START that "did not pass data in the FROM option", "SD"
+                    // one that did; a coalesced group that mixes the two is not stated (refused)
+                    long withFrom = group.stream().filter(r -> r.get("data") != null).count();
+                    f.put("startcode", withFrom == group.size() ? "SD" : withFrom == 0 ? "S" : null);
+                    runOne(f, (String) first.get("transid"), null, null, null, data);
                     continue;
                 }
                 LocalDateTime nxt = requests.stream().map(r -> (LocalDateTime) r.get("expires"))
@@ -795,7 +804,9 @@ class EquivalenceRunTest {
                     Map<String, Object> trigger = new LinkedHashMap<>();
                     trigger.put("kind", "terminal");
                     trigger.put("step", n);
-                    runOne(frame(terminal, trigger, step.get("aid").asText()), transid, commarea, calen, step, List.of());
+                    Map<String, Object> f = frame(terminal, trigger, step.get("aid").asText());
+                    f.put("startcode", "TD");  // #4270 slice 3: "Terminal input or permanent transid"
+                    runOne(f, transid, commarea, calen, step, List.of());
                     continue;
                 }
                 if (nxt != null && until != null && nxt.isBefore(until)) {
@@ -827,6 +838,7 @@ class EquivalenceRunTest {
                 List<CicsTask.StartData> data) {
             String program = plan.path("transactions").path(transid).asText(null);
             Map<String, Object> task = new LinkedHashMap<>(frame);
+            task.remove("startcode");
             task.put("transid", transid);
             task.put("program", program);
             task.put("commarea", describe(commarea));
@@ -887,7 +899,10 @@ class EquivalenceRunTest {
                         .withPrograms(programs).withSnapshot(EquivalenceRunTest.this::snapshot).withClock(now)
                         .withTermid((String) frame.get("termid"))
                         .withStartData(data).withRequests(unexpired)
-                        .withRunChild(frame.get("trigger") instanceof Map<?, ?> tr && "run".equals(tr.get("kind")));
+                        .withRunChild(frame.get("trigger") instanceof Map<?, ?> tr && "run".equals(tr.get("kind")))
+                        // #4270 slice 3: ASSIGN STARTCODE / USERID / SCRNHT / SCRNWD (SPEC section 2's region)
+                        .withStartcode((String) frame.get("startcode")).withUserid("CICSUSER")
+                        .withScreen(24, 80);
                 if (step != null && step.has("text")) {
                     t.withTerminalInput(step.get("text").asText());
                 }
@@ -1921,9 +1936,10 @@ def drive_scenario(case: cc.Case, sc: dict[str, Any], run_one: Any) -> tuple[lis
                                key=lambda r: (r["expires"], r["issue"]))  # fmt: skip
             for r in group:
                 requests.remove(r)
+            with_from = sum(r["data"] is not None for r in group)  # #4270 slice 3: ASSIGN STARTCODE (S / SD)
             frame = {"termid": first["termid"], "at": now.strftime("%Y-%m-%dT%H:%M:%S"),
                      "trigger": {"kind": first.get("kind", "start"), "task": first["task"], "event": first["event"]},
-                     "eibaid": None}  # fmt: skip
+                     "eibaid": None, "startcode": "SD" if with_from == len(group) else "S" if not with_from else None}  # fmt: skip
             run(frame, first["transid"], None, None, [_record(r) for r in group if _record(r) is not None], now)
             continue
         nxt = min((r["expires"] for r in requests), default=None)
@@ -1974,6 +1990,8 @@ def run_task(case: cc.Case, box: "Container", work: Path, rel: str, ts: str, tra
     map fields -- the EIB, the CSD's programs and transactions, #4006: the START data it RETRIEVEs and the
     unexpired requests a CANCEL searches, the virtual clock), then the stub's events as the task's."""
     program = case.csd["transactions"].get(transid)
+    startcode = frame.get("startcode")  # #4270 slice 3: ASSIGN STARTCODE (the scheduler's; not a log key)
+    frame = {k: v for k, v in frame.items() if k != "startcode"}
     task: dict[str, Any] = {"transid": transid, "program": program, **frame, "eibcalen": len(commarea or b""),
                             "commarea": cc.RawArea(commarea, "latin-1") if commarea else None,
                             "events": [], "end": "normal"}  # fmt: skip
@@ -2021,6 +2039,8 @@ def run_task(case: cc.Case, box: "Container", work: Path, rel: str, ts: str, tra
            f"GGCICS_DIR=/work/{rel} GGCICS_OUT=/work/{rel}/out EIBIN=/work/{rel}/eib.in "
            f"{'GGCICS_LU2=1 ' if terminal_device(case) == 'LUTYPE2' else ''}"  # #4413: EOC on RECEIVE
            f"{'GGCICS_RUNCHILD=1 ' if (frame.get('trigger') or {}).get('kind') == 'run' else ''}"  # #4270
+           f"{f'GGCICS_STARTCODE={startcode} ' if startcode else ''}GGCICS_USERID={REGION_USERID} "  # #4270 slice 3
+           f"GGCICS_FACILITY={frame.get('termid') or ''} GGCICS_SCREEN='{REGION_SCREEN[0]} {REGION_SCREEN[1]}' "
            f"GGCICS_TS=/work/{ts} GGCICS_NOW={frame['at']} COB_CURRENT_DATE='{when.strftime('%Y/%m/%d %H:%M:%S')}.00' ./bin/task "
            f"> /work/{rel}/stdout.txt 2>&1")  # fmt: skip
     task["events"] = _cobol_events(d / "out", program, screens)

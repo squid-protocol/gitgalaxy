@@ -717,6 +717,7 @@ def test_engine_copies_from_the_port_ticket(tmp_path):
 def test_an_i_o_control_apply_hint_is_read_past(tmp_path):
     """#4486 (estate-crucible PAYMAIN, unblocked by the collision policy, refused next by its I-O-CONTROL): `APPLY
     WRITE-ONLY ON f` is a buffering hint with no storage; the grammar does not read it, the layout skips it."""
+    pytest.importorskip("tree_sitter_language_pack")
     from gitgalaxy.tools.cobol_to_java.det import layout as L
 
     prog = tmp_path / "P.cbl"

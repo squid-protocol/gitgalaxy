@@ -1841,7 +1841,9 @@ class CicsForge:
         self._file_cls = {sk["program"]["file"]: java_class_base(key) for key, sk in skeletons.items()}
         self.dtos: dict[str, Dto] = {}
         self._by_signature: dict[tuple, str] = {}
+        self._shape: dict[str, tuple] = {}  # DTO name -> (bytes, field count) of the layout it was made from
         self.programs = {key: self._plan(key, sk) for key, sk in sorted(skeletons.items()) if is_cics_program(sk)}
+        self._plan_opaque_commareas()
         self._plan_conversations()
 
     # ---- DTOs ---------------------------------------------------------------
@@ -1884,6 +1886,7 @@ class CicsForge:
         ]
         self.dtos[name] = Dto(name, javadoc, body, requires_list, [use] if use else [], facts=dto_facts)
         self._by_signature[signature] = name
+        self._shape[name] = (layout.get("bytes"), len(layout.get("fields", [])))
         return name
 
     def _record_doc(self, record: str, file: str, layout: dict, status: str) -> list[str]:
@@ -2032,6 +2035,104 @@ class CicsForge:
                 prog.channel_out = name
         return prog
 
+    @staticmethod
+    def _returns_to_itself(prog: CicsProgram, row: dict) -> bool:
+        """#4464: a RETURN TRANSID naming one of the program's own transactions re-enters the program -- also when
+        the engine leaves the flow's callee unresolved because the estate maps that transaction id ambiguously
+        (CardDemo's CSD pairs CC00 with COCRDLIC through a DEFINE PROGRAM ... TRANSID besides its TRANSACTION)."""
+        return (row.get("verb") == "RETURN TRANSID" and row.get("caller") == prog.path
+                and row.get("callee") in (None, prog.path)
+                and row.get("target") in {t["transid"] for t in prog.transactions})  # fmt: skip
+
+    def _flow_callee(self, by_file: dict[str, CicsProgram], row: dict) -> str | None:
+        """The program a contract row reaches: its resolved callee, else the sender when it RETURNs to its own
+        transaction (#4464)."""
+        sender = by_file.get(row.get("caller", ""))
+        if not row.get("callee") and sender is not None and self._returns_to_itself(sender, row):
+            return sender.path
+        return row.get("callee")
+
+    @staticmethod
+    def _opaque_dfhcommarea(prog: CicsProgram) -> dict | None:
+        """The program's LINKAGE DFHCOMMAREA when it is an opaque byte area -- one alphanumeric item, typically
+        `PIC X OCCURS 1 TO n DEPENDING ON EIBCALEN` -- else None: such an area has no record of its own."""
+        for rec in (prog.sections.get("records") or {}).get("facts", []):
+            if (
+                rec.get("section") != "LINKAGE"
+                or rec.get("level") != 1
+                or str(rec.get("name")).upper() != "DFHCOMMAREA"
+            ):
+                continue
+            leaves, todo = [], [rec]
+            while todo:
+                item = todo.pop()
+                kids = [k for k in item.get("children") or [] if k.get("level") not in (66, 88)]
+                if kids:
+                    todo += kids
+                elif item.get("pic"):
+                    leaves.append(item)
+            if len(leaves) == 1 and re.fullmatch(r"X+(\(\d+\))?", str(leaves[0]["pic"]).upper().replace(" ", "")):
+                return rec
+            return None
+        return None
+
+    def _plan_opaque_commareas(self) -> None:
+        """#4464: a program whose DFHCOMMAREA is opaque (`PIC X OCCURS ... DEPENDING ON EIBCALEN`) still receives a
+        COMMAREA: whatever the flows into it pass. The engine pairs none when no resolved LINK / XCTL / RETURN TRANSID
+        reaches it (CardDemo's COSGN00C: every XCTL to it is data-driven, and its RETURN TRANSID(CC00) to itself is
+        unresolved), so its facade took none and every re-entry was refused. Here the COMMAREA is the record those
+        flows pass: the program's RETURN TRANSID to its own transactions (what its next task starts with) and any
+        resolved LINK / XCTL / RETURN TRANSID reaching it, as the estate's DTO for that record (name, file, width,
+        field count). Data-driven sites into it name a record too (`inbound` passes): one naming another record is
+        a conflict. Where the flows disagree, or no single DTO carries the record, the gap says so by name."""
+        for prog in self.programs.values():
+            if prog.commarea_dto or prog.channel_in or prog.channel_out:
+                continue
+            area = self._opaque_dfhcommarea(prog)
+            if area is None:
+                continue
+            records: dict[tuple, list[dict]] = {}
+            for r in (prog.sections.get("commarea_contracts") or {}).get("facts", []):
+                rec = r.get("caller_record") or {}
+                if not rec.get("name") or not (self._returns_to_itself(prog, r) or r.get("callee") == prog.path):
+                    continue
+                key = (str(rec["name"]).upper(), rec.get("file"), rec.get("bytes"), rec.get("fields"))
+                records.setdefault(key, []).append(r)
+            if not records:
+                continue
+            sites = {k: ", ".join(f"{r['verb']} at {r['caller']}:{r['line']}" for r in rows)
+                     for k, rows in records.items()}  # fmt: skip
+            if len(records) > 1:
+                passed = "; ".join(f"{k[0]} ({k[1]}, {k[2]} bytes) by {sites[k]}" for k in sorted(records, key=str))
+                prog.commarea_gap = (
+                    f"DFHCOMMAREA is opaque and the flows into this program pass different records: {passed}"
+                )
+                continue
+            (key,) = records
+            name, file, width, count = key
+            others = sorted({str(i["passes"]).upper() for i in ((prog.sections.get("interface") or {}).get("facts") or {})
+                             .get("inbound", []) if i.get("passes")} - {name})  # fmt: skip
+            if others:
+                prog.commarea_gap = (f"DFHCOMMAREA is opaque; {sites[key]} pass{'es' if len(records[key]) == 1 else ''} "
+                                     f"{name} ({file}), but data-driven sites into it pass {', '.join(others)}")  # fmt: skip
+                continue
+            dtos = sorted(n for sig, n in self._by_signature.items()
+                          if (sig[0].upper(), sig[1]) == (name, file) and self._shape.get(n) == (width, count))  # fmt: skip
+            if len(dtos) != 1:
+                why = f"several DTOs carry it ({', '.join(dtos)})" if dtos else "no program's COMMAREA DTO carries it"
+                prog.commarea_gap = (f"DFHCOMMAREA is opaque; {sites[key]} pass{'es' if len(records[key]) == 1 else ''} "
+                                     f"{name} ({file}, {width} bytes), but {why}")  # fmt: skip
+                continue
+            prog.commarea_dto = dtos[0]
+            prog.commarea = {"record": name, "file": file, "basis": "flow_record", "bytes": width, "alternatives": [],
+                             "sources": [{"caller": r["caller"], "line": r["line"], "verb": r["verb"]}
+                                         for r in records[key]]}  # fmt: skip
+            prog.commarea_gap = None
+            self.dtos[dtos[0]].uses.append(
+                f"The COMMAREA {prog.cls} receives through its opaque DFHCOMMAREA (line {area.get('line')}), as "
+                f"passed by {sites[key]}."
+            )
+
     def _plan_conversations(self) -> None:
         """#4427: the COMMAREA a pseudo-conversation carries across programs. `RETURN TRANSID(t) COMMAREA(ws)` starts
         the next task in whichever program owns `t`, and that program reads the same bytes through its own record:
@@ -2049,7 +2150,7 @@ class CicsForge:
 
         def classes(row: dict) -> set[str | None]:
             sender, receiver = by_file.get(row.get("caller", "")), by_file.get(row.get("callee", ""))
-            if sender is not None and sender is receiver:  # a program RETURNing to itself: its own record
+            if sender is not None and (sender is receiver or self._returns_to_itself(sender, row)):  # its own record
                 return {sender.commarea_dto}
             # the sender presents its record as its own COMMAREA DTO when that is one of the record's DTOs, else as
             # the record's only DTO; a record with several DTOs (extended copies) and no planned sender: unknown
@@ -2091,7 +2192,8 @@ class CicsForge:
             if not own or not prog.transactions:
                 continue
             ends = task_programs(prog.path)
-            sides = (("in", "txn_request", [r for r in flows if r.get("callee") == prog.path]),
+            sides = (("in", "txn_request", [r for r in flows if r.get("callee") == prog.path
+                                             or self._returns_to_itself(prog, r)]),
                      ("out", "txn_response", [r for r in flows if r.get("caller") in ends]))  # fmt: skip
             for side, attr, rows in sides:
                 for r in rows:
@@ -2104,7 +2206,8 @@ class CicsForge:
                     as_ = f" ({', '.join(other)} besides {own})" if other else f" (no DTO besides {own})"
                     via = "" if side == "in" or r.get("caller") == prog.path else f", after an XCTL from {prog.path}"
                     line = (f"{side}: RETURN TRANSID({r.get('target')}) COMMAREA({rec}) at {r.get('caller')}:"
-                            f"{r.get('line')} -> {r.get('callee') or 'a program the estate does not resolve'}{via}{as_}")  # fmt: skip
+                            f"{r.get('line')} -> {self._flow_callee(by_file, r) or 'a program the estate does not resolve'}"
+                            f"{via}{as_}")  # fmt: skip
                     if line not in prog.crossings:
                         prog.crossings.append(line)
 

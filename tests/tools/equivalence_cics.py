@@ -35,6 +35,7 @@ from collections.abc import Iterator
 import cobol_coverage as cov  # #4023
 import equivalence_common as common
 import equivalence_db2
+import equivalence_inputs  # #3804
 import equivalence_oracle
 import equivalence_sql
 
@@ -1163,11 +1164,15 @@ def run_cobol_cics(case: dict[str, Any], corpus: Path, work: Path, files: list[d
         for f in files
     ), encoding="ascii")  # fmt: skip
     (work / "files").mkdir(exist_ok=True)
+    generated = equivalence_inputs.generate_inputs(case, corpus)  # #3804: `@generate` files, from their layouts
     for f in files:
         spec = case.get("datasets", {}).get(f["base"])
         if spec is None:
             raise Unsupported(f"the case gives no data for {f['base']} (CICS file {f['file']})")
-        (work / "files" / f["base"]).write_bytes(case_file_records(case, corpus, spec, f["reclen"], enc))
+        data = (
+            generated[f["base"]] if f["base"] in generated else case_file_records(case, corpus, spec, f["reclen"], enc)
+        )
+        (work / "files" / f["base"]).write_bytes(data)
     ca_fields = commarea_fields(corpus, case)
     # The COBOL programs the program CALLs (COTRN02C -> CSUTLDTC), as they are, and the LE service models
     # (tests/equivalence/le: CEEDAYS) they may call in turn.
@@ -2769,6 +2774,7 @@ def run_case(case: dict[str, Any], corpus: Path, work: Path, port: bool = True, 
     for extra in case.get("programs", []):  # the programs the task LINKs to use files of their own
         files += [f for f in stub_files(ir, extra["program_source"], case.get("datasets"))
                   if f["file"] not in {x["file"] for x in files}]  # fmt: skip
+    case = equivalence_inputs.prepare_cics_case(case, corpus, files)  # #3804: generated files and scenarios
     # #4173: SQL faults -- `auto` adds a task per SQL statement the tasks executed (enumerated_sql_faults), each run
     # on both sides; `declared` runs only the scenarios' own sql_faults; `none` drops those too
     if sql_faults == "none":

@@ -2,6 +2,7 @@
 mutated (never a comment, a log call, an import or an annotation), what each operator writes, the sample, which of
 a proof's runs killed a mutant, and the score."""
 
+import subprocess
 import sys
 from pathlib import Path
 
@@ -116,16 +117,19 @@ def earlier(tmp_path):
     common._REUSE = None
 
 
-def test_a_reused_cobol_step_must_be_the_same_step(tmp_path, earlier):
+def test_a_reused_cobol_step_must_be_the_same_step_else_it_runs_afresh(tmp_path, earlier, monkeypatch):
+    runs = []
+    monkeypatch.setattr(common, "_docker_run", lambda work, *a: runs.append(work) or subprocess.CompletedProcess([], 0))
     work = tmp_path / "now"
     common.reuse(work, earlier)
     (work / "cobol").mkdir(parents=True)
     (work / "cobol" / "run.sh").write_text("cobc ...\n", encoding="ascii")
     assert common.run_cobol_step(work / "cobol").returncode == 0
     assert (work / "cobol" / "OUT.out").read_bytes() == b"RECORD"  # the earlier step's output, not a new run
+    assert not runs
     (work / "cobol" / "run.sh").write_text("cobc -DOTHER ...\n", encoding="ascii")
-    with pytest.raises(RuntimeError, match=r"run\.sh differs"):
-        common.run_cobol_step(work / "cobol")
+    common.run_cobol_step(work / "cobol")  # #4476: not the earlier run's step -- run, not copied, not refused
+    assert runs == [work / "cobol"]
 
 
 def test_a_reused_project_must_be_overlaid_with_the_same_files(tmp_path, earlier):

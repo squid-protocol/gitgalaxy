@@ -927,30 +927,29 @@ class Cics:
         if key == "PUT CONTAINER":
             frm = _arg(opts.get("FROM"))
             f = self.read_field(frm)
-            n = self.int_(_arg(opts["FLENGTH"])) if "FLENGTH" in opts else str(self.size(frm))
+            given = _option(opts, "FLENGTH")
+            n = self.int_(given) if given else str(self.size(frm))
             dtype = _datatype(opts)
             ln = g.tmpname("flen")
             out += [f"{ind}int {ln} = {n};",
-                    f"{ind}CicsTask.ContainerResult {r} = task.putContainer({chan}, {name}, "
-                    f"DetCics.containerData({f}, {ln}), {ln}, {G_jstr(dtype) if dtype else 'null'}, "
-                    f"{str('APPEND' in opts).lower()});"]  # fmt: skip
+                    (f"{ind}CicsTask.ContainerResult {r} = task.putContainer({chan}, {name}, "
+                     f"DetCics.containerData({f}, {ln}), {ln}, {G_jstr(dtype) if dtype else 'null'}, "
+                     f"{str('APPEND' in opts).lower()});")]  # fmt: skip
         elif key == "GET CONTAINER":
-            into, nodata = opts.get("INTO"), "NODATA" in opts
+            into, nodata = opts.get("INTO") or "", "NODATA" in opts
             if bool(into) == nodata:
                 raise CicsError("GET CONTAINER needs one of INTO / NODATA")
-            flen = opts.get("FLENGTH")
-            if "FLENGTH" in opts and not flen:
-                raise CicsError("FLENGTH needs an argument")
+            flen = _option(opts, "FLENGTH")
             settable = flen is not None and re.fullmatch(r"(?is)[+-]?\d+|LENGTH\s+OF\s+.+", flen.strip()) is None
             if nodata:
                 out.append(f"{ind}CicsTask.ContainerResult {r} = task.getContainer({chan}, {name}, -1);")
             else:
                 target = self.field(into)
                 most = self.int_(flen) if flen else str(self.size(into))
-                out += [f"{ind}CicsTask.ContainerResult {r} = task.getContainer({chan}, {name}, "
-                        f"DetCics.containerLimit({target}, {most}));",
+                out += [(f"{ind}CicsTask.ContainerResult {r} = task.getContainer({chan}, {name}, "
+                         f"DetCics.containerLimit({target}, {most}));"),
                         f"{ind}if ({r}.data() != null) DetCics.put({target}, {r}.data());"]  # fmt: skip
-            if settable:
+            if flen is not None and settable:
                 set_back = g.store_into(self.ref(flen), f"BigDecimal.valueOf({r}.length())", False)
                 out.append(f"{ind}if ({r}.length() >= 0) {set_back}")
         else:
@@ -1366,16 +1365,22 @@ class Cics:
         return out + self.outcome(opts, r, "0", ind)
 
 
+def _option(opts: dict, name: str) -> str | None:
+    """#4270: an option's argument, None when the option is not given; given without one, refused."""
+    if name not in opts:
+        return None
+    return _arg(opts[name])
+
+
 def _datatype(opts: dict) -> str | None:
     """#4270: PUT CONTAINER's data type -- BIT, CHAR, DATATYPE(DFHVALUE(BIT | CHAR)) -- or None when none is named."""
     given = [t for t in ("BIT", "CHAR") if t in opts]
-    if opts.get("DATATYPE"):
-        m = re.fullmatch(r"(?is)\s*DFHVALUE\s*\(\s*(BIT|CHAR)\s*\)\s*", opts["DATATYPE"])
+    named = _option(opts, "DATATYPE")
+    if named is not None:
+        m = re.fullmatch(r"(?is)\s*DFHVALUE\s*\(\s*(BIT|CHAR)\s*\)\s*", named)
         if m is None:
-            raise CicsError(f"PUT CONTAINER DATATYPE({opts['DATATYPE']}): only DFHVALUE(BIT / CHAR) is modelled")
+            raise CicsError(f"PUT CONTAINER DATATYPE({named}): only DFHVALUE(BIT / CHAR) is modelled")
         given.append(m.group(1).upper())
-    elif "DATATYPE" in opts:
-        raise CicsError("DATATYPE needs an argument")
     if len(given) > 1:
         raise CicsError(f"PUT CONTAINER {' and '.join(given)}: one data type")
     return given[0] if given else None

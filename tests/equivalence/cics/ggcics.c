@@ -79,10 +79,12 @@ typedef struct {
     int item;       /* in-out: ITEM (0 = NEXT) */
     int num;        /* out: NUMITEMS */
     int go_to;      /* out: the label index a condition / abend exit transfers to (#4003) */
+    char chan[16];  /* #4270: a channel's name (in: CHANNEL; out: ASSIGN CHANNEL) */
 } gg_cics;
 
 enum { NORMAL = 0, NOTFND = 13, LENGERR = 22, FILENOTFOUND = 12, MAPFAIL = 36, ITEMERR = 26, QIDERR = 44,
-       INVREQ = 16, PGMIDERR = 27, ENDDATA = 29, DUPREC = 14, ENDFILE = 20 };
+       INVREQ = 16, PGMIDERR = 27, ENDDATA = 29, DUPREC = 14, ENDFILE = 20, CONTAINERERR = 110,
+       CHANNELERR = 122 };
 
 static int seq = 0;
 static int ended = 0; /* a RETURN, XCTL or abend ended the task */
@@ -1149,9 +1151,17 @@ int GGCINQP(gg_cics *c) {
     return 0;
 }
 
+static int channel_named(const char *name, int create);
+static void xctl_channel(int chan);
+
 int GGCXCTL(gg_cics *c, char *commarea, int len) {
-    char program[9], ev[128];
-    int has = c->item != 0, fresp, fresp2;
+    char program[9], ev[128], flags[41], name[17];
+    int has = c->item != 0, fresp, fresp2, chan = 0;
+    trim(c->flags, 40, flags);
+    if (strstr(flags, "CHANNEL")) { /* #4270: XCTL CHANNEL -- the target's current channel, made if absent */
+        trim(c->chan, 16, name);
+        chan = channel_named(name, 1);
+    }
     trim(c->name1, 8, program);
     c->resp = NORMAL;
     c->resp2 = 0;
@@ -1164,6 +1174,7 @@ int GGCXCTL(gg_cics *c, char *commarea, int len) {
     if (c->resp != NORMAL) return 0;
     ended = 1;
     xctl_next(program, has ? commarea : NULL, has ? len : 0);
+    xctl_channel(chan);
     return 0;
 }
 
@@ -1204,9 +1215,18 @@ typedef struct {
     char *next_area;
     char *link_area;         /* the LINK COMMAREA: the linking program's own storage (NULL: none) */
     int link_len;
+    /* #4270: the channel the level's program was passed (index + 1 into chans; 0: none), the channels in its
+     * scope, and the names an XCTL left behind (naming one is refused: IBM does not document their scope) */
+    int cur;
+    int scope[32];
+    int nscope;
+    char dropped[32][17];
+    int ndropped;
+    int next_chan;           /* the channel an XCTL passes to the program pending at this level (index + 1) */
 } level;
 
 static level levels[MAX_LEVELS];
+static void channel_pass(level *L, int passed); /* #4270 */
 static int lvl = 0; /* the current level, 0 = level 1 */
 static char task_abcode[5] = "    ";
 
@@ -1221,6 +1241,8 @@ static const char *condition_abcode(int resp) {
     case ENDDATA: return "AEI2";
     case PGMIDERR: return "AEI0";
     case INVREQ: return "AEIP";
+    case CONTAINERERR: return "AEZJ"; /* #4270: IBM abend codes AEZJ / AEZV, "... condition not handled" */
+    case CHANNELERR: return "AEZV";
     default: return "????";
     }
 }
@@ -1538,6 +1560,10 @@ int GGCNEXT(gg_cics *c, char **area) {
     c->len = L->next_len;
     if (L->next_area_set) *area = L->next_area;
     else if (L->next_len <= 0) *area = NULL; /* level 1 with EIBCALEN 0: no COMMAREA */
+    if (L->state == XCTLED) { /* #4270: an XCTL's target: the channel it passed, the rest left behind */
+        channel_pass(L, L->next_chan);
+        L->next_chan = 0;
+    }
     memcpy(L->prog, L->next, sizeof L->prog);
     memcpy(L->invoker, L->next_invoker, sizeof L->invoker);
     L->next_invoker[0] = 0;
@@ -1573,9 +1599,14 @@ int GGCNOPG(gg_cics *c) {
  * passed by reference) and EIBCALEN = LENGTH (0 without COMMAREA). The event carries the
  * area's bytes as the command is issued. */
 int GGCLINK(gg_cics *c, char *area) {
-    char program[9], ev[128];
-    int has = c->item != 0, len = has ? c->len : 0;
+    char program[9], ev[128], flags[41], name[17];
+    int has = c->item != 0, len = has ? c->len : 0, chan = 0;
     trim(c->name1, 8, program);
+    trim(c->flags, 40, flags);
+    if (strstr(flags, "CHANNEL")) { /* #4270: LINK CHANNEL -- made empty if absent ("a new empty channel is created") */
+        trim(c->chan, 16, name);
+        chan = channel_named(name, 1);
+    }
     c->resp = NORMAL;
     c->resp2 = 0;
     if (has && (len < 0 || len > 32763)) { c->resp = LENGERR; c->resp2 = 11; }
@@ -1598,6 +1629,7 @@ int GGCLINK(gg_cics *c, char *area) {
     L->link_area = has ? area : NULL;
     L->link_len = len;
     L->pending = 1;
+    channel_pass(L, chan); /* #4270: the callee's channel, the only one in its scope (0: none) */
     return 0;
 }
 
@@ -1618,6 +1650,186 @@ int GGCLRET(gg_cics *c) {
             c->go_to = -1;
         }
     }
+    return 0;
+}
+
+/* ---- #4270: channels and containers ----------------------------------------------------- *
+ * IBM CICS TS: PUT / GET / DELETE CONTAINER (CHANNEL), LINK / XCTL CHANNEL, ASSIGN CHANNEL,
+ * "Scope of a channel". A container holds the program's bytes exactly: BIT is never converted,
+ * and CHAR with no FROMCCSID / INTOCCSID is in the region's CCSID both ways (GET CONTAINER: "If
+ * INTOCCSID and INTOCODEPAGE are not specified, the value for conversion defaults to the CCSID
+ * of the region") -- the translator refuses the CCSID options. A channel is in the scope of the
+ * level that made it and of a level it is passed to (LINK CHANNEL: "the called program"; XCTL
+ * CHANNEL: the target). Containers are not events: a program shows what it got by what it does. */
+#define MAX_CHANNELS 64
+#define MAX_CONTAINERS 64
+typedef struct { char name[17]; int bit; char *data; int len; int used; } gg_container;
+typedef struct { char name[17]; gg_container c[MAX_CONTAINERS]; } gg_channel;
+static gg_channel chans[MAX_CHANNELS];
+static int nchans = 0;
+
+/* A channel / container name without its trailing blanks; one that is empty, has an embedded
+ * blank, or more than 16 characters is refused (IBM's "illegal character" rules are not modelled). */
+static void cics_name(const char *src, char *dst, const char *what) {
+    char msg[96];
+    trim(src, 16, dst);
+    if (!dst[0] || strchr(dst, ' ')) {
+        snprintf(msg, sizeof msg, "%s name '%s'", what, dst);
+        refuse(msg);
+    }
+}
+
+/* The channel `name` in the current level's scope (index + 1), 0 when there is none; with
+ * `create`, a new empty one when there is none. A name an XCTL left behind is refused. */
+static int channel_named(const char *name, int create) {
+    level *L = &levels[lvl];
+    char msg[96];
+    for (int i = 0; i < L->ndropped; i++) {
+        if (strcmp(L->dropped[i], name) == 0) {
+            snprintf(msg, sizeof msg, "channel %s after an XCTL that did not pass it", name);
+            refuse(msg);
+        }
+    }
+    for (int i = 0; i < L->nscope; i++) {
+        if (strcmp(chans[L->scope[i] - 1].name, name) == 0) return L->scope[i];
+    }
+    if (!create) return 0;
+    if (nchans >= MAX_CHANNELS || L->nscope >= 32) refuse("more channels than the stub holds");
+    snprintf(chans[nchans].name, sizeof chans[nchans].name, "%s", name);
+    nchans++;
+    L->scope[L->nscope++] = nchans;
+    return nchans;
+}
+
+/* A level's program starts with `passed` (index + 1; 0: none) as its current channel, the only
+ * one in its scope; the names in scope before it (an XCTL's) are left behind. */
+static void channel_pass(level *L, int passed) {
+    L->ndropped = 0;
+    for (int i = 0; i < L->nscope && L->ndropped < 32; i++) {
+        if (L->scope[i] != passed) snprintf(L->dropped[L->ndropped++], 17, "%s", chans[L->scope[i] - 1].name);
+    }
+    L->cur = passed;
+    L->nscope = 0;
+    if (passed) L->scope[L->nscope++] = passed;
+}
+
+static void xctl_channel(int chan) { levels[lvl].next_chan = chan; }
+
+/* The command's channel: GG-CHAN when GG-FLAGS says CHANNEL (`create`: PUT makes it), else the
+ * current channel; 0 with RESP set when there is none. */
+static int command_channel(gg_cics *c, int create, int no_current_resp2) {
+    char flags[41], name[17];
+    trim(c->flags, 40, flags);
+    if (strstr(flags, "CHANNEL")) {
+        cics_name(c->chan, name, "channel");
+        int ch = channel_named(name, create);
+        if (!ch) { c->resp = CHANNELERR; c->resp2 = 2; }
+        return ch;
+    }
+    if (!levels[lvl].cur) { c->resp = INVREQ; c->resp2 = no_current_resp2; }
+    return levels[lvl].cur;
+}
+
+static gg_container *container_named(gg_channel *ch, const char *name, int create) {
+    gg_container *free_slot = NULL;
+    for (int i = 0; i < MAX_CONTAINERS; i++) {
+        if (ch->c[i].used && strcmp(ch->c[i].name, name) == 0) return &ch->c[i];
+        if (!ch->c[i].used && !free_slot) free_slot = &ch->c[i];
+    }
+    if (!create) return NULL;
+    if (!free_slot) refuse("more containers than the stub holds");
+    memset(free_slot, 0, sizeof *free_slot);
+    snprintf(free_slot->name, sizeof free_slot->name, "%s", name);
+    free_slot->used = 1;
+    return free_slot;
+}
+
+/* PUT CONTAINER(GG-QNAME) [CHANNEL: GG-CHAN] FROM FLENGTH(GG-LEN); GG-FLAGS: CHANNEL, BIT / CHAR,
+ * APPEND. No channel and no current one: INVREQ RESP2 4, 1 when a data type was named. FLENGTH
+ * below zero: LENGERR RESP2 1. A new container takes the type named, else BIT (naming the other
+ * type for an existing one is refused, below). The data replaces the container's, or follows it. */
+int GGCPUTC(gg_cics *c, char *from) {
+    char flags[41], name[17];
+    int bit, chr, ch;
+    trim(c->flags, 40, flags);
+    bit = strstr(flags, "BIT") != NULL;
+    chr = strstr(flags, "CHAR") != NULL;
+    c->resp = NORMAL;
+    c->resp2 = 0;
+    cics_name(c->qname, name, "container");
+    ch = command_channel(c, 1, bit || chr ? 1 : 4);
+    if (!ch) return 0;
+    if (c->len < 0) { c->resp = LENGERR; c->resp2 = 1; return 0; }
+    gg_container *k = container_named(&chans[ch - 1], name, 0);
+    /* the other data type for an existing container: IBM says both that DATATYPE "applies only to new
+     * containers" and that changing it is INVREQ RESP2 33 -- not settled, refused */
+    if (k && (bit || chr) && k->bit != bit) refuse("PUT CONTAINER changing an existing container's data type");
+    if (!k) {
+        k = container_named(&chans[ch - 1], name, 1);
+        k->bit = !chr;
+    }
+    if (strstr(flags, "APPEND")) {
+        char *joined = realloc(k->data, (size_t)(k->len + c->len) + 1);
+        if (!joined) refuse("out of memory");
+        memcpy(joined + k->len, from, (size_t)c->len);
+        k->data = joined;
+        k->len += c->len;
+    } else {
+        free(k->data);
+        k->data = malloc((size_t)c->len + 1);
+        if (!k->data) refuse("out of memory");
+        memcpy(k->data, from, (size_t)c->len);
+        k->len = c->len;
+    }
+    return 0;
+}
+
+/* GET CONTAINER(GG-QNAME) [CHANNEL] INTO FLENGTH | NODATA (GG-FLAGS); GG-LEN in: the most INTO
+ * takes; out: the container's length (NORMAL, LENGERR; else left as it came). CHANNELERR RESP2 2,
+ * INVREQ RESP2 4, CONTAINERERR RESP2 10; longer data truncated, LENGERR RESP2 11. */
+int GGCGETC(gg_cics *c, char *into) {
+    char flags[41], name[17];
+    int ch;
+    trim(c->flags, 40, flags);
+    c->resp = NORMAL;
+    c->resp2 = 0;
+    cics_name(c->qname, name, "container");
+    ch = command_channel(c, 0, 4);
+    if (!ch) return 0;
+    gg_container *k = container_named(&chans[ch - 1], name, 0);
+    if (!k) { c->resp = CONTAINERERR; c->resp2 = 10; return 0; }
+    if (!strstr(flags, "NODATA")) {
+        if (c->len < 0) refuse("GET CONTAINER FLENGTH below zero");
+        int n = k->len < c->len ? k->len : c->len;
+        memcpy(into, k->data, (size_t)n);
+        if (k->len > c->len) { c->resp = LENGERR; c->resp2 = 11; }
+    }
+    c->len = k->len;
+    return 0;
+}
+
+/* DELETE CONTAINER(GG-QNAME) [CHANNEL]: CHANNELERR RESP2 2, INVREQ RESP2 4, CONTAINERERR RESP2 10. */
+int GGCDELC(gg_cics *c) {
+    char name[17];
+    int ch;
+    c->resp = NORMAL;
+    c->resp2 = 0;
+    cics_name(c->qname, name, "container");
+    ch = command_channel(c, 0, 4);
+    if (!ch) return 0;
+    gg_container *k = container_named(&chans[ch - 1], name, 0);
+    if (!k) { c->resp = CONTAINERERR; c->resp2 = 10; return 0; }
+    free(k->data);
+    memset(k, 0, sizeof *k);
+    return 0;
+}
+
+/* ASSIGN CHANNEL: the current channel's name into GG-CHAN, blanks when there is none. */
+int GGCASCH(gg_cics *c) {
+    memset(c->chan, ' ', 16);
+    if (levels[lvl].cur) memcpy(c->chan, chans[levels[lvl].cur - 1].name, strlen(chans[levels[lvl].cur - 1].name));
+    c->resp = NORMAL;
+    c->resp2 = 0;
     return 0;
 }
 

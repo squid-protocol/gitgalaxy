@@ -92,6 +92,7 @@ verdict, but it limits what the proof says about inputs outside the scenarios.
 | X14 | CICS | READ ... INTO LENGTH: in-out, truncation and LENGERR; a VSAM file's LENGTH need not equal its record length; LENGERR on READ UPDATE refused | ASSUMED (REFUSED where IBM is silent) | yes, NORMAL only (GenApp LGUCVS01 / LGUPVS01) |
 | X15 | CICS | Terminal RECEIVE (INTO / SET, LENGTH, MAXLENGTH, NOTRUNCATE; LENGERR, EOC on an LUTYPE2 terminal) and SEND CONTROL | ASSUMED (REFUSED where IBM is silent) | yes (cics-crucible hc-terminal-receive, hc-terminal-eoc) |
 | X16 | CICS | HANDLE AID, IGNORE CONDITION, PUSH / POP HANDLE and HANDLE CONDITION ERROR on the det port | MATCHED (REFUSED where IBM is silent) | yes (cics-crucible hc-handle-aid, hc-ignore-error, hc-eoc-error) |
+| X17 | CICS | Channels and containers: PUT / GET / DELETE CONTAINER, LINK / XCTL CHANNEL, ASSIGN CHANNEL; bytes never converted; CCSID options, SET, BYTEOFFSET, RETURN CHANNEL, MOVE and browse refused | ASSUMED (REFUSED where IBM is silent) | yes (cics-crucible ca-channel-containers, unreleased) |
 | L1 | LE | CEEDAYS: documented pictures only | MATCHED / REFUSED | yes |
 | L2 | LE | CEE3ABD abend codes | MATCHED | yes |
 | L3 | LE | WORKING-STORAGE with no VALUE clause: GnuCOBOL's spaces vs LE's STORAGE option on z/OS | ASSUMED | yes (CardDemo READACCT OUTFILE, 2 bytes) |
@@ -613,6 +614,40 @@ The length READQ TS returns on ITEMERR or QIDERR is not documented, so it is not
   POP HANDLE, CLEAR and PA1 with no data), hc-ignore-error (9: IGNORE, ERROR, a condition's own HANDLE or IGNORE
   before ERROR, IGNORE overriding HANDLE, PUSH suspending IGNORE and ERROR, POP restoring, POP with nothing pushed)
   and hc-eoc-error (2: ERROR does not take EOC), cobol-stub and the det port both passing the hand-written logs.
+
+### X17. Channels and containers — ASSUMED, REFUSED where IBM is silent (#4270 slice 1)
+- **What IBM documents** (CICS TS, EXEC CICS PUT / GET / DELETE CONTAINER (CHANNEL), LINK, XCTL, ASSIGN, "The current
+  channel", "The scope of a channel"). PUT: "If the channel does not exist, it is created"; with no CHANNEL "the
+  current channel is implied"; APPEND appends, otherwise the data is overwritten; a new container's data type is BIT
+  "unless FROMCCSID or FROMCODEPAGE option is specified"; FLENGTH below zero is LENGERR RESP2 1; no CHANNEL and no
+  current channel is INVREQ RESP2 4 (1 with DATATYPE). GET: FLENGTH in, "the length of the data to be read", and out,
+  "the length of the data in the container"; a shorter area is truncated with LENGERR RESP2 11; NODATA reads only the
+  length; CHANNELERR RESP2 2, CONTAINERERR RESP2 10, INVREQ RESP2 4; "If INTOCCSID and INTOCODEPAGE are not
+  specified, the value for conversion defaults to the CCSID of the region". DELETE: CHANNELERR 2, CONTAINERERR 10,
+  INVREQ 4. LINK / XCTL CHANNEL: the channel (created empty if absent) is the target's current channel; a LINKed
+  program "can also return containers to the calling program". ASSIGN CHANNEL: the current channel's name, blanks
+  without one. CONTAINERERR (110) and CHANNELERR (122) abend AEZJ / AEZV by default. Both sides model it: `ggcics.c`
+  GGCPUTC / GGCGETC / GGCDELC / GGCASCH and GGCLINK / GGCXCTL with GG-CHAN, and CicsTask putContainer / getContainer
+  / deleteContainer / linkChannel / xctlChannel / assignChannel.
+- **Assumed.** A container holds the program's bytes. A BIT container is never converted; a CHAR one put and got
+  with no CCSID option is in the region's CCSID both ways, so it is not converted either -- the port keeps the bytes
+  in its storage's page and the stub in its own, as each side keeps every other area. A channel is in the scope of
+  the level that created it and of a level it is LINKed or XCTLed to; the LINKed program's channels die with its
+  level. A GET's data goes into INTO's first bytes and leaves the rest as it was; FLENGTH is set back on NORMAL and
+  LENGERR only (on another condition IBM does not say).
+- **Refused by name** (`CicsError` / `Unsupported` at translation, exit 98 / UnsupportedOperationException at run
+  time): FROMCCSID, FROMCODEPAGE, INTOCCSID, INTOCODEPAGE, CONVERTST, CCSID (code-page conversion of a CHAR
+  container); GET SET (a pointer to CICS's copy); BYTEOFFSET and PREPEND (no corpus program uses them); RETURN
+  CHANNEL (the next task's channel: neither harness carries it, and no corpus program uses it); MOVE CONTAINER and
+  STARTBROWSE / GETNEXT / ENDBROWSE CONTAINER (later #4270 slices); LINK / XCTL with both CHANNEL and COMMAREA. At run
+  time: a PUT naming the other data type for an existing container (IBM says DATATYPE "applies only to new
+  containers" and also lists INVREQ RESP2 33 for "an attempt ... to change the data-type"); a channel an XCTL left
+  behind (IBM's scope tables do not say); an FLENGTH past FROM / INTO, or a negative one on GET; a name that is
+  blank or has an embedded blank (IBM's "illegal character" rules are not modelled).
+- **Reached.** cics-crucible ca-channel-containers (2 scenarios: CHAR / BIT / APPEND, LINK and XCTL CHANNEL, the
+  current channel, truncation and LENGERR, NODATA, CONTAINERERR / CHANNELERR / INVREQ by RESP and by HANDLE
+  CONDITION, AEZJ by default), cobol-stub and the det port both passing the hand-written logs (crucible branch
+  `cases/channel-containers`, not yet released or pinned).
 
 ## Language Environment
 

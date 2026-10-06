@@ -53,6 +53,8 @@
            05 GG-ITEM   PIC S9(9) COMP-5.
            05 GG-NUM    PIC S9(9) COMP-5.
            05 GG-GOTO   PIC S9(9) COMP-5.
+      * #4270: a channel's name (CHANNEL in; ASSIGN CHANNEL out).
+           05 GG-CHAN   PIC X(16).
       * ASKTIME / FORMATTIME (CardDemo's bill payment): the translator
       * computes them in COBOL from the task's clock (CURRENT-DATE is the
       * case's clock), ABSTIME being milliseconds since 00:00 on

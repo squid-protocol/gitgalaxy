@@ -172,6 +172,28 @@ public final class DetCics {
     }
 
     /** Bytes into a field's area, at most its length (a record READ INTO it; the rest is left as it was). */
+    /** #4270: PUT CONTAINER FROM(f) FLENGTH(n): the first n bytes of the area, none below zero (CicsTask answers
+     *  LENGERR RESP2 1). FLENGTH past FROM's end reads the bytes that follow the item in storage, which GnuCOBOL
+     *  lays out unlike IBM's compiler: refused, as the stub refuses it (oracle_assumptions.md X6). */
+    public static byte[] containerData(Field f, int n) {
+        if (n > f.length()) {
+            throw new UnsupportedOperationException("PUT CONTAINER FLENGTH " + n + " > FROM's " + f.length()
+                    + " bytes: not modelled");
+        }
+        return n <= 0 ? new byte[0] : bytes(f, n);
+    }
+
+    /** #4270: GET CONTAINER INTO(into) FLENGTH(most): the most the area takes. A FLENGTH past INTO's end would have
+     *  CICS write the storage that follows it (laid out unlike IBM's by GnuCOBOL), and one below zero is not
+     *  documented: both refused. */
+    public static int containerLimit(Field into, int most) {
+        if (most < 0 || most > into.length()) {
+            throw new UnsupportedOperationException("GET CONTAINER FLENGTH " + most + " for a " + into.length()
+                    + "-byte INTO: not modelled");
+        }
+        return most;
+    }
+
     public static void put(Field f, byte[] data) {
         System.arraycopy(data, 0, f.storage().bytes, f.offset(), Math.min(data.length, f.length()));
     }
@@ -344,6 +366,8 @@ public final class DetCics {
             case 44 -> "QIDERR";
             case 70 -> "NOTAUTH";
             case 84 -> "DISABLED";
+            case 110 -> "CONTAINERERR";  // #4270
+            case 122 -> "CHANNELERR";
             default -> "RESP" + resp;
         };
     }
@@ -363,6 +387,8 @@ public final class DetCics {
             case "SYSIDERR" -> 53;
             case "TERMERR" -> 81;
             case "ROLLEDBACK" -> 82;
+            case "CONTAINERERR" -> 110;  // #4270
+            case "CHANNELERR" -> 122;
             default -> throw new IllegalArgumentException("no RESP value known for condition " + condition);
         };
     }

@@ -85,9 +85,9 @@ def test_a_link_runs_a_new_level_on_the_callers_own_commarea():
     reference) and GGCLRET pops the level, where an abend exit up here can take over; a failed LINK goes
     through the condition handling."""
     got = ec.translate_command("LINK PROGRAM('CASUB') COMMAREA(WS-CA100) LENGTH(100)", ["MAIN-ABEND"])
-    assert got[:4] == ["MOVE 'CASUB' TO GG-NAME1", "MOVE 100 TO GG-LEN", "MOVE 1 TO GG-ITEM",
-                       "CALL 'GGCLINK' USING GG-CICS"]  # fmt: skip
-    assert got[5:12] == ["IF GG-RESP = 0", "    CALL 'GGCRUN' USING WS-CA100", "    CALL 'GGCLRET' USING GG-CICS",
+    assert got[:5] == ["MOVE 'CASUB' TO GG-NAME1", "MOVE 100 TO GG-LEN", "MOVE 1 TO GG-ITEM",
+                       "MOVE SPACES TO GG-FLAGS", "CALL 'GGCLINK' USING GG-CICS"]  # fmt: skip
+    assert got[6:13] == ["IF GG-RESP = 0", "    CALL 'GGCRUN' USING WS-CA100", "    CALL 'GGCLRET' USING GG-CICS",
                          "    GO TO", "        MAIN-ABEND", "        DEPENDING ON GG-GOTO", "    IF GG-GOTO < 0"]  # fmt: skip
     assert "    CALL 'GGCCOND' USING GG-CICS" in got  # PGMIDERR without RESP: the default action
     bare = ec.translate_command("LINK PROGRAM(WS-PGM) RESP(WS-R)")
@@ -182,11 +182,55 @@ def test_return_xctl_and_abend_end_the_task():
     assert ret[0] == "MOVE LIT-TRAN TO GG-NAME1" and ret[-1] == "GOBACK" and "    BY VALUE LENGTH OF WS-CA" in ret
     assert ec.translate_command("RETURN")[-3:] == ["    BY REFERENCE GG-FLAGS", "    BY VALUE 0", "GOBACK"]
     xctl = ec.translate_command("XCTL PROGRAM (WS-PGM) COMMAREA(CA)")
-    assert xctl[:3] == ["MOVE WS-PGM TO GG-NAME1", "MOVE 1 TO GG-ITEM", "CALL 'GGCXCTL' USING GG-CICS"]
+    assert xctl[:4] == ["MOVE WS-PGM TO GG-NAME1", "MOVE 1 TO GG-ITEM", "MOVE SPACES TO GG-FLAGS",
+                        "CALL 'GGCXCTL' USING GG-CICS"]  # fmt: skip
     # #4008: a failed XCTL (LENGERR, PGMIDERR) stays in the program, through the condition handling
-    assert xctl[5:8] == ["IF GG-RESP = 0", "    GOBACK", "END-IF"] and "    CALL 'GGCCOND' USING GG-CICS" in xctl
+    assert xctl[6:9] == ["IF GG-RESP = 0", "    GOBACK", "END-IF"] and "    CALL 'GGCCOND' USING GG-CICS" in xctl
     assert ec.translate_command("XCTL PROGRAM('P')")[1] == "MOVE 0 TO GG-ITEM"
     assert ec.translate_command("ABEND ABCODE('9999')")[0] == "MOVE '9999' TO GG-NAME1"
+
+
+def test_channels_and_containers_become_stub_calls():
+    """#4270: PUT / GET / DELETE CONTAINER -> GGCPUTC / GGCGETC / GGCDELC with the container in GG-QNAME, the channel
+    in GG-CHAN (GG-FLAGS CHANNEL; none: the current channel), the data type / APPEND / NODATA in GG-FLAGS and FLENGTH
+    in GG-LEN -- set back on NORMAL / LENGERR only (IBM, GET CONTAINER (CHANNEL)); LINK / XCTL CHANNEL pass the
+    channel; ASSIGN CHANNEL reads it back. The CCSID options, SET and RETURN CHANNEL are refused by name."""
+    put = ec.translate_command("PUT CONTAINER('REQ') CHANNEL(WS-CH) FROM(WS-A) FLENGTH(WS-N) CHAR APPEND RESP(R)")
+    assert put[:5] == ["MOVE 'REQ' TO GG-QNAME", "MOVE WS-CH TO GG-CHAN", "MOVE 'CHANNEL CHAR APPEND' TO GG-FLAGS",
+                       "MOVE WS-N TO GG-LEN", "IF GG-LEN > LENGTH OF WS-A"]  # fmt: skip
+    assert "CALL 'GGCPUTC' USING GG-CICS" in put and "MOVE GG-RESP TO R" in put
+    bit = ec.translate_command("PUT CONTAINER(C) FROM(WS-A) DATATYPE(DFHVALUE(BIT))")
+    assert bit[1:4] == ["MOVE SPACES TO GG-CHAN", "MOVE 'BIT' TO GG-FLAGS", "MOVE LENGTH OF WS-A TO GG-LEN"]
+    get = ec.translate_command("GET CONTAINER(C) INTO(WS-A) FLENGTH(WS-N) RESP(R) RESP2(R2)")
+    i = get.index("CALL 'GGCGETC' USING GG-CICS")
+    assert get[i + 2 : i + 5] == ["IF GG-RESP = 0 OR GG-RESP = 22", "    MOVE GG-LEN TO WS-N", "END-IF"]
+    nodata = ec.translate_command("GET CONTAINER(C) NODATA FLENGTH(WS-N)")
+    assert "MOVE 'NODATA' TO GG-FLAGS" in nodata and "MOVE 0 TO GG-LEN" in nodata
+    assert ec.translate_command("DELETE CONTAINER(C) CHANNEL('CH')")[:4] == [
+        "MOVE C TO GG-QNAME",
+        "MOVE 'CH' TO GG-CHAN",
+        "MOVE 'CHANNEL' TO GG-FLAGS",
+        "CALL 'GGCDELC' USING GG-CICS",
+    ]
+    link = ec.translate_command("LINK PROGRAM('SUB') CHANNEL(WS-CH)")
+    assert link[:6] == ["MOVE 'SUB' TO GG-NAME1", "MOVE 0 TO GG-LEN", "MOVE 0 TO GG-ITEM", "MOVE 'CHANNEL' TO GG-FLAGS",
+                        "MOVE WS-CH TO GG-CHAN", "CALL 'GGCLINK' USING GG-CICS"]  # fmt: skip
+    xctl = ec.translate_command("XCTL PROGRAM('XB') CHANNEL(WS-CH)")
+    assert xctl[2:5] == ["MOVE 'CHANNEL' TO GG-FLAGS", "MOVE WS-CH TO GG-CHAN", "CALL 'GGCXCTL' USING GG-CICS"]
+    assert ec.translate_command("ASSIGN CHANNEL(WS-CUR)")[:2] == ["CALL 'GGCASCH' USING GG-CICS",
+                                                                 "MOVE GG-CHAN TO WS-CUR"]  # fmt: skip
+    for bad in (
+        "GET CONTAINER(C) INTO(A) INTOCCSID(1140)",
+        "PUT CONTAINER(C) FROM(A) FROMCCSID(37)",
+        "GET CONTAINER(C) SET(P) FLENGTH(L)",
+        "GET CONTAINER(C) FLENGTH(L)",
+        "RETURN TRANSID('T') CHANNEL(C)",
+        "LINK PROGRAM('P') CHANNEL(C) COMMAREA(A)",
+        "MOVE CONTAINER(A) AS(B)",
+        "PUT CONTAINER(C) FROM(A) BIT CHAR",
+    ):
+        with pytest.raises(ec.Unsupported):
+            ec.translate_command(bad)
 
 
 def test_send_map_records_its_options_and_area():

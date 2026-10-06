@@ -354,6 +354,13 @@ Only generator output, never a test case:
   terminal RECEIVE). What IBM does not say is refused by name on both sides (register X16): an AID label beside a
   condition on one input command, a key deactivated under ANYKEY, IGNORE CONDITION ERROR. Proven through
   cics-crucible hc-handle-aid (9), hc-ignore-error (9) and hc-eoc-error (2) on the cobol-stub side and the det port.
+- #4270 slice 1: channels and containers were refused whole -- `GET` / `PUT CONTAINER` in 23 census programs (16
+  outside the burned estates), `LINK CHANNEL` in 3. `PUT` / `GET` / `DELETE CONTAINER`, `LINK` / `XCTL CHANNEL` and
+  `ASSIGN CHANNEL` now run on CicsTask's channels (`putContainer`, `getContainer`, `deleteContainer`, `linkChannel`,
+  `xctlChannel`, `assignChannel`) and the stub (GGCPUTC / GGCGETC / GGCDELC / GGCASCH, GG-CHAN), container data
+  byte for byte, CONTAINERERR / CHANNELERR / LENGERR / INVREQ with IBM's RESP2 through `condition()` (AEZJ / AEZV by
+  default). Code-page conversion, SET, BYTEOFFSET, RETURN CHANNEL, MOVE and the container browse are refused by name
+  (register X17). Proven through cics-crucible ca-channel-containers (2) on the cobol-stub side and the det port.
 - #4463: four det ports stopped proving on 2026-10-04 and no CI ran the det sweep. carddemo-menu: a #4049 scenario
   sent option 99, which COMEN01C still uses as a subscript of its 12-entry table, 4K past the record (X8: the det
   port stops; the case now sends 12). mortgage-cmort / mlist / nbrvl: #4245 read every program of EPSCSMRD's

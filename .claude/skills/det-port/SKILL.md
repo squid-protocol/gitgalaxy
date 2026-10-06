@@ -90,6 +90,10 @@ A translator fix is never a hand edit of a port.
       `cobolrt`.
 - [ ] Add a line under "What the proofs found" in `det_port_design.md` when a proof found the bug.
 
+**A new EXEC CICS command or option (#4270 slices):** follow the `cics-command-slice` skill -- census
+(`cics_census.py`), both runtimes, a hand-traced crucible case (`crucible_case.py`), the det-port proof
+(`cics_case_ports.py`), before / after survey, and the crucible release / pin bump (`crucible_release.py`).
+
 **A harness or oracle change** (`tests/tools/equivalence*.py`, `tests/equivalence/{cics,db2,faults,le}/**`):
 - [ ] Every proof leans on the harness. Re-prove the det ports (`run --all-cases`) and the model ports the change
       can reach (`equivalence.py run CASE --faults all` for each case with a committed `port/`).

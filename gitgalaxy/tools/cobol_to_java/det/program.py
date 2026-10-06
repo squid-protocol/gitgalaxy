@@ -440,6 +440,20 @@ def liftable(records: list, excluded: set[str], rc: L.Item) -> dict[int, str]:
     return out
 
 
+def _pcs_figuratives(records: list[L.Item], gen: G.Gen) -> None:
+    """#4539: a VALUE HIGH-VALUE / LOW-VALUE (not an 88's: that is a comparison, refused where it is used) under a
+    PROGRAM COLLATING SEQUENCE that redefines it (Gen.fig_char) refuses the program by name: its initial bytes are
+    laid out before any statement is translated."""
+    for rec in records:
+        for it in rec.walk():
+            for v in it.values:
+                if it.level != 88 and v[0] == "fig":
+                    try:
+                        gen.fig_char(v[1])
+                    except G.Untranslatable as e:
+                        raise L.LayoutError(f"line {it.line}: {it.name} VALUE {e}") from e
+
+
 def _translate(program: Path, copy_dirs: list[Path], stub: str, package: str, estate: dict[str, str] | None,
                project: Path | None, style: str, typed: bool, excluded: set[str],
                groups: bool = False, options: list[str] | None = None, unit: str | None = None) -> Result:  # fmt: skip
@@ -494,6 +508,7 @@ def _translate(program: Path, copy_dirs: list[Path], stub: str, package: str, es
         gen.sync_groups = groups
         gen.lifted = liftable(records, excluded | {"GG-SORT-RETURN"}, rc)
     gen.alphabets, gen.program_collating = alphabets(lines)
+    _pcs_figuratives(records, gen)
     gen.copy_dirs = [program.parent, *copy_dirs, C.COPY]
     gen.engine = engine
     gen.java_root = (project / "src/main/java") if project is not None else None
@@ -800,12 +815,14 @@ def _translate(program: Path, copy_dirs: list[Path], stub: str, package: str, es
         ctor_repos += list(gen.cics.repos.items())
         # the codecs added constants: none (they use their own literals)
 
-    if any(f.sort for f in prog.files.values()):
+    if any(f.sort for f in prog.files.values()) or gen.pcs_used:
         extra_imports.append(f"{package}.cobolrt.Sort")
     if gen.sql is not None:  # the generated Db2 repositories the statements run on
         ctor_repos += [(c, f) for c, f in gen.sql.repos.items()]
         extra_imports.append(f"{package}.cobolrt.sql.DetSql")
     consts = [f'    private static final BigDecimal {n} = new BigDecimal("{v}");' for v, n in gen.consts.items()]
+    if gen.pcs_used:  # #4539: the PROGRAM COLLATING SEQUENCE its nonnumeric relation conditions compare under
+        consts.append(f"    private static final Sort.Collating COLLATING = {gen.pcs_used};")
     n_para = len(proc.paragraphs)
     pkg = package
     imp = sorted({imports.get(c, f"{package}.repository.vsam.{c}") for c, _ in ctor_repos if c.endswith("Repository")} |

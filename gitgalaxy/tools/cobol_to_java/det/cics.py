@@ -739,7 +739,7 @@ class Cics:
             ex = g.tmpname("exit")
             out += [f"{ind}String {ex} = task.abendExit();",  # an abend below went to this program's exit
                     f"{ind}if ({ex} != null) {g.jump(f'paragraph({ex})')}",
-                    f"{ind}if (task.ended()) throw new Goback();"]  # fmt: skip
+                    f"{ind}if (task.ended()) throw abended();"]  # #4534: unwound past this level  # fmt: skip
             return out + self.outcome(opts, f"DetCics.resp({r})", "0", ind)
         if verb == "RETURN":
             if "TRANSID" in opts or "COMMAREA" in opts:
@@ -800,7 +800,7 @@ class Cics:
             code = self.name(_arg(opts["ABCODE"])) if opts.get("ABCODE") else '""'
             fn = "abendCancel" if "CANCEL" in opts else "abend"
             lbl = g.tmpname("exit")
-            return [f"{ind}String {lbl} = task.{fn}({code});", f"{ind}if ({lbl} == null) throw new Goback();",
+            return [f"{ind}String {lbl} = task.{fn}({code});", f"{ind}if ({lbl} == null) throw abended();",
                     f"{ind}if (true) {g.jump(f'paragraph({lbl})')}"]  # fmt: skip
         if verb == "ASSIGN":
             out = []

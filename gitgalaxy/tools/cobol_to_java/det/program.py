@@ -490,6 +490,12 @@ def _translate(program: Path, copy_dirs: list[Path], stub: str, package: str, es
     structured = style == "structured" and structurable(proc)
     gen = G.Gen(prog, structured)
     gen.write_only_pointers = write_only_pointers(records, proc)
+    # #4271: every COMP-1 / COMP-2 item's bytes, by storage, for the refusal of byte uses that overlap one
+    for rec in records:
+        gen.root_of[id(rec)] = id(roots[id(rec)])
+        for it in rec.walk():
+            if it.category == "FLOAT":
+                gen.float_extents.setdefault(id(roots[id(rec)]), []).append((it, *G._extents(it)))
     if typed:
         gen.sync_groups = groups
         gen.lifted = liftable(records, excluded | {"GG-SORT-RETURN"}, rc)
@@ -699,7 +705,7 @@ def _translate(program: Path, copy_dirs: list[Path], stub: str, package: str, es
         st = _storage_name(roots[id(rec)])
         for it in rec.walk():
             fid = gen.ids.get(id(it))
-            if fid is None or it.category == "FLOAT" or it.usage in ("POINTER", "INDEX") or id(it) in gen.lifted:
+            if fid is None or it.usage in ("POINTER", "INDEX") or id(it) in gen.lifted:
                 continue
             try:
                 field_lines.append(f"        {fid} = {gen.factory(it, st, str(it.offset))};")
@@ -1058,7 +1064,12 @@ def _translate(program: Path, copy_dirs: list[Path], stub: str, package: str, es
     stats = dict(gen.stats)
     stats["program"] = prog.name
     stats["inferred"] = inferred
-    java = drop_unused_fields("\n".join(out))
+    java = "\n".join(out)
+    if "Hfp." in java:  # #4271: the HFP runtime, imported only where a float is used (no other port changes)
+        java = java.replace(
+            f"import {pkg}.cobolrt.Funcs;\n", f"import {pkg}.cobolrt.Funcs;\nimport {pkg}.cobolrt.Hfp;\n", 1
+        )
+    java = drop_unused_fields(java)
     page = engine.page(program) if engine is not None else None  # #4462: the card read in the declared code page
     return Result(with_trunc(java, trunc_std(program, options, page), numproc_pfd(program, options, page)), service,
                   stats)  # fmt: skip

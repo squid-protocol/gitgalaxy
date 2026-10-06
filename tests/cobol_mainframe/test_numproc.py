@@ -8,7 +8,8 @@
   "Sign representation of zoned and packed-decimal data"). With preferred signs it computes as NOPFD; the det runtime
   refuses to read any other sign, and the harness proves a PFD program only through a det port.
 - COMP-1 / COMP-2: IBM hexadecimal floating point on z/OS, and IBM evaluates a whole expression in floating point when
-  any operand or receiver is one (Programming Guide, Appendix A); the translator refuses a float item by name.
+  any operand or receiver is one (Programming Guide, Appendix A); the translator computes such a statement in HFP
+  (#4271 slice 1: test_det_hfp.py) and refuses by name what the oracle cannot decide.
 """
 
 from __future__ import annotations
@@ -90,7 +91,7 @@ def test_each_entry_runs_with_its_programs_numproc(tmp_path):
     assert "Cobol.swapNumprocPfd(false);  // NUMPROC(NOPFD)" in P.with_trunc(java, True)
 
 
-def test_a_floating_point_item_is_a_named_hole(tmp_path):
+def test_a_floating_point_statement_is_computed_in_hfp(tmp_path):
     pytest.importorskip("tree_sitter_language_pack")  # the translator's parser
     from gitgalaxy.tools.cobol_to_java.det import program as P
 
@@ -104,9 +105,10 @@ def test_a_floating_point_item_is_a_named_hole(tmp_path):
     )
     (tmp_path / "project").mkdir()
     r = P.translate(cbl, [], "public class FltService {\n}\n", "p", None, tmp_path / "project")
-    assert len(r.stats["holes"]) == 2, r.stats["holes"]
-    assert r.java.count("COMP-1 floating point (IBM hexadecimal on z/OS") == 2
-    assert "f2_F" not in r.java.replace('"', "")  # no reference to a Field that is never declared
+    assert not r.stats["holes"], r.stats["holes"]
+    assert "Hfp.divide(Hfp.of(Cobol.num(f2_N, CS)), Hfp.of(D3), true)" in r.java  # long: a literal operand
+    assert "Hfp.multiply(Cobol.num(f1_F, CS), Hfp.of(D2), true)" in r.java
+    assert "Field.hfp(" in r.java and "import p.cobolrt.Hfp;" in r.java
 
 
 # ---- the runtime -----------------------------------------------------------------------------------------------

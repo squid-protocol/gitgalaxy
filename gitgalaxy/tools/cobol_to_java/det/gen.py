@@ -135,6 +135,14 @@ class Gen:
                 else:
                     self.ids[id(it)] = f"f{n}_{jname(it.name)}"
         self.taken_names = set(self.ids.values())
+        # #4271 COMP-1 / COMP-2 (det.hfp, cobolrt/Hfp): a float is read and written only as a number. field_expr
+        # serves a float item only to value_field; any other use -- its bytes, or those of an item that overlaps
+        # it (a group holding it, a REDEFINES) -- is refused by name: HFP on z/OS, IEEE on the oracle (register C6)
+        self._value_use = 0  # > 0 while value_field asks
+        self._init_bytes = 0  # > 0 inside INITIALIZE: a group is walked to its elementary items, never copied
+        self.fmode: str | None = None  # "LONG" / "SHORT" while num() generates a floating-point expression
+        self.float_extents: dict[int, list] = {}  # storage root id -> [(item, first extent, full extent, tables)]
+        self.root_of: dict[int, int] = {}  # id(record) -> id(its storage root)
         # condition-name methods: id(88 item) -> (Java method name, the test's body); in order of first use
         self.cond_methods: dict[int, tuple[str, str, L.Item]] = {}
         self.conds: dict[str, list[L.Item]] = {}
@@ -207,10 +215,13 @@ class Gen:
 
     def field_expr(self, ref: E.Ref) -> str:
         it = self.resolve(ref)
-        if it.category == "FLOAT":  # #4271: no Field carries a float; IBM's is hexadecimal (register C6)
-            raise Untranslatable(
-                f"{ref.name}: {it.usage} floating point (IBM hexadecimal on z/OS, oracle_assumptions.md C6)"
-            )
+        if it.category == "FLOAT":  # #4271: a float's value only (value_field), never its bytes (register C6)
+            if not self._value_use or ref.refmod is not None:
+                raise Untranslatable(f"{ref.name}: the bytes of a {it.usage} item ({FLOAT_BYTES})")
+        elif not self._init_bytes:
+            over = self.overlaps_float(it)
+            if over is not None:
+                raise Untranslatable(f"{ref.name}: its bytes hold {over.name} {over.usage} ({FLOAT_BYTES})")
         packed = self.check_lift(it)
         base = self.ids.get(id(it))
         if base is None:
@@ -228,6 +239,119 @@ class Gen:
             start, length = ref.refmod
             out += f".ref({self.int_expr(start)}, {('Integer.valueOf(' + self.int_expr(length) + ')') if length is not None else 'null'})"
         return out
+
+    def value_field(self, ref: E.Ref) -> str:
+        """field_expr for a use of the item's value (a number read, stored, compared or displayed): the one way a
+        COMP-1 / COMP-2 item is named (#4271)."""
+        self._value_use += 1
+        try:
+            return self.field_expr(ref)
+        finally:
+            self._value_use -= 1
+
+    def overlaps_float(self, it: L.Item) -> L.Item | None:
+        """The float item whose bytes `it` (not a float) covers -- as a group holding it, or a REDEFINES over it -- or
+        None. Items in the same table compare one occurrence; otherwise whole tables."""
+        if not self.float_extents or it.record is None:
+            return None
+        floats = self.float_extents.get(self.root_of.get(id(it.record), id(it.record)), [])
+        if not floats:
+            return None
+        first, full, tables = _extents(it)
+        for f, ffirst, ffull, ftables in floats:
+            a, b = (first, ffirst) if set(tables) & set(ftables) else (full, ffull)
+            if a[0] < b[1] and b[0] < a[1]:
+                return f
+        return None
+
+    def float_item(self, e) -> L.Item | None:
+        """The COMP-1 / COMP-2 item `e` names as a number (a reference modification names bytes: None)."""
+        if isinstance(e, E.Ref) and e.refmod is None:
+            try:
+                it = self.resolve(e)
+            except Untranslatable:
+                return None
+            return it if it.category == "FLOAT" else None
+        return None
+
+    def has_float(self, e) -> bool:
+        if isinstance(e, E.Ref):
+            return self.float_item(e) is not None
+        if isinstance(e, E.Bin):
+            return self.has_float(e.left) or self.has_float(e.right)
+        if isinstance(e, E.Neg):
+            return self.has_float(e.operand)
+        return False
+
+    def float_mode(self, exprs: list, receivers: list, multiply: bool = False) -> str | None:
+        """IBM's evaluation mode of an arithmetic statement (6.4 Programming Guide, SC27-8714-03, Appendix A,
+        "Floating-point data and intermediate results"): None (fixed point) unless a receiver or operand is COMP-1 /
+        COMP-2; then "SHORT" if every receiver and operand is COMP-1 and there is no multiplication or
+        exponentiation, else "LONG" (ARITH(COMPAT))."""
+        refs: list = list(receivers)
+        other = False  # an operand that is no data item (a literal, a function, a figurative)
+
+        def walk(e) -> None:
+            nonlocal other, multiply
+            if isinstance(e, E.Ref):
+                refs.append(e)
+            elif isinstance(e, E.Bin):
+                multiply = multiply or e.op in ("*", "**")
+                walk(e.left)
+                walk(e.right)
+            elif isinstance(e, E.Neg):
+                walk(e.operand)
+            else:
+                other = True
+
+        for e in exprs:
+            walk(e)
+        items = [self.float_item(r) for r in refs]
+        if not any(items):
+            return None
+        return (
+            "SHORT"
+            if not other and not multiply and all(x is not None and x.usage == "COMP-1" for x in items)
+            else "LONG"
+        )
+
+    @contextlib.contextmanager
+    def floating(self, mode: str | None):
+        outer, self.fmode = self.fmode, mode
+        try:
+            yield
+        finally:
+            self.fmode = outer
+
+    def fnum(self, e) -> str:
+        """A floating-point expression (self.fmode): HFP values as exact BigDecimals (cobolrt/Hfp) -- a float item
+        as it is, any other operand converted to long, each operation HFP's own (truncating, one guard digit)."""
+        lng = _b(self.fmode == "LONG")
+        if isinstance(e, E.Lit) and isinstance(e.value, Decimal):
+            return f"Hfp.of({self.const(e.value)})"
+        if isinstance(e, E.Fig) and e.kind == "ZEROS":
+            return "BigDecimal.ZERO"
+        if isinstance(e, E.Ref):
+            if self.float_item(e) is not None:
+                return f"Cobol.num({self.value_field(e)}, CS)"
+            with self.floating(None):
+                return f"Hfp.of({self.num(e)})"
+        if isinstance(e, E.Neg):
+            return f"{self.fnum(e.operand)}.negate()"
+        if isinstance(e, E.Bin):
+            if e.op == "**":
+                raise Untranslatable(
+                    "exponentiation in a floating-point expression (IBM's run-time routine is not documented bit for "
+                    "bit; oracle_assumptions.md C6)"
+                )
+            fn = {"+": "add", "-": "subtract", "*": "multiply", "/": "divide"}[e.op]
+            return f"Hfp.{fn}({self.fnum(e.left)}, {self.fnum(e.right)}, {lng})"
+        if isinstance(e, E.LengthOf):
+            with self.floating(None):
+                return f"Hfp.of({self.num(e)})"
+        if isinstance(e, E.Func):
+            raise Untranslatable(f"FUNCTION {e.name} in a floating-point expression (oracle_assumptions.md C6)")
+        raise Untranslatable(f"floating-point expression {type(e).__name__}")
 
     def int_expr(self, e) -> str:
         if isinstance(e, E.Lit) and isinstance(e.value, Decimal):
@@ -559,6 +683,11 @@ class Gen:
     @_reads
     def num(self, e) -> str:
         """A Java BigDecimal expression for an arithmetic expression."""
+        if self.fmode is not None:
+            return self.fnum(e)
+        if self.has_float(e):  # an expression with a float operand outside a statement's own mode: a comparand
+            with self.floating("LONG"):
+                return self.fnum(e)
         if isinstance(e, E.Lit):
             if isinstance(e.value, Decimal):
                 return self.const(e.value)
@@ -651,7 +780,7 @@ class Gen:
             return isinstance(e.value, Decimal)
         if isinstance(e, E.Ref):
             try:
-                return self.resolve(e).category in ("NUMERIC",)
+                return self.resolve(e).category in ("NUMERIC", "FLOAT")
             except Untranslatable:
                 return False
         if isinstance(e, (E.Bin, E.Neg, E.LengthOf)):
@@ -698,6 +827,8 @@ class Gen:
 
     def rel(self, op: str, a, b) -> str:
         jop = {"=": "==", ">": ">", "<": "<", ">=": ">=", "<=": "<="}[op]
+        if self.has_float(a) or self.has_float(b):
+            return self.rel_float(jop, a, b)
         lifted = self.rel_lifted(jop, a, b)
         if lifted is not None:
             return lifted
@@ -714,6 +845,17 @@ class Gen:
         if isinstance(a, E.Func) or isinstance(b, E.Func):
             return f"Cobol.compareText({self.text(a)}, {self.text(b)}) {jop} 0"
         raise Untranslatable("comparison of two non-data operands")
+
+    def rel_float(self, jop: str, a, b) -> str:
+        """A comparison with a COMP-1 / COMP-2 comparand, in floating point (IBM: "if either comparand is a
+        floating-point value"): long, unless both are COMP-1 items -- a fixed-point comparand converted to long."""
+        for x in (a, b):
+            if (isinstance(x, E.Fig) and x.kind != "ZEROS") or not (self.is_numeric(x) or isinstance(x, E.Fig)):
+                raise Untranslatable(f"a COMP-1 / COMP-2 item compared with a nonnumeric operand ({FLOAT_BYTES})")
+        fa, fb = self.float_item(a), self.float_item(b)
+        mode = "SHORT" if fa is not None and fb is not None and fa.usage == fb.usage == "COMP-1" else "LONG"
+        with self.floating(mode):
+            return f"{self.num(a)}.compareTo({self.num(b)}) {jop} 0"
 
     def cmp(self, a: E.Ref, b) -> str:
         fa = self.field_expr(a)
@@ -739,6 +881,8 @@ class Gen:
         if parent is None:
             raise Untranslatable(f"88 {cn.name}: no parent item")
         self.check_lift(parent)  # an 88 on a group holding a lifted item
+        if parent.category != "FLOAT" and self.overlaps_float(parent):
+            raise Untranslatable(f"88 {cn.name}: its item's bytes hold a COMP-1 / COMP-2 item ({FLOAT_BYTES})")
         f = self.ids.get(id(parent))
         if f is None:
             raise Untranslatable(f"88 {cn.name}: no item")
@@ -801,6 +945,11 @@ class Gen:
                     tests.append(self.rel("=", item, self.value_node(v)))
             return "(" + " || ".join(tests) + ")" if len(tests) > 1 else tests[0]
         f = self.cond_field(cn, subscripts)
+        if cn.parent is not None and cn.parent.category == "FLOAT":  # Cobol.compare: in floating point (long)
+            for v in cn.values:
+                for x in v[1:] if v[0] == "range" else [v]:
+                    if not (x[0] == "num" or x == ("fig", "ZEROS")):
+                        raise Untranslatable(f"88 {cn.name}: a nonnumeric value of a {cn.parent.usage} item")
         tests = []
         for v in cn.values:
             if v[0] == "range":
@@ -824,6 +973,8 @@ class Gen:
 
     # ---- moves --------------------------------------------------------------------------------------------------
     def move(self, src, target: E.Ref) -> str:
+        if self.float_item(target) is not None or self.float_item(src) is not None:
+            return self.move_float(src, target)
         lt = self.lift(target)
         if lt:
             return self.move_lifted(src, lt)
@@ -833,6 +984,35 @@ class Gen:
         if ls and self.resolve(target).category in ("NUMERIC", "NUMERIC-EDITED"):  # a number into a numeric item
             return f"Cobol.move({self.num(src)}, {self.field_expr(target)}, CS);"
         return self._move(src, target)
+
+    def move_float(self, src, target: E.Ref) -> str:
+        """A MOVE with a COMP-1 / COMP-2 sender or receiver (#4271): numbers only -- into a float, a numeric
+        literal, ZERO or a numeric item (converted to its precision); out of one, into a numeric or numeric-edited
+        item (rounded, IBM "Conversions and precision"). Its bytes never move (register C6)."""
+        tf, sf = self.float_item(target), self.float_item(src)
+        if tf is not None:
+            ft = self.value_field(target)
+            if isinstance(src, E.Lit) and isinstance(src.value, Decimal):
+                return f"Cobol.move({self.const(src.value)}, {ft}, CS);"
+            if isinstance(src, E.Fig) and src.kind == "ZEROS":
+                return f"Cobol.moveFigurative(Figurative.ZEROS, {ft}, CS);"
+            if isinstance(src, E.Ref) and (sf is not None or self.resolve(src).category == "NUMERIC"):
+                if self.lift(src):
+                    return f"Cobol.move({self.num(src)}, {ft}, CS);"
+                with self.reading():
+                    return f"Cobol.move({self.value_field(src)}, {ft}, CS);"
+            raise Untranslatable(f"MOVE of a nonnumeric operand to {tf.name} {tf.usage} ({FLOAT_BYTES})")
+        if sf is None:
+            raise Untranslatable("MOVE: no floating-point operand")
+        tcat = self.resolve(target).category
+        if tcat not in ("NUMERIC", "NUMERIC-EDITED"):
+            raise Untranslatable(f"MOVE {sf.name} {sf.usage} to a {tcat.lower()} item ({FLOAT_BYTES})")
+        lt = self.lift(target)
+        if lt:
+            return self.violate(lt[2])  # a typed target takes no rounded float: it stays byte storage
+        ft = self.field_expr(target)
+        with self.reading():
+            return f"Cobol.move({self.value_field(src)}, {ft}, CS);"
 
     def _move(self, src, target: E.Ref) -> str:
         ft = self.field_expr(target)
@@ -864,7 +1044,11 @@ class Gen:
         if lo:
             return [self.move(E.Fig("SPACES" if lo[0] == "X" else "ZEROS"), ref)]
         it = self.resolve(ref)
-        base = self.field_expr(ref)
+        self._init_bytes += 1  # walked to its elementary items below: a float among them is set to zero
+        try:
+            base = self.value_field(ref)
+        finally:
+            self._init_bytes -= 1
         out = []
 
         def walk(x: L.Item, redef: bool, shift: str) -> None:
@@ -902,7 +1086,7 @@ class Gen:
         return out
 
     def _init_one(self, x: L.Item, base: str, top: L.Item, extra: int = 0) -> str:
-        fig = "ZEROS" if x.category in ("NUMERIC", "NUMERIC-EDITED") else "SPACES"
+        fig = "ZEROS" if x.category in ("NUMERIC", "NUMERIC-EDITED", "FLOAT") else "SPACES"
         rel = x.offset - top.offset + extra
         return f"Cobol.moveFigurative(Figurative.{_fig(fig)}, {self.factory(x, f'{base}.storage()', f'{base}.offset() + {rel}')}, CS);"
 
@@ -922,6 +1106,8 @@ class Gen:
                 return f"Field.binary({storage}, {offset}, {it.digits}, {it.scale}, {_b(it.signed)}, {_b(it.usage == 'COMP-5')})"
             return (f"Field.zoned({storage}, {offset}, {it.digits}, {it.scale}, {_b(it.signed)}, "
                     f"{_b(it.sign_leading)}, {_b(it.sign_separate)})")  # fmt: skip
+        if cat == "FLOAT":  # #4271: IBM hexadecimal floating point, 4 (COMP-1) or 8 (COMP-2) bytes
+            return f"Field.hfp({storage}, {offset}, {_b(it.usage == 'COMP-2')})"
         if cat == "NUMERIC-EDITED":
             return (
                 f"Field.numericEdited({storage}, {offset}, {it.size}, {jstr(it.picture())}, {_b(it.blank_when_zero)})"
@@ -1027,8 +1213,23 @@ class Gen:
             fn = "displayNoAdvancing" if s.data["no_advancing"] else "display"
             return [c, f"{ind}Sysout.{fn}({', '.join(ops)});"]
         if k == "COMPUTE":
-            return [c, *self.store_all(s, s.data["targets"], self.num(s.data["expr"]), ind)]
+            mode = self.float_mode([s.data["expr"]], [t for t, _ in s.data["targets"]])
+            if mode is not None:
+                self.float_statement(s, s.data["targets"])
+            with self.floating(mode):
+                value = self.num(s.data["expr"])
+            return [c, *self.store_all(s, s.data["targets"], value, ind)]
         if k == "ARITH":
+            d = s.data
+            receivers = [t for t, _ in d.get("targets") or []] + [t for t, _ in d.get("giving") or []]
+            receivers += [d["remainder"]] if d.get("remainder") is not None else []
+            mode = self.float_mode(d["operands"], receivers, d["op"] in ("*", "*="))
+            if mode is not None:
+                self.float_statement(s, list(d.get("targets") or []) + list(d.get("giving") or []))
+                if d.get("remainder") is not None:
+                    raise Untranslatable(f"DIVIDE REMAINDER in floating point ({FLOAT_BYTES})")
+                with self.floating(mode):
+                    return [c, *self.arith_float(s, ind)]
             return [c, *self.arith(s, ind)]
         if k == "SET-POINTER":
             if s.data["target"] not in self.write_only_pointers:
@@ -1116,6 +1317,8 @@ class Gen:
         if lo and lo[0] == "X":
             return lo[1]
         if isinstance(o, E.Ref):
+            if self.float_item(o) is not None:  # IBM: as external floating point -.9(8)E-99 / -.9(17)E-99
+                return f"Cobol.displayText({self.value_field(o)}, CS)"
             return f"Cobol.displayText({self.field_expr(o)}, CS)"
         if isinstance(o, E.Lit):
             if isinstance(o.value, Decimal):
@@ -1129,6 +1332,43 @@ class Gen:
         if isinstance(o, E.Func):
             return self.text(o) if not self.is_numeric(o) else f"Cobol.displayNumber({self.num(o)})"
         raise Untranslatable(f"DISPLAY of {type(o).__name__}")
+
+    def float_statement(self, s: S.Stmt, targets: list) -> None:
+        """What a floating-point statement does not model: ON SIZE ERROR (HFP exponent overflow and underflow are
+        refused by name in the runtime) and ROUNDED into a float (its precision is the rounding)."""
+        if "SIZE-ERROR" in s.phrases or "NOT-SIZE-ERROR" in s.phrases:
+            raise Untranslatable(f"ON SIZE ERROR in a floating-point statement ({FLOAT_BYTES})")
+        for t, rounded in targets:
+            if rounded and self.float_item(t) is not None:
+                raise Untranslatable(f"ROUNDED into {t.name}, a floating-point item ({FLOAT_BYTES})")
+
+    def arith_float(self, s: S.Stmt, ind: str) -> list[str]:
+        """ADD / SUBTRACT / MULTIPLY / DIVIDE in floating point (self.fmode): as arith, each operation HFP's."""
+        d = s.data
+        op, ops = d["op"], d["operands"]
+        lng = _b(self.fmode == "LONG")
+        if d.get("giving") is not None:
+            if op in ("+", "-"):
+                val = self.fnum(ops[0])
+                for o in ops[1:]:
+                    val = f"Hfp.{'add' if op == '+' else 'subtract'}({val}, {self.fnum(o)}, {lng})"
+            else:
+                fn = "multiply" if op == "*" else "divide"
+                val = f"Hfp.{fn}({self.fnum(ops[0])}, {self.fnum(ops[1])}, {lng})"
+            return self.store_all(s, d["giving"], val, ind)
+        total = self.fnum(ops[0]) if ops else "BigDecimal.ZERO"
+        for o in ops[1:]:
+            total = f"Hfp.add({total}, {self.fnum(o)}, {lng})"
+        tsum = self.tmpname("t")
+        out = [f"{ind}BigDecimal {tsum} = {total};"]
+        for tgt, rounded in d["targets"]:
+            if not isinstance(tgt, E.Ref):
+                raise Untranslatable("arithmetic target is not a data item")
+            cur = self.fnum(tgt)
+            val = {"+=": f"Hfp.add({cur}, {tsum}, {lng})", "-=": f"Hfp.subtract({cur}, {tsum}, {lng})",
+                   "*=": f"Hfp.multiply({tsum}, {cur}, {lng})", "/=": f"Hfp.divide({cur}, {tsum}, {lng})"}[op]  # fmt: skip
+            out.append(ind + self.store_into(tgt, val, rounded))
+        return out
 
     def store_all(self, s: S.Stmt, targets: list, value: str, ind: str) -> list[str]:
         out = []
@@ -1160,7 +1400,7 @@ class Gen:
             it = lt[2]
             fn = "packed" if it.usage == "PACKED" else "zoned"
             return f"{lt[1]} = Cobol.{fn}({value}, {it.digits}, {it.scale}, {_b(it.signed)}, {_b(rounded)}, CS);"
-        return f"Cobol.store({self.field_expr(t)}, {value}, {_b(rounded)}, CS);"
+        return f"Cobol.store({self.value_field(t)}, {value}, {_b(rounded)}, CS);"
 
     def arith(self, s: S.Stmt, ind: str) -> list[str]:
         d = s.data
@@ -1768,6 +2008,23 @@ JAVA_RESERVED = {"abstract", "assert", "boolean", "break", "byte", "case", "catc
 METHODS_TAKEN = {"initialState", "perform", "run", "runTask", "runBatch", "runProgram", "handleCall", "handleTransaction", "handleLink",
                  "store", "condition", "paragraph", "dd", "cx", "task", "files", "datasets", "clock", "handlers",
                  "stores", "heldKey", "caBack", "fields0", "fields1", "fields2", "fields3"}  # fmt: skip
+
+
+FLOAT_BYTES = "IBM hexadecimal floating point on z/OS, IEEE on the oracle: oracle_assumptions.md C6"
+
+
+def _extents(it: L.Item) -> tuple[tuple[int, int], tuple[int, int], list[int]]:
+    """An item's bytes within its record: its first occurrence, the whole of its outermost table, and the ids of
+    the OCCURS items it lies in."""
+    first = (it.offset, it.offset + it.size * it.occurs)
+    full, tables = first, []
+    a: L.Item | None = it
+    while a is not None:
+        if a.occurs > 1:
+            tables.append(id(a))
+            full = (a.offset, a.offset + a.size * a.occurs)
+        a = a.parent
+    return first, full, tables
 
 
 def camel(cobol: str) -> str:

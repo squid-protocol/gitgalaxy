@@ -8,15 +8,15 @@ The status above judges the record alone (policy: ported_unproven = block). Whet
 
 | | |
 |---|---|
-| proof | proven at 2026-10-06T14:45:30Z, harness `a8d9c220ff2464374724a076549469a9b6d2207f+uncommitted` |
-| inputs digest | `d1625868a3858464f6f62d2e1528897118f8a054d29b59d90a128029d09e30d4` |
+| proof | proven at 2026-10-06T14:59:38Z, harness `87bd7c4887ec8db3b9edef203d9fae675502d0a3` |
+| inputs digest | `c9490cab385470a1f4eb860c29488ae45b7b87807684b8a5466dd5cb9ec1e288` |
 | port | 1 files `27850a55de9e241e` |
 | case | 4 files `148af5f69abed6ac` |
 | corpus | aws-mainframe-modernization-carddemo @ `59cc6c2fd7ebd7ef7925cad552a01a4b8b6e4d5e` `d0c4803872ec126e` |
 | differences |  `4f53cda18c2baa0c` |
 | harness | 11 files `67d72ccabb13fb58` |
 | oracle | 16 files `fe66479a555d6d3a` |
-| generator | 60 files `f9b723c382e04184` |
+| generator | 62 files `3c8155b508f453e3` |
 | oracle run | gnucobol-models: cobc (GnuCOBOL) 3.1.2.0, image `sha256:d7e387df360c` (matches pin: True) |
 | written by | person (Joe Esquibel) |
 

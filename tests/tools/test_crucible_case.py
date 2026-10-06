@@ -220,5 +220,5 @@ def test_the_crucibles_python_never_imports_the_spec():
     if crucible is None:
         pytest.skip("no cics-crucible checkout (CICS_CRUCIBLE_PATH)")
     for script in sorted(crucible.rglob("*.py")):
-        src = script.read_text(encoding="utf-8", errors="replace")
+        src = script.read_text(encoding="utf-8")
         assert not any("CICS command spec" in p for p in ccase.hand_derived_problems(src, str(script))), script

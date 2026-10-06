@@ -167,9 +167,10 @@ def main(argv: Sequence[str] | None = None) -> int:
         if args.json:
             print(json.dumps(data, indent=2, sort_keys=True))
             return 0
-        for key, c in data["commands"].items():
-            print(f"{key:<18} {c['status']:<9} {c['register'] or '-':<4} options {len(c['options']):>3}  "
-                  f"refused {len(c['refused']):>3}  outcomes {len(c['outcomes']):>2}  {c['ibm']['url']}")  # fmt: skip
+        for key, c in _commands().items():  # (the entries themselves: same order as data["commands"])
+            if key in data["commands"]:
+                print(f"{key:<18} {c.status:<9} {c.register or '-':<4} options {len(c.options):>3}  "
+                      f"refused {len(c.refused):>3}  outcomes {len(c.outcomes):>2}  {c.ibm.url}")  # fmt: skip
         print(f"DFHRESP {len(data['dfhresp'])} names, {len(data['condition_abend'])} default abend codes")
         return 0
     if args.cmd == "check":

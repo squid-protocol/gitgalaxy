@@ -75,7 +75,7 @@ verdict, but it limits what the proof says about inputs outside the scenarios.
 | F1 | files | Natural FILE STATUS values come from GnuCOBOL's BDB files | ASSUMED | yes (00, 10, 23, 22) |
 | F2 | files | Fault FILE STATUS values are injected on both sides | MATCHED | yes |
 | F3 | files | RECFM=VB: records compared by content, framed as GnuCOBOL frames them, not as a z/OS RDW | ASSUMED | yes (CardDemo READACCT VBRCFILE) |
-| F4 | files | JCL utility steps (SORT, IDCAMS, IEBGENER) are not run | — | — |
+| F4 | files | JCL utility steps (SORT, IDCAMS, IEBGENER) are not run; the COBOL SORT / MERGE verbs are translated (#4268) | REFUSED (utility steps) | — |
 | X1 | CICS | Commands, RESP/RESP2 and EIB from IBM's API reference | ASSUMED | yes |
 | X2 | CICS | Screens compared as the symbolic map, not the 3270 stream | ASSUMED | yes |
 | X3 | CICS | Backout: recoverable files and Db2 undone, RECOVERY(NONE) files kept | MATCHED | yes (CBSA INQACC) |
@@ -288,6 +288,12 @@ verdict, but it limits what the proof says about inputs outside the scenarios.
   - space sorts before both.
 - **Keys.** Indexed files are browsed in ASCII order on both sides (`equivalence.COLLATION`). CardDemo's keys sort the
   same either way. Keys mixing letters and digits would not.
+- **SORT / MERGE under an alphabet (#4268).** `ALPHABET ... IS EBCDIC` orders by code page 037 on z/OS (the default
+  CODEPAGE(1140)'s order); GnuCOBOL uses its own ASCII-to-EBCDIC table, which agrees for every 7-bit character but
+  `[ ] ^ |` and for no byte above X'7F'. A literal alphabet's THRU ranges and its unnamed characters follow the
+  native set: EBCDIC on z/OS, the data's bytes in GnuCOBOL. The det runtime (`Sort.Collating`) keeps both orders,
+  sorts by IBM's, and stops by name on a pair of keys the two order differently, so a proven sort is IBM's. A key
+  under an alphabet must hold characters only (a packed or binary byte is the same byte in both code pages).
 - **In-program comparisons.** `Cobol.compare` is byte order in the data's code page. No audit has counted the
   relational comparisons whose result could change between ASCII and EBCDIC.
 - **A migration decision as much as an oracle gap.** A port that will run on ASCII data either keeps ASCII order (a
@@ -343,8 +349,25 @@ verdict, but it limits what the proof says about inputs outside the scenarios.
 
 ### F4. JCL utility steps — out of scope
 - A batch case runs one program step.
-- SORT, IDCAMS, IEBGENER and DFSORT steps are not run. The COBOL SORT verb is not translated by the det port (a
-  hole).
+- SORT, IDCAMS, IEBGENER and DFSORT steps are not run. The generated batch job refuses a utility step by name
+  (`JclSteps.utility`: the job fails on its TODO, or with `gitgalaxy.batch.skip-unimplemented` the step is logged as
+  skipped; never a silent success).
+  Next slice of #4268: DFSORT / ICETOOL control cards (SORT FIELDS, INCLUDE / OMIT, OUTREC / INREC, SUM), IEBGENER
+  and an IDCAMS REPRO / DEFINE subset in the oracle, and a multi-step job case.
+- The COBOL SORT / MERGE / RELEASE / RETURN verbs and the SD entry are translated (#4286), onto `cobolrt/Sort`:
+  - Keys compare as a relation condition compares their items: a numeric key (zoned, packed, binary, signed or
+    not) by value, any other byte by byte. WITH DUPLICATES IN ORDER is a stable sort; without it, records with
+    equal keys and different bytes stop the run by name (IBM: their order is undefined). A MERGE input out of key
+    order stops the run by name.
+  - USING / GIVING files are opened, read or written and closed implicitly; their FILE STATUS items are left as
+    they were (GnuCOBOL does not set them; IBM's depends on FASTSRT).
+  - COLLATING SEQUENCE (or PROGRAM COLLATING SEQUENCE): NATIVE, STANDARD-1 and STANDARD-2 are the data's byte order
+    (D1). EBCDIC and literal alphabets (#4268) order the alphanumeric keys; see D1 for where IBM and GnuCOBOL
+    differ.
+  - Refused by name: SORT of a table (format 2), a key under OCCURS, an SD whose records differ in length, a USING /
+    GIVING file whose records are not the SD record's length, SORT-RETURN set by the program (16 ends a sort), an
+    alphabet ordinal (a numeric literal names a native code: EBCDIC on z/OS), HIGH-VALUE / LOW-VALUE in an
+    alphabet, and a group key holding numeric items under an alphabet.
 
 ## CICS (`ggcics.c`)
 

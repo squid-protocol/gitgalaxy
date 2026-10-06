@@ -112,14 +112,39 @@ def fd_entries(lines: list[Line]) -> dict[str, dict[str, Any]]:
     return out
 
 
-def alphabets(lines: list[Line]) -> tuple[dict[str, str], str | None]:
-    """SPECIAL-NAMES: alphabet-name -> its definition's first word (STANDARD-1, NATIVE, EBCDIC, a literal ...), and
-    OBJECT-COMPUTER's PROGRAM COLLATING SEQUENCE alphabet-name (or None)."""
+# an ALPHABET clause's definition: a literal (quotes doubled inside), a word, or one other character
+_ALPHABET_TOKEN = re.compile(r"'(?:[^']|'')*'|\"(?:[^\"]|\"\")*\"|[A-Z0-9][A-Z0-9-]*|\S", re.I)
+# the words a literal alphabet is made of besides its literals: THRU / ALSO and the figurative constants
+_ALPHABET_WORDS = {"THRU", "THROUGH", "ALSO", "SPACE", "SPACES", "ZERO", "ZEROS", "ZEROES", "QUOTE", "QUOTES",
+                   "HIGH-VALUE", "HIGH-VALUES", "LOW-VALUE", "LOW-VALUES"}  # fmt: skip
+
+
+def alphabets(lines: list[Line]) -> tuple[dict[str, list[str]], str | None]:
+    """SPECIAL-NAMES: alphabet-name -> its definition's tokens ([STANDARD-1], [NATIVE], [EBCDIC], or a literal
+    alphabet's literals -- quotes kept -- with THRU / ALSO and figurative constants), and OBJECT-COMPUTER's PROGRAM
+    COLLATING SEQUENCE alphabet-name (or None). A literal alphabet runs to the period or the next clause's word; a
+    token no literal alphabet has (a hexadecimal literal ...) ends it with "?", which the translator refuses."""
     text = " ".join(ln.text for ln in lines)
     m = re.search(r"\bPROCEDURE\s+DIVISION\b", text, re.I)
     head = text[: m.start()] if m else text
-    names = {a.group(1).upper(): a.group(2).upper().rstrip(".")
-             for a in re.finditer(r"\bALPHABET\s+([A-Z0-9-]+)\s+(?:IS\s+)?(\S+)", head, re.I)}  # fmt: skip
+    names: dict[str, list[str]] = {}
+    for a in re.finditer(r"\bALPHABET\s+([A-Z0-9-]+)\s+(?:FOR\s+ALPHANUMERIC\s+)?(?:IS\s+)?", head, re.I):
+        toks = list(_ALPHABET_TOKEN.finditer(head, a.end()))
+        first = toks[0].group(0).upper() if toks else "?"
+        if first[0].isalpha() and first not in _ALPHABET_WORDS:
+            names[a.group(1).upper()] = [first.rstrip(".")]  # STANDARD-1, NATIVE, EBCDIC ...
+            continue
+        out: list[str] = []
+        for t in toks:
+            w = t.group(0)
+            if w[0] in "'\"" or w.isdigit() or w.upper() in _ALPHABET_WORDS:
+                out.append(w if w[0] in "'\"" else w.upper())
+            elif w == "." or (w[0].isalpha() and head[t.end() : t.end() + 1] not in ("'", '"')):
+                break  # the clause's period, or the next clause
+            else:
+                out.append("?")
+                break
+        names[a.group(1).upper()] = out
     pc = re.search(r"\bPROGRAM\s+COLLATING\s+SEQUENCE\s+(?:IS\s+)?([A-Z0-9-]+)", head, re.I)
     return names, pc.group(1).upper() if pc else None
 
@@ -1160,6 +1185,17 @@ def _cics_parts(gen: G.Gen, records: list, roots: dict, proc: S.Procedure,
         "    /** Writes the COMMAREA's bytes back into the object the task carries (a LINKed program's is its caller's). */",
         "    private Runnable caBack = () -> { };",
         "",
+        # #4534: a local LINK passes the caller's own storage (IBM, COMMAREA in LINK and XCTL commands: "the address
+        # of the area is passed"), so what a LINKed program wrote there before an abend ended it stays the caller's.
+        # Level 1 (a transaction, a DPL server's mirror task) keeps nothing: no local caller shares its COMMAREA.
+        "    /** The program ends because of an abend: a LINKed program's COMMAREA writes stay its caller's. */",
+        "    private Goback abended() {",
+        "        if (task.level() > 1) {",
+        "            caBack.run();",
+        "        }",
+        "        return new Goback();",
+        "    }",
+        "",
         '    @SuppressWarnings("unchecked")',
         "    private <E> DetCics.Store<E> store(String name) {",
         *(
@@ -1211,7 +1247,7 @@ def _cics_parts(gen: G.Gen, records: list, roots: dict, proc: S.Procedure,
         "        }",
         "        String label = task.abendOnCondition(cond);",
         "        if (label == null) {",
-        "            throw new Goback();",
+        "            throw abended();",
         "        }",
         "        return paragraph(label);",
         "    }",

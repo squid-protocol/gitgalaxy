@@ -169,9 +169,9 @@ class Gen:
         self.dto_codecs: Cics | None = None
         self.dto_codecs_factory: Callable[[], Cics] | None = None
         self.entities: set = set()
-        # SPECIAL-NAMES alphabets (name -> first word of the definition) and PROGRAM COLLATING SEQUENCE: a SORT /
-        # MERGE's collating sequence
-        self.alphabets: dict[str, str] = {}
+        # SPECIAL-NAMES alphabets (name -> the definition's tokens, program.alphabets) and PROGRAM COLLATING
+        # SEQUENCE: a SORT / MERGE's collating sequence
+        self.alphabets: dict[str, list[str]] = {}
         self.program_collating: str | None = None
 
     # ---- references ---------------------------------------------------------------------------------------------
@@ -1568,13 +1568,7 @@ class Gen:
         d, verb = s.data, s.kind
         sd = self.sort_file(d["file"])
         var = f"sort_{jname(sd.select)}"
-        collating = d["collating"] or self.program_collating
-        if collating is not None:
-            kind = self.alphabets.get(collating)
-            # NATIVE: the data's own order, as without the phrase (register D1); STANDARD-1: ASCII, which the
-            # harness's ISO-8859-1 data is in byte order. Any other alphabet is not modelled.
-            if kind not in ("NATIVE", "STANDARD-1"):
-                raise Untranslatable(f"{verb} COLLATING SEQUENCE {collating} ({kind or 'no ALPHABET'}): not modelled")
+        coll = self.collating(verb, d["collating"] or self.program_collating)
         keys = []
         for ref, asc in d["keys"]:
             it = self.resolve(ref)
@@ -1585,8 +1579,16 @@ class Gen:
                 raise Untranslatable(f"{verb} KEY {ref.name}: not in a record of {sd.fd}")
             if _occurs_chain(it) or it.depending:
                 raise Untranslatable(f"{verb} KEY {ref.name}: under an OCCURS")
+            if coll and it.category != "NUMERIC" and not _text_item(it):
+                # the alphabet orders characters: a packed, binary or zoned byte is no character of the data's
+                # code page (on z/OS its byte is the same in ASCII and EBCDIC; a character's is not)
+                raise Untranslatable(f"{verb} KEY {ref.name}: holds numeric or national items, under COLLATING "
+                                     f"SEQUENCE {d['collating'] or self.program_collating}: not modelled")  # fmt: skip
             keys.append(f"new Sort.Key(r -> {self.factory(it, 'r', str(it.offset))}, {_b(asc)})")
-        out = [f"{ind}{var} = new Sort({jstr(sd.fd or sd.select)}, {sd.sort_length}, {_b(d['duplicates'])}, CS,"]
+        out = [
+            f"{ind}{var} = new Sort({jstr(sd.fd or sd.select)}, {sd.sort_length}, {_b(d['duplicates'])}, CS,"
+            + (f" {coll}," if coll else "")
+        ]
         out += [f"{ind}        {k}{',' if n < len(keys) - 1 else ');'}" for n, k in enumerate(keys)]
         if d["input"] is not None:
             out += self.procedure_range(d["input"], ind)
@@ -1602,6 +1604,59 @@ class Gen:
         out.append(f"{ind}{var} = null;")
         out.append(f"{ind}Cobol.store({self.field_expr(E.Ref('SORT-RETURN'))}, BigDecimal.ZERO, false, CS);")
         return out
+
+    def collating(self, verb: str, name: str | None) -> str | None:
+        """The SORT / MERGE's COLLATING SEQUENCE (or PROGRAM COLLATING SEQUENCE) alphabet as a Sort.Collating, or None
+        for the data's byte order: NATIVE (register D1), STANDARD-1 / STANDARD-2 (ASCII / ISO 646, which the
+        harness's ISO-8859-1 data is in byte order). EBCDIC and a literal alphabet (literals, THRU, ALSO, SPACE /
+        ZERO / QUOTE) are modelled; an ordinal (a numeric literal names a code of the native set: EBCDIC on z/OS),
+        HIGH-VALUE / LOW-VALUE and anything else are refused by name."""
+        if name is None:
+            return None
+        defn = self.alphabets.get(name) or []
+        kind = defn[0] if defn else "no ALPHABET"
+        what = f"{verb} COLLATING SEQUENCE {name}"
+        if kind in ("NATIVE", "STANDARD-1", "STANDARD-2"):
+            return None
+        if kind == "EBCDIC":
+            return f"Sort.Collating.ebcdic({jstr(name)}, CS)"
+        if not (kind[0] in "'\"" or kind in ("SPACE", "SPACES", "ZERO", "ZEROS", "ZEROES", "QUOTE", "QUOTES")):
+            raise Untranslatable(f"{what} ({kind}): not modelled")
+        figurative = {"SPACE": " ", "SPACES": " ", "ZERO": "0", "ZEROS": "0", "ZEROES": "0", "QUOTE": '"',
+                      "QUOTES": '"'}  # fmt: skip
+
+        def chars(t: str) -> str:
+            if t[0] in "'\"":
+                return t[1:-1].replace(t[0] * 2, t[0])
+            if t in figurative:
+                return figurative[t]
+            raise Untranslatable(f"{what}: {t} in the alphabet (an ordinal names a code of the native set, EBCDIC on "
+                                 f"z/OS; HIGH-VALUE / LOW-VALUE): not modelled")  # fmt: skip
+
+        entries, i = [], 0
+        while i < len(defn):
+            first = chars(defn[i])
+            if not first:
+                raise Untranslatable(f"{what}: an empty literal")
+            i += 1
+            if i < len(defn) and defn[i] in ("THRU", "THROUGH"):
+                last = chars(defn[i + 1]) if i + 1 < len(defn) else ""
+                if len(first) != 1 or len(last) != 1:
+                    raise Untranslatable(f"{what}: THRU between literals of one character only")
+                entries.append("T" + first + last)
+                i += 2
+                continue
+            group = first
+            while i < len(defn) and defn[i] == "ALSO":
+                also = chars(defn[i + 1]) if i + 1 < len(defn) else ""
+                if len(first) != 1 or len(also) != 1:
+                    raise Untranslatable(f"{what}: ALSO between literals of one character only")
+                group += also
+                i += 2
+            entries += ["A" + group] if len(group) == 1 or len(first) == 1 else ["A" + c for c in group]
+        if not entries:
+            raise Untranslatable(f"{what}: an empty alphabet")
+        return f"Sort.Collating.alphabet({jstr(name)}, CS, {', '.join(jstr(e) for e in entries)})"
 
     def _sort_io_file(self, verb: str, sd: FileDef, name: str) -> tuple[FileDef, L.Item]:
         """A USING / GIVING file and its record (checked present, so callers get it as a non-optional Item)."""
@@ -1746,6 +1801,15 @@ def _occurs_chain(it: L.Item) -> list[L.Item]:
             chain.append(a)
         a = a.parent
     return list(reversed(chain))
+
+
+def _text_item(it: L.Item) -> bool:
+    """Every elementary item of `it` (itself, or a group's) holds characters: alphanumeric, alphabetic or edited,
+    USAGE DISPLAY, not national / DBCS."""
+    if it.children:
+        return all(_text_item(c) for c in it.children)
+    return (it.usage == "DISPLAY" and not set(it.picture()) & set("NG")
+            and it.category in ("ALPHANUMERIC", "ALPHABETIC", "NUMERIC-EDITED", "ALPHANUMERIC-EDITED"))  # fmt: skip
 
 
 def _b(v: bool) -> str:

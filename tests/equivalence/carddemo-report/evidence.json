@@ -7,7 +7,7 @@
   "paths": [
    "tests/equivalence/carddemo-report/port/service/Corpt00cService.java"
   ],
-  "sha256": "b6685323c338c7029321cf54cac3148a8b6537d66ea14d36918d2863f1978404",
+  "sha256": "62b729618337c21143a48121d2864bc387d43c17c6860daedaf7ebdb65065dfd",
   "entry_points": [
    "handleTransaction",
    "runTask"
@@ -20,7 +20,7 @@
     "tests/equivalence/carddemo-dateutil/port/**"
    ],
    "files": 2,
-   "sha256": "d74f4487361655ea48f2a795422e8c509e903c61e025fdc08aefb31895cf2baa"
+   "sha256": "cc426f9415fc24899ac9a9862399d6e871722e9b305b99ab81e4dda79a5afb2e"
   },
   "case": {
    "paths": [
@@ -44,7 +44,7 @@
     "tests/tools/java_target_matrix.py"
    ],
    "files": 11,
-   "sha256": "cd0c22f11e735f25b3d655aac6b89670b07cba2e23856c7c825291b64fa994c5"
+   "sha256": "304049dfdcedf444507b3d008cb8a9e020ba663f927b0d53954ff5c7ef95f7ea"
   },
   "oracle": {
    "paths": [
@@ -57,14 +57,14 @@
     "tests/tools/equivalence_sql.py"
    ],
    "files": 16,
-   "sha256": "ee924d311b67148f9104af7158c534cc2fb9a50bb35ca6f7758d6a40efda414c"
+   "sha256": "fe66479a555d6d3a4a6e9604c387f1b5da27762b8d6a8b2deacfa0c502130280"
   },
   "generator": {
    "paths": [
     "gitgalaxy/tools/cobol_to_java/**"
    ],
    "files": 60,
-   "sha256": "d732e7f21fab2ba4f65c7a3dcf403d1f341479111a3a0d757cbacd167c1a2daa"
+   "sha256": "4fa390383fcd211159dbd10b63062eca5b1046c24dfec7b7186e96819cac6e49"
   },
   "corpus": {
    "name": "aws-mainframe-modernization-carddemo",
@@ -74,10 +74,10 @@
   "differences": {
    "sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
   },
-  "digest": "538e0bc6bd717487c2eb319c247d8c73735e15cfa83eec16964a687fd06294d6"
+  "digest": "6010e7c96f866bac41771308973be84d91b6386b98265fe042cfd5343652faf2"
  },
  "proof": {
-  "at": "2026-10-05T14:52:47Z",
+  "at": "2026-10-06T04:34:52Z",
   "verdict": "proven",
   "runs": 16,
   "fault_runs": 1,
@@ -162,8 +162,8 @@
    "failed": [],
    "error": null
   },
-  "harness_commit": "af9e62c055439d3c758d2a794a211fa28ad41e41+uncommitted",
-  "inputs_digest": "538e0bc6bd717487c2eb319c247d8c73735e15cfa83eec16964a687fd06294d6"
+  "harness_commit": "3c9c8b7dff17234bdfcf1e11088bcbe460580372+uncommitted",
+  "inputs_digest": "6010e7c96f866bac41771308973be84d91b6386b98265fe042cfd5343652faf2"
  },
  "coverage": {
   "paragraphs": {
@@ -295,7 +295,7 @@
    "total": 0
   },
   "source": "the proof's own traced COBOL runs (cobol_coverage.py)",
-  "inputs_digest": "538e0bc6bd717487c2eb319c247d8c73735e15cfa83eec16964a687fd06294d6"
+  "inputs_digest": "6010e7c96f866bac41771308973be84d91b6386b98265fe042cfd5343652faf2"
  },
  "reach": {
   "entry_points": [
@@ -306,19 +306,19 @@
    {
     "class": "Corpt00cService",
     "method": "handleLink",
-    "line": 154,
+    "line": 153,
     "kind": "left_as_generated"
    },
    {
     "class": "Corpt00cService",
     "method": "writeqTdJobsL517",
-    "line": 645,
+    "line": 644,
     "kind": "left_as_generated"
    },
    {
     "class": "Corpt00cService",
     "method": "submitTrnrpt00L517",
-    "line": 650,
+    "line": 649,
     "kind": "stub"
    }
   ],
@@ -328,7 +328,7 @@
    "ported_unproven": 0
   },
   "generated_compared": true,
-  "port_sha256": "b6685323c338c7029321cf54cac3148a8b6537d66ea14d36918d2863f1978404"
+  "port_sha256": "62b729618337c21143a48121d2864bc387d43c17c6860daedaf7ebdb65065dfd"
  },
  "mutation": null,
  "differences": [],
@@ -356,11 +356,11 @@
    },
    {
     "path": "tests/equivalence/cics/DFHEIBLK.cpy",
-    "sha256": "fa4e0e29e8155a653c685420eb159fc5ec491ccf8eba13ccac1eb4962692fcf0"
+    "sha256": "ab7fe78f8e8496673924ed6a663619a320a48efcc474899b033c92c9fda48461"
    },
    {
     "path": "tests/equivalence/cics/ggcics.c",
-    "sha256": "2aff8a7a22af537b24cb03caafe4d6df30c30fde1cb6f548ba376616e6617214"
+    "sha256": "5d1950c7e6a9a0053304c0020175888ce25961f59235ee78799691df2036a1ee"
    },
    {
     "path": "tests/equivalence/db2/SQLCA.cpy",
@@ -427,7 +427,7 @@
   "provenance_file": {
    "path": "tests/equivalence/carddemo-report/port/provenance.json",
    "format": "porting-loop-provenance/1",
-   "sha256": "3bef8f74504571daa09271507daf0f7948f090e70077f92e7252434f6f0bbee6"
+   "sha256": "ee5e9e48afe6b29a22573109d42bf2da40f2ebf4ad3764dfbf200de371cfb1dc"
   }
  },
  "approvals": []

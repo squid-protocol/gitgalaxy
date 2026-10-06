@@ -35,16 +35,6 @@ public class Lgapvs01Service {
     private final ObjectProvider<LgstsqService> lgstsqService;
     private final WfPolicyInfoRepository wfPolicyInfoRepository;
 
-    /** A CICS transaction entered the program (#4343): one task of it in the region (CicsTask.region()),
-     *  ENTER pressed -- `request` its COMMAREA, null when started from a cleared screen -- run through runTask. Returns the COMMAREA its RETURN passes on (null: none). */
-    public Lgapvs01Dfhcommarea handleTransaction(String transid, Lgapvs01Dfhcommarea request) {
-        log.info("Lgapvs01: handleTransaction");
-        CicsTask.Region region = CicsTask.region();
-        CicsTask task = region.transaction(transid, request);
-        region.run(task, "LGAPVS01", this::runTask);
-        return task.returned(Lgapvs01Dfhcommarea.class);
-    }
-
     /** One task of LGAPVS01 (VSAM KSDS policy record ADD). */
     public void runTask(CicsTask task) {
         log.info("Lgapvs01: runTask");

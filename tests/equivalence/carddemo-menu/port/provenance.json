@@ -27,6 +27,16 @@
    "replaced": [
     "handleTransaction"
    ]
+  },
+  {
+   "at": "2026-10-06T04:27:42+00:00",
+   "event": "resurfaced",
+   "by": "tests/tools/port_surface.py",
+   "generator_commit": "3c9c8b7df",
+   "generated_from": "service/Comen01cService.java",
+   "replaced": [
+    "handleTransaction"
+   ]
   }
  ]
 }

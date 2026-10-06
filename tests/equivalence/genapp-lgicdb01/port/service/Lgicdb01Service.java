@@ -39,16 +39,6 @@ public class Lgicdb01Service {
     private final ObjectProvider<LgstsqService> lgstsqService;
     private final CustomerRepository customerRepository;
 
-    /** A CICS transaction entered the program (#4343): one task of it in the region (CicsTask.region()),
-     *  ENTER pressed -- `request` its COMMAREA, null when started from a cleared screen -- run through runTask. Returns the COMMAREA its RETURN passes on (null: none). */
-    public Lgicdb01Dfhcommarea handleTransaction(String transid, Lgicdb01Dfhcommarea request) {
-        log.info("Lgicdb01: handleTransaction");
-        CicsTask.Region region = CicsTask.region();
-        CicsTask task = region.transaction(transid, request);
-        region.run(task, "LGICDB01", this::runTask);
-        return task.returned(Lgicdb01Dfhcommarea.class);
-    }
-
     /** One task of LGICDB01: MAINLINE SECTION, GET-CUSTOMER-INFO, WRITE-ERROR-MESSAGE. */
     public void runTask(CicsTask task) {
         log.info("Lgicdb01: runTask");

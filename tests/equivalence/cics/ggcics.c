@@ -1182,7 +1182,7 @@ enum { ERRCOND = 1 };
 
 typedef struct {
     short cond[NCOND]; /* >0 label index, -1 IGNORE, 0 default */
-    short aid[40];     /* HANDLE AID (#4007): per key (aid_keys), its label index, 0 none */
+    short aid[40];     /* HANDLE AID (#4007): per key (aid_keys), its label index, 0 none, -1 deactivated (#4414) */
     int exit_label;    /* HANDLE ABEND LABEL index, 0 none */
     int exit_active;   /* deactivated when it gets control (IBM, abend recovery) */
     char exit_name[31];
@@ -1303,7 +1303,7 @@ static const struct { const char *name; char eibaid; } aid_keys[] = {
 };
 #define NAIDS ((int)(sizeof aid_keys / sizeof aid_keys[0]))
 
-/* HANDLE AID <key>(label): the key (GG-NAME1) gets label GG-ITEM; 0 deactivates it ("To ignore
+/* HANDLE AID <key>(label): the key (GG-NAME1) gets label GG-ITEM; -1 deactivates it ("To ignore
  * an AID, issue a HANDLE AID command that specifies the associated option without a label"). */
 int GGCHAID(gg_cics *c) {
     char key[9];
@@ -1319,7 +1319,9 @@ int GGCHAID(gg_cics *c) {
 /* After an input command that completed normally, with neither RESP nor NOHANDLE: the label of
  * the key that was pressed (the EIBAID byte in GG-NAME1), else ANYKEY's for a PA / PF key or CLEAR,
  * else 0 -- "control returns to the application program at the instruction immediately following
- * the input command" (IBM, HANDLE AID). */
+ * the input command" (IBM, HANDLE AID). #4414: called first with the condition the command raised
+ * (GG-RESP not 0): when a label applies to the key, which of the two CICS acts on first is not
+ * documented, so it is recorded as AID-REFUSED for the driver to refuse, and control goes on. */
 int GGCAID(gg_cics *c) {
     handlers *h = &levels[lvl].h;
     char aid = c->name1[0];
@@ -1327,9 +1329,18 @@ int GGCAID(gg_cics *c) {
     for (int i = 1; i < NAIDS; i++) {
         if (aid_keys[i].eibaid != aid) continue;
         if (h->aid[i] > 0) c->go_to = h->aid[i];
-        else if (h->aid[0] > 0 && (aid_keys[i].name[0] == 'P' || strcmp(aid_keys[i].name, "CLEAR") == 0))
+        else if (h->aid[0] > 0 && (aid_keys[i].name[0] == 'P' || strcmp(aid_keys[i].name, "CLEAR") == 0)) {
+            /* #4414: a key deactivated (-1) while ANYKEY has a label: IBM does not say which applies */
+            if (h->aid[i] < 0) { event("AID-REFUSED deactivated=1", NULL, 0); return 0; }
             c->go_to = h->aid[0];
+        }
         break;
+    }
+    if (c->resp != NORMAL && c->go_to > 0) {
+        char ev[64];
+        snprintf(ev, sizeof ev, "AID-REFUSED resp=%d", c->resp);
+        event(ev, NULL, 0);
+        c->go_to = 0;
     }
     return 0;
 }

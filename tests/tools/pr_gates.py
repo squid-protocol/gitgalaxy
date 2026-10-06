@@ -175,6 +175,19 @@ def ratchets() -> list[Ratchet]:
             _need_ports,
         ),  # fmt: skip
         Ratchet(
+            "port-surface",
+            [
+                PY,
+                t + "port_surface.py",
+                "equivalence",
+                "--work",
+                str(Path(tempfile.gettempdir()) / "gitgalaxy-port-surface"),
+                "--check",
+            ],
+            "python tests/tools/port_surface.py equivalence --work DIR   (then re-prove: python tests/tools/evidence.py prove CASE ...)",
+            _need_corpora,
+        ),  # fmt: skip
+        Ratchet(
             "estate",
             [PY, t + "estate_crucible_gate.py"],
             "python tests/tools/estate_crucible_gate.py --update-baseline   (commit tests/estate_crucible/baseline.json)",

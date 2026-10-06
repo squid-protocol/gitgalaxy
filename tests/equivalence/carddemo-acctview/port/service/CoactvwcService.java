@@ -58,7 +58,7 @@ public class CoactvwcService {
      *  own record, so a port may pass either record -- the facade carries it as Object where a flow
      *  presents another class, and runTask reads it (task.commarea(..)). The flows:
      *  out: RETURN TRANSID(CPVS) COMMAREA(CARDDEMO-COMMAREA) at app/app-authorization-ims-db2-mq/cbl/COPAUS0C.cbl:254 -> app/app-authorization-ims-db2-mq/cbl/COPAUS0C.cbl, after an XCTL from app/cbl/COACTVWC.cbl (Copaus0cCarddemoCommarea besides CoactvwcCommarea).
-     *  out: RETURN TRANSID(CPVD) COMMAREA(CARDDEMO-COMMAREA) at app/app-authorization-ims-db2-mq/cbl/COPAUS1C.cbl:202 -> a program the estate does not resolve, after an XCTL from app/cbl/COACTVWC.cbl (Copaus1cCarddemoCommarea besides CoactvwcCommarea).
+     *  out: RETURN TRANSID(CPVD) COMMAREA(CARDDEMO-COMMAREA) at app/app-authorization-ims-db2-mq/cbl/COPAUS1C.cbl:202 -> app/app-authorization-ims-db2-mq/cbl/COPAUS1C.cbl, after an XCTL from app/cbl/COACTVWC.cbl (Copaus1cCarddemoCommarea besides CoactvwcCommarea).
      *  out: RETURN TRANSID(CTLI) COMMAREA(WS-COMMAREA) at app/app-transaction-type-db2/cbl/COTRTLIC.cbl:910 -> app/app-transaction-type-db2/cbl/COTRTLIC.cbl, after an XCTL from app/cbl/COACTVWC.cbl (CotrtlicCommarea besides CoactvwcCommarea).
      *  out: RETURN TRANSID(CTTU) COMMAREA(WS-COMMAREA) at app/app-transaction-type-db2/cbl/COTRTUPC.cbl:567 -> app/app-transaction-type-db2/cbl/COTRTUPC.cbl, after an XCTL from app/cbl/COACTVWC.cbl (CotrtupcCommarea besides CoactvwcCommarea).
      *  out: RETURN TRANSID(CAUP) COMMAREA(WS-COMMAREA) at app/cbl/COACTUPC.cbl:1015 -> app/cbl/COACTUPC.cbl, after an XCTL from app/cbl/COACTVWC.cbl (CoactupcCommarea besides CoactvwcCommarea).
@@ -71,7 +71,7 @@ public class CoactvwcService {
      *  out: RETURN TRANSID(CM00) COMMAREA(CARDDEMO-COMMAREA) at app/cbl/COMEN01C.cbl:107 -> app/cbl/COMEN01C.cbl, after an XCTL from app/cbl/COACTVWC.cbl (CarddemoCommarea besides CoactvwcCommarea).
      *  out: RETURN TRANSID(CR00) COMMAREA(CARDDEMO-COMMAREA) at app/cbl/CORPT00C.cbl:199 -> app/cbl/CORPT00C.cbl, after an XCTL from app/cbl/COACTVWC.cbl (CarddemoCommarea besides CoactvwcCommarea).
      *  out: RETURN TRANSID(CR00) COMMAREA(CARDDEMO-COMMAREA) at app/cbl/CORPT00C.cbl:587 -> app/cbl/CORPT00C.cbl, after an XCTL from app/cbl/COACTVWC.cbl (CarddemoCommarea besides CoactvwcCommarea).
-     *  out: RETURN TRANSID(CC00) COMMAREA(CARDDEMO-COMMAREA) at app/cbl/COSGN00C.cbl:98 -> a program the estate does not resolve, after an XCTL from app/cbl/COACTVWC.cbl (no DTO besides CoactvwcCommarea).
+     *  out: RETURN TRANSID(CC00) COMMAREA(CARDDEMO-COMMAREA) at app/cbl/COSGN00C.cbl:98 -> app/cbl/COSGN00C.cbl, after an XCTL from app/cbl/COACTVWC.cbl (CarddemoCommarea besides CoactvwcCommarea).
      *  out: RETURN TRANSID(CT00) COMMAREA(CARDDEMO-COMMAREA) at app/cbl/COTRN00C.cbl:138 -> app/cbl/COTRN00C.cbl, after an XCTL from app/cbl/COACTVWC.cbl (Cotrn00cCarddemoCommarea besides CoactvwcCommarea).
      *  out: RETURN TRANSID(CT01) COMMAREA(CARDDEMO-COMMAREA) at app/cbl/COTRN01C.cbl:136 -> app/cbl/COTRN01C.cbl, after an XCTL from app/cbl/COACTVWC.cbl (Cotrn01cCarddemoCommarea besides CoactvwcCommarea).
      *  out: RETURN TRANSID(CT02) COMMAREA(CARDDEMO-COMMAREA) at app/cbl/COTRN02C.cbl:156 -> app/cbl/COTRN02C.cbl, after an XCTL from app/cbl/COACTVWC.cbl (Cotrn02cCarddemoCommarea besides CoactvwcCommarea).

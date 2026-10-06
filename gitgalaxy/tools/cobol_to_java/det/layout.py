@@ -14,8 +14,11 @@ from pathlib import Path
 
 from gitgalaxy.tools.cobol_to_java.det.source import (
     Line,
+    _outside_literals,
+    alphabet_keywords,
     as_fixed_rows,
     cobol_parser,
+    label_records,
     several_programs,
     unmodelled,
     unwrap,
@@ -40,6 +43,8 @@ class Item:
     occurs: int = 1
     occurs_min: int | None = None
     depending: str | None = None
+    keys: list = field(default_factory=list)  # OCCURS ... ASCENDING / DESCENDING KEY: [(ascending, name)] in order
+    indexed_by: list = field(default_factory=list)  # OCCURS ... INDEXED BY: the index names
     redefines: str | None = None
     values: list = field(default_factory=list)  # literal values (88: several, ranges as (lo, hi))
     sign_leading: bool = False
@@ -171,8 +176,9 @@ def _data_only(lines: list[Line]) -> list[Line]:
     """The lines the record parser needs, others blanked (kept, so each item keeps its line): the IDENTIFICATION
     DIVISION's paragraphs after PROGRAM-ID (REMARKS, DATE-COMPILED ... -- obsolete, free text), EXEC SQL blocks
     left in the DATA DIVISION (DECLARE CURSOR / TABLE: no storage; an INCLUDE was expanded as a COPY), and a
-    section header with nothing under it (an empty LINKAGE SECTION)."""
-    out = [Line(ln.text, ln.file, ln.line) for ln in lines]
+    section header with nothing under it (an empty LINKAGE SECTION). #4462: an OS/VS alphabet clause gets its
+    ALPHABET keyword (source.alphabet_keywords) and LABEL RECORD ARE its optional word dropped (source.label_records)."""
+    out = [Line(label_records(ln.text), ln.file, ln.line) for ln in alphabet_keywords(lines)]
     in_id = False
     want_name = False  # PROGRAM-ID. with its name on a later line
     for ln in out:
@@ -277,6 +283,9 @@ def parse(lines: list[Line]) -> list[Item]:
 
     visit(tree.root_node, None, None)
     if errors:
+        missing = _missing_period(lines, errors)
+        if missing:
+            raise LayoutError(missing)
         raise LayoutError(f"DATA DIVISION does not parse near expanded line(s) {errors[:5]}")
     for r in records:
         _inherit_usage(r, None)
@@ -291,6 +300,26 @@ def parse(lines: list[Line]) -> list[Item]:
             r.record = target.record or target
         by_name[(r.section, r.name)] = r
     return records
+
+
+_LEVEL_ENTRY = re.compile(r"^\s*(\d{1,2})\s+([A-Z0-9][A-Z0-9-]*)", re.I)
+
+
+def _missing_period(lines: list[Line], errors: list[int]) -> str | None:
+    """#4462: a parse error at a data entry that ends with no period before the next entry's level number (GenApp
+    polloo2.cpy's `03 CA-CUSPOL-REQUEST` -- a source defect the engine reads past): refused by name, as a source
+    defect, never laid out as some reading of it."""
+    for e in errors:
+        for k in range(max(e - 2, 0), min(e + 1, len(lines))):
+            m = _LEVEL_ENTRY.match(lines[k].text)
+            if not m or "." in _outside_literals(lines[k].text):
+                continue
+            nxt = next((ln for ln in lines[k + 1 :] if ln.text.strip()), None)
+            if nxt is not None and _LEVEL_ENTRY.match(nxt.text):
+                where = f"{Path(lines[k].file).name}:{lines[k].line}"
+                return (f"source defect: data entry {m.group(1)} {m.group(2).upper()} ({where}) has no period "
+                        "before the next level number")  # fmt: skip
+    return None
 
 
 def _item(node, src: bytes, section: str, fd: str | None) -> Item:
@@ -315,6 +344,13 @@ def _item(node, src: bytes, section: str, fd: str | None) -> Item:
             it.occurs_min = ints[0] if len(ints) > 1 else None
             dep = next((g for g in c.children if g.type == "qualified_word"), None)
             it.depending = _txt(dep, src).upper() if dep else None
+            for spec in (g for g in c.children if g.type == "occurs_key_spec"):  # #4462: SEARCH / SEARCH ALL's
+                for k in spec.children:
+                    if k.type == "occurs_key":
+                        asc = not any(w.type == "DESCENDING" for w in k.children)
+                        it.keys += [(asc, _txt(w, src).upper()) for w in k.children if w.type == "qualified_word"]
+                    elif k.type == "occurs_indexed":
+                        it.indexed_by += [_txt(w, src).upper() for w in k.children if w.type == "WORD"]
         elif t == "redefines_clause":
             it.redefines = _txt(c.children[-1], src).upper()
         elif t == "value_clause":

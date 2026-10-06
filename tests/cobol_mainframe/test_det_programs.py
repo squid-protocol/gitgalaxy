@@ -489,6 +489,128 @@ PROGRAMS = {
             "DISPLAY '[' N-NAME ']'",
         ],
     ),
+    # #4462: SEARCH ALL (a binary search) on an ASCENDING alphanumeric and a DESCENDING numeric key, INDEXED BY:
+    # found at every position, missing below / between / above, a key's condition-name, the first key only, a
+    # table whose size is a DEPENDING ON item (and one of size 0); serial SEARCH from the index's value (SET), with
+    # several WHENs, AT END, VARYING another index of the table; a SEARCH inside an IF
+    "SRCHALL": program(
+        "SRCHALL",
+        [
+            "01  WS-DATA.",
+            *[
+                f"    05 FILLER PIC X(6) VALUE '{v}'."
+                for v in ("ALF09A", "BRA07B", "BRA05C", "CHA03D", "DEL09E", "ECH01F", "FOX00G")
+            ],
+            "01  WS-TAB REDEFINES WS-DATA.",
+            "    05 ENT OCCURS 7 TIMES ASCENDING KEY IS E-K1",
+            "           DESCENDING KEY E-K2 INDEXED BY IX, IY.",
+            "       10 E-K1 PIC X(3).",
+            "          88 E-IS-CHA VALUE 'CHA'.",
+            "       10 E-K2 PIC 9(2).",
+            "       10 E-TAG PIC X.",
+            "01  WS-N    PIC 9(2) VALUE 0.",
+            "01  WS-K1   PIC X(3).",
+            "01  WS-K2   PIC 9(2).",
+            "01  WS-D.",
+            "    05 D-N  PIC 9(2) VALUE 5.",
+            "    05 D-ENT OCCURS 0 TO 9 TIMES DEPENDING ON D-N",
+            "           ASCENDING KEY D-K INDEXED BY DX.",
+            "       10 D-K PIC 9(3).",
+        ],
+        [
+            *[
+                x
+                for k1, k2 in (
+                    ("ALF", 9),
+                    ("BRA", 7),
+                    ("BRA", 5),
+                    ("CHA", 3),
+                    ("DEL", 9),
+                    ("ECH", 1),
+                    ("FOX", 0),
+                    ("BRA", 6),
+                    ("AAA", 1),
+                    ("ZZZ", 1),
+                    ("CHA", 4),
+                    ("BRA", 8),
+                    ("DEL", 2),
+                )
+                for x in (
+                    f"MOVE '{k1}' TO WS-K1",
+                    f"MOVE {k2} TO WS-K2",
+                    "SEARCH ALL ENT AT END DISPLAY WS-K1 WS-K2 ' MISSING'",
+                    "    WHEN E-K1 (IX) = WS-K1 AND E-K2 (IX) = WS-K2",
+                    "        SET WS-N TO IX",
+                    "        DISPLAY WS-K1 WS-K2 ' AT ' WS-N ' ' E-TAG (IX)",
+                    "END-SEARCH",
+                )
+            ],
+            "SEARCH ALL ENT WHEN E-IS-CHA (IX)",
+            "    SET WS-N TO IX DISPLAY 'CHA AT ' WS-N END-SEARCH",
+            "SEARCH ALL ENT AT END DISPLAY 'NO GOLF'",
+            "    WHEN E-K1 (IX) = 'GOL' DISPLAY 'GOLF?'",
+            "END-SEARCH",
+            "SEARCH ALL ENT WHEN E-K1 (IX) = 'DEL'",
+            "    SET WS-N TO IX DISPLAY 'DEL AT ' WS-N END-SEARCH",
+            "PERFORM VARYING WS-N FROM 1 BY 1 UNTIL WS-N > 9",
+            "    COMPUTE D-K (WS-N) = WS-N * 10",
+            "END-PERFORM",
+            *[
+                x
+                for v in (10, 30, 50, 60, 5)
+                for x in (
+                    f"MOVE {v} TO WS-K2",
+                    "SEARCH ALL D-ENT AT END DISPLAY WS-K2 ' NOT IN D'",
+                    "    WHEN D-K (DX) = WS-K2 SET WS-N TO DX",
+                    "        DISPLAY WS-K2 ' IN D AT ' WS-N",
+                    "END-SEARCH",
+                )
+            ],
+            "MOVE 0 TO D-N",
+            "SEARCH ALL D-ENT AT END DISPLAY 'EMPTY D'",
+            "    WHEN D-K (DX) = 10 DISPLAY 'IN EMPTY?' END-SEARCH",
+            "SET IX TO 2",
+            "SEARCH ENT AT END DISPLAY 'SERIAL END'",
+            "    WHEN E-TAG (IX) = 'Z' DISPLAY 'Z?'",
+            "    WHEN E-K2 (IX) = 9 SET WS-N TO IX",
+            "        DISPLAY 'FIRST 09 FROM 2 AT ' WS-N",
+            "    WHEN E-K1 (IX) = 'BRA' SET WS-N TO IX",
+            "        DISPLAY 'BRA FROM 2 AT ' WS-N",
+            "END-SEARCH",
+            "SET IX TO 6",
+            "SEARCH ENT AT END DISPLAY 'SERIAL END FROM 6'",
+            "    WHEN E-K2 (IX) = 9 DISPLAY 'NINE?'",
+            "END-SEARCH",
+            "SET IX TO 1",
+            "SEARCH ENT",
+            "    WHEN E-TAG (IX) = 'E' SET WS-N TO IX DISPLAY 'E AT ' WS-N",
+            "END-SEARCH",
+            "SET IY TO 3",
+            "SEARCH ENT VARYING IY",
+            "    WHEN E-K1 (IY) = 'ECH' SET WS-N TO IY",
+            "        DISPLAY 'ECH VIA IY AT ' WS-N",
+            "END-SEARCH",
+            "SET IX TO 1",
+            "SET IX UP BY 3",
+            "IF E-K1 (IX) = 'CHA'",
+            "    SEARCH ENT WHEN E-K1 (IX) = 'FOX'",
+            "        SET WS-N TO IX DISPLAY 'FOX AT ' WS-N END-SEARCH",
+            "    DISPLAY 'AFTER SEARCH IN IF'",
+            "END-IF",
+        ],
+    ),
+    # #4462: OS/VS COBOL's EXHIBIT NAMED: `name = value` per identifier, a literal as its value, one line
+    "EXHIBIT": program(
+        "EXHIBIT",
+        ["01  WS-A PIC X(3) VALUE 'ABC'.", "01  WS-B PIC 9(2) VALUE 7.", "01  WS-C PIC X(4) VALUE 'C D'."],
+        [
+            "EXHIBIT NAMED WS-A",
+            "EXHIBIT NAMED WS-A WS-B 'LIT' WS-C",
+            "MOVE 'XYZ' TO WS-A",
+            "EXHIBIT NAMED WS-B WS-A",
+            "DISPLAY 'END'",
+        ],
+    ),
 }
 
 

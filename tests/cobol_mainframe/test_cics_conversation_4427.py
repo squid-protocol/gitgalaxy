@@ -21,11 +21,13 @@ from gitgalaxy.tools.cobol_to_java.java_target import target_from_dict
 SEC = {"field_testing": "open", "tested_on_public": 1, "tested_on_private": 0}
 
 
-def _program(file, transids, record_file=None, record="WS-CA", returns=(), xctls=()):
+def _program(file, transids, record_file=None, record="WS-CA", returns=(), xctls=(), cut=None):
     """A CICS program with entry transactions `transids`, a COMMAREA record `record` declared in `record_file`, its
     RETURN TRANSID sites `returns` ((line, transid, callee file) -- the record it passes is its own) and XCTLs
-    `xctls` ((line, target file))."""
-    fields = [{"name": "CA-X", "pic": "X(4)", "class": "X", "offset": 0, "bytes": 4, "file": record_file or file}]
+    `xctls` ((line, target file)). The record is one PIC X(4), or the 4 bytes cut as `cut` ((name, pic, class,
+    offset, bytes) items) -- #4449: records cut differently do not convert by layout."""
+    fields = [{"name": n, "pic": pic, "class": c, "offset": o, "bytes": b, "file": record_file or file}
+              for n, pic, c, o, b in (cut or [("CA-X", "X(4)", "X", 0, 4)])]  # fmt: skip
     commarea = {"record": record, "file": record_file or file, "basis": "caller_record", "alternatives": [],
                 "sources": [], "bytes": 4, "variable": False, "extended": False, "unexpanded": [], "copybooks": [],
                 "fields": fields}  # fmt: skip
@@ -65,6 +67,10 @@ def _program(file, transids, record_file=None, record="WS-CA", returns=(), xctls
     }
 
 
+# #4449: the same 4 bytes cut as two numbers: a PcwizWsState's text would be decoded as digits -- no conversion
+CUT_OTHERWISE = [("CA-N1", "9(2)", "9", 0, 2), ("CA-N2", "9(2)", "9", 2, 2)]
+
+
 def _forge(skeletons):
     forge = CicsForge(skeletons, "com.acme", target_from_dict({}))
     services = {k: "\n".join(forge.service_extras(p)["methods"]) for k, p in forge.programs.items()}
@@ -77,7 +83,7 @@ def test_pc_wizard_a_return_transid_to_another_program_and_an_xctl_back():
         "PCWIZ": _program("PCWIZ.cbl", ["PC01", "PC02"], record="WS-STATE",
                           returns=[(65, "PC02", "PCWIZ.cbl"), (78, "PC03", "PCCONF.cbl")]),
         "PCCONF": _program("PCCONF.cbl", ["PC03"], record="WS-STATE", returns=[(84, "PC03", "PCCONF.cbl")],
-                           xctls=[(50, "PCWIZ.cbl")]),
+                           xctls=[(50, "PCWIZ.cbl")], cut=CUT_OTHERWISE),
     })  # fmt: skip
     wiz, conf = forge.programs["PCWIZ"], forge.programs["PCCONF"]
     assert (wiz.commarea_dto, conf.commarea_dto) == ("PcwizWsState", "PcconfWsState")
@@ -100,7 +106,7 @@ def test_pc_aid_menu_a_return_transid_to_the_program_an_xctl_also_reaches():
     forge, svc, _ = _forge({
         "PCMENU": _program("PCMENU.cbl", ["PC11"], returns=[(56, "PC12", "PCDETL.cbl"), (74, "PC11", "PCMENU.cbl")],
                            xctls=[(49, "PCDETL.cbl")]),
-        "PCDETL": _program("PCDETL.cbl", ["PC12"]),  # RETURNs TRANSID(PC11) with no COMMAREA: no contract row
+        "PCDETL": _program("PCDETL.cbl", ["PC12"], cut=CUT_OTHERWISE),  # RETURNs TRANSID(PC11), no COMMAREA: no row
     })  # fmt: skip
     menu, detl = forge.programs["PCMENU"], forge.programs["PCDETL"]
     assert (menu.txn_request, menu.txn_response) == ("PcmenuWsCa", "Object")

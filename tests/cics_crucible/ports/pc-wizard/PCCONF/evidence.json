@@ -7,7 +7,7 @@
   "paths": [
    "tests/cics_crucible/ports/pc-wizard/PCCONF/overlay/service/PcconfService.java"
   ],
-  "sha256": "b056ebdebc6eeac39fed1b02c5b1b201196dda68db1cf1b05066409301ee071e",
+  "sha256": "54e3decd2ce4d905e257daff5f45618a847be39e30c8c42c2191a834f00d8687",
   "entry_points": [
    "handleTransaction",
    "runTask"
@@ -19,7 +19,7 @@
     "tests/cics_crucible/ports/pc-wizard/*/overlay/**"
    ],
    "files": 2,
-   "sha256": "1ef52ecb9d39d8ba8ca16c2df65a95b8073c6b0f1441757054ace2d92b9fca6b"
+   "sha256": "3d0e87f7e86488141cfd06a3e9b66d91c19e08671ba11135840eb98951b7f1cb"
   },
   "case": {
    "paths": [
@@ -45,7 +45,7 @@
     "tests/tools/cics_crucible_compare.py"
    ],
    "files": 13,
-   "sha256": "a3ae3d6d7e938e36cd15639224926bf86762c0f436c35667909f895cbe77382c"
+   "sha256": "b2df5ed8ddc2537fbbbccf4425e9a8f1195237b2c5ac6ffe6f9dfdfe57a13002"
   },
   "oracle": {
    "paths": [],
@@ -57,7 +57,7 @@
     "gitgalaxy/tools/cobol_to_java/**"
    ],
    "files": 60,
-   "sha256": "85b398e62fba1e95c3bc1a8f1af5f8e44449696b805c2587e5f4cf9daa160b2c"
+   "sha256": "b130d122fe50188780cab4af896143646d9f309bc11cbdaaca6937167cadf83f"
   },
   "corpus": {
    "name": "cics-crucible",
@@ -67,10 +67,10 @@
   "differences": {
    "sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
   },
-  "digest": "ebd9b93dbcdf40927abf5e538906884a239c24e675890e0c75820faa5f8de5ad"
+  "digest": "539bde7f7dd451343cb40facbf6695b810d50c861b4a06d4df0c21dbb6b77a4c"
  },
  "proof": {
-  "at": "2026-10-05T11:41:41Z",
+  "at": "2026-10-06T03:56:46Z",
   "verdict": "proven",
   "runs": 5,
   "fault_runs": 0,
@@ -104,8 +104,8 @@
   "sysout_compared": null,
   "attributes_compared": null,
   "java_failed": false,
-  "harness_commit": "b85fc0e2ec987f60b87a38a72bda9faaee2120e2+uncommitted",
-  "inputs_digest": "ebd9b93dbcdf40927abf5e538906884a239c24e675890e0c75820faa5f8de5ad"
+  "harness_commit": "d467ccccdac79a4757387d7e0c8940bd88e2bb1b+uncommitted",
+  "inputs_digest": "539bde7f7dd451343cb40facbf6695b810d50c861b4a06d4df0c21dbb6b77a4c"
  },
  "coverage": {
   "paragraphs": {
@@ -120,7 +120,7 @@
   "handler_labels": null,
   "source": "tests/cics_crucible/coverage.json#programs/pc-wizard/PCCONF",
   "ledger_sha256": "3f9d5d6b0dc94e0c8b7fa7331a887cf2ac93b37bc98604be333c13bd0ba14213",
-  "inputs_digest": "ebd9b93dbcdf40927abf5e538906884a239c24e675890e0c75820faa5f8de5ad"
+  "inputs_digest": "539bde7f7dd451343cb40facbf6695b810d50c861b4a06d4df0c21dbb6b77a4c"
  },
  "reach": {
   "entry_points": [
@@ -131,13 +131,13 @@
    {
     "class": "PcconfService",
     "method": "xctlPcwiz",
-    "line": 264,
+    "line": 268,
     "kind": "left_as_generated"
    },
    {
     "class": "PcconfService",
     "method": "writeqTsPcledgerL104",
-    "line": 270,
+    "line": 274,
     "kind": "left_as_generated"
    }
   ],
@@ -147,7 +147,7 @@
    "ported_unproven": 0
   },
   "generated_compared": true,
-  "port_sha256": "b056ebdebc6eeac39fed1b02c5b1b201196dda68db1cf1b05066409301ee071e"
+  "port_sha256": "54e3decd2ce4d905e257daff5f45618a847be39e30c8c42c2191a834f00d8687"
  },
  "mutation": {
   "commit": "be2561306",
@@ -210,7 +210,7 @@
   "provenance_file": {
    "path": "tests/cics_crucible/ports/pc-wizard/PCCONF/provenance.json",
    "format": "cics-crucible-port/1",
-   "sha256": "b5cc3f0f302ce1681186f8e69d37c565241af65e256f403a8e1ba5a3a31d5f05"
+   "sha256": "fe69e93c0eb381209cb91c8dd07ee7bce7fe0f2ec1d7724f055ee52cb284bb3e"
   },
   "crucible_ref_proven": "v0.2.0 (94f2afcb)"
  },

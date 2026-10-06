@@ -106,3 +106,25 @@ def test_crucible_check_update_exits_nonzero_when_a_leg_refuses(tmp_path, monkey
     monkeypatch.setattr(crucible_check, "_check_unsafe_corpus_path", lambda _p: None)
     monkeypatch.setattr(crucible_check, "run_update", lambda *a, **k: False)
     assert crucible_check.main() == 1
+
+
+def test_the_redos_fuse_cannot_be_swallowed_by_a_rule_level_except_exception():
+    """#4555: the fuse's TimeoutError was caught by the per-rule `except Exception` in the
+    detector, so a slow `css::safety` sweep under load silently scored 0 (176 -> 0 on
+    bootstrap.rtl.css) instead of excluding the file, and the guard above never saw it."""
+    from gitgalaxy import galaxyscope
+
+    assert not issubclass(galaxyscope.RegexFuseTimeout, Exception)
+    swallowed = False
+    with pytest.raises(galaxyscope.RegexFuseTimeout):
+        try:
+            galaxyscope.execution_timeout_failsafe(None, None)
+        except Exception:  # the shape of detector.py's per-rule isolation
+            swallowed = True
+    assert not swallowed
+
+
+def test_the_workers_fuse_reason_is_a_timeout_exclusion():
+    reason = "Unparsable (Structural Saturation / Global Regex Timeout)"  # galaxyscope.py's TIMEOUT FAILSAFE
+    entry = {"Path": "css/bootstrap.rtl.css", "Diagnostic Reason": reason}
+    assert guard.timeout_exclusions({QUEUE: [entry]}) == [("css/bootstrap.rtl.css", reason)]

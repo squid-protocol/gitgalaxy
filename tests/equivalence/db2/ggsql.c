@@ -458,62 +458,46 @@ static int injected(stmt *s, sqlca_t *c) {
     return hit;
 }
 
-/* ---- the entry ---------------------------------------------------------------------------------------- */
-int GGSQL(unsigned char *id, unsigned char *ca, unsigned char *h0, unsigned char *h1, unsigned char *h2,
-          unsigned char *h3, unsigned char *h4, unsigned char *h5, unsigned char *h6, unsigned char *h7,
-          unsigned char *h8, unsigned char *h9, unsigned char *h10, unsigned char *h11, unsigned char *h12,
-          unsigned char *h13, unsigned char *h14, unsigned char *h15, unsigned char *h16, unsigned char *h17,
-          unsigned char *h18, unsigned char *h19, unsigned char *h20, unsigned char *h21, unsigned char *h22,
-          unsigned char *h23) {
-    unsigned char *a[24] = {h0, h1, h2, h3, h4, h5, h6, h7, h8, h9, h10, h11, h12, h13, h14, h15, h16, h17, h18,
-                            h19, h20, h21, h22, h23};
-    sqlca_t *c = (sqlca_t *)ca;
-    int sid = 0;
+/* One statement on Db2: the SQLCA and the host variables as the precompiled program sees them. */
+static void run(stmt *s, sqlca_t *c, unsigned char **a) {
     SQLRETURN rc;
-    for (int i = 0; i < 4; i++) sid = sid * 10 + (id[i] - '0');  /* GG-SQL-ID PIC 9(4) */
-    if (nstmts < 0) load();
-    stmt *s = find(sid);
-    if (!s) die("statement", "an unknown GG-SQL-ID");
-    connect_once();
-    sqlca_reset(c);
-    if (injected(s, c)) return 0;  /* #4173: a planned SQL fault -- the statement never reaches Db2 */
     if (!strcmp(s->kind, "COMMIT") || !strcmp(s->kind, "ROLLBACK")) {
         rc = SQLEndTran(SQL_HANDLE_DBC, dbc, !strcmp(s->kind, "COMMIT") ? SQL_COMMIT : SQL_ROLLBACK);
         diag(c, SQL_HANDLE_DBC, dbc, rc);
-        return 0;
+        return;
     }
     if (!strcmp(s->kind, "FETCH") || !strcmp(s->kind, "CLOSE")) {
         stmt *o = find_cursor(s->cursor, "OPEN");
         if (!o || !o->h) {
             c->sqlcode = -501;  /* the cursor is not open */
             memcpy(c->sqlstate, "24501", 5);
-            return 0;
+            return;
         }
         if (!strcmp(s->kind, "CLOSE")) {
             rc = SQLCloseCursor(o->h);
             SQLFreeHandle(SQL_HANDLE_STMT, o->h);
             o->h = 0;
-            return 0;
+            return;
         }
         rc = SQLFetch(o->h);
         if (rc == SQL_NO_DATA) {
             diag(c, SQL_HANDLE_STMT, o->h, rc);
-            return 0;
+            return;
         }
         if (rc != SQL_SUCCESS && rc != SQL_SUCCESS_WITH_INFO) {
             diag(c, SQL_HANDLE_STMT, o->h, rc);
-            return 0;
+            return;
         }
         o->nout = s->nout;
         memcpy(o->out, s->out, sizeof s->out);
         fetch_into(o, a, c);
-        return 0;
+        return;
     }
     if (!strcmp(s->kind, "OPEN")) {
         if (s->h) {  /* already open */
             c->sqlcode = -502;
             memcpy(c->sqlstate, "24502", 5);
-            return 0;
+            return;
         }
     }
     SQLAllocHandle(SQL_HANDLE_STMT, dbc, &s->h);
@@ -524,7 +508,7 @@ int GGSQL(unsigned char *id, unsigned char *ca, unsigned char *h0, unsigned char
         diag(c, SQL_HANDLE_STMT, s->h, rc);
         SQLFreeHandle(SQL_HANDLE_STMT, s->h);
         s->h = 0;
-        return 0;
+        return;
     }
     for (int i = 0; i < s->nin; i++) inlen[i] = 0;
     bind_inputs(s, a);
@@ -533,9 +517,9 @@ int GGSQL(unsigned char *id, unsigned char *ca, unsigned char *h0, unsigned char
     if (c->sqlcode < 0 || (rc != SQL_SUCCESS && rc != SQL_SUCCESS_WITH_INFO && rc != SQL_NO_DATA)) {
         SQLFreeHandle(SQL_HANDLE_STMT, s->h);
         s->h = 0;
-        return 0;
+        return;
     }
-    if (!strcmp(s->kind, "OPEN")) return 0;  /* the cursor stays open on s->h */
+    if (!strcmp(s->kind, "OPEN")) return;  /* the cursor stays open on s->h */
     if (!strcmp(s->kind, "SELECT1")) {  /* SELECT INTO: exactly one row (-811 for more) */
         rc = SQLFetch(s->h);
         if (rc == SQL_NO_DATA) {
@@ -553,5 +537,57 @@ int GGSQL(unsigned char *id, unsigned char *ca, unsigned char *h0, unsigned char
     }
     SQLFreeHandle(SQL_HANDLE_STMT, s->h);
     s->h = 0;
+}
+
+/* #4507: each statement's outcome appended to $GGSQL_OUTCOMES, when set, as
+ *   <kind> <cursor|-> <verb> <sqlcode> <sqlstate> <sqlerrd3> <injected 0|1>
+ * (verb: the SQL's first word; FETCH / CLOSE: the cursor's). equivalence_db2.cobol_outcomes reads it, to compare
+ * with what the Java side's JDBC got (EquivalenceDb2Config). */
+static void outcome(const stmt *s, const sqlca_t *c, int fault) {
+    const char *path = getenv("GGSQL_OUTCOMES");
+    if (!path || !*path) return;
+    const stmt *q = s;
+    if (!strcmp(s->kind, "FETCH") || !strcmp(s->kind, "CLOSE")) {
+        const stmt *o = find_cursor(s->cursor, "OPEN");
+        if (o) q = o;
+    }
+    char verb[16] = "-";
+    if (q->sql) {
+        const char *p = q->sql;
+        while (*p == ' ' || *p == '(') p++;
+        int n = 0;
+        while (p[n] && p[n] != ' ' && p[n] != '(' && n < 15) verb[n] = (char)toupper((unsigned char)p[n]), n++;
+        verb[n ? n : 1] = 0;
+    }
+    FILE *f = fopen(path, "a");
+    if (!f) return;
+    fprintf(f, "%s %s %s %d %.5s %d %d\n", s->kind, s->cursor[0] ? s->cursor : "-", verb, c->sqlcode, c->sqlstate,
+            c->sqlerrd[2], fault);
+    fclose(f);
+}
+
+/* ---- the entry ---------------------------------------------------------------------------------------- */
+int GGSQL(unsigned char *id, unsigned char *ca, unsigned char *h0, unsigned char *h1, unsigned char *h2,
+          unsigned char *h3, unsigned char *h4, unsigned char *h5, unsigned char *h6, unsigned char *h7,
+          unsigned char *h8, unsigned char *h9, unsigned char *h10, unsigned char *h11, unsigned char *h12,
+          unsigned char *h13, unsigned char *h14, unsigned char *h15, unsigned char *h16, unsigned char *h17,
+          unsigned char *h18, unsigned char *h19, unsigned char *h20, unsigned char *h21, unsigned char *h22,
+          unsigned char *h23) {
+    unsigned char *a[24] = {h0, h1, h2, h3, h4, h5, h6, h7, h8, h9, h10, h11, h12, h13, h14, h15, h16, h17, h18,
+                            h19, h20, h21, h22, h23};
+    sqlca_t *c = (sqlca_t *)ca;
+    int sid = 0;
+    for (int i = 0; i < 4; i++) sid = sid * 10 + (id[i] - '0');  /* GG-SQL-ID PIC 9(4) */
+    if (nstmts < 0) load();
+    stmt *s = find(sid);
+    if (!s) die("statement", "an unknown GG-SQL-ID");
+    connect_once();
+    sqlca_reset(c);
+    if (injected(s, c)) {  /* #4173: a planned SQL fault -- the statement never reaches Db2 */
+        outcome(s, c, 1);
+        return 0;
+    }
+    run(s, c, a);
+    outcome(s, c, 0);
     return 0;
 }

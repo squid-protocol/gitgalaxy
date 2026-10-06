@@ -1409,8 +1409,10 @@ def run_cobol_cics(case: dict[str, Any], corpus: Path, work: Path, files: list[d
         rel = f"/work/scenarios/{sc['name']}"
         sqlenv = equivalence_db2.cobol_env("/work/stmts.txt") if db2 else ""
         if db2:  # #4173: each statement the task runs traced; its planned SQL faults, the ones that fire logged
-            sqlenv += f"GGSQL_TRACE={rel}/sqltrace.txt GGSQL_FAULTS_LOG={rel}/out/faults.txt " + (
-                f"GGSQL_FAULTS={rel}/sqlfaults.cfg " if sc.get("sql_plan") else ""
+            # #4507: and what Db2 answered each one (equivalence_db2.cobol_outcomes)
+            sqlenv += (
+                f"GGSQL_TRACE={rel}/sqltrace.txt GGSQL_OUTCOMES={rel}/sqlout.txt GGSQL_FAULTS_LOG={rel}/out/faults.txt "
+                + (f"GGSQL_FAULTS={rel}/sqlfaults.cfg " if sc.get("sql_plan") else "")
             )
         if db2:  # the tables as the seed has them, for this task
             script.append(f"{sqlenv}./ggsqlrun -f /work/reset.sql")
@@ -1563,6 +1565,8 @@ def outputs(out: Path, case: dict[str, Any], corpus: Path, ca_fields: list[dict[
                     if p.is_file() and not p.name.endswith(".uow")} if files.is_dir() else {}  # fmt: skip
     db2 = out.parent / "db2"  # a Db2 case: what the task left in each compared table
     res["db2"] = {p.name: p.read_bytes() for p in sorted(db2.iterdir()) if p.is_file()} if db2.is_dir() else {}
+    sqlout = out.parent / "sqlout.txt"  # #4507: what Db2 answered each statement the task ran
+    res["sql"] = sqlout.read_text(encoding="latin-1") if sqlout.is_file() else ""
     log = out / "events.txt"
     for line in log.read_text(encoding="latin-1").splitlines() if log.is_file() else []:
         seq, _, rest = line.partition(" ")
@@ -2129,8 +2133,11 @@ def cics_equivalence_test(case: dict[str, Any], src: Path, files: list[dict[str,
     # a Db2 case: the tables reset to the seed before each task (in/db2reset.sql), each compared table dumped after
     # it (in/db2dumps.txt: table TAB query), on the database the COBOL side ran on (equivalence_db2)
     db2 = bool(case.get("db2"))
-    db2_reset = "            db2Reset();" if db2 else ""
-    db2_dump = '            db2Dump(sc.get("name").asText());' if db2 else ""
+    # #4507: the task's statements logged as Db2 answered them (EquivalenceDb2Config), the reset and dumps not
+    db2_reset = ('            db2Reset();\n            System.setProperty("gitgalaxy.db2.sqllog", '
+                 'out.resolve(sc.get("name").asText() + ".sqlout").toString());') if db2 else ""  # fmt: skip
+    db2_dump = ('            System.clearProperty("gitgalaxy.db2.sqllog");\n'
+                '            db2Dump(sc.get("name").asText());') if db2 else ""  # fmt: skip
     db2_methods = DB2_JAVA if db2 else ""
     # a Db2 case: the task's SQL is one Db2 unit of work (one connection, as the task's Db2 thread under CICS):
     # committed when the task ends, rolled back with its files by SYNCPOINT ROLLBACK or an abend
@@ -2616,6 +2623,17 @@ def compare_db2(case: dict[str, Any], cobol: dict[str, bytes], java_out: Path, s
     return out
 
 
+def compare_sql(case: dict[str, Any], sc: dict[str, Any], res: dict[str, Any], java_out: Path) -> dict[str, Any] | None:
+    """#4507: a case with "compare_sql" (its db2 section): the statements each side ran and what Db2 answered them
+    (equivalence_db2.compare_outcomes), or None -- not asked, or a task judged only up to a LINK or run with planned
+    SQL faults (the injected answers are compared as fired faults)."""
+    if not (case.get("db2") or {}).get("compare_sql") or sc.get("prefix_link") or sc.get("sql_plan"):
+        return None
+    jfile = java_out / f"{sc['name']}.sqlout"
+    java = equivalence_db2.java_outcomes(jfile.read_text(encoding="latin-1") if jfile.is_file() else "")
+    return equivalence_db2.compare_outcomes(equivalence_db2.cobol_outcomes(res.get("sql", "")), java)
+
+
 def cobol_events(res: dict[str, Any]) -> list[dict[str, Any]]:
     """The COBOL task's outputs as the event list CicsTask records."""
     out: list[dict[str, Any]] = []
@@ -2726,9 +2744,27 @@ def report_markdown(case: dict[str, Any], report: dict[str, Any]) -> str:
              "Stub files, from the engine's facts: " + "; ".join(
                  f"`{f['file']}` -> {f['base']} key {f['key_length']}@{f['key_offset']}"
                  + (f" via {', '.join(f['via'])}" if f["via"] else "") for f in report["files"]), "",
-             "| scenario | events equal | total |", "|---|---|---|"]  # fmt: skip
-    for name, d in report["outputs"].items():
-        lines.append(f"| {name} | {d['equal']} | {d['records']} |")
+             ]  # fmt: skip
+    gen = report.get("db2_generated")
+    if gen:  # #4507
+        lines += ["Db2 rows generated from the tables' declarations (equivalence_db2.generate_rows): "
+                  + ", ".join(f"{t} {n}" for t, n in gen.items()), ""]  # fmt: skip
+    if any(
+        "sql" in d for d in report["outputs"].values()
+    ):  # #4507: what Db2 answered each side, statement by statement
+        lines += [
+            "| scenario | events equal | total | SQL statements answered alike | total |",
+            "|---|---|---|---|---|",
+        ]
+        for name, d in report["outputs"].items():
+            q = d.get("sql") or {}
+            lines.append(
+                f"| {name} | {d['equal']} | {d['records']} | {q.get('equal', '-')} | {q.get('statements', '-')} |"
+            )
+    else:
+        lines += ["| scenario | events equal | total |", "|---|---|---|"]
+        for name, d in report["outputs"].items():
+            lines.append(f"| {name} | {d['equal']} | {d['records']} |")
     fc = report.get("facade")
     if fc is not None:  # #4449
         lines += ["", "## Through the deployed entry points (java-facade, #4449)", "",
@@ -2763,7 +2799,9 @@ def feedback_md(case: dict[str, Any], report: dict[str, Any], limit: int = 6) ->
         fired = (o or {}).get("fired")
         bad_fired = bool(sc.get("faults")) and (not fired or not fired["cobol"] or fired["cobol"] != fired["java"])
         files = {n: f for n, f in (o or {}).get("files", {}).items() if f["equal"] != f["records"]}
-        if o is None or (o["equal"] == o["records"] and not bad_fired and not files):
+        sql = (o or {}).get("sql") or {}
+        sql_bad = sql.get("equal") != sql.get("statements")
+        if o is None or (o["equal"] == o["records"] and not bad_fired and not files and not sql_bad):
             continue
         out += [f"### Scenario {sc['name']}: {o['equal']}/{o['records']} events equal", "",
                 f"Key {sc.get('aid', 'DFHENTER')}; COMMAREA {json.dumps(sc.get('commarea'))}; "
@@ -2779,6 +2817,16 @@ def feedback_md(case: dict[str, Any], report: dict[str, Any], limit: int = 6) ->
                     out.append(f"  - record {d['record']}: missing on the {d['missing']} side")
                 for fd in d.get("fields", [])[:10]:
                     out.append(f"  - record {d['record']} {fd['field']}: COBOL `{fd['cobol']}`, Java `{fd['java']}`")
+        if sql_bad:  # #4507: what Db2 answered the two sides' statements
+            out.append(f"- SQL: {sql['equal']}/{sql['statements']} statements answered alike")
+            for d in sql["diffs"][:limit]:
+                if "missing" in d:
+                    out.append(f"  - statement {d['statement']}: missing on the {d['missing']} side "
+                               f"(COBOL `{d['cobol']}`, Java `{d['java']}`)")  # fmt: skip
+                for fd in d.get("fields", []):
+                    out.append(
+                        f"  - statement {d['statement']} {fd['field']}: COBOL `{fd['cobol']}`, Java `{fd['java']}`"
+                    )
         for x in o["diffs"][:limit]:
             if "fields" not in x:
                 out.append(f"- event {x['event']}: COBOL `{x.get('cobol')}`, Java `{x.get('java')}`")
@@ -3017,6 +3065,12 @@ def run_case(case: dict[str, Any], corpus: Path, work: Path, port: bool = True, 
                                                                   work / "java" / "out", name)  # fmt: skip
         if not sc.get("prefix_link"):
             changed.update(compare_db2(case, res.get("db2", {}), work / "java" / "out", name, clock))
+        sql = compare_sql(case, sc, res, work / "java" / "out")  # #4507: what Db2 answered each side
+        if sql is not None:
+            report["outputs"][name]["sql"] = sql
+            if sql["equal"] != sql["statements"]:
+                ok = False
+                print(f"{case['program']} {name}: {sql['equal']}/{sql['statements']} SQL statements answered alike")
         if clock[0]:
             report["outputs"][name]["clock_masked"] = clock[0]
         if undefined[0]:
@@ -3027,6 +3081,9 @@ def run_case(case: dict[str, Any], corpus: Path, work: Path, port: bool = True, 
             for base, fd in changed.items():
                 print(f"{case['program']} {name}: file {base}: {fd['equal']}/{fd['records']} records equal")
     report["proven"] = ok
+    if (case.get("db2") or {}).get("seed") == "@generate":  # #4507: the rows each table started every task with
+        rows, _ = equivalence_db2.generate_rows(case, corpus)
+        report["db2_generated"] = {t: sum(1 for x, _ in rows if x == t) for t in dict.fromkeys(x for x, _ in rows)}
     if facade is not None:  # #4449: proven through runTask AND through the deployed entry points
         report["facade"] = judge_facade(case, corpus, files, cobol, facade, refused, work / "cobol")
         report["proven"] = ok and report["facade"]["proven"]

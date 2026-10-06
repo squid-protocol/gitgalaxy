@@ -232,7 +232,10 @@ def mutants_of(rel: str, text: str, ops: set[str]) -> list[Mutant]:
 
 
 def port_dir(case: str) -> Path:
-    return CASES / case / "port"
+    """The case's port: its own, or the one it proves on other inputs (`port_from`: a generated-inputs case)."""
+    spec = CASES / case / "case.json"
+    source = json.loads(spec.read_text(encoding="utf-8")).get("port_from", case) if spec.is_file() else case
+    return CASES / source / "port"
 
 
 def all_mutants(port: Path, ops: set[str]) -> list[Mutant]:
@@ -343,7 +346,9 @@ def killers(report: dict[str, Any]) -> list[str]:
         out = []
         for name, o in report.get("outputs", {}).items():
             fired = o.get("fired")
-            if o["equal"] != o["records"] or o.get("diffs") or (fired and fired["cobol"] != fired["java"]):
+            sql = o.get("sql") or {}  # #4507: a Db2 table left different, or a statement Db2 answered differently
+            if (o["equal"] != o["records"] or o.get("diffs") or (fired and fired["cobol"] != fired["java"])
+                    or o.get("files") or sql.get("equal") != sql.get("statements")):  # fmt: skip
                 out.append(name)
         return out
     out = ["main"] if not all(e.get("ok") for e in report.get("environments", [{"ok": True}])) else []

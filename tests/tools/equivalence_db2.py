@@ -10,7 +10,9 @@ A case declares it under "db2":
             "symbols": {"<DB2DBID>": "GENASA1"}}      install symbols in the DDL and seed, as the installer sets them
 
 A seed may be a z/OS job too (GenApp's db2cre.jcl creates its tables and INSERTs their rows): its INSERTs are the
-seed. Every reset also restarts each compared table's identity column at its START WITH value, so both sides
+seed. Or "@generate" (#4507): rows generated from the tables' declarations -- columns, NOT NULL, keys, foreign keys
+-- with each type's boundary values and NULLs (generate_rows); and "compare_sql": true compares, per task, what Db2
+answered each side's statements: SQLCODE, SQLSTATE and rows (compare_outcomes). Every reset also restarts each compared table's identity column at its START WITH value, so both sides
 generate the same keys.
 
 A DDL member may be SQL, or a z/OS job that runs it (a `.jcl` member: its in-stream SQL, from the first statement to
@@ -39,9 +41,11 @@ reset and its dumps go to Db2 as one CLP call each (a CLP call costs about a sec
 from __future__ import annotations
 
 import os
+import random
 import re
 import subprocess
 import time
+from decimal import Decimal
 from pathlib import Path
 from typing import Any
 
@@ -327,7 +331,9 @@ def reset_script(case: dict[str, Any], corpus: Path) -> str:
     each one's identity column restarted, then the seed's INSERTs."""
     seed_sql = ""
     seed = case["db2"].get("seed")
-    if seed:
+    if seed == "@generate":  # #4507: rows generated from the tables' declarations
+        seed_sql = generated_seed(case, corpus)
+    elif seed:
         path = common._input_path(case, corpus, seed)
         symbols = case["db2"].get("symbols")
         if path.suffix.lower() == ".jcl":  # a job's INSERTs
@@ -347,6 +353,14 @@ def reset_script(case: dict[str, Any], corpus: Path) -> str:
     return script + seed_sql
 
 
+_FIELD_SEP = re.compile(r"(?<=\]|L)\|(?=\[|NULL)")
+
+
+def split_row(line: str) -> list[str]:
+    """A dump row's values ([value] or NULL each), split at the separators between them."""
+    return _FIELD_SEP.split(line)
+
+
 def diff_dump(left: bytes, right: bytes) -> dict[str, Any]:
     """Two dumps of a table compared row by row, in the shape of a record diff (a row a record, its line the field)."""
     a_lines = left.decode("latin-1").splitlines()
@@ -359,8 +373,13 @@ def diff_dump(left: bytes, right: bytes) -> dict[str, Any]:
         b = b_rows[i] if i < len(b_rows) else None
         if a is None or b is None:
             diffs.append({"record": i + 1, "missing": "cobol" if a is None else "java"})
-        elif a != b:
-            diffs.append({"record": i + 1, "fields": [{"field": head, "cobol": a, "java": b}]})
+        elif a != b:  # #4507: field by field, by the table's columns (the whole line when it does not split)
+            names, av, bv = head.split("|"), split_row(a), split_row(b)
+            if len(av) == len(bv) == len(names):
+                fields = [{"field": c, "cobol": x, "java": y} for c, x, y in zip(names, av, bv) if x != y]
+            else:
+                fields = [{"field": head, "cobol": a, "java": b}]
+            diffs.append({"record": i + 1, "fields": fields})
     rows = max(len(a_rows), len(b_rows))
     return {"records": rows, "equal": rows - len(diffs), "diffs": diffs[:20], "layout_bytes": None}
 
@@ -368,6 +387,535 @@ def diff_dump(left: bytes, right: bytes) -> dict[str, Any]:
 def outputs(case: dict[str, Any]) -> dict[str, bytes]:
     tables = case["db2"].get("compare", [])
     return {f"DB2 {t}": data for t, data in dumps(case, tables).items()} if tables else {}
+
+
+# ---- #4507: generated rows -------------------------------------------------------------------------------------
+# A case whose seed is "@generate" gets its tables' rows from the declared structures -- the DDL's CREATE TABLE (or
+# a DCLGEN's DECLARE TABLE), its keys (PRIMARY KEY, UNIQUE, CREATE UNIQUE INDEX) and foreign keys -- like #3804
+# builds a VSAM file from its copybook:
+#
+#   "db2": {..., "seed": "@generate",
+#           "generate": {"seed": 4507, "rows": 20, "dclgen": ["src/dcl/ACCOUNT.dcl"],
+#                        "tables": {"IBMUSER.ACCOUNT": {"rows": 24,
+#                                   "columns": {"ACCOUNT_SORTCODE": {"values": ["987654", "123456"], "every": 4},
+#                                               "ACCOUNT_NUMBER": {"digits": true},
+#                                               "ACCOUNT_CUSTOMER_NUMBER": {"from": "IBMUSER.CUSTOMER.CUSTNO"},
+#                                               "ACCOUNT_OPENED": {"null": false}}}}}}
+#
+# Each column's values, in row order: its type's boundary values first, then NULL (a nullable column; each at a row of
+# its own), then values in between --
+#   CHAR(n)            n characters, blanks, a short value                  (the full length, and the empty value)
+#   VARCHAR(n)         empty, n characters (at most 4000), a short value, one with trailing blanks
+#   DECIMAL(p,s)       0, 1, the largest (10^(p-s) - 10^-s), its negative, the smallest fraction, its negative, halves
+#   SMALLINT/INTEGER/BIGINT  0, 1, -1, the type's largest and smallest
+#   DATE / TIME / TIMESTAMP  the type's first and last value (0001-01-01, 9999-12-31-23.59.59.999999), a leap day
+# A key's columns (the primary key, a UNIQUE constraint or unique index) are unique together; a foreign key's
+# columns take the parent's generated key (parents are generated first, added when the case does not name them);
+# an identity column is left to Db2 (reset_script restarts it, so its values are START WITH, +INCREMENT ...).
+# Rows always satisfy the table's constraints: what a program meets when a key is MISSING (+100 on SELECT / UPDATE /
+# DELETE, -530 on an INSERT whose parent is not there) or DUPLICATE (-803 on an INSERT of a key already there) comes
+# from the scenarios: a scenario_generate COMMAREA rule {"from": "SCHEMA.TABLE.COLUMN", "miss": 0.25} draws the
+# key from the generated rows (a duplicate, for an INSERT) or, that share of the time, a value they do not hold.
+_TYPE = re.compile(r"(?P<t>[A-Z]+(?:\s+(?:VARYING|PRECISION))?)\s*(?:\(\s*(?P<a>\d+)\s*(?:,\s*(?P<b>\d+)\s*)?\))?",
+                   re.I)  # fmt: skip
+_INT_RANGE = {"SMALLINT": 2**15, "INTEGER": 2**31, "INT": 2**31, "BIGINT": 2**63}
+
+
+def _top_split(body: str) -> list[str]:
+    """A parenthesised list's items: split at commas outside any nested parentheses and quotes."""
+    out, depth, quote, cur = [], 0, False, []
+    for ch in body:
+        if ch == "'":
+            quote = not quote
+        elif not quote and ch == "(":
+            depth += 1
+        elif not quote and ch == ")":
+            depth -= 1
+        if ch == "," and depth == 0 and not quote:
+            out.append("".join(cur).strip())
+            cur = []
+        else:
+            cur.append(ch)
+    if "".join(cur).strip():
+        out.append("".join(cur).strip())
+    return out
+
+
+def _paren(text: str, start: int) -> tuple[str, int]:
+    """The text inside the parenthesis opening at or after `start`, and the index after its close."""
+    i = text.index("(", start)
+    depth = 0
+    for j in range(i, len(text)):
+        depth += {"(": 1, ")": -1}.get(text[j], 0)
+        if depth == 0:
+            return text[i + 1 : j], j + 1
+    raise ValueError(f"unbalanced parentheses in: {text[start : start + 80]!r}")
+
+
+def _names(text: str) -> list[str]:
+    return [re.split(r"\s+", c.strip())[0].strip('"').upper() for c in text.split(",") if c.strip()]
+
+
+def _column(item: str) -> dict[str, Any] | None:
+    """A column definition: name, type, length / precision / scale, nullable, identity, generated."""
+    m = re.match(r'\s*("?[A-Z0-9_#@$]+"?)\s+(.*)$', item, re.I | re.S)
+    if not m:
+        return None
+    name, rest = m.group(1).strip('"').upper(), m.group(2)
+    t = _TYPE.match(rest)
+    if not t:
+        return None
+    base = re.sub(r"\s+", " ", t.group("t").upper())
+    base = {"CHARACTER": "CHAR", "CHAR VARYING": "VARCHAR", "CHARACTER VARYING": "VARCHAR", "DEC": "DECIMAL",
+            "NUMERIC": "DECIMAL", "NUM": "DECIMAL", "INT": "INTEGER", "DOUBLE PRECISION": "DOUBLE"}.get(base, base)  # fmt: skip
+    a, b = t.group("a"), t.group("b")
+    col: dict[str, Any] = {"name": name, "type": base, "nullable": True, "identity": None, "generated": False}
+    if base in ("CHAR", "VARCHAR", "GRAPHIC", "VARGRAPHIC"):
+        col["length"] = int(a or 1)
+    elif base == "DECIMAL":
+        col["precision"], col["scale"] = int(a or 5), int(b or 0)
+    tail = rest[t.end() :].upper()
+    if re.search(r"\bNOT\s+NULL\b", tail) or re.search(r"\bPRIMARY\s+KEY\b", tail):
+        col["nullable"] = False
+    ident = re.search(r"\bGENERATED\s+(ALWAYS|BY\s+DEFAULT)\s+AS\s+IDENTITY\b", tail)
+    if ident:
+        start = re.search(r"\bSTART\s+WITH\s+(-?\d+)", tail)
+        inc = re.search(r"\bINCREMENT\s+BY\s+(-?\d+)", tail)
+        col["identity"] = {"start": int(start.group(1)) if start else 1, "increment": int(inc.group(1)) if inc else 1}
+        col["nullable"] = False
+    elif re.search(r"\bGENERATED\b", tail):  # a ROW CHANGE TIMESTAMP, an expression: Db2's to set
+        col["generated"] = True
+    col["inline_key"] = "primary" if re.search(r"\bPRIMARY\s+KEY\b", tail) else (
+        "unique" if re.search(r"\bUNIQUE\b", tail) else None)  # fmt: skip
+    ref = re.search(r"\bREFERENCES\s+([A-Z0-9_.$#@\"]+)\s*(\(([^)]*)\))?", tail)
+    col["inline_ref"] = (ref.group(1).replace('"', ""), _names(ref.group(3)) if ref.group(3) else None) if ref else None
+    return col
+
+
+def parse_tables(text: str) -> dict[str, dict[str, Any]]:
+    """{TABLE: {"columns": [...], "keys": [[column, ...], ...] (the primary key first), "fks": [{"columns",
+    "parent", "parent_columns"}]}} from SQL text (ddl_text's): CREATE TABLE, DECLARE ... TABLE (a DCLGEN), ALTER
+    TABLE ... ADD PRIMARY KEY / UNIQUE / FOREIGN KEY, CREATE UNIQUE INDEX."""
+    tables: dict[str, dict[str, Any]] = {}
+    for stmt in text.split(";"):
+        s = stmt.strip()
+        m = (re.match(r"CREATE\s+TABLE\s+([A-Z0-9_.$#@\"]+)\s*\(", s, re.I)
+             or re.match(r"(?:EXEC\s+SQL\s+)?DECLARE\s+([A-Z0-9_.$#@\"]+)\s+TABLE\s*\(", s, re.I))  # fmt: skip
+        if m:
+            name = m.group(1).replace('"', "").upper()
+            body, _ = _paren(s, m.end() - 1)
+            t = tables.setdefault(name, {"columns": [], "keys": [], "fks": []})
+            t["columns"] = []
+            for item in _top_split(body):
+                _constraint(t, item) or _add_column(t, item)
+            continue
+        m = re.match(r"CREATE\s+UNIQUE\s+INDEX\s+\S+\s+ON\s+([A-Z0-9_.$#@\"]+)\s*\(", s, re.I)
+        if m:
+            cols, _ = _paren(s, m.end() - 1)
+            tables.setdefault(m.group(1).replace('"', "").upper(), {"columns": [], "keys": [], "fks": []})[
+                "keys"].append(_names(cols))  # fmt: skip
+            continue
+        m = re.match(r"ALTER\s+TABLE\s+([A-Z0-9_.$#@\"]+)\s+ADD\s+(.*)$", s, re.I | re.S)
+        if m:
+            _constraint(tables.setdefault(m.group(1).replace('"', "").upper(), {"columns": [], "keys": [], "fks": []}),
+                        m.group(2))  # fmt: skip
+    for t in tables.values():  # unique sets once each, the primary key first
+        seen: list[list[str]] = []
+        for k in t["keys"]:
+            if k not in seen:
+                seen.append(k)
+        t["keys"] = seen
+    return tables
+
+
+def _add_column(t: dict[str, Any], item: str) -> None:
+    col = _column(item)
+    if col is None:
+        return
+    t["columns"].append(col)
+    if col["inline_key"] == "primary":
+        t["keys"].insert(0, [col["name"]])
+    elif col["inline_key"] == "unique":
+        t["keys"].append([col["name"]])
+    if col["inline_ref"]:
+        t["fks"].append({"columns": [col["name"]], "parent": col["inline_ref"][0].upper(),
+                         "parent_columns": col["inline_ref"][1]})  # fmt: skip
+
+
+def _constraint(t: dict[str, Any], item: str) -> bool:
+    """A table constraint (PRIMARY KEY / UNIQUE / FOREIGN KEY / CHECK, with or without CONSTRAINT name) taken into
+    the table; False when the item is a column."""
+    s = re.sub(r"^\s*CONSTRAINT\s+\S+\s+", "", item, flags=re.I)
+    m = re.match(r"(PRIMARY\s+KEY|UNIQUE)\s*\(", s, re.I)
+    if m:
+        cols, _ = _paren(s, m.end() - 1)
+        if m.group(1).upper().startswith("PRIMARY"):
+            t["keys"].insert(0, _names(cols))
+            for c in t["columns"]:
+                if c["name"] in _names(cols):
+                    c["nullable"] = False
+        else:
+            t["keys"].append(_names(cols))
+        return True
+    m = re.match(r"FOREIGN\s+KEY\s*(?:[A-Z0-9_#@$]+\s*)?\(", s, re.I)
+    if m:
+        cols, end = _paren(s, m.end() - 1)
+        ref = re.match(r"\s*REFERENCES\s+([A-Z0-9_.$#@\"]+)\s*(\(([^)]*)\))?", s[end:], re.I)
+        if ref:
+            t["fks"].append({"columns": _names(cols), "parent": ref.group(1).replace('"', "").upper(),
+                             "parent_columns": _names(ref.group(3)) if ref.group(3) else None})  # fmt: skip
+        return True
+    return bool(re.match(r"(CHECK\s*\(|PERIOD\b|LIKE\b)", s, re.I))
+
+
+def declared_tables(case: dict[str, Any], corpus: Path) -> dict[str, dict[str, Any]]:
+    """The case's tables as its DDL declares them (then its `generate.dclgen` members, for tables the DDL does not
+    create: a DCLGEN's DECLARE TABLE has the columns, not the keys)."""
+    spec = case["db2"]
+    symbols = spec.get("symbols")
+    tables: dict[str, dict[str, Any]] = {}
+    for ddl in spec.get("ddl", []):
+        for name, t in parse_tables(ddl_text(corpus / ddl, symbols)).items():
+            old = tables.setdefault(name, {"columns": [], "keys": [], "fks": []})
+            old["columns"] = t["columns"] or old["columns"]
+            old["keys"] += [k for k in t["keys"] if k not in old["keys"]]
+            old["fks"] += t["fks"]
+    for dcl in (spec.get("generate") or {}).get("dclgen", []):
+        text = (corpus / dcl).read_text(encoding="latin-1")
+        sql = " ".join(
+            re.findall(r"EXEC\s+SQL(.*?)END-EXEC", "\n".join(ln[6:72] for ln in text.splitlines()), re.S | re.I)
+        )
+        for name, t in parse_tables(sql.replace("END-EXEC", ";")).items():
+            if not tables.get(name, {}).get("columns"):
+                tables[name] = t
+    return tables
+
+
+def _qualify(name: str, tables: dict[str, Any], default: str | None) -> str:
+    if name in tables or "." in name:
+        return name
+    return f"{default}.{name}" if default and f"{default}.{name}" in tables else name
+
+
+def _edges(col: dict[str, Any]) -> list[Any]:
+    """The column's boundary values (see the section's comment), in the order they are given to rows."""
+    t = col["type"]
+    if t == "CHAR":
+        n = col["length"]
+        return ["Z" * n, "", "A" * max(1, n // 2)]
+    if t == "VARCHAR":
+        n = col["length"]
+        return ["", "Z" * min(n, 4000), "A" * max(1, min(n, 4000) // 2), ("B  " if n >= 3 else "B")]
+    if t == "DECIMAL":
+        p, s = col["precision"], col["scale"]
+        top = Decimal(10) ** (p - s) - Decimal(1).scaleb(-s)
+        tiny = Decimal(1).scaleb(-s) if s else Decimal(1)
+        halves = [h for h in (Decimal("0.5"), Decimal("2.5")) if s and h <= top]
+        return [Decimal(0), Decimal(1) if p > s else tiny, top, -top, tiny, -tiny, *halves, *[-h for h in halves]]
+    if t in _INT_RANGE:
+        r = _INT_RANGE[t]
+        return [0, 1, -1, r - 1, -r]
+    if t == "DATE":
+        return ["0001-01-01", "9999-12-31", "2024-02-29"]
+    if t == "TIME":
+        return ["00.00.00", "23.59.59"]
+    if t == "TIMESTAMP":
+        return ["0001-01-01-00.00.00.000000", "9999-12-31-23.59.59.999999", "2024-02-29-12.00.00.000000"]
+    if t in ("REAL", "FLOAT", "DOUBLE"):
+        return [0, 1, -1]
+    raise ValueError(f"column {col['name']}: type {t} is not generated (give it `values`)")
+
+
+_ALNUM = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789"
+
+
+def _spread(rng: random.Random, col: dict[str, Any], digits: bool = False) -> Any:
+    """A value in between the boundaries."""
+    t = col["type"]
+    if t in ("CHAR", "VARCHAR"):
+        n = min(col["length"], 254)
+        width = n if t == "CHAR" or rng.random() < 0.5 else rng.randint(1, n)
+        return "".join(rng.choice("0123456789" if digits else _ALNUM) for _ in range(width))
+    if t == "DECIMAL":
+        p, s = col["precision"], col["scale"]
+        whole = rng.randint(0, 10 ** min(p - s, 9) - 1) if p > s else 0
+        v = Decimal(whole) + (Decimal(rng.randint(0, 10**s - 1)).scaleb(-s) if s else Decimal(0))
+        return -v if rng.random() < 0.3 else v
+    if t in _INT_RANGE:
+        return rng.randint(-1000, 100000)
+    y, mo, d = rng.randint(1990, 2030), rng.randint(1, 12), rng.randint(1, 28)
+    if t == "DATE":
+        return f"{y:04d}-{mo:02d}-{d:02d}"
+    if t == "TIME":
+        return f"{rng.randint(0, 23):02d}.{rng.randint(0, 59):02d}.{rng.randint(0, 59):02d}"
+    if t == "TIMESTAMP":
+        return (f"{y:04d}-{mo:02d}-{d:02d}-{rng.randint(0, 23):02d}.{rng.randint(0, 59):02d}."
+                f"{rng.randint(0, 59):02d}.{rng.randint(0, 999999):06d}")  # fmt: skip
+    return rng.randint(-1000, 1000)
+
+
+def _fits(col: dict[str, Any], v: Any) -> Any:
+    """A value as the column holds it (a `values` / `digits` value too long for the column is cut)."""
+    if v is None:
+        return None
+    if col["type"] in ("CHAR", "VARCHAR"):
+        return str(v)[: col["length"]]
+    if col["type"] == "DECIMAL":
+        return Decimal(str(v))
+    return v
+
+
+def literal(v: Any) -> str:
+    """A generated value as an SQL literal."""
+    if v is None:
+        return "NULL"
+    if isinstance(v, Decimal):
+        return format(v, "f")
+    if isinstance(v, (int, float)):
+        return str(v)
+    return "'" + str(v).replace("'", "''") + "'"
+
+
+def _gen_order(tables: dict[str, dict[str, Any]], wanted: list[str]) -> list[str]:
+    """The tables to generate, each after its foreign keys' parents (a parent the case does not name is added)."""
+    out: list[str] = []
+
+    def visit(name: str, path: tuple[str, ...]) -> None:
+        if name in out or name in path:
+            return
+        if name not in tables:
+            raise ValueError(f"generated table {name}: no CREATE TABLE / DECLARE TABLE for it in the case's DDL")
+        for fk in tables[name]["fks"]:
+            if fk["parent"] != name:
+                visit(fk["parent"], (*path, name))
+        out.append(name)
+
+    for w in wanted:
+        visit(w, ())
+    return out
+
+
+def generate_rows(case: dict[str, Any], corpus: Path, tables: dict[str, dict[str, Any]] | None = None
+                  ) -> tuple[list[tuple[str, dict[str, Any]]], dict[str, list[Any]]]:  # fmt: skip
+    """([(table, {column: value})] in INSERT order, {TABLE.COLUMN: the values it holds}) -- deterministic (the
+    generate block's seed); the pools are what a scenario's keys are drawn from (prepare_cics_case)."""
+    gen = case["db2"].get("generate") or {}
+    tables = tables if tables is not None else declared_tables(case, corpus)
+    qual = qualifier(case)
+    wanted = {_qualify(k.upper(), tables, qual): v for k, v in (gen.get("tables") or {}).items()}
+    if not wanted:
+        wanted = {_qualify(t.upper(), tables, qual): {} for t in _tables(case)}
+    rows_out: list[tuple[str, dict[str, Any]]] = []
+    pools: dict[str, list[Any]] = {}
+    held: dict[str, list[dict[str, Any]]] = {}  # each generated table's rows as Db2 holds them (identities set)
+    for name in _gen_order(tables, list(wanted)):
+        t, spec = tables[name], wanted.get(name, {})
+        rules = {k.upper(): v for k, v in (spec.get("columns") or {}).items()}
+        unknown = set(rules) - {c["name"] for c in t["columns"]}
+        if unknown:
+            raise ValueError(f"{name}: no column {sorted(unknown)}")
+        n = spec.get("rows", gen.get("rows", 20))
+        rng = random.Random(f"{gen.get('seed', 0)}:{name}")
+        cols = [c for c in t["columns"] if not c["generated"]]
+        fks = [fk for fk in t["fks"] if fk["parent"] != name]  # (a self-reference: left to the case's rules)
+        fk_cols = {c for fk in fks for c in fk["columns"]}
+        idents = {c["name"]: c["identity"] for c in cols if c["identity"] and "values" not in rules.get(c["name"], {})}
+        keys = [k for k in t["keys"] if not set(k) & set(idents)]
+        key_cols = {c for k in keys for c in k}
+        nullable = [c["name"] for c in cols if c["nullable"] and c["name"] not in key_cols]
+        seen: list[set[tuple[Any, ...]]] = [set() for _ in keys]
+        made: list[dict[str, Any]] = []
+        idx = dict.fromkeys((c["name"] for c in cols), 0)  # each column's next value in its sequence
+        attempts = 0
+        while len(made) < n:
+            attempts += 1
+            if attempts > n * 50:
+                raise ValueError(f"{name}: cannot make {n} rows with unique keys {keys}")
+            row: dict[str, Any] = {}
+            for fk in fks:  # a parent row each foreign key refers to (absent, now and then, when it may be)
+                parent = held.get(fk["parent"]) or []
+                if not parent:
+                    raise ValueError(f"{name}: its parent {fk['parent']} has no generated rows")
+                pcols = fk["parent_columns"] or tables[fk["parent"]]["keys"][0]
+                optional = all(next(c for c in cols if c["name"] == x)["nullable"] for x in fk["columns"])
+                p = None if optional and len(made) % 9 == 8 else rng.choice(parent)
+                for x, pc in zip(fk["columns"], pcols):
+                    row[x] = None if p is None else p[pc]
+            for c in cols:
+                cn, rule = c["name"], rules.get(c["name"], {})
+                if cn in idents or (cn in fk_cols and not rule):
+                    continue
+                i = idx[cn]
+                if "values" in rule:  # `every` k: the value changes each k rows
+                    v = rule["values"][(len(made) // rule.get("every", 1)) % len(rule["values"])]
+                elif "from" in rule:
+                    pool = pools.get(rule["from"].upper())
+                    if not pool:
+                        raise ValueError(f"{name}.{cn}: nothing generated yet for {rule['from']}")
+                    v = rng.choice(pool)
+                elif rule.get("digits"):  # a CHAR column that holds a number (an account number kept as text)
+                    v = "".join(rng.choice("0123456789") for _ in range(c.get("length", 1)))
+                else:
+                    edges = [] if rule.get("edges") is False else _edges(c)
+                    # NULL after the boundaries, each nullable column at a row of its own (one NULL at a time:
+                    # a program that tests its columns one by one meets each test alone)
+                    null_at = len(edges) + nullable.index(cn) if cn in nullable and rule.get("null", True) else -1
+                    # the boundaries in turn, each column from its own place in its list (so one row is not
+                    # every column's first boundary), then NULL, then values in between
+                    j = cols.index(c)
+                    v = (edges[(i + j) % len(edges)] if i < len(edges)
+                         else (None if i == null_at else _spread(rng, c)))  # fmt: skip
+                row[cn] = _fits(c, v)
+            tups = [tuple(row.get(c) for c in k) for k in keys]
+            if any(tup in s for tup, s in zip(tups, seen)):
+                for c in key_cols:  # the next attempt: in-between values for the key's columns
+                    idx[c] = max(idx[c], 99)
+                continue
+            for tup, s in zip(tups, seen):
+                s.add(tup)
+            for c in cols:
+                idx[c["name"]] += 1
+            made.append(row)
+        held[name] = []
+        for r, row in enumerate(made):
+            rows_out.append((name, row))
+            full = {**row, **{c: i["start"] + r * i["increment"] for c, i in idents.items()}}
+            held[name].append(full)
+            for c in cols:
+                if full.get(c["name"]) is not None:
+                    pools.setdefault(f"{name}.{c['name']}", []).append(full[c["name"]])
+    return rows_out, pools
+
+
+_GENERATED: dict[str, str] = {}  # a db2 section (as JSON) -> its generated seed, made once a process
+
+
+def generated_seed(case: dict[str, Any], corpus: Path) -> str:
+    """The generated rows as the seed's INSERTs, one a row (identity columns left to Db2). Made once a process (the
+    batch side's Java runs reset the tables with no corpus at hand: create() made it first)."""
+    import json
+
+    key = json.dumps(case["db2"], sort_keys=True)
+    if key not in _GENERATED:
+        rows, _ = generate_rows(case, corpus)
+        _GENERATED[key] = "".join(
+            f"INSERT INTO {t} ({', '.join(r)}) VALUES ({', '.join(literal(v) for v in r.values())});\n" for t, r in rows
+        )
+    return _GENERATED[key]
+
+
+# ---- #4507: what Db2 answered each side -------------------------------------------------------------------------
+# A case with "compare_sql": true in its db2 section compares, per task, the statements each side ran and what Db2
+# answered them, in order: the verb, SQLCODE, SQLSTATE and the rows (a query's rows read -- compared when both sides
+# read to its end -- or an INSERT / UPDATE / DELETE's count). The COBOL side's come from ggsql.c ($GGSQL_OUTCOMES),
+# the Java side's from its JDBC connections (EquivalenceDb2Config). What a COBOL program's host variables add after
+# Db2 answered -- -304 (a number too big for its host variable), -305 (a NULL with no indicator), -811 (a second row
+# for a SELECT INTO) -- is the stub's, not Db2's: the Java side has no host variables, so those count as the row Db2
+# returned (the program's reaction to them is compared through its outputs). COMMIT / ROLLBACK are not statements
+# the Java side runs (its unit of work is the harness's), so they are not compared; a warning (SQLCODE > 0 other than
+# +100) counts as success.
+_ASSIGN = (-304, -305)
+
+
+def _settle(e: dict[str, Any]) -> dict[str, Any]:
+    """An outcome as compared: a query that returned nothing +100 / 02000; success 0 / 00000."""
+    code = e["sqlcode"]
+    if code > 0 and code != 100:
+        code = 0
+    if code >= 0 and e["kind"] == "Q" and e["ended"] and e["rows"] == 0:
+        code = 100
+    elif code >= 0 and e["kind"] == "U" and e["verb"] in ("INSERT", "UPDATE", "DELETE", "MERGE") and e["rows"] == 0:
+        code = 100
+    elif code == 100 and e["kind"] == "Q" and e["rows"]:
+        code = 0
+    state = {0: "00000", 100: "02000"}.get(code, e["sqlstate"])
+    rows = e["rows"] if code >= 0 and (e["kind"] == "U" or e["ended"]) else None
+    return {"verb": e["verb"], "sqlcode": code, "sqlstate": state, "rows": rows}
+
+
+def cobol_outcomes(text: str) -> list[dict[str, Any]]:
+    """ggsql.c's outcome log (one line a statement) as the statements Db2 answered, cursors folded into their
+    query (OPEN, its FETCHes, CLOSE: one query, its rows those FETCHed)."""
+    out: list[dict[str, Any]] = []
+    open_q: dict[str, dict[str, Any]] = {}
+    for ln in text.splitlines():
+        parts = ln.split()
+        if len(parts) != 7:
+            continue
+        kind, cursor, verb, code, state, rows, fault = parts[0], parts[1], parts[2], int(parts[3]), parts[4], int(
+            parts[5]), parts[6] == "1"  # fmt: skip
+        if kind in ("COMMIT", "ROLLBACK", "CLOSE"):
+            continue
+        if kind == "OPEN":
+            e = {"verb": verb, "sqlcode": code, "sqlstate": state, "rows": 0, "ended": code < 0, "kind": "Q",
+                 "fault": fault}  # fmt: skip
+            out.append(e)
+            open_q[cursor] = e
+        elif kind == "FETCH":
+            e = open_q.get(cursor)
+            if e is None:
+                continue
+            if code == 100:
+                e["ended"] = True
+            elif code >= 0 or code in _ASSIGN:
+                e["rows"] += 1
+            else:
+                e["sqlcode"], e["sqlstate"], e["ended"] = code, state, True
+        elif kind == "SELECT1":
+            if code in _ASSIGN:
+                code, state, n = 0, "00000", 1
+            elif code == -811:
+                code, state, n = 0, "00000", 2  # (the Java side reads every row: at least 2)
+            else:
+                n = 1 if 0 <= code != 100 else 0
+            out.append({"verb": verb, "sqlcode": code, "sqlstate": state, "rows": n, "ended": True, "kind": "Q",
+                        "fault": fault})  # fmt: skip
+        else:  # EXEC
+            out.append({"verb": verb, "sqlcode": code, "sqlstate": state, "rows": rows, "ended": True, "kind": "U",
+                        "fault": fault})  # fmt: skip
+    return [_settle(e) for e in out]
+
+
+def java_outcomes(text: str) -> list[dict[str, Any]]:
+    """EquivalenceDb2Config's log as the statements Db2 answered."""
+    out = []
+    for ln in text.splitlines():
+        parts = ln.split()
+        if len(parts) != 6:
+            continue
+        verb, code, state, rows, ended, kind = parts
+        out.append(_settle({"verb": verb, "sqlcode": int(code), "sqlstate": state, "rows": int(rows),
+                            "ended": ended == "1" or kind == "U", "kind": kind}))  # fmt: skip
+    return out
+
+
+def compare_outcomes(cobol: list[dict[str, Any]], java: list[dict[str, Any]]) -> dict[str, Any]:
+    """The two sides' statements paired in order, field by field: {statements, equal, diffs, cobol, java}. Rows are
+    compared when both sides know them (a query read to its end on both sides)."""
+    diffs = []
+    n = max(len(cobol), len(java))
+    for i in range(n):
+        a = cobol[i] if i < len(cobol) else None
+        b = java[i] if i < len(java) else None
+        if a is None or b is None:
+            diffs.append({"statement": i + 1, "record": i + 1, "missing": "cobol" if a is None else "java",
+                          "cobol": a, "java": b})  # fmt: skip
+            continue
+        fields = [{"field": f, "cobol": a[f], "java": b[f]} for f in ("verb", "sqlcode", "sqlstate")
+                  if a[f] != b[f]]  # fmt: skip
+        if a["rows"] is not None and b["rows"] is not None and a["rows"] != b["rows"]:
+            fields.append({"field": "rows", "cobol": a["rows"], "java": b["rows"]})
+        if fields:
+            diffs.append({"statement": i + 1, "record": i + 1, "fields": fields})
+    # (`records` / `record` too: a batch report's outputs are read as record diffs, a statement a record)
+    return {"statements": n, "records": n, "equal": n - len(diffs), "diffs": diffs[:20], "cobol": cobol, "java": java}
+
+
+def generated_pools(case: dict[str, Any], corpus: Path) -> dict[str, list[Any]]:
+    """{TABLE.COLUMN: values} of a case whose seed is generated; {} otherwise."""
+    if (case.get("db2") or {}).get("seed") != "@generate":
+        return {}
+    return generate_rows(case, corpus)[1]
 
 
 # ---- the COBOL side --------------------------------------------------------------------------------------------
@@ -399,6 +947,16 @@ JCC = ("com.ibm.db2", "jcc", "11.5.9.0")
 
 CONFIG = """package __PKG__;
 
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
+import java.lang.reflect.Proxy;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Locale;
+
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Primary;
@@ -406,15 +964,185 @@ import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 import org.springframework.jdbc.datasource.DriverManagerDataSource;
 
 /** The equivalence harness's Db2 (tests/tools/equivalence_db2.py): the generated Db2 repositories' JDBC template on
- *  the database the COBOL side ran on; JPA and Spring Batch keep the project's own datasource. */
+ *  the database the COBOL side ran on; JPA and Spring Batch keep the project's own datasource.
+ *
+ *  #4507: while the system property gitgalaxy.db2.sqllog names a file, every statement run through this template's
+ *  connections is logged there as Db2 answered it -- `verb sqlcode sqlstate rows ended kind` (kind Q: a query, its
+ *  rows those the port read, ended when it read past the last; U: an update count) -- what the COBOL side's
+ *  $GGSQL_OUTCOMES holds for the same task (equivalence_db2.compare_outcomes). */
 @Configuration
 public class EquivalenceDb2Config {
+    static final class Outcome {
+        final String verb;
+        final char kind;
+        int code;
+        String state = "00000";
+        long rows;
+        boolean ended;
+
+        Outcome(String verb, char kind) {
+            this.verb = verb;
+            this.kind = kind;
+        }
+    }
+
+    static final List<Outcome> LOG = new ArrayList<>();
+    static String logPath;
+
+    static synchronized Outcome start(String sql, char kind) {
+        String path = System.getProperty("gitgalaxy.db2.sqllog");
+        if (path == null || path.isEmpty()) {
+            return null;
+        }
+        if (!path.equals(logPath)) {
+            LOG.clear();
+            logPath = path;
+        }
+        String s = sql == null ? "" : sql.strip();
+        while (s.startsWith("(")) {
+            s = s.substring(1).strip();
+        }
+        int end = 0;
+        while (end < s.length() && !Character.isWhitespace(s.charAt(end)) && s.charAt(end) != '(') {
+            end++;
+        }
+        Outcome o = new Outcome(end == 0 ? "-" : s.substring(0, end).toUpperCase(Locale.ROOT), kind);
+        LOG.add(o);
+        return o;
+    }
+
+    static synchronized void flush() {
+        if (logPath == null) {
+            return;
+        }
+        StringBuilder b = new StringBuilder();
+        for (Outcome o : LOG) {
+            b.append(o.verb).append(' ').append(o.code).append(' ').append(o.state).append(' ').append(o.rows)
+                    .append(' ').append(o.ended ? 1 : 0).append(' ').append(o.kind).append('\\n');
+        }
+        try {
+            Files.writeString(Path.of(logPath), b.toString(), StandardCharsets.ISO_8859_1);
+        } catch (java.io.IOException e) {
+            throw new java.io.UncheckedIOException(e);
+        }
+    }
+
+    static Object call(Object target, Method m, Object[] a) throws Throwable {
+        try {
+            return m.invoke(target, a);
+        } catch (InvocationTargetException e) {
+            throw e.getCause();
+        }
+    }
+
+    static void failed(Outcome o, java.sql.SQLException e) {
+        if (o != null) {
+            o.code = e.getErrorCode();
+            o.state = e.getSQLState() == null ? "-----" : e.getSQLState();
+            flush();
+        }
+    }
+
+    static java.sql.ResultSet rows(java.sql.ResultSet rs, Outcome o) {
+        if (o == null) {
+            return rs;
+        }
+        return (java.sql.ResultSet) Proxy.newProxyInstance(EquivalenceDb2Config.class.getClassLoader(),
+                new Class<?>[] {java.sql.ResultSet.class}, (p, m, a) -> {
+                    try {
+                        Object r = call(rs, m, a);
+                        if (m.getName().equals("next")) {
+                            if (Boolean.TRUE.equals(r)) {
+                                o.rows++;
+                            } else {
+                                o.ended = true;
+                            }
+                            flush();
+                        }
+                        return r;
+                    } catch (java.sql.SQLException e) {
+                        failed(o, e);
+                        throw e;
+                    }
+                });
+    }
+
+    static Object statement(java.sql.Statement st, String sql, Class<?> type) {
+        Outcome[] last = new Outcome[1];
+        return Proxy.newProxyInstance(EquivalenceDb2Config.class.getClassLoader(), new Class<?>[] {type},
+                (p, m, a) -> {
+                    String n = m.getName();
+                    if (n.equals("getResultSet")) {
+                        return rows((java.sql.ResultSet) call(st, m, a), last[0]);
+                    }
+                    if (!n.startsWith("execute")) {
+                        return call(st, m, a);
+                    }
+                    String text = sql != null ? sql : (a != null && a.length > 0 && a[0] instanceof String s ? s : "");
+                    Outcome o = start(text, n.equals("executeQuery") ? 'Q' : 'U');
+                    last[0] = o;
+                    try {
+                        Object r = call(st, m, a);
+                        if (o == null) {
+                            return r;
+                        }
+                        if (r instanceof java.sql.ResultSet rs) {
+                            return rows(rs, o);
+                        }
+                        if (r instanceof Integer k) {
+                            o.rows = k;
+                        } else if (r instanceof Long k) {
+                            o.rows = k;
+                        } else if (r instanceof int[] ks) {
+                            for (int k : ks) {
+                                o.rows += Math.max(k, 0);
+                            }
+                        } else if (Boolean.FALSE.equals(r)) {
+                            o.rows = st.getUpdateCount();
+                        }
+                        flush();
+                        return r;
+                    } catch (java.sql.SQLException e) {
+                        failed(o, e);
+                        throw e;
+                    }
+                });
+    }
+
+    static java.sql.Connection logged(java.sql.Connection c) {
+        return (java.sql.Connection) Proxy.newProxyInstance(EquivalenceDb2Config.class.getClassLoader(),
+                new Class<?>[] {java.sql.Connection.class}, (p, m, a) -> {
+                    Object r = call(c, m, a);
+                    String n = m.getName();
+                    if (n.equals("prepareStatement") && r instanceof java.sql.PreparedStatement ps) {
+                        return statement(ps, (String) a[0], java.sql.PreparedStatement.class);
+                    }
+                    if (n.equals("prepareCall") && r instanceof java.sql.CallableStatement cs) {
+                        return statement(cs, (String) a[0], java.sql.CallableStatement.class);
+                    }
+                    if (n.equals("createStatement") && r instanceof java.sql.Statement st) {
+                        return statement(st, null, java.sql.Statement.class);
+                    }
+                    return r;
+                });
+    }
+
     @Bean
     @Primary
     public NamedParameterJdbcTemplate equivalenceDb2Jdbc() {
         DriverManagerDataSource ds = new DriverManagerDataSource(
             System.getProperty("gitgalaxy.db2.url"), System.getProperty("gitgalaxy.db2.user"),
-            System.getProperty("gitgalaxy.db2.password"));
+            System.getProperty("gitgalaxy.db2.password")) {
+            @Override
+            public java.sql.Connection getConnection() throws java.sql.SQLException {
+                return logged(super.getConnection());
+            }
+
+            @Override
+            public java.sql.Connection getConnection(String user, String password) throws java.sql.SQLException {
+                return logged(super.getConnection(user, password));
+            }
+        };
         ds.setDriverClassName("com.ibm.db2.jcc.DB2Driver");
         return new NamedParameterJdbcTemplate(ds);
     }

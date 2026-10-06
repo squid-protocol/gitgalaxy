@@ -58,6 +58,26 @@
      "handleLink",
      "handleTransaction"
     ]
+   },
+   {
+    "at": "2026-10-06T02:49:30+00:00",
+    "crucible_ref": "v0.2.0 (94f2afcb)",
+    "summary": {
+     "back-and-fix": "1/1",
+     "back-clear-keeps-amount": "1/1",
+     "cancel-first-screen": "1/1",
+     "clear-and-bad-amount": "1/1",
+     "happy-post": "1/1",
+     "mapfail-clear-cancel": "1/1"
+    },
+    "port_sha256": "e0c7136983c2d3f87944f6ca9f4cf606a944a4b18d575850b564b51101632adc",
+    "harness_commit": "97eab6f06817a208c1edfd49a449c65422c8a25b",
+    "by": "tests/tools/crucible_port_provenance.py reprove (cics_crucible.py --sides java-ported java-facade --program PCWIZ --report-dir)",
+    "entry_points": [
+     "runTask",
+     "handleLink",
+     "handleTransaction"
+    ]
    }
   ]
  },
@@ -113,6 +133,16 @@
    "event": "resurfaced",
    "by": "tests/tools/port_surface.py",
    "generator_commit": "d69a63419",
+   "generated_from": "service/PcwizService.java",
+   "replaced": [
+    "handleTransaction"
+   ]
+  },
+  {
+   "at": "2026-10-06T02:14:05+00:00",
+   "event": "resurfaced",
+   "by": "tests/tools/port_surface.py",
+   "generator_commit": "97eab6f06",
    "generated_from": "service/PcwizService.java",
    "replaced": [
     "handleTransaction"

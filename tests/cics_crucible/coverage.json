@@ -1,6 +1,6 @@
 {
  "format": "cics-crucible-coverage/1",
- "crucible_ref": "v0.4.0 (2d01515a)",
+ "crucible_ref": "v0.5.0 (9ee42d11)",
  "note": "#4023: the COBOL each passing cobol-stub scenario executes (live paragraphs and sections entered; branch outcomes as LINE:OUTCOME of the crucible's source) -- a ratchet (tests/tools/cics_crucible.py --ci). Regenerate with --update-baseline.",
  "programs": {
   "ca-channel-containers/CACHAN": {
@@ -194,6 +194,201 @@
       "25:false",
       "25:true",
       "33:false"
+     ]
+    }
+   }
+  },
+  "gt-assign-startcode/GTASAB": {
+   "live": 1,
+   "outcomes": 0,
+   "scenarios": {
+    "no-terminal-abend": {
+     "units": [
+      "MAIN-PARA"
+     ],
+     "outcomes": []
+    }
+   }
+  },
+  "gt-assign-startcode/GTASGN": {
+   "live": 2,
+   "outcomes": 6,
+   "scenarios": {
+    "terminal-and-started": {
+     "units": [
+      "LOG-ASSIGN",
+      "MAIN-PARA"
+     ],
+     "outcomes": [
+      "45:false",
+      "55:WHEN@56"
+     ]
+    },
+    "pseudo-conversational": {
+     "units": [
+      "LOG-ASSIGN",
+      "MAIN-PARA"
+     ],
+     "outcomes": [
+      "45:false",
+      "45:true",
+      "55:WHEN@67"
+     ]
+    },
+    "no-terminal-abend": {
+     "units": [
+      "MAIN-PARA"
+     ],
+     "outcomes": [
+      "45:false",
+      "55:WHEN@75"
+     ]
+    }
+   }
+  },
+  "gt-assign-startcode/GTASNT": {
+   "live": 1,
+   "outcomes": 2,
+   "scenarios": {
+    "terminal-and-started": {
+     "units": [
+      "MAIN-PARA"
+     ],
+     "outcomes": [
+      "44:false",
+      "44:true"
+     ]
+    }
+   }
+  },
+  "gt-start-options/GTCHLD": {
+   "live": 1,
+   "outcomes": 0,
+   "scenarios": {
+    "run-transid": {
+     "units": [
+      "MAIN-PARA"
+     ],
+     "outcomes": []
+    }
+   }
+  },
+  "gt-start-options/GTOPTS": {
+   "live": 2,
+   "outcomes": 8,
+   "scenarios": {
+    "data-options": {
+     "units": [
+      "MAIN-PARA"
+     ],
+     "outcomes": [
+      "40:WHEN@41"
+     ]
+    },
+    "envdeferr": {
+     "units": [
+      "MAIN-PARA"
+     ],
+     "outcomes": [
+      "40:WHEN@47"
+     ]
+    },
+    "no-into": {
+     "units": [
+      "MAIN-PARA"
+     ],
+     "outcomes": [
+      "40:WHEN@51"
+     ]
+    },
+    "after-at": {
+     "units": [
+      "MAIN-PARA"
+     ],
+     "outcomes": [
+      "40:WHEN@55"
+     ]
+    },
+    "invreq-resp2": {
+     "units": [
+      "LOG-START",
+      "MAIN-PARA"
+     ],
+     "outcomes": [
+      "40:WHEN@68"
+     ]
+    },
+    "run-transid": {
+     "units": [
+      "LOG-START",
+      "MAIN-PARA"
+     ],
+     "outcomes": [
+      "40:WHEN@97"
+     ]
+    },
+    "reqid-ioerr": {
+     "units": [
+      "LOG-START",
+      "MAIN-PARA"
+     ],
+     "outcomes": [
+      "40:WHEN@86"
+     ]
+    }
+   }
+  },
+  "gt-start-options/GTREAD": {
+   "live": 1,
+   "outcomes": 2,
+   "scenarios": {
+    "data-options": {
+     "units": [
+      "MAIN-PARA"
+     ],
+     "outcomes": [
+      "37:true"
+     ]
+    },
+    "envdeferr": {
+     "units": [
+      "MAIN-PARA"
+     ],
+     "outcomes": [
+      "37:false"
+     ]
+    }
+   }
+  },
+  "gt-start-options/GTRTRN": {
+   "live": 1,
+   "outcomes": 2,
+   "scenarios": {
+    "no-into": {
+     "units": [
+      "MAIN-PARA"
+     ],
+     "outcomes": [
+      "27:false",
+      "27:true"
+     ]
+    },
+    "after-at": {
+     "units": [
+      "MAIN-PARA"
+     ],
+     "outcomes": [
+      "27:false",
+      "27:true"
+     ]
+    },
+    "reqid-ioerr": {
+     "units": [
+      "MAIN-PARA"
+     ],
+     "outcomes": [
+      "27:false",
+      "27:true"
      ]
     }
    }

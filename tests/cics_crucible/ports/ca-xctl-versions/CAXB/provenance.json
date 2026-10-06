@@ -85,6 +85,23 @@
      "handleLink",
      "handleTransaction"
     ]
+   },
+   {
+    "at": "2026-10-06T19:33:11+00:00",
+    "crucible_ref": "v0.5.0 (9ee42d11)",
+    "summary": {
+     "direct-entry": "1/1",
+     "long-overread": "1/1",
+     "short-upgrade": "1/1"
+    },
+    "port_sha256": "38c15dbfd6f77a5972f324ccc52eaca565e36dd2598fe84ba4b2b44ad4d42919",
+    "harness_commit": "36fc5c2673b74b94d8ad16eb2ab2b5f2db38f4c3",
+    "by": "tests/tools/crucible_port_provenance.py reprove (cics_crucible.py --sides java-ported java-facade --program CAXB --report-dir)",
+    "entry_points": [
+     "runTask",
+     "handleLink",
+     "handleTransaction"
+    ]
    }
   ]
  },

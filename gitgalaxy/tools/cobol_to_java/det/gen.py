@@ -737,11 +737,8 @@ class Gen:
                 return f"Cobol.compare({fa}, {self.const(b.value)}, CS{c})"
             return f"Cobol.compare({fa}, {self.text(b)}, CS{c})"
         if isinstance(b, E.Fig):
-            if b.kind == "ALL":
-                if c:
-                    raise Untranslatable(f"comparison with ALL literal, under PROGRAM COLLATING SEQUENCE "
-                                         f"{self.program_collating}: not modelled")  # fmt: skip
-                return f"Cobol.compareAll({fa}, {jstr(b.all_literal or '')}, CS)"
+            if b.kind == "ALL":  # the literal repeated to the item's length (#4557)
+                return f"Cobol.compareAll({fa}, {jstr(b.all_literal or '')}, CS{c})"
             return f"Cobol.compareFigurative({fa}, Figurative.{self.fig(b.kind)}, CS{c})"
         if isinstance(b, E.Func):
             if c:
@@ -1318,7 +1315,9 @@ class Gen:
                 raise Untranslatable("DISPLAY ALL")
             return jstr(ch)
         if isinstance(o, E.Func):
-            return self.text(o) if not self.is_numeric(o) else f"Cobol.displayNumber({self.num(o)})"
+            if self.is_numeric(o):  # #4557: no runtime formatter; GnuCOBOL shows each result in its own picture
+                raise Untranslatable(f"DISPLAY of numeric FUNCTION {o.name}: its display picture is not modelled")
+            return self.text(o)
         raise Untranslatable(f"DISPLAY of {type(o).__name__}")
 
     def store_all(self, s: S.Stmt, targets: list, value: str, ind: str) -> list[str]:

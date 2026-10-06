@@ -303,7 +303,7 @@ verdict, but it limits what the proof says about inputs outside the scenarios.
   is refused by the translator. An equality consults the alphabet only when it has ALSO (otherwise each character
   has a position of its own). Refused by name: HIGH-VALUE / LOW-VALUE under a literal alphabet (the characters of
   its highest / lowest position; GnuCOBOL's LOW-VALUE is the alphabet's first character), an ordering of an item
-  holding packed / binary / signed items, a comparison with an ALL literal, and an ordinal alphabet. Under EBCDIC,
+  holding packed / binary / signed items, and an ordinal alphabet. Under EBCDIC,
   HIGH-VALUE is X'FF' on both sides, but the harness's byte X'FF' is 'ÿ' (cp037 X'DF'): an ordering of HIGH-VALUE
   against a character cp037 places above X'DF' (S-Z, digits) stops the run by name. SEARCH is not translated.
 - **A migration decision as much as an oracle gap.** A port that will run on ASCII data either keeps ASCII order (a

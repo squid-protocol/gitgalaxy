@@ -255,6 +255,7 @@ public final class DetCics {
     public static String condition(int resp) {
         return switch (resp) {
             case 0 -> "NORMAL";
+            case 6 -> "EOC";
             case 12 -> "FILENOTFOUND";
             case 13 -> "NOTFND";
             case 14 -> "DUPREC";
@@ -279,6 +280,7 @@ public final class DetCics {
     public static int resp(String condition) {
         return switch (condition) {
             case "NORMAL" -> 0;
+            case "EOC" -> 6;
             case "NOTFND" -> 13;
             case "INVREQ" -> 16;
             case "LENGERR" -> 22;
@@ -291,5 +293,28 @@ public final class DetCics {
             case "ROLLEDBACK" -> 82;
             default -> throw new IllegalArgumentException("no RESP value known for condition " + condition);
         };
+    }
+
+    /** #4413: a condition whose default action -- with no HANDLE CONDITION label for it -- is to ignore it, the
+     *  command going on as if it had completed normally (IBM CICS TS, EXEC CICS RECEIVE (LUTYPE2/LUTYPE3): EOC,
+     *  "Default action: ignore the condition"). Every other condition's default is an abend. */
+    public static boolean ignoredByDefault(String condition) {
+        return "EOC".equals(condition);
+    }
+
+    /** #4413: a terminal RECEIVE INTO: the data received into the first bytes of the area, the rest left as it was
+     *  (IBM moves the data it received, no more). */
+    public static void received(Field into, String data, Charset cs) {
+        put(into, data.getBytes(cs));
+    }
+
+    /** #4413: a terminal RECEIVE SET(ADDRESS OF record): the record now addresses the data CICS received (valid "until
+     *  the next receive command or the end of task"). The port's record keeps its own storage, so the data is copied
+     *  into it; a byte past the data is not CICS's to define and is X'00' here (a program reading past LENGTH reads
+     *  undefined storage on CICS, docs/language_status/oracle_assumptions.md X15). */
+    public static void receivedSet(Field record, String data, Charset cs) {
+        byte[] b = data.getBytes(cs);
+        Arrays.fill(record.storage().bytes, record.offset(), record.offset() + record.length(), (byte) 0);
+        System.arraycopy(b, 0, record.storage().bytes, record.offset(), Math.min(b.length, record.length()));
     }
 }

@@ -1126,7 +1126,8 @@ def test_cics_task_facades_run_their_task_in_the_region_joined_or_deployed(tmp_p
         "TX01 calen=0 in=TX01 link=PGMIDERR ts=1",  # a cleared screen: the transid typed; no other program
         "TX01",
         "TX01 calen=null in=CA+ link=PGMIDERR ts=2",  # the whole record; the region's one TS
-        "refused: the task RETURNed a java.lang.StringBuilder, not a java.lang.String",
+        "refused: the task RETURNed a java.lang.StringBuilder, not a java.lang.String (no layout converts one into "
+        "the other)",  # #4449: neither is laid out as bytes
         "TX01 calen=0 in=TX01 link=NORMAL ts=1",  # deployed: OTHER is reached, and one TS across tasks
         "TX01 calen=0 in=TX01 link=NORMAL ts=2",
         "true",

@@ -64,16 +64,19 @@ public class PcwizService {
     /** A CICS transaction entered the program (#4343): one task of it in the region (CicsTask.region()),
      *  ENTER pressed -- `request` its COMMAREA, null when started from a cleared screen -- run through runTask. Returns the COMMAREA its RETURN passes on (null: none).
      *  The COMMAREA crosses programs (#4427): COBOL passes bytes, and each program reads them through its
-     *  own record, so a port may pass either record -- the facade carries it as Object where a flow
-     *  presents another class, and runTask reads it (task.commarea(..)). The flows:
+     *  own record.
+     *  It answers PcwizWsState all the same (#4449): the other records a task of it can RETURN
+     *  (PcconfWsState) cut their bytes as PcwizWsState does, so task.returned converts
+     *  them by layout and loses nothing.
+     *  The flows:
      *  out: RETURN TRANSID(PC03) COMMAREA(WS-STATE) at src/PCWIZ.cbl:78 -> src/PCCONF.cbl (PcconfWsState besides PcwizWsState).
      */
-    public Object handleTransaction(String transid, PcwizWsState request) {
+    public PcwizWsState handleTransaction(String transid, PcwizWsState request) {
         log.info("Pcwiz: handleTransaction");
         CicsTask.Region region = CicsTask.region();
         CicsTask task = region.transaction(transid, request);
         region.run(task, "PCWIZ", this::runTask);
-        return task.returned(Object.class);
+        return task.returned(PcwizWsState.class);
     }
 
     /** Another program LINKed / XCTLed to this one (#4343): the program at that level in the region

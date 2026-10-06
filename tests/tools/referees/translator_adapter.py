@@ -8,10 +8,9 @@ a referee-facts/1 document (#4273), so the engine-vs-translator cross-check
 Nothing here re-parses COBOL: every value comes from the structures the translator builds when it
 translates a program (the expanded `Line`s, the `layout.Item` trees, the `stmt.Paragraph`s). Two
 readings are this adapter's and are kept minimal:
-- the USAGE as written. The translator stores an item's *effective* usage (a group's USAGE inherited
-  by its children); the key and the engine record it as written. `parse_layout` snapshots each
-  item's usage just before `layout._inherit_usage` runs (a wrapper, no translator change), so the
-  `usage` channel compares like with like. Sizes and offsets still use the effective usage.
+- the *effective* USAGE: a group's USAGE inherited by the items under it without their own, as the
+  translator stores it and (#4525) the engine records it too. Until #4525 the engine recorded the
+  USAGE as written, and this adapter snapshotted that before `layout._inherit_usage` ran.
 - an identifier FILE(...) operand is resolved through the single VALUE the translator parsed on
   that item, as the key and the engine do.
 
@@ -39,11 +38,9 @@ import os
 import re
 import sys
 import time
-from contextlib import contextmanager
 from decimal import Decimal
 from pathlib import Path
 from typing import Any, Optional
-from collections.abc import Iterator
 
 HERE = Path(__file__).resolve().parent
 REPO_ROOT = HERE.parents[2]
@@ -196,32 +193,10 @@ def move_value(line: int, source: str, target: str) -> str:
 # ------------------------------------------------------------------------------
 # The DATA DIVISION
 # ------------------------------------------------------------------------------
-@contextmanager
-def _written_usage() -> Iterator[dict[int, str]]:
-    """Each item's USAGE as written, recorded just before the translator applies group inheritance."""
+def parse_layout(lines: list[Any]) -> list[Any]:
+    """layout.parse(lines): the records, each item's usage effective (a group's inherited, #4525)."""
     _, _, L, _, _ = det()
-    seen: dict[int, str] = {}
-    original = L._inherit_usage
-
-    def recording(it: Any, usage: Optional[str]) -> None:
-        if usage is None:  # the record's own call, before anything was inherited
-            for x in it.walk():
-                seen.setdefault(id(x), x.usage)
-        original(it, usage)
-
-    L._inherit_usage = recording
-    try:
-        yield seen
-    finally:
-        L._inherit_usage = original
-
-
-def parse_layout(lines: list[Any]) -> tuple[list[Any], dict[int, str]]:
-    """layout.parse(lines) plus each item's written usage (id(item) -> usage)."""
-    _, _, L, _, _ = det()
-    with _written_usage() as seen:
-        records = L.parse(lines)
-    return records, seen
+    return L.parse(lines)
 
 
 def value_text(v: Any) -> Optional[str]:
@@ -361,9 +336,9 @@ def program_facts(
     errors = []
     # ---- the DATA DIVISION ----
     try:
-        records, written = parse_layout(lines)
+        records = parse_layout(lines)
     except Exception as e:  # noqa: BLE001 -- LayoutError, a refused VALUE (#4411): the translator's verdict
-        records, written = None, {}
+        records = None
         errors.append(f"layout: {type(e).__name__}: {str(e)[:160]}")
         out["failed"].append("data")
     values_of: dict[str, list[str]] = {}
@@ -382,7 +357,7 @@ def program_facts(
                         values_of.setdefault(x.name, []).append(x.values[0][1])
                     if ln.file != progfile:
                         continue
-                    u = written.get(id(x), x.usage) if x.level != 88 else None
+                    u = x.usage if x.level != 88 else None
                     has_occurs = x.occurs != 1 or x.occurs_min is not None or x.depending
                     vals = F.item_values(
                         ln.line, x.level, x.name, x.pic, _DET_USAGE.get(u or "", u),

@@ -112,6 +112,7 @@ def data_entries(content: str) -> list[dict]:
 
     code = _blank_literals("\n".join(_code_lines(content)))
     entries = []
+    groups: list[tuple[int, Optional[str]]] = []  # #4525: (level, effective usage) of the open groups
     for raw in re.split(r"\.(?=\s|$)", code):
         m = _LEVEL_ENTRY.match(raw)
         if not m:
@@ -120,13 +121,23 @@ def data_entries(content: str) -> list[dict]:
         if name in _CLAUSE_WORDS:  # an unnamed item: the "name" is its first clause
             rest, name = f"{name} {rest}", None
         pic = _PIC_CLAUSE.search(rest)
-        usage = _USAGE_CLAUSE.search(rest)
+        usage_match = _USAGE_CLAUSE.search(rest)
+        usage = usage_match.group(1) if usage_match else None
+        # #4525: a group's USAGE applies to every item under it without one of its own (as the engine)
+        lvl = int(level)
+        if lvl not in (66, 88):
+            while groups and (groups[-1][0] >= lvl or lvl == 77):
+                groups.pop()
+            effective = usage or (groups[-1][1] if groups else None)
+            groups.append((lvl, effective))
+            if effective and effective.upper() != "DISPLAY":  # an inherited DISPLAY is the default anyway
+                usage = effective
         entries.append(
             {
                 "level": level,
                 "name": name,
                 "pic": pic.group(1) if pic else None,
-                "usage": usage.group(1) if usage else None,
+                "usage": usage,
                 "depending": "DEPENDING ON" in re.sub(r"\s+", " ", rest),
             }
         )

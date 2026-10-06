@@ -331122,7 +331122,7 @@
           "Parent Ordinal": 19,
           "Redefines": null,
           "Section": "WORKING-STORAGE",
-          "Usage": null,
+          "Usage": "INDEX",
           "Value": null
         },
         {
@@ -331138,7 +331138,7 @@
           "Parent Ordinal": 19,
           "Redefines": null,
           "Section": "WORKING-STORAGE",
-          "Usage": null,
+          "Usage": "INDEX",
           "Value": null
         },
         {
@@ -331154,7 +331154,7 @@
           "Parent Ordinal": 19,
           "Redefines": null,
           "Section": "WORKING-STORAGE",
-          "Usage": null,
+          "Usage": "INDEX",
           "Value": null
         },
         {
@@ -385120,7 +385120,7 @@
           "Parent Ordinal": 6,
           "Redefines": null,
           "Section": "WORKING-STORAGE",
-          "Usage": null,
+          "Usage": "COMPUTATIONAL",
           "Value": null
         },
         {
@@ -385168,7 +385168,7 @@
           "Parent Ordinal": 9,
           "Redefines": null,
           "Section": "WORKING-STORAGE",
-          "Usage": null,
+          "Usage": "COMPUTATIONAL",
           "Value": null
         },
         {
@@ -385184,7 +385184,7 @@
           "Parent Ordinal": 10,
           "Redefines": null,
           "Section": "WORKING-STORAGE",
-          "Usage": null,
+          "Usage": "COMPUTATIONAL",
           "Value": null
         },
         {
@@ -385216,7 +385216,7 @@
           "Parent Ordinal": 12,
           "Redefines": null,
           "Section": "WORKING-STORAGE",
-          "Usage": null,
+          "Usage": "COMPUTATIONAL",
           "Value": "1"
         },
         {
@@ -385232,7 +385232,7 @@
           "Parent Ordinal": 12,
           "Redefines": null,
           "Section": "WORKING-STORAGE",
-          "Usage": null,
+          "Usage": "COMPUTATIONAL",
           "Value": "1"
         },
         {
@@ -385248,7 +385248,7 @@
           "Parent Ordinal": 12,
           "Redefines": null,
           "Section": "WORKING-STORAGE",
-          "Usage": null,
+          "Usage": "COMPUTATIONAL",
           "Value": "1"
         },
         {
@@ -385264,7 +385264,7 @@
           "Parent Ordinal": 12,
           "Redefines": null,
           "Section": "WORKING-STORAGE",
-          "Usage": null,
+          "Usage": "COMPUTATIONAL",
           "Value": "1"
         },
         {
@@ -385280,7 +385280,7 @@
           "Parent Ordinal": 12,
           "Redefines": null,
           "Section": "WORKING-STORAGE",
-          "Usage": null,
+          "Usage": "COMPUTATIONAL",
           "Value": "1"
         },
         {

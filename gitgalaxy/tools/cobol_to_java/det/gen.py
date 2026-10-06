@@ -1141,10 +1141,8 @@ class Gen:
             raise Untranslatable(f"SEARCH {table.name}: no INDEXED BY")
         if not s.whens:
             raise Untranslatable("SEARCH with no WHEN")
-        if table.depending:
-            size = self.int_expr(E.Parser(E.tokenize(table.depending)).ref())
-        else:
-            size = str(table.occurs)
+        dep = table.depending
+        size = self.int_expr(E.Parser(E.tokenize(dep)).ref()) if dep else str(table.occurs)
         idx = E.Ref(table.indexed_by[0])
         varying = d.get("varying")
         if varying is not None and varying.name in table.indexed_by:

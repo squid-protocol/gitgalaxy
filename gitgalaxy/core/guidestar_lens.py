@@ -22,6 +22,7 @@ import re
 from pathlib import Path
 from typing import Any, Optional, Union
 
+from gitgalaxy.core.aperture import VIRTUALENV_CANDIDATE_NAMES, looks_like_virtualenv
 from gitgalaxy.core.source_text import open_source, read_source
 from gitgalaxy.standards.gitgalaxy_config import GUIDESTAR_CONFIG
 
@@ -489,7 +490,13 @@ class GuideStarLens:
         ignored_directories_lower = {d.lower() for d in self._gs_config.get("IGNORED_DIRECTORIES", set())}
 
         for root_dir, dirs, files in os.walk(self.root):
-            dirs[:] = [d for d in dirs if d.lower() not in ignored_directories_lower]
+            # #4542: an `env`/`virtualenv` directory is pruned only when it is a real virtualenv.
+            dirs[:] = [
+                d
+                for d in dirs
+                if d.lower() not in ignored_directories_lower
+                and not (d.lower() in VIRTUALENV_CANDIDATE_NAMES and looks_like_virtualenv(Path(root_dir) / d))
+            ]
 
             dir_path = Path(root_dir)
             rel_dir_path = dir_path.relative_to(self.root)

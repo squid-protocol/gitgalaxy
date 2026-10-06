@@ -17,6 +17,7 @@ from typing import TYPE_CHECKING, Any
 from gitgalaxy.tools.cobol_to_java.det import expr as E
 from gitgalaxy.tools.cobol_to_java.det import layout as L
 from gitgalaxy.tools.cobol_to_java.det import stmt as S
+from gitgalaxy.tools.cobol_to_java.det.source import WIDE
 
 if TYPE_CHECKING:
     from gitgalaxy.tools.cobol_to_java.det.cics import Cics
@@ -1232,6 +1233,8 @@ class Gen:
         c = f"{ind}// {_comment(s.text)}"
         if k == "HOLE":
             raise Untranslatable(s.data.get("why", "not parsed"))
+        if _holds_wide(s):  # #4272: never translated with the stand-in byte (source.narrowed)
+            raise Untranslatable(WIDE_WHY)
         if self.sets_sort_return(s):
             # IBM (SORT-RETURN special register): moving 16 to it in an input / output procedure ends the sort at
             # the next RELEASE or RETURN; GnuCOBOL's behaviour is not measured
@@ -2274,4 +2277,30 @@ def _camel(name: str) -> str:
 
 
 def _comment(text: str) -> str:
-    return re.sub(r"\s+", " ", text).strip()[:150].replace("*/", "* /")
+    return re.sub(r"\s+", " ", text.replace(WIDE, "?")).strip()[:150].replace("*/", "* /")
+
+
+# #4272 (docs/language_status/oracle_assumptions.md D4): no single-byte code page holds the character, so the literal's
+# bytes and length are what the source's transfer to the compiler made of it, not what COBOL says
+WIDE_WHY = ("an alphanumeric literal holds a character beyond the single-byte code page (national / DBCS text in the "
+            "source): its bytes and length depend on how the source reached the compiler")  # fmt: skip
+
+
+def _holds_wide(s: S.Stmt) -> bool:
+    """Whether the statement's own text or parts (not the statements nested in it: each is its own hole) hold a
+    PROCEDURE DIVISION literal's wide character (source.WIDE). An EVALUATE's WHEN conditions are its own."""
+    return _wide_in((s.text, s.data, [cond for cond, _ in s.whens]))
+
+
+def _wide_in(x: Any) -> bool:
+    if isinstance(x, str):
+        return WIDE in x
+    if isinstance(x, S.Stmt):  # a nested statement is translated (or refused) on its own
+        return False
+    if isinstance(x, dict):
+        return any(_wide_in(k) or _wide_in(v) for k, v in x.items())
+    if isinstance(x, (list, tuple, set, frozenset)):
+        return any(_wide_in(v) for v in x)
+    if hasattr(x, "__dataclass_fields__"):
+        return any(_wide_in(getattr(x, f)) for f in x.__dataclass_fields__)
+    return False

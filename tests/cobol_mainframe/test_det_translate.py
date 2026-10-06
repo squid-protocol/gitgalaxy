@@ -1019,7 +1019,6 @@ def _proc(body: list[str]):
 @pytest.mark.parametrize(
     "body",
     [
-        ["    ENTRY 'DLITCBL' USING PAUTBPCB.", "    DISPLAY 'X'.", "    GOBACK."],  # DBUNLDGS: no statement kept
         ["    PERFORM P2 THRU.", "    GOBACK.", "P2.", "    EXIT."],  # GOBACK and P2 were dropped
         ["    CALL 'X' USING BY REFERENCE.", "    GOBACK."],
         ["    SET A TO.", "    GOBACK."],
@@ -1100,14 +1099,15 @@ def test_nist_ccvs85_parses_with_continuations_rewrapped():
     ok = 0
     progs = sorted(_CCVS85.glob("*.cbl"))
     for p in progs:
-        try:
-            lines = SRC.program_lines(p, [_CCVS85])
-            L.parse(lines)
-            proc = S.parse(lines)
+        try:  # #4462: a source of several programs (IC2244 ...: a CALLed one after it; IC4014: a nested one), each
+            procs = []
+            for unit in SRC.program_units(SRC.program_lines(p, [_CCVS85])):
+                L.parse(unit.lines)
+                procs.append(S.parse(unit.lines))
         except Exception:  # noqa: BLE001 -- a refusal is a program that does not count
             continue
         ok += not any(s.kind == "HOLE" and s.data.get("why") == "does not parse"
-                      for para in proc.paragraphs for s in S.walk(para.body))  # fmt: skip
+                      for proc in procs for para in proc.paragraphs for s in S.walk(para.body))  # fmt: skip
     assert len(progs) == 150 and ok >= 130, ok
 
 

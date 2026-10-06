@@ -224,9 +224,15 @@ def logical_lines(raw: list[str], file: str) -> list[Line]:
 # #4523: a quotation mark inside a quotation-mark literal, as the grammar is handed it (`unwrap` restores `""`): the
 # grammar splits `"IT""S"` into two literals (a VALUE read as two, a MOVE refused), though it reads `'IT''S'` whole
 QQ = "\x1e"
+# #4462: a hexadecimal literal on a re-wrapped line, as the grammar is handed it: `"<HX>C1C2"` (an alphanumeric literal,
+# which it continues onto the next row; it continues no X"..."), restored to X"C1C2" by `unwrap`
+HX = "\x1f"
 
 
 _DECIMAL_COMMA = re.compile(r"\bDECIMAL-POINT\s+(?:IS\s+)?COMMA\b", re.I)
+# #4462: an IDMS program (CA IDMS / IDMS-DC, the DMLC precompiler's input): its ENVIRONMENT DIVISION's IDMS-CONTROL
+# SECTION (PROTOCOL. MODE IS IDMS-...) or its DATA DIVISION's SCHEMA SECTION (DB subschema WITHIN schema)
+_IDMS = re.compile(r"^\s*(?:IDMS-CONTROL\s+SECTION|SCHEMA\s+SECTION)\s*\.|\bMODE\s+IS\s+IDMS(?:-DC|-CICS)?\b", re.I)
 
 
 def _outside_literals(text: str) -> str:
@@ -254,7 +260,11 @@ def unmodelled(lines: list[Line]) -> str | None:
       only, and refused the line unnamed.
     - DECIMAL-POINT IS COMMA (DEUT ZINSBER): `1000,00` and `0,5` are numbers and an edited PIC's `.` and `,` swap
       roles; not modelled, so never read as a list of integers.
-    - #4523: the control character U+001E, which the grammar is handed for a doubled `""` (as_fixed_rows).
+    - #4462: IDMS (IDMS-CONTROL SECTION, SCHEMA SECTION; estate-crucible LOAN LNIDMS01): its DML (BIND RUN-UNIT,
+      READY, OBTAIN CALC, FINISH, DC RETURN) and subschema records are not modelled, so the program is refused by name
+      (#4532 tracks IDMS support), never parsed as COBOL with holes.
+    - #4523: the control characters U+001E and U+001F, which the grammar is handed for a doubled `""` and a hex
+      literal's `X"` (as_fixed_rows).
 
     The IDENTIFICATION DIVISION's paragraphs after PROGRAM-ID (AUTHOR, REMARKS ...) are free text no parser reads."""
     in_id = False
@@ -266,8 +276,9 @@ def unmodelled(lines: list[Line]) -> str | None:
             in_id = False
         elif in_id and not head.startswith("PROGRAM-ID"):
             continue
-        if QQ in ln.text:  # #4523: the character the grammar is handed for `""` (never read as one)
-            return f"{Path(ln.file).name}:{ln.line}: the control character U+001E is not modelled"
+        ctl = next((c for c in (QQ, HX) if c in ln.text), None)
+        if ctl is not None:  # #4523, #4462: a character the grammar is handed for `""` / `X"` (never read as one)
+            return f"{Path(ln.file).name}:{ln.line}: the control character U+{ord(ctl):04X} is not modelled"
         wide = next((c for c in ln.text if ord(c) > 0xFF), None)
         if wide is not None:
             return (f"{Path(ln.file).name}:{ln.line}: national / DBCS text ({wide!r}, U+{ord(wide):04X}) is not modelled: the "
@@ -277,6 +288,8 @@ def unmodelled(lines: list[Line]) -> str | None:
         if word is not None:
             return (f"{Path(ln.file).name}:{ln.line}: the name {word.group(0)} holds a national letter: the COBOL grammar reads "
                     "ASCII words only")  # fmt: skip
+        if _IDMS.search(bare):
+            return f"{Path(ln.file).name}:{ln.line}: IDMS DML not supported (an IDMS-DC / DMLC program: {bare.strip()})"
         if _DECIMAL_COMMA.search(bare):
             return f"{Path(ln.file).name}:{ln.line}: DECIMAL-POINT IS COMMA is not modelled"
     return None
@@ -457,6 +470,111 @@ def program_lines(program: Path, dirs: list[Path], engine: EngineCopies | None =
     return out
 
 
+class UnitRefused(ValueError):
+    """#4462: a program of a multi-program source the translator does not read on its own (a nested program that
+    can see its container's GLOBAL items; END PROGRAM markers that do not nest)."""
+
+
+@dataclass
+class Unit:
+    """#4462: one program of a source: its name (PROGRAM-ID's, upper case, unquoted), its own lines (from its
+    IDENTIFICATION DIVISION up to its END PROGRAM, without the programs nested in it or the END PROGRAM markers) and
+    the program containing it (None: an outermost program, the first or one compiled after it in a batch)."""
+
+    name: str
+    lines: list[Line]
+    parent: str | None = None
+
+
+_HEADER = re.compile(r"^\s*(?:IDENTIFICATION|ID)\s+DIVISION\s*\.", re.I)
+_PROGRAM_ID = re.compile(r"^\s*PROGRAM-ID\s*\.?\s*(?:(['\"]?)([A-Z0-9#@$-]+)\1)?", re.I)
+_END_PROGRAM = re.compile(r"^\s*END\s+PROGRAM\s+(['\"]?)([A-Z0-9#@$-]+)\1\s*\.?\s*$", re.I)
+
+
+def program_units(lines: list[Line]) -> list[Unit]:
+    """#4462: the programs of an expanded source, in source order (estate-crucible PAYMAIN: PAYCALC nested in it,
+    PAYRPT batch-compiled after its END PROGRAM). A program begins at its IDENTIFICATION DIVISION (or a PROGRAM-ID
+    with none before it); one beginning while another is open is nested in it; END PROGRAM closes the innermost open
+    program, which it must name. A source of one program is one Unit holding `lines` as they are."""
+    units: list[Unit] = []
+    stack: list[Unit] = []
+    pending: list[Line] = []  # an IDENTIFICATION DIVISION header, its PROGRAM-ID still to come
+    want_name: Unit | None = None  # `PROGRAM-ID.` with its name on the next line
+    for ln in lines:
+        if want_name is not None:
+            m = re.match(r"\s*(['\"]?)([A-Z0-9#@$-]+)\1", ln.text, re.I)
+            want_name.name, want_name = (m.group(2).upper() if m else "?"), None
+            stack[-1].lines.append(ln)
+            continue
+        if _HEADER.match(ln.text):
+            pending.append(ln)
+            continue
+        pid = _PROGRAM_ID.match(ln.text)
+        if pid:
+            u = Unit(pid.group(2).upper() if pid.group(2) else "?", [*pending, ln], stack[-1].name if stack else None)
+            pending = []
+            if not pid.group(2):
+                want_name = u
+            units.append(u)
+            stack.append(u)
+            continue
+        if pending:  # a header with no PROGRAM-ID after it: no program boundary the units can be cut at
+            return [Unit(units[0].name if units else "?", lines)]
+        end = _END_PROGRAM.match(ln.text)
+        if end:
+            name = end.group(2).upper()
+            if not stack or stack[-1].name != name:
+                raise UnitRefused(f"{Path(ln.file).name}:{ln.line}: END PROGRAM {name} closes no open program of "
+                                  f"that name ({', '.join(u.name for u in stack) or 'none open'})")  # fmt: skip
+            stack.pop()
+            continue
+        if not stack:
+            if not units:  # text before any program (no IDENTIFICATION DIVISION / PROGRAM-ID): one unit, as read
+                return [Unit("?", lines)]
+            raise UnitRefused(f"{Path(ln.file).name}:{ln.line}: text after END PROGRAM {units[-1].name}, outside "
+                              "any program")  # fmt: skip
+        stack[-1].lines.append(ln)
+    if len(units) <= 1 or pending:
+        return [Unit(units[0].name if units else "?", lines)]
+    return units
+
+
+_GLOBAL = re.compile(r"\bGLOBAL\b", re.I)
+
+
+def program_unit(lines: list[Line], name: str | None = None) -> list[Line]:
+    """#4462: the lines of one program of a source (`name`: its PROGRAM-ID; None: the first). A nested program whose
+    containers declare GLOBAL items (or files) is refused: it can name them, and its own lines do not hold them."""
+    units = program_units(lines)
+    want = units[0].name if name is None else name.upper()
+    unit = next((u for u in units if u.name == want), None)
+    if unit is None:
+        raise UnitRefused(f"no program {want} in the source (it holds {', '.join(u.name for u in units)})")
+    by_name = {u.name: u for u in units}
+    parent = unit.parent
+    while parent is not None:
+        up = by_name[parent]
+        hit = next((ln for ln in up.lines if _GLOBAL.search(_outside_literals(ln.text))), None)
+        if hit is not None:
+            raise UnitRefused(f"{Path(hit.file).name}:{hit.line}: {unit.name} is nested in {up.name}, which declares "
+                              "GLOBAL items: a nested program's view of its container's GLOBAL data is not modelled")  # fmt: skip
+        parent = up.parent
+    return unit.lines
+
+
+def several_programs(lines: list[Line]) -> str | None:
+    """#4462: why `lines` cannot be read as one program (they hold several: each is read on its own, program_unit),
+    or None."""
+    try:
+        units = program_units(lines)
+    except UnitRefused as e:
+        return str(e)
+    if len(units) > 1:
+        return (f"several programs in one source ({', '.join(u.name for u in units)}): each is translated on its own "
+                "(det.source.program_unit)")  # fmt: skip
+    return None
+
+
 def engine_copies_from_ticket(project: Path, program: Path) -> EngineCopies | None:
     """#4468: the engine's resolution of `program`'s COPYs from the port ticket the generator wrote for it
     (ai_agent_jobs/*_port_ticket.json, repo-relative): the skeleton's `copy_edges` (every estate file the program's
@@ -503,7 +621,8 @@ def as_fixed_rows(lines: list[Line]) -> tuple[str, list[int]]:
     literal open at column 72 continued on the next row ('-' in column 7, the quote again in column 10). The
     grammar fails on a line run past column 72; `unwrap` joins the continued literal again. #4523: the grammar
     continues a literal only in quotation marks, so a wrapped line's apostrophe literals are written in them (same
-    value), and reads `""` inside one only as QQ (`_grammar_literals`); an EXEC block's line keeps its own text (in
+    value), and reads `""` inside one only as QQ (`_grammar_literals`); #4462: it continues no hex literal, so a
+    wrapped line's X"C1C2" is written "<HX>C1C2" (`unwrap` restores it); an EXEC block's line keeps its own text (in
     SQL an apostrophe is a string, a quotation mark a name)."""
     out: list[str] = []
     rows: list[int] = []
@@ -530,11 +649,16 @@ def _grammar_literals(text: str, apostrophes: bool) -> str:
     """`text` with each quotation-mark literal's doubled `""` written QQ, and (`apostrophes`) each apostrophe
     literal written in quotation marks, its value unchanged (`''` undoubled, a `"` written QQ): the grammar continues
     a literal only in quotation marks, and every reader of a literal takes its delimiter from its first character
-    (expr._unquote, layout._one). An unterminated literal is kept as it is."""
+    (expr._unquote, layout._one). An unterminated literal is kept as it is. #4462: a hex literal's `x` is written
+    `X` (the grammar reads no x'00': GenApp lgtestc1's INSPECT ... REPLACING ALL x'00' BY x'40')."""
     out: list[str] = []
     i, n = 0, len(text)
     while i < n:
         q = text[i]
+        hexa = (q in "'\"" and len(out) > 0 and out[-1] in ("x", "X")
+                and not re.match(r"[\w-]", out[-2][-1:] if len(out) > 1 else " "))  # fmt: skip
+        if hexa:
+            out[-1] = "X"
         if q not in "'\"" or (q == "'" and not apostrophes):
             if q == "'":  # an apostrophe literal kept: copied whole (a `"` inside it is its own)
                 j = i + 1
@@ -557,7 +681,13 @@ def _grammar_literals(text: str, apostrophes: bool) -> str:
         if j >= n:  # unterminated: as it is
             out.append(text[i:])
             break
-        out.append('"' + "".join(value).replace('"', QQ) + '"')
+        if (
+            hexa and apostrophes
+        ):  # #4462: X'C1C2' -> "<HX>C1C2", a literal the grammar continues (`unwrap` restores X"C1C2")
+            out[-1] = '"' + HX
+        else:
+            out.append('"')
+        out.append("".join(value).replace('"', QQ) + '"')
         i = j + 1
     return "".join(out)
 
@@ -597,8 +727,9 @@ _CONTINUED = re.compile(r"\n {6}-\s*['\"]")
 
 
 def unwrap(text: str) -> str:
-    """Parser text with as_fixed_rows' literal continuations joined again (a continued literal's own text)."""
-    return _CONTINUED.sub("", text).replace(QQ, '""')
+    """Parser text with as_fixed_rows' literal continuations joined again (a continued literal's own text), and its
+    stand-ins (QQ, HX) back as `""` and `X"`."""
+    return _CONTINUED.sub("", text).replace(QQ, '""').replace('"' + HX, 'X"')
 
 
 def bms_copybooks(bms_files: list[Path], out: Path) -> list[str]:

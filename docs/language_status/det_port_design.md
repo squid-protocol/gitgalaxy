@@ -365,6 +365,27 @@ Only generator output, never a test case:
   SQL an apostrophe is a string, a quotation mark a name; the grammar never reads them). When column 72 of a
   re-wrapped row would split a doubled quote, the row ends a column early. Newly translating: CardDemo CBSTM03A, DSF
   FO04F1X1, estate-crucible RPTHDR and LNCALC; CBSTM03A's cross-check found the engine's group USAGE gap (#4525).
+- #4462 slice 2. *Hex literals*: the grammar continues no `X'...'` (in either quote style), so a re-wrapped line's
+  hex literal is handed to it as an alphanumeric literal `"<U+001F>C1C2..."`, which it continues; `unwrap` restores
+  `X"C1C2..."` (a source holding U+001F is refused by name). A lower-case `x'00'` is handed over as `X'00'` (GenApp
+  lgtestc1). *IDMS* is refused by name, "IDMS DML not supported" (an IDMS-CONTROL or SCHEMA SECTION: estate-crucible
+  LNIDMS01); modelling its DML and subschema records is #4532. *Multi-program sources* are modelled as units:
+  `source.program_units` cuts an expanded source into its programs (a program beginning while another is open is
+  nested in it; END PROGRAM closes the innermost and must name it), each with its own lines; `layout.parse` and
+  `stmt.parse` refuse a source holding several by name (before, they silently read the first program's records and
+  paragraphs), and `program.translate(..., unit=)` translates one program (default: the first) as its own class. A
+  nested program whose container declares GLOBAL items is refused (`UnitRefused`): its view of them is not modelled.
+  The cross-check reads every unit, each paragraph's extent ending with its program. estate-crucible PAYMAIN is still
+  refused first by its COPY DATEWS collision (#4486). *Grammar gaps*: `ENTRY 'DLITCBL' USING pcb ...` (IMS DL/I batch)
+  is read as a statement (a placeholder CALL, as SORT); as the program's first statement with no PROCEDURE DIVISION
+  USING it is the program's entry, its USING the program's parameters; elsewhere it translates as a hole. A reference
+  modification of an intrinsic function (`FUNCTION CURRENT-DATE (1:4)`, `FUNCTION UPPER-CASE(A) (2:3)`) is handed to
+  the grammar as an argument list of the same length; expr reads it as the reference modification, and gen takes the
+  substring of an alphanumeric function's text (it had dropped the modification). Newly read: CardDemo DBUNLDGS,
+  PAUDBLOD, PAUDBUNL, CBIMPORT; GenApp lgtestc1; estate-crucible KØBREG. Still refused: SEARCH ALL's WHEN (CardDemo
+  COPAUS1C), DSF's `IDIOT IS 'ABC...'` alphabet without ALPHABET (PLUKKFR, PLUKKFRN), `LABEL RECORD ARE` (FO04D1X1),
+  OS/VS `EXHIBIT NAMED` (R001BYDL), and GenApp polloo2.cpy's missing period after `03 CA-CUSPOL-REQUEST` (a source
+  defect).
 
 ### Keyed reads
 

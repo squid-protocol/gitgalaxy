@@ -124,9 +124,14 @@ jobs:
             | tee "$RUNNER_TEMP/sweep.txt"
 
       - name: Rewrite the coverage ledger from the sweep (#4270)
-        if: always() && hashFiles('**/sweep/sweep.json') != ''
+        # hashFiles() only searches the workspace, never $RUNNER_TEMP, so test for the file in the shell instead.
+        if: always() && steps.ledger_sweep.outcome != 'skipped'
         run: |
           cd gitgalaxy
+          if [ ! -f "$RUNNER_TEMP/sweep/sweep.json" ]; then
+            echo "::warning title=coverage ledger::no sweep.json from the det sweep: the ledger is not refreshed"
+            exit 0
+          fi
           python tests/tools/det_coverage_ledger.py update "$RUNNER_TEMP/sweep"
 
       - name: Re-prove the stale records

@@ -278,6 +278,18 @@ Only generator output, never a test case:
   is 65533) while its own COMPUTE and MOVE, IBM's compilers and this runtime store the absolute value (3). No case
   reaches it; test_det_programs.py keeps its unsigned item above zero.
 
+- **FUNCTION RANDOM draws the oracle's numbers, not z/OS's** ([oracle_assumptions.md](oracle_assumptions.md) C12).
+  IBM documents RANDOM's interface (a seed, zero or a positive integer; a run unit's first reference with no seed
+  seeds zero; a reference with no seed continues the sequence; the value between 0 and 1) but not its generator, so
+  no port can reproduce z/OS's sequence. `Funcs.Random` reproduces GnuCOBOL 3.1.2's (glibc `srand` / `rand`,
+  `rand() / RAND_MAX` as a double, the double's exact value in the COMPUTE), one sequence per program, reset by each
+  entry point (a run unit). A proof therefore shows what the program does with the numbers it draws, for the seed the
+  run states (in the CICS harness `EIBTASKN` is 0 on both sides), not which numbers z/OS would draw: a credit score or
+  a customer number computed from RANDOM differs from z/OS's for the same seed. A seed IBM does not allow (negative,
+  not an integer) or past the oracle's `int` is refused at run time by name. Pinned against GnuCOBOL by
+  `test_det_programs.py` (`RANDOM`) and against glibc's numbers by `test_det_funcs.py`. It made 6 burned CICS
+  programs translate whole (CBSA CRDTAGY1-5, INQCUST; 2026-10-06 census, #4270's blocker ranking).
+
 ### What the proofs found in the translator and runtime
 
 - A numeric literal MOVEd to a group carried an overpunched sign (`23` -> `2C`): a literal without a sign is unsigned.
@@ -772,8 +784,9 @@ The combined method runs in the porting loop like any other backend, and every e
   keys that mix letters and digits browse differently, and no audit has yet counted the in-program comparisons whose
   result could change.
 - **Breadth outside CardDemo** is 21 programs in two estates (CBSA 8, GenApp 13), 14 of them on Db2. CBSA's other
-  Db2 programs are blocked by C9 (INQACCCU, DELCUS, CREACC), by IBM's CEEIGZCT copybook (CRECUST), by FUNCTION
-  RANDOM (BANKDATA) or by having only a Java caller (ACCTCTRL).
+  Db2 programs are blocked by C9 (INQACCCU, DELCUS, CREACC), by IBM's CEEIGZCT copybook (CRECUST), by its
+  output file and CEEGMT / CEEDATM calls (BANKDATA; its FUNCTION RANDOM translates since C12) or by having only a
+  Java caller (ACCTCTRL).
 - **Out of scope for this translator:** IMS (EXEC DLI), MQ, pointer arithmetic, ALTER, ENTRY, dynamic CALL. Such
   statements stay named holes. A POINTER only stored and passed on (GenApp's prologue) is translated.
 - **Re-proving everything** after a runtime, harness or oracle change: `tests/tools/proof_sweep.py --work DIR`

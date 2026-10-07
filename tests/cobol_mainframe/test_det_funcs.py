@@ -56,3 +56,45 @@ def test_test_numval_is_gnucobols(tmp_path):
                          check=True).stdout.splitlines()  # fmt: skip
     diffs = [(c, w, g) for c, w, g in zip(NUMVAL_CASES, want, got) if w != g]
     assert len(want) == len(NUMVAL_CASES) and not diffs, diffs
+
+
+# glibc's rand() after srand(seed) (GnuCOBOL 3.1.2's FUNCTION RANDOM, libcob intrinsic.c), measured with ctypes on
+# glibc 2.36: seed 0 is seed 1, and a run unit's first reference with no seed is seed zero (IBM)
+RANDOM_SEQUENCES = {0: [1804289383, 846930886, 1681692777], 1: [1804289383, 846930886, 1681692777],
+                    42: [71876166, 708592740, 1483128881], 1234567: [1595124304, 1356573642, 254066959],
+                    2147483647: [1065668062, 2142264300, 1066566375]}  # fmt: skip
+
+
+@pytest.mark.skipif(_java() is None, reason="needs a JDK 17 (JAVA_HOME / JDK_17)")
+def test_random_is_the_oracles_sequence_and_refuses_what_ibm_does_not_allow(tmp_path):
+    """Funcs.Random: RANDOM(seed) then RANDOM with no argument give glibc's rand() / RAND_MAX as the exact value of
+    a double (what GnuCOBOL's COMPUTE takes); reset() is an unseeded run unit. Not z/OS's numbers (C12)."""
+    src = tmp_path / "p/cobolrt"
+    src.mkdir(parents=True)
+    (src / "Funcs.java").write_text(FUNCS.read_text().replace("__PACKAGE__", "p"))
+    seeds = list(RANDOM_SEQUENCES)
+    (tmp_path / "RN.java").write_text(
+        "import java.math.BigDecimal;\npublic class RN { public static void main(String[] a) {\n"
+        "  p.cobolrt.Funcs.Random r = new p.cobolrt.Funcs.Random();\n"
+        "  System.out.println(r.next().toPlainString() + ' ' + r.next().toPlainString());\n"
+        f"  for (long s : new long[] {{{', '.join(f'{s}L' for s in seeds)}}}) {{\n"
+        "    System.out.println(r.next(BigDecimal.valueOf(s)).toPlainString() + ' ' + r.next().toPlainString() + ' '"
+        " + r.next().toPlainString()); }\n"
+        '  for (String bad : new String[] {"-1", "2147483648", "1.5"}) {\n'
+        '    try { r.next(new BigDecimal(bad)); System.out.println("taken " + bad); }\n'
+        '    catch (IllegalArgumentException e) { System.out.println("refused " + bad); } } } }\n'
+    )
+    java = _java()
+    subprocess.run([str(java / "javac"), "-d", "out", "p/cobolrt/Funcs.java", "RN.java"], cwd=tmp_path, check=True)
+    got = subprocess.run([str(java / "java"), "-cp", "out", "RN"], cwd=tmp_path, capture_output=True, text=True,
+                         check=True).stdout.splitlines()  # fmt: skip
+
+    def exact(n: int) -> str:
+        from decimal import Decimal
+
+        return format(Decimal(n / 2147483647), "f")
+
+    want = [" ".join(exact(n) for n in RANDOM_SEQUENCES[0][:2])]
+    want += [" ".join(exact(n) for n in RANDOM_SEQUENCES[s]) for s in seeds]
+    want += ["refused -1", "refused 2147483648", "refused 1.5"]
+    assert got == want

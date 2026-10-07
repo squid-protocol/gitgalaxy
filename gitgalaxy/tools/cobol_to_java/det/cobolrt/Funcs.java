@@ -111,6 +111,75 @@ public final class Funcs {
                 + String.format(java.util.Locale.ROOT, "%02d", now.getNano() / 10_000_000) + "+0000";
     }
 
+    /** FUNCTION RANDOM, one run unit's sequence (oracle_assumptions.md C12). IBM documents the interface only --
+     *  argument-1 a seed, zero or a positive integer; a first reference with no argument-1 seeds zero; a reference
+     *  with no argument-1 takes the next number of the current sequence -- not the generator. This is GnuCOBOL
+     *  3.1.2's (the harness's oracle, libcob intrinsic.c cob_intr_random): glibc's srand(seed) / rand() (TYPE_3,
+     *  random_r.c; seed 0 is seed 1) and rand() / RAND_MAX as a double, whose exact value the COMPUTE takes. So the
+     *  port gives the oracle's numbers for a seed, NOT z/OS's: a proof shows what the program does with the numbers,
+     *  not that z/OS draws them. A value can be 0 or 1 (IBM: exclusively between). A seed IBM does not allow
+     *  (negative, not an integer) or one past the oracle's int (GnuCOBOL's cob_get_int) is refused at run time. */
+    public static final class Random {
+        private static final int RAND_MAX = 2147483647;
+        private final int[] r = new int[31];
+        private int f;
+        private int b;
+
+        public Random() {
+            reset();
+        }
+
+        /** A new run unit: the sequence as a first reference with no argument-1 finds it (seed zero). */
+        public void reset() {
+            seed(0);
+        }
+
+        /** FUNCTION RANDOM(seed). */
+        public BigDecimal next(BigDecimal seed) {
+            BigDecimal s = seed.stripTrailingZeros();
+            if (s.signum() < 0 || s.scale() > 0 || s.compareTo(BigDecimal.valueOf(RAND_MAX)) > 0) {
+                throw new IllegalArgumentException("FUNCTION RANDOM seed " + seed.toPlainString()
+                        + " not modelled: IBM takes zero or a positive integer, the oracle an int"
+                        + " (oracle_assumptions.md C12)");
+            }
+            seed(s.intValueExact());
+            return next();
+        }
+
+        /** FUNCTION RANDOM: the next number of the current sequence. */
+        public BigDecimal next() {
+            r[f] += r[b];
+            int val = r[f] >>> 1;
+            if (++f >= r.length) {
+                f = 0;
+                ++b;
+            } else if (++b >= r.length) {
+                b = 0;
+            }
+            return new BigDecimal((double) val / (double) RAND_MAX);
+        }
+
+        /** glibc __srandom_r for TYPE_3: the state from a 16807 LCG (Schrage), then 310 numbers discarded. */
+        private void seed(int seed) {
+            long word = seed == 0 ? 1 : seed;
+            r[0] = (int) word;
+            for (int i = 1; i < r.length; i++) {
+                long hi = word / 127773;
+                long lo = word % 127773;
+                word = 16807 * lo - 2836 * hi;
+                if (word < 0) {
+                    word += 2147483647;
+                }
+                r[i] = (int) word;
+            }
+            f = 3;
+            b = 0;
+            for (int i = 0; i < 310; i++) {
+                next();
+            }
+        }
+    }
+
     private static final java.time.LocalDate DAY_ZERO = java.time.LocalDate.of(1600, 12, 31);
 
     /** FUNCTION INTEGER-OF-DATE: YYYYMMDD -> days since 31 December 1600 (1 January 1601 is day 1). */

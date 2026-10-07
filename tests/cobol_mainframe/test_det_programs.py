@@ -783,6 +783,45 @@ PROGRAMS = {
             "DISPLAY 'END'",
         ],
     ),
+    # FUNCTION RANDOM (oracle_assumptions.md C12): an unseeded first reference (seed zero), RANDOM(seed) and the
+    # sequence it starts, as CBSA's CRDTAGY1-5 / INQCUST and GenApp's LGICVS01 use them -- the oracle's numbers,
+    # each DISPLAYed through a COMPUTE (the exact value of GnuCOBOL's double) and truncated as their items hold it
+    "RANDOM": program(
+        "RANDOM",
+        [
+            "01  S PIC S9(15) COMP VALUE 0.",
+            "01  R PIC 9V9(9).",
+            "01  N PIC 9(4).",
+            "01  D PIC S9(8) COMP.",
+            "01  DD PIC 9.",
+            "01  I PIC 9(2).",
+            "01  K PIC 9(9).",
+            "01  HI PIC S9(9) COMP VALUE 900000.",
+            "01  LO PIC S9(9) COMP VALUE 100.",
+        ],
+        [
+            "COMPUTE R = FUNCTION RANDOM",
+            "DISPLAY R",
+            "COMPUTE N = ((999 - 1) * FUNCTION RANDOM) + 1",
+            "DISPLAY N",
+            "MOVE 1234567 TO S",
+            "COMPUTE D = ((3 - 1) * FUNCTION RANDOM(S)) + 1",
+            "MOVE D TO DD",
+            "DISPLAY DD",
+            "PERFORM VARYING I FROM 1 BY 1 UNTIL I > 12",
+            "    COMPUTE N = ((999 - 1) * FUNCTION RANDOM) + 1",
+            "    COMPUTE R = FUNCTION RANDOM",
+            "    DISPLAY I ' ' N ' ' R",
+            "END-PERFORM",
+            "MOVE 42 TO S",
+            "COMPUTE K = FUNCTION INTEGER((FUNCTION RANDOM(S) * HI) + LO)",
+            "DISPLAY K",
+            "COMPUTE R = FUNCTION RANDOM(0)",
+            "DISPLAY R",
+            "COMPUTE R = FUNCTION RANDOM(2147483647)",
+            "DISPLAY R",
+        ],
+    ),
 }
 
 

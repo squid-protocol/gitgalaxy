@@ -69,6 +69,7 @@ verdict, but it limits what the proof says about inputs outside the scenarios.
 | C9 | compiler | POINTER is 8 bytes in GnuCOBOL (x86-64), 4 on z/OS | DIFFERS | only NULL, trailing (CBSA) |
 | C10 | compiler | INITIALIZE / VALUE ZERO zoned items: unsigned F zone (GnuCOBOL) vs preferred C sign (z/OS) | DIFFERS (tolerated where a case declares it) | yes (CardDemo READACCT ARRYFILE) |
 | C11 | compiler | MOVE of an alphanumeric item holding a non-digit to a numeric DISPLAY item (#4049) | DIFFERS (inputs kept out of the cases) | yes (COMEN01C option `1!`) |
+| C12 | compiler | FUNCTION RANDOM: the oracle's generator (glibc via GnuCOBOL), not IBM's unpublished one; a seed IBM does not allow refused | DIFFERS (the numbers) / ASSUMED (the interface) | translated, no proof yet (CBSA CRDTAGY1-5, INQCUST; GenApp LGICVS01) |
 | D1 | data | Text order is ASCII (Latin-1), not EBCDIC | DIFFERS | keys: no; comparisons: not audited |
 | D2 | data | Hex literals that name EBCDIC characters (`X'40'`) | DIFFERS | no |
 | D3 | data | Zoned signs in ASCII data (`{`, `}`, A–R overpunch) | MATCHED | yes |
@@ -310,6 +311,43 @@ verdict, but it limits what the proof says about inputs outside the scenarios.
   GnuCOBOL does not; the proofs differ on both inputs.
 - **Now.** Those inputs are not in the case, so the three COMEN01C survivors in the port's own digit test stay case
   gaps. A z/OS run (#4050) settles which side is right.
+
+### C12. FUNCTION RANDOM — the numbers DIFFER from z/OS, the interface ASSUMED; refused where IBM does not allow the seed
+- **IBM** (Enterprise COBOL 6.4 Language Reference, RANDOM,
+  https://www.ibm.com/docs/en/cobol-zos/6.4.0?topic=functions-random): argument-1, if given, "must be zero or a
+  positive integer", and only 0 to 2,147,483,645 "yield a distinct sequence"; "if the first reference to this function
+  in the run unit does not specify argument-1, the seed value used will be zero"; later references with no argument
+  "return the next number in the current sequence"; the value is "exclusively between zero and one". The generator
+  itself is not published: the same seed gives z/OS's sequence, which nobody outside IBM can reproduce.
+- **The oracle.** GnuCOBOL 3.1.2 (`libcob/intrinsic.c`, `cob_intr_random`) calls glibc's `srand(seed)` (a negative
+  seed is 0; glibc makes seed 0 seed 1, so an unseeded process starts as seed 0) and returns `rand() / RAND_MAX` as a
+  double, which a COMPUTE takes at its exact binary value. The state is the process's: a CICS task (one process in
+  the stub, #4004) shares it across LINK levels.
+- **The det runtime** (`Funcs.Random`) reproduces that sequence exactly (glibc's TYPE_3 generator: seeding by
+  16807 LCG, 310 numbers discarded) and its double. One sequence per translated program, reset by each entry point
+  (`runProgram`, `runBatch`, `runTask`: a run unit begins; IBM's seed zero). A seed that is negative or not an
+  integer (IBM does not allow it) or past 2,147,483,647 (the oracle's `cob_get_int`) is refused at run time
+  (`IllegalArgumentException`, "not modelled"), never guessed.
+- **So a proof says:** given the numbers the oracle draws for the run's seed, the port does what the COBOL does with
+  them -- the arithmetic, its truncation into the receiving item, and every output computed from it. It does NOT say
+  the port draws z/OS's numbers: a credit score (CBSA CRDTAGY1-5), a customer number (INQCUST, GenApp LGICVS01) or a
+  DELAY interval computed from RANDOM differs from z/OS's for the same seed, and is equal across the two sides only
+  because both use the oracle's generator. That equality is a stated fact of the harness run, as the clock is (M4):
+  the seed these programs use is `EIBTASKN`, which is 0 on both sides (the stub INITIALIZEs DFHEIBLK; the det port's
+  EIB image holds packed zero), so every task draws RANDOM(0)'s sequence. A case that varies the task number needs it
+  stated on both sides first.
+- **Known differences, unreached.** The oracle can return exactly 0 or 1 (`rand()` of 0 or `RAND_MAX`, about once in
+  2^31 draws), IBM never does; the port follows the oracle. A LINKed program is a new run unit on z/OS (its own
+  sequence from seed zero) but shares the task's process state in the oracle; the port gives each program its own
+  sequence, so a task whose caller and LINK target both draw unseeded numbers would differ. A CALLed program shares
+  its caller's run unit on z/OS; the port keeps the CALLed program's own sequence. No translated program reaches
+  these: each one's first reference is seeded.
+- **Reached.** No proof yet: no equivalence or crucible case runs CRDTAGY1-5, INQCUST or LGICVS01. Pinned against
+  GnuCOBOL by `tests/cobol_mainframe/test_det_programs.py` (`RANDOM`: an unseeded first reference, seeds 0,
+  42, 1,234,567 and 2,147,483,647, CRDTAGY's and LGICVS01's COMPUTEs) and against glibc's own numbers by
+  `test_det_funcs.py`.
+- **To settle.** Only a z/OS run can give IBM's numbers; even then they would be data for a declared difference, not
+  a model, since the generator is unpublished.
 
 ### C8. DISPLAY text — MATCHED
 - **What.** GnuCOBOL writes a signed zoned item as `012-` and a binary item as `-00007`. IBM writes their external

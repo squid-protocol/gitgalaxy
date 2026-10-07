@@ -648,6 +648,23 @@
     "oracle": "812e95beccb670c5b2c432f18ec0c4656c1857c4c69d13aa88b1224635c58ab9"
    }
   },
+  "genapp-lgacus01": {
+   "scenarios": 8,
+   "paragraphs": {
+    "covered": 3,
+    "live": 3
+   },
+   "branches": {
+    "covered": 4,
+    "total": 8
+   },
+   "inputs": {
+    "case": "3ca0c670a530b01f7f2f0018df4b4c95412ffff6e96260e796b6cefbc6cadac9",
+    "corpus": "c5e4d52071fad96bed24e9ba06f30417340bfc5e998e7c1cd5f2383be73d6ff6",
+    "harness": "8e1a37f41a49d303e5dbc03582896a74b8be5d5b4c4c1bb59b64ace818f7a4fb",
+    "oracle": "50428237857791301984d778088fcd587c5af1e3b39ca83702e0c60c6a86c124"
+   }
+  },
   "genapp-lgacvs01": {
    "scenarios": 4,
    "paragraphs": {
@@ -680,6 +697,23 @@
     "corpus": "c5e4d52071fad96bed24e9ba06f30417340bfc5e998e7c1cd5f2383be73d6ff6",
     "harness": "ff4e514ed862e7cc55a43ed599df0bb631c85b63de2e5e96f4b2093068ff15df",
     "oracle": "812e95beccb670c5b2c432f18ec0c4656c1857c4c69d13aa88b1224635c58ab9"
+   }
+  },
+  "genapp-lgapol01": {
+   "scenarios": 11,
+   "paragraphs": {
+    "covered": 2,
+    "live": 2
+   },
+   "branches": {
+    "covered": 5,
+    "total": 8
+   },
+   "inputs": {
+    "case": "ffc47517d1d74e993655996224e0b849723352d24c4dfd1599a6654ea5a26e37",
+    "corpus": "c5e4d52071fad96bed24e9ba06f30417340bfc5e998e7c1cd5f2383be73d6ff6",
+    "harness": "8e1a37f41a49d303e5dbc03582896a74b8be5d5b4c4c1bb59b64ace818f7a4fb",
+    "oracle": "50428237857791301984d778088fcd587c5af1e3b39ca83702e0c60c6a86c124"
    }
   },
   "genapp-lgapvs01": {
@@ -716,6 +750,23 @@
     "oracle": "812e95beccb670c5b2c432f18ec0c4656c1857c4c69d13aa88b1224635c58ab9"
    }
   },
+  "genapp-lgdpol01": {
+   "scenarios": 12,
+   "paragraphs": {
+    "covered": 3,
+    "live": 3
+   },
+   "branches": {
+    "covered": 8,
+    "total": 12
+   },
+   "inputs": {
+    "case": "67788f130859e7133e38afd28040067b4991bd82dd85899af68c5f83ddd087f4",
+    "corpus": "c5e4d52071fad96bed24e9ba06f30417340bfc5e998e7c1cd5f2383be73d6ff6",
+    "harness": "8e1a37f41a49d303e5dbc03582896a74b8be5d5b4c4c1bb59b64ace818f7a4fb",
+    "oracle": "50428237857791301984d778088fcd587c5af1e3b39ca83702e0c60c6a86c124"
+   }
+  },
   "genapp-lgdpvs01": {
    "scenarios": 5,
    "paragraphs": {
@@ -748,6 +799,23 @@
     "corpus": "c5e4d52071fad96bed24e9ba06f30417340bfc5e998e7c1cd5f2383be73d6ff6",
     "harness": "ff4e514ed862e7cc55a43ed599df0bb631c85b63de2e5e96f4b2093068ff15df",
     "oracle": "812e95beccb670c5b2c432f18ec0c4656c1857c4c69d13aa88b1224635c58ab9"
+   }
+  },
+  "genapp-lgicus01": {
+   "scenarios": 6,
+   "paragraphs": {
+    "covered": 4,
+    "live": 4
+   },
+   "branches": {
+    "covered": 4,
+    "total": 8
+   },
+   "inputs": {
+    "case": "074288471e471cf90c5472bf9ea5d5596fb609263f6525077b0780f52abac6d1",
+    "corpus": "c5e4d52071fad96bed24e9ba06f30417340bfc5e998e7c1cd5f2383be73d6ff6",
+    "harness": "8e1a37f41a49d303e5dbc03582896a74b8be5d5b4c4c1bb59b64ace818f7a4fb",
+    "oracle": "50428237857791301984d778088fcd587c5af1e3b39ca83702e0c60c6a86c124"
    }
   },
   "genapp-lgicvs01": {
@@ -784,6 +852,91 @@
     "oracle": "812e95beccb670c5b2c432f18ec0c4656c1857c4c69d13aa88b1224635c58ab9"
    }
   },
+  "genapp-lgipol01": {
+   "scenarios": 19,
+   "paragraphs": {
+    "covered": 2,
+    "live": 2
+   },
+   "branches": {
+    "covered": 3,
+    "total": 6
+   },
+   "inputs": {
+    "case": "3170aa8e78add78f126b840b0f53b97b972b8256152628fcaa96cd3b4cb09542",
+    "corpus": "c5e4d52071fad96bed24e9ba06f30417340bfc5e998e7c1cd5f2383be73d6ff6",
+    "harness": "8e1a37f41a49d303e5dbc03582896a74b8be5d5b4c4c1bb59b64ace818f7a4fb",
+    "oracle": "50428237857791301984d778088fcd587c5af1e3b39ca83702e0c60c6a86c124"
+   }
+  },
+  "genapp-lgtestp1": {
+   "scenarios": 25,
+   "paragraphs": {
+    "covered": 7,
+    "live": 10
+   },
+   "branches": {
+    "covered": 14,
+    "total": 19
+   },
+   "inputs": {
+    "case": "279bec374666eb6c9efa433944623c1d7d27b875beaeedff3481b353029753f2",
+    "corpus": "c5e4d52071fad96bed24e9ba06f30417340bfc5e998e7c1cd5f2383be73d6ff6",
+    "harness": "8e1a37f41a49d303e5dbc03582896a74b8be5d5b4c4c1bb59b64ace818f7a4fb",
+    "oracle": "50428237857791301984d778088fcd587c5af1e3b39ca83702e0c60c6a86c124"
+   }
+  },
+  "genapp-lgtestp2": {
+   "scenarios": 25,
+   "paragraphs": {
+    "covered": 7,
+    "live": 10
+   },
+   "branches": {
+    "covered": 14,
+    "total": 19
+   },
+   "inputs": {
+    "case": "ce7930ab323b0e2402f4bf45e91652c05d865f610b10e483f7bd6dd69c6e4077",
+    "corpus": "c5e4d52071fad96bed24e9ba06f30417340bfc5e998e7c1cd5f2383be73d6ff6",
+    "harness": "8e1a37f41a49d303e5dbc03582896a74b8be5d5b4c4c1bb59b64ace818f7a4fb",
+    "oracle": "50428237857791301984d778088fcd587c5af1e3b39ca83702e0c60c6a86c124"
+   }
+  },
+  "genapp-lgtestp3": {
+   "scenarios": 25,
+   "paragraphs": {
+    "covered": 7,
+    "live": 10
+   },
+   "branches": {
+    "covered": 14,
+    "total": 19
+   },
+   "inputs": {
+    "case": "d03feebada23dc73a38c5d1531661b89898a25737670736cf7566ee05c35c07b",
+    "corpus": "c5e4d52071fad96bed24e9ba06f30417340bfc5e998e7c1cd5f2383be73d6ff6",
+    "harness": "8e1a37f41a49d303e5dbc03582896a74b8be5d5b4c4c1bb59b64ace818f7a4fb",
+    "oracle": "50428237857791301984d778088fcd587c5af1e3b39ca83702e0c60c6a86c124"
+   }
+  },
+  "genapp-lgtestp4": {
+   "scenarios": 23,
+   "paragraphs": {
+    "covered": 7,
+    "live": 9
+   },
+   "branches": {
+    "covered": 17,
+    "total": 22
+   },
+   "inputs": {
+    "case": "e39153488ab27f46ead2cdae18d95b03944d92d49e158f7b4af618cd226b3db6",
+    "corpus": "c5e4d52071fad96bed24e9ba06f30417340bfc5e998e7c1cd5f2383be73d6ff6",
+    "harness": "8e1a37f41a49d303e5dbc03582896a74b8be5d5b4c4c1bb59b64ace818f7a4fb",
+    "oracle": "50428237857791301984d778088fcd587c5af1e3b39ca83702e0c60c6a86c124"
+   }
+  },
   "genapp-lgucdb01": {
    "scenarios": 7,
    "paragraphs": {
@@ -799,6 +952,23 @@
     "corpus": "c5e4d52071fad96bed24e9ba06f30417340bfc5e998e7c1cd5f2383be73d6ff6",
     "harness": "ff4e514ed862e7cc55a43ed599df0bb631c85b63de2e5e96f4b2093068ff15df",
     "oracle": "812e95beccb670c5b2c432f18ec0c4656c1857c4c69d13aa88b1224635c58ab9"
+   }
+  },
+  "genapp-lgucus01": {
+   "scenarios": 6,
+   "paragraphs": {
+    "covered": 4,
+    "live": 4
+   },
+   "branches": {
+    "covered": 5,
+    "total": 8
+   },
+   "inputs": {
+    "case": "b0924415e4f8a1139a9e1683cc4095d4ac68c4e29d023be30f74d871be9ffeb8",
+    "corpus": "c5e4d52071fad96bed24e9ba06f30417340bfc5e998e7c1cd5f2383be73d6ff6",
+    "harness": "8e1a37f41a49d303e5dbc03582896a74b8be5d5b4c4c1bb59b64ace818f7a4fb",
+    "oracle": "50428237857791301984d778088fcd587c5af1e3b39ca83702e0c60c6a86c124"
    }
   },
   "genapp-lgucvs01": {
@@ -833,6 +1003,23 @@
     "corpus": "c5e4d52071fad96bed24e9ba06f30417340bfc5e998e7c1cd5f2383be73d6ff6",
     "harness": "ff4e514ed862e7cc55a43ed599df0bb631c85b63de2e5e96f4b2093068ff15df",
     "oracle": "812e95beccb670c5b2c432f18ec0c4656c1857c4c69d13aa88b1224635c58ab9"
+   }
+  },
+  "genapp-lgupol01": {
+   "scenarios": 17,
+   "paragraphs": {
+    "covered": 4,
+    "live": 4
+   },
+   "branches": {
+    "covered": 13,
+    "total": 16
+   },
+   "inputs": {
+    "case": "7d3d9ff7153e409cae28bc1c0c4e9b3c0c548d6050d7c31b378bfffaebe84bbc",
+    "corpus": "c5e4d52071fad96bed24e9ba06f30417340bfc5e998e7c1cd5f2383be73d6ff6",
+    "harness": "8e1a37f41a49d303e5dbc03582896a74b8be5d5b4c4c1bb59b64ace818f7a4fb",
+    "oracle": "50428237857791301984d778088fcd587c5af1e3b39ca83702e0c60c6a86c124"
    }
   },
   "genapp-lgupvs01": {

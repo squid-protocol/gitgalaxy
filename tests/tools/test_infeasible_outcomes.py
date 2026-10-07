@@ -41,3 +41,11 @@ def test_stated_is_what_a_report_shows(tmp_path):
     f.write_text(json.dumps({"format": io.FORMAT, "cases": {"c": [E]}}))
     assert io.stated("c", f) == [dict(E, key="P:9:true")]
     assert io.stated("nope", f) == []
+
+
+def test_the_ledger_is_tracked():
+    """A *.json ignore rule once kept a ledger out of a commit (#4606): this one must be in git."""
+    import subprocess
+
+    out = subprocess.run(["git", "ls-files", "--error-unmatch", str(io.LEDGER)], cwd=io.REPO, capture_output=True)
+    assert out.returncode == 0, "tests/equivalence/infeasible_outcomes.json is not tracked: see .gitignore"

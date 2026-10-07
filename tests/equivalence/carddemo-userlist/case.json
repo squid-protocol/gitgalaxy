@@ -409,6 +409,235 @@
      "why": "17 on the first READPREV"
     }
    ]
+  },
+  {
+   "name": "select-row-1",
+   "aid": "DFHENTER",
+   "commarea": {
+    "CDEMO-FROM-TRANID": "CA00",
+    "CDEMO-FROM-PROGRAM": "COADM01C",
+    "CDEMO-USER-ID": "ADMIN001",
+    "CDEMO-USER-TYPE": "A",
+    "CDEMO-PGM-CONTEXT": 1,
+    "CDEMO-CU00-USRID-FIRST": "ADMIN001",
+    "CDEMO-CU00-USRID-LAST": "USER0005",
+    "CDEMO-CU00-PAGE-NUM": 1,
+    "CDEMO-CU00-NEXT-PAGE-FLG": "Y"
+   },
+   "receive": {
+    "COUSR0A": {
+     "SEL0001I": "U",
+     "USRID01I": "ADMIN001"
+    }
+   }
+  },
+  {
+   "name": "select-row-4",
+   "aid": "DFHENTER",
+   "commarea": {
+    "CDEMO-FROM-TRANID": "CA00",
+    "CDEMO-FROM-PROGRAM": "COADM01C",
+    "CDEMO-USER-ID": "ADMIN001",
+    "CDEMO-USER-TYPE": "A",
+    "CDEMO-PGM-CONTEXT": 1,
+    "CDEMO-CU00-USRID-FIRST": "ADMIN001",
+    "CDEMO-CU00-USRID-LAST": "USER0005",
+    "CDEMO-CU00-PAGE-NUM": 1,
+    "CDEMO-CU00-NEXT-PAGE-FLG": "Y"
+   },
+   "receive": {
+    "COUSR0A": {
+     "SEL0004I": "D",
+     "USRID04I": "ADMIN004"
+    }
+   }
+  },
+  {
+   "name": "select-row-5",
+   "aid": "DFHENTER",
+   "commarea": {
+    "CDEMO-FROM-TRANID": "CA00",
+    "CDEMO-FROM-PROGRAM": "COADM01C",
+    "CDEMO-USER-ID": "ADMIN001",
+    "CDEMO-USER-TYPE": "A",
+    "CDEMO-PGM-CONTEXT": 1,
+    "CDEMO-CU00-USRID-FIRST": "ADMIN001",
+    "CDEMO-CU00-USRID-LAST": "USER0005",
+    "CDEMO-CU00-PAGE-NUM": 1,
+    "CDEMO-CU00-NEXT-PAGE-FLG": "Y"
+   },
+   "receive": {
+    "COUSR0A": {
+     "SEL0005I": "u",
+     "USRID05I": "ADMIN005"
+    }
+   }
+  },
+  {
+   "name": "select-row-6",
+   "aid": "DFHENTER",
+   "commarea": {
+    "CDEMO-FROM-TRANID": "CA00",
+    "CDEMO-FROM-PROGRAM": "COADM01C",
+    "CDEMO-USER-ID": "ADMIN001",
+    "CDEMO-USER-TYPE": "A",
+    "CDEMO-PGM-CONTEXT": 1,
+    "CDEMO-CU00-USRID-FIRST": "ADMIN001",
+    "CDEMO-CU00-USRID-LAST": "USER0005",
+    "CDEMO-CU00-PAGE-NUM": 1,
+    "CDEMO-CU00-NEXT-PAGE-FLG": "Y"
+   },
+   "receive": {
+    "COUSR0A": {
+     "SEL0006I": "d",
+     "USRID06I": "USER0001"
+    }
+   }
+  },
+  {
+   "name": "select-row-8",
+   "aid": "DFHENTER",
+   "commarea": {
+    "CDEMO-FROM-TRANID": "CA00",
+    "CDEMO-FROM-PROGRAM": "COADM01C",
+    "CDEMO-USER-ID": "ADMIN001",
+    "CDEMO-USER-TYPE": "A",
+    "CDEMO-PGM-CONTEXT": 1,
+    "CDEMO-CU00-USRID-FIRST": "ADMIN001",
+    "CDEMO-CU00-USRID-LAST": "USER0005",
+    "CDEMO-CU00-PAGE-NUM": 1,
+    "CDEMO-CU00-NEXT-PAGE-FLG": "Y"
+   },
+   "receive": {
+    "COUSR0A": {
+     "SEL0008I": "U",
+     "USRID08I": "USER0003"
+    }
+   }
+  },
+  {
+   "name": "select-row-9",
+   "aid": "DFHENTER",
+   "commarea": {
+    "CDEMO-FROM-TRANID": "CA00",
+    "CDEMO-FROM-PROGRAM": "COADM01C",
+    "CDEMO-USER-ID": "ADMIN001",
+    "CDEMO-USER-TYPE": "A",
+    "CDEMO-PGM-CONTEXT": 1,
+    "CDEMO-CU00-USRID-FIRST": "ADMIN001",
+    "CDEMO-CU00-USRID-LAST": "USER0005",
+    "CDEMO-CU00-PAGE-NUM": 1,
+    "CDEMO-CU00-NEXT-PAGE-FLG": "Y"
+   },
+   "receive": {
+    "COUSR0A": {
+     "SEL0009I": "D",
+     "USRID09I": "USER0004"
+    }
+   }
+  },
+  {
+   "name": "select-row-10",
+   "aid": "DFHENTER",
+   "commarea": {
+    "CDEMO-FROM-TRANID": "CA00",
+    "CDEMO-FROM-PROGRAM": "COADM01C",
+    "CDEMO-USER-ID": "ADMIN001",
+    "CDEMO-USER-TYPE": "A",
+    "CDEMO-PGM-CONTEXT": 1,
+    "CDEMO-CU00-USRID-FIRST": "ADMIN001",
+    "CDEMO-CU00-USRID-LAST": "USER0005",
+    "CDEMO-CU00-PAGE-NUM": 1,
+    "CDEMO-CU00-NEXT-PAGE-FLG": "Y"
+   },
+   "receive": {
+    "COUSR0A": {
+     "SEL0010I": "Z",
+     "USRID10I": "USER0005"
+    }
+   },
+   "why": "an action other than U / D on row 10: 'Invalid selection. Valid values are U and D'"
+  },
+  {
+   "name": "pf7-with-no-first-id",
+   "aid": "DFHPF7",
+   "commarea": {
+    "CDEMO-FROM-TRANID": "CA00",
+    "CDEMO-FROM-PROGRAM": "COADM01C",
+    "CDEMO-USER-ID": "ADMIN001",
+    "CDEMO-USER-TYPE": "A",
+    "CDEMO-PGM-CONTEXT": 1,
+    "CDEMO-CU00-USRID-FIRST": "",
+    "CDEMO-CU00-USRID-LAST": "USER0005",
+    "CDEMO-CU00-PAGE-NUM": 1,
+    "CDEMO-CU00-NEXT-PAGE-FLG": "Y"
+   },
+   "receive": {
+    "COUSR0A": {}
+   },
+   "why": "a blank first id: SEC-USR-ID = LOW-VALUES; page 1, so 'You are already at the top of the page...'"
+  },
+  {
+   "name": "enter-lists-the-last-ten",
+   "aid": "DFHENTER",
+   "commarea": {
+    "CDEMO-FROM-TRANID": "CA00",
+    "CDEMO-FROM-PROGRAM": "COADM01C",
+    "CDEMO-USER-ID": "ADMIN001",
+    "CDEMO-USER-TYPE": "A",
+    "CDEMO-PGM-CONTEXT": 1
+   },
+   "receive": {
+    "COUSR0A": {
+     "USRIDINI": "USER0011"
+    }
+   },
+   "why": "exactly ten users from USER0011: the probe READNEXT after the page hits ENDFILE, so no next page"
+  },
+  {
+   "name": "pf7-reaches-the-top-mid-page",
+   "aid": "DFHPF7",
+   "commarea": {
+    "CDEMO-FROM-TRANID": "CA00",
+    "CDEMO-FROM-PROGRAM": "COADM01C",
+    "CDEMO-USER-ID": "ADMIN001",
+    "CDEMO-USER-TYPE": "A",
+    "CDEMO-PGM-CONTEXT": 1,
+    "CDEMO-CU00-USRID-FIRST": "ADMIN005",
+    "CDEMO-CU00-USRID-LAST": "USER0009",
+    "CDEMO-CU00-PAGE-NUM": 2,
+    "CDEMO-CU00-NEXT-PAGE-FLG": "Y"
+   },
+   "receive": {
+    "COUSR0A": {}
+   },
+   "why": "the page starts at the 5th id: READPREV runs out (ENDFILE) inside the loop"
+  },
+  {
+   "name": "pf7-startbr-io-error",
+   "aid": "DFHPF7",
+   "commarea": {
+    "CDEMO-FROM-TRANID": "CA00",
+    "CDEMO-FROM-PROGRAM": "COADM01C",
+    "CDEMO-USER-ID": "ADMIN001",
+    "CDEMO-USER-TYPE": "A",
+    "CDEMO-PGM-CONTEXT": 1,
+    "CDEMO-CU00-USRID-FIRST": "USER0006",
+    "CDEMO-CU00-USRID-LAST": "USER0015",
+    "CDEMO-CU00-PAGE-NUM": 2,
+    "CDEMO-CU00-NEXT-PAGE-FLG": "Y"
+   },
+   "receive": {
+    "COUSR0A": {}
+   },
+   "faults": [
+    {
+     "cmd": "STARTBR",
+     "file": "USRSEC",
+     "resp": "IOERR",
+     "why": "17 on the PF7 STARTBR -> 'Unable to lookup User...'; PROCESS-PAGE-BACKWARD does nothing more"
+    }
+   ]
   }
  ],
  "notes": "CardDemo's user list (transaction CU00, program COUSR00C): a page of ten users browsed from USRSEC (STARTBR / READNEXT, ENDBR), PF8 / PF7 page forward and back from the page's last / first id (a READNEXT / READPREV first steps over the record the browse starts on), a 'U' or 'D' beside a user XCTLs to the update / delete screen. usrsec.txt is CardDemo's ten DUSRSECJ users plus fifteen synthetic ones (USER0006-USER0020, named for computing pioneers, written for this case) so that three pages exist. A defect of the original the case shows: a search past the last id makes STARTBR NOTFND, and the ENDBR that follows (no RESP) abends with INVREQ. Derived from CardDemo (Apache-2.0; Copyright Amazon.com, Inc. or its affiliates): LICENSE and NOTICE here are the source's own."

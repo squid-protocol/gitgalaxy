@@ -411,6 +411,22 @@
     }
    ],
    "why": "#4316 unproven ports: reaches onAbendL250 (HANDLE ABEND LABEL(ABEND-ROUTINE), app/cbl/COCRDSLC.cbl:250). PGMIDERR RESP2 3, the program could not be loaded (IBM CICS TS, XCTL conditions): the XCTL back to the caller fails with no RESP, so CICS abends the task and the active HANDLE ABEND passes control to ABEND-ROUTINE"
+  },
+  {
+   "name": "from-card-list-as-the-list-sends-it",
+   "aid": "DFHENTER",
+   "commarea": {
+    "CDEMO-FROM-TRANID": "CCLI",
+    "CDEMO-FROM-PROGRAM": "COCRDLIC",
+    "CDEMO-USER-ID": "USER0001",
+    "CDEMO-USER-TYPE": "U",
+    "CDEMO-PGM-CONTEXT": 0,
+    "CDEMO-ACCT-ID": 50,
+    "CDEMO-CARD-NUM": "0500024453765740",
+    "CDEMO-LAST-MAPSET": "COCRDLI",
+    "CDEMO-LAST-MAP": "CCRDLIA"
+   },
+   "why": "#4602: COCRDLIC XCTLs here with CDEMO-LAST-MAPSET 'COCRDLI' (its LIT-THISMAPSET): 1300-SETUP-SCREEN-ATTRS protects the account and card fields (line 505 true) and gives them the default colour (line 527 true)"
   }
  ],
  "notes": "CardDemo's card detail screen (transaction CCDL, program COCRDSLC): from the menu it sends the empty screen; from the card list it reads the selected card and shows it; re-entered it edits the account and card filters (blank, '*', zero, not numeric), reads the card by number and shows it; PF3 returns to the caller or the menu; any other key acts as ENTER. 9150-GETCARD-BYACCT (the account path) is never performed. Every file is the corpus's own data. Derived from CardDemo (Apache-2.0; Copyright Amazon.com, Inc. or its affiliates): LICENSE and NOTICE here are the source's own."

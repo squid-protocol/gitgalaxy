@@ -319,6 +319,218 @@
      "why": "17 on the third JCL line: 'Unable to Write TDQ (JOBS)...'"
     }
    ]
+  },
+  {
+   "name": "custom-start-day-empty",
+   "aid": "DFHENTER",
+   "commarea": {
+    "CDEMO-FROM-TRANID": "CM00",
+    "CDEMO-FROM-PROGRAM": "COMEN01C",
+    "CDEMO-USER-ID": "USER0001",
+    "CDEMO-USER-TYPE": "U",
+    "CDEMO-PGM-CONTEXT": 1
+   },
+   "receive": {
+    "CORPT0A": {
+     "CUSTOMI": "X",
+     "SDTMMI": "01",
+     "SDTYYYYI": "2022",
+     "EDTMMI": "06",
+     "EDTDDI": "30",
+     "EDTYYYYI": "2022",
+     "CONFIRMI": "Y"
+    }
+   },
+   "why": "WHEN SDTDDI = SPACES OR LOW-VALUES (line 266): 'Start Date - Day can NOT be empty...'"
+  },
+  {
+   "name": "custom-start-year-empty",
+   "aid": "DFHENTER",
+   "commarea": {
+    "CDEMO-FROM-TRANID": "CM00",
+    "CDEMO-FROM-PROGRAM": "COMEN01C",
+    "CDEMO-USER-ID": "USER0001",
+    "CDEMO-USER-TYPE": "U",
+    "CDEMO-PGM-CONTEXT": 1
+   },
+   "receive": {
+    "CORPT0A": {
+     "CUSTOMI": "X",
+     "SDTMMI": "01",
+     "SDTDDI": "01",
+     "EDTMMI": "06",
+     "EDTDDI": "30",
+     "EDTYYYYI": "2022",
+     "CONFIRMI": "Y"
+    }
+   },
+   "why": "WHEN SDTYYYYI empty (line 273): 'Start Date - Year can NOT be empty...'"
+  },
+  {
+   "name": "custom-end-month-empty",
+   "aid": "DFHENTER",
+   "commarea": {
+    "CDEMO-FROM-TRANID": "CM00",
+    "CDEMO-FROM-PROGRAM": "COMEN01C",
+    "CDEMO-USER-ID": "USER0001",
+    "CDEMO-USER-TYPE": "U",
+    "CDEMO-PGM-CONTEXT": 1
+   },
+   "receive": {
+    "CORPT0A": {
+     "CUSTOMI": "X",
+     "SDTMMI": "01",
+     "SDTDDI": "01",
+     "SDTYYYYI": "2022",
+     "EDTDDI": "30",
+     "EDTYYYYI": "2022",
+     "CONFIRMI": "Y"
+    }
+   },
+   "why": "WHEN EDTMMI empty (line 280): 'End Date - Month can NOT be empty...'"
+  },
+  {
+   "name": "custom-end-day-empty",
+   "aid": "DFHENTER",
+   "commarea": {
+    "CDEMO-FROM-TRANID": "CM00",
+    "CDEMO-FROM-PROGRAM": "COMEN01C",
+    "CDEMO-USER-ID": "USER0001",
+    "CDEMO-USER-TYPE": "U",
+    "CDEMO-PGM-CONTEXT": 1
+   },
+   "receive": {
+    "CORPT0A": {
+     "CUSTOMI": "X",
+     "SDTMMI": "01",
+     "SDTDDI": "01",
+     "SDTYYYYI": "2022",
+     "EDTMMI": "06",
+     "EDTYYYYI": "2022",
+     "CONFIRMI": "Y"
+    }
+   },
+   "why": "WHEN EDTDDI empty (line 287): 'End Date - Day can NOT be empty...'"
+  },
+  {
+   "name": "custom-start-month-13",
+   "aid": "DFHENTER",
+   "commarea": {
+    "CDEMO-FROM-TRANID": "CM00",
+    "CDEMO-FROM-PROGRAM": "COMEN01C",
+    "CDEMO-USER-ID": "USER0001",
+    "CDEMO-USER-TYPE": "U",
+    "CDEMO-PGM-CONTEXT": 1
+   },
+   "receive": {
+    "CORPT0A": {
+     "CUSTOMI": "X",
+     "SDTMMI": "13",
+     "SDTDDI": "01",
+     "SDTYYYYI": "2022",
+     "EDTMMI": "06",
+     "EDTDDI": "30",
+     "EDTYYYYI": "2022",
+     "CONFIRMI": "Y"
+    }
+   },
+   "why": "SDTMMI > '12' (line 329): 'Start Date - Not a valid Month...'"
+  },
+  {
+   "name": "custom-end-month-13",
+   "aid": "DFHENTER",
+   "commarea": {
+    "CDEMO-FROM-TRANID": "CM00",
+    "CDEMO-FROM-PROGRAM": "COMEN01C",
+    "CDEMO-USER-ID": "USER0001",
+    "CDEMO-USER-TYPE": "U",
+    "CDEMO-PGM-CONTEXT": 1
+   },
+   "receive": {
+    "CORPT0A": {
+     "CUSTOMI": "X",
+     "SDTMMI": "01",
+     "SDTDDI": "01",
+     "SDTYYYYI": "2022",
+     "EDTMMI": "13",
+     "EDTDDI": "30",
+     "EDTYYYYI": "2022",
+     "CONFIRMI": "Y"
+    }
+   },
+   "why": "EDTMMI > '12' (line 355): 'End Date - Not a valid Month...'"
+  },
+  {
+   "name": "custom-end-day-32",
+   "aid": "DFHENTER",
+   "commarea": {
+    "CDEMO-FROM-TRANID": "CM00",
+    "CDEMO-FROM-PROGRAM": "COMEN01C",
+    "CDEMO-USER-ID": "USER0001",
+    "CDEMO-USER-TYPE": "U",
+    "CDEMO-PGM-CONTEXT": 1
+   },
+   "receive": {
+    "CORPT0A": {
+     "CUSTOMI": "X",
+     "SDTMMI": "01",
+     "SDTDDI": "01",
+     "SDTYYYYI": "2022",
+     "EDTMMI": "06",
+     "EDTDDI": "32",
+     "EDTYYYYI": "2022",
+     "CONFIRMI": "Y"
+    }
+   },
+   "why": "EDTDDI > '31' (line 364): 'End Date - Not a valid Day...'"
+  },
+  {
+   "name": "custom-start-not-a-date",
+   "aid": "DFHENTER",
+   "commarea": {
+    "CDEMO-FROM-TRANID": "CM00",
+    "CDEMO-FROM-PROGRAM": "COMEN01C",
+    "CDEMO-USER-ID": "USER0001",
+    "CDEMO-USER-TYPE": "U",
+    "CDEMO-PGM-CONTEXT": 1
+   },
+   "receive": {
+    "CORPT0A": {
+     "CUSTOMI": "X",
+     "SDTMMI": "02",
+     "SDTDDI": "30",
+     "SDTYYYYI": "2022",
+     "EDTMMI": "06",
+     "EDTDDI": "30",
+     "EDTYYYYI": "2022",
+     "CONFIRMI": "Y"
+    }
+   },
+   "why": "2022-02-30 as the start: CSUTLDTC -> CEEDAYS 2508, not 2513 (lines 396 / 399): 'Start Date - Not a valid date...'"
+  },
+  {
+   "name": "custom-dates-before-gregorian",
+   "aid": "DFHENTER",
+   "commarea": {
+    "CDEMO-FROM-TRANID": "CM00",
+    "CDEMO-FROM-PROGRAM": "COMEN01C",
+    "CDEMO-USER-ID": "USER0001",
+    "CDEMO-USER-TYPE": "U",
+    "CDEMO-PGM-CONTEXT": 1
+   },
+   "receive": {
+    "CORPT0A": {
+     "CUSTOMI": "X",
+     "SDTMMI": "01",
+     "SDTDDI": "01",
+     "SDTYYYYI": "1500",
+     "EDTMMI": "12",
+     "EDTDDI": "31",
+     "EDTYYYYI": "1500",
+     "CONFIRMI": "Y"
+    }
+   },
+   "why": "1500-01-01 .. 1500-12-31: CEEDAYS answers 2513 (outside its supported range) for both dates, which lines 399 / 419 let through, so the job is submitted"
   }
  ],
  "notes": "CardDemo's report request (transaction CR00, program CORPT00C): a monthly (the clock's month), yearly or custom date range is validated -- the custom dates through CALL 'CSUTLDTC' (CEEDAYS; the COBOL side links CardDemo's CSUTLDTC and tests/equivalence/le/ceedays.c, the Java side its proven port from carddemo-dateutil) -- and, once confirmed, the program submits its in-line JCL with the dates filled in, one WRITEQ TD to the JOBS queue per line, each line compared. A month above 12 is flagged by the program but still passed to CSUTLDTC, where the CEEDAYS model refuses it (IBM leaves open which condition a month outside 1-12 raises), so no scenario uses one -- nor a non-numeric month, which NUMVAL-C turns into 00. Derived from CardDemo (Apache-2.0; Copyright Amazon.com, Inc. or its affiliates): LICENSE and NOTICE here are the source's own."

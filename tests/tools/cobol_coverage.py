@@ -26,6 +26,14 @@ with the original's (difflib), so a trace line maps to the original line exactly
 harness inserted, which the trace reading skips). Branch points are found in the original source, so the
 translator's own IFs (RESP tests, the condition dispatch) are never counted.
 
+Set apart as after a transfer (#4602), like dead units: a branch point no path reaches because every path to it
+passes a statement that never falls through -- GO TO (not DEPENDING ON), GOBACK, STOP RUN, EXEC CICS RETURN /
+XCTL / ABEND (with no RESP / NOHANDLE), or a plain PERFORM of a paragraph no path leaves (it ends in one of those but
+GO TO, and every HANDLE / WHENEVER label is such a paragraph too) -- so an IF after an EVALUATE whose every arm,
+WHEN OTHER included, transfers control is not counted. Conservative: a conditional phrase (AT END, INVALID KEY, ON
+SIZE ERROR, ...), an inline PERFORM, an IF with no ELSE or an EVALUATE with no WHEN OTHER always may fall through,
+and a COPY or a unit header ends the region (control_flow_unreachable).
+
 Counted as unresolvable, not guessed: an IF / EVALUATE whose own line the compiled text changed, and one whose
 arms cannot be told apart by (line, verb) -- `IF A MOVE 1 TO X ELSE MOVE 2 TO X` on one line.
 
@@ -113,6 +121,7 @@ class Inventory:
     branches: list[Branch]
     unresolvable: list[dict[str, Any]]  # branch points the trace cannot resolve, and why
     handler_labels: list[str]
+    after_transfer: list[Branch] = dataclasses.field(default_factory=list)  # #4602: no path reaches them
 
     @property
     def live(self) -> list[str]:
@@ -259,6 +268,202 @@ def branch_points(text: str) -> tuple[list[Branch], Counter[tuple[int, str]]]:
     return sorted(done, key=lambda b: b.line), stmts
 
 
+# ---- #4602: branch points no path reaches (after a statement that never falls through) ----------------------
+_COND_VERBS = frozenset("READ WRITE REWRITE DELETE START RETURN ADD SUBTRACT MULTIPLY DIVIDE COMPUTE STRING UNSTRING "
+                        "CALL ACCEPT DISPLAY INVOKE XML JSON".split())  # fmt: skip
+_PHRASES = frozenset("AT INVALID ERROR EXCEPTION OVERFLOW EOP END-OF-PAGE".split())  # a conditional phrase starts
+_PERFORM_CLAUSES = frozenset("THRU THROUGH UNTIL VARYING TIMES WITH TEST".split())
+_NOT_TERMINAL_CICS = frozenset(("RESP", "RESP2", "NOHANDLE"))
+_WHENEVER_GOTO = re.compile(r"\bWHENEVER\s+(?:NOT\s+FOUND|SQLERROR|SQLWARNING)\s+GO\s*TO\s+:?([A-Z0-9][A-Z0-9-]*)")
+
+
+def _flow_tokens(text: str) -> list[tuple[int, str, list[str], bool, bool]]:
+    """(line, token, the EXEC block's words for an EXEC, first on its line, first and in Area A (fixed format))
+    over the PROCEDURE DIVISION."""
+    out: list[tuple[int, str, list[str], bool, bool]] = []
+    exec_words: list[str] | None = None
+    free = bool(_FREE.search(text))
+    for ln, code in _code_lines(text):
+        first = True
+        for m in _TOKEN.finditer(code):
+            tok = m.group(0)
+            if exec_words is not None:
+                if tok == "END-EXEC":
+                    exec_words = None
+                else:
+                    exec_words.append(tok)
+                continue
+            out.append((ln, tok, [], first, first and not free and m.start() < 4))
+            first = False
+            if tok == "EXEC":
+                exec_words = out[-1][2]
+    return out
+
+
+def _walk(toks: list[tuple[int, str, list[str], bool, bool]], heads: dict[int, str], absorbing: frozenset[str],
+          goto_ends: bool) -> tuple[set[tuple[int, str]], dict[str, bool]]:  # fmt: skip
+    """One pass over the PROCEDURE DIVISION: the (line, kind) of every IF / EVALUATE no path reaches, and per unit
+    whether no path from its header reaches its end. `goto_ends`: a GO TO ends the path (False: it leaves the unit,
+    so a unit is only absorbing when nothing but GOBACK / STOP RUN / CICS RETURN / XCTL / ABEND ends it)."""
+    dead = False
+    stack: list[dict[str, Any]] = []
+    unreached: set[tuple[int, str]] = set()
+    ends: dict[str, bool] = {}
+    unit: str | None = None
+    split: set[str] = set()  # units something unread split (a nested program, an Area A line): never absorbing
+
+    def close() -> None:
+        nonlocal dead
+        f = stack.pop()
+        if f["kind"] == "IF":
+            dead = f["entry"] or (f["has_else"] and f["then_end"] and dead)
+        elif f["kind"] == "EVALUATE":
+            if f["armed"]:
+                f["ends"].append(dead)
+            dead = f["entry"] or (f["other"] and bool(f["ends"]) and all(f["ends"]))
+        elif f["kind"] != "STMT" or f["cond"]:  # a conditional phrase / inline PERFORM / SEARCH may not run
+            dead = f["entry"]
+
+    def pop_to(kind: str, verb: str | None = None) -> None:
+        if not any(f["kind"] == kind and (verb is None or f.get("verb") == verb) for f in stack):
+            return
+        while stack:
+            f = stack[-1]
+            close()
+            if f["kind"] == kind and (verb is None or f.get("verb") == verb):
+                return
+
+    def plain_stmt_ends() -> None:  # an unconditional statement with no explicit terminator ends at the next one
+        while stack and stack[-1]["kind"] == "STMT" and not stack[-1]["cond"]:
+            close()
+
+    for i, (line, tok, words, first, area_a) in enumerate(toks):
+        nxt = [t[1] for t in toks[i + 1 : i + 6]] + [""] * 5
+        if first and heads.get(line) == tok:
+            while stack:
+                close()
+            if unit is not None:
+                ends[unit] = dead and unit not in split
+            unit, dead = tok, False
+            continue
+        if (
+            first
+            and tok not in VERBS
+            and tok not in ("ELSE", "WHEN", ".")
+            and not tok.startswith("END-")
+            and (nxt[0] in (".", "SECTION", "DIVISION", "PROGRAM") or area_a)
+        ):  # a header or a division the inventory does not hold (a nested program's): control may start here
+            while stack:
+                close()
+            dead = False
+            if unit is not None:
+                split.add(unit)
+        if tok == ".":
+            while stack:
+                close()
+        elif tok == "COPY":  # its members may hold unit headers this text does not show
+            while stack:
+                close()
+            dead = False
+        elif tok == "ELSE":
+            while stack and (
+                stack[-1]["kind"] in ("STMT", "PERFORM") or (stack[-1]["kind"] == "IF" and stack[-1]["has_else"])
+            ):
+                close()
+            if stack and stack[-1]["kind"] == "IF":
+                f = stack[-1]
+                f["then_end"], f["has_else"], dead = dead, True, f["entry"]
+        elif tok == "WHEN":
+            while stack and (
+                stack[-1]["kind"] in ("IF", "PERFORM")
+                or (stack[-1]["kind"] == "STMT" and stack[-1]["verb"] != "SEARCH")
+            ):
+                close()
+            if stack and stack[-1]["kind"] == "EVALUATE":
+                f = stack[-1]
+                if f["armed"] and f["empty"] and nxt[0] != "OTHER" and not f["other"]:
+                    continue  # WHEN a WHEN b: one arm
+                if f["armed"]:
+                    f["ends"].append(dead)
+                f["armed"], f["empty"], dead = True, True, f["entry"]
+                f["other"] = f["other"] or nxt[0] == "OTHER"
+            elif stack and stack[-1]["kind"] == "STMT":  # SEARCH ... WHEN
+                dead = stack[-1]["entry"]
+        elif tok == "END-IF":
+            pop_to("IF")
+        elif tok == "END-EVALUATE":
+            pop_to("EVALUATE")
+        elif tok == "END-PERFORM":
+            pop_to("PERFORM")
+        elif tok.startswith("END-") and tok[4:] in _COND_VERBS | {"SEARCH"}:
+            pop_to("STMT", tok[4:])
+        elif tok in _PHRASES and stack and stack[-1]["kind"] == "STMT":
+            stack[-1]["cond"], dead = True, stack[-1]["entry"]
+        elif tok in VERBS or (tok == "NEXT" and nxt[0] == "SENTENCE"):
+            plain_stmt_ends()
+            if stack and stack[-1]["kind"] == "EVALUATE":
+                stack[-1]["empty"] = False
+            if tok in ("IF", "EVALUATE") and dead:
+                unreached.add((line, tok))
+            if tok == "IF":
+                stack.append({"kind": "IF", "entry": dead, "has_else": False, "then_end": False})
+            elif tok == "EVALUATE":
+                stack.append({"kind": "EVALUATE", "entry": dead, "armed": False, "empty": True, "other": False,
+                              "ends": []})  # fmt: skip
+            elif tok in _COND_VERBS or tok == "SEARCH":
+                stack.append({"kind": "STMT", "verb": tok, "entry": dead, "cond": tok == "SEARCH"})
+            elif tok == "PERFORM":
+                inline = nxt[0] in VERBS or nxt[0] in ("UNTIL", "VARYING", "WITH", "TEST") or nxt[1] == "TIMES"
+                if inline:
+                    stack.append({"kind": "PERFORM", "entry": dead})
+                else:
+                    rest = nxt[3:5] if nxt[1] in ("THRU", "THROUGH") else nxt[1:3]
+                    if nxt[0] in absorbing and not any(t in _PERFORM_CLAUSES for t in rest):
+                        dead = True
+            elif tok == "GO":
+                names = []
+                for t in nxt:
+                    if t in VERBS or t in (".", "ELSE", "WHEN", "") or t.startswith("END-"):
+                        break
+                    names.append(t)
+                if goto_ends and "DEPENDING" not in names and [n for n in names if n != "TO"]:
+                    dead = True
+            elif tok == "GOBACK" or (tok == "STOP" and nxt[0] == "RUN"):
+                dead = True
+            elif tok == "EXEC" and words[:1] == ["CICS"] and words[1:2] in (["RETURN"], ["XCTL"], ["ABEND"]):
+                if not _NOT_TERMINAL_CICS & set(words):
+                    dead = True
+    while stack:
+        close()
+    if unit is not None:
+        ends[unit] = dead and unit not in split
+    return unreached, ends
+
+
+def control_flow_unreachable(text: str, units: list[dict[str, Any]]) -> set[tuple[int, str]]:
+    """#4602: the (line, IF|EVALUATE) of every branch point of `text` (the original source) that no path reaches,
+    because each path to it passes a statement that never falls through. `units` are the inventory's ({name,
+    kind, line}). A PERFORM never returns only when its paragraph is absorbing: no path from its header reaches its
+    end, a GO TO counting as a way out; and every HANDLE CONDITION / AID / ABEND LABEL and SQL WHENEVER ... GO TO
+    label must itself be absorbing, or no paragraph is (a label is where a raised condition goes)."""
+    toks = _flow_tokens(text)
+    heads = {u["line"]: u["name"] for u in units if u.get("line")}
+    paragraphs = {u["name"] for u in units if u.get("kind") == "paragraph"}
+    upper = text.upper()
+    labels = {t for m in gy._CICS_HANDLE.finditer(upper) for t in gy._CICS_LABEL.findall(m.group(1))}
+    labels |= set(_WHENEVER_GOTO.findall(upper))
+    absorbing: frozenset[str] = frozenset()
+    while True:
+        _, ends = _walk(toks, heads, absorbing, goto_ends=False)
+        grown = frozenset(n for n, d in ends.items() if d and n in paragraphs)
+        if grown == absorbing:
+            break
+        absorbing = grown
+    if not labels <= absorbing:
+        absorbing = frozenset()
+    return _walk(toks, heads, absorbing, goto_ends=True)[0]
+
+
 def program_id(text: str) -> Optional[str]:
     """The PROGRAM-ID's name, read in the code area (columns 8-72): a name on the line after `PROGRAM-ID.` must not
     be the sequence number in columns 73-80 / 1-6 (COTRTUPC's `002200 PROGRAM-ID. ... 00220000`)."""
@@ -290,6 +495,7 @@ def inventory(path: Path, copybook_root: Optional[Path] = None, encoding: Option
                            for u in units if u["name"]],
                     dead=dead, branches=[], unresolvable=[], handler_labels=handler)  # fmt: skip
     branches, stmts = branch_points(raw)
+    unreached = control_flow_unreachable(raw, inv.units)
     for b in branches:
         b.unit = inv.unit_of(b.line)
         keys = [(b.line, b.kind)] + [a.first for a in b.arms if a.first]
@@ -300,6 +506,8 @@ def inventory(path: Path, copybook_root: Optional[Path] = None, encoding: Option
         elif any(a.first is None for a in b.arms):
             inv.unresolvable.append({"line": b.line, "kind": b.kind, "unit": b.unit,
                                      "why": "an arm with no statement: the trace cannot show it taken"})  # fmt: skip
+        elif (b.line, b.kind) in unreached:
+            inv.after_transfer.append(b)
         else:
             inv.branches.append(b)
     return inv
@@ -419,7 +627,7 @@ def hits(inv: Inventory, events: Iterable[Event], lines: LineMap, compiled_name:
     mine = [e for e in events if e.program == inv.program]
     # every unit entered, the ones the inventory lacks too (summary: `unread`); `L$0`-style names are GnuCOBOL's own
     out = Hits(units={e.name for e in mine if e.kind in ("Section", "Paragraph") and "$" not in e.name})
-    points = {b.line: b for b in inv.branches}
+    points = {b.line: b for b in inv.branches + inv.after_transfer}  # the latter: summary flags a run taking one
     stmts: list[tuple[int, str, bool]] = []  # (original line, verb, exact)
     for e in mine:
         if e.kind != "stmt" or (compiled_name and e.source and e.source != compiled_name):
@@ -490,6 +698,16 @@ def summary(inv: Inventory, got: Hits, blind: Iterable[int] = ()) -> dict[str, A
                 if (b.line, o) not in got.outcomes
             ],
             "in_dead_code": sum(len(b.outcomes()) for b in inv.branches if b.unit in inv.dead),
+            # #4602: outcomes of branch points no path reaches (after GO TO / XCTL / RETURN ...): not counted
+            "after_transfer": [
+                {"line": b.line, "kind": b.kind, "outcome": o, "unit": b.unit}
+                for b in inv.after_transfer
+                for o in b.outcomes()
+            ],  # fmt: skip
+            # a run took one: the control-flow reading is wrong (an engine defect to log)
+            "after_transfer_but_taken": sorted(
+                f"{ln}:{o}" for ln, o in got.outcomes if any(b.line == ln for b in inv.after_transfer)
+            ),  # fmt: skip
             "unresolvable": inv.unresolvable
             + [
                 {"line": ln, "kind": "?", "unit": inv.unit_of(ln), "why": "the compiled text changed its line"}
@@ -611,6 +829,13 @@ def summary_md(s: dict[str, Any], runs: int, what: str = "run") -> list[str]:
     gaps = gaps_md(s)
     if gaps:
         lines += ["", "Live code no run reached:", "", *gaps]
+    if s["branches"].get("after_transfer_but_taken"):
+        lines.append("**A run took outcomes the control flow calls unreachable** (#4602, a defect): "
+                     + ", ".join(f"`{o}`" for o in s["branches"]["after_transfer_but_taken"]) + ".")  # fmt: skip
+    after = sorted({(u["line"], u["kind"]) for u in s["branches"].get("after_transfer", [])})
+    if after:
+        lines += ["", "Branch points no path reaches, after a transfer of control (not counted, #4602): "
+                  + ", ".join(f"{k} at line {ln}" for ln, k in after) + "."]  # fmt: skip
     if s["branches"]["unresolvable"]:
         lines += ["", "Branch points the trace cannot resolve (not counted):", ""]
         lines += [f"- {u['kind']} at line {u['line']}: {u['why']}" for u in s["branches"]["unresolvable"]]

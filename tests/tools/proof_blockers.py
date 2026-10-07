@@ -18,7 +18,9 @@ one or more gap classes:
   not proven in CI: Db2    a Db2 case: CI's det-sweep runs --skip-db2, so only a local sweep (--sweep) proves it
   no det port (crucible)   its crucible case runs the COBOL, but no det port of it is committed
   coverage: ...            the proof leaves live paragraphs (and with --branches, branch outcomes) no scenario runs:
-                           translated code no proof judged
+                           translated code no proof judged. The outcomes a case states no input can reach
+                           (tests/equivalence/infeasible_outcomes.json, #4602) are taken out of its branch total and
+                           printed; one the proof reached is the gap `infeasible outcome reached`
   fact: NAME               a runtime fact the case would need and no harness states: an EIB field neither runtime
                            sets (EIBCPOSN, EIBRCODE, ...: both sides read zero, z/OS does not; EIBTASKN only under a
                            crucible case: the equivalence harness states it, oracle_assumptions X21), an ASSIGN option
@@ -100,6 +102,7 @@ class Run:
     region: bool = False
     gaps: set[str] = field(default_factory=set)
     detail: dict[str, str] = field(default_factory=dict)  # gap -> a longer note (the baseline's why, the diff)
+    infeasible: list[str] = field(default_factory=list)  # #4602: stated infeasible outcomes taken out of the total
 
 
 def _norm(path: str) -> str:
@@ -138,6 +141,9 @@ def load_sweeps(dirs: list[Path]) -> dict[str, dict[str, Any]]:
         for case, row in json.loads(f.read_text(encoding="utf-8")).get("det", {}).items():
             rep = root / "det" / case / "proof" / "report.json"
             out[case] = dict(row, report=str(rep) if rep.is_file() else None)
+            cj = root / "det" / case / "proof" / "cobol" / "coverage.json"
+            if out[case].get("uncovered") is None and cj.is_file():  # a sweep from before #4602 kept it here
+                out[case]["uncovered"] = json.loads(cj.read_text(encoding="utf-8"))["branches"]["uncovered"]
     return out
 
 
@@ -206,8 +212,39 @@ def judge_equivalence(run: Run, det_baseline: dict[str, dict[str, Any]], sweeps:
         if t.isdigit() and s.isdigit() and int(t) < int(s):
             run.gaps.add("holes in the case's det port")
     cov = coverage_of(row.get("coverage", "")) if row else None
-    cov = cov or ledger_coverage(run.case, cases_dir) or evidence_coverage(run.case, cases_dir)
+    uncovered = row.get("uncovered") if cov else None
+    checked = uncovered is not None  # a sweep that kept no uncovered list cannot show a claim holds
+    if cov is None:
+        cov, checked = ledger_coverage(run.case, cases_dir), True  # counts only: CI's det-sweep checks the claims
+    if cov is None:
+        cov, uncovered = evidence_coverage(run.case, cases_dir), evidence_uncovered(run.case, cases_dir)
+        checked = uncovered is not None
+    if checked:
+        cov = stated_infeasible(run, cov, uncovered, cases_dir)
     coverage_gaps(run, cov, branches)
+
+
+def evidence_uncovered(case: str, cases_dir: Path = CASES) -> list[dict[str, Any]] | None:
+    f = cases_dir / case / "evidence.json"
+    if not f.is_file():
+        return None
+    return (json.loads(f.read_text(encoding="utf-8")).get("coverage") or {}).get("uncovered_branches")
+
+
+def stated_infeasible(run: Run, cov: tuple[int, int, int, int] | None, uncovered: list[Any] | None,
+                      cases_dir: Path = CASES) -> tuple[int, int, int, int] | None:  # fmt: skip
+    """#4602: the case's stated infeasible outcomes (tests/equivalence/infeasible_outcomes.json) out of its branch
+    total, listed in run.infeasible; one the proof reached refutes the claim and is a gap."""
+    import infeasible_outcomes as io
+
+    ledger = io.load(cases_dir / io.LEDGER.name)
+    cov, taken, reached = io.adjust(run.case, cov, uncovered, ledger)
+    run.infeasible = taken
+    if reached:
+        g = "infeasible outcome reached (the stated claim is wrong)"
+        run.gaps.add(g)
+        run.detail[g] = ", ".join(reached)
+    return cov
 
 
 def coverage_gaps(run: Run, cov: tuple[int, int, int, int] | None, branches: bool) -> None:
@@ -381,7 +418,8 @@ def proof_blockers(rows: dict[tuple[str, str], dict[str, Any]], roots: list[Path
         gaps, run = program_gaps(key, eq, cru, facts)
         progs[key] = (cc.is_burned(key[0], burned), gaps)
         subjects[key] = {"case": run.case if run else None, "kind": run.kind if run else None,
-                         "detail": {g: run.detail[g] for g in gaps if run and g in run.detail}}  # fmt: skip
+                         "detail": {g: run.detail[g] for g in gaps if run and g in run.detail},
+                         "infeasible": list(run.infeasible) if run else []}  # fmt: skip
     estate = {k: v for k, v in progs.items() if not is_crucible(k[0])}
     res = rank(estate)
     res["crucible"] = rank({k: v for k, v in progs.items() if is_crucible(k[0])})
@@ -424,6 +462,13 @@ def print_report(res: dict[str, Any], top: int, label: str) -> None:
     proven = [p for p in res["programs"] if not p["gaps"] and not is_crucible(p["corpus"])]
     if proven:
         print("\nproven: " + ", ".join(f"{Path(p['program']).stem} ({p['case']})" for p in proven))
+    stated = [p for p in res["programs"] if p.get("infeasible")]
+    if stated:  # #4602: assumptions of the proof, always shown
+        print(
+            "\nstated infeasible outcomes, taken out of the branch totals (tests/equivalence/infeasible_outcomes.json):"
+        )
+        for p in stated:
+            print(f"  {Path(p['program']).stem} ({p['case']}): {', '.join(p['infeasible'])}")
     cru = res["crucible"]
     if cru["whole"]:
         print(f"\n## cics-crucible (surveyed clone): translated whole {cru['whole']}, proven {cru['proven']}")

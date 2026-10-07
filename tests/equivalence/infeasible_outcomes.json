@@ -1,0 +1,398 @@
+{
+ "format": "infeasible-outcomes/1",
+ "issue": "#4602",
+ "about": "Branch outcomes no input can reach, per equivalence case: proposed with the COBOL reason, reviewed by the owner in the PR that adds them, shown in the evidence report as stated assumptions. proof_blockers.py takes them out of the branch total; a det sweep whose proof reaches one fails (tests/tools/infeasible_outcomes.py). Lines are the case's program_source lines.",
+ "families": {
+  "G": "a guard every caller has already satisfied (data flow)",
+  "C": "a test of a constant: a copybook VALUE never written, a table built once, a loop index with fixed bounds",
+  "R": "a response the command never raises (IBM's documented conditions)"
+ },
+ "cases": {
+  "carddemo-adminmenu": [
+   {
+    "unit": "PROCESS-ENTER-KEY",
+    "line": 141,
+    "kind": "IF",
+    "outcome": "false",
+    "family": "C",
+    "reason": "`IF CDEMO-ADMIN-OPT-PGMNAME(WS-OPTION)(1:5) NOT = 'DUMMY'` runs only under `IF NOT ERR-FLG-ON` (140), i.e. after the test at 131-133 let WS-OPTION through as numeric, not zero and not > CDEMO-ADMIN-OPT-COUNT (6, COADM02Y line 22); the program names of options 1-6 are the copybook VALUEs 'COUSR00C', 'COUSR01C', 'COUSR02C', 'COUSR03C', 'COTRTLIC', 'COTRTUPC' (COADM02Y lines 29-53) and COADM01C never writes the table, so none starts with 'DUMMY'."
+   },
+   {
+    "unit": "BUILD-MENU-OPTIONS",
+    "line": 241,
+    "kind": "EVALUATE",
+    "outcome": "OTHER",
+    "family": "C",
+    "reason": "`EVALUATE WS-IDX` `WHEN OTHER` inside `PERFORM VARYING WS-IDX FROM 1 BY 1 UNTIL WS-IDX > CDEMO-ADMIN-OPT-COUNT` (231-232): the count is the constant 6 (COADM02Y line 22 `05 CDEMO-ADMIN-OPT-COUNT PIC 9(02) VALUE 6`), never written by COADM01C, and the loop body does not change WS-IDX, so WS-IDX is always 1-6, each matched by WHEN 1-6."
+   },
+   {
+    "unit": "BUILD-MENU-OPTIONS",
+    "line": 241,
+    "kind": "EVALUATE",
+    "outcome": "WHEN@254",
+    "family": "C",
+    "reason": "`EVALUATE WS-IDX` `WHEN 7` inside `PERFORM VARYING WS-IDX FROM 1 BY 1 UNTIL WS-IDX > CDEMO-ADMIN-OPT-COUNT` (231-232): the count is the constant 6 (COADM02Y line 22 `05 CDEMO-ADMIN-OPT-COUNT PIC 9(02) VALUE 6`), never written by COADM01C, and the loop body does not change WS-IDX, so WS-IDX takes only 1-6."
+   },
+   {
+    "unit": "BUILD-MENU-OPTIONS",
+    "line": 241,
+    "kind": "EVALUATE",
+    "outcome": "WHEN@256",
+    "family": "C",
+    "reason": "`EVALUATE WS-IDX` `WHEN 8` inside `PERFORM VARYING WS-IDX FROM 1 BY 1 UNTIL WS-IDX > CDEMO-ADMIN-OPT-COUNT` (231-232): the count is the constant 6 (COADM02Y line 22 `05 CDEMO-ADMIN-OPT-COUNT PIC 9(02) VALUE 6`), never written by COADM01C, and the loop body does not change WS-IDX, so WS-IDX takes only 1-6."
+   },
+   {
+    "unit": "BUILD-MENU-OPTIONS",
+    "line": 241,
+    "kind": "EVALUATE",
+    "outcome": "WHEN@258",
+    "family": "C",
+    "reason": "`EVALUATE WS-IDX` `WHEN 9` inside `PERFORM VARYING WS-IDX FROM 1 BY 1 UNTIL WS-IDX > CDEMO-ADMIN-OPT-COUNT` (231-232): the count is the constant 6 (COADM02Y line 22 `05 CDEMO-ADMIN-OPT-COUNT PIC 9(02) VALUE 6`), never written by COADM01C, and the loop body does not change WS-IDX, so WS-IDX takes only 1-6."
+   },
+   {
+    "unit": "BUILD-MENU-OPTIONS",
+    "line": 241,
+    "kind": "EVALUATE",
+    "outcome": "WHEN@260",
+    "family": "C",
+    "reason": "`EVALUATE WS-IDX` `WHEN 10` inside `PERFORM VARYING WS-IDX FROM 1 BY 1 UNTIL WS-IDX > CDEMO-ADMIN-OPT-COUNT` (231-232): the count is the constant 6 (COADM02Y line 22 `05 CDEMO-ADMIN-OPT-COUNT PIC 9(02) VALUE 6`), never written by COADM01C, and the loop body does not change WS-IDX, so WS-IDX takes only 1-6."
+   }
+  ],
+  "carddemo-billpay": [
+   {
+    "unit": "RETURN-TO-PREV-SCREEN",
+    "line": 275,
+    "kind": "IF",
+    "outcome": "true",
+    "family": "G",
+    "reason": "`IF CDEMO-TO-PROGRAM = LOW-VALUES OR SPACES` in RETURN-TO-PREV-SCREEN: the paragraph is only PERFORMed, and every PERFORM of it comes right after a MOVE of a non-blank program name into CDEMO-TO-PROGRAM (line 108 moves 'COSGN00C', line 130 'COMEN01C', and line 133 moves CDEMO-FROM-PROGRAM only after line 129 tested it is neither SPACES nor LOW-VALUES; both fields PIC X(08), COCOM01Y). COBIL00C never moves SPACES or LOW-VALUES into it in between."
+   },
+   {
+    "unit": "UPDATE-ACCTDAT-FILE",
+    "line": 387,
+    "kind": "EVALUATE",
+    "outcome": "WHEN@390",
+    "family": "R",
+    "reason": "`WHEN DFHRESP(NOTFND)` after `EXEC CICS REWRITE DATASET(WS-ACCTDAT-FILE)` (line 379): REWRITE updates the record the READ ... UPDATE at line 345 holds; IBM's REWRITE conditions do not include NOTFND (https://www.ibm.com/docs/en/cics-ts/6.x?topic=summary-rewrite; our spec, gitgalaxy/standards/cics/commands/files.py, lists NORMAL and INVREQ)."
+   }
+  ],
+  "carddemo-cardlist": [
+   {
+    "unit": "1250-SETUP-ARRAY-ATTRIBS",
+    "line": 757,
+    "kind": "IF",
+    "outcome": "true",
+    "family": "G",
+    "reason": "`IF WS-EDIT-SELECT(1) = SPACE OR LOW-VALUES` is only reached when WS-ROW-CRDSELECT-ERROR(1) = '1' (line 755). That flag is INITIALIZEd to spaces with WS-MISC-STORAGE (line 300) and set to '1' only in 2250-EDIT-ARRAY: at line 1104 when SELECT-OK(1) ('S' or 'U'), at line 1110 in WHEN OTHER after SELECT-BLANK(1) (' ' or LOW-VALUES, lines 80-82) failed, and by the INSPECT at lines 1090-1093, which turns only 'S' / 'U' into '1'. WS-EDIT-SELECT(1) is written only at line 972 (2100-RECEIVE-SCREEN, performed before 2200-EDIT-INPUTS at lines 952-956), so it is never blank when its error flag is '1'."
+   },
+   {
+    "unit": "1400-SETUP-MESSAGE",
+    "line": 897,
+    "kind": "EVALUATE",
+    "outcome": "OTHER",
+    "family": "G",
+    "reason": "1400-SETUP-MESSAGE is only PERFORMed by 1000-SEND-MAP (line 633), right after 1100-SCREEN-INIT (line 625), which ends with `SET WS-NO-INFO-MESSAGE TO TRUE` (line 669); nothing in 1200 / 1250 / 1300 writes WS-INFO-MSG. So when no earlier WHEN matches, `WHEN WS-NO-INFO-MESSAGE` (line 917) always does, and WHEN OTHER (line 920) cannot be taken."
+   }
+  ],
+  "carddemo-cardview": [
+   {
+    "unit": "1300-SETUP-SCREEN-ATTRS",
+    "line": 553,
+    "kind": "IF",
+    "outcome": "true",
+    "family": "G",
+    "reason": "1300-SETUP-SCREEN-ATTRS is only PERFORMed by 1000-SEND-MAP (line 417), right after 1200-SETUP-SCREEN-VARS (line 415), which ends with `IF WS-NO-INFO-MESSAGE SET WS-PROMPT-FOR-INPUT TO TRUE` (lines 490-492): WS-INFO-MSG leaves 1200 non-blank, and nothing at lines 494-552 writes it, so `IF WS-NO-INFO-MESSAGE` at line 553 is never true."
+   },
+   {
+    "unit": "2210-EDIT-ACCOUNT",
+    "line": 656,
+    "kind": "IF",
+    "outcome": "false",
+    "family": "G",
+    "reason": "`IF WS-RETURN-MSG-OFF`: WS-RETURN-MSG is set to SPACES at line 264 and 2210-EDIT-ACCOUNT is the first edit (only PERFORMed at line 630, in 2200-EDIT-MAP-INPUTS after 2100-RECEIVE-MAP, neither of which writes it before), so the message is always still off here."
+   },
+   {
+    "unit": "2210-EDIT-ACCOUNT",
+    "line": 668,
+    "kind": "IF",
+    "outcome": "false",
+    "family": "G",
+    "reason": "`IF WS-RETURN-MSG-OFF` at line 668 is reached only when the blank test at line 651 failed (it GOes TO the exit at line 660), so no message was set in this paragraph either; as for line 656, WS-RETURN-MSG is still the SPACES set at line 264."
+   },
+   {
+    "unit": "9100-GETCARD-BYACCTCARD",
+    "line": 759,
+    "kind": "IF",
+    "outcome": "false",
+    "family": "G",
+    "reason": "9100 runs only through 9000-READ-DATA, PERFORMed at line 344 (entry from the card list: nothing sets WS-RETURN-MSG after line 264) and at line 365 (the ELSE of IF INPUT-ERROR at line 360). Every message 2200-EDIT-MAP-INPUTS sets (lines 657, 671, 697, 711, 639) comes with SET INPUT-ERROR, so at line 365 the message is still off: `IF WS-RETURN-MSG-OFF` (NOTFND) is always true."
+   },
+   {
+    "unit": "9100-GETCARD-BYACCTCARD",
+    "line": 764,
+    "kind": "IF",
+    "outcome": "false",
+    "family": "G",
+    "reason": "Same as line 759: in WHEN OTHER of the READ at line 742, WS-RETURN-MSG is still the SPACES set at line 264 on both paths into 9100 (lines 344 and 365), so `IF WS-RETURN-MSG-OFF` is always true."
+   },
+   {
+    "unit": "ABEND-ROUTINE",
+    "line": 859,
+    "kind": "IF",
+    "outcome": "true",
+    "family": "C",
+    "reason": "`IF ABEND-MSG EQUAL LOW-VALUES`: ABEND-MSG is `PIC X(72) VALUE SPACES` (CSMSG02Y, lines 28-29), outside the items INITIALIZEd at lines 254-256, and the program writes it only at line 860 (a non-blank literal). It is never LOW-VALUES."
+   }
+  ],
+  "carddemo-menu": [
+   {
+    "unit": "PROCESS-ENTER-KEY",
+    "line": 146,
+    "kind": "EVALUATE",
+    "outcome": "WHEN@169",
+    "family": "C",
+    "reason": "`WHEN CDEMO-MENU-OPT-PGMNAME(WS-OPTION)(1:5) = 'DUMMY'` runs only under `IF NOT ERR-FLG-ON` (145), i.e. after the test at 127-129 let WS-OPTION through as numeric, not zero and not > CDEMO-MENU-OPT-COUNT (11, COMEN02Y line 21 `05 CDEMO-MENU-OPT-COUNT PIC 9(02) VALUE 11`); the program names of options 1-11 are the copybook VALUEs COACTVWC, COACTUPC, COCRDLIC, COCRDSLC, COCRDUPC, COTRN00C, COTRN01C, COTRN02C, CORPT00C, COBIL00C, COPAUS0C (COMEN02Y lines 28-89) and COMEN01C never writes the table, so none starts with 'DUMMY'."
+   },
+   {
+    "unit": "BUILD-MENU-OPTIONS",
+    "line": 274,
+    "kind": "EVALUATE",
+    "outcome": "OTHER",
+    "family": "C",
+    "reason": "`EVALUATE WS-IDX` `WHEN OTHER` inside `PERFORM VARYING WS-IDX FROM 1 BY 1 UNTIL WS-IDX > CDEMO-MENU-OPT-COUNT` (264-265): the count is the constant 11 (COMEN02Y line 21 `05 CDEMO-MENU-OPT-COUNT PIC 9(02) VALUE 11`), never written by COMEN01C, and the loop body does not change WS-IDX, so WS-IDX is always 1-11, each matched by WHEN 1-11."
+   },
+   {
+    "unit": "BUILD-MENU-OPTIONS",
+    "line": 274,
+    "kind": "EVALUATE",
+    "outcome": "WHEN@297",
+    "family": "C",
+    "reason": "`EVALUATE WS-IDX` `WHEN 12` inside `PERFORM VARYING WS-IDX FROM 1 BY 1 UNTIL WS-IDX > CDEMO-MENU-OPT-COUNT` (264-265): the count is the constant 11 (COMEN02Y line 21 `05 CDEMO-MENU-OPT-COUNT PIC 9(02) VALUE 11`), never written by COMEN01C, and the loop body does not change WS-IDX, so WS-IDX takes only 1-11."
+   }
+  ],
+  "carddemo-report": [
+   {
+    "unit": "PROCESS-ENTER-KEY",
+    "line": 347,
+    "kind": "IF",
+    "outcome": "true",
+    "family": "G",
+    "reason": "`IF SDTYYYYI IS NOT NUMERIC`: lines 313-315 have just moved WS-NUM-9999 (PIC 9999, line 75: unsigned display digits) into SDTYYYYI (PIC X(4), CORPT00.CPY), so it always holds four digits"
+   },
+   {
+    "unit": "PROCESS-ENTER-KEY",
+    "line": 373,
+    "kind": "IF",
+    "outcome": "true",
+    "family": "G",
+    "reason": "`IF EDTYYYYI IS NOT NUMERIC`: lines 325-327 have just moved WS-NUM-9999 (PIC 9999, line 75: unsigned display digits) into EDTYYYYI (PIC X(4), CORPT00.CPY), so it always holds four digits"
+   },
+   {
+    "unit": "PROCESS-ENTER-KEY",
+    "line": 434,
+    "kind": "IF",
+    "outcome": "false",
+    "family": "G",
+    "reason": "`IF NOT ERR-FLG-ON` can only be false after an error was flagged, but every MOVE 'Y' TO WS-ERR-FLG (lines 191, 263-298, 333-376, 402, 422, 440, 471, 482, 491, 530) is followed by PERFORM SEND-TRNRPT-SCREEN, which never returns: it ends in GO TO RETURN-TO-CICS (line 580), whose EXEC CICS RETURN (line 587, no RESP / NOHANDLE) ends the task; WS-ERR-FLG starts 'N' (SET ERR-FLG-OFF, line 165)"
+   },
+   {
+    "unit": "PROCESS-ENTER-KEY",
+    "line": 445,
+    "kind": "IF",
+    "outcome": "false",
+    "family": "G",
+    "reason": "`IF NOT ERR-FLG-ON` after the report EVALUATE: every MOVE 'Y' TO WS-ERR-FLG (lines 191, 263-298, 333-376, 402, 422, 440, 471, 482, 491, 530) is followed by PERFORM SEND-TRNRPT-SCREEN, which never returns: it ends in GO TO RETURN-TO-CICS (line 580), whose EXEC CICS RETURN (line 587, no RESP / NOHANDLE) ends the task; WS-ERR-FLG starts 'N' (SET ERR-FLG-OFF, line 165)"
+   },
+   {
+    "unit": "SUBMIT-JOB-TO-INTRDR",
+    "line": 476,
+    "kind": "IF",
+    "outcome": "false",
+    "family": "G",
+    "reason": "`IF NOT ERR-FLG-ON`: the only flag set before it in this task is line 471, followed by PERFORM SEND-TRNRPT-SCREEN, which never returns; every MOVE 'Y' TO WS-ERR-FLG (lines 191, 263-298, 333-376, 402, 422, 440, 471, 482, 491, 530) is followed by PERFORM SEND-TRNRPT-SCREEN, which never returns: it ends in GO TO RETURN-TO-CICS (line 580), whose EXEC CICS RETURN (line 587, no RESP / NOHANDLE) ends the task; WS-ERR-FLG starts 'N' (SET ERR-FLG-OFF, line 165)"
+   },
+   {
+    "unit": "RETURN-TO-PREV-SCREEN",
+    "line": 542,
+    "kind": "IF",
+    "outcome": "true",
+    "family": "G",
+    "reason": "`IF CDEMO-TO-PROGRAM = LOW-VALUES OR SPACES` in RETURN-TO-PREV-SCREEN: the paragraph is only PERFORMed, and every PERFORM of it comes right after a MOVE of a non-blank program name into CDEMO-TO-PROGRAM (line 173 moves 'COSGN00C' and line 188 'COMEN01C'; both fields PIC X(08), COCOM01Y). CORPT00C never moves SPACES or LOW-VALUES into it in between."
+   },
+   {
+    "unit": "SEND-TRNRPT-SCREEN",
+    "line": 562,
+    "kind": "IF",
+    "outcome": "false",
+    "family": "C",
+    "reason": "`IF SEND-ERASE-YES`: WS-SEND-ERASE-FLG has VALUE 'Y' (line 47) and the only statement that writes it is SET SEND-ERASE-YES TO TRUE (line 167); SEND-ERASE-NO is never set"
+   }
+  ],
+  "carddemo-tranadd": [
+   {
+    "unit": "VALIDATE-INPUT-DATA-FIELDS",
+    "line": 237,
+    "kind": "IF",
+    "outcome": "true",
+    "family": "G",
+    "reason": "`IF ERR-FLG-ON` at the head of VALIDATE-INPUT-DATA-FIELDS: MAIN-PARA sets ERR-FLG-OFF (line 109) and every MOVE 'Y' TO WS-ERR-FLG that can run before it (lines 149, 198, 212, 225 and the xref READs at 592 / 599 / 625 / 632) is followed by PERFORM SEND-TRNADD-SCREEN, which ends in EXEC CICS RETURN (line 530, no RESP, no HANDLE in COTRN02C) and never comes back. So the flag is always 'N' when this IF runs."
+   },
+   {
+    "unit": "COPY-LAST-TRAN-DATA",
+    "line": 480,
+    "kind": "IF",
+    "outcome": "false",
+    "family": "G",
+    "reason": "`IF NOT ERR-FLG-ON` after VALIDATE-INPUT-KEY-FIELDS and the STARTBR / READPREV / ENDBR of COPY-LAST-TRAN-DATA: each of them that sets WS-ERR-FLG to 'Y' (lines 198, 212, 225, 592, 599, 625, 632, 656, 663, 692) then PERFORMs SEND-TRNADD-SCREEN, which ends in EXEC CICS RETURN (line 530, no RESP, no HANDLE) and never comes back; READPREV ENDFILE (line 688) only zeroes TRAN-ID. So the flag is still the 'N' MAIN-PARA set (line 109)."
+   },
+   {
+    "unit": "RETURN-TO-PREV-SCREEN",
+    "line": 502,
+    "kind": "IF",
+    "outcome": "true",
+    "family": "G",
+    "reason": "`IF CDEMO-TO-PROGRAM = LOW-VALUES OR SPACES` in RETURN-TO-PREV-SCREEN: the paragraph is only PERFORMed, and every PERFORM of it comes right after a MOVE of a non-blank program name into CDEMO-TO-PROGRAM (line 116 moves 'COSGN00C', line 138 'COMEN01C', and line 141 moves CDEMO-FROM-PROGRAM only after testing it is neither SPACES nor LOW-VALUES; both fields PIC X(08), COCOM01Y). COTRN02C never moves SPACES or LOW-VALUES into it in between."
+   }
+  ],
+  "carddemo-tranlist": [
+   {
+    "unit": "PROCESS-PAGE-BACKWARD",
+    "line": 339,
+    "kind": "IF",
+    "outcome": "false",
+    "family": "G",
+    "reason": "`IF EIBAID NOT = DFHENTER AND DFHPF8`: PROCESS-PAGE-BACKWARD is PERFORMed only from PROCESS-PF7-KEY (line 246), which MAIN-PARA PERFORMs only under `WHEN DFHPF7` of `EVALUATE EIBAID`; COTRN00C never changes EIBAID, so EIBAID = DFHPF7 here and the condition is always true."
+   },
+   {
+    "unit": "PROCESS-PAGE-BACKWARD",
+    "line": 361,
+    "kind": "IF",
+    "outcome": "false",
+    "family": "G",
+    "reason": "`IF NEXT-PAGE-YES`: PROCESS-PF7-KEY does `SET NEXT-PAGE-YES TO TRUE` (line 242) just before PERFORM PROCESS-PAGE-BACKWARD, and nothing on the way (STARTBR / READPREV / POPULATE / INITIALIZE / SEND paragraphs) sets NEXT-PAGE-NO -- only PROCESS-PAGE-FORWARD does, which PF7 never runs. The flag is always 'Y' here."
+   },
+   {
+    "unit": "POPULATE-TRAN-DATA",
+    "line": 390,
+    "kind": "EVALUATE",
+    "outcome": "OTHER",
+    "family": "C",
+    "reason": "`EVALUATE WS-IDX` WHEN 1 .. WHEN 10: POPULATE-TRAN-DATA is PERFORMed only at line 300, inside `PERFORM UNTIL WS-IDX >= 11 ...` (line 297; WS-IDX moved 1 at line 295, +1 per row at line 301), and at line 354, inside `PERFORM UNTIL WS-IDX <= 0 ...` (line 351; WS-IDX moved 10 at line 349, -1 per row at line 355). The loop test runs before each pass, so WS-IDX is in 1..10 every time."
+   },
+   {
+    "unit": "INITIALIZE-TRAN-DATA",
+    "line": 452,
+    "kind": "EVALUATE",
+    "outcome": "OTHER",
+    "family": "C",
+    "reason": "`EVALUATE WS-IDX` WHEN 1 .. WHEN 10: INITIALIZE-TRAN-DATA is PERFORMed only by `PERFORM VARYING WS-IDX FROM 1 BY 1 UNTIL WS-IDX > 10` (lines 290 and 344), so WS-IDX is in 1..10 every time."
+   },
+   {
+    "unit": "RETURN-TO-PREV-SCREEN",
+    "line": 512,
+    "kind": "IF",
+    "outcome": "true",
+    "family": "G",
+    "reason": "`IF CDEMO-TO-PROGRAM = LOW-VALUES OR SPACES` in RETURN-TO-PREV-SCREEN: the paragraph is only PERFORMed, and every PERFORM of it comes right after a MOVE of a non-blank program name into CDEMO-TO-PROGRAM (line 108 moves 'COSGN00C' and line 123 'COMEN01C'; both fields PIC X(08), COCOM01Y). COTRN00C never moves SPACES or LOW-VALUES into it in between."
+   }
+  ],
+  "carddemo-tranview": [
+   {
+    "unit": "RETURN-TO-PREV-SCREEN",
+    "line": 199,
+    "kind": "IF",
+    "outcome": "true",
+    "family": "G",
+    "reason": "`IF CDEMO-TO-PROGRAM = LOW-VALUES OR SPACES` in RETURN-TO-PREV-SCREEN: the paragraph is only PERFORMed, and every PERFORM of it comes right after a MOVE of a non-blank program name into CDEMO-TO-PROGRAM (lines 95 and 126 move 'COSGN00C' / 'COTRN00C', line 117 'COMEN01C', and line 120 moves CDEMO-FROM-PROGRAM only after line 116 tested it is neither SPACES nor LOW-VALUES; both fields PIC X(08), COCOM01Y). COTRN01C never moves SPACES or LOW-VALUES into it in between."
+   }
+  ],
+  "carddemo-useradd": [
+   {
+    "unit": "RETURN-TO-PREV-SCREEN",
+    "line": 167,
+    "kind": "IF",
+    "outcome": "true",
+    "family": "G",
+    "reason": "`IF CDEMO-TO-PROGRAM = LOW-VALUES OR SPACES` in RETURN-TO-PREV-SCREEN: the paragraph is only PERFORMed, and every PERFORM of it comes right after a MOVE of a non-blank program name into CDEMO-TO-PROGRAM (line 79 moves 'COSGN00C' and line 94 'COADM01C'; both fields PIC X(08), COCOM01Y). COUSR01C never moves SPACES or LOW-VALUES into it in between."
+   }
+  ],
+  "carddemo-userdel": [
+   {
+    "unit": "RETURN-TO-PREV-SCREEN",
+    "line": 199,
+    "kind": "IF",
+    "outcome": "true",
+    "family": "G",
+    "reason": "`IF CDEMO-TO-PROGRAM = LOW-VALUES OR SPACES` in RETURN-TO-PREV-SCREEN: the paragraph is only PERFORMed, and every PERFORM of it comes right after a MOVE of a non-blank program name into CDEMO-TO-PROGRAM (lines 91, 113 and 124 move 'COSGN00C' / 'COADM01C', and line 116 moves CDEMO-FROM-PROGRAM only after testing it is neither SPACES nor LOW-VALUES; both fields PIC X(08), COCOM01Y). COUSR03C never moves SPACES or LOW-VALUES into it in between."
+   },
+   {
+    "unit": "DELETE-USER-SEC-FILE",
+    "line": 313,
+    "kind": "EVALUATE",
+    "outcome": "WHEN@323",
+    "family": "R",
+    "reason": "`WHEN DFHRESP(NOTFND)` after `EXEC CICS DELETE DATASET(WS-USRSEC-FILE)` (line 307) with no RIDFLD: it deletes the record READ-USER-SEC-FILE's READ ... UPDATE (line 269) holds, PERFORMed just before it (lines 190-191). IBM's DELETE raises NOTFND only when the RIDFLD search argument is not found (https://www.ibm.com/docs/en/cics-ts/6.x?topic=summary-delete); with no RIDFLD the failure is INVREQ."
+   }
+  ],
+  "carddemo-userlist": [
+   {
+    "unit": "PROCESS-PAGE-BACKWARD",
+    "line": 342,
+    "kind": "IF",
+    "outcome": "false",
+    "family": "G",
+    "reason": "`IF EIBAID NOT = DFHENTER  AND DFHPF8`: PROCESS-PAGE-BACKWARD is PERFORMed only from PROCESS-PF7-KEY (line 249), which MAIN-PARA PERFORMs only under `WHEN DFHPF7` of `EVALUATE EIBAID`; COUSR00C never changes EIBAID, so EIBAID = DFHPF7 here and the condition is always true."
+   },
+   {
+    "unit": "PROCESS-PAGE-BACKWARD",
+    "line": 364,
+    "kind": "IF",
+    "outcome": "false",
+    "family": "G",
+    "reason": "`IF NEXT-PAGE-YES`: PROCESS-PF7-KEY does `SET NEXT-PAGE-YES TO TRUE` (line 245) just before PERFORM PROCESS-PAGE-BACKWARD, and nothing on the way (STARTBR / READPREV / POPULATE / INITIALIZE / SEND paragraphs) sets NEXT-PAGE-NO -- only PROCESS-PAGE-FORWARD does, which PF7 never runs. The flag is always 'Y' here."
+   },
+   {
+    "unit": "POPULATE-USER-DATA",
+    "line": 386,
+    "kind": "EVALUATE",
+    "outcome": "OTHER",
+    "family": "C",
+    "reason": "`EVALUATE WS-IDX` WHEN 1 .. WHEN 10: POPULATE-USER-DATA is PERFORMed only at line 303, inside `PERFORM UNTIL WS-IDX >= 11 ...` (line 300; WS-IDX moved 1 at line 298, +1 per row at line 304), and at line 357, inside `PERFORM UNTIL WS-IDX <= 0 ...` (line 354; WS-IDX moved 10 at line 352, -1 per row at line 358). The loop test runs before each pass, so WS-IDX is in 1..10 every time."
+   },
+   {
+    "unit": "INITIALIZE-USER-DATA",
+    "line": 448,
+    "kind": "EVALUATE",
+    "outcome": "OTHER",
+    "family": "C",
+    "reason": "`EVALUATE WS-IDX` WHEN 1 .. WHEN 10: INITIALIZE-USER-DATA is PERFORMed only by `PERFORM VARYING WS-IDX FROM 1 BY 1 UNTIL WS-IDX > 10` (lines 293 and 347), so WS-IDX is in 1..10 every time."
+   },
+   {
+    "unit": "RETURN-TO-PREV-SCREEN",
+    "line": 508,
+    "kind": "IF",
+    "outcome": "true",
+    "family": "G",
+    "reason": "`IF CDEMO-TO-PROGRAM = LOW-VALUES OR SPACES` in RETURN-TO-PREV-SCREEN: the paragraph is only PERFORMed, and every PERFORM of it comes right after a MOVE of a non-blank program name into CDEMO-TO-PROGRAM (line 111 moves 'COSGN00C' and line 126 'COADM01C'; both fields PIC X(08), COCOM01Y). COUSR00C never moves SPACES or LOW-VALUES into it in between."
+   }
+  ],
+  "carddemo-userupd": [
+   {
+    "unit": "RETURN-TO-PREV-SCREEN",
+    "line": 252,
+    "kind": "IF",
+    "outcome": "true",
+    "family": "G",
+    "reason": "`IF CDEMO-TO-PROGRAM = LOW-VALUES OR SPACES` in RETURN-TO-PREV-SCREEN: the paragraph is only PERFORMed, and every PERFORM of it comes right after a MOVE of a non-blank program name into CDEMO-TO-PROGRAM (lines 91, 114 and 125 move 'COSGN00C' / 'COADM01C', and line 117 moves CDEMO-FROM-PROGRAM only after testing it is neither SPACES nor LOW-VALUES; both fields PIC X(08), COCOM01Y). COUSR02C never moves SPACES or LOW-VALUES into it in between."
+   },
+   {
+    "unit": "UPDATE-USER-SEC-FILE",
+    "line": 368,
+    "kind": "EVALUATE",
+    "outcome": "WHEN@377",
+    "family": "R",
+    "reason": "`WHEN DFHRESP(NOTFND)` after `EXEC CICS REWRITE DATASET(WS-USRSEC-FILE)` (line 360): REWRITE has no RIDFLD and updates the record the READ ... UPDATE at line 322 holds; IBM's REWRITE conditions do not include NOTFND (https://www.ibm.com/docs/en/cics-ts/6.x?topic=summary-rewrite; our spec, gitgalaxy/standards/cics/commands/files.py, lists NORMAL and INVREQ)."
+   }
+  ]
+ }
+}

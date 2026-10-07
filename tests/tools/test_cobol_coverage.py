@@ -191,3 +191,89 @@ def test_read_trace_names_programs_and_sources() -> None:
     events = cov.read_trace(TRACE)
     assert events[0].kind == "Entry" and events[0].program == "T" and events[0].source == "T.cbl"
     assert [e.name for e in events if e.kind == "stmt"][-2:] == ["GO TO", "STOP RUN"]
+
+
+# ---- #4602: branch points after a transfer of control ------------------------------------------------------------
+def _after(*body: str) -> list[int]:
+    """The lines of the branch points set apart as unreachable in a program whose PROCEDURE DIVISION is `body`
+    (line 4 on: body[0] is line 4)."""
+    src = _cbl("PROGRAM-ID. T.", "PROCEDURE DIVISION.", "MAIN-PARA.", *body)
+    inv = cov.inventory(Path("T.cbl"), text=src)
+    return sorted(b.line for b in inv.after_transfer)
+
+
+def test_if_after_an_evaluate_whose_every_arm_transfers_is_not_counted() -> None:
+    src = _cbl(
+        "PROGRAM-ID. T.",  # 1
+        "PROCEDURE DIVISION.",  # 2
+        "MAIN-PARA.",  # 3
+        "    EVALUATE TRUE",  # 4
+        "      WHEN X = 1",  # 5
+        "        GO TO DONE-PARA",  # 6
+        "      WHEN X = 2",  # 7
+        "        EXEC CICS XCTL PROGRAM('P') END-EXEC",  # 8
+        "      WHEN OTHER",  # 9
+        "        IF Y = 1 GO TO DONE-PARA ELSE GOBACK END-IF",  # 10
+        "    END-EVALUATE",  # 11
+        "    IF X = 3",  # 12
+        "       DISPLAY 'NEVER'",  # 13
+        "    END-IF.",  # 14
+        "DONE-PARA.",  # 15
+        "    IF X = 4 DISPLAY 'FOUR' END-IF",  # 16
+        "    STOP RUN.",  # 17
+    )
+    inv = cov.inventory(Path("T.cbl"), text=src)
+    assert [b.line for b in inv.after_transfer] == [12]
+    assert 12 not in [b.line for b in inv.branches] and 16 in [b.line for b in inv.branches]
+    s = cov.summary(inv, cov.Hits())
+    assert [(u["line"], u["outcome"]) for u in s["branches"]["after_transfer"]] == [(12, "true"), (12, "false")]
+    assert s["branches"]["total"] == sum(len(b.outcomes()) for b in inv.branches)
+    # a run that takes one anyway is flagged, never counted
+    s = cov.summary(inv, cov.Hits(outcomes={(12, "true")}))
+    assert s["branches"]["after_transfer_but_taken"] == ["12:true"] and s["branches"]["covered"] == 0
+
+
+def test_an_arm_that_may_fall_through_keeps_the_next_branch_point() -> None:
+    evaluate = ["    EVALUATE X", "      WHEN 1", "        GO TO MAIN-PARA"]
+    tail = ["    END-EVALUATE", "    IF X = 3 DISPLAY 'Y' END-IF."]
+    assert _after(*evaluate, *tail) == []  # no WHEN OTHER: no arm may match
+    assert _after(*evaluate, "      WHEN OTHER", "        DISPLAY 'Z'", *tail) == []  # OTHER falls through
+    assert _after("    IF X = 1 GO TO MAIN-PARA END-IF", "    IF X = 2 DISPLAY 'Y' END-IF.") == []  # no ELSE
+    # a conditional phrase may not run
+    assert _after("    READ F AT END GO TO MAIN-PARA END-READ", "    IF X = 2 DISPLAY 'Y' END-IF.") == []
+    assert _after("    READ F INVALID KEY GO TO MAIN-PARA", "    NOT INVALID KEY DISPLAY 'K' END-READ",
+                  "    IF X = 2 DISPLAY 'Y' END-IF.") == []  # fmt: skip
+    assert _after("    ADD 1 TO X ON SIZE ERROR GOBACK END-ADD", "    IF X = 2 DISPLAY 'Y' END-IF.") == []
+    # an inline PERFORM may run no time
+    assert _after("    PERFORM UNTIL X > 1 GO TO MAIN-PARA END-PERFORM", "    IF X = 2 DISPLAY 'Y' END-IF.") == []
+    # GO TO ... DEPENDING ON falls through when the index is out of range
+    assert _after("    GO TO MAIN-PARA DEPENDING ON X", "    IF X = 2 DISPLAY 'Y' END-IF.") == []
+    # a CICS RETURN / XCTL with RESP or NOHANDLE comes back on an error
+    assert _after("    EXEC CICS XCTL PROGRAM('P') RESP(R) END-EXEC", "    IF X = 2 DISPLAY 'Y' END-IF.") == []
+    assert _after("    EXEC CICS RETURN NOHANDLE END-EXEC", "    IF X = 2 DISPLAY 'Y' END-IF.") == []
+    # an unconditional statement does not hide the transfer after it
+    assert _after("    MOVE 1 TO X", "    GO TO MAIN-PARA", "    IF X = 2 DISPLAY 'Y' END-IF.") == [6]
+    # the next sentence of the same paragraph is unreachable too; the next paragraph is not
+    assert _after(
+        "    GOBACK.", "    IF X = 2 DISPLAY 'Y' END-IF.", "NEXT-PARA.", "    IF X = 3 DISPLAY 'Z' END-IF."
+    ) == [5]
+    # a COPY may bring paragraph headers
+    assert _after("    GOBACK.", "    COPY 'X'.", "    IF X = 2 DISPLAY 'Y' END-IF.") == []
+
+
+def test_a_perform_of_a_paragraph_that_never_returns_transfers() -> None:
+    sends = ["SEND-TEXT.", "    EXEC CICS SEND TEXT FROM(M) END-EXEC", "    EXEC CICS RETURN END-EXEC.", "SEND-TEXT-EXIT.",
+             "    EXIT."]  # fmt: skip
+    assert _after("    PERFORM SEND-TEXT THRU SEND-TEXT-EXIT", "    IF X = 2 DISPLAY 'Y' END-IF.", *sends) == [5]
+    assert _after("    PERFORM SEND-TEXT", "    IF X = 2 DISPLAY 'Y' END-IF.", *sends) == [5]
+    # it may run no time
+    assert _after("    PERFORM SEND-TEXT UNTIL X = 1", "    IF X = 2 DISPLAY 'Y' END-IF.", *sends) == []
+    assert _after("    PERFORM SEND-TEXT THRU SEND-TEXT-EXIT X TIMES", "    IF X = 2 DISPLAY 'Y' END-IF.", *sends) == []
+    # a paragraph a GO TO leaves may still come back through the end of the range
+    goes = ["SEND-TEXT.", "    GO TO SEND-TEXT-EXIT.", "SEND-TEXT-EXIT.", "    EXIT."]
+    assert _after("    PERFORM SEND-TEXT THRU SEND-TEXT-EXIT", "    IF X = 2 DISPLAY 'Y' END-IF.", *goes) == []
+    # a HANDLE label that may come back makes no paragraph absorbing: a raised condition goes there
+    handle = ["    EXEC CICS HANDLE ABEND LABEL(ON-ABEND) END-EXEC", "    PERFORM SEND-TEXT",
+              "    IF X = 2 DISPLAY 'Y' END-IF."]  # fmt: skip
+    assert _after(*handle, *sends, "ON-ABEND.", "    DISPLAY 'A'.") == []
+    assert _after(*handle, *sends, "ON-ABEND.", "    EXEC CICS ABEND ABCODE('X') END-EXEC.") == [6]

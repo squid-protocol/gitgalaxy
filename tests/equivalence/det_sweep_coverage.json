@@ -27,12 +27,12 @@
    },
    "branches": {
     "covered": 58,
-    "total": 71
+    "total": 69
    },
    "inputs": {
     "case": "148af5f69abed6acc72e8cd672a301fd075be981f27b382789fbe3c9da821e48",
     "corpus": "d0c4803872ec126eb56a170212f76207beff5ab8c2b6507dd6df4a084cdeb919",
-    "harness": "e8b404c644d9e48f1ffec8557650717c0ae29638695c46de79960fdf50029c85",
+    "harness": "17f2c1d2cf1caec1826d9f476691fc609407d5613e72411c2128ca5babb79e11",
     "oracle": "c01338417b189840c3da3fcf109428b6c3c5db987111699423026a5a2aa260eb"
    }
   },
@@ -44,12 +44,12 @@
    },
    "branches": {
     "covered": 42,
-    "total": 71
+    "total": 69
    },
    "inputs": {
     "case": "f301f2748f2e5be2861c5f876163d8ed413c11a974694bcd5927ae1be8eed84f",
     "corpus": "d0c4803872ec126eb56a170212f76207beff5ab8c2b6507dd6df4a084cdeb919",
-    "harness": "e8b404c644d9e48f1ffec8557650717c0ae29638695c46de79960fdf50029c85",
+    "harness": "17f2c1d2cf1caec1826d9f476691fc609407d5613e72411c2128ca5babb79e11",
     "oracle": "c01338417b189840c3da3fcf109428b6c3c5db987111699423026a5a2aa260eb"
    }
   },
@@ -66,58 +66,58 @@
    "inputs": {
     "case": "f6d6e0043ca8d45a2ad195ece5fd6caba411960fc93a0f95249e1da6bbe0f4f5",
     "corpus": "d0c4803872ec126eb56a170212f76207beff5ab8c2b6507dd6df4a084cdeb919",
-    "harness": "e8b404c644d9e48f1ffec8557650717c0ae29638695c46de79960fdf50029c85",
+    "harness": "17f2c1d2cf1caec1826d9f476691fc609407d5613e72411c2128ca5babb79e11",
     "oracle": "c01338417b189840c3da3fcf109428b6c3c5db987111699423026a5a2aa260eb"
    }
   },
   "carddemo-billpay": {
-   "scenarios": 17,
+   "scenarios": 25,
    "paragraphs": {
     "covered": 16,
     "live": 16
    },
    "branches": {
-    "covered": 38,
+    "covered": 46,
     "total": 48
    },
    "inputs": {
-    "case": "7983bfd955e1404caa06b338eb01918e31cc77b89be229ca8cdd3f416292cc59",
+    "case": "6790dbfc07f6ecf4a4528681eaae2540f3202ace69aaf19f006b839f6d8eee0f",
     "corpus": "d0c4803872ec126eb56a170212f76207beff5ab8c2b6507dd6df4a084cdeb919",
-    "harness": "e8b404c644d9e48f1ffec8557650717c0ae29638695c46de79960fdf50029c85",
+    "harness": "17f2c1d2cf1caec1826d9f476691fc609407d5613e72411c2128ca5babb79e11",
     "oracle": "c01338417b189840c3da3fcf109428b6c3c5db987111699423026a5a2aa260eb"
    }
   },
   "carddemo-cardlist": {
-   "scenarios": 43,
+   "scenarios": 45,
    "paragraphs": {
     "covered": 36,
     "live": 36
    },
    "branches": {
-    "covered": 144,
-    "total": 151
+    "covered": 146,
+    "total": 149
    },
    "inputs": {
-    "case": "866c5efc4fba263ef6ab8d92640a5083ff2b15449e6d3c6f45e0f5418fe4e9e2",
+    "case": "41aab797f096a9ada81c3d81271755ee7eff20a7adc3209b65d8cd4eba3bc4fe",
     "corpus": "d0c4803872ec126eb56a170212f76207beff5ab8c2b6507dd6df4a084cdeb919",
-    "harness": "e8b404c644d9e48f1ffec8557650717c0ae29638695c46de79960fdf50029c85",
+    "harness": "17f2c1d2cf1caec1826d9f476691fc609407d5613e72411c2128ca5babb79e11",
     "oracle": "c01338417b189840c3da3fcf109428b6c3c5db987111699423026a5a2aa260eb"
    }
   },
   "carddemo-cardview": {
-   "scenarios": 22,
+   "scenarios": 23,
    "paragraphs": {
     "covered": 30,
     "live": 30
    },
    "branches": {
-    "covered": 67,
-    "total": 77
+    "covered": 69,
+    "total": 75
    },
    "inputs": {
-    "case": "5f78c9f0661482ecf5d7eb5ebe0cc5ab4bde2eee305f707ef4f86c9a609eed18",
+    "case": "b37f0899733d7de92a4017cf0106742dd43c347fd3c0c632fa098cf5b96e5ebc",
     "corpus": "d0c4803872ec126eb56a170212f76207beff5ab8c2b6507dd6df4a084cdeb919",
-    "harness": "e8b404c644d9e48f1ffec8557650717c0ae29638695c46de79960fdf50029c85",
+    "harness": "17f2c1d2cf1caec1826d9f476691fc609407d5613e72411c2128ca5babb79e11",
     "oracle": "c01338417b189840c3da3fcf109428b6c3c5db987111699423026a5a2aa260eb"
    }
   },
@@ -134,24 +134,24 @@
    "inputs": {
     "case": "0438494a837c763cc0022729ec4d25806bf2d816126c90ad6a6d4f43357742c4",
     "corpus": "d0c4803872ec126eb56a170212f76207beff5ab8c2b6507dd6df4a084cdeb919",
-    "harness": "e8b404c644d9e48f1ffec8557650717c0ae29638695c46de79960fdf50029c85",
+    "harness": "17f2c1d2cf1caec1826d9f476691fc609407d5613e72411c2128ca5babb79e11",
     "oracle": "c01338417b189840c3da3fcf109428b6c3c5db987111699423026a5a2aa260eb"
    }
   },
   "carddemo-report": {
-   "scenarios": 16,
+   "scenarios": 25,
    "paragraphs": {
     "covered": 10,
     "live": 10
    },
    "branches": {
-    "covered": 40,
+    "covered": 51,
     "total": 59
    },
    "inputs": {
-    "case": "a7e044403af92ab8f754913b2cd0f2b844cb6d23ce5610e3800ac4759a0a35f3",
+    "case": "8a510ec12c46620c50eee6e60d38aa06906b342d505bb3e642bb192431f1807f",
     "corpus": "d0c4803872ec126eb56a170212f76207beff5ab8c2b6507dd6df4a084cdeb919",
-    "harness": "e8b404c644d9e48f1ffec8557650717c0ae29638695c46de79960fdf50029c85",
+    "harness": "17f2c1d2cf1caec1826d9f476691fc609407d5613e72411c2128ca5babb79e11",
     "oracle": "c01338417b189840c3da3fcf109428b6c3c5db987111699423026a5a2aa260eb"
    }
   },
@@ -168,41 +168,41 @@
    "inputs": {
     "case": "6da932f72dab5e337afb7ca239187f663dfc6fc2f33ba85d70274f0c14b668f5",
     "corpus": "d0c4803872ec126eb56a170212f76207beff5ab8c2b6507dd6df4a084cdeb919",
-    "harness": "e8b404c644d9e48f1ffec8557650717c0ae29638695c46de79960fdf50029c85",
+    "harness": "17f2c1d2cf1caec1826d9f476691fc609407d5613e72411c2128ca5babb79e11",
     "oracle": "c01338417b189840c3da3fcf109428b6c3c5db987111699423026a5a2aa260eb"
    }
   },
   "carddemo-tranadd": {
-   "scenarios": 31,
+   "scenarios": 46,
    "paragraphs": {
     "covered": 18,
     "live": 18
    },
    "branches": {
-    "covered": 56,
+    "covered": 72,
     "total": 75
    },
    "inputs": {
-    "case": "59332379be3dfc1d70301397eba7b9a3b1e606a1e6a5de25346e01c376efe0f3",
+    "case": "9df37db4a0702e02d26ba7d7a796a58e66337983e82ae4b3d85ff26d603a2c97",
     "corpus": "d0c4803872ec126eb56a170212f76207beff5ab8c2b6507dd6df4a084cdeb919",
-    "harness": "e8b404c644d9e48f1ffec8557650717c0ae29638695c46de79960fdf50029c85",
+    "harness": "17f2c1d2cf1caec1826d9f476691fc609407d5613e72411c2128ca5babb79e11",
     "oracle": "c01338417b189840c3da3fcf109428b6c3c5db987111699423026a5a2aa260eb"
    }
   },
   "carddemo-tranlist": {
-   "scenarios": 21,
+   "scenarios": 32,
    "paragraphs": {
     "covered": 16,
     "live": 16
    },
    "branches": {
-    "covered": 85,
+    "covered": 96,
     "total": 101
    },
    "inputs": {
-    "case": "3f3d67ecb188e98c0492c8db6e446105c2195964be5c236611ce8499e0fa3e16",
+    "case": "26d55c02be72d7e541fb1ba16200ddd216cfea867b1613f27014b5d9046dd269",
     "corpus": "d0c4803872ec126eb56a170212f76207beff5ab8c2b6507dd6df4a084cdeb919",
-    "harness": "e8b404c644d9e48f1ffec8557650717c0ae29638695c46de79960fdf50029c85",
+    "harness": "17f2c1d2cf1caec1826d9f476691fc609407d5613e72411c2128ca5babb79e11",
     "oracle": "c01338417b189840c3da3fcf109428b6c3c5db987111699423026a5a2aa260eb"
    }
   },
@@ -219,7 +219,7 @@
    "inputs": {
     "case": "686b990dfac2293199c4dc988e314d6af1862801451996285a672c8349e22b72",
     "corpus": "d0c4803872ec126eb56a170212f76207beff5ab8c2b6507dd6df4a084cdeb919",
-    "harness": "e8b404c644d9e48f1ffec8557650717c0ae29638695c46de79960fdf50029c85",
+    "harness": "17f2c1d2cf1caec1826d9f476691fc609407d5613e72411c2128ca5babb79e11",
     "oracle": "c01338417b189840c3da3fcf109428b6c3c5db987111699423026a5a2aa260eb"
    }
   },
@@ -236,7 +236,7 @@
    "inputs": {
     "case": "eeb720c9fbca47d93908d195a995bb9648b61b2771a74b868fe369923fb354b0",
     "corpus": "d0c4803872ec126eb56a170212f76207beff5ab8c2b6507dd6df4a084cdeb919",
-    "harness": "e8b404c644d9e48f1ffec8557650717c0ae29638695c46de79960fdf50029c85",
+    "harness": "17f2c1d2cf1caec1826d9f476691fc609407d5613e72411c2128ca5babb79e11",
     "oracle": "c01338417b189840c3da3fcf109428b6c3c5db987111699423026a5a2aa260eb"
    }
   },
@@ -253,24 +253,24 @@
    "inputs": {
     "case": "f0901f27a92b6d4b75715c8be41873d4812c515480a030e5e3dd49b063dcd987",
     "corpus": "d0c4803872ec126eb56a170212f76207beff5ab8c2b6507dd6df4a084cdeb919",
-    "harness": "e8b404c644d9e48f1ffec8557650717c0ae29638695c46de79960fdf50029c85",
+    "harness": "17f2c1d2cf1caec1826d9f476691fc609407d5613e72411c2128ca5babb79e11",
     "oracle": "c01338417b189840c3da3fcf109428b6c3c5db987111699423026a5a2aa260eb"
    }
   },
   "carddemo-userlist": {
-   "scenarios": 21,
+   "scenarios": 32,
    "paragraphs": {
     "covered": 16,
     "live": 16
    },
    "branches": {
-    "covered": 84,
+    "covered": 95,
     "total": 100
    },
    "inputs": {
-    "case": "e6ba475aa5d7c7ef8757fb14dc647dc606bfc194d7bb908c36b0d9aef14bc754",
+    "case": "ba56996a6dacc7ccc8c563aa388d6b41b4d9d737635e307d6a43dcc5ab0f1ba9",
     "corpus": "d0c4803872ec126eb56a170212f76207beff5ab8c2b6507dd6df4a084cdeb919",
-    "harness": "e8b404c644d9e48f1ffec8557650717c0ae29638695c46de79960fdf50029c85",
+    "harness": "17f2c1d2cf1caec1826d9f476691fc609407d5613e72411c2128ca5babb79e11",
     "oracle": "c01338417b189840c3da3fcf109428b6c3c5db987111699423026a5a2aa260eb"
    }
   },
@@ -287,7 +287,7 @@
    "inputs": {
     "case": "e238391fd58103ac8de1cdc28aa80e428812ecb22d4e95cfd76857bee018877d",
     "corpus": "d0c4803872ec126eb56a170212f76207beff5ab8c2b6507dd6df4a084cdeb919",
-    "harness": "e8b404c644d9e48f1ffec8557650717c0ae29638695c46de79960fdf50029c85",
+    "harness": "17f2c1d2cf1caec1826d9f476691fc609407d5613e72411c2128ca5babb79e11",
     "oracle": "c01338417b189840c3da3fcf109428b6c3c5db987111699423026a5a2aa260eb"
    }
   },

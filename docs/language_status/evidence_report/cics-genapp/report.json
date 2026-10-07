@@ -1280,7 +1280,7 @@
   "survey": {
    "label": "before",
    "scope": "burned + local + census corpora",
-   "sha": "ec87c138bc5c2ce768ff53afd6c0928aa3d77dd0"
+   "sha": "3bcbb8c62397b338307563c40618297d54c38100"
   },
   "sweeps": {}
  },
@@ -1644,7 +1644,7 @@
        },
        "fault_runs": 0,
        "java_failed": false,
-       "oracle_image": "sha256:d81f386912111e825d75a5f9856f571118ca4586049923555526cf7419454be3",
+       "oracle_image": "sha256:bcdd12de145fe2d347b66753abebca39cffb2a2e1cc8c19e5e4e5be714754b05",
        "oracle_matches_pin": true,
        "records_compared": 16,
        "records_equal": 16,
@@ -1694,7 +1694,7 @@
       },
       "fault_runs": 0,
       "java_failed": false,
-      "oracle_image": "sha256:d81f386912111e825d75a5f9856f571118ca4586049923555526cf7419454be3",
+      "oracle_image": "sha256:bcdd12de145fe2d347b66753abebca39cffb2a2e1cc8c19e5e4e5be714754b05",
       "oracle_matches_pin": true,
       "records_compared": 16,
       "records_equal": 16,
@@ -2158,7 +2158,7 @@
     "cases": [
      {
       "case": "genapp-lgucdb01",
-      "case_scenarios": 4,
+      "case_scenarios": 5,
       "db2": true,
       "det": {
        "state": "not run",
@@ -4922,7 +4922,7 @@
     "cases": [
      {
       "case": "genapp-lgipdb01",
-      "case_scenarios": 29,
+      "case_scenarios": 32,
       "db2": true,
       "det": {
        "state": "not run",
@@ -4936,7 +4936,7 @@
     ],
     "chosen": {
      "case": "genapp-lgipdb01",
-     "case_scenarios": 29,
+     "case_scenarios": 32,
      "db2": true,
      "det": {
       "state": "not run",
@@ -7456,7 +7456,7 @@
     "cases": [
      {
       "case": "genapp-lgucdb01",
-      "case_scenarios": 4,
+      "case_scenarios": 5,
       "db2": true,
       "det": {
        "state": "not run",
@@ -7470,7 +7470,7 @@
     ],
     "chosen": {
      "case": "genapp-lgucdb01",
-     "case_scenarios": 4,
+     "case_scenarios": 5,
      "db2": true,
      "det": {
       "state": "not run",
@@ -10841,8 +10841,8 @@
  ],
  "reproducibility": {
   "commands": [
-   "python tests/tools/cics_census.py survey --baseline --sha ec87c138bc5c2ce768ff53afd6c0928aa3d77dd0",
-   "python tests/tools/evidence_report.py cics-genapp --baseline --sha ec87c138bc5c2ce768ff53afd6c0928aa3d77dd0",
+   "python tests/tools/cics_census.py survey --baseline --sha 3bcbb8c62397b338307563c40618297d54c38100",
+   "python tests/tools/evidence_report.py cics-genapp --baseline --sha 3bcbb8c62397b338307563c40618297d54c38100",
    "python tests/tools/evidence_report.py --refresh",
    "python tests/tools/proof_sweep.py --det-only --work DIR --cases genapp-lgacdb01,genapp-lgacdb02,genapp-lgacvs01,genapp-lgapdb01,genapp-lgapvs01,genapp-lgdpdb01,genapp-lgdpvs01,genapp-lgicdb01,genapp-lgipdb01,genapp-lgucdb01,genapp-lgucvs01,genapp-lgupdb01,genapp-lgupvs01  # Db2 cases (8) need the Db2 container",
    "python tests/tools/evidence.py prove genapp-lgapvs01 genapp-lgicdb01 genapp-lgupdb01",
@@ -10860,16 +10860,16 @@
   "oracle_base_image": "debian:bookworm-slim@sha256:3783cc01769c7b2b1b83a5c5ad96c815348e28ed7da68e2e3687004faa906251",
   "oracle_images_of_records": [
    "sha256:3d1d5e13c632545d0e1bc4d215c3fb8dd1d68d0ff8647b56880f1593353bc7dc",
-   "sha256:d81f386912111e825d75a5f9856f571118ca4586049923555526cf7419454be3"
+   "sha256:bcdd12de145fe2d347b66753abebca39cffb2a2e1cc8c19e5e4e5be714754b05"
   ],
   "pin_manifest": "tests/crucible_pins.toml",
   "record_status_from": "evidence.py status at build time",
   "survey": {
    "label": "before",
    "scope": "burned + local + census corpora",
-   "sha": "ec87c138bc5c2ce768ff53afd6c0928aa3d77dd0"
+   "sha": "3bcbb8c62397b338307563c40618297d54c38100"
   },
-  "translator_commit": "ec87c138bc5c2ce768ff53afd6c0928aa3d77dd0"
+  "translator_commit": "3bcbb8c62397b338307563c40618297d54c38100"
  },
  "summary": {
   "cics_programs": 31,

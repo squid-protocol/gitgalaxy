@@ -4,7 +4,7 @@
 
 > **Burned estate.** Its ports and the translator were developed against this estate, so its numbers describe a development estate, not a blind one.
 
-Translation measured by `cics_census.py survey` at translator commit `ec87c138bc5c2ce768ff53afd6c0928aa3d77dd0` (burned + local + census corpora); evidence record status: evidence.py status at build time; coverage: det-sweep coverage ledger, freshness at build time.
+Translation measured by `cics_census.py survey` at translator commit `3bcbb8c62397b338307563c40618297d54c38100` (burned + local + census corpora); evidence record status: evidence.py status at build time; coverage: det-sweep coverage ledger, freshness at build time.
 
 ## How to read this report
 
@@ -910,18 +910,18 @@ From the spec entries of the commands the programs use, with the register's stat
 
 ## Reproducibility
 
-- translator commit (the survey's): `ec87c138bc5c2ce768ff53afd6c0928aa3d77dd0`
+- translator commit (the survey's): `3bcbb8c62397b338307563c40618297d54c38100`
 - corpus pin: `aws-mainframe-modernization-carddemo` at `59cc6c2fd7ebd7ef7925cad552a01a4b8b6e4d5e`
 - crucible pins: cics `v0.5.0`, estate `v0.4.0`, language `v1.7.0`; cics crucible baseline measured at `v0.5.0 (9ee42d11)`; crucible cases per command measured at `v0.5.0`
 - crucible pin manifest: tests/crucible_pins.toml
 - oracle base image: `debian:bookworm-slim@sha256:3783cc01769c7b2b1b83a5c5ad96c815348e28ed7da68e2e3687004faa906251`
-- oracle images the evidence records ran on: `sha256:d7e387df360c519ce8945a1f6d748c8dafab06f50551b23ddf85d6373a4dcd6e`, `sha256:d81f386912111e825d75a5f9856f571118ca4586049923555526cf7419454be3`
+- oracle images the evidence records ran on: `sha256:bcdd12de145fe2d347b66753abebca39cffb2a2e1cc8c19e5e4e5be714754b05`
 
 Regenerate this report and re-run its proofs:
 
 ```sh
-python tests/tools/cics_census.py survey --baseline --sha ec87c138bc5c2ce768ff53afd6c0928aa3d77dd0
-python tests/tools/evidence_report.py aws-mainframe-modernization-carddemo --baseline --sha ec87c138bc5c2ce768ff53afd6c0928aa3d77dd0
+python tests/tools/cics_census.py survey --baseline --sha 3bcbb8c62397b338307563c40618297d54c38100
+python tests/tools/evidence_report.py aws-mainframe-modernization-carddemo --baseline --sha 3bcbb8c62397b338307563c40618297d54c38100
 python tests/tools/evidence_report.py --refresh
 python tests/tools/proof_sweep.py --det-only --work DIR --cases carddemo-acctupdate,carddemo-acctview,carddemo-acctview-generated,carddemo-adminmenu,carddemo-billpay,carddemo-cardlist,carddemo-cardupdate,carddemo-cardview,carddemo-cobtupdt,carddemo-cotrtlic,carddemo-cotrtupc,carddemo-dailyval,carddemo-dateutil,carddemo-intcalc,carddemo-intcalc-generated,carddemo-menu,carddemo-posttran,carddemo-posttran-generated,carddemo-readacct,carddemo-readcard,carddemo-readcust,carddemo-readxref,carddemo-report,carddemo-signon,carddemo-tranadd,carddemo-tranlist,carddemo-tranview,carddemo-trnrpt,carddemo-useradd,carddemo-userdel,carddemo-userlist,carddemo-userupd  # Db2 cases (3) need the Db2 container
 python tests/tools/evidence.py prove carddemo-acctview carddemo-adminmenu carddemo-billpay carddemo-cardlist carddemo-cardview carddemo-dailyval carddemo-dateutil carddemo-intcalc carddemo-menu carddemo-posttran carddemo-readcard carddemo-readcust carddemo-readxref carddemo-report carddemo-signon carddemo-tranadd carddemo-tranlist carddemo-tranview carddemo-trnrpt carddemo-useradd carddemo-userdel carddemo-userlist carddemo-userupd

@@ -616,7 +616,7 @@
   "survey": {
    "label": "before",
    "scope": "burned + local + census corpora",
-   "sha": "ec87c138bc5c2ce768ff53afd6c0928aa3d77dd0"
+   "sha": "3bcbb8c62397b338307563c40618297d54c38100"
   },
   "sweeps": {}
  },
@@ -2487,8 +2487,8 @@
  ],
  "reproducibility": {
   "commands": [
-   "python tests/tools/cics_census.py survey --baseline --sha ec87c138bc5c2ce768ff53afd6c0928aa3d77dd0",
-   "python tests/tools/evidence_report.py zecs --baseline --sha ec87c138bc5c2ce768ff53afd6c0928aa3d77dd0",
+   "python tests/tools/cics_census.py survey --baseline --sha 3bcbb8c62397b338307563c40618297d54c38100",
+   "python tests/tools/evidence_report.py zecs --baseline --sha 3bcbb8c62397b338307563c40618297d54c38100",
    "python tests/tools/evidence_report.py --refresh",
    "python tests/tools/cics_crucible.py  # the hand-traced CICS cases, at the crucible pin"
   ],
@@ -2508,9 +2508,9 @@
   "survey": {
    "label": "before",
    "scope": "burned + local + census corpora",
-   "sha": "ec87c138bc5c2ce768ff53afd6c0928aa3d77dd0"
+   "sha": "3bcbb8c62397b338307563c40618297d54c38100"
   },
-  "translator_commit": "ec87c138bc5c2ce768ff53afd6c0928aa3d77dd0"
+  "translator_commit": "3bcbb8c62397b338307563c40618297d54c38100"
  },
  "summary": {
   "cics_programs": 5,

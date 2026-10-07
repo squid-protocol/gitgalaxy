@@ -4,7 +4,7 @@
 
 > **Burned estate.** Its ports and the translator were developed against this estate, so its numbers describe a development estate, not a blind one.
 
-Translation measured by `cics_census.py survey` at translator commit `ec87c138bc5c2ce768ff53afd6c0928aa3d77dd0` (burned + local + census corpora); evidence record status: evidence.py status at build time; coverage: det-sweep coverage ledger, freshness at build time.
+Translation measured by `cics_census.py survey` at translator commit `3bcbb8c62397b338307563c40618297d54c38100` (burned + local + census corpora); evidence record status: evidence.py status at build time; coverage: det-sweep coverage ledger, freshness at build time.
 
 ## How to read this report
 
@@ -63,14 +63,14 @@ Translation measured by `cics_census.py survey` at translator commit `ec87c138bc
 | base/src/lgdpol01.cbl | L1 | 36/36 | 0 | — | — | — | — | not measured | not measured | 3/5 |
 | base/src/lgicdb01.cbl | L1 | 44/44 | 0 | genapp-lgicdb01 | not run | 12 | stale | not measured | not measured | 3/5 |
 | base/src/lgicus01.cbl | L1 | 34/34 | 0 | — | — | — | — | not measured | not measured | 3/5 |
-| base/src/lgipdb01.cbl | L1 | 238/238 | 0 | genapp-lgipdb01 | not run | 29 | none | not measured | not measured | 3/5 |
+| base/src/lgipdb01.cbl | L1 | 238/238 | 0 | genapp-lgipdb01 | not run | 32 | none | not measured | not measured | 3/5 |
 | base/src/lgipol01.cbl | L1 | 26/26 | 0 | — | — | — | — | not measured | not measured | 3/5 |
 | base/src/lgstsq.cbl | L1 | 26/26 | 0 | — | — | — | — | not measured | not measured | 5/6 |
 | base/src/lgtestp1.cbl | L1 | 152/152 | 0 | — | — | — | — | not measured | not measured | 7/8 |
 | base/src/lgtestp2.cbl | L1 | 140/140 | 0 | — | — | — | — | not measured | not measured | 7/8 |
 | base/src/lgtestp3.cbl | L1 | 137/137 | 0 | — | — | — | — | not measured | not measured | 7/8 |
 | base/src/lgtestp4.cbl | L1 | 144/144 | 0 | — | — | — | — | not measured | not measured | 7/8 |
-| base/src/lgucdb01.cbl | L1 | 39/39 | 0 | genapp-lgucdb01 | not run | 4 | none | not measured | not measured | 3/5 |
+| base/src/lgucdb01.cbl | L1 | 39/39 | 0 | genapp-lgucdb01 | not run | 5 | none | not measured | not measured | 3/5 |
 | base/src/lgucus01.cbl | L1 | 32/32 | 0 | — | — | — | — | not measured | not measured | 3/5 |
 | base/src/lgupdb01.cbl | L1 | 116/116 | 0 | genapp-lgupdb01 | not run | 5 | stale | not measured | not measured | 3/6 |
 | base/src/lgupol01.cbl | L1 | 45/45 | 0 | — | — | — | — | not measured | not measured | 3/5 |
@@ -159,7 +159,7 @@ Translation measured by `cics_census.py survey` at translator commit `ec87c138bc
 - **Next level needs:** paragraph coverage >= 100.0 (coverage not measured: no fresh det-sweep ledger entry and no local sweep)
 - **Translation:** 32/32 statements, 0 holes; whole: yes
 - **Executed equivalence** (genapp-lgucdb01, linked, Db2): det port not run (a Db2 case: CI's det-sweep skips Db2 cases and no local sweep was given)
-  - evidence record: none (4 scenarios in case.json)
+  - evidence record: none (5 scenarios in case.json)
 - **Executed equivalence** (genapp-lgucvs01, program, the case this report judges): det port equal (CI det-sweep ratchet on main)
   - evidence record: none (5 scenarios in case.json)
 - **Coverage:** not measured
@@ -396,7 +396,7 @@ Translation measured by `cics_census.py survey` at translator commit `ec87c138bc
 - **Next level needs:** its det port equal on every scenario of genapp-lgipdb01: a Db2 case: CI's det-sweep skips Db2 cases and no local sweep was given
 - **Translation:** 238/238 statements, 0 holes; whole: yes
 - **Executed equivalence** (genapp-lgipdb01, program, Db2, the case this report judges): det port not run (a Db2 case: CI's det-sweep skips Db2 cases and no local sweep was given)
-  - evidence record: none (29 scenarios in case.json)
+  - evidence record: none (32 scenarios in case.json)
 - **Coverage:** not measured
 - **Oracle backing** (per CICS command):
 
@@ -547,7 +547,7 @@ Translation measured by `cics_census.py survey` at translator commit `ec87c138bc
 - **Next level needs:** its det port equal on every scenario of genapp-lgucdb01: a Db2 case: CI's det-sweep skips Db2 cases and no local sweep was given
 - **Translation:** 39/39 statements, 0 holes; whole: yes
 - **Executed equivalence** (genapp-lgucdb01, program, Db2, the case this report judges): det port not run (a Db2 case: CI's det-sweep skips Db2 cases and no local sweep was given)
-  - evidence record: none (4 scenarios in case.json)
+  - evidence record: none (5 scenarios in case.json)
 - **Coverage:** not measured
 - **Oracle backing** (per CICS command):
 
@@ -797,18 +797,18 @@ From the spec entries of the commands the programs use, with the register's stat
 
 ## Reproducibility
 
-- translator commit (the survey's): `ec87c138bc5c2ce768ff53afd6c0928aa3d77dd0`
+- translator commit (the survey's): `3bcbb8c62397b338307563c40618297d54c38100`
 - corpus pin: `cics-genapp` at `f6f3f4b2580d31b7d8dcc31ce3e3676f4cceaaaa`
 - crucible pins: cics `v0.5.0`, estate `v0.4.0`, language `v1.7.0`; cics crucible baseline measured at `v0.5.0 (9ee42d11)`; crucible cases per command measured at `v0.5.0`
 - crucible pin manifest: tests/crucible_pins.toml
 - oracle base image: `debian:bookworm-slim@sha256:3783cc01769c7b2b1b83a5c5ad96c815348e28ed7da68e2e3687004faa906251`
-- oracle images the evidence records ran on: `sha256:3d1d5e13c632545d0e1bc4d215c3fb8dd1d68d0ff8647b56880f1593353bc7dc`, `sha256:d81f386912111e825d75a5f9856f571118ca4586049923555526cf7419454be3`
+- oracle images the evidence records ran on: `sha256:3d1d5e13c632545d0e1bc4d215c3fb8dd1d68d0ff8647b56880f1593353bc7dc`, `sha256:bcdd12de145fe2d347b66753abebca39cffb2a2e1cc8c19e5e4e5be714754b05`
 
 Regenerate this report and re-run its proofs:
 
 ```sh
-python tests/tools/cics_census.py survey --baseline --sha ec87c138bc5c2ce768ff53afd6c0928aa3d77dd0
-python tests/tools/evidence_report.py cics-genapp --baseline --sha ec87c138bc5c2ce768ff53afd6c0928aa3d77dd0
+python tests/tools/cics_census.py survey --baseline --sha 3bcbb8c62397b338307563c40618297d54c38100
+python tests/tools/evidence_report.py cics-genapp --baseline --sha 3bcbb8c62397b338307563c40618297d54c38100
 python tests/tools/evidence_report.py --refresh
 python tests/tools/proof_sweep.py --det-only --work DIR --cases genapp-lgacdb01,genapp-lgacdb02,genapp-lgacvs01,genapp-lgapdb01,genapp-lgapvs01,genapp-lgdpdb01,genapp-lgdpvs01,genapp-lgicdb01,genapp-lgipdb01,genapp-lgucdb01,genapp-lgucvs01,genapp-lgupdb01,genapp-lgupvs01  # Db2 cases (8) need the Db2 container
 python tests/tools/evidence.py prove genapp-lgapvs01 genapp-lgicdb01 genapp-lgupdb01

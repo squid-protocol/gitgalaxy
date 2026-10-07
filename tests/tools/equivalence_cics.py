@@ -336,6 +336,42 @@ def task_number(case: dict[str, Any], sc: dict[str, Any]) -> int:
     return n
 
 
+def task_facts(case: dict[str, Any], sc: dict[str, Any]) -> tuple[str | None, str | None]:
+    """#4270 (GenApp LGICVS01, a terminal transaction): how the task was started and what the operator typed -- facts
+    of the run stated on both sides as the cics-crucible runner states them (ASSIGN STARTCODE: $GGCICS_STARTCODE /
+    CicsTask.withStartcode, oracle_assumptions.md X19; an unformatted RECEIVE's input: terminal.in /
+    CicsTask.withTerminalInput). The scenario's "startcode" / "terminal", else the case's; unstated, None (the stub
+    and CicsTask refuse ASSIGN STARTCODE, and a RECEIVE gets nothing)."""
+    code = sc.get("startcode", case.get("startcode"))
+    values = next(f for f in SPEC["ASSIGN"].facts if f.name == "startcode").values
+    if code is not None and code not in values:
+        raise Unsupported(f'scenario {sc.get("name")}: "startcode" {code!r} is not one of {", ".join(values)}')
+    text = sc.get("terminal", case.get("terminal"))
+    if text is not None and not isinstance(text, str):
+        raise Unsupported(f'scenario {sc.get("name")}: "terminal" is the text typed, a string')
+    return code, text
+
+
+def _region_page() -> str:
+    """The JDK name of the region's default code page (CCSID 037), the det port's DetCics.region default (#4528)."""
+    from gitgalaxy.tools.cobol_to_java.det.cics import region_page
+
+    return region_page(None)
+
+
+def ts_seed(case: dict[str, Any], sc: dict[str, Any]) -> dict[str, list[str]]:
+    """#4270 (GenApp LGICVS01 reads its control queue GENACNTL): the TS queues the region holds when the task starts
+    ({"QUEUE": [item text, ...]}), the scenario's "ts", else the case's -- as the cics-crucible runner seeds a
+    scenario's initial ts_queues. The stub gets each item's bytes in the data's encoding ($GGCICS_DIR/ts, the layout
+    GGCREADQ reads); CicsTask the same text in the region's code page (DetCics.region: a TS item is "the bytes the
+    program wrote, in the region's code page", #4528)."""
+    seed = sc.get("ts", case.get("ts")) or {}
+    for q, items in seed.items():
+        if not (0 < len(q) <= 16 and isinstance(items, list) and all(isinstance(i, str) for i in items)):
+            raise Unsupported(f'scenario {sc.get("name")}: "ts" maps a queue name (1-16) to a list of item texts')
+    return seed
+
+
 def _past_from(length: str | None, area: str | None, what: str) -> list[str]:
     """A write whose LENGTH runs past its FROM item (GenApp's LGSTSQ): CICS takes the bytes that follow the item in
     storage, which GnuCOBOL lays out unlike IBM's compiler -- the run stops (98, "not modelled", oracle_assumptions.md
@@ -483,7 +519,13 @@ def translate_command(body: str, labels: list[str] | None = None, handle_aid: bo
         if not (file and into and ridfld):
             raise Unsupported("READ without FILE / INTO / RIDFLD")
         keylen = opts.get("KEYLENGTH") or f"LENGTH OF {ridfld}"
-        update = "MOVE 'UPDATE' TO GG-FLAGS" if "UPDATE" in opts else "MOVE SPACES TO GG-FLAGS"  # holds the record
+        # #4270 GTEQ / GENERIC (X22): a search, the generic key KEYLENGTH long; the option rules as the translator's
+        if "GTEQ" in opts and "EQUAL" in opts:
+            raise Unsupported(_rule("READ", "at_most_one", "EQUAL", "EQUAL", "GTEQ"), ["READ GTEQ"])
+        if "GENERIC" in opts and "KEYLENGTH" not in opts:
+            raise Unsupported(_rule("READ", "requires", "GENERIC"), ["READ GENERIC"])
+        words = [w for w in ("UPDATE", "GTEQ", "GENERIC") if w in opts]  # UPDATE holds the record
+        update = f"MOVE '{' '.join(words)}' TO GG-FLAGS" if words else "MOVE SPACES TO GG-FLAGS"
         # #4436: LENGTH is in-out (IBM, EXEC CICS READ): in, the most INTO takes (a longer record is truncated, with
         # LENGERR); out, the record's length, on NORMAL and LENGERR. Without it, LENGTH OF INTO (as the translator
         # supplies it). A literal / LENGTH OF is set in a temporary no one reads.
@@ -1483,6 +1525,13 @@ def run_cobol_cics(case: dict[str, Any], corpus: Path, work: Path, files: list[d
                 area = area[:calen]
                 (d / "commarea.exact").write_text(f"{calen}\n", encoding="ascii")
             (d / "commarea.in").write_bytes(area)
+        if task_facts(case, sc)[1] is not None:  # #4270: what the operator typed (an unformatted RECEIVE)
+            (d / "terminal.in").write_bytes(task_facts(case, sc)[1].encode(enc))
+        for q, items in ts_seed(case, sc).items():  # #4270: the TS queues the task starts with
+            qdir = d / "ts" / q.encode("ascii").hex().upper()
+            qdir.mkdir(parents=True, exist_ok=True)
+            for i, item in enumerate(items, 1):
+                (qdir / f"{i:06d}.bin").write_bytes(item.encode(enc))
         for m, typed in (sc.get("receive") or {}).items():
             (d / f"receive_{m}.bin").write_bytes(map_input(screen_fields(corpus, case, m, "input"), typed, enc))
         if programs is not None:  # the CSD's programs; absent, every program is defined
@@ -1516,7 +1565,8 @@ def run_cobol_cics(case: dict[str, Any], corpus: Path, work: Path, files: list[d
             script.append(f"{sqlenv}./ggsqlrun -f /work/reset.sql")
         script.append(f"set +e; {cov.trace_env(f'{rel}/{cov.TRACE_NAME}')}GGCICS_DIR={rel} GGCICS_OUT={rel}/out EIBIN={rel}/eib.in "
                       f"GGCICS_TASKN={task_number(case, sc)} "
-                      f"{sqlenv}COB_CURRENT_DATE='{case['clock']}' ./task > {rel}/stdout.txt 2>&1; "
+                      + (f"GGCICS_STARTCODE={task_facts(case, sc)[0]} " if task_facts(case, sc)[0] else "")
+                      + f"{sqlenv}COB_CURRENT_DATE='{case['clock']}' ./task > {rel}/stdout.txt 2>&1; "
                       f"echo $? > {rel}/rc; set -e")  # fmt: skip
         if db2:  # what the task left in each compared table
             script.append(f"mkdir -p {rel}/db2")
@@ -1713,6 +1763,39 @@ def judged_refusal(said: str) -> str | None:
     return x6_writeq_refusal(said) or (m.group(0) if m else None)
 
 
+def _cobol_read(verb: str, kv: dict[str, str], data: bytes, enc: str) -> dict[str, Any]:
+    """#4270 (GenApp LGICVS01): a READQ TS / terminal RECEIVE the stub logged (`queue` the name's bytes in hex, `item`
+    a number or NEXT, `resp` by number; the bytes read in the event's blob) as CicsTask records it: {queue, item,
+    resp, data} / {resp, data}, the data as text in the data's page (none when nothing was read)."""
+    resp = RESP_NAMES.get(int(kv.get("resp", "0")), kv.get("resp", ""))
+    text = common._decode_text(data, enc) if resp in ("NORMAL", "LENGERR") else None
+    if resp in ("NORMAL", "LENGERR") and text is None:
+        text = f"<undecodable {data!r} in {enc}>"
+    if verb == "RECEIVE":
+        return {"event": verb, "resp": resp, "data": text}
+    name = bytes.fromhex(kv.get("queue", ""))
+    item = kv.get("item", "")
+    return {"event": verb, "queue": (common._decode_text(name, enc) or name.hex()).rstrip(" \x00"),
+            "item": int(item) if item.isdigit() else item, "resp": resp, "data": text}  # fmt: skip
+
+
+def java_read_as_compared(e: dict[str, Any]) -> dict[str, Any]:
+    """#4270: CicsTask's READQ-TS event as the comparison reads it: the item's bytes (base64 in the JSON) are in the
+    region's page (#4528: DetCics.region, CCSID 037 by default), compared as text; none when nothing was read."""
+    import base64
+
+    from gitgalaxy.tools.cobol_to_java.det.cics import REGION_PAGE
+
+    data = e.get("data")
+    if not isinstance(data, str):
+        return e
+    raw = base64.b64decode(data)
+    try:
+        return {**e, "data": raw.decode(REGION_PAGE)}
+    except UnicodeDecodeError:
+        return {**e, "data": f"<undecodable {raw!r} in {REGION_PAGE}>"}
+
+
 def outputs(out: Path, case: dict[str, Any], corpus: Path, ca_fields: list[dict[str, Any]]) -> dict[str, Any]:
     """A task's outputs from the stub's log: `events` (every command, in order), `screens`
     ([{map, fields}] per SEND MAP, data fields only: <name>O -> <name>), `text` (SEND TEXT),
@@ -1760,6 +1843,8 @@ def outputs(out: Path, case: dict[str, Any], corpus: Path, ca_fields: list[dict[
             res.setdefault("td", []).append(f"<undecodable {data!r} in {enc}>" if text is None else text)
         elif verb == "WRITEQ-TS":  # #4607: as CicsTask records it (queue, data, resp, item)
             res.setdefault("ts", []).append(_cobol_ts(kv, data, enc))
+        elif verb in ("READQ-TS", "RECEIVE"):  # #4270 (GenApp LGICVS01): as CicsTask records them
+            res.setdefault("reads", []).append(_cobol_read(verb, kv, data, enc))
     left = out / "commarea.out"  # a LINKed program's result: the COMMAREA it left (ggcics GGCAOUT)
     res["linked_commarea"] = (
         decode_record(left.read_bytes(), ca_fields, enc) if left.is_file() and left.stat().st_size else None
@@ -2411,6 +2496,10 @@ class EquivalenceRunTest {{
                     .withProgram("{case["program"]}")  // the task's first program (a LINK's INVOKINGPROG)
                     .withCounters(counters(sc))  // GET COUNTER: the region's named counters
                     .withTaskNumber(sc.get("taskn").asLong())  // EIBTASKN: the task's number, as the stub's $GGCICS_TASKN
+                    // #4270: ASSIGN STARTCODE and an unformatted RECEIVE's input, as the stub's ($GGCICS_STARTCODE, terminal.in)
+                    .withStartcode(sc.get("startcode").isNull() ? null : sc.get("startcode").asText())
+                    .withTerminalInput(sc.get("terminal").isNull() ? null : sc.get("terminal").asText())
+                    .withTempStorage(tempStorage(sc))  // #4270: the TS queues the task starts with, as the stub's
                     // RECOVERY(NONE) files: their changes made outside the unit of work, so they survive a backout
                     .withNonRecoverable(java.util.Set.of({", ".join(f'"{x}"' for x in non_recoverable_files(case, files))}),
                             change -> {{
@@ -2501,6 +2590,18 @@ class EquivalenceRunTest {{
 
 {db2_methods}
 {FACADE_JAVA}
+    /** #4270: the scenario's TS queues, each item's text in the region's code page (DetCics.region). */
+    static CicsTask.TempStorage tempStorage(JsonNode sc) {{
+        CicsTask.TempStorage ts = new CicsTask.TempStorage();
+        Charset region = Charset.forName(System.getProperty("gitgalaxy.cics.charset", "{_region_page()}"));
+        sc.path("ts").fields().forEachRemaining(q -> {{
+            List<byte[]> items = new ArrayList<>();
+            q.getValue().forEach(i -> items.add(i.asText().getBytes(region)));
+            ts.seed(q.getKey(), items);
+        }});
+        return ts;
+    }}
+
     static java.util.Map<String, Long> counters(JsonNode sc) {{
         java.util.Map<String, Long> out = new java.util.HashMap<>();
         sc.path("counters").fields().forEachRemaining(e -> out.put(e.getKey(), e.getValue().asLong()));
@@ -2621,7 +2722,9 @@ def run_java_cics(case: dict[str, Any], corpus: Path, work: Path, cobol_work: Pa
                           "commarea": ca, "receive": receive, "faults": fault_lines(sc), "sql_faults": sc.get("sql_plan", []),
                           "sql_unjudged": sql_unjudged(sc.get("sql_plan", []), seams),
                           "derived": bool(sc.get("derived")), "commarea_length": commarea_length(sc, ca_fields),
-                          "counters": _counters(case, sc), "taskn": task_number(case, sc)})  # fmt: skip
+                          "counters": _counters(case, sc), "taskn": task_number(case, sc),
+                          "startcode": task_facts(case, sc)[0], "terminal": task_facts(case, sc)[1],
+                          "ts": ts_seed(case, sc)})  # fmt: skip
     (inputs / "scenarios.json").write_text(json.dumps(scenarios, indent=1), encoding="utf-8")
     props = ej.data_charset_arg(case)
     if case.get("db2"):  # the seed and the dump queries, and the harness's Db2
@@ -2662,6 +2765,8 @@ def _java_events(case: dict[str, Any], out: Path, shape: dict[str, Any]) -> dict
                 e["link_area"] = e.get("commarea")
             if e.get("event") == "WRITEQ-TS":  # #4607: the item's bytes as text
                 e.update(java_ts_as_compared(e))
+            if e.get("event") == "READQ-TS":  # #4270: the item's bytes as text
+                e.update(java_read_as_compared(e))
             if "commarea" in e:
                 e["commarea"] = from_java(e["commarea"], shape) if e["commarea"] is not None else None
         result[sc["name"]] = events
@@ -2826,6 +2931,7 @@ def cobol_events(res: dict[str, Any]) -> list[dict[str, Any]]:
     out: list[dict[str, Any]] = []
     screens, texts, records = iter(res["screens"]), iter(res["text"]), iter(res.get("td", []))
     queued = iter(res.get("ts", []))
+    reads = iter(res.get("reads", []))  # #4270: READQ TS / terminal RECEIVE
     for line in res["events"]:
         verb, _, args = line.partition(" ")
         if verb == "SEND-MAP":
@@ -2842,6 +2948,8 @@ def cobol_events(res: dict[str, Any]) -> list[dict[str, Any]]:
             out.append({"event": "WRITEQ-TD", "queue": queue, "text": next(records) if resp == "0" else None})
         elif verb == "WRITEQ-TS":  # #4607: CicsTask.writeqTs records it (queue, data, resp, item)
             out.append({"event": "WRITEQ-TS", **next(queued)})
+        elif verb in ("READQ-TS", "RECEIVE"):  # #4270: CicsTask records them (queue, item, resp, data)
+            out.append(next(reads))
         elif verb == "RECEIVE-MAP":  # #4009: CicsTask.receive records it too
             out.append({"event": "RECEIVE-MAP", "map": re.search(r"\bmap=(\S*)", args).group(1)})
         elif verb == "RETURN":

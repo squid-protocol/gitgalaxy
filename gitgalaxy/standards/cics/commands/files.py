@@ -12,14 +12,38 @@ OPTIONS, #4436 READ LENGTH), on a KSDS by key and an ESDS by RBA (det/cics.py Ci
 
 RBA / RRN / XRBA are accepted by OPTIONS and then refused or browsed in Cics._rba (a hole by name there). A refused
 option shows no reason but SYSID's and a read's SET (the reasons the old global table gave them, true here too).
-RESP2: the runtimes record 0 but for READ's LENGERR (11); IBM's documented values are stated in PR 6."""
+RESP2: the runtimes record 0 but for READ's LENGERR (11) and the GTEQ / GENERIC search's NOTFND (80); IBM's documented
+values are stated in PR 6.
+
+#4270 READ GTEQ / GENERIC (oracle_assumptions.md X22), IBM CICS TS, EXEC CICS READ
+(https://www.ibm.com/docs/en/cics-ts/6.x?topic=summary-read):
+- GENERIC: "specifies that the search key is a generic key whose length is specified in the KEYLENGTH option" -- the
+  first KEYLENGTH bytes of RIDFLD; KEYLENGTH is honoured only as a known length shorter than the file's key and above
+  zero (INVREQ RESP2 25: "the length specified in the KEYLENGTH option is greater than or equal to the length of a full
+  key"; 42: "less than zero"; zero: undocumented) -- else refused by name.
+- GTEQ: "if the search for a record that has the same key (complete or generic) as that specified in the RIDFLD option
+  is unsuccessful, the first record that has a greater key is retrieved"; EQUAL: "satisfied only by a record having
+  the same key (complete or generic)". Of several records with the generic key, the first in key order.
+- NOTFND RESP2 80: "An attempt to retrieve a record based on the search argument provided is unsuccessful" (no record
+  with the key, or with GTEQ none greater: past the end of the file).
+- READ does not update RIDFLD (IBM documents that for READNEXT / READPREV only); READ UPDATE holds the record found.
+- Key order: that of the browse (STARTBR), the runtimes' (oracle_assumptions.md D1)."""
 
 from __future__ import annotations
 
 from collections.abc import Mapping
 
 from gitgalaxy.standards.cics.commands.shared import RESP_OPTIONS, SET_POINTER, SYSID_REMOTE, ibm
-from gitgalaxy.standards.cics.model import Arg, Command, EngineFacts, Outcome, Refusal
+from gitgalaxy.standards.cics.model import (
+    Arg,
+    Command,
+    EngineFacts,
+    Outcome,
+    Refusal,
+    RuntimeRefusal,
+    at_most_one,
+    requires,
+)
 
 # FILE / DATASET: the file's name (1-8 characters); RBA / RRN / XRBA: how RIDFLD addresses the record
 _FILE: Mapping[str, Arg] = {
@@ -61,16 +85,39 @@ READ = _file(
         "RIDFLD": Arg("area_in"),
         "UPDATE": Arg("flag"),
         "EQUAL": Arg("flag"),  # READ's default
+        # #4270: GTEQ / GENERIC (a KSDS by key; GenApp LGICVS01, LGIPVS01) -- see _READ_SEARCH below
+        "GTEQ": Arg("flag"),
+        "GENERIC": Arg("flag"),
         "KEYLENGTH": _KEYLENGTH,
         # #4436: the most the program takes; set to the record's length
         "LENGTH": Arg("area_inout", width=2, binary=True, inout_unless_literal=True),
         **RESP_OPTIONS,
     },
     refused=_READ_REFUSED,
+    groups=(
+        # IBM's syntax diagram: EQUAL | GTEQ, one of them (EQUAL the default)
+        at_most_one("EQUAL", "GTEQ", msg="READ {} and {} together"),
+        # IBM, KEYLENGTH: "You must code KEYLENGTH if you specify GENERIC"
+        requires(("GENERIC",), ("KEYLENGTH",), msg="READ GENERIC without KEYLENGTH"),
+    ),
     outcomes=(
         Outcome("NORMAL", 0, "", writes=("INTO", "LENGTH")),
         _NOTFND,
+        # #4270: the GTEQ / GENERIC search states IBM's RESP2 (the full-key READ still records 0, until spec PR 6)
+        Outcome(
+            "NOTFND",
+            80,
+            "An attempt to retrieve a record based on the search argument provided is unsuccessful",
+            raised_by=("GTEQ", "GENERIC"),
+        ),
         Outcome("LENGERR", 11, "the record is longer than LENGTH: truncated", writes=("INTO", "LENGTH")),
+    ),
+    runtime_refusals=(
+        # IBM documents INVREQ RESP2 25 (GENERIC KEYLENGTH >= the full key) and 42 (< 0), and nothing for 0; the
+        # translator refuses such a KEYLENGTH by name (Cics._keylength), the stub when the program runs
+        RuntimeRefusal(
+            "a GENERIC KEYLENGTH not shorter than the key, or not above zero", "X22", c="READ GENERIC KEYLENGTH"
+        ),
     ),
 )
 

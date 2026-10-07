@@ -45,7 +45,7 @@ REGISTER = REPO / "docs" / "language_status" / "oracle_assumptions.md"
 FORMAT = "cics-spec-status/1"
 
 # The spec PRs merged so far (cics_command_spec.md section 7): each spec PR adds its own row here.
-SPEC_PRS_DONE = {"1": "#4589", "2": "#4591", "3": "#4593"}
+SPEC_PRS_DONE = {"1": "#4589", "2": "#4591", "3": "#4593", "4": "#4608"}
 
 
 # ---- live reads -------------------------------------------------------------------------------------------------

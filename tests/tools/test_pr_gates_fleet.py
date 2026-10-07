@@ -67,7 +67,8 @@ def test_ratchets_skip_when_nothing_present(monkeypatch, tmp_path, capsys):
     monkeypatch.setattr(pr_gates, "run_gate", lambda cmds, root, e: ran.append(cmds) or (True, ""))
     assert pr_gates.run_ratchets(None, env) == 0  # skipped is not failed ...
     out = capsys.readouterr().out
-    assert not ran  # ... and nothing was run
+    # ... and nothing that needs an external resource ran: only cics-spec, which needs none (spec PR 4)
+    assert [c[0][2:] for c in ran] == [["gitgalaxy.standards.cics", "regen", "--check"]]
     assert out.count("not available:") == 6
     assert "not checked" in out and "mainframe_corpus.py fetch" in out and "mvn" in out
 

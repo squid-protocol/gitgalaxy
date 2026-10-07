@@ -578,6 +578,13 @@ class StateRehydrator:
                     if _has_table(cursor, "record_data") and _has_column(cursor, "record_data", "copy_replacing")
                     else "NULL"
                 )
+                # #4266: SYNC / JUSTIFIED / BLANK WHEN ZERO / RENAMES likewise.
+                layout_cols = ", ".join(
+                    f"rd.{c} AS {c}"
+                    if _has_table(cursor, "record_data") and _has_column(cursor, "record_data", c)
+                    else f"NULL AS {c}"
+                    for c in ("sync", "justified", "blank_when_zero", "renames")
+                )
                 records_by_file = _restore_child_table(
                     cursor,
                     repo_name,
@@ -587,7 +594,8 @@ class StateRehydrator:
                     "rd.level_number AS level, rd.item_name AS name, rd.pic, rd.usage, rd.occurs_min, "
                     "rd.occurs_max, rd.occurs_depending_on, rd.redefines, rd.value_literal AS value, "
                     f"rd.line_number AS line, {attributes_col} AS attributes, {copy_col} AS copy_members, "
-                    f"{sign_col} AS sign_separate, {lib_col} AS copy_libraries, {repl_col} AS copy_replacing "
+                    f"{sign_col} AS sign_separate, {lib_col} AS copy_libraries, {repl_col} AS copy_replacing, "
+                    f"{layout_cols} "
                     "FROM record_data rd JOIN file_data fd ON rd.file_id = fd.id "
                     "WHERE fd.repo_name = ? AND fd.commit_hash = ? ORDER BY rd.file_id, rd.ordinal",
                     lambda r: {
@@ -610,6 +618,10 @@ class StateRehydrator:
                         **({"sign_separate": int(r["sign_separate"])} if r["sign_separate"] else {}),
                         **({"copy_libraries": r["copy_libraries"]} if r["copy_libraries"] else {}),
                         **({"copy_replacing": r["copy_replacing"]} if r["copy_replacing"] else {}),
+                        **({"sync": r["sync"]} if r["sync"] else {}),
+                        **({"justified": True} if r["justified"] else {}),
+                        **({"blank_when_zero": True} if r["blank_when_zero"] else {}),
+                        **({"renames": r["renames"]} if r["renames"] else {}),
                     },
                 )
                 # #3211-followup: the CSD transaction definitions, restored per

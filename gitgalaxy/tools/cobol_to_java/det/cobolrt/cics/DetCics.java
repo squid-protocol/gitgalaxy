@@ -1,5 +1,6 @@
 package __PACKAGE__.cobolrt.cics;
 
+import __PACKAGE__.cics.CicsSpec;
 import __PACKAGE__.cics.CicsTask;
 import __PACKAGE__.cobolrt.Cobol;
 import __PACKAGE__.cobolrt.Field;
@@ -122,6 +123,26 @@ public final class DetCics {
             return Optional.empty();
         }
 
+        /** #4270 READ GTEQ / GENERIC (IBM, EXEC CICS READ; oracle_assumptions.md X22): in key order (the browse's),
+         *  the first record whose key's first `length` bytes equal `key`'s -- a generic key when `length` is shorter
+         *  than the key -- or, with `gteq`, are greater ("the first record that has a greater key is retrieved"). */
+        public Optional<byte[]> search(byte[] key, int length, boolean gteq) {
+            byte[] k = Arrays.copyOf(key, length);
+            Comparator<byte[]> o = order();
+            for (Object[] r : rows()) {
+                int c = o.compare(Arrays.copyOf(key((byte[]) r[1]), length), k);
+                if (c == 0 || gteq && c > 0) {
+                    return Optional.of((byte[]) r[1]);
+                }
+            }
+            return Optional.empty();
+        }
+
+        /** A record's key bytes (what a READ UPDATE found by a search holds). */
+        public byte[] keyOf(byte[] rec) {
+            return key(rec);
+        }
+
         public boolean exists(byte[] key) {
             return find(key).isPresent();
         }
@@ -186,6 +207,16 @@ public final class DetCics {
             throw new PastFrom(what + " LENGTH " + n + " > FROM's " + f.length() + " bytes: not modelled");
         }
         return n;
+    }
+
+    /** #4270: `n` bytes from a field's first byte within its record -- a SEND TEXT FROM(f) LENGTH(n) past FROM sends
+     *  the items that follow it in its record (GenApp LGICVS01). Past the record's end the bytes are those of the
+     *  compiler's WORKING-STORAGE layout, unlike IBM's under GnuCOBOL: refused as X6 is (PastFrom). */
+    public static byte[] withinRecord(Field f, int n, String what) {
+        if (n < 0 || f.offset() + n > f.storage().bytes.length) {
+            throw new PastFrom(what + " LENGTH " + n + " runs past FROM's record: not modelled");
+        }
+        return bytes(f, n);
     }
 
     /** Bytes into a field's area, at most its length (a record READ INTO it; the rest is left as it was). */
@@ -385,61 +416,14 @@ public final class DetCics {
                 + String.format(java.util.Locale.ROOT, "%02d", now.getNano() / 10_000_000) + "+0000";
     }
 
-    /** The condition a RESP value names (IBM CICS TS, RESP values: DFHRESP). */
+    /** The condition a RESP value names (IBM CICS TS, RESP values: DFHRESP; the spec's table, CicsSpec). */
     public static String condition(int resp) {
-        return switch (resp) {
-            case 0 -> "NORMAL";
-            case 6 -> "EOC";
-            case 11 -> "TERMIDERR";  // #4270 slice 2
-            case 12 -> "FILENOTFOUND";
-            case 13 -> "NOTFND";
-            case 14 -> "DUPREC";
-            case 15 -> "DUPKEY";
-            case 16 -> "INVREQ";
-            case 17 -> "IOERR";
-            case 18 -> "NOSPACE";
-            case 19 -> "NOTOPEN";
-            case 20 -> "ENDFILE";
-            case 22 -> "LENGERR";
-            case 26 -> "ITEMERR";
-            case 27 -> "PGMIDERR";
-            case 28 -> "TRANSIDERR";  // #4270 slice 2
-            case 29 -> "ENDDATA";
-            case 36 -> "MAPFAIL";
-            case 44 -> "QIDERR";
-            case 56 -> "ENVDEFERR";  // #4270 slice 2
-            case 70 -> "NOTAUTH";
-            case 84 -> "DISABLED";
-            case 110 -> "CONTAINERERR";  // #4270
-            case 122 -> "CHANNELERR";
-            default -> "RESP" + resp;
-        };
+        return CicsSpec.condition(resp);
     }
 
-    /** The RESP value of a condition the runtime names (IBM CICS TS, RESP values). */
+    /** The RESP value of a condition (IBM CICS TS, RESP values; the spec's table, CicsSpec). */
     public static int resp(String condition) {
-        return switch (condition) {
-            case "NORMAL" -> 0;
-            case "EOC" -> 6;
-            case "TERMIDERR" -> 11;  // #4270 slice 2
-            case "NOTFND" -> 13;
-            case "INVREQ" -> 16;
-            case "IOERR" -> 17;
-            case "LENGERR" -> 22;
-            case "ITEMERR" -> 26;
-            case "PGMIDERR" -> 27;
-            case "TRANSIDERR" -> 28;  // #4270 slice 2
-            case "ENDDATA" -> 29;
-            case "QIDERR" -> 44;
-            case "ENVDEFERR" -> 56;
-            case "NOTAUTH" -> 70;
-            case "SYSIDERR" -> 53;
-            case "TERMERR" -> 81;
-            case "ROLLEDBACK" -> 82;
-            case "CONTAINERERR" -> 110;  // #4270
-            case "CHANNELERR" -> 122;
-            default -> throw new IllegalArgumentException("no RESP value known for condition " + condition);
-        };
+        return CicsSpec.resp(condition);
     }
 
     /** #4413: a condition whose default action -- with no HANDLE CONDITION label for it -- is to ignore it, the

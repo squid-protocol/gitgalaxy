@@ -15,7 +15,7 @@ Census use is `programs (burned / non-burned)`, counts only. A spec key is the d
 | 1 | done (#4589) | gitgalaxy/standards/cics/ model + resp.py (DFHRESP, abend codes) + entries for the slice 1-4 commands, with today's text word for word | none |
 | 2 | done (#4591) | full entries for the other 34 OPTIONS commands (PR 1 has the 9 of slices 1-4) + LOAD / RELEASE (45 in all) | translator |
 | 3 | done (#4593) | equivalence_cics.py refusals / options / DFHRESP from the spec | stub translator |
-| 4 | open | generated, committed runtime tables: CicsSpec.java (delegated to by DetCics condition / resp, respName, abcodeFor) and ggcics_spec.h | both runtimes |
+| 4 | done (#4608) | generated, committed runtime tables: CicsSpec.java (delegated to by DetCics condition / resp, respName, abcodeFor) and ggcics_spec.h | both runtimes |
 | 5 | open | Fact wiring in cics_crucible.py | runner, both runtimes |
 | 6 | open | outcome conformance check (3.2), report-only for one week, then an undeclared (RESP, RESP2) fails the crucible cell | harness, CI |
 | 7 | open | check-register in pr_gates.py | docs, skill |
@@ -35,7 +35,7 @@ Census use is `programs (burned / non-burned)`, counts only. A spec key is the d
 | RUN | full | yes (5 options, 1 refused by name) | yes | X18 | — | 4 (1 / 3) | gt-start-options |
 | ASSIGN | full | yes (14 options, 18 refused by name) | yes | X19 | startcode, userid, facility, screen | 34 (29 / 5) | ca-channel-containers, gt-assign-startcode, hc-abend-link |
 | SEND TEXT | full | yes (17 options, 22 refused by name) | yes | X20 | — | 35 (28 / 7) | ca-link-lengths, ca-xctl-versions, gt-assign-startcode, gt-start-options, gt-start-retrieve, gt-terminal-coalesce, hc-abend-link, hc-eoc-error, hc-handle-aid, hc-ignore-error, hc-perform-range, hc-terminal-eoc, hc-terminal-receive, pc-aid-menu, pc-wizard |
-| READ | full | yes (14 options, 2 refused by name) | yes | X14 | — | 26 (25 / 1) | — |
+| READ | full | yes (16 options, 2 refused by name) | yes | X14, X22 | — | 26 (25 / 1) | — |
 | READNEXT | full | yes (12 options, 2 refused by name) | yes | — | — | 4 (4 / 0) | — |
 | READPREV | full | yes (12 options, 2 refused by name) | yes | — | — | 6 (6 / 0) | — |
 | STARTBR | full | yes (12 options, 1 refused by name) | yes | — | — | 7 (7 / 0) | — |

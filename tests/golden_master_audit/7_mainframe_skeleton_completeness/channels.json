@@ -33,10 +33,10 @@
     },
     "data flows": {
       "Gaps": {
-        "unresolved operand": 99
+        "unresolved operand": 95
       },
-      "Ratio": "99.6%",
-      "Resolved": 27040,
+      "Ratio": "99.7%",
+      "Resolved": 27044,
       "System Names (Not Gaps)": 750,
       "Total": 27139
     },

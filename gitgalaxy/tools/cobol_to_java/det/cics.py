@@ -685,7 +685,15 @@ class Cics:
             n = self.int_(_arg(opts["LENGTH"])) if opts.get("LENGTH") else str(self.size(_arg(opts["FROM"])))
             flags = [o for o in TEXT_OPTIONS if o in opts]
             t = g.tmpname("text")
-            return [f"{ind}String {t} = Cobol.text({f}, CS);",
+            fixed_len = self.constant_int(_arg(opts["LENGTH"])) if opts.get("LENGTH") else None
+            # #4270 (GenApp LGICVS01: FROM(WRITE-MSG-H) X(14) LENGTH(24)): CICS sends LENGTH bytes from FROM's first,
+            # so a LENGTH past FROM sends the items after it in its record; past the record, refused (X6)
+            text = (
+                "Cobol.text({}, CS)"
+                if not opts.get("LENGTH") or (fixed_len is not None and fixed_len <= self.size(_arg(opts["FROM"])))
+                else 'new String(DetCics.withinRecord({}, {}, "SEND TEXT"), CS)'
+            ).format(f, n)
+            return [f"{ind}String {t} = {text};",
                     f"{ind}task.sendText({t}.substring(0, Math.min({t}.length(), {n})), {n}"
                     f"{''.join(', ' + G_jstr(x) for x in flags)});",
                     *self.outcome(opts, "0", "0", ind)]  # fmt: skip
@@ -1272,11 +1280,17 @@ class Cics:
             return int(vals[0][1])
         return None
 
-    def _keylength(self, verb: str, opts: dict) -> None:
+    def _keylength(self, verb: str, opts: dict) -> int | None:
         """#4411: KEYLENGTH is honoured only as what it changes nothing for, the file's full key (a shorter one is a
-        generic key, an unequal one INVREQ): a known value equal to the key's length, on a file the port knows."""
+        generic key, an unequal one INVREQ): a known value equal to the key's length, on a file the port knows.
+
+        #4270 READ GENERIC (oracle_assumptions.md X22): the generic key's length -- a known value above zero and
+        shorter than the key (IBM, EXEC CICS READ: INVREQ RESP2 25 for one "greater than or equal to the length of a
+        full key", 42 below zero; zero undocumented), refused by name otherwise. Returns the length searched: the
+        generic key's, else the full key's (None without KEYLENGTH)."""
+        generic = verb == "READ" and "GENERIC" in opts
         if "KEYLENGTH" not in opts:
-            return
+            return None
         arg = _arg(opts["KEYLENGTH"])
         n = self.constant_int(arg)
         name = self.constant(opts.get("DATASET") or opts.get("FILE"))
@@ -1284,8 +1298,40 @@ class Cics:
         if n is None or mapped is None:
             raise CicsError(f"{verb} KEYLENGTH({arg}): not a known length on a known file, so maybe not the full key")
         _, key = self.gp.entity_key(mapped[1], mapped[2])
-        if n != key:
+        if generic and n >= key:
+            raise CicsError(f"{verb} GENERIC KEYLENGTH({arg}) = {n}, the key is {key}: INVREQ (RESP2 25) not modelled")
+        if generic and n <= 0:
+            raise CicsError(f"{verb} GENERIC KEYLENGTH({arg}) = {n}: not above zero (INVREQ / undocumented)")
+        if not generic and n != key:
             raise CicsError(f"{verb} KEYLENGTH({arg}) = {n}, the key is {key}: a partial key is not modelled")
+        return n
+
+    def _search(self, opts: dict, file: str, st: str, rec: str) -> tuple[str, str] | None:
+        """#4270 READ GTEQ / GENERIC (oracle_assumptions.md X22): the read call and the held key's expression, None for
+        a plain keyed READ. IBM, EXEC CICS READ: GENERIC -- "the search key is a generic key whose length is
+        specified in the KEYLENGTH option"; GTEQ -- "if the search for a record that has the same key (complete or
+        generic) ... is unsuccessful, the first record that has a greater key is retrieved"; NOTFND RESP2 80
+        (CicsTask.readSearch). A READ UPDATE holds the record found (its key, not RIDFLD's)."""
+        gteq, generic = "GTEQ" in opts, "GENERIC" in opts
+        if not (gteq or generic):
+            return None
+        if gteq and "EQUAL" in opts:
+            raise CicsError(_msg("READ", "at_most_one", "EQUAL", "EQUAL", "GTEQ"))
+        if generic and "KEYLENGTH" not in opts:
+            raise CicsError(_msg("READ", "requires", "GENERIC"))
+        n = self._keylength("READ", opts)
+        if n is None:  # GTEQ on the full key: the file's
+            name = self.constant(opts.get("DATASET") or opts.get("FILE"))
+            mapped = self.gp.file(name) if name is not None else None
+            if mapped is None:
+                raise CicsError("READ GTEQ: not a known file, so not a known key length")
+            _, n = self.gp.entity_key(mapped[1], mapped[2])
+        rid = _arg(opts.get("RIDFLD"))
+        if self.size(rid) < n:  # CICS would read the storage after RIDFLD, laid out unlike IBM's by GnuCOBOL (X6)
+            raise CicsError(f"READ RIDFLD({rid}) is {self.size(rid)} bytes, shorter than the {n} bytes searched")
+        update = "true" if "UPDATE" in opts else "false"
+        call = f"task.readSearch({file}, {update}, () -> {st}.search({rec}, {n}, {'true' if gteq else 'false'}))"
+        return call, f"{st}.keyOf({{}}.record())"
 
     def _read_length(self, verb: str, opts: dict) -> str | None:
         """A read's LENGTH (IBM, EXEC CICS READ: "the length ... of the data area where the record is to be put. On
@@ -1310,7 +1356,9 @@ class Cics:
         if self._rba(verb, opts):
             self._read_length(verb, opts)
             return self.rba_browse(verb, opts, ind)
-        self._keylength(verb, opts)
+        searched = verb == "READ" and ("GTEQ" in opts or "GENERIC" in opts)
+        if not searched:
+            self._keylength(verb, opts)
         length = self._read_length(verb, opts)
         st = self.store(opts)
         file = self.name(_arg(opts.get("DATASET") or opts.get("FILE")))
@@ -1322,12 +1370,16 @@ class Cics:
         r, rec = g.tmpname("read"), g.tmpname("rec")
         if verb == "READ":
             fn = "readForUpdate" if "UPDATE" in opts else "read"
+            call, held = f"task.{fn}({file}, () -> {st}.find({rec}))", rec
+            search = self._search(opts, file, st, rec)
+            if search is not None:
+                call, held = search[0], search[1].format(r)
             out = [
                 f"{ind}byte[] {rec} = DetCics.bytes({rid});",
-                f"{ind}CicsTask.FileRead<byte[]> {r} = task.{fn}({file}, () -> {st}.find({rec}));",
+                f"{ind}CicsTask.FileRead<byte[]> {r} = {call};",
                 f"{ind}if ({r}.record() != null) {{",
                 f"{ind}    DetCics.put({into}, {r}.record());",
-                *([f"{ind}    heldKey.put({file}, {rec});"] if "UPDATE" in opts else []),
+                *([f"{ind}    heldKey.put({file}, {held});"] if "UPDATE" in opts else []),
                 f"{ind}}}",
             ]
             return out + self.outcome(opts, f"{r}.resp()", f"{r}.resp2()", ind)
@@ -1350,16 +1402,20 @@ class Cics:
         resp, resp2 = g.tmpname("resp"), g.tmpname("resp2")
         update = "UPDATE" in opts
         fn = "readForUpdate" if update else "read"
+        call, held = f"task.{fn}({file}, () -> {st}.find({rec}))", rec
+        search = self._search(opts, file, st, rec)  # #4270: GTEQ / GENERIC
+        if search is not None:
+            call, held = search[0], search[1].format(r)
         settable = re.fullmatch(r"(?is)\d+|LENGTH\s+OF\s+.+", length.strip()) is None
         out = [f"{ind}byte[] {rec} = DetCics.bytes({rid});",
-               f"{ind}CicsTask.FileRead<byte[]> {r} = task.{fn}({file}, () -> {st}.find({rec}));",
+               f"{ind}CicsTask.FileRead<byte[]> {r} = {call};",
                f"{ind}int {resp} = {r}.resp();",
                f"{ind}int {resp2} = {r}.resp2();",
                f"{ind}if ({r}.record() != null) {{",
                f"{ind}    {resp} = DetCics.readInto({into}, {r}.record(), {self.int_(length)}, {str(update).lower()});",
                f"{ind}    {resp2} = {resp} == 22 ? 11 : 0;"]  # fmt: skip
         if update:
-            out.append(f"{ind}    heldKey.put({file}, {rec});")  # (LENGERR on READ UPDATE: refused above)
+            out.append(f"{ind}    heldKey.put({file}, {held});")  # (LENGERR on READ UPDATE: refused above)
         if settable:
             set_back = g.store_into(self.ref(length), f"BigDecimal.valueOf({r}.record().length)", False)
             out.append(f"{ind}    {set_back}")

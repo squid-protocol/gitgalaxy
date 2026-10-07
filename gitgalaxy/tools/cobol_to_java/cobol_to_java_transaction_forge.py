@@ -216,6 +216,11 @@ def commarea_alternative_todos(commarea: dict) -> list[str]:
     return out
 
 
+# #4270 spec PR 4: the CICS command spec's tables (RESP values, abend codes), generated and committed beside this
+# file by `python -m gitgalaxy.standards.cics regen`; emitted next to CicsTask, whose respName / abcodeFor (and
+# DetCics's condition / resp) delegate to it.
+CICS_SPEC_JAVA = Path(__file__).with_name("CicsSpec.java").read_text(encoding="utf-8")
+
 # #3754: one CICS task, the runtime a program's runTask is written against.
 CICS_TASK_JAVA = """package __PACKAGE__.cics;
 
@@ -1453,6 +1458,25 @@ public class CicsTask {
         return r;
     }
 
+    /** #4270 READ FILE(file) GTEQ / GENERIC [UPDATE] (oracle_assumptions.md X22): `lookup` searches the file (the
+     *  det port's DetCics.Store.search). RESP NORMAL and the record found, or NOTFND (13) with IBM's RESP2 80 ("An
+     *  attempt to retrieve a record based on the search argument provided is unsuccessful") -- or the condition the
+     *  harness planned, and then nothing is read. With `update` the file's record is held for a REWRITE. */
+    public <T> FileRead<T> readSearch(String file, boolean update, java.util.function.Supplier<Optional<T>> lookup) {
+        int[] planned = root().injected("READ", file);
+        if (planned != null) {
+            return new FileRead<>(planned[0], planned[1], null);
+        }
+        T record = lookup.get().orElse(null);
+        if (record == null) {
+            return new FileRead<>(13, 80, null);
+        }
+        if (update) {
+            root().held.add(file);
+        }
+        return new FileRead<>(0, 0, record);
+    }
+
     /** WRITE FILE(file) RIDFLD FROM: `exists` says whether the key is there already (DUPREC, 14, as CICS answers);
      *  else `store` saves the record (the service's generated repository save) and RESP is NORMAL -- or the
      *  condition the harness planned, and nothing is written. */
@@ -2403,47 +2427,20 @@ public class CicsTask {
         return parent == null ? this : parent.root();
     }
 
-    /** #4049: a DFHRESP number a fault plan names, as the condition's name (IBM CICS "RESP values"). */
+    /** #4049: a DFHRESP number a fault plan names, as the condition's name (IBM CICS "RESP values"; the spec's
+     *  table, CicsSpec). */
     static String respName(int resp) {
-        return switch (resp) {
-            case 0 -> "NORMAL";
-            case 11 -> "TERMIDERR";
-            case 13 -> "NOTFND";
-            case 16 -> "INVREQ";
-            case 17 -> "IOERR";
-            case 18 -> "NOSPACE";
-            case 22 -> "LENGERR";
-            case 26 -> "ITEMERR";
-            case 27 -> "PGMIDERR";
-            case 28 -> "TRANSIDERR";
-            case 29 -> "ENDDATA";
-            case 44 -> "QIDERR";
-            case 53 -> "SYSIDERR";
-            case 54 -> "ISCINVREQ";
-            case 56 -> "ENVDEFERR";
-            case 70 -> "NOTAUTH";
-            case 100 -> "LOCKED";
-            case 110 -> "CONTAINERERR";
-            case 122 -> "CHANNELERR";
-            default -> throw new IllegalArgumentException("no condition name known for RESP " + resp);
-        };
+        String name = CicsSpec.name(resp);
+        if (name == null) {
+            throw new IllegalArgumentException("no condition name known for RESP " + resp);
+        }
+        return name;
     }
 
-    /** The abend code of an unhandled condition (IBM's AEIx / AEYx codes, the AEIA topic). */
+    /** The abend code of an unhandled condition (IBM's AEIx / AEYx codes, the AEIA topic; the spec's table,
+     *  CicsSpec). */
     public static String abcodeFor(String condition) {
-        return switch (condition) {
-            case "NOTFND" -> "AEIM";
-            case "LENGERR" -> "AEIV";
-            case "ITEMERR" -> "AEIZ";
-            case "QIDERR" -> "AEYH";
-            case "MAPFAIL" -> "AEI9";
-            case "ENDDATA" -> "AEI2";
-            case "PGMIDERR" -> "AEI0";
-            case "INVREQ" -> "AEIP";
-            case "CONTAINERERR" -> "AEZJ";  // #4270: IBM abend codes AEZJ "CONTAINERERR condition not handled"
-            case "CHANNELERR" -> "AEZV";    // and AEZV "CHANNELERR condition not handled"
-            default -> throw new IllegalArgumentException("no abend code known for condition " + condition);
-        };
+        return CicsSpec.abcodeFor(condition);
     }
 
     private void record(String code, String cause, String condition, String program, String label) {
@@ -3165,10 +3162,12 @@ class CicsForge:
 
     def runtime_sources(self) -> dict[str, str]:
         """#3754: CicsTask (package <pkg>.cics), when there is a CICS program to run as a task (#4004: or at a
-        LINK / XCTL level); #4343: and CicsRegion, the deployment's region the programs' facades run their tasks in."""
+        LINK / XCTL level), with CicsSpec (#4270 spec PR 4: its tables); #4343: and CicsRegion, the deployment's
+        region the programs' facades run their tasks in."""
         if not self.programs:
             return {}
-        out = {"CicsTask": CICS_TASK_JAVA.replace("__PACKAGE__", self.package).replace("__ZONE__", self.zone)}
+        out = {"CicsTask": CICS_TASK_JAVA.replace("__PACKAGE__", self.package).replace("__ZONE__", self.zone),
+               "CicsSpec": CICS_SPEC_JAVA.replace("__PACKAGE__", self.package)}  # fmt: skip
         if self.target.features.services:  # the region runs the programs' services
             out["CicsRegion"] = self.region_source()
         return out

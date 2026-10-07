@@ -55,6 +55,7 @@
 #include <string.h>
 #include <sys/stat.h>
 #include <time.h>
+#include "ggcics_spec.h" /* #4270 spec PR 4: DFHRESP_* and condition_abcode, generated from gitgalaxy/standards/cics */
 #ifdef _WIN32
 #include <direct.h>
 #define MKDIR(p) _mkdir(p) /* MinGW / MSVC: no mode argument */
@@ -90,9 +91,11 @@ typedef struct {
     char rtran[4], rterm[4], rqueue[8];  /* START / RETRIEVE RTRANSID, RTERMID, QUEUE (GG-FLAGS names which) */
 } gg_cics;
 
-enum { NORMAL = 0, NOTFND = 13, LENGERR = 22, FILENOTFOUND = 12, MAPFAIL = 36, ITEMERR = 26, QIDERR = 44,
-       INVREQ = 16, PGMIDERR = 27, ENDDATA = 29, DUPREC = 14, ENDFILE = 20, CONTAINERERR = 110,
-       CHANNELERR = 122 };
+/* the conditions the stub raises, by their short names; the numbers are the spec's (ggcics_spec.h) */
+enum { NORMAL = DFHRESP_NORMAL, NOTFND = DFHRESP_NOTFND, LENGERR = DFHRESP_LENGERR, FILENOTFOUND = DFHRESP_FILENOTFOUND,
+       MAPFAIL = DFHRESP_MAPFAIL, ITEMERR = DFHRESP_ITEMERR, QIDERR = DFHRESP_QIDERR, INVREQ = DFHRESP_INVREQ,
+       PGMIDERR = DFHRESP_PGMIDERR, ENDDATA = DFHRESP_ENDDATA, DUPREC = DFHRESP_DUPREC, ENDFILE = DFHRESP_ENDFILE,
+       CONTAINERERR = DFHRESP_CONTAINERERR, CHANNELERR = DFHRESP_CHANNELERR };
 
 static int seq = 0;
 static int ended = 0; /* a RETURN, XCTL or abend ended the task */
@@ -476,6 +479,29 @@ int GGCSYNC(gg_cics *c) {
  * Stops as not modelled: a negative LENGTH; a record moved past INTO (intolen: the storage after INTO, which GnuCOBOL
  * lays out unlike IBM's compiler, oracle_assumptions.md X6); LENGERR on READ UPDATE (IBM does not say whether the
  * record is then held). */
+static char *load_records(const char *path, int reclen, long *n);
+/* #4270 READ GTEQ / GENERIC (GG-FLAGS 'GTEQ' / 'GENERIC'; oracle_assumptions.md X22), IBM, EXEC CICS READ: GENERIC --
+ * "the search key is a generic key whose length is specified in the KEYLENGTH option" (keylen); GTEQ -- "if the search
+ * for a record that has the same key (complete or generic) as that specified in the RIDFLD option is unsuccessful,
+ * the first record that has a greater key is retrieved". Of the records whose key's first `cmp` bytes equal RIDFLD's
+ * (or, GTEQ, are greater), the first in key order (the browse's byte order); -1 when none: NOTFND, RESP2 80. A GENERIC
+ * KEYLENGTH not shorter than the key (INVREQ RESP2 25) or not above zero (42; zero undocumented) stops the run. */
+static long read_search(gg_cics *c, const char *path, int reclen, int keyoff, int klen, const char *ridfld,
+                        int keylen, char **all) {
+    int gteq = strstr(c->flags, "GTEQ") != NULL, generic = strstr(c->flags, "GENERIC") != NULL;
+    if (generic && (keylen >= klen || keylen <= 0))
+        refuse("READ GENERIC KEYLENGTH not shorter than the key or not above zero");
+    int cmp = generic ? keylen : klen;
+    long n, best = -1;
+    *all = load_records(path, reclen, &n);
+    for (long i = 0; *all && i < n; i++) {
+        int d = memcmp(*all + i * reclen + keyoff, ridfld, (size_t)cmp);
+        if (d < 0 || (d > 0 && !gteq)) continue;
+        if (best < 0 || memcmp(*all + i * reclen + keyoff, *all + best * reclen + keyoff, (size_t)klen) < 0) best = i;
+    }
+    return best;
+}
+
 int GGCREAD(gg_cics *c, char *ridfld, int keylen, char *into, int intolen) {
     char want[9], line[4096], name[64], path[3000], ev[320];
     int reclen, keyoff, klen, fresp, fresp2;
@@ -501,11 +527,17 @@ int GGCREAD(gg_cics *c, char *ridfld, int keylen, char *into, int intolen) {
             if (sscanf(line, "%63s %2999s %d %d %d", name, path, &reclen, &keyoff, &klen) != 5) continue;
             if (strcmp(name, want) != 0) continue;
             c->resp = NOTFND;
-            FILE *data = fopen(path, "rb");
+            int search = strstr(c->flags, "GTEQ") || strstr(c->flags, "GENERIC");
+            char *found = NULL;
+            long at = search ? read_search(c, path, reclen, keyoff, klen, ridfld, keylen, &found) : -1;
+            if (search && at < 0) c->resp2 = 80;
+            FILE *data = search ? NULL : fopen(path, "rb");
             char *rec = malloc((size_t)reclen);
+            if (search && at >= 0 && rec) memcpy(rec, found + at * reclen, (size_t)reclen);
+            free(found);
             int cmp = keylen < klen ? keylen : klen;
-            while (data && rec && fread(rec, 1, (size_t)reclen, data) == (size_t)reclen) {
-                if (memcmp(rec + keyoff, ridfld, (size_t)cmp) == 0) {
+            while (rec && ((search && at >= 0) || (data && fread(rec, 1, (size_t)reclen, data) == (size_t)reclen))) {
+                if (search || memcmp(rec + keyoff, ridfld, (size_t)cmp) == 0) {
                     int max = c->len, moved = reclen < max ? reclen : max;
                     if (max < 0) refuse("READ LENGTH (negative)");
                     if (moved > intolen) refuse("READ INTO LENGTH: a record moved past INTO");
@@ -950,7 +982,7 @@ static char terminal_buf[32768];
 static int terminal_at = 0, terminal_n = 0; /* the input not yet returned: terminal_buf[at..n) */
 static char set_buf[32768];                  /* RECEIVE SET's data, valid until the next RECEIVE */
 
-enum { EOC = 6 };
+enum { EOC = DFHRESP_EOC };
 
 static int terminal_receive(gg_cics *c, char *into) {
     char path[4096], ev[96], flags[41];
@@ -1241,7 +1273,7 @@ int GGCXCTL(gg_cics *c, char *commarea, int len) {
 #define MAX_LEVELS 32
 #define MAX_PUSH 16
 #define NCOND 130
-enum { ERRCOND = 1 };
+enum { ERRCOND = DFHRESP_ERROR }; /* HANDLE CONDITION ERROR's slot */
 
 typedef struct {
     short cond[NCOND]; /* >0 label index, -1 IGNORE, 0 default */
@@ -1281,23 +1313,6 @@ static level levels[MAX_LEVELS];
 static void channel_pass(level *L, int passed); /* #4270 */
 static int lvl = 0; /* the current level, 0 = level 1 */
 static char task_abcode[5] = "    ";
-
-/* The abend code of an unhandled condition (the AEIA topic of IBM's abend codes, SPEC 6.2). */
-static const char *condition_abcode(int resp) {
-    switch (resp) {
-    case NOTFND: return "AEIM";
-    case LENGERR: return "AEIV";
-    case ITEMERR: return "AEIZ";
-    case QIDERR: return "AEYH";
-    case MAPFAIL: return "AEI9";
-    case ENDDATA: return "AEI2";
-    case PGMIDERR: return "AEI0";
-    case INVREQ: return "AEIP";
-    case CONTAINERERR: return "AEZJ"; /* #4270: IBM abend codes AEZJ / AEZV, "... condition not handled" */
-    case CHANNELERR: return "AEZV";
-    default: return "????";
-    }
-}
 
 static const char *current_program(void) { return levels[lvl].prog; }
 
@@ -1937,7 +1952,8 @@ int GGCASCH(gg_cics *c) {
  * The virtual clock is $GGCICS_NOW; a task takes no time (SPEC 4). START records its request
  * as an event (with its expiry); the runner's scheduler keeps the requests and dispatches
  * them. RETRIEVE reads the data of the requests the task was started for. */
-enum { TRANSIDERR = 28, TERMIDERR = 11, IOERR = 17, ENVDEFERR = 56 };
+enum { TRANSIDERR = DFHRESP_TRANSIDERR, TERMIDERR = DFHRESP_TERMIDERR, IOERR = DFHRESP_IOERR,
+       ENVDEFERR = DFHRESP_ENVDEFERR };
 
 static time_t now_epoch(void) {
     const char *s = getenv("GGCICS_NOW");

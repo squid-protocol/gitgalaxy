@@ -15,8 +15,8 @@
    "inputs": {
     "case": "8715eb31cb1fe3d43aec7c2ce9de9d3b6e643b65113edc51fb979c8d39d43e21",
     "corpus": "a98b9cfe46b5f45db9305f0a997047218e09c7c36422ec0849f6af7af5dd5353",
-    "harness": "a6e5a39c361f70598664122a175d8b46f1fc36a3d21edea8fd0faf714d09d617",
-    "oracle": "fd20c9a4f4f68e6dccfae93669be4c30ec66eacd41330b329e70c039477b886a"
+    "harness": "ff4e514ed862e7cc55a43ed599df0bb631c85b63de2e5e96f4b2093068ff15df",
+    "oracle": "812e95beccb670c5b2c432f18ec0c4656c1857c4c69d13aa88b1224635c58ab9"
    }
   },
   "asynccc-getspnd": {
@@ -32,8 +32,8 @@
    "inputs": {
     "case": "3f15c0e7364770e323f6e9c65487c146dbfba37ff81f38d42b9aebc930125c49",
     "corpus": "a98b9cfe46b5f45db9305f0a997047218e09c7c36422ec0849f6af7af5dd5353",
-    "harness": "a6e5a39c361f70598664122a175d8b46f1fc36a3d21edea8fd0faf714d09d617",
-    "oracle": "fd20c9a4f4f68e6dccfae93669be4c30ec66eacd41330b329e70c039477b886a"
+    "harness": "ff4e514ed862e7cc55a43ed599df0bb631c85b63de2e5e96f4b2093068ff15df",
+    "oracle": "812e95beccb670c5b2c432f18ec0c4656c1857c4c69d13aa88b1224635c58ab9"
    }
   },
   "asynccc-updcsdb": {
@@ -49,8 +49,8 @@
    "inputs": {
     "case": "6f6238b16a7d8e202086190913f64017584104833d6a343623c615faa618d8ac",
     "corpus": "a98b9cfe46b5f45db9305f0a997047218e09c7c36422ec0849f6af7af5dd5353",
-    "harness": "a6e5a39c361f70598664122a175d8b46f1fc36a3d21edea8fd0faf714d09d617",
-    "oracle": "fd20c9a4f4f68e6dccfae93669be4c30ec66eacd41330b329e70c039477b886a"
+    "harness": "ff4e514ed862e7cc55a43ed599df0bb631c85b63de2e5e96f4b2093068ff15df",
+    "oracle": "812e95beccb670c5b2c432f18ec0c4656c1857c4c69d13aa88b1224635c58ab9"
    }
   },
   "carddemo-acctupdate": {
@@ -185,8 +185,8 @@
    "inputs": {
     "case": "0a2e4bde071d15909a45ecae9770b8a578519ddeca50aef5846966740ed76a36",
     "corpus": "d0c4803872ec126eb56a170212f76207beff5ab8c2b6507dd6df4a084cdeb919",
-    "harness": "a6e5a39c361f70598664122a175d8b46f1fc36a3d21edea8fd0faf714d09d617",
-    "oracle": "fd20c9a4f4f68e6dccfae93669be4c30ec66eacd41330b329e70c039477b886a"
+    "harness": "ff4e514ed862e7cc55a43ed599df0bb631c85b63de2e5e96f4b2093068ff15df",
+    "oracle": "812e95beccb670c5b2c432f18ec0c4656c1857c4c69d13aa88b1224635c58ab9"
    }
   },
   "carddemo-cotrtupc": {
@@ -202,8 +202,8 @@
    "inputs": {
     "case": "c9136c4e3c7315197bc090d622aeac23563ff7303bb6e7789052a3a25b51049c",
     "corpus": "d0c4803872ec126eb56a170212f76207beff5ab8c2b6507dd6df4a084cdeb919",
-    "harness": "a6e5a39c361f70598664122a175d8b46f1fc36a3d21edea8fd0faf714d09d617",
-    "oracle": "fd20c9a4f4f68e6dccfae93669be4c30ec66eacd41330b329e70c039477b886a"
+    "harness": "ff4e514ed862e7cc55a43ed599df0bb631c85b63de2e5e96f4b2093068ff15df",
+    "oracle": "812e95beccb670c5b2c432f18ec0c4656c1857c4c69d13aa88b1224635c58ab9"
    }
   },
   "carddemo-menu": {
@@ -406,8 +406,8 @@
    "inputs": {
     "case": "5abdcd4d81aa4bec7b6474e7659207b876d49926c72fd8262536ac45df3dd604",
     "corpus": "7a4c86e6d6688f1516ec00cbd81941457457c861bf900e2b3a7f269c6bf9058b",
-    "harness": "a6e5a39c361f70598664122a175d8b46f1fc36a3d21edea8fd0faf714d09d617",
-    "oracle": "fd20c9a4f4f68e6dccfae93669be4c30ec66eacd41330b329e70c039477b886a"
+    "harness": "ff4e514ed862e7cc55a43ed599df0bb631c85b63de2e5e96f4b2093068ff15df",
+    "oracle": "812e95beccb670c5b2c432f18ec0c4656c1857c4c69d13aa88b1224635c58ab9"
    }
   },
   "cbsa-dbcrfun": {
@@ -423,8 +423,8 @@
    "inputs": {
     "case": "01ea326724a638ab18518bcd9da7b7701545b804756ea1e33a5204248ebdd1ae",
     "corpus": "7a4c86e6d6688f1516ec00cbd81941457457c861bf900e2b3a7f269c6bf9058b",
-    "harness": "a6e5a39c361f70598664122a175d8b46f1fc36a3d21edea8fd0faf714d09d617",
-    "oracle": "fd20c9a4f4f68e6dccfae93669be4c30ec66eacd41330b329e70c039477b886a"
+    "harness": "ff4e514ed862e7cc55a43ed599df0bb631c85b63de2e5e96f4b2093068ff15df",
+    "oracle": "812e95beccb670c5b2c432f18ec0c4656c1857c4c69d13aa88b1224635c58ab9"
    }
   },
   "cbsa-delacc": {
@@ -440,8 +440,8 @@
    "inputs": {
     "case": "2049daea2586d2211c74ebfb5831a707bb965c4de0ee7bbf6e08f1e30b891c4a",
     "corpus": "7a4c86e6d6688f1516ec00cbd81941457457c861bf900e2b3a7f269c6bf9058b",
-    "harness": "a6e5a39c361f70598664122a175d8b46f1fc36a3d21edea8fd0faf714d09d617",
-    "oracle": "fd20c9a4f4f68e6dccfae93669be4c30ec66eacd41330b329e70c039477b886a"
+    "harness": "ff4e514ed862e7cc55a43ed599df0bb631c85b63de2e5e96f4b2093068ff15df",
+    "oracle": "812e95beccb670c5b2c432f18ec0c4656c1857c4c69d13aa88b1224635c58ab9"
    }
   },
   "cbsa-inqacc": {
@@ -457,8 +457,8 @@
    "inputs": {
     "case": "a39d307ace7093196d4217da06487c426d80acc673d572f5697f7a0c8d23af97",
     "corpus": "7a4c86e6d6688f1516ec00cbd81941457457c861bf900e2b3a7f269c6bf9058b",
-    "harness": "a6e5a39c361f70598664122a175d8b46f1fc36a3d21edea8fd0faf714d09d617",
-    "oracle": "fd20c9a4f4f68e6dccfae93669be4c30ec66eacd41330b329e70c039477b886a"
+    "harness": "ff4e514ed862e7cc55a43ed599df0bb631c85b63de2e5e96f4b2093068ff15df",
+    "oracle": "812e95beccb670c5b2c432f18ec0c4656c1857c4c69d13aa88b1224635c58ab9"
    }
   },
   "cbsa-updacc": {
@@ -474,8 +474,8 @@
    "inputs": {
     "case": "d0e0d5193ee3b4c8761dd37a70edb3fe5e1d78c5a785ea583e685637a21047f3",
     "corpus": "7a4c86e6d6688f1516ec00cbd81941457457c861bf900e2b3a7f269c6bf9058b",
-    "harness": "a6e5a39c361f70598664122a175d8b46f1fc36a3d21edea8fd0faf714d09d617",
-    "oracle": "fd20c9a4f4f68e6dccfae93669be4c30ec66eacd41330b329e70c039477b886a"
+    "harness": "ff4e514ed862e7cc55a43ed599df0bb631c85b63de2e5e96f4b2093068ff15df",
+    "oracle": "812e95beccb670c5b2c432f18ec0c4656c1857c4c69d13aa88b1224635c58ab9"
    }
   },
   "cbsa-updacc-generated": {
@@ -491,8 +491,8 @@
    "inputs": {
     "case": "28a4504359e22c2086f18e990f009dc5165131b6a7a0e270bb16f6325ec3c809",
     "corpus": "7a4c86e6d6688f1516ec00cbd81941457457c861bf900e2b3a7f269c6bf9058b",
-    "harness": "a6e5a39c361f70598664122a175d8b46f1fc36a3d21edea8fd0faf714d09d617",
-    "oracle": "fd20c9a4f4f68e6dccfae93669be4c30ec66eacd41330b329e70c039477b886a"
+    "harness": "ff4e514ed862e7cc55a43ed599df0bb631c85b63de2e5e96f4b2093068ff15df",
+    "oracle": "812e95beccb670c5b2c432f18ec0c4656c1857c4c69d13aa88b1224635c58ab9"
    }
   },
   "cbsa-updcust": {
@@ -525,8 +525,8 @@
    "inputs": {
     "case": "7ffdb8e87cf7a2805e24f593a534b1869317be541532206beca022599b11b056",
     "corpus": "7a4c86e6d6688f1516ec00cbd81941457457c861bf900e2b3a7f269c6bf9058b",
-    "harness": "a6e5a39c361f70598664122a175d8b46f1fc36a3d21edea8fd0faf714d09d617",
-    "oracle": "fd20c9a4f4f68e6dccfae93669be4c30ec66eacd41330b329e70c039477b886a"
+    "harness": "ff4e514ed862e7cc55a43ed599df0bb631c85b63de2e5e96f4b2093068ff15df",
+    "oracle": "812e95beccb670c5b2c432f18ec0c4656c1857c4c69d13aa88b1224635c58ab9"
    }
   },
   "genapp-lgacdb01": {
@@ -542,8 +542,8 @@
    "inputs": {
     "case": "253e59e79e236523d89d2d0ab74c4347955c262c85ae2e7f658230152c319c13",
     "corpus": "c5e4d52071fad96bed24e9ba06f30417340bfc5e998e7c1cd5f2383be73d6ff6",
-    "harness": "a6e5a39c361f70598664122a175d8b46f1fc36a3d21edea8fd0faf714d09d617",
-    "oracle": "fd20c9a4f4f68e6dccfae93669be4c30ec66eacd41330b329e70c039477b886a"
+    "harness": "ff4e514ed862e7cc55a43ed599df0bb631c85b63de2e5e96f4b2093068ff15df",
+    "oracle": "812e95beccb670c5b2c432f18ec0c4656c1857c4c69d13aa88b1224635c58ab9"
    }
   },
   "genapp-lgacdb02": {
@@ -559,8 +559,8 @@
    "inputs": {
     "case": "a3ae0bfb1c47fd295bc6814406a2d998597903c43943999916a5aefc93eebb76",
     "corpus": "c5e4d52071fad96bed24e9ba06f30417340bfc5e998e7c1cd5f2383be73d6ff6",
-    "harness": "a6e5a39c361f70598664122a175d8b46f1fc36a3d21edea8fd0faf714d09d617",
-    "oracle": "fd20c9a4f4f68e6dccfae93669be4c30ec66eacd41330b329e70c039477b886a"
+    "harness": "ff4e514ed862e7cc55a43ed599df0bb631c85b63de2e5e96f4b2093068ff15df",
+    "oracle": "812e95beccb670c5b2c432f18ec0c4656c1857c4c69d13aa88b1224635c58ab9"
    }
   },
   "genapp-lgacvs01": {
@@ -593,8 +593,8 @@
    "inputs": {
     "case": "aecc23b4f7c314678ce7199f8545341463d983410250042c3707999ebf57d568",
     "corpus": "c5e4d52071fad96bed24e9ba06f30417340bfc5e998e7c1cd5f2383be73d6ff6",
-    "harness": "a6e5a39c361f70598664122a175d8b46f1fc36a3d21edea8fd0faf714d09d617",
-    "oracle": "fd20c9a4f4f68e6dccfae93669be4c30ec66eacd41330b329e70c039477b886a"
+    "harness": "ff4e514ed862e7cc55a43ed599df0bb631c85b63de2e5e96f4b2093068ff15df",
+    "oracle": "812e95beccb670c5b2c432f18ec0c4656c1857c4c69d13aa88b1224635c58ab9"
    }
   },
   "genapp-lgapvs01": {
@@ -627,8 +627,8 @@
    "inputs": {
     "case": "551cd3e514845511da462dd0e64d6542d64ae2b98d2756cd8d31e2f4c9f0c373",
     "corpus": "c5e4d52071fad96bed24e9ba06f30417340bfc5e998e7c1cd5f2383be73d6ff6",
-    "harness": "a6e5a39c361f70598664122a175d8b46f1fc36a3d21edea8fd0faf714d09d617",
-    "oracle": "fd20c9a4f4f68e6dccfae93669be4c30ec66eacd41330b329e70c039477b886a"
+    "harness": "ff4e514ed862e7cc55a43ed599df0bb631c85b63de2e5e96f4b2093068ff15df",
+    "oracle": "812e95beccb670c5b2c432f18ec0c4656c1857c4c69d13aa88b1224635c58ab9"
    }
   },
   "genapp-lgdpvs01": {
@@ -661,8 +661,25 @@
    "inputs": {
     "case": "006fc6e96c5aa78ac54aa15f16be202c12f90beb19cc4118a6bf54ee6c29fd3a",
     "corpus": "c5e4d52071fad96bed24e9ba06f30417340bfc5e998e7c1cd5f2383be73d6ff6",
-    "harness": "a6e5a39c361f70598664122a175d8b46f1fc36a3d21edea8fd0faf714d09d617",
-    "oracle": "fd20c9a4f4f68e6dccfae93669be4c30ec66eacd41330b329e70c039477b886a"
+    "harness": "ff4e514ed862e7cc55a43ed599df0bb631c85b63de2e5e96f4b2093068ff15df",
+    "oracle": "812e95beccb670c5b2c432f18ec0c4656c1857c4c69d13aa88b1224635c58ab9"
+   }
+  },
+  "genapp-lgicvs01": {
+   "scenarios": 4,
+   "paragraphs": {
+    "covered": 1,
+    "live": 1
+   },
+   "branches": {
+    "covered": 6,
+    "total": 12
+   },
+   "inputs": {
+    "case": "15a809097e6d8d3332394ed40e44b11f491a1eaefbb7cab0e600c5fff932e391",
+    "corpus": "c5e4d52071fad96bed24e9ba06f30417340bfc5e998e7c1cd5f2383be73d6ff6",
+    "harness": "439fc41b5300a54a73666cef28b48963b364cdc36163bff8b77d5f577b238a05",
+    "oracle": "448e60ec5e354743511a4122c5eed89c1f92cf5f69282ecfd07581c670074964"
    }
   },
   "genapp-lgipdb01": {
@@ -678,8 +695,8 @@
    "inputs": {
     "case": "ed0171d8c5324bfa7a5abd7a11613602d4192660eb6cb0045e52558a87068431",
     "corpus": "c5e4d52071fad96bed24e9ba06f30417340bfc5e998e7c1cd5f2383be73d6ff6",
-    "harness": "a6e5a39c361f70598664122a175d8b46f1fc36a3d21edea8fd0faf714d09d617",
-    "oracle": "fd20c9a4f4f68e6dccfae93669be4c30ec66eacd41330b329e70c039477b886a"
+    "harness": "ff4e514ed862e7cc55a43ed599df0bb631c85b63de2e5e96f4b2093068ff15df",
+    "oracle": "812e95beccb670c5b2c432f18ec0c4656c1857c4c69d13aa88b1224635c58ab9"
    }
   },
   "genapp-lgucdb01": {
@@ -695,8 +712,8 @@
    "inputs": {
     "case": "d690be3b361358cb5c8ce9e490a5281f4b2aa164b023d5c18c09fec94fc4a651",
     "corpus": "c5e4d52071fad96bed24e9ba06f30417340bfc5e998e7c1cd5f2383be73d6ff6",
-    "harness": "a6e5a39c361f70598664122a175d8b46f1fc36a3d21edea8fd0faf714d09d617",
-    "oracle": "fd20c9a4f4f68e6dccfae93669be4c30ec66eacd41330b329e70c039477b886a"
+    "harness": "ff4e514ed862e7cc55a43ed599df0bb631c85b63de2e5e96f4b2093068ff15df",
+    "oracle": "812e95beccb670c5b2c432f18ec0c4656c1857c4c69d13aa88b1224635c58ab9"
    }
   },
   "genapp-lgucvs01": {
@@ -729,8 +746,8 @@
    "inputs": {
     "case": "74984f1fdb517f9a636a73d3f6c0f39a47c059c5d0f9d5042e80af4e0a808992",
     "corpus": "c5e4d52071fad96bed24e9ba06f30417340bfc5e998e7c1cd5f2383be73d6ff6",
-    "harness": "a6e5a39c361f70598664122a175d8b46f1fc36a3d21edea8fd0faf714d09d617",
-    "oracle": "fd20c9a4f4f68e6dccfae93669be4c30ec66eacd41330b329e70c039477b886a"
+    "harness": "ff4e514ed862e7cc55a43ed599df0bb631c85b63de2e5e96f4b2093068ff15df",
+    "oracle": "812e95beccb670c5b2c432f18ec0c4656c1857c4c69d13aa88b1224635c58ab9"
    }
   },
   "genapp-lgupvs01": {
@@ -763,8 +780,8 @@
    "inputs": {
     "case": "bd85a34c697e713b92f53b2de2fd71639c0622ffcc2b9f6fe4d2f02ed1495c9d",
     "corpus": "1143e0fef7c983b7ade463d33d49481f5572d79e8f95593a2219fdb494a1e7f2",
-    "harness": "a6e5a39c361f70598664122a175d8b46f1fc36a3d21edea8fd0faf714d09d617",
-    "oracle": "fd20c9a4f4f68e6dccfae93669be4c30ec66eacd41330b329e70c039477b886a"
+    "harness": "ff4e514ed862e7cc55a43ed599df0bb631c85b63de2e5e96f4b2093068ff15df",
+    "oracle": "812e95beccb670c5b2c432f18ec0c4656c1857c4c69d13aa88b1224635c58ab9"
    }
   },
   "mortgage-mlist": {

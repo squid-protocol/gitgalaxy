@@ -685,12 +685,12 @@ class Cics:
             n = self.int_(_arg(opts["LENGTH"])) if opts.get("LENGTH") else str(self.size(_arg(opts["FROM"])))
             flags = [o for o in TEXT_OPTIONS if o in opts]
             t = g.tmpname("text")
-            known = self.constant_int(_arg(opts["LENGTH"])) if opts.get("LENGTH") else None
+            fixed_len = self.constant_int(_arg(opts["LENGTH"])) if opts.get("LENGTH") else None
             # #4270 (GenApp LGICVS01: FROM(WRITE-MSG-H) X(14) LENGTH(24)): CICS sends LENGTH bytes from FROM's first,
             # so a LENGTH past FROM sends the items after it in its record; past the record, refused (X6)
             text = (
                 "Cobol.text({}, CS)"
-                if not opts.get("LENGTH") or (known is not None and known <= self.size(_arg(opts["FROM"])))
+                if not opts.get("LENGTH") or (fixed_len is not None and fixed_len <= self.size(_arg(opts["FROM"])))
                 else 'new String(DetCics.withinRecord({}, {}, "SEND TEXT"), CS)'
             ).format(f, n)
             return [f"{ind}String {t} = {text};",

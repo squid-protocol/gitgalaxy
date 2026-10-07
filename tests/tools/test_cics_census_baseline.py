@@ -2,6 +2,7 @@
 it, `history append` / `show`, and `blockers --unmask` (a what-if). det_survey and git are stubbed: no corpus, no
 translator, no network."""
 
+import argparse
 import json
 import sys
 from pathlib import Path
@@ -192,3 +193,17 @@ def test_blockers_unmask_is_a_labelled_what_if(stubbed, capsys):
     assert extra.count("--program") == 2 and "P1.cbl" in extra and "A.cbl" not in extra  # only the refused ones
     d = stubbed["root"] / "census-cache" / SHA / "unmask"
     assert json.loads(next(d.glob("*/whatif.json")).read_text())["what_if"] is True
+
+
+def test_no_census_ignores_the_census_env(tmp_path, monkeypatch, stubbed):
+    """--no-census means no census at all: $CICS_CENSUS_CORPORA is not read (the nightly burned-only job)."""
+    census = tmp_path / "census"
+    (census / "cics-async-api-redbooks").mkdir(parents=True)
+    (census / "cics-async-api-redbooks" / "A.cbl").write_text(CICS)
+    monkeypatch.setenv(cc.CENSUS_ENV, str(census))
+    assert cc.roots_from(argparse.Namespace(corpora=stubbed["main"], census_corpora=None,
+                                                                    no_census=True)) == [stubbed["main"]]  # fmt: skip
+    assert cc.main(["survey", "--out", str(tmp_path / "s"), "--no-census", "--corpora", str(stubbed["main"])]) == 0
+    assert all(s != "nb" for s in stubbed["calls"][-1][1])  # no census run
+    assert cc.main(["survey", "--baseline", "--no-fetch", *_base(stubbed)]) == 0
+    assert all(s != "nb" for s in stubbed["calls"][-1][1])

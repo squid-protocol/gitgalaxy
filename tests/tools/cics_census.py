@@ -261,7 +261,7 @@ def census_root(arg: Path | None, required: bool) -> Path | None:
 
 def roots_from(args: argparse.Namespace) -> list[Path]:
     roots = [mainframe_root(args.corpora)]
-    census = census_root(args.census_corpora, required=not args.no_census)
+    census = None if args.no_census else census_root(args.census_corpora, required=True)  # (--no-census: no env either)
     return roots + ([census] if census else [])
 
 
@@ -322,7 +322,7 @@ def cmd_survey(args: argparse.Namespace) -> int:
     if args.out is None:
         raise SystemExit("survey needs --out DIR (or --baseline)")
     mainframe = mainframe_root(args.corpora)
-    census = census_root(args.census_corpora, required=not args.no_census)
+    census = None if args.no_census else census_root(args.census_corpora, required=True)  # (--no-census: no env either)
     uses = usage([mainframe, *([census] if census else [])], args.verb) if args.verb else None
     runs = survey_runs(mainframe, census, uses, args.corpus)
     return run_det_survey(args.out, args.label, runs, jobs=args.jobs, compile_ports=args.compile)

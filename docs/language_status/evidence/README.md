@@ -6,7 +6,7 @@ One record per ported program (#4048): docs/language_status/evidence_records.md 
 
 | program | case | kind | status | why | runs | coverage (para / branch) | mutation (raw / adj) | ported unproven | approved |
 |---|---|---|---|---|---|---|---|---|---|
-| [COACTVWC](carddemo-acctview.md) | carddemo-acctview | cics | proven, unapproved |  | 20 | 31/32 / 58/71 | 105/129 / 105/113 | 0 | - |
+| [COACTVWC](carddemo-acctview.md) | carddemo-acctview | cics | proven, unapproved |  | 20 | 31/32 / 58/69 | 105/129 / 105/113 | 0 | - |
 | [COADM01C](carddemo-adminmenu.md) | carddemo-adminmenu | cics | proven, unapproved |  | 16 | 8/8 / 20/26 | - | 0 | - |
 | [COBIL00C](carddemo-billpay.md) | carddemo-billpay | cics | proven, unapproved |  | 25 | 16/16 / 46/48 | - | 0 | - |
 | [COCRDLIC](carddemo-cardlist.md) | carddemo-cardlist | cics | proven, unapproved |  | 45 | 36/36 / 146/149 | - | 0 | - |

@@ -917,6 +917,7 @@ def cics_driver(program: str, has_commarea: bool) -> str:
              "    05 IN-TIME  PIC 9(7).",
              "WORKING-STORAGE SECTION.", "COPY DFHEIBLK.", "COPY DFHAID.",
              "01  WS-CA  PIC X(32767).", "01  WS-LEN PIC S9(9) COMP-5.",
+             "01  WS-PTR USAGE POINTER.", "LINKAGE SECTION.", "01  LK-CA  PIC X(32767).",
              "PROCEDURE DIVISION.",
              "    OPEN INPUT EIB-IN", "    READ EIB-IN", "    CLOSE EIB-IN",
              "    INITIALIZE DFHEIBLK GG-CICS",
@@ -925,11 +926,16 @@ def cics_driver(program: str, has_commarea: bool) -> str:
              "    MOVE 0 TO GG-NUM",
              "    EVALUATE IN-AID"]  # fmt: skip
     lines += [f"        WHEN '{n}' MOVE {n} TO EIBAID" for n in aid_names]
+    # #4270 (X23): GGCAREA moves a COMMAREA of a stated length (commarea.exact) to exactly that many bytes before a
+    # guard page, and leaves any other where it is (WS-CA)
     lines += ["    END-EVALUATE", "    MOVE LOW-VALUES TO WS-CA",
               "    CALL 'GGCLOAD' USING WS-CA BY VALUE LENGTH OF WS-CA", "        RETURNING WS-LEN",
               "    MOVE WS-LEN TO EIBCALEN",
-              f"    CALL '{program}'" + (" USING WS-CA" if has_commarea else ""),
-              "    CALL 'GGCAOUT' USING WS-CA BY VALUE WS-LEN",
+              "    SET WS-PTR TO ADDRESS OF WS-CA",
+              "    CALL 'GGCAREA' USING WS-PTR BY VALUE WS-LEN",
+              "    SET ADDRESS OF LK-CA TO WS-PTR",
+              f"    CALL '{program}'" + (" USING LK-CA" if has_commarea else ""),
+              "    CALL 'GGCAOUT' USING LK-CA BY VALUE WS-LEN",
               "    CALL 'GGCEND' USING GG-CICS", "    STOP RUN."]  # fmt: skip
     assert all(len(ln) <= 65 for ln in lines), [ln for ln in lines if len(ln) > 65]
     return "".join("       " + ln + "\n" for ln in lines)
@@ -1240,6 +1246,14 @@ def commarea_fields(corpus: Path, case: dict[str, Any]) -> list[dict[str, Any]]:
     """The COMMAREA layout: the case's (copybook, record) segments laid end to end. A segment in a program's
     own source (CardDemo's COUSR02C: COPY COCOM01Y then its own 05 items in the same 01) finds the COPY
     members in the case's copy_dirs."""
+    if "commarea" not in case:
+        raise Unsupported('the case does not describe its COMMAREA: "commarea": {"segments": [...]}, or "commarea": '
+                          "null for a program that takes none", ["COMMAREA"])  # fmt: skip
+    if case["commarea"] is None:  # #4270: the program takes no COMMAREA (an empty LINKAGE SECTION): EIBCALEN 0
+        return []
+    if not case["commarea"].get("segments"):
+        raise Unsupported('"commarea": {"segments": []} describes nothing: "commarea": null for a program that takes '
+                          "none", ["COMMAREA"])  # fmt: skip
     out, at = [], 0
     for seg in case["commarea"]["segments"]:
         src = corpus / seg["copybook"]
@@ -1248,6 +1262,23 @@ def commarea_fields(corpus: Path, case: dict[str, Any]) -> list[dict[str, Any]]:
         out += [dict(f, offset=f["offset"] + at) for f in fields]
         at += max(f["offset"] + f["bytes"] for f in fields)
     return out
+
+
+def commarea_length(sc: dict[str, Any], ca_fields: list[dict[str, Any]]) -> int | None:
+    """#4270 (oracle_assumptions.md X23): a scenario's stated EIBCALEN, `"commarea_length": N` -- the caller passed
+    the first N bytes of the COMMAREA record and no more (GenApp's `IF EIBCALEN < 91`, its '98' "COMMAREA too short"
+    returns). Both sides give the program exactly N bytes: the stub's guard page (GGCAREA) and the det port's
+    DFHCOMMAREA (CicsTask.withExactCommarea) stop a reference past them, judged up to it. None when not stated."""
+    n = sc.get("commarea_length")
+    if n is None:
+        return None
+    whole = max((f["offset"] + f["bytes"] for f in ca_fields), default=0)
+    if sc.get("commarea") is None or not ca_fields:
+        raise Unsupported(f"scenario {sc['name']}: a commarea_length with no COMMAREA", ["COMMAREA"])
+    if isinstance(n, bool) or not isinstance(n, int) or not 1 <= n <= whole:
+        raise Unsupported(f"scenario {sc['name']}: commarea_length {n!r} is not a length of the {whole}-byte COMMAREA "
+                          "(1 to its length)", ["COMMAREA"])  # fmt: skip
+    return n
 
 
 def screen_fields(corpus: Path, case: dict[str, Any], map_name: str, side: str) -> list[dict[str, Any]]:
@@ -1443,7 +1474,15 @@ def run_cobol_cics(case: dict[str, Any], corpus: Path, work: Path, files: list[d
             f"{f['key_length']}{_cfg_flags(case, f)}\n" for f in files
         ), encoding="ascii")  # fmt: skip
         if sc.get("commarea") is not None:
-            (d / "commarea.in").write_bytes(encode_record(ca_fields, sc["commarea"], b"init", enc))
+            if not ca_fields:
+                raise Unsupported(f'scenario {sc["name"]}: a COMMAREA, in a case whose program takes none ("commarea": '
+                                  "null)", ["COMMAREA"])  # fmt: skip
+            area = encode_record(ca_fields, sc["commarea"], b"init", enc)
+            calen = commarea_length(sc, ca_fields)
+            if calen is not None:  # #4270 (X23): the stub gives the program exactly those bytes (GGCAREA)
+                area = area[:calen]
+                (d / "commarea.exact").write_text(f"{calen}\n", encoding="ascii")
+            (d / "commarea.in").write_bytes(area)
         for m, typed in (sc.get("receive") or {}).items():
             (d / f"receive_{m}.bin").write_bytes(map_input(screen_fields(corpus, case, m, "input"), typed, enc))
         if programs is not None:  # the CSD's programs; absent, every program is defined
@@ -1503,7 +1542,7 @@ def run_cobol_cics(case: dict[str, Any], corpus: Path, work: Path, files: list[d
         rc = work / "scenarios" / sc["name"] / "rc"
         said = work / "scenarios" / sc["name"] / "stdout.txt"
         if rc.is_file() and rc.read_text().strip() == "98" and said.is_file():
-            x6 = x6_writeq_refusal(said.read_text(encoding="latin-1"))
+            x6 = judged_refusal(said.read_text(encoding="latin-1"))
             if x6:  # owner decision on #4607 (X6): judged up to the refused WRITEQ, derived or not -- what ran before
                 sc["prefix_x6"] = x6  # it counts (its coverage too); its end state is not compared
                 continue
@@ -1655,6 +1694,8 @@ def java_ts_as_compared(e: dict[str, Any]) -> dict[str, Any]:
 
 
 X6_WRITEQ = re.compile(r"WRITEQ T[SD] LENGTH > FROM: not modelled")
+# #4270 (X23): the stub's guard page after a COMMAREA of a stated length (GGCAREA): a reference past EIBCALEN
+X23_PAST = re.compile(r"COMMAREA past EIBCALEN: not modelled")
 
 
 def x6_writeq_refusal(said: str) -> str | None:
@@ -1663,6 +1704,13 @@ def x6_writeq_refusal(said: str) -> str | None:
     FROM, an LE model: those still refuse the task)."""
     m = X6_WRITEQ.search(said)
     return m.group(0) if m else None
+
+
+def judged_refusal(said: str) -> str | None:
+    """The stub's stops a task is judged up to: a WRITEQ past FROM (X6) or, in a scenario with a stated COMMAREA
+    length, a reference past EIBCALEN (#4270, X23) -- its line, or None for any other "not modelled" stop."""
+    m = X23_PAST.search(said)
+    return x6_writeq_refusal(said) or (m.group(0) if m else None)
 
 
 def outputs(out: Path, case: dict[str, Any], corpus: Path, ca_fields: list[dict[str, Any]]) -> dict[str, Any]:
@@ -1700,6 +1748,9 @@ def outputs(out: Path, case: dict[str, Any], corpus: Path, ca_fields: list[dict[
             res["text"].append(f"<undecodable {data!r} in {enc}>" if text is None else text.rstrip(" \x00"))
         elif verb in ("RETURN", "XCTL") and int(kv.get("level", "1")) <= 1:  # the task's own (a LINK level's: no)
             key = "transid" if verb == "RETURN" else "program"
+            if data and not ca_fields:  # #4270: nothing to read it by -- refused, never compared as empty
+                raise Unsupported(f"{verb} with a COMMAREA, in a case that describes none (\"commarea\": null)",
+                                  ["COMMAREA"])  # fmt: skip
             ca = decode_record(data, ca_fields, enc) if data else None
             res[verb.lower()] = {key: kv.get(key, ""), "commarea": ca}
         elif verb == "ABEND":
@@ -1887,10 +1938,11 @@ def _generated_class(src: Path, pattern: str) -> str:
     raise RuntimeError(f"no generated class matches {pattern!r}")
 
 
-def commarea_class(case: dict[str, Any], src: Path, svc_file: Path) -> str:
+def commarea_class(case: dict[str, Any], src: Path, svc_file: Path) -> str | None:
     """The COMMAREA DTO the task carries: the one the service's handleTransaction takes -- or, for a program that
     receives none and only builds one (CardDemo's sign-on, COSGN00C: it tests EIBCALEN, then XCTLs with
-    CARDDEMO-COMMAREA), the generated DTO of the case's first COMMAREA record."""
+    CARDDEMO-COMMAREA), the generated DTO of the case's first COMMAREA record. None for a case whose program takes no
+    COMMAREA at all (`"commarea": null`, #4270: the async credit-card services, whose det service is handleLink())."""
     from gitgalaxy.tools.cobol_to_java.cobol_to_java_names import java_class_base
 
     svc_text = svc_file.read_text(encoding="utf-8")
@@ -1899,6 +1951,8 @@ def commarea_class(case: dict[str, Any], src: Path, svc_file: Path) -> str:
     )  # a LINKed program (CBSA): its contract COMMAREA DTO
     if m:
         return m.group(1)
+    if "commarea" in case and case["commarea"] is None:  # #4270: a program that takes none (handleLink()): no DTO
+        return None
     record = case["commarea"]["segments"][0]["record"]
     name = java_class_base(record)
     if not any(src.rglob(f"{name}.java")):
@@ -2026,6 +2080,9 @@ FACADE_JAVA = """    /** #4449: a facade did not run the scenario's task the way
         void start(Object service) {
             if (linkedEntry) {
                 Method m = method(service, "handleLink", 1);
+                if (m == null && commarea == null) {  // #4270: a program that takes no COMMAREA: handleLink()
+                    m = method(service, "handleLink", 0);
+                }
                 if (m == null) {
                     runTask(service);
                     return;
@@ -2037,7 +2094,7 @@ FACADE_JAVA = """    /** #4449: a facade did not run the scenario's task the way
                 linked = scenario;
                 linkedProgram = program;
                 entry(program, "handleLink");
-                Object got = call(m, service, commarea);
+                Object got = m.getParameterCount() == 0 ? call(m, service) : call(m, service, commarea);
                 if (linked != null) {
                     throw new FacadeRefused("handleLink of " + program + " did not run its task in the region");
                 }
@@ -2199,11 +2256,19 @@ def cics_equivalence_test(case: dict[str, Any], src: Path, files: list[dict[str,
     svc = ej._service_class(case["program"])
     var = svc[0].lower() + svc[1:]
     ca = commarea_class(case, src, next(src.rglob(f"{svc}.java")))
+    commarea_java = ("null" if ca is None else 'sc.get("commarea").isNull() ? null\n                    : '
+                     f'json.treeToValue(sc.get("commarea"), {pkg}.dto.contract.{ca}.class)')  # fmt: skip
     screens = {m: _generated_class(src, rf'String MAP = "{m}";') for m in case["screens"]}
     # The estate has the CICS exception package only when some program throws or handles one (UowForge): IBM DBB
     # MortgageApplication's do not, so nothing there can throw CicsAbendException and the test catches none.
     has_abend = any(src.rglob("exception/CicsAbendException.java"))
     abend_import = f"import {pkg}.exception.CicsAbendException;\n" if has_abend else ""
+    # #4270: an estate with no BMS map (the async credit-card example) has no screen view models to convert
+    has_screens = any(src.rglob("dto/screen/ScreenModel.java"))
+    screen_import = f"import {pkg}.dto.screen.ScreenModel;\n" if has_screens else ""
+    screen_copy = ("                if (copy.get(\"screen\") instanceof ScreenModel s) {\n"
+                   "                    copy.put(\"screen\", s.screenValues());\n"
+                   "                }\n") if has_screens else ""  # fmt: skip
     by_base = {f["base"]: f for f in files}
     region = case.get("region") or {}
     region_java = f'"{region["applid"]}", "{region["sysid"]}"' if region.get("applid") else "null, null"
@@ -2271,8 +2336,7 @@ import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import {pkg}.cics.CicsTask;
-import {pkg}.dto.screen.ScreenModel;
-{abend_import}import java.io.IOException;
+{screen_import}{abend_import}import java.io.IOException;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
@@ -2335,12 +2399,13 @@ class EquivalenceRunTest {{
             // each task starts from the files as loaded, and what it leaves is compared (file updates)
 {chr(10).join(loads)}
 {db2_reset}
-            Object commarea = sc.get("commarea").isNull() ? null
-                    : json.treeToValue(sc.get("commarea"), {pkg}.dto.contract.{ca}.class);
+            Object commarea = {commarea_java};
+            // #4270 (X23): a stated COMMAREA length (EIBCALEN) shorter than the record: the area is that long
+            Integer calen = sc.path("commarea_length").isInt() ? Integer.valueOf(sc.get("commarea_length").asInt()) : null;
             Map<String, Object> received = new LinkedHashMap<>();
             JsonNode r = sc.get("receive");
 {chr(10).join(recv)}
-            CicsTask task = new CicsTask("{case["transid"]}", sc.get("aid").asText(), commarea, received)
+            CicsTask task = new CicsTask("{case["transid"]}", sc.get("aid").asText(), commarea, calen, received)
                     .withClock(java.time.LocalDateTime.parse("{ej._clock(case)}"))  // EIBTIME / ASKTIME: the case's clock
                     .withRegion({region_java})  // ASSIGN APPLID / SYSID
                     .withProgram("{case["program"]}")  // the task's first program (a LINK's INVOKINGPROG)
@@ -2354,6 +2419,9 @@ class EquivalenceRunTest {{
                                 t.setPropagationBehavior(org.springframework.transaction.TransactionDefinition.PROPAGATION_REQUIRES_NEW);
                                 t.executeWithoutResult(s -> change.run());
                             }});
+            if (calen != null) {{
+                task.withExactCommarea();
+            }}
             FacadeRegion region = new FacadeRegion(task, commarea, "{case["program"]}", {"true" if case.get("linked") else "false"});
 {csd_java}
             List<String> faults = new ArrayList<>();  // #4023 follow-up: the scenario's injected conditions
@@ -2413,10 +2481,7 @@ class EquivalenceRunTest {{
             List<Map<String, Object>> events = new ArrayList<>();
             for (Map<String, Object> e : task.events()) {{
                 Map<String, Object> copy = new LinkedHashMap<>(e);
-                if (copy.get("screen") instanceof ScreenModel s) {{
-                    copy.put("screen", s.screenValues());
-                }}
-                events.add(copy);
+{screen_copy}                events.add(copy);
             }}
             if (commarea != null) {{  // a LINKed program's result: the COMMAREA it leaves (equivalence_cics.linked_result)
                 Map<String, Object> left = new LinkedHashMap<>();
@@ -2518,7 +2583,9 @@ def run_java_cics(case: dict[str, Any], corpus: Path, work: Path, cobol_work: Pa
     svc = ej._service_class(case["program"])
     svc_file = next(src.rglob(f"{svc}.java"))
     ca_cls = commarea_class(case, src, svc_file)
-    shape = dto_shape(src, ca_cls, svc_file)  # #4011: the class the service imports, not any of that name
+    shape = (
+        dto_shape(src, ca_cls, svc_file) if ca_cls else {}
+    )  # #4011: the class the service imports, not any of that name
     seams = sql_seam_programs(case, src)  # #4173 x #4188: whose Java can take an injected SQL fault
     test = project / "src/test/java" / ej.PKG_DIR / "EquivalenceRunTest.java"
     test.write_text(
@@ -2553,7 +2620,7 @@ def run_java_cics(case: dict[str, Any], corpus: Path, work: Path, cobol_work: Pa
         scenarios.append({"name": sc["name"], "aid": sc.get("aid", "DFHENTER").removeprefix("DFH"),
                           "commarea": ca, "receive": receive, "faults": fault_lines(sc), "sql_faults": sc.get("sql_plan", []),
                           "sql_unjudged": sql_unjudged(sc.get("sql_plan", []), seams),
-                          "derived": bool(sc.get("derived")),
+                          "derived": bool(sc.get("derived")), "commarea_length": commarea_length(sc, ca_fields),
                           "counters": _counters(case, sc), "taskn": task_number(case, sc)})  # fmt: skip
     (inputs / "scenarios.json").write_text(json.dumps(scenarios, indent=1), encoding="utf-8")
     props = ej.data_charset_arg(case)
@@ -3016,6 +3083,14 @@ def _to_link(events: list[dict[str, Any]], program: str) -> list[dict[str, Any]]
 
 X6_JUDGED = ("the refused WRITEQ (X6: its LENGTH runs past FROM; not settled on z/OS, #4050) -- what the task did "
              "before it is compared, its end state (files, tables, the COMMAREA it leaves) is not")  # fmt: skip
+X23_JUDGED = ("the refused reference past EIBCALEN (X23: a COMMAREA of a stated length; z/OS shows whatever storage "
+              "follows it) -- what the task did before it is compared, its end state (files, tables, the COMMAREA it "
+              "leaves) is not")  # fmt: skip
+
+
+def judged_to(x6: dict[str, Any]) -> str:
+    """The report's `judged_to` for a task stopped at a refusal (x6_judged): X6's words, or X23's."""
+    return X23_JUDGED if x6.get("assumes") == "X23" else X6_JUDGED
 
 
 def x6_judged(sc: dict[str, Any], java_out: Path, cev: list[dict[str, Any]],
@@ -3029,7 +3104,13 @@ def x6_judged(sc: dict[str, Any], java_out: Path, cev: list[dict[str, Any]],
     if not sc.get("prefix_x6") and java is None:
         return cev, jev, None
     left = [e for e in cev if e.get("event") != "COMMAREA"], [e for e in jev if e.get("event") != "COMMAREA"]
-    return left[0], left[1], {"cobol": sc.get("prefix_x6"), "java": java, "ok": bool(sc.get("prefix_x6") and java)}
+    cobol = sc.get("prefix_x6")
+
+    def kind(said: str | None) -> str | None:  # #4270: which refusal -- both sides must have stopped at the same one
+        return None if not said else "X23" if "EIBCALEN" in said else "X6"
+
+    return left[0], left[1], {"cobol": cobol, "java": java, "ok": bool(cobol and java) and kind(cobol) == kind(java),
+                              "assumes": kind(cobol) or kind(java)}  # fmt: skip
 
 
 def _fired(log: Path) -> list[str]:
@@ -3068,7 +3149,7 @@ def judge_facade(case: dict[str, Any], corpus: Path, files: list[dict[str, Any]]
                              "entries": facade["entries"].get(name, [])}  # fmt: skip
         ok = d["equal"] == d["events"]
         if x6:
-            o["judged_to"], o["x6"] = X6_JUDGED, x6
+            o["judged_to"], o["x6"] = judged_to(x6), x6
             ok &= x6["ok"]
         why = facade["refused"].get(name)
         if why:
@@ -3188,10 +3269,10 @@ def run_case(case: dict[str, Any], corpus: Path, work: Path, port: bool = True, 
         if sc.get("derived"):
             report["outputs"][name]["sql_faults"] = sc["sql_plan"]
         if x6:
-            report["outputs"][name]["judged_to"], report["outputs"][name]["x6"] = X6_JUDGED, x6
+            report["outputs"][name]["judged_to"], report["outputs"][name]["x6"] = judged_to(x6), x6
             if not x6["ok"]:
                 ok = False
-                print(f"{case['program']} {name}: only one side refused the WRITEQ past FROM (X6): {x6}")
+                print(f"{case['program']} {name}: only one side refused ({x6['assumes']}): {x6}")
         if sc.get("prefix_link"):
             report["outputs"][name]["judged_to"] = (
                 f"LINK PROGRAM({sc['prefix_link']}) (not run: its end state is not compared)"

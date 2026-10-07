@@ -286,6 +286,7 @@ public class CicsTask {
     private String abcode = "    ";
     private String termid;                                  // #3989: EIBTRMID (the task's root); null without one
     private long taskNumber;                                 // #4270: EIBTASKN (the task's root), a stated fact
+    private boolean exactCommarea;                          // #4270 (X23): the COMMAREA is EIBCALEN bytes, no more
     private String exitLabel;                               // #3989: this level's HANDLE ABEND LABEL
     private boolean exitActive;
     private final java.util.ArrayDeque<Object[]> pushedExits = new java.util.ArrayDeque<>();
@@ -632,6 +633,19 @@ public class CicsTask {
         }
         this.taskNumber = taskNumber;
         return this;
+    }
+
+    /** #4270 (oracle_assumptions.md X23): the level-1 COMMAREA is exactly EIBCALEN bytes -- a scenario's stated
+     *  `commarea_length`, shorter than the record -- so a reference past EIBCALEN reaches storage the task was never
+     *  given (on z/OS, whatever follows the area). A det port refuses it (DetCics.PastFrom), as the stub does. */
+    public CicsTask withExactCommarea() {
+        this.exactCommarea = true;
+        return this;
+    }
+
+    /** Whether this level's COMMAREA is exactly EIBCALEN bytes (X23): level 1 only, when the runner stated it. */
+    public boolean exactCommarea() {
+        return parent == null && exactCommarea;
     }
 
     /** EIBTASKN (#4270): the task's number, the same at every LINK / XCTL level. */

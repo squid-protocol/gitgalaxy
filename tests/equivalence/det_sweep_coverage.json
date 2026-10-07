@@ -2,6 +2,57 @@
  "format": "det-sweep-coverage/1",
  "about": "#4270: the paragraph / branch coverage of each det-proven case, as `proof_sweep.py --det-only` reported it; written only by `tests/tools/det_coverage_ledger.py update SWEEP_DIR...`, checked by CI's det-sweep. An entry is trusted only while its input fingerprints match the tree (proof_blockers.py); stale or missing stays unknown.",
  "cases": {
+  "asynccc-getpol": {
+   "scenarios": 1,
+   "paragraphs": {
+    "covered": 1,
+    "live": 1
+   },
+   "branches": {
+    "covered": 0,
+    "total": 0
+   },
+   "inputs": {
+    "case": "8715eb31cb1fe3d43aec7c2ce9de9d3b6e643b65113edc51fb979c8d39d43e21",
+    "corpus": "a98b9cfe46b5f45db9305f0a997047218e09c7c36422ec0849f6af7af5dd5353",
+    "harness": "9179ad80f3229cf208f51ea99ffa3ccff4e69978f8058be12afbbb09422dd88b",
+    "oracle": "fd20c9a4f4f68e6dccfae93669be4c30ec66eacd41330b329e70c039477b886a"
+   }
+  },
+  "asynccc-getspnd": {
+   "scenarios": 1,
+   "paragraphs": {
+    "covered": 1,
+    "live": 1
+   },
+   "branches": {
+    "covered": 0,
+    "total": 0
+   },
+   "inputs": {
+    "case": "3f15c0e7364770e323f6e9c65487c146dbfba37ff81f38d42b9aebc930125c49",
+    "corpus": "a98b9cfe46b5f45db9305f0a997047218e09c7c36422ec0849f6af7af5dd5353",
+    "harness": "9179ad80f3229cf208f51ea99ffa3ccff4e69978f8058be12afbbb09422dd88b",
+    "oracle": "fd20c9a4f4f68e6dccfae93669be4c30ec66eacd41330b329e70c039477b886a"
+   }
+  },
+  "asynccc-updcsdb": {
+   "scenarios": 1,
+   "paragraphs": {
+    "covered": 1,
+    "live": 1
+   },
+   "branches": {
+    "covered": 0,
+    "total": 0
+   },
+   "inputs": {
+    "case": "6f6238b16a7d8e202086190913f64017584104833d6a343623c615faa618d8ac",
+    "corpus": "a98b9cfe46b5f45db9305f0a997047218e09c7c36422ec0849f6af7af5dd5353",
+    "harness": "9179ad80f3229cf208f51ea99ffa3ccff4e69978f8058be12afbbb09422dd88b",
+    "oracle": "fd20c9a4f4f68e6dccfae93669be4c30ec66eacd41330b329e70c039477b886a"
+   }
+  },
   "carddemo-acctupdate": {
    "scenarios": 137,
    "paragraphs": {
@@ -326,37 +377,37 @@
    }
   },
   "genapp-lgacdb01": {
-   "scenarios": 8,
+   "scenarios": 9,
    "paragraphs": {
     "covered": 4,
     "live": 4
    },
    "branches": {
-    "covered": 12,
+    "covered": 13,
     "total": 14
    },
    "inputs": {
-    "case": "a320c76c6affa7cc648bbd96dbe5caf6d9bcc9034c77001bec9ae94fd7b7b0a7",
+    "case": "253e59e79e236523d89d2d0ab74c4347955c262c85ae2e7f658230152c319c13",
     "corpus": "c5e4d52071fad96bed24e9ba06f30417340bfc5e998e7c1cd5f2383be73d6ff6",
-    "harness": "e71654ea54ac3af1006c036a906721d46a3a57d9f8b5c82bb187fde858e7eade",
-    "oracle": "c01338417b189840c3da3fcf109428b6c3c5db987111699423026a5a2aa260eb"
+    "harness": "9179ad80f3229cf208f51ea99ffa3ccff4e69978f8058be12afbbb09422dd88b",
+    "oracle": "fd20c9a4f4f68e6dccfae93669be4c30ec66eacd41330b329e70c039477b886a"
    }
   },
   "genapp-lgacdb02": {
-   "scenarios": 10,
+   "scenarios": 11,
    "paragraphs": {
     "covered": 3,
     "live": 3
    },
    "branches": {
-    "covered": 9,
+    "covered": 10,
     "total": 10
    },
    "inputs": {
-    "case": "392d194fd6e5ad0a29843ad09f787798224870ec09c16f60282b173620fd141a",
+    "case": "a3ae0bfb1c47fd295bc6814406a2d998597903c43943999916a5aefc93eebb76",
     "corpus": "c5e4d52071fad96bed24e9ba06f30417340bfc5e998e7c1cd5f2383be73d6ff6",
-    "harness": "e71654ea54ac3af1006c036a906721d46a3a57d9f8b5c82bb187fde858e7eade",
-    "oracle": "c01338417b189840c3da3fcf109428b6c3c5db987111699423026a5a2aa260eb"
+    "harness": "9179ad80f3229cf208f51ea99ffa3ccff4e69978f8058be12afbbb09422dd88b",
+    "oracle": "fd20c9a4f4f68e6dccfae93669be4c30ec66eacd41330b329e70c039477b886a"
    }
   },
   "genapp-lgacvs01": {
@@ -394,20 +445,20 @@
    }
   },
   "genapp-lgdpdb01": {
-   "scenarios": 10,
+   "scenarios": 12,
    "paragraphs": {
     "covered": 3,
     "live": 3
    },
    "branches": {
-    "covered": 10,
+    "covered": 12,
     "total": 12
    },
    "inputs": {
-    "case": "ab67602423131993fbad35735341b48e6d5a13b1e750281c7e14f44df804d2f1",
+    "case": "551cd3e514845511da462dd0e64d6542d64ae2b98d2756cd8d31e2f4c9f0c373",
     "corpus": "c5e4d52071fad96bed24e9ba06f30417340bfc5e998e7c1cd5f2383be73d6ff6",
-    "harness": "e71654ea54ac3af1006c036a906721d46a3a57d9f8b5c82bb187fde858e7eade",
-    "oracle": "c01338417b189840c3da3fcf109428b6c3c5db987111699423026a5a2aa260eb"
+    "harness": "9179ad80f3229cf208f51ea99ffa3ccff4e69978f8058be12afbbb09422dd88b",
+    "oracle": "fd20c9a4f4f68e6dccfae93669be4c30ec66eacd41330b329e70c039477b886a"
    }
   },
   "genapp-lgdpvs01": {
@@ -428,20 +479,20 @@
    }
   },
   "genapp-lgipdb01": {
-   "scenarios": 49,
+   "scenarios": 55,
    "paragraphs": {
     "covered": 12,
     "live": 12
    },
    "branches": {
-    "covered": 67,
+    "covered": 73,
     "total": 74
    },
    "inputs": {
-    "case": "dff142773f622e5b14409734355218ce133190d30fec3a58741b3774bac15963",
+    "case": "ed0171d8c5324bfa7a5abd7a11613602d4192660eb6cb0045e52558a87068431",
     "corpus": "c5e4d52071fad96bed24e9ba06f30417340bfc5e998e7c1cd5f2383be73d6ff6",
-    "harness": "e71654ea54ac3af1006c036a906721d46a3a57d9f8b5c82bb187fde858e7eade",
-    "oracle": "c01338417b189840c3da3fcf109428b6c3c5db987111699423026a5a2aa260eb"
+    "harness": "9179ad80f3229cf208f51ea99ffa3ccff4e69978f8058be12afbbb09422dd88b",
+    "oracle": "fd20c9a4f4f68e6dccfae93669be4c30ec66eacd41330b329e70c039477b886a"
    }
   },
   "genapp-lgucdb01": {
@@ -455,10 +506,10 @@
     "total": 10
    },
    "inputs": {
-    "case": "d69fa969a4d19c768ebb623dc5e322c0e0728ae96fad8764e982e5391cd29563",
+    "case": "d690be3b361358cb5c8ce9e490a5281f4b2aa164b023d5c18c09fec94fc4a651",
     "corpus": "c5e4d52071fad96bed24e9ba06f30417340bfc5e998e7c1cd5f2383be73d6ff6",
-    "harness": "e71654ea54ac3af1006c036a906721d46a3a57d9f8b5c82bb187fde858e7eade",
-    "oracle": "c01338417b189840c3da3fcf109428b6c3c5db987111699423026a5a2aa260eb"
+    "harness": "9179ad80f3229cf208f51ea99ffa3ccff4e69978f8058be12afbbb09422dd88b",
+    "oracle": "fd20c9a4f4f68e6dccfae93669be4c30ec66eacd41330b329e70c039477b886a"
    }
   },
   "genapp-lgucvs01": {

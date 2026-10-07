@@ -4,7 +4,9 @@ import java.util.Base64;
 
 /** A COBOL storage area: WORKING-STORAGE, LINKAGE, an FD record or a symbolic map, as bytes. */
 public final class Storage {
-    public final byte[] bytes;
+    /** Not final for one use (#4270, oracle_assumptions.md X23): a CICS program's DFHCOMMAREA holds, for a task whose
+     *  COMMAREA is shorter than the record (a stated EIBCALEN), only those bytes -- a reference past them fails. */
+    public byte[] bytes;
 
     /** All zero bytes; the translator's initial image sets every byte. */
     public Storage(int size) {

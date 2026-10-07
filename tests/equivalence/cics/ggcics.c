@@ -5,6 +5,8 @@
  *
  * Inputs come from $GGCICS_DIR:
  *   commarea.in           the COMMAREA the task starts with (its length is EIBCALEN)
+ *   commarea.exact        #4270 (X23): the COMMAREA is exactly that long (a scenario's stated
+ *                         length, shorter than the record): GGCAREA puts it before a guard page
  *   receive_<MAP>.bin     what RECEIVE MAP(<MAP>) returns; absent means MAPFAIL
  *   terminal.in           what an unformatted terminal RECEIVE returns (#4005: the
  *                         step's text, typed on a cleared screen); absent means the
@@ -67,6 +69,9 @@ static struct tm *gg_gmtime_r(const time_t *when, struct tm *out) {
 #define gmtime_r gg_gmtime_r
 #else
 #define MKDIR(p) mkdir((p), 0777)
+#include <signal.h>   /* #4270 (X23): GGCAREA's guard page */
+#include <sys/mman.h>
+#include <unistd.h>
 #endif
 
 typedef struct {
@@ -131,6 +136,50 @@ int GGCLOAD(char *area, int maxlen) {
     int n = (int)fread(area, 1, (size_t)maxlen, f);
     fclose(f);
     return n;
+}
+
+/* #4270 (oracle_assumptions.md X23): a COMMAREA of a stated length (commarea.exact) is exactly that many bytes
+ * -- the caller passed no more. GGCAREA copies it to the end of a page followed by an inaccessible one, so a
+ * reference past EIBCALEN, read or write, faults at that statement: the run stops there as not modelled (on z/OS
+ * the program sees whatever storage follows the area) and the task is judged up to it, as the det port refuses
+ * the same reference (DetCics.PastFrom). Any other COMMAREA stays in the driver's own area (*area unchanged). */
+static void refuse(const char *what);
+#ifndef _WIN32
+static char *guard_page;
+static size_t guard_size;
+static void past_eibcalen(int sig, siginfo_t *info, void *ctx) {
+    char *at = (char *)info->si_addr;
+    (void)ctx;
+    if (at >= guard_page && at < guard_page + guard_size) refuse("COMMAREA past EIBCALEN");
+    signal(sig, SIG_DFL); /* any other fault is the stub's or the program's own: as it was */
+    raise(sig);
+}
+#endif
+
+int GGCAREA(char **area, int len) {
+    char path[4096];
+    struct stat st;
+    snprintf(path, sizeof path, "%s/commarea.exact", dir_in());
+    if (len <= 0 || stat(path, &st) != 0) return 0;
+#ifdef _WIN32
+    refuse("a stated COMMAREA length on this platform");
+#else
+    size_t page = (size_t)sysconf(_SC_PAGESIZE);
+    size_t body = ((size_t)len + page - 1) / page * page;
+    char *base = mmap(NULL, body + page, PROT_READ | PROT_WRITE, MAP_PRIVATE | MAP_ANONYMOUS, -1, 0);
+    if (base == MAP_FAILED || mprotect(base + body, page, PROT_NONE) != 0) refuse("a guarded COMMAREA");
+    guard_page = base + body;
+    guard_size = page;
+    memcpy(guard_page - len, *area, (size_t)len);
+    *area = guard_page - len;
+    struct sigaction sa;
+    memset(&sa, 0, sizeof sa);
+    sa.sa_sigaction = past_eibcalen;
+    sa.sa_flags = SA_SIGINFO;
+    sigaction(SIGSEGV, &sa, NULL);
+    sigaction(SIGBUS, &sa, NULL);
+#endif
+    return 0;
 }
 
 /* #4023 follow-up: the planned condition of this command on this file, if faults.cfg plans one. Every

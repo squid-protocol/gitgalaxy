@@ -1917,3 +1917,36 @@ def test_a_writeq_length_past_from_is_refused_by_the_det_port_as_by_the_stub_x6(
     rt = (Path(C.__file__).parent / "cobolrt/cics/DetCics.java").read_text(encoding="utf-8")
     assert "public static final class PastFrom extends UnsupportedOperationException" in rt
     assert "public static int within(Field f, int n, String what)" in rt
+
+
+def test_a_commarea_of_a_stated_length_is_all_dfhcommarea_holds(tmp_path):
+    """#4270 (oracle_assumptions.md X23): a level-1 task whose runner states the COMMAREA is exactly EIBCALEN bytes
+    (CicsTask.withExactCommarea: a scenario's `commarea_length`, shorter than the record) runs with DFHCOMMAREA's
+    storage cut to those bytes, so a reference past them fails and is refused as DetCics.PastFrom -- the stub's guard
+    page stops the COBOL side at the same statement. The record comes back whole before the COMMAREA is written back
+    to the task's object (caBack), and after the task whatever ended it."""
+    pytest.importorskip("tree_sitter_language_pack")
+    from gitgalaxy.tools.cobol_to_java.det import program as P
+
+    (tmp_path / "T4.cbl").write_text(
+        "       IDENTIFICATION DIVISION.\n       PROGRAM-ID. T4.\n       DATA DIVISION.\n"
+        "       WORKING-STORAGE SECTION.\n       01  WS-J                  PIC X(8)  VALUE SPACES.\n"
+        "       LINKAGE SECTION.\n       01  DFHCOMMAREA.\n           05  CA-CODE           PIC XX.\n"
+        "           05  CA-REST           PIC X(98).\n"
+        "       PROCEDURE DIVISION.\n       MAIN-PARA.\n           IF EIBCALEN < 100\n"
+        "               MOVE '98' TO CA-CODE\n           END-IF\n           EXEC CICS RETURN END-EXEC.\n",
+        encoding="utf-8",
+    )
+    (tmp_path / "proj/src/main/java/com/x").mkdir(parents=True)
+    stub = "package com.x.service;\nimport com.x.cics.CicsTask;\npublic class T4Service {\n" \
+           "    public void runTask(CicsTask task) {}\n}\n"  # fmt: skip
+    r = P.translate(tmp_path / "T4.cbl", [], stub, "com.x", {}, tmp_path / "proj")
+    assert r.stats["holes"] == []
+    run = r.java[r.java.index("public void runTask(CicsTask task)") :]
+    run = " ".join(run[: run.index("\n    }\n")].split())  # (the body is indented under the TRUNC wrapper)
+    assert "if (task.exactCommarea() && calen < " in run and ".bytes = java.util.Arrays.copyOf(caWhole, calen);" in run
+    assert "caBack = () -> { caWhole(whole); typed.run(); };" in run
+    assert "} catch (IndexOutOfBoundsException e) { if (caWhole == null) { throw e; }" in run
+    assert 'throw new DetCics.PastFrom("COMMAREA past EIBCALEN (" + calen + " bytes): not modelled");' in run
+    assert "} finally { if (caWhole != null) { caWhole(caWhole); } }" in run
+    assert "private void caWhole(byte[] whole) {" in r.java

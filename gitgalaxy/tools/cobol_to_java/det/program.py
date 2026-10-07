@@ -1197,6 +1197,7 @@ def _cics_parts(gen: G.Gen, records: list, roots: dict, proc: S.Procedure,
         )
     dfhca = next((r for r in records if r.section == "LINKAGE" and r.name == "DFHCOMMAREA"), None)
     ca_in: list[str] = []
+    ca_whole: list[str] = []
     if dfhca is not None:
         st = _storage_name(roots[id(dfhca)])
         for cls in [x for x in dict.fromkeys([cx.gp.contract, *cx.gp.records.values()]) if x]:
@@ -1229,6 +1230,28 @@ def _cics_parts(gen: G.Gen, records: list, roots: dict, proc: S.Procedure,
                   f"            caBack = () -> {{ typed.run(); System.arraycopy({st}.bytes, 0, raw, 0, "
                   f"Math.min(raw.length, {st}.bytes.length)); }};",
                   "        }"]  # fmt: skip
+        # #4270 (oracle_assumptions.md X23): a level-1 COMMAREA the runner says is exactly EIBCALEN bytes, shorter than
+        # the record (a scenario's `commarea_length`), is all DFHCOMMAREA holds for the task: a reference past it fails
+        # (IndexOutOfBounds, refused below as DetCics.PastFrom), as the stub's guard page stops the COBOL side there.
+        # The record's other bytes come back before the COMMAREA is written to the task's object.
+        ca_in += ["        byte[] caWhole = null;",
+                  f"        if (task.exactCommarea() && calen < {st}.bytes.length) {{",
+                  f"            caWhole = {st}.bytes;",
+                  f"            {st}.bytes = java.util.Arrays.copyOf(caWhole, calen);",
+                  "            Runnable typed = caBack;",
+                  "            byte[] whole = caWhole;",
+                  "            caBack = () -> { caWhole(whole); typed.run(); };",
+                  "        }"]  # fmt: skip
+        ca_whole = [
+            "    /** #4270 (X23): DFHCOMMAREA's whole record again, with what the task left in its EIBCALEN bytes. */",
+            "    private void caWhole(byte[] whole) {",
+            f"        if ({st}.bytes != whole) {{",
+            f"            System.arraycopy({st}.bytes, 0, whole, 0, {st}.bytes.length);",
+            f"            {st}.bytes = whole;",
+            "        }",
+            "    }",
+            "",
+        ]
     store_cases = [f'            case "{n}" -> {e};' for n, e in cx.stores.items()]
     members = [
         "    private CicsTask task;",
@@ -1374,9 +1397,26 @@ def _cics_parts(gen: G.Gen, records: list, roots: dict, proc: S.Procedure,
         *ca_in,
         f"        Cobol.store({gen.eib('EIBCALEN')}, BigDecimal.valueOf(calen), false, CS);",
         "        try {",
-        f"            {'runAll()' if gen.structured else f'perform(0, {len(proc.paragraphs) - 1})'};",
-        "        } catch (Goback g) {",
-        "            // RETURN / XCTL / an abend ended the program",
+        *(["            try {"] if ca_whole else []),
+        f"            {'    ' if ca_whole else ''}{'runAll()' if gen.structured else f'perform(0, {len(proc.paragraphs) - 1})'};",
+        f"        {'    ' if ca_whole else ''}}} catch (Goback g) {{",
+        f"            {'    ' if ca_whole else ''}// RETURN / XCTL / an abend ended the program",
+        *(
+            [
+                "            }",
+                "        } catch (IndexOutOfBoundsException e) {",
+                "            if (caWhole == null) {",
+                "                throw e;",
+                "            }",
+                '            throw new DetCics.PastFrom("COMMAREA past EIBCALEN (" + calen + " bytes): not modelled");',
+                "        } finally {",
+                "            if (caWhole != null) {",
+                "                caWhole(caWhole);",
+                "            }",
+            ]
+            if ca_whole
+            else []
+        ),
         "        }",
         "        if (!task.ended()) {",
         "            caBack.run();",
@@ -1385,7 +1425,7 @@ def _cics_parts(gen: G.Gen, records: list, roots: dict, proc: S.Procedure,
         "    }",
         "",
     ]
-    return members, entry + facades(stub)
+    return members + ca_whole, entry + facades(stub)
 
 
 def facades(stub: str) -> list[str]:

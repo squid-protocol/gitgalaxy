@@ -144,7 +144,9 @@ def test_no_tool_writes_an_approval():
     tree = ast.parse((REPO / "tests" / "tools" / "evidence.py").read_text(encoding="utf-8"))
     _parents(tree)
     where = {_function(n) for n in _writes(tree)}
-    assert where <= _ALLOWED_WRITERS, f"evidence.py writes approvals outside {_ALLOWED_WRITERS}: {where - _ALLOWED_WRITERS}"
+    assert where <= _ALLOWED_WRITERS, (
+        f"evidence.py writes approvals outside {_ALLOWED_WRITERS}: {where - _ALLOWED_WRITERS}"
+    )
     assert "_append_approval" in where
 
 
@@ -158,8 +160,10 @@ def _dateutil():
 
 def _with_unproven(rec):
     """The record with a ported method no proof runs (the generator's executeX that #4342 removed from the port)."""
-    unproven = [*rec["reach"]["unproven"],
-                {"class": "CsutldtcService", "method": "executeCsutldtc", "line": 30, "kind": "ported_unproven"}]
+    unproven = [
+        *rec["reach"]["unproven"],
+        {"class": "CsutldtcService", "method": "executeCsutldtc", "line": 30, "kind": "ported_unproven"},
+    ]
     counts = {**rec["reach"]["counts"], "ported_unproven": rec["reach"]["counts"]["ported_unproven"] + 1}
     return {**rec, "reach": {**rec["reach"], "unproven": unproven, "counts": counts}}
 
@@ -377,7 +381,9 @@ def test_an_entry_method_is_reached_only_when_the_proof_ran_it():
     without = ev.reach_section(t)
     assert "handleTransaction" in {m["method"] for m in without["unproven"]}
     run = ev.reach_section(t, entries=["handleTransaction"])
-    assert "handleTransaction" not in {m["method"] for m in run["unproven"]} and "handleTransaction" in run["entry_points"]
+    assert (
+        "handleTransaction" not in {m["method"] for m in run["unproven"]} and "handleTransaction" in run["entry_points"]
+    )
 
 
 def test_the_generated_test_drives_each_entry_and_refuses_a_parm(monkeypatch):
@@ -399,3 +405,15 @@ def test_the_generated_test_drives_each_entry_and_refuses_a_parm(monkeypatch):
         ej.entry_names({**case, "parm": "2022071800"})
     with pytest.raises(SystemExit, match="not Java method names"):
         ej.entry_names({**case, "entries": [{"method": "x(); evil"}]})
+
+
+def test_a_task_judged_up_to_x6_is_recorded_and_stated_as_an_assumption():
+    """Owner decision on #4607: a task judged up to a refused WRITEQ (X6) is recorded as such, and the page states X6
+    as an assumption of those tasks; a task judged whole carries neither."""
+    t = next(t for t, _ in _records())
+    report = {"proven": True, "outputs": {
+        "whole": {"equal": 2, "records": 2},
+        "error-path": {"equal": 5, "records": 5, "judged_to": "the refused WRITEQ (X6 ...)", "x6": {"ok": True}}}}  # fmt: skip
+    proof = ev.proof_section(t, report, "d")
+    assert proof["outputs"]["whole"] == {"equal": 2, "records": 2}
+    assert proof["outputs"]["error-path"]["assumes"] == "X6"

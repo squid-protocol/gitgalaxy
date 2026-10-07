@@ -530,7 +530,7 @@ cases were checked: none drops a field.
 GenApp's error paths (DUPREC, NOTFND, injected faults) all LINK to LGSTSQ first, which the one-program cases do
 not run. A case scenario that reaches such a LINK is refused. Since #4173 an SQL-fault task that reaches it is judged
 up to and including the LINK (its events and the COMMAREA bytes it passes, byte for byte), its end state not compared
-(register X6, M2). The CBSA cases cover
+(register X6, M2). Since #4607 the Db2 cases run LGSTSQ in the task: an EIBCALEN-0 task is compared whole (LGSTSQ's WRITEQ TD and TS too), and a task whose second LINK makes LGSTSQ write past WRITE-MSG is judged up to that refused WRITEQ on both sides (det: `DetCics.PastFrom`). The CBSA cases cover
 their error paths, ABNDPROC's DUPREC among them. No case here browses, so EBCDIC vs ASCII key order is still not
 exercised.
 

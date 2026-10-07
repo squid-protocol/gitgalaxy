@@ -46,7 +46,7 @@
 <defs><linearGradient id="rainbow-legend" x1="0%" y1="0%" x2="100%" y2="0%"><stop offset="0.0%" stop-color="#d62929"/><stop offset="8.3%" stop-color="#d66329"/><stop offset="16.7%" stop-color="#d69c29"/><stop offset="25.0%" stop-color="#d6d629"/><stop offset="33.3%" stop-color="#9cd629"/><stop offset="41.7%" stop-color="#63d629"/><stop offset="50.0%" stop-color="#29d629"/><stop offset="58.3%" stop-color="#29d663"/><stop offset="66.7%" stop-color="#29d69c"/><stop offset="75.0%" stop-color="#29d6d6"/><stop offset="83.3%" stop-color="#299cd6"/><stop offset="91.7%" stop-color="#2963d6"/><stop offset="100.0%" stop-color="#2929d6"/></linearGradient></defs>
 <rect class="surface" x="0" y="0" width="1121" height="1738"/>
 <text class="title" x="16" y="20">Tree-sitter Accuracy by Language -- GitGalaxy vs. Tree-sitter, Most Recent Run</text>
-<text class="subtitle" x="16" y="36">2026-10-05T02:27:28+00:00 &#183; commit 9679a9c &#183; 53 languages (30 tree-sitter-compared, 23 GitGalaxy-only) &#183; source: docs/self_scan/tree_sitter_accuracy_history.csv</text>
+<text class="subtitle" x="16" y="36">2026-10-07T13:15:14+00:00 &#183; commit 88a7642 &#183; 53 languages (30 tree-sitter-compared, 23 GitGalaxy-only) &#183; source: docs/self_scan/tree_sitter_accuracy_history.csv</text>
 <text class="scope-note" x="16" y="52">Measures func_start/args/class_start NAME extraction only -- NOT GitGalaxy's structural-signature risk rules (branch/io/safety_bypasses/etc.), which are hardened and tested separately.</text>
 <text class="scope-note" x="16" y="64">Value labels are raw counts (found/real or found/found+extra), not just a percentage, so each bar's sample size is visible at a glance.</text>
 <text class="scope-note" x="16" y="76">css and html show n/a on the class panels by DESIGN, not as an unmeasured gap -- named class extraction was decided permanently out of scope for them (epic #1295): their class_start targets selectors/tags, not OOP-shaped entities. See tests/extraction/how_to_extend_class_start_named_extraction.md.</text>
@@ -254,9 +254,9 @@
 <text class="value-label" x="240.0" y="994.5">964 found</text>
 <text class="na-dash" x="149" y="1004.5">n/a</text>
 <rect x="143" y="1015.0" width="92.0" height="8" rx="2.5" fill="#2929d6"/>
-<text class="value-label" x="240.0" y="1022.5">621/621</text>
+<text class="value-label" x="240.0" y="1022.5">623/623</text>
 <rect x="143" y="1025.0" width="92.0" height="8" rx="2.5" fill="#2929d6"/>
-<text class="value-label" x="240.0" y="1032.5">621/621</text>
+<text class="value-label" x="240.0" y="1032.5">623/623</text>
 <rect x="143" y="1043.0" width="92.0" height="8" rx="2.5" class="bar-neutral"/>
 <text class="value-label" x="240.0" y="1050.5">39 found</text>
 <text class="na-dash" x="149" y="1060.5">n/a</text>
@@ -287,13 +287,13 @@
 <circle cx="135.5" cy="1248.0" r="6" class="badge-ts"/>
 <text class="badge-text" x="135.5" y="1250.5">T</text>
 <rect x="143" y="1239.0" width="86.3" height="8" rx="2.5" fill="#2954d6"/>
-<text class="value-label" x="234.3" y="1246.5">455/485</text>
+<text class="value-label" x="234.3" y="1246.5">457/487</text>
 <rect x="143" y="1249.0" width="92.0" height="8" rx="2.5" fill="#2929d6"/>
-<text class="value-label" x="240.0" y="1256.5">485/485</text>
+<text class="value-label" x="240.0" y="1256.5">487/487</text>
 <rect x="143" y="1267.0" width="92.0" height="8" rx="2.5" fill="#2929d6"/>
-<text class="value-label" x="240.0" y="1274.5">3780/3780</text>
+<text class="value-label" x="240.0" y="1274.5">3795/3795</text>
 <rect x="143" y="1277.0" width="92.0" height="8" rx="2.5" fill="#2929d6"/>
-<text class="value-label" x="240.0" y="1284.5">3780/3780</text>
+<text class="value-label" x="240.0" y="1284.5">3795/3795</text>
 <rect x="143" y="1295.0" width="92.0" height="8" rx="2.5" class="bar-neutral"/>
 <text class="value-label" x="240.0" y="1302.5">115 found</text>
 <text class="na-dash" x="149" y="1312.5">n/a</text>
@@ -308,9 +308,9 @@
 <circle cx="135.5" cy="1360.0" r="6" class="badge-gg"/>
 <text class="badge-text" x="135.5" y="1362.5">G</text>
 <rect x="143" y="1351.0" width="92.0" height="8" rx="2.5" fill="#2929d6"/>
-<text class="value-label" x="240.0" y="1358.5">1944/1944</text>
-<rect x="143" y="1361.0" width="84.7" height="8" rx="2.5" fill="#2960d6"/>
-<text class="value-label" x="232.7" y="1368.5">1791/1944</text>
+<text class="value-label" x="240.0" y="1358.5">2055/2055</text>
+<rect x="143" y="1361.0" width="85.2" height="8" rx="2.5" fill="#295cd6"/>
+<text class="value-label" x="233.2" y="1368.5">1902/2055</text>
 <rect x="143" y="1379.0" width="92.0" height="8" rx="2.5" fill="#2929d6"/>
 <text class="value-label" x="240.0" y="1386.5">541/541</text>
 <rect x="143" y="1389.0" width="92.0" height="8" rx="2.5" fill="#2929d6"/>
@@ -456,9 +456,9 @@
 <text class="na-dash" x="350" y="994.5">n/a</text>
 <text class="na-dash" x="350" y="1004.5">n/a</text>
 <rect x="344" y="1015.0" width="92.0" height="8" rx="2.5" fill="#2929d6"/>
-<text class="value-label" x="441.0" y="1022.5">621/621</text>
+<text class="value-label" x="441.0" y="1022.5">623/623</text>
 <rect x="344" y="1025.0" width="92.0" height="8" rx="2.5" fill="#2929d6"/>
-<text class="value-label" x="441.0" y="1032.5">621/621</text>
+<text class="value-label" x="441.0" y="1032.5">623/623</text>
 <text class="na-dash" x="350" y="1050.5">n/a</text>
 <text class="na-dash" x="350" y="1060.5">n/a</text>
 <rect x="344" y="1071.0" width="92.0" height="8" rx="2.5" fill="#2929d6"/>
@@ -493,16 +493,16 @@
 <text class="na-dash" x="350" y="1218.5">n/a</text>
 <text class="na-dash" x="350" y="1228.5">n/a</text>
 <rect x="344" y="1239.0" width="92.0" height="8" rx="2.5" fill="#2929d6"/>
-<text class="value-label" x="441.0" y="1246.5">455/455</text>
+<text class="value-label" x="441.0" y="1246.5">457/457</text>
 <rect x="344" y="1249.0" width="92.0" height="8" rx="2.5" fill="#2929d6"/>
-<text class="value-label" x="441.0" y="1256.5">485/485</text>
+<text class="value-label" x="441.0" y="1256.5">487/487</text>
 <rect class="diff-outline" x="329.8" y="1262.8" width="171.5" height="26.5" rx="3"/>
 <circle cx="336.5" cy="1276.0" r="6" class="badge-ts"/>
 <text class="badge-text" x="336.5" y="1278.5">T</text>
 <rect x="344" y="1267.0" width="91.6" height="8" rx="2.5" fill="#292cd6"/>
-<text class="value-label" x="440.6" y="1274.5">3780/3796</text>
+<text class="value-label" x="440.6" y="1274.5">3795/3811</text>
 <rect x="344" y="1277.0" width="92.0" height="8" rx="2.5" fill="#2929d6"/>
-<text class="value-label" x="441.0" y="1284.5">3780/3780</text>
+<text class="value-label" x="441.0" y="1284.5">3795/3795</text>
 <text class="na-dash" x="350" y="1302.5">n/a</text>
 <text class="na-dash" x="350" y="1312.5">n/a</text>
 <rect x="344" y="1323.0" width="92.0" height="8" rx="2.5" fill="#2929d6"/>
@@ -510,9 +510,9 @@
 <rect x="344" y="1333.0" width="92.0" height="8" rx="2.5" fill="#2929d6"/>
 <text class="value-label" x="441.0" y="1340.5">135/135</text>
 <rect x="344" y="1351.0" width="92.0" height="8" rx="2.5" fill="#2929d6"/>
-<text class="value-label" x="441.0" y="1358.5">1944/1944</text>
+<text class="value-label" x="441.0" y="1358.5">2055/2055</text>
 <rect x="344" y="1361.0" width="92.0" height="8" rx="2.5" fill="#2929d6"/>
-<text class="value-label" x="441.0" y="1368.5">1791/1791</text>
+<text class="value-label" x="441.0" y="1368.5">1902/1902</text>
 <rect x="344" y="1379.0" width="92.0" height="8" rx="2.5" fill="#2929d6"/>
 <text class="value-label" x="441.0" y="1386.5">541/541</text>
 <rect x="344" y="1389.0" width="92.0" height="8" rx="2.5" fill="#2929d6"/>
@@ -522,8 +522,8 @@
 <rect class="diff-outline" x="329.8" y="1430.8" width="171.5" height="26.5" rx="3"/>
 <circle cx="336.5" cy="1444.0" r="6" class="badge-ts"/>
 <text class="badge-text" x="336.5" y="1446.5">T</text>
-<rect x="344" y="1435.0" width="90.3" height="8" rx="2.5" fill="#2935d6"/>
-<text class="value-label" x="439.3" y="1442.5">778/792</text>
+<rect x="344" y="1435.0" width="90.2" height="8" rx="2.5" fill="#2937d6"/>
+<text class="value-label" x="439.2" y="1442.5">778/794</text>
 <rect x="344" y="1445.0" width="92.0" height="8" rx="2.5" fill="#2929d6"/>
 <text class="value-label" x="441.0" y="1452.5">785/785</text>
 <rect class="diff-outline" x="329.8" y="1458.8" width="171.5" height="26.5" rx="3"/>
@@ -687,9 +687,9 @@
 <rect x="545" y="1249.0" width="92.0" height="8" rx="2.5" fill="#2929d6"/>
 <text class="value-label" x="642.0" y="1256.5">33/33</text>
 <rect x="545" y="1267.0" width="92.0" height="8" rx="2.5" fill="#2929d6"/>
-<text class="value-label" x="642.0" y="1274.5">476/476</text>
+<text class="value-label" x="642.0" y="1274.5">481/481</text>
 <rect x="545" y="1277.0" width="92.0" height="8" rx="2.5" fill="#2929d6"/>
-<text class="value-label" x="642.0" y="1284.5">476/476</text>
+<text class="value-label" x="642.0" y="1284.5">481/481</text>
 <rect x="545" y="1295.0" width="92.0" height="8" rx="2.5" class="bar-neutral"/>
 <text class="value-label" x="642.0" y="1302.5">0 found</text>
 <text class="na-dash" x="551" y="1312.5">n/a</text>
@@ -701,9 +701,9 @@
 <circle cx="537.5" cy="1360.0" r="6" class="badge-gg"/>
 <text class="badge-text" x="537.5" y="1362.5">G</text>
 <rect x="545" y="1351.0" width="92.0" height="8" rx="2.5" fill="#2929d6"/>
-<text class="value-label" x="642.0" y="1358.5">275/275</text>
-<rect x="545" y="1361.0" width="83.6" height="8" rx="2.5" fill="#2968d6"/>
-<text class="value-label" x="633.6" y="1368.5">250/275</text>
+<text class="value-label" x="642.0" y="1358.5">286/286</text>
+<rect x="545" y="1361.0" width="84.0" height="8" rx="2.5" fill="#2965d6"/>
+<text class="value-label" x="634.0" y="1368.5">261/286</text>
 <rect x="545" y="1379.0" width="92.0" height="8" rx="2.5" fill="#2929d6"/>
 <text class="value-label" x="642.0" y="1386.5">17/17</text>
 <rect x="545" y="1389.0" width="92.0" height="8" rx="2.5" fill="#2929d6"/>
@@ -859,9 +859,9 @@
 <rect x="746" y="1249.0" width="92.0" height="8" rx="2.5" fill="#2929d6"/>
 <text class="value-label" x="843.0" y="1256.5">33/33</text>
 <rect x="746" y="1267.0" width="92.0" height="8" rx="2.5" fill="#2929d6"/>
-<text class="value-label" x="843.0" y="1274.5">476/476</text>
+<text class="value-label" x="843.0" y="1274.5">481/481</text>
 <rect x="746" y="1277.0" width="92.0" height="8" rx="2.5" fill="#2929d6"/>
-<text class="value-label" x="843.0" y="1284.5">476/476</text>
+<text class="value-label" x="843.0" y="1284.5">481/481</text>
 <text class="na-dash" x="752" y="1302.5">n/a</text>
 <text class="na-dash" x="752" y="1312.5">n/a</text>
 <rect x="746" y="1323.0" width="92.0" height="8" rx="2.5" fill="#2929d6"/>
@@ -869,9 +869,9 @@
 <rect x="746" y="1333.0" width="92.0" height="8" rx="2.5" fill="#2929d6"/>
 <text class="value-label" x="843.0" y="1340.5">20/20</text>
 <rect x="746" y="1351.0" width="92.0" height="8" rx="2.5" fill="#2929d6"/>
-<text class="value-label" x="843.0" y="1358.5">275/275</text>
+<text class="value-label" x="843.0" y="1358.5">286/286</text>
 <rect x="746" y="1361.0" width="92.0" height="8" rx="2.5" fill="#2929d6"/>
-<text class="value-label" x="843.0" y="1368.5">250/250</text>
+<text class="value-label" x="843.0" y="1368.5">261/261</text>
 <rect x="746" y="1379.0" width="92.0" height="8" rx="2.5" fill="#2929d6"/>
 <text class="value-label" x="843.0" y="1386.5">17/17</text>
 <rect x="746" y="1389.0" width="92.0" height="8" rx="2.5" fill="#2929d6"/>
@@ -1012,9 +1012,9 @@
 <circle cx="939.5" cy="1024.0" r="6" class="badge-ts"/>
 <text class="badge-text" x="939.5" y="1026.5">T</text>
 <rect x="947" y="1015.0" width="85.2" height="8" rx="2.5" fill="#295cd6"/>
-<text class="value-label" x="1037.2" y="1022.5">575/621</text>
+<text class="value-label" x="1037.2" y="1022.5">577/623</text>
 <rect x="947" y="1025.0" width="92.0" height="8" rx="2.5" fill="#2929d6"/>
-<text class="value-label" x="1044.0" y="1032.5">621/621</text>
+<text class="value-label" x="1044.0" y="1032.5">623/623</text>
 <text class="na-dash" x="953" y="1050.5">n/a</text>
 <text class="na-dash" x="953" y="1060.5">n/a</text>
 <rect x="947" y="1071.0" width="92.0" height="8" rx="2.5" fill="#2929d6"/>
@@ -1048,14 +1048,14 @@
 <rect class="diff-outline" x="932.8" y="1234.8" width="171.5" height="26.5" rx="3"/>
 <circle cx="939.5" cy="1248.0" r="6" class="badge-ts"/>
 <text class="badge-text" x="939.5" y="1250.5">T</text>
-<rect x="947" y="1239.0" width="89.3" height="8" rx="2.5" fill="#293dd6"/>
-<text class="value-label" x="1041.3" y="1246.5">442/455</text>
+<rect x="947" y="1239.0" width="89.4" height="8" rx="2.5" fill="#293cd6"/>
+<text class="value-label" x="1041.4" y="1246.5">444/457</text>
 <rect x="947" y="1249.0" width="92.0" height="8" rx="2.5" fill="#2929d6"/>
-<text class="value-label" x="1044.0" y="1256.5">455/455</text>
+<text class="value-label" x="1044.0" y="1256.5">457/457</text>
 <rect x="947" y="1267.0" width="92.0" height="8" rx="2.5" fill="#2929d6"/>
-<text class="value-label" x="1044.0" y="1274.5">3780/3780</text>
+<text class="value-label" x="1044.0" y="1274.5">3795/3795</text>
 <rect x="947" y="1277.0" width="92.0" height="8" rx="2.5" fill="#2929d6"/>
-<text class="value-label" x="1044.0" y="1284.5">3780/3780</text>
+<text class="value-label" x="1044.0" y="1284.5">3795/3795</text>
 <text class="na-dash" x="953" y="1302.5">n/a</text>
 <text class="na-dash" x="953" y="1312.5">n/a</text>
 <rect class="diff-outline" x="932.8" y="1318.8" width="171.5" height="26.5" rx="3"/>
@@ -1069,9 +1069,9 @@
 <circle cx="939.5" cy="1360.0" r="6" class="badge-gg"/>
 <text class="badge-text" x="939.5" y="1362.5">G</text>
 <rect x="947" y="1351.0" width="92.0" height="8" rx="2.5" fill="#2929d6"/>
-<text class="value-label" x="1044.0" y="1358.5">1944/1944</text>
-<rect x="947" y="1361.0" width="84.7" height="8" rx="2.5" fill="#2960d6"/>
-<text class="value-label" x="1036.7" y="1368.5">1791/1944</text>
+<text class="value-label" x="1044.0" y="1358.5">2055/2055</text>
+<rect x="947" y="1361.0" width="85.2" height="8" rx="2.5" fill="#295cd6"/>
+<text class="value-label" x="1037.2" y="1368.5">1902/2055</text>
 <rect class="diff-outline" x="932.8" y="1374.8" width="171.5" height="26.5" rx="3"/>
 <circle cx="939.5" cy="1388.0" r="6" class="badge-ts"/>
 <text class="badge-text" x="939.5" y="1390.5">T</text>

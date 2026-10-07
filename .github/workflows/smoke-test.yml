@@ -46,6 +46,8 @@ jobs:
     env:
       PYTHONUTF8: "1"
       GITGALAXY_LICENSE_KEY: "COMMUNITY_FREE_TIER"
+      OMP_NUM_THREADS: "1"
+      OBJC_DISABLE_INITIALIZE_FORK_SAFETY: "YES"
     strategy:
       fail-fast: false
       # #4518/#4520: full 9-way grid; this job is skipped on PRs.
@@ -104,6 +106,7 @@ jobs:
     env:
       PYTHONUTF8: "1"
       GITGALAXY_LICENSE_KEY: "COMMUNITY_FREE_TIER"
+      OMP_NUM_THREADS: "1"
     steps:
       - name: Check out repository code
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1

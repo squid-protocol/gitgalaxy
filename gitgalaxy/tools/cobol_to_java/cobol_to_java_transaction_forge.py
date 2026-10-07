@@ -1444,6 +1444,25 @@ public class CicsTask {
         return r;
     }
 
+    /** #4270 READ FILE(file) GTEQ / GENERIC [UPDATE] (oracle_assumptions.md X22): `lookup` searches the file (the
+     *  det port's DetCics.Store.search). RESP NORMAL and the record found, or NOTFND (13) with IBM's RESP2 80 ("An
+     *  attempt to retrieve a record based on the search argument provided is unsuccessful") -- or the condition the
+     *  harness planned, and then nothing is read. With `update` the file's record is held for a REWRITE. */
+    public <T> FileRead<T> readSearch(String file, boolean update, java.util.function.Supplier<Optional<T>> lookup) {
+        int[] planned = root().injected("READ", file);
+        if (planned != null) {
+            return new FileRead<>(planned[0], planned[1], null);
+        }
+        T record = lookup.get().orElse(null);
+        if (record == null) {
+            return new FileRead<>(13, 80, null);
+        }
+        if (update) {
+            root().held.add(file);
+        }
+        return new FileRead<>(0, 0, record);
+    }
+
     /** WRITE FILE(file) RIDFLD FROM: `exists` says whether the key is there already (DUPREC, 14, as CICS answers);
      *  else `store` saves the record (the service's generated repository save) and RESP is NORMAL -- or the
      *  condition the harness planned, and nothing is written. */

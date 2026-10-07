@@ -313,6 +313,18 @@ def test_ts_commands_pass_length_item_and_numitems_in_and_out():
     assert r[2:4] == ["MOVE WS-I TO GG-ITEM", "MOVE 'REWRITE' TO GG-FLAGS"] and "    MOVE GG-ITEM TO WS-I" not in r
 
 
+def test_a_read_gteq_generic_search_is_named_to_the_stub():
+    """#4270 (GenApp LGICVS01 / LGIPVS01, oracle_assumptions.md X22): GTEQ / GENERIC go to GGCREAD in GG-FLAGS, the
+    generic key's length is KEYLENGTH; EQUAL with GTEQ, and GENERIC without KEYLENGTH, refused as the translator."""
+    got = ec.translate_command("READ FILE('KSDSPOLY') INTO(A) LENGTH(F64) RIDFLD(PK) KEYLENGTH(F11) GENERIC GTEQ")
+    assert got[1] == "MOVE 'GTEQ GENERIC' TO GG-FLAGS" and "    BY VALUE F11" in got
+    upd = ec.translate_command("READ FILE(F) INTO(A) RIDFLD(K) GTEQ UPDATE")
+    assert upd[1] == "MOVE 'UPDATE GTEQ' TO GG-FLAGS"
+    for bad in ("READ FILE(F) INTO(A) RIDFLD(K) GTEQ EQUAL", "READ FILE(F) INTO(A) RIDFLD(K) GENERIC GTEQ"):
+        with pytest.raises(ec.Unsupported):
+            ec.translate_command(bad)
+
+
 @pytest.mark.parametrize("body", ["READ FILE(F) RIDFLD(K) INTO(R) GENERIC", "READQ TS QUEUE(Q) SET(P) LENGTH(L)",
                                   "HANDLE ABEND PROGRAM('X')", "ASSIGN OPID(U)", "HANDLE CONDITION NOSUCH(X)",
                                   "WRITEQ TS QUEUE(Q) FROM(A) SYSID(S)", "WRITEQ TS QUEUE(Q) FROM(A) REWRITE",
@@ -899,3 +911,41 @@ def test_a_writeq_past_its_from_area_is_judged_up_to_the_refusal_x6():
     assert ec.x6_writeq_refusal("WRITEQ TS LENGTH > FROM: not modelled") == "WRITEQ TS LENGTH > FROM: not modelled"
     assert ec.x6_writeq_refusal("START LENGTH > FROM: not modelled") is None
     assert ec.x6_writeq_refusal("CEEDAYS picture: not modelled") is None
+
+
+def test_a_scenario_states_startcode_terminal_input_and_ts_queues():
+    """#4270 (GenApp LGICVS01, a terminal transaction reading its control queue): ASSIGN STARTCODE, an unformatted
+    RECEIVE's input and the TS queues the task starts with are facts the case states for both sides (the scenario's,
+    else the case's), as the cics-crucible runner states them; a startcode IBM does not list, a non-text input and a
+    malformed queue are refused."""
+    case = {"startcode": "TD", "terminal": "LGCF", "ts": {"GENACNTL": ["**** GENAPP CNTL"]}}
+    assert ec.task_facts(case, {"name": "a"}) == ("TD", "LGCF")
+    assert ec.task_facts(case, {"name": "b", "startcode": "SD", "terminal": "X"}) == ("SD", "X")
+    assert ec.task_facts({}, {"name": "c"}) == (None, None)
+    assert ec.ts_seed(case, {"name": "a"}) == {"GENACNTL": ["**** GENAPP CNTL"]}
+    assert ec.ts_seed(case, {"name": "b", "ts": {}}) == {}
+    for bad in ({"startcode": "D"}, {"terminal": 5}):
+        with pytest.raises(ec.Unsupported):
+            ec.task_facts(bad, {"name": "x"})
+    with pytest.raises(ec.Unsupported):
+        ec.ts_seed({"ts": {"Q": "not a list"}}, {"name": "x"})
+
+
+def test_a_readq_ts_and_a_receive_the_stub_logged_read_as_cicstask_records_them():
+    """#4270: the stub's READQ-TS / RECEIVE lines (RESP by number, the queue name in hex) as CicsTask's events; the
+    Java item's bytes are in the region's page (CCSID 037), compared as text."""
+    import base64
+
+    kv = {"queue": "47454E41434E544C", "item": "NEXT", "resp": "0"}
+    assert ec._cobol_read("READQ-TS", kv, b"LOW CUSTOMER=0000000003", "latin-1") == {
+        "event": "READQ-TS",
+        "queue": "GENACNTL",
+        "item": "NEXT",
+        "resp": "NORMAL",
+        "data": "LOW CUSTOMER=0000000003",
+    }
+    assert ec._cobol_read("READQ-TS", {**kv, "item": "1", "resp": "26"}, b"", "latin-1")["item"] == 1
+    assert ec._cobol_read("RECEIVE", {"resp": "0"}, b"LGCF", "latin-1") == {"event": "RECEIVE", "resp": "NORMAL",
+                                                                          "data": "LGCF"}  # fmt: skip
+    java = {"event": "READQ-TS", "data": base64.b64encode("LGCF".encode("cp037")).decode()}
+    assert ec.java_read_as_compared(java)["data"] == "LGCF"

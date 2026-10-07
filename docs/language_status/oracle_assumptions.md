@@ -926,24 +926,6 @@ The length READQ TS returns on ITEMERR or QIDERR is not documented, so it is not
   CA-ERROR-MSG and is judged up to X6. Pinned by
   `tests/cobol_mainframe/test_equivalence_cics.py` (the guard page, the driver, the length's checks) and
   `tests/cobol_mainframe/test_det_translate.py` (the det port's cut storage).
-### X25. SYNCHRONIZED slack bytes -- 8-byte binary alignment ASSUMED to be IBM's fullword (#4266)
-
-- **The rule the layout model follows.** IBM Enterprise COBOL aligns a SYNCHRONIZED binary item of up to 4 digits on a
-  halfword and one of 5 to 18 digits (the 8-byte S9(10)-S9(18) included) on a fullword, COMP-1 / INDEX / pointers on a
-  fullword and COMP-2 on a doubleword, counted from the start of the record, which is doubleword-aligned
-  (<https://www.ibm.com/docs/en/cobol-zos/6.4?topic=entry-synchronized-clause>). The slack bytes count toward the
-  group that holds the item.
-- **Between the occurrences of a table** (an OCCURS group that holds SYNC items): the group's size, with the slack inside it,
-  is divided by the largest boundary any elementary item in it needs; when the remainder r is not zero, the compiler adds
-  m - r slack bytes at the end of each occurrence
-  (<https://www.ibm.com/docs/en/cobol-zos/6.4?topic=clause-slack-bytes-within-records>). `record_layout` and
-  `_storage_spans` do this. The rule is read from IBM's text; it was not run on z/OS.
-- **The assumption.** The 8-byte binary stays on IBM's fullword because z/OS is the target. GnuCOBOL and Micro Focus may
-  align an 8-byte binary on a doubleword. If the GnuCOBOL oracle ever compares slack bytes (offsets after such an item,
-  or a record's length), the two can differ.
-- **Reach today.** No committed case reaches it: no committed oracle case or answer-key layout holds an 8-byte binary
-  with SYNC after an off-boundary item. Status: ASSUMED.
-
 ### X24. A task started with a channel; the containers it leaves compared — ASSUMED (#4270)
 - **What IBM documents** (CICS TS 6.x, "Scope of a channel"; RUN TRANSID CHANNEL: "the name of the channel that is
   to be passed to the child task"; FETCH CHILD CHANNEL: "the channel returned by the child task"; LINK CHANNEL: the
@@ -971,6 +953,24 @@ The length READQ TS returns on ITEMERR or QIDERR is not documented, so it is not
   and CSSTATS2 (RUN TRANSID GETP / SPND): their '0001' and other-account branches, and the containers they PUT.
   Pinned by `tests/cobol_mainframe/test_equivalence_cics.py` (the stub's channel in and containers out, the
   comparison, the drop on abend).
+
+### X25. SYNCHRONIZED slack bytes -- 8-byte binary alignment ASSUMED to be IBM's fullword (#4266)
+
+- **The rule the layout model follows.** IBM Enterprise COBOL aligns a SYNCHRONIZED binary item of up to 4 digits on a
+  halfword and one of 5 to 18 digits (the 8-byte S9(10)-S9(18) included) on a fullword, COMP-1 / INDEX / pointers on a
+  fullword and COMP-2 on a doubleword, counted from the start of the record, which is doubleword-aligned
+  (<https://www.ibm.com/docs/en/cobol-zos/6.4?topic=entry-synchronized-clause>). The slack bytes count toward the
+  group that holds the item.
+- **Between the occurrences of a table** (an OCCURS group that holds SYNC items): the group's size, with the slack inside it,
+  is divided by the largest boundary any elementary item in it needs; when the remainder r is not zero, the compiler adds
+  m - r slack bytes at the end of each occurrence
+  (<https://www.ibm.com/docs/en/cobol-zos/6.4?topic=clause-slack-bytes-within-records>). `record_layout` and
+  `_storage_spans` do this. The rule is read from IBM's text; it was not run on z/OS.
+- **The assumption.** The 8-byte binary stays on IBM's fullword because z/OS is the target. GnuCOBOL and Micro Focus may
+  align an 8-byte binary on a doubleword. If the GnuCOBOL oracle ever compares slack bytes (offsets after such an item,
+  or a record's length), the two can differ.
+- **Reach today.** No committed case reaches it: no committed oracle case or answer-key layout holds an 8-byte binary
+  with SYNC after an off-boundary item. Status: ASSUMED.
 
 ## Language Environment
 

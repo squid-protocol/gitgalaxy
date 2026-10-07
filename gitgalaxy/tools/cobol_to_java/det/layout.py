@@ -20,11 +20,9 @@ from gitgalaxy.tools.cobol_to_java.det.source import (
     alphabet_keywords,
     as_fixed_rows,
     cobol_parser,
-    cut_literal,
     label_records,
     narrowed,
-    several_programs,
-    unmodelled,
+    refusal,
     unwrap,
 )
 
@@ -252,7 +250,7 @@ def _data_only(lines: list[Line]) -> list[Line]:
 def parse(lines: list[Line]) -> list[Item]:
     """The 01 / 77 records of the DATA DIVISION, each a tree of Items."""
     # #4462: national / DBCS text, DECIMAL-POINT IS COMMA, IDMS, several programs (each read on its own): refused by name
-    why = unmodelled(lines) or several_programs(lines) or cut_literal(lines)
+    why = refusal(lines)  # (a survey's what-if may switch one check off: source.survey_unmask)
     if why:
         raise LayoutError(why)
     lines = narrowed(lines)  # #4272: a wide character in a `*>` comment / a PROCEDURE DIVISION literal

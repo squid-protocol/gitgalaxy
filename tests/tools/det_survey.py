@@ -8,7 +8,13 @@ Per corpus: the estate is generated once (java_target_matrix, config h2) and bui
 program is translated onto its generated service and the port compiled (javac) against the built estate. Per
 program: its statements, how many translate, the holes by reason, whether the port compiles. A survey measures
 translation, not correctness -- proving a port needs its equivalence case (tests/tools/det_port.py).
-DIR/survey.json, DIR/survey.md."""
+DIR/survey.json, DIR/survey.md.
+
+What-if mode (#4270 `cics_census.py blockers --unmask`): `--unmask CHECK` translates with ONE refusal check of the
+det translator switched off (det.source.UNMASKABLE, through det.source.survey_unmask -- this tool is its only caller),
+`--program PATH` (repeatable, relative to its corpus) limits the run to those programs, and `--estate-from DIR` reuses
+the generated estates of an earlier survey (DIR/<corpus>/estate) instead of generating them again. Every row of an
+--unmask run carries "unmasked": CHECK -- a what-if, not a translation."""
 
 from __future__ import annotations
 
@@ -92,19 +98,28 @@ def work_key(program: str) -> str:
     return program.replace("\\", "/").replace("/", "__")
 
 
-def survey_program(program: Path, corpus: Path, project: Path, dirs: list[Path], work: Path) -> dict[str, Any]:
+def survey_program(program: Path, corpus: Path, project: Path, dirs: list[Path], work: Path,
+                   unmask: str | None = None) -> dict[str, Any]:  # fmt: skip
+    import contextlib
+
     import equivalence_java as ej
+
+    from gitgalaxy.tools.cobol_to_java.det import source as S
 
     from gitgalaxy.tools.cobol_to_java.det import program as P
 
     row: dict[str, Any] = {"program": str(program.relative_to(corpus))}
+    if unmask:
+        row["unmasked"] = unmask  # a what-if: one refusal check was off (det.source.survey_unmask)
     svc = ej._service_class(program.stem.upper())
     stub_file = project / "src/main/java" / PKG_DIR / "service" / f"{svc}.java"
     stub = stub_file.read_text(encoding="utf-8") if stub_file.is_file() else f"public class {svc} {{\n}}\n"
     row["stub"] = stub_file.is_file()
     own = [program.parent, *[d for d in dirs if d != program.parent]]
+    what_if = S.survey_unmask(unmask) if unmask else contextlib.nullcontext()
     try:
-        r = P.translate(program, own, stub, PKG, P.estate_files(project), project)
+        with what_if:
+            r = P.translate(program, own, stub, PKG, P.estate_files(project), project)
     except Exception as e:  # a program the translator cannot take is a result
         row["error"] = f"{type(e).__name__}: {str(e)[:300]}"
         row["where"] = traceback.extract_tb(e.__traceback__)[-1].name
@@ -181,6 +196,9 @@ def main() -> int:
     ap.add_argument("--corpus", action="append", help="a corpus name (default: every fetched one)")
     ap.add_argument("--no-compile", action="store_true")
     ap.add_argument("--jobs", type=int, default=4)
+    ap.add_argument("--program", action="append", help="only this program (its path in the corpus; repeatable)")
+    ap.add_argument("--unmask", help="WHAT-IF: translate with this refusal check off (det.source.UNMASKABLE)")
+    ap.add_argument("--estate-from", type=Path, help="reuse DIR/<corpus>/estate of an earlier survey")
     args = ap.parse_args()
     import mainframe_corpus as mc
 
@@ -193,6 +211,10 @@ def main() -> int:
     for name in names:
         corpus = root / name
         work = args.work / name
+        reuse = args.estate_from / name / "estate" / "project.txt" if args.estate_from else None
+        if reuse is not None and reuse.is_file() and not (work / "estate" / "project.txt").is_file():
+            (work / "estate").mkdir(parents=True, exist_ok=True)
+            shutil.copyfile(reuse, work / "estate" / "project.txt")
         try:
             project, built = estate(corpus, work / "estate")
         except (Exception, SystemExit) as e:  # an estate the generator cannot take is a result too -- also when the
@@ -214,7 +236,10 @@ def main() -> int:
         progs = sorted(
             p for p in corpus.rglob("*") if p.is_file() and p.suffix.lower() in EXTS and ".git" not in p.parts
         )
-        rows = [survey_program(p, corpus, project, dirs, work) for p in progs]
+        if args.program:
+            wanted = {Path(p).as_posix() for p in args.program}
+            progs = [p for p in progs if p.relative_to(corpus).as_posix() in wanted]
+        rows = [survey_program(p, corpus, project, dirs, work, args.unmask) for p in progs]
         if built and not args.no_compile:
             cp = classpath(project)
             todo = [r for r in rows if "statements" in r]

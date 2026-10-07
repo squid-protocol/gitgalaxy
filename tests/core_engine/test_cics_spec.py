@@ -76,8 +76,13 @@ def test_the_spec_imports_only_the_stdlib():
 
 
 # Who may import the spec. Each spec PR adds its consumer here: PR 2 the det translator, PR 3 the equivalence
-# harness's stub translator, PR 8a the engine walkers (lazily, inside the CICS walkers only).
-IMPORTERS: set[str] = {"gitgalaxy/tools/cobol_to_java/det/cics.py", "tests/tools/equivalence_cics.py"}
+# harness's stub translator, PR 8a the engine walkers (lazily, inside the CICS walkers only). The status page
+# tool (tests/tools/cics_spec_status.py, #4270) only reports on the spec: docs/language_status/cics_spec_status.md.
+IMPORTERS: set[str] = {
+    "gitgalaxy/tools/cobol_to_java/det/cics.py",
+    "tests/tools/equivalence_cics.py",
+    "tests/tools/cics_spec_status.py",
+}
 _IMPORTS_SPEC = re.compile(
     r"^\s*(?:from\s+gitgalaxy\.standards(?:\.cics\b|\s+import\s+cics\b)|import\s+gitgalaxy\.standards\.cics\b)", re.M
 )

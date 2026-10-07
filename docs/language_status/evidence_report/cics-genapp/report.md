@@ -4,7 +4,7 @@
 
 > **Burned estate.** Its ports and the translator were developed against this estate, so its numbers describe a development estate, not a blind one.
 
-Translation measured by `cics_census.py survey` at translator commit `3bcbb8c62397b338307563c40618297d54c38100` (burned + local + census corpora); evidence record status: evidence.py status at build time; coverage: det-sweep coverage ledger, freshness at build time.
+Translation measured by `cics_census.py survey` at translator commit `3bcbb8c62397b338307563c40618297d54c38100` (burned + local + census corpora); evidence record status: evidence.py status, recomputed now; coverage: det-sweep coverage ledger freshness recomputed now.
 
 ## How to read this report
 
@@ -43,17 +43,17 @@ Translation measured by `cics_census.py survey` at translator commit `3bcbb8c623
 
 - programs: 31 (with an EXEC CICS command: 31; source not read: 0)
 - translated whole: 25; refused whole: 0; holes left: 123
-- with an equivalence case: 14; det port equal on its case: 5; with an evidence record: 3; record current at build: 0
+- with an equivalence case: 14; det port equal on its case: 5; with an evidence record: 3; record current at build: 1
 
 ## Programs
 
 | program | level | translated / statements | holes | case | det port | scenarios | record | paragraphs | branches (raw) | branches (net of infeasible) | det-port mutation | CICS commands oracle-backed |
 |---|---|---|---|---|---|---|---|---|---|---|---|---|
-| base/src/lgacvs01.cbl | L2 | 25/25 | 0 | genapp-lgacvs01 | equal | 4 | none | not measured | not measured | not measured | not yet measured (#4628) | 3/6 |
-| base/src/lgapvs01.cbl | L2 | 47/47 | 0 | genapp-lgapvs01 | equal | 8 | stale | not measured | not measured | not measured | not yet measured (#4628) | 2/5 |
-| base/src/lgdpvs01.cbl | L2 | 28/28 | 0 | genapp-lgdpvs01 | equal | 5 | none | not measured | not measured | not measured | not yet measured (#4628) | 2/5 |
-| base/src/lgucvs01.cbl | L2 | 32/32 | 0 | genapp-lgucvs01 | equal | 5 | none | not measured | not measured | not measured | not yet measured (#4628) | 3/7 |
-| base/src/lgupvs01.cbl | L2 | 55/55 | 0 | genapp-lgupvs01 | equal | 6 | none | not measured | not measured | not measured | not yet measured (#4628) | 3/7 |
+| base/src/lgacvs01.cbl | L2 | 25/25 | 0 | genapp-lgacvs01 | equal | 4 | none | 2/3 (66.7%) | 0/4 (0.0%) | 0/4 (0.0%) | not yet measured (#4628) | 3/6 |
+| base/src/lgapvs01.cbl | L2 | 47/47 | 0 | genapp-lgapvs01 | equal | 8 | shown equal, unapproved | 2/3 (66.7%) | 5/9 (55.6%) | 5/9 (55.6%) | not yet measured (#4628) | 2/5 |
+| base/src/lgdpvs01.cbl | L2 | 28/28 | 0 | genapp-lgdpvs01 | equal | 5 | none | 2/3 (66.7%) | 0/4 (0.0%) | 0/4 (0.0%) | not yet measured (#4628) | 2/5 |
+| base/src/lgucvs01.cbl | L2 | 32/32 | 0 | genapp-lgucvs01 | equal | 5 | none | 2/3 (66.7%) | 0/4 (0.0%) | 0/4 (0.0%) | not yet measured (#4628) | 3/7 |
+| base/src/lgupvs01.cbl | L2 | 55/55 | 0 | genapp-lgupvs01 | equal | 6 | none | 2/3 (66.7%) | 5/9 (55.6%) | 5/9 (55.6%) | not yet measured (#4628) | 3/7 |
 | base/src/lgacdb01.cbl | L1 | 61/61 | 0 | genapp-lgacdb01 | not run | 5 | none | not measured | not measured | not measured | not yet measured (#4628) | 3/6 |
 | base/src/lgacdb02.cbl | L1 | 39/39 | 0 | genapp-lgacdb02 | not run | 9 | none | not measured | not measured | not measured | not yet measured (#4628) | 3/5 |
 | base/src/lgacus01.cbl | L1 | 34/34 | 0 | — | — | — | — | not measured | not measured | not measured | not yet measured (#4628) | 3/5 |
@@ -86,13 +86,13 @@ Translation measured by `cics_census.py survey` at translator commit `3bcbb8c623
 ### base/src/lgacvs01.cbl -- L2
 
 - **Executed equivalent** on the 4 scenarios of genapp-lgacvs01 against GnuCOBOL + the gitgalaxy CICS stub (det port: CI det-sweep ratchet on main), given the assumptions below
-- **Next level needs:** paragraph coverage >= 100.0 (coverage not measured: no fresh det-sweep ledger entry and no local sweep)
+- **Next level needs:** paragraph coverage >= 100.0 (now 66.7)
 - **Translation:** 25/25 statements, 0 holes; whole: yes
 - **Executed equivalence** (genapp-lgacdb01, linked, Db2): det port not run (a Db2 case: CI's det-sweep skips Db2 cases and no local sweep was given)
   - evidence record: none (5 scenarios in case.json)
 - **Executed equivalence** (genapp-lgacvs01, program, the case this report judges): det port equal (CI det-sweep ratchet on main)
   - evidence record: none (4 scenarios in case.json)
-- **Coverage:** not measured
+- **Coverage** (det-sweep coverage ledger (tests/equivalence/det_sweep_coverage.json)): paragraphs 2/3 (66.7%), branch outcomes 0/4 (0.0%) raw, 0/4 (0.0%) net of 0 stated infeasible; unrun paragraphs by name: not recorded
 - **Oracle backing** (a column, not a level; per CICS command; DIFFERS assumptions reached: not measured):
 
   | command | spec entry | hand-traced crucible cases (stub / Java runtime agree) | backed |
@@ -106,18 +106,18 @@ Translation measured by `cics_census.py survey` at translator commit `3bcbb8c623
 
 - **Assumptions relied on:** named by its commands' spec entries: none; reach: not measured
 - **Det-port mutation:** not yet measured (#4628)
-- **Residual risk:** coverage not measured; commands without oracle backing: ASKTIME, FORMATTIME, WRITE; assumption reach and the migration dimensions above: not measured
+- **Residual risk:** 1 live paragraphs unrun; 4 branch outcomes unrun; commands without oracle backing: ASKTIME, FORMATTIME, WRITE; assumption reach and the migration dimensions above: not measured
 
 ### base/src/lgapvs01.cbl -- L2
 
 - **Executed equivalent** on the 8 scenarios of genapp-lgapvs01 against GnuCOBOL + the gitgalaxy CICS stub (det port: CI det-sweep ratchet on main), given the assumptions below
-- **Next level needs:** paragraph coverage >= 100.0 (coverage not measured: no fresh det-sweep ledger entry and no local sweep)
+- **Next level needs:** paragraph coverage >= 100.0 (now 66.7)
 - **Translation:** 47/47 statements, 0 holes; whole: yes
 - **Executed equivalence** (genapp-lgapdb01, linked, Db2): det port not run (a Db2 case: CI's det-sweep skips Db2 cases and no local sweep was given)
   - evidence record: none (4 scenarios in case.json)
 - **Executed equivalence** (genapp-lgapvs01, program, the case this report judges): det port equal (CI det-sweep ratchet on main)
-  - evidence record (the case's committed port): stale (stale on harness, oracle, generator); its proof: all equal, 8/8 scenarios equal, 16/16 records equal, 8 runs (0 fault runs); through its deployed entry points 8/8
-- **Coverage:** not measured
+  - evidence record (the case's committed port): shown equal, unapproved; its proof: all equal, 8/8 scenarios equal, 16/16 records equal, 8 runs (0 fault runs); through its deployed entry points 8/8
+- **Coverage** (det-sweep coverage ledger (tests/equivalence/det_sweep_coverage.json)): paragraphs 2/3 (66.7%), branch outcomes 5/9 (55.6%) raw, 5/9 (55.6%) net of 0 stated infeasible; unrun paragraphs by name: not recorded
 - **Oracle backing** (a column, not a level; per CICS command; DIFFERS assumptions reached: not measured):
 
   | command | spec entry | hand-traced crucible cases (stub / Java runtime agree) | backed |
@@ -130,18 +130,18 @@ Translation measured by `cics_census.py survey` at translator commit `3bcbb8c623
 
 - **Assumptions relied on:** named by its commands' spec entries: none; reach: not measured
 - **Det-port mutation:** not yet measured (#4628)
-- **Residual risk:** coverage not measured; commands without oracle backing: ASKTIME, FORMATTIME, WRITE; assumption reach and the migration dimensions above: not measured
+- **Residual risk:** 1 live paragraphs unrun; 4 branch outcomes unrun; commands without oracle backing: ASKTIME, FORMATTIME, WRITE; assumption reach and the migration dimensions above: not measured
 
 ### base/src/lgdpvs01.cbl -- L2
 
 - **Executed equivalent** on the 5 scenarios of genapp-lgdpvs01 against GnuCOBOL + the gitgalaxy CICS stub (det port: CI det-sweep ratchet on main), given the assumptions below
-- **Next level needs:** paragraph coverage >= 100.0 (coverage not measured: no fresh det-sweep ledger entry and no local sweep)
+- **Next level needs:** paragraph coverage >= 100.0 (now 66.7)
 - **Translation:** 28/28 statements, 0 holes; whole: yes
 - **Executed equivalence** (genapp-lgdpdb01, linked, Db2): det port not run (a Db2 case: CI's det-sweep skips Db2 cases and no local sweep was given)
   - evidence record: none (9 scenarios in case.json)
 - **Executed equivalence** (genapp-lgdpvs01, program, the case this report judges): det port equal (CI det-sweep ratchet on main)
   - evidence record: none (5 scenarios in case.json)
-- **Coverage:** not measured
+- **Coverage** (det-sweep coverage ledger (tests/equivalence/det_sweep_coverage.json)): paragraphs 2/3 (66.7%), branch outcomes 0/4 (0.0%) raw, 0/4 (0.0%) net of 0 stated infeasible; unrun paragraphs by name: not recorded
 - **Oracle backing** (a column, not a level; per CICS command; DIFFERS assumptions reached: not measured):
 
   | command | spec entry | hand-traced crucible cases (stub / Java runtime agree) | backed |
@@ -154,18 +154,18 @@ Translation measured by `cics_census.py survey` at translator commit `3bcbb8c623
 
 - **Assumptions relied on:** named by its commands' spec entries: none; reach: not measured
 - **Det-port mutation:** not yet measured (#4628)
-- **Residual risk:** coverage not measured; commands without oracle backing: ASKTIME, DELETE, FORMATTIME; assumption reach and the migration dimensions above: not measured
+- **Residual risk:** 1 live paragraphs unrun; 4 branch outcomes unrun; commands without oracle backing: ASKTIME, DELETE, FORMATTIME; assumption reach and the migration dimensions above: not measured
 
 ### base/src/lgucvs01.cbl -- L2
 
 - **Executed equivalent** on the 5 scenarios of genapp-lgucvs01 against GnuCOBOL + the gitgalaxy CICS stub (det port: CI det-sweep ratchet on main), given the assumptions below
-- **Next level needs:** paragraph coverage >= 100.0 (coverage not measured: no fresh det-sweep ledger entry and no local sweep)
+- **Next level needs:** paragraph coverage >= 100.0 (now 66.7)
 - **Translation:** 32/32 statements, 0 holes; whole: yes
 - **Executed equivalence** (genapp-lgucdb01, linked, Db2): det port not run (a Db2 case: CI's det-sweep skips Db2 cases and no local sweep was given)
   - evidence record: none (6 scenarios in case.json)
 - **Executed equivalence** (genapp-lgucvs01, program, the case this report judges): det port equal (CI det-sweep ratchet on main)
   - evidence record: none (5 scenarios in case.json)
-- **Coverage:** not measured
+- **Coverage** (det-sweep coverage ledger (tests/equivalence/det_sweep_coverage.json)): paragraphs 2/3 (66.7%), branch outcomes 0/4 (0.0%) raw, 0/4 (0.0%) net of 0 stated infeasible; unrun paragraphs by name: not recorded
 - **Oracle backing** (a column, not a level; per CICS command; DIFFERS assumptions reached: not measured):
 
   | command | spec entry | hand-traced crucible cases (stub / Java runtime agree) | backed |
@@ -180,18 +180,18 @@ Translation measured by `cics_census.py survey` at translator commit `3bcbb8c623
 
 - **Assumptions relied on:** named by its commands' spec entries: X14 (ASSUMED (REFUSED where IBM is silent)); reach: not measured
 - **Det-port mutation:** not yet measured (#4628)
-- **Residual risk:** coverage not measured; ASSUMED / DIFFERS entries named: X14; commands without oracle backing: ASKTIME, FORMATTIME, READ, REWRITE; assumption reach and the migration dimensions above: not measured
+- **Residual risk:** 1 live paragraphs unrun; 4 branch outcomes unrun; ASSUMED / DIFFERS entries named: X14; commands without oracle backing: ASKTIME, FORMATTIME, READ, REWRITE; assumption reach and the migration dimensions above: not measured
 
 ### base/src/lgupvs01.cbl -- L2
 
 - **Executed equivalent** on the 6 scenarios of genapp-lgupvs01 against GnuCOBOL + the gitgalaxy CICS stub (det port: CI det-sweep ratchet on main), given the assumptions below
-- **Next level needs:** paragraph coverage >= 100.0 (coverage not measured: no fresh det-sweep ledger entry and no local sweep)
+- **Next level needs:** paragraph coverage >= 100.0 (now 66.7)
 - **Translation:** 55/55 statements, 0 holes; whole: yes
 - **Executed equivalence** (genapp-lgupdb01, linked, Db2): det port not run (a Db2 case: CI's det-sweep skips Db2 cases and no local sweep was given)
   - evidence record (the case's committed port): stale (stale on harness, oracle, generator); its proof: all equal, 5/5 scenarios equal, 18/18 records equal, 5 runs (0 fault runs); through its deployed entry points 5/5
 - **Executed equivalence** (genapp-lgupvs01, program, the case this report judges): det port equal (CI det-sweep ratchet on main)
   - evidence record: none (6 scenarios in case.json)
-- **Coverage:** not measured
+- **Coverage** (det-sweep coverage ledger (tests/equivalence/det_sweep_coverage.json)): paragraphs 2/3 (66.7%), branch outcomes 5/9 (55.6%) raw, 5/9 (55.6%) net of 0 stated infeasible; unrun paragraphs by name: not recorded
 - **Oracle backing** (a column, not a level; per CICS command; DIFFERS assumptions reached: not measured):
 
   | command | spec entry | hand-traced crucible cases (stub / Java runtime agree) | backed |
@@ -206,7 +206,7 @@ Translation measured by `cics_census.py survey` at translator commit `3bcbb8c623
 
 - **Assumptions relied on:** named by its commands' spec entries: X14 (ASSUMED (REFUSED where IBM is silent)); reach: not measured
 - **Det-port mutation:** not yet measured (#4628)
-- **Residual risk:** coverage not measured; ASSUMED / DIFFERS entries named: X14; commands without oracle backing: ASKTIME, FORMATTIME, READ, REWRITE; assumption reach and the migration dimensions above: not measured
+- **Residual risk:** 1 live paragraphs unrun; 4 branch outcomes unrun; ASSUMED / DIFFERS entries named: X14; commands without oracle backing: ASKTIME, FORMATTIME, READ, REWRITE; assumption reach and the migration dimensions above: not measured
 
 ### base/src/lgacdb01.cbl -- L1
 
@@ -841,7 +841,7 @@ From the spec entries of the commands the programs use, with the register's stat
 - crucible pins: cics `v0.5.0`, estate `v0.4.0`, language `v1.7.0`; cics crucible baseline measured at `v0.5.0 (9ee42d11)`; crucible cases per command measured at `v0.5.0`
 - crucible pin manifest: tests/crucible_pins.toml
 - oracle base image: `debian:bookworm-slim@sha256:3783cc01769c7b2b1b83a5c5ad96c815348e28ed7da68e2e3687004faa906251`
-- oracle images the evidence records ran on: `sha256:3d1d5e13c632545d0e1bc4d215c3fb8dd1d68d0ff8647b56880f1593353bc7dc`, `sha256:ec3ecd98686860217630b1fce29265628e980a353ddd3d2d96d16332e8800c64`
+- oracle images the evidence records ran on: `sha256:3d1d5e13c632545d0e1bc4d215c3fb8dd1d68d0ff8647b56880f1593353bc7dc`, `sha256:d8eafed12c7dcc0a0b0c04b142ef09435be8ce34442831538242fdba4b56e4b2`
 
 Regenerate this report and re-run its proofs:
 

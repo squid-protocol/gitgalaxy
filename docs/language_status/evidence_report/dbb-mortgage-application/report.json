@@ -543,16 +543,25 @@
     "source_read": true
    },
    "coverage": {
-    "branch_net_pct": null,
-    "branch_pct": null,
-    "branches": null,
-    "branches_net": null,
+    "branch_net_pct": 93.3,
+    "branch_pct": 93.3,
+    "branches": {
+     "covered": 14,
+     "total": 15
+    },
+    "branches_net": {
+     "covered": 14,
+     "total": 15
+    },
     "infeasible_netted": [],
     "infeasible_refuted": [],
     "infeasible_stated": [],
-    "paragraph_pct": null,
-    "paragraphs": null,
-    "source": null,
+    "paragraph_pct": 83.3,
+    "paragraphs": {
+     "covered": 5,
+     "live": 6
+    },
+    "source": "det-sweep coverage ledger (tests/equivalence/det_sweep_coverage.json)",
     "uncovered_branches": [],
     "uncovered_paragraphs": "not recorded"
    },
@@ -611,7 +620,7 @@
     "det_port": "not yet measured (#4628)"
    },
    "next": [
-    "paragraph coverage >= 100.0 (coverage not measured: no fresh det-sweep ledger entry and no local sweep)"
+    "paragraph coverage >= 100.0 (now 83.3)"
    ],
    "oracle_backing": [
     {
@@ -794,7 +803,7 @@
    "program": "zBuilder/MortgageApplication/cobol/epsmlist.cbl",
    "residual": {
     "assumed_or_differs_named": [],
-    "branch_outcomes_unrun": null,
+    "branch_outcomes_unrun": 1,
     "commands": 6,
     "commands_backed": 3,
     "commands_not_backed": [
@@ -804,7 +813,7 @@
     ],
     "facts_unstated": 0,
     "holes": 0,
-    "paragraphs_unrun": null,
+    "paragraphs_unrun": 1,
     "refused": null
    },
    "translation": {
@@ -1714,7 +1723,7 @@
    "python tests/tools/cics_crucible.py  # the hand-traced CICS cases, at the crucible pin"
   ],
   "corpus_ref": "ce2c1be58eb049e000c6627bd8273263fef0c606",
-  "coverage_from": "det-sweep coverage ledger, freshness at build time",
+  "coverage_from": "det-sweep coverage ledger freshness recomputed now",
   "crucible_baseline_ref": "v0.5.0 (9ee42d11)",
   "crucible_cases_measured_at": "v0.5.0",
   "crucible_pins": {
@@ -1725,7 +1734,7 @@
   "oracle_base_image": "debian:bookworm-slim@sha256:3783cc01769c7b2b1b83a5c5ad96c815348e28ed7da68e2e3687004faa906251",
   "oracle_images_of_records": [],
   "pin_manifest": "tests/crucible_pins.toml",
-  "record_status_from": "evidence.py status at build time",
+  "record_status_from": "evidence.py status, recomputed now",
   "survey": {
    "label": "before",
    "scope": "burned + local + census corpora",

@@ -88,8 +88,8 @@ def primary_checkout() -> Path:
     return Path(common if os.path.isabs(common) else REPO / common).resolve().parent
 
 
-def checkout_path(name: str, entry: dict) -> Path:
-    env = os.environ.get(entry["path_env"])
+def checkout_path(name: str, entry: dict, env: dict[str, str] | None = None) -> Path:
+    env = (os.environ if env is None else env).get(entry["path_env"])
     return Path(env) if env else primary_checkout().parent / entry["default_dir"]
 
 
@@ -133,23 +133,44 @@ def cmd_get(args) -> int:
     return 0
 
 
-def cmd_check(args) -> int:
-    off = 0
+def check_rows(manifest_path: Path = manifest.MANIFEST, env: dict[str, str] | None = None) -> list[dict]:
+    """One row per crucible: {name, ref, path, state ok|off|skip, dirty, detail}. `env` (default os.environ) names
+    the checkouts and carries each crucible's allow_unpinned_env escape hatch (an off-pin checkout is then ok)."""
+    env = dict(os.environ if env is None else env)
+    rows = []
     for name in manifest.NAMES:
-        entry = pin_of(name, args.manifest)
-        ref, path = entry["ref"], checkout_path(name, entry)
+        entry = pin_of(name, manifest_path)
+        ref, path = entry["ref"], checkout_path(name, entry, env)
+        row = {"name": name, "ref": ref, "path": path, "dirty": [], "env": entry["path_env"]}
         if not is_checkout(path):
-            print(f"skip  {name:<9} {ref:<8} no checkout at {path} (set {entry['path_env']})")
+            rows.append({**row, "state": "skip", "detail": f"no checkout at {path} (set {entry['path_env']})"})
             continue
         want, head = rev(path, ref), rev(path, "HEAD")
-        dirty = tracked_dirty(path)
-        state = "clean" if not dirty else f"DIRTY ({len(dirty)} tracked change{'s' * (len(dirty) != 1)})"
+        row["dirty"] = tracked_dirty(path)
         if want and want == head:
-            print(f"ok    {name:<9} {ref:<8} {path}  on pin, {state}")
+            state, detail = "ok", f"on pin {ref}"
+        elif env.get(entry["allow_unpinned_env"]) == "1":
+            state, detail = "ok", f"unpinned ({entry['allow_unpinned_env']}=1), pin is {ref}"
+        else:
+            state = "off"
+            detail = f"on {describe(path)}" + ("" if want else f"; {ref} not fetched here")
+            detail += f"; fix: python tests/tools/crucible_pins.py sync {name}"
+        rows.append({**row, "state": state, "detail": detail})
+    return rows
+
+
+def cmd_check(args) -> int:
+    off = 0
+    for row in check_rows(args.manifest):
+        name, ref, path, dirty = row["name"], row["ref"], row["path"], row["dirty"]
+        state = "clean" if not dirty else f"DIRTY ({len(dirty)} tracked change{'s' * (len(dirty) != 1)})"
+        if row["state"] == "skip":
+            print(f"skip  {name:<9} {ref:<8} {row['detail']}")
+        elif row["state"] == "ok":
+            print(f"ok    {name:<9} {ref:<8} {path}  {row['detail']}, {state}")
         else:
             off += 1
-            why = f"on {describe(path)}" + ("" if want else f"; {ref} not fetched here")
-            print(f"OFF   {name:<9} {ref:<8} {path}  {why}, {state}  -> crucible_pins.py sync {name}")
+            print(f"OFF   {name:<9} {ref:<8} {path}  {row['detail']}, {state}")
     if not args.no_gh:
         value = variable_value()
         if value is None:

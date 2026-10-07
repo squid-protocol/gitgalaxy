@@ -105,11 +105,11 @@ def test_get(world, capsys):
 def test_check_reports_off_pin_then_on_pin(world, capsys):
     assert run(world, "check", "--no-gh") == 1
     out = capsys.readouterr().out
-    assert out.count("OFF") == 3 and "sync language" in out
+    assert out.count("OFF") == 3 and "crucible_pins.py sync language" in out
     assert run(world, "sync", "--no-lock") == 0
     capsys.readouterr()
     assert run(world, "check", "--no-gh") == 0
-    assert capsys.readouterr().out.count("on pin, clean") == 3
+    assert capsys.readouterr().out.count("on pin v2.0.0, clean") == 3
 
 
 def test_check_flags_dirty_and_skips_absent(world, tmp_path, monkeypatch, capsys):

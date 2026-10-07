@@ -55,7 +55,7 @@ def test_a_skipped_event_run_after_a_success_does_not_hide_it_and_a_rerun_wins()
 
 
 def test_files_are_flagged():
-    assert pc.flag("tests/_cics_crucible_pin.py").startswith("CICS crucible PIN")
+    assert pc.flag("tests/crucible_pins.toml").startswith("crucible PIN")
     assert pc.flag("tests/estate_crucible/baseline.json") == "baseline"
     assert pc.flag("tests/cobol_mainframe/ground_truth_ledger.json") == "ledger"
     assert pc.flag("tests/golden/x.json") == "golden"
@@ -65,12 +65,12 @@ def test_files_are_flagged():
 
 def test_green_pr_is_ready_in_four_calls():
     api = fake_api(runs=[run("ruff-audit", "success", 1)],
-                   files=[{"filename": "tests/_cics_crucible_pin.py", "status": "modified", "additions": 1, "deletions": 1}])  # fmt: skip
+                   files=[{"filename": "tests/crucible_pins.toml", "status": "modified", "additions": 1, "deletions": 1}])  # fmt: skip
     res = pc.check(7, api)
     assert res["ready"] and res["draft"] and res["head_sha"] == SHA
     assert len(api.calls) == 4 and all("per_page=100" in c for c in api.calls if "check-runs" in c or "files" in c)
     out = pc.report(res)
-    assert "READY to merge" in out and "FLAG CICS crucible PIN" in out
+    assert "READY to merge" in out and "FLAG crucible PIN" in out
 
 
 def test_not_ready_reasons():
@@ -100,6 +100,33 @@ def test_merge_only_when_green(capsys, monkeypatch):
     assert pc.main(["7", "--merge"], api=green) == 0
     assert [a[:3] for a in seen] == [["gh", "pr", "ready"], ["gh", "pr", "merge"]]
     assert "merged #7" in capsys.readouterr().out
+
+
+def test_merging_a_pin_change_runs_sync_and_a_sync_failure_is_not_fatal(capsys, monkeypatch):
+    seen = []
+    sync_rc = [0]
+
+    def fake_run(argv):
+        seen.append(argv)
+        if argv[1].endswith("crucible_pins.py"):
+            return subprocess.CompletedProcess(
+                argv, sync_rc[0], "SYNCED cics: v0.5.0 -> v0.6.0\n", "REFUSE x" if sync_rc[0] else ""
+            )
+        return subprocess.CompletedProcess(argv, 0, "", "")
+
+    monkeypatch.setattr(pc, "_run", fake_run)
+    pin = [{"filename": "tests/crucible_pins.toml", "status": "modified", "additions": 1, "deletions": 1}]
+    other = [{"filename": "tests/tools/x.py", "status": "modified", "additions": 1, "deletions": 1}]
+    green = [run("det", "success", 1)]
+    assert pc.main(["7", "--merge"], api=fake_api(runs=green, files=other)) == 0
+    assert not any(a[1].endswith("crucible_pins.py") for a in seen)  # an ordinary PR: no sync
+    seen.clear()
+    assert pc.main(["7", "--merge"], api=fake_api(runs=green, files=pin)) == 0
+    assert seen[-1][2:] == ["sync"] and "SYNCED cics: v0.5.0 -> v0.6.0" in capsys.readouterr().out
+    sync_rc[0] = 1
+    assert pc.main(["7", "--merge"], api=fake_api(runs=green, files=pin)) == 0  # merged: the failure is only reported
+    out = capsys.readouterr().out
+    assert "merged #7" in out and "WARNING" in out and "REFUSE x" in out
 
 
 def test_merge_marks_ready_then_squashes_pinned_to_the_head():

@@ -69,6 +69,37 @@ def test_environment_sets_the_crucibles_the_jdk_and_the_escape_hatch(tmp_path, m
     assert "export CICS_CRUCIBLE_PATH='/a b/c'" in lines
 
 
+def test_environment_points_a_fresh_worktree_at_the_primary_corpora(tmp_path, monkeypatch):
+    main = tmp_path / "primary"
+    (main / ".mainframe_corpora").mkdir(parents=True)
+    monkeypatch.setattr(ee.pr_gates, "_main_checkout", lambda: main)
+    monkeypatch.setattr(ee, "find_jdk17", lambda _env, _root: (tmp_path / "jdk17", []))
+    monkeypatch.delenv(ee.CORPORA_ENV, raising=False)
+    env, _ = ee.environment()
+    assert env[ee.CORPORA_ENV] == str(main / ".mainframe_corpora")
+    assert f"export {ee.CORPORA_ENV}=" in "\n".join(ee.shell_lines(env))
+    monkeypatch.setenv(ee.CORPORA_ENV, str(tmp_path / "mine"))  # an explicit setting is kept
+    assert ee.environment()[0][ee.CORPORA_ENV] == str(tmp_path / "mine")
+    (main / ".mainframe_corpora").rmdir()
+    monkeypatch.delenv(ee.CORPORA_ENV)
+    assert ee.CORPORA_ENV not in ee.environment()[0]  # no directory: nothing exported
+
+
+def test_corpora_check_reports_unset_missing_and_off_pin(tmp_path, monkeypatch):
+    assert "is not set" in ee.corpora_check({})[2] and not ee.corpora_check({})[1]
+    assert "is missing" in ee.corpora_check({ee.CORPORA_ENV: str(tmp_path / "nope")})[2]
+    import mainframe_corpus
+
+    corpora = [{"name": "alpha", "ref": "0" * 40, "url": "x"}, {"name": "beta", "ref": "1" * 40, "url": "x"}]
+    monkeypatch.setattr(mainframe_corpus, "load_manifest", lambda: corpora)
+    monkeypatch.setattr(mainframe_corpus, "require_clone",
+                        lambda c: None if c["name"] == "alpha" else __import__("sys").exit("off"))  # fmt: skip
+    item, ok, detail = ee.corpora_check({ee.CORPORA_ENV: str(tmp_path)})
+    assert not ok and "beta" in detail and "alpha" not in detail
+    monkeypatch.setattr(mainframe_corpus, "require_clone", lambda c: None)
+    assert ee.corpora_check({ee.CORPORA_ENV: str(tmp_path)})[1] is True
+
+
 def test_main_exits_2_without_a_jdk17(monkeypatch, capsys):
     def boom(*_a, **_k):
         raise ee.JdkError("no JDK 17 found -- only: x (JDK 21)")
@@ -170,18 +201,15 @@ def test_the_census_list_is_the_ineligible_list_minus_burned():
     assert not set(repos) & ee.candidate_names()  # the committed lists never overlap
 
 
-def test_an_off_pin_shared_checkout_warns_a_private_one_fails(tmp_path, monkeypatch):
-    main = tmp_path / "box" / "v6"
-    main.mkdir(parents=True)
-    shared = _repo(tmp_path / "box" / "cics-crucible", tag=cics_pin.PINNED_REF, commits=2)
-    monkeypatch.setattr(ee.pr_gates, "_main_checkout", lambda: main)
+def test_an_off_pin_checkout_fails_with_the_sync_hint(tmp_path, monkeypatch):
+    checkout = _repo(tmp_path / "box" / "cics-crucible", tag=cics_pin.PINNED_REF, commits=2)
     monkeypatch.delenv(cics_pin.ALLOW_UNPINNED_ENV, raising=False)
-    item, ok, detail = ee.crucible_check({"CICS_CRUCIBLE_PATH": str(shared)})
-    assert ok is None and "SHARED" in detail and "--provision" in detail
-    private = _repo(tmp_path / "mine", tag=cics_pin.PINNED_REF, commits=2)
-    assert ee.crucible_check({"CICS_CRUCIBLE_PATH": str(private)})[1] is False
-    _git("checkout", "-q", cics_pin.PINNED_REF, cwd=shared)
-    assert ee.crucible_check({"CICS_CRUCIBLE_PATH": str(shared)})[1] is True
+    env = {"CICS_CRUCIBLE_PATH": str(checkout)}
+    item, ok, detail = ee.crucible_check(env)
+    assert ok is False and "crucible_pins.py sync cics" in detail
+    assert ee.crucible_check({**env, cics_pin.ALLOW_UNPINNED_ENV: "1"})[1] is True
+    _git("checkout", "-q", cics_pin.PINNED_REF, cwd=checkout)
+    assert ee.crucible_check(env)[1] is True
 
 
 def test_scratch_root_order(tmp_path, monkeypatch):

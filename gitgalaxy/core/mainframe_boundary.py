@@ -481,6 +481,38 @@ _DEPENDING_CLAUSE = re.compile(
     + r"){0,15})",
     re.I,
 )
+# #4266: the clauses that shape an item without naming storage -- `SYNCHRONIZED [LEFT|RIGHT]` (slack bytes
+# before a binary / floating / pointer item), `JUSTIFIED [RIGHT]` and `BLANK [WHEN] ZERO[S|ES]` -- and a 66
+# entry's `RENAMES a [THRU b]` (qualifiers kept, `IN` read as `OF`). Each is read from the entry's own text
+# (before its period, literals blanked) and bounded by COBOL-name boundaries, so `WS-SYNC-FLAG` is no clause.
+# A COBOL-word character (national letters and #3991's full-width digits / hyphens included), so a clause
+# keyword inside a longer name (`WS-SYNC-FLAG`, `#SYNC`) is not read as the clause.
+_CLAUSE_EDGE = r"[A-Z" + NATIONAL + WIDE_DIGITS + WIDE_HYPHENS + r"0-9-]"
+_SYNC_CLAUSE = re.compile(
+    "(?<!" + _CLAUSE_EDGE + r")SYNC(?:HRONIZED)?(?:[ \t\n\u3000]+(LEFT|RIGHT))?(?!" + _CLAUSE_EDGE + ")", re.I
+)
+_JUSTIFIED_CLAUSE = re.compile("(?<!" + _CLAUSE_EDGE + r")JUST(?:IFIED)?(?!" + _CLAUSE_EDGE + ")", re.I)
+_BLANK_WHEN_ZERO_CLAUSE = re.compile(
+    "(?<!" + _CLAUSE_EDGE + r")BLANK[ \t\n\u3000]+(?:WHEN[ \t\n\u3000]+)?ZERO(?:E?S)?(?!" + _CLAUSE_EDGE + ")", re.I
+)
+_RENAMES_OPERAND = _COBOL_NAME + r"(?:[ \t\n\u3000]+(?:OF|IN)[ \t\n\u3000]+" + _COBOL_NAME + r"){0,15}"
+_RENAMES_CLAUSE = re.compile(
+    "(?<!"
+    + _CLAUSE_EDGE
+    + r")RENAMES[ \t\n\u3000]+("
+    + _RENAMES_OPERAND
+    + r")(?:[ \t\n\u3000]+(?:THRU|THROUGH)[ \t\n\u3000]+("
+    + _RENAMES_OPERAND
+    + r"))?",
+    re.I,
+)
+
+
+def _renames_operand(text: str) -> str:
+    """`A IN B` / `A  OF\n B` -> `A OF B`: one spelling, as galaxy_ir's operand reader splits it."""
+    return " ".join("OF" if w == "IN" else w for w in text.upper().split())
+
+
 # `REDEFINES <name>` -- the storage-overlay pointer.
 _REDEFINES_CLAUSE = re.compile(
     r"\bREDEFINES[ \t\n\u3000]+([A-Z" + NATIONAL + r"][A-Z" + NATIONAL + WIDE_DIGITS + WIDE_HYPHENS + r"0-9-]*)", re.I
@@ -1233,6 +1265,15 @@ def _cobol_records(
             depending = " ".join(dep_match.group(1).upper().split()) if dep_match else None
         redefines_match = _REDEFINES_CLAUSE.search(window)
         redefines = redefines_match.group(1).upper() if redefines_match else None
+        # #4266: SYNC / JUSTIFIED / BLANK WHEN ZERO, and a 66 entry's RENAMES range
+        sync_match = _SYNC_CLAUSE.search(entry)
+        sync = ("SYNC " + sync_match.group(1).upper() if sync_match.group(1) else "SYNC") if sync_match else None
+        renames_match = _RENAMES_CLAUSE.search(entry) if level == 66 else None
+        renames = None
+        if renames_match:
+            renames = _renames_operand(renames_match.group(1))
+            if renames_match.group(2):
+                renames += " THRU " + _renames_operand(renames_match.group(2))
         value_match = _VALUE_CLAUSE.search(window)
         value = None
         if value_match:
@@ -1305,6 +1346,11 @@ def _cobol_records(
                 # #3694: presence-keyed likewise -- only a SEPARATE sign is recorded.
                 # (1 a TRAILING separate sign, 2 a LEADING one)
                 **({"sign_separate": _sign_separate(window)} if _sign_separate(window) else {}),
+                # #4266: presence-keyed likewise -- an entry without the clause keeps its pre-#4266 shape.
+                **({"sync": sync} if sync else {}),
+                **({"justified": True} if _JUSTIFIED_CLAUSE.search(entry) else {}),
+                **({"blank_when_zero": True} if _BLANK_WHEN_ZERO_CLAUSE.search(entry) else {}),
+                **({"renames": renames} if renames else {}),
             }
         )
     if section_copies is not None:

@@ -42,6 +42,7 @@ import signal
 import subprocess
 import sys
 import time
+from collections.abc import Callable
 from dataclasses import asdict, dataclass
 from pathlib import Path
 from typing import Any
@@ -238,9 +239,11 @@ def port_dir(case: str) -> Path:
     return CASES / source / "port"
 
 
-def all_mutants(port: Path, ops: set[str]) -> list[Mutant]:
+def all_mutants(port: Path, ops: set[str], files: str = "**/*.java") -> list[Mutant]:
+    """Every mutant of the port's .java files (`files`: a glob under the port, e.g. `service/*.java` for a det
+    port's translated program without its cobolrt runtime)."""
     out: list[Mutant] = []
-    for f in sorted(port.rglob("*.java")):
+    for f in sorted(port.glob(files)):
         out += mutants_of(f.relative_to(port).as_posix(), f.read_text(encoding="utf-8"), ops)
     return out
 
@@ -357,14 +360,19 @@ def killers(report: dict[str, Any]) -> list[str]:
 
 # ---- the run -----------------------------------------------------------------------------------------------------
 def run(case: str, work: Path, jobs: int, n: int | None, seed: int, ops: set[str], timeout: float | None,
-        keep: bool, full: bool = False, only: Path | None = None,
-        case_file: Path | None = None) -> dict[str, Any]:  # fmt: skip
+        keep: bool, full: bool = False, only: Path | None = None, case_file: Path | None = None,
+        port: Path | None = None, files: str = "**/*.java",
+        select: Callable[[list[Mutant]], list[Mutant]] | None = None) -> dict[str, Any]:  # fmt: skip
+    """`port`: a port outside the case (#4628: the det port, `det_port.py run --translate-only`) instead of the
+    committed one -- the baseline proves it too; `files`: the port's files to mutate; `select`: drops the mutants
+    out of scope (det_mutation.py: entry points the case's kind never calls) before sampling."""
     work.mkdir(parents=True, exist_ok=True)
-    port = port_dir(case)
+    given = port is not None
+    port = port if port is not None else port_dir(case)
     started = time.time()
-    print(f"{case}: proving the port as committed (baseline)", flush=True)
+    print(f"{case}: proving the port as {'given' if given else 'committed'} (baseline)", flush=True)
     case_arg = ("--case-file", str(case_file)) if case_file else ()  # #4049: a candidate case
-    base = prove(case, None, work / "baseline", timeout=3600, extra=case_arg)
+    base = prove(case, port if given else None, work / "baseline", timeout=3600, extra=case_arg)
     if base["verdict"] != "proven":  # the committed port must be proven
         raise SystemExit(f"{case}: the committed port is not proven ({base['verdict']}); nothing to measure")
     limit = timeout or max(300.0, 3 * base["seconds"])
@@ -372,7 +380,9 @@ def run(case: str, work: Path, jobs: int, n: int | None, seed: int, ops: set[str
     # fast (the default): each mutant reuses the baseline's COBOL side and generated project, compiles only the
     # port, and stops at the first run that differs -- the same verdict as --full, which re-proves from scratch
     fast = case_arg + (() if full else ("--reuse", str(work / "baseline"), "--first-difference"))
-    every = all_mutants(port, ops)
+    every = all_mutants(port, ops, files)
+    if select is not None:
+        every = select(every)
     chosen = sample(every, n, seed)
     if only is not None:  # the mutants another run judged (e.g. a --full reference), to compare against it
         judged = {r["id"] for r in json.loads((only / "mutation.json").read_text(encoding="utf-8"))["results"]
@@ -381,14 +391,18 @@ def run(case: str, work: Path, jobs: int, n: int | None, seed: int, ops: set[str
     print(f"{case}: {len(every)} mutants, {len(chosen)} chosen; baseline {base['seconds']} s, limit {limit:.0f} s",
           flush=True)  # fmt: skip
     results: dict[str, dict[str, Any]] = {}
-    live: list[Mutant] = []
-    for m in chosen:
+
+    def javac(m: Mutant) -> tuple[bool, str]:
         mdir = write_mutant(port, m, work / "mutants" / m.id / "port")
-        ok, why = compiles(mdir, classpath, work / "mutants" / m.id / "classes")
-        if ok:
-            live.append(m)
-        else:
-            results[m.id] = {"verdict": "stillborn", "why": why}
+        return compiles(mdir, classpath, work / "mutants" / m.id / "classes")
+
+    live: list[Mutant] = []
+    with concurrent.futures.ThreadPoolExecutor(max_workers=jobs) as pool:  # (javac, --jobs at a time)
+        for m, (ok, why) in zip(chosen, pool.map(javac, chosen), strict=True):
+            if ok:
+                live.append(m)
+            else:
+                results[m.id] = {"verdict": "stillborn", "why": why}
     print(f"{case}: {len(chosen) - len(live)} stillborn (javac), {len(live)} to prove, {jobs} at a time", flush=True)
 
     def one(m: Mutant) -> tuple[Mutant, dict[str, Any]]:
@@ -503,6 +517,10 @@ def main(argv: list[str] | None = None) -> int:
                    "case's own (a candidate the test-strengthening loop wrote)")  # fmt: skip
     r.add_argument("--only", type=Path, help="run exactly the mutants another run's DIR judged (its "
                    "mutation.json), e.g. to check the fast mode against a --full reference")  # fmt: skip
+    r.add_argument("--port", type=Path, help="#4628: mutate this port (e.g. a det port, DIR/CASE/port of "
+                   "`det_port.py run --translate-only`) instead of the case's committed one")  # fmt: skip
+    r.add_argument("--files", default="**/*.java", help="the port's files to mutate, a glob under it (a det port: "
+                   "service/*.java, the translated program without the cobolrt runtime)")  # fmt: skip
     r.add_argument("--full", action="store_true", help="prove each mutant from scratch (the COBOL side, the whole "
                    "estate regenerated, every run): slow, the reference the default fast mode must agree with")  # fmt: skip
     ls = sub.add_parser("list")
@@ -547,6 +565,8 @@ def main(argv: list[str] | None = None) -> int:
         args.full,
         args.only,
         args.case_file,
+        args.port,
+        args.files,
     )
     print(mutation_md(s))
     return 0

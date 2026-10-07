@@ -200,6 +200,43 @@ java-ported alone, which never runs a facade body (`handleTransaction`, `handleL
 A score is quoted with its case and seed, never alone. Every survivor is triaged as a case gap, a
 harness gap, an equivalent mutant (with the reason) or dead code.
 
+## Det ports: evidence level L5 (#4628)
+
+The evidence ladder's top level (owner decision on #4601) is **L5 = L4 + every surviving mutant of the det port
+accounted for**. The scores above are of the committed model / hand ports; L5 is about the port the deterministic
+translator writes, so `tests/tools/det_mutation.py` runs `mutation.py` on it:
+
+```sh
+python tests/tools/det_mutation.py run CASE... --work DIR --sample 150 --jobs 3   # translate, mutate, record
+python tests/tools/det_mutation.py table                     # per program: the PR / report table
+python tests/tools/det_mutation.py survivors [CASE]          # every survivor with its stated verdict
+python tests/tools/det_mutation.py state CASE TRIAGE.json    # {id: {verdict, reason}} -> the reviewed list
+python tests/tools/det_mutation.py check                     # the claims against the ledger
+python tests/tools/det_mutation.py refresh --work DIR        # the generator moved: same port bytes renew the entry
+```
+
+- **What is mutated.** `det_port.py run --translate-only`'s port, its `service/*.java` only: the translated
+  program, never the cobolrt runtime (`test_cobolrt.py` checks that against GnuCOBOL). The entry points the case's
+  kind never calls are out of scope (a CICS program's `runProgram` / `runBatch`); everything else the translator
+  writes into the service is in: storage images, field declarations, the COMMAREA mapping, the PERFORM machinery,
+  condition handling, the paragraphs. The same operators, fast mode and seeded sample (`--sample 150`, seed 0) as
+  above; `mutation.py run --port DIR --files GLOB` is the hook.
+- **The ledger**, `tests/equivalence/det_mutation.json`, is written only by the tool: per case the counts, every
+  judged mutant's verdict, the survivors in full, and the fingerprints of the det port's files, the case, the
+  corpus pin, the harness, the oracle and the Java generator (the stand-in for the port a reader can check without
+  translating). Any fingerprint that moved makes the entry unknown; `refresh` re-translates and renews an entry whose
+  port bytes did not change.
+- **The reviewed survivor list**, `tests/equivalence/det_mutation_survivors.json` (the #4602 pattern): each survivor
+  stated `equivalent` (the change cannot alter what the program shows) or `unreachable` (no input gets there), with
+  the Java change and the reason, proposed in a PR and reviewed by the owner. Two more verdicts record a triaged
+  survivor that is NOT accounted for: `case-gap` (an input the case lacks would kill it: strengthen the case) and
+  `harness-gap` (the proof runs the difference but does not compare it). A run that kills a stated `equivalent` /
+  `unreachable` mutant fails (`record` exits 1, `check` fails): the claim was wrong.
+- **L5** for a program: its entry is fresh, nothing is pending or in error, no claim is refuted and every survivor
+  of the sample has an accounted-for verdict. The raw score is always printed beside the level.
+  `det_mutation.status(case, program)` is the evidence report's hook (#4603); `describe(status)` its one line.
+- A sample is a sample: L5 says every survivor **of the 150 judged** is accounted for, at that seed.
+
 ## The test-strengthening loop (#4049)
 
 `tests/tools/strengthen.py run <case> --work DIR --mutation MDIR` gives a model the case's uncovered COBOL

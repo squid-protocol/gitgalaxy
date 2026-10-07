@@ -207,6 +207,68 @@
      "why": "17 on the READ -> WHEN OTHER: 'Unable to verify the User ...'"
     }
    ]
+  },
+  {
+   "name": "pf4-invalid-key",
+   "aid": "DFHPF4",
+   "commarea": {
+    "CDEMO-FROM-TRANID": "CC00",
+    "CDEMO-FROM-PROGRAM": "COSGN00C",
+    "CDEMO-PGM-CONTEXT": 0
+   },
+   "why": "#4628 (det-port mutant 169bad6b27: DFHPF3 read one byte on, at DFHPF4): PF4, the key beside PF3, takes WHEN OTHER -- 'Invalid key pressed' -- not PF3's thank-you"
+  },
+  {
+   "name": "admin-xctl-fails",
+   "aid": "DFHENTER",
+   "commarea": {
+    "CDEMO-FROM-TRANID": "CC00",
+    "CDEMO-FROM-PROGRAM": "COSGN00C",
+    "CDEMO-PGM-CONTEXT": 0
+   },
+   "receive": {
+    "COSGN0A": {
+     "USERIDI": "ADMIN001",
+     "PASSWDI": "PASSWORD"
+    }
+   },
+   "faults": [
+    {
+     "cmd": "XCTL",
+     "program": "COADM01C",
+     "nth": 1,
+     "resp": "PGMIDERR",
+     "resp2": 3,
+     "why": "PGMIDERR RESP2 3, the program could not be loaded (IBM CICS TS, XCTL conditions): the XCTL has no RESP, so CICS abends the task"
+    }
+   ],
+   "why": "#4628 (det-port mutants 9a04c809ec, 27f272516a, 525fd4f899): an administrator's XCTL to COADM01C fails -- the task abends; it does not go on to the RETURN"
+  },
+  {
+   "name": "user-xctl-fails",
+   "aid": "DFHENTER",
+   "commarea": {
+    "CDEMO-FROM-TRANID": "CC00",
+    "CDEMO-FROM-PROGRAM": "COSGN00C",
+    "CDEMO-PGM-CONTEXT": 0
+   },
+   "receive": {
+    "COSGN0A": {
+     "USERIDI": "USER0003",
+     "PASSWDI": "PASSWORD"
+    }
+   },
+   "faults": [
+    {
+     "cmd": "XCTL",
+     "program": "COMEN01C",
+     "nth": 1,
+     "resp": "PGMIDERR",
+     "resp2": 3,
+     "why": "PGMIDERR RESP2 3, the program could not be loaded (IBM CICS TS, XCTL conditions): the XCTL has no RESP, so CICS abends the task"
+    }
+   ],
+   "why": "#4628 (det-port mutants bce63609d8, 6d05a11617): a user's XCTL to COMEN01C fails -- the task abends"
   }
  ],
  "notes": "CardDemo's sign-on (transaction CC00, program COSGN00C): the screen shows the region's APPLID and SYSID (EXEC CICS ASSIGN); ENTER upper-cases the user id and password, reads the user security record and XCTLs an administrator to COADM01C and a user to COMEN01C; a wrong password, an unknown id or an empty field shows the screen again; PF3 says goodbye in plain text. The region's identity is a deployment fact CardDemo does not fix: CARDDEMO / CICA here are illustrative values the case states, given alike to both sides. usrsec.txt is CardDemo's own DUSRSECJ in-stream data. Derived from CardDemo (Apache-2.0; Copyright Amazon.com, Inc. or its affiliates): LICENSE and NOTICE here are the source's own."

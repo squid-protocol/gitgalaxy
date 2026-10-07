@@ -168,6 +168,9 @@ museum_2/
 !tests/equivalence/det_sweep_baseline.json
 !tests/equivalence/det_sweep_coverage.json
 !tests/equivalence/infeasible_outcomes.json
+# #4628: the det-port mutation ledger and its reviewed survivors (tests/tools/det_mutation.py)
+!tests/equivalence/det_mutation.json
+!tests/equivalence/det_mutation_survivors.json
 !tests/cics_crucible/ports/*/*/evidence.json
 !tests/cics_crucible/fixture/**/*.json
 *_llm.md

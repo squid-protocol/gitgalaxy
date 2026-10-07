@@ -1,0 +1,771 @@
+{
+ "format": "det-mutation-survivors/1",
+ "issue": "#4628",
+ "about": "#4628: each surviving det-port mutant stated `equivalent` or `unreachable`, with the Java change and why it cannot alter observable behaviour; proposed in a PR, reviewed by the owner. A run that kills a stated mutant fails (the claim was wrong). Ids are mutation.py's; before / after are the Java line.",
+ "verdicts": {
+  "equivalent": "the change cannot alter anything the program shows (output, screen, files, COMMAREA, abend)",
+  "unreachable": "no input of the program reaches the changed code",
+  "harness-gap": "the change alters behaviour the proof runs but does not compare (open: the harness must)",
+  "case-gap": "an input the case lacks would kill it (open: strengthen the case)"
+ },
+ "cases": {
+  "cbsa-abndproc": [
+   {
+    "id": "de79c3865e",
+    "op": "LIT",
+    "line": 47,
+    "before": "\"ICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAg\",",
+    "after": "\"XCAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAg\",",
+    "verdict": "equivalent",
+    "reason": "IMAGE of WS-ABND-AREA (its first byte's VALUE): A010's first statement, MOVE DFHCOMMAREA TO WS-ABND-AREA, overwrites all 681 bytes before anything reads them"
+   },
+   {
+    "id": "6382c72723",
+    "op": "LIT",
+    "line": 54,
+    "before": "\"MDAwMDAwMDAwMDAw\"));",
+    "after": "\"XDAwMDAwMDAwMDAw\"));",
+    "verdict": "equivalent",
+    "reason": "ABNDPROC's PROCEDURE DIVISION (A010, GET-ME-OUT-OF-HERE) reads only DFHCOMMAREA, WS-ABND-AREA and WS-CICS-RESP; WS-EIBTASKN12 (LOCAL-STORAGE) is never read in a task, so its initial VALUE cannot show"
+   },
+   {
+    "id": "cbd05de919",
+    "op": "LIT",
+    "line": 58,
+    "before": "\"AAAAAAAAAAw=\"));",
+    "after": "\"XAAAAAAAAAw=\"));",
+    "verdict": "equivalent",
+    "reason": "ABNDPROC's PROCEDURE DIVISION (A010, GET-ME-OUT-OF-HERE) reads only DFHCOMMAREA, WS-ABND-AREA and WS-CICS-RESP; WS-U-TIME is never read in a task, so its initial bytes cannot show"
+   },
+   {
+    "id": "a6d0a59e99",
+    "op": "LIT",
+    "line": 60,
+    "before": "\"ICAgICAgICAgIA==\"));",
+    "after": "\"XCAgICAgICAgIA==\"));",
+    "verdict": "equivalent",
+    "reason": "ABNDPROC's PROCEDURE DIVISION (A010, GET-ME-OUT-OF-HERE) reads only DFHCOMMAREA, WS-ABND-AREA and WS-CICS-RESP; WS-ORIG-DATE is never read in a task, so its initial bytes cannot show"
+   },
+   {
+    "id": "1126795fcd",
+    "op": "LIT",
+    "line": 62,
+    "before": "\"ICAuICAuICAgIA==\"));",
+    "after": "\"XCAuICAuICAgIA==\"));",
+    "verdict": "equivalent",
+    "reason": "ABNDPROC's PROCEDURE DIVISION (A010, GET-ME-OUT-OF-HERE) reads only DFHCOMMAREA, WS-ABND-AREA and WS-CICS-RESP; WS-ORIG-DATE-GRP-X is never read in a task, so its initial VALUE cannot show"
+   },
+   {
+    "id": "55a26ae466",
+    "op": "LIT",
+    "line": 64,
+    "before": "\"ICAgIDAwMDAwMCAgIA==\"));",
+    "after": "\"XCAgIDAwMDAwMCAgIA==\"));",
+    "verdict": "equivalent",
+    "reason": "ABNDPROC's PROCEDURE DIVISION (A010, GET-ME-OUT-OF-HERE) reads only DFHCOMMAREA, WS-ABND-AREA and WS-CICS-RESP; WS-PASSED-DATA is never read in a task, so its initial bytes cannot show"
+   },
+   {
+    "id": "dfbce2b925",
+    "op": "LIT",
+    "line": 66,
+    "before": "\"ICAgICAg\"));",
+    "after": "\"XCAgICAg\"));",
+    "verdict": "equivalent",
+    "reason": "ABNDPROC's PROCEDURE DIVISION (A010, GET-ME-OUT-OF-HERE) reads only DFHCOMMAREA, WS-ABND-AREA and WS-CICS-RESP; WS-SORT-DIV is never read in a task, so its initial bytes cannot show"
+   },
+   {
+    "id": "394f3808cb",
+    "op": "LIT",
+    "line": 70,
+    "before": "\"AAAAAA==\"));",
+    "after": "\"XAAAAA==\"));",
+    "verdict": "equivalent",
+    "reason": "ABNDPROC's PROCEDURE DIVISION (A010, GET-ME-OUT-OF-HERE) reads only DFHCOMMAREA, WS-ABND-AREA and WS-CICS-RESP; PROCTRAN-RIDFLD is never read in a task, so its initial bytes cannot show"
+   },
+   {
+    "id": "f93a1d0345",
+    "op": "LIT",
+    "line": 72,
+    "before": "\"KzAwMDAwMDAw\"));",
+    "after": "\"XzAwMDAwMDAw\"));",
+    "verdict": "equivalent",
+    "reason": "ABNDPROC's PROCEDURE DIVISION (A010, GET-ME-OUT-OF-HERE) reads only DFHCOMMAREA, WS-ABND-AREA and WS-CICS-RESP; SQLCODE-DISPLAY is never read in a task, so its initial bytes cannot show"
+   },
+   {
+    "id": "5502a9b4d9",
+    "op": "LIT",
+    "line": 76,
+    "before": "\"AAAAAAAAAAwwMDAwICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgKzAwMDAwMDAwKzAwMDAwMDAwKzAwMDAwMDAwICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAg\",",
+    "after": "\"XAAAAAAAAAwwMDAwICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgKzAwMDAwMDAwKzAwMDAwMDAwKzAwMDAwMDAwICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAg\",",
+    "verdict": "equivalent",
+    "reason": "IMAGE of DFHCOMMAREA (first byte): runTask's in_AbndprocDfhcommarea writes every one of the 681 bytes (fields at 0..681) from the caller's COMMAREA before the PROCEDURE DIVISION runs; ABNDPROC is only LINKed with an ABNDINFO COMMAREA"
+   },
+   {
+    "id": "bd1d29faa8",
+    "op": "LIT",
+    "line": 78,
+    "before": "\"ICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAg\"));",
+    "after": "\"XCAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAg\"));",
+    "verdict": "equivalent",
+    "reason": "IMAGE of DFHCOMMAREA (a later chunk): runTask's in_AbndprocDfhcommarea writes every one of the 681 bytes (fields at 0..681) from the caller's COMMAREA before the PROCEDURE DIVISION runs; ABNDPROC is only LINKed with an ABNDINFO COMMAREA"
+   },
+   {
+    "id": "cb297e47ea",
+    "op": "LIT",
+    "line": 80,
+    "before": "\"AAAADAAAAAwgICAgAAAADCAgICAAAAAAAAAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgIAAAAAAAAAAAIA==\"));",
+    "after": "\"XAAADAAAAAwgICAgAAAADCAgICAAAAAAAAAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgIAAAAAAAAAAAIA==\"));",
+    "verdict": "equivalent",
+    "reason": "ABNDPROC's PROCEDURE DIVISION (A010, GET-ME-OUT-OF-HERE) reads only DFHCOMMAREA, WS-ABND-AREA and WS-CICS-RESP; the EIB (no EIB field is referenced) is never read in a task, so its initial bytes cannot show"
+   },
+   {
+    "id": "606860a2ce",
+    "op": "LIT",
+    "line": 82,
+    "before": "\"AAA=\"));",
+    "after": "\"XAA=\"));",
+    "verdict": "equivalent",
+    "reason": "GG-RETURN-CODE (RETURN-CODE) is read only by runProgram / runBatch, which a CICS task never calls (out of scope); a task never reads it"
+   },
+   {
+    "id": "41dd4f1cea",
+    "op": "CON",
+    "line": 108,
+    "before": "private final Field f75_EIBDATE = Field.packed(s_DFHEIBLK, 4, 7, 0, true);",
+    "after": "private final Field f75_EIBDATE = Field.packed(s_DFHEIBLK, 4, 8, 0, true);",
+    "verdict": "equivalent",
+    "reason": "ABNDPROC's PROCEDURE DIVISION (A010, GET-ME-OUT-OF-HERE) reads only DFHCOMMAREA, WS-ABND-AREA and WS-CICS-RESP; the EIB (no EIB field is referenced) is never read in a task, so its EIBDATE width (8 digits spill into EIBTRNID's first byte, also never read) cannot show"
+   },
+   {
+    "id": "369d1ad06f",
+    "op": "CON",
+    "line": 110,
+    "before": "private final Field f77_EIBTASKN = Field.packed(s_DFHEIBLK, 12, 7, 0, true);",
+    "after": "private final Field f77_EIBTASKN = Field.packed(s_DFHEIBLK, 12, 7, 1, true);",
+    "verdict": "equivalent",
+    "reason": "ABNDPROC's PROCEDURE DIVISION (A010, GET-ME-OUT-OF-HERE) reads only DFHCOMMAREA, WS-ABND-AREA and WS-CICS-RESP; the EIB (no EIB field is referenced) is never read in a task, so its EIBTASKN scale cannot show"
+   },
+   {
+    "id": "958829f518",
+    "op": "CON",
+    "line": 111,
+    "before": "private final Field f78_EIBTRMID = Field.alphanumeric(s_DFHEIBLK, 16, 4, false);",
+    "after": "private final Field f78_EIBTRMID = Field.alphanumeric(s_DFHEIBLK, 17, 4, false);",
+    "verdict": "equivalent",
+    "reason": "ABNDPROC's PROCEDURE DIVISION (A010, GET-ME-OUT-OF-HERE) reads only DFHCOMMAREA, WS-ABND-AREA and WS-CICS-RESP; the EIB (no EIB field is referenced) is never read in a task, so its EIBTRMID offset (bytes 17-20, never read) cannot show"
+   },
+   {
+    "id": "81ad6262f0",
+    "op": "CON",
+    "line": 114,
+    "before": "private final Field f103_EIBRESP2 = Field.binary(s_DFHEIBLK, 80, 8, 0, true, false);",
+    "after": "private final Field f103_EIBRESP2 = Field.binary(s_DFHEIBLK, 80, 8, 1, true, false);",
+    "verdict": "equivalent",
+    "reason": "ABNDPROC's PROCEDURE DIVISION (A010, GET-ME-OUT-OF-HERE) reads only DFHCOMMAREA, WS-ABND-AREA and WS-CICS-RESP; the EIB (no EIB field is referenced) is never read in a task, so its EIBRESP2 scale (the WRITE's RESP2 is read through WS-CICS-RESP2, a separate store) cannot show"
+   },
+   {
+    "id": "5f011c8aac",
+    "op": "CON",
+    "line": 115,
+    "before": "private final Field f105_GG_RETURN_CODE = Field.binary(s_GG_RETURN_CODE, 0, 4, 0, true, false);",
+    "after": "private final Field f105_GG_RETURN_CODE = Field.binary(s_GG_RETURN_CODE, 0, 5, 0, true, false);",
+    "verdict": "equivalent",
+    "reason": "GG-RETURN-CODE (RETURN-CODE) is read only by runProgram / runBatch, which a CICS task never calls; its width cannot show in a task"
+   },
+   {
+    "id": "c2c1e97ee1",
+    "op": "ROR",
+    "line": 135,
+    "before": "if (task.level() > 1) {",
+    "after": "if (task.level() <= 1) {",
+    "verdict": "unreachable",
+    "reason": "abended() is called only from condition(); condition() runs only for a CICS condition a command raises without RESP; ABNDPROC's one command, the WRITE (ABNDPROC.cbl A010), has RESP(WS-CICS-RESP) RESP2, so condition() -- and abended(), reached only from it -- never runs"
+   },
+   {
+    "id": "f70d70df5a",
+    "op": "ROR",
+    "line": 135,
+    "before": "if (task.level() > 1) {",
+    "after": "if (task.level() >= 1) {",
+    "verdict": "unreachable",
+    "reason": "abended() is called only from condition(); condition() runs only for a CICS condition a command raises without RESP; ABNDPROC's one command, the WRITE (ABNDPROC.cbl A010), has RESP(WS-CICS-RESP) RESP2, so condition() -- and abended(), reached only from it -- never runs"
+   },
+   {
+    "id": "f8c5e199a6",
+    "op": "NEG",
+    "line": 135,
+    "before": "if (task.level() > 1) {",
+    "after": "if (!(task.level() > 1)) {",
+    "verdict": "unreachable",
+    "reason": "abended() is called only from condition(); condition() runs only for a CICS condition a command raises without RESP; ABNDPROC's one command, the WRITE (ABNDPROC.cbl A010), has RESP(WS-CICS-RESP) RESP2, so condition() -- and abended(), reached only from it -- never runs"
+   },
+   {
+    "id": "6cfe2040e6",
+    "op": "LIT",
+    "line": 145,
+    "before": "default -> throw new Hole(\"CICS file \" + n + \": no store in the generated project\");",
+    "after": "default -> throw new Hole(\"CICS file \" + n + \"X no store in the generated project\");",
+    "verdict": "unreachable",
+    "reason": "store()'s default arm runs for a file name other than ABNDFILE; ABNDPROC's only file command names FILE('ABNDFILE') (a literal)"
+   },
+   {
+    "id": "55275e871c",
+    "op": "LIT",
+    "line": 151,
+    "before": "java.util.Map.entry(\"GMOOH010\", 4),",
+    "after": "java.util.Map.entry(\"XMOOH010\", 4),",
+    "verdict": "unreachable",
+    "reason": "PARAGRAPHS is read only by paragraph(), a HANDLE label's lookup: condition() runs only for a CICS condition a command raises without RESP; ABNDPROC's one command, the WRITE (ABNDPROC.cbl A010), has RESP(WS-CICS-RESP) RESP2, so condition() -- and paragraph(), reached only from it -- never runs"
+   },
+   {
+    "id": "850f6113f5",
+    "op": "LIT",
+    "line": 153,
+    "before": "java.util.Map.entry(\"A999\", 2),",
+    "after": "java.util.Map.entry(\"X999\", 2),",
+    "verdict": "unreachable",
+    "reason": "PARAGRAPHS is read only by paragraph(), a HANDLE label's lookup: condition() runs only for a CICS condition a command raises without RESP; ABNDPROC's one command, the WRITE (ABNDPROC.cbl A010), has RESP(WS-CICS-RESP) RESP2, so condition() -- and paragraph(), reached only from it -- never runs"
+   },
+   {
+    "id": "ea04eb4c1e",
+    "op": "LIT",
+    "line": 154,
+    "before": "java.util.Map.entry(\"A010\", 1),",
+    "after": "java.util.Map.entry(\"X010\", 1),",
+    "verdict": "unreachable",
+    "reason": "PARAGRAPHS is read only by paragraph(), a HANDLE label's lookup: condition() runs only for a CICS condition a command raises without RESP; ABNDPROC's one command, the WRITE (ABNDPROC.cbl A010), has RESP(WS-CICS-RESP) RESP2, so condition() -- and paragraph(), reached only from it -- never runs"
+   },
+   {
+    "id": "0b01c7a600",
+    "op": "NEG",
+    "line": 160,
+    "before": "if (i == null) {",
+    "after": "if (!(i == null)) {",
+    "verdict": "unreachable",
+    "reason": "condition() runs only for a CICS condition a command raises without RESP; ABNDPROC's one command, the WRITE (ABNDPROC.cbl A010), has RESP(WS-CICS-RESP) RESP2, so condition() -- and paragraph(), reached only from it -- never runs"
+   },
+   {
+    "id": "d6f9b3e7eb",
+    "op": "ROR",
+    "line": 160,
+    "before": "if (i == null) {",
+    "after": "if (i != null) {",
+    "verdict": "unreachable",
+    "reason": "condition() runs only for a CICS condition a command raises without RESP; ABNDPROC's one command, the WRITE (ABNDPROC.cbl A010), has RESP(WS-CICS-RESP) RESP2, so condition() -- and paragraph(), reached only from it -- never runs"
+   },
+   {
+    "id": "ede6da3451",
+    "op": "LIT",
+    "line": 161,
+    "before": "throw new IllegalStateException(\"no paragraph \" + name);",
+    "after": "throw new IllegalStateException(\"Xo paragraph \" + name);",
+    "verdict": "unreachable",
+    "reason": "condition() runs only for a CICS condition a command raises without RESP; ABNDPROC's one command, the WRITE (ABNDPROC.cbl A010), has RESP(WS-CICS-RESP) RESP2, so condition() -- and paragraph(), reached only from it -- never runs"
+   },
+   {
+    "id": "421fd54806",
+    "op": "NEG",
+    "line": 173,
+    "before": "if (h != null) {",
+    "after": "if (!(h != null)) {",
+    "verdict": "unreachable",
+    "reason": "condition() runs only for a CICS condition a command raises without RESP; ABNDPROC's one command, the WRITE (ABNDPROC.cbl A010), has RESP(WS-CICS-RESP) RESP2, so condition() -- and this test, reached only from it -- never runs"
+   },
+   {
+    "id": "cd7757a3e4",
+    "op": "NEG",
+    "line": 176,
+    "before": "if (DetCics.ignoredByDefault(cond)) {",
+    "after": "if (!(DetCics.ignoredByDefault(cond))) {",
+    "verdict": "unreachable",
+    "reason": "condition() runs only for a CICS condition a command raises without RESP; ABNDPROC's one command, the WRITE (ABNDPROC.cbl A010), has RESP(WS-CICS-RESP) RESP2, so condition() -- and this test, reached only from it -- never runs"
+   },
+   {
+    "id": "a8790eb13a",
+    "op": "LIT",
+    "line": 179,
+    "before": "Integer error = handlers.get(\"ERROR\");",
+    "after": "Integer error = handlers.get(\"XRROR\");",
+    "verdict": "unreachable",
+    "reason": "condition() runs only for a CICS condition a command raises without RESP; ABNDPROC's one command, the WRITE (ABNDPROC.cbl A010), has RESP(WS-CICS-RESP) RESP2, so condition() -- and the ERROR handler lookup, reached only from it -- never runs"
+   },
+   {
+    "id": "d6c1518290",
+    "op": "ROR",
+    "line": 180,
+    "before": "if (error != null) {",
+    "after": "if (error == null) {",
+    "verdict": "unreachable",
+    "reason": "condition() runs only for a CICS condition a command raises without RESP; ABNDPROC's one command, the WRITE (ABNDPROC.cbl A010), has RESP(WS-CICS-RESP) RESP2, so condition() -- and this test, reached only from it -- never runs"
+   },
+   {
+    "id": "de2ac8a931",
+    "op": "NEG",
+    "line": 180,
+    "before": "if (error != null) {",
+    "after": "if (!(error != null)) {",
+    "verdict": "unreachable",
+    "reason": "condition() runs only for a CICS condition a command raises without RESP; ABNDPROC's one command, the WRITE (ABNDPROC.cbl A010), has RESP(WS-CICS-RESP) RESP2, so condition() -- and this test, reached only from it -- never runs"
+   },
+   {
+    "id": "18c70a1368",
+    "op": "ROR",
+    "line": 184,
+    "before": "if (label == null) {",
+    "after": "if (label != null) {",
+    "verdict": "unreachable",
+    "reason": "condition() runs only for a CICS condition a command raises without RESP; ABNDPROC's one command, the WRITE (ABNDPROC.cbl A010), has RESP(WS-CICS-RESP) RESP2, so condition() -- and this test, reached only from it -- never runs"
+   },
+   {
+    "id": "db761865f3",
+    "op": "NEG",
+    "line": 184,
+    "before": "if (label == null) {",
+    "after": "if (!(label == null)) {",
+    "verdict": "unreachable",
+    "reason": "condition() runs only for a CICS condition a command raises without RESP; ABNDPROC's one command, the WRITE (ABNDPROC.cbl A010), has RESP(WS-CICS-RESP) RESP2, so condition() -- and this test, reached only from it -- never runs"
+   },
+   {
+    "id": "b8af957b48",
+    "op": "AOR",
+    "line": 198,
+    "before": "Cobol.move(d.getAbndUtimeKey() == null ? BigDecimal.ZERO : new BigDecimal(d.getAbndUtimeKey().toString()), Field.packed(s, base + 0, 15, 0, true), CS);",
+    "after": "Cobol.move(d.getAbndUtimeKey() == null ? BigDecimal.ZERO : new BigDecimal(d.getAbndUtimeKey().toString()), Field.packed(s, base - 0, 15, 0, true), CS);",
+    "verdict": "equivalent",
+    "reason": "`base - 0` for `base + 0`: the same offset"
+   },
+   {
+    "id": "784f43acea",
+    "op": "CON",
+    "line": 201,
+    "before": "Cobol.move(d.getAbndTranid() == null ? \"\" : d.getAbndTranid(), Field.alphanumeric(s, base + 20, 4, false), CS);",
+    "after": "Cobol.move(d.getAbndTranid() == null ? \"\" : d.getAbndTranid(), Field.alphanumeric(s, base + 20, 5, false), CS);",
+    "verdict": "equivalent",
+    "reason": "in_: ABND-TRANID moved into 5 bytes (20-24) instead of 4 spills one byte into ABND-DATE (24), which the next statement, the ABND-DATE move into 24-33, overwrites"
+   },
+   {
+    "id": "a6f392107c",
+    "op": "CON",
+    "line": 202,
+    "before": "Cobol.move(d.getAbndDate() == null ? \"\" : d.getAbndDate(), Field.alphanumeric(s, base + 24, 10, false), CS);",
+    "after": "Cobol.move(d.getAbndDate() == null ? \"\" : d.getAbndDate(), Field.alphanumeric(s, base + 24, 11, false), CS);",
+    "verdict": "equivalent",
+    "reason": "in_: ABND-DATE moved into 11 bytes (24-34) instead of 10 spills one byte into ABND-TIME (34), which the next statement, the ABND-TIME move into 34-41, overwrites"
+   },
+   {
+    "id": "0df9700a6f",
+    "op": "CON",
+    "line": 205,
+    "before": "Cobol.move(d.getAbndProgram() == null ? \"\" : d.getAbndProgram(), Field.alphanumeric(s, base + 46, 8, false), CS);",
+    "after": "Cobol.move(d.getAbndProgram() == null ? \"\" : d.getAbndProgram(), Field.alphanumeric(s, base + 46, 9, false), CS);",
+    "verdict": "equivalent",
+    "reason": "in_: ABND-PROGRAM moved into 9 bytes (46-54) instead of 8 spills one byte into ABND-RESPCODE (54), which the next statement, the ABND-RESPCODE move into 54-62, overwrites"
+   },
+   {
+    "id": "78575c3a80",
+    "op": "AOR",
+    "line": 213,
+    "before": "d.setAbndUtimeKey(Cobol.num(Field.packed(s, base + 0, 15, 0, true), CS).longValue());",
+    "after": "d.setAbndUtimeKey(Cobol.num(Field.packed(s, base - 0, 15, 0, true), CS).longValue());",
+    "verdict": "equivalent",
+    "reason": "`base - 0` for `base + 0`: the same offset"
+   },
+   {
+    "id": "71426ad29b",
+    "op": "DEL",
+    "line": 214,
+    "before": "d.setAbndTasknoKey(Cobol.num(Field.zoned(s, base + 8, 4, 0, false, false, false), CS).intValue());",
+    "after": "/* d.setAbndTasknoKey(Cobol.num(Field.zoned(s, base + 8, 4, 0, false, false, false), CS).intValue()); */",
+    "verdict": "equivalent",
+    "reason": "ABNDPROC never writes DFHCOMMAREA, so on the way back each fill_ setter stores the value in_ took from the same DTO field (ABND-TASKNO-KEY, PIC 9(4): every value it holds reads back unchanged), padded to the field's width; without it the DTO keeps the caller's value -- the same COMMAREA bytes once laid out as the record, which is what a caller receives"
+   },
+   {
+    "id": "a942ff3fcc",
+    "op": "DEL",
+    "line": 220,
+    "before": "d.setAbndProgram(Cobol.text(Field.alphanumeric(s, base + 46, 8, false), CS));",
+    "after": "/* d.setAbndProgram(Cobol.text(Field.alphanumeric(s, base + 46, 8, false), CS)); */",
+    "verdict": "equivalent",
+    "reason": "ABNDPROC never writes DFHCOMMAREA, so on the way back each fill_ setter stores the value in_ took from the same DTO field (ABND-PROGRAM), padded to the field's width; without it the DTO keeps the caller's value -- the same COMMAREA bytes once laid out as the record, which is what a caller receives"
+   },
+   {
+    "id": "6d7db4b6bc",
+    "op": "DEL",
+    "line": 224,
+    "before": "d.setAbndFreeform(Cobol.text(Field.alphanumeric(s, base + 81, 600, false), CS));",
+    "after": "/* d.setAbndFreeform(Cobol.text(Field.alphanumeric(s, base + 81, 600, false), CS)); */",
+    "verdict": "equivalent",
+    "reason": "ABNDPROC never writes DFHCOMMAREA, so on the way back each fill_ setter stores the value in_ took from the same DTO field (ABND-FREEFORM), padded to the field's width; without it the DTO keeps the caller's value -- the same COMMAREA bytes once laid out as the record, which is what a caller receives"
+   },
+   {
+    "id": "4e9a928bcf",
+    "op": "DEL",
+    "line": 229,
+    "before": "fill_AbndprocDfhcommarea(d, s, base);",
+    "after": "/* fill_AbndprocDfhcommarea(d, s, base); */",
+    "verdict": "unreachable",
+    "reason": "out_AbndprocDfhcommarea has no caller in the port: ABNDPROC is entered by LINK only (runTask / handleLink write the caller's DTO back through caBack -> fill_, never out_)"
+   },
+   {
+    "id": "085f5d9663",
+    "op": "DEL",
+    "line": 250,
+    "before": "System.arraycopy(IMAGE_s_DB2_DATE_REFORMAT, 0, s_DB2_DATE_REFORMAT.bytes, 0, IMAGE_s_DB2_DATE_REFORMAT.length);",
+    "after": "/* System.arraycopy(IMAGE_s_DB2_DATE_REFORMAT, 0, s_DB2_DATE_REFORMAT.bytes, 0, IMAGE_s_DB2_DATE_REFORMAT.length); */",
+    "verdict": "equivalent",
+    "reason": "ABNDPROC's PROCEDURE DIVISION (A010, GET-ME-OUT-OF-HERE) reads only DFHCOMMAREA, WS-ABND-AREA and WS-CICS-RESP; DB2-DATE-REFORMAT is never read in a task, so its initial bytes cannot show"
+   },
+   {
+    "id": "1888861905",
+    "op": "DEL",
+    "line": 252,
+    "before": "System.arraycopy(IMAGE_s_WS_EIBTASKN12, 0, s_WS_EIBTASKN12.bytes, 0, IMAGE_s_WS_EIBTASKN12.length);",
+    "after": "/* System.arraycopy(IMAGE_s_WS_EIBTASKN12, 0, s_WS_EIBTASKN12.bytes, 0, IMAGE_s_WS_EIBTASKN12.length); */",
+    "verdict": "equivalent",
+    "reason": "ABNDPROC's PROCEDURE DIVISION (A010, GET-ME-OUT-OF-HERE) reads only DFHCOMMAREA, WS-ABND-AREA and WS-CICS-RESP; WS-EIBTASKN12 is never read in a task, so its VALUE 0 cannot show"
+   },
+   {
+    "id": "f1056e13eb",
+    "op": "DEL",
+    "line": 253,
+    "before": "System.arraycopy(IMAGE_s_WS_SQLCODE_DISP, 0, s_WS_SQLCODE_DISP.bytes, 0, IMAGE_s_WS_SQLCODE_DISP.length);",
+    "after": "/* System.arraycopy(IMAGE_s_WS_SQLCODE_DISP, 0, s_WS_SQLCODE_DISP.bytes, 0, IMAGE_s_WS_SQLCODE_DISP.length); */",
+    "verdict": "equivalent",
+    "reason": "ABNDPROC's PROCEDURE DIVISION (A010, GET-ME-OUT-OF-HERE) reads only DFHCOMMAREA, WS-ABND-AREA and WS-CICS-RESP; WS-SQLCODE-DISP is never read in a task, so its VALUE 0 cannot show"
+   },
+   {
+    "id": "fd46110f6e",
+    "op": "DEL",
+    "line": 255,
+    "before": "System.arraycopy(IMAGE_s_WS_ORIG_DATE, 0, s_WS_ORIG_DATE.bytes, 0, IMAGE_s_WS_ORIG_DATE.length);",
+    "after": "/* System.arraycopy(IMAGE_s_WS_ORIG_DATE, 0, s_WS_ORIG_DATE.bytes, 0, IMAGE_s_WS_ORIG_DATE.length); */",
+    "verdict": "equivalent",
+    "reason": "ABNDPROC's PROCEDURE DIVISION (A010, GET-ME-OUT-OF-HERE) reads only DFHCOMMAREA, WS-ABND-AREA and WS-CICS-RESP; WS-ORIG-DATE is never read in a task, so its initial bytes cannot show"
+   },
+   {
+    "id": "21895d05a7",
+    "op": "DEL",
+    "line": 261,
+    "before": "System.arraycopy(IMAGE_s_SQLCODE_DISPLAY, 0, s_SQLCODE_DISPLAY.bytes, 0, IMAGE_s_SQLCODE_DISPLAY.length);",
+    "after": "/* System.arraycopy(IMAGE_s_SQLCODE_DISPLAY, 0, s_SQLCODE_DISPLAY.bytes, 0, IMAGE_s_SQLCODE_DISPLAY.length); */",
+    "verdict": "equivalent",
+    "reason": "ABNDPROC's PROCEDURE DIVISION (A010, GET-ME-OUT-OF-HERE) reads only DFHCOMMAREA, WS-ABND-AREA and WS-CICS-RESP; SQLCODE-DISPLAY is never read in a task, so its initial bytes cannot show"
+   },
+   {
+    "id": "9f1eda0f5b",
+    "op": "DEL",
+    "line": 264,
+    "before": "System.arraycopy(IMAGE_s_DFHEIBLK, 0, s_DFHEIBLK.bytes, 0, IMAGE_s_DFHEIBLK.length);",
+    "after": "/* System.arraycopy(IMAGE_s_DFHEIBLK, 0, s_DFHEIBLK.bytes, 0, IMAGE_s_DFHEIBLK.length); */",
+    "verdict": "equivalent",
+    "reason": "ABNDPROC's PROCEDURE DIVISION (A010, GET-ME-OUT-OF-HERE) reads only DFHCOMMAREA, WS-ABND-AREA and WS-CICS-RESP; the EIB (no EIB field is referenced) is never read in a task, so its initial bytes cannot show"
+   },
+   {
+    "id": "cda287752e",
+    "op": "DEL",
+    "line": 266,
+    "before": "f18_WS_ABND_KEY_LEN = 12L;",
+    "after": "/* f18_WS_ABND_KEY_LEN = 12L; */",
+    "verdict": "equivalent",
+    "reason": "ABNDPROC's PROCEDURE DIVISION (A010, GET-ME-OUT-OF-HERE) reads only DFHCOMMAREA, WS-ABND-AREA and WS-CICS-RESP; WS-ABND-KEY-LEN (VALUE +12; the WRITE has no KEYLENGTH) is never read in a task, so its VALUE cannot show"
+   },
+   {
+    "id": "3c407d6314",
+    "op": "DEL",
+    "line": 290,
+    "before": "heldKey.clear();",
+    "after": "/* heldKey.clear(); */",
+    "verdict": "equivalent",
+    "reason": "heldKey holds a READ UPDATE's key for a later REWRITE / DELETE; ABNDPROC issues neither, so it is never read"
+   },
+   {
+    "id": "1fe99b735a",
+    "op": "DEL",
+    "line": 291,
+    "before": "initialState();",
+    "after": "/* initialState(); */",
+    "verdict": "equivalent",
+    "reason": "without initialState() the storage starts as the previous task left it (or zeros); every item ABNDPROC reads is written first in each task -- WS-ABND-AREA by the MOVE, WS-CICS-RESP / RESP2 by the WRITE's RESP, DFHCOMMAREA from the caller -- so no VALUE clause can show"
+   },
+   {
+    "id": "fdf6f584fa",
+    "op": "DEL",
+    "line": 294,
+    "before": "Cobol.store(f77_EIBTASKN, BigDecimal.valueOf(task.taskNumber()), false, CS);",
+    "after": "/* Cobol.store(f77_EIBTASKN, BigDecimal.valueOf(task.taskNumber()), false, CS); */",
+    "verdict": "equivalent",
+    "reason": "ABNDPROC's PROCEDURE DIVISION (A010, GET-ME-OUT-OF-HERE) reads only DFHCOMMAREA, WS-ABND-AREA and WS-CICS-RESP; the EIB (no EIB field is referenced) is never read in a task, so its EIBTASKN cannot show"
+   },
+   {
+    "id": "0978bd77a2",
+    "op": "CON",
+    "line": 296,
+    "before": "Cobol.store(f75_EIBDATE, BigDecimal.valueOf((now.getYear() - 1900) * 1000L + now.getDayOfYear()), false, CS);",
+    "after": "Cobol.store(f75_EIBDATE, BigDecimal.valueOf((now.getYear() - 1901) * 1000L + now.getDayOfYear()), false, CS);",
+    "verdict": "equivalent",
+    "reason": "ABNDPROC's PROCEDURE DIVISION (A010, GET-ME-OUT-OF-HERE) reads only DFHCOMMAREA, WS-ABND-AREA and WS-CICS-RESP; the EIB (no EIB field is referenced) is never read in a task, so its EIBDATE cannot show"
+   },
+   {
+    "id": "69e9be824f",
+    "op": "AOR",
+    "line": 296,
+    "before": "Cobol.store(f75_EIBDATE, BigDecimal.valueOf((now.getYear() - 1900) * 1000L + now.getDayOfYear()), false, CS);",
+    "after": "Cobol.store(f75_EIBDATE, BigDecimal.valueOf((now.getYear() - 1900) / 1000L + now.getDayOfYear()), false, CS);",
+    "verdict": "equivalent",
+    "reason": "ABNDPROC's PROCEDURE DIVISION (A010, GET-ME-OUT-OF-HERE) reads only DFHCOMMAREA, WS-ABND-AREA and WS-CICS-RESP; the EIB (no EIB field is referenced) is never read in a task, so its EIBDATE cannot show"
+   },
+   {
+    "id": "9840f847a9",
+    "op": "AOR",
+    "line": 296,
+    "before": "Cobol.store(f75_EIBDATE, BigDecimal.valueOf((now.getYear() - 1900) * 1000L + now.getDayOfYear()), false, CS);",
+    "after": "Cobol.store(f75_EIBDATE, BigDecimal.valueOf((now.getYear() - 1900) * 1000L - now.getDayOfYear()), false, CS);",
+    "verdict": "equivalent",
+    "reason": "ABNDPROC's PROCEDURE DIVISION (A010, GET-ME-OUT-OF-HERE) reads only DFHCOMMAREA, WS-ABND-AREA and WS-CICS-RESP; the EIB (no EIB field is referenced) is never read in a task, so its EIBDATE cannot show"
+   },
+   {
+    "id": "a877eb87ce",
+    "op": "AOR",
+    "line": 296,
+    "before": "Cobol.store(f75_EIBDATE, BigDecimal.valueOf((now.getYear() - 1900) * 1000L + now.getDayOfYear()), false, CS);",
+    "after": "Cobol.store(f75_EIBDATE, BigDecimal.valueOf((now.getYear() + 1900) * 1000L + now.getDayOfYear()), false, CS);",
+    "verdict": "equivalent",
+    "reason": "ABNDPROC's PROCEDURE DIVISION (A010, GET-ME-OUT-OF-HERE) reads only DFHCOMMAREA, WS-ABND-AREA and WS-CICS-RESP; the EIB (no EIB field is referenced) is never read in a task, so its EIBDATE cannot show"
+   },
+   {
+    "id": "44d5c65f38",
+    "op": "DEL",
+    "line": 297,
+    "before": "Cobol.store(f74_EIBTIME, BigDecimal.valueOf(now.getHour() * 10000L + now.getMinute() * 100L + now.getSecond()), false, CS);",
+    "after": "/* Cobol.store(f74_EIBTIME, BigDecimal.valueOf(now.getHour() * 10000L + now.getMinute() * 100L + now.getSecond()), false, CS); */",
+    "verdict": "equivalent",
+    "reason": "ABNDPROC's PROCEDURE DIVISION (A010, GET-ME-OUT-OF-HERE) reads only DFHCOMMAREA, WS-ABND-AREA and WS-CICS-RESP; the EIB (no EIB field is referenced) is never read in a task, so its EIBTIME cannot show"
+   },
+   {
+    "id": "bf1a7de187",
+    "op": "AOR",
+    "line": 297,
+    "before": "Cobol.store(f74_EIBTIME, BigDecimal.valueOf(now.getHour() * 10000L + now.getMinute() * 100L + now.getSecond()), false, CS);",
+    "after": "Cobol.store(f74_EIBTIME, BigDecimal.valueOf(now.getHour() / 10000L + now.getMinute() * 100L + now.getSecond()), false, CS);",
+    "verdict": "equivalent",
+    "reason": "ABNDPROC's PROCEDURE DIVISION (A010, GET-ME-OUT-OF-HERE) reads only DFHCOMMAREA, WS-ABND-AREA and WS-CICS-RESP; the EIB (no EIB field is referenced) is never read in a task, so its EIBTIME cannot show"
+   },
+   {
+    "id": "da931bad20",
+    "op": "AOR",
+    "line": 297,
+    "before": "Cobol.store(f74_EIBTIME, BigDecimal.valueOf(now.getHour() * 10000L + now.getMinute() * 100L + now.getSecond()), false, CS);",
+    "after": "Cobol.store(f74_EIBTIME, BigDecimal.valueOf(now.getHour() * 10000L + now.getMinute() * 100L - now.getSecond()), false, CS);",
+    "verdict": "equivalent",
+    "reason": "ABNDPROC's PROCEDURE DIVISION (A010, GET-ME-OUT-OF-HERE) reads only DFHCOMMAREA, WS-ABND-AREA and WS-CICS-RESP; the EIB (no EIB field is referenced) is never read in a task, so its EIBTIME cannot show"
+   },
+   {
+    "id": "f4cf454ccc",
+    "op": "AOR",
+    "line": 297,
+    "before": "Cobol.store(f74_EIBTIME, BigDecimal.valueOf(now.getHour() * 10000L + now.getMinute() * 100L + now.getSecond()), false, CS);",
+    "after": "Cobol.store(f74_EIBTIME, BigDecimal.valueOf(now.getHour() * 10000L + now.getMinute() / 100L + now.getSecond()), false, CS);",
+    "verdict": "equivalent",
+    "reason": "ABNDPROC's PROCEDURE DIVISION (A010, GET-ME-OUT-OF-HERE) reads only DFHCOMMAREA, WS-ABND-AREA and WS-CICS-RESP; the EIB (no EIB field is referenced) is never read in a task, so its EIBTIME cannot show"
+   },
+   {
+    "id": "b4f0f93053",
+    "op": "ROR",
+    "line": 298,
+    "before": "switch (task.aid() == null ? \"\" : task.aid()) {",
+    "after": "switch (task.aid() != null ? \"\" : task.aid()) {",
+    "verdict": "equivalent",
+    "reason": "the switch has only an empty default arm, so the value switched on matters only if it is null (a NullPointerException); the mutant switches on task.aid() when it is non-null, and task.aid() is never null (EquivalenceRunTest gives a task the scenario's AID, a LINKed task takes its caller's: CicsTask `this.aid = caller.aid`)"
+   },
+   {
+    "id": "4472cebe80",
+    "op": "DEL",
+    "line": 310,
+    "before": "System.arraycopy(raw, 0, s_DFHCOMMAREA.bytes, 0, Math.min(raw.length, s_DFHCOMMAREA.bytes.length));",
+    "after": "/* System.arraycopy(raw, 0, s_DFHCOMMAREA.bytes, 0, Math.min(raw.length, s_DFHCOMMAREA.bytes.length)); */",
+    "verdict": "case-gap",
+    "reason": "task.linkArea() is non-null only when a det-port program LINKs ABNDPROC with its COMMAREA's bytes (CicsTask.link); the case starts ABNDPROC directly with a DTO COMMAREA, so the raw-area copy never runs. Killed by a case where a CBSA caller's det port LINKs ABNDPROC (its abend path)"
+   },
+   {
+    "id": "635e9ee4c5",
+    "op": "CON",
+    "line": 310,
+    "before": "System.arraycopy(raw, 0, s_DFHCOMMAREA.bytes, 0, Math.min(raw.length, s_DFHCOMMAREA.bytes.length));",
+    "after": "System.arraycopy(raw, 1, s_DFHCOMMAREA.bytes, 0, Math.min(raw.length, s_DFHCOMMAREA.bytes.length));",
+    "verdict": "case-gap",
+    "reason": "task.linkArea() is non-null only when a det-port program LINKs ABNDPROC with its COMMAREA's bytes (CicsTask.link); the case starts ABNDPROC directly with a DTO COMMAREA, so the raw-area copy never runs. Killed by a case where a CBSA caller's det port LINKs ABNDPROC (its abend path)"
+   },
+   {
+    "id": "ac260f5743",
+    "op": "CON",
+    "line": 316,
+    "before": "perform(0, 5);",
+    "after": "perform(1, 5);",
+    "verdict": "equivalent",
+    "reason": "paragraph 0 is PREMIERE, the empty section header: p0 does nothing and returns 1 (A010), so PERFORM 1 THRU 5 runs the same paragraphs"
+   },
+   {
+    "id": "d297abe39c",
+    "op": "DEL",
+    "line": 325,
+    "before": "Cobol.swapTruncBinary(truncBefore);",
+    "after": "/* Cobol.swapTruncBinary(truncBefore); */",
+    "verdict": "equivalent",
+    "reason": "the restore of the TRUNC mode in runTask's finally matters only to code that runs after the task in the same JVM under another mode; ABNDPROC's callers are CBSA programs, each translated with the same TRUNC(STD) (the cases' compiler options) and setting it on entry, so the mode left behind is the one they run under"
+   },
+   {
+    "id": "9503254686",
+    "op": "DEL",
+    "line": 394,
+    "before": "performThru = java.util.Arrays.copyOf(performThru, mine * 2);",
+    "after": "/* performThru = java.util.Arrays.copyOf(performThru, mine * 2); */",
+    "verdict": "unreachable",
+    "reason": "performThru grows only at a PERFORM nesting depth of 64; ABNDPROC nests at most 2 (runTask's 0-5, A010's PERFORM GET-ME-OUT-OF-HERE)"
+   },
+   {
+    "id": "e8b67fd854",
+    "op": "NEG",
+    "line": 403,
+    "before": "if (!jumped) {",
+    "after": "if (!(!jumped)) {",
+    "verdict": "equivalent",
+    "reason": "every path of ABNDPROC ends in EXEC CICS RETURN (A010's error branch or GMOOH010), a Goback, before control reaches GMOOH999, the end of either PERFORM range (0-5 from runTask, 3-5 from A010); there is no GO TO, so the end-of-range checks this test guards never find a range end (`i == thru` or an outer range's last paragraph) to act on"
+   },
+   {
+    "id": "d6744d7f6a",
+    "op": "DEL",
+    "line": 405,
+    "before": "return;",
+    "after": "/* return; */",
+    "verdict": "unreachable",
+    "reason": "every path of ABNDPROC ends in EXEC CICS RETURN (A010's error branch or GMOOH010), a Goback, before control reaches GMOOH999, the end of either PERFORM range (0-5 from runTask, 3-5 from A010); there is no GO TO, so `i == thru` is never true and this return never runs"
+   },
+   {
+    "id": "21022a87a0",
+    "op": "ROR",
+    "line": 407,
+    "before": "for (int d = mine - 1; d >= 0; d--) {",
+    "after": "for (int d = mine - 1; d > 0; d--) {",
+    "verdict": "equivalent",
+    "reason": "every path of ABNDPROC ends in EXEC CICS RETURN (A010's error branch or GMOOH010), a Goback, before control reaches GMOOH999, the end of either PERFORM range (0-5 from runTask, 3-5 from A010); there is no GO TO, so the outer range's last paragraph (5) is never the paragraph just run, and skipping depth 0 in the scan changes nothing"
+   },
+   {
+    "id": "0dceef4c25",
+    "op": "NEG",
+    "line": 408,
+    "before": "if (performThru[d] == i) {",
+    "after": "if (!(performThru[d] == i)) {",
+    "verdict": "equivalent",
+    "reason": "negated, the scan throws PerformExit(0) when GET-ME-OUT-OF-HERE (3) returns, ending the outer PERFORM; runTask then ends the task as for a GOBACK (caBack, returnTransid) -- the same COMMAREA write-back and RETURN event GMOOH010's EXEC CICS RETURN gives, with no file or COMMAREA change between"
+   },
+   {
+    "id": "df34326557",
+    "op": "ROR",
+    "line": 408,
+    "before": "if (performThru[d] == i) {",
+    "after": "if (performThru[d] != i) {",
+    "verdict": "equivalent",
+    "reason": "`!=` for `==`: the scan throws PerformExit(0) when GET-ME-OUT-OF-HERE (3) returns, ending the outer PERFORM; runTask then ends the task as for a GOBACK (caBack, returnTransid) -- the same COMMAREA write-back and RETURN event GMOOH010's EXEC CICS RETURN gives, with no file or COMMAREA change between"
+   },
+   {
+    "id": "55856dead6",
+    "op": "ROR",
+    "line": 413,
+    "before": "if (next >= 6) {",
+    "after": "if (next > 6) {",
+    "verdict": "equivalent",
+    "reason": "every path of ABNDPROC ends in EXEC CICS RETURN (A010's error branch or GMOOH010), a Goback, before control reaches GMOOH999, the end of either PERFORM range (0-5 from runTask, 3-5 from A010); there is no GO TO, so no paragraph returns 6 (only GMOOH999, which never runs), so `next >= 6` and `next > 6` agree"
+   },
+   {
+    "id": "2703a8a73f",
+    "op": "ROR",
+    "line": 419,
+    "before": "if (e.depth != mine) {",
+    "after": "if (e.depth == mine) {",
+    "verdict": "unreachable",
+    "reason": "every path of ABNDPROC ends in EXEC CICS RETURN (A010's error branch or GMOOH010), a Goback, before control reaches GMOOH999, the end of either PERFORM range (0-5 from runTask, 3-5 from A010); there is no GO TO, so no PerformExit is ever thrown, and this catch never runs"
+   },
+   {
+    "id": "57d8257dd3",
+    "op": "NEG",
+    "line": 419,
+    "before": "if (e.depth != mine) {",
+    "after": "if (!(e.depth != mine)) {",
+    "verdict": "unreachable",
+    "reason": "every path of ABNDPROC ends in EXEC CICS RETURN (A010's error branch or GMOOH010), a Goback, before control reaches GMOOH999, the end of either PERFORM range (0-5 from runTask, 3-5 from A010); there is no GO TO, so no PerformExit is ever thrown, and this catch never runs"
+   },
+   {
+    "id": "4b8000cc76",
+    "op": "LIT",
+    "line": 435,
+    "before": "default: throw new IllegalStateException(\"paragraph \" + i);",
+    "after": "default: throw new IllegalStateException(\"Xaragraph \" + i);",
+    "verdict": "unreachable",
+    "reason": "run()'s default arm: paragraph numbers are 0-5 by construction (the translator's own; `next >= 6` ends the program first)"
+   },
+   {
+    "id": "4f2f93e07d",
+    "op": "NEG",
+    "line": 456,
+    "before": "if (!(Cobol.num(f2_WS_CICS_RESP, CS).compareTo(D0) == 0)) {",
+    "after": "if (!(!(Cobol.num(f2_WS_CICS_RESP, CS).compareTo(D0) == 0))) {",
+    "verdict": "harness-gap",
+    "reason": "the error branch's DISPLAY lines are the only output that differs: on z/OS they go to the job log (CEEMSG), but the CICS harness does not compare a task's DISPLAY output (cbsa-abndproc case notes; #4635); negated, the normal path DISPLAYs and RETURNs, the error path PERFORMs GET-ME-OUT-OF-HERE and RETURNs: the same RETURN, file and COMMAREA either way"
+   },
+   {
+    "id": "5014504153",
+    "op": "LIT",
+    "line": 462,
+    "before": "Sysout.display(\"RESP=\", Cobol.displayText(f2_WS_CICS_RESP, CS), \" RESP2=\", Cobol.displayText(f3_WS_CICS_RESP2, CS));",
+    "after": "Sysout.display(\"RESP=\", Cobol.displayText(f2_WS_CICS_RESP, CS), \"XRESP2=\", Cobol.displayText(f3_WS_CICS_RESP2, CS));",
+    "verdict": "harness-gap",
+    "reason": "the error branch's DISPLAY lines are the only output that differs: on z/OS they go to the job log (CEEMSG), but the CICS harness does not compare a task's DISPLAY output (cbsa-abndproc case notes; #4635); this changes the text of `DISPLAY 'RESP=' ... ' RESP2=' ...`"
+   },
+   {
+    "id": "f758c610d2",
+    "op": "LIT",
+    "line": 464,
+    "before": "Sysout.display(\"*********************************************\");",
+    "after": "Sysout.display(\"X********************************************\");",
+    "verdict": "harness-gap",
+    "reason": "the error branch's DISPLAY lines are the only output that differs: on z/OS they go to the job log (CEEMSG), but the CICS harness does not compare a task's DISPLAY output (cbsa-abndproc case notes; #4635); this changes the text of the banner DISPLAY"
+   },
+   {
+    "id": "8357b89a0d",
+    "op": "DEL",
+    "line": 467,
+    "before": "task.returnTransid(null, null);",
+    "after": "/* task.returnTransid(null, null); */",
+    "verdict": "equivalent",
+    "reason": "the error branch's RETURN without its returnTransid: the Goback that follows ends the program, and runTask ends a task not yet ended exactly as RETURN does (caBack.run(), returnTransid(null, null)); caBack is idempotent (fill_ stores the same values)"
+   },
+   {
+    "id": "cda2b4a7cd",
+    "op": "DEL",
+    "line": 471,
+    "before": "perform(3, 5);",
+    "after": "/* perform(3, 5); */",
+    "verdict": "equivalent",
+    "reason": "without PERFORM GET-ME-OUT-OF-HERE control falls through A999 (EXIT) into GET-ME-OUT-OF-HERE's GMOOH010 and its EXEC CICS RETURN: the same statements in the same order (the PERFORM never returns)"
+   },
+   {
+    "id": "0a9d71e8c3",
+    "op": "NEG",
+    "line": 492,
+    "before": "if (true) throw new Goback();",
+    "after": "if (!(true)) throw new Goback();",
+    "verdict": "equivalent",
+    "reason": "GMOOH010's EXEC CICS RETURN without its throw: the next statement, GOBACK, throws the same Goback with nothing between"
+   },
+   {
+    "id": "798d6a9bc4",
+    "op": "NEG",
+    "line": 494,
+    "before": "if (true) throw new Goback();",
+    "after": "if (!(true)) throw new Goback();",
+    "verdict": "unreachable",
+    "reason": "GMOOH010's GOBACK follows EXEC CICS RETURN, whose Goback has already ended the program: the statement never runs"
+   }
+  ]
+ }
+}

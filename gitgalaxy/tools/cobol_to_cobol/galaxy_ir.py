@@ -349,6 +349,13 @@ class EngineDataItem:
     # before the digits when `sign_leading` (SIGN LEADING SEPARATE), else after them.
     sign_separate: bool = False
     sign_leading: bool = False
+    # #4266: SYNCHRONIZED ('SYNC' / 'SYNC LEFT' / 'SYNC RIGHT'; None without it) -- a binary, floating or
+    # pointer item then starts on its boundary, after slack bytes (_sync_boundary); JUSTIFIED and BLANK
+    # WHEN ZERO as coded; a 66 entry's RENAMES operands (`A` / `A THRU B`, qualifiers as `X OF Y`).
+    sync: str | None = None
+    justified: bool = False
+    blank_when_zero: bool = False
+    renames: str | None = None
     # #3820: {symbol: currency string} for each declared currency symbol the PIC
     # uses; a string of None means the estate declares that symbol with different
     # strings, so its width is unknown. Empty when the PIC uses none.
@@ -2231,6 +2238,7 @@ class GalaxyIR:
                                 size += wide - region[1]
                                 region[1] = wide
                         continue
+                    size += _slack(kid, usage, offset + size)  # #4266: SYNCHRONIZED
                     kid_width = _walk(kid_file, kid, offset + size, kid_depth, sink, usage)
                     region = [offset + size, kid_width, kid.name.upper()]
                     size += kid_width
@@ -4924,6 +4932,8 @@ class GalaxyIR:
                             size = None if size is None else size + wide - region[1]
                             region[1] = wide
                         continue
+                    if size is not None:
+                        size += _slack(kid, usage, offset + size)  # #4266: SYNCHRONIZED
                     at[kid.name.upper()] = offset + (size or 0)
                     width = walk(kid_file, kid, key, offset + (size or 0), depth + 1, None, (it.name, *path), usage)
                     region = [kid.name.upper(), width]
@@ -4978,11 +4988,56 @@ class GalaxyIR:
                 if id(root) not in spans:
                     ext = self._copy_extension(ef, cb) if roots[-1:] == [root] else None
                     walk(cb, root, (cb.file_path, root.name, None), 0, 0, ext, ())
+        self._renames_spans(ef, spans, paths, placed)
         cache[(ef.file_path, id(ef))] = (spans, ef)  # ef held so its id is never reused
         self.__dict__.setdefault("_span_paths", {})[ef.file_path] = paths
         self.__dict__.setdefault("_span_items", {})[ef.file_path] = items
         self.__dict__.setdefault("_span_placed", {})[ef.file_path] = placed
         return spans
+
+    def _renames_spans(self, ef: EngineFile, spans: dict, paths: dict, placed: dict) -> None:
+        """#4266: lay out each 66 RENAMES entry `ef` can see as the byte range it names -- from the first
+        byte of `A` to the last of `B` (`RENAMES A THRU B`), or `A`'s own bytes (`RENAMES A`) -- in the
+        record the entry ends (the 01 it follows). Each operand must name exactly one placed item of
+        that record (its qualifiers matched against the storage ancestors, as `_operand_span` does);
+        otherwise the entry stays unplaced. The entry answers to its own name, qualified by its record."""
+        owners = [ef] + [
+            cb for cb in self._copy_files(ef) if nfc(Path(cb.file_path).stem.upper()) not in ef.replaced_members
+        ]
+        for owner in owners:
+            entries = [*owner.data_items, *owner.copied_items]
+            by_ordinal = {it.ordinal: it for it in entries}
+            for it in entries:
+                if it.level != 66 or not it.renames:
+                    continue
+                root, hops = by_ordinal.get(it.parent_ordinal), 0
+                while root is not None and root.parent_ordinal is not None and hops < 64:
+                    root, hops = by_ordinal.get(root.parent_ordinal), hops + 1
+                if root is None or id(root) not in spans:
+                    continue
+                key = spans[id(root)][0]
+                ends = []
+                for operand in it.renames.split(" THRU "):
+                    parts = operand.split(" OF ")
+                    hits = {
+                        sp
+                        for at in placed.values()
+                        for x, sp, path in at
+                        if x.name == parts[0]
+                        and x.level not in (66, 88)
+                        and sp[0] == key
+                        and _in_order(parts[1:], path)
+                    }
+                    if len(hits) != 1:
+                        break
+                    ends.append(next(iter(hits)))
+                else:
+                    (_, start, first, _), (_, last_at, last, _) = ends[0], ends[-1]
+                    width = None if first is None or last is None or last_at < start else last_at + last - start
+                    span = (key, start, width, width)
+                    spans[id(it)] = span
+                    paths[id(it)] = (root.name,)
+                    placed.setdefault(id(it), []).append((it, span, (root.name,)))
 
     def _name_at(self, file_path: str, span: dict) -> Optional[str]:
         """The most specific item of program `file_path` at `span`: the deepest one
@@ -5037,7 +5092,7 @@ class GalaxyIR:
                     (it, sp)
                     for at in self.__dict__["_span_placed"][ef.file_path].values()
                     for it, sp, path in at
-                    if it.name == parts[0] and it.level not in (66, 88) and _in_order(parts[1:], path) and visible(sp)
+                    if it.name == parts[0] and it.level != 88 and _in_order(parts[1:], path) and visible(sp)
                 ]
             if program:
                 # Every placement in the program's own storage: a copybook COPYed by several
@@ -5047,8 +5102,16 @@ class GalaxyIR:
                 for _, it, _ in self._find_item(ef, parts[0], None, program, exact=True):
                     at = [sp for _, sp, _ in placed.get(id(it), []) if visible(sp)]
                     out += [(it, sp) for sp in at] if at else ([] if placed.get(id(it)) else [(it, None)])
-                return out
-            return [(it, spans.get(id(it))) for _, it, _ in self._find_item(ef, parts[0], None)]
+                cands = out
+            else:
+                cands = [(it, spans.get(id(it))) for _, it, _ in self._find_item(ef, parts[0], None)]
+            # #4266: a 66 RENAMES entry `_storage_spans` placed answers to its name too.
+            return cands or [
+                (it, sp)
+                for at in self.__dict__["_span_placed"][ef.file_path].values()
+                for it, sp, _ in at
+                if it.level == 66 and it.name == parts[0] and visible(sp)
+            ]
 
         found: list = []
         for scope in self._program_scope(ef, program):  # the program, then its GLOBAL candidates
@@ -5628,6 +5691,32 @@ def _item_class(item: EngineDataItem, inherited: str | None = None) -> str:
     return "9"
 
 
+def _sync_boundary(item: EngineDataItem, usage: str | None) -> int:
+    """#4266: the boundary a SYNCHRONIZED elementary item starts on, in bytes from the start of its record
+    (which is doubleword-aligned), per IBM Enterprise COBOL's SYNCHRONIZED clause: a binary item of up to 4
+    digits a halfword, of more a fullword (an 8-byte S9(10)-S9(18) one too); COMP-1, INDEX and the
+    pointers a fullword (LP(32)); COMP-2 a doubleword. 1 -- no slack -- for any other item (DISPLAY,
+    packed, national: SYNC is documentation there), a group, PL/I, or no SYNC at all."""
+    if not item.sync or item.attributes is not None or not _is_elementary(item, usage):
+        return 1
+    u = (usage or "DISPLAY").upper()
+    if u in ("COMP-2", "COMPUTATIONAL-2"):
+        return 8
+    if u in ("COMP-1", "COMPUTATIONAL-1", "INDEX", "POINTER", "PROCEDURE-POINTER", "FUNCTION-POINTER"):
+        return 4
+    if item.pic and _item_class(item, usage) == "B":
+        width = _elementary_bytes(item, usage)
+        return 1 if width is None else 2 if width <= 2 else 4
+    return 1
+
+
+def _slack(item: EngineDataItem, inherited: str | None, at: int) -> int:
+    """#4266: the slack bytes the compiler puts before `item` when it would start at record offset
+    `at` (0 unless it is SYNCHRONIZED and `at` is off its boundary). `inherited` is the enclosing
+    group's USAGE (#4525). Slack between the occurrences of a table is not modelled."""
+    return -at % _sync_boundary(item, _usage_under(item, inherited))
+
+
 def _elementary_bytes(item: EngineDataItem, inherited: str | None = None) -> int | None:
     """One occurrence's storage width of an elementary item, or None when unknown.
     `inherited` is the enclosing group's USAGE (#4525), used when the item has none."""
@@ -6009,6 +6098,11 @@ def load_galaxy_ir(db_path: Path, repo_name: Optional[str] = None) -> GalaxyIR:
             # #4265: `copy_libraries` likewise.
             lib_col = "copy_libraries" if _has_column(cur, "record_data", "copy_libraries") else "NULL"
             repl_col = "copy_replacing" if _has_column(cur, "record_data", "copy_replacing") else "NULL"
+            # #4266: SYNC / JUSTIFIED / BLANK WHEN ZERO / RENAMES likewise (an older DB lays out no slack bytes).
+            layout_cols = ", ".join(
+                c if _has_column(cur, "record_data", c) else "NULL"
+                for c in ("sync", "justified", "blank_when_zero", "renames")
+            )
             for (
                 file_id,
                 ordinal,
@@ -6030,10 +6124,14 @@ def load_galaxy_ir(db_path: Path, repo_name: Optional[str] = None) -> GalaxyIR:
                 sign_sep,
                 copy_libs,
                 copy_repl,
+                sync,
+                justified,
+                blank_zero,
+                renames,
             ) in cur.execute(
                 "SELECT file_id, ordinal, parent_ordinal, level_number, item_name, section, fd_name, pic, "  # noqa: S608 -- attributes_col is one of two literals; values are bound
                 "usage, occurs_min, occurs_max, occurs_depending_on, redefines, value_literal, line_number, "
-                f"{attributes_col}, {copy_col}, {sign_col}, {lib_col}, {repl_col} FROM record_data "
+                f"{attributes_col}, {copy_col}, {sign_col}, {lib_col}, {repl_col}, {layout_cols} FROM record_data "
                 "WHERE repo_name = ? AND commit_hash = ? "
                 "ORDER BY file_id, ordinal",
                 (repo_name, commit_hash),
@@ -6062,6 +6160,10 @@ def load_galaxy_ir(db_path: Path, repo_name: Optional[str] = None) -> GalaxyIR:
                         sign_leading=sign_sep == 2,
                         copy_libraries=copy_libs,
                         copy_replacing=copy_repl,
+                        sync=sync or None,
+                        justified=bool(justified),
+                        blank_when_zero=bool(blank_zero),
+                        renames=renames or None,
                     )
                 )
             # Thread children onto parents and collect the roots. `data_items` is

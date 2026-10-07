@@ -1096,6 +1096,10 @@ class RecordKeeper:
                 sign_separate INTEGER,
                 copy_libraries TEXT,
                 copy_replacing TEXT,
+                sync TEXT,
+                justified INTEGER,
+                blank_when_zero INTEGER,
+                renames TEXT,
                 FOREIGN KEY(file_id) REFERENCES file_data(id) ON DELETE CASCADE
             )
         """)
@@ -1119,6 +1123,13 @@ class RecordKeeper:
         # pseudo-text as written minus its `==` delimiters. NULL when no COPY on the entry replaces
         # anything. The copybook keeps its own (tagged) names; the reader applies the REPLACING.
         _ensure_columns(cursor, "record_data", ["copy_replacing TEXT"])
+        # #4266: `sync` -- 'SYNC' / 'SYNC LEFT' / 'SYNC RIGHT' when a COBOL item codes SYNCHRONIZED (slack
+        # bytes before it are the reader's job, galaxy_ir); `justified` / `blank_when_zero` -- 1 when it codes
+        # JUSTIFIED / BLANK WHEN ZERO; `renames` -- a 66 entry's `A [THRU B]` (qualifiers as `X OF Y`).
+        # All NULL otherwise.
+        _ensure_columns(
+            cursor, "record_data", ["sync TEXT", "justified INTEGER", "blank_when_zero INTEGER", "renames TEXT"]
+        )
         cursor.execute("CREATE INDEX IF NOT EXISTS idx_record_file_id ON record_data(file_id);")
         cursor.execute("CREATE INDEX IF NOT EXISTS idx_record_snapshot ON record_data(repo_name, commit_hash);")
 
@@ -3054,6 +3065,10 @@ class RecordKeeper:
                 "sign_separate",
                 "copy_libraries",
                 "copy_replacing",
+                "sync",
+                "justified",
+                "blank_when_zero",
+                "renames",
             ),
             "record_layouts",
             lambda it: (
@@ -3076,6 +3091,10 @@ class RecordKeeper:
                 int(it["sign_separate"]) if it.get("sign_separate") else None,  # #3694: 1 trailing, 2 leading
                 it.get("copy_libraries"),  # #4265
                 it.get("copy_replacing"),  # #4265
+                it.get("sync"),  # #4266
+                1 if it.get("justified") else None,  # #4266
+                1 if it.get("blank_when_zero") else None,  # #4266
+                it.get("renames"),  # #4266
             ),
         )
 

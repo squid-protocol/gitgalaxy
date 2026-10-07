@@ -75,7 +75,9 @@ jobs:
       - name: Install GitGalaxy
         run: |
           python -m pip install --upgrade pip
-          pip install -e ./gitgalaxy
+          # [translator]: tree-sitter-language-pack, which the det translator parses COBOL with. Without it every det
+          # proof fails to translate and the sweep proves 0/40 (#4270), as run 37661913700 did.
+          pip install -e "./gitgalaxy[translator]"
 
       - name: Setup JDK 17
         uses: actions/setup-java@de7274f081f381c8f8158605e0321c36c376e2e6 # v6.0.1
@@ -113,6 +115,8 @@ jobs:
       # #4270: the det-sweep coverage ledger is keyed to harness / oracle fingerprints, so a harness change blanks every
       # entry (readers then treat coverage as unknown) until a sweep rewrites them. Re-sweep nightly and rewrite the ledger
       # from the sweep: `update` always takes fingerprints from the tree, never from the old entry.
+      # The sweep applies the det_sweep_baseline ratchet (no --no-ratchet): a sweep that proves fewer cases than the
+      # baseline expects exits 1, fails this job, and the ledger is NOT rewritten from it.
       # TODO(#4603): once evidence_report.py --refresh --live lands, run it after this step (#4603 adds that step itself).
       - name: Re-sweep the det ports for the coverage ledger (#4270)
         id: ledger_sweep
@@ -120,12 +124,13 @@ jobs:
         shell: bash  # -eo pipefail: the sweep's exit status, not tee's
         run: |
           cd gitgalaxy
-          python tests/tools/proof_sweep.py --det-only --skip-db2 --jobs 4 --no-ratchet --work "$RUNNER_TEMP/sweep" \
+          python tests/tools/proof_sweep.py --det-only --skip-db2 --jobs 4 --work "$RUNNER_TEMP/sweep" \
             | tee "$RUNNER_TEMP/sweep.txt"
 
       - name: Rewrite the coverage ledger from the sweep (#4270)
-        # hashFiles() only searches the workspace, never $RUNNER_TEMP, so test for the file in the shell instead.
-        if: always() && steps.ledger_sweep.outcome != 'skipped'
+        # Only from a sweep that passed the ratchet. hashFiles() only searches the workspace, never $RUNNER_TEMP, so
+        # test for the file in the shell instead.
+        if: steps.ledger_sweep.outcome == 'success'
         run: |
           cd gitgalaxy
           if [ ! -f "$RUNNER_TEMP/sweep/sweep.json" ]; then

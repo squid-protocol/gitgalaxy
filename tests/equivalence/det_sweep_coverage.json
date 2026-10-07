@@ -427,6 +427,23 @@
     "oracle": "c01338417b189840c3da3fcf109428b6c3c5db987111699423026a5a2aa260eb"
    }
   },
+  "genapp-lgicvs01": {
+   "scenarios": 4,
+   "paragraphs": {
+    "covered": 1,
+    "live": 1
+   },
+   "branches": {
+    "covered": 6,
+    "total": 12
+   },
+   "inputs": {
+    "case": "15a809097e6d8d3332394ed40e44b11f491a1eaefbb7cab0e600c5fff932e391",
+    "corpus": "c5e4d52071fad96bed24e9ba06f30417340bfc5e998e7c1cd5f2383be73d6ff6",
+    "harness": "439fc41b5300a54a73666cef28b48963b364cdc36163bff8b77d5f577b238a05",
+    "oracle": "448e60ec5e354743511a4122c5eed89c1f92cf5f69282ecfd07581c670074964"
+   }
+  },
   "genapp-lgipdb01": {
    "scenarios": 49,
    "paragraphs": {

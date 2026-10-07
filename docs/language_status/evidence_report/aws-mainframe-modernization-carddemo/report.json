@@ -35,6 +35,12 @@
    "entry": "SEND TEXT on the det port and the stub: TERMINAL accepted as the default output disposition (the principal facility; the event is that of SEND TEXT without it); ACCUM, PAGING, SET, REQID, HEADER, TRAILER, JUSTIFY / JUSFIRST / JUSLAST, the printer, partition and LDC options, MSR, FMHPARM, DEFAULT / ALTERNATE refused",
    "id": "X20",
    "status": "MATCHED (REFUSED where the region cannot decide)"
+  },
+  {
+   "area": "CICS",
+   "entry": "READ GTEQ / GENERIC on a KSDS: the first record whose key (or its first KEYLENGTH bytes) equals RIDFLD's or, with GTEQ, is greater, in the browse's key order (D1); NOTFND RESP2 80; READ UPDATE holds the record found; RIDFLD not updated; a GENERIC KEYLENGTH not shorter than the key or not above zero, a non-constant KEYLENGTH and a RIDFLD shorter than the key searched refused",
+   "id": "X22",
+   "status": "ASSUMED (REFUSED where IBM is silent or the layout decides)"
   }
  ],
  "bars": {
@@ -2514,6 +2520,12 @@
       "entry": "SEND TEXT on the det port and the stub: TERMINAL accepted as the default output disposition (the principal facility; the event is that of SEND TEXT without it); ACCUM, PAGING, SET, REQID, HEADER, TRAILER, JUSTIFY / JUSFIRST / JUSLAST, the printer, partition and LDC options, MSR, FMHPARM, DEFAULT / ALTERNATE refused",
       "id": "X20",
       "status": "MATCHED (REFUSED where the region cannot decide)"
+     },
+     {
+      "area": "CICS",
+      "entry": "READ GTEQ / GENERIC on a KSDS: the first record whose key (or its first KEYLENGTH bytes) equals RIDFLD's or, with GTEQ, is greater, in the browse's key order (D1); NOTFND RESP2 80; READ UPDATE holds the record found; RIDFLD not updated; a GENERIC KEYLENGTH not shorter than the key or not above zero, a non-constant KEYLENGTH and a RIDFLD shorter than the key searched refused",
+      "id": "X22",
+      "status": "ASSUMED (REFUSED where IBM is silent or the layout decides)"
      }
     ],
     "reach": "not measured",
@@ -2606,7 +2618,8 @@
      "crucible_cases": [],
      "facts_stated": [],
      "registers": [
-      "X14"
+      "X14",
+      "X22"
      ],
      "spec_entry": "full"
     },
@@ -2914,7 +2927,8 @@
    "program": "app/cbl/COACTUPC.cbl",
    "residual": {
     "assumed_or_differs_named": [
-     "X14"
+     "X14",
+     "X22"
     ],
     "branch_outcomes_unrun": null,
     "commands": 11,
@@ -2957,6 +2971,12 @@
       "entry": "SEND TEXT on the det port and the stub: TERMINAL accepted as the default output disposition (the principal facility; the event is that of SEND TEXT without it); ACCUM, PAGING, SET, REQID, HEADER, TRAILER, JUSTIFY / JUSFIRST / JUSLAST, the printer, partition and LDC options, MSR, FMHPARM, DEFAULT / ALTERNATE refused",
       "id": "X20",
       "status": "MATCHED (REFUSED where the region cannot decide)"
+     },
+     {
+      "area": "CICS",
+      "entry": "READ GTEQ / GENERIC on a KSDS: the first record whose key (or its first KEYLENGTH bytes) equals RIDFLD's or, with GTEQ, is greater, in the browse's key order (D1); NOTFND RESP2 80; READ UPDATE holds the record found; RIDFLD not updated; a GENERIC KEYLENGTH not shorter than the key or not above zero, a non-constant KEYLENGTH and a RIDFLD shorter than the key searched refused",
+      "id": "X22",
+      "status": "ASSUMED (REFUSED where IBM is silent or the layout decides)"
      }
     ],
     "reach": "not measured",
@@ -3150,7 +3170,8 @@
      "crucible_cases": [],
      "facts_stated": [],
      "registers": [
-      "X14"
+      "X14",
+      "X22"
      ],
      "spec_entry": "full"
     },
@@ -3430,7 +3451,8 @@
    "program": "app/cbl/COACTVWC.cbl",
    "residual": {
     "assumed_or_differs_named": [
-     "X14"
+     "X14",
+     "X22"
     ],
     "branch_outcomes_unrun": null,
     "commands": 8,
@@ -3918,6 +3940,12 @@
       "entry": "READ ... INTO LENGTH: in-out, truncation and LENGERR; a VSAM file's LENGTH need not equal its record length; LENGERR on READ UPDATE refused",
       "id": "X14",
       "status": "ASSUMED (REFUSED where IBM is silent)"
+     },
+     {
+      "area": "CICS",
+      "entry": "READ GTEQ / GENERIC on a KSDS: the first record whose key (or its first KEYLENGTH bytes) equals RIDFLD's or, with GTEQ, is greater, in the browse's key order (D1); NOTFND RESP2 80; READ UPDATE holds the record found; RIDFLD not updated; a GENERIC KEYLENGTH not shorter than the key or not above zero, a non-constant KEYLENGTH and a RIDFLD shorter than the key searched refused",
+      "id": "X22",
+      "status": "ASSUMED (REFUSED where IBM is silent or the layout decides)"
      }
     ],
     "reach": "not measured",
@@ -4092,7 +4120,8 @@
      "crucible_cases": [],
      "facts_stated": [],
      "registers": [
-      "X14"
+      "X14",
+      "X22"
      ],
      "spec_entry": "full"
     },
@@ -4318,7 +4347,8 @@
    "program": "app/cbl/COBIL00C.cbl",
    "residual": {
     "assumed_or_differs_named": [
-     "X14"
+     "X14",
+     "X22"
     ],
     "branch_outcomes_unrun": null,
     "commands": 12,
@@ -4854,6 +4884,12 @@
       "entry": "SEND TEXT on the det port and the stub: TERMINAL accepted as the default output disposition (the principal facility; the event is that of SEND TEXT without it); ACCUM, PAGING, SET, REQID, HEADER, TRAILER, JUSTIFY / JUSFIRST / JUSLAST, the printer, partition and LDC options, MSR, FMHPARM, DEFAULT / ALTERNATE refused",
       "id": "X20",
       "status": "MATCHED (REFUSED where the region cannot decide)"
+     },
+     {
+      "area": "CICS",
+      "entry": "READ GTEQ / GENERIC on a KSDS: the first record whose key (or its first KEYLENGTH bytes) equals RIDFLD's or, with GTEQ, is greater, in the browse's key order (D1); NOTFND RESP2 80; READ UPDATE holds the record found; RIDFLD not updated; a GENERIC KEYLENGTH not shorter than the key or not above zero, a non-constant KEYLENGTH and a RIDFLD shorter than the key searched refused",
+      "id": "X22",
+      "status": "ASSUMED (REFUSED where IBM is silent or the layout decides)"
      }
     ],
     "reach": "not measured",
@@ -5081,7 +5117,8 @@
      "crucible_cases": [],
      "facts_stated": [],
      "registers": [
-      "X14"
+      "X14",
+      "X22"
      ],
      "spec_entry": "full"
     },
@@ -5361,7 +5398,8 @@
    "program": "app/cbl/COCRDSLC.cbl",
    "residual": {
     "assumed_or_differs_named": [
-     "X14"
+     "X14",
+     "X22"
     ],
     "branch_outcomes_unrun": null,
     "commands": 8,
@@ -6218,6 +6256,12 @@
       "entry": "SEND TEXT on the det port and the stub: TERMINAL accepted as the default output disposition (the principal facility; the event is that of SEND TEXT without it); ACCUM, PAGING, SET, REQID, HEADER, TRAILER, JUSTIFY / JUSFIRST / JUSLAST, the printer, partition and LDC options, MSR, FMHPARM, DEFAULT / ALTERNATE refused",
       "id": "X20",
       "status": "MATCHED (REFUSED where the region cannot decide)"
+     },
+     {
+      "area": "CICS",
+      "entry": "READ GTEQ / GENERIC on a KSDS: the first record whose key (or its first KEYLENGTH bytes) equals RIDFLD's or, with GTEQ, is greater, in the browse's key order (D1); NOTFND RESP2 80; READ UPDATE holds the record found; RIDFLD not updated; a GENERIC KEYLENGTH not shorter than the key or not above zero, a non-constant KEYLENGTH and a RIDFLD shorter than the key searched refused",
+      "id": "X22",
+      "status": "ASSUMED (REFUSED where IBM is silent or the layout decides)"
      }
     ],
     "reach": "not measured",
@@ -6374,7 +6418,8 @@
      "crucible_cases": [],
      "facts_stated": [],
      "registers": [
-      "X14"
+      "X14",
+      "X22"
      ],
      "spec_entry": "full"
     },
@@ -6655,7 +6700,8 @@
    "residual": {
     "assumed_or_differs_named": [
      "X14",
-     "X19"
+     "X19",
+     "X22"
     ],
     "branch_outcomes_unrun": null,
     "commands": 7,
@@ -7116,6 +7162,12 @@
       "entry": "READ ... INTO LENGTH: in-out, truncation and LENGERR; a VSAM file's LENGTH need not equal its record length; LENGERR on READ UPDATE refused",
       "id": "X14",
       "status": "ASSUMED (REFUSED where IBM is silent)"
+     },
+     {
+      "area": "CICS",
+      "entry": "READ GTEQ / GENERIC on a KSDS: the first record whose key (or its first KEYLENGTH bytes) equals RIDFLD's or, with GTEQ, is greater, in the browse's key order (D1); NOTFND RESP2 80; READ UPDATE holds the record found; RIDFLD not updated; a GENERIC KEYLENGTH not shorter than the key or not above zero, a non-constant KEYLENGTH and a RIDFLD shorter than the key searched refused",
+      "id": "X22",
+      "status": "ASSUMED (REFUSED where IBM is silent or the layout decides)"
      }
     ],
     "reach": "not measured",
@@ -7255,7 +7307,8 @@
      "crucible_cases": [],
      "facts_stated": [],
      "registers": [
-      "X14"
+      "X14",
+      "X22"
      ],
      "spec_entry": "full"
     },
@@ -7449,7 +7502,8 @@
    "program": "app/cbl/COTRN01C.cbl",
    "residual": {
     "assumed_or_differs_named": [
-     "X14"
+     "X14",
+     "X22"
     ],
     "branch_outcomes_unrun": null,
     "commands": 5,
@@ -7483,6 +7537,12 @@
       "entry": "READ ... INTO LENGTH: in-out, truncation and LENGERR; a VSAM file's LENGTH need not equal its record length; LENGERR on READ UPDATE refused",
       "id": "X14",
       "status": "ASSUMED (REFUSED where IBM is silent)"
+     },
+     {
+      "area": "CICS",
+      "entry": "READ GTEQ / GENERIC on a KSDS: the first record whose key (or its first KEYLENGTH bytes) equals RIDFLD's or, with GTEQ, is greater, in the browse's key order (D1); NOTFND RESP2 80; READ UPDATE holds the record found; RIDFLD not updated; a GENERIC KEYLENGTH not shorter than the key or not above zero, a non-constant KEYLENGTH and a RIDFLD shorter than the key searched refused",
+      "id": "X22",
+      "status": "ASSUMED (REFUSED where IBM is silent or the layout decides)"
      }
     ],
     "reach": "not measured",
@@ -7652,7 +7712,8 @@
      "crucible_cases": [],
      "facts_stated": [],
      "registers": [
-      "X14"
+      "X14",
+      "X22"
      ],
      "spec_entry": "full"
     },
@@ -7870,7 +7931,8 @@
    "program": "app/cbl/COTRN02C.cbl",
    "residual": {
     "assumed_or_differs_named": [
-     "X14"
+     "X14",
+     "X22"
     ],
     "branch_outcomes_unrun": null,
     "commands": 9,
@@ -8691,6 +8753,12 @@
       "entry": "READ ... INTO LENGTH: in-out, truncation and LENGERR; a VSAM file's LENGTH need not equal its record length; LENGERR on READ UPDATE refused",
       "id": "X14",
       "status": "ASSUMED (REFUSED where IBM is silent)"
+     },
+     {
+      "area": "CICS",
+      "entry": "READ GTEQ / GENERIC on a KSDS: the first record whose key (or its first KEYLENGTH bytes) equals RIDFLD's or, with GTEQ, is greater, in the browse's key order (D1); NOTFND RESP2 80; READ UPDATE holds the record found; RIDFLD not updated; a GENERIC KEYLENGTH not shorter than the key or not above zero, a non-constant KEYLENGTH and a RIDFLD shorter than the key searched refused",
+      "id": "X22",
+      "status": "ASSUMED (REFUSED where IBM is silent or the layout decides)"
      }
     ],
     "reach": "not measured",
@@ -8841,7 +8909,8 @@
      "crucible_cases": [],
      "facts_stated": [],
      "registers": [
-      "X14"
+      "X14",
+      "X22"
      ],
      "spec_entry": "full"
     },
@@ -9043,7 +9112,8 @@
    "program": "app/cbl/COUSR02C.cbl",
    "residual": {
     "assumed_or_differs_named": [
-     "X14"
+     "X14",
+     "X22"
     ],
     "branch_outcomes_unrun": null,
     "commands": 6,
@@ -9078,6 +9148,12 @@
       "entry": "READ ... INTO LENGTH: in-out, truncation and LENGERR; a VSAM file's LENGTH need not equal its record length; LENGERR on READ UPDATE refused",
       "id": "X14",
       "status": "ASSUMED (REFUSED where IBM is silent)"
+     },
+     {
+      "area": "CICS",
+      "entry": "READ GTEQ / GENERIC on a KSDS: the first record whose key (or its first KEYLENGTH bytes) equals RIDFLD's or, with GTEQ, is greater, in the browse's key order (D1); NOTFND RESP2 80; READ UPDATE holds the record found; RIDFLD not updated; a GENERIC KEYLENGTH not shorter than the key or not above zero, a non-constant KEYLENGTH and a RIDFLD shorter than the key searched refused",
+      "id": "X22",
+      "status": "ASSUMED (REFUSED where IBM is silent or the layout decides)"
      }
     ],
     "reach": "not measured",
@@ -9236,7 +9312,8 @@
      "crucible_cases": [],
      "facts_stated": [],
      "registers": [
-      "X14"
+      "X14",
+      "X22"
      ],
      "spec_entry": "full"
     },
@@ -9430,7 +9507,8 @@
    "program": "app/cbl/COUSR03C.cbl",
    "residual": {
     "assumed_or_differs_named": [
-     "X14"
+     "X14",
+     "X22"
     ],
     "branch_outcomes_unrun": null,
     "commands": 6,
@@ -10241,6 +10319,12 @@
       "entry": "SEND TEXT on the det port and the stub: TERMINAL accepted as the default output disposition (the principal facility; the event is that of SEND TEXT without it); ACCUM, PAGING, SET, REQID, HEADER, TRAILER, JUSTIFY / JUSFIRST / JUSLAST, the printer, partition and LDC options, MSR, FMHPARM, DEFAULT / ALTERNATE refused",
       "id": "X20",
       "status": "MATCHED (REFUSED where the region cannot decide)"
+     },
+     {
+      "area": "CICS",
+      "entry": "READ GTEQ / GENERIC on a KSDS: the first record whose key (or its first KEYLENGTH bytes) equals RIDFLD's or, with GTEQ, is greater, in the browse's key order (D1); NOTFND RESP2 80; READ UPDATE holds the record found; RIDFLD not updated; a GENERIC KEYLENGTH not shorter than the key or not above zero, a non-constant KEYLENGTH and a RIDFLD shorter than the key searched refused",
+      "id": "X22",
+      "status": "ASSUMED (REFUSED where IBM is silent or the layout decides)"
      }
     ],
     "reach": "not measured",
@@ -10337,7 +10421,8 @@
      "crucible_cases": [],
      "facts_stated": [],
      "registers": [
-      "X14"
+      "X14",
+      "X22"
      ],
      "spec_entry": "full"
     },
@@ -10635,7 +10720,8 @@
    "program": "app/cbl/COCRDUPC.cbl",
    "residual": {
     "assumed_or_differs_named": [
-     "X14"
+     "X14",
+     "X22"
     ],
     "branch_outcomes_unrun": null,
     "commands": 10,
@@ -10749,6 +10835,12 @@
       "entry": "Interval control on the det port: START (INTERVAL / TIME / AFTER / AT, TERMID, REQID, PROTECT, FROM, RTRANSID / RTERMID / QUEUE), RETRIEVE (INTO / LENGTH, the data options, ENVDEFERR), CANCEL REQID, RUN TRANSID CHILD; TIME RESP2 and the order of out-of-range checks assumed; FETCH, RUN / START CHANNEL, RETRIEVE SET / WAIT refused",
       "id": "X18",
       "status": "ASSUMED (REFUSED where IBM is silent)"
+     },
+     {
+      "area": "CICS",
+      "entry": "READ GTEQ / GENERIC on a KSDS: the first record whose key (or its first KEYLENGTH bytes) equals RIDFLD's or, with GTEQ, is greater, in the browse's key order (D1); NOTFND RESP2 80; READ UPDATE holds the record found; RIDFLD not updated; a GENERIC KEYLENGTH not shorter than the key or not above zero, a non-constant KEYLENGTH and a RIDFLD shorter than the key searched refused",
+      "id": "X22",
+      "status": "ASSUMED (REFUSED where IBM is silent or the layout decides)"
      }
     ],
     "reach": "not measured",
@@ -10802,7 +10894,8 @@
      "crucible_cases": [],
      "facts_stated": [],
      "registers": [
-      "X14"
+      "X14",
+      "X22"
      ],
      "spec_entry": "full"
     },
@@ -10954,7 +11047,8 @@
    "residual": {
     "assumed_or_differs_named": [
      "X14",
-     "X18"
+     "X18",
+     "X22"
     ],
     "branch_outcomes_unrun": null,
     "commands": 7,
@@ -11000,6 +11094,12 @@
       "entry": "READ ... INTO LENGTH: in-out, truncation and LENGERR; a VSAM file's LENGTH need not equal its record length; LENGERR on READ UPDATE refused",
       "id": "X14",
       "status": "ASSUMED (REFUSED where IBM is silent)"
+     },
+     {
+      "area": "CICS",
+      "entry": "READ GTEQ / GENERIC on a KSDS: the first record whose key (or its first KEYLENGTH bytes) equals RIDFLD's or, with GTEQ, is greater, in the browse's key order (D1); NOTFND RESP2 80; READ UPDATE holds the record found; RIDFLD not updated; a GENERIC KEYLENGTH not shorter than the key or not above zero, a non-constant KEYLENGTH and a RIDFLD shorter than the key searched refused",
+      "id": "X22",
+      "status": "ASSUMED (REFUSED where IBM is silent or the layout decides)"
      }
     ],
     "reach": "not measured",
@@ -11037,7 +11137,8 @@
      "crucible_cases": [],
      "facts_stated": [],
      "registers": [
-      "X14"
+      "X14",
+      "X22"
      ],
      "spec_entry": "full"
     },
@@ -11241,7 +11342,8 @@
    "program": "app/app-authorization-ims-db2-mq/cbl/COPAUS0C.cbl",
    "residual": {
     "assumed_or_differs_named": [
-     "X14"
+     "X14",
+     "X22"
     ],
     "branch_outcomes_unrun": null,
     "commands": 6,
@@ -12356,6 +12458,12 @@
       "entry": "Interval control on the det port: START (INTERVAL / TIME / AFTER / AT, TERMID, REQID, PROTECT, FROM, RTRANSID / RTERMID / QUEUE), RETRIEVE (INTO / LENGTH, the data options, ENVDEFERR), CANCEL REQID, RUN TRANSID CHILD; TIME RESP2 and the order of out-of-range checks assumed; FETCH, RUN / START CHANNEL, RETRIEVE SET / WAIT refused",
       "id": "X18",
       "status": "ASSUMED (REFUSED where IBM is silent)"
+     },
+     {
+      "area": "CICS",
+      "entry": "READ GTEQ / GENERIC on a KSDS: the first record whose key (or its first KEYLENGTH bytes) equals RIDFLD's or, with GTEQ, is greater, in the browse's key order (D1); NOTFND RESP2 80; READ UPDATE holds the record found; RIDFLD not updated; a GENERIC KEYLENGTH not shorter than the key or not above zero, a non-constant KEYLENGTH and a RIDFLD shorter than the key searched refused",
+      "id": "X22",
+      "status": "ASSUMED (REFUSED where IBM is silent or the layout decides)"
      }
     ],
     "reach": "not measured",
@@ -12393,7 +12501,8 @@
      "crucible_cases": [],
      "facts_stated": [],
      "registers": [
-      "X14"
+      "X14",
+      "X22"
      ],
      "spec_entry": "full"
     },
@@ -12537,7 +12646,8 @@
    "residual": {
     "assumed_or_differs_named": [
      "X14",
-     "X18"
+     "X18",
+     "X22"
     ],
     "branch_outcomes_unrun": null,
     "commands": 4,

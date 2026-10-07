@@ -47,6 +47,12 @@
    "entry": "SEND TEXT on the det port and the stub: TERMINAL accepted as the default output disposition (the principal facility; the event is that of SEND TEXT without it); ACCUM, PAGING, SET, REQID, HEADER, TRAILER, JUSTIFY / JUSFIRST / JUSLAST, the printer, partition and LDC options, MSR, FMHPARM, DEFAULT / ALTERNATE refused",
    "id": "X20",
    "status": "MATCHED (REFUSED where the region cannot decide)"
+  },
+  {
+   "area": "CICS",
+   "entry": "READ GTEQ / GENERIC on a KSDS: the first record whose key (or its first KEYLENGTH bytes) equals RIDFLD's or, with GTEQ, is greater, in the browse's key order (D1); NOTFND RESP2 80; READ UPDATE holds the record found; RIDFLD not updated; a GENERIC KEYLENGTH not shorter than the key or not above zero, a non-constant KEYLENGTH and a RIDFLD shorter than the key searched refused",
+   "id": "X22",
+   "status": "ASSUMED (REFUSED where IBM is silent or the layout decides)"
   }
  ],
  "bars": {
@@ -2160,6 +2166,12 @@
       "entry": "READ ... INTO LENGTH: in-out, truncation and LENGERR; a VSAM file's LENGTH need not equal its record length; LENGERR on READ UPDATE refused",
       "id": "X14",
       "status": "ASSUMED (REFUSED where IBM is silent)"
+     },
+     {
+      "area": "CICS",
+      "entry": "READ GTEQ / GENERIC on a KSDS: the first record whose key (or its first KEYLENGTH bytes) equals RIDFLD's or, with GTEQ, is greater, in the browse's key order (D1); NOTFND RESP2 80; READ UPDATE holds the record found; RIDFLD not updated; a GENERIC KEYLENGTH not shorter than the key or not above zero, a non-constant KEYLENGTH and a RIDFLD shorter than the key searched refused",
+      "id": "X22",
+      "status": "ASSUMED (REFUSED where IBM is silent or the layout decides)"
      }
     ],
     "reach": "not measured",
@@ -2291,7 +2303,8 @@
      "crucible_cases": [],
      "facts_stated": [],
      "registers": [
-      "X14"
+      "X14",
+      "X22"
      ],
      "spec_entry": "full"
     },
@@ -2406,7 +2419,8 @@
    "program": "base/src/lgucvs01.cbl",
    "residual": {
     "assumed_or_differs_named": [
-     "X14"
+     "X14",
+     "X22"
     ],
     "branch_outcomes_unrun": null,
     "commands": 7,
@@ -2443,6 +2457,12 @@
       "entry": "READ ... INTO LENGTH: in-out, truncation and LENGERR; a VSAM file's LENGTH need not equal its record length; LENGERR on READ UPDATE refused",
       "id": "X14",
       "status": "ASSUMED (REFUSED where IBM is silent)"
+     },
+     {
+      "area": "CICS",
+      "entry": "READ GTEQ / GENERIC on a KSDS: the first record whose key (or its first KEYLENGTH bytes) equals RIDFLD's or, with GTEQ, is greater, in the browse's key order (D1); NOTFND RESP2 80; READ UPDATE holds the record found; RIDFLD not updated; a GENERIC KEYLENGTH not shorter than the key or not above zero, a non-constant KEYLENGTH and a RIDFLD shorter than the key searched refused",
+      "id": "X22",
+      "status": "ASSUMED (REFUSED where IBM is silent or the layout decides)"
      }
     ],
     "reach": "not measured",
@@ -2629,7 +2649,8 @@
      "crucible_cases": [],
      "facts_stated": [],
      "registers": [
-      "X14"
+      "X14",
+      "X22"
      ],
      "spec_entry": "full"
     },
@@ -2744,7 +2765,8 @@
    "program": "base/src/lgupvs01.cbl",
    "residual": {
     "assumed_or_differs_named": [
-     "X14"
+     "X14",
+     "X22"
     ],
     "branch_outcomes_unrun": null,
     "commands": 7,
@@ -9009,8 +9031,7 @@
     ],
     "facts_unstated": [
      "EIB field EIBTASKN (both runtimes read zero; z/OS does not)",
-     "ASSIGN STARTCODE (no equivalence case states it)",
-     "ASSIGN SYSID (the case states no region)"
+     "ASSIGN STARTCODE (no equivalence case states it)"
     ],
     "named_by_commands": [
      {
@@ -9036,6 +9057,12 @@
       "entry": "SEND TEXT on the det port and the stub: TERMINAL accepted as the default output disposition (the principal facility; the event is that of SEND TEXT without it); ACCUM, PAGING, SET, REQID, HEADER, TRAILER, JUSTIFY / JUSFIRST / JUSLAST, the printer, partition and LDC options, MSR, FMHPARM, DEFAULT / ALTERNATE refused",
       "id": "X20",
       "status": "MATCHED (REFUSED where the region cannot decide)"
+     },
+     {
+      "area": "CICS",
+      "entry": "READ GTEQ / GENERIC on a KSDS: the first record whose key (or its first KEYLENGTH bytes) equals RIDFLD's or, with GTEQ, is greater, in the browse's key order (D1); NOTFND RESP2 80; READ UPDATE holds the record found; RIDFLD not updated; a GENERIC KEYLENGTH not shorter than the key or not above zero, a non-constant KEYLENGTH and a RIDFLD shorter than the key searched refused",
+      "id": "X22",
+      "status": "ASSUMED (REFUSED where IBM is silent or the layout decides)"
      }
     ],
     "reach": "not measured",
@@ -9056,8 +9083,30 @@
     "uncovered_paragraphs": "not recorded"
    },
    "equivalence": {
-    "cases": [],
-    "chosen": null
+    "cases": [
+     {
+      "case": "genapp-lgicvs01",
+      "case_scenarios": 4,
+      "db2": false,
+      "det": {
+       "source": "CI det-sweep ratchet on main",
+       "state": "equal"
+      },
+      "record": null,
+      "role": "program"
+     }
+    ],
+    "chosen": {
+     "case": "genapp-lgicvs01",
+     "case_scenarios": 4,
+     "db2": false,
+     "det": {
+      "source": "CI det-sweep ratchet on main",
+      "state": "equal"
+     },
+     "record": null,
+     "role": "program"
+    }
    },
    "level": "L0",
    "mutation": {
@@ -9120,7 +9169,8 @@
      "crucible_cases": [],
      "facts_stated": [],
      "registers": [
-      "X14"
+      "X14",
+      "X22"
      ],
      "spec_entry": "full"
     },
@@ -9444,7 +9494,8 @@
     "assumed_or_differs_named": [
      "X14",
      "X15",
-     "X19"
+     "X19",
+     "X22"
     ],
     "branch_outcomes_unrun": null,
     "commands": 9,
@@ -9454,7 +9505,7 @@
      "ENQ",
      "READ"
     ],
-    "facts_unstated": 3,
+    "facts_unstated": 2,
     "holes": 1,
     "paragraphs_unrun": null,
     "refused": null
@@ -9510,6 +9561,12 @@
       "entry": "SEND TEXT on the det port and the stub: TERMINAL accepted as the default output disposition (the principal facility; the event is that of SEND TEXT without it); ACCUM, PAGING, SET, REQID, HEADER, TRAILER, JUSTIFY / JUSFIRST / JUSLAST, the printer, partition and LDC options, MSR, FMHPARM, DEFAULT / ALTERNATE refused",
       "id": "X20",
       "status": "MATCHED (REFUSED where the region cannot decide)"
+     },
+     {
+      "area": "CICS",
+      "entry": "READ GTEQ / GENERIC on a KSDS: the first record whose key (or its first KEYLENGTH bytes) equals RIDFLD's or, with GTEQ, is greater, in the browse's key order (D1); NOTFND RESP2 80; READ UPDATE holds the record found; RIDFLD not updated; a GENERIC KEYLENGTH not shorter than the key or not above zero, a non-constant KEYLENGTH and a RIDFLD shorter than the key searched refused",
+      "id": "X22",
+      "status": "ASSUMED (REFUSED where IBM is silent or the layout decides)"
      }
     ],
     "reach": "not measured",
@@ -9578,7 +9635,8 @@
      "crucible_cases": [],
      "facts_stated": [],
      "registers": [
-      "X14"
+      "X14",
+      "X22"
      ],
      "spec_entry": "full"
     },
@@ -9839,7 +9897,8 @@
     "assumed_or_differs_named": [
      "X14",
      "X15",
-     "X19"
+     "X19",
+     "X22"
     ],
     "branch_outcomes_unrun": null,
     "commands": 5,
@@ -11137,7 +11196,7 @@
    "python tests/tools/cics_census.py survey --baseline --sha 3bcbb8c62397b338307563c40618297d54c38100",
    "python tests/tools/evidence_report.py cics-genapp --baseline --sha 3bcbb8c62397b338307563c40618297d54c38100",
    "python tests/tools/evidence_report.py --refresh",
-   "python tests/tools/proof_sweep.py --det-only --work DIR --cases genapp-lgacdb01,genapp-lgacdb02,genapp-lgacvs01,genapp-lgapdb01,genapp-lgapvs01,genapp-lgdpdb01,genapp-lgdpvs01,genapp-lgicdb01,genapp-lgipdb01,genapp-lgucdb01,genapp-lgucvs01,genapp-lgupdb01,genapp-lgupvs01  # Db2 cases (8) need the Db2 container",
+   "python tests/tools/proof_sweep.py --det-only --work DIR --cases genapp-lgacdb01,genapp-lgacdb02,genapp-lgacvs01,genapp-lgapdb01,genapp-lgapvs01,genapp-lgdpdb01,genapp-lgdpvs01,genapp-lgicdb01,genapp-lgicvs01,genapp-lgipdb01,genapp-lgucdb01,genapp-lgucvs01,genapp-lgupdb01,genapp-lgupvs01  # Db2 cases (8) need the Db2 container",
    "python tests/tools/evidence.py prove genapp-lgapvs01 genapp-lgicdb01 genapp-lgupdb01",
    "python tests/tools/cics_crucible.py  # the hand-traced CICS cases, at the crucible pin"
   ],
@@ -11166,7 +11225,7 @@
  },
  "summary": {
   "cics_programs": 31,
-  "det_equal": 5,
+  "det_equal": 6,
   "histogram": {
    "L0": 6,
    "L1": 20,
@@ -11181,7 +11240,7 @@
   "refused_whole": 0,
   "source_unread": 0,
   "translated_whole": 25,
-  "with_case": 14,
+  "with_case": 15,
   "with_record": 3
  }
 }

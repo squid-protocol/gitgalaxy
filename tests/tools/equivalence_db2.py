@@ -325,6 +325,57 @@ def dumps(case: dict[str, Any], tables: list[str]) -> dict[str, bytes]:
             for t, rows in zip(tables, sections)}  # fmt: skip
 
 
+def split_sql(text: str, name: str = "SQL") -> list[str]:
+    """#4610: text's statements, split at ';' outside literals, with `--` line comments and `/* */` blocks removed
+    (a comment becomes one space). Single quotes ('' escapes inside) and double-quoted identifiers hide everything.
+    The loaders of both sides (ggsqlrun -f, EquivalenceRunTest) know only single quotes and ';', so what they get is
+    this splitter's output (normalise_sql). Anything it cannot read the same way is refused by name, never guessed:
+    an unterminated quote or block comment, and a `'` or `;` inside a double-quoted identifier."""
+    stmts: list[str] = []
+    cur: list[str] = []
+    i, n = 0, len(text)
+    while i < n:
+        ch = text[i]
+        two = text[i : i + 2]
+        if ch in "'\"":
+            end = text.find(ch, i + 1)
+            while end != -1 and text[end + 1 : end + 2] == ch:  # '' / "" is an escaped quote
+                end = text.find(ch, end + 2)
+            if end == -1:
+                raise ValueError(f"{name}: unterminated {ch} literal at offset {i}")
+            lit = text[i : end + 1]
+            if ch == '"' and ("'" in lit or ";" in lit):
+                raise ValueError(f"{name}: a ' or ; inside the quoted identifier {lit!r} is not supported")
+            cur.append(lit)
+            i = end + 1
+        elif two == "--":
+            end = text.find("\n", i)
+            i = n if end == -1 else end  # the newline itself stays
+            cur.append(" ")
+        elif two == "/*":
+            end = text.find("*/", i + 2)
+            if end == -1:
+                raise ValueError(f"{name}: unterminated /* comment at offset {i}")
+            i = end + 2
+            cur.append(" ")
+        elif ch == ";":
+            if "".join(cur).strip():
+                stmts.append("".join(cur).strip())
+            cur = []
+            i += 1
+        else:
+            cur.append(ch)
+            i += 1
+    if "".join(cur).strip():
+        stmts.append("".join(cur).strip())
+    return stmts
+
+
+def normalise_sql(text: str, name: str = "SQL") -> str:
+    """split_sql's statements, each ended by ';' on its own line: the one form both loaders read alike."""
+    return "".join(st + ";\n" for st in split_sql(text, name))
+
+
 def reset_script(case: dict[str, Any], corpus: Path) -> str:
     """The SQL that resets the tables to the seed (ggsqlrun -f, and the Java side's EquivalenceRunTest): every table
     the seed fills or the case names, emptied (the seed's tables in the reverse of their INSERTs: children first),
@@ -337,12 +388,13 @@ def reset_script(case: dict[str, Any], corpus: Path) -> str:
         path = common._input_path(case, corpus, seed)
         symbols = case["db2"].get("symbols")
         if path.suffix.lower() == ".jcl":  # a job's INSERTs
-            stmts = [st.strip() for st in ddl_text(path, symbols).split(";")]
+            stmts = split_sql(ddl_text(path, symbols), seed)
             seed_sql = "".join(st + ";\n" for st in stmts if re.match(r"INSERT\b", st, re.I))
         else:
             seed_sql = path.read_text(encoding="latin-1")
             for k, v in (symbols or {}).items():
                 seed_sql = seed_sql.replace(k, v)
+            seed_sql = normalise_sql(seed_sql, seed)  # #4610: comments gone, so both loaders split alike
     seeded = list(dict.fromkeys(t.upper() for t in re.findall(r"INSERT\s+INTO\s+([A-Z0-9_.$#@]+)", seed_sql, re.I)))
     tables = [*reversed(seeded), *[t for t in _tables(case) if t.upper() not in seeded]]
     script = "".join(f"DELETE FROM {t};\n" for t in tables)

@@ -17,6 +17,7 @@ import pytest
 
 from gitgalaxy.tools.cobol_to_java.cobol_to_java_repository_forge import RepositoryForge
 from gitgalaxy.tools.cobol_to_java.cobol_to_java_transaction_forge import (
+    CICS_SPEC_JAVA,
     CICS_TASK_JAVA,
     CicsForge,
     commarea_codec,
@@ -194,6 +195,7 @@ def test_returned_converts_by_layout_and_refuses_what_it_cannot(tmp_path, style)
     root = tmp_path / "src" / "com" / "acme"
     files = {
         "cics/CicsTask.java": CICS_TASK_JAVA.replace("__PACKAGE__", "com.acme").replace("__ZONE__", "UTC"),
+        "cics/CicsSpec.java": CICS_SPEC_JAVA.replace("__PACKAGE__", "com.acme"),
         "entity/vsam/CobolRecords.java": RepositoryForge({}, {}, "com.acme", target).records_source(needed=True),
         **{f"dto/contract/{n}.java": src for n, src in forge.dto_sources().items()},
         "cics/Main.java": get(MAIN.replace("__NEW_WIZ__", NEW_WIZ[style])),

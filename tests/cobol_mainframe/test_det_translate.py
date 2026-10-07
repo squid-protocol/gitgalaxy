@@ -961,7 +961,10 @@ def test_eoc_is_ignored_by_default_and_handled_like_any_condition():
     assert (
         body.index("handlers.get(cond)") < body.index("DetCics.ignoredByDefault(cond)") < body.index("abendOnCondition")
     )
-    rt = (Path(C.__file__).parent / "cobolrt/cics/DetCics.java").read_text(encoding="utf-8")
+    from gitgalaxy.tools.cobol_to_java.cobol_to_java_transaction_forge import CICS_SPEC_JAVA
+
+    # DetCics.condition / resp delegate to the generated CicsSpec (#4270 spec PR 4)
+    rt = (Path(C.__file__).parent / "cobolrt/cics/DetCics.java").read_text(encoding="utf-8") + CICS_SPEC_JAVA
     assert 'case 6 -> "EOC";' in rt and 'case "EOC" -> 6;' in rt
     assert re.search(r'ignoredByDefault\(String condition\) \{\s*return "EOC"\.equals\(condition\);', rt)
 
@@ -1118,11 +1121,12 @@ def test_what_the_container_commands_do_not_model_is_refused_by_name(text, why):
 def test_the_container_conditions_are_known_by_resp_and_abend_code():
     """IBM: CONTAINERERR is RESP 110 (abend AEZJ, "CONTAINERERR condition not handled"), CHANNELERR 122 (AEZV)."""
     assert C.DFHRESP["CONTAINERERR"] == 110 and C.DFHRESP["CHANNELERR"] == 122
-    rt = (Path(C.__file__).parent / "cobolrt/cics/DetCics.java").read_text(encoding="utf-8")
-    assert 'case 110 -> "CONTAINERERR";' in rt and 'case "CHANNELERR" -> 122;' in rt
-    from gitgalaxy.tools.cobol_to_java import cobol_to_java_transaction_forge as F
+    from gitgalaxy.tools.cobol_to_java.cobol_to_java_transaction_forge import CICS_SPEC_JAVA
 
-    assert 'case "CONTAINERERR" -> "AEZJ";' in F.CICS_TASK_JAVA and 'case "CHANNELERR" -> "AEZV";' in F.CICS_TASK_JAVA
+    # DetCics.condition / resp delegate to the generated CicsSpec (#4270 spec PR 4)
+    rt = (Path(C.__file__).parent / "cobolrt/cics/DetCics.java").read_text(encoding="utf-8") + CICS_SPEC_JAVA
+    assert 'case 110 -> "CONTAINERERR";' in rt and 'case "CHANNELERR" -> 122;' in rt
+    assert 'case "CONTAINERERR" -> "AEZJ";' in CICS_SPEC_JAVA and 'case "CHANNELERR" -> "AEZV";' in CICS_SPEC_JAVA
 
 
 # ---- #4270 slice 2: interval control -----------------------------------------------------------------------------
@@ -1205,7 +1209,10 @@ def test_run_transid_puts_the_child_token_and_takes_its_outcome():
 
 def test_the_interval_conditions_are_known_by_resp():
     """IBM RESP values: TERMIDERR 11, IOERR 17, TRANSIDERR 28, ENDDATA 29, ENVDEFERR 56 -- both ways in DetCics."""
-    rt = (Path(C.__file__).parent / "cobolrt/cics/DetCics.java").read_text(encoding="utf-8")
+    from gitgalaxy.tools.cobol_to_java.cobol_to_java_transaction_forge import CICS_SPEC_JAVA
+
+    # DetCics.condition / resp delegate to the generated CicsSpec (#4270 spec PR 4)
+    rt = (Path(C.__file__).parent / "cobolrt/cics/DetCics.java").read_text(encoding="utf-8") + CICS_SPEC_JAVA
     for name in ("TERMIDERR", "TRANSIDERR", "ENDDATA", "ENVDEFERR"):
         assert f'case {C.DFHRESP[name]} -> "{name}";' in rt and f'case "{name}" -> {C.DFHRESP[name]};' in rt
     assert 'case "IOERR" -> 17;' in rt
@@ -1672,11 +1679,12 @@ def test_det_cics_moves_ts_bytes_between_pages_strictly(tmp_path):
     other's 256 characters), NL (X'15') as NEL -- the COBOL side's cp037, not the JDK's LF; the same page is the bytes
     as they are; a byte one page cannot carry, or part of a multi-byte character, stops the run by name -- never a
     substituted '?'. gitgalaxy.cics.charset names another region page."""
-    from gitgalaxy.tools.cobol_to_java.cobol_to_java_transaction_forge import CICS_TASK_JAVA
+    from gitgalaxy.tools.cobol_to_java.cobol_to_java_transaction_forge import CICS_SPEC_JAVA, CICS_TASK_JAVA
     from gitgalaxy.tools.cobol_to_java.det import program as P
 
     src = tmp_path / "src"
     files = {"t/cics/CicsTask.java": CICS_TASK_JAVA.replace("__PACKAGE__", "t").replace("__ZONE__", "UTC"),
+             "t/cics/CicsSpec.java": CICS_SPEC_JAVA.replace("__PACKAGE__", "t"),
              **{f"t/{k}": v for k, v in P.runtime_files("t", batch=False).items()}}  # fmt: skip
     files["Main.java"] = """
 import java.nio.charset.Charset;

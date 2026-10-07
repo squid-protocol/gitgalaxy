@@ -1,7 +1,8 @@
-"""#4270 spec PRs 1-2: gitgalaxy/standards/cics on its own -- the model's checks, the rendered refusal messages, the
+"""#4270 spec PRs 1-4: gitgalaxy/standards/cics on its own -- the model's checks, the rendered refusal messages, the
 entries (45 full, the name-only API commands), the cics_spec CLI, and the package's cost: stdlib only, lazily
 loaded, imported only by its listed consumers (spec PR 2: the det translator; PR 3: the equivalence harness),
-none of them the engine.
+none of them the engine. Spec PR 4: the committed generated runtime tables (CicsSpec.java, ggcics_spec.h) are
+never stale, and the runtimes keep no hand copy of them.
 
 (The proofs that the spec equals today's hand copies are transitional and live in
 tests/cobol_mainframe/test_cics_spec_equality.py.)"""
@@ -177,6 +178,54 @@ def test_cli_regen_writes_the_runtime_tables(tmp_path):
     assert 'case 110 -> "CONTAINERERR";' in java and 'case "CHANNELERR" -> "AEZV";' in java
     assert "DFHRESP_CHANNELERR = 122," in c and 'case DFHRESP_CONTAINERERR: return "AEZJ";' in c
     assert cli.main(["regen", "--out", str(tmp_path), "--java-package", "Not A Package"]) == 2
+    assert java.splitlines()[1] == "package __PACKAGE__.cics;"  # (the forge fills the package in, as in CicsTask)
+
+
+# ---- spec PR 4: the committed generated runtime tables -------------------------------------------------------------
+def test_the_committed_generated_files_are_not_stale():
+    """The drift test (cics_command_spec.md section 7, PR 4; also the cics-spec ratchet, pr_gates.py --ratchets):
+    regenerating from the spec changes neither committed file. On a failure: `python -m gitgalaxy.standards.cics
+    regen`, review the Java / C diff, commit it."""
+    assert cli.stale() == []
+    for rel in cli.generated():
+        assert (ROOT / rel).read_text(encoding="utf-8").startswith(("// " + cli.BANNER, "/* " + cli.BANNER)), rel
+
+
+def test_regen_check_reports_a_stale_file(tmp_path, capsys):
+    for rel, text in cli.generated().items():
+        (tmp_path / rel).parent.mkdir(parents=True, exist_ok=True)
+        (tmp_path / rel).write_text(text, encoding="utf-8")
+    assert cli.stale(tmp_path) == []
+    (tmp_path / cli.C_FILE).write_text(cli.render_c().replace("AEZV", "AEZX"), encoding="utf-8")
+    assert cli.stale(tmp_path) == [cli.C_FILE]
+    assert cli.main(["regen", "--check"]) == 0 and "up to date" in capsys.readouterr().out
+
+
+def _java_cases(src: str) -> list[str]:
+    """The `case <RESP> -> "<NAME>";` / `case "<NAME>" -> <RESP or code>;` arms of a Java source."""
+    return re.findall(r'case (?:\d+ -> "[A-Z0-9]+"|"[A-Z0-9]+" -> (?:\d+|"[A-Z0-9]{4}"));', src)
+
+
+def test_the_runtimes_keep_no_hand_copy_of_the_generated_tables():
+    """DetCics.condition / resp, CicsTask.respName / abcodeFor delegate to CicsSpec; ggcics.c includes ggcics_spec.h
+    and names its conditions by the spec's numbers (no literal RESP), with no condition_abcode of its own."""
+    from gitgalaxy.tools.cobol_to_java import cobol_to_java_transaction_forge as forge
+
+    detcics = (ROOT / "gitgalaxy/tools/cobol_to_java/det/cobolrt/cics/DetCics.java").read_text(encoding="utf-8")
+    assert "return CicsSpec.condition(resp);" in detcics and "return CicsSpec.resp(condition);" in detcics
+    assert (
+        "CicsSpec.name(resp)" in forge.CICS_TASK_JAVA
+        and "return CicsSpec.abcodeFor(condition);" in forge.CICS_TASK_JAVA
+    )
+    assert _java_cases(detcics) == [] and _java_cases(forge.CICS_TASK_JAVA) == []
+    assert len(_java_cases(forge.CICS_SPEC_JAVA)) == len(RESP_NAME) + len(DFHRESP) + len(CONDITION_ABEND)
+    ggcics = (ROOT / "tests/equivalence/cics/ggcics.c").read_text(encoding="utf-8")
+    assert '#include "ggcics_spec.h"' in ggcics and "condition_abcode(int" not in ggcics
+    for body in re.findall(r"enum\s*\{([^}]*)\}", ggcics):
+        for name, value in re.findall(r"(\w+)\s*=\s*(\w+)", body):
+            if name in DFHRESP:
+                assert value == f"DFHRESP_{name}", name
+    assert re.search(r"\bERRCOND = DFHRESP_ERROR\b", ggcics)
 
 
 def test_python_m_runs_the_cli():

@@ -15,7 +15,7 @@ Census use is `programs (burned / non-burned)`, counts only. A spec key is the d
 | 1 | done (#4589) | gitgalaxy/standards/cics/ model + resp.py (DFHRESP, abend codes) + entries for the slice 1-4 commands, with today's text word for word | none |
 | 2 | done (#4591) | full entries for the other 34 OPTIONS commands (PR 1 has the 9 of slices 1-4) + LOAD / RELEASE (45 in all) | translator |
 | 3 | done (#4593) | equivalence_cics.py refusals / options / DFHRESP from the spec | stub translator |
-| 4 | open | generated, committed runtime tables: CicsSpec.java (delegated to by DetCics condition / resp, respName, abcodeFor) and ggcics_spec.h | both runtimes |
+| 4 | done (#4608) | generated, committed runtime tables: CicsSpec.java (delegated to by DetCics condition / resp, respName, abcodeFor) and ggcics_spec.h | both runtimes |
 | 5 | open | Fact wiring in cics_crucible.py | runner, both runtimes |
 | 6 | open | outcome conformance check (3.2), report-only for one week, then an undeclared (RESP, RESP2) fails the crucible cell | harness, CI |
 | 7 | open | check-register in pr_gates.py | docs, skill |

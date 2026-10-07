@@ -95,12 +95,13 @@ def test_the_stub_receive_returns_the_typed_text_once_and_truncates_with_lengerr
 # ---- the generated CicsTask ------------------------------------------------------------------------------
 def _cics_task(tmp_path: Path, main_body: str) -> str:
     """Compile the generated CicsTask with a main whose body is `main_body`; its stdout."""
-    from gitgalaxy.tools.cobol_to_java.cobol_to_java_transaction_forge import CICS_TASK_JAVA
+    from gitgalaxy.tools.cobol_to_java.cobol_to_java_transaction_forge import CICS_SPEC_JAVA, CICS_TASK_JAVA
 
     pkg = tmp_path / "src" / "t" / "cics"
     pkg.mkdir(parents=True)
     runtime = CICS_TASK_JAVA.replace("__PACKAGE__", "t").replace("__ZONE__", "UTC")
     (pkg / "CicsTask.java").write_text(runtime, encoding="utf-8")
+    (pkg / "CicsSpec.java").write_text(CICS_SPEC_JAVA.replace("__PACKAGE__", "t"), encoding="utf-8")
     (pkg / "Main.java").write_text("package t.cics;\n\npublic class Main {\n    public static void main(String[] a) {\n"
                                    + main_body + "\n    }\n}\n", encoding="utf-8")  # fmt: skip
     classes = tmp_path / "classes"
@@ -591,11 +592,11 @@ def test_the_stub_handles_conditions_and_abends_as_cics_does(tmp_path):
 
 
 def test_the_stub_and_the_runner_agree_on_condition_abend_codes():
-    src = STUB.read_text(encoding="utf-8")
+    src = STUB.with_name("ggcics_spec.h").read_text(encoding="utf-8")  # #4270 spec PR 4: the stub's condition_abcode
     import cics_crucible as runner
     import equivalence_cics as ec
 
-    table = dict(re.findall(r'case (\w+): return "(\w{4})";', src))
+    table = dict(re.findall(r'case DFHRESP_(\w+): return "(\w{4})";', src))
     assert {c: table[c] for c in runner.CONDITION_ABCODE} == runner.CONDITION_ABCODE
     assert all(c in ec.DFHRESP for c in table)
 

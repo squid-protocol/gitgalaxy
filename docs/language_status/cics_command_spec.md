@@ -1,8 +1,16 @@
 # Design: one declarative CICS command spec (#4270)
 
 **Status: design accepted with the owner's decisions (2026-10-06, section 9); PR 1 (the package, its CLI and the
-transitional equality tests) merged (#4589); PR 2 (the translator reads the spec; 45 full entries, 206 name-only) in
-review.** All line numbers are against origin/main `b6c3e4ea8`.
+transitional equality tests) merged (#4589); PR 2 (the translator reads the spec; 45 full entries, 206 name-only)
+merged (#4591); PR 3 (the stub translator reads the spec) merged (#4593); PR 4 (the generated, committed runtime
+tables) in review.** All line numbers are against origin/main `b6c3e4ea8`.
+
+PR 4 as built: `python -m gitgalaxy.standards.cics regen` writes `gitgalaxy/tools/cobol_to_java/CicsSpec.java`
+(package `<pkg>.cics`, emitted by the transaction forge beside `CicsTask`, since a forge-only project has no
+`cobolrt`; `DetCics` imports it from there) and `tests/equivalence/cics/ggcics_spec.h` (`DFHRESP_<condition>`,
+`condition_abcode`; `ggcics.c`'s short condition names are defined from it). `regen --check` is the `cics-spec`
+ratchet. Only the RESP and abend tables are generated so far; the refusal constants and the stated facts are PR 5's
+(`cics_crucible.CONDITION_ABCODE` too: it is the runner's table, not a runtime's).
 
 Every #4270 slice teaches the det port one more EXEC CICS command by writing the same facts about that command
 again in five to seven places, in three languages. The engine pulls CICS facts out of the same commands with its own

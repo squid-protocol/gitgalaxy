@@ -53,6 +53,7 @@
 #include <string.h>
 #include <sys/stat.h>
 #include <time.h>
+#include "ggcics_spec.h" /* #4270 spec PR 4: DFHRESP_* and condition_abcode, generated from gitgalaxy/standards/cics */
 #ifdef _WIN32
 #include <direct.h>
 #define MKDIR(p) _mkdir(p) /* MinGW / MSVC: no mode argument */
@@ -85,9 +86,11 @@ typedef struct {
     char rtran[4], rterm[4], rqueue[8];  /* START / RETRIEVE RTRANSID, RTERMID, QUEUE (GG-FLAGS names which) */
 } gg_cics;
 
-enum { NORMAL = 0, NOTFND = 13, LENGERR = 22, FILENOTFOUND = 12, MAPFAIL = 36, ITEMERR = 26, QIDERR = 44,
-       INVREQ = 16, PGMIDERR = 27, ENDDATA = 29, DUPREC = 14, ENDFILE = 20, CONTAINERERR = 110,
-       CHANNELERR = 122 };
+/* the conditions the stub raises, by their short names; the numbers are the spec's (ggcics_spec.h) */
+enum { NORMAL = DFHRESP_NORMAL, NOTFND = DFHRESP_NOTFND, LENGERR = DFHRESP_LENGERR, FILENOTFOUND = DFHRESP_FILENOTFOUND,
+       MAPFAIL = DFHRESP_MAPFAIL, ITEMERR = DFHRESP_ITEMERR, QIDERR = DFHRESP_QIDERR, INVREQ = DFHRESP_INVREQ,
+       PGMIDERR = DFHRESP_PGMIDERR, ENDDATA = DFHRESP_ENDDATA, DUPREC = DFHRESP_DUPREC, ENDFILE = DFHRESP_ENDFILE,
+       CONTAINERERR = DFHRESP_CONTAINERERR, CHANNELERR = DFHRESP_CHANNELERR };
 
 static int seq = 0;
 static int ended = 0; /* a RETURN, XCTL or abend ended the task */
@@ -901,7 +904,7 @@ static char terminal_buf[32768];
 static int terminal_at = 0, terminal_n = 0; /* the input not yet returned: terminal_buf[at..n) */
 static char set_buf[32768];                  /* RECEIVE SET's data, valid until the next RECEIVE */
 
-enum { EOC = 6 };
+enum { EOC = DFHRESP_EOC };
 
 static int terminal_receive(gg_cics *c, char *into) {
     char path[4096], ev[96], flags[41];
@@ -1192,7 +1195,7 @@ int GGCXCTL(gg_cics *c, char *commarea, int len) {
 #define MAX_LEVELS 32
 #define MAX_PUSH 16
 #define NCOND 130
-enum { ERRCOND = 1 };
+enum { ERRCOND = DFHRESP_ERROR }; /* HANDLE CONDITION ERROR's slot */
 
 typedef struct {
     short cond[NCOND]; /* >0 label index, -1 IGNORE, 0 default */
@@ -1232,23 +1235,6 @@ static level levels[MAX_LEVELS];
 static void channel_pass(level *L, int passed); /* #4270 */
 static int lvl = 0; /* the current level, 0 = level 1 */
 static char task_abcode[5] = "    ";
-
-/* The abend code of an unhandled condition (the AEIA topic of IBM's abend codes, SPEC 6.2). */
-static const char *condition_abcode(int resp) {
-    switch (resp) {
-    case NOTFND: return "AEIM";
-    case LENGERR: return "AEIV";
-    case ITEMERR: return "AEIZ";
-    case QIDERR: return "AEYH";
-    case MAPFAIL: return "AEI9";
-    case ENDDATA: return "AEI2";
-    case PGMIDERR: return "AEI0";
-    case INVREQ: return "AEIP";
-    case CONTAINERERR: return "AEZJ"; /* #4270: IBM abend codes AEZJ / AEZV, "... condition not handled" */
-    case CHANNELERR: return "AEZV";
-    default: return "????";
-    }
-}
 
 static const char *current_program(void) { return levels[lvl].prog; }
 
@@ -1888,7 +1874,8 @@ int GGCASCH(gg_cics *c) {
  * The virtual clock is $GGCICS_NOW; a task takes no time (SPEC 4). START records its request
  * as an event (with its expiry); the runner's scheduler keeps the requests and dispatches
  * them. RETRIEVE reads the data of the requests the task was started for. */
-enum { TRANSIDERR = 28, TERMIDERR = 11, IOERR = 17, ENVDEFERR = 56 };
+enum { TRANSIDERR = DFHRESP_TRANSIDERR, TERMIDERR = DFHRESP_TERMIDERR, IOERR = DFHRESP_IOERR,
+       ENVDEFERR = DFHRESP_ENVDEFERR };
 
 static time_t now_epoch(void) {
     const char *s = getenv("GGCICS_NOW");

@@ -12271,7 +12271,7 @@
 <li><code>EXEC SQL SET</code>;</li>
 <li>SYNCPOINT ROLLBACK and abend backout across recoverable files and Db2.</li>
 </ul>
-<p>Coverage is lower in GenApp: its error paths LINK to LGSTSQ, which writes past its own data area (register X6) and is refused by name.</p>
+<p>Coverage is lower in GenApp: its error paths LINK to LGSTSQ, which writes past its own data area (register X6). That WRITEQ is refused on both sides, and since #4607 a task that reaches it is judged up to the refusal, with X6 stated as an assumption (not settled on z/OS, #4050).</p>
 <p><strong>Not proven, on purpose</strong> (listed with reasons in <code>proof_sweep.py</code>'s <code>KNOWN_UNPROVEN</code>):</p>
 <ul>
 <li>COCRDUPC writes blanks into a <code>PIC 9(3)</code> field that a typed Java field cannot hold (#4085).</li>

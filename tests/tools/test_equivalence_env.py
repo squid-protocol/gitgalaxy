@@ -93,3 +93,101 @@ def test_pin_message_applies_and_restores_the_escape_hatch(tmp_path, monkeypatch
     assert ee.pin_message(Pin, tmp_path, {"X_ALLOW_UNPINNED": "1"}) is None
     assert ee.pin_message(Pin, tmp_path, {}) == "off pin Fix: checkout"
     assert seen == ["1", None] and "X_ALLOW_UNPINNED" not in os.environ
+
+
+# ---- --provision and the shared-checkout WARN (#4270) ---------------------------------------------------------------
+import json  # noqa: E402
+import subprocess  # noqa: E402
+
+import _cics_crucible_pin as cics_pin  # noqa: E402
+
+
+def _git(*argv, cwd=None):
+    subprocess.run(["git", *argv], cwd=cwd, check=True, capture_output=True)
+
+
+def _repo(path: Path, tag: str | None = None, commits: int = 1) -> Path:
+    path.mkdir(parents=True)
+    _git("init", "-q", "-b", "main", cwd=path)
+    for i in range(commits):
+        (path / "f.txt").write_text(str(i))
+        _git("add", "f.txt", cwd=path)
+        _git("-c", "user.name=t", "-c", "user.email=t@t", "commit", "-q", "-m", str(i), cwd=path)
+        if tag and i == 0:
+            _git("tag", tag, cwd=path)
+    return path
+
+
+@pytest.fixture
+def remote(tmp_path, monkeypatch):
+    base = tmp_path / "remote"
+    _repo(base / "squid-protocol" / "cics-crucible", tag=cics_pin.PINNED_REF, commits=2)  # HEAD past the pin
+    for r in ("o/one", "o/two"):
+        _repo(base / r)
+    monkeypatch.setattr(ee, "census_repos", lambda: ["o/one", "o/two"])
+    cands = tmp_path / "cands.json"
+    cands.write_text(json.dumps({"candidates": [{"full_name": "Someone/Elsewhere", "description": "unread"}]}))
+    monkeypatch.setattr(ee, "CANDIDATES_JSON", cands)
+    return base
+
+
+def test_provision_clones_at_the_pin_records_shas_and_is_idempotent(tmp_path, remote):
+    root = tmp_path / "scratch"
+    log: list[str] = []
+    rec = ee.provision(root, str(remote), log=log.append)
+    crucible = root / "cics-crucible"
+    head = subprocess.run(
+        ["git", "-C", str(crucible), "rev-parse", "HEAD"], capture_output=True, text=True
+    ).stdout.strip()
+    assert rec["crucible"]["sha"] == head and rec["crucible"]["ref"] == cics_pin.PINNED_REF
+    assert cics_pin.pin_mismatch(crucible) is None
+    assert set(rec["census"]) == {"one", "two"} and all(len(v["sha"]) == 40 for v in rec["census"].values())
+    assert json.loads((root / "provision.json").read_text())["census"]["one"]["repo"] == "o/one"
+    assert len(log) == 4  # crucible clone + checkout, two census clones
+    log.clear()
+    (root / "census" / "stray").mkdir()
+    again = ee.provision(root, str(remote), log=log.append)
+    assert log == [] and again["crucible"]["sha"] == head  # nothing cloned twice
+    assert any("stray" in e for e in again["errors"])
+    env = ee.provisioned_env({}, root)
+    assert env["CICS_CENSUS_CORPORA"] == str(root / "census") and env["GG_SCRATCH"] == str(root)
+    assert env["CICS_CRUCIBLE_PATH"] == str(crucible)
+
+
+def test_provision_refuses_an_estate4_candidate_before_cloning(tmp_path, remote, monkeypatch):
+    monkeypatch.setattr(ee, "census_repos", lambda: ["o/one", "o/elsewhere"])
+    with pytest.raises(ee.ProvisionRefused, match="o/elsewhere"):
+        ee.provision(tmp_path / "scratch", str(remote))
+    assert not (tmp_path / "scratch").exists()
+
+
+def test_the_census_list_is_the_ineligible_list_minus_burned():
+    import estate4_draw
+
+    repos = ee.census_repos()
+    assert repos and set(repos) < set(estate4_draw.INELIGIBLE_LIST)
+    assert not {r.split("/")[-1] for r in repos} & {n.lower() for n in estate4_draw.BURNED_NAMES}
+    assert not set(repos) & ee.candidate_names()  # the committed lists never overlap
+
+
+def test_an_off_pin_shared_checkout_warns_a_private_one_fails(tmp_path, monkeypatch):
+    main = tmp_path / "box" / "v6"
+    main.mkdir(parents=True)
+    shared = _repo(tmp_path / "box" / "cics-crucible", tag=cics_pin.PINNED_REF, commits=2)
+    monkeypatch.setattr(ee.pr_gates, "_main_checkout", lambda: main)
+    monkeypatch.delenv(cics_pin.ALLOW_UNPINNED_ENV, raising=False)
+    item, ok, detail = ee.crucible_check({"CICS_CRUCIBLE_PATH": str(shared)})
+    assert ok is None and "SHARED" in detail and "--provision" in detail
+    private = _repo(tmp_path / "mine", tag=cics_pin.PINNED_REF, commits=2)
+    assert ee.crucible_check({"CICS_CRUCIBLE_PATH": str(private)})[1] is False
+    _git("checkout", "-q", cics_pin.PINNED_REF, cwd=shared)
+    assert ee.crucible_check({"CICS_CRUCIBLE_PATH": str(shared)})[1] is True
+
+
+def test_scratch_root_order(tmp_path, monkeypatch):
+    monkeypatch.setenv("GG_SCRATCH", str(tmp_path / "env"))
+    assert ee.scratch_root(tmp_path / "arg") == (tmp_path / "arg").resolve()
+    assert ee.scratch_root() == (tmp_path / "env").resolve()
+    monkeypatch.delenv("GG_SCRATCH")
+    monkeypatch.setenv("GITGALAXY_WORKTREES", str(tmp_path / "wt"))
+    assert ee.scratch_root() == tmp_path / "wt" / "_shared-scratch"

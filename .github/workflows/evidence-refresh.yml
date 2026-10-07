@@ -110,6 +110,25 @@ jobs:
           docker build -q -t gitgalaxy-gnucobol:3 -f gitgalaxy/tests/equivalence/gnucobol.Dockerfile gitgalaxy/tests/equivalence
           python gitgalaxy/tests/tools/equivalence_oracle.py --strict
 
+      # #4270: the det-sweep coverage ledger is keyed to harness / oracle fingerprints, so a harness change blanks every
+      # entry (readers then treat coverage as unknown) until a sweep rewrites them. Re-sweep nightly and rewrite the ledger
+      # from the sweep: `update` always takes fingerprints from the tree, never from the old entry.
+      # TODO(#4603): once evidence_report.py --refresh --live lands, run it after this step (#4603 adds that step itself).
+      - name: Re-sweep the det ports for the coverage ledger (#4270)
+        id: ledger_sweep
+        continue-on-error: true
+        shell: bash  # -eo pipefail: the sweep's exit status, not tee's
+        run: |
+          cd gitgalaxy
+          python tests/tools/proof_sweep.py --det-only --skip-db2 --jobs 4 --no-ratchet --work "$RUNNER_TEMP/sweep" \
+            | tee "$RUNNER_TEMP/sweep.txt"
+
+      - name: Rewrite the coverage ledger from the sweep (#4270)
+        if: always() && hashFiles('**/sweep/sweep.json') != ''
+        run: |
+          cd gitgalaxy
+          python tests/tools/det_coverage_ledger.py update "$RUNNER_TEMP/sweep"
+
       - name: Re-prove the stale records
         id: refresh
         continue-on-error: true
@@ -154,12 +173,13 @@ jobs:
           branch: auto/evidence-refresh
           delete-branch: true
           add-paths: |
+            tests/equivalence/det_sweep_coverage.json
             tests/equivalence/*/evidence.json
             tests/cics_crucible/ports/*/*/evidence.json
             docs/language_status/evidence/*.md
 
       - name: Fail when a re-proof failed
-        if: steps.refresh.outcome == 'failure'
+        if: steps.refresh.outcome == 'failure' || steps.ledger_sweep.outcome == 'failure'
         run: |
-          echo "::error title=Evidence refresh::a record's proof failed or could not run -- see the summary"
+          echo "::error title=Evidence refresh::a record's proof or the ledger's det sweep failed or could not run -- see the summary"
           exit 1

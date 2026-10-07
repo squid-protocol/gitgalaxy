@@ -51,6 +51,16 @@ def test_build_and_fresh(monkeypatch):
     assert dcl.fresh_coverage(CASE, built) is None
 
 
+def test_update_rewrites_stale_fingerprints(monkeypatch):
+    """A harness-stale entry whose numbers the sweep reproduces is refreshed (#4270): update never keeps old fingerprints."""
+    monkeypatch.setattr(dcl, "fingerprints", lambda case: {**FP, "harness": "new"})
+    old = {CASE: entry(inputs={**FP, "harness": "old"})}
+    assert dcl.stale(old[CASE], dcl.fingerprints(CASE)) == ["harness"]
+    built = dcl.build({CASE: {"proved": True, "coverage": LINE}}, old)
+    assert built[CASE]["inputs"]["harness"] == "new" and dcl.stale(built[CASE], dcl.fingerprints(CASE)) == []
+    assert dcl.fresh_coverage(CASE, built) == (4, 4, 2, 2)
+
+
 def test_ledger_is_committed():
     """The ledger must be in git (a `*.json` ignore rule once kept it out of PR #4606)."""
     assert dcl._tracked(dcl.LEDGER)

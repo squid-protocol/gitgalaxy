@@ -296,7 +296,9 @@ def report(results: dict[str, dict[str, dict]], missing: list[str], args: argpar
         for case, r in sorted(cases.items()):
             print(f"  {sweep} {case:<30} {'PROVED' if r['proved'] else 'NOT PROVEN'}  {r.get('coverage', '')}")
     problems = [*missing, *verdict(results, load_baseline())]
-    if getattr(args, "aggregate", None) and "det" in results:  # CI: the coverage ledger must hold what the sweep covered
+    if (
+        getattr(args, "aggregate", None) and "det" in results
+    ):  # CI: the coverage ledger must hold what the sweep covered
         import det_coverage_ledger as ledger
 
         ledger_problems, ledger_warnings = ledger.check(results["det"], ledger.load())

@@ -1,16 +1,16 @@
 ---
 name: blocker-slice
-description: The #4270 blocker-driven loop -- pick the next det-translator / harness slice by the programs it makes translate WHOLE (cics_census.py blockers) or PROVEN (proof_blockers.py), measure first against the baseline survey, stop when nothing moves, land it spec-first, record it in the blockers history. Covers the measure / stop rule, spec-first for CICS commands, the honest-refusal patterns, the environment, the trap list and the brief template an orchestrator hands an agent. Use when the user says "next blocker", "what unlocks the most programs", "blocker slice", "rank the gaps", "what stops <program> being proven", or briefs an agent on #4270 work. For the per-command checklist (runtimes, crucible case, release) it hands over to cics-command-slice; for translator / proof debugging to det-port.
+description: The #4270 blocker-driven loop -- pick the next det-translator / harness slice by the programs it makes translate WHOLE (cics_census.py blockers) or PROVEN (proof_blockers.py), measure before and after against the baseline survey (a guide, not a gate), land it spec-first, record it in the blockers history. Covers measuring and ranking, spec-first for CICS commands, the honest-refusal patterns, the environment, the trap list and the brief template an orchestrator hands an agent. Use when the user says "next blocker", "what unlocks the most programs", "blocker slice", "rank the gaps", "what stops <program> being proven", or briefs an agent on #4270 work. For the per-command checklist (runtimes, crucible case, release) it hands over to cics-command-slice; for translator / proof debugging to det-port.
 ---
 
 The unit of progress is a **program**, not a keyword: programs translated WHOLE (no hole), then programs PROVEN
 equivalent. A slice is whatever moves the most programs -- a CICS command, a grammar gap (#4462), a missing
-copybook, a refusal, a stated fact -- and a slice that moves none is not landed. This skill is the outer loop;
+copybook, a refusal, a stated fact, a harness feature. This skill is the outer loop;
 `cics-command-slice` is the checklist for a CICS-command slice inside it, `det-port` for the translator and proofs.
 
 Why a separate skill: the loop picks non-CICS work as often as CICS work (#4588 wide characters, #4590 listing
 control and cut literals, #4592 FUNCTION RANDOM -- none a CICS command), so it cannot live inside a per-command
-checklist; and an orchestrator needs one page for the measure / stop rule and the brief, not the release flow.
+checklist; and an orchestrator needs one page for measuring, ranking and the brief, not the release flow.
 
 ## 1. Measure first (before any code)
 
@@ -28,10 +28,13 @@ $PY tests/tools/proof_blockers.py SURVEY_DIR --label LABEL [--sweep SWEEP_DIR]
   Non-burned first: burned estates already have ports.
 - A `*` row refuses the whole program, so its count is an upper bound: run `--unmask GAPKEY` to see the gaps behind
   it before promising anything.
-- **STOP and report** when the gap makes no program whole, even if it is frequent. Precedent: the WEB slice
-  (2026-10-07) measured WEB alone at **0** programs, +2 non-burned only together with JSON PARSE / GENERATE; it was
-  dropped, not landed. ASSIGN (2026-10-06) closed every ASSIGN hole and moved whole programs 7 -> 7. A stated reason
-  (a prerequisite of a measured larger unlock) is the only exception, and it goes in the PR.
+- **The numbers guide; they do not gate** (owner, 2026-10-07). The rankings say what to do FIRST and the before /
+  after numbers show progress at every rung (translated whole; executed-equivalent; 100% paragraphs; 100% branches)
+  and as coverage percentages. Work that will clearly be needed again -- a harness feature, a missing event, a stated
+  fact, an oracle decision -- lands even when it moves no program today; say in the PR what it unblocks next. Stop
+  only for a real blocker: an owner decision, semantics you would have to guess, or a rule (the blind estate,
+  census repos counts-only). The 2026-10-07 lesson: measuring only the top bar stopped four slices with reusable
+  work (EIBTASKN moved 22 -> 29 programs to full paragraph coverage and still had no PR).
 - Proof level: `proof_blockers.py` ranks, for the programs already WHOLE, what stops each being PROVEN: `no case`,
   `known unproven: #issue` (det_sweep_baseline.json), `scenario differs: KIND`, `not proven in CI: Db2 case`,
   `coverage: ...`, `fact: EIBTASKN` / `fact: ASSIGN USERID` (a runtime fact no harness states). Without `--sweep`
@@ -106,6 +109,6 @@ Issue: #NNNN (part of #4270). Skills: blocker-slice, cics-command-slice (if a CI
 Gap: `<GAPKEY>` -- only gap for A programs (burned b / non-burned n), one away for C; behind it (--unmask): ...
 Acceptance: translated whole X -> >= Y (non-burned a -> >= b) by `compare --before-baseline`; refusals named, no
   guessed semantics; X-register entry; spec entry first (if CICS); ratchets green; draft PR.
-Stop rule: if the measured unlock is 0, report the measurement and stop (no PR).
+Measure: before / after numbers at every rung in the PR; land the work (stop only for a real blocker).
 Coordination: siblings / merge order / files not to touch (e.g. a pin bump in flight owns the crucible baseline).
 ```

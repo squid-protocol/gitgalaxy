@@ -35,8 +35,8 @@ Traps `--check` exists for:
       `EXEC CICS VERB` uses, totals per option, burned / non-burned. Multi-word verbs: `"SEND TEXT"` or `SEND-TEXT`.
       `--pli` adds PL/I programs (flagged: the det translator takes COBOL only). Names and counts only.
 - [ ] **Pick by blockers, not by frequency** -- the `blocker-slice` skill is the loop and its rules: measure on
-      the baseline first (`cics_census.py blockers --baseline`, `--unmask GAPKEY` for a `*` row), STOP and report
-      when the gap makes no program whole (WEB, 2026-10-07: 0 alone; ASSIGN, 2026-10-06: 7 -> 7), the
+      the baseline first (`cics_census.py blockers --baseline`, `--unmask GAPKEY` for a `*` row) to RANK the work
+      (a guide, not a gate: work needed again lands even if it moves no program today), the
       proof-level ranking (`proof_blockers.py`), the honest-refusal patterns and the brief template. A gap may be
       a CICS verb, a grammar gap (#4462) or a missing copybook; the census above is the tiebreaker. Note what you
       leave refused and why.

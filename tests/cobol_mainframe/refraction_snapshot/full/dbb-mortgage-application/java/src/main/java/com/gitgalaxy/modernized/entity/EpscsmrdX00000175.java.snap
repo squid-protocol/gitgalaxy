@@ -16,6 +16,84 @@ public class EpscsmrdX00000175 {
     @Column(name = "sys_id")
     private Long sysId;
 
+    @Column(name = "DFH_BODY_CONTAINER", length = 16)
+    private String dfhBodyContainer;
+
+    @Column(name = "DFH_DATA_CONTAINER", length = 16)
+    private String dfhDataContainer;
+
+    @Column(name = "CONVERTER_RETURN_CODE")
+    private Integer converterReturnCode;
+
+    @Column(name = "SEVERITY")
+    private Integer severity;
+
+    @Column(name = "MSG_NO")
+    private Integer msgNo;
+
+    @Column(name = "CASE_SEV_CTL", length = 1)
+    private String caseSevCtl;
+
+    @Column(name = "FACILITY", length = 3)
+    private String facility;
+
+    @Column(name = "I_S_INFO")
+    private Integer iSInfo;
+
+    @Column(name = "ERROR_OCCURRED", length = 1)
+    private String errorOccurred;
+
+    @Column(name = "ERROR_MESSAGE_NUMBER")
+    private Integer errorMessageNumber;
+
+    @Column(name = "ERROR_REASON_LENGTH")
+    private Integer errorReasonLength;
+
+    @Column(name = "ERROR_REASON", length = 512)
+    private String errorReason;
+
+    @Column(name = "XML2LS_LANG_BUFFER_LENGTH")
+    private Integer xml2lsLangBufferLength;
+
+    @Column(name = "LS2XML_LANG_BUFFER_LENGTH")
+    private Integer ls2xmlLangBufferLength;
+
+    @Column(name = "LS2XML_XML_BUFFER_LENGTH")
+    private Integer ls2xmlXmlBufferLength;
+
+    @Column(name = "XML2LS_XML_CCSID")
+    private Integer xml2lsXmlCcsid;
+
+    @Column(name = "HOST_LANG_CCSID")
+    private Integer hostLangCcsid;
+
+    @Column(name = "LS2XML_XML_CCSID")
+    private Integer ls2xmlXmlCcsid;
+
+    @Column(name = "NEXT_CONTAINER", length = 16)
+    private String nextContainer;
+
+    @Column(name = "COMMAND_RESP")
+    private Integer commandResp;
+
+    @Column(name = "COMMAND_RESP2")
+    private Integer commandResp2;
+
+    @Column(name = "DFH_BODY_LEN")
+    private Integer dfhBodyLen;
+
+    @Column(name = "DFH_DATA_LEN")
+    private Integer dfhDataLen;
+
+    @Column(name = "WORK_AREA_LEN")
+    private Integer workAreaLen;
+
+    @Column(name = "DFH_BODY", length = 1)
+    private String dfhBody;
+
+    @Column(name = "DFH_DATA", length = 1)
+    private String dfhData;
+
     @Column(name = "PROCESS_INDICATOR", length = 1)
     private String processIndicator;
 

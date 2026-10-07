@@ -1,0 +1,9 @@
+CREATE TABLE PROG_NAMES (
+    CUST_NO_IN                     VARCHAR(4),
+    INPUT_CONTAINER                VARCHAR(16),
+    CRDTCHK_CONTAINER              VARCHAR(16),
+    UPDCSDB_CONTAINER              VARCHAR(16),
+    DB_CACHE                       VARCHAR(8),
+    COMMAND_RESP                   INTEGER,
+    COMMAND_RESP2                  INTEGER
+);

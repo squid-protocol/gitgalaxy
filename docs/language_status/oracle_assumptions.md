@@ -83,7 +83,7 @@ verdict, but it limits what the proof says about inputs outside the scenarios.
 | X3 | CICS | Backout: recoverable files and Db2 undone, RECOVERY(NONE) files kept | MATCHED | yes (CBSA INQACC) |
 | X4 | CICS | A task takes no time (ASKTIME = dispatch time) | ASSUMED | yes |
 | X5 | CICS | Options and conditions IBM leaves open are refused | REFUSED | — |
-| X6 | CICS | WRITEQ with a LENGTH past its FROM item (GenApp LGSTSQ) | REFUSED | — |
+| X6 | CICS | WRITEQ with a LENGTH past its FROM item (GenApp LGSTSQ): the task is judged up to the refused WRITEQ (owner decision on #4607); not settled on z/OS (#4050) | REFUSED (the WRITEQ) / judged up to it | yes (GenApp LGACDB01, LGACDB02, LGDPDB01, LGIPDB01, LGUCDB01 error paths) |
 | X7 | CICS | ASSIGN INVOKINGPROG / PROGRAM; LINKed programs run in one task | MATCHED | yes (GenApp LGUPDB01) |
 | X8 | compiler | A reference modification past its item (no SSRANGE): a storage overlay | not run | no |
 | X9 | CICS | Named counters (GET COUNTER) | MATCHED | yes (GenApp LGACDB01) |
@@ -525,18 +525,28 @@ Refused by name (`equivalence_cics.Unsupported`):
 
 The length READQ TS returns on ITEMERR or QIDERR is not documented, so it is not set.
 
-### X6. A WRITEQ LENGTH past its FROM item — REFUSED
+### X6. A WRITEQ LENGTH past its FROM item — REFUSED, the task judged up to it
 - **What.** GenApp's LGSTSQ (the error logger every GenApp program LINKs on its error paths) writes
-  `LENGTH(WS-RECV-LEN)`, the caller's COMMAREA length + 5. That is more than `FROM(WRITE-MSG)` holds (95 bytes), so
-  CICS copies the bytes that follow WRITE-MSG in storage.
-- **Why it is not judged.** Those bytes depend on how the compiler lays out WORKING-STORAGE; GnuCOBOL's layout is not
-  IBM's, so no oracle here can say what z/OS writes.
-- **Refused.** The translated WRITEQ TD / TS checks its LENGTH against the FROM item and stops the run (98,
-  "WRITEQ TD LENGTH > FROM: not modelled"); the case is refused by name, never reported as a difference. GenApp's
-  error paths (every GenApp program LINKs LGSTSQ on them) stay out of their cases until z/OS settles it.
-- **#4173.** An SQL-fault task (M2) that reaches the LINK to LGSTSQ is judged up to and including that LINK -- its
-  events and the COMMAREA's bytes as LINKed, byte for byte -- and its end state (tables, files, the final COMMAREA) is
-  not compared: LGSTSQ is not run on either side.
+  `LENGTH(WS-RECV-LEN)`, the caller's COMMAREA length + 5. That is more than `FROM(WRITE-MSG)` holds (95 bytes) when the
+  caller passes more than 90 bytes -- WRITE-ERROR-MESSAGE's second LINK passes the 99-byte CA-ERROR-MSG, so LGSTSQ
+  writes 104 bytes -- and CICS copies the bytes that follow WRITE-MSG in storage.
+- **Why the WRITEQ is not judged.** Those bytes depend on how the compiler lays out WORKING-STORAGE; GnuCOBOL's layout
+  is not IBM's, so no oracle here can say what z/OS writes. **Not settled on z/OS (#4050).**
+- **Refused, both sides.** The translated WRITEQ TD / TS checks its LENGTH against the FROM item and stops the run (98,
+  "WRITEQ TD LENGTH > FROM: not modelled"); the det port refuses at the same statement (`DetCics.within` throws
+  `DetCics.PastFrom`, #4607). START / PUT CONTAINER / GET CONTAINER past their area stay refused whole.
+- **Judged up to the refused WRITEQ** (owner decision on #4607, 2026-10-07). A task that reaches it -- a scenario or a
+  derived SQL-fault task -- is compared up to that statement, the way #4173 judges a task up to a LINK not run:
+  every event before it (the LINKs, the WRITEQ TD / TS records of the first, short LGSTSQ call, RETURNs) field by
+  field, and it passes only when BOTH sides stopped at it (the report's `x6`; `judged_to` names the refusal). Its end
+  state -- files, tables, the COMMAREA it leaves -- is not compared. The branch outcomes it ran before the refusal
+  count as executed (the COBOL trace stops at the refusal). A proof that leans on such a task lists X6 among its
+  assumptions: what the task would have done after the WRITEQ on z/OS is not claimed.
+- **#4173.** An SQL-fault task (M2) that reaches a LINK to a program the case does not run is judged up to and
+  including that LINK -- its events and the COMMAREA's bytes as LINKed, byte for byte. With LGSTSQ in a case's
+  `"programs"` (GenApp's Db2 cases, #4607) the task runs on to the X6 refusal instead.
+- **Still out of reach:** WRITE-ERROR-MESSAGE's `IF EIBCALEN < 91` true side needs a COMMAREA shorter than 91 bytes; the
+  harness passes each case's whole COMMAREA (a per-scenario length is a follow-up).
 
 ### X7. ASSIGN INVOKINGPROG / PROGRAM, and several programs in one task — MATCHED
 - ASSIGN PROGRAM is the running program, INVOKINGPROG the program that LINKed or XCTLed to it (blanks for a task's
@@ -544,6 +554,10 @@ The length READQ TS returns on ITEMERR or QIDERR is not documented, so it is not
 - A case's `"programs"` run in the same task on both sides: the COBOL side's dispatcher (as the cics-crucible's) and
   the Java side's `CicsTask.Programs`, each a port. A LINK is compared by its target; what the target did is compared
   through its files, tables, queue writes and the COMMAREA it leaves.
+- **Queue writes (#4607).** A WRITEQ TD is an event (queue, record text) and so is a WRITEQ TS (queue, the item as
+  text, RESP, item number), on both sides as CicsTask records them. Before #4607 the COBOL side dropped the stub's
+  WRITEQ-TS line, so any task that wrote TS differed. The item is read in each side's page: the stub's storage page,
+  and the det port's region page (CCSID 037 by default, #4528); a port in another region page shows as a difference.
 
 ### X8. A reference modification past its item — not run
 - **What.** GenApp's LGAPDB01 MOVEs into `WS-VARY-CHAR(1:WS-VARY-LEN)`, the COMMAREA's length less the request's:

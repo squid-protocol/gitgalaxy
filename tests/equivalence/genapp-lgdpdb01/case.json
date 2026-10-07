@@ -38,6 +38,10 @@
  },
  "linked": true,
  "screens": {},
+ "region": {
+  "applid": "GENAREGN",
+  "sysid": "CICA"
+ },
  "scenarios": [
   {
    "name": "request-add-policy-id",
@@ -118,13 +122,22 @@
     "CA-REQUEST-SPECIFIC": "0000000010                                                  "
    },
    "why": "commercial policy 10 of customer 1: the COMMERCIAL row cascades"
+  },
+  {
+   "name": "no-commarea",
+   "commarea": null,
+   "why": "EIBCALEN 0: IF EIBCALEN IS EQUAL TO ZERO -- EM-VARIABLE ' NO COMMAREA RECEIVED', WRITE-ERROR-MESSAGE LINKs LGSTSQ with ERROR-MSG (it writes the message to TD CSMT and TS GENAERRS: #4607), IF EIBCALEN > 0 is false, then ABEND LGCA"
   }
  ],
- "notes": "GenApp's Db2 'delete policy' (LGDPDB01): for 01DEND / 01DHOU / 01DCOM / 01DMOT it DELETEs the POLICY row (CUSTOMERNUMBER, POLICYNUMBER), which cascades to ENDOWMENT / HOUSE / MOTOR / COMMERCIAL / CLAIM, then EXEC CICS LINK PROGRAM(LGDPVS01) to delete the VSAM copy; any other request id sets CA-RETURN-CODE '99'. The COMMAREA (LGCMAREA, 32500 bytes; its layout read from the caller LGDPOL01's DFHCOMMAREA, COPY LGCMAREA, as LGDPDB01's own brings it in by EXEC SQL INCLUDE) and every table the DELETE's cascade reaches are compared after each task; seed: GenApp's own INSERTs (base/cntl/db2cre.jcl). NOT exercised -- refused by the harness, which runs one program: every accepted request id ends in LINK PROGRAM(LGDPVS01) (whether the DELETE deleted a row or not), and a failing DELETE (+100 for a policy not on file, which LGDPDB01 treats as an error: '90') and a zero-length COMMAREA go first to LINK PROGRAM('LGSTSQ'). So the DELETE itself, its cascade and '90' need a model of the LINKed programs. The EIBCALEN < 28 check ('98') is unreachable with the 32500-byte COMMAREA the case passes. Derived from the CICS General Insurance Application (GenApp, github.com/cicsdev/cics-genapp; (C) Copyright IBM Corp. 2011, 2020), licensed under the Eclipse Public License 2.0: LICENSE here is the corpus's own, NOTICE names the source and what was derived. With LGDPVS01 run in the same task (\"programs\"), the delete path is proven too: DELETE FROM POLICY, its ON DELETE CASCADE into the type tables, and the VSAM delete. A delete that finds no row (+100 -> '90') LINKs LGSTSQ, whose WRITEQ LENGTH runs past its FROM area (oracle_assumptions.md X6): not here.",
+ "notes": "GenApp's Db2 'delete policy' (LGDPDB01): for 01DEND / 01DHOU / 01DCOM / 01DMOT it DELETEs the POLICY row (CUSTOMERNUMBER, POLICYNUMBER), which cascades to ENDOWMENT / HOUSE / MOTOR / COMMERCIAL / CLAIM, then EXEC CICS LINK PROGRAM(LGDPVS01) to delete the VSAM copy; any other request id sets CA-RETURN-CODE '99'. The COMMAREA (LGCMAREA, 32500 bytes; its layout read from the caller LGDPOL01's DFHCOMMAREA, COPY LGCMAREA, as LGDPDB01's own brings it in by EXEC SQL INCLUDE) and every table the DELETE's cascade reaches are compared after each task; seed: GenApp's own INSERTs (base/cntl/db2cre.jcl). NOT exercised -- refused by the harness, which runs one program: every accepted request id ends in LINK PROGRAM(LGDPVS01) (whether the DELETE deleted a row or not), and a failing DELETE (+100 for a policy not on file, which LGDPDB01 treats as an error: '90') and a zero-length COMMAREA go first to LINK PROGRAM('LGSTSQ'). So the DELETE itself, its cascade and '90' need a model of the LINKed programs. The EIBCALEN < 28 check ('98') is unreachable with the 32500-byte COMMAREA the case passes. Derived from the CICS General Insurance Application (GenApp, github.com/cicsdev/cics-genapp; (C) Copyright IBM Corp. 2011, 2020), licensed under the Eclipse Public License 2.0: LICENSE here is the corpus's own, NOTICE names the source and what was derived. With LGDPVS01 run in the same task (\"programs\"), the delete path is proven too: DELETE FROM POLICY, its ON DELETE CASCADE into the type tables, and the VSAM delete. A delete that finds no row (+100 -> '90') LINKs LGSTSQ (below). #4607 / X6 (owner decision): LGSTSQ runs in the same task (\"programs\"; \"region\" for its ASSIGN SYSID). An EIBCALEN-0 task (no-commarea) LINKs it with the short ERROR-MSG and ABENDs LGCA, compared whole (the WRITEQ TD and WRITEQ TS it writes too). An error path with the 32500-byte COMMAREA LINKs it a second time with the 99-byte CA-ERROR-MSG; LGSTSQ then writes 104 bytes from its 95-byte WRITE-MSG (X6), so that task is judged up to the refused WRITEQ: what it did before is compared, its end state is not. Not settled on z/OS (#4050). Still not reached: IF EIBCALEN < 91 true (a COMMAREA shorter than 91 bytes; the harness passes the case's whole COMMAREA).",
  "programs": [
   {
    "program": "LGDPVS01",
    "program_source": "base/src/lgdpvs01.cbl"
+  },
+  {
+   "program": "LGSTSQ",
+   "program_source": "base/src/lgstsq.cbl"
   }
  ],
  "datasets": {

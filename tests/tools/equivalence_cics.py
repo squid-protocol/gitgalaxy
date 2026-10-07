@@ -1503,6 +1503,10 @@ def run_cobol_cics(case: dict[str, Any], corpus: Path, work: Path, files: list[d
         rc = work / "scenarios" / sc["name"] / "rc"
         said = work / "scenarios" / sc["name"] / "stdout.txt"
         if rc.is_file() and rc.read_text().strip() == "98" and said.is_file():
+            x6 = x6_writeq_refusal(said.read_text(encoding="latin-1"))
+            if x6:  # owner decision on #4607 (X6): judged up to the refused WRITEQ, derived or not -- what ran before
+                sc["prefix_x6"] = x6  # it counts (its coverage too); its end state is not compared
+                continue
             why = next((ln for ln in said.read_text(encoding="latin-1").splitlines() if "not modelled" in ln), None)
             if why and sc.get("derived"):
                 refused[sc["name"]] = why.strip()
@@ -1614,6 +1618,53 @@ def _day_of_year(y: int, m: int, d: int) -> int:
     return datetime.date(y, m, d).timetuple().tm_yday
 
 
+RESP_NAMES = {n: name for name, n in DFHRESP.items()}  # #4607: the stub logs a RESP by number, CicsTask by name
+
+
+def _cobol_ts(kv: dict[str, str], data: bytes, enc: str) -> dict[str, Any]:
+    """#4607: a WRITEQ TS the stub logged (`queue` the name's bytes in hex, `item` 0 when none was written, `resp` by
+    number; the bytes written in the event's blob) as CicsTask records it: {queue, data, resp, item}. The data of a
+    write that failed is not compared (the stub logs none for a LENGTH outside 1-32763)."""
+    name = bytes.fromhex(kv.get("queue", ""))
+    resp = RESP_NAMES.get(int(kv.get("resp", "0")), kv.get("resp", ""))
+    text = common._decode_text(data, enc) if resp == "NORMAL" else None
+    if resp == "NORMAL" and text is None:
+        text = f"<undecodable {data!r} in {enc}>"
+    return {"queue": (common._decode_text(name, enc) or name.hex()).rstrip(" \x00"), "data": text, "resp": resp,
+            "item": int(kv.get("item", "0")) or None}  # fmt: skip
+
+
+def java_ts_as_compared(e: dict[str, Any]) -> dict[str, Any]:
+    """#4607: CicsTask's WRITEQ-TS event as the comparison reads it: its data (bytes, base64 in the JSON) in the
+    region's page -- the det port writes an item there (#4528: DetCics.toRegion; CICS's default CCSID 037, the page
+    det/cics.region_page gives an estate that declares no EBCDIC one) -- as text; none for a write that failed. A
+    port whose region page is another shows as a difference, never as a pass."""
+    import base64
+
+    from gitgalaxy.tools.cobol_to_java.det.cics import REGION_PAGE
+
+    data = e.get("data")
+    text = None
+    if e.get("resp") == "NORMAL" and isinstance(data, str):
+        raw = base64.b64decode(data)
+        try:
+            text = raw.decode(REGION_PAGE)
+        except UnicodeDecodeError:
+            text = f"<undecodable {raw!r} in {REGION_PAGE}>"
+    return {**e, "data": text, "item": e.get("item") or None}
+
+
+X6_WRITEQ = re.compile(r"WRITEQ T[SD] LENGTH > FROM: not modelled")
+
+
+def x6_writeq_refusal(said: str) -> str | None:
+    """Owner decision on #4607 (X6): the stub's stop at a WRITEQ TS / TD whose LENGTH runs past FROM (`_past_from`),
+    the one "not modelled" stop a task is judged up to -- its line, or None for any other (START / PUT CONTAINER past
+    FROM, an LE model: those still refuse the task)."""
+    m = X6_WRITEQ.search(said)
+    return m.group(0) if m else None
+
+
 def outputs(out: Path, case: dict[str, Any], corpus: Path, ca_fields: list[dict[str, Any]]) -> dict[str, Any]:
     """A task's outputs from the stub's log: `events` (every command, in order), `screens`
     ([{map, fields}] per SEND MAP, data fields only: <name>O -> <name>), `text` (SEND TEXT),
@@ -1656,6 +1707,8 @@ def outputs(out: Path, case: dict[str, Any], corpus: Path, ca_fields: list[dict[
         elif verb == "WRITEQ-TD":  # a transient-data record, as text in the data's page
             text = common._decode_text(data, enc)
             res.setdefault("td", []).append(f"<undecodable {data!r} in {enc}>" if text is None else text)
+        elif verb == "WRITEQ-TS":  # #4607: as CicsTask records it (queue, data, resp, item)
+            res.setdefault("ts", []).append(_cobol_ts(kv, data, enc))
     left = out / "commarea.out"  # a LINKed program's result: the COMMAREA it left (ggcics GGCAOUT)
     res["linked_commarea"] = (
         decode_record(left.read_bytes(), ca_fields, enc) if left.is_file() and left.stat().st_size else None
@@ -2338,12 +2391,16 @@ class EquivalenceRunTest {{
                     {db2_rollback}
                 }} catch (RuntimeException e) {{
                     // #4173: a derived SQL-fault task that reaches a det port's named hole (an untranslated
-                    // statement) is not judged -- recorded, never passed; any other failure stays a failure
-                    if (!sc.path("derived").asBoolean() || !"Hole".equals(e.getClass().getSimpleName())) {{
+                    // statement) is not judged -- recorded, never passed; any other failure stays a failure.
+                    // #4607 x X6: a WRITEQ whose LENGTH runs past FROM (DetCics.PastFrom) ends the task there,
+                    // as the stub stops it: judged up to it (equivalence_cics.x6_judged)
+                    boolean x6 = "PastFrom".equals(e.getClass().getSimpleName());
+                    if (!x6 && (!sc.path("derived").asBoolean() || !"Hole".equals(e.getClass().getSimpleName()))) {{
                         throw e;
                     }}
                     try {{
-                        Files.writeString(out.resolve(sc.get("name").asText() + ".hole"), String.valueOf(e.getMessage()));
+                        Files.writeString(out.resolve(sc.get("name").asText() + (x6 ? ".x6" : ".hole")),
+                                String.valueOf(e.getMessage()));
                     }} catch (IOException io) {{
                         throw new java.io.UncheckedIOException(io);
                     }}
@@ -2536,6 +2593,8 @@ def _java_events(case: dict[str, Any], out: Path, shape: dict[str, Any]) -> dict
         for e in events:
             if e.get("event") == "LINK":  # #4173: the target's DTO as issued, before it is mapped to this program's
                 e["link_area"] = e.get("commarea")
+            if e.get("event") == "WRITEQ-TS":  # #4607: the item's bytes as text
+                e.update(java_ts_as_compared(e))
             if "commarea" in e:
                 e["commarea"] = from_java(e["commarea"], shape) if e["commarea"] is not None else None
         result[sc["name"]] = events
@@ -2699,6 +2758,7 @@ def cobol_events(res: dict[str, Any]) -> list[dict[str, Any]]:
     """The COBOL task's outputs as the event list CicsTask records."""
     out: list[dict[str, Any]] = []
     screens, texts, records = iter(res["screens"]), iter(res["text"]), iter(res.get("td", []))
+    queued = iter(res.get("ts", []))
     for line in res["events"]:
         verb, _, args = line.partition(" ")
         if verb == "SEND-MAP":
@@ -2713,6 +2773,8 @@ def cobol_events(res: dict[str, Any]) -> list[dict[str, Any]]:
             queue = re.search(r"\bqueue=(\S*)", args).group(1)
             resp = re.search(r"\bresp=(\S*)", args).group(1)
             out.append({"event": "WRITEQ-TD", "queue": queue, "text": next(records) if resp == "0" else None})
+        elif verb == "WRITEQ-TS":  # #4607: CicsTask.writeqTs records it (queue, data, resp, item)
+            out.append({"event": "WRITEQ-TS", **next(queued)})
         elif verb == "RECEIVE-MAP":  # #4009: CicsTask.receive records it too
             out.append({"event": "RECEIVE-MAP", "map": re.search(r"\bmap=(\S*)", args).group(1)})
         elif verb == "RETURN":
@@ -2770,7 +2832,7 @@ def compare_events(cobol: list[dict[str, Any]], java: list[dict[str, Any]]) -> d
             diffs.append({"event": n + 1, "cobol": c and c["event"], "java": j and j["event"]})
             continue
         bad = []
-        for key in ("map", "transid", "program", "text", "abcode", "queue"):
+        for key in ("map", "transid", "program", "text", "abcode", "queue", "data", "resp", "item"):
             if key in c and not _same(c[key], j.get(key)):
                 bad.append({"field": key, "cobol": c[key], "java": j.get(key)})
         for part in ("screen", "commarea"):
@@ -2952,6 +3014,24 @@ def _to_link(events: list[dict[str, Any]], program: str) -> list[dict[str, Any]]
     return events
 
 
+X6_JUDGED = ("the refused WRITEQ (X6: its LENGTH runs past FROM; not settled on z/OS, #4050) -- what the task did "
+             "before it is compared, its end state (files, tables, the COMMAREA it leaves) is not")  # fmt: skip
+
+
+def x6_judged(sc: dict[str, Any], java_out: Path, cev: list[dict[str, Any]],
+              jev: list[dict[str, Any]]) -> tuple[list[dict[str, Any]], list[dict[str, Any]], dict[str, Any] | None]:  # fmt: skip
+    """Owner decision on #4607 (X6): a task either side stopped at a WRITEQ whose LENGTH runs past FROM -- the stub
+    (`prefix_x6`, run_cobol_cics) or the Java side (`<scenario>.x6`: DetCics.PastFrom) -- is judged up to that
+    WRITEQ, as #4173 judges a task up to a LINK not run: both sides' events without the COMMAREA left, and `ok` only
+    when BOTH sides refused there. None for a task neither side stopped."""
+    f = java_out / f"{sc['name']}.x6"
+    java = f.read_text(encoding="utf-8").strip() if f.is_file() else None
+    if not sc.get("prefix_x6") and java is None:
+        return cev, jev, None
+    left = [e for e in cev if e.get("event") != "COMMAREA"], [e for e in jev if e.get("event") != "COMMAREA"]
+    return left[0], left[1], {"cobol": sc.get("prefix_x6"), "java": java, "ok": bool(sc.get("prefix_x6") and java)}
+
+
 def _fired(log: Path) -> list[str]:
     return sorted(x for x in log.read_text(encoding="ascii").splitlines() if x.strip()) if log.is_file() else []
 
@@ -2981,11 +3061,15 @@ def judge_facade(case: dict[str, Any], corpus: Path, files: list[dict[str, Any]]
         jev = mask_clock_events(case, linked_result(case, facade["events"].get(name, [])), clock)
         if sc.get("prefix_link"):
             cev, jev = _to_link(cev, sc["prefix_link"]), _to_link(jev, sc["prefix_link"])
+        cev, jev, x6 = x6_judged(sc, out, cev, jev)
         cev, jev = mask_absent_commarea(sc, cev, jev, [0])
         d = compare_events(cev, jev)
         o: dict[str, Any] = {"equal": d["equal"], "records": d["events"], "diffs": d["diffs"], "java": jev,
                              "entries": facade["entries"].get(name, [])}  # fmt: skip
         ok = d["equal"] == d["events"]
+        if x6:
+            o["judged_to"], o["x6"] = X6_JUDGED, x6
+            ok &= x6["ok"]
         why = facade["refused"].get(name)
         if why:
             o["refused"] = why
@@ -3000,7 +3084,7 @@ def judge_facade(case: dict[str, Any], corpus: Path, files: list[dict[str, Any]]
                      "java": _fired(out / f"{name}.faults")}  # fmt: skip
             o["fired"] = fired
             ok &= bool(fired["cobol"]) and fired["cobol"] == fired["java"]
-        if not sc.get("prefix_link"):
+        if not sc.get("prefix_link") and not x6:
             changed = compare_files(case, corpus, files, res.get("files", {}), out, name)
             changed.update(compare_db2(case, res.get("db2", {}), out, name, clock))
             if changed:
@@ -3094,6 +3178,7 @@ def run_case(case: dict[str, Any], corpus: Path, work: Path, port: bool = True, 
         sc = next(x for x in case["scenarios"] if x["name"] == name)
         if sc.get("prefix_link"):  # #4173: a fault task that LINKs to a program the case does not run -- both
             cev, jev = _to_link(cev, sc["prefix_link"]), _to_link(jev, sc["prefix_link"])  # sides judged up to it
+        cev, jev, x6 = x6_judged(sc, work / "java" / "out", cev, jev)
         undefined = [0]  # COMMAREA fields a task with no COMMAREA copied from nowhere (X12)
         cev, jev = mask_absent_commarea(sc, cev, jev, undefined)
         d = compare_events(cev, jev)
@@ -3102,6 +3187,11 @@ def run_case(case: dict[str, Any], corpus: Path, work: Path, port: bool = True, 
         ok &= d["equal"] == d["events"]
         if sc.get("derived"):
             report["outputs"][name]["sql_faults"] = sc["sql_plan"]
+        if x6:
+            report["outputs"][name]["judged_to"], report["outputs"][name]["x6"] = X6_JUDGED, x6
+            if not x6["ok"]:
+                ok = False
+                print(f"{case['program']} {name}: only one side refused the WRITEQ past FROM (X6): {x6}")
         if sc.get("prefix_link"):
             report["outputs"][name]["judged_to"] = (
                 f"LINK PROGRAM({sc['prefix_link']}) (not run: its end state is not compared)"
@@ -3122,9 +3212,10 @@ def run_case(case: dict[str, Any], corpus: Path, work: Path, port: bool = True, 
         print(f"{case['program']} {name}: {d['equal']}/{d['events']} events equal")
         for x in d["diffs"][:6]:
             print(f"   event {x['event']}: {x.get('fields', [])[:3] or (x.get('cobol'), x.get('java'))}")
-        changed = {} if sc.get("prefix_link") else compare_files(case, corpus, files, res.get("files", {}),
-                                                                  work / "java" / "out", name)  # fmt: skip
-        if not sc.get("prefix_link"):
+        end_state = not sc.get("prefix_link") and not x6
+        changed = {} if not end_state else compare_files(case, corpus, files, res.get("files", {}),
+                                                         work / "java" / "out", name)  # fmt: skip
+        if end_state:
             changed.update(compare_db2(case, res.get("db2", {}), work / "java" / "out", name, clock))
         sql = compare_sql(case, sc, res, work / "java" / "out")  # #4507: what Db2 answered each side
         if sql is not None:

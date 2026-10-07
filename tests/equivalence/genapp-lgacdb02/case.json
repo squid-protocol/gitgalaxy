@@ -42,6 +42,16 @@
  },
  "linked": true,
  "screens": {},
+ "programs": [
+  {
+   "program": "LGSTSQ",
+   "program_source": "base/src/lgstsq.cbl"
+  }
+ ],
+ "region": {
+  "applid": "GENAREGN",
+  "sysid": "CICA"
+ },
  "scenarios": [
   {
    "name": "add-password",
@@ -146,7 +156,12 @@
     "D2-CUSTSECR-DATA": ""
    },
    "why": "WHEN OTHER: a blank request id: '99'"
+  },
+  {
+   "name": "no-commarea",
+   "commarea": null,
+   "why": "EIBCALEN 0: IF EIBCALEN IS EQUAL TO ZERO -- EM-VARIABLE ' NO COMMAREA RECEIVED', WRITE-ERROR-MESSAGE LINKs LGSTSQ with ERROR-MSG (it writes the message to TD CSMT and TS GENAERRS: #4607), IF EIBCALEN > 0 is false, then ABEND LGCA"
   }
  ],
- "notes": "GenApp's Db2 'add customer password' (LGACDB02, LINKed by LGACDB01 after its INSERT INTO CUSTOMER, with D2-CUSTOMER-NUM the new customer): '02ACUS' INSERTs one CUSTOMER_SECURE row from D2-CUSTOMER-NUM (9(10) -> S9(9) COMP), D2-CUSTSECR-PASS, D2-CUSTSECR-STATE and D2-CUSTSECR-COUNT (X(4) -> S9(9) COMP); any other request id sets D2-RETURN-CODE '99' and RETURNs. The COMMAREA (32500 bytes, LGACDB02's own DFHCOMMAREA) and the CUSTOMER / CUSTOMER_SECURE tables are compared after each task. Seed: every INSERT of GenApp's base/cntl/db2cre.jcl, plus one CUSTOMER row (11) this case adds -- GenApp's ten customers each already have a CUSTOMER_SECURE row, so with GenApp's rows alone the INSERT could only fail; customer 11 stands for the row LGACDB01 has just inserted. NOT exercised: an INSERT that fails (SQLCODE -803 for customers 1-10, -530 for a customer not in CUSTOMER) and a zero-length COMMAREA both go to WRITE-ERROR-MESSAGE, whose first act is EXEC CICS LINK PROGRAM('LGSTSQ'); the harness runs one program and has no port of LGSTSQ, so such a scenario is refused (Unsupported: LINK PROGRAM(LGSTSQ)) and with it the whole case. Derived from the CICS General Insurance Application (GenApp, github.com/cicsdev/cics-genapp; (C) Copyright IBM Corp. 2011, 2020), licensed under the Eclipse Public License 2.0: LICENSE here is the corpus's own, NOTICE names the source and what was derived."
+ "notes": "GenApp's Db2 'add customer password' (LGACDB02, LINKed by LGACDB01 after its INSERT INTO CUSTOMER, with D2-CUSTOMER-NUM the new customer): '02ACUS' INSERTs one CUSTOMER_SECURE row from D2-CUSTOMER-NUM (9(10) -> S9(9) COMP), D2-CUSTSECR-PASS, D2-CUSTSECR-STATE and D2-CUSTSECR-COUNT (X(4) -> S9(9) COMP); any other request id sets D2-RETURN-CODE '99' and RETURNs. The COMMAREA (32500 bytes, LGACDB02's own DFHCOMMAREA) and the CUSTOMER / CUSTOMER_SECURE tables are compared after each task. Seed: every INSERT of GenApp's base/cntl/db2cre.jcl, plus one CUSTOMER row (11) this case adds -- GenApp's ten customers each already have a CUSTOMER_SECURE row, so with GenApp's rows alone the INSERT could only fail; customer 11 stands for the row LGACDB01 has just inserted. A failing INSERT (the auto SQL fault, -803) and a zero-length COMMAREA go to WRITE-ERROR-MESSAGE, which LINKs LGSTSQ (below). Derived from the CICS General Insurance Application (GenApp, github.com/cicsdev/cics-genapp; (C) Copyright IBM Corp. 2011, 2020), licensed under the Eclipse Public License 2.0: LICENSE here is the corpus's own, NOTICE names the source and what was derived. #4607 / X6 (owner decision): LGSTSQ runs in the same task (\"programs\"; \"region\" for its ASSIGN SYSID). An EIBCALEN-0 task (no-commarea) LINKs it with the short ERROR-MSG and ABENDs LGCA, compared whole (the WRITEQ TD and WRITEQ TS it writes too). An error path with the 32500-byte COMMAREA LINKs it a second time with the 99-byte CA-ERROR-MSG; LGSTSQ then writes 104 bytes from its 95-byte WRITE-MSG (X6), so that task is judged up to the refused WRITEQ: what it did before is compared, its end state is not. Not settled on z/OS (#4050). Still not reached: IF EIBCALEN < 91 true (a COMMAREA shorter than 91 bytes; the harness passes the case's whole COMMAREA)."
 }

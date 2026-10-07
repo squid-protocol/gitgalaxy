@@ -849,3 +849,53 @@ def test_the_task_number_is_the_scenarios_else_the_cases_else_zero():
     for bad in (-1, 10_000_000, "34", True, 1.5):
         with pytest.raises(ec.Unsupported, match="not a task number"):
             ec.task_number({}, {"name": "s", "taskn": bad})
+
+
+# ---- #4607: WRITEQ TS on both sides; X6 judged up to the refused WRITEQ ------------------------------------------
+def test_the_cobol_side_reports_a_writeq_ts_as_cicstask_records_it(tmp_path):
+    """#4607: the stub logs a WRITEQ TS (queue in hex, item, RESP, LENGTH; the bytes in its event blob) and CicsTask
+    records WRITEQ-TS {queue, data, resp, item}; the COBOL side used to drop it, so a task that writes TS differed."""
+    out = tmp_path / "out"
+    out.mkdir()
+    (out / "events.txt").write_text(
+        "001 WRITEQ-TD queue=CSMT resp=0 len=5\n"
+        "002 WRITEQ-TS pgm=LGSTSQ queue=47454E4145525253 item=1 resp=0 len=8\n"
+        "003 WRITEQ-TS pgm=LGSTSQ queue=47454E4145525253 item=0 resp=22 len=0\n"
+        "004 RETURN level=2\n",
+        encoding="ascii",
+    )
+    (out / "001.bin").write_bytes(b"HELLO")
+    (out / "002.bin").write_bytes(b"CICA MSG")
+    res = ec.outputs(out, {"name": "x"}, tmp_path, [])
+    got = ec.cobol_events(res)
+    assert got[1:3] == [
+        {"event": "WRITEQ-TS", "queue": "GENAERRS", "data": "CICA MSG", "resp": "NORMAL", "item": 1},
+        {"event": "WRITEQ-TS", "queue": "GENAERRS", "data": None, "resp": "LENGERR", "item": None},
+    ]
+
+
+def test_a_writeq_ts_is_compared_by_its_queue_data_resp_and_item():
+    """#4607: the Java side's item arrives as base64 of the region's page (det port: DetCics.toRegion, CCSID 037 by
+    default); read as text it is compared with the COBOL side's, and so are RESP and the item number."""
+    import base64
+
+    java = {"event": "WRITEQ-TS", "queue": "GENAERRS", "data": base64.b64encode("CICA MSG".encode("cp037")).decode(),
+            "resp": "NORMAL", "item": 1}  # fmt: skip
+    got = ec.java_ts_as_compared(java)
+    assert got == {"event": "WRITEQ-TS", "queue": "GENAERRS", "data": "CICA MSG", "resp": "NORMAL", "item": 1}
+    cobol = {"event": "WRITEQ-TS", "queue": "GENAERRS", "data": "CICA MSG", "resp": "NORMAL", "item": 1}
+    assert ec.compare_events([cobol], [got])["equal"] == 1
+    d = ec.compare_events([cobol], [{**got, "data": "CICA MSF", "item": 2}])
+    assert [f["field"] for f in d["diffs"][0]["fields"]] == ["data", "item"]
+    failed = ec.java_ts_as_compared({**java, "resp": "LENGERR", "item": None})
+    assert failed["data"] is None  # what a failed write was given is not compared (the stub logs none)
+
+
+def test_a_writeq_past_its_from_area_is_judged_up_to_the_refusal_x6():
+    """Owner decision on #4607 (X6): a task the stub stops at a WRITEQ TS / TD whose LENGTH runs past FROM is judged
+    up to that statement; any other "not modelled" stop (START / PUT CONTAINER past FROM, an LE model) is not."""
+    said = "junk\nWRITEQ TD LENGTH > FROM: not modelled\n"
+    assert ec.x6_writeq_refusal(said) == "WRITEQ TD LENGTH > FROM: not modelled"
+    assert ec.x6_writeq_refusal("WRITEQ TS LENGTH > FROM: not modelled") == "WRITEQ TS LENGTH > FROM: not modelled"
+    assert ec.x6_writeq_refusal("START LENGTH > FROM: not modelled") is None
+    assert ec.x6_writeq_refusal("CEEDAYS picture: not modelled") is None

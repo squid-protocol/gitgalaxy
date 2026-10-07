@@ -37,20 +37,22 @@ on:
 permissions:
   contents: read
 
-concurrency:
-  # One run per workflow per PR (or per ref outside a PR). Without this, a PR
-  # that picks up several labels in one `gh pr create` starts a separate,
-  # IDENTICAL run per label event on the same SHA (measured 2026-09-09: four
-  # Full Suite Gate runs and five rosetta-audit runs for one commit), and a
-  # re-push leaves the superseded run occupying the queue. cancel-in-progress
-  # is scoped to pull_request on purpose -- the push/schedule/tag runs are the
-  # ones that commit (docs, history charts, releases), and cancelling one
-  # mid-write is how you get a half-written commit.
-  group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
-  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
-
 jobs:
   rosetta-audit:
+    # #4270 (pr_check.py): a fresh PR ran this audit once per event -- `opened`, then one `labeled` per label that
+    # `gh pr create --label a,b,c` attaches after the PR exists (measured on #4593's head ab2807081: 4 runs within 3 s,
+    # 3 of them cancelled by the concurrency group, one `rosetta-audit` check left cancelled beside the green one).
+    # Only the `rosetta:rebless-owed` label changes what the audit does, so any other label event skips the job.
+    if: >-
+      (github.event.action != 'labeled' && github.event.action != 'unlabeled')
+      || github.event.label.name == 'rosetta:rebless-owed'
+    # One run per PR (or per ref outside a PR), at the JOB level: a workflow-level group would let the skipped
+    # label-event runs above cancel the real one. cancel-in-progress is scoped to pull_request on purpose (see the
+    # other workflows): a re-push still supersedes the run it replaces, and adding or removing the
+    # `rosetta:rebless-owed` label still re-runs the audit with it.
+    concurrency:
+      group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
+      cancel-in-progress: ${{ github.event_name == 'pull_request' }}
     runs-on: ubuntu-latest
     timeout-minutes: 45
     steps:

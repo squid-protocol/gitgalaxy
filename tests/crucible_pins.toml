@@ -1,0 +1,33 @@
+# The single source of truth for which release of each crucible corpus GitGalaxy measures against.
+# Read by tests/_crucible_pin.py, tests/_cics_crucible_pin.py, tests/_estate_crucible_pin.py (thin
+# wrappers), by tests/tools/crucible_pins.py (get / check / sync / bump) and by every corpus-backed
+# workflow (`python3 gitgalaxy/tests/tools/crucible_pins.py get <name>`).
+#
+# Keep it to `key = "value"` lines under [table] headers: tests/_crucible_manifest.py carries a tiny
+# parser for that subset because tomllib only exists on Python 3.11+ and 3.10 is supported.
+# Bump a ref with `python tests/tools/crucible_pins.py bump <name> <ref>` (it lists what else the
+# bump needs), not by hand.
+#
+# No machine paths here. A local checkout is found through `path_env`, else `<default_dir>` beside
+# the main gitgalaxy checkout (the same convention the runners already use).
+
+[language]
+repo = "https://github.com/squid-protocol/language-crucible.git"
+ref = "v1.7.0"
+path_env = "LANGUAGE_CRUCIBLE_PATH"
+allow_unpinned_env = "LANGUAGE_CRUCIBLE_ALLOW_UNPINNED"
+default_dir = "language-crucible"
+
+[estate]
+repo = "https://github.com/squid-protocol/estate-crucible.git"
+ref = "v0.4.0"
+path_env = "ESTATE_CRUCIBLE_PATH"
+allow_unpinned_env = "ESTATE_CRUCIBLE_ALLOW_UNPINNED"
+default_dir = "estate-crucible"
+
+[cics]
+repo = "https://github.com/squid-protocol/cics-crucible.git"
+ref = "v0.5.0"
+path_env = "CICS_CRUCIBLE_PATH"
+allow_unpinned_env = "CICS_CRUCIBLE_ALLOW_UNPINNED"
+default_dir = "cics-crucible"

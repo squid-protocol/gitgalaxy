@@ -18,19 +18,20 @@ $JAVA_HOME, /usr/lib/jvm/*17*) and verified by running its `java -version`; when
 refuses (exit 2) instead of printing an environment that fails later for no visible reason.
 
 --crucible-dir DIR points CICS_CRUCIBLE_PATH at a private checkout (a case branch, an untagged release commit);
---unpinned adds CICS_CRUCIBLE_ALLOW_UNPINNED=1 for one that is deliberately not at tests/_cics_crucible_pin.py.
+--unpinned adds CICS_CRUCIBLE_ALLOW_UNPINNED=1 for one that is deliberately not at the pin in tests/crucible_pins.toml.
 
 --check verifies: the JDK is 17; mvn on PATH; Docker answers and has the GnuCOBOL image; the mainframe corpora,
-language-crucible, estate-crucible and cics-crucible checkouts exist (cics-crucible at the pin unless --unpinned);
+language-crucible, estate-crucible and cics-crucible checkouts exist (each at its pin in tests/crucible_pins.toml unless --unpinned, via crucible_pins.py check);
 tree_sitter_language_pack is importable (the det translator's `translator` extra -- without it det tests SKIP);
 `import gitgalaxy` resolves to this worktree. A LANGUAGE_CRUCIBLE_PATH that is wrong fails the golden check falsely,
-so it is checked too. The SHARED cics-crucible checkout (the one beside the main checkout) off its pin is a WARN, not a
-FAIL: other agents use it, so do not move it -- provision a private clone at the pin instead (below).
+so it is checked too. A crucible checkout off its pin is a FAIL whose detail ends with the fix,
+`python tests/tools/crucible_pins.py sync <name>` (it takes golden-lock and refuses a dirty checkout); or provision a
+private clone at the pin (below).
 
 --provision (#4270) makes, idempotently, under the shared scratch root (--root, else $GG_SCRATCH, else
 <worktrees dir>/_shared-scratch; the worktrees dir is $GITGALAXY_WORKTREES, else the directory holding this
 worktree, else <main checkout>/../gitgalaxy-worktrees):
-  <root>/cics-crucible   a private cics-crucible clone checked out at the PINNED ref (tests/_cics_crucible_pin.py)
+  <root>/cics-crucible   a private cics-crucible clone checked out at the PINNED ref (tests/crucible_pins.toml, [cics])
   <root>/census/<repo>   the census clones: ONLY estate4_draw.INELIGIBLE_LIST minus the burned estates. A repo whose
                          name is among the blind 4th-estate candidates (docs/language_status/estate4_candidates.json,
                          names compared, nothing else read) is refused: reading it through the translator burns it.
@@ -59,6 +60,8 @@ REPO = TOOLS.parents[1]
 sys.path.insert(0, str(TOOLS))
 sys.path.insert(0, str(REPO / "tests"))
 
+import _crucible_manifest  # noqa: E402
+import crucible_pins  # noqa: E402
 import pr_gates  # noqa: E402
 
 GNUCOBOL_IMAGE = "gitgalaxy-gnucobol:3"  # tests/tools/equivalence_common.IMAGE (not imported: it pulls the harness)
@@ -66,11 +69,17 @@ EXPORTED = ("PYTHONPATH", "GITGALAXY_LICENSE_KEY", "PATH", "KEYWORD_ROSETTA_PATH
             "GITGALAXY_MAINFRAME_CORPORA", "ESTATE_CRUCIBLE_PATH", "CICS_CRUCIBLE_PATH",
             "CICS_CRUCIBLE_ALLOW_UNPINNED", "JAVA_HOME", "JDK_17", "CICS_CENSUS_CORPORA", "GG_SCRATCH")  # fmt: skip
 SCRATCH_ENV = "GG_SCRATCH"
+CORPORA_ENV = "GITGALAXY_MAINFRAME_CORPORA"
 GIT_BASE_ENV = "GG_PROVISION_GIT_BASE"  # where the clones come from (default https://github.com; tests: a local dir)
-CRUCIBLE_REPO = "squid-protocol/cics-crucible"
+
+
+def cics_pin() -> tuple[str, str]:
+    """(ref, owner/name slug) of the cics-crucible pin, from tests/crucible_pins.toml (the one manifest)."""
+    entry = _crucible_manifest.entry("cics")
+    return entry["ref"], entry["repo"].removeprefix("https://github.com/").removesuffix(".git")
+
+
 CANDIDATES_JSON = REPO / "docs" / "language_status" / "estate4_candidates.json"
-PROVISION_HINT = ("provision a private clone at the pin instead: eval \"$(python tests/tools/equivalence_env.py "
-                  "--provision)\" (do not move the shared checkout: other agents use it)")  # fmt: skip
 
 
 class JdkError(Exception):
@@ -133,6 +142,9 @@ def environment(crucible_dir: Path | None = None, unpinned: bool = False,
         env["CICS_CRUCIBLE_PATH"] = str(crucible_dir.resolve())
     for var, name in (("ESTATE_CRUCIBLE_PATH", "estate-crucible"), ("CICS_CRUCIBLE_PATH", "cics-crucible")):
         env.setdefault(var, str(main.parent / name))
+    corpora = main / ".mainframe_corpora"  # a fresh worktree has none: mainframe_corpus falls back to its own empty one
+    if not env.get(CORPORA_ENV) and corpora.is_dir():
+        env[CORPORA_ENV] = str(corpora)
     if unpinned:
         env["CICS_CRUCIBLE_ALLOW_UNPINNED"] = "1"
     home, notes = find_jdk17(env, jvm_root)
@@ -171,26 +183,51 @@ def pin_message(pin, path: Path, env: dict[str, str]) -> str | None:
     return msg.replace("\n", " ") if msg else None
 
 
-def crucible_check(env: dict[str, str]) -> tuple[str, bool | None, str]:
-    """The cics-crucible item of --check. The SHARED checkout (beside the main checkout) off its pin is a WARN with the
-    provision hint -- other agents use it, so it is never moved for one run; any other checkout off its pin FAILs."""
-    import _cics_crucible_pin as cics_pin
+def pin_item(item: str, name: str, env: dict[str, str]) -> tuple[str, bool, str]:
+    """The pin line of crucible `name` (`crucible_pins check`'s row, under `env`): off its pin is a FAIL carrying the
+    `crucible_pins.py sync` hint -- sync takes golden-lock and refuses a dirty checkout, so it is safe to suggest."""
+    row = next(r for r in crucible_pins.check_rows(env=env) if r["name"] == name)
+    if row["state"] == "skip":
+        return (item, False, row["detail"])
+    return (item, row["state"] == "ok", f"{row['path']} {row['detail']}")
 
+
+def crucible_check(env: dict[str, str]) -> tuple[str, bool, str]:
+    """The cics-crucible item of --check."""
     cc = Path(env["CICS_CRUCIBLE_PATH"])
     if not (cc / ".git").exists() and not (cc / "SPEC.md").is_file():
         return ("cics-crucible", False, f"no checkout at {cc} (set CICS_CRUCIBLE_PATH or --crucible-dir)")
-    msg = pin_message(cics_pin, cc, env)
-    if msg is None:
-        note = ("unpinned (CICS_CRUCIBLE_ALLOW_UNPINNED=1)" if env.get(cics_pin.ALLOW_UNPINNED_ENV)
-                else f"at {cics_pin.PINNED_REF}")  # fmt: skip
-        return ("cics-crucible", True, f"{cc} {note}")
-    if cc.resolve() == (pr_gates._main_checkout().parent / "cics-crucible").resolve():
-        return (
-            "cics-crucible",
-            None,
-            f"the SHARED checkout {cc} is off the pin {cics_pin.PINNED_REF}: {PROVISION_HINT}",
-        )
-    return ("cics-crucible", False, msg)
+    return pin_item("cics-crucible", "cics", env)
+
+
+def corpora_check(env: dict[str, str]) -> tuple[str, bool, str]:
+    """The mainframe corpora, each at its corpora.json SHA (mainframe_corpus.require_clone, the check the ports ratchet
+    runs), under env's GITGALAXY_MAINFRAME_CORPORA."""
+    import mainframe_corpus  # noqa: PLC0415 -- the tools dir is sys.path[0] when run as a script
+
+    root = env.get(CORPORA_ENV)
+    if not root or not Path(root).is_dir():
+        return ("mainframe corpora", False, f"{CORPORA_ENV} {'is not set' if not root else f'-> {root} is missing'} "
+                "(python tests/tools/mainframe_corpus.py fetch)")  # fmt: skip
+    saved = os.environ.get(CORPORA_ENV)
+    os.environ[CORPORA_ENV] = root
+    off = []
+    try:
+        corpora = mainframe_corpus.load_manifest()
+        for c in corpora:
+            try:
+                mainframe_corpus.require_clone(c)
+            except SystemExit:
+                off.append(c["name"])
+    finally:
+        if saved is None:
+            os.environ.pop(CORPORA_ENV, None)
+        else:
+            os.environ[CORPORA_ENV] = saved
+    if off:
+        return ("mainframe corpora", False, f"{root}: not at the pinned ref: {', '.join(off)} "
+                f"(mainframe_corpus.py fetch {' '.join(off)})")  # fmt: skip
+    return ("mainframe corpora", True, f"{root}: {len(corpora)}/{len(corpora)} at their pinned refs")
 
 
 def checks(env: dict[str, str]) -> list[tuple[str, bool | None, str]]:
@@ -208,22 +245,18 @@ def checks(env: dict[str, str]) -> list[tuple[str, bool | None, str]]:
         ok = bool(r and r.returncode == 0)
         out.append((f"image {GNUCOBOL_IMAGE}", ok, "present" if ok else "missing: built on first equivalence run "
                     "(tests/equivalence/gnucobol.Dockerfile)"))  # fmt: skip
-    corpora = Path(env.get("GITGALAXY_MAINFRAME_CORPORA", ""))
-    n = len(list(corpora.glob("*/.git"))) if env.get("GITGALAXY_MAINFRAME_CORPORA") else 0
-    out.append(("mainframe corpora", n > 0, f"{corpora}: {n} corpora" if n else
-                "GITGALAXY_MAINFRAME_CORPORA unset or empty (python tests/tools/mainframe_corpus.py fetch)"))  # fmt: skip
-    import _crucible_pin as lang_pin
-
+    out.append(corpora_check(env))
     lc = Path(env.get("LANGUAGE_CRUCIBLE_PATH", ""))
     if not (env.get("LANGUAGE_CRUCIBLE_PATH") and (lc / "data").is_dir()):
         out.append(("language-crucible", False,
                     f"LANGUAGE_CRUCIBLE_PATH={lc or '(unset)'} has no data/: the golden check would fail falsely"))  # fmt: skip
     else:
-        msg = pin_message(lang_pin, lc, env)
-        out.append(("language-crucible", msg is None, f"{lc} at {lang_pin.PINNED_TAG}" if msg is None else msg))
+        out.append(pin_item("language-crucible", "language", env))
     ec = Path(env["ESTATE_CRUCIBLE_PATH"])
-    ok = (ec / "key" / "manifest.json").is_file()
-    out.append(("estate-crucible", ok, str(ec) if ok else f"no checkout at {ec} (set ESTATE_CRUCIBLE_PATH)"))
+    if (ec / "key" / "manifest.json").is_file():
+        out.append(pin_item("estate-crucible", "estate", env))
+    else:
+        out.append(("estate-crucible", False, f"no checkout at {ec} (set ESTATE_CRUCIBLE_PATH)"))
     out.append(crucible_check(env))
     py = sys.executable
     r = _run([py, "-c", "import tree_sitter_language_pack"], env)
@@ -296,8 +329,7 @@ def _clone(url: str, dest: Path, shallow: bool) -> None:
 def provision(root: Path, git_base: str | None = None, log=print) -> dict:
     """The private cics-crucible clone at the pin and the census clones under `root` (idempotent); returns and writes
     <root>/provision.json. Raises ProvisionRefused before cloning anything if a census repo is an estate4 candidate."""
-    import _cics_crucible_pin as cics_pin
-
+    pinned_ref, crucible_repo = cics_pin()
     base = (git_base or os.environ.get(GIT_BASE_ENV) or "https://github.com").rstrip("/")
     repos = census_repos()
     cands = candidate_names()
@@ -306,25 +338,25 @@ def provision(root: Path, git_base: str | None = None, log=print) -> dict:
         raise ProvisionRefused(f"refused: {', '.join(bad)} named among the blind 4th-estate candidates "
                                f"({CANDIDATES_JSON.name}): never clone or read a candidate")  # fmt: skip
     root.mkdir(parents=True, exist_ok=True)
-    record: dict = {"root": str(root), "pinned_ref": cics_pin.PINNED_REF, "census": {}, "errors": []}
+    record: dict = {"root": str(root), "pinned_ref": pinned_ref, "census": {}, "errors": []}
     crucible = root / "cics-crucible"
     if not (crucible / ".git").exists():
-        log(f"cloning {CRUCIBLE_REPO} -> {crucible}")
-        _clone(f"{base}/{CRUCIBLE_REPO}", crucible, shallow=False)
-    pinned = _rev(crucible, cics_pin.PINNED_REF)
+        log(f"cloning {crucible_repo} -> {crucible}")
+        _clone(f"{base}/{crucible_repo}", crucible, shallow=False)
+    pinned = _rev(crucible, pinned_ref)
     if pinned is None:
         _git(["-C", str(crucible), "fetch", "-q", "--tags", "origin"])
-        pinned = _rev(crucible, cics_pin.PINNED_REF)
+        pinned = _rev(crucible, pinned_ref)
     if pinned is None:
-        raise RuntimeError(f"{crucible}: the pinned ref {cics_pin.PINNED_REF} is not in the clone, even after a fetch")
+        raise RuntimeError(f"{crucible}: the pinned ref {pinned_ref} is not in the clone, even after a fetch")
     if _rev(crucible, "HEAD") != pinned:
         if _git(["-C", str(crucible), "status", "--porcelain", "--untracked-files=no"]).stdout.strip():
             raise ProvisionRefused(f"{crucible} has local changes and is off the pin: commit or stash them first")
-        log(f"{crucible}: checking out {cics_pin.PINNED_REF}")
-        r = _git(["-C", str(crucible), "checkout", "-q", "--detach", cics_pin.PINNED_REF])
+        log(f"{crucible}: checking out {pinned_ref}")
+        r = _git(["-C", str(crucible), "checkout", "-q", "--detach", pinned_ref])
         if r.returncode:
-            raise RuntimeError(f"checkout {cics_pin.PINNED_REF} failed: {r.stderr.strip()[:300]}")
-    record["crucible"] = {"path": str(crucible), "url": f"{base}/{CRUCIBLE_REPO}", "ref": cics_pin.PINNED_REF,
+            raise RuntimeError(f"checkout {pinned_ref} failed: {r.stderr.strip()[:300]}")
+    record["crucible"] = {"path": str(crucible), "url": f"{base}/{crucible_repo}", "ref": pinned_ref,
                           "sha": pinned}  # fmt: skip
     census = root / "census"
     for repo in repos:

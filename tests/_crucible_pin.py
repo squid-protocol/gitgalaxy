@@ -1,45 +1,27 @@
 r"""
-Single source of truth for "which language-crucible tag does GitGalaxy's CI
-currently pin to" -- see language-crucible's own RELEASING.md for the full
-bump checklist (regenerate golden masters, then update the pin, in that
-order).
+Thin wrapper over tests/crucible_pins.toml ([language]): `PINNED_TAG` is the language-crucible tag
+GitGalaxy's golden masters and accuracy audits are measured at. The value lives ONLY in the
+manifest; bump it with `python tests/tools/crucible_pins.py bump language <tag>` (RELEASING.md of
+language-crucible: regenerate the golden masters first, then bump the pin).
 
-This constant is the source of truth for every *human-facing* mention of the
-pin (skip-reason messages, docstrings, README prose). CI normally clones
-against the `LANGUAGE_CRUCIBLE_REF` GitHub Actions repository variable
-(Settings -> Secrets and variables -> Actions -> Variables) instead, read by
-every workflow step that does `git clone --branch`. Two places instead of one
-because a GitHub Actions variable isn't importable from a local pytest run
-or a docstring, and a Python constant isn't visible to workflow YAML -- but
-two is a large, deliberate improvement over the ~11 independently-hardcoded
-copies (6 workflow files, 4 scripts, 4 docs) this replaced.
-
-Since the fork-PR fallback landed, this constant is ALSO a real CI input, not
-just a human-facing one: GitHub withholds repository variables from
-`pull_request` runs raised from a fork, so on those runs the corpus-backed
-workflows scrape `PINNED_TAG` out of this file with
-
-    sed -n 's/^PINNED_TAG = "\(.*\)"/\1/p' gitgalaxy/tests/_crucible_pin.py
-
-and clone the (public, credential-free) corpus at whatever it says. Practical
-consequence: **keep the assignment below on one line, in exactly that
-literal form.** Reformatting it -- black-style line wrapping, single quotes,
-a type annotation, a trailing comment -- silently breaks the fork-PR corpus
-clone. If you must change the shape, update the sed in all six workflows
-(golden-crucible, tree-sitter-accuracy-audit, tri-comparison-audit, the two
-*-history workflows, release-crucible-archive) to match.
-
-**When bumping the pin: update both.** This constant, and the
-`LANGUAGE_CRUCIBLE_REF` repo variable (`gh variable set LANGUAGE_CRUCIBLE_REF
---body vX.Y --repo squid-protocol/gitgalaxy`). Nothing enforces they match --
-review the diff on this file as your reminder to also run that command.
+Workflows read it with `python3 gitgalaxy/tests/tools/crucible_pins.py get language`, which works
+on a pull_request from a fork too. The `LANGUAGE_CRUCIBLE_REF` repository variable is no longer an
+input to any workflow; `crucible_pins.py check` warns when it differs from the manifest.
 """
 
-PINNED_TAG = "v1.7.0"
+import sys
+from pathlib import Path
 
-# Escape hatch for deliberate off-pin runs (e.g. preparing a pin bump against an
-# untagged crucible commit). Everything else treats a mismatch as an error.
-ALLOW_UNPINNED_ENV = "LANGUAGE_CRUCIBLE_ALLOW_UNPINNED"
+sys.path.insert(0, str(Path(__file__).resolve().parent))
+from _crucible_manifest import entry  # noqa: E402
+
+_PIN = entry("language")
+
+PINNED_TAG = _PIN["ref"]
+
+PATH_ENV = _PIN["path_env"]
+
+ALLOW_UNPINNED_ENV = _PIN["allow_unpinned_env"]
 
 
 def pin_mismatch(crucible_path):

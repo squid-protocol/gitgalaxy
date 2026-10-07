@@ -3,7 +3,7 @@ name: Crucible Path Independence
 # #4248: scan the language-crucible corpus from two parent paths (one under
 # tmp/docs/vendor/src) and fail, naming the differing leaves, if the results differ.
 # Engine changes only; one leg (full-precision) because the comparison is scan-vs-scan.
-# Also run it by hand after a language-crucible pin bump (tests/_crucible_pin.py).
+# Also run it by hand after a language-crucible pin bump (tests/crucible_pins.toml).
 
 on:
   pull_request:
@@ -15,6 +15,7 @@ on:
       - "tests/tools/crucible_path_check.py"
       - "tests/golden_diff.py"
       - "tests/_crucible_pin.py"
+      - "tests/crucible_pins.toml"
       - ".github/workflows/crucible-path-independence.yml"
       # never read by a scan: the COBOL-to-Java translator and its entry point, and prose
       - "!gitgalaxy/tools/cobol_to_java/**"
@@ -55,15 +56,8 @@ jobs:
 
       - name: Fetch Language Crucible (pinned)
         run: |
-          # Same pin resolution as golden-crucible.yml (fork PRs get no repository variables).
-          ref="${{ vars.LANGUAGE_CRUCIBLE_REF }}"
-          if [ -z "$ref" ]; then
-            ref=$(sed -n 's/^PINNED_TAG = "\(.*\)"/\1/p' gitgalaxy/tests/_crucible_pin.py)
-          fi
-          if [ -z "$ref" ]; then
-            echo "::error title=Corpus pin unavailable::No LANGUAGE_CRUCIBLE_REF and no PINNED_TAG in tests/_crucible_pin.py."
-            exit 1
-          fi
+          # The pin is tests/crucible_pins.toml (one source; a fork PR reads it too).
+          ref=$(python3 gitgalaxy/tests/tools/crucible_pins.py get language)
           git clone --branch "$ref" --depth 1 https://github.com/squid-protocol/language-crucible.git language-crucible
 
       - name: Scan the corpus from two parent paths

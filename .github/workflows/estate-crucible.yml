@@ -9,7 +9,7 @@ name: Estate Crucible
 # count drops, or a check that passed and no longer does fails the run. Improvements do not fail
 # it; they are listed, and the baseline is lowered with --update-baseline.
 #
-# The crucible is cloned at PINNED_REF, read straight out of tests/_estate_crucible_pin.py (there is
+# The crucible is cloned at PINNED_REF, read straight out of tests/crucible_pins.toml (there is
 # no repository variable for this pin, like the CICS crucible's), so a fork's pull_request run clones
 # the same public ref with no credentials: the repo is public, no token is needed. The whole job is
 # a ~3 s scan plus install, so there is no scan cache.
@@ -23,6 +23,7 @@ on:
       - "tests/tools/estate_crucible*.py"
       - "tests/estate_crucible/**"
       - "tests/_estate_crucible_pin.py"
+      - "tests/crucible_pins.toml"
       - ".github/workflows/estate-crucible.yml"
       # never read by a scan: the COBOL-to-Java translator and its entry point, and prose
       - "!gitgalaxy/tools/cobol_to_java/**"
@@ -36,6 +37,7 @@ on:
       - "tests/tools/estate_crucible*.py"
       - "tests/estate_crucible/**"
       - "tests/_estate_crucible_pin.py"
+      - "tests/crucible_pins.toml"
       - ".github/workflows/estate-crucible.yml"
       # never read by a scan: the COBOL-to-Java translator and its entry point, and prose
       - "!gitgalaxy/tools/cobol_to_java/**"
@@ -66,12 +68,8 @@ jobs:
 
       - name: Clone estate-crucible at the pin
         run: |
-          # One line, one literal form in the pin file: see tests/_estate_crucible_pin.py.
-          ref=$(sed -n 's/^PINNED_REF = "\(.*\)"/\1/p' gitgalaxy/tests/_estate_crucible_pin.py)
-          if [ -z "$ref" ]; then
-            echo "::error title=Estate crucible pin unavailable::No PINNED_REF in gitgalaxy/tests/_estate_crucible_pin.py. If its line was reformatted, restore the one-line form or update this sed."
-            exit 1
-          fi
+          # The pin is tests/crucible_pins.toml (one source; a fork PR reads it too).
+          ref=$(python3 gitgalaxy/tests/tools/crucible_pins.py get estate)
           git init -q estate-crucible
           git -C estate-crucible remote add origin https://github.com/squid-protocol/estate-crucible.git
           if echo "$ref" | grep -Eq '^[0-9a-f]{40}$'; then

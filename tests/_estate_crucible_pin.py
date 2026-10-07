@@ -1,35 +1,29 @@
 r"""
-Single source of truth for "which estate-crucible commit does GitGalaxy's estate scorer
-(tests/tools/estate_crucible.py, #4317) measure against".
+Thin wrapper over tests/crucible_pins.toml ([estate]): `PINNED_REF` is the estate-crucible release
+tag (squid-protocol/estate-crucible, format `estate-crucible-key/1`) GitGalaxy's estate scorer
+(tests/tools/estate_crucible.py, #4317) measures against. The value lives only in the manifest;
+bump with `python tests/tools/crucible_pins.py bump estate <tag>`, then run
+`python tests/tools/estate_crucible.py` against the new tag and commit the scorecard it prints
+(PR body) with the bump, in one PR (estate-crucible RELEASING.md).
 
-estate-crucible (squid-protocol/estate-crucible) is a synthetic z/OS estate whose answer key is
-written by the same generator that writes the code (format `estate-crucible-key/1`, its README).
-Every planted "horror" carries the IBM citation for what its key asserts. The scorer scans the
-estate, reads the master DB through GalaxyIR, and diffs every fact channel against the key.
-
-Like tests/_cics_crucible_pin.py there is deliberately NO GitHub Actions repository variable:
-when the scorer becomes a CI gate (phase 5 of #4317), the workflow reads PINNED_REF straight
-out of this file with
-
-    sed -n 's/^PINNED_REF = "\(.*\)"/\1/p' gitgalaxy/tests/_estate_crucible_pin.py
-
-so **keep the assignment below on one line, in exactly that literal form.**
-
-The ref is a release tag of the crucible (its RELEASING.md). To move it: check the crucible out
-at the new tag, run `python tests/tools/estate_crucible.py`, and commit the pin with the
-scorecard it prints (in the PR body) in one PR.
-
-Local runs find the checkout through the `ESTATE_CRUCIBLE_PATH` environment variable, else
-`../estate-crucible` beside the main gitgalaxy checkout.
+Local runs find the checkout through `ESTATE_CRUCIBLE_PATH`, else `../estate-crucible` beside the
+main gitgalaxy checkout.
 """
 
-PINNED_REF = "v0.4.0"
+import sys
+from pathlib import Path
+
+sys.path.insert(0, str(Path(__file__).resolve().parent))
+from _crucible_manifest import entry  # noqa: E402
+
+_PIN = entry("estate")
+
+PINNED_REF = _PIN["ref"]
 
 # Where a local checkout lives when not beside the main gitgalaxy checkout.
-PATH_ENV = "ESTATE_CRUCIBLE_PATH"
+PATH_ENV = _PIN["path_env"]
 
-# Escape hatch for deliberate off-pin runs (preparing a pin bump, measuring a crucible PR).
-ALLOW_UNPINNED_ENV = "ESTATE_CRUCIBLE_ALLOW_UNPINNED"
+ALLOW_UNPINNED_ENV = _PIN["allow_unpinned_env"]
 
 
 def pin_mismatch(crucible_path):

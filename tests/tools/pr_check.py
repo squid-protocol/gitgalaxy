@@ -15,7 +15,7 @@ and the report says so; a skipped run after a success does not hide it either. A
 failure. Anything queued or in progress is pending.
 
 Files are listed with flags on the ones a reviewer must look at: ratchet, baseline, golden, evidence and ledger
-paths, and tests/_cics_crucible_pin.py (a pin bump belongs in its own PR).
+paths, and tests/crucible_pins.toml (a pin bump belongs in its own PR).
 
 --merge marks a draft ready and squash-merges only when: the PR is open, GitHub says it is mergeable (not dirty /
 behind / blocked), no check failed and none is pending. Otherwise it exits 1 with the reasons and merges nothing.
@@ -28,12 +28,13 @@ import json
 import re
 import subprocess
 import sys
+from pathlib import Path
 from collections.abc import Callable
 from typing import Any
 
 REPO_SLUG = "squid-protocol/gitgalaxy"
 FLAGGED = re.compile(r"ratchet|baseline|golden|evidence|ledger", re.I)
-PIN_FILE = "tests/_cics_crucible_pin.py"
+PIN_FILE = "tests/crucible_pins.toml"
 OK = {"success"}
 NEUTRAL = {"skipped", "neutral"}
 BAD = {"failure", "timed_out", "action_required", "startup_failure", "stale"}
@@ -102,7 +103,7 @@ def classify(runs: list[dict[str, Any]], statuses: list[dict[str, Any]]) -> dict
 
 def flag(path: str) -> str | None:
     if path == PIN_FILE:
-        return "CICS crucible PIN (a pin bump is its own PR)"
+        return "crucible PIN (a pin bump is its own PR)"
     m = FLAGGED.search(path)
     return m.group(0).lower() if m else None
 
@@ -177,6 +178,18 @@ def merge(res: dict[str, Any], run: Callable[[list[str]], subprocess.CompletedPr
     return [f"gh pr merge failed: {(r.stderr or r.stdout).strip()[:300]}"] if r.returncode else []
 
 
+def sync_pins(run: Callable[[list[str]], subprocess.CompletedProcess[str]] | None = None) -> str:
+    """The merged PR moved a crucible pin: `crucible_pins.py sync` the shared checkouts (it takes golden-lock itself).
+    Returns the text to print; a failure is reported, never raised -- the merge already happened."""
+    run = run or _run
+    r = run([sys.executable, str(Path(__file__).resolve().parent / "crucible_pins.py"), "sync"])
+    out = ((r.stdout or "") + (r.stderr or "")).strip()
+    if r.returncode:
+        return (f"WARNING: {PIN_FILE} changed but `crucible_pins.py sync` failed (exit {r.returncode}); "
+                f"the merge stands. Run it by hand.\n{out}")  # fmt: skip
+    return f"{PIN_FILE} changed: synced the shared crucible checkouts\n{out}"
+
+
 def main(argv: list[str] | None = None, api: Api = gh_api) -> int:
     ap = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     ap.add_argument("number", type=int)
@@ -195,6 +208,8 @@ def main(argv: list[str] | None = None, api: Api = gh_api) -> int:
         print(e, file=sys.stderr)
     if not errors:
         print(f"merged #{args.number} (squash, head {res['head_sha'][:12]})")
+        if any(f["path"] == PIN_FILE for f in res["files"]):
+            print(sync_pins())
     return 1 if errors else 0
 
 

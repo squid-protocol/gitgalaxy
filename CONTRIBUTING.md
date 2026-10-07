@@ -109,23 +109,36 @@ A fifth, `crucible-path-independence`, scans the corpus from two parent paths (o
 `tmp/docs/vendor/src/`) and fails if the results differ; run it locally with
 `python tests/tools/crucible_path_check.py` (#4248).
 
-**These now run normally on fork PRs.** They clone the corpus at a ref taken from the
-`LANGUAGE_CRUCIBLE_REF` Actions variable, and GitHub withholds repository variables — like
-secrets — from `pull_request` runs raised from a fork. The corpus repo is public and needs no
-credentials to clone, though, so when that variable is unavailable the workflows fall back to
-`PINNED_TAG` in [`tests/_crucible_pin.py`](tests/_crucible_pin.py), which is committed here and
-therefore readable on a fork run. You will see a `Corpus pin read from the repo` notice in the
-job log when the fallback is used; the audit itself is the real thing, and a failure is a real
-failure worth reading.
+**These run normally on fork PRs.** Every pin lives in one file,
+[`tests/crucible_pins.toml`](tests/crucible_pins.toml) (language, estate and cics crucibles: repo,
+ref, and the env var that names a local checkout), and every corpus-backed workflow clones at
+`python3 gitgalaxy/tests/tools/crucible_pins.py get <name>`. The file is committed, so a fork run
+reads it as easily as anyone else; the crucible repos are public and need no credentials. The
+`LANGUAGE_CRUCIBLE_REF` Actions variable is no longer an input to any workflow (golden-crucible
+only warns if a leftover one disagrees with the file). The audit itself is the real thing, and a
+failure is a real failure worth reading.
+
+Keeping your local checkouts on the pins (a stale one gives thousands of phantom golden diffs):
+
+```bash
+python tests/tools/crucible_pins.py check           # each shared checkout: on/off pin, dirty or clean; exit 1 if off
+python tests/tools/crucible_pins.py sync            # fetch the pinned ref + check it out, under tests/tools/box/golden-lock.sh;
+                                                    # refuses a dirty checkout or one with unpushed commits
+python tests/tools/crucible_pins.py bump cics v0.6.0   # edit the manifest and list what else that bump needs
+```
+
+Checkouts are found through `LANGUAGE_CRUCIBLE_PATH`, `ESTATE_CRUCIBLE_PATH` and
+`CICS_CRUCIBLE_PATH`, else beside the main gitgalaxy checkout. `tests/_crucible_pin.py`,
+`tests/_estate_crucible_pin.py` and `tests/_cics_crucible_pin.py` stay as thin wrappers exposing
+`PINNED_TAG` / `PINNED_REF` for Python callers; never edit a ref there.
 
 > **Historical note.** Before this fallback existed these four checks failed instantly on every
 > fork PR, and CONTRIBUTING told you to ignore them because a maintainer would re-run them from
 > a branch in this repo. That is no longer necessary — treat a red corpus-backed audit on your
 > fork PR as genuine signal.
 
-If you are moving the pin, bump it in **both** places — `tests/_crucible_pin.py` and the
-`LANGUAGE_CRUCIBLE_REF` repository variable. Nothing enforces that they match; see that file's
-docstring for why the pin is deliberately duplicated.
+If you are moving a pin, use `python tests/tools/crucible_pins.py bump <name> <ref>`: it edits the
+one manifest line and lists the baselines that must move in the same PR.
 
 `rosetta-audit` needs no escape hatch: it always checks out keyword-rosetta's `main` (that repo is
 public), so it runs for real on a fork PR too. Every other check — `full-suite`, the `smoke-test` matrix,

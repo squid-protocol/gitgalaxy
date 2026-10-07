@@ -37,7 +37,7 @@ Any PR touching parsing logic (`detector.py`, `prism.py`, etc.) is checked again
   python tests/tools/scope_check.py --expect cobol      # prove the diff is scoped (use your language(s))
   ```
   `crucible_check.py` builds one venv per leg inside this worktree (`.crucible_venvs/`) with a Python matching CI's pin, and checks the corpus pin. **Never** run `tests/tools/update_golden_master.py` directly, **never** use the repo `.venv` or a venv you built by hand: each of these scans the wrong code or the wrong Python and produces huge unrelated diffs.
-- **The corpus:** a `language-crucible` checkout on the tag in `tests/_crucible_pin.py`, as a sibling `../language-crucible` of your worktree. Its path must not contain `tmp`, `temp` or `cache` anywhere.
+- **The corpus:** a `language-crucible` checkout on the tag in `tests/crucible_pins.toml` (`python tests/tools/crucible_pins.py check`), as a sibling `../language-crucible` of your worktree. Its path must not contain `tmp`, `temp` or `cache` anywhere.
 - **Stop signs. If you see any of these, STOP: don't push, and report to the user.**
   - `scope_check.py` reports changes in a language your fix doesn't touch.
   - The golden diff touches far more files than your change explains (e.g. hundreds of files, or Python/JS files for a COBOL fix).

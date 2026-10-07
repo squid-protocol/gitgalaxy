@@ -78,7 +78,7 @@ fi
 
 # --- corpora, as siblings of the checkout (never inside it: an untracked corpus
 # poisons the golden masters -- .claude/rules/golden-master-guidelines.md)
-CRUCIBLE_TAG="$(sed -n 's/^PINNED_TAG = "\(.*\)"/\1/p' tests/_crucible_pin.py)"
+CRUCIBLE_TAG="$(python3 tests/tools/crucible_pins.py get language)"
 if [ ! -d "$PARENT/language-crucible/.git" ]; then
   git clone -q --branch "$CRUCIBLE_TAG" --depth 1 \
     https://github.com/squid-protocol/language-crucible.git "$PARENT/language-crucible" \

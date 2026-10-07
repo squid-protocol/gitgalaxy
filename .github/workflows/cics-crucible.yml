@@ -13,7 +13,7 @@ name: CICS Crucible
 # holds, per scenario, the paragraphs and branch outcomes it executes: a change that loses (or gains) one
 # fails the run until it is re-baselined, so a crucible change cannot silently shrink what a proof proves.
 #
-# The crucible is cloned at PINNED_REF, read straight out of tests/_cics_crucible_pin.py (there is no
+# The crucible is cloned at PINNED_REF, read straight out of tests/crucible_pins.toml (there is no
 # repository variable for this pin), so a fork's pull_request run clones the same public ref with no
 # credentials. The runner's own tests run first, with EQUIVALENCE_E2E=1: the fixture case goes
 # through every side, proving the drivers before the ratchet is trusted.
@@ -38,6 +38,7 @@ on:
       - "tests/tools/equivalence_oracle.py"
       - "tests/cics_crucible/**"
       - "tests/_cics_crucible_pin.py"
+      - "tests/crucible_pins.toml"
       - ".github/workflows/cics-crucible.yml"
   push:
     branches: [main]
@@ -51,6 +52,7 @@ on:
       - "tests/tools/equivalence_oracle.py"
       - "tests/cics_crucible/**"
       - "tests/_cics_crucible_pin.py"
+      - "tests/crucible_pins.toml"
       - ".github/workflows/cics-crucible.yml"
   schedule:
     # weekly: Maven Central drift, and (#4309) whether the pinned GnuCOBOL package still installs -- Debian drops a
@@ -81,12 +83,8 @@ jobs:
 
       - name: Clone cics-crucible at the pin
         run: |
-          # One line, one literal form in the pin file: see tests/_cics_crucible_pin.py.
-          ref=$(sed -n 's/^PINNED_REF = "\(.*\)"/\1/p' gitgalaxy/tests/_cics_crucible_pin.py)
-          if [ -z "$ref" ]; then
-            echo "::error title=CICS crucible pin unavailable::No PINNED_REF in gitgalaxy/tests/_cics_crucible_pin.py. If its line was reformatted, restore the one-line form or update this sed."
-            exit 1
-          fi
+          # The pin is tests/crucible_pins.toml (one source; a fork PR reads it too).
+          ref=$(python3 gitgalaxy/tests/tools/crucible_pins.py get cics)
           git init -q cics-crucible
           git -C cics-crucible remote add origin https://github.com/squid-protocol/cics-crucible.git
           if echo "$ref" | grep -Eq '^[0-9a-f]{40}$'; then

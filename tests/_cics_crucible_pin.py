@@ -1,46 +1,38 @@
 r"""
-Single source of truth for "which cics-crucible commit does GitGalaxy's CICS crucible runner
-(tests/tools/cics_crucible.py, #3989) measure against".
+Thin wrapper over tests/crucible_pins.toml ([cics]): `PINNED_REF` is the cics-crucible release tag
+(squid-protocol/cics-crucible, format `cics-crucible/1`) GitGalaxy's CICS crucible runner
+(tests/tools/cics_crucible.py, #3989) measures against. The baseline ratchet
+(tests/cics_crucible/baseline.json) was measured at exactly this ref, so moving the pin is its own
+PR that re-baselines. The value lives only in the manifest; bump with
+`python tests/tools/crucible_pins.py bump cics <tag>`. A ref may also be a commit SHA (CI fetches
+either with `git fetch --depth 1 origin <ref>`).
 
-cics-crucible (squid-protocol/cics-crucible) is the adversarial CICS benchmark: small original
-CICS COBOL applications, each scenario with a hand-written expected event log derived from
-IBM's documentation (format `cics-crucible/1`, its SPEC.md). The runner's baseline ratchet
-(tests/cics_crucible/baseline.json) was measured at exactly this ref, so a crucible change can
-never move cells under a gitgalaxy PR: moving the pin is its own PR that re-baselines.
+To move it: check the crucible out at the new tag, run
+`python tests/tools/cics_crucible.py --update-baseline`, and commit the manifest,
+tests/cics_crucible/baseline.json and docs/language_status/cics_crucible.md in one PR
+(docs/ecosystem.md, "CICS crucible release -> pin bump"). In the same PR, re-prove the committed
+ports (`python tests/tools/crucible_port_provenance.py reprove`, #4308): each port's
+provenance.json must name the pinned ref or say it is stale against it
+(tests/cics_crucible/test_port_provenance.py).
 
-Unlike tests/_crucible_pin.py (language-crucible), there is deliberately NO GitHub Actions
-repository variable for this pin. The workflow (.github/workflows/cics-crucible.yml) reads
-PINNED_REF straight out of this file with
-
-    sed -n 's/^PINNED_REF = "\(.*\)"/\1/p' gitgalaxy/tests/_cics_crucible_pin.py
-
-which works the same on a pull_request raised from a fork (GitHub withholds repository
-variables there; the crucible is public and clones with no credentials). One place to bump,
-not two. Practical consequence: **keep the assignment below on one line, in exactly that
-literal form.** Reformatting it -- line wrapping, single quotes, a type annotation, a trailing
-comment -- silently breaks the workflow's clone. If you must change the shape, update the sed
-in cics-crucible.yml to match.
-
-The ref is a release tag of the crucible (its RELEASING.md); a commit SHA also works, since CI
-fetches either with `git fetch --depth 1 origin <ref>`. To move it: check the crucible out at the
-new tag, run `python tests/tools/cics_crucible.py --update-baseline`, and commit this pin,
-tests/cics_crucible/baseline.json and docs/language_status/cics_crucible.md in one PR (docs/
-ecosystem.md, "CICS crucible release -> pin bump"). In the same PR, re-prove the committed ports
-(`python tests/tools/crucible_port_provenance.py reprove`, #4308): each port's provenance.json must
-name the pinned ref or say it is stale against it (tests/cics_crucible/test_port_provenance.py).
-
-Local runs find the checkout through the `CICS_CRUCIBLE_PATH` environment variable (like
-LANGUAGE_CRUCIBLE_PATH), else `../cics-crucible` beside the main gitgalaxy checkout.
+Local runs find the checkout through `CICS_CRUCIBLE_PATH`, else `../cics-crucible` beside the main
+gitgalaxy checkout.
 """
 
-PINNED_REF = "v0.5.0"
+import sys
+from pathlib import Path
+
+sys.path.insert(0, str(Path(__file__).resolve().parent))
+from _crucible_manifest import entry  # noqa: E402
+
+_PIN = entry("cics")
+
+PINNED_REF = _PIN["ref"]
 
 # Where a local checkout lives when not beside the main gitgalaxy checkout.
-PATH_ENV = "CICS_CRUCIBLE_PATH"
+PATH_ENV = _PIN["path_env"]
 
-# Escape hatch for deliberate off-pin runs (e.g. preparing a pin bump, or measuring a crucible
-# PR branch). Everything else treats a mismatch as an error.
-ALLOW_UNPINNED_ENV = "CICS_CRUCIBLE_ALLOW_UNPINNED"
+ALLOW_UNPINNED_ENV = _PIN["allow_unpinned_env"]
 
 
 def pin_mismatch(crucible_path):

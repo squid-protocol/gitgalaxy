@@ -657,12 +657,12 @@ def test_harness_work_is_ordered_by_the_cells_it_unlocks():
 
 
 # ---- the pin -----------------------------------------------------------------------------------
-def test_the_pin_is_one_line_in_the_form_the_workflow_reads(tmp_path):
-    text = (TESTS / "_cics_crucible_pin.py").read_text()
-    found = re.findall(r'^PINNED_REF = "(.*)"$', text, re.M)
+def test_the_pin_is_the_manifest_ref_the_workflow_reads(tmp_path):
+    text = (TESTS / "crucible_pins.toml").read_text()
+    found = re.findall(r'^\[cics\]\n(?:(?!\[).*\n)*?ref = "(.*)"$', text, re.M)
     assert found == [pin.PINNED_REF] and re.fullmatch(r"[0-9a-f]{40}|v\d+(\.\d+)*", pin.PINNED_REF)
     workflow = (TESTS.parent / ".github/workflows/cics-crucible.yml").read_text()
-    assert 's/^PINNED_REF = "\\(.*\\)"/\\1/p' in workflow and "tests/_cics_crucible_pin.py" in workflow
+    assert "tests/tools/crucible_pins.py get cics" in workflow and "tests/crucible_pins.toml" in workflow
     assert pin.pin_mismatch(tmp_path) is None  # not a git checkout: nothing to compare
 
 

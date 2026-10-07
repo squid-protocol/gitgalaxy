@@ -178,9 +178,9 @@ def test_a_key_in_another_format_is_refused(tmp_path):
         ec.load_key(tmp_path)
 
 
-def test_the_pin_is_one_sed_readable_line():
-    text = (TESTS / "_estate_crucible_pin.py").read_text()
-    found = re.findall(r'^PINNED_REF = "(.*)"$', text, flags=re.M)
+def test_the_pin_is_the_manifest_ref():
+    text = (TESTS / "crucible_pins.toml").read_text()
+    found = re.findall(r'^\[estate\]\n(?:(?!\[).*\n)*?ref = "(.*)"$', text, flags=re.M)
     assert found == [pin.PINNED_REF] and re.fullmatch(r"[0-9a-f]{40}|v\d+\.\d+\.\d+", pin.PINNED_REF)
 
 

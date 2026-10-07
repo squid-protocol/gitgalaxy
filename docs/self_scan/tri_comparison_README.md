@@ -349,7 +349,7 @@ caused real CI failures when skipped.
 
 ```bash
 # from the gitgalaxy repo root -- same corpus checkout the 2-tool system uses.
-# check tests/_crucible_pin.py or the LANGUAGE_CRUCIBLE_REF repo variable first;
+# check tests/crucible_pins.toml (`crucible_pins.py get language`) first;
 # the tag below drifts out of date as that pin gets bumped.
 git clone --branch v1.2.0 --depth 1 https://github.com/squid-protocol/language-crucible.git ../language-crucible
 pip install tree-sitter-language-pack

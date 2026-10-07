@@ -21,8 +21,8 @@ to trust if the two ever disagree.
 
 [`tree-sitter-language-pack`](https://pypi.org/project/tree-sitter-language-pack/) parses every
 file in the pinned [`language-crucible`](https://github.com/squid-protocol/language-crucible)
-corpus (`v1.7.0` as of this writing — see `tests/_crucible_pin.py` or the `LANGUAGE_CRUCIBLE_REF`
-repo variable for the current pin — ~120 real, disconnected subdirectories of production code: Godot's C++,
+corpus (`v1.7.0` as of this writing — see `tests/crucible_pins.toml` for
+the current pin — ~120 real, disconnected subdirectories of production code: Godot's C++,
 Roslyn's C#, curl, tokio, and more) into a real AST, per baselined language. That AST becomes the
 reconciled ground truth for that language: real function/class names, their positions, and their
 real parameter counts. GitGalaxy's own regex-based extraction is then diffed against it —
@@ -96,8 +96,7 @@ regenerating together, in a specific order, with prerequisites that have
 caused real CI failures when skipped.
 
 ```bash
-# from the gitgalaxy repo root -- check tests/_crucible_pin.py or the LANGUAGE_CRUCIBLE_REF
-# repo variable first; the tag below drifts out of date as that pin gets bumped.
+# from the gitgalaxy repo root -- check tests/crucible_pins.toml first (`python tests/tools/crucible_pins.py get language`); the tag below drifts out of date as that pin gets bumped.
 git clone --branch v1.7.0 --depth 1 https://github.com/squid-protocol/language-crucible.git ../language-crucible
 pip install tree-sitter-language-pack
 

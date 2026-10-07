@@ -5,6 +5,9 @@
  *
  * Inputs come from $GGCICS_DIR:
  *   commarea.in           the COMMAREA the task starts with (its length is EIBCALEN)
+ *   channel.cfg           #4270 (X24): the channel the task starts with (GGCCHIN): its name, then
+ *                         `NAME BIT|CHAR HEX` per container ('-' for no bytes); GGCEND writes the
+ *                         current channel's containers at task end to $GGCICS_OUT/containers.out
  *   commarea.exact        #4270 (X23): the COMMAREA is exactly that long (a scenario's stated
  *                         length, shorter than the record): GGCAREA puts it before a guard page
  *   receive_<MAP>.bin     what RECEIVE MAP(<MAP>) returns; absent means MAPFAIL
@@ -1775,7 +1778,8 @@ int GGCLRET(gg_cics *c) {
  * INTOCCSID and INTOCODEPAGE are not specified, the value for conversion defaults to the CCSID
  * of the region") -- the translator refuses the CCSID options. A channel is in the scope of the
  * level that made it and of a level it is passed to (LINK CHANNEL: "the called program"; XCTL
- * CHANNEL: the target). Containers are not events: a program shows what it got by what it does. */
+ * CHANNEL: the target). Containers are not events: a program shows what it got by what it does -- and
+ * (#4270, X24) the containers a task leaves on its first program's current channel are compared at its end. */
 #define MAX_CHANNELS 64
 #define MAX_CONTAINERS 64
 typedef struct { char name[17]; int bit; char *data; int len; int used; } gg_container;
@@ -1946,6 +1950,70 @@ int GGCASCH(gg_cics *c) {
     c->resp = NORMAL;
     c->resp2 = 0;
     return 0;
+}
+
+/* #4270 (oracle_assumptions.md X24): the channel a task starts with ($GGCICS_DIR/channel.cfg) -- what a RUN TRANSID
+ * CHANNEL parent or a LINK CHANNEL caller passed -- made the first program's current channel, the only one in its
+ * scope. No file: no current channel, as before. */
+static int hexval(int ch) {
+    if (ch >= '0' && ch <= '9') return ch - '0';
+    if (ch >= 'A' && ch <= 'F') return ch - 'A' + 10;
+    if (ch >= 'a' && ch <= 'f') return ch - 'a' + 10;
+    refuse("channel.cfg: a container's data is not hex");
+    return 0;
+}
+
+static int channel_in; /* a channel.cfg was read: the task's containers are written at its end */
+
+int GGCCHIN(gg_cics *c) {
+    char path[4096], name[17], word[32], type[8];
+    size_t size = 1 << 20;
+    (void)c;
+    snprintf(path, sizeof path, "%s/channel.cfg", dir_in());
+    FILE *f = fopen(path, "r");
+    if (!f) return 0;
+    char *line = malloc(size);
+    if (!line) refuse("out of memory");
+    if (!fgets(line, (int)size, f) || sscanf(line, "%16s", name) != 1) refuse("channel.cfg: no channel name");
+    int ch = channel_named(name, 1);
+    levels[0].cur = ch;
+    channel_in = 1;
+    while (fgets(line, (int)size, f)) {
+        char *hex = malloc(size);
+        if (!hex) refuse("out of memory");
+        if (sscanf(line, "%31s %7s %s", word, type, hex) != 3 || strlen(word) > 16) refuse("channel.cfg: a container line");
+        gg_container *k = container_named(&chans[ch - 1], word, 1);
+        k->bit = strcmp(type, "CHAR") != 0;
+        size_t n = strcmp(hex, "-") == 0 ? 0 : strlen(hex) / 2;
+        k->data = malloc(n + 1);
+        if (!k->data) refuse("out of memory");
+        for (size_t i = 0; i < n; i++) k->data[i] = (char)(hexval(hex[2 * i]) * 16 + hexval(hex[2 * i + 1]));
+        k->len = (int)n;
+        free(hex);
+    }
+    free(line);
+    fclose(f);
+    return 0;
+}
+
+/* #4270 (X24): the first program's current channel at task end, every container's bytes in hex -- only for a task
+ * started with a channel (channel.cfg), whose first program keeps it as its current channel to the end. */
+static void containers_out(void) {
+    char path[3000];
+    if (!channel_in) return;
+    if (!levels[0].cur) refuse("the task's current channel gone at its end");
+    gg_channel *ch = &chans[levels[0].cur - 1];
+    snprintf(path, sizeof path, "%s/containers.out", dir_out());
+    FILE *f = fopen(path, "w");
+    if (!f) return;
+    fprintf(f, "CHANNEL %s\n", ch->name);
+    for (int i = 0; i < MAX_CONTAINERS; i++) {
+        if (!ch->c[i].used) continue;
+        fprintf(f, "%s ", ch->c[i].name);
+        for (int j = 0; j < ch->c[i].len; j++) fprintf(f, "%02X", (unsigned char)ch->c[i].data[j]);
+        fprintf(f, "\n");
+    }
+    fclose(f);
 }
 
 /* ---- interval control (#4006) ---------------------------------------------------------- *
@@ -2351,5 +2419,6 @@ int GGCEND(gg_cics *c) {
     /* the task's program GOBACKed with no RETURN / XCTL / ABEND: at the highest level that GOBACK is the
      * RETURN (no TRANSID, no COMMAREA), as GGCPEND has it for a task run through GGCRUN */
     if (!ended) return_event("", NULL, 0);
+    containers_out();
     return 0;
 }

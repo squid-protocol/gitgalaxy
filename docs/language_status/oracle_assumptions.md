@@ -101,6 +101,7 @@ verdict, but it limits what the proof says about inputs outside the scenarios.
 | X21 | CICS | EIBTASKN: the task's number is a stated fact of the run (`$GGCICS_TASKN` / `CicsTask.withTaskNumber`, a case's or scenario's `"taskn"`, default 0), not the number CICS assigns; a value outside 0 to 9,999,999 refused | DIFFERS (the value) / MATCHED (both sides) | yes (every CICS task; read by CBSA's Db2 programs, GenApp LGICDB01) |
 | X22 | CICS | READ GTEQ / GENERIC on a KSDS: the first record whose key (or its first KEYLENGTH bytes) equals RIDFLD's or, with GTEQ, is greater, in the browse's key order (D1); NOTFND RESP2 80; READ UPDATE holds the record found; RIDFLD not updated; a GENERIC KEYLENGTH not shorter than the key or not above zero, a non-constant KEYLENGTH and a RIDFLD shorter than the key searched refused | ASSUMED (REFUSED where IBM is silent or the layout decides) | yes (GenApp LGICVS01 genapp-lgicvs01) |
 | X23 | CICS | A COMMAREA of a stated length (a scenario's `commarea_length`, EIBCALEN shorter than the record): the program is given exactly those bytes; a reference past EIBCALEN refused on both sides, the task judged up to it | ASSUMED (REFUSED past EIBCALEN) | yes (GenApp LGACDB01, LGACDB02, LGDPDB01, LGIPDB01) |
+| X24 | CICS | A task started with a channel (a scenario's `channel`: what a RUN TRANSID CHANNEL parent or a LINK CHANNEL caller passed), made its first program's current channel; the containers left on that channel compared at the task's end (dropped on an abend), byte for byte; RUN TRANSID children not run | ASSUMED | yes (async credit-card CRDTCHK, CSSTATS2, CSSTATUS, GETADDR, GETNAME) |
 | X25 | COBOL layout | SYNCHRONIZED slack bytes in the layout model (GalaxyIR `record_layout`, `_storage_spans`): IBM Enterprise COBOL boundaries (halfword up to 4 digits, fullword above, the 8-byte binary S9(10)-S9(18) included; COMP-1 / INDEX / pointers fullword; COMP-2 doubleword) counted from the record, the table slack of IBM's rule; GnuCOBOL / Micro Focus may align an 8-byte binary on a doubleword | ASSUMED (IBM's fullword; z/OS is the target) | no (no committed case reaches an 8-byte SYNC binary) |
 | L1 | LE | CEEDAYS: documented pictures only | MATCHED / REFUSED | yes |
 | L2 | LE | CEE3ABD abend codes | MATCHED | yes |
@@ -942,6 +943,34 @@ The length READQ TS returns on ITEMERR or QIDERR is not documented, so it is not
   or a record's length), the two can differ.
 - **Reach today.** No committed case reaches it: no committed oracle case or answer-key layout holds an 8-byte binary
   with SYNC after an off-boundary item. Status: ASSUMED.
+
+### X24. A task started with a channel; the containers it leaves compared — ASSUMED (#4270)
+- **What IBM documents** (CICS TS 6.x, "Scope of a channel"; RUN TRANSID CHANNEL: "the name of the channel that is
+  to be passed to the child task"; FETCH CHILD CHANNEL: "the channel returned by the child task"; LINK CHANNEL: the
+  called program's current channel, "what it puts there, the caller sees"). A service started by RUN TRANSID CHANNEL,
+  or LINKed with CHANNEL, finds its input in containers on its current channel and leaves its result there for the
+  parent to FETCH, or for the caller.
+- **The harness's model.** A scenario states `"channel": {"name", "containers": {NAME: {"text" | "hex",
+  "datatype"}}}`: the channel the caller passed (text in the case's data page; BIT unless CHAR, as PUT CONTAINER's
+  default). Both sides build it before the program runs and make it the first program's current channel, the only
+  one in its scope: the stub's `GGCCHIN` (channel.cfg), and the Java side's `CicsTask.withChannel` (with the new
+  `Channel.with`). Unstated, the task has no current channel, as before (GET CONTAINER INVREQ RESP2 4).
+- **What is compared.** At the task's end, the containers on that channel -- every one, by name, byte for byte, and
+  the channel's name -- as a last CONTAINERS event (the stub's `containers.out`, written by GGCEND; the Java test reads
+  `task.currentChannel()`), what the parent or caller sees. Dropped when the task abended (as a LINKed program's
+  COMMAREA is) and for a task judged up to a refusal (X6, X23). The data type is not compared: no conversion is
+  modelled (X17), so a parent sees the same bytes either way. Other channels the task made die with it and are not
+  compared.
+- **RUN TRANSID children.** The equivalence harness runs one task: a RUN TRANSID CHILD is compared as the command
+  (TRANSID, RESP; `"transactions"` states the region's transaction definitions, else every one is defined), and the
+  child is not run. Sound for a parent that never FETCHes it (CSSTATS2): nothing the child does can reach the parent.
+  A FETCH CHILD / FETCH ANY is refused by the translator and the stub (X18).
+- **A channel program's facade.** The generator gives a channel program `handleLink(XChannelIn)`, which no task
+  facade carries yet (#4343): the java-facade side runs such a program through runTask, and its `entries` say so.
+- **Reached.** The async credit-card services CRDTCHK, GETADDR, GETNAME, CSSTATUS (which LINKs GETPOL and GETSPND)
+  and CSSTATS2 (RUN TRANSID GETP / SPND): their '0001' and other-account branches, and the containers they PUT.
+  Pinned by `tests/cobol_mainframe/test_equivalence_cics.py` (the stub's channel in and containers out, the
+  comparison, the drop on abend).
 
 ## Language Environment
 

@@ -485,14 +485,21 @@ _DEPENDING_CLAUSE = re.compile(
 # before a binary / floating / pointer item), `JUSTIFIED [RIGHT]` and `BLANK [WHEN] ZERO[S|ES]` -- and a 66
 # entry's `RENAMES a [THRU b]` (qualifiers kept, `IN` read as `OF`). Each is read from the entry's own text
 # (before its period, literals blanked) and bounded by COBOL-name boundaries, so `WS-SYNC-FLAG` is no clause.
-_SYNC_CLAUSE = re.compile(r"(?<![A-Z0-9-])SYNC(?:HRONIZED)?(?:[ \t\n\u3000]+(LEFT|RIGHT))?(?![A-Z0-9-])", re.I)
-_JUSTIFIED_CLAUSE = re.compile(r"(?<![A-Z0-9-])JUST(?:IFIED)?(?![A-Z0-9-])", re.I)
+# A COBOL-word character (national letters and #3991's full-width digits / hyphens included), so a clause
+# keyword inside a longer name (`WS-SYNC-FLAG`, `#SYNC`) is not read as the clause.
+_CLAUSE_EDGE = r"[A-Z" + NATIONAL + WIDE_DIGITS + WIDE_HYPHENS + r"0-9-]"
+_SYNC_CLAUSE = re.compile(
+    "(?<!" + _CLAUSE_EDGE + r")SYNC(?:HRONIZED)?(?:[ \t\n\u3000]+(LEFT|RIGHT))?(?!" + _CLAUSE_EDGE + ")", re.I
+)
+_JUSTIFIED_CLAUSE = re.compile("(?<!" + _CLAUSE_EDGE + r")JUST(?:IFIED)?(?!" + _CLAUSE_EDGE + ")", re.I)
 _BLANK_WHEN_ZERO_CLAUSE = re.compile(
-    r"(?<![A-Z0-9-])BLANK[ \t\n\u3000]+(?:WHEN[ \t\n\u3000]+)?ZERO(?:E?S)?(?![A-Z0-9-])", re.I
+    "(?<!" + _CLAUSE_EDGE + r")BLANK[ \t\n\u3000]+(?:WHEN[ \t\n\u3000]+)?ZERO(?:E?S)?(?!" + _CLAUSE_EDGE + ")", re.I
 )
 _RENAMES_OPERAND = _COBOL_NAME + r"(?:[ \t\n\u3000]+(?:OF|IN)[ \t\n\u3000]+" + _COBOL_NAME + r"){0,15}"
 _RENAMES_CLAUSE = re.compile(
-    r"(?<![A-Z0-9-])RENAMES[ \t\n\u3000]+("
+    "(?<!"
+    + _CLAUSE_EDGE
+    + r")RENAMES[ \t\n\u3000]+("
     + _RENAMES_OPERAND
     + r")(?:[ \t\n\u3000]+(?:THRU|THROUGH)[ \t\n\u3000]+("
     + _RENAMES_OPERAND

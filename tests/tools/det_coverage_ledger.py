@@ -110,6 +110,8 @@ def build(det: dict[str, dict[str, Any]], old: dict[str, dict[str, Any]]) -> dic
 def check(det: dict[str, dict[str, Any]], ledger: dict[str, dict[str, Any]]) -> tuple[list[str], list[str]]:
     """(problems, warnings) of the sweep against the ledger."""
     problems, warnings = [], []
+    if not LEDGER.is_file() or not _tracked(LEDGER):
+        problems.append(f"coverage ledger: {LEDGER.name} is not a committed file (git-ignored?)")
     fix = "python tests/tools/det_coverage_ledger.py update <the sweep's DIR(s)>"
     for case in sorted(ledger):
         if not (CASES / case / "case.json").is_file():
@@ -136,6 +138,14 @@ def check(det: dict[str, dict[str, Any]], ledger: dict[str, dict[str, Any]]) -> 
         elif bad:
             warnings.append(f"coverage ledger: {case}: stale ({', '.join(bad)} changed); refresh when convenient")
     return problems, warnings
+
+
+def _tracked(path: Path) -> bool:
+    """The file is in git's index (an ignored, uncommitted ledger is not)."""
+    import subprocess  # noqa: PLC0415
+
+    return subprocess.run(["git", "-C", str(REPO), "ls-files", "--error-unmatch", str(path)],  # noqa: S603, S607
+                          capture_output=True, check=False).returncode == 0  # fmt: skip
 
 
 def _show(n: dict[str, Any]) -> str:

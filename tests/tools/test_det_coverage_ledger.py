@@ -49,3 +49,15 @@ def test_build_and_fresh(monkeypatch):
     assert dcl.fresh_coverage(CASE, built) == (4, 4, 2, 2)
     monkeypatch.setattr(dcl, "fingerprints", lambda case: {**FP, "oracle": "z"})
     assert dcl.fresh_coverage(CASE, built) is None
+
+
+def test_ledger_is_committed():
+    """The ledger must be in git (a `*.json` ignore rule once kept it out of PR #4606)."""
+    assert dcl._tracked(dcl.LEDGER)
+
+
+def test_missing_ledger_fails(monkeypatch, tmp_path):
+    monkeypatch.setattr(dcl, "fingerprints", lambda case: dict(FP))
+    monkeypatch.setattr(dcl, "LEDGER", tmp_path / "nope.json")
+    problems, _ = dcl.check({}, {})
+    assert "not a committed file" in problems[0]

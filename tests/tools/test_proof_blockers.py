@@ -78,7 +78,9 @@ def gaps_of(res, stem):
 
 def test_each_gap_class_from_its_source(tmp_path):
     res = run(tmp_path)
-    assert gaps_of(res, "PROVEN") == [] and gaps_of(res, "LINKED") == []  # a LINKed program is run by the case
+    assert gaps_of(res, "PROVEN") == [] and gaps_of(res, "LINKED") == [
+        pb.LINKED_NOT_MEASURED
+    ]  # run by the case, but its own coverage is not measured (#4270)
     assert gaps_of(res, "NOCASE") == ["no case"]
     assert gaps_of(res, "DB2") == ["not proven in CI: Db2 case (det-sweep runs --skip-db2)"]
     assert gaps_of(res, "KNOWN") == ["known unproven: #1"]
@@ -90,7 +92,7 @@ def test_each_gap_class_from_its_source(tmp_path):
     stems = {Path(p["program"]).stem for p in res["programs"]}
     assert "BATCH" not in stems and "HOLEY" not in stems  # not CICS / not whole
     assert res["not_cics"] == 1
-    assert (res["whole"], res["proven"]) == (9, 2)
+    assert (res["whole"], res["proven"]) == (9, 1)
 
 
 def test_branches_and_all_programs(tmp_path):
@@ -184,7 +186,7 @@ def test_cli_prints_the_totals(tmp_path, capsys, monkeypatch):
     monkeypatch.setattr(pb, "DET_BASELINE", write(tmp_path / "det_sweep_baseline.json", {"det": det_baseline}))
     assert pb.main([str(tmp_path / "s"), "--label", "main", "--corpora", str(corpora), "--no-census"]) == 0
     out = capsys.readouterr().out
-    assert "estates: translated whole 9 (non-burned 9); proven 2 (non-burned 2)" in out
+    assert "estates: translated whole 9 (non-burned 9); proven 1 (non-burned 1)" in out
     assert "no case" in out
 
 
@@ -234,3 +236,25 @@ def test_a_sweep_s_uncovered_outcomes_check_the_claim(tmp_path):
     res = pb.proof_blockers(rows, [corpora], cases_dir=cases, crucible_dir=cru, det_baseline=det_baseline,
                             branches=True, sweeps=pb.load_sweeps([sweep]))  # fmt: skip
     assert gaps_of(res, "DIFF") == []
+
+
+def test_a_linked_program_does_not_inherit_the_case_s_coverage():
+    """#4270: coverage is measured for the case's program_source only; a LINKed program is a gap, never the case's numbers."""
+    sweeps = {
+        "c": {
+            "proved": True,
+            "coverage": "proven on 3 scenarios, covering 5/5 paragraphs and 9/9 branches",
+            "translated": "2/2",
+            "uncovered": [],
+        }
+    }
+    main = pb.Run("equivalence", "c")
+    linked = pb.Run("equivalence", "c", role="linked")
+    for run in (main, linked):
+        pb.judge_equivalence(run, {}, sweeps, True)
+    assert main.gaps == set()
+    assert linked.gaps == {pb.LINKED_NOT_MEASURED}
+    # no coverage at all: the same single gap, not "unknown"
+    other = pb.Run("equivalence", "c2", role="linked")
+    pb.judge_equivalence(other, {}, {}, True)
+    assert other.gaps == {pb.LINKED_NOT_MEASURED}

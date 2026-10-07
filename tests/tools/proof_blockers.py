@@ -86,6 +86,7 @@ ASSIGN_TASK_FACTS = {"STARTCODE": "STARTCODE", "USERID": "USERID", "FACILITY": "
 ASSIGN_REGION_FACTS = ("APPLID", "SYSID")  # stated by a case's "region"
 
 _EIB = re.compile(r"\bEIB[A-Z0-9]+\b")
+LINKED_NOT_MEASURED = "coverage: not measured for a LINKed program"  # #4270
 _COV = re.compile(r"(\d+)/(\d+) paragraphs and (\d+)/(\d+) branches")
 _CRUCIBLE_PATH = re.compile(r"(?:^|/)cases/[^/]+/([^/]+)/src/([^/]+)\.(?:cbl|cob|cobol)$", re.I)
 
@@ -211,6 +212,12 @@ def judge_equivalence(run: Run, det_baseline: dict[str, dict[str, Any]], sweeps:
         t, _, s = str(row.get("translated", "")).partition("/")
         if t.isdigit() and s.isdigit() and int(t) < int(s):
             run.gaps.add("holes in the case's det port")
+    if run.role == "linked":  # the coverage tools measure the case's program_source only (#4270): never inherit it
+        run.gaps.add(LINKED_NOT_MEASURED)
+        run.detail[LINKED_NOT_MEASURED] = (
+            "the case's coverage line is its main program's; the LINKed program has no count of its own"
+        )
+        return
     cov = coverage_of(row.get("coverage", "")) if row else None
     uncovered = row.get("uncovered") if cov else None
     checked = uncovered is not None  # a sweep that kept no uncovered list cannot show a claim holds

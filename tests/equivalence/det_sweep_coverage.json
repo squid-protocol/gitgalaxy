@@ -478,6 +478,91 @@
     "oracle": "c01338417b189840c3da3fcf109428b6c3c5db987111699423026a5a2aa260eb"
    }
   },
+  "cbsa-crdtagy1": {
+   "scenarios": 7,
+   "paragraphs": {
+    "covered": 4,
+    "live": 7
+   },
+   "branches": {
+    "covered": 4,
+    "total": 6
+   },
+   "inputs": {
+    "case": "bf56e9614f14453a444f63b7fb51d91f935cf7c4d4e41d60b7acba28d4e8fdf8",
+    "corpus": "7a4c86e6d6688f1516ec00cbd81941457457c861bf900e2b3a7f269c6bf9058b",
+    "harness": "be651bd7ad9cd33439c4310542610ad1ceb032db0d6118e2ab110ef9e17d33d3",
+    "oracle": "3242708f13ca2c63a9276df4896d082df55c1b30c1042de17b970d9ad7eebdc3"
+   }
+  },
+  "cbsa-crdtagy2": {
+   "scenarios": 7,
+   "paragraphs": {
+    "covered": 4,
+    "live": 7
+   },
+   "branches": {
+    "covered": 4,
+    "total": 6
+   },
+   "inputs": {
+    "case": "dc971ed1c22b4306ad8151ea2c9ff018c72bd388924bd03b5c28c3fc23490ceb",
+    "corpus": "7a4c86e6d6688f1516ec00cbd81941457457c861bf900e2b3a7f269c6bf9058b",
+    "harness": "be651bd7ad9cd33439c4310542610ad1ceb032db0d6118e2ab110ef9e17d33d3",
+    "oracle": "3242708f13ca2c63a9276df4896d082df55c1b30c1042de17b970d9ad7eebdc3"
+   }
+  },
+  "cbsa-crdtagy3": {
+   "scenarios": 7,
+   "paragraphs": {
+    "covered": 4,
+    "live": 7
+   },
+   "branches": {
+    "covered": 4,
+    "total": 6
+   },
+   "inputs": {
+    "case": "c102fb49386e61ad00f95359ef88ec35b1aaf06530b7d0c0b1fd26d671de2383",
+    "corpus": "7a4c86e6d6688f1516ec00cbd81941457457c861bf900e2b3a7f269c6bf9058b",
+    "harness": "be651bd7ad9cd33439c4310542610ad1ceb032db0d6118e2ab110ef9e17d33d3",
+    "oracle": "3242708f13ca2c63a9276df4896d082df55c1b30c1042de17b970d9ad7eebdc3"
+   }
+  },
+  "cbsa-crdtagy4": {
+   "scenarios": 7,
+   "paragraphs": {
+    "covered": 4,
+    "live": 7
+   },
+   "branches": {
+    "covered": 4,
+    "total": 6
+   },
+   "inputs": {
+    "case": "90bb0317a3cd68b33b8eeb4561594fb08399dd48a003dbdf770c5ce048902fe7",
+    "corpus": "7a4c86e6d6688f1516ec00cbd81941457457c861bf900e2b3a7f269c6bf9058b",
+    "harness": "be651bd7ad9cd33439c4310542610ad1ceb032db0d6118e2ab110ef9e17d33d3",
+    "oracle": "3242708f13ca2c63a9276df4896d082df55c1b30c1042de17b970d9ad7eebdc3"
+   }
+  },
+  "cbsa-crdtagy5": {
+   "scenarios": 7,
+   "paragraphs": {
+    "covered": 4,
+    "live": 7
+   },
+   "branches": {
+    "covered": 4,
+    "total": 6
+   },
+   "inputs": {
+    "case": "dc932eab698dacdfbbce5edadc16263a6f83b533d9fb65b3987b10e0179716f0",
+    "corpus": "7a4c86e6d6688f1516ec00cbd81941457457c861bf900e2b3a7f269c6bf9058b",
+    "harness": "be651bd7ad9cd33439c4310542610ad1ceb032db0d6118e2ab110ef9e17d33d3",
+    "oracle": "3242708f13ca2c63a9276df4896d082df55c1b30c1042de17b970d9ad7eebdc3"
+   }
+  },
   "cbsa-custctrl": {
    "scenarios": 6,
    "paragraphs": {
@@ -529,6 +614,40 @@
     "oracle": "812e95beccb670c5b2c432f18ec0c4656c1857c4c69d13aa88b1224635c58ab9"
    }
   },
+  "cbsa-getcompy": {
+   "scenarios": 3,
+   "paragraphs": {
+    "covered": 2,
+    "live": 2
+   },
+   "branches": {
+    "covered": 0,
+    "total": 0
+   },
+   "inputs": {
+    "case": "cc7483b5fbfd9bcfe7b4f56bfb3a0e8767f4d722990c0f41683851f97a34614f",
+    "corpus": "7a4c86e6d6688f1516ec00cbd81941457457c861bf900e2b3a7f269c6bf9058b",
+    "harness": "be651bd7ad9cd33439c4310542610ad1ceb032db0d6118e2ab110ef9e17d33d3",
+    "oracle": "3242708f13ca2c63a9276df4896d082df55c1b30c1042de17b970d9ad7eebdc3"
+   }
+  },
+  "cbsa-getscode": {
+   "scenarios": 3,
+   "paragraphs": {
+    "covered": 2,
+    "live": 2
+   },
+   "branches": {
+    "covered": 0,
+    "total": 0
+   },
+   "inputs": {
+    "case": "f3c639db397c01ea468144e68fbea43c86cef76de6ebfabb17ef5d54e046664e",
+    "corpus": "7a4c86e6d6688f1516ec00cbd81941457457c861bf900e2b3a7f269c6bf9058b",
+    "harness": "be651bd7ad9cd33439c4310542610ad1ceb032db0d6118e2ab110ef9e17d33d3",
+    "oracle": "3242708f13ca2c63a9276df4896d082df55c1b30c1042de17b970d9ad7eebdc3"
+   }
+  },
   "cbsa-inqacc": {
    "scenarios": 17,
    "paragraphs": {
@@ -544,6 +663,23 @@
     "corpus": "7a4c86e6d6688f1516ec00cbd81941457457c861bf900e2b3a7f269c6bf9058b",
     "harness": "ff4e514ed862e7cc55a43ed599df0bb631c85b63de2e5e96f4b2093068ff15df",
     "oracle": "812e95beccb670c5b2c432f18ec0c4656c1857c4c69d13aa88b1224635c58ab9"
+   }
+  },
+  "cbsa-inqcust": {
+   "scenarios": 25,
+   "paragraphs": {
+    "covered": 22,
+    "live": 25
+   },
+   "branches": {
+    "covered": 39,
+    "total": 46
+   },
+   "inputs": {
+    "case": "8171ccd53b3cf82c99fe1d999218a3c2d1205fe14557d7656cb114a21b751840",
+    "corpus": "7a4c86e6d6688f1516ec00cbd81941457457c861bf900e2b3a7f269c6bf9058b",
+    "harness": "be651bd7ad9cd33439c4310542610ad1ceb032db0d6118e2ab110ef9e17d33d3",
+    "oracle": "3242708f13ca2c63a9276df4896d082df55c1b30c1042de17b970d9ad7eebdc3"
    }
   },
   "cbsa-updacc": {

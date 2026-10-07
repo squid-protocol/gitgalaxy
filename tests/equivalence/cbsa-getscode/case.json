@@ -1,0 +1,48 @@
+{
+ "kind": "cics",
+ "corpus": "cics-banking-sample-application-cbsa",
+ "program": "GETSCODE",
+ "program_source": "src/base/cobol_src/GETSCODE.cbl",
+ "copy_dirs": [
+  "src/base/cobol_copy"
+ ],
+ "transid": "CJSA",
+ "clock": "2026/10/01 10:30:15.00",
+ "region": {
+  "applid": "CBSAREGN",
+  "sysid": "CICA"
+ },
+ "datasets": {},
+ "commarea": {
+  "segments": [
+   {
+    "copybook": "src/base/cobol_copy/GETSCODE.cpy",
+    "record": "GETSORTCODEOPERATION"
+   }
+  ]
+ },
+ "linked": true,
+ "screens": {},
+ "notes": "CBSA's sort-code service (GETSCODE, LINKed by the web front end's GetSortCode API with the GETSCODE copybook's 6-byte COMMAREA): MOVE LITERAL-SORTCODE (the SORTCODE copybook's 77 SORTCODE PIC 9(6) VALUE 987654, renamed by COPY ... REPLACING) TO SORTCODE OF DFHCOMMAREA (PIC X(6)), then EXEC CICS RETURN. The transaction is CJSA, the CICS Liberty JVM server's default for a web request (the corpus defines none for these programs; the program never reads EIBTRNID). One path, no condition: the scenarios differ only in what the caller leaves in the COMMAREA. The COMMAREA is described by the GETSCODE copybook's group GETSORTCODEOperation (6 bytes, the whole of DFHCOMMAREA): the program's own DFHCOMMAREA cannot be laid out from GETSCODE.cbl, whose WORKING-STORAGE COPY SORTCODE REPLACING the harness's layout reader refuses. Derived from the CICS Bank Sample Application (CBSA, github.com/cicsdev/cics-banking-sample-application-cbsa; Copyright IBM Corp. 2023), licensed under the Eclipse Public License 2.0: LICENSE here is the corpus's own; NOTICE says what is derived.",
+ "scenarios": [
+  {
+   "name": "blank-commarea",
+   "commarea": {},
+   "why": "the COMMAREA arrives as spaces: SORTCODE becomes '987654' (an unsigned numeric DISPLAY to alphanumeric MOVE: the digits as they are)"
+  },
+  {
+   "name": "caller-sortcode-replaced",
+   "commarea": {
+    "SORTCODE": "123456"
+   },
+   "why": "the caller's sort code is overwritten by the program's own"
+  },
+  {
+   "name": "letters-replaced",
+   "commarea": {
+    "SORTCODE": "ABCDEF"
+   },
+   "why": "non-digits from the caller: all six bytes replaced"
+  }
+ ]
+}

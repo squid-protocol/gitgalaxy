@@ -1,0 +1,48 @@
+{
+ "kind": "cics",
+ "corpus": "cics-banking-sample-application-cbsa",
+ "program": "GETCOMPY",
+ "program_source": "src/base/cobol_src/GETCOMPY.cbl",
+ "copy_dirs": [
+  "src/base/cobol_copy"
+ ],
+ "transid": "CJSA",
+ "clock": "2026/10/01 10:30:15.00",
+ "region": {
+  "applid": "CBSAREGN",
+  "sysid": "CICA"
+ },
+ "datasets": {},
+ "commarea": {
+  "segments": [
+   {
+    "copybook": "src/base/cobol_src/GETCOMPY.cbl",
+    "record": "DFHCOMMAREA"
+   }
+  ]
+ },
+ "linked": true,
+ "screens": {},
+ "notes": "CBSA's company-name service (GETCOMPY, LINKed by the web front end's GetCompany API with the GETCOMPY copybook's 40-byte COMMAREA, COMPANY-NAME): MOVE 'CICS Bank Sample Application' TO COMPANY-NAME (padded with spaces to 40), then EXEC CICS RETURN. The transaction is CJSA, the CICS Liberty JVM server's default for a web request (the corpus defines none for these programs; the program never reads EIBTRNID). One path, no condition: the scenarios differ only in what the caller leaves in the COMMAREA, which the MOVE replaces whole. The COMMAREA is the program's own DFHCOMMAREA (the copybook starts at level 03). Derived from the CICS Bank Sample Application (CBSA, github.com/cicsdev/cics-banking-sample-application-cbsa; Copyright IBM Corp. 2023), licensed under the Eclipse Public License 2.0: LICENSE here is the corpus's own; NOTICE says what is derived.",
+ "scenarios": [
+  {
+   "name": "blank-commarea",
+   "commarea": {},
+   "why": "the COMMAREA arrives as spaces: COMPANY-NAME becomes the literal, space-padded to 40"
+  },
+  {
+   "name": "caller-data-replaced",
+   "commarea": {
+    "COMPANY-NAME": "XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX"
+   },
+   "why": "a COMMAREA full of the caller's bytes: all 40 replaced, the 12 bytes past the literal by spaces"
+  },
+  {
+   "name": "shorter-caller-name",
+   "commarea": {
+    "COMPANY-NAME": "Some Other Bank Name That Is Long"
+   },
+   "why": "a shorter caller name under the literal: no byte of it survives the MOVE"
+  }
+ ]
+}

@@ -35,35 +35,35 @@ Translation measured by `cics_census.py survey` at translator commit `3bcbb8c623
 | level | programs |
 |---|---|
 | L0 | 14 |
-| L1 | 15 |
-| L2 | 2 |
+| L1 | 7 |
+| L2 | 10 |
 | L3 | 0 |
 | L4 | 0 |
 | L5 | 0 |
 
 - programs: 31 (with an EXEC CICS command: 30; source not read: 0)
 - translated whole: 17; refused whole: 1; holes left: 82
-- with an equivalence case: 8; det port equal on its case: 2; with an evidence record: 2; record current at build: 0
+- with an equivalence case: 16; det port equal on its case: 10; with an evidence record: 2; record current at build: 0
 
 ## Programs
 
 | program | level | translated / statements | holes | case | det port | scenarios | record | paragraphs | branches (raw) | branches (net of infeasible) | det-port mutation | CICS commands oracle-backed |
 |---|---|---|---|---|---|---|---|---|---|---|---|---|
 | src/base/cobol_src/ABNDPROC.cbl | L2 | 13/13 | 0 | cbsa-abndproc | equal | 8 | none | not measured | not measured | not measured | not yet measured (#4628) | 1/2 |
+| src/base/cobol_src/CRDTAGY1.cbl | L2 | 44/44 | 0 | cbsa-crdtagy1 | equal | 7 | none | not measured | not measured | not measured | not yet measured (#4628) | 4/9 |
+| src/base/cobol_src/CRDTAGY2.cbl | L2 | 44/44 | 0 | cbsa-crdtagy2 | equal | 7 | none | not measured | not measured | not measured | not yet measured (#4628) | 4/9 |
+| src/base/cobol_src/CRDTAGY3.cbl | L2 | 44/44 | 0 | cbsa-crdtagy3 | equal | 7 | none | not measured | not measured | not measured | not yet measured (#4628) | 4/9 |
+| src/base/cobol_src/CRDTAGY4.cbl | L2 | 44/44 | 0 | cbsa-crdtagy4 | equal | 7 | none | not measured | not measured | not measured | not yet measured (#4628) | 4/9 |
+| src/base/cobol_src/CRDTAGY5.cbl | L2 | 44/44 | 0 | cbsa-crdtagy5 | equal | 7 | none | not measured | not measured | not measured | not yet measured (#4628) | 4/9 |
+| src/base/cobol_src/GETCOMPY.cbl | L2 | 3/3 | 0 | cbsa-getcompy | equal | 3 | none | not measured | not measured | not measured | not yet measured (#4628) | 1/1 |
+| src/base/cobol_src/GETSCODE.cbl | L2 | 3/3 | 0 | cbsa-getscode | equal | 3 | none | not measured | not measured | not measured | not yet measured (#4628) | 1/1 |
+| src/base/cobol_src/INQCUST.cbl | L2 | 162/162 | 0 | cbsa-inqcust | equal | 25 | none | not measured | not measured | not measured | not yet measured (#4628) | 5/13 |
 | src/base/cobol_src/UPDCUST.cbl | L2 | 64/64 | 0 | cbsa-updcust | equal | 23 | none | not measured | not measured | not measured | not yet measured (#4628) | 1/5 |
-| src/base/cobol_src/CRDTAGY1.cbl | L1 | 44/44 | 0 | — | — | — | — | not measured | not measured | not measured | not yet measured (#4628) | 4/9 |
-| src/base/cobol_src/CRDTAGY2.cbl | L1 | 44/44 | 0 | — | — | — | — | not measured | not measured | not measured | not yet measured (#4628) | 4/9 |
-| src/base/cobol_src/CRDTAGY3.cbl | L1 | 44/44 | 0 | — | — | — | — | not measured | not measured | not measured | not yet measured (#4628) | 4/9 |
-| src/base/cobol_src/CRDTAGY4.cbl | L1 | 44/44 | 0 | — | — | — | — | not measured | not measured | not measured | not yet measured (#4628) | 4/9 |
-| src/base/cobol_src/CRDTAGY5.cbl | L1 | 44/44 | 0 | — | — | — | — | not measured | not measured | not measured | not yet measured (#4628) | 4/9 |
 | src/base/cobol_src/CUSTCTRL.cbl | L1 | 21/21 | 0 | cbsa-custctrl | not run | 6 | none | not measured | not measured | not measured | not yet measured (#4628) | 1/5 |
 | src/base/cobol_src/DBCRFUN.cbl | L1 | 148/148 | 0 | cbsa-dbcrfun | not run | 22 | none | not measured | not measured | not measured | not yet measured (#4628) | 5/8 |
 | src/base/cobol_src/DELACC.cbl | L1 | 134/134 | 0 | cbsa-delacc | not run | 11 | none | not measured | not measured | not measured | not yet measured (#4628) | 3/5 |
-| src/base/cobol_src/GETCOMPY.cbl | L1 | 3/3 | 0 | — | — | — | — | not measured | not measured | not measured | not yet measured (#4628) | 1/1 |
-| src/base/cobol_src/GETSCODE.cbl | L1 | 3/3 | 0 | — | — | — | — | not measured | not measured | not measured | not yet measured (#4628) | 1/1 |
 | src/base/cobol_src/INQACC.cbl | L1 | 227/227 | 0 | cbsa-inqacc | not run | 14 | stale | not measured | not measured | not measured | not yet measured (#4628) | 5/8 |
 | src/base/cobol_src/INQACCCU.cbl | L1 | 186/186 | 0 | — | — | — | — | not measured | not measured | not measured | not yet measured (#4628) | 5/8 |
-| src/base/cobol_src/INQCUST.cbl | L1 | 162/162 | 0 | — | — | — | — | not measured | not measured | not measured | not yet measured (#4628) | 5/13 |
 | src/base/cobol_src/UPDACC.cbl | L1 | 58/58 | 0 | cbsa-updacc | not run | 10 | stale | not measured | not measured | not measured | not yet measured (#4628) | 1/3 |
 | src/base/cobol_src/XFRFUN.cbl | L1 | 426/426 | 0 | cbsa-xfrfun | not run | 22 | none | not measured | not measured | not measured | not yet measured (#4628) | 5/9 |
 | src/base/cobol_src/ACCTCTRL.cbl | L0 | 15/18 | 3 | — | — | — | — | not measured | not measured | not measured | not yet measured (#4628) | 1/3 |
@@ -92,6 +92,8 @@ Translation measured by `cics_census.py survey` at translator commit `3bcbb8c623
   - evidence record: none (8 scenarios in case.json)
 - **Executed equivalence** (cbsa-inqacc, linked, Db2): det port not run (a Db2 case: CI's det-sweep skips Db2 cases and no local sweep was given)
   - evidence record (the case's committed port): stale (stale on harness, oracle, generator); its proof: all equal, 14/14 scenarios equal, 29/29 records equal, 14 runs (0 fault runs); through its deployed entry points 14/14
+- **Executed equivalence** (cbsa-inqcust, linked): det port equal (CI det-sweep ratchet on main)
+  - evidence record: none (25 scenarios in case.json)
 - **Executed equivalence** (cbsa-xfrfun, linked, Db2): det port not run (a Db2 case: CI's det-sweep skips Db2 cases and no local sweep was given)
   - evidence record: none (22 scenarios in case.json)
 - **Coverage:** not measured
@@ -105,6 +107,214 @@ Translation measured by `cics_census.py survey` at translator commit `3bcbb8c623
 - **Assumptions relied on:** named by its commands' spec entries: none; reach: not measured
 - **Det-port mutation:** not yet measured (#4628)
 - **Residual risk:** coverage not measured; commands without oracle backing: WRITE; assumption reach and the migration dimensions above: not measured
+
+### src/base/cobol_src/CRDTAGY1.cbl -- L2
+
+- **Executed equivalent** on the 7 scenarios of cbsa-crdtagy1 against GnuCOBOL + the gitgalaxy CICS stub (det port: CI det-sweep ratchet on main), given the assumptions below
+- **Next level needs:** paragraph coverage >= 100.0 (coverage not measured: no fresh det-sweep ledger entry and no local sweep)
+- **Translation:** 44/44 statements, 0 holes; whole: yes
+- **Executed equivalence** (cbsa-crdtagy1, program, the case this report judges): det port equal (CI det-sweep ratchet on main)
+  - evidence record: none (7 scenarios in case.json)
+- **Coverage:** not measured
+- **Oracle backing** (a column, not a level; per CICS command; DIFFERS assumptions reached: not measured):
+
+  | command | spec entry | hand-traced crucible cases (stub / Java runtime agree) | backed |
+  |---|---|---|---|
+  | ABEND | full | gt-start-retrieve (yes / yes), hc-abend-link (yes / yes) | yes |
+  | ASKTIME | full | none | no |
+  | ASSIGN | full | ca-channel-containers (yes / no), gt-assign-startcode (yes / no), hc-abend-link (yes / yes) | yes |
+  | DELAY | full | none | no |
+  | FORMATTIME | full | none | no |
+  | GET CONTAINER | full | ca-channel-containers (yes / no) | no |
+  | LINK | full | ca-channel-containers (yes / no), ca-link-lengths (yes / yes), hc-abend-link (yes / yes) | yes |
+  | PUT CONTAINER | full | ca-channel-containers (yes / no) | no |
+  | RETURN | full | ca-channel-containers (yes / no), ca-link-lengths (yes / yes), ca-xctl-versions (yes / yes), gt-assign-startcode (yes / no), gt-start-options (yes / no), gt-start-retrieve (yes / yes), gt-terminal-coalesce (yes / yes), hc-abend-link (yes / yes), hc-eoc-error (yes / no), hc-handle-aid (yes / no), hc-ignore-error (yes / no), hc-perform-range (yes / yes), hc-terminal-eoc (yes / no), hc-terminal-receive (yes / no), hx-attr-bytes (yes / yes), hx-extended-cursor (yes / yes), pc-aid-menu (yes / yes), pc-wizard (yes / yes) | yes |
+
+- **Assumptions relied on:** named by its commands' spec entries: X17 (ASSUMED (REFUSED where IBM is silent)), X19 (ASSUMED (REFUSED where the harness cannot decide)); reach: not measured
+  - runtime facts the harness states for its commands: facility, screen, startcode, userid
+  - runtime fact no harness states: EIB field EIBTASKN (both runtimes read zero; z/OS does not)
+- **Det-port mutation:** not yet measured (#4628)
+- **Residual risk:** coverage not measured; 1 unstated runtime facts; ASSUMED / DIFFERS entries named: X17, X19; commands without oracle backing: ASKTIME, DELAY, FORMATTIME, GET CONTAINER, PUT CONTAINER; assumption reach and the migration dimensions above: not measured
+
+### src/base/cobol_src/CRDTAGY2.cbl -- L2
+
+- **Executed equivalent** on the 7 scenarios of cbsa-crdtagy2 against GnuCOBOL + the gitgalaxy CICS stub (det port: CI det-sweep ratchet on main), given the assumptions below
+- **Next level needs:** paragraph coverage >= 100.0 (coverage not measured: no fresh det-sweep ledger entry and no local sweep)
+- **Translation:** 44/44 statements, 0 holes; whole: yes
+- **Executed equivalence** (cbsa-crdtagy2, program, the case this report judges): det port equal (CI det-sweep ratchet on main)
+  - evidence record: none (7 scenarios in case.json)
+- **Coverage:** not measured
+- **Oracle backing** (a column, not a level; per CICS command; DIFFERS assumptions reached: not measured):
+
+  | command | spec entry | hand-traced crucible cases (stub / Java runtime agree) | backed |
+  |---|---|---|---|
+  | ABEND | full | gt-start-retrieve (yes / yes), hc-abend-link (yes / yes) | yes |
+  | ASKTIME | full | none | no |
+  | ASSIGN | full | ca-channel-containers (yes / no), gt-assign-startcode (yes / no), hc-abend-link (yes / yes) | yes |
+  | DELAY | full | none | no |
+  | FORMATTIME | full | none | no |
+  | GET CONTAINER | full | ca-channel-containers (yes / no) | no |
+  | LINK | full | ca-channel-containers (yes / no), ca-link-lengths (yes / yes), hc-abend-link (yes / yes) | yes |
+  | PUT CONTAINER | full | ca-channel-containers (yes / no) | no |
+  | RETURN | full | ca-channel-containers (yes / no), ca-link-lengths (yes / yes), ca-xctl-versions (yes / yes), gt-assign-startcode (yes / no), gt-start-options (yes / no), gt-start-retrieve (yes / yes), gt-terminal-coalesce (yes / yes), hc-abend-link (yes / yes), hc-eoc-error (yes / no), hc-handle-aid (yes / no), hc-ignore-error (yes / no), hc-perform-range (yes / yes), hc-terminal-eoc (yes / no), hc-terminal-receive (yes / no), hx-attr-bytes (yes / yes), hx-extended-cursor (yes / yes), pc-aid-menu (yes / yes), pc-wizard (yes / yes) | yes |
+
+- **Assumptions relied on:** named by its commands' spec entries: X17 (ASSUMED (REFUSED where IBM is silent)), X19 (ASSUMED (REFUSED where the harness cannot decide)); reach: not measured
+  - runtime facts the harness states for its commands: facility, screen, startcode, userid
+  - runtime fact no harness states: EIB field EIBTASKN (both runtimes read zero; z/OS does not)
+- **Det-port mutation:** not yet measured (#4628)
+- **Residual risk:** coverage not measured; 1 unstated runtime facts; ASSUMED / DIFFERS entries named: X17, X19; commands without oracle backing: ASKTIME, DELAY, FORMATTIME, GET CONTAINER, PUT CONTAINER; assumption reach and the migration dimensions above: not measured
+
+### src/base/cobol_src/CRDTAGY3.cbl -- L2
+
+- **Executed equivalent** on the 7 scenarios of cbsa-crdtagy3 against GnuCOBOL + the gitgalaxy CICS stub (det port: CI det-sweep ratchet on main), given the assumptions below
+- **Next level needs:** paragraph coverage >= 100.0 (coverage not measured: no fresh det-sweep ledger entry and no local sweep)
+- **Translation:** 44/44 statements, 0 holes; whole: yes
+- **Executed equivalence** (cbsa-crdtagy3, program, the case this report judges): det port equal (CI det-sweep ratchet on main)
+  - evidence record: none (7 scenarios in case.json)
+- **Coverage:** not measured
+- **Oracle backing** (a column, not a level; per CICS command; DIFFERS assumptions reached: not measured):
+
+  | command | spec entry | hand-traced crucible cases (stub / Java runtime agree) | backed |
+  |---|---|---|---|
+  | ABEND | full | gt-start-retrieve (yes / yes), hc-abend-link (yes / yes) | yes |
+  | ASKTIME | full | none | no |
+  | ASSIGN | full | ca-channel-containers (yes / no), gt-assign-startcode (yes / no), hc-abend-link (yes / yes) | yes |
+  | DELAY | full | none | no |
+  | FORMATTIME | full | none | no |
+  | GET CONTAINER | full | ca-channel-containers (yes / no) | no |
+  | LINK | full | ca-channel-containers (yes / no), ca-link-lengths (yes / yes), hc-abend-link (yes / yes) | yes |
+  | PUT CONTAINER | full | ca-channel-containers (yes / no) | no |
+  | RETURN | full | ca-channel-containers (yes / no), ca-link-lengths (yes / yes), ca-xctl-versions (yes / yes), gt-assign-startcode (yes / no), gt-start-options (yes / no), gt-start-retrieve (yes / yes), gt-terminal-coalesce (yes / yes), hc-abend-link (yes / yes), hc-eoc-error (yes / no), hc-handle-aid (yes / no), hc-ignore-error (yes / no), hc-perform-range (yes / yes), hc-terminal-eoc (yes / no), hc-terminal-receive (yes / no), hx-attr-bytes (yes / yes), hx-extended-cursor (yes / yes), pc-aid-menu (yes / yes), pc-wizard (yes / yes) | yes |
+
+- **Assumptions relied on:** named by its commands' spec entries: X17 (ASSUMED (REFUSED where IBM is silent)), X19 (ASSUMED (REFUSED where the harness cannot decide)); reach: not measured
+  - runtime facts the harness states for its commands: facility, screen, startcode, userid
+  - runtime fact no harness states: EIB field EIBTASKN (both runtimes read zero; z/OS does not)
+- **Det-port mutation:** not yet measured (#4628)
+- **Residual risk:** coverage not measured; 1 unstated runtime facts; ASSUMED / DIFFERS entries named: X17, X19; commands without oracle backing: ASKTIME, DELAY, FORMATTIME, GET CONTAINER, PUT CONTAINER; assumption reach and the migration dimensions above: not measured
+
+### src/base/cobol_src/CRDTAGY4.cbl -- L2
+
+- **Executed equivalent** on the 7 scenarios of cbsa-crdtagy4 against GnuCOBOL + the gitgalaxy CICS stub (det port: CI det-sweep ratchet on main), given the assumptions below
+- **Next level needs:** paragraph coverage >= 100.0 (coverage not measured: no fresh det-sweep ledger entry and no local sweep)
+- **Translation:** 44/44 statements, 0 holes; whole: yes
+- **Executed equivalence** (cbsa-crdtagy4, program, the case this report judges): det port equal (CI det-sweep ratchet on main)
+  - evidence record: none (7 scenarios in case.json)
+- **Coverage:** not measured
+- **Oracle backing** (a column, not a level; per CICS command; DIFFERS assumptions reached: not measured):
+
+  | command | spec entry | hand-traced crucible cases (stub / Java runtime agree) | backed |
+  |---|---|---|---|
+  | ABEND | full | gt-start-retrieve (yes / yes), hc-abend-link (yes / yes) | yes |
+  | ASKTIME | full | none | no |
+  | ASSIGN | full | ca-channel-containers (yes / no), gt-assign-startcode (yes / no), hc-abend-link (yes / yes) | yes |
+  | DELAY | full | none | no |
+  | FORMATTIME | full | none | no |
+  | GET CONTAINER | full | ca-channel-containers (yes / no) | no |
+  | LINK | full | ca-channel-containers (yes / no), ca-link-lengths (yes / yes), hc-abend-link (yes / yes) | yes |
+  | PUT CONTAINER | full | ca-channel-containers (yes / no) | no |
+  | RETURN | full | ca-channel-containers (yes / no), ca-link-lengths (yes / yes), ca-xctl-versions (yes / yes), gt-assign-startcode (yes / no), gt-start-options (yes / no), gt-start-retrieve (yes / yes), gt-terminal-coalesce (yes / yes), hc-abend-link (yes / yes), hc-eoc-error (yes / no), hc-handle-aid (yes / no), hc-ignore-error (yes / no), hc-perform-range (yes / yes), hc-terminal-eoc (yes / no), hc-terminal-receive (yes / no), hx-attr-bytes (yes / yes), hx-extended-cursor (yes / yes), pc-aid-menu (yes / yes), pc-wizard (yes / yes) | yes |
+
+- **Assumptions relied on:** named by its commands' spec entries: X17 (ASSUMED (REFUSED where IBM is silent)), X19 (ASSUMED (REFUSED where the harness cannot decide)); reach: not measured
+  - runtime facts the harness states for its commands: facility, screen, startcode, userid
+  - runtime fact no harness states: EIB field EIBTASKN (both runtimes read zero; z/OS does not)
+- **Det-port mutation:** not yet measured (#4628)
+- **Residual risk:** coverage not measured; 1 unstated runtime facts; ASSUMED / DIFFERS entries named: X17, X19; commands without oracle backing: ASKTIME, DELAY, FORMATTIME, GET CONTAINER, PUT CONTAINER; assumption reach and the migration dimensions above: not measured
+
+### src/base/cobol_src/CRDTAGY5.cbl -- L2
+
+- **Executed equivalent** on the 7 scenarios of cbsa-crdtagy5 against GnuCOBOL + the gitgalaxy CICS stub (det port: CI det-sweep ratchet on main), given the assumptions below
+- **Next level needs:** paragraph coverage >= 100.0 (coverage not measured: no fresh det-sweep ledger entry and no local sweep)
+- **Translation:** 44/44 statements, 0 holes; whole: yes
+- **Executed equivalence** (cbsa-crdtagy5, program, the case this report judges): det port equal (CI det-sweep ratchet on main)
+  - evidence record: none (7 scenarios in case.json)
+- **Coverage:** not measured
+- **Oracle backing** (a column, not a level; per CICS command; DIFFERS assumptions reached: not measured):
+
+  | command | spec entry | hand-traced crucible cases (stub / Java runtime agree) | backed |
+  |---|---|---|---|
+  | ABEND | full | gt-start-retrieve (yes / yes), hc-abend-link (yes / yes) | yes |
+  | ASKTIME | full | none | no |
+  | ASSIGN | full | ca-channel-containers (yes / no), gt-assign-startcode (yes / no), hc-abend-link (yes / yes) | yes |
+  | DELAY | full | none | no |
+  | FORMATTIME | full | none | no |
+  | GET CONTAINER | full | ca-channel-containers (yes / no) | no |
+  | LINK | full | ca-channel-containers (yes / no), ca-link-lengths (yes / yes), hc-abend-link (yes / yes) | yes |
+  | PUT CONTAINER | full | ca-channel-containers (yes / no) | no |
+  | RETURN | full | ca-channel-containers (yes / no), ca-link-lengths (yes / yes), ca-xctl-versions (yes / yes), gt-assign-startcode (yes / no), gt-start-options (yes / no), gt-start-retrieve (yes / yes), gt-terminal-coalesce (yes / yes), hc-abend-link (yes / yes), hc-eoc-error (yes / no), hc-handle-aid (yes / no), hc-ignore-error (yes / no), hc-perform-range (yes / yes), hc-terminal-eoc (yes / no), hc-terminal-receive (yes / no), hx-attr-bytes (yes / yes), hx-extended-cursor (yes / yes), pc-aid-menu (yes / yes), pc-wizard (yes / yes) | yes |
+
+- **Assumptions relied on:** named by its commands' spec entries: X17 (ASSUMED (REFUSED where IBM is silent)), X19 (ASSUMED (REFUSED where the harness cannot decide)); reach: not measured
+  - runtime facts the harness states for its commands: facility, screen, startcode, userid
+  - runtime fact no harness states: EIB field EIBTASKN (both runtimes read zero; z/OS does not)
+- **Det-port mutation:** not yet measured (#4628)
+- **Residual risk:** coverage not measured; 1 unstated runtime facts; ASSUMED / DIFFERS entries named: X17, X19; commands without oracle backing: ASKTIME, DELAY, FORMATTIME, GET CONTAINER, PUT CONTAINER; assumption reach and the migration dimensions above: not measured
+
+### src/base/cobol_src/GETCOMPY.cbl -- L2
+
+- **Executed equivalent** on the 3 scenarios of cbsa-getcompy against GnuCOBOL + the gitgalaxy CICS stub (det port: CI det-sweep ratchet on main), given the assumptions below
+- **Next level needs:** paragraph coverage >= 100.0 (coverage not measured: no fresh det-sweep ledger entry and no local sweep)
+- **Translation:** 3/3 statements, 0 holes; whole: yes
+- **Executed equivalence** (cbsa-getcompy, program, the case this report judges): det port equal (CI det-sweep ratchet on main)
+  - evidence record: none (3 scenarios in case.json)
+- **Coverage:** not measured
+- **Oracle backing** (a column, not a level; per CICS command; DIFFERS assumptions reached: not measured):
+
+  | command | spec entry | hand-traced crucible cases (stub / Java runtime agree) | backed |
+  |---|---|---|---|
+  | RETURN | full | ca-channel-containers (yes / no), ca-link-lengths (yes / yes), ca-xctl-versions (yes / yes), gt-assign-startcode (yes / no), gt-start-options (yes / no), gt-start-retrieve (yes / yes), gt-terminal-coalesce (yes / yes), hc-abend-link (yes / yes), hc-eoc-error (yes / no), hc-handle-aid (yes / no), hc-ignore-error (yes / no), hc-perform-range (yes / yes), hc-terminal-eoc (yes / no), hc-terminal-receive (yes / no), hx-attr-bytes (yes / yes), hx-extended-cursor (yes / yes), pc-aid-menu (yes / yes), pc-wizard (yes / yes) | yes |
+
+- **Assumptions relied on:** named by its commands' spec entries: none; reach: not measured
+- **Det-port mutation:** not yet measured (#4628)
+- **Residual risk:** coverage not measured; assumption reach and the migration dimensions above: not measured
+
+### src/base/cobol_src/GETSCODE.cbl -- L2
+
+- **Executed equivalent** on the 3 scenarios of cbsa-getscode against GnuCOBOL + the gitgalaxy CICS stub (det port: CI det-sweep ratchet on main), given the assumptions below
+- **Next level needs:** paragraph coverage >= 100.0 (coverage not measured: no fresh det-sweep ledger entry and no local sweep)
+- **Translation:** 3/3 statements, 0 holes; whole: yes
+- **Executed equivalence** (cbsa-getscode, program, the case this report judges): det port equal (CI det-sweep ratchet on main)
+  - evidence record: none (3 scenarios in case.json)
+- **Coverage:** not measured
+- **Oracle backing** (a column, not a level; per CICS command; DIFFERS assumptions reached: not measured):
+
+  | command | spec entry | hand-traced crucible cases (stub / Java runtime agree) | backed |
+  |---|---|---|---|
+  | RETURN | full | ca-channel-containers (yes / no), ca-link-lengths (yes / yes), ca-xctl-versions (yes / yes), gt-assign-startcode (yes / no), gt-start-options (yes / no), gt-start-retrieve (yes / yes), gt-terminal-coalesce (yes / yes), hc-abend-link (yes / yes), hc-eoc-error (yes / no), hc-handle-aid (yes / no), hc-ignore-error (yes / no), hc-perform-range (yes / yes), hc-terminal-eoc (yes / no), hc-terminal-receive (yes / no), hx-attr-bytes (yes / yes), hx-extended-cursor (yes / yes), pc-aid-menu (yes / yes), pc-wizard (yes / yes) | yes |
+
+- **Assumptions relied on:** named by its commands' spec entries: none; reach: not measured
+- **Det-port mutation:** not yet measured (#4628)
+- **Residual risk:** coverage not measured; assumption reach and the migration dimensions above: not measured
+
+### src/base/cobol_src/INQCUST.cbl -- L2
+
+- **Executed equivalent** on the 25 scenarios of cbsa-inqcust against GnuCOBOL + the gitgalaxy CICS stub (det port: CI det-sweep ratchet on main), given the assumptions below
+- **Next level needs:** paragraph coverage >= 100.0 (coverage not measured: no fresh det-sweep ledger entry and no local sweep)
+- **Translation:** 162/162 statements, 0 holes; whole: yes
+- **Executed equivalence** (cbsa-inqcust, program, the case this report judges): det port equal (CI det-sweep ratchet on main)
+  - evidence record: none (25 scenarios in case.json)
+- **Coverage:** not measured
+- **Oracle backing** (a column, not a level; per CICS command; DIFFERS assumptions reached: not measured):
+
+  | command | spec entry | hand-traced crucible cases (stub / Java runtime agree) | backed |
+  |---|---|---|---|
+  | ABEND | full | gt-start-retrieve (yes / yes), hc-abend-link (yes / yes) | yes |
+  | ASKTIME | full | none | no |
+  | ASSIGN | full | ca-channel-containers (yes / no), gt-assign-startcode (yes / no), hc-abend-link (yes / yes) | yes |
+  | DELAY | full | none | no |
+  | ENDBR | full | none | no |
+  | FORMATTIME | full | none | no |
+  | HANDLE ABEND | full | hc-abend-link (yes / yes) | yes |
+  | LINK | full | ca-channel-containers (yes / no), ca-link-lengths (yes / yes), hc-abend-link (yes / yes) | yes |
+  | READ | full | none | no |
+  | READPREV | full | none | no |
+  | RETURN | full | ca-channel-containers (yes / no), ca-link-lengths (yes / yes), ca-xctl-versions (yes / yes), gt-assign-startcode (yes / no), gt-start-options (yes / no), gt-start-retrieve (yes / yes), gt-terminal-coalesce (yes / yes), hc-abend-link (yes / yes), hc-eoc-error (yes / no), hc-handle-aid (yes / no), hc-ignore-error (yes / no), hc-perform-range (yes / yes), hc-terminal-eoc (yes / no), hc-terminal-receive (yes / no), hx-attr-bytes (yes / yes), hx-extended-cursor (yes / yes), pc-aid-menu (yes / yes), pc-wizard (yes / yes) | yes |
+  | STARTBR | full | none | no |
+  | SYNCPOINT ROLLBACK | full | none | no |
+
+- **Assumptions relied on:** named by its commands' spec entries: X3 (MATCHED), X14 (ASSUMED (REFUSED where IBM is silent)), X19 (ASSUMED (REFUSED where the harness cannot decide)), X22 (ASSUMED (REFUSED where IBM is silent or the layout decides)); reach: not measured
+  - runtime facts the harness states for its commands: facility, screen, startcode, userid
+  - runtime fact no harness states: EIB field EIBTASKN (both runtimes read zero; z/OS does not)
+- **Det-port mutation:** not yet measured (#4628)
+- **Residual risk:** coverage not measured; 1 unstated runtime facts; ASSUMED / DIFFERS entries named: X14, X19, X22; commands without oracle backing: ASKTIME, DELAY, ENDBR, FORMATTIME, READ, READPREV, STARTBR, SYNCPOINT ROLLBACK; assumption reach and the migration dimensions above: not measured
 
 ### src/base/cobol_src/UPDCUST.cbl -- L2
 
@@ -127,141 +337,6 @@ Translation measured by `cics_census.py survey` at translator commit `3bcbb8c623
 - **Assumptions relied on:** named by its commands' spec entries: X14 (ASSUMED (REFUSED where IBM is silent)), X22 (ASSUMED (REFUSED where IBM is silent or the layout decides)); reach: not measured
 - **Det-port mutation:** not yet measured (#4628)
 - **Residual risk:** coverage not measured; ASSUMED / DIFFERS entries named: X14, X22; commands without oracle backing: ASKTIME, FORMATTIME, READ, REWRITE; assumption reach and the migration dimensions above: not measured
-
-### src/base/cobol_src/CRDTAGY1.cbl -- L1
-
-- **Next level needs:** an equivalence case that runs it
-- **Translation:** 44/44 statements, 0 holes; whole: yes
-- **Executed equivalence:** no equivalence case runs it
-- **Coverage:** not measured
-- **Oracle backing** (a column, not a level; per CICS command; DIFFERS assumptions reached: not measured):
-
-  | command | spec entry | hand-traced crucible cases (stub / Java runtime agree) | backed |
-  |---|---|---|---|
-  | ABEND | full | gt-start-retrieve (yes / yes), hc-abend-link (yes / yes) | yes |
-  | ASKTIME | full | none | no |
-  | ASSIGN | full | ca-channel-containers (yes / no), gt-assign-startcode (yes / no), hc-abend-link (yes / yes) | yes |
-  | DELAY | full | none | no |
-  | FORMATTIME | full | none | no |
-  | GET CONTAINER | full | ca-channel-containers (yes / no) | no |
-  | LINK | full | ca-channel-containers (yes / no), ca-link-lengths (yes / yes), hc-abend-link (yes / yes) | yes |
-  | PUT CONTAINER | full | ca-channel-containers (yes / no) | no |
-  | RETURN | full | ca-channel-containers (yes / no), ca-link-lengths (yes / yes), ca-xctl-versions (yes / yes), gt-assign-startcode (yes / no), gt-start-options (yes / no), gt-start-retrieve (yes / yes), gt-terminal-coalesce (yes / yes), hc-abend-link (yes / yes), hc-eoc-error (yes / no), hc-handle-aid (yes / no), hc-ignore-error (yes / no), hc-perform-range (yes / yes), hc-terminal-eoc (yes / no), hc-terminal-receive (yes / no), hx-attr-bytes (yes / yes), hx-extended-cursor (yes / yes), pc-aid-menu (yes / yes), pc-wizard (yes / yes) | yes |
-
-- **Assumptions relied on:** named by its commands' spec entries: X17 (ASSUMED (REFUSED where IBM is silent)), X19 (ASSUMED (REFUSED where the harness cannot decide)); reach: not measured
-  - runtime facts the harness states for its commands: facility, screen, startcode, userid
-  - runtime fact no harness states: EIB field EIBTASKN (both runtimes read zero; z/OS does not)
-  - runtime fact no harness states: ASSIGN APPLID (the case states no region)
-- **Det-port mutation:** not yet measured (#4628)
-- **Residual risk:** coverage not measured; 2 unstated runtime facts; ASSUMED / DIFFERS entries named: X17, X19; commands without oracle backing: ASKTIME, DELAY, FORMATTIME, GET CONTAINER, PUT CONTAINER; assumption reach and the migration dimensions above: not measured
-
-### src/base/cobol_src/CRDTAGY2.cbl -- L1
-
-- **Next level needs:** an equivalence case that runs it
-- **Translation:** 44/44 statements, 0 holes; whole: yes
-- **Executed equivalence:** no equivalence case runs it
-- **Coverage:** not measured
-- **Oracle backing** (a column, not a level; per CICS command; DIFFERS assumptions reached: not measured):
-
-  | command | spec entry | hand-traced crucible cases (stub / Java runtime agree) | backed |
-  |---|---|---|---|
-  | ABEND | full | gt-start-retrieve (yes / yes), hc-abend-link (yes / yes) | yes |
-  | ASKTIME | full | none | no |
-  | ASSIGN | full | ca-channel-containers (yes / no), gt-assign-startcode (yes / no), hc-abend-link (yes / yes) | yes |
-  | DELAY | full | none | no |
-  | FORMATTIME | full | none | no |
-  | GET CONTAINER | full | ca-channel-containers (yes / no) | no |
-  | LINK | full | ca-channel-containers (yes / no), ca-link-lengths (yes / yes), hc-abend-link (yes / yes) | yes |
-  | PUT CONTAINER | full | ca-channel-containers (yes / no) | no |
-  | RETURN | full | ca-channel-containers (yes / no), ca-link-lengths (yes / yes), ca-xctl-versions (yes / yes), gt-assign-startcode (yes / no), gt-start-options (yes / no), gt-start-retrieve (yes / yes), gt-terminal-coalesce (yes / yes), hc-abend-link (yes / yes), hc-eoc-error (yes / no), hc-handle-aid (yes / no), hc-ignore-error (yes / no), hc-perform-range (yes / yes), hc-terminal-eoc (yes / no), hc-terminal-receive (yes / no), hx-attr-bytes (yes / yes), hx-extended-cursor (yes / yes), pc-aid-menu (yes / yes), pc-wizard (yes / yes) | yes |
-
-- **Assumptions relied on:** named by its commands' spec entries: X17 (ASSUMED (REFUSED where IBM is silent)), X19 (ASSUMED (REFUSED where the harness cannot decide)); reach: not measured
-  - runtime facts the harness states for its commands: facility, screen, startcode, userid
-  - runtime fact no harness states: EIB field EIBTASKN (both runtimes read zero; z/OS does not)
-  - runtime fact no harness states: ASSIGN APPLID (the case states no region)
-- **Det-port mutation:** not yet measured (#4628)
-- **Residual risk:** coverage not measured; 2 unstated runtime facts; ASSUMED / DIFFERS entries named: X17, X19; commands without oracle backing: ASKTIME, DELAY, FORMATTIME, GET CONTAINER, PUT CONTAINER; assumption reach and the migration dimensions above: not measured
-
-### src/base/cobol_src/CRDTAGY3.cbl -- L1
-
-- **Next level needs:** an equivalence case that runs it
-- **Translation:** 44/44 statements, 0 holes; whole: yes
-- **Executed equivalence:** no equivalence case runs it
-- **Coverage:** not measured
-- **Oracle backing** (a column, not a level; per CICS command; DIFFERS assumptions reached: not measured):
-
-  | command | spec entry | hand-traced crucible cases (stub / Java runtime agree) | backed |
-  |---|---|---|---|
-  | ABEND | full | gt-start-retrieve (yes / yes), hc-abend-link (yes / yes) | yes |
-  | ASKTIME | full | none | no |
-  | ASSIGN | full | ca-channel-containers (yes / no), gt-assign-startcode (yes / no), hc-abend-link (yes / yes) | yes |
-  | DELAY | full | none | no |
-  | FORMATTIME | full | none | no |
-  | GET CONTAINER | full | ca-channel-containers (yes / no) | no |
-  | LINK | full | ca-channel-containers (yes / no), ca-link-lengths (yes / yes), hc-abend-link (yes / yes) | yes |
-  | PUT CONTAINER | full | ca-channel-containers (yes / no) | no |
-  | RETURN | full | ca-channel-containers (yes / no), ca-link-lengths (yes / yes), ca-xctl-versions (yes / yes), gt-assign-startcode (yes / no), gt-start-options (yes / no), gt-start-retrieve (yes / yes), gt-terminal-coalesce (yes / yes), hc-abend-link (yes / yes), hc-eoc-error (yes / no), hc-handle-aid (yes / no), hc-ignore-error (yes / no), hc-perform-range (yes / yes), hc-terminal-eoc (yes / no), hc-terminal-receive (yes / no), hx-attr-bytes (yes / yes), hx-extended-cursor (yes / yes), pc-aid-menu (yes / yes), pc-wizard (yes / yes) | yes |
-
-- **Assumptions relied on:** named by its commands' spec entries: X17 (ASSUMED (REFUSED where IBM is silent)), X19 (ASSUMED (REFUSED where the harness cannot decide)); reach: not measured
-  - runtime facts the harness states for its commands: facility, screen, startcode, userid
-  - runtime fact no harness states: EIB field EIBTASKN (both runtimes read zero; z/OS does not)
-  - runtime fact no harness states: ASSIGN APPLID (the case states no region)
-- **Det-port mutation:** not yet measured (#4628)
-- **Residual risk:** coverage not measured; 2 unstated runtime facts; ASSUMED / DIFFERS entries named: X17, X19; commands without oracle backing: ASKTIME, DELAY, FORMATTIME, GET CONTAINER, PUT CONTAINER; assumption reach and the migration dimensions above: not measured
-
-### src/base/cobol_src/CRDTAGY4.cbl -- L1
-
-- **Next level needs:** an equivalence case that runs it
-- **Translation:** 44/44 statements, 0 holes; whole: yes
-- **Executed equivalence:** no equivalence case runs it
-- **Coverage:** not measured
-- **Oracle backing** (a column, not a level; per CICS command; DIFFERS assumptions reached: not measured):
-
-  | command | spec entry | hand-traced crucible cases (stub / Java runtime agree) | backed |
-  |---|---|---|---|
-  | ABEND | full | gt-start-retrieve (yes / yes), hc-abend-link (yes / yes) | yes |
-  | ASKTIME | full | none | no |
-  | ASSIGN | full | ca-channel-containers (yes / no), gt-assign-startcode (yes / no), hc-abend-link (yes / yes) | yes |
-  | DELAY | full | none | no |
-  | FORMATTIME | full | none | no |
-  | GET CONTAINER | full | ca-channel-containers (yes / no) | no |
-  | LINK | full | ca-channel-containers (yes / no), ca-link-lengths (yes / yes), hc-abend-link (yes / yes) | yes |
-  | PUT CONTAINER | full | ca-channel-containers (yes / no) | no |
-  | RETURN | full | ca-channel-containers (yes / no), ca-link-lengths (yes / yes), ca-xctl-versions (yes / yes), gt-assign-startcode (yes / no), gt-start-options (yes / no), gt-start-retrieve (yes / yes), gt-terminal-coalesce (yes / yes), hc-abend-link (yes / yes), hc-eoc-error (yes / no), hc-handle-aid (yes / no), hc-ignore-error (yes / no), hc-perform-range (yes / yes), hc-terminal-eoc (yes / no), hc-terminal-receive (yes / no), hx-attr-bytes (yes / yes), hx-extended-cursor (yes / yes), pc-aid-menu (yes / yes), pc-wizard (yes / yes) | yes |
-
-- **Assumptions relied on:** named by its commands' spec entries: X17 (ASSUMED (REFUSED where IBM is silent)), X19 (ASSUMED (REFUSED where the harness cannot decide)); reach: not measured
-  - runtime facts the harness states for its commands: facility, screen, startcode, userid
-  - runtime fact no harness states: EIB field EIBTASKN (both runtimes read zero; z/OS does not)
-  - runtime fact no harness states: ASSIGN APPLID (the case states no region)
-- **Det-port mutation:** not yet measured (#4628)
-- **Residual risk:** coverage not measured; 2 unstated runtime facts; ASSUMED / DIFFERS entries named: X17, X19; commands without oracle backing: ASKTIME, DELAY, FORMATTIME, GET CONTAINER, PUT CONTAINER; assumption reach and the migration dimensions above: not measured
-
-### src/base/cobol_src/CRDTAGY5.cbl -- L1
-
-- **Next level needs:** an equivalence case that runs it
-- **Translation:** 44/44 statements, 0 holes; whole: yes
-- **Executed equivalence:** no equivalence case runs it
-- **Coverage:** not measured
-- **Oracle backing** (a column, not a level; per CICS command; DIFFERS assumptions reached: not measured):
-
-  | command | spec entry | hand-traced crucible cases (stub / Java runtime agree) | backed |
-  |---|---|---|---|
-  | ABEND | full | gt-start-retrieve (yes / yes), hc-abend-link (yes / yes) | yes |
-  | ASKTIME | full | none | no |
-  | ASSIGN | full | ca-channel-containers (yes / no), gt-assign-startcode (yes / no), hc-abend-link (yes / yes) | yes |
-  | DELAY | full | none | no |
-  | FORMATTIME | full | none | no |
-  | GET CONTAINER | full | ca-channel-containers (yes / no) | no |
-  | LINK | full | ca-channel-containers (yes / no), ca-link-lengths (yes / yes), hc-abend-link (yes / yes) | yes |
-  | PUT CONTAINER | full | ca-channel-containers (yes / no) | no |
-  | RETURN | full | ca-channel-containers (yes / no), ca-link-lengths (yes / yes), ca-xctl-versions (yes / yes), gt-assign-startcode (yes / no), gt-start-options (yes / no), gt-start-retrieve (yes / yes), gt-terminal-coalesce (yes / yes), hc-abend-link (yes / yes), hc-eoc-error (yes / no), hc-handle-aid (yes / no), hc-ignore-error (yes / no), hc-perform-range (yes / yes), hc-terminal-eoc (yes / no), hc-terminal-receive (yes / no), hx-attr-bytes (yes / yes), hx-extended-cursor (yes / yes), pc-aid-menu (yes / yes), pc-wizard (yes / yes) | yes |
-
-- **Assumptions relied on:** named by its commands' spec entries: X17 (ASSUMED (REFUSED where IBM is silent)), X19 (ASSUMED (REFUSED where the harness cannot decide)); reach: not measured
-  - runtime facts the harness states for its commands: facility, screen, startcode, userid
-  - runtime fact no harness states: EIB field EIBTASKN (both runtimes read zero; z/OS does not)
-  - runtime fact no harness states: ASSIGN APPLID (the case states no region)
-- **Det-port mutation:** not yet measured (#4628)
-- **Residual risk:** coverage not measured; 2 unstated runtime facts; ASSUMED / DIFFERS entries named: X17, X19; commands without oracle backing: ASKTIME, DELAY, FORMATTIME, GET CONTAINER, PUT CONTAINER; assumption reach and the migration dimensions above: not measured
 
 ### src/base/cobol_src/CUSTCTRL.cbl -- L1
 
@@ -333,38 +408,6 @@ Translation measured by `cics_census.py survey` at translator commit `3bcbb8c623
 - **Det-port mutation:** not yet measured (#4628)
 - **Residual risk:** coverage not measured; 1 unstated runtime facts; ASSUMED / DIFFERS entries named: X19; commands without oracle backing: ASKTIME, FORMATTIME; assumption reach and the migration dimensions above: not measured
 
-### src/base/cobol_src/GETCOMPY.cbl -- L1
-
-- **Next level needs:** an equivalence case that runs it
-- **Translation:** 3/3 statements, 0 holes; whole: yes
-- **Executed equivalence:** no equivalence case runs it
-- **Coverage:** not measured
-- **Oracle backing** (a column, not a level; per CICS command; DIFFERS assumptions reached: not measured):
-
-  | command | spec entry | hand-traced crucible cases (stub / Java runtime agree) | backed |
-  |---|---|---|---|
-  | RETURN | full | ca-channel-containers (yes / no), ca-link-lengths (yes / yes), ca-xctl-versions (yes / yes), gt-assign-startcode (yes / no), gt-start-options (yes / no), gt-start-retrieve (yes / yes), gt-terminal-coalesce (yes / yes), hc-abend-link (yes / yes), hc-eoc-error (yes / no), hc-handle-aid (yes / no), hc-ignore-error (yes / no), hc-perform-range (yes / yes), hc-terminal-eoc (yes / no), hc-terminal-receive (yes / no), hx-attr-bytes (yes / yes), hx-extended-cursor (yes / yes), pc-aid-menu (yes / yes), pc-wizard (yes / yes) | yes |
-
-- **Assumptions relied on:** named by its commands' spec entries: none; reach: not measured
-- **Det-port mutation:** not yet measured (#4628)
-- **Residual risk:** coverage not measured; assumption reach and the migration dimensions above: not measured
-
-### src/base/cobol_src/GETSCODE.cbl -- L1
-
-- **Next level needs:** an equivalence case that runs it
-- **Translation:** 3/3 statements, 0 holes; whole: yes
-- **Executed equivalence:** no equivalence case runs it
-- **Coverage:** not measured
-- **Oracle backing** (a column, not a level; per CICS command; DIFFERS assumptions reached: not measured):
-
-  | command | spec entry | hand-traced crucible cases (stub / Java runtime agree) | backed |
-  |---|---|---|---|
-  | RETURN | full | ca-channel-containers (yes / no), ca-link-lengths (yes / yes), ca-xctl-versions (yes / yes), gt-assign-startcode (yes / no), gt-start-options (yes / no), gt-start-retrieve (yes / yes), gt-terminal-coalesce (yes / yes), hc-abend-link (yes / yes), hc-eoc-error (yes / no), hc-handle-aid (yes / no), hc-ignore-error (yes / no), hc-perform-range (yes / yes), hc-terminal-eoc (yes / no), hc-terminal-receive (yes / no), hx-attr-bytes (yes / yes), hx-extended-cursor (yes / yes), pc-aid-menu (yes / yes), pc-wizard (yes / yes) | yes |
-
-- **Assumptions relied on:** named by its commands' spec entries: none; reach: not measured
-- **Det-port mutation:** not yet measured (#4628)
-- **Residual risk:** coverage not measured; assumption reach and the migration dimensions above: not measured
-
 ### src/base/cobol_src/INQACC.cbl -- L1
 
 - **Next level needs:** its det port equal on every scenario of cbsa-inqacc: a Db2 case: CI's det-sweep skips Db2 cases and no local sweep was given
@@ -417,37 +460,6 @@ Translation measured by `cics_census.py survey` at translator commit `3bcbb8c623
   - runtime fact no harness states: ASSIGN APPLID (the case states no region)
 - **Det-port mutation:** not yet measured (#4628)
 - **Residual risk:** coverage not measured; 3 unstated runtime facts; ASSUMED / DIFFERS entries named: X19; commands without oracle backing: ASKTIME, FORMATTIME, SYNCPOINT ROLLBACK; assumption reach and the migration dimensions above: not measured
-
-### src/base/cobol_src/INQCUST.cbl -- L1
-
-- **Next level needs:** an equivalence case that runs it
-- **Translation:** 162/162 statements, 0 holes; whole: yes
-- **Executed equivalence:** no equivalence case runs it
-- **Coverage:** not measured
-- **Oracle backing** (a column, not a level; per CICS command; DIFFERS assumptions reached: not measured):
-
-  | command | spec entry | hand-traced crucible cases (stub / Java runtime agree) | backed |
-  |---|---|---|---|
-  | ABEND | full | gt-start-retrieve (yes / yes), hc-abend-link (yes / yes) | yes |
-  | ASKTIME | full | none | no |
-  | ASSIGN | full | ca-channel-containers (yes / no), gt-assign-startcode (yes / no), hc-abend-link (yes / yes) | yes |
-  | DELAY | full | none | no |
-  | ENDBR | full | none | no |
-  | FORMATTIME | full | none | no |
-  | HANDLE ABEND | full | hc-abend-link (yes / yes) | yes |
-  | LINK | full | ca-channel-containers (yes / no), ca-link-lengths (yes / yes), hc-abend-link (yes / yes) | yes |
-  | READ | full | none | no |
-  | READPREV | full | none | no |
-  | RETURN | full | ca-channel-containers (yes / no), ca-link-lengths (yes / yes), ca-xctl-versions (yes / yes), gt-assign-startcode (yes / no), gt-start-options (yes / no), gt-start-retrieve (yes / yes), gt-terminal-coalesce (yes / yes), hc-abend-link (yes / yes), hc-eoc-error (yes / no), hc-handle-aid (yes / no), hc-ignore-error (yes / no), hc-perform-range (yes / yes), hc-terminal-eoc (yes / no), hc-terminal-receive (yes / no), hx-attr-bytes (yes / yes), hx-extended-cursor (yes / yes), pc-aid-menu (yes / yes), pc-wizard (yes / yes) | yes |
-  | STARTBR | full | none | no |
-  | SYNCPOINT ROLLBACK | full | none | no |
-
-- **Assumptions relied on:** named by its commands' spec entries: X3 (MATCHED), X14 (ASSUMED (REFUSED where IBM is silent)), X19 (ASSUMED (REFUSED where the harness cannot decide)), X22 (ASSUMED (REFUSED where IBM is silent or the layout decides)); reach: not measured
-  - runtime facts the harness states for its commands: facility, screen, startcode, userid
-  - runtime fact no harness states: EIB field EIBTASKN (both runtimes read zero; z/OS does not)
-  - runtime fact no harness states: ASSIGN APPLID (the case states no region)
-- **Det-port mutation:** not yet measured (#4628)
-- **Residual risk:** coverage not measured; 2 unstated runtime facts; ASSUMED / DIFFERS entries named: X14, X19, X22; commands without oracle backing: ASKTIME, DELAY, ENDBR, FORMATTIME, READ, READPREV, STARTBR, SYNCPOINT ROLLBACK; assumption reach and the migration dimensions above: not measured
 
 ### src/base/cobol_src/UPDACC.cbl -- L1
 
@@ -955,7 +967,7 @@ Regenerate this report and re-run its proofs:
 python tests/tools/cics_census.py survey --baseline --sha 3bcbb8c62397b338307563c40618297d54c38100
 python tests/tools/evidence_report.py cics-banking-sample-application-cbsa --baseline --sha 3bcbb8c62397b338307563c40618297d54c38100
 python tests/tools/evidence_report.py --refresh
-python tests/tools/proof_sweep.py --det-only --work DIR --cases cbsa-abndproc,cbsa-custctrl,cbsa-dbcrfun,cbsa-delacc,cbsa-inqacc,cbsa-updacc,cbsa-updacc-generated,cbsa-updcust,cbsa-xfrfun  # Db2 cases (7) need the Db2 container
+python tests/tools/proof_sweep.py --det-only --work DIR --cases cbsa-abndproc,cbsa-crdtagy1,cbsa-crdtagy2,cbsa-crdtagy3,cbsa-crdtagy4,cbsa-crdtagy5,cbsa-custctrl,cbsa-dbcrfun,cbsa-delacc,cbsa-getcompy,cbsa-getscode,cbsa-inqacc,cbsa-inqcust,cbsa-updacc,cbsa-updacc-generated,cbsa-updcust,cbsa-xfrfun  # Db2 cases (7) need the Db2 container
 python tests/tools/evidence.py prove cbsa-inqacc cbsa-updacc
 python tests/tools/cics_crucible.py  # the hand-traced CICS cases, at the crucible pin
 ```

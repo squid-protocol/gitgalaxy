@@ -406,7 +406,13 @@ def program_facts(
             heads = sorted(p.line for p, hf in named if hf == progfile)
             # code lines of the source itself: a procedure-division COPY statement is code (its lines are replaced by
             # the member's in `lines`)
-            own_lines = sorted({ln.line for ln in own} | {ln.line for ln in own_logical if lo <= ln.line <= hi})
+            # #4630: `END PROGRAM 'X'.` closes the program, it is no code of its last unit (the engine and the key end
+            # the unit at its last code line)
+            end_program = re.compile(r"\s*END\s+PROGRAM\b", re.I)
+            own_lines = sorted(
+                {ln.line for ln in own if not end_program.match(ln.text)}
+                | {ln.line for ln in own_logical if lo <= ln.line <= hi and not end_program.match(ln.text)}
+            )
 
             def extent_end(start: int) -> int:
                 nxt = next((h for h in heads if h > start), None)

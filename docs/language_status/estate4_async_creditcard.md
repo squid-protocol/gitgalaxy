@@ -40,10 +40,11 @@ ran over its `END PROGRAM 'X'.` line.
 
 ## Ledger
 
-The ground-truth ledger triages 178 disagreements: 20 are the deliberate unreferenced-by-name census (#2806; every
-`MAINLINE SECTION` is named nowhere else), and 158 are one forge defect, #4626: `cobol_schema_forge` reads no record
-fields from one-digit level numbers (0 of 158). The engine reads all of them. The refraction differential carries the same
-defect as 166 `schema_column` deltas (158 items plus 8 group tables), owned by #4626.
+The ground-truth ledger triages 20 disagreements: the deliberate unreferenced-by-name census (#2806; every
+`MAINLINE SECTION` is named nowhere else). The 158 forge disagreements and the 166 refraction `schema_column` deltas
+were one forge defect, #4626 (`cobol_schema_forge` read no record fields from one-digit level numbers); fixed, the forge
+reads all 158 and both ledgers lost them. The fact cross-check's 20 translator extent disagreements (the last unit ran
+over `END PROGRAM 'X'.`, #4630) were the referee adapter's, fixed the same way.
 
 ## Not here
 

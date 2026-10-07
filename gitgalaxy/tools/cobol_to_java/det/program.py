@@ -1014,6 +1014,8 @@ def _translate(program: Path, copy_dirs: list[Path], stub: str, package: str, es
         *cics_members,
         *call_codecs,
         *file_decls,
+        # FUNCTION RANDOM: the run unit's sequence, the oracle's generator (oracle_assumptions.md C12)
+        *(["    private final Funcs.Random funcRandom = new Funcs.Random();"] if gen.uses_random else []),
         "",
         *[f"    private final {c} {f};" for c, f in dict.fromkeys(ctor_repos)],
         *(
@@ -1043,6 +1045,8 @@ def _translate(program: Path, copy_dirs: list[Path], stub: str, package: str, es
         "    private void initialState() {",
         *[f"        System.arraycopy(IMAGE_{n}, 0, {n}.bytes, 0, IMAGE_{n}.length);" for n, _ in storages],
         *inits,
+        # an entry point starts a run unit: a first FUNCTION RANDOM with no seed seeds zero (IBM; C12)
+        *(["        funcRandom.reset();"] if gen.uses_random else []),
         "    }",
         "",
     ]

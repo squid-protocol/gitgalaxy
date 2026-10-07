@@ -170,6 +170,7 @@ class Gen:
         self.id_methods: dict = {}  # entity -> its id_<entity> method lines (det.entity)  # where the program's copybooks are (a DTO field's declaration is read there)  # det.cics.Cics for a CICS program
         self.sql: Any = None  # det.sql.Sql for a program with EXEC SQL
         self.clock = "clock.currentDate()"  # FUNCTION CURRENT-DATE outside CICS
+        self.uses_random = False  # FUNCTION RANDOM: the program keeps a run unit's sequence (Funcs.Random)
         self.callees: dict[str, str] = {}  # CALLed program -> the ObjectProvider field of its service
         # CALLed program -> its handleCall parameter types (CobolRef<String>, or a contract DTO for a group item)
         self.callee_types: dict[str, list[str]] = {}
@@ -760,6 +761,10 @@ class Gen:
             return f"Funcs.{_camel(name)}({', '.join(self.num(a) for a in args)})"
         if name == "LENGTH" and len(args) == 1:
             return f"BigDecimal.valueOf({self.text(args[0])}.length())"
+        if name == "RANDOM" and len(args) <= 1:
+            # the run unit's sequence (Funcs.Random): the oracle's generator, not z/OS's (oracle_assumptions C12)
+            self.uses_random = True
+            return f"funcRandom.next({self.num(args[0])})" if args else "funcRandom.next()"
         raise Untranslatable(f"FUNCTION {name}")
 
     @_reads
@@ -792,7 +797,7 @@ class Gen:
             return True
         if isinstance(e, E.Func):
             return e.name in ("NUMVAL", "NUMVAL-C", "TEST-NUMVAL", "TEST-NUMVAL-C", "INTEGER-OF-DATE", "DATE-OF-INTEGER", "INTEGER", "MOD",
-                              "REM", "ABS", "LENGTH", "MIN", "MAX", "INTEGER-PART")  # fmt: skip
+                              "REM", "ABS", "LENGTH", "MIN", "MAX", "INTEGER-PART", "RANDOM")  # fmt: skip
         return False
 
     # ---- conditions ---------------------------------------------------------------------------------------------

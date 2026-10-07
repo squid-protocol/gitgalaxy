@@ -1853,3 +1853,49 @@ def test_the_wide_literal_stand_in_is_refused_by_name_in_the_source():
     from gitgalaxy.tools.cobol_to_java.det import source as SRC
 
     assert "U+001D" in SRC.unmodelled(_lines([f"    MOVE 'A{SRC.WIDE}B' TO A."]))
+
+
+# ---- FUNCTION RANDOM: the oracle's generator, stated (oracle_assumptions.md C12) ------------------------------------
+_RANDOM_PROGRAM = """\
+       IDENTIFICATION DIVISION.
+       PROGRAM-ID. RND.
+       DATA DIVISION.
+       WORKING-STORAGE SECTION.
+       01  WS-SEED                PIC S9(15) COMP VALUE 7.
+       01  WS-DELAY               PIC S9(8) COMP.
+       01  WS-SCORE               PIC 999.
+       PROCEDURE DIVISION.
+           COMPUTE WS-DELAY = ((3 - 1) * FUNCTION RANDOM(WS-SEED)) + 1
+           COMPUTE WS-SCORE = ((999 - 1) * FUNCTION RANDOM) + 1
+           GOBACK.
+"""
+
+
+def test_function_random_seeded_and_unseeded_translate_onto_the_run_units_sequence(tmp_path):
+    """CBSA's CRDTAGY1-5 / INQCUST and GenApp's LGICVS01: RANDOM(seed), then RANDOM with no argument continuing the
+    sequence. Both translate onto one Funcs.Random per program, reset by every entry point (a run unit starts as a
+    first reference with no seed finds it: seed zero, IBM)."""
+    pytest.importorskip("tree_sitter_language_pack")
+    from gitgalaxy.tools.cobol_to_java.det import program as P
+
+    (tmp_path / "RND.cbl").write_text(_RANDOM_PROGRAM, encoding="utf-8")
+    project = tmp_path / "proj"
+    project.mkdir()
+    r = P.translate(tmp_path / "RND.cbl", [], "public class RndService {\n}\n", "com.x", None, project)
+    assert (r.stats["statements"], r.stats["translated"], r.stats["holes"]) == (3, 3, [])
+    assert "private final Funcs.Random funcRandom = new Funcs.Random();" in r.java
+    assert "funcRandom.next(" in r.java and "funcRandom.next()" in r.java
+    init = r.java.split("private void initialState() {", 1)[1].split("\n    }", 1)[0]
+    assert "funcRandom.reset();" in init
+
+
+def test_a_program_without_function_random_carries_no_sequence(tmp_path):
+    pytest.importorskip("tree_sitter_language_pack")
+    from gitgalaxy.tools.cobol_to_java.det import program as P
+
+    (tmp_path / "RND.cbl").write_text(_RANDOM_PROGRAM.replace("FUNCTION RANDOM(WS-SEED)", "WS-SEED")
+                                      .replace("FUNCTION RANDOM", "WS-SEED"), encoding="utf-8")  # fmt: skip
+    project = tmp_path / "proj"
+    project.mkdir()
+    r = P.translate(tmp_path / "RND.cbl", [], "public class RndService {\n}\n", "com.x", None, project)
+    assert r.stats["holes"] == [] and "funcRandom" not in r.java

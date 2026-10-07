@@ -185,6 +185,10 @@ INELIGIBLE_LIST = sorted(
         "thisouza01/cobol-db2-refatorado",
         "martinluc/cobol-db2-cursor",
         "martinluc/cobol_db2_stringsearch",
+        # census-counted 2026-10-06 by the #4270 slice agents (census/INELIGIBLE_FOR_BLIND_ESTATE.md); never a
+        # draw candidate (11,165 COBOL bytes < rule 3's 20,000), listed so it never becomes one. RULES_MD's "9
+        # census repos" is the frozen draw's text and stays as committed.
+        "cicsdev/cics-java-jcics-samples",
         # the 5 burned estates
         "aws/aws-mainframe-modernization-carddemo",
         "cicsdev/cics-banking-sample-application-cbsa",

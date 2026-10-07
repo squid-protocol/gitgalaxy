@@ -10,7 +10,7 @@
 [1] GENERATED CLOUD SCAFFOLDING
 ----------------------------------------------------------
   • Build & Config Files Scaffolded : 4
-  • JPA Entities Generated          : 0
+  • JPA Entities Generated          : 8
   • Transient DTOs Generated        : 0
   • REST Controllers Generated      : 0
   • AI Agent Tickets Generated      : 0
@@ -24,7 +24,7 @@
 
 [4] AI AGENT GUARDRAIL
 ----------------------------------------------------------
-  • Baseline : 13 files, 14 classes, 0 SQL tables -> guardrail_baseline.json
+  • Baseline : 21 files, 22 classes, 0 SQL tables -> guardrail_baseline.json
   • Not run  : after agent edits, python -m gitgalaxy.tools.cobol_to_java.cobol_to_java_guardrail <this project>
 
 ==========================================================

@@ -1,0 +1,14 @@
+CREATE TABLE CHILD_TOKENS (
+    CUST_NO_IN                     VARCHAR(4),
+    CUSTOMER_IMPORTANCE            VARCHAR(8),
+    INPUT_CONTAINER                VARCHAR(16),
+    CSSTATS2_CONTAINER             VARCHAR(16),
+    GETPOL                         VARCHAR(8),
+    GETSPND                        VARCHAR(8),
+    COMMAND_RESP                   INTEGER,
+    COMMAND_RESP2                  INTEGER,
+    GET_POLICY_TRAN                VARCHAR(4),
+    GET_SPEND_TRAN                 VARCHAR(4),
+    GET_POLICY_TKN                 VARCHAR(16),
+    GET_SPEND_TKN                  VARCHAR(16)
+);

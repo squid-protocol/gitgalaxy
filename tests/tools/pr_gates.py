@@ -9,8 +9,9 @@ lint rule, a secret-scanner hit or a golden-master drift from CI, one push at a 
     python tests/tools/pr_gates.py --e2e            # add the equivalence proofs (Docker GnuCOBOL + JDK 17)
     python tests/tools/pr_gates.py --vs-main        # re-run each failing gate on a fresh origin/main worktree and
                                                     # label it "caused by branch" or "pre-existing on main@<sha>"
-    python tests/tools/pr_gates.py --ratchets       # every ratchet a fix may move, in order: ports compile, estate-crucible
-                                                    # gate, fact cross-check, corpus completeness pins, ground-truth ledger;
+    python tests/tools/pr_gates.py --ratchets       # every ratchet a fix may move, in order: the CICS spec's generated
+                                                    # files, ports compile, estate-crucible gate, fact cross-check,
+                                                    # corpus completeness pins, ground-truth ledger;
                                                     # prints pass/fail and the exact update command per failure
                                                     # (--only-ratchets ports estate ... to pick; skips say "not available: why")
 
@@ -168,6 +169,12 @@ def ratchets() -> list[Ratchet]:
     """The ratchets a fix may move, in the order to run them. Each reuses its tool's own entry point."""
     t = "tests/tools/"
     return [
+        Ratchet(
+            "cics-spec",
+            [PY, "-m", "gitgalaxy.standards.cics", "regen", "--check"],
+            "python -m gitgalaxy.standards.cics regen   (commit CicsSpec.java / ggcics_spec.h; #4270 spec PR 4)",
+            lambda env: None,
+        ),  # fmt: skip
         Ratchet(
             "ports",
             [PY, t + "ports_compile_check.py"],

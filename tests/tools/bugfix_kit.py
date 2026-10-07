@@ -596,6 +596,22 @@ def read_pin(text: str, name: str) -> str | None:
     return m.group(1) if m else None
 
 
+def read_manifest_ref(text: str, name: str) -> str | None:
+    """`ref` of table `[name]` in tests/crucible_pins.toml (the one manifest of crucible pins)."""
+    m = re.search(rf'^\[{name}\]\n(?:(?!\[).*\n)*?ref = "([^"]+)"', text, re.M)
+    return m.group(1) if m else None
+
+
+def worktree_pin(wt: Path, name: str, legacy_file: str, legacy_var: str) -> str | None:
+    """The pinned ref of crucible `name` in worktree `wt`: its manifest, else (a checkout from before the
+    manifest) the legacy `tests/<legacy_file>` constant."""
+    manifest = wt / "tests" / "crucible_pins.toml"
+    if manifest.exists():
+        return read_manifest_ref(manifest.read_text(encoding="utf-8"), name)
+    legacy = wt / "tests" / legacy_file
+    return read_pin(legacy.read_text(encoding="utf-8"), legacy_var) if legacy.exists() else None
+
+
 def workflow_python(text: str) -> str | None:
     m = re.search(r"python-version:\s*['\"]?(\d+\.\d+)", text)
     return m.group(1) if m else None
@@ -890,9 +906,9 @@ class Kit:
             raise KitError(f"{venv} venv still wrong after creation: {'; '.join(probs)}")
 
     def crucible_tag(self) -> str:
-        tag = read_pin((self.wt / "tests" / "_crucible_pin.py").read_text(encoding="utf-8"), "PINNED_TAG")
+        tag = worktree_pin(self.wt, "language", "_crucible_pin.py", "PINNED_TAG")
         if not tag:
-            raise KitError("could not read PINNED_TAG from tests/_crucible_pin.py")
+            raise KitError("could not read the language-crucible pin from tests/crucible_pins.toml")
         return tag
 
     def corpus_path(self, leg: str) -> Path:
@@ -961,10 +977,9 @@ class Kit:
                 fh.write("/.mainframe_corpora\n")
 
     def estate_pin_problem(self) -> str | None:
-        pin_file = self.wt / "tests" / "_estate_crucible_pin.py"
-        if not pin_file.exists():
+        ref = worktree_pin(self.wt, "estate", "_estate_crucible_pin.py", "PINNED_REF")
+        if ref is None:
             return "this checkout has no estate-crucible pin"
-        ref = read_pin(pin_file.read_text(encoding="utf-8"), "PINNED_REF")
         if not (self.estate_crucible / "key" / "manifest.json").exists():
             return f"no estate-crucible checkout at {self.estate_crucible}"
         head = _git(self.estate_crucible, "rev-parse", "HEAD", check=False)
@@ -1220,7 +1235,7 @@ def engine_state(wt: Path) -> str:
 
 
 def estate_cache(kit: Kit, state: str) -> Path:
-    pin = read_pin((kit.wt / "tests" / "_estate_crucible_pin.py").read_text(encoding="utf-8"), "PINNED_REF") or "nopin"
+    pin = worktree_pin(kit.wt, "estate", "_estate_crucible_pin.py", "PINNED_REF") or "nopin"
     return kit.home / "estate" / f"{state}-{pin}.json"
 
 

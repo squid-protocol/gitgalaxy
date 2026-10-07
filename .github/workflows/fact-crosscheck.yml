@@ -31,6 +31,7 @@ on:
       - "tests/tools/mainframe_corpus.py"
       - "tests/tools/estate_crucible.py"
       - "tests/_estate_crucible_pin.py"
+      - "tests/crucible_pins.toml"
       - "tests/cobol_mainframe/fact_crosscheck_ledger.json"
       - "tests/cobol_mainframe/corpora.json"
       - "tests/cobol_mainframe/answer_key/**"
@@ -51,6 +52,7 @@ on:
       - "tests/tools/mainframe_corpus.py"
       - "tests/tools/estate_crucible.py"
       - "tests/_estate_crucible_pin.py"
+      - "tests/crucible_pins.toml"
       - "tests/cobol_mainframe/fact_crosscheck_ledger.json"
       - "tests/cobol_mainframe/corpora.json"
       - "tests/cobol_mainframe/answer_key/**"
@@ -84,12 +86,8 @@ jobs:
 
       - name: Clone estate-crucible at the pin
         run: |
-          # One line, one literal form in the pin file: see tests/_estate_crucible_pin.py.
-          ref=$(sed -n 's/^PINNED_REF = "\(.*\)"/\1/p' gitgalaxy/tests/_estate_crucible_pin.py)
-          if [ -z "$ref" ]; then
-            echo "::error title=Estate crucible pin unavailable::No PINNED_REF in gitgalaxy/tests/_estate_crucible_pin.py."
-            exit 1
-          fi
+          # The pin is tests/crucible_pins.toml (one source; a fork PR reads it too).
+          ref=$(python3 gitgalaxy/tests/tools/crucible_pins.py get estate)
           git init -q estate-crucible
           git -C estate-crucible remote add origin https://github.com/squid-protocol/estate-crucible.git
           if echo "$ref" | grep -Eq '^[0-9a-f]{40}$'; then

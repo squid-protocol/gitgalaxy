@@ -8,7 +8,7 @@ name: Ports Compile
 # tests/equivalence/*/port) and compiles -- no Docker, no COBOL run -- and fails naming each port that does not
 # compile (`crucible:<case>/<PROGRAM>`, `equivalence:<case>`).
 #
-# The crucible is cloned at PINNED_REF, read out of tests/_cics_crucible_pin.py exactly as cics-crucible.yml does.
+# The crucible is cloned at PINNED_REF, read out of tests/crucible_pins.toml exactly as cics-crucible.yml does.
 
 on:
   pull_request:
@@ -21,6 +21,7 @@ on:
       - "tests/equivalence/*/case.json"
       - "tests/cobol_mainframe/corpora.json"
       - "tests/_cics_crucible_pin.py"
+      - "tests/crucible_pins.toml"
       - "tests/tools/ports_compile_check.py"
       - "tests/tools/port_surface.py"
       - "tests/tools/cics_crucible.py"
@@ -66,12 +67,8 @@ jobs:
 
       - name: Clone cics-crucible at the pin
         run: |
-          # One line, one literal form in the pin file: see tests/_cics_crucible_pin.py.
-          ref=$(sed -n 's/^PINNED_REF = "\(.*\)"/\1/p' gitgalaxy/tests/_cics_crucible_pin.py)
-          if [ -z "$ref" ]; then
-            echo "::error title=CICS crucible pin unavailable::No PINNED_REF in gitgalaxy/tests/_cics_crucible_pin.py."
-            exit 1
-          fi
+          # The pin is tests/crucible_pins.toml (one source; a fork PR reads it too).
+          ref=$(python3 gitgalaxy/tests/tools/crucible_pins.py get cics)
           git init -q cics-crucible
           git -C cics-crucible remote add origin https://github.com/squid-protocol/cics-crucible.git
           if echo "$ref" | grep -Eq '^[0-9a-f]{40}$'; then

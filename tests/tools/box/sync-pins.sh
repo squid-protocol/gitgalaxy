@@ -2,9 +2,9 @@
 # sync-pins.sh [--dry-run]
 # Align the shared sibling checkouts with the pins on THIS branch, so a golden/crucible run reads the
 # corpus version the branch expects (a stale checkout gives thousands of phantom diffs, #3386):
-#   language-crucible -> tests/_crucible_pin.py PINNED_TAG
-#   cics-crucible     -> tests/_cics_crucible_pin.py PINNED_REF
-#   estate-crucible   -> tests/_estate_crucible_pin.py PINNED_REF
+#   language-crucible, cics-crucible, estate-crucible -> the refs in tests/crucible_pins.toml
+# (tests/tools/crucible_pins.py check / sync does the same with a clearer report; this keeps the
+# --dry-run and the refuse-all-first behaviour.)
 # Paths: $LANGUAGE_CRUCIBLE_PATH / $CICS_CRUCIBLE_PATH / $ESTATE_CRUCIBLE_PATH, else <dir>/<name> beside the
 # primary checkout (found via git-common-dir). Runs under golden-lock.sh (no golden run is reading a
 # checkout mid-switch), does `git fetch --tags` + `checkout --detach`. Refuses, touching nothing, if any
@@ -27,19 +27,19 @@ case "$common" in /*) ;; *) common="$repo/$common" ;; esac
 primary=$(dirname "$(cd "$common" && pwd)")
 sibling=$(dirname "$primary")
 
-pin() {  # pin <file> <NAME>
-  sed -n "s/^$2 = \"\(.*\)\"/\1/p" "$repo/tests/$1" | head -n1
+pin() {  # pin <name>: the ref in this branch's tests/crucible_pins.toml
+  python3 "$repo/tests/tools/crucible_pins.py" get "$1" 2>/dev/null
 }
 names=(language-crucible cics-crucible estate-crucible)
 paths=("${LANGUAGE_CRUCIBLE_PATH:-$sibling/language-crucible}"
        "${CICS_CRUCIBLE_PATH:-$sibling/cics-crucible}"
        "${ESTATE_CRUCIBLE_PATH:-$sibling/estate-crucible}")
-refs=("$(pin _crucible_pin.py PINNED_TAG)" "$(pin _cics_crucible_pin.py PINNED_REF)" "$(pin _estate_crucible_pin.py PINNED_REF)")
+refs=("$(pin language)" "$(pin cics)" "$(pin estate)")
 
 bad=0
 for i in 0 1 2; do   # pass 1: refuse before touching anything
   n=${names[$i]}; p=${paths[$i]}; r=${refs[$i]}
-  if [ -z "$r" ]; then echo "ERROR  $n: no pin found in tests/_*pin.py" >&2; bad=1; continue; fi
+  if [ -z "$r" ]; then echo "ERROR  $n: no pin found in tests/crucible_pins.toml" >&2; bad=1; continue; fi
   [ -e "$p/.git" ] || continue
   if [ -n "$(git -C "$p" status --porcelain --untracked-files=no)" ]; then
     echo "REFUSE $n ($p): tracked modifications; resolve them first" >&2; bad=1

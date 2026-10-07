@@ -73,16 +73,10 @@ jobs:
           pip install -e .
           pip install tree-sitter-language-pack
 
-      - name: Fetch Language Crucible corpus (pinned via LANGUAGE_CRUCIBLE_REF)
+      - name: Fetch Language Crucible corpus (pinned in tests/crucible_pins.toml)
         run: |
-          ref="${{ vars.LANGUAGE_CRUCIBLE_REF }}"
-          if [ -z "$ref" ]; then
-            ref=$(sed -n 's/^PINNED_TAG = "\(.*\)"/\1/p' gitgalaxy/tests/_crucible_pin.py)
-          fi
-          if [ -z "$ref" ]; then
-            echo "::error title=Corpus pin unavailable::No LANGUAGE_CRUCIBLE_REF and no PINNED_TAG in tests/_crucible_pin.py."
-            exit 1
-          fi
+          # The pin is tests/crucible_pins.toml (one source; a fork PR reads it too).
+          ref=$(python3 gitgalaxy/tests/tools/crucible_pins.py get language)
           git clone --branch "$ref" --depth 1 https://github.com/squid-protocol/language-crucible.git language-crucible
 
       - name: Refresh the graph comparison ledger (calls)

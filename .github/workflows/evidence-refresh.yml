@@ -55,11 +55,8 @@ jobs:
 
       - name: Clone cics-crucible at the pin
         run: |
-          ref=$(sed -n 's/^PINNED_REF = "\(.*\)"/\1/p' gitgalaxy/tests/_cics_crucible_pin.py)
-          if [ -z "$ref" ]; then
-            echo "::error title=CICS crucible pin unavailable::No PINNED_REF in gitgalaxy/tests/_cics_crucible_pin.py."
-            exit 1
-          fi
+          # The pin is tests/crucible_pins.toml (one source; a fork PR reads it too).
+          ref=$(python3 gitgalaxy/tests/tools/crucible_pins.py get cics)
           git init -q cics-crucible
           git -C cics-crucible remote add origin https://github.com/squid-protocol/cics-crucible.git
           if echo "$ref" | grep -Eq '^[0-9a-f]{40}$'; then

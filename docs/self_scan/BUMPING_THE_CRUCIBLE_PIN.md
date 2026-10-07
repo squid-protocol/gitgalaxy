@@ -90,15 +90,14 @@ those are the *why*.
      without going through `run_regenerate()`'s gate (see the v1.1.0 bump
      PR's baseline-fix commit for exactly what that looked like and how the
      reasoning was documented in the commit message).
-6. **Bump the two pin sources**, together, in the same PR:
-   ```bash
-   gh variable set LANGUAGE_CRUCIBLE_REF --body vX.Y.Z --repo squid-protocol/gitgalaxy
-   ```
-   and `tests/_crucible_pin.py`'s `PINNED_TAG = "vX.Y.Z"`.
+6. **Bump the pin**, in the same PR: `python tests/tools/crucible_pins.py bump language vX.Y.Z`
+   (it edits `tests/crucible_pins.toml`, the only source; the `LANGUAGE_CRUCIBLE_REF` repository variable is no
+   longer read by any workflow, `crucible_pins.py check` warns if it lags). After the merge, move the shared
+   checkouts with `python tests/tools/crucible_pins.py sync`.
 7. **Grep for the old tag string** across the whole repo as a final check —
    `grep -rn "vOLD\.TAG" --include="*.py" --include="*.md" --include="*.yml" .`
    A workflow added since the last bump could have hardcoded a fresh literal
-   instead of reading `LANGUAGE_CRUCIBLE_REF`.
+   instead of `crucible_pins.py get language`.
 8. **Push, then watch CI actually pass** before merging —
    `crucible-audit` (both modes), `tri-comparison-audit`,
    `tree-sitter-accuracy-audit`, `flag-golden-master-changes`, and
@@ -163,12 +162,12 @@ overwrite" philosophy) rather than requiring a maintainer to hand-write a
 one-off bypass script each time — would close this properly. Not implemented
 here; flagged for a follow-up issue.
 
-## The CICS crucible pin (`tests/_cics_crucible_pin.py`): re-prove the committed ports (#4308)
+## The CICS crucible pin (`[cics]` in `tests/crucible_pins.toml`): re-prove the committed ports (#4308)
 
 The CICS crucible (squid-protocol/cics-crucible) has its own pin and its own bump, described in
-`tests/_cics_crucible_pin.py` and `docs/ecosystem.md` ("CICS crucible release -> pin bump"). It is one PR:
+`tests/crucible_pins.toml` and `docs/ecosystem.md` ("CICS crucible release -> pin bump"). It is one PR:
 
-1. Check the crucible out at the new tag (`CICS_CRUCIBLE_PATH`, or `../cics-crucible`), and move `PINNED_REF`.
+1. Check the crucible out at the new tag (`CICS_CRUCIBLE_PATH`, or `../cics-crucible`), and move the pin with `python tests/tools/crucible_pins.py bump cics <tag>`.
 2. `python tests/tools/cics_crucible.py --update-baseline`, then commit `tests/cics_crucible/baseline.json`,
    `tests/cics_crucible/coverage.json` and `docs/language_status/cics_crucible.md`. Explain every cell that moved.
 3. **Re-prove the committed ports and re-stamp their provenance.** Every

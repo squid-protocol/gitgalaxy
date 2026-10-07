@@ -268,8 +268,11 @@ def inputs_at(t: Target, commit: str) -> Optional[dict[str, Any]]:
 
     at = Target(**{**t.__dict__, "corpus": dict(t.corpus)})
     if t.kind == "crucible":
-        pin = _git("show", f"{commit}:tests/_cics_crucible_pin.py")
-        m = re.search(r'^PINNED_REF = "(.*)"', pin or "", re.M)
+        # the manifest, or (a commit from before it) the legacy one-line constant
+        pins = _git("show", f"{commit}:tests/crucible_pins.toml")
+        m = re.search(r'^\[cics\]\n(?:(?!\[).*\n)*?ref = "(.*)"', pins or "", re.M)
+        if not m:
+            m = re.search(r'^PINNED_REF = "(.*)"', _git("show", f"{commit}:tests/_cics_crucible_pin.py") or "", re.M)
         at.corpus["ref"] = m.group(1) if m else ""
     else:
         manifest = _git("show", f"{commit}:tests/cobol_mainframe/corpora.json")

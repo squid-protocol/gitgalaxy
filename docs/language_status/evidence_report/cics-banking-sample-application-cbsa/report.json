@@ -44,12 +44,13 @@
   }
  ],
  "bars": {
-  "branches": 80.0,
-  "paragraphs": 90.0
+  "branches": 100.0,
+  "paragraphs": 100.0
  },
  "burned": true,
  "estate": "cics-banking-sample-application-cbsa",
  "format": "gitgalaxy-evidence-report/1",
+ "infeasible_outcomes": "not yet available (#4602)",
  "levels": [
   {
    "condition": "the program is in the estate's survey",
@@ -62,17 +63,17 @@
    "name": "translated whole"
   },
   {
-   "condition": "a case runs it; the case's det port is equal on every scenario; the case's evidence record is current and its proof equal on every scenario",
+   "condition": "a case runs it and the case's det port is equal on every scenario (CI's det-sweep ratchet on main; a Db2 case only by a local sweep); the case's evidence record is reported, not required",
    "level": "L2",
    "name": "executed equivalent"
   },
   {
-   "condition": "L2, and the scenarios execute >= 90.0 percent of its live paragraphs",
+   "condition": "L2, and the scenarios execute >= 100.0 percent of its live paragraphs",
    "level": "L3",
    "name": "paragraph coverage"
   },
   {
-   "condition": "L3, and >= 80.0 percent of its branch outcomes",
+   "condition": "L3, and >= 100.0 percent of its branch outcomes (net of reviewed infeasible outcomes: not yet available (#4602))",
    "level": "L4",
    "name": "branch coverage"
   },
@@ -83,6 +84,67 @@
   }
  ],
  "measured": {
+  "det_coverage": {
+   "carddemo-acctupdate": null,
+   "carddemo-acctview": null,
+   "carddemo-acctview-generated": null,
+   "carddemo-adminmenu": null,
+   "carddemo-billpay": null,
+   "carddemo-cardlist": null,
+   "carddemo-cardupdate": null,
+   "carddemo-cardview": null,
+   "carddemo-cobtupdt": null,
+   "carddemo-cotrtlic": null,
+   "carddemo-cotrtupc": null,
+   "carddemo-dailyval": null,
+   "carddemo-dateutil": null,
+   "carddemo-intcalc": null,
+   "carddemo-intcalc-generated": null,
+   "carddemo-menu": null,
+   "carddemo-posttran": null,
+   "carddemo-posttran-generated": null,
+   "carddemo-readacct": null,
+   "carddemo-readcard": null,
+   "carddemo-readcust": null,
+   "carddemo-readxref": null,
+   "carddemo-report": null,
+   "carddemo-signon": null,
+   "carddemo-tranadd": null,
+   "carddemo-tranlist": null,
+   "carddemo-tranview": null,
+   "carddemo-trnrpt": null,
+   "carddemo-useradd": null,
+   "carddemo-userdel": null,
+   "carddemo-userlist": null,
+   "carddemo-userupd": null,
+   "cbsa-abndproc": null,
+   "cbsa-custctrl": null,
+   "cbsa-dbcrfun": null,
+   "cbsa-delacc": null,
+   "cbsa-inqacc": null,
+   "cbsa-updacc": null,
+   "cbsa-updacc-generated": null,
+   "cbsa-updcust": null,
+   "cbsa-xfrfun": null,
+   "genapp-lgacdb01": null,
+   "genapp-lgacdb02": null,
+   "genapp-lgacvs01": null,
+   "genapp-lgapdb01": null,
+   "genapp-lgapvs01": null,
+   "genapp-lgdpdb01": null,
+   "genapp-lgdpvs01": null,
+   "genapp-lgicdb01": null,
+   "genapp-lgipdb01": null,
+   "genapp-lgucdb01": null,
+   "genapp-lgucvs01": null,
+   "genapp-lgupdb01": null,
+   "genapp-lgupvs01": null,
+   "mortgage-cmort": null,
+   "mortgage-mlist": null,
+   "mortgage-mlist-generated": null,
+   "mortgage-mpmt": null,
+   "mortgage-nbrvl": null
+  },
   "programs": [
    {
     "commands": [
@@ -1275,7 +1337,7 @@
   "survey": {
    "label": "before",
    "scope": "burned + local + census corpora",
-   "sha": "3167e2bb067386dcbd5c2b701da0850b1af10128"
+   "sha": "ec87c138bc5c2ce768ff53afd6c0928aa3d77dd0"
   },
   "sweeps": {}
  },
@@ -1329,6 +1391,7 @@
    "coverage": {
     "branch_pct": null,
     "branches": null,
+    "infeasible_outcomes_reviewed": "not yet available (#4602)",
     "paragraph_pct": null,
     "paragraphs": null,
     "source": null,
@@ -1433,9 +1496,9 @@
      "role": "program"
     }
    },
-   "level": "L1",
+   "level": "L2",
    "next": [
-    "an evidence record for cbsa-abndproc"
+    "paragraph coverage >= 100.0 (coverage not measured: no fresh det-sweep ledger entry and no local sweep)"
    ],
    "oracle_backing": [
     {
@@ -1573,6 +1636,226 @@
   },
   {
    "assumptions": {
+    "facts_stated": [],
+    "facts_unstated": [],
+    "named_by_commands": [
+     {
+      "area": "CICS",
+      "entry": "READ ... INTO LENGTH: in-out, truncation and LENGERR; a VSAM file's LENGTH need not equal its record length; LENGERR on READ UPDATE refused",
+      "id": "X14",
+      "status": "ASSUMED (REFUSED where IBM is silent)"
+     }
+    ],
+    "reach": "not measured",
+    "source_read": true
+   },
+   "coverage": {
+    "branch_pct": null,
+    "branches": null,
+    "infeasible_outcomes_reviewed": "not yet available (#4602)",
+    "paragraph_pct": null,
+    "paragraphs": null,
+    "source": null,
+    "uncovered_branches": [],
+    "uncovered_paragraphs": "not recorded"
+   },
+   "equivalence": {
+    "cases": [
+     {
+      "case": "cbsa-updcust",
+      "case_scenarios": 23,
+      "db2": false,
+      "det": {
+       "source": "CI det-sweep ratchet on main",
+       "state": "equal"
+      },
+      "record": null,
+      "role": "program"
+     }
+    ],
+    "chosen": {
+     "case": "cbsa-updcust",
+     "case_scenarios": 23,
+     "db2": false,
+     "det": {
+      "source": "CI det-sweep ratchet on main",
+      "state": "equal"
+     },
+     "record": null,
+     "role": "program"
+    }
+   },
+   "level": "L2",
+   "next": [
+    "paragraph coverage >= 100.0 (coverage not measured: no fresh det-sweep ledger entry and no local sweep)"
+   ],
+   "oracle_backing": [
+    {
+     "backed": false,
+     "command": "ASKTIME",
+     "crucible_cases": [],
+     "facts_stated": [],
+     "registers": [],
+     "spec_entry": "full"
+    },
+    {
+     "backed": false,
+     "command": "FORMATTIME",
+     "crucible_cases": [],
+     "facts_stated": [],
+     "registers": [],
+     "spec_entry": "full"
+    },
+    {
+     "backed": false,
+     "command": "READ",
+     "crucible_cases": [],
+     "facts_stated": [],
+     "registers": [
+      "X14"
+     ],
+     "spec_entry": "full"
+    },
+    {
+     "backed": true,
+     "command": "RETURN",
+     "crucible_cases": [
+      {
+       "case": "ca-channel-containers",
+       "java_agrees": false,
+       "stub_agrees": true
+      },
+      {
+       "case": "ca-link-lengths",
+       "java_agrees": true,
+       "stub_agrees": true
+      },
+      {
+       "case": "ca-xctl-versions",
+       "java_agrees": true,
+       "stub_agrees": true
+      },
+      {
+       "case": "gt-assign-startcode",
+       "java_agrees": false,
+       "stub_agrees": true
+      },
+      {
+       "case": "gt-start-options",
+       "java_agrees": false,
+       "stub_agrees": true
+      },
+      {
+       "case": "gt-start-retrieve",
+       "java_agrees": true,
+       "stub_agrees": true
+      },
+      {
+       "case": "gt-terminal-coalesce",
+       "java_agrees": true,
+       "stub_agrees": true
+      },
+      {
+       "case": "hc-abend-link",
+       "java_agrees": true,
+       "stub_agrees": true
+      },
+      {
+       "case": "hc-eoc-error",
+       "java_agrees": false,
+       "stub_agrees": true
+      },
+      {
+       "case": "hc-handle-aid",
+       "java_agrees": false,
+       "stub_agrees": true
+      },
+      {
+       "case": "hc-ignore-error",
+       "java_agrees": false,
+       "stub_agrees": true
+      },
+      {
+       "case": "hc-perform-range",
+       "java_agrees": true,
+       "stub_agrees": true
+      },
+      {
+       "case": "hc-terminal-eoc",
+       "java_agrees": false,
+       "stub_agrees": true
+      },
+      {
+       "case": "hc-terminal-receive",
+       "java_agrees": false,
+       "stub_agrees": true
+      },
+      {
+       "case": "hx-attr-bytes",
+       "java_agrees": true,
+       "stub_agrees": true
+      },
+      {
+       "case": "hx-extended-cursor",
+       "java_agrees": true,
+       "stub_agrees": true
+      },
+      {
+       "case": "pc-aid-menu",
+       "java_agrees": true,
+       "stub_agrees": true
+      },
+      {
+       "case": "pc-wizard",
+       "java_agrees": true,
+       "stub_agrees": true
+      }
+     ],
+     "facts_stated": [],
+     "registers": [],
+     "spec_entry": "full"
+    },
+    {
+     "backed": false,
+     "command": "REWRITE",
+     "crucible_cases": [],
+     "facts_stated": [],
+     "registers": [],
+     "spec_entry": "full"
+    }
+   ],
+   "program": "src/base/cobol_src/UPDCUST.cbl",
+   "residual": {
+    "assumed_or_differs_named": [
+     "X14"
+    ],
+    "branch_outcomes_unrun": null,
+    "commands": 5,
+    "commands_backed": 1,
+    "commands_not_backed": [
+     "ASKTIME",
+     "FORMATTIME",
+     "READ",
+     "REWRITE"
+    ],
+    "facts_unstated": 0,
+    "holes": 0,
+    "paragraphs_unrun": null,
+    "refused": null
+   },
+   "translation": {
+    "gap_classes": [],
+    "hole_count": 0,
+    "holes": [],
+    "refused": null,
+    "source_defects": [],
+    "statements": 64,
+    "translated": 64,
+    "whole": true
+   }
+  },
+  {
+   "assumptions": {
     "facts_stated": [
      "facility",
      "screen",
@@ -1603,6 +1886,7 @@
    "coverage": {
     "branch_pct": null,
     "branches": null,
+    "infeasible_outcomes_reviewed": "not yet available (#4602)",
     "paragraph_pct": null,
     "paragraphs": null,
     "source": null,
@@ -1912,6 +2196,7 @@
    "coverage": {
     "branch_pct": null,
     "branches": null,
+    "infeasible_outcomes_reviewed": "not yet available (#4602)",
     "paragraph_pct": null,
     "paragraphs": null,
     "source": null,
@@ -2221,6 +2506,7 @@
    "coverage": {
     "branch_pct": null,
     "branches": null,
+    "infeasible_outcomes_reviewed": "not yet available (#4602)",
     "paragraph_pct": null,
     "paragraphs": null,
     "source": null,
@@ -2530,6 +2816,7 @@
    "coverage": {
     "branch_pct": null,
     "branches": null,
+    "infeasible_outcomes_reviewed": "not yet available (#4602)",
     "paragraph_pct": null,
     "paragraphs": null,
     "source": null,
@@ -2839,6 +3126,7 @@
    "coverage": {
     "branch_pct": null,
     "branches": null,
+    "infeasible_outcomes_reviewed": "not yet available (#4602)",
     "paragraph_pct": null,
     "paragraphs": null,
     "source": null,
@@ -3134,6 +3422,7 @@
    "coverage": {
     "branch_pct": null,
     "branches": null,
+    "infeasible_outcomes_reviewed": "not yet available (#4602)",
     "paragraph_pct": null,
     "paragraphs": null,
     "source": null,
@@ -3172,8 +3461,7 @@
    },
    "level": "L1",
    "next": [
-    "its det port equal on every scenario of cbsa-custctrl: a Db2 case: CI's det-sweep skips Db2 cases and no local sweep was given",
-    "an evidence record for cbsa-custctrl"
+    "its det port equal on every scenario of cbsa-custctrl: a Db2 case: CI's det-sweep skips Db2 cases and no local sweep was given"
    ],
    "oracle_backing": [
     {
@@ -3371,6 +3659,7 @@
    "coverage": {
     "branch_pct": null,
     "branches": null,
+    "infeasible_outcomes_reviewed": "not yet available (#4602)",
     "paragraph_pct": null,
     "paragraphs": null,
     "source": null,
@@ -3409,8 +3698,7 @@
    },
    "level": "L1",
    "next": [
-    "its det port equal on every scenario of cbsa-dbcrfun: a Db2 case: CI's det-sweep skips Db2 cases and no local sweep was given",
-    "an evidence record for cbsa-dbcrfun"
+    "its det port equal on every scenario of cbsa-dbcrfun: a Db2 case: CI's det-sweep skips Db2 cases and no local sweep was given"
    ],
    "oracle_backing": [
     {
@@ -3681,6 +3969,7 @@
    "coverage": {
     "branch_pct": null,
     "branches": null,
+    "infeasible_outcomes_reviewed": "not yet available (#4602)",
     "paragraph_pct": null,
     "paragraphs": null,
     "source": null,
@@ -3719,8 +4008,7 @@
    },
    "level": "L1",
    "next": [
-    "its det port equal on every scenario of cbsa-delacc: a Db2 case: CI's det-sweep skips Db2 cases and no local sweep was given",
-    "an evidence record for cbsa-delacc"
+    "its det port equal on every scenario of cbsa-delacc: a Db2 case: CI's det-sweep skips Db2 cases and no local sweep was given"
    ],
    "oracle_backing": [
     {
@@ -3853,6 +4141,7 @@
    "coverage": {
     "branch_pct": null,
     "branches": null,
+    "infeasible_outcomes_reviewed": "not yet available (#4602)",
     "paragraph_pct": null,
     "paragraphs": null,
     "source": null,
@@ -4002,6 +4291,7 @@
    "coverage": {
     "branch_pct": null,
     "branches": null,
+    "infeasible_outcomes_reviewed": "not yet available (#4602)",
     "paragraph_pct": null,
     "paragraphs": null,
     "source": null,
@@ -4169,31 +4459,13 @@
     "source_read": true
    },
    "coverage": {
-    "branch_pct": 52.0,
-    "branches": {
-     "covered": 13,
-     "total": 25
-    },
-    "paragraph_pct": 88.0,
-    "paragraphs": {
-     "covered": 22,
-     "live": 25
-    },
-    "source": "evidence record (cobol_coverage.py over the case's COBOL runs)",
-    "uncovered_branches": [
-     "line 273 IF true (RAD010)",
-     "line 353 IF true (RAD010)",
-     "line 604 EVALUATE WHEN@606 (CFSDCD010)",
-     "line 616 IF true (CFSDCD010)",
-     "line 646 EVALUATE WHEN@651 (AH010)",
-     "line 646 EVALUATE WHEN@672 (AH010)",
-     "line 646 EVALUATE none (AH010)",
-     "line 687 IF true (AH010)",
-     "line 687 IF false (AH010)",
-     "line 763 IF true (AH010)",
-     "line 763 IF false (AH010)",
-     "line 874 IF true (GLAD010)"
-    ],
+    "branch_pct": null,
+    "branches": null,
+    "infeasible_outcomes_reviewed": "not yet available (#4602)",
+    "paragraph_pct": null,
+    "paragraphs": null,
+    "source": null,
+    "uncovered_branches": [],
     "uncovered_paragraphs": "not recorded"
    },
    "equivalence": {
@@ -4320,8 +4592,7 @@
    },
    "level": "L1",
    "next": [
-    "its det port equal on every scenario of cbsa-inqacc: a Db2 case: CI's det-sweep skips Db2 cases and no local sweep was given",
-    "a current evidence record (cbsa-inqacc is stale on harness, oracle, generator: re-run its proof)"
+    "its det port equal on every scenario of cbsa-inqacc: a Db2 case: CI's det-sweep skips Db2 cases and no local sweep was given"
    ],
    "oracle_backing": [
     {
@@ -4543,7 +4814,7 @@
     "assumed_or_differs_named": [
      "X19"
     ],
-    "branch_outcomes_unrun": 12,
+    "branch_outcomes_unrun": null,
     "commands": 8,
     "commands_backed": 5,
     "commands_not_backed": [
@@ -4553,7 +4824,7 @@
     ],
     "facts_unstated": 1,
     "holes": 0,
-    "paragraphs_unrun": 3,
+    "paragraphs_unrun": null,
     "refused": null
    },
    "translation": {
@@ -4600,6 +4871,7 @@
    "coverage": {
     "branch_pct": null,
     "branches": null,
+    "infeasible_outcomes_reviewed": "not yet available (#4602)",
     "paragraph_pct": null,
     "paragraphs": null,
     "source": null,
@@ -4896,6 +5168,7 @@
    "coverage": {
     "branch_pct": null,
     "branches": null,
+    "infeasible_outcomes_reviewed": "not yet available (#4602)",
     "paragraph_pct": null,
     "paragraphs": null,
     "source": null,
@@ -5211,20 +5484,13 @@
     "source_read": true
    },
    "coverage": {
-    "branch_pct": 83.3,
-    "branches": {
-     "covered": 5,
-     "total": 6
-    },
-    "paragraph_pct": 100.0,
-    "paragraphs": {
-     "covered": 7,
-     "live": 7
-    },
-    "source": "evidence record (cobol_coverage.py over the case's COBOL runs)",
-    "uncovered_branches": [
-     "line 290 IF true (UAD010)"
-    ],
+    "branch_pct": null,
+    "branches": null,
+    "infeasible_outcomes_reviewed": "not yet available (#4602)",
+    "paragraph_pct": null,
+    "paragraphs": null,
+    "source": null,
+    "uncovered_branches": [],
     "uncovered_paragraphs": "not recorded"
    },
    "equivalence": {
@@ -5342,8 +5608,7 @@
    },
    "level": "L1",
    "next": [
-    "its det port equal on every scenario of cbsa-updacc: a Db2 case: CI's det-sweep skips Db2 cases and no local sweep was given",
-    "a current evidence record (cbsa-updacc is stale on harness, oracle, generator: re-run its proof)"
+    "its det port equal on every scenario of cbsa-updacc: a Db2 case: CI's det-sweep skips Db2 cases and no local sweep was given"
    ],
    "oracle_backing": [
     {
@@ -5465,231 +5730,12 @@
    "program": "src/base/cobol_src/UPDACC.cbl",
    "residual": {
     "assumed_or_differs_named": [],
-    "branch_outcomes_unrun": 1,
+    "branch_outcomes_unrun": null,
     "commands": 3,
     "commands_backed": 1,
     "commands_not_backed": [
      "ASKTIME",
      "FORMATTIME"
-    ],
-    "facts_unstated": 0,
-    "holes": 0,
-    "paragraphs_unrun": 0,
-    "refused": null
-   },
-   "translation": {
-    "gap_classes": [],
-    "hole_count": 0,
-    "holes": [],
-    "refused": null,
-    "source_defects": [],
-    "statements": 58,
-    "translated": 58,
-    "whole": true
-   }
-  },
-  {
-   "assumptions": {
-    "facts_stated": [],
-    "facts_unstated": [],
-    "named_by_commands": [
-     {
-      "area": "CICS",
-      "entry": "READ ... INTO LENGTH: in-out, truncation and LENGERR; a VSAM file's LENGTH need not equal its record length; LENGERR on READ UPDATE refused",
-      "id": "X14",
-      "status": "ASSUMED (REFUSED where IBM is silent)"
-     }
-    ],
-    "reach": "not measured",
-    "source_read": true
-   },
-   "coverage": {
-    "branch_pct": null,
-    "branches": null,
-    "paragraph_pct": null,
-    "paragraphs": null,
-    "source": null,
-    "uncovered_branches": [],
-    "uncovered_paragraphs": "not recorded"
-   },
-   "equivalence": {
-    "cases": [
-     {
-      "case": "cbsa-updcust",
-      "case_scenarios": 23,
-      "db2": false,
-      "det": {
-       "source": "CI det-sweep ratchet on main",
-       "state": "equal"
-      },
-      "record": null,
-      "role": "program"
-     }
-    ],
-    "chosen": {
-     "case": "cbsa-updcust",
-     "case_scenarios": 23,
-     "db2": false,
-     "det": {
-      "source": "CI det-sweep ratchet on main",
-      "state": "equal"
-     },
-     "record": null,
-     "role": "program"
-    }
-   },
-   "level": "L1",
-   "next": [
-    "an evidence record for cbsa-updcust"
-   ],
-   "oracle_backing": [
-    {
-     "backed": false,
-     "command": "ASKTIME",
-     "crucible_cases": [],
-     "facts_stated": [],
-     "registers": [],
-     "spec_entry": "full"
-    },
-    {
-     "backed": false,
-     "command": "FORMATTIME",
-     "crucible_cases": [],
-     "facts_stated": [],
-     "registers": [],
-     "spec_entry": "full"
-    },
-    {
-     "backed": false,
-     "command": "READ",
-     "crucible_cases": [],
-     "facts_stated": [],
-     "registers": [
-      "X14"
-     ],
-     "spec_entry": "full"
-    },
-    {
-     "backed": true,
-     "command": "RETURN",
-     "crucible_cases": [
-      {
-       "case": "ca-channel-containers",
-       "java_agrees": false,
-       "stub_agrees": true
-      },
-      {
-       "case": "ca-link-lengths",
-       "java_agrees": true,
-       "stub_agrees": true
-      },
-      {
-       "case": "ca-xctl-versions",
-       "java_agrees": true,
-       "stub_agrees": true
-      },
-      {
-       "case": "gt-assign-startcode",
-       "java_agrees": false,
-       "stub_agrees": true
-      },
-      {
-       "case": "gt-start-options",
-       "java_agrees": false,
-       "stub_agrees": true
-      },
-      {
-       "case": "gt-start-retrieve",
-       "java_agrees": true,
-       "stub_agrees": true
-      },
-      {
-       "case": "gt-terminal-coalesce",
-       "java_agrees": true,
-       "stub_agrees": true
-      },
-      {
-       "case": "hc-abend-link",
-       "java_agrees": true,
-       "stub_agrees": true
-      },
-      {
-       "case": "hc-eoc-error",
-       "java_agrees": false,
-       "stub_agrees": true
-      },
-      {
-       "case": "hc-handle-aid",
-       "java_agrees": false,
-       "stub_agrees": true
-      },
-      {
-       "case": "hc-ignore-error",
-       "java_agrees": false,
-       "stub_agrees": true
-      },
-      {
-       "case": "hc-perform-range",
-       "java_agrees": true,
-       "stub_agrees": true
-      },
-      {
-       "case": "hc-terminal-eoc",
-       "java_agrees": false,
-       "stub_agrees": true
-      },
-      {
-       "case": "hc-terminal-receive",
-       "java_agrees": false,
-       "stub_agrees": true
-      },
-      {
-       "case": "hx-attr-bytes",
-       "java_agrees": true,
-       "stub_agrees": true
-      },
-      {
-       "case": "hx-extended-cursor",
-       "java_agrees": true,
-       "stub_agrees": true
-      },
-      {
-       "case": "pc-aid-menu",
-       "java_agrees": true,
-       "stub_agrees": true
-      },
-      {
-       "case": "pc-wizard",
-       "java_agrees": true,
-       "stub_agrees": true
-      }
-     ],
-     "facts_stated": [],
-     "registers": [],
-     "spec_entry": "full"
-    },
-    {
-     "backed": false,
-     "command": "REWRITE",
-     "crucible_cases": [],
-     "facts_stated": [],
-     "registers": [],
-     "spec_entry": "full"
-    }
-   ],
-   "program": "src/base/cobol_src/UPDCUST.cbl",
-   "residual": {
-    "assumed_or_differs_named": [
-     "X14"
-    ],
-    "branch_outcomes_unrun": null,
-    "commands": 5,
-    "commands_backed": 1,
-    "commands_not_backed": [
-     "ASKTIME",
-     "FORMATTIME",
-     "READ",
-     "REWRITE"
     ],
     "facts_unstated": 0,
     "holes": 0,
@@ -5702,8 +5748,8 @@
     "holes": [],
     "refused": null,
     "source_defects": [],
-    "statements": 64,
-    "translated": 64,
+    "statements": 58,
+    "translated": 58,
     "whole": true
    }
   },
@@ -5738,6 +5784,7 @@
    "coverage": {
     "branch_pct": null,
     "branches": null,
+    "infeasible_outcomes_reviewed": "not yet available (#4602)",
     "paragraph_pct": null,
     "paragraphs": null,
     "source": null,
@@ -5776,8 +5823,7 @@
    },
    "level": "L1",
    "next": [
-    "its det port equal on every scenario of cbsa-xfrfun: a Db2 case: CI's det-sweep skips Db2 cases and no local sweep was given",
-    "an evidence record for cbsa-xfrfun"
+    "its det port equal on every scenario of cbsa-xfrfun: a Db2 case: CI's det-sweep skips Db2 cases and no local sweep was given"
    ],
    "oracle_backing": [
     {
@@ -6043,6 +6089,7 @@
    "coverage": {
     "branch_pct": null,
     "branches": null,
+    "infeasible_outcomes_reviewed": "not yet available (#4602)",
     "paragraph_pct": null,
     "paragraphs": null,
     "source": null,
@@ -6215,6 +6262,7 @@
    "coverage": {
     "branch_pct": null,
     "branches": null,
+    "infeasible_outcomes_reviewed": "not yet available (#4602)",
     "paragraph_pct": null,
     "paragraphs": null,
     "source": null,
@@ -6301,6 +6349,7 @@
    "coverage": {
     "branch_pct": null,
     "branches": null,
+    "infeasible_outcomes_reviewed": "not yet available (#4602)",
     "paragraph_pct": null,
     "paragraphs": null,
     "source": null,
@@ -6753,6 +6802,7 @@
    "coverage": {
     "branch_pct": null,
     "branches": null,
+    "infeasible_outcomes_reviewed": "not yet available (#4602)",
     "paragraph_pct": null,
     "paragraphs": null,
     "source": null,
@@ -7188,6 +7238,7 @@
    "coverage": {
     "branch_pct": null,
     "branches": null,
+    "infeasible_outcomes_reviewed": "not yet available (#4602)",
     "paragraph_pct": null,
     "paragraphs": null,
     "source": null,
@@ -7649,6 +7700,7 @@
    "coverage": {
     "branch_pct": null,
     "branches": null,
+    "infeasible_outcomes_reviewed": "not yet available (#4602)",
     "paragraph_pct": null,
     "paragraphs": null,
     "source": null,
@@ -8112,6 +8164,7 @@
    "coverage": {
     "branch_pct": null,
     "branches": null,
+    "infeasible_outcomes_reviewed": "not yet available (#4602)",
     "paragraph_pct": null,
     "paragraphs": null,
     "source": null,
@@ -8564,6 +8617,7 @@
    "coverage": {
     "branch_pct": null,
     "branches": null,
+    "infeasible_outcomes_reviewed": "not yet available (#4602)",
     "paragraph_pct": null,
     "paragraphs": null,
     "source": null,
@@ -9054,6 +9108,7 @@
    "coverage": {
     "branch_pct": null,
     "branches": null,
+    "infeasible_outcomes_reviewed": "not yet available (#4602)",
     "paragraph_pct": null,
     "paragraphs": null,
     "source": null,
@@ -9506,6 +9561,7 @@
    "coverage": {
     "branch_pct": null,
     "branches": null,
+    "infeasible_outcomes_reviewed": "not yet available (#4602)",
     "paragraph_pct": null,
     "paragraphs": null,
     "source": null,
@@ -9949,6 +10005,7 @@
    "coverage": {
     "branch_pct": null,
     "branches": null,
+    "infeasible_outcomes_reviewed": "not yet available (#4602)",
     "paragraph_pct": null,
     "paragraphs": null,
     "source": null,
@@ -10374,6 +10431,7 @@
    "coverage": {
     "branch_pct": null,
     "branches": null,
+    "infeasible_outcomes_reviewed": "not yet available (#4602)",
     "paragraph_pct": null,
     "paragraphs": null,
     "source": null,
@@ -10675,6 +10733,7 @@
    "coverage": {
     "branch_pct": null,
     "branches": null,
+    "infeasible_outcomes_reviewed": "not yet available (#4602)",
     "paragraph_pct": null,
     "paragraphs": null,
     "source": null,
@@ -11053,6 +11112,7 @@
    "coverage": {
     "branch_pct": null,
     "branches": null,
+    "infeasible_outcomes_reviewed": "not yet available (#4602)",
     "paragraph_pct": null,
     "paragraphs": null,
     "source": null,
@@ -11327,37 +11387,42 @@
  ],
  "reproducibility": {
   "commands": [
-   "python tests/tools/cics_census.py survey --baseline --sha 3167e2bb067386dcbd5c2b701da0850b1af10128",
-   "python tests/tools/evidence_report.py cics-banking-sample-application-cbsa --baseline --sha 3167e2bb067386dcbd5c2b701da0850b1af10128",
+   "python tests/tools/cics_census.py survey --baseline --sha ec87c138bc5c2ce768ff53afd6c0928aa3d77dd0",
+   "python tests/tools/evidence_report.py cics-banking-sample-application-cbsa --baseline --sha ec87c138bc5c2ce768ff53afd6c0928aa3d77dd0",
    "python tests/tools/evidence_report.py --refresh",
    "python tests/tools/proof_sweep.py --det-only --work DIR --cases cbsa-abndproc,cbsa-custctrl,cbsa-dbcrfun,cbsa-delacc,cbsa-inqacc,cbsa-updacc,cbsa-updacc-generated,cbsa-updcust,cbsa-xfrfun  # Db2 cases (7) need the Db2 container",
    "python tests/tools/evidence.py prove cbsa-inqacc cbsa-updacc",
    "python tests/tools/cics_crucible.py  # the hand-traced CICS cases, at the crucible pin"
   ],
   "corpus_ref": "417334533178ab6e753cc64b0e0e5cf0b4952704",
+  "coverage_from": "det-sweep coverage ledger, freshness at build time",
   "crucible_baseline_ref": "v0.5.0 (9ee42d11)",
   "crucible_cases_measured_at": "v0.5.0",
-  "crucible_pin": "v0.5.0",
+  "crucible_pins": {
+   "cics": "v0.5.0",
+   "estate": "v0.4.0",
+   "language": "v1.7.0"
+  },
   "oracle_base_image": "debian:bookworm-slim@sha256:3783cc01769c7b2b1b83a5c5ad96c815348e28ed7da68e2e3687004faa906251",
   "oracle_images_of_records": [
    "sha256:3d1d5e13c632545d0e1bc4d215c3fb8dd1d68d0ff8647b56880f1593353bc7dc"
   ],
-  "pin_manifest": "not on main yet (#4597)",
+  "pin_manifest": "tests/crucible_pins.toml",
   "record_status_from": "evidence.py status at build time",
   "survey": {
    "label": "before",
    "scope": "burned + local + census corpora",
-   "sha": "3167e2bb067386dcbd5c2b701da0850b1af10128"
+   "sha": "ec87c138bc5c2ce768ff53afd6c0928aa3d77dd0"
   },
-  "translator_commit": "3167e2bb067386dcbd5c2b701da0850b1af10128"
+  "translator_commit": "ec87c138bc5c2ce768ff53afd6c0928aa3d77dd0"
  },
  "summary": {
   "cics_programs": 30,
   "det_equal": 2,
   "histogram": {
    "L0": 14,
-   "L1": 17,
-   "L2": 0,
+   "L1": 15,
+   "L2": 2,
    "L3": 0,
    "L4": 0,
    "L5": 0

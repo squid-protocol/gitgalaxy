@@ -4,21 +4,21 @@
 
 > **Burned estate.** Its ports and the translator were developed against this estate, so its numbers describe a development estate, not a blind one.
 
-Translation measured by `cics_census.py survey` at translator commit `3167e2bb067386dcbd5c2b701da0850b1af10128` (burned + local + census corpora); evidence record status evidence.py status at build time.
+Translation measured by `cics_census.py survey` at translator commit `ec87c138bc5c2ce768ff53afd6c0928aa3d77dd0` (burned + local + census corpora); evidence record status: evidence.py status at build time; coverage: det-sweep coverage ledger, freshness at build time.
 
 ## How to read this report
 
 **What the oracle is.** Every equivalence result here compares the Java with the COBOL program run by GnuCOBOL plus the gitgalaxy CICS stub and models (CICS, Db2 precompiler, Language Environment, DISPLAY), not IBM z/OS: the pinned compiler `cobc (GnuCOBOL) 3.1.2.0` (package `3.1.2-5+b1`, base image `debian:bookworm-slim@sha256:3783cc01769c7b2b1b83a5c5ad96c815348e28ed7da68e2e3687004faa906251`). Where that oracle may differ from z/OS is written down in [oracle_assumptions.md](../../oracle_assumptions.md); each program lists the entries its CICS commands name. A result reads "executed equivalent on N scenarios against GnuCOBOL + the gitgalaxy CICS stub", with those assumptions -- never a statement about z/OS.
 
-**What a level means.** Each program gets the highest level whose conditions hold; levels are cumulative and the numbers under a level are always shown. The coverage bars are parameters of this report (paragraphs 90.0%, branches 80.0%).
+**What a level means.** Each program gets the highest level whose conditions hold; levels are cumulative and the numbers under a level are always shown. The coverage bars are parameters of this report (paragraphs 100.0%, branches 100.0%; net of reviewed infeasible outcomes: not yet available (#4602)). The evidence record of a program's case (the committed hand or model port's proof) is reported beside each program, and is not a condition of any level.
 
 | level | name | condition |
 |---|---|---|
 | L0 | inventoried | the program is in the estate's survey |
 | L1 | translated whole | the det translator leaves no hole and does not refuse it |
-| L2 | executed equivalent | a case runs it; the case's det port is equal on every scenario; the case's evidence record is current and its proof equal on every scenario |
-| L3 | paragraph coverage | L2, and the scenarios execute >= 90.0 percent of its live paragraphs |
-| L4 | branch coverage | L3, and >= 80.0 percent of its branch outcomes |
+| L2 | executed equivalent | a case runs it and the case's det port is equal on every scenario (CI's det-sweep ratchet on main; a Db2 case only by a local sweep); the case's evidence record is reported, not required |
+| L3 | paragraph coverage | L2, and the scenarios execute >= 100.0 percent of its live paragraphs |
+| L4 | branch coverage | L3, and >= 100.0 percent of its branch outcomes (net of reviewed infeasible outcomes: not yet available (#4602)) |
 | L5 | oracle backed | L4, every CICS command it uses has a full spec entry and a hand-traced cics-crucible case both runtimes agree with, and no DIFFERS assumption is reached (assumption reach is not measured yet: no program is placed here) |
 
 **What is not measured.** Holes, unrun paragraphs and branch outcomes, unstated runtime facts and the ASSUMED / DIFFERS entries a program's commands name are listed per program. Which register entries a program actually reaches is not measured. These migration dimensions are not measured at all:
@@ -35,8 +35,8 @@ Translation measured by `cics_census.py survey` at translator commit `3167e2bb06
 | level | programs |
 |---|---|
 | L0 | 14 |
-| L1 | 30 |
-| L2 | 0 |
+| L1 | 5 |
+| L2 | 25 |
 | L3 | 0 |
 | L4 | 0 |
 | L5 | 0 |
@@ -49,36 +49,36 @@ Translation measured by `cics_census.py survey` at translator commit `3167e2bb06
 
 | program | level | translated / statements | holes | case | det port | scenarios | record | paragraphs | branches | CICS commands backed |
 |---|---|---|---|---|---|---|---|---|---|---|
+| app/cbl/CBACT01C.cbl | L2 | 190/190 | 0 | carddemo-readacct | equal | None | none | not measured | not measured | — |
+| app/cbl/CBACT02C.cbl | L2 | 63/63 | 0 | carddemo-readcard | equal | 0 | stale | not measured | not measured | — |
+| app/cbl/CBACT03C.cbl | L2 | 64/64 | 0 | carddemo-readxref | equal | 0 | stale | not measured | not measured | — |
+| app/cbl/CBACT04C.cbl | L2 | 294/294 | 0 | carddemo-intcalc | equal | 2 | stale | not measured | not measured | — |
+| app/cbl/CBCUS01C.cbl | L2 | 64/64 | 0 | carddemo-readcust | equal | 0 | stale | not measured | not measured | — |
+| app/cbl/CBTRN01C.cbl | L2 | 216/216 | 0 | carddemo-dailyval | equal | 0 | stale | not measured | not measured | — |
+| app/cbl/CBTRN02C.cbl | L2 | 339/339 | 0 | carddemo-posttran | equal | 4 | stale | not measured | not measured | — |
+| app/cbl/CBTRN03C.cbl | L2 | 315/315 | 0 | carddemo-trnrpt | equal | 1 | stale | not measured | not measured | — |
+| app/cbl/COACTUPC.cbl | L2 | 1415/1415 | 0 | carddemo-acctupdate | equal | 137 | none | not measured | not measured | 7/11 |
+| app/cbl/COACTVWC.cbl | L2 | 275/275 | 0 | carddemo-acctview | equal | 20 | stale | not measured | not measured | 7/8 |
+| app/cbl/COADM01C.cbl | L2 | 80/80 | 0 | carddemo-adminmenu | equal | 16 | stale | not measured | not measured | 5/5 |
+| app/cbl/COBIL00C.cbl | L2 | 190/190 | 0 | carddemo-billpay | equal | 17 | stale | not measured | not measured | 4/12 |
+| app/cbl/COCRDLIC.cbl | L2 | 500/500 | 0 | carddemo-cardlist | equal | 43 | stale | not measured | not measured | 5/9 |
+| app/cbl/COCRDSLC.cbl | L2 | 263/263 | 0 | carddemo-cardview | equal | 22 | stale | not measured | not measured | 7/8 |
+| app/cbl/COMEN01C.cbl | L2 | 91/91 | 0 | carddemo-menu | equal | 16 | stale | not measured | not measured | 4/5 |
+| app/cbl/CORPT00C.cbl | L2 | 220/220 | 0 | carddemo-report | equal | 16 | stale | not measured | not measured | 4/5 |
+| app/cbl/COSGN00C.cbl | L2 | 71/71 | 0 | carddemo-signon | equal | 12 | stale | not measured | not measured | 6/7 |
+| app/cbl/COTRN00C.cbl | L2 | 294/294 | 0 | carddemo-tranlist | equal | 21 | stale | not measured | not measured | 4/8 |
+| app/cbl/COTRN01C.cbl | L2 | 95/95 | 0 | carddemo-tranview | equal | 15 | stale | not measured | not measured | 4/5 |
+| app/cbl/COTRN02C.cbl | L2 | 300/300 | 0 | carddemo-tranadd | equal | 31 | stale | not measured | not measured | 4/9 |
+| app/cbl/COUSR00C.cbl | L2 | 288/288 | 0 | carddemo-userlist | equal | 21 | stale | not measured | not measured | 4/8 |
+| app/cbl/COUSR01C.cbl | L2 | 94/94 | 0 | carddemo-useradd | equal | 13 | stale | not measured | not measured | 4/5 |
+| app/cbl/COUSR02C.cbl | L2 | 148/148 | 0 | carddemo-userupd | equal | 23 | stale | not measured | not measured | 4/6 |
+| app/cbl/COUSR03C.cbl | L2 | 115/115 | 0 | carddemo-userdel | equal | 18 | stale | not measured | not measured | 4/6 |
+| app/cbl/CSUTLDTC.cbl | L2 | 27/27 | 0 | carddemo-dateutil | equal | 1 | stale | not measured | not measured | — |
 | app/app-transaction-type-db2/cbl/COBTUPDT.cbl | L1 | 58/58 | 0 | carddemo-cobtupdt | not run | None | none | not measured | not measured | — |
 | app/app-transaction-type-db2/cbl/COTRTUPC.cbl | L1 | 436/436 | 0 | carddemo-cotrtupc | not run | 34 | none | not measured | not measured | 7/8 |
-| app/cbl/CBACT01C.cbl | L1 | 190/190 | 0 | carddemo-readacct | equal | None | none | not measured | not measured | — |
-| app/cbl/CBACT02C.cbl | L1 | 63/63 | 0 | carddemo-readcard | equal | 0 | stale | 5/5 (100.0%) | 21/22 (95.5%) | — |
-| app/cbl/CBACT03C.cbl | L1 | 64/64 | 0 | carddemo-readxref | equal | 0 | stale | 5/5 (100.0%) | 21/22 (95.5%) | — |
-| app/cbl/CBACT04C.cbl | L1 | 294/294 | 0 | carddemo-intcalc | equal | 2 | stale | 22/22 (100.0%) | 85/86 (98.8%) | — |
-| app/cbl/CBCUS01C.cbl | L1 | 64/64 | 0 | carddemo-readcust | equal | 0 | stale | 5/5 (100.0%) | 21/22 (95.5%) | — |
 | app/cbl/CBEXPORT.cbl | L1 | 224/224 | 0 | — | — | — | — | not measured | not measured | — |
 | app/cbl/CBIMPORT.cbl | L1 | 175/175 | 0 | — | — | — | — | not measured | not measured | — |
-| app/cbl/CBTRN01C.cbl | L1 | 216/216 | 0 | carddemo-dailyval | equal | 0 | stale | 18/18 (100.0%) | 65/66 (98.5%) | — |
-| app/cbl/CBTRN02C.cbl | L1 | 339/339 | 0 | carddemo-posttran | equal | 4 | stale | 26/26 (100.0%) | 95/96 (99.0%) | — |
-| app/cbl/CBTRN03C.cbl | L1 | 315/315 | 0 | carddemo-trnrpt | equal | 1 | stale | 26/26 (100.0%) | 81/82 (98.8%) | — |
-| app/cbl/COACTUPC.cbl | L1 | 1415/1415 | 0 | carddemo-acctupdate | equal | 137 | none | not measured | not measured | 7/11 |
-| app/cbl/COACTVWC.cbl | L1 | 275/275 | 0 | carddemo-acctview | equal | 20 | stale | 31/32 (96.9%) | 58/71 (81.7%) | 7/8 |
-| app/cbl/COADM01C.cbl | L1 | 80/80 | 0 | carddemo-adminmenu | equal | 16 | stale | 8/8 (100.0%) | 20/26 (76.9%) | 5/5 |
-| app/cbl/COBIL00C.cbl | L1 | 190/190 | 0 | carddemo-billpay | equal | 17 | stale | 16/16 (100.0%) | 38/48 (79.2%) | 4/12 |
-| app/cbl/COCRDLIC.cbl | L1 | 500/500 | 0 | carddemo-cardlist | equal | 43 | stale | 36/36 (100.0%) | 144/151 (95.4%) | 5/9 |
-| app/cbl/COCRDSLC.cbl | L1 | 263/263 | 0 | carddemo-cardview | equal | 22 | stale | 30/30 (100.0%) | 67/77 (87.0%) | 7/8 |
 | app/cbl/COCRDUPC.cbl | L1 | 488/488 | 0 | carddemo-cardupdate | not equal | 33 | none | not measured | not measured | 7/10 |
-| app/cbl/COMEN01C.cbl | L1 | 91/91 | 0 | carddemo-menu | equal | 16 | stale | 7/7 (100.0%) | 28/33 (84.8%) | 4/5 |
-| app/cbl/CORPT00C.cbl | L1 | 220/220 | 0 | carddemo-report | equal | 16 | stale | 10/10 (100.0%) | 40/59 (67.8%) | 4/5 |
-| app/cbl/COSGN00C.cbl | L1 | 71/71 | 0 | carddemo-signon | equal | 12 | stale | 6/6 (100.0%) | 17/17 (100.0%) | 6/7 |
-| app/cbl/COTRN00C.cbl | L1 | 294/294 | 0 | carddemo-tranlist | equal | 21 | stale | 16/16 (100.0%) | 85/101 (84.2%) | 4/8 |
-| app/cbl/COTRN01C.cbl | L1 | 95/95 | 0 | carddemo-tranview | equal | 15 | stale | 9/9 (100.0%) | 23/24 (95.8%) | 4/5 |
-| app/cbl/COTRN02C.cbl | L1 | 300/300 | 0 | carddemo-tranadd | equal | 31 | stale | 18/18 (100.0%) | 56/75 (74.7%) | 4/9 |
-| app/cbl/COUSR00C.cbl | L1 | 288/288 | 0 | carddemo-userlist | equal | 21 | stale | 16/16 (100.0%) | 84/100 (84.0%) | 4/8 |
-| app/cbl/COUSR01C.cbl | L1 | 94/94 | 0 | carddemo-useradd | equal | 13 | stale | 9/9 (100.0%) | 20/21 (95.2%) | 4/5 |
-| app/cbl/COUSR02C.cbl | L1 | 148/148 | 0 | carddemo-userupd | equal | 23 | stale | 11/11 (100.0%) | 44/46 (95.7%) | 4/6 |
-| app/cbl/COUSR03C.cbl | L1 | 115/115 | 0 | carddemo-userdel | equal | 18 | stale | 11/11 (100.0%) | 30/32 (93.8%) | 4/6 |
-| app/cbl/CSUTLDTC.cbl | L1 | 27/27 | 0 | carddemo-dateutil | equal | 1 | stale | 2/2 (100.0%) | 4/10 (40.0%) | — |
 | app/app-authorization-ims-db2-mq/cbl/CBPAUP0C.cbl | L0 | 70/81 | 11 | — | — | — | — | not measured | not measured | — |
 | app/app-authorization-ims-db2-mq/cbl/COPAUA0C.cbl | L0 | refused | 0 | — | — | — | — | not measured | not measured | 2/7 |
 | app/app-authorization-ims-db2-mq/cbl/COPAUS0C.cbl | L0 | 356/370 | 14 | — | — | — | — | not measured | not measured | 4/6 |
@@ -96,43 +96,10 @@ Translation measured by `cics_census.py survey` at translator commit `3167e2bb06
 
 ## Per program
 
-### app/app-transaction-type-db2/cbl/COBTUPDT.cbl -- L1
+### app/cbl/CBACT01C.cbl -- L2
 
-- **Next level needs:** its det port equal on every scenario of carddemo-cobtupdt: a Db2 case: CI's det-sweep skips Db2 cases and no local sweep was given; an evidence record for carddemo-cobtupdt
-- **Translation:** 58/58 statements, 0 holes; whole: yes
-- **Executed equivalence** (carddemo-cobtupdt, program, Db2, the case this report judges): det port not run (a Db2 case: CI's det-sweep skips Db2 cases and no local sweep was given)
-  - evidence record: none (— scenarios in case.json)
-- **Coverage:** not measured
-- **Oracle backing:** no EXEC CICS command
-- **Assumptions relied on:** named by its commands' spec entries: none; reach: not measured
-- **Residual risk:** coverage not measured; assumption reach and the migration dimensions above: not measured
-
-### app/app-transaction-type-db2/cbl/COTRTUPC.cbl -- L1
-
-- **Next level needs:** its det port equal on every scenario of carddemo-cotrtupc: a Db2 case: CI's det-sweep skips Db2 cases and no local sweep was given; an evidence record for carddemo-cotrtupc
-- **Translation:** 436/436 statements, 0 holes; whole: yes
-- **Executed equivalence** (carddemo-cotrtupc, program, Db2, the case this report judges): det port not run (a Db2 case: CI's det-sweep skips Db2 cases and no local sweep was given)
-  - evidence record: none (34 scenarios in case.json)
-- **Coverage:** not measured
-- **Oracle backing** (per CICS command):
-
-  | command | spec entry | hand-traced crucible cases (stub / Java runtime agree) | backed |
-  |---|---|---|---|
-  | ABEND | full | gt-start-retrieve (yes / yes), hc-abend-link (yes / yes) | yes |
-  | HANDLE ABEND | full | hc-abend-link (yes / yes) | yes |
-  | RECEIVE MAP | full | hx-attr-bytes (yes / yes), hx-extended-cursor (yes / yes), pc-aid-menu (yes / yes), pc-wizard (yes / yes) | yes |
-  | RETURN | full | ca-channel-containers (yes / no), ca-link-lengths (yes / yes), ca-xctl-versions (yes / yes), gt-assign-startcode (yes / no), gt-start-options (yes / no), gt-start-retrieve (yes / yes), gt-terminal-coalesce (yes / yes), hc-abend-link (yes / yes), hc-eoc-error (yes / no), hc-handle-aid (yes / no), hc-ignore-error (yes / no), hc-perform-range (yes / yes), hc-terminal-eoc (yes / no), hc-terminal-receive (yes / no), hx-attr-bytes (yes / yes), hx-extended-cursor (yes / yes), pc-aid-menu (yes / yes), pc-wizard (yes / yes) | yes |
-  | SEND MAP | full | hx-attr-bytes (yes / yes), hx-extended-cursor (yes / yes), pc-aid-menu (yes / yes), pc-wizard (yes / yes) | yes |
-  | SEND TEXT | full | ca-link-lengths (yes / yes), ca-xctl-versions (yes / yes), gt-assign-startcode (yes / no), gt-start-options (yes / no), gt-start-retrieve (yes / yes), gt-terminal-coalesce (yes / yes), hc-abend-link (yes / yes), hc-eoc-error (yes / no), hc-handle-aid (yes / no), hc-ignore-error (yes / no), hc-perform-range (yes / yes), hc-terminal-eoc (yes / no), hc-terminal-receive (yes / no), pc-aid-menu (yes / yes), pc-wizard (yes / yes) | yes |
-  | SYNCPOINT | full | none | no |
-  | XCTL | full | ca-channel-containers (yes / no), ca-xctl-versions (yes / yes), pc-aid-menu (yes / yes), pc-wizard (yes / yes) | yes |
-
-- **Assumptions relied on:** named by its commands' spec entries: X3 (MATCHED), X20 (MATCHED (REFUSED where the region cannot decide)); reach: not measured
-- **Residual risk:** coverage not measured; commands without oracle backing: SYNCPOINT; assumption reach and the migration dimensions above: not measured
-
-### app/cbl/CBACT01C.cbl -- L1
-
-- **Next level needs:** an evidence record for carddemo-readacct
+- **Executed equivalent** on the batch runs of carddemo-readacct against GnuCOBOL + the gitgalaxy CICS stub (det port: CI det-sweep ratchet on main), given the assumptions below
+- **Next level needs:** paragraph coverage >= 100.0 (coverage not measured: no fresh det-sweep ledger entry and no local sweep)
 - **Translation:** 190/190 statements, 0 holes; whole: yes
 - **Executed equivalence** (carddemo-readacct, program, the case this report judges): det port equal (CI det-sweep ratchet on main)
   - evidence record: none (— scenarios in case.json)
@@ -141,117 +108,98 @@ Translation measured by `cics_census.py survey` at translator commit `3167e2bb06
 - **Assumptions relied on:** named by its commands' spec entries: none; reach: not measured
 - **Residual risk:** coverage not measured; assumption reach and the migration dimensions above: not measured
 
-### app/cbl/CBACT02C.cbl -- L1
+### app/cbl/CBACT02C.cbl -- L2
 
-- **Next level needs:** a current evidence record (carddemo-readcard is stale on harness, oracle, generator: re-run its proof)
+- **Executed equivalent** on the batch runs of carddemo-readcard against GnuCOBOL + the gitgalaxy CICS stub (det port: CI det-sweep ratchet on main), given the assumptions below
+- **Next level needs:** paragraph coverage >= 100.0 (coverage not measured: no fresh det-sweep ledger entry and no local sweep)
 - **Translation:** 63/63 statements, 0 holes; whole: yes
 - **Executed equivalence** (carddemo-readcard, program, the case this report judges): det port equal (CI det-sweep ratchet on main)
   - evidence record (the case's committed port): stale (stale on harness, oracle, generator); its proof: all equal, 0/0 scenarios equal, 0/0 records equal, 7 runs (6 fault runs)
-- **Coverage** (evidence record (cobol_coverage.py over the case's COBOL runs)): paragraphs 5/5 (100.0%), branch outcomes 21/22 (95.5%); unrun paragraphs by name: not recorded
-  - branch outcome no scenario runs: line 75 IF false (None)
+- **Coverage:** not measured
 - **Oracle backing:** no EXEC CICS command
 - **Assumptions relied on:** named by its commands' spec entries: none; reach: not measured
-- **Residual risk:** 1 branch outcomes unrun; assumption reach and the migration dimensions above: not measured
+- **Residual risk:** coverage not measured; assumption reach and the migration dimensions above: not measured
 
-### app/cbl/CBACT03C.cbl -- L1
+### app/cbl/CBACT03C.cbl -- L2
 
-- **Next level needs:** a current evidence record (carddemo-readxref is stale on harness, oracle, generator: re-run its proof)
+- **Executed equivalent** on the batch runs of carddemo-readxref against GnuCOBOL + the gitgalaxy CICS stub (det port: CI det-sweep ratchet on main), given the assumptions below
+- **Next level needs:** paragraph coverage >= 100.0 (coverage not measured: no fresh det-sweep ledger entry and no local sweep)
 - **Translation:** 64/64 statements, 0 holes; whole: yes
 - **Executed equivalence** (carddemo-readxref, program, the case this report judges): det port equal (CI det-sweep ratchet on main)
   - evidence record (the case's committed port): stale (stale on harness, oracle, generator); its proof: all equal, 0/0 scenarios equal, 0/0 records equal, 7 runs (6 fault runs)
-- **Coverage** (evidence record (cobol_coverage.py over the case's COBOL runs)): paragraphs 5/5 (100.0%), branch outcomes 21/22 (95.5%); unrun paragraphs by name: not recorded
-  - branch outcome no scenario runs: line 75 IF false (None)
+- **Coverage:** not measured
 - **Oracle backing:** no EXEC CICS command
 - **Assumptions relied on:** named by its commands' spec entries: none; reach: not measured
-- **Residual risk:** 1 branch outcomes unrun; assumption reach and the migration dimensions above: not measured
+- **Residual risk:** coverage not measured; assumption reach and the migration dimensions above: not measured
 
-### app/cbl/CBACT04C.cbl -- L1
+### app/cbl/CBACT04C.cbl -- L2
 
-- **Next level needs:** a current evidence record (carddemo-intcalc is stale on harness, oracle, generator: re-run its proof)
+- **Executed equivalent** on the batch runs of carddemo-intcalc against GnuCOBOL + the gitgalaxy CICS stub (det port: CI det-sweep ratchet on main), given the assumptions below
+- **Next level needs:** paragraph coverage >= 100.0 (coverage not measured: no fresh det-sweep ledger entry and no local sweep)
 - **Translation:** 294/294 statements, 0 holes; whole: yes
 - **Executed equivalence** (carddemo-intcalc, program, the case this report judges): det port equal (CI det-sweep ratchet on main)
   - evidence record (the case's committed port): stale (stale on harness, oracle, generator); its proof: all equal, 2/2 scenarios equal, 105/105 records equal, 20 runs (19 fault runs)
 - **Executed equivalence** (carddemo-intcalc-generated, program): det port not equal (ledgered as differing in det_sweep_baseline.json (no issue): generated card numbers mix letters and digits: ASCII vs EBCDIC key order picks different duplicates (oracle_assumptions.md D1))
   - evidence record: none (— scenarios in case.json)
-- **Coverage** (evidence record (cobol_coverage.py over the case's COBOL runs)): paragraphs 22/22 (100.0%), branch outcomes 85/86 (98.8%); unrun paragraphs by name: not recorded
-  - branch outcome no scenario runs: line 189 IF false (None)
+- **Coverage:** not measured
 - **Oracle backing:** no EXEC CICS command
 - **Assumptions relied on:** named by its commands' spec entries: none; reach: not measured
-- **Residual risk:** 1 branch outcomes unrun; assumption reach and the migration dimensions above: not measured
+- **Residual risk:** coverage not measured; assumption reach and the migration dimensions above: not measured
 
-### app/cbl/CBCUS01C.cbl -- L1
+### app/cbl/CBCUS01C.cbl -- L2
 
-- **Next level needs:** a current evidence record (carddemo-readcust is stale on harness, oracle, generator: re-run its proof)
+- **Executed equivalent** on the batch runs of carddemo-readcust against GnuCOBOL + the gitgalaxy CICS stub (det port: CI det-sweep ratchet on main), given the assumptions below
+- **Next level needs:** paragraph coverage >= 100.0 (coverage not measured: no fresh det-sweep ledger entry and no local sweep)
 - **Translation:** 64/64 statements, 0 holes; whole: yes
 - **Executed equivalence** (carddemo-readcust, program, the case this report judges): det port equal (CI det-sweep ratchet on main)
   - evidence record (the case's committed port): stale (stale on harness, oracle, generator); its proof: all equal, 0/0 scenarios equal, 0/0 records equal, 7 runs (6 fault runs)
-- **Coverage** (evidence record (cobol_coverage.py over the case's COBOL runs)): paragraphs 5/5 (100.0%), branch outcomes 21/22 (95.5%); unrun paragraphs by name: not recorded
-  - branch outcome no scenario runs: line 75 IF false (None)
-- **Oracle backing:** no EXEC CICS command
-- **Assumptions relied on:** named by its commands' spec entries: none; reach: not measured
-- **Residual risk:** 1 branch outcomes unrun; assumption reach and the migration dimensions above: not measured
-
-### app/cbl/CBEXPORT.cbl -- L1
-
-- **Next level needs:** an equivalence case that runs it
-- **Translation:** 224/224 statements, 0 holes; whole: yes
-- **Executed equivalence:** no equivalence case runs it
 - **Coverage:** not measured
 - **Oracle backing:** no EXEC CICS command
 - **Assumptions relied on:** named by its commands' spec entries: none; reach: not measured
 - **Residual risk:** coverage not measured; assumption reach and the migration dimensions above: not measured
 
-### app/cbl/CBIMPORT.cbl -- L1
+### app/cbl/CBTRN01C.cbl -- L2
 
-- **Next level needs:** an equivalence case that runs it
-- **Translation:** 175/175 statements, 0 holes; whole: yes
-- **Executed equivalence:** no equivalence case runs it
-- **Coverage:** not measured
-- **Oracle backing:** no EXEC CICS command
-- **Assumptions relied on:** named by its commands' spec entries: none; reach: not measured
-- **Residual risk:** coverage not measured; assumption reach and the migration dimensions above: not measured
-
-### app/cbl/CBTRN01C.cbl -- L1
-
-- **Next level needs:** a current evidence record (carddemo-dailyval is stale on harness, oracle, generator: re-run its proof)
+- **Executed equivalent** on the batch runs of carddemo-dailyval against GnuCOBOL + the gitgalaxy CICS stub (det port: CI det-sweep ratchet on main), given the assumptions below
+- **Next level needs:** paragraph coverage >= 100.0 (coverage not measured: no fresh det-sweep ledger entry and no local sweep)
 - **Translation:** 216/216 statements, 0 holes; whole: yes
 - **Executed equivalence** (carddemo-dailyval, program, the case this report judges): det port equal (CI det-sweep ratchet on main)
   - evidence record (the case's committed port): stale (stale on harness, oracle, generator); its proof: all equal, 0/0 scenarios equal, 0/0 records equal, 21 runs (20 fault runs)
-- **Coverage** (evidence record (cobol_coverage.py over the case's COBOL runs)): paragraphs 18/18 (100.0%), branch outcomes 65/66 (98.5%); unrun paragraphs by name: not recorded
-  - branch outcome no scenario runs: line 165 IF false (MAIN-PARA)
+- **Coverage:** not measured
 - **Oracle backing:** no EXEC CICS command
 - **Assumptions relied on:** named by its commands' spec entries: none; reach: not measured
-- **Residual risk:** 1 branch outcomes unrun; assumption reach and the migration dimensions above: not measured
+- **Residual risk:** coverage not measured; assumption reach and the migration dimensions above: not measured
 
-### app/cbl/CBTRN02C.cbl -- L1
+### app/cbl/CBTRN02C.cbl -- L2
 
-- **Next level needs:** a current evidence record (carddemo-posttran is stale on harness, oracle, generator: re-run its proof)
+- **Executed equivalent** on the batch runs of carddemo-posttran against GnuCOBOL + the gitgalaxy CICS stub (det port: CI det-sweep ratchet on main), given the assumptions below
+- **Next level needs:** paragraph coverage >= 100.0 (coverage not measured: no fresh det-sweep ledger entry and no local sweep)
 - **Translation:** 339/339 statements, 0 holes; whole: yes
 - **Executed equivalence** (carddemo-posttran, program, the case this report judges): det port equal (CI det-sweep ratchet on main)
   - evidence record (the case's committed port): stale (stale on harness, oracle, generator); its proof: all equal, 4/4 scenarios equal, 455/455 records equal, 29 runs (28 fault runs)
 - **Executed equivalence** (carddemo-posttran-generated, program): det port equal (CI det-sweep ratchet on main)
   - evidence record: none (— scenarios in case.json)
-- **Coverage** (evidence record (cobol_coverage.py over the case's COBOL runs)): paragraphs 26/26 (100.0%), branch outcomes 95/96 (99.0%); unrun paragraphs by name: not recorded
-  - branch outcome no scenario runs: line 203 IF false (None)
+- **Coverage:** not measured
 - **Oracle backing:** no EXEC CICS command
 - **Assumptions relied on:** named by its commands' spec entries: none; reach: not measured
-- **Residual risk:** 1 branch outcomes unrun; assumption reach and the migration dimensions above: not measured
+- **Residual risk:** coverage not measured; assumption reach and the migration dimensions above: not measured
 
-### app/cbl/CBTRN03C.cbl -- L1
+### app/cbl/CBTRN03C.cbl -- L2
 
-- **Next level needs:** a current evidence record (carddemo-trnrpt is stale on harness, oracle, generator: re-run its proof)
+- **Executed equivalent** on the batch runs of carddemo-trnrpt against GnuCOBOL + the gitgalaxy CICS stub (det port: CI det-sweep ratchet on main), given the assumptions below
+- **Next level needs:** paragraph coverage >= 100.0 (coverage not measured: no fresh det-sweep ledger entry and no local sweep)
 - **Translation:** 315/315 statements, 0 holes; whole: yes
 - **Executed equivalence** (carddemo-trnrpt, program, the case this report judges): det port equal (CI det-sweep ratchet on main)
   - evidence record (the case's committed port): stale (stale on harness, oracle, generator); its proof: all equal, 1/1 scenarios equal, 447/447 records equal, 25 runs (24 fault runs)
-- **Coverage** (evidence record (cobol_coverage.py over the case's COBOL runs)): paragraphs 26/26 (100.0%), branch outcomes 81/82 (98.8%); unrun paragraphs by name: not recorded
-  - branch outcome no scenario runs: line 171 IF false (None)
+- **Coverage:** not measured
 - **Oracle backing:** no EXEC CICS command
 - **Assumptions relied on:** named by its commands' spec entries: none; reach: not measured
-- **Residual risk:** 1 branch outcomes unrun; assumption reach and the migration dimensions above: not measured
+- **Residual risk:** coverage not measured; assumption reach and the migration dimensions above: not measured
 
-### app/cbl/COACTUPC.cbl -- L1
+### app/cbl/COACTUPC.cbl -- L2
 
-- **Next level needs:** an evidence record for carddemo-acctupdate
+- **Executed equivalent** on the 137 scenarios of carddemo-acctupdate against GnuCOBOL + the gitgalaxy CICS stub (det port: CI det-sweep ratchet on main), given the assumptions below
+- **Next level needs:** paragraph coverage >= 100.0 (coverage not measured: no fresh det-sweep ledger entry and no local sweep)
 - **Translation:** 1415/1415 statements, 0 holes; whole: yes
 - **Executed equivalence** (carddemo-acctupdate, program, the case this report judges): det port equal (CI det-sweep ratchet on main)
   - evidence record: none (137 scenarios in case.json)
@@ -275,28 +223,16 @@ Translation measured by `cics_census.py survey` at translator commit `3167e2bb06
 - **Assumptions relied on:** named by its commands' spec entries: X3 (MATCHED), X14 (ASSUMED (REFUSED where IBM is silent)), X20 (MATCHED (REFUSED where the region cannot decide)); reach: not measured
 - **Residual risk:** coverage not measured; ASSUMED / DIFFERS entries named: X14; commands without oracle backing: READ, REWRITE, SYNCPOINT, SYNCPOINT ROLLBACK; assumption reach and the migration dimensions above: not measured
 
-### app/cbl/COACTVWC.cbl -- L1
+### app/cbl/COACTVWC.cbl -- L2
 
-- **Next level needs:** a current evidence record (carddemo-acctview is stale on harness, oracle, generator: re-run its proof)
+- **Executed equivalent** on the 20 scenarios of carddemo-acctview against GnuCOBOL + the gitgalaxy CICS stub (det port: CI det-sweep ratchet on main), given the assumptions below
+- **Next level needs:** paragraph coverage >= 100.0 (coverage not measured: no fresh det-sweep ledger entry and no local sweep)
 - **Translation:** 275/275 statements, 0 holes; whole: yes
 - **Executed equivalence** (carddemo-acctview, program, the case this report judges): det port equal (CI det-sweep ratchet on main)
   - evidence record (the case's committed port): stale (stale on harness, oracle, generator); its proof: all equal, 20/20 scenarios equal, 49/49 records equal, 20 runs (6 fault runs); through its deployed entry points 20/20
 - **Executed equivalence** (carddemo-acctview-generated, program): det port equal (CI det-sweep ratchet on main)
   - evidence record: none (0 scenarios in case.json)
-- **Coverage** (evidence record (cobol_coverage.py over the case's COBOL runs)): paragraphs 31/32 (96.9%), branch outcomes 58/71 (81.7%); unrun paragraphs by name: not recorded
-  - branch outcome no scenario runs: line 307 IF false (0000-MAIN)
-  - branch outcome no scenario runs: line 312 IF true (0000-MAIN)
-  - branch outcome no scenario runs: line 387 IF true (0000-MAIN)
-  - branch outcome no scenario runs: line 387 IF false (0000-MAIN)
-  - branch outcome no scenario runs: line 567 IF true (1300-SETUP-SCREEN-ATTRS)
-  - branch outcome no scenario runs: line 657 IF false (2210-EDIT-ACCOUNT)
-  - branch outcome no scenario runs: line 670 IF false (2210-EDIT-ACCOUNT)
-  - branch outcome no scenario runs: line 704 IF true (9000-READ-ACCT)
-  - branch outcome no scenario runs: line 713 IF true (9000-READ-ACCT)
-  - branch outcome no scenario runs: line 744 IF false (9200-GETCARDXREF-BYACCT)
-  - branch outcome no scenario runs: line 793 IF false (9300-GETACCTDATA-BYACCT)
-  - branch outcome no scenario runs: line 918 IF true (ABEND-ROUTINE)
-  - branch outcome no scenario runs: line 918 IF false (ABEND-ROUTINE)
+- **Coverage:** not measured
 - **Oracle backing** (per CICS command):
 
   | command | spec entry | hand-traced crucible cases (stub / Java runtime agree) | backed |
@@ -311,21 +247,16 @@ Translation measured by `cics_census.py survey` at translator commit `3167e2bb06
   | XCTL | full | ca-channel-containers (yes / no), ca-xctl-versions (yes / yes), pc-aid-menu (yes / yes), pc-wizard (yes / yes) | yes |
 
 - **Assumptions relied on:** named by its commands' spec entries: X14 (ASSUMED (REFUSED where IBM is silent)), X20 (MATCHED (REFUSED where the region cannot decide)); reach: not measured
-- **Residual risk:** 1 live paragraphs unrun; 13 branch outcomes unrun; ASSUMED / DIFFERS entries named: X14; commands without oracle backing: READ; assumption reach and the migration dimensions above: not measured
+- **Residual risk:** coverage not measured; ASSUMED / DIFFERS entries named: X14; commands without oracle backing: READ; assumption reach and the migration dimensions above: not measured
 
-### app/cbl/COADM01C.cbl -- L1
+### app/cbl/COADM01C.cbl -- L2
 
-- **Next level needs:** a current evidence record (carddemo-adminmenu is stale on harness, oracle, generator: re-run its proof)
+- **Executed equivalent** on the 16 scenarios of carddemo-adminmenu against GnuCOBOL + the gitgalaxy CICS stub (det port: CI det-sweep ratchet on main), given the assumptions below
+- **Next level needs:** paragraph coverage >= 100.0 (coverage not measured: no fresh det-sweep ledger entry and no local sweep)
 - **Translation:** 80/80 statements, 0 holes; whole: yes
 - **Executed equivalence** (carddemo-adminmenu, program, the case this report judges): det port equal (CI det-sweep ratchet on main)
   - evidence record (the case's committed port): stale (stale on harness, oracle, generator); its proof: all equal, 16/16 scenarios equal, 40/40 records equal, 16 runs (0 fault runs); through its deployed entry points 16/16
-- **Coverage** (evidence record (cobol_coverage.py over the case's COBOL runs)): paragraphs 8/8 (100.0%), branch outcomes 20/26 (76.9%); unrun paragraphs by name: not recorded
-  - branch outcome no scenario runs: line 141 IF false (PROCESS-ENTER-KEY)
-  - branch outcome no scenario runs: line 241 EVALUATE WHEN@254 (BUILD-MENU-OPTIONS)
-  - branch outcome no scenario runs: line 241 EVALUATE WHEN@256 (BUILD-MENU-OPTIONS)
-  - branch outcome no scenario runs: line 241 EVALUATE WHEN@258 (BUILD-MENU-OPTIONS)
-  - branch outcome no scenario runs: line 241 EVALUATE WHEN@260 (BUILD-MENU-OPTIONS)
-  - branch outcome no scenario runs: line 241 EVALUATE OTHER (BUILD-MENU-OPTIONS)
+- **Coverage:** not measured
 - **Oracle backing** (per CICS command):
 
   | command | spec entry | hand-traced crucible cases (stub / Java runtime agree) | backed |
@@ -337,25 +268,16 @@ Translation measured by `cics_census.py survey` at translator commit `3167e2bb06
   | XCTL | full | ca-channel-containers (yes / no), ca-xctl-versions (yes / yes), pc-aid-menu (yes / yes), pc-wizard (yes / yes) | yes |
 
 - **Assumptions relied on:** named by its commands' spec entries: X16 (MATCHED (REFUSED where IBM is silent)); reach: not measured
-- **Residual risk:** 6 branch outcomes unrun; assumption reach and the migration dimensions above: not measured
+- **Residual risk:** coverage not measured; assumption reach and the migration dimensions above: not measured
 
-### app/cbl/COBIL00C.cbl -- L1
+### app/cbl/COBIL00C.cbl -- L2
 
-- **Next level needs:** a current evidence record (carddemo-billpay is stale on harness, oracle, generator: re-run its proof)
+- **Executed equivalent** on the 17 scenarios of carddemo-billpay against GnuCOBOL + the gitgalaxy CICS stub (det port: CI det-sweep ratchet on main), given the assumptions below
+- **Next level needs:** paragraph coverage >= 100.0 (coverage not measured: no fresh det-sweep ledger entry and no local sweep)
 - **Translation:** 190/190 statements, 0 holes; whole: yes
 - **Executed equivalence** (carddemo-billpay, program, the case this report judges): det port equal (CI det-sweep ratchet on main)
   - evidence record (the case's committed port): stale (stale on harness, oracle, generator); its proof: all equal, 17/17 scenarios equal, 52/52 records equal, 17 runs (3 fault runs); through its deployed entry points 17/17
-- **Coverage** (evidence record (cobol_coverage.py over the case's COBOL runs)): paragraphs 16/16 (100.0%), branch outcomes 38/48 (79.2%); unrun paragraphs by name: not recorded
-  - branch outcome no scenario runs: line 129 IF false (MAIN-PARA)
-  - branch outcome no scenario runs: line 275 IF true (RETURN-TO-PREV-SCREEN)
-  - branch outcome no scenario runs: line 387 EVALUATE WHEN@390 (UPDATE-ACCTDAT-FILE)
-  - branch outcome no scenario runs: line 420 EVALUATE WHEN@423 (READ-CXACAIX-FILE)
-  - branch outcome no scenario runs: line 420 EVALUATE OTHER (READ-CXACAIX-FILE)
-  - branch outcome no scenario runs: line 451 EVALUATE WHEN@454 (STARTBR-TRANSACT-FILE)
-  - branch outcome no scenario runs: line 451 EVALUATE OTHER (STARTBR-TRANSACT-FILE)
-  - branch outcome no scenario runs: line 484 EVALUATE WHEN@487 (READPREV-TRANSACT-FILE)
-  - branch outcome no scenario runs: line 484 EVALUATE OTHER (READPREV-TRANSACT-FILE)
-  - branch outcome no scenario runs: line 522 EVALUATE WHEN@533 (WRITE-TRANSACT-FILE)
+- **Coverage:** not measured
 - **Oracle backing** (per CICS command):
 
   | command | spec entry | hand-traced crucible cases (stub / Java runtime agree) | backed |
@@ -374,22 +296,16 @@ Translation measured by `cics_census.py survey` at translator commit `3167e2bb06
   | XCTL | full | ca-channel-containers (yes / no), ca-xctl-versions (yes / yes), pc-aid-menu (yes / yes), pc-wizard (yes / yes) | yes |
 
 - **Assumptions relied on:** named by its commands' spec entries: X14 (ASSUMED (REFUSED where IBM is silent)); reach: not measured
-- **Residual risk:** 10 branch outcomes unrun; ASSUMED / DIFFERS entries named: X14; commands without oracle backing: ASKTIME, ENDBR, FORMATTIME, READ, READPREV, REWRITE, STARTBR, WRITE; assumption reach and the migration dimensions above: not measured
+- **Residual risk:** coverage not measured; ASSUMED / DIFFERS entries named: X14; commands without oracle backing: ASKTIME, ENDBR, FORMATTIME, READ, READPREV, REWRITE, STARTBR, WRITE; assumption reach and the migration dimensions above: not measured
 
-### app/cbl/COCRDLIC.cbl -- L1
+### app/cbl/COCRDLIC.cbl -- L2
 
-- **Next level needs:** a current evidence record (carddemo-cardlist is stale on harness, oracle, generator: re-run its proof)
+- **Executed equivalent** on the 43 scenarios of carddemo-cardlist against GnuCOBOL + the gitgalaxy CICS stub (det port: CI det-sweep ratchet on main), given the assumptions below
+- **Next level needs:** paragraph coverage >= 100.0 (coverage not measured: no fresh det-sweep ledger entry and no local sweep)
 - **Translation:** 500/500 statements, 0 holes; whole: yes
 - **Executed equivalence** (carddemo-cardlist, program, the case this report judges): det port equal (CI det-sweep ratchet on main)
   - evidence record (the case's committed port): stale (stale on harness, oracle, generator); its proof: all equal, 43/43 scenarios equal, 118/118 records equal, 43 runs (5 fault runs); through its deployed entry points 43/43
-- **Coverage** (evidence record (cobol_coverage.py over the case's COBOL runs)): paragraphs 36/36 (100.0%), branch outcomes 144/151 (95.4%); unrun paragraphs by name: not recorded
-  - branch outcome no scenario runs: line 586 IF true (0000-MAIN)
-  - branch outcome no scenario runs: line 586 IF false (0000-MAIN)
-  - branch outcome no scenario runs: line 757 IF true (1250-SETUP-ARRAY-ATTRIBS)
-  - branch outcome no scenario runs: line 897 EVALUATE OTHER (1400-SETUP-MESSAGE)
-  - branch outcome no scenario runs: line 913 IF false (1400-SETUP-MESSAGE)
-  - branch outcome no scenario runs: line 1177 IF true (9000-READ-FORWARD)
-  - branch outcome no scenario runs: line 1218 IF false (9000-READ-FORWARD)
+- **Coverage:** not measured
 - **Oracle backing** (per CICS command):
 
   | command | spec entry | hand-traced crucible cases (stub / Java runtime agree) | backed |
@@ -405,25 +321,16 @@ Translation measured by `cics_census.py survey` at translator commit `3167e2bb06
   | XCTL | full | ca-channel-containers (yes / no), ca-xctl-versions (yes / yes), pc-aid-menu (yes / yes), pc-wizard (yes / yes) | yes |
 
 - **Assumptions relied on:** named by its commands' spec entries: X20 (MATCHED (REFUSED where the region cannot decide)); reach: not measured
-- **Residual risk:** 7 branch outcomes unrun; commands without oracle backing: ENDBR, READNEXT, READPREV, STARTBR; assumption reach and the migration dimensions above: not measured
+- **Residual risk:** coverage not measured; commands without oracle backing: ENDBR, READNEXT, READPREV, STARTBR; assumption reach and the migration dimensions above: not measured
 
-### app/cbl/COCRDSLC.cbl -- L1
+### app/cbl/COCRDSLC.cbl -- L2
 
-- **Next level needs:** a current evidence record (carddemo-cardview is stale on harness, oracle, generator: re-run its proof)
+- **Executed equivalent** on the 22 scenarios of carddemo-cardview against GnuCOBOL + the gitgalaxy CICS stub (det port: CI det-sweep ratchet on main), given the assumptions below
+- **Next level needs:** paragraph coverage >= 100.0 (coverage not measured: no fresh det-sweep ledger entry and no local sweep)
 - **Translation:** 263/263 statements, 0 holes; whole: yes
 - **Executed equivalence** (carddemo-cardview, program, the case this report judges): det port equal (CI det-sweep ratchet on main)
   - evidence record (the case's committed port): stale (stale on harness, oracle, generator); its proof: all equal, 22/22 scenarios equal, 58/58 records equal, 22 runs (3 fault runs); through its deployed entry points 22/22
-- **Coverage** (evidence record (cobol_coverage.py over the case's COBOL runs)): paragraphs 30/30 (100.0%), branch outcomes 67/77 (87.0%); unrun paragraphs by name: not recorded
-  - branch outcome no scenario runs: line 386 IF true (0000-MAIN)
-  - branch outcome no scenario runs: line 386 IF false (0000-MAIN)
-  - branch outcome no scenario runs: line 505 IF true (1300-SETUP-SCREEN-ATTRS)
-  - branch outcome no scenario runs: line 527 IF true (1300-SETUP-SCREEN-ATTRS)
-  - branch outcome no scenario runs: line 553 IF true (1300-SETUP-SCREEN-ATTRS)
-  - branch outcome no scenario runs: line 656 IF false (2210-EDIT-ACCOUNT)
-  - branch outcome no scenario runs: line 668 IF false (2210-EDIT-ACCOUNT)
-  - branch outcome no scenario runs: line 759 IF false (9100-GETCARD-BYACCTCARD)
-  - branch outcome no scenario runs: line 764 IF false (9100-GETCARD-BYACCTCARD)
-  - branch outcome no scenario runs: line 859 IF true (ABEND-ROUTINE)
+- **Coverage:** not measured
 - **Oracle backing** (per CICS command):
 
   | command | spec entry | hand-traced crucible cases (stub / Java runtime agree) | backed |
@@ -438,11 +345,302 @@ Translation measured by `cics_census.py survey` at translator commit `3167e2bb06
   | XCTL | full | ca-channel-containers (yes / no), ca-xctl-versions (yes / yes), pc-aid-menu (yes / yes), pc-wizard (yes / yes) | yes |
 
 - **Assumptions relied on:** named by its commands' spec entries: X14 (ASSUMED (REFUSED where IBM is silent)), X20 (MATCHED (REFUSED where the region cannot decide)); reach: not measured
-- **Residual risk:** 10 branch outcomes unrun; ASSUMED / DIFFERS entries named: X14; commands without oracle backing: READ; assumption reach and the migration dimensions above: not measured
+- **Residual risk:** coverage not measured; ASSUMED / DIFFERS entries named: X14; commands without oracle backing: READ; assumption reach and the migration dimensions above: not measured
+
+### app/cbl/COMEN01C.cbl -- L2
+
+- **Executed equivalent** on the 16 scenarios of carddemo-menu against GnuCOBOL + the gitgalaxy CICS stub (det port: CI det-sweep ratchet on main), given the assumptions below
+- **Next level needs:** paragraph coverage >= 100.0 (coverage not measured: no fresh det-sweep ledger entry and no local sweep)
+- **Translation:** 91/91 statements, 0 holes; whole: yes
+- **Executed equivalence** (carddemo-menu, program, the case this report judges): det port equal (CI det-sweep ratchet on main)
+  - evidence record (the case's committed port): stale (stale on harness, oracle, generator); its proof: all equal, 16/16 scenarios equal, 38/38 records equal, 16 runs (2 fault runs); through its deployed entry points 16/16
+- **Coverage:** not measured
+- **Oracle backing** (per CICS command):
+
+  | command | spec entry | hand-traced crucible cases (stub / Java runtime agree) | backed |
+  |---|---|---|---|
+  | INQUIRE PROGRAM | full | none | no |
+  | RECEIVE MAP | full | hx-attr-bytes (yes / yes), hx-extended-cursor (yes / yes), pc-aid-menu (yes / yes), pc-wizard (yes / yes) | yes |
+  | RETURN | full | ca-channel-containers (yes / no), ca-link-lengths (yes / yes), ca-xctl-versions (yes / yes), gt-assign-startcode (yes / no), gt-start-options (yes / no), gt-start-retrieve (yes / yes), gt-terminal-coalesce (yes / yes), hc-abend-link (yes / yes), hc-eoc-error (yes / no), hc-handle-aid (yes / no), hc-ignore-error (yes / no), hc-perform-range (yes / yes), hc-terminal-eoc (yes / no), hc-terminal-receive (yes / no), hx-attr-bytes (yes / yes), hx-extended-cursor (yes / yes), pc-aid-menu (yes / yes), pc-wizard (yes / yes) | yes |
+  | SEND MAP | full | hx-attr-bytes (yes / yes), hx-extended-cursor (yes / yes), pc-aid-menu (yes / yes), pc-wizard (yes / yes) | yes |
+  | XCTL | full | ca-channel-containers (yes / no), ca-xctl-versions (yes / yes), pc-aid-menu (yes / yes), pc-wizard (yes / yes) | yes |
+
+- **Assumptions relied on:** named by its commands' spec entries: none; reach: not measured
+- **Residual risk:** coverage not measured; commands without oracle backing: INQUIRE PROGRAM; assumption reach and the migration dimensions above: not measured
+
+### app/cbl/CORPT00C.cbl -- L2
+
+- **Executed equivalent** on the 16 scenarios of carddemo-report against GnuCOBOL + the gitgalaxy CICS stub (det port: CI det-sweep ratchet on main), given the assumptions below
+- **Next level needs:** paragraph coverage >= 100.0 (coverage not measured: no fresh det-sweep ledger entry and no local sweep)
+- **Translation:** 220/220 statements, 0 holes; whole: yes
+- **Executed equivalence** (carddemo-report, program, the case this report judges): det port equal (CI det-sweep ratchet on main)
+  - evidence record (the case's committed port): stale (stale on harness, oracle, generator); its proof: all equal, 16/16 scenarios equal, 98/98 records equal, 16 runs (1 fault runs); through its deployed entry points 16/16
+- **Coverage:** not measured
+- **Oracle backing** (per CICS command):
+
+  | command | spec entry | hand-traced crucible cases (stub / Java runtime agree) | backed |
+  |---|---|---|---|
+  | RECEIVE MAP | full | hx-attr-bytes (yes / yes), hx-extended-cursor (yes / yes), pc-aid-menu (yes / yes), pc-wizard (yes / yes) | yes |
+  | RETURN | full | ca-channel-containers (yes / no), ca-link-lengths (yes / yes), ca-xctl-versions (yes / yes), gt-assign-startcode (yes / no), gt-start-options (yes / no), gt-start-retrieve (yes / yes), gt-terminal-coalesce (yes / yes), hc-abend-link (yes / yes), hc-eoc-error (yes / no), hc-handle-aid (yes / no), hc-ignore-error (yes / no), hc-perform-range (yes / yes), hc-terminal-eoc (yes / no), hc-terminal-receive (yes / no), hx-attr-bytes (yes / yes), hx-extended-cursor (yes / yes), pc-aid-menu (yes / yes), pc-wizard (yes / yes) | yes |
+  | SEND MAP | full | hx-attr-bytes (yes / yes), hx-extended-cursor (yes / yes), pc-aid-menu (yes / yes), pc-wizard (yes / yes) | yes |
+  | WRITEQ TD | full | none | no |
+  | XCTL | full | ca-channel-containers (yes / no), ca-xctl-versions (yes / yes), pc-aid-menu (yes / yes), pc-wizard (yes / yes) | yes |
+
+- **Assumptions relied on:** named by its commands' spec entries: none; reach: not measured
+- **Residual risk:** coverage not measured; commands without oracle backing: WRITEQ TD; assumption reach and the migration dimensions above: not measured
+
+### app/cbl/COSGN00C.cbl -- L2
+
+- **Executed equivalent** on the 12 scenarios of carddemo-signon against GnuCOBOL + the gitgalaxy CICS stub (det port: CI det-sweep ratchet on main), given the assumptions below
+- **Next level needs:** paragraph coverage >= 100.0 (coverage not measured: no fresh det-sweep ledger entry and no local sweep)
+- **Translation:** 71/71 statements, 0 holes; whole: yes
+- **Executed equivalence** (carddemo-signon, program, the case this report judges): det port equal (CI det-sweep ratchet on main)
+  - evidence record (the case's committed port): stale (stale on harness, oracle, generator); its proof: all equal, 12/12 scenarios equal, 30/30 records equal, 12 runs (1 fault runs); through its deployed entry points 12/12
+- **Coverage:** not measured
+- **Oracle backing** (per CICS command):
+
+  | command | spec entry | hand-traced crucible cases (stub / Java runtime agree) | backed |
+  |---|---|---|---|
+  | ASSIGN | full | ca-channel-containers (yes / no), gt-assign-startcode (yes / no), hc-abend-link (yes / yes) | yes |
+  | READ | full | none | no |
+  | RECEIVE MAP | full | hx-attr-bytes (yes / yes), hx-extended-cursor (yes / yes), pc-aid-menu (yes / yes), pc-wizard (yes / yes) | yes |
+  | RETURN | full | ca-channel-containers (yes / no), ca-link-lengths (yes / yes), ca-xctl-versions (yes / yes), gt-assign-startcode (yes / no), gt-start-options (yes / no), gt-start-retrieve (yes / yes), gt-terminal-coalesce (yes / yes), hc-abend-link (yes / yes), hc-eoc-error (yes / no), hc-handle-aid (yes / no), hc-ignore-error (yes / no), hc-perform-range (yes / yes), hc-terminal-eoc (yes / no), hc-terminal-receive (yes / no), hx-attr-bytes (yes / yes), hx-extended-cursor (yes / yes), pc-aid-menu (yes / yes), pc-wizard (yes / yes) | yes |
+  | SEND MAP | full | hx-attr-bytes (yes / yes), hx-extended-cursor (yes / yes), pc-aid-menu (yes / yes), pc-wizard (yes / yes) | yes |
+  | SEND TEXT | full | ca-link-lengths (yes / yes), ca-xctl-versions (yes / yes), gt-assign-startcode (yes / no), gt-start-options (yes / no), gt-start-retrieve (yes / yes), gt-terminal-coalesce (yes / yes), hc-abend-link (yes / yes), hc-eoc-error (yes / no), hc-handle-aid (yes / no), hc-ignore-error (yes / no), hc-perform-range (yes / yes), hc-terminal-eoc (yes / no), hc-terminal-receive (yes / no), pc-aid-menu (yes / yes), pc-wizard (yes / yes) | yes |
+  | XCTL | full | ca-channel-containers (yes / no), ca-xctl-versions (yes / yes), pc-aid-menu (yes / yes), pc-wizard (yes / yes) | yes |
+
+- **Assumptions relied on:** named by its commands' spec entries: X14 (ASSUMED (REFUSED where IBM is silent)), X19 (ASSUMED (REFUSED where the harness cannot decide)), X20 (MATCHED (REFUSED where the region cannot decide)); reach: not measured
+  - runtime facts the harness states for its commands: facility, screen, startcode, userid
+- **Residual risk:** coverage not measured; ASSUMED / DIFFERS entries named: X14, X19; commands without oracle backing: READ; assumption reach and the migration dimensions above: not measured
+
+### app/cbl/COTRN00C.cbl -- L2
+
+- **Executed equivalent** on the 21 scenarios of carddemo-tranlist against GnuCOBOL + the gitgalaxy CICS stub (det port: CI det-sweep ratchet on main), given the assumptions below
+- **Next level needs:** paragraph coverage >= 100.0 (coverage not measured: no fresh det-sweep ledger entry and no local sweep)
+- **Translation:** 294/294 statements, 0 holes; whole: yes
+- **Executed equivalence** (carddemo-tranlist, program, the case this report judges): det port equal (CI det-sweep ratchet on main)
+  - evidence record (the case's committed port): stale (stale on harness, oracle, generator); its proof: all equal, 21/21 scenarios equal, 62/62 records equal, 21 runs (3 fault runs); through its deployed entry points 21/21
+- **Coverage:** not measured
+- **Oracle backing** (per CICS command):
+
+  | command | spec entry | hand-traced crucible cases (stub / Java runtime agree) | backed |
+  |---|---|---|---|
+  | ENDBR | full | none | no |
+  | READNEXT | full | none | no |
+  | READPREV | full | none | no |
+  | RECEIVE MAP | full | hx-attr-bytes (yes / yes), hx-extended-cursor (yes / yes), pc-aid-menu (yes / yes), pc-wizard (yes / yes) | yes |
+  | RETURN | full | ca-channel-containers (yes / no), ca-link-lengths (yes / yes), ca-xctl-versions (yes / yes), gt-assign-startcode (yes / no), gt-start-options (yes / no), gt-start-retrieve (yes / yes), gt-terminal-coalesce (yes / yes), hc-abend-link (yes / yes), hc-eoc-error (yes / no), hc-handle-aid (yes / no), hc-ignore-error (yes / no), hc-perform-range (yes / yes), hc-terminal-eoc (yes / no), hc-terminal-receive (yes / no), hx-attr-bytes (yes / yes), hx-extended-cursor (yes / yes), pc-aid-menu (yes / yes), pc-wizard (yes / yes) | yes |
+  | SEND MAP | full | hx-attr-bytes (yes / yes), hx-extended-cursor (yes / yes), pc-aid-menu (yes / yes), pc-wizard (yes / yes) | yes |
+  | STARTBR | full | none | no |
+  | XCTL | full | ca-channel-containers (yes / no), ca-xctl-versions (yes / yes), pc-aid-menu (yes / yes), pc-wizard (yes / yes) | yes |
+
+- **Assumptions relied on:** named by its commands' spec entries: none; reach: not measured
+- **Residual risk:** coverage not measured; commands without oracle backing: ENDBR, READNEXT, READPREV, STARTBR; assumption reach and the migration dimensions above: not measured
+
+### app/cbl/COTRN01C.cbl -- L2
+
+- **Executed equivalent** on the 15 scenarios of carddemo-tranview against GnuCOBOL + the gitgalaxy CICS stub (det port: CI det-sweep ratchet on main), given the assumptions below
+- **Next level needs:** paragraph coverage >= 100.0 (coverage not measured: no fresh det-sweep ledger entry and no local sweep)
+- **Translation:** 95/95 statements, 0 holes; whole: yes
+- **Executed equivalence** (carddemo-tranview, program, the case this report judges): det port equal (CI det-sweep ratchet on main)
+  - evidence record (the case's committed port): stale (stale on harness, oracle, generator); its proof: all equal, 15/15 scenarios equal, 39/39 records equal, 15 runs (1 fault runs); through its deployed entry points 15/15
+- **Coverage:** not measured
+- **Oracle backing** (per CICS command):
+
+  | command | spec entry | hand-traced crucible cases (stub / Java runtime agree) | backed |
+  |---|---|---|---|
+  | READ | full | none | no |
+  | RECEIVE MAP | full | hx-attr-bytes (yes / yes), hx-extended-cursor (yes / yes), pc-aid-menu (yes / yes), pc-wizard (yes / yes) | yes |
+  | RETURN | full | ca-channel-containers (yes / no), ca-link-lengths (yes / yes), ca-xctl-versions (yes / yes), gt-assign-startcode (yes / no), gt-start-options (yes / no), gt-start-retrieve (yes / yes), gt-terminal-coalesce (yes / yes), hc-abend-link (yes / yes), hc-eoc-error (yes / no), hc-handle-aid (yes / no), hc-ignore-error (yes / no), hc-perform-range (yes / yes), hc-terminal-eoc (yes / no), hc-terminal-receive (yes / no), hx-attr-bytes (yes / yes), hx-extended-cursor (yes / yes), pc-aid-menu (yes / yes), pc-wizard (yes / yes) | yes |
+  | SEND MAP | full | hx-attr-bytes (yes / yes), hx-extended-cursor (yes / yes), pc-aid-menu (yes / yes), pc-wizard (yes / yes) | yes |
+  | XCTL | full | ca-channel-containers (yes / no), ca-xctl-versions (yes / yes), pc-aid-menu (yes / yes), pc-wizard (yes / yes) | yes |
+
+- **Assumptions relied on:** named by its commands' spec entries: X14 (ASSUMED (REFUSED where IBM is silent)); reach: not measured
+- **Residual risk:** coverage not measured; ASSUMED / DIFFERS entries named: X14; commands without oracle backing: READ; assumption reach and the migration dimensions above: not measured
+
+### app/cbl/COTRN02C.cbl -- L2
+
+- **Executed equivalent** on the 31 scenarios of carddemo-tranadd against GnuCOBOL + the gitgalaxy CICS stub (det port: CI det-sweep ratchet on main), given the assumptions below
+- **Next level needs:** paragraph coverage >= 100.0 (coverage not measured: no fresh det-sweep ledger entry and no local sweep)
+- **Translation:** 300/300 statements, 0 holes; whole: yes
+- **Executed equivalence** (carddemo-tranadd, program, the case this report judges): det port equal (CI det-sweep ratchet on main)
+  - evidence record (the case's committed port): stale (stale on harness, oracle, generator); its proof: all equal, 31/31 scenarios equal, 88/88 records equal, 31 runs (3 fault runs); through its deployed entry points 31/31
+- **Coverage:** not measured
+- **Oracle backing** (per CICS command):
+
+  | command | spec entry | hand-traced crucible cases (stub / Java runtime agree) | backed |
+  |---|---|---|---|
+  | ENDBR | full | none | no |
+  | READ | full | none | no |
+  | READPREV | full | none | no |
+  | RECEIVE MAP | full | hx-attr-bytes (yes / yes), hx-extended-cursor (yes / yes), pc-aid-menu (yes / yes), pc-wizard (yes / yes) | yes |
+  | RETURN | full | ca-channel-containers (yes / no), ca-link-lengths (yes / yes), ca-xctl-versions (yes / yes), gt-assign-startcode (yes / no), gt-start-options (yes / no), gt-start-retrieve (yes / yes), gt-terminal-coalesce (yes / yes), hc-abend-link (yes / yes), hc-eoc-error (yes / no), hc-handle-aid (yes / no), hc-ignore-error (yes / no), hc-perform-range (yes / yes), hc-terminal-eoc (yes / no), hc-terminal-receive (yes / no), hx-attr-bytes (yes / yes), hx-extended-cursor (yes / yes), pc-aid-menu (yes / yes), pc-wizard (yes / yes) | yes |
+  | SEND MAP | full | hx-attr-bytes (yes / yes), hx-extended-cursor (yes / yes), pc-aid-menu (yes / yes), pc-wizard (yes / yes) | yes |
+  | STARTBR | full | none | no |
+  | WRITE | full | none | no |
+  | XCTL | full | ca-channel-containers (yes / no), ca-xctl-versions (yes / yes), pc-aid-menu (yes / yes), pc-wizard (yes / yes) | yes |
+
+- **Assumptions relied on:** named by its commands' spec entries: X14 (ASSUMED (REFUSED where IBM is silent)); reach: not measured
+- **Residual risk:** coverage not measured; ASSUMED / DIFFERS entries named: X14; commands without oracle backing: ENDBR, READ, READPREV, STARTBR, WRITE; assumption reach and the migration dimensions above: not measured
+
+### app/cbl/COUSR00C.cbl -- L2
+
+- **Executed equivalent** on the 21 scenarios of carddemo-userlist against GnuCOBOL + the gitgalaxy CICS stub (det port: CI det-sweep ratchet on main), given the assumptions below
+- **Next level needs:** paragraph coverage >= 100.0 (coverage not measured: no fresh det-sweep ledger entry and no local sweep)
+- **Translation:** 288/288 statements, 0 holes; whole: yes
+- **Executed equivalence** (carddemo-userlist, program, the case this report judges): det port equal (CI det-sweep ratchet on main)
+  - evidence record (the case's committed port): stale (stale on harness, oracle, generator); its proof: all equal, 21/21 scenarios equal, 63/63 records equal, 21 runs (3 fault runs); through its deployed entry points 21/21
+- **Coverage:** not measured
+- **Oracle backing** (per CICS command):
+
+  | command | spec entry | hand-traced crucible cases (stub / Java runtime agree) | backed |
+  |---|---|---|---|
+  | ENDBR | full | none | no |
+  | READNEXT | full | none | no |
+  | READPREV | full | none | no |
+  | RECEIVE MAP | full | hx-attr-bytes (yes / yes), hx-extended-cursor (yes / yes), pc-aid-menu (yes / yes), pc-wizard (yes / yes) | yes |
+  | RETURN | full | ca-channel-containers (yes / no), ca-link-lengths (yes / yes), ca-xctl-versions (yes / yes), gt-assign-startcode (yes / no), gt-start-options (yes / no), gt-start-retrieve (yes / yes), gt-terminal-coalesce (yes / yes), hc-abend-link (yes / yes), hc-eoc-error (yes / no), hc-handle-aid (yes / no), hc-ignore-error (yes / no), hc-perform-range (yes / yes), hc-terminal-eoc (yes / no), hc-terminal-receive (yes / no), hx-attr-bytes (yes / yes), hx-extended-cursor (yes / yes), pc-aid-menu (yes / yes), pc-wizard (yes / yes) | yes |
+  | SEND MAP | full | hx-attr-bytes (yes / yes), hx-extended-cursor (yes / yes), pc-aid-menu (yes / yes), pc-wizard (yes / yes) | yes |
+  | STARTBR | full | none | no |
+  | XCTL | full | ca-channel-containers (yes / no), ca-xctl-versions (yes / yes), pc-aid-menu (yes / yes), pc-wizard (yes / yes) | yes |
+
+- **Assumptions relied on:** named by its commands' spec entries: none; reach: not measured
+- **Residual risk:** coverage not measured; commands without oracle backing: ENDBR, READNEXT, READPREV, STARTBR; assumption reach and the migration dimensions above: not measured
+
+### app/cbl/COUSR01C.cbl -- L2
+
+- **Executed equivalent** on the 13 scenarios of carddemo-useradd against GnuCOBOL + the gitgalaxy CICS stub (det port: CI det-sweep ratchet on main), given the assumptions below
+- **Next level needs:** paragraph coverage >= 100.0 (coverage not measured: no fresh det-sweep ledger entry and no local sweep)
+- **Translation:** 94/94 statements, 0 holes; whole: yes
+- **Executed equivalence** (carddemo-useradd, program, the case this report judges): det port equal (CI det-sweep ratchet on main)
+  - evidence record (the case's committed port): stale (stale on harness, oracle, generator); its proof: all equal, 13/13 scenarios equal, 35/35 records equal, 13 runs (1 fault runs); through its deployed entry points 13/13
+- **Coverage:** not measured
+- **Oracle backing** (per CICS command):
+
+  | command | spec entry | hand-traced crucible cases (stub / Java runtime agree) | backed |
+  |---|---|---|---|
+  | RECEIVE MAP | full | hx-attr-bytes (yes / yes), hx-extended-cursor (yes / yes), pc-aid-menu (yes / yes), pc-wizard (yes / yes) | yes |
+  | RETURN | full | ca-channel-containers (yes / no), ca-link-lengths (yes / yes), ca-xctl-versions (yes / yes), gt-assign-startcode (yes / no), gt-start-options (yes / no), gt-start-retrieve (yes / yes), gt-terminal-coalesce (yes / yes), hc-abend-link (yes / yes), hc-eoc-error (yes / no), hc-handle-aid (yes / no), hc-ignore-error (yes / no), hc-perform-range (yes / yes), hc-terminal-eoc (yes / no), hc-terminal-receive (yes / no), hx-attr-bytes (yes / yes), hx-extended-cursor (yes / yes), pc-aid-menu (yes / yes), pc-wizard (yes / yes) | yes |
+  | SEND MAP | full | hx-attr-bytes (yes / yes), hx-extended-cursor (yes / yes), pc-aid-menu (yes / yes), pc-wizard (yes / yes) | yes |
+  | WRITE | full | none | no |
+  | XCTL | full | ca-channel-containers (yes / no), ca-xctl-versions (yes / yes), pc-aid-menu (yes / yes), pc-wizard (yes / yes) | yes |
+
+- **Assumptions relied on:** named by its commands' spec entries: none; reach: not measured
+- **Residual risk:** coverage not measured; commands without oracle backing: WRITE; assumption reach and the migration dimensions above: not measured
+
+### app/cbl/COUSR02C.cbl -- L2
+
+- **Executed equivalent** on the 23 scenarios of carddemo-userupd against GnuCOBOL + the gitgalaxy CICS stub (det port: CI det-sweep ratchet on main), given the assumptions below
+- **Next level needs:** paragraph coverage >= 100.0 (coverage not measured: no fresh det-sweep ledger entry and no local sweep)
+- **Translation:** 148/148 statements, 0 holes; whole: yes
+- **Executed equivalence** (carddemo-userupd, program, the case this report judges): det port equal (CI det-sweep ratchet on main)
+  - evidence record (the case's committed port): stale (stale on harness, oracle, generator); its proof: all equal, 23/23 scenarios equal, 74/74 records equal, 23 runs (2 fault runs); through its deployed entry points 23/23
+- **Coverage:** not measured
+- **Oracle backing** (per CICS command):
+
+  | command | spec entry | hand-traced crucible cases (stub / Java runtime agree) | backed |
+  |---|---|---|---|
+  | READ | full | none | no |
+  | RECEIVE MAP | full | hx-attr-bytes (yes / yes), hx-extended-cursor (yes / yes), pc-aid-menu (yes / yes), pc-wizard (yes / yes) | yes |
+  | RETURN | full | ca-channel-containers (yes / no), ca-link-lengths (yes / yes), ca-xctl-versions (yes / yes), gt-assign-startcode (yes / no), gt-start-options (yes / no), gt-start-retrieve (yes / yes), gt-terminal-coalesce (yes / yes), hc-abend-link (yes / yes), hc-eoc-error (yes / no), hc-handle-aid (yes / no), hc-ignore-error (yes / no), hc-perform-range (yes / yes), hc-terminal-eoc (yes / no), hc-terminal-receive (yes / no), hx-attr-bytes (yes / yes), hx-extended-cursor (yes / yes), pc-aid-menu (yes / yes), pc-wizard (yes / yes) | yes |
+  | REWRITE | full | none | no |
+  | SEND MAP | full | hx-attr-bytes (yes / yes), hx-extended-cursor (yes / yes), pc-aid-menu (yes / yes), pc-wizard (yes / yes) | yes |
+  | XCTL | full | ca-channel-containers (yes / no), ca-xctl-versions (yes / yes), pc-aid-menu (yes / yes), pc-wizard (yes / yes) | yes |
+
+- **Assumptions relied on:** named by its commands' spec entries: X14 (ASSUMED (REFUSED where IBM is silent)); reach: not measured
+- **Residual risk:** coverage not measured; ASSUMED / DIFFERS entries named: X14; commands without oracle backing: READ, REWRITE; assumption reach and the migration dimensions above: not measured
+
+### app/cbl/COUSR03C.cbl -- L2
+
+- **Executed equivalent** on the 18 scenarios of carddemo-userdel against GnuCOBOL + the gitgalaxy CICS stub (det port: CI det-sweep ratchet on main), given the assumptions below
+- **Next level needs:** paragraph coverage >= 100.0 (coverage not measured: no fresh det-sweep ledger entry and no local sweep)
+- **Translation:** 115/115 statements, 0 holes; whole: yes
+- **Executed equivalence** (carddemo-userdel, program, the case this report judges): det port equal (CI det-sweep ratchet on main)
+  - evidence record (the case's committed port): stale (stale on harness, oracle, generator); its proof: all equal, 18/18 scenarios equal, 54/54 records equal, 18 runs (2 fault runs); through its deployed entry points 18/18
+- **Coverage:** not measured
+- **Oracle backing** (per CICS command):
+
+  | command | spec entry | hand-traced crucible cases (stub / Java runtime agree) | backed |
+  |---|---|---|---|
+  | DELETE | full | none | no |
+  | READ | full | none | no |
+  | RECEIVE MAP | full | hx-attr-bytes (yes / yes), hx-extended-cursor (yes / yes), pc-aid-menu (yes / yes), pc-wizard (yes / yes) | yes |
+  | RETURN | full | ca-channel-containers (yes / no), ca-link-lengths (yes / yes), ca-xctl-versions (yes / yes), gt-assign-startcode (yes / no), gt-start-options (yes / no), gt-start-retrieve (yes / yes), gt-terminal-coalesce (yes / yes), hc-abend-link (yes / yes), hc-eoc-error (yes / no), hc-handle-aid (yes / no), hc-ignore-error (yes / no), hc-perform-range (yes / yes), hc-terminal-eoc (yes / no), hc-terminal-receive (yes / no), hx-attr-bytes (yes / yes), hx-extended-cursor (yes / yes), pc-aid-menu (yes / yes), pc-wizard (yes / yes) | yes |
+  | SEND MAP | full | hx-attr-bytes (yes / yes), hx-extended-cursor (yes / yes), pc-aid-menu (yes / yes), pc-wizard (yes / yes) | yes |
+  | XCTL | full | ca-channel-containers (yes / no), ca-xctl-versions (yes / yes), pc-aid-menu (yes / yes), pc-wizard (yes / yes) | yes |
+
+- **Assumptions relied on:** named by its commands' spec entries: X14 (ASSUMED (REFUSED where IBM is silent)); reach: not measured
+- **Residual risk:** coverage not measured; ASSUMED / DIFFERS entries named: X14; commands without oracle backing: DELETE, READ; assumption reach and the migration dimensions above: not measured
+
+### app/cbl/CSUTLDTC.cbl -- L2
+
+- **Executed equivalent** on the batch runs of carddemo-dateutil against GnuCOBOL + the gitgalaxy CICS stub (det port: CI det-sweep ratchet on main), given the assumptions below
+- **Next level needs:** paragraph coverage >= 100.0 (coverage not measured: no fresh det-sweep ledger entry and no local sweep)
+- **Translation:** 27/27 statements, 0 holes; whole: yes
+- **Executed equivalence** (carddemo-dateutil, program, the case this report judges): det port equal (CI det-sweep ratchet on main)
+  - evidence record (the case's committed port): stale (stale on harness, oracle, generator); its proof: all equal, 1/1 scenarios equal, 17/17 records equal, 1 runs (0 fault runs)
+- **Coverage:** not measured
+- **Oracle backing:** no EXEC CICS command
+- **Assumptions relied on:** named by its commands' spec entries: none; reach: not measured
+- **Residual risk:** coverage not measured; assumption reach and the migration dimensions above: not measured
+
+### app/app-transaction-type-db2/cbl/COBTUPDT.cbl -- L1
+
+- **Next level needs:** its det port equal on every scenario of carddemo-cobtupdt: a Db2 case: CI's det-sweep skips Db2 cases and no local sweep was given
+- **Translation:** 58/58 statements, 0 holes; whole: yes
+- **Executed equivalence** (carddemo-cobtupdt, program, Db2, the case this report judges): det port not run (a Db2 case: CI's det-sweep skips Db2 cases and no local sweep was given)
+  - evidence record: none (— scenarios in case.json)
+- **Coverage:** not measured
+- **Oracle backing:** no EXEC CICS command
+- **Assumptions relied on:** named by its commands' spec entries: none; reach: not measured
+- **Residual risk:** coverage not measured; assumption reach and the migration dimensions above: not measured
+
+### app/app-transaction-type-db2/cbl/COTRTUPC.cbl -- L1
+
+- **Next level needs:** its det port equal on every scenario of carddemo-cotrtupc: a Db2 case: CI's det-sweep skips Db2 cases and no local sweep was given
+- **Translation:** 436/436 statements, 0 holes; whole: yes
+- **Executed equivalence** (carddemo-cotrtupc, program, Db2, the case this report judges): det port not run (a Db2 case: CI's det-sweep skips Db2 cases and no local sweep was given)
+  - evidence record: none (34 scenarios in case.json)
+- **Coverage:** not measured
+- **Oracle backing** (per CICS command):
+
+  | command | spec entry | hand-traced crucible cases (stub / Java runtime agree) | backed |
+  |---|---|---|---|
+  | ABEND | full | gt-start-retrieve (yes / yes), hc-abend-link (yes / yes) | yes |
+  | HANDLE ABEND | full | hc-abend-link (yes / yes) | yes |
+  | RECEIVE MAP | full | hx-attr-bytes (yes / yes), hx-extended-cursor (yes / yes), pc-aid-menu (yes / yes), pc-wizard (yes / yes) | yes |
+  | RETURN | full | ca-channel-containers (yes / no), ca-link-lengths (yes / yes), ca-xctl-versions (yes / yes), gt-assign-startcode (yes / no), gt-start-options (yes / no), gt-start-retrieve (yes / yes), gt-terminal-coalesce (yes / yes), hc-abend-link (yes / yes), hc-eoc-error (yes / no), hc-handle-aid (yes / no), hc-ignore-error (yes / no), hc-perform-range (yes / yes), hc-terminal-eoc (yes / no), hc-terminal-receive (yes / no), hx-attr-bytes (yes / yes), hx-extended-cursor (yes / yes), pc-aid-menu (yes / yes), pc-wizard (yes / yes) | yes |
+  | SEND MAP | full | hx-attr-bytes (yes / yes), hx-extended-cursor (yes / yes), pc-aid-menu (yes / yes), pc-wizard (yes / yes) | yes |
+  | SEND TEXT | full | ca-link-lengths (yes / yes), ca-xctl-versions (yes / yes), gt-assign-startcode (yes / no), gt-start-options (yes / no), gt-start-retrieve (yes / yes), gt-terminal-coalesce (yes / yes), hc-abend-link (yes / yes), hc-eoc-error (yes / no), hc-handle-aid (yes / no), hc-ignore-error (yes / no), hc-perform-range (yes / yes), hc-terminal-eoc (yes / no), hc-terminal-receive (yes / no), pc-aid-menu (yes / yes), pc-wizard (yes / yes) | yes |
+  | SYNCPOINT | full | none | no |
+  | XCTL | full | ca-channel-containers (yes / no), ca-xctl-versions (yes / yes), pc-aid-menu (yes / yes), pc-wizard (yes / yes) | yes |
+
+- **Assumptions relied on:** named by its commands' spec entries: X3 (MATCHED), X20 (MATCHED (REFUSED where the region cannot decide)); reach: not measured
+- **Residual risk:** coverage not measured; commands without oracle backing: SYNCPOINT; assumption reach and the migration dimensions above: not measured
+
+### app/cbl/CBEXPORT.cbl -- L1
+
+- **Next level needs:** an equivalence case that runs it
+- **Translation:** 224/224 statements, 0 holes; whole: yes
+- **Executed equivalence:** no equivalence case runs it
+- **Coverage:** not measured
+- **Oracle backing:** no EXEC CICS command
+- **Assumptions relied on:** named by its commands' spec entries: none; reach: not measured
+- **Residual risk:** coverage not measured; assumption reach and the migration dimensions above: not measured
+
+### app/cbl/CBIMPORT.cbl -- L1
+
+- **Next level needs:** an equivalence case that runs it
+- **Translation:** 175/175 statements, 0 holes; whole: yes
+- **Executed equivalence:** no equivalence case runs it
+- **Coverage:** not measured
+- **Oracle backing:** no EXEC CICS command
+- **Assumptions relied on:** named by its commands' spec entries: none; reach: not measured
+- **Residual risk:** coverage not measured; assumption reach and the migration dimensions above: not measured
 
 ### app/cbl/COCRDUPC.cbl -- L1
 
-- **Next level needs:** its det port equal on every scenario of carddemo-cardupdate: ledgered as differing in det_sweep_baseline.json (#4085): COCRDUPC writes blanks into a PIC 9(3) CVV a typed DTO field cannot hold; an evidence record for carddemo-cardupdate
+- **Next level needs:** its det port equal on every scenario of carddemo-cardupdate: ledgered as differing in det_sweep_baseline.json (#4085): COCRDUPC writes blanks into a PIC 9(3) CVV a typed DTO field cannot hold
 - **Translation:** 488/488 statements, 0 holes; whole: yes
 - **Executed equivalence** (carddemo-cardupdate, program, the case this report judges): det port not equal (ledgered as differing in det_sweep_baseline.json (#4085): COCRDUPC writes blanks into a PIC 9(3) CVV a typed DTO field cannot hold)
   - evidence record: none (33 scenarios in case.json)
@@ -464,319 +662,6 @@ Translation measured by `cics_census.py survey` at translator commit `3167e2bb06
 
 - **Assumptions relied on:** named by its commands' spec entries: X3 (MATCHED), X14 (ASSUMED (REFUSED where IBM is silent)), X20 (MATCHED (REFUSED where the region cannot decide)); reach: not measured
 - **Residual risk:** coverage not measured; ASSUMED / DIFFERS entries named: X14; commands without oracle backing: READ, REWRITE, SYNCPOINT; assumption reach and the migration dimensions above: not measured
-
-### app/cbl/COMEN01C.cbl -- L1
-
-- **Next level needs:** a current evidence record (carddemo-menu is stale on harness, oracle, generator: re-run its proof)
-- **Translation:** 91/91 statements, 0 holes; whole: yes
-- **Executed equivalence** (carddemo-menu, program, the case this report judges): det port equal (CI det-sweep ratchet on main)
-  - evidence record (the case's committed port): stale (stale on harness, oracle, generator); its proof: all equal, 16/16 scenarios equal, 38/38 records equal, 16 runs (2 fault runs); through its deployed entry points 16/16
-- **Coverage** (evidence record (cobol_coverage.py over the case's COBOL runs)): paragraphs 7/7 (100.0%), branch outcomes 28/33 (84.8%); unrun paragraphs by name: not recorded
-  - branch outcome no scenario runs: line 136 IF true (PROCESS-ENTER-KEY)
-  - branch outcome no scenario runs: line 146 EVALUATE WHEN@147 (PROCESS-ENTER-KEY)
-  - branch outcome no scenario runs: line 146 EVALUATE WHEN@169 (PROCESS-ENTER-KEY)
-  - branch outcome no scenario runs: line 274 EVALUATE WHEN@297 (BUILD-MENU-OPTIONS)
-  - branch outcome no scenario runs: line 274 EVALUATE OTHER (BUILD-MENU-OPTIONS)
-- **Oracle backing** (per CICS command):
-
-  | command | spec entry | hand-traced crucible cases (stub / Java runtime agree) | backed |
-  |---|---|---|---|
-  | INQUIRE PROGRAM | full | none | no |
-  | RECEIVE MAP | full | hx-attr-bytes (yes / yes), hx-extended-cursor (yes / yes), pc-aid-menu (yes / yes), pc-wizard (yes / yes) | yes |
-  | RETURN | full | ca-channel-containers (yes / no), ca-link-lengths (yes / yes), ca-xctl-versions (yes / yes), gt-assign-startcode (yes / no), gt-start-options (yes / no), gt-start-retrieve (yes / yes), gt-terminal-coalesce (yes / yes), hc-abend-link (yes / yes), hc-eoc-error (yes / no), hc-handle-aid (yes / no), hc-ignore-error (yes / no), hc-perform-range (yes / yes), hc-terminal-eoc (yes / no), hc-terminal-receive (yes / no), hx-attr-bytes (yes / yes), hx-extended-cursor (yes / yes), pc-aid-menu (yes / yes), pc-wizard (yes / yes) | yes |
-  | SEND MAP | full | hx-attr-bytes (yes / yes), hx-extended-cursor (yes / yes), pc-aid-menu (yes / yes), pc-wizard (yes / yes) | yes |
-  | XCTL | full | ca-channel-containers (yes / no), ca-xctl-versions (yes / yes), pc-aid-menu (yes / yes), pc-wizard (yes / yes) | yes |
-
-- **Assumptions relied on:** named by its commands' spec entries: none; reach: not measured
-- **Residual risk:** 5 branch outcomes unrun; commands without oracle backing: INQUIRE PROGRAM; assumption reach and the migration dimensions above: not measured
-
-### app/cbl/CORPT00C.cbl -- L1
-
-- **Next level needs:** a current evidence record (carddemo-report is stale on harness, oracle, generator: re-run its proof)
-- **Translation:** 220/220 statements, 0 holes; whole: yes
-- **Executed equivalence** (carddemo-report, program, the case this report judges): det port equal (CI det-sweep ratchet on main)
-  - evidence record (the case's committed port): stale (stale on harness, oracle, generator); its proof: all equal, 16/16 scenarios equal, 98/98 records equal, 16 runs (1 fault runs); through its deployed entry points 16/16
-- **Coverage** (evidence record (cobol_coverage.py over the case's COBOL runs)): paragraphs 10/10 (100.0%), branch outcomes 40/59 (67.8%); unrun paragraphs by name: not recorded
-  - branch outcome no scenario runs: line 225 IF true (PROCESS-ENTER-KEY)
-  - branch outcome no scenario runs: line 258 EVALUATE WHEN@266 (PROCESS-ENTER-KEY)
-  - branch outcome no scenario runs: line 258 EVALUATE WHEN@273 (PROCESS-ENTER-KEY)
-  - branch outcome no scenario runs: line 258 EVALUATE WHEN@280 (PROCESS-ENTER-KEY)
-  - branch outcome no scenario runs: line 258 EVALUATE WHEN@287 (PROCESS-ENTER-KEY)
-  - branch outcome no scenario runs: line 329 IF true (PROCESS-ENTER-KEY)
-  - branch outcome no scenario runs: line 347 IF true (PROCESS-ENTER-KEY)
-  - branch outcome no scenario runs: line 355 IF true (PROCESS-ENTER-KEY)
-  - branch outcome no scenario runs: line 364 IF true (PROCESS-ENTER-KEY)
-  - branch outcome no scenario runs: line 373 IF true (PROCESS-ENTER-KEY)
-  - branch outcome no scenario runs: line 396 IF false (PROCESS-ENTER-KEY)
-  - branch outcome no scenario runs: line 399 IF true (PROCESS-ENTER-KEY)
-  - branch outcome no scenario runs: line 399 IF false (PROCESS-ENTER-KEY)
-  - branch outcome no scenario runs: line 419 IF false (PROCESS-ENTER-KEY)
-  - branch outcome no scenario runs: line 434 IF false (PROCESS-ENTER-KEY)
-  - branch outcome no scenario runs: line 445 IF false (PROCESS-ENTER-KEY)
-  - branch outcome no scenario runs: line 476 IF false (SUBMIT-JOB-TO-INTRDR)
-  - branch outcome no scenario runs: line 542 IF true (RETURN-TO-PREV-SCREEN)
-  - branch outcome no scenario runs: line 562 IF false (SEND-TRNRPT-SCREEN)
-- **Oracle backing** (per CICS command):
-
-  | command | spec entry | hand-traced crucible cases (stub / Java runtime agree) | backed |
-  |---|---|---|---|
-  | RECEIVE MAP | full | hx-attr-bytes (yes / yes), hx-extended-cursor (yes / yes), pc-aid-menu (yes / yes), pc-wizard (yes / yes) | yes |
-  | RETURN | full | ca-channel-containers (yes / no), ca-link-lengths (yes / yes), ca-xctl-versions (yes / yes), gt-assign-startcode (yes / no), gt-start-options (yes / no), gt-start-retrieve (yes / yes), gt-terminal-coalesce (yes / yes), hc-abend-link (yes / yes), hc-eoc-error (yes / no), hc-handle-aid (yes / no), hc-ignore-error (yes / no), hc-perform-range (yes / yes), hc-terminal-eoc (yes / no), hc-terminal-receive (yes / no), hx-attr-bytes (yes / yes), hx-extended-cursor (yes / yes), pc-aid-menu (yes / yes), pc-wizard (yes / yes) | yes |
-  | SEND MAP | full | hx-attr-bytes (yes / yes), hx-extended-cursor (yes / yes), pc-aid-menu (yes / yes), pc-wizard (yes / yes) | yes |
-  | WRITEQ TD | full | none | no |
-  | XCTL | full | ca-channel-containers (yes / no), ca-xctl-versions (yes / yes), pc-aid-menu (yes / yes), pc-wizard (yes / yes) | yes |
-
-- **Assumptions relied on:** named by its commands' spec entries: none; reach: not measured
-- **Residual risk:** 19 branch outcomes unrun; commands without oracle backing: WRITEQ TD; assumption reach and the migration dimensions above: not measured
-
-### app/cbl/COSGN00C.cbl -- L1
-
-- **Next level needs:** a current evidence record (carddemo-signon is stale on harness, oracle, generator: re-run its proof)
-- **Translation:** 71/71 statements, 0 holes; whole: yes
-- **Executed equivalence** (carddemo-signon, program, the case this report judges): det port equal (CI det-sweep ratchet on main)
-  - evidence record (the case's committed port): stale (stale on harness, oracle, generator); its proof: all equal, 12/12 scenarios equal, 30/30 records equal, 12 runs (1 fault runs); through its deployed entry points 12/12
-- **Coverage** (evidence record (cobol_coverage.py over the case's COBOL runs)): paragraphs 6/6 (100.0%), branch outcomes 17/17 (100.0%); unrun paragraphs by name: not recorded
-- **Oracle backing** (per CICS command):
-
-  | command | spec entry | hand-traced crucible cases (stub / Java runtime agree) | backed |
-  |---|---|---|---|
-  | ASSIGN | full | ca-channel-containers (yes / no), gt-assign-startcode (yes / no), hc-abend-link (yes / yes) | yes |
-  | READ | full | none | no |
-  | RECEIVE MAP | full | hx-attr-bytes (yes / yes), hx-extended-cursor (yes / yes), pc-aid-menu (yes / yes), pc-wizard (yes / yes) | yes |
-  | RETURN | full | ca-channel-containers (yes / no), ca-link-lengths (yes / yes), ca-xctl-versions (yes / yes), gt-assign-startcode (yes / no), gt-start-options (yes / no), gt-start-retrieve (yes / yes), gt-terminal-coalesce (yes / yes), hc-abend-link (yes / yes), hc-eoc-error (yes / no), hc-handle-aid (yes / no), hc-ignore-error (yes / no), hc-perform-range (yes / yes), hc-terminal-eoc (yes / no), hc-terminal-receive (yes / no), hx-attr-bytes (yes / yes), hx-extended-cursor (yes / yes), pc-aid-menu (yes / yes), pc-wizard (yes / yes) | yes |
-  | SEND MAP | full | hx-attr-bytes (yes / yes), hx-extended-cursor (yes / yes), pc-aid-menu (yes / yes), pc-wizard (yes / yes) | yes |
-  | SEND TEXT | full | ca-link-lengths (yes / yes), ca-xctl-versions (yes / yes), gt-assign-startcode (yes / no), gt-start-options (yes / no), gt-start-retrieve (yes / yes), gt-terminal-coalesce (yes / yes), hc-abend-link (yes / yes), hc-eoc-error (yes / no), hc-handle-aid (yes / no), hc-ignore-error (yes / no), hc-perform-range (yes / yes), hc-terminal-eoc (yes / no), hc-terminal-receive (yes / no), pc-aid-menu (yes / yes), pc-wizard (yes / yes) | yes |
-  | XCTL | full | ca-channel-containers (yes / no), ca-xctl-versions (yes / yes), pc-aid-menu (yes / yes), pc-wizard (yes / yes) | yes |
-
-- **Assumptions relied on:** named by its commands' spec entries: X14 (ASSUMED (REFUSED where IBM is silent)), X19 (ASSUMED (REFUSED where the harness cannot decide)), X20 (MATCHED (REFUSED where the region cannot decide)); reach: not measured
-  - runtime facts the harness states for its commands: facility, screen, startcode, userid
-- **Residual risk:** ASSUMED / DIFFERS entries named: X14, X19; commands without oracle backing: READ; assumption reach and the migration dimensions above: not measured
-
-### app/cbl/COTRN00C.cbl -- L1
-
-- **Next level needs:** a current evidence record (carddemo-tranlist is stale on harness, oracle, generator: re-run its proof)
-- **Translation:** 294/294 statements, 0 holes; whole: yes
-- **Executed equivalence** (carddemo-tranlist, program, the case this report judges): det port equal (CI det-sweep ratchet on main)
-  - evidence record (the case's committed port): stale (stale on harness, oracle, generator); its proof: all equal, 21/21 scenarios equal, 62/62 records equal, 21 runs (3 fault runs); through its deployed entry points 21/21
-- **Coverage** (evidence record (cobol_coverage.py over the case's COBOL runs)): paragraphs 16/16 (100.0%), branch outcomes 85/101 (84.2%); unrun paragraphs by name: not recorded
-  - branch outcome no scenario runs: line 148 EVALUATE WHEN@152 (PROCESS-ENTER-KEY)
-  - branch outcome no scenario runs: line 148 EVALUATE WHEN@155 (PROCESS-ENTER-KEY)
-  - branch outcome no scenario runs: line 148 EVALUATE WHEN@161 (PROCESS-ENTER-KEY)
-  - branch outcome no scenario runs: line 148 EVALUATE WHEN@164 (PROCESS-ENTER-KEY)
-  - branch outcome no scenario runs: line 148 EVALUATE WHEN@167 (PROCESS-ENTER-KEY)
-  - branch outcome no scenario runs: line 148 EVALUATE WHEN@170 (PROCESS-ENTER-KEY)
-  - branch outcome no scenario runs: line 148 EVALUATE WHEN@173 (PROCESS-ENTER-KEY)
-  - branch outcome no scenario runs: line 236 IF true (PROCESS-PF7-KEY)
-  - branch outcome no scenario runs: line 259 IF true (PROCESS-PF8-KEY)
-  - branch outcome no scenario runs: line 337 IF false (PROCESS-PAGE-BACKWARD)
-  - branch outcome no scenario runs: line 339 IF false (PROCESS-PAGE-BACKWARD)
-  - branch outcome no scenario runs: line 353 IF false (PROCESS-PAGE-BACKWARD)
-  - branch outcome no scenario runs: line 361 IF false (PROCESS-PAGE-BACKWARD)
-  - branch outcome no scenario runs: line 390 EVALUATE OTHER (POPULATE-TRAN-DATA)
-  - branch outcome no scenario runs: line 452 EVALUATE OTHER (INITIALIZE-TRAN-DATA)
-  - branch outcome no scenario runs: line 512 IF true (RETURN-TO-PREV-SCREEN)
-- **Oracle backing** (per CICS command):
-
-  | command | spec entry | hand-traced crucible cases (stub / Java runtime agree) | backed |
-  |---|---|---|---|
-  | ENDBR | full | none | no |
-  | READNEXT | full | none | no |
-  | READPREV | full | none | no |
-  | RECEIVE MAP | full | hx-attr-bytes (yes / yes), hx-extended-cursor (yes / yes), pc-aid-menu (yes / yes), pc-wizard (yes / yes) | yes |
-  | RETURN | full | ca-channel-containers (yes / no), ca-link-lengths (yes / yes), ca-xctl-versions (yes / yes), gt-assign-startcode (yes / no), gt-start-options (yes / no), gt-start-retrieve (yes / yes), gt-terminal-coalesce (yes / yes), hc-abend-link (yes / yes), hc-eoc-error (yes / no), hc-handle-aid (yes / no), hc-ignore-error (yes / no), hc-perform-range (yes / yes), hc-terminal-eoc (yes / no), hc-terminal-receive (yes / no), hx-attr-bytes (yes / yes), hx-extended-cursor (yes / yes), pc-aid-menu (yes / yes), pc-wizard (yes / yes) | yes |
-  | SEND MAP | full | hx-attr-bytes (yes / yes), hx-extended-cursor (yes / yes), pc-aid-menu (yes / yes), pc-wizard (yes / yes) | yes |
-  | STARTBR | full | none | no |
-  | XCTL | full | ca-channel-containers (yes / no), ca-xctl-versions (yes / yes), pc-aid-menu (yes / yes), pc-wizard (yes / yes) | yes |
-
-- **Assumptions relied on:** named by its commands' spec entries: none; reach: not measured
-- **Residual risk:** 16 branch outcomes unrun; commands without oracle backing: ENDBR, READNEXT, READPREV, STARTBR; assumption reach and the migration dimensions above: not measured
-
-### app/cbl/COTRN01C.cbl -- L1
-
-- **Next level needs:** a current evidence record (carddemo-tranview is stale on harness, oracle, generator: re-run its proof)
-- **Translation:** 95/95 statements, 0 holes; whole: yes
-- **Executed equivalence** (carddemo-tranview, program, the case this report judges): det port equal (CI det-sweep ratchet on main)
-  - evidence record (the case's committed port): stale (stale on harness, oracle, generator); its proof: all equal, 15/15 scenarios equal, 39/39 records equal, 15 runs (1 fault runs); through its deployed entry points 15/15
-- **Coverage** (evidence record (cobol_coverage.py over the case's COBOL runs)): paragraphs 9/9 (100.0%), branch outcomes 23/24 (95.8%); unrun paragraphs by name: not recorded
-  - branch outcome no scenario runs: line 199 IF true (RETURN-TO-PREV-SCREEN)
-- **Oracle backing** (per CICS command):
-
-  | command | spec entry | hand-traced crucible cases (stub / Java runtime agree) | backed |
-  |---|---|---|---|
-  | READ | full | none | no |
-  | RECEIVE MAP | full | hx-attr-bytes (yes / yes), hx-extended-cursor (yes / yes), pc-aid-menu (yes / yes), pc-wizard (yes / yes) | yes |
-  | RETURN | full | ca-channel-containers (yes / no), ca-link-lengths (yes / yes), ca-xctl-versions (yes / yes), gt-assign-startcode (yes / no), gt-start-options (yes / no), gt-start-retrieve (yes / yes), gt-terminal-coalesce (yes / yes), hc-abend-link (yes / yes), hc-eoc-error (yes / no), hc-handle-aid (yes / no), hc-ignore-error (yes / no), hc-perform-range (yes / yes), hc-terminal-eoc (yes / no), hc-terminal-receive (yes / no), hx-attr-bytes (yes / yes), hx-extended-cursor (yes / yes), pc-aid-menu (yes / yes), pc-wizard (yes / yes) | yes |
-  | SEND MAP | full | hx-attr-bytes (yes / yes), hx-extended-cursor (yes / yes), pc-aid-menu (yes / yes), pc-wizard (yes / yes) | yes |
-  | XCTL | full | ca-channel-containers (yes / no), ca-xctl-versions (yes / yes), pc-aid-menu (yes / yes), pc-wizard (yes / yes) | yes |
-
-- **Assumptions relied on:** named by its commands' spec entries: X14 (ASSUMED (REFUSED where IBM is silent)); reach: not measured
-- **Residual risk:** 1 branch outcomes unrun; ASSUMED / DIFFERS entries named: X14; commands without oracle backing: READ; assumption reach and the migration dimensions above: not measured
-
-### app/cbl/COTRN02C.cbl -- L1
-
-- **Next level needs:** a current evidence record (carddemo-tranadd is stale on harness, oracle, generator: re-run its proof)
-- **Translation:** 300/300 statements, 0 holes; whole: yes
-- **Executed equivalence** (carddemo-tranadd, program, the case this report judges): det port equal (CI det-sweep ratchet on main)
-  - evidence record (the case's committed port): stale (stale on harness, oracle, generator); its proof: all equal, 31/31 scenarios equal, 88/88 records equal, 31 runs (3 fault runs); through its deployed entry points 31/31
-- **Coverage** (evidence record (cobol_coverage.py over the case's COBOL runs)): paragraphs 18/18 (100.0%), branch outcomes 56/75 (74.7%); unrun paragraphs by name: not recorded
-  - branch outcome no scenario runs: line 137 IF false (MAIN-PARA)
-  - branch outcome no scenario runs: line 237 IF true (VALIDATE-INPUT-DATA-FIELDS)
-  - branch outcome no scenario runs: line 251 EVALUATE WHEN@264 (VALIDATE-INPUT-DATA-FIELDS)
-  - branch outcome no scenario runs: line 251 EVALUATE WHEN@270 (VALIDATE-INPUT-DATA-FIELDS)
-  - branch outcome no scenario runs: line 251 EVALUATE WHEN@282 (VALIDATE-INPUT-DATA-FIELDS)
-  - branch outcome no scenario runs: line 251 EVALUATE WHEN@294 (VALIDATE-INPUT-DATA-FIELDS)
-  - branch outcome no scenario runs: line 251 EVALUATE WHEN@300 (VALIDATE-INPUT-DATA-FIELDS)
-  - branch outcome no scenario runs: line 251 EVALUATE WHEN@306 (VALIDATE-INPUT-DATA-FIELDS)
-  - branch outcome no scenario runs: line 322 EVALUATE WHEN@329 (VALIDATE-INPUT-DATA-FIELDS)
-  - branch outcome no scenario runs: line 368 EVALUATE WHEN@369 (VALIDATE-INPUT-DATA-FIELDS)
-  - branch outcome no scenario runs: line 400 IF false (VALIDATE-INPUT-DATA-FIELDS)
-  - branch outcome no scenario runs: line 420 IF false (VALIDATE-INPUT-DATA-FIELDS)
-  - branch outcome no scenario runs: line 480 IF false (COPY-LAST-TRAN-DATA)
-  - branch outcome no scenario runs: line 502 IF true (RETURN-TO-PREV-SCREEN)
-  - branch outcome no scenario runs: line 588 EVALUATE OTHER (READ-CXACAIX-FILE)
-  - branch outcome no scenario runs: line 652 EVALUATE WHEN@655 (STARTBR-TRANSACT-FILE)
-  - branch outcome no scenario runs: line 652 EVALUATE OTHER (STARTBR-TRANSACT-FILE)
-  - branch outcome no scenario runs: line 685 EVALUATE WHEN@688 (READPREV-TRANSACT-FILE)
-  - branch outcome no scenario runs: line 723 EVALUATE WHEN@735 (WRITE-TRANSACT-FILE)
-- **Oracle backing** (per CICS command):
-
-  | command | spec entry | hand-traced crucible cases (stub / Java runtime agree) | backed |
-  |---|---|---|---|
-  | ENDBR | full | none | no |
-  | READ | full | none | no |
-  | READPREV | full | none | no |
-  | RECEIVE MAP | full | hx-attr-bytes (yes / yes), hx-extended-cursor (yes / yes), pc-aid-menu (yes / yes), pc-wizard (yes / yes) | yes |
-  | RETURN | full | ca-channel-containers (yes / no), ca-link-lengths (yes / yes), ca-xctl-versions (yes / yes), gt-assign-startcode (yes / no), gt-start-options (yes / no), gt-start-retrieve (yes / yes), gt-terminal-coalesce (yes / yes), hc-abend-link (yes / yes), hc-eoc-error (yes / no), hc-handle-aid (yes / no), hc-ignore-error (yes / no), hc-perform-range (yes / yes), hc-terminal-eoc (yes / no), hc-terminal-receive (yes / no), hx-attr-bytes (yes / yes), hx-extended-cursor (yes / yes), pc-aid-menu (yes / yes), pc-wizard (yes / yes) | yes |
-  | SEND MAP | full | hx-attr-bytes (yes / yes), hx-extended-cursor (yes / yes), pc-aid-menu (yes / yes), pc-wizard (yes / yes) | yes |
-  | STARTBR | full | none | no |
-  | WRITE | full | none | no |
-  | XCTL | full | ca-channel-containers (yes / no), ca-xctl-versions (yes / yes), pc-aid-menu (yes / yes), pc-wizard (yes / yes) | yes |
-
-- **Assumptions relied on:** named by its commands' spec entries: X14 (ASSUMED (REFUSED where IBM is silent)); reach: not measured
-- **Residual risk:** 19 branch outcomes unrun; ASSUMED / DIFFERS entries named: X14; commands without oracle backing: ENDBR, READ, READPREV, STARTBR, WRITE; assumption reach and the migration dimensions above: not measured
-
-### app/cbl/COUSR00C.cbl -- L1
-
-- **Next level needs:** a current evidence record (carddemo-userlist is stale on harness, oracle, generator: re-run its proof)
-- **Translation:** 288/288 statements, 0 holes; whole: yes
-- **Executed equivalence** (carddemo-userlist, program, the case this report judges): det port equal (CI det-sweep ratchet on main)
-  - evidence record (the case's committed port): stale (stale on harness, oracle, generator); its proof: all equal, 21/21 scenarios equal, 63/63 records equal, 21 runs (3 fault runs); through its deployed entry points 21/21
-- **Coverage** (evidence record (cobol_coverage.py over the case's COBOL runs)): paragraphs 16/16 (100.0%), branch outcomes 84/100 (84.0%); unrun paragraphs by name: not recorded
-  - branch outcome no scenario runs: line 151 EVALUATE WHEN@152 (PROCESS-ENTER-KEY)
-  - branch outcome no scenario runs: line 151 EVALUATE WHEN@161 (PROCESS-ENTER-KEY)
-  - branch outcome no scenario runs: line 151 EVALUATE WHEN@164 (PROCESS-ENTER-KEY)
-  - branch outcome no scenario runs: line 151 EVALUATE WHEN@167 (PROCESS-ENTER-KEY)
-  - branch outcome no scenario runs: line 151 EVALUATE WHEN@173 (PROCESS-ENTER-KEY)
-  - branch outcome no scenario runs: line 151 EVALUATE WHEN@176 (PROCESS-ENTER-KEY)
-  - branch outcome no scenario runs: line 151 EVALUATE WHEN@179 (PROCESS-ENTER-KEY)
-  - branch outcome no scenario runs: line 239 IF true (PROCESS-PF7-KEY)
-  - branch outcome no scenario runs: line 312 IF false (PROCESS-PAGE-FORWARD)
-  - branch outcome no scenario runs: line 340 IF false (PROCESS-PAGE-BACKWARD)
-  - branch outcome no scenario runs: line 342 IF false (PROCESS-PAGE-BACKWARD)
-  - branch outcome no scenario runs: line 356 IF false (PROCESS-PAGE-BACKWARD)
-  - branch outcome no scenario runs: line 364 IF false (PROCESS-PAGE-BACKWARD)
-  - branch outcome no scenario runs: line 386 EVALUATE OTHER (POPULATE-USER-DATA)
-  - branch outcome no scenario runs: line 448 EVALUATE OTHER (INITIALIZE-USER-DATA)
-  - branch outcome no scenario runs: line 508 IF true (RETURN-TO-PREV-SCREEN)
-- **Oracle backing** (per CICS command):
-
-  | command | spec entry | hand-traced crucible cases (stub / Java runtime agree) | backed |
-  |---|---|---|---|
-  | ENDBR | full | none | no |
-  | READNEXT | full | none | no |
-  | READPREV | full | none | no |
-  | RECEIVE MAP | full | hx-attr-bytes (yes / yes), hx-extended-cursor (yes / yes), pc-aid-menu (yes / yes), pc-wizard (yes / yes) | yes |
-  | RETURN | full | ca-channel-containers (yes / no), ca-link-lengths (yes / yes), ca-xctl-versions (yes / yes), gt-assign-startcode (yes / no), gt-start-options (yes / no), gt-start-retrieve (yes / yes), gt-terminal-coalesce (yes / yes), hc-abend-link (yes / yes), hc-eoc-error (yes / no), hc-handle-aid (yes / no), hc-ignore-error (yes / no), hc-perform-range (yes / yes), hc-terminal-eoc (yes / no), hc-terminal-receive (yes / no), hx-attr-bytes (yes / yes), hx-extended-cursor (yes / yes), pc-aid-menu (yes / yes), pc-wizard (yes / yes) | yes |
-  | SEND MAP | full | hx-attr-bytes (yes / yes), hx-extended-cursor (yes / yes), pc-aid-menu (yes / yes), pc-wizard (yes / yes) | yes |
-  | STARTBR | full | none | no |
-  | XCTL | full | ca-channel-containers (yes / no), ca-xctl-versions (yes / yes), pc-aid-menu (yes / yes), pc-wizard (yes / yes) | yes |
-
-- **Assumptions relied on:** named by its commands' spec entries: none; reach: not measured
-- **Residual risk:** 16 branch outcomes unrun; commands without oracle backing: ENDBR, READNEXT, READPREV, STARTBR; assumption reach and the migration dimensions above: not measured
-
-### app/cbl/COUSR01C.cbl -- L1
-
-- **Next level needs:** a current evidence record (carddemo-useradd is stale on harness, oracle, generator: re-run its proof)
-- **Translation:** 94/94 statements, 0 holes; whole: yes
-- **Executed equivalence** (carddemo-useradd, program, the case this report judges): det port equal (CI det-sweep ratchet on main)
-  - evidence record (the case's committed port): stale (stale on harness, oracle, generator); its proof: all equal, 13/13 scenarios equal, 35/35 records equal, 13 runs (1 fault runs); through its deployed entry points 13/13
-- **Coverage** (evidence record (cobol_coverage.py over the case's COBOL runs)): paragraphs 9/9 (100.0%), branch outcomes 20/21 (95.2%); unrun paragraphs by name: not recorded
-  - branch outcome no scenario runs: line 167 IF true (RETURN-TO-PREV-SCREEN)
-- **Oracle backing** (per CICS command):
-
-  | command | spec entry | hand-traced crucible cases (stub / Java runtime agree) | backed |
-  |---|---|---|---|
-  | RECEIVE MAP | full | hx-attr-bytes (yes / yes), hx-extended-cursor (yes / yes), pc-aid-menu (yes / yes), pc-wizard (yes / yes) | yes |
-  | RETURN | full | ca-channel-containers (yes / no), ca-link-lengths (yes / yes), ca-xctl-versions (yes / yes), gt-assign-startcode (yes / no), gt-start-options (yes / no), gt-start-retrieve (yes / yes), gt-terminal-coalesce (yes / yes), hc-abend-link (yes / yes), hc-eoc-error (yes / no), hc-handle-aid (yes / no), hc-ignore-error (yes / no), hc-perform-range (yes / yes), hc-terminal-eoc (yes / no), hc-terminal-receive (yes / no), hx-attr-bytes (yes / yes), hx-extended-cursor (yes / yes), pc-aid-menu (yes / yes), pc-wizard (yes / yes) | yes |
-  | SEND MAP | full | hx-attr-bytes (yes / yes), hx-extended-cursor (yes / yes), pc-aid-menu (yes / yes), pc-wizard (yes / yes) | yes |
-  | WRITE | full | none | no |
-  | XCTL | full | ca-channel-containers (yes / no), ca-xctl-versions (yes / yes), pc-aid-menu (yes / yes), pc-wizard (yes / yes) | yes |
-
-- **Assumptions relied on:** named by its commands' spec entries: none; reach: not measured
-- **Residual risk:** 1 branch outcomes unrun; commands without oracle backing: WRITE; assumption reach and the migration dimensions above: not measured
-
-### app/cbl/COUSR02C.cbl -- L1
-
-- **Next level needs:** a current evidence record (carddemo-userupd is stale on harness, oracle, generator: re-run its proof)
-- **Translation:** 148/148 statements, 0 holes; whole: yes
-- **Executed equivalence** (carddemo-userupd, program, the case this report judges): det port equal (CI det-sweep ratchet on main)
-  - evidence record (the case's committed port): stale (stale on harness, oracle, generator); its proof: all equal, 23/23 scenarios equal, 74/74 records equal, 23 runs (2 fault runs); through its deployed entry points 23/23
-- **Coverage** (evidence record (cobol_coverage.py over the case's COBOL runs)): paragraphs 11/11 (100.0%), branch outcomes 44/46 (95.7%); unrun paragraphs by name: not recorded
-  - branch outcome no scenario runs: line 252 IF true (RETURN-TO-PREV-SCREEN)
-  - branch outcome no scenario runs: line 368 EVALUATE WHEN@377 (UPDATE-USER-SEC-FILE)
-- **Oracle backing** (per CICS command):
-
-  | command | spec entry | hand-traced crucible cases (stub / Java runtime agree) | backed |
-  |---|---|---|---|
-  | READ | full | none | no |
-  | RECEIVE MAP | full | hx-attr-bytes (yes / yes), hx-extended-cursor (yes / yes), pc-aid-menu (yes / yes), pc-wizard (yes / yes) | yes |
-  | RETURN | full | ca-channel-containers (yes / no), ca-link-lengths (yes / yes), ca-xctl-versions (yes / yes), gt-assign-startcode (yes / no), gt-start-options (yes / no), gt-start-retrieve (yes / yes), gt-terminal-coalesce (yes / yes), hc-abend-link (yes / yes), hc-eoc-error (yes / no), hc-handle-aid (yes / no), hc-ignore-error (yes / no), hc-perform-range (yes / yes), hc-terminal-eoc (yes / no), hc-terminal-receive (yes / no), hx-attr-bytes (yes / yes), hx-extended-cursor (yes / yes), pc-aid-menu (yes / yes), pc-wizard (yes / yes) | yes |
-  | REWRITE | full | none | no |
-  | SEND MAP | full | hx-attr-bytes (yes / yes), hx-extended-cursor (yes / yes), pc-aid-menu (yes / yes), pc-wizard (yes / yes) | yes |
-  | XCTL | full | ca-channel-containers (yes / no), ca-xctl-versions (yes / yes), pc-aid-menu (yes / yes), pc-wizard (yes / yes) | yes |
-
-- **Assumptions relied on:** named by its commands' spec entries: X14 (ASSUMED (REFUSED where IBM is silent)); reach: not measured
-- **Residual risk:** 2 branch outcomes unrun; ASSUMED / DIFFERS entries named: X14; commands without oracle backing: READ, REWRITE; assumption reach and the migration dimensions above: not measured
-
-### app/cbl/COUSR03C.cbl -- L1
-
-- **Next level needs:** a current evidence record (carddemo-userdel is stale on harness, oracle, generator: re-run its proof)
-- **Translation:** 115/115 statements, 0 holes; whole: yes
-- **Executed equivalence** (carddemo-userdel, program, the case this report judges): det port equal (CI det-sweep ratchet on main)
-  - evidence record (the case's committed port): stale (stale on harness, oracle, generator); its proof: all equal, 18/18 scenarios equal, 54/54 records equal, 18 runs (2 fault runs); through its deployed entry points 18/18
-- **Coverage** (evidence record (cobol_coverage.py over the case's COBOL runs)): paragraphs 11/11 (100.0%), branch outcomes 30/32 (93.8%); unrun paragraphs by name: not recorded
-  - branch outcome no scenario runs: line 199 IF true (RETURN-TO-PREV-SCREEN)
-  - branch outcome no scenario runs: line 313 EVALUATE WHEN@323 (DELETE-USER-SEC-FILE)
-- **Oracle backing** (per CICS command):
-
-  | command | spec entry | hand-traced crucible cases (stub / Java runtime agree) | backed |
-  |---|---|---|---|
-  | DELETE | full | none | no |
-  | READ | full | none | no |
-  | RECEIVE MAP | full | hx-attr-bytes (yes / yes), hx-extended-cursor (yes / yes), pc-aid-menu (yes / yes), pc-wizard (yes / yes) | yes |
-  | RETURN | full | ca-channel-containers (yes / no), ca-link-lengths (yes / yes), ca-xctl-versions (yes / yes), gt-assign-startcode (yes / no), gt-start-options (yes / no), gt-start-retrieve (yes / yes), gt-terminal-coalesce (yes / yes), hc-abend-link (yes / yes), hc-eoc-error (yes / no), hc-handle-aid (yes / no), hc-ignore-error (yes / no), hc-perform-range (yes / yes), hc-terminal-eoc (yes / no), hc-terminal-receive (yes / no), hx-attr-bytes (yes / yes), hx-extended-cursor (yes / yes), pc-aid-menu (yes / yes), pc-wizard (yes / yes) | yes |
-  | SEND MAP | full | hx-attr-bytes (yes / yes), hx-extended-cursor (yes / yes), pc-aid-menu (yes / yes), pc-wizard (yes / yes) | yes |
-  | XCTL | full | ca-channel-containers (yes / no), ca-xctl-versions (yes / yes), pc-aid-menu (yes / yes), pc-wizard (yes / yes) | yes |
-
-- **Assumptions relied on:** named by its commands' spec entries: X14 (ASSUMED (REFUSED where IBM is silent)); reach: not measured
-- **Residual risk:** 2 branch outcomes unrun; ASSUMED / DIFFERS entries named: X14; commands without oracle backing: DELETE, READ; assumption reach and the migration dimensions above: not measured
-
-### app/cbl/CSUTLDTC.cbl -- L1
-
-- **Next level needs:** a current evidence record (carddemo-dateutil is stale on harness, oracle, generator: re-run its proof)
-- **Translation:** 27/27 statements, 0 holes; whole: yes
-- **Executed equivalence** (carddemo-dateutil, program, the case this report judges): det port equal (CI det-sweep ratchet on main)
-  - evidence record (the case's committed port): stale (stale on harness, oracle, generator); its proof: all equal, 1/1 scenarios equal, 17/17 records equal, 1 runs (0 fault runs)
-- **Coverage** (evidence record (cobol_coverage.py over the case's COBOL runs)): paragraphs 2/2 (100.0%), branch outcomes 4/10 (40.0%); unrun paragraphs by name: not recorded
-  - branch outcome no scenario runs: line 128 EVALUATE WHEN@131 (A000-MAIN)
-  - branch outcome no scenario runs: line 128 EVALUATE WHEN@135 (A000-MAIN)
-  - branch outcome no scenario runs: line 128 EVALUATE WHEN@139 (A000-MAIN)
-  - branch outcome no scenario runs: line 128 EVALUATE WHEN@141 (A000-MAIN)
-  - branch outcome no scenario runs: line 128 EVALUATE WHEN@145 (A000-MAIN)
-  - branch outcome no scenario runs: line 128 EVALUATE OTHER (A000-MAIN)
-- **Oracle backing:** no EXEC CICS command
-- **Assumptions relied on:** named by its commands' spec entries: none; reach: not measured
-- **Residual risk:** 6 branch outcomes unrun; assumption reach and the migration dimensions above: not measured
 
 ### app/app-authorization-ims-db2-mq/cbl/CBPAUP0C.cbl -- L0
 
@@ -1025,18 +910,18 @@ From the spec entries of the commands the programs use, with the register's stat
 
 ## Reproducibility
 
-- translator commit (the survey's): `3167e2bb067386dcbd5c2b701da0850b1af10128`
+- translator commit (the survey's): `ec87c138bc5c2ce768ff53afd6c0928aa3d77dd0`
 - corpus pin: `aws-mainframe-modernization-carddemo` at `59cc6c2fd7ebd7ef7925cad552a01a4b8b6e4d5e`
-- cics-crucible pin: `v0.5.0`; crucible baseline measured at `v0.5.0 (9ee42d11)`; crucible cases per command measured at `v0.5.0`
-- crucible pin manifest: not on main yet (#4597)
+- crucible pins: cics `v0.5.0`, estate `v0.4.0`, language `v1.7.0`; cics crucible baseline measured at `v0.5.0 (9ee42d11)`; crucible cases per command measured at `v0.5.0`
+- crucible pin manifest: tests/crucible_pins.toml
 - oracle base image: `debian:bookworm-slim@sha256:3783cc01769c7b2b1b83a5c5ad96c815348e28ed7da68e2e3687004faa906251`
 - oracle images the evidence records ran on: `sha256:d7e387df360c519ce8945a1f6d748c8dafab06f50551b23ddf85d6373a4dcd6e`, `sha256:d81f386912111e825d75a5f9856f571118ca4586049923555526cf7419454be3`
 
 Regenerate this report and re-run its proofs:
 
 ```sh
-python tests/tools/cics_census.py survey --baseline --sha 3167e2bb067386dcbd5c2b701da0850b1af10128
-python tests/tools/evidence_report.py aws-mainframe-modernization-carddemo --baseline --sha 3167e2bb067386dcbd5c2b701da0850b1af10128
+python tests/tools/cics_census.py survey --baseline --sha ec87c138bc5c2ce768ff53afd6c0928aa3d77dd0
+python tests/tools/evidence_report.py aws-mainframe-modernization-carddemo --baseline --sha ec87c138bc5c2ce768ff53afd6c0928aa3d77dd0
 python tests/tools/evidence_report.py --refresh
 python tests/tools/proof_sweep.py --det-only --work DIR --cases carddemo-acctupdate,carddemo-acctview,carddemo-acctview-generated,carddemo-adminmenu,carddemo-billpay,carddemo-cardlist,carddemo-cardupdate,carddemo-cardview,carddemo-cobtupdt,carddemo-cotrtlic,carddemo-cotrtupc,carddemo-dailyval,carddemo-dateutil,carddemo-intcalc,carddemo-intcalc-generated,carddemo-menu,carddemo-posttran,carddemo-posttran-generated,carddemo-readacct,carddemo-readcard,carddemo-readcust,carddemo-readxref,carddemo-report,carddemo-signon,carddemo-tranadd,carddemo-tranlist,carddemo-tranview,carddemo-trnrpt,carddemo-useradd,carddemo-userdel,carddemo-userlist,carddemo-userupd  # Db2 cases (3) need the Db2 container
 python tests/tools/evidence.py prove carddemo-acctview carddemo-adminmenu carddemo-billpay carddemo-cardlist carddemo-cardview carddemo-dailyval carddemo-dateutil carddemo-intcalc carddemo-menu carddemo-posttran carddemo-readcard carddemo-readcust carddemo-readxref carddemo-report carddemo-signon carddemo-tranadd carddemo-tranlist carddemo-tranview carddemo-trnrpt carddemo-useradd carddemo-userdel carddemo-userlist carddemo-userupd

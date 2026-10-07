@@ -38,12 +38,13 @@
   }
  ],
  "bars": {
-  "branches": 80.0,
-  "paragraphs": 90.0
+  "branches": 100.0,
+  "paragraphs": 100.0
  },
  "burned": true,
  "estate": "zecs",
  "format": "gitgalaxy-evidence-report/1",
+ "infeasible_outcomes": "not yet available (#4602)",
  "levels": [
   {
    "condition": "the program is in the estate's survey",
@@ -56,17 +57,17 @@
    "name": "translated whole"
   },
   {
-   "condition": "a case runs it; the case's det port is equal on every scenario; the case's evidence record is current and its proof equal on every scenario",
+   "condition": "a case runs it and the case's det port is equal on every scenario (CI's det-sweep ratchet on main; a Db2 case only by a local sweep); the case's evidence record is reported, not required",
    "level": "L2",
    "name": "executed equivalent"
   },
   {
-   "condition": "L2, and the scenarios execute >= 90.0 percent of its live paragraphs",
+   "condition": "L2, and the scenarios execute >= 100.0 percent of its live paragraphs",
    "level": "L3",
    "name": "paragraph coverage"
   },
   {
-   "condition": "L3, and >= 80.0 percent of its branch outcomes",
+   "condition": "L3, and >= 100.0 percent of its branch outcomes (net of reviewed infeasible outcomes: not yet available (#4602))",
    "level": "L4",
    "name": "branch coverage"
   },
@@ -77,6 +78,67 @@
   }
  ],
  "measured": {
+  "det_coverage": {
+   "carddemo-acctupdate": null,
+   "carddemo-acctview": null,
+   "carddemo-acctview-generated": null,
+   "carddemo-adminmenu": null,
+   "carddemo-billpay": null,
+   "carddemo-cardlist": null,
+   "carddemo-cardupdate": null,
+   "carddemo-cardview": null,
+   "carddemo-cobtupdt": null,
+   "carddemo-cotrtlic": null,
+   "carddemo-cotrtupc": null,
+   "carddemo-dailyval": null,
+   "carddemo-dateutil": null,
+   "carddemo-intcalc": null,
+   "carddemo-intcalc-generated": null,
+   "carddemo-menu": null,
+   "carddemo-posttran": null,
+   "carddemo-posttran-generated": null,
+   "carddemo-readacct": null,
+   "carddemo-readcard": null,
+   "carddemo-readcust": null,
+   "carddemo-readxref": null,
+   "carddemo-report": null,
+   "carddemo-signon": null,
+   "carddemo-tranadd": null,
+   "carddemo-tranlist": null,
+   "carddemo-tranview": null,
+   "carddemo-trnrpt": null,
+   "carddemo-useradd": null,
+   "carddemo-userdel": null,
+   "carddemo-userlist": null,
+   "carddemo-userupd": null,
+   "cbsa-abndproc": null,
+   "cbsa-custctrl": null,
+   "cbsa-dbcrfun": null,
+   "cbsa-delacc": null,
+   "cbsa-inqacc": null,
+   "cbsa-updacc": null,
+   "cbsa-updacc-generated": null,
+   "cbsa-updcust": null,
+   "cbsa-xfrfun": null,
+   "genapp-lgacdb01": null,
+   "genapp-lgacdb02": null,
+   "genapp-lgacvs01": null,
+   "genapp-lgapdb01": null,
+   "genapp-lgapvs01": null,
+   "genapp-lgdpdb01": null,
+   "genapp-lgdpvs01": null,
+   "genapp-lgicdb01": null,
+   "genapp-lgipdb01": null,
+   "genapp-lgucdb01": null,
+   "genapp-lgucvs01": null,
+   "genapp-lgupdb01": null,
+   "genapp-lgupvs01": null,
+   "mortgage-cmort": null,
+   "mortgage-mlist": null,
+   "mortgage-mlist-generated": null,
+   "mortgage-mpmt": null,
+   "mortgage-nbrvl": null
+  },
   "programs": [
    {
     "commands": [
@@ -554,7 +616,7 @@
   "survey": {
    "label": "before",
    "scope": "burned + local + census corpora",
-   "sha": "3167e2bb067386dcbd5c2b701da0850b1af10128"
+   "sha": "ec87c138bc5c2ce768ff53afd6c0928aa3d77dd0"
   },
   "sweeps": {}
  },
@@ -621,6 +683,7 @@
    "coverage": {
     "branch_pct": null,
     "branches": null,
+    "infeasible_outcomes_reviewed": "not yet available (#4602)",
     "paragraph_pct": null,
     "paragraphs": null,
     "source": null,
@@ -999,6 +1062,7 @@
    "coverage": {
     "branch_pct": null,
     "branches": null,
+    "infeasible_outcomes_reviewed": "not yet available (#4602)",
     "paragraph_pct": null,
     "paragraphs": null,
     "source": null,
@@ -1447,6 +1511,7 @@
    "coverage": {
     "branch_pct": null,
     "branches": null,
+    "infeasible_outcomes_reviewed": "not yet available (#4602)",
     "paragraph_pct": null,
     "paragraphs": null,
     "source": null,
@@ -1919,6 +1984,7 @@
    "coverage": {
     "branch_pct": null,
     "branches": null,
+    "infeasible_outcomes_reviewed": "not yet available (#4602)",
     "paragraph_pct": null,
     "paragraphs": null,
     "source": null,
@@ -2201,6 +2267,7 @@
    "coverage": {
     "branch_pct": null,
     "branches": null,
+    "infeasible_outcomes_reviewed": "not yet available (#4602)",
     "paragraph_pct": null,
     "paragraphs": null,
     "source": null,
@@ -2420,25 +2487,30 @@
  ],
  "reproducibility": {
   "commands": [
-   "python tests/tools/cics_census.py survey --baseline --sha 3167e2bb067386dcbd5c2b701da0850b1af10128",
-   "python tests/tools/evidence_report.py zecs --baseline --sha 3167e2bb067386dcbd5c2b701da0850b1af10128",
+   "python tests/tools/cics_census.py survey --baseline --sha ec87c138bc5c2ce768ff53afd6c0928aa3d77dd0",
+   "python tests/tools/evidence_report.py zecs --baseline --sha ec87c138bc5c2ce768ff53afd6c0928aa3d77dd0",
    "python tests/tools/evidence_report.py --refresh",
    "python tests/tools/cics_crucible.py  # the hand-traced CICS cases, at the crucible pin"
   ],
   "corpus_ref": "6d6bcbbc89c9be086a58cb7ad2ff4d702e873d02",
+  "coverage_from": "det-sweep coverage ledger, freshness at build time",
   "crucible_baseline_ref": "v0.5.0 (9ee42d11)",
   "crucible_cases_measured_at": "v0.5.0",
-  "crucible_pin": "v0.5.0",
+  "crucible_pins": {
+   "cics": "v0.5.0",
+   "estate": "v0.4.0",
+   "language": "v1.7.0"
+  },
   "oracle_base_image": "debian:bookworm-slim@sha256:3783cc01769c7b2b1b83a5c5ad96c815348e28ed7da68e2e3687004faa906251",
   "oracle_images_of_records": [],
-  "pin_manifest": "not on main yet (#4597)",
+  "pin_manifest": "tests/crucible_pins.toml",
   "record_status_from": "evidence.py status at build time",
   "survey": {
    "label": "before",
    "scope": "burned + local + census corpora",
-   "sha": "3167e2bb067386dcbd5c2b701da0850b1af10128"
+   "sha": "ec87c138bc5c2ce768ff53afd6c0928aa3d77dd0"
   },
-  "translator_commit": "3167e2bb067386dcbd5c2b701da0850b1af10128"
+  "translator_commit": "ec87c138bc5c2ce768ff53afd6c0928aa3d77dd0"
  },
  "summary": {
   "cics_programs": 5,

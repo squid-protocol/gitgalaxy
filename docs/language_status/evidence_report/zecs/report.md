@@ -4,21 +4,21 @@
 
 > **Burned estate.** Its ports and the translator were developed against this estate, so its numbers describe a development estate, not a blind one.
 
-Translation measured by `cics_census.py survey` at translator commit `3167e2bb067386dcbd5c2b701da0850b1af10128` (burned + local + census corpora); evidence record status evidence.py status at build time.
+Translation measured by `cics_census.py survey` at translator commit `ec87c138bc5c2ce768ff53afd6c0928aa3d77dd0` (burned + local + census corpora); evidence record status: evidence.py status at build time; coverage: det-sweep coverage ledger, freshness at build time.
 
 ## How to read this report
 
 **What the oracle is.** Every equivalence result here compares the Java with the COBOL program run by GnuCOBOL plus the gitgalaxy CICS stub and models (CICS, Db2 precompiler, Language Environment, DISPLAY), not IBM z/OS: the pinned compiler `cobc (GnuCOBOL) 3.1.2.0` (package `3.1.2-5+b1`, base image `debian:bookworm-slim@sha256:3783cc01769c7b2b1b83a5c5ad96c815348e28ed7da68e2e3687004faa906251`). Where that oracle may differ from z/OS is written down in [oracle_assumptions.md](../../oracle_assumptions.md); each program lists the entries its CICS commands name. A result reads "executed equivalent on N scenarios against GnuCOBOL + the gitgalaxy CICS stub", with those assumptions -- never a statement about z/OS.
 
-**What a level means.** Each program gets the highest level whose conditions hold; levels are cumulative and the numbers under a level are always shown. The coverage bars are parameters of this report (paragraphs 90.0%, branches 80.0%).
+**What a level means.** Each program gets the highest level whose conditions hold; levels are cumulative and the numbers under a level are always shown. The coverage bars are parameters of this report (paragraphs 100.0%, branches 100.0%; net of reviewed infeasible outcomes: not yet available (#4602)). The evidence record of a program's case (the committed hand or model port's proof) is reported beside each program, and is not a condition of any level.
 
 | level | name | condition |
 |---|---|---|
 | L0 | inventoried | the program is in the estate's survey |
 | L1 | translated whole | the det translator leaves no hole and does not refuse it |
-| L2 | executed equivalent | a case runs it; the case's det port is equal on every scenario; the case's evidence record is current and its proof equal on every scenario |
-| L3 | paragraph coverage | L2, and the scenarios execute >= 90.0 percent of its live paragraphs |
-| L4 | branch coverage | L3, and >= 80.0 percent of its branch outcomes |
+| L2 | executed equivalent | a case runs it and the case's det port is equal on every scenario (CI's det-sweep ratchet on main; a Db2 case only by a local sweep); the case's evidence record is reported, not required |
+| L3 | paragraph coverage | L2, and the scenarios execute >= 100.0 percent of its live paragraphs |
+| L4 | branch coverage | L3, and >= 100.0 percent of its branch outcomes (net of reviewed infeasible outcomes: not yet available (#4602)) |
 | L5 | oracle backed | L4, every CICS command it uses has a full spec entry and a hand-traced cics-crucible case both runtimes agree with, and no DIFFERS assumption is reached (assumption reach is not measured yet: no program is placed here) |
 
 **What is not measured.** Holes, unrun paragraphs and branch outcomes, unstated runtime facts and the ASSUMED / DIFFERS entries a program's commands name are listed per program. Which register entries a program actually reaches is not measured. These migration dimensions are not measured at all:
@@ -268,18 +268,18 @@ From the spec entries of the commands the programs use, with the register's stat
 
 ## Reproducibility
 
-- translator commit (the survey's): `3167e2bb067386dcbd5c2b701da0850b1af10128`
+- translator commit (the survey's): `ec87c138bc5c2ce768ff53afd6c0928aa3d77dd0`
 - corpus pin: `zecs` at `6d6bcbbc89c9be086a58cb7ad2ff4d702e873d02`
-- cics-crucible pin: `v0.5.0`; crucible baseline measured at `v0.5.0 (9ee42d11)`; crucible cases per command measured at `v0.5.0`
-- crucible pin manifest: not on main yet (#4597)
+- crucible pins: cics `v0.5.0`, estate `v0.4.0`, language `v1.7.0`; cics crucible baseline measured at `v0.5.0 (9ee42d11)`; crucible cases per command measured at `v0.5.0`
+- crucible pin manifest: tests/crucible_pins.toml
 - oracle base image: `debian:bookworm-slim@sha256:3783cc01769c7b2b1b83a5c5ad96c815348e28ed7da68e2e3687004faa906251`
 - oracle images the evidence records ran on: none
 
 Regenerate this report and re-run its proofs:
 
 ```sh
-python tests/tools/cics_census.py survey --baseline --sha 3167e2bb067386dcbd5c2b701da0850b1af10128
-python tests/tools/evidence_report.py zecs --baseline --sha 3167e2bb067386dcbd5c2b701da0850b1af10128
+python tests/tools/cics_census.py survey --baseline --sha ec87c138bc5c2ce768ff53afd6c0928aa3d77dd0
+python tests/tools/evidence_report.py zecs --baseline --sha ec87c138bc5c2ce768ff53afd6c0928aa3d77dd0
 python tests/tools/evidence_report.py --refresh
 python tests/tools/cics_crucible.py  # the hand-traced CICS cases, at the crucible pin
 ```

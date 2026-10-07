@@ -80,9 +80,7 @@ def test_the_index_numbers_come_from_the_reports():
 
 # ---- levels ------------------------------------------------------------------------------------------------------
 def program(*, whole=True, case=True, det="equal", record=True, stale=(), para=(10, 10), branch=(10, 10), backed=True):
-    rec = None
-    if record:
-        rec = {"stale_inputs": list(stale), "verdict": "all equal", "scenarios": 3}
+    rec = {"stale_inputs": list(stale), "verdict": "all equal", "scenarios": 3} if record else None
     chosen = {"case": "c", "role": "program", "det": {"state": det, "why": ["x"]}, "record": rec} if case else None
     cov = {
         "paragraph_pct": er.pct(*para) if para else None,
@@ -96,7 +94,7 @@ def program(*, whole=True, case=True, det="equal", record=True, stale=(), para=(
     }
 
 
-BARS = {"paragraphs": 90.0, "branches": 80.0}
+BARS = er.DEFAULT_BARS
 
 
 @pytest.mark.parametrize(
@@ -104,12 +102,13 @@ BARS = {"paragraphs": 90.0, "branches": 80.0}
     [
         ({"whole": False}, "L0"),
         ({"case": False}, "L1"),
-        ({"det": "not run"}, "L1"),
-        ({"record": False}, "L1"),
-        ({"stale": ("harness",)}, "L1"),  # a stale record is never shown as current
-        ({"para": (8, 10)}, "L2"),
+        ({"det": "not run"}, "L1"),  # a Db2 case with no local sweep
+        ({"det": "not equal"}, "L1"),
+        ({"record": False}, "L4"),  # the evidence record is reported, not a gate (#4601 owner decision)
+        ({"stale": ("harness",)}, "L4"),
+        ({"para": (9, 10)}, "L2"),  # strict bars: 100%
         ({"para": None}, "L2"),  # coverage not measured: not above any bar
-        ({"branch": (7, 10)}, "L3"),
+        ({"branch": (9, 10)}, "L3"),
         ({}, "L4"),  # never L5: assumption reach is not measured
         ({"backed": False}, "L4"),
     ],
@@ -120,13 +119,27 @@ def test_levels_are_cumulative_and_never_reach_l5_unmeasured(kw, level):
     assert nxt, "a level always says what the next one needs"
     if level == "L4":
         assert any("not measured" in n for n in nxt)
+    if level == "L3":
+        assert any("#4602" in n for n in nxt)  # the infeasible-outcome hook, not yet available
 
 
-def test_the_bars_are_parameters():
+def test_the_bars_are_parameters_and_strict_by_default():
+    assert er.DEFAULT_BARS == {"paragraphs": 100.0, "branches": 100.0}
     p = program(para=(9, 10), branch=(9, 10))
-    assert er.level_of(p, BARS)[0] == "L4"
-    assert er.level_of(p, {"paragraphs": 95.0, "branches": 80.0})[0] == "L2"
+    assert er.level_of(p, BARS)[0] == "L2"
+    assert er.level_of(p, {"paragraphs": 90.0, "branches": 85.0})[0] == "L4"
     assert all(str(b) in json.dumps(er.level_table({"paragraphs": 95.0, "branches": 85.0})) for b in (95.0, 85.0))
+
+
+def test_coverage_comes_from_the_sweep_or_the_ledger_never_the_record():
+    case = {"case": "c", "record": {"coverage": {"paragraphs": {"covered": 1, "live": 1}}}}
+    assert er.coverage_of(case, {}, {})["source"] is None
+    got = er.coverage_of(case, {}, {"c": [3, 4, 5, 10]})
+    assert (got["paragraph_pct"], got["branch_pct"]) == (75.0, 50.0)
+    assert "ledger" in got["source"]
+    assert got["infeasible_outcomes_reviewed"] == er.INFEASIBLE
+    line = {"c": {"coverage": "proven on 2 scenarios, covering 4/4 paragraphs and 6/6 branches"}}
+    assert er.coverage_of(case, line, {"c": [3, 4, 5, 10]})["source"] == "local sweep coverage line"
 
 
 def test_neutral_rewords_quoted_tool_text():

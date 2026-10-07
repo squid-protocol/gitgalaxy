@@ -15,11 +15,14 @@ caveats of docs/language_status/oracle_assumptions.md. Each program gets the hig
 
   L0 inventoried               the program is in the estate's survey
   L1 translated whole          the det translator leaves no hole and does not refuse it (cics_census.py survey)
-  L2 executed equivalent       a case runs it; the case's det port is equal on every scenario (CI's det-sweep
-                               ratchet, or a local proof_sweep.py --sweep); the case's evidence record is current
-                               (not stale on any input) and its proof equal on every scenario
-  L3 + paragraph coverage      the scenarios execute >= the paragraph bar of the live paragraphs
-  L4 + branch coverage         ... and >= the branch bar of the branch outcomes
+  L2 executed equivalent       a case runs it and the case's det port is equal on every scenario: main's CI det-sweep
+                               ratchet (det_sweep_baseline.json) for a non-Db2 case, a local proof_sweep.py --sweep
+                               for a Db2 case. The case's #4048 evidence record is a reported column, not a gate
+  L3 + paragraph coverage      the det proof's scenarios execute >= the paragraph bar (default 100) of the live
+                               paragraphs: the --sweep coverage line, else the det-sweep coverage ledger
+                               (tests/equivalence/det_sweep_coverage.json, #4606) while its entry is fresh
+  L4 + branch coverage         ... and >= the branch bar (default 100) of the branch outcomes; "net of reviewed
+                               infeasible outcomes" (#4602) is reported as not yet available until that list lands
   L5 + oracle backing          every CICS command it uses has a full spec entry and a hand-traced cics-crucible case
                                both runtimes agree with, and no DIFFERS assumption is reached -- per-program assumption
                                reach is NOT MEASURED yet, so no program is placed at L5 (it says so)
@@ -37,11 +40,12 @@ summary table (statuses). #4493's JSON replaces the direct reads once it exists.
 record or an approval.
 
 What needs corpora (the survey row, the program's commands and runtime facts) or a sweep is MEASURED once and frozen
-into report.json's `measured` block, with the evidence records' computed status at build time; everything else is
-recomputed from the repo. So `--refresh` rebuilds every committed report without corpora, and `--check`
-(tests/tools/test_evidence_report.py) fails when a committed report is not what the repo makes now. `--check --live`
-also recomputes the records' status (a harness, oracle or generator change stales every record; the scheduled
-evidence-refresh job re-proves them).
+into report.json's `measured` block, with the evidence records' computed status and the coverage ledger's fresh
+entries at build time; everything else is recomputed from the repo. So `--refresh` rebuilds every committed report
+without corpora, and `--check` (tests/tools/test_evidence_report.py; CI runs this, owner decision on #4601) fails
+when a committed report is not what the repo makes now. `--check --live` / `--refresh --live` also recompute the
+records' status and the ledger's freshness (a harness, oracle or generator change stales every record; the
+scheduled evidence-refresh job re-proves them and runs `--refresh --live`).
 
 Only burned estates are committed (docs/language_status/evidence_report/<estate>/report.{md,json}). A non-burned
 estate's report is written only with --out outside the repository: census repos never have anything but counts
@@ -78,10 +82,12 @@ OUT = REPO / "docs" / "language_status" / "evidence_report"
 REGISTER = REPO / "docs" / "language_status" / "oracle_assumptions.md"
 CRUCIBLE_BASELINE = REPO / "tests" / "cics_crucible" / "baseline.json"
 CRUCIBLE_PIN = REPO / "tests" / "_cics_crucible_pin.py"
-PIN_MANIFEST = REPO / "tests" / "crucible_pins.toml"  # #4597, once it lands
+PIN_MANIFEST = REPO / "tests" / "crucible_pins.toml"  # #4597
 DOCKERFILE = REPO / "tests" / "equivalence" / "gnucobol.Dockerfile"
 CORPORA = REPO / "tests" / "cobol_mainframe" / "corpora.json"
-DEFAULT_BARS = {"paragraphs": 90.0, "branches": 80.0}
+DEFAULT_BARS = {"paragraphs": 100.0, "branches": 100.0}  # owner decision on #4601: strict
+# #4602: an owner-reviewed per-case list of infeasible branch outcomes, which the bars will be taken net of once it lands
+INFEASIBLE = "not yet available (#4602)"
 LEVELS = ["L0", "L1", "L2", "L3", "L4", "L5"]
 
 # #4514 (the whole-migration epic): each part adds a section here when it is built; until then, not measured.
@@ -147,9 +153,14 @@ def oracle_pin(path: Path = DOCKERFILE) -> dict[str, str]:
     return {"base_image": arg.get("BASE", ""), "package": arg.get("GNUCOBOL", ""), "compiler": arg.get("COBC", "")}
 
 
-def crucible_pin() -> str:
-    m = re.search(r'^PINNED_REF = "(.*)"', CRUCIBLE_PIN.read_text("utf-8"), re.M)
-    return m.group(1) if m else ""
+def crucible_pins() -> dict[str, str]:
+    """The crucible pin manifest (#4597): crucible name -> pinned ref."""
+    import tomllib
+
+    if not PIN_MANIFEST.is_file():
+        m = re.search(r'^PINNED_REF = "(.*)"', CRUCIBLE_PIN.read_text("utf-8"), re.M)
+        return {"cics": m.group(1) if m else ""}
+    return {k: v.get("ref", "") for k, v in sorted(tomllib.loads(PIN_MANIFEST.read_text("utf-8")).items())}
 
 
 def corpus_ref(estate: str) -> str:
@@ -197,7 +208,22 @@ def measure(
         "programs": progs,
         "sweeps": dict(sorted(swept.items())),
         "record_status": record_status(),
+        "det_coverage": det_coverage(),
     }
+
+
+def det_coverage() -> dict[str, list[int] | None]:
+    """case -> the det sweep's coverage from the committed ledger while it is fresh (det_coverage_ledger.py, #4606):
+    [paragraphs covered, live, branches covered, total], or None (no entry, or stale)."""
+    import det_coverage_ledger as dcl
+
+    ledger = dcl.load()
+    used = sorted({r.case for runs in pb.equivalence_runs().values() for r in runs})
+    out: dict[str, list[int] | None] = {}
+    for case in used:
+        cov = dcl.fresh_coverage(case, ledger)
+        out[case] = list(cov) if cov else None
+    return out
 
 
 def record_status() -> dict[str, dict[str, Any]]:
@@ -280,8 +306,9 @@ def case_scenarios(case: str) -> int | None:
     return len(scen) if isinstance(scen, list) else None
 
 
-def coverage_of(case: dict[str, Any] | None, swept: dict[str, Any]) -> dict[str, Any]:
-    """Paragraph / branch coverage of the case's scenarios: a local sweep's coverage line, else its record's."""
+def coverage_of(case: dict[str, Any] | None, swept: dict[str, Any], ledger: dict[str, Any]) -> dict[str, Any]:
+    """Paragraph / branch coverage of the case's det proof: a local sweep's coverage line, else the det-sweep coverage
+    ledger (fresh entries only). The evidence record's coverage is not used: the record is reported, not a gate."""
     out: dict[str, Any] = {
         "source": None,
         "paragraphs": None,
@@ -290,22 +317,21 @@ def coverage_of(case: dict[str, Any] | None, swept: dict[str, Any]) -> dict[str,
         "branch_pct": None,
         "uncovered_branches": [],
         "uncovered_paragraphs": "not recorded",
+        "infeasible_outcomes_reviewed": INFEASIBLE,
     }
     if case is None:
         return out
     line = pb.coverage_of(swept.get(case["case"], {}).get("coverage", ""))
-    rc = (case.get("record") or {}).get("coverage")
+    led = ledger.get(case["case"])
     if line:
         out["source"] = "local sweep coverage line"
-        out["paragraphs"] = {"covered": line[0], "live": line[1]}
-        out["branches"] = {"covered": line[2], "total": line[3]}
-    elif rc and rc.get("paragraphs"):
-        out["source"] = "evidence record (cobol_coverage.py over the case's COBOL runs)"
-        out["paragraphs"] = {"covered": rc["paragraphs"]["covered"], "live": rc["paragraphs"]["live"]}
-        out["branches"] = {"covered": rc["branches"]["covered"], "total": rc["branches"]["total"]}
-        out["uncovered_branches"] = rc["uncovered_branches"]
+    elif led:
+        out["source"] = "det-sweep coverage ledger (tests/equivalence/det_sweep_coverage.json)"
+        line = tuple(led)
     else:
         return out
+    out["paragraphs"] = {"covered": line[0], "live": line[1]}
+    out["branches"] = {"covered": line[2], "total": line[3]}
     out["paragraph_pct"] = pct(out["paragraphs"]["covered"], out["paragraphs"]["live"])
     out["branch_pct"] = pct(out["branches"]["covered"], out["branches"]["total"])
     return out
@@ -346,26 +372,16 @@ def level_of(p: dict[str, Any], bars: dict[str, float]) -> tuple[str, list[str]]
     case = eq["chosen"]
     if case is None:
         return "L1", ["an equivalence case that runs it"]
-    need = []
     if case["det"]["state"] != "equal":
-        need.append("its det port equal on every scenario of " + case["case"] + ": " + "; ".join(case["det"]["why"]))
-    rec = case["record"]
-    if rec is None:
-        need.append(f"an evidence record for {case['case']}")
-    else:
-        if rec["stale_inputs"]:
-            need.append(
-                f"a current evidence record ({case['case']} is stale on {', '.join(rec['stale_inputs'])}: "
-                f"re-run its proof)"
-            )
-        if rec["verdict"] != "all equal":
-            need.append(f"an evidence record whose proof is equal on every scenario ({case['case']}: {rec['verdict']})")
-    if need:
-        return "L1", need
-    if cov["paragraph_pct"] is None or cov["paragraph_pct"] < bars["paragraphs"]:
+        return "L1", ["its det port equal on every scenario of " + case["case"] + ": " + "; ".join(case["det"]["why"])]
+    if cov["paragraph_pct"] is None:
+        why = "coverage not measured: no fresh det-sweep ledger entry and no local sweep"
+        return "L2", [f"paragraph coverage >= {bars['paragraphs']} ({why})"]
+    if cov["paragraph_pct"] < bars["paragraphs"]:
         return "L2", [f"paragraph coverage >= {bars['paragraphs']} (now {cov['paragraph_pct']})"]
     if cov["branch_pct"] is None or cov["branch_pct"] < bars["branches"]:
-        return "L3", [f"branch coverage >= {bars['branches']} (now {cov['branch_pct']})"]
+        why = f"now {cov['branch_pct']}; net of reviewed infeasible outcomes: {INFEASIBLE}"
+        return "L3", [f"branch coverage >= {bars['branches']} ({why})"]
     unbacked = [b["command"] for b in p["oracle_backing"] if not b["backed"]]
     need = [f"oracle backing for {', '.join(unbacked)}"] if unbacked else []
     need.append("per-program assumption reach, which is not measured yet (no DIFFERS assumption reached)")
@@ -408,11 +424,12 @@ def build_program(m: dict[str, Any], estate: str, ctx: dict[str, Any]) -> dict[s
     candidates: list[dict[str, Any] | None] = [*cases] or [None]
     for c in candidates:
         p["equivalence"] = {"cases": cases, "chosen": c}
-        p["coverage"] = coverage_of(c, ctx["swept"])
+        p["coverage"] = coverage_of(c, ctx["swept"], ctx["ledger"])
         lvl, nxt = level_of(p, ctx["bars"])
         key = (
             LEVELS.index(lvl),
             c is not None and c["role"] == "program",
+            p["coverage"]["source"] is not None,
             c is not None and c["record"] is not None,
             -len(nxt),
         )
@@ -458,6 +475,7 @@ def build(measured: dict[str, Any], estate: str, bars: dict[str, float], *, live
     """The report of one estate from its measured block and the repo (live: the records' status recomputed now)."""
     swept = measured.get("sweeps", {})
     status = record_status() if live else measured.get("record_status", {})
+    ledger = det_coverage() if live else measured.get("det_coverage", {})
     eq = pb.equivalence_runs()
     sweeps = {c: {**s, "report": None} for c, s in swept.items()}
     det_base = pb.load_det_baseline()
@@ -469,6 +487,7 @@ def build(measured: dict[str, Any], estate: str, bars: dict[str, float], *, live
         "eq": eq,
         "swept": swept,
         "status": status,
+        "ledger": ledger,
         "bars": bars,
         "crucible": data.get("crucible", {}),
         "disagree": crucible_disagreements(),
@@ -502,6 +521,7 @@ def build(measured: dict[str, Any], estate: str, bars: dict[str, float], *, live
             **pin,
         },
         "not_measured": NOT_MEASURED,
+        "infeasible_outcomes": INFEASIBLE,
         "measured": measured,
         "summary": {
             "programs": len(progs),
@@ -536,13 +556,16 @@ def build(measured: dict[str, Any], estate: str, bars: dict[str, float], *, live
             "translator_commit": measured["survey"].get("sha"),
             "survey": measured["survey"],
             "corpus_ref": corpus_ref(estate),
-            "crucible_pin": crucible_pin(),
+            "crucible_pins": crucible_pins(),
             "crucible_baseline_ref": json.loads(CRUCIBLE_BASELINE.read_text("utf-8")).get("crucible_ref"),
             "crucible_cases_measured_at": (data.get("crucible_measured") or {}).get("ref"),
-            "pin_manifest": "tests/crucible_pins.toml" if PIN_MANIFEST.is_file() else "not on main yet (#4597)",
+            "pin_manifest": "tests/crucible_pins.toml" if PIN_MANIFEST.is_file() else "not on this branch (#4597)",
             "oracle_base_image": pin["base_image"],
             "oracle_images_of_records": images,
             "record_status_from": "evidence.py status, recomputed now" if live else "evidence.py status at build time",
+            "coverage_from": "det-sweep coverage ledger freshness recomputed now"
+            if live
+            else "det-sweep coverage ledger, freshness at build time",
             "commands": commands(estate, progs, measured),
         },
     }
@@ -560,8 +583,8 @@ def level_table(bars: dict[str, float]) -> list[dict[str, str]]:
         {
             "level": "L2",
             "name": "executed equivalent",
-            "condition": "a case runs it; the case's det port is equal on "
-            "every scenario; the case's evidence record is current and its proof equal on every scenario",
+            "condition": "a case runs it and the case's det port is equal on every scenario (CI's det-sweep ratchet on "
+            "main; a Db2 case only by a local sweep); the case's evidence record is reported, not required",
         },
         {
             "level": "L3",
@@ -571,7 +594,8 @@ def level_table(bars: dict[str, float]) -> list[dict[str, str]]:
         {
             "level": "L4",
             "name": "branch coverage",
-            "condition": f"L3, and >= {bars['branches']} percent of its branch outcomes",
+            "condition": f"L3, and >= {bars['branches']} percent of its branch outcomes (net of reviewed infeasible "
+            f"outcomes: {INFEASIBLE})",
         },
         {
             "level": "L5",
@@ -640,7 +664,7 @@ def validate(rep: dict[str, Any]) -> list[str]:
                 errs.append(f"programs[{i}].{k} missing")
         if p.get("level") not in LEVELS:
             errs.append(f"programs[{i}].level {p.get('level')!r}")
-    for k in ("survey", "programs", "sweeps", "record_status"):
+    for k in ("survey", "programs", "sweeps", "record_status", "det_coverage"):
         if k not in rep.get("measured", {}):
             errs.append(f"measured.{k} missing")
     return errs
@@ -671,7 +695,9 @@ def preface(rep: dict[str, Any]) -> list[str]:
         (
             "**What a level means.** Each program gets the highest level whose conditions hold; levels are cumulative and "
             "the numbers under a level are always shown. The coverage bars are parameters of this report "
-            f"(paragraphs {bars['paragraphs']}%, branches {bars['branches']}%)."
+            f"(paragraphs {bars['paragraphs']}%, branches {bars['branches']}%; net of reviewed infeasible outcomes: "
+            f"{rep['infeasible_outcomes']}). The evidence record of a program's case (the committed hand or "
+            "model port's proof) is reported beside each program, and is not a condition of any level."
         ),
         "",
         "| level | name | condition |",
@@ -713,7 +739,8 @@ def render(rep: dict[str, Any]) -> str:
     out += [
         (
             f"Translation measured by `cics_census.py survey` at translator commit `{_n(sv.get('sha'))}` "
-            f"({_n(sv.get('scope'))}); evidence record status {rep['reproducibility']['record_status_from']}."
+            f"({_n(sv.get('scope'))}); evidence record status: {rep['reproducibility']['record_status_from']}; "
+            f"coverage: {rep['reproducibility']['coverage_from']}."
         ),
         "",
     ]
@@ -778,7 +805,9 @@ def render(rep: dict[str, Any]) -> str:
         f"- translator commit (the survey's): `{_n(rp['translator_commit'])}`",
         f"- corpus pin: `{rep['estate']}` at `{_n(rp['corpus_ref'] or None)}`",
         (
-            f"- cics-crucible pin: `{rp['crucible_pin']}`; crucible baseline measured at `{_n(rp['crucible_baseline_ref'])}`;"
+            "- crucible pins: "
+            + ", ".join(f"{k} `{v}`" for k, v in rp["crucible_pins"].items())
+            + f"; cics crucible baseline measured at `{_n(rp['crucible_baseline_ref'])}`;"
             f" crucible cases per command measured at `{_n(rp['crucible_cases_measured_at'])}`"
         ),
         f"- crucible pin manifest: {rp['pin_manifest']}",
@@ -800,10 +829,12 @@ def program_section(p: dict[str, Any]) -> list[str]:
     t, eq, cov, a, rs = p["translation"], p["equivalence"], p["coverage"], p["assumptions"], p["residual"]
     out = [f"### {p['program']} -- {p['level']}", ""]
     if p["level"] not in ("L0", "L1"):
-        rec = eq["chosen"]["record"]
+        ch = eq["chosen"]
         out.append(
-            f"- **Executed equivalent** on {rec['scenarios']} scenarios against GnuCOBOL + the gitgalaxy CICS "
-            f"stub ({eq['chosen']['case']}), given the assumptions below"
+            "- **Executed equivalent** on "
+            + (f"the {ch['case_scenarios']} scenarios" if ch["case_scenarios"] is not None else "the batch runs")
+            + f" of {ch['case']} against GnuCOBOL + "
+            f"the gitgalaxy CICS stub (det port: {ch['det']['source']}), given the assumptions below"
         )
     out.append("- **Next level needs:** " + "; ".join(p["next"]))
     if t["refused"]:

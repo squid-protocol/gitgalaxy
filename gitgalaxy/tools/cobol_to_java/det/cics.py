@@ -11,42 +11,21 @@ import re
 from dataclasses import dataclass, field
 from pathlib import Path
 
+from gitgalaxy.standards.cics.commands import COMMANDS as SPEC
+from gitgalaxy.standards.cics.commands import whole_refusal
+from gitgalaxy.standards.cics.commands.api import CHILD_LATER, CONTAINER_LATER, COUNTER
+from gitgalaxy.standards.cics.commands.assign import TERMINAL_OPTIONS
+from gitgalaxy.standards.cics.commands.handles import AID_KEYS
+from gitgalaxy.standards.cics.commands.send_text import TEXT_OPTIONS
+from gitgalaxy.standards.cics.commands.shared import BOTH_FORMS, NEEDS_ARGUMENT
+from gitgalaxy.standards.cics.commands.task import DATE_FORMS
+from gitgalaxy.standards.cics.commands.terminal import MAP_OPTIONS, SEND_CONTROL_OPTIONS
+from gitgalaxy.standards.cics.model import GroupKind
+from gitgalaxy.standards.cics.resp import DFHRESP
 from gitgalaxy.tools.cobol_to_java.det import expr as E
 from gitgalaxy.tools.cobol_to_java.det import layout as L
 
 COPY = Path(__file__).parent / "copy"  # DFHEIBLK, DFHAID, DFHBMSCA
-
-# IBM CICS TS, RESP values (DFHRESP)
-DFHRESP = {"NORMAL": 0, "ERROR": 1, "EOF": 4, "EODS": 5, "EOC": 6, "INBFMH": 7, "ENDINPT": 8, "NONVAL": 9,
-           "NOSTART": 10, "TERMIDERR": 11, "FILENOTFOUND": 12, "NOTFND": 13, "DUPREC": 14, "DUPKEY": 15,
-           "INVREQ": 16, "IOERR": 17, "NOSPACE": 18, "NOTOPEN": 19, "ENDFILE": 20, "ILLOGIC": 21, "LENGERR": 22,
-           "QZERO": 23, "SIGNAL": 24, "QBUSY": 25, "ITEMERR": 26, "PGMIDERR": 27, "TRANSIDERR": 28,
-           "ENDDATA": 29, "INVTSREQ": 30, "EXPIRED": 31, "RETPAGE": 32, "RTEFAIL": 33, "RTESOME": 34,
-           "TSIOERR": 35, "MAPFAIL": 36, "INVERRTERM": 37, "INVMPSZ": 38, "IGREQID": 39, "OVERFLOW": 40,
-           "INVLDC": 41, "NOSTG": 42, "JIDERR": 43, "QIDERR": 44, "NOJBUFSP": 45, "DSSTAT": 46, "SELNERR": 47,
-           "FUNCERR": 48, "UNEXPIN": 49, "NOPASSBKRD": 50, "NOPASSBKWR": 51, "SYSIDERR": 53, "ISCINVREQ": 54,
-           "ENQBUSY": 55, "ENVDEFERR": 56, "IGREQCD": 57, "SESSIONERR": 58, "SYSBUSY": 59, "SESSBUSY": 60,
-           "NOTALLOC": 61, "CBIDERR": 62, "INVEXITREQ": 63, "INVPARTNSET": 64, "INVPARTN": 65,
-           "PARTNFAIL": 66, "USERIDERR": 69, "NOTAUTH": 70, "VOLIDERR": 71, "SUPPRESSED": 72, "RESIDERR": 75,
-           "NOSPOOL": 80, "TERMERR": 81, "ROLLEDBACK": 82, "END": 83, "DISABLED": 84, "ALLOCERR": 85,
-           "STRELERR": 86, "OPENERR": 87, "SPOLBUSY": 88, "SPOLERR": 89, "NODEIDERR": 90, "TASKIDERR": 91,
-           "TCIDERR": 92, "DSNNOTFOUND": 93, "LOADING": 94, "MODELIDERR": 95, "OUTDESCRERR": 96,
-           "PARTNERIDERR": 97, "PROFILEIDERR": 98, "NETNAMEIDERR": 99, "LOCKED": 100, "RECORDBUSY": 101,
-           "UOWNOTFOUND": 102, "UOWLNOTFOUND": 103, "CONTAINERERR": 110,
-           # IBM CICS TS API Reference, RESP values (BUSY 128 / INCOMPLETE 126 in its SPI table; the others as the
-           # equivalence harness's own table, tests/tools/equivalence_cics.py, which agrees on every shared name)
-           "RDATT": 2, "WRBRK": 3, "DSIDERR": 12, "CHANNELERR": 122, "CCSIDERR": 123, "TIMEDOUT": 124,
-           "CODEPAGEERR": 125, "INCOMPLETE": 126, "APPNOTFOUND": 127, "BUSY": 128}  # fmt: skip
-
-MAP_OPTIONS = ("ERASE", "ERASEAUP", "FREEKB", "ALARM", "CURSOR", "FRSET", "MAPONLY", "DATAONLY", "PRINT", "LAST",
-               "WAIT", "ACCUM", "PAGING", "TERMINAL", "NLEOM", "FORMFEED")  # fmt: skip
-TEXT_OPTIONS = ("ERASE", "FREEKB", "ALARM", "CURSOR", "PRINT", "LAST", "WAIT", "INVITE", "DEFRESP", "STRFIELD",
-                "CTLCHAR")  # fmt: skip
-
-
-# #4414: the keys HANDLE AID names (IBM, EXEC CICS HANDLE AID), as the equivalence harness's stub has them
-AID_KEYS = frozenset(["ANYKEY", "ENTER", "CLEAR", "CLRPARTN", "LIGHTPEN", "OPERID", "TRIGGER", "PA1", "PA2", "PA3"]
-                     + [f"PF{n}" for n in range(1, 25)])  # fmt: skip
 
 
 class CicsError(Exception):
@@ -76,201 +55,20 @@ def region_page(declared: str | None) -> str:
     return java_charset_name(page)
 
 
-# #4411: every option each modelled command accepts. An option outside its command's set is refused by name (the
-# statement becomes a hole), never accepted and ignored: a silently divergent port is worse than a visible hole.
-# Options accepted with no code of their own say why they cannot change what the program sees.
-_RESP = frozenset({"RESP", "RESP2", "NOHANDLE"})
-_FILE = frozenset({"DATASET", "FILE", "RBA", "RRN", "XRBA"})  # (RBA / RRN / XRBA: refused or browsed in Cics._rba)
-_FORMS = ("YYYYMMDD", "MMDDYYYY", "DDMMYYYY", "YYMMDD", "MMDDYY", "DDMMYY")
-_TS = frozenset({"TS", "QUEUE", "QNAME", "LENGTH", "ITEM", "NUMITEMS"})
-_SEND_CONTROL = frozenset({"ERASE", "ERASEAUP", "FREEKB", "ALARM", "CURSOR", "FRSET"})  # #4413: its device controls
+# #4411: every option each modelled command accepts -- the CICS command spec's (gitgalaxy/standards/cics, #4270 spec
+# PR 2): an option outside its command's set is refused by name (the statement becomes a hole), with the reason the
+# command's own spec entry gives, never accepted and ignored: a silently divergent port is worse than a visible hole.
+# None: every option is checked by the command's handler (HANDLE / IGNORE CONDITION's conditions, HANDLE AID's keys).
 OPTIONS: dict[str, frozenset | None] = {
-    # one task in the region: ENQ / DEQ never wait; a task takes no time, a DELAY included
-    "ENQ": frozenset({"RESOURCE", "LENGTH", "NOSUSPEND", "TASK", "UOW", "MAXLIFETIME"}) | _RESP,
-    "DEQ": frozenset({"RESOURCE", "LENGTH", "TASK", "UOW", "MAXLIFETIME"}) | _RESP,
-    "DELAY": frozenset({"FOR", "INTERVAL", "TIME", "HOURS", "MINUTES", "SECONDS", "MILLISECS"}) | _RESP,
-    "GET COUNTER": frozenset({"COUNTER", "POOL", "VALUE", "RESP", "NOHANDLE"}),
-    "SEND MAP": frozenset({"MAP", "MAPSET", "FROM", "CURSOR", *MAP_OPTIONS}) | _RESP,
-    # #4270 slice 4: TERMINAL is the default output disposition ("TERMINAL is the default value that you get if you do
-    # not specify another disposition"; it "sends the output to the principal facility of your task"), so it is
-    # accepted with no code: SEND TEXT TERMINAL and SEND TEXT send the same output to the same place. The full-BMS
-    # dispositions and logical-message options are refused with _SEND_TEXT_REFUSED_WHY's reason (register X20)
-    "SEND TEXT": frozenset({"FROM", "LENGTH", "TERMINAL", *TEXT_OPTIONS}) | _RESP,
-    "RECEIVE MAP": frozenset({"MAP", "MAPSET", "INTO"}) | _RESP,
-    # #4413: terminal control. SEND CONTROL's device controls (IBM's minimum-BMS options; PRINT, FORMFEED, ALTERNATE /
-    # DEFAULT and the partition / LDC / ACCUM / PAGING ones are refused); RECEIVE of unformatted terminal input
-    # (ASIS / BUFFER and the APPC / LU6.1 options refused)
-    "SEND CONTROL": _SEND_CONTROL | _RESP,
-    "RECEIVE": frozenset({"INTO", "SET", "LENGTH", "FLENGTH", "MAXLENGTH", "MAXFLENGTH", "NOTRUNCATE"}) | _RESP,
-    # #4270: CHANNEL (one or the other: a COMMAREA beside it is refused in Cics.command)
-    "LINK": frozenset({"PROGRAM", "COMMAREA", "LENGTH", "CHANNEL"}) | _RESP,
-    # control never comes back from a RETURN, so a RESP area it does not write is never read after it
-    "RETURN": frozenset({"TRANSID", "COMMAREA", "LENGTH"}) | _RESP,
-    "XCTL": frozenset({"PROGRAM", "COMMAREA", "LENGTH", "CHANNEL"}) | _RESP,
-    # EQUAL is READ's default; KEYLENGTH only where it changes nothing (Cics._keylength); a keyed READ's LENGTH is
-    # modelled (#4436, Cics.read_length), READNEXT / READPREV's and an RBA browse's only as INTO's own (_read_length)
-    "READ": _FILE | {"INTO", "RIDFLD", "UPDATE", "EQUAL", "KEYLENGTH", "LENGTH"} | _RESP,
-    "READNEXT": _FILE | {"INTO", "RIDFLD", "KEYLENGTH", "LENGTH"} | _RESP,
-    "READPREV": _FILE | {"INTO", "RIDFLD", "KEYLENGTH", "LENGTH"} | _RESP,
-    "STARTBR": _FILE | {"RIDFLD", "EQUAL", "GTEQ", "KEYLENGTH"} | _RESP,  # GTEQ: STARTBR's default
-    "ENDBR": frozenset({"DATASET", "FILE"}) | _RESP,
-    "WRITE": _FILE | {"FROM", "RIDFLD", "LENGTH", "KEYLENGTH"} | _RESP,
-    "REWRITE": frozenset({"DATASET", "FILE", "FROM", "LENGTH"}) | _RESP,
-    "DELETE": _FILE | {"RIDFLD", "KEYLENGTH"} | _RESP,
-    # NOHANDLE where the translation raises no condition anyway (no RESP: its area would not be written)
-    "HANDLE ABEND": frozenset({"LABEL", "CANCEL", "RESET", "PROGRAM", "NOHANDLE"}),  # (PROGRAM: refused below)
-    "HANDLE CONDITION": None,  # every option is a condition, each handled
-    # #4414: every option a condition / an attention key (checked by Cics.conditions / handle_aid_). PUSH / POP HANDLE
-    # raise INVREQ only (POP with nothing pushed), through RESP / HANDLE CONDITION like any condition
-    "IGNORE CONDITION": None,
-    "HANDLE AID": None,
-    "PUSH HANDLE": _RESP,
-    "POP HANDLE": _RESP,
-    "ABEND": frozenset({"ABCODE", "CANCEL", "NODUMP"}),  # NODUMP: a dump is no state the program or its caller sees
-    # #4270 slice 3: STARTCODE / USERID / FACILITY / SCRNHT / SCRNWD from facts the harness states (Cics.assign);
-    # every other ASSIGN option is refused with _ASSIGN_REFUSED_WHY's reason
-    "ASSIGN": frozenset(
-        {
-            "APPLID",
-            "SYSID",
-            "ABCODE",
-            "PROGRAM",
-            "INVOKINGPROG",
-            "CHANNEL",
-            "STARTCODE",
-            "USERID",
-            "FACILITY",
-            "SCRNHT",
-            "SCRNWD",
-        }
-    )
-    | _RESP,
-    "ASKTIME": frozenset({"ABSTIME", "NOHANDLE"}),
-    "FORMATTIME": frozenset({"ABSTIME", "TIME", "DATESEP", "TIMESEP", "NOHANDLE", *_FORMS}),
-    "INQUIRE PROGRAM": frozenset({"PROGRAM"}) | _RESP,
-    "WRITEQ TD": frozenset({"QUEUE", "FROM", "LENGTH"}) | _RESP,
-    # MAIN / AUXILIARY: where CICS keeps the item, not what it holds; NOSUSPEND: one task, a queue never waits
-    "WRITEQ TS": _TS | {"FROM", "REWRITE", "MAIN", "AUXILIARY", "NOSUSPEND"} | _RESP,
-    "READQ TS": _TS | {"INTO", "NEXT"} | _RESP,
-    # #4437: RESP / RESP2 written NORMAL (Cics.command). IBM's conditions (CICS TS API Reference) do not arise in the
-    # region the port runs in: INVREQ (RESP2 200) needs a program LINKed from a remote system without SYNCONRETURN --
-    # CicsTask refuses a SYNCPOINT in a program LINKed from outside the region -- or one defined EXECUTIONSET(DPLSUBSET),
-    # which the region does not model (docs/language_status/oracle_assumptions.md, X3); ROLLEDBACK (commit only) needs
-    # a remote system that cannot commit, and none takes part.
-    "SYNCPOINT": frozenset({"ROLLBACK"}) | _RESP,
-    "SYNCPOINT ROLLBACK": _RESP,
-    # #4270: channels and containers (Cics.container). Container data is bytes: BIT, or CHAR with no CCSID option --
-    # in the region's CCSID both ways, so never converted (CicsTask's channel section says why); BIT / CHAR are
-    # DATATYPE's short forms
-    "PUT CONTAINER": frozenset({"CONTAINER", "CHANNEL", "FROM", "FLENGTH", "BIT", "CHAR", "DATATYPE", "APPEND"})
-    | _RESP,
-    "GET CONTAINER": frozenset({"CONTAINER", "CHANNEL", "INTO", "FLENGTH", "NODATA"}) | _RESP,
-    "DELETE CONTAINER": frozenset({"CONTAINER", "CHANNEL"}) | _RESP,
-    # #4270 slice 2: interval control (Cics.start / retrieve / cancel) on CicsTask's requests; the harness's scheduler
-    # runs a started task once its request has expired and its starter has ended (SPEC section 4)
-    "START": frozenset(
-        {
-            "TRANSID",
-            "TERMID",
-            "FROM",
-            "LENGTH",
-            "FLENGTH",
-            "INTERVAL",
-            "TIME",
-            "AFTER",
-            "AT",
-            "HOURS",
-            "MINUTES",
-            "SECONDS",
-            "REQID",
-            "PROTECT",
-            "RTRANSID",
-            "RTERMID",
-            "QUEUE",
-        }
-    )
-    | _RESP,
-    "RETRIEVE": frozenset({"INTO", "LENGTH", "FLENGTH", "RTRANSID", "RTERMID", "QUEUE"}) | _RESP,
-    "CANCEL": frozenset({"REQID"}) | _RESP,
-    # #4270 slice 2: RUN TRANSID's child, run by the harness's scheduler once this task has ended (Cics.run_transid)
-    "RUN": frozenset({"TRANSID", "CHILD"}) | _RESP,
+    k: None if c.open_options else frozenset(c.options) for k, c in SPEC.items() if c.status == "modelled"
 }
-
-# #4270: why an option of a modelled command is refused, where "option not modelled" alone would not say
-_REFUSED_WHY = {
-    "FROMCCSID": "code-page conversion of a CHAR container is not modelled",
-    "FROMCODEPAGE": "code-page conversion of a CHAR container is not modelled",
-    "INTOCCSID": "code-page conversion of a CHAR container is not modelled",
-    "INTOCODEPAGE": "code-page conversion of a CHAR container is not modelled",
-    "CONVERTST": "code-page conversion of a CHAR container is not modelled",
-    "CCSID": "code-page conversion of a CHAR container is not modelled",
-    "SET": "the address of CICS's copy of the data (a pointer) is not modelled",
-    "BYTEOFFSET": "a partial GET is not modelled (no corpus program uses it)",
-    "PREPEND": "not modelled (no corpus program uses it)",
-    # #4270 slice 2: interval control
-    "WAIT": "a RETRIEVE waiting for START data still to expire is not modelled (one task runs at a time)",
-    "NOCHECK": "less error checking for a START on a remote system is not modelled (no corpus program uses it)",
-    "SYSID": "a remote system is not modelled",
-    "USERID": "a started task's user (surrogate security) is not modelled",
-    "ATTACH": "a START that keeps its data after RETRIEVE is not modelled",
-    "BREXIT": "the 3270 bridge is not modelled",
-    "FMH": "function management headers are not modelled",
-}
+_FORMS = DATE_FORMS
+_SEND_CONTROL = frozenset(SEND_CONTROL_OPTIONS)  # #4413: its device controls
 
 
-# #4270 slice 3: why an ASSIGN option is refused (docs/language_status/oracle_assumptions.md X19)
-_ASSIGN_REFUSED_WHY = {
-    "OPID": "the operator's RACF identification: the region has no security and no signed-on operator",
-    "OPCLASS": "the operator's RACF classes: the region has no security and no signed-on operator",
-    "OPSECURITY": "the operator's RACF security keys: the region has no security",
-    "USERNAME": "the user's RACF name: the region has no security",
-    "NETNAME": "the terminal's VTAM LU name: the harness's terminal has no network name",
-    "TERMCODE": "the terminal's device type and model code: the harness's terminal is no catalogued device",
-    "FCI": "the facility control indicator's codes for a task with no terminal are not decided here",
-    "DEFSCRNHT": "default / alternate screen sizes: only the one screen the region defines is modelled",
-    "DEFSCRNWD": "default / alternate screen sizes: only the one screen the region defines is modelled",
-    "ALTSCRNHT": "default / alternate screen sizes: only the one screen the region defines is modelled",
-    "ALTSCRNWD": "default / alternate screen sizes: only the one screen the region defines is modelled",
-    "TWALENG": "the transaction work area is not modelled",
-    "TCTUALENG": "the terminal control table user area is not modelled",
-    "CWALENG": "the common work area is not modelled",
-    "TASKPRIORITY": "task priority is not modelled (one task runs at a time)",
-    "RETURNPROG": "where control returns at the end of a program (an XCTL chain's LINK level) is not modelled",
-    "PRINSYSID": "a remote system is not modelled",
-    "QNAME": "transient-data trigger-level tasks are not modelled",
-}
-
-
-# #4270 slice 4: why a SEND TEXT option is refused (docs/language_status/oracle_assumptions.md X20). IBM CICS TS 6.x,
-# EXEC CICS SEND TEXT: the region's terminal is one 24 x 80 3270 display (cics-crucible SPEC 2), and a BMS logical
-# message (ACCUM / PAGING / SET, then SEND PAGE) is not modelled
-_LOGICAL_MESSAGE = "a BMS logical message (ACCUM / PAGING, completed by SEND PAGE) is not modelled"
-_PRINTER = "printer formatting: the region's terminal is a 3270 display"
-_PARTITION = "partitions / logical device codes: the region's terminal is one unpartitioned display"
-_SEND_TEXT_REFUSED_WHY = {
-    "ACCUM": _LOGICAL_MESSAGE,
-    "PAGING": "output kept in temporary storage for terminal paging (CSPG): " + _LOGICAL_MESSAGE,
-    "SET": "the formatted pages returned to the program (RETPAGE) are not modelled: only the TERMINAL disposition",
-    "REQID": "a logical message's temporary-storage prefix: " + _LOGICAL_MESSAGE,
-    "HEADER": "page headers: " + _LOGICAL_MESSAGE,
-    "TRAILER": "page trailers: " + _LOGICAL_MESSAGE,
-    "JUSTIFY": "the line a text block starts on in a page: " + _LOGICAL_MESSAGE,
-    "JUSFIRST": "the line a text block starts on in a page: " + _LOGICAL_MESSAGE,
-    "JUSLAST": "the line a text block starts on in a page: " + _LOGICAL_MESSAGE,
-    "NLEOM": _PRINTER,
-    "FORMFEED": _PRINTER,
-    "HONEOM": _PRINTER,
-    "L40": _PRINTER,
-    "L64": _PRINTER,
-    "L80": _PRINTER,
-    "LDC": _PARTITION,
-    "OUTPARTN": _PARTITION,
-    "ACTPARTN": _PARTITION,
-    "MSR": "magnetic slot reader control is not modelled",
-    "FMHPARM": "function management headers are not modelled",
-    "DEFAULT": "the default / alternate screen size: only the one screen the region defines is modelled",
-    "ALTERNATE": "the default / alternate screen size: only the one screen the region defines is modelled",
-}
+def _msg(key: str, kind: GroupKind, option: str, *parts: str) -> str:
+    """The message of the command's option rule (its spec Group), with the parts it names filled in."""
+    return SPEC[key].group(kind, option).msg.format(*parts)
 
 
 def command_key(words: list[str], opts: dict) -> str:
@@ -306,31 +104,14 @@ def check_options(words: list[str], opts: dict) -> None:
         return
     bad = [o for o in opts if o not in allowed]
     if bad:
-        why = "; ".join(f"{o}: {_REFUSED_WHY[o]}" for o in bad if o in _REFUSED_WHY)
-        if key == "RETURN" and "CHANNEL" in bad:
-            why = "RETURN CHANNEL: the next task's channel is not modelled (no corpus program uses it)"
-        if key == "START" and "CHANNEL" in bad:  # #4270 slice 2
-            why = "START CHANNEL: a started task's channel is not modelled (no corpus program uses it)"
-        if key == "RUN" and "CHANNEL" in bad:
-            why = "RUN CHANNEL: the child task's copy of the channel is not modelled (#4270: a later slice)"
-        if key == "CANCEL":
-            why = "CANCEL of a TRANSID / an activity: only CANCEL REQID is modelled"
-        if key == "SEND TEXT":  # #4270 slice 4
-            why = "; ".join(
-                f"{o}: {_SEND_TEXT_REFUSED_WHY.get(o, 'not modelled (no corpus program uses it)')}" for o in bad
-            )
-        if key == "ASSIGN":  # #4270 slice 3
-            why = "; ".join(
-                f"{o}: {_ASSIGN_REFUSED_WHY.get(o, 'not modelled (no corpus program uses it)')}" for o in bad
-            )
-        raise CicsError(f"{key} {' '.join(bad)}: option not modelled" + (f" ({why})" if why else ""))
+        raise CicsError(SPEC[key].refusal_message(bad))
 
 
 # ---- the EXEC text ----------------------------------------------------------------------------------------------
 def _arg(v: str | None) -> str:
     """An EXEC CICS option's argument text; a bare option where one is needed is an error."""
     if v is None:
-        raise CicsError("EXEC CICS option needs an argument")
+        raise CicsError(NEEDS_ARGUMENT)
     return v
 
 
@@ -656,7 +437,7 @@ class Cics:
             if src is None:
                 raise CicsError(f"ASSIGN {k}")
             stores.append(f"DetCics.putText({self.field(_arg(v))}, {src}, CS);")
-        if not any(k in opts for k in ("FACILITY", "SCRNHT", "SCRNWD")):
+        if not any(k in opts for k in TERMINAL_OPTIONS):  # INVREQ RESP2 5 without a terminal (raised_by)
             return [ind + x for x in stores] + (
                 self.outcome(opts, "0", "0", ind) if "RESP" in opts or "RESP2" in opts else []
             )
@@ -871,20 +652,18 @@ class Cics:
             return self.container(key, opts, ind)
         if key == "MOVE CONTAINER" or words[:1] in (["STARTBROWSE"], ["GETNEXT"], ["ENDBROWSE"]):
             # #4270: no non-burned corpus program MOVEs a container; one browses (with GETMAIN / SOAPFAULT beside)
-            raise CicsError(f"EXEC CICS {key} not modelled (#4270: container MOVE / browse, a later slice)")
+            raise CicsError(f"EXEC CICS {key} not modelled ({CONTAINER_LATER})")
         if verb == "RUN":  # #4270 slice 2
             return self.run_transid(opts, ind)
         if words[:1] == ["FETCH"] or verb == "FREE CHILD":
-            raise CicsError(
-                f"EXEC CICS {verb} not modelled (#4270: a parent waiting for its child task, a later slice)"
-            )
+            raise CicsError(f"EXEC CICS {verb} not modelled ({CHILD_LATER})")
         if verb in ("START", "RETRIEVE", "CANCEL"):  # #4270 slice 2: interval control
             return {"START": self.start, "RETRIEVE": self.retrieve, "CANCEL": self.cancel}[verb](opts, ind)
         if verb.split()[0] in ("ENQ", "DEQ", "DELAY"):  # (DELAY FOR SECONDS(n): words DELAY FOR)
             return self.outcome(opts, "0", "0", ind)  # (OPTIONS: one task in the region, nothing waits)
         if verb == "GET" and "COUNTER" in opts:  # GET COUNTER: its value, then +1; NOTFND for a counter not defined
             if not opts.get("VALUE"):
-                raise CicsError("GET COUNTER without VALUE")
+                raise CicsError(_msg("GET COUNTER", "required", "VALUE"))
             v = self.g.tmpname("counter")
             pool = self.name(_arg(opts["POOL"])) if opts.get("POOL") else '""'
             return [f"{ind}Long {v} = task.getCounter({pool}, {self.name(_arg(opts['COUNTER']))});",
@@ -894,7 +673,7 @@ class Cics:
                     *self.outcome(opts, f"({v} == null ? 13 : 0)", "0", ind)]  # fmt: skip
         if "COUNTER" in opts or "DCOUNTER" in opts:
             # the other named-counter commands (DEFINE / UPDATE / DELETE COUNTER, DCOUNTER): not modelled
-            raise CicsError(f"{verb} COUNTER: named counters are not modelled")
+            raise CicsError(f"{verb} COUNTER: {COUNTER}")
         g = self.g
         if verb == "SEND" and "MAP" in opts:
             return self.send_map(opts, ind)
@@ -922,7 +701,7 @@ class Cics:
             out: list[str] = []
             if "CHANNEL" in opts:  # #4270: the callee's current channel (CicsTask.linkChannel)
                 if "COMMAREA" in opts or "LENGTH" in opts:
-                    raise CicsError("LINK CHANNEL with COMMAREA / LENGTH: one or the other")
+                    raise CicsError(_msg("LINK", "at_most_one", "CHANNEL"))
                 out.append(f"{ind}String {r} = task.linkChannel({prog}, {self.name(_arg(opts['CHANNEL']))});")
             elif "COMMAREA" in opts:
                 area = self.ref(_arg(opts["COMMAREA"]))
@@ -963,7 +742,7 @@ class Cics:
             prog = self.name(_arg(opts["PROGRAM"]))
             if "CHANNEL" in opts:  # #4270: the target's current channel (CicsTask.xctlChannel)
                 if "COMMAREA" in opts or "LENGTH" in opts:
-                    raise CicsError("XCTL CHANNEL with COMMAREA / LENGTH: one or the other")
+                    raise CicsError(_msg("XCTL", "at_most_one", "CHANNEL"))
                 call = f"task.xctlChannel({prog}, {self.name(_arg(opts['CHANNEL']))})"
             elif "COMMAREA" in opts:
                 dto, length = self.commarea_out(opts, prog_lit)
@@ -1020,7 +799,7 @@ class Cics:
         if verb == "FORMATTIME":
             t = f"Cobol.num({self.field(_arg(opts['ABSTIME']))}, CS).longValue()"
             out = []
-            for form in ("YYYYMMDD", "MMDDYYYY", "DDMMYYYY", "YYMMDD", "MMDDYY", "DDMMYY"):
+            for form in DATE_FORMS:
                 if form in opts:
                     # DATESEP with no value is IBM's default separator, '/'; no DATESEP, none
                     sep = (self.text(_arg(opts["DATESEP"])) if opts.get("DATESEP")
@@ -1060,7 +839,10 @@ class Cics:
             return self.send_control(opts, ind)
         if verb == "RECEIVE":
             return self.receive(opts, ind)
-        raise CicsError(f"EXEC CICS {verb} not modelled")
+        # #4270 spec PR 2: a command we do not model, refused whole -- with its name-only (or engine-only) entry's
+        # reason when it is a CICS application command the spec lists
+        known = whole_refusal(key, verb, next(iter(opts), None))
+        raise CicsError(known.whole_message(verb) if known is not None else f"EXEC CICS {verb} not modelled")
 
     # -- #4270: channels and containers
     def container(self, key: str, opts: dict, ind: str) -> list[str]:
@@ -1094,7 +876,7 @@ class Cics:
         elif key == "GET CONTAINER":
             into, nodata = opts.get("INTO") or "", "NODATA" in opts
             if bool(into) == nodata:
-                raise CicsError("GET CONTAINER needs one of INTO / NODATA")
+                raise CicsError(_msg("GET CONTAINER", "one_of", "INTO"))
             flen = _option(opts, "FLENGTH")
             settable = flen is not None and re.fullmatch(r"(?is)[+-]?\d+|LENGTH\s+OF\s+.+", flen.strip()) is None
             if nodata:
@@ -1126,14 +908,14 @@ class Cics:
         RESP / HANDLE CONDITION. FROM's bytes go in the region's page, as a TS item's do (#4528): the started task's
         RETRIEVE reads them back into its own storage's page."""
         if not opts.get("TRANSID"):
-            raise CicsError("START without TRANSID")
+            raise CicsError(_msg("START", "required", "TRANSID"))
         whens = [w for w in ("INTERVAL", "TIME", "AFTER", "AT") if w in opts]
         if len(whens) > 1:
-            raise CicsError(f"START {' and '.join(whens)}: one expiry option")
+            raise CicsError(_msg("START", "at_most_one", "INTERVAL", " and ".join(whens)))
         when = whens[0] if whens else "INTERVAL"
         hms = [o for o in ("HOURS", "MINUTES", "SECONDS") if o in opts]
         if (when in ("AFTER", "AT")) != bool(hms):
-            raise CicsError(f"START {when} {' '.join(hms)}: HOURS / MINUTES / SECONDS go with AFTER / AT")
+            raise CicsError(_msg("START", "requires", "HOURS", when, " ".join(hms)))
         chain = f"task.startRequest({self.name(_arg(opts['TRANSID']))})"
         if hms:
             vals = [self._number(_arg(opts[o])) if o in opts else "null" for o in ("HOURS", "MINUTES", "SECONDS")]
@@ -1151,7 +933,7 @@ class Cics:
             self.region_used = True
             chain += f".from(DetCics.toRegion(DetCics.startData({f}, {n}), CS, REGION))"
         elif "LENGTH" in opts or "FLENGTH" in opts:
-            raise CicsError("START LENGTH without FROM")
+            raise CicsError(_msg("START", "requires", "LENGTH"))
         if "PROTECT" in opts:
             chain += ".protect(true)"
         r = self.g.tmpname("start")
@@ -1168,7 +950,7 @@ class Cics:
         length = _one_of(opts, "LENGTH", "FLENGTH")
         named = [o for o in ("RTRANSID", "RTERMID", "QUEUE") if o in opts]
         if not into and (not named or length is not None):
-            raise CicsError("RETRIEVE without INTO")
+            raise CicsError(_msg("RETRIEVE", "requires", "LENGTH"))
         g = self.g
         r = g.tmpname("retrieved")
         most = "null"
@@ -1194,7 +976,7 @@ class Cics:
         RESP2 1 through RESP / HANDLE CONDITION."""
         transid, child = _option(opts, "TRANSID"), _option(opts, "CHILD")
         if not transid or not child:
-            raise CicsError("RUN without TRANSID / CHILD")
+            raise CicsError(_msg("RUN", "required", "TRANSID"))
         r = self.g.tmpname("run")
         return [f"{ind}CicsTask.RunResult {r} = task.runTransid({self.name(transid)});",
                 f"{ind}if ({r}.child() != null) DetCics.putPadded({self.field(child)}, {r}.child(), CS);",
@@ -1205,7 +987,7 @@ class Cics:
         NOTFND when none matches "an unexpired interval control command"."""
         reqid = _option(opts, "REQID")
         if not reqid:
-            raise CicsError("CANCEL without REQID: only CANCEL REQID is modelled")
+            raise CicsError(_msg("CANCEL", "required", "REQID"))
         r = self.g.tmpname("cancelled")
         return [f"{ind}int {r} = DetCics.resp(task.cancel({self.name(reqid)}));",
                 *self.outcome(opts, r, "0", ind)]  # fmt: skip
@@ -1257,7 +1039,7 @@ class Cics:
             limit = self.int_(most)
             put = "receivedSet"
         else:
-            raise CicsError("RECEIVE needs one of INTO / SET")
+            raise CicsError(_msg("RECEIVE", "one_of", "INTO"))
         r = g.tmpname("received")
         out = [f"{ind}CicsTask.Received {r} = task.receive({limit}, {str('NOTRUNCATE' in opts).lower()});",
                f"{ind}DetCics.{put}({target}, {r}.data(), CS);"]  # fmt: skip
@@ -1271,7 +1053,7 @@ class Cics:
         it, character by character, as the COBOL side's region moves them."""
         q = opts.get("QUEUE") or opts.get("QNAME")
         if q is None:
-            raise CicsError(f"{verb} TS without QUEUE / QNAME")
+            raise CicsError(_msg(f"{verb} TS", "one_of", "QUEUE"))
         queue = self.name(q)
         g = self.g
         r = g.tmpname("ts")
@@ -1636,7 +1418,7 @@ def _datatype(opts: dict) -> str | None:
             raise CicsError(f"PUT CONTAINER DATATYPE({named}): only DFHVALUE(BIT / CHAR) is modelled")
         given.append(m.group(1).upper())
     if len(given) > 1:
-        raise CicsError(f"PUT CONTAINER {' and '.join(given)}: one data type")
+        raise CicsError(_msg("PUT CONTAINER", "at_most_one", "BIT", " and ".join(given)))
     return given[0] if given else None
 
 
@@ -1645,7 +1427,7 @@ def _one_of(opts: dict, name: str, alt: str) -> str | None:
     given; both, or one without an argument, refused."""
     given = [o for o in (name, alt) if o in opts]
     if len(given) > 1:
-        raise CicsError(f"{name} and {alt} together")
+        raise CicsError(BOTH_FORMS.format(name, alt))
     if given and not opts[given[0]]:
         raise CicsError(f"{given[0]} needs an argument")
     return opts[given[0]] if given else None

@@ -29,6 +29,11 @@ RESP_OPTIONS: Mapping[str, Arg] = {
     "NOHANDLE": Arg("flag"),
 }
 
+# the translator's message for an option given no argument where it needs one (det/cics.py _arg), and for an option
+# given in both its forms (LENGTH / FLENGTH, MAXLENGTH / MAXFLENGTH: det/cics.py _one_of)
+NEEDS_ARGUMENT = "EXEC CICS option needs an argument"
+BOTH_FORMS = "{} and {} together"
+
 # det/cics.py's word-for-word reason for an option no corpus program uses (ASSIGN's and SEND TEXT's default)
 NOT_MODELLED = Refusal("not modelled (no corpus program uses it)")
 
@@ -37,3 +42,8 @@ CODEPAGE = Refusal("code-page conversion of a CHAR container is not modelled", "
 # a pointer to CICS's copy of the data (GET CONTAINER SET, RETRIEVE SET)
 POINTER = "the address of CICS's copy of the data (a pointer) is not modelled"
 REMOTE = "a remote system is not modelled"
+
+# #4270 spec PR 2: the reasons det/cics.py's old global _REFUSED_WHY gave these options on every command, kept on the
+# commands IBM documents them for, where they say why (a file / queue / program command's SYSID, a read's SET)
+SYSID_REMOTE = Refusal(REMOTE)
+SET_POINTER = Refusal(POINTER)

@@ -125,7 +125,7 @@ class Outcome:
     """One (condition, RESP2) a command can end with."""
 
     condition: str  # a DFHRESP name (checked against resp.DFHRESP by Command)
-    resp2: int | None  # None: IBM documents none (the runtimes set 0)
+    resp2: int | None  # None: not stated (IBM documents none, or the entry does not state it yet: PR 6); runtimes set 0
     when: str  # what causes it, in IBM's words where they exist
     writes: tuple[str, ...] = ()  # the output options written with this outcome (the others are left alone)
     raised_by: tuple[str, ...] = ()  # the options that can raise it (empty: the command itself)
@@ -203,6 +203,7 @@ class EngineFacts:
     target_option: str | None = None  # the option naming the task's target (TRANSID)
     handle_option: str | None = None  # the option naming its handle, cics_tasks' "token" (REQID, CHILD)
     channel_option: str | None = None  # the option naming who receives a channel it hands on (TRANSID)
+    edge: str | None = None  # an edge kind the engine does not emit yet (LOAD: "load", PR 8b, after the trial)
 
 
 @dataclass(frozen=True)
@@ -224,7 +225,12 @@ class Command:
     key: str  # the form det/cics.py's OPTIONS uses: "GET CONTAINER"
     ibm: Doc
     status: Literal["modelled", "refused", "engine-only"]
+    # status "refused" (a name-only entry) / "engine-only": why the translator refuses the whole command
+    why: str | None = None
     options: Mapping[str, Arg] = field(default_factory=dict)  # the options it honours
+    # every option is checked by the command's own handler, not against `options` (HANDLE CONDITION's options are
+    # conditions, HANDLE AID's attention keys)
+    open_options: bool = False
     refused: Mapping[str, Refusal] = field(default_factory=dict)  # the options it refuses, by name
     default_refusal: Refusal | None = None  # an option in neither table (None: refused with no reason)
     groups: tuple[Group, ...] = ()
@@ -240,6 +246,12 @@ class Command:
     def __post_init__(self) -> None:
         if self.status not in ("modelled", "refused", "engine-only"):
             raise ValueError(f"{self.key}: status {self.status!r}")
+        if (self.status == "modelled") == (self.why is not None):
+            raise ValueError(f"{self.key}: a whole-command reason is for a refused / engine-only command only")
+        if self.why is not None and (not self.why or self.why != self.why.strip()):
+            raise ValueError(f"{self.key}: reason {self.why!r}")
+        if self.status == "refused" and (self.options or self.refused or self.groups or self.outcomes):
+            raise ValueError(f"{self.key}: a name-only entry has a name, a URL and a reason only")
         for word in self.key.split():
             _name(word, f"{self.key}: command word")
         for o in list(self.options) + list(self.refused):
@@ -266,6 +278,13 @@ class Command:
         if self.register is not None and not _REGISTER.match(self.register):
             raise ValueError(f"{self.key}: register {self.register!r}")
 
+    def group(self, kind: GroupKind, option: str) -> Group:
+        """The command's `kind` rule whose options start with `option` (the translator raises its message)."""
+        for g in self.groups:
+            if g.kind == kind and g.options[0] == option:
+                return g
+        raise KeyError(f"{self.key}: no {kind} group of {option}")
+
     def refusal(self, option: str) -> Refusal | None:
         """The refusal of an option the command does not honour: its own, else the default."""
         return self.refused.get(option, self.default_refusal)
@@ -278,3 +297,8 @@ class Command:
         whole = next((r for _o, r in reasons if r is not None and r.whole), None)
         why = whole.why if whole is not None else "; ".join(f"{o}: {r.why}" for o, r in reasons if r is not None)
         return f"{self.key} {' '.join(bad)}: option not modelled" + (f" ({why})" if why else "")
+
+    def whole_message(self, verb: str) -> str:
+        """The translator's message for the whole command refused (a name-only or engine-only entry), `verb` as the
+        program wrote it: `EXEC CICS VERB not modelled (why)`."""
+        return f"EXEC CICS {verb} not modelled ({self.why})"

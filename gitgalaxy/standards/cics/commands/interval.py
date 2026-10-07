@@ -14,7 +14,7 @@ runtimes, and the crucible proves it (cics_command_spec.md section 2.3)."""
 
 from __future__ import annotations
 
-from gitgalaxy.standards.cics.commands.shared import POINTER, REMOTE, RESP_OPTIONS, ibm
+from gitgalaxy.standards.cics.commands.shared import BOTH_FORMS, POINTER, REMOTE, RESP_OPTIONS, ibm
 from gitgalaxy.standards.cics.model import (
     Arg,
     Command,
@@ -79,7 +79,7 @@ START = Command(
             both_ways=True,
             msg="START {} {}: HOURS / MINUTES / SECONDS go with AFTER / AT",
         ),
-        at_most_one("LENGTH", "FLENGTH", msg="{} and {} together"),
+        at_most_one("LENGTH", "FLENGTH", msg=BOTH_FORMS),
         requires(("LENGTH", "FLENGTH"), any_of=("FROM",), msg="START LENGTH without FROM"),
     ),
     outcomes=(
@@ -134,7 +134,7 @@ RETRIEVE = Command(
         ),
     },
     groups=(
-        at_most_one("LENGTH", "FLENGTH", msg="{} and {} together"),
+        at_most_one("LENGTH", "FLENGTH", msg=BOTH_FORMS),
         # INTO, unless the command asks only for RTRANSID / RTERMID / QUEUE (and then no LENGTH)
         requires(("LENGTH", "FLENGTH"), any_of=("INTO",), msg="RETRIEVE without INTO"),
     ),

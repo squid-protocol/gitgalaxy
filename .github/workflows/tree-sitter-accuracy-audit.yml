@@ -12,6 +12,13 @@ name: Tree-sitter Accuracy Audit
 # e.g. gitgalaxy/recorders/.
 
 on:
+  # #4599 (OWNER DECISION, proposed): also run on every push to main, deliberately WITHOUT the
+  # path filter below. The filter is what hid a red main -- #4569 changed which files the aperture
+  # admits (gitgalaxy/core/aperture.py, not in the list) and moved every baseline, but no run was
+  # triggered until an unrelated PR touched this workflow. Cost is ~1 minute per merge.
+  push:
+    branches:
+      - main
   pull_request:
     branches:
       - main

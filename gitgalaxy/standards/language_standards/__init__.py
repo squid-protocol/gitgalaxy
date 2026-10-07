@@ -55,7 +55,7 @@ for the same metrics tracked over time across pushes to main.
 | Ruby | 98.5% | 100.0% | 100.0% | 100.0% |
 | Rust | 100.0% | 100.0% | 100.0% | 100.0% |
 | Scala | 100.0% | 100.0% | 100.0% | 100.0% |
-| Shell | 99.1% | 98.2% | N/A | N/A |
+| Shell | 99.1% | 98.0% | N/A | N/A |
 | Solidity | 100.0% | 94.3% | 100.0% | 100.0% |
 | Swift | 100.0% | 99.2% | 100.0% | 100.0% |
 | Tcl | 100.0% | 96.6% | N/A | N/A |

@@ -27,8 +27,9 @@ one or more gap classes:
 Verdicts come from, in order: the sweeps given with --sweep (`proof_sweep.py --det-only --work DIR`: DIR/sweep.json,
 and DIR/det/<case>/proof/report.json for the diff kind), else main's CI ratchet -- a non-Db2 case not in
 det_sweep_baseline.json is proven, because CI's det-sweep fails on any that is not. Coverage comes from the sweep's
-coverage line, else the case's evidence record (the COBOL side's coverage of the same scenarios). Crucible programs
-(a surveyed corpus named *crucible*, path cases/<trap>/<case>/src/<PROGRAM>.cbl) take their verdicts from
+coverage line, else the committed det-sweep ledger (tests/equivalence/det_sweep_coverage.json, det_coverage_ledger.py: while
+its fingerprints match the tree), else the case's evidence record (the COBOL side's coverage of the same
+scenarios). Crucible programs (a surveyed corpus named *crucible*, path cases/<trap>/<case>/src/<PROGRAM>.cbl) take their verdicts from
 tests/cics_crucible/{baseline,coverage}.json and the ports under tests/cics_crucible/ports.
 
 When several cases run one program, the one with the fewest gaps speaks for it. The ranking is cics_census.py
@@ -140,6 +141,15 @@ def coverage_of(line: str) -> tuple[int, int, int, int] | None:
     return tuple(int(x) for x in m.groups()) if m else None  # type: ignore[return-value]
 
 
+def ledger_coverage(case: str, cases_dir: Path = CASES) -> tuple[int, int, int, int] | None:
+    """The det sweep's coverage of the case from the committed ledger (det_coverage_ledger.py), while it is fresh."""
+    import det_coverage_ledger as dcl
+
+    if cases_dir != CASES:  # a fixture tree: fingerprints are the repo's
+        return None
+    return dcl.fresh_coverage(case, dcl.load())
+
+
 def evidence_coverage(case: str, cases_dir: Path = CASES) -> tuple[int, int, int, int] | None:
     f = cases_dir / case / "evidence.json"
     if not f.is_file():
@@ -190,7 +200,7 @@ def judge_equivalence(run: Run, det_baseline: dict[str, dict[str, Any]], sweeps:
         if t.isdigit() and s.isdigit() and int(t) < int(s):
             run.gaps.add("holes in the case's det port")
     cov = coverage_of(row.get("coverage", "")) if row else None
-    cov = cov or evidence_coverage(run.case, cases_dir)
+    cov = cov or ledger_coverage(run.case, cases_dir) or evidence_coverage(run.case, cases_dir)
     coverage_gaps(run, cov, branches)
 
 

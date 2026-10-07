@@ -12,7 +12,9 @@ DIR/sweep.json holds each case's verdict and coverage line; the summary compares
 listed there is not proven, or a listed one now is (--update-baseline drops those entries). Db2 cases each take a database of the pool (equivalence_db2.hold_lock), waiting when every one is taken.
 --shard I/N proves the I-th of N balanced slices of the cases (1-based; by recorded duration, tests/equivalence/det_sweep_durations.json,
 else by name), --cases NAME,... only those: CI's det-sweep runs the slices on N runners, each writing DIR/sweep.json, and
-`--aggregate DIR [DIR ...] [--expect all|NAME,...]` merges them and applies the ratchet (a case missing from the merge fails it).
+`--aggregate DIR [DIR ...] [--expect all|NAME,...]` merges them and applies the ratchet (a case missing from the merge fails it,
+and so does a proven case whose coverage the committed ledger tests/equivalence/det_sweep_coverage.json lacks or disagrees with:
+tests/tools/det_coverage_ledger.py, #4270).
 --skip-db2 leaves out the cases with a "db2" section (IBM's Db2 container is slow to start): CI's det-sweep workflow (#4463).
 """
 
@@ -294,6 +296,13 @@ def report(results: dict[str, dict[str, dict]], missing: list[str], args: argpar
         for case, r in sorted(cases.items()):
             print(f"  {sweep} {case:<30} {'PROVED' if r['proved'] else 'NOT PROVEN'}  {r.get('coverage', '')}")
     problems = [*missing, *verdict(results, load_baseline())]
+    if getattr(args, "aggregate", None) and "det" in results:  # CI: the coverage ledger must hold what the sweep covered
+        import det_coverage_ledger as ledger
+
+        ledger_problems, ledger_warnings = ledger.check(results["det"], ledger.load())
+        problems += ledger_problems
+        for w in ledger_warnings:
+            print(f"warning: {w}")
     for p in problems:
         print(p)
     if args.no_ratchet:

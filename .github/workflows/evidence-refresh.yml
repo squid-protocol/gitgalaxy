@@ -149,6 +149,13 @@ jobs:
           python tests/tools/evidence.py refresh --stale $skip --crucible ../cics-crucible --work "$RUNNER_TEMP/evidence" $KEYS \
             | tee "$RUNNER_TEMP/refresh.txt"
 
+      - name: Rebuild the purchaser-facing evidence reports (#4601)
+        if: always()
+        run: |
+          cd gitgalaxy
+          # the records' status is recomputed now; the measured translation stays (it needs corpora this job lacks)
+          python tests/tools/evidence_report.py --refresh --live
+
       - name: Summary
         if: always()
         run: |
@@ -182,6 +189,7 @@ jobs:
             tests/equivalence/*/evidence.json
             tests/cics_crucible/ports/*/*/evidence.json
             docs/language_status/evidence/*.md
+            docs/language_status/evidence_report/**
 
       - name: Fail when a re-proof failed
         if: steps.refresh.outcome == 'failure' || steps.ledger_sweep.outcome == 'failure'

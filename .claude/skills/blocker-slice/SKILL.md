@@ -76,6 +76,11 @@ $PY tests/tools/proof_blockers.py SURVEY_DIR --label LABEL [--sweep SWEEP_DIR]
 
 - `pr_check.py N` before merging (CI, mergeability, the ratchet files a PR must touch); `pr_check.py N --merge`
   squash-merges only when green. Drafts first; the merge is the orchestrator's call.
+- The purchaser-facing evidence report (#4601, `docs/language_status/evidence_report/`) reads the det-sweep and
+  crucible baselines, `cics_spec_status.json`, the cases, the evidence records and `oracle_assumptions.md`: a PR that
+  changes one runs `python tests/tools/evidence_report.py --refresh` (no corpora; test_evidence_report.py fails
+  otherwise). After a slice merges, `evidence_report.py --all --baseline` re-measures the translation on the new
+  baseline. Burned estates only; it never writes an evidence record.
 - `cics_census.py history append --pr N` after each merged slice (`docs/language_status/blockers_history.jsonl`);
   `history show` is the trend. Quote `compare --before-baseline` ("translated whole N -> M (non-burned a -> b)") in
   the PR.

@@ -1,0 +1,2570 @@
+{
+ "assumptions_named": [
+  {
+   "area": "CICS",
+   "entry": "Backout: recoverable files and Db2 undone, RECOVERY(NONE) files kept",
+   "id": "X3",
+   "status": "MATCHED"
+  },
+  {
+   "area": "CICS",
+   "entry": "READ ... INTO LENGTH: in-out, truncation and LENGERR; a VSAM file's LENGTH need not equal its record length; LENGERR on READ UPDATE refused",
+   "id": "X14",
+   "status": "ASSUMED (REFUSED where IBM is silent)"
+  },
+  {
+   "area": "CICS",
+   "entry": "Terminal RECEIVE (INTO / SET, LENGTH, MAXLENGTH, NOTRUNCATE; LENGERR, EOC on an LUTYPE2 terminal) and SEND CONTROL",
+   "id": "X15",
+   "status": "ASSUMED (REFUSED where IBM is silent)"
+  },
+  {
+   "area": "CICS",
+   "entry": "Interval control on the det port: START (INTERVAL / TIME / AFTER / AT, TERMID, REQID, PROTECT, FROM, RTRANSID / RTERMID / QUEUE), RETRIEVE (INTO / LENGTH, the data options, ENVDEFERR), CANCEL REQID, RUN TRANSID CHILD; TIME RESP2 and the order of out-of-range checks assumed; FETCH, RUN / START CHANNEL, RETRIEVE SET / WAIT refused",
+   "id": "X18",
+   "status": "ASSUMED (REFUSED where IBM is silent)"
+  },
+  {
+   "area": "CICS",
+   "entry": "ASSIGN on the det port: STARTCODE (TD / S / SD), USERID (the default user), FACILITY / SCRNHT / SCRNWD (INVREQ RESP2 5 without a terminal) from facts the harness states; no data area written when ASSIGN raises INVREQ; OPID, NETNAME, TERMCODE, FCI, the other screen sizes, work-area lengths and the rest refused",
+   "id": "X19",
+   "status": "ASSUMED (REFUSED where the harness cannot decide)"
+  },
+  {
+   "area": "CICS",
+   "entry": "SEND TEXT on the det port and the stub: TERMINAL accepted as the default output disposition (the principal facility; the event is that of SEND TEXT without it); ACCUM, PAGING, SET, REQID, HEADER, TRAILER, JUSTIFY / JUSFIRST / JUSLAST, the printer, partition and LDC options, MSR, FMHPARM, DEFAULT / ALTERNATE refused",
+   "id": "X20",
+   "status": "MATCHED (REFUSED where the region cannot decide)"
+  }
+ ],
+ "bars": {
+  "branches": 100.0,
+  "paragraphs": 100.0
+ },
+ "burned": true,
+ "estate": "zecs",
+ "format": "gitgalaxy-evidence-report/1",
+ "levels": [
+  {
+   "condition": "the program is in the estate's survey",
+   "level": "L0",
+   "name": "inventoried"
+  },
+  {
+   "condition": "the det translator leaves no hole and does not refuse it",
+   "level": "L1",
+   "name": "translated whole"
+  },
+  {
+   "condition": "a case runs it and the case's det port is equal on every scenario (CI's det-sweep ratchet on main; a Db2 case only by a local sweep); the case's evidence record is reported, not required",
+   "level": "L2",
+   "name": "executed equivalent"
+  },
+  {
+   "condition": "L2, and the scenarios execute >= 100.0 percent of its live paragraphs",
+   "level": "L3",
+   "name": "paragraph coverage"
+  },
+  {
+   "condition": "L3, and >= 100.0 percent of its branch outcomes, net of the case's reviewed infeasible outcomes (listed under its assumptions)",
+   "level": "L4",
+   "name": "branch coverage"
+  },
+  {
+   "condition": "L4, and every surviving mutant of the det port accounted for: not yet measured (#4628)",
+   "level": "L5",
+   "name": "mutants accounted for"
+  }
+ ],
+ "measured": {
+  "det_coverage": {
+   "carddemo-acctupdate": null,
+   "carddemo-acctview": null,
+   "carddemo-acctview-generated": null,
+   "carddemo-adminmenu": null,
+   "carddemo-billpay": null,
+   "carddemo-cardlist": null,
+   "carddemo-cardupdate": null,
+   "carddemo-cardview": null,
+   "carddemo-cobtupdt": null,
+   "carddemo-cotrtlic": null,
+   "carddemo-cotrtupc": null,
+   "carddemo-dailyval": null,
+   "carddemo-dateutil": null,
+   "carddemo-intcalc": null,
+   "carddemo-intcalc-generated": null,
+   "carddemo-menu": null,
+   "carddemo-posttran": null,
+   "carddemo-posttran-generated": null,
+   "carddemo-readacct": null,
+   "carddemo-readcard": null,
+   "carddemo-readcust": null,
+   "carddemo-readxref": null,
+   "carddemo-report": null,
+   "carddemo-signon": null,
+   "carddemo-tranadd": null,
+   "carddemo-tranlist": null,
+   "carddemo-tranview": null,
+   "carddemo-trnrpt": null,
+   "carddemo-useradd": null,
+   "carddemo-userdel": null,
+   "carddemo-userlist": null,
+   "carddemo-userupd": null,
+   "cbsa-abndproc": null,
+   "cbsa-custctrl": null,
+   "cbsa-dbcrfun": null,
+   "cbsa-delacc": null,
+   "cbsa-inqacc": null,
+   "cbsa-updacc": null,
+   "cbsa-updacc-generated": null,
+   "cbsa-updcust": null,
+   "cbsa-xfrfun": null,
+   "genapp-lgacdb01": null,
+   "genapp-lgacdb02": null,
+   "genapp-lgacvs01": null,
+   "genapp-lgapdb01": null,
+   "genapp-lgapvs01": null,
+   "genapp-lgdpdb01": null,
+   "genapp-lgdpvs01": null,
+   "genapp-lgicdb01": null,
+   "genapp-lgipdb01": null,
+   "genapp-lgucdb01": null,
+   "genapp-lgucvs01": null,
+   "genapp-lgupdb01": null,
+   "genapp-lgupvs01": null,
+   "mortgage-cmort": null,
+   "mortgage-mlist": null,
+   "mortgage-mlist-generated": null,
+   "mortgage-mpmt": null,
+   "mortgage-nbrvl": null
+  },
+  "programs": [
+   {
+    "commands": [
+     "(unlisted) INQUIRE",
+     "RECEIVE",
+     "RETURN",
+     "SEND TEXT",
+     "WEB CLOSE",
+     "WEB CONVERSE",
+     "WEB OPEN"
+    ],
+    "facts": {
+     "assign_region": [],
+     "assign_task": [],
+     "eib": []
+    },
+    "program": "Source/ECS001.cbl",
+    "row": {
+     "holes": [
+      "line 191: EXEC EXEC CICS: EXEC CICS WEB OPEN not modelled (CICS web support (HTTP server / client) is not modelled)",
+      "line 243: EXEC EXEC CICS: EXEC CICS WEB CONVERSE not modelled (CICS web support (HTTP server / client) is not modelled)",
+      "line 259: EXEC EXEC CICS: EXEC CICS WEB CONVERSE not modelled (CICS web support (HTTP server / client) is not modelled)",
+      "line 307: EXEC EXEC CICS: EXEC CICS INQUIRE not modelled",
+      "line 348: EXEC EXEC CICS: EXEC CICS WEB CLOSE not modelled (CICS web support (HTTP server / client) is not modelled)"
+     ],
+     "kind": "cics",
+     "statements": 105,
+     "translated": 100
+    },
+    "source_read": true
+   },
+   {
+    "commands": [
+     "(unlisted) INQUIRE",
+     "(unlisted) SYNCPOINT NOHANDLE",
+     "ASKTIME",
+     "ASSIGN",
+     "DELAY",
+     "DELETE",
+     "DOCUMENT CREATE",
+     "DOCUMENT RETRIEVE",
+     "ENQ",
+     "FORMATTIME",
+     "HANDLE ABEND",
+     "READ",
+     "RETRIEVE",
+     "RETURN",
+     "REWRITE",
+     "START",
+     "WEB CLOSE",
+     "WEB CONVERSE",
+     "WEB OPEN",
+     "WEB PARSE URL",
+     "WRITE",
+     "WRITEQ TD"
+    ],
+    "facts": {
+     "assign_region": [
+      "APPLID"
+     ],
+     "assign_task": [],
+     "eib": [
+      "EIBFN",
+      "EIBTASKN"
+     ]
+    },
+    "program": "Source/ZECS000.cbl",
+    "row": {
+     "holes": [
+      "line 411: EXEC EXEC CICS: READ GTEQ: option not modelled",
+      "line 504: EXEC EXEC CICS: EXEC CICS SYNCPOINT NOHANDLE not modelled",
+      "line 560: EXEC EXEC CICS: EXEC CICS SYNCPOINT NOHANDLE not modelled",
+      "line 576: EXEC EXEC CICS: EXEC CICS DOCUMENT CREATE not modelled (CICS documents (the document handler) are not modelled)",
+      "line 584: EXEC EXEC CICS: EXEC CICS DOCUMENT RETRIEVE not modelled (CICS documents (the document handler) are not modelled)",
+      "line 597: EXEC EXEC CICS: EXEC CICS WEB PARSE not modelled (CICS web support (HTTP server / client) is not modelled)",
+      "line 625: EXEC EXEC CICS: EXEC CICS WEB OPEN not modelled (CICS web support (HTTP server / client) is not modelled)",
+      "line 651: EXEC EXEC CICS: EXEC CICS INQUIRE not modelled",
+      "line 672: EXEC EXEC CICS: EXEC CICS WEB CONVERSE not modelled (CICS web support (HTTP server / client) is not modelled)",
+      "line 696: EXEC EXEC CICS: EXEC CICS WEB CLOSE not modelled (CICS web support (HTTP server / client) is not modelled)",
+      "line 810: EXEC EXEC CICS: EXEC CICS DOCUMENT CREATE not modelled (CICS documents (the document handler) are not modelled)",
+      "line 815: EXEC EXEC CICS: EXEC CICS DOCUMENT RETRIEVE not modelled (CICS documents (the document handler) are not modelled)",
+      "line 827: EXEC EXEC CICS: EXEC CICS WEB PARSE not modelled (CICS web support (HTTP server / client) is not modelled)"
+     ],
+     "kind": "cics",
+     "statements": 173,
+     "translated": 160
+    },
+    "source_read": true
+   },
+   {
+    "commands": [
+     "(unlisted) GET",
+     "(unlisted) SYNCPOINT NOHANDLE",
+     "ASKTIME",
+     "DELETE",
+     "DOCUMENT CREATE",
+     "DOCUMENT RETRIEVE",
+     "FORMATTIME",
+     "FREEMAIN",
+     "GETMAIN",
+     "INQUIRE PROGRAM",
+     "LINK",
+     "READ",
+     "RETURN",
+     "REWRITE",
+     "SYNCPOINT ROLLBACK",
+     "WEB CLOSE",
+     "WEB CONVERSE",
+     "WEB EXTRACT",
+     "WEB OPEN",
+     "WEB PARSE URL",
+     "WEB READ HTTPHEADER",
+     "WEB RECEIVE",
+     "WEB SEND",
+     "WEB WRITE HTTPHEADER",
+     "WRITE",
+     "WRITEQ TD",
+     "XCTL"
+    ],
+    "facts": {
+     "assign_region": [],
+     "assign_task": [],
+     "eib": [
+      "EIBDS",
+      "EIBFN",
+      "EIBRCODE"
+     ]
+    },
+    "program": "Source/ZECS001.cbl",
+    "row": {
+     "holes": [
+      "line 467: EXEC EXEC CICS: EXEC CICS WEB EXTRACT not modelled (CICS web support (HTTP server / client) is not modelled)",
+      "line 530: EXEC EXEC CICS: EXEC CICS WEB RECEIVE not modelled (CICS web support (HTTP server / client) is not modelled)",
+      "line 542: EXEC EXEC CICS: EXEC CICS WEB RECEIVE not modelled (CICS web support (HTTP server / client) is not modelled)",
+      "line 643: EXEC EXEC CICS: EXEC CICS DOCUMENT CREATE not modelled (CICS documents (the document handler) are not modelled)",
+      "line 652: EXEC EXEC CICS: EXEC CICS DOCUMENT RETRIEVE not modelled (CICS documents (the document handler) are not modelled)",
+      "line 731: EXEC EXEC CICS: INQUIRE PROGRAM STATUS: option not modelled",
+      "line 782: EXEC EXEC CICS: EXEC CICS WEB READ not modelled (CICS web support (HTTP server / client) is not modelled)",
+      "line 1098: HOLE SET ADDRESS OF (pointers)",
+      "line 1104: EXEC EXEC CICS: EXEC CICS GETMAIN not modelled (storage CICS acquires for the task, addressed by a pointer, is not modelled)",
+      "line 1110: HOLE SET ADDRESS OF (pointers)",
+      "line 1134: HOLE SET ADDRESS OF (pointers)",
+      "line 1180: EXEC EXEC CICS: EXEC CICS FREEMAIN not modelled (storage CICS acquires for the task, addressed by a pointer, is not modelled)",
+      "line 1195: HOLE SET ADDRESS OF (pointers)",
+      "line 1198: HOLE SET ADDRESS OF (pointers)",
+      "line 1214: EXEC EXEC CICS: EXEC CICS WEB SEND not modelled (CICS web support (HTTP server / client) is not modelled)",
+      "line 1225: EXEC EXEC CICS: EXEC CICS WEB SEND not modelled (CICS web support (HTTP server / client) is not modelled)",
+      "line 1244: HOLE dynamic CALL",
+      "line 1246: EXEC EXEC CICS: GET COUNTER: named counters are not modelled",
+      "line 1444: EXEC EXEC CICS: EXEC CICS SYNCPOINT NOHANDLE not modelled",
+      "line 1457: EXEC EXEC CICS: EXEC CICS WEB SEND not modelled (CICS web support (HTTP server / client) is not modelled)",
+      "line 1487: HOLE SET ADDRESS OF (pointers)",
+      "line 1659: EXEC EXEC CICS: EXEC CICS WEB SEND not modelled (CICS web support (HTTP server / client) is not modelled)",
+      "line 1759: EXEC EXEC CICS: EXEC CICS WEB SEND not modelled (CICS web support (HTTP server / client) is not modelled)",
+      "line 1781: EXEC EXEC CICS: EXEC CICS DOCUMENT CREATE not modelled (CICS documents (the document handler) are not modelled)",
+      "line 1789: EXEC EXEC CICS: EXEC CICS DOCUMENT RETRIEVE not modelled (CICS documents (the document handler) are not modelled)",
+      "line 1802: EXEC EXEC CICS: EXEC CICS WEB PARSE not modelled (CICS web support (HTTP server / client) is not modelled)",
+      "line 1830: EXEC EXEC CICS: EXEC CICS WEB OPEN not modelled (CICS web support (HTTP server / client) is not modelled)",
+      "line 1850: HOLE SET ADDRESS OF (pointers)",
+      "line 1861: EXEC EXEC CICS: EXEC CICS WEB CONVERSE not modelled (CICS web support (HTTP server / client) is not modelled)",
+      "line 1882: EXEC EXEC CICS: EXEC CICS WEB CONVERSE not modelled (CICS web support (HTTP server / client) is not modelled)",
+      "line 1903: EXEC EXEC CICS: EXEC CICS WEB CONVERSE not modelled (CICS web support (HTTP server / client) is not modelled)",
+      "line 1927: EXEC EXEC CICS: EXEC CICS WEB CLOSE not modelled (CICS web support (HTTP server / client) is not modelled)",
+      "line 1951: EXEC EXEC CICS: EXEC CICS WEB WRITE not modelled (CICS web support (HTTP server / client) is not modelled)",
+      "line 2017: EXEC EXEC CICS: EXEC CICS WEB SEND not modelled (CICS web support (HTTP server / client) is not modelled)",
+      "line 2040: EXEC EXEC CICS: EXEC CICS WEB SEND not modelled (CICS web support (HTTP server / client) is not modelled)",
+      "line 2062: EXEC EXEC CICS: EXEC CICS WEB SEND not modelled (CICS web support (HTTP server / client) is not modelled)",
+      "line 2081: EXEC EXEC CICS: EXEC CICS DOCUMENT CREATE not modelled (CICS documents (the document handler) are not modelled)",
+      "line 2087: EXEC EXEC CICS: EXEC CICS WEB SEND not modelled (CICS web support (HTTP server / client) is not modelled)",
+      "line 2108: EXEC EXEC CICS: EXEC CICS WEB SEND not modelled (CICS web support (HTTP server / client) is not modelled)"
+     ],
+     "kind": "cics",
+     "statements": 561,
+     "translated": 522
+    },
+    "source_read": true
+   },
+   {
+    "commands": [
+     "(unlisted) INQUIRE",
+     "ASKTIME",
+     "DELETE",
+     "DOCUMENT CREATE",
+     "DOCUMENT RETRIEVE",
+     "READ",
+     "RETURN",
+     "WEB CLOSE",
+     "WEB CONVERSE",
+     "WEB OPEN",
+     "WEB PARSE URL",
+     "WEB SEND"
+    ],
+    "facts": {
+     "assign_region": [],
+     "assign_task": [],
+     "eib": [
+      "EIBFN"
+     ]
+    },
+    "program": "Source/ZECS003.cbl",
+    "row": {
+     "holes": [
+      "line 249: EXEC EXEC CICS: READ GTEQ: option not modelled",
+      "line 272: EXEC EXEC CICS: DELETE GENERIC: option not modelled",
+      "line 307: EXEC EXEC CICS: EXEC CICS DOCUMENT CREATE not modelled (CICS documents (the document handler) are not modelled)",
+      "line 315: EXEC EXEC CICS: EXEC CICS DOCUMENT RETRIEVE not modelled (CICS documents (the document handler) are not modelled)",
+      "line 328: EXEC EXEC CICS: EXEC CICS WEB PARSE not modelled (CICS web support (HTTP server / client) is not modelled)",
+      "line 355: EXEC EXEC CICS: EXEC CICS WEB OPEN not modelled (CICS web support (HTTP server / client) is not modelled)",
+      "line 378: EXEC EXEC CICS: EXEC CICS INQUIRE not modelled",
+      "line 400: EXEC EXEC CICS: EXEC CICS WEB CONVERSE not modelled (CICS web support (HTTP server / client) is not modelled)",
+      "line 426: EXEC EXEC CICS: EXEC CICS WEB CLOSE not modelled (CICS web support (HTTP server / client) is not modelled)",
+      "line 440: EXEC EXEC CICS: EXEC CICS WEB SEND not modelled (CICS web support (HTTP server / client) is not modelled)"
+     ],
+     "kind": "cics",
+     "statements": 73,
+     "translated": 63
+    },
+    "source_read": true
+   },
+   {
+    "commands": [
+     "(unlisted) INQUIRE",
+     "(unlisted) INQUIRE URIMAP",
+     "RETURN",
+     "START",
+     "WRITE OPERATOR",
+     "WRITEQ TD"
+    ],
+    "facts": {
+     "assign_region": [],
+     "assign_task": [],
+     "eib": []
+    },
+    "program": "Source/ZECSPLT.cbl",
+    "row": {
+     "holes": [
+      "line 77: EXEC EXEC CICS: EXEC CICS INQUIRE URIMAP not modelled",
+      "line 88: EXEC EXEC CICS: EXEC CICS INQUIRE not modelled",
+      "line 141: EXEC EXEC CICS: EXEC CICS WRITE OPERATOR not modelled (a message to the system console (WRITE OPERATOR) is not modelled)",
+      "line 153: EXEC EXEC CICS: EXEC CICS INQUIRE URIMAP not modelled"
+     ],
+     "kind": "cics",
+     "statements": 27,
+     "translated": 23
+    },
+    "source_read": true
+   }
+  ],
+  "record_status": {
+   "carddemo-acctview": {
+    "stale": [
+     "harness",
+     "oracle",
+     "generator"
+    ],
+    "status": "stale"
+   },
+   "carddemo-adminmenu": {
+    "stale": [
+     "harness",
+     "oracle",
+     "generator"
+    ],
+    "status": "stale"
+   },
+   "carddemo-billpay": {
+    "stale": [
+     "harness",
+     "oracle",
+     "generator"
+    ],
+    "status": "stale"
+   },
+   "carddemo-cardlist": {
+    "stale": [
+     "harness",
+     "oracle",
+     "generator"
+    ],
+    "status": "stale"
+   },
+   "carddemo-cardview": {
+    "stale": [
+     "harness",
+     "oracle",
+     "generator"
+    ],
+    "status": "stale"
+   },
+   "carddemo-dailyval": {
+    "stale": [
+     "harness",
+     "oracle",
+     "generator"
+    ],
+    "status": "stale"
+   },
+   "carddemo-dateutil": {
+    "stale": [
+     "harness",
+     "oracle",
+     "generator"
+    ],
+    "status": "stale"
+   },
+   "carddemo-intcalc": {
+    "stale": [
+     "harness",
+     "oracle",
+     "generator"
+    ],
+    "status": "stale"
+   },
+   "carddemo-menu": {
+    "stale": [
+     "harness",
+     "oracle",
+     "generator"
+    ],
+    "status": "stale"
+   },
+   "carddemo-posttran": {
+    "stale": [
+     "harness",
+     "oracle",
+     "generator"
+    ],
+    "status": "stale"
+   },
+   "carddemo-readcard": {
+    "stale": [
+     "harness",
+     "oracle",
+     "generator"
+    ],
+    "status": "stale"
+   },
+   "carddemo-readcust": {
+    "stale": [
+     "harness",
+     "oracle",
+     "generator"
+    ],
+    "status": "stale"
+   },
+   "carddemo-readxref": {
+    "stale": [
+     "harness",
+     "oracle",
+     "generator"
+    ],
+    "status": "stale"
+   },
+   "carddemo-report": {
+    "stale": [
+     "harness",
+     "oracle",
+     "generator"
+    ],
+    "status": "stale"
+   },
+   "carddemo-signon": {
+    "stale": [
+     "harness",
+     "oracle",
+     "generator"
+    ],
+    "status": "stale"
+   },
+   "carddemo-tranadd": {
+    "stale": [
+     "harness",
+     "oracle",
+     "generator"
+    ],
+    "status": "stale"
+   },
+   "carddemo-tranlist": {
+    "stale": [
+     "harness",
+     "oracle",
+     "generator"
+    ],
+    "status": "stale"
+   },
+   "carddemo-tranview": {
+    "stale": [
+     "harness",
+     "oracle",
+     "generator"
+    ],
+    "status": "stale"
+   },
+   "carddemo-trnrpt": {
+    "stale": [
+     "harness",
+     "oracle",
+     "generator"
+    ],
+    "status": "stale"
+   },
+   "carddemo-useradd": {
+    "stale": [
+     "harness",
+     "oracle",
+     "generator"
+    ],
+    "status": "stale"
+   },
+   "carddemo-userdel": {
+    "stale": [
+     "harness",
+     "oracle",
+     "generator"
+    ],
+    "status": "stale"
+   },
+   "carddemo-userlist": {
+    "stale": [
+     "harness",
+     "oracle",
+     "generator"
+    ],
+    "status": "stale"
+   },
+   "carddemo-userupd": {
+    "stale": [
+     "harness",
+     "oracle",
+     "generator"
+    ],
+    "status": "stale"
+   },
+   "cbsa-inqacc": {
+    "stale": [
+     "harness",
+     "oracle",
+     "generator"
+    ],
+    "status": "stale"
+   },
+   "cbsa-updacc": {
+    "stale": [
+     "harness",
+     "oracle",
+     "generator"
+    ],
+    "status": "stale"
+   },
+   "genapp-lgapvs01": {
+    "stale": [
+     "harness",
+     "oracle",
+     "generator"
+    ],
+    "status": "stale"
+   },
+   "genapp-lgicdb01": {
+    "stale": [
+     "harness",
+     "oracle",
+     "generator"
+    ],
+    "status": "stale"
+   },
+   "genapp-lgupdb01": {
+    "stale": [
+     "harness",
+     "oracle",
+     "generator"
+    ],
+    "status": "stale"
+   }
+  },
+  "survey": {
+   "label": "before",
+   "scope": "burned + local + census corpora",
+   "sha": "3bcbb8c62397b338307563c40618297d54c38100"
+  },
+  "sweeps": {}
+ },
+ "mutation": "not yet measured (#4628)",
+ "not_measured": [
+  {
+   "dimension": "data",
+   "issue": "#4514",
+   "what": "data migration: VSAM / Db2 / sequential data converted and reconciled"
+  },
+  {
+   "dimension": "JCL streams",
+   "issue": "#4514",
+   "what": "the batch job streams that run the programs (steps, utilities, restart)"
+  },
+  {
+   "dimension": "interfaces",
+   "issue": "#4514",
+   "what": "the estate's external interfaces (MQ, files exchanged, web services, other systems)"
+  },
+  {
+   "dimension": "performance",
+   "issue": "#4514",
+   "what": "throughput, latency and batch windows"
+  },
+  {
+   "dimension": "security",
+   "issue": "#4514",
+   "what": "RACF / CICS security, user and transaction authorisation"
+  },
+  {
+   "dimension": "cutover",
+   "issue": "#4514",
+   "what": "the switch-over plan: parallel run, fallback, data freeze"
+  }
+ ],
+ "oracle": {
+  "base_image": "debian:bookworm-slim@sha256:3783cc01769c7b2b1b83a5c5ad96c815348e28ed7da68e2e3687004faa906251",
+  "compiler": "cobc (GnuCOBOL) 3.1.2.0",
+  "package": "3.1.2-5+b1",
+  "what": "GnuCOBOL plus the gitgalaxy CICS stub and models (CICS, Db2 precompiler, Language Environment, DISPLAY), not IBM z/OS"
+ },
+ "programs": [
+  {
+   "assumptions": {
+    "facts_stated": [],
+    "facts_unstated": [],
+    "named_by_commands": [
+     {
+      "area": "CICS",
+      "entry": "Terminal RECEIVE (INTO / SET, LENGTH, MAXLENGTH, NOTRUNCATE; LENGERR, EOC on an LUTYPE2 terminal) and SEND CONTROL",
+      "id": "X15",
+      "status": "ASSUMED (REFUSED where IBM is silent)"
+     },
+     {
+      "area": "CICS",
+      "entry": "SEND TEXT on the det port and the stub: TERMINAL accepted as the default output disposition (the principal facility; the event is that of SEND TEXT without it); ACCUM, PAGING, SET, REQID, HEADER, TRAILER, JUSTIFY / JUSFIRST / JUSLAST, the printer, partition and LDC options, MSR, FMHPARM, DEFAULT / ALTERNATE refused",
+      "id": "X20",
+      "status": "MATCHED (REFUSED where the region cannot decide)"
+     }
+    ],
+    "reach": "not measured",
+    "source_read": true
+   },
+   "coverage": {
+    "branch_net_pct": null,
+    "branch_pct": null,
+    "branches": null,
+    "branches_net": null,
+    "infeasible_netted": [],
+    "infeasible_refuted": [],
+    "infeasible_stated": [],
+    "paragraph_pct": null,
+    "paragraphs": null,
+    "source": null,
+    "uncovered_branches": [],
+    "uncovered_paragraphs": "not recorded"
+   },
+   "equivalence": {
+    "cases": [],
+    "chosen": null
+   },
+   "level": "L0",
+   "mutation": {
+    "det_port": "not yet measured (#4628)"
+   },
+   "next": [
+    "translated whole (5 holes left)"
+   ],
+   "oracle_backing": [
+    {
+     "backed": false,
+     "command": "(unlisted) INQUIRE",
+     "crucible_cases": [],
+     "facts_stated": [],
+     "registers": [],
+     "spec_entry": "no spec entry"
+    },
+    {
+     "backed": true,
+     "command": "RECEIVE",
+     "crucible_cases": [
+      {
+       "case": "ca-link-lengths",
+       "java_agrees": true,
+       "stub_agrees": true
+      },
+      {
+       "case": "ca-xctl-versions",
+       "java_agrees": true,
+       "stub_agrees": true
+      },
+      {
+       "case": "gt-assign-startcode",
+       "java_agrees": false,
+       "stub_agrees": true
+      },
+      {
+       "case": "gt-start-options",
+       "java_agrees": false,
+       "stub_agrees": true
+      },
+      {
+       "case": "gt-start-retrieve",
+       "java_agrees": true,
+       "stub_agrees": true
+      },
+      {
+       "case": "gt-terminal-coalesce",
+       "java_agrees": true,
+       "stub_agrees": true
+      },
+      {
+       "case": "hc-eoc-error",
+       "java_agrees": false,
+       "stub_agrees": true
+      },
+      {
+       "case": "hc-handle-aid",
+       "java_agrees": false,
+       "stub_agrees": true
+      },
+      {
+       "case": "hc-ignore-error",
+       "java_agrees": false,
+       "stub_agrees": true
+      },
+      {
+       "case": "hc-terminal-eoc",
+       "java_agrees": false,
+       "stub_agrees": true
+      },
+      {
+       "case": "hc-terminal-receive",
+       "java_agrees": false,
+       "stub_agrees": true
+      }
+     ],
+     "facts_stated": [],
+     "registers": [
+      "X15"
+     ],
+     "spec_entry": "full"
+    },
+    {
+     "backed": true,
+     "command": "RETURN",
+     "crucible_cases": [
+      {
+       "case": "ca-channel-containers",
+       "java_agrees": false,
+       "stub_agrees": true
+      },
+      {
+       "case": "ca-link-lengths",
+       "java_agrees": true,
+       "stub_agrees": true
+      },
+      {
+       "case": "ca-xctl-versions",
+       "java_agrees": true,
+       "stub_agrees": true
+      },
+      {
+       "case": "gt-assign-startcode",
+       "java_agrees": false,
+       "stub_agrees": true
+      },
+      {
+       "case": "gt-start-options",
+       "java_agrees": false,
+       "stub_agrees": true
+      },
+      {
+       "case": "gt-start-retrieve",
+       "java_agrees": true,
+       "stub_agrees": true
+      },
+      {
+       "case": "gt-terminal-coalesce",
+       "java_agrees": true,
+       "stub_agrees": true
+      },
+      {
+       "case": "hc-abend-link",
+       "java_agrees": true,
+       "stub_agrees": true
+      },
+      {
+       "case": "hc-eoc-error",
+       "java_agrees": false,
+       "stub_agrees": true
+      },
+      {
+       "case": "hc-handle-aid",
+       "java_agrees": false,
+       "stub_agrees": true
+      },
+      {
+       "case": "hc-ignore-error",
+       "java_agrees": false,
+       "stub_agrees": true
+      },
+      {
+       "case": "hc-perform-range",
+       "java_agrees": true,
+       "stub_agrees": true
+      },
+      {
+       "case": "hc-terminal-eoc",
+       "java_agrees": false,
+       "stub_agrees": true
+      },
+      {
+       "case": "hc-terminal-receive",
+       "java_agrees": false,
+       "stub_agrees": true
+      },
+      {
+       "case": "hx-attr-bytes",
+       "java_agrees": true,
+       "stub_agrees": true
+      },
+      {
+       "case": "hx-extended-cursor",
+       "java_agrees": true,
+       "stub_agrees": true
+      },
+      {
+       "case": "pc-aid-menu",
+       "java_agrees": true,
+       "stub_agrees": true
+      },
+      {
+       "case": "pc-wizard",
+       "java_agrees": true,
+       "stub_agrees": true
+      }
+     ],
+     "facts_stated": [],
+     "registers": [],
+     "spec_entry": "full"
+    },
+    {
+     "backed": true,
+     "command": "SEND TEXT",
+     "crucible_cases": [
+      {
+       "case": "ca-link-lengths",
+       "java_agrees": true,
+       "stub_agrees": true
+      },
+      {
+       "case": "ca-xctl-versions",
+       "java_agrees": true,
+       "stub_agrees": true
+      },
+      {
+       "case": "gt-assign-startcode",
+       "java_agrees": false,
+       "stub_agrees": true
+      },
+      {
+       "case": "gt-start-options",
+       "java_agrees": false,
+       "stub_agrees": true
+      },
+      {
+       "case": "gt-start-retrieve",
+       "java_agrees": true,
+       "stub_agrees": true
+      },
+      {
+       "case": "gt-terminal-coalesce",
+       "java_agrees": true,
+       "stub_agrees": true
+      },
+      {
+       "case": "hc-abend-link",
+       "java_agrees": true,
+       "stub_agrees": true
+      },
+      {
+       "case": "hc-eoc-error",
+       "java_agrees": false,
+       "stub_agrees": true
+      },
+      {
+       "case": "hc-handle-aid",
+       "java_agrees": false,
+       "stub_agrees": true
+      },
+      {
+       "case": "hc-ignore-error",
+       "java_agrees": false,
+       "stub_agrees": true
+      },
+      {
+       "case": "hc-perform-range",
+       "java_agrees": true,
+       "stub_agrees": true
+      },
+      {
+       "case": "hc-terminal-eoc",
+       "java_agrees": false,
+       "stub_agrees": true
+      },
+      {
+       "case": "hc-terminal-receive",
+       "java_agrees": false,
+       "stub_agrees": true
+      },
+      {
+       "case": "pc-aid-menu",
+       "java_agrees": true,
+       "stub_agrees": true
+      },
+      {
+       "case": "pc-wizard",
+       "java_agrees": true,
+       "stub_agrees": true
+      }
+     ],
+     "facts_stated": [],
+     "registers": [
+      "X20"
+     ],
+     "spec_entry": "full"
+    },
+    {
+     "backed": false,
+     "command": "WEB CLOSE",
+     "crucible_cases": [],
+     "facts_stated": [],
+     "registers": [],
+     "spec_entry": "name-only"
+    },
+    {
+     "backed": false,
+     "command": "WEB CONVERSE",
+     "crucible_cases": [],
+     "facts_stated": [],
+     "registers": [],
+     "spec_entry": "name-only"
+    },
+    {
+     "backed": false,
+     "command": "WEB OPEN",
+     "crucible_cases": [],
+     "facts_stated": [],
+     "registers": [],
+     "spec_entry": "name-only"
+    }
+   ],
+   "program": "Source/ECS001.cbl",
+   "residual": {
+    "assumed_or_differs_named": [
+     "X15"
+    ],
+    "branch_outcomes_unrun": null,
+    "commands": 7,
+    "commands_backed": 3,
+    "commands_not_backed": [
+     "(unlisted) INQUIRE",
+     "WEB CLOSE",
+     "WEB CONVERSE",
+     "WEB OPEN"
+    ],
+    "facts_unstated": 0,
+    "holes": 5,
+    "paragraphs_unrun": null,
+    "refused": null
+   },
+   "translation": {
+    "gap_classes": [
+     "EXEC CICS INQUIRE",
+     "EXEC CICS WEB CLOSE",
+     "EXEC CICS WEB CONVERSE",
+     "EXEC CICS WEB OPEN"
+    ],
+    "hole_count": 5,
+    "holes": [
+     "EXEC EXEC CICS: EXEC CICS INQUIRE not modelled",
+     "EXEC EXEC CICS: EXEC CICS WEB CLOSE not modelled (CICS web support (HTTP server / client) is not modelled)",
+     "EXEC EXEC CICS: EXEC CICS WEB CONVERSE not modelled (CICS web support (HTTP server / client) is not modelled)",
+     "EXEC EXEC CICS: EXEC CICS WEB OPEN not modelled (CICS web support (HTTP server / client) is not modelled)"
+    ],
+    "refused": null,
+    "source_defects": [],
+    "statements": 105,
+    "translated": 100,
+    "whole": false
+   }
+  },
+  {
+   "assumptions": {
+    "facts_stated": [
+     "facility",
+     "screen",
+     "startcode",
+     "userid"
+    ],
+    "facts_unstated": [
+     "EIB field EIBFN (both runtimes read zero; z/OS does not)",
+     "EIB field EIBTASKN (both runtimes read zero; z/OS does not)",
+     "ASSIGN APPLID (the case states no region)"
+    ],
+    "named_by_commands": [
+     {
+      "area": "CICS",
+      "entry": "READ ... INTO LENGTH: in-out, truncation and LENGERR; a VSAM file's LENGTH need not equal its record length; LENGERR on READ UPDATE refused",
+      "id": "X14",
+      "status": "ASSUMED (REFUSED where IBM is silent)"
+     },
+     {
+      "area": "CICS",
+      "entry": "Interval control on the det port: START (INTERVAL / TIME / AFTER / AT, TERMID, REQID, PROTECT, FROM, RTRANSID / RTERMID / QUEUE), RETRIEVE (INTO / LENGTH, the data options, ENVDEFERR), CANCEL REQID, RUN TRANSID CHILD; TIME RESP2 and the order of out-of-range checks assumed; FETCH, RUN / START CHANNEL, RETRIEVE SET / WAIT refused",
+      "id": "X18",
+      "status": "ASSUMED (REFUSED where IBM is silent)"
+     },
+     {
+      "area": "CICS",
+      "entry": "ASSIGN on the det port: STARTCODE (TD / S / SD), USERID (the default user), FACILITY / SCRNHT / SCRNWD (INVREQ RESP2 5 without a terminal) from facts the harness states; no data area written when ASSIGN raises INVREQ; OPID, NETNAME, TERMCODE, FCI, the other screen sizes, work-area lengths and the rest refused",
+      "id": "X19",
+      "status": "ASSUMED (REFUSED where the harness cannot decide)"
+     }
+    ],
+    "reach": "not measured",
+    "source_read": true
+   },
+   "coverage": {
+    "branch_net_pct": null,
+    "branch_pct": null,
+    "branches": null,
+    "branches_net": null,
+    "infeasible_netted": [],
+    "infeasible_refuted": [],
+    "infeasible_stated": [],
+    "paragraph_pct": null,
+    "paragraphs": null,
+    "source": null,
+    "uncovered_branches": [],
+    "uncovered_paragraphs": "not recorded"
+   },
+   "equivalence": {
+    "cases": [],
+    "chosen": null
+   },
+   "level": "L0",
+   "mutation": {
+    "det_port": "not yet measured (#4628)"
+   },
+   "next": [
+    "translated whole (13 holes left)"
+   ],
+   "oracle_backing": [
+    {
+     "backed": false,
+     "command": "(unlisted) INQUIRE",
+     "crucible_cases": [],
+     "facts_stated": [],
+     "registers": [],
+     "spec_entry": "no spec entry"
+    },
+    {
+     "backed": false,
+     "command": "(unlisted) SYNCPOINT NOHANDLE",
+     "crucible_cases": [],
+     "facts_stated": [],
+     "registers": [],
+     "spec_entry": "no spec entry"
+    },
+    {
+     "backed": false,
+     "command": "ASKTIME",
+     "crucible_cases": [],
+     "facts_stated": [],
+     "registers": [],
+     "spec_entry": "full"
+    },
+    {
+     "backed": true,
+     "command": "ASSIGN",
+     "crucible_cases": [
+      {
+       "case": "ca-channel-containers",
+       "java_agrees": false,
+       "stub_agrees": true
+      },
+      {
+       "case": "gt-assign-startcode",
+       "java_agrees": false,
+       "stub_agrees": true
+      },
+      {
+       "case": "hc-abend-link",
+       "java_agrees": true,
+       "stub_agrees": true
+      }
+     ],
+     "facts_stated": [
+      "startcode",
+      "userid",
+      "facility",
+      "screen"
+     ],
+     "registers": [
+      "X19"
+     ],
+     "spec_entry": "full"
+    },
+    {
+     "backed": false,
+     "command": "DELAY",
+     "crucible_cases": [],
+     "facts_stated": [],
+     "registers": [],
+     "spec_entry": "full"
+    },
+    {
+     "backed": false,
+     "command": "DELETE",
+     "crucible_cases": [],
+     "facts_stated": [],
+     "registers": [],
+     "spec_entry": "full"
+    },
+    {
+     "backed": false,
+     "command": "DOCUMENT CREATE",
+     "crucible_cases": [],
+     "facts_stated": [],
+     "registers": [],
+     "spec_entry": "name-only"
+    },
+    {
+     "backed": false,
+     "command": "DOCUMENT RETRIEVE",
+     "crucible_cases": [],
+     "facts_stated": [],
+     "registers": [],
+     "spec_entry": "name-only"
+    },
+    {
+     "backed": false,
+     "command": "ENQ",
+     "crucible_cases": [],
+     "facts_stated": [],
+     "registers": [],
+     "spec_entry": "full"
+    },
+    {
+     "backed": false,
+     "command": "FORMATTIME",
+     "crucible_cases": [],
+     "facts_stated": [],
+     "registers": [],
+     "spec_entry": "full"
+    },
+    {
+     "backed": true,
+     "command": "HANDLE ABEND",
+     "crucible_cases": [
+      {
+       "case": "hc-abend-link",
+       "java_agrees": true,
+       "stub_agrees": true
+      }
+     ],
+     "facts_stated": [],
+     "registers": [],
+     "spec_entry": "full"
+    },
+    {
+     "backed": false,
+     "command": "READ",
+     "crucible_cases": [],
+     "facts_stated": [],
+     "registers": [
+      "X14"
+     ],
+     "spec_entry": "full"
+    },
+    {
+     "backed": true,
+     "command": "RETRIEVE",
+     "crucible_cases": [
+      {
+       "case": "gt-start-options",
+       "java_agrees": false,
+       "stub_agrees": true
+      },
+      {
+       "case": "gt-start-retrieve",
+       "java_agrees": true,
+       "stub_agrees": true
+      },
+      {
+       "case": "gt-terminal-coalesce",
+       "java_agrees": true,
+       "stub_agrees": true
+      }
+     ],
+     "facts_stated": [],
+     "registers": [
+      "X18"
+     ],
+     "spec_entry": "full"
+    },
+    {
+     "backed": true,
+     "command": "RETURN",
+     "crucible_cases": [
+      {
+       "case": "ca-channel-containers",
+       "java_agrees": false,
+       "stub_agrees": true
+      },
+      {
+       "case": "ca-link-lengths",
+       "java_agrees": true,
+       "stub_agrees": true
+      },
+      {
+       "case": "ca-xctl-versions",
+       "java_agrees": true,
+       "stub_agrees": true
+      },
+      {
+       "case": "gt-assign-startcode",
+       "java_agrees": false,
+       "stub_agrees": true
+      },
+      {
+       "case": "gt-start-options",
+       "java_agrees": false,
+       "stub_agrees": true
+      },
+      {
+       "case": "gt-start-retrieve",
+       "java_agrees": true,
+       "stub_agrees": true
+      },
+      {
+       "case": "gt-terminal-coalesce",
+       "java_agrees": true,
+       "stub_agrees": true
+      },
+      {
+       "case": "hc-abend-link",
+       "java_agrees": true,
+       "stub_agrees": true
+      },
+      {
+       "case": "hc-eoc-error",
+       "java_agrees": false,
+       "stub_agrees": true
+      },
+      {
+       "case": "hc-handle-aid",
+       "java_agrees": false,
+       "stub_agrees": true
+      },
+      {
+       "case": "hc-ignore-error",
+       "java_agrees": false,
+       "stub_agrees": true
+      },
+      {
+       "case": "hc-perform-range",
+       "java_agrees": true,
+       "stub_agrees": true
+      },
+      {
+       "case": "hc-terminal-eoc",
+       "java_agrees": false,
+       "stub_agrees": true
+      },
+      {
+       "case": "hc-terminal-receive",
+       "java_agrees": false,
+       "stub_agrees": true
+      },
+      {
+       "case": "hx-attr-bytes",
+       "java_agrees": true,
+       "stub_agrees": true
+      },
+      {
+       "case": "hx-extended-cursor",
+       "java_agrees": true,
+       "stub_agrees": true
+      },
+      {
+       "case": "pc-aid-menu",
+       "java_agrees": true,
+       "stub_agrees": true
+      },
+      {
+       "case": "pc-wizard",
+       "java_agrees": true,
+       "stub_agrees": true
+      }
+     ],
+     "facts_stated": [],
+     "registers": [],
+     "spec_entry": "full"
+    },
+    {
+     "backed": false,
+     "command": "REWRITE",
+     "crucible_cases": [],
+     "facts_stated": [],
+     "registers": [],
+     "spec_entry": "full"
+    },
+    {
+     "backed": true,
+     "command": "START",
+     "crucible_cases": [
+      {
+       "case": "gt-assign-startcode",
+       "java_agrees": false,
+       "stub_agrees": true
+      },
+      {
+       "case": "gt-start-options",
+       "java_agrees": false,
+       "stub_agrees": true
+      },
+      {
+       "case": "gt-start-retrieve",
+       "java_agrees": true,
+       "stub_agrees": true
+      },
+      {
+       "case": "gt-terminal-coalesce",
+       "java_agrees": true,
+       "stub_agrees": true
+      }
+     ],
+     "facts_stated": [],
+     "registers": [
+      "X18"
+     ],
+     "spec_entry": "full"
+    },
+    {
+     "backed": false,
+     "command": "WEB CLOSE",
+     "crucible_cases": [],
+     "facts_stated": [],
+     "registers": [],
+     "spec_entry": "name-only"
+    },
+    {
+     "backed": false,
+     "command": "WEB CONVERSE",
+     "crucible_cases": [],
+     "facts_stated": [],
+     "registers": [],
+     "spec_entry": "name-only"
+    },
+    {
+     "backed": false,
+     "command": "WEB OPEN",
+     "crucible_cases": [],
+     "facts_stated": [],
+     "registers": [],
+     "spec_entry": "name-only"
+    },
+    {
+     "backed": false,
+     "command": "WEB PARSE URL",
+     "crucible_cases": [],
+     "facts_stated": [],
+     "registers": [],
+     "spec_entry": "name-only"
+    },
+    {
+     "backed": false,
+     "command": "WRITE",
+     "crucible_cases": [],
+     "facts_stated": [],
+     "registers": [],
+     "spec_entry": "full"
+    },
+    {
+     "backed": false,
+     "command": "WRITEQ TD",
+     "crucible_cases": [],
+     "facts_stated": [],
+     "registers": [],
+     "spec_entry": "full"
+    }
+   ],
+   "program": "Source/ZECS000.cbl",
+   "residual": {
+    "assumed_or_differs_named": [
+     "X14",
+     "X18",
+     "X19"
+    ],
+    "branch_outcomes_unrun": null,
+    "commands": 22,
+    "commands_backed": 5,
+    "commands_not_backed": [
+     "(unlisted) INQUIRE",
+     "(unlisted) SYNCPOINT NOHANDLE",
+     "ASKTIME",
+     "DELAY",
+     "DELETE",
+     "DOCUMENT CREATE",
+     "DOCUMENT RETRIEVE",
+     "ENQ",
+     "FORMATTIME",
+     "READ",
+     "REWRITE",
+     "WEB CLOSE",
+     "WEB CONVERSE",
+     "WEB OPEN",
+     "WEB PARSE URL",
+     "WRITE",
+     "WRITEQ TD"
+    ],
+    "facts_unstated": 3,
+    "holes": 13,
+    "paragraphs_unrun": null,
+    "refused": null
+   },
+   "translation": {
+    "gap_classes": [
+     "EXEC CICS DOCUMENT CREATE",
+     "EXEC CICS DOCUMENT RETRIEVE",
+     "EXEC CICS INQUIRE",
+     "EXEC CICS READ GTEQ",
+     "EXEC CICS SYNCPOINT NOHANDLE",
+     "EXEC CICS WEB CLOSE",
+     "EXEC CICS WEB CONVERSE",
+     "EXEC CICS WEB OPEN",
+     "EXEC CICS WEB PARSE"
+    ],
+    "hole_count": 13,
+    "holes": [
+     "EXEC EXEC CICS: EXEC CICS DOCUMENT CREATE not modelled (CICS documents (the document handler) are not modelled)",
+     "EXEC EXEC CICS: EXEC CICS DOCUMENT RETRIEVE not modelled (CICS documents (the document handler) are not modelled)",
+     "EXEC EXEC CICS: EXEC CICS INQUIRE not modelled",
+     "EXEC EXEC CICS: EXEC CICS SYNCPOINT NOHANDLE not modelled",
+     "EXEC EXEC CICS: EXEC CICS WEB CLOSE not modelled (CICS web support (HTTP server / client) is not modelled)",
+     "EXEC EXEC CICS: EXEC CICS WEB CONVERSE not modelled (CICS web support (HTTP server / client) is not modelled)",
+     "EXEC EXEC CICS: EXEC CICS WEB OPEN not modelled (CICS web support (HTTP server / client) is not modelled)",
+     "EXEC EXEC CICS: EXEC CICS WEB PARSE not modelled (CICS web support (HTTP server / client) is not modelled)",
+     "EXEC EXEC CICS: READ GTEQ: option not modelled"
+    ],
+    "refused": null,
+    "source_defects": [],
+    "statements": 173,
+    "translated": 160,
+    "whole": false
+   }
+  },
+  {
+   "assumptions": {
+    "facts_stated": [],
+    "facts_unstated": [
+     "EIB field EIBDS (both runtimes read zero; z/OS does not)",
+     "EIB field EIBFN (both runtimes read zero; z/OS does not)",
+     "EIB field EIBRCODE (both runtimes read zero; z/OS does not)"
+    ],
+    "named_by_commands": [
+     {
+      "area": "CICS",
+      "entry": "Backout: recoverable files and Db2 undone, RECOVERY(NONE) files kept",
+      "id": "X3",
+      "status": "MATCHED"
+     },
+     {
+      "area": "CICS",
+      "entry": "READ ... INTO LENGTH: in-out, truncation and LENGERR; a VSAM file's LENGTH need not equal its record length; LENGERR on READ UPDATE refused",
+      "id": "X14",
+      "status": "ASSUMED (REFUSED where IBM is silent)"
+     }
+    ],
+    "reach": "not measured",
+    "source_read": true
+   },
+   "coverage": {
+    "branch_net_pct": null,
+    "branch_pct": null,
+    "branches": null,
+    "branches_net": null,
+    "infeasible_netted": [],
+    "infeasible_refuted": [],
+    "infeasible_stated": [],
+    "paragraph_pct": null,
+    "paragraphs": null,
+    "source": null,
+    "uncovered_branches": [],
+    "uncovered_paragraphs": "not recorded"
+   },
+   "equivalence": {
+    "cases": [],
+    "chosen": null
+   },
+   "level": "L0",
+   "mutation": {
+    "det_port": "not yet measured (#4628)"
+   },
+   "next": [
+    "translated whole (39 holes left)"
+   ],
+   "oracle_backing": [
+    {
+     "backed": false,
+     "command": "(unlisted) GET",
+     "crucible_cases": [],
+     "facts_stated": [],
+     "registers": [],
+     "spec_entry": "no spec entry"
+    },
+    {
+     "backed": false,
+     "command": "(unlisted) SYNCPOINT NOHANDLE",
+     "crucible_cases": [],
+     "facts_stated": [],
+     "registers": [],
+     "spec_entry": "no spec entry"
+    },
+    {
+     "backed": false,
+     "command": "ASKTIME",
+     "crucible_cases": [],
+     "facts_stated": [],
+     "registers": [],
+     "spec_entry": "full"
+    },
+    {
+     "backed": false,
+     "command": "DELETE",
+     "crucible_cases": [],
+     "facts_stated": [],
+     "registers": [],
+     "spec_entry": "full"
+    },
+    {
+     "backed": false,
+     "command": "DOCUMENT CREATE",
+     "crucible_cases": [],
+     "facts_stated": [],
+     "registers": [],
+     "spec_entry": "name-only"
+    },
+    {
+     "backed": false,
+     "command": "DOCUMENT RETRIEVE",
+     "crucible_cases": [],
+     "facts_stated": [],
+     "registers": [],
+     "spec_entry": "name-only"
+    },
+    {
+     "backed": false,
+     "command": "FORMATTIME",
+     "crucible_cases": [],
+     "facts_stated": [],
+     "registers": [],
+     "spec_entry": "full"
+    },
+    {
+     "backed": false,
+     "command": "FREEMAIN",
+     "crucible_cases": [],
+     "facts_stated": [],
+     "registers": [],
+     "spec_entry": "name-only"
+    },
+    {
+     "backed": false,
+     "command": "GETMAIN",
+     "crucible_cases": [],
+     "facts_stated": [],
+     "registers": [],
+     "spec_entry": "name-only"
+    },
+    {
+     "backed": false,
+     "command": "INQUIRE PROGRAM",
+     "crucible_cases": [],
+     "facts_stated": [],
+     "registers": [],
+     "spec_entry": "full"
+    },
+    {
+     "backed": true,
+     "command": "LINK",
+     "crucible_cases": [
+      {
+       "case": "ca-channel-containers",
+       "java_agrees": false,
+       "stub_agrees": true
+      },
+      {
+       "case": "ca-link-lengths",
+       "java_agrees": true,
+       "stub_agrees": true
+      },
+      {
+       "case": "hc-abend-link",
+       "java_agrees": true,
+       "stub_agrees": true
+      }
+     ],
+     "facts_stated": [],
+     "registers": [],
+     "spec_entry": "full"
+    },
+    {
+     "backed": false,
+     "command": "READ",
+     "crucible_cases": [],
+     "facts_stated": [],
+     "registers": [
+      "X14"
+     ],
+     "spec_entry": "full"
+    },
+    {
+     "backed": true,
+     "command": "RETURN",
+     "crucible_cases": [
+      {
+       "case": "ca-channel-containers",
+       "java_agrees": false,
+       "stub_agrees": true
+      },
+      {
+       "case": "ca-link-lengths",
+       "java_agrees": true,
+       "stub_agrees": true
+      },
+      {
+       "case": "ca-xctl-versions",
+       "java_agrees": true,
+       "stub_agrees": true
+      },
+      {
+       "case": "gt-assign-startcode",
+       "java_agrees": false,
+       "stub_agrees": true
+      },
+      {
+       "case": "gt-start-options",
+       "java_agrees": false,
+       "stub_agrees": true
+      },
+      {
+       "case": "gt-start-retrieve",
+       "java_agrees": true,
+       "stub_agrees": true
+      },
+      {
+       "case": "gt-terminal-coalesce",
+       "java_agrees": true,
+       "stub_agrees": true
+      },
+      {
+       "case": "hc-abend-link",
+       "java_agrees": true,
+       "stub_agrees": true
+      },
+      {
+       "case": "hc-eoc-error",
+       "java_agrees": false,
+       "stub_agrees": true
+      },
+      {
+       "case": "hc-handle-aid",
+       "java_agrees": false,
+       "stub_agrees": true
+      },
+      {
+       "case": "hc-ignore-error",
+       "java_agrees": false,
+       "stub_agrees": true
+      },
+      {
+       "case": "hc-perform-range",
+       "java_agrees": true,
+       "stub_agrees": true
+      },
+      {
+       "case": "hc-terminal-eoc",
+       "java_agrees": false,
+       "stub_agrees": true
+      },
+      {
+       "case": "hc-terminal-receive",
+       "java_agrees": false,
+       "stub_agrees": true
+      },
+      {
+       "case": "hx-attr-bytes",
+       "java_agrees": true,
+       "stub_agrees": true
+      },
+      {
+       "case": "hx-extended-cursor",
+       "java_agrees": true,
+       "stub_agrees": true
+      },
+      {
+       "case": "pc-aid-menu",
+       "java_agrees": true,
+       "stub_agrees": true
+      },
+      {
+       "case": "pc-wizard",
+       "java_agrees": true,
+       "stub_agrees": true
+      }
+     ],
+     "facts_stated": [],
+     "registers": [],
+     "spec_entry": "full"
+    },
+    {
+     "backed": false,
+     "command": "REWRITE",
+     "crucible_cases": [],
+     "facts_stated": [],
+     "registers": [],
+     "spec_entry": "full"
+    },
+    {
+     "backed": false,
+     "command": "SYNCPOINT ROLLBACK",
+     "crucible_cases": [],
+     "facts_stated": [],
+     "registers": [
+      "X3"
+     ],
+     "spec_entry": "full"
+    },
+    {
+     "backed": false,
+     "command": "WEB CLOSE",
+     "crucible_cases": [],
+     "facts_stated": [],
+     "registers": [],
+     "spec_entry": "name-only"
+    },
+    {
+     "backed": false,
+     "command": "WEB CONVERSE",
+     "crucible_cases": [],
+     "facts_stated": [],
+     "registers": [],
+     "spec_entry": "name-only"
+    },
+    {
+     "backed": false,
+     "command": "WEB EXTRACT",
+     "crucible_cases": [],
+     "facts_stated": [],
+     "registers": [],
+     "spec_entry": "name-only"
+    },
+    {
+     "backed": false,
+     "command": "WEB OPEN",
+     "crucible_cases": [],
+     "facts_stated": [],
+     "registers": [],
+     "spec_entry": "name-only"
+    },
+    {
+     "backed": false,
+     "command": "WEB PARSE URL",
+     "crucible_cases": [],
+     "facts_stated": [],
+     "registers": [],
+     "spec_entry": "name-only"
+    },
+    {
+     "backed": false,
+     "command": "WEB READ HTTPHEADER",
+     "crucible_cases": [],
+     "facts_stated": [],
+     "registers": [],
+     "spec_entry": "name-only"
+    },
+    {
+     "backed": false,
+     "command": "WEB RECEIVE",
+     "crucible_cases": [],
+     "facts_stated": [],
+     "registers": [],
+     "spec_entry": "name-only"
+    },
+    {
+     "backed": false,
+     "command": "WEB SEND",
+     "crucible_cases": [],
+     "facts_stated": [],
+     "registers": [],
+     "spec_entry": "name-only"
+    },
+    {
+     "backed": false,
+     "command": "WEB WRITE HTTPHEADER",
+     "crucible_cases": [],
+     "facts_stated": [],
+     "registers": [],
+     "spec_entry": "name-only"
+    },
+    {
+     "backed": false,
+     "command": "WRITE",
+     "crucible_cases": [],
+     "facts_stated": [],
+     "registers": [],
+     "spec_entry": "full"
+    },
+    {
+     "backed": false,
+     "command": "WRITEQ TD",
+     "crucible_cases": [],
+     "facts_stated": [],
+     "registers": [],
+     "spec_entry": "full"
+    },
+    {
+     "backed": true,
+     "command": "XCTL",
+     "crucible_cases": [
+      {
+       "case": "ca-channel-containers",
+       "java_agrees": false,
+       "stub_agrees": true
+      },
+      {
+       "case": "ca-xctl-versions",
+       "java_agrees": true,
+       "stub_agrees": true
+      },
+      {
+       "case": "pc-aid-menu",
+       "java_agrees": true,
+       "stub_agrees": true
+      },
+      {
+       "case": "pc-wizard",
+       "java_agrees": true,
+       "stub_agrees": true
+      }
+     ],
+     "facts_stated": [],
+     "registers": [],
+     "spec_entry": "full"
+    }
+   ],
+   "program": "Source/ZECS001.cbl",
+   "residual": {
+    "assumed_or_differs_named": [
+     "X14"
+    ],
+    "branch_outcomes_unrun": null,
+    "commands": 27,
+    "commands_backed": 3,
+    "commands_not_backed": [
+     "(unlisted) GET",
+     "(unlisted) SYNCPOINT NOHANDLE",
+     "ASKTIME",
+     "DELETE",
+     "DOCUMENT CREATE",
+     "DOCUMENT RETRIEVE",
+     "FORMATTIME",
+     "FREEMAIN",
+     "GETMAIN",
+     "INQUIRE PROGRAM",
+     "READ",
+     "REWRITE",
+     "SYNCPOINT ROLLBACK",
+     "WEB CLOSE",
+     "WEB CONVERSE",
+     "WEB EXTRACT",
+     "WEB OPEN",
+     "WEB PARSE URL",
+     "WEB READ HTTPHEADER",
+     "WEB RECEIVE",
+     "WEB SEND",
+     "WEB WRITE HTTPHEADER",
+     "WRITE",
+     "WRITEQ TD"
+    ],
+    "facts_unstated": 3,
+    "holes": 39,
+    "paragraphs_unrun": null,
+    "refused": null
+   },
+   "translation": {
+    "gap_classes": [
+     "EXEC CICS DOCUMENT CREATE",
+     "EXEC CICS DOCUMENT RETRIEVE",
+     "EXEC CICS FREEMAIN",
+     "EXEC CICS GET COUNTER: named counters are not modelled",
+     "EXEC CICS GETMAIN",
+     "EXEC CICS INQUIRE PROGRAM STATUS",
+     "EXEC CICS SYNCPOINT NOHANDLE",
+     "EXEC CICS WEB CLOSE",
+     "EXEC CICS WEB CONVERSE",
+     "EXEC CICS WEB EXTRACT",
+     "EXEC CICS WEB OPEN",
+     "EXEC CICS WEB PARSE",
+     "EXEC CICS WEB READ",
+     "EXEC CICS WEB RECEIVE",
+     "EXEC CICS WEB SEND",
+     "EXEC CICS WEB WRITE",
+     "SET ADDRESS OF",
+     "dynamic CALL"
+    ],
+    "hole_count": 39,
+    "holes": [
+     "EXEC EXEC CICS: EXEC CICS DOCUMENT CREATE not modelled (CICS documents (the document handler) are not modelled)",
+     "EXEC EXEC CICS: EXEC CICS DOCUMENT RETRIEVE not modelled (CICS documents (the document handler) are not modelled)",
+     "EXEC EXEC CICS: EXEC CICS FREEMAIN not modelled (storage CICS acquires for the task, addressed by a pointer, is not modelled)",
+     "EXEC EXEC CICS: EXEC CICS GETMAIN not modelled (storage CICS acquires for the task, addressed by a pointer, is not modelled)",
+     "EXEC EXEC CICS: EXEC CICS SYNCPOINT NOHANDLE not modelled",
+     "EXEC EXEC CICS: EXEC CICS WEB CLOSE not modelled (CICS web support (HTTP server / client) is not modelled)",
+     "EXEC EXEC CICS: EXEC CICS WEB CONVERSE not modelled (CICS web support (HTTP server / client) is not modelled)",
+     "EXEC EXEC CICS: EXEC CICS WEB EXTRACT not modelled (CICS web support (HTTP server / client) is not modelled)",
+     "EXEC EXEC CICS: EXEC CICS WEB OPEN not modelled (CICS web support (HTTP server / client) is not modelled)",
+     "EXEC EXEC CICS: EXEC CICS WEB PARSE not modelled (CICS web support (HTTP server / client) is not modelled)",
+     "EXEC EXEC CICS: EXEC CICS WEB READ not modelled (CICS web support (HTTP server / client) is not modelled)",
+     "EXEC EXEC CICS: EXEC CICS WEB RECEIVE not modelled (CICS web support (HTTP server / client) is not modelled)",
+     "EXEC EXEC CICS: EXEC CICS WEB SEND not modelled (CICS web support (HTTP server / client) is not modelled)",
+     "EXEC EXEC CICS: EXEC CICS WEB WRITE not modelled (CICS web support (HTTP server / client) is not modelled)",
+     "EXEC EXEC CICS: GET COUNTER: named counters are not modelled",
+     "EXEC EXEC CICS: INQUIRE PROGRAM STATUS: option not modelled",
+     "HOLE SET ADDRESS OF (pointers)",
+     "HOLE dynamic CALL"
+    ],
+    "refused": null,
+    "source_defects": [],
+    "statements": 561,
+    "translated": 522,
+    "whole": false
+   }
+  },
+  {
+   "assumptions": {
+    "facts_stated": [],
+    "facts_unstated": [
+     "EIB field EIBFN (both runtimes read zero; z/OS does not)"
+    ],
+    "named_by_commands": [
+     {
+      "area": "CICS",
+      "entry": "READ ... INTO LENGTH: in-out, truncation and LENGERR; a VSAM file's LENGTH need not equal its record length; LENGERR on READ UPDATE refused",
+      "id": "X14",
+      "status": "ASSUMED (REFUSED where IBM is silent)"
+     }
+    ],
+    "reach": "not measured",
+    "source_read": true
+   },
+   "coverage": {
+    "branch_net_pct": null,
+    "branch_pct": null,
+    "branches": null,
+    "branches_net": null,
+    "infeasible_netted": [],
+    "infeasible_refuted": [],
+    "infeasible_stated": [],
+    "paragraph_pct": null,
+    "paragraphs": null,
+    "source": null,
+    "uncovered_branches": [],
+    "uncovered_paragraphs": "not recorded"
+   },
+   "equivalence": {
+    "cases": [],
+    "chosen": null
+   },
+   "level": "L0",
+   "mutation": {
+    "det_port": "not yet measured (#4628)"
+   },
+   "next": [
+    "translated whole (10 holes left)"
+   ],
+   "oracle_backing": [
+    {
+     "backed": false,
+     "command": "(unlisted) INQUIRE",
+     "crucible_cases": [],
+     "facts_stated": [],
+     "registers": [],
+     "spec_entry": "no spec entry"
+    },
+    {
+     "backed": false,
+     "command": "ASKTIME",
+     "crucible_cases": [],
+     "facts_stated": [],
+     "registers": [],
+     "spec_entry": "full"
+    },
+    {
+     "backed": false,
+     "command": "DELETE",
+     "crucible_cases": [],
+     "facts_stated": [],
+     "registers": [],
+     "spec_entry": "full"
+    },
+    {
+     "backed": false,
+     "command": "DOCUMENT CREATE",
+     "crucible_cases": [],
+     "facts_stated": [],
+     "registers": [],
+     "spec_entry": "name-only"
+    },
+    {
+     "backed": false,
+     "command": "DOCUMENT RETRIEVE",
+     "crucible_cases": [],
+     "facts_stated": [],
+     "registers": [],
+     "spec_entry": "name-only"
+    },
+    {
+     "backed": false,
+     "command": "READ",
+     "crucible_cases": [],
+     "facts_stated": [],
+     "registers": [
+      "X14"
+     ],
+     "spec_entry": "full"
+    },
+    {
+     "backed": true,
+     "command": "RETURN",
+     "crucible_cases": [
+      {
+       "case": "ca-channel-containers",
+       "java_agrees": false,
+       "stub_agrees": true
+      },
+      {
+       "case": "ca-link-lengths",
+       "java_agrees": true,
+       "stub_agrees": true
+      },
+      {
+       "case": "ca-xctl-versions",
+       "java_agrees": true,
+       "stub_agrees": true
+      },
+      {
+       "case": "gt-assign-startcode",
+       "java_agrees": false,
+       "stub_agrees": true
+      },
+      {
+       "case": "gt-start-options",
+       "java_agrees": false,
+       "stub_agrees": true
+      },
+      {
+       "case": "gt-start-retrieve",
+       "java_agrees": true,
+       "stub_agrees": true
+      },
+      {
+       "case": "gt-terminal-coalesce",
+       "java_agrees": true,
+       "stub_agrees": true
+      },
+      {
+       "case": "hc-abend-link",
+       "java_agrees": true,
+       "stub_agrees": true
+      },
+      {
+       "case": "hc-eoc-error",
+       "java_agrees": false,
+       "stub_agrees": true
+      },
+      {
+       "case": "hc-handle-aid",
+       "java_agrees": false,
+       "stub_agrees": true
+      },
+      {
+       "case": "hc-ignore-error",
+       "java_agrees": false,
+       "stub_agrees": true
+      },
+      {
+       "case": "hc-perform-range",
+       "java_agrees": true,
+       "stub_agrees": true
+      },
+      {
+       "case": "hc-terminal-eoc",
+       "java_agrees": false,
+       "stub_agrees": true
+      },
+      {
+       "case": "hc-terminal-receive",
+       "java_agrees": false,
+       "stub_agrees": true
+      },
+      {
+       "case": "hx-attr-bytes",
+       "java_agrees": true,
+       "stub_agrees": true
+      },
+      {
+       "case": "hx-extended-cursor",
+       "java_agrees": true,
+       "stub_agrees": true
+      },
+      {
+       "case": "pc-aid-menu",
+       "java_agrees": true,
+       "stub_agrees": true
+      },
+      {
+       "case": "pc-wizard",
+       "java_agrees": true,
+       "stub_agrees": true
+      }
+     ],
+     "facts_stated": [],
+     "registers": [],
+     "spec_entry": "full"
+    },
+    {
+     "backed": false,
+     "command": "WEB CLOSE",
+     "crucible_cases": [],
+     "facts_stated": [],
+     "registers": [],
+     "spec_entry": "name-only"
+    },
+    {
+     "backed": false,
+     "command": "WEB CONVERSE",
+     "crucible_cases": [],
+     "facts_stated": [],
+     "registers": [],
+     "spec_entry": "name-only"
+    },
+    {
+     "backed": false,
+     "command": "WEB OPEN",
+     "crucible_cases": [],
+     "facts_stated": [],
+     "registers": [],
+     "spec_entry": "name-only"
+    },
+    {
+     "backed": false,
+     "command": "WEB PARSE URL",
+     "crucible_cases": [],
+     "facts_stated": [],
+     "registers": [],
+     "spec_entry": "name-only"
+    },
+    {
+     "backed": false,
+     "command": "WEB SEND",
+     "crucible_cases": [],
+     "facts_stated": [],
+     "registers": [],
+     "spec_entry": "name-only"
+    }
+   ],
+   "program": "Source/ZECS003.cbl",
+   "residual": {
+    "assumed_or_differs_named": [
+     "X14"
+    ],
+    "branch_outcomes_unrun": null,
+    "commands": 12,
+    "commands_backed": 1,
+    "commands_not_backed": [
+     "(unlisted) INQUIRE",
+     "ASKTIME",
+     "DELETE",
+     "DOCUMENT CREATE",
+     "DOCUMENT RETRIEVE",
+     "READ",
+     "WEB CLOSE",
+     "WEB CONVERSE",
+     "WEB OPEN",
+     "WEB PARSE URL",
+     "WEB SEND"
+    ],
+    "facts_unstated": 1,
+    "holes": 10,
+    "paragraphs_unrun": null,
+    "refused": null
+   },
+   "translation": {
+    "gap_classes": [
+     "EXEC CICS DELETE GENERIC",
+     "EXEC CICS DOCUMENT CREATE",
+     "EXEC CICS DOCUMENT RETRIEVE",
+     "EXEC CICS INQUIRE",
+     "EXEC CICS READ GTEQ",
+     "EXEC CICS WEB CLOSE",
+     "EXEC CICS WEB CONVERSE",
+     "EXEC CICS WEB OPEN",
+     "EXEC CICS WEB PARSE",
+     "EXEC CICS WEB SEND"
+    ],
+    "hole_count": 10,
+    "holes": [
+     "EXEC EXEC CICS: DELETE GENERIC: option not modelled",
+     "EXEC EXEC CICS: EXEC CICS DOCUMENT CREATE not modelled (CICS documents (the document handler) are not modelled)",
+     "EXEC EXEC CICS: EXEC CICS DOCUMENT RETRIEVE not modelled (CICS documents (the document handler) are not modelled)",
+     "EXEC EXEC CICS: EXEC CICS INQUIRE not modelled",
+     "EXEC EXEC CICS: EXEC CICS WEB CLOSE not modelled (CICS web support (HTTP server / client) is not modelled)",
+     "EXEC EXEC CICS: EXEC CICS WEB CONVERSE not modelled (CICS web support (HTTP server / client) is not modelled)",
+     "EXEC EXEC CICS: EXEC CICS WEB OPEN not modelled (CICS web support (HTTP server / client) is not modelled)",
+     "EXEC EXEC CICS: EXEC CICS WEB PARSE not modelled (CICS web support (HTTP server / client) is not modelled)",
+     "EXEC EXEC CICS: EXEC CICS WEB SEND not modelled (CICS web support (HTTP server / client) is not modelled)",
+     "EXEC EXEC CICS: READ GTEQ: option not modelled"
+    ],
+    "refused": null,
+    "source_defects": [],
+    "statements": 73,
+    "translated": 63,
+    "whole": false
+   }
+  },
+  {
+   "assumptions": {
+    "facts_stated": [],
+    "facts_unstated": [],
+    "named_by_commands": [
+     {
+      "area": "CICS",
+      "entry": "Interval control on the det port: START (INTERVAL / TIME / AFTER / AT, TERMID, REQID, PROTECT, FROM, RTRANSID / RTERMID / QUEUE), RETRIEVE (INTO / LENGTH, the data options, ENVDEFERR), CANCEL REQID, RUN TRANSID CHILD; TIME RESP2 and the order of out-of-range checks assumed; FETCH, RUN / START CHANNEL, RETRIEVE SET / WAIT refused",
+      "id": "X18",
+      "status": "ASSUMED (REFUSED where IBM is silent)"
+     }
+    ],
+    "reach": "not measured",
+    "source_read": true
+   },
+   "coverage": {
+    "branch_net_pct": null,
+    "branch_pct": null,
+    "branches": null,
+    "branches_net": null,
+    "infeasible_netted": [],
+    "infeasible_refuted": [],
+    "infeasible_stated": [],
+    "paragraph_pct": null,
+    "paragraphs": null,
+    "source": null,
+    "uncovered_branches": [],
+    "uncovered_paragraphs": "not recorded"
+   },
+   "equivalence": {
+    "cases": [],
+    "chosen": null
+   },
+   "level": "L0",
+   "mutation": {
+    "det_port": "not yet measured (#4628)"
+   },
+   "next": [
+    "translated whole (4 holes left)"
+   ],
+   "oracle_backing": [
+    {
+     "backed": false,
+     "command": "(unlisted) INQUIRE",
+     "crucible_cases": [],
+     "facts_stated": [],
+     "registers": [],
+     "spec_entry": "no spec entry"
+    },
+    {
+     "backed": false,
+     "command": "(unlisted) INQUIRE URIMAP",
+     "crucible_cases": [],
+     "facts_stated": [],
+     "registers": [],
+     "spec_entry": "no spec entry"
+    },
+    {
+     "backed": true,
+     "command": "RETURN",
+     "crucible_cases": [
+      {
+       "case": "ca-channel-containers",
+       "java_agrees": false,
+       "stub_agrees": true
+      },
+      {
+       "case": "ca-link-lengths",
+       "java_agrees": true,
+       "stub_agrees": true
+      },
+      {
+       "case": "ca-xctl-versions",
+       "java_agrees": true,
+       "stub_agrees": true
+      },
+      {
+       "case": "gt-assign-startcode",
+       "java_agrees": false,
+       "stub_agrees": true
+      },
+      {
+       "case": "gt-start-options",
+       "java_agrees": false,
+       "stub_agrees": true
+      },
+      {
+       "case": "gt-start-retrieve",
+       "java_agrees": true,
+       "stub_agrees": true
+      },
+      {
+       "case": "gt-terminal-coalesce",
+       "java_agrees": true,
+       "stub_agrees": true
+      },
+      {
+       "case": "hc-abend-link",
+       "java_agrees": true,
+       "stub_agrees": true
+      },
+      {
+       "case": "hc-eoc-error",
+       "java_agrees": false,
+       "stub_agrees": true
+      },
+      {
+       "case": "hc-handle-aid",
+       "java_agrees": false,
+       "stub_agrees": true
+      },
+      {
+       "case": "hc-ignore-error",
+       "java_agrees": false,
+       "stub_agrees": true
+      },
+      {
+       "case": "hc-perform-range",
+       "java_agrees": true,
+       "stub_agrees": true
+      },
+      {
+       "case": "hc-terminal-eoc",
+       "java_agrees": false,
+       "stub_agrees": true
+      },
+      {
+       "case": "hc-terminal-receive",
+       "java_agrees": false,
+       "stub_agrees": true
+      },
+      {
+       "case": "hx-attr-bytes",
+       "java_agrees": true,
+       "stub_agrees": true
+      },
+      {
+       "case": "hx-extended-cursor",
+       "java_agrees": true,
+       "stub_agrees": true
+      },
+      {
+       "case": "pc-aid-menu",
+       "java_agrees": true,
+       "stub_agrees": true
+      },
+      {
+       "case": "pc-wizard",
+       "java_agrees": true,
+       "stub_agrees": true
+      }
+     ],
+     "facts_stated": [],
+     "registers": [],
+     "spec_entry": "full"
+    },
+    {
+     "backed": true,
+     "command": "START",
+     "crucible_cases": [
+      {
+       "case": "gt-assign-startcode",
+       "java_agrees": false,
+       "stub_agrees": true
+      },
+      {
+       "case": "gt-start-options",
+       "java_agrees": false,
+       "stub_agrees": true
+      },
+      {
+       "case": "gt-start-retrieve",
+       "java_agrees": true,
+       "stub_agrees": true
+      },
+      {
+       "case": "gt-terminal-coalesce",
+       "java_agrees": true,
+       "stub_agrees": true
+      }
+     ],
+     "facts_stated": [],
+     "registers": [
+      "X18"
+     ],
+     "spec_entry": "full"
+    },
+    {
+     "backed": false,
+     "command": "WRITE OPERATOR",
+     "crucible_cases": [],
+     "facts_stated": [],
+     "registers": [],
+     "spec_entry": "name-only"
+    },
+    {
+     "backed": false,
+     "command": "WRITEQ TD",
+     "crucible_cases": [],
+     "facts_stated": [],
+     "registers": [],
+     "spec_entry": "full"
+    }
+   ],
+   "program": "Source/ZECSPLT.cbl",
+   "residual": {
+    "assumed_or_differs_named": [
+     "X18"
+    ],
+    "branch_outcomes_unrun": null,
+    "commands": 6,
+    "commands_backed": 2,
+    "commands_not_backed": [
+     "(unlisted) INQUIRE",
+     "(unlisted) INQUIRE URIMAP",
+     "WRITE OPERATOR",
+     "WRITEQ TD"
+    ],
+    "facts_unstated": 0,
+    "holes": 4,
+    "paragraphs_unrun": null,
+    "refused": null
+   },
+   "translation": {
+    "gap_classes": [
+     "EXEC CICS INQUIRE",
+     "EXEC CICS INQUIRE URIMAP",
+     "EXEC CICS WRITE OPERATOR"
+    ],
+    "hole_count": 4,
+    "holes": [
+     "EXEC EXEC CICS: EXEC CICS INQUIRE URIMAP not modelled",
+     "EXEC EXEC CICS: EXEC CICS INQUIRE not modelled",
+     "EXEC EXEC CICS: EXEC CICS WRITE OPERATOR not modelled (a message to the system console (WRITE OPERATOR) is not modelled)"
+    ],
+    "refused": null,
+    "source_defects": [],
+    "statements": 27,
+    "translated": 23,
+    "whole": false
+   }
+  }
+ ],
+ "reproducibility": {
+  "commands": [
+   "python tests/tools/cics_census.py survey --baseline --sha 3bcbb8c62397b338307563c40618297d54c38100",
+   "python tests/tools/evidence_report.py zecs --baseline --sha 3bcbb8c62397b338307563c40618297d54c38100",
+   "python tests/tools/evidence_report.py --refresh",
+   "python tests/tools/cics_crucible.py  # the hand-traced CICS cases, at the crucible pin"
+  ],
+  "corpus_ref": "6d6bcbbc89c9be086a58cb7ad2ff4d702e873d02",
+  "coverage_from": "det-sweep coverage ledger, freshness at build time",
+  "crucible_baseline_ref": "v0.5.0 (9ee42d11)",
+  "crucible_cases_measured_at": "v0.5.0",
+  "crucible_pins": {
+   "cics": "v0.5.0",
+   "estate": "v0.4.0",
+   "language": "v1.7.0"
+  },
+  "oracle_base_image": "debian:bookworm-slim@sha256:3783cc01769c7b2b1b83a5c5ad96c815348e28ed7da68e2e3687004faa906251",
+  "oracle_images_of_records": [],
+  "pin_manifest": "tests/crucible_pins.toml",
+  "record_status_from": "evidence.py status at build time",
+  "survey": {
+   "label": "before",
+   "scope": "burned + local + census corpora",
+   "sha": "3bcbb8c62397b338307563c40618297d54c38100"
+  },
+  "translator_commit": "3bcbb8c62397b338307563c40618297d54c38100"
+ },
+ "summary": {
+  "cics_programs": 5,
+  "det_equal": 0,
+  "histogram": {
+   "L0": 5,
+   "L1": 0,
+   "L2": 0,
+   "L3": 0,
+   "L4": 0,
+   "L5": 0
+  },
+  "holes": 71,
+  "programs": 5,
+  "records_current": 0,
+  "refused_whole": 0,
+  "source_unread": 0,
+  "translated_whole": 0,
+  "with_case": 0,
+  "with_record": 0
+ }
+}

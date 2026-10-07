@@ -271,6 +271,71 @@
      "why": "17: an I/O error on the WRITE (IBM CICS, RESP values) -> the program's WHEN OTHER: 'Unable to Add User...'"
     }
    ]
+  },
+  {
+   "name": "pf3-xctl-fails",
+   "aid": "DFHPF3",
+   "commarea": {
+    "CDEMO-FROM-TRANID": "CU01",
+    "CDEMO-FROM-PROGRAM": "COUSR01C",
+    "CDEMO-USER-ID": "ADMIN001",
+    "CDEMO-USER-TYPE": "A",
+    "CDEMO-PGM-CONTEXT": 1
+   },
+   "receive": {
+    "COUSR1A": {
+     "FNAMEI": "GRACE",
+     "LNAMEI": "HOPPER",
+     "USERIDI": "USER0099",
+     "PASSWDI": "COBOL123",
+     "USRTYPEI": "U"
+    }
+   },
+   "faults": [
+    {
+     "cmd": "XCTL",
+     "program": "COADM01C",
+     "nth": 1,
+     "resp": "PGMIDERR",
+     "resp2": 3,
+     "why": "PGMIDERR RESP2 3, the program could not be loaded (IBM CICS TS, XCTL conditions): no HANDLE CONDITION and no RESP, so CICS abends the task"
+    }
+   ],
+   "why": "#4628 (det-port mutants db8756432e, 3037cbe397, 8b0da6beda, 02fccc9882, 08a89a0b5f): PF3's XCTL back to the admin menu fails -- the task abends"
+  },
+  {
+   "name": "full-commarea-carried",
+   "aid": "DFHPF5",
+   "commarea": {
+    "CDEMO-FROM-TRANID": "CU01",
+    "CDEMO-FROM-PROGRAM": "COUSR01C",
+    "CDEMO-USER-ID": "ADMIN001",
+    "CDEMO-USER-TYPE": "A",
+    "CDEMO-PGM-CONTEXT": 1,
+    "CDEMO-TO-TRANID": "CA00",
+    "CDEMO-TO-PROGRAM": "COADM01C",
+    "CDEMO-CUST-ID": 123456789,
+    "CDEMO-CUST-FNAME": "ALICE",
+    "CDEMO-CUST-MNAME": "B",
+    "CDEMO-CUST-LNAME": "SMITH",
+    "CDEMO-ACCT-ID": 12345678901,
+    "CDEMO-ACCT-STATUS": "Y",
+    "CDEMO-CARD-NUM": 4111111111111111,
+    "CDEMO-LAST-MAP": "COUSR1A",
+    "CDEMO-LAST-MAPSET": "COUSR01"
+   },
+   "receive": {
+    "COUSR1A": {
+     "FNAMEI": "GRACE",
+     "LNAMEI": "HOPPER",
+     "USERIDI": "USER0099",
+     "PASSWDI": "COBOL123",
+     "USRTYPEI": "U",
+     "TITLE01I": "AWS Mainframe Modernization",
+     "PGMNAMEI": "COUSR01C"
+    }
+   },
+   "why": "#4628 (det-port mutants e78629b245, 6b28148382, a37820f9f7, 70affa52cc, bdc62c957c, f1430eeb95, fd0057c0af): every COMMAREA field set, and the FSET header fields (TITLE01, PGMNAME: ATTRB=(ASKIP,FSET,NORM) in COUSR01.bms) sent back as a terminal does; an invalid key re-sends the screen and the RETURN carries the COMMAREA back"
   }
  ],
  "notes": "CardDemo's add-user screen (transaction CU01, program COUSR01C): entered from the admin menu it sends the empty screen; re-entered with the five fields it validates them in order and WRITEs the user security record (DUPREC: 'User ID already exist...'); PF3 returns to the admin menu, PF4 clears. Its first proof of a CICS file update: each scenario's USRSEC file is compared after the task. usrsec.txt is the ten users of CardDemo's own app/jcl/DUSRSECJ.jcl in-stream data (SYSUT1 DD *). Derived from CardDemo (Apache-2.0; Copyright Amazon.com, Inc. or its affiliates): LICENSE and NOTICE here are the source's own."

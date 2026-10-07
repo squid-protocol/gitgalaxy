@@ -26,6 +26,11 @@
       "kind": "defect",
       "summary": "A unit that ends at the next header runs over the trailing lines that hold no code: a sequence number alone (CardDemo cols 1-6, 91 units; DSF PL/I cols 73-80, 8 outer procedures) or a col-7 D debugging line while WITH DEBUGGING MODE is commented out (CBSA BANKDATA CDW010). Same root as #4300 (the sequence area is not blanked in the stream the slicer reads); the key ends a unit at its last code line."
     },
+    "forge_one_digit_levels": {
+      "issue": 4626,
+      "kind": "defect",
+      "summary": "cobol_schema_forge reads no record fields from one-digit level numbers: `1 PROG-NAMES.` / `2 GETPOL PIC X(8) VALUE ...` (cicsdev async credit-card sources, WORKING-STORAGE and LOCAL-STORAGE; 0 of 158 fields). The engine reads all of them; rewriting the levels to 01 / 02 makes the forge return them."
+    },
     "forge_units_include_copied_paragraphs": {
       "issue": 3414,
       "kind": "deliberate",
@@ -622,6 +627,573 @@
           },
           "forge": null,
           "truth": "cross_verified"
+        },
+        "web services": {
+          "engine": null,
+          "forge": null,
+          "truth": "draft"
+        }
+      }
+    },
+    "cics-async-api-credit-card-application-example": {
+      "mismatches": {
+        "engine | dead (non-trivial) | src/ASYNCPNT.cbl | MAINLINE | fp": "engine_dead_is_unreferenced_by_name",
+        "engine | dead (non-trivial) | src/CRDTCHK.cbl | MAINLINE | fp": "engine_dead_is_unreferenced_by_name",
+        "engine | dead (non-trivial) | src/CSSTATS2.cbl | MAINLINE | fp": "engine_dead_is_unreferenced_by_name",
+        "engine | dead (non-trivial) | src/CSSTATUS.cbl | MAINLINE | fp": "engine_dead_is_unreferenced_by_name",
+        "engine | dead (non-trivial) | src/GETADDR.cbl | MAINLINE | fp": "engine_dead_is_unreferenced_by_name",
+        "engine | dead (non-trivial) | src/GETNAME.cbl | MAINLINE | fp": "engine_dead_is_unreferenced_by_name",
+        "engine | dead (non-trivial) | src/GETPOL.cbl | MAINLINE | fp": "engine_dead_is_unreferenced_by_name",
+        "engine | dead (non-trivial) | src/GETSPND.cbl | MAINLINE | fp": "engine_dead_is_unreferenced_by_name",
+        "engine | dead (non-trivial) | src/SEQPNT.cbl | MAINLINE | fp": "engine_dead_is_unreferenced_by_name",
+        "engine | dead (non-trivial) | src/UPDCSDB.cbl | MAINLINE | fp": "engine_dead_is_unreferenced_by_name",
+        "engine | dead | src/ASYNCPNT.cbl | MAINLINE | fp": "engine_dead_is_unreferenced_by_name",
+        "engine | dead | src/CRDTCHK.cbl | MAINLINE | fp": "engine_dead_is_unreferenced_by_name",
+        "engine | dead | src/CSSTATS2.cbl | MAINLINE | fp": "engine_dead_is_unreferenced_by_name",
+        "engine | dead | src/CSSTATUS.cbl | MAINLINE | fp": "engine_dead_is_unreferenced_by_name",
+        "engine | dead | src/GETADDR.cbl | MAINLINE | fp": "engine_dead_is_unreferenced_by_name",
+        "engine | dead | src/GETNAME.cbl | MAINLINE | fp": "engine_dead_is_unreferenced_by_name",
+        "engine | dead | src/GETPOL.cbl | MAINLINE | fp": "engine_dead_is_unreferenced_by_name",
+        "engine | dead | src/GETSPND.cbl | MAINLINE | fp": "engine_dead_is_unreferenced_by_name",
+        "engine | dead | src/SEQPNT.cbl | MAINLINE | fp": "engine_dead_is_unreferenced_by_name",
+        "engine | dead | src/UPDCSDB.cbl | MAINLINE | fp": "engine_dead_is_unreferenced_by_name",
+        "forge | record fields | src/ASYNCPNT.cbl | ACCOUNT_NUM | fn": "forge_one_digit_levels",
+        "forge | record fields | src/ASYNCPNT.cbl | APPLICATION_FAILED | fn": "forge_one_digit_levels",
+        "forge | record fields | src/ASYNCPNT.cbl | APPLICATION_RESULT | fn": "forge_one_digit_levels",
+        "forge | record fields | src/ASYNCPNT.cbl | APPLICATION_SUCCESS | fn": "forge_one_digit_levels",
+        "forge | record fields | src/ASYNCPNT.cbl | CHILD_RETURN_ABCODE | fn": "forge_one_digit_levels",
+        "forge | record fields | src/ASYNCPNT.cbl | CHILD_RETURN_STATUS | fn": "forge_one_digit_levels",
+        "forge | record fields | src/ASYNCPNT.cbl | COMMAND_RESP | fn": "forge_one_digit_levels",
+        "forge | record fields | src/ASYNCPNT.cbl | COMMAND_RESP2 | fn": "forge_one_digit_levels",
+        "forge | record fields | src/ASYNCPNT.cbl | CRDTCHK_CONTAINER | fn": "forge_one_digit_levels",
+        "forge | record fields | src/ASYNCPNT.cbl | CREDIT_CHECK | fn": "forge_one_digit_levels",
+        "forge | record fields | src/ASYNCPNT.cbl | CREDIT_CHECK_CHAN | fn": "forge_one_digit_levels",
+        "forge | record fields | src/ASYNCPNT.cbl | CREDIT_CHECK_RESULT | fn": "forge_one_digit_levels",
+        "forge | record fields | src/ASYNCPNT.cbl | CREDIT_CHECK_TKN | fn": "forge_one_digit_levels",
+        "forge | record fields | src/ASYNCPNT.cbl | CREDIT_CHECK_TRAN | fn": "forge_one_digit_levels",
+        "forge | record fields | src/ASYNCPNT.cbl | CSSTATUS | fn": "forge_one_digit_levels",
+        "forge | record fields | src/ASYNCPNT.cbl | CSSTATUS_CHAN | fn": "forge_one_digit_levels",
+        "forge | record fields | src/ASYNCPNT.cbl | CSSTATUS_CONTAINER | fn": "forge_one_digit_levels",
+        "forge | record fields | src/ASYNCPNT.cbl | CSSTATUS_TKN | fn": "forge_one_digit_levels",
+        "forge | record fields | src/ASYNCPNT.cbl | CSSTATUS_TRAN | fn": "forge_one_digit_levels",
+        "forge | record fields | src/ASYNCPNT.cbl | CUSTOMER_ADDRESS | fn": "forge_one_digit_levels",
+        "forge | record fields | src/ASYNCPNT.cbl | CUSTOMER_IMPORTANCE | fn": "forge_one_digit_levels",
+        "forge | record fields | src/ASYNCPNT.cbl | CUSTOMER_NAME | fn": "forge_one_digit_levels",
+        "forge | record fields | src/ASYNCPNT.cbl | CUSTOMER_POSTCODE | fn": "forge_one_digit_levels",
+        "forge | record fields | src/ASYNCPNT.cbl | CUST_NO_IN | fn": "forge_one_digit_levels",
+        "forge | record fields | src/ASYNCPNT.cbl | DB_CACHE | fn": "forge_one_digit_levels",
+        "forge | record fields | src/ASYNCPNT.cbl | DB_CACHE_CHAN | fn": "forge_one_digit_levels",
+        "forge | record fields | src/ASYNCPNT.cbl | DB_CACHE_TKN | fn": "forge_one_digit_levels",
+        "forge | record fields | src/ASYNCPNT.cbl | DB_CACHE_TRAN | fn": "forge_one_digit_levels",
+        "forge | record fields | src/ASYNCPNT.cbl | GETADDR_CONTAINER | fn": "forge_one_digit_levels",
+        "forge | record fields | src/ASYNCPNT.cbl | GETNAME_CONTAINER | fn": "forge_one_digit_levels",
+        "forge | record fields | src/ASYNCPNT.cbl | GETPOST_CONTAINER | fn": "forge_one_digit_levels",
+        "forge | record fields | src/ASYNCPNT.cbl | GET_ADDR | fn": "forge_one_digit_levels",
+        "forge | record fields | src/ASYNCPNT.cbl | GET_ADDR_CHAN | fn": "forge_one_digit_levels",
+        "forge | record fields | src/ASYNCPNT.cbl | GET_ADDR_TKN | fn": "forge_one_digit_levels",
+        "forge | record fields | src/ASYNCPNT.cbl | GET_ADDR_TRAN | fn": "forge_one_digit_levels",
+        "forge | record fields | src/ASYNCPNT.cbl | GET_NAME | fn": "forge_one_digit_levels",
+        "forge | record fields | src/ASYNCPNT.cbl | GET_NAME_CHAN | fn": "forge_one_digit_levels",
+        "forge | record fields | src/ASYNCPNT.cbl | GET_NAME_TKN | fn": "forge_one_digit_levels",
+        "forge | record fields | src/ASYNCPNT.cbl | GET_NAME_TRAN | fn": "forge_one_digit_levels",
+        "forge | record fields | src/ASYNCPNT.cbl | GET_POLICY_CHAN | fn": "forge_one_digit_levels",
+        "forge | record fields | src/ASYNCPNT.cbl | GET_POLICY_TKN | fn": "forge_one_digit_levels",
+        "forge | record fields | src/ASYNCPNT.cbl | GET_POLICY_TRAN | fn": "forge_one_digit_levels",
+        "forge | record fields | src/ASYNCPNT.cbl | GET_SPEND_CHAN | fn": "forge_one_digit_levels",
+        "forge | record fields | src/ASYNCPNT.cbl | GET_SPEND_TKN | fn": "forge_one_digit_levels",
+        "forge | record fields | src/ASYNCPNT.cbl | GET_SPEND_TRAN | fn": "forge_one_digit_levels",
+        "forge | record fields | src/ASYNCPNT.cbl | INPUTACCNUM | fn": "forge_one_digit_levels",
+        "forge | record fields | src/ASYNCPNT.cbl | INPUT_CONTAINER | fn": "forge_one_digit_levels",
+        "forge | record fields | src/ASYNCPNT.cbl | IS_TERMINAL_BASED | fn": "forge_one_digit_levels",
+        "forge | record fields | src/ASYNCPNT.cbl | MYCHANNEL | fn": "forge_one_digit_levels",
+        "forge | record fields | src/ASYNCPNT.cbl | PARENT_PROGRAM | fn": "forge_one_digit_levels",
+        "forge | record fields | src/ASYNCPNT.cbl | READ_INPUT_LENGTH | fn": "forge_one_digit_levels",
+        "forge | record fields | src/ASYNCPNT.cbl | RESULT_TEXT | fn": "forge_one_digit_levels",
+        "forge | record fields | src/ASYNCPNT.cbl | START_CODE | fn": "forge_one_digit_levels",
+        "forge | record fields | src/ASYNCPNT.cbl | TRAN1_STATUS | fn": "forge_one_digit_levels",
+        "forge | record fields | src/ASYNCPNT.cbl | TRAN2_STATUS | fn": "forge_one_digit_levels",
+        "forge | record fields | src/ASYNCPNT.cbl | TRAN3_STATUS | fn": "forge_one_digit_levels",
+        "forge | record fields | src/ASYNCPNT.cbl | TRAN4_STATUS | fn": "forge_one_digit_levels",
+        "forge | record fields | src/ASYNCPNT.cbl | TRAN5_STATUS | fn": "forge_one_digit_levels",
+        "forge | record fields | src/ASYNCPNT.cbl | TRANID | fn": "forge_one_digit_levels",
+        "forge | record fields | src/ASYNCPNT.cbl | TRANSACTION_1 | fn": "forge_one_digit_levels",
+        "forge | record fields | src/ASYNCPNT.cbl | TRANSACTION_2 | fn": "forge_one_digit_levels",
+        "forge | record fields | src/ASYNCPNT.cbl | TRANSACTION_3 | fn": "forge_one_digit_levels",
+        "forge | record fields | src/ASYNCPNT.cbl | TRANSACTION_4 | fn": "forge_one_digit_levels",
+        "forge | record fields | src/ASYNCPNT.cbl | TRANSACTION_5 | fn": "forge_one_digit_levels",
+        "forge | record fields | src/ASYNCPNT.cbl | UPDCSDB_CONTAINER | fn": "forge_one_digit_levels",
+        "forge | record fields | src/CRDTCHK.cbl | COMMAND_RESP | fn": "forge_one_digit_levels",
+        "forge | record fields | src/CRDTCHK.cbl | COMMAND_RESP2 | fn": "forge_one_digit_levels",
+        "forge | record fields | src/CRDTCHK.cbl | CRDTCHK_CONTAINER | fn": "forge_one_digit_levels",
+        "forge | record fields | src/CRDTCHK.cbl | CREDIT_CHECK | fn": "forge_one_digit_levels",
+        "forge | record fields | src/CRDTCHK.cbl | CREDIT_CHECK_RESULT | fn": "forge_one_digit_levels",
+        "forge | record fields | src/CRDTCHK.cbl | CUST_NO_IN | fn": "forge_one_digit_levels",
+        "forge | record fields | src/CRDTCHK.cbl | INPUT_CONTAINER | fn": "forge_one_digit_levels",
+        "forge | record fields | src/CSSTATS2.cbl | COMMAND_RESP | fn": "forge_one_digit_levels",
+        "forge | record fields | src/CSSTATS2.cbl | COMMAND_RESP2 | fn": "forge_one_digit_levels",
+        "forge | record fields | src/CSSTATS2.cbl | CSSTATS2_CONTAINER | fn": "forge_one_digit_levels",
+        "forge | record fields | src/CSSTATS2.cbl | CUSTOMER_IMPORTANCE | fn": "forge_one_digit_levels",
+        "forge | record fields | src/CSSTATS2.cbl | CUST_NO_IN | fn": "forge_one_digit_levels",
+        "forge | record fields | src/CSSTATS2.cbl | GETPOL | fn": "forge_one_digit_levels",
+        "forge | record fields | src/CSSTATS2.cbl | GETSPND | fn": "forge_one_digit_levels",
+        "forge | record fields | src/CSSTATS2.cbl | GET_POLICY_TKN | fn": "forge_one_digit_levels",
+        "forge | record fields | src/CSSTATS2.cbl | GET_POLICY_TRAN | fn": "forge_one_digit_levels",
+        "forge | record fields | src/CSSTATS2.cbl | GET_SPEND_TKN | fn": "forge_one_digit_levels",
+        "forge | record fields | src/CSSTATS2.cbl | GET_SPEND_TRAN | fn": "forge_one_digit_levels",
+        "forge | record fields | src/CSSTATS2.cbl | INPUT_CONTAINER | fn": "forge_one_digit_levels",
+        "forge | record fields | src/CSSTATUS.cbl | COMMAND_RESP | fn": "forge_one_digit_levels",
+        "forge | record fields | src/CSSTATUS.cbl | COMMAND_RESP2 | fn": "forge_one_digit_levels",
+        "forge | record fields | src/CSSTATUS.cbl | CSSTATUS_CONTAINER | fn": "forge_one_digit_levels",
+        "forge | record fields | src/CSSTATUS.cbl | CUSTOMER_IMPORTANCE | fn": "forge_one_digit_levels",
+        "forge | record fields | src/CSSTATUS.cbl | CUST_NO_IN | fn": "forge_one_digit_levels",
+        "forge | record fields | src/CSSTATUS.cbl | GETPOL | fn": "forge_one_digit_levels",
+        "forge | record fields | src/CSSTATUS.cbl | GETSPND | fn": "forge_one_digit_levels",
+        "forge | record fields | src/CSSTATUS.cbl | INPUT_CONTAINER | fn": "forge_one_digit_levels",
+        "forge | record fields | src/CSSTATUS.cbl | OK | fn": "forge_one_digit_levels",
+        "forge | record fields | src/GETADDR.cbl | COMMAND_RESP | fn": "forge_one_digit_levels",
+        "forge | record fields | src/GETADDR.cbl | COMMAND_RESP2 | fn": "forge_one_digit_levels",
+        "forge | record fields | src/GETADDR.cbl | CUSTOMER_ADDRESS | fn": "forge_one_digit_levels",
+        "forge | record fields | src/GETADDR.cbl | CUSTOMER_POSTCODE | fn": "forge_one_digit_levels",
+        "forge | record fields | src/GETADDR.cbl | CUST_NO_IN | fn": "forge_one_digit_levels",
+        "forge | record fields | src/GETADDR.cbl | GETADDR_CONTAINER | fn": "forge_one_digit_levels",
+        "forge | record fields | src/GETADDR.cbl | GETPOST_CONTAINER | fn": "forge_one_digit_levels",
+        "forge | record fields | src/GETADDR.cbl | GET_ADDR | fn": "forge_one_digit_levels",
+        "forge | record fields | src/GETADDR.cbl | INPUT_CONTAINER | fn": "forge_one_digit_levels",
+        "forge | record fields | src/GETNAME.cbl | COMMAND_RESP | fn": "forge_one_digit_levels",
+        "forge | record fields | src/GETNAME.cbl | COMMAND_RESP2 | fn": "forge_one_digit_levels",
+        "forge | record fields | src/GETNAME.cbl | CUSTOMER_NAME | fn": "forge_one_digit_levels",
+        "forge | record fields | src/GETNAME.cbl | CUST_NO_IN | fn": "forge_one_digit_levels",
+        "forge | record fields | src/GETNAME.cbl | GETNAME_CONTAINER | fn": "forge_one_digit_levels",
+        "forge | record fields | src/GETNAME.cbl | GET_NAME | fn": "forge_one_digit_levels",
+        "forge | record fields | src/GETNAME.cbl | INPUT_CONTAINER | fn": "forge_one_digit_levels",
+        "forge | record fields | src/SEQPNT.cbl | ACCOUNT_NUM | fn": "forge_one_digit_levels",
+        "forge | record fields | src/SEQPNT.cbl | APPLICATION_FAILED | fn": "forge_one_digit_levels",
+        "forge | record fields | src/SEQPNT.cbl | APPLICATION_RESULT | fn": "forge_one_digit_levels",
+        "forge | record fields | src/SEQPNT.cbl | APPLICATION_SUCCESS | fn": "forge_one_digit_levels",
+        "forge | record fields | src/SEQPNT.cbl | COMMAND_RESP | fn": "forge_one_digit_levels",
+        "forge | record fields | src/SEQPNT.cbl | COMMAND_RESP2 | fn": "forge_one_digit_levels",
+        "forge | record fields | src/SEQPNT.cbl | CRDTCHK_CONTAINER | fn": "forge_one_digit_levels",
+        "forge | record fields | src/SEQPNT.cbl | CREDIT_CHECK | fn": "forge_one_digit_levels",
+        "forge | record fields | src/SEQPNT.cbl | CREDIT_CHECK_RESULT | fn": "forge_one_digit_levels",
+        "forge | record fields | src/SEQPNT.cbl | CSSTATUS | fn": "forge_one_digit_levels",
+        "forge | record fields | src/SEQPNT.cbl | CSSTATUS_CONTAINER | fn": "forge_one_digit_levels",
+        "forge | record fields | src/SEQPNT.cbl | CUSTOMER_ADDRESS | fn": "forge_one_digit_levels",
+        "forge | record fields | src/SEQPNT.cbl | CUSTOMER_IMPORTANCE | fn": "forge_one_digit_levels",
+        "forge | record fields | src/SEQPNT.cbl | CUSTOMER_NAME | fn": "forge_one_digit_levels",
+        "forge | record fields | src/SEQPNT.cbl | CUSTOMER_POSTCODE | fn": "forge_one_digit_levels",
+        "forge | record fields | src/SEQPNT.cbl | CUST_NO_IN | fn": "forge_one_digit_levels",
+        "forge | record fields | src/SEQPNT.cbl | DB_CACHE | fn": "forge_one_digit_levels",
+        "forge | record fields | src/SEQPNT.cbl | GETADDR_CONTAINER | fn": "forge_one_digit_levels",
+        "forge | record fields | src/SEQPNT.cbl | GETNAME_CONTAINER | fn": "forge_one_digit_levels",
+        "forge | record fields | src/SEQPNT.cbl | GETPOST_CONTAINER | fn": "forge_one_digit_levels",
+        "forge | record fields | src/SEQPNT.cbl | GET_ADDR | fn": "forge_one_digit_levels",
+        "forge | record fields | src/SEQPNT.cbl | GET_NAME | fn": "forge_one_digit_levels",
+        "forge | record fields | src/SEQPNT.cbl | INPUTACCNUM | fn": "forge_one_digit_levels",
+        "forge | record fields | src/SEQPNT.cbl | INPUT_CONTAINER | fn": "forge_one_digit_levels",
+        "forge | record fields | src/SEQPNT.cbl | IS_TERMINAL_BASED | fn": "forge_one_digit_levels",
+        "forge | record fields | src/SEQPNT.cbl | MYCHANNEL | fn": "forge_one_digit_levels",
+        "forge | record fields | src/SEQPNT.cbl | PARENT_PROGRAM | fn": "forge_one_digit_levels",
+        "forge | record fields | src/SEQPNT.cbl | READ_INPUT_LENGTH | fn": "forge_one_digit_levels",
+        "forge | record fields | src/SEQPNT.cbl | RESULT_TEXT | fn": "forge_one_digit_levels",
+        "forge | record fields | src/SEQPNT.cbl | START_CODE | fn": "forge_one_digit_levels",
+        "forge | record fields | src/SEQPNT.cbl | TRAN1_STATUS | fn": "forge_one_digit_levels",
+        "forge | record fields | src/SEQPNT.cbl | TRAN2_STATUS | fn": "forge_one_digit_levels",
+        "forge | record fields | src/SEQPNT.cbl | TRAN3_STATUS | fn": "forge_one_digit_levels",
+        "forge | record fields | src/SEQPNT.cbl | TRAN4_STATUS | fn": "forge_one_digit_levels",
+        "forge | record fields | src/SEQPNT.cbl | TRAN5_STATUS | fn": "forge_one_digit_levels",
+        "forge | record fields | src/SEQPNT.cbl | TRANID | fn": "forge_one_digit_levels",
+        "forge | record fields | src/SEQPNT.cbl | TRANSACTION_1 | fn": "forge_one_digit_levels",
+        "forge | record fields | src/SEQPNT.cbl | TRANSACTION_2 | fn": "forge_one_digit_levels",
+        "forge | record fields | src/SEQPNT.cbl | TRANSACTION_3 | fn": "forge_one_digit_levels",
+        "forge | record fields | src/SEQPNT.cbl | TRANSACTION_4 | fn": "forge_one_digit_levels",
+        "forge | record fields | src/SEQPNT.cbl | TRANSACTION_5 | fn": "forge_one_digit_levels",
+        "forge | record fields | src/SEQPNT.cbl | UPDCSDB_CONTAINER | fn": "forge_one_digit_levels",
+        "forge | record fields | src/UPDCSDB.cbl | COMMAND_RESP | fn": "forge_one_digit_levels",
+        "forge | record fields | src/UPDCSDB.cbl | COMMAND_RESP2 | fn": "forge_one_digit_levels",
+        "forge | record fields | src/UPDCSDB.cbl | CRDTCHK_CONTAINER | fn": "forge_one_digit_levels",
+        "forge | record fields | src/UPDCSDB.cbl | CUST_NO_IN | fn": "forge_one_digit_levels",
+        "forge | record fields | src/UPDCSDB.cbl | DB_CACHE | fn": "forge_one_digit_levels",
+        "forge | record fields | src/UPDCSDB.cbl | INPUT_CONTAINER | fn": "forge_one_digit_levels",
+        "forge | record fields | src/UPDCSDB.cbl | UPDCSDB_CONTAINER | fn": "forge_one_digit_levels"
+      },
+      "scoreboard": {
+        "BMS screen fields": {
+          "engine": null,
+          "forge": null,
+          "truth": "draft"
+        },
+        "CALL USING": {
+          "engine": null,
+          "forge": null,
+          "truth": "draft"
+        },
+        "CICS RIDFLD": {
+          "engine": null,
+          "forge": null,
+          "truth": "draft"
+        },
+        "CICS resources": {
+          "engine": {
+            "got": 37,
+            "tp": 37,
+            "truth": 37
+          },
+          "forge": null,
+          "truth": "draft"
+        },
+        "CICS task control": {
+          "engine": {
+            "got": 17,
+            "tp": 17,
+            "truth": 17
+          },
+          "forge": null,
+          "truth": "draft"
+        },
+        "CSD resources": {
+          "engine": null,
+          "forge": null,
+          "truth": "draft"
+        },
+        "DB2 table access": {
+          "engine": null,
+          "forge": null,
+          "truth": "draft"
+        },
+        "DB2 table columns": {
+          "engine": null,
+          "forge": null,
+          "truth": "draft"
+        },
+        "DD names": {
+          "engine": {
+            "got": 0,
+            "tp": 0,
+            "truth": 0
+          },
+          "forge": {
+            "got": 0,
+            "tp": 0,
+            "truth": 0
+          },
+          "truth": "cross_verified"
+        },
+        "DL/I calls": {
+          "engine": null,
+          "forge": null,
+          "truth": "draft"
+        },
+        "IMS access check": {
+          "engine": null,
+          "forge": null,
+          "truth": "draft"
+        },
+        "IMS definitions": {
+          "engine": null,
+          "forge": null,
+          "truth": "draft"
+        },
+        "IMS segment access": {
+          "engine": null,
+          "forge": null,
+          "truth": "draft"
+        },
+        "JCICS": {
+          "engine": null,
+          "forge": null,
+          "truth": "draft"
+        },
+        "JCL job flow": {
+          "engine": null,
+          "forge": null,
+          "truth": "draft"
+        },
+        "JCL resolved DSNs": {
+          "engine": null,
+          "forge": null,
+          "truth": "draft"
+        },
+        "JCL runner programs": {
+          "engine": null,
+          "forge": null,
+          "truth": "draft"
+        },
+        "MOVE truncation": {
+          "engine": {
+            "got": 0,
+            "tp": 0,
+            "truth": 0
+          },
+          "forge": null,
+          "truth": "draft"
+        },
+        "MQ calls": {
+          "engine": null,
+          "forge": null,
+          "truth": "draft"
+        },
+        "PL/I call sites": {
+          "engine": null,
+          "forge": null,
+          "truth": "draft"
+        },
+        "PL/I data moves": {
+          "engine": null,
+          "forge": null,
+          "truth": "draft"
+        },
+        "PL/I layouts": {
+          "engine": null,
+          "forge": null,
+          "truth": "draft"
+        },
+        "PL/I record fields": {
+          "engine": null,
+          "forge": null,
+          "truth": "draft"
+        },
+        "TD trigger starts": {
+          "engine": null,
+          "forge": null,
+          "truth": "draft"
+        },
+        "VSAM defines": {
+          "engine": null,
+          "forge": null,
+          "truth": "draft"
+        },
+        "async children": {
+          "engine": {
+            "got": 0,
+            "tp": 0,
+            "truth": 0
+          },
+          "forge": null,
+          "truth": "draft"
+        },
+        "call targets": {
+          "engine": {
+            "got": 7,
+            "tp": 7,
+            "truth": 7
+          },
+          "forge": null,
+          "truth": "cross_verified"
+        },
+        "cics/sql": {
+          "engine": null,
+          "forge": {
+            "got": 10,
+            "tp": 10,
+            "truth": 10
+          },
+          "truth": "cross_verified"
+        },
+        "copybook layouts": {
+          "engine": null,
+          "forge": null,
+          "truth": "draft"
+        },
+        "copybook paths": {
+          "engine": {
+            "got": 0,
+            "tp": 0,
+            "truth": 0
+          },
+          "forge": {
+            "got": 0,
+            "tp": 0,
+            "truth": 0
+          },
+          "truth": "cross_verified"
+        },
+        "data moves": {
+          "engine": {
+            "got": 42,
+            "tp": 42,
+            "truth": 42
+          },
+          "forge": null,
+          "truth": "draft"
+        },
+        "dead": {
+          "engine": {
+            "got": 10,
+            "tp": 0,
+            "truth": 0
+          },
+          "forge": {
+            "got": 0,
+            "tp": 0,
+            "truth": 0
+          },
+          "truth": "cross_verified"
+        },
+        "dead (non-trivial)": {
+          "engine": {
+            "got": 10,
+            "tp": 0,
+            "truth": 0
+          },
+          "forge": {
+            "got": 0,
+            "tp": 0,
+            "truth": 0
+          },
+          "truth": "cross_verified"
+        },
+        "dynamic CALLs": {
+          "engine": {
+            "got": 0,
+            "tp": 0,
+            "truth": 0
+          },
+          "forge": {
+            "got": 0,
+            "tp": 0,
+            "truth": 0
+          },
+          "truth": "cross_verified"
+        },
+        "dynamic call targets": {
+          "engine": {
+            "got": 7,
+            "tp": 7,
+            "truth": 7
+          },
+          "forge": null,
+          "truth": "draft"
+        },
+        "entry transactions": {
+          "engine": {
+            "got": 0,
+            "tp": 0,
+            "truth": 0
+          },
+          "forge": {
+            "got": 0,
+            "tp": 0,
+            "truth": 0
+          },
+          "truth": "draft"
+        },
+        "file I/O moves": {
+          "engine": null,
+          "forge": null,
+          "truth": "draft"
+        },
+        "file control": {
+          "engine": null,
+          "forge": null,
+          "truth": "draft"
+        },
+        "inputs": {
+          "engine": {
+            "got": 0,
+            "tp": 0,
+            "truth": 0
+          },
+          "forge": {
+            "got": 0,
+            "tp": 0,
+            "truth": 0
+          },
+          "truth": "cross_verified"
+        },
+        "intra-program edges": {
+          "engine": {
+            "got": 6,
+            "tp": 6,
+            "truth": 6
+          },
+          "forge": null,
+          "truth": "llm_verified"
+        },
+        "job submissions": {
+          "engine": null,
+          "forge": null,
+          "truth": "draft"
+        },
+        "outputs": {
+          "engine": {
+            "got": 0,
+            "tp": 0,
+            "truth": 0
+          },
+          "forge": {
+            "got": 0,
+            "tp": 0,
+            "truth": 0
+          },
+          "truth": "cross_verified"
+        },
+        "program_id": {
+          "engine": {
+            "got": 10,
+            "tp": 10,
+            "truth": 10
+          },
+          "forge": {
+            "got": 10,
+            "tp": 10,
+            "truth": 10
+          },
+          "truth": "cross_verified"
+        },
+        "record fields": {
+          "engine": {
+            "got": 158,
+            "tp": 158,
+            "truth": 158
+          },
+          "forge": {
+            "got": 0,
+            "tp": 0,
+            "truth": 158
+          },
+          "truth": "draft"
+        },
+        "refmod spans": {
+          "engine": null,
+          "forge": null,
+          "truth": "draft"
+        },
+        "symbolic maps": {
+          "engine": null,
+          "forge": null,
+          "truth": "draft"
+        },
+        "unit extents": {
+          "engine": {
+            "got": 14,
+            "outside": 0,
+            "tp": 14,
+            "truth": 14
+          },
+          "forge": null,
+          "truth": "llm_verified"
+        },
+        "units": {
+          "engine": {
+            "got": 14,
+            "tp": 14,
+            "truth": 14
+          },
+          "forge": {
+            "got": 14,
+            "tp": 14,
+            "truth": 14
+          },
+          "truth": "cross_verified"
+        },
+        "units of work and handlers": {
+          "engine": {
+            "got": 34,
+            "tp": 34,
+            "truth": 34
+          },
+          "forge": null,
+          "truth": "draft"
         },
         "web services": {
           "engine": null,

@@ -51,8 +51,8 @@ gaps, PR) to docs/language_status/blockers_history.jsonl from the cached baselin
 show` prints the series. Names and counts only.
 
 Burned / non-burned comes from ONE place: tests/tools/estate4_draw.py. A corpus is BURNED when its name is one of
-the burned estates (BURNED_NAMES: CardDemo, CBSA, GenApp, zECS, DBB MortgageApplication -- det ports exist); every
-other corpus is non-burned. The census repos (estate4_draw.INELIGIBLE_LIST, docs census/INELIGIBLE_FOR_BLIND_ESTATE.md)
+the burned estates (BURNED_NAMES: CardDemo, CBSA, GenApp, zECS, DBB MortgageApplication, the async credit-card example);
+every other corpus is non-burned. The census repos (estate4_draw.INELIGIBLE_LIST, docs census/INELIGIBLE_FOR_BLIND_ESTATE.md)
 are not in .mainframe_corpora: clone them into a scratch directory and pass it as --census-corpora DIR or
 $CICS_CENSUS_CORPORA. Blind-estate rule: those repos are read only through translator output and these option
 counts; nothing from them is committed. A census-root corpus that is NOT on the census list is warned about: reading

@@ -206,6 +206,8 @@ BURNED_NAMES = {
     "dbb",
     "mortgageapplication",
     "dbb-mortgage-application",
+    # #4270: promoted from census clone to a pinned development estate (the repo stays on INELIGIBLE_LIST)
+    "cics-async-api-credit-card-application-example",
 }
 COPY_NAME_RE = re.compile(r"carddemo|genapp|cbsa|zecs|mortgage", re.I)
 COPY_BASENAME_FRACTION = 0.30

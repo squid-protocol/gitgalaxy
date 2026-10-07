@@ -92,6 +92,16 @@
         "jcl",
         "db2_sql"
       ]
+    },
+    {
+      "id": "cics-async-api-credit-card-application-example",
+      "kind": "public",
+      "round": 8,
+      "keyed_by": "#4270",
+      "date": "2026-10-07",
+      "languages": [
+        "cobol"
+      ]
     }
   ],
   "defects": [
@@ -812,6 +822,19 @@
       "found_by": "engine-vs-translator cross-check (#4273)",
       "issue": 4458,
       "summary": "Entries continuing a COPYed record after a section-level COPY (COTRN02C: `COPY COCOM01Y.` + `05 CDEMO-CT02-INFO`) were laid out under the program's preceding 01 as well as under the copied record: record_layout gave CSUTLDTC-PARM 158 bytes, not 100. The #4279 fix covered a COPY that closes a nested group, not this shape."
+    },
+    {
+      "id": "D047",
+      "estate": "cics-async-api-credit-card-application-example",
+      "side": "forge",
+      "fields": [
+        "record fields"
+      ],
+      "language": "cobol",
+      "severity": "fact",
+      "found_by": "ground-truth ledger on the pin (#4270)",
+      "issue": 4626,
+      "summary": "cobol_schema_forge reads no record fields from one-digit level numbers (`1 PROG-NAMES.` / `2 GETPOL PIC X(8) VALUE ...`): 0 of the 158 fields of the 8 programs that declare any, while the engine reads all of them."
     }
   ],
   "fields": {

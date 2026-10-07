@@ -1005,6 +1005,8 @@ def main(argv: list[str] | None = None) -> int:
     h.add_argument("--file", type=Path, help=f"the history file (default {HISTORY.relative_to(REPO)})")
     h.add_argument("--json", action="store_true")
     args = ap.parse_args(argv)
+    if getattr(args, "no_census", False) and getattr(args, "census_corpora", None):  # #4598
+        ap.error("--no-census and --census-corpora contradict each other: give one")
     cmds = {"usage": cmd_usage, "survey": cmd_survey, "compare": cmd_compare, "blockers": cmd_blockers,
             "history": cmd_history}  # fmt: skip
     return cmds[args.cmd](args)

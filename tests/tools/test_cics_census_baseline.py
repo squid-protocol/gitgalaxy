@@ -207,3 +207,26 @@ def test_no_census_ignores_the_census_env(tmp_path, monkeypatch, stubbed):
     assert all(s != "nb" for s in stubbed["calls"][-1][1])  # no census run
     assert cc.main(["survey", "--baseline", "--no-fetch", *_base(stubbed)]) == 0
     assert all(s != "nb" for s in stubbed["calls"][-1][1])
+
+
+def test_no_census_never_reads_the_census_root(tmp_path, monkeypatch, stubbed, capsys):
+    """#4598: --no-census reads no census root whatever $CICS_CENSUS_CORPORA holds -- survey, usage and compare --
+    and --no-census with --census-corpora is an error."""
+    census = tmp_path / "census"
+    (census / "cics-async-api-redbooks").mkdir(parents=True)
+    (census / "cics-async-api-redbooks" / "A.cbl").write_text(CICS)
+    monkeypatch.setenv(cc.CENSUS_ENV, str(census))
+    main = ["--no-census", "--corpora", str(stubbed["main"])]
+    assert cc.main(["usage", "RETURN", "--json", *main]) == 0
+    assert {r["corpus"] for r in json.loads(capsys.readouterr().out)["programs"]} == {"cics-genapp", "dsf"}
+    assert cc.main(["survey", "--out", str(tmp_path / "s"), *main]) == 0
+    assert "nb" not in stubbed["calls"][-1][1]
+    s = tmp_path / "s2"
+    for label in ("before", "after"):
+        (s / f"{label}-b").mkdir(parents=True)
+        (s / f"{label}-b" / "survey.json").write_text(json.dumps(ROWS["b"]))
+    assert cc.main(["compare", str(s), "--verb", "RETURN", "--json", *main]) == 0
+    assert {r["corpus"] for r in json.loads(capsys.readouterr().out)["rows"]} == {"cics-genapp", "dsf"}
+    with pytest.raises(SystemExit):
+        cc.main(["usage", "RETURN", *main, "--census-corpora", str(census)])
+    assert "contradict" in capsys.readouterr().err

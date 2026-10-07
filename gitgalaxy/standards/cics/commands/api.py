@@ -37,7 +37,7 @@ _DEVICE = "terminal control beyond the one 3270 display the region defines is no
 _STORAGE = "storage CICS acquires for the task, addressed by a pointer, is not modelled"
 _JOURNAL = "journals (log streams) are not modelled"
 _SECURITY = "security: the region has no security manager and no signed-on user"
-_COUNTER = "named counters are not modelled"
+COUNTER = "named counters are not modelled"  # (det/cics.py: "<verb> COUNTER: <this>")
 _DOCUMENT = "CICS documents (the document handler) are not modelled"
 _WEB = "CICS web support (HTTP server / client) is not modelled"
 _WEB_SERVICE = "web services (SOAP / WS-Addressing) are not modelled"
@@ -205,11 +205,11 @@ _NAME_ONLY: tuple[tuple[str, str | None, str], ...] = (
     ("VERIFY PHRASE", None, _SECURITY),
     ("VERIFY TOKEN", None, _SECURITY),
     # named counters other than GET COUNTER
-    ("DEFINE COUNTER", "define-counter-define-dcounter", _COUNTER),
-    ("DELETE COUNTER", "delete-counter-delete-dcounter", _COUNTER),
-    ("QUERY COUNTER", "query-counter-query-dcounter", _COUNTER),
-    ("REWIND COUNTER", "rewind-counter-rewind-dcounter", _COUNTER),
-    ("UPDATE COUNTER", "update-counter-update-dcounter", _COUNTER),
+    ("DEFINE COUNTER", "define-counter-define-dcounter", COUNTER),
+    ("DELETE COUNTER", "delete-counter-delete-dcounter", COUNTER),
+    ("QUERY COUNTER", "query-counter-query-dcounter", COUNTER),
+    ("REWIND COUNTER", "rewind-counter-rewind-dcounter", COUNTER),
+    ("UPDATE COUNTER", "update-counter-update-dcounter", COUNTER),
     # documents
     ("DOCUMENT CREATE", None, _DOCUMENT),
     ("DOCUMENT DELETE", None, _DOCUMENT),

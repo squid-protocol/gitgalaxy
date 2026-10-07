@@ -13,6 +13,7 @@ from pathlib import Path
 
 from gitgalaxy.standards.cics.commands import COMMANDS as SPEC
 from gitgalaxy.standards.cics.commands import whole_refusal
+from gitgalaxy.standards.cics.commands.api import CHILD_LATER, CONTAINER_LATER, COUNTER
 from gitgalaxy.standards.cics.commands.assign import TERMINAL_OPTIONS
 from gitgalaxy.standards.cics.commands.handles import AID_KEYS
 from gitgalaxy.standards.cics.commands.send_text import TEXT_OPTIONS
@@ -651,11 +652,11 @@ class Cics:
             return self.container(key, opts, ind)
         if key == "MOVE CONTAINER" or words[:1] in (["STARTBROWSE"], ["GETNEXT"], ["ENDBROWSE"]):
             # #4270: no non-burned corpus program MOVEs a container; one browses (with GETMAIN / SOAPFAULT beside)
-            raise CicsError(f"EXEC CICS {key} not modelled ({SPEC['MOVE CONTAINER'].why})")
+            raise CicsError(f"EXEC CICS {key} not modelled ({CONTAINER_LATER})")
         if verb == "RUN":  # #4270 slice 2
             return self.run_transid(opts, ind)
         if words[:1] == ["FETCH"] or verb == "FREE CHILD":
-            raise CicsError(f"EXEC CICS {verb} not modelled ({SPEC['FETCH CHILD'].why})")
+            raise CicsError(f"EXEC CICS {verb} not modelled ({CHILD_LATER})")
         if verb in ("START", "RETRIEVE", "CANCEL"):  # #4270 slice 2: interval control
             return {"START": self.start, "RETRIEVE": self.retrieve, "CANCEL": self.cancel}[verb](opts, ind)
         if verb.split()[0] in ("ENQ", "DEQ", "DELAY"):  # (DELAY FOR SECONDS(n): words DELAY FOR)
@@ -672,7 +673,7 @@ class Cics:
                     *self.outcome(opts, f"({v} == null ? 13 : 0)", "0", ind)]  # fmt: skip
         if "COUNTER" in opts or "DCOUNTER" in opts:
             # the other named-counter commands (DEFINE / UPDATE / DELETE COUNTER, DCOUNTER): not modelled
-            raise CicsError(f"{verb} COUNTER: {SPEC['DEFINE COUNTER'].why}")
+            raise CicsError(f"{verb} COUNTER: {COUNTER}")
         g = self.g
         if verb == "SEND" and "MAP" in opts:
             return self.send_map(opts, ind)

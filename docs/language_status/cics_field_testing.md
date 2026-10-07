@@ -30,24 +30,24 @@ counted in it (their fact counts are not recorded here).
 | DB2 table access | 3 | 0 | 1 | 58 | 0 | 0 | 1 | 21 | 14.3% | open | 1 more clean fresh round(s), 279 more clean fresh facts |
 | dynamic call targets | 5 | 0 | 2 | 232 | 0 | 0 | 2 | 16 | 18.8% | open | 284 more clean fresh facts |
 | entry transactions | 4 | 0 | 2 | 53 | 0 | 0 | 2 | 15 | 20.0% | open | 285 more clean fresh facts |
+| unit extents | 8 | 0 | 1 | 2,211 | 0 | 0 | 1 | 14 | 21.4% | open | 1 more clean fresh round(s), 286 more clean fresh facts |
+| units | 8 | 0 | 5 | 2,072 | 7 | 4 | 1 | 14 | 21.4% | open | 1 more clean fresh round(s), 286 more clean fresh facts |
 | inputs | 3 | 0 | 1 | 55 | 0 | 2 | 1 | 13 | 23.1% | open | 1 more clean fresh round(s), 287 more clean fresh facts |
+| program_id | 8 | 0 | 5 | 138 | 3 | 0 | 1 | 10 | 30.0% | open | 1 more clean fresh round(s), 290 more clean fresh facts |
 | dead (non-trivial) | 5 | 0 | 3 | 28 | 0 | 0 | 3 | 10 | 30.0% | open | 290 more clean fresh facts |
+| call targets | 8 | 0 | 5 | 151 | 1 | 1 | 2 | 9 | 33.3% | open | 291 more clean fresh facts |
 | copybook paths | 6 | 0 | 3 | 431 | 3 | 1 | 1 | 9 | 33.3% | open | 1 more clean fresh round(s), 291 more clean fresh facts |
 | outputs | 4 | 0 | 1 | 37 | 0 | 1 | 1 | 9 | 33.3% | open | 1 more clean fresh round(s), 291 more clean fresh facts |
+| intra-program edges | 8 | 0 | 1 | 1,951 | 0 | 0 | 1 | 6 | 50.0% | open | 1 more clean fresh round(s), 294 more clean fresh facts |
 | VSAM defines | 3 | 0 | 1 | 30 | 0 | 0 | 1 | 4 | 75.0% | open | 1 more clean fresh round(s), 296 more clean fresh facts |
-| call targets | 7 | 0 | 4 | 144 | 1 | 1 | 1 | 2 | - | open | 1 more clean fresh round(s), 298 more clean fresh facts |
 | dynamic CALLs | 3 | 0 | 2 | 5 | 0 | 0 | 2 | 2 | - | open | 298 more clean fresh facts |
 | DL/I calls | 2 | 0 | 1 | 36 | 0 | 0 | 1 | 1 | - | open | 1 more clean fresh round(s), 299 more clean fresh facts |
 | IMS access check | 2 | 0 | 1 | 15 | 0 | 0 | 1 | 1 | - | open | 1 more clean fresh round(s), 299 more clean fresh facts |
 | IMS segment access | 2 | 0 | 1 | 21 | 0 | 0 | 1 | 1 | - | open | 1 more clean fresh round(s), 299 more clean fresh facts |
 | async children | 2 | 0 | 1 | 6 | 0 | 0 | 1 | 1 | - | open | 1 more clean fresh round(s), 299 more clean fresh facts |
-| intra-program edges | 7 | 0 | 0 | 1,945 | 0 | 0 | 0 | 0 | - | open | 2 more clean fresh round(s), 300 more clean fresh facts |
-| program_id | 7 | 0 | 4 | 128 | 3 | 0 | 0 | 0 | - | open | 2 more clean fresh round(s), 300 more clean fresh facts |
-| unit extents | 7 | 0 | 0 | 2,197 | 0 | 0 | 0 | 0 | - | open | 2 more clean fresh round(s), 300 more clean fresh facts |
-| units | 7 | 0 | 4 | 2,058 | 7 | 4 | 0 | 0 | - | open | 2 more clean fresh round(s), 300 more clean fresh facts |
 | MOVE truncation | 6 | 0 | 3 | 165 | 1 | 0 | 0 | 0 | - | open | 2 more clean fresh round(s), 300 more clean fresh facts |
 | data moves | 6 | 0 | 3 | 12,583 | 4 | 0 | 0 | 0 | - | open | 2 more clean fresh round(s), 300 more clean fresh facts |
-| record fields | 6 | 0 | 3 | 5,475 | 6 | 2 | 0 | 0 | - | open | 2 more clean fresh round(s), 300 more clean fresh facts |
+| record fields | 6 | 0 | 3 | 5,475 | 6 | 3 | 0 | 0 | - | open | 2 more clean fresh round(s), 300 more clean fresh facts |
 | CALL USING | 5 | 0 | 2 | 103 | 1 | 0 | 0 | 0 | - | open | 2 more clean fresh round(s), 300 more clean fresh facts |
 | CICS RIDFLD | 5 | 0 | 0 | 781 | 0 | 0 | 0 | 0 | - | open | 2 more clean fresh round(s), 300 more clean fresh facts |
 | CICS resources | 5 | 0 | 3 | 3,588 | 1 | 0 | 0 | 0 | - | open | 2 more clean fresh round(s), 300 more clean fresh facts |
@@ -82,6 +82,7 @@ counted in it (their fact counts are not recorded here).
 | 5 | zecs | public | 1,293 | 43 | 0 | 0 | 2 |
 | 6 | dsf | public | 2,018 | 4 | 7 | 1 | 0 |
 | 7 | dbb-mortgage-application | public | 45 | 0 | 4 | 1 | 0 |
+| 8 | cics-async-api-credit-card-application-example | public | 31 | 0 | 0 | 1 | 0 |
 
 ## Defect log
 
@@ -137,6 +138,7 @@ counted in it (their fact counts are not recorded here).
 | D044 | review, after 7 | engine | fact | data moves, CALL USING, DD names | #4264 | Columns 73-80 of a fixed-format line (the identification area the compiler ignores: NIST CCVS `NC1314.2`) reached the COBOL readers, and no reader knew fixed from free format (no >>SOURCE FORMAT handling). On the crucible's NIST CCVS85 set ~2,500 phantom data-flow operands came from it (`MOVE "." -> NC1314`), CALL USING gained a `CONTENT:IC2244` operand, and 198 dataset bindings took the identification tag as their DD name (`DB1044` for `ASSIGN TO` / `XXXXX055` on the next line; with the tag gone the reader then saw the next line's sequence area and read `TO`, so it now blanks sequence fields as file_control does). Prism now blanks the identification area of fixed lines only, the format detected per file and switched by directives. Found by the 2026-10-03 engine audit, not by a keyed estate (the ledger did not move). |
 | D045 | 2 | engine | fact | record fields | #4457 | A section-level COPY ... REPLACING was not applied to the 01 records it copies: CBSA INQACC's `COPY INQACC REPLACING INQACC-COMMAREA BY DFHCOMMAREA` left the record named INQACC-COMMAREA, GETSCODE's SORTCODE stayed SORTCODE; on zopeneditor-sample the :TAG: template CUSTCOPY gave SAM1 / SAM1LIB / SAM2 no CUST-REC, CSTOUT-REC or WS-CUST-REC record at all (22 records). In-group REPLACING (#4265) was already right. |
 | D046 | 3 | engine | fact | record fields | #4458 | Entries continuing a COPYed record after a section-level COPY (COTRN02C: `COPY COCOM01Y.` + `05 CDEMO-CT02-INFO`) were laid out under the program's preceding 01 as well as under the copied record: record_layout gave CSUTLDTC-PARM 158 bytes, not 100. The #4279 fix covered a COPY that closes a nested group, not this shape. |
+| D047 | 8 | forge | fact | record fields | #4626 | cobol_schema_forge reads no record fields from one-digit level numbers (`1 PROG-NAMES.` / `2 GETPOL PIC X(8) VALUE ...`): 0 of the 158 fields of the 8 programs that declare any, while the engine reads all of them. |
 
 Key errors (the census's findings against the answer key itself) are counted from each key's
 rulings, not logged by hand. The engine agreeing with a key is only as good as the key: a key

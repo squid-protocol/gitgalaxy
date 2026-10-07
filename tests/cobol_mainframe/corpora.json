@@ -221,6 +221,33 @@
         ]
       },
       "notes": "IBM Dependency Based Build's MortgageApplication (zBuilder/MortgageApplication): a small CICS/DB2 estate from a different IBM team than CBSA/GenApp -- CALLed computation subprograms (EPSMPMT, EPSNBRVL), a dynamic CALL driver (EPSCSMRT), a BMS/DB2 CICS program (EPSCMORT) and a VSAM browse (EPSMLIST). EPSCSMRD is a generated web-service wrapper (channels/containers, SOAPFAULT, LE condition handlers). The repository is the whole DBB samples repo; only zBuilder/MortgageApplication is COBOL."
+    },
+    {
+      "name": "cics-async-api-credit-card-application-example",
+      "url": "https://github.com/cicsdev/cics-async-api-credit-card-application-example",
+      "branch": "main",
+      "ref": "c32c52fcfd8d587b352f67959a5dfb0d11dbd8bb",
+      "license": "Apache-2.0",
+      "languages": [
+        "cobol"
+      ],
+      "answer_key": "tests/cobol_mainframe/answer_key/cics-async-api-credit-card-application-example.json",
+      "excerpt": {
+        "why": "IBM's CICS asynchronous API credit-card application: two front-end programs that fan out to the same eight CICS services, ASYNCPNT in parallel (EXEC CICS RUN TRANSID / FETCH CHILD / FETCH ANY, channels and containers) and SEQPNT in sequence (LINK), plus the services GETNAME, GETADDR, GETPOL, GETSPND, CRDTCHK, CSSTATUS, CSSTATS2 and UPDCSDB. The repository ships no copybooks, BMS maps or CSD deck; the CICS resources are bundle definitions.",
+        "files": [
+          "src/ASYNCPNT.cbl",
+          "src/SEQPNT.cbl",
+          "src/CRDTCHK.cbl",
+          "src/CSSTATS2.cbl",
+          "src/CSSTATUS.cbl",
+          "src/GETADDR.cbl",
+          "src/GETNAME.cbl",
+          "src/GETPOL.cbl",
+          "src/GETSPND.cbl",
+          "src/UPDCSDB.cbl"
+        ]
+      },
+      "notes": "cicsdev's CICS asynchronous API credit-card application example (Apache-2.0, IBM Corp. 2016 sources): a fifth CICS estate in the corpus, promoted from a counts-only census clone to a pinned development (burned) estate on 2026-10-07 (#4270). Parallel (ASYNCPNT) versus sequential (SEQPNT) composition of the same services with the CICS asynchronous API (RUN TRANSID, FETCH, channels/containers). No copybooks, BMS or JCL; the CICS resources are in etc/CICS_bundles."
     }
   ]
 }

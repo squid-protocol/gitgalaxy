@@ -40,6 +40,7 @@ GitGalaxy works like an X-ray. It reveals structure a codebase's authors did not
 | AWS CardDemo | Apache-2.0 | Corpus (pinned); fixtures with licence |
 | CBSA, GenApp | EPL-2.0 | Corpus (pinned); fixtures with licence |
 | IBM DBB MortgageApplication | per its repository (verify on onboarding) | Corpus (pinned) |
+| cicsdev async credit-card example | Apache-2.0 (root `LICENSE`, checked at `c32c52fc`) | Corpus (pinned); excerpt with licence |
 | Devin workshop repos (Cognition-Partner-Workshops, codev-workshops) | Apache-2.0 | Run at pinned SHAs; not vendored |
 | IBM validation-c2j (WCA4Z LGACDB01) | none | Run at pinned SHA; brief quotes only |
 | SENTINEL IDE port (noahlabsai) | none (badge only) | Run at pinned SHA; brief quotes only |

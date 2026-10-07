@@ -473,6 +473,33 @@ def test_program_spans_split_siblings_and_nested_programs(tmp_path):
     assert len(ak.program_spans(ak.Source(single))) == 1
 
 
+def test_lone_program_unit_extent_stops_before_its_end_program_and_level_1_values_resolve(tmp_path):
+    """#4270 (cicsdev async credit-card sources): `END PROGRAM 'X'.` is no unit's code even in a
+    single-program source, and a LINK PROGRAM(NAME) resolves through a VALUE on a one-digit level
+    (`1 PROG-NAMES.` / `2 GETPOL PIC X(8) VALUE 'GETPOL  '.`)."""
+    path = tmp_path / "ONE.cbl"
+    path.write_text(
+        "       IDENTIFICATION DIVISION.\n"
+        "        PROGRAM-ID. ONE.\n"
+        "       DATA DIVISION.\n"
+        "        LOCAL-STORAGE SECTION.\n"
+        "       1 PROG-NAMES.\n"
+        "         2 GETPOL             PIC X(8) VALUE 'GETPOL  '.\n"
+        "       PROCEDURE DIVISION.\n"
+        "       MAINLINE SECTION.\n"
+        "           EXEC CICS LINK PROGRAM(GETPOL)\n"
+        "           END-EXEC.\n"
+        "\n"
+        "       END PROGRAM 'ONE'.\n",
+        encoding="utf-8",
+    )
+    src = ak.Source(path)
+    (span,) = ak.program_spans(src)
+    units = ak._units(src, src.proc_start, span["stop"])
+    assert [(u["name"], u["end"]) for u in units] == [("MAINLINE", 10)]
+    assert ak._value_of(src, "GETPOL") == "GETPOL"
+
+
 def test_draft_keys_sibling_programs_with_their_own_units(tmp_path):
     """#4206: the first program is the entry, the rest are `siblings` with units and
     dead verdicts from their own PROCEDURE DIVISION. Before, the draft read SECOND's

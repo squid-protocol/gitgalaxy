@@ -6473,7 +6473,7 @@ def _operand(src: Source, offset: int) -> tuple[str, str]:
 
 def _value_of(src: Source, ident: str) -> Optional[str]:
     m = re.search(
-        rf"\b(?:0[1-9]|[1-4][0-9]|77)\s+{re.escape(ident)}\s[^.]{{0,80}}?\bVALUE\s+(?:IS\s+)?['\"]([^'\"]*)['\"]",
+        rf"\b(?:0?[1-9]|[1-4][0-9]|77)\s+{re.escape(ident)}\s[^.]{{0,80}}?\bVALUE\s+(?:IS\s+)?['\"]([^'\"]*)['\"]",
         src.raw_text,
     )
     return m.group(1).strip() if m else None
@@ -6528,7 +6528,9 @@ def draft_program(
     if len(spans) > 1:
         bounds = (spans[0]["proc"], spans[0]["stop"])
     else:
-        bounds = (src.proc_start, None)
+        # #4270: a lone program stops at its END PROGRAM too -- the line is no unit's code (cicsdev's async
+        # credit-card sources end `END PROGRAM 'GETPOL'.` and the last unit's extent ran over it).
+        bounds = (src.proc_start, spans[0]["stop"] if spans else None)
     units = _units(src, *bounds) if bounds[0] is not None else []
     named, reached, dead = _named_dead(units)
 

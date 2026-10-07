@@ -122,7 +122,7 @@ Traps `--check` exists for:
 ## 4. Burned / non-burned
 
 One source: `tests/tools/estate4_draw.py`. BURNED = the burned estates (`BURNED_NAMES`: CardDemo, CBSA, GenApp,
-zECS, DBB MortgageApplication); everything else is non-burned. The census repos (`INELIGIBLE_LIST` minus the burned
+zECS, DBB MortgageApplication, the cicsdev async credit-card example); everything else is non-burned. The census repos (`INELIGIBLE_LIST` minus the burned
 ones) are cloned into a scratch dir and given as `--census-corpora` / `$CICS_CENSUS_CORPORA`; they are read ONLY
 through translator output and option counts, and nothing from them is ever committed (names and counts in a PR body
 are fine). `cics_census.py` warns about a census-root corpus that is not on the list: reading a possible blind

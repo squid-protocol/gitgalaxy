@@ -93,7 +93,7 @@ The other COBOL-to-Java pages here: [`det_port_design.md`](det_port_design.md) (
 runtime contract and every proven result), [`det_survey.md`](det_survey.md) (how much of six estates it translates),
 [`statement_inventory.md`](statement_inventory.md) (what a deterministic translator could take over, by statement
 kind), [`porting_loop.md`](porting_loop.md) (model-written ports), [`mutation_testing.md`](mutation_testing.md) and
-[`cics_crucible.md`](cics_crucible.md). [`estate4_dbb_mortgage.md`](estate4_dbb_mortgage.md): the fourth estate (IBM DBB MortgageApplication), what was proven and what onboarding it needed. The wiki's summary is `docs/wiki/05-19-proven-cobol-to-java-ports.md`.
+[`cics_crucible.md`](cics_crucible.md). [`estate4_dbb_mortgage.md`](estate4_dbb_mortgage.md): the fourth estate (IBM DBB MortgageApplication), what was proven and what onboarding it needed. [`estate4_async_creditcard.md`](estate4_async_creditcard.md): the cicsdev async credit-card example, pinned as a development (burned) estate (#4270). The wiki's summary is `docs/wiki/05-19-proven-cobol-to-java-ports.md`.
 
 ## Signature-bearing languages (47)
 

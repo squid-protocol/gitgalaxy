@@ -1,0 +1,89 @@
+# Migration worklist
+
+Every TODO the generators left in this project: where a fact was missing or two facts disagreed, the Java says so instead of guessing. Each item names the fact it rests on (from `traceability.json`) and a suggested resolution.
+
+**11 items** across 10 program sources (COBOL, PL/I).
+
+| nature | items | what it takes |
+|---|---:|---|
+| conflict | 0 | two facts disagree: a person decides which one the Java follows |
+| fact-gap | 0 | a fact is missing: supply it and re-run |
+| review | 1 | the Java runs as generated: check it on the target |
+| port | 10 | business logic to write |
+
+## By category
+
+| category | nature | items | suggested resolution |
+|---|---|---:|---|
+| [Business logic to port](#business-logic) | port | 10 | Port the cited paragraphs; the skeleton names the COBOL lines and the facts they touch. |
+| [Target configuration](#configuration) | review | 1 | Point the datasource at the target database; the password comes from SPRING_DATASOURCE_PASSWORD at run time, never from a file. |
+
+## By program source
+
+| source | conflict | fact-gap | review | port | total |
+|---|---:|---:|---:|---:|---:|
+| `(project configuration)` |  |  | 1 |  | 1 |
+| `src/ASYNCPNT.cbl` |  |  |  | 1 | 1 |
+| `src/CRDTCHK.cbl` |  |  |  | 1 | 1 |
+| `src/CSSTATS2.cbl` |  |  |  | 1 | 1 |
+| `src/CSSTATUS.cbl` |  |  |  | 1 | 1 |
+| `src/GETADDR.cbl` |  |  |  | 1 | 1 |
+| `src/GETNAME.cbl` |  |  |  | 1 | 1 |
+| `src/GETPOL.cbl` |  |  |  | 1 | 1 |
+| `src/GETSPND.cbl` |  |  |  | 1 | 1 |
+| `src/SEQPNT.cbl` |  |  |  | 1 | 1 |
+| `src/UPDCSDB.cbl` |  |  |  | 1 | 1 |
+
+<a id="business-logic"></a>
+## Business logic to port (port)
+
+_Resolution:_ Port the cited paragraphs; the skeleton names the COBOL lines and the facts they touch.
+
+**`src/ASYNCPNT.cbl`**
+
+- [ ] **WL-0001** `src/main/java/com/gitgalaxy/modernized/service/AsyncpntService.java:16`: Implement extracted business rules here
+
+**`src/CRDTCHK.cbl`**
+
+- [ ] **WL-0002** `src/main/java/com/gitgalaxy/modernized/service/CrdtchkService.java:16`: Implement extracted business rules here
+
+**`src/CSSTATS2.cbl`**
+
+- [ ] **WL-0003** `src/main/java/com/gitgalaxy/modernized/service/Csstats2Service.java:16`: Implement extracted business rules here
+
+**`src/CSSTATUS.cbl`**
+
+- [ ] **WL-0004** `src/main/java/com/gitgalaxy/modernized/service/CsstatusService.java:16`: Implement extracted business rules here
+
+**`src/GETADDR.cbl`**
+
+- [ ] **WL-0005** `src/main/java/com/gitgalaxy/modernized/service/GetaddrService.java:16`: Implement extracted business rules here
+
+**`src/GETNAME.cbl`**
+
+- [ ] **WL-0006** `src/main/java/com/gitgalaxy/modernized/service/GetnameService.java:16`: Implement extracted business rules here
+
+**`src/GETPOL.cbl`**
+
+- [ ] **WL-0007** `src/main/java/com/gitgalaxy/modernized/service/GetpolService.java:16`: Implement extracted business rules here
+
+**`src/GETSPND.cbl`**
+
+- [ ] **WL-0008** `src/main/java/com/gitgalaxy/modernized/service/GetspndService.java:16`: Implement extracted business rules here
+
+**`src/SEQPNT.cbl`**
+
+- [ ] **WL-0009** `src/main/java/com/gitgalaxy/modernized/service/SeqpntService.java:16`: Implement extracted business rules here
+
+**`src/UPDCSDB.cbl`**
+
+- [ ] **WL-0010** `src/main/java/com/gitgalaxy/modernized/service/UpdcsdbService.java:16`: Implement extracted business rules here
+
+<a id="configuration"></a>
+## Target configuration (review)
+
+_Resolution:_ Point the datasource at the target database; the password comes from SPRING_DATASOURCE_PASSWORD at run time, never from a file.
+
+**`(project configuration)`**
+
+- [ ] **WL-0011** `src/main/resources/application.yml:9`: Update these credentials for your target environment

@@ -117,6 +117,14 @@ PINNED = {
         "program calls": (6771, 6888), "copybooks": (0, 0), "transactions": (234, 309), "screens": (0, 2421),
         "data flows": (178, 178), "IMS PSBs": (0, 1), "batch entry": (0, 129),
     },
+    # cicsdev's async credit-card example (#4270): ten CICS programs, no copybooks, BMS, JCL or CSD deck (the CICS
+    # resources are Eclipse bundle definitions, which no reader here takes). Every program call resolves (the LINK
+    # operands are VALUE-initialised data names, one-digit levels). Transactions 7 of 10: the 3 left are CICS
+    # programs no transaction reaches (the two front ends and one service have no transaction definition read).
+    "cics-async-api-credit-card-application-example": {
+        "program calls": (7, 7), "copybooks": (0, 0), "transactions": (7, 10), "screens": (0, 0),
+        "data flows": (42, 42), "IMS PSBs": (0, 0), "batch entry": (0, 0),
+    },
     # IBM DBB MortgageApplication (estate 4): 11 of 12 unresolved program calls are
     # EPSCSMRD's helpers (XCHRFLTR, XWSPFLTR, EPSCSMRC/O/L/K, ...), which the
     # repository does not ship; one is EPSCSMRT's dynamic CALL WS-CALLED-PROGRAM. Most

@@ -445,6 +445,34 @@
      "why": "19 on the REWRITE -> WHEN OTHER: 'Unable to Update User...'; the file is unchanged"
     }
    ]
+  },
+  {
+   "name": "rewrite-not-found",
+   "aid": "DFHPF5",
+   "commarea": {
+    "CDEMO-FROM-TRANID": "CA00",
+    "CDEMO-FROM-PROGRAM": "COADM01C",
+    "CDEMO-USER-ID": "ADMIN001",
+    "CDEMO-USER-TYPE": "A",
+    "CDEMO-PGM-CONTEXT": 1
+   },
+   "receive": {
+    "COUSR2A": {
+     "USRIDINI": "USER0003",
+     "FNAMEI": "LAURITZ",
+     "LNAMEI": "ALMEIDA",
+     "PASSWDI": "PASSWORD",
+     "USRTYPEI": "U"
+    }
+   },
+   "faults": [
+    {
+     "cmd": "REWRITE",
+     "file": "USRSEC",
+     "resp": "NOTFND",
+     "why": "13 on the REWRITE -> WHEN DFHRESP(NOTFND) (line 377): 'User ID NOT found...', cursor on the user id; the file is unchanged"
+    }
+   ]
   }
  ],
  "notes": "CardDemo's update-user screen (transaction CU02, program COUSR02C): entered from the user list with a selected user it reads the user FOR UPDATE and shows it; ENTER looks a user up, PF5 validates the five fields and REWRITEs the record when one changed ('Please modify to update ...' otherwise), PF3 saves and returns, PF4 clears, PF12 returns to the admin menu. Each scenario's USRSEC file is compared after the task. usrsec.txt is CardDemo's own DUSRSECJ in-stream data. Derived from CardDemo (Apache-2.0; Copyright Amazon.com, Inc. or its affiliates): LICENSE and NOTICE here are the source's own."

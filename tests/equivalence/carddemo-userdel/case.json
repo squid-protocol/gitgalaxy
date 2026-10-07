@@ -207,6 +207,30 @@
    ]
   },
   {
+   "name": "pf5-delete-not-found",
+   "aid": "DFHPF5",
+   "commarea": {
+    "CDEMO-FROM-TRANID": "CA00",
+    "CDEMO-FROM-PROGRAM": "COADM01C",
+    "CDEMO-USER-ID": "ADMIN001",
+    "CDEMO-USER-TYPE": "A",
+    "CDEMO-PGM-CONTEXT": 1
+   },
+   "receive": {
+    "COUSR3A": {
+     "USRIDINI": "USER0004"
+    }
+   },
+   "faults": [
+    {
+     "cmd": "DELETE",
+     "file": "USRSEC",
+     "resp": "NOTFND",
+     "why": "13 on the DELETE -> WHEN DFHRESP(NOTFND) (line 323): 'User ID NOT found...'; the user stays"
+    }
+   ]
+  },
+  {
    "name": "lookup-io-error",
    "aid": "DFHENTER",
    "commarea": {

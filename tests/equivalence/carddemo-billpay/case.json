@@ -326,6 +326,223 @@
      "why": "17 on the balance REWRITE: the payment is written, the balance not"
     }
    ]
+  },
+  {
+   "name": "pf3-back-to-caller",
+   "aid": "DFHPF3",
+   "commarea": {
+    "CDEMO-FROM-TRANID": "CM00",
+    "CDEMO-FROM-PROGRAM": "COMEN01C",
+    "CDEMO-USER-ID": "USER0001",
+    "CDEMO-USER-TYPE": "U",
+    "CDEMO-PGM-CONTEXT": 1
+   },
+   "receive": {
+    "COBIL0A": {
+     "ACTIDINI": "00000000001"
+    }
+   },
+   "why": "#4602: PF3 with a CDEMO-FROM-PROGRAM set (line 129 false): XCTL back to COMEN01C"
+  },
+  {
+   "name": "xref-not-found",
+   "aid": "DFHENTER",
+   "commarea": {
+    "CDEMO-FROM-TRANID": "CM00",
+    "CDEMO-FROM-PROGRAM": "COMEN01C",
+    "CDEMO-USER-ID": "USER0001",
+    "CDEMO-USER-TYPE": "U",
+    "CDEMO-PGM-CONTEXT": 1
+   },
+   "receive": {
+    "COBIL0A": {
+     "ACTIDINI": "00000000001",
+     "CONFIRMI": "Y"
+    }
+   },
+   "faults": [
+    {
+     "cmd": "READ",
+     "file": "CXACAIX",
+     "resp": "NOTFND",
+     "why": "13 on the card xref READ (line 423): 'Account ID NOT found...'"
+    }
+   ]
+  },
+  {
+   "name": "xref-io-error",
+   "aid": "DFHENTER",
+   "commarea": {
+    "CDEMO-FROM-TRANID": "CM00",
+    "CDEMO-FROM-PROGRAM": "COMEN01C",
+    "CDEMO-USER-ID": "USER0001",
+    "CDEMO-USER-TYPE": "U",
+    "CDEMO-PGM-CONTEXT": 1
+   },
+   "receive": {
+    "COBIL0A": {
+     "ACTIDINI": "00000000001",
+     "CONFIRMI": "Y"
+    }
+   },
+   "faults": [
+    {
+     "cmd": "READ",
+     "file": "CXACAIX",
+     "resp": "IOERR",
+     "why": "17 on the card xref READ (line 420 WHEN OTHER): 'Unable to lookup XREF AIX file...'"
+    }
+   ]
+  },
+  {
+   "name": "startbr-not-found",
+   "aid": "DFHENTER",
+   "commarea": {
+    "CDEMO-FROM-TRANID": "CM00",
+    "CDEMO-FROM-PROGRAM": "COMEN01C",
+    "CDEMO-USER-ID": "USER0001",
+    "CDEMO-USER-TYPE": "U",
+    "CDEMO-PGM-CONTEXT": 1
+   },
+   "receive": {
+    "COBIL0A": {
+     "ACTIDINI": "00000000001",
+     "CONFIRMI": "Y"
+    }
+   },
+   "faults": [
+    {
+     "cmd": "STARTBR",
+     "file": "TRANSACT",
+     "resp": "NOTFND",
+     "why": "13 on the STARTBR at HIGH-VALUES (line 454): 'Transaction ID NOT found...'"
+    }
+   ]
+  },
+  {
+   "name": "startbr-io-error",
+   "aid": "DFHENTER",
+   "commarea": {
+    "CDEMO-FROM-TRANID": "CM00",
+    "CDEMO-FROM-PROGRAM": "COMEN01C",
+    "CDEMO-USER-ID": "USER0001",
+    "CDEMO-USER-TYPE": "U",
+    "CDEMO-PGM-CONTEXT": 1
+   },
+   "receive": {
+    "COBIL0A": {
+     "ACTIDINI": "00000000001",
+     "CONFIRMI": "Y"
+    }
+   },
+   "faults": [
+    {
+     "cmd": "STARTBR",
+     "file": "TRANSACT",
+     "resp": "IOERR",
+     "why": "17 on the STARTBR (line 451 WHEN OTHER)"
+    }
+   ]
+  },
+  {
+   "name": "readprev-endfile",
+   "aid": "DFHENTER",
+   "commarea": {
+    "CDEMO-FROM-TRANID": "CM00",
+    "CDEMO-FROM-PROGRAM": "COMEN01C",
+    "CDEMO-USER-ID": "USER0001",
+    "CDEMO-USER-TYPE": "U",
+    "CDEMO-PGM-CONTEXT": 1
+   },
+   "receive": {
+    "COBIL0A": {
+     "ACTIDINI": "00000000001",
+     "CONFIRMI": "Y"
+    }
+   },
+   "faults": [
+    {
+     "cmd": "READPREV",
+     "file": "TRANSACT",
+     "resp": "ENDFILE",
+     "why": "20 on the READPREV (line 487): no transaction yet, TRAN-ID zeros, the payment gets id 1"
+    }
+   ]
+  },
+  {
+   "name": "readprev-io-error",
+   "aid": "DFHENTER",
+   "commarea": {
+    "CDEMO-FROM-TRANID": "CM00",
+    "CDEMO-FROM-PROGRAM": "COMEN01C",
+    "CDEMO-USER-ID": "USER0001",
+    "CDEMO-USER-TYPE": "U",
+    "CDEMO-PGM-CONTEXT": 1
+   },
+   "receive": {
+    "COBIL0A": {
+     "ACTIDINI": "00000000001",
+     "CONFIRMI": "Y"
+    }
+   },
+   "faults": [
+    {
+     "cmd": "READPREV",
+     "file": "TRANSACT",
+     "resp": "IOERR",
+     "why": "17 on the READPREV (line 484 WHEN OTHER)"
+    }
+   ]
+  },
+  {
+   "name": "write-duprec",
+   "aid": "DFHENTER",
+   "commarea": {
+    "CDEMO-FROM-TRANID": "CM00",
+    "CDEMO-FROM-PROGRAM": "COMEN01C",
+    "CDEMO-USER-ID": "USER0001",
+    "CDEMO-USER-TYPE": "U",
+    "CDEMO-PGM-CONTEXT": 1
+   },
+   "receive": {
+    "COBIL0A": {
+     "ACTIDINI": "00000000001",
+     "CONFIRMI": "Y"
+    }
+   },
+   "faults": [
+    {
+     "cmd": "WRITE",
+     "file": "TRANSACT",
+     "resp": "DUPREC",
+     "why": "14 on the payment's WRITE (line 533): 'Tran ID already exist...'"
+    }
+   ]
+  },
+  {
+   "name": "rewrite-not-found",
+   "aid": "DFHENTER",
+   "commarea": {
+    "CDEMO-FROM-TRANID": "CM00",
+    "CDEMO-FROM-PROGRAM": "COMEN01C",
+    "CDEMO-USER-ID": "USER0001",
+    "CDEMO-USER-TYPE": "U",
+    "CDEMO-PGM-CONTEXT": 1
+   },
+   "receive": {
+    "COBIL0A": {
+     "ACTIDINI": "00000000001",
+     "CONFIRMI": "Y"
+    }
+   },
+   "faults": [
+    {
+     "cmd": "REWRITE",
+     "file": "ACCTDAT",
+     "resp": "NOTFND",
+     "why": "13 on the balance REWRITE (line 390): 'Account ID NOT found...'"
+    }
+   ]
   }
  ],
  "notes": "CardDemo's bill payment (transaction CB00, program COBIL00C): an account's balance is read FOR UPDATE and shown; on confirmation the whole balance is paid -- a new transaction (the last id + 1, found by a HIGH-VALUES STARTBR and a READPREV; its timestamps from ASKTIME / FORMATTIME at the task's clock) is WRITEn to TRANSACT and the account REWRITten. Each scenario's files are compared after the task. acctdata.txt is CardDemo's own accounts plus one synthetic account, 00000099999, with a zero balance (written for this case) for 'You have nothing to pay...'. Derived from CardDemo (Apache-2.0; Copyright Amazon.com, Inc. or its affiliates): LICENSE and NOTICE here are the source's own."

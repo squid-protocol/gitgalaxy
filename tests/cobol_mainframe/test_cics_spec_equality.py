@@ -5,7 +5,8 @@ that copy import the spec; that PR DELETES the test (the copy is gone, so there 
 
     PR 2  det/cics.py (DFHRESP, OPTIONS, _REFUSED_WHY / _ASSIGN_REFUSED_WHY / _SEND_TEXT_REFUSED_WHY, check_options,
           the option-group messages): DONE, det/cics.py imports them and their tests are gone
-    PR 3  tests/tools/equivalence_cics.py (DFHRESP, CICS_RESP, _CONTAINER_OPTIONS, the refused tuples / sets)
+    PR 3  tests/tools/equivalence_cics.py (DFHRESP, CICS_RESP, _CONTAINER_OPTIONS, the refused tuples / sets): DONE,
+          the harness imports them; tests/cobol_mainframe/test_equivalence_cics.py checks its refusals are the spec's
     PR 4  the Java switches (DetCics.condition / resp, CicsTask.respName / abcodeFor), ggcics.c's enums and
           condition_abcode
     PR 5  the stated facts (CicsTask.withX, $GGCICS_X, cics_crucible.REGION_*) and the runtime refusal texts
@@ -18,7 +19,6 @@ fixed unnoticed."""
 
 from __future__ import annotations
 
-import ast
 import re
 import sys
 from pathlib import Path
@@ -30,17 +30,12 @@ sys.path.insert(0, str(ROOT))
 sys.path.insert(0, str(ROOT / "tests" / "tools"))
 
 import cics_crucible as runner  # noqa: E402
-import equivalence_cics as harness  # noqa: E402
 
 from gitgalaxy.core import cics_resources, cics_tasks  # noqa: E402
 from gitgalaxy.standards.cics import resp as spec_resp  # noqa: E402
 from gitgalaxy.standards.cics.commands import COMMANDS  # noqa: E402
-from gitgalaxy.standards.cics.commands import send_text as spec_send_text  # noqa: E402
-from gitgalaxy.standards.cics.commands.shared import RESP_OPTIONS  # noqa: E402
 from gitgalaxy.tools.cobol_to_java import cobol_to_java_transaction_forge as forge  # noqa: E402
-from gitgalaxy.tools.cobol_to_java.det import cics as det  # noqa: E402
 
-HARNESS_SRC = (ROOT / "tests/tools/equivalence_cics.py").read_text(encoding="utf-8")
 DETCICS_JAVA = (ROOT / "gitgalaxy/tools/cobol_to_java/det/cobolrt/cics/DetCics.java").read_text(encoding="utf-8")
 GGCICS_C = (ROOT / "tests/equivalence/cics/ggcics.c").read_text(encoding="utf-8")
 JAVA = forge.CICS_TASK_JAVA + DETCICS_JAVA
@@ -55,26 +50,6 @@ def _switch(src: str, method: str, key: str, value: str) -> dict[str, str]:
 
 
 # ---- DFHRESP and abend codes ------------------------------------------------------------------------------------
-# where a copy disagrees with the spec's DFHRESP, and why the spec does not follow it
-DFHRESP_DIFFERENCES = {
-    # tests/tools/equivalence_cics.py DFHRESP has 101 names: these three of IBM's RESP values (det/cics.py has them)
-    # are missing. No case names them, so no verdict depends on it; PR 3 imports the spec's table.
-    "harness": {"VOLIDERR": 71, "RESIDERR": 75, "NOSPOOL": 80},
-}
-
-
-def test_harness_dfhresp_equals_the_spec_but_for_its_listed_gaps():
-    """Deleted in PR 3. The harness's table lacks exactly DFHRESP_DIFFERENCES["harness"]."""
-    missing = {k: v for k, v in DFHRESP.items() if k not in harness.DFHRESP}
-    assert missing == DFHRESP_DIFFERENCES["harness"]
-    assert {k: v for k, v in DFHRESP.items() if k in harness.DFHRESP} == harness.DFHRESP
-
-
-def test_harness_fault_plan_conditions_are_spec_values():
-    """Deleted in PR 3. CICS_RESP (#4023: the conditions a scenario may inject) is a subset with the same numbers."""
-    assert {k: DFHRESP.get(k) for k in harness.CICS_RESP} == harness.CICS_RESP
-
-
 def test_detcics_condition_and_resp_switches_are_spec_values():
     """Deleted in PR 4 (DetCics.condition / resp delegate to the generated CicsSpec.java). Partial tables by
     design (the conditions the runtime raises); every arm must be the spec's."""
@@ -120,157 +95,9 @@ def test_crucible_runner_condition_abcode_equals_the_spec():
     assert runner.CONDITION_ABCODE == dict(spec_resp.CONDITION_ABEND)
 
 
-# ---- options and refusals: the slice 1-4 commands the harness keeps its own copies of ---------------------------
-_BASE = {  # a minimal body of each command, to which one option is added
-    "PUT CONTAINER": "PUT CONTAINER('C') FROM(WS-A)",
-    "GET CONTAINER": "GET CONTAINER('C') INTO(WS-A)",
-    "DELETE CONTAINER": "DELETE CONTAINER('C')",
-    "START": "START TRANSID('T1')",
-    "RETRIEVE": "RETRIEVE INTO(WS-A)",
-    "CANCEL": "CANCEL REQID('R1')",
-    "RUN": "RUN TRANSID('T1') CHILD(WS-C)",
-    "ASSIGN": "ASSIGN USERID(WS-U)",
-    "SEND TEXT": "SEND TEXT FROM(WS-A)",
-}
-KEYS = sorted(_BASE)
-
-
-def _check(body: str) -> str | None:
-    words, opts = det.parse_exec(body)
-    try:
-        det.check_options(words, opts)
-    except det.CicsError as e:
-        return str(e)
-    return None
-
-
-def _template(msg: str) -> re.Pattern[str]:
-    """A group message as it appears in source: each `{}` an f-string placeholder."""
-    return re.compile(r"\{[^{}]*\}".join(re.escape(p) for p in msg.split("{}")))
-
-
-def test_assign_terminal_options_are_the_harness_copy():
-    """Deleted in PR 3. `raised_by` of ASSIGN's INVREQ RESP2 5 is the tuple the harness hard-codes (det/cics.py
-    imports it: TERMINAL_OPTIONS)."""
-    (invreq,) = [o for o in COMMANDS["ASSIGN"].outcomes if o.condition == "INVREQ"]
-    literal = repr(invreq.raised_by).replace("'", '"')
-    assert literal in HARNESS_SRC
-
-
-# ---- options and refusals: the equivalence harness (the stub's translator) ----------------------------------------
-def _function(name: str) -> ast.FunctionDef:
-    tree = ast.parse(HARNESS_SRC)
-    return next(n for n in ast.walk(tree) if isinstance(n, ast.FunctionDef) and n.name == name)
-
-
-def _assigned(fn: ast.FunctionDef, target: str) -> ast.expr:
-    for n in ast.walk(fn):
-        if isinstance(n, ast.Assign) and any(isinstance(t, ast.Name) and t.id == target for t in n.targets):
-            return n.value
-    raise AssertionError(f"{fn.name}: no {target} = ...")
-
-
-def _plain(key: str) -> set[str]:
-    return set(COMMANDS[key].options) - set(RESP_OPTIONS)
-
-
-# Disagreements between the harness and the translator (and so the spec), each with its reason
-HARNESS_DIFFERENCES = {
-    # deny-lists: the stub refuses only the options it lists, so an option in neither list (a typo, an IBM option
-    # nobody modelled) is IGNORED by the stub where the translator refuses it. PR 3 makes the stub check the spec.
-    "ignores_unknown_options": ["CANCEL", "RETRIEVE", "SEND TEXT", "START"],
-    # option-rule messages the stub words its own way (spec message -> the stub's); PR 3 shares the translator's
-    "group_messages": {
-        "EXEC CICS option needs an argument": "without a name",  # (CONTAINER missing; PUT's FROM: "without FROM")
-        "PUT CONTAINER {}: one data type": "PUT CONTAINER with two data types",
-        "START {}: one expiry option": None,  # START INTERVAL and TIME, as the feature, no reason
-        "START {} {}: HOURS / MINUTES / SECONDS go with AFTER / AT": None,
-        "CANCEL without REQID: only CANCEL REQID is modelled": "CANCEL without REQID",
-    },
-    # option rules the stub does not check at all: START LENGTH and FLENGTH together (it takes LENGTH), START /
-    # RETRIEVE LENGTH and FLENGTH together, START LENGTH without FROM (it moves the length and passes no area)
-    "unchecked_groups": ["{} and {} together", "START LENGTH without FROM"],
-}
-
-
-def test_harness_container_options_equal_the_spec():
-    """Deleted in PR 3 (_CONTAINER_OPTIONS goes)."""
-    for verb, allowed in harness._CONTAINER_OPTIONS.items():
-        assert allowed == _plain(f"{verb} CONTAINER"), verb
-
-
-def test_harness_run_and_assign_allow_lists_equal_the_spec():
-    """Deleted in PR 3. RUN's allowed tuple (_run_transid) and ASSIGN's `known` tuple and widths (_handle)."""
-    run_allowed = next(
-        ast.literal_eval(n.comparators[0])
-        for n in ast.walk(_function("_run_transid"))
-        if isinstance(n, ast.Compare) and isinstance(n.ops[0], ast.NotIn) and isinstance(n.comparators[0], ast.Tuple)
-    )
-    assert set(run_allowed) - {"RUN"} == set(COMMANDS["RUN"].options)
-    handle = _function("_handle")
-    assert set(ast.literal_eval(_assigned(handle, "known"))) == _plain("ASSIGN")
-    widths = ast.literal_eval(_assigned(handle, "width").value)  # {...}[n]
-    assert widths == {o: COMMANDS["ASSIGN"].options[o].width for o in widths}
-
-
-def test_harness_deny_lists_equal_the_spec_refusals():
-    """Deleted in PR 3. The stub's refused tuples (_interval_command) and _SEND_TEXT_REFUSED are exactly the
-    spec's refused options of those commands."""
-    refused = ast.literal_eval(_assigned(_function("_interval_command"), "refused").value)  # {...}[verb]
-    for verb, names in refused.items():
-        assert set(names) == set(COMMANDS[verb].refused), verb
-    assert set(harness._SEND_TEXT_REFUSED) == set(COMMANDS["SEND TEXT"].refused)
-
-
-@pytest.mark.parametrize("key", KEYS)
-def test_harness_refuses_each_spec_refusal_by_name(key):
-    """Deleted in PR 3. Every option the spec refuses is Unsupported in the stub too, as the feature
-    `<command> <option>` (the stub gives no reason yet: PR 3 adds the translator's)."""
-    feature = {"RUN": "RUN", "ASSIGN": "ASSIGN"}.get(key, key)
-    for o in COMMANDS[key].refused:
-        with pytest.raises(harness.Unsupported) as e:
-            harness.translate_command(f"{_BASE[key]} {o}(WS-X)")
-        assert e.value.features == [f"{feature} {o}"], o
-
-
-def test_harness_ignores_unknown_options_where_listed():
-    """Deleted in PR 3. An option in neither table: the stub refuses it on the allow-list commands and ignores it
-    on exactly HARNESS_DIFFERENCES["ignores_unknown_options"]."""
-    ignored = []
-    for key in KEYS:
-        try:
-            harness.translate_command(f"{_BASE[key]} GGNOSUCH(WS-X)")
-        except harness.Unsupported:
-            continue
-        ignored.append(key)
-    assert ignored == HARNESS_DIFFERENCES["ignores_unknown_options"]
-    for key in KEYS:
-        assert _check(f"{_BASE[key]} GGNOSUCH(WS-X)") is not None  # the translator refuses every one
-
-
-# the same message in the stub, composed from parts: f"RUN {' '.join(bad) or 'without TRANSID / CHILD'}"
-_COMPOSED = {"RUN without TRANSID / CHILD": "'without TRANSID / CHILD'"}
-
-
-def test_harness_group_messages_are_the_spec_or_listed():
-    """Deleted in PR 3. Each group message is in the stub word for word, or is a listed difference (its own
-    wording, None: refused as a bare feature) or a rule the stub does not check."""
-    worded: dict[str, str | None] = HARNESS_DIFFERENCES["group_messages"]  # type: ignore[assignment]
-    seen = set()
-    for c in (COMMANDS[k] for k in KEYS):
-        for g in c.groups:
-            seen.add(g.msg)
-            if g.msg in HARNESS_DIFFERENCES["unchecked_groups"]:
-                assert not _template(g.msg).search(HARNESS_SRC), g.msg
-            elif g.msg in worded:
-                assert not _template(g.msg).search(HARNESS_SRC), f"{g.msg}: now the same, drop the difference"
-                if worded[g.msg]:
-                    assert worded[g.msg] in HARNESS_SRC, g.msg
-            elif g.msg in _COMPOSED:  # the same message, built from parts
-                assert _COMPOSED[g.msg] in HARNESS_SRC, g.msg
-            else:
-                assert _template(g.msg).search(HARNESS_SRC), g.msg
-    assert set(worded) | set(HARNESS_DIFFERENCES["unchecked_groups"]) <= seen
+# the slice 1-4 commands, whose runtime refusals and stated facts PR 5 shares
+KEYS = sorted(["PUT CONTAINER", "GET CONTAINER", "DELETE CONTAINER", "START", "RETRIEVE", "CANCEL", "RUN", "ASSIGN",
+               "SEND TEXT"])  # fmt: skip
 
 
 # ---- runtimes: refusal texts and stated facts ---------------------------------------------------------------------

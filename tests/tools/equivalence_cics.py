@@ -39,28 +39,20 @@ import equivalence_inputs  # #3804
 import equivalence_oracle
 import equivalence_sql
 
+from gitgalaxy.standards.cics.commands import COMMANDS as SPEC
+from gitgalaxy.standards.cics.commands import whole_refusal
+from gitgalaxy.standards.cics.commands.assign import TERMINAL_OPTIONS
+from gitgalaxy.standards.cics.commands.shared import BOTH_FORMS, NEEDS_ARGUMENT
+from gitgalaxy.standards.cics.commands.terminal import MAP_OPTIONS
+from gitgalaxy.standards.cics.model import GroupKind
+from gitgalaxy.standards.cics.resp import DFHRESP as SPEC_DFHRESP
+
 STUB = common.CASES / "cics"
 LE_MODELS = common.CASES / "le"  # Language Environment service models (CEEDAYS) a CALLed subprogram may use
 
-# The documented CICS response codes (DFHRESP) the translator replaces by number.
-DFHRESP = {
-    "NORMAL": 0, "ERROR": 1, "RDATT": 2, "WRBRK": 3, "EOF": 4, "EODS": 5, "EOC": 6, "INBFMH": 7, "ENDINPT": 8,
-    "NONVAL": 9, "NOSTART": 10, "TERMIDERR": 11, "FILENOTFOUND": 12, "DSIDERR": 12, "NOTFND": 13, "DUPREC": 14,
-    "DUPKEY": 15, "INVREQ": 16, "IOERR": 17, "NOSPACE": 18, "NOTOPEN": 19, "ENDFILE": 20, "ILLOGIC": 21,
-    "LENGERR": 22, "QZERO": 23, "SIGNAL": 24, "QBUSY": 25, "ITEMERR": 26, "PGMIDERR": 27, "TRANSIDERR": 28,
-    "ENDDATA": 29, "INVTSREQ": 30, "EXPIRED": 31, "RETPAGE": 32, "RTEFAIL": 33, "RTESOME": 34, "TSIOERR": 35,
-    "MAPFAIL": 36, "INVERRTERM": 37, "INVMPSZ": 38, "IGREQID": 39, "OVERFLOW": 40, "INVLDC": 41, "NOSTG": 42,
-    "JIDERR": 43, "QIDERR": 44, "NOJBUFSP": 45, "DSSTAT": 46, "SELNERR": 47, "FUNCERR": 48, "UNEXPIN": 49,
-    "NOPASSBKRD": 50, "NOPASSBKWR": 51, "SYSIDERR": 53, "ISCINVREQ": 54, "ENQBUSY": 55, "ENVDEFERR": 56,
-    "IGREQCD": 57, "SESSIONERR": 58, "SYSBUSY": 59, "SESSBUSY": 60, "NOTALLOC": 61, "CBIDERR": 62,
-    "INVEXITREQ": 63, "INVPARTNSET": 64, "INVPARTN": 65, "PARTNFAIL": 66, "USERIDERR": 69, "NOTAUTH": 70,
-    "SUPPRESSED": 72, "TERMERR": 81, "ROLLEDBACK": 82, "END": 83, "DISABLED": 84, "ALLOCERR": 85,
-    "STRELERR": 86, "OPENERR": 87, "SPOLBUSY": 88, "SPOLERR": 89, "NODEIDERR": 90, "TASKIDERR": 91,
-    "TCIDERR": 92, "DSNNOTFOUND": 93, "LOADING": 94, "MODELIDERR": 95, "OUTDESCRERR": 96, "PARTNERIDERR": 97,
-    "PROFILEIDERR": 98, "NETNAMEIDERR": 99, "LOCKED": 100, "RECORDBUSY": 101, "UOWNOTFOUND": 102,
-    "UOWLNOTFOUND": 103, "CONTAINERERR": 110, "CHANNELERR": 122, "CCSIDERR": 123, "TIMEDOUT": 124, "CODEPAGEERR": 125,
-    "INCOMPLETE": 126, "APPNOTFOUND": 127, "BUSY": 128,
-}  # fmt: skip
+# The documented CICS response codes (DFHRESP) the translator replaces by number: the CICS command spec's
+# (gitgalaxy/standards/cics, #4270 spec PR 3), the det translator's own table.
+DFHRESP: dict[str, int] = dict(SPEC_DFHRESP)
 
 _EXEC = re.compile(r"\bEXEC\s+CICS\b", re.I)
 _END_EXEC = re.compile(r"\bEND-EXEC\b", re.I)
@@ -76,6 +68,40 @@ class Unsupported(Exception):
     def __init__(self, message: str, features: list[str] | None = None) -> None:
         super().__init__(message)
         self.features = list(features) if features else [message]
+
+
+# ---- #4270 spec PR 3: options, refusals and their reasons from the CICS command spec -------------------------------
+# A command's options are its spec entry's (gitgalaxy/standards/cics), the det translator's own: the stub refuses
+# every option the translator refuses, by name and with the same message (SPEC[key].refusal_message) -- an allow-list,
+# so an option in neither of the entry's tables (a typo, an IBM option nobody modelled) is refused, never ignored.
+# On top of that, the few options the translator honours and the stub runtime does not model yet are refused as the
+# stub's own (_stub_only). The feature names (`READ GENERIC`, `START SYSID`, ...) are the harness's, as before.
+
+
+def _check_spec(key: str, opts: dict[str, str | None], words: tuple[str, ...], features: Any = None) -> None:
+    """Refuse the options of `opts` (the verb words `words` aside) that command `key`'s spec entry does not honour,
+    as the translator does. `features(bad)` names them (default: `KEY OPTION` each)."""
+    bad = [o for o in opts if o not in words and o not in SPEC[key].options]
+    if bad:
+        raise Unsupported(SPEC[key].refusal_message(bad), features(bad) if features else [f"{key} {o}" for o in bad])
+
+
+def _rule(key: str, kind: GroupKind, option: str, *parts: str) -> str:
+    """The message of command `key`'s option rule (its spec Group), as the translator words it."""
+    return SPEC[key].group(kind, option).msg.format(*parts)
+
+
+def _one_of(key: str, opts: dict[str, str | None], name: str, alt: str) -> str | None:
+    """LENGTH / FLENGTH (MAXLENGTH / MAXFLENGTH): the argument of either form, None when neither is given; both
+    refused, as the translator refuses them (its _one_of)."""
+    if name in opts and alt in opts:
+        raise Unsupported(BOTH_FORMS.format(name, alt), [key])
+    return opts.get(name) or opts.get(alt)
+
+
+def _stub_only(feature: str) -> Unsupported:
+    """An option the det translator honours and the stub runtime (tests/equivalence/cics/ggcics.c) does not model."""
+    return Unsupported(f"{feature}: not modelled by the stub runtime", [feature])
 
 
 # #3989: the second word that makes a command a different feature (READQ TS vs READQ TD).
@@ -214,18 +240,15 @@ def _handle(pairs: list[tuple[str, str | None]], labels: list[str]) -> list[str]
     verb, kind = pairs[0][0], pairs[1][0] if len(pairs) > 1 else None
     opts = dict(pairs)
     if verb in ("PUSH", "POP") and kind == "HANDLE":
+        _check_spec(f"{verb} HANDLE", opts, (verb, "HANDLE"))
         return _call("GGCPUSH" if verb == "PUSH" else "GGCPOP", []) + _resp(opts, True, labels)
     if verb == "ASSIGN":  # ABCODE (#4003); APPLID / SYSID: the region's identity, from the case's "region";
         # PROGRAM: the name of the program running (IBM CICS TS, ASSIGN: "the name of the current program")
         asked = [(n, v) for n, v in pairs[1:] if n not in ("RESP", "RESP2", "NOHANDLE")]
         # #4270 slice 3: STARTCODE / USERID / FACILITY / SCRNHT / SCRNWD, from what the runner states (GGCASGN)
-        known = ("ABCODE", "APPLID", "SYSID", "PROGRAM", "INVOKINGPROG", "CHANNEL", "STARTCODE", "USERID", "FACILITY",
-                 "SCRNHT", "SCRNWD")  # fmt: skip
-        other = [n for n, _v in asked if n not in known]
-        if other or not asked or not all(v for _n, v in asked):
-            raise Unsupported(
-                f"ASSIGN {' '.join(other) or 'without a target'}", [f"ASSIGN {n}" for n in other or ["?"]]
-            )
+        _check_spec("ASSIGN", opts, ("ASSIGN",), lambda bad: [f"ASSIGN {n}" for n in bad])
+        if not asked or not all(v for _n, v in asked):
+            raise Unsupported("ASSIGN without a target", ["ASSIGN ?"])
         lines: list[str] = []
         for n, target in asked:
             if n == "CHANNEL":  # #4270: the current channel's name, blanks without one (GGCASCH)
@@ -234,13 +257,12 @@ def _handle(pairs: list[tuple[str, str | None]], labels: list[str]) -> list[str]
             if n in ("SCRNHT", "SCRNWD"):  # a halfword, in GG-NUM
                 lines += [f"MOVE '{n}' TO GG-NAME2"] + _call("GGCASGN", []) + [f"MOVE GG-NUM TO {target}"]
                 continue
-            width = {"ABCODE": 4, "APPLID": 8, "SYSID": 4, "PROGRAM": 8, "INVOKINGPROG": 8, "STARTCODE": 2,
-                     "USERID": 8, "FACILITY": 4}[n]  # fmt: skip
+            width = SPEC["ASSIGN"].options[n].width
             lines += ["MOVE SPACES TO GG-NAME2" if n == "ABCODE" else f"MOVE '{n[:8]}' TO GG-NAME2"] + _call(
                 "GGCASGN", []
             )
             lines.append(f"MOVE GG-NAME1(1:{width}) TO {target}")
-        if not any(n in ("FACILITY", "SCRNHT", "SCRNWD") for n, _v in asked):
+        if not any(n in TERMINAL_OPTIONS for n, _v in asked):
             return lines + _resp(opts, False)
         # INVREQ RESP2 5 for a task with no terminal, and then no data area written (register X19)
         check = ["MOVE 'TERMCHK' TO GG-NAME2"] + _call("GGCASGN", [])
@@ -255,8 +277,10 @@ def _handle(pairs: list[tuple[str, str | None]], labels: list[str]) -> list[str]
             lines += [f"MOVE '{key}' TO GG-NAME1", f"MOVE {index} TO GG-ITEM"] + _call("GGCHAID", [])
         return lines
     if kind == "ABEND":
+        if verb == "HANDLE":
+            _check_spec("HANDLE ABEND", opts, ("HANDLE", "ABEND"))
         if "PROGRAM" in opts:
-            raise Unsupported("HANDLE ABEND PROGRAM", ["HANDLE ABEND PROGRAM"])
+            raise _stub_only("HANDLE ABEND PROGRAM")
         label = opts.get("LABEL")
         if label:
             return ["MOVE 'LABEL' TO GG-NAME2", f"MOVE {labels.index(label.upper()) + 1} TO GG-ITEM",
@@ -318,12 +342,12 @@ def _ts_command(verb: str, opts: dict[str, str | None], labels: list[str] | None
     ITEMERR nor QIDERR). ITEM is a value on READQ (NEXT: 0) and on WRITEQ REWRITE, a data area WRITEQ
     sets otherwise; NUMITEMS is set on NORMAL."""
     feature = f"{verb} TS"
-    for bad in ("SET", "SYSID"):
-        if bad in opts:
-            raise Unsupported(f"{feature} {bad}", [f"{feature} {bad}"])
+    _check_spec(feature, opts, (verb,), lambda bad: [f"{feature} {bad[0]}"])
     queue = opts.get("QUEUE") or opts.get("QNAME")
     area = opts.get("INTO") if verb == "READQ" else opts.get("FROM")
-    if not queue or not area:
+    if not queue:
+        raise Unsupported(_rule(feature, "one_of", "QUEUE"), [feature])
+    if not area:
         raise Unsupported(f"{feature} without QUEUE / {'INTO' if verb == 'READQ' else 'FROM'}", [feature])
     length, item, num = opts.get("LENGTH") or opts.get("FLENGTH"), opts.get("ITEM"), opts.get("NUMITEMS")
     lines = [f"MOVE {queue} TO GG-QNAME", f"MOVE {length or f'LENGTH OF {area}'} TO GG-LEN"]
@@ -351,9 +375,9 @@ def _run_transid(opts: dict[str, str | None], labels: list[str]) -> list[str]:
     """#4270 slice 2: RUN TRANSID(x) CHILD(area) -> GGCRUNT (the child is an event; the runner's scheduler runs it
     once this task has ended). CHANNEL (the child's copy of a channel) is refused, as is any option IBM's RUN TRANSID
     lists beyond TRANSID / CHILD."""
-    bad = [o for o in opts if o not in ("RUN", "TRANSID", "CHILD", "RESP", "RESP2", "NOHANDLE")]
-    if bad or not opts.get("TRANSID") or not opts.get("CHILD"):
-        raise Unsupported(f"RUN {' '.join(bad) or 'without TRANSID / CHILD'}", [f"RUN {o}" for o in bad] or ["RUN"])
+    _check_spec("RUN", opts, ("RUN",))
+    if not opts.get("TRANSID") or not opts.get("CHILD"):
+        raise Unsupported(_rule("RUN", "required", "TRANSID"), ["RUN"])
     return (
         [f"MOVE {opts['TRANSID']} TO GG-NAME1"]
         + _call("GGCRUNT", [f"BY REFERENCE {opts['CHILD']}"])
@@ -366,29 +390,30 @@ def _interval_command(verb: str, opts: dict[str, str | None], labels: list[str])
     -> GGCRTRV (LENGTH in-out, set back on NORMAL / LENGERR), CANCEL REQID -> GGCCNCL. #4270: AFTER / AT HOURS /
     MINUTES / SECONDS (GG-HOURS / GG-MINS / GG-SECS, -999999999 when not given) and the data options RTRANSID /
     RTERMID / QUEUE (GG-RTRAN / GG-RTERM / GG-RQUEUE, named in GG-FLAGS) on both."""
-    refused = {"START": ("SYSID", "USERID", "CHANNEL", "NOCHECK", "ATTACH", "BREXIT", "FMH"),
-               "RETRIEVE": ("SET", "WAIT"),
-               "CANCEL": ("TRANSID", "SYSID", "ACTIVITY", "ACQACTIVITY", "ACQPROCESS")}[verb]  # fmt: skip
-    bad = [o for o in refused if o in opts]
-    if bad:
-        raise Unsupported(f"{verb} {' '.join(bad)}", [f"{verb} {o}" for o in bad])
+    _check_spec(verb, opts, (verb,))  # (a deny-list until spec PR 3: an unknown option was ignored)
     named = [o for o in ("RTRANSID", "RTERMID", "QUEUE") if o in opts]
     if any(not opts.get(o) for o in named):
-        raise Unsupported(f"{verb} {' '.join(named)} without a value", [f"{verb} {o}" for o in named])
+        raise Unsupported(NEEDS_ARGUMENT, [f"{verb} {o}" for o in named])
     data_in = {"RTRANSID": "GG-RTRAN", "RTERMID": "GG-RTERM", "QUEUE": "GG-RQUEUE"}
     if verb == "START":
         if not opts.get("TRANSID"):
-            raise Unsupported("START without TRANSID", ["START"])
+            raise Unsupported(_rule("START", "required", "TRANSID"), ["START"])
         whens = [w for w in ("INTERVAL", "TIME", "AFTER", "AT") if w in opts]
         if len(whens) > 1:
-            raise Unsupported(f"START {' and '.join(whens)}", ["START " + " ".join(whens)])
+            raise Unsupported(_rule("START", "at_most_one", "INTERVAL", " and ".join(whens)),
+                              ["START " + " ".join(whens)])  # fmt: skip
         when = whens[0] if whens else "INTERVAL"
         hms = [o for o in ("HOURS", "MINUTES", "SECONDS") if o in opts]
-        if (when in ("AFTER", "AT")) != bool(hms) or any(not opts.get(o) for o in hms):
-            raise Unsupported(f"START {when} {' '.join(hms)}", [f"START {when}"])
+        if (when in ("AFTER", "AT")) != bool(hms):
+            raise Unsupported(_rule("START", "requires", "HOURS", when, " ".join(hms)), [f"START {when}"])
+        if any(not opts.get(o) for o in hms):
+            raise Unsupported(NEEDS_ARGUMENT, [f"START {when}"])
         area = opts.get("FROM")
+        given_length = _one_of("START", opts, "LENGTH", "FLENGTH")
+        if given_length is not None and not area:  # (a deny-list until spec PR 3: the length was moved, no area)
+            raise Unsupported(_rule("START", "requires", "LENGTH"), ["START"])
         flags = " ".join([when] + (["PROTECT"] if "PROTECT" in opts else []) + named)
-        length = opts.get("LENGTH") or opts.get("FLENGTH") or (f"LENGTH OF {area}" if area else "0")
+        length = given_length or (f"LENGTH OF {area}" if area else "0")
         lines = [f"MOVE {opts['TRANSID']} TO GG-NAME1",
                  f"MOVE {opts['TERMID']} TO GG-NAME2" if opts.get("TERMID") else "MOVE SPACES TO GG-NAME2",
                  f"MOVE {opts['REQID']} TO GG-QNAME" if opts.get("REQID") else "MOVE SPACES TO GG-QNAME",
@@ -403,9 +428,9 @@ def _interval_command(verb: str, opts: dict[str, str | None], labels: list[str])
         return lines + _call("GGCSTRT", [f"BY REFERENCE {area or 'GG-FLAGS'}"]) + _resp(opts, True, labels)
     if verb == "RETRIEVE":
         into = opts.get("INTO")
-        length = opts.get("LENGTH") or opts.get("FLENGTH")
+        length = _one_of("RETRIEVE", opts, "LENGTH", "FLENGTH")
         if not into and (not named or length):
-            raise Unsupported("RETRIEVE without INTO", ["RETRIEVE"])
+            raise Unsupported(_rule("RETRIEVE", "requires", "LENGTH"), ["RETRIEVE"])
         flags = " ".join((["INTO"] if into else []) + named)
         lines = [f"MOVE '{flags}' TO GG-FLAGS", f"MOVE {length or (f'LENGTH OF {into}' if into else '0')} TO GG-LEN"]
         lines += _call("GGCRTRV", [f"BY REFERENCE {into or 'GG-FLAGS'}"])
@@ -419,15 +444,8 @@ def _interval_command(verb: str, opts: dict[str, str | None], labels: list[str])
             ]
         return lines + _resp(opts, True, labels)
     if not opts.get("REQID"):
-        raise Unsupported("CANCEL without REQID", ["CANCEL without REQID"])
+        raise Unsupported(_rule("CANCEL", "required", "REQID"), ["CANCEL without REQID"])
     return [f"MOVE {opts['REQID']} TO GG-QNAME"] + _call("GGCCNCL", []) + _resp(opts, True, labels)
-
-
-# #4270 slice 4: SEND TEXT options the stub does not model (a BMS logical message, printer formatting, partitions)
-_SEND_TEXT_REFUSED = frozenset(
-    "ACCUM PAGING SET REQID HEADER TRAILER JUSTIFY JUSFIRST JUSLAST NLEOM FORMFEED HONEOM L40 L64 L80 LDC OUTPARTN "
-    "ACTPARTN MSR FMHPARM DEFAULT ALTERNATE".split()
-)
 
 
 def translate_command(body: str, labels: list[str] | None = None, handle_aid: bool = False) -> list[str]:
@@ -446,9 +464,10 @@ def translate_command(body: str, labels: list[str] | None = None, handle_aid: bo
         return f"MOVE {operand} TO {into}" if operand else f"MOVE SPACES TO {into}"
 
     if verb == "READ":
-        for bad in ("GENERIC", "GTEQ", "SET", "SYSID", "RBA", "XRBA", "RRN", "TOKEN"):
+        _check_spec("READ", opts, (verb,), lambda bad: [f"{verb} {bad[0]}"])
+        for bad in ("RBA", "XRBA", "RRN"):
             if bad in opts:
-                raise Unsupported(f"READ {bad}")
+                raise _stub_only(f"READ {bad}")
         file, into, ridfld = opts.get("FILE") or opts.get("DATASET"), opts.get("INTO"), opts.get("RIDFLD")
         if not (file and into and ridfld):
             raise Unsupported("READ without FILE / INTO / RIDFLD")
@@ -465,9 +484,10 @@ def translate_command(body: str, labels: list[str] | None = None, handle_aid: bo
                                     f"BY VALUE LENGTH OF {into}"])
                 + after + _resp(opts, True, labels))  # fmt: skip
     if verb == "WRITE" and {"FILE", "DATASET"} & set(opts):
-        for bad in ("MASSINSERT", "SYSID", "RBA", "XRBA", "RRN"):
+        _check_spec("WRITE", opts, (verb,), lambda bad: [f"{verb} {bad[0]}"])
+        for bad in ("RBA", "XRBA", "RRN"):
             if bad in opts:
-                raise Unsupported(f"WRITE {bad}")
+                raise _stub_only(f"WRITE {bad}")
         file, frm, ridfld = opts.get("FILE") or opts.get("DATASET"), opts.get("FROM"), opts.get("RIDFLD")
         if not (file and frm and ridfld):
             raise Unsupported("WRITE without FILE / FROM / RIDFLD")
@@ -477,9 +497,7 @@ def translate_command(body: str, labels: list[str] | None = None, handle_aid: bo
                                     f"BY VALUE {opts.get('LENGTH') or f'LENGTH OF {frm}'}"])
                 + _resp(opts, True, labels))  # fmt: skip
     if verb == "REWRITE" and ({"FILE", "DATASET"} & set(opts)):
-        for bad in ("SYSID", "TOKEN"):
-            if bad in opts:
-                raise Unsupported(f"REWRITE {bad}")
+        _check_spec("REWRITE", opts, (verb,), lambda bad: [f"{verb} {bad[0]}"])
         file, frm = opts.get("FILE") or opts.get("DATASET"), opts.get("FROM")
         if not (file and frm):
             raise Unsupported("REWRITE without FILE / FROM")
@@ -488,11 +506,10 @@ def translate_command(body: str, labels: list[str] | None = None, handle_aid: bo
                 + _resp(opts, True, labels))  # fmt: skip
     if verb == "STARTBR":  # browse (CardDemo's lists): one browse per file, full keys -- or an ESDS's RBAs (#4213)
         rba = "RBA" in opts
-        for bad in ("GENERIC", "REQID", "SYSID", "RRN", "XRBA", "DEBKEY", "DEBREC") + (
-            ("GTEQ", "KEYLENGTH") if rba else ()
-        ):
+        _check_spec("STARTBR", opts, (verb,), lambda bad: [f"STARTBR {'RBA ' if rba else ''}{bad[0]}"])
+        for bad in ("RRN", "XRBA") + (("GTEQ", "KEYLENGTH") if rba else ()):
             if bad in opts:
-                raise Unsupported(f"STARTBR {'RBA ' if rba else ''}{bad}")
+                raise _stub_only(f"STARTBR {'RBA ' if rba else ''}{bad}")
         file, ridfld = opts.get("FILE") or opts.get("DATASET"), opts.get("RIDFLD")
         if not (file and ridfld):
             raise Unsupported("STARTBR without FILE / RIDFLD")
@@ -505,11 +522,10 @@ def translate_command(body: str, labels: list[str] | None = None, handle_aid: bo
                 + _resp(opts, True, labels))  # fmt: skip
     if verb in ("READNEXT", "READPREV"):
         rba = "RBA" in opts  # #4213: every READNEXT / READPREV of an RBA browse says RBA too
-        for bad in ("GENERIC", "REQID", "SYSID", "RRN", "XRBA", "SET", "UPDATE", "TOKEN", "NOSUSPEND") + (
-            ("KEYLENGTH",) if rba else ()
-        ):
+        _check_spec(verb, opts, (verb,), lambda bad: [f"{verb} {'RBA ' if rba else ''}{bad[0]}"])
+        for bad in ("RRN", "XRBA") + (("KEYLENGTH",) if rba else ()):
             if bad in opts:
-                raise Unsupported(f"{verb} {'RBA ' if rba else ''}{bad}")
+                raise _stub_only(f"{verb} {'RBA ' if rba else ''}{bad}")
         file, into, ridfld = opts.get("FILE") or opts.get("DATASET"), opts.get("INTO"), opts.get("RIDFLD")
         if not (file and into and ridfld):
             raise Unsupported(f"{verb} without FILE / INTO / RIDFLD")
@@ -520,17 +536,16 @@ def translate_command(body: str, labels: list[str] | None = None, handle_aid: bo
                                f"BY VALUE LENGTH OF {into}"])
                 + _resp(opts, True, labels))  # fmt: skip
     if verb == "ENDBR":
-        for bad in ("REQID", "SYSID"):
-            if bad in opts:
-                raise Unsupported(f"ENDBR {bad}")
+        _check_spec("ENDBR", opts, (verb,), lambda bad: [f"{verb} {bad[0]}"])
         file = opts.get("FILE") or opts.get("DATASET")
         if not file:
             raise Unsupported("ENDBR without FILE")
         return [name(file, "GG-NAME1")] + _call("GGCENBR", []) + _resp(opts, True, labels)
     if verb == "DELETE" and ({"FILE", "DATASET"} & set(opts)):
-        for bad in ("GENERIC", "REQID", "SYSID", "RBA", "XRBA", "RRN", "TOKEN", "NOSUSPEND", "NUMREC"):
+        _check_spec("DELETE", opts, (verb,), lambda bad: [f"{verb} {bad[0]}"])
+        for bad in ("RBA", "XRBA", "RRN"):
             if bad in opts:
-                raise Unsupported(f"DELETE {bad}")
+                raise _stub_only(f"DELETE {bad}")
         file, ridfld = opts.get("FILE") or opts.get("DATASET"), opts.get("RIDFLD")
         if ridfld:  # the record with that key
             keylen = opts.get("KEYLENGTH") or f"LENGTH OF {ridfld}"
@@ -542,21 +557,17 @@ def translate_command(body: str, labels: list[str] | None = None, handle_aid: bo
     if verb in ("ENQ", "DEQ", "DELAY"):
         # one task in the region: nothing else holds the resource (ENQ / DEQ NORMAL), and a task takes no time, a
         # DELAY included (EIBTIME / ASKTIME stay as dispatched; oracle_assumptions.md X4)
-        allowed = {"ENQ": {"RESOURCE", "LENGTH", "NOSUSPEND", "TASK", "UOW", "MAXLIFETIME"},
-                   "DEQ": {"RESOURCE", "LENGTH", "TASK", "UOW", "MAXLIFETIME"},
-                   "DELAY": {"FOR", "INTERVAL", "TIME", "HOURS", "MINUTES", "SECONDS", "MILLISECS"}}[verb]  # fmt: skip
-        bad = [o for o in opts if o not in allowed | {verb, "RESP", "RESP2", "NOHANDLE"}]
-        if bad:
-            raise Unsupported(f"{verb} {' '.join(bad)}", [f"{verb} {bad[0]}"])
+        _check_spec(verb, opts, (verb,), lambda bad: [f"{verb} {bad[0]}"])
         return ["MOVE 0 TO GG-RESP", "MOVE 0 TO GG-RESP2"] + _resp(opts, False, labels)
     if verb == "GET" and "COUNTER" in opts:  # a named counter (IBM CICS TS, GET COUNTER): its value, then +1
-        bad = [o for o in opts if o not in ("GET", "COUNTER", "POOL", "VALUE", "RESP", "NOHANDLE")]
-        if bad or not opts.get("VALUE"):
-            raise Unsupported(f"GET COUNTER {' '.join(bad) or 'without VALUE'}", ["GET COUNTER"])
+        _check_spec("GET COUNTER", opts, (verb,), lambda bad: ["GET COUNTER"])
+        if not opts.get("VALUE"):
+            raise Unsupported(_rule("GET COUNTER", "required", "VALUE"), ["GET COUNTER"])
         return ([name(opts["COUNTER"], "GG-QNAME"), name(opts.get("POOL") or "' '", "GG-NAME1")]
                 + _call("GGCGCNT", []) + ["IF GG-RESP = 0", f"    MOVE GG-NUM TO {opts['VALUE']}", "END-IF"]
                 + _resp(opts, True, labels))  # fmt: skip
     if verb == "ASKTIME":  # the task's clock; a task takes no time, so EIBDATE / EIBTIME stay as dispatched
+        _check_spec("ASKTIME", opts, (verb,))
         if not opts.get("ABSTIME"):
             return ["CONTINUE"]
         return ["MOVE FUNCTION CURRENT-DATE(1:8) TO GG-YMD", "MOVE FUNCTION CURRENT-DATE(9:8) TO GG-HMSC",
@@ -566,14 +577,16 @@ def translate_command(body: str, labels: list[str] | None = None, handle_aid: bo
     if verb == "FORMATTIME":
         return _formattime(opts)
     if verb == "SYNCPOINT":
+        _check_spec("SYNCPOINT", opts, (verb,))
         mode = "MOVE 'ROLLBACK' TO GG-FLAGS" if "ROLLBACK" in opts else "MOVE SPACES TO GG-FLAGS"
         return [mode] + _call("GGCSYNC", []) + _resp(opts, False, labels)
     if verb == "INQUIRE" and "PROGRAM" in opts:  # #4023 follow-up: is the program installed (COMEN01C's option check)
-        extra = sorted(set(opts) - {"INQUIRE", "PROGRAM", "NOHANDLE", "RESP", "RESP2"})
-        if extra or not opts["PROGRAM"]:
-            raise Unsupported(f"INQUIRE PROGRAM {' '.join(extra) or 'without a name'}", ["INQUIRE PROGRAM"])
+        _check_spec("INQUIRE PROGRAM", opts, (verb,), lambda bad: ["INQUIRE PROGRAM"])
+        if not opts["PROGRAM"]:
+            raise Unsupported(NEEDS_ARGUMENT, ["INQUIRE PROGRAM"])
         return [name(opts["PROGRAM"], "GG-NAME1")] + _call("GGCINQP", []) + _resp(opts, True, labels)
     if verb == "RECEIVE" and "MAP" in opts:
+        _check_spec("RECEIVE MAP", opts, (verb,))
         into = opts.get("INTO") or (f"{_literal(opts['MAP'])}I" if _literal(opts["MAP"]) else None)
         if not into:
             raise Unsupported("RECEIVE MAP(data-name) without INTO")
@@ -581,14 +594,12 @@ def translate_command(body: str, labels: list[str] | None = None, handle_aid: bo
                 + _call("GGCRECV", [f"BY REFERENCE {into}", f"BY VALUE LENGTH OF {into}"])
                 + _input_resp(opts, labels, handle_aid))  # fmt: skip
     if verb == "RECEIVE":  # #4005: terminal input, unformatted (SPEC 5: the step's `text`)
-        for bad in ("BUFFER", "ASIS", "PARTN", "SESSION", "CONVID", "LDC"):
-            if bad in opts:
-                raise Unsupported(f"RECEIVE {bad}", [f"RECEIVE {bad}"])
+        _check_spec("RECEIVE", opts, (verb,), lambda bad: [f"{verb} {bad[0]}"])
         into, setp = opts.get("INTO"), opts.get("SET")
         # LENGTH / FLENGTH is in-out: in, the most INTO takes (unless MAXLENGTH / MAXFLENGTH says so);
         # out, the length of the data. COBOL may omit it: the translator supplies LENGTH OF INTO.
-        length = opts.get("LENGTH") or opts.get("FLENGTH")
-        most = opts.get("MAXLENGTH") or opts.get("MAXFLENGTH")
+        length = _one_of("RECEIVE", opts, "LENGTH", "FLENGTH")
+        most = _one_of("RECEIVE", opts, "MAXLENGTH", "MAXFLENGTH")
         flags = "MOVE 'NOTRUNCATE' TO GG-FLAGS" if "NOTRUNCATE" in opts else "MOVE SPACES TO GG-FLAGS"  # #4413
         if setp:  # #4413: SET(ADDRESS OF record), MAXLENGTH and LENGTH(data-area) required (det/cics.py says why)
             m = re.fullmatch(r"ADDRESS\s+OF\s+([A-Z0-9-]+)", setp, re.I)
@@ -598,16 +609,14 @@ def translate_command(body: str, labels: list[str] | None = None, handle_aid: bo
                     + [f"SET ADDRESS OF {m.group(1)} TO GG-PTR", f"MOVE GG-LEN TO {length}"]
                     + _input_resp(opts, labels, handle_aid))  # fmt: skip
         if not into:
-            raise Unsupported("RECEIVE without INTO", ["RECEIVE"])
+            raise Unsupported(_rule("RECEIVE", "one_of", "INTO"), ["RECEIVE"])
         limit = most or length or f"LENGTH OF {into}"
         lines = [flags, f"MOVE {limit} TO GG-LEN"] + _call("GGCRECT", [f"BY REFERENCE {into}"])
         if length:
             lines.append(f"MOVE GG-LEN TO {length}")
         return lines + _input_resp(opts, labels, handle_aid)
     if verb == "WRITEQ" and "TD" in opts:  # transient data: a record on an extrapartition / intrapartition queue
-        for bad in ("SYSID",):
-            if bad in opts:
-                raise Unsupported(f"WRITEQ TD {bad}", [f"WRITEQ TD {bad}"])
+        _check_spec("WRITEQ TD", opts, (verb, "TD"), lambda bad: [f"WRITEQ TD {bad[0]}"])
         queue, frm = opts.get("QUEUE"), opts.get("FROM")
         if not (queue and frm):
             raise Unsupported("WRITEQ TD without QUEUE / FROM", ["WRITEQ TD"])
@@ -617,6 +626,7 @@ def translate_command(body: str, labels: list[str] | None = None, handle_aid: bo
     if verb in ("READQ", "WRITEQ") and "TD" not in opts:  # #4002: temporary storage (TS is the default)
         return _ts_command(verb, opts, labels)
     if verb == "SEND" and "MAP" in opts:
+        _check_spec("SEND MAP", opts, (verb,))
         lines = [name(opts["MAP"], "GG-NAME1"), name(opts.get("MAPSET") or opts["MAP"], "GG-NAME2")]
         mapflags = [n for n, _v in pairs[1:] if n in ("ERASE", "ERASEAUP", "MAPONLY", "DATAONLY", "CURSOR",
                                                        "FREEKB", "ALARM", "FRSET", "PRINT")]  # fmt: skip
@@ -631,10 +641,9 @@ def translate_command(body: str, labels: list[str] | None = None, handle_aid: bo
             args = [f"BY REFERENCE {src}", f"BY VALUE {opts.get('LENGTH') or f'LENGTH OF {src}'}"]
         return lines + _call("GGCSMAP", args) + _resp(opts, can_fail=False)
     if verb == "SEND" and "CONTROL" in opts:  # #4413: device controls; CURSOR's value in GG-LEN, -1: none
-        bad = [o for o in opts if o not in ("SEND", "CONTROL", "ERASE", "ERASEAUP", "FREEKB", "ALARM", "FRSET",
-                                            "CURSOR", "RESP", "RESP2", "NOHANDLE")]  # fmt: skip
-        if bad or ("CURSOR" in opts and not opts["CURSOR"]):
-            raise Unsupported(f"SEND CONTROL {' '.join(bad) or 'CURSOR without a value'}", ["SEND CONTROL"])
+        _check_spec("SEND CONTROL", opts, (verb, "CONTROL"), lambda bad: ["SEND CONTROL"])
+        if "CURSOR" in opts and not opts["CURSOR"]:
+            raise Unsupported("SEND CONTROL CURSOR without a value", ["SEND CONTROL"])
         ctl = sorted(o for o in opts if o in ("ERASE", "ERASEAUP", "FREEKB", "ALARM", "FRSET", "CURSOR"))
         return ([f"MOVE '{' '.join(ctl)[:40]}' TO GG-FLAGS" if ctl else "MOVE SPACES TO GG-FLAGS",
                  f"MOVE {opts.get('CURSOR') or '-1'} TO GG-LEN"]
@@ -645,9 +654,7 @@ def translate_command(body: str, labels: list[str] | None = None, handle_aid: bo
             raise Unsupported("SEND TEXT without FROM")
         # #4270 slice 4: TERMINAL, the default output disposition (the principal facility), changes nothing; the
         # full-BMS / printer / partition options are refused by name, as the det port refuses them (register X20)
-        bad = [o for o in opts if o in _SEND_TEXT_REFUSED]
-        if bad:
-            raise Unsupported(f"SEND TEXT {' '.join(bad)}", [f"SEND TEXT {o}" for o in bad])
+        _check_spec("SEND TEXT", opts, (verb, "TEXT"))  # (a deny-list until spec PR 3: an unknown option was ignored)
         kind = ["TEXT"] if "TEXT" in opts else ["DATA"]
         textflags = " ".join(kind + [n for n in flags if n in ("ERASE", "FREEKB", "ALARM", "WAIT", "LAST")])
         return ([f"MOVE '{textflags[:40]}' TO GG-FLAGS"]
@@ -656,12 +663,10 @@ def translate_command(body: str, labels: list[str] | None = None, handle_aid: bo
     if verb in ("RETURN", "XCTL"):
         if verb == "XCTL" and not opts.get("PROGRAM"):
             raise Unsupported("XCTL without PROGRAM")
-        for bad in ("INPUTMSG", "IMMEDIATE", "ENDACTIVITY") + (("CHANNEL",) if verb == "RETURN" else ()):
-            if bad in opts:
-                raise Unsupported(f"{verb} {bad}")
+        _check_spec(verb, opts, (verb,), lambda bad: [f"{verb} {bad[0]}"])
         if verb == "XCTL" and opts.get("CHANNEL"):  # #4270: the target's current channel (GGCXCTL)
-            if opts.get("COMMAREA"):
-                raise Unsupported("XCTL CHANNEL with COMMAREA", ["XCTL CHANNEL"])
+            if "COMMAREA" in opts or "LENGTH" in opts:
+                raise Unsupported(_rule("XCTL", "at_most_one", "CHANNEL"), ["XCTL CHANNEL"])
             return ([name(opts["PROGRAM"], "GG-NAME1"), "MOVE 0 TO GG-ITEM", "MOVE 'CHANNEL' TO GG-FLAGS",
                      f"MOVE {opts['CHANNEL']} TO GG-CHAN"]
                     + _call("GGCXCTL", ["BY REFERENCE GG-FLAGS", "BY VALUE 0"])
@@ -681,13 +686,13 @@ def translate_command(body: str, labels: list[str] | None = None, handle_aid: bo
     if verb in ("START", "RETRIEVE", "CANCEL"):  # #4006: interval control
         return _interval_command(verb, opts, labels)
     if verb == "LINK":  # #4004: a new level runs the program on the caller's own COMMAREA storage
-        for bad in ("SYSID", "TRANSID", "SYNCONRETURN", "INPUTMSG", "INPUTMSGLEN", "DATALENGTH"):
-            if bad in opts:
-                raise Unsupported(f"LINK {bad}", [f"LINK {bad}"])
+        _check_spec("LINK", opts, (verb,), lambda bad: [f"{verb} {bad[0]}"])
         if not opts.get("PROGRAM"):
             raise Unsupported("LINK without PROGRAM", ["LINK"])
-        if "CHANNEL" in opts and (opts.get("COMMAREA") or not opts["CHANNEL"]):
-            raise Unsupported("LINK CHANNEL with COMMAREA", ["LINK CHANNEL"])
+        if "CHANNEL" in opts and not opts["CHANNEL"]:
+            raise Unsupported(NEEDS_ARGUMENT, ["LINK CHANNEL"])
+        if "CHANNEL" in opts and ("COMMAREA" in opts or "LENGTH" in opts):
+            raise Unsupported(_rule("LINK", "at_most_one", "CHANNEL"), ["LINK CHANNEL"])
         area = opts.get("COMMAREA")
         # #4270: CHANNEL -- the callee's current channel (GGCLINK)
         chan = (
@@ -704,6 +709,7 @@ def translate_command(body: str, labels: list[str] | None = None, handle_aid: bo
                 + ["    IF GG-GOTO < 0", "        GOBACK", "    END-IF", "END-IF"]
                 + _resp(opts, True, labels))  # fmt: skip
     if verb == "ABEND":  # #4003: an exit at this level takes it by GO TO; else the program is left
+        _check_spec("ABEND", opts, (verb,))
         return ([name(opts.get("ABCODE"), "GG-NAME1"), "MOVE 'CANCEL' TO GG-FLAGS" if "CANCEL" in opts else "MOVE SPACES TO GG-FLAGS"]
                 + _call("GGCABND", []) + _transfer(labels) + ["GOBACK"])  # fmt: skip
     if (
@@ -714,14 +720,23 @@ def translate_command(body: str, labels: list[str] | None = None, handle_aid: bo
         return _handle(pairs, labels)  # fmt: skip
     if verb in ("PUT", "GET", "DELETE") and "CONTAINER" in opts:  # #4270
         return _container_command(verb, opts, labels)
-    raise Unsupported(" ".join(n for n, _ in pairs[:2]), [_feature(pairs)])
+    raise Unsupported(_whole_message(pairs), [_feature(pairs)])
 
 
-_CONTAINER_OPTIONS = {
-    "PUT": {"CONTAINER", "CHANNEL", "FROM", "FLENGTH", "BIT", "CHAR", "DATATYPE", "APPEND"},
-    "GET": {"CONTAINER", "CHANNEL", "INTO", "FLENGTH", "NODATA"},
-    "DELETE": {"CONTAINER", "CHANNEL"},
-}
+def _whole_message(pairs: list[tuple[str, str | None]]) -> str:
+    """A command the stub does not model, refused whole with the translator's message: its name-only (or
+    engine-only) spec entry's reason when it is a CICS application command the spec lists. The verb words are
+    read as det/cics.py's parse_exec reads them: the leading bare names, at most two, a map option aside."""
+    words: list[str] = []
+    for n, v in pairs:
+        if v is not None or len(words) == 2 or (words and (n in MAP_OPTIONS or n == "NOTRUNCATE")):
+            break
+        words.append(n)
+    verb = " ".join(words)
+    rest = [n for n, _v in pairs[len(words) :]]
+    key = f"{verb} COUNTER" if verb != "GET" and {"COUNTER", "DCOUNTER"} & set(rest) else verb
+    known = whole_refusal(key, verb, rest[0] if rest else None)
+    return known.whole_message(verb) if known is not None else f"EXEC CICS {verb} not modelled"
 
 
 def _container_command(verb: str, opts: dict[str, str | None], labels: list[str] | None) -> list[str]:
@@ -732,9 +747,9 @@ def _container_command(verb: str, opts: dict[str, str | None], labels: list[str]
     are refused, as det/cics.py refuses them; so is an FLENGTH past FROM / INTO (storage GnuCOBOL lays out unlike
     IBM's compiler)."""
     feature = f"{verb} CONTAINER"
-    bad = sorted(o for o in opts if o not in _CONTAINER_OPTIONS[verb] | {verb, "RESP", "RESP2", "NOHANDLE"})
-    if bad or not opts.get("CONTAINER"):
-        raise Unsupported(f"{feature} {' '.join(bad) or 'without a name'}", [f"{feature} {o}" for o in bad or ["?"]])
+    _check_spec(feature, opts, (verb,), lambda bad: [f"{feature} {o}" for o in sorted(bad)])
+    if not opts.get("CONTAINER"):
+        raise Unsupported(NEEDS_ARGUMENT, [f"{feature} ?"])
     flags = ["CHANNEL"] if opts.get("CHANNEL") else []
     lines = [f"MOVE {opts['CONTAINER']} TO GG-QNAME",
              f"MOVE {opts['CHANNEL']} TO GG-CHAN" if opts.get("CHANNEL") else "MOVE SPACES TO GG-CHAN"]  # fmt: skip
@@ -749,15 +764,16 @@ def _container_command(verb: str, opts: dict[str, str | None], labels: list[str]
     if verb == "PUT":
         frm = opts.get("FROM")
         if not frm:
-            raise Unsupported("PUT CONTAINER without FROM", [feature])
+            raise Unsupported(NEEDS_ARGUMENT, [feature])
         types = [t for t in ("BIT", "CHAR") if t in opts]
         if opts.get("DATATYPE"):
             m = re.fullmatch(r"\s*DFHVALUE\s*\(\s*(BIT|CHAR)\s*\)\s*", opts["DATATYPE"], re.I)
             if m is None:
-                raise Unsupported(f"PUT CONTAINER DATATYPE({opts['DATATYPE']})", [f"{feature} DATATYPE"])
+                raise Unsupported(f"PUT CONTAINER DATATYPE({opts['DATATYPE']}): only DFHVALUE(BIT / CHAR) is modelled",
+                                  [f"{feature} DATATYPE"])  # fmt: skip
             types.append(m.group(1).upper())
         if len(types) > 1:
-            raise Unsupported("PUT CONTAINER with two data types", [feature])
+            raise Unsupported(_rule("PUT CONTAINER", "at_most_one", "BIT", " and ".join(types)), [feature])
         flags += types + (["APPEND"] if "APPEND" in opts else [])
         return (lines + [f"MOVE '{' '.join(flags)}' TO GG-FLAGS" if flags else "MOVE SPACES TO GG-FLAGS",
                          f"MOVE {flength or f'LENGTH OF {frm}'} TO GG-LEN"]
@@ -765,7 +781,7 @@ def _container_command(verb: str, opts: dict[str, str | None], labels: list[str]
                 + _resp(opts, True, labels))  # fmt: skip
     into, nodata = opts.get("INTO"), "NODATA" in opts
     if bool(into) == nodata:
-        raise Unsupported("GET CONTAINER needs one of INTO / NODATA", [feature])
+        raise Unsupported(_rule("GET CONTAINER", "one_of", "INTO"), [feature])
     flags += ["NODATA"] if nodata else []
     settable = bool(flength) and re.fullmatch(r"(?is)[+-]?\d+|LENGTH\s+OF\s+.+", flength.strip()) is None
     lines += [
@@ -828,7 +844,8 @@ def translate(source: str) -> tuple[str, bool]:
         try:
             stmts = translate_command(body, labels, handle_aid)
         except Unsupported as e:
-            problems.append(f"line {i + 1}: EXEC CICS {e}")
+            msg = str(e)  # (a whole command's refusal names it already: "EXEC CICS GETMAIN not modelled (...)")
+            problems.append(f"line {i + 1}: {msg if msg.startswith('EXEC CICS ') else f'EXEC CICS {msg}'}")
             features += [f for f in e.features if f not in features]
             stmts = []
         for s in stmts:
@@ -1150,10 +1167,9 @@ _DATE_FORMS = {"YYYYMMDD": ("GG-Y", "GG-M", "GG-D"), "MMDDYYYY": ("GG-M", "GG-D"
 def _formattime(opts: dict[str, str]) -> list[str]:
     """FORMATTIME ABSTIME(t) [date forms] [DATESEP] [TIME] [TIMESEP], in COBOL: t split into the day number since
     1900-01-01 and the milliseconds into the day. DATESEP / TIMESEP without a value are '/' and ':'; absent, none."""
-    supported = {"FORMATTIME", "ABSTIME", "DATESEP", "TIME", "TIMESEP", *_DATE_FORMS}
-    extra = sorted(set(opts) - supported - {"NOHANDLE", "RESP", "RESP2"})
-    if extra or not opts.get("ABSTIME"):
-        raise Unsupported(f"FORMATTIME {' '.join(extra) or 'without ABSTIME'}", ["FORMATTIME"])
+    _check_spec("FORMATTIME", opts, ("FORMATTIME",), lambda bad: ["FORMATTIME"])
+    if not opts.get("ABSTIME"):
+        raise Unsupported("FORMATTIME without ABSTIME", ["FORMATTIME"])
     t = opts["ABSTIME"]
     lines = [f"COMPUTE GG-DAYS = {t} / 86400000", f"COMPUTE GG-REM = {t} - GG-DAYS * 86400000",
              "COMPUTE GG-DATE8 = FUNCTION DATE-OF-INTEGER(GG-DAYS",
@@ -1222,11 +1238,11 @@ def screen_fields(corpus: Path, case: dict[str, Any], map_name: str, side: str) 
     return common.layout_fields(corpus, str(common.case_path(corpus, scr["copybook"])), scr[side])
 
 
-# #4023 follow-up: the conditions a scenario may inject, by name -> their DFHRESP numbers (IBM CICS "RESP values")
-CICS_RESP = {"NORMAL": 0, "FILENOTFOUND": 12, "NOTFND": 13, "DUPREC": 14, "INVREQ": 16, "IOERR": 17, "NOSPACE": 18,
-             "NOTOPEN": 19, "ILLOGIC": 21, "LENGERR": 22, "PGMIDERR": 27, "NOTAUTH": 70, "DISABLED": 84,
-             "LOADING": 94, "ENDFILE": 20, "TERMIDERR": 11, "ITEMERR": 26, "TRANSIDERR": 28, "QIDERR": 44,
-             "SYSIDERR": 53, "ISCINVREQ": 54, "LOCKED": 100}  # fmt: skip
+# #4023 follow-up: the conditions a scenario may inject, by name -> their DFHRESP numbers (the spec's, #4270 spec PR 3)
+CICS_RESP = {c: DFHRESP[c] for c in ("NORMAL", "FILENOTFOUND", "NOTFND", "DUPREC", "INVREQ", "IOERR", "NOSPACE",
+                                     "NOTOPEN", "ILLOGIC", "LENGERR", "PGMIDERR", "NOTAUTH", "DISABLED", "LOADING",
+                                     "ENDFILE", "TERMIDERR", "ITEMERR", "TRANSIDERR", "QIDERR", "SYSIDERR",
+                                     "ISCINVREQ", "LOCKED")}  # fmt: skip
 
 
 FAULT_COMMANDS = (

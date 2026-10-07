@@ -236,16 +236,16 @@ def main(argv: Sequence[str] | None = None) -> int:
         print(f"cics spec: {n} commands, {'ok' if not found else f'{len(found)} problem(s)'}")
         return 1 if found else 0
     if args.check:
-        found = stale()
-        for rel in found:
-            print(f"stale: {rel}")
-        print(f"cics spec generated files: {'up to date' if not found else f'{len(found)} stale'}"
-              + ("; run `python -m gitgalaxy.standards.cics regen` and commit them" if found else ""))  # fmt: skip
-        return 1 if found else 0
+        old = stale()
+        for path in old:
+            print(f"stale: {path}")
+        print(f"cics spec generated files: {'up to date' if not old else f'{len(old)} stale'}"
+              + ("; run `python -m gitgalaxy.standards.cics regen` and commit them" if old else ""))  # fmt: skip
+        return 1 if old else 0
     if args.out is None:
-        for rel, text in generated().items():
-            (ROOT / rel).write_text(text, encoding="utf-8")
-            print(f"wrote {rel}")
+        for path, text in generated().items():
+            (ROOT / path).write_text(text, encoding="utf-8")
+            print(f"wrote {path}")
         return 0
     if not re.fullmatch(r"(__PACKAGE__|[a-z_][a-z0-9_]*)(\.[a-z_][a-z0-9_]*)*", args.java_package):
         print(f"not a Java package name: {args.java_package}", file=sys.stderr)

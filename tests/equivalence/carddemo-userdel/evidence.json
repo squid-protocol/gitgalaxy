@@ -26,7 +26,7 @@
     "tests/equivalence/carddemo-userdel/**"
    ],
    "files": 2,
-   "sha256": "f0901f27a92b6d4b75715c8be41873d4812c515480a030e5e3dd49b063dcd987"
+   "sha256": "51b58cdefef83f58f6622e24159c319f7af9e6f272776a6b3818c0bf0c971b10"
   },
   "harness": {
    "paths": [
@@ -73,12 +73,12 @@
   "differences": {
    "sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
   },
-  "digest": "16749a3ae414c889fefd10b059ef75a0a339d48114ae70c44f0155fc05010ad0"
+  "digest": "86a8c030d5ada7c709bbe42fee8b2963c3a79188f1eff9a1523d1be8422c5583"
  },
  "proof": {
-  "at": "2026-10-07T14:56:40Z",
+  "at": "2026-10-07T19:40:07Z",
   "verdict": "proven",
-  "runs": 18,
+  "runs": 20,
   "fault_runs": 2,
   "environments": null,
   "outputs": {
@@ -153,6 +153,14 @@
    "invalid-key": {
     "equal": 3,
     "records": 3
+   },
+   "enter-not-found-after-lookup": {
+    "equal": 3,
+    "records": 3
+   },
+   "full-commarea-carried": {
+    "equal": 3,
+    "records": 3
    }
   },
   "return_code_equal": null,
@@ -161,16 +169,16 @@
   "java_failed": false,
   "facade": {
    "verdict": "proven",
-   "runs": 18,
-   "passed": 18,
+   "runs": 20,
+   "passed": 20,
    "entry_points": [
     "handleTransaction"
    ],
    "failed": [],
    "error": null
   },
-  "harness_commit": "4a31c3d8a01d630aa00421b590600aa51bed5c8d+uncommitted",
-  "inputs_digest": "16749a3ae414c889fefd10b059ef75a0a339d48114ae70c44f0155fc05010ad0"
+  "harness_commit": "e5870c1441cc785bba413141c703450e43b1b21b+uncommitted",
+  "inputs_digest": "86a8c030d5ada7c709bbe42fee8b2963c3a79188f1eff9a1523d1be8422c5583"
  },
  "coverage": {
   "paragraphs": {
@@ -200,7 +208,7 @@
    "total": 0
   },
   "source": "the proof's own traced COBOL runs (cobol_coverage.py)",
-  "inputs_digest": "16749a3ae414c889fefd10b059ef75a0a339d48114ae70c44f0155fc05010ad0"
+  "inputs_digest": "86a8c030d5ada7c709bbe42fee8b2963c3a79188f1eff9a1523d1be8422c5583"
  },
  "reach": {
   "entry_points": [

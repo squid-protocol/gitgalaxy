@@ -309,6 +309,62 @@
      "USRIDINI": "USER0004"
     }
    }
+  },
+  {
+   "name": "enter-not-found-after-lookup",
+   "aid": "DFHENTER",
+   "commarea": {
+    "CDEMO-FROM-TRANID": "CA00",
+    "CDEMO-FROM-PROGRAM": "COADM01C",
+    "CDEMO-USER-ID": "ADMIN001",
+    "CDEMO-USER-TYPE": "A",
+    "CDEMO-PGM-CONTEXT": 1
+   },
+   "receive": {
+    "COUSR3A": {
+     "USRIDINI": "NOBODY01",
+     "FNAMEI": "GRACE",
+     "LNAMEI": "HOPPER",
+     "USRTYPEI": "U",
+     "ERRMSGI": "Press PF5 key to delete this user ...",
+     "PGMNAMEI": "COUSR03C"
+    }
+   },
+   "why": "#4628 (det-port mutants 0d11b19872, 730cd75e8b, fca19be456, c0265b9698): after a lookup the terminal sends the FSET fields back (FNAME, LNAME, USRTYPE, ERRMSG, PGMNAME: ATTRB=(ASKIP,FSET,...) in COUSR03.bms); a new id that is not found blanks FNAME / LNAME / USRTYPE and says 'User ID NOT found...'"
+  },
+  {
+   "name": "full-commarea-carried",
+   "aid": "DFHPF7",
+   "commarea": {
+    "CDEMO-FROM-TRANID": "CA00",
+    "CDEMO-FROM-PROGRAM": "COADM01C",
+    "CDEMO-USER-ID": "ADMIN001",
+    "CDEMO-USER-TYPE": "A",
+    "CDEMO-PGM-CONTEXT": 1,
+    "CDEMO-TO-TRANID": "CA00",
+    "CDEMO-TO-PROGRAM": "COADM01C",
+    "CDEMO-CUST-ID": 123456789,
+    "CDEMO-CUST-FNAME": "ALICE",
+    "CDEMO-CUST-MNAME": "B",
+    "CDEMO-CUST-LNAME": "SMITH",
+    "CDEMO-ACCT-ID": 12345678901,
+    "CDEMO-ACCT-STATUS": "Y",
+    "CDEMO-CARD-NUM": 4111111111111111,
+    "CDEMO-LAST-MAP": "COUSR3A",
+    "CDEMO-LAST-MAPSET": "COUSR03",
+    "CDEMO-CU03-USRID-FIRST": "ADMIN001",
+    "CDEMO-CU03-USRID-LAST": "USER0005",
+    "CDEMO-CU03-PAGE-NUM": 2,
+    "CDEMO-CU03-NEXT-PAGE-FLG": "Y",
+    "CDEMO-CU03-USR-SEL-FLG": "D",
+    "CDEMO-CU03-USR-SELECTED": "USER0004"
+   },
+   "receive": {
+    "COUSR3A": {
+     "USRIDINI": "USER0004"
+    }
+   },
+   "why": "#4628 (det-port mutants 318f1d6a28, ffcbfc6e5e, 904e059616, 55d4e166c9, 875ca1c43d, 42080d7b06, 6b7b7505fa, 26c2031747, 6484fa0acc, c0b13e7ec9): every COMMAREA field set, COUSR03C's CU03 part too; an invalid key re-sends the screen and the RETURN carries the COMMAREA back"
   }
  ],
  "notes": "CardDemo's delete-user screen (transaction CU03, program COUSR03C): entered from the user list with a selected user it reads the user FOR UPDATE and shows it; ENTER looks a user up, PF5 reads it FOR UPDATE and DELETEs it -- even when the read found nothing, so the DELETE then has no record held (INVREQ, 'Unable to Update User...'); PF3 / PF12 return, PF4 clears. Each scenario's USRSEC file is compared after the task. usrsec.txt is CardDemo's own DUSRSECJ in-stream data. Derived from CardDemo (Apache-2.0; Copyright Amazon.com, Inc. or its affiliates): LICENSE and NOTICE here are the source's own."

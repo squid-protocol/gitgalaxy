@@ -8,16 +8,16 @@ The status above judges the record alone (policy: ported_unproven = block). Whet
 
 | | |
 |---|---|
-| proof | proven at 2026-10-06T10:33:54Z, harness `ca529169609d6e48c2124510473d4539ea576c8e+uncommitted` |
-| inputs digest | `3950b4c5c3ed64d82f5d3ea38e3da80058d33979015233ae292552f51096c99d` |
+| proof | proven at 2026-10-07T10:29:57Z, harness `8dff2ec2e032cfde103a55c284c0f0734d7a2214+uncommitted` |
+| inputs digest | `23ef7afe09e62f158b5db06b07e67dde7d896179054bc0bfa8fd482512ddb6eb` |
 | port | 1 files `62e5149494e50faa` |
 | case | 2 files `fac5cb8bc3452544` |
 | corpus | aws-mainframe-modernization-carddemo @ `59cc6c2fd7ebd7ef7925cad552a01a4b8b6e4d5e` `d0c4803872ec126e` |
 | differences |  `4f53cda18c2baa0c` |
-| harness | 11 files `304049dfdcedf444` |
-| oracle | 16 files `fe66479a555d6d3a` |
-| generator | 60 files `6eab156270c21ef9` |
-| oracle run | gnucobol-models: cobc (GnuCOBOL) 3.1.2.0, image `sha256:d81f38691211` (matches pin: True) |
+| harness | 11 files `7241b1e25d6af151` |
+| oracle | 16 files `e61e9faec28437e9` |
+| generator | 62 files `f9f301dfa1a0ccd1` |
+| oracle run | gnucobol-models: cobc (GnuCOBOL) 3.1.2.0, image `sha256:bcdd12de145f` (matches pin: True) |
 | written by | person (Joe Esquibel) |
 
 ## Proof outputs

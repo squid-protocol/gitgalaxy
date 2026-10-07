@@ -209,15 +209,6 @@
     "reason": "WS-CURDATE-MM-DD-YY as a 9-byte group is only moved to CURDATEO, 8 bytes, which keeps the same first 8"
    },
    {
-    "id": "1f7a04edf5",
-    "op": "CON",
-    "line": 369,
-    "before": "private final Field f373_DFHPF3 = Field.alphanumeric(s_DFHAID, 14, 1, false);",
-    "after": "private final Field f373_DFHPF3 = Field.alphanumeric(s_DFHAID, 15, 1, false);",
-    "verdict": "case-gap",
-    "reason": "DFHPF3 read one byte on, at DFHPF4: EIBAID for PF3 is moved from the same Field the EVALUATE compares with, so PF3 still matches; a PF4 key would match WHEN DFHPF3 too. Killed by scenario pf4-invalid-key (added in this PR)"
-   },
-   {
     "id": "9605820b04",
     "op": "CON",
     "line": 383,
@@ -279,69 +270,6 @@
     "after": "if (label != null) {",
     "verdict": "case-gap",
     "reason": "an XCTL failing with a condition other than PGMIDERR (HANDLE CONDITION names only PGMIDERR) abends the task; no scenario has one: a fault scenario (XCTL NOTAUTH / INVREQ) would kill it, but the committed model port sends the menu instead of abending, and the det runtime knows no abend code for NOTAUTH -- both to fix before the scenario can join the case (tried in this PR, left out: #4648)"
-   },
-   {
-    "id": "d3b3731724",
-    "op": "ROR",
-    "line": 502,
-    "before": "Cobol.move(d.getCdemoToTranid() == null ? \"\" : d.getCdemoToTranid(), Field.alphanumeric(s, base + 12, 4, false), CS);",
-    "after": "Cobol.move(d.getCdemoToTranid() != null ? \"\" : d.getCdemoToTranid(), Field.alphanumeric(s, base + 12, 4, false), CS);",
-    "verdict": "case-gap",
-    "reason": "in_ moves '' instead of the caller's CDEMO-TO-TRANID, which MOVE DFHCOMMAREA(1:EIBCALEN) TO CARDDEMO-COMMAREA carries into the RETURN COMMAREA; no scenario set it. Killed by scenario full-commarea-carried (added in this PR)"
-   },
-   {
-    "id": "4d2411a557",
-    "op": "DEL",
-    "line": 507,
-    "before": "Cobol.move(d.getCdemoCustId() == null ? BigDecimal.ZERO : new BigDecimal(d.getCdemoCustId().toString()), Field.zoned(s, base + 34, 9, 0, false, false, false), CS);",
-    "after": "/* Cobol.move(d.getCdemoCustId() == null ? BigDecimal.ZERO : new BigDecimal(d.getCdemoCustId().toString()), Field.zoned(s, base + 34, 9, 0, false, false, false), CS); */",
-    "verdict": "case-gap",
-    "reason": "without in_'s CDEMO-CUST-ID move the field keeps the image's spaces, which the RETURN COMMAREA reads back as 0; no scenario set a customer id. Killed by scenario full-commarea-carried (added in this PR)"
-   },
-   {
-    "id": "99fffe64e0",
-    "op": "ROR",
-    "line": 508,
-    "before": "Cobol.move(d.getCdemoCustFname() == null ? \"\" : d.getCdemoCustFname(), Field.alphanumeric(s, base + 43, 25, false), CS);",
-    "after": "Cobol.move(d.getCdemoCustFname() != null ? \"\" : d.getCdemoCustFname(), Field.alphanumeric(s, base + 43, 25, false), CS);",
-    "verdict": "case-gap",
-    "reason": "in_ moves '' instead of the caller's CDEMO-CUST-FNAME, which the RETURN COMMAREA carries; no scenario set it. Killed by scenario full-commarea-carried (added in this PR)"
-   },
-   {
-    "id": "8c0ccb0f77",
-    "op": "ROR",
-    "line": 511,
-    "before": "Cobol.move(d.getCdemoAcctId() == null ? BigDecimal.ZERO : new BigDecimal(d.getCdemoAcctId().toString()), Field.zoned(s, base + 118, 11, 0, false, false, false), CS);",
-    "after": "Cobol.move(d.getCdemoAcctId() != null ? BigDecimal.ZERO : new BigDecimal(d.getCdemoAcctId().toString()), Field.zoned(s, base + 118, 11, 0, false, false, false), CS);",
-    "verdict": "case-gap",
-    "reason": "in_ moves 0 instead of the caller's CDEMO-ACCT-ID, which the RETURN COMMAREA carries; no scenario set it. Killed by scenario full-commarea-carried (added in this PR)"
-   },
-   {
-    "id": "9eef44928a",
-    "op": "ROR",
-    "line": 515,
-    "before": "Cobol.move(d.getCdemoLastMapset() == null ? \"\" : d.getCdemoLastMapset(), Field.alphanumeric(s, base + 153, 7, false), CS);",
-    "after": "Cobol.move(d.getCdemoLastMapset() != null ? \"\" : d.getCdemoLastMapset(), Field.alphanumeric(s, base + 153, 7, false), CS);",
-    "verdict": "case-gap",
-    "reason": "in_ moves '' instead of the caller's CDEMO-LAST-MAPSET, which the RETURN COMMAREA carries; no scenario set it. Killed by scenario full-commarea-carried (added in this PR)"
-   },
-   {
-    "id": "cbb2a2e3ca",
-    "op": "DEL",
-    "line": 529,
-    "before": "d.setCdemoCustLname(Cobol.text(Field.alphanumeric(s, base + 93, 25, false), CS));",
-    "after": "/* d.setCdemoCustLname(Cobol.text(Field.alphanumeric(s, base + 93, 25, false), CS)); */",
-    "verdict": "case-gap",
-    "reason": "without fill_'s CDEMO-CUST-LNAME setter the RETURN COMMAREA (out_) lacks the last name it carries; no scenario set it. Killed by scenario full-commarea-carried (added in this PR)"
-   },
-   {
-    "id": "fd1643d0ec",
-    "op": "CON",
-    "line": 532,
-    "before": "d.setCdemoCardNum(Cobol.num(Field.zoned(s, base + 130, 16, 0, false, false, false), CS).longValue());",
-    "after": "d.setCdemoCardNum(Cobol.num(Field.zoned(s, base + 131, 16, 0, false, false, false), CS).longValue());",
-    "verdict": "case-gap",
-    "reason": "fill_ reads CDEMO-CARD-NUM one byte on, so the RETURN COMMAREA carries a shifted card number; no scenario set one (0 reads back 0). Killed by scenario full-commarea-carried (added in this PR)"
    },
    {
     "id": "eecc3b16d8",
@@ -540,15 +468,6 @@
     "after": "if (!(to >= 0)) return GOTO | to;",
     "verdict": "equivalent",
     "reason": "negated, PGMIDERR's label (PGMIDERR-ERR-PARA) is not taken and control goes on after the XCTL: MOVE SPACES TO WS-MESSAGE, DFHGREEN TO ERRMSGC, the same STRING 'This option is not installed ...', SEND-MENU-SCREEN, and MAIN-PARA's RETURN TRANSID COMMAREA -- PGMIDERR-ERR-PARA's statements in the same order; any other condition abends inside condition() before this test"
-   },
-   {
-    "id": "37a7b39c52",
-    "op": "ROR",
-    "line": 930,
-    "before": "if (DetCics.resp(xr2) != 0) {",
-    "after": "if (DetCics.resp(xr2) == 0) {",
-    "verdict": "case-gap",
-    "reason": "the failed XCTL in RETURN-TO-SIGNON-SCREEN: flipped, the task skips PGMIDERR-ERR-PARA and RETURNs without the menu. Killed by scenario pf3-xctl-fails (added in this PR)"
    },
    {
     "id": "3e3ea34d5f",
@@ -1201,6 +1120,593 @@
     "reason": "the WRITE's RESP2 into WS-REAS-CD: WS-REAS-CD is shown only by WHEN OTHER's DISPLAY 'RESP:' WS-RESP-CD 'REAS:' WS-REAS-CD, a CICS task's DISPLAY output, which the harness does not compare (#4635)"
    }
   ],
+  "carddemo-cardview": [
+   {
+    "id": "4d830c57b8",
+    "op": "LIT",
+    "line": 65,
+    "before": "\"ICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICA=\"));",
+    "after": "\"XCAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICA=\"));",
+    "verdict": "equivalent",
+    "reason": "WS-COMMAREA's VALUE image: 0000-MAIN's INITIALIZE WS-COMMAREA moves 2000 spaces over it before anything reads it"
+   },
+   {
+    "id": "11be2e50b3",
+    "op": "LIT",
+    "line": 87,
+    "before": "\"ICAgICAgICAgICAgICAgICAgICAgICAgICAgICAwMDAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICA=\"));",
+    "after": "\"XCAgICAgICAgICAgICAgICAgICAgICAgICAgICAwMDAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICA=\"));",
+    "verdict": "equivalent",
+    "reason": "COCRDSLC never reads CUSTOMER-RECORD (it COPYs CVCUS01Y but names none of its fields), so its initial image cannot show"
+   },
+   {
+    "id": "b58e58378d",
+    "op": "LIT",
+    "line": 102,
+    "before": "\"ICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAg\",",
+    "after": "\"XCAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAg\",",
+    "verdict": "equivalent",
+    "reason": "IMAGE of DFHCOMMAREA (a later chunk): COCRDSLC reads DFHCOMMAREA only as DFHCOMMAREA(1:160) and (161:12), which in_ writes from the caller's COMMAREA first; this byte of the 32767-byte image lies past them, and for a terminal task the area's final contents are not observable (CICS discards them; linked_result drops them)"
+   },
+   {
+    "id": "f735ca11fd",
+    "op": "LIT",
+    "line": 154,
+    "before": "\"ICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAg\",",
+    "after": "\"XCAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAg\",",
+    "verdict": "equivalent",
+    "reason": "IMAGE of DFHCOMMAREA (a later chunk): COCRDSLC reads DFHCOMMAREA only as DFHCOMMAREA(1:160) and (161:12), which in_ writes from the caller's COMMAREA first; this byte of the 32767-byte image lies past them, and for a terminal task the area's final contents are not observable (CICS discards them; linked_result drops them)"
+   },
+   {
+    "id": "44b13f32ba",
+    "op": "LIT",
+    "line": 159,
+    "before": "\"ICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAg\",",
+    "after": "\"XCAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAg\",",
+    "verdict": "equivalent",
+    "reason": "IMAGE of DFHCOMMAREA (a later chunk): COCRDSLC reads DFHCOMMAREA only as DFHCOMMAREA(1:160) and (161:12), which in_ writes from the caller's COMMAREA first; this byte of the 32767-byte image lies past them, and for a terminal task the area's final contents are not observable (CICS discards them; linked_result drops them)"
+   },
+   {
+    "id": "e53946150a",
+    "op": "LIT",
+    "line": 163,
+    "before": "\"ICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAg\",",
+    "after": "\"XCAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAg\",",
+    "verdict": "equivalent",
+    "reason": "IMAGE of DFHCOMMAREA (a later chunk): COCRDSLC reads DFHCOMMAREA only as DFHCOMMAREA(1:160) and (161:12), which in_ writes from the caller's COMMAREA first; this byte of the 32767-byte image lies past them, and for a terminal task the area's final contents are not observable (CICS discards them; linked_result drops them)"
+   },
+   {
+    "id": "5900487c61",
+    "op": "LIT",
+    "line": 171,
+    "before": "\"ICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAg\",",
+    "after": "\"XCAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAg\",",
+    "verdict": "equivalent",
+    "reason": "IMAGE of DFHCOMMAREA (a later chunk): COCRDSLC reads DFHCOMMAREA only as DFHCOMMAREA(1:160) and (161:12), which in_ writes from the caller's COMMAREA first; this byte of the 32767-byte image lies past them, and for a terminal task the area's final contents are not observable (CICS discards them; linked_result drops them)"
+   },
+   {
+    "id": "3bbd91905c",
+    "op": "LIT",
+    "line": 178,
+    "before": "\"ICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAg\",",
+    "after": "\"XCAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAg\",",
+    "verdict": "equivalent",
+    "reason": "IMAGE of DFHCOMMAREA (a later chunk): COCRDSLC reads DFHCOMMAREA only as DFHCOMMAREA(1:160) and (161:12), which in_ writes from the caller's COMMAREA first; this byte of the 32767-byte image lies past them, and for a terminal task the area's final contents are not observable (CICS discards them; linked_result drops them)"
+   },
+   {
+    "id": "ebc60b3576",
+    "op": "CON",
+    "line": 241,
+    "before": "private final Field f42_WS_LONG_MSG = Field.alphanumeric(s_WS_MISC_STORAGE, 215, 500, false);",
+    "after": "private final Field f42_WS_LONG_MSG = Field.alphanumeric(s_WS_MISC_STORAGE, 216, 500, false);",
+    "verdict": "unreachable",
+    "reason": "WS-LONG-MSG is read only by SEND-LONG-TEXT, which no statement PERFORMs (INITIALIZE WS-MISC-STORAGE clears its bytes through its own field)"
+   },
+   {
+    "id": "60f6019afa",
+    "op": "CON",
+    "line": 326,
+    "before": "private final Field f245_CURTIMEA = Field.alphanumeric(s_CCRDSLAI, 149, 1, false);",
+    "after": "private final Field f245_CURTIMEA = Field.alphanumeric(s_CCRDSLAI, 149, 2, false);",
+    "verdict": "equivalent",
+    "reason": "DetCics.subfields reads only the first byte of CURTIMEA (the offset is unchanged), and COCRDSLC never MOVEs to it"
+   },
+   {
+    "id": "dc8182d872",
+    "op": "CON",
+    "line": 344,
+    "before": "private final Field f281_EXPYEARA = Field.alphanumeric(s_CCRDSLAI, 279, 1, false);",
+    "after": "private final Field f281_EXPYEARA = Field.alphanumeric(s_CCRDSLAI, 279, 2, false);",
+    "verdict": "equivalent",
+    "reason": "DetCics.subfields reads only the first byte of EXPYEARA (the offset is unchanged), and COCRDSLC never MOVEs to it"
+   },
+   {
+    "id": "874cf3cd93",
+    "op": "CON",
+    "line": 365,
+    "before": "private final Field f323_PGMNAMEC = Field.alphanumeric(s_CCRDSLAI, 88, 1, false);",
+    "after": "private final Field f323_PGMNAMEC = Field.alphanumeric(s_CCRDSLAI, 88, 2, false);",
+    "verdict": "equivalent",
+    "reason": "DetCics.subfields reads only the first byte of PGMNAMEC (the offset is unchanged), and COCRDSLC never MOVEs to it"
+   },
+   {
+    "id": "1c76fb29dc",
+    "op": "CON",
+    "line": 393,
+    "before": "private final Field f379_INFOMSGH = Field.alphanumeric(s_CCRDSLAI, 293, 1, false);",
+    "after": "private final Field f379_INFOMSGH = Field.alphanumeric(s_CCRDSLAI, 293, 2, false);",
+    "verdict": "equivalent",
+    "reason": "DetCics.subfields reads only the first byte of INFOMSGH (the offset is unchanged), and COCRDSLC never MOVEs to it"
+   },
+   {
+    "id": "64fc24d9ae",
+    "op": "CON",
+    "line": 419,
+    "before": "private final Field f439_ABEND_REASON = Field.alphanumeric(s_ABEND_DATA, 12, 50, false);",
+    "after": "private final Field f439_ABEND_REASON = Field.alphanumeric(s_ABEND_DATA, 12, 51, false);",
+    "verdict": "equivalent",
+    "reason": "ABEND-REASON as 51 bytes: it is written only on 0000-MAIN's WHEN OTHER path (MOVE SPACES), which ends in SEND-PLAIN-TEXT's RETURN; the 51st byte is ABEND-MSG's first, read only by ABEND-ROUTINE, which that path never reaches"
+   },
+   {
+    "id": "65e76b3614",
+    "op": "CON",
+    "line": 528,
+    "before": "java.util.Map.entry(\"9000-READ-DATA-EXIT\", 24),",
+    "after": "java.util.Map.entry(\"9000-READ-DATA-EXIT\", 25),",
+    "verdict": "equivalent",
+    "reason": "paragraph() is only ever asked for the HANDLE ABEND label, ABEND-ROUTINE (35), so another entry's name or number is never looked up"
+   },
+   {
+    "id": "0e05e9148a",
+    "op": "CON",
+    "line": 537,
+    "before": "java.util.Map.entry(\"2100-RECEIVE-MAP\", 15),",
+    "after": "java.util.Map.entry(\"2100-RECEIVE-MAP\", 16),",
+    "verdict": "equivalent",
+    "reason": "paragraph() is only ever asked for the HANDLE ABEND label, ABEND-ROUTINE (35), so another entry's name or number is never looked up"
+   },
+   {
+    "id": "e77f76c7bd",
+    "op": "LIT",
+    "line": 552,
+    "before": "java.util.Map.entry(\"0000-MAIN\", 0)",
+    "after": "java.util.Map.entry(\"X000-MAIN\", 0)",
+    "verdict": "equivalent",
+    "reason": "paragraph() is only ever asked for the HANDLE ABEND label, ABEND-ROUTINE (35), so another entry's name or number is never looked up"
+   },
+   {
+    "id": "7794309c20",
+    "op": "AOR",
+    "line": 595,
+    "before": "Cobol.move(d.getCdemoFromTranid() == null ? \"\" : d.getCdemoFromTranid(), Field.alphanumeric(s, base + 0, 4, false), CS);",
+    "after": "Cobol.move(d.getCdemoFromTranid() == null ? \"\" : d.getCdemoFromTranid(), Field.alphanumeric(s, base - 0, 4, false), CS);",
+    "verdict": "equivalent",
+    "reason": "`base - 0` for `base + 0`: the same offset"
+   },
+   {
+    "id": "a7e4ac08c1",
+    "op": "ROR",
+    "line": 598,
+    "before": "Cobol.move(d.getCdemoToProgram() == null ? \"\" : d.getCdemoToProgram(), Field.alphanumeric(s, base + 16, 8, false), CS);",
+    "after": "Cobol.move(d.getCdemoToProgram() != null ? \"\" : d.getCdemoToProgram(), Field.alphanumeric(s, base + 16, 8, false), CS);",
+    "verdict": "case-gap",
+    "reason": "in_ moves '' instead of the caller's CDEMO-TO-PROGRAM, which the RETURN COMMAREA carries (PF3 alone rewrites it). Killed by scenario full-commarea-carried (added in this PR: every COMMAREA field set, this program's part too)"
+   },
+   {
+    "id": "61d0d0ba02",
+    "op": "CON",
+    "line": 599,
+    "before": "Cobol.move(d.getCdemoUserId() == null ? \"\" : d.getCdemoUserId(), Field.alphanumeric(s, base + 24, 8, false), CS);",
+    "after": "Cobol.move(d.getCdemoUserId() == null ? \"\" : d.getCdemoUserId(), Field.alphanumeric(s, base + 24, 9, false), CS);",
+    "verdict": "equivalent",
+    "reason": "in_: CDEMO-USER-ID moved into 9 bytes spills one byte into CDEMO-USER-TYPE (32), which the next statement, the CDEMO-USER-TYPE move, overwrites"
+   },
+   {
+    "id": "ae6e1afbd9",
+    "op": "ROR",
+    "line": 603,
+    "before": "Cobol.move(d.getCdemoCustFname() == null ? \"\" : d.getCdemoCustFname(), Field.alphanumeric(s, base + 43, 25, false), CS);",
+    "after": "Cobol.move(d.getCdemoCustFname() != null ? \"\" : d.getCdemoCustFname(), Field.alphanumeric(s, base + 43, 25, false), CS);",
+    "verdict": "case-gap",
+    "reason": "in_ moves '' instead of the caller's CDEMO-CUST-FNAME, which the RETURN COMMAREA carries. Killed by scenario full-commarea-carried (added in this PR: every COMMAREA field set, this program's part too)"
+   },
+   {
+    "id": "31f0519b31",
+    "op": "ROR",
+    "line": 604,
+    "before": "Cobol.move(d.getCdemoCustMname() == null ? \"\" : d.getCdemoCustMname(), Field.alphanumeric(s, base + 68, 25, false), CS);",
+    "after": "Cobol.move(d.getCdemoCustMname() != null ? \"\" : d.getCdemoCustMname(), Field.alphanumeric(s, base + 68, 25, false), CS);",
+    "verdict": "case-gap",
+    "reason": "in_ moves '' instead of the caller's CDEMO-CUST-MNAME, which the RETURN COMMAREA carries. Killed by scenario full-commarea-carried (added in this PR: every COMMAREA field set, this program's part too)"
+   },
+   {
+    "id": "7183fb9c1e",
+    "op": "ROR",
+    "line": 607,
+    "before": "Cobol.move(d.getCdemoAcctStatus() == null ? \"\" : d.getCdemoAcctStatus(), Field.alphanumeric(s, base + 129, 1, false), CS);",
+    "after": "Cobol.move(d.getCdemoAcctStatus() != null ? \"\" : d.getCdemoAcctStatus(), Field.alphanumeric(s, base + 129, 1, false), CS);",
+    "verdict": "case-gap",
+    "reason": "in_ moves '' instead of the caller's CDEMO-ACCT-STATUS, which the RETURN COMMAREA carries. Killed by scenario full-commarea-carried (added in this PR: every COMMAREA field set, this program's part too)"
+   },
+   {
+    "id": "4fef67cae7",
+    "op": "DEL",
+    "line": 622,
+    "before": "d.setCdemoCustFname(Cobol.text(Field.alphanumeric(s, base + 43, 25, false), CS));",
+    "after": "/* d.setCdemoCustFname(Cobol.text(Field.alphanumeric(s, base + 43, 25, false), CS)); */",
+    "verdict": "case-gap",
+    "reason": "without fill_'s CDEMO-CUST-FNAME setter the XCTL COMMAREA (out_, PF3) lacks the first name it carries. Killed by scenario pf15-acts-as-pf3 (added in this PR: PF15 XCTLs back with the names set)"
+   },
+   {
+    "id": "f6f975a636",
+    "op": "DEL",
+    "line": 624,
+    "before": "d.setCdemoCustLname(Cobol.text(Field.alphanumeric(s, base + 93, 25, false), CS));",
+    "after": "/* d.setCdemoCustLname(Cobol.text(Field.alphanumeric(s, base + 93, 25, false), CS)); */",
+    "verdict": "case-gap",
+    "reason": "without fill_'s CDEMO-CUST-LNAME setter the XCTL COMMAREA (out_, PF3) lacks the last name it carries. Killed by scenario pf15-acts-as-pf3 (added in this PR: PF15 XCTLs back with the names set)"
+   },
+   {
+    "id": "3ebb615c29",
+    "op": "NEG",
+    "line": 658,
+    "before": "if (d == null) {",
+    "after": "if (!(d == null)) {",
+    "verdict": "case-gap",
+    "reason": "negated, in_ skips the program's own COMMAREA part (CA-FROM-PROGRAM, CA-FROM-TRANID), which MOVE DFHCOMMAREA(161:12) TO WS-THIS-PROGCOMMAREA carries into the RETURN COMMAREA. Killed by scenario full-commarea-carried (added in this PR: every COMMAREA field set, this program's part too)"
+   },
+   {
+    "id": "0f1b4f9e2d",
+    "op": "CON",
+    "line": 667,
+    "before": "d.setCaFromTranid(Cobol.text(Field.alphanumeric(s, base + 8, 4, false), CS));",
+    "after": "d.setCaFromTranid(Cobol.text(Field.alphanumeric(s, base + 8, 5, false), CS));",
+    "verdict": "equivalent",
+    "reason": "fill_ reads CA-FROM-TRANID as 5 bytes; the fifth is WS-COMMAREA's next byte, a space from INITIALIZE WS-COMMAREA, so the value gains a trailing space that a receiver's in_ drops moving it into the 4-byte field"
+   },
+   {
+    "id": "acf4cc59bf",
+    "op": "DEL",
+    "line": 695,
+    "before": "System.arraycopy(IMAGE_s_WS_THIS_PROGCOMMAREA, 0, s_WS_THIS_PROGCOMMAREA.bytes, 0, IMAGE_s_WS_THIS_PROGCOMMAREA.length);",
+    "after": "/* System.arraycopy(IMAGE_s_WS_THIS_PROGCOMMAREA, 0, s_WS_THIS_PROGCOMMAREA.bytes, 0, IMAGE_s_WS_THIS_PROGCOMMAREA.length); */",
+    "verdict": "equivalent",
+    "reason": "WS-THIS-PROGCOMMAREA's VALUE image: every task rewrites all 12 bytes first, by INITIALIZE (EIBCALEN = 0) or by MOVE DFHCOMMAREA(161:12)"
+   },
+   {
+    "id": "e09b4e5b49",
+    "op": "DEL",
+    "line": 704,
+    "before": "System.arraycopy(IMAGE_s_SEC_USER_DATA, 0, s_SEC_USER_DATA.bytes, 0, IMAGE_s_SEC_USER_DATA.length);",
+    "after": "/* System.arraycopy(IMAGE_s_SEC_USER_DATA, 0, s_SEC_USER_DATA.bytes, 0, IMAGE_s_SEC_USER_DATA.length); */",
+    "verdict": "equivalent",
+    "reason": "COCRDSLC never reads SEC-USER-DATA (it COPYs CSUSR01Y but names none of its fields), so its initial image cannot show"
+   },
+   {
+    "id": "7ef5c96007",
+    "op": "LIT",
+    "line": 720,
+    "before": "f56_LIT_MENUMAPSET = \"COMEN01\";",
+    "after": "f56_LIT_MENUMAPSET = \"XOMEN01\";",
+    "verdict": "equivalent",
+    "reason": "COCRDSLC never reads LIT-MENUMAPSET, so its VALUE cannot show"
+   },
+   {
+    "id": "64631a2a69",
+    "op": "LIT",
+    "line": 739,
+    "before": "f445_SEC_USR_PWD = \"        \";",
+    "after": "f445_SEC_USR_PWD = \"X       \";",
+    "verdict": "equivalent",
+    "reason": "COCRDSLC never reads SEC-USR-PWD, so its VALUE cannot show"
+   },
+   {
+    "id": "85213453b7",
+    "op": "LIT",
+    "line": 745,
+    "before": "f460_CUST_LAST_NAME = \"                         \";",
+    "after": "f460_CUST_LAST_NAME = \"X                        \";",
+    "verdict": "equivalent",
+    "reason": "COCRDSLC never reads CUST-LAST-NAME, so its VALUE cannot show"
+   },
+   {
+    "id": "971a28ddab",
+    "op": "AOR",
+    "line": 790,
+    "before": "Cobol.store(f479_EIBTIME, BigDecimal.valueOf(now.getHour() * 10000L + now.getMinute() * 100L + now.getSecond()), false, CS);",
+    "after": "Cobol.store(f479_EIBTIME, BigDecimal.valueOf(now.getHour() * 10000L - now.getMinute() * 100L + now.getSecond()), false, CS);",
+    "verdict": "equivalent",
+    "reason": "COCRDSLC never reads EIBTIME (the header time comes from FUNCTION CURRENT-DATE), so its value cannot show"
+   },
+   {
+    "id": "f9cc71a643",
+    "op": "LIT",
+    "line": 804,
+    "before": "case \"PF1\" -> Cobol.move(f182_DFHPF1, f487_EIBAID, CS);",
+    "after": "case \"XF1\" -> Cobol.move(f182_DFHPF1, f487_EIBAID, CS);",
+    "verdict": "equivalent",
+    "reason": "a PF1 key no longer sets EIBAID, which keeps its initial byte (DFHEIBLK's image: a space); YYYY-STORE-PFKEY maps it to no key, which, like PF1's PFK01, is invalid and handled as ENTER"
+   },
+   {
+    "id": "386dd54439",
+    "op": "DEL",
+    "line": 883,
+    "before": "super(null, null, false, false);",
+    "after": "/* super(null, null, false, false); */",
+    "verdict": "equivalent",
+    "reason": "Goback's constructor without super(null, null, false, false): the default constructor only also records a stack trace; nothing reads the exception but its type"
+   },
+   {
+    "id": "2d954cce94",
+    "op": "AOR",
+    "line": 943,
+    "before": "for (int d = mine - 1; d >= 0; d--) {",
+    "after": "for (int d = mine + 1; d >= 0; d--) {",
+    "verdict": "equivalent",
+    "reason": "the scan over outer PERFORMs starting at mine + 1: it also looks at this PERFORM's own end and one stale deeper entry; every PERFORM range in COCRDSLC ends at an -EXIT paragraph (even numbers 4-34, and 35), while the scan runs only after an odd-numbered paragraph returns inside its range, so no extra entry ever matches"
+   },
+   {
+    "id": "2a2d5d054f",
+    "op": "ROR",
+    "line": 955,
+    "before": "if (e.depth != mine) {",
+    "after": "if (e.depth == mine) {",
+    "verdict": "unreachable",
+    "reason": "PerformExit is thrown only when control reaches the end of an outer active PERFORM range from inside an inner one; COCRDSLC's ranges (n, n+1) never contain another range's end (see the scan), so this catch never runs"
+   },
+   {
+    "id": "e5a5eda49d",
+    "op": "DEL",
+    "line": 1015,
+    "before": "Cobol.moveFigurative(Figurative.SPACES, Field.alphanumeric(f61_CC_WORK_AREA.storage(), f61_CC_WORK_AREA.offset() + 102, 75, false), CS);",
+    "after": "/* Cobol.moveFigurative(Figurative.SPACES, Field.alphanumeric(f61_CC_WORK_AREA.storage(), f61_CC_WORK_AREA.offset() + 102, 75, false), CS); */",
+    "verdict": "equivalent",
+    "reason": "COCRDSLC never reads CCARD-RETURN-MSG (CC-WORK-AREA bytes 102-176), so its INITIALIZE cannot show"
+   },
+   {
+    "id": "8dd36ab697",
+    "op": "COR",
+    "line": 1048,
+    "before": "if ((Cobol.num(f486_EIBCALEN, CS).compareTo(D0) == 0 || (Cobol.compare(f77_CDEMO_FROM_PROGRAM, f54_LIT_MENUPGM, CS) == 0 && !(isCdemoPgmReenter())))) {",
+    "after": "if ((Cobol.num(f486_EIBCALEN, CS).compareTo(D0) == 0 && (Cobol.compare(f77_CDEMO_FROM_PROGRAM, f54_LIT_MENUPGM, CS) == 0 && !(isCdemoPgmReenter())))) {",
+    "verdict": "equivalent",
+    "reason": "`EIBCALEN = 0 AND (...)` for OR: the second operand reads CARDDEMO-COMMAREA before it is loaded -- still initialState's spaces -- so CDEMO-FROM-PROGRAM is never LIT-MENUPGM and only EIBCALEN = 0 decides. With no COMMAREA the mutant moves DFHCOMMAREA's image (spaces) where INITIALIZE writes spaces and zeros: the numeric fields read back as 0 either way (CDEMO-PGM-ENTER too), and the RETURN COMMAREA, a DTO, carries the same values"
+   },
+   {
+    "id": "983b449749",
+    "op": "CON",
+    "line": 1056,
+    "before": "Cobol.moveFigurative(Figurative.ZEROS, Field.zoned(f74_CARDDEMO_COMMAREA.storage(), f74_CARDDEMO_COMMAREA.offset() + 33, 1, 0, false, false, false), CS);",
+    "after": "Cobol.moveFigurative(Figurative.ZEROS, Field.zoned(f74_CARDDEMO_COMMAREA.storage(), f74_CARDDEMO_COMMAREA.offset() + 34, 1, 0, false, false, false), CS);",
+    "verdict": "equivalent",
+    "reason": "INITIALIZE CARDDEMO-COMMAREA zeroing CDEMO-PGM-CONTEXT one byte on: the zero lands on CDEMO-CUST-ID's first digit, which the next statement zeroes anyway, and PGM-CONTEXT keeps the image's space, which CDEMO-PGM-ENTER (VALUE 0) reads as 0; 1400-SEND-SCREEN sets it to 1 before the RETURN"
+   },
+   {
+    "id": "5d87a42bc4",
+    "op": "DEL",
+    "line": 1064,
+    "before": "Cobol.moveFigurative(Figurative.SPACES, Field.alphanumeric(f74_CARDDEMO_COMMAREA.storage(), f74_CARDDEMO_COMMAREA.offset() + 146, 7, false), CS);",
+    "after": "/* Cobol.moveFigurative(Figurative.SPACES, Field.alphanumeric(f74_CARDDEMO_COMMAREA.storage(), f74_CARDDEMO_COMMAREA.offset() + 146, 7, false), CS); */",
+    "verdict": "equivalent",
+    "reason": "INITIALIZE CARDDEMO-COMMAREA's CDEMO-LAST-MAP: in this branch CARDDEMO-COMMAREA still holds initialState's image, spaces there, the same INITIALIZE would write"
+   },
+   {
+    "id": "5cf49c07ed",
+    "op": "DEL",
+    "line": 1179,
+    "before": "perform(3, 4);",
+    "after": "/* perform(3, 4); */",
+    "verdict": "unreachable",
+    "reason": "the IF INPUT-ERROR after 0000-MAIN's EVALUATE: every WHEN ends in GO TO COMMON-RETURN, an XCTL, or SEND-PLAIN-TEXT's RETURN, so control never gets there"
+   },
+   {
+    "id": "8c30340b22",
+    "op": "COR",
+    "line": 1348,
+    "before": "if ((Cobol.compare(f95_CDEMO_LAST_MAPSET, f52_LIT_CCLISTMAPSET, CS) == 0 && Cobol.compare(f77_CDEMO_FROM_PROGRAM, f50_LIT_CCLISTPGM, CS) == 0)) {",
+    "after": "if ((Cobol.compare(f95_CDEMO_LAST_MAPSET, f52_LIT_CCLISTMAPSET, CS) == 0 || Cobol.compare(f77_CDEMO_FROM_PROGRAM, f50_LIT_CCLISTPGM, CS) == 0)) {",
+    "verdict": "case-gap",
+    "reason": "`LAST-MAPSET = COCRDLI OR FROM-PROGRAM = COCRDLIC` for AND: a COMMAREA with only one of the two gives the filters DFHDFCOL. Killed by scenario from-list-mapset-mismatch (added in this PR)"
+   },
+   {
+    "id": "fd57292793",
+    "op": "LIT",
+    "line": 1525,
+    "before": "if (typed6.get(\"FKEYS\") != null) {",
+    "after": "if (typed6.get(\"XKEYS\") != null) {",
+    "verdict": "unreachable",
+    "reason": "FKEYS is ATTRB=(ASKIP,NORM) without FSET (COCRDSL.bms): the terminal never sends it back, so RECEIVE never has it to store"
+   },
+   {
+    "id": "90dad9e27c",
+    "op": "DEL",
+    "line": 1553,
+    "before": "Cobol.moveFigurative(Figurative.LOW_VALUES, f68_CC_ACCT_ID, CS);",
+    "after": "/* Cobol.moveFigurative(Figurative.LOW_VALUES, f68_CC_ACCT_ID, CS); */",
+    "verdict": "equivalent",
+    "reason": "without MOVE LOW-VALUES TO CC-ACCT-ID ('*' or spaces in the filter) CC-ACCT-ID keeps the spaces INITIALIZE CC-WORK-AREA gave it, and 2210-EDIT-ACCOUNT treats LOW-VALUES and SPACES alike"
+   },
+   {
+    "id": "966f1e1162",
+    "op": "COR",
+    "line": 1559,
+    "before": "if ((Cobol.compare(f259_CARDSIDI, \"*\", CS) == 0 || Cobol.compareFigurative(f259_CARDSIDI, Figurative.SPACES, CS) == 0)) {",
+    "after": "if ((Cobol.compare(f259_CARDSIDI, \"*\", CS) == 0 && Cobol.compareFigurative(f259_CARDSIDI, Figurative.SPACES, CS) == 0)) {",
+    "verdict": "case-gap",
+    "reason": "`CARDSIDI = '*' AND = SPACES` for OR: '*' is then moved as the card number instead of LOW-VALUES. Killed by scenario card-filter-star (added in this PR)"
+   },
+   {
+    "id": "f18a6996af",
+    "op": "COR",
+    "line": 1589,
+    "before": "if (((Cobol.compareFigurative(f68_CC_ACCT_ID, Figurative.LOW_VALUES, CS) == 0 || Cobol.compareFigurative(f68_CC_ACCT_ID, Figurative.SPACES, CS) == 0) || Cobol.num(f69_CC_ACCT_ID_N, CS).compareTo(BigDecimal.ZERO) == 0)) {",
+    "after": "if (((Cobol.compareFigurative(f68_CC_ACCT_ID, Figurative.LOW_VALUES, CS) == 0 && Cobol.compareFigurative(f68_CC_ACCT_ID, Figurative.SPACES, CS) == 0) || Cobol.num(f69_CC_ACCT_ID_N, CS).compareTo(BigDecimal.ZERO) == 0)) {",
+    "verdict": "equivalent",
+    "reason": "`CC-ACCT-ID = LOW-VALUES AND = SPACES` for OR: for an all-LOW-VALUES or all-SPACES CC-ACCT-ID the numeric view CC-ACCT-ID-N reads 0 (each byte's digit nibble), so `CC-ACCT-ID-N = ZEROS`, the third operand, decides the IF the same way"
+   },
+   {
+    "id": "8ce81ebfa8",
+    "op": "COR",
+    "line": 1639,
+    "before": "if (((Cobol.compareFigurative(f70_CC_CARD_NUM, Figurative.LOW_VALUES, CS) == 0 || Cobol.compareFigurative(f70_CC_CARD_NUM, Figurative.SPACES, CS) == 0) || Cobol.num(f71_CC_CARD_NUM_N, CS).compareTo(BigDecimal.ZERO) == 0)) {",
+    "after": "if (((Cobol.compareFigurative(f70_CC_CARD_NUM, Figurative.LOW_VALUES, CS) == 0 && Cobol.compareFigurative(f70_CC_CARD_NUM, Figurative.SPACES, CS) == 0) || Cobol.num(f71_CC_CARD_NUM_N, CS).compareTo(BigDecimal.ZERO) == 0)) {",
+    "verdict": "equivalent",
+    "reason": "`CC-CARD-NUM = LOW-VALUES AND = SPACES` for OR: for an all-LOW-VALUES or all-SPACES CC-CARD-NUM the numeric view CC-CARD-NUM-N reads 0, so the third operand decides the IF the same way"
+   },
+   {
+    "id": "c875704254",
+    "op": "COR",
+    "line": 1639,
+    "before": "if (((Cobol.compareFigurative(f70_CC_CARD_NUM, Figurative.LOW_VALUES, CS) == 0 || Cobol.compareFigurative(f70_CC_CARD_NUM, Figurative.SPACES, CS) == 0) || Cobol.num(f71_CC_CARD_NUM_N, CS).compareTo(BigDecimal.ZERO) == 0)) {",
+    "after": "if (((Cobol.compareFigurative(f70_CC_CARD_NUM, Figurative.LOW_VALUES, CS) == 0 || Cobol.compareFigurative(f70_CC_CARD_NUM, Figurative.SPACES, CS) == 0) && Cobol.num(f71_CC_CARD_NUM_N, CS).compareTo(BigDecimal.ZERO) == 0)) {",
+    "verdict": "case-gap",
+    "reason": "`(LOW-VALUES OR SPACES) AND CC-CARD-NUM-N = ZEROS` for OR: a card filter of all zeros is no longer blank. Killed by scenario card-filter-zeros (added in this PR)"
+   },
+   {
+    "id": "063333a20e",
+    "op": "DEL",
+    "line": 1666,
+    "before": "Cobol.moveFigurative(Figurative.ZEROS, f92_CDEMO_CARD_NUM, CS);",
+    "after": "/* Cobol.moveFigurative(Figurative.ZEROS, f92_CDEMO_CARD_NUM, CS); */",
+    "verdict": "case-gap",
+    "reason": "without MOVE ZEROES TO CDEMO-CARD-NUM (card filter blank) the RETURN COMMAREA keeps the caller's card number. Killed by scenario full-commarea-carried (added in this PR: every COMMAREA field set, this program's part too)"
+   },
+   {
+    "id": "0741f43c6d",
+    "op": "CON",
+    "line": 1681,
+    "before": "return 23;",
+    "after": "return 24;",
+    "verdict": "equivalent",
+    "reason": "2220-EDIT-CARD-EXIT answering 24 instead of 23: it is the end of PERFORM 2220-EDIT-CARD THRU 2220-EDIT-CARD-EXIT, its only caller, which returns at it whatever it answers next"
+   },
+   {
+    "id": "ecc2e7651f",
+    "op": "DEL",
+    "line": 1792,
+    "before": "Cobol.move(f32_WS_FILE_ERROR_MESSAGE, f44_WS_RETURN_MSG, CS);",
+    "after": "/* Cobol.move(f32_WS_FILE_ERROR_MESSAGE, f44_WS_RETURN_MSG, CS); */",
+    "verdict": "unreachable",
+    "reason": "9150-GETCARD-BYACCT is never PERFORMed (9000-READ-DATA performs only 9100-GETCARD-BYACCTCARD)"
+   },
+   {
+    "id": "380661b26a",
+    "op": "CON",
+    "line": 1808,
+    "before": "Cobol.store(f507_EIBRESP, BigDecimal.valueOf(0), false, CS);",
+    "after": "Cobol.store(f507_EIBRESP, BigDecimal.valueOf(1), false, CS);",
+    "verdict": "unreachable",
+    "reason": "SEND-LONG-TEXT is never PERFORMed"
+   },
+   {
+    "id": "1726b8ffd0",
+    "op": "NEG",
+    "line": 1817,
+    "before": "if (true) throw new Goback();",
+    "after": "if (!(true)) throw new Goback();",
+    "verdict": "unreachable",
+    "reason": "SEND-LONG-TEXT is never PERFORMed"
+   },
+   {
+    "id": "4b4aff2722",
+    "op": "CON",
+    "line": 1832,
+    "before": "Cobol.store(f507_EIBRESP, BigDecimal.valueOf(0), false, CS);",
+    "after": "Cobol.store(f507_EIBRESP, BigDecimal.valueOf(1), false, CS);",
+    "verdict": "equivalent",
+    "reason": "COCRDSLC never reads EIBRESP, so its value cannot show"
+   },
+   {
+    "id": "8ce105cb69",
+    "op": "DEL",
+    "line": 1833,
+    "before": "Cobol.store(f508_EIBRESP2, BigDecimal.valueOf(0), false, CS);",
+    "after": "/* Cobol.store(f508_EIBRESP2, BigDecimal.valueOf(0), false, CS); */",
+    "verdict": "equivalent",
+    "reason": "COCRDSLC never reads EIBRESP2, so its value cannot show"
+   },
+   {
+    "id": "129672d8bd",
+    "op": "LIT",
+    "line": 1859,
+    "before": "Cobol.move(\"CLEAR\", f62_CCARD_AID, CS);",
+    "after": "Cobol.move(\"XLEAR\", f62_CCARD_AID, CS);",
+    "verdict": "equivalent",
+    "reason": "CCARD-AID 'XLEAR' for 'CLEAR': COCRDSLC tests CCARD-AID only for ENTER and PFK03, and every other value is handled as ENTER"
+   },
+   {
+    "id": "df8c999a50",
+    "op": "LIT",
+    "line": 1877,
+    "before": "Cobol.move(\"PFK04\", f62_CCARD_AID, CS);",
+    "after": "Cobol.move(\"XFK04\", f62_CCARD_AID, CS);",
+    "verdict": "equivalent",
+    "reason": "CCARD-AID 'XFK04' for 'PFK04': COCRDSLC tests CCARD-AID only for ENTER and PFK03, and every other value is handled as ENTER"
+   },
+   {
+    "id": "cddebb2e83",
+    "op": "ROR",
+    "line": 1881,
+    "before": "} else if ((Cobol.compare(f487_EIBAID, f187_DFHPF6, CS) == 0)) {",
+    "after": "} else if ((Cobol.compare(f487_EIBAID, f187_DFHPF6, CS) != 0)) {",
+    "verdict": "case-gap",
+    "reason": "CSSTRPFY maps PF13-PF24 to PFK01-PFK12, so PF15 is PFK03 (back to the caller); the mutated test, reached before PF15's own, catches PF15 and maps it to an invalid key, which COCRDSLC treats as ENTER. Killed by scenario pf15-acts-as-pf3 (added in this PR)"
+   },
+   {
+    "id": "dc242ed93d",
+    "op": "ROR",
+    "line": 1884,
+    "before": "} else if ((Cobol.compare(f487_EIBAID, f188_DFHPF7, CS) == 0)) {",
+    "after": "} else if ((Cobol.compare(f487_EIBAID, f188_DFHPF7, CS) != 0)) {",
+    "verdict": "case-gap",
+    "reason": "CSSTRPFY maps PF13-PF24 to PFK01-PFK12, so PF15 is PFK03 (back to the caller); the mutated test, reached before PF15's own, catches PF15 and maps it to an invalid key, which COCRDSLC treats as ENTER. Killed by scenario pf15-acts-as-pf3 (added in this PR)"
+   },
+   {
+    "id": "ac97d8d72d",
+    "op": "ROR",
+    "line": 1902,
+    "before": "} else if ((Cobol.compare(f487_EIBAID, f194_DFHPF13, CS) == 0)) {",
+    "after": "} else if ((Cobol.compare(f487_EIBAID, f194_DFHPF13, CS) != 0)) {",
+    "verdict": "case-gap",
+    "reason": "CSSTRPFY maps PF13-PF24 to PFK01-PFK12, so PF15 is PFK03 (back to the caller); the mutated test, reached before PF15's own, catches PF15 and maps it to an invalid key, which COCRDSLC treats as ENTER. Killed by scenario pf15-acts-as-pf3 (added in this PR)"
+   },
+   {
+    "id": "a5368ee095",
+    "op": "NEG",
+    "line": 1905,
+    "before": "} else if ((Cobol.compare(f487_EIBAID, f195_DFHPF14, CS) == 0)) {",
+    "after": "} else if (!((Cobol.compare(f487_EIBAID, f195_DFHPF14, CS) == 0))) {",
+    "verdict": "case-gap",
+    "reason": "CSSTRPFY maps PF13-PF24 to PFK01-PFK12, so PF15 is PFK03 (back to the caller); the mutated test, reached before PF15's own, catches PF15 and maps it to an invalid key, which COCRDSLC treats as ENTER. Killed by scenario pf15-acts-as-pf3 (added in this PR)"
+   },
+   {
+    "id": "49354ea90d",
+    "op": "ROR",
+    "line": 1914,
+    "before": "} else if ((Cobol.compare(f487_EIBAID, f198_DFHPF17, CS) == 0)) {",
+    "after": "} else if ((Cobol.compare(f487_EIBAID, f198_DFHPF17, CS) != 0)) {",
+    "verdict": "equivalent",
+    "reason": "the keys tested after this one (up to PF24) all map to keys COCRDSLC treats as invalid (anything but ENTER and PFK03, which were matched earlier), and the mutant maps them to another invalid key: every invalid key is handled as ENTER"
+   },
+   {
+    "id": "7c31b5108f",
+    "op": "ROR",
+    "line": 1920,
+    "before": "} else if ((Cobol.compare(f487_EIBAID, f200_DFHPF19, CS) == 0)) {",
+    "after": "} else if ((Cobol.compare(f487_EIBAID, f200_DFHPF19, CS) != 0)) {",
+    "verdict": "equivalent",
+    "reason": "the keys tested after this one (up to PF24) all map to keys COCRDSLC treats as invalid (anything but ENTER and PFK03, which were matched earlier), and the mutant maps them to another invalid key: every invalid key is handled as ENTER"
+   },
+   {
+    "id": "7a175a8545",
+    "op": "CON",
+    "line": 1981,
+    "before": "private boolean isPfkInvalid() { return Cobol.compare(f10_WS_PFK_FLAG, \"1\", CS) == 0; }",
+    "after": "private boolean isPfkInvalid() { return Cobol.compare(f10_WS_PFK_FLAG, \"1\", CS) == 1; }",
+    "verdict": "equivalent",
+    "reason": "PFK-INVALID never true: COCRDSLC then leaves an invalid key's CCARD-AID as mapped instead of setting CCARD-AID-ENTER, but nothing reads CCARD-AID-ENTER afterwards -- 0000-MAIN's EVALUATE tests CCARD-AID-PFK03 and the program context only"
+   }
+  ],
   "carddemo-signon": [
    {
     "id": "98968fd242",
@@ -1786,6 +2292,521 @@
     "after": "f6_WS_ERR_FLG = \"X\";",
     "verdict": "equivalent",
     "reason": "the 'Y' written on 'User not found' is never tested in this task (ERR-FLG-ON is read before READ-USER-SEC-FILE), and the next task starts from initialState's 'N'"
+   }
+  ],
+  "carddemo-tranadd": [
+   {
+    "id": "ee4715d21b",
+    "op": "LIT",
+    "line": 71,
+    "before": "\"MDAwMDAwMDAwMDAgMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAg\"));",
+    "after": "\"XDAwMDAwMDAwMDAgMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAg\"));",
+    "verdict": "equivalent",
+    "reason": "COTRN02C never reads ACCOUNT-RECORD (it COPYs CVACT01Y but names none of its fields), so its initial image cannot show"
+   },
+   {
+    "id": "24b2781fd7",
+    "op": "LIT",
+    "line": 83,
+    "before": "\"ICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAg\",",
+    "after": "\"XCAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAg\",",
+    "verdict": "equivalent",
+    "reason": "IMAGE of DFHCOMMAREA (a later chunk): COTRN02C reads DFHCOMMAREA only as DFHCOMMAREA(1:EIBCALEN), at most the 218 bytes of its COMMAREA, which in_ writes from the caller's COMMAREA first; this byte of the 32767-byte image lies past them, and for a terminal task the area's final contents are not observable (CICS discards them; linked_result drops them)"
+   },
+   {
+    "id": "ab0b9b4ef7",
+    "op": "LIT",
+    "line": 101,
+    "before": "\"ICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAg\",",
+    "after": "\"XCAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAg\",",
+    "verdict": "equivalent",
+    "reason": "IMAGE of DFHCOMMAREA (a later chunk): COTRN02C reads DFHCOMMAREA only as DFHCOMMAREA(1:EIBCALEN), at most the 218 bytes of its COMMAREA, which in_ writes from the caller's COMMAREA first; this byte of the 32767-byte image lies past them, and for a terminal task the area's final contents are not observable (CICS discards them; linked_result drops them)"
+   },
+   {
+    "id": "f7553fd483",
+    "op": "LIT",
+    "line": 158,
+    "before": "\"ICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAg\",",
+    "after": "\"XCAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAg\",",
+    "verdict": "equivalent",
+    "reason": "IMAGE of DFHCOMMAREA (a later chunk): COTRN02C reads DFHCOMMAREA only as DFHCOMMAREA(1:EIBCALEN), at most the 218 bytes of its COMMAREA, which in_ writes from the caller's COMMAREA first; this byte of the 32767-byte image lies past them, and for a terminal task the area's final contents are not observable (CICS discards them; linked_result drops them)"
+   },
+   {
+    "id": "dd05f82a14",
+    "op": "LIT",
+    "line": 162,
+    "before": "\"ICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAg\",",
+    "after": "\"XCAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAg\",",
+    "verdict": "equivalent",
+    "reason": "IMAGE of DFHCOMMAREA (a later chunk): COTRN02C reads DFHCOMMAREA only as DFHCOMMAREA(1:EIBCALEN), at most the 218 bytes of its COMMAREA, which in_ writes from the caller's COMMAREA first; this byte of the 32767-byte image lies past them, and for a terminal task the area's final contents are not observable (CICS discards them; linked_result drops them)"
+   },
+   {
+    "id": "59c7f606aa",
+    "op": "LIT",
+    "line": 170,
+    "before": "\"ICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAg\",",
+    "after": "\"XCAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAg\",",
+    "verdict": "equivalent",
+    "reason": "IMAGE of DFHCOMMAREA (a later chunk): COTRN02C reads DFHCOMMAREA only as DFHCOMMAREA(1:EIBCALEN), at most the 218 bytes of its COMMAREA, which in_ writes from the caller's COMMAREA first; this byte of the 32767-byte image lies past them, and for a terminal task the area's final contents are not observable (CICS discards them; linked_result drops them)"
+   },
+   {
+    "id": "9421444cca",
+    "op": "LIT",
+    "line": 177,
+    "before": "\"ICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAg\",",
+    "after": "\"XCAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAg\",",
+    "verdict": "equivalent",
+    "reason": "IMAGE of DFHCOMMAREA (a later chunk): COTRN02C reads DFHCOMMAREA only as DFHCOMMAREA(1:EIBCALEN), at most the 218 bytes of its COMMAREA, which in_ writes from the caller's COMMAREA first; this byte of the 32767-byte image lies past them, and for a terminal task the area's final contents are not observable (CICS discards them; linked_result drops them)"
+   },
+   {
+    "id": "023304858c",
+    "op": "CON",
+    "line": 306,
+    "before": "private final Field f215_TITLE02H = Field.alphanumeric(s_COTRN2AI, 105, 1, false);",
+    "after": "private final Field f215_TITLE02H = Field.alphanumeric(s_COTRN2AI, 106, 1, false);",
+    "verdict": "equivalent",
+    "reason": "every SEND MAP follows MOVE LOW-VALUES TO COTRN2AO or RECEIVE MAP's clear of COTRN2AI (the same storage), and COTRN02C writes no attribute, colour or highlight byte; TITLE02H read one byte on (TITLE02V): both low-values, so subfields sends no highlight either way"
+   },
+   {
+    "id": "d5ac06e1f0",
+    "op": "CON",
+    "line": 327,
+    "before": "private final Field f257_TDESCH = Field.alphanumeric(s_COTRN2AI, 245, 1, false);",
+    "after": "private final Field f257_TDESCH = Field.alphanumeric(s_COTRN2AI, 246, 1, false);",
+    "verdict": "equivalent",
+    "reason": "every SEND MAP follows MOVE LOW-VALUES TO COTRN2AO or RECEIVE MAP's clear of COTRN2AI (the same storage), and COTRN02C writes no attribute, colour or highlight byte; TDESCH read one byte on (TDESCV): both low-values, so subfields sends no highlight either way"
+   },
+   {
+    "id": "3f7edc7a66",
+    "op": "CON",
+    "line": 371,
+    "before": "private final Field f360_TRAN_RECORD = Field.group(s_TRAN_RECORD, 0, 350);",
+    "after": "private final Field f360_TRAN_RECORD = Field.group(s_TRAN_RECORD, 0, 351);",
+    "verdict": "equivalent",
+    "reason": "TRAN-RECORD as a 351-byte group is used only as READPREV's INTO, which takes the 350-byte record; the WRITE takes LENGTH OF TRAN-RECORD as the constant 350"
+   },
+   {
+    "id": "4fc85e7957",
+    "op": "CON",
+    "line": 393,
+    "before": "private final Field f400_DFHOPID = Field.alphanumeric(s_DFHAID, 5, 1, false);",
+    "after": "private final Field f400_DFHOPID = Field.alphanumeric(s_DFHAID, 5, 2, false);",
+    "verdict": "equivalent",
+    "reason": "DFHOPID as 2 bytes: it is only moved into EIBAID (1 byte), which keeps DFHOPID's own"
+   },
+   {
+    "id": "a23511d212",
+    "op": "CON",
+    "line": 401,
+    "before": "private final Field f408_DFHPF2 = Field.alphanumeric(s_DFHAID, 13, 1, false);",
+    "after": "private final Field f408_DFHPF2 = Field.alphanumeric(s_DFHAID, 13, 2, false);",
+    "verdict": "equivalent",
+    "reason": "DFHPF2 as 2 bytes: it is only moved into EIBAID (1 byte), which keeps DFHPF2's own"
+   },
+   {
+    "id": "2ea5ea5c4c",
+    "op": "CON",
+    "line": 429,
+    "before": "private final Field f505_EIBTASKN = Field.packed(s_DFHEIBLK, 12, 7, 0, true);",
+    "after": "private final Field f505_EIBTASKN = Field.packed(s_DFHEIBLK, 12, 8, 0, true);",
+    "verdict": "equivalent",
+    "reason": "COTRN02C never reads the EIB's date, time, task number or response fields (the header date and time come from FUNCTION CURRENT-DATE), so EIBTASKN's width (the 8th digit spills into EIBTRMID's first byte, also never read) cannot show"
+   },
+   {
+    "id": "231959b892",
+    "op": "CON",
+    "line": 433,
+    "before": "private final Field f530_EIBRESP = Field.binary(s_DFHEIBLK, 76, 8, 0, true, false);",
+    "after": "private final Field f530_EIBRESP = Field.binary(s_DFHEIBLK, 77, 8, 0, true, false);",
+    "verdict": "equivalent",
+    "reason": "COTRN02C never reads the EIB's date, time, task number or response fields (the header date and time come from FUNCTION CURRENT-DATE), so EIBRESP's offset cannot show"
+   },
+   {
+    "id": "a47a835e6b",
+    "op": "NEG",
+    "line": 491,
+    "before": "if (task.level() > 1) {",
+    "after": "if (!(task.level() > 1)) {",
+    "verdict": "equivalent",
+    "reason": "abended() runs caBack only for a LINKed task (level > 1); COTRN02C runs as a terminal task (level 1), whose COMMAREA object is not observable (CICS discards it; linked_result drops it)"
+   },
+   {
+    "id": "4b53636799",
+    "op": "CON",
+    "line": 502,
+    "before": "case \"TRANSACT\" -> new DetCics.Store<TranRecord>(tranRecordRepository::findAll, e -> e.toRecord(CS), b -> TranRecord.fromRecord(b, CS), e -> task.write(\"TRANSACT\", () -> tranRecordRepository.save(e)), e -> task.write(\"TRANSACT\", () -> tranRecordRepository.delete(e)), 0, 16, CS).withFindById(rec -> tranRecordRepository.findById(id_TranRecord(rec)));",
+    "after": "case \"TRANSACT\" -> new DetCics.Store<TranRecord>(tranRecordRepository::findAll, e -> e.toRecord(CS), b -> TranRecord.fromRecord(b, CS), e -> task.write(\"TRANSACT\", () -> tranRecordRepository.save(e)), e -> task.write(\"TRANSACT\", () -> tranRecordRepository.delete(e)), 0, 17, CS).withFindById(rec -> tranRecordRepository.findById(id_TranRecord(rec)));",
+    "verdict": "equivalent",
+    "reason": "the TRANSACT store keyed on 17 bytes instead of 16: TRAN-ID, the first 16, is unique in the file, so the 17th byte (TRAN-TYPE-CD's first) never decides a match or an order, and the browse starts at HIGH-VALUES"
+   },
+   {
+    "id": "4bd49f585b",
+    "op": "CON",
+    "line": 514,
+    "before": "java.util.Map.entry(\"READ-CCXREF-FILE\", 11),",
+    "after": "java.util.Map.entry(\"READ-CCXREF-FILE\", 12),",
+    "verdict": "unreachable",
+    "reason": "PARAGRAPHS is read only by paragraph(), for a HANDLE ABEND label (task.abendOnCondition); COTRN02C issues no HANDLE"
+   },
+   {
+    "id": "9d24125a80",
+    "op": "NEG",
+    "line": 530,
+    "before": "if (i == null) {",
+    "after": "if (!(i == null)) {",
+    "verdict": "unreachable",
+    "reason": "paragraph() is called only from condition() for a HANDLE ABEND label; COTRN02C issues no HANDLE"
+   },
+   {
+    "id": "9ea4870dfa",
+    "op": "ROR",
+    "line": 530,
+    "before": "if (i == null) {",
+    "after": "if (i != null) {",
+    "verdict": "unreachable",
+    "reason": "paragraph() is called only from condition() for a HANDLE ABEND label; COTRN02C issues no HANDLE"
+   },
+   {
+    "id": "728d7c4bd7",
+    "op": "ROR",
+    "line": 543,
+    "before": "if (h != null) {",
+    "after": "if (h == null) {",
+    "verdict": "case-gap",
+    "reason": "condition() after a failed XCTL in RETURN-TO-PREV-SCREEN (no HANDLE: the task abends) -- flipped, it returns the missing handler (null). A PF3 scenario whose XCTL fails with PGMIDERR kills it on the det port, but the committed model port RETURNs instead of abending there (tried in this PR, left out until the model port is fixed: #4648)"
+   },
+   {
+    "id": "220a8fd119",
+    "op": "NEG",
+    "line": 554,
+    "before": "if (label == null) {",
+    "after": "if (!(label == null)) {",
+    "verdict": "case-gap",
+    "reason": "condition() after a failed XCTL in RETURN-TO-PREV-SCREEN (no HANDLE: the task abends) -- negated, paragraph(null) instead of the abend. A PF3 scenario whose XCTL fails with PGMIDERR kills it on the det port, but the committed model port RETURNs instead of abending there (tried in this PR, left out until the model port is fixed: #4648)"
+   },
+   {
+    "id": "fdd3130e82",
+    "op": "ROR",
+    "line": 554,
+    "before": "if (label == null) {",
+    "after": "if (label != null) {",
+    "verdict": "case-gap",
+    "reason": "condition() after a failed XCTL in RETURN-TO-PREV-SCREEN (no HANDLE: the task abends) -- flipped, paragraph(null) instead of the abend. A PF3 scenario whose XCTL fails with PGMIDERR kills it on the det port, but the committed model port RETURNs instead of abending there (tried in this PR, left out until the model port is fixed: #4648)"
+   },
+   {
+    "id": "d7391abd3f",
+    "op": "ROR",
+    "line": 577,
+    "before": "Cobol.move(d.getCdemoCustMname() == null ? \"\" : d.getCdemoCustMname(), Field.alphanumeric(s, base + 68, 25, false), CS);",
+    "after": "Cobol.move(d.getCdemoCustMname() != null ? \"\" : d.getCdemoCustMname(), Field.alphanumeric(s, base + 68, 25, false), CS);",
+    "verdict": "case-gap",
+    "reason": "in_ moves '' instead of the caller's CDEMO-CUST-MNAME, which the RETURN COMMAREA carries. Killed by scenario full-commarea-carried (added in this PR: every COMMAREA field set, the CT02 part too)"
+   },
+   {
+    "id": "cfadb2cff0",
+    "op": "AOR",
+    "line": 593,
+    "before": "d.setCdemoFromTranid(Cobol.text(Field.alphanumeric(s, base + 0, 4, false), CS));",
+    "after": "d.setCdemoFromTranid(Cobol.text(Field.alphanumeric(s, base - 0, 4, false), CS));",
+    "verdict": "equivalent",
+    "reason": "`base - 0` for `base + 0`: the same offset"
+   },
+   {
+    "id": "af5725a32e",
+    "op": "DEL",
+    "line": 601,
+    "before": "d.setCdemoCustFname(Cobol.text(Field.alphanumeric(s, base + 43, 25, false), CS));",
+    "after": "/* d.setCdemoCustFname(Cobol.text(Field.alphanumeric(s, base + 43, 25, false), CS)); */",
+    "verdict": "case-gap",
+    "reason": "without fill_'s CDEMO-CUST-FNAME setter the RETURN COMMAREA lacks the first name it carries. Killed by scenario full-commarea-carried (added in this PR: every COMMAREA field set, the CT02 part too)"
+   },
+   {
+    "id": "a7797d5d5a",
+    "op": "DEL",
+    "line": 613,
+    "before": "d.setCdemoCt02TrnSelFlg(Cobol.text(Field.alphanumeric(s, base + 201, 1, false), CS));",
+    "after": "/* d.setCdemoCt02TrnSelFlg(Cobol.text(Field.alphanumeric(s, base + 201, 1, false), CS)); */",
+    "verdict": "case-gap",
+    "reason": "without fill_'s CDEMO-CT02-TRN-SEL-FLG setter the RETURN COMMAREA lacks the flag it carries. Killed by scenario full-commarea-carried (added in this PR: every COMMAREA field set, the CT02 part too)"
+   },
+   {
+    "id": "f2dbf084f0",
+    "op": "DEL",
+    "line": 645,
+    "before": "System.arraycopy(IMAGE_s_COTRN2AI, 0, s_COTRN2AI.bytes, 0, IMAGE_s_COTRN2AI.length);",
+    "after": "/* System.arraycopy(IMAGE_s_COTRN2AI, 0, s_COTRN2AI.bytes, 0, IMAGE_s_COTRN2AI.length); */",
+    "verdict": "equivalent",
+    "reason": "every SEND MAP follows MOVE LOW-VALUES TO COTRN2AO or RECEIVE MAP's clear of COTRN2AI (the same storage), and COTRN02C writes no attribute, colour or highlight byte; COTRN2AI's VALUE image is never read or sent: the first entry moves LOW-VALUES over it, a re-entered task RECEIVEs (clears) first, and with no COMMAREA the program XCTLs away"
+   },
+   {
+    "id": "c5209b8b19",
+    "op": "AOR",
+    "line": 722,
+    "before": "Cobol.store(f503_EIBDATE, BigDecimal.valueOf((now.getYear() - 1900) * 1000L + now.getDayOfYear()), false, CS);",
+    "after": "Cobol.store(f503_EIBDATE, BigDecimal.valueOf((now.getYear() - 1900) / 1000L + now.getDayOfYear()), false, CS);",
+    "verdict": "equivalent",
+    "reason": "COTRN02C never reads the EIB's date, time, task number or response fields (the header date and time come from FUNCTION CURRENT-DATE), so EIBDATE cannot show"
+   },
+   {
+    "id": "64d9c723cc",
+    "op": "AOR",
+    "line": 723,
+    "before": "Cobol.store(f502_EIBTIME, BigDecimal.valueOf(now.getHour() * 10000L + now.getMinute() * 100L + now.getSecond()), false, CS);",
+    "after": "Cobol.store(f502_EIBTIME, BigDecimal.valueOf(now.getHour() * 10000L + now.getMinute() * 100L - now.getSecond()), false, CS);",
+    "verdict": "equivalent",
+    "reason": "COTRN02C never reads the EIB's date, time, task number or response fields (the header date and time come from FUNCTION CURRENT-DATE), so EIBTIME cannot show"
+   },
+   {
+    "id": "cb7db901b8",
+    "op": "AOR",
+    "line": 723,
+    "before": "Cobol.store(f502_EIBTIME, BigDecimal.valueOf(now.getHour() * 10000L + now.getMinute() * 100L + now.getSecond()), false, CS);",
+    "after": "Cobol.store(f502_EIBTIME, BigDecimal.valueOf(now.getHour() * 10000L - now.getMinute() * 100L + now.getSecond()), false, CS);",
+    "verdict": "equivalent",
+    "reason": "COTRN02C never reads the EIB's date, time, task number or response fields (the header date and time come from FUNCTION CURRENT-DATE), so EIBTIME cannot show"
+   },
+   {
+    "id": "77b186471d",
+    "op": "LIT",
+    "line": 747,
+    "before": "case \"PF11\" -> Cobol.move(f417_DFHPF11, f510_EIBAID, CS);",
+    "after": "case \"XF11\" -> Cobol.move(f417_DFHPF11, f510_EIBAID, CS);",
+    "verdict": "equivalent",
+    "reason": "a PF11 key no longer sets EIBAID, which keeps its initial byte (DFHEIBLK's image: a space); COTRN02C tests no key a space matches, so it takes WHEN OTHER exactly as PF11 does"
+   },
+   {
+    "id": "4f84c957d3",
+    "op": "AOR",
+    "line": 872,
+    "before": "for (int d = mine - 1; d >= 0; d--) {",
+    "after": "for (int d = mine + 1; d >= 0; d--) {",
+    "verdict": "unreachable",
+    "reason": "perform() reaches this only after a paragraph that is not its range's last returns; COTRN02C's PERFORMs each name one paragraph (from == thru) and MAIN-PARA (runTask's 0-17) always ends in RETURN / XCTL / an abend, so the scan over outer PERFORMs never runs"
+   },
+   {
+    "id": "1c5275a980",
+    "op": "NEG",
+    "line": 884,
+    "before": "if (e.depth != mine) {",
+    "after": "if (!(e.depth != mine)) {",
+    "verdict": "unreachable",
+    "reason": "perform() reaches this only after a paragraph that is not its range's last returns; COTRN02C's PERFORMs each name one paragraph (from == thru) and MAIN-PARA (runTask's 0-17) always ends in RETURN / XCTL / an abend, so no PerformExit is ever thrown, and this catch never runs"
+   },
+   {
+    "id": "514d23c96e",
+    "op": "DEL",
+    "line": 987,
+    "before": "task.returnTransid(f3_WS_TRANID.strip(), out_Cotrn02cCarddemoCommarea(f29_CARDDEMO_COMMAREA.storage(), f29_CARDDEMO_COMMAREA.offset()), null);",
+    "after": "/* task.returnTransid(f3_WS_TRANID.strip(), out_Cotrn02cCarddemoCommarea(f29_CARDDEMO_COMMAREA.storage(), f29_CARDDEMO_COMMAREA.offset()), null); */",
+    "verdict": "unreachable",
+    "reason": "MAIN-PARA's own RETURN: every path before it ends the task first -- RETURN-TO-PREV-SCREEN's XCTL, or SEND-TRNADD-SCREEN, which every other path PERFORMs and which ends with EXEC CICS RETURN"
+   },
+   {
+    "id": "1eb979bb10",
+    "op": "LIT",
+    "line": 1004,
+    "before": "f9_WS_ERR_FLG = \"Y\";",
+    "after": "f9_WS_ERR_FLG = \"X\";",
+    "verdict": "equivalent",
+    "reason": "SEND-TRNADD-SCREEN ends with EXEC CICS RETURN, so every statement that sets WS-ERR-FLG to 'Y' is followed, through PERFORM SEND-TRNADD-SCREEN, by the end of the task: this 'X' (for 'Y') is never tested"
+   },
+   {
+    "id": "99cdc6c835",
+    "op": "DEL",
+    "line": 1098,
+    "before": "Cobol.moveFigurative(Figurative.SPACES, f167_MCITYI, CS);",
+    "after": "/* Cobol.moveFigurative(Figurative.SPACES, f167_MCITYI, CS); */",
+    "verdict": "unreachable",
+    "reason": "SEND-TRNADD-SCREEN ends with EXEC CICS RETURN, so every statement that sets WS-ERR-FLG to 'Y' is followed, through PERFORM SEND-TRNADD-SCREEN, by the end of the task: WS-ERR-FLG is never 'Y' when VALIDATE-INPUT-DATA-FIELDS starts, and the IF ERR-FLG-ON block's MOVEs never run"
+   },
+   {
+    "id": "ec51f7504f",
+    "op": "CON",
+    "line": 1137,
+    "before": "perform(7, 7);",
+    "after": "perform(7, 8);",
+    "verdict": "equivalent",
+    "reason": "PERFORM SEND-TRNADD-SCREEN THRU RECEIVE-TRNADD-SCREEN: SEND-TRNADD-SCREEN ends with EXEC CICS RETURN, so the range end is never reached"
+   },
+   {
+    "id": "d5863e6065",
+    "op": "COR",
+    "line": 1227,
+    "before": "if (((!(Cobol.compare(f137_TRNAMTI.ref(1, Integer.valueOf(1)), \"-\", CS) == 0) && !(Cobol.compare(f137_TRNAMTI.ref(1, Integer.valueOf(1)), \"+\", CS) == 0))) || (!(Cobol.isNumeric(f137_TRNAMTI.ref(2, Integer.valueOf(8)), CS))) || (!(Cobol.compare(f137_TRNAMTI.ref(10, Integer.valueOf(1)), \".\", CS) == 0)) || (!(Cobol.isNumeric(f137_TRNAMTI.ref(11, Integer.valueOf(2)), CS)))) {",
+    "after": "if (((!(Cobol.compare(f137_TRNAMTI.ref(1, Integer.valueOf(1)), \"-\", CS) == 0) && !(Cobol.compare(f137_TRNAMTI.ref(1, Integer.valueOf(1)), \"+\", CS) == 0))) && (!(Cobol.isNumeric(f137_TRNAMTI.ref(2, Integer.valueOf(8)), CS))) || (!(Cobol.compare(f137_TRNAMTI.ref(10, Integer.valueOf(1)), \".\", CS) == 0)) || (!(Cobol.isNumeric(f137_TRNAMTI.ref(11, Integer.valueOf(2)), CS)))) {",
+    "verdict": "case-gap",
+    "reason": "the amount format's first two WHENs joined by AND: an amount starting with a digit but otherwise well formed passes. Killed by scenario amount-without-sign (added in this PR)"
+   },
+   {
+    "id": "7cb3f8d874",
+    "op": "COR",
+    "line": 1240,
+    "before": "if ((!(Cobol.isNumeric(f143_TORIGDTI.ref(1, Integer.valueOf(4)), CS))) || (!(Cobol.compare(f143_TORIGDTI.ref(5, Integer.valueOf(1)), \"-\", CS) == 0)) || (!(Cobol.isNumeric(f143_TORIGDTI.ref(6, Integer.valueOf(2)), CS))) || (!(Cobol.compare(f143_TORIGDTI.ref(8, Integer.valueOf(1)), \"-\", CS) == 0)) || (!(Cobol.isNumeric(f143_TORIGDTI.ref(9, Integer.valueOf(2)), CS)))) {",
+    "after": "if ((!(Cobol.isNumeric(f143_TORIGDTI.ref(1, Integer.valueOf(4)), CS))) || (!(Cobol.compare(f143_TORIGDTI.ref(5, Integer.valueOf(1)), \"-\", CS) == 0)) || (!(Cobol.isNumeric(f143_TORIGDTI.ref(6, Integer.valueOf(2)), CS))) || (!(Cobol.compare(f143_TORIGDTI.ref(8, Integer.valueOf(1)), \"-\", CS) == 0)) && (!(Cobol.isNumeric(f143_TORIGDTI.ref(9, Integer.valueOf(2)), CS)))) {",
+    "verdict": "case-gap",
+    "reason": "the date format's second-separator and day WHENs joined by AND: a wrong second separator passes. Killed by scenario orig-date-second-separator (added in this PR)"
+   },
+   {
+    "id": "ce770f7e9f",
+    "op": "COR",
+    "line": 1240,
+    "before": "if ((!(Cobol.isNumeric(f143_TORIGDTI.ref(1, Integer.valueOf(4)), CS))) || (!(Cobol.compare(f143_TORIGDTI.ref(5, Integer.valueOf(1)), \"-\", CS) == 0)) || (!(Cobol.isNumeric(f143_TORIGDTI.ref(6, Integer.valueOf(2)), CS))) || (!(Cobol.compare(f143_TORIGDTI.ref(8, Integer.valueOf(1)), \"-\", CS) == 0)) || (!(Cobol.isNumeric(f143_TORIGDTI.ref(9, Integer.valueOf(2)), CS)))) {",
+    "after": "if ((!(Cobol.isNumeric(f143_TORIGDTI.ref(1, Integer.valueOf(4)), CS))) && (!(Cobol.compare(f143_TORIGDTI.ref(5, Integer.valueOf(1)), \"-\", CS) == 0)) || (!(Cobol.isNumeric(f143_TORIGDTI.ref(6, Integer.valueOf(2)), CS))) || (!(Cobol.compare(f143_TORIGDTI.ref(8, Integer.valueOf(1)), \"-\", CS) == 0)) || (!(Cobol.isNumeric(f143_TORIGDTI.ref(9, Integer.valueOf(2)), CS)))) {",
+    "verdict": "case-gap",
+    "reason": "the date format's year and first-separator WHENs joined by AND: a year that is not numeric passes. Killed by scenario orig-date-year-not-numeric (added in this PR)"
+   },
+   {
+    "id": "d7bff16b42",
+    "op": "NEG",
+    "line": 1249,
+    "before": "} else if (true) {",
+    "after": "} else if (!(true)) {",
+    "verdict": "equivalent",
+    "reason": "WHEN OTHER's CONTINUE negated: the branch does nothing either way"
+   },
+   {
+    "id": "39920e8785",
+    "op": "COR",
+    "line": 1253,
+    "before": "if ((!(Cobol.isNumeric(f149_TPROCDTI.ref(1, Integer.valueOf(4)), CS))) || (!(Cobol.compare(f149_TPROCDTI.ref(5, Integer.valueOf(1)), \"-\", CS) == 0)) || (!(Cobol.isNumeric(f149_TPROCDTI.ref(6, Integer.valueOf(2)), CS))) || (!(Cobol.compare(f149_TPROCDTI.ref(8, Integer.valueOf(1)), \"-\", CS) == 0)) || (!(Cobol.isNumeric(f149_TPROCDTI.ref(9, Integer.valueOf(2)), CS)))) {",
+    "after": "if ((!(Cobol.isNumeric(f149_TPROCDTI.ref(1, Integer.valueOf(4)), CS))) || (!(Cobol.compare(f149_TPROCDTI.ref(5, Integer.valueOf(1)), \"-\", CS) == 0)) || (!(Cobol.isNumeric(f149_TPROCDTI.ref(6, Integer.valueOf(2)), CS))) && (!(Cobol.compare(f149_TPROCDTI.ref(8, Integer.valueOf(1)), \"-\", CS) == 0)) || (!(Cobol.isNumeric(f149_TPROCDTI.ref(9, Integer.valueOf(2)), CS)))) {",
+    "verdict": "case-gap",
+    "reason": "the proc date's month and second-separator WHENs joined by AND: a month that is not numeric passes. Killed by scenario proc-date-month-not-numeric (added in this PR)"
+   },
+   {
+    "id": "7933f2fe83",
+    "op": "COR",
+    "line": 1253,
+    "before": "if ((!(Cobol.isNumeric(f149_TPROCDTI.ref(1, Integer.valueOf(4)), CS))) || (!(Cobol.compare(f149_TPROCDTI.ref(5, Integer.valueOf(1)), \"-\", CS) == 0)) || (!(Cobol.isNumeric(f149_TPROCDTI.ref(6, Integer.valueOf(2)), CS))) || (!(Cobol.compare(f149_TPROCDTI.ref(8, Integer.valueOf(1)), \"-\", CS) == 0)) || (!(Cobol.isNumeric(f149_TPROCDTI.ref(9, Integer.valueOf(2)), CS)))) {",
+    "after": "if ((!(Cobol.isNumeric(f149_TPROCDTI.ref(1, Integer.valueOf(4)), CS))) || (!(Cobol.compare(f149_TPROCDTI.ref(5, Integer.valueOf(1)), \"-\", CS) == 0)) && (!(Cobol.isNumeric(f149_TPROCDTI.ref(6, Integer.valueOf(2)), CS))) || (!(Cobol.compare(f149_TPROCDTI.ref(8, Integer.valueOf(1)), \"-\", CS) == 0)) || (!(Cobol.isNumeric(f149_TPROCDTI.ref(9, Integer.valueOf(2)), CS)))) {",
+    "verdict": "case-gap",
+    "reason": "the proc date's first-separator and month WHENs joined by AND: a wrong first separator passes. Killed by scenario proc-date-first-separator (added in this PR)"
+   },
+   {
+    "id": "943831cd4c",
+    "op": "COR",
+    "line": 1253,
+    "before": "if ((!(Cobol.isNumeric(f149_TPROCDTI.ref(1, Integer.valueOf(4)), CS))) || (!(Cobol.compare(f149_TPROCDTI.ref(5, Integer.valueOf(1)), \"-\", CS) == 0)) || (!(Cobol.isNumeric(f149_TPROCDTI.ref(6, Integer.valueOf(2)), CS))) || (!(Cobol.compare(f149_TPROCDTI.ref(8, Integer.valueOf(1)), \"-\", CS) == 0)) || (!(Cobol.isNumeric(f149_TPROCDTI.ref(9, Integer.valueOf(2)), CS)))) {",
+    "after": "if ((!(Cobol.isNumeric(f149_TPROCDTI.ref(1, Integer.valueOf(4)), CS))) || (!(Cobol.compare(f149_TPROCDTI.ref(5, Integer.valueOf(1)), \"-\", CS) == 0)) || (!(Cobol.isNumeric(f149_TPROCDTI.ref(6, Integer.valueOf(2)), CS))) || (!(Cobol.compare(f149_TPROCDTI.ref(8, Integer.valueOf(1)), \"-\", CS) == 0)) && (!(Cobol.isNumeric(f149_TPROCDTI.ref(9, Integer.valueOf(2)), CS)))) {",
+    "verdict": "case-gap",
+    "reason": "the proc date's second-separator and day WHENs joined by AND: a wrong second separator passes. Killed by scenario proc-date-second-separator (added in this PR)"
+   },
+   {
+    "id": "d6d1035a2c",
+    "op": "NEG",
+    "line": 1262,
+    "before": "} else if (true) {",
+    "after": "} else if (!(true)) {",
+    "verdict": "equivalent",
+    "reason": "WHEN OTHER's CONTINUE negated: the branch does nothing either way"
+   },
+   {
+    "id": "976ffc1974",
+    "op": "CON",
+    "line": 1345,
+    "before": "return 4;",
+    "after": "return 5;",
+    "verdict": "equivalent",
+    "reason": "VALIDATE-INPUT-DATA-FIELDS answering 5 instead of 4: its only callers PERFORM it alone (from == thru), and perform() returns at it whatever it answers next"
+   },
+   {
+    "id": "999d014728",
+    "op": "DEL",
+    "line": 1369,
+    "before": "Cobol.moveFigurative(Figurative.ZEROS, Field.zoned(f360_TRAN_RECORD.storage(), f360_TRAN_RECORD.offset() + 132, 11, 2, true, false, false), CS);",
+    "after": "/* Cobol.moveFigurative(Figurative.ZEROS, Field.zoned(f360_TRAN_RECORD.storage(), f360_TRAN_RECORD.offset() + 132, 11, 2, true, false, false), CS); */",
+    "verdict": "equivalent",
+    "reason": "INITIALIZE TRAN-RECORD's zeroing of TRAN-AMT: MOVE WS-TRAN-AMT-N TO TRAN-AMT rewrites it before the WRITE"
+   },
+   {
+    "id": "f2dc359a80",
+    "op": "DEL",
+    "line": 1389,
+    "before": "f18_WS_TRAN_AMT_N = Cobol.zoned(v14, 11, 2, true, false, CS);",
+    "after": "/* f18_WS_TRAN_AMT_N = Cobol.zoned(v14, 11, 2, true, false, CS); */",
+    "verdict": "equivalent",
+    "reason": "ADD-TRANSACTION's COMPUTE WS-TRAN-AMT-N = NUMVAL-C(TRNAMTI): VALIDATE-INPUT-DATA-FIELDS computed it from the same amount (TRNAMTI holds its edited form since, which NUMVAL-C reads back to the same value), and nothing changes it between"
+   },
+   {
+    "id": "1c1ea3433d",
+    "op": "DEL",
+    "line": 1422,
+    "before": "perform(14, 14);",
+    "after": "/* perform(14, 14); */",
+    "verdict": "case-gap",
+    "reason": "COPY-LAST-TRAN-DATA without ENDBR: the browse stays open into ADD-TRANSACTION's STARTBR. That runs only when the copied last transaction passes VALIDATE-INPUT-DATA-FIELDS and CONFIRM is Y; the case's last transaction has no proc date, so PF5 always stops at 'Proc Date can NOT be empty...'. A complete last record (and a harness that models STARTBR on an open browse: INVREQ) would show it"
+   },
+   {
+    "id": "757a23e68e",
+    "op": "CON",
+    "line": 1451,
+    "before": "perform(1, 1);",
+    "after": "perform(2, 1);",
+    "verdict": "case-gap",
+    "reason": "PERFORM PROCESS-ENTER-KEY from paragraph 2 to 1: runs VALIDATE-INPUT-KEY-FIELDS, VALIDATE-INPUT-DATA-FIELDS and then ADD-TRANSACTION without the CONFIRM test. The case's last transaction has no proc date, so PF5 stops at 'Proc Date can NOT be empty...' either way; a complete last record with CONFIRM blank would show it"
+   },
+   {
+    "id": "3180aa915c",
+    "op": "ROR",
+    "line": 1475,
+    "before": "if (to >= 0) return GOTO | to;",
+    "after": "if (to > 0) return GOTO | to;",
+    "verdict": "unreachable",
+    "reason": "condition() returns a value only for a handled, ignored or ERROR-handled condition; COTRN02C sets no handler and an XCTL raises none ignored by default, so condition() throws (the abend) and `to` is never tested"
+   },
+   {
+    "id": "2351cca8da",
+    "op": "CON",
+    "line": 1537,
+    "before": "if (to >= 0) return GOTO | to;",
+    "after": "if (to >= 1) return GOTO | to;",
+    "verdict": "unreachable",
+    "reason": "inside `if (0 != 0)`: SEND MAP has no RESP and the translator writes its response as the constant 0, so the block never runs"
+   },
+   {
+    "id": "e5296bd2c2",
+    "op": "ROR",
+    "line": 1537,
+    "before": "if (to >= 0) return GOTO | to;",
+    "after": "if (to > 0) return GOTO | to;",
+    "verdict": "unreachable",
+    "reason": "inside `if (0 != 0)`: SEND MAP has no RESP and the translator writes its response as the constant 0, so the block never runs"
+   },
+   {
+    "id": "5c244d7944",
+    "op": "LIT",
+    "line": 1558,
+    "before": "DetCics.typed(f71_TITLE01I, f66_TITLE01L, typed20.get(\"TITLE01\"), CS);",
+    "after": "DetCics.typed(f71_TITLE01I, f66_TITLE01L, typed20.get(\"XITLE01\"), CS);",
+    "verdict": "case-gap",
+    "reason": "a received TITLE01 (ATTRB=(ASKIP,FSET): the terminal sends it back) is stored with typed20.get('XITLE01'), i.e. null: a NullPointerException where COBOL takes the field. Killed by scenario invalid-key-header-fields-sent-back (added in this PR)"
+   },
+   {
+    "id": "3636aec0d2",
+    "op": "LIT",
+    "line": 1682,
+    "before": "Sysout.display(\"RESP:\", Cobol.displayText(f10_WS_RESP_CD, CS), \"REAS:\", Cobol.displayText(f11_WS_REAS_CD, CS));",
+    "after": "Sysout.display(\"XESP:\", Cobol.displayText(f10_WS_RESP_CD, CS), \"REAS:\", Cobol.displayText(f11_WS_REAS_CD, CS));",
+    "verdict": "harness-gap",
+    "reason": "the text of a DISPLAY 'RESP:' ... 'REAS:' ...: a CICS task's DISPLAY output, which the harness does not compare (#4635)"
+   },
+   {
+    "id": "79fb6bb81b",
+    "op": "LIT",
+    "line": 1848,
+    "before": "f9_WS_ERR_FLG = \"Y\";",
+    "after": "f9_WS_ERR_FLG = \"X\";",
+    "verdict": "equivalent",
+    "reason": "SEND-TRNADD-SCREEN ends with EXEC CICS RETURN, so every statement that sets WS-ERR-FLG to 'Y' is followed, through PERFORM SEND-TRNADD-SCREEN, by the end of the task: this 'X' (for 'Y') is never tested"
+   },
+   {
+    "id": "e77280d627",
+    "op": "CON",
+    "line": 1856,
+    "before": "return 16;",
+    "after": "return 17;",
+    "verdict": "equivalent",
+    "reason": "WRITE-TRANSACT-FILE answering 17 instead of 16: its only caller PERFORMs it alone (from == thru), and perform() returns at it whatever it answers next -- and every branch of it SENDs and RETURNs first"
    }
   ],
   "carddemo-tranview": [
@@ -5022,15 +6043,6 @@
     "reason": "POPULATE-TIME-DATE is never PERFORMed: it follows GET-ME-OUT-OF-HERE, whose GMOOH010 RETURNs, so WS-TIME-NOW, written only by its FORMATTIME, is never touched"
    },
    {
-    "id": "3b8f71ba84",
-    "op": "CON",
-    "line": 146,
-    "before": "private final Field f107_COMM_UPD_SUCCESS = Field.alphanumeric(s_DFHCOMMAREA, 259, 1, false);",
-    "after": "private final Field f107_COMM_UPD_SUCCESS = Field.alphanumeric(s_DFHCOMMAREA, 259, 2, false);",
-    "verdict": "case-gap",
-    "reason": "COMM-UPD-SUCCESS as 2 bytes blanks COMM-UPD-FAIL-CD (260) whenever it is set; the failure paths set FAIL-CD right after, but the success path leaves the caller's FAIL-CD. Killed by scenario success-refills-eye-keeps-fail-code (added in this PR)"
-   },
-   {
     "id": "66ff345032",
     "op": "CON",
     "line": 148,
@@ -5157,15 +6169,6 @@
     "reason": "in_: COMM-NAME moved into 61 bytes (20-80) spills one byte into COMM-ADDR (80), which the next statement, the COMM-ADDR move into 80-239, overwrites"
    },
    {
-    "id": "c818acfe9e",
-    "op": "CON",
-    "line": 252,
-    "before": "Cobol.move(d.getCommDob() == null ? BigDecimal.ZERO : new BigDecimal(d.getCommDob().toString()), Field.zoned(s, base + 240, 8, 0, false, false, false), CS);",
-    "after": "Cobol.move(d.getCommDob() == null ? BigDecimal.ZERO : new BigDecimal(d.getCommDob().toString()), Field.zoned(s, base + 240, 9, 0, false, false, false), CS);",
-    "verdict": "case-gap",
-    "reason": "in_: COMM-DOB moved as 9 digits into 240-248 shifts the date one digit right in COMM-DOB (byte 248 is rewritten by the next move); the success path refills COMM-DOB from the record, a failure path returns it. Killed by scenario title-invalid-keeps-program-sortcode (added in this PR: a failure with a non-zero COMM-DOB)"
-   },
-   {
     "id": "99e38ee78f",
     "op": "AOR",
     "line": 260,
@@ -5173,15 +6176,6 @@
     "after": "d.setCommEye(Cobol.text(Field.alphanumeric(s, base - 0, 4, false), CS));",
     "verdict": "equivalent",
     "reason": "`base - 0` for `base + 0`: the same offset"
-   },
-   {
-    "id": "c6d8fdea62",
-    "op": "DEL",
-    "line": 260,
-    "before": "d.setCommEye(Cobol.text(Field.alphanumeric(s, base + 0, 4, false), CS));",
-    "after": "/* d.setCommEye(Cobol.text(Field.alphanumeric(s, base + 0, 4, false), CS)); */",
-    "verdict": "case-gap",
-    "reason": "without fill_'s COMM-EYE setter the caller's DTO keeps the eye-catcher it passed; UPDCUST refills COMM-EYE from the record on success. Killed by scenario success-refills-eye-keeps-fail-code (added in this PR: COMM-EYE 'ABCD')"
    },
    {
     "id": "327b575375",
@@ -5373,15 +6367,6 @@
     "reason": "run()'s `case 11` (PTD999): POPULATE-TIME-DATE is never PERFORMed (it follows GET-ME-OUT-OF-HERE's RETURN), so paragraph 11 never runs"
    },
    {
-    "id": "9c33b8b48c",
-    "op": "DEL",
-    "line": 503,
-    "before": "Cobol.move(f1_SORTCODE, f92_COMM_SCODE, CS);",
-    "after": "/* Cobol.move(f1_SORTCODE, f92_COMM_SCODE, CS); */",
-    "verdict": "case-gap",
-    "reason": "without MOVE SORTCODE TO COMM-SCODE a failure path returns the caller's COMM-SCODE instead of SORTCODE (success refills it from the record). Killed by scenario title-invalid-keeps-program-sortcode (added in this PR)"
-   },
-   {
     "id": "de5795c381",
     "op": "LIT",
     "line": 517,
@@ -5416,24 +6401,6 @@
     "after": "heldKey.put(\"XUSTOMER\".strip(), rec2);",
     "verdict": "equivalent",
     "reason": "heldKey is only written (here) and cleared; nothing reads it in UPDCUST's port (the REWRITE goes through the store), so the map's key name cannot show"
-   },
-   {
-    "id": "3029c8dea1",
-    "op": "COR",
-    "line": 608,
-    "before": "if (((Cobol.compareFigurative(f94_COMM_NAME, Figurative.SPACES, CS) == 0 || Cobol.compare(f94_COMM_NAME.ref(1, Integer.valueOf(1)), \" \", CS) == 0) && (Cobol.compareFigurative(f95_COMM_ADDR, Figurative.SPACES, CS) == 0 || Cobol.compare(f95_COMM_ADDR.ref(1, Integer.valueOf(1)), \" \", CS) == 0))) {",
-    "after": "if (((Cobol.compareFigurative(f94_COMM_NAME, Figurative.SPACES, CS) == 0 || Cobol.compare(f94_COMM_NAME.ref(1, Integer.valueOf(1)), \" \", CS) == 0) && (Cobol.compareFigurative(f95_COMM_ADDR, Figurative.SPACES, CS) == 0 && Cobol.compare(f95_COMM_ADDR.ref(1, Integer.valueOf(1)), \" \", CS) == 0))) {",
-    "verdict": "case-gap",
-    "reason": "`COMM-ADDR = SPACES AND COMM-ADDR(1:1) = ' '` for OR: differs when the name counts as blank and the address starts with a space but is not blank -- '4' in COBOL, a REWRITE in the mutant. Killed by scenario name-blank-address-leading-space (added in this PR)"
-   },
-   {
-    "id": "3fcfb87b0b",
-    "op": "COR",
-    "line": 608,
-    "before": "if (((Cobol.compareFigurative(f94_COMM_NAME, Figurative.SPACES, CS) == 0 || Cobol.compare(f94_COMM_NAME.ref(1, Integer.valueOf(1)), \" \", CS) == 0) && (Cobol.compareFigurative(f95_COMM_ADDR, Figurative.SPACES, CS) == 0 || Cobol.compare(f95_COMM_ADDR.ref(1, Integer.valueOf(1)), \" \", CS) == 0))) {",
-    "after": "if (((Cobol.compareFigurative(f94_COMM_NAME, Figurative.SPACES, CS) == 0 && Cobol.compare(f94_COMM_NAME.ref(1, Integer.valueOf(1)), \" \", CS) == 0) && (Cobol.compareFigurative(f95_COMM_ADDR, Figurative.SPACES, CS) == 0 || Cobol.compare(f95_COMM_ADDR.ref(1, Integer.valueOf(1)), \" \", CS) == 0))) {",
-    "verdict": "case-gap",
-    "reason": "`COMM-NAME = SPACES AND COMM-NAME(1:1) = ' '` for OR: differs when the name starts with a space but is not blank and the address counts as blank -- '4' in COBOL, a REWRITE in the mutant. Killed by scenario name-leading-space-address-blank (added in this PR)"
    },
    {
     "id": "7dc359257c",

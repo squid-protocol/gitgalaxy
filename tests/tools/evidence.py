@@ -304,6 +304,10 @@ def proof_section(t: Target, report: dict[str, Any], digest: str) -> dict[str, A
     outputs: dict[str, Any] = {}
     for name, o in (report.get("outputs") or {}).items():
         outputs[name] = {"equal": o.get("equal"), "records": o.get("records", o.get("events"))}
+        if o.get("judged_to"):  # #4173 / #4607 (X6): a task compared only up to a LINK not run or a refused WRITEQ
+            outputs[name]["judged_to"] = o["judged_to"]
+            if o.get("x6"):
+                outputs[name]["assumes"] = "X6"
     envs = [e["name"] for e in report.get("environments") or []]
     rc = report.get("return_code") or {}
     sysout = report.get("sysout")
@@ -763,7 +767,13 @@ def render_page(t: Target, rec: dict[str, Any]) -> str:
            else f"person ({pv.get('author') or 'unknown'})")  # fmt: skip
     lines.append(f"| written by | {who} |")
     lines += ["", "## Proof outputs", "", "| output | equal | compared |", "|---|---|---|"]
-    lines += [f"| {k} | {v['equal']} | {v['records']} |" for k, v in sorted((p.get("outputs") or {}).items())]
+    lines += [f"| {k} | {v['equal']} | {v['records']}{' (judged up to the refusal: X6)' if v.get('assumes') == 'X6' else ''} |"
+              for k, v in sorted((p.get("outputs") or {}).items())]  # fmt: skip
+    x6 = sorted(k for k, v in (p.get("outputs") or {}).items() if v.get("assumes") == "X6")
+    if x6:  # owner decision on #4607: the proof states X6 as an assumption of these tasks
+        lines += ["", f"Assumes oracle_assumptions.md X6 for {len(x6)} task(s) ({', '.join(x6)}): each is compared up "
+                  "to a WRITEQ whose LENGTH runs past its FROM area, refused on both sides; what z/OS writes there and "
+                  "what the task does after it are not claimed (not settled on z/OS, #4050)."]  # fmt: skip
     fc = p.get("facade")
     if fc:  # #4449
         lines += ["", "## Through the deployed entry points (java-facade, #4449)", "",

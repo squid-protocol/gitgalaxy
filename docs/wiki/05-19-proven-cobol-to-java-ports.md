@@ -48,7 +48,7 @@ What the proven programs contain includes:
 - `EXEC SQL SET`;
 - SYNCPOINT ROLLBACK and abend backout across recoverable files and Db2.
 
-Coverage is lower in GenApp: its error paths LINK to LGSTSQ, which writes past its own data area (register X6) and is refused by name.
+Coverage is lower in GenApp: its error paths LINK to LGSTSQ, which writes past its own data area (register X6). That WRITEQ is refused on both sides, and since #4607 a task that reaches it is judged up to the refusal, with X6 stated as an assumption (not settled on z/OS, #4050).
 
 **Not proven, on purpose** (listed with reasons in `proof_sweep.py`'s `KNOWN_UNPROVEN`):
 

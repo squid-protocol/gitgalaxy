@@ -171,6 +171,23 @@ public final class DetCics {
         return Arrays.copyOfRange(f.storage().bytes, f.offset(), f.offset() + n);
     }
 
+    /** #4607 x X6: a WRITEQ TS / TD whose LENGTH runs past its FROM item. CICS writes the storage that follows the
+     *  item, which GnuCOBOL lays out unlike IBM's compiler: the stub stops the task there ("not modelled") and the
+     *  det port refuses at the same statement, so both sides' tasks are judged up to it (oracle_assumptions.md X6). */
+    public static final class PastFrom extends UnsupportedOperationException {
+        public PastFrom(String message) {
+            super(message);
+        }
+    }
+
+    /** #4607 x X6: a WRITEQ's LENGTH n, refused (PastFrom) when it runs past FROM's own length. */
+    public static int within(Field f, int n, String what) {
+        if (n > f.length()) {
+            throw new PastFrom(what + " LENGTH " + n + " > FROM's " + f.length() + " bytes: not modelled");
+        }
+        return n;
+    }
+
     /** Bytes into a field's area, at most its length (a record READ INTO it; the rest is left as it was). */
     /** #4270: PUT CONTAINER FROM(f) FLENGTH(n): the first n bytes of the area, none below zero (CicsTask answers
      *  LENGERR RESP2 1). FLENGTH past FROM's end reads the bytes that follow the item in storage, which GnuCOBOL

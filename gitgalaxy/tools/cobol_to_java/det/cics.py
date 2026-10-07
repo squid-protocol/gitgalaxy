@@ -821,6 +821,8 @@ class Cics:
             r = g.tmpname("resp")
             f = self.read_field(_arg(opts["FROM"]))
             n = self.int_(_arg(opts["LENGTH"])) if opts.get("LENGTH") else str(self.size(_arg(opts["FROM"])))
+            if opts.get("LENGTH"):  # #4607 x X6: a LENGTH past FROM is refused, as the stub refuses it
+                n = f'DetCics.within({f}, {n}, "WRITEQ TD")'
             return [f"{ind}int {r} = task.writeqTd({self.name(_arg(opts['QUEUE']))}, "
                     f"Cobol.text({f}, CS).substring(0, {n}));",
                     *self.outcome(opts, r, "0", ind)]  # fmt: skip
@@ -1062,6 +1064,8 @@ class Cics:
         if verb == "WRITEQ":
             f = self.read_field(_arg(opts.get("FROM")))
             n = self.int_(_arg(opts["LENGTH"])) if opts.get("LENGTH") else f"{f}.length()"
+            if opts.get("LENGTH"):  # #4607 x X6: a LENGTH past FROM is refused, as the stub refuses it
+                n = f'DetCics.within({f}, {n}, "WRITEQ TS")'
             # #4528: the item in the region's page, as the COBOL side's region keeps it
             data = f"DetCics.toRegion(DetCics.bytes({f}, {n}), CS, REGION)"
             if "REWRITE" in opts:

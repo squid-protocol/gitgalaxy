@@ -1,0 +1,520 @@
+{
+ "census": {
+  "(unlisted) ASKTIME NOHANDLE": {
+   "burned": 2,
+   "non_burned": 0,
+   "programs": 2
+  },
+  "(unlisted) DUMP": {
+   "burned": 0,
+   "non_burned": 1,
+   "programs": 1
+  },
+  "(unlisted) GET": {
+   "burned": 1,
+   "non_burned": 0,
+   "programs": 1
+  },
+  "(unlisted) INQUIRE": {
+   "burned": 7,
+   "non_burned": 0,
+   "programs": 7
+  },
+  "(unlisted) INQUIRE URIMAP": {
+   "burned": 1,
+   "non_burned": 0,
+   "programs": 1
+  },
+  "(unlisted) SET": {
+   "burned": 2,
+   "non_burned": 0,
+   "programs": 2
+  },
+  "(unlisted) SYNCPOINT NOHANDLE": {
+   "burned": 2,
+   "non_burned": 0,
+   "programs": 2
+  },
+  "(unparsed)": {
+   "burned": 1,
+   "non_burned": 1,
+   "programs": 2
+  },
+  "ABEND": {
+   "burned": 47,
+   "non_burned": 10,
+   "programs": 57
+  },
+  "ASKTIME": {
+   "burned": 54,
+   "non_burned": 1,
+   "programs": 55
+  },
+  "ASSIGN": {
+   "burned": 29,
+   "non_burned": 5,
+   "programs": 34
+  },
+  "BIF DEEDIT": {
+   "burned": 5,
+   "non_burned": 0,
+   "programs": 5
+  },
+  "DEFINE COUNTER": {
+   "burned": 1,
+   "non_burned": 0,
+   "programs": 1
+  },
+  "DELAY": {
+   "burned": 11,
+   "non_burned": 9,
+   "programs": 20
+  },
+  "DELETE": {
+   "burned": 6,
+   "non_burned": 0,
+   "programs": 6
+  },
+  "DELETE COUNTER": {
+   "burned": 1,
+   "non_burned": 0,
+   "programs": 1
+  },
+  "DELETEQ TS": {
+   "burned": 2,
+   "non_burned": 0,
+   "programs": 2
+  },
+  "DEQ": {
+   "burned": 4,
+   "non_burned": 0,
+   "programs": 4
+  },
+  "DOCUMENT CREATE": {
+   "burned": 3,
+   "non_burned": 0,
+   "programs": 3
+  },
+  "DOCUMENT RETRIEVE": {
+   "burned": 3,
+   "non_burned": 0,
+   "programs": 3
+  },
+  "ENDBR": {
+   "burned": 7,
+   "non_burned": 0,
+   "programs": 7
+  },
+  "ENQ": {
+   "burned": 5,
+   "non_burned": 0,
+   "programs": 5
+  },
+  "FETCH ANY": {
+   "burned": 1,
+   "non_burned": 1,
+   "programs": 2
+  },
+  "FETCH CHILD": {
+   "burned": 0,
+   "non_burned": 2,
+   "programs": 2
+  },
+  "FORMATTIME": {
+   "burned": 55,
+   "non_burned": 1,
+   "programs": 56
+  },
+  "FREEMAIN": {
+   "burned": 2,
+   "non_burned": 0,
+   "programs": 2
+  },
+  "GET CONTAINER": {
+   "burned": 7,
+   "non_burned": 15,
+   "programs": 22
+  },
+  "GET COUNTER": {
+   "burned": 2,
+   "non_burned": 0,
+   "programs": 2
+  },
+  "GETMAIN": {
+   "burned": 2,
+   "non_burned": 0,
+   "programs": 2
+  },
+  "GETNEXT CONTAINER": {
+   "burned": 1,
+   "non_burned": 0,
+   "programs": 1
+  },
+  "HANDLE ABEND": {
+   "burned": 13,
+   "non_burned": 0,
+   "programs": 13
+  },
+  "HANDLE AID": {
+   "burned": 5,
+   "non_burned": 0,
+   "programs": 5
+  },
+  "HANDLE CONDITION": {
+   "burned": 6,
+   "non_burned": 0,
+   "programs": 6
+  },
+  "INQUIRE PROGRAM": {
+   "burned": 2,
+   "non_burned": 0,
+   "programs": 2
+  },
+  "LINK": {
+   "burned": 52,
+   "non_burned": 4,
+   "programs": 56
+  },
+  "PUT CONTAINER": {
+   "burned": 7,
+   "non_burned": 15,
+   "programs": 22
+  },
+  "QUERY COUNTER": {
+   "burned": 1,
+   "non_burned": 0,
+   "programs": 1
+  },
+  "READ": {
+   "burned": 25,
+   "non_burned": 1,
+   "programs": 26
+  },
+  "READNEXT": {
+   "burned": 4,
+   "non_burned": 0,
+   "programs": 4
+  },
+  "READPREV": {
+   "burned": 6,
+   "non_burned": 0,
+   "programs": 6
+  },
+  "READQ TS": {
+   "burned": 4,
+   "non_burned": 1,
+   "programs": 5
+  },
+  "RECEIVE": {
+   "burned": 5,
+   "non_burned": 4,
+   "programs": 9
+  },
+  "RECEIVE MAP": {
+   "burned": 36,
+   "non_burned": 9,
+   "programs": 45
+  },
+  "RETRIEVE": {
+   "burned": 4,
+   "non_burned": 0,
+   "programs": 4
+  },
+  "RETURN": {
+   "burned": 93,
+   "non_burned": 29,
+   "programs": 122
+  },
+  "REWRITE": {
+   "burned": 10,
+   "non_burned": 1,
+   "programs": 11
+  },
+  "RUN": {
+   "burned": 1,
+   "non_burned": 3,
+   "programs": 4
+  },
+  "SEND CONTROL": {
+   "burned": 8,
+   "non_burned": 8,
+   "programs": 16
+  },
+  "SEND MAP": {
+   "burned": 37,
+   "non_burned": 9,
+   "programs": 46
+  },
+  "SEND TEXT": {
+   "burned": 28,
+   "non_burned": 7,
+   "programs": 35
+  },
+  "SOAPFAULT CREATE": {
+   "burned": 1,
+   "non_burned": 0,
+   "programs": 1
+  },
+  "START": {
+   "burned": 3,
+   "non_burned": 0,
+   "programs": 3
+  },
+  "STARTBR": {
+   "burned": 7,
+   "non_burned": 0,
+   "programs": 7
+  },
+  "STARTBROWSE CONTAINER": {
+   "burned": 1,
+   "non_burned": 1,
+   "programs": 2
+  },
+  "SYNCPOINT": {
+   "burned": 9,
+   "non_burned": 6,
+   "programs": 15
+  },
+  "SYNCPOINT ROLLBACK": {
+   "burned": 14,
+   "non_burned": 0,
+   "programs": 14
+  },
+  "WEB CLOSE": {
+   "burned": 4,
+   "non_burned": 0,
+   "programs": 4
+  },
+  "WEB CONVERSE": {
+   "burned": 4,
+   "non_burned": 1,
+   "programs": 5
+  },
+  "WEB EXTRACT": {
+   "burned": 1,
+   "non_burned": 0,
+   "programs": 1
+  },
+  "WEB OPEN": {
+   "burned": 4,
+   "non_burned": 1,
+   "programs": 5
+  },
+  "WEB PARSE URL": {
+   "burned": 3,
+   "non_burned": 0,
+   "programs": 3
+  },
+  "WEB READ HTTPHEADER": {
+   "burned": 1,
+   "non_burned": 1,
+   "programs": 2
+  },
+  "WEB RECEIVE": {
+   "burned": 1,
+   "non_burned": 1,
+   "programs": 2
+  },
+  "WEB SEND": {
+   "burned": 2,
+   "non_burned": 1,
+   "programs": 3
+  },
+  "WEB WRITE HTTPHEADER": {
+   "burned": 1,
+   "non_burned": 1,
+   "programs": 2
+  },
+  "WRITE": {
+   "burned": 9,
+   "non_burned": 1,
+   "programs": 10
+  },
+  "WRITE OPERATOR": {
+   "burned": 1,
+   "non_burned": 0,
+   "programs": 1
+  },
+  "WRITEQ TD": {
+   "burned": 6,
+   "non_burned": 2,
+   "programs": 8
+  },
+  "WRITEQ TS": {
+   "burned": 6,
+   "non_burned": 0,
+   "programs": 6
+  },
+  "XCTL": {
+   "burned": 22,
+   "non_burned": 9,
+   "programs": 31
+  }
+ },
+ "census_measured": {
+  "commit": "8dff2ec2e",
+  "corpora": 16,
+  "date": "2026-10-07"
+ },
+ "crucible": {
+  "ABEND": [
+   "gt-start-retrieve",
+   "hc-abend-link"
+  ],
+  "ASSIGN": [
+   "ca-channel-containers",
+   "gt-assign-startcode",
+   "hc-abend-link"
+  ],
+  "CANCEL": [
+   "gt-terminal-coalesce"
+  ],
+  "DELETE CONTAINER": [
+   "ca-channel-containers"
+  ],
+  "GET CONTAINER": [
+   "ca-channel-containers"
+  ],
+  "HANDLE ABEND": [
+   "hc-abend-link"
+  ],
+  "HANDLE AID": [
+   "hc-handle-aid",
+   "pc-aid-menu"
+  ],
+  "HANDLE CONDITION": [
+   "ca-channel-containers",
+   "hc-abend-link",
+   "hc-eoc-error",
+   "hc-ignore-error",
+   "hc-perform-range",
+   "hc-terminal-eoc",
+   "hc-terminal-receive"
+  ],
+  "IGNORE CONDITION": [
+   "hc-ignore-error",
+   "hc-perform-range"
+  ],
+  "LINK": [
+   "ca-channel-containers",
+   "ca-link-lengths",
+   "hc-abend-link"
+  ],
+  "POP HANDLE": [
+   "hc-abend-link",
+   "hc-handle-aid",
+   "hc-ignore-error"
+  ],
+  "PUSH HANDLE": [
+   "hc-abend-link",
+   "hc-handle-aid",
+   "hc-ignore-error"
+  ],
+  "PUT CONTAINER": [
+   "ca-channel-containers"
+  ],
+  "READQ TS": [
+   "hc-abend-link",
+   "hc-perform-range"
+  ],
+  "RECEIVE": [
+   "ca-link-lengths",
+   "ca-xctl-versions",
+   "gt-assign-startcode",
+   "gt-start-options",
+   "gt-start-retrieve",
+   "gt-terminal-coalesce",
+   "hc-eoc-error",
+   "hc-handle-aid",
+   "hc-ignore-error",
+   "hc-terminal-eoc",
+   "hc-terminal-receive"
+  ],
+  "RECEIVE MAP": [
+   "hx-attr-bytes",
+   "hx-extended-cursor",
+   "pc-aid-menu",
+   "pc-wizard"
+  ],
+  "RETRIEVE": [
+   "gt-start-options",
+   "gt-start-retrieve",
+   "gt-terminal-coalesce"
+  ],
+  "RETURN": [
+   "ca-channel-containers",
+   "ca-link-lengths",
+   "ca-xctl-versions",
+   "gt-assign-startcode",
+   "gt-start-options",
+   "gt-start-retrieve",
+   "gt-terminal-coalesce",
+   "hc-abend-link",
+   "hc-eoc-error",
+   "hc-handle-aid",
+   "hc-ignore-error",
+   "hc-perform-range",
+   "hc-terminal-eoc",
+   "hc-terminal-receive",
+   "hx-attr-bytes",
+   "hx-extended-cursor",
+   "pc-aid-menu",
+   "pc-wizard"
+  ],
+  "RUN": [
+   "gt-start-options"
+  ],
+  "SEND CONTROL": [
+   "hc-terminal-receive"
+  ],
+  "SEND MAP": [
+   "hx-attr-bytes",
+   "hx-extended-cursor",
+   "pc-aid-menu",
+   "pc-wizard"
+  ],
+  "SEND TEXT": [
+   "ca-link-lengths",
+   "ca-xctl-versions",
+   "gt-assign-startcode",
+   "gt-start-options",
+   "gt-start-retrieve",
+   "gt-terminal-coalesce",
+   "hc-abend-link",
+   "hc-eoc-error",
+   "hc-handle-aid",
+   "hc-ignore-error",
+   "hc-perform-range",
+   "hc-terminal-eoc",
+   "hc-terminal-receive",
+   "pc-aid-menu",
+   "pc-wizard"
+  ],
+  "START": [
+   "gt-assign-startcode",
+   "gt-start-options",
+   "gt-start-retrieve",
+   "gt-terminal-coalesce"
+  ],
+  "WRITEQ TS": [
+   "ca-channel-containers",
+   "ca-link-lengths",
+   "gt-assign-startcode",
+   "gt-start-options",
+   "gt-start-retrieve",
+   "hc-perform-range",
+   "pc-wizard"
+  ],
+  "XCTL": [
+   "ca-channel-containers",
+   "ca-xctl-versions",
+   "pc-aid-menu",
+   "pc-wizard"
+  ]
+ },
+ "crucible_measured": {
+  "date": "2026-10-07",
+  "ref": "v0.5.0"
+ },
+ "format": "cics-spec-status/1"
+}

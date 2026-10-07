@@ -1,6 +1,6 @@
 ---
 name: cics-command-slice
-description: Land one #4270 CICS command slice end to end -- census of the command's options over the burned and non-burned corpora, the det translator (OPTIONS, _REFUSED_WHY, outcome()/condition() with RESP2), BOTH runtimes (CicsTask/DetCics and ggcics.c), an additive cics-crucible SPEC change if needed, a hand-traced crucible case, the proofs (cobol-stub and the det port), the X-register entry, the before/after survey, ratchets, the two draft PRs and the crucible release / pin bump. Also the equivalence harness's working rules (Db2 generated rows, where reports land, re-proving evidence). Use when the user says "next #4270 slice", "add EXEC CICS <verb> / <option> to the translator", "census of <verb>", "new crucible case for <command>", "cut a cics-crucible release" or "bump the cics-crucible pin".
+description: Land one #4270 CICS command slice end to end -- census of the command's options over the burned and non-burned corpora, the spec entry (gitgalaxy/standards/cics) and the det translator (outcome()/condition() with RESP2), BOTH runtimes (CicsTask/DetCics and ggcics.c), an additive cics-crucible SPEC change if needed, a hand-traced crucible case, the proofs (cobol-stub and the det port), the X-register entry, the before/after survey, ratchets, the two draft PRs and the crucible release / pin bump. Also the equivalence harness's working rules (Db2 generated rows, where reports land, re-proving evidence). Use when the user says "next #4270 slice", "add EXEC CICS <verb> / <option> to the translator", "census of <verb>", "new crucible case for <command>", "cut a cics-crucible release" or "bump the cics-crucible pin".
 ---
 
 A slice teaches the det translator (`gitgalaxy/tools/cobol_to_java/det`) one more slice of EXEC CICS, proves it
@@ -34,18 +34,21 @@ Traps `--check` exists for:
 - [ ] **Census.** `$PY tests/tools/cics_census.py usage VERB [VERB ...]` -- per program the options each
       `EXEC CICS VERB` uses, totals per option, burned / non-burned. Multi-word verbs: `"SEND TEXT"` or `SEND-TEXT`.
       `--pli` adds PL/I programs (flagged: the det translator takes COBOL only). Names and counts only.
-- [ ] **Pick by blockers, not by frequency.** Run the before survey across ALL CICS programs first (not only
-      one verb's) and rank each gap by how many programs it would make translate WHOLE: programs whose only
-      remaining holes are that command / option (non-burned first), then programs it leaves one gap from whole.
-      A gap may be a CICS verb, a grammar gap (#4462) or a missing copybook; the best next slice is whatever
-      unlocks the most programs, even when it is not a CICS command. The census above is the tiebreaker. A
-      slice that unlocks no whole program needs a stated reason (2026-10-06: ASSIGN closed every ASSIGN hole
-      and moved 7 -> 7, because each of those programs had other gaps). Note what you leave refused and why.
+- [ ] **Pick by blockers, not by frequency** -- the `blocker-slice` skill is the loop and its rules: measure on
+      the baseline first (`cics_census.py blockers --baseline`, `--unmask GAPKEY` for a `*` row), STOP and report
+      when the gap makes no program whole (WEB, 2026-10-07: 0 alone; ASSIGN, 2026-10-06: 7 -> 7), the
+      proof-level ranking (`proof_blockers.py`), the honest-refusal patterns and the brief template. A gap may be
+      a CICS verb, a grammar gap (#4462) or a missing copybook; the census above is the tiebreaker. Note what you
+      leave refused and why.
+- [ ] **Spec entry first** (`gitgalaxy/standards/cics`): promote the command's name-only entry to a full one
+      (options, refusals with reasons and register, groups, outcomes with RESP2, facts); `det/cics.py` and the stub
+      read it. The runtimes stay hand-written, and no crucible log is derived from the spec. Then
+      `cics_spec_status.py render`.
 - [ ] **Before survey** (now, on the unchanged branch): `$PY tests/tools/cics_census.py survey --out $SCRATCH/s
       --label before --verb VERB` (det_survey.py, translation only; ~minutes per estate; background it with
       `tests/tools/box/heavy-run.sh`).
-- [ ] **Translator** (`det/cics.py`): the command's `OPTIONS` entry; every option it does not honour refused BY NAME
-      with a reason in `_REFUSED_WHY` (or the command's own table, e.g. `_ASSIGN_REFUSED_WHY`); conditions through
+- [ ] **Translator** (`det/cics.py`): OPTIONS and the refusals come from the spec entry (spec PR 2); every option it
+      does not honour refused BY NAME with the entry's reason; conditions through
       `outcome()` / `conditions()` with the RESP2 IBM documents; HANDLE CONDITION / NOHANDLE / RESP all honoured.
       A failing test first in `tests/cobol_mainframe/test_det_translate.py`.
 - [ ] **BOTH runtimes**, the same semantics: the Java `CicsTask` / `DetCics` (cobolrt) AND the stub
@@ -78,6 +81,8 @@ Traps `--check` exists for:
       holes naming the verb. Quote the summary lines in the PR; name the next blocking holes as follow-ups.
 - [ ] **Ratchets:** `tests/tools/box/heavy-run.sh $PY tests/tools/pr_gates.py --ratchets`, then the full
       `pr_gates.py`. A skip is not a pass. `proof_sweep.py --det-only --skip-db2` when the runtime changed.
+- [ ] **After merge:** `pr_check.py N` before merging (`--merge` squash-merges only when green), then
+      `cics_census.py history append --pr N` (blocker-slice section 4).
 - [ ] **Two draft PRs:** gitgalaxy ("Part of #4270 (slice N: ...)", labels enhancement / testing /
       legacy-modernization) and the cics-crucible case PR (a "Cross-repo" note: companion PR, merge order, what
       re-runs). No tag or pin bump in either.

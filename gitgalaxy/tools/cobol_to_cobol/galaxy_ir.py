@@ -2190,7 +2190,7 @@ class GalaxyIR:
         fields: list = []
         unexpanded: list = []
         copybooks: list = []
-        state = {"variable": False, "unknown": False}
+        state = {"variable": False, "unknown": False, "align": 1}
         extension_files = sorted({f.file_path for f, _ in extension or []})
 
         def _walk(
@@ -2216,6 +2216,7 @@ class GalaxyIR:
                 kids = kids + list(extension)
             if kids:
                 size = 0
+                outer_align, state["align"] = state["align"], 1  # #4266: the largest boundary under `it`
                 # #4280: the storage a REDEFINES group shares -- (start, width) of the item last
                 # redefined. An overlay WIDER than its target extends it: the region is the max of
                 # the target and all its overlays (carddemo COADM02Y: 6 option rows of data, a
@@ -2242,7 +2243,11 @@ class GalaxyIR:
                     kid_width = _walk(kid_file, kid, offset + size, kid_depth, sink, usage)
                     region = [offset + size, kid_width, kid.name.upper()]
                     size += kid_width
+                if it.occurs_max:
+                    size += -size % state["align"]  # #4266: slack ends each occurrence of a table group
+                state["align"] = max(outer_align, state["align"])
                 return size * times
+            state["align"] = max(state["align"], _sync_boundary(it, usage))
             width = _elementary_bytes(it, usage)
             if width is None:
                 state["unknown"] = True
@@ -4890,6 +4895,7 @@ class GalaxyIR:
         # same item objects out twice, and `spans` / `paths` keep only the last placement (#4204).
         placed: dict = {}
         items: dict = {}  # record key -> [(offset, bytes, depth, name)]
+        align = [1]  # #4266: the largest SYNC boundary seen under the group being laid out
 
         def walk(
             owner: EngineFile,
@@ -4910,6 +4916,7 @@ class GalaxyIR:
                 kids = kids + list(ext)
             if kids:
                 size: Optional[int] = 0
+                outer_align, align[0] = align[0], 1  # #4266: the largest boundary under `it`
                 at: dict = {}
                 region: Optional[list] = None  # #4280: [target name, shared width] -- as record_layout
                 for kid_file, kid in kids:
@@ -4938,8 +4945,12 @@ class GalaxyIR:
                     width = walk(kid_file, kid, key, offset + (size or 0), depth + 1, None, (it.name, *path), usage)
                     region = [kid.name.upper(), width]
                     size = None if size is None or width is None else size + width
+                if size is not None and it.occurs_max:
+                    size += -size % align[0]  # #4266: slack ends each occurrence of a table group
+                align[0] = max(outer_align, align[0])
                 total = None if size is None else size * times
             else:
+                align[0] = max(align[0], _sync_boundary(it, usage))
                 width = _elementary_bytes(it, usage)
                 total = None if width is None else width * times
             # One occurrence's width rides along: a subscripted reference moves one.
@@ -5713,7 +5724,8 @@ def _sync_boundary(item: EngineDataItem, usage: str | None) -> int:
 def _slack(item: EngineDataItem, inherited: str | None, at: int) -> int:
     """#4266: the slack bytes the compiler puts before `item` when it would start at record offset
     `at` (0 unless it is SYNCHRONIZED and `at` is off its boundary). `inherited` is the enclosing
-    group's USAGE (#4525). Slack between the occurrences of a table is not modelled."""
+    group's USAGE (#4525). Slack between the occurrences of a table is added by the callers, as IBM's
+    "Slack bytes within records" rule: a table group is padded to the largest boundary under it."""
     return -at % _sync_boundary(item, _usage_under(item, inherited))
 
 

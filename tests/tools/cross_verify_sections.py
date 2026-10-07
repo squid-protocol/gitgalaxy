@@ -2846,7 +2846,15 @@ list each ELEMENTARY item that has a PICTURE and a name (not FILLER): {{"root", 
     SEPARATE adds one. COMP / COMP-4 / COMP-5 / BINARY (and the COMPUTATIONAL spellings): 2 bytes for up to 4 digit
     positions, 4 up to 9, 8 up to 18. COMP-3 / COMPUTATIONAL-3 / PACKED-DECIMAL: digits / 2 + 1 (integer division).
     An item with no PICTURE but USAGE POINTER / FUNCTION-POINTER / INDEX / COMP-1 takes 4 bytes, PROCEDURE-POINTER /
-    COMP-2 8 bytes: it counts toward sizes but is not listed. Assume no slack bytes (ignore SYNCHRONIZED).
+    COMP-2 8 bytes: it counts toward sizes but is not listed.
+  - SYNCHRONIZED (SYNC, with or without LEFT / RIGHT) adds slack bytes, IBM Enterprise COBOL's rules: an elementary
+    item with SYNC starts on its boundary counted in bytes from the start of its 01/77 record (the record starts on
+    a doubleword): binary of up to 4 digit positions a halfword, of 5 to 18 a fullword (an 8-byte binary too),
+    COMP-1 / INDEX and the pointers a fullword, COMP-2 a doubleword. SYNC on a DISPLAY, packed or national item
+    adds nothing. The slack sits before the item and counts toward the size of the group that holds it
+    (the item's own bytes exclude it). A group with OCCURS that holds a SYNC item has its occurrence size rounded up
+    to a multiple of the largest boundary of any SYNC item inside it, the slack at the end of each occurrence, so
+    every occurrence begins the same way as the first. An item with no SYNC is never moved.
   - A group's size is the sum of its subordinate items. OCCURS n (or m TO n): the item takes n times one
     occurrence; items under an occurring group are listed ONCE, at their offset in the FIRST occurrence.
   - REDEFINES: an item that redefines another, with everything under it, is NOT laid out -- skip it entirely and do

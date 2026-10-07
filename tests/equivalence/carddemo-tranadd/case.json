@@ -1318,6 +1318,258 @@
      "why": "14 on the WRITE (line 735): 'Tran ID already exist...'"
     }
    ]
+  },
+  {
+   "name": "amount-without-sign",
+   "aid": "DFHENTER",
+   "commarea": {
+    "CDEMO-FROM-TRANID": "CM00",
+    "CDEMO-FROM-PROGRAM": "COMEN01C",
+    "CDEMO-USER-ID": "USER0001",
+    "CDEMO-USER-TYPE": "U",
+    "CDEMO-PGM-CONTEXT": 1
+   },
+   "receive": {
+    "COTRN2A": {
+     "TTYPCDI": "01",
+     "TCATCDI": "0001",
+     "TRNSRCI": "POS TERM",
+     "TDESCI": "Purchase at Corner Books",
+     "TRNAMTI": "000000123.45",
+     "TORIGDTI": "2022-07-18",
+     "TPROCDTI": "2022-07-18",
+     "MIDI": "800000001",
+     "MNAMEI": "Corner Books",
+     "MCITYI": "Springfield",
+     "MZIPI": "12345",
+     "ACTIDINI": "00000000050",
+     "CONFIRMI": "Y"
+    }
+   },
+   "why": "#4628 (det-port mutant d5863e6065): an amount whose first character is a digit, not '-' or '+', but whose other parts have the format: 'Amount should be in format -99999999.99'"
+  },
+  {
+   "name": "orig-date-year-not-numeric",
+   "aid": "DFHENTER",
+   "commarea": {
+    "CDEMO-FROM-TRANID": "CM00",
+    "CDEMO-FROM-PROGRAM": "COMEN01C",
+    "CDEMO-USER-ID": "USER0001",
+    "CDEMO-USER-TYPE": "U",
+    "CDEMO-PGM-CONTEXT": 1
+   },
+   "receive": {
+    "COTRN2A": {
+     "TTYPCDI": "01",
+     "TCATCDI": "0001",
+     "TRNSRCI": "POS TERM",
+     "TDESCI": "Purchase at Corner Books",
+     "TRNAMTI": "+00000123.45",
+     "TORIGDTI": "20X2-07-18",
+     "TPROCDTI": "2022-07-18",
+     "MIDI": "800000001",
+     "MNAMEI": "Corner Books",
+     "MCITYI": "Springfield",
+     "MZIPI": "12345",
+     "ACTIDINI": "00000000050",
+     "CONFIRMI": "Y"
+    }
+   },
+   "why": "#4628 (det-port mutant ce770f7e9f): only the year is not numeric -- 'Orig Date should be in format YYYY-MM-DD'"
+  },
+  {
+   "name": "orig-date-second-separator",
+   "aid": "DFHENTER",
+   "commarea": {
+    "CDEMO-FROM-TRANID": "CM00",
+    "CDEMO-FROM-PROGRAM": "COMEN01C",
+    "CDEMO-USER-ID": "USER0001",
+    "CDEMO-USER-TYPE": "U",
+    "CDEMO-PGM-CONTEXT": 1
+   },
+   "receive": {
+    "COTRN2A": {
+     "TTYPCDI": "01",
+     "TCATCDI": "0001",
+     "TRNSRCI": "POS TERM",
+     "TDESCI": "Purchase at Corner Books",
+     "TRNAMTI": "+00000123.45",
+     "TORIGDTI": "2022-07/18",
+     "TPROCDTI": "2022-07-18",
+     "MIDI": "800000001",
+     "MNAMEI": "Corner Books",
+     "MCITYI": "Springfield",
+     "MZIPI": "12345",
+     "ACTIDINI": "00000000050",
+     "CONFIRMI": "Y"
+    }
+   },
+   "why": "#4628 (det-port mutant 7cb3f8d874): only the second separator is wrong -- 'Orig Date should be in format YYYY-MM-DD'"
+  },
+  {
+   "name": "proc-date-first-separator",
+   "aid": "DFHENTER",
+   "commarea": {
+    "CDEMO-FROM-TRANID": "CM00",
+    "CDEMO-FROM-PROGRAM": "COMEN01C",
+    "CDEMO-USER-ID": "USER0001",
+    "CDEMO-USER-TYPE": "U",
+    "CDEMO-PGM-CONTEXT": 1
+   },
+   "receive": {
+    "COTRN2A": {
+     "TTYPCDI": "01",
+     "TCATCDI": "0001",
+     "TRNSRCI": "POS TERM",
+     "TDESCI": "Purchase at Corner Books",
+     "TRNAMTI": "+00000123.45",
+     "TORIGDTI": "2022-07-18",
+     "TPROCDTI": "2022/07-18",
+     "MIDI": "800000001",
+     "MNAMEI": "Corner Books",
+     "MCITYI": "Springfield",
+     "MZIPI": "12345",
+     "ACTIDINI": "00000000050",
+     "CONFIRMI": "Y"
+    }
+   },
+   "why": "#4628 (det-port mutant 7933f2fe83): only the first separator is wrong -- 'Proc Date should be in format YYYY-MM-DD'"
+  },
+  {
+   "name": "proc-date-month-not-numeric",
+   "aid": "DFHENTER",
+   "commarea": {
+    "CDEMO-FROM-TRANID": "CM00",
+    "CDEMO-FROM-PROGRAM": "COMEN01C",
+    "CDEMO-USER-ID": "USER0001",
+    "CDEMO-USER-TYPE": "U",
+    "CDEMO-PGM-CONTEXT": 1
+   },
+   "receive": {
+    "COTRN2A": {
+     "TTYPCDI": "01",
+     "TCATCDI": "0001",
+     "TRNSRCI": "POS TERM",
+     "TDESCI": "Purchase at Corner Books",
+     "TRNAMTI": "+00000123.45",
+     "TORIGDTI": "2022-07-18",
+     "TPROCDTI": "2022-0X-18",
+     "MIDI": "800000001",
+     "MNAMEI": "Corner Books",
+     "MCITYI": "Springfield",
+     "MZIPI": "12345",
+     "ACTIDINI": "00000000050",
+     "CONFIRMI": "Y"
+    }
+   },
+   "why": "#4628 (det-port mutant 39920e8785): only the month is not numeric -- 'Proc Date should be in format YYYY-MM-DD'"
+  },
+  {
+   "name": "proc-date-second-separator",
+   "aid": "DFHENTER",
+   "commarea": {
+    "CDEMO-FROM-TRANID": "CM00",
+    "CDEMO-FROM-PROGRAM": "COMEN01C",
+    "CDEMO-USER-ID": "USER0001",
+    "CDEMO-USER-TYPE": "U",
+    "CDEMO-PGM-CONTEXT": 1
+   },
+   "receive": {
+    "COTRN2A": {
+     "TTYPCDI": "01",
+     "TCATCDI": "0001",
+     "TRNSRCI": "POS TERM",
+     "TDESCI": "Purchase at Corner Books",
+     "TRNAMTI": "+00000123.45",
+     "TORIGDTI": "2022-07-18",
+     "TPROCDTI": "2022-07/18",
+     "MIDI": "800000001",
+     "MNAMEI": "Corner Books",
+     "MCITYI": "Springfield",
+     "MZIPI": "12345",
+     "ACTIDINI": "00000000050",
+     "CONFIRMI": "Y"
+    }
+   },
+   "why": "#4628 (det-port mutant 943831cd4c): only the second separator is wrong -- 'Proc Date should be in format YYYY-MM-DD'"
+  },
+  {
+   "name": "invalid-key-header-fields-sent-back",
+   "aid": "DFHPF9",
+   "commarea": {
+    "CDEMO-FROM-TRANID": "CM00",
+    "CDEMO-FROM-PROGRAM": "COMEN01C",
+    "CDEMO-USER-ID": "USER0001",
+    "CDEMO-USER-TYPE": "U",
+    "CDEMO-PGM-CONTEXT": 1
+   },
+   "receive": {
+    "COTRN2A": {
+     "TTYPCDI": "01",
+     "TCATCDI": "0001",
+     "TRNSRCI": "POS TERM",
+     "TDESCI": "Purchase at Corner Books",
+     "TRNAMTI": "+00000123.45",
+     "TORIGDTI": "2022-07-18",
+     "TPROCDTI": "2022-07-18",
+     "MIDI": "800000001",
+     "MNAMEI": "Corner Books",
+     "MCITYI": "Springfield",
+     "MZIPI": "12345",
+     "ACTIDINI": "00000000050",
+     "CONFIRMI": "Y",
+     "TRNNAMEI": "CT02",
+     "TITLE01I": "AWS Mainframe Modernization",
+     "PGMNAMEI": "COTRN02C"
+    }
+   },
+   "why": "#4628 (det-port mutant 5c244d7944): the terminal sends the FSET header fields back (TRNNAME, TITLE01, PGMNAME: ATTRB=(ASKIP,FSET,NORM) in COTRN02.bms); an invalid key re-sends the screen"
+  },
+  {
+   "name": "full-commarea-carried",
+   "aid": "DFHPF9",
+   "commarea": {
+    "CDEMO-FROM-TRANID": "CM00",
+    "CDEMO-FROM-PROGRAM": "COMEN01C",
+    "CDEMO-USER-ID": "USER0001",
+    "CDEMO-USER-TYPE": "U",
+    "CDEMO-PGM-CONTEXT": 1,
+    "CDEMO-TO-TRANID": "CT00",
+    "CDEMO-TO-PROGRAM": "COTRN00C",
+    "CDEMO-CUST-ID": 123456789,
+    "CDEMO-CUST-FNAME": "ALICE",
+    "CDEMO-CUST-MNAME": "B",
+    "CDEMO-CUST-LNAME": "SMITH",
+    "CDEMO-ACCT-ID": 12345678901,
+    "CDEMO-ACCT-STATUS": "Y",
+    "CDEMO-CARD-NUM": 4111111111111111,
+    "CDEMO-LAST-MAP": "COTRN2A",
+    "CDEMO-LAST-MAPSET": "COTRN02",
+    "CDEMO-CT02-TRNID-FIRST": "0000000000000001",
+    "CDEMO-CT02-TRNID-LAST": "0000000000000010",
+    "CDEMO-CT02-PAGE-NUM": 2,
+    "CDEMO-CT02-NEXT-PAGE-FLG": "Y",
+    "CDEMO-CT02-TRN-SEL-FLG": "S",
+    "CDEMO-CT02-TRN-SELECTED": "0000000000000005"
+   },
+   "receive": {
+    "COTRN2A": {
+     "TTYPCDI": "01",
+     "TCATCDI": "0001",
+     "TRNSRCI": "POS TERM",
+     "TDESCI": "Purchase at Corner Books",
+     "TRNAMTI": "+00000123.45",
+     "TORIGDTI": "2022-07-18",
+     "TPROCDTI": "2022-07-18",
+     "MIDI": "800000001",
+     "MNAMEI": "Corner Books",
+     "MCITYI": "Springfield",
+     "MZIPI": "12345",
+     "ACTIDINI": "00000000050",
+     "CONFIRMI": "Y"
+    }
+   },
+   "why": "#4628 (det-port mutants d7391abd3f, af5725a32e, a7797d5d5a): every COMMAREA field set, COTRN02C's CT02 part too; an invalid key re-sends the screen and the RETURN carries the COMMAREA back"
   }
  ],
  "notes": "CardDemo's add-transaction screen (transaction CT02, program COTRN02C): the account (through the CXACAIX alternate index) or the card (CCXREF) is looked up in the card cross-reference, every field is validated -- the dates through CALL 'CSUTLDTC' (CEEDAYS; the COBOL side links CardDemo's CSUTLDTC and tests/equivalence/le/ceedays.c, the Java side its proven port from carddemo-dateutil) -- and on confirmation the new transaction id is the last id + 1, found by a HIGH-VALUES STARTBR and a READPREV, and WRITEn. PF5 copies the last transaction's data. Each scenario's TRANSACT file is compared after the task; it is loaded from CardDemo's own dailytran.txt (the same 350-byte layout). Derived from CardDemo (Apache-2.0; Copyright Amazon.com, Inc. or its affiliates): LICENSE and NOTICE here are the source's own."

@@ -27,7 +27,7 @@
     "tests/equivalence/carddemo-tranadd/**"
    ],
    "files": 1,
-   "sha256": "9df37db4a0702e02d26ba7d7a796a58e66337983e82ae4b3d85ff26d603a2c97"
+   "sha256": "e7a6514a0f7e07fbb660a4265e82c8a2b00cc8cd5f1fca34c0209c86197ae999"
   },
   "harness": {
    "paths": [
@@ -74,12 +74,12 @@
   "differences": {
    "sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
   },
-  "digest": "6c4814fd6b2efaca94272a51fb175a2cf9ec04752355fa94a950c8a15fb6cd61"
+  "digest": "43cce66cb3f682f2955111caec33670c96cc1802a18fad768ed0d15725bd249b"
  },
  "proof": {
-  "at": "2026-10-07T14:56:10Z",
+  "at": "2026-10-07T22:23:56Z",
   "verdict": "proven",
-  "runs": 46,
+  "runs": 54,
   "fault_runs": 8,
   "environments": null,
   "outputs": {
@@ -266,6 +266,38 @@
    "write-duprec": {
     "equal": 3,
     "records": 3
+   },
+   "amount-without-sign": {
+    "equal": 3,
+    "records": 3
+   },
+   "orig-date-year-not-numeric": {
+    "equal": 3,
+    "records": 3
+   },
+   "orig-date-second-separator": {
+    "equal": 3,
+    "records": 3
+   },
+   "proc-date-first-separator": {
+    "equal": 3,
+    "records": 3
+   },
+   "proc-date-month-not-numeric": {
+    "equal": 3,
+    "records": 3
+   },
+   "proc-date-second-separator": {
+    "equal": 3,
+    "records": 3
+   },
+   "invalid-key-header-fields-sent-back": {
+    "equal": 3,
+    "records": 3
+   },
+   "full-commarea-carried": {
+    "equal": 3,
+    "records": 3
    }
   },
   "return_code_equal": null,
@@ -274,16 +306,16 @@
   "java_failed": false,
   "facade": {
    "verdict": "proven",
-   "runs": 46,
-   "passed": 46,
+   "runs": 54,
+   "passed": 54,
    "entry_points": [
     "handleTransaction"
    ],
    "failed": [],
    "error": null
   },
-  "harness_commit": "4a31c3d8a01d630aa00421b590600aa51bed5c8d+uncommitted",
-  "inputs_digest": "6c4814fd6b2efaca94272a51fb175a2cf9ec04752355fa94a950c8a15fb6cd61"
+  "harness_commit": "d1f0671aa773249f9d2c88cc5416b279ce1a5335+uncommitted",
+  "inputs_digest": "43cce66cb3f682f2955111caec33670c96cc1802a18fad768ed0d15725bd249b"
  },
  "coverage": {
   "paragraphs": {
@@ -319,7 +351,7 @@
    "total": 0
   },
   "source": "the proof's own traced COBOL runs (cobol_coverage.py)",
-  "inputs_digest": "6c4814fd6b2efaca94272a51fb175a2cf9ec04752355fa94a950c8a15fb6cd61"
+  "inputs_digest": "43cce66cb3f682f2955111caec33670c96cc1802a18fad768ed0d15725bd249b"
  },
  "reach": {
   "entry_points": [

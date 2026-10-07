@@ -343,7 +343,7 @@
    }
   },
   "carddemo-tranadd": {
-   "scenarios": 46,
+   "scenarios": 54,
    "paragraphs": {
     "covered": 18,
     "live": 18
@@ -353,7 +353,7 @@
     "total": 75
    },
    "inputs": {
-    "case": "9df37db4a0702e02d26ba7d7a796a58e66337983e82ae4b3d85ff26d603a2c97",
+    "case": "e7a6514a0f7e07fbb660a4265e82c8a2b00cc8cd5f1fca34c0209c86197ae999",
     "corpus": "d0c4803872ec126eb56a170212f76207beff5ab8c2b6507dd6df4a084cdeb919",
     "harness": "fee14be7661ceeeb9fec70d509307f329243eab0342709c1f0e7464599b7e378",
     "oracle": "34e4374b3f771d8a11ed9471e6ec942784f1f5435a723bdd080f8567eda4171c"

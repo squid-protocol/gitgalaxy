@@ -1,0 +1,21 @@
+{
+ "kind": "cics",
+ "corpus": "cics-async-api-credit-card-application-example",
+ "program": "GETPOL",
+ "program_source": "src/GETPOL.cbl",
+ "copy_dirs": [],
+ "transid": "GETP",
+ "clock": "2026/10/01 10:30:15.00",
+ "datasets": {},
+ "commarea": null,
+ "linked": true,
+ "screens": {},
+ "notes": "IBM's CICS asynchronous API credit-card example: GETPOL (transaction GETP, the customer's policy lookup) is one of the eight services ASYNCPNT starts in parallel (RUN TRANSID) and SEQPNT LINKs to in sequence. It stands in for a slow back end: DELAY FOR SECONDS(2), then RETURN. Its LINKAGE SECTION is empty -- it takes no COMMAREA (\"commarea\": null, #4270: EIBCALEN 0 on both sides; the det service is handleLink()). The RETURN is compared; the DELAY changes nothing a task can see (a task takes no time, oracle_assumptions.md X4) and is not an event on either side. There is no branch. Derived from github.com/cicsdev/cics-async-api-credit-card-application-example (Apache-2.0; Copyright IBM Corp. 2016): LICENSE here is the corpus's own, NOTICE names the source and what was derived.",
+ "scenarios": [
+  {
+   "name": "delay-then-return",
+   "commarea": null,
+   "why": "no COMMAREA (EIBCALEN 0): DELAY FOR SECONDS(2) NORMAL, then RETURN -- the whole program; the RETURN (no TRANSID, no COMMAREA) is its one event"
+  }
+ ]
+}

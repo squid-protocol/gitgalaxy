@@ -1355,7 +1355,7 @@
     "cases": [
      {
       "case": "genapp-lgacdb01",
-      "case_scenarios": 5,
+      "case_scenarios": 6,
       "db2": true,
       "det": {
        "state": "not run",
@@ -1938,7 +1938,7 @@
     "cases": [
      {
       "case": "genapp-lgdpdb01",
-      "case_scenarios": 9,
+      "case_scenarios": 11,
       "db2": true,
       "det": {
        "state": "not run",
@@ -2821,7 +2821,7 @@
     "cases": [
      {
       "case": "genapp-lgacdb01",
-      "case_scenarios": 5,
+      "case_scenarios": 6,
       "db2": true,
       "det": {
        "state": "not run",
@@ -2835,7 +2835,7 @@
     ],
     "chosen": {
      "case": "genapp-lgacdb01",
-     "case_scenarios": 5,
+     "case_scenarios": 6,
      "db2": true,
      "det": {
       "state": "not run",
@@ -3077,7 +3077,7 @@
     "cases": [
      {
       "case": "genapp-lgacdb01",
-      "case_scenarios": 5,
+      "case_scenarios": 6,
       "db2": true,
       "det": {
        "state": "not run",
@@ -3090,7 +3090,7 @@
      },
      {
       "case": "genapp-lgacdb02",
-      "case_scenarios": 9,
+      "case_scenarios": 10,
       "db2": true,
       "det": {
        "state": "not run",
@@ -3104,7 +3104,7 @@
     ],
     "chosen": {
      "case": "genapp-lgacdb02",
-     "case_scenarios": 9,
+     "case_scenarios": 10,
      "db2": true,
      "det": {
       "state": "not run",
@@ -4026,7 +4026,7 @@
     "cases": [
      {
       "case": "genapp-lgdpdb01",
-      "case_scenarios": 9,
+      "case_scenarios": 11,
       "db2": true,
       "det": {
        "state": "not run",
@@ -4040,7 +4040,7 @@
     ],
     "chosen": {
      "case": "genapp-lgdpdb01",
-     "case_scenarios": 9,
+     "case_scenarios": 11,
      "db2": true,
      "det": {
       "state": "not run",
@@ -5046,7 +5046,7 @@
     "cases": [
      {
       "case": "genapp-lgipdb01",
-      "case_scenarios": 40,
+      "case_scenarios": 46,
       "db2": true,
       "det": {
        "state": "not run",
@@ -5060,7 +5060,7 @@
     ],
     "chosen": {
      "case": "genapp-lgipdb01",
-     "case_scenarios": 40,
+     "case_scenarios": 46,
      "db2": true,
      "det": {
       "state": "not run",
@@ -5536,7 +5536,7 @@
     "cases": [
      {
       "case": "genapp-lgacdb01",
-      "case_scenarios": 5,
+      "case_scenarios": 6,
       "db2": true,
       "det": {
        "state": "not run",
@@ -5549,7 +5549,7 @@
      },
      {
       "case": "genapp-lgacdb02",
-      "case_scenarios": 9,
+      "case_scenarios": 10,
       "db2": true,
       "det": {
        "state": "not run",
@@ -5562,7 +5562,7 @@
      },
      {
       "case": "genapp-lgdpdb01",
-      "case_scenarios": 9,
+      "case_scenarios": 11,
       "db2": true,
       "det": {
        "state": "not run",
@@ -5575,7 +5575,7 @@
      },
      {
       "case": "genapp-lgipdb01",
-      "case_scenarios": 40,
+      "case_scenarios": 46,
       "db2": true,
       "det": {
        "state": "not run",
@@ -5602,7 +5602,7 @@
     ],
     "chosen": {
      "case": "genapp-lgacdb01",
-     "case_scenarios": 5,
+     "case_scenarios": 6,
      "db2": true,
      "det": {
       "state": "not run",

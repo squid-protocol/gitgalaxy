@@ -100,6 +100,7 @@ verdict, but it limits what the proof says about inputs outside the scenarios.
 | X20 | CICS | SEND TEXT on the det port and the stub: TERMINAL accepted as the default output disposition (the principal facility; the event is that of SEND TEXT without it); ACCUM, PAGING, SET, REQID, HEADER, TRAILER, JUSTIFY / JUSFIRST / JUSLAST, the printer, partition and LDC options, MSR, FMHPARM, DEFAULT / ALTERNATE refused | MATCHED (REFUSED where the region cannot decide) | yes (cics-crucible gt-send-text-terminal, unreleased) |
 | X21 | CICS | EIBTASKN: the task's number is a stated fact of the run (`$GGCICS_TASKN` / `CicsTask.withTaskNumber`, a case's or scenario's `"taskn"`, default 0), not the number CICS assigns; a value outside 0 to 9,999,999 refused | DIFFERS (the value) / MATCHED (both sides) | yes (every CICS task; read by CBSA's Db2 programs, GenApp LGICDB01) |
 | X22 | CICS | READ GTEQ / GENERIC on a KSDS: the first record whose key (or its first KEYLENGTH bytes) equals RIDFLD's or, with GTEQ, is greater, in the browse's key order (D1); NOTFND RESP2 80; READ UPDATE holds the record found; RIDFLD not updated; a GENERIC KEYLENGTH not shorter than the key or not above zero, a non-constant KEYLENGTH and a RIDFLD shorter than the key searched refused | ASSUMED (REFUSED where IBM is silent or the layout decides) | yes (GenApp LGICVS01 genapp-lgicvs01) |
+| X23 | CICS | A COMMAREA of a stated length (a scenario's `commarea_length`, EIBCALEN shorter than the record): the program is given exactly those bytes; a reference past EIBCALEN refused on both sides, the task judged up to it | ASSUMED (REFUSED past EIBCALEN) | yes (GenApp LGACDB01, LGACDB02, LGDPDB01, LGIPDB01) |
 | L1 | LE | CEEDAYS: documented pictures only | MATCHED / REFUSED | yes |
 | L2 | LE | CEE3ABD abend codes | MATCHED | yes |
 | L3 | LE | WORKING-STORAGE with no VALUE clause: GnuCOBOL's spaces vs LE's STORAGE option on z/OS | ASSUMED | yes (CardDemo READACCT OUTFILE, 2 bytes) |
@@ -546,8 +547,9 @@ The length READQ TS returns on ITEMERR or QIDERR is not documented, so it is not
 - **#4173.** An SQL-fault task (M2) that reaches a LINK to a program the case does not run is judged up to and
   including that LINK -- its events and the COMMAREA's bytes as LINKed, byte for byte. With LGSTSQ in a case's
   `"programs"` (GenApp's Db2 cases, #4607) the task runs on to the X6 refusal instead.
-- **Still out of reach:** WRITE-ERROR-MESSAGE's `IF EIBCALEN < 91` true side needs a COMMAREA shorter than 91 bytes; the
-  harness passes each case's whole COMMAREA (a per-scenario length is a follow-up).
+- **Reached since (#4270, X23):** WRITE-ERROR-MESSAGE's `IF EIBCALEN < 91` true side in LGACDB02, LGDPDB01 and
+  LGIPDB01, by scenarios that state a COMMAREA shorter than 91 bytes (`commarea_length`). LGACDB01's and LGUCDB01's
+  need a failing statement whose host variables lie past EIBCALEN (X23).
 
 ### X7. ASSIGN INVOKINGPROG / PROGRAM, and several programs in one task — MATCHED
 - ASSIGN PROGRAM is the running program, INVOKINGPROG the program that LINKed or XCTLed to it (blanks for a task's
@@ -886,6 +888,42 @@ The length READQ TS returns on ITEMERR or QIDERR is not documented, so it is not
   no file control yet (its files.cfg is empty), so the READ semantics are pinned by the runtime tests below. Pinned
   by `tests/cobol_mainframe/test_det_translate.py` (`test_read_gteq_*`) and `test_equivalence_cics.py`
   (`test_a_read_gteq_generic_search_is_named_to_the_stub`).
+
+### X23. A COMMAREA of a stated length — ASSUMED, a reference past EIBCALEN REFUSED (#4270)
+- **What IBM documents** (CICS TS 6.x, LINK: "COMMAREA(data-area) specifies a communication area that is to be made
+  available to the invoked program ... LENGTH(data-value) specifies the length (halfword binary value) in bytes of the
+  COMMAREA"; the invoked program's EIBCALEN is that length). A caller may pass fewer bytes than the invoked program's
+  DFHCOMMAREA declares, and GenApp's services test for it: `IF EIBCALEN IS LESS THAN WS-REQUIRED-CA-LEN` -> '98', and
+  WRITE-ERROR-MESSAGE's `IF EIBCALEN < 91`. What a program sees past EIBCALEN is the caller's storage after the area
+  (a local LINK passes its address) or nothing CICS defines -- either way not the program's to read.
+- **The harness's model.** A scenario states `"commarea_length": N` (1 to the record's length; never on a scenario
+  with no COMMAREA): the caller passed the record's first N bytes and no more. Both sides give the program exactly N:
+  the stub's driver hands the program the area GGCAREA chose -- the N bytes at the end of a page before an
+  inaccessible one (`commarea.exact`) -- and the Java side states it (`CicsTask` with EIBCALEN N and
+  `withExactCommarea()`): the det port's DFHCOMMAREA storage holds those N bytes for the task. The COMMAREA a LINKed
+  program leaves is compared over the fields within the N bytes.
+- **Refused, both sides; judged up to it.** A reference past EIBCALEN, read or write, stops the stub at that
+  statement (the guard page faults: 98, "COMMAREA past EIBCALEN: not modelled") and the det port at the same one
+  (`DetCics.PastFrom`, "COMMAREA past EIBCALEN (N bytes): not modelled"). As X6, the task is compared up to it and
+  passes only when both sides refused there (the report's `x6` with `assumes: "X23"`); its end state is not compared.
+  What z/OS shows there is not claimed.
+- **Not covered.** A model port reads its COMMAREA DTO, which holds the whole record: it cannot refuse a reference past
+  EIBCALEN, so a scenario that makes one fails against a model port (one side refused). Only the level-1 COMMAREA is
+  exact: a LINK's or an XCTL's COMMAREA keeps the existing models (X10, and the stub's copy of an XCTL's LENGTH bytes),
+  and a det port LINKing its own DFHCOMMAREA with a LENGTH past N passes what it has (`Cobol.commarea` clamps) where the
+  stub stops. A guard page needs POSIX (mmap / mprotect): on Windows the stub refuses a stated length.
+- **A failing SQL statement's host variables.** The det port binds a statement's input host variables before
+  DetSql decides whether a planned SQL fault fires; the stub's injected fault reads none. A faulted statement whose
+  host variables lie past EIBCALEN therefore stops the det port there (X23) and not the stub -- the task fails as
+  "not the same refusal", never passes. GenApp LGACDB01 (EIBCALEN 90, its INSERT failing) and LGUCDB01 (under 91, its
+  UPDATE failing) would reach `IF EIBCALEN < 91` that way; on z/OS the statement would read the caller's storage past
+  the area, so those outcomes stay unreached.
+- **Reached.** GenApp's Db2 services: LGACDB01 line 165 ('98', 60 bytes); LGDPDB01 line 143 ('98', 20 bytes) and
+  WRITE-ERROR-MESSAGE's `EIBCALEN < 91` (40 bytes, the DELETE failing); LGIPDB01's five '98' returns (40 bytes) and
+  `< 91` (the SELECT failing); LGACDB02 `< 91` (60 bytes, the INSERT failing). Each `< 91` task then LINKs LGSTSQ with
+  CA-ERROR-MSG and is judged up to X6. Pinned by
+  `tests/cobol_mainframe/test_equivalence_cics.py` (the guard page, the driver, the length's checks) and
+  `tests/cobol_mainframe/test_det_translate.py` (the det port's cut storage).
 
 ## Language Environment
 

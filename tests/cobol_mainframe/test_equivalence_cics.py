@@ -949,3 +949,124 @@ def test_a_readq_ts_and_a_receive_the_stub_logged_read_as_cicstask_records_them(
                                                                           "data": "LGCF"}  # fmt: skip
     java = {"event": "READQ-TS", "data": base64.b64encode("LGCF".encode("cp037")).decode()}
     assert ec.java_read_as_compared(java)["data"] == "LGCF"
+
+
+# ---- #4270: a program that takes no COMMAREA; a scenario's stated COMMAREA length (X23) ---------------------------
+def test_a_case_says_its_program_takes_no_commarea(tmp_path):
+    """#4270 (the async credit-card services: an empty LINKAGE SECTION, a det service handleLink()): `"commarea": null`
+    describes no COMMAREA -- no fields, no DTO, EIBCALEN 0 on both sides. A case that says nothing, or an empty
+    segment list, is refused by name (it was a KeyError / IndexError), and so is a scenario that gives one anyway."""
+    assert ec.commarea_fields(tmp_path, {"commarea": None}) == []
+    with pytest.raises(ec.Unsupported, match='"commarea": null for a program that takes none'):
+        ec.commarea_fields(tmp_path, {})
+    with pytest.raises(ec.Unsupported, match="describes nothing"):
+        ec.commarea_fields(tmp_path, {"commarea": {"segments": []}})
+    svc = tmp_path / "GetpolService.java"
+    svc.write_text("public class GetpolService {\n    public void handleLink() {\n    }\n}\n", encoding="utf-8")
+    assert ec.commarea_class({"commarea": None}, tmp_path, svc) is None
+    import equivalence_java as ej
+
+    (tmp_path / "service").mkdir()
+    (tmp_path / "service" / f"{ej._service_class('PROG')}.java").write_text("public void handleLink() {}")
+    case = {**_facade_case(), "clock": "2026/10/01 10:30:15.00", "screens": {}, "commarea": None, "linked": True}
+    java = ec.cics_equivalence_test(case, tmp_path, [])
+    assert "Object commarea = null;" in java and "treeToValue" not in java
+    assert "ScreenModel" not in java  # an estate with no BMS map has no screen view models (dto.screen)
+    assert 'm = method(service, "handleLink", 0);' in java  # the facade side enters handleLink() itself
+
+
+def test_a_commarea_in_an_event_of_a_case_with_none_is_refused(tmp_path):
+    out = tmp_path / "out"
+    out.mkdir()
+    (out / "events.txt").write_text("001 RETURN level=1 transid= len=4\n", encoding="ascii")
+    (out / "001.bin").write_bytes(b"ABCD")
+    with pytest.raises(ec.Unsupported, match="describes none"):
+        ec.outputs(out, {"name": "x"}, tmp_path, [])
+
+
+def test_a_scenario_states_a_commarea_shorter_than_its_record():
+    """#4270 (X23): `"commarea_length": N` is EIBCALEN -- the caller passed the record's first N bytes and no more
+    (GenApp's IF EIBCALEN < 91, its '98' returns). 1 to the record's length; never on a scenario with no COMMAREA."""
+    fields = [{"name": "CA-A", "offset": 0, "bytes": 2}, {"name": "CA-B", "offset": 2, "bytes": 98}]
+    assert ec.commarea_length({"name": "s", "commarea": {}}, fields) is None
+    assert ec.commarea_length({"name": "s", "commarea": {}, "commarea_length": 60}, fields) == 60
+    assert ec.commarea_length({"name": "s", "commarea": {}, "commarea_length": 100}, fields) == 100
+    for bad in (0, 101, -1, "60", True, 6.0):
+        with pytest.raises(ec.Unsupported, match="is not a length"):
+            ec.commarea_length({"name": "s", "commarea": {}, "commarea_length": bad}, fields)
+    with pytest.raises(ec.Unsupported, match="with no COMMAREA"):
+        ec.commarea_length({"name": "s", "commarea": None, "commarea_length": 10}, fields)
+
+
+def test_the_driver_runs_the_program_on_the_area_the_stub_chose():
+    """#4270 (X23): GGCAREA moves a COMMAREA of a stated length before a guard page; the driver passes whatever area
+    it chose (LK-CA), and writes back from it."""
+    drv = ec.cics_driver("PROG", True)
+    assert "CALL 'GGCAREA' USING WS-PTR BY VALUE WS-LEN" in drv and "SET ADDRESS OF LK-CA TO WS-PTR" in drv
+    assert "CALL 'PROG' USING LK-CA" in drv and "CALL 'GGCAOUT' USING LK-CA BY VALUE WS-LEN" in drv
+    assert "CALL 'PROG'\n" in ec.cics_driver("PROG", False)
+    assert all(len(ln) <= 72 for ln in drv.splitlines())
+
+
+def test_a_reference_past_a_stated_eibcalen_is_judged_up_to_it_x22(tmp_path):
+    """#4270 (X23): the stub's guard-page stop is judged up to, as X6's WRITEQ is; the report says which assumption."""
+    said = "COMMAREA past EIBCALEN: not modelled\n"
+    assert ec.judged_refusal(said) == "COMMAREA past EIBCALEN: not modelled"
+    assert ec.judged_refusal("WRITEQ TS LENGTH > FROM: not modelled") == "WRITEQ TS LENGTH > FROM: not modelled"
+    assert ec.judged_refusal("START LENGTH > FROM: not modelled") is None
+    (tmp_path / "s.x6").write_text("COMMAREA past EIBCALEN (60 bytes): not modelled", encoding="utf-8")
+    ev = [{"event": "RETURN", "transid": None, "commarea": None}, {"event": "COMMAREA", "commarea": {"A": "1"}}]
+    cev, jev, x = ec.x6_judged({"name": "s", "prefix_x6": said.strip()}, tmp_path, ev, ev)
+    assert x == {"cobol": said.strip(), "java": "COMMAREA past EIBCALEN (60 bytes): not modelled", "ok": True,
+                 "assumes": "X23"}  # fmt: skip
+    assert cev == jev == ev[:1] and ec.judged_to(x).startswith("the refused reference past EIBCALEN (X23")
+    _, _, w = ec.x6_judged({"name": "t", "prefix_x6": "WRITEQ TD LENGTH > FROM: not modelled"}, tmp_path, ev, ev)
+    assert w["assumes"] == "X6" and not w["ok"] and ec.judged_to(w) == ec.X6_JUDGED
+    # both sides refused, but not at the same thing (the det port read past EIBCALEN, the stub stopped at the WRITEQ)
+    _, _, m = ec.x6_judged({"name": "s", "prefix_x6": "WRITEQ TD LENGTH > FROM: not modelled"}, tmp_path, ev, ev)
+    assert m["assumes"] == "X6" and m["java"].startswith("COMMAREA past EIBCALEN") and not m["ok"]
+
+
+_AREA_MAIN = r"""
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+int GGCAREA(char **area, int len);
+int main(int argc, char **argv) {
+    char buf[200];
+    char *a = buf;
+    memset(buf, 'x', sizeof buf);
+    GGCAREA(&a, atoi(argv[1]));
+    printf("moved=%d first=%c\n", a != buf, a[0]);
+    fflush(stdout);
+    a[atoi(argv[2])] = 'y';
+    printf("wrote\n");
+    return 0;
+}
+"""
+
+
+@pytest.mark.skipif(__import__("sys").platform == "win32" or not __import__("shutil").which("gcc"),
+                    reason="needs gcc and a POSIX guard page")  # fmt: skip
+def test_the_stub_stops_a_reference_past_a_stated_commarea_length(tmp_path):
+    """#4270 (X23): with commarea.exact, GGCAREA copies the COMMAREA to the end of a page before an inaccessible one:
+    the last byte is the program's, the next stops the run (98, "COMMAREA past EIBCALEN: not modelled"). Without it,
+    the area is left where the driver has it."""
+    import subprocess
+
+    (tmp_path / "main.c").write_text(_AREA_MAIN, encoding="ascii")
+    exe = tmp_path / "area"
+    built = subprocess.run(["gcc", "-o", str(exe), str(tmp_path / "main.c"), str(ec.STUB / "ggcics.c")],  # noqa: S603,S607
+                           capture_output=True, text=True, check=False)  # fmt: skip
+    assert built.returncode == 0, built.stderr
+    d = tmp_path / "d"
+    d.mkdir()
+
+    def run(*args: str) -> tuple[int, str]:
+        p = subprocess.run([str(exe), *args], capture_output=True, text=True, env={"GGCICS_DIR": str(d)}, check=False)  # noqa: S603
+        return p.returncode, p.stdout
+
+    assert run("60", "99") == (0, "moved=0 first=x\nwrote\n")
+    (d / "commarea.exact").write_text("60\n", encoding="ascii")
+    assert run("60", "59") == (0, "moved=1 first=x\nwrote\n")
+    assert run("60", "60") == (98, "moved=1 first=x\nCOMMAREA past EIBCALEN: not modelled\n")

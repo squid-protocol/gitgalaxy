@@ -115,7 +115,20 @@
    "name": "no-commarea",
    "commarea": null,
    "why": "EIBCALEN 0: IF EIBCALEN IS EQUAL TO ZERO -- EM-VARIABLE ' NO COMMAREA RECEIVED', WRITE-ERROR-MESSAGE LINKs LGSTSQ with ERROR-MSG (it writes the message to TD CSMT and TS GENAERRS: #4607), IF EIBCALEN > 0 is false, then ABEND LGCA"
+  },
+  {
+   "name": "short-commarea",
+   "counters": {
+    "GENA/GENACUSTNUM": 1000011
+   },
+   "commarea": {
+    "CA-REQUEST-ID": "01ACUS",
+    "CA-CUSTOMER-NUM": "0",
+    "CA-REQUEST-SPECIFIC": "Ada       Lovelace            1815-12-10Ockham Park         12  KT246HP 00007700900123         01483222111         ada@analytical.example                                                                              "
+   },
+   "commarea_length": 60,
+   "why": "#4270 (X23): the caller passed 60 bytes, fewer than the 90 (WS-CA-HEADER-LEN 18 + WS-CUSTOMER-LEN 72) the program requires: IF EIBCALEN IS LESS THAN WS-REQUIRED-CA-LEN (line 165) is true -- CA-RETURN-CODE '98', RETURN; no GET COUNTER, no INSERT. The COMMAREA it leaves is compared over its 60 bytes"
   }
  ],
- "notes": "GenApp's add-customer service (LGACDB01, LINKed with the LGCMAREA COMMAREA, described by its caller LGACUS01's record): the customer number is the named counter GENACUSTNUM in pool GENA (GET COUNTER), else Db2's identity (INSERT ... DEFAULT, then SET :H = IDENTITY_VAL_LOCAL()); the CUSTOMER row is INSERTed, LGACVS01 is LINKed to write the VSAM copy and LGACDB02 to add the CUSTOMER_SECURE row (default password). The case runs LGACVS01 and LGACDB02 in the same task; each scenario says which named counters the region has. #4607 / X6 (owner decision): LGSTSQ runs in the same task (\"programs\"; \"region\" for its ASSIGN SYSID). An EIBCALEN-0 task (no-commarea) LINKs it with the short ERROR-MSG and ABENDs LGCA, compared whole (the WRITEQ TD and WRITEQ TS it writes too). An error path with the 32500-byte COMMAREA LINKs it a second time with the 99-byte CA-ERROR-MSG; LGSTSQ then writes 104 bytes from its 95-byte WRITE-MSG (X6), so that task is judged up to the refused WRITEQ: what it did before is compared, its end state is not. Not settled on z/OS (#4050). Still not reached: IF EIBCALEN < 91 true (a COMMAREA shorter than 91 bytes; the harness passes the case's whole COMMAREA)."
+ "notes": "GenApp's add-customer service (LGACDB01, LINKed with the LGCMAREA COMMAREA, described by its caller LGACUS01's record): the customer number is the named counter GENACUSTNUM in pool GENA (GET COUNTER), else Db2's identity (INSERT ... DEFAULT, then SET :H = IDENTITY_VAL_LOCAL()); the CUSTOMER row is INSERTed, LGACVS01 is LINKed to write the VSAM copy and LGACDB02 to add the CUSTOMER_SECURE row (default password). The case runs LGACVS01 and LGACDB02 in the same task; each scenario says which named counters the region has. #4607 / X6 (owner decision): LGSTSQ runs in the same task (\"programs\"; \"region\" for its ASSIGN SYSID). An EIBCALEN-0 task (no-commarea) LINKs it with the short ERROR-MSG and ABENDs LGCA, compared whole (the WRITEQ TD and WRITEQ TS it writes too). An error path with the 32500-byte COMMAREA LINKs it a second time with the 99-byte CA-ERROR-MSG; LGSTSQ then writes 104 bytes from its 95-byte WRITE-MSG (X6), so that task is judged up to the refused WRITEQ: what it did before is compared, its end state is not. Not settled on z/OS (#4050). Still not reached: IF EIBCALEN < 91 true (a COMMAREA shorter than 91 bytes; the harness passes the case's whole COMMAREA). #4270 (X23): short-commarea gives the program 60 of the 90 bytes it requires (line 165 true: '98'). WRITE-ERROR-MESSAGE's IF EIBCALEN < 91 true needs EIBCALEN 90 exactly and a failing INSERT; the INSERT's host variables (CA-EMAIL-ADDRESS ...) lie past byte 90, so the task references past EIBCALEN -- refused by X23 (the det port binds them before the statement runs; the stub's injected SQL fault reads none). Not reached."
 }

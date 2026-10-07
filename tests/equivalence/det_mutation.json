@@ -1295,18 +1295,18 @@
   },
   "carddemo-signon": {
    "program": "COSGN00C",
-   "commit": "6def146cab10f51adddf93613028fb67d1a6faef+uncommitted",
+   "commit": "d0b969ba7b7ef1031a49e8b9c056d9ad0781a40b",
    "date": "2026-10-07",
    "mode": "fast",
    "seed": 0,
    "mutants": 1091,
    "out_of_scope": 12,
    "chosen": 150,
-   "coverage": "proven on 12 scenarios, covering 6/6 paragraphs and 17/17 branches",
+   "coverage": "proven on 15 scenarios, covering 6/6 paragraphs and 17/17 branches",
    "counts": {
-    "killed": 74,
+    "killed": 80,
     "timeout": 0,
-    "survived": 71,
+    "survived": 65,
     "stillborn": 5,
     "error": 0,
     "pending": 0
@@ -1321,6 +1321,7 @@
     "0c8f906d04",
     "11abc83901",
     "126ec28ace",
+    "169bad6b27",
     "16a7ea4aad",
     "18969745e2",
     "1961e4c043",
@@ -1330,6 +1331,7 @@
     "221d96c427",
     "24699250cc",
     "24c684b62d",
+    "27f272516a",
     "2afc0b2879",
     "2c7ba21e3d",
     "2ccff79ca7",
@@ -1345,6 +1347,7 @@
     "463b4dd8f2",
     "482baaec46",
     "4c4f35325d",
+    "525fd4f899",
     "53cd2ae06e",
     "665ef2906e",
     "674dcecf55",
@@ -1352,6 +1355,7 @@
     "6813f8a730",
     "6932c655d4",
     "6ada09d80c",
+    "6d05a11617",
     "6e223969b1",
     "6e254019bc",
     "6e64eda88f",
@@ -1364,10 +1368,12 @@
     "89bc2b55c7",
     "8de0ea937d",
     "914e98eecc",
+    "9a04c809ec",
     "a7595d0983",
     "b41b1a3b96",
     "b54f2d3d7a",
     "ba62ca325a",
+    "bce63609d8",
     "bf5bcc0dc1",
     "c508a0015a",
     "c8eaad1a17",
@@ -1540,14 +1546,6 @@
      "after": "private final Field f146_SYSIDC = Field.alphanumeric(s_COSGN0AI, 182, 1, false);"
     },
     {
-     "id": "169bad6b27",
-     "op": "CON",
-     "file": "service/Cosgn00cService.java",
-     "line": 300,
-     "before": "private final Field f237_DFHPF3 = Field.alphanumeric(s_DFHAID, 14, 1, false);",
-     "after": "private final Field f237_DFHPF3 = Field.alphanumeric(s_DFHAID, 15, 1, false);"
-    },
-    {
      "id": "83d7a3feb0",
      "op": "CON",
      "file": "service/Cosgn00cService.java",
@@ -1610,22 +1608,6 @@
      "line": 390,
      "before": "if (i == null) {",
      "after": "if (i != null) {"
-    },
-    {
-     "id": "27f272516a",
-     "op": "NEG",
-     "file": "service/Cosgn00cService.java",
-     "line": 406,
-     "before": "if (DetCics.ignoredByDefault(cond)) {",
-     "after": "if (!(DetCics.ignoredByDefault(cond))) {"
-    },
-    {
-     "id": "525fd4f899",
-     "op": "NEG",
-     "file": "service/Cosgn00cService.java",
-     "line": 414,
-     "before": "if (label == null) {",
-     "after": "if (!(label == null)) {"
     },
     {
      "id": "7a1f66ee2c",
@@ -1924,30 +1906,6 @@
      "after": "/* Cobol.store(f359_EIBRESP2, BigDecimal.valueOf(0), false, CS); */"
     },
     {
-     "id": "9a04c809ec",
-     "op": "ROR",
-     "file": "service/Cosgn00cService.java",
-     "line": 977,
-     "before": "if (DetCics.resp(xr10) != 0) {",
-     "after": "if (DetCics.resp(xr10) == 0) {"
-    },
-    {
-     "id": "bce63609d8",
-     "op": "NEG",
-     "file": "service/Cosgn00cService.java",
-     "line": 987,
-     "before": "if (DetCics.resp(xr11) != 0) {",
-     "after": "if (!(DetCics.resp(xr11) != 0)) {"
-    },
-    {
-     "id": "6d05a11617",
-     "op": "ROR",
-     "file": "service/Cosgn00cService.java",
-     "line": 987,
-     "before": "if (DetCics.resp(xr11) != 0) {",
-     "after": "if (DetCics.resp(xr11) == 0) {"
-    },
-    {
      "id": "8ba9eb02b5",
      "op": "NEG",
      "file": "service/Cosgn00cService.java",
@@ -1967,7 +1925,7 @@
    "inputs": {
     "port": "094d35a7fa5067848a77641d44f69be9a5da0182e9b887d723bd3d887fd92f1a",
     "generator": "4f86801ec17ca2a0e9b4f2ddd2877803d5acf868c28cdae9c884963c9df6db4e",
-    "case": "6da932f72dab5e337afb7ca239187f663dfc6fc2f33ba85d70274f0c14b668f5",
+    "case": "7d00d4d39f79176b11f45c2716a461486e885b98a3d1d839ccc5d53037374572",
     "corpus": "d0c4803872ec126eb56a170212f76207beff5ab8c2b6507dd6df4a084cdeb919",
     "harness": "17f2c1d2cf1caec1826d9f476691fc609407d5613e72411c2128ca5babb79e11",
     "oracle": "c01338417b189840c3da3fcf109428b6c3c5db987111699423026a5a2aa260eb"

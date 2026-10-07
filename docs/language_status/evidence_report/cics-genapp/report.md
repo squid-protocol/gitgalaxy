@@ -10,7 +10,7 @@ Translation measured by `cics_census.py survey` at translator commit `3bcbb8c623
 
 **What the oracle is.** Every equivalence result here compares the Java with the COBOL program run by GnuCOBOL plus the gitgalaxy CICS stub and models (CICS, Db2 precompiler, Language Environment, DISPLAY), not IBM z/OS: the pinned compiler `cobc (GnuCOBOL) 3.1.2.0` (package `3.1.2-5+b1`, base image `debian:bookworm-slim@sha256:3783cc01769c7b2b1b83a5c5ad96c815348e28ed7da68e2e3687004faa906251`). Where that oracle may differ from z/OS is written down in [oracle_assumptions.md](../../oracle_assumptions.md); each program lists the entries its CICS commands name. A result reads "executed equivalent on N scenarios against GnuCOBOL + the gitgalaxy CICS stub", with those assumptions -- never a statement about z/OS.
 
-**What a level means.** Each program gets the highest level whose conditions hold; levels are cumulative and the numbers under a level are always shown. The coverage bars are parameters of this report (paragraphs 100.0%, branches 100.0%; net of reviewed infeasible outcomes: not yet available (#4602)). The evidence record of a program's case (the committed hand or model port's proof) is reported beside each program, and is not a condition of any level.
+**What a level means.** Each program gets the highest level whose conditions hold; levels are cumulative and the numbers under a level are always shown. The coverage bars are parameters of this report (paragraphs 100.0%, branches 100.0% net of the reviewed infeasible outcomes each program lists as stated assumptions). Oracle backing per CICS command is a separate column, not a level. Det-port mutation (the top level): not yet measured (#4628). The evidence record of a program's case (the committed hand or model port's proof) is reported beside each program, and is not a condition of any level.
 
 | level | name | condition |
 |---|---|---|
@@ -18,8 +18,8 @@ Translation measured by `cics_census.py survey` at translator commit `3bcbb8c623
 | L1 | translated whole | the det translator leaves no hole and does not refuse it |
 | L2 | executed equivalent | a case runs it and the case's det port is equal on every scenario (CI's det-sweep ratchet on main; a Db2 case only by a local sweep); the case's evidence record is reported, not required |
 | L3 | paragraph coverage | L2, and the scenarios execute >= 100.0 percent of its live paragraphs |
-| L4 | branch coverage | L3, and >= 100.0 percent of its branch outcomes (net of reviewed infeasible outcomes: not yet available (#4602)) |
-| L5 | oracle backed | L4, every CICS command it uses has a full spec entry and a hand-traced cics-crucible case both runtimes agree with, and no DIFFERS assumption is reached (assumption reach is not measured yet: no program is placed here) |
+| L4 | branch coverage | L3, and >= 100.0 percent of its branch outcomes, net of the case's reviewed infeasible outcomes (listed under its assumptions) |
+| L5 | mutants accounted for | L4, and every surviving mutant of the det port accounted for: not yet measured (#4628) |
 
 **What is not measured.** Holes, unrun paragraphs and branch outcomes, unstated runtime facts and the ASSUMED / DIFFERS entries a program's commands name are listed per program. Which register entries a program actually reaches is not measured. These migration dimensions are not measured at all:
 
@@ -47,39 +47,39 @@ Translation measured by `cics_census.py survey` at translator commit `3bcbb8c623
 
 ## Programs
 
-| program | level | translated / statements | holes | case | det port | scenarios | record | paragraphs | branches | CICS commands backed |
-|---|---|---|---|---|---|---|---|---|---|---|
-| base/src/lgacvs01.cbl | L2 | 25/25 | 0 | genapp-lgacvs01 | equal | 4 | none | not measured | not measured | 3/6 |
-| base/src/lgapvs01.cbl | L2 | 47/47 | 0 | genapp-lgapvs01 | equal | 8 | stale | not measured | not measured | 2/5 |
-| base/src/lgdpvs01.cbl | L2 | 28/28 | 0 | genapp-lgdpvs01 | equal | 5 | none | not measured | not measured | 2/5 |
-| base/src/lgucvs01.cbl | L2 | 32/32 | 0 | genapp-lgucvs01 | equal | 5 | none | not measured | not measured | 3/7 |
-| base/src/lgupvs01.cbl | L2 | 55/55 | 0 | genapp-lgupvs01 | equal | 6 | none | not measured | not measured | 3/7 |
-| base/src/lgacdb01.cbl | L1 | 61/61 | 0 | genapp-lgacdb01 | not run | 4 | none | not measured | not measured | 3/6 |
-| base/src/lgacdb02.cbl | L1 | 39/39 | 0 | genapp-lgacdb02 | not run | 8 | none | not measured | not measured | 3/5 |
-| base/src/lgacus01.cbl | L1 | 34/34 | 0 | — | — | — | — | not measured | not measured | 3/5 |
-| base/src/lgapdb01.cbl | L1 | 124/124 | 0 | genapp-lgapdb01 | not run | 4 | none | not measured | not measured | 3/5 |
-| base/src/lgapol01.cbl | L1 | 30/30 | 0 | — | — | — | — | not measured | not measured | 3/5 |
-| base/src/lgdpdb01.cbl | L1 | 45/45 | 0 | genapp-lgdpdb01 | not run | 8 | none | not measured | not measured | 3/5 |
-| base/src/lgdpol01.cbl | L1 | 36/36 | 0 | — | — | — | — | not measured | not measured | 3/5 |
-| base/src/lgicdb01.cbl | L1 | 44/44 | 0 | genapp-lgicdb01 | not run | 12 | stale | not measured | not measured | 3/5 |
-| base/src/lgicus01.cbl | L1 | 34/34 | 0 | — | — | — | — | not measured | not measured | 3/5 |
-| base/src/lgipdb01.cbl | L1 | 238/238 | 0 | genapp-lgipdb01 | not run | 32 | none | not measured | not measured | 3/5 |
-| base/src/lgipol01.cbl | L1 | 26/26 | 0 | — | — | — | — | not measured | not measured | 3/5 |
-| base/src/lgstsq.cbl | L1 | 26/26 | 0 | — | — | — | — | not measured | not measured | 5/6 |
-| base/src/lgtestp1.cbl | L1 | 152/152 | 0 | — | — | — | — | not measured | not measured | 7/8 |
-| base/src/lgtestp2.cbl | L1 | 140/140 | 0 | — | — | — | — | not measured | not measured | 7/8 |
-| base/src/lgtestp3.cbl | L1 | 137/137 | 0 | — | — | — | — | not measured | not measured | 7/8 |
-| base/src/lgtestp4.cbl | L1 | 144/144 | 0 | — | — | — | — | not measured | not measured | 7/8 |
-| base/src/lgucdb01.cbl | L1 | 39/39 | 0 | genapp-lgucdb01 | not run | 5 | none | not measured | not measured | 3/5 |
-| base/src/lgucus01.cbl | L1 | 32/32 | 0 | — | — | — | — | not measured | not measured | 3/5 |
-| base/src/lgupdb01.cbl | L1 | 116/116 | 0 | genapp-lgupdb01 | not run | 5 | stale | not measured | not measured | 3/6 |
-| base/src/lgupol01.cbl | L1 | 45/45 | 0 | — | — | — | — | not measured | not measured | 3/5 |
-| base/src/lgastat1.cbl | L0 | 29/30 | 1 | — | — | — | — | not measured | not measured | 3/7 |
-| base/src/lgicvs01.cbl | L0 | 50/51 | 1 | — | — | — | — | not measured | not measured | 6/9 |
-| base/src/lgipvs01.cbl | L0 | 30/31 | 1 | — | — | — | — | not measured | not measured | 4/5 |
-| base/src/lgsetup.cbl | L0 | 13/91 | 78 | — | — | — | — | not measured | not measured | 4/7 |
-| base/src/lgtestc1.cbl | L0 | 128/130 | 2 | — | — | — | — | not measured | not measured | 9/12 |
-| base/src/lgwebst5.cbl | L0 | 238/278 | 40 | — | — | — | — | not measured | not measured | 5/9 |
+| program | level | translated / statements | holes | case | det port | scenarios | record | paragraphs | branches (raw) | branches (net of infeasible) | det-port mutation | CICS commands oracle-backed |
+|---|---|---|---|---|---|---|---|---|---|---|---|---|
+| base/src/lgacvs01.cbl | L2 | 25/25 | 0 | genapp-lgacvs01 | equal | 4 | none | not measured | not measured | not measured | not yet measured (#4628) | 3/6 |
+| base/src/lgapvs01.cbl | L2 | 47/47 | 0 | genapp-lgapvs01 | equal | 8 | stale | not measured | not measured | not measured | not yet measured (#4628) | 2/5 |
+| base/src/lgdpvs01.cbl | L2 | 28/28 | 0 | genapp-lgdpvs01 | equal | 5 | none | not measured | not measured | not measured | not yet measured (#4628) | 2/5 |
+| base/src/lgucvs01.cbl | L2 | 32/32 | 0 | genapp-lgucvs01 | equal | 5 | none | not measured | not measured | not measured | not yet measured (#4628) | 3/7 |
+| base/src/lgupvs01.cbl | L2 | 55/55 | 0 | genapp-lgupvs01 | equal | 6 | none | not measured | not measured | not measured | not yet measured (#4628) | 3/7 |
+| base/src/lgacdb01.cbl | L1 | 61/61 | 0 | genapp-lgacdb01 | not run | 4 | none | not measured | not measured | not measured | not yet measured (#4628) | 3/6 |
+| base/src/lgacdb02.cbl | L1 | 39/39 | 0 | genapp-lgacdb02 | not run | 8 | none | not measured | not measured | not measured | not yet measured (#4628) | 3/5 |
+| base/src/lgacus01.cbl | L1 | 34/34 | 0 | — | — | — | — | not measured | not measured | not measured | not yet measured (#4628) | 3/5 |
+| base/src/lgapdb01.cbl | L1 | 124/124 | 0 | genapp-lgapdb01 | not run | 4 | none | not measured | not measured | not measured | not yet measured (#4628) | 3/5 |
+| base/src/lgapol01.cbl | L1 | 30/30 | 0 | — | — | — | — | not measured | not measured | not measured | not yet measured (#4628) | 3/5 |
+| base/src/lgdpdb01.cbl | L1 | 45/45 | 0 | genapp-lgdpdb01 | not run | 8 | none | not measured | not measured | not measured | not yet measured (#4628) | 3/5 |
+| base/src/lgdpol01.cbl | L1 | 36/36 | 0 | — | — | — | — | not measured | not measured | not measured | not yet measured (#4628) | 3/5 |
+| base/src/lgicdb01.cbl | L1 | 44/44 | 0 | genapp-lgicdb01 | not run | 12 | stale | not measured | not measured | not measured | not yet measured (#4628) | 3/5 |
+| base/src/lgicus01.cbl | L1 | 34/34 | 0 | — | — | — | — | not measured | not measured | not measured | not yet measured (#4628) | 3/5 |
+| base/src/lgipdb01.cbl | L1 | 238/238 | 0 | genapp-lgipdb01 | not run | 32 | none | not measured | not measured | not measured | not yet measured (#4628) | 3/5 |
+| base/src/lgipol01.cbl | L1 | 26/26 | 0 | — | — | — | — | not measured | not measured | not measured | not yet measured (#4628) | 3/5 |
+| base/src/lgstsq.cbl | L1 | 26/26 | 0 | — | — | — | — | not measured | not measured | not measured | not yet measured (#4628) | 5/6 |
+| base/src/lgtestp1.cbl | L1 | 152/152 | 0 | — | — | — | — | not measured | not measured | not measured | not yet measured (#4628) | 7/8 |
+| base/src/lgtestp2.cbl | L1 | 140/140 | 0 | — | — | — | — | not measured | not measured | not measured | not yet measured (#4628) | 7/8 |
+| base/src/lgtestp3.cbl | L1 | 137/137 | 0 | — | — | — | — | not measured | not measured | not measured | not yet measured (#4628) | 7/8 |
+| base/src/lgtestp4.cbl | L1 | 144/144 | 0 | — | — | — | — | not measured | not measured | not measured | not yet measured (#4628) | 7/8 |
+| base/src/lgucdb01.cbl | L1 | 39/39 | 0 | genapp-lgucdb01 | not run | 5 | none | not measured | not measured | not measured | not yet measured (#4628) | 3/5 |
+| base/src/lgucus01.cbl | L1 | 32/32 | 0 | — | — | — | — | not measured | not measured | not measured | not yet measured (#4628) | 3/5 |
+| base/src/lgupdb01.cbl | L1 | 116/116 | 0 | genapp-lgupdb01 | not run | 5 | stale | not measured | not measured | not measured | not yet measured (#4628) | 3/6 |
+| base/src/lgupol01.cbl | L1 | 45/45 | 0 | — | — | — | — | not measured | not measured | not measured | not yet measured (#4628) | 3/5 |
+| base/src/lgastat1.cbl | L0 | 29/30 | 1 | — | — | — | — | not measured | not measured | not measured | not yet measured (#4628) | 3/7 |
+| base/src/lgicvs01.cbl | L0 | 50/51 | 1 | — | — | — | — | not measured | not measured | not measured | not yet measured (#4628) | 6/9 |
+| base/src/lgipvs01.cbl | L0 | 30/31 | 1 | — | — | — | — | not measured | not measured | not measured | not yet measured (#4628) | 4/5 |
+| base/src/lgsetup.cbl | L0 | 13/91 | 78 | — | — | — | — | not measured | not measured | not measured | not yet measured (#4628) | 4/7 |
+| base/src/lgtestc1.cbl | L0 | 128/130 | 2 | — | — | — | — | not measured | not measured | not measured | not yet measured (#4628) | 9/12 |
+| base/src/lgwebst5.cbl | L0 | 238/278 | 40 | — | — | — | — | not measured | not measured | not measured | not yet measured (#4628) | 5/9 |
 
 ## Per program
 
@@ -93,7 +93,7 @@ Translation measured by `cics_census.py survey` at translator commit `3bcbb8c623
 - **Executed equivalence** (genapp-lgacvs01, program, the case this report judges): det port equal (CI det-sweep ratchet on main)
   - evidence record: none (4 scenarios in case.json)
 - **Coverage:** not measured
-- **Oracle backing** (per CICS command):
+- **Oracle backing** (a column, not a level; per CICS command; DIFFERS assumptions reached: not measured):
 
   | command | spec entry | hand-traced crucible cases (stub / Java runtime agree) | backed |
   |---|---|---|---|
@@ -105,6 +105,7 @@ Translation measured by `cics_census.py survey` at translator commit `3bcbb8c623
   | WRITE | full | none | no |
 
 - **Assumptions relied on:** named by its commands' spec entries: none; reach: not measured
+- **Det-port mutation:** not yet measured (#4628)
 - **Residual risk:** coverage not measured; commands without oracle backing: ASKTIME, FORMATTIME, WRITE; assumption reach and the migration dimensions above: not measured
 
 ### base/src/lgapvs01.cbl -- L2
@@ -117,7 +118,7 @@ Translation measured by `cics_census.py survey` at translator commit `3bcbb8c623
 - **Executed equivalence** (genapp-lgapvs01, program, the case this report judges): det port equal (CI det-sweep ratchet on main)
   - evidence record (the case's committed port): stale (stale on harness, oracle, generator); its proof: all equal, 8/8 scenarios equal, 16/16 records equal, 8 runs (0 fault runs); through its deployed entry points 8/8
 - **Coverage:** not measured
-- **Oracle backing** (per CICS command):
+- **Oracle backing** (a column, not a level; per CICS command; DIFFERS assumptions reached: not measured):
 
   | command | spec entry | hand-traced crucible cases (stub / Java runtime agree) | backed |
   |---|---|---|---|
@@ -128,6 +129,7 @@ Translation measured by `cics_census.py survey` at translator commit `3bcbb8c623
   | WRITE | full | none | no |
 
 - **Assumptions relied on:** named by its commands' spec entries: none; reach: not measured
+- **Det-port mutation:** not yet measured (#4628)
 - **Residual risk:** coverage not measured; commands without oracle backing: ASKTIME, FORMATTIME, WRITE; assumption reach and the migration dimensions above: not measured
 
 ### base/src/lgdpvs01.cbl -- L2
@@ -140,7 +142,7 @@ Translation measured by `cics_census.py survey` at translator commit `3bcbb8c623
 - **Executed equivalence** (genapp-lgdpvs01, program, the case this report judges): det port equal (CI det-sweep ratchet on main)
   - evidence record: none (5 scenarios in case.json)
 - **Coverage:** not measured
-- **Oracle backing** (per CICS command):
+- **Oracle backing** (a column, not a level; per CICS command; DIFFERS assumptions reached: not measured):
 
   | command | spec entry | hand-traced crucible cases (stub / Java runtime agree) | backed |
   |---|---|---|---|
@@ -151,6 +153,7 @@ Translation measured by `cics_census.py survey` at translator commit `3bcbb8c623
   | RETURN | full | ca-channel-containers (yes / no), ca-link-lengths (yes / yes), ca-xctl-versions (yes / yes), gt-assign-startcode (yes / no), gt-start-options (yes / no), gt-start-retrieve (yes / yes), gt-terminal-coalesce (yes / yes), hc-abend-link (yes / yes), hc-eoc-error (yes / no), hc-handle-aid (yes / no), hc-ignore-error (yes / no), hc-perform-range (yes / yes), hc-terminal-eoc (yes / no), hc-terminal-receive (yes / no), hx-attr-bytes (yes / yes), hx-extended-cursor (yes / yes), pc-aid-menu (yes / yes), pc-wizard (yes / yes) | yes |
 
 - **Assumptions relied on:** named by its commands' spec entries: none; reach: not measured
+- **Det-port mutation:** not yet measured (#4628)
 - **Residual risk:** coverage not measured; commands without oracle backing: ASKTIME, DELETE, FORMATTIME; assumption reach and the migration dimensions above: not measured
 
 ### base/src/lgucvs01.cbl -- L2
@@ -163,7 +166,7 @@ Translation measured by `cics_census.py survey` at translator commit `3bcbb8c623
 - **Executed equivalence** (genapp-lgucvs01, program, the case this report judges): det port equal (CI det-sweep ratchet on main)
   - evidence record: none (5 scenarios in case.json)
 - **Coverage:** not measured
-- **Oracle backing** (per CICS command):
+- **Oracle backing** (a column, not a level; per CICS command; DIFFERS assumptions reached: not measured):
 
   | command | spec entry | hand-traced crucible cases (stub / Java runtime agree) | backed |
   |---|---|---|---|
@@ -176,6 +179,7 @@ Translation measured by `cics_census.py survey` at translator commit `3bcbb8c623
   | REWRITE | full | none | no |
 
 - **Assumptions relied on:** named by its commands' spec entries: X14 (ASSUMED (REFUSED where IBM is silent)); reach: not measured
+- **Det-port mutation:** not yet measured (#4628)
 - **Residual risk:** coverage not measured; ASSUMED / DIFFERS entries named: X14; commands without oracle backing: ASKTIME, FORMATTIME, READ, REWRITE; assumption reach and the migration dimensions above: not measured
 
 ### base/src/lgupvs01.cbl -- L2
@@ -188,7 +192,7 @@ Translation measured by `cics_census.py survey` at translator commit `3bcbb8c623
 - **Executed equivalence** (genapp-lgupvs01, program, the case this report judges): det port equal (CI det-sweep ratchet on main)
   - evidence record: none (6 scenarios in case.json)
 - **Coverage:** not measured
-- **Oracle backing** (per CICS command):
+- **Oracle backing** (a column, not a level; per CICS command; DIFFERS assumptions reached: not measured):
 
   | command | spec entry | hand-traced crucible cases (stub / Java runtime agree) | backed |
   |---|---|---|---|
@@ -201,6 +205,7 @@ Translation measured by `cics_census.py survey` at translator commit `3bcbb8c623
   | REWRITE | full | none | no |
 
 - **Assumptions relied on:** named by its commands' spec entries: X14 (ASSUMED (REFUSED where IBM is silent)); reach: not measured
+- **Det-port mutation:** not yet measured (#4628)
 - **Residual risk:** coverage not measured; ASSUMED / DIFFERS entries named: X14; commands without oracle backing: ASKTIME, FORMATTIME, READ, REWRITE; assumption reach and the migration dimensions above: not measured
 
 ### base/src/lgacdb01.cbl -- L1
@@ -210,7 +215,7 @@ Translation measured by `cics_census.py survey` at translator commit `3bcbb8c623
 - **Executed equivalence** (genapp-lgacdb01, program, Db2, the case this report judges): det port not run (a Db2 case: CI's det-sweep skips Db2 cases and no local sweep was given)
   - evidence record: none (4 scenarios in case.json)
 - **Coverage:** not measured
-- **Oracle backing** (per CICS command):
+- **Oracle backing** (a column, not a level; per CICS command; DIFFERS assumptions reached: not measured):
 
   | command | spec entry | hand-traced crucible cases (stub / Java runtime agree) | backed |
   |---|---|---|---|
@@ -223,6 +228,7 @@ Translation measured by `cics_census.py survey` at translator commit `3bcbb8c623
 
 - **Assumptions relied on:** named by its commands' spec entries: none; reach: not measured
   - runtime fact no harness states: EIB field EIBTASKN (both runtimes read zero; z/OS does not)
+- **Det-port mutation:** not yet measured (#4628)
 - **Residual risk:** coverage not measured; 1 unstated runtime facts; commands without oracle backing: ASKTIME, FORMATTIME, GET COUNTER; assumption reach and the migration dimensions above: not measured
 
 ### base/src/lgacdb02.cbl -- L1
@@ -234,7 +240,7 @@ Translation measured by `cics_census.py survey` at translator commit `3bcbb8c623
 - **Executed equivalence** (genapp-lgacdb02, program, Db2, the case this report judges): det port not run (a Db2 case: CI's det-sweep skips Db2 cases and no local sweep was given)
   - evidence record: none (8 scenarios in case.json)
 - **Coverage:** not measured
-- **Oracle backing** (per CICS command):
+- **Oracle backing** (a column, not a level; per CICS command; DIFFERS assumptions reached: not measured):
 
   | command | spec entry | hand-traced crucible cases (stub / Java runtime agree) | backed |
   |---|---|---|---|
@@ -246,6 +252,7 @@ Translation measured by `cics_census.py survey` at translator commit `3bcbb8c623
 
 - **Assumptions relied on:** named by its commands' spec entries: none; reach: not measured
   - runtime fact no harness states: EIB field EIBTASKN (both runtimes read zero; z/OS does not)
+- **Det-port mutation:** not yet measured (#4628)
 - **Residual risk:** coverage not measured; 1 unstated runtime facts; commands without oracle backing: ASKTIME, FORMATTIME; assumption reach and the migration dimensions above: not measured
 
 ### base/src/lgacus01.cbl -- L1
@@ -254,7 +261,7 @@ Translation measured by `cics_census.py survey` at translator commit `3bcbb8c623
 - **Translation:** 34/34 statements, 0 holes; whole: yes
 - **Executed equivalence:** no equivalence case runs it
 - **Coverage:** not measured
-- **Oracle backing** (per CICS command):
+- **Oracle backing** (a column, not a level; per CICS command; DIFFERS assumptions reached: not measured):
 
   | command | spec entry | hand-traced crucible cases (stub / Java runtime agree) | backed |
   |---|---|---|---|
@@ -266,6 +273,7 @@ Translation measured by `cics_census.py survey` at translator commit `3bcbb8c623
 
 - **Assumptions relied on:** named by its commands' spec entries: none; reach: not measured
   - runtime fact no harness states: EIB field EIBTASKN (both runtimes read zero; z/OS does not)
+- **Det-port mutation:** not yet measured (#4628)
 - **Residual risk:** coverage not measured; 1 unstated runtime facts; commands without oracle backing: ASKTIME, FORMATTIME; assumption reach and the migration dimensions above: not measured
 
 ### base/src/lgapdb01.cbl -- L1
@@ -275,7 +283,7 @@ Translation measured by `cics_census.py survey` at translator commit `3bcbb8c623
 - **Executed equivalence** (genapp-lgapdb01, program, Db2, the case this report judges): det port not run (a Db2 case: CI's det-sweep skips Db2 cases and no local sweep was given)
   - evidence record: none (4 scenarios in case.json)
 - **Coverage:** not measured
-- **Oracle backing** (per CICS command):
+- **Oracle backing** (a column, not a level; per CICS command; DIFFERS assumptions reached: not measured):
 
   | command | spec entry | hand-traced crucible cases (stub / Java runtime agree) | backed |
   |---|---|---|---|
@@ -287,6 +295,7 @@ Translation measured by `cics_census.py survey` at translator commit `3bcbb8c623
 
 - **Assumptions relied on:** named by its commands' spec entries: none; reach: not measured
   - runtime fact no harness states: EIB field EIBTASKN (both runtimes read zero; z/OS does not)
+- **Det-port mutation:** not yet measured (#4628)
 - **Residual risk:** coverage not measured; 1 unstated runtime facts; commands without oracle backing: ASKTIME, FORMATTIME; assumption reach and the migration dimensions above: not measured
 
 ### base/src/lgapol01.cbl -- L1
@@ -295,7 +304,7 @@ Translation measured by `cics_census.py survey` at translator commit `3bcbb8c623
 - **Translation:** 30/30 statements, 0 holes; whole: yes
 - **Executed equivalence:** no equivalence case runs it
 - **Coverage:** not measured
-- **Oracle backing** (per CICS command):
+- **Oracle backing** (a column, not a level; per CICS command; DIFFERS assumptions reached: not measured):
 
   | command | spec entry | hand-traced crucible cases (stub / Java runtime agree) | backed |
   |---|---|---|---|
@@ -307,6 +316,7 @@ Translation measured by `cics_census.py survey` at translator commit `3bcbb8c623
 
 - **Assumptions relied on:** named by its commands' spec entries: none; reach: not measured
   - runtime fact no harness states: EIB field EIBTASKN (both runtimes read zero; z/OS does not)
+- **Det-port mutation:** not yet measured (#4628)
 - **Residual risk:** coverage not measured; 1 unstated runtime facts; commands without oracle backing: ASKTIME, FORMATTIME; assumption reach and the migration dimensions above: not measured
 
 ### base/src/lgdpdb01.cbl -- L1
@@ -316,7 +326,7 @@ Translation measured by `cics_census.py survey` at translator commit `3bcbb8c623
 - **Executed equivalence** (genapp-lgdpdb01, program, Db2, the case this report judges): det port not run (a Db2 case: CI's det-sweep skips Db2 cases and no local sweep was given)
   - evidence record: none (8 scenarios in case.json)
 - **Coverage:** not measured
-- **Oracle backing** (per CICS command):
+- **Oracle backing** (a column, not a level; per CICS command; DIFFERS assumptions reached: not measured):
 
   | command | spec entry | hand-traced crucible cases (stub / Java runtime agree) | backed |
   |---|---|---|---|
@@ -328,6 +338,7 @@ Translation measured by `cics_census.py survey` at translator commit `3bcbb8c623
 
 - **Assumptions relied on:** named by its commands' spec entries: none; reach: not measured
   - runtime fact no harness states: EIB field EIBTASKN (both runtimes read zero; z/OS does not)
+- **Det-port mutation:** not yet measured (#4628)
 - **Residual risk:** coverage not measured; 1 unstated runtime facts; commands without oracle backing: ASKTIME, FORMATTIME; assumption reach and the migration dimensions above: not measured
 
 ### base/src/lgdpol01.cbl -- L1
@@ -336,7 +347,7 @@ Translation measured by `cics_census.py survey` at translator commit `3bcbb8c623
 - **Translation:** 36/36 statements, 0 holes; whole: yes
 - **Executed equivalence:** no equivalence case runs it
 - **Coverage:** not measured
-- **Oracle backing** (per CICS command):
+- **Oracle backing** (a column, not a level; per CICS command; DIFFERS assumptions reached: not measured):
 
   | command | spec entry | hand-traced crucible cases (stub / Java runtime agree) | backed |
   |---|---|---|---|
@@ -348,6 +359,7 @@ Translation measured by `cics_census.py survey` at translator commit `3bcbb8c623
 
 - **Assumptions relied on:** named by its commands' spec entries: none; reach: not measured
   - runtime fact no harness states: EIB field EIBTASKN (both runtimes read zero; z/OS does not)
+- **Det-port mutation:** not yet measured (#4628)
 - **Residual risk:** coverage not measured; 1 unstated runtime facts; commands without oracle backing: ASKTIME, FORMATTIME; assumption reach and the migration dimensions above: not measured
 
 ### base/src/lgicdb01.cbl -- L1
@@ -357,7 +369,7 @@ Translation measured by `cics_census.py survey` at translator commit `3bcbb8c623
 - **Executed equivalence** (genapp-lgicdb01, program, Db2, the case this report judges): det port not run (a Db2 case: CI's det-sweep skips Db2 cases and no local sweep was given)
   - evidence record (the case's committed port): stale (stale on harness, oracle, generator); its proof: all equal, 12/12 scenarios equal, 24/24 records equal, 12 runs (0 fault runs); through its deployed entry points 12/12
 - **Coverage:** not measured
-- **Oracle backing** (per CICS command):
+- **Oracle backing** (a column, not a level; per CICS command; DIFFERS assumptions reached: not measured):
 
   | command | spec entry | hand-traced crucible cases (stub / Java runtime agree) | backed |
   |---|---|---|---|
@@ -369,6 +381,7 @@ Translation measured by `cics_census.py survey` at translator commit `3bcbb8c623
 
 - **Assumptions relied on:** named by its commands' spec entries: none; reach: not measured
   - runtime fact no harness states: EIB field EIBTASKN (both runtimes read zero; z/OS does not)
+- **Det-port mutation:** not yet measured (#4628)
 - **Residual risk:** coverage not measured; 1 unstated runtime facts; commands without oracle backing: ASKTIME, FORMATTIME; assumption reach and the migration dimensions above: not measured
 
 ### base/src/lgicus01.cbl -- L1
@@ -377,7 +390,7 @@ Translation measured by `cics_census.py survey` at translator commit `3bcbb8c623
 - **Translation:** 34/34 statements, 0 holes; whole: yes
 - **Executed equivalence:** no equivalence case runs it
 - **Coverage:** not measured
-- **Oracle backing** (per CICS command):
+- **Oracle backing** (a column, not a level; per CICS command; DIFFERS assumptions reached: not measured):
 
   | command | spec entry | hand-traced crucible cases (stub / Java runtime agree) | backed |
   |---|---|---|---|
@@ -389,6 +402,7 @@ Translation measured by `cics_census.py survey` at translator commit `3bcbb8c623
 
 - **Assumptions relied on:** named by its commands' spec entries: none; reach: not measured
   - runtime fact no harness states: EIB field EIBTASKN (both runtimes read zero; z/OS does not)
+- **Det-port mutation:** not yet measured (#4628)
 - **Residual risk:** coverage not measured; 1 unstated runtime facts; commands without oracle backing: ASKTIME, FORMATTIME; assumption reach and the migration dimensions above: not measured
 
 ### base/src/lgipdb01.cbl -- L1
@@ -398,7 +412,7 @@ Translation measured by `cics_census.py survey` at translator commit `3bcbb8c623
 - **Executed equivalence** (genapp-lgipdb01, program, Db2, the case this report judges): det port not run (a Db2 case: CI's det-sweep skips Db2 cases and no local sweep was given)
   - evidence record: none (32 scenarios in case.json)
 - **Coverage:** not measured
-- **Oracle backing** (per CICS command):
+- **Oracle backing** (a column, not a level; per CICS command; DIFFERS assumptions reached: not measured):
 
   | command | spec entry | hand-traced crucible cases (stub / Java runtime agree) | backed |
   |---|---|---|---|
@@ -410,6 +424,7 @@ Translation measured by `cics_census.py survey` at translator commit `3bcbb8c623
 
 - **Assumptions relied on:** named by its commands' spec entries: none; reach: not measured
   - runtime fact no harness states: EIB field EIBTASKN (both runtimes read zero; z/OS does not)
+- **Det-port mutation:** not yet measured (#4628)
 - **Residual risk:** coverage not measured; 1 unstated runtime facts; commands without oracle backing: ASKTIME, FORMATTIME; assumption reach and the migration dimensions above: not measured
 
 ### base/src/lgipol01.cbl -- L1
@@ -418,7 +433,7 @@ Translation measured by `cics_census.py survey` at translator commit `3bcbb8c623
 - **Translation:** 26/26 statements, 0 holes; whole: yes
 - **Executed equivalence:** no equivalence case runs it
 - **Coverage:** not measured
-- **Oracle backing** (per CICS command):
+- **Oracle backing** (a column, not a level; per CICS command; DIFFERS assumptions reached: not measured):
 
   | command | spec entry | hand-traced crucible cases (stub / Java runtime agree) | backed |
   |---|---|---|---|
@@ -430,6 +445,7 @@ Translation measured by `cics_census.py survey` at translator commit `3bcbb8c623
 
 - **Assumptions relied on:** named by its commands' spec entries: none; reach: not measured
   - runtime fact no harness states: EIB field EIBTASKN (both runtimes read zero; z/OS does not)
+- **Det-port mutation:** not yet measured (#4628)
 - **Residual risk:** coverage not measured; 1 unstated runtime facts; commands without oracle backing: ASKTIME, FORMATTIME; assumption reach and the migration dimensions above: not measured
 
 ### base/src/lgstsq.cbl -- L1
@@ -438,7 +454,7 @@ Translation measured by `cics_census.py survey` at translator commit `3bcbb8c623
 - **Translation:** 26/26 statements, 0 holes; whole: yes
 - **Executed equivalence:** no equivalence case runs it
 - **Coverage:** not measured
-- **Oracle backing** (per CICS command):
+- **Oracle backing** (a column, not a level; per CICS command; DIFFERS assumptions reached: not measured):
 
   | command | spec entry | hand-traced crucible cases (stub / Java runtime agree) | backed |
   |---|---|---|---|
@@ -452,6 +468,7 @@ Translation measured by `cics_census.py survey` at translator commit `3bcbb8c623
 - **Assumptions relied on:** named by its commands' spec entries: X15 (ASSUMED (REFUSED where IBM is silent)), X19 (ASSUMED (REFUSED where the harness cannot decide)), X20 (MATCHED (REFUSED where the region cannot decide)); reach: not measured
   - runtime facts the harness states for its commands: facility, screen, startcode, userid
   - runtime fact no harness states: ASSIGN SYSID (the case states no region)
+- **Det-port mutation:** not yet measured (#4628)
 - **Residual risk:** coverage not measured; 1 unstated runtime facts; ASSUMED / DIFFERS entries named: X15, X19; commands without oracle backing: WRITEQ TD; assumption reach and the migration dimensions above: not measured
 
 ### base/src/lgtestp1.cbl -- L1
@@ -460,7 +477,7 @@ Translation measured by `cics_census.py survey` at translator commit `3bcbb8c623
 - **Translation:** 152/152 statements, 0 holes; whole: yes
 - **Executed equivalence:** no equivalence case runs it
 - **Coverage:** not measured
-- **Oracle backing** (per CICS command):
+- **Oracle backing** (a column, not a level; per CICS command; DIFFERS assumptions reached: not measured):
 
   | command | spec entry | hand-traced crucible cases (stub / Java runtime agree) | backed |
   |---|---|---|---|
@@ -474,6 +491,7 @@ Translation measured by `cics_census.py survey` at translator commit `3bcbb8c623
   | SYNCPOINT ROLLBACK | full | none | no |
 
 - **Assumptions relied on:** named by its commands' spec entries: X3 (MATCHED), X16 (MATCHED (REFUSED where IBM is silent)), X20 (MATCHED (REFUSED where the region cannot decide)); reach: not measured
+- **Det-port mutation:** not yet measured (#4628)
 - **Residual risk:** coverage not measured; commands without oracle backing: SYNCPOINT ROLLBACK; assumption reach and the migration dimensions above: not measured
 
 ### base/src/lgtestp2.cbl -- L1
@@ -482,7 +500,7 @@ Translation measured by `cics_census.py survey` at translator commit `3bcbb8c623
 - **Translation:** 140/140 statements, 0 holes; whole: yes
 - **Executed equivalence:** no equivalence case runs it
 - **Coverage:** not measured
-- **Oracle backing** (per CICS command):
+- **Oracle backing** (a column, not a level; per CICS command; DIFFERS assumptions reached: not measured):
 
   | command | spec entry | hand-traced crucible cases (stub / Java runtime agree) | backed |
   |---|---|---|---|
@@ -496,6 +514,7 @@ Translation measured by `cics_census.py survey` at translator commit `3bcbb8c623
   | SYNCPOINT ROLLBACK | full | none | no |
 
 - **Assumptions relied on:** named by its commands' spec entries: X3 (MATCHED), X16 (MATCHED (REFUSED where IBM is silent)), X20 (MATCHED (REFUSED where the region cannot decide)); reach: not measured
+- **Det-port mutation:** not yet measured (#4628)
 - **Residual risk:** coverage not measured; commands without oracle backing: SYNCPOINT ROLLBACK; assumption reach and the migration dimensions above: not measured
 
 ### base/src/lgtestp3.cbl -- L1
@@ -504,7 +523,7 @@ Translation measured by `cics_census.py survey` at translator commit `3bcbb8c623
 - **Translation:** 137/137 statements, 0 holes; whole: yes
 - **Executed equivalence:** no equivalence case runs it
 - **Coverage:** not measured
-- **Oracle backing** (per CICS command):
+- **Oracle backing** (a column, not a level; per CICS command; DIFFERS assumptions reached: not measured):
 
   | command | spec entry | hand-traced crucible cases (stub / Java runtime agree) | backed |
   |---|---|---|---|
@@ -518,6 +537,7 @@ Translation measured by `cics_census.py survey` at translator commit `3bcbb8c623
   | SYNCPOINT ROLLBACK | full | none | no |
 
 - **Assumptions relied on:** named by its commands' spec entries: X3 (MATCHED), X16 (MATCHED (REFUSED where IBM is silent)), X20 (MATCHED (REFUSED where the region cannot decide)); reach: not measured
+- **Det-port mutation:** not yet measured (#4628)
 - **Residual risk:** coverage not measured; commands without oracle backing: SYNCPOINT ROLLBACK; assumption reach and the migration dimensions above: not measured
 
 ### base/src/lgtestp4.cbl -- L1
@@ -526,7 +546,7 @@ Translation measured by `cics_census.py survey` at translator commit `3bcbb8c623
 - **Translation:** 144/144 statements, 0 holes; whole: yes
 - **Executed equivalence:** no equivalence case runs it
 - **Coverage:** not measured
-- **Oracle backing** (per CICS command):
+- **Oracle backing** (a column, not a level; per CICS command; DIFFERS assumptions reached: not measured):
 
   | command | spec entry | hand-traced crucible cases (stub / Java runtime agree) | backed |
   |---|---|---|---|
@@ -540,6 +560,7 @@ Translation measured by `cics_census.py survey` at translator commit `3bcbb8c623
   | SYNCPOINT ROLLBACK | full | none | no |
 
 - **Assumptions relied on:** named by its commands' spec entries: X3 (MATCHED), X16 (MATCHED (REFUSED where IBM is silent)), X20 (MATCHED (REFUSED where the region cannot decide)); reach: not measured
+- **Det-port mutation:** not yet measured (#4628)
 - **Residual risk:** coverage not measured; commands without oracle backing: SYNCPOINT ROLLBACK; assumption reach and the migration dimensions above: not measured
 
 ### base/src/lgucdb01.cbl -- L1
@@ -549,7 +570,7 @@ Translation measured by `cics_census.py survey` at translator commit `3bcbb8c623
 - **Executed equivalence** (genapp-lgucdb01, program, Db2, the case this report judges): det port not run (a Db2 case: CI's det-sweep skips Db2 cases and no local sweep was given)
   - evidence record: none (5 scenarios in case.json)
 - **Coverage:** not measured
-- **Oracle backing** (per CICS command):
+- **Oracle backing** (a column, not a level; per CICS command; DIFFERS assumptions reached: not measured):
 
   | command | spec entry | hand-traced crucible cases (stub / Java runtime agree) | backed |
   |---|---|---|---|
@@ -561,6 +582,7 @@ Translation measured by `cics_census.py survey` at translator commit `3bcbb8c623
 
 - **Assumptions relied on:** named by its commands' spec entries: none; reach: not measured
   - runtime fact no harness states: EIB field EIBTASKN (both runtimes read zero; z/OS does not)
+- **Det-port mutation:** not yet measured (#4628)
 - **Residual risk:** coverage not measured; 1 unstated runtime facts; commands without oracle backing: ASKTIME, FORMATTIME; assumption reach and the migration dimensions above: not measured
 
 ### base/src/lgucus01.cbl -- L1
@@ -569,7 +591,7 @@ Translation measured by `cics_census.py survey` at translator commit `3bcbb8c623
 - **Translation:** 32/32 statements, 0 holes; whole: yes
 - **Executed equivalence:** no equivalence case runs it
 - **Coverage:** not measured
-- **Oracle backing** (per CICS command):
+- **Oracle backing** (a column, not a level; per CICS command; DIFFERS assumptions reached: not measured):
 
   | command | spec entry | hand-traced crucible cases (stub / Java runtime agree) | backed |
   |---|---|---|---|
@@ -581,6 +603,7 @@ Translation measured by `cics_census.py survey` at translator commit `3bcbb8c623
 
 - **Assumptions relied on:** named by its commands' spec entries: none; reach: not measured
   - runtime fact no harness states: EIB field EIBTASKN (both runtimes read zero; z/OS does not)
+- **Det-port mutation:** not yet measured (#4628)
 - **Residual risk:** coverage not measured; 1 unstated runtime facts; commands without oracle backing: ASKTIME, FORMATTIME; assumption reach and the migration dimensions above: not measured
 
 ### base/src/lgupdb01.cbl -- L1
@@ -590,7 +613,7 @@ Translation measured by `cics_census.py survey` at translator commit `3bcbb8c623
 - **Executed equivalence** (genapp-lgupdb01, program, Db2, the case this report judges): det port not run (a Db2 case: CI's det-sweep skips Db2 cases and no local sweep was given)
   - evidence record (the case's committed port): stale (stale on harness, oracle, generator); its proof: all equal, 5/5 scenarios equal, 18/18 records equal, 5 runs (0 fault runs); through its deployed entry points 5/5
 - **Coverage:** not measured
-- **Oracle backing** (per CICS command):
+- **Oracle backing** (a column, not a level; per CICS command; DIFFERS assumptions reached: not measured):
 
   | command | spec entry | hand-traced crucible cases (stub / Java runtime agree) | backed |
   |---|---|---|---|
@@ -603,6 +626,7 @@ Translation measured by `cics_census.py survey` at translator commit `3bcbb8c623
 
 - **Assumptions relied on:** named by its commands' spec entries: X3 (MATCHED); reach: not measured
   - runtime fact no harness states: EIB field EIBTASKN (both runtimes read zero; z/OS does not)
+- **Det-port mutation:** not yet measured (#4628)
 - **Residual risk:** coverage not measured; 1 unstated runtime facts; commands without oracle backing: ASKTIME, FORMATTIME, SYNCPOINT ROLLBACK; assumption reach and the migration dimensions above: not measured
 
 ### base/src/lgupol01.cbl -- L1
@@ -611,7 +635,7 @@ Translation measured by `cics_census.py survey` at translator commit `3bcbb8c623
 - **Translation:** 45/45 statements, 0 holes; whole: yes
 - **Executed equivalence:** no equivalence case runs it
 - **Coverage:** not measured
-- **Oracle backing** (per CICS command):
+- **Oracle backing** (a column, not a level; per CICS command; DIFFERS assumptions reached: not measured):
 
   | command | spec entry | hand-traced crucible cases (stub / Java runtime agree) | backed |
   |---|---|---|---|
@@ -623,6 +647,7 @@ Translation measured by `cics_census.py survey` at translator commit `3bcbb8c623
 
 - **Assumptions relied on:** named by its commands' spec entries: none; reach: not measured
   - runtime fact no harness states: EIB field EIBTASKN (both runtimes read zero; z/OS does not)
+- **Det-port mutation:** not yet measured (#4628)
 - **Residual risk:** coverage not measured; 1 unstated runtime facts; commands without oracle backing: ASKTIME, FORMATTIME; assumption reach and the migration dimensions above: not measured
 
 ### base/src/lgastat1.cbl -- L0
@@ -632,7 +657,7 @@ Translation measured by `cics_census.py survey` at translator commit `3bcbb8c623
   - hole: EXEC EXEC CICS: not a data area: Length of WS-Qarea
 - **Executed equivalence:** no equivalence case runs it
 - **Coverage:** not measured
-- **Oracle backing** (per CICS command):
+- **Oracle backing** (a column, not a level; per CICS command; DIFFERS assumptions reached: not measured):
 
   | command | spec entry | hand-traced crucible cases (stub / Java runtime agree) | backed |
   |---|---|---|---|
@@ -646,6 +671,7 @@ Translation measured by `cics_census.py survey` at translator commit `3bcbb8c623
 
 - **Assumptions relied on:** named by its commands' spec entries: X17 (ASSUMED (REFUSED where IBM is silent)); reach: not measured
   - runtime fact no harness states: EIB field EIBTASKN (both runtimes read zero; z/OS does not)
+- **Det-port mutation:** not yet measured (#4628)
 - **Residual risk:** 1 holes; 1 unstated runtime facts; ASSUMED / DIFFERS entries named: X17; commands without oracle backing: ASKTIME, FORMATTIME, GET CONTAINER, GET COUNTER; assumption reach and the migration dimensions above: not measured
 
 ### base/src/lgicvs01.cbl -- L0
@@ -655,7 +681,7 @@ Translation measured by `cics_census.py survey` at translator commit `3bcbb8c623
   - hole: EXEC EXEC CICS: READ GTEQ: option not modelled
 - **Executed equivalence:** no equivalence case runs it
 - **Coverage:** not measured
-- **Oracle backing** (per CICS command):
+- **Oracle backing** (a column, not a level; per CICS command; DIFFERS assumptions reached: not measured):
 
   | command | spec entry | hand-traced crucible cases (stub / Java runtime agree) | backed |
   |---|---|---|---|
@@ -674,6 +700,7 @@ Translation measured by `cics_census.py survey` at translator commit `3bcbb8c623
   - runtime fact no harness states: EIB field EIBTASKN (both runtimes read zero; z/OS does not)
   - runtime fact no harness states: ASSIGN STARTCODE (no equivalence case states it)
   - runtime fact no harness states: ASSIGN SYSID (the case states no region)
+- **Det-port mutation:** not yet measured (#4628)
 - **Residual risk:** 1 holes; 3 unstated runtime facts; ASSUMED / DIFFERS entries named: X14, X15, X19; commands without oracle backing: DEQ, ENQ, READ; assumption reach and the migration dimensions above: not measured
 
 ### base/src/lgipvs01.cbl -- L0
@@ -683,7 +710,7 @@ Translation measured by `cics_census.py survey` at translator commit `3bcbb8c623
   - hole: EXEC EXEC CICS: READ GENERIC GTEQ: option not modelled
 - **Executed equivalence:** no equivalence case runs it
 - **Coverage:** not measured
-- **Oracle backing** (per CICS command):
+- **Oracle backing** (a column, not a level; per CICS command; DIFFERS assumptions reached: not measured):
 
   | command | spec entry | hand-traced crucible cases (stub / Java runtime agree) | backed |
   |---|---|---|---|
@@ -697,6 +724,7 @@ Translation measured by `cics_census.py survey` at translator commit `3bcbb8c623
   - runtime facts the harness states for its commands: facility, screen, startcode, userid
   - runtime fact no harness states: ASSIGN STARTCODE (no equivalence case states it)
   - runtime fact no harness states: ASSIGN SYSID (the case states no region)
+- **Det-port mutation:** not yet measured (#4628)
 - **Residual risk:** 1 holes; 2 unstated runtime facts; ASSUMED / DIFFERS entries named: X14, X15, X19; commands without oracle backing: READ; assumption reach and the migration dimensions above: not measured
 
 ### base/src/lgsetup.cbl -- L0
@@ -708,7 +736,7 @@ Translation measured by `cics_census.py survey` at translator commit `3bcbb8c623
   - hole: EXEC EXEC CICS: EXEC CICS DELETEQ TS not modelled (deleting a temporary-storage queue is not modelled)
 - **Executed equivalence:** no equivalence case runs it
 - **Coverage:** not measured
-- **Oracle backing** (per CICS command):
+- **Oracle backing** (a column, not a level; per CICS command; DIFFERS assumptions reached: not measured):
 
   | command | spec entry | hand-traced crucible cases (stub / Java runtime agree) | backed |
   |---|---|---|---|
@@ -721,6 +749,7 @@ Translation measured by `cics_census.py survey` at translator commit `3bcbb8c623
   | WRITEQ TS | full | ca-channel-containers (yes / no), ca-link-lengths (yes / yes), gt-assign-startcode (yes / no), gt-start-options (yes / no), gt-start-retrieve (yes / yes), hc-perform-range (yes / yes), pc-wizard (yes / yes) | yes |
 
 - **Assumptions relied on:** named by its commands' spec entries: X15 (ASSUMED (REFUSED where IBM is silent)), X20 (MATCHED (REFUSED where the region cannot decide)); reach: not measured
+- **Det-port mutation:** not yet measured (#4628)
 - **Residual risk:** 78 holes; ASSUMED / DIFFERS entries named: X15; commands without oracle backing: DEFINE COUNTER, DELETE COUNTER, DELETEQ TS; assumption reach and the migration dimensions above: not measured
 
 ### base/src/lgtestc1.cbl -- L0
@@ -730,7 +759,7 @@ Translation measured by `cics_census.py survey` at translator commit `3bcbb8c623
   - hole: EXEC EXEC CICS: RECEIVE MAP ASIS: option not modelled
 - **Executed equivalence:** no equivalence case runs it
 - **Coverage:** not measured
-- **Oracle backing** (per CICS command):
+- **Oracle backing** (a column, not a level; per CICS command; DIFFERS assumptions reached: not measured):
 
   | command | spec entry | hand-traced crucible cases (stub / Java runtime agree) | backed |
   |---|---|---|---|
@@ -748,6 +777,7 @@ Translation measured by `cics_census.py survey` at translator commit `3bcbb8c623
   | WRITEQ TS | full | ca-channel-containers (yes / no), ca-link-lengths (yes / yes), gt-assign-startcode (yes / no), gt-start-options (yes / no), gt-start-retrieve (yes / yes), hc-perform-range (yes / yes), pc-wizard (yes / yes) | yes |
 
 - **Assumptions relied on:** named by its commands' spec entries: X3 (MATCHED), X16 (MATCHED (REFUSED where IBM is silent)), X20 (MATCHED (REFUSED where the region cannot decide)); reach: not measured
+- **Det-port mutation:** not yet measured (#4628)
 - **Residual risk:** 2 holes; commands without oracle backing: DEQ, ENQ, SYNCPOINT ROLLBACK; assumption reach and the migration dimensions above: not measured
 
 ### base/src/lgwebst5.cbl -- L0
@@ -760,7 +790,7 @@ Translation measured by `cics_census.py survey` at translator commit `3bcbb8c623
   - hole: EXEC EXEC CICS: not a data area: Length of WS-TSQdata
 - **Executed equivalence:** no equivalence case runs it
 - **Coverage:** not measured
-- **Oracle backing** (per CICS command):
+- **Oracle backing** (a column, not a level; per CICS command; DIFFERS assumptions reached: not measured):
 
   | command | spec entry | hand-traced crucible cases (stub / Java runtime agree) | backed |
   |---|---|---|---|
@@ -778,6 +808,7 @@ Translation measured by `cics_census.py survey` at translator commit `3bcbb8c623
   - runtime facts the harness states for its commands: facility, screen, startcode, userid
   - runtime fact no harness states: EIB field EIBTASKN (both runtimes read zero; z/OS does not)
   - runtime fact no harness states: ASSIGN APPLID (the case states no region)
+- **Det-port mutation:** not yet measured (#4628)
 - **Residual risk:** 40 holes; 2 unstated runtime facts; ASSUMED / DIFFERS entries named: X18, X19; commands without oracle backing: ASKTIME, DELETEQ TS, FORMATTIME, QUERY COUNTER; assumption reach and the migration dimensions above: not measured
 
 ## Assumptions the estate's CICS commands name
@@ -802,7 +833,7 @@ From the spec entries of the commands the programs use, with the register's stat
 - crucible pins: cics `v0.5.0`, estate `v0.4.0`, language `v1.7.0`; cics crucible baseline measured at `v0.5.0 (9ee42d11)`; crucible cases per command measured at `v0.5.0`
 - crucible pin manifest: tests/crucible_pins.toml
 - oracle base image: `debian:bookworm-slim@sha256:3783cc01769c7b2b1b83a5c5ad96c815348e28ed7da68e2e3687004faa906251`
-- oracle images the evidence records ran on: `sha256:3d1d5e13c632545d0e1bc4d215c3fb8dd1d68d0ff8647b56880f1593353bc7dc`, `sha256:bcdd12de145fe2d347b66753abebca39cffb2a2e1cc8c19e5e4e5be714754b05`
+- oracle images the evidence records ran on: `sha256:3d1d5e13c632545d0e1bc4d215c3fb8dd1d68d0ff8647b56880f1593353bc7dc`, `sha256:ec3ecd98686860217630b1fce29265628e980a353ddd3d2d96d16332e8800c64`
 
 Regenerate this report and re-run its proofs:
 

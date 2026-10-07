@@ -10,7 +10,7 @@ Translation measured by `cics_census.py survey` at translator commit `3bcbb8c623
 
 **What the oracle is.** Every equivalence result here compares the Java with the COBOL program run by GnuCOBOL plus the gitgalaxy CICS stub and models (CICS, Db2 precompiler, Language Environment, DISPLAY), not IBM z/OS: the pinned compiler `cobc (GnuCOBOL) 3.1.2.0` (package `3.1.2-5+b1`, base image `debian:bookworm-slim@sha256:3783cc01769c7b2b1b83a5c5ad96c815348e28ed7da68e2e3687004faa906251`). Where that oracle may differ from z/OS is written down in [oracle_assumptions.md](../../oracle_assumptions.md); each program lists the entries its CICS commands name. A result reads "executed equivalent on N scenarios against GnuCOBOL + the gitgalaxy CICS stub", with those assumptions -- never a statement about z/OS.
 
-**What a level means.** Each program gets the highest level whose conditions hold; levels are cumulative and the numbers under a level are always shown. The coverage bars are parameters of this report (paragraphs 100.0%, branches 100.0%; net of reviewed infeasible outcomes: not yet available (#4602)). The evidence record of a program's case (the committed hand or model port's proof) is reported beside each program, and is not a condition of any level.
+**What a level means.** Each program gets the highest level whose conditions hold; levels are cumulative and the numbers under a level are always shown. The coverage bars are parameters of this report (paragraphs 100.0%, branches 100.0% net of the reviewed infeasible outcomes each program lists as stated assumptions). Oracle backing per CICS command is a separate column, not a level. Det-port mutation (the top level): not yet measured (#4628). The evidence record of a program's case (the committed hand or model port's proof) is reported beside each program, and is not a condition of any level.
 
 | level | name | condition |
 |---|---|---|
@@ -18,8 +18,8 @@ Translation measured by `cics_census.py survey` at translator commit `3bcbb8c623
 | L1 | translated whole | the det translator leaves no hole and does not refuse it |
 | L2 | executed equivalent | a case runs it and the case's det port is equal on every scenario (CI's det-sweep ratchet on main; a Db2 case only by a local sweep); the case's evidence record is reported, not required |
 | L3 | paragraph coverage | L2, and the scenarios execute >= 100.0 percent of its live paragraphs |
-| L4 | branch coverage | L3, and >= 100.0 percent of its branch outcomes (net of reviewed infeasible outcomes: not yet available (#4602)) |
-| L5 | oracle backed | L4, every CICS command it uses has a full spec entry and a hand-traced cics-crucible case both runtimes agree with, and no DIFFERS assumption is reached (assumption reach is not measured yet: no program is placed here) |
+| L4 | branch coverage | L3, and >= 100.0 percent of its branch outcomes, net of the case's reviewed infeasible outcomes (listed under its assumptions) |
+| L5 | mutants accounted for | L4, and every surviving mutant of the det port accounted for: not yet measured (#4628) |
 
 **What is not measured.** Holes, unrun paragraphs and branch outcomes, unstated runtime facts and the ASSUMED / DIFFERS entries a program's commands name are listed per program. Which register entries a program actually reaches is not measured. These migration dimensions are not measured at all:
 
@@ -47,13 +47,13 @@ Translation measured by `cics_census.py survey` at translator commit `3bcbb8c623
 
 ## Programs
 
-| program | level | translated / statements | holes | case | det port | scenarios | record | paragraphs | branches | CICS commands backed |
-|---|---|---|---|---|---|---|---|---|---|---|
-| Source/ECS001.cbl | L0 | 100/105 | 5 | — | — | — | — | not measured | not measured | 3/7 |
-| Source/ZECS000.cbl | L0 | 160/173 | 13 | — | — | — | — | not measured | not measured | 5/22 |
-| Source/ZECS001.cbl | L0 | 522/561 | 39 | — | — | — | — | not measured | not measured | 3/27 |
-| Source/ZECS003.cbl | L0 | 63/73 | 10 | — | — | — | — | not measured | not measured | 1/12 |
-| Source/ZECSPLT.cbl | L0 | 23/27 | 4 | — | — | — | — | not measured | not measured | 2/6 |
+| program | level | translated / statements | holes | case | det port | scenarios | record | paragraphs | branches (raw) | branches (net of infeasible) | det-port mutation | CICS commands oracle-backed |
+|---|---|---|---|---|---|---|---|---|---|---|---|---|
+| Source/ECS001.cbl | L0 | 100/105 | 5 | — | — | — | — | not measured | not measured | not measured | not yet measured (#4628) | 3/7 |
+| Source/ZECS000.cbl | L0 | 160/173 | 13 | — | — | — | — | not measured | not measured | not measured | not yet measured (#4628) | 5/22 |
+| Source/ZECS001.cbl | L0 | 522/561 | 39 | — | — | — | — | not measured | not measured | not measured | not yet measured (#4628) | 3/27 |
+| Source/ZECS003.cbl | L0 | 63/73 | 10 | — | — | — | — | not measured | not measured | not measured | not yet measured (#4628) | 1/12 |
+| Source/ZECSPLT.cbl | L0 | 23/27 | 4 | — | — | — | — | not measured | not measured | not measured | not yet measured (#4628) | 2/6 |
 
 ## Per program
 
@@ -67,7 +67,7 @@ Translation measured by `cics_census.py survey` at translator commit `3bcbb8c623
   - hole: EXEC EXEC CICS: EXEC CICS WEB OPEN not modelled (CICS web support (HTTP server / client) is not modelled)
 - **Executed equivalence:** no equivalence case runs it
 - **Coverage:** not measured
-- **Oracle backing** (per CICS command):
+- **Oracle backing** (a column, not a level; per CICS command; DIFFERS assumptions reached: not measured):
 
   | command | spec entry | hand-traced crucible cases (stub / Java runtime agree) | backed |
   |---|---|---|---|
@@ -80,6 +80,7 @@ Translation measured by `cics_census.py survey` at translator commit `3bcbb8c623
   | WEB OPEN | name-only | none | no |
 
 - **Assumptions relied on:** named by its commands' spec entries: X15 (ASSUMED (REFUSED where IBM is silent)), X20 (MATCHED (REFUSED where the region cannot decide)); reach: not measured
+- **Det-port mutation:** not yet measured (#4628)
 - **Residual risk:** 5 holes; ASSUMED / DIFFERS entries named: X15; commands without oracle backing: (unlisted) INQUIRE, WEB CLOSE, WEB CONVERSE, WEB OPEN; assumption reach and the migration dimensions above: not measured
 
 ### Source/ZECS000.cbl -- L0
@@ -97,7 +98,7 @@ Translation measured by `cics_census.py survey` at translator commit `3bcbb8c623
   - hole: EXEC EXEC CICS: READ GTEQ: option not modelled
 - **Executed equivalence:** no equivalence case runs it
 - **Coverage:** not measured
-- **Oracle backing** (per CICS command):
+- **Oracle backing** (a column, not a level; per CICS command; DIFFERS assumptions reached: not measured):
 
   | command | spec entry | hand-traced crucible cases (stub / Java runtime agree) | backed |
   |---|---|---|---|
@@ -129,6 +130,7 @@ Translation measured by `cics_census.py survey` at translator commit `3bcbb8c623
   - runtime fact no harness states: EIB field EIBFN (both runtimes read zero; z/OS does not)
   - runtime fact no harness states: EIB field EIBTASKN (both runtimes read zero; z/OS does not)
   - runtime fact no harness states: ASSIGN APPLID (the case states no region)
+- **Det-port mutation:** not yet measured (#4628)
 - **Residual risk:** 13 holes; 3 unstated runtime facts; ASSUMED / DIFFERS entries named: X14, X18, X19; commands without oracle backing: (unlisted) INQUIRE, (unlisted) SYNCPOINT NOHANDLE, ASKTIME, DELAY, DELETE, DOCUMENT CREATE, DOCUMENT RETRIEVE, ENQ, FORMATTIME, READ, REWRITE, WEB CLOSE, WEB CONVERSE, WEB OPEN, WEB PARSE URL, WRITE, WRITEQ TD; assumption reach and the migration dimensions above: not measured
 
 ### Source/ZECS001.cbl -- L0
@@ -155,7 +157,7 @@ Translation measured by `cics_census.py survey` at translator commit `3bcbb8c623
   - hole: HOLE dynamic CALL
 - **Executed equivalence:** no equivalence case runs it
 - **Coverage:** not measured
-- **Oracle backing** (per CICS command):
+- **Oracle backing** (a column, not a level; per CICS command; DIFFERS assumptions reached: not measured):
 
   | command | spec entry | hand-traced crucible cases (stub / Java runtime agree) | backed |
   |---|---|---|---|
@@ -191,6 +193,7 @@ Translation measured by `cics_census.py survey` at translator commit `3bcbb8c623
   - runtime fact no harness states: EIB field EIBDS (both runtimes read zero; z/OS does not)
   - runtime fact no harness states: EIB field EIBFN (both runtimes read zero; z/OS does not)
   - runtime fact no harness states: EIB field EIBRCODE (both runtimes read zero; z/OS does not)
+- **Det-port mutation:** not yet measured (#4628)
 - **Residual risk:** 39 holes; 3 unstated runtime facts; ASSUMED / DIFFERS entries named: X14; commands without oracle backing: (unlisted) GET, (unlisted) SYNCPOINT NOHANDLE, ASKTIME, DELETE, DOCUMENT CREATE, DOCUMENT RETRIEVE, FORMATTIME, FREEMAIN, GETMAIN, INQUIRE PROGRAM, READ, REWRITE, SYNCPOINT ROLLBACK, WEB CLOSE, WEB CONVERSE, WEB EXTRACT, WEB OPEN, WEB PARSE URL, WEB READ HTTPHEADER, WEB RECEIVE, WEB SEND, WEB WRITE HTTPHEADER, WRITE, WRITEQ TD; assumption reach and the migration dimensions above: not measured
 
 ### Source/ZECS003.cbl -- L0
@@ -209,7 +212,7 @@ Translation measured by `cics_census.py survey` at translator commit `3bcbb8c623
   - hole: EXEC EXEC CICS: READ GTEQ: option not modelled
 - **Executed equivalence:** no equivalence case runs it
 - **Coverage:** not measured
-- **Oracle backing** (per CICS command):
+- **Oracle backing** (a column, not a level; per CICS command; DIFFERS assumptions reached: not measured):
 
   | command | spec entry | hand-traced crucible cases (stub / Java runtime agree) | backed |
   |---|---|---|---|
@@ -228,6 +231,7 @@ Translation measured by `cics_census.py survey` at translator commit `3bcbb8c623
 
 - **Assumptions relied on:** named by its commands' spec entries: X14 (ASSUMED (REFUSED where IBM is silent)); reach: not measured
   - runtime fact no harness states: EIB field EIBFN (both runtimes read zero; z/OS does not)
+- **Det-port mutation:** not yet measured (#4628)
 - **Residual risk:** 10 holes; 1 unstated runtime facts; ASSUMED / DIFFERS entries named: X14; commands without oracle backing: (unlisted) INQUIRE, ASKTIME, DELETE, DOCUMENT CREATE, DOCUMENT RETRIEVE, READ, WEB CLOSE, WEB CONVERSE, WEB OPEN, WEB PARSE URL, WEB SEND; assumption reach and the migration dimensions above: not measured
 
 ### Source/ZECSPLT.cbl -- L0
@@ -239,7 +243,7 @@ Translation measured by `cics_census.py survey` at translator commit `3bcbb8c623
   - hole: EXEC EXEC CICS: EXEC CICS WRITE OPERATOR not modelled (a message to the system console (WRITE OPERATOR) is not modelled)
 - **Executed equivalence:** no equivalence case runs it
 - **Coverage:** not measured
-- **Oracle backing** (per CICS command):
+- **Oracle backing** (a column, not a level; per CICS command; DIFFERS assumptions reached: not measured):
 
   | command | spec entry | hand-traced crucible cases (stub / Java runtime agree) | backed |
   |---|---|---|---|
@@ -251,6 +255,7 @@ Translation measured by `cics_census.py survey` at translator commit `3bcbb8c623
   | WRITEQ TD | full | none | no |
 
 - **Assumptions relied on:** named by its commands' spec entries: X18 (ASSUMED (REFUSED where IBM is silent)); reach: not measured
+- **Det-port mutation:** not yet measured (#4628)
 - **Residual risk:** 4 holes; ASSUMED / DIFFERS entries named: X18; commands without oracle backing: (unlisted) INQUIRE, (unlisted) INQUIRE URIMAP, WRITE OPERATOR, WRITEQ TD; assumption reach and the migration dimensions above: not measured
 
 ## Assumptions the estate's CICS commands name

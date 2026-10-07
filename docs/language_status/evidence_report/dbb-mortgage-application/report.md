@@ -10,7 +10,7 @@ Translation measured by `cics_census.py survey` at translator commit `3bcbb8c623
 
 **What the oracle is.** Every equivalence result here compares the Java with the COBOL program run by GnuCOBOL plus the gitgalaxy CICS stub and models (CICS, Db2 precompiler, Language Environment, DISPLAY), not IBM z/OS: the pinned compiler `cobc (GnuCOBOL) 3.1.2.0` (package `3.1.2-5+b1`, base image `debian:bookworm-slim@sha256:3783cc01769c7b2b1b83a5c5ad96c815348e28ed7da68e2e3687004faa906251`). Where that oracle may differ from z/OS is written down in [oracle_assumptions.md](../../oracle_assumptions.md); each program lists the entries its CICS commands name. A result reads "executed equivalent on N scenarios against GnuCOBOL + the gitgalaxy CICS stub", with those assumptions -- never a statement about z/OS.
 
-**What a level means.** Each program gets the highest level whose conditions hold; levels are cumulative and the numbers under a level are always shown. The coverage bars are parameters of this report (paragraphs 100.0%, branches 100.0%; net of reviewed infeasible outcomes: not yet available (#4602)). The evidence record of a program's case (the committed hand or model port's proof) is reported beside each program, and is not a condition of any level.
+**What a level means.** Each program gets the highest level whose conditions hold; levels are cumulative and the numbers under a level are always shown. The coverage bars are parameters of this report (paragraphs 100.0%, branches 100.0% net of the reviewed infeasible outcomes each program lists as stated assumptions). Oracle backing per CICS command is a separate column, not a level. Det-port mutation (the top level): not yet measured (#4628). The evidence record of a program's case (the committed hand or model port's proof) is reported beside each program, and is not a condition of any level.
 
 | level | name | condition |
 |---|---|---|
@@ -18,8 +18,8 @@ Translation measured by `cics_census.py survey` at translator commit `3bcbb8c623
 | L1 | translated whole | the det translator leaves no hole and does not refuse it |
 | L2 | executed equivalent | a case runs it and the case's det port is equal on every scenario (CI's det-sweep ratchet on main; a Db2 case only by a local sweep); the case's evidence record is reported, not required |
 | L3 | paragraph coverage | L2, and the scenarios execute >= 100.0 percent of its live paragraphs |
-| L4 | branch coverage | L3, and >= 100.0 percent of its branch outcomes (net of reviewed infeasible outcomes: not yet available (#4602)) |
-| L5 | oracle backed | L4, every CICS command it uses has a full spec entry and a hand-traced cics-crucible case both runtimes agree with, and no DIFFERS assumption is reached (assumption reach is not measured yet: no program is placed here) |
+| L4 | branch coverage | L3, and >= 100.0 percent of its branch outcomes, net of the case's reviewed infeasible outcomes (listed under its assumptions) |
+| L5 | mutants accounted for | L4, and every surviving mutant of the det port accounted for: not yet measured (#4628) |
 
 **What is not measured.** Holes, unrun paragraphs and branch outcomes, unstated runtime facts and the ASSUMED / DIFFERS entries a program's commands name are listed per program. Which register entries a program actually reaches is not measured. These migration dimensions are not measured at all:
 
@@ -47,14 +47,14 @@ Translation measured by `cics_census.py survey` at translator commit `3bcbb8c623
 
 ## Programs
 
-| program | level | translated / statements | holes | case | det port | scenarios | record | paragraphs | branches | CICS commands backed |
-|---|---|---|---|---|---|---|---|---|---|---|
-| zBuilder/MortgageApplication/cobol/epsmlist.cbl | L2 | 51/51 | 0 | mortgage-mlist | equal | 9 | none | not measured | not measured | 3/6 |
-| zBuilder/MortgageApplication/cobol/epsnbrvl.cbl | L2 | 52/52 | 0 | mortgage-nbrvl | equal | None | none | not measured | not measured | — |
-| zBuilder/MortgageApplication/cobol/epscmort.cbl | L1 | 61/61 | 0 | mortgage-cmort | not run | 8 | none | not measured | not measured | 5/5 |
-| zBuilder/MortgageApplication/cobol/epscsmrd.cbl | L0 | 38/58 | 20 | — | — | — | — | not measured | not measured | 2/9 |
-| zBuilder/MortgageApplication/cobol/epscsmrt.cbl | L0 | 12/13 | 1 | — | — | — | — | not measured | not measured | — |
-| zBuilder/MortgageApplication/cobol/epsmpmt.cbl | L0 | 25/27 | 2 | mortgage-mpmt | not equal | None | none | not measured | not measured | — |
+| program | level | translated / statements | holes | case | det port | scenarios | record | paragraphs | branches (raw) | branches (net of infeasible) | det-port mutation | CICS commands oracle-backed |
+|---|---|---|---|---|---|---|---|---|---|---|---|---|
+| zBuilder/MortgageApplication/cobol/epsmlist.cbl | L2 | 51/51 | 0 | mortgage-mlist | equal | 9 | none | not measured | not measured | not measured | not yet measured (#4628) | 3/6 |
+| zBuilder/MortgageApplication/cobol/epsnbrvl.cbl | L2 | 52/52 | 0 | mortgage-nbrvl | equal | None | none | not measured | not measured | not measured | not yet measured (#4628) | — |
+| zBuilder/MortgageApplication/cobol/epscmort.cbl | L1 | 61/61 | 0 | mortgage-cmort | not run | 8 | none | not measured | not measured | not measured | not yet measured (#4628) | 5/5 |
+| zBuilder/MortgageApplication/cobol/epscsmrd.cbl | L0 | 38/58 | 20 | — | — | — | — | not measured | not measured | not measured | not yet measured (#4628) | 2/9 |
+| zBuilder/MortgageApplication/cobol/epscsmrt.cbl | L0 | 12/13 | 1 | — | — | — | — | not measured | not measured | not measured | not yet measured (#4628) | — |
+| zBuilder/MortgageApplication/cobol/epsmpmt.cbl | L0 | 25/27 | 2 | mortgage-mpmt | not equal | None | none | not measured | not measured | not measured | not yet measured (#4628) | — |
 
 ## Per program
 
@@ -70,7 +70,7 @@ Translation measured by `cics_census.py survey` at translator commit `3bcbb8c623
 - **Executed equivalence** (mortgage-mlist-generated, program): det port equal (CI det-sweep ratchet on main)
   - evidence record: none (0 scenarios in case.json)
 - **Coverage:** not measured
-- **Oracle backing** (per CICS command):
+- **Oracle backing** (a column, not a level; per CICS command; DIFFERS assumptions reached: not measured):
 
   | command | spec entry | hand-traced crucible cases (stub / Java runtime agree) | backed |
   |---|---|---|---|
@@ -82,6 +82,7 @@ Translation measured by `cics_census.py survey` at translator commit `3bcbb8c623
   | STARTBR | full | none | no |
 
 - **Assumptions relied on:** named by its commands' spec entries: none; reach: not measured
+- **Det-port mutation:** not yet measured (#4628)
 - **Residual risk:** coverage not measured; commands without oracle backing: ENDBR, READNEXT, STARTBR; assumption reach and the migration dimensions above: not measured
 
 ### zBuilder/MortgageApplication/cobol/epsnbrvl.cbl -- L2
@@ -94,6 +95,7 @@ Translation measured by `cics_census.py survey` at translator commit `3bcbb8c623
 - **Coverage:** not measured
 - **Oracle backing:** no EXEC CICS command
 - **Assumptions relied on:** named by its commands' spec entries: none; reach: not measured
+- **Det-port mutation:** not yet measured (#4628)
 - **Residual risk:** coverage not measured; assumption reach and the migration dimensions above: not measured
 
 ### zBuilder/MortgageApplication/cobol/epscmort.cbl -- L1
@@ -103,7 +105,7 @@ Translation measured by `cics_census.py survey` at translator commit `3bcbb8c623
 - **Executed equivalence** (mortgage-cmort, program, Db2, the case this report judges): det port not run (a Db2 case: CI's det-sweep skips Db2 cases and no local sweep was given)
   - evidence record: none (8 scenarios in case.json)
 - **Coverage:** not measured
-- **Oracle backing** (per CICS command):
+- **Oracle backing** (a column, not a level; per CICS command; DIFFERS assumptions reached: not measured):
 
   | command | spec entry | hand-traced crucible cases (stub / Java runtime agree) | backed |
   |---|---|---|---|
@@ -114,6 +116,7 @@ Translation measured by `cics_census.py survey` at translator commit `3bcbb8c623
   | SEND TEXT | full | ca-link-lengths (yes / yes), ca-xctl-versions (yes / yes), gt-assign-startcode (yes / no), gt-start-options (yes / no), gt-start-retrieve (yes / yes), gt-terminal-coalesce (yes / yes), hc-abend-link (yes / yes), hc-eoc-error (yes / no), hc-handle-aid (yes / no), hc-ignore-error (yes / no), hc-perform-range (yes / yes), hc-terminal-eoc (yes / no), hc-terminal-receive (yes / no), pc-aid-menu (yes / yes), pc-wizard (yes / yes) | yes |
 
 - **Assumptions relied on:** named by its commands' spec entries: X20 (MATCHED (REFUSED where the region cannot decide)); reach: not measured
+- **Det-port mutation:** not yet measured (#4628)
 - **Residual risk:** coverage not measured; assumption reach and the migration dimensions above: not measured
 
 ### zBuilder/MortgageApplication/cobol/epscsmrd.cbl -- L0
@@ -138,7 +141,7 @@ Translation measured by `cics_census.py survey` at translator commit `3bcbb8c623
   - hole: SET-POINTER SET ADDRESS OF (pointers)
 - **Executed equivalence:** no equivalence case runs it
 - **Coverage:** not measured
-- **Oracle backing** (per CICS command):
+- **Oracle backing** (a column, not a level; per CICS command; DIFFERS assumptions reached: not measured):
 
   | command | spec entry | hand-traced crucible cases (stub / Java runtime agree) | backed |
   |---|---|---|---|
@@ -153,6 +156,7 @@ Translation measured by `cics_census.py survey` at translator commit `3bcbb8c623
   | STARTBROWSE CONTAINER | name-only | none | no |
 
 - **Assumptions relied on:** named by its commands' spec entries: X17 (ASSUMED (REFUSED where IBM is silent)); reach: not measured
+- **Det-port mutation:** not yet measured (#4628)
 - **Residual risk:** 20 holes; ASSUMED / DIFFERS entries named: X17; commands without oracle backing: FREEMAIN, GET CONTAINER, GETMAIN, GETNEXT CONTAINER, PUT CONTAINER, SOAPFAULT CREATE, STARTBROWSE CONTAINER; assumption reach and the migration dimensions above: not measured
 
 ### zBuilder/MortgageApplication/cobol/epscsmrt.cbl -- L0
@@ -164,6 +168,7 @@ Translation measured by `cics_census.py survey` at translator commit `3bcbb8c623
 - **Coverage:** not measured
 - **Oracle backing:** no EXEC CICS command
 - **Assumptions relied on:** named by its commands' spec entries: none; reach: not measured
+- **Det-port mutation:** not yet measured (#4628)
 - **Residual risk:** 1 holes; assumption reach and the migration dimensions above: not measured
 
 ### zBuilder/MortgageApplication/cobol/epsmpmt.cbl -- L0
@@ -177,6 +182,7 @@ Translation measured by `cics_census.py survey` at translator commit `3bcbb8c623
 - **Coverage:** not measured
 - **Oracle backing:** no EXEC CICS command
 - **Assumptions relied on:** named by its commands' spec entries: none; reach: not measured
+- **Det-port mutation:** not yet measured (#4628)
 - **Residual risk:** 2 holes; assumption reach and the migration dimensions above: not measured
 
 ## Assumptions the estate's CICS commands name

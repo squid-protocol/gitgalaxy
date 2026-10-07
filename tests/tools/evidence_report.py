@@ -21,11 +21,14 @@ caveats of docs/language_status/oracle_assumptions.md. Each program gets the hig
   L3 + paragraph coverage      the det proof's scenarios execute >= the paragraph bar (default 100) of the live
                                paragraphs: the --sweep coverage line, else the det-sweep coverage ledger
                                (tests/equivalence/det_sweep_coverage.json, #4606) while its entry is fresh
-  L4 + branch coverage         ... and >= the branch bar (default 100) of the branch outcomes; "net of reviewed
-                               infeasible outcomes" (#4602) is reported as not yet available until that list lands
-  L5 + oracle backing          every CICS command it uses has a full spec entry and a hand-traced cics-crucible case
-                               both runtimes agree with, and no DIFFERS assumption is reached -- per-program assumption
-                               reach is NOT MEASURED yet, so no program is placed at L5 (it says so)
+  L4 + branch coverage         ... and >= the branch bar (default 100) of the branch outcomes NET of the case's
+                               reviewed infeasible outcomes (tests/equivalence/infeasible_outcomes.json, #4602), listed
+                               per program as stated assumptions; raw and net numbers both printed
+  L5 + mutants accounted for   every surviving mutant of the det port accounted for (#4628: not built yet, so no
+                               program is placed at L5; the report says "not yet measured")
+
+Oracle backing is a separate per-program column, not a rung: per CICS command, spec entry full / name-only, a
+hand-traced cics-crucible case both runtimes agree with; DIFFERS assumptions reached: not measured.
 
 Sections (per program): translation, executed equivalence, coverage, oracle backing, assumptions relied on, residual
 risk; per estate: the level histogram and totals (a burned estate is labelled as one: its ports were developed
@@ -87,7 +90,7 @@ DOCKERFILE = REPO / "tests" / "equivalence" / "gnucobol.Dockerfile"
 CORPORA = REPO / "tests" / "cobol_mainframe" / "corpora.json"
 DEFAULT_BARS = {"paragraphs": 100.0, "branches": 100.0}  # owner decision on #4601: strict
 # #4602: an owner-reviewed per-case list of infeasible branch outcomes, which the bars will be taken net of once it lands
-INFEASIBLE = "not yet available (#4602)"
+MUTATION = "not yet measured (#4628)"  # det-port mutation: the L5 hook
 LEVELS = ["L0", "L1", "L2", "L3", "L4", "L5"]
 
 # #4514 (the whole-migration epic): each part adds a section here when it is built; until then, not measured.
@@ -199,6 +202,7 @@ def measure(
             "coverage": s.get("coverage", ""),
             "translated": s.get("translated", ""),
             "first_diff": neutral(pb.diff_kind(s.get("report"))),
+            "uncovered": s.get("uncovered"),
         }
         for c, s in sweeps.items()
         if c in used
@@ -315,13 +319,27 @@ def coverage_of(case: dict[str, Any] | None, swept: dict[str, Any], ledger: dict
         "branches": None,
         "paragraph_pct": None,
         "branch_pct": None,
+        "branches_net": None,
+        "branch_net_pct": None,
+        "infeasible_stated": [],
+        "infeasible_netted": [],
+        "infeasible_refuted": [],
         "uncovered_branches": [],
         "uncovered_paragraphs": "not recorded",
-        "infeasible_outcomes_reviewed": INFEASIBLE,
     }
     if case is None:
         return out
-    line = pb.coverage_of(swept.get(case["case"], {}).get("coverage", ""))
+    import infeasible_outcomes as io
+
+    out["infeasible_stated"] = [
+        {k: e[k] for k in ("key", "unit", "line", "kind", "outcome", "family", "reason")}
+        for e in io.stated(case["case"])
+    ]
+    for e in out["infeasible_stated"]:
+        e["reason"] = neutral(e["reason"])
+    row = swept.get(case["case"], {})
+    line = pb.coverage_of(row.get("coverage", ""))
+    uncovered = row.get("uncovered") if line else None
     led = ledger.get(case["case"])
     if line:
         out["source"] = "local sweep coverage line"
@@ -334,6 +352,11 @@ def coverage_of(case: dict[str, Any] | None, swept: dict[str, Any], ledger: dict
     out["branches"] = {"covered": line[2], "total": line[3]}
     out["paragraph_pct"] = pct(out["paragraphs"]["covered"], out["paragraphs"]["live"])
     out["branch_pct"] = pct(out["branches"]["covered"], out["branches"]["total"])
+    net, netted, refuted = io.adjust(case["case"], tuple(line), uncovered)  # type: ignore[arg-type]
+    if net is not None:
+        out["branches_net"] = {"covered": net[2], "total": net[3]}
+        out["branch_net_pct"] = pct(net[2], net[3]) if net[3] else 100.0
+    out["infeasible_netted"], out["infeasible_refuted"] = netted, refuted
     return out
 
 
@@ -379,13 +402,12 @@ def level_of(p: dict[str, Any], bars: dict[str, float]) -> tuple[str, list[str]]
         return "L2", [f"paragraph coverage >= {bars['paragraphs']} ({why})"]
     if cov["paragraph_pct"] < bars["paragraphs"]:
         return "L2", [f"paragraph coverage >= {bars['paragraphs']} (now {cov['paragraph_pct']})"]
-    if cov["branch_pct"] is None or cov["branch_pct"] < bars["branches"]:
-        why = f"now {cov['branch_pct']}; net of reviewed infeasible outcomes: {INFEASIBLE}"
-        return "L3", [f"branch coverage >= {bars['branches']} ({why})"]
-    unbacked = [b["command"] for b in p["oracle_backing"] if not b["backed"]]
-    need = [f"oracle backing for {', '.join(unbacked)}"] if unbacked else []
-    need.append("per-program assumption reach, which is not measured yet (no DIFFERS assumption reached)")
-    return "L4", need
+    if cov["infeasible_refuted"]:
+        return "L3", [f"no refuted infeasible-outcome claim (reached: {', '.join(cov['infeasible_refuted'])})"]
+    if cov["branch_net_pct"] is None or cov["branch_net_pct"] < bars["branches"]:
+        why = f"now {cov['branch_pct']} raw, {cov['branch_net_pct']} net of the reviewed infeasible outcomes"
+        return "L3", [f"branch coverage >= {bars['branches']} net ({why})"]
+    return "L4", [f"every surviving mutant of the det port accounted for: {MUTATION}"]
 
 
 def build_program(m: dict[str, Any], estate: str, ctx: dict[str, Any]) -> dict[str, Any]:
@@ -441,6 +463,9 @@ def build_program(m: dict[str, Any], estate: str, ctx: dict[str, Any]) -> dict[s
     p["equivalence"] = {"cases": cases, "chosen": chosen}
     p["coverage"] = cov
     p["level"], p["next"] = lvl, nxt
+    # #4628: the det port's mutation score is the L5 hook. docs/language_status/mutation_scores.json covers the
+    # model / hand ports only, so it is deliberately left out here (it says nothing about the det port).
+    p["mutation"] = {"det_port": MUTATION}
     regs = sorted({x for b in p["oracle_backing"] for x in b["registers"]}, key=lambda x: int(x[1:]))
     region = bool(chosen and ev._case_json(chosen["case"]).get("region", {}).get("applid"))
     unstated = [f"EIB field {e} (both runtimes read zero; z/OS does not)" for e in facts.get("eib", [])]
@@ -521,7 +546,7 @@ def build(measured: dict[str, Any], estate: str, bars: dict[str, float], *, live
             **pin,
         },
         "not_measured": NOT_MEASURED,
-        "infeasible_outcomes": INFEASIBLE,
+        "mutation": MUTATION,
         "measured": measured,
         "summary": {
             "programs": len(progs),
@@ -594,15 +619,13 @@ def level_table(bars: dict[str, float]) -> list[dict[str, str]]:
         {
             "level": "L4",
             "name": "branch coverage",
-            "condition": f"L3, and >= {bars['branches']} percent of its branch outcomes (net of reviewed infeasible "
-            f"outcomes: {INFEASIBLE})",
+            "condition": f"L3, and >= {bars['branches']} percent of its branch outcomes, net of the case's reviewed "
+            "infeasible outcomes (listed under its assumptions)",
         },
         {
             "level": "L5",
-            "name": "oracle backed",
-            "condition": "L4, every CICS command it uses has a full spec entry and a "
-            "hand-traced cics-crucible case both runtimes agree with, and no DIFFERS assumption is reached (assumption "
-            "reach is not measured yet: no program is placed here)",
+            "name": "mutants accounted for",
+            "condition": f"L4, and every surviving mutant of the det port accounted for: {MUTATION}",
         },
     ]
 
@@ -695,8 +718,9 @@ def preface(rep: dict[str, Any]) -> list[str]:
         (
             "**What a level means.** Each program gets the highest level whose conditions hold; levels are cumulative and "
             "the numbers under a level are always shown. The coverage bars are parameters of this report "
-            f"(paragraphs {bars['paragraphs']}%, branches {bars['branches']}%; net of reviewed infeasible outcomes: "
-            f"{rep['infeasible_outcomes']}). The evidence record of a program's case (the committed hand or "
+            f"(paragraphs {bars['paragraphs']}%, branches {bars['branches']}% net of the reviewed infeasible outcomes "
+            "each program lists as stated assumptions). Oracle backing per CICS command is a separate column, not a "
+            f"level. Det-port mutation (the top level): {rep['mutation']}. The evidence record of a program's case (the committed hand or "
             "model port's proof) is reported beside each program, and is not a condition of any level."
         ),
         "",
@@ -763,9 +787,9 @@ def render(rep: dict[str, Any]) -> str:
         "",
         (
             "| program | level | translated / statements | holes | case | det port | scenarios | record | paragraphs | "
-            "branches | CICS commands backed |"
+            "branches (raw) | branches (net of infeasible) | det-port mutation | CICS commands oracle-backed |"
         ),
-        "|---|---|---|---|---|---|---|---|---|---|---|",
+        "|---|---|---|---|---|---|---|---|---|---|---|---|---|",
     ]
     for p in rep["programs"]:
         t, c, cov = p["translation"], p["equivalence"]["chosen"], p["coverage"]
@@ -779,6 +803,8 @@ def render(rep: dict[str, Any]) -> str:
             f"{(rec['status_at_build'] if rec else 'none') if c else '—'} | "
             f"{_frac(cov['paragraphs'], 'covered', 'live', cov['paragraph_pct'])} | "
             f"{_frac(cov['branches'], 'covered', 'total', cov['branch_pct'])} | "
+            f"{_frac(cov['branches_net'], 'covered', 'total', cov['branch_net_pct'])} | "
+            f"{p['mutation']['det_port']} | "
             + (f"{rs['commands_backed']}/{rs['commands']}" if rs["commands"] else "—")
             + " |"
         )
@@ -878,15 +904,22 @@ def program_section(p: dict[str, Any]) -> list[str]:
         out.append(
             f"- **Coverage** ({cov['source']}): paragraphs "
             f"{_frac(cov['paragraphs'], 'covered', 'live', cov['paragraph_pct'])}, branch outcomes "
-            f"{_frac(cov['branches'], 'covered', 'total', cov['branch_pct'])}; unrun paragraphs by name: "
+            f"{_frac(cov['branches'], 'covered', 'total', cov['branch_pct'])} raw, "
+            f"{_frac(cov['branches_net'], 'covered', 'total', cov['branch_net_pct'])} net of "
+            f"{len(cov['infeasible_netted'])} stated infeasible; unrun paragraphs by name: "
             f"{cov['uncovered_paragraphs']}"
         )
+        if cov["infeasible_refuted"]:
+            out.append("  - stated infeasible but reached (a refuted claim): " + ", ".join(cov["infeasible_refuted"]))
         out += [f"  - branch outcome no scenario runs: {b}" for b in cov["uncovered_branches"]]
     else:
         out.append("- **Coverage:** not measured")
     if p["oracle_backing"]:
         out += [
-            "- **Oracle backing** (per CICS command):",
+            (
+                "- **Oracle backing** (a column, not a level; per CICS command; DIFFERS assumptions reached: not "
+                "measured):"
+            ),
             "",
             "  | command | spec entry | hand-traced crucible cases (stub / Java runtime agree) | backed |",
             "  |---|---|---|---|",
@@ -910,6 +943,12 @@ def program_section(p: dict[str, Any]) -> list[str]:
     if a["facts_stated"]:
         out.append("  - runtime facts the harness states for its commands: " + ", ".join(a["facts_stated"]))
     out += [f"  - runtime fact no harness states: {f}" for f in a["facts_unstated"]]
+    out += [
+        f"  - stated infeasible branch outcome (reviewed claim, family {e['family']}): {e['key']} ({e['kind']}) -- "
+        f"{e['reason']}"
+        for e in cov["infeasible_stated"]
+    ]
+    out.append(f"- **Det-port mutation:** {p['mutation']['det_port']}")
     risk = [
         f"{rs['holes']} holes" if rs["holes"] else None,
         f"refused whole ({rs['refused']})" if rs["refused"] else None,

@@ -56,7 +56,6 @@
  "burned": true,
  "estate": "cics-genapp",
  "format": "gitgalaxy-evidence-report/1",
- "infeasible_outcomes": "not yet available (#4602)",
  "levels": [
   {
    "condition": "the program is in the estate's survey",
@@ -79,14 +78,14 @@
    "name": "paragraph coverage"
   },
   {
-   "condition": "L3, and >= 100.0 percent of its branch outcomes (net of reviewed infeasible outcomes: not yet available (#4602))",
+   "condition": "L3, and >= 100.0 percent of its branch outcomes, net of the case's reviewed infeasible outcomes (listed under its assumptions)",
    "level": "L4",
    "name": "branch coverage"
   },
   {
-   "condition": "L4, every CICS command it uses has a full spec entry and a hand-traced cics-crucible case both runtimes agree with, and no DIFFERS assumption is reached (assumption reach is not measured yet: no program is placed here)",
+   "condition": "L4, and every surviving mutant of the det port accounted for: not yet measured (#4628)",
    "level": "L5",
-   "name": "oracle backed"
+   "name": "mutants accounted for"
   }
  ],
  "measured": {
@@ -1284,6 +1283,7 @@
   },
   "sweeps": {}
  },
+ "mutation": "not yet measured (#4628)",
  "not_measured": [
   {
    "dimension": "data",
@@ -1332,9 +1332,13 @@
     "source_read": true
    },
    "coverage": {
+    "branch_net_pct": null,
     "branch_pct": null,
     "branches": null,
-    "infeasible_outcomes_reviewed": "not yet available (#4602)",
+    "branches_net": null,
+    "infeasible_netted": [],
+    "infeasible_refuted": [],
+    "infeasible_stated": [],
     "paragraph_pct": null,
     "paragraphs": null,
     "source": null,
@@ -1381,6 +1385,9 @@
     }
    },
    "level": "L2",
+   "mutation": {
+    "det_port": "not yet measured (#4628)"
+   },
    "next": [
     "paragraph coverage >= 100.0 (coverage not measured: no fresh det-sweep ledger entry and no local sweep)"
    ],
@@ -1588,9 +1595,13 @@
     "source_read": true
    },
    "coverage": {
+    "branch_net_pct": null,
     "branch_pct": null,
     "branches": null,
-    "infeasible_outcomes_reviewed": "not yet available (#4602)",
+    "branches_net": null,
+    "infeasible_netted": [],
+    "infeasible_refuted": [],
+    "infeasible_stated": [],
     "paragraph_pct": null,
     "paragraphs": null,
     "source": null,
@@ -1644,7 +1655,7 @@
        },
        "fault_runs": 0,
        "java_failed": false,
-       "oracle_image": "sha256:bcdd12de145fe2d347b66753abebca39cffb2a2e1cc8c19e5e4e5be714754b05",
+       "oracle_image": "sha256:ec3ecd98686860217630b1fce29265628e980a353ddd3d2d96d16332e8800c64",
        "oracle_matches_pin": true,
        "records_compared": 16,
        "records_equal": 16,
@@ -1694,7 +1705,7 @@
       },
       "fault_runs": 0,
       "java_failed": false,
-      "oracle_image": "sha256:bcdd12de145fe2d347b66753abebca39cffb2a2e1cc8c19e5e4e5be714754b05",
+      "oracle_image": "sha256:ec3ecd98686860217630b1fce29265628e980a353ddd3d2d96d16332e8800c64",
       "oracle_matches_pin": true,
       "records_compared": 16,
       "records_equal": 16,
@@ -1713,6 +1724,9 @@
     }
    },
    "level": "L2",
+   "mutation": {
+    "det_port": "not yet measured (#4628)"
+   },
    "next": [
     "paragraph coverage >= 100.0 (coverage not measured: no fresh det-sweep ledger entry and no local sweep)"
    ],
@@ -1901,9 +1915,13 @@
     "source_read": true
    },
    "coverage": {
+    "branch_net_pct": null,
     "branch_pct": null,
     "branches": null,
-    "infeasible_outcomes_reviewed": "not yet available (#4602)",
+    "branches_net": null,
+    "infeasible_netted": [],
+    "infeasible_refuted": [],
+    "infeasible_stated": [],
     "paragraph_pct": null,
     "paragraphs": null,
     "source": null,
@@ -1950,6 +1968,9 @@
     }
    },
    "level": "L2",
+   "mutation": {
+    "det_port": "not yet measured (#4628)"
+   },
    "next": [
     "paragraph coverage >= 100.0 (coverage not measured: no fresh det-sweep ledger entry and no local sweep)"
    ],
@@ -2145,9 +2166,13 @@
     "source_read": true
    },
    "coverage": {
+    "branch_net_pct": null,
     "branch_pct": null,
     "branches": null,
-    "infeasible_outcomes_reviewed": "not yet available (#4602)",
+    "branches_net": null,
+    "infeasible_netted": [],
+    "infeasible_refuted": [],
+    "infeasible_stated": [],
     "paragraph_pct": null,
     "paragraphs": null,
     "source": null,
@@ -2194,6 +2219,9 @@
     }
    },
    "level": "L2",
+   "mutation": {
+    "det_port": "not yet measured (#4628)"
+   },
    "next": [
     "paragraph coverage >= 100.0 (coverage not measured: no fresh det-sweep ledger entry and no local sweep)"
    ],
@@ -2421,9 +2449,13 @@
     "source_read": true
    },
    "coverage": {
+    "branch_net_pct": null,
     "branch_pct": null,
     "branches": null,
-    "infeasible_outcomes_reviewed": "not yet available (#4602)",
+    "branches_net": null,
+    "infeasible_netted": [],
+    "infeasible_refuted": [],
+    "infeasible_stated": [],
     "paragraph_pct": null,
     "paragraphs": null,
     "source": null,
@@ -2525,6 +2557,9 @@
     }
    },
    "level": "L2",
+   "mutation": {
+    "det_port": "not yet measured (#4628)"
+   },
    "next": [
     "paragraph coverage >= 100.0 (coverage not measured: no fresh det-sweep ledger entry and no local sweep)"
    ],
@@ -2747,9 +2782,13 @@
     "source_read": true
    },
    "coverage": {
+    "branch_net_pct": null,
     "branch_pct": null,
     "branches": null,
-    "infeasible_outcomes_reviewed": "not yet available (#4602)",
+    "branches_net": null,
+    "infeasible_netted": [],
+    "infeasible_refuted": [],
+    "infeasible_stated": [],
     "paragraph_pct": null,
     "paragraphs": null,
     "source": null,
@@ -2787,6 +2826,9 @@
     }
    },
    "level": "L1",
+   "mutation": {
+    "det_port": "not yet measured (#4628)"
+   },
    "next": [
     "its det port equal on every scenario of genapp-lgacdb01: a Db2 case: CI's det-sweep skips Db2 cases and no local sweep was given"
    ],
@@ -2996,9 +3038,13 @@
     "source_read": true
    },
    "coverage": {
+    "branch_net_pct": null,
     "branch_pct": null,
     "branches": null,
-    "infeasible_outcomes_reviewed": "not yet available (#4602)",
+    "branches_net": null,
+    "infeasible_netted": [],
+    "infeasible_refuted": [],
+    "infeasible_stated": [],
     "paragraph_pct": null,
     "paragraphs": null,
     "source": null,
@@ -3049,6 +3095,9 @@
     }
    },
    "level": "L1",
+   "mutation": {
+    "det_port": "not yet measured (#4628)"
+   },
    "next": [
     "its det port equal on every scenario of genapp-lgacdb02: a Db2 case: CI's det-sweep skips Db2 cases and no local sweep was given"
    ],
@@ -3249,9 +3298,13 @@
     "source_read": true
    },
    "coverage": {
+    "branch_net_pct": null,
     "branch_pct": null,
     "branches": null,
-    "infeasible_outcomes_reviewed": "not yet available (#4602)",
+    "branches_net": null,
+    "infeasible_netted": [],
+    "infeasible_refuted": [],
+    "infeasible_stated": [],
     "paragraph_pct": null,
     "paragraphs": null,
     "source": null,
@@ -3263,6 +3316,9 @@
     "chosen": null
    },
    "level": "L1",
+   "mutation": {
+    "det_port": "not yet measured (#4628)"
+   },
    "next": [
     "an equivalence case that runs it"
    ],
@@ -3463,9 +3519,13 @@
     "source_read": true
    },
    "coverage": {
+    "branch_net_pct": null,
     "branch_pct": null,
     "branches": null,
-    "infeasible_outcomes_reviewed": "not yet available (#4602)",
+    "branches_net": null,
+    "infeasible_netted": [],
+    "infeasible_refuted": [],
+    "infeasible_stated": [],
     "paragraph_pct": null,
     "paragraphs": null,
     "source": null,
@@ -3503,6 +3563,9 @@
     }
    },
    "level": "L1",
+   "mutation": {
+    "det_port": "not yet measured (#4628)"
+   },
    "next": [
     "its det port equal on every scenario of genapp-lgapdb01: a Db2 case: CI's det-sweep skips Db2 cases and no local sweep was given"
    ],
@@ -3703,9 +3766,13 @@
     "source_read": true
    },
    "coverage": {
+    "branch_net_pct": null,
     "branch_pct": null,
     "branches": null,
-    "infeasible_outcomes_reviewed": "not yet available (#4602)",
+    "branches_net": null,
+    "infeasible_netted": [],
+    "infeasible_refuted": [],
+    "infeasible_stated": [],
     "paragraph_pct": null,
     "paragraphs": null,
     "source": null,
@@ -3717,6 +3784,9 @@
     "chosen": null
    },
    "level": "L1",
+   "mutation": {
+    "det_port": "not yet measured (#4628)"
+   },
    "next": [
     "an equivalence case that runs it"
    ],
@@ -3917,9 +3987,13 @@
     "source_read": true
    },
    "coverage": {
+    "branch_net_pct": null,
     "branch_pct": null,
     "branches": null,
-    "infeasible_outcomes_reviewed": "not yet available (#4602)",
+    "branches_net": null,
+    "infeasible_netted": [],
+    "infeasible_refuted": [],
+    "infeasible_stated": [],
     "paragraph_pct": null,
     "paragraphs": null,
     "source": null,
@@ -3957,6 +4031,9 @@
     }
    },
    "level": "L1",
+   "mutation": {
+    "det_port": "not yet measured (#4628)"
+   },
    "next": [
     "its det port equal on every scenario of genapp-lgdpdb01: a Db2 case: CI's det-sweep skips Db2 cases and no local sweep was given"
    ],
@@ -4157,9 +4234,13 @@
     "source_read": true
    },
    "coverage": {
+    "branch_net_pct": null,
     "branch_pct": null,
     "branches": null,
-    "infeasible_outcomes_reviewed": "not yet available (#4602)",
+    "branches_net": null,
+    "infeasible_netted": [],
+    "infeasible_refuted": [],
+    "infeasible_stated": [],
     "paragraph_pct": null,
     "paragraphs": null,
     "source": null,
@@ -4171,6 +4252,9 @@
     "chosen": null
    },
    "level": "L1",
+   "mutation": {
+    "det_port": "not yet measured (#4628)"
+   },
    "next": [
     "an equivalence case that runs it"
    ],
@@ -4371,9 +4455,13 @@
     "source_read": true
    },
    "coverage": {
+    "branch_net_pct": null,
     "branch_pct": null,
     "branches": null,
-    "infeasible_outcomes_reviewed": "not yet available (#4602)",
+    "branches_net": null,
+    "infeasible_netted": [],
+    "infeasible_refuted": [],
+    "infeasible_stated": [],
     "paragraph_pct": null,
     "paragraphs": null,
     "source": null,
@@ -4495,6 +4583,9 @@
     }
    },
    "level": "L1",
+   "mutation": {
+    "det_port": "not yet measured (#4628)"
+   },
    "next": [
     "its det port equal on every scenario of genapp-lgicdb01: a Db2 case: CI's det-sweep skips Db2 cases and no local sweep was given"
    ],
@@ -4695,9 +4786,13 @@
     "source_read": true
    },
    "coverage": {
+    "branch_net_pct": null,
     "branch_pct": null,
     "branches": null,
-    "infeasible_outcomes_reviewed": "not yet available (#4602)",
+    "branches_net": null,
+    "infeasible_netted": [],
+    "infeasible_refuted": [],
+    "infeasible_stated": [],
     "paragraph_pct": null,
     "paragraphs": null,
     "source": null,
@@ -4709,6 +4804,9 @@
     "chosen": null
    },
    "level": "L1",
+   "mutation": {
+    "det_port": "not yet measured (#4628)"
+   },
    "next": [
     "an equivalence case that runs it"
    ],
@@ -4909,9 +5007,13 @@
     "source_read": true
    },
    "coverage": {
+    "branch_net_pct": null,
     "branch_pct": null,
     "branches": null,
-    "infeasible_outcomes_reviewed": "not yet available (#4602)",
+    "branches_net": null,
+    "infeasible_netted": [],
+    "infeasible_refuted": [],
+    "infeasible_stated": [],
     "paragraph_pct": null,
     "paragraphs": null,
     "source": null,
@@ -4949,6 +5051,9 @@
     }
    },
    "level": "L1",
+   "mutation": {
+    "det_port": "not yet measured (#4628)"
+   },
    "next": [
     "its det port equal on every scenario of genapp-lgipdb01: a Db2 case: CI's det-sweep skips Db2 cases and no local sweep was given"
    ],
@@ -5149,9 +5254,13 @@
     "source_read": true
    },
    "coverage": {
+    "branch_net_pct": null,
     "branch_pct": null,
     "branches": null,
-    "infeasible_outcomes_reviewed": "not yet available (#4602)",
+    "branches_net": null,
+    "infeasible_netted": [],
+    "infeasible_refuted": [],
+    "infeasible_stated": [],
     "paragraph_pct": null,
     "paragraphs": null,
     "source": null,
@@ -5163,6 +5272,9 @@
     "chosen": null
    },
    "level": "L1",
+   "mutation": {
+    "det_port": "not yet measured (#4628)"
+   },
    "next": [
     "an equivalence case that runs it"
    ],
@@ -5387,9 +5499,13 @@
     "source_read": true
    },
    "coverage": {
+    "branch_net_pct": null,
     "branch_pct": null,
     "branches": null,
-    "infeasible_outcomes_reviewed": "not yet available (#4602)",
+    "branches_net": null,
+    "infeasible_netted": [],
+    "infeasible_refuted": [],
+    "infeasible_stated": [],
     "paragraph_pct": null,
     "paragraphs": null,
     "source": null,
@@ -5401,6 +5517,9 @@
     "chosen": null
    },
    "level": "L1",
+   "mutation": {
+    "det_port": "not yet measured (#4628)"
+   },
    "next": [
     "an equivalence case that runs it"
    ],
@@ -5796,9 +5915,13 @@
     "source_read": true
    },
    "coverage": {
+    "branch_net_pct": null,
     "branch_pct": null,
     "branches": null,
-    "infeasible_outcomes_reviewed": "not yet available (#4602)",
+    "branches_net": null,
+    "infeasible_netted": [],
+    "infeasible_refuted": [],
+    "infeasible_stated": [],
     "paragraph_pct": null,
     "paragraphs": null,
     "source": null,
@@ -5810,6 +5933,9 @@
     "chosen": null
    },
    "level": "L1",
+   "mutation": {
+    "det_port": "not yet measured (#4628)"
+   },
    "next": [
     "an equivalence case that runs it"
    ],
@@ -6212,9 +6338,13 @@
     "source_read": true
    },
    "coverage": {
+    "branch_net_pct": null,
     "branch_pct": null,
     "branches": null,
-    "infeasible_outcomes_reviewed": "not yet available (#4602)",
+    "branches_net": null,
+    "infeasible_netted": [],
+    "infeasible_refuted": [],
+    "infeasible_stated": [],
     "paragraph_pct": null,
     "paragraphs": null,
     "source": null,
@@ -6226,6 +6356,9 @@
     "chosen": null
    },
    "level": "L1",
+   "mutation": {
+    "det_port": "not yet measured (#4628)"
+   },
    "next": [
     "an equivalence case that runs it"
    ],
@@ -6628,9 +6761,13 @@
     "source_read": true
    },
    "coverage": {
+    "branch_net_pct": null,
     "branch_pct": null,
     "branches": null,
-    "infeasible_outcomes_reviewed": "not yet available (#4602)",
+    "branches_net": null,
+    "infeasible_netted": [],
+    "infeasible_refuted": [],
+    "infeasible_stated": [],
     "paragraph_pct": null,
     "paragraphs": null,
     "source": null,
@@ -6642,6 +6779,9 @@
     "chosen": null
    },
    "level": "L1",
+   "mutation": {
+    "det_port": "not yet measured (#4628)"
+   },
    "next": [
     "an equivalence case that runs it"
    ],
@@ -7044,9 +7184,13 @@
     "source_read": true
    },
    "coverage": {
+    "branch_net_pct": null,
     "branch_pct": null,
     "branches": null,
-    "infeasible_outcomes_reviewed": "not yet available (#4602)",
+    "branches_net": null,
+    "infeasible_netted": [],
+    "infeasible_refuted": [],
+    "infeasible_stated": [],
     "paragraph_pct": null,
     "paragraphs": null,
     "source": null,
@@ -7058,6 +7202,9 @@
     "chosen": null
    },
    "level": "L1",
+   "mutation": {
+    "det_port": "not yet measured (#4628)"
+   },
    "next": [
     "an equivalence case that runs it"
    ],
@@ -7443,9 +7590,13 @@
     "source_read": true
    },
    "coverage": {
+    "branch_net_pct": null,
     "branch_pct": null,
     "branches": null,
-    "infeasible_outcomes_reviewed": "not yet available (#4602)",
+    "branches_net": null,
+    "infeasible_netted": [],
+    "infeasible_refuted": [],
+    "infeasible_stated": [],
     "paragraph_pct": null,
     "paragraphs": null,
     "source": null,
@@ -7483,6 +7634,9 @@
     }
    },
    "level": "L1",
+   "mutation": {
+    "det_port": "not yet measured (#4628)"
+   },
    "next": [
     "its det port equal on every scenario of genapp-lgucdb01: a Db2 case: CI's det-sweep skips Db2 cases and no local sweep was given"
    ],
@@ -7683,9 +7837,13 @@
     "source_read": true
    },
    "coverage": {
+    "branch_net_pct": null,
     "branch_pct": null,
     "branches": null,
-    "infeasible_outcomes_reviewed": "not yet available (#4602)",
+    "branches_net": null,
+    "infeasible_netted": [],
+    "infeasible_refuted": [],
+    "infeasible_stated": [],
     "paragraph_pct": null,
     "paragraphs": null,
     "source": null,
@@ -7697,6 +7855,9 @@
     "chosen": null
    },
    "level": "L1",
+   "mutation": {
+    "det_port": "not yet measured (#4628)"
+   },
    "next": [
     "an equivalence case that runs it"
    ],
@@ -7904,9 +8065,13 @@
     "source_read": true
    },
    "coverage": {
+    "branch_net_pct": null,
     "branch_pct": null,
     "branches": null,
-    "infeasible_outcomes_reviewed": "not yet available (#4602)",
+    "branches_net": null,
+    "infeasible_netted": [],
+    "infeasible_refuted": [],
+    "infeasible_stated": [],
     "paragraph_pct": null,
     "paragraphs": null,
     "source": null,
@@ -8054,6 +8219,9 @@
     }
    },
    "level": "L1",
+   "mutation": {
+    "det_port": "not yet measured (#4628)"
+   },
    "next": [
     "its det port equal on every scenario of genapp-lgupdb01: a Db2 case: CI's det-sweep skips Db2 cases and no local sweep was given"
    ],
@@ -8265,9 +8433,13 @@
     "source_read": true
    },
    "coverage": {
+    "branch_net_pct": null,
     "branch_pct": null,
     "branches": null,
-    "infeasible_outcomes_reviewed": "not yet available (#4602)",
+    "branches_net": null,
+    "infeasible_netted": [],
+    "infeasible_refuted": [],
+    "infeasible_stated": [],
     "paragraph_pct": null,
     "paragraphs": null,
     "source": null,
@@ -8279,6 +8451,9 @@
     "chosen": null
    },
    "level": "L1",
+   "mutation": {
+    "det_port": "not yet measured (#4628)"
+   },
    "next": [
     "an equivalence case that runs it"
    ],
@@ -8486,9 +8661,13 @@
     "source_read": true
    },
    "coverage": {
+    "branch_net_pct": null,
     "branch_pct": null,
     "branches": null,
-    "infeasible_outcomes_reviewed": "not yet available (#4602)",
+    "branches_net": null,
+    "infeasible_netted": [],
+    "infeasible_refuted": [],
+    "infeasible_stated": [],
     "paragraph_pct": null,
     "paragraphs": null,
     "source": null,
@@ -8500,6 +8679,9 @@
     "chosen": null
    },
    "level": "L0",
+   "mutation": {
+    "det_port": "not yet measured (#4628)"
+   },
    "next": [
     "translated whole (1 holes left)"
    ],
@@ -8784,9 +8966,13 @@
     "source_read": true
    },
    "coverage": {
+    "branch_net_pct": null,
     "branch_pct": null,
     "branches": null,
-    "infeasible_outcomes_reviewed": "not yet available (#4602)",
+    "branches_net": null,
+    "infeasible_netted": [],
+    "infeasible_refuted": [],
+    "infeasible_stated": [],
     "paragraph_pct": null,
     "paragraphs": null,
     "source": null,
@@ -8798,6 +8984,9 @@
     "chosen": null
    },
    "level": "L0",
+   "mutation": {
+    "det_port": "not yet measured (#4628)"
+   },
    "next": [
     "translated whole (1 holes left)"
    ],
@@ -9251,9 +9440,13 @@
     "source_read": true
    },
    "coverage": {
+    "branch_net_pct": null,
     "branch_pct": null,
     "branches": null,
-    "infeasible_outcomes_reviewed": "not yet available (#4602)",
+    "branches_net": null,
+    "infeasible_netted": [],
+    "infeasible_refuted": [],
+    "infeasible_stated": [],
     "paragraph_pct": null,
     "paragraphs": null,
     "source": null,
@@ -9265,6 +9458,9 @@
     "chosen": null
    },
    "level": "L0",
+   "mutation": {
+    "det_port": "not yet measured (#4628)"
+   },
    "next": [
     "translated whole (1 holes left)"
    ],
@@ -9617,9 +9813,13 @@
     "source_read": true
    },
    "coverage": {
+    "branch_net_pct": null,
     "branch_pct": null,
     "branches": null,
-    "infeasible_outcomes_reviewed": "not yet available (#4602)",
+    "branches_net": null,
+    "infeasible_netted": [],
+    "infeasible_refuted": [],
+    "infeasible_stated": [],
     "paragraph_pct": null,
     "paragraphs": null,
     "source": null,
@@ -9631,6 +9831,9 @@
     "chosen": null
    },
    "level": "L0",
+   "mutation": {
+    "det_port": "not yet measured (#4628)"
+   },
    "next": [
     "translated whole (78 holes left)"
    ],
@@ -10020,9 +10223,13 @@
     "source_read": true
    },
    "coverage": {
+    "branch_net_pct": null,
     "branch_pct": null,
     "branches": null,
-    "infeasible_outcomes_reviewed": "not yet available (#4602)",
+    "branches_net": null,
+    "infeasible_netted": [],
+    "infeasible_refuted": [],
+    "infeasible_stated": [],
     "paragraph_pct": null,
     "paragraphs": null,
     "source": null,
@@ -10034,6 +10241,9 @@
     "chosen": null
    },
    "level": "L0",
+   "mutation": {
+    "det_port": "not yet measured (#4628)"
+   },
    "next": [
     "translated whole (2 holes left)"
    ],
@@ -10523,9 +10733,13 @@
     "source_read": true
    },
    "coverage": {
+    "branch_net_pct": null,
     "branch_pct": null,
     "branches": null,
-    "infeasible_outcomes_reviewed": "not yet available (#4602)",
+    "branches_net": null,
+    "infeasible_netted": [],
+    "infeasible_refuted": [],
+    "infeasible_stated": [],
     "paragraph_pct": null,
     "paragraphs": null,
     "source": null,
@@ -10537,6 +10751,9 @@
     "chosen": null
    },
    "level": "L0",
+   "mutation": {
+    "det_port": "not yet measured (#4628)"
+   },
    "next": [
     "translated whole (40 holes left)"
    ],
@@ -10860,7 +11077,7 @@
   "oracle_base_image": "debian:bookworm-slim@sha256:3783cc01769c7b2b1b83a5c5ad96c815348e28ed7da68e2e3687004faa906251",
   "oracle_images_of_records": [
    "sha256:3d1d5e13c632545d0e1bc4d215c3fb8dd1d68d0ff8647b56880f1593353bc7dc",
-   "sha256:bcdd12de145fe2d347b66753abebca39cffb2a2e1cc8c19e5e4e5be714754b05"
+   "sha256:ec3ecd98686860217630b1fce29265628e980a353ddd3d2d96d16332e8800c64"
   ],
   "pin_manifest": "tests/crucible_pins.toml",
   "record_status_from": "evidence.py status at build time",

@@ -79,18 +79,34 @@ def test_the_index_numbers_come_from_the_reports():
 
 
 # ---- levels ------------------------------------------------------------------------------------------------------
-def program(*, whole=True, case=True, det="equal", record=True, stale=(), para=(10, 10), branch=(10, 10), backed=True):
+def program(
+    *,
+    whole=True,
+    case=True,
+    det="equal",
+    record=True,
+    stale=(),
+    para=(10, 10),
+    branch=(10, 10),
+    net=None,
+    refuted=(),
+    backed=True,
+):
     rec = {"stale_inputs": list(stale), "verdict": "all equal", "scenarios": 3} if record else None
     chosen = {"case": "c", "role": "program", "det": {"state": det, "why": ["x"]}, "record": rec} if case else None
+    net = branch if net is None else net
     cov = {
         "paragraph_pct": er.pct(*para) if para else None,
         "branch_pct": er.pct(*branch) if branch else None,
+        "branch_net_pct": er.pct(*net) if net else None,
+        "infeasible_refuted": list(refuted),
     }
     return {
         "translation": {"whole": whole, "refused": None, "hole_count": 0 if whole else 2},
         "equivalence": {"cases": [chosen] if chosen else [], "chosen": chosen},
         "coverage": cov,
         "oracle_backing": [{"command": "RETURN", "backed": backed}],
+        "mutation": {"det_port": er.MUTATION},
     }
 
 
@@ -109,8 +125,10 @@ BARS = er.DEFAULT_BARS
         ({"para": (9, 10)}, "L2"),  # strict bars: 100%
         ({"para": None}, "L2"),  # coverage not measured: not above any bar
         ({"branch": (9, 10)}, "L3"),
-        ({}, "L4"),  # never L5: assumption reach is not measured
-        ({"backed": False}, "L4"),
+        ({"branch": (9, 10), "net": (9, 9)}, "L4"),  # 100% net of the reviewed infeasible outcomes (#4602)
+        ({"branch": (9, 10), "net": (9, 9), "refuted": ["P:1:true"]}, "L3"),  # a refuted claim is no claim
+        ({}, "L4"),  # never L5 until det-port mutation (#4628) is measured
+        ({"backed": False}, "L4"),  # oracle backing is a column, not a rung
     ],
 )
 def test_levels_are_cumulative_and_never_reach_l5_unmeasured(kw, level):
@@ -118,9 +136,8 @@ def test_levels_are_cumulative_and_never_reach_l5_unmeasured(kw, level):
     assert lvl == level
     assert nxt, "a level always says what the next one needs"
     if level == "L4":
-        assert any("not measured" in n for n in nxt)
-    if level == "L3":
-        assert any("#4602" in n for n in nxt)  # the infeasible-outcome hook, not yet available
+        assert any("#4628" in n for n in nxt)
+        assert not any("oracle" in n for n in nxt)
 
 
 def test_the_bars_are_parameters_and_strict_by_default():
@@ -131,15 +148,33 @@ def test_the_bars_are_parameters_and_strict_by_default():
     assert all(str(b) in json.dumps(er.level_table({"paragraphs": 95.0, "branches": 85.0})) for b in (95.0, 85.0))
 
 
+def test_the_ladder_is_the_owners():
+    names = [lv["name"] for lv in er.level_table(BARS)]
+    assert names[5] == "mutants accounted for"
+    assert "#4628" in er.level_table(BARS)[5]["condition"]
+    assert not any("crucible" in lv["condition"] for lv in er.level_table(BARS))  # oracle backing: a column
+
+
 def test_coverage_comes_from_the_sweep_or_the_ledger_never_the_record():
-    case = {"case": "c", "record": {"coverage": {"paragraphs": {"covered": 1, "live": 1}}}}
+    case = {"case": "no-such-case", "record": {"coverage": {"paragraphs": {"covered": 1, "live": 1}}}}
     assert er.coverage_of(case, {}, {})["source"] is None
-    got = er.coverage_of(case, {}, {"c": [3, 4, 5, 10]})
-    assert (got["paragraph_pct"], got["branch_pct"]) == (75.0, 50.0)
+    got = er.coverage_of(case, {}, {"no-such-case": [3, 4, 5, 10]})
+    assert (got["paragraph_pct"], got["branch_pct"], got["branch_net_pct"]) == (75.0, 50.0, 50.0)
     assert "ledger" in got["source"]
-    assert got["infeasible_outcomes_reviewed"] == er.INFEASIBLE
-    line = {"c": {"coverage": "proven on 2 scenarios, covering 4/4 paragraphs and 6/6 branches"}}
-    assert er.coverage_of(case, line, {"c": [3, 4, 5, 10]})["source"] == "local sweep coverage line"
+    line = {"no-such-case": {"coverage": "proven on 2 scenarios, covering 4/4 paragraphs and 6/6 branches"}}
+    assert er.coverage_of(case, line, {"no-such-case": [3, 4, 5, 10]})["source"] == "local sweep coverage line"
+
+
+def test_infeasible_outcomes_are_stated_and_netted_never_hidden():
+    import infeasible_outcomes as io
+
+    case, entries = next(iter(io.load().items()))
+    got = er.coverage_of({"case": case, "record": None}, {}, {case: [5, 5, 10, 10 + len(entries)]})
+    assert got["branches"] == {"covered": 10, "total": 10 + len(entries)}  # raw, as measured
+    assert got["branches_net"] == {"covered": 10, "total": 10}  # net of the stated entries
+    assert got["branch_net_pct"] == 100.0
+    assert [e["key"] for e in got["infeasible_stated"]] == [e["key"] for e in io.stated(case)]
+    assert all(e["family"] in "GCR" and e["reason"] for e in got["infeasible_stated"])
 
 
 def test_neutral_rewords_quoted_tool_text():

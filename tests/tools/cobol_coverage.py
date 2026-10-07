@@ -346,8 +346,12 @@ def _walk(toks: list[tuple[int, str, list[str], bool, bool]], heads: dict[int, s
                 ends[unit] = dead and unit not in split
             unit, dead = tok, False
             continue
-        if first and tok not in VERBS and tok not in ("ELSE", "WHEN", ".") and not tok.startswith("END-") and (
-            nxt[0] in (".", "SECTION", "DIVISION", "PROGRAM") or area_a
+        if (
+            first
+            and tok not in VERBS
+            and tok not in ("ELSE", "WHEN", ".")
+            and not tok.startswith("END-")
+            and (nxt[0] in (".", "SECTION", "DIVISION", "PROGRAM") or area_a)
         ):  # a header or a division the inventory does not hold (a nested program's): control may start here
             while stack:
                 close()
@@ -362,13 +366,18 @@ def _walk(toks: list[tuple[int, str, list[str], bool, bool]], heads: dict[int, s
                 close()
             dead = False
         elif tok == "ELSE":
-            while stack and (stack[-1]["kind"] in ("STMT", "PERFORM") or (stack[-1]["kind"] == "IF" and stack[-1]["has_else"])):
+            while stack and (
+                stack[-1]["kind"] in ("STMT", "PERFORM") or (stack[-1]["kind"] == "IF" and stack[-1]["has_else"])
+            ):
                 close()
             if stack and stack[-1]["kind"] == "IF":
                 f = stack[-1]
                 f["then_end"], f["has_else"], dead = dead, True, f["entry"]
         elif tok == "WHEN":
-            while stack and (stack[-1]["kind"] in ("IF", "PERFORM") or (stack[-1]["kind"] == "STMT" and stack[-1]["verb"] != "SEARCH")):
+            while stack and (
+                stack[-1]["kind"] in ("IF", "PERFORM")
+                or (stack[-1]["kind"] == "STMT" and stack[-1]["verb"] != "SEARCH")
+            ):
                 close()
             if stack and stack[-1]["kind"] == "EVALUATE":
                 f = stack[-1]
@@ -690,11 +699,15 @@ def summary(inv: Inventory, got: Hits, blind: Iterable[int] = ()) -> dict[str, A
             ],
             "in_dead_code": sum(len(b.outcomes()) for b in inv.branches if b.unit in inv.dead),
             # #4602: outcomes of branch points no path reaches (after GO TO / XCTL / RETURN ...): not counted
-            "after_transfer": [{"line": b.line, "kind": b.kind, "outcome": o, "unit": b.unit}
-                               for b in inv.after_transfer for o in b.outcomes()],  # fmt: skip
+            "after_transfer": [
+                {"line": b.line, "kind": b.kind, "outcome": o, "unit": b.unit}
+                for b in inv.after_transfer
+                for o in b.outcomes()
+            ],  # fmt: skip
             # a run took one: the control-flow reading is wrong (an engine defect to log)
-            "after_transfer_but_taken": sorted(f"{ln}:{o}" for ln, o in got.outcomes
-                                               if any(b.line == ln for b in inv.after_transfer)),  # fmt: skip
+            "after_transfer_but_taken": sorted(
+                f"{ln}:{o}" for ln, o in got.outcomes if any(b.line == ln for b in inv.after_transfer)
+            ),  # fmt: skip
             "unresolvable": inv.unresolvable
             + [
                 {"line": ln, "kind": "?", "unit": inv.unit_of(ln), "why": "the compiled text changed its line"}

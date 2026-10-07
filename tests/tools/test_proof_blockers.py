@@ -186,3 +186,51 @@ def test_cli_prints_the_totals(tmp_path, capsys, monkeypatch):
     out = capsys.readouterr().out
     assert "estates: translated whole 9 (non-burned 9); proven 2 (non-burned 2)" in out
     assert "no case" in out
+
+
+def _stated(cases: Path, entries: dict) -> None:
+    write(cases / "infeasible_outcomes.json", {"format": "infeasible-outcomes/1", "cases": entries})
+
+
+def _entry(line: int, outcome: str) -> dict:
+    return {
+        "unit": "P",
+        "line": line,
+        "kind": "IF",
+        "outcome": outcome,
+        "family": "G",
+        "reason": "every caller sets it",
+    }
+
+
+def test_stated_infeasible_outcomes_leave_the_branch_total(tmp_path):
+    """#4602: a stated outcome the proof left uncovered leaves the total (and is listed); one it reached is a gap."""
+    cases, corpora, cru, det_baseline, rows = setup(tmp_path)
+    write(cases / "c-cov" / "evidence.json", {"coverage": {"paragraphs": {"covered": 3, "live": 3},
+                                                           "branches": {"covered": 3, "total": 4},
+                                                           "uncovered_branches": [{"line": 9, "outcome": "true"}]}})  # fmt: skip
+    kw = {"cases_dir": cases, "crucible_dir": cru, "det_baseline": det_baseline, "branches": True}
+    res = pb.proof_blockers(rows, [corpora], **kw)
+    assert gaps_of(res, "COV") == ["coverage: branch outcomes no scenario runs"]
+    _stated(cases, {"c-cov": [_entry(9, "true")]})
+    res = pb.proof_blockers(rows, [corpora], **kw)
+    cov = next(p for p in res["programs"] if p["program"].endswith("COV.cbl"))
+    assert cov["gaps"] == [] and cov["infeasible"] == ["P:9:true"]
+    _stated(cases, {"c-cov": [_entry(9, "true"), _entry(9, "false")]})  # 9 false ran: the claim is wrong
+    res = pb.proof_blockers(rows, [corpora], **kw)
+    cov = next(p for p in res["programs"] if p["program"].endswith("COV.cbl"))
+    assert cov["gaps"] == ["infeasible outcome reached (the stated claim is wrong)"]
+    assert cov["detail"]["infeasible outcome reached (the stated claim is wrong)"] == "P:9:false"
+
+
+def test_a_sweep_s_uncovered_outcomes_check_the_claim(tmp_path):
+    cases, corpora, cru, det_baseline, rows = setup(tmp_path)
+    _stated(cases, {"c-diff": [_entry(9, "true")]})
+    sweep = tmp_path / "sweep"
+    line = "proven on 3 scenarios, covering 3/3 paragraphs and 1/2 branches"
+    write(sweep / "sweep.json", {"det": {"c-diff": {"proved": True, "coverage": line, "translated": "5/5"}}})
+    write(sweep / "det" / "c-diff" / "proof" / "cobol" / "coverage.json",
+          {"branches": {"uncovered": [{"line": 9, "kind": "IF", "outcome": "true", "unit": "P"}]}})  # fmt: skip
+    res = pb.proof_blockers(rows, [corpora], cases_dir=cases, crucible_dir=cru, det_baseline=det_baseline,
+                            branches=True, sweeps=pb.load_sweeps([sweep]))  # fmt: skip
+    assert gaps_of(res, "DIFF") == []

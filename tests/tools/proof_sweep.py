@@ -14,7 +14,8 @@ listed there is not proven, or a listed one now is (--update-baseline drops thos
 else by name), --cases NAME,... only those: CI's det-sweep runs the slices on N runners, each writing DIR/sweep.json, and
 `--aggregate DIR [DIR ...] [--expect all|NAME,...]` merges them and applies the ratchet (a case missing from the merge fails it,
 and so does a proven case whose coverage the committed ledger tests/equivalence/det_sweep_coverage.json lacks or disagrees with:
-tests/tools/det_coverage_ledger.py, #4270).
+tests/tools/det_coverage_ledger.py, #4270). Every det sweep also fails when a case's proof reached an outcome
+tests/equivalence/infeasible_outcomes.json states no input can reach (tests/tools/infeasible_outcomes.py, #4602).
 --skip-db2 leaves out the cases with a "db2" section (IBM's Db2 container is slow to start): CI's det-sweep workflow (#4463).
 """
 
@@ -153,8 +154,19 @@ def det_sweep(
         cov = _coverage(work / row["case"] / "proof.log")
         out[row["case"]] = {"proved": bool(row.get("proved")), "coverage": cov,
                             "translated": f"{row.get('translated_statements')}/{row.get('statements')}",
-                            "seconds": round(row.get("translate_seconds", 0) + row.get("proof_seconds", 0), 1)}  # fmt: skip
+                            "seconds": round(row.get("translate_seconds", 0) + row.get("proof_seconds", 0), 1),
+                            "uncovered": _uncovered(work / row["case"] / "proof" / "cobol" / "coverage.json")}  # fmt: skip
     return out
+
+
+def _uncovered(path: Path) -> list[str] | None:
+    """The branch outcomes the proof left uncovered ("line:outcome"), for the #4602 infeasible-outcome check."""
+    try:
+        return [
+            f"{u['line']}:{u['outcome']}" for u in json.loads(path.read_text(encoding="utf-8"))["branches"]["uncovered"]
+        ]
+    except (OSError, ValueError, KeyError, TypeError):
+        return None
 
 
 def model_sweep(work: Path, faults: str, skip_db2: bool = False, only: list[str] | None = None) -> dict[str, dict]:
@@ -304,6 +316,13 @@ def report(results: dict[str, dict[str, dict]], missing: list[str], args: argpar
         ledger_problems, ledger_warnings = ledger.check(results["det"], ledger.load())
         problems += ledger_problems
         for w in ledger_warnings:
+            print(f"warning: {w}")
+    if "det" in results:  # #4602: a stated infeasible outcome the proof reached refutes the statement
+        import infeasible_outcomes
+
+        claim_problems, claim_warnings = infeasible_outcomes.check(results["det"])
+        problems += claim_problems
+        for w in claim_warnings:
             print(f"warning: {w}")
     for p in problems:
         print(p)

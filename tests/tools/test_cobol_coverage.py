@@ -254,7 +254,9 @@ def test_an_arm_that_may_fall_through_keeps_the_next_branch_point() -> None:
     # an unconditional statement does not hide the transfer after it
     assert _after("    MOVE 1 TO X", "    GO TO MAIN-PARA", "    IF X = 2 DISPLAY 'Y' END-IF.") == [6]
     # the next sentence of the same paragraph is unreachable too; the next paragraph is not
-    assert _after("    GOBACK.", "    IF X = 2 DISPLAY 'Y' END-IF.", "NEXT-PARA.", "    IF X = 3 DISPLAY 'Z' END-IF.") == [5]
+    assert _after(
+        "    GOBACK.", "    IF X = 2 DISPLAY 'Y' END-IF.", "NEXT-PARA.", "    IF X = 3 DISPLAY 'Z' END-IF."
+    ) == [5]
     # a COPY may bring paragraph headers
     assert _after("    GOBACK.", "    COPY 'X'.", "    IF X = 2 DISPLAY 'Y' END-IF.") == []
 

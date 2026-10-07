@@ -2,6 +2,91 @@
  "format": "det-sweep-coverage/1",
  "about": "#4270: the paragraph / branch coverage of each det-proven case, as `proof_sweep.py --det-only` reported it; written only by `tests/tools/det_coverage_ledger.py update SWEEP_DIR...`, checked by CI's det-sweep. An entry is trusted only while its input fingerprints match the tree (proof_blockers.py); stale or missing stays unknown.",
  "cases": {
+  "asynccc-crdtchk": {
+   "scenarios": 3,
+   "paragraphs": {
+    "covered": 1,
+    "live": 1
+   },
+   "branches": {
+    "covered": 2,
+    "total": 2
+   },
+   "inputs": {
+    "case": "91757418376cfc30e9db683b2ada855ac31d6afa3c9943afa40231330d981904",
+    "corpus": "a98b9cfe46b5f45db9305f0a997047218e09c7c36422ec0849f6af7af5dd5353",
+    "harness": "8ab54ed9dfcead1b10af65ca035b9312e3eaa2c216f0598a7c38e002e476e661",
+    "oracle": "3242708f13ca2c63a9276df4896d082df55c1b30c1042de17b970d9ad7eebdc3"
+   }
+  },
+  "asynccc-csstats2": {
+   "scenarios": 3,
+   "paragraphs": {
+    "covered": 1,
+    "live": 1
+   },
+   "branches": {
+    "covered": 2,
+    "total": 2
+   },
+   "inputs": {
+    "case": "2ae5f7216cdf6b58f3594aef91fce8f9de1290c1a5427ba6806b0089191ee188",
+    "corpus": "a98b9cfe46b5f45db9305f0a997047218e09c7c36422ec0849f6af7af5dd5353",
+    "harness": "8ab54ed9dfcead1b10af65ca035b9312e3eaa2c216f0598a7c38e002e476e661",
+    "oracle": "3242708f13ca2c63a9276df4896d082df55c1b30c1042de17b970d9ad7eebdc3"
+   }
+  },
+  "asynccc-csstatus": {
+   "scenarios": 3,
+   "paragraphs": {
+    "covered": 1,
+    "live": 1
+   },
+   "branches": {
+    "covered": 2,
+    "total": 2
+   },
+   "inputs": {
+    "case": "3080576e0121cd5ea20ea47dff4371dc63e2609c9517ea2c267c6e289d17a26e",
+    "corpus": "a98b9cfe46b5f45db9305f0a997047218e09c7c36422ec0849f6af7af5dd5353",
+    "harness": "8ab54ed9dfcead1b10af65ca035b9312e3eaa2c216f0598a7c38e002e476e661",
+    "oracle": "3242708f13ca2c63a9276df4896d082df55c1b30c1042de17b970d9ad7eebdc3"
+   }
+  },
+  "asynccc-getaddr": {
+   "scenarios": 3,
+   "paragraphs": {
+    "covered": 1,
+    "live": 1
+   },
+   "branches": {
+    "covered": 2,
+    "total": 2
+   },
+   "inputs": {
+    "case": "daaa802061c35c541cc4904b8bdb26ad4102e4590fd07d7488e894b6f4bd2dbc",
+    "corpus": "a98b9cfe46b5f45db9305f0a997047218e09c7c36422ec0849f6af7af5dd5353",
+    "harness": "8ab54ed9dfcead1b10af65ca035b9312e3eaa2c216f0598a7c38e002e476e661",
+    "oracle": "3242708f13ca2c63a9276df4896d082df55c1b30c1042de17b970d9ad7eebdc3"
+   }
+  },
+  "asynccc-getname": {
+   "scenarios": 3,
+   "paragraphs": {
+    "covered": 1,
+    "live": 1
+   },
+   "branches": {
+    "covered": 2,
+    "total": 2
+   },
+   "inputs": {
+    "case": "f6ca718be0ee1b2d7819adce6f3bfbc7a96ec371aed930ded05416e3a4fe5cc8",
+    "corpus": "a98b9cfe46b5f45db9305f0a997047218e09c7c36422ec0849f6af7af5dd5353",
+    "harness": "8ab54ed9dfcead1b10af65ca035b9312e3eaa2c216f0598a7c38e002e476e661",
+    "oracle": "3242708f13ca2c63a9276df4896d082df55c1b30c1042de17b970d9ad7eebdc3"
+   }
+  },
   "asynccc-getpol": {
    "scenarios": 1,
    "paragraphs": {
@@ -15,8 +100,8 @@
    "inputs": {
     "case": "8715eb31cb1fe3d43aec7c2ce9de9d3b6e643b65113edc51fb979c8d39d43e21",
     "corpus": "a98b9cfe46b5f45db9305f0a997047218e09c7c36422ec0849f6af7af5dd5353",
-    "harness": "ff4e514ed862e7cc55a43ed599df0bb631c85b63de2e5e96f4b2093068ff15df",
-    "oracle": "812e95beccb670c5b2c432f18ec0c4656c1857c4c69d13aa88b1224635c58ab9"
+    "harness": "8ab54ed9dfcead1b10af65ca035b9312e3eaa2c216f0598a7c38e002e476e661",
+    "oracle": "3242708f13ca2c63a9276df4896d082df55c1b30c1042de17b970d9ad7eebdc3"
    }
   },
   "asynccc-getspnd": {

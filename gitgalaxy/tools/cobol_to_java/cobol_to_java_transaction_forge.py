@@ -1085,6 +1085,13 @@ public class CicsTask {
             return name;
         }
 
+        /** #4270 (X24): a container this channel holds before any program runs -- what the parent of a RUN TRANSID
+         *  CHANNEL, or a LINK CHANNEL caller outside the region, put there (BIT or CHAR, as its PUT gave it). */
+        public Channel with(String container, byte[] data, boolean bit) {
+            containers.put(channelName(container, "container"), new Container(data.clone(), bit));
+            return this;
+        }
+
         /** The containers, by name (a copy). */
         public Map<String, byte[]> containers() {
             Map<String, byte[]> out = new LinkedHashMap<>();

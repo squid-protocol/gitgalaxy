@@ -143,6 +143,7 @@ museum_2/
 !tests/cobol_mainframe/corpora.json
 !tests/cobol_mainframe/tool_regex_redos_baseline.json
 !tests/estate_crucible/baseline.json
+!tests/equivalence/det_sweep_coverage.json
 # ...and the pinned import-graph accuracy corpus manifest (tests/tools/import_graph_accuracy.py).
 !tests/import_graph_corpus.json
 # ...and the refraction differential's unexplained-delta baseline (#3211).

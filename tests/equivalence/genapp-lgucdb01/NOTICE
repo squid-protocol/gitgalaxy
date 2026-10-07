@@ -11,3 +11,6 @@ corpus.
 
 ksdscust.txt is the genapp-lgucvs01 case's (see its NOTICE). The scenarios in
 case.json are written for this case.
+
+ksdscust-vsam-only.txt is written for this case: one KSDSCUST record (customer
+11) that GenApp's Db2 rows do not have.

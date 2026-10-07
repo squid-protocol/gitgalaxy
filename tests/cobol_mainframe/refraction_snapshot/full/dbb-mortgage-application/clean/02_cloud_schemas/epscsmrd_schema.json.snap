@@ -3,6 +3,110 @@
   "title": "X00000175",
   "type": "object",
   "properties": {
+    "DFH_BODY_CONTAINER": {
+      "type": "string",
+      "description": "Legacy PIC: X(16)"
+    },
+    "DFH_DATA_CONTAINER": {
+      "type": "string",
+      "description": "Legacy PIC: X(16)"
+    },
+    "CONVERTER_RETURN_CODE": {
+      "type": "integer",
+      "description": "Legacy PIC: S9(9)"
+    },
+    "SEVERITY": {
+      "type": "integer",
+      "description": "Legacy PIC: S9(4)"
+    },
+    "MSG_NO": {
+      "type": "integer",
+      "description": "Legacy PIC: S9(4)"
+    },
+    "CASE_SEV_CTL": {
+      "type": "string",
+      "description": "Legacy PIC: X"
+    },
+    "FACILITY": {
+      "type": "string",
+      "description": "Legacy PIC: XXX"
+    },
+    "I_S_INFO": {
+      "type": "integer",
+      "description": "Legacy PIC: S9(9)"
+    },
+    "ERROR_OCCURRED": {
+      "type": "string",
+      "description": "Legacy PIC: X"
+    },
+    "ERROR_MESSAGE_NUMBER": {
+      "type": "integer",
+      "description": "Legacy PIC: 9(9)"
+    },
+    "ERROR_REASON_LENGTH": {
+      "type": "integer",
+      "description": "Legacy PIC: 9(9)"
+    },
+    "ERROR_REASON": {
+      "type": "string",
+      "description": "Legacy PIC: X(512)"
+    },
+    "XML2LS_LANG_BUFFER_LENGTH": {
+      "type": "integer",
+      "description": "Legacy PIC: S9(9)"
+    },
+    "LS2XML_LANG_BUFFER_LENGTH": {
+      "type": "integer",
+      "description": "Legacy PIC: S9(9)"
+    },
+    "LS2XML_XML_BUFFER_LENGTH": {
+      "type": "integer",
+      "description": "Legacy PIC: S9(9)"
+    },
+    "XML2LS_XML_CCSID": {
+      "type": "integer",
+      "description": "Legacy PIC: S9(9)"
+    },
+    "HOST_LANG_CCSID": {
+      "type": "integer",
+      "description": "Legacy PIC: S9(9)"
+    },
+    "LS2XML_XML_CCSID": {
+      "type": "integer",
+      "description": "Legacy PIC: S9(9)"
+    },
+    "NEXT_CONTAINER": {
+      "type": "string",
+      "description": "Legacy PIC: X(16)"
+    },
+    "COMMAND_RESP": {
+      "type": "integer",
+      "description": "Legacy PIC: 9(9)"
+    },
+    "COMMAND_RESP2": {
+      "type": "integer",
+      "description": "Legacy PIC: 9(9)"
+    },
+    "DFH_BODY_LEN": {
+      "type": "integer",
+      "description": "Legacy PIC: 9(9)"
+    },
+    "DFH_DATA_LEN": {
+      "type": "integer",
+      "description": "Legacy PIC: 9(9)"
+    },
+    "WORK_AREA_LEN": {
+      "type": "integer",
+      "description": "Legacy PIC: 9(9)"
+    },
+    "DFH_BODY": {
+      "type": "string",
+      "description": "Legacy PIC: X"
+    },
+    "DFH_DATA": {
+      "type": "string",
+      "description": "Legacy PIC: X"
+    },
     "PROCESS_INDICATOR": {
       "type": "string",
       "description": "Legacy PIC: X"

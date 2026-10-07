@@ -1,0 +1,35 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "PROG_NAMES",
+  "type": "object",
+  "properties": {
+    "CUST_NO_IN": {
+      "type": "string",
+      "description": "Legacy PIC: X(4)"
+    },
+    "CREDIT_CHECK_RESULT": {
+      "type": "string",
+      "description": "Legacy PIC: X(3)"
+    },
+    "INPUT_CONTAINER": {
+      "type": "string",
+      "description": "Legacy PIC: X(16)"
+    },
+    "CRDTCHK_CONTAINER": {
+      "type": "string",
+      "description": "Legacy PIC: X(16)"
+    },
+    "CREDIT_CHECK": {
+      "type": "string",
+      "description": "Legacy PIC: X(8)"
+    },
+    "COMMAND_RESP": {
+      "type": "integer",
+      "description": "Legacy PIC: S9(8)"
+    },
+    "COMMAND_RESP2": {
+      "type": "integer",
+      "description": "Legacy PIC: S9(8)"
+    }
+  }
+}

@@ -1,0 +1,11 @@
+CREATE TABLE PROG_NAMES (
+    CUST_NO_IN                     VARCHAR(4),
+    CUSTOMER_ADDRESS               VARCHAR(80),
+    CUSTOMER_POSTCODE              VARCHAR(8),
+    INPUT_CONTAINER                VARCHAR(16),
+    GETADDR_CONTAINER              VARCHAR(16),
+    GETPOST_CONTAINER              VARCHAR(16),
+    GET_ADDR                       VARCHAR(8),
+    COMMAND_RESP                   INTEGER,
+    COMMAND_RESP2                  INTEGER
+);

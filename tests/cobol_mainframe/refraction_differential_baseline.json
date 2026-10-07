@@ -14,17 +14,15 @@
     "cics-async-api-credit-card-application-example": {
       "by_cause": {
         "entry_point": 10,
-        "forge_flat_schema": 158,
-        "stated_absence": 10,
-        "unexplained": 166
+        "stated_absence": 10
       },
-      "note": "166 unexplained, all schema_column/db: the forge's schema reads none of the 158 items (and 8 group tables) of these sources, because it does not read one-digit level numbers (`1 PROG-NAMES.` / `2 GETPOL PIC X(8)`), while the engine's DB holds them. Owned by #4626; re-bless to 0 when it lands.",
-      "unexplained": 166
+      "note": "Was 166 unexplained until #4626 (the forge read no one-digit level numbers); now 0.",
+      "unexplained": 0
     },
     "cics-banking-sample-application-cbsa": {
       "by_cause": {
         "bms_symbolic_map": 1,
-        "entry_point": 37,
+        "entry_point": 38,
         "exec_sql_include": 1,
         "stated_absence": 9,
         "system_copybook": 1
@@ -95,12 +93,10 @@
     "cics-async-api-credit-card-application-example": {
       "by_cause": {
         "entry_point": 10,
-        "forge_flat_schema": 158,
-        "stated_absence": 10,
-        "unexplained": 166
+        "stated_absence": 10
       },
-      "note": "166 unexplained, all schema_column/db: the forge's schema reads none of the 158 items (and 8 group tables) of these sources, because it does not read one-digit level numbers (`1 PROG-NAMES.` / `2 GETPOL PIC X(8)`), while the engine's DB holds them. Owned by #4626; re-bless to 0 when it lands.",
-      "unexplained": 166
+      "note": "Was 166 unexplained until #4626 (the forge read no one-digit level numbers); now 0.",
+      "unexplained": 0
     },
     "cics-banking-sample-application-cbsa": {
       "by_cause": {

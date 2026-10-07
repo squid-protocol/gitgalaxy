@@ -20,7 +20,7 @@
 
 [3] GENERATED CLOUD SCAFFOLDING
 ----------------------------------------------------------
-  • PostgreSQL DDLs & JSON Schemas Forged : 0
+  • PostgreSQL DDLs & JSON Schemas Forged : 8
   • Zero-Trust Emulator JCLs Generated    : 10
   • Isolated Microservice Slices Extracted: 0
 

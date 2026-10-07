@@ -268,3 +268,13 @@ def test_translator_adapter_on_a_toy_program(tmp_path: Path) -> None:
     assert "L7 WS-B COMP" in f["usage"] and "L6 WS-A = AB" in f["value"]
     # the translator's storage: POINTER is 8 bytes (GnuCOBOL x86-64), so WS-REC is 4 + 2 + 8
     assert {"WS-REC (record) +14", "WS-REC/WS-A @0+4", "WS-REC/WS-B @4+2", "WS-T/T-TWO @3+2"} <= f["offsets"]
+
+
+def test_translator_extent_stops_before_end_program(tmp_path: Path) -> None:
+    """#4630: a lone program's last unit ends at its last code line, not at `END PROGRAM 'X'.`"""
+    pytest.importorskip("tree_sitter_language_pack")
+    src = TOY + "       END PROGRAM 'TOY'.\n"
+    (tmp_path / "TOY.cbl").write_text(src, encoding="latin-1")
+    (tmp_path / "TOYCPY.cpy").write_text(TOYCPY, encoding="latin-1")
+    f = TA.program_facts(tmp_path, tmp_path / "TOY.cbl", [tmp_path])["facts"]
+    assert f["unit_extents"] == {"(procedure division) L11-13", "P1 L14-16", "P1-EXIT L17-18"}

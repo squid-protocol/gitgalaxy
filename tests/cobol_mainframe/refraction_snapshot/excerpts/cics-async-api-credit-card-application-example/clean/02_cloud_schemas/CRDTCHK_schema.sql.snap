@@ -1,0 +1,9 @@
+CREATE TABLE PROG_NAMES (
+    CUST_NO_IN                     VARCHAR(4),
+    CREDIT_CHECK_RESULT            VARCHAR(3),
+    INPUT_CONTAINER                VARCHAR(16),
+    CRDTCHK_CONTAINER              VARCHAR(16),
+    CREDIT_CHECK                   VARCHAR(8),
+    COMMAND_RESP                   INTEGER,
+    COMMAND_RESP2                  INTEGER
+);

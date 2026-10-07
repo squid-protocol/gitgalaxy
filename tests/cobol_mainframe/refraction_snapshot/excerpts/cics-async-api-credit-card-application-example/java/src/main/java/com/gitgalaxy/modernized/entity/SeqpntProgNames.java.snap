@@ -1,0 +1,145 @@
+package com.gitgalaxy.modernized.entity;
+
+import lombok.Data;
+import lombok.NoArgsConstructor;
+import jakarta.persistence.*;
+import java.math.BigDecimal;
+
+@Data
+@NoArgsConstructor
+@Entity
+@Table(name = "PROG_NAMES")
+public class SeqpntProgNames {
+
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "sys_id")
+    private Long sysId;
+
+    @Column(name = "CUST_NO_IN", length = 4)
+    private String custNoIn;
+
+    @Column(name = "CREDIT_CHECK_RESULT", length = 3)
+    private String creditCheckResult;
+
+    @Column(name = "CUSTOMER_NAME", length = 80)
+    private String customerName;
+
+    @Column(name = "CUSTOMER_ADDRESS", length = 80)
+    private String customerAddress;
+
+    @Column(name = "CUSTOMER_POSTCODE", length = 8)
+    private String customerPostcode;
+
+    @Column(name = "CUSTOMER_IMPORTANCE", length = 8)
+    private String customerImportance;
+
+    @Column(name = "APPLICATION_RESULT", length = 7)
+    private String applicationResult;
+
+    @Column(name = "APPLICATION_SUCCESS", length = 7)
+    private String applicationSuccess;
+
+    @Column(name = "APPLICATION_FAILED", length = 7)
+    private String applicationFailed;
+
+    @Column(name = "TRANID", length = 4)
+    private String tranid;
+
+    @Column(name = "INPUTACCNUM", length = 4)
+    private String inputaccnum;
+
+    @Column(name = "READ_INPUT_LENGTH")
+    private Integer readInputLength;
+
+    @Column(name = "PARENT_PROGRAM", length = 8)
+    private String parentProgram;
+
+    @Column(name = "ACCOUNT_NUM", length = 4)
+    private String accountNum;
+
+    @Column(name = "TRANSACTION_1", length = 4)
+    private String transaction1;
+
+    @Column(name = "TRAN1_STATUS", length = 1)
+    private String tran1Status;
+
+    @Column(name = "TRANSACTION_2", length = 4)
+    private String transaction2;
+
+    @Column(name = "TRAN2_STATUS", length = 1)
+    private String tran2Status;
+
+    @Column(name = "TRANSACTION_3", length = 4)
+    private String transaction3;
+
+    @Column(name = "TRAN3_STATUS", length = 1)
+    private String tran3Status;
+
+    @Column(name = "TRANSACTION_4", length = 4)
+    private String transaction4;
+
+    @Column(name = "TRAN4_STATUS", length = 1)
+    private String tran4Status;
+
+    @Column(name = "TRANSACTION_5", length = 4)
+    private String transaction5;
+
+    @Column(name = "TRAN5_STATUS", length = 1)
+    private String tran5Status;
+
+    @Column(name = "RESULT_TEXT", length = 7)
+    private String resultText;
+
+    @Column(name = "IS_TERMINAL_BASED", length = 1)
+    private String isTerminalBased;
+
+    @Column(name = "START_CODE", length = 2)
+    private String startCode;
+
+    @Column(name = "INPUT_CONTAINER", length = 16)
+    private String inputContainer;
+
+    @Column(name = "CRDTCHK_CONTAINER", length = 16)
+    private String crdtchkContainer;
+
+    @Column(name = "UPDCSDB_CONTAINER", length = 16)
+    private String updcsdbContainer;
+
+    @Column(name = "GETNAME_CONTAINER", length = 16)
+    private String getnameContainer;
+
+    @Column(name = "GETADDR_CONTAINER", length = 16)
+    private String getaddrContainer;
+
+    @Column(name = "GETPOST_CONTAINER", length = 16)
+    private String getpostContainer;
+
+    @Column(name = "CSSTATUS_CONTAINER", length = 16)
+    private String csstatusContainer;
+
+    @Column(name = "MYCHANNEL", length = 16)
+    private String mychannel;
+
+    @Column(name = "CREDIT_CHECK", length = 8)
+    private String creditCheck;
+
+    @Column(name = "DB_CACHE", length = 8)
+    private String dbCache;
+
+    @Column(name = "GET_NAME", length = 8)
+    private String getName;
+
+    @Column(name = "GET_ADDR", length = 8)
+    private String getAddr;
+
+    @Column(name = "CSSTATUS", length = 8)
+    private String csstatus;
+
+    @Column(name = "COMMAND_RESP")
+    private Integer commandResp;
+
+    @Column(name = "COMMAND_RESP2")
+    private Integer commandResp2;
+
+}

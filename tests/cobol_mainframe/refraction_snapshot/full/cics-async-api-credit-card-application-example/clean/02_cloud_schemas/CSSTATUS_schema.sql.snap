@@ -1,0 +1,11 @@
+CREATE TABLE PROG_NAMES (
+    CUST_NO_IN                     VARCHAR(4),
+    CUSTOMER_IMPORTANCE            VARCHAR(8),
+    OK                             INTEGER,
+    INPUT_CONTAINER                VARCHAR(16),
+    CSSTATUS_CONTAINER             VARCHAR(16),
+    GETPOL                         VARCHAR(8),
+    GETSPND                        VARCHAR(8),
+    COMMAND_RESP                   INTEGER,
+    COMMAND_RESP2                  INTEGER
+);

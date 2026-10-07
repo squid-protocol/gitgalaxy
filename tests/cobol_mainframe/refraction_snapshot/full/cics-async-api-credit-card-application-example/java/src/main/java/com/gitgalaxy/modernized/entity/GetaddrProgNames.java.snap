@@ -1,0 +1,46 @@
+package com.gitgalaxy.modernized.entity;
+
+import lombok.Data;
+import lombok.NoArgsConstructor;
+import jakarta.persistence.*;
+import java.math.BigDecimal;
+
+@Data
+@NoArgsConstructor
+@Entity
+@Table(name = "PROG_NAMES")
+public class GetaddrProgNames {
+
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "sys_id")
+    private Long sysId;
+
+    @Column(name = "CUST_NO_IN", length = 4)
+    private String custNoIn;
+
+    @Column(name = "CUSTOMER_ADDRESS", length = 80)
+    private String customerAddress;
+
+    @Column(name = "CUSTOMER_POSTCODE", length = 8)
+    private String customerPostcode;
+
+    @Column(name = "INPUT_CONTAINER", length = 16)
+    private String inputContainer;
+
+    @Column(name = "GETADDR_CONTAINER", length = 16)
+    private String getaddrContainer;
+
+    @Column(name = "GETPOST_CONTAINER", length = 16)
+    private String getpostContainer;
+
+    @Column(name = "GET_ADDR", length = 8)
+    private String getAddr;
+
+    @Column(name = "COMMAND_RESP")
+    private Integer commandResp;
+
+    @Column(name = "COMMAND_RESP2")
+    private Integer commandResp2;
+
+}

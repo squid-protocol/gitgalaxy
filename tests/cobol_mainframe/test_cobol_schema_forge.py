@@ -160,3 +160,19 @@ def test_forge_schemas_reads_whole_entries(tmp_path):
         "WS_MSG",
     }
     assert props["ACTUAL_BALANCE_DISPLAY"]["description"] == "Legacy PIC: +9(10).99"
+
+
+def test_forge_reads_one_digit_level_numbers(tmp_path):
+    """#4626: `1 REC.` / `2 FLD PIC X(8).` are the levels 01 / 02."""
+    src = tmp_path / "ONE.cbl"
+    src.write_text(
+        "       WORKING-STORAGE SECTION.\n"
+        "       1 PROG-NAMES.\n"
+        "         2 GETPOL PIC X(8) VALUE 'GETPOL  '.\n"
+        "         2 AMT PIC 9(5)V99.\n"
+        "       PROCEDURE DIVISION.\n"
+        "           GOBACK.\n"
+    )
+    out = forge_module.forge_schemas(src)
+    assert out is not None
+    assert "CREATE TABLE PROG_NAMES" in out["sql"] and "GETPOL" in out["sql"] and "AMT" in out["sql"]

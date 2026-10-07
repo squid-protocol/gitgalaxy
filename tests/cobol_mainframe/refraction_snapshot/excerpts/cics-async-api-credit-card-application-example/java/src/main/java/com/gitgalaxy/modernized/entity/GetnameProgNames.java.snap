@@ -1,0 +1,40 @@
+package com.gitgalaxy.modernized.entity;
+
+import lombok.Data;
+import lombok.NoArgsConstructor;
+import jakarta.persistence.*;
+import java.math.BigDecimal;
+
+@Data
+@NoArgsConstructor
+@Entity
+@Table(name = "PROG_NAMES")
+public class GetnameProgNames {
+
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "sys_id")
+    private Long sysId;
+
+    @Column(name = "CUST_NO_IN", length = 4)
+    private String custNoIn;
+
+    @Column(name = "CUSTOMER_NAME", length = 80)
+    private String customerName;
+
+    @Column(name = "INPUT_CONTAINER", length = 16)
+    private String inputContainer;
+
+    @Column(name = "GETNAME_CONTAINER", length = 16)
+    private String getnameContainer;
+
+    @Column(name = "GET_NAME", length = 8)
+    private String getName;
+
+    @Column(name = "COMMAND_RESP")
+    private Integer commandResp;
+
+    @Column(name = "COMMAND_RESP2")
+    private Integer commandResp2;
+
+}

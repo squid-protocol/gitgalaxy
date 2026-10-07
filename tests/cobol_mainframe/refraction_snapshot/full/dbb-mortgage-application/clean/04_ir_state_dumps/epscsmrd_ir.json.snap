@@ -39,12 +39,116 @@
   "generation": {
     "schemas": {
       "table": "X00000175",
-      "sql": "CREATE TABLE X00000175 (\n    PROCESS_INDICATOR              VARCHAR(1),\n    EPSPCOM_PRINCIPLE_DATA         DECIMAL(11, 2),\n    EPSPCOM_NUMBER_OF_YEARS        SMALLINT,\n    EPSPCOM_NUMBER_OF_MONTHS       SMALLINT,\n    EPSPCOM_QUOTED_INTEREST_RATE   DECIMAL(5, 3),\n    EPSPCOM_YEAR_MONTH_IND         VARCHAR(1),\n    EPSPCOM_RETURN_MONTH_PAYMENT   DECIMAL(9, 2),\n    EPSPCOM_ERRMSG                 VARCHAR(80),\n    EPSPCOM_PROGRAM_RETCODE        SMALLINT,\n    EPSPCOM_PROGRAM_RETCODE_RDF    VARCHAR(4)\n);",
+      "sql": "CREATE TABLE X00000175 (\n    DFH_BODY_CONTAINER             VARCHAR(16),\n    DFH_DATA_CONTAINER             VARCHAR(16),\n    CONVERTER_RETURN_CODE          INTEGER,\n    SEVERITY                       SMALLINT,\n    MSG_NO                         SMALLINT,\n    CASE_SEV_CTL                   VARCHAR(1),\n    FACILITY                       VARCHAR(3),\n    I_S_INFO                       INTEGER,\n    SEVERITY                       SMALLINT,\n    MSG_NO                         SMALLINT,\n    CASE_SEV_CTL                   VARCHAR(1),\n    FACILITY                       VARCHAR(3),\n    I_S_INFO                       INTEGER,\n    ERROR_OCCURRED                 VARCHAR(1),\n    ERROR_MESSAGE_NUMBER           INTEGER,\n    ERROR_REASON_LENGTH            INTEGER,\n    ERROR_REASON                   VARCHAR(512),\n    XML2LS_LANG_BUFFER_LENGTH      INTEGER,\n    LS2XML_LANG_BUFFER_LENGTH      INTEGER,\n    LS2XML_XML_BUFFER_LENGTH       INTEGER,\n    XML2LS_XML_CCSID               INTEGER,\n    HOST_LANG_CCSID                INTEGER,\n    LS2XML_XML_CCSID               INTEGER,\n    NEXT_CONTAINER                 VARCHAR(16),\n    COMMAND_RESP                   INTEGER,\n    COMMAND_RESP2                  INTEGER,\n    DFH_BODY_LEN                   INTEGER,\n    DFH_DATA_LEN                   INTEGER,\n    WORK_AREA_LEN                  INTEGER,\n    DFH_BODY                       VARCHAR(1),\n    DFH_DATA                       VARCHAR(1),\n    PROCESS_INDICATOR              VARCHAR(1),\n    EPSPCOM_PRINCIPLE_DATA         DECIMAL(11, 2),\n    EPSPCOM_NUMBER_OF_YEARS        SMALLINT,\n    EPSPCOM_NUMBER_OF_MONTHS       SMALLINT,\n    EPSPCOM_QUOTED_INTEREST_RATE   DECIMAL(5, 3),\n    EPSPCOM_YEAR_MONTH_IND         VARCHAR(1),\n    EPSPCOM_RETURN_MONTH_PAYMENT   DECIMAL(9, 2),\n    EPSPCOM_ERRMSG                 VARCHAR(80),\n    EPSPCOM_PROGRAM_RETCODE        SMALLINT,\n    EPSPCOM_PROGRAM_RETCODE_RDF    VARCHAR(4)\n);",
       "json": {
         "$schema": "http://json-schema.org/draft-07/schema#",
         "title": "X00000175",
         "type": "object",
         "properties": {
+          "DFH_BODY_CONTAINER": {
+            "type": "string",
+            "description": "Legacy PIC: X(16)"
+          },
+          "DFH_DATA_CONTAINER": {
+            "type": "string",
+            "description": "Legacy PIC: X(16)"
+          },
+          "CONVERTER_RETURN_CODE": {
+            "type": "integer",
+            "description": "Legacy PIC: S9(9)"
+          },
+          "SEVERITY": {
+            "type": "integer",
+            "description": "Legacy PIC: S9(4)"
+          },
+          "MSG_NO": {
+            "type": "integer",
+            "description": "Legacy PIC: S9(4)"
+          },
+          "CASE_SEV_CTL": {
+            "type": "string",
+            "description": "Legacy PIC: X"
+          },
+          "FACILITY": {
+            "type": "string",
+            "description": "Legacy PIC: XXX"
+          },
+          "I_S_INFO": {
+            "type": "integer",
+            "description": "Legacy PIC: S9(9)"
+          },
+          "ERROR_OCCURRED": {
+            "type": "string",
+            "description": "Legacy PIC: X"
+          },
+          "ERROR_MESSAGE_NUMBER": {
+            "type": "integer",
+            "description": "Legacy PIC: 9(9)"
+          },
+          "ERROR_REASON_LENGTH": {
+            "type": "integer",
+            "description": "Legacy PIC: 9(9)"
+          },
+          "ERROR_REASON": {
+            "type": "string",
+            "description": "Legacy PIC: X(512)"
+          },
+          "XML2LS_LANG_BUFFER_LENGTH": {
+            "type": "integer",
+            "description": "Legacy PIC: S9(9)"
+          },
+          "LS2XML_LANG_BUFFER_LENGTH": {
+            "type": "integer",
+            "description": "Legacy PIC: S9(9)"
+          },
+          "LS2XML_XML_BUFFER_LENGTH": {
+            "type": "integer",
+            "description": "Legacy PIC: S9(9)"
+          },
+          "XML2LS_XML_CCSID": {
+            "type": "integer",
+            "description": "Legacy PIC: S9(9)"
+          },
+          "HOST_LANG_CCSID": {
+            "type": "integer",
+            "description": "Legacy PIC: S9(9)"
+          },
+          "LS2XML_XML_CCSID": {
+            "type": "integer",
+            "description": "Legacy PIC: S9(9)"
+          },
+          "NEXT_CONTAINER": {
+            "type": "string",
+            "description": "Legacy PIC: X(16)"
+          },
+          "COMMAND_RESP": {
+            "type": "integer",
+            "description": "Legacy PIC: 9(9)"
+          },
+          "COMMAND_RESP2": {
+            "type": "integer",
+            "description": "Legacy PIC: 9(9)"
+          },
+          "DFH_BODY_LEN": {
+            "type": "integer",
+            "description": "Legacy PIC: 9(9)"
+          },
+          "DFH_DATA_LEN": {
+            "type": "integer",
+            "description": "Legacy PIC: 9(9)"
+          },
+          "WORK_AREA_LEN": {
+            "type": "integer",
+            "description": "Legacy PIC: 9(9)"
+          },
+          "DFH_BODY": {
+            "type": "string",
+            "description": "Legacy PIC: X"
+          },
+          "DFH_DATA": {
+            "type": "string",
+            "description": "Legacy PIC: X"
+          },
           "PROCESS_INDICATOR": {
             "type": "string",
             "description": "Legacy PIC: X"

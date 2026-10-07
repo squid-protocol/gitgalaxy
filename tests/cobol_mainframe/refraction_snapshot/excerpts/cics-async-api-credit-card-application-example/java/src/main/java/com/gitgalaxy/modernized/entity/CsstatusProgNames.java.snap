@@ -1,0 +1,46 @@
+package com.gitgalaxy.modernized.entity;
+
+import lombok.Data;
+import lombok.NoArgsConstructor;
+import jakarta.persistence.*;
+import java.math.BigDecimal;
+
+@Data
+@NoArgsConstructor
+@Entity
+@Table(name = "PROG_NAMES")
+public class CsstatusProgNames {
+
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "sys_id")
+    private Long sysId;
+
+    @Column(name = "CUST_NO_IN", length = 4)
+    private String custNoIn;
+
+    @Column(name = "CUSTOMER_IMPORTANCE", length = 8)
+    private String customerImportance;
+
+    @Column(name = "OK")
+    private Integer ok;
+
+    @Column(name = "INPUT_CONTAINER", length = 16)
+    private String inputContainer;
+
+    @Column(name = "CSSTATUS_CONTAINER", length = 16)
+    private String csstatusContainer;
+
+    @Column(name = "GETPOL", length = 8)
+    private String getpol;
+
+    @Column(name = "GETSPND", length = 8)
+    private String getspnd;
+
+    @Column(name = "COMMAND_RESP")
+    private Integer commandResp;
+
+    @Column(name = "COMMAND_RESP2")
+    private Integer commandResp2;
+
+}

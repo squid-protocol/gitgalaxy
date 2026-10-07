@@ -35,7 +35,185 @@
     "honesty_flags": []
   },
   "generation": {
-    "schemas": null,
+    "schemas": {
+      "table": "PROG_NAMES",
+      "sql": "CREATE TABLE PROG_NAMES (\n    CUST_NO_IN                     VARCHAR(4),\n    CREDIT_CHECK_RESULT            VARCHAR(3),\n    CUSTOMER_NAME                  VARCHAR(80),\n    CUSTOMER_ADDRESS               VARCHAR(80),\n    CUSTOMER_POSTCODE              VARCHAR(8),\n    CUSTOMER_IMPORTANCE            VARCHAR(8),\n    APPLICATION_RESULT             VARCHAR(7),\n    APPLICATION_SUCCESS            VARCHAR(7),\n    APPLICATION_FAILED             VARCHAR(7),\n    TRANID                         VARCHAR(4),\n    INPUTACCNUM                    VARCHAR(4),\n    READ_INPUT_LENGTH              SMALLINT,\n    PARENT_PROGRAM                 VARCHAR(8),\n    ACCOUNT_NUM                    VARCHAR(4),\n    TRANSACTION_1                  VARCHAR(4),\n    TRAN1_STATUS                   VARCHAR(1),\n    TRANSACTION_2                  VARCHAR(4),\n    TRAN2_STATUS                   VARCHAR(1),\n    TRANSACTION_3                  VARCHAR(4),\n    TRAN3_STATUS                   VARCHAR(1),\n    TRANSACTION_4                  VARCHAR(4),\n    TRAN4_STATUS                   VARCHAR(1),\n    TRANSACTION_5                  VARCHAR(4),\n    TRAN5_STATUS                   VARCHAR(1),\n    RESULT_TEXT                    VARCHAR(7),\n    IS_TERMINAL_BASED              VARCHAR(1),\n    START_CODE                     VARCHAR(2),\n    INPUT_CONTAINER                VARCHAR(16),\n    CRDTCHK_CONTAINER              VARCHAR(16),\n    UPDCSDB_CONTAINER              VARCHAR(16),\n    GETNAME_CONTAINER              VARCHAR(16),\n    GETADDR_CONTAINER              VARCHAR(16),\n    GETPOST_CONTAINER              VARCHAR(16),\n    CSSTATUS_CONTAINER             VARCHAR(16),\n    MYCHANNEL                      VARCHAR(16),\n    CREDIT_CHECK                   VARCHAR(8),\n    DB_CACHE                       VARCHAR(8),\n    GET_NAME                       VARCHAR(8),\n    GET_ADDR                       VARCHAR(8),\n    CSSTATUS                       VARCHAR(8),\n    COMMAND_RESP                   INTEGER,\n    COMMAND_RESP2                  INTEGER\n);",
+      "json": {
+        "$schema": "http://json-schema.org/draft-07/schema#",
+        "title": "PROG_NAMES",
+        "type": "object",
+        "properties": {
+          "CUST_NO_IN": {
+            "type": "string",
+            "description": "Legacy PIC: X(4)"
+          },
+          "CREDIT_CHECK_RESULT": {
+            "type": "string",
+            "description": "Legacy PIC: X(3)"
+          },
+          "CUSTOMER_NAME": {
+            "type": "string",
+            "description": "Legacy PIC: X(80)"
+          },
+          "CUSTOMER_ADDRESS": {
+            "type": "string",
+            "description": "Legacy PIC: X(80)"
+          },
+          "CUSTOMER_POSTCODE": {
+            "type": "string",
+            "description": "Legacy PIC: X(8)"
+          },
+          "CUSTOMER_IMPORTANCE": {
+            "type": "string",
+            "description": "Legacy PIC: X(8)"
+          },
+          "APPLICATION_RESULT": {
+            "type": "string",
+            "description": "Legacy PIC: X(7)"
+          },
+          "APPLICATION_SUCCESS": {
+            "type": "string",
+            "description": "Legacy PIC: X(7)"
+          },
+          "APPLICATION_FAILED": {
+            "type": "string",
+            "description": "Legacy PIC: X(7)"
+          },
+          "TRANID": {
+            "type": "string",
+            "description": "Legacy PIC: X(4)"
+          },
+          "INPUTACCNUM": {
+            "type": "string",
+            "description": "Legacy PIC: X(4)"
+          },
+          "READ_INPUT_LENGTH": {
+            "type": "integer",
+            "description": "Legacy PIC: S9(4)"
+          },
+          "PARENT_PROGRAM": {
+            "type": "string",
+            "description": "Legacy PIC: X(8)"
+          },
+          "ACCOUNT_NUM": {
+            "type": "string",
+            "description": "Legacy PIC: X(4)"
+          },
+          "TRANSACTION_1": {
+            "type": "string",
+            "description": "Legacy PIC: X(4)"
+          },
+          "TRAN1_STATUS": {
+            "type": "string",
+            "description": "Legacy PIC: X(1)"
+          },
+          "TRANSACTION_2": {
+            "type": "string",
+            "description": "Legacy PIC: X(4)"
+          },
+          "TRAN2_STATUS": {
+            "type": "string",
+            "description": "Legacy PIC: X(1)"
+          },
+          "TRANSACTION_3": {
+            "type": "string",
+            "description": "Legacy PIC: X(4)"
+          },
+          "TRAN3_STATUS": {
+            "type": "string",
+            "description": "Legacy PIC: X(1)"
+          },
+          "TRANSACTION_4": {
+            "type": "string",
+            "description": "Legacy PIC: X(4)"
+          },
+          "TRAN4_STATUS": {
+            "type": "string",
+            "description": "Legacy PIC: X(1)"
+          },
+          "TRANSACTION_5": {
+            "type": "string",
+            "description": "Legacy PIC: X(4)"
+          },
+          "TRAN5_STATUS": {
+            "type": "string",
+            "description": "Legacy PIC: X(1)"
+          },
+          "RESULT_TEXT": {
+            "type": "string",
+            "description": "Legacy PIC: X(7)"
+          },
+          "IS_TERMINAL_BASED": {
+            "type": "string",
+            "description": "Legacy PIC: X(1)"
+          },
+          "START_CODE": {
+            "type": "string",
+            "description": "Legacy PIC: X(2)"
+          },
+          "INPUT_CONTAINER": {
+            "type": "string",
+            "description": "Legacy PIC: X(16)"
+          },
+          "CRDTCHK_CONTAINER": {
+            "type": "string",
+            "description": "Legacy PIC: X(16)"
+          },
+          "UPDCSDB_CONTAINER": {
+            "type": "string",
+            "description": "Legacy PIC: X(16)"
+          },
+          "GETNAME_CONTAINER": {
+            "type": "string",
+            "description": "Legacy PIC: X(16)"
+          },
+          "GETADDR_CONTAINER": {
+            "type": "string",
+            "description": "Legacy PIC: X(16)"
+          },
+          "GETPOST_CONTAINER": {
+            "type": "string",
+            "description": "Legacy PIC: X(16)"
+          },
+          "CSSTATUS_CONTAINER": {
+            "type": "string",
+            "description": "Legacy PIC: X(16)"
+          },
+          "MYCHANNEL": {
+            "type": "string",
+            "description": "Legacy PIC: X(16)"
+          },
+          "CREDIT_CHECK": {
+            "type": "string",
+            "description": "Legacy PIC: X(8)"
+          },
+          "DB_CACHE": {
+            "type": "string",
+            "description": "Legacy PIC: X(8)"
+          },
+          "GET_NAME": {
+            "type": "string",
+            "description": "Legacy PIC: X(8)"
+          },
+          "GET_ADDR": {
+            "type": "string",
+            "description": "Legacy PIC: X(8)"
+          },
+          "CSSTATUS": {
+            "type": "string",
+            "description": "Legacy PIC: X(8)"
+          },
+          "COMMAND_RESP": {
+            "type": "integer",
+            "description": "Legacy PIC: S9(8)"
+          },
+          "COMMAND_RESP2": {
+            "type": "integer",
+            "description": "Legacy PIC: S9(8)"
+          }
+        }
+      }
+    },
     "jcl": "//GITGJOB JOB (12345),'GITGALAXY GENERATOR',\n//             CLASS=A,MSGCLASS=A,MSGLEVEL=(1,1),\n//             USER=HERC01,PASSWORD=CUL8TR,\n//             TIME=10,REGION=4M\n//* ==========================================================\n//* AUTOGENERATED BY GITGALAXY ZERO-TRUST GENERATOR\n//* ARCHITECTURE REQUIRES: CICS\n//* ==========================================================\n//STEP01   EXEC PGM=SEQPNT\n//STEPLIB  DD DSN=HERC01.LOADLIB,DISP=SHR\n//SYSOUT   DD SYSOUT=*\n//SYSPRINT DD SYSOUT=*\n//SYSUDUMP DD SYSOUT=*\n//"
   }
 }

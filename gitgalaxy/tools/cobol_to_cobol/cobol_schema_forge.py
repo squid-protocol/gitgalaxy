@@ -67,7 +67,7 @@ def parse_cobol_picture(
     return {"sql": "TEXT", "json": "string"}
 
 
-_LEVEL_ENTRY = re.compile(r"\s*(0[1-9]|[1-4][0-9]|66|77|88)\s+(?:([A-Z0-9][A-Z0-9\-]*)(?=\s|$))?(.*)", re.S)
+_LEVEL_ENTRY = re.compile(r"\s*(0?[1-9]|[1-4][0-9]|66|77|88)\s+(?:([A-Z0-9][A-Z0-9\-]*)(?=\s|$))?(.*)", re.S)
 # #3820: the whole character-string to the first space or `;`, as the engine reads it -- the old
 # symbol class knew only `$`, so `PIC £££9.99` (CP285's default currency sign) read as no PIC.
 _PIC_CLAUSE = re.compile(r"(?<![A-Z0-9\-])PIC(?:TURE)?\s+(?:IS\s+)?([^\s;]+)")
@@ -117,7 +117,7 @@ def data_entries(content: str) -> list[dict]:
         m = _LEVEL_ENTRY.match(raw)
         if not m:
             continue
-        level, name, rest = m.group(1), m.group(2), m.group(3)
+        level, name, rest = m.group(1).zfill(2), m.group(2), m.group(3)  # #4626: `1` / `2` read as `01` / `02`
         if name in _CLAUSE_WORDS:  # an unnamed item: the "name" is its first clause
             rest, name = f"{name} {rest}", None
         pic = _PIC_CLAUSE.search(rest)

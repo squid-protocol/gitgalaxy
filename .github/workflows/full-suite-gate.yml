@@ -129,6 +129,8 @@ jobs:
     env:
       PYTHONUTF8: "1"
       GITGALAXY_LICENSE_KEY: "COMMUNITY_FREE_TIER"
+      OMP_NUM_THREADS: "1"
+      OBJC_DISABLE_INITIALIZE_FORK_SAFETY: "YES"
     strategy:
       fail-fast: false
       matrix:

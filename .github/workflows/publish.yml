@@ -61,7 +61,10 @@ jobs:
         run: |
           git remote add gitlab https://oauth2:${{ secrets.GITLAB_SYNC_TOKEN }}@gitlab.com/squid-protocol1/gitgalaxy.git
           git push -f gitlab HEAD:main
-          git push -f --tags gitlab
+          # Mirror GitHub's tags exactly: --prune removes tags GitHub no longer has.
+          # Guard: an incomplete checkout would otherwise delete real tags on the mirror.
+          if [ "$(git tag | wc -l)" -lt 50 ]; then echo "🛑 Too few tags fetched; refusing to prune gitlab."; exit 1; fi
+          git push -f --prune gitlab 'refs/tags/*:refs/tags/*'
 
   bitbucket-sync:
     name: Sync to Bitbucket Repository
@@ -77,7 +80,10 @@ jobs:
         run: |
           git remote add bitbucket https://${{ secrets.BITBUCKET_USERNAME }}:${{ secrets.BITBUCKET_SYNC_TOKEN }}@bitbucket.org/squid-protocol/gitgalaxy.git
           git push -f bitbucket HEAD:main
-          git push -f --tags bitbucket
+          # Mirror GitHub's tags exactly: --prune removes tags GitHub no longer has.
+          # Guard: an incomplete checkout would otherwise delete real tags on the mirror.
+          if [ "$(git tag | wc -l)" -lt 50 ]; then echo "🛑 Too few tags fetched; refusing to prune bitbucket."; exit 1; fi
+          git push -f --prune bitbucket 'refs/tags/*:refs/tags/*'
 
   azure-sync:
     name: Sync to Azure DevOps Repository
@@ -93,4 +99,7 @@ jobs:
         run: |
           git remote add azure https://gitgalaxy:${{ secrets.AZURE_DEVOPS_TOKEN }}@dev.azure.com/gitgalaxy/gitgalaxy/_git/gitgalaxy
           git push -f azure HEAD:refs/heads/main
-          git push -f --tags azure
+          # Mirror GitHub's tags exactly: --prune removes tags GitHub no longer has.
+          # Guard: an incomplete checkout would otherwise delete real tags on the mirror.
+          if [ "$(git tag | wc -l)" -lt 50 ]; then echo "🛑 Too few tags fetched; refusing to prune azure."; exit 1; fi
+          git push -f --prune azure 'refs/tags/*:refs/tags/*'

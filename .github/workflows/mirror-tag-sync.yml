@@ -1,0 +1,64 @@
+name: Mirror tag sync
+
+# Makes the tags on the GitLab, Bitbucket and Azure DevOps mirrors match GitHub's.
+# publish.yml does the same on every release; this runs it on demand.
+# Default is a dry run that lists what would change. Re-run with "delete" ticked to apply.
+
+on:
+  workflow_dispatch:
+    inputs:
+      delete:
+        description: "Apply the changes (unticked = dry run, list only)"
+        type: boolean
+        default: false
+
+permissions:
+  contents: read
+
+jobs:
+  sync-tags:
+    name: Sync mirror tags
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout GitHub Repository
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          fetch-depth: 0
+
+      - name: Sync tags to each mirror
+        env:
+          APPLY: ${{ inputs.delete }}
+          GITLAB_SYNC_TOKEN: ${{ secrets.GITLAB_SYNC_TOKEN }}
+          BITBUCKET_USERNAME: ${{ secrets.BITBUCKET_USERNAME }}
+          BITBUCKET_SYNC_TOKEN: ${{ secrets.BITBUCKET_SYNC_TOKEN }}
+          AZURE_DEVOPS_TOKEN: ${{ secrets.AZURE_DEVOPS_TOKEN }}
+        run: |
+          set -u
+          tags=$(git tag | wc -l)
+          echo "GitHub has $tags tags."
+          # Guard: an incomplete checkout would otherwise delete real tags on the mirrors.
+          if [ "$tags" -lt 50 ]; then
+            echo "🛑 Only $tags tags fetched; refusing to prune mirrors."
+            exit 1
+          fi
+          if [ "$APPLY" = "true" ]; then mode=""; echo "Mode: APPLY"; else mode="--dry-run"; echo "Mode: dry run (nothing is changed)"; fi
+          git remote add gitlab "https://oauth2:${GITLAB_SYNC_TOKEN}@gitlab.com/squid-protocol1/gitgalaxy.git"
+          git remote add bitbucket "https://${BITBUCKET_USERNAME}:${BITBUCKET_SYNC_TOKEN}@bitbucket.org/squid-protocol/gitgalaxy.git"
+          git remote add azure "https://gitgalaxy:${AZURE_DEVOPS_TOKEN}@dev.azure.com/gitgalaxy/gitgalaxy/_git/gitgalaxy"
+          failed=""
+          for remote in gitlab bitbucket azure; do
+            echo "::group::$remote"
+            if git push $mode -f --prune --porcelain "$remote" 'refs/tags/*:refs/tags/*' > "push-$remote.txt" 2>&1; then
+              deleted=$(grep -c '^-' "push-$remote.txt" || true)
+              echo "$remote: $deleted tag(s) deleted${mode:+ (would be)}:"
+              grep '^-' "push-$remote.txt" | awk '{print "  " $2}' | sed 's|:refs/tags/||' || true
+              echo "### $remote: $deleted tag(s) ${mode:+would be }deleted" >> "$GITHUB_STEP_SUMMARY"
+              grep '^-' "push-$remote.txt" | awk '{print "- " $2}' | sed 's|:refs/tags/||' >> "$GITHUB_STEP_SUMMARY" || true
+            else
+              echo "$remote: push failed"; sed 's|https://[^@]*@|https://***@|' "push-$remote.txt"
+              echo "### $remote: FAILED (see log)" >> "$GITHUB_STEP_SUMMARY"
+              failed="$failed $remote"
+            fi
+            echo "::endgroup::"
+          done
+          if [ -n "$failed" ]; then echo "🛑 Failed:$failed"; exit 1; fi

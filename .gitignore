@@ -120,6 +120,8 @@ museum_2/
 !docs/research/*.json
 # #4047: the committed mutation scores of the proven ports (tests/tools/mutation_scores.py)
 !docs/language_status/mutation_scores.json
+# #4270: the measured census use / crucible cases the CICS spec status page renders (cics_spec_status.py)
+!docs/language_status/cics_spec_status.json
 # #3315: hand-labelled thin-wrapper verdicts -- source data the wrapper probe scores against.
 !tests/tools/wrapper_labels.json
 !tests/tools/wrapper_labels_memory_alloc.json

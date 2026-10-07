@@ -5,6 +5,8 @@ from __future__ import annotations
 
 import re
 import unicodedata
+from collections.abc import Iterator
+from contextlib import contextmanager
 from dataclasses import dataclass, field
 from pathlib import Path
 
@@ -35,6 +37,54 @@ class Line:
     file: str
     line: int
     cut: str = ""  # #4462: the text past column 72 of a line whose columns 8-72 end inside a literal
+
+
+# ---- the survey-only what-if switch (#4270 `cics_census.py blockers --unmask`) -----------------------------------
+# A refusal that stops the WHOLE program (a cut literal, a missing copybook, ...) hides every gap behind it: the blocker
+# ranking only learns what a program would hit next after the refusal is fixed. `survey_unmask` switches ONE named
+# refusal check off for the duration of a `with` block, so a survey can ask "what would this program hit next?".
+# It is honoured ONLY inside that block, which only tests/tools/det_survey.py --unmask opens (tests pin that no module
+# under gitgalaxy/ does): no environment variable, flag or default turns it on, so no production path can translate
+# a program the translator refuses. What a survey reports under it is a what-if, never a translation.
+UNMASKABLE = {
+    "cut-literal": "a literal cut open at column 72 (cut_literal): read with its text past column 72, as if fixed",
+    "several-programs": "several programs in one source (several_programs): read as one",
+    "unmodelled": "national / DBCS text, a national letter in a name, IDMS, DECIMAL-POINT IS COMMA, the stand-in "
+    "control characters (unmodelled): read as the grammar is handed them",
+    "missing-copybook": "a COPY found in no directory: expanded to nothing, so its items are `no such item` holes",
+}
+_unmasked: frozenset[str] = frozenset()
+
+
+@contextmanager
+def survey_unmask(*checks: str) -> Iterator[None]:
+    """SURVEY ONLY (tests/tools/det_survey.py --unmask): the named refusal checks (UNMASKABLE) are off inside the block."""
+    global _unmasked
+    bad = [c for c in checks if c not in UNMASKABLE]
+    if bad:
+        raise ValueError(f"not an unmaskable refusal check: {', '.join(bad)} (UNMASKABLE: {', '.join(UNMASKABLE)})")
+    saved, _unmasked = _unmasked, _unmasked | frozenset(checks)
+    try:
+        yield
+    finally:
+        _unmasked = saved
+
+
+def unmasked(check: str) -> bool:
+    """Whether a survey switched `check` off (survey_unmask); always False outside such a block."""
+    return check in _unmasked
+
+
+def refusal(lines: list[Line]) -> str | None:
+    """#4462: why the program is refused whole before the parser (unmodelled, several_programs, cut_literal), or None.
+    A check a survey switched off (survey_unmask) is skipped."""
+    for check, why in (("unmodelled", unmodelled), ("several-programs", several_programs),
+                       ("cut-literal", cut_literal)):  # fmt: skip
+        if not unmasked(check):
+            msg = why(lines)
+            if msg:
+                return msg
+    return None
 
 
 class CopyNotFound(Exception):
@@ -393,7 +443,13 @@ def narrowed(lines: list[Line]) -> list[Line]:
     """#4272: `lines` as the grammar can be handed them (one byte a character, after `unmodelled` let them through):
     a character beyond Latin-1 in a `*>` comment written as a space, one inside a PROCEDURE DIVISION alphanumeric
     literal as WIDE (a column for a column: every node keeps its place), so the statement holding the literal is a
-    hole by name (gen.WIDE_WHY), never translated with a stand-in byte."""
+    hole by name (gen.WIDE_WHY), never translated with a stand-in byte.
+
+    A survey's what-if only (the cut-literal check off by survey_unmask): a literal cut open at column 72 is read
+    with its text past column 72, as if the source were fixed, so the survey sees what the program would hit next."""
+    if unmasked("cut-literal"):
+        lines = [Line(ln.text + ln.cut.rstrip(), ln.file, ln.line) if ln.cut.strip() and _open_literal(ln.text) else ln
+                 for ln in lines]  # fmt: skip
     out: list[Line] = []
     in_proc = False
     for ln in lines:
@@ -551,25 +607,27 @@ def expand(lines: list[Line], dirs: list[Path], depth: int = 0, chain: frozenset
             raise CopyNotFound(f"{where}: COPY {name} resolves to {member}, which is being expanded already")
         if member is None:
             member = _search_member(name, dirs, chain, where)
-            if member is None:
+            if member is None and not unmasked("missing-copybook"):  # (a survey's what-if only: survey_unmask)
                 raise CopyNotFound(f"{where}: COPY {name} found in none of {[str(d) for d in dirs]}")
-            if engine is not None and engine.in_estate(Path(ln.file)):
+            if member is not None and engine is not None and engine.in_estate(Path(ln.file)):
                 engine.unresolved(ln.file, name, member, where)
         if depth > 8:
             raise CopyNotFound(f"{where}: COPY {name} nests deeper than 8")
         if engine is not None and ln.file == own and expanded_names is not None:
             expanded_names.add(name)
-        body = logical_lines(_raw_lines(member, engine), str(member))
-        if any(_PROGRAM_MARK.match(b.text) for b in body):
-            # #4460: a program, not a copybook: splicing it in would give the includer another program's records
-            raise CopyNotFound(f"{where}: COPY {name} resolves to {member}, which is a program (IDENTIFICATION "
-                               "DIVISION / PROGRAM-ID), not a copybook")  # fmt: skip
-        pairs = _replacing(stmt)
-        if pairs:
-            for b in body:
-                for old, new in pairs:
-                    b.text = _replace(b.text, old, new)
-        expanded = expand(body, dirs, depth + 1, chain | {member.resolve()}, engine)
+        expanded: list[Line] = []
+        if member is not None:
+            body = logical_lines(_raw_lines(member, engine), str(member))
+            if any(_PROGRAM_MARK.match(b.text) for b in body):
+                # #4460: a program, not a copybook: splicing it in would give the includer another program's records
+                raise CopyNotFound(f"{where}: COPY {name} resolves to {member}, which is a program (IDENTIFICATION "
+                                   "DIVISION / PROGRAM-ID), not a copybook")  # fmt: skip
+            pairs = _replacing(stmt)
+            if pairs:
+                for b in body:
+                    for old, new in pairs:
+                        b.text = _replace(b.text, old, new)
+            expanded = expand(body, dirs, depth + 1, chain | {member.resolve()}, engine)
         # the text before COPY on its line (rare: `01 X. COPY Y.`) and what follows the COPY's period stay
         head = ln.text[: m.start()]
         if head.strip():

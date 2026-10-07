@@ -79,8 +79,9 @@ Traps `--check` exists for:
       `$PY tests/tools/cics_census.py compare $SCRATCH/s --verb VERB`: per program translated / statements before ->
       after, the holes left (deduped, line numbers stripped), "translated whole N -> M (non-burned a -> b)" and the
       holes naming the verb. Quote the summary lines in the PR; name the next blocking holes as follow-ups.
-- [ ] **Ratchets:** `tests/tools/box/heavy-run.sh $PY tests/tools/pr_gates.py --ratchets`, then the full
-      `pr_gates.py`. A skip is not a pass. `proof_sweep.py --det-only --skip-db2` when the runtime changed.
+- [ ] **Ratchets:** `tests/tools/box/heavy-run.sh $PY tests/tools/pr_gates.py --ratchets`, then
+      `pr_gates.py --fast`. The full suite is CI's job (owner, 2026-10-07): never run it locally, and never two gate
+      runs at once in one worktree; `pr_check.py --merge` merges only on green CI. A skip is not a pass. `proof_sweep.py --det-only --skip-db2` when the runtime changed.
 - [ ] **After merge:** `pr_check.py N` before merging (`--merge` squash-merges only when green), then
       `cics_census.py history append --pr N` (blocker-slice section 4).
 - [ ] **Two draft PRs:** gitgalaxy ("Part of #4270 (slice N: ...)", labels enhancement / testing /

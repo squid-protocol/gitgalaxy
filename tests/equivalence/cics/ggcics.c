@@ -427,6 +427,29 @@ int GGCSYNC(gg_cics *c) {
  * Stops as not modelled: a negative LENGTH; a record moved past INTO (intolen: the storage after INTO, which GnuCOBOL
  * lays out unlike IBM's compiler, oracle_assumptions.md X6); LENGERR on READ UPDATE (IBM does not say whether the
  * record is then held). */
+static char *load_records(const char *path, int reclen, long *n);
+/* #4270 READ GTEQ / GENERIC (GG-FLAGS 'GTEQ' / 'GENERIC'; oracle_assumptions.md X22), IBM, EXEC CICS READ: GENERIC --
+ * "the search key is a generic key whose length is specified in the KEYLENGTH option" (keylen); GTEQ -- "if the search
+ * for a record that has the same key (complete or generic) as that specified in the RIDFLD option is unsuccessful,
+ * the first record that has a greater key is retrieved". Of the records whose key's first `cmp` bytes equal RIDFLD's
+ * (or, GTEQ, are greater), the first in key order (the browse's byte order); -1 when none: NOTFND, RESP2 80. A GENERIC
+ * KEYLENGTH not shorter than the key (INVREQ RESP2 25) or not above zero (42; zero undocumented) stops the run. */
+static long read_search(gg_cics *c, const char *path, int reclen, int keyoff, int klen, const char *ridfld,
+                        int keylen, char **all) {
+    int gteq = strstr(c->flags, "GTEQ") != NULL, generic = strstr(c->flags, "GENERIC") != NULL;
+    if (generic && (keylen >= klen || keylen <= 0))
+        refuse("READ GENERIC KEYLENGTH not shorter than the key or not above zero");
+    int cmp = generic ? keylen : klen;
+    long n, best = -1;
+    *all = load_records(path, reclen, &n);
+    for (long i = 0; *all && i < n; i++) {
+        int d = memcmp(*all + i * reclen + keyoff, ridfld, (size_t)cmp);
+        if (d < 0 || (d > 0 && !gteq)) continue;
+        if (best < 0 || memcmp(*all + i * reclen + keyoff, *all + best * reclen + keyoff, (size_t)klen) < 0) best = i;
+    }
+    return best;
+}
+
 int GGCREAD(gg_cics *c, char *ridfld, int keylen, char *into, int intolen) {
     char want[9], line[4096], name[64], path[3000], ev[320];
     int reclen, keyoff, klen, fresp, fresp2;
@@ -452,11 +475,17 @@ int GGCREAD(gg_cics *c, char *ridfld, int keylen, char *into, int intolen) {
             if (sscanf(line, "%63s %2999s %d %d %d", name, path, &reclen, &keyoff, &klen) != 5) continue;
             if (strcmp(name, want) != 0) continue;
             c->resp = NOTFND;
-            FILE *data = fopen(path, "rb");
+            int search = strstr(c->flags, "GTEQ") || strstr(c->flags, "GENERIC");
+            char *found = NULL;
+            long at = search ? read_search(c, path, reclen, keyoff, klen, ridfld, keylen, &found) : -1;
+            if (search && at < 0) c->resp2 = 80;
+            FILE *data = search ? NULL : fopen(path, "rb");
             char *rec = malloc((size_t)reclen);
+            if (search && at >= 0 && rec) memcpy(rec, found + at * reclen, (size_t)reclen);
+            free(found);
             int cmp = keylen < klen ? keylen : klen;
-            while (data && rec && fread(rec, 1, (size_t)reclen, data) == (size_t)reclen) {
-                if (memcmp(rec + keyoff, ridfld, (size_t)cmp) == 0) {
+            while (rec && ((search && at >= 0) || (data && fread(rec, 1, (size_t)reclen, data) == (size_t)reclen))) {
+                if (search || memcmp(rec + keyoff, ridfld, (size_t)cmp) == 0) {
                     int max = c->len, moved = reclen < max ? reclen : max;
                     if (max < 0) refuse("READ LENGTH (negative)");
                     if (moved > intolen) refuse("READ INTO LENGTH: a record moved past INTO");

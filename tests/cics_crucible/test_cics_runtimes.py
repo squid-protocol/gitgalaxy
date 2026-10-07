@@ -886,6 +886,85 @@ def test_cics_task_browses_as_the_stub_does(tmp_path):
     assert out.splitlines() == [*stub, "0 13 [10, 30]"]
 
 
+# ---- #4270: READ GTEQ / GENERIC (IBM CICS TS, EXEC CICS READ; oracle_assumptions.md X22) --------------------------
+_READ_SEARCH_MAIN = r"""
+#include <stdio.h>
+#include <string.h>
+typedef struct { int resp; int resp2; char name1[8]; char name2[8]; char flags[40]; int len;
+                 char qname[16]; int item; int num; int go_to; } gg_cics;
+int GGCREAD(gg_cics *c, char *rid, int kl, char *into, int il);
+int main(int argc, char **argv) {
+    gg_cics c;
+    char into[5];
+    for (int i = 1; i < argc; i++) {
+        memset(&c, 0, sizeof c);
+        memset(c.name1, ' ', 8);
+        memcpy(c.name1, "F", 1);
+        memset(c.flags, ' ', 40);
+        char op = argv[i][0], *rid = argv[i] + 1;
+        if (op == 'G' || op == 'Q') memcpy(c.flags, "GTEQ", 4);
+        if (op == 'R' || op == 'Q') memcpy(c.flags + 5, "GENERIC", 7);
+        memset(into, '.', 4);
+        into[4] = 0;
+        c.len = 4;
+        GGCREAD(&c, rid, op == 'R' || op == 'Q' ? (int)strlen(rid) : 3, into, 4);
+        printf("%s resp=%d resp2=%d into=%s\n", argv[i], c.resp, c.resp2, into);
+    }
+    return 0;
+}
+"""
+# op: E a plain READ (full key), G GTEQ, R GENERIC (KEYLENGTH = the key given), Q GENERIC GTEQ
+_READ_SEARCH_OPS = ("E150", "G150", "G200", "G301", "R2", "R21", "Q25", "R4", "Q4", "Q0")
+_READ_SEARCH_WANT = [
+    "E150 resp=13 resp2=0 into=....",  # the full-key READ: as before (RESP2 0 until spec PR 6)
+    "G150 resp=0 resp2=0 into=200b",  # no 150: the first greater key
+    "G200 resp=0 resp2=0 into=200b",  # the key itself
+    "G301 resp=13 resp2=80 into=....",  # none greater: NOTFND, RESP2 80
+    "R2 resp=0 resp2=0 into=200b",  # generic key "2": the first of 200 / 210 in key order
+    "R21 resp=0 resp2=0 into=210c",
+    "Q25 resp=0 resp2=0 into=300d",  # no key starting 25: the first greater
+    "R4 resp=13 resp2=80 into=....",
+    "Q4 resp=13 resp2=80 into=....",
+    "Q0 resp=0 resp2=0 into=100a",
+]
+
+
+@needs_cc
+def test_the_stub_read_gteq_and_generic_search_as_ibm_documents(tmp_path):
+    """GTEQ: "the first record that has a greater key is retrieved"; GENERIC: the first KEYLENGTH bytes; NOTFND
+    RESP2 80 when the search finds nothing. The file is out of key order on disk: the search is in key order."""
+    (tmp_path / "f.dat").write_bytes(b"300d210c100a200b")
+    (tmp_path / "files.cfg").write_text(f"F {tmp_path / 'f.dat'} 4 0 3\n", encoding="ascii")
+    exe = _stub(tmp_path, _READ_SEARCH_MAIN)
+    assert _run_stub(exe, tmp_path, *_READ_SEARCH_OPS) == _READ_SEARCH_WANT
+
+
+@needs_javac
+def test_cics_task_read_search_answers_as_the_stub_does(tmp_path):
+    """CicsTask.readSearch over the same file and searches (the lookup as DetCics.Store.search does it)."""
+    out = _cics_task(
+        tmp_path,
+        """
+        java.util.TreeMap<String, String> f = new java.util.TreeMap<>(java.util.Map.of(
+                "300", "300d", "210", "210c", "100", "100a", "200", "200b"));
+        CicsTask t = new CicsTask("T", "ENTER", null, null);
+        for (String op : new String[] {"E150", "G150", "G200", "G301", "R2", "R21", "Q25", "R4", "Q4", "Q0"}) {
+            char o = op.charAt(0);
+            String k = op.substring(1);
+            boolean gteq = o == 'G' || o == 'Q';
+            int n = o == 'R' || o == 'Q' ? k.length() : 3;
+            CicsTask.FileRead<String> r = o == 'E' ? t.read("F", () -> java.util.Optional.ofNullable(f.get(k)))
+                    : t.readSearch("F", false, () -> f.values().stream().filter(v -> {
+                        int c = v.substring(0, n).compareTo(k.substring(0, n));
+                        return c == 0 || gteq && c > 0;
+                    }).findFirst());
+            System.out.println(op + " resp=" + r.resp() + " resp2=" + r.resp2() + " into="
+                    + (r.record() == null ? "...." : r.record()));
+        }""",
+    )
+    assert out.splitlines() == _READ_SEARCH_WANT
+
+
 @needs_javac
 def test_cics_task_asktime_and_formattime_follow_the_clock(tmp_path):
     """ABSTIME is milliseconds since 00:00 on 1 January 1900 (IBM, EXEC CICS ASKTIME): 3867129015000 at

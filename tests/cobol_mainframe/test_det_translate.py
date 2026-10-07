@@ -345,8 +345,7 @@ class _KeyCics(_RbaCics):
     [
         "RETURN IMMEDIATE",  # 9 programs: IMMEDIATE ignored
         "RETURN TRANSID('T1') IMMEDIATE",
-        "READ FILE('KSDS') INTO(REC) RIDFLD(KEY) GTEQ",
-        "READ FILE('KSDS') INTO(REC) RIDFLD(KEY) KEYLENGTH(6) GENERIC",
+        "READ FILE('KSDS') INTO(REC) RIDFLD(KEY) GTEQ TOKEN(R)",  # #4270: GTEQ honoured, TOKEN still refused
         "STARTBR FILE('KSDS') RIDFLD(KEY) GENERIC KEYLENGTH(6)",
         "STARTBR FILE('KSDS') RIDFLD(KEY) REQID(2)",
         "READNEXT FILE('KSDS') INTO(REC) RIDFLD(KEY) REQID(2)",
@@ -431,6 +430,55 @@ def test_read_length_is_modelled_in_and_out():
         "}",
         "OUTCOME(resp3, resp24);",
     ]
+
+
+# ---- #4270: READ GTEQ / GENERIC (GenApp LGICVS01, LGIPVS01; oracle_assumptions.md X22) ------------------------
+def test_read_gteq_searches_the_first_key_not_below_ridfld():
+    """IBM, EXEC CICS READ: GTEQ -- "if the search for a record that has the same key (complete or generic) as that
+    specified in the RIDFLD option is unsuccessful, the first record that has a greater key is retrieved"; NOTFND
+    RESP2 80 when none is (CicsTask.readSearch). RIDFLD is not updated (IBM says so for READNEXT / READPREV only)."""
+    out = _LenCics().command("READ FILE('KSDS') INTO(REC) RIDFLD(KEY) KEYLENGTH(10) GTEQ RESP(R)", "")
+    assert out == [
+        "byte[] rec2 = DetCics.bytes(f_KEY);",
+        "CicsTask.FileRead<byte[]> read1 = task.readSearch('KSDS'.strip(), false, () -> store(F).search(rec2, 10, true));",
+        "if (read1.record() != null) {",
+        "    DetCics.put(f_REC, read1.record());",
+        "}",
+        "OUTCOME(read1.resp(), read1.resp2());",
+    ]
+
+
+def test_read_generic_gteq_update_holds_the_record_found():
+    """GENERIC: "the search key is a generic key whose length is specified in the KEYLENGTH option" (6 of the 10-byte
+    key); READ UPDATE holds the record the search found, not RIDFLD's key."""
+    out = _LenCics().command(
+        "READ FILE('KSDS') INTO(REC) RIDFLD(KEY) KEYLENGTH(6) GENERIC GTEQ LENGTH(VARLEN) UPDATE RESP(R)", ""
+    )
+    assert (
+        "CicsTask.FileRead<byte[]> read1 = task.readSearch('KSDS'.strip(), true, () -> store(F).search(rec2, 6, true));"
+        in out
+    )
+    assert "    heldKey.put('KSDS'.strip(), store(F).keyOf(read1.record()));" in out
+    assert "    resp3 = DetCics.readInto(f_REC, read1.record(), INT(VARLEN), true);" in out
+    plain = _LenCics().command("READ FILE('KSDS') INTO(REC) RIDFLD(KEY) KEYLENGTH(6) GENERIC RESP(R)", "")
+    assert "() -> store(F).search(rec2, 6, false));" in plain[1]  # GENERIC alone: EQUAL on the generic key
+
+
+@pytest.mark.parametrize(
+    ("text", "why"),
+    [
+        ("READ FILE('KSDS') INTO(REC) RIDFLD(KEY) GTEQ EQUAL", "EQUAL and GTEQ together"),
+        ("READ FILE('KSDS') INTO(REC) RIDFLD(KEY) GENERIC", "GENERIC without KEYLENGTH"),
+        ("READ FILE('KSDS') INTO(REC) RIDFLD(KEY) KEYLENGTH(10) GENERIC", "RESP2 25"),  # not shorter than the key
+        ("READ FILE('KSDS') INTO(REC) RIDFLD(KEY) KEYLENGTH(0) GENERIC GTEQ", "not above zero"),
+        ("READ FILE('KSDS') INTO(REC) RIDFLD(KEY) KEYLENGTH(VARLEN) GENERIC", "not a known length"),
+        ("READ FILE('KSDS') INTO(REC) RIDFLD(KEY) KEYLENGTH(6) GTEQ", "a partial key"),  # not GENERIC: INVREQ 26
+        ("READ FILE('KSDS') INTO(REC) RIDFLD(SHORTKEY) GTEQ", "shorter than the 10 bytes searched"),
+    ],
+)
+def test_read_gteq_generic_refusals_by_name(text, why):
+    with pytest.raises(C.CicsError, match=why):
+        _LenCics().command(text, "")
 
 
 def test_read_length_literal_is_the_limit_with_nothing_to_set_back():
@@ -1066,6 +1114,16 @@ def test_send_text_terminal_is_the_default_disposition():
         name = opt.split("(")[0]
         with pytest.raises(C.CicsError, match=f"SEND TEXT {name}: option not modelled .*{why}"):
             _RespCics().command(f"SEND TEXT FROM(REC) TERMINAL ERASE {opt}", "")
+
+
+def test_send_text_length_past_from_sends_what_follows_it_in_its_record():
+    """#4270 (GenApp LGICVS01: SEND TEXT FROM(WRITE-MSG-H) LENGTH(24), WRITE-MSG-H X(14) followed by WRITE-MSG-HIGH in
+    WRITE-MSG): CICS sends LENGTH bytes from FROM's first byte, so the port takes them from FROM's record
+    (DetCics.withinRecord; past the record, refused: X6). Before, the text was cut at FROM's end."""
+    past = _LenCics().command("SEND TEXT FROM(REC) LENGTH(60) ERASE", "")
+    assert past[0] == 'String text1 = new String(DetCics.withinRecord(f_REC, INT(60), "SEND TEXT"), CS);'
+    within = _LenCics().command("SEND TEXT FROM(REC) LENGTH(56) ERASE", "")
+    assert within[0] == "String text1 = Cobol.text(f_REC, CS);"  # as before: LENGTH within FROM
 
 
 def test_assign_startcode_userid_and_the_terminal_facts():

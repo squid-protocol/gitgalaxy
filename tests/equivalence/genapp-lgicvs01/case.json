@@ -1,0 +1,94 @@
+{
+ "kind": "cics",
+ "corpus": "cics-genapp",
+ "program": "LGICVS01",
+ "program_source": "base/src/lgicvs01.cbl",
+ "copy_dirs": [
+  "base/src"
+ ],
+ "transid": "LGCF",
+ "clock": "2026/10/01 10:30:15.00",
+ "datasets": {
+  "<USRHLQ>.GENAPP.KSDSCUST": {
+   "input": "@case/ksdscust.txt",
+   "entity": "CaCustomerNum",
+   "copybook": "base/src/lgcmarea.cpy",
+   "record": "CA-CUSTOMER-NUM",
+   "vsam": {
+    "key_offset": 0,
+    "key_length": 10,
+    "reclen": 225,
+    "why": "base/cntl/adef121.jcl DEFINE1: DATA(... KEYS(10 0) RECORDSIZE(225 225)); the engine's facts do not read KEYS / RECORDSIZE inside the DATA component, so the case states them"
+   }
+  }
+ },
+ "linked": false,
+ "screens": {},
+ "notes": "GenApp's VSAM 'customer key range' inquiry (LGICVS01, transaction LGCF in the CSD, a terminal transaction: no program LINKs it). It reads TS queue GENACNTL (ITEM(1), then NEXT until ITEMERR) for the 'LOW CUSTOMER=' / 'HIGH CUSTOMER=' items GenApp's LGSETUP writes, takes a key = INTEGER(RANDOM(EIBTASKN) * (HIGH - LOW) + LOW), and EXEC CICS READ FILE('KSDSCUST') INTO(CA-AREA) LENGTH(F82 = 225) RIDFLD(WRITE-MSG-HIGH) KEYLENGTH(F10 = 10) GTEQ (#4270, oracle_assumptions.md X22): the key itself when on file, else the first greater key; NOTFND past the last. On NORMAL the record's number replaces the key; SEND TEXT FROM(WRITE-MSG-H) LENGTH(24) then shows 'HIGH CUSTOMER=' and the 10 bytes after it in WRITE-MSG (a LENGTH past FROM, inside its record). Facts stated on both sides: STARTCODE 'TD' (a terminal task, X19), the terminal's input 'LGCF' (an unformatted RECEIVE), the queue GENACNTL as LGSETUP leaves it, EIBTASKN (X21), the region (ASSIGN SYSID, unused after). Not exercised: an empty GENACNTL -- the program then WRITEQs 'LOW CUSTOMER=' FROM(WRITE-MSG-L) X(13) LENGTH(23), past its FROM item (X6, refused); and the COMMAREA path (a START with data, or LINKed), which no GenApp program takes. Data: ksdscust.txt holds the ten GenApp sample customers of genapp-lgucvs01 plus two SYNTHETIC ones (0001000005, 0001000009: details copied from customer 1) so a key between them and past the last exists. Derived from the CICS General Insurance Application (GenApp, github.com/cicsdev/cics-genapp; (C) Copyright IBM Corp. 2011, 2020), licensed under the Eclipse Public License 2.0: LICENSE here is the corpus's own, NOTICE names the source and what was derived.",
+ "startcode": "TD",
+ "terminal": "LGCF",
+ "commarea": {
+  "segments": [
+   {
+    "copybook": "base/src/lgicvs01.cbl",
+    "record": "DFHCOMMAREA"
+   }
+  ]
+ },
+ "region": {
+  "applid": "GENAPP",
+  "sysid": "CICA",
+  "why": "a deployment fact: LGICVS01 ASSIGNs SYSID (unused afterwards); GenApp names no region in the corpus"
+ },
+ "scenarios": [
+  {
+   "name": "gteq-key-on-file",
+   "ts": {
+    "GENACNTL": [
+     "**** GENAPP CNTL",
+     "LOW CUSTOMER=0000000003",
+     "HIGH CUSTOMER=0000000003"
+    ]
+   },
+   "why": "LOW = HIGH = 3: the key is 0000000003, on file; READ GTEQ reads it (NORMAL) and SEND TEXT shows HIGH CUSTOMER=0000000003",
+   "commarea": null
+  },
+  {
+   "name": "gteq-next-key",
+   "ts": {
+    "GENACNTL": [
+     "**** GENAPP CNTL",
+     "LOW CUSTOMER=0000000011",
+     "HIGH CUSTOMER=0000000011"
+    ]
+   },
+   "why": "the key 0000000011 is not on file: GTEQ reads the first greater key, 0001000005 (NORMAL), and its number is sent",
+   "commarea": null
+  },
+  {
+   "name": "gteq-past-the-end",
+   "ts": {
+    "GENACNTL": [
+     "**** GENAPP CNTL",
+     "LOW CUSTOMER=0002000000",
+     "HIGH CUSTOMER=0002000000"
+    ]
+   },
+   "why": "no key >= 0002000000: NOTFND (RESP2 80); WRITE-MSG-HIGH keeps the key asked for",
+   "commarea": null
+  },
+  {
+   "name": "gteq-random-in-range",
+   "ts": {
+    "GENACNTL": [
+     "**** GENAPP CNTL",
+     "LOW CUSTOMER=0000000001",
+     "HIGH CUSTOMER=0000000010"
+    ]
+   },
+   "taskn": 4270,
+   "why": "LOW 1, HIGH 10: the key is FUNCTION RANDOM(EIBTASKN) scaled into the range (C12, X21), read by GTEQ",
+   "commarea": null
+  }
+ ]
+}

@@ -122,6 +122,26 @@ public final class DetCics {
             return Optional.empty();
         }
 
+        /** #4270 READ GTEQ / GENERIC (IBM, EXEC CICS READ; oracle_assumptions.md X22): in key order (the browse's),
+         *  the first record whose key's first `length` bytes equal `key`'s -- a generic key when `length` is shorter
+         *  than the key -- or, with `gteq`, are greater ("the first record that has a greater key is retrieved"). */
+        public Optional<byte[]> search(byte[] key, int length, boolean gteq) {
+            byte[] k = Arrays.copyOf(key, length);
+            Comparator<byte[]> o = order();
+            for (Object[] r : rows()) {
+                int c = o.compare(Arrays.copyOf(key((byte[]) r[1]), length), k);
+                if (c == 0 || gteq && c > 0) {
+                    return Optional.of((byte[]) r[1]);
+                }
+            }
+            return Optional.empty();
+        }
+
+        /** A record's key bytes (what a READ UPDATE found by a search holds). */
+        public byte[] keyOf(byte[] rec) {
+            return key(rec);
+        }
+
         public boolean exists(byte[] key) {
             return find(key).isPresent();
         }
@@ -186,6 +206,16 @@ public final class DetCics {
             throw new PastFrom(what + " LENGTH " + n + " > FROM's " + f.length() + " bytes: not modelled");
         }
         return n;
+    }
+
+    /** #4270: `n` bytes from a field's first byte within its record -- a SEND TEXT FROM(f) LENGTH(n) past FROM sends
+     *  the items that follow it in its record (GenApp LGICVS01). Past the record's end the bytes are those of the
+     *  compiler's WORKING-STORAGE layout, unlike IBM's under GnuCOBOL: refused as X6 is (PastFrom). */
+    public static byte[] withinRecord(Field f, int n, String what) {
+        if (n < 0 || f.offset() + n > f.storage().bytes.length) {
+            throw new PastFrom(what + " LENGTH " + n + " runs past FROM's record: not modelled");
+        }
+        return bytes(f, n);
     }
 
     /** Bytes into a field's area, at most its length (a record READ INTO it; the rest is left as it was). */

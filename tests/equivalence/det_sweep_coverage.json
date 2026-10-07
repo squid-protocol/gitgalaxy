@@ -241,7 +241,7 @@
    }
   },
   "carddemo-cardview": {
-   "scenarios": 23,
+   "scenarios": 28,
    "paragraphs": {
     "covered": 30,
     "live": 30
@@ -251,7 +251,7 @@
     "total": 75
    },
    "inputs": {
-    "case": "b37f0899733d7de92a4017cf0106742dd43c347fd3c0c632fa098cf5b96e5ebc",
+    "case": "332c3e8c20cfa71f3359c042712d5de48017d5a33170768ba45471930bc5cbed",
     "corpus": "d0c4803872ec126eb56a170212f76207beff5ab8c2b6507dd6df4a084cdeb919",
     "harness": "fee14be7661ceeeb9fec70d509307f329243eab0342709c1f0e7464599b7e378",
     "oracle": "34e4374b3f771d8a11ed9471e6ec942784f1f5435a723bdd080f8567eda4171c"

@@ -427,6 +427,113 @@
     "CDEMO-LAST-MAP": "CCRDLIA"
    },
    "why": "#4602: COCRDLIC XCTLs here with CDEMO-LAST-MAPSET 'COCRDLI' (its LIT-THISMAPSET): 1300-SETUP-SCREEN-ATTRS protects the account and card fields (line 505 true) and gives them the default colour (line 527 true)"
+  },
+  {
+   "name": "pf15-acts-as-pf3",
+   "aid": "DFHPF15",
+   "commarea": {
+    "CDEMO-FROM-TRANID": "CCLI",
+    "CDEMO-FROM-PROGRAM": "COCRDLIC",
+    "CDEMO-USER-ID": "USER0001",
+    "CDEMO-USER-TYPE": "U",
+    "CDEMO-PGM-CONTEXT": 1,
+    "CDEMO-CUST-FNAME": "ALICE",
+    "CDEMO-CUST-LNAME": "SMITH"
+   },
+   "receive": {
+    "CCRDSLA": {
+     "ACCTSIDI": "00000000050",
+     "CARDSIDI": "0500024453765740"
+    }
+   },
+   "why": "#4628 (det-port mutants cddebb2e83, dc242ed93d, ac97d8d72d, a5368ee095, 4fef67cae7, f6f975a636): CSSTRPFY maps PF13-PF24 to PF1-PF12, so PF15 is PF3 -- back to the caller by XCTL, whose COMMAREA carries the customer's names"
+  },
+  {
+   "name": "full-commarea-carried",
+   "aid": "DFHENTER",
+   "commarea": {
+    "CDEMO-FROM-TRANID": "CM00",
+    "CDEMO-FROM-PROGRAM": "COMEN01C",
+    "CDEMO-USER-ID": "USER0001",
+    "CDEMO-USER-TYPE": "U",
+    "CDEMO-PGM-CONTEXT": 1,
+    "CDEMO-TO-TRANID": "CCLI",
+    "CDEMO-TO-PROGRAM": "COCRDLIC",
+    "CDEMO-CUST-ID": 123456789,
+    "CDEMO-CUST-FNAME": "ALICE",
+    "CDEMO-CUST-MNAME": "B",
+    "CDEMO-CUST-LNAME": "SMITH",
+    "CDEMO-ACCT-ID": 50,
+    "CDEMO-ACCT-STATUS": "Y",
+    "CDEMO-CARD-NUM": "0500024453765740",
+    "CDEMO-LAST-MAP": "CCRDSLA",
+    "CDEMO-LAST-MAPSET": "COCRDSL",
+    "CA-FROM-PROGRAM": "COCRDLIC",
+    "CA-FROM-TRANID": "CCLI"
+   },
+   "receive": {
+    "CCRDSLA": {
+     "ACCTSIDI": "00000000050",
+     "CARDSIDI": ""
+    }
+   },
+   "why": "#4628 (det-port mutants a7e4ac08c1, ae6e1afbd9, 31f0519b31, 7183fb9c1e, 3ebb615c29, 063333a20e): every COMMAREA field set, this program's part too; the card filter is blank, so CDEMO-CARD-NUM is zeroed and the RETURN carries the rest back"
+  },
+  {
+   "name": "card-filter-zeros",
+   "aid": "DFHENTER",
+   "commarea": {
+    "CDEMO-FROM-TRANID": "CM00",
+    "CDEMO-FROM-PROGRAM": "COMEN01C",
+    "CDEMO-USER-ID": "USER0001",
+    "CDEMO-USER-TYPE": "U",
+    "CDEMO-PGM-CONTEXT": 1
+   },
+   "receive": {
+    "CCRDSLA": {
+     "ACCTSIDI": "00000000050",
+     "CARDSIDI": "0000000000000000"
+    }
+   },
+   "why": "#4628 (det-port mutant c875704254): a card number of all zeros counts as blank (CC-CARD-NUM-N = ZEROS) -- 'Card number not provided'"
+  },
+  {
+   "name": "card-filter-star",
+   "aid": "DFHENTER",
+   "commarea": {
+    "CDEMO-FROM-TRANID": "CM00",
+    "CDEMO-FROM-PROGRAM": "COMEN01C",
+    "CDEMO-USER-ID": "USER0001",
+    "CDEMO-USER-TYPE": "U",
+    "CDEMO-PGM-CONTEXT": 1
+   },
+   "receive": {
+    "CCRDSLA": {
+     "ACCTSIDI": "00000000050",
+     "CARDSIDI": "*"
+    }
+   },
+   "why": "#4628 (det-port mutant 966f1e1162): '*' in the card filter is moved as LOW-VALUES, i.e. blank"
+  },
+  {
+   "name": "from-list-mapset-mismatch",
+   "aid": "DFHENTER",
+   "commarea": {
+    "CDEMO-FROM-TRANID": "CCLI",
+    "CDEMO-FROM-PROGRAM": "COCRDLIC",
+    "CDEMO-USER-ID": "USER0001",
+    "CDEMO-USER-TYPE": "U",
+    "CDEMO-PGM-CONTEXT": 1,
+    "CDEMO-LAST-MAPSET": "COMEN01",
+    "CDEMO-LAST-MAP": "COMEN1A"
+   },
+   "receive": {
+    "CCRDSLA": {
+     "ACCTSIDI": "00000000050",
+     "CARDSIDI": "0500024453765740"
+    }
+   },
+   "why": "#4628 (det-port mutant 8c30340b22): called from the card list but with another program's last mapset: the filter fields keep their default colour (both conditions, not either, give DFHDFCOL)"
   }
  ],
  "notes": "CardDemo's card detail screen (transaction CCDL, program COCRDSLC): from the menu it sends the empty screen; from the card list it reads the selected card and shows it; re-entered it edits the account and card filters (blank, '*', zero, not numeric), reads the card by number and shows it; PF3 returns to the caller or the menu; any other key acts as ENTER. 9150-GETCARD-BYACCT (the account path) is never performed. Every file is the corpus's own data. Derived from CardDemo (Apache-2.0; Copyright Amazon.com, Inc. or its affiliates): LICENSE and NOTICE here are the source's own."

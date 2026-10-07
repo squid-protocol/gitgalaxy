@@ -26,7 +26,7 @@
     "tests/equivalence/carddemo-cardview/**"
    ],
    "files": 1,
-   "sha256": "b37f0899733d7de92a4017cf0106742dd43c347fd3c0c632fa098cf5b96e5ebc"
+   "sha256": "332c3e8c20cfa71f3359c042712d5de48017d5a33170768ba45471930bc5cbed"
   },
   "harness": {
    "paths": [
@@ -73,12 +73,12 @@
   "differences": {
    "sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
   },
-  "digest": "a115744608fdaf61a1512ae2e19b587c27e1a8965e5b8025d936433c9614ba8d"
+  "digest": "56ca994b14781044d169afbee8fc4f49aa9ed4f705c6d60fbe620b9599a33b58"
  },
  "proof": {
-  "at": "2026-10-07T14:55:39Z",
+  "at": "2026-10-07T21:30:22Z",
   "verdict": "proven",
-  "runs": 23,
+  "runs": 28,
   "fault_runs": 3,
   "environments": null,
   "outputs": {
@@ -173,6 +173,26 @@
    "from-card-list-as-the-list-sends-it": {
     "equal": 2,
     "records": 2
+   },
+   "pf15-acts-as-pf3": {
+    "equal": 1,
+    "records": 1
+   },
+   "full-commarea-carried": {
+    "equal": 3,
+    "records": 3
+   },
+   "card-filter-zeros": {
+    "equal": 3,
+    "records": 3
+   },
+   "card-filter-star": {
+    "equal": 3,
+    "records": 3
+   },
+   "from-list-mapset-mismatch": {
+    "equal": 3,
+    "records": 3
    }
   },
   "return_code_equal": null,
@@ -181,16 +201,16 @@
   "java_failed": false,
   "facade": {
    "verdict": "proven",
-   "runs": 23,
-   "passed": 23,
+   "runs": 28,
+   "passed": 28,
    "entry_points": [
     "handleTransaction"
    ],
    "failed": [],
    "error": null
   },
-  "harness_commit": "4a31c3d8a01d630aa00421b590600aa51bed5c8d+uncommitted",
-  "inputs_digest": "a115744608fdaf61a1512ae2e19b587c27e1a8965e5b8025d936433c9614ba8d"
+  "harness_commit": "2729783b15b5f2c577fdca711271313347a3c8b5+uncommitted",
+  "inputs_digest": "56ca994b14781044d169afbee8fc4f49aa9ed4f705c6d60fbe620b9599a33b58"
  },
  "coverage": {
   "paragraphs": {
@@ -244,7 +264,7 @@
    "total": 1
   },
   "source": "the proof's own traced COBOL runs (cobol_coverage.py)",
-  "inputs_digest": "a115744608fdaf61a1512ae2e19b587c27e1a8965e5b8025d936433c9614ba8d"
+  "inputs_digest": "56ca994b14781044d169afbee8fc4f49aa9ed4f705c6d60fbe620b9599a33b58"
  },
  "reach": {
   "entry_points": [

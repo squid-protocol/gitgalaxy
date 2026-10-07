@@ -445,6 +445,119 @@
      "why": "19 on the REWRITE -> WHEN OTHER: 'Unable to Update User...'; the file is unchanged"
     }
    ]
+  },
+  {
+   "name": "pf5-updates-first-name-only",
+   "aid": "DFHPF5",
+   "commarea": {
+    "CDEMO-FROM-TRANID": "CA00",
+    "CDEMO-FROM-PROGRAM": "COADM01C",
+    "CDEMO-USER-ID": "ADMIN001",
+    "CDEMO-USER-TYPE": "A",
+    "CDEMO-PGM-CONTEXT": 1
+   },
+   "receive": {
+    "COUSR2A": {
+     "USRIDINI": "USER0003",
+     "FNAMEI": "LAURA",
+     "LNAMEI": "ALME",
+     "PASSWDI": "PASSWORD",
+     "USRTYPEI": "U"
+    }
+   },
+   "why": "#4628 (det-port mutant 669743c695): only the first name differs -- the first IF alone sets USR-MODIFIED-YES, and the REWRITE runs"
+  },
+  {
+   "name": "pf5-nothing-changed-fset-sent-back",
+   "aid": "DFHPF5",
+   "commarea": {
+    "CDEMO-FROM-TRANID": "CA00",
+    "CDEMO-FROM-PROGRAM": "COADM01C",
+    "CDEMO-USER-ID": "ADMIN001",
+    "CDEMO-USER-TYPE": "A",
+    "CDEMO-PGM-CONTEXT": 1
+   },
+   "receive": {
+    "COUSR2A": {
+     "USRIDINI": "USER0003",
+     "FNAMEI": "LAURITZ",
+     "LNAMEI": "ALME",
+     "PASSWDI": "PASSWORD",
+     "USRTYPEI": "U",
+     "ERRMSGI": "Press PF5 key to save your updates ...",
+     "PGMNAMEI": "COUSR02C"
+    }
+   },
+   "why": "#4628 (det-port mutant 0573d6461a): the terminal sends the FSET fields back (ERRMSG, PGMNAME: ATTRB=(ASKIP,...,FSET) in COUSR02.bms) with nothing changed -- 'Please modify to update ...', no REWRITE"
+  },
+  {
+   "name": "full-commarea-carried",
+   "aid": "DFHPF7",
+   "commarea": {
+    "CDEMO-FROM-TRANID": "CA00",
+    "CDEMO-FROM-PROGRAM": "COADM01C",
+    "CDEMO-USER-ID": "ADMIN001",
+    "CDEMO-USER-TYPE": "A",
+    "CDEMO-PGM-CONTEXT": 1,
+    "CDEMO-TO-TRANID": "CA00",
+    "CDEMO-TO-PROGRAM": "COADM01C",
+    "CDEMO-CUST-ID": 123456789,
+    "CDEMO-CUST-FNAME": "ALICE",
+    "CDEMO-CUST-MNAME": "B",
+    "CDEMO-CUST-LNAME": "SMITH",
+    "CDEMO-ACCT-ID": 12345678901,
+    "CDEMO-ACCT-STATUS": "Y",
+    "CDEMO-CARD-NUM": 4111111111111111,
+    "CDEMO-LAST-MAP": "COUSR2A",
+    "CDEMO-LAST-MAPSET": "COUSR02",
+    "CDEMO-CU02-USRID-FIRST": "ADMIN001",
+    "CDEMO-CU02-USRID-LAST": "USER0005",
+    "CDEMO-CU02-PAGE-NUM": 2,
+    "CDEMO-CU02-NEXT-PAGE-FLG": "Y",
+    "CDEMO-CU02-USR-SEL-FLG": "U",
+    "CDEMO-CU02-USR-SELECTED": "USER0003"
+   },
+   "receive": {
+    "COUSR2A": {
+     "USRIDINI": "USER0003",
+     "FNAMEI": "LAURITZ",
+     "LNAMEI": "ALME",
+     "PASSWDI": "PASSWORD",
+     "USRTYPEI": "U"
+    }
+   },
+   "why": "#4628 (det-port mutants 31b051ae9a, 48a9805f4e, c4f7a618f6, 1f0d667d5f, 0b15b05bb5, da178facbb, b2496697bc): every COMMAREA field set, COUSR02C's CU02 part too; an invalid key re-sends the screen and the RETURN carries the COMMAREA back"
+  },
+  {
+   "name": "pf12-xctl-fails",
+   "aid": "DFHPF12",
+   "commarea": {
+    "CDEMO-FROM-TRANID": "CA00",
+    "CDEMO-FROM-PROGRAM": "COADM01C",
+    "CDEMO-USER-ID": "ADMIN001",
+    "CDEMO-USER-TYPE": "A",
+    "CDEMO-PGM-CONTEXT": 1
+   },
+   "receive": {
+    "COUSR2A": {
+     "USRIDINI": "USER0003",
+     "FNAMEI": "LAURITZ",
+     "LNAMEI": "ALME",
+     "PASSWDI": "PASSWORD",
+     "USRTYPEI": "U"
+    }
+   },
+   "faults": [
+    {
+     "cmd": "XCTL",
+     "program": "COADM01C",
+     "nth": 1,
+     "resp": "PGMIDERR",
+     "resp2": 3,
+     "why": "PGMIDERR RESP2 3, the program could not be loaded (IBM CICS TS, XCTL conditions): no HANDLE CONDITION and no RESP, so CICS abends the task"
+    }
+   ],
+   "why": "#4628 (det-port mutants c67f7a29d1, 3317e5a5cb, 16bcfd9a97, 825a226305, 94fc636cdc, e738a5ade2): PF12's XCTL to the admin menu fails -- the task abends"
   }
  ],
  "notes": "CardDemo's update-user screen (transaction CU02, program COUSR02C): entered from the user list with a selected user it reads the user FOR UPDATE and shows it; ENTER looks a user up, PF5 validates the five fields and REWRITEs the record when one changed ('Please modify to update ...' otherwise), PF3 saves and returns, PF4 clears, PF12 returns to the admin menu. Each scenario's USRSEC file is compared after the task. usrsec.txt is CardDemo's own DUSRSECJ in-stream data. Derived from CardDemo (Apache-2.0; Copyright Amazon.com, Inc. or its affiliates): LICENSE and NOTICE here are the source's own."

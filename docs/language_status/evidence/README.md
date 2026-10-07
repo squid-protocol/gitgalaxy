@@ -28,7 +28,7 @@ One record per ported program (#4048): docs/language_status/evidence_records.md 
 | [COUSR01C](carddemo-useradd.md) | carddemo-useradd | cics | proven, unapproved |  | 15 | 9/9 / 20/21 | - | 0 | - |
 | [COUSR03C](carddemo-userdel.md) | carddemo-userdel | cics | proven, unapproved |  | 20 | 11/11 / 30/32 | - | 0 | - |
 | [COUSR00C](carddemo-userlist.md) | carddemo-userlist | cics | proven, unapproved |  | 32 | 16/16 / 95/100 | - | 0 | - |
-| [COUSR02C](carddemo-userupd.md) | carddemo-userupd | cics | proven, unapproved |  | 23 | 11/11 / 44/46 | - | 0 | - |
+| [COUSR02C](carddemo-userupd.md) | carddemo-userupd | cics | proven, unapproved |  | 27 | 11/11 / 44/46 | - | 0 | - |
 | [INQACC](cbsa-inqacc.md) | cbsa-inqacc | cics | proven, unapproved |  | 14 | 22/25 / 13/25 | - | 0 | - |
 | [UPDACC](cbsa-updacc.md) | cbsa-updacc | cics | proven, unapproved |  | 10 | 7/7 / 5/6 | - | 0 | - |
 | [LGAPVS01](genapp-lgapvs01.md) | genapp-lgapvs01 | cics | proven, unapproved |  | 8 | 2/3 / 5/9 | - | 0 | - |

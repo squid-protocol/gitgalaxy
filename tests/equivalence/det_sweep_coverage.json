@@ -445,7 +445,7 @@
    }
   },
   "carddemo-userupd": {
-   "scenarios": 23,
+   "scenarios": 27,
    "paragraphs": {
     "covered": 11,
     "live": 11
@@ -455,7 +455,7 @@
     "total": 46
    },
    "inputs": {
-    "case": "e238391fd58103ac8de1cdc28aa80e428812ecb22d4e95cfd76857bee018877d",
+    "case": "9a8b609f02973a48e5554a16bf3636784008bb7d02337a20d7b36412294077e3",
     "corpus": "d0c4803872ec126eb56a170212f76207beff5ab8c2b6507dd6df4a084cdeb919",
     "harness": "fee14be7661ceeeb9fec70d509307f329243eab0342709c1f0e7464599b7e378",
     "oracle": "34e4374b3f771d8a11ed9471e6ec942784f1f5435a723bdd080f8567eda4171c"

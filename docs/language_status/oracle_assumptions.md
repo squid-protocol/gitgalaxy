@@ -761,7 +761,7 @@ The length READQ TS returns on ITEMERR or QIDERR is not documented, so it is not
   WAIT LAST, and TERMINAL is never one). WAIT, FREEKB and ERASE are recorded as before.
 - **Avoided.** SEND TEXT in a task with no principal facility (the SEND TEXT page lists no condition for it): the
   crucible case's started task tests for a terminal with ASSIGN FACILITY first, as SEQPNT / ASYNCPNT do.
-- **Refused by name** (`CicsError` in the det port with `_SEND_TEXT_REFUSED_WHY`'s reason; `Unsupported` in the stub):
+- **Refused by name** (`CicsError` in the det port and `Unsupported` in the stub, both with the reason of the CICS command spec's SEND TEXT entry, `gitgalaxy/standards/cics`):
   ACCUM, PAGING, SET, REQID, HEADER, TRAILER, JUSTIFY, JUSFIRST, JUSLAST (a BMS logical message, completed by SEND
   PAGE, or the pages returned to the program, is not modelled); NLEOM, FORMFEED, HONEOM, L40, L64, L80 (printer
   formatting; the region's terminal is a 3270 display); LDC, OUTPARTN, ACTPARTN (partitions / logical device codes);

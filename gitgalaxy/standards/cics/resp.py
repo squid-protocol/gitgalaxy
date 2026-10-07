@@ -9,9 +9,9 @@
 # ==============================================================================
 """DFHRESP and the default abend code of an unhandled condition (#4270, cics_command_spec.md section 1.2).
 
-PR 1: the values of today's copies, which tests/core_engine/test_cics_spec_equality.py proves equal: det/cics.py's
-DFHRESP (104 names: this table) and the harness's (tests/tools/equivalence_cics.py, 101: it lacks VOLIDERR, RESIDERR
-and NOSPOOL), the Java switches (DetCics.condition / resp, CicsTask.respName / abcodeFor) and the C stub's enums and
+PR 1: the values of today's copies, which tests/cobol_mainframe/test_cics_spec_equality.py proves equal:
+det/cics.py's DFHRESP (104 names: this table; PR 2 imports it, and PR 3 the harness, tests/tools/equivalence_cics.py,
+whose own copy lacked VOLIDERR, RESIDERR and NOSPOOL), the Java switches (DetCics.condition / resp, CicsTask.respName / abcodeFor) and the C stub's enums and
 condition_abcode. The crucible's own ABEND_FOR (tests/tools/crucible_events.py) is the oracle's table, never a copy
 of this one (section 6)."""
 

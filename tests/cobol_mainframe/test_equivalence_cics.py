@@ -778,3 +778,61 @@ def test_an_esds_is_compared_in_arrival_order():
         (tmp / "s.LOG.out").write_bytes(b"BBAA")
         diff = ec.compare_files({"datasets": {"LOG": {}}}, Path("."), files, {"LOG": b"AABB"}, tmp, "s")
         assert diff["LOG"]["equal"] == 0 and diff["LOG"]["records"] == 2
+
+
+# ---- #4270 spec PR 3: the stub refuses what the det translator refuses, with the same message -----------------------
+_SPEC_BASE = {  # a minimal body of each command, to which one option is added
+    "PUT CONTAINER": "PUT CONTAINER('C') FROM(WS-A)", "GET CONTAINER": "GET CONTAINER('C') INTO(WS-A)",
+    "DELETE CONTAINER": "DELETE CONTAINER('C')", "START": "START TRANSID('T1')", "RETRIEVE": "RETRIEVE INTO(WS-A)",
+    "CANCEL": "CANCEL REQID('R1')", "RUN": "RUN TRANSID('T1') CHILD(WS-C)", "ASSIGN": "ASSIGN USERID(WS-U)",
+    "SEND TEXT": "SEND TEXT FROM(WS-A)", "READ": "READ FILE('F') INTO(WS-A) RIDFLD(WS-K)",
+    "WRITE": "WRITE FILE('F') FROM(WS-A) RIDFLD(WS-K)", "REWRITE": "REWRITE FILE('F') FROM(WS-A)",
+    "STARTBR": "STARTBR FILE('F') RIDFLD(WS-K)", "READNEXT": "READNEXT FILE('F') INTO(WS-A) RIDFLD(WS-K)",
+    "ENDBR": "ENDBR FILE('F')", "DELETE": "DELETE FILE('F') RIDFLD(WS-K)", "LINK": "LINK PROGRAM('P')",
+    "XCTL": "XCTL PROGRAM('P')", "RETURN": "RETURN", "READQ TS": "READQ TS QUEUE('Q') INTO(WS-A)",
+    "WRITEQ TS": "WRITEQ TS QUEUE('Q') FROM(WS-A)", "WRITEQ TD": "WRITEQ TD QUEUE('Q') FROM(WS-A)",
+    "RECEIVE": "RECEIVE INTO(WS-A)", "RECEIVE MAP": "RECEIVE MAP('M') INTO(WS-A)",
+    "SEND MAP": "SEND MAP('M') FROM(WS-A)", "SEND CONTROL": "SEND CONTROL ERASE", "ENQ": "ENQ RESOURCE(WS-R)",
+    "GET COUNTER": "GET COUNTER('C') VALUE(WS-V)", "ABEND": "ABEND ABCODE('XXXX')",
+}  # fmt: skip
+
+
+@pytest.mark.parametrize("key", sorted(_SPEC_BASE))
+def test_the_stub_refuses_each_option_the_spec_refuses_with_the_translators_message(key):
+    """#4270 spec PR 3 (cics_command_spec.md section 9, decision 3): every option the command's spec entry refuses,
+    and one in neither of its tables, is Unsupported with SPEC[key].refusal_message -- the det translator's CicsError
+    text -- and never ignored (START, RETRIEVE, CANCEL and SEND TEXT used deny-lists, and ignored the rest)."""
+    from gitgalaxy.standards.cics.commands import COMMANDS
+
+    for o in [*COMMANDS[key].refused, "GGNOSUCH"]:
+        with pytest.raises(ec.Unsupported) as e:
+            ec.translate_command(f"{_SPEC_BASE[key]} {o}(WS-X)")
+        assert str(e.value) == COMMANDS[key].refusal_message([o]), o
+
+
+def test_the_stub_checks_the_translators_option_rules():
+    """Spec PR 3: LENGTH with FLENGTH, and START LENGTH without FROM, are refused as the translator refuses them (the
+    stub took LENGTH, and moved a length with no area)."""
+    for body, msg in [("START TRANSID('T1') FROM(A) LENGTH(5) FLENGTH(5)", "LENGTH and FLENGTH together"),
+                      ("RETRIEVE INTO(A) LENGTH(L) FLENGTH(L)", "LENGTH and FLENGTH together"),
+                      ("RECEIVE INTO(A) MAXLENGTH(5) MAXFLENGTH(5)", "MAXLENGTH and MAXFLENGTH together"),
+                      ("START TRANSID('T1') LENGTH(5)", "START LENGTH without FROM"),
+                      ("START TRANSID('T1') INTERVAL(5) TIME(5)", "START INTERVAL and TIME: one expiry option"),
+                      ("PUT CONTAINER('C') FROM(A) BIT CHAR", "PUT CONTAINER BIT and CHAR: one data type"),
+                      ("LINK PROGRAM('P') CHANNEL('C') LENGTH(5)",
+                       "LINK CHANNEL with COMMAREA / LENGTH: one or the other")]:  # fmt: skip
+        with pytest.raises(ec.Unsupported, match=f"^{msg}$"):
+            ec.translate_command(body)
+
+
+def test_a_whole_command_refusal_gives_the_spec_reason_and_dfhresp_is_the_spec():
+    from gitgalaxy.standards.cics.resp import DFHRESP
+
+    with pytest.raises(ec.Unsupported) as e:
+        ec.translate_command("GETMAIN SET(P) LENGTH(10)")
+    assert str(e.value).startswith("EXEC CICS GETMAIN not modelled (storage CICS acquires")
+    assert e.value.features == ["GETMAIN"]
+    with pytest.raises(ec.Unsupported, match=r"^line 2: EXEC CICS GETMAIN not modelled \("):  # (named once)
+        ec.translate("       PROCEDURE DIVISION.\n           EXEC CICS GETMAIN SET(P) LENGTH(10) END-EXEC.\n")
+    assert ec.DFHRESP == DFHRESP and ec.DFHRESP["VOLIDERR"] == 71 and ec.DFHRESP["NOSPOOL"] == 80
+    assert all(ec.CICS_RESP[c] == DFHRESP[c] for c in ec.CICS_RESP)

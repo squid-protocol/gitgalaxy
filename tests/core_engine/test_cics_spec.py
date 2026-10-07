@@ -1,6 +1,7 @@
 """#4270 spec PRs 1-2: gitgalaxy/standards/cics on its own -- the model's checks, the rendered refusal messages, the
 entries (45 full, the name-only API commands), the cics_spec CLI, and the package's cost: stdlib only, lazily
-loaded, imported only by its listed consumers (spec PR 2: the det translator), none of them the engine.
+loaded, imported only by its listed consumers (spec PR 2: the det translator; PR 3: the equivalence harness),
+none of them the engine.
 
 (The proofs that the spec equals today's hand copies are transitional and live in
 tests/cobol_mainframe/test_cics_spec_equality.py.)"""
@@ -74,17 +75,22 @@ def test_the_spec_imports_only_the_stdlib():
             ), f"{py.name}: imports {mod}"
 
 
-# Who may import the spec. Each spec PR adds its consumer here: PR 2 the det translator, PR 8a the engine walkers
-# (lazily, inside the CICS walkers only).
-IMPORTERS: set[str] = {"gitgalaxy/tools/cobol_to_java/det/cics.py"}
+# Who may import the spec. Each spec PR adds its consumer here: PR 2 the det translator, PR 3 the equivalence
+# harness's stub translator, PR 8a the engine walkers (lazily, inside the CICS walkers only).
+IMPORTERS: set[str] = {"gitgalaxy/tools/cobol_to_java/det/cics.py", "tests/tools/equivalence_cics.py"}
+_IMPORTS_SPEC = re.compile(
+    r"^\s*(?:from\s+gitgalaxy\.standards(?:\.cics\b|\s+import\s+cics\b)|import\s+gitgalaxy\.standards\.cics\b)", re.M
+)
 
 
 def test_only_the_listed_consumers_import_the_spec():
+    """The package's importers in gitgalaxy/ and the harness tools (tests/tools/): an import statement, not a
+    mention (crucible_case.py names the package to deny it to the crucible's log scripts)."""
     found = set()
-    for py in (ROOT / "gitgalaxy").rglob("*.py"):
+    for py in [*(ROOT / "gitgalaxy").rglob("*.py"), *(ROOT / "tests" / "tools").glob("*.py")]:
         if PACKAGE in py.parents:
             continue
-        if re.search(r"\bstandards\.cics\b|from gitgalaxy\.standards import cics", py.read_text(encoding="utf-8")):
+        if _IMPORTS_SPEC.search(py.read_text(encoding="utf-8")):
             found.add(str(py.relative_to(ROOT)))
     assert found == IMPORTERS
 

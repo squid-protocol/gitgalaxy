@@ -1,0 +1,1063 @@
+#!/usr/bin/env python3
+"""#4601: the purchaser-facing evidence report -- per estate, a row per program, filled only from tool outputs.
+
+    python tests/tools/evidence_report.py ESTATE [ESTATE ...] | --all [--out DIR]
+                                          [--baseline [--sha SHA] [--root DIR] | --survey DIR [--label before]]
+                                          [--sweep SWEEP_DIR ...] [--corpora DIR] [--census-corpora DIR]
+                                          [--bar-paragraphs PCT] [--bar-branches PCT]
+    python tests/tools/evidence_report.py --refresh            # rebuild the committed reports (no corpora needed)
+    python tests/tools/evidence_report.py --check [--live]     # exit 1 when a committed report is not current
+
+A purchaser asks "how sure are you, and of what?". This report answers with LEVELS and the numbers under them, never
+a yes / no: the oracle is GnuCOBOL plus the gitgalaxy CICS stub and models, not IBM z/OS, so every result carries the
+caveats of docs/language_status/oracle_assumptions.md. Each program gets the highest level whose conditions hold
+(cumulative; the bars are parameters, printed in the report):
+
+  L0 inventoried               the program is in the estate's survey
+  L1 translated whole          the det translator leaves no hole and does not refuse it (cics_census.py survey)
+  L2 executed equivalent       a case runs it; the case's det port is equal on every scenario (CI's det-sweep
+                               ratchet, or a local proof_sweep.py --sweep); the case's evidence record is current
+                               (not stale on any input) and its proof equal on every scenario
+  L3 + paragraph coverage      the scenarios execute >= the paragraph bar of the live paragraphs
+  L4 + branch coverage         ... and >= the branch bar of the branch outcomes
+  L5 + oracle backing          every CICS command it uses has a full spec entry and a hand-traced cics-crucible case
+                               both runtimes agree with, and no DIFFERS assumption is reached -- per-program assumption
+                               reach is NOT MEASURED yet, so no program is placed at L5 (it says so)
+
+Sections (per program): translation, executed equivalence, coverage, oracle backing, assumptions relied on, residual
+risk; per estate: the level histogram and totals (a burned estate is labelled as one: its ports were developed
+against it), the #4514 migration dimensions not measured, reproducibility (translator commit, pins, oracle image,
+the commands to regenerate the report and re-run every proof).
+
+Sources (imported, not re-parsed): cics_census (survey rows, gap classes, holes), proof_blockers (which cases run a
+program, the det verdict from det_sweep_baseline.json / a sweep, runtime facts), evidence (records and their computed
+status), cics_spec_status (spec keys of a program's commands, entry kinds, X-register entries, crucible cases per
+command), tests/cics_crucible/baseline.json (which runtime disagrees with a crucible case), oracle_assumptions.md's
+summary table (statuses). #4493's JSON replaces the direct reads once it exists. This tool never writes an evidence
+record or an approval.
+
+What needs corpora (the survey row, the program's commands and runtime facts) or a sweep is MEASURED once and frozen
+into report.json's `measured` block, with the evidence records' computed status at build time; everything else is
+recomputed from the repo. So `--refresh` rebuilds every committed report without corpora, and `--check`
+(tests/tools/test_evidence_report.py) fails when a committed report is not what the repo makes now. `--check --live`
+also recomputes the records' status (a harness, oracle or generator change stales every record; the scheduled
+evidence-refresh job re-proves them).
+
+Only burned estates are committed (docs/language_status/evidence_report/<estate>/report.{md,json}). A non-burned
+estate's report is written only with --out outside the repository: census repos never have anything but counts
+committed. The rendered text never calls a program or estate "proven", "verified" or "guaranteed" (tested); text
+quoted from other tools is reworded to this report's vocabulary.
+
+report.json (`gitgalaxy-evidence-report/1`): {format, estate, burned, bars, levels, oracle, not_measured, measured,
+summary, programs: [{program, level, next, translation, equivalence, coverage, oracle_backing, assumptions,
+residual}], assumptions_named, reproducibility}; validate() checks the shape.
+"""
+
+from __future__ import annotations
+
+import argparse
+import json
+import re
+import sys
+from collections import Counter
+from pathlib import Path
+from typing import Any
+
+TOOLS = Path(__file__).resolve().parent
+REPO = TOOLS.parents[1]
+sys.path.insert(0, str(TOOLS))
+sys.path.insert(0, str(REPO))
+
+import cics_census as cc  # noqa: E402
+import cics_spec_status as css  # noqa: E402
+import evidence as ev  # noqa: E402
+import proof_blockers as pb  # noqa: E402
+
+FORMAT = "gitgalaxy-evidence-report/1"
+OUT = REPO / "docs" / "language_status" / "evidence_report"
+REGISTER = REPO / "docs" / "language_status" / "oracle_assumptions.md"
+CRUCIBLE_BASELINE = REPO / "tests" / "cics_crucible" / "baseline.json"
+CRUCIBLE_PIN = REPO / "tests" / "_cics_crucible_pin.py"
+PIN_MANIFEST = REPO / "tests" / "crucible_pins.toml"  # #4597, once it lands
+DOCKERFILE = REPO / "tests" / "equivalence" / "gnucobol.Dockerfile"
+CORPORA = REPO / "tests" / "cobol_mainframe" / "corpora.json"
+DEFAULT_BARS = {"paragraphs": 90.0, "branches": 80.0}
+LEVELS = ["L0", "L1", "L2", "L3", "L4", "L5"]
+
+# #4514 (the whole-migration epic): each part adds a section here when it is built; until then, not measured.
+NOT_MEASURED = [
+    {
+        "dimension": "data",
+        "what": "data migration: VSAM / Db2 / sequential data converted and reconciled",
+        "issue": "#4514",
+    },
+    {
+        "dimension": "JCL streams",
+        "what": "the batch job streams that run the programs (steps, utilities, restart)",
+        "issue": "#4514",
+    },
+    {
+        "dimension": "interfaces",
+        "what": "the estate's external interfaces (MQ, files exchanged, web services, other systems)",
+        "issue": "#4514",
+    },
+    {"dimension": "performance", "what": "throughput, latency and batch windows", "issue": "#4514"},
+    {"dimension": "security", "what": "RACF / CICS security, user and transaction authorisation", "issue": "#4514"},
+    {"dimension": "cutover", "what": "the switch-over plan: parallel run, fallback, data freeze", "issue": "#4514"},
+]
+
+_FORBIDDEN = re.compile(r"\b(proven|verified|guaranteed)\b", re.I)
+_REWORD = {"proven": "shown equal", "verified": "checked", "guaranteed": "assured"}
+
+
+def neutral(text: str) -> str:
+    """Text quoted from another tool, in this report's vocabulary (no "proven" / "verified" / "guaranteed")."""
+    return _FORBIDDEN.sub(lambda m: _REWORD[m.group(1).lower()], str(text))
+
+
+def pct(n: int | None, d: int | None) -> float | None:
+    return round(100.0 * n / d, 1) if n is not None and d else None
+
+
+# ---- repo-derived inputs -----------------------------------------------------------------------------------------
+def register(path: Path = REGISTER) -> dict[str, dict[str, str]]:
+    """oracle_assumptions.md's summary table: id -> {area, entry, status} (the register's own words)."""
+    out = {}
+    for m in re.finditer(r"^\| ([A-Z]\d+) \| ([^|]*) \| (.*) \| ([^|]*) \| ([^|]*) \|$", path.read_text("utf-8"), re.M):
+        out[m.group(1)] = {
+            "area": m.group(2).strip(),
+            "entry": neutral(m.group(3).strip()),
+            "status": neutral(m.group(4).strip()),
+        }
+    return out
+
+
+def crucible_disagreements(path: Path = CRUCIBLE_BASELINE) -> dict[str, set[str]]:
+    """crucible case -> the sides with a cell that does not pass (the ratchet ledger: every cell not listed passes)."""
+    out: dict[str, set[str]] = {}
+    for cell in json.loads(path.read_text("utf-8")).get("cells", {}):
+        case, _, rest = cell.partition("/")
+        out.setdefault(case, set()).add(rest.rsplit("/", 1)[-1])
+    return out
+
+
+def oracle_pin(path: Path = DOCKERFILE) -> dict[str, str]:
+    text = path.read_text("utf-8")
+    arg = dict(re.findall(r'^ARG (\w+)="?([^"\n]*)"?$', text, re.M))
+    return {"base_image": arg.get("BASE", ""), "package": arg.get("GNUCOBOL", ""), "compiler": arg.get("COBC", "")}
+
+
+def crucible_pin() -> str:
+    m = re.search(r'^PINNED_REF = "(.*)"', CRUCIBLE_PIN.read_text("utf-8"), re.M)
+    return m.group(1) if m else ""
+
+
+def corpus_ref(estate: str) -> str:
+    return next((c["ref"] for c in json.loads(CORPORA.read_text("utf-8"))["corpora"] if c["name"] == estate), "")
+
+
+# ---- measuring: what needs corpora or a sweep (frozen into report.json) ------------------------------------------
+def measure(
+    estate: str,
+    rows: dict[tuple[str, str], dict[str, Any]],
+    roots: list[Path],
+    survey: dict[str, Any],
+    sweeps: dict[str, dict[str, Any]],
+) -> dict[str, Any]:
+    """The estate's survey rows, each program's spec keys and runtime facts (read from its source, names only), the
+    sweep verdicts used, and the evidence records' computed status now."""
+    progs = []
+    for (corpus, program), r in sorted(rows.items()):
+        if corpus != estate:
+            continue
+        text = pb.read_text(roots, corpus, program)
+        facts = pb.facts_needed(text) if text is not None else {}
+        progs.append(
+            {
+                "program": program,
+                "row": {k: r[k] for k in ("statements", "translated", "holes", "error", "kind") if k in r},
+                "source_read": text is not None,
+                "commands": sorted(css.program_keys(text)) if text is not None else [],
+                "facts": {k: sorted(v) for k, v in facts.items()},
+            }
+        )
+    used = {r.case for runs in pb.equivalence_runs().values() for r in runs}
+    swept = {
+        c: {
+            "proved": bool(s.get("proved")),
+            "coverage": s.get("coverage", ""),
+            "translated": s.get("translated", ""),
+            "first_diff": neutral(pb.diff_kind(s.get("report"))),
+        }
+        for c, s in sweeps.items()
+        if c in used
+    }
+    return {
+        "survey": survey,
+        "programs": progs,
+        "sweeps": dict(sorted(swept.items())),
+        "record_status": record_status(),
+    }
+
+
+def record_status() -> dict[str, dict[str, Any]]:
+    """case -> the evidence record's computed status (evidence.status, live: the tree now)."""
+    out = {}
+    for t in ev.targets():
+        if t.kind == "crucible":
+            continue
+        st = ev.status(ev.load(t), t)
+        out[t.case] = {"status": neutral(st["status"]), "stale": list(st["stale"])}
+    return dict(sorted(out.items()))
+
+
+# ---- building: everything else, from the repo --------------------------------------------------------------------
+def det_state(run: pb.Run, swept: dict[str, Any]) -> dict[str, Any]:
+    """The det port's verdict on one case, in this report's words."""
+    gaps = sorted(g for g in run.gaps if not g.startswith("coverage:"))
+    if not gaps:
+        src = "local sweep (proof_sweep.py --det-only)" if run.case in swept else "CI det-sweep ratchet on main"
+        return {"state": "equal", "source": src}
+    out: dict[str, Any] = {"state": "not equal", "why": []}
+    for g in gaps:
+        if g.startswith("known unproven"):
+            issue = g.split(":", 1)[1].strip()
+            out["why"].append(
+                f"ledgered as differing in det_sweep_baseline.json ({issue}): {neutral(run.detail.get(g, ''))}"
+            )
+        elif g.startswith("scenario differs"):
+            kind = swept.get(run.case, {}).get("first_diff") or neutral(g.split(":", 1)[1].strip())
+            out["why"].append(f"a scenario differs (first diff: {kind})")
+        elif g.startswith("not proven in CI"):
+            out["state"] = "not run"
+            out["why"].append("a Db2 case: CI's det-sweep skips Db2 cases and no local sweep was given")
+        else:
+            out["why"].append(neutral(g))
+    return out
+
+
+def record_summary(case: str, status: dict[str, Any] | None) -> dict[str, Any] | None:
+    t = ev.equivalence_target(case)
+    rec = ev.load(t)
+    if rec is None:
+        return None
+    p = rec.get("proof") or {}
+    outs = p.get("outputs") or {}
+    fc = p.get("facade") or {}
+    img = (rec.get("oracle") or {}).get("image") or {}
+    cov = rec.get("coverage") or {}
+    st = status or {"status": "not measured", "stale": []}
+    return {
+        "status_at_build": st["status"],
+        "stale_inputs": st["stale"],
+        "verdict": "all equal" if p.get("verdict") == "proven" else ("none" if not p else "not equal"),
+        "runs": p.get("runs"),
+        "fault_runs": p.get("fault_runs"),
+        "scenarios": len(outs),
+        "scenarios_equal": sum((o.get("equal") or 0) == (o.get("records") or 0) for o in outs.values()),
+        "records_compared": sum(o.get("records") or 0 for o in outs.values()),
+        "records_equal": sum(o.get("equal") or 0 for o in outs.values()),
+        "java_failed": bool(p.get("java_failed")),
+        "facade": {"runs": fc.get("runs"), "passed": fc.get("passed")} if fc else None,
+        "db2": t.db2,
+        "oracle_image": img.get("id"),
+        "oracle_matches_pin": img.get("matches_pin"),
+        "coverage": {
+            "paragraphs": cov.get("paragraphs"),
+            "branches": cov.get("branches"),
+            "uncovered_branches": [
+                f"line {b['line']} {b['kind']} {b['outcome']} ({b['unit']})"
+                for b in cov.get("uncovered_branches") or []
+            ],
+        }
+        if cov
+        else None,
+    }
+
+
+def case_scenarios(case: str) -> int | None:
+    scen = ev._case_json(case).get("scenarios")
+    return len(scen) if isinstance(scen, list) else None
+
+
+def coverage_of(case: dict[str, Any] | None, swept: dict[str, Any]) -> dict[str, Any]:
+    """Paragraph / branch coverage of the case's scenarios: a local sweep's coverage line, else its record's."""
+    out: dict[str, Any] = {
+        "source": None,
+        "paragraphs": None,
+        "branches": None,
+        "paragraph_pct": None,
+        "branch_pct": None,
+        "uncovered_branches": [],
+        "uncovered_paragraphs": "not recorded",
+    }
+    if case is None:
+        return out
+    line = pb.coverage_of(swept.get(case["case"], {}).get("coverage", ""))
+    rc = (case.get("record") or {}).get("coverage")
+    if line:
+        out["source"] = "local sweep coverage line"
+        out["paragraphs"] = {"covered": line[0], "live": line[1]}
+        out["branches"] = {"covered": line[2], "total": line[3]}
+    elif rc and rc.get("paragraphs"):
+        out["source"] = "evidence record (cobol_coverage.py over the case's COBOL runs)"
+        out["paragraphs"] = {"covered": rc["paragraphs"]["covered"], "live": rc["paragraphs"]["live"]}
+        out["branches"] = {"covered": rc["branches"]["covered"], "total": rc["branches"]["total"]}
+        out["uncovered_branches"] = rc["uncovered_branches"]
+    else:
+        return out
+    out["paragraph_pct"] = pct(out["paragraphs"]["covered"], out["paragraphs"]["live"])
+    out["branch_pct"] = pct(out["branches"]["covered"], out["branches"]["total"])
+    return out
+
+
+def backing(commands: list[str], crucible: dict[str, list[str]], disagree: dict[str, set[str]]) -> list[dict[str, Any]]:
+    cmds = css.spec()
+    out = []
+    for key in commands:
+        c = cmds.get(key)
+        entry = css.entry_kind(c) if c is not None else "no spec entry"
+        cases = []
+        for case in crucible.get(key, []):
+            bad = disagree.get(case, set())
+            cases.append(
+                {"case": case, "stub_agrees": "cobol-stub" not in bad, "java_agrees": "java-ported" not in bad}
+            )
+        backed = entry == "full" and any(x["stub_agrees"] and x["java_agrees"] for x in cases)
+        out.append(
+            {
+                "command": key,
+                "spec_entry": entry,
+                "crucible_cases": cases,
+                "backed": backed,
+                "registers": css.registers(c) if c is not None else [],
+                "facts_stated": [f.name for f in c.facts] if c is not None else [],
+            }
+        )
+    return out
+
+
+def level_of(p: dict[str, Any], bars: dict[str, float]) -> tuple[str, list[str]]:
+    """(the highest level whose conditions hold, what the next level needs)."""
+    t, eq, cov = p["translation"], p["equivalence"], p["coverage"]
+    if not t["whole"]:
+        why = "refused whole by the translator" if t["refused"] else f"{t['hole_count']} holes left"
+        return "L0", [f"translated whole ({why})"]
+    case = eq["chosen"]
+    if case is None:
+        return "L1", ["an equivalence case that runs it"]
+    need = []
+    if case["det"]["state"] != "equal":
+        need.append("its det port equal on every scenario of " + case["case"] + ": " + "; ".join(case["det"]["why"]))
+    rec = case["record"]
+    if rec is None:
+        need.append(f"an evidence record for {case['case']}")
+    else:
+        if rec["stale_inputs"]:
+            need.append(
+                f"a current evidence record ({case['case']} is stale on {', '.join(rec['stale_inputs'])}: "
+                f"re-run its proof)"
+            )
+        if rec["verdict"] != "all equal":
+            need.append(f"an evidence record whose proof is equal on every scenario ({case['case']}: {rec['verdict']})")
+    if need:
+        return "L1", need
+    if cov["paragraph_pct"] is None or cov["paragraph_pct"] < bars["paragraphs"]:
+        return "L2", [f"paragraph coverage >= {bars['paragraphs']} (now {cov['paragraph_pct']})"]
+    if cov["branch_pct"] is None or cov["branch_pct"] < bars["branches"]:
+        return "L3", [f"branch coverage >= {bars['branches']} (now {cov['branch_pct']})"]
+    unbacked = [b["command"] for b in p["oracle_backing"] if not b["backed"]]
+    need = [f"oracle backing for {', '.join(unbacked)}"] if unbacked else []
+    need.append("per-program assumption reach, which is not measured yet (no DIFFERS assumption reached)")
+    return "L4", need
+
+
+def build_program(m: dict[str, Any], estate: str, ctx: dict[str, Any]) -> dict[str, Any]:
+    r, prog = m["row"], m["program"]
+    whole = cc.whole(r)
+    classes = sorted(cc.gap_classes(r)) if not whole else []
+    translation = {
+        "statements": r.get("statements"),
+        "translated": r.get("translated"),
+        "hole_count": len(r.get("holes") or []),
+        "holes": [neutral(h) for h in cc.holes(r)],
+        "whole": whole,
+        "refused": neutral(cc.error_key(r["error"])) if "error" in r else None,
+        "gap_classes": [neutral(g) for g in classes],
+        "source_defects": [neutral(g) for g in classes if "source defect" in g.lower()],
+    }
+    runs = ctx["eq"].get((estate, pb._norm(prog)), [])
+    cases = [
+        {
+            "case": run.case,
+            "role": run.role,
+            "db2": run.db2,
+            "det": det_state(run, ctx["swept"]),
+            "case_scenarios": case_scenarios(run.case),
+            "record": record_summary(run.case, ctx["status"].get(run.case)),
+        }
+        for run in runs
+    ]
+    facts = m.get("facts") or {}
+    p: dict[str, Any] = {
+        "program": prog,
+        "translation": translation,
+        "oracle_backing": backing(m.get("commands", []), ctx["crucible"], ctx["disagree"]),
+    }
+    best: tuple[Any, ...] | None = None
+    candidates: list[dict[str, Any] | None] = [*cases] or [None]
+    for c in candidates:
+        p["equivalence"] = {"cases": cases, "chosen": c}
+        p["coverage"] = coverage_of(c, ctx["swept"])
+        lvl, nxt = level_of(p, ctx["bars"])
+        key = (
+            LEVELS.index(lvl),
+            c is not None and c["role"] == "program",
+            c is not None and c["record"] is not None,
+            -len(nxt),
+        )
+        if best is None or key > best[0]:
+            best = (key, c, lvl, nxt, p["coverage"])
+    if best is None:  # pragma: no cover -- the loop runs at least once
+        raise RuntimeError("no candidate")
+    _, chosen, lvl, nxt, cov = best
+    p["equivalence"] = {"cases": cases, "chosen": chosen}
+    p["coverage"] = cov
+    p["level"], p["next"] = lvl, nxt
+    regs = sorted({x for b in p["oracle_backing"] for x in b["registers"]}, key=lambda x: int(x[1:]))
+    region = bool(chosen and ev._case_json(chosen["case"]).get("region", {}).get("applid"))
+    unstated = [f"EIB field {e} (both runtimes read zero; z/OS does not)" for e in facts.get("eib", [])]
+    unstated += [f"ASSIGN {f} (no equivalence case states it)" for f in facts.get("assign_task", [])]
+    if facts.get("assign_region") and not region:
+        unstated.append("ASSIGN " + "/".join(facts["assign_region"]) + " (the case states no region)")
+    p["assumptions"] = {
+        "named_by_commands": [
+            {"id": x, **ctx["register"].get(x, {"status": "no register row", "area": "", "entry": ""})} for x in regs
+        ],
+        "facts_stated": sorted({f for b in p["oracle_backing"] for f in b["facts_stated"]}),
+        "facts_unstated": unstated,
+        "reach": "not measured",
+        "source_read": m.get("source_read", False),
+    }
+    risky = [a["id"] for a in p["assumptions"]["named_by_commands"] if re.search(r"ASSUMED|DIFFERS", a["status"])]
+    p["residual"] = {
+        "holes": translation["hole_count"],
+        "refused": translation["refused"],
+        "paragraphs_unrun": (cov["paragraphs"]["live"] - cov["paragraphs"]["covered"]) if cov["paragraphs"] else None,
+        "branch_outcomes_unrun": (cov["branches"]["total"] - cov["branches"]["covered"]) if cov["branches"] else None,
+        "facts_unstated": len(unstated),
+        "assumed_or_differs_named": risky,
+        "commands_not_backed": [b["command"] for b in p["oracle_backing"] if not b["backed"]],
+        "commands": len(p["oracle_backing"]),
+        "commands_backed": sum(b["backed"] for b in p["oracle_backing"]),
+    }
+    return p
+
+
+def build(measured: dict[str, Any], estate: str, bars: dict[str, float], *, live: bool = False) -> dict[str, Any]:
+    """The report of one estate from its measured block and the repo (live: the records' status recomputed now)."""
+    swept = measured.get("sweeps", {})
+    status = record_status() if live else measured.get("record_status", {})
+    eq = pb.equivalence_runs()
+    sweeps = {c: {**s, "report": None} for c, s in swept.items()}
+    det_base = pb.load_det_baseline()
+    for runs in eq.values():
+        for run in runs:
+            pb.judge_equivalence(run, det_base, sweeps, True)
+    data = css.load_data()
+    ctx = {
+        "eq": eq,
+        "swept": swept,
+        "status": status,
+        "bars": bars,
+        "crucible": data.get("crucible", {}),
+        "disagree": crucible_disagreements(),
+        "register": register(),
+    }
+    progs = [build_program(m, estate, ctx) for m in measured["programs"]]
+    progs.sort(key=lambda p: (-LEVELS.index(p["level"]), p["program"]))
+    hist = Counter(p["level"] for p in progs)
+    named = sorted(
+        {a["id"] for p in progs for a in p["assumptions"]["named_by_commands"]}, key=lambda x: (x[0], int(x[1:]))
+    )
+    images = sorted(
+        {
+            c["record"]["oracle_image"]
+            for p in progs
+            for c in p["equivalence"]["cases"]
+            if c["record"] and c["record"]["oracle_image"]
+        }
+    )
+    pin = oracle_pin()
+    burned = cc.is_burned(estate)
+    report = {
+        "format": FORMAT,
+        "estate": estate,
+        "burned": burned,
+        "bars": bars,
+        "levels": level_table(bars),
+        "oracle": {
+            "what": "GnuCOBOL plus the gitgalaxy CICS stub and models (CICS, Db2 precompiler, Language "
+            "Environment, DISPLAY), not IBM z/OS",
+            **pin,
+        },
+        "not_measured": NOT_MEASURED,
+        "measured": measured,
+        "summary": {
+            "programs": len(progs),
+            "histogram": {lv: hist.get(lv, 0) for lv in LEVELS},
+            "translated_whole": sum(p["translation"]["whole"] for p in progs),
+            "refused_whole": sum(bool(p["translation"]["refused"]) for p in progs),
+            "holes": sum(p["translation"]["hole_count"] for p in progs),
+            "with_case": sum(bool(p["equivalence"]["cases"]) for p in progs),
+            "with_record": sum(
+                bool(p["equivalence"]["chosen"] and p["equivalence"]["chosen"]["record"]) for p in progs
+            ),
+            "records_current": sum(
+                bool(
+                    p["equivalence"]["chosen"]
+                    and p["equivalence"]["chosen"]["record"]
+                    and not p["equivalence"]["chosen"]["record"]["stale_inputs"]
+                )
+                for p in progs
+            ),
+            "det_equal": sum(
+                bool(p["equivalence"]["chosen"] and p["equivalence"]["chosen"]["det"]["state"] == "equal")
+                for p in progs
+            ),
+            "cics_programs": sum(bool(p["oracle_backing"]) for p in progs),
+            "source_unread": sum(not m.get("source_read") for m in measured["programs"]),
+        },
+        "programs": progs,
+        "assumptions_named": [
+            {"id": x, **ctx["register"].get(x, {"status": "no register row", "area": "", "entry": ""})} for x in named
+        ],
+        "reproducibility": {
+            "translator_commit": measured["survey"].get("sha"),
+            "survey": measured["survey"],
+            "corpus_ref": corpus_ref(estate),
+            "crucible_pin": crucible_pin(),
+            "crucible_baseline_ref": json.loads(CRUCIBLE_BASELINE.read_text("utf-8")).get("crucible_ref"),
+            "crucible_cases_measured_at": (data.get("crucible_measured") or {}).get("ref"),
+            "pin_manifest": "tests/crucible_pins.toml" if PIN_MANIFEST.is_file() else "not on main yet (#4597)",
+            "oracle_base_image": pin["base_image"],
+            "oracle_images_of_records": images,
+            "record_status_from": "evidence.py status, recomputed now" if live else "evidence.py status at build time",
+            "commands": commands(estate, progs, measured),
+        },
+    }
+    return report
+
+
+def level_table(bars: dict[str, float]) -> list[dict[str, str]]:
+    return [
+        {"level": "L0", "name": "inventoried", "condition": "the program is in the estate's survey"},
+        {
+            "level": "L1",
+            "name": "translated whole",
+            "condition": "the det translator leaves no hole and does not refuse it",
+        },
+        {
+            "level": "L2",
+            "name": "executed equivalent",
+            "condition": "a case runs it; the case's det port is equal on "
+            "every scenario; the case's evidence record is current and its proof equal on every scenario",
+        },
+        {
+            "level": "L3",
+            "name": "paragraph coverage",
+            "condition": f"L2, and the scenarios execute >= {bars['paragraphs']} percent of its live paragraphs",
+        },
+        {
+            "level": "L4",
+            "name": "branch coverage",
+            "condition": f"L3, and >= {bars['branches']} percent of its branch outcomes",
+        },
+        {
+            "level": "L5",
+            "name": "oracle backed",
+            "condition": "L4, every CICS command it uses has a full spec entry and a "
+            "hand-traced cics-crucible case both runtimes agree with, and no DIFFERS assumption is reached (assumption "
+            "reach is not measured yet: no program is placed here)",
+        },
+    ]
+
+
+def commands(estate: str, progs: list[dict[str, Any]], measured: dict[str, Any]) -> list[str]:
+    sha = measured["survey"].get("sha") or "SHA"
+    cases = sorted({c["case"] for p in progs for c in p["equivalence"]["cases"]})
+    db2 = sorted({c["case"] for p in progs for c in p["equivalence"]["cases"] if c["db2"]})
+    recs = sorted({c["case"] for p in progs for c in p["equivalence"]["cases"] if c["record"]})
+    out = [
+        f"python tests/tools/cics_census.py survey --baseline --sha {sha}",
+        f"python tests/tools/evidence_report.py {estate} --baseline --sha {sha}",
+        "python tests/tools/evidence_report.py --refresh",
+    ]
+    if cases:
+        out.append(
+            f"python tests/tools/proof_sweep.py --det-only --work DIR --cases {','.join(cases)}"
+            + ("" if not db2 else f"  # Db2 cases ({len(db2)}) need the Db2 container")
+        )
+    if recs:
+        out.append(f"python tests/tools/evidence.py prove {' '.join(recs)}")
+    out.append("python tests/tools/cics_crucible.py  # the hand-traced CICS cases, at the crucible pin")
+    return out
+
+
+# ---- validation --------------------------------------------------------------------------------------------------
+def validate(rep: dict[str, Any]) -> list[str]:
+    errs = []
+    need = (
+        "format",
+        "estate",
+        "burned",
+        "bars",
+        "levels",
+        "oracle",
+        "not_measured",
+        "measured",
+        "summary",
+        "programs",
+        "assumptions_named",
+        "reproducibility",
+    )
+    errs += [f"missing `{k}`" for k in need if k not in rep]
+    if rep.get("format") != FORMAT:
+        errs.append(f"format is {rep.get('format')!r}, not {FORMAT!r}")
+    for i, p in enumerate(rep.get("programs", [])):
+        for k in (
+            "program",
+            "level",
+            "next",
+            "translation",
+            "equivalence",
+            "coverage",
+            "oracle_backing",
+            "assumptions",
+            "residual",
+        ):
+            if k not in p:
+                errs.append(f"programs[{i}].{k} missing")
+        if p.get("level") not in LEVELS:
+            errs.append(f"programs[{i}].level {p.get('level')!r}")
+    for k in ("survey", "programs", "sweeps", "record_status"):
+        if k not in rep.get("measured", {}):
+            errs.append(f"measured.{k} missing")
+    return errs
+
+
+# ---- rendering ---------------------------------------------------------------------------------------------------
+def _n(x: Any) -> str:
+    return "—" if x is None else str(x)
+
+
+def _frac(d: dict[str, int] | None, a: str, b: str, p: float | None) -> str:
+    return "not measured" if not d else f"{d[a]}/{d[b]} ({_n(p)}%)"
+
+
+def preface(rep: dict[str, Any]) -> list[str]:
+    o, bars = rep["oracle"], rep["bars"]
+    out = [
+        "## How to read this report",
+        "",
+        (
+            f"**What the oracle is.** Every equivalence result here compares the Java with the COBOL program run by "
+            f"{o['what']}: the pinned compiler `{o['compiler']}` (package `{o['package']}`, base image `{o['base_image']}`). "
+            "Where that oracle may differ from z/OS is written down in [oracle_assumptions.md](../../oracle_assumptions.md); "
+            'each program lists the entries its CICS commands name. A result reads "executed equivalent on N scenarios '
+            'against GnuCOBOL + the gitgalaxy CICS stub", with those assumptions -- never a statement about z/OS.'
+        ),
+        "",
+        (
+            "**What a level means.** Each program gets the highest level whose conditions hold; levels are cumulative and "
+            "the numbers under a level are always shown. The coverage bars are parameters of this report "
+            f"(paragraphs {bars['paragraphs']}%, branches {bars['branches']}%)."
+        ),
+        "",
+        "| level | name | condition |",
+        "|---|---|---|",
+    ]
+    out += [f"| {lv['level']} | {lv['name']} | {lv['condition']} |" for lv in rep["levels"]]
+    out += [
+        "",
+        (
+            "**What is not measured.** Holes, unrun paragraphs and branch outcomes, unstated runtime facts and the "
+            "ASSUMED / DIFFERS entries a program's commands name are listed per program. Which register entries a "
+            "program actually reaches is not measured. These migration dimensions are not measured at all:"
+        ),
+        "",
+    ]
+    out += [f"- **{d['dimension']}** ({d['issue']}): {d['what']}" for d in rep["not_measured"]]
+    return out
+
+
+def render(rep: dict[str, Any]) -> str:
+    s = rep["summary"]
+    sv = rep["measured"]["survey"]
+    out = [
+        f"# Evidence report: {rep['estate']}",
+        "",
+        "<!-- generated by tests/tools/evidence_report.py; do not edit (test_evidence_report.py fails when it is stale) -->",
+        "",
+    ]
+    if rep["burned"]:
+        out += [
+            (
+                "> **Burned estate.** Its ports and the translator were developed against this estate, so its numbers "
+                "describe a development estate, not a blind one."
+            ),
+            "",
+        ]
+    else:
+        out += ["> **Non-burned estate.** Nothing was developed against it.", ""]
+    out += [
+        (
+            f"Translation measured by `cics_census.py survey` at translator commit `{_n(sv.get('sha'))}` "
+            f"({_n(sv.get('scope'))}); evidence record status {rep['reproducibility']['record_status_from']}."
+        ),
+        "",
+    ]
+    out += preface(rep)
+    out += ["", "## Summary", "", "| level | programs |", "|---|---|"]
+    out += [f"| {lv} | {n} |" for lv, n in s["histogram"].items()]
+    out += [
+        "",
+        (
+            f"- programs: {s['programs']} (with an EXEC CICS command: {s['cics_programs']}; source not read: "
+            f"{s['source_unread']})"
+        ),
+        f"- translated whole: {s['translated_whole']}; refused whole: {s['refused_whole']}; holes left: {s['holes']}",
+        (
+            f"- with an equivalence case: {s['with_case']}; det port equal on its case: {s['det_equal']}; with an "
+            f"evidence record: {s['with_record']}; record current at build: {s['records_current']}"
+        ),
+        "",
+        "## Programs",
+        "",
+        (
+            "| program | level | translated / statements | holes | case | det port | scenarios | record | paragraphs | "
+            "branches | CICS commands backed |"
+        ),
+        "|---|---|---|---|---|---|---|---|---|---|---|",
+    ]
+    for p in rep["programs"]:
+        t, c, cov = p["translation"], p["equivalence"]["chosen"], p["coverage"]
+        rec = c["record"] if c else None
+        rs = p["residual"]
+        out.append(
+            f"| {p['program']} | {p['level']} | "
+            + ("refused" if t["refused"] else f"{_n(t['translated'])}/{_n(t['statements'])}")
+            + f" | {t['hole_count']} | {c['case'] if c else '—'} | {c['det']['state'] if c else '—'} | "
+            f"{(rec['scenarios'] if rec else c['case_scenarios']) if c else '—'} | "
+            f"{(rec['status_at_build'] if rec else 'none') if c else '—'} | "
+            f"{_frac(cov['paragraphs'], 'covered', 'live', cov['paragraph_pct'])} | "
+            f"{_frac(cov['branches'], 'covered', 'total', cov['branch_pct'])} | "
+            + (f"{rs['commands_backed']}/{rs['commands']}" if rs["commands"] else "—")
+            + " |"
+        )
+    out += ["", "## Per program", ""]
+    for p in rep["programs"]:
+        out += program_section(p)
+    out += [
+        "## Assumptions the estate's CICS commands name",
+        "",
+        (
+            "From the spec entries of the commands the programs use, with the register's status. Which of them a "
+            "program's scenarios reach is not measured."
+        ),
+        "",
+        "| id | area | status | entry |",
+        "|---|---|---|---|",
+    ]
+    out += [f"| {a['id']} | {a['area']} | {a['status']} | {a['entry']} |" for a in rep["assumptions_named"]]
+    rp = rep["reproducibility"]
+    out += [
+        "",
+        "## Reproducibility",
+        "",
+        f"- translator commit (the survey's): `{_n(rp['translator_commit'])}`",
+        f"- corpus pin: `{rep['estate']}` at `{_n(rp['corpus_ref'] or None)}`",
+        (
+            f"- cics-crucible pin: `{rp['crucible_pin']}`; crucible baseline measured at `{_n(rp['crucible_baseline_ref'])}`;"
+            f" crucible cases per command measured at `{_n(rp['crucible_cases_measured_at'])}`"
+        ),
+        f"- crucible pin manifest: {rp['pin_manifest']}",
+        f"- oracle base image: `{rp['oracle_base_image']}`",
+        "- oracle images the evidence records ran on: "
+        + (", ".join(f"`{i}`" for i in rp["oracle_images_of_records"]) or "none"),
+        "",
+        "Regenerate this report and re-run its proofs:",
+        "",
+        "```sh",
+        *rp["commands"],
+        "```",
+        "",
+    ]
+    return "\n".join(out)
+
+
+def program_section(p: dict[str, Any]) -> list[str]:
+    t, eq, cov, a, rs = p["translation"], p["equivalence"], p["coverage"], p["assumptions"], p["residual"]
+    out = [f"### {p['program']} -- {p['level']}", ""]
+    if p["level"] not in ("L0", "L1"):
+        rec = eq["chosen"]["record"]
+        out.append(
+            f"- **Executed equivalent** on {rec['scenarios']} scenarios against GnuCOBOL + the gitgalaxy CICS "
+            f"stub ({eq['chosen']['case']}), given the assumptions below"
+        )
+    out.append("- **Next level needs:** " + "; ".join(p["next"]))
+    if t["refused"]:
+        out.append(f"- **Translation:** refused whole: {t['refused']}")
+    else:
+        out.append(
+            f"- **Translation:** {_n(t['translated'])}/{_n(t['statements'])} statements, "
+            f"{t['hole_count']} holes; whole: {'yes' if t['whole'] else 'no'}"
+        )
+        out += [f"  - hole: {h}" for h in t["holes"]]
+    if t["source_defects"]:
+        out.append("  - named source defects: " + "; ".join(t["source_defects"]))
+    if not eq["cases"]:
+        out.append("- **Executed equivalence:** no equivalence case runs it")
+    for c in eq["cases"]:
+        rec = c["record"]
+        d = c["det"]
+        line = (
+            f"- **Executed equivalence** ({c['case']}, {c['role']}{', Db2' if c['db2'] else ''}"
+            f"{', the case this report judges' if c == eq['chosen'] else ''}): det port "
+            f"{d['state']}" + (f" ({d['source']})" if "source" in d else f" ({'; '.join(d['why'])})")
+        )
+        out.append(line)
+        if rec:
+            out.append(
+                f"  - evidence record (the case's committed port): {rec['status_at_build']}"
+                + (f" (stale on {', '.join(rec['stale_inputs'])})" if rec["stale_inputs"] else "")
+                + f"; its proof: {rec['verdict']}, {rec['scenarios_equal']}/{rec['scenarios']} scenarios equal, "
+                f"{rec['records_equal']}/{rec['records_compared']} records equal, {_n(rec['runs'])} runs "
+                f"({_n(rec['fault_runs'])} fault runs)"
+                + (", java side failed" if rec["java_failed"] else "")
+                + (
+                    f"; through its deployed entry points {rec['facade']['passed']}/{rec['facade']['runs']}"
+                    if rec["facade"]
+                    else ""
+                )
+            )
+        else:
+            out.append(f"  - evidence record: none ({_n(c['case_scenarios'])} scenarios in case.json)")
+    if cov["source"]:
+        out.append(
+            f"- **Coverage** ({cov['source']}): paragraphs "
+            f"{_frac(cov['paragraphs'], 'covered', 'live', cov['paragraph_pct'])}, branch outcomes "
+            f"{_frac(cov['branches'], 'covered', 'total', cov['branch_pct'])}; unrun paragraphs by name: "
+            f"{cov['uncovered_paragraphs']}"
+        )
+        out += [f"  - branch outcome no scenario runs: {b}" for b in cov["uncovered_branches"]]
+    else:
+        out.append("- **Coverage:** not measured")
+    if p["oracle_backing"]:
+        out += [
+            "- **Oracle backing** (per CICS command):",
+            "",
+            "  | command | spec entry | hand-traced crucible cases (stub / Java runtime agree) | backed |",
+            "  |---|---|---|---|",
+        ]
+        for b in p["oracle_backing"]:
+            cases = (
+                ", ".join(
+                    f"{x['case']} ({'yes' if x['stub_agrees'] else 'no'} / {'yes' if x['java_agrees'] else 'no'})"
+                    for x in b["crucible_cases"]
+                )
+                or "none"
+            )
+            out.append(f"  | {b['command']} | {b['spec_entry']} | {cases} | {'yes' if b['backed'] else 'no'} |")
+        out.append("")
+    else:
+        out.append(
+            "- **Oracle backing:** no EXEC CICS command" + ("" if a["source_read"] else " found (source not read)")
+        )
+    named = ", ".join(f"{x['id']} ({x['status']})" for x in a["named_by_commands"]) or "none"
+    out.append(f"- **Assumptions relied on:** named by its commands' spec entries: {named}; reach: {a['reach']}")
+    if a["facts_stated"]:
+        out.append("  - runtime facts the harness states for its commands: " + ", ".join(a["facts_stated"]))
+    out += [f"  - runtime fact no harness states: {f}" for f in a["facts_unstated"]]
+    risk = [
+        f"{rs['holes']} holes" if rs["holes"] else None,
+        f"refused whole ({rs['refused']})" if rs["refused"] else None,
+        f"{rs['paragraphs_unrun']} live paragraphs unrun" if rs["paragraphs_unrun"] else None,
+        f"{rs['branch_outcomes_unrun']} branch outcomes unrun" if rs["branch_outcomes_unrun"] else None,
+        "coverage not measured" if rs["paragraphs_unrun"] is None and t["whole"] else None,
+        f"{rs['facts_unstated']} unstated runtime facts" if rs["facts_unstated"] else None,
+        ("ASSUMED / DIFFERS entries named: " + ", ".join(rs["assumed_or_differs_named"]))
+        if rs["assumed_or_differs_named"]
+        else None,
+        ("commands without oracle backing: " + ", ".join(rs["commands_not_backed"]))
+        if rs["commands_not_backed"]
+        else None,
+    ]
+    out.append(
+        "- **Residual risk:** "
+        + ("; ".join(x for x in risk if x) or "none listed beyond the estate-wide items")
+        + "; assumption reach and the migration dimensions above: not measured"
+    )
+    out.append("")
+    return out
+
+
+def render_index(reports: list[dict[str, Any]]) -> str:
+    out = [
+        "# Evidence reports",
+        "",
+        "<!-- generated by tests/tools/evidence_report.py; do not edit (test_evidence_report.py fails when it is stale) -->",
+        "",
+        (
+            'Per estate, a level per program (see any report\'s "How to read this report"). Only burned estates are '
+            "committed here; a non-burned estate's report is written outside the repository."
+        ),
+        "",
+    ]
+    for burned, title in ((True, "Burned estates (ports developed against them)"), (False, "Non-burned estates")):
+        rs = [r for r in reports if r["burned"] == burned]
+        out += [f"## {title}", ""]
+        if not rs:
+            out += ["none committed", ""]
+            continue
+        out += ["| estate | programs | " + " | ".join(LEVELS) + " |", "|---|---|" + "---|" * len(LEVELS)]
+        for r in rs:
+            h = r["summary"]["histogram"]
+            out.append(
+                f"| [{r['estate']}]({r['estate']}/report.md) | {r['summary']['programs']} | "
+                + " | ".join(str(h[lv]) for lv in LEVELS)
+                + " |"
+            )
+        tot = {lv: sum(r["summary"]["histogram"][lv] for r in rs) for lv in LEVELS}
+        out.append(
+            f"| total | {sum(r['summary']['programs'] for r in rs)} | "
+            + " | ".join(str(tot[lv]) for lv in LEVELS)
+            + " |"
+        )
+        out.append("")
+    return "\n".join(out)
+
+
+def dumps(rep: dict[str, Any]) -> str:
+    return json.dumps(rep, indent=1, sort_keys=True) + "\n"
+
+
+# ---- the committed reports ---------------------------------------------------------------------------------------
+def committed() -> dict[str, dict[str, Any]]:
+    return {f.parent.name: json.loads(f.read_text("utf-8")) for f in sorted(OUT.glob("*/report.json"))}
+
+
+def expected(live: bool = False) -> dict[Path, str]:
+    """Every committed file as the repo makes it now, from the committed measured blocks."""
+    reps = []
+    out: dict[Path, str] = {}
+    for estate, old in committed().items():
+        rep = build(old["measured"], estate, old["bars"], live=live)
+        reps.append(rep)
+        out[OUT / estate / "report.json"] = dumps(rep)
+        out[OUT / estate / "report.md"] = render(rep)
+    out[OUT / "README.md"] = render_index(reps)
+    return out
+
+
+def write(files: dict[Path, str]) -> None:
+    for p, text in files.items():
+        p.parent.mkdir(parents=True, exist_ok=True)
+        p.write_text(text, encoding="utf-8")
+
+
+def _rel(p: Path) -> str:
+    return p.resolve().relative_to(REPO).as_posix() if inside_repo(p) else str(p)
+
+
+def inside_repo(p: Path) -> bool:
+    try:
+        p.resolve().relative_to(REPO)
+        return True
+    except ValueError:
+        return False
+
+
+def main(argv: list[str] | None = None) -> int:
+    ap = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
+    ap.add_argument("estates", nargs="*", help="estate (corpus) names, as the survey names them")
+    ap.add_argument("--all", action="store_true", help="every burned estate of the survey (with --out: every estate)")
+    ap.add_argument("--out", type=Path, help=f"write ESTATE/report.* here (default {_rel(OUT)}: burned only)")
+    ap.add_argument("--baseline", action="store_true", help="the cached survey of --sha (default origin/main)")
+    ap.add_argument("--sha", help="the baseline commit (default: origin/main)")
+    ap.add_argument("--root", type=Path, help="the baseline cache root (as cics_census.py)")
+    ap.add_argument("--survey", type=Path, help="a cics_census.py survey directory instead of the baseline")
+    ap.add_argument("--label", default="before")
+    ap.add_argument("--sweep", type=Path, nargs="*", default=[], help="proof_sweep.py --det-only work directories")
+    ap.add_argument("--corpora", type=Path)
+    ap.add_argument("--census-corpora", type=Path)
+    ap.add_argument("--bar-paragraphs", type=float, default=DEFAULT_BARS["paragraphs"])
+    ap.add_argument("--bar-branches", type=float, default=DEFAULT_BARS["branches"])
+    ap.add_argument("--refresh", action="store_true", help="rebuild the committed reports from their measured blocks")
+    ap.add_argument("--check", action="store_true", help="exit 1 when a committed report is not current")
+    ap.add_argument("--live", action="store_true", help="--check / --refresh: recompute the records' status now")
+    args = ap.parse_args(argv)
+
+    if args.check:
+        want = expected(args.live)
+        bad = [p for p, text in want.items() if not p.is_file() or p.read_text("utf-8") != text]
+        extra = [p for p in OUT.glob("*/*") if p.is_file() and p not in want]
+        for p in bad + extra:
+            print(
+                f"not current: {_rel(p)} -- run python tests/tools/evidence_report.py --refresh"
+                + (" --live" if args.live else ""),
+                file=sys.stderr,
+            )
+        return 1 if bad or extra else 0
+    if args.refresh:
+        files = expected(args.live)
+        write(files)
+        print(f"refreshed {len(files)} files under {_rel(OUT)}")
+        return 0
+
+    if args.survey:
+        rows = cc.load_surveys(args.survey, args.label)
+        survey = {"sha": None, "scope": f"survey {args.label}-*", "label": args.label}
+    else:
+        d = cc.baseline_dir(args)
+        rows = cc.load_surveys(d, "before")
+        meta = json.loads((d / "meta.json").read_text("utf-8"))
+        survey = {"sha": meta["sha"], "scope": meta.get("scope"), "label": "before"}
+    if not rows:
+        raise SystemExit("no survey rows: run `cics_census.py survey --baseline` (or pass --survey DIR)")
+    in_survey = sorted({c for c, _ in rows})
+    estates = in_survey if args.all else args.estates
+    if args.all and args.out is None:
+        estates = [e for e in estates if cc.is_burned(e)]
+    if not estates:
+        raise SystemExit(f"which estate? one of: {', '.join(in_survey)} (or --all)")
+    out_dir = args.out or OUT
+    for e in estates:
+        if e not in in_survey:
+            raise SystemExit(f"{e}: not in the survey (it has {', '.join(in_survey)})")
+        if not cc.is_burned(e) and inside_repo(out_dir):
+            raise SystemExit(
+                f"{e} is not a burned estate: nothing but counts from it is committed -- pass --out DIR "
+                "outside the repository"
+            )
+    roots = [cc.mainframe_root(args.corpora)]
+    census = cc.census_root(args.census_corpora, required=False)
+    roots += [census] if census else []
+    sweeps = pb.load_sweeps(args.sweep)
+    bars = {"paragraphs": args.bar_paragraphs, "branches": args.bar_branches}
+    for e in estates:
+        measured = measure(e, rows, roots, survey, sweeps)
+        rep = build(measured, e, bars)
+        errs = validate(rep)
+        if errs:
+            raise SystemExit(f"{e}: the report does not validate: {errs}")
+        write({out_dir / e / "report.json": dumps(rep), out_dir / e / "report.md": render(rep)})
+        h = rep["summary"]["histogram"]
+        print(f"{e}: {rep['summary']['programs']} programs, " + ", ".join(f"{lv} {n}" for lv, n in h.items()))
+    if out_dir.resolve() == OUT.resolve():
+        write({OUT / "README.md": render_index(list(committed().values()))})
+    return 0
+
+
+if __name__ == "__main__":
+    sys.exit(main())

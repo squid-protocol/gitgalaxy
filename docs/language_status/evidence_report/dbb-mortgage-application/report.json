@@ -1,0 +1,1642 @@
+{
+ "assumptions_named": [
+  {
+   "area": "CICS",
+   "entry": "Channels and containers: PUT / GET / DELETE CONTAINER, LINK / XCTL CHANNEL, ASSIGN CHANNEL; bytes never converted; CCSID options, SET, BYTEOFFSET, RETURN CHANNEL, MOVE and browse refused",
+   "id": "X17",
+   "status": "ASSUMED (REFUSED where IBM is silent)"
+  },
+  {
+   "area": "CICS",
+   "entry": "SEND TEXT on the det port and the stub: TERMINAL accepted as the default output disposition (the principal facility; the event is that of SEND TEXT without it); ACCUM, PAGING, SET, REQID, HEADER, TRAILER, JUSTIFY / JUSFIRST / JUSLAST, the printer, partition and LDC options, MSR, FMHPARM, DEFAULT / ALTERNATE refused",
+   "id": "X20",
+   "status": "MATCHED (REFUSED where the region cannot decide)"
+  }
+ ],
+ "bars": {
+  "branches": 80.0,
+  "paragraphs": 90.0
+ },
+ "burned": true,
+ "estate": "dbb-mortgage-application",
+ "format": "gitgalaxy-evidence-report/1",
+ "levels": [
+  {
+   "condition": "the program is in the estate's survey",
+   "level": "L0",
+   "name": "inventoried"
+  },
+  {
+   "condition": "the det translator leaves no hole and does not refuse it",
+   "level": "L1",
+   "name": "translated whole"
+  },
+  {
+   "condition": "a case runs it; the case's det port is equal on every scenario; the case's evidence record is current and its proof equal on every scenario",
+   "level": "L2",
+   "name": "executed equivalent"
+  },
+  {
+   "condition": "L2, and the scenarios execute >= 90.0 percent of its live paragraphs",
+   "level": "L3",
+   "name": "paragraph coverage"
+  },
+  {
+   "condition": "L3, and >= 80.0 percent of its branch outcomes",
+   "level": "L4",
+   "name": "branch coverage"
+  },
+  {
+   "condition": "L4, every CICS command it uses has a full spec entry and a hand-traced cics-crucible case both runtimes agree with, and no DIFFERS assumption is reached (assumption reach is not measured yet: no program is placed here)",
+   "level": "L5",
+   "name": "oracle backed"
+  }
+ ],
+ "measured": {
+  "programs": [
+   {
+    "commands": [
+     "LINK",
+     "RECEIVE MAP",
+     "RETURN",
+     "SEND MAP",
+     "SEND TEXT"
+    ],
+    "facts": {
+     "assign_region": [],
+     "assign_task": [],
+     "eib": []
+    },
+    "program": "zBuilder/MortgageApplication/cobol/epscmort.cbl",
+    "row": {
+     "holes": [],
+     "kind": "cics",
+     "statements": 61,
+     "translated": 61
+    },
+    "source_read": true
+   },
+   {
+    "commands": [
+     "ABEND",
+     "FREEMAIN",
+     "GET CONTAINER",
+     "GETMAIN",
+     "GETNEXT CONTAINER",
+     "PUT CONTAINER",
+     "RETURN",
+     "SOAPFAULT CREATE",
+     "STARTBROWSE CONTAINER"
+    ],
+    "facts": {
+     "assign_region": [],
+     "assign_task": [],
+     "eib": []
+    },
+    "program": "zBuilder/MortgageApplication/cobol/epscsmrd.cbl",
+    "row": {
+     "holes": [
+      "line 172: EXEC EXEC CICS: EXEC CICS STARTBROWSE CONTAINER not modelled (#4270: container MOVE / browse, a later slice)",
+      "line 179: EXEC EXEC CICS: EXEC CICS GETNEXT not modelled (#4270: container MOVE / browse, a later slice)",
+      "line 210: EXEC EXEC CICS: GET CONTAINER SET INTOCCSID: option not modelled (SET: the address of CICS's copy of the data (a pointer) is not modelled; INTOCCSID: code-page conversion of a CHAR container is not modelled)",
+      "line 215: HOLE SET ADDRESS OF (pointers)",
+      "line 219: EXEC EXEC CICS: PUT CONTAINER FROMCCSID: option not modelled (FROMCCSID: code-page conversion of a CHAR container is not modelled)",
+      "line 226: EXEC EXEC CICS: GET CONTAINER SET: option not modelled (SET: the address of CICS's copy of the data (a pointer) is not modelled)",
+      "line 230: HOLE SET ADDRESS OF (pointers)",
+      "line 244: EXEC EXEC CICS: EXEC CICS GETMAIN not modelled (storage CICS acquires for the task, addressed by a pointer, is not modelled)",
+      "line 248: HOLE SET ADDRESS OF (pointers)",
+      "line 254: EXEC EXEC CICS: EXEC CICS GETMAIN not modelled (storage CICS acquires for the task, addressed by a pointer, is not modelled)",
+      "line 258: HOLE SET ADDRESS OF (pointers)",
+      "line 262: IF condition: NULL: pointers are not modelled",
+      "line 269: CALL CALL EPSCSMRX",
+      "line 276: EXEC EXEC CICS: EXEC CICS SOAPFAULT CREATE not modelled (web services (SOAP / WS-Addressing) are not modelled)",
+      "line 282: CALL CALL EPSCSMRI",
+      "line 293: CALL CALL EPSCSMRO",
+      "line 304: HOLE SET TO ENTRY: procedure / function pointers are not modelled",
+      "line 305: SET-POINTER SET ADDRESS OF (pointers)",
+      "line 306: CALL CALL CEEHDLR",
+      "line 310: CALL CALL CEEHDLU"
+     ],
+     "kind": "cics",
+     "statements": 58,
+     "translated": 38
+    },
+    "source_read": true
+   },
+   {
+    "commands": [],
+    "facts": {
+     "assign_region": [],
+     "assign_task": [],
+     "eib": []
+    },
+    "program": "zBuilder/MortgageApplication/cobol/epscsmrt.cbl",
+    "row": {
+     "holes": [
+      "line 48: HOLE dynamic CALL"
+     ],
+     "kind": "cics",
+     "statements": 13,
+     "translated": 12
+    },
+    "source_read": true
+   },
+   {
+    "commands": [
+     "ENDBR",
+     "LINK",
+     "READNEXT",
+     "RETURN",
+     "SEND MAP",
+     "STARTBR"
+    ],
+    "facts": {
+     "assign_region": [],
+     "assign_task": [],
+     "eib": []
+    },
+    "program": "zBuilder/MortgageApplication/cobol/epsmlist.cbl",
+    "row": {
+     "holes": [],
+     "kind": "cics",
+     "statements": 51,
+     "translated": 51
+    },
+    "source_read": true
+   },
+   {
+    "commands": [],
+    "facts": {
+     "assign_region": [],
+     "assign_task": [],
+     "eib": []
+    },
+    "program": "zBuilder/MortgageApplication/cobol/epsmpmt.cbl",
+    "row": {
+     "holes": [
+      "line 125: COMPUTE exponentiation in a floating-point expression (IBM's run-time routine is not documented bit for bit; oracle_assumptions.md C6)",
+      "line 144: COMPUTE FUNCTION ANNUITY"
+     ],
+     "kind": "other",
+     "statements": 27,
+     "translated": 25
+    },
+    "source_read": true
+   },
+   {
+    "commands": [],
+    "facts": {
+     "assign_region": [],
+     "assign_task": [],
+     "eib": []
+    },
+    "program": "zBuilder/MortgageApplication/cobol/epsnbrvl.cbl",
+    "row": {
+     "holes": [],
+     "kind": "call",
+     "statements": 52,
+     "translated": 52
+    },
+    "source_read": true
+   }
+  ],
+  "record_status": {
+   "carddemo-acctview": {
+    "stale": [
+     "harness",
+     "oracle",
+     "generator"
+    ],
+    "status": "stale"
+   },
+   "carddemo-adminmenu": {
+    "stale": [
+     "harness",
+     "oracle",
+     "generator"
+    ],
+    "status": "stale"
+   },
+   "carddemo-billpay": {
+    "stale": [
+     "harness",
+     "oracle",
+     "generator"
+    ],
+    "status": "stale"
+   },
+   "carddemo-cardlist": {
+    "stale": [
+     "harness",
+     "oracle",
+     "generator"
+    ],
+    "status": "stale"
+   },
+   "carddemo-cardview": {
+    "stale": [
+     "harness",
+     "oracle",
+     "generator"
+    ],
+    "status": "stale"
+   },
+   "carddemo-dailyval": {
+    "stale": [
+     "harness",
+     "oracle",
+     "generator"
+    ],
+    "status": "stale"
+   },
+   "carddemo-dateutil": {
+    "stale": [
+     "harness",
+     "oracle",
+     "generator"
+    ],
+    "status": "stale"
+   },
+   "carddemo-intcalc": {
+    "stale": [
+     "harness",
+     "oracle",
+     "generator"
+    ],
+    "status": "stale"
+   },
+   "carddemo-menu": {
+    "stale": [
+     "harness",
+     "oracle",
+     "generator"
+    ],
+    "status": "stale"
+   },
+   "carddemo-posttran": {
+    "stale": [
+     "harness",
+     "oracle",
+     "generator"
+    ],
+    "status": "stale"
+   },
+   "carddemo-readcard": {
+    "stale": [
+     "harness",
+     "oracle",
+     "generator"
+    ],
+    "status": "stale"
+   },
+   "carddemo-readcust": {
+    "stale": [
+     "harness",
+     "oracle",
+     "generator"
+    ],
+    "status": "stale"
+   },
+   "carddemo-readxref": {
+    "stale": [
+     "harness",
+     "oracle",
+     "generator"
+    ],
+    "status": "stale"
+   },
+   "carddemo-report": {
+    "stale": [
+     "harness",
+     "oracle",
+     "generator"
+    ],
+    "status": "stale"
+   },
+   "carddemo-signon": {
+    "stale": [
+     "harness",
+     "oracle",
+     "generator"
+    ],
+    "status": "stale"
+   },
+   "carddemo-tranadd": {
+    "stale": [
+     "harness",
+     "oracle",
+     "generator"
+    ],
+    "status": "stale"
+   },
+   "carddemo-tranlist": {
+    "stale": [
+     "harness",
+     "oracle",
+     "generator"
+    ],
+    "status": "stale"
+   },
+   "carddemo-tranview": {
+    "stale": [
+     "harness",
+     "oracle",
+     "generator"
+    ],
+    "status": "stale"
+   },
+   "carddemo-trnrpt": {
+    "stale": [
+     "harness",
+     "oracle",
+     "generator"
+    ],
+    "status": "stale"
+   },
+   "carddemo-useradd": {
+    "stale": [
+     "harness",
+     "oracle",
+     "generator"
+    ],
+    "status": "stale"
+   },
+   "carddemo-userdel": {
+    "stale": [
+     "harness",
+     "oracle",
+     "generator"
+    ],
+    "status": "stale"
+   },
+   "carddemo-userlist": {
+    "stale": [
+     "harness",
+     "oracle",
+     "generator"
+    ],
+    "status": "stale"
+   },
+   "carddemo-userupd": {
+    "stale": [
+     "harness",
+     "oracle",
+     "generator"
+    ],
+    "status": "stale"
+   },
+   "cbsa-inqacc": {
+    "stale": [
+     "harness",
+     "oracle",
+     "generator"
+    ],
+    "status": "stale"
+   },
+   "cbsa-updacc": {
+    "stale": [
+     "harness",
+     "oracle",
+     "generator"
+    ],
+    "status": "stale"
+   },
+   "genapp-lgapvs01": {
+    "stale": [
+     "harness",
+     "oracle",
+     "generator"
+    ],
+    "status": "stale"
+   },
+   "genapp-lgicdb01": {
+    "stale": [
+     "harness",
+     "oracle",
+     "generator"
+    ],
+    "status": "stale"
+   },
+   "genapp-lgupdb01": {
+    "stale": [
+     "harness",
+     "oracle",
+     "generator"
+    ],
+    "status": "stale"
+   }
+  },
+  "survey": {
+   "label": "before",
+   "scope": "burned + local + census corpora",
+   "sha": "3167e2bb067386dcbd5c2b701da0850b1af10128"
+  },
+  "sweeps": {}
+ },
+ "not_measured": [
+  {
+   "dimension": "data",
+   "issue": "#4514",
+   "what": "data migration: VSAM / Db2 / sequential data converted and reconciled"
+  },
+  {
+   "dimension": "JCL streams",
+   "issue": "#4514",
+   "what": "the batch job streams that run the programs (steps, utilities, restart)"
+  },
+  {
+   "dimension": "interfaces",
+   "issue": "#4514",
+   "what": "the estate's external interfaces (MQ, files exchanged, web services, other systems)"
+  },
+  {
+   "dimension": "performance",
+   "issue": "#4514",
+   "what": "throughput, latency and batch windows"
+  },
+  {
+   "dimension": "security",
+   "issue": "#4514",
+   "what": "RACF / CICS security, user and transaction authorisation"
+  },
+  {
+   "dimension": "cutover",
+   "issue": "#4514",
+   "what": "the switch-over plan: parallel run, fallback, data freeze"
+  }
+ ],
+ "oracle": {
+  "base_image": "debian:bookworm-slim@sha256:3783cc01769c7b2b1b83a5c5ad96c815348e28ed7da68e2e3687004faa906251",
+  "compiler": "cobc (GnuCOBOL) 3.1.2.0",
+  "package": "3.1.2-5+b1",
+  "what": "GnuCOBOL plus the gitgalaxy CICS stub and models (CICS, Db2 precompiler, Language Environment, DISPLAY), not IBM z/OS"
+ },
+ "programs": [
+  {
+   "assumptions": {
+    "facts_stated": [],
+    "facts_unstated": [],
+    "named_by_commands": [
+     {
+      "area": "CICS",
+      "entry": "SEND TEXT on the det port and the stub: TERMINAL accepted as the default output disposition (the principal facility; the event is that of SEND TEXT without it); ACCUM, PAGING, SET, REQID, HEADER, TRAILER, JUSTIFY / JUSFIRST / JUSLAST, the printer, partition and LDC options, MSR, FMHPARM, DEFAULT / ALTERNATE refused",
+      "id": "X20",
+      "status": "MATCHED (REFUSED where the region cannot decide)"
+     }
+    ],
+    "reach": "not measured",
+    "source_read": true
+   },
+   "coverage": {
+    "branch_pct": null,
+    "branches": null,
+    "paragraph_pct": null,
+    "paragraphs": null,
+    "source": null,
+    "uncovered_branches": [],
+    "uncovered_paragraphs": "not recorded"
+   },
+   "equivalence": {
+    "cases": [
+     {
+      "case": "mortgage-cmort",
+      "case_scenarios": 8,
+      "db2": true,
+      "det": {
+       "state": "not run",
+       "why": [
+        "a Db2 case: CI's det-sweep skips Db2 cases and no local sweep was given"
+       ]
+      },
+      "record": null,
+      "role": "program"
+     }
+    ],
+    "chosen": {
+     "case": "mortgage-cmort",
+     "case_scenarios": 8,
+     "db2": true,
+     "det": {
+      "state": "not run",
+      "why": [
+       "a Db2 case: CI's det-sweep skips Db2 cases and no local sweep was given"
+      ]
+     },
+     "record": null,
+     "role": "program"
+    }
+   },
+   "level": "L1",
+   "next": [
+    "its det port equal on every scenario of mortgage-cmort: a Db2 case: CI's det-sweep skips Db2 cases and no local sweep was given",
+    "an evidence record for mortgage-cmort"
+   ],
+   "oracle_backing": [
+    {
+     "backed": true,
+     "command": "LINK",
+     "crucible_cases": [
+      {
+       "case": "ca-channel-containers",
+       "java_agrees": false,
+       "stub_agrees": true
+      },
+      {
+       "case": "ca-link-lengths",
+       "java_agrees": true,
+       "stub_agrees": true
+      },
+      {
+       "case": "hc-abend-link",
+       "java_agrees": true,
+       "stub_agrees": true
+      }
+     ],
+     "facts_stated": [],
+     "registers": [],
+     "spec_entry": "full"
+    },
+    {
+     "backed": true,
+     "command": "RECEIVE MAP",
+     "crucible_cases": [
+      {
+       "case": "hx-attr-bytes",
+       "java_agrees": true,
+       "stub_agrees": true
+      },
+      {
+       "case": "hx-extended-cursor",
+       "java_agrees": true,
+       "stub_agrees": true
+      },
+      {
+       "case": "pc-aid-menu",
+       "java_agrees": true,
+       "stub_agrees": true
+      },
+      {
+       "case": "pc-wizard",
+       "java_agrees": true,
+       "stub_agrees": true
+      }
+     ],
+     "facts_stated": [],
+     "registers": [],
+     "spec_entry": "full"
+    },
+    {
+     "backed": true,
+     "command": "RETURN",
+     "crucible_cases": [
+      {
+       "case": "ca-channel-containers",
+       "java_agrees": false,
+       "stub_agrees": true
+      },
+      {
+       "case": "ca-link-lengths",
+       "java_agrees": true,
+       "stub_agrees": true
+      },
+      {
+       "case": "ca-xctl-versions",
+       "java_agrees": true,
+       "stub_agrees": true
+      },
+      {
+       "case": "gt-assign-startcode",
+       "java_agrees": false,
+       "stub_agrees": true
+      },
+      {
+       "case": "gt-start-options",
+       "java_agrees": false,
+       "stub_agrees": true
+      },
+      {
+       "case": "gt-start-retrieve",
+       "java_agrees": true,
+       "stub_agrees": true
+      },
+      {
+       "case": "gt-terminal-coalesce",
+       "java_agrees": true,
+       "stub_agrees": true
+      },
+      {
+       "case": "hc-abend-link",
+       "java_agrees": true,
+       "stub_agrees": true
+      },
+      {
+       "case": "hc-eoc-error",
+       "java_agrees": false,
+       "stub_agrees": true
+      },
+      {
+       "case": "hc-handle-aid",
+       "java_agrees": false,
+       "stub_agrees": true
+      },
+      {
+       "case": "hc-ignore-error",
+       "java_agrees": false,
+       "stub_agrees": true
+      },
+      {
+       "case": "hc-perform-range",
+       "java_agrees": true,
+       "stub_agrees": true
+      },
+      {
+       "case": "hc-terminal-eoc",
+       "java_agrees": false,
+       "stub_agrees": true
+      },
+      {
+       "case": "hc-terminal-receive",
+       "java_agrees": false,
+       "stub_agrees": true
+      },
+      {
+       "case": "hx-attr-bytes",
+       "java_agrees": true,
+       "stub_agrees": true
+      },
+      {
+       "case": "hx-extended-cursor",
+       "java_agrees": true,
+       "stub_agrees": true
+      },
+      {
+       "case": "pc-aid-menu",
+       "java_agrees": true,
+       "stub_agrees": true
+      },
+      {
+       "case": "pc-wizard",
+       "java_agrees": true,
+       "stub_agrees": true
+      }
+     ],
+     "facts_stated": [],
+     "registers": [],
+     "spec_entry": "full"
+    },
+    {
+     "backed": true,
+     "command": "SEND MAP",
+     "crucible_cases": [
+      {
+       "case": "hx-attr-bytes",
+       "java_agrees": true,
+       "stub_agrees": true
+      },
+      {
+       "case": "hx-extended-cursor",
+       "java_agrees": true,
+       "stub_agrees": true
+      },
+      {
+       "case": "pc-aid-menu",
+       "java_agrees": true,
+       "stub_agrees": true
+      },
+      {
+       "case": "pc-wizard",
+       "java_agrees": true,
+       "stub_agrees": true
+      }
+     ],
+     "facts_stated": [],
+     "registers": [],
+     "spec_entry": "full"
+    },
+    {
+     "backed": true,
+     "command": "SEND TEXT",
+     "crucible_cases": [
+      {
+       "case": "ca-link-lengths",
+       "java_agrees": true,
+       "stub_agrees": true
+      },
+      {
+       "case": "ca-xctl-versions",
+       "java_agrees": true,
+       "stub_agrees": true
+      },
+      {
+       "case": "gt-assign-startcode",
+       "java_agrees": false,
+       "stub_agrees": true
+      },
+      {
+       "case": "gt-start-options",
+       "java_agrees": false,
+       "stub_agrees": true
+      },
+      {
+       "case": "gt-start-retrieve",
+       "java_agrees": true,
+       "stub_agrees": true
+      },
+      {
+       "case": "gt-terminal-coalesce",
+       "java_agrees": true,
+       "stub_agrees": true
+      },
+      {
+       "case": "hc-abend-link",
+       "java_agrees": true,
+       "stub_agrees": true
+      },
+      {
+       "case": "hc-eoc-error",
+       "java_agrees": false,
+       "stub_agrees": true
+      },
+      {
+       "case": "hc-handle-aid",
+       "java_agrees": false,
+       "stub_agrees": true
+      },
+      {
+       "case": "hc-ignore-error",
+       "java_agrees": false,
+       "stub_agrees": true
+      },
+      {
+       "case": "hc-perform-range",
+       "java_agrees": true,
+       "stub_agrees": true
+      },
+      {
+       "case": "hc-terminal-eoc",
+       "java_agrees": false,
+       "stub_agrees": true
+      },
+      {
+       "case": "hc-terminal-receive",
+       "java_agrees": false,
+       "stub_agrees": true
+      },
+      {
+       "case": "pc-aid-menu",
+       "java_agrees": true,
+       "stub_agrees": true
+      },
+      {
+       "case": "pc-wizard",
+       "java_agrees": true,
+       "stub_agrees": true
+      }
+     ],
+     "facts_stated": [],
+     "registers": [
+      "X20"
+     ],
+     "spec_entry": "full"
+    }
+   ],
+   "program": "zBuilder/MortgageApplication/cobol/epscmort.cbl",
+   "residual": {
+    "assumed_or_differs_named": [],
+    "branch_outcomes_unrun": null,
+    "commands": 5,
+    "commands_backed": 5,
+    "commands_not_backed": [],
+    "facts_unstated": 0,
+    "holes": 0,
+    "paragraphs_unrun": null,
+    "refused": null
+   },
+   "translation": {
+    "gap_classes": [],
+    "hole_count": 0,
+    "holes": [],
+    "refused": null,
+    "source_defects": [],
+    "statements": 61,
+    "translated": 61,
+    "whole": true
+   }
+  },
+  {
+   "assumptions": {
+    "facts_stated": [],
+    "facts_unstated": [],
+    "named_by_commands": [],
+    "reach": "not measured",
+    "source_read": true
+   },
+   "coverage": {
+    "branch_pct": null,
+    "branches": null,
+    "paragraph_pct": null,
+    "paragraphs": null,
+    "source": null,
+    "uncovered_branches": [],
+    "uncovered_paragraphs": "not recorded"
+   },
+   "equivalence": {
+    "cases": [
+     {
+      "case": "mortgage-cmort",
+      "case_scenarios": 8,
+      "db2": true,
+      "det": {
+       "state": "not run",
+       "why": [
+        "a Db2 case: CI's det-sweep skips Db2 cases and no local sweep was given"
+       ]
+      },
+      "record": null,
+      "role": "linked"
+     },
+     {
+      "case": "mortgage-mlist",
+      "case_scenarios": 9,
+      "db2": false,
+      "det": {
+       "source": "CI det-sweep ratchet on main",
+       "state": "equal"
+      },
+      "record": null,
+      "role": "program"
+     },
+     {
+      "case": "mortgage-mlist-generated",
+      "case_scenarios": 0,
+      "db2": false,
+      "det": {
+       "source": "CI det-sweep ratchet on main",
+       "state": "equal"
+      },
+      "record": null,
+      "role": "program"
+     }
+    ],
+    "chosen": {
+     "case": "mortgage-mlist",
+     "case_scenarios": 9,
+     "db2": false,
+     "det": {
+      "source": "CI det-sweep ratchet on main",
+      "state": "equal"
+     },
+     "record": null,
+     "role": "program"
+    }
+   },
+   "level": "L1",
+   "next": [
+    "an evidence record for mortgage-mlist"
+   ],
+   "oracle_backing": [
+    {
+     "backed": false,
+     "command": "ENDBR",
+     "crucible_cases": [],
+     "facts_stated": [],
+     "registers": [],
+     "spec_entry": "full"
+    },
+    {
+     "backed": true,
+     "command": "LINK",
+     "crucible_cases": [
+      {
+       "case": "ca-channel-containers",
+       "java_agrees": false,
+       "stub_agrees": true
+      },
+      {
+       "case": "ca-link-lengths",
+       "java_agrees": true,
+       "stub_agrees": true
+      },
+      {
+       "case": "hc-abend-link",
+       "java_agrees": true,
+       "stub_agrees": true
+      }
+     ],
+     "facts_stated": [],
+     "registers": [],
+     "spec_entry": "full"
+    },
+    {
+     "backed": false,
+     "command": "READNEXT",
+     "crucible_cases": [],
+     "facts_stated": [],
+     "registers": [],
+     "spec_entry": "full"
+    },
+    {
+     "backed": true,
+     "command": "RETURN",
+     "crucible_cases": [
+      {
+       "case": "ca-channel-containers",
+       "java_agrees": false,
+       "stub_agrees": true
+      },
+      {
+       "case": "ca-link-lengths",
+       "java_agrees": true,
+       "stub_agrees": true
+      },
+      {
+       "case": "ca-xctl-versions",
+       "java_agrees": true,
+       "stub_agrees": true
+      },
+      {
+       "case": "gt-assign-startcode",
+       "java_agrees": false,
+       "stub_agrees": true
+      },
+      {
+       "case": "gt-start-options",
+       "java_agrees": false,
+       "stub_agrees": true
+      },
+      {
+       "case": "gt-start-retrieve",
+       "java_agrees": true,
+       "stub_agrees": true
+      },
+      {
+       "case": "gt-terminal-coalesce",
+       "java_agrees": true,
+       "stub_agrees": true
+      },
+      {
+       "case": "hc-abend-link",
+       "java_agrees": true,
+       "stub_agrees": true
+      },
+      {
+       "case": "hc-eoc-error",
+       "java_agrees": false,
+       "stub_agrees": true
+      },
+      {
+       "case": "hc-handle-aid",
+       "java_agrees": false,
+       "stub_agrees": true
+      },
+      {
+       "case": "hc-ignore-error",
+       "java_agrees": false,
+       "stub_agrees": true
+      },
+      {
+       "case": "hc-perform-range",
+       "java_agrees": true,
+       "stub_agrees": true
+      },
+      {
+       "case": "hc-terminal-eoc",
+       "java_agrees": false,
+       "stub_agrees": true
+      },
+      {
+       "case": "hc-terminal-receive",
+       "java_agrees": false,
+       "stub_agrees": true
+      },
+      {
+       "case": "hx-attr-bytes",
+       "java_agrees": true,
+       "stub_agrees": true
+      },
+      {
+       "case": "hx-extended-cursor",
+       "java_agrees": true,
+       "stub_agrees": true
+      },
+      {
+       "case": "pc-aid-menu",
+       "java_agrees": true,
+       "stub_agrees": true
+      },
+      {
+       "case": "pc-wizard",
+       "java_agrees": true,
+       "stub_agrees": true
+      }
+     ],
+     "facts_stated": [],
+     "registers": [],
+     "spec_entry": "full"
+    },
+    {
+     "backed": true,
+     "command": "SEND MAP",
+     "crucible_cases": [
+      {
+       "case": "hx-attr-bytes",
+       "java_agrees": true,
+       "stub_agrees": true
+      },
+      {
+       "case": "hx-extended-cursor",
+       "java_agrees": true,
+       "stub_agrees": true
+      },
+      {
+       "case": "pc-aid-menu",
+       "java_agrees": true,
+       "stub_agrees": true
+      },
+      {
+       "case": "pc-wizard",
+       "java_agrees": true,
+       "stub_agrees": true
+      }
+     ],
+     "facts_stated": [],
+     "registers": [],
+     "spec_entry": "full"
+    },
+    {
+     "backed": false,
+     "command": "STARTBR",
+     "crucible_cases": [],
+     "facts_stated": [],
+     "registers": [],
+     "spec_entry": "full"
+    }
+   ],
+   "program": "zBuilder/MortgageApplication/cobol/epsmlist.cbl",
+   "residual": {
+    "assumed_or_differs_named": [],
+    "branch_outcomes_unrun": null,
+    "commands": 6,
+    "commands_backed": 3,
+    "commands_not_backed": [
+     "ENDBR",
+     "READNEXT",
+     "STARTBR"
+    ],
+    "facts_unstated": 0,
+    "holes": 0,
+    "paragraphs_unrun": null,
+    "refused": null
+   },
+   "translation": {
+    "gap_classes": [],
+    "hole_count": 0,
+    "holes": [],
+    "refused": null,
+    "source_defects": [],
+    "statements": 51,
+    "translated": 51,
+    "whole": true
+   }
+  },
+  {
+   "assumptions": {
+    "facts_stated": [],
+    "facts_unstated": [],
+    "named_by_commands": [],
+    "reach": "not measured",
+    "source_read": true
+   },
+   "coverage": {
+    "branch_pct": null,
+    "branches": null,
+    "paragraph_pct": null,
+    "paragraphs": null,
+    "source": null,
+    "uncovered_branches": [],
+    "uncovered_paragraphs": "not recorded"
+   },
+   "equivalence": {
+    "cases": [
+     {
+      "case": "mortgage-nbrvl",
+      "case_scenarios": null,
+      "db2": false,
+      "det": {
+       "source": "CI det-sweep ratchet on main",
+       "state": "equal"
+      },
+      "record": null,
+      "role": "program"
+     }
+    ],
+    "chosen": {
+     "case": "mortgage-nbrvl",
+     "case_scenarios": null,
+     "db2": false,
+     "det": {
+      "source": "CI det-sweep ratchet on main",
+      "state": "equal"
+     },
+     "record": null,
+     "role": "program"
+    }
+   },
+   "level": "L1",
+   "next": [
+    "an evidence record for mortgage-nbrvl"
+   ],
+   "oracle_backing": [],
+   "program": "zBuilder/MortgageApplication/cobol/epsnbrvl.cbl",
+   "residual": {
+    "assumed_or_differs_named": [],
+    "branch_outcomes_unrun": null,
+    "commands": 0,
+    "commands_backed": 0,
+    "commands_not_backed": [],
+    "facts_unstated": 0,
+    "holes": 0,
+    "paragraphs_unrun": null,
+    "refused": null
+   },
+   "translation": {
+    "gap_classes": [],
+    "hole_count": 0,
+    "holes": [],
+    "refused": null,
+    "source_defects": [],
+    "statements": 52,
+    "translated": 52,
+    "whole": true
+   }
+  },
+  {
+   "assumptions": {
+    "facts_stated": [],
+    "facts_unstated": [],
+    "named_by_commands": [
+     {
+      "area": "CICS",
+      "entry": "Channels and containers: PUT / GET / DELETE CONTAINER, LINK / XCTL CHANNEL, ASSIGN CHANNEL; bytes never converted; CCSID options, SET, BYTEOFFSET, RETURN CHANNEL, MOVE and browse refused",
+      "id": "X17",
+      "status": "ASSUMED (REFUSED where IBM is silent)"
+     }
+    ],
+    "reach": "not measured",
+    "source_read": true
+   },
+   "coverage": {
+    "branch_pct": null,
+    "branches": null,
+    "paragraph_pct": null,
+    "paragraphs": null,
+    "source": null,
+    "uncovered_branches": [],
+    "uncovered_paragraphs": "not recorded"
+   },
+   "equivalence": {
+    "cases": [],
+    "chosen": null
+   },
+   "level": "L0",
+   "next": [
+    "translated whole (20 holes left)"
+   ],
+   "oracle_backing": [
+    {
+     "backed": true,
+     "command": "ABEND",
+     "crucible_cases": [
+      {
+       "case": "gt-start-retrieve",
+       "java_agrees": true,
+       "stub_agrees": true
+      },
+      {
+       "case": "hc-abend-link",
+       "java_agrees": true,
+       "stub_agrees": true
+      }
+     ],
+     "facts_stated": [],
+     "registers": [],
+     "spec_entry": "full"
+    },
+    {
+     "backed": false,
+     "command": "FREEMAIN",
+     "crucible_cases": [],
+     "facts_stated": [],
+     "registers": [],
+     "spec_entry": "name-only"
+    },
+    {
+     "backed": false,
+     "command": "GET CONTAINER",
+     "crucible_cases": [
+      {
+       "case": "ca-channel-containers",
+       "java_agrees": false,
+       "stub_agrees": true
+      }
+     ],
+     "facts_stated": [],
+     "registers": [
+      "X17"
+     ],
+     "spec_entry": "full"
+    },
+    {
+     "backed": false,
+     "command": "GETMAIN",
+     "crucible_cases": [],
+     "facts_stated": [],
+     "registers": [],
+     "spec_entry": "name-only"
+    },
+    {
+     "backed": false,
+     "command": "GETNEXT CONTAINER",
+     "crucible_cases": [],
+     "facts_stated": [],
+     "registers": [],
+     "spec_entry": "name-only"
+    },
+    {
+     "backed": false,
+     "command": "PUT CONTAINER",
+     "crucible_cases": [
+      {
+       "case": "ca-channel-containers",
+       "java_agrees": false,
+       "stub_agrees": true
+      }
+     ],
+     "facts_stated": [],
+     "registers": [
+      "X17"
+     ],
+     "spec_entry": "full"
+    },
+    {
+     "backed": true,
+     "command": "RETURN",
+     "crucible_cases": [
+      {
+       "case": "ca-channel-containers",
+       "java_agrees": false,
+       "stub_agrees": true
+      },
+      {
+       "case": "ca-link-lengths",
+       "java_agrees": true,
+       "stub_agrees": true
+      },
+      {
+       "case": "ca-xctl-versions",
+       "java_agrees": true,
+       "stub_agrees": true
+      },
+      {
+       "case": "gt-assign-startcode",
+       "java_agrees": false,
+       "stub_agrees": true
+      },
+      {
+       "case": "gt-start-options",
+       "java_agrees": false,
+       "stub_agrees": true
+      },
+      {
+       "case": "gt-start-retrieve",
+       "java_agrees": true,
+       "stub_agrees": true
+      },
+      {
+       "case": "gt-terminal-coalesce",
+       "java_agrees": true,
+       "stub_agrees": true
+      },
+      {
+       "case": "hc-abend-link",
+       "java_agrees": true,
+       "stub_agrees": true
+      },
+      {
+       "case": "hc-eoc-error",
+       "java_agrees": false,
+       "stub_agrees": true
+      },
+      {
+       "case": "hc-handle-aid",
+       "java_agrees": false,
+       "stub_agrees": true
+      },
+      {
+       "case": "hc-ignore-error",
+       "java_agrees": false,
+       "stub_agrees": true
+      },
+      {
+       "case": "hc-perform-range",
+       "java_agrees": true,
+       "stub_agrees": true
+      },
+      {
+       "case": "hc-terminal-eoc",
+       "java_agrees": false,
+       "stub_agrees": true
+      },
+      {
+       "case": "hc-terminal-receive",
+       "java_agrees": false,
+       "stub_agrees": true
+      },
+      {
+       "case": "hx-attr-bytes",
+       "java_agrees": true,
+       "stub_agrees": true
+      },
+      {
+       "case": "hx-extended-cursor",
+       "java_agrees": true,
+       "stub_agrees": true
+      },
+      {
+       "case": "pc-aid-menu",
+       "java_agrees": true,
+       "stub_agrees": true
+      },
+      {
+       "case": "pc-wizard",
+       "java_agrees": true,
+       "stub_agrees": true
+      }
+     ],
+     "facts_stated": [],
+     "registers": [],
+     "spec_entry": "full"
+    },
+    {
+     "backed": false,
+     "command": "SOAPFAULT CREATE",
+     "crucible_cases": [],
+     "facts_stated": [],
+     "registers": [],
+     "spec_entry": "name-only"
+    },
+    {
+     "backed": false,
+     "command": "STARTBROWSE CONTAINER",
+     "crucible_cases": [],
+     "facts_stated": [],
+     "registers": [],
+     "spec_entry": "name-only"
+    }
+   ],
+   "program": "zBuilder/MortgageApplication/cobol/epscsmrd.cbl",
+   "residual": {
+    "assumed_or_differs_named": [
+     "X17"
+    ],
+    "branch_outcomes_unrun": null,
+    "commands": 9,
+    "commands_backed": 2,
+    "commands_not_backed": [
+     "FREEMAIN",
+     "GET CONTAINER",
+     "GETMAIN",
+     "GETNEXT CONTAINER",
+     "PUT CONTAINER",
+     "SOAPFAULT CREATE",
+     "STARTBROWSE CONTAINER"
+    ],
+    "facts_unstated": 0,
+    "holes": 20,
+    "paragraphs_unrun": null,
+    "refused": null
+   },
+   "translation": {
+    "gap_classes": [
+     "<name> SET ADDRESS OF",
+     "CALL CEEHDLR",
+     "CALL CEEHDLU",
+     "CALL EPSCSMRI",
+     "CALL EPSCSMRO",
+     "CALL EPSCSMRX",
+     "EXEC CICS GET CONTAINER SET",
+     "EXEC CICS GET CONTAINER SET INTOCCSID",
+     "EXEC CICS GETMAIN",
+     "EXEC CICS GETNEXT",
+     "EXEC CICS PUT CONTAINER FROMCCSID",
+     "EXEC CICS SOAPFAULT CREATE",
+     "EXEC CICS STARTBROWSE CONTAINER",
+     "IF condition: NULL: pointers are not modelled",
+     "SET ADDRESS OF",
+     "SET TO ENTRY: procedure / function pointers are not modelled"
+    ],
+    "hole_count": 20,
+    "holes": [
+     "CALL CALL CEEHDLR",
+     "CALL CALL CEEHDLU",
+     "CALL CALL EPSCSMRI",
+     "CALL CALL EPSCSMRO",
+     "CALL CALL EPSCSMRX",
+     "EXEC EXEC CICS: EXEC CICS GETMAIN not modelled (storage CICS acquires for the task, addressed by a pointer, is not modelled)",
+     "EXEC EXEC CICS: EXEC CICS GETNEXT not modelled (#4270: container MOVE / browse, a later slice)",
+     "EXEC EXEC CICS: EXEC CICS SOAPFAULT CREATE not modelled (web services (SOAP / WS-Addressing) are not modelled)",
+     "EXEC EXEC CICS: EXEC CICS STARTBROWSE CONTAINER not modelled (#4270: container MOVE / browse, a later slice)",
+     "EXEC EXEC CICS: GET CONTAINER SET INTOCCSID: option not modelled (SET: the address of CICS's copy of the data (a pointer) is not modelled; INTOCCSID: code-page conversion of a CHAR container is not modelled)",
+     "EXEC EXEC CICS: GET CONTAINER SET: option not modelled (SET: the address of CICS's copy of the data (a pointer) is not modelled)",
+     "EXEC EXEC CICS: PUT CONTAINER FROMCCSID: option not modelled (FROMCCSID: code-page conversion of a CHAR container is not modelled)",
+     "HOLE SET ADDRESS OF (pointers)",
+     "HOLE SET TO ENTRY: procedure / function pointers are not modelled",
+     "IF condition: NULL: pointers are not modelled",
+     "SET-POINTER SET ADDRESS OF (pointers)"
+    ],
+    "refused": null,
+    "source_defects": [],
+    "statements": 58,
+    "translated": 38,
+    "whole": false
+   }
+  },
+  {
+   "assumptions": {
+    "facts_stated": [],
+    "facts_unstated": [],
+    "named_by_commands": [],
+    "reach": "not measured",
+    "source_read": true
+   },
+   "coverage": {
+    "branch_pct": null,
+    "branches": null,
+    "paragraph_pct": null,
+    "paragraphs": null,
+    "source": null,
+    "uncovered_branches": [],
+    "uncovered_paragraphs": "not recorded"
+   },
+   "equivalence": {
+    "cases": [],
+    "chosen": null
+   },
+   "level": "L0",
+   "next": [
+    "translated whole (1 holes left)"
+   ],
+   "oracle_backing": [],
+   "program": "zBuilder/MortgageApplication/cobol/epscsmrt.cbl",
+   "residual": {
+    "assumed_or_differs_named": [],
+    "branch_outcomes_unrun": null,
+    "commands": 0,
+    "commands_backed": 0,
+    "commands_not_backed": [],
+    "facts_unstated": 0,
+    "holes": 1,
+    "paragraphs_unrun": null,
+    "refused": null
+   },
+   "translation": {
+    "gap_classes": [
+     "dynamic CALL"
+    ],
+    "hole_count": 1,
+    "holes": [
+     "HOLE dynamic CALL"
+    ],
+    "refused": null,
+    "source_defects": [],
+    "statements": 13,
+    "translated": 12,
+    "whole": false
+   }
+  },
+  {
+   "assumptions": {
+    "facts_stated": [],
+    "facts_unstated": [],
+    "named_by_commands": [],
+    "reach": "not measured",
+    "source_read": true
+   },
+   "coverage": {
+    "branch_pct": null,
+    "branches": null,
+    "paragraph_pct": null,
+    "paragraphs": null,
+    "source": null,
+    "uncovered_branches": [],
+    "uncovered_paragraphs": "not recorded"
+   },
+   "equivalence": {
+    "cases": [
+     {
+      "case": "mortgage-mpmt",
+      "case_scenarios": null,
+      "db2": false,
+      "det": {
+       "state": "not equal",
+       "why": [
+        "ledgered as differing in det_sweep_baseline.json (#4271): IBM DBB EPSMPMT computes its payment through a COMP-1 item in hexadecimal floating point on z/OS, truncated decimal on GnuCOBOL. The det runtime models HFP since #4271 slice 1 (its interest COMPUTE translates), but the payment's (1 + C) ** N, N with decimal places, is a floating-point exponentiation IBM does not document bit for bit: a named hole (oracle_assumptions.md C6; its CBL NUMPROC(MIG) is modelled, C5)"
+       ]
+      },
+      "record": null,
+      "role": "program"
+     }
+    ],
+    "chosen": {
+     "case": "mortgage-mpmt",
+     "case_scenarios": null,
+     "db2": false,
+     "det": {
+      "state": "not equal",
+      "why": [
+       "ledgered as differing in det_sweep_baseline.json (#4271): IBM DBB EPSMPMT computes its payment through a COMP-1 item in hexadecimal floating point on z/OS, truncated decimal on GnuCOBOL. The det runtime models HFP since #4271 slice 1 (its interest COMPUTE translates), but the payment's (1 + C) ** N, N with decimal places, is a floating-point exponentiation IBM does not document bit for bit: a named hole (oracle_assumptions.md C6; its CBL NUMPROC(MIG) is modelled, C5)"
+      ]
+     },
+     "record": null,
+     "role": "program"
+    }
+   },
+   "level": "L0",
+   "next": [
+    "translated whole (2 holes left)"
+   ],
+   "oracle_backing": [],
+   "program": "zBuilder/MortgageApplication/cobol/epsmpmt.cbl",
+   "residual": {
+    "assumed_or_differs_named": [],
+    "branch_outcomes_unrun": null,
+    "commands": 0,
+    "commands_backed": 0,
+    "commands_not_backed": [],
+    "facts_unstated": 0,
+    "holes": 2,
+    "paragraphs_unrun": null,
+    "refused": null
+   },
+   "translation": {
+    "gap_classes": [
+     "COMPUTE FUNCTION ANNUITY",
+     "COMPUTE exponentiation in a floating-point expression"
+    ],
+    "hole_count": 2,
+    "holes": [
+     "COMPUTE FUNCTION ANNUITY",
+     "COMPUTE exponentiation in a floating-point expression (IBM's run-time routine is not documented bit for bit; oracle_assumptions.md C6)"
+    ],
+    "refused": null,
+    "source_defects": [],
+    "statements": 27,
+    "translated": 25,
+    "whole": false
+   }
+  }
+ ],
+ "reproducibility": {
+  "commands": [
+   "python tests/tools/cics_census.py survey --baseline --sha 3167e2bb067386dcbd5c2b701da0850b1af10128",
+   "python tests/tools/evidence_report.py dbb-mortgage-application --baseline --sha 3167e2bb067386dcbd5c2b701da0850b1af10128",
+   "python tests/tools/evidence_report.py --refresh",
+   "python tests/tools/proof_sweep.py --det-only --work DIR --cases mortgage-cmort,mortgage-mlist,mortgage-mlist-generated,mortgage-mpmt,mortgage-nbrvl  # Db2 cases (1) need the Db2 container",
+   "python tests/tools/cics_crucible.py  # the hand-traced CICS cases, at the crucible pin"
+  ],
+  "corpus_ref": "ce2c1be58eb049e000c6627bd8273263fef0c606",
+  "crucible_baseline_ref": "v0.5.0 (9ee42d11)",
+  "crucible_cases_measured_at": "v0.5.0",
+  "crucible_pin": "v0.5.0",
+  "oracle_base_image": "debian:bookworm-slim@sha256:3783cc01769c7b2b1b83a5c5ad96c815348e28ed7da68e2e3687004faa906251",
+  "oracle_images_of_records": [],
+  "pin_manifest": "not on main yet (#4597)",
+  "record_status_from": "evidence.py status at build time",
+  "survey": {
+   "label": "before",
+   "scope": "burned + local + census corpora",
+   "sha": "3167e2bb067386dcbd5c2b701da0850b1af10128"
+  },
+  "translator_commit": "3167e2bb067386dcbd5c2b701da0850b1af10128"
+ },
+ "summary": {
+  "cics_programs": 3,
+  "det_equal": 2,
+  "histogram": {
+   "L0": 3,
+   "L1": 3,
+   "L2": 0,
+   "L3": 0,
+   "L4": 0,
+   "L5": 0
+  },
+  "holes": 23,
+  "programs": 6,
+  "records_current": 0,
+  "refused_whole": 0,
+  "source_unread": 0,
+  "translated_whole": 3,
+  "with_case": 4,
+  "with_record": 0
+ }
+}

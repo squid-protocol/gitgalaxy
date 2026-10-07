@@ -4,7 +4,8 @@
  "about": "Branch outcomes no input can reach, per equivalence case: proposed with the COBOL reason, reviewed by the owner in the PR that adds them, shown in the evidence report as stated assumptions. proof_blockers.py takes them out of the branch total; a det sweep whose proof reaches one fails (tests/tools/infeasible_outcomes.py). Lines are the case's program_source lines.",
  "families": {
   "G": "a guard every caller has already satisfied (data flow)",
-  "C": "a test of a constant: a copybook VALUE never written, a table built once, a loop index with fixed bounds"
+  "C": "a test of a constant: a copybook VALUE never written, a table built once, a loop index with fixed bounds",
+  "R": "a response the command never raises (IBM's documented conditions)"
  },
  "cases": {
   "carddemo-adminmenu": [
@@ -65,6 +66,14 @@
     "outcome": "true",
     "family": "G",
     "reason": "`IF CDEMO-TO-PROGRAM = LOW-VALUES OR SPACES` in RETURN-TO-PREV-SCREEN: the paragraph is only PERFORMed, and every PERFORM of it comes right after a MOVE of a non-blank program name into CDEMO-TO-PROGRAM (line 108 moves 'COSGN00C', line 130 'COMEN01C', and line 133 moves CDEMO-FROM-PROGRAM only after line 129 tested it is neither SPACES nor LOW-VALUES; both fields PIC X(08), COCOM01Y). COBIL00C never moves SPACES or LOW-VALUES into it in between."
+   },
+   {
+    "unit": "UPDATE-ACCTDAT-FILE",
+    "line": 387,
+    "kind": "EVALUATE",
+    "outcome": "WHEN@390",
+    "family": "R",
+    "reason": "`WHEN DFHRESP(NOTFND)` after `EXEC CICS REWRITE DATASET(WS-ACCTDAT-FILE)` (line 379): REWRITE updates the record the READ ... UPDATE at line 345 holds; IBM's REWRITE conditions do not include NOTFND (https://www.ibm.com/docs/en/cics-ts/6.x?topic=summary-rewrite; our spec, gitgalaxy/standards/cics/commands/files.py, lists NORMAL and INVREQ)."
    }
   ],
   "carddemo-cardlist": [
@@ -315,6 +324,14 @@
     "outcome": "true",
     "family": "G",
     "reason": "`IF CDEMO-TO-PROGRAM = LOW-VALUES OR SPACES` in RETURN-TO-PREV-SCREEN: the paragraph is only PERFORMed, and every PERFORM of it comes right after a MOVE of a non-blank program name into CDEMO-TO-PROGRAM (lines 91, 113 and 124 move 'COSGN00C' / 'COADM01C', and line 116 moves CDEMO-FROM-PROGRAM only after testing it is neither SPACES nor LOW-VALUES; both fields PIC X(08), COCOM01Y). COUSR03C never moves SPACES or LOW-VALUES into it in between."
+   },
+   {
+    "unit": "DELETE-USER-SEC-FILE",
+    "line": 313,
+    "kind": "EVALUATE",
+    "outcome": "WHEN@323",
+    "family": "R",
+    "reason": "`WHEN DFHRESP(NOTFND)` after `EXEC CICS DELETE DATASET(WS-USRSEC-FILE)` (line 307) with no RIDFLD: it deletes the record READ-USER-SEC-FILE's READ ... UPDATE (line 269) holds, PERFORMed just before it (lines 190-191). IBM's DELETE raises NOTFND only when the RIDFLD search argument is not found (https://www.ibm.com/docs/en/cics-ts/6.x?topic=summary-delete); with no RIDFLD the failure is INVREQ."
    }
   ],
   "carddemo-userlist": [
@@ -367,6 +384,14 @@
     "outcome": "true",
     "family": "G",
     "reason": "`IF CDEMO-TO-PROGRAM = LOW-VALUES OR SPACES` in RETURN-TO-PREV-SCREEN: the paragraph is only PERFORMed, and every PERFORM of it comes right after a MOVE of a non-blank program name into CDEMO-TO-PROGRAM (lines 91, 114 and 125 move 'COSGN00C' / 'COADM01C', and line 117 moves CDEMO-FROM-PROGRAM only after testing it is neither SPACES nor LOW-VALUES; both fields PIC X(08), COCOM01Y). COUSR02C never moves SPACES or LOW-VALUES into it in between."
+   },
+   {
+    "unit": "UPDATE-USER-SEC-FILE",
+    "line": 368,
+    "kind": "EVALUATE",
+    "outcome": "WHEN@377",
+    "family": "R",
+    "reason": "`WHEN DFHRESP(NOTFND)` after `EXEC CICS REWRITE DATASET(WS-USRSEC-FILE)` (line 360): REWRITE has no RIDFLD and updates the record the READ ... UPDATE at line 322 holds; IBM's REWRITE conditions do not include NOTFND (https://www.ibm.com/docs/en/cics-ts/6.x?topic=summary-rewrite; our spec, gitgalaxy/standards/cics/commands/files.py, lists NORMAL and INVREQ)."
    }
   ]
  }

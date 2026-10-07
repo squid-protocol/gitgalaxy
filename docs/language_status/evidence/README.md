@@ -8,7 +8,7 @@ One record per ported program (#4048): docs/language_status/evidence_records.md 
 |---|---|---|---|---|---|---|---|---|---|
 | [COACTVWC](carddemo-acctview.md) | carddemo-acctview | cics | proven, unapproved |  | 20 | 31/32 / 58/71 | 105/129 / 105/113 | 0 | - |
 | [COADM01C](carddemo-adminmenu.md) | carddemo-adminmenu | cics | proven, unapproved |  | 16 | 8/8 / 20/26 | - | 0 | - |
-| [COBIL00C](carddemo-billpay.md) | carddemo-billpay | cics | proven, unapproved |  | 26 | 16/16 / 47/48 | - | 0 | - |
+| [COBIL00C](carddemo-billpay.md) | carddemo-billpay | cics | proven, unapproved |  | 25 | 16/16 / 46/48 | - | 0 | - |
 | [COCRDLIC](carddemo-cardlist.md) | carddemo-cardlist | cics | proven, unapproved |  | 45 | 36/36 / 146/149 | - | 0 | - |
 | [COCRDSLC](carddemo-cardview.md) | carddemo-cardview | cics | proven, unapproved |  | 23 | 30/30 / 69/75 | - | 0 | - |
 | [CBTRN01C](carddemo-dailyval.md) | carddemo-dailyval | batch | proven, unapproved |  | 21 | 18/18 / 65/66 | - | 0 | - |
@@ -26,9 +26,9 @@ One record per ported program (#4048): docs/language_status/evidence_records.md 
 | [COTRN01C](carddemo-tranview.md) | carddemo-tranview | cics | proven, unapproved |  | 15 | 9/9 / 23/24 | - | 0 | - |
 | [CBTRN03C](carddemo-trnrpt.md) | carddemo-trnrpt | batch | proven, unapproved |  | 25 | 26/26 / 81/82 | - | 0 | - |
 | [COUSR01C](carddemo-useradd.md) | carddemo-useradd | cics | proven, unapproved |  | 13 | 9/9 / 20/21 | - | 0 | - |
-| [COUSR03C](carddemo-userdel.md) | carddemo-userdel | cics | proven, unapproved |  | 19 | 11/11 / 31/32 | - | 0 | - |
+| [COUSR03C](carddemo-userdel.md) | carddemo-userdel | cics | proven, unapproved |  | 18 | 11/11 / 30/32 | - | 0 | - |
 | [COUSR00C](carddemo-userlist.md) | carddemo-userlist | cics | proven, unapproved |  | 32 | 16/16 / 95/100 | - | 0 | - |
-| [COUSR02C](carddemo-userupd.md) | carddemo-userupd | cics | proven, unapproved |  | 24 | 11/11 / 45/46 | - | 0 | - |
+| [COUSR02C](carddemo-userupd.md) | carddemo-userupd | cics | proven, unapproved |  | 23 | 11/11 / 44/46 | - | 0 | - |
 | [INQACC](cbsa-inqacc.md) | cbsa-inqacc | cics | proven, unapproved |  | 14 | 22/25 / 13/25 | - | 0 | - |
 | [UPDACC](cbsa-updacc.md) | cbsa-updacc | cics | proven, unapproved |  | 10 | 7/7 / 5/6 | - | 0 | - |
 | [LGAPVS01](genapp-lgapvs01.md) | genapp-lgapvs01 | cics | proven, unapproved |  | 8 | 2/3 / 5/9 | - | 0 | - |

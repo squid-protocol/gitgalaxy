@@ -9,7 +9,7 @@ fact like these is stated here instead, by a person, with its reason:
     tests/equivalence/infeasible_outcomes.json
     {"format": "infeasible-outcomes/1", "issue": "#4602", "about": ...,
      "cases": {CASE: [{"unit": PARAGRAPH, "line": N, "kind": "IF"|"EVALUATE", "outcome": "true"|"false"|"WHEN@N"|
-                       "OTHER"|"none", "family": "G"|"C"|..., "reason": WHY NO INPUT REACHES IT, citing the COBOL}]}}
+                       "OTHER"|"none", "family": "G"|"C"|"R", "reason": WHY NO INPUT REACHES IT, citing the COBOL}]}}
 
 `line` is the original program's line (the case's program_source), as cobol_coverage reports it. The entries are
 assumptions of the proof, the same standing as the `unreachable` verdict in docs/language_status/mutation_scores.json:
@@ -43,6 +43,7 @@ FIELDS = ("unit", "line", "kind", "outcome", "family", "reason")
 FAMILIES = {
     "G": "a guard every caller has already satisfied (data flow)",
     "C": "a test of a constant: a copybook VALUE never written, a table built once, a loop index with fixed bounds",
+    "R": "a response the command never raises (IBM's documented conditions; the reason cites the page)",
 }
 
 

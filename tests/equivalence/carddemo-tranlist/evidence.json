@@ -26,7 +26,7 @@
     "tests/equivalence/carddemo-tranlist/**"
    ],
    "files": 1,
-   "sha256": "3f3d67ecb188e98c0492c8db6e446105c2195964be5c236611ce8499e0fa3e16"
+   "sha256": "26d55c02be72d7e541fb1ba16200ddd216cfea867b1613f27014b5d9046dd269"
   },
   "harness": {
    "paths": [
@@ -43,7 +43,7 @@
     "tests/tools/java_target_matrix.py"
    ],
    "files": 11,
-   "sha256": "7241b1e25d6af1513246d2b5cd2f168d0e5b98ec6c5af92a92cb4978a5b7895f"
+   "sha256": "17f2c1d2cf1caec1826d9f476691fc609407d5613e72411c2128ca5babb79e11"
   },
   "oracle": {
    "paths": [
@@ -56,14 +56,14 @@
     "tests/tools/equivalence_sql.py"
    ],
    "files": 16,
-   "sha256": "e61e9faec28437e94d312d4736a448036429c1332e4a76c54ccb67dde17476c3"
+   "sha256": "c01338417b189840c3da3fcf109428b6c3c5db987111699423026a5a2aa260eb"
   },
   "generator": {
    "paths": [
     "gitgalaxy/tools/cobol_to_java/**"
    ],
    "files": 62,
-   "sha256": "f9f301dfa1a0ccd12fc7383024a0e7ac8f39c8583fefacf6b9b3f1ce60ae40ea"
+   "sha256": "4f86801ec17ca2a0e9b4f2ddd2877803d5acf868c28cdae9c884963c9df6db4e"
   },
   "corpus": {
    "name": "aws-mainframe-modernization-carddemo",
@@ -73,13 +73,13 @@
   "differences": {
    "sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
   },
-  "digest": "7409d2a695c400ce2bf47dd9e3792f68c8de78087e466d6b1889dba759d87acc"
+  "digest": "6730a10cea4f76d908f9138459000d2dbb14f17a834be753c2c92c89259d712a"
  },
  "proof": {
-  "at": "2026-10-07T10:34:06Z",
+  "at": "2026-10-07T14:56:26Z",
   "verdict": "proven",
-  "runs": 21,
-  "fault_runs": 3,
+  "runs": 32,
+  "fault_runs": 4,
   "environments": null,
   "outputs": {
    "first-entry": {
@@ -165,6 +165,50 @@
    "readprev-io-error": {
     "equal": 4,
     "records": 4
+   },
+   "select-row-2": {
+    "equal": 2,
+    "records": 2
+   },
+   "select-row-3": {
+    "equal": 2,
+    "records": 2
+   },
+   "select-row-5": {
+    "equal": 2,
+    "records": 2
+   },
+   "select-row-6": {
+    "equal": 2,
+    "records": 2
+   },
+   "select-row-7": {
+    "equal": 2,
+    "records": 2
+   },
+   "select-row-8": {
+    "equal": 2,
+    "records": 2
+   },
+   "select-row-9": {
+    "equal": 3,
+    "records": 3
+   },
+   "pf7-with-no-first-id": {
+    "equal": 3,
+    "records": 3
+   },
+   "pf8-with-no-last-id": {
+    "equal": 4,
+    "records": 4
+   },
+   "pf7-reaches-the-top-mid-page": {
+    "equal": 4,
+    "records": 4
+   },
+   "pf7-startbr-not-open": {
+    "equal": 3,
+    "records": 3
    }
   },
   "return_code_equal": null,
@@ -173,16 +217,16 @@
   "java_failed": false,
   "facade": {
    "verdict": "proven",
-   "runs": 21,
-   "passed": 21,
+   "runs": 32,
+   "passed": 32,
    "entry_points": [
     "handleTransaction"
    ],
    "failed": [],
    "error": null
   },
-  "harness_commit": "8dff2ec2e032cfde103a55c284c0f0734d7a2214+uncommitted",
-  "inputs_digest": "7409d2a695c400ce2bf47dd9e3792f68c8de78087e466d6b1889dba759d87acc"
+  "harness_commit": "4a31c3d8a01d630aa00421b590600aa51bed5c8d+uncommitted",
+  "inputs_digest": "6730a10cea4f76d908f9138459000d2dbb14f17a834be753c2c92c89259d712a"
  },
  "coverage": {
   "paragraphs": {
@@ -190,78 +234,12 @@
    "live": 16
   },
   "branches": {
-   "covered": 85,
+   "covered": 96,
    "total": 101
   },
   "uncovered_branches": [
    {
-    "line": 148,
-    "kind": "EVALUATE",
-    "outcome": "WHEN@152",
-    "unit": "PROCESS-ENTER-KEY"
-   },
-   {
-    "line": 148,
-    "kind": "EVALUATE",
-    "outcome": "WHEN@155",
-    "unit": "PROCESS-ENTER-KEY"
-   },
-   {
-    "line": 148,
-    "kind": "EVALUATE",
-    "outcome": "WHEN@161",
-    "unit": "PROCESS-ENTER-KEY"
-   },
-   {
-    "line": 148,
-    "kind": "EVALUATE",
-    "outcome": "WHEN@164",
-    "unit": "PROCESS-ENTER-KEY"
-   },
-   {
-    "line": 148,
-    "kind": "EVALUATE",
-    "outcome": "WHEN@167",
-    "unit": "PROCESS-ENTER-KEY"
-   },
-   {
-    "line": 148,
-    "kind": "EVALUATE",
-    "outcome": "WHEN@170",
-    "unit": "PROCESS-ENTER-KEY"
-   },
-   {
-    "line": 148,
-    "kind": "EVALUATE",
-    "outcome": "WHEN@173",
-    "unit": "PROCESS-ENTER-KEY"
-   },
-   {
-    "line": 236,
-    "kind": "IF",
-    "outcome": "true",
-    "unit": "PROCESS-PF7-KEY"
-   },
-   {
-    "line": 259,
-    "kind": "IF",
-    "outcome": "true",
-    "unit": "PROCESS-PF8-KEY"
-   },
-   {
-    "line": 337,
-    "kind": "IF",
-    "outcome": "false",
-    "unit": "PROCESS-PAGE-BACKWARD"
-   },
-   {
     "line": 339,
-    "kind": "IF",
-    "outcome": "false",
-    "unit": "PROCESS-PAGE-BACKWARD"
-   },
-   {
-    "line": 353,
     "kind": "IF",
     "outcome": "false",
     "unit": "PROCESS-PAGE-BACKWARD"
@@ -296,7 +274,7 @@
    "total": 0
   },
   "source": "the proof's own traced COBOL runs (cobol_coverage.py)",
-  "inputs_digest": "7409d2a695c400ce2bf47dd9e3792f68c8de78087e466d6b1889dba759d87acc"
+  "inputs_digest": "6730a10cea4f76d908f9138459000d2dbb14f17a834be753c2c92c89259d712a"
  },
  "reach": {
   "entry_points": [
@@ -341,7 +319,7 @@
   "compiler_options": null,
   "image": {
    "name": "gitgalaxy-gnucobol:3",
-   "id": "sha256:bcdd12de145fe2d347b66753abebca39cffb2a2e1cc8c19e5e4e5be714754b05",
+   "id": "sha256:d7e387df360c519ce8945a1f6d748c8dafab06f50551b23ddf85d6373a4dcd6e",
    "base": "debian:bookworm-slim@sha256:3783cc01769c7b2b1b83a5c5ad96c815348e28ed7da68e2e3687004faa906251",
    "matches_pin": true,
    "mismatches": []
@@ -361,7 +339,7 @@
    },
    {
     "path": "tests/equivalence/cics/ggcics.c",
-    "sha256": "60257f8571e9c88ef8de09471b46c2cdcde17a1bbcd74f853c093174be7533a1"
+    "sha256": "03d1488e2fd6a6a8478ca7c601e1ac5be38bfe80cbc593766c0dd299743009e1"
    },
    {
     "path": "tests/equivalence/db2/SQLCA.cpy",

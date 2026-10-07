@@ -518,6 +518,40 @@
      "why": "14 on the payment's WRITE (line 533): 'Tran ID already exist...'"
     }
    ]
+  },
+  {
+   "name": "full-commarea-carried",
+   "aid": "DFHPF5",
+   "commarea": {
+    "CDEMO-FROM-TRANID": "CM00",
+    "CDEMO-FROM-PROGRAM": "COMEN01C",
+    "CDEMO-USER-ID": "USER0001",
+    "CDEMO-USER-TYPE": "U",
+    "CDEMO-PGM-CONTEXT": 1,
+    "CDEMO-TO-TRANID": "CM00",
+    "CDEMO-TO-PROGRAM": "COMEN01C",
+    "CDEMO-CUST-ID": 123456789,
+    "CDEMO-CUST-FNAME": "ALICE",
+    "CDEMO-CUST-MNAME": "B",
+    "CDEMO-CUST-LNAME": "SMITH",
+    "CDEMO-ACCT-ID": 12345678901,
+    "CDEMO-ACCT-STATUS": "Y",
+    "CDEMO-CARD-NUM": 4111111111111111,
+    "CDEMO-LAST-MAP": "COBIL0A",
+    "CDEMO-LAST-MAPSET": "COBIL00",
+    "CDEMO-CB00-TRNID-FIRST": "0000000000000001",
+    "CDEMO-CB00-TRNID-LAST": "0000000000000010",
+    "CDEMO-CB00-PAGE-NUM": 2,
+    "CDEMO-CB00-NEXT-PAGE-FLG": "Y",
+    "CDEMO-CB00-TRN-SEL-FLG": "S",
+    "CDEMO-CB00-TRN-SELECTED": "00000000001"
+   },
+   "receive": {
+    "COBIL0A": {
+     "ACTIDINI": "00000000001"
+    }
+   },
+   "why": "#4628 (det-port mutants 9a27cf753d, 34c5946ef6, 0daaa5f7e6, 5624cc5926, b7c58f0512, d37191fcb0): every COMMAREA field set, COBIL00C's CB00 part too; an invalid key re-sends the screen and the RETURN carries the COMMAREA back"
   }
  ],
  "notes": "CardDemo's bill payment (transaction CB00, program COBIL00C): an account's balance is read FOR UPDATE and shown; on confirmation the whole balance is paid -- a new transaction (the last id + 1, found by a HIGH-VALUES STARTBR and a READPREV; its timestamps from ASKTIME / FORMATTIME at the task's clock) is WRITEn to TRANSACT and the account REWRITten. Each scenario's files are compared after the task. acctdata.txt is CardDemo's own accounts plus one synthetic account, 00000099999, with a zero balance (written for this case) for 'You have nothing to pay...'. Derived from CardDemo (Apache-2.0; Copyright Amazon.com, Inc. or its affiliates): LICENSE and NOTICE here are the source's own."

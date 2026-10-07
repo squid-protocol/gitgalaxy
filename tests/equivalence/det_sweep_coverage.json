@@ -207,7 +207,7 @@
    }
   },
   "carddemo-billpay": {
-   "scenarios": 25,
+   "scenarios": 26,
    "paragraphs": {
     "covered": 16,
     "live": 16
@@ -217,7 +217,7 @@
     "total": 48
    },
    "inputs": {
-    "case": "6790dbfc07f6ecf4a4528681eaae2540f3202ace69aaf19f006b839f6d8eee0f",
+    "case": "2e6cd5ae196f4404fb881475b14b1ceca87de31d91f78e373fb4295219fb6f37",
     "corpus": "d0c4803872ec126eb56a170212f76207beff5ab8c2b6507dd6df4a084cdeb919",
     "harness": "fee14be7661ceeeb9fec70d509307f329243eab0342709c1f0e7464599b7e378",
     "oracle": "34e4374b3f771d8a11ed9471e6ec942784f1f5435a723bdd080f8567eda4171c"

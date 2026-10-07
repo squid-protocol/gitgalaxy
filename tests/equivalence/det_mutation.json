@@ -690,6 +690,609 @@
     "oracle": "c01338417b189840c3da3fcf109428b6c3c5db987111699423026a5a2aa260eb"
    }
   },
+  "carddemo-billpay": {
+   "program": "COBIL00C",
+   "commit": "e3775485ef1ebc3659cf62e41908b9d3013b88f6",
+   "date": "2026-10-07",
+   "mode": "fast",
+   "seed": 0,
+   "mutants": 1616,
+   "out_of_scope": 12,
+   "chosen": 150,
+   "coverage": "proven on 25 scenarios, covering 16/16 paragraphs and 46/48 branches",
+   "counts": {
+    "killed": 87,
+    "timeout": 0,
+    "survived": 60,
+    "stillborn": 3,
+    "error": 0,
+    "pending": 0
+   },
+   "killed": [
+    "01420c5c14",
+    "024ab4b921",
+    "0251834f93",
+    "056f89568c",
+    "0804d8fb75",
+    "08dd7e48ca",
+    "0bfb93c3df",
+    "0c28309bcd",
+    "0f6eeb7f24",
+    "10121120e3",
+    "10a1f25cc6",
+    "115b9bda60",
+    "14f6836357",
+    "16ca6b5138",
+    "17be9c2a46",
+    "22de1afa1d",
+    "2589e88f24",
+    "2671c316e9",
+    "2a608ece44",
+    "2b0887e8d4",
+    "2e0a302667",
+    "2e28a73de8",
+    "30551a7d75",
+    "33f1b25068",
+    "35a5512cda",
+    "3cc6975c16",
+    "3f7fc5f42b",
+    "480322aaed",
+    "4b3775338c",
+    "4e0c3de731",
+    "4eddb15f65",
+    "4f0e6aa282",
+    "4fddb1ea6c",
+    "581da1d377",
+    "5bd479c54f",
+    "5db40280bb",
+    "60f40306e6",
+    "631948e4f8",
+    "64c5cf7b06",
+    "66855a385d",
+    "6739bffe0f",
+    "75327dc8d4",
+    "79d57ef8a7",
+    "7d12927c8f",
+    "7d7a69f23f",
+    "81a15e729b",
+    "8b1e50ecca",
+    "8d3c690bac",
+    "93274359ea",
+    "93c5bc9e01",
+    "942e3fd8cf",
+    "952e438af7",
+    "95b91928de",
+    "97717543a7",
+    "995c78ab50",
+    "9a097b15d8",
+    "9bdaaac3e7",
+    "a188c4290b",
+    "a3e267b3ab",
+    "a48e47217e",
+    "ab78f30739",
+    "aba4b5fb8d",
+    "b0fda15277",
+    "b1e18826be",
+    "b269a51e40",
+    "b5ac4b5b28",
+    "b74b6a4de5",
+    "bce4b53fe9",
+    "c000cc838b",
+    "c138a05bb4",
+    "c221465e8c",
+    "c559b466d1",
+    "c924bd0f9b",
+    "cd1797f31e",
+    "d1b0f3c99a",
+    "d45bfa4e23",
+    "db20833752",
+    "dc40c49e9a",
+    "dc87c1050b",
+    "e2814dcdaf",
+    "e28c41aead",
+    "e7433e81f8",
+    "e839c23f30",
+    "f4f9b66a11",
+    "f7f15d7197",
+    "f86323db8e",
+    "fffb7231d4"
+   ],
+   "stillborn": [
+    "114fbce443",
+    "3836e8e3d2",
+    "82718b0db2"
+   ],
+   "survived": [
+    {
+     "id": "036f787c27",
+     "op": "LIT",
+     "file": "service/Cobil00cService.java",
+     "line": 100,
+     "before": "\"ICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAg\",",
+     "after": "\"XCAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAg\","
+    },
+    {
+     "id": "2da4d21dcd",
+     "op": "LIT",
+     "file": "service/Cobil00cService.java",
+     "line": 103,
+     "before": "\"ICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAg\",",
+     "after": "\"XCAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAg\","
+    },
+    {
+     "id": "c690d71ccf",
+     "op": "LIT",
+     "file": "service/Cobil00cService.java",
+     "line": 114,
+     "before": "\"ICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAg\",",
+     "after": "\"XCAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAg\","
+    },
+    {
+     "id": "19a0f6e916",
+     "op": "LIT",
+     "file": "service/Cobil00cService.java",
+     "line": 135,
+     "before": "\"ICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAg\",",
+     "after": "\"XCAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAg\","
+    },
+    {
+     "id": "7b9fa89b31",
+     "op": "LIT",
+     "file": "service/Cobil00cService.java",
+     "line": 160,
+     "before": "\"ICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAg\",",
+     "after": "\"XCAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAg\","
+    },
+    {
+     "id": "cdfbda69df",
+     "op": "LIT",
+     "file": "service/Cobil00cService.java",
+     "line": 167,
+     "before": "\"ICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAg\",",
+     "after": "\"XCAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAg\","
+    },
+    {
+     "id": "cf59041255",
+     "op": "LIT",
+     "file": "service/Cobil00cService.java",
+     "line": 174,
+     "before": "\"ICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAg\",",
+     "after": "\"XCAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAg\","
+    },
+    {
+     "id": "44371698b5",
+     "op": "CON",
+     "file": "service/Cobil00cService.java",
+     "line": 222,
+     "before": "private final Field f51_TRNNAMEL = Field.binary(s_COBIL0AI, 12, 4, 0, true, false);",
+     "after": "private final Field f51_TRNNAMEL = Field.binary(s_COBIL0AI, 12, 4, 1, true, false);"
+    },
+    {
+     "id": "b55965544f",
+     "op": "CON",
+     "file": "service/Cobil00cService.java",
+     "line": 246,
+     "before": "private final Field f99_CONFIRML = Field.binary(s_COBIL0AI, 201, 4, 0, true, false);",
+     "after": "private final Field f99_CONFIRML = Field.binary(s_COBIL0AI, 201, 4, 1, true, false);"
+    },
+    {
+     "id": "f0cee1979e",
+     "op": "CON",
+     "file": "service/Cobil00cService.java",
+     "line": 268,
+     "before": "private final Field f144_CURTIMEC = Field.alphanumeric(s_COBIL0AI, 150, 1, false);",
+     "after": "private final Field f144_CURTIMEC = Field.alphanumeric(s_COBIL0AI, 150, 2, false);"
+    },
+    {
+     "id": "64dabdcc3c",
+     "op": "CON",
+     "file": "service/Cobil00cService.java",
+     "line": 269,
+     "before": "private final Field f146_CURTIMEH = Field.alphanumeric(s_COBIL0AI, 152, 1, false);",
+     "after": "private final Field f146_CURTIMEH = Field.alphanumeric(s_COBIL0AI, 153, 1, false);"
+    },
+    {
+     "id": "68d8824e9f",
+     "op": "CON",
+     "file": "service/Cobil00cService.java",
+     "line": 272,
+     "before": "private final Field f152_ACTIDINH = Field.alphanumeric(s_COBIL0AI, 167, 1, false);",
+     "after": "private final Field f152_ACTIDINH = Field.alphanumeric(s_COBIL0AI, 167, 2, false);"
+    },
+    {
+     "id": "1270d892ac",
+     "op": "CON",
+     "file": "service/Cobil00cService.java",
+     "line": 320,
+     "before": "private final Field f254_DFHNULL = Field.alphanumeric(s_DFHAID, 0, 1, false);",
+     "after": "private final Field f254_DFHNULL = Field.alphanumeric(s_DFHAID, 0, 2, false);"
+    },
+    {
+     "id": "6a510536b0",
+     "op": "CON",
+     "file": "service/Cobil00cService.java",
+     "line": 332,
+     "before": "private final Field f266_DFHPF1 = Field.alphanumeric(s_DFHAID, 12, 1, false);",
+     "after": "private final Field f266_DFHPF1 = Field.alphanumeric(s_DFHAID, 13, 1, false);"
+    },
+    {
+     "id": "b03cde8f0a",
+     "op": "CON",
+     "file": "service/Cobil00cService.java",
+     "line": 343,
+     "before": "private final Field f277_DFHPF12 = Field.alphanumeric(s_DFHAID, 23, 1, false);",
+     "after": "private final Field f277_DFHPF12 = Field.alphanumeric(s_DFHAID, 24, 1, false);"
+    },
+    {
+     "id": "cbadbf4c7d",
+     "op": "CON",
+     "file": "service/Cobil00cService.java",
+     "line": 367,
+     "before": "private final Field f392_GG_RETURN_CODE = Field.binary(s_GG_RETURN_CODE, 0, 4, 0, true, false);",
+     "after": "private final Field f392_GG_RETURN_CODE = Field.binary(s_GG_RETURN_CODE, 0, 4, 1, true, false);"
+    },
+    {
+     "id": "bc7eee06fb",
+     "op": "ROR",
+     "file": "service/Cobil00cService.java",
+     "line": 402,
+     "before": "if (task.level() > 1) {",
+     "after": "if (task.level() >= 1) {"
+    },
+    {
+     "id": "a760c29f9a",
+     "op": "LIT",
+     "file": "service/Cobil00cService.java",
+     "line": 422,
+     "before": "java.util.Map.entry(\"ENDBR-TRANSACT-FILE\", 12),",
+     "after": "java.util.Map.entry(\"XNDBR-TRANSACT-FILE\", 12),"
+    },
+    {
+     "id": "2fec92efb5",
+     "op": "LIT",
+     "file": "service/Cobil00cService.java",
+     "line": 424,
+     "before": "java.util.Map.entry(\"STARTBR-TRANSACT-FILE\", 10),",
+     "after": "java.util.Map.entry(\"XTARTBR-TRANSACT-FILE\", 10),"
+    },
+    {
+     "id": "49d4e6acef",
+     "op": "LIT",
+     "file": "service/Cobil00cService.java",
+     "line": 426,
+     "before": "java.util.Map.entry(\"UPDATE-ACCTDAT-FILE\", 8),",
+     "after": "java.util.Map.entry(\"XPDATE-ACCTDAT-FILE\", 8),"
+    },
+    {
+     "id": "f95e16eca5",
+     "op": "CON",
+     "file": "service/Cobil00cService.java",
+     "line": 434,
+     "before": "java.util.Map.entry(\"MAIN-PARA\", 0)",
+     "after": "java.util.Map.entry(\"MAIN-PARA\", 1)"
+    },
+    {
+     "id": "14a0350448",
+     "op": "NEG",
+     "file": "service/Cobil00cService.java",
+     "line": 439,
+     "before": "if (i == null) {",
+     "after": "if (!(i == null)) {"
+    },
+    {
+     "id": "683040156b",
+     "op": "ROR",
+     "file": "service/Cobil00cService.java",
+     "line": 439,
+     "before": "if (i == null) {",
+     "after": "if (i != null) {"
+    },
+    {
+     "id": "9a27cf753d",
+     "op": "DEL",
+     "file": "service/Cobil00cService.java",
+     "line": 484,
+     "before": "Cobol.move(d.getCdemoCustId() == null ? BigDecimal.ZERO : new BigDecimal(d.getCdemoCustId().toString()), Field.zoned(s, base + 34, 9, 0, false, false, false), CS);",
+     "after": "/* Cobol.move(d.getCdemoCustId() == null ? BigDecimal.ZERO : new BigDecimal(d.getCdemoCustId().toString()), Field.zoned(s, base + 34, 9, 0, false, false, false), CS); */"
+    },
+    {
+     "id": "34c5946ef6",
+     "op": "CON",
+     "file": "service/Cobil00cService.java",
+     "line": 485,
+     "before": "Cobol.move(d.getCdemoCustFname() == null ? \"\" : d.getCdemoCustFname(), Field.alphanumeric(s, base + 43, 25, false), CS);",
+     "after": "Cobol.move(d.getCdemoCustFname() == null ? \"\" : d.getCdemoCustFname(), Field.alphanumeric(s, base + 44, 25, false), CS);"
+    },
+    {
+     "id": "0daaa5f7e6",
+     "op": "ROR",
+     "file": "service/Cobil00cService.java",
+     "line": 488,
+     "before": "Cobol.move(d.getCdemoAcctId() == null ? BigDecimal.ZERO : new BigDecimal(d.getCdemoAcctId().toString()), Field.zoned(s, base + 118, 11, 0, false, false, false), CS);",
+     "after": "Cobol.move(d.getCdemoAcctId() != null ? BigDecimal.ZERO : new BigDecimal(d.getCdemoAcctId().toString()), Field.zoned(s, base + 118, 11, 0, false, false, false), CS);"
+    },
+    {
+     "id": "5624cc5926",
+     "op": "ROR",
+     "file": "service/Cobil00cService.java",
+     "line": 489,
+     "before": "Cobol.move(d.getCdemoAcctStatus() == null ? \"\" : d.getCdemoAcctStatus(), Field.alphanumeric(s, base + 129, 1, false), CS);",
+     "after": "Cobol.move(d.getCdemoAcctStatus() != null ? \"\" : d.getCdemoAcctStatus(), Field.alphanumeric(s, base + 129, 1, false), CS);"
+    },
+    {
+     "id": "b7c58f0512",
+     "op": "CON",
+     "file": "service/Cobil00cService.java",
+     "line": 492,
+     "before": "Cobol.move(d.getCdemoLastMapset() == null ? \"\" : d.getCdemoLastMapset(), Field.alphanumeric(s, base + 153, 7, false), CS);",
+     "after": "Cobol.move(d.getCdemoLastMapset() == null ? \"\" : d.getCdemoLastMapset(), Field.alphanumeric(s, base + 154, 7, false), CS);"
+    },
+    {
+     "id": "d37191fcb0",
+     "op": "ROR",
+     "file": "service/Cobil00cService.java",
+     "line": 497,
+     "before": "Cobol.move(d.getCdemoCb00TrnSelFlg() == null ? \"\" : d.getCdemoCb00TrnSelFlg(), Field.alphanumeric(s, base + 201, 1, false), CS);",
+     "after": "Cobol.move(d.getCdemoCb00TrnSelFlg() != null ? \"\" : d.getCdemoCb00TrnSelFlg(), Field.alphanumeric(s, base + 201, 1, false), CS);"
+    },
+    {
+     "id": "599e03f279",
+     "op": "AOR",
+     "file": "service/Cobil00cService.java",
+     "line": 502,
+     "before": "d.setCdemoFromTranid(Cobol.text(Field.alphanumeric(s, base + 0, 4, false), CS));",
+     "after": "d.setCdemoFromTranid(Cobol.text(Field.alphanumeric(s, base - 0, 4, false), CS));"
+    },
+    {
+     "id": "fc5e5d8c1f",
+     "op": "DEL",
+     "file": "service/Cobil00cService.java",
+     "line": 556,
+     "before": "System.arraycopy(IMAGE_s_CCDA_COMMON_MESSAGES, 0, s_CCDA_COMMON_MESSAGES.bytes, 0, IMAGE_s_CCDA_COMMON_MESSAGES.length);",
+     "after": "/* System.arraycopy(IMAGE_s_CCDA_COMMON_MESSAGES, 0, s_CCDA_COMMON_MESSAGES.bytes, 0, IMAGE_s_CCDA_COMMON_MESSAGES.length); */"
+    },
+    {
+     "id": "47d35b369b",
+     "op": "AOR",
+     "file": "service/Cobil00cService.java",
+     "line": 610,
+     "before": "Cobol.store(f362_EIBDATE, BigDecimal.valueOf((now.getYear() - 1900) * 1000L + now.getDayOfYear()), false, CS);",
+     "after": "Cobol.store(f362_EIBDATE, BigDecimal.valueOf((now.getYear() - 1900) * 1000L - now.getDayOfYear()), false, CS);"
+    },
+    {
+     "id": "d8042a3a17",
+     "op": "AOR",
+     "file": "service/Cobil00cService.java",
+     "line": 611,
+     "before": "Cobol.store(f361_EIBTIME, BigDecimal.valueOf(now.getHour() * 10000L + now.getMinute() * 100L + now.getSecond()), false, CS);",
+     "after": "Cobol.store(f361_EIBTIME, BigDecimal.valueOf(now.getHour() / 10000L + now.getMinute() * 100L + now.getSecond()), false, CS);"
+    },
+    {
+     "id": "63fe42e438",
+     "op": "DEL",
+     "file": "service/Cobil00cService.java",
+     "line": 675,
+     "before": "Cobol.swapTruncBinary(truncBefore);",
+     "after": "/* Cobol.swapTruncBinary(truncBefore); */"
+    },
+    {
+     "id": "fa0e7d5156",
+     "op": "LIT",
+     "file": "service/Cobil00cService.java",
+     "line": 690,
+     "before": "region.run(task, \"COBIL00C\", this::runTask);",
+     "after": "region.run(task, \"XOBIL00C\", this::runTask);"
+    },
+    {
+     "id": "0358cbc188",
+     "op": "ROR",
+     "file": "service/Cobil00cService.java",
+     "line": 766,
+     "before": "if (next >= 16) {",
+     "after": "if (next < 16) {"
+    },
+    {
+     "id": "9bb68634d0",
+     "op": "ROR",
+     "file": "service/Cobil00cService.java",
+     "line": 772,
+     "before": "if (e.depth != mine) {",
+     "after": "if (e.depth == mine) {"
+    },
+    {
+     "id": "65155495e3",
+     "op": "DEL",
+     "file": "service/Cobil00cService.java",
+     "line": 810,
+     "before": "Cobol.moveFigurative(Figurative.SPACES, f172_ERRMSGO, CS);",
+     "after": "/* Cobol.moveFigurative(Figurative.SPACES, f172_ERRMSGO, CS); */"
+    },
+    {
+     "id": "c0a637f6fd",
+     "op": "AOR",
+     "file": "service/Cobil00cService.java",
+     "line": 960,
+     "before": "Cobol.moveFigurative(Figurative.SPACES, Field.alphanumeric(f238_TRAN_RECORD.storage(), f238_TRAN_RECORD.offset() + 0, 16, false), CS);",
+     "after": "Cobol.moveFigurative(Figurative.SPACES, Field.alphanumeric(f238_TRAN_RECORD.storage(), f238_TRAN_RECORD.offset() - 0, 16, false), CS);"
+    },
+    {
+     "id": "dcc7d99d2e",
+     "op": "CON",
+     "file": "service/Cobil00cService.java",
+     "line": 961,
+     "before": "Cobol.moveFigurative(Figurative.SPACES, Field.alphanumeric(f238_TRAN_RECORD.storage(), f238_TRAN_RECORD.offset() + 16, 2, false), CS);",
+     "after": "Cobol.moveFigurative(Figurative.SPACES, Field.alphanumeric(f238_TRAN_RECORD.storage(), f238_TRAN_RECORD.offset() + 16, 3, false), CS);"
+    },
+    {
+     "id": "def8119c6c",
+     "op": "DEL",
+     "file": "service/Cobil00cService.java",
+     "line": 963,
+     "before": "Cobol.moveFigurative(Figurative.SPACES, Field.alphanumeric(f238_TRAN_RECORD.storage(), f238_TRAN_RECORD.offset() + 22, 10, false), CS);",
+     "after": "/* Cobol.moveFigurative(Figurative.SPACES, Field.alphanumeric(f238_TRAN_RECORD.storage(), f238_TRAN_RECORD.offset() + 22, 10, false), CS); */"
+    },
+    {
+     "id": "11f120580c",
+     "op": "CON",
+     "file": "service/Cobil00cService.java",
+     "line": 968,
+     "before": "Cobol.moveFigurative(Figurative.SPACES, Field.alphanumeric(f238_TRAN_RECORD.storage(), f238_TRAN_RECORD.offset() + 202, 50, false), CS);",
+     "after": "Cobol.moveFigurative(Figurative.SPACES, Field.alphanumeric(f238_TRAN_RECORD.storage(), f238_TRAN_RECORD.offset() + 202, 51, false), CS);"
+    },
+    {
+     "id": "002e028aa7",
+     "op": "DEL",
+     "file": "service/Cobil00cService.java",
+     "line": 969,
+     "before": "Cobol.moveFigurative(Figurative.SPACES, Field.alphanumeric(f238_TRAN_RECORD.storage(), f238_TRAN_RECORD.offset() + 252, 10, false), CS);",
+     "after": "/* Cobol.moveFigurative(Figurative.SPACES, Field.alphanumeric(f238_TRAN_RECORD.storage(), f238_TRAN_RECORD.offset() + 252, 10, false), CS); */"
+    },
+    {
+     "id": "aac9361c82",
+     "op": "DEL",
+     "file": "service/Cobil00cService.java",
+     "line": 972,
+     "before": "Cobol.moveFigurative(Figurative.SPACES, Field.alphanumeric(f238_TRAN_RECORD.storage(), f238_TRAN_RECORD.offset() + 304, 26, false), CS);",
+     "after": "/* Cobol.moveFigurative(Figurative.SPACES, Field.alphanumeric(f238_TRAN_RECORD.storage(), f238_TRAN_RECORD.offset() + 304, 26, false), CS); */"
+    },
+    {
+     "id": "f9f442afc2",
+     "op": "DEL",
+     "file": "service/Cobil00cService.java",
+     "line": 1029,
+     "before": "Cobol.moveFigurative(Figurative.ZEROS, Field.zoned(f202_WS_TIMESTAMP.storage(), f202_WS_TIMESTAMP.offset() + 8, 2, 0, false, false, false), CS);",
+     "after": "/* Cobol.moveFigurative(Figurative.ZEROS, Field.zoned(f202_WS_TIMESTAMP.storage(), f202_WS_TIMESTAMP.offset() + 8, 2, 0, false, false, false), CS); */"
+    },
+    {
+     "id": "a9a44155e9",
+     "op": "AOR",
+     "file": "service/Cobil00cService.java",
+     "line": 1032,
+     "before": "Cobol.moveFigurative(Figurative.ZEROS, Field.zoned(f202_WS_TIMESTAMP.storage(), f202_WS_TIMESTAMP.offset() + 17, 2, 0, false, false, false), CS);",
+     "after": "Cobol.moveFigurative(Figurative.ZEROS, Field.zoned(f202_WS_TIMESTAMP.storage(), f202_WS_TIMESTAMP.offset() - 17, 2, 0, false, false, false), CS);"
+    },
+    {
+     "id": "692a390a4a",
+     "op": "COR",
+     "file": "service/Cobil00cService.java",
+     "line": 1046,
+     "before": "if ((Cobol.compareFigurative(f25_CDEMO_TO_PROGRAM, Figurative.LOW_VALUES, CS) == 0 || Cobol.compareFigurative(f25_CDEMO_TO_PROGRAM, Figurative.SPACES, CS) == 0)) {",
+     "after": "if ((Cobol.compareFigurative(f25_CDEMO_TO_PROGRAM, Figurative.LOW_VALUES, CS) == 0 && Cobol.compareFigurative(f25_CDEMO_TO_PROGRAM, Figurative.SPACES, CS) == 0)) {"
+    },
+    {
+     "id": "1b9d9be701",
+     "op": "LIT",
+     "file": "service/Cobil00cService.java",
+     "line": 1048,
+     "before": "Cobol.move(\"COSGN00C\", f25_CDEMO_TO_PROGRAM, CS);",
+     "after": "Cobol.move(\"XOSGN00C\", f25_CDEMO_TO_PROGRAM, CS);"
+    },
+    {
+     "id": "88bec479e3",
+     "op": "NEG",
+     "file": "service/Cobil00cService.java",
+     "line": 1061,
+     "before": "if (DetCics.resp(xr4) != 0) {",
+     "after": "if (!(DetCics.resp(xr4) != 0)) {"
+    },
+    {
+     "id": "ac0d3f0340",
+     "op": "NEG",
+     "file": "service/Cobil00cService.java",
+     "line": 1063,
+     "before": "if (to >= 0) return GOTO | to;",
+     "after": "if (!(to >= 0)) return GOTO | to;"
+    },
+    {
+     "id": "f4f10f2d8c",
+     "op": "LIT",
+     "file": "service/Cobil00cService.java",
+     "line": 1082,
+     "before": "DetCics.subfields(sub6, \"CURDATE\", f63_CURDATEL, f66_CURDATEA, f126_CURDATEC, f128_CURDATEH, CS);",
+     "after": "DetCics.subfields(sub6, \"XURDATE\", f63_CURDATEL, f66_CURDATEA, f126_CURDATEC, f128_CURDATEH, CS);"
+    },
+    {
+     "id": "e62968171a",
+     "op": "ROR",
+     "file": "service/Cobil00cService.java",
+     "line": 1103,
+     "before": "if (to >= 0) return GOTO | to;",
+     "after": "if (to > 0) return GOTO | to;"
+    },
+    {
+     "id": "6f43a76cdf",
+     "op": "LIT",
+     "file": "service/Cobil00cService.java",
+     "line": 1122,
+     "before": "if (typed9.get(\"CURDATE\") != null) {",
+     "after": "if (typed9.get(\"XURDATE\") != null) {"
+    },
+    {
+     "id": "e4fd386062",
+     "op": "DEL",
+     "file": "service/Cobil00cService.java",
+     "line": 1230,
+     "before": "Cobol.store(f390_EIBRESP2, BigDecimal.valueOf(0), false, CS);",
+     "after": "/* Cobol.store(f390_EIBRESP2, BigDecimal.valueOf(0), false, CS); */"
+    },
+    {
+     "id": "5756ea3e54",
+     "op": "DEL",
+     "file": "service/Cobil00cService.java",
+     "line": 1253,
+     "before": "Cobol.move(DM1, f87_ACTIDINL, CS);",
+     "after": "/* Cobol.move(DM1, f87_ACTIDINL, CS); */"
+    },
+    {
+     "id": "f38d964eef",
+     "op": "LIT",
+     "file": "service/Cobil00cService.java",
+     "line": 1288,
+     "before": "f8_WS_ERR_FLG = \"Y\";",
+     "after": "f8_WS_ERR_FLG = \"X\";"
+    },
+    {
+     "id": "1c8cdbdf56",
+     "op": "LIT",
+     "file": "service/Cobil00cService.java",
+     "line": 1321,
+     "before": "Sysout.display(\"RESP:\", Cobol.displayText(f9_WS_RESP_CD, CS), \"REAS:\", Cobol.displayText(f10_WS_REAS_CD, CS));",
+     "after": "Sysout.display(\"RESP:\", Cobol.displayText(f9_WS_RESP_CD, CS), \"XEAS:\", Cobol.displayText(f10_WS_REAS_CD, CS));"
+    },
+    {
+     "id": "e54185e456",
+     "op": "NEG",
+     "file": "service/Cobil00cService.java",
+     "line": 1375,
+     "before": "if (to >= 0) return GOTO | to;",
+     "after": "if (!(to >= 0)) return GOTO | to;"
+    },
+    {
+     "id": "f3346f63b3",
+     "op": "ROR",
+     "file": "service/Cobil00cService.java",
+     "line": 1375,
+     "before": "if (to >= 0) return GOTO | to;",
+     "after": "if (to < 0) return GOTO | to;"
+    },
+    {
+     "id": "d6666d8a32",
+     "op": "DEL",
+     "file": "service/Cobil00cService.java",
+     "line": 1387,
+     "before": "Cobol.store(f10_WS_REAS_CD, BigDecimal.valueOf(0), false, CS);",
+     "after": "/* Cobol.store(f10_WS_REAS_CD, BigDecimal.valueOf(0), false, CS); */"
+    }
+   ],
+   "inputs": {
+    "port": "19cb13d973c5aa1bae12a9f53b3c89adf7d7278c7386ac277f9f09857b1db865",
+    "generator": "4f86801ec17ca2a0e9b4f2ddd2877803d5acf868c28cdae9c884963c9df6db4e",
+    "case": "6790dbfc07f6ecf4a4528681eaae2540f3202ace69aaf19f006b839f6d8eee0f",
+    "corpus": "d0c4803872ec126eb56a170212f76207beff5ab8c2b6507dd6df4a084cdeb919",
+    "harness": "17f2c1d2cf1caec1826d9f476691fc609407d5613e72411c2128ca5babb79e11",
+    "oracle": "c01338417b189840c3da3fcf109428b6c3c5db987111699423026a5a2aa260eb"
+   }
+  },
   "carddemo-signon": {
    "program": "COSGN00C",
    "commit": "6def146cab10f51adddf93613028fb67d1a6faef+uncommitted",

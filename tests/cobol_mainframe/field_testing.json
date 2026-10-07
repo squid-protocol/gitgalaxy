@@ -834,6 +834,7 @@
       "severity": "fact",
       "found_by": "ground-truth ledger on the pin (#4270)",
       "issue": 4626,
+      "fixed_by": "#4643",
       "summary": "cobol_schema_forge reads no record fields from one-digit level numbers (`1 PROG-NAMES.` / `2 GETPOL PIC X(8) VALUE ...`): 0 of the 158 fields of the 8 programs that declare any, while the engine reads all of them."
     }
   ],

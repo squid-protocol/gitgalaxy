@@ -1070,3 +1070,126 @@ def test_the_stub_stops_a_reference_past_a_stated_commarea_length(tmp_path):
     (d / "commarea.exact").write_text("60\n", encoding="ascii")
     assert run("60", "59") == (0, "moved=1 first=x\nwrote\n")
     assert run("60", "60") == (98, "moved=1 first=x\nCOMMAREA past EIBCALEN: not modelled\n")
+
+
+# ---- #4270: a task started with a channel; the containers it leaves compared (X24); a case's transactions ----------
+def _channel_case():
+    return {"name": "x", "program": "CRDTCHK", "transid": "ICCK", "scenarios": [], "datasets": {}}
+
+
+def test_a_scenario_states_the_channel_its_task_starts_with():
+    """#4270 (X24): `"channel"` -- a name and containers (text in the case's data page, or hex; BIT unless CHAR, as
+    PUT CONTAINER's default) -- is what a RUN TRANSID CHANNEL parent passed. Names are CICS's: 1-16, no blank."""
+    sc = {"name": "s", "channel": {"name": "MYCHANNEL", "containers": {
+        "INPUTCONTAINER": {"text": "0001"}, "RAW": {"hex": "00ff", "datatype": "CHAR"}}}}  # fmt: skip
+    got = ec.scenario_channel(_channel_case(), sc)
+    assert got == {"name": "MYCHANNEL", "containers": [{"name": "INPUTCONTAINER", "data": b"0001", "bit": True},
+                                                       {"name": "RAW", "data": b"\x00\xff", "bit": False}]}  # fmt: skip
+    assert ec.scenario_channel(_channel_case(), {"name": "s"}) is None
+    assert ec._channel_json(_channel_case(), sc)["containers"][1] == {"name": "RAW", "hex": "00FF", "bit": False}
+    for bad in (
+        {"name": "MY CHANNEL"},
+        {"name": "X" * 17},
+        {"name": "C", "containers": {"K": {"text": "a", "hex": "61"}}},
+        {"name": "C", "containers": {"K": {}}},
+        {"name": "C", "containers": {"K": {"hex": "61", "datatype": "X"}}},
+    ):
+        with pytest.raises(ec.Unsupported):
+            ec.scenario_channel(_channel_case(), {"name": "s", "channel": bad})
+
+
+def test_the_containers_a_task_leaves_are_compared_at_its_end_unless_it_abends(tmp_path):
+    """#4270 (X24): the stub's containers.out -> a last CONTAINERS event (before a LINKed program's COMMAREA, as
+    CicsTask's test writes them); RUN TRANSID CHILD is compared as CicsTask records it; an abend drops the
+    containers, as it drops the COMMAREA; every container's bytes, both ways, are compared."""
+    out = tmp_path / "out"
+    out.mkdir()
+    (out / "events.txt").write_text("001 RUN pgm=CSSTATS2 transid=GETP resp=0 resp2=0\n"
+                                    "002 RUN pgm=CSSTATS2 transid=NONE resp=28 resp2=1\n"
+                                    "003 RETURN pgm=CSSTATS2 level=1 transid= len=0\n", encoding="ascii")  # fmt: skip
+    (out / "containers.out").write_text("CHANNEL MYCHANNEL\nINPUTCONTAINER 30303031\nGETVIPSTATUS 56455259\n",
+                                        encoding="ascii")  # fmt: skip
+    got = ec.cobol_events(ec.outputs(out, {"name": "x"}, tmp_path, []))
+    assert got == [{"event": "RUN", "transid": "GETP", "resp": "NORMAL"},
+                   {"event": "RUN", "transid": "NONE", "resp": "TRANSIDERR"},
+                   {"event": "RETURN", "transid": None, "commarea": None},
+                   {"event": "CONTAINERS", "channel": "MYCHANNEL",
+                    "containers": {"INPUTCONTAINER": "30303031", "GETVIPSTATUS": "56455259"}}]  # fmt: skip
+    java = [*got[:3], {"event": "CONTAINERS", "channel": "MYCHANNEL",
+                       "containers": {"GETVIPSTATUS": "56455259", "INPUTCONTAINER": "30303031"}}]  # fmt: skip
+    assert ec.compare_events(got, java)["equal"] == 4  # order of containers does not matter
+    java[3] = {**java[3], "containers": {"INPUTCONTAINER": "30303031", "GETVIPSTATUS": "52454755"}}
+    assert [f["field"] for f in ec.compare_events(got, java)["diffs"][0]["fields"]] == ["containers.GETVIPSTATUS"]
+    abended = [{"event": "ABEND", "abcode": "X"}, got[3]]
+    assert ec.linked_result({}, abended) == abended[:1] and ec.linked_result({}, got) == got
+    _, _, _ = ec.x6_judged({"name": "s"}, tmp_path, got, got)  # (no refusal: unchanged)
+    cev, _, _ = ec.x6_judged({"name": "s", "prefix_x6": "WRITEQ TD LENGTH > FROM: not modelled"}, tmp_path, got, got)
+    assert cev == got[:3]  # a task judged up to a refusal: its end state (containers too) is not compared
+
+
+def test_the_driver_gives_the_task_its_channel_and_a_case_states_its_transactions(tmp_path):
+    assert "CALL 'GGCCHIN' USING GG-CICS" in ec.cics_driver("PROG", False)
+    assert ec.case_transactions({"transactions": ["SPND", "GETP"]}) == ["GETP", "SPND"]
+    with pytest.raises(ec.Unsupported, match="transaction ids"):
+        ec.case_transactions({"transactions": ["TOOLONG"]})
+    import equivalence_java as ej
+
+    (tmp_path / "service").mkdir()
+    (tmp_path / "service" / f"{ej._service_class('PROG')}.java").write_text("public void handleLink() {}")
+    case = {**_facade_case(), "clock": "2026/10/01 10:30:15.00", "screens": {}, "commarea": None,
+            "transactions": ["GETP", "SPND"]}  # fmt: skip
+    java = ec.cics_equivalence_test(case, tmp_path, [])
+    assert (
+        'public boolean transaction(String transid) { return java.util.Set.of("GETP", "SPND").contains(transid); }'
+        in java
+    )
+    assert "task.withChannel(channel);" in java and 'left.put("event", "CONTAINERS");' in java
+
+
+_CHANNEL_MAIN = r"""
+#include "GGCICS"
+int main(void) {
+    gg_cics c;
+    char into[8] = "....";
+    memset(&c, 0, sizeof c);
+    GGCCHIN(&c);
+    memset(c.qname, ' ', 16);
+    memcpy(c.qname, "INPUTCONTAINER", 14);
+    memset(c.flags, ' ', 40);
+    c.len = 4;
+    GGCGETC(&c, into);
+    printf("get resp=%d len=%d into=%.4s\n", c.resp, c.len, into);
+    memset(c.qname, ' ', 16);
+    memcpy(c.qname, "OUT", 3);
+    c.len = 3;
+    GGCPUTC(&c, "998");
+    printf("put resp=%d\n", c.resp);
+    GGCEND(&c);
+    return 0;
+}
+"""
+
+
+@pytest.mark.skipif(not __import__("shutil").which("gcc"), reason="needs gcc")
+def test_the_stub_starts_the_task_with_its_channel_and_writes_what_it_leaves(tmp_path):
+    """#4270 (X24): GGCCHIN makes channel.cfg's channel the first program's current channel (GET CONTAINER finds the
+    stated data, PUT CONTAINER adds to it); GGCEND writes its containers to containers.out. No channel.cfg: no
+    current channel (GET CONTAINER INVREQ RESP2 4) and no containers.out, as before."""
+    import subprocess
+
+    (tmp_path / "main.c").write_text(_CHANNEL_MAIN.replace("GGCICS", str(ec.STUB / "ggcics.c")), encoding="ascii")
+    exe = tmp_path / "chan"
+    built = subprocess.run(["gcc", "-o", str(exe), str(tmp_path / "main.c")], capture_output=True, text=True,  # noqa: S603,S607
+                           check=False)  # fmt: skip
+    assert built.returncode == 0, built.stderr
+    d, o = tmp_path / "d", tmp_path / "o"
+    d.mkdir()
+    o.mkdir()
+    env = {"GGCICS_DIR": str(d), "GGCICS_OUT": str(o)}
+    run = subprocess.run([str(exe)], capture_output=True, text=True, env=env, check=False)  # noqa: S603
+    assert run.stdout.splitlines() == ["get resp=16 len=4 into=....", "put resp=16"]  # INVREQ: no current channel
+    assert not (o / "containers.out").exists()
+    (d / "channel.cfg").write_text("MYCHANNEL\nINPUTCONTAINER BIT 30303031\n", encoding="ascii")
+    run = subprocess.run([str(exe)], capture_output=True, text=True, env=env, check=False)  # noqa: S603
+    assert run.stdout.splitlines()[:2] == ["get resp=0 len=4 into=0001", "put resp=0"]
+    assert (o / "containers.out").read_text() == "CHANNEL MYCHANNEL\nINPUTCONTAINER 30303031\nOUT 393938\n"

@@ -1,0 +1,58 @@
+{
+ "kind": "cics",
+ "corpus": "cics-async-api-credit-card-application-example",
+ "program": "CSSTATS2",
+ "program_source": "src/CSSTATS2.cbl",
+ "copy_dirs": [],
+ "transid": "STUS",
+ "clock": "2026/10/01 10:30:15.00",
+ "datasets": {},
+ "commarea": null,
+ "linked": true,
+ "screens": {},
+ "transactions": [
+  "ACCA",
+  "GETA",
+  "GETN",
+  "GETP",
+  "ICCK",
+  "SCCA",
+  "SPND",
+  "STUS",
+  "UPDB"
+ ],
+ "notes": "IBM's CICS asynchronous API credit-card example: CSSTATS2 (the customer-status service ASYNCPNT starts in parallel, transaction STUS). GET CONTAINER(INPUTCONTAINER); RUN TRANSID(GETP) CHILD and RUN TRANSID(SPND) CHILD (no CHANNEL; it never FETCHes them, so their outcome cannot reach this task -- the children are not run here, the RUN commands are compared); '0001' is 'VERY VIP', any other 'REGULAR '; PUT CONTAINER(GETVIPSTATUS); RETURN. The region's transactions are the bundle's (\"transactions\": etc/CICS_bundles/cics-async-creditcardapplication-resources/*.transaction: the bundle's nine TRANSACTION definitions (GETP runs GETPOL, SPND runs GETSPND)). Its LINKAGE SECTION is empty: no COMMAREA (\"commarea\": null). The task starts with the channel its caller passes (#4270, oracle_assumptions.md X24): MYCHANNEL holding INPUTCONTAINER, the 4-byte account number ASYNCPNT / SEQPNT PUT there (no DATATYPE: BIT). The containers the task leaves on MYCHANNEL are compared at its end, as the caller sees them after FETCH CHILD / its LINK. Derived from github.com/cicsdev/cics-async-api-credit-card-application-example (Apache-2.0; Copyright IBM Corp. 2016): LICENSE here is the corpus's own, NOTICE names the source and what was derived.",
+ "scenarios": [
+  {
+   "name": "account-0001",
+   "commarea": null,
+   "channel": {
+    "name": "MYCHANNEL",
+    "containers": {
+     "INPUTCONTAINER": {
+      "text": "0001"
+     }
+    }
+   },
+   "why": "'0001': RUN GETP and RUN SPND NORMAL (both defined), 'VERY VIP' into GETVIPSTATUS"
+  },
+  {
+   "name": "other-account",
+   "commarea": null,
+   "channel": {
+    "name": "MYCHANNEL",
+    "containers": {
+     "INPUTCONTAINER": {
+      "text": "0002"
+     }
+    }
+   },
+   "why": "'0002': the same RUNs, 'REGULAR ' into GETVIPSTATUS"
+  },
+  {
+   "name": "no-channel",
+   "commarea": null,
+   "why": "no channel: GET CONTAINER without CHANNEL has no current channel -- INVREQ RESP2 4 (caught by RESP), ACCOUNT-NUMBER-IN keeps its initial value (no VALUE clause: oracle_assumptions.md L3) so the ELSE branch runs; PUT CONTAINER is INVREQ RESP2 4 too, then RETURN; there is no channel, so nothing more to compare"
+  }
+ ]
+}

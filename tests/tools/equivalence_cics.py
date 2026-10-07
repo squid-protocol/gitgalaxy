@@ -973,6 +973,7 @@ def cics_driver(program: str, has_commarea: bool) -> str:
     lines += ["    END-EVALUATE", "    MOVE LOW-VALUES TO WS-CA",
               "    CALL 'GGCLOAD' USING WS-CA BY VALUE LENGTH OF WS-CA", "        RETURNING WS-LEN",
               "    MOVE WS-LEN TO EIBCALEN",
+              "    CALL 'GGCCHIN' USING GG-CICS",
               "    SET WS-PTR TO ADDRESS OF WS-CA",
               "    CALL 'GGCAREA' USING WS-PTR BY VALUE WS-LEN",
               "    SET ADDRESS OF LK-CA TO WS-PTR",
@@ -1323,6 +1324,64 @@ def commarea_length(sc: dict[str, Any], ca_fields: list[dict[str, Any]]) -> int 
     return n
 
 
+_CICS_NAME = re.compile(r"[^ ]{1,16}")
+
+
+def scenario_channel(case: dict[str, Any], sc: dict[str, Any]) -> dict[str, Any] | None:
+    """#4270 (oracle_assumptions.md X24): the channel a scenario's task starts with -- `"channel": {"name": N,
+    "containers": {C: {"text": T | "hex": H, "datatype": "BIT" | "CHAR"}}}`, what a RUN TRANSID CHANNEL parent or a
+    LINK CHANNEL caller passed (the async credit-card services' MYCHANNEL / INPUTCONTAINER). Both sides make it the
+    first program's current channel. Text is in the case's data page; the data type defaults to BIT, as PUT
+    CONTAINER's does. {"name", "containers": [{"name", "data": bytes, "bit"}]}, None when not stated."""
+    ch = sc.get("channel")
+    if ch is None:
+        return None
+    where = f"scenario {sc['name']}: channel"
+    if not isinstance(ch, dict) or not _CICS_NAME.fullmatch(str(ch.get("name", ""))):
+        raise Unsupported(f"{where}: a name of 1 to 16 characters with no blank", ["CHANNEL"])
+    out = []
+    for name, spec in (ch.get("containers") or {}).items():
+        if not _CICS_NAME.fullmatch(name) or not isinstance(spec, dict) or ("text" in spec) == ("hex" in spec):
+            raise Unsupported(f"{where} container {name!r}: a name of 1 to 16 characters and one of text / hex",
+                              ["CHANNEL"])  # fmt: skip
+        if spec.get("datatype", "BIT") not in ("BIT", "CHAR"):
+            raise Unsupported(f"{where} container {name}: datatype BIT or CHAR", ["CHANNEL"])
+        data = spec["text"].encode(common.data_encoding(case)) if "text" in spec else bytes.fromhex(spec["hex"])
+        out.append({"name": name, "data": data, "bit": spec.get("datatype", "BIT") == "BIT"})
+    return {"name": ch["name"], "containers": out}
+
+
+def _channel_json(case: dict[str, Any], sc: dict[str, Any]) -> dict[str, Any] | None:
+    """The scenario's channel (scenario_channel) as the generated Java test reads it: each container's bytes in hex."""
+    chan = scenario_channel(case, sc)
+    if chan is None:
+        return None
+    return {"name": chan["name"], "containers": [{"name": k["name"], "hex": k["data"].hex().upper(), "bit": k["bit"]}
+                                                 for k in chan["containers"]]}  # fmt: skip
+
+
+def case_transactions(case: dict[str, Any]) -> list[str]:
+    """#4270: the transactions the case's region defines (`"transactions": [...]`, a deployment fact the case states:
+    RUN TRANSID / START of any other is TRANSIDERR); absent, every transaction is defined, as before."""
+    tx = case.get("transactions")
+    if not isinstance(tx, list) or not all(isinstance(t, str) and re.fullmatch(r"[A-Z0-9@#$]{1,4}", t) for t in tx):
+        raise Unsupported('"transactions": a list of 1- to 4-character transaction ids', ["TRANSACTIONS"])
+    return sorted(set(tx))
+
+
+def task_containers(path: Path) -> dict[str, Any] | None:
+    """#4270 (X24): the stub's containers.out (GGCEND: the first program's current channel at task end, `CHANNEL N`
+    then `NAME HEX` per container) as the CONTAINERS event compares it; None when the task had no current channel."""
+    if not path.is_file():
+        return None
+    lines = path.read_text(encoding="ascii").splitlines()
+    containers = {}
+    for ln in lines[1:]:
+        name, _, data = ln.partition(" ")
+        containers[name] = data.strip().upper()
+    return {"channel": lines[0].split(" ", 1)[1].strip(), "containers": containers}
+
+
 def screen_fields(corpus: Path, case: dict[str, Any], map_name: str, side: str) -> list[dict[str, Any]]:
     scr = case["screens"][map_name]
     return common.layout_fields(corpus, str(common.case_path(corpus, scr["copybook"])), scr[side])
@@ -1525,6 +1584,13 @@ def run_cobol_cics(case: dict[str, Any], corpus: Path, work: Path, files: list[d
                 area = area[:calen]
                 (d / "commarea.exact").write_text(f"{calen}\n", encoding="ascii")
             (d / "commarea.in").write_bytes(area)
+        chan = scenario_channel(case, sc)
+        if chan is not None:  # #4270 (X24): the channel the task starts with (GGCCHIN)
+            (d / "channel.cfg").write_text(f"{chan['name']}\n" + "".join(
+                f"{k['name']} {'BIT' if k['bit'] else 'CHAR'} {k['data'].hex().upper() or '-'}\n"
+                for k in chan["containers"]), encoding="ascii")  # fmt: skip
+        if case.get("transactions") is not None:  # #4270: the CSD's transactions (RUN TRANSID / START's TRANSIDERR)
+            (d / "transactions.cfg").write_text("".join(f"{t}\n" for t in case_transactions(case)), encoding="ascii")
         if task_facts(case, sc)[1] is not None:  # #4270: what the operator typed (an unformatted RECEIVE)
             (d / "terminal.in").write_bytes(task_facts(case, sc)[1].encode(enc))
         for q, items in ts_seed(case, sc).items():  # #4270: the TS queues the task starts with
@@ -1845,6 +1911,7 @@ def outputs(out: Path, case: dict[str, Any], corpus: Path, ca_fields: list[dict[
             res.setdefault("ts", []).append(_cobol_ts(kv, data, enc))
         elif verb in ("READQ-TS", "RECEIVE"):  # #4270 (GenApp LGICVS01): as CicsTask records them
             res.setdefault("reads", []).append(_cobol_read(verb, kv, data, enc))
+    res["containers"] = task_containers(out / "containers.out")  # #4270 (X24): the current channel's, at task end
     left = out / "commarea.out"  # a LINKed program's result: the COMMAREA it left (ggcics GGCAOUT)
     res["linked_commarea"] = (
         decode_record(left.read_bytes(), ca_fields, enc) if left.is_file() and left.stat().st_size else None
@@ -2172,6 +2239,17 @@ FACADE_JAVA = """    /** #4449: a facade did not run the scenario's task the way
                     runTask(service);
                     return;
                 }
+                if (commarea == null && m.getParameterCount() == 1
+                        && m.getParameterTypes()[0].getSimpleName().endsWith("ChannelIn")) {
+                    // #4270: a channel program's handleLink takes its channel as a DTO, not a task: no task facade
+                    // (#4343) can carry the scenario's task, so it runs through runTask, and `entries` says so
+                    entry(program, "runTask (a channel program: handleLink(" + m.getParameterTypes()[0].getSimpleName()
+                            + ") is no task facade, #4343)");
+                    started = true;
+                    call(method(service, "runTask", 1), service, scenario);
+                    ended = true;
+                    return;
+                }
                 if (commarea != null && !m.getParameterTypes()[0].isInstance(commarea)) {
                     throw new FacadeRefused("handleLink of " + program + " takes a " + m.getParameterTypes()[0].getName()
                             + ", the scenario's COMMAREA is a " + commarea.getClass().getName());
@@ -2367,11 +2445,17 @@ def cics_equivalence_test(case: dict[str, Any], src: Path, files: list[dict[str,
         f"else {{ {_svc_var(p)}.runTask(t); }} return; }}\n"
         for p in extras
     )  # the case's other programs (a LINK's target), each through its service (#4449: java-facade: its handleLink)
-    if programs is not None or extras:  # the CSD's programs: an XCTL / LINK / INQUIRE of any other is PGMIDERR
+    transactions = case_transactions(case) if case.get("transactions") is not None else None
+    if programs is not None or extras or transactions is not None:  # the CSD's programs: an XCTL / LINK / INQUIRE
+        # of any other is PGMIDERR; #4270: its transactions (a RUN TRANSID / START of any other is TRANSIDERR)
         defined = (f"java.util.Set.of({', '.join(f'{chr(34)}{p}{chr(34)}' for p in programs)}).contains(program)"
                    if programs is not None else "true")  # fmt: skip
+        tx_java = ("" if transactions is None else "                public boolean transaction(String transid) { "
+                   f"return java.util.Set.of({', '.join(f'{chr(34)}{t}{chr(34)}' for t in transactions)})"
+                   ".contains(transid); }\n")  # fmt: skip
         csd_java += (f"            task.withPrograms(new CicsTask.Programs() {{\n"
                      f"                public boolean defined(String program) {{ return {defined}; }}\n"
+                     f"{tx_java}"
                      f"                public void run(String program, CicsTask t) {{\n"
                      f"{runs}"
                      f'                    throw new NotRun(program);  // #4173: the task ends here (NOPROGRAM)\n'
@@ -2511,6 +2595,14 @@ class EquivalenceRunTest {{
             if (calen != null) {{
                 task.withExactCommarea();
             }}
+            if (sc.hasNonNull("channel")) {{  // #4270 (X24): the channel the task starts with, its current channel
+                CicsTask.Channel channel = new CicsTask.Channel(sc.get("channel").get("name").asText());
+                for (JsonNode k : sc.get("channel").get("containers")) {{
+                    channel.with(k.get("name").asText(), java.util.HexFormat.of().parseHex(k.get("hex").asText()),
+                            k.get("bit").asBoolean());
+                }}
+                task.withChannel(channel);
+            }}
             FacadeRegion region = new FacadeRegion(task, commarea, "{case["program"]}", {"true" if case.get("linked") else "false"});
 {csd_java}
             List<String> faults = new ArrayList<>();  // #4023 follow-up: the scenario's injected conditions
@@ -2571,6 +2663,15 @@ class EquivalenceRunTest {{
             for (Map<String, Object> e : task.events()) {{
                 Map<String, Object> copy = new LinkedHashMap<>(e);
 {screen_copy}                events.add(copy);
+            }}
+            if (task.currentChannel() != null) {{  // #4270 (X24): the containers left on the task's current channel
+                Map<String, Object> left = new LinkedHashMap<>();
+                left.put("event", "CONTAINERS");
+                left.put("channel", task.currentChannel().name());
+                Map<String, String> data = new LinkedHashMap<>();
+                task.currentChannel().containers().forEach((k, v) -> data.put(k, java.util.HexFormat.of().withUpperCase().formatHex(v)));
+                left.put("containers", data);
+                events.add(left);
             }}
             if (commarea != null) {{  // a LINKed program's result: the COMMAREA it leaves (equivalence_cics.linked_result)
                 Map<String, Object> left = new LinkedHashMap<>();
@@ -2722,6 +2823,7 @@ def run_java_cics(case: dict[str, Any], corpus: Path, work: Path, cobol_work: Pa
                           "commarea": ca, "receive": receive, "faults": fault_lines(sc), "sql_faults": sc.get("sql_plan", []),
                           "sql_unjudged": sql_unjudged(sc.get("sql_plan", []), seams),
                           "derived": bool(sc.get("derived")), "commarea_length": commarea_length(sc, ca_fields),
+                          "channel": _channel_json(case, sc),
                           "counters": _counters(case, sc), "taskn": task_number(case, sc),
                           "startcode": task_facts(case, sc)[0], "terminal": task_facts(case, sc)[1],
                           "ts": ts_seed(case, sc)})  # fmt: skip
@@ -2967,6 +3069,12 @@ def cobol_events(res: dict[str, Any]) -> list[dict[str, Any]]:
         elif verb == "ABEND":
             m = re.search(r"\babcode=(\S*)", args)
             out.append({"event": "ABEND", "abcode": m.group(1) if m else ""})
+        elif verb == "RUN":  # #4270: RUN TRANSID CHILD, as CicsTask.runTransid records it (the child is not run here)
+            kv = dict(a.split("=", 1) for a in args.split() if "=" in a)
+            resp = RESP_NAMES.get(int(kv.get("resp", "0")), kv.get("resp", ""))
+            out.append({"event": "RUN", "transid": kv.get("transid", ""), "resp": resp})
+    if res.get("containers") is not None:  # #4270 (X24): the containers the task leaves on its current channel
+        out.append({"event": "CONTAINERS", **res["containers"]})
     if res.get("linked_commarea") is not None:
         out.append({"event": "COMMAREA", "commarea": res["linked_commarea"]})
     return out
@@ -2983,8 +3091,12 @@ def linked_result(case: dict[str, Any], events: list[dict[str, Any]]) -> list[di
     """A LINKed program's events (`"linked": true` in the case): its result is the COMMAREA it leaves in its caller's
     storage, compared as a last COMMAREA event -- unless the task abended (no caller sees it then). Any other
     program's final COMMAREA storage is not observable (a terminal task's RETURN COMMAREA is), so it is dropped."""
-    keep = case.get("linked") and not any(e.get("event") == "ABEND" for e in events)
-    return [_link_as_compared(e) for e in events if e.get("event") != "COMMAREA" or keep]
+    abended = any(e.get("event") == "ABEND" for e in events)
+    keep = case.get("linked") and not abended
+    # #4270 (X24): the containers left on the task's current channel are its result to whoever passed the channel
+    # (a LINK CHANNEL caller, a FETCH CHILD parent) -- unless the task abended, as the COMMAREA
+    return [_link_as_compared(e) for e in events
+            if (e.get("event") != "COMMAREA" or keep) and (e.get("event") != "CONTAINERS" or not abended)]  # fmt: skip
 
 
 def _same(a: Any, b: Any) -> bool:
@@ -3010,6 +3122,13 @@ def compare_events(cobol: list[dict[str, Any]], java: list[dict[str, Any]]) -> d
         for key in ("map", "transid", "program", "text", "abcode", "queue", "data", "resp", "item"):
             if key in c and not _same(c[key], j.get(key)):
                 bad.append({"field": key, "cobol": c[key], "java": j.get(key)})
+        if c["event"] == "CONTAINERS":  # #4270 (X24): the channel's name and every container's bytes, both ways
+            if c.get("channel") != j.get("channel"):
+                bad.append({"field": "channel", "cobol": c.get("channel"), "java": j.get("channel")})
+            cc, jc = c.get("containers") or {}, j.get("containers") or {}
+            for name in sorted(set(cc) | set(jc)):
+                if cc.get(name) != jc.get(name):
+                    bad.append({"field": f"containers.{name}", "cobol": cc.get(name), "java": jc.get(name)})
         for part in ("screen", "commarea"):
             cv, jv = c.get(part) or {}, j.get(part) or {}
             for name in cv:
@@ -3211,7 +3330,8 @@ def x6_judged(sc: dict[str, Any], java_out: Path, cev: list[dict[str, Any]],
     java = f.read_text(encoding="utf-8").strip() if f.is_file() else None
     if not sc.get("prefix_x6") and java is None:
         return cev, jev, None
-    left = [e for e in cev if e.get("event") != "COMMAREA"], [e for e in jev if e.get("event") != "COMMAREA"]
+    end = ("COMMAREA", "CONTAINERS")  # the end state, not compared for a task judged up to a refusal
+    left = [e for e in cev if e.get("event") not in end], [e for e in jev if e.get("event") not in end]
     cobol = sc.get("prefix_x6")
 
     def kind(said: str | None) -> str | None:  # #4270: which refusal -- both sides must have stopped at the same one

@@ -254,6 +254,88 @@
      "why": "17 on the READ -> WHEN OTHER: 'Unable to lookup Transaction...'"
     }
    ]
+  },
+  {
+   "name": "invalid-key-header-fields-sent-back",
+   "aid": "DFHPF8",
+   "commarea": {
+    "CDEMO-FROM-TRANID": "CT00",
+    "CDEMO-FROM-PROGRAM": "COTRN00C",
+    "CDEMO-USER-ID": "USER0001",
+    "CDEMO-USER-TYPE": "U",
+    "CDEMO-PGM-CONTEXT": 1
+   },
+   "receive": {
+    "COTRN1A": {
+     "TRNIDINI": "0000000328781772",
+     "TRNNAMEI": "CT01",
+     "TITLE01I": "AWS Mainframe Modernization",
+     "PGMNAMEI": "COTRN01C",
+     "ERRMSGI": "Invalid key pressed. Please see below..."
+    }
+   },
+   "why": "#4628 (det-port mutant aa6ee890f9): the terminal sends the FSET header fields back (TRNNAME, TITLE01, PGMNAME, ERRMSG: ATTRB=(ASKIP,FSET,...) in COTRN01.bms); an invalid key re-sends the screen"
+  },
+  {
+   "name": "full-commarea-carried",
+   "aid": "DFHPF8",
+   "commarea": {
+    "CDEMO-FROM-TRANID": "CT00",
+    "CDEMO-FROM-PROGRAM": "COTRN00C",
+    "CDEMO-USER-ID": "USER0001",
+    "CDEMO-USER-TYPE": "U",
+    "CDEMO-PGM-CONTEXT": 1,
+    "CDEMO-TO-TRANID": "CT00",
+    "CDEMO-TO-PROGRAM": "COTRN00C",
+    "CDEMO-CUST-ID": 123456789,
+    "CDEMO-CUST-FNAME": "ALICE",
+    "CDEMO-CUST-MNAME": "B",
+    "CDEMO-CUST-LNAME": "SMITH",
+    "CDEMO-ACCT-ID": 12345678901,
+    "CDEMO-ACCT-STATUS": "Y",
+    "CDEMO-CARD-NUM": 4111111111111111,
+    "CDEMO-LAST-MAP": "COTRN1A",
+    "CDEMO-LAST-MAPSET": "COTRN01",
+    "CDEMO-CT01-TRNID-FIRST": "0000000000000001",
+    "CDEMO-CT01-TRNID-LAST": "0000000000000010",
+    "CDEMO-CT01-PAGE-NUM": 2,
+    "CDEMO-CT01-NEXT-PAGE-FLG": "Y",
+    "CDEMO-CT01-TRN-SEL-FLG": "S",
+    "CDEMO-CT01-TRN-SELECTED": "0000000328781772"
+   },
+   "receive": {
+    "COTRN1A": {
+     "TRNIDINI": "0000000328781772"
+    }
+   },
+   "why": "#4628 (det-port mutants c3cf766c99, 0551a7badc, 7163bd15e4, f61f178856, 167061e1c0, ad6d40168e, 9114f53b3b, 34cd2dff5b, 639b0cad1e, 6f08dfdd16, cef4957e80, 7bc1b5f48b, b2f917d251): every COMMAREA field set, COTRN01C's CT01 part too; an invalid key re-sends the screen and the RETURN carries the COMMAREA back"
+  },
+  {
+   "name": "pf5-xctl-fails",
+   "aid": "DFHPF5",
+   "commarea": {
+    "CDEMO-FROM-TRANID": "CT00",
+    "CDEMO-FROM-PROGRAM": "COTRN00C",
+    "CDEMO-USER-ID": "USER0001",
+    "CDEMO-USER-TYPE": "U",
+    "CDEMO-PGM-CONTEXT": 1
+   },
+   "receive": {
+    "COTRN1A": {
+     "TRNIDINI": "0000000328781772"
+    }
+   },
+   "faults": [
+    {
+     "cmd": "XCTL",
+     "program": "COTRN00C",
+     "nth": 1,
+     "resp": "PGMIDERR",
+     "resp2": 3,
+     "why": "PGMIDERR RESP2 3, the program could not be loaded (IBM CICS TS, XCTL conditions): no HANDLE CONDITION and no RESP, so CICS abends the task"
+    }
+   ],
+   "why": "#4628 (det-port mutants b8b5fb58f2, 7f53966b92, 4eefff6b7a): PF5's XCTL to the transaction list fails -- the task abends"
   }
  ],
  "notes": "CardDemo's view-transaction screen (transaction CT01, program COTRN01C): entered from the transaction list with a selected transaction it reads it and shows every field (the amount through an edited picture); ENTER looks one up, PF3 returns, PF4 clears, PF5 goes to the list. The TRANSACT file is loaded from CardDemo's own dailytran.txt (the same 350-byte layout, CVTRA05Y / CVTRA06Y, that POSTTRAN posts into it). Derived from CardDemo (Apache-2.0; Copyright Amazon.com, Inc. or its affiliates): LICENSE and NOTICE here are the source's own."

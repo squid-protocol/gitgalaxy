@@ -23,7 +23,7 @@ One record per ported program (#4048): docs/language_status/evidence_records.md 
 | [COSGN00C](carddemo-signon.md) | carddemo-signon | cics | proven, unapproved |  | 15 | 6/6 / 17/17 | - | 0 | - |
 | [COTRN02C](carddemo-tranadd.md) | carddemo-tranadd | cics | proven, unapproved |  | 46 | 18/18 / 72/75 | - | 0 | - |
 | [COTRN00C](carddemo-tranlist.md) | carddemo-tranlist | cics | proven, unapproved |  | 32 | 16/16 / 96/101 | - | 0 | - |
-| [COTRN01C](carddemo-tranview.md) | carddemo-tranview | cics | proven, unapproved |  | 15 | 9/9 / 23/24 | - | 0 | - |
+| [COTRN01C](carddemo-tranview.md) | carddemo-tranview | cics | proven, unapproved |  | 18 | 9/9 / 23/24 | - | 0 | - |
 | [CBTRN03C](carddemo-trnrpt.md) | carddemo-trnrpt | batch | proven, unapproved |  | 25 | 26/26 / 81/82 | - | 0 | - |
 | [COUSR01C](carddemo-useradd.md) | carddemo-useradd | cics | proven, unapproved |  | 15 | 9/9 / 20/21 | - | 0 | - |
 | [COUSR03C](carddemo-userdel.md) | carddemo-userdel | cics | proven, unapproved |  | 20 | 11/11 / 30/32 | - | 0 | - |

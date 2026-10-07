@@ -1349,7 +1349,7 @@
     "cases": [
      {
       "case": "genapp-lgacdb01",
-      "case_scenarios": 4,
+      "case_scenarios": 5,
       "db2": true,
       "det": {
        "state": "not run",
@@ -1932,7 +1932,7 @@
     "cases": [
      {
       "case": "genapp-lgdpdb01",
-      "case_scenarios": 8,
+      "case_scenarios": 9,
       "db2": true,
       "det": {
        "state": "not run",
@@ -2183,7 +2183,7 @@
     "cases": [
      {
       "case": "genapp-lgucdb01",
-      "case_scenarios": 5,
+      "case_scenarios": 6,
       "db2": true,
       "det": {
        "state": "not run",
@@ -2799,7 +2799,7 @@
     "cases": [
      {
       "case": "genapp-lgacdb01",
-      "case_scenarios": 4,
+      "case_scenarios": 5,
       "db2": true,
       "det": {
        "state": "not run",
@@ -2813,7 +2813,7 @@
     ],
     "chosen": {
      "case": "genapp-lgacdb01",
-     "case_scenarios": 4,
+     "case_scenarios": 5,
      "db2": true,
      "det": {
       "state": "not run",
@@ -3055,7 +3055,7 @@
     "cases": [
      {
       "case": "genapp-lgacdb01",
-      "case_scenarios": 4,
+      "case_scenarios": 5,
       "db2": true,
       "det": {
        "state": "not run",
@@ -3068,7 +3068,7 @@
      },
      {
       "case": "genapp-lgacdb02",
-      "case_scenarios": 8,
+      "case_scenarios": 9,
       "db2": true,
       "det": {
        "state": "not run",
@@ -3082,7 +3082,7 @@
     ],
     "chosen": {
      "case": "genapp-lgacdb02",
-     "case_scenarios": 8,
+     "case_scenarios": 9,
      "db2": true,
      "det": {
       "state": "not run",
@@ -4004,7 +4004,7 @@
     "cases": [
      {
       "case": "genapp-lgdpdb01",
-      "case_scenarios": 8,
+      "case_scenarios": 9,
       "db2": true,
       "det": {
        "state": "not run",
@@ -4018,7 +4018,7 @@
     ],
     "chosen": {
      "case": "genapp-lgdpdb01",
-     "case_scenarios": 8,
+     "case_scenarios": 9,
      "db2": true,
      "det": {
       "state": "not run",
@@ -5024,7 +5024,7 @@
     "cases": [
      {
       "case": "genapp-lgipdb01",
-      "case_scenarios": 32,
+      "case_scenarios": 40,
       "db2": true,
       "det": {
        "state": "not run",
@@ -5038,7 +5038,7 @@
     ],
     "chosen": {
      "case": "genapp-lgipdb01",
-     "case_scenarios": 32,
+     "case_scenarios": 40,
      "db2": true,
      "det": {
       "state": "not run",
@@ -5472,9 +5472,7 @@
      "startcode",
      "userid"
     ],
-    "facts_unstated": [
-     "ASSIGN SYSID (the case states no region)"
-    ],
+    "facts_unstated": [],
     "named_by_commands": [
      {
       "area": "CICS",
@@ -5513,15 +5511,93 @@
     "uncovered_paragraphs": "not recorded"
    },
    "equivalence": {
-    "cases": [],
-    "chosen": null
+    "cases": [
+     {
+      "case": "genapp-lgacdb01",
+      "case_scenarios": 5,
+      "db2": true,
+      "det": {
+       "state": "not run",
+       "why": [
+        "a Db2 case: CI's det-sweep skips Db2 cases and no local sweep was given"
+       ]
+      },
+      "record": null,
+      "role": "linked"
+     },
+     {
+      "case": "genapp-lgacdb02",
+      "case_scenarios": 9,
+      "db2": true,
+      "det": {
+       "state": "not run",
+       "why": [
+        "a Db2 case: CI's det-sweep skips Db2 cases and no local sweep was given"
+       ]
+      },
+      "record": null,
+      "role": "linked"
+     },
+     {
+      "case": "genapp-lgdpdb01",
+      "case_scenarios": 9,
+      "db2": true,
+      "det": {
+       "state": "not run",
+       "why": [
+        "a Db2 case: CI's det-sweep skips Db2 cases and no local sweep was given"
+       ]
+      },
+      "record": null,
+      "role": "linked"
+     },
+     {
+      "case": "genapp-lgipdb01",
+      "case_scenarios": 40,
+      "db2": true,
+      "det": {
+       "state": "not run",
+       "why": [
+        "a Db2 case: CI's det-sweep skips Db2 cases and no local sweep was given"
+       ]
+      },
+      "record": null,
+      "role": "linked"
+     },
+     {
+      "case": "genapp-lgucdb01",
+      "case_scenarios": 6,
+      "db2": true,
+      "det": {
+       "state": "not run",
+       "why": [
+        "a Db2 case: CI's det-sweep skips Db2 cases and no local sweep was given"
+       ]
+      },
+      "record": null,
+      "role": "linked"
+     }
+    ],
+    "chosen": {
+     "case": "genapp-lgacdb01",
+     "case_scenarios": 5,
+     "db2": true,
+     "det": {
+      "state": "not run",
+      "why": [
+       "a Db2 case: CI's det-sweep skips Db2 cases and no local sweep was given"
+      ]
+     },
+     "record": null,
+     "role": "linked"
+    }
    },
    "level": "L1",
    "mutation": {
     "det_port": "not yet measured (#4628)"
    },
    "next": [
-    "an equivalence case that runs it"
+    "its det port equal on every scenario of genapp-lgacdb01: a Db2 case: CI's det-sweep skips Db2 cases and no local sweep was given"
    ],
    "oracle_backing": [
     {
@@ -5871,7 +5947,7 @@
     "commands_not_backed": [
      "WRITEQ TD"
     ],
-    "facts_unstated": 1,
+    "facts_unstated": 0,
     "holes": 0,
     "paragraphs_unrun": null,
     "refused": null
@@ -7607,7 +7683,7 @@
     "cases": [
      {
       "case": "genapp-lgucdb01",
-      "case_scenarios": 5,
+      "case_scenarios": 6,
       "db2": true,
       "det": {
        "state": "not run",
@@ -7621,7 +7697,7 @@
     ],
     "chosen": {
      "case": "genapp-lgucdb01",
-     "case_scenarios": 5,
+     "case_scenarios": 6,
      "db2": true,
      "det": {
       "state": "not run",
@@ -11105,7 +11181,7 @@
   "refused_whole": 0,
   "source_unread": 0,
   "translated_whole": 25,
-  "with_case": 13,
+  "with_case": 14,
   "with_record": 3
  }
 }

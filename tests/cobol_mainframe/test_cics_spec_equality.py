@@ -34,6 +34,7 @@ import cics_crucible as runner  # noqa: E402
 from gitgalaxy.core import cics_resources, cics_tasks  # noqa: E402
 from gitgalaxy.standards.cics import resp as spec_resp  # noqa: E402
 from gitgalaxy.standards.cics.commands import COMMANDS  # noqa: E402
+from gitgalaxy.standards.cics.eib import EIB_FACTS  # noqa: E402
 from gitgalaxy.tools.cobol_to_java import cobol_to_java_transaction_forge as forge  # noqa: E402
 
 DETCICS_JAVA = (ROOT / "gitgalaxy/tools/cobol_to_java/det/cobolrt/cics/DetCics.java").read_text(encoding="utf-8")
@@ -119,6 +120,9 @@ def test_stated_facts_are_the_runtimes_and_the_runners():
     for f in facts.values():
         if f.java is not None:
             assert f"public CicsTask {f.java}(" in forge.CICS_TASK_JAVA, f.name
+        assert f'"{f.env}"' in GGCICS_C, f.name
+    for f in EIB_FACTS.values():  # #4270: EIBTASKN, stated by whoever runs the task, read by no command
+        assert f"public CicsTask {f.java}(" in forge.CICS_TASK_JAVA, f.name
         assert f'"{f.env}"' in GGCICS_C, f.name
     assert facts["userid"].region_default == runner.REGION_USERID
     assert facts["screen"].region_default == " ".join(map(str, runner.REGION_SCREEN))

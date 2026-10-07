@@ -9,3 +9,6 @@ copybooks (LGCMAREA, LGPOLICY) and the Db2 tables' DDL and sample rows
 used unmodified from the corpus.
 
 The scenarios in case.json are written for this case.
+
+seed.sql is genapp-lgacdb02's (every INSERT of db2cre.jcl plus customer 11)
+followed by three policies of customer 11 written for this case.

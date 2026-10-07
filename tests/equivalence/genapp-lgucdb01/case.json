@@ -25,7 +25,8 @@
     "key_length": 10,
     "reclen": 225,
     "why": "base/cntl/adef121.jcl DEFINE1: DATA(... KEYS(10 0) RECORDSIZE(225 225)); the engine's facts do not read KEYS / RECORDSIZE inside the DATA component, so the case states them"
-   }
+   },
+   "append": "@case/ksdscust-vsam-only.txt"
   }
  },
  "db2": {
@@ -87,7 +88,16 @@
     "CA-REQUEST-SPECIFIC": "Long      Email               1970-01-01                    1   AB12CD  000                                        xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"
    },
    "why": "a 100-byte email fills EMAILADDRESS CHAR(100)"
+  },
+  {
+   "name": "update-customer-11-vsam-only",
+   "commarea": {
+    "CA-REQUEST-ID": "01UCUS",
+    "CA-CUSTOMER-NUM": "11",
+    "CA-REQUEST-SPECIFIC": "Ada       Lovelace            1815-12-10Ockham Park         12  KT246HP 00007700900999        01483222111         ada@engine.example                                                                              "
+   },
+   "why": "customer 11 is on KSDSCUST (ksdscust-vsam-only.txt, appended) but not in Db2's CUSTOMER: the UPDATE is +100 (l.173 true), CA-RETURN-CODE '01', no '90' and no WRITE-ERROR-MESSAGE; LGUCVS01 is still LINKed and its READ UPDATE / REWRITE of customer 11 are NORMAL -- the two stores out of step, as GenApp's design allows"
   }
  ],
- "notes": "GenApp's update-customer service (LGUCDB01, LINKed with the LGCMAREA COMMAREA, described by its caller LGUCUS01's record): UPDATE CUSTOMER sets every column from the COMMAREA by customer number, then LGUCVS01 (run in the same task) rewrites the VSAM copy. A customer that does not exist (+100, '01') leads LGUCVS01 to LINK LGSTSQ (oracle_assumptions.md X6): not here."
+ "notes": "GenApp's update-customer service (LGUCDB01, LINKed with the LGCMAREA COMMAREA, described by its caller LGUCUS01's record): UPDATE CUSTOMER sets every column from the COMMAREA by customer number, then LGUCVS01 (run in the same task) rewrites the VSAM copy. A customer that does not exist (+100, '01') leads LGUCVS01 to LINK LGSTSQ (oracle_assumptions.md X6): not here. A customer on KSDSCUST but not in Db2 (customer 11, ksdscust-vsam-only.txt) is the one +100 that does not reach LGSTSQ: LGUCVS01 finds the record."
 }

@@ -16,6 +16,7 @@
  *   transactions.cfg      the transactions the CSD defines (START's TRANSIDERR)
  *   terminals.cfg         the region's terminals (START's TERMIDERR)
  * $GGCICS_NOW is the virtual time the task was dispatched at (YYYY-MM-DDTHH:MM:SS).
+ * $GGCICS_TASKN is the task's number, EIBTASKN (#4270: GGCTASKN; unstated, 0).
  *   programs.cfg          the programs the CSD defines, one per line (#4004: a LINK to
  *                         any other is PGMIDERR); absent means every program is
  *                         defined
@@ -1568,6 +1569,24 @@ static int program_defined(const char *program) {
     }
     fclose(f);
     return found;
+}
+
+/* #4270: EIBTASKN, the task's number, a fact of the run whoever runs the task states ($GGCICS_TASKN, as the
+ * Java side's CicsTask.withTaskNumber; oracle_assumptions.md X21). The drivers CALL it after INITIALIZE DFHEIBLK
+ * and MOVE GG-NUM TO EIBTASKN. IBM: "the task number assigned to the task by CICS", PIC S9(7) COMP-3: a value
+ * that is not 0 to 9999999 is refused; unstated, 0 (the INITIALIZEd EIB's, as before). */
+int GGCTASKN(gg_cics *c) {
+    const char *env = getenv("GGCICS_TASKN");
+    char *end = NULL;
+    long n = 0;
+    c->resp = NORMAL;
+    c->resp2 = 0;
+    if (env) {
+        n = strtol(env, &end, 10);
+        if (!env[0] || *end || n < 0 || n > 9999999) refuse("EIBTASKN: $GGCICS_TASKN is not a task number");
+    }
+    c->num = (int)n;
+    return 0;
 }
 
 /* The driver: the task's first program (GG-NAME1) and its COMMAREA length (GG-LEN). */

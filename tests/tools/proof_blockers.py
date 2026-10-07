@@ -20,7 +20,8 @@ one or more gap classes:
   coverage: ...            the proof leaves live paragraphs (and with --branches, branch outcomes) no scenario runs:
                            translated code no proof judged
   fact: NAME               a runtime fact the case would need and no harness states: an EIB field neither runtime
-                           sets (EIBTASKN, EIBCPOSN, ...: both sides read zero, z/OS does not), an ASSIGN option
+                           sets (EIBCPOSN, EIBRCODE, ...: both sides read zero, z/OS does not; EIBTASKN only under a
+                           crucible case: the equivalence harness states it, oracle_assumptions X21), an ASSIGN option
                            whose fact an equivalence case cannot state yet (STARTCODE, USERID, FACILITY, SCRNHT /
                            SCRNWD: refused at run time, X19), ASSIGN APPLID / SYSID with a case stating no "region"
 
@@ -57,6 +58,7 @@ sys.path.insert(0, str(TOOLS))
 sys.path.insert(0, str(REPO))
 
 import cics_census as cc  # noqa: E402
+from gitgalaxy.standards.cics.eib import EIB_FACTS  # noqa: E402
 
 CASES = REPO / "tests" / "equivalence"
 DET_BASELINE = CASES / "det_sweep_baseline.json"
@@ -66,6 +68,10 @@ CRUCIBLE = REPO / "tests" / "cics_crucible"
 # (equivalence_cics.cics_driver / task_driver), and every command sets RESP / RESP2. Every other DFHEIBLK field
 # (tests/equivalence/cics/DFHEIBLK.cpy) is INITIALIZEd to zero / spaces on both sides -- equal, but not z/OS's value.
 STATED_EIB = frozenset({"EIBTIME", "EIBDATE", "EIBTRNID", "EIBTRMID", "EIBCALEN", "EIBAID", "EIBRESP", "EIBRESP2"})
+# #4270: the EIB fields that are a stated fact of the run (the CICS spec's EIB_FACTS: EIBTASKN, $GGCICS_TASKN /
+# CicsTask.withTaskNumber). The equivalence harness states them for every task (a case's or scenario's "taskn", else
+# the spec's default); the crucible runner does not yet, so a crucible case's program still has the gap.
+CASE_STATED_EIB = frozenset(EIB_FACTS)
 EIB_FIELDS = frozenset({
     "EIBTIME", "EIBDATE", "EIBTRNID", "EIBTASKN", "EIBTRMID", "EIBCPOSN", "EIBCALEN", "EIBAID", "EIBFN", "EIBRCODE",
     "EIBDS", "EIBREQID", "EIBRSRCE", "EIBSYNC", "EIBFREE", "EIBRECV", "EIBSEND", "EIBATT", "EIBEOC", "EIBFMH",
@@ -272,8 +278,11 @@ def facts_needed(text: str) -> dict[str, set[str]]:
 def fact_gaps(facts: dict[str, set[str]], run: Run | None) -> set[str]:
     """The fact gaps of a program under one proof subject (None: no case yet -- what a new case would need that no
     case can state)."""
-    out = {f"fact: {e} (no harness states it)" for e in facts.get("eib", ())}
-    if run is None or run.kind == "equivalence":
+    case_states = run is None or run.kind == "equivalence"  # a new equivalence case would state them too
+    out = {
+        f"fact: {e} (no harness states it)" for e in facts.get("eib", ()) if not (case_states and e in CASE_STATED_EIB)
+    }
+    if case_states:
         out |= {f"fact: ASSIGN {f} (no equivalence case states it)" for f in facts.get("assign_task", ())}
     if run is not None and run.kind == "equivalence" and facts.get("assign_region") and not run.region:
         out.add("fact: ASSIGN APPLID/SYSID (the case states no region)")

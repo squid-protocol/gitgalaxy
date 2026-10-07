@@ -12,7 +12,7 @@
   "ddl": [
    "base/cntl/db2cre.jcl"
   ],
-  "seed": "base/cntl/db2cre.jcl",
+  "seed": "@case/seed.sql",
   "symbols": {
    "<DB2DBID>": "GENASA1"
   },
@@ -306,7 +306,34 @@
     "CA-REQUEST-SPECIFIC": "0000000010                                                                        "
    },
    "why": "request id all spaces: '99'"
+  },
+  {
+   "name": "endowment-11-101-null-broker-padding",
+   "commarea": {
+    "CA-REQUEST-ID": "01IEND",
+    "CA-CUSTOMER-NUM": 11,
+    "CA-REQUEST-SPECIFIC": "0000000101                                                                        "
+   },
+   "why": "01IEND on the seeded policy 101: brokerId and payment NULL (indicators -1: the false side of l.397 and l.400, DB2-BROKERID / DB2-PAYMENT not moved) and paddingData set (l.383 and l.410 true: its length is added to the required length and the padding is moved before 'FINAL')"
+  },
+  {
+   "name": "house-11-102-null-broker-payment",
+   "commarea": {
+    "CA-REQUEST-ID": "01IHOU",
+    "CA-CUSTOMER-NUM": 11,
+    "CA-REQUEST-SPECIFIC": "0000000102                                                                        "
+   },
+   "why": "01IHOU on the seeded policy 102: brokerId and payment NULL, the false side of l.494 and l.497"
+  },
+  {
+   "name": "motor-11-103-null-broker-payment",
+   "commarea": {
+    "CA-REQUEST-ID": "01IMOT",
+    "CA-CUSTOMER-NUM": 11,
+    "CA-REQUEST-SPECIFIC": "0000000103                                                                        "
+   },
+   "why": "01IMOT on the seeded policy 103: brokerId and payment NULL, the false side of l.588 and l.591"
   }
  ],
- "notes": "GenApp's Db2 'inquire policy' (LGIPDB01, LINKed by LGIPOL01 with the 32500-byte LGCMAREA COMMAREA; the COMMAREA is described by the record the caller passes, LGIPOL01's DFHCOMMAREA (COPY LGCMAREA), since LGIPDB01 includes the same copybook with EXEC SQL INCLUDE: the generated DTO is the caller's): the request id, upper-cased, picks the inquiry -- 01IEND / 01IHOU / 01IMOT / 01ICOM a SELECT INTO on POLICY joined with ENDOWMENT / HOUSE / MOTOR / COMMERCIAL by customer and policy number; 02ICOM a commercial SELECT by policy number alone (returning the customer number); 03ICOM the scroll cursor Cust_Cursor over a customer's commercial policies; 05ICOM the cursor Zip_Cursor over COMMERCIAL rows with CA-B-POSTCODE; anything else '99'. A row found is moved into CA-POLICY-COMMON and the type's area, marked 'FINAL'; +100 gives '01'. Tables (unqualified: the bind's QUALIFIER, GENASA1) are GenApp's own (base/cntl/db2cre.jcl: DDL and INSERTs, <DB2DBID> = GENASA1) and compared after every scenario. Not reachable here: EIBCALEN 0 (ABEND LGCA, l.251-255) and a COMMAREA too short for the policy ('98', l.390-392, 487-489, 581-583, 689-691, 793-795) -- the harness passes the whole 32500-byte COMMAREA; any negative SQLCODE ('90', l.426-428 and its copies; OPEN '89' l.843-847, 926-930; CLOSE '88' l.855-859, 938-942) -- no seeded data causes one and Db2 errors are not injectable (M2), and each path LINKs to LGSTSQ, which the harness does not run; a non-NULL PADDINGDATA (l.384-385, 411-412) and a NULL BROKERID / PAYMENT (the false side of l.397, 400, 494, 497, 588, 591) -- GenApp's endowment INSERTs omit PADDINGDATA and every policy has brokerId 0 and payment 0; more than one row from either cursor and the 20-row cap (l.907-908) -- each seeded customer and zipcode has at most one commercial policy. Derived from the CICS General Insurance Application (GenApp, github.com/cicsdev/cics-genapp; (C) Copyright IBM Corp. 2011, 2021), licensed under the Eclipse Public License 2.0: LICENSE here is the corpus's own, NOTICE names the source and what was derived."
+ "notes": "GenApp's Db2 'inquire policy' (LGIPDB01, LINKed by LGIPOL01 with the 32500-byte LGCMAREA COMMAREA; the COMMAREA is described by the record the caller passes, LGIPOL01's DFHCOMMAREA (COPY LGCMAREA), since LGIPDB01 includes the same copybook with EXEC SQL INCLUDE: the generated DTO is the caller's): the request id, upper-cased, picks the inquiry -- 01IEND / 01IHOU / 01IMOT / 01ICOM a SELECT INTO on POLICY joined with ENDOWMENT / HOUSE / MOTOR / COMMERCIAL by customer and policy number; 02ICOM a commercial SELECT by policy number alone (returning the customer number); 03ICOM the scroll cursor Cust_Cursor over a customer's commercial policies; 05ICOM the cursor Zip_Cursor over COMMERCIAL rows with CA-B-POSTCODE; anything else '99'. A row found is moved into CA-POLICY-COMMON and the type's area, marked 'FINAL'; +100 gives '01'. Tables (unqualified: the bind's QUALIFIER, GENASA1) are GenApp's own (base/cntl/db2cre.jcl: DDL and INSERTs, <DB2DBID> = GENASA1) and compared after every scenario. Seed: @case/seed.sql, every INSERT of db2cre.jcl plus customer 11 (as genapp-lgacdb02's) and three policies of customer 11 with brokerId and payment NULL, the endowment one with PADDINGDATA set (GenApp's own INSERTs never leave them NULL or set it). Not reachable here: EIBCALEN 0 (ABEND LGCA, l.251-255) and a COMMAREA too short for the policy ('98', l.390-392, 487-489, 581-583, 689-691, 793-795) -- the harness passes the whole 32500-byte COMMAREA; any negative SQLCODE ('90', l.426-428 and its copies; OPEN '89' l.843-847, 926-930; CLOSE '88' l.855-859, 938-942) -- no seeded data causes one and Db2 errors are not injectable (M2), and each path LINKs to LGSTSQ, which the harness does not run; more than one row from either cursor and the 20-row cap (l.907-908) -- each seeded customer and zipcode has at most one commercial policy. Derived from the CICS General Insurance Application (GenApp, github.com/cicsdev/cics-genapp; (C) Copyright IBM Corp. 2011, 2021), licensed under the Eclipse Public License 2.0: LICENSE here is the corpus's own, NOTICE names the source and what was derived."
 }

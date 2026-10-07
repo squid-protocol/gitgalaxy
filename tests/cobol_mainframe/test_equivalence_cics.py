@@ -146,6 +146,8 @@ def test_the_task_driver_and_dispatcher_are_generated_for_the_cases_programs():
     drv = ec.task_driver()
     assert "CALL 'GGCTASK' USING GG-CICS" in drv and "CALL 'GGCRUN' USING WS-CA" in drv
     assert "MOVE IN-TRMID TO EIBTRMID" in drv
+    for d in (drv, ec.cics_driver("PROG", False)):  # #4270: EIBTASKN from the stub ($GGCICS_TASKN)
+        assert "CALL 'GGCTASKN' USING GG-CICS\n           MOVE GG-NUM TO EIBTASKN" in d
     assert all(len(ln) <= 72 for ln in (run + drv).splitlines())
 
 
@@ -836,3 +838,14 @@ def test_a_whole_command_refusal_gives_the_spec_reason_and_dfhresp_is_the_spec()
         ec.translate("       PROCEDURE DIVISION.\n           EXEC CICS GETMAIN SET(P) LENGTH(10) END-EXEC.\n")
     assert ec.DFHRESP == DFHRESP and ec.DFHRESP["VOLIDERR"] == 71 and ec.DFHRESP["NOSPOOL"] == 80
     assert all(ec.CICS_RESP[c] == DFHRESP[c] for c in ec.CICS_RESP)
+
+
+def test_the_task_number_is_the_scenarios_else_the_cases_else_zero():
+    """#4270: EIBTASKN is a stated fact of the run (oracle_assumptions.md X21): a scenario's "taskn", else the
+    case's, else the spec's default 0; never a value PIC S9(7) COMP-3 cannot hold."""
+    assert ec.task_number({}, {"name": "s"}) == 0
+    assert ec.task_number({"taskn": 34}, {"name": "s"}) == 34
+    assert ec.task_number({"taskn": 34}, {"name": "s", "taskn": 9999999}) == 9999999
+    for bad in (-1, 10_000_000, "34", True, 1.5):
+        with pytest.raises(ec.Unsupported, match="not a task number"):
+            ec.task_number({}, {"name": "s", "taskn": bad})

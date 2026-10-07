@@ -28,6 +28,7 @@ _LAZY = {
     "RESP_NAME": "gitgalaxy.standards.cics.resp",
     "ALIASES": "gitgalaxy.standards.cics.resp",
     "CONDITION_ABEND": "gitgalaxy.standards.cics.resp",
+    "EIB_FACTS": "gitgalaxy.standards.cics.eib",
 }
 
 __all__ = sorted(_LAZY)

@@ -1558,3 +1558,68 @@ def test_scheduler_states_each_tasks_startcode():
     case = type("C", (), {"data": {"clock": "2026-03-02T10:00:00", "terminal": "T001"}})()
     assert runner.task_frame(case, 0, {"at": 0, "aid": "ENTER"})["startcode"] == "TD"
     assert runner.REGION_USERID == "CICSUSER" and runner.REGION_SCREEN == (24, 80)
+
+
+# ---- #4270: EIBTASKN, a stated fact of the run -------------------------------------------------------------------
+_TASKN_MAIN = r"""
+#include <stdio.h>
+typedef struct { int resp; int resp2; char name1[8]; char name2[8]; char flags[40]; int len; char qname[16];
+                 int item; int num; } gg_cics;
+int GGCTASKN(gg_cics *c);
+int main(void) {
+    gg_cics c = {0};
+    c.num = -1;
+    GGCTASKN(&c);
+    printf("%d/%d/%d\n", c.resp, c.resp2, c.num);
+    return 0;
+}
+"""
+
+
+@needs_cc
+def test_the_stub_states_eibtaskn_from_the_run(tmp_path):
+    """#4270, IBM EIB fields: EIBTASKN "contains the task number assigned to the task by CICS", PIC S9(7) COMP-3. The
+    stub never derives it: GGCTASKN gives $GGCICS_TASKN (the drivers MOVE it to EIBTASKN), unstated 0; a value that
+    is not a task number is refused (98)."""
+    exe = _stub(tmp_path, _TASKN_MAIN)
+
+    def run(env):
+        return subprocess.run([str(exe)], env={"GGCICS_DIR": str(tmp_path), **env}, capture_output=True, text=True)  # noqa: S603
+
+    assert run({"GGCICS_TASKN": "34"}).stdout.split() == ["0/0/34"]
+    assert run({"GGCICS_TASKN": "9999999"}).stdout.split() == ["0/0/9999999"]
+    assert run({}).stdout.split() == ["0/0/0"]
+    for bad in ("10000000", "-1", "", "7x"):
+        got = run({"GGCICS_TASKN": bad})
+        assert got.returncode == 98 and "EIBTASKN: $GGCICS_TASKN is not a task number" in got.stdout, bad
+
+
+@needs_javac
+def test_cics_task_states_eibtaskn_as_the_stub_does(tmp_path):
+    """#4270: CicsTask.withTaskNumber as the stub's $GGCICS_TASKN (above): the same at every LINK level, unstated 0,
+    a value outside 0 to 9999999 refused."""
+    out = _cics_task(
+        tmp_path,
+        """
+        CicsTask.Programs programs = new CicsTask.Programs() {
+            public boolean defined(String p) {
+                return true;
+            }
+
+            public void run(String p, CicsTask task) {
+                System.out.println(p + " " + task.taskNumber());
+                if (p.equals("MAIN")) {
+                    task.link("SUB");
+                    task.returnTransid(null, null);
+                }
+            }
+        };
+        new CicsTask("T1", "ENTER", null, null).withPrograms(programs).withTaskNumber(34).run("MAIN");
+        System.out.println("unstated " + new CicsTask("T1", "ENTER", null, null).taskNumber());
+        try {
+            new CicsTask("T1", "ENTER", null, null).withTaskNumber(10_000_000L);
+        } catch (IllegalArgumentException e) {
+            System.out.println("refused");
+        }""",
+    )
+    assert out.splitlines() == ["MAIN 34", "SUB 34", "unstated 0", "refused"]

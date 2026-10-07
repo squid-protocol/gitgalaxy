@@ -40,6 +40,7 @@ import equivalence_oracle
 import equivalence_sql
 
 from gitgalaxy.standards.cics.commands import COMMANDS as SPEC
+from gitgalaxy.standards.cics.eib import EIB_FACTS, TASKN_MAX
 from gitgalaxy.standards.cics.commands import whole_refusal
 from gitgalaxy.standards.cics.commands.assign import TERMINAL_OPTIONS
 from gitgalaxy.standards.cics.commands.shared import BOTH_FORMS, NEEDS_ARGUMENT
@@ -323,6 +324,16 @@ def non_recoverable_files(case: dict[str, Any], files: list[dict[str, Any]]) -> 
 def _counters(case: dict[str, Any], sc: dict[str, Any]) -> dict[str, int]:
     """The named counters a scenario's region has ("POOL/NAME": the next value): the scenario's, else the case's."""
     return dict(sc["counters"] if "counters" in sc else case.get("counters") or {})
+
+
+def task_number(case: dict[str, Any], sc: dict[str, Any]) -> int:
+    """#4270: EIBTASKN, the task's number -- a fact of the run the harness states on both sides ($GGCICS_TASKN,
+    CicsTask.withTaskNumber; oracle_assumptions.md X21): the scenario's "taskn", else the case's, else the spec's
+    default (0, the value C12's RANDOM seed assumes). Never z/OS's: CICS assigns it."""
+    n = sc.get("taskn", case.get("taskn", int(EIB_FACTS["EIBTASKN"].region_default or 0)))
+    if not isinstance(n, int) or isinstance(n, bool) or not 0 <= n <= TASKN_MAX:
+        raise Unsupported(f'scenario {sc.get("name")}: "taskn" {n!r} is not a task number (0 to {TASKN_MAX})')
+    return n
 
 
 def _past_from(length: str | None, area: str | None, what: str) -> list[str]:
@@ -893,7 +904,8 @@ def translate(source: str) -> tuple[str, bool]:
 
 
 def cics_driver(program: str, has_commarea: bool) -> str:
-    """Runs one task: the EIB from $EIBIN (TRANSID, AID name, date, time), the COMMAREA
+    """Runs one task: the EIB from $EIBIN (TRANSID, AID name, date, time) and EIBTASKN from the stub
+    ($GGCICS_TASKN, #4270), the COMMAREA
     from the stub (its length is EIBCALEN), then the program, then GGCEND."""
     aid_names = [ln.split()[1] for ln in (STUB / "DFHAID.cpy").read_text().splitlines() if " PIC " in ln]
     lines = ["IDENTIFICATION DIVISION.", "PROGRAM-ID. EQCICSDR.", "ENVIRONMENT DIVISION.",
@@ -909,6 +921,8 @@ def cics_driver(program: str, has_commarea: bool) -> str:
              "    OPEN INPUT EIB-IN", "    READ EIB-IN", "    CLOSE EIB-IN",
              "    INITIALIZE DFHEIBLK GG-CICS",
              "    MOVE IN-TRNID TO EIBTRNID", "    MOVE IN-DATE TO EIBDATE", "    MOVE IN-TIME TO EIBTIME",
+             "    CALL 'GGCTASKN' USING GG-CICS", "    MOVE GG-NUM TO EIBTASKN",
+             "    MOVE 0 TO GG-NUM",
              "    EVALUATE IN-AID"]  # fmt: skip
     lines += [f"        WHEN '{n}' MOVE {n} TO EIBAID" for n in aid_names]
     lines += ["    END-EVALUATE", "    MOVE LOW-VALUES TO WS-CA",
@@ -923,7 +937,8 @@ def cics_driver(program: str, has_commarea: bool) -> str:
 
 def task_driver() -> str:
     """#4004: the driver of a task on the stub, one process per task: the EIB from $EIBIN (TRANSID, AID
-    name, date, time, the first program, the terminal), the COMMAREA from the stub (its length is
+    name, date, time, the first program, the terminal), EIBTASKN from the stub ($GGCICS_TASKN,
+    #4270), the COMMAREA from the stub (its length is
     EIBCALEN), then GGCRUN (task_dispatcher) runs the program and whatever it XCTLs to."""
     aid_names = [ln.split()[1] for ln in (STUB / "DFHAID.cpy").read_text().splitlines() if " PIC " in ln]
     lines = ["IDENTIFICATION DIVISION.", "PROGRAM-ID. GGTASK.", "ENVIRONMENT DIVISION.",
@@ -941,6 +956,8 @@ def task_driver() -> str:
              "    INITIALIZE DFHEIBLK GG-CICS",
              "    MOVE IN-TRNID TO EIBTRNID", "    MOVE IN-DATE TO EIBDATE", "    MOVE IN-TIME TO EIBTIME",
              "    MOVE IN-TRMID TO EIBTRMID",
+             "    CALL 'GGCTASKN' USING GG-CICS", "    MOVE GG-NUM TO EIBTASKN",
+             "    MOVE 0 TO GG-NUM",
              "    EVALUATE IN-AID"]  # fmt: skip
     lines += [f"        WHEN '{n}' MOVE {n} TO EIBAID" for n in aid_names]
     lines += ["    END-EVALUATE", "    MOVE LOW-VALUES TO WS-CA",
@@ -1459,6 +1476,7 @@ def run_cobol_cics(case: dict[str, Any], corpus: Path, work: Path, files: list[d
         if db2:  # the tables as the seed has them, for this task
             script.append(f"{sqlenv}./ggsqlrun -f /work/reset.sql")
         script.append(f"set +e; {cov.trace_env(f'{rel}/{cov.TRACE_NAME}')}GGCICS_DIR={rel} GGCICS_OUT={rel}/out EIBIN={rel}/eib.in "
+                      f"GGCICS_TASKN={task_number(case, sc)} "
                       f"{sqlenv}COB_CURRENT_DATE='{case['clock']}' ./task > {rel}/stdout.txt 2>&1; "
                       f"echo $? > {rel}/rc; set -e")  # fmt: skip
         if db2:  # what the task left in each compared table
@@ -2274,6 +2292,7 @@ class EquivalenceRunTest {{
                     .withRegion({region_java})  // ASSIGN APPLID / SYSID
                     .withProgram("{case["program"]}")  // the task's first program (a LINK's INVOKINGPROG)
                     .withCounters(counters(sc))  // GET COUNTER: the region's named counters
+                    .withTaskNumber(sc.get("taskn").asLong())  // EIBTASKN: the task's number, as the stub's $GGCICS_TASKN
                     // RECOVERY(NONE) files: their changes made outside the unit of work, so they survive a backout
                     .withNonRecoverable(java.util.Set.of({", ".join(f'"{x}"' for x in non_recoverable_files(case, files))}),
                             change -> {{
@@ -2478,7 +2497,7 @@ def run_java_cics(case: dict[str, Any], corpus: Path, work: Path, cobol_work: Pa
                           "commarea": ca, "receive": receive, "faults": fault_lines(sc), "sql_faults": sc.get("sql_plan", []),
                           "sql_unjudged": sql_unjudged(sc.get("sql_plan", []), seams),
                           "derived": bool(sc.get("derived")),
-                          "counters": _counters(case, sc)})  # fmt: skip
+                          "counters": _counters(case, sc), "taskn": task_number(case, sc)})  # fmt: skip
     (inputs / "scenarios.json").write_text(json.dumps(scenarios, indent=1), encoding="utf-8")
     props = ej.data_charset_arg(case)
     if case.get("db2"):  # the seed and the dump queries, and the harness's Db2

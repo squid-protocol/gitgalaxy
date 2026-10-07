@@ -285,6 +285,7 @@ public class CicsTask {
     private TempStorage tempStorage = new TempStorage();
     private String abcode = "    ";
     private String termid;                                  // #3989: EIBTRMID (the task's root); null without one
+    private long taskNumber;                                 // #4270: EIBTASKN (the task's root), a stated fact
     private String exitLabel;                               // #3989: this level's HANDLE ABEND LABEL
     private boolean exitActive;
     private final java.util.ArrayDeque<Object[]> pushedExits = new java.util.ArrayDeque<>();
@@ -620,6 +621,22 @@ public class CicsTask {
     /** EIBTRMID (#3989): the task's terminal, the same at every LINK / XCTL level; null for a non-terminal task. */
     public String termid() {
         return root().termid;
+    }
+
+    /** #4270: EIBTASKN, the task's number -- a fact of the run that whoever runs the task states (as the stub's
+     *  $GGCICS_TASKN), never derived here: "the task number assigned to the task by CICS", PIC S9(7) COMP-3, so 0 to
+     *  9,999,999. Unstated, 0 (the stub's driver INITIALIZEs the EIB). */
+    public CicsTask withTaskNumber(long taskNumber) {
+        if (taskNumber < 0 || taskNumber > 9_999_999L) {
+            throw new IllegalArgumentException("EIBTASKN: " + taskNumber + " is not a task number (0 to 9999999)");
+        }
+        this.taskNumber = taskNumber;
+        return this;
+    }
+
+    /** EIBTASKN (#4270): the task's number, the same at every LINK / XCTL level. */
+    public long taskNumber() {
+        return root().taskNumber;
     }
 
     /** The FROM data of the START requests this task was started for, in expiry order (#4006). */

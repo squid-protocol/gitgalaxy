@@ -98,6 +98,7 @@ verdict, but it limits what the proof says about inputs outside the scenarios.
 | X18 | CICS | Interval control on the det port: START (INTERVAL / TIME / AFTER / AT, TERMID, REQID, PROTECT, FROM, RTRANSID / RTERMID / QUEUE), RETRIEVE (INTO / LENGTH, the data options, ENVDEFERR), CANCEL REQID, RUN TRANSID CHILD; TIME RESP2 and the order of out-of-range checks assumed; FETCH, RUN / START CHANNEL, RETRIEVE SET / WAIT refused | ASSUMED (REFUSED where IBM is silent) | yes (cics-crucible gt-start-retrieve, gt-terminal-coalesce, gt-start-options, unreleased) |
 | X19 | CICS | ASSIGN on the det port: STARTCODE (TD / S / SD), USERID (the default user), FACILITY / SCRNHT / SCRNWD (INVREQ RESP2 5 without a terminal) from facts the harness states; no data area written when ASSIGN raises INVREQ; OPID, NETNAME, TERMCODE, FCI, the other screen sizes, work-area lengths and the rest refused | ASSUMED (REFUSED where the harness cannot decide) | yes (cics-crucible gt-assign-startcode, unreleased) |
 | X20 | CICS | SEND TEXT on the det port and the stub: TERMINAL accepted as the default output disposition (the principal facility; the event is that of SEND TEXT without it); ACCUM, PAGING, SET, REQID, HEADER, TRAILER, JUSTIFY / JUSFIRST / JUSLAST, the printer, partition and LDC options, MSR, FMHPARM, DEFAULT / ALTERNATE refused | MATCHED (REFUSED where the region cannot decide) | yes (cics-crucible gt-send-text-terminal, unreleased) |
+| X21 | CICS | EIBTASKN: the task's number is a stated fact of the run (`$GGCICS_TASKN` / `CicsTask.withTaskNumber`, a case's or scenario's `"taskn"`, default 0), not the number CICS assigns; a value outside 0 to 9,999,999 refused | DIFFERS (the value) / MATCHED (both sides) | yes (every CICS task; read by CBSA's Db2 programs, GenApp LGICDB01) |
 | L1 | LE | CEEDAYS: documented pictures only | MATCHED / REFUSED | yes |
 | L2 | LE | CEE3ABD abend codes | MATCHED | yes |
 | L3 | LE | WORKING-STORAGE with no VALUE clause: GnuCOBOL's spaces vs LE's STORAGE option on z/OS | ASSUMED | yes (CardDemo READACCT OUTFILE, 2 bytes) |
@@ -333,9 +334,8 @@ verdict, but it limits what the proof says about inputs outside the scenarios.
   the port draws z/OS's numbers: a credit score (CBSA CRDTAGY1-5), a customer number (INQCUST, GenApp LGICVS01) or a
   DELAY interval computed from RANDOM differs from z/OS's for the same seed, and is equal across the two sides only
   because both use the oracle's generator. That equality is a stated fact of the harness run, as the clock is (M4):
-  the seed these programs use is `EIBTASKN`, which is 0 on both sides (the stub INITIALIZEs DFHEIBLK; the det port's
-  EIB image holds packed zero), so every task draws RANDOM(0)'s sequence. A case that varies the task number needs it
-  stated on both sides first.
+  the seed these programs use is `EIBTASKN`, which the harness states on both sides (X21: 0 unless a case or scenario
+  states its `"taskn"`), so every task draws RANDOM(0)'s sequence by default, and RANDOM(n)'s for a stated n.
 - **Known differences, unreached.** The oracle can return exactly 0 or 1 (`rand()` of 0 or `RAND_MAX`, about once in
   2^31 draws), IBM never does; the port follows the oracle. A LINKed program is a new run unit on z/OS (its own
   sequence from seed zero) but shares the task's process state in the oracle; the port gives each program its own
@@ -808,6 +808,33 @@ The length READQ TS returns on ITEMERR or QIDERR is not documented, so it is not
 - **Reached.** cics-crucible gt-send-text-terminal (1 scenario: SEND TEXT with and without TERMINAL, a START TERMID
   task sending to the terminal the START named, a task with no terminal sending nothing), cobol-stub and the det port
   both passing the hand-written log (crucible branch `cases/send-text-4270`, not yet released or pinned).
+
+### X21. EIBTASKN, a stated fact of the run — the value DIFFERS from z/OS, both sides MATCHED (#4270)
+- **What IBM documents** (CICS TS 6.x, EIB fields including EIBRESP and EIBRESP2,
+  https://www.ibm.com/docs/en/cics-ts/6.x?topic=reference-eib-fields): EIBTASKN "Contains the task number assigned to
+  the task by CICS. This number appears in trace table entries generated while the task is in control. The format of
+  the field is packed decimal. COBOL: PIC S9(7) COMP-3." Which number a task gets depends on the region's history
+  (every task attached before it), so no program-level model can derive it.
+- **The harness's fact.** EIBTASKN is stated by whoever runs the task, never derived inside a runtime, as the clock is
+  (M4) and ASSIGN's facts are (X19). The CICS spec holds it (`gitgalaxy/standards/cics/eib.py`, `EIB_FACTS`); the stub
+  gives `$GGCICS_TASKN` (`GGCTASKN`, which both drivers CALL after INITIALIZE DFHEIBLK, then MOVE to EIBTASKN), the
+  Java side `CicsTask.withTaskNumber` (the det port's `runTask` stores `task.taskNumber()` into its EIB; the same at
+  every LINK / XCTL level). The equivalence harness states, for each task, the scenario's `"taskn"`, else the case's,
+  else 0, on both sides. 0 is the value every task had before it was stated (both sides' EIB is INITIALIZEd), and
+  the one C12's RANDOM seed assumes.
+- **So a proof says:** given the task number the case states, the port does what the COBOL does with it (CBSA's Db2
+  programs write it into PROCTRAN's reference and their abend records; GenApp LGICDB01 moves it into a debug header).
+  It does NOT say the value is z/OS's: no CICS region gives a task number 0, and a program whose behaviour depends on
+  which number it gets (a key built from it colliding, a RANDOM seeded with it) is proven for the stated number only.
+- **Refused by name.** A `"taskn"` that is not an integer from 0 to 9,999,999 (the field's PIC S9(7) COMP-3):
+  `Unsupported` in the harness, exit 98 in the stub ("EIBTASKN: $GGCICS_TASKN is not a task number"),
+  `IllegalArgumentException` in `withTaskNumber`.
+- **Not stated yet.** The cics-crucible runner states no task number (its frames carry none; both sides read 0), so
+  `proof_blockers.py` still counts `fact: EIBTASKN` for a crucible case's program. EIBRCODE, EIBCPOSN and the other
+  EIB fields no command or driver sets stay zero / spaces on both sides and remain fact gaps.
+- **Reached.** Every CICS task of every equivalence case (stated 0 unless the case says otherwise). Pinned by
+  `tests/cics_crucible/test_cics_runtimes.py` (the stub and CicsTask, stated, unstated and refused) and
+  `tests/cobol_mainframe/test_equivalence_cics.py` (the drivers, the scenario / case / default order).
 
 ## Language Environment
 

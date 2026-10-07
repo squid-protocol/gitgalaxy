@@ -15,7 +15,8 @@ def fixed(*code: str) -> str:
 
 
 CICS = fixed("PROCEDURE DIVISION.", "    EXEC CICS RETURN END-EXEC.")
-TASKN = fixed("PROCEDURE DIVISION.", "    MOVE EIBTASKN TO WS-T", "    EXEC CICS RETURN END-EXEC.")
+TASKN = fixed("PROCEDURE DIVISION.", "    MOVE EIBTASKN TO WS-T", "    MOVE EIBRCODE TO WS-R",
+              "    EXEC CICS RETURN END-EXEC.")  # fmt: skip
 ASSIGN = fixed("PROCEDURE DIVISION.", "    EXEC CICS ASSIGN APPLID(A) USERID(U) END-EXEC.")
 BATCH = fixed("PROCEDURE DIVISION.", "    DISPLAY 'HI'", "    STOP RUN.")
 
@@ -82,7 +83,7 @@ def test_each_gap_class_from_its_source(tmp_path):
     assert gaps_of(res, "DB2") == ["not proven in CI: Db2 case (det-sweep runs --skip-db2)"]
     assert gaps_of(res, "KNOWN") == ["known unproven: #1"]
     assert gaps_of(res, "COV") == ["coverage: live paragraphs no scenario runs"]
-    assert gaps_of(res, "TASKN") == ["fact: EIBTASKN (no harness states it)"]
+    assert gaps_of(res, "TASKN") == ["fact: EIBRCODE (no harness states it)"]  # EIBTASKN: the case states it
     assert gaps_of(res, "ASSIGN") == ["fact: ASSIGN APPLID/SYSID (the case states no region)",
                                       "fact: ASSIGN USERID (no equivalence case states it)"]  # fmt: skip
     assert gaps_of(res, "DIFF") == ["coverage: unknown (no sweep, no evidence record)"]
@@ -154,6 +155,18 @@ def test_rank_counts_only_and_one_away_split_burned():
     g1 = next(g for g in r["gaps"] if g["gap"] == "g1")
     assert (g1["only"], g1["only_burned"], g1["only_non_burned"], g1["one_away"], g1["touched"]) == (2, 1, 1, 1, 3)
     assert (r["whole"], r["proven"], r["proven_non_burned"]) == (4, 1, 1)
+
+
+def test_eibtaskn_is_stated_by_an_equivalence_case_not_yet_by_the_crucible():
+    """#4270: EIBTASKN is a stated fact of the run (gitgalaxy.standards.cics.eib, $GGCICS_TASKN /
+    CicsTask.withTaskNumber): the equivalence harness states it for every task, so neither a case nor a program with
+    no case yet has the gap; the crucible runner does not state it, so a crucible case's program keeps it."""
+    assert "EIBTASKN" in pb.CASE_STATED_EIB and "EIBRCODE" not in pb.CASE_STATED_EIB
+    facts = {"eib": {"EIBTASKN"}}
+    assert pb.fact_gaps(facts, pb.Run("equivalence", "c")) == set()
+    assert pb.fact_gaps(facts, None) == set()
+    assert pb.fact_gaps(facts, pb.Run("crucible", "k")) == {"fact: EIBTASKN (no harness states it)"}
+    assert pb.fact_gaps({"eib": {"EIBRCODE"}}, pb.Run("equivalence", "c")) == {"fact: EIBRCODE (no harness states it)"}
 
 
 def test_facts_are_names_only():

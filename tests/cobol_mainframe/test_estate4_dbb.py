@@ -88,6 +88,19 @@ def test_a_lower_case_copybook_is_staged_under_its_member_name(tmp_path):
     assert sorted(p.name for p in src.iterdir()) == ["EPSNBRPM.cpy", "epsnbrpm.cpy"]
 
 
+def test_a_bms_map_source_does_not_shadow_its_generated_symbolic_map(tmp_path):
+    # #4270: GenApp's base/src holds ssmap.bms beside the programs; COPY SSMAP means the symbolic map generated from
+    # it (@bms/SSMAP.cpy), not the assembler macros staged under the member's name
+    corpus = tmp_path / "corpus"
+    (corpus / "src").mkdir(parents=True)
+    (corpus / "src" / "ssmap.bms").write_text("SSMAP   DFHMSD TYPE=MAP\n", encoding="utf-8")
+    (corpus / "src" / "lgcmarea.cpy").write_text("       03 A PIC X.\n", encoding="utf-8")
+    src = tmp_path / "src"
+    src.mkdir()
+    common.stage_copybooks({"copy_dirs": ["src"]}, corpus, src)
+    assert sorted(p.name for p in src.iterdir()) == ["LGCMAREA.cpy", "lgcmarea.cpy"]
+
+
 def _undefined(commarea, cobol_value):
     cev = [{"event": "RETURN", "commarea": {"RETCODE": cobol_value, "IND": "3"}}]
     jev = [{"event": "RETURN", "commarea": {"RETCODE": 0, "IND": "3"}}]

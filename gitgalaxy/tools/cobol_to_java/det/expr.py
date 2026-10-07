@@ -32,6 +32,16 @@ class Lit:
     """A nonnumeric literal (text) or a numeric literal (Decimal)."""
 
     value: str | Decimal | bytes
+    # #4270: a numeric literal's digits as written. Compared with an alphanumeric item, an integer literal is the
+    # nonnumeric literal of its digits (IBM, "Comparison of numeric and alphanumeric operands"), leading zeros and all:
+    # GenApp's LGTESTP4 `ENP4CNOO Not = 0000000000` -- a Decimal keeps no leading zeros.
+    digits: str | None = field(default=None, compare=False)
+
+
+def _digits(tok: str) -> str | None:
+    """An unsigned integer literal's digits as written (`0000000000`), else None."""
+    t = tok.lstrip("+-")
+    return t if t.isdigit() else None
 
 
 @dataclass
@@ -180,10 +190,10 @@ class Parser:
             raise ExprError("NULL: pointers are not modelled")
         if _is_number(tok):
             self.i += 1
-            return Lit(Decimal(tok.replace(",", ".") if tok.count(",") == 1 and "." not in tok else tok))
+            return Lit(Decimal(tok.replace(",", ".") if tok.count(",") == 1 and "." not in tok else tok), _digits(tok))
         if u in ("+", "-") and (nxt1 := self.peek(1)) is not None and _is_number(nxt1):
             self.i += 2
-            return Lit(Decimal(u + self.t[self.i - 1]))
+            return Lit(Decimal(u + self.t[self.i - 1]), _digits(self.t[self.i - 1]))
         if u == "FUNCTION":
             self.i += 1
             name = self.take().upper()

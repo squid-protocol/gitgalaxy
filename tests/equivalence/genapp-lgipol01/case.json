@@ -1,0 +1,151 @@
+{
+ "kind": "cics",
+ "corpus": "cics-genapp",
+ "program": "LGIPOL01",
+ "program_source": "base/src/lgipol01.cbl",
+ "copy_dirs": [
+  "base/src"
+ ],
+ "transid": "LGIP",
+ "clock": "2026/10/01 10:30:15.00",
+ "programs": [
+  {
+   "program": "LGIPDB01",
+   "program_source": "base/src/lgipdb01.cbl"
+  },
+  {
+   "program": "LGSTSQ",
+   "program_source": "base/src/lgstsq.cbl"
+  }
+ ],
+ "db2": {
+  "ddl": [
+   "base/cntl/db2cre.jcl"
+  ],
+  "seed": "@case/seed.sql",
+  "symbols": {
+   "<DB2DBID>": "GENASA1"
+  },
+  "qualifier": "GENASA1",
+  "compare": [
+   "GENASA1.POLICY",
+   "GENASA1.ENDOWMENT",
+   "GENASA1.HOUSE",
+   "GENASA1.MOTOR",
+   "GENASA1.COMMERCIAL"
+  ],
+  "tables": [
+   "GENASA1.CLAIM",
+   "GENASA1.COMMERCIAL",
+   "GENASA1.MOTOR",
+   "GENASA1.HOUSE",
+   "GENASA1.ENDOWMENT",
+   "GENASA1.POLICY",
+   "GENASA1.CUSTOMER_SECURE",
+   "GENASA1.CUSTOMER"
+  ]
+ },
+ "commarea": {
+  "segments": [
+   {
+    "copybook": "base/src/lgipol01.cbl",
+    "record": "DFHCOMMAREA"
+   }
+  ]
+ },
+ "linked": true,
+ "screens": {},
+ "region": {
+  "applid": "GENAREGN",
+  "sysid": "CICA"
+ },
+ "scenarios": [
+  {
+   "name": "endowment-3-5",
+   "commarea": {
+    "CA-REQUEST-ID": "01IEND",
+    "CA-CUSTOMER-NUM": 3,
+    "CA-REQUEST-SPECIFIC": "0000000005                                                                        "
+   },
+   "why": "LGIPDB01's scenario endowment-3-5 through LGIPOL01: 01IEND, SELECT INTO on POLICY x ENDOWMENT +0: '00'; PADDINGDATA and LENGTH(PADDINGDATA) are NULL (indicators -1), so no padding is moved and 'FINAL' lands at CA-E-PADDING-DATA(1:5); brokerId 0 / payment 0 not NULL, moved to the 9(10)/9(6) fields"
+  },
+  {
+   "name": "house-4-6",
+   "commarea": {
+    "CA-REQUEST-ID": "01IHOU",
+    "CA-CUSTOMER-NUM": 4,
+    "CA-REQUEST-SPECIFIC": "0000000006                                                                        "
+   },
+   "why": "LGIPDB01's scenario house-4-6 through LGIPOL01: 01IHOU, POLICY x HOUSE +0: bedrooms SMALLINT and value INTEGER moved to 9(3)/9(8); house name ' '; 'FINAL' in CA-H-FILLER"
+  },
+  {
+   "name": "motor-2-1",
+   "commarea": {
+    "CA-REQUEST-ID": "01IMOT",
+    "CA-CUSTOMER-NUM": 2,
+    "CA-REQUEST-SPECIFIC": "0000000001                                                                        "
+   },
+   "why": "LGIPDB01's scenario motor-2-1 through LGIPOL01: 01IMOT, POLICY x MOTOR +0: CC, value, premium, accidents converted from binary; YEAROFMANUFACTURE (DATE) as ISO text; 'FINAL' in CA-M-FILLER"
+  },
+  {
+   "name": "commercial-1-10",
+   "commarea": {
+    "CA-REQUEST-ID": "01ICOM",
+    "CA-CUSTOMER-NUM": 1,
+    "CA-REQUEST-SPECIFIC": "0000000010                                                                        "
+   },
+   "why": "LGIPDB01's scenario commercial-1-10 through LGIPOL01: 01ICOM, POLICY x COMMERCIAL +0: REQUESTDATE (TIMESTAMP) into DB2-LASTCHANGED, STARTDATE/RENEWALDATE into issue/expiry; the 255-byte CHAR columns and nine SMALLINT/INTEGER perils, premiums and status into CA-COMMERCIAL; 'FINAL' in CA-B-FILLER"
+  },
+  {
+   "name": "commercial-by-policy-10",
+   "commarea": {
+    "CA-REQUEST-ID": "02ICOM",
+    "CA-CUSTOMER-NUM": 7,
+    "CA-REQUEST-SPECIFIC": "0000000010                                                                        "
+   },
+   "why": "LGIPDB01's scenario commercial-by-policy-10 through LGIPOL01: 02ICOM selects by policy number alone: +0, CA-CUSTOMER-NUM (7 on entry) replaced by the row's 1"
+  },
+  {
+   "name": "customer-cursor-one-row",
+   "commarea": {
+    "CA-REQUEST-ID": "03ICOM",
+    "CA-CUSTOMER-NUM": 1,
+    "CA-REQUEST-SPECIFIC": "0000000000                                                                        "
+   },
+   "why": "LGIPDB01's scenario customer-cursor-one-row through LGIPOL01: 03ICOM, Cust_Cursor: OPEN +0, one FETCH +0 (customer 1's policy 10: CA-CUSTOMER-NUM, CA-POLICY-NUM, common and commercial fields filled, ICOM-Record-Count 1), then FETCH +100 ends the loop, CLOSE +0, '00'"
+  },
+  {
+   "name": "zip-cursor-so212jn",
+   "commarea": {
+    "CA-REQUEST-ID": "05ICOM",
+    "CA-CUSTOMER-NUM": 0,
+    "CA-REQUEST-SPECIFIC": "0000000000                                                                                                                                                                                                                                                                                                                                       SO212JN "
+   },
+   "why": "LGIPDB01's scenario zip-cursor-so212jn through LGIPOL01: 05ICOM, Zip_Cursor on CA-B-POSTCODE 'SO212JN ' (host variable in the COMMAREA): one row, policy 10 / customer 1, then +100, CLOSE, '00'"
+  },
+  {
+   "name": "unknown-request-id",
+   "commarea": {
+    "CA-REQUEST-ID": "01IXXX",
+    "CA-CUSTOMER-NUM": 3,
+    "CA-REQUEST-SPECIFIC": "0000000005                                                                        "
+   },
+   "why": "LGIPDB01's scenario unknown-request-id through LGIPOL01: WHEN OTHER: '99', no SQL"
+  },
+  {
+   "name": "house-not-found",
+   "commarea": {
+    "CA-REQUEST-ID": "01IHOU",
+    "CA-CUSTOMER-NUM": 3,
+    "CA-REQUEST-SPECIFIC": "0000000005                                                                        "
+   },
+   "why": "LGIPDB01's scenario house-not-found through LGIPOL01: policy 5 is an endowment: +100, '01'"
+  },
+  {
+   "name": "no-commarea",
+   "commarea": null,
+   "why": "EIBCALEN 0: LGIPOL01 moves ' NO COMMAREA RECEIVED' to EM-VARIABLE, WRITE-ERROR-MESSAGE LINKs LGSTSQ with ERROR-MSG (TD CSMT and TS GENAERRS), IF EIBCALEN > 0 is false, then ABEND LGCA"
+  }
+ ],
+ "notes": "GenApp's inquire-policy front end (LGIPOL01, LINKed with the 32500-byte LGCMAREA COMMAREA): it checks the COMMAREA and LINKs LGIPDB01 with it. The case runs every program of that chain in the same task (\"programs\"), LGSTSQ too (its error logger, \"region\" for its ASSIGN SYSID), with the back-end case's Db2 tables, VSAM file and data; the scenarios reuse genapp-lgipdb01's inputs (each \"why\" names its source) and add the front end's own paths: no-commarea (EIBCALEN 0: LGSTSQ, ABEND LGCA). LGIPOL01 checks no length and no request id itself. WRITE-ERROR-MESSAGE's IF EIBCALEN > 0 (and the IF EIBCALEN < 91 inside it) is never true: the paragraph is PERFORMed only when EIBCALEN is zero -- dead in practice, uncovered by every scenario. The SQL faults (M2) are the harness's, one per statement the tasks run. Derived from the CICS General Insurance Application (GenApp, github.com/cicsdev/cics-genapp; (C) Copyright IBM Corp. 2011, 2020), licensed under the Eclipse Public License 2.0: LICENSE here is the corpus's own, NOTICE names the source and what was derived."
+}

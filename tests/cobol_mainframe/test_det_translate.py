@@ -2016,3 +2016,29 @@ def test_a_commarea_of_a_stated_length_is_all_dfhcommarea_holds(tmp_path):
     assert 'throw new DetCics.PastFrom("COMMAREA past EIBCALEN (" + calen + " bytes): not modelled");' in run
     assert "} finally { if (caWhole != null) { caWhole(caWhole); } }" in run
     assert "private void caWhole(byte[] whole) {" in r.java
+
+
+def test_an_integer_literal_against_an_alphanumeric_item_keeps_its_leading_zeros(tmp_path):
+    """#4270 (GenApp LGTESTP4: `ENP4CNOO Not = 0000000000` on a map field of ten digits): compared with an
+    alphanumeric item, an integer literal is the nonnumeric literal of its digits as written (IBM, "Comparison of
+    numeric and alphanumeric operands"). As a value it is 0, whose text "0" made '0000000000' unequal to it."""
+    pytest.importorskip("tree_sitter_language_pack")
+    from gitgalaxy.tools.cobol_to_java.det import program as P
+
+    (tmp_path / "T5.cbl").write_text(
+        "       IDENTIFICATION DIVISION.\n       PROGRAM-ID. T5.\n       DATA DIVISION.\n"
+        "       WORKING-STORAGE SECTION.\n       01  REC.\n           05  WS-A              PIC X(10).\n"
+        "           05  WS-B              PIC X(2).\n       01  WS-N                  PIC 9(3) VALUE 7.\n"
+        "       PROCEDURE DIVISION.\n       MAIN-PARA.\n           MOVE SPACES TO REC\n"
+        "           IF WS-A NOT = 0000000000 AND WS-A NOT = 0\n               MOVE 'Y' TO WS-B\n           END-IF\n"
+        "           IF WS-N = 007\n               MOVE 'N' TO WS-B\n           END-IF\n"
+        "           EXEC CICS RETURN END-EXEC.\n",
+        encoding="utf-8",
+    )
+    (tmp_path / "proj/src/main/java/com/x").mkdir(parents=True)
+    stub = "package com.x.service;\nimport com.x.cics.CicsTask;\npublic class T5Service {\n" \
+           "    public void runTask(CicsTask task) {}\n}\n"  # fmt: skip
+    r = P.translate(tmp_path / "T5.cbl", [], stub, "com.x", {}, tmp_path / "proj")
+    assert r.stats["holes"] == []
+    assert '_WS_A, "0000000000", CS) == 0' in r.java and '_WS_A, "0", CS) == 0' in r.java
+    assert '"007"' not in r.java  # a numeric item against it: by value, as before

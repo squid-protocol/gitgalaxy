@@ -881,6 +881,10 @@ class Gen:
         if isinstance(b, E.Ref):
             return f"Cobol.compare({fa}, {self.field_expr(b)}, CS{c})"
         if isinstance(b, E.Lit):
+            if isinstance(b.value, Decimal) and b.digits and not self.is_numeric(a):
+                # #4270: an integer literal against an alphanumeric item: the nonnumeric literal of its digits as
+                # written (`0000000000`, not the value's `0`)
+                return f"Cobol.compare({fa}, {jstr(b.digits)}, CS{c})"
             if isinstance(b.value, Decimal):
                 return f"Cobol.compare({fa}, {self.const(b.value)}, CS{c})"
             return f"Cobol.compare({fa}, {self.text(b)}, CS{c})"

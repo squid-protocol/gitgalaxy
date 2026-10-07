@@ -123,7 +123,7 @@ A translator fix is never a hand edit of a port.
       sides (no EXEC SQL in those yet). A LINK the case does not run is refused by name.
 
 **Before the PR:**
-- [ ] `pr_gates.py`, or at least the ruff audit, mypy, the dead-key audit and the full suite.
+- [ ] `pr_gates.py --fast` and `pr_gates.py --ratchets`. The full suite runs in CI, not locally (owner, 2026-10-07).
 - [ ] `ruff format` again after the last edit.
 - [ ] Commits and PRs are pre-authorized. Merge when CI is green: wait for `gh pr checks N` to show no pending row,
       parsing its text (no `--json`).

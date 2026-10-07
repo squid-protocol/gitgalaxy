@@ -5644,17 +5644,44 @@ def _mv_pic_width(pic: str, usage: str) -> tuple[Optional[int], str]:
 def _mv_entries(lines: list[str], repo: Path, stems: dict, depth: int = 0) -> list[tuple[int, str, str]]:
     """(level, name, description) per data entry, COPY members spliced in place."""
     out: list[tuple[int, str, str]] = []
-    for line in lines:
+    i = 0
+    while i < len(lines):
+        line = lines[i]
         cp = re.match(r"\s*COPY\s+([A-Z0-9@#$-]+)", line)
         if cp and depth < 6:
+            stmt = line
+            j = i + 1
+            while j < len(lines) and "." not in _blank_literals(stmt):
+                stmt += " " + lines[j]
+                j += 1
+            i = j - 1
+            
             for cb in stems.get(cp.group(1), [])[:1]:
-                out.extend(_mv_entries([a for _, a in Source(cb).lines], repo, stems, depth + 1))
+                cb_lines = [a for _, a in Source(cb).lines]
+                repl = re.search(r"\bREPLACING\b(.*)", stmt, re.IGNORECASE | re.DOTALL)
+                if repl:
+                    pairs = []
+                    pattern = r"(?:==([^=]+)==|([A-Z0-9:-]+))\s+BY\s+(?:==([^=]+)==|([A-Z0-9:-]*))"
+                    for m in re.finditer(pattern, repl.group(1)):
+                        src = m.group(1) or m.group(2)
+                        dst = m.group(3) if m.group(3) is not None else (m.group(4) or "")
+                        pairs.append((src.strip(), dst.strip()))
+                    for k in range(len(cb_lines)):
+                        for src, dst in pairs:
+                            if re.match(r"^[A-Z0-9-]+$", src):
+                                cb_lines[k] = re.sub(r"\b" + re.escape(src) + r"\b", dst, cb_lines[k])
+                            else:
+                                cb_lines[k] = cb_lines[k].replace(src, dst)
+                out.extend(_mv_entries(cb_lines, repo, stems, depth + 1))
+            i += 1
             continue
+            
         m = re.match(r"\s*(\d+)\s+([A-Z0-9-]+)(.*)", line)
         if m:
             out.append((int(m.group(1)), m.group(2), m.group(3)))
         elif out:
             out[-1] = (out[-1][0], out[-1][1], out[-1][2] + " " + line)
+        i += 1
     return out
 
 

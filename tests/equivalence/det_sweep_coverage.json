@@ -190,7 +190,7 @@
    }
   },
   "carddemo-adminmenu": {
-   "scenarios": 16,
+   "scenarios": 19,
    "paragraphs": {
     "covered": 8,
     "live": 8
@@ -200,7 +200,7 @@
     "total": 26
    },
    "inputs": {
-    "case": "f6d6e0043ca8d45a2ad195ece5fd6caba411960fc93a0f95249e1da6bbe0f4f5",
+    "case": "71b21bf6c4ddb1862b408fe7bdd3f495a05944ac86064859da2c845963b01332",
     "corpus": "d0c4803872ec126eb56a170212f76207beff5ab8c2b6507dd6df4a084cdeb919",
     "harness": "fee14be7661ceeeb9fec70d509307f329243eab0342709c1f0e7464599b7e378",
     "oracle": "34e4374b3f771d8a11ed9471e6ec942784f1f5435a723bdd080f8567eda4171c"

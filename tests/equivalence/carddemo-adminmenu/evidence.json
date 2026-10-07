@@ -26,7 +26,7 @@
     "tests/equivalence/carddemo-adminmenu/**"
    ],
    "files": 1,
-   "sha256": "f6d6e0043ca8d45a2ad195ece5fd6caba411960fc93a0f95249e1da6bbe0f4f5"
+   "sha256": "71b21bf6c4ddb1862b408fe7bdd3f495a05944ac86064859da2c845963b01332"
   },
   "harness": {
    "paths": [
@@ -73,13 +73,13 @@
   "differences": {
    "sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
   },
-  "digest": "7a57b5e541792bd3566bffdb9e106a67a35f1f82ae20655c787967c59d467d97"
+  "digest": "04ffc6392ebd304647aa70c4cf6310e1b7d5a6aa20bf551eaffacf99a6b977a6"
  },
  "proof": {
-  "at": "2026-10-07T16:43:58Z",
+  "at": "2026-10-07T19:11:49Z",
   "verdict": "proven",
-  "runs": 16,
-  "fault_runs": 0,
+  "runs": 19,
+  "fault_runs": 1,
   "environments": null,
   "outputs": {
    "first-entry": {
@@ -145,6 +145,18 @@
    "invalid-key": {
     "equal": 3,
     "records": 3
+   },
+   "pf4-invalid-key": {
+    "equal": 3,
+    "records": 3
+   },
+   "pf3-xctl-fails": {
+    "equal": 4,
+    "records": 4
+   },
+   "full-commarea-carried": {
+    "equal": 3,
+    "records": 3
    }
   },
   "return_code_equal": null,
@@ -153,16 +165,16 @@
   "java_failed": false,
   "facade": {
    "verdict": "proven",
-   "runs": 16,
-   "passed": 16,
+   "runs": 19,
+   "passed": 19,
    "entry_points": [
     "handleTransaction"
    ],
    "failed": [],
    "error": null
   },
-  "harness_commit": "ab94c6c7d2b496f26eb5033a1b0f727b841c9106+uncommitted",
-  "inputs_digest": "7a57b5e541792bd3566bffdb9e106a67a35f1f82ae20655c787967c59d467d97"
+  "harness_commit": "cb84041a63ca48fe37ffdb49a5ce211cc3a2e73e+uncommitted",
+  "inputs_digest": "04ffc6392ebd304647aa70c4cf6310e1b7d5a6aa20bf551eaffacf99a6b977a6"
  },
  "coverage": {
   "paragraphs": {
@@ -216,7 +228,7 @@
    "total": 1
   },
   "source": "the proof's own traced COBOL runs (cobol_coverage.py)",
-  "inputs_digest": "7a57b5e541792bd3566bffdb9e106a67a35f1f82ae20655c787967c59d467d97"
+  "inputs_digest": "04ffc6392ebd304647aa70c4cf6310e1b7d5a6aa20bf551eaffacf99a6b977a6"
  },
  "reach": {
   "entry_points": [
@@ -255,7 +267,7 @@
   "compiler_options": null,
   "image": {
    "name": "gitgalaxy-gnucobol:3",
-   "id": "sha256:ec3ecd98686860217630b1fce29265628e980a353ddd3d2d96d16332e8800c64",
+   "id": "sha256:d7e387df360c519ce8945a1f6d748c8dafab06f50551b23ddf85d6373a4dcd6e",
    "base": "debian:bookworm-slim@sha256:3783cc01769c7b2b1b83a5c5ad96c815348e28ed7da68e2e3687004faa906251",
    "matches_pin": true,
    "mismatches": []

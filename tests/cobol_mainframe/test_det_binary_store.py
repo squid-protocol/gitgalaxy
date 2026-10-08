@@ -1,13 +1,17 @@
-"""A result stored in a binary receiver past its PICTURE or its bytes, without ON SIZE ERROR (#4684,
-oracle_assumptions C1 / C4), as the oracle (GnuCOBOL 3.1.2 `-std=ibm`) stores it under TRUNC(BIN) (`-std=ibm`
-alone) and TRUNC(STD) (`-fbinary-truncate`, IBM's default and the CICS cases').
+"""A result stored in a binary receiver past its PICTURE or its bytes, or below zero in an unsigned one, without ON
+SIZE ERROR (#4684, oracle_assumptions C1 / C4), under TRUNC(BIN) (`cobc -std=ibm` alone) and TRUNC(STD)
+(`-fbinary-truncate`, IBM's default and the CICS cases').
 
-Measured: libcob's decimal store keeps a binary item's 2 / 4 / 8 bytes under TRUNC(BIN) (a signed one wraps, an
-unsigned one takes the absolute value first) and the PICTURE's digits under TRUNC(STD) -- the det runtime does the
-same. cobc compiles ADD / SUBTRACT ... TO / FROM an unsigned binary item of no decimal places, with one operand that
-fits a C int and no ROUNDED or SIZE ERROR phrase, to native integer arithmetic instead (cb_build_optim_add / _sub):
-a result below zero wraps modulo 2 ** bits (1 - 3 is 65534 in a halfword) where the decimal store keeps 2; COMP-5
-always, COMP / COMP-4 / BINARY only under TRUNC(BIN). The det port follows (gen.native_add, Cobol.storeNative).
+IBM is the reference, GnuCOBOL the instrument. An unsigned receiver takes the absolute value of the result (IBM
+Enterprise COBOL 6.4 Language Reference, SC27-8713-03, "Elementary moves": "If the receiving item is unsigned ... the
+absolute value of the sending item is used"; that an arithmetic store follows it: confirm, #4702), truncated at its
+bytes under COMP-5 or TRUNC(BIN) and to its PICTURE under TRUNC(STD) (6.4 Programming Guide, SC27-8714-03, "TRUNC").
+libcob's decimal store does exactly that, and so does the det runtime. cobc compiles ADD / SUBTRACT ... TO / FROM an
+unsigned binary item of no decimal places, with one operand that fits a C int and no ROUNDED or SIZE ERROR phrase, to
+native integer arithmetic instead (cb_build_optim_add / _sub): a result below zero wraps modulo 2 ** bits (1 - 3 is
+65534 in a halfword); COMP-5 always, COMP / COMP-4 / BINARY only under TRUNC(BIN). No cobc 3.1.2 option or config
+entry turns that path off (C4), so it is a declared oracle-vs-IBM difference: the end-to-end test expects the
+oracle's wrap and the port's absolute value on exactly the named lines (DECLARED_C4), and equality everywhere else.
 The codegen tests need no Docker; the end-to-end tests run each program through GnuCOBOL and the det port
 (EQUIVALENCE_E2E=1, Docker and a JDK 17)."""
 
@@ -43,7 +47,8 @@ DATA = [
 
 # (tag, receivers, statement lines): each receiver starts at 1, then is shown
 CASES = [
-    # cobc's native ADD / SUBTRACT: an unsigned result below zero wraps (COMP-5 always, the rest under TRUNC(BIN))
+    # cobc's native ADD / SUBTRACT: an unsigned result below zero wraps on the oracle (COMP-5 always, the rest under
+    # TRUNC(BIN)); IBM and the det port store the absolute value (C4)
     ("W1", ["UH"], ["SUBTRACT 3 FROM UH"]),
     ("W2", ["UW"], ["ADD -3 TO UW"]),
     ("W3", ["UD"], ["SUBTRACT K7 FROM UD"]),
@@ -53,7 +58,7 @@ CASES = [
     ("W7", ["UH"], ["SUBTRACT 3 4 FROM UH"]),  # a list of literals is folded into one
     ("W8", ["UH", "NH"], ["ADD -3 TO UH NH"]),
     ("W9", ["NH"], ["SUBTRACT 3 FROM NH", "  NOT ON SIZE ERROR DISPLAY 'W9 N'", "END-SUBTRACT"]),
-    # libcob's decimal store: the absolute value
+    # libcob's decimal store: the absolute value, as IBM
     ("A1", ["UH"], ["SUBTRACT 3 FROM UH ROUNDED"]),
     ("A2", ["UH"], ["SUBTRACT 3 FROM UH", "  ON SIZE ERROR DISPLAY 'A2 Y'", "END-SUBTRACT"]),
     ("A3", ["UH"], ["SUBTRACT 3.0 FROM UH"]),
@@ -129,13 +134,14 @@ def test_cobcs_native_add_is_chosen_as_cobc_chooses_it(stmt, native, tmp_path):
     assert ("Cobol.storeNative(" in java or "Cobol.binaryNative(" in java) == native, java
 
 
-def test_size_error_phrases_keep_the_decimal_store_but_comp5_ignores_a_lone_not_on_size_error(tmp_path):
+def test_size_error_phrases_keep_the_checked_store(tmp_path):
     on = _translate(tmp_path / "a", ["SUBTRACT 3 FROM NH", "  ON SIZE ERROR DISPLAY 'Y'", "END-SUBTRACT"])
     assert "storeNative" not in on
     comp = _translate(tmp_path / "b", ["SUBTRACT 3 FROM UH", "  NOT ON SIZE ERROR DISPLAY 'N'", "END-SUBTRACT"])
     assert "storeNative" not in comp
+    # cobc keeps a COMP-5 statement with a lone NOT ON SIZE ERROR native (no size check); IBM checks the size
     comp5 = _translate(tmp_path / "c", ["SUBTRACT 3 FROM NH", "  NOT ON SIZE ERROR DISPLAY 'N'", "END-SUBTRACT"])
-    assert "storeNative" in comp5
+    assert "storeNative" not in comp5 and "Cobol.storeChecked(" in comp5, comp5
 
 
 # what the oracle prints (measured 2026-10-08, GnuCOBOL 3.1.2 -std=ibm, without and with -fbinary-truncate)
@@ -159,11 +165,22 @@ WANT = {
 }  # fmt: skip
 
 
+# C4, the declared oracle-vs-IBM difference: on these lines the oracle prints cobc's native wrap (WANT) and the det
+# port IBM's absolute value; every other line is compared for equality
+DECLARED_C4 = {
+    "bin": {
+        "W1 UH": "2.0000", "W2 UW": "2.0000", "W3 UD": "6.0000", "W4 NH": "6.0000", "W5 NW": "98764.0000",
+        "W6 UH": "4.0000", "W7 UH": "6.0000", "W8 UH": "2.0000", "W8 NH": "2.0000", "W9 NH": "2.0000",
+    },
+    "std": {"W4 NH": "6.0000", "W5 NW": "98764.0000", "W8 NH": "2.0000", "W9 NH": "2.0000"},
+}  # fmt: skip
+
+
 @pytest.mark.skipif(os.environ.get("EQUIVALENCE_E2E") != "1" or not shutil.which("docker"),
                     reason="needs Docker and a JDK 17 (JAVA_HOME / JDK_17)")  # fmt: skip
 @pytest.mark.parametrize("trunc", ["bin", "std"])
 @pytest.mark.parametrize("mode", ["bytes", "typed"])
-def test_binary_stores_are_the_oracles(trunc, mode, tmp_path):
+def test_binary_stores_are_ibms_and_the_oracle_differs_only_where_c4_declares(trunc, mode, tmp_path):
     pytest.importorskip("tree_sitter_language_pack")
     import test_det_programs as T
 
@@ -172,10 +189,20 @@ def test_binary_stores_are_the_oracles(trunc, mode, tmp_path):
     src = program()
     cob = tmp_path / "cobol"
     cob.mkdir()
-    want = T._cobol(src, cob, "-fbinary-truncate" if trunc == "std" else "")
+    want = T._cobol(src, cob, flags="-fbinary-truncate" if trunc == "std" else "")
     got = T._java_run("binstore", src, tmp_path, mode == "typed", trunc_std=trunc == "std")
-    lines = [x for x in want.splitlines() if not x.startswith("prog.cbl")]
-    shown = {" ".join(x.split()[:2]): " ".join(x.split()[2:]) for x in lines}
-    for k, v in WANT[trunc].items():
-        assert shown[k] == v, (k, shown[k])
-    assert got.splitlines() == lines
+
+    def lines(out: str) -> list[tuple[str, str]]:
+        return [
+            (" ".join(x.split()[:2]), " ".join(x.split()[2:])) for x in out.splitlines() if not x.startswith("prog.cbl")
+        ]
+
+    oracle, port = lines(want), lines(got)
+    for k, v in WANT[trunc].items():  # the oracle as measured, its native wrap included
+        assert dict(oracle)[k] == v, ("oracle", k, dict(oracle)[k])
+    for k, v in DECLARED_C4[
+        trunc
+    ].items():  # the declared difference: cobc's wrap on the oracle, IBM's value on the port
+        assert dict(oracle)[k] != v, ("C4 no longer differs on the oracle", k)
+    # the port line for line: the oracle's, with IBM's value on exactly the declared lines
+    assert port == [(k, DECLARED_C4[trunc].get(k, v)) for k, v in oracle]

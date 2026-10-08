@@ -2040,7 +2040,8 @@ class Gen:
             if not isinstance(tgt, E.Ref):
                 raise Untranslatable("arithmetic target is not a data item")
             lt = self.lift(tgt)
-            if self.native_add(s, op, ops, tgt, rounded):  # cobc's native integer ADD / SUBTRACT (#4684)
+            if not checked and self.native_add(s, op, ops, tgt, rounded):
+                # where cobc compiles native integer ADD / SUBTRACT (#4684, C4): IBM's absolute value, the marked store
                 it = self.resolve(tgt)
                 sign = "add" if op == "+=" else "subtract"
                 if lt and lt[0] == "BIN":
@@ -2081,10 +2082,11 @@ class Gen:
         """Whether cobc 3.1.2 compiles this ADD / SUBTRACT ... TO / FROM target to native integer arithmetic
         (cb_build_add / cb_build_sub -> cb_build_optim_add / _sub, #4684): no ROUNDED and no store option -- no ON
         SIZE ERROR (for COMP-5 a NOT ON SIZE ERROR alone keeps it native: build_store_option checks only the ON
-        phrase), no NOT ON SIZE ERROR for COMP / COMP-4 / BINARY (TRUNC(STD) adds one at run time:
-        Cobol.storeNative checks it) --, an unsigned binary target of no decimal places, and one operand that fits a C
-        int (cb_fits_int; cobc folds a list of literals into one). Only an unsigned target can differ: a signed one
-        wraps the same way through libcob's decimal store. ON SIZE ERROR keeps cobc's decimal store."""
+        phrase), no NOT ON SIZE ERROR for COMP / COMP-4 / BINARY (TRUNC(STD) adds one at run time) --, an unsigned
+        binary target of no decimal places, and one operand that fits a C int (cb_fits_int; cobc folds a list of
+        literals into one). There cobc's result below zero wraps modulo 2 ** bits where IBM, the reference, stores the
+        absolute value: oracle_assumptions C4, a declared oracle-vs-IBM difference. The det port stores IBM's value
+        (Cobol.storeNative / binaryNative mark the statement; a phrase-checked one keeps IBM's size check)."""
         if op not in ("+=", "-=") or rounded or "SIZE-ERROR" in s.phrases or tgt.refmod is not None:
             return False
         try:

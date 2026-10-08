@@ -725,18 +725,12 @@ public final class Cobol {
         }
     }
 
-    /** ADD / SUBTRACT ... TO / FROM as cobc compiles it to native integer arithmetic (#4684, oracle_assumptions C4;
-     *  the translator decides where: gen.native_add): an unsigned binary item of no decimal places, not truncated to
-     *  its PICTURE (COMP-5, or TRUNC(BIN)), takes the result modulo 2 ** its bits -- a result below zero wraps (1 - 3
-     *  is 65534 in a halfword) where {@link #store} keeps the absolute value. Anything else is {@link #store}. */
+    /** ADD / SUBTRACT ... TO / FROM an unsigned binary item where cobc 3.1.2 compiles native integer arithmetic
+     *  (#4684, oracle_assumptions C4; the translator marks where: gen.native_add). IBM is the reference: an unsigned
+     *  receiver takes the absolute value of the result (1 - 3 is 2), truncated at its bytes under COMP-5 or
+     *  TRUNC(BIN) and to its PICTURE under TRUNC(STD) -- exactly {@link #store}. The oracle wraps there instead (1 - 3
+     *  is 65534 in a halfword): a declared oracle-vs-IBM difference, not modelled. */
     public static void storeNative(Field to, BigDecimal value, Charset cs) {
-        if (to.kind == Field.Kind.NUMERIC_BINARY && !to.signed && to.scale == 0 && (to.nativeBin || !Codec.truncBinary)
-                && !isNan(value) && value.signum() < 0) {
-            BigInteger bits = BigInteger.ONE.shiftLeft(8 * to.len);
-            BigInteger w = value.setScale(0, RoundingMode.DOWN).unscaledValue().mod(bits);
-            Codec.write(to, w, false, cs);
-            return;
-        }
         store(to, value, false, cs);
     }
 
@@ -868,13 +862,10 @@ public final class Cobol {
         return num(t, cs).longValue();
     }
 
-    /** As {@link #binary}, stored as cobc's native ADD / SUBTRACT stores it ({@link #storeNative}, #4684); `comp5`
+    /** As {@link #binary}, for the statements {@link #storeNative} marks (#4684, C4): IBM's absolute value; `comp5`
      *  for a COMP-5 item, which no TRUNC truncates. */
     public static long binaryNative(BigDecimal value, int digits, boolean signed, boolean comp5, Charset cs) {
-        int bytes = digits <= 4 ? 2 : digits <= 9 ? 4 : 8;
-        Field t = Field.binary(new Storage(bytes), 0, digits, 0, signed, comp5);
-        storeNative(t, value, cs);
-        return num(t, cs).longValue();
+        return binary(value, digits, signed, false, comp5, cs);
     }
 
     /** A numeric value stored in a zoned DISPLAY item (PIC S9(digits)V9(scale), sign overpunched) and read back:

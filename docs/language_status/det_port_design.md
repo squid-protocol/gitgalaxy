@@ -160,10 +160,11 @@ public final class Cobol {
 }
 ```
 
-Arithmetic intermediates: exact `BigDecimal`. `cobc -std=ibm` instead truncates them to IBM's fixed-point decimal places
-(ARITHMETIC-OSVS), which the runtime does not model yet (#4287, register C2); no proven scenario reaches the
-difference. `store` truncates high-order digits beyond the PICTURE and low-order digits beyond the scale (or rounds half
-away from zero with ROUNDED).
+Arithmetic intermediates: `BigDecimal`, truncated where `cobc -std=ibm` truncates them (ARITHMETIC-OSVS, #4287,
+register C2): the translator replays cobc's compile-time decision (`det/osvs.py`) and wraps each such intermediate in
+`Cobol.align(value, places)` (libcob's cob_decimal_align, its shift the wrong way included); a literal on the right
+of an operation is a `Cobol.Dc`, libcob's decimal constant whose scale its uses change. `store` truncates high-order
+digits beyond the PICTURE and low-order digits beyond the scale (or rounds half away from zero with ROUNDED).
 
 What GnuCOBOL (`-std=ibm`) does, which the runtime follows (each is a case in `tests/cobol_mainframe/test_cobolrt.py`):
 

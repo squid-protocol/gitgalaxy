@@ -59,7 +59,7 @@ verdict, but it limits what the proof says about inputs outside the scenarios.
 | id | area | entry | status | reached by a proof? |
 |---|---|---|---|---|
 | C1 | compiler | Binary truncation: `TRUNC(STD)` (IBM's default) on both sides (#4102, fixed) | MATCHED | reachable (GenApp LGICDB01) |
-| C2 | compiler | Arithmetic intermediates: the oracle truncates them (ARITHMETIC-OSVS, IBM's decimal places), the det runtime does not (#4287) | DIFFERS (det runtime) / ASSUMED (oracle) | yes (INTCALC, POSTTRAN …); the difference: not by a proof |
+| C2 | compiler | Arithmetic intermediates: the oracle truncates them (ARITHMETIC-OSVS), the det runtime the same way (#4287); where GnuCOBOL departs from IBM's decimal places | MATCHED (det runtime = oracle) / DIFFERS (oracle, GnuCOBOL's departures) | yes (INTCALC, POSTTRAN …); a departure: not known to be |
 | C3 | compiler | An integer literal truncated to zero keeps no sign | DIFFERS | no |
 | C4 | compiler | An unsigned binary taken below zero by ADD/SUBTRACT wraps | DIFFERS | no |
 | C5 | compiler | `NUMPROC(MIG)` as Enterprise COBOL 5+ compiles it (NOPFD), `NUMPROC(PFD)` with preferred signs (#4271); `INTDATE(LILIAN)`, `ARITH(EXTEND)`, `TRUNC(OPT)` | MATCHED (NUMPROC) / REFUSED (the rest) | NUMPROC: no |
@@ -138,21 +138,49 @@ verdict, but it limits what the proof says about inputs outside the scenarios.
 - **Reach.** GenApp's LGICDB01 moves the 10-digit CA-CUSTOMER-NUM into an `S9(9) COMP`: a customer number of 10 digits
   would now behave as on z/OS.
 
-### C2. Arithmetic intermediates — the oracle ASSUMED, the det runtime DIFFERS (#4287)
-- **The oracle.** `cobc -std=ibm` turns on GnuCOBOL's `arithmetic-osvs` (`ibm-strict.conf`), so cobc truncates each
-  intermediate result to a number of decimal places (`cob_decimal_align`): IBM's fixed-point rules (Enterprise COBOL
-  6.4 Programming Guide, SC27-8714-03, Appendix A, "Fixed-point data and intermediate results": `+ -` the larger of
-  d1, d2; `*` d1 + d2; `/` the larger of the operands' difference and dmax, the most decimal places of any operand or
-  receiver). DIVIDE's quotient follows `cob_decimal_div` (the dividend shifted 38 digits, truncated). IBM's other
-  limit, at most 30 digits for an intermediate under `ARITH(COMPAT)`, GnuCOBOL does not apply: ASSUMED that no
-  proven intermediate is that long.
-- **The det runtime** computes in exact `BigDecimal` and does not truncate intermediates: `COMPUTE R = A / B * C` with
-  A = 1, B = 3, C = 300 and R `PIC 999V99` gives 099.00 on the oracle (and by IBM's rule) and 099.99 on the det port
-  (measured 2026-10-03, #4287). No proven scenario reaches such an expression; IBM DBB EPSMPMT's would.
-- **Reached.** Every COMPUTE with a division or a multiplication of large items, among them INTCALC's interest
-  computation; the det runtime's difference: not by a proof.
-- **To settle.** #4287 (model the aligns in the det translator), then a table of division and multiply-then-divide
-  cases on z/OS against `tests/equivalence/rounding/RND.cbl`.
+### C2. Arithmetic intermediates — the det runtime MATCHES the oracle (#4287); the oracle DIFFERS where GnuCOBOL departs from IBM
+- **IBM's rule.** Enterprise COBOL keeps each intermediate result to a number of decimal places (6.4 Programming
+  Guide, SC27-8714-03, Appendix A, "Fixed-point data and intermediate results"): `+ -` the larger of d1, d2; `*`
+  d1 + d2; `/` the larger of the operands' difference and dmax, the most decimal places of any operand or receiver;
+  at most 30 digits under `ARITH(COMPAT)`.
+- **The oracle.** `cobc -std=ibm` turns on GnuCOBOL's `arithmetic-osvs` (`ibm-strict.conf`), so cobc truncates
+  intermediates (`cob_decimal_align`) with decimal places it works out at compile time from those rules. The
+  reproducer of #4287 is IBM's own: `COMPUTE R = A / B * C` with A = 1, B = 3, C = 300 and R `PIC 999V99` gives
+  099.00 (A / B kept to 2 places). The 30-digit limit GnuCOBOL does not apply: ASSUMED that no proven intermediate
+  is that long.
+- **The det runtime (since #4287)** makes the same truncations: the translator replays cobc's decision
+  (`det/osvs.py`, from GnuCOBOL 3.1.2's `cobc/typeck.c` and `cobc/tree.c`) and emits `Cobol.align(value, places)`
+  where cobc emits `cob_decimal_align`; a literal on the right of an operation is libcob's decimal constant
+  (`Cobol.Dc`); `Cobol.divide` keeps cob_decimal_div's 38 + max(d1 - d2, 0) places and `Cobol.power`
+  cob_decimal_pow's trimming. COMPUTE, ADD / SUBTRACT / MULTIPLY / DIVIDE with an expression, and the relations of
+  IF, PERFORM UNTIL, SEARCH WHEN and EVALUATE are planned; floating-point statements keep their HFP model (C6).
+  Proven by `tests/cobol_mainframe/test_det_osvs.py` and by a randomized differential run (2026-10-07: over 100
+  random programs, about 25,000 COMPUTE, ADD, SUBTRACT, IF and EVALUATE statements over zoned, packed and binary
+  items, every output equal to the oracle's; on the earlier runtime about one line in six differed).
+- **Where GnuCOBOL departs from IBM's rule** (each measured on the oracle; the det port does what the oracle does,
+  so a proof cannot see them, and z/OS may not do them):
+  - the stack of decimal places pairs an operation with its own operands only when every operand pushes its
+    places; a binary item of scale 0, a short integer literal, ZERO and a literal on the right push nothing, and the
+    operation then takes dmax or a neighbour's places: `COMPUTE R = XB + YB + Z` with two `PIC 9(4) COMP` items and
+    R `PIC 999V99` aligns XB + YB to 2 places;
+  - `cob_decimal_align` with fewer places than the target shifts the wrong way: the value loses as many low-order
+    digits (579 aligned to 2 places is 500, so that COMPUTE gives 501.00 for 123 + 456 + 1; `- A + B` aligns 0 - A
+    and loses A);
+  - a literal's decimal constant takes the places of every intermediate it is added to or subtracted from, for the
+    rest of the run, and an exponent literal loses its trailing zeros;
+  - an EVALUATE leaves its dmax and stack to the next statements of the same sentence (a period, a COMPUTE or an IF
+    resets them), and an IF's folded literal pair keeps it from walking its condition;
+  - a relation of two literals with decimals compares wrongly (`100 > 1.25` is false), a separate GnuCOBOL matter:
+    no case compares two literals.
+- **Not replayed by the det translator** (refused by name, or exact as before): a negative literal exponent (libcob
+  overwrites the constant: refused); an arithmetic expression in a PERFORM VARYING FROM / BY, a SEARCH ALL key or a
+  subscript (cobc computes those otherwise); an EVALUATE whose last WHEN ends with a statement that leaves the state
+  dirty (refused); statements inside ON SIZE ERROR phrases, which cobc parses before their statement's expression.
+- **Reached.** Every COMPUTE with more than one operation, among them INTCALC's interest computation. Across the
+  det sweep's ports (2026-10-07) the only truncation emitted is POSTTRAN's `ACCT-CURR-CYC-CREDIT -
+  ACCT-CURR-CYC-DEBIT` to 2 places, a value of 2 places (no change); none of GnuCOBOL's departures is reached.
+- **To settle.** A table of division, multiply-then-divide and binary-sum cases on z/OS against
+  `tests/equivalence/rounding/RND.cbl` (and the departures above).
 
 ### C3. An integer literal truncated to zero — DIFFERS
 - **What.** GnuCOBOL folds `MOVE -1000 TO PIC S9(3)` at compile time to +0 (`00{`). Every other truncating MOVE keeps
@@ -200,7 +228,7 @@ verdict, but it limits what the proof says about inputs outside the scenarios.
     CBSA's build JCL passes `TRUNC(OPT)`, but its programs' PROCESS cards override it with `TRUNC(STD)` (C1).
   - `ARITH(EXTEND)` changes only intermediates past 30 digits (31 instead) and float-mode precision (extended instead
     of long). GnuCOBOL caps neither (C2), so the oracle would compute COMPAT and EXTEND the same; a model needs a
-    guard on both sides that stops an intermediate past 30 digits, after #4287.
+    guard on both sides that stops an intermediate past 30 digits.
   - `INTDATE(LILIAN)` is pinned by IBM (day 1 is 15 October 1582 instead of 1 January 1601), and could be modelled
     by the documented offset of the integer-date functions. Dates before 1601 cannot run on GnuCOBOL and would be
     refused. No case needs it yet.
@@ -650,9 +678,21 @@ The length READQ TS returns on ITEMERR or QIDERR is not documented, so it is not
 - **XCTL with a LENGTH past the target's DTO (#4501).** Same storage rule, from the sender's side: EIBCALEN
   at the target is the LENGTH, whatever the target's DFHCOMMAREA defines. The det port passes those LENGTH bytes
   (`DetCics.commareaOut`: the area's storage, LOW-VALUES past its record, in the region's EBCDIC), the target's
-  DFHCOMMAREA takes the first ones and EIBCALEN is the LENGTH (bytes it does not define are opaque, and are not passed
-  on by a further RETURN/XCTL; a RETURN TRANSID's LENGTH past its DTO still passes the DTO). Reached by ca-xctl-versions length-range, where LENGTH 32767 fails LENGERR before any
-  transfer and the COMMAREA compared is the 32,767 bytes of WS-BIG.
+  DFHCOMMAREA takes the first ones and EIBCALEN is the LENGTH. Reached by ca-xctl-versions length-range, where LENGTH
+  32767 fails LENGERR before any transfer and the COMMAREA compared is the 32,767 bytes of WS-BIG.
+- **RETURN and LINK with a LENGTH past the DTO; bytes passed on (#4679).** IBM, EXEC CICS RETURN: COMMAREA / LENGTH
+  is the data the next program of the conversation gets, and its EIBCALEN is LENGTH; EXEC CICS LINK: LENGTH is the
+  COMMAREA's length (0-32763, else LENGERR RESP2 11), passed by reference. A RETURN TRANSID now passes its LENGTH bytes
+  as XCTL does (CardDemo's COCRDLIC / COCRDSLC / COCRDUPC / COACTVWC / COACTUPC RETURN WS-COMMAREA, LENGTH 2000, over
+  DTOs of a few hundred bytes); the equivalence harness reads them by the case's COMMAREA layout, as it reads the stub's
+  RETURN area (`equivalence_cics.java_commarea`), so bytes past the layout are compared on neither side. A LINK with a
+  LENGTH past the target's DTO lays that many bytes over the caller's storage (`Cobol.commarea`), not the DTO's size
+  (GenApp's LINK of the 101-byte ERROR-MSG to LGSTSQ, LENGTH 101 over the 99-byte DTO). A receiver keeps the bytes past
+  its own DFHCOMMAREA record (`Storage.beyond`): opaque -- it does not address them -- but a further RETURN / XCTL /
+  LINK of that area with the LENGTH passes them on, and a LINK target's writes there go back by reference. Past
+  what was passed, LOW-VALUES as above. RESP2 after a failed LINK is the stub's and CicsTask's: LENGERR 11, PGMIDERR 1
+  (IBM, LINK conditions; `DetCics.linkResp2`); the others IBM lists (PGMIDERR 2 / 3, NOTAUTH 101, INVREQ ...) the
+  region does not raise.
 
 ### X11. ASKTIME ABSTIME into a narrow field — DIFFERS
 - **What.** ABSTIME is an 8-byte packed value (IBM: `PIC S9(15) COMP-3`). GenApp declares `WS-ABSTIME PIC S9(8) COMP`
@@ -1074,6 +1114,14 @@ The length READQ TS returns on ITEMERR or QIDERR is not documented, so it is not
   -803, -811, -532) are the same codes on z/OS. SQLERRMC tokens come from Db2 itself.
 - **Not compared to z/OS.** SQLSTATE subclasses, SQLERRD values beyond the row count, SQLERRP, and the dialect
   differences of other statements.
+
+### Q1b. A datetime host variable Db2 rejects: -180 / 22007 on both sides — MATCHED (#4658)
+- **What.** An UPDATE binding an unset (non-date) PIC X host variable to a DATE column gets SQLCODE -180, SQLSTATE 22007
+  ("the string representation of a datetime value is not valid") from Db2 for LUW, and the same on z/OS Db2 (-180 is the
+  documented SQLCODE for this, SQLSTATE 22007). IBM's JDBC driver refuses some such values on the client with its own
+  -4220 (conversion error) before Db2 sees them; that code is never a Db2 SQLCODE an embedded-SQL program meets, so
+  DetSql maps it to -180 / 22007. Other driver errors pass through unchanged. SQLERRMC/SQLERRD of the mapped error stay
+  empty (the DISPLAYed SQLERRD(3) is 0 on both sides).
 
 ### Q1a. A binary host variable takes what its bytes hold — MATCHED (#4579)
 - **What.** SELECT INTO / FETCH INTO a COMP / COMP-4 / BINARY / COMP-5 host variable gives SQLCODE -304 only for a value

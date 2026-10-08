@@ -11,6 +11,9 @@ from __future__ import annotations
 from dataclasses import dataclass, field
 from decimal import Decimal
 
+from gitgalaxy.standards.cics.resp import DFHRESP
+from gitgalaxy.tools.cobol_to_java.det.cvda import CVDA
+
 
 class ExprError(Exception):
     pass
@@ -51,6 +54,11 @@ class Lit:
     # literal is the nonnumeric literal of its digits, leading zeros and all (#4270: GenApp's LGTESTP4 `ENP4CNOO Not =
     # 0000000000`; #4665)
     value: str | Decimal | bytes
+
+    @property
+    def text(self) -> str | None:
+        """A numeric literal as written (its leading zeros: cobc's literal identity, det/osvs.py), else None."""
+        return self.value.spelling if isinstance(self.value, NumLit) else None
 
 
 @dataclass
@@ -231,16 +239,12 @@ class Parser:
         r = self.ref()
         if r.name == "DFHRESP" and len(r.subscripts) == 1 and isinstance(r.subscripts[0], Ref):
             # DFHRESP(condition): the condition's RESP value (IBM CICS TS)
-            from gitgalaxy.standards.cics.resp import DFHRESP
-
             cond = r.subscripts[0].name
             if cond not in DFHRESP:
                 raise ExprError(f"DFHRESP({cond}) is not a documented condition")
             return Lit(Decimal(DFHRESP[cond]))
         if r.name == "DFHVALUE" and len(r.subscripts) == 1 and isinstance(r.subscripts[0], Ref):
             # DFHVALUE(name): the CVDA's numeric value (IBM CICS TS, CVDAs and numeric values)
-            from gitgalaxy.tools.cobol_to_java.det.cvda import CVDA
-
             name = r.subscripts[0].name
             if name not in CVDA:
                 raise ExprError(f"DFHVALUE({name}) is not a documented CVDA")

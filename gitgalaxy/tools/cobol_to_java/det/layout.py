@@ -20,6 +20,8 @@ from gitgalaxy.tools.cobol_to_java.det.source import (
     alphabet_keywords,
     as_fixed_rows,
     cobol_parser,
+    comma_literals,
+    decimal_comma,
     label_records,
     narrowed,
     refusal,
@@ -53,6 +55,7 @@ class Item:
     sign_separate: bool = False
     justified: bool = False
     blank_when_zero: bool = False
+    decimal_comma: bool = False  # #4462: the program's DECIMAL-POINT IS COMMA (an edited PICTURE's `,` is its point)
     children: list = field(default_factory=list)
     conditions: list = field(default_factory=list)  # its 88s
     parent: Item | None = None
@@ -110,7 +113,8 @@ class Item:
                 return -body.count("P")
             return len(p.split("V", 1)[1]) if "V" in p else 0
         if self.category == "NUMERIC-EDITED":
-            dp = p.find(".") if "." in p else p.find("V")
+            point = "," if self.decimal_comma else "."
+            dp = p.find(point) if point in p else p.find("V")
             return sum(1 for c in p[dp + 1 :] if c in "9Z*") if dp >= 0 else 0
         return 0
 
@@ -263,11 +267,12 @@ def _data_only(lines: list[Line]) -> list[Line]:
 
 def parse(lines: list[Line]) -> list[Item]:
     """The 01 / 77 records of the DATA DIVISION, each a tree of Items."""
-    # #4462: national / DBCS text, DECIMAL-POINT IS COMMA, IDMS, several programs (each read on its own): refused by name
+    # #4462: national / DBCS text, IDMS, several programs (each read on its own): refused by name
     why = refusal(lines)  # (a survey's what-if may switch one check off: source.survey_unmask)
     if why:
         raise LayoutError(why)
-    lines = narrowed(lines)  # #4272: a wide character in a `*>` comment / a PROCEDURE DIVISION literal
+    comma = decimal_comma(lines)  # #4462: DECIMAL-POINT IS COMMA (a VALUE's `1000,00`, an edited PICTURE's `,`)
+    lines = comma_literals(narrowed(lines))  # #4272: a wide character in a `*>` comment / a PROCEDURE DIVISION literal
     text, rows = as_fixed_rows(_data_only(lines))
     # the PROCEDURE DIVISION is not needed (and EXEC blocks there are not this grammar's): stop before it
     m = re.search(r"^ {7}\s*PROCEDURE\s+DIVISION\b", text, re.I | re.M)
@@ -331,6 +336,8 @@ def parse(lines: list[Line]) -> list[Item]:
             raise LayoutError(missing)
         raise LayoutError(f"DATA DIVISION does not parse near expanded line(s) {errors[:5]}")
     for r in records:
+        for it in r.walk():
+            it.decimal_comma = comma
         _inherit_usage(r, None)
         layout(r)
     # an 01 REDEFINES another 01 of its section shares that record's storage

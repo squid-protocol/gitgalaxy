@@ -185,6 +185,11 @@ final class Editing {
 
     /** {integer digit positions, decimal digit positions} of an edit PICTURE (floating insertion included). */
     static int[] shape(String pic) {
+        return shape(pic, false);
+    }
+
+    /** As shape(pic); `decimalComma` (#4462: DECIMAL-POINT IS COMMA): `,` is the PICTURE's decimal point. */
+    static int[] shape(String pic, boolean decimalComma) {
         pic = expand(pic);
         char symbol = '$';
         for (int i = 0; i < pic.length(); i++) {
@@ -192,7 +197,7 @@ final class Editing {
         }
         pic = pic.replace(symbol, '$');
         int decIdx = pic.indexOf('V');
-        if (decIdx == -1) decIdx = pic.indexOf('.');
+        if (decIdx == -1) decIdx = pic.indexOf(decimalComma ? ',' : '.');
         if (decIdx == -1) decIdx = pic.length();
         char floating = 0;
         int floatStart = -1, floatEnd = -1;

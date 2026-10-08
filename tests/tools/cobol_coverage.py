@@ -304,7 +304,8 @@ def _walk(toks: list[tuple[int, str, list[str], bool, bool]], heads: dict[int, s
           goto_ends: bool) -> tuple[set[tuple[int, str]], dict[str, bool]]:  # fmt: skip
     """One pass over the PROCEDURE DIVISION: the (line, kind) of every IF / EVALUATE no path reaches, and per unit
     whether no path from its header reaches its end. `goto_ends`: a GO TO ends the path (False: it leaves the unit,
-    so a unit is only absorbing when nothing but GOBACK / STOP RUN / CICS RETURN / XCTL / ABEND ends it)."""
+    so a unit is only absorbing when nothing but GOBACK / STOP RUN / CICS RETURN / XCTL / ABEND, or a GO TO
+    whose every target is already `absorbing`, ends it)."""
     dead = False
     stack: list[dict[str, Any]] = []
     unreached: set[tuple[int, str]] = set()
@@ -426,8 +427,9 @@ def _walk(toks: list[tuple[int, str, list[str], bool, bool]], heads: dict[int, s
                     if t in VERBS or t in (".", "ELSE", "WHEN", "") or t.startswith("END-"):
                         break
                     names.append(t)
-                if goto_ends and "DEPENDING" not in names and [n for n in names if n != "TO"]:
-                    dead = True
+                targets = [n for n in names if n != "TO"]
+                if "DEPENDING" not in names and targets and (goto_ends or all(n in absorbing for n in targets)):
+                    dead = True  # #4621: a GO TO into paragraphs no path leaves ends this one too
             elif tok == "GOBACK" or (tok == "STOP" and nxt[0] == "RUN"):
                 dead = True
             elif tok == "EXEC" and words[:1] == ["CICS"] and words[1:2] in (["RETURN"], ["XCTL"], ["ABEND"]):
@@ -444,7 +446,7 @@ def control_flow_unreachable(text: str, units: list[dict[str, Any]]) -> set[tupl
     """#4602: the (line, IF|EVALUATE) of every branch point of `text` (the original source) that no path reaches,
     because each path to it passes a statement that never falls through. `units` are the inventory's ({name,
     kind, line}). A PERFORM never returns only when its paragraph is absorbing: no path from its header reaches its
-    end, a GO TO counting as a way out; and every HANDLE CONDITION / AID / ABEND LABEL and SQL WHENEVER ... GO TO
+    end, a GO TO counting as a way out unless every target is itself absorbing; and every HANDLE CONDITION / AID / ABEND LABEL and SQL WHENEVER ... GO TO
     label must itself be absorbing, or no paragraph is (a label is where a raised condition goes)."""
     toks = _flow_tokens(text)
     heads = {u["line"]: u["name"] for u in units if u.get("line")}
@@ -578,9 +580,20 @@ class LineMap:
                         self.map[j + 1] = (min(nxt, i2 - 1) + 1, False)
 
     def _pairs(self, a: list[str], b: list[str], i1: int, i2: int, j1: int, j2: int) -> dict[int, int]:
-        """{compiled index: original index} for the lines of a rewritten block that are the same line, in order."""
+        """{compiled index: original index} for the lines of a rewritten block that are the same line, in order.
+        #4620: an equal-size block is no longer paired index by index (a 4-line EXEC CICS and its 4 compiled lines are
+        not the same lines); a line pairs when it is similar, or when both are the same IF / EVALUATE (a condition
+        rewritten in place, `NOT = DFHRESP(NORMAL)` -> `NOT = 0`, may be less similar than SIMILAR)."""
         if i2 - i1 == j2 - j1:
-            return {j1 + k: i1 + k for k in range(j2 - j1)}
+            pairs = {}
+            for k in range(j2 - j1):
+                x, y = a[i1 + k].strip(), b[j1 + k].strip()
+                head = x.split(None, 1)[0].upper() if x else ""
+                if difflib.SequenceMatcher(None, x, y, autojunk=False).ratio() >= self.SIMILAR or (
+                    head in ("IF", "EVALUATE") and y.upper().startswith(head + " ")
+                ):
+                    pairs[j1 + k] = i1 + k
+            return pairs
         pairs: dict[int, int] = {}
         start = j1
         for i in range(i1, i2):

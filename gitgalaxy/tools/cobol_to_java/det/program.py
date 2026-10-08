@@ -1260,6 +1260,19 @@ def _cics_parts(gen: G.Gen, records: list, roots: dict, proc: S.Procedure,
             "    }",
             "",
         ]
+    else:
+        # #4270 (GenApp's LGTESTP1-4: no DFHCOMMAREA, `IF EIBCALEN > 0 GO TO A-GAIN`): a program with no LINKAGE
+        # COMMAREA still has EIBCALEN, the length of the area its task started with (the RETURN TRANSID COMMAREA it
+        # left) -- only no storage to address it through. Its length is the DTO's the task carries.
+        for cls in [x for x in dict.fromkeys([cx.gp.contract, *cx.gp.records.values()]) if x]:
+            try:
+                size = cx.gp.dto(cls).size
+            except (OSError, C.CicsError):
+                continue
+            kw = "if" if not ca_in else "} else if"
+            ca_in += [f"        {kw} (ca instanceof {cls}) {{", f"            calen = cx(task, {size});"]
+        if ca_in:
+            ca_in.append("        }")
     store_cases = [f'            case "{n}" -> {e};' for n, e in cx.stores.items()]
     members = [
         "    private CicsTask task;",

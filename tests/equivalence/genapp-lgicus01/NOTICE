@@ -1,0 +1,12 @@
+CICS General Insurance Application (GenApp)
+https://github.com/cicsdev/cics-genapp
+(C) Copyright IBM Corp. 2011, 2020
+
+Licensed under the Eclipse Public License - v 2.0 (see LICENSE, the corpus's
+own licence file). The program under test, base/src/lgicus01.cbl, the
+programs it runs in the same task (base/src/lgicdb01.cbl, base/src/lgstsq.cbl),
+their copybooks and the Db2 DDL and rows (base/cntl/db2cre.jcl) are GenApp's, used
+unmodified from the corpus.
+
+The scenarios in case.json are
+written for this case, most from genapp-lgicdb01's.

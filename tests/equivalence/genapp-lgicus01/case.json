@@ -1,0 +1,99 @@
+{
+ "kind": "cics",
+ "corpus": "cics-genapp",
+ "program": "LGICUS01",
+ "program_source": "base/src/lgicus01.cbl",
+ "copy_dirs": [
+  "base/src"
+ ],
+ "transid": "LGIC",
+ "clock": "2026/10/01 10:30:15.00",
+ "programs": [
+  {
+   "program": "LGICDB01",
+   "program_source": "base/src/lgicdb01.cbl"
+  },
+  {
+   "program": "LGSTSQ",
+   "program_source": "base/src/lgstsq.cbl"
+  }
+ ],
+ "db2": {
+  "ddl": [
+   "base/cntl/db2cre.jcl"
+  ],
+  "seed": "base/cntl/db2cre.jcl",
+  "symbols": {
+   "<DB2DBID>": "GENASA1"
+  },
+  "qualifier": "GENASA1",
+  "compare": [
+   "GENASA1.CUSTOMER"
+  ],
+  "tables": [
+   "GENASA1.CLAIM",
+   "GENASA1.COMMERCIAL",
+   "GENASA1.MOTOR",
+   "GENASA1.HOUSE",
+   "GENASA1.ENDOWMENT",
+   "GENASA1.POLICY",
+   "GENASA1.CUSTOMER_SECURE",
+   "GENASA1.CUSTOMER"
+  ]
+ },
+ "commarea": {
+  "segments": [
+   {
+    "copybook": "base/src/lgicus01.cbl",
+    "record": "DFHCOMMAREA"
+   }
+  ]
+ },
+ "linked": true,
+ "screens": {},
+ "region": {
+  "applid": "GENAREGN",
+  "sysid": "CICA"
+ },
+ "scenarios": [
+  {
+   "name": "customer-1",
+   "commarea": {
+    "CA-REQUEST-ID": "01ICUS",
+    "CA-CUSTOMER-NUM": 1
+   },
+   "why": "LGICDB01's scenario customer-1 through LGICUS01: SELECT INTO +0: '00'; HOUSENAME ' ' comes back as 20 blanks, DATEOFBIRTH as ISO text 1950-07-11"
+  },
+  {
+   "name": "customer-7-no-phones",
+   "commarea": {
+    "CA-REQUEST-ID": "01ICUS",
+    "CA-CUSTOMER-NUM": 7
+   },
+   "why": "LGICDB01's scenario customer-7-no-phones through LGICUS01: both phone numbers blank, a 100-byte email column"
+  },
+  {
+   "name": "customer-not-found",
+   "commarea": {
+    "CA-REQUEST-ID": "01ICUS",
+    "CA-CUSTOMER-NUM": 11
+   },
+   "why": "LGICDB01's scenario customer-not-found through LGICUS01: SQLCODE +100 (no customer 11): CA-RETURN-CODE '01', the customer fields untouched"
+  },
+  {
+   "name": "no-commarea",
+   "commarea": null,
+   "why": "EIBCALEN 0: LGICUS01 moves ' NO COMMAREA RECEIVED' to EM-VARIABLE, WRITE-ERROR-MESSAGE LINKs LGSTSQ with ERROR-MSG (TD CSMT and TS GENAERRS), IF EIBCALEN > 0 is false, then ABEND LGCA"
+  },
+  {
+   "commarea": {
+    "CA-REQUEST-ID": "01ICUS",
+    "CA-CUSTOMER-NUM": 1
+   },
+   "name": "short-commarea",
+   "commarea_length": 60,
+   "why": "EIBCALEN 60 < WS-REQUIRED-CA-LEN 90 (WS-CUSTOMER-LEN 72 + 18): CA-RETURN-CODE '98', RETURN before the LINK"
+  }
+ ],
+ "notes": "GenApp's inquire-customer front end (LGICUS01, LINKed with the 32500-byte LGCMAREA COMMAREA): it checks the COMMAREA and LINKs LGICDB01 with it. The case runs every program of that chain in the same task (\"programs\"), LGSTSQ too (its error logger, \"region\" for its ASSIGN SYSID), with the back-end case's Db2 tables, VSAM file and data; the scenarios reuse genapp-lgicdb01's inputs (each \"why\" names its source) and add the front end's own paths: no-commarea (EIBCALEN 0: LGSTSQ, ABEND LGCA). short-commarea: as LGACUS01, MOVE '00' TO CA-NUM-POLICIES (bytes 91-93) precedes the length check: judged up to the reference past EIBCALEN (X23); line 104 true is unreachable without one. WRITE-ERROR-MESSAGE's IF EIBCALEN > 0 (and the IF EIBCALEN < 91 inside it) is never true: the paragraph is PERFORMed only when EIBCALEN is zero -- dead in practice, uncovered by every scenario. The SQL faults (M2) are the harness's, one per statement the tasks run. Derived from the CICS General Insurance Application (GenApp, github.com/cicsdev/cics-genapp; (C) Copyright IBM Corp. 2011, 2020), licensed under the Eclipse Public License 2.0: LICENSE here is the corpus's own, NOTICE names the source and what was derived."
+}

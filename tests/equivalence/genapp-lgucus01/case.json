@@ -1,0 +1,111 @@
+{
+ "kind": "cics",
+ "corpus": "cics-genapp",
+ "program": "LGUCUS01",
+ "program_source": "base/src/lgucus01.cbl",
+ "copy_dirs": [
+  "base/src"
+ ],
+ "transid": "LGUC",
+ "clock": "2026/10/01 10:30:15.00",
+ "programs": [
+  {
+   "program": "LGUCDB01",
+   "program_source": "base/src/lgucdb01.cbl"
+  },
+  {
+   "program": "LGUCVS01",
+   "program_source": "base/src/lgucvs01.cbl"
+  },
+  {
+   "program": "LGSTSQ",
+   "program_source": "base/src/lgstsq.cbl"
+  }
+ ],
+ "datasets": {
+  "<USRHLQ>.GENAPP.KSDSCUST": {
+   "input": "@case/ksdscust.txt",
+   "entity": "CaCustomerNum",
+   "copybook": "base/src/lgcmarea.cpy",
+   "record": "CA-CUSTOMER-NUM",
+   "vsam": {
+    "key_offset": 0,
+    "key_length": 10,
+    "reclen": 225,
+    "why": "base/cntl/adef121.jcl DEFINE1: DATA(... KEYS(10 0) RECORDSIZE(225 225)); the engine's facts do not read KEYS / RECORDSIZE inside the DATA component, so the case states them"
+   },
+   "append": "@case/ksdscust-vsam-only.txt"
+  }
+ },
+ "db2": {
+  "ddl": [
+   "base/cntl/db2cre.jcl"
+  ],
+  "seed": "base/cntl/db2cre.jcl",
+  "symbols": {
+   "<DB2DBID>": "GENASA1"
+  },
+  "qualifier": "GENASA1",
+  "compare": [
+   "GENASA1.CUSTOMER"
+  ]
+ },
+ "commarea": {
+  "segments": [
+   {
+    "copybook": "base/src/lgucus01.cbl",
+    "record": "DFHCOMMAREA"
+   }
+  ]
+ },
+ "linked": true,
+ "screens": {},
+ "region": {
+  "applid": "GENAREGN",
+  "sysid": "CICA"
+ },
+ "scenarios": [
+  {
+   "name": "update-customer-5",
+   "commarea": {
+    "CA-REQUEST-ID": "01UCUS",
+    "CA-CUSTOMER-NUM": "5",
+    "CA-REQUEST-SPECIFIC": "Graham    Cuthbert            1967-01-03                    55  TR68BK  00007700100100         02083443444         g.cuthbert@new.example                                                                              "
+   },
+   "why": "LGUCDB01's scenario update-customer-5 through LGUCUS01: UPDATE CUSTOMER +0 (every column from the COMMAREA), LINK LGUCVS01 rewrites the VSAM copy; '00'"
+  },
+  {
+   "name": "update-customer-1-all-fields",
+   "commarea": {
+    "CA-REQUEST-ID": "01UCUS",
+    "CA-CUSTOMER-NUM": "1",
+    "CA-REQUEST-SPECIFIC": "Andrew    Pandy               1950-07-11The Grange          34  PI101O  00007799123456         01962811234         a.pandy@example.com                                                                                 "
+   },
+   "why": "LGUCDB01's scenario update-customer-1-all-fields through LGUCUS01: all nine columns replaced, house name set"
+  },
+  {
+   "name": "update-customer-11-vsam-only",
+   "commarea": {
+    "CA-REQUEST-ID": "01UCUS",
+    "CA-CUSTOMER-NUM": "11",
+    "CA-REQUEST-SPECIFIC": "Ada       Lovelace            1815-12-10Ockham Park         12  KT246HP 00007700900999        01483222111         ada@engine.example                                                                              "
+   },
+   "why": "LGUCDB01's scenario update-customer-11-vsam-only through LGUCUS01: customer 11 is on KSDSCUST (ksdscust-vsam-only.txt, appended) but not in Db2's CUSTOMER: the UPDATE is +100 (l.173 true), CA-RETURN-CODE '01', no '90' and no WRITE-ERROR-MESSAGE; LGUCVS01 is still LINKed and its READ UPDATE / REWRITE of customer 11 are NORMAL -- the two stores out of step, as GenApp's design allows"
+  },
+  {
+   "name": "no-commarea",
+   "commarea": null,
+   "why": "EIBCALEN 0: LGUCUS01 moves ' NO COMMAREA RECEIVED' to EM-VARIABLE, WRITE-ERROR-MESSAGE LINKs LGSTSQ with ERROR-MSG (TD CSMT and TS GENAERRS), IF EIBCALEN > 0 is false, then ABEND LGCA"
+  },
+  {
+   "commarea": {
+    "CA-REQUEST-ID": "01ICUS",
+    "CA-CUSTOMER-NUM": "5",
+    "CA-REQUEST-SPECIFIC": "Graham    Cuthbert            1967-01-03                    55  TR68BK  00007700100100         02083443444         g.cuthbert@new.example                                                                              "
+   },
+   "name": "wrong-request-id",
+   "why": "CA-REQUEST-ID '01ICUS' is not '01UCUS': CA-RETURN-CODE '99', GO TO END-PROGRAM (no LINK)"
+  }
+ ],
+ "notes": "GenApp's update-customer front end (LGUCUS01, LINKed with the 32500-byte LGCMAREA COMMAREA): it checks the COMMAREA and LINKs LGUCDB01 (which LINKs LGUCVS01) with it. The case runs every program of that chain in the same task (\"programs\"), LGSTSQ too (its error logger, \"region\" for its ASSIGN SYSID), with the back-end case's Db2 tables, VSAM file and data; the scenarios reuse genapp-lgucdb01's inputs (each \"why\" names its source) and add the front end's own paths: no-commarea (EIBCALEN 0: LGSTSQ, ABEND LGCA). wrong-request-id: anything but '01UCUS' is '99' and GO TO END-PROGRAM. WRITE-ERROR-MESSAGE's IF EIBCALEN > 0 (and the IF EIBCALEN < 91 inside it) is never true: the paragraph is PERFORMed only when EIBCALEN is zero -- dead in practice, uncovered by every scenario. The SQL faults (M2) are the harness's, one per statement the tasks run. Derived from the CICS General Insurance Application (GenApp, github.com/cicsdev/cics-genapp; (C) Copyright IBM Corp. 2011, 2020), licensed under the Eclipse Public License 2.0: LICENSE here is the corpus's own, NOTICE names the source and what was derived."
+}

@@ -78,7 +78,13 @@ ALL = cc.Capabilities("all", frozenset(cc.TASK_KEYS) | {"end"},
 def test_the_csd_names_programs_transactions_and_mapsets():
     csd = cc.parse_csd("* a comment DEFINE PROGRAM(NOPE)\nDEFINE PROGRAM(A) GROUP(G)\nDEFINE TRANSACTION(T1)\n"
                        "       GROUP(G) PROGRAM(A)\nDEFINE MAPSET(MS) GROUP(G)\ndefine transaction(t2) program(b)\n")  # fmt: skip
-    assert csd == {"programs": {"A"}, "transactions": {"T1": "A", "T2": "B"}, "mapsets": {"MS"}, "terminals": {}}
+    assert csd == {
+        "programs": {"A"},
+        "transactions": {"T1": "A", "T2": "B"},
+        "mapsets": {"MS"},
+        "terminals": {},
+        "uctran": {},
+    }
 
 
 def test_the_csd_names_each_terminals_device():
@@ -87,6 +93,22 @@ def test_the_csd_names_each_terminals_device():
                        "DEFINE TYPETERM(PLAIN) GROUP(G) ATI(YES) TTI(YES)\nDEFINE TERMINAL(T001) GROUP(G) TYPETERM(LU2)\n"
                        "DEFINE TERMINAL(T002) GROUP(G) TYPETERM(PLAIN)\n")  # fmt: skip
     assert csd["terminals"] == {"T001": "LUTYPE2", "T002": "3270"}
+
+
+def test_the_csd_names_each_terminals_uctran():
+    """#4415 (register X26): a TYPETERM's UCTRAN is the terminal's UCTRANST, YES / NO / TRANID as UCTRAN / NOUCTRAN /
+    TRANIDONLY; a terminal whose TYPETERM says nothing has none stated (INQUIRE TERMINAL UCTRANST is refused)."""
+    import cics_crucible as runner
+
+    csd = cc.parse_csd("DEFINE TYPETERM(A) GROUP(G) ATI(YES) TTI(YES) UCTRAN(TRANID)\n"
+                       "DEFINE TYPETERM(B) GROUP(G) ATI(YES) TTI(YES)\nDEFINE TERMINAL(T001) GROUP(G) TYPETERM(A)\n"
+                       "DEFINE TERMINAL(T002) GROUP(G) TYPETERM(B)\n")  # fmt: skip
+    assert csd["uctran"] == {"T001": "TRANID"}
+    case = type("C", (), {"csd": csd, "data": {"terminal": "T001"}})()
+    assert runner.terminal_uctranst(case) == "TRANIDONLY"
+    case.data = {"terminal": "T002"}
+    assert runner.terminal_uctranst(case) is None
+    assert runner.UCTRAN_TO_UCTRANST == {"YES": "UCTRAN", "NO": "NOUCTRAN", "TRANID": "TRANIDONLY"}
 
 
 def test_a_case_is_read_with_its_expected_logs_and_csd():

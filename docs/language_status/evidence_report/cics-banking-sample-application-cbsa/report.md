@@ -65,7 +65,7 @@ Translation measured by `cics_census.py survey` at translator commit `3bcbb8c623
 | src/base/cobol_src/INQACCCU.cbl | L1 | 186/186 | 0 | — | — | — | — | not measured | not measured | not measured | not yet measured (#4628) | 5/8 |
 | src/base/cobol_src/INQCUST.cbl | L1 | 162/162 | 0 | — | — | — | — | not measured | not measured | not measured | not yet measured (#4628) | 5/13 |
 | src/base/cobol_src/UPDACC.cbl | L1 | 58/58 | 0 | cbsa-updacc | not run | 10 | stale | not measured | not measured | not measured | not yet measured (#4628) | 1/3 |
-| src/base/cobol_src/XFRFUN.cbl | L1 | 426/426 | 0 | cbsa-xfrfun | not equal | 22 | none | not measured | not measured | not measured | not yet measured (#4628) | 5/9 |
+| src/base/cobol_src/XFRFUN.cbl | L1 | 426/426 | 0 | cbsa-xfrfun | not run | 22 | none | not measured | not measured | not measured | not yet measured (#4628) | 5/9 |
 | src/base/cobol_src/ACCTCTRL.cbl | L0 | 15/18 | 3 | — | — | — | — | not measured | not measured | not measured | not yet measured (#4628) | 1/3 |
 | src/base/cobol_src/BANKDATA.cbl | L0 | 458/464 | 6 | — | — | — | — | not measured | not measured | not measured | not yet measured (#4628) | — |
 | src/base/cobol_src/BNK1CAC.cbl | L0 | 383/389 | 6 | — | — | — | — | not measured | not measured | not measured | not yet measured (#4628) | 7/11 |
@@ -92,7 +92,7 @@ Translation measured by `cics_census.py survey` at translator commit `3bcbb8c623
   - evidence record: none (8 scenarios in case.json)
 - **Executed equivalence** (cbsa-inqacc, linked, Db2): det port not run (a Db2 case: CI's det-sweep skips Db2 cases and no local sweep was given)
   - evidence record (the case's committed port): stale (stale on harness, oracle, generator); its proof: all equal, 14/14 scenarios equal, 29/29 records equal, 14 runs (0 fault runs); through its deployed entry points 14/14
-- **Executed equivalence** (cbsa-xfrfun, linked, Db2): det port not equal (ledgered as differing in det_sweep_baseline.json (#4658): the det port DISPLAYs SQLCODE -4220 where Db2/GnuCOBOL gives -180 on a null-date update (the proof compares a task's DISPLAY output since #4635))
+- **Executed equivalence** (cbsa-xfrfun, linked, Db2): det port not run (a Db2 case: CI's det-sweep skips Db2 cases and no local sweep was given)
   - evidence record: none (22 scenarios in case.json)
 - **Coverage:** not measured
 - **Oracle backing** (a column, not a level; per CICS command; DIFFERS assumptions reached: not measured):
@@ -472,9 +472,9 @@ Translation measured by `cics_census.py survey` at translator commit `3bcbb8c623
 
 ### src/base/cobol_src/XFRFUN.cbl -- L1
 
-- **Next level needs:** its det port equal on every scenario of cbsa-xfrfun: ledgered as differing in det_sweep_baseline.json (#4658): the det port DISPLAYs SQLCODE -4220 where Db2/GnuCOBOL gives -180 on a null-date update (the proof compares a task's DISPLAY output since #4635)
+- **Next level needs:** its det port equal on every scenario of cbsa-xfrfun: a Db2 case: CI's det-sweep skips Db2 cases and no local sweep was given
 - **Translation:** 426/426 statements, 0 holes; whole: yes
-- **Executed equivalence** (cbsa-xfrfun, program, Db2, the case this report judges): det port not equal (ledgered as differing in det_sweep_baseline.json (#4658): the det port DISPLAYs SQLCODE -4220 where Db2/GnuCOBOL gives -180 on a null-date update (the proof compares a task's DISPLAY output since #4635))
+- **Executed equivalence** (cbsa-xfrfun, program, Db2, the case this report judges): det port not run (a Db2 case: CI's det-sweep skips Db2 cases and no local sweep was given)
   - evidence record: none (22 scenarios in case.json)
 - **Coverage:** not measured
 - **Oracle backing** (a column, not a level; per CICS command; DIFFERS assumptions reached: not measured):

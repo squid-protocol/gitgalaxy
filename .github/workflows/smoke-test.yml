@@ -107,6 +107,8 @@ jobs:
       PYTHONUTF8: "1"
       GITGALAXY_LICENSE_KEY: "COMMUNITY_FREE_TIER"
       OMP_NUM_THREADS: "1"
+      # #4703: the rendered evidence report is refreshed by the bot on main, not committed in PRs
+      EVIDENCE_REPORT_ADVISORY: "1"
     steps:
       - name: Check out repository code
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
@@ -147,3 +149,8 @@ jobs:
 
       - name: Golden Record Integration Test (Pytest)
         run: pytest tests/ -n auto -q -ra --durations=25
+
+      - name: Evidence report level deltas (advisory, #4703)
+        if: always()
+        continue-on-error: true
+        run: python tests/tools/evidence_report.py --deltas --live >> "$GITHUB_STEP_SUMMARY"

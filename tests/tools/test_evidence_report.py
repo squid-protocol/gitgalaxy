@@ -3,6 +3,7 @@
 
 import copy
 import json
+import os
 import re
 import sys
 from pathlib import Path
@@ -42,6 +43,11 @@ def test_burned_estate_reports_are_committed_and_only_burned():
         assert cc.is_burned(f.parent.name), f"{f.parent.name}: only burned estates are committed"
 
 
+@pytest.mark.skipif(
+    os.environ.get("EVIDENCE_REPORT_ADVISORY") == "1",
+    reason="#4703: per-PR CI is advisory (smoke-test.yml / full-suite-gate.yml print the level deltas); the evidence-refresh "
+    "bot regenerates the reports on main and the release gate (publish.yml) runs `evidence_report.py --check --live`",
+)
 def test_the_committed_reports_are_current():
     assert er.main(["--check"]) == 0, "stale: python tests/tools/evidence_report.py --refresh"
 
@@ -233,3 +239,15 @@ def test_measure_reads_commands_and_facts(tmp_path):
     assert prog["assumptions"]["reach"] == "not measured"
     assert any("EIBTASKN" in f for f in prog["assumptions"]["facts_unstated"])
     assert not er._FORBIDDEN.search(er.render(rep))
+
+
+def test_deltas_are_advisory_and_name_the_level_changes(tmp_path, monkeypatch, capsys):
+    estate = REPORTS[0].parent.name
+    (tmp_path / estate).mkdir()
+    rep = json.loads((er.OUT / estate / "report.json").read_text("utf-8"))
+    rep["programs"][0]["level"] = "L5"  # a committed level the repo no longer makes
+    (tmp_path / estate / "report.json").write_text(er.dumps(rep), "utf-8")
+    monkeypatch.setattr(er, "OUT", tmp_path)
+    assert er.main(["--deltas"]) == 0
+    out = capsys.readouterr().out
+    assert "differ from what the repo makes now" in out and rep["programs"][0]["program"] in out and "L5" in out

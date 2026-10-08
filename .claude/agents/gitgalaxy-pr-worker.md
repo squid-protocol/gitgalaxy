@@ -37,6 +37,8 @@ Run them all with ONE command: `tests/tools/box/heavy-run.sh python tests/tools/
 - [ ] Ports Compile: `tests/tools/ports_compile_check.py`.
 - [ ] The det sweep.
 
+Do NOT commit the rendered evidence report (`docs/language_status/evidence_report/`) or run `evidence_report.py --refresh` in your PR (#4703): the evidence-refresh bot regenerates it on main after merge, and PR CI only prints the level deltas in the job summary (advisory). DO still re-prove the evidence RECORDS your change stales (a program's own port, case, corpus pin or declared differences: `evidence.py prove KEY` / `equivalence.py run CASE --record`); that check and the det-sweep baseline stay blocking.
+
 ## Running
 - Use `gh api` REST, not `gh issue view` / `gh pr edit` (gh 2.45 fails on Projects-classic GraphQL). No `jq` in loops; use `gh -q`.
 - Tests first: the narrowest failing test, then fix, then the language/extraction tests.

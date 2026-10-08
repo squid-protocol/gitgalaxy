@@ -643,6 +643,21 @@ public final class Cobol {
         }
     }
 
+    /** ADD / SUBTRACT ... TO / FROM as cobc compiles it to native integer arithmetic (#4684, oracle_assumptions C4;
+     *  the translator decides where: gen.native_add): an unsigned binary item of no decimal places, not truncated to
+     *  its PICTURE (COMP-5, or TRUNC(BIN)), takes the result modulo 2 ** its bits -- a result below zero wraps (1 - 3
+     *  is 65534 in a halfword) where {@link #store} keeps the absolute value. Anything else is {@link #store}. */
+    public static void storeNative(Field to, BigDecimal value, Charset cs) {
+        if (to.kind == Field.Kind.NUMERIC_BINARY && !to.signed && to.scale == 0 && (to.nativeBin || !Codec.truncBinary)
+                && !isNan(value) && value.signum() < 0) {
+            BigInteger bits = BigInteger.ONE.shiftLeft(8 * to.len);
+            BigInteger w = value.setScale(0, RoundingMode.DOWN).unscaledValue().mod(bits);
+            Codec.write(to, w, false, cs);
+            return;
+        }
+        store(to, value, false, cs);
+    }
+
     /** ON SIZE ERROR: true, `to` unchanged, when the value does not fit or is libcob's NaN (#4655). */
     public static boolean storeChecked(Field to, BigDecimal value, boolean rounded, Charset cs) {
         if (isNan(value)) {
@@ -731,6 +746,15 @@ public final class Cobol {
         int bytes = digits <= 4 ? 2 : digits <= 9 ? 4 : 8;
         Field t = Field.binary(new Storage(bytes), 0, digits, 0, signed, false);
         store(t, value, rounded, cs);
+        return num(t, cs).longValue();
+    }
+
+    /** As {@link #binary}, stored as cobc's native ADD / SUBTRACT stores it ({@link #storeNative}, #4684); `comp5`
+     *  for a COMP-5 item, which no TRUNC truncates. */
+    public static long binaryNative(BigDecimal value, int digits, boolean signed, boolean comp5, Charset cs) {
+        int bytes = digits <= 4 ? 2 : digits <= 9 ? 4 : 8;
+        Field t = Field.binary(new Storage(bytes), 0, digits, 0, signed, comp5);
+        storeNative(t, value, cs);
         return num(t, cs).longValue();
     }
 

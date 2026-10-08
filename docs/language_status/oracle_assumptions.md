@@ -61,7 +61,7 @@ verdict, but it limits what the proof says about inputs outside the scenarios.
 | C1 | compiler | Binary truncation: `TRUNC(STD)` (IBM's default) on both sides (#4102, fixed) | MATCHED | reachable (GenApp LGICDB01) |
 | C2 | compiler | Arithmetic intermediates: the oracle truncates them (ARITHMETIC-OSVS), the det runtime the same way (#4287); where GnuCOBOL departs from IBM's decimal places | MATCHED (det runtime = oracle) / DIFFERS (oracle, GnuCOBOL's departures) | yes (INTCALC, POSTTRAN …); a departure: not known to be |
 | C3 | compiler | An integer literal truncated to zero keeps no sign | DIFFERS | no |
-| C4 | compiler | An unsigned binary taken below zero by ADD/SUBTRACT wraps | DIFFERS | no |
+| C4 | compiler | An unsigned binary taken below zero by ADD/SUBTRACT: cobc's native arithmetic wraps, its decimal store and IBM keep the absolute value (#4684) | MATCHED (det runtime = oracle) / DIFFERS (oracle vs z/OS) | no |
 | C5 | compiler | `NUMPROC(MIG)` as Enterprise COBOL 5+ compiles it (NOPFD), `NUMPROC(PFD)` with preferred signs (#4271); `INTDATE(LILIAN)`, `ARITH(EXTEND)`, `TRUNC(OPT)` | MATCHED (NUMPROC) / REFUSED (the rest) | NUMPROC: no |
 | C6 | compiler | COMP-1 / COMP-2: IBM hexadecimal floating point, and float-mode evaluation of the whole expression | MODELLED in the det runtime (HFP, #4271 slice 1); the oracle DIFFERS (IEEE, decimal evaluation): proven by IBM-cited vectors and on exact values; what the oracle cannot decide REFUSED by name | no (DBB EPSMPMT: its float `**` is a hole) |
 | C7 | compiler | COMP-5 byte order: little-endian vs z/OS big-endian | DIFFERS | read as numbers only (a VALUE beyond the PICTURE: fixed, #4501) |
@@ -187,10 +187,33 @@ verdict, but it limits what the proof says about inputs outside the scenarios.
   the sign (`00}`). The translator matches GnuCOBOL (`gen.literal_moved`).
 - **IBM's behaviour** is not measured. No proven program reaches it.
 
-### C4. An unsigned binary below zero — DIFFERS
-- **What.** GnuCOBOL wraps `PIC 9(4) COMP`, so 0 − 3 by SUBTRACT is 65533. Its own COMPUTE and MOVE, IBM's
-  compilers and the det runtime store the absolute value, 3.
-- **Reached.** No case reaches it. `test_det_programs.py` keeps its unsigned item above zero.
+### C4. An unsigned binary below zero — the det runtime MATCHES the oracle (#4684); the oracle DIFFERS from IBM
+- **What.** cobc 3.1.2 compiles `ADD` / `SUBTRACT ... TO / FROM` into native integer arithmetic
+  (`cb_build_optim_add` / `_sub`) when the receiver is a binary item of no decimal places, the statement has no
+  `ROUNDED` and no store option, and its one operand fits a C int (`cb_fits_int`: an integer literal within
+  -2147483648..2147483647 -- `3.0` does not; a binary item of at most 4 bytes, a zoned one of at most 9 bytes, a
+  packed one of at most 9 digits, all without decimal places; a list of literals is folded into one, a list naming an
+  item is not). The native result wraps modulo 2 ** bits, so an unsigned `PIC 9(4) COMP` at 1 less 3 is 65534 (a
+  doubleword 18446744073709551614). Everything else -- `COMPUTE`, `GIVING`, `ROUNDED`, `ON SIZE ERROR`, an operand
+  past a C int -- goes through libcob's decimal store, which takes an unsigned receiver's absolute value first: 2.
+  A store option means `ON SIZE ERROR` or `NOT ON SIZE ERROR` for COMP / COMP-4 / BINARY, only `ON SIZE ERROR` for
+  COMP-5 (build_store_option), and for COMP / COMP-4 / BINARY also TRUNC(STD) (`-fbinary-truncate`), so under STD
+  only COMP-5 wraps. A signed receiver wraps the same way on both paths (two's complement at its bytes).
+- **Measured** 2026-10-08 (GnuCOBOL 3.1.2 `-std=ibm`, with and without `-fbinary-truncate`): COMP, COMP-4, BINARY
+  and COMP-5, signed and unsigned, halfword / fullword / doubleword and scaled receivers, from `COMPUTE`, `ADD`,
+  `SUBTRACT`, `MULTIPLY`, `DIVIDE ... ROUNDED`, `GIVING` and `MOVE`, with literal, binary, zoned and packed operands
+  (about 4,000 stores). The det runtime matched every one but the native wrap; it now matches that too
+  (`gen.native_add`, `Cobol.storeNative`); `test_det_binary_store.py` pins both TRUNC settings.
+- **IBM** documents an unsigned numeric receiver as taking the absolute value of the result (not measured on z/OS
+  here), whatever TRUNC is; TRUNC(BIN) truncates only at the
+  halfword / fullword / doubleword boundary and TRUNC(STD) to the PICTURE's digits, which the oracle and the det
+  runtime both do; TRUNC(OPT) leaves an out-of-range value undefined and is refused (C5). So the native wrap is a
+  GnuCOBOL departure the det runtime now shares with the oracle, as C2's.
+- **Also measured, not modelled:** `MOVE` of a zoned sender whose digits, aligned to a TRUNC(STD) binary receiver's
+  decimal places, pass 2 ** 64 (`MOVE` of `S9(20)V9(4)` holding 1234567890123456789 to `PIC 9V9(3) COMP`): libcob
+  (`cob_move_display_to_binary`) accumulates them in an unsigned 64-bit integer that wraps before the PICTURE
+  truncation, and stores 2.344; IBM and the det runtime store 9.000. COMP-5 and TRUNC(BIN) are not affected.
+- **Reached.** No case reaches either. `test_det_programs.py` keeps its unsigned item above zero.
 
 ### C5. Compiler options: NUMPROC MATCHED where IBM pins it (#4271); INTDATE(LILIAN), ARITH(EXTEND), TRUNC(OPT) REFUSED
 - **NUMPROC(MIG): MATCHED for Enterprise COBOL 5 and later.** "Enterprise COBOL 5 and 6 does not support the

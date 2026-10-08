@@ -887,6 +887,63 @@ def test_cics_task_browses_as_the_stub_does(tmp_path):
     assert out.splitlines() == [*stub, "0 13 [10, 30]"]
 
 
+# ---- #4657: the browse commands' RESP2 (IBM CICS TS: STARTBR INVREQ 33 / NOTFND 80, READNEXT / READPREV INVREQ 34 /
+# ENDFILE 90 / NOTFND 80, ENDBR INVREQ 35, DELETE NOTFND 80) -- the stub and CicsTask agree, and say IBM's value ----
+_BROWSE_RESP2_OPS = ("S:15", "N", "N", "N", "P", "S:10", "B", "B", "N", "P", "E:15", "S*", "P", "P", "P", "B",
+                     "S:20", "D:20", "D:20")  # fmt: skip
+_BROWSE_RESP2_WANT = [
+    "S 0 0", "N 0 0", "N 0 0", "N 20 90",  # past the last record: ENDFILE, RESP2 90
+    "P 0 0", "S 16 33",  # a browse is active: INVREQ, RESP2 33
+    "B 0 0", "B 16 35",  # ENDBR without a browse: INVREQ, RESP2 35
+    "N 16 34", "P 16 34",  # READNEXT / READPREV without a browse: INVREQ, RESP2 34
+    "E 13 80",  # EQUAL, no such key: NOTFND, RESP2 80
+    "S 0 0", "P 0 0", "P 0 0", "P 0 0", "B 0 0",  # HIGH-VALUES, backwards over all three records
+    "S 0 0", "D 0 0", "D 13 80",  # DELETE of a key that is gone: NOTFND, RESP2 80
+]  # fmt: skip
+
+
+@needs_cc
+def test_the_stub_sets_browse_resp2_as_ibm_documents(tmp_path):
+    (tmp_path / "f.dat").write_bytes(b"10aa20bb30cc")
+    (tmp_path / "files.cfg").write_text(f"F {tmp_path / 'f.dat'} 4 0 2\n", encoding="ascii")
+    main = _BROWSE_MAIN.replace('"%c resp=%d rid', '"%c %d %d rid').replace(
+        "op, c.resp, (unsigned", "op, c.resp, c.resp2, (unsigned"
+    )
+    got = _run_stub(_stub(tmp_path, main), tmp_path, *_BROWSE_RESP2_OPS)
+    assert [" ".join(line.split()[:3]) for line in got] == _BROWSE_RESP2_WANT
+
+
+@needs_javac
+def test_cics_task_sets_browse_resp2_as_the_stub_does(tmp_path):
+    """#4657: the det runtime left EIBRESP2 0 on these (COBIL00C DISPLAYs it after a failed STARTBR / READPREV)."""
+    out = _cics_task(
+        tmp_path,
+        """
+        java.util.TreeSet<String> keys = new java.util.TreeSet<>(java.util.List.of("10", "20", "30"));
+        CicsTask t = new CicsTask("T", "ENTER", null, null);
+        String rid = "";
+        String ff = "\\u00FF\\u00FF";
+        String[] ops = {"S:15", "N", "N", "N", "P", "S:10", "B", "B", "N", "P", "E:15", "S*", "P", "P", "P", "B",
+                        "S:20", "D:20", "D:20"};
+        for (String op : ops) {
+            if (op.length() > 1) {
+                rid = op.charAt(1) == '*' ? ff : op.substring(2);
+            }
+            int resp, resp2;
+            switch (op.charAt(0)) {
+                case 'S': resp = t.startbr("F", rid, false, () -> keys); resp2 = t.resp2(); break;
+                case 'E': resp = t.startbr("F", rid, true, () -> keys); resp2 = t.resp2(); break;
+                case 'N': { CicsTask.Browsed b = t.readnext("F", rid); resp = b.resp(); resp2 = b.resp2(); if (b.normal()) rid = b.key(); break; }
+                case 'P': { CicsTask.Browsed b = t.readprev("F", rid); resp = b.resp(); resp2 = b.resp2(); if (b.normal()) rid = b.key(); break; }
+                case 'D': { String k = rid; resp = t.delete("F", keys.contains(k), () -> keys.remove(k)); resp2 = t.resp2(); break; }
+                default: resp = t.endbr("F"); resp2 = t.resp2();
+            }
+            System.out.println(op.charAt(0) + " " + resp + " " + resp2);
+        }""",
+    )
+    assert out.splitlines() == _BROWSE_RESP2_WANT
+
+
 # ---- #4270: READ GTEQ / GENERIC (IBM CICS TS, EXEC CICS READ; oracle_assumptions.md X22) --------------------------
 _READ_SEARCH_MAIN = r"""
 #include <stdio.h>

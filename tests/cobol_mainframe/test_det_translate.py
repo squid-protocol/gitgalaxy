@@ -277,7 +277,7 @@ def test_an_esds_browse_by_rba_is_translated_and_the_rest_refused():
     c = _RbaCics()
     assert c.command("STARTBR DATASET('EPSMORTF') RIDFLD(RID) RBA EQUAL RESP(R)", "") == [
         "int resp1 = task.startbrRba('EPSMORTF'.strip(), CicsTask.rba(DetCics.bytes(f_RID, 4)));",
-        "OUTCOME(resp1, 0);",
+        "OUTCOME(resp1, task.resp2());",
     ]
     assert c.command("READNEXT FILE('EPSMORTF') INTO(REC) RIDFLD(RID) RBA RESP(R)", "") == [
         "CicsTask.BrowsedRba read2 = task.readnextRba('EPSMORTF'.strip(), CicsTask.rba(DetCics.bytes(f_RID, 4)), 56);",

@@ -623,7 +623,7 @@ public class Cobil00cService {
         // STARTBR-TRANSACT-FILE
         void startbrTransactFile() {
             resp = task.startbr("TRANSACT", tran.getTranId(), false, Cobil00cService.this::transactKeys);
-            reas = 0;
+            reas = task.resp2();
             if (resp == 0) {
                 return;
             } else if (resp == 13) {
@@ -638,7 +638,7 @@ public class Cobil00cService {
         void readprevTransactFile() {
             CicsTask.Browsed b = task.readprev("TRANSACT", tran.getTranId());
             resp = b.resp();
-            reas = 0;
+            reas = b.resp2();
             if (resp == 0) {
                 tran.setTranId(b.key());                       // RIDFLD is set to the key read
                 Optional<TranRecord> found = tranRecordRepository.findById(b.key());

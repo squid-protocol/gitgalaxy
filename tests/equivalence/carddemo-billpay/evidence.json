@@ -7,7 +7,7 @@
   "paths": [
    "tests/equivalence/carddemo-billpay/port/service/Cobil00cService.java"
   ],
-  "sha256": "693f644609e6e56289af8e8936e9202115bbb2d59f0249796bddd6565a412535",
+  "sha256": "7b3bf2978f76b54d033e79bfe62ace872d092ceea20a0a8a04c3dfbb35f3462d",
   "entry_points": [
    "handleTransaction",
    "runTask"
@@ -19,7 +19,7 @@
     "tests/equivalence/carddemo-billpay/port/**"
    ],
    "files": 1,
-   "sha256": "693f644609e6e56289af8e8936e9202115bbb2d59f0249796bddd6565a412535"
+   "sha256": "7b3bf2978f76b54d033e79bfe62ace872d092ceea20a0a8a04c3dfbb35f3462d"
   },
   "case": {
    "paths": [
@@ -43,7 +43,7 @@
     "tests/tools/java_target_matrix.py"
    ],
    "files": 11,
-   "sha256": "17f2c1d2cf1caec1826d9f476691fc609407d5613e72411c2128ca5babb79e11"
+   "sha256": "833852c405f1124941a70f6ca7bfb800303a924ea51ad1551ac1bced595158ec"
   },
   "oracle": {
    "paths": [
@@ -55,15 +55,15 @@
     "tests/equivalence/db2/**",
     "tests/tools/equivalence_sql.py"
    ],
-   "files": 16,
-   "sha256": "c01338417b189840c3da3fcf109428b6c3c5db987111699423026a5a2aa260eb"
+   "files": 17,
+   "sha256": "34e4374b3f771d8a11ed9471e6ec942784f1f5435a723bdd080f8567eda4171c"
   },
   "generator": {
    "paths": [
     "gitgalaxy/tools/cobol_to_java/**"
    ],
-   "files": 62,
-   "sha256": "4f86801ec17ca2a0e9b4f2ddd2877803d5acf868c28cdae9c884963c9df6db4e"
+   "files": 63,
+   "sha256": "230a1fae847df80590348b6152cbd9865f5bd8ed12751f2a523821032136c5f8"
   },
   "corpus": {
    "name": "aws-mainframe-modernization-carddemo",
@@ -73,10 +73,10 @@
   "differences": {
    "sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
   },
-  "digest": "32251b1bedc00a88cb6c6552d87ae3d0fe968892c955f94d5eb3674d3be32ffd"
+  "digest": "ad11e101090024cc655c764a183fc0389eee0d598def263ec64c37f0494adcfc"
  },
  "proof": {
-  "at": "2026-10-07T14:55:07Z",
+  "at": "2026-10-08T16:43:20Z",
   "verdict": "proven",
   "runs": 25,
   "fault_runs": 10,
@@ -197,8 +197,8 @@
    "failed": [],
    "error": null
   },
-  "harness_commit": "4a31c3d8a01d630aa00421b590600aa51bed5c8d+uncommitted",
-  "inputs_digest": "32251b1bedc00a88cb6c6552d87ae3d0fe968892c955f94d5eb3674d3be32ffd"
+  "harness_commit": "633d626fa1beec8ce75621654b4450923ff7c36f+uncommitted",
+  "inputs_digest": "ad11e101090024cc655c764a183fc0389eee0d598def263ec64c37f0494adcfc"
  },
  "coverage": {
   "paragraphs": {
@@ -228,7 +228,7 @@
    "total": 0
   },
   "source": "the proof's own traced COBOL runs (cobol_coverage.py)",
-  "inputs_digest": "32251b1bedc00a88cb6c6552d87ae3d0fe968892c955f94d5eb3674d3be32ffd"
+  "inputs_digest": "ad11e101090024cc655c764a183fc0389eee0d598def263ec64c37f0494adcfc"
  },
  "reach": {
   "entry_points": [
@@ -261,7 +261,7 @@
    "ported_unproven": 0
   },
   "generated_compared": true,
-  "port_sha256": "693f644609e6e56289af8e8936e9202115bbb2d59f0249796bddd6565a412535"
+  "port_sha256": "7b3bf2978f76b54d033e79bfe62ace872d092ceea20a0a8a04c3dfbb35f3462d"
  },
  "mutation": null,
  "differences": [],
@@ -293,7 +293,11 @@
    },
    {
     "path": "tests/equivalence/cics/ggcics.c",
-    "sha256": "03d1488e2fd6a6a8478ca7c601e1ac5be38bfe80cbc593766c0dd299743009e1"
+    "sha256": "f3fb46bc9971d8a2236611f3b211ca86778dac1e29c4809ac2dbe2240378f6fc"
+   },
+   {
+    "path": "tests/equivalence/cics/ggcics_spec.h",
+    "sha256": "38202df0a970b528faf455a8020c57b4b5c5a8b13ee55c115d370632ad6f967f"
    },
    {
     "path": "tests/equivalence/db2/SQLCA.cpy",
@@ -305,7 +309,7 @@
    },
    {
     "path": "tests/equivalence/db2/ggsql.c",
-    "sha256": "a42be2e7fa475ba5ed70209d64f78dae9ef9fe611c72e3edc2f1d1e594d29405"
+    "sha256": "979c4f9918aefe0aa8d89750137e9dd454bae3884e43b43cedc471a9bc56fb5b"
    },
    {
     "path": "tests/equivalence/db2/ggsqlrun.c",

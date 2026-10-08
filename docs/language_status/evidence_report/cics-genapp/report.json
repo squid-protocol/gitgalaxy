@@ -1367,6 +1367,19 @@
       "role": "linked"
      },
      {
+      "case": "genapp-lgacus01",
+      "case_scenarios": 5,
+      "db2": true,
+      "det": {
+       "state": "not run",
+       "why": [
+        "a Db2 case: CI's det-sweep skips Db2 cases and no local sweep was given"
+       ]
+      },
+      "record": null,
+      "role": "linked"
+     },
+     {
       "case": "genapp-lgacvs01",
       "case_scenarios": 4,
       "db2": false,
@@ -1630,6 +1643,19 @@
       "role": "linked"
      },
      {
+      "case": "genapp-lgapol01",
+      "case_scenarios": 6,
+      "db2": true,
+      "det": {
+       "state": "not run",
+       "why": [
+        "a Db2 case: CI's det-sweep skips Db2 cases and no local sweep was given"
+       ]
+      },
+      "record": null,
+      "role": "linked"
+     },
+     {
       "case": "genapp-lgapvs01",
       "case_scenarios": 8,
       "db2": false,
@@ -1677,6 +1703,58 @@
        "verdict": "all equal"
       },
       "role": "program"
+     },
+     {
+      "case": "genapp-lgtestp1",
+      "case_scenarios": 15,
+      "db2": true,
+      "det": {
+       "state": "not run",
+       "why": [
+        "a Db2 case: CI's det-sweep skips Db2 cases and no local sweep was given"
+       ]
+      },
+      "record": null,
+      "role": "linked"
+     },
+     {
+      "case": "genapp-lgtestp2",
+      "case_scenarios": 15,
+      "db2": true,
+      "det": {
+       "state": "not run",
+       "why": [
+        "a Db2 case: CI's det-sweep skips Db2 cases and no local sweep was given"
+       ]
+      },
+      "record": null,
+      "role": "linked"
+     },
+     {
+      "case": "genapp-lgtestp3",
+      "case_scenarios": 15,
+      "db2": true,
+      "det": {
+       "state": "not run",
+       "why": [
+        "a Db2 case: CI's det-sweep skips Db2 cases and no local sweep was given"
+       ]
+      },
+      "record": null,
+      "role": "linked"
+     },
+     {
+      "case": "genapp-lgtestp4",
+      "case_scenarios": 16,
+      "db2": true,
+      "det": {
+       "state": "not run",
+       "why": [
+        "a Db2 case: CI's det-sweep skips Db2 cases and no local sweep was given"
+       ]
+      },
+      "record": null,
+      "role": "linked"
      }
     ],
     "chosen": {
@@ -1950,6 +2028,19 @@
       "role": "linked"
      },
      {
+      "case": "genapp-lgdpol01",
+      "case_scenarios": 11,
+      "db2": true,
+      "det": {
+       "state": "not run",
+       "why": [
+        "a Db2 case: CI's det-sweep skips Db2 cases and no local sweep was given"
+       ]
+      },
+      "record": null,
+      "role": "linked"
+     },
+     {
       "case": "genapp-lgdpvs01",
       "case_scenarios": 5,
       "db2": false,
@@ -1959,6 +2050,58 @@
       },
       "record": null,
       "role": "program"
+     },
+     {
+      "case": "genapp-lgtestp1",
+      "case_scenarios": 15,
+      "db2": true,
+      "det": {
+       "state": "not run",
+       "why": [
+        "a Db2 case: CI's det-sweep skips Db2 cases and no local sweep was given"
+       ]
+      },
+      "record": null,
+      "role": "linked"
+     },
+     {
+      "case": "genapp-lgtestp2",
+      "case_scenarios": 15,
+      "db2": true,
+      "det": {
+       "state": "not run",
+       "why": [
+        "a Db2 case: CI's det-sweep skips Db2 cases and no local sweep was given"
+       ]
+      },
+      "record": null,
+      "role": "linked"
+     },
+     {
+      "case": "genapp-lgtestp3",
+      "case_scenarios": 15,
+      "db2": true,
+      "det": {
+       "state": "not run",
+       "why": [
+        "a Db2 case: CI's det-sweep skips Db2 cases and no local sweep was given"
+       ]
+      },
+      "record": null,
+      "role": "linked"
+     },
+     {
+      "case": "genapp-lgtestp4",
+      "case_scenarios": 16,
+      "db2": true,
+      "det": {
+       "state": "not run",
+       "why": [
+        "a Db2 case: CI's det-sweep skips Db2 cases and no local sweep was given"
+       ]
+      },
+      "record": null,
+      "role": "linked"
      }
     ],
     "chosen": {
@@ -2196,6 +2339,19 @@
      {
       "case": "genapp-lgucdb01",
       "case_scenarios": 6,
+      "db2": true,
+      "det": {
+       "state": "not run",
+       "why": [
+        "a Db2 case: CI's det-sweep skips Db2 cases and no local sweep was given"
+       ]
+      },
+      "record": null,
+      "role": "linked"
+     },
+     {
+      "case": "genapp-lgucus01",
+      "case_scenarios": 5,
       "db2": true,
       "det": {
        "state": "not run",
@@ -2485,6 +2641,58 @@
    "equivalence": {
     "cases": [
      {
+      "case": "genapp-lgtestp1",
+      "case_scenarios": 15,
+      "db2": true,
+      "det": {
+       "state": "not run",
+       "why": [
+        "a Db2 case: CI's det-sweep skips Db2 cases and no local sweep was given"
+       ]
+      },
+      "record": null,
+      "role": "linked"
+     },
+     {
+      "case": "genapp-lgtestp2",
+      "case_scenarios": 15,
+      "db2": true,
+      "det": {
+       "state": "not run",
+       "why": [
+        "a Db2 case: CI's det-sweep skips Db2 cases and no local sweep was given"
+       ]
+      },
+      "record": null,
+      "role": "linked"
+     },
+     {
+      "case": "genapp-lgtestp3",
+      "case_scenarios": 15,
+      "db2": true,
+      "det": {
+       "state": "not run",
+       "why": [
+        "a Db2 case: CI's det-sweep skips Db2 cases and no local sweep was given"
+       ]
+      },
+      "record": null,
+      "role": "linked"
+     },
+     {
+      "case": "genapp-lgtestp4",
+      "case_scenarios": 16,
+      "db2": true,
+      "det": {
+       "state": "not run",
+       "why": [
+        "a Db2 case: CI's det-sweep skips Db2 cases and no local sweep was given"
+       ]
+      },
+      "record": null,
+      "role": "linked"
+     },
+     {
       "case": "genapp-lgupdb01",
       "case_scenarios": 5,
       "db2": true,
@@ -2550,6 +2758,19 @@
        "status_at_build": "stale",
        "verdict": "all equal"
       },
+      "role": "linked"
+     },
+     {
+      "case": "genapp-lgupol01",
+      "case_scenarios": 10,
+      "db2": true,
+      "det": {
+       "state": "not run",
+       "why": [
+        "a Db2 case: CI's det-sweep skips Db2 cases and no local sweep was given"
+       ]
+      },
+      "record": null,
       "role": "linked"
      },
      {
@@ -2831,6 +3052,19 @@
       },
       "record": null,
       "role": "program"
+     },
+     {
+      "case": "genapp-lgacus01",
+      "case_scenarios": 5,
+      "db2": true,
+      "det": {
+       "state": "not run",
+       "why": [
+        "a Db2 case: CI's det-sweep skips Db2 cases and no local sweep was given"
+       ]
+      },
+      "record": null,
+      "role": "linked"
      }
     ],
     "chosen": {
@@ -3100,6 +3334,19 @@
       },
       "record": null,
       "role": "program"
+     },
+     {
+      "case": "genapp-lgacus01",
+      "case_scenarios": 5,
+      "db2": true,
+      "det": {
+       "state": "not run",
+       "why": [
+        "a Db2 case: CI's det-sweep skips Db2 cases and no local sweep was given"
+       ]
+      },
+      "record": null,
+      "role": "linked"
      }
     ],
     "chosen": {
@@ -3334,15 +3581,41 @@
     "uncovered_paragraphs": "not recorded"
    },
    "equivalence": {
-    "cases": [],
-    "chosen": null
+    "cases": [
+     {
+      "case": "genapp-lgacus01",
+      "case_scenarios": 5,
+      "db2": true,
+      "det": {
+       "state": "not run",
+       "why": [
+        "a Db2 case: CI's det-sweep skips Db2 cases and no local sweep was given"
+       ]
+      },
+      "record": null,
+      "role": "program"
+     }
+    ],
+    "chosen": {
+     "case": "genapp-lgacus01",
+     "case_scenarios": 5,
+     "db2": true,
+     "det": {
+      "state": "not run",
+      "why": [
+       "a Db2 case: CI's det-sweep skips Db2 cases and no local sweep was given"
+      ]
+     },
+     "record": null,
+     "role": "program"
+    }
    },
    "level": "L1",
    "mutation": {
     "det_port": "not yet measured (#4628)"
    },
    "next": [
-    "an equivalence case that runs it"
+    "its det port equal on every scenario of genapp-lgacus01: a Db2 case: CI's det-sweep skips Db2 cases and no local sweep was given"
    ],
    "oracle_backing": [
     {
@@ -3568,6 +3841,71 @@
       },
       "record": null,
       "role": "program"
+     },
+     {
+      "case": "genapp-lgapol01",
+      "case_scenarios": 6,
+      "db2": true,
+      "det": {
+       "state": "not run",
+       "why": [
+        "a Db2 case: CI's det-sweep skips Db2 cases and no local sweep was given"
+       ]
+      },
+      "record": null,
+      "role": "linked"
+     },
+     {
+      "case": "genapp-lgtestp1",
+      "case_scenarios": 15,
+      "db2": true,
+      "det": {
+       "state": "not run",
+       "why": [
+        "a Db2 case: CI's det-sweep skips Db2 cases and no local sweep was given"
+       ]
+      },
+      "record": null,
+      "role": "linked"
+     },
+     {
+      "case": "genapp-lgtestp2",
+      "case_scenarios": 15,
+      "db2": true,
+      "det": {
+       "state": "not run",
+       "why": [
+        "a Db2 case: CI's det-sweep skips Db2 cases and no local sweep was given"
+       ]
+      },
+      "record": null,
+      "role": "linked"
+     },
+     {
+      "case": "genapp-lgtestp3",
+      "case_scenarios": 15,
+      "db2": true,
+      "det": {
+       "state": "not run",
+       "why": [
+        "a Db2 case: CI's det-sweep skips Db2 cases and no local sweep was given"
+       ]
+      },
+      "record": null,
+      "role": "linked"
+     },
+     {
+      "case": "genapp-lgtestp4",
+      "case_scenarios": 16,
+      "db2": true,
+      "det": {
+       "state": "not run",
+       "why": [
+        "a Db2 case: CI's det-sweep skips Db2 cases and no local sweep was given"
+       ]
+      },
+      "record": null,
+      "role": "linked"
      }
     ],
     "chosen": {
@@ -3802,15 +4140,93 @@
     "uncovered_paragraphs": "not recorded"
    },
    "equivalence": {
-    "cases": [],
-    "chosen": null
+    "cases": [
+     {
+      "case": "genapp-lgapol01",
+      "case_scenarios": 6,
+      "db2": true,
+      "det": {
+       "state": "not run",
+       "why": [
+        "a Db2 case: CI's det-sweep skips Db2 cases and no local sweep was given"
+       ]
+      },
+      "record": null,
+      "role": "program"
+     },
+     {
+      "case": "genapp-lgtestp1",
+      "case_scenarios": 15,
+      "db2": true,
+      "det": {
+       "state": "not run",
+       "why": [
+        "a Db2 case: CI's det-sweep skips Db2 cases and no local sweep was given"
+       ]
+      },
+      "record": null,
+      "role": "linked"
+     },
+     {
+      "case": "genapp-lgtestp2",
+      "case_scenarios": 15,
+      "db2": true,
+      "det": {
+       "state": "not run",
+       "why": [
+        "a Db2 case: CI's det-sweep skips Db2 cases and no local sweep was given"
+       ]
+      },
+      "record": null,
+      "role": "linked"
+     },
+     {
+      "case": "genapp-lgtestp3",
+      "case_scenarios": 15,
+      "db2": true,
+      "det": {
+       "state": "not run",
+       "why": [
+        "a Db2 case: CI's det-sweep skips Db2 cases and no local sweep was given"
+       ]
+      },
+      "record": null,
+      "role": "linked"
+     },
+     {
+      "case": "genapp-lgtestp4",
+      "case_scenarios": 16,
+      "db2": true,
+      "det": {
+       "state": "not run",
+       "why": [
+        "a Db2 case: CI's det-sweep skips Db2 cases and no local sweep was given"
+       ]
+      },
+      "record": null,
+      "role": "linked"
+     }
+    ],
+    "chosen": {
+     "case": "genapp-lgapol01",
+     "case_scenarios": 6,
+     "db2": true,
+     "det": {
+      "state": "not run",
+      "why": [
+       "a Db2 case: CI's det-sweep skips Db2 cases and no local sweep was given"
+      ]
+     },
+     "record": null,
+     "role": "program"
+    }
    },
    "level": "L1",
    "mutation": {
     "det_port": "not yet measured (#4628)"
    },
    "next": [
-    "an equivalence case that runs it"
+    "its det port equal on every scenario of genapp-lgapol01: a Db2 case: CI's det-sweep skips Db2 cases and no local sweep was given"
    ],
    "oracle_backing": [
     {
@@ -4036,6 +4452,71 @@
       },
       "record": null,
       "role": "program"
+     },
+     {
+      "case": "genapp-lgdpol01",
+      "case_scenarios": 11,
+      "db2": true,
+      "det": {
+       "state": "not run",
+       "why": [
+        "a Db2 case: CI's det-sweep skips Db2 cases and no local sweep was given"
+       ]
+      },
+      "record": null,
+      "role": "linked"
+     },
+     {
+      "case": "genapp-lgtestp1",
+      "case_scenarios": 15,
+      "db2": true,
+      "det": {
+       "state": "not run",
+       "why": [
+        "a Db2 case: CI's det-sweep skips Db2 cases and no local sweep was given"
+       ]
+      },
+      "record": null,
+      "role": "linked"
+     },
+     {
+      "case": "genapp-lgtestp2",
+      "case_scenarios": 15,
+      "db2": true,
+      "det": {
+       "state": "not run",
+       "why": [
+        "a Db2 case: CI's det-sweep skips Db2 cases and no local sweep was given"
+       ]
+      },
+      "record": null,
+      "role": "linked"
+     },
+     {
+      "case": "genapp-lgtestp3",
+      "case_scenarios": 15,
+      "db2": true,
+      "det": {
+       "state": "not run",
+       "why": [
+        "a Db2 case: CI's det-sweep skips Db2 cases and no local sweep was given"
+       ]
+      },
+      "record": null,
+      "role": "linked"
+     },
+     {
+      "case": "genapp-lgtestp4",
+      "case_scenarios": 16,
+      "db2": true,
+      "det": {
+       "state": "not run",
+       "why": [
+        "a Db2 case: CI's det-sweep skips Db2 cases and no local sweep was given"
+       ]
+      },
+      "record": null,
+      "role": "linked"
      }
     ],
     "chosen": {
@@ -4270,15 +4751,93 @@
     "uncovered_paragraphs": "not recorded"
    },
    "equivalence": {
-    "cases": [],
-    "chosen": null
+    "cases": [
+     {
+      "case": "genapp-lgdpol01",
+      "case_scenarios": 11,
+      "db2": true,
+      "det": {
+       "state": "not run",
+       "why": [
+        "a Db2 case: CI's det-sweep skips Db2 cases and no local sweep was given"
+       ]
+      },
+      "record": null,
+      "role": "program"
+     },
+     {
+      "case": "genapp-lgtestp1",
+      "case_scenarios": 15,
+      "db2": true,
+      "det": {
+       "state": "not run",
+       "why": [
+        "a Db2 case: CI's det-sweep skips Db2 cases and no local sweep was given"
+       ]
+      },
+      "record": null,
+      "role": "linked"
+     },
+     {
+      "case": "genapp-lgtestp2",
+      "case_scenarios": 15,
+      "db2": true,
+      "det": {
+       "state": "not run",
+       "why": [
+        "a Db2 case: CI's det-sweep skips Db2 cases and no local sweep was given"
+       ]
+      },
+      "record": null,
+      "role": "linked"
+     },
+     {
+      "case": "genapp-lgtestp3",
+      "case_scenarios": 15,
+      "db2": true,
+      "det": {
+       "state": "not run",
+       "why": [
+        "a Db2 case: CI's det-sweep skips Db2 cases and no local sweep was given"
+       ]
+      },
+      "record": null,
+      "role": "linked"
+     },
+     {
+      "case": "genapp-lgtestp4",
+      "case_scenarios": 16,
+      "db2": true,
+      "det": {
+       "state": "not run",
+       "why": [
+        "a Db2 case: CI's det-sweep skips Db2 cases and no local sweep was given"
+       ]
+      },
+      "record": null,
+      "role": "linked"
+     }
+    ],
+    "chosen": {
+     "case": "genapp-lgdpol01",
+     "case_scenarios": 11,
+     "db2": true,
+     "det": {
+      "state": "not run",
+      "why": [
+       "a Db2 case: CI's det-sweep skips Db2 cases and no local sweep was given"
+      ]
+     },
+     "record": null,
+     "role": "program"
+    }
    },
    "level": "L1",
    "mutation": {
     "det_port": "not yet measured (#4628)"
    },
    "next": [
-    "an equivalence case that runs it"
+    "its det port equal on every scenario of genapp-lgdpol01: a Db2 case: CI's det-sweep skips Db2 cases and no local sweep was given"
    ],
    "oracle_backing": [
     {
@@ -4546,6 +5105,19 @@
        "verdict": "all equal"
       },
       "role": "program"
+     },
+     {
+      "case": "genapp-lgicus01",
+      "case_scenarios": 5,
+      "db2": true,
+      "det": {
+       "state": "not run",
+       "why": [
+        "a Db2 case: CI's det-sweep skips Db2 cases and no local sweep was given"
+       ]
+      },
+      "record": null,
+      "role": "linked"
      }
     ],
     "chosen": {
@@ -4822,15 +5394,41 @@
     "uncovered_paragraphs": "not recorded"
    },
    "equivalence": {
-    "cases": [],
-    "chosen": null
+    "cases": [
+     {
+      "case": "genapp-lgicus01",
+      "case_scenarios": 5,
+      "db2": true,
+      "det": {
+       "state": "not run",
+       "why": [
+        "a Db2 case: CI's det-sweep skips Db2 cases and no local sweep was given"
+       ]
+      },
+      "record": null,
+      "role": "program"
+     }
+    ],
+    "chosen": {
+     "case": "genapp-lgicus01",
+     "case_scenarios": 5,
+     "db2": true,
+     "det": {
+      "state": "not run",
+      "why": [
+       "a Db2 case: CI's det-sweep skips Db2 cases and no local sweep was given"
+      ]
+     },
+     "record": null,
+     "role": "program"
+    }
    },
    "level": "L1",
    "mutation": {
     "det_port": "not yet measured (#4628)"
    },
    "next": [
-    "an equivalence case that runs it"
+    "its det port equal on every scenario of genapp-lgicus01: a Db2 case: CI's det-sweep skips Db2 cases and no local sweep was given"
    ],
    "oracle_backing": [
     {
@@ -5056,6 +5654,71 @@
       },
       "record": null,
       "role": "program"
+     },
+     {
+      "case": "genapp-lgipol01",
+      "case_scenarios": 10,
+      "db2": true,
+      "det": {
+       "state": "not run",
+       "why": [
+        "a Db2 case: CI's det-sweep skips Db2 cases and no local sweep was given"
+       ]
+      },
+      "record": null,
+      "role": "linked"
+     },
+     {
+      "case": "genapp-lgtestp1",
+      "case_scenarios": 15,
+      "db2": true,
+      "det": {
+       "state": "not run",
+       "why": [
+        "a Db2 case: CI's det-sweep skips Db2 cases and no local sweep was given"
+       ]
+      },
+      "record": null,
+      "role": "linked"
+     },
+     {
+      "case": "genapp-lgtestp2",
+      "case_scenarios": 15,
+      "db2": true,
+      "det": {
+       "state": "not run",
+       "why": [
+        "a Db2 case: CI's det-sweep skips Db2 cases and no local sweep was given"
+       ]
+      },
+      "record": null,
+      "role": "linked"
+     },
+     {
+      "case": "genapp-lgtestp3",
+      "case_scenarios": 15,
+      "db2": true,
+      "det": {
+       "state": "not run",
+       "why": [
+        "a Db2 case: CI's det-sweep skips Db2 cases and no local sweep was given"
+       ]
+      },
+      "record": null,
+      "role": "linked"
+     },
+     {
+      "case": "genapp-lgtestp4",
+      "case_scenarios": 16,
+      "db2": true,
+      "det": {
+       "state": "not run",
+       "why": [
+        "a Db2 case: CI's det-sweep skips Db2 cases and no local sweep was given"
+       ]
+      },
+      "record": null,
+      "role": "linked"
      }
     ],
     "chosen": {
@@ -5290,15 +5953,93 @@
     "uncovered_paragraphs": "not recorded"
    },
    "equivalence": {
-    "cases": [],
-    "chosen": null
+    "cases": [
+     {
+      "case": "genapp-lgipol01",
+      "case_scenarios": 10,
+      "db2": true,
+      "det": {
+       "state": "not run",
+       "why": [
+        "a Db2 case: CI's det-sweep skips Db2 cases and no local sweep was given"
+       ]
+      },
+      "record": null,
+      "role": "program"
+     },
+     {
+      "case": "genapp-lgtestp1",
+      "case_scenarios": 15,
+      "db2": true,
+      "det": {
+       "state": "not run",
+       "why": [
+        "a Db2 case: CI's det-sweep skips Db2 cases and no local sweep was given"
+       ]
+      },
+      "record": null,
+      "role": "linked"
+     },
+     {
+      "case": "genapp-lgtestp2",
+      "case_scenarios": 15,
+      "db2": true,
+      "det": {
+       "state": "not run",
+       "why": [
+        "a Db2 case: CI's det-sweep skips Db2 cases and no local sweep was given"
+       ]
+      },
+      "record": null,
+      "role": "linked"
+     },
+     {
+      "case": "genapp-lgtestp3",
+      "case_scenarios": 15,
+      "db2": true,
+      "det": {
+       "state": "not run",
+       "why": [
+        "a Db2 case: CI's det-sweep skips Db2 cases and no local sweep was given"
+       ]
+      },
+      "record": null,
+      "role": "linked"
+     },
+     {
+      "case": "genapp-lgtestp4",
+      "case_scenarios": 16,
+      "db2": true,
+      "det": {
+       "state": "not run",
+       "why": [
+        "a Db2 case: CI's det-sweep skips Db2 cases and no local sweep was given"
+       ]
+      },
+      "record": null,
+      "role": "linked"
+     }
+    ],
+    "chosen": {
+     "case": "genapp-lgipol01",
+     "case_scenarios": 10,
+     "db2": true,
+     "det": {
+      "state": "not run",
+      "why": [
+       "a Db2 case: CI's det-sweep skips Db2 cases and no local sweep was given"
+      ]
+     },
+     "record": null,
+     "role": "program"
+    }
    },
    "level": "L1",
    "mutation": {
     "det_port": "not yet measured (#4628)"
    },
    "next": [
-    "an equivalence case that runs it"
+    "its det port equal on every scenario of genapp-lgipol01: a Db2 case: CI's det-sweep skips Db2 cases and no local sweep was given"
    ],
    "oracle_backing": [
     {
@@ -5561,8 +6302,60 @@
       "role": "linked"
      },
      {
+      "case": "genapp-lgacus01",
+      "case_scenarios": 5,
+      "db2": true,
+      "det": {
+       "state": "not run",
+       "why": [
+        "a Db2 case: CI's det-sweep skips Db2 cases and no local sweep was given"
+       ]
+      },
+      "record": null,
+      "role": "linked"
+     },
+     {
+      "case": "genapp-lgapol01",
+      "case_scenarios": 6,
+      "db2": true,
+      "det": {
+       "state": "not run",
+       "why": [
+        "a Db2 case: CI's det-sweep skips Db2 cases and no local sweep was given"
+       ]
+      },
+      "record": null,
+      "role": "linked"
+     },
+     {
       "case": "genapp-lgdpdb01",
       "case_scenarios": 11,
+      "db2": true,
+      "det": {
+       "state": "not run",
+       "why": [
+        "a Db2 case: CI's det-sweep skips Db2 cases and no local sweep was given"
+       ]
+      },
+      "record": null,
+      "role": "linked"
+     },
+     {
+      "case": "genapp-lgdpol01",
+      "case_scenarios": 11,
+      "db2": true,
+      "det": {
+       "state": "not run",
+       "why": [
+        "a Db2 case: CI's det-sweep skips Db2 cases and no local sweep was given"
+       ]
+      },
+      "record": null,
+      "role": "linked"
+     },
+     {
+      "case": "genapp-lgicus01",
+      "case_scenarios": 5,
       "db2": true,
       "det": {
        "state": "not run",
@@ -5587,8 +6380,99 @@
       "role": "linked"
      },
      {
+      "case": "genapp-lgipol01",
+      "case_scenarios": 10,
+      "db2": true,
+      "det": {
+       "state": "not run",
+       "why": [
+        "a Db2 case: CI's det-sweep skips Db2 cases and no local sweep was given"
+       ]
+      },
+      "record": null,
+      "role": "linked"
+     },
+     {
+      "case": "genapp-lgtestp1",
+      "case_scenarios": 15,
+      "db2": true,
+      "det": {
+       "state": "not run",
+       "why": [
+        "a Db2 case: CI's det-sweep skips Db2 cases and no local sweep was given"
+       ]
+      },
+      "record": null,
+      "role": "linked"
+     },
+     {
+      "case": "genapp-lgtestp2",
+      "case_scenarios": 15,
+      "db2": true,
+      "det": {
+       "state": "not run",
+       "why": [
+        "a Db2 case: CI's det-sweep skips Db2 cases and no local sweep was given"
+       ]
+      },
+      "record": null,
+      "role": "linked"
+     },
+     {
+      "case": "genapp-lgtestp3",
+      "case_scenarios": 15,
+      "db2": true,
+      "det": {
+       "state": "not run",
+       "why": [
+        "a Db2 case: CI's det-sweep skips Db2 cases and no local sweep was given"
+       ]
+      },
+      "record": null,
+      "role": "linked"
+     },
+     {
+      "case": "genapp-lgtestp4",
+      "case_scenarios": 16,
+      "db2": true,
+      "det": {
+       "state": "not run",
+       "why": [
+        "a Db2 case: CI's det-sweep skips Db2 cases and no local sweep was given"
+       ]
+      },
+      "record": null,
+      "role": "linked"
+     },
+     {
       "case": "genapp-lgucdb01",
       "case_scenarios": 6,
+      "db2": true,
+      "det": {
+       "state": "not run",
+       "why": [
+        "a Db2 case: CI's det-sweep skips Db2 cases and no local sweep was given"
+       ]
+      },
+      "record": null,
+      "role": "linked"
+     },
+     {
+      "case": "genapp-lgucus01",
+      "case_scenarios": 5,
+      "db2": true,
+      "det": {
+       "state": "not run",
+       "why": [
+        "a Db2 case: CI's det-sweep skips Db2 cases and no local sweep was given"
+       ]
+      },
+      "record": null,
+      "role": "linked"
+     },
+     {
+      "case": "genapp-lgupol01",
+      "case_scenarios": 10,
       "db2": true,
       "det": {
        "state": "not run",
@@ -6027,15 +6911,41 @@
     "uncovered_paragraphs": "not recorded"
    },
    "equivalence": {
-    "cases": [],
-    "chosen": null
+    "cases": [
+     {
+      "case": "genapp-lgtestp1",
+      "case_scenarios": 15,
+      "db2": true,
+      "det": {
+       "state": "not run",
+       "why": [
+        "a Db2 case: CI's det-sweep skips Db2 cases and no local sweep was given"
+       ]
+      },
+      "record": null,
+      "role": "program"
+     }
+    ],
+    "chosen": {
+     "case": "genapp-lgtestp1",
+     "case_scenarios": 15,
+     "db2": true,
+     "det": {
+      "state": "not run",
+      "why": [
+       "a Db2 case: CI's det-sweep skips Db2 cases and no local sweep was given"
+      ]
+     },
+     "record": null,
+     "role": "program"
+    }
    },
    "level": "L1",
    "mutation": {
     "det_port": "not yet measured (#4628)"
    },
    "next": [
-    "an equivalence case that runs it"
+    "its det port equal on every scenario of genapp-lgtestp1: a Db2 case: CI's det-sweep skips Db2 cases and no local sweep was given"
    ],
    "oracle_backing": [
     {
@@ -6450,15 +7360,41 @@
     "uncovered_paragraphs": "not recorded"
    },
    "equivalence": {
-    "cases": [],
-    "chosen": null
+    "cases": [
+     {
+      "case": "genapp-lgtestp2",
+      "case_scenarios": 15,
+      "db2": true,
+      "det": {
+       "state": "not run",
+       "why": [
+        "a Db2 case: CI's det-sweep skips Db2 cases and no local sweep was given"
+       ]
+      },
+      "record": null,
+      "role": "program"
+     }
+    ],
+    "chosen": {
+     "case": "genapp-lgtestp2",
+     "case_scenarios": 15,
+     "db2": true,
+     "det": {
+      "state": "not run",
+      "why": [
+       "a Db2 case: CI's det-sweep skips Db2 cases and no local sweep was given"
+      ]
+     },
+     "record": null,
+     "role": "program"
+    }
    },
    "level": "L1",
    "mutation": {
     "det_port": "not yet measured (#4628)"
    },
    "next": [
-    "an equivalence case that runs it"
+    "its det port equal on every scenario of genapp-lgtestp2: a Db2 case: CI's det-sweep skips Db2 cases and no local sweep was given"
    ],
    "oracle_backing": [
     {
@@ -6873,15 +7809,41 @@
     "uncovered_paragraphs": "not recorded"
    },
    "equivalence": {
-    "cases": [],
-    "chosen": null
+    "cases": [
+     {
+      "case": "genapp-lgtestp3",
+      "case_scenarios": 15,
+      "db2": true,
+      "det": {
+       "state": "not run",
+       "why": [
+        "a Db2 case: CI's det-sweep skips Db2 cases and no local sweep was given"
+       ]
+      },
+      "record": null,
+      "role": "program"
+     }
+    ],
+    "chosen": {
+     "case": "genapp-lgtestp3",
+     "case_scenarios": 15,
+     "db2": true,
+     "det": {
+      "state": "not run",
+      "why": [
+       "a Db2 case: CI's det-sweep skips Db2 cases and no local sweep was given"
+      ]
+     },
+     "record": null,
+     "role": "program"
+    }
    },
    "level": "L1",
    "mutation": {
     "det_port": "not yet measured (#4628)"
    },
    "next": [
-    "an equivalence case that runs it"
+    "its det port equal on every scenario of genapp-lgtestp3: a Db2 case: CI's det-sweep skips Db2 cases and no local sweep was given"
    ],
    "oracle_backing": [
     {
@@ -7296,15 +8258,41 @@
     "uncovered_paragraphs": "not recorded"
    },
    "equivalence": {
-    "cases": [],
-    "chosen": null
+    "cases": [
+     {
+      "case": "genapp-lgtestp4",
+      "case_scenarios": 16,
+      "db2": true,
+      "det": {
+       "state": "not run",
+       "why": [
+        "a Db2 case: CI's det-sweep skips Db2 cases and no local sweep was given"
+       ]
+      },
+      "record": null,
+      "role": "program"
+     }
+    ],
+    "chosen": {
+     "case": "genapp-lgtestp4",
+     "case_scenarios": 16,
+     "db2": true,
+     "det": {
+      "state": "not run",
+      "why": [
+       "a Db2 case: CI's det-sweep skips Db2 cases and no local sweep was given"
+      ]
+     },
+     "record": null,
+     "role": "program"
+    }
    },
    "level": "L1",
    "mutation": {
     "det_port": "not yet measured (#4628)"
    },
    "next": [
-    "an equivalence case that runs it"
+    "its det port equal on every scenario of genapp-lgtestp4: a Db2 case: CI's det-sweep skips Db2 cases and no local sweep was given"
    ],
    "oracle_backing": [
     {
@@ -7715,6 +8703,19 @@
       },
       "record": null,
       "role": "program"
+     },
+     {
+      "case": "genapp-lgucus01",
+      "case_scenarios": 5,
+      "db2": true,
+      "det": {
+       "state": "not run",
+       "why": [
+        "a Db2 case: CI's det-sweep skips Db2 cases and no local sweep was given"
+       ]
+      },
+      "record": null,
+      "role": "linked"
      }
     ],
     "chosen": {
@@ -7949,15 +8950,41 @@
     "uncovered_paragraphs": "not recorded"
    },
    "equivalence": {
-    "cases": [],
-    "chosen": null
+    "cases": [
+     {
+      "case": "genapp-lgucus01",
+      "case_scenarios": 5,
+      "db2": true,
+      "det": {
+       "state": "not run",
+       "why": [
+        "a Db2 case: CI's det-sweep skips Db2 cases and no local sweep was given"
+       ]
+      },
+      "record": null,
+      "role": "program"
+     }
+    ],
+    "chosen": {
+     "case": "genapp-lgucus01",
+     "case_scenarios": 5,
+     "db2": true,
+     "det": {
+      "state": "not run",
+      "why": [
+       "a Db2 case: CI's det-sweep skips Db2 cases and no local sweep was given"
+      ]
+     },
+     "record": null,
+     "role": "program"
+    }
    },
    "level": "L1",
    "mutation": {
     "det_port": "not yet measured (#4628)"
    },
    "next": [
-    "an equivalence case that runs it"
+    "its det port equal on every scenario of genapp-lgucus01: a Db2 case: CI's det-sweep skips Db2 cases and no local sweep was given"
    ],
    "oracle_backing": [
     {
@@ -8179,6 +9206,58 @@
    "equivalence": {
     "cases": [
      {
+      "case": "genapp-lgtestp1",
+      "case_scenarios": 15,
+      "db2": true,
+      "det": {
+       "state": "not run",
+       "why": [
+        "a Db2 case: CI's det-sweep skips Db2 cases and no local sweep was given"
+       ]
+      },
+      "record": null,
+      "role": "linked"
+     },
+     {
+      "case": "genapp-lgtestp2",
+      "case_scenarios": 15,
+      "db2": true,
+      "det": {
+       "state": "not run",
+       "why": [
+        "a Db2 case: CI's det-sweep skips Db2 cases and no local sweep was given"
+       ]
+      },
+      "record": null,
+      "role": "linked"
+     },
+     {
+      "case": "genapp-lgtestp3",
+      "case_scenarios": 15,
+      "db2": true,
+      "det": {
+       "state": "not run",
+       "why": [
+        "a Db2 case: CI's det-sweep skips Db2 cases and no local sweep was given"
+       ]
+      },
+      "record": null,
+      "role": "linked"
+     },
+     {
+      "case": "genapp-lgtestp4",
+      "case_scenarios": 16,
+      "db2": true,
+      "det": {
+       "state": "not run",
+       "why": [
+        "a Db2 case: CI's det-sweep skips Db2 cases and no local sweep was given"
+       ]
+      },
+      "record": null,
+      "role": "linked"
+     },
+     {
       "case": "genapp-lgupdb01",
       "case_scenarios": 5,
       "db2": true,
@@ -8245,6 +9324,19 @@
        "verdict": "all equal"
       },
       "role": "program"
+     },
+     {
+      "case": "genapp-lgupol01",
+      "case_scenarios": 10,
+      "db2": true,
+      "det": {
+       "state": "not run",
+       "why": [
+        "a Db2 case: CI's det-sweep skips Db2 cases and no local sweep was given"
+       ]
+      },
+      "record": null,
+      "role": "linked"
      }
     ],
     "chosen": {
@@ -8545,15 +9637,93 @@
     "uncovered_paragraphs": "not recorded"
    },
    "equivalence": {
-    "cases": [],
-    "chosen": null
+    "cases": [
+     {
+      "case": "genapp-lgtestp1",
+      "case_scenarios": 15,
+      "db2": true,
+      "det": {
+       "state": "not run",
+       "why": [
+        "a Db2 case: CI's det-sweep skips Db2 cases and no local sweep was given"
+       ]
+      },
+      "record": null,
+      "role": "linked"
+     },
+     {
+      "case": "genapp-lgtestp2",
+      "case_scenarios": 15,
+      "db2": true,
+      "det": {
+       "state": "not run",
+       "why": [
+        "a Db2 case: CI's det-sweep skips Db2 cases and no local sweep was given"
+       ]
+      },
+      "record": null,
+      "role": "linked"
+     },
+     {
+      "case": "genapp-lgtestp3",
+      "case_scenarios": 15,
+      "db2": true,
+      "det": {
+       "state": "not run",
+       "why": [
+        "a Db2 case: CI's det-sweep skips Db2 cases and no local sweep was given"
+       ]
+      },
+      "record": null,
+      "role": "linked"
+     },
+     {
+      "case": "genapp-lgtestp4",
+      "case_scenarios": 16,
+      "db2": true,
+      "det": {
+       "state": "not run",
+       "why": [
+        "a Db2 case: CI's det-sweep skips Db2 cases and no local sweep was given"
+       ]
+      },
+      "record": null,
+      "role": "linked"
+     },
+     {
+      "case": "genapp-lgupol01",
+      "case_scenarios": 10,
+      "db2": true,
+      "det": {
+       "state": "not run",
+       "why": [
+        "a Db2 case: CI's det-sweep skips Db2 cases and no local sweep was given"
+       ]
+      },
+      "record": null,
+      "role": "program"
+     }
+    ],
+    "chosen": {
+     "case": "genapp-lgupol01",
+     "case_scenarios": 10,
+     "db2": true,
+     "det": {
+      "state": "not run",
+      "why": [
+       "a Db2 case: CI's det-sweep skips Db2 cases and no local sweep was given"
+      ]
+     },
+     "record": null,
+     "role": "program"
+    }
    },
    "level": "L1",
    "mutation": {
     "det_port": "not yet measured (#4628)"
    },
    "next": [
-    "an equivalence case that runs it"
+    "its det port equal on every scenario of genapp-lgupol01: a Db2 case: CI's det-sweep skips Db2 cases and no local sweep was given"
    ],
    "oracle_backing": [
     {
@@ -11196,7 +12366,7 @@
    "python tests/tools/cics_census.py survey --baseline --sha 3bcbb8c62397b338307563c40618297d54c38100",
    "python tests/tools/evidence_report.py cics-genapp --baseline --sha 3bcbb8c62397b338307563c40618297d54c38100",
    "python tests/tools/evidence_report.py --refresh",
-   "python tests/tools/proof_sweep.py --det-only --work DIR --cases genapp-lgacdb01,genapp-lgacdb02,genapp-lgacvs01,genapp-lgapdb01,genapp-lgapvs01,genapp-lgdpdb01,genapp-lgdpvs01,genapp-lgicdb01,genapp-lgicvs01,genapp-lgipdb01,genapp-lgucdb01,genapp-lgucvs01,genapp-lgupdb01,genapp-lgupvs01  # Db2 cases (8) need the Db2 container",
+   "python tests/tools/proof_sweep.py --det-only --work DIR --cases genapp-lgacdb01,genapp-lgacdb02,genapp-lgacus01,genapp-lgacvs01,genapp-lgapdb01,genapp-lgapol01,genapp-lgapvs01,genapp-lgdpdb01,genapp-lgdpol01,genapp-lgdpvs01,genapp-lgicdb01,genapp-lgicus01,genapp-lgicvs01,genapp-lgipdb01,genapp-lgipol01,genapp-lgtestp1,genapp-lgtestp2,genapp-lgtestp3,genapp-lgtestp4,genapp-lgucdb01,genapp-lgucus01,genapp-lgucvs01,genapp-lgupdb01,genapp-lgupol01,genapp-lgupvs01  # Db2 cases (19) need the Db2 container",
    "python tests/tools/evidence.py prove genapp-lgapvs01 genapp-lgicdb01 genapp-lgupdb01",
    "python tests/tools/cics_crucible.py  # the hand-traced CICS cases, at the crucible pin"
   ],
@@ -11240,7 +12410,7 @@
   "refused_whole": 0,
   "source_unread": 0,
   "translated_whole": 25,
-  "with_case": 15,
+  "with_case": 26,
   "with_record": 3
  }
 }

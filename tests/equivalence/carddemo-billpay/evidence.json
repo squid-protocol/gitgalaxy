@@ -43,7 +43,7 @@
     "tests/tools/java_target_matrix.py"
    ],
    "files": 11,
-   "sha256": "c5c379d7cb8fe38a58d6c3fbae4ff1ea0c79193b0505597361c1c64802ab3e19"
+   "sha256": "833852c405f1124941a70f6ca7bfb800303a924ea51ad1551ac1bced595158ec"
   },
   "oracle": {
    "paths": [
@@ -56,14 +56,14 @@
     "tests/tools/equivalence_sql.py"
    ],
    "files": 17,
-   "sha256": "3242708f13ca2c63a9276df4896d082df55c1b30c1042de17b970d9ad7eebdc3"
+   "sha256": "34e4374b3f771d8a11ed9471e6ec942784f1f5435a723bdd080f8567eda4171c"
   },
   "generator": {
    "paths": [
     "gitgalaxy/tools/cobol_to_java/**"
    ],
    "files": 63,
-   "sha256": "c8e38b07895e499aa616ebe95ceead1da5f2a78c54e0340a92d7b6334919e7e9"
+   "sha256": "230a1fae847df80590348b6152cbd9865f5bd8ed12751f2a523821032136c5f8"
   },
   "corpus": {
    "name": "aws-mainframe-modernization-carddemo",
@@ -73,10 +73,10 @@
   "differences": {
    "sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
   },
-  "digest": "7fd2953f0633e09a708331c0ee0a841af1e7f5caeb5fabe0985bf508969c78e2"
+  "digest": "ad11e101090024cc655c764a183fc0389eee0d598def263ec64c37f0494adcfc"
  },
  "proof": {
-  "at": "2026-10-08T02:53:21Z",
+  "at": "2026-10-08T16:43:20Z",
   "verdict": "proven",
   "runs": 25,
   "fault_runs": 10,
@@ -197,8 +197,8 @@
    "failed": [],
    "error": null
   },
-  "harness_commit": "5a15fab86db1b871a40829c4d6df17e1b655fae1",
-  "inputs_digest": "7fd2953f0633e09a708331c0ee0a841af1e7f5caeb5fabe0985bf508969c78e2"
+  "harness_commit": "633d626fa1beec8ce75621654b4450923ff7c36f+uncommitted",
+  "inputs_digest": "ad11e101090024cc655c764a183fc0389eee0d598def263ec64c37f0494adcfc"
  },
  "coverage": {
   "paragraphs": {
@@ -228,7 +228,7 @@
    "total": 0
   },
   "source": "the proof's own traced COBOL runs (cobol_coverage.py)",
-  "inputs_digest": "7fd2953f0633e09a708331c0ee0a841af1e7f5caeb5fabe0985bf508969c78e2"
+  "inputs_digest": "ad11e101090024cc655c764a183fc0389eee0d598def263ec64c37f0494adcfc"
  },
  "reach": {
   "entry_points": [
@@ -309,7 +309,7 @@
    },
    {
     "path": "tests/equivalence/db2/ggsql.c",
-    "sha256": "a42be2e7fa475ba5ed70209d64f78dae9ef9fe611c72e3edc2f1d1e594d29405"
+    "sha256": "979c4f9918aefe0aa8d89750137e9dd454bae3884e43b43cedc471a9bc56fb5b"
    },
    {
     "path": "tests/equivalence/db2/ggsqlrun.c",

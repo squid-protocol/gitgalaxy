@@ -606,8 +606,10 @@ class Cics:
             raise CicsError(f"no generated DTO for COMMAREA {area.name}")
         return self.codec(cls)
 
-    def commarea_out(self, opts: dict, program: str | None = None) -> tuple[str, str]:
-        """(the DTO expression, the LENGTH expression or 'null') of a COMMAREA option."""
+    def commarea_out(self, opts: dict, program: str | None = None, xctl: bool = False) -> tuple[str, str]:
+        """(the DTO expression, the LENGTH expression or 'null') of a COMMAREA option. An XCTL's LENGTH past the DTO
+        passes the bytes (#4501); a RETURN's stays the DTO (CardDemo's 2000-byte WS-COMMAREA over 172-byte DTOs, whose
+        next task reads the DTO's fields)."""
         r = self.ref(opts["COMMAREA"])
         size = self.size(opts["COMMAREA"])
         cls = self.dto_for(r, size, program)
@@ -615,6 +617,12 @@ class Cics:
             f = self.g.field_expr(r)
         dto = f"out_{cls}({f}.storage(), {f}.offset())"
         length = self.int_(opts["LENGTH"]) if opts.get("LENGTH") else "null"
+        if xctl and length != "null":
+            # #4501: a LENGTH past the DTO passes that many bytes (DetCics.commareaOut), which the DTO cannot hold
+            size = self.gp.dto(cls).size
+            known = self.constant_int(opts["LENGTH"])
+            if known is None or known > size:
+                dto = f"DetCics.commareaOut({dto}, {f}, {length}, {size}, CS)"
         return dto, length
 
     # -- files
@@ -753,13 +761,13 @@ class Cics:
                     raise CicsError(_msg("XCTL", "at_most_one", "CHANNEL"))
                 call = f"task.xctlChannel({prog}, {self.name(_arg(opts['CHANNEL']))})"
             elif "COMMAREA" in opts:
-                dto, length = self.commarea_out(opts, prog_lit)
+                dto, length = self.commarea_out(opts, prog_lit, xctl=True)
                 call = f"task.xctl({prog}, {dto}, {length})" if length != "null" else f"task.xctl({prog}, {dto})"
             else:
                 call = f"task.xctl({prog}, null)"
             r = g.tmpname("xr")
             return ([f"{ind}String {r} = {call};", f"{ind}if (\"NORMAL\".equals({r})) throw new Goback();",
-                    *self.outcome(opts, f"DetCics.resp({r})", "0", ind)])  # fmt: skip
+                    *self.outcome(opts, f"DetCics.resp({r})", f"DetCics.xctlResp2({r})", ind)])  # fmt: skip
         if verb in ("READ", "READNEXT", "READPREV"):
             return self.read(verb, opts, ind)
         if verb in ("WRITE", "REWRITE", "DELETE", "STARTBR", "ENDBR"):

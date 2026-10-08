@@ -2,6 +2,10 @@
  "format": "det-sweep-baseline/1",
  "about": "#4463: the det ports `proof_sweep.py --det-only` does not prove, each with the issue that owns it. A two-way ratchet: CI fails on a port not listed here that is not proven, and on a listed port that is now proven. When a fix lands, run `python tests/tools/proof_sweep.py --det-only --skip-db2 --work DIR --update-baseline` and commit the shortened file; a new entry is only ever added by hand, with its true cause.",
  "det": {
+  "carddemo-billpay": {
+   "issue": "#4657",
+   "why": "the det runtime's STARTBR NOTFND leaves EIBRESP2 0 where the stub gives 3; COBIL00C DISPLAYs it (the proof compares a task's DISPLAY output since #4635)"
+  },
   "carddemo-cardupdate": {
    "issue": "#4085",
    "why": "COCRDUPC writes blanks into a PIC 9(3) CVV a typed DTO field cannot hold"

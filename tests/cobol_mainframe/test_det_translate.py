@@ -1463,6 +1463,39 @@ def test_a_parse_error_outside_the_procedure_node_refuses_the_program(body):
         _proc(body)
 
 
+@pytest.mark.parametrize(
+    "cond",
+    [
+        ["    IF A NOT", "        = 'B'"],  # #4674: NOT at the end of a line, its operator on the next
+        ["    IF A NOT", "        EQUAL TO 'B'"],
+        ["    IF A", "        NOT", "        = 'B'"],
+        ["    IF A = 'B' OR NOT", "        < 'C'"],
+        ["    IF A = 'B' AND", "        NOT < 'C'"],  # an AND at a line end, the NOT (and operator) after it
+        ["    IF A = 'B' AND", "        NOT", "        < 'C'"],
+        ["    IF NOT", "        A = 'B'"],
+        ["    IF (ZERO + 3) / 12 NOT > 1"],  # #4656: ZERO is a number inside arithmetic, not a class word
+        ["    IF (ZERO / 12) * 2 > 1"],
+        ["    IF (3 + ZERO) > 1"],
+    ],
+)
+def test_a_relation_split_across_lines_or_with_zero_in_arithmetic_parses(cond):
+    pytest.importorskip("tree_sitter_language_pack")
+    proc = _proc([*cond, "        DISPLAY 'Y'", "    END-IF.", "    DISPLAY 'AFTER'.", "    GOBACK."])
+    stmts = [s for p in proc.paragraphs for s in S.walk(p.body)]
+    cond_ = stmts[0].data["cond"]
+    assert stmts[0].kind == "IF" and not (isinstance(cond_, tuple) and cond_[0] == "UNPARSED"), cond_
+    assert [s.kind for s in stmts if s.kind != "IF"] == ["DISPLAY", "DISPLAY", "GOBACK"]
+    # the break moved with the NOT, not the statements: AFTER keeps its own line (head is 7 lines, then cond)
+    assert stmts[-2].line == 7 + len(cond) + 3
+
+
+def test_a_when_with_zero_in_arithmetic_is_a_condition():
+    pytest.importorskip("tree_sitter_language_pack")
+    proc = _proc(["    EVALUATE TRUE", "        WHEN 1 + ZERO > 0 DISPLAY 'Y'", "    END-EVALUATE.", "    GOBACK."])
+    ev = next(s for p in proc.paragraphs for s in S.walk(p.body) if s.kind == "EVALUATE")
+    assert ev.whens[0][0][0][0][0] == "COND", ev.whens
+
+
 def test_a_parse_error_inside_a_statement_is_a_hole():
     pytest.importorskip("tree_sitter_language_pack")
     proc = _proc(["    MOVE ALL TO A.", "    IF (A = 1 CONTINUE END-IF.", "    GOBACK."])
@@ -2016,3 +2049,65 @@ def test_a_commarea_of_a_stated_length_is_all_dfhcommarea_holds(tmp_path):
     assert 'throw new DetCics.PastFrom("COMMAREA past EIBCALEN (" + calen + " bytes): not modelled");' in run
     assert "} finally { if (caWhole != null) { caWhole(caWhole); } }" in run
     assert "private void caWhole(byte[] whole) {" in r.java
+
+
+# ---- #4501: an XCTL COMMAREA whose LENGTH is past the target's DTO ----------------------------------------
+class _OverCics(_ChanCics):
+    """A target whose DTO is 80 bytes; WS-BIGLEN a never-written COMP-5 VALUE 32767, WS-N a data item the program sets."""
+
+    SIZES = {**_ChanCics.SIZES, "WS-BIG": 32767, "WS-V1": 10}
+
+    def __init__(self):
+        super().__init__()
+        self.gp.dto = lambda cls: type("D", (), {"size": 80})()  # the 80-byte DTO, on the inherited generated stub
+        self.dto_for = lambda area, size, program=None: "Dto"
+        self.codec = lambda cls: cls
+        self.g.reading = lambda: __import__("contextlib").nullcontext()
+        self.g.field_expr = lambda ref: f"f_{ref.name}"
+        self.constant_int = lambda t: {"WS-BIGLEN": 32767, "80": 80, "10": 10}.get(t.strip())
+
+
+def test_xctl_commarea_length_past_the_dto_passes_that_many_bytes():
+    """IBM, EXEC CICS XCTL: LENGTH is the COMMAREA's length and the target's EIBCALEN is that length; ca-xctl-versions
+    CAXA passes LENGTH(WS-BIGLEN)=32767 over a PIC X(32767) the 80-byte DTO cannot hold. The bytes travel
+    (DetCics.commareaOut); a length within the DTO, known at translation, keeps the plain DTO. RESP2 follows the
+    condition (LENGERR 11, PGMIDERR 1)."""
+    c = _OverCics()
+    out = c.command("XCTL PROGRAM('XB') COMMAREA(WS-BIG) LENGTH(WS-BIGLEN) RESP(R) RESP2(R2)", "")
+    assert out[0] == (
+        "String xr1 = task.xctl('XB'.strip(), DetCics.commareaOut(out_Dto(f_WS-BIG.storage(), "
+        "f_WS-BIG.offset()), f_WS-BIG, INT(WS-BIGLEN), 80, CS), INT(WS-BIGLEN));"
+    )
+    assert any("DetCics.xctlResp2(xr1)" in x for x in out)
+    within = c.command("XCTL PROGRAM('XB') COMMAREA(WS-V1) LENGTH(80)", "")
+    assert "commareaOut" not in within[0] and within[0].endswith(", INT(80));")
+    unknown = c.command("XCTL PROGRAM('XB') COMMAREA(WS-V1) LENGTH(WS-N)", "")
+    assert "commareaOut" in unknown[0]  # a length only known at run time is decided there
+    ret = c.command("RETURN TRANSID('TRN1') COMMAREA(WS-BIG) LENGTH(WS-BIGLEN)", "")
+    assert not any("commareaOut" in x for x in ret)  # a RETURN keeps its DTO (CardDemo: 2000 bytes over 172)
+
+
+def test_an_integer_literal_against_an_alphanumeric_item_keeps_its_leading_zeros(tmp_path):
+    """#4270 (GenApp LGTESTP4: `ENP4CNOO Not = 0000000000` on a map field of ten digits): compared with an
+    alphanumeric item, an integer literal is the nonnumeric literal of its digits as written (IBM, "Comparison of
+    numeric and alphanumeric operands"). As a value it is 0, whose text "0" made '0000000000' unequal to it."""
+    pytest.importorskip("tree_sitter_language_pack")
+    from gitgalaxy.tools.cobol_to_java.det import program as P
+
+    (tmp_path / "T5.cbl").write_text(
+        "       IDENTIFICATION DIVISION.\n       PROGRAM-ID. T5.\n       DATA DIVISION.\n"
+        "       WORKING-STORAGE SECTION.\n       01  REC.\n           05  WS-A              PIC X(10).\n"
+        "           05  WS-B              PIC X(2).\n       01  WS-N                  PIC 9(3) VALUE 7.\n"
+        "       PROCEDURE DIVISION.\n       MAIN-PARA.\n           MOVE SPACES TO REC\n"
+        "           IF WS-A NOT = 0000000000 AND WS-A NOT = 0\n               MOVE 'Y' TO WS-B\n           END-IF\n"
+        "           IF WS-N = 007\n               MOVE 'N' TO WS-B\n           END-IF\n"
+        "           EXEC CICS RETURN END-EXEC.\n",
+        encoding="utf-8",
+    )
+    (tmp_path / "proj/src/main/java/com/x").mkdir(parents=True)
+    stub = "package com.x.service;\nimport com.x.cics.CicsTask;\npublic class T5Service {\n" \
+           "    public void runTask(CicsTask task) {}\n}\n"  # fmt: skip
+    r = P.translate(tmp_path / "T5.cbl", [], stub, "com.x", {}, tmp_path / "proj")
+    assert r.stats["holes"] == []
+    assert '_WS_A, "0000000000", CS) == 0' in r.java and '_WS_A, "0", CS) == 0' in r.java
+    assert '"007"' not in r.java  # a numeric item against it: by value, as before

@@ -2886,7 +2886,8 @@ def java_commarea(value: Any, shape: dict[str, Any], ca_fields: list[dict[str, A
     """A Java event's COMMAREA by COBOL field names: a DTO's JSON through its shape (from_java) -- or, #4679, a
     byte[] (Jackson writes it base64): the LENGTH bytes a RETURN / XCTL with a LENGTH past the DTO passed
     (DetCics.commareaOut), in the region's code page (CCSID 037). Those are read as the COBOL side's are: in the case's
-    data page, by the case's COMMAREA layout (decode_record), so bytes past the layout are not compared on either side."""
+    data page, by the case's COMMAREA layout (decode_record), so bytes past the layout are not compared on either side --
+    and, as the COBOL side's RETURN area is since #4635, `exact`: LOW-VALUES kept apart from spaces."""
     if isinstance(value, str):
         import base64
 
@@ -2897,7 +2898,7 @@ def java_commarea(value: Any, shape: dict[str, Any], ca_fields: list[dict[str, A
             raise Unsupported(
                 'a COMMAREA passed as bytes, in a case that describes none ("commarea": null)', ["COMMAREA"]
             )
-        return decode_record(data, ca_fields, enc)
+        return decode_record(data, ca_fields, enc, exact=True)
     return from_java(value, shape)
 
 

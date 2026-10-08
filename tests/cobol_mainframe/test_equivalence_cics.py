@@ -1254,8 +1254,11 @@ def test_a_java_commarea_passed_as_bytes_is_read_by_the_case_layout():
               {"name": "CA-N", "offset": 4, "bytes": 3, "pic": "9(3)", "usage": "DISPLAY"}]  # fmt: skip
     raw = ("ABCD042" + "Z" * 1993).encode("cp037")
     got = ec.java_commarea(base64.b64encode(raw).decode("ascii"), {}, fields, "latin-1")
-    assert got == ec.decode_record(raw.decode("cp037").encode("latin-1"), fields, "latin-1")
+    assert got == ec.decode_record(raw.decode("cp037").encode("latin-1"), fields, "latin-1", exact=True)
     assert ec._same(got["CA-ID"], "ABCD") and ec._same(got["CA-N"], 42)
+    # #4635: LOW-VALUES the task left stay LOW-VALUES, as on the COBOL side (CardDemo COCRDLIC's cleared rows)
+    low = ec.java_commarea(base64.b64encode(b"\x00" * 7).decode("ascii"), {}, fields, "latin-1")
+    assert low["CA-ID"] == "\x00" * 4 and not ec._same_commarea(low["CA-ID"], "")
     assert ec.java_commarea({"caId": "WXYZ"}, {"caId": "CA-ID"}, fields, "latin-1") == {"CA-ID": "WXYZ"}
     with pytest.raises(ec.Unsupported):
         ec.java_commarea(base64.b64encode(raw).decode("ascii"), {}, [], "latin-1")

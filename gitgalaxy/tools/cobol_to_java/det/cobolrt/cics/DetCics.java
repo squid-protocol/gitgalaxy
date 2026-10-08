@@ -219,6 +219,35 @@ public final class DetCics {
         return bytes(f, n);
     }
 
+    /** #4501: an XCTL COMMAREA(area) LENGTH(n) with n past the target's DTO (`size` bytes). IBM passes n bytes
+     *  from the area's first byte (EXEC CICS XCTL: LENGTH is the COMMAREA's length; the receiver sees EIBCALEN = n),
+     *  and a receiver addresses them although its DFHCOMMAREA does not define them. The DTO cannot carry them, so
+     *  they travel as the bytes: the area's storage from its first byte, up to its record's end, then LOW-VALUES
+     *  (the storage that follows the record is not laid out by this port: oracle_assumptions.md X10). A length within
+     *  the DTO keeps the DTO (`dto`). The bytes are the region's EBCDIC (cp037), as every COMMAREA a task carries
+     *  is (the harness reads a byte[] so); commareaIn undoes it. Text round-trips; other bytes only where `cs`
+     *  maps them to the same cp037 byte back (LOW-VALUES and SPACES do). */
+    public static Object commareaOut(Object dto, Field f, Integer length, int size, Charset cs) {
+        if (length == null || length <= size) {
+            return dto;
+        }
+        byte[] out = new byte[length];
+        int n = Math.min(length, Math.max(0, f.storage().bytes.length - f.offset()));
+        System.arraycopy(f.storage().bytes, f.offset(), out, 0, n);
+        return new String(out, cs).getBytes(EBCDIC);
+    }
+
+    /** #4501: EIBRESP2 / RESP2 after a failed XCTL, which CicsTask.xctl gives as its condition only: LENGERR is
+     *  RESP2 11 (LENGTH outside 0-32763), PGMIDERR RESP2 1 (IBM, EXEC CICS XCTL conditions). */
+    public static int xctlResp2(String resp) {
+        return "LENGERR".equals(resp) ? 11 : "PGMIDERR".equals(resp) ? 1 : 0;
+    }
+
+    /** #4501: the bytes of a COMMAREA commareaOut passed, in the receiving program's storage charset. */
+    public static byte[] commareaIn(byte[] ebcdic, Charset cs) {
+        return new String(ebcdic, EBCDIC).getBytes(cs);
+    }
+
     /** Bytes into a field's area, at most its length (a record READ INTO it; the rest is left as it was). */
     /** #4270: PUT CONTAINER FROM(f) FLENGTH(n): the first n bytes of the area, none below zero (CicsTask answers
      *  LENGERR RESP2 1). FLENGTH past FROM's end reads the bytes that follow the item in storage, which GnuCOBOL

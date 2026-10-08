@@ -714,17 +714,33 @@ class Cics:
             g = self.g
             r, ca = g.tmpname("lr"), g.tmpname("ca")
             out: list[str] = []
+            cls: str | None = None
             if "CHANNEL" in opts:  # #4270: the callee's current channel (CicsTask.linkChannel)
                 if "COMMAREA" in opts or "LENGTH" in opts:
                     raise CicsError(_msg("LINK", "at_most_one", "CHANNEL"))
                 out.append(f"{ind}String {r} = task.linkChannel({prog}, {self.name(_arg(opts['CHANNEL']))});")
             elif "COMMAREA" in opts:
                 area = self.ref(_arg(opts["COMMAREA"]))
-                cls = self.dto_for(area, self.size(_arg(opts["COMMAREA"])), prog_lit)
+                try:
+                    cls = self.dto_for(area, self.size(_arg(opts["COMMAREA"])), prog_lit)
+                except CicsError as e:
+                    if "no generated DTO" not in str(e):
+                        raise
+                    cls = None
                 f = g.field_expr(area)
                 length = (
                     self.int_(_arg(opts["LENGTH"])) if opts.get("LENGTH") else str(self.size(_arg(opts["COMMAREA"])))
                 )
+            else:
+                out.append(f"{ind}String {r} = task.link({prog});")
+            if "COMMAREA" in opts and cls is None:
+                # #4679: no DTO types the target (cics-crucible ca-link-lengths: CAGONE, which no CSD defines -- the LINK
+                # is PGMIDERR RESP2 1): the COMMAREA travels as its LENGTH bytes, by reference, as an XCTL's past its DTO
+                w = g.tmpname("cw")
+                out += [f"{ind}Storage {w} = Cobol.commarea({f}, Math.max(0, Math.min({length}, 32763)));",
+                        f"{ind}String {r} = task.link({prog}, DetCics.commareaBytes({w}.bytes, CS), {length}, {w}.bytes);",
+                        f"{ind}if (\"NORMAL\".equals({r})) Cobol.commareaBack({w}, {f});"]  # fmt: skip
+            elif "COMMAREA" in opts:
                 # #4181: the target's DTO over the caller's storage from the area on, never past its record's end;
                 # #4679: a LENGTH past the DTO passes that many bytes (by reference: the target's EIBCALEN is LENGTH)
                 w = g.tmpname("cw")
@@ -741,8 +757,6 @@ class Cics:
                         f"{ind}String {r} = task.link({prog}, {ca}, {length}, {w}.bytes);",
                         # what the linked program left in the COMMAREA is the caller's area now
                         f"{ind}if (\"NORMAL\".equals({r})) {{ in_{cls}({ca}, {w}, 0); Cobol.commareaBack({w}, {f}); }}"]  # fmt: skip
-            else:
-                out.append(f"{ind}String {r} = task.link({prog});")
             ex = g.tmpname("exit")
             out += [f"{ind}String {ex} = task.abendExit();",  # an abend below went to this program's exit
                     f"{ind}if ({ex} != null) {g.jump(f'paragraph({ex})')}",

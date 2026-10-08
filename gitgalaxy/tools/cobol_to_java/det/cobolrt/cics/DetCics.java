@@ -253,6 +253,12 @@ public final class DetCics {
         return xctlResp2(resp);
     }
 
+    /** #4679: a COMMAREA's bytes (in `cs`, the program's storage page) as one travels when no DTO types it: the
+     *  region's EBCDIC, as commareaOut gives them (commareaIn undoes it). */
+    public static byte[] commareaBytes(byte[] area, Charset cs) {
+        return new String(area, cs).getBytes(EBCDIC);
+    }
+
     /** #4501: the bytes of a COMMAREA commareaOut passed, in the receiving program's storage charset. */
     public static byte[] commareaIn(byte[] ebcdic, Charset cs) {
         return new String(ebcdic, EBCDIC).getBytes(cs);

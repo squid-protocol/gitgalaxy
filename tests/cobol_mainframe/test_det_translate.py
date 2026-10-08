@@ -2134,3 +2134,20 @@ public class Main {
     out = subprocess.run([str(jdk / "java"), "-cp", str(tmp_path / "classes"), "Main"], capture_output=True,  # noqa: S603
                          text=True, check=True).stdout.splitlines()  # fmt: skip
     assert out == ["ABCDEFG..", "dto", "CDEFG.", "AByD|ExG", "11 1 0"]
+
+
+def test_link_to_a_target_no_dto_types_passes_the_bytes():
+    """#4679 (cics-crucible ca-link-lengths undefined-program): CALINK LINKs CAGONE, which no CSD defines, with
+    COMMAREA(WS-CA100) LENGTH(100) RESP2: no generated DTO types it, so the COMMAREA travels as its LENGTH bytes
+    (DetCics.commareaBytes, by reference) rather than the LINK being a hole -- and its PGMIDERR is RESP2 1."""
+    c = _OverCics()
+
+    def no_dto(area, size, program=None):
+        raise C.CicsError(f"no generated DTO for COMMAREA {area.name}")
+
+    c.dto_for = no_dto
+    out = c.command("LINK PROGRAM('CAGONE') COMMAREA(WS-V1) LENGTH(100) RESP(R) RESP2(R2)", "")
+    assert out[:3] == ["Storage cw3 = Cobol.commarea(f_WS-V1, Math.max(0, Math.min(INT(100), 32763)));",
+                       "String lr1 = task.link('CAGONE'.strip(), DetCics.commareaBytes(cw3.bytes, CS), INT(100), cw3.bytes);",
+                       'if ("NORMAL".equals(lr1)) Cobol.commareaBack(cw3, f_WS-V1);']  # fmt: skip
+    assert out[-1] == "OUTCOME(DetCics.resp(lr1), DetCics.linkResp2(lr1));"

@@ -11,6 +11,9 @@ from __future__ import annotations
 from dataclasses import dataclass, field
 from decimal import Decimal
 
+from gitgalaxy.standards.cics.resp import DFHRESP
+from gitgalaxy.tools.cobol_to_java.det.cvda import CVDA
+
 
 class ExprError(Exception):
     pass
@@ -32,6 +35,8 @@ class Lit:
     """A nonnumeric literal (text) or a numeric literal (Decimal)."""
 
     value: str | Decimal | bytes
+    # a numeric literal as written (its leading zeros: cobc's literal identity, det/osvs.py); not part of its value
+    text: str | None = field(default=None, compare=False, repr=False)
     # #4270: a numeric literal's digits as written. Compared with an alphanumeric item, an integer literal is the
     # nonnumeric literal of its digits (IBM, "Comparison of numeric and alphanumeric operands"), leading zeros and all:
     # GenApp's LGTESTP4 `ENP4CNOO Not = 0000000000` -- a Decimal keeps no leading zeros.
@@ -191,10 +196,12 @@ class Parser:
             raise ExprError("NULL: pointers are not modelled")
         if _is_number(tok):
             self.i += 1
-            return Lit(Decimal(tok.replace(",", ".") if tok.count(",") == 1 and "." not in tok else tok), _digits(tok))
+            return Lit(
+                Decimal(tok.replace(",", ".") if tok.count(",") == 1 and "." not in tok else tok), tok, _digits(tok)
+            )
         if u in ("+", "-") and (nxt1 := self.peek(1)) is not None and _is_number(nxt1):
             self.i += 2
-            return Lit(Decimal(u + self.t[self.i - 1]), _digits(self.t[self.i - 1]))
+            return Lit(Decimal(u + self.t[self.i - 1]), u + self.t[self.i - 1], _digits(self.t[self.i - 1]))
         if u == "FUNCTION":
             self.i += 1
             name = self.take().upper()
@@ -222,16 +229,12 @@ class Parser:
         r = self.ref()
         if r.name == "DFHRESP" and len(r.subscripts) == 1 and isinstance(r.subscripts[0], Ref):
             # DFHRESP(condition): the condition's RESP value (IBM CICS TS)
-            from gitgalaxy.tools.cobol_to_java.det.cics import DFHRESP
-
             cond = r.subscripts[0].name
             if cond not in DFHRESP:
                 raise ExprError(f"DFHRESP({cond}) is not a documented condition")
             return Lit(Decimal(DFHRESP[cond]))
         if r.name == "DFHVALUE" and len(r.subscripts) == 1 and isinstance(r.subscripts[0], Ref):
             # DFHVALUE(name): the CVDA's numeric value (IBM CICS TS, CVDAs and numeric values)
-            from gitgalaxy.tools.cobol_to_java.det.cvda import CVDA
-
             name = r.subscripts[0].name
             if name not in CVDA:
                 raise ExprError(f"DFHVALUE({name}) is not a documented CVDA")

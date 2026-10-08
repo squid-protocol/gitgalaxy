@@ -69,7 +69,7 @@ Translation measured by `cics_census.py survey` at translator commit `3bcbb8c623
 | base/src/lgtestp1.cbl | L1 | 152/152 | 0 | genapp-lgtestp1 | not run | 15 | none | not measured | not measured | not measured | not yet measured (#4628) | 7/8 |
 | base/src/lgtestp2.cbl | L1 | 140/140 | 0 | genapp-lgtestp2 | not run | 15 | none | not measured | not measured | not measured | not yet measured (#4628) | 7/8 |
 | base/src/lgtestp3.cbl | L1 | 137/137 | 0 | genapp-lgtestp3 | not run | 15 | none | not measured | not measured | not measured | not yet measured (#4628) | 7/8 |
-| base/src/lgtestp4.cbl | L1 | 144/144 | 0 | genapp-lgtestp4 | not run | 15 | none | not measured | not measured | not measured | not yet measured (#4628) | 7/8 |
+| base/src/lgtestp4.cbl | L1 | 144/144 | 0 | genapp-lgtestp4 | not run | 16 | none | not measured | not measured | not measured | not yet measured (#4628) | 7/8 |
 | base/src/lgucdb01.cbl | L1 | 39/39 | 0 | genapp-lgucdb01 | not run | 6 | none | not measured | not measured | not measured | not yet measured (#4628) | 3/5 |
 | base/src/lgucus01.cbl | L1 | 32/32 | 0 | genapp-lgucus01 | not run | 5 | none | not measured | not measured | not measured | not yet measured (#4628) | 3/5 |
 | base/src/lgupdb01.cbl | L1 | 116/116 | 0 | genapp-lgupdb01 | not run | 5 | stale | not measured | not measured | not measured | not yet measured (#4628) | 3/6 |
@@ -128,7 +128,7 @@ Translation measured by `cics_census.py survey` at translator commit `3bcbb8c623
 - **Executed equivalence** (genapp-lgtestp3, linked, Db2): det port not run (a Db2 case: CI's det-sweep skips Db2 cases and no local sweep was given)
   - evidence record: none (15 scenarios in case.json)
 - **Executed equivalence** (genapp-lgtestp4, linked, Db2): det port not run (a Db2 case: CI's det-sweep skips Db2 cases and no local sweep was given)
-  - evidence record: none (15 scenarios in case.json)
+  - evidence record: none (16 scenarios in case.json)
 - **Coverage:** not measured
 - **Oracle backing** (a column, not a level; per CICS command; DIFFERS assumptions reached: not measured):
 
@@ -162,7 +162,7 @@ Translation measured by `cics_census.py survey` at translator commit `3bcbb8c623
 - **Executed equivalence** (genapp-lgtestp3, linked, Db2): det port not run (a Db2 case: CI's det-sweep skips Db2 cases and no local sweep was given)
   - evidence record: none (15 scenarios in case.json)
 - **Executed equivalence** (genapp-lgtestp4, linked, Db2): det port not run (a Db2 case: CI's det-sweep skips Db2 cases and no local sweep was given)
-  - evidence record: none (15 scenarios in case.json)
+  - evidence record: none (16 scenarios in case.json)
 - **Coverage:** not measured
 - **Oracle backing** (a column, not a level; per CICS command; DIFFERS assumptions reached: not measured):
 
@@ -218,7 +218,7 @@ Translation measured by `cics_census.py survey` at translator commit `3bcbb8c623
 - **Executed equivalence** (genapp-lgtestp3, linked, Db2): det port not run (a Db2 case: CI's det-sweep skips Db2 cases and no local sweep was given)
   - evidence record: none (15 scenarios in case.json)
 - **Executed equivalence** (genapp-lgtestp4, linked, Db2): det port not run (a Db2 case: CI's det-sweep skips Db2 cases and no local sweep was given)
-  - evidence record: none (15 scenarios in case.json)
+  - evidence record: none (16 scenarios in case.json)
 - **Executed equivalence** (genapp-lgupdb01, linked, Db2): det port not run (a Db2 case: CI's det-sweep skips Db2 cases and no local sweep was given)
   - evidence record (the case's committed port): stale (stale on harness, oracle, generator); its proof: all equal, 5/5 scenarios equal, 18/18 records equal, 5 runs (0 fault runs); through its deployed entry points 5/5
 - **Executed equivalence** (genapp-lgupol01, linked, Db2): det port not run (a Db2 case: CI's det-sweep skips Db2 cases and no local sweep was given)
@@ -330,7 +330,7 @@ Translation measured by `cics_census.py survey` at translator commit `3bcbb8c623
 - **Executed equivalence** (genapp-lgtestp3, linked, Db2): det port not run (a Db2 case: CI's det-sweep skips Db2 cases and no local sweep was given)
   - evidence record: none (15 scenarios in case.json)
 - **Executed equivalence** (genapp-lgtestp4, linked, Db2): det port not run (a Db2 case: CI's det-sweep skips Db2 cases and no local sweep was given)
-  - evidence record: none (15 scenarios in case.json)
+  - evidence record: none (16 scenarios in case.json)
 - **Coverage:** not measured
 - **Oracle backing** (a column, not a level; per CICS command; DIFFERS assumptions reached: not measured):
 
@@ -360,7 +360,7 @@ Translation measured by `cics_census.py survey` at translator commit `3bcbb8c623
 - **Executed equivalence** (genapp-lgtestp3, linked, Db2): det port not run (a Db2 case: CI's det-sweep skips Db2 cases and no local sweep was given)
   - evidence record: none (15 scenarios in case.json)
 - **Executed equivalence** (genapp-lgtestp4, linked, Db2): det port not run (a Db2 case: CI's det-sweep skips Db2 cases and no local sweep was given)
-  - evidence record: none (15 scenarios in case.json)
+  - evidence record: none (16 scenarios in case.json)
 - **Coverage:** not measured
 - **Oracle backing** (a column, not a level; per CICS command; DIFFERS assumptions reached: not measured):
 
@@ -392,7 +392,7 @@ Translation measured by `cics_census.py survey` at translator commit `3bcbb8c623
 - **Executed equivalence** (genapp-lgtestp3, linked, Db2): det port not run (a Db2 case: CI's det-sweep skips Db2 cases and no local sweep was given)
   - evidence record: none (15 scenarios in case.json)
 - **Executed equivalence** (genapp-lgtestp4, linked, Db2): det port not run (a Db2 case: CI's det-sweep skips Db2 cases and no local sweep was given)
-  - evidence record: none (15 scenarios in case.json)
+  - evidence record: none (16 scenarios in case.json)
 - **Coverage:** not measured
 - **Oracle backing** (a column, not a level; per CICS command; DIFFERS assumptions reached: not measured):
 
@@ -422,7 +422,7 @@ Translation measured by `cics_census.py survey` at translator commit `3bcbb8c623
 - **Executed equivalence** (genapp-lgtestp3, linked, Db2): det port not run (a Db2 case: CI's det-sweep skips Db2 cases and no local sweep was given)
   - evidence record: none (15 scenarios in case.json)
 - **Executed equivalence** (genapp-lgtestp4, linked, Db2): det port not run (a Db2 case: CI's det-sweep skips Db2 cases and no local sweep was given)
-  - evidence record: none (15 scenarios in case.json)
+  - evidence record: none (16 scenarios in case.json)
 - **Coverage:** not measured
 - **Oracle backing** (a column, not a level; per CICS command; DIFFERS assumptions reached: not measured):
 
@@ -500,7 +500,7 @@ Translation measured by `cics_census.py survey` at translator commit `3bcbb8c623
 - **Executed equivalence** (genapp-lgtestp3, linked, Db2): det port not run (a Db2 case: CI's det-sweep skips Db2 cases and no local sweep was given)
   - evidence record: none (15 scenarios in case.json)
 - **Executed equivalence** (genapp-lgtestp4, linked, Db2): det port not run (a Db2 case: CI's det-sweep skips Db2 cases and no local sweep was given)
-  - evidence record: none (15 scenarios in case.json)
+  - evidence record: none (16 scenarios in case.json)
 - **Coverage:** not measured
 - **Oracle backing** (a column, not a level; per CICS command; DIFFERS assumptions reached: not measured):
 
@@ -530,7 +530,7 @@ Translation measured by `cics_census.py survey` at translator commit `3bcbb8c623
 - **Executed equivalence** (genapp-lgtestp3, linked, Db2): det port not run (a Db2 case: CI's det-sweep skips Db2 cases and no local sweep was given)
   - evidence record: none (15 scenarios in case.json)
 - **Executed equivalence** (genapp-lgtestp4, linked, Db2): det port not run (a Db2 case: CI's det-sweep skips Db2 cases and no local sweep was given)
-  - evidence record: none (15 scenarios in case.json)
+  - evidence record: none (16 scenarios in case.json)
 - **Coverage:** not measured
 - **Oracle backing** (a column, not a level; per CICS command; DIFFERS assumptions reached: not measured):
 
@@ -576,7 +576,7 @@ Translation measured by `cics_census.py survey` at translator commit `3bcbb8c623
 - **Executed equivalence** (genapp-lgtestp3, linked, Db2): det port not run (a Db2 case: CI's det-sweep skips Db2 cases and no local sweep was given)
   - evidence record: none (15 scenarios in case.json)
 - **Executed equivalence** (genapp-lgtestp4, linked, Db2): det port not run (a Db2 case: CI's det-sweep skips Db2 cases and no local sweep was given)
-  - evidence record: none (15 scenarios in case.json)
+  - evidence record: none (16 scenarios in case.json)
 - **Executed equivalence** (genapp-lgucdb01, linked, Db2): det port not run (a Db2 case: CI's det-sweep skips Db2 cases and no local sweep was given)
   - evidence record: none (6 scenarios in case.json)
 - **Executed equivalence** (genapp-lgucus01, linked, Db2): det port not run (a Db2 case: CI's det-sweep skips Db2 cases and no local sweep was given)
@@ -677,7 +677,7 @@ Translation measured by `cics_census.py survey` at translator commit `3bcbb8c623
 - **Next level needs:** its det port equal on every scenario of genapp-lgtestp4: a Db2 case: CI's det-sweep skips Db2 cases and no local sweep was given
 - **Translation:** 144/144 statements, 0 holes; whole: yes
 - **Executed equivalence** (genapp-lgtestp4, program, Db2, the case this report judges): det port not run (a Db2 case: CI's det-sweep skips Db2 cases and no local sweep was given)
-  - evidence record: none (15 scenarios in case.json)
+  - evidence record: none (16 scenarios in case.json)
 - **Coverage:** not measured
 - **Oracle backing** (a column, not a level; per CICS command; DIFFERS assumptions reached: not measured):
 
@@ -753,7 +753,7 @@ Translation measured by `cics_census.py survey` at translator commit `3bcbb8c623
 - **Executed equivalence** (genapp-lgtestp3, linked, Db2): det port not run (a Db2 case: CI's det-sweep skips Db2 cases and no local sweep was given)
   - evidence record: none (15 scenarios in case.json)
 - **Executed equivalence** (genapp-lgtestp4, linked, Db2): det port not run (a Db2 case: CI's det-sweep skips Db2 cases and no local sweep was given)
-  - evidence record: none (15 scenarios in case.json)
+  - evidence record: none (16 scenarios in case.json)
 - **Executed equivalence** (genapp-lgupdb01, program, Db2, the case this report judges): det port not run (a Db2 case: CI's det-sweep skips Db2 cases and no local sweep was given)
   - evidence record (the case's committed port): stale (stale on harness, oracle, generator); its proof: all equal, 5/5 scenarios equal, 18/18 records equal, 5 runs (0 fault runs); through its deployed entry points 5/5
 - **Executed equivalence** (genapp-lgupol01, linked, Db2): det port not run (a Db2 case: CI's det-sweep skips Db2 cases and no local sweep was given)
@@ -786,7 +786,7 @@ Translation measured by `cics_census.py survey` at translator commit `3bcbb8c623
 - **Executed equivalence** (genapp-lgtestp3, linked, Db2): det port not run (a Db2 case: CI's det-sweep skips Db2 cases and no local sweep was given)
   - evidence record: none (15 scenarios in case.json)
 - **Executed equivalence** (genapp-lgtestp4, linked, Db2): det port not run (a Db2 case: CI's det-sweep skips Db2 cases and no local sweep was given)
-  - evidence record: none (15 scenarios in case.json)
+  - evidence record: none (16 scenarios in case.json)
 - **Executed equivalence** (genapp-lgupol01, program, Db2, the case this report judges): det port not run (a Db2 case: CI's det-sweep skips Db2 cases and no local sweep was given)
   - evidence record: none (10 scenarios in case.json)
 - **Coverage:** not measured

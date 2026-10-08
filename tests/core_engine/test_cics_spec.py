@@ -80,8 +80,11 @@ def test_the_spec_imports_only_the_stdlib():
 # harness's stub translator, PR 8a the engine walkers (lazily, inside the CICS walkers only). The status page
 # tool (tests/tools/cics_spec_status.py, #4270) only reports on the spec: docs/language_status/cics_spec_status.md.
 # The proof-level ranking (tests/tools/proof_blockers.py) reads the EIB facts a harness states (eib.EIB_FACTS).
+# The det expression translator (det/expr.py) resolves DFHRESP(name) conditions from the RESP table directly
+# (gitgalaxy.standards.cics.resp, not via det/cics.py: that import closed a cycle CodeQL flagged).
 IMPORTERS: set[str] = {
     "gitgalaxy/tools/cobol_to_java/det/cics.py",
+    "gitgalaxy/tools/cobol_to_java/det/expr.py",
     "tests/tools/equivalence_cics.py",
     "tests/tools/cics_spec_status.py",
     "tests/tools/proof_blockers.py",

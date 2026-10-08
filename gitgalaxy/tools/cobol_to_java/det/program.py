@@ -1224,14 +1224,30 @@ def _cics_parts(gen: G.Gen, records: list, roots: dict, proc: S.Procedure,
                       f"            calen = cx(task, {cx.gp.dto(cls).size});"]  # fmt: skip
         if ca_in:
             ca_in.append("        }")
+        # #4501: a COMMAREA a det caller's RETURN / XCTL passed with a LENGTH past the DTO is its bytes (DetCics
+        # .commareaOut): the first ones are DFHCOMMAREA, EIBCALEN is the whole length, and the rest are bytes this
+        # program does not define (opaque: not addressable here). #4679: they stay past the record (Storage.beyond),
+        # so a further RETURN / XCTL / LINK of DFHCOMMAREA with that LENGTH passes them on.
+        ca_in += [f"        {st}.beyond = null;",
+                  "        if (ca instanceof byte[] cb0) {",
+                  "            byte[] cb = DetCics.commareaIn(cb0, CS);",
+                  f"            System.arraycopy(cb, 0, {st}.bytes, 0, Math.min(cb.length, {st}.bytes.length));",
+                  f"            if (cb.length > {st}.bytes.length) {{",
+                  f"                {st}.beyond = java.util.Arrays.copyOfRange(cb, {st}.bytes.length, cb.length);",
+                  "            }",
+                  "            calen = cx(task, cb.length);",
+                  "        }"]  # fmt: skip
         # #4181 follow-up: a det caller's LINK passes its COMMAREA's bytes (by reference): they are DFHCOMMAREA, every
         # byte -- the ones the contract DTO does not name too -- and what the program leaves there goes back to them
+        # #4679: bytes of a LINK LENGTH past the record are kept past it (Storage.beyond) and go back with the rest
         ca_in += ["        byte[] raw = task.linkArea();",
                   "        if (raw != null) {",
                   f"            System.arraycopy(raw, 0, {st}.bytes, 0, Math.min(raw.length, {st}.bytes.length));",
+                  f"            int keep = {st}.bytes.length;",
+                  f"            {st}.beyond = raw.length > keep ? java.util.Arrays.copyOfRange(raw, keep, raw.length) : null;",
                   "            Runnable typed = caBack;",
-                  f"            caBack = () -> {{ typed.run(); System.arraycopy({st}.bytes, 0, raw, 0, "
-                  f"Math.min(raw.length, {st}.bytes.length)); }};",
+                  (f"            caBack = () -> {{ typed.run(); System.arraycopy({st}.bytes, 0, raw, 0, Math.min(raw.length, keep)); "
+                   f"if ({st}.beyond != null) {{ System.arraycopy({st}.beyond, 0, raw, keep, raw.length - keep); }} }};"),
                   "        }"]  # fmt: skip
         # #4270 (oracle_assumptions.md X23): a level-1 COMMAREA the runner says is exactly EIBCALEN bytes, shorter than
         # the record (a scenario's `commarea_length`), is all DFHCOMMAREA holds for the task: a reference past it fails

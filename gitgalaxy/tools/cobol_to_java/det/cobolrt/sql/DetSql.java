@@ -36,6 +36,14 @@ import java.util.function.Supplier;
  * not run; its SQLCA is reset's with that SQLCODE and SQLSTATE, and nothing else changes. Each fault that fires is
  * appended to the log (gitgalaxy.sqlfaults.log) as `SQL PROGRAM LINE N SQLCODE` -- the line the equivalence harness's
  * COBOL side (tests/equivalence/db2/ggsql.c) writes for the same fault.
+ *
+ * #4269 -- the unit of work. EXEC SQL COMMIT / ROLLBACK end the Db2 unit of work the program runs in. That unit is
+ * the runner's (unitOfWork): for a batch step, one Db2 transaction from the step's start, committed at its normal end
+ * and backed out when it abends, as Db2 for z/OS does for a DSN / CAF batch program. COMMIT commits it and closes
+ * every cursor not declared WITH HOLD (a held one stays open, with no current row until its next FETCH); ROLLBACK
+ * backs it out and closes every cursor (IBM Db2 for z/OS SQL Reference, COMMIT and ROLLBACK statements). With no
+ * unit of work given, each statement was committed as it ran: COMMIT has nothing more to commit, and ROLLBACK cannot
+ * undo it -- it is refused (UnsupportedOperationException), never answered.
  */
 public final class DetSql {
     private DetSql() {
@@ -356,9 +364,70 @@ public final class DetSql {
             + "variable is not modelled");
     }
 
+    // ---- #4269: the unit of work ------------------------------------------------------------------------------
+    /** The Db2 unit of work a program's statements run in: its runner's (a batch step's transaction). */
+    public interface UnitOfWork {
+        /** Commit the work done since the last commit point; the unit goes on. */
+        void commit();
+
+        /** Back out the work done since the last commit point; the unit goes on. */
+        void rollback();
+    }
+
+    private static UnitOfWork unitOfWork;
+
+    /** The unit of work the statements run in from here on (null: none -- each statement commits as it runs);
+     *  the one it replaces. */
+    public static UnitOfWork unitOfWork(UnitOfWork u) {
+        UnitOfWork was = unitOfWork;
+        unitOfWork = u;
+        return was;
+    }
+
+    /** EXEC SQL COMMIT [WORK] at `at`: the unit of work committed (Db2's SQLCODE if it fails); every cursor not
+     *  declared WITH HOLD closed, a held one left with no current row. */
+    public static void commit(Field ca, String at, Charset cs) {
+        reset(ca, cs);
+        if (injected(ca, at, cs)) {
+            return;
+        }
+        if (unitOfWork != null) {
+            try {
+                unitOfWork.commit();
+            } catch (RuntimeException e) {
+                failed(ca, e, cs);
+                return;
+            }
+        }
+        OPEN.keySet().removeIf(c -> !HOLD.contains(c));
+        CURRENT.clear();
+    }
+
+    /** EXEC SQL ROLLBACK [WORK] at `at`: the unit of work backed out, every cursor closed. Refused with no unit of
+     *  work: the statements were committed as they ran, and a port never pretends to undo them. */
+    public static void rollback(Field ca, String at, Charset cs) {
+        reset(ca, cs);
+        if (injected(ca, at, cs)) {
+            return;
+        }
+        if (unitOfWork == null) {
+            throw new UnsupportedOperationException("EXEC SQL ROLLBACK at " + at + ": no unit of work -- each "
+                    + "statement was committed as it ran (the runner gives the step one: DetSql.unitOfWork)");
+        }
+        try {
+            unitOfWork.rollback();
+        } catch (RuntimeException e) {
+            failed(ca, e, cs);
+            return;
+        }
+        OPEN.clear();
+        CURRENT.clear();
+    }
+
     // ---- cursors --------------------------------------------------------------------------------------------
     private static final Map<String, Iterator<Map<String, Object>>> OPEN = new HashMap<>();
     private static final Map<String, Map<String, Object>> CURRENT = new HashMap<>();  // the row FETCH last returned
+    private static final java.util.Set<String> HOLD = new java.util.HashSet<>();  // #4269: open cursors WITH HOLD
 
     /** OPEN: the cursor's query run with the host variables' values now (-502 when it is open). */
     public static void open(Field ca, String cursor, Supplier<List<Map<String, Object>>> query, Charset cs) {
@@ -368,6 +437,12 @@ public final class DetSql {
     /** open, the OPEN at `at` (#4173: a planned SQL fault there: the cursor not opened, the SQLCA set). */
     public static void open(Field ca, String at, String cursor, Supplier<List<Map<String, Object>>> query,
                             Charset cs) {
+        open(ca, at, cursor, false, query, cs);
+    }
+
+    /** open, of a cursor declared WITH HOLD when `hold` (#4269: a COMMIT leaves it open). */
+    public static void open(Field ca, String at, String cursor, boolean hold,
+                            Supplier<List<Map<String, Object>>> query, Charset cs) {
         reset(ca, cs);
         if (injected(ca, at, cs)) {
             return;
@@ -378,6 +453,11 @@ public final class DetSql {
         }
         try {
             OPEN.put(cursor, query.get().iterator());
+            if (hold) {
+                HOLD.add(cursor);
+            } else {
+                HOLD.remove(cursor);
+            }
         } catch (RuntimeException e) {
             failed(ca, e, cs);
         }
@@ -457,5 +537,6 @@ public final class DetSql {
     public static void closeAll() {
         OPEN.clear();
         CURRENT.clear();
+        HOLD.clear();
     }
 }

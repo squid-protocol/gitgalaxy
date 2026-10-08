@@ -767,11 +767,18 @@ NULL is distinct.
 - **Declared, not measured:**
   - Db2 for Linux, not z/OS, runs the SQL. Its SQLCODEs for these statements are the same codes.
   - EXEC SQL keeps RETURN-CODE. Whether IBM's precompiled call to DSNHLI resets it is not known.
-  - A run that ends normally commits.
+  - A batch step's SQL is one Db2 unit of work (#4269), as Db2 for z/OS runs a DSN / CAF batch program's: committed
+    when the step ends normally, backed out when it abends (ggabend.c ends it before the process exits; the Java
+    side's equivalence test runs the step in one transaction). EXEC SQL COMMIT / ROLLBACK end it in between
+    (DetSql.commit / rollback, given the step's unit of work by the runner): COMMIT closes the cursors not declared
+    WITH HOLD, ROLLBACK every cursor, on both sides (ggsql.c closes the CLI handles itself). After an abend the Db2
+    tables are compared too: they hold what the step committed. Proven on a synthetic estate
+    (`tests/equivalence/db2/uow`, `test_sql_unit_of_work.py`, EQUIVALENCE_E2E=1): no burned program issues a
+    ROLLBACK. A CICS program's ROLLBACK is refused (Db2 for z/OS: -926; SYNCPOINT ROLLBACK is the task's).
   - A CICS task's SQL is one Db2 unit of work, as under CICS's Db2 thread: a SYNCPOINT ROLLBACK or an abend backs out
     the task's SQL with its recoverable file changes (XFRFUN's four ROLLBACK paths are proven). The transaction is
-    the equivalence test's, around each task; a deployment must give each task the same unit of work. A batch
-    program's repositories autocommit, so a batch ROLLBACK is a hole (register Q3). A file defined `RECOVERY(NONE)`
+    the equivalence test's, around each task; a deployment must give each task -- and each batch step -- the same
+    unit of work (register Q3). A file defined `RECOVERY(NONE)`
     in the CSD keeps its changes through a backout on both sides.
   - SQL faults (#4173, register M2): each statement is keyed `PROGRAM:LINE` (its EXEC SQL's line in the file it is
     written in), the key every DetSql call carries; a fault plan skips that execution on both sides (ggsql.c,

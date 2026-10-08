@@ -12,9 +12,15 @@ A statement is found by its program and line; its host variables' values are pas
 method returns is turned into the SQLCA (cobolrt/sql/DetSql: +100, -811, Db2's own SQLCODE) and, for SELECT INTO /
 FETCH, into the host variables -- as Db2's precompiler declares them for COBOL (CHAR, VARCHAR, DECIMAL / binary).
 
+#4269 -- the unit of work. COMMIT and ROLLBACK (WORK) end the Db2 unit of work the program runs in (DetSql.commit /
+rollback): a batch step's is the runner's (one Db2 transaction for the step, DetSql.unitOfWork; the equivalence
+harness gives it), committed at the step's normal end and backed out when it abends, as Db2 for z/OS does for a
+DSN / CAF batch program (oracle_assumptions Q3). COMMIT closes the cursors not declared WITH HOLD, ROLLBACK every
+cursor. In a CICS program the unit of work is the task's: COMMIT stays a reset of the SQLCA (each task's work is
+committed with the task), ROLLBACK is refused -- Db2 for z/OS answers it -926 in CICS (SYNCPOINT ROLLBACK backs out).
+
 Not modelled (a Hole naming it): WHENEVER (the program tests SQLCODE itself or the port would guess its branches),
-ROLLBACK (the generated repositories run each statement in its own unit of work), positioned UPDATE / DELETE,
-dynamic SQL, host variable arrays, a statement the generator has no method for."""
+ROLLBACK TO SAVEPOINT, dynamic SQL, host variable arrays, a statement the generator has no method for."""
 
 from __future__ import annotations
 
@@ -41,7 +47,8 @@ class Method:
     closes: list = field(default_factory=list)
 
 
-_DOC = re.compile(r"/\*\*\s*EXEC SQL ([A-Z ]+?) at ([^\s:]+):(\d+) \((\w+),.*?\*/\s*public\s+[^(]*?\s(\w+)\(", re.S)
+# (#4269: a program name may hold hyphens -- NEND-DAY -- as the generator writes it)
+_DOC = re.compile(r"/\*\*\s*EXEC SQL ([A-Z ]+?) at ([^\s:]+):(\d+) \(([\w-]+),.*?\*/\s*public\s+[^(]*?\s(\w+)\(", re.S)
 
 
 def repositories(java_root: Path | None) -> dict[tuple[str, int], Method]:
@@ -93,6 +100,9 @@ def _set_parts(sql: str) -> tuple[list[str], list[str]]:
     return [t.strip() for t in targets], [e.strip() for e in exprs]
 
 
+_HOLD = re.compile(r"\bDECLARE\s+([A-Z0-9_-]+)\s+(?:[A-Z]+\s+){0,2}?CURSOR\s+WITH\s+HOLD\b", re.I)
+
+
 def _norm(text: str) -> str:
     return re.sub(r"\s+", " ", text).strip()
 
@@ -100,11 +110,13 @@ def _norm(text: str) -> str:
 class Sql:
     Error = SqlError
 
-    def __init__(self, gen, program: str, java_root: Path | None):
+    def __init__(self, gen, program: str, java_root: Path | None, source: str = ""):
         self.g = gen
         self.program = program.upper()
         self.methods = repositories(java_root)
         self.repos: dict[str, str] = {}  # repository class -> its field
+        # #4269: the cursors declared WITH HOLD (the program's text, its copybooks included): a COMMIT keeps them open
+        self.hold = {m.group(1).upper() for m in _HOLD.finditer(source)}
 
     # -- host variables ------------------------------------------------------------------------------------
     def _ref(self, name: str) -> E.Ref:
@@ -212,10 +224,8 @@ class Sql:
         assigns = verb == "SET" and re.match(r"SET\s*\(?\s*:", sql, re.I)  # SET :H = expr (not SET CURRENT ...)
         if verb in ("WHENEVER", "PREPARE", "EXECUTE", "DESCRIBE", "CONNECT", "SET", "CALL") and not assigns:
             raise SqlError(f"EXEC SQL {verb}")
-        if verb == "COMMIT":
-            return [f"{ind}DetSql.reset(SQLCA_AREA, CS);  // each statement committed as it ran (the repositories')"]
-        if verb == "ROLLBACK":
-            raise SqlError("ROLLBACK: the generated repositories commit each statement")
+        if verb in ("COMMIT", "ROLLBACK"):
+            return self._end_unit_of_work(verb, u, line, ind)
         pos = re.search(r"\bWHERE\s+CURRENT\s+OF\s+([A-Z0-9_-]+)", u)
         meth = self.methods.get((self.program, line))
         if meth is None:
@@ -253,9 +263,10 @@ class Sql:
                     *self._into(", ".join(targets), row, ind)]  # fmt: skip
         if verb == "OPEN" and meth.verb == "CURSOR":
             cursor = u.split()[1]
+            hold = ", true" if cursor in self.hold else ""  # #4269: WITH HOLD -- a COMMIT keeps it open
             return [
                 *self._params(self._cursor_sql(meth), meth, n, ind),
-                f"{ind}DetSql.open(SQLCA_AREA, {at}, {self.g_str(cursor)}, () -> {call}({n}), CS);",
+                f"{ind}DetSql.open(SQLCA_AREA, {at}, {self.g_str(cursor)}{hold}, () -> {call}({n}), CS);",
             ]
         if verb == "FETCH" and meth.verb == "CURSOR":
             m = re.fullmatch(r"FETCH\s+(?:NEXT\s+)?(?:FROM\s+)?([A-Z0-9_-]+)\s+INTO\s+(.*)", sql, re.I | re.S)
@@ -267,6 +278,18 @@ class Sql:
         if verb == "CLOSE" and meth.verb == "CURSOR":
             return [f"{ind}DetSql.close(SQLCA_AREA, {at}, {self.g_str(u.split()[1])}, CS);"]
         raise SqlError(f"EXEC SQL {verb}")
+
+    def _end_unit_of_work(self, verb: str, u: str, line: int, ind: str) -> list[str]:
+        """#4269: COMMIT / ROLLBACK [WORK] (IBM Db2 for z/OS SQL Reference, COMMIT and ROLLBACK statements)."""
+        if not re.fullmatch(rf"{verb}(\s+WORK)?", u):
+            raise SqlError(f"EXEC SQL {u[:50]}")  # ROLLBACK TO SAVEPOINT, COMMIT / ROLLBACK with a HOLD option
+        if self.g.cics is not None:
+            if verb == "ROLLBACK":  # Db2 for z/OS: -926, SQLSTATE 2D521 -- ROLLBACK not valid in CICS
+                raise SqlError("ROLLBACK in a CICS program: Db2 for z/OS answers -926 (the task's unit of work is "
+                               "CICS's: SYNCPOINT ROLLBACK)")  # fmt: skip
+            return [f"{ind}DetSql.reset(SQLCA_AREA, CS);  // the task's unit of work commits with the task"]
+        at = self.g_str(f"{self.program}:{line}")
+        return [f"{ind}DetSql.{verb.lower()}(SQLCA_AREA, {at}, CS);"]
 
     def _cursor_sql(self, meth: Method) -> str:
         """The host variables a cursor's query takes (its parameters): as `:NAME` references for _params."""

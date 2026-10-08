@@ -19,15 +19,22 @@
  * this stub raises while assigning the result, carry no tokens.
  *
  * The statements come from $GGSQL_STMTS, written by the precompiler:
- *   S <id> <kind> <nin> <nout> <cursor|-> <program> <line>
+ *   S <id> <kind> <nin> <nout> <cursor|-> <program> <line> [H]
  *                                              kind: EXEC SELECT1 OPEN FETCH CLOSE COMMIT ROLLBACK; program and line
- *                                              (#4173): the EXEC SQL's own line in its program's source
+ *                                              (#4173): the EXEC SQL's own line in its program's source; H (#4269):
+ *                                              an OPEN of a cursor declared WITH HOLD
  *   I <arg> <type> <len> <digits> <scale> <signed> <indicator-arg|-1>      one per input marker, in order
  *   O <arg> <type> <len> <digits> <scale> <signed> <indicator-arg|-1>      one per output column, in order
  *   Q <sql, the host variables replaced by ?>
  * <arg> numbers the CALL's arguments after GG-SQL-ID and SQLCA. The connection is $GGSQL_CONN (a CLI connection
  * string); autocommit is off, COMMIT / ROLLBACK are the program's own, and a run that ends normally commits (as a
- * batch step or a CICS task does). A form this stub does not model ends the run (exit 98, "not modelled").
+ * batch step or a CICS task does; an abend backs the work out -- ggabend.c calls ggsql_uow_end). A form this stub
+ * does not model ends the run (exit 98, "not modelled").
+ *
+ * #4269 -- cursors at the end of a unit of work, as Db2 for z/OS closes them (SQL Reference, COMMIT / ROLLBACK
+ * statements): COMMIT closes every cursor not declared WITH HOLD, ROLLBACK every cursor; a FETCH or CLOSE of one
+ * after that is -501. (IBM's CLI keeps a cursor open across a commit by default, SQL_ATTR_CURSOR_HOLD; a ROLLBACK
+ * closes it at the server but leaves the CLI handle: this stub closes and frees the handles itself.)
  *
  * #4173 -- SQL faults. $GGSQL_FAULTS names a plan, one fault per line:
  *   <program> <line> <nth|*> <sqlcode> <sqlstate>
@@ -57,7 +64,7 @@ typedef struct {
 } hv;
 
 typedef struct {
-    int id, nin, nout, line, runs;
+    int id, nin, nout, line, runs, hold;
     char kind[12], cursor[64], program[16];
     hv in[MAXHV], out[MAXHV];
     char *sql;
@@ -91,8 +98,10 @@ static void load(void) {
             cur = &stmts[nstmts++];
             memset(cur, 0, sizeof *cur);
             strcpy(cur->program, "-");
-            sscanf(line + 2, "%d %11s %d %d %63s %15s %d", &cur->id, cur->kind, &cur->nin, &cur->nout, cur->cursor,
-                   cur->program, &cur->line);
+            char held[4] = "";
+            sscanf(line + 2, "%d %11s %d %d %63s %15s %d %3s", &cur->id, cur->kind, &cur->nin, &cur->nout,
+                   cur->cursor, cur->program, &cur->line, held);
+            cur->hold = !strcmp(held, "H");
             cur->nin = 0, cur->nout = 0;
         } else if ((line[0] == 'I' || line[0] == 'O') && cur) {
             hv *v = line[0] == 'I' ? &cur->in[cur->nin++] : &cur->out[cur->nout++];
@@ -466,8 +475,17 @@ static int injected(stmt *s, sqlca_t *c) {
 static void run(stmt *s, sqlca_t *c, unsigned char **a) {
     SQLRETURN rc;
     if (!strcmp(s->kind, "COMMIT") || !strcmp(s->kind, "ROLLBACK")) {
-        rc = SQLEndTran(SQL_HANDLE_DBC, dbc, !strcmp(s->kind, "COMMIT") ? SQL_COMMIT : SQL_ROLLBACK);
+        int commit = !strcmp(s->kind, "COMMIT");
+        rc = SQLEndTran(SQL_HANDLE_DBC, dbc, commit ? SQL_COMMIT : SQL_ROLLBACK);
         diag(c, SQL_HANDLE_DBC, dbc, rc);
+        if (c->sqlcode < 0) return;
+        for (int i = 0; i < nstmts; i++) {  /* #4269: the cursors the unit of work's end closes */
+            stmt *o = &stmts[i];
+            if (strcmp(o->kind, "OPEN") || !o->h || (commit && o->hold)) continue;
+            SQLCloseCursor(o->h);
+            SQLFreeHandle(SQL_HANDLE_STMT, o->h);
+            o->h = 0;
+        }
         return;
     }
     if (!strcmp(s->kind, "FETCH") || !strcmp(s->kind, "CLOSE")) {

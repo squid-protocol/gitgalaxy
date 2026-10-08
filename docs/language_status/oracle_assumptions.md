@@ -111,8 +111,8 @@ verdict, but it limits what the proof says about inputs outside the scenarios.
 | A1 | assembler | CardDemo's COBDATFT, translated instruction for instruction; load-module-dependent paths refused | MATCHED / REFUSED | yes (CardDemo READACCT) |
 | Q1 | Db2 | Db2 for Linux runs the SQL, not Db2 for z/OS | ASSUMED | yes |
 | Q2 | Db2 | EXEC SQL keeps RETURN-CODE | ASSUMED | yes |
-| Q3 | Db2 | The Java side's unit of work: one per CICS task; batch commits each statement | MATCHED (CICS) / DIFFERS (batch) | CICS: yes (CBSA XFRFUN); batch: no |
-| Q4 | Db2 | WHENEVER, dynamic SQL, CONNECT, CALL, SCROLL cursors, host-variable arrays | REFUSED | — |
+| Q3 | Db2 | The unit of work: one per CICS task; one per batch step, ended by EXEC SQL COMMIT / ROLLBACK (cursors closed as Db2 for z/OS closes them), backed out by an abend; a CICS program's ROLLBACK refused (-926) | MATCHED | CICS: yes (CBSA XFRFUN); batch: yes (synthetic UOWDEMO, `tests/equivalence/db2/uow`, #4269) |
+| Q4 | Db2 | WHENEVER, dynamic SQL, CONNECT, CALL, SCROLL cursors, host-variable arrays, ROLLBACK TO SAVEPOINT | REFUSED | — |
 | Q5 | Db2 | DSNTIAC / DSNTIAR message formatting | REFUSED | no |
 | Q6 | Db2 | Date and time text in ISO form; DDL adapted from z/OS jobs | ASSUMED | yes (CBSA, GenApp) |
 | Q7 | Db2 | `CCSID EBCDIC` tables hold Unicode text: string order differs | DIFFERS | no |
@@ -1250,18 +1250,46 @@ The length READQ TS returns on ITEMERR or QIDERR is not documented, so it is not
 ### Q2. EXEC SQL keeps RETURN-CODE — ASSUMED
 - The precompiled CALL preserves RETURN-CODE around the stub. Whether IBM's DSNHLI call resets it is not documented.
 
-### Q3. The Java side's Db2 unit of work — MATCHED for CICS tasks, DIFFERS for batch
+### Q3. The Db2 unit of work — MATCHED for CICS tasks and for batch steps (#4269)
 - **CICS.** The equivalence test runs each task's SQL in one Db2 transaction, as CICS's Db2 thread does: committed when
   the task ends, rolled back with the task's recoverable files by SYNCPOINT ROLLBACK or an abend (X3). The transaction
   is the harness's (`equivalence_cics.py`, a `TransactionTemplate` around the task); a deployment must give each task
   the same unit of work. Reached: CBSA XFRFUN's four ROLLBACK paths are proven.
-- **Batch.** The generated Db2 repositories autocommit, so a batch program's ROLLBACK is a hole. No proven batch
-  scenario reaches one (COBTUPDT has no ROLLBACK path).
+- **CICS, EXEC SQL COMMIT / ROLLBACK.** IBM: both are invalid under CICS -- Db2 for z/OS answers -925 / -926 (SQLSTATE
+  2D521; Db2 for z/OS Codes) and the task's unit of work is CICS's (SYNCPOINT). The det translator REFUSES a CICS
+  program's ROLLBACK by name. A CICS program's COMMIT stays a reset of the SQLCA on the Java side and a real commit on
+  the oracle (Db2 for Linux has no CICS attachment): DIFFERS from z/OS's -925, declared; no burned CICS program
+  issues one (CBSA's COMMIT WORK is in BANKDATA, a batch program). Next slice: -925 / -926 on both sides.
+- **Batch (#4269).** A batch step is one Db2 unit of work, as Db2 for z/OS runs a program under DSN (TSO) or CAF:
+  a commit point at each COMMIT and at the program's normal end; an abnormal end backs out the work since the last
+  commit point (Db2 for z/OS Application Programming and SQL Guide, "Unit of work in TSO" / "Making changes to
+  data: commit and rollback"). EXEC SQL COMMIT [WORK] commits and closes every cursor not declared WITH HOLD (a held
+  one stays open, positioned before its next row); ROLLBACK [WORK] backs out and closes every cursor, held or not
+  (Db2 for z/OS SQL Reference, COMMIT statement and ROLLBACK statement); a FETCH or CLOSE of a cursor so closed is
+  -501. ROLLBACK TO SAVEPOINT and COMMIT / ROLLBACK with other options are REFUSED by name.
+  - **The det port.** DetSql.commit / rollback end the unit of work the runner gives (DetSql.unitOfWork); with none
+    given, each statement commits as it runs: COMMIT has nothing more to commit and ROLLBACK is refused at run time
+    (UnsupportedOperationException), never answered. The equivalence test runs the step in one transaction on the
+    harness's Db2 and gives DetSql its connection; a deployment must give each step the same unit of work.
+  - **The oracle.** ggsql.c runs with autocommit off and commits at a normal exit; ggabend.c (CEE3ABD) now backs the
+    unit of work out before the process ends. Db2 for Linux's CLI keeps every cursor open across a commit
+    (SQL_ATTR_CURSOR_HOLD defaults on) and leaves the handle of one a rollback closed: ggsql.c closes them itself as
+    z/OS does (the precompiler marks a WITH HOLD cursor's OPEN `H` in the statement table). MATCHED to z/OS by
+    construction; a libcob run-time failure that is not CEE3ABD still commits at exit (never compared equal: the
+    Java side's exception is an UNCODED abend).
+  - **Compared.** After an abend both sides' Db2 tables are now compared (they hold what the step committed); the
+    statement outcomes (#4507) leave out COMMIT / ROLLBACK and a FETCH / CLOSE of a cursor they closed (-501 is the
+    stub's, not Db2's).
+  - **Reached.** No burned program issues EXEC SQL ROLLBACK (#4269 census: NEND-DAY / NINT-CALC, non-burned, are
+    the programs it unblocks), so a synthetic estate pins it: `tests/equivalence/db2/uow` (UOWDEMO, traced by hand;
+    `tests/cobol_mainframe/test_sql_unit_of_work.py`, EQUIVALENCE_E2E=1) -- a commit, two changes backed out, -803
+    then ROLLBACK, a cursor closed by COMMIT, a WITH HOLD cursor kept by it and closed by ROLLBACK, work uncommitted
+    at a normal end (kept) and at an abend (backed out). Proven on both sides, SYSOUT, table and statement outcomes.
 
 ### Q4. Unsupported embedded SQL — REFUSED
 - **Refused.** WHENEVER, dynamic SQL (PREPARE / EXECUTE / DESCRIBE), CONNECT, CALL, ALLOCATE / ASSOCIATE, SCROLL
-  cursors and host-variable arrays stop the precompiler by name, as does an undeclared host variable or a `WHERE
-  CURRENT OF` a cursor the program does not declare. A positioned UPDATE / DELETE on a declared cursor runs (Q8).
+  cursors, host-variable arrays and ROLLBACK TO SAVEPOINT (Q3) stop the precompiler and the det translator by name,
+  as does an undeclared host variable or a `WHERE CURRENT OF` a cursor the program does not declare. A positioned UPDATE / DELETE on a declared cursor runs (Q8).
 
 ### Q5. DSNTIAC / DSNTIAR — REFUSED
 - **What.** IBM's message formatter is not modelled. COTRTLIC's call to it, on the Db2-error path, is its one

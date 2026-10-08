@@ -151,6 +151,12 @@ def equivalence_test(case: dict[str, Any]) -> str:
             "                }\n"
             "            }\n"
         )
+    db2_members = ""
+    if case.get("db2"):  # #4269: the step is one Db2 unit of work (db2Step), the det runtime's COMMIT / ROLLBACK in it
+        entry_call = ("            int[] step = new int[1];\n            db2Step(() -> {\n"
+                      + re.sub(r"\brc = ", "step[0] = ", "".join("    " + ln for ln in entry_call.splitlines(True)))
+                      + "            });\n            rc = step[0];\n")  # fmt: skip
+        db2_members = DB2_STEP
     return f"""package {PKG};
 
 import {PKG}.batch.CobolAbend;
@@ -219,7 +225,73 @@ class EquivalenceRunTest {{
             }}
         }}
     }}
-}}
+{db2_members}}}
+"""
+
+
+# #4269: a Db2 case's step runs as ONE Db2 unit of work, as Db2 for z/OS runs a batch program's (DSN / CAF): committed
+# when the step ends normally, backed out when it abends (the exception passes on, the test records the abend). A
+# det port's EXEC SQL COMMIT / ROLLBACK end that unit in between: the det runtime's DetSql.unitOfWork is given the
+# step's connection (by reflection: a model port has no det runtime, an older det runtime no unit of work).
+DB2_STEP = f"""
+    @Autowired org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate db2Jdbc;  // EquivalenceDb2Config
+
+    void db2Step(Runnable step) {{
+        javax.sql.DataSource ds = db2Jdbc.getJdbcTemplate().getDataSource();
+        new org.springframework.transaction.support.TransactionTemplate(
+                new org.springframework.jdbc.datasource.DataSourceTransactionManager(ds)).executeWithoutResult(t -> {{
+            java.lang.reflect.Method set = detUnitOfWork();
+            Object was = null;
+            try {{
+                if (set != null) {{
+                    Class<?> type = set.getParameterTypes()[0];
+                    was = set.invoke(null, java.lang.reflect.Proxy.newProxyInstance(type.getClassLoader(),
+                            new Class<?>[] {{type}}, (p, m, a) -> {{
+                                switch (m.getName()) {{
+                                    case "commit" -> org.springframework.jdbc.datasource.DataSourceUtils
+                                            .getConnection(ds).commit();
+                                    case "rollback" -> org.springframework.jdbc.datasource.DataSourceUtils
+                                            .getConnection(ds).rollback();
+                                    case "hashCode" -> {{
+                                        return System.identityHashCode(p);
+                                    }}
+                                    case "equals" -> {{
+                                        return p == a[0];
+                                    }}
+                                    case "toString" -> {{
+                                        return "the step's Db2 unit of work";
+                                    }}
+                                    default -> {{
+                                    }}
+                                }}
+                                return null;
+                            }}));
+                }}
+            }} catch (ReflectiveOperationException e) {{
+                throw new IllegalStateException(e);
+            }}
+            try {{
+                step.run();
+            }} finally {{
+                if (set != null) {{
+                    try {{
+                        set.invoke(null, was);
+                    }} catch (ReflectiveOperationException e) {{
+                        throw new IllegalStateException(e);
+                    }}
+                }}
+            }}
+        }});
+    }}
+
+    static java.lang.reflect.Method detUnitOfWork() {{
+        try {{
+            Class<?> det = Class.forName("{PKG}.cobolrt.sql.DetSql");
+            return det.getMethod("unitOfWork", Class.forName("{PKG}.cobolrt.sql.DetSql$UnitOfWork"));
+        }} catch (ReflectiveOperationException e) {{
+            return null;  // no det runtime (a model port), or one with no unit of work
+        }}
+    }}
 """
 
 

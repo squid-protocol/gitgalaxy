@@ -57,6 +57,7 @@ class Statement:
     program: str = "-"  # #4173: the statement's program and the line of its EXEC SQL in that program's source --
     line: int = 0  # the key a SQL fault names, the same one the det port's DetSql calls carry (PROGRAM:LINE)
     verb: str = ""  # the SQL's first word (INSERT, UPDATE, DELETE, SELECT, VALUES, ...): a fault's default SQLCODE
+    hold: bool = False  # #4269: an OPEN of a cursor declared WITH HOLD (a COMMIT leaves it open)
 
 
 def _area(line: str) -> str:
@@ -208,6 +209,7 @@ class Precompiler:
         self.first_id = first_id  # several programs in one task share one table: each its own range of ids
         self.statements: list[Statement] = []
         self.cursors: dict[str, str] = {}  # name -> its SELECT (host variables still named)
+        self.hold: set[str] = set()  # #4269: the cursors declared WITH HOLD
 
     def _bind(self, text: str, args: list[str]) -> tuple[str, list[tuple[list[int], Optional[int]]]]:
         """The SQL with every host variable a `?`, and per marker (the elementary items, the indicator)."""
@@ -256,6 +258,8 @@ class Precompiler:
             if re.search(r"\bSCROLL\b", u.split("CURSOR")[0]):
                 raise Unsupported("EXEC SQL DECLARE ... SCROLL CURSOR")
             self.cursors[cur.group(1).upper()] = cur.group(2)
+            if re.search(r"\bCURSOR\s+WITH\s+HOLD\b", u):
+                self.hold.add(cur.group(1).upper())
             return None
         if verb == "SET" and re.match(r"SET\s*\(?\s*:", text, re.I):  # SET :H = expr: one row of VALUES into :H
             targets, exprs = _assignments(text)
@@ -280,7 +284,7 @@ class Precompiler:
             if name not in self.cursors or len(u.split()) > 2:
                 raise Unsupported(f"EXEC SQL {u}: an undeclared cursor, or OPEN ... USING")
             sql, refs = self._bind(self.cursors[name], args)
-            st = Statement(sid, "OPEN", _norm(sql), name, self._vars(refs, args))
+            st = Statement(sid, "OPEN", _norm(sql), name, self._vars(refs, args), hold=name in self.hold)
         elif verb == "FETCH":
             m = re.fullmatch(r"FETCH\s+(?:NEXT\s+)?(?:FROM\s+)?([A-Z0-9_-]+)\s+INTO\s+(.*)", text, re.I | re.S)
             if not m:
@@ -312,7 +316,9 @@ class Precompiler:
         out = []
         for s in self.statements:
             # #4173: then the statement's program and source line, the key a SQL fault names
-            out.append(f"S {s.sid} {s.kind} {len(s.inputs)} {len(s.outputs)} {s.cursor} {s.program} {s.line}")
+            # #4269: an OPEN of a cursor declared WITH HOLD ends `H` (ggsql.c keeps it open at a COMMIT)
+            out.append(f"S {s.sid} {s.kind} {len(s.inputs)} {len(s.outputs)} {s.cursor} {s.program} {s.line}"
+                       + (" H" if s.hold else ""))  # fmt: skip
             for tag, vs in (("I", s.inputs), ("O", s.outputs)):
                 for v in vs:
                     out.append(f"{tag} {v.arg} {v.type} {v.length} {v.digits} {v.scale} {v.signed} {v.indicator}")

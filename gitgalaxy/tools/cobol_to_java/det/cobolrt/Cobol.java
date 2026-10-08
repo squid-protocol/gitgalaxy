@@ -229,12 +229,23 @@ public final class Cobol {
                 int at = from.signLeading ? 0 : out.length - 1;
                 out[at] = unpunch(out[at], cs);
             }
-            return out;
+            return from.scale < 0 ? pZeros(out, from, cs) : out;
         }
         Codec.Num n = Codec.read(from, cs);
         String s = n.mag.toString();
-        if (s.length() < from.digits) s = "0".repeat(from.digits - s.length()) + s;
-        return s.getBytes(cs);
+        // a left-P binary / packed item (PIC VPP99 COMP): GnuCOBOL writes its Ps as leading digits too (#4670)
+        int width = Math.max(from.digits, from.scale);
+        if (s.length() < width) s = "0".repeat(width - s.length()) + s;
+        return pZeros(s.getBytes(cs), from, cs);
+    }
+
+    /** #4670: a right-P item (PIC 99PP) as text: its digits, then a zero for each P (MOVE 1300 into it, then into a
+     *  PIC X(6): "1300  "), as GnuCOBOL moves it. */
+    private static byte[] pZeros(byte[] digits, Field from, Charset cs) {
+        if (from.scale >= 0) return digits;
+        byte[] out = java.util.Arrays.copyOf(digits, digits.length - from.scale);
+        java.util.Arrays.fill(out, digits.length, out.length, Codec.by('0', cs));
+        return out;
     }
 
     /** An overpunched sign byte ({ A-I: +0..9, } J-R: -0..9 as -fsign=EBCDIC writes them) as its digit; any other

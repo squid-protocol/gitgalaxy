@@ -26,6 +26,7 @@ from __future__ import annotations
 
 import argparse
 import json
+import re
 import shutil
 import statistics
 import sys
@@ -43,6 +44,10 @@ CASES = REPO_ROOT / "tests" / "equivalence"
 #   arch_io        0.871 / 0.958   arch_ipc      0.835 / 0.757
 # struct_branch re-measured after Java stopped counting a `?`/`:` inside a literal and a ternary twice (#4170):
 # it was 0.826 / 0.745 before.
+# function_count counts, on the Java side, only the methods that are a COBOL paragraph (PARAGRAPH_DOC below): the
+# translator also emits helpers with no paragraph behind them (named 88-condition methods #4202, abended() #4541,
+# caWhole() #4642, initialState() #4218, ...), and counting those moved the 12-pair rho from 0.912 to 0.778 (#4444)
+# without any scanner reading changing. The floors stay as they were.
 CONTRACT: dict[str, tuple[str, float, float]] = {
     "function_count": ("functions", 0.85, 0.80),
     "struct_branch": ("branch", 0.75, 0.65),
@@ -52,6 +57,11 @@ CONTRACT: dict[str, tuple[str, float, float]] = {
 }
 # readings a port legitimately changes (size, its runtime's overhead, per-scan normalised risk), never asserted
 DIFFERS = ("coding_loc", "token_mass", "max_func_complexity", "risk_*", "file_archetype")
+
+# The det translator documents each paragraph method with `/** PARAGRAPH-NAME. */` (program.py: "/** {p.name}. */"),
+# and every helper either has a prose comment, an `88 NAME of PARENT.` comment, or none; a paragraph name is one
+# token of letters, digits and hyphens, or the synthetic `(MAIN)` for the code before the first paragraph.
+PARAGRAPH_DOC = re.compile(r"^/\*\*\s+(?:\(MAIN\)|[A-Za-z0-9][A-Za-z0-9-]*)\.\s+\*/$")
 
 # the committed pairs: program -> (equivalence case, corpus-relative COBOL path)
 FIXTURE = {
@@ -89,7 +99,10 @@ def readings(text: str, lang: str) -> dict[str, int]:
     r = StructuralExtractor(lang, defs).splice(streams["code_stream"], streams.get("comment_stream", ""),
                                                raw_content=text)  # fmt: skip
     eq = r.get("equations", {})
-    return {col: (len(r.get("functions", [])) if key == "functions" else int(eq.get(key, 0) or 0))
+    funcs = r.get("functions", [])
+    if lang == "java":  # paragraph methods only, not the helpers the translator generates
+        funcs = [f for f in funcs if PARAGRAPH_DOC.match((f.get("docstring") or "").strip())]
+    return {col: (len(funcs) if key == "functions" else int(eq.get(key, 0) or 0))
             for col, (key, _, _) in CONTRACT.items()}  # fmt: skip
 
 

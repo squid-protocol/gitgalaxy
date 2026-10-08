@@ -41,8 +41,6 @@ public class Cousr01cService {
     private static final BigDecimal D0 = new BigDecimal("0");
     private static final BigDecimal D1 = new BigDecimal("1");
     private static final BigDecimal DM1 = new BigDecimal("-1");
-    private static final BigDecimal D15 = new BigDecimal("15");
-    private static final BigDecimal D14 = new BigDecimal("14");
 
     private static final byte[] IMAGE_s_WS_VARIABLES = Base64.getDecoder().decode(String.join("",
             "Q09VU1IwMUNDVTAxICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICBVU1JTRUMgIE4AAAAAAAAAAA=="));
@@ -191,377 +189,173 @@ public class Cousr01cService {
     private final Storage s_DFHEIBLK = new Storage(IMAGE_s_DFHEIBLK.length);
     private final Storage s_GG_RETURN_CODE = new Storage(IMAGE_s_GG_RETURN_CODE.length);
 
-    private Field f100_ERRMSGF;
-    private Field f101_FILLER;
-    private Field f102_ERRMSGA;
-    private Field f103_FILLER;
-    private Field f104_ERRMSGI;
-    private Field f105_COUSR1AO;
-    private Field f106_FILLER;
-    private Field f107_FILLER;
-    private Field f108_TRNNAMEC;
-    private Field f109_TRNNAMEP;
-    private Field f10_CDEMO_GENERAL_INFO;
-    private Field f110_TRNNAMEH;
-    private Field f111_TRNNAMEV;
-    private Field f112_TRNNAMEO;
-    private Field f113_FILLER;
-    private Field f114_TITLE01C;
-    private Field f115_TITLE01P;
-    private Field f116_TITLE01H;
-    private Field f117_TITLE01V;
-    private Field f118_TITLE01O;
-    private Field f119_FILLER;
-    private Field f11_CDEMO_FROM_TRANID;
-    private Field f120_CURDATEC;
-    private Field f121_CURDATEP;
-    private Field f122_CURDATEH;
-    private Field f123_CURDATEV;
-    private Field f124_CURDATEO;
-    private Field f125_FILLER;
-    private Field f126_PGMNAMEC;
-    private Field f127_PGMNAMEP;
-    private Field f128_PGMNAMEH;
-    private Field f129_PGMNAMEV;
-    private Field f12_CDEMO_FROM_PROGRAM;
-    private Field f130_PGMNAMEO;
-    private Field f131_FILLER;
-    private Field f132_TITLE02C;
-    private Field f133_TITLE02P;
-    private Field f134_TITLE02H;
-    private Field f135_TITLE02V;
-    private Field f136_TITLE02O;
-    private Field f137_FILLER;
-    private Field f138_CURTIMEC;
-    private Field f139_CURTIMEP;
-    private Field f13_CDEMO_TO_TRANID;
-    private Field f140_CURTIMEH;
-    private Field f141_CURTIMEV;
-    private Field f142_CURTIMEO;
-    private Field f143_FILLER;
-    private Field f144_FNAMEC;
-    private Field f145_FNAMEP;
-    private Field f146_FNAMEH;
-    private Field f147_FNAMEV;
-    private Field f148_FNAMEO;
-    private Field f149_FILLER;
-    private Field f14_CDEMO_TO_PROGRAM;
-    private Field f150_LNAMEC;
-    private Field f151_LNAMEP;
-    private Field f152_LNAMEH;
-    private Field f153_LNAMEV;
-    private Field f154_LNAMEO;
-    private Field f155_FILLER;
-    private Field f156_USERIDC;
-    private Field f157_USERIDP;
-    private Field f158_USERIDH;
-    private Field f159_USERIDV;
-    private Field f15_CDEMO_USER_ID;
-    private Field f160_USERIDO;
-    private Field f161_FILLER;
-    private Field f162_PASSWDC;
-    private Field f163_PASSWDP;
-    private Field f164_PASSWDH;
-    private Field f165_PASSWDV;
-    private Field f166_PASSWDO;
-    private Field f167_FILLER;
-    private Field f168_USRTYPEC;
-    private Field f169_USRTYPEP;
-    private Field f16_CDEMO_USER_TYPE;
-    private Field f170_USRTYPEH;
-    private Field f171_USRTYPEV;
-    private Field f172_USRTYPEO;
-    private Field f173_FILLER;
-    private Field f174_ERRMSGC;
-    private Field f175_ERRMSGP;
-    private Field f176_ERRMSGH;
-    private Field f177_ERRMSGV;
-    private Field f178_ERRMSGO;
-    private Field f179_CCDA_SCREEN_TITLE;
-    private Field f17_CDEMO_PGM_CONTEXT;
-    private Field f180_CCDA_TITLE01;
-    private Field f181_CCDA_TITLE02;
-    private Field f182_CCDA_THANK_YOU;
-    private Field f183_WS_DATE_TIME;
-    private Field f184_WS_CURDATE_DATA;
-    private Field f185_WS_CURDATE;
-    private Field f186_WS_CURDATE_YEAR;
-    private Field f187_WS_CURDATE_MONTH;
-    private Field f188_WS_CURDATE_DAY;
-    private Field f189_WS_CURDATE_N;
-    private Field f18_CDEMO_CUSTOMER_INFO;
-    private Field f190_WS_CURTIME;
-    private Field f191_WS_CURTIME_HOURS;
-    private Field f192_WS_CURTIME_MINUTE;
-    private Field f193_WS_CURTIME_SECOND;
-    private Field f194_WS_CURTIME_MILSEC;
-    private Field f195_WS_CURTIME_N;
-    private Field f196_WS_CURDATE_MM_DD_YY;
-    private Field f197_WS_CURDATE_MM;
-    private Field f198_FILLER;
-    private Field f199_WS_CURDATE_DD;
-    private Field f19_CDEMO_CUST_ID;
-    private Field f1_WS_VARIABLES;
-    private Field f200_FILLER;
-    private Field f201_WS_CURDATE_YY;
-    private Field f202_WS_CURTIME_HH_MM_SS;
-    private Field f203_WS_CURTIME_HH;
-    private Field f204_FILLER;
-    private Field f205_WS_CURTIME_MM;
-    private Field f206_FILLER;
-    private Field f207_WS_CURTIME_SS;
-    private Field f208_WS_TIMESTAMP;
-    private Field f209_WS_TIMESTAMP_DT_YYYY;
-    private Field f20_CDEMO_CUST_FNAME;
-    private Field f210_FILLER;
-    private Field f211_WS_TIMESTAMP_DT_MM;
-    private Field f212_FILLER;
-    private Field f213_WS_TIMESTAMP_DT_DD;
-    private Field f214_FILLER;
-    private Field f215_WS_TIMESTAMP_TM_HH;
-    private Field f216_FILLER;
-    private Field f217_WS_TIMESTAMP_TM_MM;
-    private Field f218_FILLER;
-    private Field f219_WS_TIMESTAMP_TM_SS;
-    private Field f21_CDEMO_CUST_MNAME;
-    private Field f220_FILLER;
-    private Field f221_WS_TIMESTAMP_TM_MS6;
-    private Field f222_CCDA_COMMON_MESSAGES;
-    private Field f223_CCDA_MSG_THANK_YOU;
-    private Field f224_CCDA_MSG_INVALID_KEY;
-    private Field f225_SEC_USER_DATA;
-    private Field f226_SEC_USR_ID;
-    private Field f227_SEC_USR_FNAME;
-    private Field f228_SEC_USR_LNAME;
-    private Field f229_SEC_USR_PWD;
-    private Field f22_CDEMO_CUST_LNAME;
-    private Field f230_SEC_USR_TYPE;
-    private Field f231_SEC_USR_FILLER;
-    private Field f232_DFHAID;
-    private Field f233_DFHNULL;
-    private Field f234_DFHENTER;
-    private Field f235_DFHCLEAR;
-    private Field f236_DFHCLRP;
-    private Field f237_DFHPEN;
-    private Field f238_DFHOPID;
-    private Field f239_DFHMSRE;
-    private Field f23_CDEMO_ACCOUNT_INFO;
-    private Field f240_DFHSTRF;
-    private Field f241_DFHTRIG;
-    private Field f242_DFHPA1;
-    private Field f243_DFHPA2;
-    private Field f244_DFHPA3;
-    private Field f245_DFHPF1;
-    private Field f246_DFHPF2;
-    private Field f247_DFHPF3;
-    private Field f248_DFHPF4;
-    private Field f249_DFHPF5;
-    private Field f24_CDEMO_ACCT_ID;
-    private Field f250_DFHPF6;
-    private Field f251_DFHPF7;
-    private Field f252_DFHPF8;
-    private Field f253_DFHPF9;
-    private Field f254_DFHPF10;
-    private Field f255_DFHPF11;
-    private Field f256_DFHPF12;
-    private Field f257_DFHPF13;
-    private Field f258_DFHPF14;
-    private Field f259_DFHPF15;
-    private Field f25_CDEMO_ACCT_STATUS;
-    private Field f260_DFHPF16;
-    private Field f261_DFHPF17;
-    private Field f262_DFHPF18;
-    private Field f263_DFHPF19;
-    private Field f264_DFHPF20;
-    private Field f265_DFHPF21;
-    private Field f266_DFHPF22;
-    private Field f267_DFHPF23;
-    private Field f268_DFHPF24;
-    private Field f269_DFHBMSCA;
-    private Field f26_CDEMO_CARD_INFO;
-    private Field f270_DFHBMPEM;
-    private Field f271_DFHBMPNL;
-    private Field f272_DFHBMPFF;
-    private Field f273_DFHBMPCR;
-    private Field f274_DFHBMASK;
-    private Field f275_DFHBMUNP;
-    private Field f276_DFHBMUNN;
-    private Field f277_DFHBMPRO;
-    private Field f278_DFHBMBRY;
-    private Field f279_DFHBMDAR;
-    private Field f27_CDEMO_CARD_NUM;
-    private Field f280_DFHBMFSE;
-    private Field f281_DFHBMPRF;
-    private Field f282_DFHBMASF;
-    private Field f283_DFHBMASB;
-    private Field f284_DFHBMEOF;
-    private Field f285_DFHBMCUR;
-    private Field f286_DFHBMEC;
-    private Field f287_DFHBMFLG;
-    private Field f288_DFHBMDET;
-    private Field f289_DFHSA;
-    private Field f28_CDEMO_MORE_INFO;
-    private Field f290_DFHCOLOR;
-    private Field f291_DFHPS;
-    private Field f292_DFHHLT;
-    private Field f293_DFH3270;
-    private Field f294_DFHVAL;
-    private Field f295_DFHOUTLN;
-    private Field f296_DFHBKTRN;
-    private Field f297_DFHALL;
-    private Field f298_DFHERROR;
-    private Field f299_DFHDFT;
-    private Field f29_CDEMO_LAST_MAP;
-    private Field f2_WS_PGMNAME;
-    private Field f300_DFHDFCOL;
-    private Field f301_DFHBLUE;
-    private Field f302_DFHRED;
-    private Field f303_DFHPINK;
-    private Field f304_DFHGREEN;
-    private Field f305_DFHTURQ;
-    private Field f306_DFHYELLO;
-    private Field f307_DFHNEUTR;
-    private Field f308_DFHBASE;
-    private Field f309_DFHDFHI;
-    private Field f30_CDEMO_LAST_MAPSET;
-    private Field f310_DFHBLINK;
-    private Field f311_DFHREVRS;
-    private Field f312_DFHUNDLN;
-    private Field f313_DFHMFIL;
-    private Field f314_DFHMENT;
-    private Field f315_DFHMFE;
-    private Field f316_DFHUNNOD;
-    private Field f317_DFHUNIMD;
-    private Field f318_DFHUNNUM;
-    private Field f319_DFHUNNUB;
-    private Field f31_COUSR1AI;
-    private Field f320_DFHUNINT;
-    private Field f321_DFHUNNON;
-    private Field f322_DFHPROTI;
-    private Field f323_DFHPROTN;
-    private Field f324_DFHMT;
-    private Field f325_DFHMFT;
-    private Field f326_DFHMET;
-    private Field f327_DFHMFET;
-    private Field f328_DFHDFFR;
-    private Field f329_DFHUNDER;
-    private Field f32_FILLER;
-    private Field f330_DFHRIGHT;
-    private Field f331_DFHOVER;
-    private Field f332_DFHLEFT;
-    private Field f333_DFHBOX;
-    private Field f334_DFHSOSI;
-    private Field f335_DFHTRANS;
-    private Field f336_DFHOPAQ;
-    private Field f337_DFHCOMMAREA;
-    private Field f338_LK_COMMAREA;
-    private Field f339_DFHEIBLK;
-    private Field f33_TRNNAMEL;
-    private Field f340_EIBTIME;
-    private Field f341_EIBDATE;
-    private Field f342_EIBTRNID;
-    private Field f343_EIBTASKN;
-    private Field f344_EIBTRMID;
-    private Field f345_DFHEIGDI;
-    private Field f346_EIBCPOSN;
-    private Field f347_EIBCALEN;
-    private Field f348_EIBAID;
-    private Field f349_EIBFN;
-    private Field f34_TRNNAMEF;
-    private Field f350_EIBRCODE;
-    private Field f351_EIBDS;
-    private Field f352_EIBREQID;
-    private Field f353_EIBRSRCE;
-    private Field f354_EIBSYNC;
-    private Field f355_EIBFREE;
-    private Field f356_EIBRECV;
-    private Field f357_EIBSEND;
-    private Field f358_EIBATT;
-    private Field f359_EIBEOC;
-    private Field f35_FILLER;
-    private Field f360_EIBFMH;
-    private Field f361_EIBCOMPL;
-    private Field f362_EIBSIG;
-    private Field f363_EIBCONF;
-    private Field f364_EIBERR;
-    private Field f365_EIBERRCD;
-    private Field f366_EIBSYNRB;
-    private Field f367_EIBNODAT;
-    private Field f368_EIBRESP;
-    private Field f369_EIBRESP2;
-    private Field f36_TRNNAMEA;
-    private Field f370_EIBRLDBK;
-    private Field f371_GG_RETURN_CODE;
-    private Field f37_FILLER;
-    private Field f38_TRNNAMEI;
-    private Field f39_TITLE01L;
-    private Field f3_WS_TRANID;
-    private Field f40_TITLE01F;
-    private Field f41_FILLER;
-    private Field f42_TITLE01A;
-    private Field f43_FILLER;
-    private Field f44_TITLE01I;
-    private Field f45_CURDATEL;
-    private Field f46_CURDATEF;
-    private Field f47_FILLER;
-    private Field f48_CURDATEA;
-    private Field f49_FILLER;
-    private Field f4_WS_MESSAGE;
-    private Field f50_CURDATEI;
-    private Field f51_PGMNAMEL;
-    private Field f52_PGMNAMEF;
-    private Field f53_FILLER;
-    private Field f54_PGMNAMEA;
-    private Field f55_FILLER;
-    private Field f56_PGMNAMEI;
-    private Field f57_TITLE02L;
-    private Field f58_TITLE02F;
-    private Field f59_FILLER;
-    private Field f5_WS_USRSEC_FILE;
-    private Field f60_TITLE02A;
-    private Field f61_FILLER;
-    private Field f62_TITLE02I;
-    private Field f63_CURTIMEL;
-    private Field f64_CURTIMEF;
-    private Field f65_FILLER;
-    private Field f66_CURTIMEA;
-    private Field f67_FILLER;
-    private Field f68_CURTIMEI;
-    private Field f69_FNAMEL;
-    private Field f6_WS_ERR_FLG;
-    private Field f70_FNAMEF;
-    private Field f71_FILLER;
-    private Field f72_FNAMEA;
-    private Field f73_FILLER;
-    private Field f74_FNAMEI;
-    private Field f75_LNAMEL;
-    private Field f76_LNAMEF;
-    private Field f77_FILLER;
-    private Field f78_LNAMEA;
-    private Field f79_FILLER;
-    private Field f7_WS_RESP_CD;
-    private Field f80_LNAMEI;
-    private Field f81_USERIDL;
-    private Field f82_USERIDF;
-    private Field f83_FILLER;
-    private Field f84_USERIDA;
-    private Field f85_FILLER;
-    private Field f86_USERIDI;
-    private Field f87_PASSWDL;
-    private Field f88_PASSWDF;
-    private Field f89_FILLER;
-    private Field f8_WS_REAS_CD;
-    private Field f90_PASSWDA;
-    private Field f91_FILLER;
-    private Field f92_PASSWDI;
-    private Field f93_USRTYPEL;
-    private Field f94_USRTYPEF;
-    private Field f95_FILLER;
-    private Field f96_USRTYPEA;
-    private Field f97_FILLER;
-    private Field f98_USRTYPEI;
-    private Field f99_ERRMSGL;
-    private Field f9_CARDDEMO_COMMAREA;
+    private final Field f4_WS_MESSAGE = Field.alphanumeric(s_WS_VARIABLES, 12, 80, false);
+    private final Field f9_CARDDEMO_COMMAREA = Field.group(s_CARDDEMO_COMMAREA, 0, 160);
+    private final Field f11_CDEMO_FROM_TRANID = Field.alphanumeric(s_CARDDEMO_COMMAREA, 0, 4, false);
+    private final Field f12_CDEMO_FROM_PROGRAM = Field.alphanumeric(s_CARDDEMO_COMMAREA, 4, 8, false);
+    private final Field f14_CDEMO_TO_PROGRAM = Field.alphanumeric(s_CARDDEMO_COMMAREA, 16, 8, false);
+    private final Field f17_CDEMO_PGM_CONTEXT = Field.zoned(s_CARDDEMO_COMMAREA, 33, 1, 0, false, false, false);
+    private final Field f31_COUSR1AI = Field.group(s_COUSR1AI, 0, 339);
+    private final Field f33_TRNNAMEL = Field.binary(s_COUSR1AI, 12, 4, 0, true, false);
+    private final Field f36_TRNNAMEA = Field.alphanumeric(s_COUSR1AI, 14, 1, false);
+    private final Field f38_TRNNAMEI = Field.alphanumeric(s_COUSR1AI, 19, 4, false);
+    private final Field f39_TITLE01L = Field.binary(s_COUSR1AI, 23, 4, 0, true, false);
+    private final Field f42_TITLE01A = Field.alphanumeric(s_COUSR1AI, 25, 1, false);
+    private final Field f44_TITLE01I = Field.alphanumeric(s_COUSR1AI, 30, 40, false);
+    private final Field f45_CURDATEL = Field.binary(s_COUSR1AI, 70, 4, 0, true, false);
+    private final Field f48_CURDATEA = Field.alphanumeric(s_COUSR1AI, 72, 1, false);
+    private final Field f50_CURDATEI = Field.alphanumeric(s_COUSR1AI, 77, 8, false);
+    private final Field f51_PGMNAMEL = Field.binary(s_COUSR1AI, 85, 4, 0, true, false);
+    private final Field f54_PGMNAMEA = Field.alphanumeric(s_COUSR1AI, 87, 1, false);
+    private final Field f56_PGMNAMEI = Field.alphanumeric(s_COUSR1AI, 92, 8, false);
+    private final Field f57_TITLE02L = Field.binary(s_COUSR1AI, 100, 4, 0, true, false);
+    private final Field f60_TITLE02A = Field.alphanumeric(s_COUSR1AI, 102, 1, false);
+    private final Field f62_TITLE02I = Field.alphanumeric(s_COUSR1AI, 107, 40, false);
+    private final Field f63_CURTIMEL = Field.binary(s_COUSR1AI, 147, 4, 0, true, false);
+    private final Field f66_CURTIMEA = Field.alphanumeric(s_COUSR1AI, 149, 1, false);
+    private final Field f68_CURTIMEI = Field.alphanumeric(s_COUSR1AI, 154, 8, false);
+    private final Field f69_FNAMEL = Field.binary(s_COUSR1AI, 162, 4, 0, true, false);
+    private final Field f72_FNAMEA = Field.alphanumeric(s_COUSR1AI, 164, 1, false);
+    private final Field f74_FNAMEI = Field.alphanumeric(s_COUSR1AI, 169, 20, false);
+    private final Field f75_LNAMEL = Field.binary(s_COUSR1AI, 189, 4, 0, true, false);
+    private final Field f78_LNAMEA = Field.alphanumeric(s_COUSR1AI, 191, 1, false);
+    private final Field f80_LNAMEI = Field.alphanumeric(s_COUSR1AI, 196, 20, false);
+    private final Field f81_USERIDL = Field.binary(s_COUSR1AI, 216, 4, 0, true, false);
+    private final Field f84_USERIDA = Field.alphanumeric(s_COUSR1AI, 218, 1, false);
+    private final Field f86_USERIDI = Field.alphanumeric(s_COUSR1AI, 223, 8, false);
+    private final Field f87_PASSWDL = Field.binary(s_COUSR1AI, 231, 4, 0, true, false);
+    private final Field f90_PASSWDA = Field.alphanumeric(s_COUSR1AI, 233, 1, false);
+    private final Field f92_PASSWDI = Field.alphanumeric(s_COUSR1AI, 238, 8, false);
+    private final Field f93_USRTYPEL = Field.binary(s_COUSR1AI, 246, 4, 0, true, false);
+    private final Field f96_USRTYPEA = Field.alphanumeric(s_COUSR1AI, 248, 1, false);
+    private final Field f98_USRTYPEI = Field.alphanumeric(s_COUSR1AI, 253, 1, false);
+    private final Field f99_ERRMSGL = Field.binary(s_COUSR1AI, 254, 4, 0, true, false);
+    private final Field f102_ERRMSGA = Field.alphanumeric(s_COUSR1AI, 256, 1, false);
+    private final Field f104_ERRMSGI = Field.alphanumeric(s_COUSR1AI, 261, 78, false);
+    private final Field f105_COUSR1AO = Field.group(s_COUSR1AI, 0, 339);
+    private final Field f108_TRNNAMEC = Field.alphanumeric(s_COUSR1AI, 15, 1, false);
+    private final Field f110_TRNNAMEH = Field.alphanumeric(s_COUSR1AI, 17, 1, false);
+    private final Field f112_TRNNAMEO = Field.alphanumeric(s_COUSR1AI, 19, 4, false);
+    private final Field f114_TITLE01C = Field.alphanumeric(s_COUSR1AI, 26, 1, false);
+    private final Field f116_TITLE01H = Field.alphanumeric(s_COUSR1AI, 28, 1, false);
+    private final Field f118_TITLE01O = Field.alphanumeric(s_COUSR1AI, 30, 40, false);
+    private final Field f120_CURDATEC = Field.alphanumeric(s_COUSR1AI, 73, 1, false);
+    private final Field f122_CURDATEH = Field.alphanumeric(s_COUSR1AI, 75, 1, false);
+    private final Field f124_CURDATEO = Field.alphanumeric(s_COUSR1AI, 77, 8, false);
+    private final Field f126_PGMNAMEC = Field.alphanumeric(s_COUSR1AI, 88, 1, false);
+    private final Field f128_PGMNAMEH = Field.alphanumeric(s_COUSR1AI, 90, 1, false);
+    private final Field f130_PGMNAMEO = Field.alphanumeric(s_COUSR1AI, 92, 8, false);
+    private final Field f132_TITLE02C = Field.alphanumeric(s_COUSR1AI, 103, 1, false);
+    private final Field f134_TITLE02H = Field.alphanumeric(s_COUSR1AI, 105, 1, false);
+    private final Field f136_TITLE02O = Field.alphanumeric(s_COUSR1AI, 107, 40, false);
+    private final Field f138_CURTIMEC = Field.alphanumeric(s_COUSR1AI, 150, 1, false);
+    private final Field f140_CURTIMEH = Field.alphanumeric(s_COUSR1AI, 152, 1, false);
+    private final Field f142_CURTIMEO = Field.alphanumeric(s_COUSR1AI, 154, 8, false);
+    private final Field f144_FNAMEC = Field.alphanumeric(s_COUSR1AI, 165, 1, false);
+    private final Field f146_FNAMEH = Field.alphanumeric(s_COUSR1AI, 167, 1, false);
+    private final Field f148_FNAMEO = Field.alphanumeric(s_COUSR1AI, 169, 20, false);
+    private final Field f150_LNAMEC = Field.alphanumeric(s_COUSR1AI, 192, 1, false);
+    private final Field f152_LNAMEH = Field.alphanumeric(s_COUSR1AI, 194, 1, false);
+    private final Field f154_LNAMEO = Field.alphanumeric(s_COUSR1AI, 196, 20, false);
+    private final Field f156_USERIDC = Field.alphanumeric(s_COUSR1AI, 219, 1, false);
+    private final Field f158_USERIDH = Field.alphanumeric(s_COUSR1AI, 221, 1, false);
+    private final Field f160_USERIDO = Field.alphanumeric(s_COUSR1AI, 223, 8, false);
+    private final Field f162_PASSWDC = Field.alphanumeric(s_COUSR1AI, 234, 1, false);
+    private final Field f164_PASSWDH = Field.alphanumeric(s_COUSR1AI, 236, 1, false);
+    private final Field f166_PASSWDO = Field.alphanumeric(s_COUSR1AI, 238, 8, false);
+    private final Field f168_USRTYPEC = Field.alphanumeric(s_COUSR1AI, 249, 1, false);
+    private final Field f170_USRTYPEH = Field.alphanumeric(s_COUSR1AI, 251, 1, false);
+    private final Field f172_USRTYPEO = Field.alphanumeric(s_COUSR1AI, 253, 1, false);
+    private final Field f174_ERRMSGC = Field.alphanumeric(s_COUSR1AI, 257, 1, false);
+    private final Field f176_ERRMSGH = Field.alphanumeric(s_COUSR1AI, 259, 1, false);
+    private final Field f178_ERRMSGO = Field.alphanumeric(s_COUSR1AI, 261, 78, false);
+    private final Field f184_WS_CURDATE_DATA = Field.group(s_WS_DATE_TIME, 0, 16);
+    private final Field f186_WS_CURDATE_YEAR = Field.zoned(s_WS_DATE_TIME, 0, 4, 0, false, false, false);
+    private final Field f187_WS_CURDATE_MONTH = Field.zoned(s_WS_DATE_TIME, 4, 2, 0, false, false, false);
+    private final Field f188_WS_CURDATE_DAY = Field.zoned(s_WS_DATE_TIME, 6, 2, 0, false, false, false);
+    private final Field f191_WS_CURTIME_HOURS = Field.zoned(s_WS_DATE_TIME, 8, 2, 0, false, false, false);
+    private final Field f192_WS_CURTIME_MINUTE = Field.zoned(s_WS_DATE_TIME, 10, 2, 0, false, false, false);
+    private final Field f193_WS_CURTIME_SECOND = Field.zoned(s_WS_DATE_TIME, 12, 2, 0, false, false, false);
+    private final Field f196_WS_CURDATE_MM_DD_YY = Field.group(s_WS_DATE_TIME, 16, 8);
+    private final Field f197_WS_CURDATE_MM = Field.zoned(s_WS_DATE_TIME, 16, 2, 0, false, false, false);
+    private final Field f199_WS_CURDATE_DD = Field.zoned(s_WS_DATE_TIME, 19, 2, 0, false, false, false);
+    private final Field f201_WS_CURDATE_YY = Field.zoned(s_WS_DATE_TIME, 22, 2, 0, false, false, false);
+    private final Field f202_WS_CURTIME_HH_MM_SS = Field.group(s_WS_DATE_TIME, 24, 8);
+    private final Field f203_WS_CURTIME_HH = Field.zoned(s_WS_DATE_TIME, 24, 2, 0, false, false, false);
+    private final Field f205_WS_CURTIME_MM = Field.zoned(s_WS_DATE_TIME, 27, 2, 0, false, false, false);
+    private final Field f207_WS_CURTIME_SS = Field.zoned(s_WS_DATE_TIME, 30, 2, 0, false, false, false);
+    private final Field f225_SEC_USER_DATA = Field.group(s_SEC_USER_DATA, 0, 80);
+    private final Field f226_SEC_USR_ID = Field.alphanumeric(s_SEC_USER_DATA, 0, 8, false);
+    private final Field f227_SEC_USR_FNAME = Field.alphanumeric(s_SEC_USER_DATA, 8, 20, false);
+    private final Field f228_SEC_USR_LNAME = Field.alphanumeric(s_SEC_USER_DATA, 28, 20, false);
+    private final Field f229_SEC_USR_PWD = Field.alphanumeric(s_SEC_USER_DATA, 48, 8, false);
+    private final Field f230_SEC_USR_TYPE = Field.alphanumeric(s_SEC_USER_DATA, 56, 1, false);
+    private final Field f233_DFHNULL = Field.alphanumeric(s_DFHAID, 0, 1, false);
+    private final Field f234_DFHENTER = Field.alphanumeric(s_DFHAID, 1, 1, false);
+    private final Field f235_DFHCLEAR = Field.alphanumeric(s_DFHAID, 2, 1, false);
+    private final Field f236_DFHCLRP = Field.alphanumeric(s_DFHAID, 3, 1, false);
+    private final Field f237_DFHPEN = Field.alphanumeric(s_DFHAID, 4, 1, false);
+    private final Field f238_DFHOPID = Field.alphanumeric(s_DFHAID, 5, 1, false);
+    private final Field f239_DFHMSRE = Field.alphanumeric(s_DFHAID, 6, 1, false);
+    private final Field f240_DFHSTRF = Field.alphanumeric(s_DFHAID, 7, 1, false);
+    private final Field f241_DFHTRIG = Field.alphanumeric(s_DFHAID, 8, 1, false);
+    private final Field f242_DFHPA1 = Field.alphanumeric(s_DFHAID, 9, 1, false);
+    private final Field f243_DFHPA2 = Field.alphanumeric(s_DFHAID, 10, 1, false);
+    private final Field f244_DFHPA3 = Field.alphanumeric(s_DFHAID, 11, 1, false);
+    private final Field f245_DFHPF1 = Field.alphanumeric(s_DFHAID, 12, 1, false);
+    private final Field f246_DFHPF2 = Field.alphanumeric(s_DFHAID, 13, 1, false);
+    private final Field f247_DFHPF3 = Field.alphanumeric(s_DFHAID, 14, 1, false);
+    private final Field f248_DFHPF4 = Field.alphanumeric(s_DFHAID, 15, 1, false);
+    private final Field f249_DFHPF5 = Field.alphanumeric(s_DFHAID, 16, 1, false);
+    private final Field f250_DFHPF6 = Field.alphanumeric(s_DFHAID, 17, 1, false);
+    private final Field f251_DFHPF7 = Field.alphanumeric(s_DFHAID, 18, 1, false);
+    private final Field f252_DFHPF8 = Field.alphanumeric(s_DFHAID, 19, 1, false);
+    private final Field f253_DFHPF9 = Field.alphanumeric(s_DFHAID, 20, 1, false);
+    private final Field f254_DFHPF10 = Field.alphanumeric(s_DFHAID, 21, 1, false);
+    private final Field f255_DFHPF11 = Field.alphanumeric(s_DFHAID, 22, 1, false);
+    private final Field f256_DFHPF12 = Field.alphanumeric(s_DFHAID, 23, 1, false);
+    private final Field f257_DFHPF13 = Field.alphanumeric(s_DFHAID, 24, 1, false);
+    private final Field f258_DFHPF14 = Field.alphanumeric(s_DFHAID, 25, 1, false);
+    private final Field f259_DFHPF15 = Field.alphanumeric(s_DFHAID, 26, 1, false);
+    private final Field f260_DFHPF16 = Field.alphanumeric(s_DFHAID, 27, 1, false);
+    private final Field f261_DFHPF17 = Field.alphanumeric(s_DFHAID, 28, 1, false);
+    private final Field f262_DFHPF18 = Field.alphanumeric(s_DFHAID, 29, 1, false);
+    private final Field f263_DFHPF19 = Field.alphanumeric(s_DFHAID, 30, 1, false);
+    private final Field f264_DFHPF20 = Field.alphanumeric(s_DFHAID, 31, 1, false);
+    private final Field f265_DFHPF21 = Field.alphanumeric(s_DFHAID, 32, 1, false);
+    private final Field f266_DFHPF22 = Field.alphanumeric(s_DFHAID, 33, 1, false);
+    private final Field f267_DFHPF23 = Field.alphanumeric(s_DFHAID, 34, 1, false);
+    private final Field f268_DFHPF24 = Field.alphanumeric(s_DFHAID, 35, 1, false);
+    private final Field f304_DFHGREEN = Field.alphanumeric(s_DFHBMSCA, 34, 1, false);
+    private final Field f337_DFHCOMMAREA = Field.group(s_DFHCOMMAREA, 0, 32767);
+    private final Field f340_EIBTIME = Field.packed(s_DFHEIBLK, 0, 7, 0, true);
+    private final Field f341_EIBDATE = Field.packed(s_DFHEIBLK, 4, 7, 0, true);
+    private final Field f342_EIBTRNID = Field.alphanumeric(s_DFHEIBLK, 8, 4, false);
+    private final Field f343_EIBTASKN = Field.packed(s_DFHEIBLK, 12, 7, 0, true);
+    private final Field f344_EIBTRMID = Field.alphanumeric(s_DFHEIBLK, 16, 4, false);
+    private final Field f347_EIBCALEN = Field.binary(s_DFHEIBLK, 24, 4, 0, true, false);
+    private final Field f348_EIBAID = Field.alphanumeric(s_DFHEIBLK, 26, 1, false);
+    private final Field f368_EIBRESP = Field.binary(s_DFHEIBLK, 76, 8, 0, true, false);
+    private final Field f369_EIBRESP2 = Field.binary(s_DFHEIBLK, 80, 8, 0, true, false);
+    private final Field f371_GG_RETURN_CODE = Field.binary(s_GG_RETURN_CODE, 0, 4, 0, true, false);
+    private String f2_WS_PGMNAME;  // WS-PGMNAME PIC X(08)
+    private String f3_WS_TRANID;  // WS-TRANID PIC X(04)
+    private String f5_WS_USRSEC_FILE;  // WS-USRSEC-FILE PIC X(08)
+    private String f6_WS_ERR_FLG;  // WS-ERR-FLG PIC X(01)
+    private long f7_WS_RESP_CD;  // WS-RESP-CD PIC S9(09) BINARY
+    private long f8_WS_REAS_CD;  // WS-REAS-CD PIC S9(09) BINARY
+    private String f180_CCDA_TITLE01;  // CCDA-TITLE01 PIC X(40)
+    private String f181_CCDA_TITLE02;  // CCDA-TITLE02 PIC X(40)
+    private String f182_CCDA_THANK_YOU;  // CCDA-THANK-YOU PIC X(40)
+    private BigDecimal f209_WS_TIMESTAMP_DT_YYYY;  // WS-TIMESTAMP-DT-YYYY PIC 9(04) DISPLAY
+    private BigDecimal f211_WS_TIMESTAMP_DT_MM;  // WS-TIMESTAMP-DT-MM PIC 9(02) DISPLAY
+    private BigDecimal f213_WS_TIMESTAMP_DT_DD;  // WS-TIMESTAMP-DT-DD PIC 9(02) DISPLAY
+    private BigDecimal f215_WS_TIMESTAMP_TM_HH;  // WS-TIMESTAMP-TM-HH PIC 9(02) DISPLAY
+    private BigDecimal f217_WS_TIMESTAMP_TM_MM;  // WS-TIMESTAMP-TM-MM PIC 9(02) DISPLAY
+    private BigDecimal f219_WS_TIMESTAMP_TM_SS;  // WS-TIMESTAMP-TM-SS PIC 9(02) DISPLAY
+    private BigDecimal f221_WS_TIMESTAMP_TM_MS6;  // WS-TIMESTAMP-TM-MS6 PIC 9(06) DISPLAY
+    private String f223_CCDA_MSG_THANK_YOU;  // CCDA-MSG-THANK-YOU PIC X(50)
+    private String f224_CCDA_MSG_INVALID_KEY;  // CCDA-MSG-INVALID-KEY PIC X(50)
 
     private static String id_SecUserData(byte[] rec) {
         Storage s = Storage.of(rec);
@@ -574,6 +368,14 @@ public class Cousr01cService {
     private final java.util.Map<String, byte[]> heldKey = new java.util.HashMap<>();
     /** Writes the COMMAREA's bytes back into the object the task carries (a LINKed program's is its caller's). */
     private Runnable caBack = () -> { };
+
+    /** The program ends because of an abend: a LINKed program's COMMAREA writes stay its caller's. */
+    private Goback abended() {
+        if (task.level() > 1) {
+            caBack.run();
+        }
+        return new Goback();
+    }
 
     @SuppressWarnings("unchecked")
     private <E> DetCics.Store<E> store(String name) {
@@ -603,16 +405,26 @@ public class Cousr01cService {
         return i;
     }
 
-    /** A condition the command neither returned in RESP nor ignored: its HANDLE CONDITION label, or CICS's
-     *  default action -- an abend, to this program's HANDLE ABEND exit or ending the task. */
+    /** A condition the command did not return in RESP: its HANDLE CONDITION label, or -1 (go on) when IGNOREd
+     *  (#4414); else CICS's default action -- -1 for one whose default is to ignore it (#4413: EOC); else the
+     *  ERROR label (#4502: IBM, HANDLE CONDITION: "if the default action for such a condition terminates the
+     *  task abnormally, and the condition ERROR has been specified, the action for ERROR is taken"); else an
+     *  abend, to this program's HANDLE ABEND exit or ending the task. */
     private int condition(String cond) {
         Integer h = handlers.get(cond);
         if (h != null) {
             return h;
         }
+        if (DetCics.ignoredByDefault(cond)) {
+            return -1;
+        }
+        Integer error = handlers.get("ERROR");
+        if (error != null) {
+            return error;
+        }
         String label = task.abendOnCondition(cond);
         if (label == null) {
-            throw new Goback();
+            throw abended();
         }
         return paragraph(label);
     }
@@ -668,6 +480,14 @@ public class Cousr01cService {
         return d;
     }
 
+    /** #4270 (X23): DFHCOMMAREA's whole record again, with what the task left in its EIBCALEN bytes. */
+    private void caWhole(byte[] whole) {
+        if (s_DFHCOMMAREA.bytes != whole) {
+            System.arraycopy(s_DFHCOMMAREA.bytes, 0, whole, 0, s_DFHCOMMAREA.bytes.length);
+            s_DFHCOMMAREA.bytes = whole;
+        }
+    }
+
 
     private final SecUserDataRepository secUserDataRepository;
     private final DatasetResolver datasets;
@@ -679,390 +499,10 @@ public class Cousr01cService {
         this.datasets = datasets;
         this.files = files;
         this.clock = clock;
-        fields0();
-        fields1();
     }
 
-    private void fields0() {
-        f1_WS_VARIABLES = Field.group(s_WS_VARIABLES, 0, 109);
-        f2_WS_PGMNAME = Field.alphanumeric(s_WS_VARIABLES, 0, 8, false);
-        f3_WS_TRANID = Field.alphanumeric(s_WS_VARIABLES, 8, 4, false);
-        f4_WS_MESSAGE = Field.alphanumeric(s_WS_VARIABLES, 12, 80, false);
-        f5_WS_USRSEC_FILE = Field.alphanumeric(s_WS_VARIABLES, 92, 8, false);
-        f6_WS_ERR_FLG = Field.alphanumeric(s_WS_VARIABLES, 100, 1, false);
-        f7_WS_RESP_CD = Field.binary(s_WS_VARIABLES, 101, 9, 0, true, false);
-        f8_WS_REAS_CD = Field.binary(s_WS_VARIABLES, 105, 9, 0, true, false);
-        f9_CARDDEMO_COMMAREA = Field.group(s_CARDDEMO_COMMAREA, 0, 160);
-        f10_CDEMO_GENERAL_INFO = Field.group(s_CARDDEMO_COMMAREA, 0, 34);
-        f11_CDEMO_FROM_TRANID = Field.alphanumeric(s_CARDDEMO_COMMAREA, 0, 4, false);
-        f12_CDEMO_FROM_PROGRAM = Field.alphanumeric(s_CARDDEMO_COMMAREA, 4, 8, false);
-        f13_CDEMO_TO_TRANID = Field.alphanumeric(s_CARDDEMO_COMMAREA, 12, 4, false);
-        f14_CDEMO_TO_PROGRAM = Field.alphanumeric(s_CARDDEMO_COMMAREA, 16, 8, false);
-        f15_CDEMO_USER_ID = Field.alphanumeric(s_CARDDEMO_COMMAREA, 24, 8, false);
-        f16_CDEMO_USER_TYPE = Field.alphanumeric(s_CARDDEMO_COMMAREA, 32, 1, false);
-        f17_CDEMO_PGM_CONTEXT = Field.zoned(s_CARDDEMO_COMMAREA, 33, 1, 0, false, false, false);
-        f18_CDEMO_CUSTOMER_INFO = Field.group(s_CARDDEMO_COMMAREA, 34, 84);
-        f19_CDEMO_CUST_ID = Field.zoned(s_CARDDEMO_COMMAREA, 34, 9, 0, false, false, false);
-        f20_CDEMO_CUST_FNAME = Field.alphanumeric(s_CARDDEMO_COMMAREA, 43, 25, false);
-        f21_CDEMO_CUST_MNAME = Field.alphanumeric(s_CARDDEMO_COMMAREA, 68, 25, false);
-        f22_CDEMO_CUST_LNAME = Field.alphanumeric(s_CARDDEMO_COMMAREA, 93, 25, false);
-        f23_CDEMO_ACCOUNT_INFO = Field.group(s_CARDDEMO_COMMAREA, 118, 12);
-        f24_CDEMO_ACCT_ID = Field.zoned(s_CARDDEMO_COMMAREA, 118, 11, 0, false, false, false);
-        f25_CDEMO_ACCT_STATUS = Field.alphanumeric(s_CARDDEMO_COMMAREA, 129, 1, false);
-        f26_CDEMO_CARD_INFO = Field.group(s_CARDDEMO_COMMAREA, 130, 16);
-        f27_CDEMO_CARD_NUM = Field.zoned(s_CARDDEMO_COMMAREA, 130, 16, 0, false, false, false);
-        f28_CDEMO_MORE_INFO = Field.group(s_CARDDEMO_COMMAREA, 146, 14);
-        f29_CDEMO_LAST_MAP = Field.alphanumeric(s_CARDDEMO_COMMAREA, 146, 7, false);
-        f30_CDEMO_LAST_MAPSET = Field.alphanumeric(s_CARDDEMO_COMMAREA, 153, 7, false);
-        f31_COUSR1AI = Field.group(s_COUSR1AI, 0, 339);
-        f32_FILLER = Field.alphanumeric(s_COUSR1AI, 0, 12, false);
-        f33_TRNNAMEL = Field.binary(s_COUSR1AI, 12, 4, 0, true, false);
-        f34_TRNNAMEF = Field.alphanumeric(s_COUSR1AI, 14, 1, false);
-        f35_FILLER = Field.group(s_COUSR1AI, 14, 1);
-        f36_TRNNAMEA = Field.alphanumeric(s_COUSR1AI, 14, 1, false);
-        f37_FILLER = Field.alphanumeric(s_COUSR1AI, 15, 4, false);
-        f38_TRNNAMEI = Field.alphanumeric(s_COUSR1AI, 19, 4, false);
-        f39_TITLE01L = Field.binary(s_COUSR1AI, 23, 4, 0, true, false);
-        f40_TITLE01F = Field.alphanumeric(s_COUSR1AI, 25, 1, false);
-        f41_FILLER = Field.group(s_COUSR1AI, 25, 1);
-        f42_TITLE01A = Field.alphanumeric(s_COUSR1AI, 25, 1, false);
-        f43_FILLER = Field.alphanumeric(s_COUSR1AI, 26, 4, false);
-        f44_TITLE01I = Field.alphanumeric(s_COUSR1AI, 30, 40, false);
-        f45_CURDATEL = Field.binary(s_COUSR1AI, 70, 4, 0, true, false);
-        f46_CURDATEF = Field.alphanumeric(s_COUSR1AI, 72, 1, false);
-        f47_FILLER = Field.group(s_COUSR1AI, 72, 1);
-        f48_CURDATEA = Field.alphanumeric(s_COUSR1AI, 72, 1, false);
-        f49_FILLER = Field.alphanumeric(s_COUSR1AI, 73, 4, false);
-        f50_CURDATEI = Field.alphanumeric(s_COUSR1AI, 77, 8, false);
-        f51_PGMNAMEL = Field.binary(s_COUSR1AI, 85, 4, 0, true, false);
-        f52_PGMNAMEF = Field.alphanumeric(s_COUSR1AI, 87, 1, false);
-        f53_FILLER = Field.group(s_COUSR1AI, 87, 1);
-        f54_PGMNAMEA = Field.alphanumeric(s_COUSR1AI, 87, 1, false);
-        f55_FILLER = Field.alphanumeric(s_COUSR1AI, 88, 4, false);
-        f56_PGMNAMEI = Field.alphanumeric(s_COUSR1AI, 92, 8, false);
-        f57_TITLE02L = Field.binary(s_COUSR1AI, 100, 4, 0, true, false);
-        f58_TITLE02F = Field.alphanumeric(s_COUSR1AI, 102, 1, false);
-        f59_FILLER = Field.group(s_COUSR1AI, 102, 1);
-        f60_TITLE02A = Field.alphanumeric(s_COUSR1AI, 102, 1, false);
-        f61_FILLER = Field.alphanumeric(s_COUSR1AI, 103, 4, false);
-        f62_TITLE02I = Field.alphanumeric(s_COUSR1AI, 107, 40, false);
-        f63_CURTIMEL = Field.binary(s_COUSR1AI, 147, 4, 0, true, false);
-        f64_CURTIMEF = Field.alphanumeric(s_COUSR1AI, 149, 1, false);
-        f65_FILLER = Field.group(s_COUSR1AI, 149, 1);
-        f66_CURTIMEA = Field.alphanumeric(s_COUSR1AI, 149, 1, false);
-        f67_FILLER = Field.alphanumeric(s_COUSR1AI, 150, 4, false);
-        f68_CURTIMEI = Field.alphanumeric(s_COUSR1AI, 154, 8, false);
-        f69_FNAMEL = Field.binary(s_COUSR1AI, 162, 4, 0, true, false);
-        f70_FNAMEF = Field.alphanumeric(s_COUSR1AI, 164, 1, false);
-        f71_FILLER = Field.group(s_COUSR1AI, 164, 1);
-        f72_FNAMEA = Field.alphanumeric(s_COUSR1AI, 164, 1, false);
-        f73_FILLER = Field.alphanumeric(s_COUSR1AI, 165, 4, false);
-        f74_FNAMEI = Field.alphanumeric(s_COUSR1AI, 169, 20, false);
-        f75_LNAMEL = Field.binary(s_COUSR1AI, 189, 4, 0, true, false);
-        f76_LNAMEF = Field.alphanumeric(s_COUSR1AI, 191, 1, false);
-        f77_FILLER = Field.group(s_COUSR1AI, 191, 1);
-        f78_LNAMEA = Field.alphanumeric(s_COUSR1AI, 191, 1, false);
-        f79_FILLER = Field.alphanumeric(s_COUSR1AI, 192, 4, false);
-        f80_LNAMEI = Field.alphanumeric(s_COUSR1AI, 196, 20, false);
-        f81_USERIDL = Field.binary(s_COUSR1AI, 216, 4, 0, true, false);
-        f82_USERIDF = Field.alphanumeric(s_COUSR1AI, 218, 1, false);
-        f83_FILLER = Field.group(s_COUSR1AI, 218, 1);
-        f84_USERIDA = Field.alphanumeric(s_COUSR1AI, 218, 1, false);
-        f85_FILLER = Field.alphanumeric(s_COUSR1AI, 219, 4, false);
-        f86_USERIDI = Field.alphanumeric(s_COUSR1AI, 223, 8, false);
-        f87_PASSWDL = Field.binary(s_COUSR1AI, 231, 4, 0, true, false);
-        f88_PASSWDF = Field.alphanumeric(s_COUSR1AI, 233, 1, false);
-        f89_FILLER = Field.group(s_COUSR1AI, 233, 1);
-        f90_PASSWDA = Field.alphanumeric(s_COUSR1AI, 233, 1, false);
-        f91_FILLER = Field.alphanumeric(s_COUSR1AI, 234, 4, false);
-        f92_PASSWDI = Field.alphanumeric(s_COUSR1AI, 238, 8, false);
-        f93_USRTYPEL = Field.binary(s_COUSR1AI, 246, 4, 0, true, false);
-        f94_USRTYPEF = Field.alphanumeric(s_COUSR1AI, 248, 1, false);
-        f95_FILLER = Field.group(s_COUSR1AI, 248, 1);
-        f96_USRTYPEA = Field.alphanumeric(s_COUSR1AI, 248, 1, false);
-        f97_FILLER = Field.alphanumeric(s_COUSR1AI, 249, 4, false);
-        f98_USRTYPEI = Field.alphanumeric(s_COUSR1AI, 253, 1, false);
-        f99_ERRMSGL = Field.binary(s_COUSR1AI, 254, 4, 0, true, false);
-        f100_ERRMSGF = Field.alphanumeric(s_COUSR1AI, 256, 1, false);
-        f101_FILLER = Field.group(s_COUSR1AI, 256, 1);
-        f102_ERRMSGA = Field.alphanumeric(s_COUSR1AI, 256, 1, false);
-        f103_FILLER = Field.alphanumeric(s_COUSR1AI, 257, 4, false);
-        f104_ERRMSGI = Field.alphanumeric(s_COUSR1AI, 261, 78, false);
-        f105_COUSR1AO = Field.group(s_COUSR1AI, 0, 339);
-        f106_FILLER = Field.alphanumeric(s_COUSR1AI, 0, 12, false);
-        f107_FILLER = Field.alphanumeric(s_COUSR1AI, 12, 3, false);
-        f108_TRNNAMEC = Field.alphanumeric(s_COUSR1AI, 15, 1, false);
-        f109_TRNNAMEP = Field.alphanumeric(s_COUSR1AI, 16, 1, false);
-        f110_TRNNAMEH = Field.alphanumeric(s_COUSR1AI, 17, 1, false);
-        f111_TRNNAMEV = Field.alphanumeric(s_COUSR1AI, 18, 1, false);
-        f112_TRNNAMEO = Field.alphanumeric(s_COUSR1AI, 19, 4, false);
-        f113_FILLER = Field.alphanumeric(s_COUSR1AI, 23, 3, false);
-        f114_TITLE01C = Field.alphanumeric(s_COUSR1AI, 26, 1, false);
-        f115_TITLE01P = Field.alphanumeric(s_COUSR1AI, 27, 1, false);
-        f116_TITLE01H = Field.alphanumeric(s_COUSR1AI, 28, 1, false);
-        f117_TITLE01V = Field.alphanumeric(s_COUSR1AI, 29, 1, false);
-        f118_TITLE01O = Field.alphanumeric(s_COUSR1AI, 30, 40, false);
-        f119_FILLER = Field.alphanumeric(s_COUSR1AI, 70, 3, false);
-        f120_CURDATEC = Field.alphanumeric(s_COUSR1AI, 73, 1, false);
-        f121_CURDATEP = Field.alphanumeric(s_COUSR1AI, 74, 1, false);
-        f122_CURDATEH = Field.alphanumeric(s_COUSR1AI, 75, 1, false);
-        f123_CURDATEV = Field.alphanumeric(s_COUSR1AI, 76, 1, false);
-        f124_CURDATEO = Field.alphanumeric(s_COUSR1AI, 77, 8, false);
-        f125_FILLER = Field.alphanumeric(s_COUSR1AI, 85, 3, false);
-        f126_PGMNAMEC = Field.alphanumeric(s_COUSR1AI, 88, 1, false);
-        f127_PGMNAMEP = Field.alphanumeric(s_COUSR1AI, 89, 1, false);
-        f128_PGMNAMEH = Field.alphanumeric(s_COUSR1AI, 90, 1, false);
-        f129_PGMNAMEV = Field.alphanumeric(s_COUSR1AI, 91, 1, false);
-        f130_PGMNAMEO = Field.alphanumeric(s_COUSR1AI, 92, 8, false);
-        f131_FILLER = Field.alphanumeric(s_COUSR1AI, 100, 3, false);
-        f132_TITLE02C = Field.alphanumeric(s_COUSR1AI, 103, 1, false);
-        f133_TITLE02P = Field.alphanumeric(s_COUSR1AI, 104, 1, false);
-        f134_TITLE02H = Field.alphanumeric(s_COUSR1AI, 105, 1, false);
-        f135_TITLE02V = Field.alphanumeric(s_COUSR1AI, 106, 1, false);
-        f136_TITLE02O = Field.alphanumeric(s_COUSR1AI, 107, 40, false);
-        f137_FILLER = Field.alphanumeric(s_COUSR1AI, 147, 3, false);
-        f138_CURTIMEC = Field.alphanumeric(s_COUSR1AI, 150, 1, false);
-        f139_CURTIMEP = Field.alphanumeric(s_COUSR1AI, 151, 1, false);
-        f140_CURTIMEH = Field.alphanumeric(s_COUSR1AI, 152, 1, false);
-        f141_CURTIMEV = Field.alphanumeric(s_COUSR1AI, 153, 1, false);
-        f142_CURTIMEO = Field.alphanumeric(s_COUSR1AI, 154, 8, false);
-        f143_FILLER = Field.alphanumeric(s_COUSR1AI, 162, 3, false);
-        f144_FNAMEC = Field.alphanumeric(s_COUSR1AI, 165, 1, false);
-        f145_FNAMEP = Field.alphanumeric(s_COUSR1AI, 166, 1, false);
-        f146_FNAMEH = Field.alphanumeric(s_COUSR1AI, 167, 1, false);
-        f147_FNAMEV = Field.alphanumeric(s_COUSR1AI, 168, 1, false);
-        f148_FNAMEO = Field.alphanumeric(s_COUSR1AI, 169, 20, false);
-        f149_FILLER = Field.alphanumeric(s_COUSR1AI, 189, 3, false);
-        f150_LNAMEC = Field.alphanumeric(s_COUSR1AI, 192, 1, false);
-        f151_LNAMEP = Field.alphanumeric(s_COUSR1AI, 193, 1, false);
-        f152_LNAMEH = Field.alphanumeric(s_COUSR1AI, 194, 1, false);
-        f153_LNAMEV = Field.alphanumeric(s_COUSR1AI, 195, 1, false);
-        f154_LNAMEO = Field.alphanumeric(s_COUSR1AI, 196, 20, false);
-        f155_FILLER = Field.alphanumeric(s_COUSR1AI, 216, 3, false);
-        f156_USERIDC = Field.alphanumeric(s_COUSR1AI, 219, 1, false);
-        f157_USERIDP = Field.alphanumeric(s_COUSR1AI, 220, 1, false);
-        f158_USERIDH = Field.alphanumeric(s_COUSR1AI, 221, 1, false);
-        f159_USERIDV = Field.alphanumeric(s_COUSR1AI, 222, 1, false);
-        f160_USERIDO = Field.alphanumeric(s_COUSR1AI, 223, 8, false);
-        f161_FILLER = Field.alphanumeric(s_COUSR1AI, 231, 3, false);
-        f162_PASSWDC = Field.alphanumeric(s_COUSR1AI, 234, 1, false);
-        f163_PASSWDP = Field.alphanumeric(s_COUSR1AI, 235, 1, false);
-        f164_PASSWDH = Field.alphanumeric(s_COUSR1AI, 236, 1, false);
-        f165_PASSWDV = Field.alphanumeric(s_COUSR1AI, 237, 1, false);
-        f166_PASSWDO = Field.alphanumeric(s_COUSR1AI, 238, 8, false);
-        f167_FILLER = Field.alphanumeric(s_COUSR1AI, 246, 3, false);
-        f168_USRTYPEC = Field.alphanumeric(s_COUSR1AI, 249, 1, false);
-        f169_USRTYPEP = Field.alphanumeric(s_COUSR1AI, 250, 1, false);
-        f170_USRTYPEH = Field.alphanumeric(s_COUSR1AI, 251, 1, false);
-        f171_USRTYPEV = Field.alphanumeric(s_COUSR1AI, 252, 1, false);
-        f172_USRTYPEO = Field.alphanumeric(s_COUSR1AI, 253, 1, false);
-        f173_FILLER = Field.alphanumeric(s_COUSR1AI, 254, 3, false);
-        f174_ERRMSGC = Field.alphanumeric(s_COUSR1AI, 257, 1, false);
-        f175_ERRMSGP = Field.alphanumeric(s_COUSR1AI, 258, 1, false);
-        f176_ERRMSGH = Field.alphanumeric(s_COUSR1AI, 259, 1, false);
-        f177_ERRMSGV = Field.alphanumeric(s_COUSR1AI, 260, 1, false);
-        f178_ERRMSGO = Field.alphanumeric(s_COUSR1AI, 261, 78, false);
-        f179_CCDA_SCREEN_TITLE = Field.group(s_CCDA_SCREEN_TITLE, 0, 120);
-        f180_CCDA_TITLE01 = Field.alphanumeric(s_CCDA_SCREEN_TITLE, 0, 40, false);
-        f181_CCDA_TITLE02 = Field.alphanumeric(s_CCDA_SCREEN_TITLE, 40, 40, false);
-        f182_CCDA_THANK_YOU = Field.alphanumeric(s_CCDA_SCREEN_TITLE, 80, 40, false);
-        f183_WS_DATE_TIME = Field.group(s_WS_DATE_TIME, 0, 58);
-        f184_WS_CURDATE_DATA = Field.group(s_WS_DATE_TIME, 0, 16);
-        f185_WS_CURDATE = Field.group(s_WS_DATE_TIME, 0, 8);
-        f186_WS_CURDATE_YEAR = Field.zoned(s_WS_DATE_TIME, 0, 4, 0, false, false, false);
-        f187_WS_CURDATE_MONTH = Field.zoned(s_WS_DATE_TIME, 4, 2, 0, false, false, false);
-        f188_WS_CURDATE_DAY = Field.zoned(s_WS_DATE_TIME, 6, 2, 0, false, false, false);
-        f189_WS_CURDATE_N = Field.zoned(s_WS_DATE_TIME, 0, 8, 0, false, false, false);
-        f190_WS_CURTIME = Field.group(s_WS_DATE_TIME, 8, 8);
-        f191_WS_CURTIME_HOURS = Field.zoned(s_WS_DATE_TIME, 8, 2, 0, false, false, false);
-        f192_WS_CURTIME_MINUTE = Field.zoned(s_WS_DATE_TIME, 10, 2, 0, false, false, false);
-        f193_WS_CURTIME_SECOND = Field.zoned(s_WS_DATE_TIME, 12, 2, 0, false, false, false);
-        f194_WS_CURTIME_MILSEC = Field.zoned(s_WS_DATE_TIME, 14, 2, 0, false, false, false);
-        f195_WS_CURTIME_N = Field.zoned(s_WS_DATE_TIME, 8, 8, 0, false, false, false);
-        f196_WS_CURDATE_MM_DD_YY = Field.group(s_WS_DATE_TIME, 16, 8);
-        f197_WS_CURDATE_MM = Field.zoned(s_WS_DATE_TIME, 16, 2, 0, false, false, false);
-        f198_FILLER = Field.alphanumeric(s_WS_DATE_TIME, 18, 1, false);
-        f199_WS_CURDATE_DD = Field.zoned(s_WS_DATE_TIME, 19, 2, 0, false, false, false);
-        f200_FILLER = Field.alphanumeric(s_WS_DATE_TIME, 21, 1, false);
-        f201_WS_CURDATE_YY = Field.zoned(s_WS_DATE_TIME, 22, 2, 0, false, false, false);
-        f202_WS_CURTIME_HH_MM_SS = Field.group(s_WS_DATE_TIME, 24, 8);
-        f203_WS_CURTIME_HH = Field.zoned(s_WS_DATE_TIME, 24, 2, 0, false, false, false);
-        f204_FILLER = Field.alphanumeric(s_WS_DATE_TIME, 26, 1, false);
-        f205_WS_CURTIME_MM = Field.zoned(s_WS_DATE_TIME, 27, 2, 0, false, false, false);
-        f206_FILLER = Field.alphanumeric(s_WS_DATE_TIME, 29, 1, false);
-        f207_WS_CURTIME_SS = Field.zoned(s_WS_DATE_TIME, 30, 2, 0, false, false, false);
-        f208_WS_TIMESTAMP = Field.group(s_WS_DATE_TIME, 32, 26);
-        f209_WS_TIMESTAMP_DT_YYYY = Field.zoned(s_WS_DATE_TIME, 32, 4, 0, false, false, false);
-        f210_FILLER = Field.alphanumeric(s_WS_DATE_TIME, 36, 1, false);
-        f211_WS_TIMESTAMP_DT_MM = Field.zoned(s_WS_DATE_TIME, 37, 2, 0, false, false, false);
-        f212_FILLER = Field.alphanumeric(s_WS_DATE_TIME, 39, 1, false);
-        f213_WS_TIMESTAMP_DT_DD = Field.zoned(s_WS_DATE_TIME, 40, 2, 0, false, false, false);
-        f214_FILLER = Field.alphanumeric(s_WS_DATE_TIME, 42, 1, false);
-        f215_WS_TIMESTAMP_TM_HH = Field.zoned(s_WS_DATE_TIME, 43, 2, 0, false, false, false);
-        f216_FILLER = Field.alphanumeric(s_WS_DATE_TIME, 45, 1, false);
-        f217_WS_TIMESTAMP_TM_MM = Field.zoned(s_WS_DATE_TIME, 46, 2, 0, false, false, false);
-        f218_FILLER = Field.alphanumeric(s_WS_DATE_TIME, 48, 1, false);
-        f219_WS_TIMESTAMP_TM_SS = Field.zoned(s_WS_DATE_TIME, 49, 2, 0, false, false, false);
-        f220_FILLER = Field.alphanumeric(s_WS_DATE_TIME, 51, 1, false);
-        f221_WS_TIMESTAMP_TM_MS6 = Field.zoned(s_WS_DATE_TIME, 52, 6, 0, false, false, false);
-        f222_CCDA_COMMON_MESSAGES = Field.group(s_CCDA_COMMON_MESSAGES, 0, 100);
-        f223_CCDA_MSG_THANK_YOU = Field.alphanumeric(s_CCDA_COMMON_MESSAGES, 0, 50, false);
-        f224_CCDA_MSG_INVALID_KEY = Field.alphanumeric(s_CCDA_COMMON_MESSAGES, 50, 50, false);
-        f225_SEC_USER_DATA = Field.group(s_SEC_USER_DATA, 0, 80);
-        f226_SEC_USR_ID = Field.alphanumeric(s_SEC_USER_DATA, 0, 8, false);
-        f227_SEC_USR_FNAME = Field.alphanumeric(s_SEC_USER_DATA, 8, 20, false);
-        f228_SEC_USR_LNAME = Field.alphanumeric(s_SEC_USER_DATA, 28, 20, false);
-        f229_SEC_USR_PWD = Field.alphanumeric(s_SEC_USER_DATA, 48, 8, false);
-        f230_SEC_USR_TYPE = Field.alphanumeric(s_SEC_USER_DATA, 56, 1, false);
-        f231_SEC_USR_FILLER = Field.alphanumeric(s_SEC_USER_DATA, 57, 23, false);
-        f232_DFHAID = Field.group(s_DFHAID, 0, 36);
-        f233_DFHNULL = Field.alphanumeric(s_DFHAID, 0, 1, false);
-        f234_DFHENTER = Field.alphanumeric(s_DFHAID, 1, 1, false);
-        f235_DFHCLEAR = Field.alphanumeric(s_DFHAID, 2, 1, false);
-        f236_DFHCLRP = Field.alphanumeric(s_DFHAID, 3, 1, false);
-        f237_DFHPEN = Field.alphanumeric(s_DFHAID, 4, 1, false);
-        f238_DFHOPID = Field.alphanumeric(s_DFHAID, 5, 1, false);
-        f239_DFHMSRE = Field.alphanumeric(s_DFHAID, 6, 1, false);
-        f240_DFHSTRF = Field.alphanumeric(s_DFHAID, 7, 1, false);
-        f241_DFHTRIG = Field.alphanumeric(s_DFHAID, 8, 1, false);
-        f242_DFHPA1 = Field.alphanumeric(s_DFHAID, 9, 1, false);
-        f243_DFHPA2 = Field.alphanumeric(s_DFHAID, 10, 1, false);
-        f244_DFHPA3 = Field.alphanumeric(s_DFHAID, 11, 1, false);
-        f245_DFHPF1 = Field.alphanumeric(s_DFHAID, 12, 1, false);
-        f246_DFHPF2 = Field.alphanumeric(s_DFHAID, 13, 1, false);
-        f247_DFHPF3 = Field.alphanumeric(s_DFHAID, 14, 1, false);
-        f248_DFHPF4 = Field.alphanumeric(s_DFHAID, 15, 1, false);
-        f249_DFHPF5 = Field.alphanumeric(s_DFHAID, 16, 1, false);
-        f250_DFHPF6 = Field.alphanumeric(s_DFHAID, 17, 1, false);
-        f251_DFHPF7 = Field.alphanumeric(s_DFHAID, 18, 1, false);
-        f252_DFHPF8 = Field.alphanumeric(s_DFHAID, 19, 1, false);
-        f253_DFHPF9 = Field.alphanumeric(s_DFHAID, 20, 1, false);
-        f254_DFHPF10 = Field.alphanumeric(s_DFHAID, 21, 1, false);
-        f255_DFHPF11 = Field.alphanumeric(s_DFHAID, 22, 1, false);
-        f256_DFHPF12 = Field.alphanumeric(s_DFHAID, 23, 1, false);
-        f257_DFHPF13 = Field.alphanumeric(s_DFHAID, 24, 1, false);
-        f258_DFHPF14 = Field.alphanumeric(s_DFHAID, 25, 1, false);
-        f259_DFHPF15 = Field.alphanumeric(s_DFHAID, 26, 1, false);
-        f260_DFHPF16 = Field.alphanumeric(s_DFHAID, 27, 1, false);
-        f261_DFHPF17 = Field.alphanumeric(s_DFHAID, 28, 1, false);
-        f262_DFHPF18 = Field.alphanumeric(s_DFHAID, 29, 1, false);
-        f263_DFHPF19 = Field.alphanumeric(s_DFHAID, 30, 1, false);
-        f264_DFHPF20 = Field.alphanumeric(s_DFHAID, 31, 1, false);
-        f265_DFHPF21 = Field.alphanumeric(s_DFHAID, 32, 1, false);
-        f266_DFHPF22 = Field.alphanumeric(s_DFHAID, 33, 1, false);
-        f267_DFHPF23 = Field.alphanumeric(s_DFHAID, 34, 1, false);
-        f268_DFHPF24 = Field.alphanumeric(s_DFHAID, 35, 1, false);
-        f269_DFHBMSCA = Field.group(s_DFHBMSCA, 0, 67);
-        f270_DFHBMPEM = Field.alphanumeric(s_DFHBMSCA, 0, 1, false);
-        f271_DFHBMPNL = Field.alphanumeric(s_DFHBMSCA, 1, 1, false);
-        f272_DFHBMPFF = Field.alphanumeric(s_DFHBMSCA, 2, 1, false);
-        f273_DFHBMPCR = Field.alphanumeric(s_DFHBMSCA, 3, 1, false);
-        f274_DFHBMASK = Field.alphanumeric(s_DFHBMSCA, 4, 1, false);
-        f275_DFHBMUNP = Field.alphanumeric(s_DFHBMSCA, 5, 1, false);
-        f276_DFHBMUNN = Field.alphanumeric(s_DFHBMSCA, 6, 1, false);
-        f277_DFHBMPRO = Field.alphanumeric(s_DFHBMSCA, 7, 1, false);
-        f278_DFHBMBRY = Field.alphanumeric(s_DFHBMSCA, 8, 1, false);
-        f279_DFHBMDAR = Field.alphanumeric(s_DFHBMSCA, 9, 1, false);
-        f280_DFHBMFSE = Field.alphanumeric(s_DFHBMSCA, 10, 1, false);
-        f281_DFHBMPRF = Field.alphanumeric(s_DFHBMSCA, 11, 1, false);
-        f282_DFHBMASF = Field.alphanumeric(s_DFHBMSCA, 12, 1, false);
-        f283_DFHBMASB = Field.alphanumeric(s_DFHBMSCA, 13, 1, false);
-        f284_DFHBMEOF = Field.alphanumeric(s_DFHBMSCA, 14, 1, false);
-        f285_DFHBMCUR = Field.alphanumeric(s_DFHBMSCA, 15, 1, false);
-        f286_DFHBMEC = Field.alphanumeric(s_DFHBMSCA, 16, 1, false);
-        f287_DFHBMFLG = Field.alphanumeric(s_DFHBMSCA, 17, 1, false);
-        f288_DFHBMDET = Field.alphanumeric(s_DFHBMSCA, 18, 1, false);
-        f289_DFHSA = Field.alphanumeric(s_DFHBMSCA, 19, 1, false);
-        f290_DFHCOLOR = Field.alphanumeric(s_DFHBMSCA, 20, 1, false);
-        f291_DFHPS = Field.alphanumeric(s_DFHBMSCA, 21, 1, false);
-        f292_DFHHLT = Field.alphanumeric(s_DFHBMSCA, 22, 1, false);
-        f293_DFH3270 = Field.alphanumeric(s_DFHBMSCA, 23, 1, false);
-        f294_DFHVAL = Field.alphanumeric(s_DFHBMSCA, 24, 1, false);
-        f295_DFHOUTLN = Field.alphanumeric(s_DFHBMSCA, 25, 1, false);
-        f296_DFHBKTRN = Field.alphanumeric(s_DFHBMSCA, 26, 1, false);
-        f297_DFHALL = Field.alphanumeric(s_DFHBMSCA, 27, 1, false);
-        f298_DFHERROR = Field.alphanumeric(s_DFHBMSCA, 28, 1, false);
-        f299_DFHDFT = Field.alphanumeric(s_DFHBMSCA, 29, 1, false);
-        f300_DFHDFCOL = Field.alphanumeric(s_DFHBMSCA, 30, 1, false);
-    }
-
-    private void fields1() {
-        f301_DFHBLUE = Field.alphanumeric(s_DFHBMSCA, 31, 1, false);
-        f302_DFHRED = Field.alphanumeric(s_DFHBMSCA, 32, 1, false);
-        f303_DFHPINK = Field.alphanumeric(s_DFHBMSCA, 33, 1, false);
-        f304_DFHGREEN = Field.alphanumeric(s_DFHBMSCA, 34, 1, false);
-        f305_DFHTURQ = Field.alphanumeric(s_DFHBMSCA, 35, 1, false);
-        f306_DFHYELLO = Field.alphanumeric(s_DFHBMSCA, 36, 1, false);
-        f307_DFHNEUTR = Field.alphanumeric(s_DFHBMSCA, 37, 1, false);
-        f308_DFHBASE = Field.alphanumeric(s_DFHBMSCA, 38, 1, false);
-        f309_DFHDFHI = Field.alphanumeric(s_DFHBMSCA, 39, 1, false);
-        f310_DFHBLINK = Field.alphanumeric(s_DFHBMSCA, 40, 1, false);
-        f311_DFHREVRS = Field.alphanumeric(s_DFHBMSCA, 41, 1, false);
-        f312_DFHUNDLN = Field.alphanumeric(s_DFHBMSCA, 42, 1, false);
-        f313_DFHMFIL = Field.alphanumeric(s_DFHBMSCA, 43, 1, false);
-        f314_DFHMENT = Field.alphanumeric(s_DFHBMSCA, 44, 1, false);
-        f315_DFHMFE = Field.alphanumeric(s_DFHBMSCA, 45, 1, false);
-        f316_DFHUNNOD = Field.alphanumeric(s_DFHBMSCA, 46, 1, false);
-        f317_DFHUNIMD = Field.alphanumeric(s_DFHBMSCA, 47, 1, false);
-        f318_DFHUNNUM = Field.alphanumeric(s_DFHBMSCA, 48, 1, false);
-        f319_DFHUNNUB = Field.alphanumeric(s_DFHBMSCA, 49, 1, false);
-        f320_DFHUNINT = Field.alphanumeric(s_DFHBMSCA, 50, 1, false);
-        f321_DFHUNNON = Field.alphanumeric(s_DFHBMSCA, 51, 1, false);
-        f322_DFHPROTI = Field.alphanumeric(s_DFHBMSCA, 52, 1, false);
-        f323_DFHPROTN = Field.alphanumeric(s_DFHBMSCA, 53, 1, false);
-        f324_DFHMT = Field.alphanumeric(s_DFHBMSCA, 54, 1, false);
-        f325_DFHMFT = Field.alphanumeric(s_DFHBMSCA, 55, 1, false);
-        f326_DFHMET = Field.alphanumeric(s_DFHBMSCA, 56, 1, false);
-        f327_DFHMFET = Field.alphanumeric(s_DFHBMSCA, 57, 1, false);
-        f328_DFHDFFR = Field.alphanumeric(s_DFHBMSCA, 58, 1, false);
-        f329_DFHUNDER = Field.alphanumeric(s_DFHBMSCA, 59, 1, false);
-        f330_DFHRIGHT = Field.alphanumeric(s_DFHBMSCA, 60, 1, false);
-        f331_DFHOVER = Field.alphanumeric(s_DFHBMSCA, 61, 1, false);
-        f332_DFHLEFT = Field.alphanumeric(s_DFHBMSCA, 62, 1, false);
-        f333_DFHBOX = Field.alphanumeric(s_DFHBMSCA, 63, 1, false);
-        f334_DFHSOSI = Field.alphanumeric(s_DFHBMSCA, 64, 1, false);
-        f335_DFHTRANS = Field.alphanumeric(s_DFHBMSCA, 65, 1, false);
-        f336_DFHOPAQ = Field.alphanumeric(s_DFHBMSCA, 66, 1, false);
-        f337_DFHCOMMAREA = Field.group(s_DFHCOMMAREA, 0, 32767);
-        f338_LK_COMMAREA = Field.alphanumeric(s_DFHCOMMAREA, 0, 1, false);
-        f339_DFHEIBLK = Field.group(s_DFHEIBLK, 0, 85);
-        f340_EIBTIME = Field.packed(s_DFHEIBLK, 0, 7, 0, true);
-        f341_EIBDATE = Field.packed(s_DFHEIBLK, 4, 7, 0, true);
-        f342_EIBTRNID = Field.alphanumeric(s_DFHEIBLK, 8, 4, false);
-        f343_EIBTASKN = Field.packed(s_DFHEIBLK, 12, 7, 0, true);
-        f344_EIBTRMID = Field.alphanumeric(s_DFHEIBLK, 16, 4, false);
-        f345_DFHEIGDI = Field.binary(s_DFHEIBLK, 20, 4, 0, true, false);
-        f346_EIBCPOSN = Field.binary(s_DFHEIBLK, 22, 4, 0, true, false);
-        f347_EIBCALEN = Field.binary(s_DFHEIBLK, 24, 4, 0, true, false);
-        f348_EIBAID = Field.alphanumeric(s_DFHEIBLK, 26, 1, false);
-        f349_EIBFN = Field.alphanumeric(s_DFHEIBLK, 27, 2, false);
-        f350_EIBRCODE = Field.alphanumeric(s_DFHEIBLK, 29, 6, false);
-        f351_EIBDS = Field.alphanumeric(s_DFHEIBLK, 35, 8, false);
-        f352_EIBREQID = Field.alphanumeric(s_DFHEIBLK, 43, 8, false);
-        f353_EIBRSRCE = Field.alphanumeric(s_DFHEIBLK, 51, 8, false);
-        f354_EIBSYNC = Field.alphanumeric(s_DFHEIBLK, 59, 1, false);
-        f355_EIBFREE = Field.alphanumeric(s_DFHEIBLK, 60, 1, false);
-        f356_EIBRECV = Field.alphanumeric(s_DFHEIBLK, 61, 1, false);
-        f357_EIBSEND = Field.alphanumeric(s_DFHEIBLK, 62, 1, false);
-        f358_EIBATT = Field.alphanumeric(s_DFHEIBLK, 63, 1, false);
-        f359_EIBEOC = Field.alphanumeric(s_DFHEIBLK, 64, 1, false);
-        f360_EIBFMH = Field.alphanumeric(s_DFHEIBLK, 65, 1, false);
-        f361_EIBCOMPL = Field.alphanumeric(s_DFHEIBLK, 66, 1, false);
-        f362_EIBSIG = Field.alphanumeric(s_DFHEIBLK, 67, 1, false);
-        f363_EIBCONF = Field.alphanumeric(s_DFHEIBLK, 68, 1, false);
-        f364_EIBERR = Field.alphanumeric(s_DFHEIBLK, 69, 1, false);
-        f365_EIBERRCD = Field.alphanumeric(s_DFHEIBLK, 70, 4, false);
-        f366_EIBSYNRB = Field.alphanumeric(s_DFHEIBLK, 74, 1, false);
-        f367_EIBNODAT = Field.alphanumeric(s_DFHEIBLK, 75, 1, false);
-        f368_EIBRESP = Field.binary(s_DFHEIBLK, 76, 8, 0, true, false);
-        f369_EIBRESP2 = Field.binary(s_DFHEIBLK, 80, 8, 0, true, false);
-        f370_EIBRLDBK = Field.alphanumeric(s_DFHEIBLK, 84, 1, false);
-        f371_GG_RETURN_CODE = Field.binary(s_GG_RETURN_CODE, 0, 4, 0, true, false);
-    }
-
-    /** The program run on its own (no JCL step, no CICS task, no caller): the PROCEDURE DIVISION from its
-     *  initial storage; RETURN-CODE. */
-    public int runProgram() {
+    /** WORKING-STORAGE (and every storage) as its VALUE clauses set it: each entry point starts from here. */
+    private void initialState() {
         System.arraycopy(IMAGE_s_WS_VARIABLES, 0, s_WS_VARIABLES.bytes, 0, IMAGE_s_WS_VARIABLES.length);
         System.arraycopy(IMAGE_s_CARDDEMO_COMMAREA, 0, s_CARDDEMO_COMMAREA.bytes, 0, IMAGE_s_CARDDEMO_COMMAREA.length);
         System.arraycopy(IMAGE_s_COUSR1AI, 0, s_COUSR1AI.bytes, 0, IMAGE_s_COUSR1AI.length);
@@ -1075,6 +515,30 @@ public class Cousr01cService {
         System.arraycopy(IMAGE_s_DFHCOMMAREA, 0, s_DFHCOMMAREA.bytes, 0, IMAGE_s_DFHCOMMAREA.length);
         System.arraycopy(IMAGE_s_DFHEIBLK, 0, s_DFHEIBLK.bytes, 0, IMAGE_s_DFHEIBLK.length);
         System.arraycopy(IMAGE_s_GG_RETURN_CODE, 0, s_GG_RETURN_CODE.bytes, 0, IMAGE_s_GG_RETURN_CODE.length);
+        f2_WS_PGMNAME = "COUSR01C";
+        f3_WS_TRANID = "CU01";
+        f5_WS_USRSEC_FILE = "USRSEC  ";
+        f6_WS_ERR_FLG = "N";
+        f7_WS_RESP_CD = 0L;
+        f8_WS_REAS_CD = 0L;
+        f180_CCDA_TITLE01 = "      AWS Mainframe Modernization       ";
+        f181_CCDA_TITLE02 = "              CardDemo                  ";
+        f182_CCDA_THANK_YOU = "Thank you for using CCDA application... ";
+        f209_WS_TIMESTAMP_DT_YYYY = new BigDecimal("0");
+        f211_WS_TIMESTAMP_DT_MM = new BigDecimal("0");
+        f213_WS_TIMESTAMP_DT_DD = new BigDecimal("0");
+        f215_WS_TIMESTAMP_TM_HH = new BigDecimal("0");
+        f217_WS_TIMESTAMP_TM_MM = new BigDecimal("0");
+        f219_WS_TIMESTAMP_TM_SS = new BigDecimal("0");
+        f221_WS_TIMESTAMP_TM_MS6 = new BigDecimal("0");
+        f223_CCDA_MSG_THANK_YOU = "Thank you for using CardDemo application...       ";
+        f224_CCDA_MSG_INVALID_KEY = "Invalid key pressed. Please see below...          ";
+    }
+
+    /** The program run on its own (no JCL step, no CICS task, no caller): the PROCEDURE DIVISION from its
+     *  initial storage; RETURN-CODE. */
+    public int runProgram() {
+        initialState();
         performDepth = 0;
         try {
             perform(0, 8);
@@ -1084,31 +548,19 @@ public class Cousr01cService {
         return Cobol.num(f371_GG_RETURN_CODE, CS).intValue();
     }
 
-    public void executeCousr01c() {
-        runBatch(List.of(), null);
-    }
-
     /** One task of the program: the EIB and COMMAREA from the task, then the PROCEDURE DIVISION. */
     public void runTask(CicsTask task) {
         boolean truncBefore = Cobol.swapTruncBinary(true);  // TRUNC(STD)
+        boolean pfdBefore = Cobol.swapNumprocPfd(false);  // NUMPROC(NOPFD)
         try {
             this.task = task;
             caBack = () -> { };
             handlers.clear();
             heldKey.clear();
-            System.arraycopy(IMAGE_s_WS_VARIABLES, 0, s_WS_VARIABLES.bytes, 0, IMAGE_s_WS_VARIABLES.length);
-            System.arraycopy(IMAGE_s_CARDDEMO_COMMAREA, 0, s_CARDDEMO_COMMAREA.bytes, 0, IMAGE_s_CARDDEMO_COMMAREA.length);
-            System.arraycopy(IMAGE_s_COUSR1AI, 0, s_COUSR1AI.bytes, 0, IMAGE_s_COUSR1AI.length);
-            System.arraycopy(IMAGE_s_CCDA_SCREEN_TITLE, 0, s_CCDA_SCREEN_TITLE.bytes, 0, IMAGE_s_CCDA_SCREEN_TITLE.length);
-            System.arraycopy(IMAGE_s_WS_DATE_TIME, 0, s_WS_DATE_TIME.bytes, 0, IMAGE_s_WS_DATE_TIME.length);
-            System.arraycopy(IMAGE_s_CCDA_COMMON_MESSAGES, 0, s_CCDA_COMMON_MESSAGES.bytes, 0, IMAGE_s_CCDA_COMMON_MESSAGES.length);
-            System.arraycopy(IMAGE_s_SEC_USER_DATA, 0, s_SEC_USER_DATA.bytes, 0, IMAGE_s_SEC_USER_DATA.length);
-            System.arraycopy(IMAGE_s_DFHAID, 0, s_DFHAID.bytes, 0, IMAGE_s_DFHAID.length);
-            System.arraycopy(IMAGE_s_DFHBMSCA, 0, s_DFHBMSCA.bytes, 0, IMAGE_s_DFHBMSCA.length);
-            System.arraycopy(IMAGE_s_DFHCOMMAREA, 0, s_DFHCOMMAREA.bytes, 0, IMAGE_s_DFHCOMMAREA.length);
-            System.arraycopy(IMAGE_s_DFHEIBLK, 0, s_DFHEIBLK.bytes, 0, IMAGE_s_DFHEIBLK.length);
-            System.arraycopy(IMAGE_s_GG_RETURN_CODE, 0, s_GG_RETURN_CODE.bytes, 0, IMAGE_s_GG_RETURN_CODE.length);
+            initialState();
             Cobol.move(task.transid(), f342_EIBTRNID, CS);
+            Cobol.move(task.termid() == null ? "" : task.termid(), f344_EIBTRMID, CS);
+            Cobol.store(f343_EIBTASKN, BigDecimal.valueOf(task.taskNumber()), false, CS);
             java.time.LocalDateTime now = task.now();
             Cobol.store(f341_EIBDATE, BigDecimal.valueOf((now.getYear() - 1900) * 1000L + now.getDayOfYear()), false, CS);
             Cobol.store(f340_EIBTIME, BigDecimal.valueOf(now.getHour() * 10000L + now.getMinute() * 100L + now.getSecond()), false, CS);
@@ -1158,11 +610,47 @@ public class Cousr01cService {
                 caBack = () -> fill_CarddemoCommarea(x, s_DFHCOMMAREA, 0);
                 calen = cx(task, 160);
             }
+            s_DFHCOMMAREA.beyond = null;
+            if (ca instanceof byte[] cb0) {
+                byte[] cb = DetCics.commareaIn(cb0, CS);
+                System.arraycopy(cb, 0, s_DFHCOMMAREA.bytes, 0, Math.min(cb.length, s_DFHCOMMAREA.bytes.length));
+                if (cb.length > s_DFHCOMMAREA.bytes.length) {
+                    s_DFHCOMMAREA.beyond = java.util.Arrays.copyOfRange(cb, s_DFHCOMMAREA.bytes.length, cb.length);
+                }
+                calen = cx(task, cb.length);
+            }
+            byte[] raw = task.linkArea();
+            if (raw != null) {
+                System.arraycopy(raw, 0, s_DFHCOMMAREA.bytes, 0, Math.min(raw.length, s_DFHCOMMAREA.bytes.length));
+                int keep = s_DFHCOMMAREA.bytes.length;
+                s_DFHCOMMAREA.beyond = raw.length > keep ? java.util.Arrays.copyOfRange(raw, keep, raw.length) : null;
+                Runnable typed = caBack;
+                caBack = () -> { typed.run(); System.arraycopy(s_DFHCOMMAREA.bytes, 0, raw, 0, Math.min(raw.length, keep)); if (s_DFHCOMMAREA.beyond != null) { System.arraycopy(s_DFHCOMMAREA.beyond, 0, raw, keep, raw.length - keep); } };
+            }
+            byte[] caWhole = null;
+            if (task.exactCommarea() && calen < s_DFHCOMMAREA.bytes.length) {
+                caWhole = s_DFHCOMMAREA.bytes;
+                s_DFHCOMMAREA.bytes = java.util.Arrays.copyOf(caWhole, calen);
+                Runnable typed = caBack;
+                byte[] whole = caWhole;
+                caBack = () -> { caWhole(whole); typed.run(); };
+            }
             Cobol.store(f347_EIBCALEN, BigDecimal.valueOf(calen), false, CS);
             try {
-                perform(0, 8);
-            } catch (Goback g) {
-                // RETURN / XCTL / an abend ended the program
+                try {
+                    perform(0, 8);
+                } catch (Goback g) {
+                    // RETURN / XCTL / an abend ended the program
+                }
+            } catch (IndexOutOfBoundsException e) {
+                if (caWhole == null) {
+                    throw e;
+                }
+                throw new DetCics.PastFrom("COMMAREA past EIBCALEN (" + calen + " bytes): not modelled");
+            } finally {
+                if (caWhole != null) {
+                    caWhole(caWhole);
+                }
             }
             if (!task.ended()) {
                 caBack.run();
@@ -1170,15 +658,22 @@ public class Cousr01cService {
             }
         } finally {
             Cobol.swapTruncBinary(truncBefore);
+            Cobol.swapNumprocPfd(pfdBefore);
         }
     }
 
-    public CarddemoCommarea handleTransaction(String transid, CarddemoCommarea request) {
-        throw new UnsupportedOperationException("handleTransaction: this port runs as runTask");
+    public Object handleTransaction(String transid, CarddemoCommarea request) {
+        CicsTask.Region region = CicsTask.region();
+        CicsTask task = region.transaction(transid, request);
+        region.run(task, "COUSR01C", this::runTask);
+        return task.returned(Object.class);
     }
 
     public CarddemoCommarea handleLink(CarddemoCommarea request) {
-        throw new UnsupportedOperationException("handleLink: this port runs as runTask");
+        CicsTask.Region region = CicsTask.region();
+        CicsTask task = region.linked("COUSR01C", request);
+        region.run(task, "COUSR01C", this::runTask);
+        return request;
     }
 
 
@@ -1198,19 +693,9 @@ public class Cousr01cService {
     /** The batch entry. */
     public int runBatch(List<Dd> dds, String parm) {
         boolean truncBefore = Cobol.swapTruncBinary(true);  // TRUNC(STD)
+        boolean pfdBefore = Cobol.swapNumprocPfd(false);  // NUMPROC(NOPFD)
         try {
-            System.arraycopy(IMAGE_s_WS_VARIABLES, 0, s_WS_VARIABLES.bytes, 0, IMAGE_s_WS_VARIABLES.length);
-            System.arraycopy(IMAGE_s_CARDDEMO_COMMAREA, 0, s_CARDDEMO_COMMAREA.bytes, 0, IMAGE_s_CARDDEMO_COMMAREA.length);
-            System.arraycopy(IMAGE_s_COUSR1AI, 0, s_COUSR1AI.bytes, 0, IMAGE_s_COUSR1AI.length);
-            System.arraycopy(IMAGE_s_CCDA_SCREEN_TITLE, 0, s_CCDA_SCREEN_TITLE.bytes, 0, IMAGE_s_CCDA_SCREEN_TITLE.length);
-            System.arraycopy(IMAGE_s_WS_DATE_TIME, 0, s_WS_DATE_TIME.bytes, 0, IMAGE_s_WS_DATE_TIME.length);
-            System.arraycopy(IMAGE_s_CCDA_COMMON_MESSAGES, 0, s_CCDA_COMMON_MESSAGES.bytes, 0, IMAGE_s_CCDA_COMMON_MESSAGES.length);
-            System.arraycopy(IMAGE_s_SEC_USER_DATA, 0, s_SEC_USER_DATA.bytes, 0, IMAGE_s_SEC_USER_DATA.length);
-            System.arraycopy(IMAGE_s_DFHAID, 0, s_DFHAID.bytes, 0, IMAGE_s_DFHAID.length);
-            System.arraycopy(IMAGE_s_DFHBMSCA, 0, s_DFHBMSCA.bytes, 0, IMAGE_s_DFHBMSCA.length);
-            System.arraycopy(IMAGE_s_DFHCOMMAREA, 0, s_DFHCOMMAREA.bytes, 0, IMAGE_s_DFHCOMMAREA.length);
-            System.arraycopy(IMAGE_s_DFHEIBLK, 0, s_DFHEIBLK.bytes, 0, IMAGE_s_DFHEIBLK.length);
-            System.arraycopy(IMAGE_s_GG_RETURN_CODE, 0, s_GG_RETURN_CODE.bytes, 0, IMAGE_s_GG_RETURN_CODE.length);
+            initialState();
             try {
                 perform(0, 8);
             } catch (Goback g) {
@@ -1219,6 +704,7 @@ public class Cousr01cService {
             return Cobol.num(f371_GG_RETURN_CODE, CS).intValue();
         } finally {
             Cobol.swapTruncBinary(truncBefore);
+            Cobol.swapNumprocPfd(pfdBefore);
         }
     }
 
@@ -1294,7 +780,7 @@ public class Cousr01cService {
     /** MAIN-PARA. */
     private int p0() {
         // SET ERR-FLG-OFF TO TRUE
-        Cobol.move("N", f6_WS_ERR_FLG, CS);
+        f6_WS_ERR_FLG = "N";
         // MOVE SPACES TO WS-MESSAGE ERRMSGO OF COUSR1AO
         Cobol.moveFigurative(Figurative.SPACES, f4_WS_MESSAGE, CS);
         Cobol.moveFigurative(Figurative.SPACES, f178_ERRMSGO, CS);
@@ -1308,7 +794,7 @@ public class Cousr01cService {
             // MOVE DFHCOMMAREA(1:EIBCALEN) TO CARDDEMO-COMMAREA
             Cobol.move(f337_DFHCOMMAREA.ref(1, Integer.valueOf(Cobol.num(f347_EIBCALEN, CS).intValue())), f9_CARDDEMO_COMMAREA, CS);
             // IF NOT CDEMO-PGM-REENTER
-            if (!(Cobol.compare(f17_CDEMO_PGM_CONTEXT, D1, CS) == 0)) {
+            if (!(isCdemoPgmReenter())) {
                 // SET CDEMO-PGM-REENTER TO TRUE
                 Cobol.move(D1, f17_CDEMO_PGM_CONTEXT, CS);
                 // MOVE LOW-VALUES TO COUSR1AO
@@ -1334,7 +820,7 @@ public class Cousr01cService {
                     perform(7, 7);
                 } else if (true) {
                     // MOVE 'Y' TO WS-ERR-FLG
-                    Cobol.move("Y", f6_WS_ERR_FLG, CS);
+                    f6_WS_ERR_FLG = "Y";
                     // MOVE -1 TO FNAMEL OF COUSR1AI
                     Cobol.move(DM1, f69_FNAMEL, CS);
                     // MOVE CCDA-MSG-INVALID-KEY TO WS-MESSAGE
@@ -1346,7 +832,7 @@ public class Cousr01cService {
         }
         // EXEC CICS RETURN TRANSID (WS-TRANID) COMMAREA (CARDDEMO-COMMAREA) END-EXEC
         caBack.run();
-        task.returnTransid(Cobol.text(f3_WS_TRANID, CS).strip(), out_CarddemoCommarea(f9_CARDDEMO_COMMAREA.storage(), f9_CARDDEMO_COMMAREA.offset()), null);
+        task.returnTransid(f3_WS_TRANID.strip(), out_CarddemoCommarea(f9_CARDDEMO_COMMAREA.storage(), f9_CARDDEMO_COMMAREA.offset()), null);
         if (true) throw new Goback();
         return 1;
     }
@@ -1356,7 +842,7 @@ public class Cousr01cService {
         // EVALUATE TRUE
         if (((Cobol.compareFigurative(f74_FNAMEI, Figurative.SPACES, CS) == 0 || Cobol.compareFigurative(f74_FNAMEI, Figurative.LOW_VALUES, CS) == 0))) {
             // MOVE 'Y' TO WS-ERR-FLG
-            Cobol.move("Y", f6_WS_ERR_FLG, CS);
+            f6_WS_ERR_FLG = "Y";
             // MOVE 'First Name can NOT be empty...' TO WS-MESSAGE
             Cobol.move("First Name can NOT be empty...", f4_WS_MESSAGE, CS);
             // MOVE -1 TO FNAMEL OF COUSR1AI
@@ -1365,7 +851,7 @@ public class Cousr01cService {
             perform(3, 3);
         } else if (((Cobol.compareFigurative(f80_LNAMEI, Figurative.SPACES, CS) == 0 || Cobol.compareFigurative(f80_LNAMEI, Figurative.LOW_VALUES, CS) == 0))) {
             // MOVE 'Y' TO WS-ERR-FLG
-            Cobol.move("Y", f6_WS_ERR_FLG, CS);
+            f6_WS_ERR_FLG = "Y";
             // MOVE 'Last Name can NOT be empty...' TO WS-MESSAGE
             Cobol.move("Last Name can NOT be empty...", f4_WS_MESSAGE, CS);
             // MOVE -1 TO LNAMEL OF COUSR1AI
@@ -1374,7 +860,7 @@ public class Cousr01cService {
             perform(3, 3);
         } else if (((Cobol.compareFigurative(f86_USERIDI, Figurative.SPACES, CS) == 0 || Cobol.compareFigurative(f86_USERIDI, Figurative.LOW_VALUES, CS) == 0))) {
             // MOVE 'Y' TO WS-ERR-FLG
-            Cobol.move("Y", f6_WS_ERR_FLG, CS);
+            f6_WS_ERR_FLG = "Y";
             // MOVE 'User ID can NOT be empty...' TO WS-MESSAGE
             Cobol.move("User ID can NOT be empty...", f4_WS_MESSAGE, CS);
             // MOVE -1 TO USERIDL OF COUSR1AI
@@ -1383,7 +869,7 @@ public class Cousr01cService {
             perform(3, 3);
         } else if (((Cobol.compareFigurative(f92_PASSWDI, Figurative.SPACES, CS) == 0 || Cobol.compareFigurative(f92_PASSWDI, Figurative.LOW_VALUES, CS) == 0))) {
             // MOVE 'Y' TO WS-ERR-FLG
-            Cobol.move("Y", f6_WS_ERR_FLG, CS);
+            f6_WS_ERR_FLG = "Y";
             // MOVE 'Password can NOT be empty...' TO WS-MESSAGE
             Cobol.move("Password can NOT be empty...", f4_WS_MESSAGE, CS);
             // MOVE -1 TO PASSWDL OF COUSR1AI
@@ -1392,7 +878,7 @@ public class Cousr01cService {
             perform(3, 3);
         } else if (((Cobol.compareFigurative(f98_USRTYPEI, Figurative.SPACES, CS) == 0 || Cobol.compareFigurative(f98_USRTYPEI, Figurative.LOW_VALUES, CS) == 0))) {
             // MOVE 'Y' TO WS-ERR-FLG
-            Cobol.move("Y", f6_WS_ERR_FLG, CS);
+            f6_WS_ERR_FLG = "Y";
             // MOVE 'User Type can NOT be empty...' TO WS-MESSAGE
             Cobol.move("User Type can NOT be empty...", f4_WS_MESSAGE, CS);
             // MOVE -1 TO USRTYPEL OF COUSR1AI
@@ -1405,7 +891,7 @@ public class Cousr01cService {
             // CONTINUE
         }
         // IF NOT ERR-FLG-ON
-        if (!(Cobol.compare(f6_WS_ERR_FLG, "Y", CS) == 0)) {
+        if (!(isErrFlgOn())) {
             // MOVE USERIDI OF COUSR1AI TO SEC-USR-ID
             Cobol.move(f86_USERIDI, f226_SEC_USR_ID, CS);
             // MOVE FNAMEI OF COUSR1AI TO SEC-USR-FNAME
@@ -1439,7 +925,7 @@ public class Cousr01cService {
         String xr1 = task.xctl(Cobol.text(f14_CDEMO_TO_PROGRAM, CS).strip(), out_CarddemoCommarea(f9_CARDDEMO_COMMAREA.storage(), f9_CARDDEMO_COMMAREA.offset()));
         if ("NORMAL".equals(xr1)) throw new Goback();
         Cobol.store(f368_EIBRESP, BigDecimal.valueOf(DetCics.resp(xr1)), false, CS);
-        Cobol.store(f369_EIBRESP2, BigDecimal.valueOf(0), false, CS);
+        Cobol.store(f369_EIBRESP2, BigDecimal.valueOf(DetCics.xctlResp2(xr1)), false, CS);
         if (DetCics.resp(xr1) != 0) {
             int to = condition(DetCics.condition(DetCics.resp(xr1)));
             if (to >= 0) return GOTO | to;
@@ -1538,8 +1024,8 @@ public class Cousr01cService {
         }
         Cobol.store(f368_EIBRESP, BigDecimal.valueOf(resp7), false, CS);
         Cobol.store(f369_EIBRESP2, BigDecimal.valueOf(0), false, CS);
-        Cobol.store(f7_WS_RESP_CD, BigDecimal.valueOf(resp7), false, CS);
-        Cobol.store(f8_WS_REAS_CD, BigDecimal.valueOf(0), false, CS);
+        f7_WS_RESP_CD = Cobol.binary(BigDecimal.valueOf(resp7), 9, true, false, CS);
+        f8_WS_REAS_CD = Cobol.binary(BigDecimal.valueOf(0), 9, true, false, CS);
         return 5;
     }
 
@@ -1577,13 +1063,13 @@ public class Cousr01cService {
     /** WRITE-USER-SEC-FILE. */
     private int p6() {
         // EXEC CICS WRITE DATASET (WS-USRSEC-FILE) FROM (SEC-USER-DATA) LENGTH (LENGTH OF SEC-USER-DATA) RIDFLD (SEC-USR-ID) KEYLENGTH (LENGTH OF SEC-USR-ID) RE
-        int resp8 = task.write(Cobol.text(f5_WS_USRSEC_FILE, CS).strip(), store(Cobol.text(f5_WS_USRSEC_FILE, CS).strip()).exists(DetCics.bytes(f226_SEC_USR_ID)), () -> store(Cobol.text(f5_WS_USRSEC_FILE, CS).strip()).store(DetCics.bytes(f225_SEC_USER_DATA, BigDecimal.valueOf(80).intValue())));
+        int resp8 = task.write(f5_WS_USRSEC_FILE.strip(), store(f5_WS_USRSEC_FILE.strip()).exists(DetCics.bytes(f226_SEC_USR_ID)), () -> store(f5_WS_USRSEC_FILE.strip()).store(DetCics.bytes(f225_SEC_USER_DATA, BigDecimal.valueOf(80).intValue())));
         Cobol.store(f368_EIBRESP, BigDecimal.valueOf(resp8), false, CS);
         Cobol.store(f369_EIBRESP2, BigDecimal.valueOf(0), false, CS);
-        Cobol.store(f7_WS_RESP_CD, BigDecimal.valueOf(resp8), false, CS);
-        Cobol.store(f8_WS_REAS_CD, BigDecimal.valueOf(0), false, CS);
+        f7_WS_RESP_CD = Cobol.binary(BigDecimal.valueOf(resp8), 9, true, false, CS);
+        f8_WS_REAS_CD = Cobol.binary(BigDecimal.valueOf(0), 9, true, false, CS);
         // EVALUATE WS-RESP-CD
-        if ((Cobol.num(f7_WS_RESP_CD, CS).compareTo(D0) == 0)) {
+        if ((f7_WS_RESP_CD == 0L)) {
             // PERFORM INITIALIZE-ALL-FIELDS
             perform(8, 8);
             // MOVE SPACES TO WS-MESSAGE
@@ -1594,9 +1080,9 @@ public class Cousr01cService {
             Cobol.string(f4_WS_MESSAGE, null, CS, Cobol.StringPart.size("User ", CS), Cobol.StringPart.delimited(f226_SEC_USR_ID, " ", CS), Cobol.StringPart.size(" has been added ...", CS));
             // PERFORM SEND-USRADD-SCREEN
             perform(3, 3);
-        } else if ((Cobol.num(f7_WS_RESP_CD, CS).compareTo(D15) == 0) || (Cobol.num(f7_WS_RESP_CD, CS).compareTo(D14) == 0)) {
+        } else if ((f7_WS_RESP_CD == 15L) || (f7_WS_RESP_CD == 14L)) {
             // MOVE 'Y' TO WS-ERR-FLG
-            Cobol.move("Y", f6_WS_ERR_FLG, CS);
+            f6_WS_ERR_FLG = "Y";
             // MOVE 'User ID already exist...' TO WS-MESSAGE
             Cobol.move("User ID already exist...", f4_WS_MESSAGE, CS);
             // MOVE -1 TO USERIDL OF COUSR1AI
@@ -1605,7 +1091,7 @@ public class Cousr01cService {
             perform(3, 3);
         } else if (true) {
             // MOVE 'Y' TO WS-ERR-FLG
-            Cobol.move("Y", f6_WS_ERR_FLG, CS);
+            f6_WS_ERR_FLG = "Y";
             // MOVE 'Unable to Add User...' TO WS-MESSAGE
             Cobol.move("Unable to Add User...", f4_WS_MESSAGE, CS);
             // MOVE -1 TO FNAMEL OF COUSR1AI
@@ -1638,5 +1124,11 @@ public class Cousr01cService {
         Cobol.moveFigurative(Figurative.SPACES, f4_WS_MESSAGE, CS);
         return 9;
     }
+
+    /** 88 CDEMO-PGM-REENTER of CDEMO-PGM-CONTEXT. */
+    private boolean isCdemoPgmReenter() { return Cobol.compare(f17_CDEMO_PGM_CONTEXT, D1, CS) == 0; }
+
+    /** 88 ERR-FLG-ON of WS-ERR-FLG. */
+    private boolean isErrFlgOn() { return f6_WS_ERR_FLG.equals("Y"); }
 
 }

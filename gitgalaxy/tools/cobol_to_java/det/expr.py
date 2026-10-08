@@ -16,6 +16,22 @@ class ExprError(Exception):
     pass
 
 
+class NumLit(Decimal):
+    """A numeric literal's value that keeps the literal as written (#4665): compared with a nonnumeric operand, the
+    literal is its characters -- leading zeros, a sign and the decimal point's place matter there, and a Decimal
+    keeps none of them (0012 is 12, +12 is 12). Arithmetic on it yields plain Decimals."""
+
+    spelling: str
+
+    def __new__(cls, spelling: str, value: str | None = None):
+        obj = super().__new__(cls, spelling if value is None else value)
+        obj.spelling = spelling
+        return obj
+
+    def __reduce__(self):
+        return (NumLit, (self.spelling, str(Decimal(self))))
+
+
 # ---- the AST -------------------------------------------------------------------------------------------------
 @dataclass
 class Ref:
@@ -180,10 +196,10 @@ class Parser:
             raise ExprError("NULL: pointers are not modelled")
         if _is_number(tok):
             self.i += 1
-            return Lit(Decimal(tok.replace(",", ".") if tok.count(",") == 1 and "." not in tok else tok))
+            return Lit(NumLit(tok, tok.replace(",", ".") if tok.count(",") == 1 and "." not in tok else tok))
         if u in ("+", "-") and (nxt1 := self.peek(1)) is not None and _is_number(nxt1):
             self.i += 2
-            return Lit(Decimal(u + self.t[self.i - 1]))
+            return Lit(NumLit(u + self.t[self.i - 1]))
         if u == "FUNCTION":
             self.i += 1
             name = self.take().upper()
@@ -313,6 +329,10 @@ class Parser:
             return Neg(self.unary())
         if self.peek() == "+":
             self.i += 1
+            if (nxt := self.peek()) is not None and _is_number(nxt) and nxt[:1] not in "+-":  # +12: as written (#4665)
+                self.i += 1
+                return Lit(NumLit("+" + nxt, "+" + (nxt.replace(",", ".") if nxt.count(",") == 1 and "." not in nxt
+                                                    else nxt)))  # fmt: skip
             return self.unary()
         if self.peek() == "(":
             self.i += 1

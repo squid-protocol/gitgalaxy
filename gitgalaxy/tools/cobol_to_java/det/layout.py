@@ -14,6 +14,7 @@ from fractions import Fraction
 from pathlib import Path
 
 from gitgalaxy.tools.cobol_to_java.det import hfp
+from gitgalaxy.tools.cobol_to_java.det.expr import NumLit
 from gitgalaxy.tools.cobol_to_java.det.source import (
     Line,
     _outside_literals,
@@ -420,7 +421,7 @@ def _one(node, src: bytes):
         return ("lit", text[1:-1].replace(q * 2, q))
     if t == "number":
         try:
-            return ("num", Decimal(text))
+            return ("num", NumLit(text))
         except ArithmeticError as e:  # #4462: never an InvalidOperation out of the translator
             raise LayoutError(f"line {node.start_point[0] + 1}: VALUE {text} not modelled") from e
     if up.startswith(("SPACE",)):

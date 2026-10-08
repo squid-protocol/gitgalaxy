@@ -822,6 +822,75 @@ PROGRAMS = {
             "DISPLAY R",
         ],
     ),
+    # #4665: a numeric-edited item is not numeric: compared with a number it is compared as text (IBM, "Comparison of
+    # numeric and alphanumeric operands"; GnuCOBOL likewise) -- the issue's repro first, then the family: a literal as
+    # written (leading zeros, a decimal point), numeric items of each USAGE as their digits (sign dropped), edited vs
+    # edited, ZERO, EVALUATE subjects and ranges, an 88 on an edited item, an alphanumeric item likewise (register C13)
+    "EDCMP": program(
+        "EDCMP",
+        [
+            "01  E      PIC ZZZ,ZZ9.99.",
+            "01  E2     PIC ZZZ9.",
+            "01  E3     PIC ZZZ9.",
+            "01  EN     PIC -ZZ9.",
+            "01  N4     PIC 9(4) VALUE 1499.",
+            "01  NS     PIC S9(4) VALUE -12.",
+            "01  NP     PIC S9(4) COMP-3.",
+            "01  NB     PIC S9(4) COMP.",
+            "01  NV     PIC 9(2)V9 VALUE 1.5.",
+            "01  AX4    PIC X(4).",
+            "01  AX6    PIC X(6).",
+            "01  E8     PIC ZZ9.",
+            "    88  E8-TEN VALUE 10.",
+            "    88  E8-012 VALUE 012.",
+        ],
+        [
+            "MOVE 1500 TO E",
+            "IF E > 1499.99 DISPLAY 'A GT' ELSE DISPLAY 'A LE' END-IF",
+            "IF E > 1499 DISPLAY 'B GT' ELSE DISPLAY 'B LE' END-IF",
+            "IF E = 1500 DISPLAY 'C EQ' ELSE DISPLAY 'C NE' END-IF",
+            "MOVE 12 TO E2",
+            "MOVE 12 TO NP NB",
+            "IF E2 = 12 DISPLAY 'D EQ' ELSE DISPLAY 'D NE' END-IF",
+            "IF E2 > 9 DISPLAY 'E GT' ELSE DISPLAY 'E LE' END-IF",
+            "IF 0012 > E2 DISPLAY 'F GT' ELSE DISPLAY 'F LE' END-IF",
+            "IF E2 < N4 DISPLAY 'G LT' ELSE DISPLAY 'G GE' END-IF",
+            "IF E2 = NS DISPLAY 'H EQ' ELSE DISPLAY 'H NE' END-IF",
+            "IF E2 > NP DISPLAY 'I GT' ELSE DISPLAY 'I LE' END-IF",
+            "IF NB < E2 DISPLAY 'J LT' ELSE DISPLAY 'J GE' END-IF",
+            "IF E2 = NV DISPLAY 'K EQ' ELSE DISPLAY 'K NE' END-IF",
+            "MOVE 12 TO E3",
+            "IF E2 = E3 DISPLAY 'L EQ' ELSE DISPLAY 'L NE' END-IF",
+            "MOVE 0 TO E3",
+            "IF E3 = ZERO DISPLAY 'M EQ' ELSE DISPLAY 'M NE' END-IF",
+            "IF E3 = 0 DISPLAY 'N EQ' ELSE DISPLAY 'N NE' END-IF",
+            "EVALUATE E2",
+            "  WHEN 12 DISPLAY 'O 12'",
+            "  WHEN OTHER DISPLAY 'O OTHER'",
+            "END-EVALUATE",
+            "EVALUATE E2",
+            "  WHEN 1 THRU 20 DISPLAY 'P IN'",
+            "  WHEN OTHER DISPLAY 'P OUT'",
+            "END-EVALUATE",
+            "MOVE 10 TO E8",
+            "IF E8-TEN DISPLAY 'Q Y' ELSE DISPLAY 'Q N' END-IF",
+            "MOVE 12 TO E8",
+            "IF E8-012 DISPLAY 'R Y' ELSE DISPLAY 'R N' END-IF",
+            "MOVE -5 TO EN",
+            "IF EN < 0 DISPLAY 'S LT' ELSE DISPLAY 'S GE' END-IF",
+            "MOVE 1234 TO E2 NS NP NB",
+            "IF E2 = NS DISPLAY 'T EQ' ELSE DISPLAY 'T NE' END-IF",
+            "IF E2 = NP DISPLAY 'U EQ' ELSE DISPLAY 'U NE' END-IF",
+            "IF E2 = NB DISPLAY 'V EQ' ELSE DISPLAY 'V NE' END-IF",
+            "MOVE '149999' TO AX6",
+            "IF AX6 = 1499.99 DISPLAY 'W EQ' ELSE DISPLAY 'W NE' END-IF",
+            "MOVE '0012' TO AX4",
+            "MOVE 12 TO NB",
+            "IF AX4 = 0012 DISPLAY 'X EQ' ELSE DISPLAY 'X NE' END-IF",
+            "IF AX4 = NB DISPLAY 'Y EQ' ELSE DISPLAY 'Y NE' END-IF",
+            "IF AX4 = 0.012 DISPLAY 'Z EQ' ELSE DISPLAY 'Z NE' END-IF",
+        ],
+    ),
 }
 
 
@@ -1399,6 +1468,36 @@ def test_pcs_refuses_what_ibm_and_gnucobol_order_differently(tmp_path):
         _java_run("PCSLT", src, tmp_path)
     assert 'PROGRAM COLLATING SEQUENCE LT: operands "A" and "n"' in e.value.stderr
     assert "ordered differently by IBM and by GnuCOBOL (register D1): not modelled" in e.value.stderr
+
+
+# ---- #4665: a numeric operand compared as a nonnumeric one: what the oracle compares unlike IBM is refused ------------
+@pytest.mark.parametrize(
+    ("data", "cond", "why"),
+    [
+        # GnuCOBOL compares a signed literal's sign character; IBM moves no sign (register C13)
+        (["01  E PIC ZZZ9."], "E = +12", "the signed numeric literal +12 compared with a nonnumeric operand"),
+        (["01  E PIC -ZZ9."], "E < -1", "the signed numeric literal -1 compared with a nonnumeric operand"),
+        (["01  X PIC X(4).", "    88  X-NEG VALUE -1."], "X-NEG", "the signed numeric literal -1"),
+        # GnuCOBOL compares a SIGN SEPARATE item's sign character, IBM no sign
+        (["01  E PIC ZZZ9.", "01  N PIC S9(4) SIGN LEADING SEPARATE."], "E = N",
+         "N (SIGN SEPARATE) compared with the nonnumeric E"),
+        (["01  X PIC X(4).", "01  N PIC S9(4) SIGN TRAILING SEPARATE."], "N > X",
+         "N (SIGN SEPARATE) compared with the nonnumeric X"),
+        # an arithmetic expression: GnuCOBOL compares its result as text of its own making
+        (["01  E PIC ZZZ9."], "E = 10 + 2", "the nonnumeric E compared with an arithmetic expression"),
+        # GnuCOBOL compares a P-scaled item's stored digits
+        (["01  E PIC ZZZ9.", "01  N PIC 99PP."], "E = N", "N (P-scaled) compared with the nonnumeric E"),
+    ],
+)  # fmt: skip
+def test_a_numeric_operand_compared_as_text_refuses_by_name_what_ibm_and_gnucobol_differ_on(data, cond, why, tmp_path):
+    pytest.importorskip("tree_sitter_language_pack")
+    from gitgalaxy.tools.cobol_to_java.det import program as P
+
+    (tmp_path / "EDREF.cbl").write_text(program("EDREF", data, [f"IF {cond} DISPLAY 'Y' END-IF"]))
+    (tmp_path / "project").mkdir()
+    holes = P.translate(tmp_path / "EDREF.cbl", [], "public class EdrefService {\n}\n", PKG, None,
+                        tmp_path / "project").stats["holes"]  # fmt: skip
+    assert any(why in h and "(C13)" in h for h in holes), holes
 
 
 # ---- #4462: a multi-program source, one program at a time; a reference modification of an intrinsic function -----

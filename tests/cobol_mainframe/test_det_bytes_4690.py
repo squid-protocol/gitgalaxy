@@ -8,7 +8,7 @@ import os
 import shutil
 
 import pytest
-from test_det_programs import ROOT, _cobol, _java, _java_run, program  # noqa: F401
+from test_det_programs import _cobol, _java, _java_run, program
 
 E2E = pytest.mark.skipif(os.environ.get("EQUIVALENCE_E2E") != "1" or not shutil.which("docker") or _java() is None,
                          reason="needs Docker and a JDK 17 (JAVA_HOME / JDK_17)")  # fmt: skip

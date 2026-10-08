@@ -14,6 +14,7 @@ from fractions import Fraction
 from pathlib import Path
 
 from gitgalaxy.tools.cobol_to_java.det import hfp
+from gitgalaxy.tools.cobol_to_java.det.expr import NumLit
 from gitgalaxy.tools.cobol_to_java.det.source import (
     Line,
     _outside_literals,
@@ -91,13 +92,27 @@ class Item:
 
     @property
     def digits(self) -> int:
-        return sum(1 for c in self.picture() if c in "9P") if self.category in ("NUMERIC", "NUMERIC-EDITED") else 0
+        """The digits the item stores: a numeric item's 9s (a P is a scaling position, never stored -- #4669 /
+        #4670: PIC SVPP99 COMP-3 is two digits in two bytes), a numeric-edited item's 9s and Ps."""
+        if self.category == "NUMERIC":
+            return self.picture().count("9")
+        return sum(1 for c in self.picture() if c in "9P") if self.category == "NUMERIC-EDITED" else 0
+
+    @property
+    def p_scaled(self) -> bool:
+        """A numeric PICTURE with P scaling positions (PIC 99PP, VPP99, PP99)."""
+        return self.category == "NUMERIC" and "P" in self.picture()
 
     @property
     def scale(self) -> int:
         p = self.picture()
         if self.category == "NUMERIC":
-            return len(p.split("V", 1)[1]) if "V" in p else -sum(1 for c in p if c == "P")
+            body = p.replace("S", "")
+            if body.lstrip("V").startswith("P"):  # left P (VPP99, PP99): every position is a decimal one
+                return len(body.replace("V", ""))
+            if "P" in body:  # right P (99PP, 99PPV): the value is the stored digits times 10 ** (number of Ps)
+                return -body.count("P")
+            return len(p.split("V", 1)[1]) if "V" in p else 0
         if self.category == "NUMERIC-EDITED":
             point = "," if self.decimal_comma else "."
             dp = p.find(point) if point in p else p.find("V")
@@ -117,7 +132,7 @@ class Item:
         if cat == "INDEX":
             return 4
         if cat == "NUMERIC":
-            d = self.digits - sum(1 for c in p if c == "P")
+            d = self.digits
             if self.usage == "PACKED":
                 return d // 2 + 1
             if self.usage in ("BINARY", "COMP-5"):
@@ -427,7 +442,7 @@ def _one(node, src: bytes):
         return ("lit", text[1:-1].replace(q * 2, q))
     if t == "number":
         try:
-            return ("num", Decimal(text))
+            return ("num", NumLit(text))
         except ArithmeticError as e:  # #4462: never an InvalidOperation out of the translator
             raise LayoutError(f"line {node.start_point[0] + 1}: VALUE {text} not modelled") from e
     if up.startswith(("SPACE",)):

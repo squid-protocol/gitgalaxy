@@ -8,6 +8,12 @@ public final class Storage {
      *  COMMAREA is shorter than the record (a stated EIBCALEN), only those bytes -- a reference past them fails. */
     public byte[] bytes;
 
+    /** #4679: the bytes that follow this area's record when a COMMAREA longer than it was passed (a RETURN / XCTL /
+     *  LINK LENGTH past the receiver's DFHCOMMAREA): CICS hands over LENGTH bytes, so the ones past the record are
+     *  still there, opaque -- this program does not address them -- and a further RETURN / XCTL / LINK of the area
+     *  with that LENGTH passes them on (DetCics.commareaOut, Cobol.commarea). Null: none. */
+    public byte[] beyond;
+
     /** All zero bytes; the translator's initial image sets every byte. */
     public Storage(int size) {
         this.bytes = new byte[size];

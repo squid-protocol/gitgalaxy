@@ -933,6 +933,81 @@ PROGRAMS = {
             "DISPLAY R",
         ],
     ),
+    # #4665: a numeric-edited item is not numeric: compared with a number it is compared as text (IBM, "Comparison of
+    # numeric and alphanumeric operands"; GnuCOBOL likewise) -- the issue's repro first, then the family: a literal as
+    # written (leading zeros, a decimal point), numeric items of each USAGE as their digits (sign dropped), edited vs
+    # edited, ZERO, EVALUATE subjects and ranges, an 88 on an edited item, an alphanumeric item likewise (register C13)
+    "EDCMP": program(
+        "EDCMP",
+        [
+            "01  E      PIC ZZZ,ZZ9.99.",
+            "01  E2     PIC ZZZ9.",
+            "01  E3     PIC ZZZ9.",
+            "01  EN     PIC -ZZ9.",
+            "01  N4     PIC 9(4) VALUE 1499.",
+            "01  NS     PIC S9(4) VALUE -12.",
+            "01  NP     PIC S9(4) COMP-3.",
+            "01  NB     PIC S9(4) COMP.",
+            "01  NV     PIC 9(2)V9 VALUE 1.5.",
+            "01  AX4    PIC X(4).",
+            "01  AX6    PIC X(6).",
+            "01  EV     PIC Z99V9.",
+            "01  E8     PIC ZZ9.",
+            "    88  E8-TEN VALUE 10.",
+            "    88  E8-012 VALUE 012.",
+        ],
+        [
+            "MOVE 1500 TO E",
+            "IF E > 1499.99 DISPLAY 'A GT' ELSE DISPLAY 'A LE' END-IF",
+            "IF E > 1499 DISPLAY 'B GT' ELSE DISPLAY 'B LE' END-IF",
+            "IF E = 1500 DISPLAY 'C EQ' ELSE DISPLAY 'C NE' END-IF",
+            "MOVE 12 TO E2",
+            "MOVE 12 TO NP NB",
+            "IF E2 = 12 DISPLAY 'D EQ' ELSE DISPLAY 'D NE' END-IF",
+            "IF E2 > 9 DISPLAY 'E GT' ELSE DISPLAY 'E LE' END-IF",
+            "IF 0012 > E2 DISPLAY 'F GT' ELSE DISPLAY 'F LE' END-IF",
+            "IF E2 < N4 DISPLAY 'G LT' ELSE DISPLAY 'G GE' END-IF",
+            "IF E2 = NS DISPLAY 'H EQ' ELSE DISPLAY 'H NE' END-IF",
+            "IF E2 > NP DISPLAY 'I GT' ELSE DISPLAY 'I LE' END-IF",
+            "IF NB < E2 DISPLAY 'J LT' ELSE DISPLAY 'J GE' END-IF",
+            "IF E2 = NV DISPLAY 'K EQ' ELSE DISPLAY 'K NE' END-IF",
+            "MOVE 12 TO E3",
+            "IF E2 = E3 DISPLAY 'L EQ' ELSE DISPLAY 'L NE' END-IF",
+            "MOVE 0 TO E3",
+            "IF E3 = ZERO DISPLAY 'M EQ' ELSE DISPLAY 'M NE' END-IF",
+            "IF E3 = 0 DISPLAY 'N EQ' ELSE DISPLAY 'N NE' END-IF",
+            "EVALUATE E2",
+            "  WHEN 12 DISPLAY 'O 12'",
+            "  WHEN OTHER DISPLAY 'O OTHER'",
+            "END-EVALUATE",
+            "EVALUATE E2",
+            "  WHEN 1 THRU 20 DISPLAY 'P IN'",
+            "  WHEN OTHER DISPLAY 'P OUT'",
+            "END-EVALUATE",
+            "MOVE 10 TO E8",
+            "IF E8-TEN DISPLAY 'Q Y' ELSE DISPLAY 'Q N' END-IF",
+            "MOVE 12 TO E8",
+            "IF E8-012 DISPLAY 'R Y' ELSE DISPLAY 'R N' END-IF",
+            "MOVE -5 TO EN",
+            "IF EN < 0 DISPLAY 'S LT' ELSE DISPLAY 'S GE' END-IF",
+            "MOVE 1234 TO E2 NS NP NB",
+            "IF E2 = NS DISPLAY 'T EQ' ELSE DISPLAY 'T NE' END-IF",
+            "IF E2 = NP DISPLAY 'U EQ' ELSE DISPLAY 'U NE' END-IF",
+            "IF E2 = NB DISPLAY 'V EQ' ELSE DISPLAY 'V NE' END-IF",
+            "MOVE '149999' TO AX6",
+            "IF AX6 = 1499.99 DISPLAY 'W EQ' ELSE DISPLAY 'W NE' END-IF",
+            "MOVE '0012' TO AX4",
+            "MOVE 12 TO NB",
+            "IF AX4 = 0012 DISPLAY 'X EQ' ELSE DISPLAY 'X NE' END-IF",
+            "IF AX4 = NB DISPLAY 'Y EQ' ELSE DISPLAY 'Y NE' END-IF",
+            "IF AX4 = 0.012 DISPLAY 'Z EQ' ELSE DISPLAY 'Z NE' END-IF",
+            "MOVE 112.5 TO EV",
+            "IF EV = 112.5 DISPLAY 'AA EQ' ELSE DISPLAY 'AA NE' END-IF",
+            "IF EV > 11.25 DISPLAY 'AB GT' ELSE DISPLAY 'AB LE' END-IF",
+            "MOVE '012' TO AX4",
+            "IF AX4 = 0.12 DISPLAY 'AC EQ' ELSE DISPLAY 'AC NE' END-IF",
+        ],
+    ),
 }
 
 
@@ -1092,6 +1167,47 @@ PROGRAMS["CMPALT"] = pcs_program(
 )
 
 
+def _pscale_proc() -> list[str]:
+    """#4670: right-P (99PP) and left-P (VPP99, PP99) items -- zoned signed and unsigned, left-P binary -- as MOVE
+    receivers (literals truncated at both ends, an item, an alphanumeric) and senders (into a numeric-edited item, and a
+    right-P one into an alphanumeric: a zero for each P), arithmetic receivers (ROUNDED, ON SIZE ERROR) and operands, and
+    in comparisons. Each value is shown through a numeric-edited item: a P-scaled item's own DISPLAY is refused."""
+    proc: list[str] = []
+    cases = [(x, ["1200", "1250", "123456", "-3400", "7"], "W * 3", "150", "1290", "1200", "1000")
+             for x in ("ZR", "ZRS", "ZRV")]  # fmt: skip
+    cases += [(x, ["0.0012", "0.00125", "-0.0056", "0.01", "0.000123"], "W / 1000000", "0.0011", "0.000129",
+               "0.0013", "0.001") for x in ("ZL", "ZLS", "BL", "BLS", "ZN")]  # fmt: skip
+    for x, lits, comp, add, rnd, eq, gt in cases:
+        for v in lits:
+            proc += [f"MOVE {v} TO {x}", f"MOVE {x} TO E", f"DISPLAY '{x} {v} ' E"]
+        proc += [f"MOVE W TO {x}", f"MOVE {x} TO E", f"DISPLAY '{x} W ' E",
+                 f"COMPUTE {x} = {comp}", f"MOVE {x} TO E", f"DISPLAY '{x} C ' E",
+                 f"ADD {add} TO {x}", f"MOVE {x} TO E", f"DISPLAY '{x} A ' E",
+                 f"COMPUTE {x} ROUNDED = {rnd}", f"MOVE {x} TO E", f"DISPLAY '{x} R ' E",
+                 f"COMPUTE W = {x} * 7", f"MOVE W TO E", f"DISPLAY '{x} O ' E",
+                 f"IF {x} = {eq} DISPLAY '{x} EQ' ELSE DISPLAY '{x} NE' END-IF",
+                 f"IF {x} > {gt} DISPLAY '{x} GT' ELSE DISPLAY '{x} LE' END-IF",
+                 f"IF {x} < W DISPLAY '{x} LTW' ELSE DISPLAY '{x} GEW' END-IF",
+                 f"MOVE XS TO {x}", f"MOVE {x} TO E", f"DISPLAY '{x} XS ' E",
+                 f"COMPUTE {x} = {gt} * 99", f"    ON SIZE ERROR DISPLAY '{x} SZ'", "END-COMPUTE"]  # fmt: skip
+        if not x.startswith(("ZL", "BL", "ZN")):  # (a non-integer into an alphanumeric: IBM rejects, cobc warns)
+            proc += [f"MOVE {x} TO X6", f"DISPLAY '{x} X [' X6 ']'"]
+    proc += ["IF ZL < ZR DISPLAY 'LR LT' ELSE DISPLAY 'LR GE' END-IF", "MOVE 0.0012 TO ZL", "MOVE ZL TO BLS",
+             "MOVE BLS TO E", "DISPLAY 'LL ' E", "MOVE 1300 TO ZR", "MOVE ZR TO ZL", "MOVE ZL TO E", "DISPLAY 'RL ' E",
+             "INITIALIZE ZR ZL BL", "MOVE ZR TO E", "DISPLAY 'I ' E"]  # fmt: skip
+    return proc
+
+
+PROGRAMS["PSCALE"] = program(
+    "PSCALE",
+    ["01 ZR PIC 99PP VALUE 1200.", "01 ZRS PIC S99PP VALUE -3400.", "01 ZRV PIC 99PPV.", "01 ZL PIC VPP99.",
+     "01 ZLS PIC SVPP99 VALUE -0.0034.", "01 BL PIC VPP99 COMP VALUE 0.0078.", "01 BLS PIC SPP999 COMP.",
+     "01 ZN PIC PP99 VALUE 0.0091.", "01 E PIC -(7)9.9(6).", "01 W PIC S9(6)V9(6) VALUE 1234.5678.",
+     "01 X6 PIC X(6).", "01 XS PIC X(6) VALUE '  1234'."],
+    _pscale_proc(),
+)  # fmt: skip
+
+
 def dpc_program(name: str, data: list[str], proc: list[str]) -> str:
     """#4462: a program under SPECIAL-NAMES DECIMAL-POINT IS COMMA: WORKING-STORAGE and PROCEDURE DIVISION lines from
     column 8 (a statement indented four more)."""
@@ -1137,17 +1253,23 @@ def _java() -> Path | None:
     return Path(home) / "bin" if home and (Path(home) / "bin/javac").is_file() else None
 
 
-def _cobol(src: str, work: Path) -> str:
+def _cobol(src: str, work: Path, raw: bool = False) -> str:
     (work / "prog.cbl").write_text(src)
     run = subprocess.run(["docker", "run", "--rm", "-v", f"{work}:/w", "-w", "/w", IMAGE, "sh", "-c",  # noqa: S607
                           "cobc -x -std=ibm -fsign=EBCDIC prog.cbl -o prog 2>&1 && ./prog"], capture_output=True,
-                         text=True, check=False)  # fmt: skip
+                         text=not raw, check=False)  # fmt: skip
     assert run.returncode == 0, run.stdout + run.stderr
     return run.stdout
 
 
 def _java_run(
-    name: str, src: str, work: Path, typed: bool = False, groups: bool = False, unit: str | None = None
+    name: str,
+    src: str,
+    work: Path,
+    typed: bool = False,
+    groups: bool = False,
+    unit: str | None = None,
+    raw: bool = False,
 ) -> str:
     from gitgalaxy.tools.cobol_to_java.det import program as P
 
@@ -1175,7 +1297,7 @@ def _java_run(
     jdk = _java()
     files = [str(f) for f in srcdir.rglob("*.java")]
     subprocess.run([str(jdk / "javac"), "-nowarn", "-d", str(work / "classes"), *files], check=True)  # noqa: S603
-    return subprocess.run([str(jdk / "java"), "-cp", str(work / "classes"), "Main"], capture_output=True, text=True,  # noqa: S603
+    return subprocess.run([str(jdk / "java"), "-cp", str(work / "classes"), "Main"], capture_output=True, text=not raw,  # noqa: S603
                           check=True).stdout  # fmt: skip
 
 
@@ -1186,6 +1308,7 @@ def _batch_package(srcdir: Path) -> None:
 
     for cls in ("CobolFiles", "DatasetResolver", "Dd", "MainframeClock", "Sysout", "CobolAbend"):
         text = _RUNTIME[cls].replace("{pkg}", f"{PKG}.batch").replace("{zone}", "UTC")
+        text = text.replace("{record_charset}", "ISO-8859-1")
         text = re.sub(r"^import org\.springframework\..*\n|^@Component\n", "", text, flags=re.M)
         text = re.sub(r'@Value\("(?:[^"\\]|\\.)*"\)\s*', "", text)
         (srcdir / PKG / "batch" / f"{cls}.java").parent.mkdir(parents=True, exist_ok=True)
@@ -1287,6 +1410,57 @@ def test_display_of_a_numeric_function_is_refused_by_name_not_emitted_uncompilab
     src = program("DNUM", ["01  X PIC X(7) VALUE 'abc'."], ["DISPLAY FUNCTION LENGTH(X)"])
     holes = _pcs_holes(tmp_path, src.replace("DNUM", "PCSX"))
     assert any("DISPLAY of numeric FUNCTION LENGTH" in h for h in holes), holes
+
+
+@pytest.mark.parametrize(
+    ("data", "proc", "why"),
+    [
+        # #4669: GnuCOBOL 3.1.2 stores a P-scaled packed item's digits into its sign nibble (no oracle)
+        (["01 A PIC SVPP99 COMP-3 VALUE 0.0012.", "01 C PIC 9(6)."], ["MOVE A TO C"], "a P-scaled packed item"),
+        (["01 G.", "   05 A PIC S99PP COMP-3.", "   05 B PIC 9."], ["INITIALIZE G"], "a P-scaled packed item"),
+        # GnuCOBOL 3.1.2 loops forever on MOVE 0 into a right-P binary item
+        (["01 A PIC 99PP COMP."], ["MOVE 0 TO A"], "a right-P / native binary item"),
+        # GnuCOBOL DISPLAYs PIC 99PP VALUE 1200 as 0012
+        (["01 A PIC 99PP VALUE 1200."], ["DISPLAY A"], "a P-scaled item's DISPLAY form"),
+        # GnuCOBOL's intermediate precision for a P-scaled operand: IF A / 7 > 171 and A * 2 > 2399 are false,
+        # I + A * 0.5 drops the product, (A / 7) * A the quotient's digits
+        (["01 A PIC 99PP VALUE 1200."], ["IF A * 2 > 2399", "    DISPLAY 'Y'", "END-IF"],
+         "a P-scaled operand in a condition"),
+        (["01 A PIC VPP99 VALUE 0.0012."], ["IF A / 7 > 0.00017", "    DISPLAY 'Y'", "END-IF"],
+         "a P-scaled operand in a condition"),
+        (["01 A PIC 99PP VALUE 1200.", "01 I PIC 9V9(5) VALUE 0.33333.", "01 R PIC 9(5)V9(5)."],
+         ["COMPUTE R = I + A * 0.5"], "a P-scaled operand in a COMPUTE"),
+        (["01 A PIC 99PP VALUE 1200.", "01 R PIC 9(9)V9(5)."], ["COMPUTE R = (A / 7) * A"],
+         "a P-scaled operand in a COMPUTE"),
+    ],
+)  # fmt: skip
+def test_p_scaled_items_the_oracle_cannot_answer_are_refused_by_name(data, proc, why, tmp_path):
+    """#4669: refused by name, never a crash (the layout's ValueError on PIC SVPP99 COMP-3)."""
+    pytest.importorskip("tree_sitter_language_pack")
+    holes = _pcs_holes(tmp_path, program("PCSX", data, proc))
+    assert any(why in h for h in holes), holes
+
+
+def test_p_scaled_items_store_their_nines_scaled():
+    """#4669 / #4670: a P is a scaling position, never stored -- digits are the 9s, the scale counts the Ps."""
+    pytest.importorskip("tree_sitter_language_pack")
+    from decimal import Decimal
+
+    from gitgalaxy.tools.cobol_to_java.det import layout as L
+
+    def item(pic: str, usage: str = "DISPLAY") -> L.Item:
+        it = L.Item(level=1, name="A", section="WORKING-STORAGE", pic=pic, usage=usage)
+        it.size = it.elementary_size()
+        return it
+
+    for pic, usage, digits, scale, size in [("99PP", "DISPLAY", 2, -2, 2), ("S99PPV", "DISPLAY", 2, -2, 2),
+                                            ("VPP99", "DISPLAY", 2, 4, 2), ("PP99", "DISPLAY", 2, 4, 2),
+                                            ("SVPP99", "PACKED", 2, 4, 2), ("S9(3)P(2)", "BINARY", 3, -2, 2),
+                                            ("S9(3)V99", "PACKED", 5, 2, 3)]:  # fmt: skip
+        it = item(pic, usage)
+        assert (it.digits, it.scale, it.size) == (digits, scale, size), pic
+    assert L.encode_number(item("SVPP99", "PACKED"), Decimal("0.0012")) == bytes.fromhex("012C")
+    assert L.encode_number(item("99PP"), Decimal("1250")) == b"12"
 
 
 def _byte_storage(java: str, name: str) -> bool:
@@ -1548,6 +1722,41 @@ def test_pcs_refuses_what_ibm_and_gnucobol_order_differently(tmp_path):
         _java_run("PCSLT", src, tmp_path)
     assert 'PROGRAM COLLATING SEQUENCE LT: operands "A" and "n"' in e.value.stderr
     assert "ordered differently by IBM and by GnuCOBOL (register D1): not modelled" in e.value.stderr
+
+
+# ---- #4665: a numeric operand compared as a nonnumeric one: what the oracle compares unlike IBM is refused ------------
+@pytest.mark.parametrize(
+    ("data", "cond", "why"),
+    [
+        # GnuCOBOL compares a signed literal's sign character; IBM moves no sign (register C13)
+        (["01  E PIC ZZZ9."], "E = +12", "the signed numeric literal +12 compared with a nonnumeric operand"),
+        (["01  E PIC -ZZ9."], "E < -1", "the signed numeric literal -1 compared with a nonnumeric operand"),
+        (["01  X PIC X(4).", "    88  X-NEG VALUE -1."], "X-NEG", "the signed numeric literal -1"),
+        # GnuCOBOL compares a SIGN SEPARATE item's sign character, IBM no sign
+        (["01  E PIC ZZZ9.", "01  N PIC S9(4) SIGN LEADING SEPARATE."], "E = N",
+         "N (SIGN SEPARATE) compared with the nonnumeric E"),
+        (["01  X PIC X(4).", "01  N PIC S9(4) SIGN TRAILING SEPARATE."], "N > X",
+         "N (SIGN SEPARATE) compared with the nonnumeric X"),
+        # an arithmetic expression: GnuCOBOL compares its result as text of its own making
+        (["01  E PIC ZZZ9."], "E = 10 + 2", "the nonnumeric E compared with an arithmetic expression"),
+        # GnuCOBOL compares a P-scaled item's stored digits
+        (["01  E PIC ZZZ9.", "01  N PIC 99PP."], "E = N", "N (P-scaled) compared with the nonnumeric E"),
+        # a literal with more decimal places than an edited item: GnuCOBOL folds the equality when it compiles
+        # (`ZZ9` holding 125 is neither = 12.5 nor < nor > it), IBM rejects a non-integer there
+        (["01  E PIC ZZ9."], "E = 12.5", "the numeric literal 12.5 compared for equality with the numeric-edited E"),
+        (["01  E PIC Z99V9."], "E NOT = 11.25", "the numeric literal 11.25 compared for equality with the numeric"),
+        (["01  E PIC ZZ9.", "    88  E-H VALUE 1.5."], "E-H", "the numeric literal 1.5 compared for equality"),
+    ],
+)  # fmt: skip
+def test_a_numeric_operand_compared_as_text_refuses_by_name_what_ibm_and_gnucobol_differ_on(data, cond, why, tmp_path):
+    pytest.importorskip("tree_sitter_language_pack")
+    from gitgalaxy.tools.cobol_to_java.det import program as P
+
+    (tmp_path / "EDREF.cbl").write_text(program("EDREF", data, [f"IF {cond} DISPLAY 'Y' END-IF"]))
+    (tmp_path / "project").mkdir()
+    holes = P.translate(tmp_path / "EDREF.cbl", [], "public class EdrefService {\n}\n", PKG, None,
+                        tmp_path / "project").stats["holes"]  # fmt: skip
+    assert any(why in h and "(C13)" in h for h in holes), holes
 
 
 # ---- #4462: a multi-program source, one program at a time; a reference modification of an intrinsic function -----

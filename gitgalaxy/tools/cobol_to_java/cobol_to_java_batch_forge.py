@@ -45,7 +45,7 @@ from typing import Any
 
 from gitgalaxy.tools.cobol_to_java.cobol_to_java_common import TraceLog, java_path, status_text
 from gitgalaxy.tools.cobol_to_java.cobol_to_java_names import java_class_base
-from gitgalaxy.tools.cobol_to_java.java_target import JavaTarget
+from gitgalaxy.tools.cobol_to_java.java_target import JavaTarget, record_charset_java
 
 SUBPACKAGE = "batch"
 # IBM's PL/I compiler, spelled in two parts: its name holds the two-byte DOS executable
@@ -222,7 +222,9 @@ class BatchForge:
             return {}
         pkg = f"{self.package}.{SUBPACKAGE}"
         out = {
-            name: text.replace("{pkg}", pkg).replace("{zone}", self.target.culture.zone)
+            name: text.replace("{pkg}", pkg)
+            .replace("{zone}", self.target.culture.zone)
+            .replace("{record_charset}", record_charset_java(self.target.data.record_charset))
             for name, text in _RUNTIME.items()
         }
         if self.target.features.rest_controllers:
@@ -407,7 +409,7 @@ import java.io.IOException;
 import java.io.UncheckedIOException;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
-import java.nio.charset.StandardCharsets;
+import java.nio.charset.Charset;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.StandardOpenOption;
@@ -416,7 +418,9 @@ import java.nio.file.StandardOpenOption;
  * The job log (#4056): a COBOL `DISPLAY` is `Sysout.display(...)` -- one line, its operands' text concatenated
  * exactly as IBM Enterprise COBOL writes them -- not a log line. SYSOUT is what operators read and scripts parse,
  * and the equivalence harness compares it line by line (trailing blanks aside). Written to standard output, or
- * appended to the file named by the system property gitgalaxy.sysout.
+ * appended to the file named by the system property gitgalaxy.sysout. #4691: the bytes are written in the record
+ * charset (system property gitgalaxy.data.charset, else the target's data.record_charset), never UTF-8: a byte
+ * above X'7F' leaves as that one byte, as the COBOL runtime writes it.
  */
 public final class Sysout {
 
@@ -464,15 +468,15 @@ public final class Sysout {
 
     private static void write(String text) {
         String target = System.getProperty("gitgalaxy.sysout");
+        byte[] bytes = text.getBytes(Charset.forName(System.getProperty("gitgalaxy.data.charset", "{record_charset}")));
         synchronized (LOCK) {
             if (target == null) {
-                System.out.print(text);
+                System.out.write(bytes, 0, bytes.length);
                 System.out.flush();
                 return;
             }
             try {
-                Files.writeString(Path.of(target), text, StandardCharsets.UTF_8, StandardOpenOption.CREATE,
-                        StandardOpenOption.APPEND);
+                Files.write(Path.of(target), bytes, StandardOpenOption.CREATE, StandardOpenOption.APPEND);
             } catch (IOException e) {
                 throw new UncheckedIOException(e);
             }

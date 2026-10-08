@@ -75,26 +75,230 @@ public final class Cobol {
     }
 
     // ------------------------------------------------------------------------------------------ ARITHMETIC
-    /** An intermediate quotient as GnuCOBOL forms it (cob_decimal_div): the dividend shifted 38 digits, then
-     *  divided and truncated -- the receiver's own truncation or ROUNDED then applies in store. */
-    public static BigDecimal divide(BigDecimal a, BigDecimal b) {
-        if (b.signum() == 0) {
-            throw new ArithmeticException("division by zero");
-        }
-        int shift = 38 + Math.max(0, -a.scale());
-        int scale = Math.max(0, a.scale() + shift - b.scale());
-        return a.divide(b, scale, java.math.RoundingMode.DOWN);
+    // ------------------------------------------------------------------------------- size error (#4655)
+    /** libcob's invalid intermediate (COB_DECIMAL_NAN, oracle_assumptions C14): a decimal whose scale is -32768. A
+     *  zero divisor (cob_decimal_div) makes one of the dividend; an operation with one makes one of its left
+     *  operand's value; storing one (cob_decimal_get_field) leaves the receiver unchanged with a size error. It is
+     *  an ordinary number to everything else: cob_decimal_align truncates it to 0 (Cobol.align does the same with
+     *  its scale) and cob_decimal_cmp compares its value scaled by 10^32768. */
+    public static final int NAN_SCALE = -32768;
+
+    public static boolean isNan(BigDecimal d) {
+        return d.scale() == NAN_SCALE;
     }
 
-    /** A ** b: exact for a whole exponent, else through double. */
+    private static BigDecimal nan(BigDecimal d) {
+        return new BigDecimal(d.unscaledValue(), NAN_SCALE);
+    }
+
+    /** The statement's size-error state (libcob's EC-SIZE exception code): set by a zero divisor, 0 ** 0 or an
+     *  exponent without a finite result even when no invalid value reaches a receiver (an aligned NaN is 0, a
+     *  function's argument divided by zero is 0); cleared where a statement with ON SIZE ERROR starts. */
+    private static final ThreadLocal<boolean[]> SIZE_EC = ThreadLocal.withInitial(() -> new boolean[1]);
+
+    public static void sizeClear() {
+        SIZE_EC.get()[0] = false;
+    }
+
+    public static boolean sizeRaised() {
+        return SIZE_EC.get()[0];
+    }
+
+    private static void raiseSize() {
+        SIZE_EC.get()[0] = true;
+    }
+
+    /** cob_decimal_add of two intermediates where either may be libcob's NaN (#4655): NaN in, NaN out. */
+    public static BigDecimal add(BigDecimal a, BigDecimal b) {
+        return isNan(a) ? a : isNan(b) ? nan(a) : a.add(b);
+    }
+
+    /** cob_decimal_sub, as {@link #add(BigDecimal, BigDecimal)}. */
+    public static BigDecimal subtract(BigDecimal a, BigDecimal b) {
+        return isNan(a) ? a : isNan(b) ? nan(a) : a.subtract(b);
+    }
+
+    /** cob_decimal_mul, as {@link #add(BigDecimal, BigDecimal)}. */
+    public static BigDecimal multiply(BigDecimal a, BigDecimal b) {
+        return isNan(a) ? a : isNan(b) ? nan(a) : a.multiply(b);
+    }
+
+    /** Unary minus where the operand may be NaN: cobc's 0 - x, so a NaN's value is 0. */
+    public static BigDecimal negate(BigDecimal a) {
+        return isNan(a) ? nan(BigDecimal.ZERO) : a.negate();
+    }
+
+    /** An intermediate quotient as GnuCOBOL forms it (cob_decimal_div): the scale a.scale - b.scale, the dividend
+     *  shifted 38 digits more (and as many again as that scale is below zero), then divided and truncated -- so the
+     *  quotient keeps 38 + max(a.scale - b.scale, 0) decimal places; a zero dividend is 0 of scale 0. The
+     *  receiver's own truncation or ROUNDED then applies in store. A zero divisor makes the dividend NaN and raises
+     *  the size error (#4655); a NaN operand gives NaN. */
+    public static BigDecimal divide(BigDecimal a, BigDecimal b) {
+        if (isNan(a)) {
+            return a;
+        }
+        if (isNan(b)) {
+            return nan(a);
+        }
+        if (b.signum() == 0) {
+            raiseSize();
+            return nan(a);
+        }
+        if (a.signum() == 0) {
+            return BigDecimal.ZERO;
+        }
+        return a.divide(b, 38 + Math.max(a.scale() - b.scale(), 0), java.math.RoundingMode.DOWN);
+    }
+
+    /** DIVIDE ... REMAINDER (cob_div_quotient, cob_div_remainder): the dividend less the divisor times the quotient
+     *  `q` truncated to the first GIVING receiver's `scale` places -- not to its PICTURE's high-order digits, so a
+     *  quotient too big for its receiver still gives the true remainder. A NaN quotient (a zero divisor) gives NaN:
+     *  the remainder receiver unchanged (#4655). */
+    public static BigDecimal remainder(BigDecimal a, BigDecimal q, BigDecimal b, int scale) {
+        if (isNan(q)) {
+            return q;
+        }
+        return a.subtract(q.setScale(scale, RoundingMode.DOWN).multiply(b));
+    }
+
+    /** A division in an intrinsic function's argument (cob_intr_binop): a zero divisor gives 0, with the size
+     *  error raised -- never NaN (#4655). */
+    public static BigDecimal divideIntr(BigDecimal a, BigDecimal b) {
+        if (b.signum() == 0) {
+            raiseSize();
+            return BigDecimal.ZERO;
+        }
+        return divide(a, b);
+    }
+
+    /** ARITHMETIC-OSVS (#4287, oracle_assumptions C2): an intermediate result truncated to `scale` decimal places, as
+     *  libcob's cob_decimal_align does it where cobc -std=ibm emits it (the translator decides where, det/osvs.py).
+     *  With more places than `scale` the low-order ones are dropped (toward zero); with fewer, libcob shifts the
+     *  other way: the value loses as many low-order digits as it lacks places (579 aligned to 2 places is 500). */
+    public static BigDecimal align(BigDecimal d, int scale) {
+        if (d.scale() > scale) {
+            return d.setScale(scale, java.math.RoundingMode.DOWN);
+        }
+        if (d.scale() < scale) {
+            int k = scale - d.scale();
+            return new BigDecimal(d.unscaledValue().divide(java.math.BigInteger.TEN.pow(k)), d.scale() - k);
+        }
+        return d;
+    }
+
+    /** A numeric literal on the right of an operation in a decimal expression: libcob's decimal constant (cobc's
+     *  dc_N, one per distinct literal of the program, set once when the program starts). libcob changes its scale
+     *  in place: an ADD or SUBTRACT from an intermediate with more decimal places raises it to theirs
+     *  (align_decimal), an exponent loses its trailing zeros (cob_decimal_pow) -- and every later use of the same
+     *  literal sees the changed scale (oracle_assumptions C2, #4287). */
+    public static final class Dc {
+        private final BigDecimal initial;
+        BigDecimal v;
+
+        public Dc(String literal) {
+            initial = new BigDecimal(literal);
+            v = initial;
+        }
+
+        /** The program starts again (its initial state): the literal as written. */
+        public void reset() {
+            v = initial;
+        }
+    }
+
+    /** cob_decimal_add with a decimal constant (Dc). */
+    public static BigDecimal add(BigDecimal a, Dc c) {
+        if (isNan(a)) {
+            return a;
+        }
+        if (a.scale() > c.v.scale()) {
+            c.v = c.v.setScale(a.scale());
+        }
+        return a.add(c.v);
+    }
+
+    /** cob_decimal_sub with a decimal constant (Dc). */
+    public static BigDecimal subtract(BigDecimal a, Dc c) {
+        if (isNan(a)) {
+            return a;
+        }
+        if (a.scale() > c.v.scale()) {
+            c.v = c.v.setScale(a.scale());
+        }
+        return a.subtract(c.v);
+    }
+
+    /** cob_decimal_mul with a decimal constant (Dc): the constant as it is now. */
+    public static BigDecimal multiply(BigDecimal a, Dc c) {
+        return isNan(a) ? a : a.multiply(c.v);
+    }
+
+    /** cob_decimal_div with a decimal constant (Dc): the constant as it is now. */
+    public static BigDecimal divide(BigDecimal a, Dc c) {
+        return divide(a, c.v);
+    }
+
+    /** cob_decimal_pow with a decimal constant exponent (Dc, never negative: the translator refuses one): trimmed in
+     *  place once the base is not zero. */
+    public static BigDecimal power(BigDecimal a, Dc c) {
+        if (isNan(a)) {
+            return a;
+        }
+        if (c.v.signum() != 0 && a.signum() != 0) {
+            c.v = trim(c.v);
+        }
+        return power(a, c.v);
+    }
+
+    /** cob_trim_decimal: trailing zeros dropped while the scale is above zero; zero is 0 of scale 0. */
+    private static BigDecimal trim(BigDecimal d) {
+        if (d.signum() == 0) {
+            return BigDecimal.ZERO;
+        }
+        while (d.scale() > 0) {
+            java.math.BigInteger[] qr = d.unscaledValue().divideAndRemainder(java.math.BigInteger.TEN);
+            if (qr[1].signum() != 0) {
+                break;
+            }
+            d = new BigDecimal(qr[0], d.scale() - 1);
+        }
+        return d;
+    }
+
+    /** A ** b as cob_decimal_pow forms it: a whole exponent exactly (base and result trimmed of trailing zeros, a
+     *  negative one through cob_decimal_div), else through double. 0 ** 0 is 1 with the size error raised; an
+     *  exponent through double without a finite result (a negative base, an overflow) is NaN with the size error
+     *  raised, as libcob's (#4655); a NaN operand gives NaN. */
     public static BigDecimal power(BigDecimal a, BigDecimal b) {
-        if (b.signum() >= 0 && b.stripTrailingZeros().scale() <= 0 && b.compareTo(BigDecimal.valueOf(999)) <= 0) {
-            return a.pow(b.intValueExact());
+        if (isNan(a)) {
+            return a;
         }
-        if (b.signum() < 0 && b.stripTrailingZeros().scale() <= 0) {
-            return divide(BigDecimal.ONE, a.pow(-b.intValueExact()));
+        if (isNan(b)) {
+            return nan(a);
         }
-        return new BigDecimal(Math.pow(a.doubleValue(), b.doubleValue()));
+        boolean whole = b.stripTrailingZeros().scale() <= 0;
+        if (b.signum() == 0) {
+            if (a.signum() == 0) {
+                raiseSize();
+            }
+            return BigDecimal.ONE;
+        }
+        if (a.signum() == 0) {
+            return BigDecimal.ZERO;
+        }
+        if (whole && b.signum() > 0 && b.compareTo(BigDecimal.valueOf(999)) <= 0) {
+            int n = b.intValueExact();
+            return n == 1 ? trim(a) : trim(trim(a).pow(n));
+        }
+        if (whole && b.signum() < 0) {
+            return trim(divide(BigDecimal.ONE, trim(trim(a).pow(-b.intValueExact()))));
+        }
+        double r = Math.pow(a.doubleValue(), b.doubleValue());
+        if (Double.isNaN(r) || Double.isInfinite(r)) {
+            raiseSize();
+            return nan(a);
+        }
+        return new BigDecimal(r);
     }
 
     // ------------------------------------------------------------------------------------------------ MOVE
@@ -289,12 +493,23 @@ public final class Cobol {
                 int at = from.signLeading ? 0 : out.length - 1;
                 out[at] = unpunch(out[at], cs);
             }
-            return out;
+            return from.scale < 0 ? pZeros(out, from, cs) : out;
         }
         Codec.Num n = Codec.read(from, cs);
         String s = n.mag.toString();
-        if (s.length() < from.digits) s = "0".repeat(from.digits - s.length()) + s;
-        return s.getBytes(cs);
+        // a left-P binary / packed item (PIC VPP99 COMP): GnuCOBOL writes its Ps as leading digits too (#4670)
+        int width = Math.max(from.digits, from.scale);
+        if (s.length() < width) s = "0".repeat(width - s.length()) + s;
+        return pZeros(s.getBytes(cs), from, cs);
+    }
+
+    /** #4670: a right-P item (PIC 99PP) as text: its digits, then a zero for each P (MOVE 1300 into it, then into a
+     *  PIC X(6): "1300  "), as GnuCOBOL moves it. */
+    private static byte[] pZeros(byte[] digits, Field from, Charset cs) {
+        if (from.scale >= 0) return digits;
+        byte[] out = java.util.Arrays.copyOf(digits, digits.length - from.scale);
+        java.util.Arrays.fill(out, digits.length, out.length, Codec.by('0', cs));
+        return out;
     }
 
     /** An overpunched sign byte ({ A-I: +0..9, } J-R: -0..9 as -fsign=EBCDIC writes them) as its digit; any other
@@ -493,8 +708,11 @@ public final class Cobol {
     // -------------------------------------------------------------------------------------- arithmetic store
 
     /** No ON SIZE ERROR: low-order digits beyond the scale dropped (or rounded half away from zero), high-order
-     *  digits beyond the PICTURE lost. */
+     *  digits beyond the PICTURE lost; libcob's NaN (a zero divisor) leaves `to` unchanged (#4655). */
     public static void store(Field to, BigDecimal value, boolean rounded, Charset cs) {
+        if (isNan(value)) {
+            return;
+        }
         if (to.kind == Field.Kind.NUMERIC_FLOAT) { // a float receiver: the value converted to its precision (Hfp)
             Hfp.store(to, value);
             return;
@@ -507,8 +725,11 @@ public final class Cobol {
         }
     }
 
-    /** ON SIZE ERROR: true, `to` unchanged, when the value does not fit. */
+    /** ON SIZE ERROR: true, `to` unchanged, when the value does not fit or is libcob's NaN (#4655). */
     public static boolean storeChecked(Field to, BigDecimal value, boolean rounded, Charset cs) {
+        if (isNan(value)) {
+            return true;
+        }
         if (to.kind == Field.Kind.NUMERIC_FLOAT) { // an exponent overflow is refused by name in Hfp, never a size error
             store(to, value, rounded, cs);
             return false;
@@ -573,7 +794,37 @@ public final class Cobol {
             }
             return Integer.signum(num(a, cs).compareTo(num(b, cs)));
         }
-        return cmpBytes(a.raw(), b.raw(), cs, coll);
+        return cmpBytes(operand(a, b, cs), operand(b, a, cs), cs, coll);
+    }
+
+    /** `f`'s bytes as a nonnumeric comparand against `other` (#4665): a numeric item against an elementary
+     *  nonnumeric one (alphanumeric, alphabetic, edited) is its digits as characters (IBM Enterprise COBOL 6.4
+     *  Language Reference, "Comparison of numeric and alphanumeric operands": as if moved to an alphanumeric item of
+     *  as many characters as its digits; GnuCOBOL likewise): a zoned item's bytes, its overpunched sign digit
+     *  unpunched; a packed or binary item's value in its PICTURE's digits, unsigned. A sign-separate or P-scaled item
+     *  the generator refuses (register C13). Anything else (a group): its bytes. */
+    private static byte[] operand(Field f, Field other, Charset cs) {
+        if (cat(f) != NUMERIC || cat(other) == NUMERIC || cat(other) == GROUP || f.kind == Field.Kind.NUMERIC_FLOAT) {
+            return f.raw();
+        }
+        return digitsText(f, cs);
+    }
+
+    /** A numeric item's digits as characters, unsigned (see {@link #operand}). */
+    private static byte[] digitsText(Field f, Charset cs) {
+        if (f.kind == Field.Kind.NUMERIC_DISPLAY) {
+            byte[] b = f.raw();
+            if (f.signed && !f.signSeparate) {
+                int i = f.signLeading ? 0 : f.digits - 1;
+                char c = Codec.ch(b[i], cs);
+                int d = Codec.POSITIVE.indexOf(c) >= 0 ? Codec.POSITIVE.indexOf(c) : Codec.NEGATIVE.indexOf(c);
+                if (d >= 0) b[i] = String.valueOf((char) ('0' + d)).getBytes(cs)[0];
+            }
+            return b;
+        }
+        String s = num(f, cs).setScale(f.scale, java.math.RoundingMode.DOWN).unscaledValue().abs().toString();
+        s = s.length() >= f.digits ? s.substring(s.length() - f.digits) : "0".repeat(f.digits - s.length()) + s;
+        return s.getBytes(cs);
     }
 
     // ------------------------------------------------------------------------------- typed (lifted) items
@@ -673,8 +924,9 @@ public final class Cobol {
     }
 
     public static int compare(Field a, BigDecimal numericLiteral, Charset cs, Sort.Collating coll) {
-        if (cat(a) == ALNUM || cat(a) == GROUP || cat(a) == ALNUM_EDITED) {
-            // GnuCOBOL: an alphanumeric item against a numeric literal is a text comparison with the literal's digits
+        if (cat(a) != NUMERIC) {
+            // GnuCOBOL: an alphanumeric or edited item (#4665) against a numeric literal is a text comparison with the
+            // literal's digits (the generator passes the literal as written, through the String overload)
             return cmpBytes(a.raw(), numericLiteral.unscaledValue().abs().toString().getBytes(cs), cs, coll);
         }
         if (a.kind == Field.Kind.NUMERIC_FLOAT) return Integer.signum(num(a, cs).compareTo(Hfp.of(numericLiteral)));
@@ -1163,7 +1415,27 @@ public final class Cobol {
         Storage w = new Storage(size);
         int n = Math.max(0, Math.min(size, f.storage().bytes.length - f.offset()));
         System.arraycopy(f.storage().bytes, f.offset(), w.bytes, 0, n);
+        beyond(f, w.bytes, n, false);
         return w;
+    }
+
+    /** #4679: the bytes of `area` from `n` on that lie past `f`'s record, from or (`back`) into the opaque bytes a
+     *  longer COMMAREA brought past it (Storage.beyond); none there: left as they are (LOW-VALUES). */
+    public static void beyond(Field f, byte[] area, int n, boolean back) {
+        byte[] b = f.storage().beyond;
+        if (b == null) {
+            return;
+        }
+        int past = f.offset() + n - f.storage().bytes.length;  // where byte n of the area sits in `beyond`
+        int k = Math.max(0, Math.min(area.length - n, b.length - past));
+        if (past < 0 || k == 0) {
+            return;
+        }
+        if (back) {
+            System.arraycopy(area, n, b, past, k);
+        } else {
+            System.arraycopy(b, past, area, n, k);
+        }
     }
 
     /** #4181: what the LINKed program left in the COMMAREA, back into the caller's storage -- up to the end of the
@@ -1171,5 +1443,6 @@ public final class Cobol {
     public static void commareaBack(Storage w, Field f) {
         int n = Math.max(0, Math.min(w.bytes.length, f.storage().bytes.length - f.offset()));
         System.arraycopy(w.bytes, 0, f.storage().bytes, f.offset(), n);
+        beyond(f, w.bytes, n, true);
     }
 }

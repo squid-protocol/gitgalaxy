@@ -216,7 +216,8 @@ public final class Hfp {
         return h == null ? BigDecimal.ZERO : value(h, d);
     }
 
-    /** DIVIDE: the exact quotient truncated. A zero divisor: as Cobol.divide, an ArithmeticException. */
+    /** DIVIDE: the exact quotient truncated. A zero divisor: an ArithmeticException, not modelled in floating point
+     *  (oracle_assumptions C14; Cobol.divide gives libcob's NaN). */
     public static BigDecimal divide(BigDecimal a, BigDecimal b, boolean longP) {
         int d = digits(longP);
         H x = exact(a, d);

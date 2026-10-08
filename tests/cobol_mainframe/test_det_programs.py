@@ -988,17 +988,23 @@ def _java() -> Path | None:
     return Path(home) / "bin" if home and (Path(home) / "bin/javac").is_file() else None
 
 
-def _cobol(src: str, work: Path) -> str:
+def _cobol(src: str, work: Path, raw: bool = False) -> str:
     (work / "prog.cbl").write_text(src)
     run = subprocess.run(["docker", "run", "--rm", "-v", f"{work}:/w", "-w", "/w", IMAGE, "sh", "-c",  # noqa: S607
                           "cobc -x -std=ibm -fsign=EBCDIC prog.cbl -o prog 2>&1 && ./prog"], capture_output=True,
-                         text=True, check=False)  # fmt: skip
+                         text=not raw, check=False)  # fmt: skip
     assert run.returncode == 0, run.stdout + run.stderr
     return run.stdout
 
 
 def _java_run(
-    name: str, src: str, work: Path, typed: bool = False, groups: bool = False, unit: str | None = None
+    name: str,
+    src: str,
+    work: Path,
+    typed: bool = False,
+    groups: bool = False,
+    unit: str | None = None,
+    raw: bool = False,
 ) -> str:
     from gitgalaxy.tools.cobol_to_java.det import program as P
 
@@ -1026,7 +1032,7 @@ def _java_run(
     jdk = _java()
     files = [str(f) for f in srcdir.rglob("*.java")]
     subprocess.run([str(jdk / "javac"), "-nowarn", "-d", str(work / "classes"), *files], check=True)  # noqa: S603
-    return subprocess.run([str(jdk / "java"), "-cp", str(work / "classes"), "Main"], capture_output=True, text=True,  # noqa: S603
+    return subprocess.run([str(jdk / "java"), "-cp", str(work / "classes"), "Main"], capture_output=True, text=not raw,  # noqa: S603
                           check=True).stdout  # fmt: skip
 
 
@@ -1037,6 +1043,7 @@ def _batch_package(srcdir: Path) -> None:
 
     for cls in ("CobolFiles", "DatasetResolver", "Dd", "MainframeClock", "Sysout", "CobolAbend"):
         text = _RUNTIME[cls].replace("{pkg}", f"{PKG}.batch").replace("{zone}", "UTC")
+        text = text.replace("{record_charset}", "ISO-8859-1")
         text = re.sub(r"^import org\.springframework\..*\n|^@Component\n", "", text, flags=re.M)
         text = re.sub(r'@Value\("(?:[^"\\]|\\.)*"\)\s*', "", text)
         (srcdir / PKG / "batch" / f"{cls}.java").parent.mkdir(parents=True, exist_ok=True)

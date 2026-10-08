@@ -138,11 +138,15 @@ public class Cosgn00cService {
     // PROCESS-ENTER-KEY
     private void processEnterKey(Ws ws) {
         // EXEC CICS RECEIVE MAP('COSGN0A') MAPSET('COSGN00') RESP(WS-RESP-CD) -- RESP never tested;
-        // on MAPFAIL the input storage is left as it was (spaces).
+        // on MAPFAIL the input storage is left as it was.
         Optional<Cosgn0aScreen> received = ws.task.receive(Cosgn0aScreen.MAP, Cosgn0aScreen.MAPSET,
                 Cosgn0aScreen.class);
         if (received.isPresent()) {
             Cosgn0aScreen in = received.get();
+            // RECEIVE MAP clears the map to LOW-VALUES; a field the terminal sent nothing for stays so (#4659)
+            ws.userIdI = nulls(8);
+            ws.passwdI = nulls(8);
+            ws.sysidArea = nulls(8);
             if (in.getUserid() != null) {
                 ws.userIdI = fit(in.getUserid(), 8);
             }

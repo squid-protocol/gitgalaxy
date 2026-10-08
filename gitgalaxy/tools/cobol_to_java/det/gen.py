@@ -28,6 +28,21 @@ class Untranslatable(Exception):
     pass
 
 
+def p_unmodelled(it: L.Item) -> str | None:
+    """#4669: why a P-scaled numeric item is refused, or None (PIC 99PP / VPP99 zoned, and left-P binary, are
+    modelled: the item stores its 9s, its scale counts the Ps). The oracle has no answer for the others -- GnuCOBOL
+    3.1.2 (-std=ibm) stores a P-scaled packed item's digits shifted into its sign nibble (MOVE 5600 TO PIC S99PP
+    COMP-3 reads back as `<600`), and loops forever on MOVE 0 into a right-P binary item (PIC 99PP COMP)."""
+    if not it.p_scaled:
+        return None
+    if it.usage == "PACKED":
+        return f"{it.name}: PIC {it.pic} COMP-3, a P-scaled packed item (GnuCOBOL 3.1.2 mis-stores it: no oracle)"
+    if it.usage == "COMP-5" or (it.usage == "BINARY" and it.scale < 0):
+        return (f"{it.name}: PIC {it.pic} {it.usage}, a right-P / native binary item (GnuCOBOL 3.1.2 loops on a "
+                "MOVE into it: no oracle)")  # fmt: skip
+    return None
+
+
 def _reads(method):
     """The operands a method names are only read (gen.reading)."""
 
@@ -209,6 +224,9 @@ class Gen:
             cands = [c for c in cands if ok(c)]
         if len(cands) != 1:
             raise Untranslatable(f"{ref.name}: {'no such item' if not cands else 'ambiguous'}")
+        why = p_unmodelled(cands[0])
+        if why:
+            raise Untranslatable(why)
         return cands[0]
 
     def resolve_cond(self, ref: E.Ref) -> L.Item | None:
@@ -851,6 +869,8 @@ class Gen:
         if (self.is_numeric(a) and self.is_numeric(b)) or (
             self.is_numeric(a) and isinstance(b, E.Fig) and b.kind == "ZEROS") or (
             self.is_numeric(b) and isinstance(a, E.Fig) and a.kind == "ZEROS"):  # fmt: skip
+            self.p_scaled_expr(a, True)
+            self.p_scaled_expr(b, True)
             return f"{self.num(a)}.compareTo({self.num(b)}) {jop} 0"
         if isinstance(a, E.Ref):
             return f"{self.cmp(a, b, jop)} {jop} 0"
@@ -863,6 +883,43 @@ class Gen:
                 return f"Cobol.compareText({self.text(a)}, {self.text(b)}, CS{c}) {jop} 0"
             return f"Cobol.compareText({self.text(a)}, {self.text(b)}) {jop} 0"
         raise Untranslatable("comparison of two non-data operands")
+
+    def p_scaled_expr(self, e, condition: bool) -> None:
+        """#4670: refuses, by name, an arithmetic expression whose P-scaled operand GnuCOBOL 3.1.2 evaluates at a
+        precision of its own (no model): in a condition, any expression naming one (IF PR / 7 > 171 and PR * 2 > 2399
+        are false for PIC 99PP VALUE 1200); in a COMPUTE, a right-P item in a division or beside two more operands
+        ((PR / 7) * PR drops quotient digits; I5 + PR * 0.5 and B0 * .03 * PS lose the product). A P-scaled item
+        alone, a left-P item anywhere in a COMPUTE, and one operation of a right-P item with one operand are
+        modelled (measured against the oracle)."""
+        refs: list = []
+        division = False
+        leaves = 0
+
+        def walk(x) -> None:
+            nonlocal division, leaves
+            if isinstance(x, E.Bin):
+                division |= x.op == "/"
+                walk(x.left)
+                walk(x.right)
+            elif isinstance(x, E.Neg):
+                walk(x.operand)
+            else:
+                leaves += 1
+                if isinstance(x, E.Ref):
+                    refs.append(x)
+
+        walk(e)
+        if not isinstance(e, (E.Bin, E.Neg)) or not refs:
+            return
+        for r in refs:
+            try:
+                it = self.resolve(r)
+            except Untranslatable:
+                continue  # refused where it is translated
+            if it.p_scaled and (condition or (it.scale < 0 and (division or leaves > 2))):
+                where = "a condition" if condition else "a COMPUTE with a division or three operands"
+                raise Untranslatable(f"{r.name}, PIC {it.pic}: a P-scaled operand in {where} (GnuCOBOL's "
+                                     "intermediate precision for it is not modelled, #4670)")  # fmt: skip
 
     def rel_float(self, jop: str, a, b) -> str:
         """A comparison with a COMP-1 / COMP-2 comparand, in floating point (IBM: "if either comparand is a
@@ -1175,6 +1232,9 @@ class Gen:
         return out
 
     def _init_one(self, x: L.Item, base: str, top: L.Item, extra: int = 0) -> str:
+        why = p_unmodelled(x)
+        if why:
+            raise Untranslatable(f"INITIALIZE {why}")
         fig = "ZEROS" if x.category in ("NUMERIC", "NUMERIC-EDITED", "FLOAT") else "SPACES"
         rel = x.offset - top.offset + extra
         return f"Cobol.moveFigurative(Figurative.{_fig(fig)}, {self.factory(x, f'{base}.storage()', f'{base}.offset() + {rel}')}, CS);"
@@ -1327,6 +1387,7 @@ class Gen:
             mode = self.float_mode([s.data["expr"]], [t for t, _ in s.data["targets"]])
             if mode is not None:
                 self.float_statement(s, s.data["targets"])
+            self.p_scaled_expr(s.data["expr"], False)
             with self.floating(mode):
                 value = self.num(s.data["expr"])
             return [c, *self.store_all(s, s.data["targets"], value, ind)]
@@ -1528,6 +1589,9 @@ class Gen:
         if lo and lo[0] == "X":
             return lo[1]
         if isinstance(o, E.Ref):
+            it = self.resolve(o)
+            if it.p_scaled and o.refmod is None:  # GnuCOBOL: PIC 99PP VALUE 1200 as `0012`; IBM: its digits
+                raise Untranslatable(f"{o.name}, PIC {it.pic}: a P-scaled item's DISPLAY form (#4670)")
             if self.float_item(o) is not None:  # IBM: as external floating point -.9(8)E-99 / -.9(17)E-99
                 return f"Cobol.displayText({self.value_field(o)}, CS)"
             return f"Cobol.displayText({self.field_expr(o)}, CS)"

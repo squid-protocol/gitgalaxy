@@ -117,12 +117,72 @@ public final class Cobol {
                 insertEdit(to, sourceText(from, fc, cs), cs);
                 break;
             case NUMERIC:
+                if (to.kind == Field.Kind.NUMERIC_BINARY && from.kind == Field.Kind.NUMERIC_DISPLAY
+                        && nonDigitToBinary(from, to, cs)) {
+                    break;
+                }
                 boolean zoned = to.kind == Field.Kind.NUMERIC_DISPLAY && fc != NUMERIC && fc != NUM_EDITED;
                 store(to, zoned ? alnumToDisplay(from.raw(), to, cs) : source(from, fc, cs), cs);
                 break;
             default:
                 edit(to, source(from, fc, cs), cs);
         }
+    }
+
+    private static final BigInteger TWO_64 = BigInteger.ONE.shiftLeft(64);
+
+    /** A zoned sender holding a byte that is not a digit (a space, a letter) in a digit position, MOVEd to a binary
+     *  item, as the oracle computes it (#4652, register C11; GnuCOBOL 3.1.2 cob_move_display_to_binary): each byte
+     *  counts as its character minus '0' -- a space -16, 'A' 17 --, the sender's digits aligned on the receiver's
+     *  decimal places and accumulated in an unsigned 64-bit integer (wrapping), the receiver's digits kept under
+     *  TRUNC(STD) (not for COMP-5), then the sender's sign applied when the receiver is signed. PIC 9(10) of spaces
+     *  into S9(9) COMP is 931773840 under TRUNC(STD), -597908592 under TRUNC(BIN). IBM documents no result for such
+     *  data. A space where a signed sender's sign is counts -16 and positive; the oracle then rewrites a positive
+     *  sender's sign byte as an overpunch -- a space '{', a digit 4 'D' -- (a separate space sign '+'), as here. Any other non-sign there is refused by name. False,
+     *  nothing done, when every digit position holds a digit (the ordinary MOVE). */
+    private static boolean nonDigitToBinary(Field from, Field to, Charset cs) {
+        byte[] d = from.st.bytes;
+        int n = from.digits;
+        int start = from.signSeparate && from.signLeading ? from.off + 1 : from.off;
+        int signAt = from.signed && !from.signSeparate ? (from.signLeading ? 0 : n - 1) : -1;
+        int sepAt = from.signSeparate ? (from.signLeading ? from.off : from.off + n) : -1;
+        int[] digit = new int[n];
+        boolean neg = false;
+        boolean nonDigit = false;
+        for (int i = 0; i < n; i++) {
+            char c = Codec.ch(d[start + i], cs);
+            if (i == signAt && (c < '0' || c > '9') && c != ' ') {
+                int p = Codec.POSITIVE.indexOf(c);
+                int q = Codec.NEGATIVE.indexOf(c);
+                if (p < 0 && q < 0) throw nonDigitSign();
+                neg = q >= 0;
+                c = (char) ('0' + (p >= 0 ? p : q));
+            }
+            if (c < '0' || c > '9') nonDigit = true;
+            digit[i] = c - '0';
+        }
+        if (!nonDigit) return false;
+        if (sepAt >= 0) {
+            char s = Codec.ch(d[sepAt], cs);
+            if (s != '+' && s != '-' && s != ' ') throw nonDigitSign();
+            neg = s == '-';
+        }
+        if (Codec.numprocPfd && !Codec.preferredSign(from, cs)) throw Codec.nonPreferredSign(from);
+        BigInteger v = BigInteger.ZERO;
+        for (int i = 0; i < n - from.scale + to.scale; i++) {
+            v = v.multiply(BigInteger.TEN).add(BigInteger.valueOf(i < n ? digit[i] : 0));
+        }
+        v = v.mod(TWO_64);
+        if (Codec.truncBinary && !to.nativeBin) v = v.mod(BigInteger.TEN.pow(to.digits));
+        Codec.write(to, v, neg, cs);
+        if (signAt >= 0 && !neg) d[start + signAt] = Codec.by(Codec.POSITIVE.charAt(Math.max(digit[signAt], 0)), cs);
+        if (sepAt >= 0 && Codec.ch(d[sepAt], cs) == ' ') d[sepAt] = Codec.by('+', cs);
+        return true;
+    }
+
+    private static UnsupportedOperationException nonDigitSign() {
+        return new UnsupportedOperationException("MOVE to a binary item of a signed zoned item whose sign byte is "
+                + "neither a digit, a sign nor a space (IBM documents no result, register C11) is not modelled");
     }
 
     /** A MOVE with a COMP-1 / COMP-2 sender or receiver (#4271, Hfp): a number into a float converted to its

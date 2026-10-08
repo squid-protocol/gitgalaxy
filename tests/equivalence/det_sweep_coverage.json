@@ -921,17 +921,17 @@
    }
   },
   "genapp-lgtestp4": {
-   "scenarios": 23,
+   "scenarios": 25,
    "paragraphs": {
     "covered": 7,
     "live": 9
    },
    "branches": {
-    "covered": 17,
+    "covered": 18,
     "total": 22
    },
    "inputs": {
-    "case": "e39153488ab27f46ead2cdae18d95b03944d92d49e158f7b4af618cd226b3db6",
+    "case": "2ed102e31e3e0e02df5613652300c45c05626ba3eeae358d57f8a7ff19fb1023",
     "corpus": "c5e4d52071fad96bed24e9ba06f30417340bfc5e998e7c1cd5f2383be73d6ff6",
     "harness": "ca2f53c6533b4c53dd057b91298c6490ae32b0626559353fc1ef35f7f36ac878",
     "oracle": "34e4374b3f771d8a11ed9471e6ec942784f1f5435a723bdd080f8567eda4171c"

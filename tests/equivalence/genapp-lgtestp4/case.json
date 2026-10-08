@@ -230,6 +230,36 @@
    "why": "ENTER with no input: the RECEIVE raises MAPFAIL, HANDLE CONDITION MAPFAIL(ENDIT)"
   },
   {
+   "name": "add",
+   "aid": "DFHENTER",
+   "commarea": {},
+   "receive": {
+    "SSMAPP4": {
+     "ENP4OPTI": "2",
+     "ENP4CNOI": "0000000003",
+     "ENP4IDAI": "2026-01-01",
+     "ENP4EDAI": "2027-01-01",
+     "ENP4ADDI": "1 HIGH STREET",
+     "ENP4HPCI": "SO212JN",
+     "ENP4LATI": "51.0123456",
+     "ENP4LONI": "-1.2345678",
+     "ENP4CUSI": "ACME WIDGETS LTD",
+     "ENP4PTYI": "OFFICE",
+     "ENP4FPEI": "0001",
+     "ENP4FPRI": "00000100",
+     "ENP4CPEI": "0002",
+     "ENP4CPRI": "00000200",
+     "ENP4XPEI": "0003",
+     "ENP4XPRI": "00000300",
+     "ENP4WPEI": "0004",
+     "ENP4WPRI": "00000400",
+     "ENP4STAI": "0000",
+     "ENP4REJI": ""
+    }
+   },
+   "why": "option 2: LINK LGAPOL01 ('01ACOM') adds a commercial policy for customer 3 (POLICY + COMMERCIAL rows, VSAM copy); the new numbers shown, 'New Commercial Policy Inserted'. LGTESTP4 sets no CA-BROKERID / CA-PAYMENT: they hold the spaces INITIALIZE leaves in CA-REQUEST-SPECIFIC, and LGAPDB01 MOVEs them to S9(9) COMP host variables -- the oracle's digit arithmetic on non-digits (C11, #4652), which the det runtime models"
+  },
+  {
    "name": "add-unknown-customer",
    "aid": "DFHENTER",
    "commarea": {},
@@ -351,5 +381,5 @@
    "why": "option 1 with no number and no postcode: no request id is set (COMM-AREA's own, spaces) and LGIPOL01 is LINKed with it"
   }
  ],
- "notes": "GenApp's commercial policy test transaction (LGTESTP4, transid SSP4, BMS map SSMAPP4 of mapset SSMAP: the symbolic map is generated from base/src/ssmap.bms, @bms/SSMAP.cpy). A first task (EIBCALEN 0) sends the initialised map and RECEIVEs in the same task; a returning one (EIBCALEN > 0; the program has no DFHCOMMAREA, its own COMM-AREA goes back through RETURN TRANSID) goes straight to the RECEIVE. HANDLE AID CLEAR / PF3 and HANDLE CONDITION MAPFAIL are exercised; the option field picks inquire (1: LGIPOL01), add (2: LGAPOL01, a failure is SYNCPOINT ROLLBACK), delete (3: LGDPOL01); option 1 builds the request from what is typed: both numbers (01ICOM), the policy (02ICOM), the customer (03ICOM), a postcode (05ICOM), or nothing. The case runs the whole chain in the task: the four front ends, their Db2 back ends, the VSAM services and LGSTSQ (twelve programs). The VSAM file is genapp-lgupdb01's; Db2 is db2cre.jcl's tables and rows. POLICY.LASTCHANGED, COMMERCIAL.REQUESTDATE and the COMMAREA's CA-LASTCHANGED are clock fields. Error paths in the back ends LINK LGSTSQ and are judged up to its refused WRITEQ (X6). LGTESTP4's option 2 sets no CA-BROKERID / CA-PAYMENT (LGTESTP1-3 MOVE 0 to them): they hold the spaces INITIALIZE leaves in CA-REQUEST-SPECIFIC, and LGAPDB01 MOVEs them to binary host variables -- a non-digit in a numeric DISPLAY item (C11): GnuCOBOL INSERTs BROKERID 931773840, the port 0, IBM documents no result. The successful add is therefore left out (#4652) and WHEN '2''s success path is not covered; the failing adds (an unknown customer, a faulted INSERT) are proven. An add whose SELECT LASTCHANGED is faulted would INSERT a blank CA-LASTCHANGED as COMMERCIAL.REQUESTDATE, which the Db2 client rejects with no Db2 SQLCODE (Q10). Uncovered: IF CA-RETURN-CODE > 0 true after the add / delete / update LINKs, and NO-ADD / NO-DELETE / NO-UPD: every back-end failure LINKs LGSTSQ before it returns, and the task is judged up to LGSTSQ's refused WRITEQ (X6), so what follows is not compared or counted. Derived from the CICS General Insurance Application (GenApp, github.com/cicsdev/cics-genapp; (C) Copyright IBM Corp. 2011, 2020), licensed under the Eclipse Public License 2.0: LICENSE here is the corpus's own, NOTICE names the source and what was derived."
+ "notes": "GenApp's commercial policy test transaction (LGTESTP4, transid SSP4, BMS map SSMAPP4 of mapset SSMAP: the symbolic map is generated from base/src/ssmap.bms, @bms/SSMAP.cpy). A first task (EIBCALEN 0) sends the initialised map and RECEIVEs in the same task; a returning one (EIBCALEN > 0; the program has no DFHCOMMAREA, its own COMM-AREA goes back through RETURN TRANSID) goes straight to the RECEIVE. HANDLE AID CLEAR / PF3 and HANDLE CONDITION MAPFAIL are exercised; the option field picks inquire (1: LGIPOL01), add (2: LGAPOL01, a failure is SYNCPOINT ROLLBACK), delete (3: LGDPOL01); option 1 builds the request from what is typed: both numbers (01ICOM), the policy (02ICOM), the customer (03ICOM), a postcode (05ICOM), or nothing. The case runs the whole chain in the task: the four front ends, their Db2 back ends, the VSAM services and LGSTSQ (twelve programs). The VSAM file is genapp-lgupdb01's; Db2 is db2cre.jcl's tables and rows. POLICY.LASTCHANGED, COMMERCIAL.REQUESTDATE and the COMMAREA's CA-LASTCHANGED are clock fields. Error paths in the back ends LINK LGSTSQ and are judged up to its refused WRITEQ (X6). LGTESTP4's option 2 sets no CA-BROKERID / CA-PAYMENT (LGTESTP1-3 MOVE 0 to them): they hold the spaces INITIALIZE leaves in CA-REQUEST-SPECIFIC, and LGAPDB01 MOVEs them to S9(9) COMP host variables -- non-digits in a numeric DISPLAY item (C11): the oracle INSERTs BROKERID 931773840 and PAYMENT 707773840 (each space counts -16, TRUNC(STD) keeps nine digits), which the det runtime models (#4652); IBM documents no result, so the successful add is proven against the oracle's arithmetic, not z/OS's. An add whose SELECT LASTCHANGED is faulted would INSERT a blank CA-LASTCHANGED as COMMERCIAL.REQUESTDATE, which the Db2 client rejects with no Db2 SQLCODE (Q10). Uncovered: IF CA-RETURN-CODE > 0 true after the add / delete / update LINKs, and NO-ADD / NO-DELETE / NO-UPD: every back-end failure LINKs LGSTSQ before it returns, and the task is judged up to LGSTSQ's refused WRITEQ (X6), so what follows is not compared or counted. Derived from the CICS General Insurance Application (GenApp, github.com/cicsdev/cics-genapp; (C) Copyright IBM Corp. 2011, 2020), licensed under the Eclipse Public License 2.0: LICENSE here is the corpus's own, NOTICE names the source and what was derived."
 }

@@ -486,6 +486,53 @@ def test_events_are_compared_field_by_field():
     assert ec.compare_events(cobol, java[:1])["diffs"][-1] == {"event": 2, "cobol": "RETURN", "java": None}
 
 
+def test_low_values_and_spaces_in_a_commarea_are_different_values():
+    """#4635: a field RECEIVE MAP left LOW-VALUES and one the port left spaces are different bytes to the next program
+    (COSGN00C: the RETURN COMMAREA's CDEMO-USER-ID); trailing spaces alone are still not data."""
+    lv, sp = "\x00" * 8, "        "
+
+    def ret(v):
+        return [{"event": "RETURN", "transid": "T1", "commarea": {"CA-USER": v}}]
+
+    assert ec.compare_events(ret(lv), ret(sp))["equal"] == 0
+    assert ec.compare_events(ret(lv), ret(""))["equal"] == 0
+    assert ec.compare_events(ret(lv), ret(lv))["equal"] == 1
+    assert ec.compare_events(ret("AB"), ret("AB   "))["equal"] == 1
+    assert ec.compare_events(ret(sp), ret(""))["equal"] == 1
+    # a screen shows neither: its fields still compare as they did
+    scr = lambda v: [{"event": "SEND-MAP", "map": "M", "screen": {"F": v}}]  # noqa: E731
+    assert ec.compare_events(scr(lv), scr(sp))["equal"] == 1
+
+
+def test_storage_a_task_without_a_commarea_never_set_stays_undefined_text_too():
+    """#4635 x X12: a no-COMMAREA task's returned text left all LOW-VALUES is undefined storage, dropped both sides."""
+    ev = lambda v: [{"event": "RETURN", "transid": "T", "commarea": {"CA-T": v, "CA-N": "x"}}]  # noqa: E731
+    cev, jev = ec.mask_absent_commarea({"commarea": None}, ev("\x00" * 4), ev("    "), [0])
+    assert ec.compare_events(cev, jev)["equal"] == 1
+    cev, jev = ec.mask_absent_commarea({"commarea": {"CA-T": "x"}}, ev("\x00" * 4), ev("    "), [0])
+    assert ec.compare_events(cev, jev)["equal"] == 0  # a COMMAREA was given: LOW-VALUES are a value
+
+
+def test_a_returned_commareas_text_keeps_its_low_values():
+    fields = [{"name": "CA-USER", "offset": 0, "bytes": 4, "pic": "X(4)", "usage": "DISPLAY"}]
+    assert ec.decode_record(b"\x00\x00\x00\x00", fields, exact=True) == {"CA-USER": "\x00\x00\x00\x00"}
+    assert ec.decode_record(b"AB  ", fields, exact=True) == {"CA-USER": "AB"}
+    assert ec.decode_record(b"\x00\x00\x00\x00", fields) == {"CA-USER": ""}  # a screen's reading, as before
+
+
+def test_a_tasks_display_output_is_compared_like_a_batch_steps_sysout(tmp_path):
+    """#4635: ABNDPROC's two branches end in the same RETURN and differ only in what they DISPLAY."""
+    cobol = b"*****\n**** Unable to write to the file ABNDFILE !!!\nRESP=00000000 RESP2=00000000\n"
+    java = tmp_path / "t.sysout"
+    java.write_text(cobol.decode(), encoding="utf-8")
+    assert ec.compare_task_sysout(cobol, java, "latin-1")["differing"] == 0
+    java.write_text(cobol.decode().replace("write to", "WRITE to"), encoding="utf-8")
+    d = ec.compare_task_sysout(cobol, java, "latin-1")
+    assert (d["differing"], d["diffs"][0]["line"]) == (1, 2)
+    assert ec.compare_task_sysout(cobol, tmp_path / "none", "latin-1")["differing"] == 3  # the port DISPLAYed nothing
+    assert ec.compare_task_sysout(b"", tmp_path / "none", "latin-1")["differing"] == 0
+
+
 @pytest.mark.skipif(__import__("os").environ.get("EQUIVALENCE_E2E") != "1",
                     reason="needs Docker (GnuCOBOL) and a JDK + Maven")  # fmt: skip
 def test_carddemo_account_view_is_equivalent_end_to_end(tmp_path):

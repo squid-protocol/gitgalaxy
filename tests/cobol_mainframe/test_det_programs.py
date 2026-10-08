@@ -1253,10 +1253,11 @@ def _java() -> Path | None:
     return Path(home) / "bin" if home and (Path(home) / "bin/javac").is_file() else None
 
 
-def _cobol(src: str, work: Path, raw: bool = False) -> str:
+def _cobol(src: str, work: Path, raw: bool = False, flags: str = "") -> str:
+    """The oracle's output; `flags` adds cobc options (-fbinary-truncate: TRUNC(STD), #4684)."""
     (work / "prog.cbl").write_text(src)
     run = subprocess.run(["docker", "run", "--rm", "-v", f"{work}:/w", "-w", "/w", IMAGE, "sh", "-c",  # noqa: S607
-                          "cobc -x -std=ibm -fsign=EBCDIC prog.cbl -o prog 2>&1 && ./prog"], capture_output=True,
+                          f"cobc -x -std=ibm -fsign=EBCDIC {flags} prog.cbl -o prog 2>&1 && ./prog"], capture_output=True,
                          text=not raw, check=False)  # fmt: skip
     assert run.returncode == 0, run.stdout + run.stderr
     return run.stdout
@@ -1270,7 +1271,10 @@ def _java_run(
     groups: bool = False,
     unit: str | None = None,
     raw: bool = False,
+    trunc_std: bool = False,
 ) -> str:
+    """The det port's output; `trunc_std` runs it under TRUNC(STD) (Cobol.setTruncBinary, #4684), else TRUNC(BIN) as
+    `cobc -std=ibm` alone."""
     from gitgalaxy.tools.cobol_to_java.det import program as P
 
     (work / f"{name}.cbl").write_text(src)
@@ -1292,7 +1296,8 @@ def _java_run(
     rec.parent.mkdir(parents=True, exist_ok=True)
     rec.write_text(f"package {PKG}.entity.vsam;\npublic final class CobolRecords {{\n    public static java.nio.charset."
                    "Charset charset() {\n        return java.nio.charset.StandardCharsets.ISO_8859_1;\n    }\n}\n")  # fmt: skip
-    (srcdir / "Main.java").write_text(f"public class Main {{ public static void main(String[] a) {{ "
+    trunc = f"{PKG}.cobolrt.Cobol.setTruncBinary(true); " if trunc_std else ""
+    (srcdir / "Main.java").write_text(f"public class Main {{ public static void main(String[] a) {{ {trunc}"
                                       f"new {PKG}.service.{r.service}().runProgram(); }} }}\n")  # fmt: skip
     jdk = _java()
     files = [str(f) for f in srcdir.rglob("*.java")]

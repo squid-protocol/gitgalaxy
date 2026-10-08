@@ -760,6 +760,15 @@ public final class Cobol {
         }
     }
 
+    /** ADD / SUBTRACT ... TO / FROM an unsigned binary item where cobc 3.1.2 compiles native integer arithmetic
+     *  (#4684, oracle_assumptions C4; the translator marks where: gen.native_add). IBM is the reference: an unsigned
+     *  receiver takes the absolute value of the result (1 - 3 is 2), truncated at its bytes under COMP-5 or
+     *  TRUNC(BIN) and to its PICTURE under TRUNC(STD) -- exactly {@link #store}. The oracle wraps there instead (1 - 3
+     *  is 65534 in a halfword): a declared oracle-vs-IBM difference, not modelled. */
+    public static void storeNative(Field to, BigDecimal value, Charset cs) {
+        store(to, value, false, cs);
+    }
+
     /** ON SIZE ERROR: true, `to` unchanged, when the value does not fit or is libcob's NaN (#4655). */
     public static boolean storeChecked(Field to, BigDecimal value, boolean rounded, Charset cs) {
         if (isNan(value)) {
@@ -875,10 +884,23 @@ public final class Cobol {
     /** An arithmetic result stored in a binary item of `digits` (signed or not) and read back -- exactly what
      *  `store` leaves in such an item (truncation, ROUNDED, the byte width's wrap-around), through a scratch item. */
     public static long binary(BigDecimal value, int digits, boolean signed, boolean rounded, Charset cs) {
+        return binary(value, digits, signed, rounded, false, cs);
+    }
+
+    /** As {@link #binary(BigDecimal, int, boolean, boolean, Charset)}; `comp5` for a COMP-5 item, which keeps its
+     *  bytes whatever TRUNC says (#4684). */
+    public static long binary(BigDecimal value, int digits, boolean signed, boolean rounded, boolean comp5,
+                              Charset cs) {
         int bytes = digits <= 4 ? 2 : digits <= 9 ? 4 : 8;
-        Field t = Field.binary(new Storage(bytes), 0, digits, 0, signed, false);
+        Field t = Field.binary(new Storage(bytes), 0, digits, 0, signed, comp5);
         store(t, value, rounded, cs);
         return num(t, cs).longValue();
+    }
+
+    /** As {@link #binary}, for the statements {@link #storeNative} marks (#4684, C4): IBM's absolute value; `comp5`
+     *  for a COMP-5 item, which no TRUNC truncates. */
+    public static long binaryNative(BigDecimal value, int digits, boolean signed, boolean comp5, Charset cs) {
+        return binary(value, digits, signed, false, comp5, cs);
     }
 
     /** A numeric value stored in a zoned DISPLAY item (PIC S9(digits)V9(scale), sign overpunched) and read back:

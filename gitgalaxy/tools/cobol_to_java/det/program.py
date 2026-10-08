@@ -451,7 +451,12 @@ def liftable(records: list, excluded: set[str], rc: L.Item) -> dict[int, str]:
                 continue
             if it.category == "ALPHANUMERIC" and it.usage == "DISPLAY":
                 out[id(it)] = "X"
-            elif it.category == "NUMERIC" and it.usage in ("BINARY", "COMP-5") and it.scale == 0:
+            elif (
+                it.category == "NUMERIC"
+                and it.usage in ("BINARY", "COMP-5")
+                and it.scale == 0
+                and (it.signed or it.size < 8)
+            ):  # an unsigned doubleword holds up to 2 ** 64 - 1, past a long (#4684)
                 out[id(it)] = "BIN"
             elif it.category == "NUMERIC" and (
                 it.usage == "PACKED" or (it.usage == "DISPLAY" and not it.sign_separate)

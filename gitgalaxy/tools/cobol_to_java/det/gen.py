@@ -2030,7 +2030,8 @@ class Gen:
         lt = self.lift(t)
         if lt and lt[0] == "BIN":
             it = lt[2]
-            return f"{lt[1]} = Cobol.binary({value}, {it.digits}, {_b(it.signed)}, {_b(rounded)}, CS);"
+            comp5 = ", true" if it.usage == "COMP-5" else ""  # no TRUNC truncates a COMP-5 item (#4684)
+            return f"{lt[1]} = Cobol.binary({value}, {it.digits}, {_b(it.signed)}, {_b(rounded)}{comp5}, CS);"
         if lt and lt[0] == "NUM":
             it = lt[2]
             fn = "packed" if it.usage == "PACKED" else "zoned"
@@ -2104,6 +2105,18 @@ class Gen:
             if not isinstance(tgt, E.Ref):
                 raise Untranslatable("arithmetic target is not a data item")
             lt = self.lift(tgt)
+            if not checked and self.native_add(s, op, ops, tgt, rounded):
+                # where cobc compiles native integer ADD / SUBTRACT (#4684, C4): IBM's absolute value, the marked store
+                it = self.resolve(tgt)
+                sign = "add" if op == "+=" else "subtract"
+                if lt and lt[0] == "BIN":
+                    val = f"BigDecimal.valueOf({lt[1]}).{sign}({tsum})"
+                    out.append(f"{ind}{lt[1]} = Cobol.binaryNative({val}, {it.digits}, false, "
+                               f"{_b(it.usage == 'COMP-5')}, CS);")  # fmt: skip
+                else:
+                    f = self.field_expr(tgt)
+                    out.append(f"{ind}Cobol.storeNative({f}, Cobol.num({f}, CS).{sign}({tsum}), CS);")
+                continue
             if lt and lt[0] in ("BIN", "NUM") and not checked:  # a lifted target: its value, the store as above
                 cur = f"BigDecimal.valueOf({lt[1]})" if lt[0] == "BIN" else lt[1]
                 if op == "/=":  # a zero divisor: libcob's NaN, the target unchanged (#4655)
@@ -2133,6 +2146,54 @@ class Gen:
                     f"{ind}}}",
                 ]
         return out
+
+    def native_add(self, s: S.Stmt, op: str, ops: list, tgt: E.Ref, rounded: bool) -> bool:
+        """Whether cobc 3.1.2 compiles this ADD / SUBTRACT ... TO / FROM target to native integer arithmetic
+        (cb_build_add / cb_build_sub -> cb_build_optim_add / _sub, #4684): no ROUNDED and no store option -- no ON
+        SIZE ERROR (for COMP-5 a NOT ON SIZE ERROR alone keeps it native: build_store_option checks only the ON
+        phrase), no NOT ON SIZE ERROR for COMP / COMP-4 / BINARY (TRUNC(STD) adds one at run time) --, an unsigned
+        binary target of no decimal places, and one operand that fits a C int (cb_fits_int; cobc folds a list of
+        literals into one). There cobc's result below zero wraps modulo 2 ** bits where IBM, the reference, stores the
+        absolute value: oracle_assumptions C4, a declared oracle-vs-IBM difference. The det port stores IBM's value
+        (Cobol.storeNative / binaryNative mark the statement; a phrase-checked one keeps IBM's size check)."""
+        if op not in ("+=", "-=") or rounded or "SIZE-ERROR" in s.phrases or tgt.refmod is not None:
+            return False
+        try:
+            it = self.resolve(tgt)
+        except Untranslatable:
+            return False
+        if it.category != "NUMERIC" or it.usage not in ("BINARY", "COMP-5") or it.signed or it.scale != 0:
+            return False
+        if "NOT-SIZE-ERROR" in s.phrases and it.usage != "COMP-5":
+            return False
+        if ops and all(isinstance(o, E.Lit) and isinstance(o.value, Decimal) for o in ops):
+            return _fits_int_literal(sum((o.value for o in ops), Decimal(0)))
+        return len(ops) == 1 and self.fits_int(ops[0])
+
+    def fits_int(self, e) -> bool:
+        """cobc's cb_fits_int: an integer literal within a C int, or an item of no decimal places whose values a C int
+        holds by its layout (binary of at most 4 bytes, zoned of at most 9 bytes, packed of at most 9 digits)."""
+        if isinstance(e, E.Lit):
+            return isinstance(e.value, Decimal) and _fits_int_literal(e.value)
+        if not isinstance(e, E.Ref) or e.refmod is not None:
+            return False
+        try:
+            it = self.resolve(e)
+        except Untranslatable:
+            return False
+        if it.children:
+            return False
+        if it.usage == "INDEX":
+            return True
+        if it.category != "NUMERIC" or it.scale > 0:
+            return False
+        if it.usage in ("BINARY", "COMP-5"):
+            return it.size <= 4
+        if it.usage == "DISPLAY":
+            return it.size < 10
+        if it.usage == "PACKED":
+            return it.digits < 10
+        return False
 
     def evaluate(self, s: S.Stmt, ind: str) -> list[str]:
         # ARITHMETIC-OSVS (#4287): cobc builds each WHEN's condition in turn at END-EVALUATE, the state carried over
@@ -2827,6 +2888,12 @@ def _raises_size(e) -> bool:
     if isinstance(e, E.Func):
         return any(_raises_size(a) for a in e.args if not isinstance(a, tuple))
     return False
+
+
+def _fits_int_literal(v: Decimal) -> bool:
+    """cb_fits_int of a numeric literal: no decimal places as written (3.0 has one), within a C int."""
+    exponent = v.as_tuple().exponent
+    return isinstance(exponent, int) and exponent >= 0 and -(2**31) <= v <= 2**31 - 1
 
 
 def _b(v: bool) -> str:

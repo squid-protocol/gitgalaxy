@@ -152,9 +152,9 @@ verdict, but it limits what the proof says about inputs outside the scenarios.
   (`Cobol.Dc`); `Cobol.divide` keeps cob_decimal_div's 38 + max(d1 - d2, 0) places and `Cobol.power`
   cob_decimal_pow's trimming. COMPUTE, ADD / SUBTRACT / MULTIPLY / DIVIDE with an expression, and the relations of
   IF, PERFORM UNTIL, SEARCH WHEN and EVALUATE are planned; floating-point statements keep their HFP model (C6).
-  Proven by `tests/cobol_mainframe/test_det_osvs.py` and by a randomized differential run (2026-10-07: about 120
-  programs, 26,000 COMPUTE, ADD, IF and EVALUATE statements over zoned, packed and binary items, every output equal
-  to the oracle's; the same programs on the earlier runtime: about one line in six differed).
+  Proven by `tests/cobol_mainframe/test_det_osvs.py` and by a randomized differential run (2026-10-07: over 100
+  random programs, about 25,000 COMPUTE, ADD, SUBTRACT, IF and EVALUATE statements over zoned, packed and binary
+  items, every output equal to the oracle's; on the earlier runtime about one line in six differed).
 - **Where GnuCOBOL departs from IBM's rule** (each measured on the oracle; the det port does what the oracle does,
   so a proof cannot see them, and z/OS may not do them):
   - the stack of decimal places pairs an operation with its own operands only when every operand pushes its

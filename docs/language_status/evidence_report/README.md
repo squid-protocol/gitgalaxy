@@ -8,12 +8,12 @@ Per estate, a level per program (see any report's "How to read this report"). On
 
 | estate | programs | L0 | L1 | L2 | L3 | L4 | L5 |
 |---|---|---|---|---|---|---|---|
-| [aws-mainframe-modernization-carddemo](aws-mainframe-modernization-carddemo/report.md) | 44 | 14 | 5 | 25 | 0 | 0 | 0 |
+| [aws-mainframe-modernization-carddemo](aws-mainframe-modernization-carddemo/report.md) | 44 | 14 | 6 | 24 | 0 | 0 | 0 |
 | [cics-banking-sample-application-cbsa](cics-banking-sample-application-cbsa/report.md) | 31 | 14 | 15 | 2 | 0 | 0 | 0 |
 | [cics-genapp](cics-genapp/report.md) | 31 | 6 | 20 | 5 | 0 | 0 | 0 |
 | [dbb-mortgage-application](dbb-mortgage-application/report.md) | 6 | 3 | 1 | 2 | 0 | 0 | 0 |
 | [zecs](zecs/report.md) | 5 | 5 | 0 | 0 | 0 | 0 | 0 |
-| total | 117 | 42 | 41 | 34 | 0 | 0 | 0 |
+| total | 117 | 42 | 42 | 33 | 0 | 0 | 0 |
 
 ## Non-burned estates
 

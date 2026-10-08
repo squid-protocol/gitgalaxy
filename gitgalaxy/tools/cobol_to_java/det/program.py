@@ -1224,6 +1224,14 @@ def _cics_parts(gen: G.Gen, records: list, roots: dict, proc: S.Procedure,
                       f"            calen = cx(task, {cx.gp.dto(cls).size});"]  # fmt: skip
         if ca_in:
             ca_in.append("        }")
+        # #4501: a COMMAREA a det caller's RETURN / XCTL passed with a LENGTH past the DTO is its bytes (DetCics
+        # .commareaOut): the first ones are DFHCOMMAREA, EIBCALEN is the whole length, and the rest are bytes this
+        # program does not define (opaque: not addressable here).
+        ca_in += ["        if (ca instanceof byte[] cb0) {",
+                  "            byte[] cb = DetCics.commareaIn(cb0, CS);",
+                  f"            System.arraycopy(cb, 0, {st}.bytes, 0, Math.min(cb.length, {st}.bytes.length));",
+                  "            calen = cx(task, cb.length);",
+                  "        }"]  # fmt: skip
         # #4181 follow-up: a det caller's LINK passes its COMMAREA's bytes (by reference): they are DFHCOMMAREA, every
         # byte -- the ones the contract DTO does not name too -- and what the program leaves there goes back to them
         ca_in += ["        byte[] raw = task.linkArea();",

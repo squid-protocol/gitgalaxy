@@ -1455,6 +1455,14 @@ def fault_lines(sc: dict[str, Any]) -> list[str]:
     return out
 
 
+def sql_first_id(table: str) -> int:
+    """#4270: the first GG-SQL-ID (PIC 9(4)) of the next program's statements in a task's shared table: the next
+    hundred after the ids already taken. A range per program by its place in "programs" (1000 x its index) ran past
+    9999 at the tenth program (GenApp's LGTESTP1 LINKs twelve), and the id MOVEd into 9(4) lost its high digit."""
+    ids = [int(ln.split()[1]) for ln in table.splitlines() if ln.startswith("S ")]
+    return (max(ids, default=0) // 100 + 1) * 100
+
+
 RECOVER: dict[str, Any] = {}  # #4173: a COBOL work area -> its coverage recomputed for the tasks judged
 
 
@@ -1530,14 +1538,16 @@ def run_cobol_cics(case: dict[str, Any], corpus: Path, work: Path, files: list[d
             if not db2:
                 raise Unsupported(f'{extra["program"]}: EXEC SQL in a case with no "db2" section')
             x_dirs = [corpus / d for d in [*case.get("copy_dirs", []), *db2.get("include_dirs", [])]]
-            try:
-                x_source, x_table = equivalence_sql.precompile(x_source, x_dirs, corpus / extra["program_source"],
-                                                               first_id=1000 * (len(linked) + 1),
-                                                               program=extra["program"])  # fmt: skip
-            except equivalence_sql.Unsupported as e:
-                raise Unsupported(f"{extra['program']}: EXEC SQL: {e}", ["EXEC SQL"]) from e
             stmts_file = work / "stmts.txt"
             have = stmts_file.read_text(encoding="latin-1")
+            first = sql_first_id(have)
+            try:
+                x_source, x_table = equivalence_sql.precompile(x_source, x_dirs, corpus / extra["program_source"],
+                                                               first_id=first, program=extra["program"])  # fmt: skip
+            except equivalence_sql.Unsupported as e:
+                raise Unsupported(f"{extra['program']}: EXEC SQL: {e}", ["EXEC SQL"]) from e
+            if any(int(ln.split()[1]) > 9999 for ln in x_table.splitlines() if ln.startswith("S ")):
+                raise Unsupported(f"{extra['program']}: EXEC SQL: the task's statements outnumber GG-SQL-ID's 4 digits")
             ours = {ln.split()[5] for ln in have.splitlines() if ln.startswith("S ") and ln.split()[5] != "-"}
             theirs = {ln.split()[5] for ln in x_table.splitlines() if ln.startswith("S ") and ln.split()[5] != "-"}
             if ours & theirs:

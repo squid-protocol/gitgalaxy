@@ -1,0 +1,189 @@
+{
+ "kind": "cics",
+ "corpus": "cics-genapp",
+ "program": "LGDPOL01",
+ "program_source": "base/src/lgdpol01.cbl",
+ "copy_dirs": [
+  "base/src"
+ ],
+ "transid": "LGDP",
+ "clock": "2026/10/01 10:30:15.00",
+ "programs": [
+  {
+   "program": "LGDPDB01",
+   "program_source": "base/src/lgdpdb01.cbl"
+  },
+  {
+   "program": "LGDPVS01",
+   "program_source": "base/src/lgdpvs01.cbl"
+  },
+  {
+   "program": "LGSTSQ",
+   "program_source": "base/src/lgstsq.cbl"
+  }
+ ],
+ "datasets": {
+  "<USRHLQ>.GENAPP.KSDSPOLY": {
+   "input": "@case/ksdspoly.txt",
+   "entity": "WfPolicyInfo",
+   "copybook": "base/src/lgdpvs01.cbl",
+   "record": "WF-POLICY-INFO",
+   "vsam": {
+    "key_offset": 0,
+    "key_length": 21,
+    "reclen": 64,
+    "why": "base/cntl/adef121.jcl DEFINE2: DATA(... KEYS(21 0) RECORDSIZE(64 64)); the engine's facts do not read KEYS / RECORDSIZE inside the DATA component, so the case states them"
+   }
+  }
+ },
+ "db2": {
+  "ddl": [
+   "base/cntl/db2cre.jcl"
+  ],
+  "seed": "base/cntl/db2cre.jcl",
+  "symbols": {
+   "<DB2DBID>": "GENASA1"
+  },
+  "qualifier": "GENASA1",
+  "compare": [
+   "GENASA1.CUSTOMER",
+   "GENASA1.CUSTOMER_SECURE",
+   "GENASA1.POLICY",
+   "GENASA1.ENDOWMENT",
+   "GENASA1.HOUSE",
+   "GENASA1.MOTOR",
+   "GENASA1.COMMERCIAL",
+   "GENASA1.CLAIM"
+  ]
+ },
+ "commarea": {
+  "segments": [
+   {
+    "copybook": "base/src/lgdpol01.cbl",
+    "record": "DFHCOMMAREA"
+   }
+  ]
+ },
+ "linked": true,
+ "screens": {},
+ "region": {
+  "applid": "GENAREGN",
+  "sysid": "CICA"
+ },
+ "scenarios": [
+  {
+   "name": "request-add-policy-id",
+   "commarea": {
+    "CA-REQUEST-ID": "01AEND",
+    "CA-RETURN-CODE": "00",
+    "CA-CUSTOMER-NUM": 3,
+    "CA-REQUEST-SPECIFIC": "0000000005"
+   },
+   "why": "LGDPDB01's scenario request-add-policy-id through LGDPOL01: '01AEND' is none of 01DEND/01DHOU/01DCOM/01DMOT: '99', no DELETE (endowment policy 5 of customer 3 stays), no LINK"
+  },
+  {
+   "name": "request-inquire-id",
+   "commarea": {
+    "CA-REQUEST-ID": "01IHOU",
+    "CA-RETURN-CODE": "00",
+    "CA-CUSTOMER-NUM": 4,
+    "CA-REQUEST-SPECIFIC": "0000000006"
+   },
+   "why": "LGDPDB01's scenario request-inquire-id through LGDPOL01: an inquiry id: '99', house policy 6 untouched"
+  },
+  {
+   "name": "request-lowercase",
+   "commarea": {
+    "CA-REQUEST-ID": "01dend",
+    "CA-RETURN-CODE": "00",
+    "CA-CUSTOMER-NUM": 3,
+    "CA-REQUEST-SPECIFIC": "0000000005"
+   },
+   "why": "LGDPDB01's scenario request-lowercase through LGDPOL01: '01dend' is not '01DEND' (byte comparison): '99'"
+  },
+  {
+   "name": "request-blank",
+   "commarea": {
+    "CA-REQUEST-ID": "",
+    "CA-RETURN-CODE": "77",
+    "CA-CUSTOMER-NUM": 1,
+    "CA-REQUEST-SPECIFIC": "0000000010"
+   },
+   "why": "LGDPDB01's scenario request-blank through LGDPOL01: a blank request id: '99'; the '77' on entry was first reset to '00'"
+  },
+  {
+   "name": "delete-endowment",
+   "commarea": {
+    "CA-REQUEST-ID": "01DEND",
+    "CA-RETURN-CODE": "00",
+    "CA-CUSTOMER-NUM": 3,
+    "CA-REQUEST-SPECIFIC": "0000000005                                                  "
+   },
+   "why": "LGDPDB01's scenario delete-endowment through LGDPOL01: endowment policy 5 of customer 3: DELETE FROM POLICY +0, the ENDOWMENT row goes with it (ON DELETE CASCADE), LINK LGDPVS01 deletes the VSAM record; '00'"
+  },
+  {
+   "name": "delete-house",
+   "commarea": {
+    "CA-REQUEST-ID": "01DHOU",
+    "CA-RETURN-CODE": "00",
+    "CA-CUSTOMER-NUM": 4,
+    "CA-REQUEST-SPECIFIC": "0000000006                                                  "
+   },
+   "why": "LGDPDB01's scenario delete-house through LGDPOL01: house policy 6 of customer 4: the HOUSE row cascades"
+  },
+  {
+   "name": "delete-motor",
+   "commarea": {
+    "CA-REQUEST-ID": "01DMOT",
+    "CA-RETURN-CODE": "00",
+    "CA-CUSTOMER-NUM": 2,
+    "CA-REQUEST-SPECIFIC": "0000000001                                                  "
+   },
+   "why": "LGDPDB01's scenario delete-motor through LGDPOL01: motor policy 1 of customer 2: the MOTOR row cascades"
+  },
+  {
+   "name": "delete-commercial",
+   "commarea": {
+    "CA-REQUEST-ID": "01DCOM",
+    "CA-RETURN-CODE": "00",
+    "CA-CUSTOMER-NUM": 1,
+    "CA-REQUEST-SPECIFIC": "0000000010                                                  "
+   },
+   "why": "LGDPDB01's scenario delete-commercial through LGDPOL01: commercial policy 10 of customer 1: the COMMERCIAL row cascades"
+  },
+  {
+   "name": "no-commarea",
+   "commarea": null,
+   "why": "EIBCALEN 0: LGDPOL01 moves ' NO COMMAREA RECEIVED' to EM-VARIABLE, WRITE-ERROR-MESSAGE LINKs LGSTSQ with ERROR-MSG (TD CSMT and TS GENAERRS), IF EIBCALEN > 0 is false, then ABEND LGCA"
+  },
+  {
+   "commarea": {
+    "CA-REQUEST-ID": "01DHOU",
+    "CA-RETURN-CODE": "00",
+    "CA-CUSTOMER-NUM": 4,
+    "CA-REQUEST-SPECIFIC": "0000000006                                                  "
+   },
+   "name": "short-commarea",
+   "commarea_length": 20,
+   "why": "EIBCALEN 20 < WS-CA-HEADER-LEN 28: CA-RETURN-CODE '98', RETURN before the request-id check"
+  },
+  {
+   "commarea": {
+    "CA-REQUEST-ID": "01DEND",
+    "CA-RETURN-CODE": "00",
+    "CA-CUSTOMER-NUM": 3,
+    "CA-REQUEST-SPECIFIC": "0000000005                                                  "
+   },
+   "name": "delete-fails",
+   "sql_faults": [
+    {
+     "program": "LGDPDB01",
+     "line": 189,
+     "sqlcode": -904
+    }
+   ],
+   "why": "LGDPDB01's DELETE fails (SQLCODE -904): it sets CA-RETURN-CODE '90' and LINKs LGSTSQ, whose WRITEQ is refused (X6): the task is judged up to it, so LGDPOL01's If CA-RETURN-CODE > 0 (line 127) is not reached"
+  }
+ ],
+ "notes": "GenApp's delete-policy front end (LGDPOL01, LINKed with the 32500-byte LGCMAREA COMMAREA): it checks the COMMAREA and LINKs LGDPDB01 (which LINKs LGDPVS01) with it. The case runs every program of that chain in the same task (\"programs\"), LGSTSQ too (its error logger, \"region\" for its ASSIGN SYSID), with the back-end case's Db2 tables, VSAM file and data; the scenarios reuse genapp-lgdpdb01's inputs (each \"why\" names its source) and add the front end's own paths: no-commarea (EIBCALEN 0: LGSTSQ, ABEND LGCA). The request id is upper-cased first (request-lowercase); an unknown one is '99' with no LINK. If CA-RETURN-CODE > 0 after the LINK (line 127) is reached only through LGDPDB01's / LGDPVS01's error paths, which LINK LGSTSQ and are judged up to its refused WRITEQ (X6): delete-fails shows the path, the branch is not counted. WRITE-ERROR-MESSAGE's IF EIBCALEN > 0 (and the IF EIBCALEN < 91 inside it) is never true: the paragraph is PERFORMed only when EIBCALEN is zero -- dead in practice, uncovered by every scenario. The SQL faults (M2) are the harness's, one per statement the tasks run. Derived from the CICS General Insurance Application (GenApp, github.com/cicsdev/cics-genapp; (C) Copyright IBM Corp. 2011, 2020), licensed under the Eclipse Public License 2.0: LICENSE here is the corpus's own, NOTICE names the source and what was derived."
+}

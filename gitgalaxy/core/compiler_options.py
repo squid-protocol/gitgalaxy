@@ -162,7 +162,7 @@ def rows_of(options: Any) -> list[dict[str, Any]]:
     return [{"option": o, "value": v} for text in options or [] for o, v, _ in parse_options(text)]
 
 
-def effective_with_defaults(options: Any, source_text: str = "") -> dict[str, Optional[str]]:
+def effective_with_defaults(options: Any, source_text: str = "") -> dict[str, str | None]:
     """{option: value} the compiler applies to one program (#4704), IBM's precedence order, lowest first: the options
     in force before the source (`options`: installation defaults, then the compile step's PARM -- gitgalaxy.core.
     estate_options builds that list), then the program's own CBL / PROCESS cards (Enterprise COBOL for z/OS

@@ -35,7 +35,7 @@ import json
 import re
 from dataclasses import dataclass, field
 from pathlib import Path
-from typing import Any, Optional
+from typing import Any
 
 from gitgalaxy.core.compiler_options import (
     DEFAULTS,
@@ -57,7 +57,7 @@ def _text(option: str, value: Any) -> str:
     return option if value in (None, "") else f"{option}({value})"
 
 
-def load_estate(corpus: Optional[str], directory: Optional[Path] = None) -> Optional[dict[str, Any]]:
+def load_estate(corpus: str | None, directory: Path | None = None) -> dict[str, Any] | None:
     """The estate options file of a corpus, or None (a corpus without one: every option is IBM's default)."""
     if not corpus:
         return None
@@ -72,19 +72,19 @@ class EffectiveOptions:
     """What one program is compiled and run under, before its own CBL / PROCESS cards (those come from the source,
     which the corpus pin fixes: `values` merges them in when the source text is given)."""
 
-    estate: Optional[str]
+    estate: str | None
     program: str
-    compiler: dict[str, Optional[str]] = field(default_factory=dict)
+    compiler: dict[str, str | None] = field(default_factory=dict)
     layers: list[str] = field(default_factory=list)  # PARM-level option texts, lowest first, `applied_value` applied
     declared: list[str] = field(default_factory=list)  # the same with the estate's own values
     sources: dict[str, str] = field(default_factory=dict)  # option -> where its value came from
-    runtime: dict[str, dict[str, Optional[str]]] = field(default_factory=dict)  # le / db2 / cics -> {name: value}
+    runtime: dict[str, dict[str, str | None]] = field(default_factory=dict)  # le / db2 / cics -> {name: value}
 
-    def values(self, source_text: str = "") -> dict[str, Optional[str]]:
+    def values(self, source_text: str = "") -> dict[str, str | None]:
         """{option: value} in force for the program: IBM's defaults under the layers under the program's cards."""
         return effective_with_defaults(self.layers, source_text)
 
-    def deviations(self, source_text: str = "") -> list[dict[str, Optional[str]]]:
+    def deviations(self, source_text: str = "") -> list[dict[str, str | None]]:
         """The options whose final value in the estate's own terms is not the one applied: a declared difference."""
         applied = self.values(source_text)
         want = effective(rows_of(self.declared) + compiler_options(source_text))
@@ -118,7 +118,7 @@ def _value(entry: Any) -> Any:
 
 
 def effective_options(
-    case: Optional[dict[str, Any]], estate: Optional[dict[str, Any]] = None, program: Optional[str] = None
+    case: dict[str, Any] | None, estate: dict[str, Any] | None = None, program: str | None = None
 ) -> EffectiveOptions:
     """The one resolver (#4704): the options `case`'s program is compiled under -- installation defaults < PARM < (the
     program's cards, added by .values(source)) -- with the provenance of the estate's values.
@@ -156,7 +156,7 @@ def effective_options(
         out.layers.append(text)
         out.declared.append(text)
     for section in ("le", "db2", "cics"):
-        flat: dict[str, Optional[str]] = {}
+        flat: dict[str, str | None] = {}
         for group, items in sorted((est.get(section) or {}).items()):
             for key, entry in sorted((items or {}).items()):
                 flat[f"{group}.{key}"] = _value(entry)
@@ -169,10 +169,8 @@ def validate(data: dict[str, Any]) -> list[str]:
     errs: list[str] = []
     if data.get("format") != FORMAT:
         errs.append(f"format is {data.get('format')!r}, not {FORMAT!r}")
-    for key in ("estate", "corpus"):
-        if not isinstance(data.get(key), str) or not data.get(key):
-            errs.append(f"missing `{key}`")
-    errs += [f"missing section `{s}`" for s in SECTIONS if s not in data]
+    errs.extend(f"missing `{k}`" for k in ("estate", "corpus") if not data.get(k) or not isinstance(data[k], str))
+    errs.extend(f"missing section `{s}`" for s in SECTIONS if s not in data)
 
     def check(entry: Any, where: str) -> None:
         if not isinstance(entry, dict) or "value" not in entry:
@@ -185,7 +183,7 @@ def validate(data: dict[str, Any]) -> list[str]:
             errs.append(f"{where}: no note")
         if entry["value"] is None and not (isinstance(src, str) and src.startswith("assumed:")):
             errs.append(f"{where}: an unknown value (null) must be 'assumed'")
-        if "applied_value" in entry and not ("applied_note" in entry and entry["applied_note"]):
+        if "applied_value" in entry and not entry.get("applied_note"):
             errs.append(f"{where}: applied_value without applied_note (a declared difference says why)")
 
     comp = data.get("compiler") or {}

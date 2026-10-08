@@ -291,11 +291,14 @@ def parse(lines: list[Line]) -> Procedure:
                 continue
             # #4676: the innermost unterminated statement that can take the phrase and has not got it yet
             hit = _phrase_owner(stack, name, closed)
-            if hit is None:  # no statement can: the old rule, the last statement of the innermost scope
+            owner: Stmt | None
+            if hit is not None:
+                k, owner = hit
+            else:  # no statement can: the old rule, the last statement of the innermost scope
                 while stack[-1].kind == "PHRASE":
                     stack.pop()
-                hit = (len(stack) - 1, next((x for x in reversed(stack[-1].target) if x.kind != "HOLE"), None))
-            k, owner = hit
+                k = len(stack) - 1
+                owner = next((x for x in reversed(stack[-1].target) if x.kind != "HOLE"), None)
             if owner is None:
                 stack[-1].target.append(Stmt("HOLE", origin(n), node_text(n), {"why": "phrase with no statement"}))
                 continue
@@ -318,13 +321,13 @@ def parse(lines: list[Line]) -> Procedure:
             continue
         if t in STATEMENT_ENDS:
             # #4676: END-x closes the innermost unterminated statement of its verb (and the phrases it holds open)
-            k = _end_owner(stack, t[4:], closed)
-            if k is None:  # none open: the old rule, close the phrases on top
+            end = _end_owner(stack, t[4:], closed)
+            if end is None:  # none open: the old rule, close the phrases on top
                 while stack[-1].kind == "PHRASE":
                     stack.pop()
             else:
-                del stack[k[0] + 1 :]
-                closed.add(id(k[1]))
+                del stack[end[0] + 1 :]
+                closed.add(id(end[1]))
             continue
         if t.endswith("_statement") or t.startswith("perform_statement"):
             s = _statement(node_text(n), origin(n))

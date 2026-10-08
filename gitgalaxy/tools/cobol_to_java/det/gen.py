@@ -1553,7 +1553,7 @@ class Gen:
         if k == "COMPUTE":
             mode = self.float_mode([s.data["expr"]], [t for t, _ in s.data["targets"]])
             if mode is not None:
-                self.float_statement(s, s.data["targets"])
+                self.float_statement(s.data["targets"])
             plan = self.plan_arith(s.data["expr"], [t for t, _ in s.data["targets"]])
             plan = {} if mode is not None else plan
             self.float_top = id(s.data["expr"]) if mode is not None else 0
@@ -1567,7 +1567,7 @@ class Gen:
             receivers += [d["remainder"]] if d.get("remainder") is not None else []
             mode = self.float_mode(d["operands"], receivers, d["op"] in ("*", "*="))
             if mode is not None:
-                self.float_statement(s, list(d.get("targets") or []) + list(d.get("giving") or []))
+                self.float_statement(list(d.get("targets") or []) + list(d.get("giving") or []))
                 if d.get("remainder") is not None:
                     raise Untranslatable(f"DIVIDE REMAINDER in floating point ({FLOAT_BYTES})")
                 with self.floating(mode):
@@ -1777,7 +1777,7 @@ class Gen:
             return self.text(o)
         raise Untranslatable(f"DISPLAY of {type(o).__name__}")
 
-    def float_statement(self, s: S.Stmt, targets: list) -> None:
+    def float_statement(self, targets: list) -> None:
         """What a floating-point statement does not model: ROUNDED into a float (its precision is the rounding).
         HFP exponent overflow and underflow are refused by name in the runtime; a zero divisor is libcob's NaN (#4675)."""
         for t, rounded in targets:

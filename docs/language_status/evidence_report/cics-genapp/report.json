@@ -1338,16 +1338,25 @@
     "source_read": true
    },
    "coverage": {
-    "branch_net_pct": null,
-    "branch_pct": null,
-    "branches": null,
-    "branches_net": null,
+    "branch_net_pct": 0.0,
+    "branch_pct": 0.0,
+    "branches": {
+     "covered": 0,
+     "total": 4
+    },
+    "branches_net": {
+     "covered": 0,
+     "total": 4
+    },
     "infeasible_netted": [],
     "infeasible_refuted": [],
     "infeasible_stated": [],
-    "paragraph_pct": null,
-    "paragraphs": null,
-    "source": null,
+    "paragraph_pct": 66.7,
+    "paragraphs": {
+     "covered": 2,
+     "live": 3
+    },
+    "source": "det-sweep coverage ledger (tests/equivalence/det_sweep_coverage.json)",
     "uncovered_branches": [],
     "uncovered_paragraphs": "not recorded"
    },
@@ -1395,7 +1404,7 @@
     "det_port": "not yet measured (#4628)"
    },
    "next": [
-    "paragraph coverage >= 100.0 (coverage not measured: no fresh det-sweep ledger entry and no local sweep)"
+    "paragraph coverage >= 100.0 (now 66.7)"
    ],
    "oracle_backing": [
     {
@@ -1568,7 +1577,7 @@
    "program": "base/src/lgacvs01.cbl",
    "residual": {
     "assumed_or_differs_named": [],
-    "branch_outcomes_unrun": null,
+    "branch_outcomes_unrun": 4,
     "commands": 6,
     "commands_backed": 3,
     "commands_not_backed": [
@@ -1578,7 +1587,7 @@
     ],
     "facts_unstated": 0,
     "holes": 0,
-    "paragraphs_unrun": null,
+    "paragraphs_unrun": 1,
     "refused": null
    },
    "translation": {
@@ -1601,16 +1610,25 @@
     "source_read": true
    },
    "coverage": {
-    "branch_net_pct": null,
-    "branch_pct": null,
-    "branches": null,
-    "branches_net": null,
+    "branch_net_pct": 55.6,
+    "branch_pct": 55.6,
+    "branches": {
+     "covered": 5,
+     "total": 9
+    },
+    "branches_net": {
+     "covered": 5,
+     "total": 9
+    },
     "infeasible_netted": [],
     "infeasible_refuted": [],
     "infeasible_stated": [],
-    "paragraph_pct": null,
-    "paragraphs": null,
-    "source": null,
+    "paragraph_pct": 66.7,
+    "paragraphs": {
+     "covered": 2,
+     "live": 3
+    },
+    "source": "det-sweep coverage ledger (tests/equivalence/det_sweep_coverage.json)",
     "uncovered_branches": [],
     "uncovered_paragraphs": "not recorded"
    },
@@ -1661,19 +1679,15 @@
        },
        "fault_runs": 0,
        "java_failed": false,
-       "oracle_image": "sha256:ec3ecd98686860217630b1fce29265628e980a353ddd3d2d96d16332e8800c64",
+       "oracle_image": "sha256:7274fd3c74a4f997af203851104ba3b4bc2f9dc282151654d385add10ef13f75",
        "oracle_matches_pin": true,
        "records_compared": 16,
        "records_equal": 16,
        "runs": 8,
        "scenarios": 8,
        "scenarios_equal": 8,
-       "stale_inputs": [
-        "harness",
-        "oracle",
-        "generator"
-       ],
-       "status_at_build": "stale",
+       "stale_inputs": [],
+       "status_at_build": "shown equal, unapproved",
        "verdict": "all equal"
       },
       "role": "program"
@@ -1711,19 +1725,15 @@
       },
       "fault_runs": 0,
       "java_failed": false,
-      "oracle_image": "sha256:ec3ecd98686860217630b1fce29265628e980a353ddd3d2d96d16332e8800c64",
+      "oracle_image": "sha256:7274fd3c74a4f997af203851104ba3b4bc2f9dc282151654d385add10ef13f75",
       "oracle_matches_pin": true,
       "records_compared": 16,
       "records_equal": 16,
       "runs": 8,
       "scenarios": 8,
       "scenarios_equal": 8,
-      "stale_inputs": [
-       "harness",
-       "oracle",
-       "generator"
-      ],
-      "status_at_build": "stale",
+      "stale_inputs": [],
+      "status_at_build": "shown equal, unapproved",
       "verdict": "all equal"
      },
      "role": "program"
@@ -1734,7 +1744,7 @@
     "det_port": "not yet measured (#4628)"
    },
    "next": [
-    "paragraph coverage >= 100.0 (coverage not measured: no fresh det-sweep ledger entry and no local sweep)"
+    "paragraph coverage >= 100.0 (now 66.7)"
    ],
    "oracle_backing": [
     {
@@ -1888,7 +1898,7 @@
    "program": "base/src/lgapvs01.cbl",
    "residual": {
     "assumed_or_differs_named": [],
-    "branch_outcomes_unrun": null,
+    "branch_outcomes_unrun": 4,
     "commands": 5,
     "commands_backed": 2,
     "commands_not_backed": [
@@ -1898,7 +1908,7 @@
     ],
     "facts_unstated": 0,
     "holes": 0,
-    "paragraphs_unrun": null,
+    "paragraphs_unrun": 1,
     "refused": null
    },
    "translation": {
@@ -1921,16 +1931,25 @@
     "source_read": true
    },
    "coverage": {
-    "branch_net_pct": null,
-    "branch_pct": null,
-    "branches": null,
-    "branches_net": null,
+    "branch_net_pct": 0.0,
+    "branch_pct": 0.0,
+    "branches": {
+     "covered": 0,
+     "total": 4
+    },
+    "branches_net": {
+     "covered": 0,
+     "total": 4
+    },
     "infeasible_netted": [],
     "infeasible_refuted": [],
     "infeasible_stated": [],
-    "paragraph_pct": null,
-    "paragraphs": null,
-    "source": null,
+    "paragraph_pct": 66.7,
+    "paragraphs": {
+     "covered": 2,
+     "live": 3
+    },
+    "source": "det-sweep coverage ledger (tests/equivalence/det_sweep_coverage.json)",
     "uncovered_branches": [],
     "uncovered_paragraphs": "not recorded"
    },
@@ -1978,7 +1997,7 @@
     "det_port": "not yet measured (#4628)"
    },
    "next": [
-    "paragraph coverage >= 100.0 (coverage not measured: no fresh det-sweep ledger entry and no local sweep)"
+    "paragraph coverage >= 100.0 (now 66.7)"
    ],
    "oracle_backing": [
     {
@@ -2132,7 +2151,7 @@
    "program": "base/src/lgdpvs01.cbl",
    "residual": {
     "assumed_or_differs_named": [],
-    "branch_outcomes_unrun": null,
+    "branch_outcomes_unrun": 4,
     "commands": 5,
     "commands_backed": 2,
     "commands_not_backed": [
@@ -2142,7 +2161,7 @@
     ],
     "facts_unstated": 0,
     "holes": 0,
-    "paragraphs_unrun": null,
+    "paragraphs_unrun": 1,
     "refused": null
    },
    "translation": {
@@ -2178,16 +2197,25 @@
     "source_read": true
    },
    "coverage": {
-    "branch_net_pct": null,
-    "branch_pct": null,
-    "branches": null,
-    "branches_net": null,
+    "branch_net_pct": 0.0,
+    "branch_pct": 0.0,
+    "branches": {
+     "covered": 0,
+     "total": 4
+    },
+    "branches_net": {
+     "covered": 0,
+     "total": 4
+    },
     "infeasible_netted": [],
     "infeasible_refuted": [],
     "infeasible_stated": [],
-    "paragraph_pct": null,
-    "paragraphs": null,
-    "source": null,
+    "paragraph_pct": 66.7,
+    "paragraphs": {
+     "covered": 2,
+     "live": 3
+    },
+    "source": "det-sweep coverage ledger (tests/equivalence/det_sweep_coverage.json)",
     "uncovered_branches": [],
     "uncovered_paragraphs": "not recorded"
    },
@@ -2235,7 +2263,7 @@
     "det_port": "not yet measured (#4628)"
    },
    "next": [
-    "paragraph coverage >= 100.0 (coverage not measured: no fresh det-sweep ledger entry and no local sweep)"
+    "paragraph coverage >= 100.0 (now 66.7)"
    ],
    "oracle_backing": [
     {
@@ -2422,7 +2450,7 @@
      "X14",
      "X22"
     ],
-    "branch_outcomes_unrun": null,
+    "branch_outcomes_unrun": 4,
     "commands": 7,
     "commands_backed": 3,
     "commands_not_backed": [
@@ -2433,7 +2461,7 @@
     ],
     "facts_unstated": 0,
     "holes": 0,
-    "paragraphs_unrun": null,
+    "paragraphs_unrun": 1,
     "refused": null
    },
    "translation": {
@@ -2469,16 +2497,25 @@
     "source_read": true
    },
    "coverage": {
-    "branch_net_pct": null,
-    "branch_pct": null,
-    "branches": null,
-    "branches_net": null,
+    "branch_net_pct": 55.6,
+    "branch_pct": 55.6,
+    "branches": {
+     "covered": 5,
+     "total": 9
+    },
+    "branches_net": {
+     "covered": 5,
+     "total": 9
+    },
     "infeasible_netted": [],
     "infeasible_refuted": [],
     "infeasible_stated": [],
-    "paragraph_pct": null,
-    "paragraphs": null,
-    "source": null,
+    "paragraph_pct": 66.7,
+    "paragraphs": {
+     "covered": 2,
+     "live": 3
+    },
+    "source": "det-sweep coverage ledger (tests/equivalence/det_sweep_coverage.json)",
     "uncovered_branches": [],
     "uncovered_paragraphs": "not recorded"
    },
@@ -2581,7 +2618,7 @@
     "det_port": "not yet measured (#4628)"
    },
    "next": [
-    "paragraph coverage >= 100.0 (coverage not measured: no fresh det-sweep ledger entry and no local sweep)"
+    "paragraph coverage >= 100.0 (now 66.7)"
    ],
    "oracle_backing": [
     {
@@ -2768,7 +2805,7 @@
      "X14",
      "X22"
     ],
-    "branch_outcomes_unrun": null,
+    "branch_outcomes_unrun": 4,
     "commands": 7,
     "commands_backed": 3,
     "commands_not_backed": [
@@ -2779,7 +2816,7 @@
     ],
     "facts_unstated": 0,
     "holes": 0,
-    "paragraphs_unrun": null,
+    "paragraphs_unrun": 1,
     "refused": null
    },
    "translation": {
@@ -9069,16 +9106,25 @@
     "source_read": true
    },
    "coverage": {
-    "branch_net_pct": null,
-    "branch_pct": null,
-    "branches": null,
-    "branches_net": null,
+    "branch_net_pct": 50.0,
+    "branch_pct": 50.0,
+    "branches": {
+     "covered": 6,
+     "total": 12
+    },
+    "branches_net": {
+     "covered": 6,
+     "total": 12
+    },
     "infeasible_netted": [],
     "infeasible_refuted": [],
     "infeasible_stated": [],
-    "paragraph_pct": null,
-    "paragraphs": null,
-    "source": null,
+    "paragraph_pct": 100.0,
+    "paragraphs": {
+     "covered": 1,
+     "live": 1
+    },
+    "source": "det-sweep coverage ledger (tests/equivalence/det_sweep_coverage.json)",
     "uncovered_branches": [],
     "uncovered_paragraphs": "not recorded"
    },
@@ -9497,7 +9543,7 @@
      "X19",
      "X22"
     ],
-    "branch_outcomes_unrun": null,
+    "branch_outcomes_unrun": 6,
     "commands": 9,
     "commands_backed": 6,
     "commands_not_backed": [
@@ -9507,7 +9553,7 @@
     ],
     "facts_unstated": 2,
     "holes": 1,
-    "paragraphs_unrun": null,
+    "paragraphs_unrun": 0,
     "refused": null
    },
    "translation": {
@@ -11201,7 +11247,7 @@
    "python tests/tools/cics_crucible.py  # the hand-traced CICS cases, at the crucible pin"
   ],
   "corpus_ref": "f6f3f4b2580d31b7d8dcc31ce3e3676f4cceaaaa",
-  "coverage_from": "det-sweep coverage ledger, freshness at build time",
+  "coverage_from": "det-sweep coverage ledger freshness recomputed now",
   "crucible_baseline_ref": "v0.5.0 (9ee42d11)",
   "crucible_cases_measured_at": "v0.5.0",
   "crucible_pins": {
@@ -11212,10 +11258,10 @@
   "oracle_base_image": "debian:bookworm-slim@sha256:3783cc01769c7b2b1b83a5c5ad96c815348e28ed7da68e2e3687004faa906251",
   "oracle_images_of_records": [
    "sha256:3d1d5e13c632545d0e1bc4d215c3fb8dd1d68d0ff8647b56880f1593353bc7dc",
-   "sha256:ec3ecd98686860217630b1fce29265628e980a353ddd3d2d96d16332e8800c64"
+   "sha256:7274fd3c74a4f997af203851104ba3b4bc2f9dc282151654d385add10ef13f75"
   ],
   "pin_manifest": "tests/crucible_pins.toml",
-  "record_status_from": "evidence.py status at build time",
+  "record_status_from": "evidence.py status, recomputed now",
   "survey": {
    "label": "before",
    "scope": "burned + local + census corpora",
@@ -11236,7 +11282,7 @@
   },
   "holes": 123,
   "programs": 31,
-  "records_current": 0,
+  "records_current": 1,
   "refused_whole": 0,
   "source_unread": 0,
   "translated_whole": 25,

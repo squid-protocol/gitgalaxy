@@ -4,7 +4,7 @@
 
 > **Burned estate.** Its ports and the translator were developed against this estate, so its numbers describe a development estate, not a blind one.
 
-Translation measured by `cics_census.py survey` at translator commit `3bcbb8c62397b338307563c40618297d54c38100` (burned + local + census corpora); evidence record status: evidence.py status at build time; coverage: det-sweep coverage ledger, freshness at build time.
+Translation measured by `cics_census.py survey` at translator commit `3bcbb8c62397b338307563c40618297d54c38100` (burned + local + census corpora); evidence record status: evidence.py status, recomputed now; coverage: det-sweep coverage ledger freshness recomputed now.
 
 ## How to read this report
 
@@ -36,9 +36,9 @@ Translation measured by `cics_census.py survey` at translator commit `3bcbb8c623
 |---|---|
 | L0 | 14 |
 | L1 | 15 |
-| L2 | 2 |
+| L2 | 0 |
 | L3 | 0 |
-| L4 | 0 |
+| L4 | 2 |
 | L5 | 0 |
 
 - programs: 31 (with an EXEC CICS command: 30; source not read: 0)
@@ -49,8 +49,8 @@ Translation measured by `cics_census.py survey` at translator commit `3bcbb8c623
 
 | program | level | translated / statements | holes | case | det port | scenarios | record | paragraphs | branches (raw) | branches (net of infeasible) | det-port mutation | CICS commands oracle-backed |
 |---|---|---|---|---|---|---|---|---|---|---|---|---|
-| src/base/cobol_src/ABNDPROC.cbl | L2 | 13/13 | 0 | cbsa-abndproc | equal | 8 | none | not measured | not measured | not measured | not yet measured (#4628) | 1/2 |
-| src/base/cobol_src/UPDCUST.cbl | L2 | 64/64 | 0 | cbsa-updcust | equal | 23 | none | not measured | not measured | not measured | not yet measured (#4628) | 1/5 |
+| src/base/cobol_src/ABNDPROC.cbl | L4 | 13/13 | 0 | cbsa-abndproc | equal | 8 | none | 4/4 (100.0%) | 2/2 (100.0%) | 2/2 (100.0%) | not yet measured (#4628) | 1/2 |
+| src/base/cobol_src/UPDCUST.cbl | L4 | 64/64 | 0 | cbsa-updcust | equal | 23 | none | 7/7 (100.0%) | 28/28 (100.0%) | 28/28 (100.0%) | not yet measured (#4628) | 1/5 |
 | src/base/cobol_src/CRDTAGY1.cbl | L1 | 44/44 | 0 | — | — | — | — | not measured | not measured | not measured | not yet measured (#4628) | 4/9 |
 | src/base/cobol_src/CRDTAGY2.cbl | L1 | 44/44 | 0 | — | — | — | — | not measured | not measured | not measured | not yet measured (#4628) | 4/9 |
 | src/base/cobol_src/CRDTAGY3.cbl | L1 | 44/44 | 0 | — | — | — | — | not measured | not measured | not measured | not yet measured (#4628) | 4/9 |
@@ -83,10 +83,10 @@ Translation measured by `cics_census.py survey` at translator commit `3bcbb8c623
 
 ## Per program
 
-### src/base/cobol_src/ABNDPROC.cbl -- L2
+### src/base/cobol_src/ABNDPROC.cbl -- L4
 
 - **Executed equivalent** on the 8 scenarios of cbsa-abndproc against GnuCOBOL + the gitgalaxy CICS stub (det port: CI det-sweep ratchet on main), given the assumptions below
-- **Next level needs:** paragraph coverage >= 100.0 (coverage not measured: no fresh det-sweep ledger entry and no local sweep)
+- **Next level needs:** every surviving mutant of the det port accounted for: not yet measured (#4628)
 - **Translation:** 13/13 statements, 0 holes; whole: yes
 - **Executed equivalence** (cbsa-abndproc, program, the case this report judges): det port equal (CI det-sweep ratchet on main)
   - evidence record: none (8 scenarios in case.json)
@@ -94,7 +94,7 @@ Translation measured by `cics_census.py survey` at translator commit `3bcbb8c623
   - evidence record (the case's committed port): stale (stale on harness, oracle, generator); its proof: all equal, 14/14 scenarios equal, 29/29 records equal, 14 runs (0 fault runs); through its deployed entry points 14/14
 - **Executed equivalence** (cbsa-xfrfun, linked, Db2): det port not run (a Db2 case: CI's det-sweep skips Db2 cases and no local sweep was given)
   - evidence record: none (22 scenarios in case.json)
-- **Coverage:** not measured
+- **Coverage** (det-sweep coverage ledger (tests/equivalence/det_sweep_coverage.json)): paragraphs 4/4 (100.0%), branch outcomes 2/2 (100.0%) raw, 2/2 (100.0%) net of 0 stated infeasible; unrun paragraphs by name: not recorded
 - **Oracle backing** (a column, not a level; per CICS command; DIFFERS assumptions reached: not measured):
 
   | command | spec entry | hand-traced crucible cases (stub / Java runtime agree) | backed |
@@ -104,16 +104,16 @@ Translation measured by `cics_census.py survey` at translator commit `3bcbb8c623
 
 - **Assumptions relied on:** named by its commands' spec entries: none; reach: not measured
 - **Det-port mutation:** not yet measured (#4628)
-- **Residual risk:** coverage not measured; commands without oracle backing: WRITE; assumption reach and the migration dimensions above: not measured
+- **Residual risk:** commands without oracle backing: WRITE; assumption reach and the migration dimensions above: not measured
 
-### src/base/cobol_src/UPDCUST.cbl -- L2
+### src/base/cobol_src/UPDCUST.cbl -- L4
 
 - **Executed equivalent** on the 23 scenarios of cbsa-updcust against GnuCOBOL + the gitgalaxy CICS stub (det port: CI det-sweep ratchet on main), given the assumptions below
-- **Next level needs:** paragraph coverage >= 100.0 (coverage not measured: no fresh det-sweep ledger entry and no local sweep)
+- **Next level needs:** every surviving mutant of the det port accounted for: not yet measured (#4628)
 - **Translation:** 64/64 statements, 0 holes; whole: yes
 - **Executed equivalence** (cbsa-updcust, program, the case this report judges): det port equal (CI det-sweep ratchet on main)
   - evidence record: none (23 scenarios in case.json)
-- **Coverage:** not measured
+- **Coverage** (det-sweep coverage ledger (tests/equivalence/det_sweep_coverage.json)): paragraphs 7/7 (100.0%), branch outcomes 28/28 (100.0%) raw, 28/28 (100.0%) net of 0 stated infeasible; unrun paragraphs by name: not recorded
 - **Oracle backing** (a column, not a level; per CICS command; DIFFERS assumptions reached: not measured):
 
   | command | spec entry | hand-traced crucible cases (stub / Java runtime agree) | backed |
@@ -126,7 +126,7 @@ Translation measured by `cics_census.py survey` at translator commit `3bcbb8c623
 
 - **Assumptions relied on:** named by its commands' spec entries: X14 (ASSUMED (REFUSED where IBM is silent)), X22 (ASSUMED (REFUSED where IBM is silent or the layout decides)); reach: not measured
 - **Det-port mutation:** not yet measured (#4628)
-- **Residual risk:** coverage not measured; ASSUMED / DIFFERS entries named: X14, X22; commands without oracle backing: ASKTIME, FORMATTIME, READ, REWRITE; assumption reach and the migration dimensions above: not measured
+- **Residual risk:** ASSUMED / DIFFERS entries named: X14, X22; commands without oracle backing: ASKTIME, FORMATTIME, READ, REWRITE; assumption reach and the migration dimensions above: not measured
 
 ### src/base/cobol_src/CRDTAGY1.cbl -- L1
 

@@ -1395,16 +1395,25 @@
     "source_read": true
    },
    "coverage": {
-    "branch_net_pct": null,
-    "branch_pct": null,
-    "branches": null,
-    "branches_net": null,
+    "branch_net_pct": 100.0,
+    "branch_pct": 100.0,
+    "branches": {
+     "covered": 2,
+     "total": 2
+    },
+    "branches_net": {
+     "covered": 2,
+     "total": 2
+    },
     "infeasible_netted": [],
     "infeasible_refuted": [],
     "infeasible_stated": [],
-    "paragraph_pct": null,
-    "paragraphs": null,
-    "source": null,
+    "paragraph_pct": 100.0,
+    "paragraphs": {
+     "covered": 4,
+     "live": 4
+    },
+    "source": "det-sweep coverage ledger (tests/equivalence/det_sweep_coverage.json)",
     "uncovered_branches": [],
     "uncovered_paragraphs": "not recorded"
    },
@@ -1506,12 +1515,12 @@
      "role": "program"
     }
    },
-   "level": "L2",
+   "level": "L4",
    "mutation": {
     "det_port": "not yet measured (#4628)"
    },
    "next": [
-    "paragraph coverage >= 100.0 (coverage not measured: no fresh det-sweep ledger entry and no local sweep)"
+    "every surviving mutant of the det port accounted for: not yet measured (#4628)"
    ],
    "oracle_backing": [
     {
@@ -1625,7 +1634,7 @@
    "program": "src/base/cobol_src/ABNDPROC.cbl",
    "residual": {
     "assumed_or_differs_named": [],
-    "branch_outcomes_unrun": null,
+    "branch_outcomes_unrun": 0,
     "commands": 2,
     "commands_backed": 1,
     "commands_not_backed": [
@@ -1633,7 +1642,7 @@
     ],
     "facts_unstated": 0,
     "holes": 0,
-    "paragraphs_unrun": null,
+    "paragraphs_unrun": 0,
     "refused": null
    },
    "translation": {
@@ -1669,16 +1678,25 @@
     "source_read": true
    },
    "coverage": {
-    "branch_net_pct": null,
-    "branch_pct": null,
-    "branches": null,
-    "branches_net": null,
+    "branch_net_pct": 100.0,
+    "branch_pct": 100.0,
+    "branches": {
+     "covered": 28,
+     "total": 28
+    },
+    "branches_net": {
+     "covered": 28,
+     "total": 28
+    },
     "infeasible_netted": [],
     "infeasible_refuted": [],
     "infeasible_stated": [],
-    "paragraph_pct": null,
-    "paragraphs": null,
-    "source": null,
+    "paragraph_pct": 100.0,
+    "paragraphs": {
+     "covered": 7,
+     "live": 7
+    },
+    "source": "det-sweep coverage ledger (tests/equivalence/det_sweep_coverage.json)",
     "uncovered_branches": [],
     "uncovered_paragraphs": "not recorded"
    },
@@ -1708,12 +1726,12 @@
      "role": "program"
     }
    },
-   "level": "L2",
+   "level": "L4",
    "mutation": {
     "det_port": "not yet measured (#4628)"
    },
    "next": [
-    "paragraph coverage >= 100.0 (coverage not measured: no fresh det-sweep ledger entry and no local sweep)"
+    "every surviving mutant of the det port accounted for: not yet measured (#4628)"
    ],
    "oracle_backing": [
     {
@@ -1857,7 +1875,7 @@
      "X14",
      "X22"
     ],
-    "branch_outcomes_unrun": null,
+    "branch_outcomes_unrun": 0,
     "commands": 5,
     "commands_backed": 1,
     "commands_not_backed": [
@@ -1868,7 +1886,7 @@
     ],
     "facts_unstated": 0,
     "holes": 0,
-    "paragraphs_unrun": null,
+    "paragraphs_unrun": 0,
     "refused": null
    },
    "translation": {
@@ -11658,7 +11676,7 @@
    "python tests/tools/cics_crucible.py  # the hand-traced CICS cases, at the crucible pin"
   ],
   "corpus_ref": "417334533178ab6e753cc64b0e0e5cf0b4952704",
-  "coverage_from": "det-sweep coverage ledger, freshness at build time",
+  "coverage_from": "det-sweep coverage ledger freshness recomputed now",
   "crucible_baseline_ref": "v0.5.0 (9ee42d11)",
   "crucible_cases_measured_at": "v0.5.0",
   "crucible_pins": {
@@ -11671,7 +11689,7 @@
    "sha256:3d1d5e13c632545d0e1bc4d215c3fb8dd1d68d0ff8647b56880f1593353bc7dc"
   ],
   "pin_manifest": "tests/crucible_pins.toml",
-  "record_status_from": "evidence.py status at build time",
+  "record_status_from": "evidence.py status, recomputed now",
   "survey": {
    "label": "before",
    "scope": "burned + local + census corpora",
@@ -11685,9 +11703,9 @@
   "histogram": {
    "L0": 14,
    "L1": 15,
-   "L2": 2,
+   "L2": 0,
    "L3": 0,
-   "L4": 0,
+   "L4": 2,
    "L5": 0
   },
   "holes": 82,

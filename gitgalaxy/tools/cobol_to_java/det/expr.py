@@ -11,6 +11,9 @@ from __future__ import annotations
 from dataclasses import dataclass, field
 from decimal import Decimal
 
+from gitgalaxy.standards.cics.resp import DFHRESP
+from gitgalaxy.tools.cobol_to_java.det.cvda import CVDA
+
 
 class ExprError(Exception):
     pass
@@ -213,16 +216,12 @@ class Parser:
         r = self.ref()
         if r.name == "DFHRESP" and len(r.subscripts) == 1 and isinstance(r.subscripts[0], Ref):
             # DFHRESP(condition): the condition's RESP value (IBM CICS TS)
-            from gitgalaxy.tools.cobol_to_java.det.cics import DFHRESP
-
             cond = r.subscripts[0].name
             if cond not in DFHRESP:
                 raise ExprError(f"DFHRESP({cond}) is not a documented condition")
             return Lit(Decimal(DFHRESP[cond]))
         if r.name == "DFHVALUE" and len(r.subscripts) == 1 and isinstance(r.subscripts[0], Ref):
             # DFHVALUE(name): the CVDA's numeric value (IBM CICS TS, CVDAs and numeric values)
-            from gitgalaxy.tools.cobol_to_java.det.cvda import CVDA
-
             name = r.subscripts[0].name
             if name not in CVDA:
                 raise ExprError(f"DFHVALUE({name}) is not a documented CVDA")

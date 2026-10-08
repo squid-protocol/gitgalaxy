@@ -132,6 +132,13 @@ public class Main {
         }
         DetSql.update(ca, "PROG:13", () -> 1, false, StandardCharsets.ISO_8859_1);  // another statement: no fault
         System.out.println("other sqlcode " + sqlcode(ca));
+        // #4658: the JDBC driver's client-side -4220 is the -180 / 22007 Db2 gives an embedded-SQL program
+        DetSql.update(ca, "PROG:14", () -> { throw new RuntimeException(new java.sql.SQLException("bad", (String) null, -4220)); },
+                      false, StandardCharsets.ISO_8859_1);
+        System.out.println("jcc sqlcode " + sqlcode(ca) + " state " + new String(ca.storage().bytes, 131, 5, StandardCharsets.ISO_8859_1));
+        DetSql.update(ca, "PROG:15", () -> { throw new RuntimeException(new java.sql.SQLException("dup", "23505", -803)); },
+                      false, StandardCharsets.ISO_8859_1);
+        System.out.println("other error sqlcode " + sqlcode(ca));
         // #4181: a 71-byte record LINKed as a 99-byte DTO: its own bytes, LOW-VALUES past it, and back up to its end
         Storage rec = new Storage(71);
         java.util.Arrays.fill(rec.bytes, (byte) 'E');
@@ -166,7 +173,7 @@ def test_detsql_injects_a_planned_fault_and_a_link_window_stops_at_the_record(tm
     out = subprocess.run([str(jdk / "java"), "-cp", str(tmp_path / "classes"), "ggtest.Main", str(log)],  # noqa: S603
                          capture_output=True, text=True, check=True).stdout.splitlines()  # fmt: skip
     assert out == ["run 1 sqlcode 0 ran 1", "run 2 sqlcode -803 ran 1", "run 3 sqlcode 0 ran 2",
-                   "other sqlcode 0", "window EE 0 0", "back X 71"]  # fmt: skip
+                   "other sqlcode 0", "jcc sqlcode -180 state 22007", "other error sqlcode -803", "window EE 0 0", "back X 71"]  # fmt: skip
     assert log.read_text(encoding="ascii").split() == ["SQL", "PROG", "12", "2", "-803"]
 
 

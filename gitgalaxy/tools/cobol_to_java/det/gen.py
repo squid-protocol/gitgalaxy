@@ -16,6 +16,7 @@ from typing import TYPE_CHECKING, Any
 
 from gitgalaxy.tools.cobol_to_java.det import expr as E
 from gitgalaxy.tools.cobol_to_java.det import layout as L
+from gitgalaxy.tools.cobol_to_java.det import osvs as O
 from gitgalaxy.tools.cobol_to_java.det import stmt as S
 from gitgalaxy.tools.cobol_to_java.det.source import WIDE
 
@@ -26,6 +27,21 @@ if TYPE_CHECKING:
 
 class Untranslatable(Exception):
     pass
+
+
+def p_unmodelled(it: L.Item) -> str | None:
+    """#4669: why a P-scaled numeric item is refused, or None (PIC 99PP / VPP99 zoned, and left-P binary, are
+    modelled: the item stores its 9s, its scale counts the Ps). The oracle has no answer for the others -- GnuCOBOL
+    3.1.2 (-std=ibm) stores a P-scaled packed item's digits shifted into its sign nibble (MOVE 5600 TO PIC S99PP
+    COMP-3 reads back as `<600`), and loops forever on MOVE 0 into a right-P binary item (PIC 99PP COMP)."""
+    if not it.p_scaled:
+        return None
+    if it.usage == "PACKED":
+        return f"{it.name}: PIC {it.pic} COMP-3, a P-scaled packed item (GnuCOBOL 3.1.2 mis-stores it: no oracle)"
+    if it.usage == "COMP-5" or (it.usage == "BINARY" and it.scale < 0):
+        return (f"{it.name}: PIC {it.pic} {it.usage}, a right-P / native binary item (GnuCOBOL 3.1.2 loops on a "
+                "MOVE into it: no oracle)")  # fmt: skip
+    return None
 
 
 def _reads(method):
@@ -67,6 +83,10 @@ def jstr(s: str) -> str:
             out.append("\\\\")
         elif 32 <= o < 127:
             out.append(ch)
+        elif o < 256:
+            # #4690: never the u-escapes 000a / 000d / 0022 (Java translates them before lexing, cutting the literal open);
+            # a three-digit octal escape is exact and cannot swallow a following digit
+            out.append(f"\\{o:03o}")
         else:
             out.append(f"\\u{o:04x}")
     return '"' + "".join(out) + '"'
@@ -115,6 +135,15 @@ class Gen:
         self.lines: list[str] = []
         self.stats: dict[str, Any] = {"statements": 0, "translated": 0, "holes": []}
         self.sentence: str | None = None  # the label of the NEXT SENTENCE block being generated
+        # ARITHMETIC-OSVS (#4287, det/osvs.py): the plan of the expression being generated (id(node) -> ALIGN / FOLD)
+        # and, inside a condition, the plans of its relations still to generate, in order
+        self.osvs: dict = {}
+        self.rel_plans: list | None = None
+        # inside an intrinsic function's arguments (cob_intr_binop: a zero divisor gives 0, never NaN, #4655)
+        self.intr = 0
+        # what the last decimal build of the sentence left: (dmax, expr_decp stack), None when nothing (an EVALUATE's
+        # condition leaves its state to the next statements of the sentence; a period, a COMPUTE or an IF resets it)
+        self.leak: tuple | None = None
         self.items: dict[str, list[L.Item]] = {}
         self.ids: dict[int, str] = {}
         self.storage_of: dict[int, str] = {}
@@ -153,6 +182,9 @@ class Gen:
                     self.conds.setdefault(c.name, []).append(c)
         self.para_index = {p.name: i for i, p in enumerate(prog.proc.paragraphs)}
         self.consts: dict[str, str] = {}
+        self.dcs: dict[
+            tuple, tuple
+        ] = {}  # ARITHMETIC-OSVS: libcob's decimal constants (Cobol.Dc): key -> (name, value)
         self.tmp = 0
         self.cur = 0
         self.cics: Cics | None = None
@@ -209,6 +241,9 @@ class Gen:
             cands = [c for c in cands if ok(c)]
         if len(cands) != 1:
             raise Untranslatable(f"{ref.name}: {'no such item' if not cands else 'ambiguous'}")
+        why = p_unmodelled(cands[0])
+        if why:
+            raise Untranslatable(why)
         return cands[0]
 
     def resolve_cond(self, ref: E.Ref) -> L.Item | None:
@@ -319,6 +354,157 @@ class Gen:
             if not other and not multiply and all(x is not None and x.usage == "COMP-1" for x in items)
             else "LONG"
         )
+
+    # ---- ARITHMETIC-OSVS (#4287) ------------------------------------------------------------------------------
+    def osvs_leaf(self, e) -> O.Leaf:
+        """What cobc's decimal_expand does with a data item or a FUNCTION (det/osvs.py)."""
+        if isinstance(e, E.Func):
+            return O.Leaf("FUNC", 0, True)
+        it = self.resolve(e)
+        if it.level == 88:
+            return O.Leaf("COND", 0, False)
+        scale = it.scale if it.category in ("NUMERIC", "NUMERIC-EDITED") else 0
+        # a binary item of scale 0 is loaded as an integer (cob_decimal_set_llint): no places pushed
+        binary = it.usage in ("BINARY", "COMP-5", "INDEX") and scale == 0 and e.refmod is None
+        return O.Leaf("ITEM", scale, not binary)
+
+    def osvs_length(self, e: E.LengthOf) -> int:
+        it = self.resolve(e.ref)
+        return it.size * it.occurs
+
+    @contextlib.contextmanager
+    def osvs_plan(self, plan: dict):
+        outer, self.osvs = self.osvs, plan
+        try:
+            yield
+        finally:
+            self.osvs = outer
+
+    def plan_arith(self, expr, receivers: list, operands_first: bool = False) -> dict:
+        """The plan of an arithmetic statement's expression, its receivers' places counted (build_decimal_assign)."""
+        scales = []
+        for t in receivers:
+            it = self.resolve(t) if isinstance(t, E.Ref) else None
+            if it is not None and it.category in ("NUMERIC", "NUMERIC-EDITED"):
+                scales.append(it.scale)
+            elif it is not None:
+                scales.append(0)
+        dmax_in = self.leak[0] if self.leak is not None else -1
+        self.leak = None
+        try:
+            return O.plan_compute(expr, scales, self.osvs_leaf, self.osvs_length, operands_first, dmax_in)
+        except O.OsvsError as e:
+            raise Untranslatable(f"ARITHMETIC-OSVS: {e} (#4287)") from e
+
+    def cond_relations(self, c, out: list) -> None:
+        """The relations of a condition in the order cond() generates them, each with its operands in cobc's order."""
+        if isinstance(c, (E.And, E.Or)):
+            self.cond_relations(c.left, out)
+            self.cond_relations(c.right, out)
+        elif isinstance(c, E.Not):
+            self.cond_relations(c.cond, out)
+        elif isinstance(c, E.CondName):
+            if c.abbrev is not None and self.resolve_cond(c.ref) is None:
+                out.append(self._relation(c.abbrev[1], c.ref, c.abbrev[0] == "="))
+        elif isinstance(c, E.ClassCond):
+            if c.kind in ("POSITIVE", "NEGATIVE", "ZERO"):
+                out.append(self._relation(c.operand, E.Fig("ZEROS")))  # cobc: x > ZERO, a constant
+        elif isinstance(c, E.Rel):
+            out.append(self._relation(c.left, c.right, c.op == "="))
+
+    @staticmethod
+    def _relation(x, y, equality: bool = False) -> O.Relation:
+        return O.Relation(x, y, equality)
+
+    def field_constant(self, ref: E.Ref, lit, equality: bool) -> bool:
+        """Whether cobc decides a relation of a USAGE DISPLAY item with a literal at compile time (cobc/tree.c
+        compare_field_literal): a literal longer than an alphanumeric item, or with more decimals or more integer
+        digits than a numeric one, makes = / NOT = constant -- and, for more integer digits, < > <= >= on a numeric
+        item too. Such a relation is neither walked nor built (#4287)."""
+        try:
+            it = self.resolve(ref)
+        except Untranslatable:
+            return False
+        if it.usage != "DISPLAY" or it.level == 88:
+            return False
+        if isinstance(lit, O.Num):
+            data, lscale = lit.digits, lit.scale
+        elif isinstance(lit, E.Fig):  # ZERO: cb_zero_lit
+            data, lscale = "0", 0
+        elif isinstance(lit, E.Lit) and isinstance(lit.value, str):
+            data, lscale = lit.value, 0
+        else:
+            return False
+        refmod_length = 0
+        if ref.refmod is not None:
+            start, length = ref.refmod
+            if length is not None and isinstance(length, E.Lit) and isinstance(length.value, Decimal):
+                refmod_length = int(length.value)
+            elif isinstance(start, E.Lit) and isinstance(start.value, Decimal) and length is None:
+                refmod_length = it.size - int(start.value) + 1
+            else:
+                return False
+        lit_length = len(data.rstrip(" "))
+        numeric = it.category in ("NUMERIC", "NUMERIC-EDITED")
+        if not numeric or refmod_length:
+            return equality and lit_length > (refmod_length or it.size)
+        fscale = it.scale
+        if fscale < 0 or not data.isdigit():
+            return False
+        if set(data) == {"0"}:
+            i, scale = 0, 0
+        else:
+            lit_start = len(data) - len(data.lstrip("0"))
+            lit_length -= lit_start
+            scale, i, j = lscale, lit_length, len(data)
+            while scale > 0 and j > 0 and data[j - 1] == "0":
+                scale, i, j = scale - 1, i - 1, j - 1
+        if scale > 0 and fscale < scale:
+            return equality
+        if i - scale > 0 and it.size - fscale >= 0 and i - scale > it.size - fscale:
+            return equality or it.category == "NUMERIC"
+        return False
+
+    def plan_relations(self, groups: list[list[O.Relation]], evaluate: bool = False) -> list[dict]:
+        state_in, self.leak = (None if evaluate else self.leak), None
+        try:
+            out = O.plan_condition(groups, self.osvs_leaf, self.osvs_length, evaluate, state_in, self.field_constant)
+        except O.OsvsError as e:
+            raise Untranslatable(f"ARITHMETIC-OSVS: {e} (#4287)") from e
+        self.leak = out if evaluate else None
+        return [r.plan for g in groups for r in g]
+
+    @contextlib.contextmanager
+    def relations_planned(self, plans: list[dict]):
+        outer, self.rel_plans = self.rel_plans, list(plans)
+        try:
+            yield
+            if self.rel_plans:
+                raise Untranslatable("ARITHMETIC-OSVS: a condition's relations out of step with their plan (#4287)")
+        finally:
+            self.rel_plans = outer
+
+    @contextlib.contextmanager
+    def relation(self):
+        """One relation being generated: its plan, the next of the condition's (none outside a planned one)."""
+        if self.rel_plans is None:
+            plan: dict = {}
+        elif not self.rel_plans:
+            raise Untranslatable("ARITHMETIC-OSVS: a condition's relations out of step with their plan (#4287)")
+        else:
+            plan = self.rel_plans.pop(0)
+        with self.osvs_plan(plan):
+            yield
+
+    def cond_top(self, c) -> str:
+        """A condition as cobc builds one (cb_build_cond then cb_end_cond: IF, PERFORM UNTIL, SEARCH WHEN)."""
+        if isinstance(c, tuple):
+            self.leak = None
+            return self.cond(c)
+        rels: list = []
+        self.cond_relations(c, rels)
+        with self.relations_planned(self.plan_relations([rels])):
+            return self.cond(c)
 
     @contextlib.contextmanager
     def floating(self, mode: str | None):
@@ -664,6 +850,9 @@ class Gen:
         if lb and lb[0] == "X":
             return f"Cobol.compareText({name}, {lb[1]}, CS{c}) {jop} 0"
         if isinstance(b, E.Ref):
+            self.digits_as_text(a, b)
+            if self.is_numeric(b) and b.refmod is None and not _unsigned_zoned(self.resolve(b)):
+                return self.violate(it)  # compared as its digits, not its bytes (#4665): through the runtime
             flipped = {"==": "==", ">": "<", "<": ">", ">=": "<=", "<=": ">="}[jop]
             return f"Cobol.compare({self.field_expr(b)}, {name}, CS{c}) {flipped} 0"
         if isinstance(b, E.Lit) and isinstance(b.value, str):  # a literal longer than the item
@@ -711,20 +900,13 @@ class Gen:
             return f"Cobol.num({self.field_expr(e)}, CS)"
         if isinstance(e, E.Fig) and e.kind == "ZEROS":
             return "BigDecimal.ZERO"
-        if isinstance(e, E.Neg):
-            return f"{self.num(e.operand)}.negate()"
-        if isinstance(e, E.Bin):
-            a, b = self.num(e.left), self.num(e.right)
-            if e.op == "+":
-                return f"{a}.add({b})"
-            if e.op == "-":
-                return f"{a}.subtract({b})"
-            if e.op == "*":
-                return f"{a}.multiply({b})"
-            if e.op == "/":
-                return f"Cobol.divide({a}, {b})"
-            if e.op == "**":
-                return f"Cobol.power({a}, {b})"
+        if isinstance(e, (E.Bin, E.Neg)):
+            p = self.osvs.get(id(e))
+            if p is not None and p[0] == "FOLD":  # cobc folded the two literals at compile time (det/osvs.py)
+                return self.const(p[1].value)
+            v = self.num_op(e)
+            # ARITHMETIC-OSVS: cobc truncates this intermediate (cob_decimal_align, det/osvs.py)
+            return f"Cobol.align({v}, {p[1]})" if p is not None else v
         if isinstance(e, E.LengthOf):
             it = self.resolve(e.ref)
             return f"BigDecimal.valueOf({it.size * it.occurs})"
@@ -732,17 +914,87 @@ class Gen:
             return self.func(e)
         raise Untranslatable(f"expression {type(e).__name__}")
 
+    def dc(self, n: O.Num) -> str:
+        """libcob's decimal constant of a literal (Cobol.Dc): one per literal as cobc keys it (its digits as written,
+        scale and sign), its scale changed by use."""
+        if n.key not in self.dcs:
+            name = "DC_" + re.sub(r"[^A-Za-z0-9]", "_", str(n.value).replace("-", "M"))
+            while name in (x for x, _ in self.dcs.values()):
+                name += "_"
+            self.dcs[n.key] = (name, str(n.value))
+        return self.dcs[n.key][0]
+
+    def dc_literal(self, e) -> O.Num | None:
+        """The literal on the right of an operation that cobc makes a decimal constant (planned expressions only)."""
+        if O.PLANNED not in self.osvs:
+            return None
+        p = self.osvs.get(id(e))
+        if p is not None and p[0] == "FOLD":
+            return p[1]
+        if isinstance(e, E.Lit) and isinstance(e.value, Decimal):
+            return O.Num.written(e.text) if e.text else O.Num.of(e.value)
+        if isinstance(e, E.LengthOf):
+            return O.Num.of(Decimal(self.osvs_length(e)))
+        return None
+
+    def num_op(self, e) -> str:
+        # an operand that may be libcob's NaN (a zero divisor, #4655): the operation through Cobol, NaN in, NaN out
+        nan = not self.intr and self.fmode is None
+        if isinstance(e, E.Neg):
+            nan = nan and _may_nan(e.operand)
+            if O.PLANNED in self.osvs:  # cobc: 0 - x (its scale: x's, at least 0; a literal x a decimal constant)
+                lit = self.dc_literal(e.operand)
+                if lit is not None:
+                    return f"Cobol.subtract(BigDecimal.ZERO, {self.dc(lit)})"
+                if nan:
+                    return f"Cobol.subtract(BigDecimal.ZERO, {self.num(e.operand)})"
+                return f"BigDecimal.ZERO.subtract({self.num(e.operand)})"
+            if nan:
+                return f"Cobol.negate({self.num(e.operand)})"
+            return f"{self.num(e.operand)}.negate()"
+        nan = nan and (_may_nan(e.left) or _may_nan(e.right))
+        lit = self.dc_literal(e.right)
+        if lit is not None:
+            a = self.num(e.left)
+            if e.op == "**" and lit.sign < 0:
+                raise Untranslatable(
+                    "ARITHMETIC-OSVS: a negative literal exponent (libcob overwrites the constant, #4287)"
+                )
+            fn = {"+": "add", "-": "subtract", "*": "multiply", "/": "divide", "**": "power"}[e.op]
+            return f"Cobol.{fn}({a}, {self.dc(lit)})"
+        a, b = self.num(e.left), self.num(e.right)
+        if nan and e.op in ("+", "-", "*"):
+            return f"Cobol.{ {'+': 'add', '-': 'subtract', '*': 'multiply'}[e.op] }({a}, {b})"
+        if e.op == "+":
+            return f"{a}.add({b})"
+        if e.op == "-":
+            return f"{a}.subtract({b})"
+        if e.op == "*":
+            return f"{a}.multiply({b})"
+        if e.op == "/":
+            return f"Cobol.divideIntr({a}, {b})" if self.intr else f"Cobol.divide({a}, {b})"
+        if e.op == "**":
+            return f"Cobol.power({a}, {b})"
+        raise Untranslatable(f"operator {e.op}")
+
     def func(self, f: E.Func) -> str:
         refmod = next((a[1] for a in f.args if isinstance(a, tuple) and a[0] == "REFMOD"), None)
         if refmod is None:
-            return self._func(f)
+            return self.intr_func(f)
         # #4462: FUNCTION CURRENT-DATE (1:4): the characters of the function's text (an alphanumeric function only)
         if f.name not in ("UPPER-CASE", "LOWER-CASE", "TRIM", "REVERSE", "CURRENT-DATE"):
             raise Untranslatable(f"FUNCTION {f.name} with a reference modification")
         start, length = refmod
         at = f"{self.int_expr(start)} - 1"
         end = f", {at} + {self.int_expr(length)}" if length is not None else ""
-        return f"{self._func(f)}.substring({at}{end})"
+        return f"{self.intr_func(f)}.substring({at}{end})"
+
+    def intr_func(self, f: E.Func) -> str:
+        self.intr += 1
+        try:
+            return self._func(f)
+        finally:
+            self.intr -= 1
 
     def _func(self, f: E.Func) -> str:
         name = f.name
@@ -754,7 +1006,12 @@ class Gen:
         if name == "CURRENT-DATE":
             return "DetCics.currentDate(task.now())" if self.cics is not None else self.clock
         if name in ("NUMVAL", "NUMVAL-C", "TEST-NUMVAL", "TEST-NUMVAL-C") and len(args) == 1:
-            return f"Funcs.{_camel(name)}({self.text(args[0])})"
+            arg = self.text(args[0])
+            if any(r.decimal_comma for r in self.p.records):
+                # #4462: DECIMAL-POINT IS COMMA -- the argument's `,` is its decimal point and `.` its separator:
+                # swapped, it is the text the functions read with the standard ones (a position for a position)
+                arg = f"{arg}.replace('.', '\\u0000').replace(',', '.').replace('\\u0000', ',')"
+            return f"Funcs.{_camel(name)}({arg})"
         if name in ("INTEGER-OF-DATE", "DATE-OF-INTEGER", "INTEGER", "INTEGER-PART", "ABS") and len(args) == 1:
             return f"Funcs.{_camel(name)}({self.num(args[0])})"
         if name in ("MOD", "REM", "MIN", "MAX") and len(args) >= 2:
@@ -815,7 +1072,8 @@ class Gen:
             cn = self.resolve_cond(c.ref)
             if cn is None and c.abbrev is not None:
                 op, subject, negated = c.abbrev  # an abbreviated relation's object
-                t = self.rel(op, subject, c.ref)
+                with self.relation():
+                    t = self.rel(op, subject, c.ref)
                 return f"!({t})" if negated else t
             if cn is None:
                 raise Untranslatable(f"condition-name {c.ref.name}")
@@ -823,7 +1081,8 @@ class Gen:
         if isinstance(c, E.ClassCond):
             if c.kind in ("POSITIVE", "NEGATIVE", "ZERO"):
                 sig = {"POSITIVE": "> 0", "NEGATIVE": "< 0", "ZERO": "== 0"}[c.kind]
-                t = f"{self.num(c.operand)}.signum() {sig}"
+                with self.relation():
+                    t = f"{self.num(c.operand)}.signum() {sig}"
             else:
                 if not isinstance(c.operand, E.Ref):
                     raise Untranslatable("class condition on an expression")
@@ -832,7 +1091,8 @@ class Gen:
                 t = f"Cobol.{fn}({self.field_expr(c.operand)}, CS)"
             return f"!({t})" if c.negated else t
         if isinstance(c, E.Rel):
-            return self.rel(c.op, c.left, c.right)
+            with self.relation():
+                return self.rel(c.op, c.left, c.right)
         raise Untranslatable(f"condition {type(c).__name__}")
 
     def rel(self, op: str, a, b) -> str:
@@ -846,6 +1106,8 @@ class Gen:
         if (self.is_numeric(a) and self.is_numeric(b)) or (
             self.is_numeric(a) and isinstance(b, E.Fig) and b.kind == "ZEROS") or (
             self.is_numeric(b) and isinstance(a, E.Fig) and a.kind == "ZEROS"):  # fmt: skip
+            self.p_scaled_expr(a, True)
+            self.p_scaled_expr(b, True)
             return f"{self.num(a)}.compareTo({self.num(b)}) {jop} 0"
         if isinstance(a, E.Ref):
             return f"{self.cmp(a, b, jop)} {jop} 0"
@@ -858,6 +1120,43 @@ class Gen:
                 return f"Cobol.compareText({self.text(a)}, {self.text(b)}, CS{c}) {jop} 0"
             return f"Cobol.compareText({self.text(a)}, {self.text(b)}) {jop} 0"
         raise Untranslatable("comparison of two non-data operands")
+
+    def p_scaled_expr(self, e, condition: bool) -> None:
+        """#4670: refuses, by name, an arithmetic expression whose P-scaled operand GnuCOBOL 3.1.2 evaluates at a
+        precision of its own (no model): in a condition, any expression naming one (IF PR / 7 > 171 and PR * 2 > 2399
+        are false for PIC 99PP VALUE 1200); in a COMPUTE, a right-P item in a division or beside two more operands
+        ((PR / 7) * PR drops quotient digits; I5 + PR * 0.5 and B0 * .03 * PS lose the product). A P-scaled item
+        alone, a left-P item anywhere in a COMPUTE, and one operation of a right-P item with one operand are
+        modelled (measured against the oracle)."""
+        refs: list = []
+        division = False
+        leaves = 0
+
+        def walk(x) -> None:
+            nonlocal division, leaves
+            if isinstance(x, E.Bin):
+                division |= x.op == "/"
+                walk(x.left)
+                walk(x.right)
+            elif isinstance(x, E.Neg):
+                walk(x.operand)
+            else:
+                leaves += 1
+                if isinstance(x, E.Ref):
+                    refs.append(x)
+
+        walk(e)
+        if not isinstance(e, (E.Bin, E.Neg)) or not refs:
+            return
+        for r in refs:
+            try:
+                it = self.resolve(r)
+            except Untranslatable:
+                continue  # refused where it is translated
+            if it.p_scaled and (condition or (it.scale < 0 and (division or leaves > 2))):
+                where = "a condition" if condition else "a COMPUTE with a division or three operands"
+                raise Untranslatable(f"{r.name}, PIC {it.pic}: a P-scaled operand in {where} (GnuCOBOL's "
+                                     "intermediate precision for it is not modelled, #4670)")  # fmt: skip
 
     def rel_float(self, jop: str, a, b) -> str:
         """A comparison with a COMP-1 / COMP-2 comparand, in floating point (IBM: "if either comparand is a
@@ -879,8 +1178,11 @@ class Gen:
         )
         c = "" if numeric else self.coll(jop, a, b)
         if isinstance(b, E.Ref):
+            self.digits_as_text(a, b)
             return f"Cobol.compare({fa}, {self.field_expr(b)}, CS{c})"
         if isinstance(b, E.Lit):
+            if isinstance(b.value, Decimal) and (not self.is_numeric(a) or a.refmod is not None):
+                return f"Cobol.compare({fa}, {jstr(self.literal_text(b.value, a, jop))}, CS{c})"  # #4665
             if isinstance(b.value, Decimal):
                 return f"Cobol.compare({fa}, {self.const(b.value)}, CS{c})"
             return f"Cobol.compare({fa}, {self.text(b)}, CS{c})"
@@ -893,8 +1195,64 @@ class Gen:
                 return f"Cobol.compareText(Cobol.text({fa}, CS), {self.text(b)}, CS{c})"
             return f"Cobol.compareText(Cobol.text({fa}, CS), {self.text(b)})"
         if isinstance(b, (E.Bin, E.Neg)):
+            if not self.is_numeric(a) or a.refmod is not None:  # #4665: GnuCOBOL compares it as some text
+                raise Untranslatable(f"the nonnumeric {a.name} compared with an arithmetic expression: not modelled "
+                                     f"(C13)")  # fmt: skip
             return f"Cobol.num({fa}, CS).compareTo({self.num(b)})"
         raise Untranslatable(f"comparison with {type(b).__name__}")
+
+    # ---- a numeric operand compared as a nonnumeric one (#4665) ------------------------------------------------
+    # IBM Enterprise COBOL 6.4 Language Reference, "Comparison of numeric and alphanumeric operands": against an
+    # alphanumeric, alphabetic or edited operand (a numeric-edited item is not numeric) a numeric one is compared as
+    # though moved to an alphanumeric item of as many characters as its digits -- a nonnumeric comparison, never one
+    # by value. GnuCOBOL (the oracle) compares the same characters, except where register C13 records otherwise:
+    # those are refused by name here.
+    def literal_text(self, v: Decimal, against: E.Ref | L.Item | None = None, jop: str = "<") -> str:
+        """A numeric literal as the characters it is compared as against a nonnumeric operand (`against`, in relation
+        `jop`): its digits as written (leading zeros kept, the decimal point dropped). A signed one is refused:
+        GnuCOBOL compares its sign character, IBM moves no sign (C13). A non-integer one IBM does not allow; the
+        oracle's digits are modelled (C13), except an equality with a numeric-edited item of fewer decimal places:
+        GnuCOBOL decides that one when it compiles (= false, NOT = true) whatever the item holds (C13)."""
+        spelling = getattr(v, "spelling", None)
+        if spelling is None:  # a value of no literal (DFHRESP, CVDA): its digits
+            if v < 0 or v != v.to_integral_value():
+                raise Untranslatable(f"the value {v} compared with a nonnumeric operand: not modelled (C13)")
+            return str(int(v))
+        if spelling[:1] in "+-":
+            raise Untranslatable(f"the signed numeric literal {spelling} compared with a nonnumeric operand: GnuCOBOL "
+                                 f"compares its sign character, IBM no sign (C13)")  # fmt: skip
+        if jop in ("==", "!=") and against is not None:
+            try:
+                it = self.resolve(against) if isinstance(against, E.Ref) else against
+            except Untranslatable:
+                it = None
+            exp = v.as_tuple().exponent
+            places = -exp if isinstance(exp, int) else 0
+            if it is not None and it.category == "NUMERIC-EDITED" and places > it.scale:
+                raise Untranslatable(f"the numeric literal {spelling} compared for equality with the numeric-edited "
+                                     f"{it.name}, which has fewer decimal places: GnuCOBOL decides it when it "
+                                     f"compiles, IBM rejects a non-integer (C13)")  # fmt: skip
+        return spelling.replace(".", "").replace(",", "")
+
+    def digits_as_text(self, a: E.Ref, b: E.Ref) -> None:
+        """Refuse a numeric item compared as its characters with an elementary nonnumeric one (`a` against `b`, either
+        way round) where the oracle's characters are not IBM's (C13): a SIGN SEPARATE item (GnuCOBOL compares its
+        sign character) and a P-scaled one (GnuCOBOL its stored digits)."""
+        for num, other in ((a, b), (b, a)):
+            try:
+                it, ot = self.resolve(num), self.resolve(other)
+            except Untranslatable:
+                continue
+            text = other.refmod is not None or ot.category in ("ALPHANUMERIC", "ALPHABETIC", "NUMERIC-EDITED",
+                                                               "ALPHANUMERIC-EDITED")  # fmt: skip
+            if num.refmod is not None or it.category != "NUMERIC" or not text:
+                continue
+            if it.sign_separate and it.signed:
+                raise Untranslatable(f"{num.name} (SIGN SEPARATE) compared with the nonnumeric {other.name}: GnuCOBOL "
+                                     f"compares its sign character, IBM no sign (C13)")  # fmt: skip
+            if "P" in it.picture():
+                raise Untranslatable(f"{num.name} (P-scaled) compared with the nonnumeric {other.name}: not modelled "
+                                     f"(C13)")  # fmt: skip
 
     # ---- PROGRAM COLLATING SEQUENCE (#4539) -------------------------------------------------------------------
     def coll(self, jop: str, *operands) -> str:
@@ -1041,6 +1399,8 @@ class Gen:
             if c and not (_text_item(parent) or _unsigned_zoned(parent)):
                 raise Untranslatable(f"88 {cn.name} under PROGRAM COLLATING SEQUENCE {self.program_collating}: "
                                      f"{parent.name} holds numeric or national items: not modelled")  # fmt: skip
+        if kind == "num" and parent is not None and parent.category not in ("NUMERIC", "FLOAT"):
+            return f"Cobol.compare({f}, {jstr(self.literal_text(v[1], parent, jop))}, CS{c})"  # #4665
         if kind == "num":
             return f"Cobol.compare({f}, {self.const(v[1])}, CS{c})"
         if kind == "lit":
@@ -1166,12 +1526,21 @@ class Gen:
         return out
 
     def _init_one(self, x: L.Item, base: str, top: L.Item, extra: int = 0) -> str:
+        why = p_unmodelled(x)
+        if why:
+            raise Untranslatable(f"INITIALIZE {why}")
         fig = "ZEROS" if x.category in ("NUMERIC", "NUMERIC-EDITED", "FLOAT") else "SPACES"
         rel = x.offset - top.offset + extra
         return f"Cobol.moveFigurative(Figurative.{_fig(fig)}, {self.factory(x, f'{base}.storage()', f'{base}.offset() + {rel}')}, CS);"
 
     # ---- fields -------------------------------------------------------------------------------------------------
     def factory(self, it: L.Item, storage: str, offset: str) -> str:
+        f = self._factory(it, storage, offset)
+        # #4462: DECIMAL-POINT IS COMMA -- an edited PICTURE's `,` is its decimal point, and so is an alphanumeric
+        # sender's `,` when the item receives one (the runtime's Field.decimalComma)
+        return f"{f}.decimalComma()" if it.decimal_comma else f
+
+    def _factory(self, it: L.Item, storage: str, offset: str) -> str:
         cat = it.category
         if cat == "GROUP":
             return f"Field.group({storage}, {offset}, {it.size})"
@@ -1200,17 +1569,25 @@ class Gen:
     def paragraph(self, p: S.Paragraph, ind: str) -> list[str]:
         """A paragraph's statements; with NEXT SENTENCE in it, each sentence is a labelled block NEXT SENTENCE
         breaks out of (out of an inline PERFORM too, as COBOL's does)."""
-        if not any(s.kind == "NEXT-SENTENCE" for s in S.walk(p.body)):
-            return self.block(p.body, ind)
-        out, start = [], 0
         ends = [e for e in p.sentence_ends if e > 0] + [len(p.body)]
+        if not any(s.kind == "NEXT-SENTENCE" for s in S.walk(p.body)):
+            out, start = [], 0
+            for end in ends:  # a period resets cobc's arithmetic state (cb_end_statement, #4287)
+                self.leak = None
+                out += self.block(p.body[start:end], ind)
+                start = max(start, end)
+            self.leak = None
+            return out
+        out, start = [], 0
         for k, end in enumerate(ends):
             if end <= start:
                 continue
             self.sentence = f"sentence{k}"
+            self.leak = None
             out += [f"{ind}{self.sentence}: {{", *self.block(p.body[start:end], ind + "    "), f"{ind}}}"]
             start = end
         self.sentence = None
+        self.leak = None
         return out
 
     def block(self, stmts: list, ind: str) -> list[str]:
@@ -1251,7 +1628,7 @@ class Gen:
         if k == "MOVE":
             return [c] + [ind + self.move(s.data["from"], t) for t in s.data["to"]]
         if k == "IF":
-            out = [c, f"{ind}if ({self.cond(s.data['cond'])}) {{", *self.block(s.body, ind + "    ")]
+            out = [c, f"{ind}if ({self.cond_top(s.data['cond'])}) {{", *self.block(s.body, ind + "    ")]
             if s.orelse:
                 out += [f"{ind}}} else {{", *self.block(s.orelse, ind + "    ")]
             return [*out, f"{ind}}}"]
@@ -1312,9 +1689,12 @@ class Gen:
             mode = self.float_mode([s.data["expr"]], [t for t, _ in s.data["targets"]])
             if mode is not None:
                 self.float_statement(s, s.data["targets"])
-            with self.floating(mode):
+            self.p_scaled_expr(s.data["expr"], False)
+            plan = self.plan_arith(s.data["expr"], [t for t, _ in s.data["targets"]])
+            plan = {} if mode is not None else plan
+            with self.floating(mode), self.osvs_plan(plan):
                 value = self.num(s.data["expr"])
-            return [c, *self.store_all(s, s.data["targets"], value, ind)]
+            return [c, *self.store_all(s, s.data["targets"], value, ind, s.data["expr"] if mode is None else None)]
         if k == "ARITH":
             d = s.data
             receivers = [t for t, _ in d.get("targets") or []] + [t for t, _ in d.get("giving") or []]
@@ -1441,7 +1821,7 @@ class Gen:
                f"{ind}    if ({self.int_expr(idx)} > {size}) {{", *at_end, f"{ind}        break {loop};",
                f"{ind}    }}"]  # fmt: skip
         for i, (cond, body) in enumerate(s.whens):
-            out += [f"{ind}    {'} else ' if i else ''}if ({self.cond(cond)}) {{", *self.block(body, ind + "        "),
+            out += [f"{ind}    {'} else ' if i else ''}if ({self.cond_top(cond)}) {{", *self.block(body, ind + "        "),
                     f"{ind}        break {loop};"]  # fmt: skip
         out.append(f"{ind}    }}")
         out.append(f"{ind}    Cobol.store({fi}, Cobol.num({fi}, CS).add(BigDecimal.ONE), false, CS);")
@@ -1513,6 +1893,9 @@ class Gen:
         if lo and lo[0] == "X":
             return lo[1]
         if isinstance(o, E.Ref):
+            it = self.resolve(o)
+            if it.p_scaled and o.refmod is None:  # GnuCOBOL: PIC 99PP VALUE 1200 as `0012`; IBM: its digits
+                raise Untranslatable(f"{o.name}, PIC {it.pic}: a P-scaled item's DISPLAY form (#4670)")
             if self.float_item(o) is not None:  # IBM: as external floating point -.9(8)E-99 / -.9(17)E-99
                 return f"Cobol.displayText({self.value_field(o)}, CS)"
             return f"Cobol.displayText({self.field_expr(o)}, CS)"
@@ -1543,6 +1926,8 @@ class Gen:
     def arith_float(self, s: S.Stmt, ind: str) -> list[str]:
         """ADD / SUBTRACT / MULTIPLY / DIVIDE in floating point (self.fmode): as arith, each operation HFP's."""
         d = s.data
+        if d.get("giving") is not None or len(d["operands"]) > 1:
+            self.leak = None  # cobc's build_decimal_assign (#4287)
         op, ops = d["op"], d["operands"]
         lng = _b(self.fmode == "LONG")
         if d.get("giving") is not None:
@@ -1568,20 +1953,31 @@ class Gen:
             out.append(ind + self.store_into(tgt, val, rounded))
         return out
 
-    def store_all(self, s: S.Stmt, targets: list, value: str, ind: str) -> list[str]:
+    def store_all(self, s: S.Stmt, targets: list, value: str, ind: str, expr=None, after=None) -> list[str]:
+        """The value of a decimal expression `expr` (None: a floating-point value) stored in each target, then
+        `after(v)`'s lines, then the SIZE ERROR phrases. libcob's NaN (a zero divisor, #4655) changes no target: a
+        lifted one is guarded; one with a division or an exponent also raises the statement's size error, which a
+        statement with ON SIZE ERROR clears first and reads after (the receivers may still change: an aligned NaN
+        is 0, 0 ** 0 is 1)."""
         out = []
         checked = "SIZE-ERROR" in s.phrases or "NOT-SIZE-ERROR" in s.phrases
         if not checked:
             v = self.tmpname("v")
             out.append(f"{ind}BigDecimal {v} = {value};")
+            nan = expr is not None and _may_nan(expr)
             for t, rounded in targets:
-                out.append(ind + self.store_into(t, v, rounded))
-            return out
+                guard = f"if (!Cobol.isNan({v})) " if nan and self.lift(t) else ""
+                out.append(ind + guard + self.store_into(t, v, rounded))
+            return out + (after(v) if after else [])
         v, err = self.tmpname("v"), self.tmpname("sizeError")
+        sized = expr is not None and _raises_size(expr)
+        if sized:
+            out.append(f"{ind}Cobol.sizeClear();")
         out.append(f"{ind}BigDecimal {v} = {value};")
-        out.append(f"{ind}boolean {err} = false;")
+        out.append(f"{ind}boolean {err} = {'Cobol.sizeRaised()' if sized else 'false'};")
         for t, rounded in targets:
             out.append(f"{ind}{err} |= Cobol.storeChecked({self.field_expr(t)}, {v}, {_b(rounded)}, CS);")
+        out += after(v) if after else []
         if "SIZE-ERROR" in s.phrases:
             out += [f"{ind}if ({err}) {{", *self.block(s.phrases["SIZE-ERROR"], ind + "    "), f"{ind}}}"]
         if "NOT-SIZE-ERROR" in s.phrases:
@@ -1605,21 +2001,33 @@ class Gen:
         op = d["op"]
         ops = d["operands"]
         if d.get("giving") is not None:
-            if op == "+":
-                val = " ".join([self.num(ops[0])] + [f".add({self.num(o)})" for o in ops[1:]]).replace(" .", ".")
-            elif op == "-":
-                val = self.num(ops[0]) + "".join(f".subtract({self.num(o)})" for o in ops[1:])
-            elif op == "*":
-                val = f"{self.num(ops[0])}.multiply({self.num(ops[1])})"
-            else:
-                val = f"Cobol.divide({self.num(ops[0])}, {self.num(ops[1])})"
-            out = self.store_all(s, d["giving"], val, ind)
+            # cobc: one expression, as COMPUTE (cb_build_binary_list): ((A + B) + C), ((C - A) - B), A * B, A / B
+            expr = ops[0]
+            for o in ops[1:] if op in ("+", "-") else ops[1:2]:
+                expr = E.Bin(op, expr, o)
+            plan = {} if d.get("remainder") is not None else self.plan_arith(expr, [t for t, _ in d["giving"]])
+            with self.osvs_plan(plan):
+                val = self.num(expr)
+            after = None
             if d.get("remainder") is not None:
-                q = self.field_expr(d["giving"][0][0])
-                out.append(f"{ind}Cobol.store({self.field_expr(d['remainder'])}, {self.num(ops[0])}.subtract("
-                           f"Cobol.num({q}, CS).multiply({self.num(ops[1])})), false, CS);")  # fmt: skip
-            return out
-        total = self.num(ops[0]) + "".join(f".add({self.num(o)})" for o in ops[1:]) if ops else "BigDecimal.ZERO"
+                # cob_div_remainder: from the quotient truncated to the first receiver's places (not its PICTURE's
+                # high-order digits); a zero divisor leaves the remainder unchanged (#4655)
+                q = self.resolve(d["giving"][0][0])
+
+                def after(v, q=q):
+                    rem = f"Cobol.remainder({self.num(ops[0])}, {v}, {self.num(ops[1])}, {q.scale})"
+                    return [f"{ind}Cobol.store({self.field_expr(d['remainder'])}, {rem}, false, CS);"]
+
+            return self.store_all(s, d["giving"], val, ind, expr, after)
+        if len(ops) > 1:
+            # cobc: the operands' sum is one expression, aligned when the first receiver is loaded (#4287)
+            expr = ops[0]
+            for o in ops[1:]:
+                expr = E.Bin("+", expr, o)
+            with self.osvs_plan(self.plan_arith(expr, [t for t, _ in d["targets"]], operands_first=True)):
+                total = self.num(expr)
+        else:
+            total = self.num(ops[0]) if ops else "BigDecimal.ZERO"
         out = []
         tsum = self.tmpname("t")
         out.append(f"{ind}BigDecimal {tsum} = {total};")
@@ -1633,8 +2041,13 @@ class Gen:
             lt = self.lift(tgt)
             if lt and lt[0] in ("BIN", "NUM") and not checked:  # a lifted target: its value, the store as above
                 cur = f"BigDecimal.valueOf({lt[1]})" if lt[0] == "BIN" else lt[1]
-                val = {"+=": f"{cur}.add({tsum})", "-=": f"{cur}.subtract({tsum})", "*=": f"{tsum}.multiply({cur})",
-                       "/=": f"Cobol.divide({cur}, {tsum})"}[op]  # fmt: skip
+                if op == "/=":  # a zero divisor: libcob's NaN, the target unchanged (#4655)
+                    qv = self.tmpname("q")
+                    out.append(f"{ind}BigDecimal {qv} = Cobol.divide({cur}, {tsum});")
+                    out.append(f"{ind}if (!Cobol.isNan({qv})) {self.store_into(tgt, qv, rounded)}")
+                    continue
+                val = {"+=": f"{cur}.add({tsum})", "-=": f"{cur}.subtract({tsum})",
+                       "*=": f"{tsum}.multiply({cur})"}[op]  # fmt: skip
                 out.append(ind + self.store_into(tgt, val, rounded))
                 continue
             f = self.field_expr(tgt)
@@ -1653,6 +2066,40 @@ class Gen:
         return out
 
     def evaluate(self, s: S.Stmt, ind: str) -> list[str]:
+        # ARITHMETIC-OSVS (#4287): cobc builds each WHEN's condition in turn at END-EVALUATE, the state carried over
+        groups = []
+        for conds, _ in s.whens:
+            g: list = []
+            for objs in conds or []:
+                for subj, obj in zip(s.data["subjects"], objs, strict=False):
+                    self.when_relations(subj, obj, g)
+            groups.append(g)
+        plans = self.plan_relations(groups, evaluate=True)
+        leak_out = self.leak
+        with self.relations_planned(plans):
+            out = self.evaluate_planned(s, ind)
+        if self.leak is not None and any(plans):
+            # cobc builds the WHEN conditions after the last WHEN's statements, from the state they leave
+            raise Untranslatable("ARITHMETIC-OSVS: an EVALUATE whose last WHEN leaves cobc's arithmetic state to its "
+                                 "conditions (#4287)")  # fmt: skip
+        self.leak = leak_out
+        return out
+
+    def when_relations(self, subject, obj, out: list) -> None:
+        """The relations of one WHEN test in the order when_test generates them (cobc's evaluate_test)."""
+        kind = obj[0]
+        if kind in ("ANY", "UNPARSED") or (isinstance(subject, tuple) and subject[0] == "UNPARSED"):
+            return
+        if subject in ("TRUE", "FALSE"):
+            if kind == "COND":
+                self.cond_relations(obj[1], out)
+            return
+        if kind == "VALUE":
+            out.append(self._relation(subject, obj[1], True))
+        elif kind == "RANGE":  # cobc: low <= subject AND subject <= high
+            out += [self._relation(obj[1], subject), self._relation(subject, obj[2])]
+
+    def evaluate_planned(self, s: S.Stmt, ind: str) -> list[str]:
         subjects = s.data["subjects"]
         out = []
         first = True
@@ -1667,6 +2114,8 @@ class Gen:
                     alts.append(" && ".join(self.when_test(subj, obj) for subj, obj in zip(subjects, objs)))
                 test = " || ".join(f"({a})" for a in alts)
             kw = "if" if first else "} else if"
+            if conds is not None:  # cb_end_cond after the WHEN's objects: its statements start clean
+                self.leak = None
             out += [f"{ind}{kw} ({test}) {{", *self.block(body, ind + "    ")]
             first = False
         if not first:
@@ -1696,10 +2145,15 @@ class Gen:
             t = f"!({t})" if (obj[-1] is True and kind in ("COND", "VALUE")) else t
             return t if subject == "TRUE" else f"!({t})"
         if kind == "VALUE":
-            t = self.rel("=", subject, obj[1])
+            with self.relation():
+                t = self.rel("=", subject, obj[1])
             return f"!({t})" if obj[3] else t
         if kind == "RANGE":
-            t = f"({self.rel('>=', subject, obj[1])} && {self.rel('<=', subject, obj[2])})"
+            with self.relation():
+                lo = self.rel(">=", subject, obj[1])
+            with self.relation():
+                hi = self.rel("<=", subject, obj[2])
+            t = f"({lo} && {hi})"
             return f"!{t}" if obj[3] else t
         if kind == "COND":
             raise Untranslatable("a condition as WHEN object of a value subject")
@@ -1707,6 +2161,11 @@ class Gen:
 
     def perform(self, s: S.Stmt, ind: str) -> list[str]:
         d = s.data
+        # cobc builds an UNTIL condition before the inline statements (#4287): it sees the state before them, and
+        # they start from the clean one it leaves
+        leak_before = self.leak
+        if d["until"] is not None or d["varying"] is not None:
+            self.leak = None
         if d["inline"] or d["target"] is None:
             body = self.block(s.body, ind + "    ")
         else:
@@ -1729,8 +2188,11 @@ class Gen:
                 *body,
                 f"{ind}}}",
             ]
+        leak_after = self.leak
         if d["until"] is not None:
-            cond = self.cond(d["until"])
+            self.leak = leak_before
+            cond = self.cond_top(d["until"])
+            self.leak = leak_after
             if d["test_after"]:
                 return [f"{ind}do {{", *body, f"{ind}}} while (!({cond}));"]
             return [f"{ind}while (!({cond})) {{", *body, f"{ind}}}"]
@@ -1743,7 +2205,11 @@ class Gen:
                 else f"Cobol.store({f}, {self.num(frm)}, false, CS);"
             )
             step = f"Cobol.store({f}, Cobol.num({f}, CS).add({self.num(by)}), false, CS);"
-            return [f"{ind}{init}", f"{ind}while (!({self.cond(until)})) {{", *body, f"{ind}    {step}", f"{ind}}}"]
+            self.leak = leak_before
+            until_code = self.cond_top(until)
+            self.leak = leak_after
+            return [f"{ind}{init}", f"{ind}while (!({until_code})) {{", *body, f"{ind}    {step}", f"{ind}}}"]
+        self.leak = leak_after
         if d["inline"]:
             return [f"{ind}{{", *body, f"{ind}}}"]
         return [x[4:] if x.startswith(ind + "    ") else x for x in body]
@@ -2270,6 +2736,28 @@ def _text_item(it: L.Item) -> bool:
 def _unsigned_zoned(it: L.Item) -> bool:
     """An unsigned zoned decimal item (USAGE DISPLAY): its bytes are digit characters, as an alphanumeric item's."""
     return not it.children and it.category == "NUMERIC" and it.usage == "DISPLAY" and "S" not in it.picture()
+
+
+def _may_nan(e) -> bool:
+    """An expression whose value can be libcob's NaN at run time (#4655): a division (a zero divisor), an exponent
+    (no finite result), or an operation on one. A function's value never is (cob_intr_binop gives 0)."""
+    if isinstance(e, E.Bin):
+        return e.op in ("/", "**") or _may_nan(e.left) or _may_nan(e.right)
+    if isinstance(e, E.Neg):
+        return _may_nan(e.operand)
+    return False
+
+
+def _raises_size(e) -> bool:
+    """An expression that can raise libcob's size error (#4655): a division or an exponent anywhere, a function's
+    arguments included (FUNCTION MOD / REM by zero give 0 and raise nothing)."""
+    if isinstance(e, E.Bin):
+        return e.op in ("/", "**") or _raises_size(e.left) or _raises_size(e.right)
+    if isinstance(e, E.Neg):
+        return _raises_size(e.operand)
+    if isinstance(e, E.Func):
+        return any(_raises_size(a) for a in e.args if not isinstance(a, tuple))
+    return False
 
 
 def _b(v: bool) -> str:

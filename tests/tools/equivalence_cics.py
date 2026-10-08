@@ -1193,11 +1193,14 @@ def encode_record(
 
 
 def decode_record(data: bytes, fields: list[dict[str, Any]], enc: str = common.DEFAULT_DATA_ENCODING,
-                  keep_nulls: bool = False) -> dict[str, str]:  # fmt: skip
+                  keep_nulls: bool = False, exact: bool = False) -> dict[str, str]:  # fmt: skip
     """{field name: value as text} -- numeric fields as exact decimals, text with trailing
     spaces and nulls dropped (a screen shows neither). #3815: text and zoned bytes read in `enc`.
     `keep_nulls`: a text ending in LOW-VALUES kept whole -- a COMMAREA handed to the Java side, whose DTO codec pads
-    with spaces: COTRTLIC's unfetched rows are LOW-VALUES, and the program protects exactly those."""
+    with spaces: COTRTLIC's unfetched rows are LOW-VALUES, and the program protects exactly those.
+    `exact` (#4635): a text keeps its LOW-VALUES -- only the trailing spaces are dropped -- so a field the task left
+    LOW-VALUES and one it left spaces are different values, as they are to the next program (`IF X = SPACES OR
+    LOW-VALUES` exists because they differ). For the COMMAREA a task returns; a screen still shows neither."""
     out = {}
     for f in fields:
         if f["name"] == "FILLER":  # unnamed: no DTO property holds it, and several would share one key
@@ -1210,7 +1213,10 @@ def decode_record(data: bytes, fields: list[dict[str, Any]], enc: str = common.D
         if not isinstance(v, str):
             out[f["name"]] = str(v)
         else:
-            out[f["name"]] = v if keep_nulls and v.rstrip(" ").endswith("\x00") else v.rstrip(" \x00")
+            if exact:
+                out[f["name"]] = v.rstrip(" ")
+            else:
+                out[f["name"]] = v if keep_nulls and v.rstrip(" ").endswith("\x00") else v.rstrip(" \x00")
     return out
 
 
@@ -1449,6 +1455,14 @@ def fault_lines(sc: dict[str, Any]) -> list[str]:
     return out
 
 
+def sql_first_id(table: str) -> int:
+    """#4270: the first GG-SQL-ID (PIC 9(4)) of the next program's statements in a task's shared table: the next
+    hundred after the ids already taken. A range per program by its place in "programs" (1000 x its index) ran past
+    9999 at the tenth program (GenApp's LGTESTP1 LINKs twelve), and the id MOVEd into 9(4) lost its high digit."""
+    ids = [int(ln.split()[1]) for ln in table.splitlines() if ln.startswith("S ")]
+    return (max(ids, default=0) // 100 + 1) * 100
+
+
 RECOVER: dict[str, Any] = {}  # #4173: a COBOL work area -> its coverage recomputed for the tasks judged
 
 
@@ -1460,6 +1474,7 @@ def run_cobol_cics(case: dict[str, Any], corpus: Path, work: Path, files: list[d
     common.stage_copybooks(case, corpus, src)
     for p in STUB.iterdir():
         shutil.copy(p, src / p.name)
+    shutil.copy(common.CASES / "faults" / "ggdisplay.c", src / "ggdisplay.c")  # #4635: DISPLAY as IBM writes it
     # #3828: the program's CBL / PROCESS cards and the case's `compiler_options` become cobc flags
     common.require_ascii_runtime(case)  # #3815: an EBCDIC data page cannot run under GnuCOBOL
     enc = common.data_encoding(case)
@@ -1523,14 +1538,16 @@ def run_cobol_cics(case: dict[str, Any], corpus: Path, work: Path, files: list[d
             if not db2:
                 raise Unsupported(f'{extra["program"]}: EXEC SQL in a case with no "db2" section')
             x_dirs = [corpus / d for d in [*case.get("copy_dirs", []), *db2.get("include_dirs", [])]]
-            try:
-                x_source, x_table = equivalence_sql.precompile(x_source, x_dirs, corpus / extra["program_source"],
-                                                               first_id=1000 * (len(linked) + 1),
-                                                               program=extra["program"])  # fmt: skip
-            except equivalence_sql.Unsupported as e:
-                raise Unsupported(f"{extra['program']}: EXEC SQL: {e}", ["EXEC SQL"]) from e
             stmts_file = work / "stmts.txt"
             have = stmts_file.read_text(encoding="latin-1")
+            first = sql_first_id(have)
+            try:
+                x_source, x_table = equivalence_sql.precompile(x_source, x_dirs, corpus / extra["program_source"],
+                                                               first_id=first, program=extra["program"])  # fmt: skip
+            except equivalence_sql.Unsupported as e:
+                raise Unsupported(f"{extra['program']}: EXEC SQL: {e}", ["EXEC SQL"]) from e
+            if any(int(ln.split()[1]) > 9999 for ln in x_table.splitlines() if ln.startswith("S ")):
+                raise Unsupported(f"{extra['program']}: EXEC SQL: the task's statements outnumber GG-SQL-ID's 4 digits")
             ours = {ln.split()[5] for ln in have.splitlines() if ln.startswith("S ") and ln.split()[5] != "-"}
             theirs = {ln.split()[5] for ln in x_table.splitlines() if ln.startswith("S ") and ln.split()[5] != "-"}
             if ours & theirs:
@@ -1550,7 +1567,12 @@ def run_cobol_cics(case: dict[str, Any], corpus: Path, work: Path, files: list[d
     )
     if db2:
         compile_task += f" src/ggsql.c {equivalence_db2.COBOL_LINK}"
-    script = ["set -e", "cd /work", compile_task]
+    script = [
+        "set -e",
+        "cd /work",
+        compile_task,
+        "gcc -shared -fPIC -O2 -o /work/ggdisplay.so src/ggdisplay.c -ldl",
+    ]  # #4635 (as batch, #4056)
     if db2:
         script.append(f"gcc -O2 -o ggsqlrun src/ggsqlrun.c {equivalence_db2.COBOL_LINK}")
     date, _, time = case["clock"].partition(" ")
@@ -1630,7 +1652,7 @@ def run_cobol_cics(case: dict[str, Any], corpus: Path, work: Path, files: list[d
         if db2:  # the tables as the seed has them, for this task
             script.append(f"{sqlenv}./ggsqlrun -f /work/reset.sql")
         script.append(f"set +e; {cov.trace_env(f'{rel}/{cov.TRACE_NAME}')}GGCICS_DIR={rel} GGCICS_OUT={rel}/out EIBIN={rel}/eib.in "
-                      f"GGCICS_TASKN={task_number(case, sc)} "
+                      f"GGCICS_TASKN={task_number(case, sc)} LD_PRELOAD=/work/ggdisplay.so "
                       + (f"GGCICS_STARTCODE={task_facts(case, sc)[0]} " if task_facts(case, sc)[0] else "")
                       + f"{sqlenv}COB_CURRENT_DATE='{case['clock']}' ./task > {rel}/stdout.txt 2>&1; "
                       f"echo $? > {rel}/rc; set -e")  # fmt: skip
@@ -1875,6 +1897,8 @@ def outputs(out: Path, case: dict[str, Any], corpus: Path, ca_fields: list[dict[
     res["db2"] = {p.name: p.read_bytes() for p in sorted(db2.iterdir()) if p.is_file()} if db2.is_dir() else {}
     sqlout = out.parent / "sqlout.txt"  # #4507: what Db2 answered each statement the task ran
     res["sql"] = sqlout.read_text(encoding="latin-1") if sqlout.is_file() else ""
+    said = out.parent / "stdout.txt"  # #4635: what the task DISPLAYed (the job log), as IBM writes it
+    res["sysout"] = said.read_bytes() if said.is_file() else b""
     log = out / "events.txt"
     for line in log.read_text(encoding="latin-1").splitlines() if log.is_file() else []:
         seq, _, rest = line.partition(" ")
@@ -1900,7 +1924,7 @@ def outputs(out: Path, case: dict[str, Any], corpus: Path, ca_fields: list[dict[
             if data and not ca_fields:  # #4270: nothing to read it by -- refused, never compared as empty
                 raise Unsupported(f"{verb} with a COMMAREA, in a case that describes none (\"commarea\": null)",
                                   ["COMMAREA"])  # fmt: skip
-            ca = decode_record(data, ca_fields, enc) if data else None
+            ca = decode_record(data, ca_fields, enc, exact=True) if data else None
             res[verb.lower()] = {key: kv.get(key, ""), "commarea": ca}
         elif verb == "ABEND":
             res["abend"] = args
@@ -1914,7 +1938,7 @@ def outputs(out: Path, case: dict[str, Any], corpus: Path, ca_fields: list[dict[
     res["containers"] = task_containers(out / "containers.out")  # #4270 (X24): the current channel's, at task end
     left = out / "commarea.out"  # a LINKed program's result: the COMMAREA it left (ggcics GGCAOUT)
     res["linked_commarea"] = (
-        decode_record(left.read_bytes(), ca_fields, enc) if left.is_file() and left.stat().st_size else None
+        decode_record(left.read_bytes(), ca_fields, enc, exact=True) if left.is_file() and left.stat().st_size else None
     )
     return res
 
@@ -2574,6 +2598,10 @@ class EquivalenceRunTest {{
             Map<String, Object> received = new LinkedHashMap<>();
             JsonNode r = sc.get("receive");
 {chr(10).join(recv)}
+            // #4635: what the port DISPLAYs (the generated Sysout appends to this task's own file), compared to the stub's
+            Path sysout = out.resolve(sc.get("name").asText() + ".sysout");
+            Files.deleteIfExists(sysout);
+            System.setProperty("gitgalaxy.sysout", sysout.toString());
             CicsTask task = new CicsTask("{case["transid"]}", sc.get("aid").asText(), commarea, calen, received)
                     .withClock(java.time.LocalDateTime.parse("{ej._clock(case)}"))  // EIBTIME / ASKTIME: the case's clock
                     .withRegion({region_java})  // ASSIGN APPLID / SYSID
@@ -2836,7 +2864,7 @@ def run_java_cics(case: dict[str, Any], corpus: Path, work: Path, cobol_work: Pa
             for t, n in ((t, equivalence_db2.columns(t)) for t in case["db2"].get("compare", []))), encoding="latin-1")  # fmt: skip
         props = f"{props} {equivalence_db2.java_props(case)}"
     out = ej.run_maven(project, work, inputs, props=props)
-    result = _java_events(case, out, shape)
+    result = _java_events(case, out, shape, ca_fields)
     if facade is not None:  # #4449: the java-facade side, the same project and inputs
         try:
             fout = ej.run_maven(project, work / "facade", inputs, props=f"{props} -Dequivalence.facades=true")
@@ -2844,7 +2872,7 @@ def run_java_cics(case: dict[str, Any], corpus: Path, work: Path, cobol_work: Pa
             facade["error"] = str(e)
             return result
         facade["out"] = fout
-        facade["events"] = _java_events(case, fout, shape)
+        facade["events"] = _java_events(case, fout, shape, ca_fields)
         facade["entries"], facade["refused"] = {}, {}
         for sc in case["scenarios"]:
             ent, why = fout / f"{sc['name']}.entries.json", fout / f"{sc['name']}.refused"
@@ -2854,9 +2882,32 @@ def run_java_cics(case: dict[str, Any], corpus: Path, work: Path, cobol_work: Pa
     return result
 
 
-def _java_events(case: dict[str, Any], out: Path, shape: dict[str, Any]) -> dict[str, list[dict[str, Any]]]:
+def java_commarea(value: Any, shape: dict[str, Any], ca_fields: list[dict[str, Any]], enc: str) -> dict[str, Any]:
+    """A Java event's COMMAREA by COBOL field names: a DTO's JSON through its shape (from_java) -- or, #4679, a
+    byte[] (Jackson writes it base64): the LENGTH bytes a RETURN / XCTL with a LENGTH past the DTO passed
+    (DetCics.commareaOut), in the region's code page (CCSID 037). Those are read as the COBOL side's are: in the case's
+    data page, by the case's COMMAREA layout (decode_record), so bytes past the layout are not compared on either side --
+    and, as the COBOL side's RETURN area is since #4635, `exact`: LOW-VALUES kept apart from spaces."""
+    if isinstance(value, str):
+        import base64
+
+        from gitgalaxy.tools.cobol_to_java.det.cics import REGION_PAGE
+
+        data = base64.b64decode(value).decode(REGION_PAGE).encode(enc)
+        if not ca_fields:  # nothing to read it by -- refused, never compared as empty (as the COBOL side's)
+            raise Unsupported(
+                'a COMMAREA passed as bytes, in a case that describes none ("commarea": null)', ["COMMAREA"]
+            )
+        return decode_record(data, ca_fields, enc, exact=True)
+    return from_java(value, shape)
+
+
+def _java_events(case: dict[str, Any], out: Path, shape: dict[str, Any],
+                 ca_fields: list[dict[str, Any]] | None = None) -> dict[str, list[dict[str, Any]]]:  # fmt: skip
     """{scenario: the events the Java run wrote to out/<scenario>.json}, each COMMAREA by COBOL field names."""
     import json
+
+    enc = common.data_encoding(case)
 
     result = {}
     for sc in case["scenarios"]:
@@ -2870,7 +2921,9 @@ def _java_events(case: dict[str, Any], out: Path, shape: dict[str, Any]) -> dict
             if e.get("event") == "READQ-TS":  # #4270: the item's bytes as text
                 e.update(java_read_as_compared(e))
             if "commarea" in e:
-                e["commarea"] = from_java(e["commarea"], shape) if e["commarea"] is not None else None
+                e["commarea"] = (
+                    java_commarea(e["commarea"], shape, ca_fields or [], enc) if e["commarea"] is not None else None
+                )
         result[sc["name"]] = events
     return result
 
@@ -2956,7 +3009,10 @@ def mask_absent_commarea(sc: dict[str, Any], cev: list[dict[str, Any]], jev: lis
     for e in cev:
         ca = e.get("commarea")
         if isinstance(ca, dict):
-            undefined |= {k for k, v in ca.items() if isinstance(v, str) and re.fullmatch(r"<invalid b'(\\x00)+'>", v)}
+            # (#4635: a text field the harness left all LOW-VALUES, now that a COMMAREA keeps its LOW-VALUES apart
+            # from spaces, is the same undefined storage)
+            undefined |= {k for k, v in ca.items()
+                          if isinstance(v, str) and re.fullmatch(r"<invalid b'(\\x00)+'>|\x00+", v)}  # fmt: skip
     if not undefined:
         return cev, jev
 
@@ -3109,6 +3165,23 @@ def _same(a: Any, b: Any) -> bool:
         return str(a).rstrip(" \x00") == str(b).rstrip(" \x00")
 
 
+def _same_commarea(a: Any, b: Any) -> bool:
+    """#4635: a COMMAREA field as the next program reads it -- like `_same`, except that LOW-VALUES are not blanks:
+    only trailing spaces are dropped, so X'00' bytes and spaces differ."""
+    if a is None or b is None or isinstance(a, (int, float)) or isinstance(b, (int, float)):
+        return _same(a, b)
+    try:
+        return Decimal(str(a)) == Decimal(str(b))
+    except ArithmeticError:
+        return str(a).rstrip(" ") == str(b).rstrip(" ")
+
+
+def compare_task_sysout(cobol: bytes, java_file: Path, enc: str) -> dict[str, Any]:
+    """#4635: what the task DISPLAYed on each side, line by line (equivalence_common.compare_sysout, as a batch
+    step's SYSOUT is, #4056). The Java side wrote nothing when the port never DISPLAYs: an empty log."""
+    return common.compare_sysout(cobol, java_file.read_bytes() if java_file.is_file() else b"", enc)
+
+
 def compare_events(cobol: list[dict[str, Any]], java: list[dict[str, Any]]) -> dict[str, Any]:
     """Events paired in order; per pair, every differing field. {events, equal, diffs}."""
     diffs, equal = [], 0
@@ -3131,8 +3204,9 @@ def compare_events(cobol: list[dict[str, Any]], java: list[dict[str, Any]]) -> d
                     bad.append({"field": f"containers.{name}", "cobol": cc.get(name), "java": jc.get(name)})
         for part in ("screen", "commarea"):
             cv, jv = c.get(part) or {}, j.get(part) or {}
+            same = _same_commarea if part == "commarea" else _same
             for name in cv:
-                if not _same(cv[name], jv.get(name)):
+                if not same(cv[name], jv.get(name)):
                     bad.append({"field": f"{part}.{name}", "cobol": cv[name], "java": jv.get(name)})
         if c["event"] == "SEND-MAP" and "subfields" in c:  # #4053: attributes, colour, highlight, cursor, options
             cs, js = c["subfields"], java_subfields(j.get("subfields"))
@@ -3204,6 +3278,11 @@ def report_markdown(case: dict[str, Any], report: dict[str, Any]) -> str:
                     lines.append(f"| {x['event']} | (event) | `{x['cobol']}` | `{x['java']}` |")
                 for fd in x.get("fields", []):
                     lines.append(f"| {x['event']} ({x['kind']}) | {fd['field']} | `{fd['cobol']}` | `{fd['java']}` |")
+    for name, d in report["outputs"].items():
+        so = d.get("sysout") or {}
+        if so.get("diffs"):  # #4635: the task's DISPLAY output
+            lines += ["", f"## {name}: DISPLAY output differs", "", "| line | COBOL | Java |", "|---|---|---|"]
+            lines += [f"| {x['line']} | `{x['cobol']}` | `{x['java']}` |" for x in so["diffs"]]
     return "\n".join(lines) + "\n"
 
 
@@ -3218,7 +3297,9 @@ def feedback_md(case: dict[str, Any], report: dict[str, Any], limit: int = 6) ->
         files = {n: f for n, f in (o or {}).get("files", {}).items() if f["equal"] != f["records"]}
         sql = (o or {}).get("sql") or {}
         sql_bad = sql.get("equal") != sql.get("statements")
-        if o is None or (o["equal"] == o["records"] and not bad_fired and not files and not sql_bad):
+        sysout_bad = bool((o or {}).get("sysout", {}).get("differing"))  # #4635
+        if o is None or (o["equal"] == o["records"] and not bad_fired and not files and not sql_bad
+                         and not sysout_bad):  # fmt: skip
             continue
         out += [f"### Scenario {sc['name']}: {o['equal']}/{o['records']} events equal", "",
                 f"Key {sc.get('aid', 'DFHENTER')}; COMMAREA {json.dumps(sc.get('commarea'))}; "
@@ -3251,6 +3332,11 @@ def feedback_md(case: dict[str, Any], report: dict[str, Any], limit: int = 6) ->
                 out.append(
                     f"- event {x['event']} ({x.get('kind')}) {fd['field']}: COBOL `{fd['cobol']}`, Java `{fd['java']}`"
                 )
+        if sysout_bad:  # #4635: what the task DISPLAYed
+            out.append(f"- DISPLAY output: {o['sysout']['differing']} line(s) differ")
+            out += [
+                f"  - line {x['line']}: COBOL `{x['cobol']}`, Java `{x['java']}`" for x in o["sysout"]["diffs"][:limit]
+            ]
         out.append("")
     fc = report.get("facade") or {}
     if fc.get("error"):  # #4449: the java-facade side
@@ -3494,6 +3580,16 @@ def run_case(case: dict[str, Any], corpus: Path, work: Path, port: bool = True, 
         report["outputs"][name] = {"equal": d["equal"], "records": d["events"], "diffs": d["diffs"],
                                    "cobol": cev, "java": jev}  # fmt: skip
         ok &= d["equal"] == d["events"]
+        if case.get("sysout", True) and not (sc.get("prefix_link") or x6 or sc.get("prefix_x6")):
+            # #4635: the task's DISPLAY output, as batch proofs compare SYSOUT (#4056); a task judged up to a point
+            # it did not reach (a LINK not run, a refused WRITEQ) is not: its log stops where the oracle's does not
+            s = compare_task_sysout(
+                res.get("sysout", b""), work / "java" / "out" / f"{name}.sysout", common.data_encoding(case)
+            )
+            report["outputs"][name]["sysout"] = s
+            if s["compared"] and s["differing"]:
+                ok = False
+                print(f"{case['program']} {name}: DISPLAY output differs on {s['differing']} line(s): {s['diffs'][:3]}")
         if sc.get("derived"):
             report["outputs"][name]["sql_faults"] = sc["sql_plan"]
         if x6:

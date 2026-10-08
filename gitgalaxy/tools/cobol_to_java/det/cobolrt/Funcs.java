@@ -45,14 +45,20 @@ public final class Funcs {
         return s.substring(0, j);
     }
 
-    /** FUNCTION MOD: a - b * FLOOR(a / b). */
+    /** FUNCTION MOD: a - b * FLOOR(a / b); a zero b gives 0, no size error (the oracle, #4655). */
     public static BigDecimal mod(BigDecimal a, BigDecimal b) {
+        if (b.signum() == 0) {
+            return BigDecimal.ZERO;
+        }
         BigDecimal q = a.divide(b, 0, RoundingMode.FLOOR);
         return a.subtract(b.multiply(q));
     }
 
-    /** FUNCTION REM: a - b * INTEGER-PART(a / b). */
+    /** FUNCTION REM: a - b * INTEGER-PART(a / b); a zero b gives 0, no size error (the oracle, #4655). */
     public static BigDecimal rem(BigDecimal a, BigDecimal b) {
+        if (b.signum() == 0) {
+            return BigDecimal.ZERO;
+        }
         BigDecimal q = a.divide(b, 0, RoundingMode.DOWN);
         return a.subtract(b.multiply(q));
     }

@@ -131,6 +131,7 @@ public final class Cobol {
     // arithmetic results (ADD / SUBTRACT / MULTIPLY / DIVIDE / COMPUTE): `value` exact, then stored
     public static void store(Field to, BigDecimal value, boolean rounded, Charset cs);           // no ON SIZE ERROR: truncated
     public static boolean storeChecked(Field to, BigDecimal value, boolean rounded, Charset cs);  // ON SIZE ERROR: true and `to` unchanged when the value does not fit
+    // a zero divisor: libcob's NaN (scale -32768) -- store leaves `to`, storeChecked returns true (#4655, oracle_assumptions C14)
     // comparisons: <0, 0, >0 by COBOL's rules (numeric: by value; nonnumeric: shorter padded with spaces, by the
     // charset's collating sequence -- the harness's ASCII; group: nonnumeric)
     public static int compare(Field a, Field b, Charset cs);
@@ -160,10 +161,11 @@ public final class Cobol {
 }
 ```
 
-Arithmetic intermediates: exact `BigDecimal`. `cobc -std=ibm` instead truncates them to IBM's fixed-point decimal places
-(ARITHMETIC-OSVS), which the runtime does not model yet (#4287, register C2); no proven scenario reaches the
-difference. `store` truncates high-order digits beyond the PICTURE and low-order digits beyond the scale (or rounds half
-away from zero with ROUNDED).
+Arithmetic intermediates: `BigDecimal`, truncated where `cobc -std=ibm` truncates them (ARITHMETIC-OSVS, #4287,
+register C2): the translator replays cobc's compile-time decision (`det/osvs.py`) and wraps each such intermediate in
+`Cobol.align(value, places)` (libcob's cob_decimal_align, its shift the wrong way included); a literal on the right
+of an operation is a `Cobol.Dc`, libcob's decimal constant whose scale its uses change. `store` truncates high-order
+digits beyond the PICTURE and low-order digits beyond the scale (or rounds half away from zero with ROUNDED).
 
 What GnuCOBOL (`-std=ibm`) does, which the runtime follows (each is a case in `tests/cobol_mainframe/test_cobolrt.py`):
 
@@ -298,6 +300,7 @@ Only generator output, never a test case:
 - A numeric DISPLAY item MOVEd to an alphanumeric one is its digit bytes as they are -- invalid data included, the
   sign de-punched (GnuCOBOL, checked): the runtime had decoded `ABC` as `123`.
 - DIVIDE's intermediate follows GnuCOBOL's cob_decimal_div (the dividend shifted 38 digits, truncated).
+  A zero divisor gives libcob's NaN: the receivers unchanged, the size error raised (oracle_assumptions C14).
 - #4501 (found proving #4413 through cics-crucible): a COMP-5 VALUE was written truncated to its PICTURE and
   big-endian while the runtime reads COMP-5 little-endian, so CAXA's `S9(4) COMP-5 VALUE 32767` reached XCTL LENGTH
   as -12534. The image now holds the whole value in the runtime's order (register C7).
@@ -408,17 +411,14 @@ Only generator output, never a test case:
   LayoutError / ExprError naming the file, line and character): national / DBCS text, any character beyond Latin-1
   in a name or a literal (estate-crucible KYUY: Kanji names, PIC G, ideographic spaces; KYUYJP had raised
   UnicodeEncodeError), because the translator lays records out and hands the grammar its text one byte a character;
-  a national letter in a name (`BETRÄGE`: the grammar reads ASCII words only); DECIMAL-POINT IS COMMA (`1000,00`,
-  `0,5` must never be read as integers). A national letter inside a literal or a comment is read. #4272: a character
+  a national letter in a name (`BETRÄGE`: the grammar reads ASCII words only). A national letter inside a literal or a comment is read. #4272: a character
   beyond Latin-1 in a `*>` comment is read, and one inside a PROCEDURE DIVISION alphanumeric literal (a UTF-8 em
   dash in a message) makes only its statement a hole by name (`source.narrowed`, gen.WIDE_WHY; oracle_assumptions D4:
   its bytes and length are the source transfer's, not COBOL's), not the program. Still refused, with
   a cause in the cross-check ledger: several programs in one source (PAYMAIN), IDMS (LNIDMS01), and the grammar gaps
   the ledger lists (`translator-refuses-grammar`). `PROGRAM-ID LNCALC.` without its period is read since #4523
-  (`source.logical_lines` puts the period back, as Enterprise COBOL tolerates it). DECIMAL-POINT IS COMMA stays
-  refused: it needs a comma-aware numeric tokenizer in the statement grammar (`MOVE 0,5 TO X` against `A, B`), the
-  layout's VALUE parsing and edited PICTUREs with `.` and `,` swapped, and the runtime's edited moves and DISPLAY;
-  its one program (estate-crucible ZINSBER) would still be refused for its national-letter name `BETRÄGE`.
+  (`source.logical_lines` puts the period back, as Enterprise COBOL tolerates it). DECIMAL-POINT IS COMMA is modelled
+  since the #4462 close-out (below).
 - #4523: the grammar continues a literal only in quotation marks (`'...` at column 72 with `-    '...` on the next
   row did not parse), and reads `""` inside one as two literals (`VALUE "IT""S"` was two values, `MOVE "IT""S"` did
   not parse), though it reads `'IT''S'` whole. `source.as_fixed_rows` now hands the grammar every literal of a
@@ -475,6 +475,32 @@ Only generator output, never a test case:
   text past it and no continuation line ("source defect": fixed-form COBOL reads columns 8-72 only, so
   the program does not compile as written), and a source with no PROGRAM-ID ("not a program": a copybook saved
   with a program's extension, `program_unit`).
+- #4462 close-out. *DECIMAL-POINT IS COMMA* is modelled. `source.comma_literals` hands the grammar each numeric
+  literal's decimal comma as a point, a column for a column (`VALUE 1000,00`, `MOVE 0,5 TO T-WERT (2)`, `-12,5`): a
+  comma between digits is the decimal point, as cobc reads it, and a separator comma is followed by a space; PICTURE
+  strings, literals' text and names keep theirs. A literal written with a decimal point under the clause (`1.5`) is
+  refused by name. An edited PICTURE keeps its characters: `Item.decimal_comma` reads its `,` as the decimal point
+  (scale), and the generated fields carry it to the runtime (`Field.decimalComma()`), where editing
+  (`Editing.format` / `shape`: `.` an insertion character), de-editing, and an alphanumeric sender MOVEd into a
+  numeric or edited receiver (`,` its point, `.` skipped, as libcob reads it) follow it; NUMVAL / NUMVAL-C /
+  TEST-NUMVAL(-C) read their argument with the two swapped. DISPLAY of a numeric item has no decimal point either way.
+  Proven against GnuCOBOL: `test_det_programs.py` DPCOMMA (bytes, typed, groups) -- estate-crucible ZINSBER's
+  statements with its names in ASCII, plus zero suppression, a fixed and a floating sign, check protection, BLANK WHEN
+  ZERO, the alphanumeric moves and NUMVAL / NUMVAL-C. ZINSBER itself now stops at its next gap, the national letter in
+  `GEBÜHR` / `BETRÄGE` (#4664). Found on the way: an edited item compared with a numeric literal is compared as a
+  number by the det runtime and as text by GnuCOBOL (#4665, independent of the clause).
+
+  *Refusals kept deliberately* (each a cause in `tests/cobol_mainframe/fact_crosscheck_ledger.json`, refused by name,
+  never translated on a guess):
+
+  | refusal | programs | why it stays |
+  |---|---|---|
+  | IDMS DML (`translator-refuses-idms`) | estate-crucible LNIDMS01 | BIND RUN-UNIT, OBTAIN, the subschema records have no model in the runtime or the oracle (GnuCOBOL has no IDMS); support is #4532 |
+  | national / DBCS text (`translator-refuses-national-text`) | estate-crucible KYUYJP, KYUYO01, KYUYO02 | the translator lays records out one byte a character; national data is #4272. KYUYJP refuses by name (it had raised UnicodeEncodeError) |
+  | a national letter in a data name (same cause) | estate-crucible ZINSBER | the grammar reads ASCII words only; #4664 |
+  | source defects (`translator-refuses-source-defect`) | GenApp polloo2.cpy | a data entry with no period before the next level number: the source does not compile as written; nothing to fix on either side |
+  | vendor copybooks not in the estate (`translator-refuses-vendor-copybook`) | CardDemo COPAUA0C, COACCT01, CODATE01 (IBM MQ `CMQ*`); CBSA CRECUST (LE `CEEIGZCT`) | the estate ships no such member; the engine records the COPY unresolved, the translator refuses rather than lay out a guessed record |
+  | a COPY of a program member (`translator-copy-program-member`) | estate-crucible ORDMAIN (COPY ORDPRICE), SHPINQ / SHPINQO (COPY SHPRATE) | by design (horror H-0053, its key: "no compiler finds it"): no copy library holds the member, only a program source of that name. Engine copy resolution (#4468) reports the gap; the refusal is correct |
 - #4528: a TS item is the bytes the program wrote "in the region's code page" (CicsTask), and the COBOL side's
   region keeps it in CCSID 037 (cics-crucible SPEC 2; the stub transcodes its Latin-1 storage at the boundary). The
   det port handed CicsTask its storage's bytes (CS, CobolRecords.charset()) as they were: WS-ONE VALUE 'W' reached

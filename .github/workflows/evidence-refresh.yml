@@ -8,11 +8,25 @@ name: Evidence Refresh
 # (never as proven), and this job re-proves it: `evidence.py refresh --stale` runs each stale record's proof on the
 # committed port and case, writes the new proof (proven or not) and re-renders docs/language_status/evidence/.
 #
-# The PR it opens is a draft and is never merged automatically: a refreshed record is tool-written evidence, and a
-# proof that now fails needs a person. Approvals are never touched (only `evidence.py approve`, run by a person at a
-# terminal, writes one). Db2 cases need IBM's Db2 container; they run only on a manual dispatch with db2 = true.
+# #4703: the rendered evidence report (docs/language_status/evidence_report/) is derived output. It is regenerated HERE, on
+# main, and not in feature PRs (which would conflict on the same generated files); per-PR CI only prints the level deltas
+# (smoke-test.yml, advisory) and the release gate (publish.yml) requires `evidence_report.py --check --live` clean.
+# This job runs on every push to main, nightly, and on demand. It always works from the CURRENT main, and its
+# concurrency group cancels an older run when a newer push lands. When nothing changed it opens no PR. Otherwise it
+# opens (or updates) the bot PR from auto/evidence-refresh onto main and enables squash auto-merge on it. The report
+# files stay content-deterministic (so --check compares content), so the commit it was refreshed at ("as of commit
+# <sha>") is stamped on the bot's commit and PR, not inside the files.
+#
+# Earlier bot PRs failed twice: #4640 was opened against a feature branch (the base is now pinned to main) and #4649
+# went dirty while parallel PRs kept conflicting on the report (those PRs no longer commit it).
+#
+# Auto-merge happens only when every proof step succeeded. A run where a proof or the sweep failed still opens the PR,
+# but leaves it for a person (and the job fails). Approvals are never touched (only `evidence.py approve`, run by a
+# person at a terminal, writes one). Db2 cases need IBM's Db2 container; they run only on a manual dispatch with db2 = true.
 
 on:
+  push:
+    branches: [main]
   schedule:
     - cron: "17 3 * * *"  # nightly
   workflow_dispatch:
@@ -31,7 +45,7 @@ permissions:
 
 concurrency:
   group: ${{ github.workflow }}
-  cancel-in-progress: false
+  cancel-in-progress: true  # a newer push to main supersedes an older refresh (#4703)
 
 jobs:
   refresh:
@@ -50,8 +64,13 @@ jobs:
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           path: gitgalaxy
+          ref: main  # always the current main, whatever event or branch started the run (#4640)
           fetch-depth: 0  # a record's mutation section is judged against its commit's inputs (git history)
           persist-credentials: false
+
+      - name: Record the commit the refresh is as of
+        id: asof
+        run: echo "sha=$(git -C gitgalaxy rev-parse HEAD)" >> "$GITHUB_OUTPUT"
 
       - name: Clone cics-crucible at the pin
         run: |
@@ -117,7 +136,6 @@ jobs:
       # from the sweep: `update` always takes fingerprints from the tree, never from the old entry.
       # The sweep applies the det_sweep_baseline ratchet (no --no-ratchet): a sweep that proves fewer cases than the
       # baseline expects exits 1, fails this job, and the ledger is NOT rewritten from it.
-      # TODO(#4603): once evidence_report.py --refresh --live lands, run it after this step (#4603 adds that step itself).
       - name: Re-sweep the det ports for the coverage ledger (#4270)
         id: ledger_sweep
         continue-on-error: true
@@ -174,19 +192,24 @@ jobs:
             echo '```'
           } >> "$GITHUB_STEP_SUMMARY"
 
-      - name: Open a draft PR with the refreshed records
+      - name: Open or update the bot PR with the refreshed records
+        id: cpr
         uses: squid-protocol/create-pull-request@5f6978faf089d4d20b00c7766989d076bb2fc7f1 # forked from peter-evans/create-pull-request v8.1.1
         with:
           token: ${{ secrets.AUTOMATION_PAT }}
           path: gitgalaxy
-          commit-message: "evidence: nightly re-proof of stale records"
-          title: "evidence: nightly re-proof of stale records"
-          draft: true
+          base: main  # never the checked-out ref of another run (#4640)
+          commit-message: "evidence: refresh as of commit ${{ steps.asof.outputs.sha }}"
+          title: "evidence: refresh stale records and the evidence report"
+          draft: false  # auto-merge cannot be enabled on a draft
           body: |
+            Refreshed as of commit ${{ steps.asof.outputs.sha }} (main at the time of the run).
+
             Automated re-proof of the evidence records (#4048) that a harness, oracle or generator change made stale.
             Each record's proof was run again on the committed port and case; the records and
             docs/language_status/evidence/ are rewritten from those runs. A proof that now fails is recorded as
-            not proven -- review it before merging. Approvals are never written by this job.
+            not proven. The evidence reports (docs/language_status/evidence_report/) are re-rendered from them (#4703).
+            Approvals are never written by this job. Auto-merge (squash) is enabled when every proof succeeded.
           branch: auto/evidence-refresh
           delete-branch: true
           add-paths: |
@@ -195,6 +218,15 @@ jobs:
             tests/cics_crucible/ports/*/*/evidence.json
             docs/language_status/evidence/*.md
             docs/language_status/evidence_report/**
+
+      - name: Enable squash auto-merge on the bot PR
+        # Only after a clean run: a proof that failed is recorded as not proven and needs a person (#4048).
+        if: steps.cpr.outputs.pull-request-number != '' && steps.cpr.outputs.pull-request-operation != 'closed' && steps.refresh.outcome == 'success' && steps.ledger_sweep.outcome == 'success'
+        env:
+          GH_TOKEN: ${{ secrets.AUTOMATION_PAT }}
+          PR: ${{ steps.cpr.outputs.pull-request-number }}
+          REPO: ${{ github.repository }}
+        run: gh pr merge "$PR" --repo "$REPO" --auto --squash
 
       - name: Fail when a re-proof failed
         if: steps.refresh.outcome == 'failure' || steps.ledger_sweep.outcome == 'failure'

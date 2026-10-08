@@ -1243,8 +1243,8 @@ def _cics_parts(gen: G.Gen, records: list, roots: dict, proc: S.Procedure,
                   f"            int keep = {st}.bytes.length;",
                   f"            {st}.beyond = raw.length > keep ? java.util.Arrays.copyOfRange(raw, keep, raw.length) : null;",
                   "            Runnable typed = caBack;",
-                  f"            caBack = () -> {{ typed.run(); System.arraycopy({st}.bytes, 0, raw, 0, Math.min(raw.length, keep)); "
-                  f"if ({st}.beyond != null) {{ System.arraycopy({st}.beyond, 0, raw, keep, raw.length - keep); }} }};",
+                  (f"            caBack = () -> {{ typed.run(); System.arraycopy({st}.bytes, 0, raw, 0, Math.min(raw.length, keep)); "
+                   f"if ({st}.beyond != null) {{ System.arraycopy({st}.beyond, 0, raw, keep, raw.length - keep); }} }};"),
                   "        }"]  # fmt: skip
         # #4270 (oracle_assumptions.md X23): a level-1 COMMAREA the runner says is exactly EIBCALEN bytes, shorter than
         # the record (a scenario's `commarea_length`), is all DFHCOMMAREA holds for the task: a reference past it fails

@@ -740,15 +740,15 @@ class Cics:
                 out += [f"{ind}Storage {w} = Cobol.commarea({f}, Math.max(0, Math.min({length}, 32763)));",
                         f"{ind}String {r} = task.link({prog}, DetCics.commareaBytes({w}.bytes, CS), {length}, {w}.bytes);",
                         f"{ind}if (\"NORMAL\".equals({r})) Cobol.commareaBack({w}, {f});"]  # fmt: skip
-            elif "COMMAREA" in opts:
+            elif cls is not None:  # (a COMMAREA a DTO types)
                 # #4181: the target's DTO over the caller's storage from the area on, never past its record's end;
                 # #4679: a LENGTH past the DTO passes that many bytes (by reference: the target's EIBCALEN is LENGTH)
                 w = g.tmpname("cw")
                 dsize = self.gp.dto(cls).size
-                known = self.constant_int(_arg(opts["LENGTH"])) if opts.get("LENGTH") else None
+                fixed = self.constant_int(_arg(opts["LENGTH"])) if opts.get("LENGTH") else None
                 span = (
                     str(dsize)
-                    if not opts.get("LENGTH") or (known is not None and known <= dsize)
+                    if not opts.get("LENGTH") or (fixed is not None and fixed <= dsize)
                     else f"Math.max({dsize}, Math.min({length}, 32763))"
                 )
                 out += [f"{ind}Storage {w} = Cobol.commarea({f}, {span});",

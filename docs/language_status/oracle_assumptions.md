@@ -632,9 +632,21 @@ The length READQ TS returns on ITEMERR or QIDERR is not documented, so it is not
 - **XCTL with a LENGTH past the target's DTO (#4501).** Same storage rule, from the sender's side: EIBCALEN
   at the target is the LENGTH, whatever the target's DFHCOMMAREA defines. The det port passes those LENGTH bytes
   (`DetCics.commareaOut`: the area's storage, LOW-VALUES past its record, in the region's EBCDIC), the target's
-  DFHCOMMAREA takes the first ones and EIBCALEN is the LENGTH (bytes it does not define are opaque, and are not passed
-  on by a further RETURN/XCTL; a RETURN TRANSID's LENGTH past its DTO still passes the DTO). Reached by ca-xctl-versions length-range, where LENGTH 32767 fails LENGERR before any
-  transfer and the COMMAREA compared is the 32,767 bytes of WS-BIG.
+  DFHCOMMAREA takes the first ones and EIBCALEN is the LENGTH. Reached by ca-xctl-versions length-range, where LENGTH
+  32767 fails LENGERR before any transfer and the COMMAREA compared is the 32,767 bytes of WS-BIG.
+- **RETURN and LINK with a LENGTH past the DTO; bytes passed on (#4679).** IBM, EXEC CICS RETURN: COMMAREA / LENGTH
+  is the data the next program of the conversation gets, and its EIBCALEN is LENGTH; EXEC CICS LINK: LENGTH is the
+  COMMAREA's length (0-32763, else LENGERR RESP2 11), passed by reference. A RETURN TRANSID now passes its LENGTH bytes
+  as XCTL does (CardDemo's COCRDLIC / COCRDSLC / COCRDUPC / COACTVWC / COACTUPC RETURN WS-COMMAREA, LENGTH 2000, over
+  DTOs of a few hundred bytes); the equivalence harness reads them by the case's COMMAREA layout, as it reads the stub's
+  RETURN area (`equivalence_cics.java_commarea`), so bytes past the layout are compared on neither side. A LINK with a
+  LENGTH past the target's DTO lays that many bytes over the caller's storage (`Cobol.commarea`), not the DTO's size
+  (GenApp's LINK of the 101-byte ERROR-MSG to LGSTSQ, LENGTH 101 over the 99-byte DTO). A receiver keeps the bytes past
+  its own DFHCOMMAREA record (`Storage.beyond`): opaque -- it does not address them -- but a further RETURN / XCTL /
+  LINK of that area with the LENGTH passes them on, and a LINK target's writes there go back by reference. Past
+  what was passed, LOW-VALUES as above. RESP2 after a failed LINK is the stub's and CicsTask's: LENGERR 11, PGMIDERR 1
+  (IBM, LINK conditions; `DetCics.linkResp2`); the others IBM lists (PGMIDERR 2 / 3, NOTAUTH 101, INVREQ ...) the
+  region does not raise.
 
 ### X11. ASKTIME ABSTIME into a narrow field — DIFFERS
 - **What.** ABSTIME is an 8-byte packed value (IBM: `PIC S9(15) COMP-3`). GenApp declares `WS-ABSTIME PIC S9(8) COMP`

@@ -486,6 +486,53 @@ def test_events_are_compared_field_by_field():
     assert ec.compare_events(cobol, java[:1])["diffs"][-1] == {"event": 2, "cobol": "RETURN", "java": None}
 
 
+def test_low_values_and_spaces_in_a_commarea_are_different_values():
+    """#4635: a field RECEIVE MAP left LOW-VALUES and one the port left spaces are different bytes to the next program
+    (COSGN00C: the RETURN COMMAREA's CDEMO-USER-ID); trailing spaces alone are still not data."""
+    lv, sp = "\x00" * 8, "        "
+
+    def ret(v):
+        return [{"event": "RETURN", "transid": "T1", "commarea": {"CA-USER": v}}]
+
+    assert ec.compare_events(ret(lv), ret(sp))["equal"] == 0
+    assert ec.compare_events(ret(lv), ret(""))["equal"] == 0
+    assert ec.compare_events(ret(lv), ret(lv))["equal"] == 1
+    assert ec.compare_events(ret("AB"), ret("AB   "))["equal"] == 1
+    assert ec.compare_events(ret(sp), ret(""))["equal"] == 1
+    # a screen shows neither: its fields still compare as they did
+    scr = lambda v: [{"event": "SEND-MAP", "map": "M", "screen": {"F": v}}]  # noqa: E731
+    assert ec.compare_events(scr(lv), scr(sp))["equal"] == 1
+
+
+def test_storage_a_task_without_a_commarea_never_set_stays_undefined_text_too():
+    """#4635 x X12: a no-COMMAREA task's returned text left all LOW-VALUES is undefined storage, dropped both sides."""
+    ev = lambda v: [{"event": "RETURN", "transid": "T", "commarea": {"CA-T": v, "CA-N": "x"}}]  # noqa: E731
+    cev, jev = ec.mask_absent_commarea({"commarea": None}, ev("\x00" * 4), ev("    "), [0])
+    assert ec.compare_events(cev, jev)["equal"] == 1
+    cev, jev = ec.mask_absent_commarea({"commarea": {"CA-T": "x"}}, ev("\x00" * 4), ev("    "), [0])
+    assert ec.compare_events(cev, jev)["equal"] == 0  # a COMMAREA was given: LOW-VALUES are a value
+
+
+def test_a_returned_commareas_text_keeps_its_low_values():
+    fields = [{"name": "CA-USER", "offset": 0, "bytes": 4, "pic": "X(4)", "usage": "DISPLAY"}]
+    assert ec.decode_record(b"\x00\x00\x00\x00", fields, exact=True) == {"CA-USER": "\x00\x00\x00\x00"}
+    assert ec.decode_record(b"AB  ", fields, exact=True) == {"CA-USER": "AB"}
+    assert ec.decode_record(b"\x00\x00\x00\x00", fields) == {"CA-USER": ""}  # a screen's reading, as before
+
+
+def test_a_tasks_display_output_is_compared_like_a_batch_steps_sysout(tmp_path):
+    """#4635: ABNDPROC's two branches end in the same RETURN and differ only in what they DISPLAY."""
+    cobol = b"*****\n**** Unable to write to the file ABNDFILE !!!\nRESP=00000000 RESP2=00000000\n"
+    java = tmp_path / "t.sysout"
+    java.write_text(cobol.decode(), encoding="utf-8")
+    assert ec.compare_task_sysout(cobol, java, "latin-1")["differing"] == 0
+    java.write_text(cobol.decode().replace("write to", "WRITE to"), encoding="utf-8")
+    d = ec.compare_task_sysout(cobol, java, "latin-1")
+    assert (d["differing"], d["diffs"][0]["line"]) == (1, 2)
+    assert ec.compare_task_sysout(cobol, tmp_path / "none", "latin-1")["differing"] == 3  # the port DISPLAYed nothing
+    assert ec.compare_task_sysout(b"", tmp_path / "none", "latin-1")["differing"] == 0
+
+
 @pytest.mark.skipif(__import__("os").environ.get("EQUIVALENCE_E2E") != "1",
                     reason="needs Docker (GnuCOBOL) and a JDK + Maven")  # fmt: skip
 def test_carddemo_account_view_is_equivalent_end_to_end(tmp_path):
@@ -1193,3 +1240,15 @@ def test_the_stub_starts_the_task_with_its_channel_and_writes_what_it_leaves(tmp
     run = subprocess.run([str(exe)], capture_output=True, text=True, env=env, check=False)  # noqa: S603
     assert run.stdout.splitlines()[:2] == ["get resp=0 len=4 into=0001", "put resp=0"]
     assert (o / "containers.out").read_text() == "CHANNEL MYCHANNEL\nINPUTCONTAINER 30303031\nOUT 393938\n"
+
+
+def test_each_linked_sql_program_gets_the_next_free_ids_within_four_digits():
+    """#4270: GG-SQL-ID is PIC 9(4). Twelve LINKed programs (GenApp's LGTESTP1) once took ranges of 1000 by their
+    place in "programs", and the tenth's 10000 lost its high digit (an unknown GG-SQL-ID); each program's statements
+    now start at the next hundred after the ids already taken."""
+    assert ec.sql_first_id("") == 100
+    table = (
+        "S 1 SELECT1 1 1 - P 10\nI 0 X 1 0 0 0 0\nS 2 EXEC 1 0 - P 20\nS 100 OPEN 0 0 C Q 30\nS 117 FETCH 0 1 C Q 40\n"
+    )
+    assert ec.sql_first_id(table) == 200
+    assert ec.sql_first_id("S 199 EXEC 0 0 - P 1\n") == 200

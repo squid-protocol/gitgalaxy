@@ -49,8 +49,8 @@ class Line:
 UNMASKABLE = {
     "cut-literal": "a literal cut open at column 72 (cut_literal): read with its text past column 72, as if fixed",
     "several-programs": "several programs in one source (several_programs): read as one",
-    "unmodelled": "national / DBCS text, a national letter in a name, IDMS, DECIMAL-POINT IS COMMA, the stand-in "
-    "control characters (unmodelled): read as the grammar is handed them",
+    "unmodelled": "national / DBCS text, a national letter in a name, IDMS, a decimal-point literal under "
+    "DECIMAL-POINT IS COMMA, the stand-in control characters (unmodelled): read as the grammar is handed them",
     "missing-copybook": "a COPY found in no directory: expanded to nothing, so its items are `no such item` holes",
 }
 _unmasked: frozenset[str] = frozenset()
@@ -340,6 +340,12 @@ WIDE = "\x1d"
 
 
 _DECIMAL_COMMA = re.compile(r"\bDECIMAL-POINT\s+(?:IS\s+)?COMMA\b", re.I)
+# #4462: a PICTURE character-string (its `.` and `,` are editing symbols, never a literal's decimal point)
+_PICTURE = re.compile(r"(?<![\w-])PIC(?:TURE)?(?:\s+IS)?\s+\S+", re.I)
+# #4462: under DECIMAL-POINT IS COMMA, a numeric literal's decimal point: a comma between digits (a separator comma
+# is followed by a space), and a point between digits (which the clause makes no decimal point)
+_COMMA_POINT = re.compile(r"(?<![\w.,-])[+-]?\d+(,)\d+(?![\w-]|[.,]\d)")
+_POINT_POINT = re.compile(r"(?<![\w.,-])[+-]?\d+\.\d+(?![\w-]|[.,]\d)")
 # #4462: an IDMS program (CA IDMS / IDMS-DC, the DMLC precompiler's input): its ENVIRONMENT DIVISION's IDMS-CONTROL
 # SECTION (PROTOCOL. MODE IS IDMS-...) or its DATA DIVISION's SCHEMA SECTION (DB subschema WITHIN schema)
 _IDMS = re.compile(r"^\s*(?:IDMS-CONTROL\s+SECTION|SCHEMA\s+SECTION)\s*\.|\bMODE\s+IS\s+IDMS(?:-DC|-CICS)?\b", re.I)
@@ -368,8 +374,8 @@ def unmodelled(lines: list[Line]) -> str | None:
       character. It had raised UnicodeEncodeError; a DBCS estate is refused, never laid out wrong.
     - A national letter in a word outside a literal (`BETRÄGE`, read in cp273): the COBOL grammar reads ASCII words
       only, and refused the line unnamed.
-    - DECIMAL-POINT IS COMMA (DEUT ZINSBER): `1000,00` and `0,5` are numbers and an edited PIC's `.` and `,` swap
-      roles; not modelled, so never read as a list of integers.
+    - #4462: under DECIMAL-POINT IS COMMA (modelled: comma_literals, Item.decimal_comma), a numeric literal written
+      with a decimal POINT (`1.5`): the clause makes `,` the decimal point, so it is no number the compiler reads.
     - #4462: IDMS (IDMS-CONTROL SECTION, SCHEMA SECTION; estate-crucible LOAN LNIDMS01): its DML (BIND RUN-UNIT,
       READY, OBTAIN CALC, FINISH, DC RETURN) and subschema records are not modelled, so the program is refused by name
       (#4532 tracks IDMS support), never parsed as COBOL with holes.
@@ -384,6 +390,7 @@ def unmodelled(lines: list[Line]) -> str | None:
 
     The IDENTIFICATION DIVISION's paragraphs after PROGRAM-ID (AUTHOR, REMARKS ...) are free text no parser reads."""
     in_id = in_proc = False
+    comma = decimal_comma(lines)
     for ln in lines:
         head = ln.text.lstrip().upper()
         if re.match(r"(?:IDENTIFICATION|ID)\s+DIVISION\b", head):
@@ -406,9 +413,46 @@ def unmodelled(lines: list[Line]) -> str | None:
                     "ASCII words only")  # fmt: skip
         if _IDMS.search(bare):
             return f"{Path(ln.file).name}:{ln.line}: IDMS DML not supported (an IDMS-DC / DMLC program: {bare.strip()})"
-        if _DECIMAL_COMMA.search(bare):
-            return f"{Path(ln.file).name}:{ln.line}: DECIMAL-POINT IS COMMA is not modelled"
+        point = _POINT_POINT.search(_numeric_text(ln.text)) if comma else None
+        if point is not None:
+            return (f"{Path(ln.file).name}:{ln.line}: the literal {point.group(0)} has a decimal point under "
+                    "DECIMAL-POINT IS COMMA: not modelled")  # fmt: skip
     return None
+
+
+def decimal_comma(lines: list[Line]) -> bool:
+    """#4462: whether the program declares SPECIAL-NAMES DECIMAL-POINT IS COMMA (before its DATA DIVISION)."""
+    for ln in lines:
+        if re.match(r"(?:DATA|PROCEDURE)\s+DIVISION\b", ln.text.lstrip(), re.I):
+            return False
+        if _DECIMAL_COMMA.search(_outside_literals(ln.text)):
+            return True
+    return False
+
+
+def _numeric_text(text: str) -> str:
+    """`text` with its literals' content, its `*>` comment and its PICTURE strings blanked (a column for a column):
+    where a numeric literal can be."""
+    bare = _outside_literals(text[: _comment_at(text)]).ljust(len(text))
+    return _PICTURE.sub(lambda m: " " * len(m.group(0)), bare)
+
+
+def comma_literals(lines: list[Line]) -> list[Line]:
+    """#4462: under DECIMAL-POINT IS COMMA (estate-crucible DEUT ZINSBER), each numeric literal's decimal comma handed
+    to the grammar as a point, a column for a column (`1000,00` -> `1000.00`, `0,5` -> `0.5`), so a VALUE and a
+    PROCEDURE DIVISION literal are the numbers cobc reads (a comma between digits is the decimal point; a separator
+    comma is followed by a space), never a list of integers. A PICTURE keeps its characters as written: its `,` is
+    the decimal point there (layout.Item.decimal_comma, and the runtime's Field.decimalComma). Without the clause,
+    `lines` unchanged."""
+    if not decimal_comma(lines):
+        return lines
+    out: list[Line] = []
+    for ln in lines:
+        text = list(ln.text)
+        for m in _COMMA_POINT.finditer(_numeric_text(ln.text)):
+            text[m.start(1)] = "."
+        out.append(Line("".join(text), ln.file, ln.line, ln.cut))
+    return out
 
 
 def _comment_at(text: str) -> int:

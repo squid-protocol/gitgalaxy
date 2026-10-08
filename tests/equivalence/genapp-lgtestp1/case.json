@@ -1,0 +1,391 @@
+{
+ "kind": "cics",
+ "corpus": "cics-genapp",
+ "program": "LGTESTP1",
+ "program_source": "base/src/lgtestp1.cbl",
+ "copy_dirs": [
+  "base/src"
+ ],
+ "transid": "SSP1",
+ "clock": "2026/10/01 10:30:15.00",
+ "programs": [
+  {
+   "program": "LGIPOL01",
+   "program_source": "base/src/lgipol01.cbl"
+  },
+  {
+   "program": "LGIPDB01",
+   "program_source": "base/src/lgipdb01.cbl"
+  },
+  {
+   "program": "LGAPOL01",
+   "program_source": "base/src/lgapol01.cbl"
+  },
+  {
+   "program": "LGAPDB01",
+   "program_source": "base/src/lgapdb01.cbl"
+  },
+  {
+   "program": "LGAPVS01",
+   "program_source": "base/src/lgapvs01.cbl"
+  },
+  {
+   "program": "LGDPOL01",
+   "program_source": "base/src/lgdpol01.cbl"
+  },
+  {
+   "program": "LGDPDB01",
+   "program_source": "base/src/lgdpdb01.cbl"
+  },
+  {
+   "program": "LGDPVS01",
+   "program_source": "base/src/lgdpvs01.cbl"
+  },
+  {
+   "program": "LGUPOL01",
+   "program_source": "base/src/lgupol01.cbl"
+  },
+  {
+   "program": "LGUPDB01",
+   "program_source": "base/src/lgupdb01.cbl"
+  },
+  {
+   "program": "LGUPVS01",
+   "program_source": "base/src/lgupvs01.cbl"
+  },
+  {
+   "program": "LGSTSQ",
+   "program_source": "base/src/lgstsq.cbl"
+  }
+ ],
+ "datasets": {
+  "<USRHLQ>.GENAPP.KSDSPOLY": {
+   "input": "@case/ksdspoly.txt",
+   "entity": "WfPolicyInfo",
+   "copybook": "base/src/lgupvs01.cbl",
+   "record": "WF-POLICY-INFO",
+   "vsam": {
+    "key_offset": 0,
+    "key_length": 21,
+    "reclen": 64,
+    "why": "base/cntl/adef121.jcl DEFINE2: DATA(... KEYS(21 0) RECORDSIZE(64 64)); the engine's facts do not read KEYS / RECORDSIZE inside the DATA component, so the case states them"
+   }
+  }
+ },
+ "db2": {
+  "ddl": [
+   "base/cntl/db2cre.jcl"
+  ],
+  "seed": "base/cntl/db2cre.jcl",
+  "symbols": {
+   "<DB2DBID>": "GENASA1"
+  },
+  "qualifier": "GENASA1",
+  "compare": [
+   "GENASA1.POLICY",
+   "GENASA1.ENDOWMENT",
+   "GENASA1.HOUSE",
+   "GENASA1.MOTOR",
+   "GENASA1.COMMERCIAL"
+  ]
+ },
+ "clock_fields": {
+  "db2": [
+   "GENASA1.POLICY.LASTCHANGED",
+   "GENASA1.COMMERCIAL.REQUESTDATE"
+  ],
+  "commarea": [
+   "CA-REQUEST-SPECIFIC(31:26)"
+  ]
+ },
+ "commarea": {
+  "segments": [
+   {
+    "copybook": "base/src/lgtestp1.cbl",
+    "record": "COMM-AREA"
+   }
+  ]
+ },
+ "screens": {
+  "SSMAPP1": {
+   "copybook": "@bms/SSMAP.cpy",
+   "input": "SSMAPP1I",
+   "output": "SSMAPP1O"
+  }
+ },
+ "region": {
+  "applid": "GENAREGN",
+  "sysid": "CICA"
+ },
+ "scenarios": [
+  {
+   "name": "first-entry-inquire",
+   "aid": "DFHENTER",
+   "commarea": null,
+   "receive": {
+    "SSMAPP1": {
+     "ENP1OPTI": "1",
+     "ENP1CNOI": "0000000002",
+     "ENP1PNOI": "0000000001"
+    }
+   },
+   "why": "EIBCALEN 0: the map initialised and sent (ERASE), then the same task's RECEIVE (the operator's input): option 1 inquires motor policy 1 of customer 2 (LINK LGIPOL01 -> LGIPDB01); the policy shown, RETURN TRANSID('SSP{n}') with COMM-AREA"
+  },
+  {
+   "name": "inquire",
+   "aid": "DFHENTER",
+   "commarea": {},
+   "receive": {
+    "SSMAPP1": {
+     "ENP1OPTI": "1",
+     "ENP1CNOI": "0000000005",
+     "ENP1PNOI": "0000000003"
+    }
+   },
+   "why": "option 1 on a returning task (EIBCALEN > 0: GO TO A-GAIN): motor policy 3 of customer 5"
+  },
+  {
+   "name": "inquire-not-found",
+   "aid": "DFHENTER",
+   "commarea": {},
+   "receive": {
+    "SSMAPP1": {
+     "ENP1OPTI": "1",
+     "ENP1CNOI": "0000000002",
+     "ENP1PNOI": "0000009999"
+    }
+   },
+   "why": "option 1 for a policy the customer does not hold: LGIPDB01 sets CA-RETURN-CODE '01' -> NO-DATA ('No data was returned.'), ERROR-OUT sends the map and initialises the areas"
+  },
+  {
+   "name": "delete",
+   "aid": "DFHENTER",
+   "commarea": {},
+   "receive": {
+    "SSMAPP1": {
+     "ENP1OPTI": "3",
+     "ENP1CNOI": "0000000002",
+     "ENP1PNOI": "0000000001"
+    }
+   },
+   "why": "option 3: LINK LGDPOL01 (01DMOT) deletes policy 1 of customer 2 (POLICY row, cascade, VSAM copy); the fields blanked, 'Motor Policy Deleted', SEND MAP twice"
+  },
+  {
+   "name": "delete-fails",
+   "aid": "DFHENTER",
+   "commarea": {},
+   "receive": {
+    "SSMAPP1": {
+     "ENP1OPTI": "3",
+     "ENP1CNOI": "0000000002",
+     "ENP1PNOI": "0000000001"
+    }
+   },
+   "sql_faults": [
+    {
+     "program": "LGDPDB01",
+     "line": 189,
+     "sqlcode": -913
+    }
+   ],
+   "why": "option 3 with LGDPDB01's DELETE failing (SQLCODE -913): CA-RETURN-CODE '90' -> SYNCPOINT ROLLBACK, NO-DELETE; the back end LINKs LGSTSQ first, so the task is judged up to LGSTSQ's refused WRITEQ (X6) and the rest is not compared"
+  },
+  {
+   "name": "bad-option",
+   "aid": "DFHENTER",
+   "commarea": {},
+   "receive": {
+    "SSMAPP1": {
+     "ENP1OPTI": "9"
+    }
+   },
+   "why": "option '9': WHEN OTHER -- 'Please enter a valid option', the option field's length -1 (cursor), SEND MAP ... CURSOR"
+  },
+  {
+   "name": "clear",
+   "aid": "DFHCLEAR",
+   "commarea": {},
+   "receive": {
+    "SSMAPP1": {
+     "ENP1OPTI": "1"
+    }
+   },
+   "why": "CLEAR: HANDLE AID CLEAR(CLEARIT) -- the map sent MAPONLY, RETURN TRANSID"
+  },
+  {
+   "name": "pf3",
+   "aid": "DFHPF3",
+   "commarea": {},
+   "receive": {
+    "SSMAPP1": {
+     "ENP1OPTI": "1"
+    }
+   },
+   "why": "PF3: HANDLE AID PF3(ENDIT) -- SEND TEXT 'Transaction ended' ERASE FREEKB, RETURN"
+  },
+  {
+   "name": "mapfail",
+   "aid": "DFHENTER",
+   "commarea": {},
+   "why": "ENTER with no input: the RECEIVE raises MAPFAIL, HANDLE CONDITION MAPFAIL(ENDIT)"
+  },
+  {
+   "name": "add",
+   "aid": "DFHENTER",
+   "commarea": {},
+   "receive": {
+    "SSMAPP1": {
+     "ENP1OPTI": "2",
+     "ENP1CNOI": "0000000003",
+     "ENP1IDAI": "2026-01-01",
+     "ENP1EDAI": "2027-01-01",
+     "ENP1CMKI": "FORD",
+     "ENP1CMOI": "FIESTA",
+     "ENP1VALI": "012000",
+     "ENP1REGI": "AB12CDE",
+     "ENP1COLI": "BLUE",
+     "ENP1CCI": "00001600",
+     "ENP1MANI": "2020-05-01",
+     "ENP1ACCI": "000001",
+     "ENP1PREI": "000450"
+    }
+   },
+   "why": "option 2: LINK LGAPOL01 ('01AMOT') adds a motor policy for customer 3 (POLICY + its type's row, VSAM copy); the new numbers shown, 'New Motor Policy Inserted'"
+  },
+  {
+   "name": "add-unknown-customer",
+   "aid": "DFHENTER",
+   "commarea": {},
+   "receive": {
+    "SSMAPP1": {
+     "ENP1OPTI": "2",
+     "ENP1CNOI": "0000000999",
+     "ENP1IDAI": "2026-01-01",
+     "ENP1EDAI": "2027-01-01",
+     "ENP1CMKI": "FORD",
+     "ENP1CMOI": "FIESTA",
+     "ENP1VALI": "012000",
+     "ENP1REGI": "AB12CDE",
+     "ENP1COLI": "BLUE",
+     "ENP1CCI": "00001600",
+     "ENP1MANI": "2020-05-01",
+     "ENP1ACCI": "000001",
+     "ENP1PREI": "000450"
+    }
+   },
+   "why": "option 2 for customer 999, who does not exist: LGAPDB01's INSERT into POLICY breaks its foreign key (SQLCODE -530) -> CA-RETURN-CODE '70', SYNCPOINT ROLLBACK, NO-ADD 'Customer does not exist'; the back end LINKs LGSTSQ first, so the task is judged up to LGSTSQ's refused WRITEQ (X6) and the rest is not compared"
+  },
+  {
+   "name": "add-fails",
+   "aid": "DFHENTER",
+   "commarea": {},
+   "receive": {
+    "SSMAPP1": {
+     "ENP1OPTI": "2",
+     "ENP1CNOI": "0000000003",
+     "ENP1IDAI": "2026-01-01",
+     "ENP1EDAI": "2027-01-01",
+     "ENP1CMKI": "FORD",
+     "ENP1CMOI": "FIESTA",
+     "ENP1VALI": "012000",
+     "ENP1REGI": "AB12CDE",
+     "ENP1COLI": "BLUE",
+     "ENP1CCI": "00001600",
+     "ENP1MANI": "2020-05-01",
+     "ENP1ACCI": "000001",
+     "ENP1PREI": "000450"
+    }
+   },
+   "sql_faults": [
+    {
+     "program": "LGAPDB01",
+     "table": "POLICY",
+     "verb": "INSERT",
+     "sqlcode": -913
+    }
+   ],
+   "why": "option 2 with LGAPDB01's INSERT into POLICY failing (SQLCODE -913): CA-RETURN-CODE '90', SYNCPOINT ROLLBACK, NO-ADD WHEN OTHER 'Error Adding ... Policy'; the back end LINKs LGSTSQ first, so the task is judged up to LGSTSQ's refused WRITEQ (X6) and the rest is not compared"
+  },
+  {
+   "name": "update",
+   "aid": "DFHENTER",
+   "commarea": {},
+   "receive": {
+    "SSMAPP1": {
+     "ENP1OPTI": "4",
+     "ENP1CNOI": "0000000005",
+     "ENP1PNOI": "0000000003",
+     "ENP1IDAI": "2026-01-01",
+     "ENP1EDAI": "2027-01-01",
+     "ENP1CMKI": "FORD",
+     "ENP1CMOI": "FIESTA",
+     "ENP1VALI": "012000",
+     "ENP1REGI": "AB12CDE",
+     "ENP1COLI": "BLUE",
+     "ENP1CCI": "00001600",
+     "ENP1MANI": "2020-05-01",
+     "ENP1ACCI": "000001",
+     "ENP1PREI": "000450"
+    }
+   },
+   "why": "option 4: inquire motor policy 3 of customer 5 (LGIPOL01), SEND MAP, RECEIVE MAP again (the harness gives a task one input per map: the second RECEIVE reads the same fields), then LINK LGUPOL01 ('01UMOT') with the fields typed and the inquiry's LASTCHANGED still in COMM-AREA: 'Motor Policy Updated'"
+  },
+  {
+   "name": "update-not-found",
+   "aid": "DFHENTER",
+   "commarea": {},
+   "receive": {
+    "SSMAPP1": {
+     "ENP1OPTI": "4",
+     "ENP1CNOI": "0000000005",
+     "ENP1PNOI": "0000009999",
+     "ENP1IDAI": "2026-01-01",
+     "ENP1EDAI": "2027-01-01",
+     "ENP1CMKI": "FORD",
+     "ENP1CMOI": "FIESTA",
+     "ENP1VALI": "012000",
+     "ENP1REGI": "AB12CDE",
+     "ENP1COLI": "BLUE",
+     "ENP1CCI": "00001600",
+     "ENP1MANI": "2020-05-01",
+     "ENP1ACCI": "000001",
+     "ENP1PREI": "000450"
+    }
+   },
+   "why": "option 4 for a policy the customer does not hold: the inquiry returns '01' -> NO-DATA before any update"
+  },
+  {
+   "name": "update-fails",
+   "aid": "DFHENTER",
+   "commarea": {},
+   "receive": {
+    "SSMAPP1": {
+     "ENP1OPTI": "4",
+     "ENP1CNOI": "0000000005",
+     "ENP1PNOI": "0000000003",
+     "ENP1IDAI": "2026-01-01",
+     "ENP1EDAI": "2027-01-01",
+     "ENP1CMKI": "FORD",
+     "ENP1CMOI": "FIESTA",
+     "ENP1VALI": "012000",
+     "ENP1REGI": "AB12CDE",
+     "ENP1COLI": "BLUE",
+     "ENP1CCI": "00001600",
+     "ENP1MANI": "2020-05-01",
+     "ENP1ACCI": "000001",
+     "ENP1PREI": "000450"
+    }
+   },
+   "sql_faults": [
+    {
+     "program": "LGUPDB01",
+     "table": "MOTOR",
+     "verb": "UPDATE",
+     "sqlcode": -913
+    }
+   ],
+   "why": "option 4 with LGUPDB01's UPDATE of the type's table failing (SQLCODE -913): CA-RETURN-CODE non-zero -> NO-UPD 'Error Updating ... Policy'; the back end LINKs LGSTSQ first, so the task is judged up to LGSTSQ's refused WRITEQ (X6) and the rest is not compared"
+  }
+ ],
+ "notes": "GenApp's motor policy test transaction (LGTESTP1, transid SSP1, BMS map SSMAPP1 of mapset SSMAP: the symbolic map is generated from base/src/ssmap.bms, @bms/SSMAP.cpy). A first task (EIBCALEN 0) sends the initialised map and RECEIVEs in the same task; a returning one (EIBCALEN > 0; the program has no DFHCOMMAREA, its own COMM-AREA goes back through RETURN TRANSID) goes straight to the RECEIVE. HANDLE AID CLEAR / PF3 and HANDLE CONDITION MAPFAIL are exercised; the option field picks inquire (1: LGIPOL01), add (2: LGAPOL01, a failure is SYNCPOINT ROLLBACK), delete (3: LGDPOL01), or inquire-then-update (4: LGIPOL01, SEND MAP, a second RECEIVE MAP -- the harness gives a task one input per map, so it reads the same fields -- then LGUPOL01). The case runs the whole chain in the task: the four front ends, their Db2 back ends, the VSAM services and LGSTSQ (twelve programs). The VSAM file is genapp-lgupdb01's; Db2 is db2cre.jcl's tables and rows. POLICY.LASTCHANGED, COMMERCIAL.REQUESTDATE and the COMMAREA's CA-LASTCHANGED are clock fields. Error paths in the back ends LINK LGSTSQ and are judged up to its refused WRITEQ (X6). Uncovered: IF CA-RETURN-CODE > 0 true after the add / delete / update LINKs, and NO-ADD / NO-DELETE / NO-UPD: every back-end failure LINKs LGSTSQ before it returns, and the task is judged up to LGSTSQ's refused WRITEQ (X6), so what follows is not compared or counted. Derived from the CICS General Insurance Application (GenApp, github.com/cicsdev/cics-genapp; (C) Copyright IBM Corp. 2011, 2020), licensed under the Eclipse Public License 2.0: LICENSE here is the corpus's own, NOTICE names the source and what was derived."
+}

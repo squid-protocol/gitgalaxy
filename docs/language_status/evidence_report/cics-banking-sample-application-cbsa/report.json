@@ -1485,9 +1485,9 @@
       "case_scenarios": 22,
       "db2": true,
       "det": {
-       "state": "not run",
+       "state": "not equal",
        "why": [
-        "a Db2 case: CI's det-sweep skips Db2 cases and no local sweep was given"
+        "ledgered as differing in det_sweep_baseline.json (#4658): the det port DISPLAYs SQLCODE -4220 where Db2/GnuCOBOL gives -180 on a null-date update (the proof compares a task's DISPLAY output since #4635)"
        ]
       },
       "record": null,
@@ -5944,9 +5944,9 @@
       "case_scenarios": 22,
       "db2": true,
       "det": {
-       "state": "not run",
+       "state": "not equal",
        "why": [
-        "a Db2 case: CI's det-sweep skips Db2 cases and no local sweep was given"
+        "ledgered as differing in det_sweep_baseline.json (#4658): the det port DISPLAYs SQLCODE -4220 where Db2/GnuCOBOL gives -180 on a null-date update (the proof compares a task's DISPLAY output since #4635)"
        ]
       },
       "record": null,
@@ -5958,9 +5958,9 @@
      "case_scenarios": 22,
      "db2": true,
      "det": {
-      "state": "not run",
+      "state": "not equal",
       "why": [
-       "a Db2 case: CI's det-sweep skips Db2 cases and no local sweep was given"
+       "ledgered as differing in det_sweep_baseline.json (#4658): the det port DISPLAYs SQLCODE -4220 where Db2/GnuCOBOL gives -180 on a null-date update (the proof compares a task's DISPLAY output since #4635)"
       ]
      },
      "record": null,
@@ -5972,7 +5972,7 @@
     "det_port": "not yet measured (#4628)"
    },
    "next": [
-    "its det port equal on every scenario of cbsa-xfrfun: a Db2 case: CI's det-sweep skips Db2 cases and no local sweep was given"
+    "its det port equal on every scenario of cbsa-xfrfun: ledgered as differing in det_sweep_baseline.json (#4658): the det port DISPLAYs SQLCODE -4220 where Db2/GnuCOBOL gives -180 on a null-date update (the proof compares a task's DISPLAY output since #4635)"
    ],
    "oracle_backing": [
     {

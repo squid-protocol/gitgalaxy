@@ -757,7 +757,12 @@ class Gen:
         if name == "CURRENT-DATE":
             return "DetCics.currentDate(task.now())" if self.cics is not None else self.clock
         if name in ("NUMVAL", "NUMVAL-C", "TEST-NUMVAL", "TEST-NUMVAL-C") and len(args) == 1:
-            return f"Funcs.{_camel(name)}({self.text(args[0])})"
+            arg = self.text(args[0])
+            if any(r.decimal_comma for r in self.p.records):
+                # #4462: DECIMAL-POINT IS COMMA -- the argument's `,` is its decimal point and `.` its separator:
+                # swapped, it is the text the functions read with the standard ones (a position for a position)
+                arg = f"{arg}.replace('.', '\\u0000').replace(',', '.').replace('\\u0000', ',')"
+            return f"Funcs.{_camel(name)}({arg})"
         if name in ("INTEGER-OF-DATE", "DATE-OF-INTEGER", "INTEGER", "INTEGER-PART", "ABS") and len(args) == 1:
             return f"Funcs.{_camel(name)}({self.num(args[0])})"
         if name in ("MOD", "REM", "MIN", "MAX") and len(args) >= 2:
@@ -886,7 +891,7 @@ class Gen:
             return f"Cobol.compare({fa}, {self.field_expr(b)}, CS{c})"
         if isinstance(b, E.Lit):
             if isinstance(b.value, Decimal) and (not self.is_numeric(a) or a.refmod is not None):
-                return f"Cobol.compare({fa}, {jstr(self.literal_text(b.value))}, CS{c})"  # #4665
+                return f"Cobol.compare({fa}, {jstr(self.literal_text(b.value, a, jop))}, CS{c})"  # #4665
             if isinstance(b.value, Decimal):
                 return f"Cobol.compare({fa}, {self.const(b.value)}, CS{c})"
             return f"Cobol.compare({fa}, {self.text(b)}, CS{c})"
@@ -911,11 +916,12 @@ class Gen:
     # though moved to an alphanumeric item of as many characters as its digits -- a nonnumeric comparison, never one
     # by value. GnuCOBOL (the oracle) compares the same characters, except where register C13 records otherwise:
     # those are refused by name here.
-    def literal_text(self, v: Decimal) -> str:
-        """A numeric literal as the characters it is compared as against a nonnumeric operand: its digits as written
-        (leading zeros kept, the decimal point dropped). A signed one is refused: GnuCOBOL compares its sign
-        character, IBM moves no sign (C13). A non-integer one IBM does not allow; the oracle's digits are modelled
-        (C13)."""
+    def literal_text(self, v: Decimal, against: E.Ref | L.Item | None = None, jop: str = "<") -> str:
+        """A numeric literal as the characters it is compared as against a nonnumeric operand (`against`, in relation
+        `jop`): its digits as written (leading zeros kept, the decimal point dropped). A signed one is refused:
+        GnuCOBOL compares its sign character, IBM moves no sign (C13). A non-integer one IBM does not allow; the
+        oracle's digits are modelled (C13), except an equality with a numeric-edited item of fewer decimal places:
+        GnuCOBOL decides that one when it compiles (= false, NOT = true) whatever the item holds (C13)."""
         spelling = getattr(v, "spelling", None)
         if spelling is None:  # a value of no literal (DFHRESP, CVDA): its digits
             if v < 0 or v != v.to_integral_value():
@@ -924,6 +930,17 @@ class Gen:
         if spelling[:1] in "+-":
             raise Untranslatable(f"the signed numeric literal {spelling} compared with a nonnumeric operand: GnuCOBOL "
                                  f"compares its sign character, IBM no sign (C13)")  # fmt: skip
+        if jop in ("==", "!=") and against is not None:
+            try:
+                it = self.resolve(against) if isinstance(against, E.Ref) else against
+            except Untranslatable:
+                it = None
+            exp = v.as_tuple().exponent
+            places = -exp if isinstance(exp, int) else 0
+            if it is not None and it.category == "NUMERIC-EDITED" and places > it.scale:
+                raise Untranslatable(f"the numeric literal {spelling} compared for equality with the numeric-edited "
+                                     f"{it.name}, which has fewer decimal places: GnuCOBOL decides it when it "
+                                     f"compiles, IBM rejects a non-integer (C13)")  # fmt: skip
         return spelling.replace(".", "").replace(",", "")
 
     def digits_as_text(self, a: E.Ref, b: E.Ref) -> None:
@@ -1092,7 +1109,7 @@ class Gen:
                 raise Untranslatable(f"88 {cn.name} under PROGRAM COLLATING SEQUENCE {self.program_collating}: "
                                      f"{parent.name} holds numeric or national items: not modelled")  # fmt: skip
         if kind == "num" and parent is not None and parent.category not in ("NUMERIC", "FLOAT"):
-            return f"Cobol.compare({f}, {jstr(self.literal_text(v[1]))}, CS{c})"  # #4665
+            return f"Cobol.compare({f}, {jstr(self.literal_text(v[1], parent, jop))}, CS{c})"  # #4665
         if kind == "num":
             return f"Cobol.compare({f}, {self.const(v[1])}, CS{c})"
         if kind == "lit":
@@ -1224,6 +1241,12 @@ class Gen:
 
     # ---- fields -------------------------------------------------------------------------------------------------
     def factory(self, it: L.Item, storage: str, offset: str) -> str:
+        f = self._factory(it, storage, offset)
+        # #4462: DECIMAL-POINT IS COMMA -- an edited PICTURE's `,` is its decimal point, and so is an alphanumeric
+        # sender's `,` when the item receives one (the runtime's Field.decimalComma)
+        return f"{f}.decimalComma()" if it.decimal_comma else f
+
+    def _factory(self, it: L.Item, storage: str, offset: str) -> str:
         cat = it.category
         if cat == "GROUP":
             return f"Field.group({storage}, {offset}, {it.size})"

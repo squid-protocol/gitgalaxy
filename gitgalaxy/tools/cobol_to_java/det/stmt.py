@@ -20,6 +20,7 @@ from gitgalaxy.tools.cobol_to_java.det.source import (
     _outside_literals,
     as_fixed_rows,
     cobol_parser,
+    comma_literals,
     narrowed,
     refusal,
     unwrap,
@@ -72,11 +73,12 @@ class _Frame:
 def parse(lines: list[Line]) -> Procedure:
     parser = _parser_cache()  # first: a missing translator extra fails here, before any work
 
-    # #4462: national / DBCS text, DECIMAL-POINT IS COMMA, IDMS, several programs (each read on its own): refused by name
+    # #4462: national / DBCS text, IDMS, several programs (each read on its own): refused by name
     why = refusal(lines)  # (a survey's what-if may switch one check off: source.survey_unmask)
     if why:
         raise E.ExprError(why)
-    lines = narrowed(lines)  # #4272: a wide character in a `*>` comment / a PROCEDURE DIVISION literal
+    # #4272: a wide character in a `*>` comment / a PROCEDURE DIVISION literal; #4462: a decimal comma's literal
+    lines = comma_literals(narrowed(lines))
     text, rows = as_fixed_rows(lines)
     m = re.search(r"^ {7}\s*PROCEDURE\s+DIVISION\b[^.]*\.", text, re.I | re.M)
     if not m:
@@ -116,6 +118,7 @@ def parse(lines: list[Line]) -> Procedure:
     # the block's lines back after the rest of its last line (its period stays with the CALL), as blank lines
     proc_text = re.sub(r"(\x01+)([^\n]*\n)", lambda mm: mm.group(2) + "       \n" * len(mm.group(1)), proc_text)
     proc_text = re.sub(r"\bNOT=", "NOT =", proc_text, flags=re.I)  # the grammar wants a space after NOT
+    proc_text = _join_not_breaks(proc_text)
     pre = "       IDENTIFICATION DIVISION.\n       PROGRAM-ID. GGDET.\n"
     src = (pre + "       PROCEDURE DIVISION.\n" + proc_text[len(header) :].lstrip("\n")).encode("latin-1")
     # line numbers: map back to the expanded program's lines
@@ -342,6 +345,36 @@ def parse(lines: list[Line]) -> Procedure:
 
 # pd children that open a frame (closed by their END_x / ELSE / WHEN, or by the period)
 _FRAMED = {"if_header", "else_if_header", "evaluate_header", "when", "when_other", "perform_statement_loop"}
+
+
+_REL_WORD = r"(?:[<>=]+|EQUAL|GREATER|LESS)(?![\w-])"
+
+
+def _join_not_breaks(text: str) -> str:
+    """#4674 / #4656: the grammar refuses a NOT split from its relational operator by a line break -- NOT at the end
+    of a source line (`IF S3 NOT` / `< 3`), or a NOT that starts a line after an AND / OR (`AND` / `NOT < 2`) -- and
+    with it the whole PROCEDURE DIVISION. The break moves after the operator (or the token after NOT), with the next
+    line's indent (fixed-format columns count): the same number of lines, so every statement keeps its line."""
+
+    def in_literal(at: int) -> bool:
+        before = text[text.rfind("\n", 0, at) + 1 : at]  # an odd quote count: the NOT is data, not a keyword
+        return bool(before.count("'") % 2 or before.count('"') % 2)
+
+    def rejoin(prev: str, ws: str, tail: str) -> str:
+        return f"{prev}{tail}" + "\n" * ws.count("\n") + (ws[ws.rfind("\n") + 1 :] if "\n" in ws else "")
+
+    def before_not(mm: re.Match) -> str:
+        if in_literal(mm.end(2)):
+            return mm.group(0)
+        return rejoin(mm.group(1) + " ", mm.group(2) + mm.group(3), f"NOT {mm.group(4)}")
+
+    def after_not(mm: re.Match) -> str:
+        if in_literal(mm.start()):
+            return mm.group(0)
+        return rejoin("", mm.group(2), f"{mm.group(1)} {mm.group(3)}")
+
+    text = re.sub(rf"(\S)(\s*\n\s*)(?<![\w-])NOT(\s+)({_REL_WORD})", before_not, text, flags=re.I)
+    return re.sub(r"(?<![\w-])(NOT)([ \t]*\n\s*)([^\s.]+)", after_not, text, flags=re.I)
 
 
 def _problems(root) -> list:

@@ -29,6 +29,21 @@ class Untranslatable(Exception):
     pass
 
 
+def p_unmodelled(it: L.Item) -> str | None:
+    """#4669: why a P-scaled numeric item is refused, or None (PIC 99PP / VPP99 zoned, and left-P binary, are
+    modelled: the item stores its 9s, its scale counts the Ps). The oracle has no answer for the others -- GnuCOBOL
+    3.1.2 (-std=ibm) stores a P-scaled packed item's digits shifted into its sign nibble (MOVE 5600 TO PIC S99PP
+    COMP-3 reads back as `<600`), and loops forever on MOVE 0 into a right-P binary item (PIC 99PP COMP)."""
+    if not it.p_scaled:
+        return None
+    if it.usage == "PACKED":
+        return f"{it.name}: PIC {it.pic} COMP-3, a P-scaled packed item (GnuCOBOL 3.1.2 mis-stores it: no oracle)"
+    if it.usage == "COMP-5" or (it.usage == "BINARY" and it.scale < 0):
+        return (f"{it.name}: PIC {it.pic} {it.usage}, a right-P / native binary item (GnuCOBOL 3.1.2 loops on a "
+                "MOVE into it: no oracle)")  # fmt: skip
+    return None
+
+
 def _reads(method):
     """The operands a method names are only read (gen.reading)."""
 
@@ -68,6 +83,10 @@ def jstr(s: str) -> str:
             out.append("\\\\")
         elif 32 <= o < 127:
             out.append(ch)
+        elif o < 256:
+            # #4690: never the u-escapes 000a / 000d / 0022 (Java translates them before lexing, cutting the literal open);
+            # a three-digit octal escape is exact and cannot swallow a following digit
+            out.append(f"\\{o:03o}")
         else:
             out.append(f"\\u{o:04x}")
     return '"' + "".join(out) + '"'
@@ -222,6 +241,9 @@ class Gen:
             cands = [c for c in cands if ok(c)]
         if len(cands) != 1:
             raise Untranslatable(f"{ref.name}: {'no such item' if not cands else 'ambiguous'}")
+        why = p_unmodelled(cands[0])
+        if why:
+            raise Untranslatable(why)
         return cands[0]
 
     def resolve_cond(self, ref: E.Ref) -> L.Item | None:
@@ -828,6 +850,9 @@ class Gen:
         if lb and lb[0] == "X":
             return f"Cobol.compareText({name}, {lb[1]}, CS{c}) {jop} 0"
         if isinstance(b, E.Ref):
+            self.digits_as_text(a, b)
+            if self.is_numeric(b) and b.refmod is None and not _unsigned_zoned(self.resolve(b)):
+                return self.violate(it)  # compared as its digits, not its bytes (#4665): through the runtime
             flipped = {"==": "==", ">": "<", "<": ">", ">=": "<=", "<=": ">="}[jop]
             return f"Cobol.compare({self.field_expr(b)}, {name}, CS{c}) {flipped} 0"
         if isinstance(b, E.Lit) and isinstance(b.value, str):  # a literal longer than the item
@@ -981,7 +1006,12 @@ class Gen:
         if name == "CURRENT-DATE":
             return "DetCics.currentDate(task.now())" if self.cics is not None else self.clock
         if name in ("NUMVAL", "NUMVAL-C", "TEST-NUMVAL", "TEST-NUMVAL-C") and len(args) == 1:
-            return f"Funcs.{_camel(name)}({self.text(args[0])})"
+            arg = self.text(args[0])
+            if any(r.decimal_comma for r in self.p.records):
+                # #4462: DECIMAL-POINT IS COMMA -- the argument's `,` is its decimal point and `.` its separator:
+                # swapped, it is the text the functions read with the standard ones (a position for a position)
+                arg = f"{arg}.replace('.', '\\u0000').replace(',', '.').replace('\\u0000', ',')"
+            return f"Funcs.{_camel(name)}({arg})"
         if name in ("INTEGER-OF-DATE", "DATE-OF-INTEGER", "INTEGER", "INTEGER-PART", "ABS") and len(args) == 1:
             return f"Funcs.{_camel(name)}({self.num(args[0])})"
         if name in ("MOD", "REM", "MIN", "MAX") and len(args) >= 2:
@@ -1076,6 +1106,8 @@ class Gen:
         if (self.is_numeric(a) and self.is_numeric(b)) or (
             self.is_numeric(a) and isinstance(b, E.Fig) and b.kind == "ZEROS") or (
             self.is_numeric(b) and isinstance(a, E.Fig) and a.kind == "ZEROS"):  # fmt: skip
+            self.p_scaled_expr(a, True)
+            self.p_scaled_expr(b, True)
             return f"{self.num(a)}.compareTo({self.num(b)}) {jop} 0"
         if isinstance(a, E.Ref):
             return f"{self.cmp(a, b, jop)} {jop} 0"
@@ -1088,6 +1120,43 @@ class Gen:
                 return f"Cobol.compareText({self.text(a)}, {self.text(b)}, CS{c}) {jop} 0"
             return f"Cobol.compareText({self.text(a)}, {self.text(b)}) {jop} 0"
         raise Untranslatable("comparison of two non-data operands")
+
+    def p_scaled_expr(self, e, condition: bool) -> None:
+        """#4670: refuses, by name, an arithmetic expression whose P-scaled operand GnuCOBOL 3.1.2 evaluates at a
+        precision of its own (no model): in a condition, any expression naming one (IF PR / 7 > 171 and PR * 2 > 2399
+        are false for PIC 99PP VALUE 1200); in a COMPUTE, a right-P item in a division or beside two more operands
+        ((PR / 7) * PR drops quotient digits; I5 + PR * 0.5 and B0 * .03 * PS lose the product). A P-scaled item
+        alone, a left-P item anywhere in a COMPUTE, and one operation of a right-P item with one operand are
+        modelled (measured against the oracle)."""
+        refs: list = []
+        division = False
+        leaves = 0
+
+        def walk(x) -> None:
+            nonlocal division, leaves
+            if isinstance(x, E.Bin):
+                division |= x.op == "/"
+                walk(x.left)
+                walk(x.right)
+            elif isinstance(x, E.Neg):
+                walk(x.operand)
+            else:
+                leaves += 1
+                if isinstance(x, E.Ref):
+                    refs.append(x)
+
+        walk(e)
+        if not isinstance(e, (E.Bin, E.Neg)) or not refs:
+            return
+        for r in refs:
+            try:
+                it = self.resolve(r)
+            except Untranslatable:
+                continue  # refused where it is translated
+            if it.p_scaled and (condition or (it.scale < 0 and (division or leaves > 2))):
+                where = "a condition" if condition else "a COMPUTE with a division or three operands"
+                raise Untranslatable(f"{r.name}, PIC {it.pic}: a P-scaled operand in {where} (GnuCOBOL's "
+                                     "intermediate precision for it is not modelled, #4670)")  # fmt: skip
 
     def rel_float(self, jop: str, a, b) -> str:
         """A comparison with a COMP-1 / COMP-2 comparand, in floating point (IBM: "if either comparand is a
@@ -1109,8 +1178,11 @@ class Gen:
         )
         c = "" if numeric else self.coll(jop, a, b)
         if isinstance(b, E.Ref):
+            self.digits_as_text(a, b)
             return f"Cobol.compare({fa}, {self.field_expr(b)}, CS{c})"
         if isinstance(b, E.Lit):
+            if isinstance(b.value, Decimal) and (not self.is_numeric(a) or a.refmod is not None):
+                return f"Cobol.compare({fa}, {jstr(self.literal_text(b.value, a, jop))}, CS{c})"  # #4665
             if isinstance(b.value, Decimal):
                 return f"Cobol.compare({fa}, {self.const(b.value)}, CS{c})"
             return f"Cobol.compare({fa}, {self.text(b)}, CS{c})"
@@ -1123,8 +1195,64 @@ class Gen:
                 return f"Cobol.compareText(Cobol.text({fa}, CS), {self.text(b)}, CS{c})"
             return f"Cobol.compareText(Cobol.text({fa}, CS), {self.text(b)})"
         if isinstance(b, (E.Bin, E.Neg)):
+            if not self.is_numeric(a) or a.refmod is not None:  # #4665: GnuCOBOL compares it as some text
+                raise Untranslatable(f"the nonnumeric {a.name} compared with an arithmetic expression: not modelled "
+                                     f"(C13)")  # fmt: skip
             return f"Cobol.num({fa}, CS).compareTo({self.num(b)})"
         raise Untranslatable(f"comparison with {type(b).__name__}")
+
+    # ---- a numeric operand compared as a nonnumeric one (#4665) ------------------------------------------------
+    # IBM Enterprise COBOL 6.4 Language Reference, "Comparison of numeric and alphanumeric operands": against an
+    # alphanumeric, alphabetic or edited operand (a numeric-edited item is not numeric) a numeric one is compared as
+    # though moved to an alphanumeric item of as many characters as its digits -- a nonnumeric comparison, never one
+    # by value. GnuCOBOL (the oracle) compares the same characters, except where register C13 records otherwise:
+    # those are refused by name here.
+    def literal_text(self, v: Decimal, against: E.Ref | L.Item | None = None, jop: str = "<") -> str:
+        """A numeric literal as the characters it is compared as against a nonnumeric operand (`against`, in relation
+        `jop`): its digits as written (leading zeros kept, the decimal point dropped). A signed one is refused:
+        GnuCOBOL compares its sign character, IBM moves no sign (C13). A non-integer one IBM does not allow; the
+        oracle's digits are modelled (C13), except an equality with a numeric-edited item of fewer decimal places:
+        GnuCOBOL decides that one when it compiles (= false, NOT = true) whatever the item holds (C13)."""
+        spelling = getattr(v, "spelling", None)
+        if spelling is None:  # a value of no literal (DFHRESP, CVDA): its digits
+            if v < 0 or v != v.to_integral_value():
+                raise Untranslatable(f"the value {v} compared with a nonnumeric operand: not modelled (C13)")
+            return str(int(v))
+        if spelling[:1] in "+-":
+            raise Untranslatable(f"the signed numeric literal {spelling} compared with a nonnumeric operand: GnuCOBOL "
+                                 f"compares its sign character, IBM no sign (C13)")  # fmt: skip
+        if jop in ("==", "!=") and against is not None:
+            try:
+                it = self.resolve(against) if isinstance(against, E.Ref) else against
+            except Untranslatable:
+                it = None
+            exp = v.as_tuple().exponent
+            places = -exp if isinstance(exp, int) else 0
+            if it is not None and it.category == "NUMERIC-EDITED" and places > it.scale:
+                raise Untranslatable(f"the numeric literal {spelling} compared for equality with the numeric-edited "
+                                     f"{it.name}, which has fewer decimal places: GnuCOBOL decides it when it "
+                                     f"compiles, IBM rejects a non-integer (C13)")  # fmt: skip
+        return spelling.replace(".", "").replace(",", "")
+
+    def digits_as_text(self, a: E.Ref, b: E.Ref) -> None:
+        """Refuse a numeric item compared as its characters with an elementary nonnumeric one (`a` against `b`, either
+        way round) where the oracle's characters are not IBM's (C13): a SIGN SEPARATE item (GnuCOBOL compares its
+        sign character) and a P-scaled one (GnuCOBOL its stored digits)."""
+        for num, other in ((a, b), (b, a)):
+            try:
+                it, ot = self.resolve(num), self.resolve(other)
+            except Untranslatable:
+                continue
+            text = other.refmod is not None or ot.category in ("ALPHANUMERIC", "ALPHABETIC", "NUMERIC-EDITED",
+                                                               "ALPHANUMERIC-EDITED")  # fmt: skip
+            if num.refmod is not None or it.category != "NUMERIC" or not text:
+                continue
+            if it.sign_separate and it.signed:
+                raise Untranslatable(f"{num.name} (SIGN SEPARATE) compared with the nonnumeric {other.name}: GnuCOBOL "
+                                     f"compares its sign character, IBM no sign (C13)")  # fmt: skip
+            if "P" in it.picture():
+                raise Untranslatable(f"{num.name} (P-scaled) compared with the nonnumeric {other.name}: not modelled "
+                                     f"(C13)")  # fmt: skip
 
     # ---- PROGRAM COLLATING SEQUENCE (#4539) -------------------------------------------------------------------
     def coll(self, jop: str, *operands) -> str:
@@ -1271,6 +1399,8 @@ class Gen:
             if c and not (_text_item(parent) or _unsigned_zoned(parent)):
                 raise Untranslatable(f"88 {cn.name} under PROGRAM COLLATING SEQUENCE {self.program_collating}: "
                                      f"{parent.name} holds numeric or national items: not modelled")  # fmt: skip
+        if kind == "num" and parent is not None and parent.category not in ("NUMERIC", "FLOAT"):
+            return f"Cobol.compare({f}, {jstr(self.literal_text(v[1], parent, jop))}, CS{c})"  # #4665
         if kind == "num":
             return f"Cobol.compare({f}, {self.const(v[1])}, CS{c})"
         if kind == "lit":
@@ -1396,12 +1526,21 @@ class Gen:
         return out
 
     def _init_one(self, x: L.Item, base: str, top: L.Item, extra: int = 0) -> str:
+        why = p_unmodelled(x)
+        if why:
+            raise Untranslatable(f"INITIALIZE {why}")
         fig = "ZEROS" if x.category in ("NUMERIC", "NUMERIC-EDITED", "FLOAT") else "SPACES"
         rel = x.offset - top.offset + extra
         return f"Cobol.moveFigurative(Figurative.{_fig(fig)}, {self.factory(x, f'{base}.storage()', f'{base}.offset() + {rel}')}, CS);"
 
     # ---- fields -------------------------------------------------------------------------------------------------
     def factory(self, it: L.Item, storage: str, offset: str) -> str:
+        f = self._factory(it, storage, offset)
+        # #4462: DECIMAL-POINT IS COMMA -- an edited PICTURE's `,` is its decimal point, and so is an alphanumeric
+        # sender's `,` when the item receives one (the runtime's Field.decimalComma)
+        return f"{f}.decimalComma()" if it.decimal_comma else f
+
+    def _factory(self, it: L.Item, storage: str, offset: str) -> str:
         cat = it.category
         if cat == "GROUP":
             return f"Field.group({storage}, {offset}, {it.size})"
@@ -1550,6 +1689,7 @@ class Gen:
             mode = self.float_mode([s.data["expr"]], [t for t, _ in s.data["targets"]])
             if mode is not None:
                 self.float_statement(s, s.data["targets"])
+            self.p_scaled_expr(s.data["expr"], False)
             plan = self.plan_arith(s.data["expr"], [t for t, _ in s.data["targets"]])
             plan = {} if mode is not None else plan
             with self.floating(mode), self.osvs_plan(plan):
@@ -1753,6 +1893,9 @@ class Gen:
         if lo and lo[0] == "X":
             return lo[1]
         if isinstance(o, E.Ref):
+            it = self.resolve(o)
+            if it.p_scaled and o.refmod is None:  # GnuCOBOL: PIC 99PP VALUE 1200 as `0012`; IBM: its digits
+                raise Untranslatable(f"{o.name}, PIC {it.pic}: a P-scaled item's DISPLAY form (#4670)")
             if self.float_item(o) is not None:  # IBM: as external floating point -.9(8)E-99 / -.9(17)E-99
                 return f"Cobol.displayText({self.value_field(o)}, CS)"
             return f"Cobol.displayText({self.field_expr(o)}, CS)"

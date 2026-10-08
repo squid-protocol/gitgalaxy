@@ -10,7 +10,6 @@ from __future__ import annotations
 import os
 import shutil
 import sys
-from decimal import Decimal
 from pathlib import Path
 
 import pytest
@@ -53,7 +52,7 @@ def test_the_issues_quotient_is_aligned_to_the_receivers_places():
 def test_a_literal_on_the_right_does_not_load_so_nothing_is_aligned_before_it():
     # A / B * 3: the literal is a decimal constant, never loaded -- the quotient goes on exact (measured: 000.99)
     q = E.parse_arith("A / B")
-    plan = O.plan_compute(E.Bin("*", q, E.Lit(Decimal(3), "3")), [2], leaf, length)
+    plan = O.plan_compute(E.Bin("*", q, E.Lit(E.NumLit("3"))), [2], leaf, length)
     assert aligns(plan) == []
 
 
@@ -110,7 +109,7 @@ def test_conditions_are_built_right_to_left_and_share_the_stack():
 
 def test_two_integer_literals_compare_at_compile_time_and_are_not_walked():
     # EVALUATE TRUE WHEN 3 > 75000 ... : cb_false, so the second WHEN's walk sets dmax (3), not the first's (0)
-    w1 = O.Relation(E.Lit(Decimal(3), "3"), E.Lit(Decimal(75000), "75000"))
+    w1 = O.Relation(E.Lit(E.NumLit("3")), E.Lit(E.NumLit("75000")))
     e = E.parse_arith("Q3 ** 1")
     w2 = O.Relation(e, E.Ref("A"))
     out = O.plan_condition([[w1], [w2]], leaf, length, evaluate=True)
@@ -180,9 +179,9 @@ WANT = {"ISSUE": "09900", "LITERAL": "00099", "BINARY": "50100", "UNARY": "00700
 
 
 def _java_ok() -> bool:
-    from test_det_programs import _java
+    import test_det_programs as T
 
-    return _java() is not None
+    return T._java() is not None
 
 
 @pytest.mark.skipif(os.environ.get("EQUIVALENCE_E2E") != "1" or not shutil.which("docker"),

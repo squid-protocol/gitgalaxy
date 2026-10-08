@@ -12,7 +12,8 @@ name: Evidence Refresh
 # main, and not in feature PRs (which would conflict on the same generated files); per-PR CI only prints the level deltas
 # (smoke-test.yml, advisory) and the release gate (publish.yml) requires `evidence_report.py --check --live` clean.
 # This job runs on every push to main, nightly, and on demand. It always works from the CURRENT main, and its
-# concurrency group cancels an older run when a newer push lands. When nothing changed it opens no PR. Otherwise it
+# concurrency group lets a running refresh finish and keeps only the newest push queued behind it (a refresh takes
+# ~1 h; cancelling on every push starved it on busy merge days, so no refresh ever completed). When nothing changed it opens no PR. Otherwise it
 # opens (or updates) the bot PR from auto/evidence-refresh onto main and enables squash auto-merge on it. The report
 # files stay content-deterministic (so --check compares content), so the commit it was refreshed at ("as of commit
 # <sha>") is stamped on the bot's commit and PR, not inside the files.
@@ -45,7 +46,7 @@ permissions:
 
 concurrency:
   group: ${{ github.workflow }}
-  cancel-in-progress: true  # a newer push to main supersedes an older refresh (#4703)
+  cancel-in-progress: false  # finish the running refresh; GitHub keeps only the newest pending run queued (#4703)
 
 jobs:
   refresh:

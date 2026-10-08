@@ -1193,3 +1193,15 @@ def test_the_stub_starts_the_task_with_its_channel_and_writes_what_it_leaves(tmp
     run = subprocess.run([str(exe)], capture_output=True, text=True, env=env, check=False)  # noqa: S603
     assert run.stdout.splitlines()[:2] == ["get resp=0 len=4 into=0001", "put resp=0"]
     assert (o / "containers.out").read_text() == "CHANNEL MYCHANNEL\nINPUTCONTAINER 30303031\nOUT 393938\n"
+
+
+def test_each_linked_sql_program_gets_the_next_free_ids_within_four_digits():
+    """#4270: GG-SQL-ID is PIC 9(4). Twelve LINKed programs (GenApp's LGTESTP1) once took ranges of 1000 by their
+    place in "programs", and the tenth's 10000 lost its high digit (an unknown GG-SQL-ID); each program's statements
+    now start at the next hundred after the ids already taken."""
+    assert ec.sql_first_id("") == 100
+    table = (
+        "S 1 SELECT1 1 1 - P 10\nI 0 X 1 0 0 0 0\nS 2 EXEC 1 0 - P 20\nS 100 OPEN 0 0 C Q 30\nS 117 FETCH 0 1 C Q 40\n"
+    )
+    assert ec.sql_first_id(table) == 200
+    assert ec.sql_first_id("S 199 EXEC 0 0 - P 1\n") == 200

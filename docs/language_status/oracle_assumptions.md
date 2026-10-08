@@ -116,6 +116,7 @@ verdict, but it limits what the proof says about inputs outside the scenarios.
 | Q7 | Db2 | `CCSID EBCDIC` tables hold Unicode text: string order differs | DIFFERS | no |
 | Q8 | Db2 | Positioned UPDATE / DELETE: the Java side by row id | MATCHED | yes (GenApp LGUPDB01) |
 | Q9 | Db2 | More host variables than columns: SQLWARN3, the rest untouched | MATCHED | yes (GenApp LGUPDB01) |
+| Q10 | Db2 | A statement the driver fails with no Db2 SQLCODE (a blank timestamp host variable) | REFUSED (the task; an enumerated fault task not judged) | no (met by LGTESTP4's add, left out: #4652) |
 | J1 | Java | VSAM files on H2, not the target database | ASSUMED | — |
 | M1 | method | The scenarios are ours, not production traffic | — | — |
 | M2 | method | SQL faults: injected on both sides at a statement (#4173), the SQLCA as the stub sets it | MATCHED (ASSUMED SQLCA) | yes (17 Db2 cases) |
@@ -344,6 +345,9 @@ verdict, but it limits what the proof says about inputs outside the scenarios.
   GnuCOBOL does not; the proofs differ on both inputs.
 - **Now.** Those inputs are not in the case, so the three COMEN01C survivors in the port's own digit test stay case
   gaps. A z/OS run (#4050) settles which side is right.
+- **Also met (#4652).** GenApp LGTESTP4's add leaves CA-BROKERID / CA-PAYMENT (PIC 9) as spaces, which LGAPDB01 moves
+  to binary host variables: GnuCOBOL gives 931773840 / 707773840, the det port 0. The data is the program's own, so
+  genapp-lgtestp4 leaves that add out.
 
 ### C12. FUNCTION RANDOM — the numbers DIFFER from z/OS, the interface ASSUMED; refused where IBM does not allow the seed
 - **IBM** (Enterprise COBOL 6.4 Language Reference, RANDOM,
@@ -1097,6 +1101,13 @@ The length READQ TS returns on ITEMERR or QIDERR is not documented, so it is not
 - GenApp's LGUPDB01 FETCHes six host variables from a five-column cursor (a GenApp defect). Db2 sets SQLWARN3 and
   leaves the sixth as it was; both sides now do the same (the COBOL stub had reported an error, the Java side a
   NULL).
+
+### Q10. A statement the driver fails with no Db2 SQLCODE — REFUSED (#4270)
+- **What.** A host variable Db2 cannot take (GenApp LGAPDB01's INSERT COMMERCIAL with a blank CA-LASTCHANGED as its
+  REQUESTDATE, reached when the SELECT LASTCHANGED before it is faulted) fails in the client: Db2's CLI gives its own
+  native code -99999 (SQLSTATE 22007), IBM's JDBC driver its own -4220. What Db2 for z/OS answers is not known here,
+  so the COBOL stub stops the task by name ("the CLI failed it in the client") instead of passing -99999 on as an
+  SQLCODE: an enumerated fault task (M2) that reaches it is not judged; a declared scenario stops the case.
 
 ## The Java side
 

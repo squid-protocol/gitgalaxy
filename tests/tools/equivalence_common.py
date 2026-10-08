@@ -193,10 +193,12 @@ def stage_copybooks(case: dict[str, Any], corpus: Path, src: Path) -> None:
     """The case's copy_dirs into the GnuCOBOL source directory. A z/OS library member's name is upper-case and COPY
     names are not case-sensitive, so each file is also staged under its upper-case name: COPY COACTVW finds
     COACTVW.cpy, and COPY EPSNBRPM finds IBM DBB's lower-case epsnbrpm.cpy. A case whose screens name generated
-    symbolic maps (`@bms/...`) also gets them, after the estate's own copybooks (a member the estate ships wins)."""
+    symbolic maps (`@bms/...`) also gets them, after the estate's own copybooks (a member the estate ships wins).
+    A BMS map source (`.bms`, assembler macros) is no COPY member: GenApp keeps ssmap.bms beside its programs, and
+    staged as SSMAP.cpy it would shadow the generated symbolic map that `COPY SSMAP` means (#4270)."""
     for cpy in case.get("copy_dirs", []):
         for p in (corpus / cpy).iterdir():
-            if p.is_file():
+            if p.is_file() and p.suffix.lower() != ".bms":
                 shutil.copy(p, src / p.name)
                 shutil.copy(p, src / (p.stem.upper() + ".cpy"))
     if any(str(s.get("copybook", "")).startswith("@bms/") for s in (case.get("screens") or {}).values()):
@@ -749,3 +751,31 @@ def run_cobol_step(
     assert earlier is not None
     shutil.copytree(earlier, work, dirs_exist_ok=True)
     return subprocess.CompletedProcess(["reuse", str(earlier)], 0, "", "")
+
+
+NOT_MODELLED = "GGDISPLAY-NOT-MODELLED"  # faults/ggdisplay.c: an operand IBM's text is not modelled for
+
+
+def sysout_lines(data: bytes, enc: str) -> list[str]:
+    """The job log's lines as compared: trailing blanks dropped (a SYSOUT record is blank-padded to its length,
+    so they are not text) and libcob's own runtime messages left out (they are GnuCOBOL's, not the program's)."""
+    lines = [x.rstrip(" \r") for x in data.decode(enc).split("\n") if not x.startswith("libcob: ")]
+    while lines and not lines[-1]:
+        lines.pop()
+    return lines
+
+
+def compare_sysout(cobol: bytes, java: bytes, enc: str) -> dict[str, Any]:
+    """#4056: what each side DISPLAYed, line by line. Not compared (and said so) when the COBOL side DISPLAYed an
+    operand ggdisplay.c does not model: GnuCOBOL's text for it is not IBM's."""
+    c, j = sysout_lines(cobol, enc), java.decode("utf-8").split("\n") if java else []
+    j = [x.rstrip(" \r") for x in j]
+    while j and not j[-1]:
+        j.pop()
+    if NOT_MODELLED in c:
+        return {"compared": False, "why": "a DISPLAY operand IBM's text is not modelled for (faults/ggdisplay.c)",
+                "lines": len(c), "equal": 0, "diffs": []}  # fmt: skip
+    diffs = [{"line": i + 1, "cobol": c[i] if i < len(c) else None, "java": j[i] if i < len(j) else None}
+             for i in range(max(len(c), len(j))) if (c[i] if i < len(c) else None) != (j[i] if i < len(j) else None)]  # fmt: skip
+    return {"compared": True, "lines": len(c), "equal": max(len(c), len(j)) - len(diffs), "diffs": diffs[:20],
+            "differing": len(diffs)}  # fmt: skip

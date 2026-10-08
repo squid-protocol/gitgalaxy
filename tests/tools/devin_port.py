@@ -48,7 +48,7 @@ sys.path[:0] = [str(TOOLS), str(REPO_ROOT)]
 import equivalence as eq  # noqa: E402
 import equivalence_java as ej  # noqa: E402
 import mainframe_corpus as mc  # noqa: E402
-from equivalence_common import _fixed, _input_path, data_encoding  # noqa: E402
+from equivalence_common import _fixed, _input_path, data_encoding, sysout_lines  # noqa: E402
 
 from gitgalaxy.core.source_text import decode_bytes  # noqa: E402
 
@@ -407,7 +407,7 @@ def sysout_classes(case: dict[str, Any], cobol: bytes, java: bytes) -> dict[str,
     GnuCOBOL's own DISPLAY shows it (digits, then + or -) where IBM's DISPLAY shows the zoned bytes (the last
     digit overpunched; oracle_assumptions.md C8) -- the same value; `other` for anything else."""
     enc = data_encoding(case)
-    a, b = eq.sysout_lines(cobol, enc), eq.sysout_lines(java, enc)
+    a, b = sysout_lines(cobol, enc), sysout_lines(java, enc)
     out: dict[str, Any] = {"sign-display": 0, "other": 0, "examples": []}
     for n in range(max(len(a), len(b))):
         x, y = (a[n] if n < len(a) else None), (b[n] if n < len(b) else None)

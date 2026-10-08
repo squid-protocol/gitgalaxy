@@ -277,3 +277,60 @@ def test_a_perform_of_a_paragraph_that_never_returns_transfers() -> None:
               "    IF X = 2 DISPLAY 'Y' END-IF."]  # fmt: skip
     assert _after(*handle, *sends, "ON-ABEND.", "    DISPLAY 'A'.") == []
     assert _after(*handle, *sends, "ON-ABEND.", "    EXEC CICS ABEND ABCODE('X') END-EXEC.") == [6]
+
+
+def test_a_go_to_into_a_paragraph_that_only_returns_transfers() -> None:
+    """#4621: SEND-SCREEN ends in GO TO RETURN-TO-CICS, which only RETURNs: PERFORM SEND-SCREEN never comes back."""
+    perf = ["    PERFORM SEND-SCREEN", "    IF X = 2 DISPLAY 'Y' END-IF."]
+    ret = ["RETURN-TO-CICS.", "    EXEC CICS RETURN END-EXEC."]
+    send = ["SEND-SCREEN.", "    EXEC CICS SEND TEXT FROM(M) END-EXEC", "    GO TO RETURN-TO-CICS."]
+    assert _after(*perf, *send, *ret) == [5]
+    # a target that falls through into the next paragraph is no way out of the program
+    fall = ["RETURN-TO-CICS.", "    DISPLAY 'A'.", "NEXT-PARA.", "    DISPLAY 'B'."]
+    assert _after(*perf, *send, *fall) == []
+    # one of several targets that may come back
+    assert (
+        _after(*perf, "SEND-SCREEN.", "    GO TO RETURN-TO-CICS NEXT-PARA.", *ret, "NEXT-PARA.", "    DISPLAY 'B'.")
+        == []
+    )
+    # a GO TO DEPENDING ON may fall through
+    dep = ["SEND-SCREEN.", "    GO TO RETURN-TO-CICS DEPENDING ON X."]
+    assert _after(*perf, *dep, *ret) == []
+    # a chain: the target itself ends in a GO TO into a returning paragraph
+    chain = ["MID.", "    GO TO RETURN-TO-CICS."]
+    assert _after(*perf, "SEND-SCREEN.", "    GO TO MID.", *chain, *ret) == [5]
+
+
+def test_an_equal_size_rewritten_block_is_paired_by_similarity() -> None:
+    """#4620: four EXEC lines rewritten into four unlike lines are not the same lines."""
+    original = _cbl(
+        "PROCEDURE DIVISION.",  # 1
+        "A.",  # 2
+        "    EXEC CICS INQUIRE PROGRAM(WS-PGM)",  # 3
+        "         NOHANDLE",  # 4
+        "         RESP(WS-RESP)",  # 5
+        "    END-EXEC",  # 6
+        "    GOBACK.",  # 7
+    )
+    compiled = _cbl(
+        "PROCEDURE DIVISION.",  # 1
+        "A.",  # 2
+        "    MOVE 'P' TO GG-NAME",  # 3
+        "    CALL 'GGCINQ' USING GG-CICS",  # 4
+        "    MOVE GG-RESP TO WS-RESP",  # 5
+        "    MOVE 0 TO GG-X",  # 6
+        "    GOBACK.",  # 7
+    )
+    lines = cov.LineMap(original, compiled)
+    assert all(lines.get(n) is not None and lines.get(n)[1] is False for n in (3, 4, 5, 6))
+    assert 3 not in lines.exact and 6 not in lines.exact
+
+
+def test_a_condition_rewritten_in_place_stays_exact_in_an_equal_size_block() -> None:
+    """#4620: `IF X NOT= DFHRESP(NORMAL)` -> `IF X NOT= 0` is the same IF though the lines differ a lot."""
+    original = _cbl(
+        "A.", "    IF WS-RESP NOT= DFHRESP(NORMAL) OR WS-OTHER-FLAG = DFHRESP(NORMAL)", "       GOBACK", "    END-IF."
+    )
+    compiled = _cbl("A.", "    IF WS-RESP NOT= 0 OR WS-OTHER-FLAG = 0", "       GOBACK", "    END-IF.")
+    lines = cov.LineMap(original, compiled)
+    assert lines.get(2) == (2, True) and 2 in lines.exact

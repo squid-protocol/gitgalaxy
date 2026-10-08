@@ -227,7 +227,7 @@ class Parser:
         r = self.ref()
         if r.name == "DFHRESP" and len(r.subscripts) == 1 and isinstance(r.subscripts[0], Ref):
             # DFHRESP(condition): the condition's RESP value (IBM CICS TS)
-            from gitgalaxy.tools.cobol_to_java.det.cics import DFHRESP
+            from gitgalaxy.standards.cics.resp import DFHRESP
 
             cond = r.subscripts[0].name
             if cond not in DFHRESP:

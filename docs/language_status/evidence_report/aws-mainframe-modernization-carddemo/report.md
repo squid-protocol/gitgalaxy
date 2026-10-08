@@ -35,15 +35,15 @@ Translation measured by `cics_census.py survey` at translator commit `3bcbb8c623
 | level | programs |
 |---|---|
 | L0 | 14 |
-| L1 | 5 |
-| L2 | 25 |
+| L1 | 6 |
+| L2 | 24 |
 | L3 | 0 |
 | L4 | 0 |
 | L5 | 0 |
 
 - programs: 44 (with an EXEC CICS command: 25; source not read: 0)
 - translated whole: 30; refused whole: 3; holes left: 68
-- with an equivalence case: 29; det port equal on its case: 25; with an evidence record: 23; record current at build: 0
+- with an equivalence case: 29; det port equal on its case: 24; with an evidence record: 23; record current at build: 0
 
 ## Programs
 
@@ -60,7 +60,6 @@ Translation measured by `cics_census.py survey` at translator commit `3bcbb8c623
 | app/cbl/COACTUPC.cbl | L2 | 1415/1415 | 0 | carddemo-acctupdate | equal | 137 | none | not measured | not measured | not measured | not yet measured (#4628) | 7/11 |
 | app/cbl/COACTVWC.cbl | L2 | 275/275 | 0 | carddemo-acctview | equal | 20 | stale | not measured | not measured | not measured | not yet measured (#4628) | 7/8 |
 | app/cbl/COADM01C.cbl | L2 | 80/80 | 0 | carddemo-adminmenu | equal | 16 | stale | not measured | not measured | not measured | not yet measured (#4628) | 5/5 |
-| app/cbl/COBIL00C.cbl | L2 | 190/190 | 0 | carddemo-billpay | equal | 25 | stale | not measured | not measured | not measured | not yet measured (#4628) | 4/12 |
 | app/cbl/COCRDLIC.cbl | L2 | 500/500 | 0 | carddemo-cardlist | equal | 45 | stale | not measured | not measured | not measured | not yet measured (#4628) | 5/9 |
 | app/cbl/COCRDSLC.cbl | L2 | 263/263 | 0 | carddemo-cardview | equal | 23 | stale | not measured | not measured | not measured | not yet measured (#4628) | 7/8 |
 | app/cbl/COMEN01C.cbl | L2 | 91/91 | 0 | carddemo-menu | equal | 16 | stale | not measured | not measured | not measured | not yet measured (#4628) | 4/5 |
@@ -78,6 +77,7 @@ Translation measured by `cics_census.py survey` at translator commit `3bcbb8c623
 | app/app-transaction-type-db2/cbl/COTRTUPC.cbl | L1 | 436/436 | 0 | carddemo-cotrtupc | not run | 34 | none | not measured | not measured | not measured | not yet measured (#4628) | 7/8 |
 | app/cbl/CBEXPORT.cbl | L1 | 224/224 | 0 | — | — | — | — | not measured | not measured | not measured | not yet measured (#4628) | — |
 | app/cbl/CBIMPORT.cbl | L1 | 175/175 | 0 | — | — | — | — | not measured | not measured | not measured | not yet measured (#4628) | — |
+| app/cbl/COBIL00C.cbl | L1 | 190/190 | 0 | carddemo-billpay | not equal | 25 | stale | not measured | not measured | not measured | not yet measured (#4628) | 4/12 |
 | app/cbl/COCRDUPC.cbl | L1 | 488/488 | 0 | carddemo-cardupdate | not equal | 33 | none | not measured | not measured | not measured | not yet measured (#4628) | 7/10 |
 | app/app-authorization-ims-db2-mq/cbl/CBPAUP0C.cbl | L0 | 70/81 | 11 | — | — | — | — | not measured | not measured | not measured | not yet measured (#4628) | — |
 | app/app-authorization-ims-db2-mq/cbl/COPAUA0C.cbl | L0 | refused | 0 | — | — | — | — | not measured | not measured | not measured | not yet measured (#4628) | 2/7 |
@@ -286,37 +286,6 @@ Translation measured by `cics_census.py survey` at translator commit `3bcbb8c623
   - stated infeasible branch outcome (reviewed claim, family C): BUILD-MENU-OPTIONS:241:WHEN@260 (EVALUATE) -- `EVALUATE WS-IDX` `WHEN 10` inside `PERFORM VARYING WS-IDX FROM 1 BY 1 UNTIL WS-IDX > CDEMO-ADMIN-OPT-COUNT` (231-232): the count is the constant 6 (COADM02Y line 22 `05 CDEMO-ADMIN-OPT-COUNT PIC 9(02) VALUE 6`), never written by COADM01C, and the loop body does not change WS-IDX, so WS-IDX takes only 1-6.
 - **Det-port mutation:** not yet measured (#4628)
 - **Residual risk:** coverage not measured; assumption reach and the migration dimensions above: not measured
-
-### app/cbl/COBIL00C.cbl -- L2
-
-- **Executed equivalent** on the 25 scenarios of carddemo-billpay against GnuCOBOL + the gitgalaxy CICS stub (det port: CI det-sweep ratchet on main), given the assumptions below
-- **Next level needs:** paragraph coverage >= 100.0 (coverage not measured: no fresh det-sweep ledger entry and no local sweep)
-- **Translation:** 190/190 statements, 0 holes; whole: yes
-- **Executed equivalence** (carddemo-billpay, program, the case this report judges): det port equal (CI det-sweep ratchet on main)
-  - evidence record (the case's committed port): stale (stale on harness, oracle, generator); its proof: all equal, 25/25 scenarios equal, 85/85 records equal, 25 runs (10 fault runs); through its deployed entry points 25/25
-- **Coverage:** not measured
-- **Oracle backing** (a column, not a level; per CICS command; DIFFERS assumptions reached: not measured):
-
-  | command | spec entry | hand-traced crucible cases (stub / Java runtime agree) | backed |
-  |---|---|---|---|
-  | ASKTIME | full | none | no |
-  | ENDBR | full | none | no |
-  | FORMATTIME | full | none | no |
-  | READ | full | none | no |
-  | READPREV | full | none | no |
-  | RECEIVE MAP | full | hx-attr-bytes (yes / yes), hx-extended-cursor (yes / yes), pc-aid-menu (yes / yes), pc-wizard (yes / yes) | yes |
-  | RETURN | full | ca-channel-containers (yes / no), ca-link-lengths (yes / yes), ca-xctl-versions (yes / yes), gt-assign-startcode (yes / no), gt-start-options (yes / no), gt-start-retrieve (yes / yes), gt-terminal-coalesce (yes / yes), hc-abend-link (yes / yes), hc-eoc-error (yes / no), hc-handle-aid (yes / no), hc-ignore-error (yes / no), hc-perform-range (yes / yes), hc-terminal-eoc (yes / no), hc-terminal-receive (yes / no), hx-attr-bytes (yes / yes), hx-extended-cursor (yes / yes), pc-aid-menu (yes / yes), pc-wizard (yes / yes) | yes |
-  | REWRITE | full | none | no |
-  | SEND MAP | full | hx-attr-bytes (yes / yes), hx-extended-cursor (yes / yes), pc-aid-menu (yes / yes), pc-wizard (yes / yes) | yes |
-  | STARTBR | full | none | no |
-  | WRITE | full | none | no |
-  | XCTL | full | ca-channel-containers (yes / no), ca-xctl-versions (yes / yes), pc-aid-menu (yes / yes), pc-wizard (yes / yes) | yes |
-
-- **Assumptions relied on:** named by its commands' spec entries: X14 (ASSUMED (REFUSED where IBM is silent)), X22 (ASSUMED (REFUSED where IBM is silent or the layout decides)); reach: not measured
-  - stated infeasible branch outcome (reviewed claim, family G): RETURN-TO-PREV-SCREEN:275:true (IF) -- `IF CDEMO-TO-PROGRAM = LOW-VALUES OR SPACES` in RETURN-TO-PREV-SCREEN: the paragraph is only PERFORMed, and every PERFORM of it comes right after a MOVE of a non-blank program name into CDEMO-TO-PROGRAM (line 108 moves 'COSGN00C', line 130 'COMEN01C', and line 133 moves CDEMO-FROM-PROGRAM only after line 129 tested it is neither SPACES nor LOW-VALUES; both fields PIC X(08), COCOM01Y). COBIL00C never moves SPACES or LOW-VALUES into it in between.
-  - stated infeasible branch outcome (reviewed claim, family R): UPDATE-ACCTDAT-FILE:387:WHEN@390 (EVALUATE) -- `WHEN DFHRESP(NOTFND)` after `EXEC CICS REWRITE DATASET(WS-ACCTDAT-FILE)` (line 379): REWRITE updates the record the READ ... UPDATE at line 345 holds; IBM's REWRITE conditions do not include NOTFND (https://www.ibm.com/docs/en/cics-ts/6.x?topic=summary-rewrite; our spec, gitgalaxy/standards/cics/commands/files.py, lists NORMAL and INVREQ).
-- **Det-port mutation:** not yet measured (#4628)
-- **Residual risk:** coverage not measured; ASSUMED / DIFFERS entries named: X14, X22; commands without oracle backing: ASKTIME, ENDBR, FORMATTIME, READ, READPREV, REWRITE, STARTBR, WRITE; assumption reach and the migration dimensions above: not measured
 
 ### app/cbl/COCRDLIC.cbl -- L2
 
@@ -711,6 +680,36 @@ Translation measured by `cics_census.py survey` at translator commit `3bcbb8c623
 - **Assumptions relied on:** named by its commands' spec entries: none; reach: not measured
 - **Det-port mutation:** not yet measured (#4628)
 - **Residual risk:** coverage not measured; assumption reach and the migration dimensions above: not measured
+
+### app/cbl/COBIL00C.cbl -- L1
+
+- **Next level needs:** its det port equal on every scenario of carddemo-billpay: ledgered as differing in det_sweep_baseline.json (#4657): the det runtime's STARTBR NOTFND leaves EIBRESP2 0 where the stub gives 3; COBIL00C DISPLAYs it (the proof compares a task's DISPLAY output since #4635)
+- **Translation:** 190/190 statements, 0 holes; whole: yes
+- **Executed equivalence** (carddemo-billpay, program, the case this report judges): det port not equal (ledgered as differing in det_sweep_baseline.json (#4657): the det runtime's STARTBR NOTFND leaves EIBRESP2 0 where the stub gives 3; COBIL00C DISPLAYs it (the proof compares a task's DISPLAY output since #4635))
+  - evidence record (the case's committed port): stale (stale on harness, oracle, generator); its proof: all equal, 25/25 scenarios equal, 85/85 records equal, 25 runs (10 fault runs); through its deployed entry points 25/25
+- **Coverage:** not measured
+- **Oracle backing** (a column, not a level; per CICS command; DIFFERS assumptions reached: not measured):
+
+  | command | spec entry | hand-traced crucible cases (stub / Java runtime agree) | backed |
+  |---|---|---|---|
+  | ASKTIME | full | none | no |
+  | ENDBR | full | none | no |
+  | FORMATTIME | full | none | no |
+  | READ | full | none | no |
+  | READPREV | full | none | no |
+  | RECEIVE MAP | full | hx-attr-bytes (yes / yes), hx-extended-cursor (yes / yes), pc-aid-menu (yes / yes), pc-wizard (yes / yes) | yes |
+  | RETURN | full | ca-channel-containers (yes / no), ca-link-lengths (yes / yes), ca-xctl-versions (yes / yes), gt-assign-startcode (yes / no), gt-start-options (yes / no), gt-start-retrieve (yes / yes), gt-terminal-coalesce (yes / yes), hc-abend-link (yes / yes), hc-eoc-error (yes / no), hc-handle-aid (yes / no), hc-ignore-error (yes / no), hc-perform-range (yes / yes), hc-terminal-eoc (yes / no), hc-terminal-receive (yes / no), hx-attr-bytes (yes / yes), hx-extended-cursor (yes / yes), pc-aid-menu (yes / yes), pc-wizard (yes / yes) | yes |
+  | REWRITE | full | none | no |
+  | SEND MAP | full | hx-attr-bytes (yes / yes), hx-extended-cursor (yes / yes), pc-aid-menu (yes / yes), pc-wizard (yes / yes) | yes |
+  | STARTBR | full | none | no |
+  | WRITE | full | none | no |
+  | XCTL | full | ca-channel-containers (yes / no), ca-xctl-versions (yes / yes), pc-aid-menu (yes / yes), pc-wizard (yes / yes) | yes |
+
+- **Assumptions relied on:** named by its commands' spec entries: X14 (ASSUMED (REFUSED where IBM is silent)), X22 (ASSUMED (REFUSED where IBM is silent or the layout decides)); reach: not measured
+  - stated infeasible branch outcome (reviewed claim, family G): RETURN-TO-PREV-SCREEN:275:true (IF) -- `IF CDEMO-TO-PROGRAM = LOW-VALUES OR SPACES` in RETURN-TO-PREV-SCREEN: the paragraph is only PERFORMed, and every PERFORM of it comes right after a MOVE of a non-blank program name into CDEMO-TO-PROGRAM (line 108 moves 'COSGN00C', line 130 'COMEN01C', and line 133 moves CDEMO-FROM-PROGRAM only after line 129 tested it is neither SPACES nor LOW-VALUES; both fields PIC X(08), COCOM01Y). COBIL00C never moves SPACES or LOW-VALUES into it in between.
+  - stated infeasible branch outcome (reviewed claim, family R): UPDATE-ACCTDAT-FILE:387:WHEN@390 (EVALUATE) -- `WHEN DFHRESP(NOTFND)` after `EXEC CICS REWRITE DATASET(WS-ACCTDAT-FILE)` (line 379): REWRITE updates the record the READ ... UPDATE at line 345 holds; IBM's REWRITE conditions do not include NOTFND (https://www.ibm.com/docs/en/cics-ts/6.x?topic=summary-rewrite; our spec, gitgalaxy/standards/cics/commands/files.py, lists NORMAL and INVREQ).
+- **Det-port mutation:** not yet measured (#4628)
+- **Residual risk:** coverage not measured; ASSUMED / DIFFERS entries named: X14, X22; commands without oracle backing: ASKTIME, ENDBR, FORMATTIME, READ, READPREV, REWRITE, STARTBR, WRITE; assumption reach and the migration dimensions above: not measured
 
 ### app/cbl/COCRDUPC.cbl -- L1
 

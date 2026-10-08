@@ -59,7 +59,7 @@ verdict, but it limits what the proof says about inputs outside the scenarios.
 | id | area | entry | status | reached by a proof? |
 |---|---|---|---|---|
 | C1 | compiler | Binary truncation: `TRUNC(STD)` (IBM's default) on both sides (#4102, fixed) | MATCHED | reachable (GenApp LGICDB01) |
-| C2 | compiler | Arithmetic intermediates: the oracle truncates them (ARITHMETIC-OSVS, IBM's decimal places), the det runtime does not (#4287) | DIFFERS (det runtime) / ASSUMED (oracle) | yes (INTCALC, POSTTRAN …); the difference: not by a proof |
+| C2 | compiler | Arithmetic intermediates: the oracle truncates them (ARITHMETIC-OSVS), the det runtime the same way (#4287); where GnuCOBOL departs from IBM's decimal places | MATCHED (det runtime = oracle) / DIFFERS (oracle, GnuCOBOL's departures) | yes (INTCALC, POSTTRAN …); a departure: not known to be |
 | C3 | compiler | An integer literal truncated to zero keeps no sign | DIFFERS | no |
 | C4 | compiler | An unsigned binary taken below zero by ADD/SUBTRACT wraps | DIFFERS | no |
 | C5 | compiler | `NUMPROC(MIG)` as Enterprise COBOL 5+ compiles it (NOPFD), `NUMPROC(PFD)` with preferred signs (#4271); `INTDATE(LILIAN)`, `ARITH(EXTEND)`, `TRUNC(OPT)` | MATCHED (NUMPROC) / REFUSED (the rest) | NUMPROC: no |
@@ -68,8 +68,10 @@ verdict, but it limits what the proof says about inputs outside the scenarios.
 | C8 | compiler | DISPLAY of signed zoned, binary and packed items | MATCHED | yes |
 | C9 | compiler | POINTER is 8 bytes in GnuCOBOL (x86-64), 4 on z/OS | DIFFERS | only NULL, trailing (CBSA) |
 | C10 | compiler | INITIALIZE / VALUE ZERO zoned items: unsigned F zone (GnuCOBOL) vs preferred C sign (z/OS) | DIFFERS (tolerated where a case declares it) | yes (CardDemo READACCT ARRYFILE) |
-| C11 | compiler | MOVE of an alphanumeric item holding a non-digit to a numeric DISPLAY item (#4049) | DIFFERS (inputs kept out of the cases) | yes (COMEN01C option `1!`) |
+| C11 | compiler | A non-digit in a numeric DISPLAY item: MOVEd from an alphanumeric item (#4049); MOVEd to a binary item (#4652) | DIFFERS (#4049: inputs kept out of the cases) / MODELLED, the oracle's arithmetic (#4652: to binary) | yes (COMEN01C option `1!`; GenApp LGTESTP4's add) |
 | C12 | compiler | FUNCTION RANDOM: the oracle's generator (glibc via GnuCOBOL), not IBM's unpublished one; a seed IBM does not allow refused | DIFFERS (the numbers) / ASSUMED (the interface) | translated, no proof yet (CBSA CRDTAGY1-5, INQCUST; GenApp LGICVS01) |
+| C13 | compiler | A numeric operand compared with a nonnumeric one (an alphanumeric, alphabetic or numeric-edited item): compared as its characters, not by value (#4665) | MATCHED (unsigned integer literals as written; zoned, packed and binary items as their digits, sign dropped; non-integer ones as the oracle's digits) / REFUSED (a signed literal, a SIGN SEPARATE or P-scaled item, an arithmetic expression, an equality with a literal of more decimal places than an edited item) | yes: CardDemo COTRTLIC (proven; an alphanumeric item against `0`); no proven program compares an edited item with a number |
+| C14 | compiler | Size errors without ON SIZE ERROR: a zero divisor leaves the receivers unchanged in the oracle (libcob's NaN), the det runtime the same (#4655); z/OS's result is undefined (a decimal-divide exception); 0 ** a negative is 0 in the oracle, a size error on z/OS | MATCHED (det runtime = oracle) / DIFFERS (oracle vs z/OS) | not known to be: no proven scenario divides by zero |
 | D1 | data | Text order is ASCII (Latin-1), not EBCDIC | DIFFERS | keys: no; comparisons: not audited |
 | D2 | data | Hex literals that name EBCDIC characters (`X'40'`) | DIFFERS | no |
 | D3 | data | Zoned signs in ASCII data (`{`, `}`, A–R overpunch) | MATCHED | yes |
@@ -116,6 +118,7 @@ verdict, but it limits what the proof says about inputs outside the scenarios.
 | Q7 | Db2 | `CCSID EBCDIC` tables hold Unicode text: string order differs | DIFFERS | no |
 | Q8 | Db2 | Positioned UPDATE / DELETE: the Java side by row id | MATCHED | yes (GenApp LGUPDB01) |
 | Q9 | Db2 | More host variables than columns: SQLWARN3, the rest untouched | MATCHED | yes (GenApp LGUPDB01) |
+| Q10 | Db2 | A statement the driver fails with no Db2 SQLCODE (a blank timestamp host variable) | REFUSED (the task; an enumerated fault task not judged) | yes (GenApp LGTESTP4: its add's enumerated fault task `add--sql-lgapdb01-316` (SELECT LASTCHANGED faulted), not run) |
 | J1 | Java | VSAM files on H2, not the target database | ASSUMED | — |
 | M1 | method | The scenarios are ours, not production traffic | — | — |
 | M2 | method | SQL faults: injected on both sides at a statement (#4173), the SQLCA as the stub sets it | MATCHED (ASSUMED SQLCA) | yes (17 Db2 cases) |
@@ -136,21 +139,50 @@ verdict, but it limits what the proof says about inputs outside the scenarios.
 - **Reach.** GenApp's LGICDB01 moves the 10-digit CA-CUSTOMER-NUM into an `S9(9) COMP`: a customer number of 10 digits
   would now behave as on z/OS.
 
-### C2. Arithmetic intermediates — the oracle ASSUMED, the det runtime DIFFERS (#4287)
-- **The oracle.** `cobc -std=ibm` turns on GnuCOBOL's `arithmetic-osvs` (`ibm-strict.conf`), so cobc truncates each
-  intermediate result to a number of decimal places (`cob_decimal_align`): IBM's fixed-point rules (Enterprise COBOL
-  6.4 Programming Guide, SC27-8714-03, Appendix A, "Fixed-point data and intermediate results": `+ -` the larger of
-  d1, d2; `*` d1 + d2; `/` the larger of the operands' difference and dmax, the most decimal places of any operand or
-  receiver). DIVIDE's quotient follows `cob_decimal_div` (the dividend shifted 38 digits, truncated). IBM's other
-  limit, at most 30 digits for an intermediate under `ARITH(COMPAT)`, GnuCOBOL does not apply: ASSUMED that no
-  proven intermediate is that long.
-- **The det runtime** computes in exact `BigDecimal` and does not truncate intermediates: `COMPUTE R = A / B * C` with
-  A = 1, B = 3, C = 300 and R `PIC 999V99` gives 099.00 on the oracle (and by IBM's rule) and 099.99 on the det port
-  (measured 2026-10-03, #4287). No proven scenario reaches such an expression; IBM DBB EPSMPMT's would.
-- **Reached.** Every COMPUTE with a division or a multiplication of large items, among them INTCALC's interest
-  computation; the det runtime's difference: not by a proof.
-- **To settle.** #4287 (model the aligns in the det translator), then a table of division and multiply-then-divide
-  cases on z/OS against `tests/equivalence/rounding/RND.cbl`.
+### C2. Arithmetic intermediates — the det runtime MATCHES the oracle (#4287); the oracle DIFFERS where GnuCOBOL departs from IBM
+- **IBM's rule.** Enterprise COBOL keeps each intermediate result to a number of decimal places (6.4 Programming
+  Guide, SC27-8714-03, Appendix A, "Fixed-point data and intermediate results"): `+ -` the larger of d1, d2; `*`
+  d1 + d2; `/` the larger of the operands' difference and dmax, the most decimal places of any operand or receiver;
+  at most 30 digits under `ARITH(COMPAT)`.
+- **The oracle.** `cobc -std=ibm` turns on GnuCOBOL's `arithmetic-osvs` (`ibm-strict.conf`), so cobc truncates
+  intermediates (`cob_decimal_align`) with decimal places it works out at compile time from those rules. The
+  reproducer of #4287 is IBM's own: `COMPUTE R = A / B * C` with A = 1, B = 3, C = 300 and R `PIC 999V99` gives
+  099.00 (A / B kept to 2 places). The 30-digit limit GnuCOBOL does not apply: ASSUMED that no proven intermediate
+  is that long.
+- **The det runtime (since #4287)** makes the same truncations: the translator replays cobc's decision
+  (`det/osvs.py`, from GnuCOBOL 3.1.2's `cobc/typeck.c` and `cobc/tree.c`) and emits `Cobol.align(value, places)`
+  where cobc emits `cob_decimal_align`; a literal on the right of an operation is libcob's decimal constant
+  (`Cobol.Dc`); `Cobol.divide` keeps cob_decimal_div's 38 + max(d1 - d2, 0) places and `Cobol.power`
+  cob_decimal_pow's trimming. COMPUTE, ADD / SUBTRACT / MULTIPLY / DIVIDE with an expression, and the relations of
+  IF, PERFORM UNTIL, SEARCH WHEN and EVALUATE are planned; floating-point statements keep their HFP model (C6).
+  Proven by `tests/cobol_mainframe/test_det_osvs.py` and by a randomized differential run (2026-10-07: over 100
+  random programs, about 25,000 COMPUTE, ADD, SUBTRACT, IF and EVALUATE statements over zoned, packed and binary
+  items, every output equal to the oracle's; on the earlier runtime about one line in six differed).
+- **Where GnuCOBOL departs from IBM's rule** (each measured on the oracle; the det port does what the oracle does,
+  so a proof cannot see them, and z/OS may not do them):
+  - the stack of decimal places pairs an operation with its own operands only when every operand pushes its
+    places; a binary item of scale 0, a short integer literal, ZERO and a literal on the right push nothing, and the
+    operation then takes dmax or a neighbour's places: `COMPUTE R = XB + YB + Z` with two `PIC 9(4) COMP` items and
+    R `PIC 999V99` aligns XB + YB to 2 places;
+  - `cob_decimal_align` with fewer places than the target shifts the wrong way: the value loses as many low-order
+    digits (579 aligned to 2 places is 500, so that COMPUTE gives 501.00 for 123 + 456 + 1; `- A + B` aligns 0 - A
+    and loses A);
+  - a literal's decimal constant takes the places of every intermediate it is added to or subtracted from, for the
+    rest of the run, and an exponent literal loses its trailing zeros;
+  - an EVALUATE leaves its dmax and stack to the next statements of the same sentence (a period, a COMPUTE or an IF
+    resets them), and an IF's folded literal pair keeps it from walking its condition;
+  - a relation of two literals with decimals compares wrongly (`100 > 1.25` is false), a separate GnuCOBOL matter:
+    no case compares two literals.
+- **Not replayed by the det translator** (refused by name, or exact as before): a negative literal exponent (libcob
+  overwrites the constant: refused); an arithmetic expression in a PERFORM VARYING FROM / BY, a SEARCH ALL key or a
+  subscript (cobc computes those otherwise); an EVALUATE whose last WHEN ends with a statement that leaves the state
+  dirty (refused); statements inside ON SIZE ERROR phrases, which cobc parses before their statement's expression (their
+  size-error semantics are C14's).
+- **Reached.** Every COMPUTE with more than one operation, among them INTCALC's interest computation. Across the
+  det sweep's ports (2026-10-07) the only truncation emitted is POSTTRAN's `ACCT-CURR-CYC-CREDIT -
+  ACCT-CURR-CYC-DEBIT` to 2 places, a value of 2 places (no change); none of GnuCOBOL's departures is reached.
+- **To settle.** A table of division, multiply-then-divide and binary-sum cases on z/OS against
+  `tests/equivalence/rounding/RND.cbl` (and the departures above).
 
 ### C3. An integer literal truncated to zero — DIFFERS
 - **What.** GnuCOBOL folds `MOVE -1000 TO PIC S9(3)` at compile time to +0 (`00{`). Every other truncating MOVE keeps
@@ -198,7 +230,7 @@ verdict, but it limits what the proof says about inputs outside the scenarios.
     CBSA's build JCL passes `TRUNC(OPT)`, but its programs' PROCESS cards override it with `TRUNC(STD)` (C1).
   - `ARITH(EXTEND)` changes only intermediates past 30 digits (31 instead) and float-mode precision (extended instead
     of long). GnuCOBOL caps neither (C2), so the oracle would compute COMPAT and EXTEND the same; a model needs a
-    guard on both sides that stops an intermediate past 30 digits, after #4287.
+    guard on both sides that stops an intermediate past 30 digits.
   - `INTDATE(LILIAN)` is pinned by IBM (day 1 is 15 October 1582 instead of 1 January 1601), and could be modelled
     by the documented offset of the integer-date functions. Dates before 1601 cannot run on GnuCOBOL and would be
     refused. No case needs it yet.
@@ -305,7 +337,7 @@ verdict, but it limits what the proof says about inputs outside the scenarios.
 - **Not tolerated.** A negative overpunch (`}`, `J`–`R`) against either form, a different digit, or any byte in an
   undeclared dataset.
 
-### C11. A non-digit moved to a numeric DISPLAY item — DIFFERS (inputs kept out of the cases)
+### C11. A non-digit in a numeric DISPLAY item — DIFFERS (inputs kept out of the cases); to a binary item MODELLED
 - **What.** COMEN01C moves the typed option (`WS-OPTION-X`, PIC X(2) JUST RIGHT) to `WS-OPTION` (PIC 9(2)) and then
   tests `WS-OPTION IS NOT NUMERIC`. With a non-digit typed, GnuCOBOL 3 (`-std=ibm`) gives `1!` -> `01` and `!1` ->
   `00`, both NUMERIC (measured 2026-10-03), so `1!` is option 1 and XCTLs. IBM treats an alphanumeric sender of a
@@ -316,6 +348,28 @@ verdict, but it limits what the proof says about inputs outside the scenarios.
   GnuCOBOL does not; the proofs differ on both inputs.
 - **Now.** Those inputs are not in the case, so the three COMEN01C survivors in the port's own digit test stay case
   gaps. A z/OS run (#4050) settles which side is right.
+- **To a binary item (#4652) -- MODELLED, the oracle's arithmetic.** GenApp LGTESTP4's add leaves CA-BROKERID PIC
+  9(10) / CA-PAYMENT PIC 9(6) as spaces (INITIALIZE skips the REDEFINES that holds them), and LGAPDB01 MOVEs them to
+  S9(9) COMP host variables. GnuCOBOL 3.1.2 (`cob_move_display_to_binary`) counts each byte as its character minus
+  '0' -- a space is -16, `A` 17 -- in an unsigned 64-bit integer that wraps, aligns the sender's digits on the
+  receiver's decimal places, keeps the receiver's digits under TRUNC(STD) (`val mod 10^digits`; not COMP-5), then
+  applies the sender's sign if the receiver is signed: BROKERID 931773840, PAYMENT 707773840 (TRUNC(BIN): the low
+  bytes, -597908592). A space where a signed sender's sign is counts -16 and positive, and the oracle then rewrites a
+  positive sender's sign byte as an overpunch (a space `{`, a separate space sign `+`). On z/OS a zoned item of
+  EBCDIC spaces (X'40') has digit nibbles 0, so the result is most likely 0, but IBM documents no result for
+  non-digit data in a numeric item, and the data here is the program's own (not an input a case can leave out). So
+  the det runtime models the oracle (`Cobol.nonDigitToBinary`, tested against GnuCOBOL in
+  `test_det_nondigit_binary.py`), and genapp-lgtestp4's successful add is proven against it: the proof says the port
+  computes what GnuCOBOL computes for these bytes, not what z/OS would INSERT. A signed sender whose sign byte is
+  neither a digit, a sign nor a space (`!` the oracle reads as +1, X'FF' as +0) is refused by name.
+- **Not modelled (the rest of C11, #4662).** Measured against the oracle on 2026-10-07: spaces MOVEd to a packed (COMP-3)
+  or zoned numeric receiver agree (both 0); but a letter in a zoned sender MOVEd to a zoned receiver (the oracle copies
+  the byte: `1A3` stays `1A3`, the det runtime writes `113`), spaces MOVEd to a numeric-edited item (the oracle leaves
+  spaces, the det runtime `0`), arithmetic on such an item (COMPUTE / ADD: the oracle -16 per space, the det runtime
+  0) and comparisons (`IF A = 0` false on the oracle, true in the det runtime) still differ. The oracle also rewrites
+  a signed sender's unsigned sign digit as an overpunch when it MOVEs it to a binary item (`0123` becomes `012C`),
+  for digit-only data as well; the det runtime does that only on the non-digit path above (C10 tolerates the F / C
+  difference where a case declares it).
 
 ### C12. FUNCTION RANDOM — the numbers DIFFER from z/OS, the interface ASSUMED; refused where IBM does not allow the seed
 - **IBM** (Enterprise COBOL 6.4 Language Reference, RANDOM,
@@ -352,6 +406,84 @@ verdict, but it limits what the proof says about inputs outside the scenarios.
   `test_det_funcs.py`.
 - **To settle.** Only a z/OS run can give IBM's numbers; even then they would be data for a declared difference, not
   a model, since the generator is unpublished.
+
+### C13. A numeric operand compared with a nonnumeric one — MATCHED where IBM and the oracle agree, REFUSED where they do not (#4665)
+- **IBM** (Enterprise COBOL 6.4 Language Reference, relation conditions, "Comparison of numeric and alphanumeric
+  operands"; the IBM page could not be re-read when this entry was written, so the rule is ASSUMED from it): a
+  numeric-edited item belongs to the alphanumeric class, so a numeric-edited item compared with a number is a
+  nonnumeric comparison, as an alphanumeric or alphabetic item is. The numeric operand is compared as though it were
+  moved to an alphanumeric item of as many characters as its digits -- a MOVE that keeps no sign -- then character
+  by character, the shorter operand padded with spaces. The numeric operand must be an integer; IBM rejects a
+  non-integer literal or item there.
+- **The oracle** (GnuCOBOL 3.1.2 `-std=ibm`, measured 2026-10-07 with `test_det_programs` probes): `E PIC
+  ZZZ,ZZ9.99` holding 1500 (`  1,500.00`) is neither greater than `1499.99` nor `1499` -- text, not value. A literal
+  is its characters as written: `0012` is `0012`, `12` is `12` (`  12` = `12` is false), `1499.99` is `149999`,
+  `0.12` is `012`. A zoned item is its bytes with an overpunched sign unpunched; a packed or binary item its value in
+  its PICTURE's digits (`S9(4) COMP-3` 12 is `0012`); the sign is dropped (-1234 equals `1234`). ZERO against an
+  edited item is a run of `0` characters. EVALUATE subjects, THRU ranges and an 88 on an edited item compare the
+  same way.
+- **Where they differ.** A signed literal: the oracle compares its sign character (`+1234` equals `+1234`, not
+  `1234`), IBM moves no sign. A SIGN SEPARATE item: the oracle compares its sign character (`-1234`), IBM drops it.
+  A P-scaled item: the oracle compares its stored digits (`99PP` holding 1200 is `12`), IBM's characters are not
+  settled. An arithmetic expression against a nonnumeric item: the oracle compares its result as text of its own
+  making (`  12` is not `10 + 2`, `1234` is `1000 + 234`), IBM documents no such comparison. A non-integer literal or
+  item: IBM rejects the program; the oracle's digits (point dropped) are modelled, since a program IBM compiles
+  never reaches them -- except an equality (`=`, `NOT =`, an EVALUATE WHEN, an 88 VALUE) of a numeric-edited item
+  with a literal of more decimal places than the item's: cobc decides it when it compiles (`ZZ9` holding 125 is not
+  `= 12.5` and `NOT = 12.5`, yet neither `< 12.5` nor `> 12.5`; `Z99V9` holding 112.5 is `= 112.5`, not `= 11.25`),
+  so it is refused (measured 2026-10-08). A signed literal against an alphanumeric item is the same: `'12'` is not
+  `+12` nor `-12`, `'+12'` is `+12`, `'-12'` is `-12` (measured 2026-10-08).
+- **The det port.** The generator passes a numeric literal against a nonnumeric item as its written characters
+  (`expr.NumLit` keeps the spelling; `Gen.literal_text`), the runtime (`Cobol.compare(Field, Field)`) compares a
+  numeric item against an elementary nonnumeric one as its digits; the five differing shapes are holes by name
+  ("... (C13)"). A group against a numeric item is unchanged (its bytes; not measured here).
+- **Pinned** by `tests/cobol_mainframe/test_det_programs.py` (`EDCMP` against GnuCOBOL; the refusals by name).
+- **To settle.** A z/OS run of `EDCMP` (and of a signed-literal variant) would confirm IBM's characters.
+
+### C14. Size errors (a zero divisor, an exponent, overflow) — the det runtime MATCHES the oracle (#4655); the oracle DIFFERS from z/OS where IBM leaves the result undefined
+- **IBM** (Enterprise COBOL for z/OS Language Reference, "SIZE ERROR phrases"; the wording below is paraphrased
+  from the 6.x manual and not re-fetched for this entry -- confirm it against
+  https://www.ibm.com/docs/en/cobol-zos/6.4.0?topic=statements-size-error-phrases before quoting it): a size error
+  condition is a result whose absolute value, after decimal-point alignment, exceeds the receiver; a division by
+  zero; and, in an exponentiation, zero raised to the zero power, zero raised to a negative power, or a negative
+  number raised to a fractional power. It applies to final results only. With ON SIZE ERROR the receivers keep
+  their values and the imperative statement runs. Without it, an overflow is truncated (the receiver's high-order
+  digits are lost) and the result of the other cases is undefined; on z/OS a packed-decimal divide by zero is a
+  decimal-divide exception (S0CB abend) unless the compiler checks first.
+- **The oracle** (GnuCOBOL 3.1.2 `-std=ibm`, measured 2026-10-07): a zero divisor makes libcob's NaN intermediate
+  (`cob_decimal_div` sets scale COB_DECIMAL_NAN and EC-SIZE-ZERO-DIVIDE); an operation with a NaN operand gives NaN;
+  storing a NaN (`cob_decimal_get_field`) leaves the receiver unchanged. So, with or without ON SIZE ERROR:
+  `COMPUTE R R2 = A / Z` changes neither receiver; `COMPUTE R = A / Z + 1` and `(A / Z) * 0 + 7` change nothing;
+  `DIVIDE Z INTO R R2` leaves each receiver; `DIVIDE A BY Z GIVING Q REMAINDER RM` leaves Q and RM; `0 / 0` is the
+  same. Where cobc truncates an intermediate (ARITHMETIC-OSVS, C2), `cob_decimal_align` turns the NaN into 0:
+  `COMPUTE R = A / Z * C` stores 0, and `(A / Z) + (A / B)` stores A / B; in a condition an aligned quotient is 0
+  (`A / Z = 0` is true) while an unaligned one compares as its dividend scaled by 10^32768 (`0 = A / Z` is false).
+  An intrinsic function's argument divided by zero is 0 (`cob_intr_binop`), and FUNCTION MOD / REM by zero are 0
+  with no size error. `0 ** 0` is 1 with the size error raised; `0 ** -1` is 0 with no size error; a negative base
+  with a fractional exponent, or an exponent past a double's range, leaves the receiver unchanged with the size
+  error raised. An overflow without ON SIZE ERROR is truncated (IBM's rule). With ON SIZE ERROR the phrase runs
+  whenever the statement raised a size error, even if a receiver changed (the aligned 0, 0 ** 0's 1); the
+  exception code is cleared when the statement starts.
+- **The det runtime (since #4655)** does the same: `Cobol.divide` returns libcob's NaN (the dividend's digits at
+  scale -32768) for a zero divisor, `Cobol.add / subtract / multiply / negate / power` carry it where the translator
+  sees that an operand can be one (a division or an exponent below it), `Cobol.store` and `storeChecked` leave the
+  receiver (a lifted receiver is guarded with `Cobol.isNan`), `Cobol.align` truncates it to 0 as libcob does, and a
+  comparison sees its scaled value as cob_decimal_cmp does. A division inside a function's argument is
+  `Cobol.divideIntr` (0). A statement with ON SIZE ERROR and a division or exponent clears and reads the size-error
+  state (`Cobol.sizeClear` / `sizeRaised`, per thread). `Cobol.remainder` computes DIVIDE's REMAINDER from the
+  quotient truncated to the quotient receiver's places, as cob_div_quotient does (before, the stored quotient was
+  used: a quotient too big for its receiver, or ROUNDED up, gave a wrong remainder). Pinned by
+  `tests/cobol_mainframe/test_det_size_error.py` (every shape above, both port modes) and a randomized differential
+  run (2026-10-07: 56 random programs with zero divisors, DIVIDE and ON SIZE ERROR / NOT ON SIZE ERROR phrases,
+  every output equal to the oracle's).
+- **Not modelled.** A zero divisor in floating point (COMP-1 / COMP-2, `Hfp.divide`) still stops the run with an
+  ArithmeticException, a named stop rather than a guess.
+- **So a proof says:** for a scenario that divides by zero without ON SIZE ERROR, the port does what the oracle
+  does (receivers unchanged), which z/OS does not promise: IBM leaves the result undefined and a z/OS run may
+  abend. With ON SIZE ERROR both sides agree with IBM (receivers unchanged, the phrase runs), except `0 ** -n`,
+  which IBM calls a size error and the oracle (and so the port) computes as 0.
+- **Reached.** Not known to be: no proven scenario divides by zero or raises a size error from an exponent.
+- **To settle.** A z/OS run of the shapes in `test_det_size_error.py` without ON SIZE ERROR.
 
 ### C8. DISPLAY text — MATCHED
 - **What.** GnuCOBOL writes a signed zoned item as `012-` and a binary item as `-00007`. IBM writes their external
@@ -590,6 +722,24 @@ The length READQ TS returns on ITEMERR or QIDERR is not documented, so it is not
   failed there). A det caller passes the bytes themselves too (`CicsTask.link(..., area)`), so a det target sees every
   byte, the ones its contract DTO does not name included (CA-ERROR-MSG's leading FILLER).
 - **Reached.** Not by a proof: no case runs a target that reads past its caller's record.
+- **XCTL with a LENGTH past the target's DTO (#4501).** Same storage rule, from the sender's side: EIBCALEN
+  at the target is the LENGTH, whatever the target's DFHCOMMAREA defines. The det port passes those LENGTH bytes
+  (`DetCics.commareaOut`: the area's storage, LOW-VALUES past its record, in the region's EBCDIC), the target's
+  DFHCOMMAREA takes the first ones and EIBCALEN is the LENGTH. Reached by ca-xctl-versions length-range, where LENGTH
+  32767 fails LENGERR before any transfer and the COMMAREA compared is the 32,767 bytes of WS-BIG.
+- **RETURN and LINK with a LENGTH past the DTO; bytes passed on (#4679).** IBM, EXEC CICS RETURN: COMMAREA / LENGTH
+  is the data the next program of the conversation gets, and its EIBCALEN is LENGTH; EXEC CICS LINK: LENGTH is the
+  COMMAREA's length (0-32763, else LENGERR RESP2 11), passed by reference. A RETURN TRANSID now passes its LENGTH bytes
+  as XCTL does (CardDemo's COCRDLIC / COCRDSLC / COCRDUPC / COACTVWC / COACTUPC RETURN WS-COMMAREA, LENGTH 2000, over
+  DTOs of a few hundred bytes); the equivalence harness reads them by the case's COMMAREA layout, as it reads the stub's
+  RETURN area (`equivalence_cics.java_commarea`), so bytes past the layout are compared on neither side. A LINK with a
+  LENGTH past the target's DTO lays that many bytes over the caller's storage (`Cobol.commarea`), not the DTO's size
+  (GenApp's LINK of the 101-byte ERROR-MSG to LGSTSQ, LENGTH 101 over the 99-byte DTO). A receiver keeps the bytes past
+  its own DFHCOMMAREA record (`Storage.beyond`): opaque -- it does not address them -- but a further RETURN / XCTL /
+  LINK of that area with the LENGTH passes them on, and a LINK target's writes there go back by reference. Past
+  what was passed, LOW-VALUES as above. RESP2 after a failed LINK is the stub's and CicsTask's: LENGERR 11, PGMIDERR 1
+  (IBM, LINK conditions; `DetCics.linkResp2`); the others IBM lists (PGMIDERR 2 / 3, NOTAUTH 101, INVREQ ...) the
+  region does not raise.
 
 ### X11. ASKTIME ABSTIME into a narrow field — DIFFERS
 - **What.** ABSTIME is an 8-byte packed value (IBM: `PIC S9(15) COMP-3`). GenApp declares `WS-ABSTIME PIC S9(8) COMP`
@@ -1012,6 +1162,14 @@ The length READQ TS returns on ITEMERR or QIDERR is not documented, so it is not
 - **Not compared to z/OS.** SQLSTATE subclasses, SQLERRD values beyond the row count, SQLERRP, and the dialect
   differences of other statements.
 
+### Q1b. A datetime host variable Db2 rejects: -180 / 22007 on both sides — MATCHED (#4658)
+- **What.** An UPDATE binding an unset (non-date) PIC X host variable to a DATE column gets SQLCODE -180, SQLSTATE 22007
+  ("the string representation of a datetime value is not valid") from Db2 for LUW, and the same on z/OS Db2 (-180 is the
+  documented SQLCODE for this, SQLSTATE 22007). IBM's JDBC driver refuses some such values on the client with its own
+  -4220 (conversion error) before Db2 sees them; that code is never a Db2 SQLCODE an embedded-SQL program meets, so
+  DetSql maps it to -180 / 22007. Other driver errors pass through unchanged. SQLERRMC/SQLERRD of the mapped error stay
+  empty (the DISPLAYed SQLERRD(3) is 0 on both sides).
+
 ### Q1a. A binary host variable takes what its bytes hold — MATCHED (#4579)
 - **What.** SELECT INTO / FETCH INTO a COMP / COMP-4 / BINARY / COMP-5 host variable gives SQLCODE -304 only for a value
   outside its halfword / fullword / doubleword (Db2 types the host variable by its data type: S9(9) COMP is INTEGER), not
@@ -1069,6 +1227,13 @@ The length READQ TS returns on ITEMERR or QIDERR is not documented, so it is not
 - GenApp's LGUPDB01 FETCHes six host variables from a five-column cursor (a GenApp defect). Db2 sets SQLWARN3 and
   leaves the sixth as it was; both sides now do the same (the COBOL stub had reported an error, the Java side a
   NULL).
+
+### Q10. A statement the driver fails with no Db2 SQLCODE — REFUSED (#4270)
+- **What.** A host variable Db2 cannot take (GenApp LGAPDB01's INSERT COMMERCIAL with a blank CA-LASTCHANGED as its
+  REQUESTDATE, reached when the SELECT LASTCHANGED before it is faulted) fails in the client: Db2's CLI gives its own
+  native code -99999 (SQLSTATE 22007), IBM's JDBC driver its own -4220. What Db2 for z/OS answers is not known here,
+  so the COBOL stub stops the task by name ("the CLI failed it in the client") instead of passing -99999 on as an
+  SQLCODE: an enumerated fault task (M2) that reaches it is not judged; a declared scenario stops the case.
 
 ## The Java side
 

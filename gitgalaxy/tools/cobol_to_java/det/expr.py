@@ -11,9 +11,28 @@ from __future__ import annotations
 from dataclasses import dataclass, field
 from decimal import Decimal
 
+from gitgalaxy.standards.cics.resp import DFHRESP
+from gitgalaxy.tools.cobol_to_java.det.cvda import CVDA
+
 
 class ExprError(Exception):
     pass
+
+
+class NumLit(Decimal):
+    """A numeric literal's value that keeps the literal as written (#4665): compared with a nonnumeric operand, the
+    literal is its characters -- leading zeros, a sign and the decimal point's place matter there, and a Decimal
+    keeps none of them (0012 is 12, +12 is 12). Arithmetic on it yields plain Decimals."""
+
+    spelling: str
+
+    def __new__(cls, spelling: str, value: str | None = None):
+        obj = super().__new__(cls, spelling if value is None else value)
+        obj.spelling = spelling
+        return obj
+
+    def __reduce__(self):
+        return (NumLit, (self.spelling, str(Decimal(self))))
 
 
 # ---- the AST -------------------------------------------------------------------------------------------------
@@ -31,7 +50,15 @@ class Ref:
 class Lit:
     """A nonnumeric literal (text) or a numeric literal (Decimal)."""
 
+    # a numeric literal is an expr.NumLit, which keeps it as written: compared with an alphanumeric item, an integer
+    # literal is the nonnumeric literal of its digits, leading zeros and all (#4270: GenApp's LGTESTP4 `ENP4CNOO Not =
+    # 0000000000`; #4665)
     value: str | Decimal | bytes
+
+    @property
+    def text(self) -> str | None:
+        """A numeric literal as written (its leading zeros: cobc's literal identity, det/osvs.py), else None."""
+        return self.value.spelling if isinstance(self.value, NumLit) else None
 
 
 @dataclass
@@ -111,6 +138,7 @@ FIGURATIVES = {
     "QUOTES": "QUOTES",
 }  # fmt: skip
 REL_WORDS = {"=": "=", ">": ">", "<": "<", ">=": ">=", "<=": "<=", "<>": "<>"}
+ARITH_OPS = {"+", "-", "*", "/", "**", "("}
 CLASS_WORDS = {"NUMERIC", "ALPHABETIC", "ALPHABETIC-UPPER", "ALPHABETIC-LOWER", "POSITIVE", "NEGATIVE", "ZERO"}
 RESERVED_STOP = {"AND", "OR", "NOT", "THEN", "IS", "TO", "OF", "IN", "THAN", "EQUAL", "EQUALS", "GREATER",
                  "LESS", "UNTIL", "VARYING", "FROM", "BY", "GIVING", "ROUNDED", "ON", "SIZE", "ERROR",
@@ -180,10 +208,10 @@ class Parser:
             raise ExprError("NULL: pointers are not modelled")
         if _is_number(tok):
             self.i += 1
-            return Lit(Decimal(tok.replace(",", ".") if tok.count(",") == 1 and "." not in tok else tok))
+            return Lit(NumLit(tok, tok.replace(",", ".") if tok.count(",") == 1 and "." not in tok else tok))
         if u in ("+", "-") and (nxt1 := self.peek(1)) is not None and _is_number(nxt1):
             self.i += 2
-            return Lit(Decimal(u + self.t[self.i - 1]))
+            return Lit(NumLit(u + self.t[self.i - 1]))
         if u == "FUNCTION":
             self.i += 1
             name = self.take().upper()
@@ -211,16 +239,12 @@ class Parser:
         r = self.ref()
         if r.name == "DFHRESP" and len(r.subscripts) == 1 and isinstance(r.subscripts[0], Ref):
             # DFHRESP(condition): the condition's RESP value (IBM CICS TS)
-            from gitgalaxy.tools.cobol_to_java.det.cics import DFHRESP
-
             cond = r.subscripts[0].name
             if cond not in DFHRESP:
                 raise ExprError(f"DFHRESP({cond}) is not a documented condition")
             return Lit(Decimal(DFHRESP[cond]))
         if r.name == "DFHVALUE" and len(r.subscripts) == 1 and isinstance(r.subscripts[0], Ref):
             # DFHVALUE(name): the CVDA's numeric value (IBM CICS TS, CVDAs and numeric values)
-            from gitgalaxy.tools.cobol_to_java.det.cvda import CVDA
-
             name = r.subscripts[0].name
             if name not in CVDA:
                 raise ExprError(f"DFHVALUE({name}) is not a documented CVDA")
@@ -313,6 +337,10 @@ class Parser:
             return Neg(self.unary())
         if self.peek() == "+":
             self.i += 1
+            if (nxt := self.peek()) is not None and _is_number(nxt) and nxt[:1] not in "+-":  # +12: as written (#4665)
+                self.i += 1
+                return Lit(NumLit("+" + nxt, "+" + (nxt.replace(",", ".") if nxt.count(",") == 1 and "." not in nxt
+                                                    else nxt)))  # fmt: skip
             return self.unary()
         if self.peek() == "(":
             self.i += 1
@@ -392,8 +420,11 @@ class Parser:
 
     def _paren_is_condition(self) -> bool:
         grp = [g.upper() for g in self._group()]
-        return any(g in REL_WORDS or g in ("AND", "OR", "NOT", "EQUAL", "GREATER", "LESS") or g in CLASS_WORDS
-                   for g in grp)  # fmt: skip
+        # #4656: ZERO is a class word after an operand (`X IS ZERO`), a figurative constant in arithmetic
+        # (`(ZERO + 3)`, `(D0 + ZERO)`): after an operator, or first in the group, it is not a condition's
+        return any(g in REL_WORDS or g in ("AND", "OR", "NOT", "EQUAL", "GREATER", "LESS")
+                   or (g in CLASS_WORDS and not (g == "ZERO" and (k == 0 or grp[k - 1] in ARITH_OPS)))
+                   for k, g in enumerate(grp))  # fmt: skip
 
     def _looks_like_object_only(self) -> bool:
         """`A = 1 OR 2`: after OR / AND comes an operand with no relation of its own before the next OR / AND."""

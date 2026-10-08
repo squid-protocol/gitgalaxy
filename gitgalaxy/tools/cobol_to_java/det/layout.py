@@ -14,12 +14,15 @@ from fractions import Fraction
 from pathlib import Path
 
 from gitgalaxy.tools.cobol_to_java.det import hfp
+from gitgalaxy.tools.cobol_to_java.det.expr import NumLit
 from gitgalaxy.tools.cobol_to_java.det.source import (
     Line,
     _outside_literals,
     alphabet_keywords,
     as_fixed_rows,
     cobol_parser,
+    comma_literals,
+    decimal_comma,
     label_records,
     narrowed,
     refusal,
@@ -53,6 +56,7 @@ class Item:
     sign_separate: bool = False
     justified: bool = False
     blank_when_zero: bool = False
+    decimal_comma: bool = False  # #4462: the program's DECIMAL-POINT IS COMMA (an edited PICTURE's `,` is its point)
     children: list = field(default_factory=list)
     conditions: list = field(default_factory=list)  # its 88s
     parent: Item | None = None
@@ -88,15 +92,30 @@ class Item:
 
     @property
     def digits(self) -> int:
-        return sum(1 for c in self.picture() if c in "9P") if self.category in ("NUMERIC", "NUMERIC-EDITED") else 0
+        """The digits the item stores: a numeric item's 9s (a P is a scaling position, never stored -- #4669 /
+        #4670: PIC SVPP99 COMP-3 is two digits in two bytes), a numeric-edited item's 9s and Ps."""
+        if self.category == "NUMERIC":
+            return self.picture().count("9")
+        return sum(1 for c in self.picture() if c in "9P") if self.category == "NUMERIC-EDITED" else 0
+
+    @property
+    def p_scaled(self) -> bool:
+        """A numeric PICTURE with P scaling positions (PIC 99PP, VPP99, PP99)."""
+        return self.category == "NUMERIC" and "P" in self.picture()
 
     @property
     def scale(self) -> int:
         p = self.picture()
         if self.category == "NUMERIC":
-            return len(p.split("V", 1)[1]) if "V" in p else -sum(1 for c in p if c == "P")
+            body = p.replace("S", "")
+            if body.lstrip("V").startswith("P"):  # left P (VPP99, PP99): every position is a decimal one
+                return len(body.replace("V", ""))
+            if "P" in body:  # right P (99PP, 99PPV): the value is the stored digits times 10 ** (number of Ps)
+                return -body.count("P")
+            return len(p.split("V", 1)[1]) if "V" in p else 0
         if self.category == "NUMERIC-EDITED":
-            dp = p.find(".") if "." in p else p.find("V")
+            point = "," if self.decimal_comma else "."
+            dp = p.find(point) if point in p else p.find("V")
             return sum(1 for c in p[dp + 1 :] if c in "9Z*") if dp >= 0 else 0
         return 0
 
@@ -113,7 +132,7 @@ class Item:
         if cat == "INDEX":
             return 4
         if cat == "NUMERIC":
-            d = self.digits - sum(1 for c in p if c == "P")
+            d = self.digits
             if self.usage == "PACKED":
                 return d // 2 + 1
             if self.usage in ("BINARY", "COMP-5"):
@@ -249,11 +268,12 @@ def _data_only(lines: list[Line]) -> list[Line]:
 
 def parse(lines: list[Line]) -> list[Item]:
     """The 01 / 77 records of the DATA DIVISION, each a tree of Items."""
-    # #4462: national / DBCS text, DECIMAL-POINT IS COMMA, IDMS, several programs (each read on its own): refused by name
+    # #4462: national / DBCS text, IDMS, several programs (each read on its own): refused by name
     why = refusal(lines)  # (a survey's what-if may switch one check off: source.survey_unmask)
     if why:
         raise LayoutError(why)
-    lines = narrowed(lines)  # #4272: a wide character in a `*>` comment / a PROCEDURE DIVISION literal
+    comma = decimal_comma(lines)  # #4462: DECIMAL-POINT IS COMMA (a VALUE's `1000,00`, an edited PICTURE's `,`)
+    lines = comma_literals(narrowed(lines))  # #4272: a wide character in a `*>` comment / a PROCEDURE DIVISION literal
     text, rows = as_fixed_rows(_data_only(lines))
     # the PROCEDURE DIVISION is not needed (and EXEC blocks there are not this grammar's): stop before it
     m = re.search(r"^ {7}\s*PROCEDURE\s+DIVISION\b", text, re.I | re.M)
@@ -317,6 +337,8 @@ def parse(lines: list[Line]) -> list[Item]:
             raise LayoutError(missing)
         raise LayoutError(f"DATA DIVISION does not parse near expanded line(s) {errors[:5]}")
     for r in records:
+        for it in r.walk():
+            it.decimal_comma = comma
         _inherit_usage(r, None)
         layout(r)
     # an 01 REDEFINES another 01 of its section shares that record's storage
@@ -420,7 +442,7 @@ def _one(node, src: bytes):
         return ("lit", text[1:-1].replace(q * 2, q))
     if t == "number":
         try:
-            return ("num", Decimal(text))
+            return ("num", NumLit(text))
         except ArithmeticError as e:  # #4462: never an InvalidOperation out of the translator
             raise LayoutError(f"line {node.start_point[0] + 1}: VALUE {text} not modelled") from e
     if up.startswith(("SPACE",)):

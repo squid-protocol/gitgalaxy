@@ -1132,6 +1132,7 @@ PROGRAMS["PSCALE"] = program(
     _pscale_proc(),
 )  # fmt: skip
 
+
 def dpc_program(name: str, data: list[str], proc: list[str]) -> str:
     """#4462: a program under SPECIAL-NAMES DECIMAL-POINT IS COMMA: WORKING-STORAGE and PROCEDURE DIVISION lines from
     column 8 (a statement indented four more)."""

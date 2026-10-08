@@ -100,6 +100,17 @@ public final class Cobol {
     // ------------------------------------------------------------------------------------------------ MOVE
 
     public static void move(Field from, Field to, Charset cs) {
+        if (cat(to) == GROUP || from.kind != Field.Kind.NUMERIC_DISPLAY || from.st == to.st) {
+            moveBytes(from, to, null, cs);
+            return;
+        }
+        // #4662: libcob reads a zoned sender's sign (GET_SIGN) and writes it back (PUT_SIGN) after the MOVE
+        Zoned.Raw raw = Zoned.get(from, cs);
+        moveBytes(from, to, raw, cs);
+        Zoned.putSign(from, raw, cs);
+    }
+
+    private static void moveBytes(Field from, Field to, Zoned.Raw raw, Charset cs) {
         if (cat(to) == GROUP) {
             padCopy(from.raw(), to, false, cs);
             return;
@@ -109,6 +120,7 @@ public final class Cobol {
             moveFloat(from, fc, to, cs);
             return;
         }
+        if (raw != null && raw.dirty && moveNonDigit(from, raw, to, cs)) return;
         switch (cat(to)) {
             case ALNUM:
                 padCopy(sourceText(from, fc, cs), to, to.justRight, cs);
@@ -117,8 +129,7 @@ public final class Cobol {
                 insertEdit(to, sourceText(from, fc, cs), cs);
                 break;
             case NUMERIC:
-                if (to.kind == Field.Kind.NUMERIC_BINARY && from.kind == Field.Kind.NUMERIC_DISPLAY
-                        && nonDigitToBinary(from, to, cs)) {
+                if (to.kind == Field.Kind.NUMERIC_BINARY && raw != null && nonDigitToBinary(from, raw, to, cs)) {
                     break;
                 }
                 boolean zoned = to.kind == Field.Kind.NUMERIC_DISPLAY && fc != NUMERIC && fc != NUM_EDITED;
@@ -137,47 +148,58 @@ public final class Cobol {
      *  decimal places and accumulated in an unsigned 64-bit integer (wrapping), the receiver's digits kept under
      *  TRUNC(STD) (not for COMP-5), then the sender's sign applied when the receiver is signed. PIC 9(10) of spaces
      *  into S9(9) COMP is 931773840 under TRUNC(STD), -597908592 under TRUNC(BIN). IBM documents no result for such
-     *  data. A space where a signed sender's sign is counts -16 and positive; the oracle then rewrites a positive
-     *  sender's sign byte as an overpunch -- a space '{', a digit 4 'D' -- (a separate space sign '+'), as here. Any other non-sign there is refused by name. False,
-     *  nothing done, when every digit position holds a digit (the ordinary MOVE). */
-    private static boolean nonDigitToBinary(Field from, Field to, Charset cs) {
+     *  data. The sign byte of a signed sender is read as libcob reads it ({@link Zoned}: a space counts -16 and
+     *  positive, `!` is +1, X'FF' +0) and written back as an overpunch by {@link #move}. A SEPARATE sign other than
+     *  + - space is refused by name. False, nothing done, when every digit position holds a digit (the ordinary
+     *  MOVE). */
+    private static boolean nonDigitToBinary(Field from, Zoned.Raw raw, Field to, Charset cs) {
+        if (!raw.dirty) return false;
         byte[] d = from.st.bytes;
         int n = from.digits;
-        int start = from.signSeparate && from.signLeading ? from.off + 1 : from.off;
-        int signAt = from.signed && !from.signSeparate ? (from.signLeading ? 0 : n - 1) : -1;
         int sepAt = from.signSeparate ? (from.signLeading ? from.off : from.off + n) : -1;
-        int[] digit = new int[n];
-        boolean neg = false;
-        boolean nonDigit = false;
-        for (int i = 0; i < n; i++) {
-            char c = Codec.ch(d[start + i], cs);
-            if (i == signAt && (c < '0' || c > '9') && c != ' ') {
-                int p = Codec.POSITIVE.indexOf(c);
-                int q = Codec.NEGATIVE.indexOf(c);
-                if (p < 0 && q < 0) throw nonDigitSign();
-                neg = q >= 0;
-                c = (char) ('0' + (p >= 0 ? p : q));
-            }
-            if (c < '0' || c > '9') nonDigit = true;
-            digit[i] = c - '0';
-        }
-        if (!nonDigit) return false;
+        boolean neg = raw.neg;
         if (sepAt >= 0) {
             char s = Codec.ch(d[sepAt], cs);
             if (s != '+' && s != '-' && s != ' ') throw nonDigitSign();
-            neg = s == '-';
         }
         if (Codec.numprocPfd && !Codec.preferredSign(from, cs)) throw Codec.nonPreferredSign(from);
         BigInteger v = BigInteger.ZERO;
         for (int i = 0; i < n - from.scale + to.scale; i++) {
-            v = v.multiply(BigInteger.TEN).add(BigInteger.valueOf(i < n ? digit[i] : 0));
+            v = v.multiply(BigInteger.TEN).add(BigInteger.valueOf(i < n ? raw.ch[i] - '0' : 0));
         }
         v = v.mod(TWO_64);
         if (Codec.truncBinary && !to.nativeBin) v = v.mod(BigInteger.TEN.pow(to.digits));
         Codec.write(to, v, neg, cs);
-        if (signAt >= 0 && !neg) d[start + signAt] = Codec.by(Codec.POSITIVE.charAt(Math.max(digit[signAt], 0)), cs);
-        if (sepAt >= 0 && Codec.ch(d[sepAt], cs) == ' ') d[sepAt] = Codec.by('+', cs);
         return true;
+    }
+
+    /** A zoned sender holding a non-digit MOVEd to a zoned, packed or numeric-edited receiver, as the oracle does it
+     *  (#4662, register C11; see {@link Zoned}). False: not one of those receivers (a binary item is
+     *  nonDigitToBinary's, anything else the ordinary MOVE of the bytes). */
+    private static boolean moveNonDigit(Field from, Zoned.Raw raw, Field to, Charset cs) {
+        if (from.scale < 0 || to.scale < 0) {
+            if (to.kind == Field.Kind.NUMERIC_DISPLAY || to.kind == Field.Kind.NUMERIC_PACKED
+                    || to.kind == Field.Kind.NUMERIC_EDITED) {
+                throw new UnsupportedOperationException("MOVE of a zoned item holding a non-digit with a P scaling "
+                        + "position (IBM documents no result, register C11) is not modelled");
+            }
+        }
+        switch (to.kind) {
+            case NUMERIC_DISPLAY:
+                if (Codec.numprocPfd && !Codec.preferredSign(from, cs)) throw Codec.nonPreferredSign(from);
+                Zoned.toZoned(from, raw, to, cs);
+                return true;
+            case NUMERIC_PACKED:
+                if (Codec.numprocPfd && !Codec.preferredSign(from, cs)) throw Codec.nonPreferredSign(from);
+                Zoned.toPacked(from, raw, to);
+                return true;
+            case NUMERIC_EDITED:
+                if (Codec.numprocPfd && !Codec.preferredSign(from, cs)) throw Codec.nonPreferredSign(from);
+                padCopy(Zoned.toEdited(from, raw, to).getBytes(cs), to, false, cs);
+                return true;
+            default:
+                return false;
+        }
     }
 
     private static UnsupportedOperationException nonDigitSign() {
@@ -461,10 +483,23 @@ public final class Cobol {
     /** A numeric item's value (numeric-edited: de-edited). */
     public static BigDecimal num(Field f, Charset cs) {
         switch (cat(f)) {
-            case NUMERIC: return Codec.read(f, cs).value();
+            case NUMERIC: return f.kind == Field.Kind.NUMERIC_DISPLAY ? Zoned.operand(f, cs) : Codec.read(f, cs).value();
             case NUM_EDITED: return deedit(f, cs).value();
             default: return parseAlnum(f.raw(), cs).value();
         }
+    }
+
+    /** The operand of `ADD x TO y` / `SUBTRACT x FROM y` that cobc compiles as cob_add_int(y, cob_get_int(x)) (#4662,
+     *  register C11): a zoned x of at most 9 digits read as an int -- a non-digit counts as its byte minus '0', none
+     *  skipped --, y not a COMP / BINARY item under TRUNC(STD), no ROUNDED, no SIZE ERROR. Any other x as {@link #num}. */
+    public static BigDecimal intOperand(Field f, Charset cs, boolean binaryTarget) {
+        if (binaryTarget && Codec.truncBinary) return num(f, cs);  // cobc: not optimized under TRUNC(STD), cob_add
+        return f.kind == Field.Kind.NUMERIC_DISPLAY ? Zoned.intOperand(f, cs) : num(f, cs);
+    }
+
+    /** A numeric item's value in a comparison (#4662): a zoned item holding a non-digit as the oracle compares it. */
+    public static BigDecimal cmpNum(Field f, Charset cs) {
+        return f.kind == Field.Kind.NUMERIC_DISPLAY ? Zoned.compareValue(f, cs) : num(f, cs);
     }
 
     /** The item's bytes as text. */
@@ -560,7 +595,7 @@ public final class Cobol {
             if (a.kind == Field.Kind.NUMERIC_FLOAT || b.kind == Field.Kind.NUMERIC_FLOAT) {
                 return Integer.signum(floatOperand(a, cs).compareTo(floatOperand(b, cs)));
             }
-            return Integer.signum(num(a, cs).compareTo(num(b, cs)));
+            return Integer.signum(cmpNum(a, cs).compareTo(cmpNum(b, cs)));
         }
         return cmpBytes(a.raw(), b.raw(), cs, coll);
     }
@@ -667,7 +702,7 @@ public final class Cobol {
             return cmpBytes(a.raw(), numericLiteral.unscaledValue().abs().toString().getBytes(cs), cs, coll);
         }
         if (a.kind == Field.Kind.NUMERIC_FLOAT) return Integer.signum(num(a, cs).compareTo(Hfp.of(numericLiteral)));
-        return Integer.signum(num(a, cs).compareTo(numericLiteral));
+        return Integer.signum(cmpNum(a, cs).compareTo(numericLiteral));
     }
 
     /** A comparand of a floating-point comparison (IBM: "in floating-point arithmetic if either comparand is a
@@ -702,7 +737,7 @@ public final class Cobol {
     }
 
     public static int compareFigurative(Field a, Figurative f, Charset cs, Sort.Collating coll) {
-        if (f == Figurative.ZEROS && cat(a) == NUMERIC) return Integer.signum(num(a, cs).signum());
+        if (f == Figurative.ZEROS && cat(a) == NUMERIC) return Integer.signum(cmpNum(a, cs).signum());
         byte[] b = new byte[a.len];
         Arrays.fill(b, figByte(f, cs));
         return cmpBytes(a.raw(), b, cs, coll);

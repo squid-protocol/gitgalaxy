@@ -823,7 +823,7 @@ class Gen:
         if isinstance(c, E.ClassCond):
             if c.kind in ("POSITIVE", "NEGATIVE", "ZERO"):
                 sig = {"POSITIVE": "> 0", "NEGATIVE": "< 0", "ZERO": "== 0"}[c.kind]
-                t = f"{self.num(c.operand)}.signum() {sig}"
+                t = f"{self.cmp_num(c.operand)}.signum() {sig}"
             else:
                 if not isinstance(c.operand, E.Ref):
                     raise Untranslatable("class condition on an expression")
@@ -834,6 +834,15 @@ class Gen:
         if isinstance(c, E.Rel):
             return self.rel(c.op, c.left, c.right)
         raise Untranslatable(f"condition {type(c).__name__}")
+
+    def cmp_num(self, e) -> str:
+        """A comparison operand's value: a plain numeric zoned item is read as libcob compares it (Cobol.cmpNum,
+        #4662: a non-digit, and no PUT_SIGN rewrite of the sign), anything else as an arithmetic operand."""
+        if isinstance(e, E.Ref) and self.lift(e) is None:
+            it = self.resolve(e)
+            if it.category == "NUMERIC" and it.usage == "DISPLAY":
+                return f"Cobol.cmpNum({self.field_expr(e)}, CS)"
+        return self.num(e)
 
     def rel(self, op: str, a, b) -> str:
         jop = {"=": "==", ">": ">", "<": "<", ">=": ">=", "<=": "<="}[op]
@@ -846,7 +855,7 @@ class Gen:
         if (self.is_numeric(a) and self.is_numeric(b)) or (
             self.is_numeric(a) and isinstance(b, E.Fig) and b.kind == "ZEROS") or (
             self.is_numeric(b) and isinstance(a, E.Fig) and a.kind == "ZEROS"):  # fmt: skip
-            return f"{self.num(a)}.compareTo({self.num(b)}) {jop} 0"
+            return f"{self.cmp_num(a)}.compareTo({self.cmp_num(b)}) {jop} 0"
         if isinstance(a, E.Ref):
             return f"{self.cmp(a, b, jop)} {jop} 0"
         if isinstance(b, E.Ref):
@@ -1604,6 +1613,27 @@ class Gen:
             return f"{lt[1]} = Cobol.{fn}({value}, {it.digits}, {it.scale}, {_b(it.signed)}, {_b(rounded)}, CS);"
         return f"Cobol.store({self.value_field(t)}, {value}, {_b(rounded)}, CS);"
 
+    def int_operand(self, s: S.Stmt) -> bool:
+        """`ADD x TO y` / `SUBTRACT x FROM y` that cobc compiles to cob_add_int (typeck.c cb_build_add: the sender
+        fits an int, no ROUNDED, no SIZE ERROR): the sender is read by cob_get_int (a COMP / BINARY target takes the
+        decimal path under TRUNC(STD): Cobol.intOperand decides at run time). Only a zoned sender holding a
+        non-digit reads differently (register C11, #4662)."""
+        d = s.data
+        ops = d["operands"]
+        if d.get("giving") is not None or d["op"] not in ("+=", "-=") or len(ops) != 1:
+            return False
+        if "SIZE-ERROR" in s.phrases or "NOT-SIZE-ERROR" in s.phrases or not isinstance(ops[0], E.Ref):
+            return False
+        if self.lift(ops[0]) is not None or any(rounded or not isinstance(t, E.Ref) for t, rounded in d["targets"]):
+            return False
+        src = self.resolve(ops[0])
+        if src.category != "NUMERIC" or src.usage != "DISPLAY" or src.scale > 0 or src.digits > 9:
+            return False
+        return all(
+            self.lift(t) is None and self.resolve(t).usage in ("DISPLAY", "PACKED", "BINARY", "COMP-5")
+            for t, _ in d["targets"]
+        )
+
     def arith(self, s: S.Stmt, ind: str) -> list[str]:
         d = s.data
         op = d["op"]
@@ -1624,6 +1654,9 @@ class Gen:
                            f"Cobol.num({q}, CS).multiply({self.num(ops[1])})), false, CS);")  # fmt: skip
             return out
         total = self.num(ops[0]) + "".join(f".add({self.num(o)})" for o in ops[1:]) if ops else "BigDecimal.ZERO"
+        if self.int_operand(s):  # #4662: cobc's cob_add_int(y, cob_get_int(x)) reads a non-digit x differently
+            binary = any(self.resolve(t).usage == "BINARY" for t, _ in s.data["targets"])
+            total = f"Cobol.intOperand({self.field_expr(ops[0])}, CS, {_b(binary)})"
         out = []
         tsum = self.tmpname("t")
         out.append(f"{ind}BigDecimal {tsum} = {total};")

@@ -17,6 +17,14 @@ final class Editing {
     private static final String EDITING = "9Z*.,+-CRDBV0/$";
 
     static String format(String pic, BigDecimal value, boolean decimalComma, String currency) {
+        return format(pic, value, decimalComma, currency, null, false);
+    }
+
+    /** As above; `rawDigits` (#4662), when not null, are the digit characters of the PICTURE's digit positions as the
+     *  oracle gets them from a zoned item holding non-digits (cob_move_display_to_edited feeds the bytes as they
+     *  are, suppressing only a '0'), `negative` the sign then. */
+    static String format(String pic, BigDecimal value, boolean decimalComma, String currency, String rawDigits,
+                         boolean negative) {
         pic = expand(pic);
         if (value == null) return pic.replaceAll("[9Z*]", "0");
         // #3933: the currency symbol -- `$`, or the declared sign / PICTURE SYMBOL -- stands for the whole
@@ -30,7 +38,7 @@ final class Editing {
         }
         String cur = currency != null ? currency : String.valueOf(symbol);
         pic = pic.replace(symbol, '$');
-        boolean neg = value.compareTo(BigDecimal.ZERO) < 0;
+        boolean neg = rawDigits != null ? negative : value.compareTo(BigDecimal.ZERO) < 0;
         BigDecimal abs = value.abs();
 
         int digits = 0;
@@ -81,7 +89,8 @@ final class Editing {
             }
         }
 
-        String raw = abs.setScale(scale, RoundingMode.HALF_UP).toPlainString().replace(".", "");
+        String raw = rawDigits != null ? rawDigits
+                : abs.setScale(scale, RoundingMode.HALF_UP).toPlainString().replace(".", "");
         while (raw.length() < digits) raw = "0" + raw;
         if (raw.length() > digits) raw = raw.substring(raw.length() - digits);
 

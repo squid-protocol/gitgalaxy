@@ -594,6 +594,12 @@ The length READQ TS returns on ITEMERR or QIDERR is not documented, so it is not
   failed there). A det caller passes the bytes themselves too (`CicsTask.link(..., area)`), so a det target sees every
   byte, the ones its contract DTO does not name included (CA-ERROR-MSG's leading FILLER).
 - **Reached.** Not by a proof: no case runs a target that reads past its caller's record.
+- **XCTL with a LENGTH past the target's DTO (#4501).** Same storage rule, from the sender's side: EIBCALEN
+  at the target is the LENGTH, whatever the target's DFHCOMMAREA defines. The det port passes those LENGTH bytes
+  (`DetCics.commareaOut`: the area's storage, LOW-VALUES past its record, in the region's EBCDIC), the target's
+  DFHCOMMAREA takes the first ones and EIBCALEN is the LENGTH (bytes it does not define are opaque, and are not passed
+  on by a further RETURN/XCTL; a RETURN TRANSID's LENGTH past its DTO still passes the DTO). Reached by ca-xctl-versions length-range, where LENGTH 32767 fails LENGERR before any
+  transfer and the COMMAREA compared is the 32,767 bytes of WS-BIG.
 
 ### X11. ASKTIME ABSTIME into a narrow field — DIFFERS
 - **What.** ABSTIME is an 8-byte packed value (IBM: `PIC S9(15) COMP-3`). GenApp declares `WS-ABSTIME PIC S9(8) COMP`

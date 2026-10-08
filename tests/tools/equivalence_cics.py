@@ -2836,7 +2836,7 @@ def run_java_cics(case: dict[str, Any], corpus: Path, work: Path, cobol_work: Pa
             for t, n in ((t, equivalence_db2.columns(t)) for t in case["db2"].get("compare", []))), encoding="latin-1")  # fmt: skip
         props = f"{props} {equivalence_db2.java_props(case)}"
     out = ej.run_maven(project, work, inputs, props=props)
-    result = _java_events(case, out, shape)
+    result = _java_events(case, out, shape, ca_fields)
     if facade is not None:  # #4449: the java-facade side, the same project and inputs
         try:
             fout = ej.run_maven(project, work / "facade", inputs, props=f"{props} -Dequivalence.facades=true")
@@ -2844,7 +2844,7 @@ def run_java_cics(case: dict[str, Any], corpus: Path, work: Path, cobol_work: Pa
             facade["error"] = str(e)
             return result
         facade["out"] = fout
-        facade["events"] = _java_events(case, fout, shape)
+        facade["events"] = _java_events(case, fout, shape, ca_fields)
         facade["entries"], facade["refused"] = {}, {}
         for sc in case["scenarios"]:
             ent, why = fout / f"{sc['name']}.entries.json", fout / f"{sc['name']}.refused"
@@ -2854,9 +2854,31 @@ def run_java_cics(case: dict[str, Any], corpus: Path, work: Path, cobol_work: Pa
     return result
 
 
-def _java_events(case: dict[str, Any], out: Path, shape: dict[str, Any]) -> dict[str, list[dict[str, Any]]]:
+def java_commarea(value: Any, shape: dict[str, Any], ca_fields: list[dict[str, Any]], enc: str) -> dict[str, Any]:
+    """A Java event's COMMAREA by COBOL field names: a DTO's JSON through its shape (from_java) -- or, #4679, a
+    byte[] (Jackson writes it base64): the LENGTH bytes a RETURN / XCTL with a LENGTH past the DTO passed
+    (DetCics.commareaOut), in the region's code page (CCSID 037). Those are read as the COBOL side's are: in the case's
+    data page, by the case's COMMAREA layout (decode_record), so bytes past the layout are not compared on either side."""
+    if isinstance(value, str):
+        import base64
+
+        from gitgalaxy.tools.cobol_to_java.det.cics import REGION_PAGE
+
+        data = base64.b64decode(value).decode(REGION_PAGE).encode(enc)
+        if not ca_fields:  # nothing to read it by -- refused, never compared as empty (as the COBOL side's)
+            raise Unsupported(
+                'a COMMAREA passed as bytes, in a case that describes none ("commarea": null)', ["COMMAREA"]
+            )
+        return decode_record(data, ca_fields, enc)
+    return from_java(value, shape)
+
+
+def _java_events(case: dict[str, Any], out: Path, shape: dict[str, Any],
+                 ca_fields: list[dict[str, Any]] | None = None) -> dict[str, list[dict[str, Any]]]:  # fmt: skip
     """{scenario: the events the Java run wrote to out/<scenario>.json}, each COMMAREA by COBOL field names."""
     import json
+
+    enc = common.data_encoding(case)
 
     result = {}
     for sc in case["scenarios"]:
@@ -2870,7 +2892,9 @@ def _java_events(case: dict[str, Any], out: Path, shape: dict[str, Any]) -> dict
             if e.get("event") == "READQ-TS":  # #4270: the item's bytes as text
                 e.update(java_read_as_compared(e))
             if "commarea" in e:
-                e["commarea"] = from_java(e["commarea"], shape) if e["commarea"] is not None else None
+                e["commarea"] = (
+                    java_commarea(e["commarea"], shape, ca_fields or [], enc) if e["commarea"] is not None else None
+                )
         result[sc["name"]] = events
     return result
 

@@ -1193,3 +1193,22 @@ def test_the_stub_starts_the_task_with_its_channel_and_writes_what_it_leaves(tmp
     run = subprocess.run([str(exe)], capture_output=True, text=True, env=env, check=False)  # noqa: S603
     assert run.stdout.splitlines()[:2] == ["get resp=0 len=4 into=0001", "put resp=0"]
     assert (o / "containers.out").read_text() == "CHANNEL MYCHANNEL\nINPUTCONTAINER 30303031\nOUT 393938\n"
+
+
+def test_a_java_commarea_passed_as_bytes_is_read_by_the_case_layout():
+    """#4679: a RETURN / XCTL whose LENGTH is past the DTO passes the bytes (DetCics.commareaOut: CCSID 037, which
+    Jackson writes base64). They are read as the COBOL side's RETURN area is -- in the case's data page, by the case's
+    COMMAREA layout -- so CardDemo's LENGTH 2000 RETURN compares the same fields as its 414-byte DTO did; bytes past
+    the layout are compared on neither side. A DTO's JSON still goes through its shape; bytes in a case that describes
+    no COMMAREA are refused, as on the COBOL side."""
+    import base64
+
+    fields = [{"name": "CA-ID", "offset": 0, "bytes": 4, "pic": "X(4)", "usage": "DISPLAY"},
+              {"name": "CA-N", "offset": 4, "bytes": 3, "pic": "9(3)", "usage": "DISPLAY"}]  # fmt: skip
+    raw = ("ABCD042" + "Z" * 1993).encode("cp037")
+    got = ec.java_commarea(base64.b64encode(raw).decode("ascii"), {}, fields, "latin-1")
+    assert got == ec.decode_record(raw.decode("cp037").encode("latin-1"), fields, "latin-1")
+    assert ec._same(got["CA-ID"], "ABCD") and ec._same(got["CA-N"], 42)
+    assert ec.java_commarea({"caId": "WXYZ"}, {"caId": "CA-ID"}, fields, "latin-1") == {"CA-ID": "WXYZ"}
+    with pytest.raises(ec.Unsupported):
+        ec.java_commarea(base64.b64encode(raw).decode("ascii"), {}, [], "latin-1")

@@ -1092,7 +1092,27 @@ public final class Cobol {
         Storage w = new Storage(size);
         int n = Math.max(0, Math.min(size, f.storage().bytes.length - f.offset()));
         System.arraycopy(f.storage().bytes, f.offset(), w.bytes, 0, n);
+        beyond(f, w.bytes, n, false);
         return w;
+    }
+
+    /** #4679: the bytes of `area` from `n` on that lie past `f`'s record, from or (`back`) into the opaque bytes a
+     *  longer COMMAREA brought past it (Storage.beyond); none there: left as they are (LOW-VALUES). */
+    public static void beyond(Field f, byte[] area, int n, boolean back) {
+        byte[] b = f.storage().beyond;
+        if (b == null) {
+            return;
+        }
+        int past = f.offset() + n - f.storage().bytes.length;  // where byte n of the area sits in `beyond`
+        int k = Math.max(0, Math.min(area.length - n, b.length - past));
+        if (past < 0 || k == 0) {
+            return;
+        }
+        if (back) {
+            System.arraycopy(area, n, b, past, k);
+        } else {
+            System.arraycopy(b, past, area, n, k);
+        }
     }
 
     /** #4181: what the LINKed program left in the COMMAREA, back into the caller's storage -- up to the end of the
@@ -1100,5 +1120,6 @@ public final class Cobol {
     public static void commareaBack(Storage w, Field f) {
         int n = Math.max(0, Math.min(w.bytes.length, f.storage().bytes.length - f.offset()));
         System.arraycopy(w.bytes, 0, f.storage().bytes, f.offset(), n);
+        beyond(f, w.bytes, n, true);
     }
 }

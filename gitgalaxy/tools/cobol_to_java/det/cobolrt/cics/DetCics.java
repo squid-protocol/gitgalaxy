@@ -234,6 +234,7 @@ public final class DetCics {
         byte[] out = new byte[length];
         int n = Math.min(length, Math.max(0, f.storage().bytes.length - f.offset()));
         System.arraycopy(f.storage().bytes, f.offset(), out, 0, n);
+        Cobol.beyond(f, out, n, false);  // #4679: opaque bytes a longer COMMAREA brought past the record go on
         return new String(out, cs).getBytes(EBCDIC);
     }
 
@@ -241,6 +242,15 @@ public final class DetCics {
      *  RESP2 11 (LENGTH outside 0-32763), PGMIDERR RESP2 1 (IBM, EXEC CICS XCTL conditions). */
     public static int xctlResp2(String resp) {
         return "LENGERR".equals(resp) ? 11 : "PGMIDERR".equals(resp) ? 1 : 0;
+    }
+
+    /** #4679: EIBRESP2 / RESP2 after a failed LINK, which CicsTask.link gives as its condition only. IBM (EXEC CICS
+     *  LINK conditions): LENGERR RESP2 11 -- the COMMAREA length is below 0 or above 32763 -- and PGMIDERR RESP2 1 --
+     *  the program has no installed definition and autoinstall is off -- the only two CicsTask.link raises (and the
+     *  cics stub's GGCLINK, which gives the same RESP2). Its other conditions (PGMIDERR 2/3 disabled / not loadable,
+     *  NOTAUTH 101, INVREQ, ROLLEDBACK, SYSIDERR, TERMERR) are not raised by the region, so not mapped here. */
+    public static int linkResp2(String resp) {
+        return xctlResp2(resp);
     }
 
     /** #4501: the bytes of a COMMAREA commareaOut passed, in the receiving program's storage charset. */

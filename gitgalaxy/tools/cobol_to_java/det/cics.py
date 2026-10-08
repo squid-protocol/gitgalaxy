@@ -606,10 +606,9 @@ class Cics:
             raise CicsError(f"no generated DTO for COMMAREA {area.name}")
         return self.codec(cls)
 
-    def commarea_out(self, opts: dict, program: str | None = None, xctl: bool = False) -> tuple[str, str]:
-        """(the DTO expression, the LENGTH expression or 'null') of a COMMAREA option. An XCTL's LENGTH past the DTO
-        passes the bytes (#4501); a RETURN's stays the DTO (CardDemo's 2000-byte WS-COMMAREA over 172-byte DTOs, whose
-        next task reads the DTO's fields)."""
+    def commarea_out(self, opts: dict, program: str | None = None) -> tuple[str, str]:
+        """(the DTO expression, the LENGTH expression or 'null') of a COMMAREA option. An XCTL's or a RETURN's LENGTH
+        past the DTO passes the bytes (#4501 XCTL, #4679 RETURN: CardDemo's LENGTH 2000 WS-COMMAREA over its DTO)."""
         r = self.ref(opts["COMMAREA"])
         size = self.size(opts["COMMAREA"])
         cls = self.dto_for(r, size, program)
@@ -617,8 +616,8 @@ class Cics:
             f = self.g.field_expr(r)
         dto = f"out_{cls}({f}.storage(), {f}.offset())"
         length = self.int_(opts["LENGTH"]) if opts.get("LENGTH") else "null"
-        if xctl and length != "null":
-            # #4501: a LENGTH past the DTO passes that many bytes (DetCics.commareaOut), which the DTO cannot hold
+        if length != "null":
+            # #4501 / #4679: a LENGTH past the DTO passes that many bytes (DetCics.commareaOut), which the DTO cannot hold
             size = self.gp.dto(cls).size
             known = self.constant_int(opts["LENGTH"])
             if known is None or known > size:
@@ -726,9 +725,17 @@ class Cics:
                 length = (
                     self.int_(_arg(opts["LENGTH"])) if opts.get("LENGTH") else str(self.size(_arg(opts["COMMAREA"])))
                 )
-                # #4181: the target's DTO over the caller's storage from the area on, never past its record's end
+                # #4181: the target's DTO over the caller's storage from the area on, never past its record's end;
+                # #4679: a LENGTH past the DTO passes that many bytes (by reference: the target's EIBCALEN is LENGTH)
                 w = g.tmpname("cw")
-                out += [f"{ind}Storage {w} = Cobol.commarea({f}, {self.gp.dto(cls).size});",
+                dsize = self.gp.dto(cls).size
+                known = self.constant_int(_arg(opts["LENGTH"])) if opts.get("LENGTH") else None
+                span = (
+                    str(dsize)
+                    if not opts.get("LENGTH") or (known is not None and known <= dsize)
+                    else f"Math.max({dsize}, Math.min({length}, 32763))"
+                )
+                out += [f"{ind}Storage {w} = Cobol.commarea({f}, {span});",
                         f"{ind}{cls} {ca} = out_{cls}({w}, 0);",
                         # #4181 follow-up: the bytes too (by reference), every one the target's DTO does not name
                         f"{ind}String {r} = task.link({prog}, {ca}, {length}, {w}.bytes);",
@@ -740,7 +747,7 @@ class Cics:
             out += [f"{ind}String {ex} = task.abendExit();",  # an abend below went to this program's exit
                     f"{ind}if ({ex} != null) {g.jump(f'paragraph({ex})')}",
                     f"{ind}if (task.ended()) throw abended();"]  # #4534: unwound past this level  # fmt: skip
-            return out + self.outcome(opts, f"DetCics.resp({r})", "0", ind)
+            return out + self.outcome(opts, f"DetCics.resp({r})", f"DetCics.linkResp2({r})", ind)  # #4679
         if verb == "RETURN":
             if "TRANSID" in opts or "COMMAREA" in opts:
                 tid = self.name(_arg(opts["TRANSID"])) if opts.get("TRANSID") else "null"
@@ -761,7 +768,7 @@ class Cics:
                     raise CicsError(_msg("XCTL", "at_most_one", "CHANNEL"))
                 call = f"task.xctlChannel({prog}, {self.name(_arg(opts['CHANNEL']))})"
             elif "COMMAREA" in opts:
-                dto, length = self.commarea_out(opts, prog_lit, xctl=True)
+                dto, length = self.commarea_out(opts, prog_lit)
                 call = f"task.xctl({prog}, {dto}, {length})" if length != "null" else f"task.xctl({prog}, {dto})"
             else:
                 call = f"task.xctl({prog}, null)"

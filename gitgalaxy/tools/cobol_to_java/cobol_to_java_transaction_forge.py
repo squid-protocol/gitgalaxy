@@ -1517,13 +1517,13 @@ public class CicsTask {
     public int delete(String file, boolean exists, Runnable remove) {
         int[] planned = root().injected("DELETE", file);
         if (planned != null) {
-            return planned[0];
+            return done(planned[0], planned[1]);
         }
         if (!exists) {
-            return 13;
+            return done(13, 80);
         }
         remove.run();
-        return 0;
+        return done(0, 0);
     }
 
     /** DELETE FILE(file) without RIDFLD: the record a readForUpdate holds (INVREQ, 16, when none is held). */
@@ -1555,7 +1555,7 @@ public class CicsTask {
     private final Map<String, Browse> browses = new java.util.HashMap<>();
 
     /** What a READNEXT / READPREV found: its RESP and the key read (null when none; then look nothing up). */
-    public record Browsed(int resp, String key) {
+    public record Browsed(int resp, int resp2, String key) {
         public boolean normal() {
             return resp == 0;
         }
@@ -1563,6 +1563,20 @@ public class CicsTask {
 
     private static boolean highValues(String key) {
         return !key.isEmpty() && key.chars().allMatch(ch -> ch == '\\u00ff');  // ASCII escape: javac reads source as cp1252 on Windows
+    }
+
+    private int lastResp2;
+
+    /** The RESP2 of the last STARTBR / ENDBR / DELETE by key (those that return only their RESP, an int): IBM's
+     *  documented value where the command states one (#4657) -- STARTBR INVREQ 33 (a browse is active) and NOTFND 80,
+     *  ENDBR INVREQ 35 (no browse), DELETE NOTFND 80 -- else 0, or the planned fault's. */
+    public int resp2() {
+        return root().lastResp2;
+    }
+
+    private int done(int resp, int resp2) {
+        root().lastResp2 = resp2;
+        return resp;
     }
 
     /** STARTBR FILE(file) RIDFLD(key) [GTEQ | EQUAL] (IBM CICS TS): positions a browse on the first key >= `key`
@@ -1573,25 +1587,25 @@ public class CicsTask {
                        java.util.function.Supplier<java.util.NavigableSet<String>> keys) {
         int[] planned = root().injected("STARTBR", file);
         if (planned != null) {
-            return planned[0];
+            return done(planned[0], planned[1]);
         }
         if (root().esds.containsKey(file)) {
             throw refused("STARTBR by key on " + file + ", an ESDS");
         }
         Map<String, Browse> all = root().browses;
         if (all.containsKey(file)) {
-            return 16;
+            return done(16, 33);
         }
         java.util.NavigableSet<String> k = keys.get();
         if (!highValues(key) && (equal ? !k.contains(key) : k.ceiling(key) == null)) {
-            return 13;
+            return done(13, 80);
         }
         Browse b = new Browse();
         b.keys = keys;
         b.equal = equal;
         b.start = key;
         all.put(file, b);
-        return 0;
+        return done(0, 0);
     }
 
     /** READNEXT FILE(file) RIDFLD(ridfld): the key of the next record -- the one STARTBR positioned on first; set
@@ -1600,11 +1614,11 @@ public class CicsTask {
     public Browsed readnext(String file, String ridfld) {
         int[] planned = root().injected("READNEXT", file);
         if (planned != null) {
-            return new Browsed(planned[0], null);
+            return new Browsed(planned[0], planned.length > 1 ? planned[1] : 0, null);
         }
         Browse b = root().browses.get(file);
         if (b == null) {
-            return new Browsed(16, null);
+            return new Browsed(16, 34, null);
         }
         if (b.rba) {
             throw refused("READNEXT by key in an RBA browse of " + file);
@@ -1620,11 +1634,11 @@ public class CicsTask {
             at = b.equal ? (k.contains(ridfld) ? ridfld : null) : k.ceiling(ridfld);
         }
         if (at == null) {
-            return new Browsed(20, null);
+            return new Browsed(20, 90, null);
         }
         b.last = at;
         b.dir = 1;
-        return new Browsed(0, at);
+        return new Browsed(0, 0, at);
     }
 
     /** READPREV FILE(file) RIDFLD(ridfld): the key of the previous record. Right after STARTBR the STARTBR key must
@@ -1634,11 +1648,11 @@ public class CicsTask {
     public Browsed readprev(String file, String ridfld) {
         int[] planned = root().injected("READPREV", file);
         if (planned != null) {
-            return new Browsed(planned[0], null);
+            return new Browsed(planned[0], planned.length > 1 ? planned[1] : 0, null);
         }
         Browse b = root().browses.get(file);
         if (b == null) {
-            return new Browsed(16, null);
+            return new Browsed(16, 34, null);
         }
         if (b.rba) {
             throw refused("READPREV by key in an RBA browse of " + file);
@@ -1658,11 +1672,11 @@ public class CicsTask {
             none = 13;
         }
         if (at == null) {
-            return new Browsed(none, null);
+            return new Browsed(none, none == 20 ? 90 : 80, null);
         }
         b.last = at;
         b.dir = -1;
-        return new Browsed(0, at);
+        return new Browsed(0, 0, at);
     }
 
     // ---- #4213: an ESDS browsed by relative byte address (STARTBR / READNEXT / READPREV ... RBA) ----------------
@@ -1739,12 +1753,12 @@ public class CicsTask {
     public int startbrRba(String file, long rba) {
         int[] planned = root().injected("STARTBR", file);
         if (planned != null) {
-            return planned[0];
+            return done(planned[0], planned[1]);
         }
         Esds e = esdsOf(file);
         Map<String, Browse> all = root().browses;
         if (all.containsKey(file)) {
-            return 16;
+            return done(16, 33);
         }
         if (rba != RBA_END) {
             rbaRecord("STARTBR", file, e, rba);
@@ -1754,7 +1768,7 @@ public class CicsTask {
         b.equal = true;
         b.rbaStart = rba;
         all.put(file, b);
-        return 0;
+        return done(0, 0);
     }
 
     /** READNEXT FILE(file) RIDFLD(ridfld) RBA: the record STARTBR positioned on, then each next; a RIDFLD the program
@@ -1823,9 +1837,9 @@ public class CicsTask {
     public int endbr(String file) {
         int[] planned = root().injected("ENDBR", file);
         if (planned != null) {
-            return planned[0];
+            return done(planned[0], planned[1]);
         }
-        return root().browses.remove(file) != null ? 0 : 16;
+        return root().browses.remove(file) != null ? done(0, 0) : done(16, 35);
     }
 
     /** #4437: the task runs a program LINKed from outside the region -- a distributed program link's server. */

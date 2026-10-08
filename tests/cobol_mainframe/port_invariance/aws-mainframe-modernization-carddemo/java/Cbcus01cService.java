@@ -34,11 +34,9 @@ public class Cbcus01cService {
 
     private static final Charset CS = CobolRecords.charset();
     private static final int GOTO = 1 << 20;
-    private static final BigDecimal D0 = new BigDecimal("0");
-    private static final BigDecimal D16 = new BigDecimal("16");
-    private static final BigDecimal D12 = new BigDecimal("12");
     private static final BigDecimal D8 = new BigDecimal("8");
-    private static final BigDecimal D999 = new BigDecimal("999");
+    private static final BigDecimal D12 = new BigDecimal("12");
+    private static final BigDecimal D0 = new BigDecimal("0");
 
     private static final byte[] IMAGE_s_FD_CUSTFILE_REC = Base64.getDecoder().decode(String.join("",
             "ICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAg",
@@ -54,14 +52,6 @@ public class Cbcus01cService {
             "AAA="));
     private static final byte[] IMAGE_s_IO_STATUS_04 = Base64.getDecoder().decode(String.join("",
             "MDAwMA=="));
-    private static final byte[] IMAGE_s_APPL_RESULT = Base64.getDecoder().decode(String.join("",
-            "AAAAAA=="));
-    private static final byte[] IMAGE_s_END_OF_FILE = Base64.getDecoder().decode(String.join("",
-            "Tg=="));
-    private static final byte[] IMAGE_s_ABCODE = Base64.getDecoder().decode(String.join("",
-            "AAAAAA=="));
-    private static final byte[] IMAGE_s_TIMING = Base64.getDecoder().decode(String.join("",
-            "AAAAAA=="));
     private static final byte[] IMAGE_s_GG_RETURN_CODE = Base64.getDecoder().decode(String.join("",
             "AAA="));
     private final Storage s_FD_CUSTFILE_REC = new Storage(IMAGE_s_FD_CUSTFILE_REC.length);
@@ -70,53 +60,23 @@ public class Cbcus01cService {
     private final Storage s_IO_STATUS = new Storage(IMAGE_s_IO_STATUS.length);
     private final Storage s_TWO_BYTES_BINARY = new Storage(IMAGE_s_TWO_BYTES_BINARY.length);
     private final Storage s_IO_STATUS_04 = new Storage(IMAGE_s_IO_STATUS_04.length);
-    private final Storage s_APPL_RESULT = new Storage(IMAGE_s_APPL_RESULT.length);
-    private final Storage s_END_OF_FILE = new Storage(IMAGE_s_END_OF_FILE.length);
-    private final Storage s_ABCODE = new Storage(IMAGE_s_ABCODE.length);
-    private final Storage s_TIMING = new Storage(IMAGE_s_TIMING.length);
     private final Storage s_GG_RETURN_CODE = new Storage(IMAGE_s_GG_RETURN_CODE.length);
 
-    private Field f10_CUST_ADDR_LINE_2;
-    private Field f11_CUST_ADDR_LINE_3;
-    private Field f12_CUST_ADDR_STATE_CD;
-    private Field f13_CUST_ADDR_COUNTRY_CD;
-    private Field f14_CUST_ADDR_ZIP;
-    private Field f15_CUST_PHONE_NUM_1;
-    private Field f16_CUST_PHONE_NUM_2;
-    private Field f17_CUST_SSN;
-    private Field f18_CUST_GOVT_ISSUED_ID;
-    private Field f19_CUST_DOB_YYYY_MM_DD;
-    private Field f1_FD_CUSTFILE_REC;
-    private Field f20_CUST_EFT_ACCOUNT_ID;
-    private Field f21_CUST_PRI_CARD_HOLDER_IND;
-    private Field f22_CUST_FICO_CREDIT_SCORE;
-    private Field f23_FILLER;
-    private Field f24_CUSTFILE_STATUS;
-    private Field f25_CUSTFILE_STAT1;
-    private Field f26_CUSTFILE_STAT2;
-    private Field f27_IO_STATUS;
-    private Field f28_IO_STAT1;
-    private Field f29_IO_STAT2;
-    private Field f2_FD_CUST_ID;
-    private Field f30_TWO_BYTES_BINARY;
-    private Field f31_TWO_BYTES_ALPHA;
-    private Field f32_TWO_BYTES_LEFT;
-    private Field f33_TWO_BYTES_RIGHT;
-    private Field f34_IO_STATUS_04;
-    private Field f35_IO_STATUS_0401;
-    private Field f36_IO_STATUS_0403;
-    private Field f37_APPL_RESULT;
-    private Field f38_END_OF_FILE;
-    private Field f39_ABCODE;
-    private Field f3_FD_CUST_DATA;
-    private Field f40_TIMING;
-    private Field f41_GG_RETURN_CODE;
-    private Field f4_CUSTOMER_RECORD;
-    private Field f5_CUST_ID;
-    private Field f6_CUST_FIRST_NAME;
-    private Field f7_CUST_MIDDLE_NAME;
-    private Field f8_CUST_LAST_NAME;
-    private Field f9_CUST_ADDR_LINE_1;
+    private final Field f1_FD_CUSTFILE_REC = Field.group(s_FD_CUSTFILE_REC, 0, 500);
+    private final Field f4_CUSTOMER_RECORD = Field.group(s_CUSTOMER_RECORD, 0, 500);
+    private final Field f24_CUSTFILE_STATUS = Field.group(s_CUSTFILE_STATUS, 0, 2);
+    private final Field f27_IO_STATUS = Field.group(s_IO_STATUS, 0, 2);
+    private final Field f28_IO_STAT1 = Field.alphanumeric(s_IO_STATUS, 0, 1, false);
+    private final Field f29_IO_STAT2 = Field.alphanumeric(s_IO_STATUS, 1, 1, false);
+    private final Field f30_TWO_BYTES_BINARY = Field.binary(s_TWO_BYTES_BINARY, 0, 4, 0, false, false);
+    private final Field f33_TWO_BYTES_RIGHT = Field.alphanumeric(s_TWO_BYTES_BINARY, 1, 1, false);
+    private final Field f34_IO_STATUS_04 = Field.group(s_IO_STATUS_04, 0, 4);
+    private final Field f36_IO_STATUS_0403 = Field.zoned(s_IO_STATUS_04, 1, 3, 0, false, false, false);
+    private final Field f41_GG_RETURN_CODE = Field.binary(s_GG_RETURN_CODE, 0, 4, 0, true, false);
+    private long f37_APPL_RESULT;  // APPL-RESULT PIC S9(9) BINARY
+    private String f38_END_OF_FILE;  // END-OF-FILE PIC X(01)
+    private long f39_ABCODE;  // ABCODE PIC S9(9) BINARY
+    private long f40_TIMING;  // TIMING PIC S9(9) BINARY
 
     private static Integer id_CustomerRecord(byte[] rec) {
         Storage s = Storage.of(rec);
@@ -135,67 +95,27 @@ public class Cbcus01cService {
         this.datasets = datasets;
         this.files = files;
         this.clock = clock;
-        fields0();
     }
 
-    private void fields0() {
-        f1_FD_CUSTFILE_REC = Field.group(s_FD_CUSTFILE_REC, 0, 500);
-        f2_FD_CUST_ID = Field.zoned(s_FD_CUSTFILE_REC, 0, 9, 0, false, false, false);
-        f3_FD_CUST_DATA = Field.alphanumeric(s_FD_CUSTFILE_REC, 9, 491, false);
-        f4_CUSTOMER_RECORD = Field.group(s_CUSTOMER_RECORD, 0, 500);
-        f5_CUST_ID = Field.zoned(s_CUSTOMER_RECORD, 0, 9, 0, false, false, false);
-        f6_CUST_FIRST_NAME = Field.alphanumeric(s_CUSTOMER_RECORD, 9, 25, false);
-        f7_CUST_MIDDLE_NAME = Field.alphanumeric(s_CUSTOMER_RECORD, 34, 25, false);
-        f8_CUST_LAST_NAME = Field.alphanumeric(s_CUSTOMER_RECORD, 59, 25, false);
-        f9_CUST_ADDR_LINE_1 = Field.alphanumeric(s_CUSTOMER_RECORD, 84, 50, false);
-        f10_CUST_ADDR_LINE_2 = Field.alphanumeric(s_CUSTOMER_RECORD, 134, 50, false);
-        f11_CUST_ADDR_LINE_3 = Field.alphanumeric(s_CUSTOMER_RECORD, 184, 50, false);
-        f12_CUST_ADDR_STATE_CD = Field.alphanumeric(s_CUSTOMER_RECORD, 234, 2, false);
-        f13_CUST_ADDR_COUNTRY_CD = Field.alphanumeric(s_CUSTOMER_RECORD, 236, 3, false);
-        f14_CUST_ADDR_ZIP = Field.alphanumeric(s_CUSTOMER_RECORD, 239, 10, false);
-        f15_CUST_PHONE_NUM_1 = Field.alphanumeric(s_CUSTOMER_RECORD, 249, 15, false);
-        f16_CUST_PHONE_NUM_2 = Field.alphanumeric(s_CUSTOMER_RECORD, 264, 15, false);
-        f17_CUST_SSN = Field.zoned(s_CUSTOMER_RECORD, 279, 9, 0, false, false, false);
-        f18_CUST_GOVT_ISSUED_ID = Field.alphanumeric(s_CUSTOMER_RECORD, 288, 20, false);
-        f19_CUST_DOB_YYYY_MM_DD = Field.alphanumeric(s_CUSTOMER_RECORD, 308, 10, false);
-        f20_CUST_EFT_ACCOUNT_ID = Field.alphanumeric(s_CUSTOMER_RECORD, 318, 10, false);
-        f21_CUST_PRI_CARD_HOLDER_IND = Field.alphanumeric(s_CUSTOMER_RECORD, 328, 1, false);
-        f22_CUST_FICO_CREDIT_SCORE = Field.zoned(s_CUSTOMER_RECORD, 329, 3, 0, false, false, false);
-        f23_FILLER = Field.alphanumeric(s_CUSTOMER_RECORD, 332, 168, false);
-        f24_CUSTFILE_STATUS = Field.group(s_CUSTFILE_STATUS, 0, 2);
-        f25_CUSTFILE_STAT1 = Field.alphanumeric(s_CUSTFILE_STATUS, 0, 1, false);
-        f26_CUSTFILE_STAT2 = Field.alphanumeric(s_CUSTFILE_STATUS, 1, 1, false);
-        f27_IO_STATUS = Field.group(s_IO_STATUS, 0, 2);
-        f28_IO_STAT1 = Field.alphanumeric(s_IO_STATUS, 0, 1, false);
-        f29_IO_STAT2 = Field.alphanumeric(s_IO_STATUS, 1, 1, false);
-        f30_TWO_BYTES_BINARY = Field.binary(s_TWO_BYTES_BINARY, 0, 4, 0, false, false);
-        f31_TWO_BYTES_ALPHA = Field.group(s_TWO_BYTES_BINARY, 0, 2);
-        f32_TWO_BYTES_LEFT = Field.alphanumeric(s_TWO_BYTES_BINARY, 0, 1, false);
-        f33_TWO_BYTES_RIGHT = Field.alphanumeric(s_TWO_BYTES_BINARY, 1, 1, false);
-        f34_IO_STATUS_04 = Field.group(s_IO_STATUS_04, 0, 4);
-        f35_IO_STATUS_0401 = Field.zoned(s_IO_STATUS_04, 0, 1, 0, false, false, false);
-        f36_IO_STATUS_0403 = Field.zoned(s_IO_STATUS_04, 1, 3, 0, false, false, false);
-        f37_APPL_RESULT = Field.binary(s_APPL_RESULT, 0, 9, 0, true, false);
-        f38_END_OF_FILE = Field.alphanumeric(s_END_OF_FILE, 0, 1, false);
-        f39_ABCODE = Field.binary(s_ABCODE, 0, 9, 0, true, false);
-        f40_TIMING = Field.binary(s_TIMING, 0, 9, 0, true, false);
-        f41_GG_RETURN_CODE = Field.binary(s_GG_RETURN_CODE, 0, 4, 0, true, false);
-    }
-
-    /** The program run on its own (no JCL step, no CICS task, no caller): the PROCEDURE DIVISION from its
-     *  initial storage; RETURN-CODE. */
-    public int runProgram() {
+    /** WORKING-STORAGE (and every storage) as its VALUE clauses set it: each entry point starts from here. */
+    private void initialState() {
         System.arraycopy(IMAGE_s_FD_CUSTFILE_REC, 0, s_FD_CUSTFILE_REC.bytes, 0, IMAGE_s_FD_CUSTFILE_REC.length);
         System.arraycopy(IMAGE_s_CUSTOMER_RECORD, 0, s_CUSTOMER_RECORD.bytes, 0, IMAGE_s_CUSTOMER_RECORD.length);
         System.arraycopy(IMAGE_s_CUSTFILE_STATUS, 0, s_CUSTFILE_STATUS.bytes, 0, IMAGE_s_CUSTFILE_STATUS.length);
         System.arraycopy(IMAGE_s_IO_STATUS, 0, s_IO_STATUS.bytes, 0, IMAGE_s_IO_STATUS.length);
         System.arraycopy(IMAGE_s_TWO_BYTES_BINARY, 0, s_TWO_BYTES_BINARY.bytes, 0, IMAGE_s_TWO_BYTES_BINARY.length);
         System.arraycopy(IMAGE_s_IO_STATUS_04, 0, s_IO_STATUS_04.bytes, 0, IMAGE_s_IO_STATUS_04.length);
-        System.arraycopy(IMAGE_s_APPL_RESULT, 0, s_APPL_RESULT.bytes, 0, IMAGE_s_APPL_RESULT.length);
-        System.arraycopy(IMAGE_s_END_OF_FILE, 0, s_END_OF_FILE.bytes, 0, IMAGE_s_END_OF_FILE.length);
-        System.arraycopy(IMAGE_s_ABCODE, 0, s_ABCODE.bytes, 0, IMAGE_s_ABCODE.length);
-        System.arraycopy(IMAGE_s_TIMING, 0, s_TIMING.bytes, 0, IMAGE_s_TIMING.length);
         System.arraycopy(IMAGE_s_GG_RETURN_CODE, 0, s_GG_RETURN_CODE.bytes, 0, IMAGE_s_GG_RETURN_CODE.length);
+        f37_APPL_RESULT = 0L;
+        f38_END_OF_FILE = "N";
+        f39_ABCODE = 0L;
+        f40_TIMING = 0L;
+    }
+
+    /** The program run on its own (no JCL step, no CICS task, no caller): the PROCEDURE DIVISION from its
+     *  initial storage; RETURN-CODE. */
+    public int runProgram() {
+        initialState();
         performDepth = 0;
         try {
             perform(0, 5);
@@ -203,10 +123,6 @@ public class Cbcus01cService {
             // the program ended
         }
         return Cobol.num(f41_GG_RETURN_CODE, CS).intValue();
-    }
-
-    public void executeCbcus01c() {
-        runBatch(List.of(), null);
     }
 
 
@@ -226,18 +142,9 @@ public class Cbcus01cService {
     /** The batch entry. */
     public int runBatch(List<Dd> dds, String parm) {
         boolean truncBefore = Cobol.swapTruncBinary(true);  // TRUNC(STD)
+        boolean pfdBefore = Cobol.swapNumprocPfd(false);  // NUMPROC(NOPFD)
         try {
-            System.arraycopy(IMAGE_s_FD_CUSTFILE_REC, 0, s_FD_CUSTFILE_REC.bytes, 0, IMAGE_s_FD_CUSTFILE_REC.length);
-            System.arraycopy(IMAGE_s_CUSTOMER_RECORD, 0, s_CUSTOMER_RECORD.bytes, 0, IMAGE_s_CUSTOMER_RECORD.length);
-            System.arraycopy(IMAGE_s_CUSTFILE_STATUS, 0, s_CUSTFILE_STATUS.bytes, 0, IMAGE_s_CUSTFILE_STATUS.length);
-            System.arraycopy(IMAGE_s_IO_STATUS, 0, s_IO_STATUS.bytes, 0, IMAGE_s_IO_STATUS.length);
-            System.arraycopy(IMAGE_s_TWO_BYTES_BINARY, 0, s_TWO_BYTES_BINARY.bytes, 0, IMAGE_s_TWO_BYTES_BINARY.length);
-            System.arraycopy(IMAGE_s_IO_STATUS_04, 0, s_IO_STATUS_04.bytes, 0, IMAGE_s_IO_STATUS_04.length);
-            System.arraycopy(IMAGE_s_APPL_RESULT, 0, s_APPL_RESULT.bytes, 0, IMAGE_s_APPL_RESULT.length);
-            System.arraycopy(IMAGE_s_END_OF_FILE, 0, s_END_OF_FILE.bytes, 0, IMAGE_s_END_OF_FILE.length);
-            System.arraycopy(IMAGE_s_ABCODE, 0, s_ABCODE.bytes, 0, IMAGE_s_ABCODE.length);
-            System.arraycopy(IMAGE_s_TIMING, 0, s_TIMING.bytes, 0, IMAGE_s_TIMING.length);
-            System.arraycopy(IMAGE_s_GG_RETURN_CODE, 0, s_GG_RETURN_CODE.bytes, 0, IMAGE_s_GG_RETURN_CODE.length);
+            initialState();
             CUSTFILE_FILE = new DetFiles.Indexed<CustomerRecord>(files, "CUSTFILE", s_FD_CUSTFILE_REC, 0, 500, 0, 9, customerRecordRepository::findAll, e -> e.toRecord(CS), b -> CustomerRecord.fromRecord(b, CS), customerRecordRepository::save, CS).withFindById(rec -> customerRecordRepository.findById(id_CustomerRecord(rec)));
             try {
                 perform(0, 5);
@@ -247,6 +154,7 @@ public class Cbcus01cService {
             return Cobol.num(f41_GG_RETURN_CODE, CS).intValue();
         } finally {
             Cobol.swapTruncBinary(truncBefore);
+            Cobol.swapNumprocPfd(pfdBefore);
         }
     }
 
@@ -323,13 +231,13 @@ public class Cbcus01cService {
         // PERFORM 0000-CUSTFILE-OPEN
         perform(2, 2);
         // PERFORM UNTIL END-OF-FILE = 'Y'
-        while (!(Cobol.compare(f38_END_OF_FILE, "Y", CS) == 0)) {
+        while (!(f38_END_OF_FILE.equals("Y"))) {
             // IF END-OF-FILE = 'N'
-            if (Cobol.compare(f38_END_OF_FILE, "N", CS) == 0) {
+            if (f38_END_OF_FILE.equals("N")) {
                 // PERFORM 1000-CUSTFILE-GET-NEXT
                 perform(1, 1);
                 // IF END-OF-FILE = 'N'
-                if (Cobol.compare(f38_END_OF_FILE, "N", CS) == 0) {
+                if (f38_END_OF_FILE.equals("N")) {
                     // DISPLAY CUSTOMER-RECORD
                     Sysout.display(Cobol.displayText(f4_CUSTOMER_RECORD, CS));
                 }
@@ -355,27 +263,27 @@ public class Cbcus01cService {
         // IF CUSTFILE-STATUS = '00'
         if (Cobol.compare(f24_CUSTFILE_STATUS, "00", CS) == 0) {
             // MOVE 0 TO APPL-RESULT
-            Cobol.move(D0, f37_APPL_RESULT, CS);
+            f37_APPL_RESULT = 0L;
             // DISPLAY CUSTOMER-RECORD
             Sysout.display(Cobol.displayText(f4_CUSTOMER_RECORD, CS));
         } else {
             // ELSE IF CUSTFILE-STATUS = '10'
             if (Cobol.compare(f24_CUSTFILE_STATUS, "10", CS) == 0) {
                 // MOVE 16 TO APPL-RESULT
-                Cobol.move(D16, f37_APPL_RESULT, CS);
+                f37_APPL_RESULT = 16L;
             } else {
                 // MOVE 12 TO APPL-RESULT
-                Cobol.move(D12, f37_APPL_RESULT, CS);
+                f37_APPL_RESULT = 12L;
             }
         }
         // IF APPL-AOK
-        if (Cobol.compare(f37_APPL_RESULT, D0, CS) == 0) {
+        if (isApplAok()) {
             // CONTINUE
         } else {
             // ELSE IF APPL-EOF
-            if (Cobol.compare(f37_APPL_RESULT, D16, CS) == 0) {
+            if (isApplEof()) {
                 // MOVE 'Y' TO END-OF-FILE
-                Cobol.move("Y", f38_END_OF_FILE, CS);
+                f38_END_OF_FILE = "Y";
             } else {
                 // DISPLAY 'ERROR READING CUSTOMER FILE'
                 Sysout.display("ERROR READING CUSTOMER FILE");
@@ -394,20 +302,20 @@ public class Cbcus01cService {
     /** 0000-CUSTFILE-OPEN. */
     private int p2() {
         // MOVE 8 TO APPL-RESULT
-        Cobol.move(D8, f37_APPL_RESULT, CS);
+        f37_APPL_RESULT = 8L;
         // OPEN INPUT CUSTFILE-FILE
         String st2 = CUSTFILE_FILE.open("INPUT");
         Cobol.move(st2, f24_CUSTFILE_STATUS, CS);
         // IF CUSTFILE-STATUS = '00'
         if (Cobol.compare(f24_CUSTFILE_STATUS, "00", CS) == 0) {
             // MOVE 0 TO APPL-RESULT
-            Cobol.move(D0, f37_APPL_RESULT, CS);
+            f37_APPL_RESULT = 0L;
         } else {
             // MOVE 12 TO APPL-RESULT
-            Cobol.move(D12, f37_APPL_RESULT, CS);
+            f37_APPL_RESULT = 12L;
         }
         // IF APPL-AOK
-        if (Cobol.compare(f37_APPL_RESULT, D0, CS) == 0) {
+        if (isApplAok()) {
             // CONTINUE
         } else {
             // DISPLAY 'ERROR OPENING CUSTFILE'
@@ -427,22 +335,22 @@ public class Cbcus01cService {
     private int p3() {
         // ADD 8 TO ZERO GIVING APPL-RESULT
         BigDecimal v3 = D8.add(BigDecimal.ZERO);
-        Cobol.store(f37_APPL_RESULT, v3, false, CS);
+        f37_APPL_RESULT = Cobol.binary(v3, 9, true, false, CS);
         // CLOSE CUSTFILE-FILE
         String st4 = CUSTFILE_FILE.close();
         Cobol.move(st4, f24_CUSTFILE_STATUS, CS);
         // IF CUSTFILE-STATUS = '00'
         if (Cobol.compare(f24_CUSTFILE_STATUS, "00", CS) == 0) {
             // SUBTRACT APPL-RESULT FROM APPL-RESULT
-            BigDecimal t5 = Cobol.num(f37_APPL_RESULT, CS);
-            Cobol.store(f37_APPL_RESULT, Cobol.num(f37_APPL_RESULT, CS).subtract(t5), false, CS);
+            BigDecimal t5 = BigDecimal.valueOf(f37_APPL_RESULT);
+            f37_APPL_RESULT = Cobol.binary(BigDecimal.valueOf(f37_APPL_RESULT).subtract(t5), 9, true, false, CS);
         } else {
             // ADD 12 TO ZERO GIVING APPL-RESULT
             BigDecimal v7 = D12.add(BigDecimal.ZERO);
-            Cobol.store(f37_APPL_RESULT, v7, false, CS);
+            f37_APPL_RESULT = Cobol.binary(v7, 9, true, false, CS);
         }
         // IF APPL-AOK
-        if (Cobol.compare(f37_APPL_RESULT, D0, CS) == 0) {
+        if (isApplAok()) {
             // CONTINUE
         } else {
             // DISPLAY 'ERROR CLOSING CUSTOMER FILE'
@@ -463,11 +371,11 @@ public class Cbcus01cService {
         // DISPLAY 'ABENDING PROGRAM'
         Sysout.display("ABENDING PROGRAM");
         // MOVE 0 TO TIMING
-        Cobol.move(D0, f40_TIMING, CS);
+        f40_TIMING = 0L;
         // MOVE 999 TO ABCODE
-        Cobol.move(D999, f39_ABCODE, CS);
+        f39_ABCODE = 999L;
         // CALL 'CEE3ABD' USING ABCODE, TIMING
-        if (true) throw CobolAbend.user(Cobol.num(f39_ABCODE, CS).intValue(), "CEE3ABD");
+        if (true) throw CobolAbend.user(BigDecimal.valueOf(f39_ABCODE).intValue(), "CEE3ABD");
         return 5;
     }
 
@@ -496,5 +404,11 @@ public class Cbcus01cService {
         // EXIT
         return 6;
     }
+
+    /** 88 APPL-AOK of APPL-RESULT. */
+    private boolean isApplAok() { return f37_APPL_RESULT == 0L; }
+
+    /** 88 APPL-EOF of APPL-RESULT. */
+    private boolean isApplEof() { return f37_APPL_RESULT == 16L; }
 
 }

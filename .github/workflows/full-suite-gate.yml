@@ -131,6 +131,8 @@ jobs:
       GITGALAXY_LICENSE_KEY: "COMMUNITY_FREE_TIER"
       OMP_NUM_THREADS: "1"
       OBJC_DISABLE_INITIALIZE_FORK_SAFETY: "YES"
+      # #4703: advisory for PRs / manual runs; a release tag keeps the current-report test blocking
+      EVIDENCE_REPORT_ADVISORY: ${{ startsWith(github.ref, 'refs/tags/') && '0' || '1' }}
     strategy:
       fail-fast: false
       matrix:

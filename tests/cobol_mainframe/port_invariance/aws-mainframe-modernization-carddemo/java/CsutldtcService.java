@@ -62,46 +62,27 @@ public class CsutldtcService {
     private final Storage s_LS_RESULT = new Storage(IMAGE_s_LS_RESULT.length);
     private final Storage s_GG_RETURN_CODE = new Storage(IMAGE_s_GG_RETURN_CODE.length);
 
-    private Field f10_WS_MESSAGE;
-    private Field f11_WS_SEVERITY;
-    private Field f12_WS_SEVERITY_N;
-    private Field f13_FILLER;
-    private Field f14_WS_MSG_NO;
-    private Field f15_WS_MSG_NO_N;
-    private Field f16_FILLER;
-    private Field f17_WS_RESULT;
-    private Field f18_FILLER;
-    private Field f19_FILLER;
-    private Field f1_WS_DATE_TO_TEST;
-    private Field f20_WS_DATE;
-    private Field f21_FILLER;
-    private Field f22_FILLER;
-    private Field f23_WS_DATE_FMT;
-    private Field f24_FILLER;
-    private Field f25_FILLER;
-    private Field f26_FEEDBACK_CODE;
-    private Field f27_FEEDBACK_TOKEN_VALUE;
-    private Field f28_CASE_1_CONDITION_ID;
-    private Field f29_SEVERITY;
-    private Field f2_VSTRING_LENGTH;
-    private Field f30_MSG_NO;
-    private Field f31_CASE_2_CONDITION_ID;
-    private Field f32_CLASS_CODE;
-    private Field f33_CAUSE_CODE;
-    private Field f34_CASE_SEV_CTL;
-    private Field f35_FACILITY_ID;
-    private Field f36_I_S_INFO;
-    private Field f37_LS_DATE;
-    private Field f38_LS_DATE_FORMAT;
-    private Field f39_LS_RESULT;
-    private Field f3_VSTRING_TEXT;
-    private Field f40_GG_RETURN_CODE;
-    private Field f4_VSTRING_CHAR;
-    private Field f5_WS_DATE_FORMAT;
-    private Field f6_VSTRING_LENGTH;
-    private Field f7_VSTRING_TEXT;
-    private Field f8_VSTRING_CHAR;
-    private Field f9_OUTPUT_LILLIAN;
+    private final Field f1_WS_DATE_TO_TEST = Field.group(s_WS_DATE_TO_TEST, 0, 258);
+    private final Field f2_VSTRING_LENGTH = Field.binary(s_WS_DATE_TO_TEST, 0, 4, 0, true, false);
+    private final Field f3_VSTRING_TEXT = Field.group(s_WS_DATE_TO_TEST, 2, 256);
+    private final Field f5_WS_DATE_FORMAT = Field.group(s_WS_DATE_FORMAT, 0, 258);
+    private final Field f6_VSTRING_LENGTH = Field.binary(s_WS_DATE_FORMAT, 0, 4, 0, true, false);
+    private final Field f7_VSTRING_TEXT = Field.group(s_WS_DATE_FORMAT, 2, 256);
+    private final Field f9_OUTPUT_LILLIAN = Field.binary(s_OUTPUT_LILLIAN, 0, 9, 0, true, false);
+    private final Field f10_WS_MESSAGE = Field.group(s_WS_MESSAGE, 0, 80);
+    private final Field f12_WS_SEVERITY_N = Field.zoned(s_WS_MESSAGE, 0, 4, 0, false, false, false);
+    private final Field f15_WS_MSG_NO_N = Field.zoned(s_WS_MESSAGE, 15, 4, 0, false, false, false);
+    private final Field f17_WS_RESULT = Field.alphanumeric(s_WS_MESSAGE, 20, 15, false);
+    private final Field f20_WS_DATE = Field.alphanumeric(s_WS_MESSAGE, 45, 10, false);
+    private final Field f23_WS_DATE_FMT = Field.alphanumeric(s_WS_MESSAGE, 66, 10, false);
+    private final Field f26_FEEDBACK_CODE = Field.group(s_FEEDBACK_CODE, 0, 12);
+    private final Field f27_FEEDBACK_TOKEN_VALUE = Field.group(s_FEEDBACK_CODE, 0, 8);
+    private final Field f29_SEVERITY = Field.binary(s_FEEDBACK_CODE, 0, 4, 0, true, false);
+    private final Field f30_MSG_NO = Field.binary(s_FEEDBACK_CODE, 2, 4, 0, true, false);
+    private final Field f37_LS_DATE = Field.alphanumeric(s_LS_DATE, 0, 10, false);
+    private final Field f38_LS_DATE_FORMAT = Field.alphanumeric(s_LS_DATE_FORMAT, 0, 10, false);
+    private final Field f39_LS_RESULT = Field.alphanumeric(s_LS_RESULT, 0, 80, false);
+    private final Field f40_GG_RETURN_CODE = Field.binary(s_GG_RETURN_CODE, 0, 4, 0, true, false);
 
 
     private final DatasetResolver datasets;
@@ -112,7 +93,11 @@ public class CsutldtcService {
         this.datasets = datasets;
         this.files = files;
         this.clock = clock;
-        fields0();
+        initialState();
+    }
+
+    /** WORKING-STORAGE (and every storage) as its VALUE clauses set it: each entry point starts from here. */
+    private void initialState() {
         System.arraycopy(IMAGE_s_WS_DATE_TO_TEST, 0, s_WS_DATE_TO_TEST.bytes, 0, IMAGE_s_WS_DATE_TO_TEST.length);
         System.arraycopy(IMAGE_s_WS_DATE_FORMAT, 0, s_WS_DATE_FORMAT.bytes, 0, IMAGE_s_WS_DATE_FORMAT.length);
         System.arraycopy(IMAGE_s_OUTPUT_LILLIAN, 0, s_OUTPUT_LILLIAN.bytes, 0, IMAGE_s_OUTPUT_LILLIAN.length);
@@ -122,63 +107,12 @@ public class CsutldtcService {
         System.arraycopy(IMAGE_s_LS_DATE_FORMAT, 0, s_LS_DATE_FORMAT.bytes, 0, IMAGE_s_LS_DATE_FORMAT.length);
         System.arraycopy(IMAGE_s_LS_RESULT, 0, s_LS_RESULT.bytes, 0, IMAGE_s_LS_RESULT.length);
         System.arraycopy(IMAGE_s_GG_RETURN_CODE, 0, s_GG_RETURN_CODE.bytes, 0, IMAGE_s_GG_RETURN_CODE.length);
-    }
-
-    private void fields0() {
-        f1_WS_DATE_TO_TEST = Field.group(s_WS_DATE_TO_TEST, 0, 258);
-        f2_VSTRING_LENGTH = Field.binary(s_WS_DATE_TO_TEST, 0, 4, 0, true, false);
-        f3_VSTRING_TEXT = Field.group(s_WS_DATE_TO_TEST, 2, 256);
-        f4_VSTRING_CHAR = Field.alphanumeric(s_WS_DATE_TO_TEST, 2, 1, false);
-        f5_WS_DATE_FORMAT = Field.group(s_WS_DATE_FORMAT, 0, 258);
-        f6_VSTRING_LENGTH = Field.binary(s_WS_DATE_FORMAT, 0, 4, 0, true, false);
-        f7_VSTRING_TEXT = Field.group(s_WS_DATE_FORMAT, 2, 256);
-        f8_VSTRING_CHAR = Field.alphanumeric(s_WS_DATE_FORMAT, 2, 1, false);
-        f9_OUTPUT_LILLIAN = Field.binary(s_OUTPUT_LILLIAN, 0, 9, 0, true, false);
-        f10_WS_MESSAGE = Field.group(s_WS_MESSAGE, 0, 80);
-        f11_WS_SEVERITY = Field.alphanumeric(s_WS_MESSAGE, 0, 4, false);
-        f12_WS_SEVERITY_N = Field.zoned(s_WS_MESSAGE, 0, 4, 0, false, false, false);
-        f13_FILLER = Field.alphanumeric(s_WS_MESSAGE, 4, 11, false);
-        f14_WS_MSG_NO = Field.alphanumeric(s_WS_MESSAGE, 15, 4, false);
-        f15_WS_MSG_NO_N = Field.zoned(s_WS_MESSAGE, 15, 4, 0, false, false, false);
-        f16_FILLER = Field.alphanumeric(s_WS_MESSAGE, 19, 1, false);
-        f17_WS_RESULT = Field.alphanumeric(s_WS_MESSAGE, 20, 15, false);
-        f18_FILLER = Field.alphanumeric(s_WS_MESSAGE, 35, 1, false);
-        f19_FILLER = Field.alphanumeric(s_WS_MESSAGE, 36, 9, false);
-        f20_WS_DATE = Field.alphanumeric(s_WS_MESSAGE, 45, 10, false);
-        f21_FILLER = Field.alphanumeric(s_WS_MESSAGE, 55, 1, false);
-        f22_FILLER = Field.alphanumeric(s_WS_MESSAGE, 56, 10, false);
-        f23_WS_DATE_FMT = Field.alphanumeric(s_WS_MESSAGE, 66, 10, false);
-        f24_FILLER = Field.alphanumeric(s_WS_MESSAGE, 76, 1, false);
-        f25_FILLER = Field.alphanumeric(s_WS_MESSAGE, 77, 3, false);
-        f26_FEEDBACK_CODE = Field.group(s_FEEDBACK_CODE, 0, 12);
-        f27_FEEDBACK_TOKEN_VALUE = Field.group(s_FEEDBACK_CODE, 0, 8);
-        f28_CASE_1_CONDITION_ID = Field.group(s_FEEDBACK_CODE, 0, 4);
-        f29_SEVERITY = Field.binary(s_FEEDBACK_CODE, 0, 4, 0, true, false);
-        f30_MSG_NO = Field.binary(s_FEEDBACK_CODE, 2, 4, 0, true, false);
-        f31_CASE_2_CONDITION_ID = Field.group(s_FEEDBACK_CODE, 0, 4);
-        f32_CLASS_CODE = Field.binary(s_FEEDBACK_CODE, 0, 4, 0, true, false);
-        f33_CAUSE_CODE = Field.binary(s_FEEDBACK_CODE, 2, 4, 0, true, false);
-        f34_CASE_SEV_CTL = Field.alphanumeric(s_FEEDBACK_CODE, 4, 1, false);
-        f35_FACILITY_ID = Field.alphanumeric(s_FEEDBACK_CODE, 5, 3, false);
-        f36_I_S_INFO = Field.binary(s_FEEDBACK_CODE, 8, 9, 0, true, false);
-        f37_LS_DATE = Field.alphanumeric(s_LS_DATE, 0, 10, false);
-        f38_LS_DATE_FORMAT = Field.alphanumeric(s_LS_DATE_FORMAT, 0, 10, false);
-        f39_LS_RESULT = Field.alphanumeric(s_LS_RESULT, 0, 80, false);
-        f40_GG_RETURN_CODE = Field.binary(s_GG_RETURN_CODE, 0, 4, 0, true, false);
     }
 
     /** The program run on its own (no JCL step, no CICS task, no caller): the PROCEDURE DIVISION from its
      *  initial storage; RETURN-CODE. */
     public int runProgram() {
-        System.arraycopy(IMAGE_s_WS_DATE_TO_TEST, 0, s_WS_DATE_TO_TEST.bytes, 0, IMAGE_s_WS_DATE_TO_TEST.length);
-        System.arraycopy(IMAGE_s_WS_DATE_FORMAT, 0, s_WS_DATE_FORMAT.bytes, 0, IMAGE_s_WS_DATE_FORMAT.length);
-        System.arraycopy(IMAGE_s_OUTPUT_LILLIAN, 0, s_OUTPUT_LILLIAN.bytes, 0, IMAGE_s_OUTPUT_LILLIAN.length);
-        System.arraycopy(IMAGE_s_WS_MESSAGE, 0, s_WS_MESSAGE.bytes, 0, IMAGE_s_WS_MESSAGE.length);
-        System.arraycopy(IMAGE_s_FEEDBACK_CODE, 0, s_FEEDBACK_CODE.bytes, 0, IMAGE_s_FEEDBACK_CODE.length);
-        System.arraycopy(IMAGE_s_LS_DATE, 0, s_LS_DATE.bytes, 0, IMAGE_s_LS_DATE.length);
-        System.arraycopy(IMAGE_s_LS_DATE_FORMAT, 0, s_LS_DATE_FORMAT.bytes, 0, IMAGE_s_LS_DATE_FORMAT.length);
-        System.arraycopy(IMAGE_s_LS_RESULT, 0, s_LS_RESULT.bytes, 0, IMAGE_s_LS_RESULT.length);
-        System.arraycopy(IMAGE_s_GG_RETURN_CODE, 0, s_GG_RETURN_CODE.bytes, 0, IMAGE_s_GG_RETURN_CODE.length);
+        initialState();
         performDepth = 0;
         try {
             perform(0, 2);
@@ -188,12 +122,9 @@ public class CsutldtcService {
         return Cobol.num(f40_GG_RETURN_CODE, CS).intValue();
     }
 
-    public void executeCsutldtc() {
-        runBatch(List.of(), null);
-    }
-
     public int handleCall(CobolRef<String> arg1, CobolRef<String> arg2, CobolRef<String> arg3) {
         boolean truncBefore = Cobol.swapTruncBinary(true);  // TRUNC(STD)
+        boolean pfdBefore = Cobol.swapNumprocPfd(false);  // NUMPROC(NOPFD)
         try {
             Cobol.move(arg1.get() == null ? "" : arg1.get(), f37_LS_DATE, CS);
             Cobol.move(arg2.get() == null ? "" : arg2.get(), f38_LS_DATE_FORMAT, CS);
@@ -209,6 +140,7 @@ public class CsutldtcService {
             return Cobol.num(f40_GG_RETURN_CODE, CS).intValue();
         } finally {
             Cobol.swapTruncBinary(truncBefore);
+            Cobol.swapNumprocPfd(pfdBefore);
         }
     }
 
@@ -229,16 +161,9 @@ public class CsutldtcService {
     /** The batch entry. */
     public int runBatch(List<Dd> dds, String parm) {
         boolean truncBefore = Cobol.swapTruncBinary(true);  // TRUNC(STD)
+        boolean pfdBefore = Cobol.swapNumprocPfd(false);  // NUMPROC(NOPFD)
         try {
-            System.arraycopy(IMAGE_s_WS_DATE_TO_TEST, 0, s_WS_DATE_TO_TEST.bytes, 0, IMAGE_s_WS_DATE_TO_TEST.length);
-            System.arraycopy(IMAGE_s_WS_DATE_FORMAT, 0, s_WS_DATE_FORMAT.bytes, 0, IMAGE_s_WS_DATE_FORMAT.length);
-            System.arraycopy(IMAGE_s_OUTPUT_LILLIAN, 0, s_OUTPUT_LILLIAN.bytes, 0, IMAGE_s_OUTPUT_LILLIAN.length);
-            System.arraycopy(IMAGE_s_WS_MESSAGE, 0, s_WS_MESSAGE.bytes, 0, IMAGE_s_WS_MESSAGE.length);
-            System.arraycopy(IMAGE_s_FEEDBACK_CODE, 0, s_FEEDBACK_CODE.bytes, 0, IMAGE_s_FEEDBACK_CODE.length);
-            System.arraycopy(IMAGE_s_LS_DATE, 0, s_LS_DATE.bytes, 0, IMAGE_s_LS_DATE.length);
-            System.arraycopy(IMAGE_s_LS_DATE_FORMAT, 0, s_LS_DATE_FORMAT.bytes, 0, IMAGE_s_LS_DATE_FORMAT.length);
-            System.arraycopy(IMAGE_s_LS_RESULT, 0, s_LS_RESULT.bytes, 0, IMAGE_s_LS_RESULT.length);
-            System.arraycopy(IMAGE_s_GG_RETURN_CODE, 0, s_GG_RETURN_CODE.bytes, 0, IMAGE_s_GG_RETURN_CODE.length);
+            initialState();
             byte[] parmText = (parm == null ? "" : parm).getBytes(CS);
             s_LS_DATE.bytes[0] = (byte) (parmText.length >> 8);
             s_LS_DATE.bytes[1] = (byte) parmText.length;
@@ -251,6 +176,7 @@ public class CsutldtcService {
             return Cobol.num(f40_GG_RETURN_CODE, CS).intValue();
         } finally {
             Cobol.swapTruncBinary(truncBefore);
+            Cobol.swapNumprocPfd(pfdBefore);
         }
     }
 
@@ -361,31 +287,31 @@ public class CsutldtcService {
         // MOVE MSG-NO OF FEEDBACK-CODE TO WS-MSG-NO-N
         Cobol.move(f30_MSG_NO, f15_WS_MSG_NO_N, CS);
         // EVALUATE TRUE
-        if ((Cobol.compare(f27_FEEDBACK_TOKEN_VALUE, "\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000", CS) == 0)) {
+        if ((isFcInvalidDate())) {
             // MOVE 'Date is valid' TO WS-RESULT
             Cobol.move("Date is valid", f17_WS_RESULT, CS);
-        } else if ((Cobol.compare(f27_FEEDBACK_TOKEN_VALUE, "\u0000\u0003\u0009\u00cbY\u00c3\u00c5\u00c5", CS) == 0)) {
+        } else if ((isFcInsufficientData())) {
             // MOVE 'Insufficient' TO WS-RESULT
             Cobol.move("Insufficient", f17_WS_RESULT, CS);
-        } else if ((Cobol.compare(f27_FEEDBACK_TOKEN_VALUE, "\u0000\u0003\u0009\u00ccY\u00c3\u00c5\u00c5", CS) == 0)) {
+        } else if ((isFcBadDateValue())) {
             // MOVE 'Datevalue error' TO WS-RESULT
             Cobol.move("Datevalue error", f17_WS_RESULT, CS);
-        } else if ((Cobol.compare(f27_FEEDBACK_TOKEN_VALUE, "\u0000\u0003\u0009\u00cdY\u00c3\u00c5\u00c5", CS) == 0)) {
+        } else if ((isFcInvalidEra())) {
             // MOVE 'Invalid Era ' TO WS-RESULT
             Cobol.move("Invalid Era    ", f17_WS_RESULT, CS);
-        } else if ((Cobol.compare(f27_FEEDBACK_TOKEN_VALUE, "\u0000\u0003\u0009\u00d1Y\u00c3\u00c5\u00c5", CS) == 0)) {
+        } else if ((isFcUnsuppRange())) {
             // MOVE 'Unsupp. Range ' TO WS-RESULT
             Cobol.move("Unsupp. Range  ", f17_WS_RESULT, CS);
-        } else if ((Cobol.compare(f27_FEEDBACK_TOKEN_VALUE, "\u0000\u0003\u0009\u00d5Y\u00c3\u00c5\u00c5", CS) == 0)) {
+        } else if ((isFcInvalidMonth())) {
             // MOVE 'Invalid month ' TO WS-RESULT
             Cobol.move("Invalid month  ", f17_WS_RESULT, CS);
-        } else if ((Cobol.compare(f27_FEEDBACK_TOKEN_VALUE, "\u0000\u0003\u0009\u00d6Y\u00c3\u00c5\u00c5", CS) == 0)) {
+        } else if ((isFcBadPicString())) {
             // MOVE 'Bad Pic String ' TO WS-RESULT
             Cobol.move("Bad Pic String ", f17_WS_RESULT, CS);
-        } else if ((Cobol.compare(f27_FEEDBACK_TOKEN_VALUE, "\u0000\u0003\u0009\u00d8Y\u00c3\u00c5\u00c5", CS) == 0)) {
+        } else if ((isFcNonNumericData())) {
             // MOVE 'Nonnumeric data' TO WS-RESULT
             Cobol.move("Nonnumeric data", f17_WS_RESULT, CS);
-        } else if ((Cobol.compare(f27_FEEDBACK_TOKEN_VALUE, "\u0000\u0003\u0009\u00d9Y\u00c3\u00c5\u00c5", CS) == 0)) {
+        } else if ((isFcYearInEraZero())) {
             // MOVE 'YearInEra is 0 ' TO WS-RESULT
             Cobol.move("YearInEra is 0 ", f17_WS_RESULT, CS);
         } else if (true) {
@@ -400,5 +326,32 @@ public class CsutldtcService {
         // EXIT
         return 3;
     }
+
+    /** 88 FC-INVALID-DATE of FEEDBACK-TOKEN-VALUE. */
+    private boolean isFcInvalidDate() { return Cobol.compare(f27_FEEDBACK_TOKEN_VALUE, "\000\000\000\000\000\000\000\000", CS) == 0; }
+
+    /** 88 FC-INSUFFICIENT-DATA of FEEDBACK-TOKEN-VALUE. */
+    private boolean isFcInsufficientData() { return Cobol.compare(f27_FEEDBACK_TOKEN_VALUE, "\000\003\011\313Y\303\305\305", CS) == 0; }
+
+    /** 88 FC-BAD-DATE-VALUE of FEEDBACK-TOKEN-VALUE. */
+    private boolean isFcBadDateValue() { return Cobol.compare(f27_FEEDBACK_TOKEN_VALUE, "\000\003\011\314Y\303\305\305", CS) == 0; }
+
+    /** 88 FC-INVALID-ERA of FEEDBACK-TOKEN-VALUE. */
+    private boolean isFcInvalidEra() { return Cobol.compare(f27_FEEDBACK_TOKEN_VALUE, "\000\003\011\315Y\303\305\305", CS) == 0; }
+
+    /** 88 FC-UNSUPP-RANGE of FEEDBACK-TOKEN-VALUE. */
+    private boolean isFcUnsuppRange() { return Cobol.compare(f27_FEEDBACK_TOKEN_VALUE, "\000\003\011\321Y\303\305\305", CS) == 0; }
+
+    /** 88 FC-INVALID-MONTH of FEEDBACK-TOKEN-VALUE. */
+    private boolean isFcInvalidMonth() { return Cobol.compare(f27_FEEDBACK_TOKEN_VALUE, "\000\003\011\325Y\303\305\305", CS) == 0; }
+
+    /** 88 FC-BAD-PIC-STRING of FEEDBACK-TOKEN-VALUE. */
+    private boolean isFcBadPicString() { return Cobol.compare(f27_FEEDBACK_TOKEN_VALUE, "\000\003\011\326Y\303\305\305", CS) == 0; }
+
+    /** 88 FC-NON-NUMERIC-DATA of FEEDBACK-TOKEN-VALUE. */
+    private boolean isFcNonNumericData() { return Cobol.compare(f27_FEEDBACK_TOKEN_VALUE, "\000\003\011\330Y\303\305\305", CS) == 0; }
+
+    /** 88 FC-YEAR-IN-ERA-ZERO of FEEDBACK-TOKEN-VALUE. */
+    private boolean isFcYearInEraZero() { return Cobol.compare(f27_FEEDBACK_TOKEN_VALUE, "\000\003\011\331Y\303\305\305", CS) == 0; }
 
 }

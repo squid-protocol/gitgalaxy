@@ -150,10 +150,11 @@ def test_nondigit_zoned_to_binary_is_the_oracles(trunc, tmp_path):
 
 
 @pytest.mark.skipif(_java() is None, reason="needs a JDK 17 (JAVA_HOME / JDK_17)")
-@pytest.mark.parametrize("x, text, item", [("X4", "1 3!", "S5"), ("X4", "123!", "S5"), ("X5", "*1 3 ", "S6")])
+@pytest.mark.parametrize("x, text, item", [("X5", "*1 3 ", "S6")])
 def test_a_sign_byte_that_is_no_sign_is_refused_by_name(x, text, item, tmp_path):
-    """Where a signed sender's sign is, a byte other than a digit, a sign or a space: the oracle reads '!' as +1 and
-    X'FF' as +0 (and rewrites it), IBM documents nothing -- refused, never guessed."""
+    """A SEPARATE sign that is neither + nor - nor a space: IBM documents nothing and the oracle's reading is not
+    measured -- refused, never guessed. (A trailing / leading overpunch position holding another byte is modelled
+    since #4662: '!' is +1, X'FF' +0, test_det_nondigit_zoned.py.)"""
     pytest.importorskip("tree_sitter_language_pack")
     src = _src().replace(
         "           MOVE SPACES TO G1\n", f"           MOVE '{text}' TO {x}\n           MOVE {item} TO B9\n", 1

@@ -216,13 +216,22 @@ public final class Hfp {
         return h == null ? BigDecimal.ZERO : value(h, d);
     }
 
-    /** DIVIDE: the exact quotient truncated. A zero divisor: an ArithmeticException, not modelled in floating point
-     *  (oracle_assumptions C14; Cobol.divide gives libcob's NaN). */
+    /** DIVIDE: the exact quotient truncated. A zero divisor is libcob's NaN with the size error raised, as in
+     *  Cobol.divide (#4675, oracle_assumptions C14): the oracle converts a float to a decimal and divides it, so a
+     *  receiver is left unchanged; z/OS leaves the result undefined. Only a division that is a statement's whole
+     *  value (COMPUTE x = a / b, DIVIDE): inside a larger expression divideNested refuses. */
     public static BigDecimal divide(BigDecimal a, BigDecimal b, boolean longP) {
+        if (b.signum() == 0) {
+            Cobol.raiseSize();
+            return Cobol.nan(a);
+        }
         int d = digits(longP);
         H x = exact(a, d);
         H y = exact(b, d);
-        if (y == null) throw new ArithmeticException("division by zero");
+        if (y == null) { // a divisor that is HFP zero
+            Cobol.raiseSize();
+            return Cobol.nan(a);
+        }
         if (x == null) return BigDecimal.ZERO;
         // (fx 16^(ex-d)) / (fy 16^(ey-d)) = (fx / fy) 16^(ex-ey)
         BigInteger num = x.f;
@@ -232,6 +241,18 @@ public final class Hfp {
         else den = den.multiply(p16(-shift));
         H h = chop(x.neg != y.neg, num, den, d);
         return value(h, d);
+    }
+
+    /** DIVIDE inside a larger floating-point expression: a zero divisor is refused by name. The oracle's NaN meets
+     *  cob_decimal_align there (NaN * x is 0, 2 - NaN is 2, NaN + 1 unchanged: measured, #4675) and the HFP model
+     *  does not replay that (oracle_assumptions C14). */
+    public static BigDecimal divideNested(BigDecimal a, BigDecimal b, boolean longP) {
+        if (b.signum() == 0) {
+            throw new ArithmeticException("division by zero inside a floating-point expression (oracle_assumptions C14)");
+        }
+        BigDecimal q = divide(a, b, longP);
+        if (Cobol.isNan(q)) throw new ArithmeticException("division by zero inside a floating-point expression (oracle_assumptions C14)");
+        return q;
     }
 
     // ------------------------------------------------------------------------------------------- storage

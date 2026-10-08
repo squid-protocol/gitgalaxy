@@ -68,7 +68,7 @@ verdict, but it limits what the proof says about inputs outside the scenarios.
 | C8 | compiler | DISPLAY of signed zoned, binary and packed items | MATCHED | yes |
 | C9 | compiler | POINTER is 8 bytes in GnuCOBOL (x86-64), 4 on z/OS | DIFFERS | only NULL, trailing (CBSA) |
 | C10 | compiler | INITIALIZE / VALUE ZERO zoned items: unsigned F zone (GnuCOBOL) vs preferred C sign (z/OS) | DIFFERS (tolerated where a case declares it) | yes (CardDemo READACCT ARRYFILE) |
-| C11 | compiler | A non-digit in a numeric DISPLAY item: MOVEd from an alphanumeric item (#4049); MOVEd to a binary item (#4652) | DIFFERS (#4049: inputs kept out of the cases) / MODELLED, the oracle's arithmetic (#4652: to binary) | yes (COMEN01C option `1!`; GenApp LGTESTP4's add) |
+| C11 | compiler | A non-digit in a numeric DISPLAY item: MOVEd from an alphanumeric item (#4049); MOVEd to a binary item (#4652); read as a MOVE sender, an operand, a comparand, and the sign rewrite of a signed sender (#4662) | DIFFERS (#4049: inputs kept out of the cases) / MODELLED, the oracle's rules (#4652, #4662) | yes (COMEN01C option `1!`; GenApp LGTESTP4's add) |
 | C12 | compiler | FUNCTION RANDOM: the oracle's generator (glibc via GnuCOBOL), not IBM's unpublished one; a seed IBM does not allow refused | DIFFERS (the numbers) / ASSUMED (the interface) | translated, no proof yet (CBSA CRDTAGY1-5, INQCUST; GenApp LGICVS01) |
 | C13 | compiler | A numeric operand compared with a nonnumeric one (an alphanumeric, alphabetic or numeric-edited item): compared as its characters, not by value (#4665) | MATCHED (unsigned integer literals as written; zoned, packed and binary items as their digits, sign dropped; non-integer ones as the oracle's digits) / REFUSED (a signed literal, a SIGN SEPARATE or P-scaled item, an arithmetic expression, an equality with a literal of more decimal places than an edited item) | yes: CardDemo COTRTLIC (proven; an alphanumeric item against `0`); no proven program compares an edited item with a number |
 | C14 | compiler | Size errors without ON SIZE ERROR: a zero divisor leaves the receivers unchanged in the oracle (libcob's NaN), the det runtime the same (#4655); z/OS's result is undefined (a decimal-divide exception); 0 ** a negative is 0 in the oracle, a size error on z/OS | MATCHED (det runtime = oracle) / DIFFERS (oracle vs z/OS) | not known to be: no proven scenario divides by zero |
@@ -378,7 +378,7 @@ verdict, but it limits what the proof says about inputs outside the scenarios.
 - **Not tolerated.** A negative overpunch (`}`, `J`–`R`) against either form, a different digit, or any byte in an
   undeclared dataset.
 
-### C11. A non-digit in a numeric DISPLAY item — DIFFERS (inputs kept out of the cases); to a binary item MODELLED
+### C11. A non-digit in a numeric DISPLAY item — DIFFERS (inputs kept out of the cases); as a MOVE sender, an operand and a comparand MODELLED
 - **What.** COMEN01C moves the typed option (`WS-OPTION-X`, PIC X(2) JUST RIGHT) to `WS-OPTION` (PIC 9(2)) and then
   tests `WS-OPTION IS NOT NUMERIC`. With a non-digit typed, GnuCOBOL 3 (`-std=ibm`) gives `1!` -> `01` and `!1` ->
   `00`, both NUMERIC (measured 2026-10-03), so `1!` is option 1 and XCTLs. IBM treats an alphanumeric sender of a
@@ -403,14 +403,30 @@ verdict, but it limits what the proof says about inputs outside the scenarios.
   `test_det_nondigit_binary.py`), and genapp-lgtestp4's successful add is proven against it: the proof says the port
   computes what GnuCOBOL computes for these bytes, not what z/OS would INSERT. A signed sender whose sign byte is
   neither a digit, a sign nor a space (`!` the oracle reads as +1, X'FF' as +0) is refused by name.
-- **Not modelled (the rest of C11, #4662).** Measured against the oracle on 2026-10-07: spaces MOVEd to a packed (COMP-3)
-  or zoned numeric receiver agree (both 0); but a letter in a zoned sender MOVEd to a zoned receiver (the oracle copies
-  the byte: `1A3` stays `1A3`, the det runtime writes `113`), spaces MOVEd to a numeric-edited item (the oracle leaves
-  spaces, the det runtime `0`), arithmetic on such an item (COMPUTE / ADD: the oracle -16 per space, the det runtime
-  0) and comparisons (`IF A = 0` false on the oracle, true in the det runtime) still differ. The oracle also rewrites
-  a signed sender's unsigned sign digit as an overpunch when it MOVEs it to a binary item (`0123` becomes `012C`),
-  for digit-only data as well; the det runtime does that only on the non-digit path above (C10 tolerates the F / C
-  difference where a case declares it).
+- **The rest of C11 (#4662) -- MODELLED, the oracle's rules, per shape.** IBM documents no result for non-digit data
+  in a numeric item either; each shape below was measured against cobc 3.1.2 (`-std=ibm -fsign=EBCDIC`, TRUNC(STD) and
+  TRUNC(BIN)) over unsigned, SIGN TRAILING / LEADING and SIGN TRAILING / LEADING SEPARATE senders holding spaces, letters,
+  low-values, X'FF' and `!` in digit and sign positions (`cobolrt/Zoned.java`; `test_det_nondigit_zoned.py`, with the
+  expected lines in `nondigit_zoned_expected.txt` and a Docker check that they are still cobc's):
+
+  | Shape | libcob | What the det runtime does |
+  |---|---|---|
+  | The sign byte of a signed sender, on every numeric read | `cob_get_sign` / `cob_put_sign` (the EBCDIC overpunch) | `{` `A`-`I` are +0..+9, `}` `J`-`R` -0..-9, a digit itself, a space stays a space, any other byte is the digit in its low nibble if that is 1-9 else 0 (`!` +1, X'FF' +0). The read then rewrites a positive sign byte as an overpunch (`0123` becomes `012C`, a space or any non-digit `{`) -- on a MOVE from the item whatever the receiver, and on an arithmetic operand; not on a comparison of an unsigned or trailing-sign item. A separate sign is rewritten to `+` / `-` on every read, comparisons too. Digit-only data included: this changes the sender's bytes in a digit-only program too, as the oracle does. |
+  | MOVE zoned to zoned (`MOVE 1A3 TO D7`: `00001A3`) | `cob_move_display_to_display`, `store_common_region` | the digit bytes copied aligned on the decimal point, a space or X'00' becoming '0', any other byte kept; the receiver's sign written over its last / first byte (a digit overpunched, any other byte `{` / `}`) |
+  | MOVE to numeric-edited (`MOVE A6 TO E7`: 7 spaces) | `cob_move_display_to_edited` | the digit bytes fed to the picture as they are; only a '0' is suppressed, so a space stays a space and `Z(6)9` of spaces is 7 spaces; X'00' stays X'00' |
+  | MOVE to packed (COMP-3) | `cob_move_display_to_packed` | a nibble pair is `(hi * 16 + lo) mod 256` of the digits' values (byte - '0'; a space 0), so `12A4` is `01 31 4C`; reading such a packed item back as a number is still the runtime's (nibble above 9 reads as 9; the oracle prints garbage) -- the tests compare it as the COMP-5 number its bytes are |
+  | COMPUTE / ADD / SUBTRACT operand (`COMPUTE B9 = A6` 709551600) | `cob_decimal_set_display` | a first byte X'FF' is +10^size and X'00' -10^size; else leading bytes whose low nibble is 0 (zeros, spaces, low-values) are skipped and the rest accumulate as `value * 10 + (byte - '0')` in an unsigned 64-bit integer that wraps (a space -16, `A` 17), the sign applied after. 19 or more digits left after the skipping: refused by name |
+  | `ADD x TO y` / `SUBTRACT x FROM y`, x a zoned field of at most 9 digits, y not COMP under TRUNC(STD), no ROUNDED / SIZE ERROR | `cob_add_int (y, cob_get_int (x))` (cobc's `cb_build_optim_add`) | x read as an int: every digit position counts (a space -16), nothing skipped, nothing wrapped at 64 bits. `gen.py` marks these statements (`Cobol.intOperand`), the runtime decides on TRUNC |
+  | `IF x = 0`, `IF x > 5`, `IF x < y`, `IS POSITIVE` (`IF A6 = 0` false) | `cob_cmp_numdisp` for an unsigned or trailing-sign item without decimals; `cob_numeric_cmp` through the decimal for a leading or separate sign or decimal places | numdisp: every digit position in a signed 64-bit integer, nothing skipped, a sign byte that is no overpunch (a space too) 0, nothing written back; the decimal: as an arithmetic operand. NUMERIC is unchanged (a space is not numeric). 19 or more digits: refused by name |
+  | MOVE to binary | `cob_move_display_to_binary` (#4652) | unchanged, but a sign byte that is no sign (`!`, X'FF') is no longer refused: it reads as above; a SEPARATE sign other than + - space is still refused |
+
+  IBM has no result for any of these (a zoned item with a digit nibble above 9 or a zone that is no sign is not NUMERIC;
+  its use in arithmetic or a MOVE is undefined), and on z/OS a space is X'40', whose digit nibble 0 most likely reads as
+  0: the proofs say the port computes what GnuCOBOL computes for these bytes, not what z/OS would. Not modelled, so
+  still different or untested: a zoned item with a P position (the digit position count differs, refused by name on
+  the MOVE paths), ADD / SUBTRACT / MOVE where the *receiver* holds the non-digit (`ADD 1 TO counter` with spaces:
+  `cob_display_add_int` works on the bytes), DISPLAY of a byte above X'7F' (the port writes UTF-8, the oracle the
+  byte), a hex literal naming a line-end character in a MOVE (`X'0A'`, `X'0D'`: the generated Java string breaks).
 
 ### C12. FUNCTION RANDOM — the numbers DIFFER from z/OS, the interface ASSUMED; refused where IBM does not allow the seed
 - **IBM** (Enterprise COBOL 6.4 Language Reference, RANDOM,
@@ -517,8 +533,22 @@ verdict, but it limits what the proof says about inputs outside the scenarios.
   `tests/cobol_mainframe/test_det_size_error.py` (every shape above, both port modes) and a randomized differential
   run (2026-10-07: 56 random programs with zero divisors, DIVIDE and ON SIZE ERROR / NOT ON SIZE ERROR phrases,
   every output equal to the oracle's).
-- **Not modelled.** A zero divisor in floating point (COMP-1 / COMP-2, `Hfp.divide`) still stops the run with an
-  ArithmeticException, a named stop rather than a guess.
+- **Floating point (#4675).** The oracle converts a COMP-1 / COMP-2 operand to a decimal, so a zero divisor behaves
+  as above (measured 2026-10-08): `COMPUTE G = F / FZ`, `DIVIDE FZ INTO G`, `DIVIDE F BY FZ GIVING G` (or a decimal
+  receiver) leave every receiver unchanged and raise the size error, with or without ON SIZE ERROR; ON SIZE ERROR
+  also fires for a decimal receiver too small for a float result (`R = F * 3000`). The det runtime does the same for
+  a division that is the statement's whole value (`Hfp.divide` returns the NaN and raises the size error; the float
+  statements now take ON SIZE ERROR phrases, an HFP exponent overflow is still refused by name). A zero divisor
+  inside a larger float expression is NOT modelled: the oracle's `cob_decimal_align` meets the NaN there
+  (`(F / FZ) * 3` is unchanged but `(F / FZ) * C`, `FM * (F / FZ)` store 0, `2 - (F / FZ)` stores 2) and the HFP model
+  does not replay it, so `Hfp.divideNested` stops the run with an ArithmeticException, a named stop rather than a guess.
+  z/OS leaves the result of a floating-point zero divide undefined (a floating-point exception or a program-defined
+  result), so the oracle's "unchanged" is the same kind of choice as for decimal items.
+- **Phrase scope (#4676).** A conditional phrase belongs to the innermost unterminated statement that can take it,
+  and an END-verb closes the innermost open statement of its verb (measured: `COMPUTE ... ON SIZE ERROR COMPUTE ...
+  NOT ON SIZE ERROR ...` gives the NOT phrase to the inner COMPUTE; with an inner ON/NOT pair of its own the next NOT
+  goes to the outer). `det/stmt.py` binds them that way (`_phrase_owner`, `_end_owner`). A NOT phrase after a
+  statement that already has one, or after a finished one, goes outward; cobc rejects a stray one with a syntax error.
 - **So a proof says:** for a scenario that divides by zero without ON SIZE ERROR, the port does what the oracle
   does (receivers unchanged), which z/OS does not promise: IBM leaves the result undefined and a z/OS run may
   abend. With ON SIZE ERROR both sides agree with IBM (receivers unchanged, the phrase runs), except `0 ** -n`,

@@ -46,11 +46,8 @@ public class Cbtrn01cService {
     private static final Charset CS = CobolRecords.charset();
     private static final int GOTO = 1 << 20;
     private static final BigDecimal D0 = new BigDecimal("0");
-    private static final BigDecimal D16 = new BigDecimal("16");
-    private static final BigDecimal D12 = new BigDecimal("12");
     private static final BigDecimal D4 = new BigDecimal("4");
     private static final BigDecimal D8 = new BigDecimal("8");
-    private static final BigDecimal D999 = new BigDecimal("999");
 
     private static final byte[] IMAGE_s_FD_TRAN_RECORD = Base64.getDecoder().decode(String.join("",
             "ICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAg",
@@ -100,14 +97,6 @@ public class Cbtrn01cService {
             "AAA="));
     private static final byte[] IMAGE_s_IO_STATUS_04 = Base64.getDecoder().decode(String.join("",
             "MDAwMA=="));
-    private static final byte[] IMAGE_s_APPL_RESULT = Base64.getDecoder().decode(String.join("",
-            "AAAAAA=="));
-    private static final byte[] IMAGE_s_END_OF_DAILY_TRANS_FILE = Base64.getDecoder().decode(String.join("",
-            "Tg=="));
-    private static final byte[] IMAGE_s_ABCODE = Base64.getDecoder().decode(String.join("",
-            "AAAAAA=="));
-    private static final byte[] IMAGE_s_TIMING = Base64.getDecoder().decode(String.join("",
-            "AAAAAA=="));
     private static final byte[] IMAGE_s_WS_MISC_VARIABLES = Base64.getDecoder().decode(String.join("",
             "MDAwMDAwMDA="));
     private static final byte[] IMAGE_s_GG_RETURN_CODE = Base64.getDecoder().decode(String.join("",
@@ -133,144 +122,80 @@ public class Cbtrn01cService {
     private final Storage s_IO_STATUS = new Storage(IMAGE_s_IO_STATUS.length);
     private final Storage s_TWO_BYTES_BINARY = new Storage(IMAGE_s_TWO_BYTES_BINARY.length);
     private final Storage s_IO_STATUS_04 = new Storage(IMAGE_s_IO_STATUS_04.length);
-    private final Storage s_APPL_RESULT = new Storage(IMAGE_s_APPL_RESULT.length);
-    private final Storage s_END_OF_DAILY_TRANS_FILE = new Storage(IMAGE_s_END_OF_DAILY_TRANS_FILE.length);
-    private final Storage s_ABCODE = new Storage(IMAGE_s_ABCODE.length);
-    private final Storage s_TIMING = new Storage(IMAGE_s_TIMING.length);
     private final Storage s_WS_MISC_VARIABLES = new Storage(IMAGE_s_WS_MISC_VARIABLES.length);
     private final Storage s_GG_RETURN_CODE = new Storage(IMAGE_s_GG_RETURN_CODE.length);
 
-    private Field f100_TRAN_SOURCE;
-    private Field f101_TRAN_DESC;
-    private Field f102_TRAN_AMT;
-    private Field f103_TRAN_MERCHANT_ID;
-    private Field f104_TRAN_MERCHANT_NAME;
-    private Field f105_TRAN_MERCHANT_CITY;
-    private Field f106_TRAN_MERCHANT_ZIP;
-    private Field f107_TRAN_CARD_NUM;
-    private Field f108_TRAN_ORIG_TS;
-    private Field f109_TRAN_PROC_TS;
-    private Field f10_FD_CARDFILE_REC;
-    private Field f110_FILLER;
-    private Field f111_TRANFILE_STATUS;
-    private Field f112_TRANFILE_STAT1;
-    private Field f113_TRANFILE_STAT2;
-    private Field f114_IO_STATUS;
-    private Field f115_IO_STAT1;
-    private Field f116_IO_STAT2;
-    private Field f117_TWO_BYTES_BINARY;
-    private Field f118_TWO_BYTES_ALPHA;
-    private Field f119_TWO_BYTES_LEFT;
-    private Field f11_FD_CARD_NUM;
-    private Field f120_TWO_BYTES_RIGHT;
-    private Field f121_IO_STATUS_04;
-    private Field f122_IO_STATUS_0401;
-    private Field f123_IO_STATUS_0403;
-    private Field f124_APPL_RESULT;
-    private Field f125_END_OF_DAILY_TRANS_FILE;
-    private Field f126_ABCODE;
-    private Field f127_TIMING;
-    private Field f128_WS_MISC_VARIABLES;
-    private Field f129_WS_XREF_READ_STATUS;
-    private Field f12_FD_CARD_DATA;
-    private Field f130_WS_ACCT_READ_STATUS;
-    private Field f131_GG_RETURN_CODE;
-    private Field f13_FD_ACCTFILE_REC;
-    private Field f14_FD_ACCT_ID;
-    private Field f15_FD_ACCT_DATA;
-    private Field f16_FD_TRANFILE_REC;
-    private Field f17_FD_TRANS_ID;
-    private Field f18_FD_ACCT_DATA;
-    private Field f19_DALYTRAN_RECORD;
-    private Field f1_FD_TRAN_RECORD;
-    private Field f20_DALYTRAN_ID;
-    private Field f21_DALYTRAN_TYPE_CD;
-    private Field f22_DALYTRAN_CAT_CD;
-    private Field f23_DALYTRAN_SOURCE;
-    private Field f24_DALYTRAN_DESC;
-    private Field f25_DALYTRAN_AMT;
-    private Field f26_DALYTRAN_MERCHANT_ID;
-    private Field f27_DALYTRAN_MERCHANT_NAME;
-    private Field f28_DALYTRAN_MERCHANT_CITY;
-    private Field f29_DALYTRAN_MERCHANT_ZIP;
-    private Field f2_FD_TRAN_ID;
-    private Field f30_DALYTRAN_CARD_NUM;
-    private Field f31_DALYTRAN_ORIG_TS;
-    private Field f32_DALYTRAN_PROC_TS;
-    private Field f33_FILLER;
-    private Field f34_DALYTRAN_STATUS;
-    private Field f35_DALYTRAN_STAT1;
-    private Field f36_DALYTRAN_STAT2;
-    private Field f37_CUSTOMER_RECORD;
-    private Field f38_CUST_ID;
-    private Field f39_CUST_FIRST_NAME;
-    private Field f3_FD_CUST_DATA;
-    private Field f40_CUST_MIDDLE_NAME;
-    private Field f41_CUST_LAST_NAME;
-    private Field f42_CUST_ADDR_LINE_1;
-    private Field f43_CUST_ADDR_LINE_2;
-    private Field f44_CUST_ADDR_LINE_3;
-    private Field f45_CUST_ADDR_STATE_CD;
-    private Field f46_CUST_ADDR_COUNTRY_CD;
-    private Field f47_CUST_ADDR_ZIP;
-    private Field f48_CUST_PHONE_NUM_1;
-    private Field f49_CUST_PHONE_NUM_2;
-    private Field f4_FD_CUSTFILE_REC;
-    private Field f50_CUST_SSN;
-    private Field f51_CUST_GOVT_ISSUED_ID;
-    private Field f52_CUST_DOB_YYYY_MM_DD;
-    private Field f53_CUST_EFT_ACCOUNT_ID;
-    private Field f54_CUST_PRI_CARD_HOLDER_IND;
-    private Field f55_CUST_FICO_CREDIT_SCORE;
-    private Field f56_FILLER;
-    private Field f57_CUSTFILE_STATUS;
-    private Field f58_CUSTFILE_STAT1;
-    private Field f59_CUSTFILE_STAT2;
-    private Field f5_FD_CUST_ID;
-    private Field f60_CARD_XREF_RECORD;
-    private Field f61_XREF_CARD_NUM;
-    private Field f62_XREF_CUST_ID;
-    private Field f63_XREF_ACCT_ID;
-    private Field f64_FILLER;
-    private Field f65_XREFFILE_STATUS;
-    private Field f66_XREFFILE_STAT1;
-    private Field f67_XREFFILE_STAT2;
-    private Field f68_CARD_RECORD;
-    private Field f69_CARD_NUM;
-    private Field f6_FD_CUST_DATA;
-    private Field f70_CARD_ACCT_ID;
-    private Field f71_CARD_CVV_CD;
-    private Field f72_CARD_EMBOSSED_NAME;
-    private Field f73_CARD_EXPIRAION_DATE;
-    private Field f74_CARD_ACTIVE_STATUS;
-    private Field f75_FILLER;
-    private Field f76_CARDFILE_STATUS;
-    private Field f77_CARDFILE_STAT1;
-    private Field f78_CARDFILE_STAT2;
-    private Field f79_ACCOUNT_RECORD;
-    private Field f7_FD_XREFFILE_REC;
-    private Field f80_ACCT_ID;
-    private Field f81_ACCT_ACTIVE_STATUS;
-    private Field f82_ACCT_CURR_BAL;
-    private Field f83_ACCT_CREDIT_LIMIT;
-    private Field f84_ACCT_CASH_CREDIT_LIMIT;
-    private Field f85_ACCT_OPEN_DATE;
-    private Field f86_ACCT_EXPIRAION_DATE;
-    private Field f87_ACCT_REISSUE_DATE;
-    private Field f88_ACCT_CURR_CYC_CREDIT;
-    private Field f89_ACCT_CURR_CYC_DEBIT;
-    private Field f8_FD_XREF_CARD_NUM;
-    private Field f90_ACCT_ADDR_ZIP;
-    private Field f91_ACCT_GROUP_ID;
-    private Field f92_FILLER;
-    private Field f93_ACCTFILE_STATUS;
-    private Field f94_ACCTFILE_STAT1;
-    private Field f95_ACCTFILE_STAT2;
-    private Field f96_TRAN_RECORD;
-    private Field f97_TRAN_ID;
-    private Field f98_TRAN_TYPE_CD;
-    private Field f99_TRAN_CAT_CD;
-    private Field f9_FD_XREF_DATA;
+    private final Field f1_FD_TRAN_RECORD = Field.group(s_FD_TRAN_RECORD, 0, 350);
+    private final Field f7_FD_XREFFILE_REC = Field.group(s_FD_XREFFILE_REC, 0, 50);
+    private final Field f8_FD_XREF_CARD_NUM = Field.alphanumeric(s_FD_XREFFILE_REC, 0, 16, false);
+    private final Field f13_FD_ACCTFILE_REC = Field.group(s_FD_ACCTFILE_REC, 0, 300);
+    private final Field f14_FD_ACCT_ID = Field.zoned(s_FD_ACCTFILE_REC, 0, 11, 0, false, false, false);
+    private final Field f19_DALYTRAN_RECORD = Field.group(s_DALYTRAN_RECORD, 0, 350);
+    private final Field f20_DALYTRAN_ID = Field.alphanumeric(s_DALYTRAN_RECORD, 0, 16, false);
+    private final Field f30_DALYTRAN_CARD_NUM = Field.alphanumeric(s_DALYTRAN_RECORD, 262, 16, false);
+    private final Field f34_DALYTRAN_STATUS = Field.group(s_DALYTRAN_STATUS, 0, 2);
+    private final Field f57_CUSTFILE_STATUS = Field.group(s_CUSTFILE_STATUS, 0, 2);
+    private final Field f60_CARD_XREF_RECORD = Field.group(s_CARD_XREF_RECORD, 0, 50);
+    private final Field f61_XREF_CARD_NUM = Field.alphanumeric(s_CARD_XREF_RECORD, 0, 16, false);
+    private final Field f62_XREF_CUST_ID = Field.zoned(s_CARD_XREF_RECORD, 16, 9, 0, false, false, false);
+    private final Field f63_XREF_ACCT_ID = Field.zoned(s_CARD_XREF_RECORD, 25, 11, 0, false, false, false);
+    private final Field f65_XREFFILE_STATUS = Field.group(s_XREFFILE_STATUS, 0, 2);
+    private final Field f76_CARDFILE_STATUS = Field.group(s_CARDFILE_STATUS, 0, 2);
+    private final Field f79_ACCOUNT_RECORD = Field.group(s_ACCOUNT_RECORD, 0, 300);
+    private final Field f80_ACCT_ID = Field.zoned(s_ACCOUNT_RECORD, 0, 11, 0, false, false, false);
+    private final Field f93_ACCTFILE_STATUS = Field.group(s_ACCTFILE_STATUS, 0, 2);
+    private final Field f111_TRANFILE_STATUS = Field.group(s_TRANFILE_STATUS, 0, 2);
+    private final Field f114_IO_STATUS = Field.group(s_IO_STATUS, 0, 2);
+    private final Field f115_IO_STAT1 = Field.alphanumeric(s_IO_STATUS, 0, 1, false);
+    private final Field f116_IO_STAT2 = Field.alphanumeric(s_IO_STATUS, 1, 1, false);
+    private final Field f117_TWO_BYTES_BINARY = Field.binary(s_TWO_BYTES_BINARY, 0, 4, 0, false, false);
+    private final Field f120_TWO_BYTES_RIGHT = Field.alphanumeric(s_TWO_BYTES_BINARY, 1, 1, false);
+    private final Field f121_IO_STATUS_04 = Field.group(s_IO_STATUS_04, 0, 4);
+    private final Field f123_IO_STATUS_0403 = Field.zoned(s_IO_STATUS_04, 1, 3, 0, false, false, false);
+    private final Field f131_GG_RETURN_CODE = Field.binary(s_GG_RETURN_CODE, 0, 4, 0, true, false);
+    private BigDecimal f38_CUST_ID;  // CUST-ID PIC 9(09) DISPLAY
+    private String f39_CUST_FIRST_NAME;  // CUST-FIRST-NAME PIC X(25)
+    private String f40_CUST_MIDDLE_NAME;  // CUST-MIDDLE-NAME PIC X(25)
+    private String f41_CUST_LAST_NAME;  // CUST-LAST-NAME PIC X(25)
+    private String f42_CUST_ADDR_LINE_1;  // CUST-ADDR-LINE-1 PIC X(50)
+    private String f43_CUST_ADDR_LINE_2;  // CUST-ADDR-LINE-2 PIC X(50)
+    private String f44_CUST_ADDR_LINE_3;  // CUST-ADDR-LINE-3 PIC X(50)
+    private String f45_CUST_ADDR_STATE_CD;  // CUST-ADDR-STATE-CD PIC X(02)
+    private String f46_CUST_ADDR_COUNTRY_CD;  // CUST-ADDR-COUNTRY-CD PIC X(03)
+    private String f47_CUST_ADDR_ZIP;  // CUST-ADDR-ZIP PIC X(10)
+    private String f48_CUST_PHONE_NUM_1;  // CUST-PHONE-NUM-1 PIC X(15)
+    private String f49_CUST_PHONE_NUM_2;  // CUST-PHONE-NUM-2 PIC X(15)
+    private BigDecimal f50_CUST_SSN;  // CUST-SSN PIC 9(09) DISPLAY
+    private String f51_CUST_GOVT_ISSUED_ID;  // CUST-GOVT-ISSUED-ID PIC X(20)
+    private String f52_CUST_DOB_YYYY_MM_DD;  // CUST-DOB-YYYY-MM-DD PIC X(10)
+    private String f53_CUST_EFT_ACCOUNT_ID;  // CUST-EFT-ACCOUNT-ID PIC X(10)
+    private String f54_CUST_PRI_CARD_HOLDER_IND;  // CUST-PRI-CARD-HOLDER-IND PIC X(01)
+    private BigDecimal f55_CUST_FICO_CREDIT_SCORE;  // CUST-FICO-CREDIT-SCORE PIC 9(03) DISPLAY
+    private String f69_CARD_NUM;  // CARD-NUM PIC X(16)
+    private BigDecimal f70_CARD_ACCT_ID;  // CARD-ACCT-ID PIC 9(11) DISPLAY
+    private BigDecimal f71_CARD_CVV_CD;  // CARD-CVV-CD PIC 9(03) DISPLAY
+    private String f72_CARD_EMBOSSED_NAME;  // CARD-EMBOSSED-NAME PIC X(50)
+    private String f73_CARD_EXPIRAION_DATE;  // CARD-EXPIRAION-DATE PIC X(10)
+    private String f74_CARD_ACTIVE_STATUS;  // CARD-ACTIVE-STATUS PIC X(01)
+    private String f97_TRAN_ID;  // TRAN-ID PIC X(16)
+    private String f98_TRAN_TYPE_CD;  // TRAN-TYPE-CD PIC X(02)
+    private BigDecimal f99_TRAN_CAT_CD;  // TRAN-CAT-CD PIC 9(04) DISPLAY
+    private String f100_TRAN_SOURCE;  // TRAN-SOURCE PIC X(10)
+    private String f101_TRAN_DESC;  // TRAN-DESC PIC X(100)
+    private BigDecimal f102_TRAN_AMT;  // TRAN-AMT PIC S9(09)V99 DISPLAY
+    private BigDecimal f103_TRAN_MERCHANT_ID;  // TRAN-MERCHANT-ID PIC 9(09) DISPLAY
+    private String f104_TRAN_MERCHANT_NAME;  // TRAN-MERCHANT-NAME PIC X(50)
+    private String f105_TRAN_MERCHANT_CITY;  // TRAN-MERCHANT-CITY PIC X(50)
+    private String f106_TRAN_MERCHANT_ZIP;  // TRAN-MERCHANT-ZIP PIC X(10)
+    private String f107_TRAN_CARD_NUM;  // TRAN-CARD-NUM PIC X(16)
+    private String f108_TRAN_ORIG_TS;  // TRAN-ORIG-TS PIC X(26)
+    private String f109_TRAN_PROC_TS;  // TRAN-PROC-TS PIC X(26)
+    private long f124_APPL_RESULT;  // APPL-RESULT PIC S9(9) BINARY
+    private String f125_END_OF_DAILY_TRANS_FILE;  // END-OF-DAILY-TRANS-FILE PIC X(01)
+    private long f126_ABCODE;  // ABCODE PIC S9(9) BINARY
+    private long f127_TIMING;  // TIMING PIC S9(9) BINARY
+    private BigDecimal f129_WS_XREF_READ_STATUS;  // WS-XREF-READ-STATUS PIC 9(04) DISPLAY
+    private BigDecimal f130_WS_ACCT_READ_STATUS;  // WS-ACCT-READ-STATUS PIC 9(04) DISPLAY
 
     private static Integer id_CustomerRecord(byte[] rec) {
         Storage s = Storage.of(rec);
@@ -315,146 +240,10 @@ public class Cbtrn01cService {
         this.datasets = datasets;
         this.files = files;
         this.clock = clock;
-        fields0();
     }
 
-    private void fields0() {
-        f1_FD_TRAN_RECORD = Field.group(s_FD_TRAN_RECORD, 0, 350);
-        f2_FD_TRAN_ID = Field.alphanumeric(s_FD_TRAN_RECORD, 0, 16, false);
-        f3_FD_CUST_DATA = Field.alphanumeric(s_FD_TRAN_RECORD, 16, 334, false);
-        f4_FD_CUSTFILE_REC = Field.group(s_FD_CUSTFILE_REC, 0, 500);
-        f5_FD_CUST_ID = Field.zoned(s_FD_CUSTFILE_REC, 0, 9, 0, false, false, false);
-        f6_FD_CUST_DATA = Field.alphanumeric(s_FD_CUSTFILE_REC, 9, 491, false);
-        f7_FD_XREFFILE_REC = Field.group(s_FD_XREFFILE_REC, 0, 50);
-        f8_FD_XREF_CARD_NUM = Field.alphanumeric(s_FD_XREFFILE_REC, 0, 16, false);
-        f9_FD_XREF_DATA = Field.alphanumeric(s_FD_XREFFILE_REC, 16, 34, false);
-        f10_FD_CARDFILE_REC = Field.group(s_FD_CARDFILE_REC, 0, 150);
-        f11_FD_CARD_NUM = Field.alphanumeric(s_FD_CARDFILE_REC, 0, 16, false);
-        f12_FD_CARD_DATA = Field.alphanumeric(s_FD_CARDFILE_REC, 16, 134, false);
-        f13_FD_ACCTFILE_REC = Field.group(s_FD_ACCTFILE_REC, 0, 300);
-        f14_FD_ACCT_ID = Field.zoned(s_FD_ACCTFILE_REC, 0, 11, 0, false, false, false);
-        f15_FD_ACCT_DATA = Field.alphanumeric(s_FD_ACCTFILE_REC, 11, 289, false);
-        f16_FD_TRANFILE_REC = Field.group(s_FD_TRANFILE_REC, 0, 350);
-        f17_FD_TRANS_ID = Field.alphanumeric(s_FD_TRANFILE_REC, 0, 16, false);
-        f18_FD_ACCT_DATA = Field.alphanumeric(s_FD_TRANFILE_REC, 16, 334, false);
-        f19_DALYTRAN_RECORD = Field.group(s_DALYTRAN_RECORD, 0, 350);
-        f20_DALYTRAN_ID = Field.alphanumeric(s_DALYTRAN_RECORD, 0, 16, false);
-        f21_DALYTRAN_TYPE_CD = Field.alphanumeric(s_DALYTRAN_RECORD, 16, 2, false);
-        f22_DALYTRAN_CAT_CD = Field.zoned(s_DALYTRAN_RECORD, 18, 4, 0, false, false, false);
-        f23_DALYTRAN_SOURCE = Field.alphanumeric(s_DALYTRAN_RECORD, 22, 10, false);
-        f24_DALYTRAN_DESC = Field.alphanumeric(s_DALYTRAN_RECORD, 32, 100, false);
-        f25_DALYTRAN_AMT = Field.zoned(s_DALYTRAN_RECORD, 132, 11, 2, true, false, false);
-        f26_DALYTRAN_MERCHANT_ID = Field.zoned(s_DALYTRAN_RECORD, 143, 9, 0, false, false, false);
-        f27_DALYTRAN_MERCHANT_NAME = Field.alphanumeric(s_DALYTRAN_RECORD, 152, 50, false);
-        f28_DALYTRAN_MERCHANT_CITY = Field.alphanumeric(s_DALYTRAN_RECORD, 202, 50, false);
-        f29_DALYTRAN_MERCHANT_ZIP = Field.alphanumeric(s_DALYTRAN_RECORD, 252, 10, false);
-        f30_DALYTRAN_CARD_NUM = Field.alphanumeric(s_DALYTRAN_RECORD, 262, 16, false);
-        f31_DALYTRAN_ORIG_TS = Field.alphanumeric(s_DALYTRAN_RECORD, 278, 26, false);
-        f32_DALYTRAN_PROC_TS = Field.alphanumeric(s_DALYTRAN_RECORD, 304, 26, false);
-        f33_FILLER = Field.alphanumeric(s_DALYTRAN_RECORD, 330, 20, false);
-        f34_DALYTRAN_STATUS = Field.group(s_DALYTRAN_STATUS, 0, 2);
-        f35_DALYTRAN_STAT1 = Field.alphanumeric(s_DALYTRAN_STATUS, 0, 1, false);
-        f36_DALYTRAN_STAT2 = Field.alphanumeric(s_DALYTRAN_STATUS, 1, 1, false);
-        f37_CUSTOMER_RECORD = Field.group(s_CUSTOMER_RECORD, 0, 500);
-        f38_CUST_ID = Field.zoned(s_CUSTOMER_RECORD, 0, 9, 0, false, false, false);
-        f39_CUST_FIRST_NAME = Field.alphanumeric(s_CUSTOMER_RECORD, 9, 25, false);
-        f40_CUST_MIDDLE_NAME = Field.alphanumeric(s_CUSTOMER_RECORD, 34, 25, false);
-        f41_CUST_LAST_NAME = Field.alphanumeric(s_CUSTOMER_RECORD, 59, 25, false);
-        f42_CUST_ADDR_LINE_1 = Field.alphanumeric(s_CUSTOMER_RECORD, 84, 50, false);
-        f43_CUST_ADDR_LINE_2 = Field.alphanumeric(s_CUSTOMER_RECORD, 134, 50, false);
-        f44_CUST_ADDR_LINE_3 = Field.alphanumeric(s_CUSTOMER_RECORD, 184, 50, false);
-        f45_CUST_ADDR_STATE_CD = Field.alphanumeric(s_CUSTOMER_RECORD, 234, 2, false);
-        f46_CUST_ADDR_COUNTRY_CD = Field.alphanumeric(s_CUSTOMER_RECORD, 236, 3, false);
-        f47_CUST_ADDR_ZIP = Field.alphanumeric(s_CUSTOMER_RECORD, 239, 10, false);
-        f48_CUST_PHONE_NUM_1 = Field.alphanumeric(s_CUSTOMER_RECORD, 249, 15, false);
-        f49_CUST_PHONE_NUM_2 = Field.alphanumeric(s_CUSTOMER_RECORD, 264, 15, false);
-        f50_CUST_SSN = Field.zoned(s_CUSTOMER_RECORD, 279, 9, 0, false, false, false);
-        f51_CUST_GOVT_ISSUED_ID = Field.alphanumeric(s_CUSTOMER_RECORD, 288, 20, false);
-        f52_CUST_DOB_YYYY_MM_DD = Field.alphanumeric(s_CUSTOMER_RECORD, 308, 10, false);
-        f53_CUST_EFT_ACCOUNT_ID = Field.alphanumeric(s_CUSTOMER_RECORD, 318, 10, false);
-        f54_CUST_PRI_CARD_HOLDER_IND = Field.alphanumeric(s_CUSTOMER_RECORD, 328, 1, false);
-        f55_CUST_FICO_CREDIT_SCORE = Field.zoned(s_CUSTOMER_RECORD, 329, 3, 0, false, false, false);
-        f56_FILLER = Field.alphanumeric(s_CUSTOMER_RECORD, 332, 168, false);
-        f57_CUSTFILE_STATUS = Field.group(s_CUSTFILE_STATUS, 0, 2);
-        f58_CUSTFILE_STAT1 = Field.alphanumeric(s_CUSTFILE_STATUS, 0, 1, false);
-        f59_CUSTFILE_STAT2 = Field.alphanumeric(s_CUSTFILE_STATUS, 1, 1, false);
-        f60_CARD_XREF_RECORD = Field.group(s_CARD_XREF_RECORD, 0, 50);
-        f61_XREF_CARD_NUM = Field.alphanumeric(s_CARD_XREF_RECORD, 0, 16, false);
-        f62_XREF_CUST_ID = Field.zoned(s_CARD_XREF_RECORD, 16, 9, 0, false, false, false);
-        f63_XREF_ACCT_ID = Field.zoned(s_CARD_XREF_RECORD, 25, 11, 0, false, false, false);
-        f64_FILLER = Field.alphanumeric(s_CARD_XREF_RECORD, 36, 14, false);
-        f65_XREFFILE_STATUS = Field.group(s_XREFFILE_STATUS, 0, 2);
-        f66_XREFFILE_STAT1 = Field.alphanumeric(s_XREFFILE_STATUS, 0, 1, false);
-        f67_XREFFILE_STAT2 = Field.alphanumeric(s_XREFFILE_STATUS, 1, 1, false);
-        f68_CARD_RECORD = Field.group(s_CARD_RECORD, 0, 150);
-        f69_CARD_NUM = Field.alphanumeric(s_CARD_RECORD, 0, 16, false);
-        f70_CARD_ACCT_ID = Field.zoned(s_CARD_RECORD, 16, 11, 0, false, false, false);
-        f71_CARD_CVV_CD = Field.zoned(s_CARD_RECORD, 27, 3, 0, false, false, false);
-        f72_CARD_EMBOSSED_NAME = Field.alphanumeric(s_CARD_RECORD, 30, 50, false);
-        f73_CARD_EXPIRAION_DATE = Field.alphanumeric(s_CARD_RECORD, 80, 10, false);
-        f74_CARD_ACTIVE_STATUS = Field.alphanumeric(s_CARD_RECORD, 90, 1, false);
-        f75_FILLER = Field.alphanumeric(s_CARD_RECORD, 91, 59, false);
-        f76_CARDFILE_STATUS = Field.group(s_CARDFILE_STATUS, 0, 2);
-        f77_CARDFILE_STAT1 = Field.alphanumeric(s_CARDFILE_STATUS, 0, 1, false);
-        f78_CARDFILE_STAT2 = Field.alphanumeric(s_CARDFILE_STATUS, 1, 1, false);
-        f79_ACCOUNT_RECORD = Field.group(s_ACCOUNT_RECORD, 0, 300);
-        f80_ACCT_ID = Field.zoned(s_ACCOUNT_RECORD, 0, 11, 0, false, false, false);
-        f81_ACCT_ACTIVE_STATUS = Field.alphanumeric(s_ACCOUNT_RECORD, 11, 1, false);
-        f82_ACCT_CURR_BAL = Field.zoned(s_ACCOUNT_RECORD, 12, 12, 2, true, false, false);
-        f83_ACCT_CREDIT_LIMIT = Field.zoned(s_ACCOUNT_RECORD, 24, 12, 2, true, false, false);
-        f84_ACCT_CASH_CREDIT_LIMIT = Field.zoned(s_ACCOUNT_RECORD, 36, 12, 2, true, false, false);
-        f85_ACCT_OPEN_DATE = Field.alphanumeric(s_ACCOUNT_RECORD, 48, 10, false);
-        f86_ACCT_EXPIRAION_DATE = Field.alphanumeric(s_ACCOUNT_RECORD, 58, 10, false);
-        f87_ACCT_REISSUE_DATE = Field.alphanumeric(s_ACCOUNT_RECORD, 68, 10, false);
-        f88_ACCT_CURR_CYC_CREDIT = Field.zoned(s_ACCOUNT_RECORD, 78, 12, 2, true, false, false);
-        f89_ACCT_CURR_CYC_DEBIT = Field.zoned(s_ACCOUNT_RECORD, 90, 12, 2, true, false, false);
-        f90_ACCT_ADDR_ZIP = Field.alphanumeric(s_ACCOUNT_RECORD, 102, 10, false);
-        f91_ACCT_GROUP_ID = Field.alphanumeric(s_ACCOUNT_RECORD, 112, 10, false);
-        f92_FILLER = Field.alphanumeric(s_ACCOUNT_RECORD, 122, 178, false);
-        f93_ACCTFILE_STATUS = Field.group(s_ACCTFILE_STATUS, 0, 2);
-        f94_ACCTFILE_STAT1 = Field.alphanumeric(s_ACCTFILE_STATUS, 0, 1, false);
-        f95_ACCTFILE_STAT2 = Field.alphanumeric(s_ACCTFILE_STATUS, 1, 1, false);
-        f96_TRAN_RECORD = Field.group(s_TRAN_RECORD, 0, 350);
-        f97_TRAN_ID = Field.alphanumeric(s_TRAN_RECORD, 0, 16, false);
-        f98_TRAN_TYPE_CD = Field.alphanumeric(s_TRAN_RECORD, 16, 2, false);
-        f99_TRAN_CAT_CD = Field.zoned(s_TRAN_RECORD, 18, 4, 0, false, false, false);
-        f100_TRAN_SOURCE = Field.alphanumeric(s_TRAN_RECORD, 22, 10, false);
-        f101_TRAN_DESC = Field.alphanumeric(s_TRAN_RECORD, 32, 100, false);
-        f102_TRAN_AMT = Field.zoned(s_TRAN_RECORD, 132, 11, 2, true, false, false);
-        f103_TRAN_MERCHANT_ID = Field.zoned(s_TRAN_RECORD, 143, 9, 0, false, false, false);
-        f104_TRAN_MERCHANT_NAME = Field.alphanumeric(s_TRAN_RECORD, 152, 50, false);
-        f105_TRAN_MERCHANT_CITY = Field.alphanumeric(s_TRAN_RECORD, 202, 50, false);
-        f106_TRAN_MERCHANT_ZIP = Field.alphanumeric(s_TRAN_RECORD, 252, 10, false);
-        f107_TRAN_CARD_NUM = Field.alphanumeric(s_TRAN_RECORD, 262, 16, false);
-        f108_TRAN_ORIG_TS = Field.alphanumeric(s_TRAN_RECORD, 278, 26, false);
-        f109_TRAN_PROC_TS = Field.alphanumeric(s_TRAN_RECORD, 304, 26, false);
-        f110_FILLER = Field.alphanumeric(s_TRAN_RECORD, 330, 20, false);
-        f111_TRANFILE_STATUS = Field.group(s_TRANFILE_STATUS, 0, 2);
-        f112_TRANFILE_STAT1 = Field.alphanumeric(s_TRANFILE_STATUS, 0, 1, false);
-        f113_TRANFILE_STAT2 = Field.alphanumeric(s_TRANFILE_STATUS, 1, 1, false);
-        f114_IO_STATUS = Field.group(s_IO_STATUS, 0, 2);
-        f115_IO_STAT1 = Field.alphanumeric(s_IO_STATUS, 0, 1, false);
-        f116_IO_STAT2 = Field.alphanumeric(s_IO_STATUS, 1, 1, false);
-        f117_TWO_BYTES_BINARY = Field.binary(s_TWO_BYTES_BINARY, 0, 4, 0, false, false);
-        f118_TWO_BYTES_ALPHA = Field.group(s_TWO_BYTES_BINARY, 0, 2);
-        f119_TWO_BYTES_LEFT = Field.alphanumeric(s_TWO_BYTES_BINARY, 0, 1, false);
-        f120_TWO_BYTES_RIGHT = Field.alphanumeric(s_TWO_BYTES_BINARY, 1, 1, false);
-        f121_IO_STATUS_04 = Field.group(s_IO_STATUS_04, 0, 4);
-        f122_IO_STATUS_0401 = Field.zoned(s_IO_STATUS_04, 0, 1, 0, false, false, false);
-        f123_IO_STATUS_0403 = Field.zoned(s_IO_STATUS_04, 1, 3, 0, false, false, false);
-        f124_APPL_RESULT = Field.binary(s_APPL_RESULT, 0, 9, 0, true, false);
-        f125_END_OF_DAILY_TRANS_FILE = Field.alphanumeric(s_END_OF_DAILY_TRANS_FILE, 0, 1, false);
-        f126_ABCODE = Field.binary(s_ABCODE, 0, 9, 0, true, false);
-        f127_TIMING = Field.binary(s_TIMING, 0, 9, 0, true, false);
-        f128_WS_MISC_VARIABLES = Field.group(s_WS_MISC_VARIABLES, 0, 8);
-        f129_WS_XREF_READ_STATUS = Field.zoned(s_WS_MISC_VARIABLES, 0, 4, 0, false, false, false);
-        f130_WS_ACCT_READ_STATUS = Field.zoned(s_WS_MISC_VARIABLES, 4, 4, 0, false, false, false);
-        f131_GG_RETURN_CODE = Field.binary(s_GG_RETURN_CODE, 0, 4, 0, true, false);
-    }
-
-    /** The program run on its own (no JCL step, no CICS task, no caller): the PROCEDURE DIVISION from its
-     *  initial storage; RETURN-CODE. */
-    public int runProgram() {
+    /** WORKING-STORAGE (and every storage) as its VALUE clauses set it: each entry point starts from here. */
+    private void initialState() {
         System.arraycopy(IMAGE_s_FD_TRAN_RECORD, 0, s_FD_TRAN_RECORD.bytes, 0, IMAGE_s_FD_TRAN_RECORD.length);
         System.arraycopy(IMAGE_s_FD_CUSTFILE_REC, 0, s_FD_CUSTFILE_REC.bytes, 0, IMAGE_s_FD_CUSTFILE_REC.length);
         System.arraycopy(IMAGE_s_FD_XREFFILE_REC, 0, s_FD_XREFFILE_REC.bytes, 0, IMAGE_s_FD_XREFFILE_REC.length);
@@ -476,12 +265,57 @@ public class Cbtrn01cService {
         System.arraycopy(IMAGE_s_IO_STATUS, 0, s_IO_STATUS.bytes, 0, IMAGE_s_IO_STATUS.length);
         System.arraycopy(IMAGE_s_TWO_BYTES_BINARY, 0, s_TWO_BYTES_BINARY.bytes, 0, IMAGE_s_TWO_BYTES_BINARY.length);
         System.arraycopy(IMAGE_s_IO_STATUS_04, 0, s_IO_STATUS_04.bytes, 0, IMAGE_s_IO_STATUS_04.length);
-        System.arraycopy(IMAGE_s_APPL_RESULT, 0, s_APPL_RESULT.bytes, 0, IMAGE_s_APPL_RESULT.length);
-        System.arraycopy(IMAGE_s_END_OF_DAILY_TRANS_FILE, 0, s_END_OF_DAILY_TRANS_FILE.bytes, 0, IMAGE_s_END_OF_DAILY_TRANS_FILE.length);
-        System.arraycopy(IMAGE_s_ABCODE, 0, s_ABCODE.bytes, 0, IMAGE_s_ABCODE.length);
-        System.arraycopy(IMAGE_s_TIMING, 0, s_TIMING.bytes, 0, IMAGE_s_TIMING.length);
         System.arraycopy(IMAGE_s_WS_MISC_VARIABLES, 0, s_WS_MISC_VARIABLES.bytes, 0, IMAGE_s_WS_MISC_VARIABLES.length);
         System.arraycopy(IMAGE_s_GG_RETURN_CODE, 0, s_GG_RETURN_CODE.bytes, 0, IMAGE_s_GG_RETURN_CODE.length);
+        f38_CUST_ID = new BigDecimal("0");
+        f39_CUST_FIRST_NAME = "                         ";
+        f40_CUST_MIDDLE_NAME = "                         ";
+        f41_CUST_LAST_NAME = "                         ";
+        f42_CUST_ADDR_LINE_1 = "                                                  ";
+        f43_CUST_ADDR_LINE_2 = "                                                  ";
+        f44_CUST_ADDR_LINE_3 = "                                                  ";
+        f45_CUST_ADDR_STATE_CD = "  ";
+        f46_CUST_ADDR_COUNTRY_CD = "   ";
+        f47_CUST_ADDR_ZIP = "          ";
+        f48_CUST_PHONE_NUM_1 = "               ";
+        f49_CUST_PHONE_NUM_2 = "               ";
+        f50_CUST_SSN = new BigDecimal("0");
+        f51_CUST_GOVT_ISSUED_ID = "                    ";
+        f52_CUST_DOB_YYYY_MM_DD = "          ";
+        f53_CUST_EFT_ACCOUNT_ID = "          ";
+        f54_CUST_PRI_CARD_HOLDER_IND = " ";
+        f55_CUST_FICO_CREDIT_SCORE = new BigDecimal("0");
+        f69_CARD_NUM = "                ";
+        f70_CARD_ACCT_ID = new BigDecimal("0");
+        f71_CARD_CVV_CD = new BigDecimal("0");
+        f72_CARD_EMBOSSED_NAME = "                                                  ";
+        f73_CARD_EXPIRAION_DATE = "          ";
+        f74_CARD_ACTIVE_STATUS = " ";
+        f97_TRAN_ID = "                ";
+        f98_TRAN_TYPE_CD = "  ";
+        f99_TRAN_CAT_CD = new BigDecimal("0");
+        f100_TRAN_SOURCE = "          ";
+        f101_TRAN_DESC = "                                                                                                    ";
+        f102_TRAN_AMT = new BigDecimal("0");
+        f103_TRAN_MERCHANT_ID = new BigDecimal("0");
+        f104_TRAN_MERCHANT_NAME = "                                                  ";
+        f105_TRAN_MERCHANT_CITY = "                                                  ";
+        f106_TRAN_MERCHANT_ZIP = "          ";
+        f107_TRAN_CARD_NUM = "                ";
+        f108_TRAN_ORIG_TS = "                          ";
+        f109_TRAN_PROC_TS = "                          ";
+        f124_APPL_RESULT = 0L;
+        f125_END_OF_DAILY_TRANS_FILE = "N";
+        f126_ABCODE = 0L;
+        f127_TIMING = 0L;
+        f129_WS_XREF_READ_STATUS = new BigDecimal("0");
+        f130_WS_ACCT_READ_STATUS = new BigDecimal("0");
+    }
+
+    /** The program run on its own (no JCL step, no CICS task, no caller): the PROCEDURE DIVISION from its
+     *  initial storage; RETURN-CODE. */
+    public int runProgram() {
+        initialState();
         performDepth = 0;
         try {
             perform(0, 17);
@@ -489,10 +323,6 @@ public class Cbtrn01cService {
             // the program ended
         }
         return Cobol.num(f131_GG_RETURN_CODE, CS).intValue();
-    }
-
-    public void executeCbtrn01c() {
-        runBatch(List.of(), null);
     }
 
 
@@ -512,34 +342,9 @@ public class Cbtrn01cService {
     /** The batch entry. */
     public int runBatch(List<Dd> dds, String parm) {
         boolean truncBefore = Cobol.swapTruncBinary(true);  // TRUNC(STD)
+        boolean pfdBefore = Cobol.swapNumprocPfd(false);  // NUMPROC(NOPFD)
         try {
-            System.arraycopy(IMAGE_s_FD_TRAN_RECORD, 0, s_FD_TRAN_RECORD.bytes, 0, IMAGE_s_FD_TRAN_RECORD.length);
-            System.arraycopy(IMAGE_s_FD_CUSTFILE_REC, 0, s_FD_CUSTFILE_REC.bytes, 0, IMAGE_s_FD_CUSTFILE_REC.length);
-            System.arraycopy(IMAGE_s_FD_XREFFILE_REC, 0, s_FD_XREFFILE_REC.bytes, 0, IMAGE_s_FD_XREFFILE_REC.length);
-            System.arraycopy(IMAGE_s_FD_CARDFILE_REC, 0, s_FD_CARDFILE_REC.bytes, 0, IMAGE_s_FD_CARDFILE_REC.length);
-            System.arraycopy(IMAGE_s_FD_ACCTFILE_REC, 0, s_FD_ACCTFILE_REC.bytes, 0, IMAGE_s_FD_ACCTFILE_REC.length);
-            System.arraycopy(IMAGE_s_FD_TRANFILE_REC, 0, s_FD_TRANFILE_REC.bytes, 0, IMAGE_s_FD_TRANFILE_REC.length);
-            System.arraycopy(IMAGE_s_DALYTRAN_RECORD, 0, s_DALYTRAN_RECORD.bytes, 0, IMAGE_s_DALYTRAN_RECORD.length);
-            System.arraycopy(IMAGE_s_DALYTRAN_STATUS, 0, s_DALYTRAN_STATUS.bytes, 0, IMAGE_s_DALYTRAN_STATUS.length);
-            System.arraycopy(IMAGE_s_CUSTOMER_RECORD, 0, s_CUSTOMER_RECORD.bytes, 0, IMAGE_s_CUSTOMER_RECORD.length);
-            System.arraycopy(IMAGE_s_CUSTFILE_STATUS, 0, s_CUSTFILE_STATUS.bytes, 0, IMAGE_s_CUSTFILE_STATUS.length);
-            System.arraycopy(IMAGE_s_CARD_XREF_RECORD, 0, s_CARD_XREF_RECORD.bytes, 0, IMAGE_s_CARD_XREF_RECORD.length);
-            System.arraycopy(IMAGE_s_XREFFILE_STATUS, 0, s_XREFFILE_STATUS.bytes, 0, IMAGE_s_XREFFILE_STATUS.length);
-            System.arraycopy(IMAGE_s_CARD_RECORD, 0, s_CARD_RECORD.bytes, 0, IMAGE_s_CARD_RECORD.length);
-            System.arraycopy(IMAGE_s_CARDFILE_STATUS, 0, s_CARDFILE_STATUS.bytes, 0, IMAGE_s_CARDFILE_STATUS.length);
-            System.arraycopy(IMAGE_s_ACCOUNT_RECORD, 0, s_ACCOUNT_RECORD.bytes, 0, IMAGE_s_ACCOUNT_RECORD.length);
-            System.arraycopy(IMAGE_s_ACCTFILE_STATUS, 0, s_ACCTFILE_STATUS.bytes, 0, IMAGE_s_ACCTFILE_STATUS.length);
-            System.arraycopy(IMAGE_s_TRAN_RECORD, 0, s_TRAN_RECORD.bytes, 0, IMAGE_s_TRAN_RECORD.length);
-            System.arraycopy(IMAGE_s_TRANFILE_STATUS, 0, s_TRANFILE_STATUS.bytes, 0, IMAGE_s_TRANFILE_STATUS.length);
-            System.arraycopy(IMAGE_s_IO_STATUS, 0, s_IO_STATUS.bytes, 0, IMAGE_s_IO_STATUS.length);
-            System.arraycopy(IMAGE_s_TWO_BYTES_BINARY, 0, s_TWO_BYTES_BINARY.bytes, 0, IMAGE_s_TWO_BYTES_BINARY.length);
-            System.arraycopy(IMAGE_s_IO_STATUS_04, 0, s_IO_STATUS_04.bytes, 0, IMAGE_s_IO_STATUS_04.length);
-            System.arraycopy(IMAGE_s_APPL_RESULT, 0, s_APPL_RESULT.bytes, 0, IMAGE_s_APPL_RESULT.length);
-            System.arraycopy(IMAGE_s_END_OF_DAILY_TRANS_FILE, 0, s_END_OF_DAILY_TRANS_FILE.bytes, 0, IMAGE_s_END_OF_DAILY_TRANS_FILE.length);
-            System.arraycopy(IMAGE_s_ABCODE, 0, s_ABCODE.bytes, 0, IMAGE_s_ABCODE.length);
-            System.arraycopy(IMAGE_s_TIMING, 0, s_TIMING.bytes, 0, IMAGE_s_TIMING.length);
-            System.arraycopy(IMAGE_s_WS_MISC_VARIABLES, 0, s_WS_MISC_VARIABLES.bytes, 0, IMAGE_s_WS_MISC_VARIABLES.length);
-            System.arraycopy(IMAGE_s_GG_RETURN_CODE, 0, s_GG_RETURN_CODE.bytes, 0, IMAGE_s_GG_RETURN_CODE.length);
+            initialState();
             DALYTRAN_FILE = new DetFiles.Sequential(files, "DALYTRAN", () -> datasets.path(dd(dds, "DALYTRAN")), s_FD_TRAN_RECORD, 0, 350);
             CUSTOMER_FILE = new DetFiles.Indexed<CustomerRecord>(files, "CUSTFILE", s_FD_CUSTFILE_REC, 0, 500, 0, 9, customerRecordRepository::findAll, e -> e.toRecord(CS), b -> CustomerRecord.fromRecord(b, CS), customerRecordRepository::save, CS).withFindById(rec -> customerRecordRepository.findById(id_CustomerRecord(rec)));
             XREF_FILE = new DetFiles.Indexed<CardXrefRecord>(files, "XREFFILE", s_FD_XREFFILE_REC, 0, 50, 0, 16, cardXrefRecordRepository::findAll, e -> e.toRecord(CS), b -> CardXrefRecord.fromRecord(b, CS), cardXrefRecordRepository::save, CS).withFindById(rec -> cardXrefRecordRepository.findById(id_CardXrefRecord(rec)));
@@ -554,6 +359,7 @@ public class Cbtrn01cService {
             return Cobol.num(f131_GG_RETURN_CODE, CS).intValue();
         } finally {
             Cobol.swapTruncBinary(truncBefore);
+            Cobol.swapNumprocPfd(pfdBefore);
         }
     }
 
@@ -652,32 +458,32 @@ public class Cbtrn01cService {
         // PERFORM 0500-TRANFILE-OPEN
         perform(9, 9);
         // PERFORM UNTIL END-OF-DAILY-TRANS-FILE = 'Y'
-        while (!(Cobol.compare(f125_END_OF_DAILY_TRANS_FILE, "Y", CS) == 0)) {
+        while (!(f125_END_OF_DAILY_TRANS_FILE.equals("Y"))) {
             // IF END-OF-DAILY-TRANS-FILE = 'N'
-            if (Cobol.compare(f125_END_OF_DAILY_TRANS_FILE, "N", CS) == 0) {
+            if (f125_END_OF_DAILY_TRANS_FILE.equals("N")) {
                 // PERFORM 1000-DALYTRAN-GET-NEXT
                 perform(1, 1);
                 // IF END-OF-DAILY-TRANS-FILE = 'N'
-                if (Cobol.compare(f125_END_OF_DAILY_TRANS_FILE, "N", CS) == 0) {
+                if (f125_END_OF_DAILY_TRANS_FILE.equals("N")) {
                     // DISPLAY DALYTRAN-RECORD
                     Sysout.display(Cobol.displayText(f19_DALYTRAN_RECORD, CS));
                 }
                 // MOVE 0 TO WS-XREF-READ-STATUS
-                Cobol.move(D0, f129_WS_XREF_READ_STATUS, CS);
+                f129_WS_XREF_READ_STATUS = Cobol.zoned(D0, 4, 0, false, false, CS);
                 // MOVE DALYTRAN-CARD-NUM TO XREF-CARD-NUM
                 Cobol.move(f30_DALYTRAN_CARD_NUM, f61_XREF_CARD_NUM, CS);
                 // PERFORM 2000-LOOKUP-XREF
                 perform(2, 2);
                 // IF WS-XREF-READ-STATUS = 0
-                if (Cobol.num(f129_WS_XREF_READ_STATUS, CS).compareTo(D0) == 0) {
+                if (f129_WS_XREF_READ_STATUS.compareTo(D0) == 0) {
                     // MOVE 0 TO WS-ACCT-READ-STATUS
-                    Cobol.move(D0, f130_WS_ACCT_READ_STATUS, CS);
+                    f130_WS_ACCT_READ_STATUS = Cobol.zoned(D0, 4, 0, false, false, CS);
                     // MOVE XREF-ACCT-ID TO ACCT-ID
                     Cobol.move(f63_XREF_ACCT_ID, f80_ACCT_ID, CS);
                     // PERFORM 3000-READ-ACCOUNT
                     perform(3, 3);
                     // IF WS-ACCT-READ-STATUS NOT = 0
-                    if (!(Cobol.num(f130_WS_ACCT_READ_STATUS, CS).compareTo(D0) == 0)) {
+                    if (!(f130_WS_ACCT_READ_STATUS.compareTo(D0) == 0)) {
                         // DISPLAY 'ACCOUNT ' ACCT-ID ' NOT FOUND'
                         Sysout.display("ACCOUNT ", Cobol.displayText(f80_ACCT_ID, CS), " NOT FOUND");
                     }
@@ -717,25 +523,25 @@ public class Cbtrn01cService {
         // IF DALYTRAN-STATUS = '00'
         if (Cobol.compare(f34_DALYTRAN_STATUS, "00", CS) == 0) {
             // MOVE 0 TO APPL-RESULT
-            Cobol.move(D0, f124_APPL_RESULT, CS);
+            f124_APPL_RESULT = 0L;
         } else {
             // ELSE IF DALYTRAN-STATUS = '10'
             if (Cobol.compare(f34_DALYTRAN_STATUS, "10", CS) == 0) {
                 // MOVE 16 TO APPL-RESULT
-                Cobol.move(D16, f124_APPL_RESULT, CS);
+                f124_APPL_RESULT = 16L;
             } else {
                 // MOVE 12 TO APPL-RESULT
-                Cobol.move(D12, f124_APPL_RESULT, CS);
+                f124_APPL_RESULT = 12L;
             }
         }
         // IF APPL-AOK
-        if (Cobol.compare(f124_APPL_RESULT, D0, CS) == 0) {
+        if (isApplAok()) {
             // CONTINUE
         } else {
             // ELSE IF APPL-EOF
-            if (Cobol.compare(f124_APPL_RESULT, D16, CS) == 0) {
+            if (isApplEof()) {
                 // MOVE 'Y' TO END-OF-DAILY-TRANS-FILE
-                Cobol.move("Y", f125_END_OF_DAILY_TRANS_FILE, CS);
+                f125_END_OF_DAILY_TRANS_FILE = "Y";
             } else {
                 // DISPLAY 'ERROR READING DAILY TRANSACTION FILE'
                 Sysout.display("ERROR READING DAILY TRANSACTION FILE");
@@ -765,7 +571,7 @@ public class Cbtrn01cService {
             // DISPLAY 'INVALID CARD NUMBER FOR XREF'
             Sysout.display("INVALID CARD NUMBER FOR XREF");
             // MOVE 4 TO WS-XREF-READ-STATUS
-            Cobol.move(D4, f129_WS_XREF_READ_STATUS, CS);
+            f129_WS_XREF_READ_STATUS = Cobol.zoned(D4, 4, 0, false, false, CS);
         }
         if (st2.startsWith("0")) {
             // DISPLAY 'SUCCESSFUL READ OF XREF'
@@ -794,7 +600,7 @@ public class Cbtrn01cService {
             // DISPLAY 'INVALID ACCOUNT NUMBER FOUND'
             Sysout.display("INVALID ACCOUNT NUMBER FOUND");
             // MOVE 4 TO WS-ACCT-READ-STATUS
-            Cobol.move(D4, f130_WS_ACCT_READ_STATUS, CS);
+            f130_WS_ACCT_READ_STATUS = Cobol.zoned(D4, 4, 0, false, false, CS);
         }
         if (st3.startsWith("0")) {
             // DISPLAY 'SUCCESSFUL READ OF ACCOUNT FILE'
@@ -806,20 +612,20 @@ public class Cbtrn01cService {
     /** 0000-DALYTRAN-OPEN. */
     private int p4() {
         // MOVE 8 TO APPL-RESULT
-        Cobol.move(D8, f124_APPL_RESULT, CS);
+        f124_APPL_RESULT = 8L;
         // OPEN INPUT DALYTRAN-FILE
         String st4 = DALYTRAN_FILE.open("INPUT");
         Cobol.move(st4, f34_DALYTRAN_STATUS, CS);
         // IF DALYTRAN-STATUS = '00'
         if (Cobol.compare(f34_DALYTRAN_STATUS, "00", CS) == 0) {
             // MOVE 0 TO APPL-RESULT
-            Cobol.move(D0, f124_APPL_RESULT, CS);
+            f124_APPL_RESULT = 0L;
         } else {
             // MOVE 12 TO APPL-RESULT
-            Cobol.move(D12, f124_APPL_RESULT, CS);
+            f124_APPL_RESULT = 12L;
         }
         // IF APPL-AOK
-        if (Cobol.compare(f124_APPL_RESULT, D0, CS) == 0) {
+        if (isApplAok()) {
             // CONTINUE
         } else {
             // DISPLAY 'ERROR OPENING DAILY TRANSACTION FILE'
@@ -838,20 +644,20 @@ public class Cbtrn01cService {
     /** 0100-CUSTFILE-OPEN. */
     private int p5() {
         // MOVE 8 TO APPL-RESULT
-        Cobol.move(D8, f124_APPL_RESULT, CS);
+        f124_APPL_RESULT = 8L;
         // OPEN INPUT CUSTOMER-FILE
         String st5 = CUSTOMER_FILE.open("INPUT");
         Cobol.move(st5, f57_CUSTFILE_STATUS, CS);
         // IF CUSTFILE-STATUS = '00'
         if (Cobol.compare(f57_CUSTFILE_STATUS, "00", CS) == 0) {
             // MOVE 0 TO APPL-RESULT
-            Cobol.move(D0, f124_APPL_RESULT, CS);
+            f124_APPL_RESULT = 0L;
         } else {
             // MOVE 12 TO APPL-RESULT
-            Cobol.move(D12, f124_APPL_RESULT, CS);
+            f124_APPL_RESULT = 12L;
         }
         // IF APPL-AOK
-        if (Cobol.compare(f124_APPL_RESULT, D0, CS) == 0) {
+        if (isApplAok()) {
             // CONTINUE
         } else {
             // DISPLAY 'ERROR OPENING CUSTOMER FILE'
@@ -870,20 +676,20 @@ public class Cbtrn01cService {
     /** 0200-XREFFILE-OPEN. */
     private int p6() {
         // MOVE 8 TO APPL-RESULT
-        Cobol.move(D8, f124_APPL_RESULT, CS);
+        f124_APPL_RESULT = 8L;
         // OPEN INPUT XREF-FILE
         String st6 = XREF_FILE.open("INPUT");
         Cobol.move(st6, f65_XREFFILE_STATUS, CS);
         // IF XREFFILE-STATUS = '00'
         if (Cobol.compare(f65_XREFFILE_STATUS, "00", CS) == 0) {
             // MOVE 0 TO APPL-RESULT
-            Cobol.move(D0, f124_APPL_RESULT, CS);
+            f124_APPL_RESULT = 0L;
         } else {
             // MOVE 12 TO APPL-RESULT
-            Cobol.move(D12, f124_APPL_RESULT, CS);
+            f124_APPL_RESULT = 12L;
         }
         // IF APPL-AOK
-        if (Cobol.compare(f124_APPL_RESULT, D0, CS) == 0) {
+        if (isApplAok()) {
             // CONTINUE
         } else {
             // DISPLAY 'ERROR OPENING CROSS REF FILE'
@@ -902,20 +708,20 @@ public class Cbtrn01cService {
     /** 0300-CARDFILE-OPEN. */
     private int p7() {
         // MOVE 8 TO APPL-RESULT
-        Cobol.move(D8, f124_APPL_RESULT, CS);
+        f124_APPL_RESULT = 8L;
         // OPEN INPUT CARD-FILE
         String st7 = CARD_FILE.open("INPUT");
         Cobol.move(st7, f76_CARDFILE_STATUS, CS);
         // IF CARDFILE-STATUS = '00'
         if (Cobol.compare(f76_CARDFILE_STATUS, "00", CS) == 0) {
             // MOVE 0 TO APPL-RESULT
-            Cobol.move(D0, f124_APPL_RESULT, CS);
+            f124_APPL_RESULT = 0L;
         } else {
             // MOVE 12 TO APPL-RESULT
-            Cobol.move(D12, f124_APPL_RESULT, CS);
+            f124_APPL_RESULT = 12L;
         }
         // IF APPL-AOK
-        if (Cobol.compare(f124_APPL_RESULT, D0, CS) == 0) {
+        if (isApplAok()) {
             // CONTINUE
         } else {
             // DISPLAY 'ERROR OPENING CARD FILE'
@@ -934,20 +740,20 @@ public class Cbtrn01cService {
     /** 0400-ACCTFILE-OPEN. */
     private int p8() {
         // MOVE 8 TO APPL-RESULT
-        Cobol.move(D8, f124_APPL_RESULT, CS);
+        f124_APPL_RESULT = 8L;
         // OPEN INPUT ACCOUNT-FILE
         String st8 = ACCOUNT_FILE.open("INPUT");
         Cobol.move(st8, f93_ACCTFILE_STATUS, CS);
         // IF ACCTFILE-STATUS = '00'
         if (Cobol.compare(f93_ACCTFILE_STATUS, "00", CS) == 0) {
             // MOVE 0 TO APPL-RESULT
-            Cobol.move(D0, f124_APPL_RESULT, CS);
+            f124_APPL_RESULT = 0L;
         } else {
             // MOVE 12 TO APPL-RESULT
-            Cobol.move(D12, f124_APPL_RESULT, CS);
+            f124_APPL_RESULT = 12L;
         }
         // IF APPL-AOK
-        if (Cobol.compare(f124_APPL_RESULT, D0, CS) == 0) {
+        if (isApplAok()) {
             // CONTINUE
         } else {
             // DISPLAY 'ERROR OPENING ACCOUNT FILE'
@@ -966,20 +772,20 @@ public class Cbtrn01cService {
     /** 0500-TRANFILE-OPEN. */
     private int p9() {
         // MOVE 8 TO APPL-RESULT
-        Cobol.move(D8, f124_APPL_RESULT, CS);
+        f124_APPL_RESULT = 8L;
         // OPEN INPUT TRANSACT-FILE
         String st9 = TRANSACT_FILE.open("INPUT");
         Cobol.move(st9, f111_TRANFILE_STATUS, CS);
         // IF TRANFILE-STATUS = '00'
         if (Cobol.compare(f111_TRANFILE_STATUS, "00", CS) == 0) {
             // MOVE 0 TO APPL-RESULT
-            Cobol.move(D0, f124_APPL_RESULT, CS);
+            f124_APPL_RESULT = 0L;
         } else {
             // MOVE 12 TO APPL-RESULT
-            Cobol.move(D12, f124_APPL_RESULT, CS);
+            f124_APPL_RESULT = 12L;
         }
         // IF APPL-AOK
-        if (Cobol.compare(f124_APPL_RESULT, D0, CS) == 0) {
+        if (isApplAok()) {
             // CONTINUE
         } else {
             // DISPLAY 'ERROR OPENING TRANSACTION FILE'
@@ -999,20 +805,20 @@ public class Cbtrn01cService {
     private int p10() {
         // ADD 8 TO ZERO GIVING APPL-RESULT
         BigDecimal v10 = D8.add(BigDecimal.ZERO);
-        Cobol.store(f124_APPL_RESULT, v10, false, CS);
+        f124_APPL_RESULT = Cobol.binary(v10, 9, true, false, CS);
         // CLOSE DALYTRAN-FILE
         String st11 = DALYTRAN_FILE.close();
         Cobol.move(st11, f34_DALYTRAN_STATUS, CS);
         // IF DALYTRAN-STATUS = '00'
         if (Cobol.compare(f34_DALYTRAN_STATUS, "00", CS) == 0) {
             // MOVE 0 TO APPL-RESULT
-            Cobol.move(D0, f124_APPL_RESULT, CS);
+            f124_APPL_RESULT = 0L;
         } else {
             // MOVE 12 TO APPL-RESULT
-            Cobol.move(D12, f124_APPL_RESULT, CS);
+            f124_APPL_RESULT = 12L;
         }
         // IF APPL-AOK
-        if (Cobol.compare(f124_APPL_RESULT, D0, CS) == 0) {
+        if (isApplAok()) {
             // CONTINUE
         } else {
             // DISPLAY 'ERROR CLOSING CUSTOMER FILE'
@@ -1032,20 +838,20 @@ public class Cbtrn01cService {
     private int p11() {
         // ADD 8 TO ZERO GIVING APPL-RESULT
         BigDecimal v12 = D8.add(BigDecimal.ZERO);
-        Cobol.store(f124_APPL_RESULT, v12, false, CS);
+        f124_APPL_RESULT = Cobol.binary(v12, 9, true, false, CS);
         // CLOSE CUSTOMER-FILE
         String st13 = CUSTOMER_FILE.close();
         Cobol.move(st13, f57_CUSTFILE_STATUS, CS);
         // IF CUSTFILE-STATUS = '00'
         if (Cobol.compare(f57_CUSTFILE_STATUS, "00", CS) == 0) {
             // MOVE 0 TO APPL-RESULT
-            Cobol.move(D0, f124_APPL_RESULT, CS);
+            f124_APPL_RESULT = 0L;
         } else {
             // MOVE 12 TO APPL-RESULT
-            Cobol.move(D12, f124_APPL_RESULT, CS);
+            f124_APPL_RESULT = 12L;
         }
         // IF APPL-AOK
-        if (Cobol.compare(f124_APPL_RESULT, D0, CS) == 0) {
+        if (isApplAok()) {
             // CONTINUE
         } else {
             // DISPLAY 'ERROR CLOSING CUSTOMER FILE'
@@ -1065,20 +871,20 @@ public class Cbtrn01cService {
     private int p12() {
         // ADD 8 TO ZERO GIVING APPL-RESULT
         BigDecimal v14 = D8.add(BigDecimal.ZERO);
-        Cobol.store(f124_APPL_RESULT, v14, false, CS);
+        f124_APPL_RESULT = Cobol.binary(v14, 9, true, false, CS);
         // CLOSE XREF-FILE
         String st15 = XREF_FILE.close();
         Cobol.move(st15, f65_XREFFILE_STATUS, CS);
         // IF XREFFILE-STATUS = '00'
         if (Cobol.compare(f65_XREFFILE_STATUS, "00", CS) == 0) {
             // MOVE 0 TO APPL-RESULT
-            Cobol.move(D0, f124_APPL_RESULT, CS);
+            f124_APPL_RESULT = 0L;
         } else {
             // MOVE 12 TO APPL-RESULT
-            Cobol.move(D12, f124_APPL_RESULT, CS);
+            f124_APPL_RESULT = 12L;
         }
         // IF APPL-AOK
-        if (Cobol.compare(f124_APPL_RESULT, D0, CS) == 0) {
+        if (isApplAok()) {
             // CONTINUE
         } else {
             // DISPLAY 'ERROR CLOSING CROSS REF FILE'
@@ -1098,20 +904,20 @@ public class Cbtrn01cService {
     private int p13() {
         // ADD 8 TO ZERO GIVING APPL-RESULT
         BigDecimal v16 = D8.add(BigDecimal.ZERO);
-        Cobol.store(f124_APPL_RESULT, v16, false, CS);
+        f124_APPL_RESULT = Cobol.binary(v16, 9, true, false, CS);
         // CLOSE CARD-FILE
         String st17 = CARD_FILE.close();
         Cobol.move(st17, f76_CARDFILE_STATUS, CS);
         // IF CARDFILE-STATUS = '00'
         if (Cobol.compare(f76_CARDFILE_STATUS, "00", CS) == 0) {
             // MOVE 0 TO APPL-RESULT
-            Cobol.move(D0, f124_APPL_RESULT, CS);
+            f124_APPL_RESULT = 0L;
         } else {
             // MOVE 12 TO APPL-RESULT
-            Cobol.move(D12, f124_APPL_RESULT, CS);
+            f124_APPL_RESULT = 12L;
         }
         // IF APPL-AOK
-        if (Cobol.compare(f124_APPL_RESULT, D0, CS) == 0) {
+        if (isApplAok()) {
             // CONTINUE
         } else {
             // DISPLAY 'ERROR CLOSING CARD FILE'
@@ -1131,20 +937,20 @@ public class Cbtrn01cService {
     private int p14() {
         // ADD 8 TO ZERO GIVING APPL-RESULT
         BigDecimal v18 = D8.add(BigDecimal.ZERO);
-        Cobol.store(f124_APPL_RESULT, v18, false, CS);
+        f124_APPL_RESULT = Cobol.binary(v18, 9, true, false, CS);
         // CLOSE ACCOUNT-FILE
         String st19 = ACCOUNT_FILE.close();
         Cobol.move(st19, f93_ACCTFILE_STATUS, CS);
         // IF ACCTFILE-STATUS = '00'
         if (Cobol.compare(f93_ACCTFILE_STATUS, "00", CS) == 0) {
             // MOVE 0 TO APPL-RESULT
-            Cobol.move(D0, f124_APPL_RESULT, CS);
+            f124_APPL_RESULT = 0L;
         } else {
             // MOVE 12 TO APPL-RESULT
-            Cobol.move(D12, f124_APPL_RESULT, CS);
+            f124_APPL_RESULT = 12L;
         }
         // IF APPL-AOK
-        if (Cobol.compare(f124_APPL_RESULT, D0, CS) == 0) {
+        if (isApplAok()) {
             // CONTINUE
         } else {
             // DISPLAY 'ERROR CLOSING ACCOUNT FILE'
@@ -1164,20 +970,20 @@ public class Cbtrn01cService {
     private int p15() {
         // ADD 8 TO ZERO GIVING APPL-RESULT
         BigDecimal v20 = D8.add(BigDecimal.ZERO);
-        Cobol.store(f124_APPL_RESULT, v20, false, CS);
+        f124_APPL_RESULT = Cobol.binary(v20, 9, true, false, CS);
         // CLOSE TRANSACT-FILE
         String st21 = TRANSACT_FILE.close();
         Cobol.move(st21, f111_TRANFILE_STATUS, CS);
         // IF TRANFILE-STATUS = '00'
         if (Cobol.compare(f111_TRANFILE_STATUS, "00", CS) == 0) {
             // MOVE 0 TO APPL-RESULT
-            Cobol.move(D0, f124_APPL_RESULT, CS);
+            f124_APPL_RESULT = 0L;
         } else {
             // MOVE 12 TO APPL-RESULT
-            Cobol.move(D12, f124_APPL_RESULT, CS);
+            f124_APPL_RESULT = 12L;
         }
         // IF APPL-AOK
-        if (Cobol.compare(f124_APPL_RESULT, D0, CS) == 0) {
+        if (isApplAok()) {
             // CONTINUE
         } else {
             // DISPLAY 'ERROR CLOSING TRANSACTION FILE'
@@ -1198,11 +1004,11 @@ public class Cbtrn01cService {
         // DISPLAY 'ABENDING PROGRAM'
         Sysout.display("ABENDING PROGRAM");
         // MOVE 0 TO TIMING
-        Cobol.move(D0, f127_TIMING, CS);
+        f127_TIMING = 0L;
         // MOVE 999 TO ABCODE
-        Cobol.move(D999, f126_ABCODE, CS);
+        f126_ABCODE = 999L;
         // CALL 'CEE3ABD' USING ABCODE, TIMING
-        if (true) throw CobolAbend.user(Cobol.num(f126_ABCODE, CS).intValue(), "CEE3ABD");
+        if (true) throw CobolAbend.user(BigDecimal.valueOf(f126_ABCODE).intValue(), "CEE3ABD");
         return 17;
     }
 
@@ -1231,5 +1037,11 @@ public class Cbtrn01cService {
         // EXIT
         return 18;
     }
+
+    /** 88 APPL-AOK of APPL-RESULT. */
+    private boolean isApplAok() { return f124_APPL_RESULT == 0L; }
+
+    /** 88 APPL-EOF of APPL-RESULT. */
+    private boolean isApplEof() { return f124_APPL_RESULT == 16L; }
 
 }

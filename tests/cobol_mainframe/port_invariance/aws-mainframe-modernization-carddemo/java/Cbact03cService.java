@@ -34,11 +34,9 @@ public class Cbact03cService {
 
     private static final Charset CS = CobolRecords.charset();
     private static final int GOTO = 1 << 20;
-    private static final BigDecimal D0 = new BigDecimal("0");
-    private static final BigDecimal D16 = new BigDecimal("16");
-    private static final BigDecimal D12 = new BigDecimal("12");
     private static final BigDecimal D8 = new BigDecimal("8");
-    private static final BigDecimal D999 = new BigDecimal("999");
+    private static final BigDecimal D12 = new BigDecimal("12");
+    private static final BigDecimal D0 = new BigDecimal("0");
 
     private static final byte[] IMAGE_s_FD_XREFFILE_REC = Base64.getDecoder().decode(String.join("",
             "ICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICA="));
@@ -52,14 +50,6 @@ public class Cbact03cService {
             "AAA="));
     private static final byte[] IMAGE_s_IO_STATUS_04 = Base64.getDecoder().decode(String.join("",
             "MDAwMA=="));
-    private static final byte[] IMAGE_s_APPL_RESULT = Base64.getDecoder().decode(String.join("",
-            "AAAAAA=="));
-    private static final byte[] IMAGE_s_END_OF_FILE = Base64.getDecoder().decode(String.join("",
-            "Tg=="));
-    private static final byte[] IMAGE_s_ABCODE = Base64.getDecoder().decode(String.join("",
-            "AAAAAA=="));
-    private static final byte[] IMAGE_s_TIMING = Base64.getDecoder().decode(String.join("",
-            "AAAAAA=="));
     private static final byte[] IMAGE_s_GG_RETURN_CODE = Base64.getDecoder().decode(String.join("",
             "AAA="));
     private final Storage s_FD_XREFFILE_REC = new Storage(IMAGE_s_FD_XREFFILE_REC.length);
@@ -68,38 +58,23 @@ public class Cbact03cService {
     private final Storage s_IO_STATUS = new Storage(IMAGE_s_IO_STATUS.length);
     private final Storage s_TWO_BYTES_BINARY = new Storage(IMAGE_s_TWO_BYTES_BINARY.length);
     private final Storage s_IO_STATUS_04 = new Storage(IMAGE_s_IO_STATUS_04.length);
-    private final Storage s_APPL_RESULT = new Storage(IMAGE_s_APPL_RESULT.length);
-    private final Storage s_END_OF_FILE = new Storage(IMAGE_s_END_OF_FILE.length);
-    private final Storage s_ABCODE = new Storage(IMAGE_s_ABCODE.length);
-    private final Storage s_TIMING = new Storage(IMAGE_s_TIMING.length);
     private final Storage s_GG_RETURN_CODE = new Storage(IMAGE_s_GG_RETURN_CODE.length);
 
-    private Field f10_XREFFILE_STAT1;
-    private Field f11_XREFFILE_STAT2;
-    private Field f12_IO_STATUS;
-    private Field f13_IO_STAT1;
-    private Field f14_IO_STAT2;
-    private Field f15_TWO_BYTES_BINARY;
-    private Field f16_TWO_BYTES_ALPHA;
-    private Field f17_TWO_BYTES_LEFT;
-    private Field f18_TWO_BYTES_RIGHT;
-    private Field f19_IO_STATUS_04;
-    private Field f1_FD_XREFFILE_REC;
-    private Field f20_IO_STATUS_0401;
-    private Field f21_IO_STATUS_0403;
-    private Field f22_APPL_RESULT;
-    private Field f23_END_OF_FILE;
-    private Field f24_ABCODE;
-    private Field f25_TIMING;
-    private Field f26_GG_RETURN_CODE;
-    private Field f2_FD_XREF_CARD_NUM;
-    private Field f3_FD_XREF_DATA;
-    private Field f4_CARD_XREF_RECORD;
-    private Field f5_XREF_CARD_NUM;
-    private Field f6_XREF_CUST_ID;
-    private Field f7_XREF_ACCT_ID;
-    private Field f8_FILLER;
-    private Field f9_XREFFILE_STATUS;
+    private final Field f1_FD_XREFFILE_REC = Field.group(s_FD_XREFFILE_REC, 0, 50);
+    private final Field f4_CARD_XREF_RECORD = Field.group(s_CARD_XREF_RECORD, 0, 50);
+    private final Field f9_XREFFILE_STATUS = Field.group(s_XREFFILE_STATUS, 0, 2);
+    private final Field f12_IO_STATUS = Field.group(s_IO_STATUS, 0, 2);
+    private final Field f13_IO_STAT1 = Field.alphanumeric(s_IO_STATUS, 0, 1, false);
+    private final Field f14_IO_STAT2 = Field.alphanumeric(s_IO_STATUS, 1, 1, false);
+    private final Field f15_TWO_BYTES_BINARY = Field.binary(s_TWO_BYTES_BINARY, 0, 4, 0, false, false);
+    private final Field f18_TWO_BYTES_RIGHT = Field.alphanumeric(s_TWO_BYTES_BINARY, 1, 1, false);
+    private final Field f19_IO_STATUS_04 = Field.group(s_IO_STATUS_04, 0, 4);
+    private final Field f21_IO_STATUS_0403 = Field.zoned(s_IO_STATUS_04, 1, 3, 0, false, false, false);
+    private final Field f26_GG_RETURN_CODE = Field.binary(s_GG_RETURN_CODE, 0, 4, 0, true, false);
+    private long f22_APPL_RESULT;  // APPL-RESULT PIC S9(9) BINARY
+    private String f23_END_OF_FILE;  // END-OF-FILE PIC X(01)
+    private long f24_ABCODE;  // ABCODE PIC S9(9) BINARY
+    private long f25_TIMING;  // TIMING PIC S9(9) BINARY
 
     private static String id_CardXrefRecord(byte[] rec) {
         Storage s = Storage.of(rec);
@@ -118,52 +93,27 @@ public class Cbact03cService {
         this.datasets = datasets;
         this.files = files;
         this.clock = clock;
-        fields0();
     }
 
-    private void fields0() {
-        f1_FD_XREFFILE_REC = Field.group(s_FD_XREFFILE_REC, 0, 50);
-        f2_FD_XREF_CARD_NUM = Field.alphanumeric(s_FD_XREFFILE_REC, 0, 16, false);
-        f3_FD_XREF_DATA = Field.alphanumeric(s_FD_XREFFILE_REC, 16, 34, false);
-        f4_CARD_XREF_RECORD = Field.group(s_CARD_XREF_RECORD, 0, 50);
-        f5_XREF_CARD_NUM = Field.alphanumeric(s_CARD_XREF_RECORD, 0, 16, false);
-        f6_XREF_CUST_ID = Field.zoned(s_CARD_XREF_RECORD, 16, 9, 0, false, false, false);
-        f7_XREF_ACCT_ID = Field.zoned(s_CARD_XREF_RECORD, 25, 11, 0, false, false, false);
-        f8_FILLER = Field.alphanumeric(s_CARD_XREF_RECORD, 36, 14, false);
-        f9_XREFFILE_STATUS = Field.group(s_XREFFILE_STATUS, 0, 2);
-        f10_XREFFILE_STAT1 = Field.alphanumeric(s_XREFFILE_STATUS, 0, 1, false);
-        f11_XREFFILE_STAT2 = Field.alphanumeric(s_XREFFILE_STATUS, 1, 1, false);
-        f12_IO_STATUS = Field.group(s_IO_STATUS, 0, 2);
-        f13_IO_STAT1 = Field.alphanumeric(s_IO_STATUS, 0, 1, false);
-        f14_IO_STAT2 = Field.alphanumeric(s_IO_STATUS, 1, 1, false);
-        f15_TWO_BYTES_BINARY = Field.binary(s_TWO_BYTES_BINARY, 0, 4, 0, false, false);
-        f16_TWO_BYTES_ALPHA = Field.group(s_TWO_BYTES_BINARY, 0, 2);
-        f17_TWO_BYTES_LEFT = Field.alphanumeric(s_TWO_BYTES_BINARY, 0, 1, false);
-        f18_TWO_BYTES_RIGHT = Field.alphanumeric(s_TWO_BYTES_BINARY, 1, 1, false);
-        f19_IO_STATUS_04 = Field.group(s_IO_STATUS_04, 0, 4);
-        f20_IO_STATUS_0401 = Field.zoned(s_IO_STATUS_04, 0, 1, 0, false, false, false);
-        f21_IO_STATUS_0403 = Field.zoned(s_IO_STATUS_04, 1, 3, 0, false, false, false);
-        f22_APPL_RESULT = Field.binary(s_APPL_RESULT, 0, 9, 0, true, false);
-        f23_END_OF_FILE = Field.alphanumeric(s_END_OF_FILE, 0, 1, false);
-        f24_ABCODE = Field.binary(s_ABCODE, 0, 9, 0, true, false);
-        f25_TIMING = Field.binary(s_TIMING, 0, 9, 0, true, false);
-        f26_GG_RETURN_CODE = Field.binary(s_GG_RETURN_CODE, 0, 4, 0, true, false);
-    }
-
-    /** The program run on its own (no JCL step, no CICS task, no caller): the PROCEDURE DIVISION from its
-     *  initial storage; RETURN-CODE. */
-    public int runProgram() {
+    /** WORKING-STORAGE (and every storage) as its VALUE clauses set it: each entry point starts from here. */
+    private void initialState() {
         System.arraycopy(IMAGE_s_FD_XREFFILE_REC, 0, s_FD_XREFFILE_REC.bytes, 0, IMAGE_s_FD_XREFFILE_REC.length);
         System.arraycopy(IMAGE_s_CARD_XREF_RECORD, 0, s_CARD_XREF_RECORD.bytes, 0, IMAGE_s_CARD_XREF_RECORD.length);
         System.arraycopy(IMAGE_s_XREFFILE_STATUS, 0, s_XREFFILE_STATUS.bytes, 0, IMAGE_s_XREFFILE_STATUS.length);
         System.arraycopy(IMAGE_s_IO_STATUS, 0, s_IO_STATUS.bytes, 0, IMAGE_s_IO_STATUS.length);
         System.arraycopy(IMAGE_s_TWO_BYTES_BINARY, 0, s_TWO_BYTES_BINARY.bytes, 0, IMAGE_s_TWO_BYTES_BINARY.length);
         System.arraycopy(IMAGE_s_IO_STATUS_04, 0, s_IO_STATUS_04.bytes, 0, IMAGE_s_IO_STATUS_04.length);
-        System.arraycopy(IMAGE_s_APPL_RESULT, 0, s_APPL_RESULT.bytes, 0, IMAGE_s_APPL_RESULT.length);
-        System.arraycopy(IMAGE_s_END_OF_FILE, 0, s_END_OF_FILE.bytes, 0, IMAGE_s_END_OF_FILE.length);
-        System.arraycopy(IMAGE_s_ABCODE, 0, s_ABCODE.bytes, 0, IMAGE_s_ABCODE.length);
-        System.arraycopy(IMAGE_s_TIMING, 0, s_TIMING.bytes, 0, IMAGE_s_TIMING.length);
         System.arraycopy(IMAGE_s_GG_RETURN_CODE, 0, s_GG_RETURN_CODE.bytes, 0, IMAGE_s_GG_RETURN_CODE.length);
+        f22_APPL_RESULT = 0L;
+        f23_END_OF_FILE = "N";
+        f24_ABCODE = 0L;
+        f25_TIMING = 0L;
+    }
+
+    /** The program run on its own (no JCL step, no CICS task, no caller): the PROCEDURE DIVISION from its
+     *  initial storage; RETURN-CODE. */
+    public int runProgram() {
+        initialState();
         performDepth = 0;
         try {
             perform(0, 5);
@@ -171,10 +121,6 @@ public class Cbact03cService {
             // the program ended
         }
         return Cobol.num(f26_GG_RETURN_CODE, CS).intValue();
-    }
-
-    public void executeCbact03c() {
-        runBatch(List.of(), null);
     }
 
 
@@ -194,18 +140,9 @@ public class Cbact03cService {
     /** The batch entry. */
     public int runBatch(List<Dd> dds, String parm) {
         boolean truncBefore = Cobol.swapTruncBinary(true);  // TRUNC(STD)
+        boolean pfdBefore = Cobol.swapNumprocPfd(false);  // NUMPROC(NOPFD)
         try {
-            System.arraycopy(IMAGE_s_FD_XREFFILE_REC, 0, s_FD_XREFFILE_REC.bytes, 0, IMAGE_s_FD_XREFFILE_REC.length);
-            System.arraycopy(IMAGE_s_CARD_XREF_RECORD, 0, s_CARD_XREF_RECORD.bytes, 0, IMAGE_s_CARD_XREF_RECORD.length);
-            System.arraycopy(IMAGE_s_XREFFILE_STATUS, 0, s_XREFFILE_STATUS.bytes, 0, IMAGE_s_XREFFILE_STATUS.length);
-            System.arraycopy(IMAGE_s_IO_STATUS, 0, s_IO_STATUS.bytes, 0, IMAGE_s_IO_STATUS.length);
-            System.arraycopy(IMAGE_s_TWO_BYTES_BINARY, 0, s_TWO_BYTES_BINARY.bytes, 0, IMAGE_s_TWO_BYTES_BINARY.length);
-            System.arraycopy(IMAGE_s_IO_STATUS_04, 0, s_IO_STATUS_04.bytes, 0, IMAGE_s_IO_STATUS_04.length);
-            System.arraycopy(IMAGE_s_APPL_RESULT, 0, s_APPL_RESULT.bytes, 0, IMAGE_s_APPL_RESULT.length);
-            System.arraycopy(IMAGE_s_END_OF_FILE, 0, s_END_OF_FILE.bytes, 0, IMAGE_s_END_OF_FILE.length);
-            System.arraycopy(IMAGE_s_ABCODE, 0, s_ABCODE.bytes, 0, IMAGE_s_ABCODE.length);
-            System.arraycopy(IMAGE_s_TIMING, 0, s_TIMING.bytes, 0, IMAGE_s_TIMING.length);
-            System.arraycopy(IMAGE_s_GG_RETURN_CODE, 0, s_GG_RETURN_CODE.bytes, 0, IMAGE_s_GG_RETURN_CODE.length);
+            initialState();
             XREFFILE_FILE = new DetFiles.Indexed<CardXrefRecord>(files, "XREFFILE", s_FD_XREFFILE_REC, 0, 50, 0, 16, cardXrefRecordRepository::findAll, e -> e.toRecord(CS), b -> CardXrefRecord.fromRecord(b, CS), cardXrefRecordRepository::save, CS).withFindById(rec -> cardXrefRecordRepository.findById(id_CardXrefRecord(rec)));
             try {
                 perform(0, 5);
@@ -215,6 +152,7 @@ public class Cbact03cService {
             return Cobol.num(f26_GG_RETURN_CODE, CS).intValue();
         } finally {
             Cobol.swapTruncBinary(truncBefore);
+            Cobol.swapNumprocPfd(pfdBefore);
         }
     }
 
@@ -291,13 +229,13 @@ public class Cbact03cService {
         // PERFORM 0000-XREFFILE-OPEN
         perform(2, 2);
         // PERFORM UNTIL END-OF-FILE = 'Y'
-        while (!(Cobol.compare(f23_END_OF_FILE, "Y", CS) == 0)) {
+        while (!(f23_END_OF_FILE.equals("Y"))) {
             // IF END-OF-FILE = 'N'
-            if (Cobol.compare(f23_END_OF_FILE, "N", CS) == 0) {
+            if (f23_END_OF_FILE.equals("N")) {
                 // PERFORM 1000-XREFFILE-GET-NEXT
                 perform(1, 1);
                 // IF END-OF-FILE = 'N'
-                if (Cobol.compare(f23_END_OF_FILE, "N", CS) == 0) {
+                if (f23_END_OF_FILE.equals("N")) {
                     // DISPLAY CARD-XREF-RECORD
                     Sysout.display(Cobol.displayText(f4_CARD_XREF_RECORD, CS));
                 }
@@ -323,27 +261,27 @@ public class Cbact03cService {
         // IF XREFFILE-STATUS = '00'
         if (Cobol.compare(f9_XREFFILE_STATUS, "00", CS) == 0) {
             // MOVE 0 TO APPL-RESULT
-            Cobol.move(D0, f22_APPL_RESULT, CS);
+            f22_APPL_RESULT = 0L;
             // DISPLAY CARD-XREF-RECORD
             Sysout.display(Cobol.displayText(f4_CARD_XREF_RECORD, CS));
         } else {
             // ELSE IF XREFFILE-STATUS = '10'
             if (Cobol.compare(f9_XREFFILE_STATUS, "10", CS) == 0) {
                 // MOVE 16 TO APPL-RESULT
-                Cobol.move(D16, f22_APPL_RESULT, CS);
+                f22_APPL_RESULT = 16L;
             } else {
                 // MOVE 12 TO APPL-RESULT
-                Cobol.move(D12, f22_APPL_RESULT, CS);
+                f22_APPL_RESULT = 12L;
             }
         }
         // IF APPL-AOK
-        if (Cobol.compare(f22_APPL_RESULT, D0, CS) == 0) {
+        if (isApplAok()) {
             // CONTINUE
         } else {
             // ELSE IF APPL-EOF
-            if (Cobol.compare(f22_APPL_RESULT, D16, CS) == 0) {
+            if (isApplEof()) {
                 // MOVE 'Y' TO END-OF-FILE
-                Cobol.move("Y", f23_END_OF_FILE, CS);
+                f23_END_OF_FILE = "Y";
             } else {
                 // DISPLAY 'ERROR READING XREFFILE'
                 Sysout.display("ERROR READING XREFFILE");
@@ -362,20 +300,20 @@ public class Cbact03cService {
     /** 0000-XREFFILE-OPEN. */
     private int p2() {
         // MOVE 8 TO APPL-RESULT
-        Cobol.move(D8, f22_APPL_RESULT, CS);
+        f22_APPL_RESULT = 8L;
         // OPEN INPUT XREFFILE-FILE
         String st2 = XREFFILE_FILE.open("INPUT");
         Cobol.move(st2, f9_XREFFILE_STATUS, CS);
         // IF XREFFILE-STATUS = '00'
         if (Cobol.compare(f9_XREFFILE_STATUS, "00", CS) == 0) {
             // MOVE 0 TO APPL-RESULT
-            Cobol.move(D0, f22_APPL_RESULT, CS);
+            f22_APPL_RESULT = 0L;
         } else {
             // MOVE 12 TO APPL-RESULT
-            Cobol.move(D12, f22_APPL_RESULT, CS);
+            f22_APPL_RESULT = 12L;
         }
         // IF APPL-AOK
-        if (Cobol.compare(f22_APPL_RESULT, D0, CS) == 0) {
+        if (isApplAok()) {
             // CONTINUE
         } else {
             // DISPLAY 'ERROR OPENING XREFFILE'
@@ -395,22 +333,22 @@ public class Cbact03cService {
     private int p3() {
         // ADD 8 TO ZERO GIVING APPL-RESULT
         BigDecimal v3 = D8.add(BigDecimal.ZERO);
-        Cobol.store(f22_APPL_RESULT, v3, false, CS);
+        f22_APPL_RESULT = Cobol.binary(v3, 9, true, false, CS);
         // CLOSE XREFFILE-FILE
         String st4 = XREFFILE_FILE.close();
         Cobol.move(st4, f9_XREFFILE_STATUS, CS);
         // IF XREFFILE-STATUS = '00'
         if (Cobol.compare(f9_XREFFILE_STATUS, "00", CS) == 0) {
             // SUBTRACT APPL-RESULT FROM APPL-RESULT
-            BigDecimal t5 = Cobol.num(f22_APPL_RESULT, CS);
-            Cobol.store(f22_APPL_RESULT, Cobol.num(f22_APPL_RESULT, CS).subtract(t5), false, CS);
+            BigDecimal t5 = BigDecimal.valueOf(f22_APPL_RESULT);
+            f22_APPL_RESULT = Cobol.binary(BigDecimal.valueOf(f22_APPL_RESULT).subtract(t5), 9, true, false, CS);
         } else {
             // ADD 12 TO ZERO GIVING APPL-RESULT
             BigDecimal v7 = D12.add(BigDecimal.ZERO);
-            Cobol.store(f22_APPL_RESULT, v7, false, CS);
+            f22_APPL_RESULT = Cobol.binary(v7, 9, true, false, CS);
         }
         // IF APPL-AOK
-        if (Cobol.compare(f22_APPL_RESULT, D0, CS) == 0) {
+        if (isApplAok()) {
             // CONTINUE
         } else {
             // DISPLAY 'ERROR CLOSING XREFFILE'
@@ -431,11 +369,11 @@ public class Cbact03cService {
         // DISPLAY 'ABENDING PROGRAM'
         Sysout.display("ABENDING PROGRAM");
         // MOVE 0 TO TIMING
-        Cobol.move(D0, f25_TIMING, CS);
+        f25_TIMING = 0L;
         // MOVE 999 TO ABCODE
-        Cobol.move(D999, f24_ABCODE, CS);
+        f24_ABCODE = 999L;
         // CALL 'CEE3ABD' USING ABCODE, TIMING
-        if (true) throw CobolAbend.user(Cobol.num(f24_ABCODE, CS).intValue(), "CEE3ABD");
+        if (true) throw CobolAbend.user(BigDecimal.valueOf(f24_ABCODE).intValue(), "CEE3ABD");
         return 5;
     }
 
@@ -464,5 +402,11 @@ public class Cbact03cService {
         // EXIT
         return 6;
     }
+
+    /** 88 APPL-AOK of APPL-RESULT. */
+    private boolean isApplAok() { return f22_APPL_RESULT == 0L; }
+
+    /** 88 APPL-EOF of APPL-RESULT. */
+    private boolean isApplEof() { return f22_APPL_RESULT == 16L; }
 
 }

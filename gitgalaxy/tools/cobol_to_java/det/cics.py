@@ -1274,7 +1274,7 @@ class Cics:
         rba = f"CicsTask.rba(DetCics.bytes({rid}, 4))"
         if verb == "STARTBR":
             r = self.g.tmpname("resp")
-            return [f"{ind}int {r} = task.startbrRba({file}, {rba});", *self.outcome(opts, r, "0", ind)]
+            return [f"{ind}int {r} = task.startbrRba({file}, {rba});", *self.outcome(opts, r, "task.resp2()", ind)]
         r = self.g.tmpname("read")
         fn = "readnextRba" if verb == "READNEXT" else "readprevRba"
         into = self.field(opts["INTO"])
@@ -1418,7 +1418,7 @@ class Cics:
                f"{ind}    DetCics.put({rid}, {r}.key().getBytes(CS));",
                f"{ind}    {st}.find({r}.key().getBytes(CS)).ifPresent(b -> DetCics.put({into}, b));",
                f"{ind}}}"]  # fmt: skip
-        return out + self.outcome(opts, f"{r}.resp()", "0", ind)
+        return out + self.outcome(opts, f"{r}.resp()", f"{r}.resp2()", ind)
 
     def read_length(self, opts: dict, length: str, file: str, st: str, into: str, rid: str, ind: str) -> list[str]:
         """#4436: READ ... INTO LENGTH(length). LENGTH's value is the most the program takes: the record goes INTO,
@@ -1487,7 +1487,7 @@ class Cics:
                    f"{'true' if 'EQUAL' in opts else 'false'}, () -> {st}.keys());"]  # fmt: skip
         else:  # ENDBR
             out = [f"{ind}int {r} = task.endbr({file});"]
-        return out + self.outcome(opts, r, "0", ind)
+        return out + self.outcome(opts, r, "task.resp2()", ind)  # #4657: IBM's RESP2 (CicsTask.resp2)
 
 
 def _option(opts: dict, name: str) -> str | None:

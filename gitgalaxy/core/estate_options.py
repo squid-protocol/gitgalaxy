@@ -52,6 +52,40 @@ SECTIONS = ("compiler", "parm", "le", "db2", "cics")
 ASSUMED = re.compile(r"^assumed: (IBM default|owner decision|not stated in the corpus)$")
 FOUND = re.compile(r"^(?P<path>[^:\s][^:]*):(?P<line>[1-9][0-9]*)$")
 
+# The shape of an estate options file, as a template to copy (and a schema test's input): every value has provenance.
+TEMPLATE: dict[str, Any] = {
+    "format": FORMAT,
+    "estate": "<corpus name>",
+    "corpus": "<corpus name>",
+    "compiler": {
+        "product": {
+            "value": "Enterprise COBOL",
+            "source": "path/in/corpus.jcl:7",
+            "note": "where the build names IGYCRCTL",
+        },
+        "version": {"value": "6.3", "source": "assumed: IBM default", "note": "why"},
+        "installation_defaults": {
+            "TRUNC": {"value": "STD", "source": "assumed: IBM default", "note": "IGYCDOPT not seen"}
+        },
+    },
+    "parm": {
+        "default": [
+            {
+                "option": "TRUNC",
+                "value": "OPT",
+                "source": "path/in/corpus.jcl:7",
+                "note": "the estate's compile PARM",
+                "applied_value": "STD",
+                "applied_note": "a value the harness cannot honour is applied as this, a declared difference",
+            }
+        ],
+        "programs": {"PROGRAM": []},
+    },
+    "le": {"runtime_options": {"STORAGE": {"value": "NONE", "source": "assumed: IBM default", "note": "no CEEOPTS"}}},
+    "db2": {},
+    "cics": {},
+}
+
 
 def _text(option: str, value: Any) -> str:
     return option if value in (None, "") else f"{option}({value})"

@@ -82,6 +82,10 @@ def test_every_case_corpus_has_an_options_file():
     )
 
 
+def test_the_template_is_valid():
+    assert eo.validate(eo.TEMPLATE) == []
+
+
 def test_schema_refuses_a_value_without_provenance():
     data = _estate()
     data["le"] = {"runtime_options": {"STORAGE": {"value": "NONE", "note": "x"}, "TRAP": _entry("ON", "guess")}}

@@ -29,12 +29,11 @@ from gitgalaxy.core.compiler_options import (
     DEFAULTS,
     SEMANTIC_OPTIONS,
     cards,
-    compiler_options,
-    effective,
-    parse_options,
+    effective_with_defaults,
 )
 from gitgalaxy.core.ebcdic_codecs import java_charset_name
 from gitgalaxy.core.ebcdic_codecs import register as _register_ebcdic
+from gitgalaxy.core.estate_options import effective_options
 from gitgalaxy.core.source_text import decode_bytes, read_source
 from gitgalaxy.tools.cobol_to_java.java_target import zoned_sign_characters
 
@@ -230,8 +229,9 @@ class UnsupportedOption(Exception):
 
 def compiler_version(case: dict[str, Any]) -> Optional[tuple[int, int]]:
     """(version, release) of the IBM compiler a case states it was built with (`"compiler": {"product": "Enterprise
-    COBOL", "version": "6.1", "evidence": ...}`, e.g. the estate's build JCL's IGY.V6R1M0.SIGYCOMP), else None."""
-    c = case.get("compiler") or {}
+    COBOL", "version": "6.1", "evidence": ...}`, e.g. the estate's build JCL's IGY.V6R1M0.SIGYCOMP), else the estate
+    options file's (#4704: gitgalaxy.core.estate_options), else None."""
+    c = effective_options(case).compiler
     m = re.fullmatch(r"(\d+)(?:\.(\d+))?(?:\.\d+)*", str(c.get("version") or "").strip())
     if not m or str(c.get("product") or "").strip().lower() != "enterprise cobol":
         return None
@@ -259,8 +259,8 @@ def numproc_mig(case: dict[str, Any]) -> str:
 def numproc(case: dict[str, Any], source: str) -> str:
     """The NUMPROC the program compiles with: its cards over the case's `compiler_options`, else IBM's default; MIG
     resolved by numproc_mig."""
-    rows = [{"option": o, "value": v} for text in case.get("compiler_options", []) for o, v, _ in parse_options(text)]
-    value = str(effective(rows + compiler_options(source)).get("NUMPROC") or DEFAULTS["NUMPROC"]).upper()
+    value = str(effective_with_defaults(effective_options(case).layers, source).get("NUMPROC") or "").upper()
+    value = value or DEFAULTS["NUMPROC"]
     return numproc_mig(case) if value == "MIG" else value
 
 
@@ -285,13 +285,13 @@ def compile_options(case: dict[str, Any], source: str) -> tuple[str, list[str]]:
     """#3828: (the program with its CBL / PROCESS cards blanked -- GnuCOBOL rejects CBL --, the cobc
     flags for its options). The case's `compiler_options` (e.g. ["INTDATE(LILIAN)"]) stand for the
     compile step's PARM, so the program's own cards override them, as on z/OS. Options that change
-    no result (APOST, CICS, SQL, OPT ...) are dropped; a semantic one GnuCOBOL cannot honour raises."""
-    rows = [{"option": o, "value": v} for text in case.get("compiler_options", []) for o, v, _ in parse_options(text)]
-    rows += compiler_options(source)
+    no result (APOST, CICS, SQL, OPT ...) are dropped; a semantic one GnuCOBOL cannot honour raises. The estate's own
+    PARM comes from its options file (tests/equivalence/estate_options, #4704), where a value the harness cannot
+    honour carries the `applied_value` the proof runs under (a declared difference)."""
     flags = []
-    eff = effective(rows)
-    for option, default in DEFAULTS.items():  # an option nothing names is IBM's default (#4102: TRUNC(STD))
-        eff.setdefault(option, default)
+    # #4704: one resolver -- installation defaults < the estate's PARM < the case's `compiler_options` < the cards --
+    # an option nothing names is IBM's default (#4102: TRUNC(STD))
+    eff = effective_with_defaults(effective_options(case).layers, source)
     if str(eff.get("NUMPROC") or "").upper() == "MIG":
         eff["NUMPROC"] = numproc_mig(case)
     for option, value in eff.items():

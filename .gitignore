@@ -161,6 +161,8 @@ museum_2/
 # ...and the equivalence cases (#3624) and their ports' provenance (#4023 follow-up): source, not output
 !tests/equivalence/*/case.json
 !tests/equivalence/*/port/provenance.json
+# ...and the estates' compile / runtime options (#4704): one file per corpus, source not output
+!tests/equivalence/estate_options/*.json
 !tests/cics_crucible/ports/*/*/provenance.json
 # #4048: the evidence record of each ported program (tests/tools/evidence.py) is source, not output
 !tests/equivalence/*/evidence.json

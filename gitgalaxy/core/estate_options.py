@@ -45,6 +45,7 @@ from gitgalaxy.core.compiler_options import (
     effective_with_defaults,
     rows_of,
 )
+from gitgalaxy.core.source_text import read_source
 
 FORMAT = "gitgalaxy-estate-options/1"
 ESTATE_OPTIONS_DIR = Path(__file__).resolve().parents[2] / "tests" / "equivalence" / "estate_options"
@@ -98,7 +99,7 @@ def load_estate(corpus: str | None, directory: Path | None = None) -> dict[str, 
     path = (directory or ESTATE_OPTIONS_DIR) / f"{corpus}.json"
     if not path.is_file():
         return None
-    return dict(json.loads(path.read_text(encoding="utf-8")))
+    return dict(json.loads(read_source(path).text))
 
 
 @dataclass

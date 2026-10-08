@@ -1463,6 +1463,39 @@ def test_a_parse_error_outside_the_procedure_node_refuses_the_program(body):
         _proc(body)
 
 
+@pytest.mark.parametrize(
+    "cond",
+    [
+        ["    IF A NOT", "        = 'B'"],  # #4674: NOT at the end of a line, its operator on the next
+        ["    IF A NOT", "        EQUAL TO 'B'"],
+        ["    IF A", "        NOT", "        = 'B'"],
+        ["    IF A = 'B' OR NOT", "        < 'C'"],
+        ["    IF A = 'B' AND", "        NOT < 'C'"],  # an AND at a line end, the NOT (and operator) after it
+        ["    IF A = 'B' AND", "        NOT", "        < 'C'"],
+        ["    IF NOT", "        A = 'B'"],
+        ["    IF (ZERO + 3) / 12 NOT > 1"],  # #4656: ZERO is a number inside arithmetic, not a class word
+        ["    IF (ZERO / 12) * 2 > 1"],
+        ["    IF (3 + ZERO) > 1"],
+    ],
+)
+def test_a_relation_split_across_lines_or_with_zero_in_arithmetic_parses(cond):
+    pytest.importorskip("tree_sitter_language_pack")
+    proc = _proc([*cond, "        DISPLAY 'Y'", "    END-IF.", "    DISPLAY 'AFTER'.", "    GOBACK."])
+    stmts = [s for p in proc.paragraphs for s in S.walk(p.body)]
+    cond_ = stmts[0].data["cond"]
+    assert stmts[0].kind == "IF" and not (isinstance(cond_, tuple) and cond_[0] == "UNPARSED"), cond_
+    assert [s.kind for s in stmts if s.kind != "IF"] == ["DISPLAY", "DISPLAY", "GOBACK"]
+    # the break moved with the NOT, not the statements: AFTER keeps its own line (head is 7 lines, then cond)
+    assert stmts[-2].line == 7 + len(cond) + 3
+
+
+def test_a_when_with_zero_in_arithmetic_is_a_condition():
+    pytest.importorskip("tree_sitter_language_pack")
+    proc = _proc(["    EVALUATE TRUE", "        WHEN 1 + ZERO > 0 DISPLAY 'Y'", "    END-EVALUATE.", "    GOBACK."])
+    ev = next(s for p in proc.paragraphs for s in S.walk(p.body) if s.kind == "EVALUATE")
+    assert ev.whens[0][0][0][0][0] == "COND", ev.whens
+
+
 def test_a_parse_error_inside_a_statement_is_a_hole():
     pytest.importorskip("tree_sitter_language_pack")
     proc = _proc(["    MOVE ALL TO A.", "    IF (A = 1 CONTINUE END-IF.", "    GOBACK."])

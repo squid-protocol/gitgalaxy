@@ -1,7 +1,7 @@
 """#4462: what the det translator reads before it parses -- the code page the estate declares (estate-crucible
 `key/manifest.json` `code_pages`, which the engine reads through `--source-encoding`), free-format source, and the
-text it refuses by name instead of crashing (national / DBCS text, a national letter in a name, DECIMAL-POINT IS
-COMMA)."""
+text it refuses by name instead of crashing (national / DBCS text, a national letter in a name), and DECIMAL-POINT IS
+COMMA (read; a literal written with a decimal point under it refused by name)."""
 
 from __future__ import annotations
 
@@ -106,8 +106,8 @@ def test_engine_copies_carry_the_pages_from_the_ir_and_the_port_ticket(tmp_path)
         (("01  BETRÄGE PIC 9(3).", "PROCEDURE DIVISION.", "    GOBACK."),
          r"PROG\.cbl:5: the name BETRÄGE holds a national letter"),
         (("01  B PIC X(4).", "PROCEDURE DIVISION.", "    MOVE 'Ä' TO GEBÜHR", "    GOBACK."), r"the name GEBÜHR"),
-        # ZINSBER: `VALUE 1000,00` / `MOVE 0,5`: never read as integers
-        (("01  B PIC 9(7)V99 VALUE 1000,00.", "PROCEDURE DIVISION.", "    MOVE 0,5 TO B", "    GOBACK."), None),
+        # under DECIMAL-POINT IS COMMA, `1.5` is no number the compiler reads (`1,5` is: test_decimal_point_is_comma_*)
+        (("01  B PIC 9(7)V99 VALUE 1000,00.", "PROCEDURE DIVISION.", "    MOVE 1.5 TO B", "    GOBACK."), None),
     ],
 )  # fmt: skip
 def test_text_the_translator_cannot_read_is_refused_by_name(body, why):
@@ -121,11 +121,60 @@ def test_text_the_translator_cannot_read_is_refused_by_name(body, why):
         lines = _lines("01  B PIC X.")[:2] + [SRC.Line(t, "/x/PROG.cbl", 0) for t in (
             "ENVIRONMENT DIVISION.", "CONFIGURATION SECTION.", "SPECIAL-NAMES.", "    DECIMAL-POINT IS COMMA.")] + \
             _lines(*body)[2:]  # fmt: skip
-        why = "DECIMAL-POINT IS COMMA is not modelled"
+        why = r"PROG\.cbl:7: the literal 1\.5 has a decimal point under DECIMAL-POINT IS COMMA: not modelled"
     with pytest.raises(L.LayoutError, match=why):
         L.parse(lines)
     with pytest.raises(E.ExprError, match=why):
         ST.parse(lines)
+
+
+def _dpc(*body: str) -> list:
+    """A program under SPECIAL-NAMES DECIMAL-POINT IS COMMA (estate-crucible DEUT ZINSBER's clause)."""
+    head = (
+        "IDENTIFICATION DIVISION.",
+        "PROGRAM-ID. PROG.",
+        "ENVIRONMENT DIVISION.",
+        "CONFIGURATION SECTION.",
+        "SPECIAL-NAMES.",
+        "    DECIMAL-POINT IS COMMA.",
+        "DATA DIVISION.",
+        "WORKING-STORAGE SECTION.",
+    )
+    return [SRC.Line(t, "/x/PROG.cbl", n) for n, t in enumerate((*head, *body), 1)]
+
+
+def test_decimal_point_is_comma_hands_the_grammar_each_literal_with_a_point():
+    """#4462: a comma between digits is a numeric literal's decimal point (a column for a column); a separator comma
+    (followed by a space), a PICTURE, a literal's text and a name keep theirs. Without the clause nothing changes."""
+    body = ("01  B PIC 9(7)V99 VALUE 1000,00.", "01  E PIC ZZZ.ZZ9,99.", "01  F PIC 99,99 VALUE '1,5'.",
+            "01  T.", "    05 W PIC 9V9 OCCURS 3.", "PROCEDURE DIVISION.", "    MOVE 0,5 TO W (2)",
+            "    COMPUTE B = -12,5 * B, 3", "    CALL 'X' USING A-1,5 B", "    GOBACK.")  # fmt: skip
+    got = [ln.text for ln in SRC.comma_literals(_dpc(*body))][8:]
+    assert got == ["01  B PIC 9(7)V99 VALUE 1000.00.", "01  E PIC ZZZ.ZZ9,99.", "01  F PIC 99,99 VALUE '1,5'.",
+                   "01  T.", "    05 W PIC 9V9 OCCURS 3.", "PROCEDURE DIVISION.", "    MOVE 0.5 TO W (2)",
+                   "    COMPUTE B = -12.5 * B, 3", "    CALL 'X' USING A-1,5 B", "    GOBACK."]  # fmt: skip
+    assert all(len(a.text) == len(b.text) for a, b in zip(SRC.comma_literals(_dpc(*body)), _dpc(*body)))
+    plain = _lines(*body)
+    assert SRC.comma_literals(plain) is plain and not SRC.decimal_comma(plain)
+
+
+def test_decimal_point_is_comma_is_read_by_layout_and_statements():
+    """#4462 (estate-crucible ZINSBER, its names in ASCII): VALUE 1000,00 is 1000.00 and `MOVE 0,5` moves 0.5; an
+    edited PICTURE's `,` is its decimal point (scale), its `.` an insertion character."""
+    pytest.importorskip("tree_sitter_language_pack")
+    from decimal import Decimal
+
+    from gitgalaxy.tools.cobol_to_java.det import layout as L
+    from gitgalaxy.tools.cobol_to_java.det import stmt as ST
+
+    lines = _dpc("01  BETRAG PIC 9(7)V99 VALUE 1000,00.", "01  ERGEBNIS PIC ZZZ.ZZ9,99.", "01  T.",
+                 "    05 W PIC 9V9 OCCURS 3.", "PROCEDURE DIVISION.", "    MOVE 0,5 TO W (2)", "    GOBACK.")  # fmt: skip
+    recs = {r.name: r for r in L.parse(lines)}
+    assert recs["BETRAG"].values == [("num", Decimal("1000.00"))] and L.image(recs["BETRAG"]) == b"000100000"
+    e = recs["ERGEBNIS"]
+    assert (e.category, e.size, e.scale, e.decimal_comma) == ("NUMERIC-EDITED", 10, 2, True)
+    move = ST.parse(lines).paragraphs[0].body[0]
+    assert move.kind == "MOVE" and "0.5" in str(move.data), move.data
 
 
 def test_national_text_in_a_comment_or_a_latin1_literal_is_read():

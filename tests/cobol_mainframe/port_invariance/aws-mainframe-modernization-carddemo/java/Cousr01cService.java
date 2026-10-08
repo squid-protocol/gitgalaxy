@@ -610,11 +610,22 @@ public class Cousr01cService {
                 caBack = () -> fill_CarddemoCommarea(x, s_DFHCOMMAREA, 0);
                 calen = cx(task, 160);
             }
+            s_DFHCOMMAREA.beyond = null;
+            if (ca instanceof byte[] cb0) {
+                byte[] cb = DetCics.commareaIn(cb0, CS);
+                System.arraycopy(cb, 0, s_DFHCOMMAREA.bytes, 0, Math.min(cb.length, s_DFHCOMMAREA.bytes.length));
+                if (cb.length > s_DFHCOMMAREA.bytes.length) {
+                    s_DFHCOMMAREA.beyond = java.util.Arrays.copyOfRange(cb, s_DFHCOMMAREA.bytes.length, cb.length);
+                }
+                calen = cx(task, cb.length);
+            }
             byte[] raw = task.linkArea();
             if (raw != null) {
                 System.arraycopy(raw, 0, s_DFHCOMMAREA.bytes, 0, Math.min(raw.length, s_DFHCOMMAREA.bytes.length));
+                int keep = s_DFHCOMMAREA.bytes.length;
+                s_DFHCOMMAREA.beyond = raw.length > keep ? java.util.Arrays.copyOfRange(raw, keep, raw.length) : null;
                 Runnable typed = caBack;
-                caBack = () -> { typed.run(); System.arraycopy(s_DFHCOMMAREA.bytes, 0, raw, 0, Math.min(raw.length, s_DFHCOMMAREA.bytes.length)); };
+                caBack = () -> { typed.run(); System.arraycopy(s_DFHCOMMAREA.bytes, 0, raw, 0, Math.min(raw.length, keep)); if (s_DFHCOMMAREA.beyond != null) { System.arraycopy(s_DFHCOMMAREA.beyond, 0, raw, keep, raw.length - keep); } };
             }
             byte[] caWhole = null;
             if (task.exactCommarea() && calen < s_DFHCOMMAREA.bytes.length) {
@@ -914,7 +925,7 @@ public class Cousr01cService {
         String xr1 = task.xctl(Cobol.text(f14_CDEMO_TO_PROGRAM, CS).strip(), out_CarddemoCommarea(f9_CARDDEMO_COMMAREA.storage(), f9_CARDDEMO_COMMAREA.offset()));
         if ("NORMAL".equals(xr1)) throw new Goback();
         Cobol.store(f368_EIBRESP, BigDecimal.valueOf(DetCics.resp(xr1)), false, CS);
-        Cobol.store(f369_EIBRESP2, BigDecimal.valueOf(0), false, CS);
+        Cobol.store(f369_EIBRESP2, BigDecimal.valueOf(DetCics.xctlResp2(xr1)), false, CS);
         if (DetCics.resp(xr1) != 0) {
             int to = condition(DetCics.condition(DetCics.resp(xr1)));
             if (to >= 0) return GOTO | to;

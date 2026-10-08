@@ -366,11 +366,22 @@ public class UpdcustService {
                 caBack = () -> fill_UpdcustDfhcommarea(x, s_DFHCOMMAREA, 0);
                 calen = cx(task, 261);
             }
+            s_DFHCOMMAREA.beyond = null;
+            if (ca instanceof byte[] cb0) {
+                byte[] cb = DetCics.commareaIn(cb0, CS);
+                System.arraycopy(cb, 0, s_DFHCOMMAREA.bytes, 0, Math.min(cb.length, s_DFHCOMMAREA.bytes.length));
+                if (cb.length > s_DFHCOMMAREA.bytes.length) {
+                    s_DFHCOMMAREA.beyond = java.util.Arrays.copyOfRange(cb, s_DFHCOMMAREA.bytes.length, cb.length);
+                }
+                calen = cx(task, cb.length);
+            }
             byte[] raw = task.linkArea();
             if (raw != null) {
                 System.arraycopy(raw, 0, s_DFHCOMMAREA.bytes, 0, Math.min(raw.length, s_DFHCOMMAREA.bytes.length));
+                int keep = s_DFHCOMMAREA.bytes.length;
+                s_DFHCOMMAREA.beyond = raw.length > keep ? java.util.Arrays.copyOfRange(raw, keep, raw.length) : null;
                 Runnable typed = caBack;
-                caBack = () -> { typed.run(); System.arraycopy(s_DFHCOMMAREA.bytes, 0, raw, 0, Math.min(raw.length, s_DFHCOMMAREA.bytes.length)); };
+                caBack = () -> { typed.run(); System.arraycopy(s_DFHCOMMAREA.bytes, 0, raw, 0, Math.min(raw.length, keep)); if (s_DFHCOMMAREA.beyond != null) { System.arraycopy(s_DFHCOMMAREA.beyond, 0, raw, keep, raw.length - keep); } };
             }
             byte[] caWhole = null;
             if (task.exactCommarea() && calen < s_DFHCOMMAREA.bytes.length) {

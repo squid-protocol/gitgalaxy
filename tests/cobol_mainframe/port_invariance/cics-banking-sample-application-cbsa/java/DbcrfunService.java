@@ -501,11 +501,22 @@ public class DbcrfunService {
                 caBack = () -> fill_AbndprocDfhcommarea(x, s_DFHCOMMAREA, 0);
                 calen = cx(task, 681);
             }
+            s_DFHCOMMAREA.beyond = null;
+            if (ca instanceof byte[] cb0) {
+                byte[] cb = DetCics.commareaIn(cb0, CS);
+                System.arraycopy(cb, 0, s_DFHCOMMAREA.bytes, 0, Math.min(cb.length, s_DFHCOMMAREA.bytes.length));
+                if (cb.length > s_DFHCOMMAREA.bytes.length) {
+                    s_DFHCOMMAREA.beyond = java.util.Arrays.copyOfRange(cb, s_DFHCOMMAREA.bytes.length, cb.length);
+                }
+                calen = cx(task, cb.length);
+            }
             byte[] raw = task.linkArea();
             if (raw != null) {
                 System.arraycopy(raw, 0, s_DFHCOMMAREA.bytes, 0, Math.min(raw.length, s_DFHCOMMAREA.bytes.length));
+                int keep = s_DFHCOMMAREA.bytes.length;
+                s_DFHCOMMAREA.beyond = raw.length > keep ? java.util.Arrays.copyOfRange(raw, keep, raw.length) : null;
                 Runnable typed = caBack;
-                caBack = () -> { typed.run(); System.arraycopy(s_DFHCOMMAREA.bytes, 0, raw, 0, Math.min(raw.length, s_DFHCOMMAREA.bytes.length)); };
+                caBack = () -> { typed.run(); System.arraycopy(s_DFHCOMMAREA.bytes, 0, raw, 0, Math.min(raw.length, keep)); if (s_DFHCOMMAREA.beyond != null) { System.arraycopy(s_DFHCOMMAREA.beyond, 0, raw, keep, raw.length - keep); } };
             }
             byte[] caWhole = null;
             if (task.exactCommarea() && calen < s_DFHCOMMAREA.bytes.length) {
@@ -988,7 +999,7 @@ public class DbcrfunService {
                 if (exit11 != null) return GOTO | paragraph(exit11);
                 if (task.ended()) throw abended();
                 Cobol.store(f255_EIBRESP, BigDecimal.valueOf(DetCics.resp(lr8)), false, CS);
-                Cobol.store(f256_EIBRESP2, BigDecimal.valueOf(0), false, CS);
+                Cobol.store(f256_EIBRESP2, BigDecimal.valueOf(DetCics.linkResp2(lr8)), false, CS);
                 if (DetCics.resp(lr8) != 0) {
                     int to = condition(DetCics.condition(DetCics.resp(lr8)));
                     if (to >= 0) return GOTO | to;
@@ -1157,7 +1168,7 @@ public class DbcrfunService {
                 if (exit16 != null) return GOTO | paragraph(exit16);
                 if (task.ended()) throw abended();
                 Cobol.store(f255_EIBRESP, BigDecimal.valueOf(DetCics.resp(lr13)), false, CS);
-                Cobol.store(f256_EIBRESP2, BigDecimal.valueOf(0), false, CS);
+                Cobol.store(f256_EIBRESP2, BigDecimal.valueOf(DetCics.linkResp2(lr13)), false, CS);
                 if (DetCics.resp(lr13) != 0) {
                     int to = condition(DetCics.condition(DetCics.resp(lr13)));
                     if (to >= 0) return GOTO | to;

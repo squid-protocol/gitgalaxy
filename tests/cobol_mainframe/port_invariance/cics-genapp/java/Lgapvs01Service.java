@@ -446,11 +446,22 @@ public class Lgapvs01Service {
                 caBack = () -> fill_LgstsqDfhcommarea(x, s_DFHCOMMAREA, 0);
                 calen = cx(task, 99);
             }
+            s_DFHCOMMAREA.beyond = null;
+            if (ca instanceof byte[] cb0) {
+                byte[] cb = DetCics.commareaIn(cb0, CS);
+                System.arraycopy(cb, 0, s_DFHCOMMAREA.bytes, 0, Math.min(cb.length, s_DFHCOMMAREA.bytes.length));
+                if (cb.length > s_DFHCOMMAREA.bytes.length) {
+                    s_DFHCOMMAREA.beyond = java.util.Arrays.copyOfRange(cb, s_DFHCOMMAREA.bytes.length, cb.length);
+                }
+                calen = cx(task, cb.length);
+            }
             byte[] raw = task.linkArea();
             if (raw != null) {
                 System.arraycopy(raw, 0, s_DFHCOMMAREA.bytes, 0, Math.min(raw.length, s_DFHCOMMAREA.bytes.length));
+                int keep = s_DFHCOMMAREA.bytes.length;
+                s_DFHCOMMAREA.beyond = raw.length > keep ? java.util.Arrays.copyOfRange(raw, keep, raw.length) : null;
                 Runnable typed = caBack;
-                caBack = () -> { typed.run(); System.arraycopy(s_DFHCOMMAREA.bytes, 0, raw, 0, Math.min(raw.length, s_DFHCOMMAREA.bytes.length)); };
+                caBack = () -> { typed.run(); System.arraycopy(s_DFHCOMMAREA.bytes, 0, raw, 0, Math.min(raw.length, keep)); if (s_DFHCOMMAREA.beyond != null) { System.arraycopy(s_DFHCOMMAREA.beyond, 0, raw, keep, raw.length - keep); } };
             }
             byte[] caWhole = null;
             if (task.exactCommarea() && calen < s_DFHCOMMAREA.bytes.length) {
@@ -669,7 +680,7 @@ public class Lgapvs01Service {
         // Move WS-RESP2 To EM-Resp2RC
         Cobol.move(f2_WS_RESP2, f51_EM_RESP2RC, CS);
         // EXEC CICS LINK PROGRAM('LGSTSQ') COMMAREA(ERROR-MSG) LENGTH(LENGTH OF ERROR-MSG) END-EXEC
-        Storage cw4 = Cobol.commarea(f37_ERROR_MSG, 99);
+        Storage cw4 = Cobol.commarea(f37_ERROR_MSG, Math.max(99, Math.min(BigDecimal.valueOf(101).intValue(), 32763)));
         LgstsqDfhcommarea ca3 = out_LgstsqDfhcommarea(cw4, 0);
         String lr2 = task.link("LGSTSQ".strip(), ca3, BigDecimal.valueOf(101).intValue(), cw4.bytes);
         if ("NORMAL".equals(lr2)) { in_LgstsqDfhcommarea(ca3, cw4, 0); Cobol.commareaBack(cw4, f37_ERROR_MSG); }
@@ -677,7 +688,7 @@ public class Lgapvs01Service {
         if (exit5 != null) return GOTO | paragraph(exit5);
         if (task.ended()) throw abended();
         Cobol.store(f171_EIBRESP, BigDecimal.valueOf(DetCics.resp(lr2)), false, CS);
-        Cobol.store(f172_EIBRESP2, BigDecimal.valueOf(0), false, CS);
+        Cobol.store(f172_EIBRESP2, BigDecimal.valueOf(DetCics.linkResp2(lr2)), false, CS);
         if (DetCics.resp(lr2) != 0) {
             int to = condition(DetCics.condition(DetCics.resp(lr2)));
             if (to >= 0) return GOTO | to;
@@ -697,7 +708,7 @@ public class Lgapvs01Service {
                 if (exit9 != null) return GOTO | paragraph(exit9);
                 if (task.ended()) throw abended();
                 Cobol.store(f171_EIBRESP, BigDecimal.valueOf(DetCics.resp(lr6)), false, CS);
-                Cobol.store(f172_EIBRESP2, BigDecimal.valueOf(0), false, CS);
+                Cobol.store(f172_EIBRESP2, BigDecimal.valueOf(DetCics.linkResp2(lr6)), false, CS);
                 if (DetCics.resp(lr6) != 0) {
                     int to = condition(DetCics.condition(DetCics.resp(lr6)));
                     if (to >= 0) return GOTO | to;
@@ -714,7 +725,7 @@ public class Lgapvs01Service {
                 if (exit13 != null) return GOTO | paragraph(exit13);
                 if (task.ended()) throw abended();
                 Cobol.store(f171_EIBRESP, BigDecimal.valueOf(DetCics.resp(lr10)), false, CS);
-                Cobol.store(f172_EIBRESP2, BigDecimal.valueOf(0), false, CS);
+                Cobol.store(f172_EIBRESP2, BigDecimal.valueOf(DetCics.linkResp2(lr10)), false, CS);
                 if (DetCics.resp(lr10) != 0) {
                     int to = condition(DetCics.condition(DetCics.resp(lr10)));
                     if (to >= 0) return GOTO | to;

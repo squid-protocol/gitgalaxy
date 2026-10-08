@@ -19,7 +19,7 @@ above the floor. Measured 2026-10-02 with the scanner after #4163 and #4164:
 
 | Reading (file_data) | Extraction key | ρ, 49 pairs | Floor | ρ, 12 committed pairs | Floor |
 |---|---|---|---|---|---|
-| `function_count` (paragraphs, methods) | `functions` | 0.937 | 0.85 | 0.778 | 0.70 |
+| `function_count` (paragraphs, methods) | `functions` | 0.937 | 0.85 | 1.000 | 0.80 |
 | `struct_branch` | `branch` | 0.855 | 0.75 | 0.784 | 0.65 |
 | `state_flux` | `state_mutation` | 0.762 | 0.65 | 0.708 | 0.55 |
 | `arch_io` | `io` | 0.871 | 0.75 | 0.958 | 0.80 |
@@ -30,10 +30,15 @@ literal (JDBC `?` placeholders, SQL `:host` variables) and a ternary twice (#417
 "Literals"). Before that fix it read 0.826 on the 49 pairs and 0.745 on the 12; the other four readings did not
 move.
 
-The 12-pair `function_count` row was re-measured on 2026-10-07 after the fixture was regenerated with the current
-translator (#4444): 0.912 became 0.778, so its floor went from 0.80 to 0.70. The ports gained methods with no COBOL
-paragraph behind them (named 88-condition methods #4202, `abended()` #4541, `caWhole()` #4642; fewer `executeX()`
-#4342); no scanner reading changed. The 49-pair figure above has not been re-measured.
+What `function_count` counts (#4444). On the COBOL side, the paragraphs and sections the scanner extracts. On the
+Java side, only the methods that are a COBOL paragraph: those the det translator documents `/** PARAGRAPH-NAME. */`
+(det/program.py), including the synthetic `(MAIN)` for code before the first paragraph. The helpers the translator
+generates have no paragraph behind them and are not counted: named 88-condition methods (`/** 88 NAME of PARENT. */`,
+#4202), `abended()` (#4541), `caWhole()` (#4642), `initialState()` (#4218), the entry points and dispatcher; they carry
+a prose comment or none, so a paragraph is told apart by its comment, not by a list of names. Counting every method
+had moved the 12-pair rho from 0.912 to 0.778 (CSUTLDTC: 22 methods against 3 paragraphs) with no scanner change; the
+floor stays 0.80 and the measurement now reads 1.000 (every pair's method count equals its paragraph count). The
+49-pair figure above has not been re-measured.
 
 Each floor is the measurement less a margin of 0.08 to 0.15. On 12 pairs one pair changing places moves ρ by
 about 0.05 to 0.1. Every fixture floor is above 0.50, the one-sided p < 0.05 critical value for 12 pairs, so a
@@ -41,8 +46,8 @@ passing fixture still shows a positive rank agreement that chance would rarely p
 
 Two facts must also hold for every pair:
 
-- the port has at least as many methods as the COBOL has paragraphs and sections (the det port emits one method
-  per paragraph and adds its own);
+- the port has at least as many paragraph methods as the COBOL has paragraphs and sections (the det port emits one
+  method per paragraph);
 - the port does file I/O exactly when the COBOL does (`arch_io` zero on both sides or on neither).
 
 ## Readings a port may change

@@ -328,30 +328,30 @@ public class CsutldtcService {
     }
 
     /** 88 FC-INVALID-DATE of FEEDBACK-TOKEN-VALUE. */
-    private boolean isFcInvalidDate() { return Cobol.compare(f27_FEEDBACK_TOKEN_VALUE, "\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000", CS) == 0; }
+    private boolean isFcInvalidDate() { return Cobol.compare(f27_FEEDBACK_TOKEN_VALUE, "\000\000\000\000\000\000\000\000", CS) == 0; }
 
     /** 88 FC-INSUFFICIENT-DATA of FEEDBACK-TOKEN-VALUE. */
-    private boolean isFcInsufficientData() { return Cobol.compare(f27_FEEDBACK_TOKEN_VALUE, "\u0000\u0003\u0009\u00cbY\u00c3\u00c5\u00c5", CS) == 0; }
+    private boolean isFcInsufficientData() { return Cobol.compare(f27_FEEDBACK_TOKEN_VALUE, "\000\003\011\313Y\303\305\305", CS) == 0; }
 
     /** 88 FC-BAD-DATE-VALUE of FEEDBACK-TOKEN-VALUE. */
-    private boolean isFcBadDateValue() { return Cobol.compare(f27_FEEDBACK_TOKEN_VALUE, "\u0000\u0003\u0009\u00ccY\u00c3\u00c5\u00c5", CS) == 0; }
+    private boolean isFcBadDateValue() { return Cobol.compare(f27_FEEDBACK_TOKEN_VALUE, "\000\003\011\314Y\303\305\305", CS) == 0; }
 
     /** 88 FC-INVALID-ERA of FEEDBACK-TOKEN-VALUE. */
-    private boolean isFcInvalidEra() { return Cobol.compare(f27_FEEDBACK_TOKEN_VALUE, "\u0000\u0003\u0009\u00cdY\u00c3\u00c5\u00c5", CS) == 0; }
+    private boolean isFcInvalidEra() { return Cobol.compare(f27_FEEDBACK_TOKEN_VALUE, "\000\003\011\315Y\303\305\305", CS) == 0; }
 
     /** 88 FC-UNSUPP-RANGE of FEEDBACK-TOKEN-VALUE. */
-    private boolean isFcUnsuppRange() { return Cobol.compare(f27_FEEDBACK_TOKEN_VALUE, "\u0000\u0003\u0009\u00d1Y\u00c3\u00c5\u00c5", CS) == 0; }
+    private boolean isFcUnsuppRange() { return Cobol.compare(f27_FEEDBACK_TOKEN_VALUE, "\000\003\011\321Y\303\305\305", CS) == 0; }
 
     /** 88 FC-INVALID-MONTH of FEEDBACK-TOKEN-VALUE. */
-    private boolean isFcInvalidMonth() { return Cobol.compare(f27_FEEDBACK_TOKEN_VALUE, "\u0000\u0003\u0009\u00d5Y\u00c3\u00c5\u00c5", CS) == 0; }
+    private boolean isFcInvalidMonth() { return Cobol.compare(f27_FEEDBACK_TOKEN_VALUE, "\000\003\011\325Y\303\305\305", CS) == 0; }
 
     /** 88 FC-BAD-PIC-STRING of FEEDBACK-TOKEN-VALUE. */
-    private boolean isFcBadPicString() { return Cobol.compare(f27_FEEDBACK_TOKEN_VALUE, "\u0000\u0003\u0009\u00d6Y\u00c3\u00c5\u00c5", CS) == 0; }
+    private boolean isFcBadPicString() { return Cobol.compare(f27_FEEDBACK_TOKEN_VALUE, "\000\003\011\326Y\303\305\305", CS) == 0; }
 
     /** 88 FC-NON-NUMERIC-DATA of FEEDBACK-TOKEN-VALUE. */
-    private boolean isFcNonNumericData() { return Cobol.compare(f27_FEEDBACK_TOKEN_VALUE, "\u0000\u0003\u0009\u00d8Y\u00c3\u00c5\u00c5", CS) == 0; }
+    private boolean isFcNonNumericData() { return Cobol.compare(f27_FEEDBACK_TOKEN_VALUE, "\000\003\011\330Y\303\305\305", CS) == 0; }
 
     /** 88 FC-YEAR-IN-ERA-ZERO of FEEDBACK-TOKEN-VALUE. */
-    private boolean isFcYearInEraZero() { return Cobol.compare(f27_FEEDBACK_TOKEN_VALUE, "\u0000\u0003\u0009\u00d9Y\u00c3\u00c5\u00c5", CS) == 0; }
+    private boolean isFcYearInEraZero() { return Cobol.compare(f27_FEEDBACK_TOKEN_VALUE, "\000\003\011\331Y\303\305\305", CS) == 0; }
 
 }

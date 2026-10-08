@@ -524,11 +524,22 @@ public class InqaccService {
                 caBack = () -> fill_AbndprocDfhcommarea(x, s_DFHCOMMAREA, 0);
                 calen = cx(task, 681);
             }
+            s_DFHCOMMAREA.beyond = null;
+            if (ca instanceof byte[] cb0) {
+                byte[] cb = DetCics.commareaIn(cb0, CS);
+                System.arraycopy(cb, 0, s_DFHCOMMAREA.bytes, 0, Math.min(cb.length, s_DFHCOMMAREA.bytes.length));
+                if (cb.length > s_DFHCOMMAREA.bytes.length) {
+                    s_DFHCOMMAREA.beyond = java.util.Arrays.copyOfRange(cb, s_DFHCOMMAREA.bytes.length, cb.length);
+                }
+                calen = cx(task, cb.length);
+            }
             byte[] raw = task.linkArea();
             if (raw != null) {
                 System.arraycopy(raw, 0, s_DFHCOMMAREA.bytes, 0, Math.min(raw.length, s_DFHCOMMAREA.bytes.length));
+                int keep = s_DFHCOMMAREA.bytes.length;
+                s_DFHCOMMAREA.beyond = raw.length > keep ? java.util.Arrays.copyOfRange(raw, keep, raw.length) : null;
                 Runnable typed = caBack;
-                caBack = () -> { typed.run(); System.arraycopy(s_DFHCOMMAREA.bytes, 0, raw, 0, Math.min(raw.length, s_DFHCOMMAREA.bytes.length)); };
+                caBack = () -> { typed.run(); System.arraycopy(s_DFHCOMMAREA.bytes, 0, raw, 0, Math.min(raw.length, keep)); if (s_DFHCOMMAREA.beyond != null) { System.arraycopy(s_DFHCOMMAREA.beyond, 0, raw, keep, raw.length - keep); } };
             }
             byte[] caWhole = null;
             if (task.exactCommarea() && calen < s_DFHCOMMAREA.bytes.length) {
@@ -841,7 +852,7 @@ public class InqaccService {
             if (exit5 != null) return GOTO | paragraph(exit5);
             if (task.ended()) throw abended();
             Cobol.store(f207_EIBRESP, BigDecimal.valueOf(DetCics.resp(lr2)), false, CS);
-            Cobol.store(f208_EIBRESP2, BigDecimal.valueOf(0), false, CS);
+            Cobol.store(f208_EIBRESP2, BigDecimal.valueOf(DetCics.linkResp2(lr2)), false, CS);
             if (DetCics.resp(lr2) != 0) {
                 int to = condition(DetCics.condition(DetCics.resp(lr2)));
                 if (to >= 0) return GOTO | to;
@@ -911,7 +922,7 @@ public class InqaccService {
             if (exit11 != null) return GOTO | paragraph(exit11);
             if (task.ended()) throw abended();
             Cobol.store(f207_EIBRESP, BigDecimal.valueOf(DetCics.resp(lr8)), false, CS);
-            Cobol.store(f208_EIBRESP2, BigDecimal.valueOf(0), false, CS);
+            Cobol.store(f208_EIBRESP2, BigDecimal.valueOf(DetCics.linkResp2(lr8)), false, CS);
             if (DetCics.resp(lr8) != 0) {
                 int to = condition(DetCics.condition(DetCics.resp(lr8)));
                 if (to >= 0) return GOTO | to;
@@ -1023,7 +1034,7 @@ public class InqaccService {
             if (exit18 != null) return GOTO | paragraph(exit18);
             if (task.ended()) throw abended();
             Cobol.store(f207_EIBRESP, BigDecimal.valueOf(DetCics.resp(lr15)), false, CS);
-            Cobol.store(f208_EIBRESP2, BigDecimal.valueOf(0), false, CS);
+            Cobol.store(f208_EIBRESP2, BigDecimal.valueOf(DetCics.linkResp2(lr15)), false, CS);
             if (DetCics.resp(lr15) != 0) {
                 int to = condition(DetCics.condition(DetCics.resp(lr15)));
                 if (to >= 0) return GOTO | to;
@@ -1224,7 +1235,7 @@ public class InqaccService {
                 if (exit23 != null) return GOTO | paragraph(exit23);
                 if (task.ended()) throw abended();
                 Cobol.store(f207_EIBRESP, BigDecimal.valueOf(DetCics.resp(lr20)), false, CS);
-                Cobol.store(f208_EIBRESP2, BigDecimal.valueOf(0), false, CS);
+                Cobol.store(f208_EIBRESP2, BigDecimal.valueOf(DetCics.linkResp2(lr20)), false, CS);
                 if (DetCics.resp(lr20) != 0) {
                     int to = condition(DetCics.condition(DetCics.resp(lr20)));
                     if (to >= 0) return GOTO | to;
@@ -1293,7 +1304,7 @@ public class InqaccService {
             if (exit28 != null) return GOTO | paragraph(exit28);
             if (task.ended()) throw abended();
             Cobol.store(f207_EIBRESP, BigDecimal.valueOf(DetCics.resp(lr25)), false, CS);
-            Cobol.store(f208_EIBRESP2, BigDecimal.valueOf(0), false, CS);
+            Cobol.store(f208_EIBRESP2, BigDecimal.valueOf(DetCics.linkResp2(lr25)), false, CS);
             if (DetCics.resp(lr25) != 0) {
                 int to = condition(DetCics.condition(DetCics.resp(lr25)));
                 if (to >= 0) return GOTO | to;
@@ -1419,7 +1430,7 @@ public class InqaccService {
             if (exit35 != null) return GOTO | paragraph(exit35);
             if (task.ended()) throw abended();
             Cobol.store(f207_EIBRESP, BigDecimal.valueOf(DetCics.resp(lr32)), false, CS);
-            Cobol.store(f208_EIBRESP2, BigDecimal.valueOf(0), false, CS);
+            Cobol.store(f208_EIBRESP2, BigDecimal.valueOf(DetCics.linkResp2(lr32)), false, CS);
             if (DetCics.resp(lr32) != 0) {
                 int to = condition(DetCics.condition(DetCics.resp(lr32)));
                 if (to >= 0) return GOTO | to;

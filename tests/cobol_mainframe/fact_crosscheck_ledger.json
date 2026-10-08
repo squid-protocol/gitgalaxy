@@ -28,9 +28,9 @@
    "summary": "POINTER is 4 bytes on z/OS (the engine, the keys) and 8 in the translator's storage, GnuCOBOL on x86-64 (oracle_assumptions.md C9): every field after one moves by 4. Both right for their platform."
   },
   "translator-copy-program-member": {
-   "side": "translator",
+   "side": "definitional",
    "issue": 4460,
-   "summary": "COPY SHPRATE / COPY ORDPRICE find only a program source. Before #4468, det.source spliced that whole program in. Since #4468 the engine's gap (no declared library holds the member) refuses the program by name instead (CopyUnresolved)."
+   "summary": "COPY SHPRATE / COPY ORDPRICE: by design no copy library of the estate holds the member, only a program source of that name (estate-crucible horror H-0053; its key: 'no compiler finds it'). The engine records the gap and the translator refuses the program by name (CopyUnresolved, #4468; before #4468 det.source spliced the program in, #4460). A correct refusal on both sides."
   },
   "translator-refuses-idms": {
    "side": "translator",
@@ -40,7 +40,7 @@
   "translator-refuses-national-text": {
    "side": "translator",
    "issue": 4462,
-   "summary": "Refused by name since #4462 (source.unmodelled), never laid out wrong: national / DBCS text (Kanji names and literals, PIC G, ideographic spaces: estate-crucible KYUY, decoded in its declared cp930 / shift_jis or UTF-8; the translator lays records out one byte a character), and DECIMAL-POINT IS COMMA (DEUT ZINSBER: 1000,00 / 0,5 are numbers). Modelling either is a translator feature."
+   "summary": "Refused by name since #4462 (source.unmodelled), never laid out wrong: national / DBCS text (Kanji names and literals, PIC G, ideographic spaces: estate-crucible KYUY, decoded in its declared cp930 / shift_jis or UTF-8; the translator lays records out one byte a character; #4272), and a single-byte national letter in a data name (DEUT ZINSBER's GEBÜHR / BETRÄGE in cp273: the grammar reads ASCII words only; #4664). ZINSBER's DECIMAL-POINT IS COMMA is modelled since #4462 (test_det_programs DPCOMMA)."
   },
   "translator-refuses-source-defect": {
    "side": "definitional",
@@ -331,7 +331,7 @@
   "dsf :: unit_extents | src/GML/PLUKKFRN.cobol | translator | (procedure division) L73-75": "engine-main-line-no-extent",
   "dsf :: value | src/GML/FO04D1X1.cobol | engine | L106 I2 = 001": "numeric-value-spelling",
   "dsf :: value | src/GML/FO04D1X1.cobol | translator | L106 I2 = 1": "numeric-value-spelling",
-  "estate-crucible :: status | apps/DEUT/cobol/ZINSBER.cbl | engine | translator refused: layout: LayoutError: ZINSBER.cbl:12: DECIMAL-POINT IS COMMA is not modelled; procedure: ExprError: ZINSBER.cbl:12: DECIMAL-POINT IS COMMA is not modelled": "translator-refuses-national-text",
+  "estate-crucible :: status | apps/DEUT/cobol/ZINSBER.cbl | engine | translator refused: layout: LayoutError: ZINSSATZ.cpy:3: the name GEBÜHR holds a national letter: the COBOL grammar reads ASCII words only; procedure: ExprError: ZINSSATZ.cpy:3: the name GEBÜHR holds a national letter: the COBOL grammar reads ASCII words only": "translator-refuses-national-text",
   "estate-crucible :: status | apps/KYUY/cobol/KYUYJP.cbl | engine | translator refused: layout: LayoutError: KYUYJP.cbl:2: national / DBCS text ('給', U+7D66) is not modelled: the translator reads a single-byte code page; procedure: ExprError: KYUYJP.cbl:2: national / DBCS text ('給', U+7D66) is not modelled: the translator reads a single-byte code page": "translator-refuses-national-text",
   "estate-crucible :: status | apps/KYUY/cobol/KYUYO01.cbl | engine | translator refused: layout: LayoutError: KYUYO01.cbl:10: national / DBCS text ('処', U+51E6) is not modelled: the translator reads a single-byte code page; procedure: ExprError: KYUYO01.cbl:10: national / DBCS text ('処', U+51E6) is not modelled: the translator reads a single-byte code page": "translator-refuses-national-text",
   "estate-crucible :: status | apps/KYUY/cobol/KYUYO02.cbl | engine | translator refused: layout: LayoutError: KYUYO02.cbl:8: national / DBCS text ('賞', U+8CDE) is not modelled: the translator reads a single-byte code page; procedure: ExprError: KYUYO02.cbl:8: national / DBCS text ('賞', U+8CDE) is not modelled: the translator reads a single-byte code page": "translator-refuses-national-text",

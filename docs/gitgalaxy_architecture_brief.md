@@ -15,7 +15,7 @@
 > XGBoost Structural Signatures model found no malicious artifacts.
 
 ## 1. EXECUTIVE SUMMARY
-- **Scope:** 1365 analyzed artifact(s), 268868 LOC.
+- **Scope:** 1400 analyzed artifact(s), 273943 LOC.
 - **Load-bearing artifact:** `gitgalaxy/core/detector.py` -- 105 in-repo importer(s) depend on it. Changes here propagate furthest.
 - **Top orchestrator:** `gitgalaxy/galaxyscope.py` -- pulls in 69 dependencies, the widest assembly point in the scan.
 - **Heaviest artifact:** `gitgalaxy/core/detector.py` at magnitude 10971.2 (structural weight, not risk).
@@ -39,38 +39,38 @@
 ## 3. MACRO STATE
 | Metric | Value |
 |---|---|
-| Total Artifacts | 3897 |
-| Analyzed Artifacts (Scanned) | 1365 |
-| Excluded Artifacts (Unparsable data, binaries, unsupported formats) | 2532 |
-| Total LOC | 268868 |
-| Volatility Index | 0.008 |
-| % Scanned of codebase = | 35.0% |
+| Total Artifacts | 4095 |
+| Analyzed Artifacts (Scanned) | 1400 |
+| Excluded Artifacts (Unparsable data, binaries, unsupported formats) | 2695 |
+| Total LOC | 273943 |
+| Volatility Index | 0.007 |
+| % Scanned of codebase = | 34.2% |
 | Dominant Lang | PYTHON |
 
 ## 3.5 MACRO-NETWORK TOPOLOGY (Resilience & Coupling)
 | Metric | Value | Interpretation |
 |---|---|---|
-| Modularity | 0.7406 | High = Clean micro-boundaries. Low = Spaghetti coupling. |
-| Assortativity | -0.1907 | Positive = Resilient core. Negative = Fragile single-points-of-failure. |
+| Modularity | 0.7381 | High = Clean micro-boundaries. Low = Spaghetti coupling. |
+| Assortativity | -0.1894 | Positive = Resilient core. Negative = Fragile single-points-of-failure. |
 | Cyclic Density | 1.4% | % of files trapped in dependency loops (Static Friction). |
-| Avg Path Length | 3.1623 | Mean import hops from a file to each file it transitively depends on. Higher = Longer dependency chains. |
-| Articulation Pts | 147 | Number of single files that, if removed, shatter the network. |
+| Avg Path Length | 3.1868 | Mean import hops from a file to each file it transitively depends on. Higher = Longer dependency chains. |
+| Articulation Pts | 152 | Number of single files that, if removed, shatter the network. |
 
 ## 4. COMPOSITION
 | Lang | Files | LOC | Share |
 |---|---|---|---|
-| PYTHON | 929 | 215672 | 68.1% |
-| PLAINTEXT | 101 | 0 | 7.4% |
-| JAVA | 87 | 27102 | 6.4% |
-| COBOL | 83 | 12791 | 6.1% |
-| YAML | 54 | 4242 | 4.0% |
-| MARKDOWN | 45 | 0 | 3.3% |
+| PYTHON | 939 | 218781 | 67.1% |
+| PLAINTEXT | 112 | 0 | 8.0% |
+| COBOL | 93 | 13527 | 6.6% |
+| JAVA | 88 | 27328 | 6.3% |
+| YAML | 55 | 4332 | 3.9% |
+| MARKDOWN | 46 | 0 | 3.3% |
 | PLI | 10 | 1425 | 0.7% |
-| SHELL | 9 | 306 | 0.7% |
+| SHELL | 9 | 306 | 0.6% |
 | BMS | 8 | 1471 | 0.6% |
-| C | 8 | 2800 | 0.6% |
+| C | 8 | 2919 | 0.6% |
 | CSD | 7 | 1138 | 0.5% |
-| SQLITE | 6 | 839 | 0.4% |
+| SQLITE | 7 | 1634 | 0.5% |
 | JCL | 5 | 365 | 0.4% |
 | HLASM | 3 | 446 | 0.2% |
 | DB2_SQL | 3 | 94 | 0.2% |
@@ -82,36 +82,36 @@
 ## 4.1 SOURCE ENCODINGS
 | Encoding | Decode | Files |
 |---|---|---|
-| utf-8 | utf-8 | 1362 |
+| utf-8 | utf-8 | 1397 |
 | unknown | unknown | 3 |
 
 ## 4.5 REPOSITORY ECOSYSTEM BASELINE (GLOBAL ARCHITECTURE)
 > **Assigned Ecosystem Baseline:** `Hub-Coupled App`
-> **Architectural Drift Z-Score:** `2.069`
-> **Composition Archetype:** `Hub-Coupled App` (z +2.07; from the repo's file-archetype mix)
-> **File Composition:** Large Core Modules (2) 33%, Data / Markup / Trivial 18%, Large Core Modules (3) 13%, Declarative / Non-Code 10%, Generic / Templated Code Files 7%
+> **Architectural Drift Z-Score:** `2.085`
+> **Composition Archetype:** `Hub-Coupled App` (z +2.08; from the repo's file-archetype mix)
+> **File Composition:** Large Core Modules (2) 33%, Data / Markup / Trivial 18%, Large Core Modules (3) 12%, Declarative / Non-Code 10%, Generic / Templated Code Files 7%
 > **⚠️ UNIQUE INTERPRETATION:** This repository has a high Z-Score. While it maps closest to this archetype, its internal structure is a highly unique or hybrid interpretation of the pattern.
 
 ## 4.6 FILE ARCHETYPES & STATIC ASSETS
 ### Active Execution Logic (ML Clusters)
 | Archetype | Count | Repo % |
 |---|---|---|
-| Unclassified | 1216 | 89.1% |
+| Unclassified | 1239 | 88.5% |
 | Unknown | 3 | 0.2% |
 
 ### Inert Structural Mass (Static Categories)
 | Category | Count | Repo % |
 |---|---|---|
-| Static: Literature & Documentation | 146 | 10.7% |
+| Static: Literature & Documentation | 158 | 11.3% |
 
 ## 5. EXCLUDED ARTIFACTS (Unparsable or Shielded Files)
-*Total Excluded Artifacts: 2532*
+*Total Excluded Artifacts: 2695*
 
 **Composition by Extension & Reason:**
-- `.snap`: 693x Excluded (Unsupported Extension: '.snap'), 381x Unsupported Format (.snap)
-- `.json`: 713x Excluded (System Exclusion, Hidden Directory, or Dynamic Ignored Dir)
-- `.md`: 534x Excluded (System Exclusion, Hidden Directory, or Dynamic Ignored Dir), 1x Excluded (Machine-Generated Source Code Signature: 58 LOC), 1x Excluded (Machine-Generated Source Code Signature: 464 LOC)
-- `no_extension`: 75x Excluded (System Exclusion, Hidden Directory, or Dynamic Ignored Dir), 3x Unsupported Format (.undeterminable)
+- `.snap`: 777x Excluded (Unsupported Extension: '.snap'), 425x Unsupported Format (.snap)
+- `.json`: 730x Excluded (System Exclusion, Hidden Directory, or Dynamic Ignored Dir)
+- `.md`: 541x Excluded (System Exclusion, Hidden Directory, or Dynamic Ignored Dir), 1x Excluded (Machine-Generated Source Code Signature: 58 LOC), 1x Excluded (Machine-Generated Source Code Signature: 464 LOC)
+- `no_extension`: 85x Excluded (System Exclusion, Hidden Directory, or Dynamic Ignored Dir), 3x Unsupported Format (.undeterminable)
 - `.png`: 59x Excluded (Explicitly Denied Extension: '.png')
 - `.gif`: 17x Excluded (Explicitly Denied Extension: '.gif')
 - `.py`: 2x Excluded (System Exclusion, Hidden Directory, or Dynamic Ignored Dir), 1x Excluded (Machine-Generated Source Code Signature: 357 LOC), 1x Excluded (Saturation: Line 46 exceeds 500 chars)
@@ -127,16 +127,16 @@
 ## 6. STRUCTURAL SURFACE PROFILE (formerly Risk Exposure) ANALYSIS (0-100%)
 | Structural Surface Vector | Min | Max | Mean | Med | Mode |
 |---|---|---|---|---|---|
-| Complexity Load (formerly Cognitive Load Exposure) | 0.0 | 85.4 | 3.1 | 0.0 | 0.0 |
-| Guard Balance (formerly Error & Exception Exposure) | 0.0 | 100.0 | 5.5 | 0.0 | 0.0 |
+| Complexity Load (formerly Cognitive Load Exposure) | 0.0 | 85.4 | 3.0 | 0.0 | 0.0 |
+| Guard Balance (formerly Error & Exception Exposure) | 0.0 | 100.0 | 5.4 | 0.0 | 0.0 |
 | Debt Markers (formerly Tech Debt Exposure) | 0.0 | 97.1 | 0.4 | 0.0 | 0.0 |
-| Test Surface (formerly Testing Exposure) | 0.0 | 80.0 | 3.4 | 0.0 | 0.0 |
+| Test Surface (formerly Testing Exposure) | 0.0 | 80.0 | 3.3 | 0.0 | 0.0 |
 | Connectivity (formerly API Exposure) | 0.0 | 55.0 | 0.8 | 0.0 | 0.0 |
 | Concurrency Surface (formerly Concurrency Exposure) | 0.0 | 18.9 | 0.1 | 0.0 | 0.0 |
-| Mutation Surface (formerly State Flux Exposure) | 0.0 | 100.0 | 5.5 | 0.0 | 0.0 |
+| Mutation Surface (formerly State Flux Exposure) | 0.0 | 100.0 | 5.4 | 0.0 | 0.0 |
 | Dead Code Surface (formerly Commented Logic Exposure) | 0.0 | 25.3 | 0.1 | 0.0 | 0.0 |
-| Historical Stability (predictive layer, promotion pending #2987) (formerly Instability Exposure) | 0.0 | 2.6 | 0.0 | 0.0 | 0.0 |
-| Historical Churn (predictive layer, promotion pending #2987) (formerly Volatility Exposure) | 0.0 | 79.1 | 0.9 | 0.0 | 0.0 |
+| Historical Stability (predictive layer, promotion pending #2987) (formerly Instability Exposure) | 0.0 | 2.9 | 0.0 | 0.0 | 0.0 |
+| Historical Churn (predictive layer, promotion pending #2987) (formerly Volatility Exposure) | 0.0 | 80.7 | 0.9 | 0.0 | 0.0 |
 | Doc Surface (formerly Documentation Exposure) _(coverage)_ | 0.0 | 100.0 | 1.1 | 0.0 | 0.0 |
 | Credential Material (formerly Hardcoded Payload Artifacts) | 0.0 | 0.0 | 0.0 | 0.0 | 0.0 |
 
@@ -149,7 +149,7 @@
 |---|---|---|---|---|
 | memory | 809 | 51 | 0 | `gitgalaxy/recorders/record_keeper.py` |
 | cleanup | 24 | 10 | 0 | `gitgalaxy/galaxyscope.py` |
-| guards | 1688 | 66 | 0 | `gitgalaxy/core/detector.py` |
+| guards | 1695 | 66 | 0 | `gitgalaxy/core/detector.py` |
 | danger | 1364 | 64 | 0 | `gitgalaxy/galaxyscope.py` |
 | concurrency | 36 | 12 | 0 | `gitgalaxy/core/detector.py` |
 | connectivity | 333 | 64 | 0 | `gitgalaxy/core/detector.py` |
@@ -158,12 +158,12 @@
 | ipc | 38 | 5 | 0 | `gitgalaxy/galaxyscope.py` |
 | time | 50 | 3 | 0 | `gitgalaxy/galaxyscope.py` |
 | serialization | 0 | 0 | 0 | - |
-| regex | 453 | 42 | 0 | `gitgalaxy/core/detector.py` |
+| regex | 457 | 42 | 0 | `gitgalaxy/core/detector.py` |
 | events | 294 | 22 | 0 | `gitgalaxy/galaxyscope.py` |
 | tests | 6 | 4 | 0 | `.claude/hooks/pytest_quiet.py` |
-| docs | 823 | 70 | 0 | `gitgalaxy/core/detector.py` |
+| docs | 824 | 70 | 0 | `gitgalaxy/core/detector.py` |
 | debt | 199 | 24 | 0 | `gitgalaxy/cobol_to_java_controller.py` |
-| mutation | 15852 | 68 | 0 | `gitgalaxy/core/detector.py` |
+| mutation | 15876 | 68 | 0 | `gitgalaxy/core/detector.py` |
 | dead_code | 74 | 11 | 0 | `gitgalaxy/core/detector.py` |
 | credential | 3 | 2 | 0 | `gitgalaxy/core/detector.py` |
 | threat | 95 | 14 | 0 | `gitgalaxy/core/rule_prefilter.py` |
@@ -186,8 +186,8 @@ These are the most interconnected files relative to the rest of this repository.
 1. **detector.py** (`gitgalaxy/core/detector.py`) — 105 inbound connections
 2. **source_text.py** (`gitgalaxy/core/source_text.py`) — 79 inbound connections
 3. **_shared_patterns.py** (`gitgalaxy/standards/language_standards/_shared_patterns.py`) — 75 inbound connections
-4. **_strict_harness.py** (`tests/extraction/languages/_strict_harness.py`) — 70 inbound connections
-5. **galaxy_ir.py** (`gitgalaxy/tools/cobol_to_cobol/galaxy_ir.py`) — 68 inbound connections
+4. **galaxy_ir.py** (`gitgalaxy/tools/cobol_to_cobol/galaxy_ir.py`) — 70 inbound connections
+5. **_strict_harness.py** (`tests/extraction/languages/_strict_harness.py`) — 70 inbound connections
 
 ### Top 5 Orchestrators (Highest 'Imports' / Fragility Index)
 These files pull in the most external dependencies. They are highly coupled and fragile to API changes.
@@ -208,13 +208,12 @@ These files pull in the most external dependencies. They are highly coupled and 
 - `_mainframe_facts_lines` **(Many-Argument Workhorses)** (@ `gitgalaxy/recorders/llm_recorder.py`) -> Impact: **532.0** | LOC: 421
   * *Intent:* """The Named System Facts section (#3200/#3201/#3246) -- ABSENT unless a file carries them. These are the named mainframe relations/schemas the per-fi...
 - `_calculate_block_metrics` **(Many-Argument Workhorses)** (@ `gitgalaxy/core/detector.py`) -> Impact: **518.1** | LOC: 555
-- `load_galaxy_ir` **(Many-Argument Workhorses)** (@ `gitgalaxy/tools/cobol_to_cobol/galaxy_ir.py`) -> Impact: **490.7** | LOC: 773
+- `load_galaxy_ir` **(Many-Argument Workhorses)** (@ `gitgalaxy/tools/cobol_to_cobol/galaxy_ir.py`) -> Impact: **500.0** | LOC: 786
   * *Intent:* """Loads the latest snapshot of one repo from a master DB, opened read-only."""
 - `splice` **(Many-Argument Workhorses)** (@ `gitgalaxy/core/detector.py`) -> Impact: **477.5** | LOC: 838
-- `translate_command` **(Many-Argument Workhorses)** (@ `tests/tools/equivalence_cics.py`) -> Impact: **425.6** | LOC: 273
+- `translate_command` **(Many-Argument Workhorses)** (@ `tests/tools/equivalence_cics.py`) -> Impact: **437.9** | LOC: 279
   * *Intent:* """One EXEC CICS body -> the COBOL statements that replace it. `labels` are the program's HANDLE labels (handler_labels), which a condition or abend e...
-- `run` **(Many-Argument Workhorses)** (@ `tests/tools/strengthen.py`) -> Impact: **403.8** | LOC: 170
-  * *Intent:* # ---- the loop ------------------------------------------------------------------------------------------------
+- `run_case` **(Many-Argument Workhorses)** (@ `tests/tools/equivalence_cics.py`) -> Impact: **406.2** | LOC: 144
 
 *Function archetypes referenced above:*
   * **Many-Argument Workhorses**: large, many-parameter procedural function doing heavy lifting
@@ -222,15 +221,15 @@ These files pull in the most external dependencies. They are highly coupled and 
 ## 9. DIRECTORY GROUPS (Top 10 Heaviest Modules)
 | Folder Path | Files | Total Impact | Avg Complexity Load | Avg Debt Markers |
 |---|---|---|---|---|
-| `gitgalaxy/core` | 52 | 31630.84 | 50.22% | 4.63% |
-| `tests/cobol_mainframe` | 158 | 16965.18 | 16.23% | 0.0% |
+| `gitgalaxy/core` | 52 | 31696.22 | 50.24% | 4.61% |
+| `tests/cobol_mainframe` | 160 | 17364.64 | 16.34% | 0.0% |
 | `tests/extraction/languages` | 144 | 15979.02 | 12.9% | 0.0% |
-| `tests/core_engine` | 109 | 12752.42 | 13.31% | 0.0% |
-| `gitgalaxy/recorders` | 8 | 6822.76 | 46.69% | 4.0% |
+| `tests/core_engine` | 109 | 12780.08 | 13.29% | 0.0% |
+| `gitgalaxy/recorders` | 8 | 6822.98 | 46.68% | 4.0% |
 | `gitgalaxy` | 5 | 4247.04 | 43.98% | 1.92% |
 | `gitgalaxy/metrics` | 7 | 3925.78 | 45.95% | 10.84% |
+| `tests/equivalence/cics` | 4 | 3324.51 | 10.32% | 0.0% |
 | `tests` | 31 | 3167.04 | 17.22% | 0.0% |
-| `tests/equivalence/cics` | 4 | 3154.43 | 10.34% | 0.0% |
 | `tests/cobol_mainframe/port_invariance/aws-mainframe-modernization-carddemo/java` | 7 | 2774.18 | 37.99% | 0.0% |
 
 ## 10. TARGETED STRUCTURAL SURFACE VECTORS (formerly Risk Vectors, Top 5 by Surface)
@@ -266,7 +265,7 @@ These files pull in the most external dependencies. They are highly coupled and 
 ### ☢️ X-Ray & 🧱 Supply Chain Firewall
 - **Binary Anomalies (X-Ray):** `0` (High entropy, packed payloads, or magic byte mismatches).
 - **Blacklisted Dependencies:** `0` explicitly banned packages imported.
-- **Unknown Dependencies:** `8332` packages imported that bypass the Zero-Trust whitelist.
+- **Unknown Dependencies:** `8408` packages imported that bypass the Zero-Trust whitelist.
 
 ## 11. RANKED ARTIFACTS (Top 25 by Structural Magnitude)
 > Ranked by Structural Magnitude: the file's structural weight and centralization within the system. Magnitude is **not** a risk score and is independent of the surface vectors in section 6. Each entry carries a **Blast Radius** line stating what a change to it would reach -- that, not the vector percentages, is the actionable part.
@@ -274,7 +273,7 @@ These files pull in the most external dependencies. They are highly coupled and 
 ### `gitgalaxy/core/detector.py` (PYTHON | Tier 1.5 | AI Safe: 0.0%)
 - **Global Archetype:** `file_cluster_8` (Drift: 0.0 IQR)
 - **Magnitude:** 10971.2 | **LOC:** 10685 | **CtrlFlow:** 43.6% | **Authorship Centralization:** 100.0%
-- **Blast Radius:** changing it is visible to **105** in-repo importer(s); it depends on **19**; blast radius 16.722; role: Pure Producer (Foundation)
+- **Blast Radius:** changing it is visible to **105** in-repo importer(s); it depends on **19**; blast radius 16.407; role: Pure Producer (Foundation)
 - **Top Surface Vectors:** Mutation Surface (formerly State Flux) (100.0%), Guard Balance (formerly Safety Score) (99.6%), Test Surface (formerly Verification) (80.0%), Historical Churn (predictive layer, promotion pending #2987) (formerly Churn) (75.6%)
 - **Documentation Coverage:** 19.7917% of unit weight undocumented
 **Top Internal Functions/Classes:**
@@ -295,15 +294,15 @@ These files pull in the most external dependencies. They are highly coupled and 
 * *Architecture:* `api: 22`, `concurrency: 6`, `import: 23`
 * *Defense:* `safety: 51`, `doc: 121`, `immutability_locks: 52`
 * *Network Topology:*
-  * `Ecosystem Role:` Pure Producer (Foundation) | `Dependency Blast Radius (PageRank):` 16.722
-  * `Choke Point (Betweenness):` 0.002576 | `Ripple Effect (Closeness):` 0.073798
+  * `Ecosystem Role:` Pure Producer (Foundation) | `Dependency Blast Radius (PageRank):` 16.407
+  * `Choke Point (Betweenness):` 0.002449 | `Ripple Effect (Closeness):` 0.071953
   * `Imports (Out-Degree: 8):` bisect, collections, functools, gitgalaxy.core.cobol_source_format, gitgalaxy.core.network_risk_sensor, gitgalaxy.core.prism, gitgalaxy.core.rule_prefilter, gitgalaxy.core.spatial_correlation...
   * `Imported By (In-Degree: 105):` (Excluded from Brief to save tokens)
 
 ### `gitgalaxy/recorders/llm_recorder.py` (PYTHON | Tier 1.5 | AI Safe: 0.0%)
 - **Global Archetype:** `file_cluster_8` (Drift: 0.0 IQR)
 - **Magnitude:** 3800.76 | **LOC:** 2389 | **CtrlFlow:** 41.9% | **Authorship Centralization:** 100.0%
-- **Blast Radius:** changing it is visible to **11** in-repo importer(s); it depends on **16**; blast radius 1.525; role: Transceiver (Middle-Tier)
+- **Blast Radius:** changing it is visible to **11** in-repo importer(s); it depends on **16**; blast radius 1.496; role: Transceiver (Middle-Tier)
 - **Top Surface Vectors:** Mutation Surface (formerly State Flux) (100.0%), Guard Balance (formerly Safety Score) (99.9%), Complexity Load (formerly Cognitive Load) (83.7%), Test Surface (formerly Verification) (80.0%)
 - **Documentation Coverage:** 31.8182% of unit weight undocumented
 **Top Internal Functions/Classes:**
@@ -326,15 +325,41 @@ These files pull in the most external dependencies. They are highly coupled and 
 * *Architecture:* `io: 2`, `api: 4`, `concurrency: 2`, `import: 15`
 * *Defense:* `safety: 17`, `doc: 25`, `immutability_locks: 1`, `cleanup: 1`
 * *Network Topology:*
-  * `Ecosystem Role:` Transceiver (Middle-Tier) | `Dependency Blast Radius (PageRank):` 1.525
-  * `Choke Point (Betweenness):` 3.6e-05 | `Ripple Effect (Closeness):` 0.015295
+  * `Ecosystem Role:` Transceiver (Middle-Tier) | `Dependency Blast Radius (PageRank):` 1.496
+  * `Choke Point (Betweenness):` 3.4e-05 | `Ripple Effect (Closeness):` 0.014913
   * `Imports (Out-Degree: 5):` collections, gitgalaxy.core.call_resolver, gitgalaxy.core.compiler_options, gitgalaxy.core.function_population, gitgalaxy.metrics, gitgalaxy.standards, heapq, hops...
   * `Imported By (In-Degree: 11):` (Excluded from Brief to save tokens)
+
+### `tests/equivalence/cics/ggcics.c` (C | Tier 1.5 | AI Safe: 0.0%)
+- **Global Archetype:** `file_cluster_6` (Drift: N/A IQR)
+- **Magnitude:** 3322.08 | **LOC:** 2425 | **CtrlFlow:** 0.0% | **Authorship Centralization:** 0.0%
+- **Blast Radius:** nothing in-repo imports it (entrypoint or orphan); it depends on **10**
+- **Top Surface Vectors:** None above 0%
+- **Documentation Coverage:** 0.0% of unit weight undocumented
+**Top Internal Functions/Classes:**
+  * `browse_read` **(Many-Argument Workhorses)** (Impact: 127.5)
+    * *Intent:* /* READNEXT (dir 1) / READPREV (dir -1) FILE(name1) INTO RIDFLD. */
+  * `GGCSTRT` **(Many-Argument Workhorses)** (Impact: 115.5)
+    * *Intent:* /* START TRANSID(name1) [TERMID(name2)] [REQID(qname)] INTERVAL(hhmmss) | TIME(hhmmss) (GG-NUM) | AF...
+  * `rba_read` **(Many-Argument Workhorses)** (Impact: 101.3)
+    * *Intent:* /* READNEXT (dir 1) / READPREV (dir -1) ... RBA: GG-FLAGS 'RBA'; the browse is an RBA browse. */
+  * `GGCREAD` **(Many-Argument Workhorses)** (Impact: 86.4)
+  * `GGCRTRV` **(Many-Argument Workhorses)** (Impact: 59.6)
+**Structural Signatures (Net Mitigated Signals):**
+* *Structure:* None
+* *Risk/State:* None
+* *Architecture:* None
+* *Defense:* None
+* *Network Topology:*
+  * `Ecosystem Role:` Unknown | `Dependency Blast Radius (PageRank):` n/a
+  * `Choke Point (Betweenness):` n/a | `Ripple Effect (Closeness):` n/a
+  * `Imports (Out-Degree: 0):` direct.h, ggcics_spec.h, signal.h, stdio.h, stdlib.h, string.h, mman.h, stat.h...
+  * `Imported By (In-Degree: 0):` None (Orphan / Entrypoint)
 
 ### `gitgalaxy/galaxyscope.py` (PYTHON | Tier 2 | AI Safe: 0.0%)
 - **Global Archetype:** `file_cluster_6` (Drift: 0.0 IQR)
 - **Magnitude:** 3235.52 | **LOC:** 4296 | **CtrlFlow:** 26.2% | **Authorship Centralization:** 100.0%
-- **Blast Radius:** changing it is visible to **21** in-repo importer(s); it depends on **69**; blast radius 2.871; role: Transceiver (Middle-Tier)
+- **Blast Radius:** changing it is visible to **21** in-repo importer(s); it depends on **69**; blast radius 2.817; role: Transceiver (Middle-Tier)
 - **Top Surface Vectors:** Mutation Surface (formerly State Flux) (100.0%), Guard Balance (formerly Safety Score) (99.2%), Complexity Load (formerly Cognitive Load) (80.7%), Test Surface (formerly Verification) (80.0%)
 - **Documentation Coverage:** 20.1493% of unit weight undocumented
 **Top Internal Functions/Classes:**
@@ -360,46 +385,19 @@ These files pull in the most external dependencies. They are highly coupled and 
 * *Architecture:* `io: 13`, `api: 15`, `concurrency: 7`, `import: 79`
 * *Defense:* `safety: 59`, `doc: 38`, `test: 2`, `immutability_locks: 10`, `cleanup: 5`
 * *Network Topology:*
-  * `Ecosystem Role:` Transceiver (Middle-Tier) | `Dependency Blast Radius (PageRank):` 2.871
-  * `Choke Point (Betweenness):` 0.001481 | `Ripple Effect (Closeness):` 0.016631
+  * `Ecosystem Role:` Transceiver (Middle-Tier) | `Dependency Blast Radius (PageRank):` 2.817
+  * `Choke Point (Betweenness):` 0.001408 | `Ripple Effect (Closeness):` 0.016215
   * `Imports (Out-Degree: 43):` argparse, collections, concurrent.futures, copy, datetime, extraction, functools, gitgalaxy.core.aperture...
   * `Imported By (In-Degree: 21):` (Excluded from Brief to save tokens)
 
-### `tests/equivalence/cics/ggcics.c` (C | Tier 1.5 | AI Safe: 0.0%)
-- **Global Archetype:** `file_cluster_6` (Drift: N/A IQR)
-- **Magnitude:** 3152.0 | **LOC:** 2272 | **CtrlFlow:** 0.0% | **Authorship Centralization:** 0.0%
-- **Blast Radius:** nothing in-repo imports it (entrypoint or orphan); it depends on **6**
-- **Top Surface Vectors:** None above 0%
-- **Documentation Coverage:** 0.0% of unit weight undocumented
-**Top Internal Functions/Classes:**
-  * `browse_read` **(Many-Argument Workhorses)** (Impact: 127.5)
-    * *Intent:* /* READNEXT (dir 1) / READPREV (dir -1) FILE(name1) INTO RIDFLD. */
-  * `GGCSTRT` **(Many-Argument Workhorses)** (Impact: 115.5)
-    * *Intent:* /* START TRANSID(name1) [TERMID(name2)] [REQID(qname)] INTERVAL(hhmmss) | TIME(hhmmss) (GG-NUM) | AF...
-  * `rba_read` **(Many-Argument Workhorses)** (Impact: 101.3)
-    * *Intent:* /* READNEXT (dir 1) / READPREV (dir -1) ... RBA: GG-FLAGS 'RBA'; the browse is an RBA browse. */
-  * `GGCRTRV` **(Many-Argument Workhorses)** (Impact: 59.6)
-  * `GGCREAD` **(Many-Argument Workhorses)** (Impact: 59.2)
-    * *Intent:* /* READ FILE(name1) RIDFLD INTO LENGTH(c->len): the first record whose key equals RIDFLD (IBM, EXEC ...
-**Structural Signatures (Net Mitigated Signals):**
-* *Structure:* None
-* *Risk/State:* None
-* *Architecture:* None
-* *Defense:* None
-* *Network Topology:*
-  * `Ecosystem Role:` Unknown | `Dependency Blast Radius (PageRank):` n/a
-  * `Choke Point (Betweenness):` n/a | `Ripple Effect (Closeness):` n/a
-  * `Imports (Out-Degree: 0):` direct.h, stdio.h, stdlib.h, string.h, stat.h, time.h
-  * `Imported By (In-Degree: 0):` None (Orphan / Entrypoint)
-
 ### `gitgalaxy/core/mainframe_boundary.py` (PYTHON | Tier 1.5 | AI Safe: 0.0%)
 - **Global Archetype:** `file_cluster_6` (Drift: 0.0 IQR)
-- **Magnitude:** 2938.36 | **LOC:** 2702 | **CtrlFlow:** 41.1% | **Authorship Centralization:** 100.0%
-- **Blast Radius:** changing it is visible to **51** in-repo importer(s); it depends on **28**; blast radius 10.882; role: Transceiver (Middle-Tier)
-- **Top Surface Vectors:** Mutation Surface (formerly State Flux) (100.0%), Guard Balance (formerly Safety Score) (99.8%), Test Surface (formerly Verification) (80.0%), Historical Churn (predictive layer, promotion pending #2987) (formerly Churn) (79.1%)
-- **Documentation Coverage:** 11.6438% of unit weight undocumented
+- **Magnitude:** 3000.52 | **LOC:** 2748 | **CtrlFlow:** 41.4% | **Authorship Centralization:** 100.0%
+- **Blast Radius:** changing it is visible to **52** in-repo importer(s); it depends on **28**; blast radius 10.885; role: Transceiver (Middle-Tier)
+- **Top Surface Vectors:** Mutation Surface (formerly State Flux) (100.0%), Guard Balance (formerly Safety Score) (99.8%), Historical Churn (predictive layer, promotion pending #2987) (formerly Churn) (80.7%), Test Surface (formerly Verification) (80.0%)
+- **Documentation Coverage:** 11.4865% of unit weight undocumented
 **Top Internal Functions/Classes:**
-  * `_cobol_records` **(Many-Argument Workhorses)** (Impact: 266.3)
+  * `_cobol_records` **(Many-Argument Workhorses)** (Impact: 299.0)
   * `_cobol_calls` **(Stateful Encapsulated Methods)** (Impact: 159.8)
     * *Intent:* """Every COBOL invocation site: `CALL`, and CICS `LINK`/`XCTL PROGRAM(...)`. `cics_only` (#3495) rea...
   * `_pli_item_attributes` **(Compute Cores)** (Impact: 72.8)
@@ -409,18 +407,18 @@ These files pull in the most external dependencies. They are highly coupled and 
   * `_jcl_boundary` **(Compute Cores)** (Impact: 49.0)
     * *Intent:* """JCL `EXEC PGM=` steps and the `DD` statements that bind a ddname to a dataset. #3345: alongside t...
 **Contextual Mitigations & Amplifications:**
-* *Amplified Cascading Flux:* 465 instances
-* *State Mutation (weighted view):* 1479
+* *Amplified Cascading Flux:* 471 instances
+* *State Mutation (weighted view):* 1502
 **Structural Signatures (Net Mitigated Signals):**
-* *Structure:* `branch: 704`, `structural_boundaries: 281`, `args: 79`, `func_start: 71`
-* *Risk/State:* `safety_bypasses: 94`, `state_mutation: 549`, `dead_code: 2`, `duplicate_logic: 11`
+* *Structure:* `branch: 723`, `structural_boundaries: 283`, `args: 80`, `func_start: 72`
+* *Risk/State:* `safety_bypasses: 94`, `state_mutation: 560`, `dead_code: 2`, `duplicate_logic: 11`
 * *Architecture:* `api: 2`, `import: 28`
-* *Defense:* `safety: 3`, `doc: 57`, `immutability_locks: 5`
+* *Defense:* `safety: 3`, `doc: 58`, `immutability_locks: 5`
 * *Network Topology:*
-  * `Ecosystem Role:` Transceiver (Middle-Tier) | `Dependency Blast Radius (PageRank):` 10.882
-  * `Choke Point (Betweenness):` 0.004635 | `Ripple Effect (Closeness):` 0.091137
+  * `Ecosystem Role:` Transceiver (Middle-Tier) | `Dependency Blast Radius (PageRank):` 10.885
+  * `Choke Point (Betweenness):` 0.004462 | `Ripple Effect (Closeness):` 0.089897
   * `Imports (Out-Degree: 23):` bisect, gitgalaxy.core.bms_screen_fields, gitgalaxy.core.call_using, gitgalaxy.core.cics_resources, gitgalaxy.core.cics_tasks, gitgalaxy.core.compiler_options, gitgalaxy.core.data_moves, gitgalaxy.core.db2_declare_table...
-  * `Imported By (In-Degree: 51):` (Excluded from Brief to save tokens)
+  * `Imported By (In-Degree: 52):` (Excluded from Brief to save tokens)
 
 ### `tests/core_engine/test_detector.py` (PYTHON | Tier 1.5 | AI Safe: 0.0%)
 - **Global Archetype:** `file_cluster_2` (Drift: N/A IQR)
@@ -453,7 +451,7 @@ These files pull in the most external dependencies. They are highly coupled and 
 ### `gitgalaxy/metrics/signal_processor.py` (PYTHON | Tier 1.5 | AI Safe: 0.0%)
 - **Global Archetype:** `file_cluster_4` (Drift: 0.0 IQR)
 - **Magnitude:** 2126.82 | **LOC:** 2275 | **CtrlFlow:** 27.4% | **Authorship Centralization:** 100.0%
-- **Blast Radius:** changing it is visible to **13** in-repo importer(s); it depends on **12**; blast radius 1.901; role: Transceiver (Middle-Tier)
+- **Blast Radius:** changing it is visible to **13** in-repo importer(s); it depends on **12**; blast radius 1.865; role: Transceiver (Middle-Tier)
 - **Top Surface Vectors:** Mutation Surface (formerly State Flux) (100.0%), Guard Balance (formerly Safety Score) (99.5%), Test Surface (formerly Verification) (80.0%), Complexity Load (formerly Cognitive Load) (63.4%)
 - **Documentation Coverage:** 29.3103% of unit weight undocumented
 **Top Internal Functions/Classes:**
@@ -476,15 +474,15 @@ These files pull in the most external dependencies. They are highly coupled and 
 * *Architecture:* `io: 1`, `api: 10`, `concurrency: 2`, `import: 13`
 * *Defense:* `safety: 29`, `doc: 28`, `immutability_locks: 1`
 * *Network Topology:*
-  * `Ecosystem Role:` Transceiver (Middle-Tier) | `Dependency Blast Radius (PageRank):` 1.901
-  * `Choke Point (Betweenness):` 3.5e-05 | `Ripple Effect (Closeness):` 0.016208
+  * `Ecosystem Role:` Transceiver (Middle-Tier) | `Dependency Blast Radius (PageRank):` 1.865
+  * `Choke Point (Betweenness):` 3.3e-05 | `Ripple Effect (Closeness):` 0.015803
   * `Imports (Out-Degree: 4):` collections.abc, gitgalaxy.core.function_population, gitgalaxy.core.spatial_correlation, gitgalaxy.metrics, gitgalaxy.standards, gitgalaxy.standards.fidelity_table, logging, math...
   * `Imported By (In-Degree: 13):` (Excluded from Brief to save tokens)
 
 ### `gitgalaxy/core/prism.py` (PYTHON | Tier 1.5 | AI Safe: 0.0%)
 - **Global Archetype:** `file_cluster_8` (Drift: 0.0 IQR)
 - **Magnitude:** 2018.3 | **LOC:** 2058 | **CtrlFlow:** 35.7% | **Authorship Centralization:** 100.0%
-- **Blast Radius:** changing it is visible to **52** in-repo importer(s); it depends on **5**; blast radius 6.919; role: Pure Producer (Foundation)
+- **Blast Radius:** changing it is visible to **52** in-repo importer(s); it depends on **5**; blast radius 6.789; role: Pure Producer (Foundation)
 - **Top Surface Vectors:** Mutation Surface (formerly State Flux) (100.0%), Guard Balance (formerly Safety Score) (99.8%), Test Surface (formerly Verification) (80.0%), Complexity Load (formerly Cognitive Load) (46.5%)
 - **Documentation Coverage:** 20.7547% of unit weight undocumented
 **Top Internal Functions/Classes:**
@@ -504,15 +502,15 @@ These files pull in the most external dependencies. They are highly coupled and 
 * *Architecture:* `api: 11`, `import: 5`
 * *Defense:* `safety: 4`, `doc: 42`, `immutability_locks: 2`
 * *Network Topology:*
-  * `Ecosystem Role:` Pure Producer (Foundation) | `Dependency Blast Radius (PageRank):` 6.919
-  * `Choke Point (Betweenness):` 2.9e-05 | `Ripple Effect (Closeness):` 0.063979
+  * `Ecosystem Role:` Pure Producer (Foundation) | `Dependency Blast Radius (PageRank):` 6.789
+  * `Choke Point (Betweenness):` 2.7e-05 | `Ripple Effect (Closeness):` 0.06238
   * `Imports (Out-Degree: 1):` gitgalaxy.core.cobol_source_format, gitgalaxy.standards.language_standards, logging, re, typing
   * `Imported By (In-Degree: 52):` (Excluded from Brief to save tokens)
 
 ### `gitgalaxy/core/network_risk_sensor.py` (PYTHON | Tier 1.5 | AI Safe: 0.0%)
 - **Global Archetype:** `file_cluster_8` (Drift: 0.0 IQR)
 - **Magnitude:** 2012.32 | **LOC:** 1639 | **CtrlFlow:** 46.4% | **Authorship Centralization:** 100.0%
-- **Blast Radius:** changing it is visible to **18** in-repo importer(s); it depends on **19**; blast radius 4.202; role: Transceiver (Middle-Tier)
+- **Blast Radius:** changing it is visible to **18** in-repo importer(s); it depends on **19**; blast radius 4.123; role: Transceiver (Middle-Tier)
 - **Top Surface Vectors:** Mutation Surface (formerly State Flux) (100.0%), Guard Balance (formerly Safety Score) (99.6%), Test Surface (formerly Verification) (80.0%), Historical Churn (predictive layer, promotion pending #2987) (formerly Churn) (54.3%)
 - **Documentation Coverage:** 22.9167% of unit weight undocumented
 **Top Internal Functions/Classes:**
@@ -531,8 +529,8 @@ These files pull in the most external dependencies. They are highly coupled and 
 * *Architecture:* `io: 5`, `api: 8`, `import: 17`
 * *Defense:* `safety: 14`, `doc: 37`, `immutability_locks: 9`
 * *Network Topology:*
-  * `Ecosystem Role:` Transceiver (Middle-Tier) | `Dependency Blast Radius (PageRank):` 4.202
-  * `Choke Point (Betweenness):` 0.002317 | `Ripple Effect (Closeness):` 0.057455
+  * `Ecosystem Role:` Transceiver (Middle-Tier) | `Dependency Blast Radius (PageRank):` 4.123
+  * `Choke Point (Betweenness):` 0.002202 | `Ripple Effect (Closeness):` 0.056018
   * `Imports (Out-Degree: 8):` collections, gitgalaxy.core.copy_libraries, gitgalaxy.core.graph_engine, gitgalaxy.core.invocation_resolver, gitgalaxy.core.package_self_reference, gitgalaxy.core.path_proximity, gitgalaxy.core.rust_modules, gitgalaxy.core.unicode_paths...
   * `Imported By (In-Degree: 18):` (Excluded from Brief to save tokens)
 
@@ -563,7 +561,7 @@ These files pull in the most external dependencies. They are highly coupled and 
 ### `gitgalaxy/core/call_resolver.py` (PYTHON | Tier 1.5 | AI Safe: 0.0%)
 - **Global Archetype:** `file_cluster_4` (Drift: 0.0 IQR)
 - **Magnitude:** 1383.22 | **LOC:** 1232 | **CtrlFlow:** 45.2% | **Authorship Centralization:** 100.0%
-- **Blast Radius:** changing it is visible to **11** in-repo importer(s); it depends on **3**; blast radius 3.766; role: Pure Producer (Foundation)
+- **Blast Radius:** changing it is visible to **11** in-repo importer(s); it depends on **3**; blast radius 3.695; role: Pure Producer (Foundation)
 - **Top Surface Vectors:** Mutation Surface (formerly State Flux) (100.0%), Guard Balance (formerly Safety Score) (98.7%), Test Surface (formerly Verification) (80.0%), Complexity Load (formerly Cognitive Load) (55.2%)
 - **Documentation Coverage:** 21.9298% of unit weight undocumented
 **Top Internal Functions/Classes:**
@@ -584,8 +582,8 @@ These files pull in the most external dependencies. They are highly coupled and 
 * *Architecture:* `io: 1`, `api: 13`, `import: 3`
 * *Defense:* `safety: 4`, `doc: 30`, `immutability_locks: 18`
 * *Network Topology:*
-  * `Ecosystem Role:` Pure Producer (Foundation) | `Dependency Blast Radius (PageRank):` 3.766
-  * `Choke Point (Betweenness):` 0.0 | `Ripple Effect (Closeness):` 0.030017
+  * `Ecosystem Role:` Pure Producer (Foundation) | `Dependency Blast Radius (PageRank):` 3.695
+  * `Choke Point (Betweenness):` 0.0 | `Ripple Effect (Closeness):` 0.029267
   * `Imports (Out-Degree: 0):` collections, posixpath, typing
   * `Imported By (In-Degree: 11):` (Excluded from Brief to save tokens)
 
@@ -641,10 +639,36 @@ These files pull in the most external dependencies. They are highly coupled and 
   * `Imports (Out-Degree: 0):` B, Q, base64, concurrent.futures, failure, gitgalaxy.core.aperture, gitgalaxy.core.detector, gitgalaxy.core.spatial_correlation...
   * `Imported By (In-Degree: 0):` None (Orphan / Entrypoint)
 
+### `tests/cobol_mainframe/test_det_translate.py` (PYTHON | Tier 2 | AI Safe: 0.0%)
+- **Global Archetype:** `file_cluster_15` (Drift: N/A IQR)
+- **Magnitude:** 1109.46 | **LOC:** 2019 | **CtrlFlow:** 0.0% | **Authorship Centralization:** 0.0%
+- **Blast Radius:** nothing in-repo imports it (entrypoint or orphan); it depends on **17**
+- **Top Surface Vectors:** None above 0%
+- **Documentation Coverage:** 0.0% of unit weight undocumented
+**Top Internal Functions/Classes:**
+  * `test_the_port_tickets_collisions_carry_their_libraries_and_the_strict_mode` **(Defensive Guards)** (Impact: 11.2)
+    * *Intent:* """#4486: the skeleton's copy_collisions rows name the library chosen and the others; strict comes f...
+  * `test_inspect_clauses` **(Defensive Guards)** (Impact: 10.6)
+  * `test_every_option_of_a_modelled_command_is_honoured_or_refused` **(Compute Cores)** (Impact: 10.4)
+  * `test_an_em_dash_in_a_procedure_literal_is_a_hole_by_name_not_a_refused_program` **(Defensive Guards)** (Impact: 9.5)
+    * *Intent:* """A UTF-8 em dash (U+2014) in `MOVE '... \u2014 ...' TO WS-MSG` (a census estate's CICS messages): ...
+  * `test_nist_ccvs85_parses_with_continuations_rewrapped` **(Defensive Guards)** (Impact: 9.0)
+    * *Intent:* """#4412: with joined continuations run past column 72, 39 of the 150 NIST programs parsed (the #437...
+**Structural Signatures (Net Mitigated Signals):**
+* *Structure:* None
+* *Risk/State:* None
+* *Architecture:* None
+* *Defense:* None
+* *Network Topology:*
+  * `Ecosystem Role:` Unknown | `Dependency Blast Radius (PageRank):` n/a
+  * `Choke Point (Betweenness):` n/a | `Ripple Effect (Closeness):` n/a
+  * `Imports (Out-Degree: 0):` __future__, com.x., com.x.entity.vsam., decimal, gitgalaxy.tools.cobol_to_cobol.galaxy_ir, gitgalaxy.tools.cobol_to_java.cobol_to_java_transaction_forge, gitgalaxy.tools.cobol_to_java.det, gitgalaxy.tools.cobol_to_java.det.gen...
+  * `Imported By (In-Degree: 0):` None (Orphan / Entrypoint)
+
 ### `gitgalaxy/recorders/audit_recorder.py` (PYTHON | Tier 1.5 | AI Safe: 0.0%)
 - **Global Archetype:** `file_cluster_6` (Drift: 0.0 IQR)
 - **Magnitude:** 1096.44 | **LOC:** 1157 | **CtrlFlow:** 24.4% | **Authorship Centralization:** 100.0%
-- **Blast Radius:** changing it is visible to **7** in-repo importer(s); it depends on **10**; blast radius 1.066; role: Transceiver (Middle-Tier)
+- **Blast Radius:** changing it is visible to **7** in-repo importer(s); it depends on **10**; blast radius 1.046; role: Transceiver (Middle-Tier)
 - **Top Surface Vectors:** Mutation Surface (formerly State Flux) (100.0%), Guard Balance (formerly Safety Score) (96.9%), Complexity Load (formerly Cognitive Load) (85.4%), Test Surface (formerly Verification) (80.0%)
 - **Documentation Coverage:** 26.4706% of unit weight undocumented
 **Top Internal Functions/Classes:**
@@ -667,36 +691,10 @@ These files pull in the most external dependencies. They are highly coupled and 
 * *Architecture:* `io: 3`, `api: 7`, `import: 10`
 * *Defense:* `safety: 10`, `doc: 7`, `sync_locks: 2`
 * *Network Topology:*
-  * `Ecosystem Role:` Transceiver (Middle-Tier) | `Dependency Blast Radius (PageRank):` 1.066
-  * `Choke Point (Betweenness):` 1.8e-05 | `Ripple Effect (Closeness):` 0.013365
+  * `Ecosystem Role:` Transceiver (Middle-Tier) | `Dependency Blast Radius (PageRank):` 1.046
+  * `Choke Point (Betweenness):` 1.7e-05 | `Ripple Effect (Closeness):` 0.013031
   * `Imports (Out-Degree: 3):` argparse, gitgalaxy.core.function_population, gitgalaxy.metrics, gitgalaxy.standards, json, logging, os, pathlib...
   * `Imported By (In-Degree: 7):` (Excluded from Brief to save tokens)
-
-### `tests/cobol_mainframe/test_det_translate.py` (PYTHON | Tier 2 | AI Safe: 0.0%)
-- **Global Archetype:** `file_cluster_15` (Drift: N/A IQR)
-- **Magnitude:** 1067.74 | **LOC:** 1902 | **CtrlFlow:** 0.0% | **Authorship Centralization:** 0.0%
-- **Blast Radius:** nothing in-repo imports it (entrypoint or orphan); it depends on **18**
-- **Top Surface Vectors:** None above 0%
-- **Documentation Coverage:** 0.0% of unit weight undocumented
-**Top Internal Functions/Classes:**
-  * `test_the_port_tickets_collisions_carry_their_libraries_and_the_strict_mode` **(Defensive Guards)** (Impact: 11.2)
-    * *Intent:* """#4486: the skeleton's copy_collisions rows name the library chosen and the others; strict comes f...
-  * `test_inspect_clauses` **(Defensive Guards)** (Impact: 10.6)
-  * `test_every_option_of_a_modelled_command_is_honoured_or_refused` **(Compute Cores)** (Impact: 10.4)
-  * `test_an_em_dash_in_a_procedure_literal_is_a_hole_by_name_not_a_refused_program` **(Defensive Guards)** (Impact: 9.5)
-    * *Intent:* """A UTF-8 em dash (U+2014) in `MOVE '... \u2014 ...' TO WS-MSG` (a census estate's CICS messages): ...
-  * `test_nist_ccvs85_parses_with_continuations_rewrapped` **(Defensive Guards)** (Impact: 9.0)
-    * *Intent:* """#4412: with joined continuations run past column 72, 39 of the 150 NIST programs parsed (the #437...
-**Structural Signatures (Net Mitigated Signals):**
-* *Structure:* None
-* *Risk/State:* None
-* *Architecture:* None
-* *Defense:* None
-* *Network Topology:*
-  * `Ecosystem Role:` Unknown | `Dependency Blast Radius (PageRank):` n/a
-  * `Choke Point (Betweenness):` n/a | `Ripple Effect (Closeness):` n/a
-  * `Imports (Out-Degree: 0):` __future__, com.x., com.x.entity.vsam., decimal, gitgalaxy.tools.cobol_to_cobol.galaxy_ir, gitgalaxy.tools.cobol_to_java, gitgalaxy.tools.cobol_to_java.cobol_to_java_transaction_forge, gitgalaxy.tools.cobol_to_java.det...
-  * `Imported By (In-Degree: 0):` None (Orphan / Entrypoint)
 
 ### `gitgalaxy/security/manifest_parser.py` (PYTHON | Tier 1.5 | AI Safe: 0.0%)
 - **Global Archetype:** `file_cluster_8` (Drift: N/A IQR)
@@ -726,9 +724,9 @@ These files pull in the most external dependencies. They are highly coupled and 
 
 ### `gitgalaxy/recorders/record_keeper.py` (PYTHON | Tier 1.5 | AI Safe: 0.0%)
 - **Global Archetype:** `file_cluster_6` (Drift: 0.0 IQR)
-- **Magnitude:** 1061.0 | **LOC:** 4089 | **CtrlFlow:** 20.0% | **Authorship Centralization:** 100.0%
-- **Blast Radius:** changing it is visible to **41** in-repo importer(s); it depends on **12**; blast radius 5.979; role: Pure Producer (Foundation)
-- **Top Surface Vectors:** Mutation Surface (formerly State Flux) (100.0%), Guard Balance (formerly Safety Score) (90.7%), Test Surface (formerly Verification) (80.0%), Historical Churn (predictive layer, promotion pending #2987) (formerly Churn) (66.9%)
+- **Magnitude:** 1061.22 | **LOC:** 4108 | **CtrlFlow:** 20.1% | **Authorship Centralization:** 100.0%
+- **Blast Radius:** changing it is visible to **41** in-repo importer(s); it depends on **12**; blast radius 5.866; role: Pure Producer (Foundation)
+- **Top Surface Vectors:** Mutation Surface (formerly State Flux) (100.0%), Guard Balance (formerly Safety Score) (90.6%), Test Surface (formerly Verification) (80.0%), Historical Churn (predictive layer, promotion pending #2987) (formerly Churn) (69.3%)
 - **Documentation Coverage:** 15.7895% of unit weight undocumented
 **Top Internal Functions/Classes:**
   * `_classify_file_archetype_detail` **(Many-Argument Workhorses)** (Impact: 52.9)
@@ -745,13 +743,13 @@ These files pull in the most external dependencies. They are highly coupled and 
 * *Amplified Cascading Flux:* 241 instances
 * *State Mutation (weighted view):* 785
 **Structural Signatures (Net Mitigated Signals):**
-* *Structure:* `branch: 426`, `structural_boundaries: 83`, `args: 40`, `func_start: 16`, `class_start: 2`
+* *Structure:* `branch: 430`, `structural_boundaries: 83`, `args: 40`, `func_start: 16`, `class_start: 2`
 * *Risk/State:* `safety_bypasses: 34`, `state_mutation: 303`, `dead_code: 5`, `fragile_debt: 1`
 * *Architecture:* `io: 1`, `api: 5`, `import: 12`
 * *Defense:* `safety: 31`, `doc: 65`, `immutability_locks: 1`, `cleanup: 1`
 * *Network Topology:*
-  * `Ecosystem Role:` Pure Producer (Foundation) | `Dependency Blast Radius (PageRank):` 5.979
-  * `Choke Point (Betweenness):` 0.000121 | `Ripple Effect (Closeness):` 0.032114
+  * `Ecosystem Role:` Pure Producer (Foundation) | `Dependency Blast Radius (PageRank):` 5.866
+  * `Choke Point (Betweenness):` 0.000115 | `Ripple Effect (Closeness):` 0.031311
   * `Imports (Out-Degree: 5):` gitgalaxy.core.call_resolver, gitgalaxy.core.function_population, gitgalaxy.metrics, gitgalaxy.metrics.archetype_parity, gitgalaxy.standards.analysis_lens, json, logging, math...
   * `Imported By (In-Degree: 41):` (Excluded from Brief to save tokens)
 
@@ -785,7 +783,7 @@ These files pull in the most external dependencies. They are highly coupled and 
 ### `gitgalaxy/core/graph_engine.py` (PYTHON | Tier 1.5 | AI Safe: 0.0%)
 - **Global Archetype:** `file_cluster_5` (Drift: 0.0 IQR)
 - **Magnitude:** 943.38 | **LOC:** 783 | **CtrlFlow:** 30.0% | **Authorship Centralization:** 0.0%
-- **Blast Radius:** changing it is visible to **6** in-repo importer(s); it depends on **6**; blast radius 1.904; role: Pure Producer (Foundation)
+- **Blast Radius:** changing it is visible to **6** in-repo importer(s); it depends on **6**; blast radius 1.868; role: Pure Producer (Foundation)
 - **Top Surface Vectors:** Mutation Surface (formerly State Flux) (100.0%), Guard Balance (formerly Safety Score) (99.9%), Test Surface (formerly Verification) (80.0%), Complexity Load (formerly Cognitive Load) (38.8%)
 - **Documentation Coverage:** 14.4737% of unit weight undocumented
 **Top Internal Functions/Classes:**
@@ -805,8 +803,8 @@ These files pull in the most external dependencies. They are highly coupled and 
 * *Architecture:* `api: 16`, `import: 6`
 * *Defense:* `doc: 25`, `cleanup: 2`
 * *Network Topology:*
-  * `Ecosystem Role:` Pure Producer (Foundation) | `Dependency Blast Radius (PageRank):` 1.904
-  * `Choke Point (Betweenness):` 0.0 | `Ripple Effect (Closeness):` 0.043211
+  * `Ecosystem Role:` Pure Producer (Foundation) | `Dependency Blast Radius (PageRank):` 1.868
+  * `Choke Point (Betweenness):` 0.0 | `Ripple Effect (Closeness):` 0.04213
   * `Imports (Out-Degree: 0):` collections, collections.abc, math, operator, random, typing
   * `Imported By (In-Degree: 6):` (Excluded from Brief to save tokens)
 
@@ -840,7 +838,7 @@ These files pull in the most external dependencies. They are highly coupled and 
 ### `gitgalaxy/core/rust_modules.py` (PYTHON | Tier 1.5 | AI Safe: 0.0%)
 - **Global Archetype:** `file_cluster_6` (Drift: 0.0 IQR)
 - **Magnitude:** 893.88 | **LOC:** 564 | **CtrlFlow:** 50.3% | **Authorship Centralization:** 100.0%
-- **Blast Radius:** changing it is visible to **3** in-repo importer(s); it depends on **6**; blast radius 0.955; role: Transceiver (Middle-Tier)
+- **Blast Radius:** changing it is visible to **3** in-repo importer(s); it depends on **6**; blast radius 0.937; role: Transceiver (Middle-Tier)
 - **Top Surface Vectors:** Mutation Surface (formerly State Flux) (100.0%), Guard Balance (formerly Safety Score) (99.5%), Test Surface (formerly Verification) (80.0%), Complexity Load (formerly Cognitive Load) (46.9%)
 - **Documentation Coverage:** 12.8571% of unit weight undocumented
 **Top Internal Functions/Classes:**
@@ -858,8 +856,8 @@ These files pull in the most external dependencies. They are highly coupled and 
 * *Architecture:* `io: 3`, `api: 10`, `import: 6`
 * *Defense:* `safety: 16`, `doc: 21`, `immutability_locks: 1`
 * *Network Topology:*
-  * `Ecosystem Role:` Transceiver (Middle-Tier) | `Dependency Blast Radius (PageRank):` 0.955
-  * `Choke Point (Betweenness):` 6.5e-05 | `Ripple Effect (Closeness):` 0.042834
+  * `Ecosystem Role:` Transceiver (Middle-Tier) | `Dependency Blast Radius (PageRank):` 0.937
+  * `Choke Point (Betweenness):` 6.2e-05 | `Ripple Effect (Closeness):` 0.041764
   * `Imports (Out-Degree: 1):` __future__, gitgalaxy.core.source_text, os, posixpath, re, typing
   * `Imported By (In-Degree: 3):` (Excluded from Brief to save tokens)
 
@@ -892,7 +890,7 @@ These files pull in the most external dependencies. They are highly coupled and 
 ### `gitgalaxy/core/aperture.py` (PYTHON | Tier 1.5 | AI Safe: 0.0%)
 - **Global Archetype:** `file_cluster_6` (Drift: 0.0 IQR)
 - **Magnitude:** 829.12 | **LOC:** 962 | **CtrlFlow:** 31.3% | **Authorship Centralization:** 100.0%
-- **Blast Radius:** changing it is visible to **13** in-repo importer(s); it depends on **9**; blast radius 1.902; role: Pure Producer (Foundation)
+- **Blast Radius:** changing it is visible to **13** in-repo importer(s); it depends on **9**; blast radius 1.867; role: Pure Producer (Foundation)
 - **Top Surface Vectors:** Mutation Surface (formerly State Flux) (100.0%), Guard Balance (formerly Safety Score) (98.0%), Test Surface (formerly Verification) (80.0%), Historical Churn (predictive layer, promotion pending #2987) (formerly Churn) (64.2%)
 - **Documentation Coverage:** 20.3125% of unit weight undocumented
 **Top Internal Functions/Classes:**
@@ -912,8 +910,8 @@ These files pull in the most external dependencies. They are highly coupled and 
 * *Architecture:* `io: 4`, `api: 15`, `import: 9`
 * *Defense:* `safety: 14`, `doc: 23`, `sync_locks: 2`, `immutability_locks: 18`
 * *Network Topology:*
-  * `Ecosystem Role:` Pure Producer (Foundation) | `Dependency Blast Radius (PageRank):` 1.902
-  * `Choke Point (Betweenness):` 4.5e-05 | `Ripple Effect (Closeness):` 0.018451
+  * `Ecosystem Role:` Pure Producer (Foundation) | `Dependency Blast Radius (PageRank):` 1.867
+  * `Choke Point (Betweenness):` 4.2e-05 | `Ripple Effect (Closeness):` 0.01799
   * `Imports (Out-Degree: 3):` fnmatch, gitgalaxy.core.model_magic, gitgalaxy.core.source_text, gitgalaxy.standards.gitgalaxy_config, logging, os, pathlib, re...
   * `Imported By (In-Degree: 13):` (Excluded from Brief to save tokens)
 
@@ -981,7 +979,7 @@ These files pull in the most external dependencies. They are highly coupled and 
 ### 🔥 The Hotspot Matrix (High Volatility + High Risk)
 These files are messy, complex, and modified frequently. They are the primary source of developer friction.
 
-- `gitgalaxy/core/mainframe_boundary.py` -> Churn: **79.06%** | Cog Load: 55.9199% | Debt: 29.6204%
+- `gitgalaxy/core/mainframe_boundary.py` -> Churn: **80.66%** | Cog Load: 56.0794% | Debt: 28.9804%
 - `gitgalaxy/core/detector.py` -> Churn: **75.57%** | Cog Load: 66.6189% | Debt: 14.5669%
 - `gitgalaxy/galaxyscope.py` -> Churn: **73.64%** | Cog Load: 80.6901% | Debt: 0.0%
 - `gitgalaxy/core/network_risk_sensor.py` -> Churn: **54.3%** | Cog Load: 53.5508% | Debt: 0.0%
@@ -992,7 +990,7 @@ These are massive, load-bearing files written almost entirely by a single develo
 - `gitgalaxy/core/detector.py` -> **Joe Esquibel** (100.0% isolated ownership) | Magnitude: 10971.2
 - `gitgalaxy/recorders/llm_recorder.py` -> **Joe Esquibel** (100.0% isolated ownership) | Magnitude: 3800.76
 - `gitgalaxy/galaxyscope.py` -> **Joe Esquibel** (100.0% isolated ownership) | Magnitude: 3235.52
-- `gitgalaxy/core/mainframe_boundary.py` -> **Joe Esquibel** (100.0% isolated ownership) | Magnitude: 2938.36
+- `gitgalaxy/core/mainframe_boundary.py` -> **Joe Esquibel** (100.0% isolated ownership) | Magnitude: 3000.52
 - `gitgalaxy/metrics/signal_processor.py` -> **Joe Esquibel** (100.0% isolated ownership) | Magnitude: 2126.82
 
 ## 12.8 SYSTEMIC NETWORK BOTTLENECKS (N-Dimensional Topology)
@@ -1001,34 +999,34 @@ These are massive, load-bearing files written almost entirely by a single develo
 ### ☣️ Cascading State Flux (Betweenness * State Flux)
 These files act as structural bridges between components, but possess highly volatile, mutating state. They cause unpredictable side-effects for all downstream consumers.
 
-- `gitgalaxy/core/mainframe_boundary.py` -> **Severity: 0.464** (Bridge: 0.0046 * Flux: 100.0%)
-- `gitgalaxy/core/detector.py` -> **Severity: 0.258** (Bridge: 0.0026 * Flux: 100.0%)
-- `gitgalaxy/core/network_risk_sensor.py` -> **Severity: 0.232** (Bridge: 0.0023 * Flux: 100.0%)
-- `gitgalaxy/tools/cobol_to_cobol/galaxy_ir.py` -> **Severity: 0.225** (Bridge: 0.0022 * Flux: 100.0%)
-- `gitgalaxy/core/invocation_resolver.py` -> **Severity: 0.174** (Bridge: 0.0017 * Flux: 100.0%)
+- `gitgalaxy/core/mainframe_boundary.py` -> **Severity: 0.446** (Bridge: 0.0045 * Flux: 100.0%)
+- `gitgalaxy/core/detector.py` -> **Severity: 0.245** (Bridge: 0.0024 * Flux: 100.0%)
+- `gitgalaxy/core/network_risk_sensor.py` -> **Severity: 0.22** (Bridge: 0.0022 * Flux: 100.0%)
+- `gitgalaxy/tools/cobol_to_cobol/galaxy_ir.py` -> **Severity: 0.219** (Bridge: 0.0022 * Flux: 100.0%)
+- `gitgalaxy/core/invocation_resolver.py` -> **Severity: 0.165** (Bridge: 0.0016 * Flux: 100.0%)
 
 ### 🃏 House of Cards (Closeness * Error Risk)
 These files are deeply embedded (1 or 2 hops from the entire codebase) but possess high error exposure. A runtime exception here will cascade instantly across the application.
 
-- `gitgalaxy/core/source_text.py` -> **Severity: 12.913** (Embedded: 0.136 * Error Risk: 94.9407%)
-- `gitgalaxy/standards/language_standards/identifiers.py` -> **Severity: 12.598** (Embedded: 0.1269 * Error Risk: 99.3102%)
-- `gitgalaxy/core/ebcdic_dbcs.py` -> **Severity: 9.668** (Embedded: 0.098 * Error Risk: 98.6853%)
-- `gitgalaxy/core/mainframe_boundary.py` -> **Severity: 9.092** (Embedded: 0.0911 * Error Risk: 99.7649%)
-- `gitgalaxy/core/compiler_options.py` -> **Severity: 8.89** (Embedded: 0.0895 * Error Risk: 99.3555%)
+- `gitgalaxy/core/source_text.py` -> **Severity: 12.741** (Embedded: 0.1342 * Error Risk: 94.9407%)
+- `gitgalaxy/standards/language_standards/identifiers.py` -> **Severity: 12.335** (Embedded: 0.1242 * Error Risk: 99.3102%)
+- `gitgalaxy/core/ebcdic_dbcs.py` -> **Severity: 9.536** (Embedded: 0.0966 * Error Risk: 98.6853%)
+- `gitgalaxy/core/mainframe_boundary.py` -> **Severity: 8.968** (Embedded: 0.0899 * Error Risk: 99.7564%)
+- `gitgalaxy/core/compiler_options.py` -> **Severity: 8.778** (Embedded: 0.0883 * Error Risk: 99.3555%)
 
 ### 🙈 Opaque Critical Nodes (Dependency Blast Radius * Doc Risk)
 These are 'Core Architecture Nodes' that the entire ecosystem relies upon, but they lack human intent, documentation, or ownership metadata. Modifying them is flying blind.
 
-- `gitgalaxy/standards/language_standards/_shared_patterns.py` -> **Severity: 1852.5** (Blast Radius: 18.525 * Doc Risk: 100.0%)
-- `gitgalaxy/core/ebcdic_dbcs.py` -> **Severity: 1232.264** (Blast Radius: 30.122 * Doc Risk: 40.9091%)
-- `gitgalaxy/standards/language_standards/identifiers.py` -> **Severity: 1046.32** (Blast Radius: 26.158 * Doc Risk: 40.0%)
-- `gitgalaxy/standards/cics/model.py` -> **Severity: 402.968** (Blast Radius: 5.926 * Doc Risk: 68.0%)
-- `gitgalaxy/tools/cobol_to_java/det/cobolrt/Field.java` -> **Severity: 386.909** (Blast Radius: 6.08 * Doc Risk: 63.6364%)
+- `gitgalaxy/standards/language_standards/_shared_patterns.py` -> **Severity: 1817.8** (Blast Radius: 18.178 * Doc Risk: 100.0%)
+- `gitgalaxy/core/ebcdic_dbcs.py` -> **Severity: 1192.296** (Blast Radius: 29.145 * Doc Risk: 40.9091%)
+- `gitgalaxy/standards/language_standards/identifiers.py` -> **Severity: 1027.64** (Blast Radius: 25.691 * Doc Risk: 40.0%)
+- `gitgalaxy/standards/cics/model.py` -> **Severity: 425.748** (Blast Radius: 6.261 * Doc Risk: 68.0%)
+- `gitgalaxy/tools/cobol_to_java/det/cobolrt/Field.java` -> **Severity: 379.591** (Blast Radius: 5.965 * Doc Risk: 63.6364%)
 
 ## 13. MAINFRAME SYSTEM FACTS (Named Relations & Record Layouts)
 > **AI CONTEXT:** Named mainframe relations the structural signal counts flatten -- the call graph (`CALL`/CICS `LINK`·`XCTL`/JCL `EXEC PGM=`), the dataset boundary (`SELECT…ASSIGN` + `OPEN` modes, JCL `DD`→dataset), and record layouts (COBOL DATA DIVISION items, PL/I `DECLARE`d structures). BMS screen maps (every field's position, length and attributes, `screen_field_data`) are the 3270 UI surface. These are the schema of the system: use them to trace which program runs which, which dataset a job binds, and the shape of the records that flow between them. Extracted by the engine (`core/mainframe_boundary.py`) and carried in the master DB (`call_site_data`/`dataset_data`/`record_data`); resolution to files is redone per scan.
 
-- **Coverage:** `112` files carry mainframe facts -- `107` call sites, `71` dataset bindings, `3688` record items.
+- **Coverage:** `122` files carry mainframe facts -- `121` call sites, `71` dataset bindings, `3912` record items.
 
 - **DB2 schemas:** `16` columns of `EXEC SQL DECLARE ... TABLE` (inline or DCLGEN members), full shape in `sql_table_data`.
 
@@ -1036,9 +1034,9 @@ These are 'Core Architecture Nodes' that the entire ecosystem relies upon, but t
 
 - **CICS resources:** `254` CSD `DEFINE` records (FILE→DSNAME, TDQUEUE, DB2TRAN→DB2ENTRY→PLAN, MAPSET, LIBRARY, ...), full attributes in `csd_resource_data`.
 
-- **CICS operations:** `102` EXEC CICS operations naming a resource (`2` CONTAINER, `29` FILE, `60` MAP, `7` QUEUE, `4` WEB); verb, direction, VALUE-resolved name and INTO/FROM record in `cics_resource_data`.
+- **CICS operations:** `139` EXEC CICS operations naming a resource (`10` CHANNEL, `29` CONTAINER, `29` FILE, `60` MAP, `7` QUEUE, `4` WEB); verb, direction, VALUE-resolved name and INTO/FROM record in `cics_resource_data`.
 
-- **CICS task control:** `2` commands (`1` DELAY, `1` START); child transid (or its STRING-built pattern), channel, CHILD/REQID token and timing in `cics_task_data`.
+- **CICS task control:** `19` commands (`6` DELAY, `5` FETCH CHILD, `7` RUN, `1` START); child transid (or its STRING-built pattern), channel, CHILD/REQID token and timing in `cics_task_data`.
 
 ### `tests/cobol_mainframe/refraction_excerpts/cics-banking-sample-application-cbsa/src/base/cobol_src/BANKDATA.cbl` (COBOL)
 - **Calls:** `CALL CEEGMT`, `CALL CEEDATM`
@@ -1149,6 +1147,15 @@ These are 'Core Architecture Nodes' that the entire ecosystem relies upon, but t
 - **Keyed files:** `CUSTOMER-FILE INDEXED/RANDOM key FD-CUST-ID`, `XREF-FILE INDEXED/RANDOM key FD-XREF-CARD-NUM`, `CARD-FILE INDEXED/RANDOM key FD-CARD-NUM`, `ACCOUNT-FILE INDEXED/RANDOM key FD-ACCT-ID`, `TRANSACT-FILE INDEXED/RANDOM key FD-TRANS-ID`
 - **Data moves:** 78 (ADD 12, MOVE 63, READ 3); most-fed items `IO-STATUS`, `IO-STATUS-04`, `ACCT-ID`, `FD-ACCT-ID`, `FD-XREF-CARD-NUM`, `IO-STATUS-0403`
 
+### `tests/cobol_mainframe/refraction_excerpts/cics-async-api-credit-card-application-example/src/ASYNCPNT.cbl` (COBOL)
+- **Calls:** `RUN TRANSID CREDIT-CHECK-TRAN`, `RUN TRANSID GET-ADDR-TRAN`, `RUN TRANSID CSSTATUS-TRAN`, `RUN TRANSID GET-NAME-TRAN`, `RUN TRANSID DB-CACHE-TRAN`
+- **Record layouts (87 items):** `PRINT-LINE (26)`, `CONTAINER-NAMES (8)`, `TRANSIDS (8)`, `CHILD-TOKENS (8)`, `RETURN-CHANNELS (8)`, `RETURN-DATA (7)`, `PROG-NAMES (6)`, `READ-INPUT (4)`, `ACCOUNT-NUMBER-IN (2)`, `APPLICATION-SUCCESS (1)`, `APPLICATION-FAILED (1)`, `READ-INPUT-LENGTH (1)` … (+7 more)
+- **CICS operations:** `CONTAINER INPUTCONTAINER (write)`, `CHANNEL MYCHANNEL (pass)`, `CONTAINER CREDITCHECKCONT (read)`, `CONTAINER GETNAMECONTAINER (read)`, `CONTAINER GETVIPSTATUS (read)`, `CONTAINER GETADDRCONTAINER (read)`, `CONTAINER GETPOSTCODE (read)`, `CONTAINER ASYNCPNT (read/write)`
+- **CICS task control:** `RUN ICCK`, `RUN GETA`, `RUN STUS`, `RUN GETN`, `FETCH CHILD`, `RUN UPDB`
+- **Compiler options:** `TRUNC(STD)`
+- **Data moves:** 15 (MOVE 15); most-fed items `ACCOUNT-NUM`, `APPLICATION-RESULT`, `CUST-NO-IN`, `RESULT-TEXT`
+- **Unit of work:** `0` commit / `0` rollback points; handlers none; `0/9` RESP results tested
+
 ### `tests/cobol_mainframe/refraction_excerpts/cics-genapp/base/src/lgtestp1.cbl` (COBOL)
 - **Calls:** `LINK LGIPOL01`, `LINK LGAPOL01`, `LINK LGDPOL01`, `LINK LGUPOL01`, `RETURN TRANSID SSP1`
 - **COMMAREA passed:** `LINK LGIPOL01 ← COMM-AREA LENGTH(32500)`, `LINK LGAPOL01 ← COMM-AREA LENGTH(32500)`, `LINK LGDPOL01 ← COMM-AREA LENGTH(32500)`, `LINK LGUPOL01 ← COMM-AREA LENGTH(32500)`, `RETURN TRANSID SSP1 ← COMM-AREA`
@@ -1157,40 +1164,33 @@ These are 'Core Architecture Nodes' that the entire ecosystem relies upon, but t
 - **Data moves:** 101 (INITIALIZE 7, MOVE 94); most-fed items `CA-CUSTOMER-NUM`, `CA-POLICY-NUM`, `CA-EXPIRY-DATE`, `CA-ISSUE-DATE`, `CA-M-ACCIDENTS`, `CA-M-CC`
 - **Unit of work:** `0` commit / `2` rollback points; handlers `MAPFAIL->ENDIT`; `0/0` RESP results tested
 
+### `tests/cobol_mainframe/refraction_excerpts/cics-async-api-credit-card-application-example/src/SEQPNT.cbl` (COBOL)
+- **Calls:** `LINK CREDIT-CHECK`, `LINK GET-NAME`, `LINK GET-ADDR`, `LINK CSSTATUS`, `LINK DB-CACHE`
+- **Record layouts (61 items):** `PRINT-LINE (26)`, `CONTAINER-NAMES (8)`, `RETURN-DATA (7)`, `PROG-NAMES (6)`, `READ-INPUT (4)`, `ACCOUNT-NUMBER-IN (2)`, `APPLICATION-SUCCESS (1)`, `APPLICATION-FAILED (1)`, `READ-INPUT-LENGTH (1)`, `IS-TERMINAL-BASED (1)`, `START-CODE (1)`, `MYCHANNEL (1)` … (+2 more)
+- **CICS operations:** `CONTAINER INPUTCONTAINER (write)`, `CHANNEL MYCHANNEL (pass)`, `CONTAINER CREDITCHECKCONT (read)`, `CONTAINER GETNAMECONTAINER (read)`, `CONTAINER GETADDRCONTAINER (read)`, `CONTAINER GETPOSTCODE (read)`, `CONTAINER GETVIPSTATUS (read)`, `CONTAINER SEQPNT (read/write)`
+- **Compiler options:** `TRUNC(STD)`
+- **Data moves:** 15 (MOVE 15); most-fed items `ACCOUNT-NUM`, `APPLICATION-RESULT`, `CUST-NO-IN`, `RESULT-TEXT`
+- **Unit of work:** `0` commit / `0` rollback points; handlers none; `0/14` RESP results tested
+
 ### `tests/cobol_mainframe/refraction_excerpts/zecs/Source/ECS001.cbl` (COBOL)
 - **Record layouts (34 items):** `CICS-MSG (6)`, `CICS-MSG2 (6)`, `INPUT-PARMS (3)`, `TERM-DATA (2)`, `URIMAP-NAME (1)`, `SESSION-TOKEN (1)`, `ECS-KEY (1)`, `ECS-KEY-LEN (1)`, `TERM-DATA-LEN (1)`, `BODY-DATA (1)`, `BODY-DATA-LEN (1)`, `ECS-DATA (1)` … (+9 more)
 - **CICS operations:** `WEB ECS001 (open)`, `WEB PATH-NAME? (converse)`, `WEB ? (close)`
 - **Data moves:** 61 (ADD 3, MOVE 51, STRING 2, SUBTRACT 1, UNSTRING 4); most-fed items `TERM-LINES`, `CICS-MSG-RESP`, `CICS-MSG-RESP2`, `BODY-DATA`, `CICS-MSG-CODE`, `CICS-MSG-STATUS`
 - **Unit of work:** `0` commit / `0` rollback points; handlers none; `5/7` RESP results tested
 
-### `tests/cobol_mainframe/port_invariance/aws-mainframe-modernization-carddemo/cobol/COUSR03C.cbl` (COBOL)
-- **Calls:** `RETURN TRANSID WS-TRANID`, `XCTL CDEMO-TO-PROGRAM`
-- **COMMAREA passed:** `RETURN TRANSID CU03 ← CARDDEMO-COMMAREA`, `XCTL CDEMO-TO-PROGRAM ← CARDDEMO-COMMAREA`
-- **Record layouts (24 items):** `WS-VARIABLES (22)`, `DFHCOMMAREA (2)`
-- **CICS operations:** `MAP COUSR3A (read/write)`, `FILE USRSEC (delete/read)`
-- **Data moves:** 71 (MOVE 68, STRING 3); most-fed items `ERRMSGC OF COUSR3AO`, `SEC-USR-ID`, `WS-MESSAGE`, `CARDDEMO-COMMAREA`, `CDEMO-FROM-PROGRAM`, `CDEMO-FROM-TRANID`
-- **Unit of work:** `0` commit / `0` rollback points; handlers none; `2/3` RESP results tested
+*(+102 more files with mainframe facts; full detail in `record_data`/`call_site_data`/`dataset_data`.)*
 
-### `tests/cobol_mainframe/port_invariance/cics-banking-sample-application-cbsa/cobol/UPDCUST.cbl` (COBOL)
-- **Record layouts (58 items):** `WS-PASSED-DATA (7)`, `DB2-DATE-REFORMAT (6)`, `WS-ORIG-DATE-GRP (6)`, `WS-ORIG-DATE-GRP-X (6)`, `WS-TIME-DATA (6)`, `WS-SORT-DIV (4)`, `WS-CICS-WORK-AREA (3)`, `DESIRED-CUST-KEY (3)`, `CUSTOMER-KY (3)`, `SYSIDERR-RETRY (1)`, `WS-CUST-DATA (1)`, `WS-EIBTASKN12 (1)` … (+11 more)
-- **CICS operations:** `FILE CUSTOMER (read/update)`
-- **Compiler options:** `TRUNC(STD)`
-- **Data moves:** 40 (MOVE 39, UNSTRING 1); most-fed items `COMM-SCODE`, `CUSTOMER-ADDRESS OF WS-CUST-DATA`, `CUSTOMER-NAME OF WS-CUST-DATA`, `COMM-ADDR`, `COMM-CREDIT-SCORE`, `COMM-CS-REVIEW-DATE`
-- **Unit of work:** `0` commit / `0` rollback points; handlers none; `2/2` RESP results tested
-
-*(+92 more files with mainframe facts; full detail in `record_data`/`call_site_data`/`dataset_data`.)*
-
-- **Mainframe skeleton completeness:** 59% (mean channel ratio; channel table in the audit report, section 7). Top missing inputs: application programs (source or load-module list) (67 gaps); BMS map sources (32 gaps); JCL and PROC libraries (12 gaps).
+- **Mainframe skeleton completeness:** 60% (mean channel ratio; channel table in the audit report, section 7). Top missing inputs: application programs (source or load-module list) (67 gaps); BMS map sources (32 gaps); CSD extract (DFHCSDUP LIST / CICSPlex SM), or the web / API layer that LINKs it (12 gaps).
 
 ## 14. PROJECT IDIOM WRAPPERS (Hidden Literal Vocabulary)
 > **AI CONTEXT:** Project-local helpers that wrap a literal primitive (print, abort, allocation). Their call sites are NOT in the literal signal counts above -- read a low `debug_prints`/`panics_and_aborts`/`memory_alloc` count together with this list. Full detail in `wrapper_data`.
 
-- **`debug_prints`:** 133 literal sites + 42 sites through wrappers = 175
+- **`debug_prints`:** 133 literal sites + 54 sites through wrappers = 187
 - **`memory_alloc`:** 0 literal sites + 2 sites through wrappers = 2
-- **`panics_and_aborts`:** 65 literal sites + 60 sites through wrappers = 125
+- **`panics_and_aborts`:** 65 literal sites + 72 sites through wrappers = 137
 
-- `refuse` (function, debug_prints, primitive): 24 call sites in 1 files -- `tests/equivalence/cics/ggcics.c`
-- `refuse` (function, panics_and_aborts, primitive): 24 call sites in 1 files -- `tests/equivalence/cics/ggcics.c`
+- `refuse` (function, debug_prints, primitive): 36 call sites in 1 files -- `tests/equivalence/cics/ggcics.c`
+- `refuse` (function, panics_and_aborts, primitive): 36 call sites in 1 files -- `tests/equivalence/cics/ggcics.c`
 - `abend` (function, panics_and_aborts, primitive): 7 call sites in 1 files -- `tests/equivalence/carddemo-trnrpt/port/service/Cbtrn03cService.java`
 - `die` (function, debug_prints, primitive): 4 call sites in 1 files -- `tests/tools/crucible_pins.py`
 - `die` (function, panics_and_aborts, primitive): 4 call sites in 1 files -- `tests/tools/crucible_pins.py`
@@ -1206,14 +1206,14 @@ These are 'Core Architecture Nodes' that the entire ecosystem relies upon, but t
 ## 15. FUNCTION CALL RESOLUTION (Call Graph Confidence)
 > **AI CONTEXT:** Each function's callee names, linked to the definition they most plausibly mean. *scoped* = same class/file, an imported file, or a class-qualified call; *unique* = the only definition in the repository; *ambiguous* = several candidates or an untyped receiver (never a graph edge); *external* = defined nowhere here (built-ins, packages). A high scoped/unique share means the resolver made a confident choice, not that the choice was correct; resolution accuracy is measured separately (gitgalaxy#3332). Detail in `fcall_data` / `fcall_rate_data`.
 
-- **Repository:** 65443 call pairs -- scoped 29.2%, unique 0.0%, ambiguous 12.4%, external 58.3%
+- **Repository:** 66461 call pairs -- scoped 29.2%, unique 0.0%, ambiguous 12.4%, external 58.4%
 
 | Language | Pairs | Scoped | Unique | Ambiguous | External |
 |---|---|---|---|---|---|
-| python | 54836 | 28.9% | 0.0% | 12.0% | 59.1% |
-| java | 9428 | 28.5% | 0.1% | 16.5% | 54.8% |
-| c | 722 | 37.4% | 0.0% | 0.0% | 62.6% |
-| cobol | 348 | 94.0% | 0.9% | 0.9% | 4.3% |
+| python | 55789 | 28.8% | 0.0% | 11.9% | 59.2% |
+| java | 9444 | 28.5% | 0.1% | 16.8% | 54.6% |
+| c | 765 | 37.3% | 0.0% | 0.0% | 62.7% |
+| cobol | 354 | 94.1% | 0.8% | 0.8% | 4.2% |
 | javascript | 85 | 11.8% | 0.0% | 0.0% | 88.2% |
 | pli | 13 | 84.6% | 15.4% | 0.0% | 0.0% |
 | jcl | 11 | 0.0% | 0.0% | 0.0% | 100.0% |

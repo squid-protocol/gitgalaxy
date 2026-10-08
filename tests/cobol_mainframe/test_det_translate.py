@@ -1463,6 +1463,39 @@ def test_a_parse_error_outside_the_procedure_node_refuses_the_program(body):
         _proc(body)
 
 
+@pytest.mark.parametrize(
+    "cond",
+    [
+        ["    IF A NOT", "        = 'B'"],  # #4674: NOT at the end of a line, its operator on the next
+        ["    IF A NOT", "        EQUAL TO 'B'"],
+        ["    IF A", "        NOT", "        = 'B'"],
+        ["    IF A = 'B' OR NOT", "        < 'C'"],
+        ["    IF A = 'B' AND", "        NOT < 'C'"],  # an AND at a line end, the NOT (and operator) after it
+        ["    IF A = 'B' AND", "        NOT", "        < 'C'"],
+        ["    IF NOT", "        A = 'B'"],
+        ["    IF (ZERO + 3) / 12 NOT > 1"],  # #4656: ZERO is a number inside arithmetic, not a class word
+        ["    IF (ZERO / 12) * 2 > 1"],
+        ["    IF (3 + ZERO) > 1"],
+    ],
+)
+def test_a_relation_split_across_lines_or_with_zero_in_arithmetic_parses(cond):
+    pytest.importorskip("tree_sitter_language_pack")
+    proc = _proc([*cond, "        DISPLAY 'Y'", "    END-IF.", "    DISPLAY 'AFTER'.", "    GOBACK."])
+    stmts = [s for p in proc.paragraphs for s in S.walk(p.body)]
+    cond_ = stmts[0].data["cond"]
+    assert stmts[0].kind == "IF" and not (isinstance(cond_, tuple) and cond_[0] == "UNPARSED"), cond_
+    assert [s.kind for s in stmts if s.kind != "IF"] == ["DISPLAY", "DISPLAY", "GOBACK"]
+    # the break moved with the NOT, not the statements: AFTER keeps its own line (head is 7 lines, then cond)
+    assert stmts[-2].line == 7 + len(cond) + 3
+
+
+def test_a_when_with_zero_in_arithmetic_is_a_condition():
+    pytest.importorskip("tree_sitter_language_pack")
+    proc = _proc(["    EVALUATE TRUE", "        WHEN 1 + ZERO > 0 DISPLAY 'Y'", "    END-EVALUATE.", "    GOBACK."])
+    ev = next(s for p in proc.paragraphs for s in S.walk(p.body) if s.kind == "EVALUATE")
+    assert ev.whens[0][0][0][0][0] == "COND", ev.whens
+
+
 def test_a_parse_error_inside_a_statement_is_a_hole():
     pytest.importorskip("tree_sitter_language_pack")
     proc = _proc(["    MOVE ALL TO A.", "    IF (A = 1 CONTINUE END-IF.", "    GOBACK."])
@@ -2016,3 +2049,164 @@ def test_a_commarea_of_a_stated_length_is_all_dfhcommarea_holds(tmp_path):
     assert 'throw new DetCics.PastFrom("COMMAREA past EIBCALEN (" + calen + " bytes): not modelled");' in run
     assert "} finally { if (caWhole != null) { caWhole(caWhole); } }" in run
     assert "private void caWhole(byte[] whole) {" in r.java
+
+
+# ---- #4501: an XCTL COMMAREA whose LENGTH is past the target's DTO ----------------------------------------
+class _OverCics(_ChanCics):
+    """A target whose DTO is 80 bytes; WS-BIGLEN a never-written COMP-5 VALUE 32767, WS-N a data item the program sets."""
+
+    SIZES = {**_ChanCics.SIZES, "WS-BIG": 32767, "WS-V1": 10}
+
+    def __init__(self):
+        super().__init__()
+        self.gp.dto = lambda cls: type("D", (), {"size": 80})()  # the 80-byte DTO, on the inherited generated stub
+        self.dto_for = lambda area, size, program=None: "Dto"
+        self.codec = lambda cls: cls
+        self.g.reading = lambda: __import__("contextlib").nullcontext()
+        self.g.field_expr = lambda ref: f"f_{ref.name}"
+        self.constant_int = lambda t: {"WS-BIGLEN": 32767, "80": 80, "10": 10}.get(t.strip())
+
+
+def test_xctl_commarea_length_past_the_dto_passes_that_many_bytes():
+    """IBM, EXEC CICS XCTL: LENGTH is the COMMAREA's length and the target's EIBCALEN is that length; ca-xctl-versions
+    CAXA passes LENGTH(WS-BIGLEN)=32767 over a PIC X(32767) the 80-byte DTO cannot hold. The bytes travel
+    (DetCics.commareaOut); a length within the DTO, known at translation, keeps the plain DTO. RESP2 follows the
+    condition (LENGERR 11, PGMIDERR 1)."""
+    c = _OverCics()
+    out = c.command("XCTL PROGRAM('XB') COMMAREA(WS-BIG) LENGTH(WS-BIGLEN) RESP(R) RESP2(R2)", "")
+    assert out[0] == (
+        "String xr1 = task.xctl('XB'.strip(), DetCics.commareaOut(out_Dto(f_WS-BIG.storage(), "
+        "f_WS-BIG.offset()), f_WS-BIG, INT(WS-BIGLEN), 80, CS), INT(WS-BIGLEN));"
+    )
+    assert any("DetCics.xctlResp2(xr1)" in x for x in out)
+    within = c.command("XCTL PROGRAM('XB') COMMAREA(WS-V1) LENGTH(80)", "")
+    assert "commareaOut" not in within[0] and within[0].endswith(", INT(80));")
+    unknown = c.command("XCTL PROGRAM('XB') COMMAREA(WS-V1) LENGTH(WS-N)", "")
+    assert "commareaOut" in unknown[0]  # a length only known at run time is decided there
+    ret = c.command("RETURN TRANSID('TRN1') COMMAREA(WS-BIG) LENGTH(WS-BIGLEN)", "")
+    assert any("commareaOut" in x for x in ret)  # #4679: a RETURN's too (below)
+
+
+# ---- #4679: LINK RESP2; RETURN / LINK COMMAREA LENGTH past the DTO; opaque bytes passed on ------------------------
+def test_link_resp2_follows_its_condition():
+    """IBM, EXEC CICS LINK conditions: LENGERR RESP2 11 (COMMAREA length below 0 or above 32763), PGMIDERR RESP2 1 (no
+    installed definition, autoinstall off) -- what CicsTask.link and the stub's GGCLINK raise. A failed LINK stored
+    RESP2 0; it is DetCics.linkResp2 of the condition now, as XCTL's (#4501)."""
+    c = _OverCics()
+    out = c.command("LINK PROGRAM('XB') COMMAREA(WS-V1) RESP(R) RESP2(R2)", "")
+    assert out[-1] == "OUTCOME(DetCics.resp(lr1), DetCics.linkResp2(lr1));"
+    out = c.command("LINK PROGRAM('XB')", "")
+    assert out[-1].endswith(", DetCics.linkResp2(lr5));")
+
+
+def test_return_and_link_commarea_length_past_the_dto():
+    """IBM, EXEC CICS RETURN: COMMAREA / LENGTH is the data passed to the next program of the conversation, and its
+    EIBCALEN is that LENGTH; LINK: LENGTH is the COMMAREA's length, passed by reference (the target's EIBCALEN).
+    CardDemo's COCRDLIC RETURNs WS-COMMAREA LENGTH 2000 over its 414-byte DTO: the bytes travel (DetCics.commareaOut).
+    A LINK past the DTO lays that many bytes over the caller's storage (Cobol.commarea, capped at 32763: past it the
+    LINK is LENGERR); a LENGTH within the DTO known at translation keeps the DTO's span."""
+    c = _OverCics()
+    ret = c.command("RETURN TRANSID('TRN1') COMMAREA(WS-BIG) LENGTH(WS-BIGLEN)", "")
+    assert ret[1] == ("task.returnTransid('TRN1'.strip(), DetCics.commareaOut(out_Dto(f_WS-BIG.storage(), "
+                      "f_WS-BIG.offset()), f_WS-BIG, INT(WS-BIGLEN), 80, CS), INT(WS-BIGLEN));")  # fmt: skip
+    within = c.command("RETURN TRANSID('TRN1') COMMAREA(WS-V1) LENGTH(80)", "")
+    assert "commareaOut" not in within[1]
+    link = _OverCics().command("LINK PROGRAM('XB') COMMAREA(WS-BIG) LENGTH(WS-BIGLEN)", "")
+    assert link[0] == "Storage cw3 = Cobol.commarea(f_WS-BIG, Math.max(80, Math.min(INT(WS-BIGLEN), 32763)));"
+    assert link[2] == "String lr1 = task.link('XB'.strip(), ca2, INT(WS-BIGLEN), cw3.bytes);"
+    assert c.command("LINK PROGRAM('XB') COMMAREA(WS-V1) LENGTH(10)", "")[0].endswith("Cobol.commarea(f_WS-V1, 80);")
+    assert c.command("LINK PROGRAM('XB') COMMAREA(WS-V1)", "")[0].endswith("Cobol.commarea(f_WS-V1, 80);")
+
+
+@pytest.mark.skipif(_javac() is None, reason="needs a JDK 17 (JAVA_HOME / JDK_17)")
+def test_det_runtime_passes_opaque_commarea_bytes_on(tmp_path):
+    """#4679 (c): a receiver whose DFHCOMMAREA is shorter than the COMMAREA it was passed keeps the bytes past its
+    record (Storage.beyond) -- CICS passed LENGTH bytes, the record only addresses its own. A further RETURN / XCTL
+    (DetCics.commareaOut) or LINK (Cobol.commarea) of that area with the LENGTH passes them on, and a LINK target's
+    writes there come back (Cobol.commareaBack: by reference). Past them: LOW-VALUES, as before (X10)."""
+    from gitgalaxy.tools.cobol_to_java.cobol_to_java_transaction_forge import CICS_SPEC_JAVA, CICS_TASK_JAVA
+    from gitgalaxy.tools.cobol_to_java.det import program as P
+
+    src = tmp_path / "src"
+    files = {"t/cics/CicsTask.java": CICS_TASK_JAVA.replace("__PACKAGE__", "t").replace("__ZONE__", "UTC"),
+             "t/cics/CicsSpec.java": CICS_SPEC_JAVA.replace("__PACKAGE__", "t"),
+             **{f"t/{k}": v for k, v in P.runtime_files("t", batch=False).items()}}  # fmt: skip
+    files["Main.java"] = """
+import java.nio.charset.Charset;
+import t.cobolrt.*;
+import t.cobolrt.cics.DetCics;
+public class Main {
+    public static void main(String[] a) {
+        Charset l1 = Charset.forName("ISO-8859-1");
+        Storage ca = Storage.of("ABCD".getBytes(l1));
+        ca.beyond = "EFG".getBytes(l1);
+        Field f = Field.group(ca, 0, 4);
+        byte[] out = (byte[]) DetCics.commareaOut("dto", f, 9, 4, l1);
+        System.out.println(new String(DetCics.commareaIn(out, l1), l1).replace('\0', '.'));
+        System.out.println(DetCics.commareaOut("dto", f, 4, 4, l1));
+        Field tail = Field.group(ca, 2, 2);
+        Storage w = Cobol.commarea(tail, 6);
+        System.out.println(new String(w.bytes, l1).replace('\0', '.'));
+        w.bytes[3] = 'x';
+        w.bytes[0] = 'y';
+        Cobol.commareaBack(w, tail);
+        System.out.println(new String(ca.bytes, l1) + "|" + new String(ca.beyond, l1));
+        System.out.println(DetCics.linkResp2("LENGERR") + " " + DetCics.linkResp2("PGMIDERR") + " " + DetCics.linkResp2("NORMAL"));
+    }
+}
+"""
+    for rel, text in files.items():
+        (src / rel).parent.mkdir(parents=True, exist_ok=True)
+        (src / rel).write_text(text, encoding="utf-8")
+    jdk = _javac()
+    import subprocess
+
+    built = subprocess.run([str(jdk / "javac"), "-nowarn", "-d", str(tmp_path / "classes"),  # noqa: S603
+                            *map(str, src.rglob("*.java"))], capture_output=True, text=True, check=False)  # fmt: skip
+    assert built.returncode == 0, built.stderr
+    out = subprocess.run([str(jdk / "java"), "-cp", str(tmp_path / "classes"), "Main"], capture_output=True,  # noqa: S603
+                         text=True, check=True).stdout.splitlines()  # fmt: skip
+    assert out == ["ABCDEFG..", "dto", "CDEFG.", "AByD|ExG", "11 1 0"]
+
+
+def test_link_to_a_target_no_dto_types_passes_the_bytes():
+    """#4679 (cics-crucible ca-link-lengths undefined-program): CALINK LINKs CAGONE, which no CSD defines, with
+    COMMAREA(WS-CA100) LENGTH(100) RESP2: no generated DTO types it, so the COMMAREA travels as its LENGTH bytes
+    (DetCics.commareaBytes, by reference) rather than the LINK being a hole -- and its PGMIDERR is RESP2 1."""
+    c = _OverCics()
+
+    def no_dto(area, size, program=None):
+        raise C.CicsError(f"no generated DTO for COMMAREA {area.name}")
+
+    c.dto_for = no_dto
+    out = c.command("LINK PROGRAM('CAGONE') COMMAREA(WS-V1) LENGTH(100) RESP(R) RESP2(R2)", "")
+    assert out[:3] == ["Storage cw3 = Cobol.commarea(f_WS-V1, Math.max(0, Math.min(INT(100), 32763)));",
+                       "String lr1 = task.link('CAGONE'.strip(), DetCics.commareaBytes(cw3.bytes, CS), INT(100), cw3.bytes);",
+                       'if ("NORMAL".equals(lr1)) Cobol.commareaBack(cw3, f_WS-V1);']  # fmt: skip
+    assert out[-1] == "OUTCOME(DetCics.resp(lr1), DetCics.linkResp2(lr1));"
+
+
+def test_an_integer_literal_against_an_alphanumeric_item_keeps_its_leading_zeros(tmp_path):
+    """#4270 (GenApp LGTESTP4: `ENP4CNOO Not = 0000000000` on a map field of ten digits): compared with an
+    alphanumeric item, an integer literal is the nonnumeric literal of its digits as written (IBM, "Comparison of
+    numeric and alphanumeric operands"). As a value it is 0, whose text "0" made '0000000000' unequal to it."""
+    pytest.importorskip("tree_sitter_language_pack")
+    from gitgalaxy.tools.cobol_to_java.det import program as P
+
+    (tmp_path / "T5.cbl").write_text(
+        "       IDENTIFICATION DIVISION.\n       PROGRAM-ID. T5.\n       DATA DIVISION.\n"
+        "       WORKING-STORAGE SECTION.\n       01  REC.\n           05  WS-A              PIC X(10).\n"
+        "           05  WS-B              PIC X(2).\n       01  WS-N                  PIC 9(3) VALUE 7.\n"
+        "       PROCEDURE DIVISION.\n       MAIN-PARA.\n           MOVE SPACES TO REC\n"
+        "           IF WS-A NOT = 0000000000 AND WS-A NOT = 0\n               MOVE 'Y' TO WS-B\n           END-IF\n"
+        "           IF WS-N = 007\n               MOVE 'N' TO WS-B\n           END-IF\n"
+        "           EXEC CICS RETURN END-EXEC.\n",
+        encoding="utf-8",
+    )
+    (tmp_path / "proj/src/main/java/com/x").mkdir(parents=True)
+    stub = "package com.x.service;\nimport com.x.cics.CicsTask;\npublic class T5Service {\n" \
+           "    public void runTask(CicsTask task) {}\n}\n"  # fmt: skip
+    r = P.translate(tmp_path / "T5.cbl", [], stub, "com.x", {}, tmp_path / "proj")
+    assert r.stats["holes"] == []
+    assert '_WS_A, "0000000000", CS) == 0' in r.java and '_WS_A, "0", CS) == 0' in r.java
+    assert '"007"' not in r.java  # a numeric item against it: by value, as before

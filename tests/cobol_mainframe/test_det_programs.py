@@ -180,7 +180,118 @@ PCS_PROC = [
 # (GnuCOBOL does not parse a literal alphabet followed by an EBCDIC one: EBCDIC first)
 PCS_LITERAL = ["ALPHABET LT IS 'XYZ' SPACE 'Q' ALSO 'q'", "    '9' THRU '0' 'm' THRU 'a'."]
 
+
+def _split_program(proc: list[str]) -> str:
+    """A fixed-form program for the probe items; `proc` is written as given (columns 8 and on)."""
+    data = ["01 S3 PIC S9(4)V999 VALUE -5.125.", "01 B0 PIC 9(4) COMP VALUE 579.", "01 D0 PIC 9(3) VALUE 7.",
+            "01 Q3 PIC 9V999 VALUE 3.125.", "01 D1 PIC 9(3) VALUE 3.", "01 FL PIC X VALUE 'A'."]  # fmt: skip
+    head = ["       IDENTIFICATION DIVISION.", "       PROGRAM-ID. SPLITP.", "       DATA DIVISION.",
+            "       WORKING-STORAGE SECTION."]  # fmt: skip
+    return "\n".join([*head, *("       " + d for d in data), "       PROCEDURE DIVISION.", *proc,
+                      "           STOP RUN.", ""])  # fmt: skip
+
+
 PROGRAMS = {
+    # #4674 / #4656: NOT split from its relational operator (or an AND / OR from the NOT) by a line break
+    "SPLITNOT": _split_program(
+        [
+            "           IF S3 NOT",
+            "               < 3 + B0",
+            "               DISPLAY 'Y1'",
+            "           END-IF",
+            "           IF S3 NOT",
+            "               = 3",
+            "               DISPLAY 'Y2'",
+            "           ELSE",
+            "               DISPLAY 'N2'",
+            "           END-IF",
+            "           IF D0",
+            "               NOT",
+            "               > 3",
+            "               DISPLAY 'Y3'",
+            "           END-IF",
+            "           IF D0 IS NOT",
+            "               GREATER THAN 9",
+            "               DISPLAY 'Y4'",
+            "           END-IF",
+            "           IF D0 IS",
+            "               NOT GREATER THAN 9",
+            "               DISPLAY 'Y5'",
+            "           END-IF",
+            "           IF D0 NOT",
+            "               EQUAL TO 7 OR NOT",
+            "               < 100 AND NOT",
+            "               > 5",
+            "               DISPLAY 'Y6'",
+            "           END-IF",
+            "           IF D0 > 3 AND NOT",
+            "               < 2 OR NOT",
+            "               Q3 > 4",
+            "               DISPLAY 'Y7'",
+            "           END-IF",
+            "           IF D0 NOT > 3 AND",
+            "               NOT",
+            "               < 2",
+            "               DISPLAY 'Y8'",
+            "           END-IF",
+            "           IF NOT",
+            "               D0 > 3",
+            "               DISPLAY 'Y9'",
+            "           END-IF",
+            "           IF FL NOT",
+            "               = 'B'",
+            "               DISPLAY 'Y10'",
+            "           END-IF",
+            "           IF FL NOT",
+            "               EQUAL 'B' OR 'C'",
+            "               DISPLAY 'Y11'",
+            "           END-IF",
+            "           EVALUATE TRUE",
+            "               WHEN D0 NOT",
+            "                   < 3",
+            "                   DISPLAY 'W1'",
+            "               WHEN OTHER",
+            "                   DISPLAY 'W2'",
+            "           END-EVALUATE",
+            "           PERFORM UNTIL D0 NOT",
+            "               < 3",
+            "               DISPLAY 'U'",
+            "               ADD 1 TO D0",
+            "           END-PERFORM",
+        ]
+    ),
+    # #4656: ZERO as a figurative constant inside a parenthesised arithmetic expression of a condition and of a WHEN
+    "ZEROARITH": _split_program(
+        [
+            "           IF (ZERO + 3) / 12 NOT > D0",
+            "               DISPLAY 'Z1'",
+            "           END-IF",
+            "           IF (ZERO / 12) * B0 > S3",
+            "               DISPLAY 'Z2'",
+            "           END-IF",
+            "           IF (D0 + ZERO) > D1",
+            "               DISPLAY 'Z3'",
+            "           END-IF",
+            "           IF B0 IS NOT ZERO",
+            "               DISPLAY 'Z4'",
+            "           END-IF",
+            "           IF NOT D0 IS ZERO",
+            "               DISPLAY 'Z5'",
+            "           END-IF",
+            "           EVALUATE TRUE",
+            "               WHEN D0 + ZERO > D1",
+            "                   DISPLAY 'Z6'",
+            "               WHEN OTHER",
+            "                   DISPLAY 'Z7'",
+            "           END-EVALUATE",
+            "           EVALUATE TRUE",
+            "               WHEN D0 + ZERO < D1",
+            "                   DISPLAY 'Z8'",
+            "               WHEN OTHER",
+            "                   DISPLAY 'Z9'",
+            "           END-EVALUATE",
+        ]
+    ),
     # #4539: relation conditions under a PROGRAM COLLATING SEQUENCE: EBCDIC (and HIGH-VALUE against an item, its
     # native X'FF'), a literal alphabet, STANDARD-2 (the data's byte order), and the issue's repro ('z' THRU 'a')
     "PCSEB": pcs_program(
@@ -980,6 +1091,85 @@ PROGRAMS["CMPALT"] = pcs_program(
     _all_proc(_ALL_LETTERS, ["ALL 'x'", "ALL 'ab'", "ALL SPACES"]),
 )
 
+
+def _pscale_proc() -> list[str]:
+    """#4670: right-P (99PP) and left-P (VPP99, PP99) items -- zoned signed and unsigned, left-P binary -- as MOVE
+    receivers (literals truncated at both ends, an item, an alphanumeric) and senders (into a numeric-edited item, and a
+    right-P one into an alphanumeric: a zero for each P), arithmetic receivers (ROUNDED, ON SIZE ERROR) and operands, and
+    in comparisons. Each value is shown through a numeric-edited item: a P-scaled item's own DISPLAY is refused."""
+    proc: list[str] = []
+    cases = [(x, ["1200", "1250", "123456", "-3400", "7"], "W * 3", "150", "1290", "1200", "1000")
+             for x in ("ZR", "ZRS", "ZRV")]  # fmt: skip
+    cases += [(x, ["0.0012", "0.00125", "-0.0056", "0.01", "0.000123"], "W / 1000000", "0.0011", "0.000129",
+               "0.0013", "0.001") for x in ("ZL", "ZLS", "BL", "BLS", "ZN")]  # fmt: skip
+    for x, lits, comp, add, rnd, eq, gt in cases:
+        for v in lits:
+            proc += [f"MOVE {v} TO {x}", f"MOVE {x} TO E", f"DISPLAY '{x} {v} ' E"]
+        proc += [f"MOVE W TO {x}", f"MOVE {x} TO E", f"DISPLAY '{x} W ' E",
+                 f"COMPUTE {x} = {comp}", f"MOVE {x} TO E", f"DISPLAY '{x} C ' E",
+                 f"ADD {add} TO {x}", f"MOVE {x} TO E", f"DISPLAY '{x} A ' E",
+                 f"COMPUTE {x} ROUNDED = {rnd}", f"MOVE {x} TO E", f"DISPLAY '{x} R ' E",
+                 f"COMPUTE W = {x} * 7", f"MOVE W TO E", f"DISPLAY '{x} O ' E",
+                 f"IF {x} = {eq} DISPLAY '{x} EQ' ELSE DISPLAY '{x} NE' END-IF",
+                 f"IF {x} > {gt} DISPLAY '{x} GT' ELSE DISPLAY '{x} LE' END-IF",
+                 f"IF {x} < W DISPLAY '{x} LTW' ELSE DISPLAY '{x} GEW' END-IF",
+                 f"MOVE XS TO {x}", f"MOVE {x} TO E", f"DISPLAY '{x} XS ' E",
+                 f"COMPUTE {x} = {gt} * 99", f"    ON SIZE ERROR DISPLAY '{x} SZ'", "END-COMPUTE"]  # fmt: skip
+        if not x.startswith(("ZL", "BL", "ZN")):  # (a non-integer into an alphanumeric: IBM rejects, cobc warns)
+            proc += [f"MOVE {x} TO X6", f"DISPLAY '{x} X [' X6 ']'"]
+    proc += ["IF ZL < ZR DISPLAY 'LR LT' ELSE DISPLAY 'LR GE' END-IF", "MOVE 0.0012 TO ZL", "MOVE ZL TO BLS",
+             "MOVE BLS TO E", "DISPLAY 'LL ' E", "MOVE 1300 TO ZR", "MOVE ZR TO ZL", "MOVE ZL TO E", "DISPLAY 'RL ' E",
+             "INITIALIZE ZR ZL BL", "MOVE ZR TO E", "DISPLAY 'I ' E"]  # fmt: skip
+    return proc
+
+
+PROGRAMS["PSCALE"] = program(
+    "PSCALE",
+    ["01 ZR PIC 99PP VALUE 1200.", "01 ZRS PIC S99PP VALUE -3400.", "01 ZRV PIC 99PPV.", "01 ZL PIC VPP99.",
+     "01 ZLS PIC SVPP99 VALUE -0.0034.", "01 BL PIC VPP99 COMP VALUE 0.0078.", "01 BLS PIC SPP999 COMP.",
+     "01 ZN PIC PP99 VALUE 0.0091.", "01 E PIC -(7)9.9(6).", "01 W PIC S9(6)V9(6) VALUE 1234.5678.",
+     "01 X6 PIC X(6).", "01 XS PIC X(6) VALUE '  1234'."],
+    _pscale_proc(),
+)  # fmt: skip
+
+
+def dpc_program(name: str, data: list[str], proc: list[str]) -> str:
+    """#4462: a program under SPECIAL-NAMES DECIMAL-POINT IS COMMA: WORKING-STORAGE and PROCEDURE DIVISION lines from
+    column 8 (a statement indented four more)."""
+    lines = ["IDENTIFICATION DIVISION.", f"PROGRAM-ID. {name}.", "ENVIRONMENT DIVISION.", "CONFIGURATION SECTION.",
+             "SPECIAL-NAMES.", "    DECIMAL-POINT IS COMMA.", "DATA DIVISION.", "WORKING-STORAGE SECTION.", *data,
+             "PROCEDURE DIVISION.", *[f"    {x}" for x in proc], "    GOBACK."]  # fmt: skip
+    return "\n".join(f"       {x}" for x in lines) + "\n"
+
+
+# #4462: DECIMAL-POINT IS COMMA (estate-crucible DEUT ZINSBER's statements, its national-letter names spelt in ASCII):
+# numeric literals with a decimal comma in VALUE clauses and statements (`1000,00`, `0,5`, `-12,5`, a subscript
+# beside one), numeric-edited PICTUREs whose `,` is the decimal point and `.` an insertion character (zero
+# suppression, a fixed and a floating sign, check protection, BLANK WHEN ZERO), de-editing (an edited item MOVEd as
+# a number), an alphanumeric sender into a zoned, a packed and an edited item (`,` its decimal point, `.`
+# skipped, as libcob reads it) and NUMVAL / NUMVAL-C (`,` the point, `.` the separator)
+PROGRAMS["DPCOMMA"] = dpc_program(
+    "DPCOMMA",
+    ["01  WS-ZINS.", "    05  ZINS-SATZ     PIC 9V99 VALUE 1,50.", "    05  GEBUEHR       PIC 9(3)V99 VALUE 12,50.",
+     "01  BETRAEGE.", "    05  BETRAG        PIC 9(7)V99 VALUE 1000,00.", "    05  ERGEBNIS      PIC ZZZ.ZZ9,99.",
+     "    05  TABELLE       OCCURS 3 TIMES.", "        10  T-WERT    PIC 9V9.",
+     "01  S-WERT  PIC S9(3)V9 VALUE -12,5.", "01  E-SIGN  PIC -Z.ZZ9,9.", "01  E-FLOAT PIC +++.++9,99.",
+     "01  E-STAR  PIC **.**9,99.", "01  E-FIX   PIC 9(3),9(2).", "01  E-BWZ   PIC ZZ9,99 BLANK WHEN ZERO.",
+     "01  N-ZON   PIC 9(5)V99.", "01  N-PAK   PIC S9(5)V99 COMP-3.", "01  N-OUT   PIC 9(7)V99.",
+     "01  X-TXT   PIC X(10) VALUE '12,34'.", "01  X-DOT   PIC X(10) VALUE '1.234,5'."],
+    ["COMPUTE BETRAG = BETRAG * ZINS-SATZ", "MOVE 0,5 TO T-WERT (2)", "MOVE BETRAG TO ERGEBNIS", "DISPLAY ERGEBNIS",
+     "DISPLAY BETRAEGE", "MOVE S-WERT TO E-SIGN", "DISPLAY E-SIGN", "MOVE -1234,56 TO E-SIGN", "DISPLAY E-SIGN",
+     "MOVE 1234,5 TO E-FLOAT", "DISPLAY E-FLOAT", "MOVE -0,05 TO E-FLOAT", "DISPLAY E-FLOAT",
+     "MOVE 12,3 TO E-STAR", "DISPLAY E-STAR", "MOVE 12,3 TO E-FIX", "DISPLAY E-FIX", "MOVE ZERO TO E-BWZ",
+     "DISPLAY '[' E-BWZ ']'", "MOVE 7,5 TO E-BWZ", "DISPLAY E-BWZ", "MOVE ERGEBNIS TO N-ZON", "DISPLAY N-ZON",
+     "COMPUTE N-OUT = BETRAG + GEBUEHR - S-WERT", "DISPLAY N-OUT",
+     "MOVE X-TXT TO N-ZON", "DISPLAY N-ZON", "MOVE X-TXT TO N-PAK", "MOVE N-PAK TO N-OUT", "DISPLAY N-OUT",
+     "MOVE X-DOT TO N-ZON", "DISPLAY N-ZON", "MOVE X-TXT TO ERGEBNIS", "DISPLAY ERGEBNIS",
+     "COMPUTE N-ZON = FUNCTION NUMVAL('7,25')", "DISPLAY N-ZON",
+     "COMPUTE N-ZON = FUNCTION NUMVAL-C('1.234,50')", "DISPLAY N-ZON"],
+)  # fmt: skip
+
+
 FILE_DDS = {"SORTUG": ["INFILE", "OUTFILE", "M1FILE", "M2FILE", "MGFILE"]}
 
 
@@ -1138,6 +1328,57 @@ def test_display_of_a_numeric_function_is_refused_by_name_not_emitted_uncompilab
     src = program("DNUM", ["01  X PIC X(7) VALUE 'abc'."], ["DISPLAY FUNCTION LENGTH(X)"])
     holes = _pcs_holes(tmp_path, src.replace("DNUM", "PCSX"))
     assert any("DISPLAY of numeric FUNCTION LENGTH" in h for h in holes), holes
+
+
+@pytest.mark.parametrize(
+    ("data", "proc", "why"),
+    [
+        # #4669: GnuCOBOL 3.1.2 stores a P-scaled packed item's digits into its sign nibble (no oracle)
+        (["01 A PIC SVPP99 COMP-3 VALUE 0.0012.", "01 C PIC 9(6)."], ["MOVE A TO C"], "a P-scaled packed item"),
+        (["01 G.", "   05 A PIC S99PP COMP-3.", "   05 B PIC 9."], ["INITIALIZE G"], "a P-scaled packed item"),
+        # GnuCOBOL 3.1.2 loops forever on MOVE 0 into a right-P binary item
+        (["01 A PIC 99PP COMP."], ["MOVE 0 TO A"], "a right-P / native binary item"),
+        # GnuCOBOL DISPLAYs PIC 99PP VALUE 1200 as 0012
+        (["01 A PIC 99PP VALUE 1200."], ["DISPLAY A"], "a P-scaled item's DISPLAY form"),
+        # GnuCOBOL's intermediate precision for a P-scaled operand: IF A / 7 > 171 and A * 2 > 2399 are false,
+        # I + A * 0.5 drops the product, (A / 7) * A the quotient's digits
+        (["01 A PIC 99PP VALUE 1200."], ["IF A * 2 > 2399", "    DISPLAY 'Y'", "END-IF"],
+         "a P-scaled operand in a condition"),
+        (["01 A PIC VPP99 VALUE 0.0012."], ["IF A / 7 > 0.00017", "    DISPLAY 'Y'", "END-IF"],
+         "a P-scaled operand in a condition"),
+        (["01 A PIC 99PP VALUE 1200.", "01 I PIC 9V9(5) VALUE 0.33333.", "01 R PIC 9(5)V9(5)."],
+         ["COMPUTE R = I + A * 0.5"], "a P-scaled operand in a COMPUTE"),
+        (["01 A PIC 99PP VALUE 1200.", "01 R PIC 9(9)V9(5)."], ["COMPUTE R = (A / 7) * A"],
+         "a P-scaled operand in a COMPUTE"),
+    ],
+)  # fmt: skip
+def test_p_scaled_items_the_oracle_cannot_answer_are_refused_by_name(data, proc, why, tmp_path):
+    """#4669: refused by name, never a crash (the layout's ValueError on PIC SVPP99 COMP-3)."""
+    pytest.importorskip("tree_sitter_language_pack")
+    holes = _pcs_holes(tmp_path, program("PCSX", data, proc))
+    assert any(why in h for h in holes), holes
+
+
+def test_p_scaled_items_store_their_nines_scaled():
+    """#4669 / #4670: a P is a scaling position, never stored -- digits are the 9s, the scale counts the Ps."""
+    pytest.importorskip("tree_sitter_language_pack")
+    from decimal import Decimal
+
+    from gitgalaxy.tools.cobol_to_java.det import layout as L
+
+    def item(pic: str, usage: str = "DISPLAY") -> L.Item:
+        it = L.Item(level=1, name="A", section="WORKING-STORAGE", pic=pic, usage=usage)
+        it.size = it.elementary_size()
+        return it
+
+    for pic, usage, digits, scale, size in [("99PP", "DISPLAY", 2, -2, 2), ("S99PPV", "DISPLAY", 2, -2, 2),
+                                            ("VPP99", "DISPLAY", 2, 4, 2), ("PP99", "DISPLAY", 2, 4, 2),
+                                            ("SVPP99", "PACKED", 2, 4, 2), ("S9(3)P(2)", "BINARY", 3, -2, 2),
+                                            ("S9(3)V99", "PACKED", 5, 2, 3)]:  # fmt: skip
+        it = item(pic, usage)
+        assert (it.digits, it.scale, it.size) == (digits, scale, size), pic
+    assert L.encode_number(item("SVPP99", "PACKED"), Decimal("0.0012")) == bytes.fromhex("012C")
+    assert L.encode_number(item("99PP"), Decimal("1250")) == b"12"
 
 
 def _byte_storage(java: str, name: str) -> bool:

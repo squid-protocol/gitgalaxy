@@ -215,9 +215,9 @@ WANT = {
 
 
 def _java_ok() -> bool:
-    from test_det_programs import _java
+    import test_det_programs as T
 
-    return _java() is not None
+    return T._java() is not None
 
 
 @pytest.mark.skipif(os.environ.get("EQUIVALENCE_E2E") != "1" or not shutil.which("docker"),

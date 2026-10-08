@@ -3142,11 +3142,9 @@ def _same_commarea(a: Any, b: Any) -> bool:
 
 
 def compare_task_sysout(cobol: bytes, java_file: Path, enc: str) -> dict[str, Any]:
-    """#4635: what the task DISPLAYed on each side, line by line (equivalence.compare_sysout, as a batch step's
-    SYSOUT is, #4056). The Java side wrote nothing when the port never DISPLAYs: an empty log."""
-    import equivalence as eq
-
-    return eq.compare_sysout(cobol, java_file.read_bytes() if java_file.is_file() else b"", enc)
+    """#4635: what the task DISPLAYed on each side, line by line (equivalence_common.compare_sysout, as a batch
+    step's SYSOUT is, #4056). The Java side wrote nothing when the port never DISPLAYs: an empty log."""
+    return common.compare_sysout(cobol, java_file.read_bytes() if java_file.is_file() else b"", enc)
 
 
 def compare_events(cobol: list[dict[str, Any]], java: list[dict[str, Any]]) -> dict[str, Any]:

@@ -117,12 +117,72 @@ public final class Cobol {
                 insertEdit(to, sourceText(from, fc, cs), cs);
                 break;
             case NUMERIC:
+                if (to.kind == Field.Kind.NUMERIC_BINARY && from.kind == Field.Kind.NUMERIC_DISPLAY
+                        && nonDigitToBinary(from, to, cs)) {
+                    break;
+                }
                 boolean zoned = to.kind == Field.Kind.NUMERIC_DISPLAY && fc != NUMERIC && fc != NUM_EDITED;
-                store(to, zoned ? alnumToDisplay(from.raw(), to, cs) : source(from, fc, cs), cs);
+                store(to, zoned ? alnumToDisplay(from.raw(), to, cs) : source(from, fc, to.decimalComma, cs), cs);
                 break;
             default:
-                edit(to, source(from, fc, cs), cs);
+                edit(to, source(from, fc, to.decimalComma, cs), cs);
         }
+    }
+
+    private static final BigInteger TWO_64 = BigInteger.ONE.shiftLeft(64);
+
+    /** A zoned sender holding a byte that is not a digit (a space, a letter) in a digit position, MOVEd to a binary
+     *  item, as the oracle computes it (#4652, register C11; GnuCOBOL 3.1.2 cob_move_display_to_binary): each byte
+     *  counts as its character minus '0' -- a space -16, 'A' 17 --, the sender's digits aligned on the receiver's
+     *  decimal places and accumulated in an unsigned 64-bit integer (wrapping), the receiver's digits kept under
+     *  TRUNC(STD) (not for COMP-5), then the sender's sign applied when the receiver is signed. PIC 9(10) of spaces
+     *  into S9(9) COMP is 931773840 under TRUNC(STD), -597908592 under TRUNC(BIN). IBM documents no result for such
+     *  data. A space where a signed sender's sign is counts -16 and positive; the oracle then rewrites a positive
+     *  sender's sign byte as an overpunch -- a space '{', a digit 4 'D' -- (a separate space sign '+'), as here. Any other non-sign there is refused by name. False,
+     *  nothing done, when every digit position holds a digit (the ordinary MOVE). */
+    private static boolean nonDigitToBinary(Field from, Field to, Charset cs) {
+        byte[] d = from.st.bytes;
+        int n = from.digits;
+        int start = from.signSeparate && from.signLeading ? from.off + 1 : from.off;
+        int signAt = from.signed && !from.signSeparate ? (from.signLeading ? 0 : n - 1) : -1;
+        int sepAt = from.signSeparate ? (from.signLeading ? from.off : from.off + n) : -1;
+        int[] digit = new int[n];
+        boolean neg = false;
+        boolean nonDigit = false;
+        for (int i = 0; i < n; i++) {
+            char c = Codec.ch(d[start + i], cs);
+            if (i == signAt && (c < '0' || c > '9') && c != ' ') {
+                int p = Codec.POSITIVE.indexOf(c);
+                int q = Codec.NEGATIVE.indexOf(c);
+                if (p < 0 && q < 0) throw nonDigitSign();
+                neg = q >= 0;
+                c = (char) ('0' + (p >= 0 ? p : q));
+            }
+            if (c < '0' || c > '9') nonDigit = true;
+            digit[i] = c - '0';
+        }
+        if (!nonDigit) return false;
+        if (sepAt >= 0) {
+            char s = Codec.ch(d[sepAt], cs);
+            if (s != '+' && s != '-' && s != ' ') throw nonDigitSign();
+            neg = s == '-';
+        }
+        if (Codec.numprocPfd && !Codec.preferredSign(from, cs)) throw Codec.nonPreferredSign(from);
+        BigInteger v = BigInteger.ZERO;
+        for (int i = 0; i < n - from.scale + to.scale; i++) {
+            v = v.multiply(BigInteger.TEN).add(BigInteger.valueOf(i < n ? digit[i] : 0));
+        }
+        v = v.mod(TWO_64);
+        if (Codec.truncBinary && !to.nativeBin) v = v.mod(BigInteger.TEN.pow(to.digits));
+        Codec.write(to, v, neg, cs);
+        if (signAt >= 0 && !neg) d[start + signAt] = Codec.by(Codec.POSITIVE.charAt(Math.max(digit[signAt], 0)), cs);
+        if (sepAt >= 0 && Codec.ch(d[sepAt], cs) == ' ') d[sepAt] = Codec.by('+', cs);
+        return true;
+    }
+
+    private static UnsupportedOperationException nonDigitSign() {
+        return new UnsupportedOperationException("MOVE to a binary item of a signed zoned item whose sign byte is "
+                + "neither a digit, a sign nor a space (IBM documents no result, register C11) is not modelled");
     }
 
     /** A MOVE with a COMP-1 / COMP-2 sender or receiver (#4271, Hfp): a number into a float converted to its
@@ -250,10 +310,16 @@ public final class Cobol {
 
     /** The sending item's value as a number: numeric, de-edited, or an alphanumeric read as GnuCOBOL does. */
     private static Codec.Num source(Field from, int fc, Charset cs) {
+        return source(from, fc, false, cs);
+    }
+
+    /** As source(from, fc, cs); `decimalComma` (#4462: the receiver's program declares DECIMAL-POINT IS COMMA): an
+     *  alphanumeric sender's `,` is its decimal point and `.` is ignored, as libcob reads it. */
+    private static Codec.Num source(Field from, int fc, boolean decimalComma, Charset cs) {
         switch (fc) {
             case NUMERIC: return Codec.read(from, cs);
             case NUM_EDITED: return deedit(from, cs);
-            default: return parseAlnum(from.raw(), cs);
+            default: return parseAlnum(from.raw(), cs, decimalComma);
         }
     }
 
@@ -287,7 +353,9 @@ public final class Cobol {
     private static Codec.Num alnumToDisplay(byte[] raw, Field to, Charset cs) {
         int total = to.digits;
         int scale = to.scale;
-        if (scale < 0 || scale > total) return parseAlnum(raw, cs);
+        if (scale < 0 || scale > total) return parseAlnum(raw, cs, to.decimalComma);
+        char dp = to.decimalComma ? ',' : '.';  // #4462: DECIMAL-POINT IS COMMA swaps the point and the separator
+        char sep = to.decimalComma ? '.' : ',';
         String s = new String(raw, cs);
         int n = s.length();
         int i = 0;
@@ -295,7 +363,7 @@ public final class Cobol {
         boolean neg = false;
         if (i < n && (s.charAt(i) == '+' || s.charAt(i) == '-')) neg = s.charAt(i++) == '-';
         int count = 0;
-        for (int j = i; j < n && s.charAt(j) != '.'; j++) {
+        for (int j = i; j < n && s.charAt(j) != dp; j++) {
             if (s.charAt(j) >= '0' && s.charAt(j) <= '9') count++;
         }
         int size = total - scale;
@@ -315,16 +383,19 @@ public final class Cobol {
             char c = s.charAt(i);
             if (c >= '0' && c <= '9') {
                 out[pos++] = c;
-            } else if (c == '.' && !point) {
+            } else if (c == dp && !point) {
                 point = true;
-            } else if (!(Character.isWhitespace(c) || c == ',')) {
+            } else if (!(Character.isWhitespace(c) || c == sep)) {
                 return new Codec.Num(BigInteger.ZERO, scale, false);
             }
         }
         return new Codec.Num(total == 0 ? BigInteger.ZERO : new BigInteger(new String(out)), scale, neg);
     }
 
-    private static Codec.Num parseAlnum(byte[] raw, Charset cs) {
+    /** `decimalComma` (#4462: DECIMAL-POINT IS COMMA): `,` is the decimal point and `.` the ignored separator. */
+    private static Codec.Num parseAlnum(byte[] raw, Charset cs, boolean decimalComma) {
+        char dp = decimalComma ? ',' : '.';
+        char sep = decimalComma ? '.' : ',';
         String s = new String(raw, cs);
         int i = 0;
         int n = s.length();
@@ -339,9 +410,9 @@ public final class Cobol {
             if (c >= '0' && c <= '9') {
                 digits.append(c);
                 if (point) frac++;
-            } else if (c == '.' && !point) {
+            } else if (c == dp && !point) {
                 point = true;
-            } else if (!(Character.isWhitespace(c) || c == ',')) {
+            } else if (!(Character.isWhitespace(c) || c == sep)) {
                 return new Codec.Num(BigInteger.ZERO, 0, false);
             }
         }
@@ -392,7 +463,7 @@ public final class Cobol {
         if (n.neg) v = v.negate();
         String s;
         if (to.blankWhenZero && v.signum() == 0) s = " ".repeat(to.len);
-        else s = Editing.format(to.pic, v, false, null);
+        else s = Editing.format(to.pic, v, to.decimalComma, null);
         padCopy(s.getBytes(cs), to, false, cs);
     }
 
@@ -403,7 +474,7 @@ public final class Cobol {
         switch (cat(f)) {
             case NUMERIC: return Codec.read(f, cs).value();
             case NUM_EDITED: return deedit(f, cs).value();
-            default: return parseAlnum(f.raw(), cs).value();
+            default: return parseAlnum(f.raw(), cs, f.decimalComma).value();
         }
     }
 

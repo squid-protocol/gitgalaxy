@@ -52,7 +52,7 @@ import devin_port as dp  # noqa: E402
 import equivalence as eq  # noqa: E402
 import equivalence_java as ej  # noqa: E402
 import mainframe_corpus as mc  # noqa: E402
-from equivalence_common import _fixed, _input_path  # noqa: E402
+from equivalence_common import _fixed, _input_path, sysout_lines  # noqa: E402
 
 from gitgalaxy.core.source_text import decode_bytes  # noqa: E402
 
@@ -362,8 +362,8 @@ def judge(name: str, program: str, work: Path, envs: list[str], with_faults: boo
             v = verdicts(case, corpus, cobol_f, java, prog.get("clock_fields"), ran_at)
             result["external_faults"].append({
                 "fault": f["name"], "absent": dd, "cobol_fired": decode_bytes(cobol_f.get("FAULTS", b"")).strip(),
-                **v, "cobol_sysout_tail": eq.sysout_lines(cobol_f.get("SYSOUT", b""), "latin-1")[-4:],
-                "java_sysout_tail": eq.sysout_lines(java.get("SYSOUT", b""), "latin-1")[-4:],
+                **v, "cobol_sysout_tail": sysout_lines(cobol_f.get("SYSOUT", b""), "latin-1")[-4:],
+                "java_sysout_tail": sysout_lines(java.get("SYSOUT", b""), "latin-1")[-4:],
                 "java_stderr_tail": decode_bytes(proc.stderr)[-400:]})  # fmt: skip
     return result
 
@@ -396,8 +396,8 @@ def devin_external_faults(work: Path, jdk21: Optional[Path]) -> list[dict[str, A
                 v = verdicts(case, corpus, cobol_f, java, None, datetime.now())
                 out.append({"port": name, "program": program, "case": case_name, "fault": f["name"], "absent": dd,
                             "cobol_fired": decode_bytes(cobol_f.get("FAULTS", b"")).strip(), **v,
-                            "cobol_sysout_tail": eq.sysout_lines(cobol_f.get("SYSOUT", b""), "latin-1")[-4:],
-                            "java_sysout_tail": eq.sysout_lines(java.get("SYSOUT", b""), "latin-1")[-4:],
+                            "cobol_sysout_tail": sysout_lines(cobol_f.get("SYSOUT", b""), "latin-1")[-4:],
+                            "java_sysout_tail": sysout_lines(java.get("SYSOUT", b""), "latin-1")[-4:],
                             "java_stderr_tail": decode_bytes(proc.stderr)[-400:]})  # fmt: skip
     return out
 

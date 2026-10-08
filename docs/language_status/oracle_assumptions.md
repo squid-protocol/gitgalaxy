@@ -68,7 +68,7 @@ verdict, but it limits what the proof says about inputs outside the scenarios.
 | C8 | compiler | DISPLAY of signed zoned, binary and packed items | MATCHED | yes |
 | C9 | compiler | POINTER is 8 bytes in GnuCOBOL (x86-64), 4 on z/OS | DIFFERS | only NULL, trailing (CBSA) |
 | C10 | compiler | INITIALIZE / VALUE ZERO zoned items: unsigned F zone (GnuCOBOL) vs preferred C sign (z/OS) | DIFFERS (tolerated where a case declares it) | yes (CardDemo READACCT ARRYFILE) |
-| C11 | compiler | MOVE of an alphanumeric item holding a non-digit to a numeric DISPLAY item (#4049) | DIFFERS (inputs kept out of the cases) | yes (COMEN01C option `1!`) |
+| C11 | compiler | A non-digit in a numeric DISPLAY item: MOVEd from an alphanumeric item (#4049); MOVEd to a binary item (#4652) | DIFFERS (#4049: inputs kept out of the cases) / MODELLED, the oracle's arithmetic (#4652: to binary) | yes (COMEN01C option `1!`; GenApp LGTESTP4's add) |
 | C12 | compiler | FUNCTION RANDOM: the oracle's generator (glibc via GnuCOBOL), not IBM's unpublished one; a seed IBM does not allow refused | DIFFERS (the numbers) / ASSUMED (the interface) | translated, no proof yet (CBSA CRDTAGY1-5, INQCUST; GenApp LGICVS01) |
 | D1 | data | Text order is ASCII (Latin-1), not EBCDIC | DIFFERS | keys: no; comparisons: not audited |
 | D2 | data | Hex literals that name EBCDIC characters (`X'40'`) | DIFFERS | no |
@@ -116,6 +116,7 @@ verdict, but it limits what the proof says about inputs outside the scenarios.
 | Q7 | Db2 | `CCSID EBCDIC` tables hold Unicode text: string order differs | DIFFERS | no |
 | Q8 | Db2 | Positioned UPDATE / DELETE: the Java side by row id | MATCHED | yes (GenApp LGUPDB01) |
 | Q9 | Db2 | More host variables than columns: SQLWARN3, the rest untouched | MATCHED | yes (GenApp LGUPDB01) |
+| Q10 | Db2 | A statement the driver fails with no Db2 SQLCODE (a blank timestamp host variable) | REFUSED (the task; an enumerated fault task not judged) | yes (GenApp LGTESTP4: its add's enumerated fault task `add--sql-lgapdb01-316` (SELECT LASTCHANGED faulted), not run) |
 | J1 | Java | VSAM files on H2, not the target database | ASSUMED | — |
 | M1 | method | The scenarios are ours, not production traffic | — | — |
 | M2 | method | SQL faults: injected on both sides at a statement (#4173), the SQLCA as the stub sets it | MATCHED (ASSUMED SQLCA) | yes (17 Db2 cases) |
@@ -305,7 +306,7 @@ verdict, but it limits what the proof says about inputs outside the scenarios.
 - **Not tolerated.** A negative overpunch (`}`, `J`–`R`) against either form, a different digit, or any byte in an
   undeclared dataset.
 
-### C11. A non-digit moved to a numeric DISPLAY item — DIFFERS (inputs kept out of the cases)
+### C11. A non-digit in a numeric DISPLAY item — DIFFERS (inputs kept out of the cases); to a binary item MODELLED
 - **What.** COMEN01C moves the typed option (`WS-OPTION-X`, PIC X(2) JUST RIGHT) to `WS-OPTION` (PIC 9(2)) and then
   tests `WS-OPTION IS NOT NUMERIC`. With a non-digit typed, GnuCOBOL 3 (`-std=ibm`) gives `1!` -> `01` and `!1` ->
   `00`, both NUMERIC (measured 2026-10-03), so `1!` is option 1 and XCTLs. IBM treats an alphanumeric sender of a
@@ -316,6 +317,28 @@ verdict, but it limits what the proof says about inputs outside the scenarios.
   GnuCOBOL does not; the proofs differ on both inputs.
 - **Now.** Those inputs are not in the case, so the three COMEN01C survivors in the port's own digit test stay case
   gaps. A z/OS run (#4050) settles which side is right.
+- **To a binary item (#4652) -- MODELLED, the oracle's arithmetic.** GenApp LGTESTP4's add leaves CA-BROKERID PIC
+  9(10) / CA-PAYMENT PIC 9(6) as spaces (INITIALIZE skips the REDEFINES that holds them), and LGAPDB01 MOVEs them to
+  S9(9) COMP host variables. GnuCOBOL 3.1.2 (`cob_move_display_to_binary`) counts each byte as its character minus
+  '0' -- a space is -16, `A` 17 -- in an unsigned 64-bit integer that wraps, aligns the sender's digits on the
+  receiver's decimal places, keeps the receiver's digits under TRUNC(STD) (`val mod 10^digits`; not COMP-5), then
+  applies the sender's sign if the receiver is signed: BROKERID 931773840, PAYMENT 707773840 (TRUNC(BIN): the low
+  bytes, -597908592). A space where a signed sender's sign is counts -16 and positive, and the oracle then rewrites a
+  positive sender's sign byte as an overpunch (a space `{`, a separate space sign `+`). On z/OS a zoned item of
+  EBCDIC spaces (X'40') has digit nibbles 0, so the result is most likely 0, but IBM documents no result for
+  non-digit data in a numeric item, and the data here is the program's own (not an input a case can leave out). So
+  the det runtime models the oracle (`Cobol.nonDigitToBinary`, tested against GnuCOBOL in
+  `test_det_nondigit_binary.py`), and genapp-lgtestp4's successful add is proven against it: the proof says the port
+  computes what GnuCOBOL computes for these bytes, not what z/OS would INSERT. A signed sender whose sign byte is
+  neither a digit, a sign nor a space (`!` the oracle reads as +1, X'FF' as +0) is refused by name.
+- **Not modelled (the rest of C11, #4662).** Measured against the oracle on 2026-10-07: spaces MOVEd to a packed (COMP-3)
+  or zoned numeric receiver agree (both 0); but a letter in a zoned sender MOVEd to a zoned receiver (the oracle copies
+  the byte: `1A3` stays `1A3`, the det runtime writes `113`), spaces MOVEd to a numeric-edited item (the oracle leaves
+  spaces, the det runtime `0`), arithmetic on such an item (COMPUTE / ADD: the oracle -16 per space, the det runtime
+  0) and comparisons (`IF A = 0` false on the oracle, true in the det runtime) still differ. The oracle also rewrites
+  a signed sender's unsigned sign digit as an overpunch when it MOVEs it to a binary item (`0123` becomes `012C`),
+  for digit-only data as well; the det runtime does that only on the non-digit path above (C10 tolerates the F / C
+  difference where a case declares it).
 
 ### C12. FUNCTION RANDOM — the numbers DIFFER from z/OS, the interface ASSUMED; refused where IBM does not allow the seed
 - **IBM** (Enterprise COBOL 6.4 Language Reference, RANDOM,
@@ -1087,6 +1110,13 @@ The length READQ TS returns on ITEMERR or QIDERR is not documented, so it is not
 - GenApp's LGUPDB01 FETCHes six host variables from a five-column cursor (a GenApp defect). Db2 sets SQLWARN3 and
   leaves the sixth as it was; both sides now do the same (the COBOL stub had reported an error, the Java side a
   NULL).
+
+### Q10. A statement the driver fails with no Db2 SQLCODE — REFUSED (#4270)
+- **What.** A host variable Db2 cannot take (GenApp LGAPDB01's INSERT COMMERCIAL with a blank CA-LASTCHANGED as its
+  REQUESTDATE, reached when the SELECT LASTCHANGED before it is faulted) fails in the client: Db2's CLI gives its own
+  native code -99999 (SQLSTATE 22007), IBM's JDBC driver its own -4220. What Db2 for z/OS answers is not known here,
+  so the COBOL stub stops the task by name ("the CLI failed it in the client") instead of passing -99999 on as an
+  SQLCODE: an enumerated fault task (M2) that reaches it is not judged; a declared scenario stops the case.
 
 ## The Java side
 

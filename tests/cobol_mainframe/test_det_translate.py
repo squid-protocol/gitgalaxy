@@ -1463,6 +1463,39 @@ def test_a_parse_error_outside_the_procedure_node_refuses_the_program(body):
         _proc(body)
 
 
+@pytest.mark.parametrize(
+    "cond",
+    [
+        ["    IF A NOT", "        = 'B'"],  # #4674: NOT at the end of a line, its operator on the next
+        ["    IF A NOT", "        EQUAL TO 'B'"],
+        ["    IF A", "        NOT", "        = 'B'"],
+        ["    IF A = 'B' OR NOT", "        < 'C'"],
+        ["    IF A = 'B' AND", "        NOT < 'C'"],  # an AND at a line end, the NOT (and operator) after it
+        ["    IF A = 'B' AND", "        NOT", "        < 'C'"],
+        ["    IF NOT", "        A = 'B'"],
+        ["    IF (ZERO + 3) / 12 NOT > 1"],  # #4656: ZERO is a number inside arithmetic, not a class word
+        ["    IF (ZERO / 12) * 2 > 1"],
+        ["    IF (3 + ZERO) > 1"],
+    ],
+)
+def test_a_relation_split_across_lines_or_with_zero_in_arithmetic_parses(cond):
+    pytest.importorskip("tree_sitter_language_pack")
+    proc = _proc([*cond, "        DISPLAY 'Y'", "    END-IF.", "    DISPLAY 'AFTER'.", "    GOBACK."])
+    stmts = [s for p in proc.paragraphs for s in S.walk(p.body)]
+    cond_ = stmts[0].data["cond"]
+    assert stmts[0].kind == "IF" and not (isinstance(cond_, tuple) and cond_[0] == "UNPARSED"), cond_
+    assert [s.kind for s in stmts if s.kind != "IF"] == ["DISPLAY", "DISPLAY", "GOBACK"]
+    # the break moved with the NOT, not the statements: AFTER keeps its own line (head is 7 lines, then cond)
+    assert stmts[-2].line == 7 + len(cond) + 3
+
+
+def test_a_when_with_zero_in_arithmetic_is_a_condition():
+    pytest.importorskip("tree_sitter_language_pack")
+    proc = _proc(["    EVALUATE TRUE", "        WHEN 1 + ZERO > 0 DISPLAY 'Y'", "    END-EVALUATE.", "    GOBACK."])
+    ev = next(s for p in proc.paragraphs for s in S.walk(p.body) if s.kind == "EVALUATE")
+    assert ev.whens[0][0][0][0][0] == "COND", ev.whens
+
+
 def test_a_parse_error_inside_a_statement_is_a_hole():
     pytest.importorskip("tree_sitter_language_pack")
     proc = _proc(["    MOVE ALL TO A.", "    IF (A = 1 CONTINUE END-IF.", "    GOBACK."])
@@ -2026,7 +2059,7 @@ class _OverCics(_ChanCics):
 
     def __init__(self):
         super().__init__()
-        self.gp = type("GP", (), {"dto": lambda s, cls: type("D", (), {"size": 80})()})()
+        self.gp.dto = lambda cls: type("D", (), {"size": 80})()  # the 80-byte DTO, on the inherited generated stub
         self.dto_for = lambda area, size, program=None: "Dto"
         self.codec = lambda cls: cls
         self.g.reading = lambda: __import__("contextlib").nullcontext()
@@ -2151,3 +2184,29 @@ def test_link_to_a_target_no_dto_types_passes_the_bytes():
                        "String lr1 = task.link('CAGONE'.strip(), DetCics.commareaBytes(cw3.bytes, CS), INT(100), cw3.bytes);",
                        'if ("NORMAL".equals(lr1)) Cobol.commareaBack(cw3, f_WS-V1);']  # fmt: skip
     assert out[-1] == "OUTCOME(DetCics.resp(lr1), DetCics.linkResp2(lr1));"
+
+
+def test_an_integer_literal_against_an_alphanumeric_item_keeps_its_leading_zeros(tmp_path):
+    """#4270 (GenApp LGTESTP4: `ENP4CNOO Not = 0000000000` on a map field of ten digits): compared with an
+    alphanumeric item, an integer literal is the nonnumeric literal of its digits as written (IBM, "Comparison of
+    numeric and alphanumeric operands"). As a value it is 0, whose text "0" made '0000000000' unequal to it."""
+    pytest.importorskip("tree_sitter_language_pack")
+    from gitgalaxy.tools.cobol_to_java.det import program as P
+
+    (tmp_path / "T5.cbl").write_text(
+        "       IDENTIFICATION DIVISION.\n       PROGRAM-ID. T5.\n       DATA DIVISION.\n"
+        "       WORKING-STORAGE SECTION.\n       01  REC.\n           05  WS-A              PIC X(10).\n"
+        "           05  WS-B              PIC X(2).\n       01  WS-N                  PIC 9(3) VALUE 7.\n"
+        "       PROCEDURE DIVISION.\n       MAIN-PARA.\n           MOVE SPACES TO REC\n"
+        "           IF WS-A NOT = 0000000000 AND WS-A NOT = 0\n               MOVE 'Y' TO WS-B\n           END-IF\n"
+        "           IF WS-N = 007\n               MOVE 'N' TO WS-B\n           END-IF\n"
+        "           EXEC CICS RETURN END-EXEC.\n",
+        encoding="utf-8",
+    )
+    (tmp_path / "proj/src/main/java/com/x").mkdir(parents=True)
+    stub = "package com.x.service;\nimport com.x.cics.CicsTask;\npublic class T5Service {\n" \
+           "    public void runTask(CicsTask task) {}\n}\n"  # fmt: skip
+    r = P.translate(tmp_path / "T5.cbl", [], stub, "com.x", {}, tmp_path / "proj")
+    assert r.stats["holes"] == []
+    assert '_WS_A, "0000000000", CS) == 0' in r.java and '_WS_A, "0", CS) == 0' in r.java
+    assert '"007"' not in r.java  # a numeric item against it: by value, as before

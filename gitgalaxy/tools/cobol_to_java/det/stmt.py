@@ -116,6 +116,9 @@ def parse(lines: list[Line]) -> Procedure:
     # the block's lines back after the rest of its last line (its period stays with the CALL), as blank lines
     proc_text = re.sub(r"(\x01+)([^\n]*\n)", lambda mm: mm.group(2) + "       \n" * len(mm.group(1)), proc_text)
     proc_text = re.sub(r"\bNOT=", "NOT =", proc_text, flags=re.I)  # the grammar wants a space after NOT
+    # #4681: the grammar refuses the abbreviated `... OR NOT = 'C'` / `AND NOT = 'C'` (it takes `NOT <`, `NOT >`
+    # and `NOT EQUAL`): spelled EQUAL, the same relation; string literals are left as they are
+    proc_text = _ABBREV_NOT_EQ.sub(lambda m: m.group(0) if m.group(1) is None else m.group(1) + "NOT EQUAL", proc_text)
     pre = "       IDENTIFICATION DIVISION.\n       PROGRAM-ID. GGDET.\n"
     src = (pre + "       PROCEDURE DIVISION.\n" + proc_text[len(header) :].lstrip("\n")).encode("latin-1")
     # line numbers: map back to the expanded program's lines
@@ -944,6 +947,7 @@ _STATEMENT_WORDS = {"ACCEPT", "ADD", "ALTER", "CALL", "CANCEL", "CLOSE", "COMPUT
                     "INSPECT", "MERGE", "MOVE", "MULTIPLY", "NEXT", "NOT", "OPEN", "PERFORM", "READ", "RELEASE",
                     "RETURN", "REWRITE", "SEARCH", "SET", "SORT", "START", "STOP", "STRING", "SUBTRACT", "UNSTRING",
                     "WHEN", "WRITE", "AT", "INVALID"}  # fmt: skip
+_ABBREV_NOT_EQ = re.compile(r"'[^'\n]*'|\"[^\"\n]*\"|(\b(?:AND|OR)\s+)NOT\s*=(?![=<>])", re.I)
 _SORT_TOKEN = re.compile(r"'[^'\n]*'|\"[^\"\n]*\"|[A-Za-z0-9][A-Za-z0-9-]*|\.(?=\s|$)|[^\s]")
 
 

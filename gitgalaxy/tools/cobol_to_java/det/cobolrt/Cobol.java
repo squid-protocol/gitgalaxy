@@ -75,18 +75,100 @@ public final class Cobol {
     }
 
     // ------------------------------------------------------------------------------------------ ARITHMETIC
+    // ------------------------------------------------------------------------------- size error (#4655)
+    /** libcob's invalid intermediate (COB_DECIMAL_NAN, oracle_assumptions C14): a decimal whose scale is -32768. A
+     *  zero divisor (cob_decimal_div) makes one of the dividend; an operation with one makes one of its left
+     *  operand's value; storing one (cob_decimal_get_field) leaves the receiver unchanged with a size error. It is
+     *  an ordinary number to everything else: cob_decimal_align truncates it to 0 (Cobol.align does the same with
+     *  its scale) and cob_decimal_cmp compares its value scaled by 10^32768. */
+    public static final int NAN_SCALE = -32768;
+
+    public static boolean isNan(BigDecimal d) {
+        return d.scale() == NAN_SCALE;
+    }
+
+    private static BigDecimal nan(BigDecimal d) {
+        return new BigDecimal(d.unscaledValue(), NAN_SCALE);
+    }
+
+    /** The statement's size-error state (libcob's EC-SIZE exception code): set by a zero divisor, 0 ** 0 or an
+     *  exponent without a finite result even when no invalid value reaches a receiver (an aligned NaN is 0, a
+     *  function's argument divided by zero is 0); cleared where a statement with ON SIZE ERROR starts. */
+    private static final ThreadLocal<boolean[]> SIZE_EC = ThreadLocal.withInitial(() -> new boolean[1]);
+
+    public static void sizeClear() {
+        SIZE_EC.get()[0] = false;
+    }
+
+    public static boolean sizeRaised() {
+        return SIZE_EC.get()[0];
+    }
+
+    private static void raiseSize() {
+        SIZE_EC.get()[0] = true;
+    }
+
+    /** cob_decimal_add of two intermediates where either may be libcob's NaN (#4655): NaN in, NaN out. */
+    public static BigDecimal add(BigDecimal a, BigDecimal b) {
+        return isNan(a) ? a : isNan(b) ? nan(a) : a.add(b);
+    }
+
+    /** cob_decimal_sub, as {@link #add(BigDecimal, BigDecimal)}. */
+    public static BigDecimal subtract(BigDecimal a, BigDecimal b) {
+        return isNan(a) ? a : isNan(b) ? nan(a) : a.subtract(b);
+    }
+
+    /** cob_decimal_mul, as {@link #add(BigDecimal, BigDecimal)}. */
+    public static BigDecimal multiply(BigDecimal a, BigDecimal b) {
+        return isNan(a) ? a : isNan(b) ? nan(a) : a.multiply(b);
+    }
+
+    /** Unary minus where the operand may be NaN: cobc's 0 - x, so a NaN's value is 0. */
+    public static BigDecimal negate(BigDecimal a) {
+        return isNan(a) ? nan(BigDecimal.ZERO) : a.negate();
+    }
+
     /** An intermediate quotient as GnuCOBOL forms it (cob_decimal_div): the scale a.scale - b.scale, the dividend
      *  shifted 38 digits more (and as many again as that scale is below zero), then divided and truncated -- so the
      *  quotient keeps 38 + max(a.scale - b.scale, 0) decimal places; a zero dividend is 0 of scale 0. The
-     *  receiver's own truncation or ROUNDED then applies in store. */
+     *  receiver's own truncation or ROUNDED then applies in store. A zero divisor makes the dividend NaN and raises
+     *  the size error (#4655); a NaN operand gives NaN. */
     public static BigDecimal divide(BigDecimal a, BigDecimal b) {
+        if (isNan(a)) {
+            return a;
+        }
+        if (isNan(b)) {
+            return nan(a);
+        }
         if (b.signum() == 0) {
-            throw new ArithmeticException("division by zero");
+            raiseSize();
+            return nan(a);
         }
         if (a.signum() == 0) {
             return BigDecimal.ZERO;
         }
         return a.divide(b, 38 + Math.max(a.scale() - b.scale(), 0), java.math.RoundingMode.DOWN);
+    }
+
+    /** DIVIDE ... REMAINDER (cob_div_quotient, cob_div_remainder): the dividend less the divisor times the quotient
+     *  `q` truncated to the first GIVING receiver's `scale` places -- not to its PICTURE's high-order digits, so a
+     *  quotient too big for its receiver still gives the true remainder. A NaN quotient (a zero divisor) gives NaN:
+     *  the remainder receiver unchanged (#4655). */
+    public static BigDecimal remainder(BigDecimal a, BigDecimal q, BigDecimal b, int scale) {
+        if (isNan(q)) {
+            return q;
+        }
+        return a.subtract(q.setScale(scale, RoundingMode.DOWN).multiply(b));
+    }
+
+    /** A division in an intrinsic function's argument (cob_intr_binop): a zero divisor gives 0, with the size
+     *  error raised -- never NaN (#4655). */
+    public static BigDecimal divideIntr(BigDecimal a, BigDecimal b) {
+        if (b.signum() == 0) {
+            raiseSize();
+            return BigDecimal.ZERO;
+        }
+        return divide(a, b);
     }
 
     /** ARITHMETIC-OSVS (#4287, oracle_assumptions C2): an intermediate result truncated to `scale` decimal places, as
@@ -126,6 +208,9 @@ public final class Cobol {
 
     /** cob_decimal_add with a decimal constant (Dc). */
     public static BigDecimal add(BigDecimal a, Dc c) {
+        if (isNan(a)) {
+            return a;
+        }
         if (a.scale() > c.v.scale()) {
             c.v = c.v.setScale(a.scale());
         }
@@ -134,6 +219,9 @@ public final class Cobol {
 
     /** cob_decimal_sub with a decimal constant (Dc). */
     public static BigDecimal subtract(BigDecimal a, Dc c) {
+        if (isNan(a)) {
+            return a;
+        }
         if (a.scale() > c.v.scale()) {
             c.v = c.v.setScale(a.scale());
         }
@@ -142,7 +230,7 @@ public final class Cobol {
 
     /** cob_decimal_mul with a decimal constant (Dc): the constant as it is now. */
     public static BigDecimal multiply(BigDecimal a, Dc c) {
-        return a.multiply(c.v);
+        return isNan(a) ? a : a.multiply(c.v);
     }
 
     /** cob_decimal_div with a decimal constant (Dc): the constant as it is now. */
@@ -153,6 +241,9 @@ public final class Cobol {
     /** cob_decimal_pow with a decimal constant exponent (Dc, never negative: the translator refuses one): trimmed in
      *  place once the base is not zero. */
     public static BigDecimal power(BigDecimal a, Dc c) {
+        if (isNan(a)) {
+            return a;
+        }
         if (c.v.signum() != 0 && a.signum() != 0) {
             c.v = trim(c.v);
         }
@@ -175,10 +266,21 @@ public final class Cobol {
     }
 
     /** A ** b as cob_decimal_pow forms it: a whole exponent exactly (base and result trimmed of trailing zeros, a
-     *  negative one through cob_decimal_div), else through double. */
+     *  negative one through cob_decimal_div), else through double. 0 ** 0 is 1 with the size error raised; an
+     *  exponent through double without a finite result (a negative base, an overflow) is NaN with the size error
+     *  raised, as libcob's (#4655); a NaN operand gives NaN. */
     public static BigDecimal power(BigDecimal a, BigDecimal b) {
+        if (isNan(a)) {
+            return a;
+        }
+        if (isNan(b)) {
+            return nan(a);
+        }
         boolean whole = b.stripTrailingZeros().scale() <= 0;
         if (b.signum() == 0) {
+            if (a.signum() == 0) {
+                raiseSize();
+            }
             return BigDecimal.ONE;
         }
         if (a.signum() == 0) {
@@ -191,7 +293,12 @@ public final class Cobol {
         if (whole && b.signum() < 0) {
             return trim(divide(BigDecimal.ONE, trim(trim(a).pow(-b.intValueExact()))));
         }
-        return new BigDecimal(Math.pow(a.doubleValue(), b.doubleValue()));
+        double r = Math.pow(a.doubleValue(), b.doubleValue());
+        if (Double.isNaN(r) || Double.isInfinite(r)) {
+            raiseSize();
+            return nan(a);
+        }
+        return new BigDecimal(r);
     }
 
     // ------------------------------------------------------------------------------------------------ MOVE
@@ -601,8 +708,11 @@ public final class Cobol {
     // -------------------------------------------------------------------------------------- arithmetic store
 
     /** No ON SIZE ERROR: low-order digits beyond the scale dropped (or rounded half away from zero), high-order
-     *  digits beyond the PICTURE lost. */
+     *  digits beyond the PICTURE lost; libcob's NaN (a zero divisor) leaves `to` unchanged (#4655). */
     public static void store(Field to, BigDecimal value, boolean rounded, Charset cs) {
+        if (isNan(value)) {
+            return;
+        }
         if (to.kind == Field.Kind.NUMERIC_FLOAT) { // a float receiver: the value converted to its precision (Hfp)
             Hfp.store(to, value);
             return;
@@ -615,8 +725,11 @@ public final class Cobol {
         }
     }
 
-    /** ON SIZE ERROR: true, `to` unchanged, when the value does not fit. */
+    /** ON SIZE ERROR: true, `to` unchanged, when the value does not fit or is libcob's NaN (#4655). */
     public static boolean storeChecked(Field to, BigDecimal value, boolean rounded, Charset cs) {
+        if (isNan(value)) {
+            return true;
+        }
         if (to.kind == Field.Kind.NUMERIC_FLOAT) { // an exponent overflow is refused by name in Hfp, never a size error
             store(to, value, rounded, cs);
             return false;

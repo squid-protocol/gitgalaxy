@@ -131,6 +131,7 @@ public final class Cobol {
     // arithmetic results (ADD / SUBTRACT / MULTIPLY / DIVIDE / COMPUTE): `value` exact, then stored
     public static void store(Field to, BigDecimal value, boolean rounded, Charset cs);           // no ON SIZE ERROR: truncated
     public static boolean storeChecked(Field to, BigDecimal value, boolean rounded, Charset cs);  // ON SIZE ERROR: true and `to` unchanged when the value does not fit
+    // a zero divisor: libcob's NaN (scale -32768) -- store leaves `to`, storeChecked returns true (#4655, oracle_assumptions C14)
     // comparisons: <0, 0, >0 by COBOL's rules (numeric: by value; nonnumeric: shorter padded with spaces, by the
     // charset's collating sequence -- the harness's ASCII; group: nonnumeric)
     public static int compare(Field a, Field b, Charset cs);
@@ -299,6 +300,7 @@ Only generator output, never a test case:
 - A numeric DISPLAY item MOVEd to an alphanumeric one is its digit bytes as they are -- invalid data included, the
   sign de-punched (GnuCOBOL, checked): the runtime had decoded `ABC` as `123`.
 - DIVIDE's intermediate follows GnuCOBOL's cob_decimal_div (the dividend shifted 38 digits, truncated).
+  A zero divisor gives libcob's NaN: the receivers unchanged, the size error raised (oracle_assumptions C14).
 - #4501 (found proving #4413 through cics-crucible): a COMP-5 VALUE was written truncated to its PICTURE and
   big-endian while the runtime reads COMP-5 little-endian, so CAXA's `S9(4) COMP-5 VALUE 32767` reached XCTL LENGTH
   as -12534. The image now holds the whole value in the runtime's order (register C7).

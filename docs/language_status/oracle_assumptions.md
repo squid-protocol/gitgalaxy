@@ -71,6 +71,7 @@ verdict, but it limits what the proof says about inputs outside the scenarios.
 | C11 | compiler | A non-digit in a numeric DISPLAY item: MOVEd from an alphanumeric item (#4049); MOVEd to a binary item (#4652) | DIFFERS (#4049: inputs kept out of the cases) / MODELLED, the oracle's arithmetic (#4652: to binary) | yes (COMEN01C option `1!`; GenApp LGTESTP4's add) |
 | C12 | compiler | FUNCTION RANDOM: the oracle's generator (glibc via GnuCOBOL), not IBM's unpublished one; a seed IBM does not allow refused | DIFFERS (the numbers) / ASSUMED (the interface) | translated, no proof yet (CBSA CRDTAGY1-5, INQCUST; GenApp LGICVS01) |
 | C13 | compiler | A numeric operand compared with a nonnumeric one (an alphanumeric, alphabetic or numeric-edited item): compared as its characters, not by value (#4665) | MATCHED (unsigned integer literals as written; zoned, packed and binary items as their digits, sign dropped; non-integer ones as the oracle's digits) / REFUSED (a signed literal, a SIGN SEPARATE or P-scaled item, an arithmetic expression, an equality with a literal of more decimal places than an edited item) | yes: CardDemo COTRTLIC (proven; an alphanumeric item against `0`); no proven program compares an edited item with a number |
+| C14 | compiler | Size errors without ON SIZE ERROR: a zero divisor leaves the receivers unchanged in the oracle (libcob's NaN), the det runtime the same (#4655); z/OS's result is undefined (a decimal-divide exception); 0 ** a negative is 0 in the oracle, a size error on z/OS | MATCHED (det runtime = oracle) / DIFFERS (oracle vs z/OS) | not known to be: no proven scenario divides by zero |
 | D1 | data | Text order is ASCII (Latin-1), not EBCDIC | DIFFERS | keys: no; comparisons: not audited |
 | D2 | data | Hex literals that name EBCDIC characters (`X'40'`) | DIFFERS | no |
 | D3 | data | Zoned signs in ASCII data (`{`, `}`, A–R overpunch) | MATCHED | yes |
@@ -175,7 +176,8 @@ verdict, but it limits what the proof says about inputs outside the scenarios.
 - **Not replayed by the det translator** (refused by name, or exact as before): a negative literal exponent (libcob
   overwrites the constant: refused); an arithmetic expression in a PERFORM VARYING FROM / BY, a SEARCH ALL key or a
   subscript (cobc computes those otherwise); an EVALUATE whose last WHEN ends with a statement that leaves the state
-  dirty (refused); statements inside ON SIZE ERROR phrases, which cobc parses before their statement's expression.
+  dirty (refused); statements inside ON SIZE ERROR phrases, which cobc parses before their statement's expression (their
+  size-error semantics are C14's).
 - **Reached.** Every COMPUTE with more than one operation, among them INTCALC's interest computation. Across the
   det sweep's ports (2026-10-07) the only truncation emitted is POSTTRAN's `ACCT-CURR-CYC-CREDIT -
   ACCT-CURR-CYC-DEBIT` to 2 places, a value of 2 places (no change); none of GnuCOBOL's departures is reached.
@@ -437,6 +439,51 @@ verdict, but it limits what the proof says about inputs outside the scenarios.
   ("... (C13)"). A group against a numeric item is unchanged (its bytes; not measured here).
 - **Pinned** by `tests/cobol_mainframe/test_det_programs.py` (`EDCMP` against GnuCOBOL; the refusals by name).
 - **To settle.** A z/OS run of `EDCMP` (and of a signed-literal variant) would confirm IBM's characters.
+
+### C14. Size errors (a zero divisor, an exponent, overflow) — the det runtime MATCHES the oracle (#4655); the oracle DIFFERS from z/OS where IBM leaves the result undefined
+- **IBM** (Enterprise COBOL for z/OS Language Reference, "SIZE ERROR phrases"; the wording below is paraphrased
+  from the 6.x manual and not re-fetched for this entry -- confirm it against
+  https://www.ibm.com/docs/en/cobol-zos/6.4.0?topic=statements-size-error-phrases before quoting it): a size error
+  condition is a result whose absolute value, after decimal-point alignment, exceeds the receiver; a division by
+  zero; and, in an exponentiation, zero raised to the zero power, zero raised to a negative power, or a negative
+  number raised to a fractional power. It applies to final results only. With ON SIZE ERROR the receivers keep
+  their values and the imperative statement runs. Without it, an overflow is truncated (the receiver's high-order
+  digits are lost) and the result of the other cases is undefined; on z/OS a packed-decimal divide by zero is a
+  decimal-divide exception (S0CB abend) unless the compiler checks first.
+- **The oracle** (GnuCOBOL 3.1.2 `-std=ibm`, measured 2026-10-07): a zero divisor makes libcob's NaN intermediate
+  (`cob_decimal_div` sets scale COB_DECIMAL_NAN and EC-SIZE-ZERO-DIVIDE); an operation with a NaN operand gives NaN;
+  storing a NaN (`cob_decimal_get_field`) leaves the receiver unchanged. So, with or without ON SIZE ERROR:
+  `COMPUTE R R2 = A / Z` changes neither receiver; `COMPUTE R = A / Z + 1` and `(A / Z) * 0 + 7` change nothing;
+  `DIVIDE Z INTO R R2` leaves each receiver; `DIVIDE A BY Z GIVING Q REMAINDER RM` leaves Q and RM; `0 / 0` is the
+  same. Where cobc truncates an intermediate (ARITHMETIC-OSVS, C2), `cob_decimal_align` turns the NaN into 0:
+  `COMPUTE R = A / Z * C` stores 0, and `(A / Z) + (A / B)` stores A / B; in a condition an aligned quotient is 0
+  (`A / Z = 0` is true) while an unaligned one compares as its dividend scaled by 10^32768 (`0 = A / Z` is false).
+  An intrinsic function's argument divided by zero is 0 (`cob_intr_binop`), and FUNCTION MOD / REM by zero are 0
+  with no size error. `0 ** 0` is 1 with the size error raised; `0 ** -1` is 0 with no size error; a negative base
+  with a fractional exponent, or an exponent past a double's range, leaves the receiver unchanged with the size
+  error raised. An overflow without ON SIZE ERROR is truncated (IBM's rule). With ON SIZE ERROR the phrase runs
+  whenever the statement raised a size error, even if a receiver changed (the aligned 0, 0 ** 0's 1); the
+  exception code is cleared when the statement starts.
+- **The det runtime (since #4655)** does the same: `Cobol.divide` returns libcob's NaN (the dividend's digits at
+  scale -32768) for a zero divisor, `Cobol.add / subtract / multiply / negate / power` carry it where the translator
+  sees that an operand can be one (a division or an exponent below it), `Cobol.store` and `storeChecked` leave the
+  receiver (a lifted receiver is guarded with `Cobol.isNan`), `Cobol.align` truncates it to 0 as libcob does, and a
+  comparison sees its scaled value as cob_decimal_cmp does. A division inside a function's argument is
+  `Cobol.divideIntr` (0). A statement with ON SIZE ERROR and a division or exponent clears and reads the size-error
+  state (`Cobol.sizeClear` / `sizeRaised`, per thread). `Cobol.remainder` computes DIVIDE's REMAINDER from the
+  quotient truncated to the quotient receiver's places, as cob_div_quotient does (before, the stored quotient was
+  used: a quotient too big for its receiver, or ROUNDED up, gave a wrong remainder). Pinned by
+  `tests/cobol_mainframe/test_det_size_error.py` (every shape above, both port modes) and a randomized differential
+  run (2026-10-07: 56 random programs with zero divisors, DIVIDE and ON SIZE ERROR / NOT ON SIZE ERROR phrases,
+  every output equal to the oracle's).
+- **Not modelled.** A zero divisor in floating point (COMP-1 / COMP-2, `Hfp.divide`) still stops the run with an
+  ArithmeticException, a named stop rather than a guess.
+- **So a proof says:** for a scenario that divides by zero without ON SIZE ERROR, the port does what the oracle
+  does (receivers unchanged), which z/OS does not promise: IBM leaves the result undefined and a z/OS run may
+  abend. With ON SIZE ERROR both sides agree with IBM (receivers unchanged, the phrase runs), except `0 ** -n`,
+  which IBM calls a size error and the oracle (and so the port) computes as 0.
+- **Reached.** Not known to be: no proven scenario divides by zero or raises a size error from an exponent.
+- **To settle.** A z/OS run of the shapes in `test_det_size_error.py` without ON SIZE ERROR.
 
 ### C8. DISPLAY text — MATCHED
 - **What.** GnuCOBOL writes a signed zoned item as `012-` and a binary item as `-00007`. IBM writes their external

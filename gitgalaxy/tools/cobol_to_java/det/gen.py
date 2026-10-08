@@ -139,6 +139,8 @@ class Gen:
         # and, inside a condition, the plans of its relations still to generate, in order
         self.osvs: dict = {}
         self.rel_plans: list | None = None
+        # inside an intrinsic function's arguments (cob_intr_binop: a zero divisor gives 0, never NaN, #4655)
+        self.intr = 0
         # what the last decimal build of the sentence left: (dmax, expr_decp stack), None when nothing (an EVALUATE's
         # condition leaves its state to the next statements of the sentence; a period, a COMPUTE or an IF resets it)
         self.leak: tuple | None = None
@@ -936,13 +938,21 @@ class Gen:
         return None
 
     def num_op(self, e) -> str:
+        # an operand that may be libcob's NaN (a zero divisor, #4655): the operation through Cobol, NaN in, NaN out
+        nan = not self.intr and self.fmode is None
         if isinstance(e, E.Neg):
+            nan = nan and _may_nan(e.operand)
             if O.PLANNED in self.osvs:  # cobc: 0 - x (its scale: x's, at least 0; a literal x a decimal constant)
                 lit = self.dc_literal(e.operand)
                 if lit is not None:
                     return f"Cobol.subtract(BigDecimal.ZERO, {self.dc(lit)})"
+                if nan:
+                    return f"Cobol.subtract(BigDecimal.ZERO, {self.num(e.operand)})"
                 return f"BigDecimal.ZERO.subtract({self.num(e.operand)})"
+            if nan:
+                return f"Cobol.negate({self.num(e.operand)})"
             return f"{self.num(e.operand)}.negate()"
+        nan = nan and (_may_nan(e.left) or _may_nan(e.right))
         lit = self.dc_literal(e.right)
         if lit is not None:
             a = self.num(e.left)
@@ -953,6 +963,8 @@ class Gen:
             fn = {"+": "add", "-": "subtract", "*": "multiply", "/": "divide", "**": "power"}[e.op]
             return f"Cobol.{fn}({a}, {self.dc(lit)})"
         a, b = self.num(e.left), self.num(e.right)
+        if nan and e.op in ("+", "-", "*"):
+            return f"Cobol.{ {'+': 'add', '-': 'subtract', '*': 'multiply'}[e.op] }({a}, {b})"
         if e.op == "+":
             return f"{a}.add({b})"
         if e.op == "-":
@@ -960,7 +972,7 @@ class Gen:
         if e.op == "*":
             return f"{a}.multiply({b})"
         if e.op == "/":
-            return f"Cobol.divide({a}, {b})"
+            return f"Cobol.divideIntr({a}, {b})" if self.intr else f"Cobol.divide({a}, {b})"
         if e.op == "**":
             return f"Cobol.power({a}, {b})"
         raise Untranslatable(f"operator {e.op}")
@@ -968,14 +980,21 @@ class Gen:
     def func(self, f: E.Func) -> str:
         refmod = next((a[1] for a in f.args if isinstance(a, tuple) and a[0] == "REFMOD"), None)
         if refmod is None:
-            return self._func(f)
+            return self.intr_func(f)
         # #4462: FUNCTION CURRENT-DATE (1:4): the characters of the function's text (an alphanumeric function only)
         if f.name not in ("UPPER-CASE", "LOWER-CASE", "TRIM", "REVERSE", "CURRENT-DATE"):
             raise Untranslatable(f"FUNCTION {f.name} with a reference modification")
         start, length = refmod
         at = f"{self.int_expr(start)} - 1"
         end = f", {at} + {self.int_expr(length)}" if length is not None else ""
-        return f"{self._func(f)}.substring({at}{end})"
+        return f"{self.intr_func(f)}.substring({at}{end})"
+
+    def intr_func(self, f: E.Func) -> str:
+        self.intr += 1
+        try:
+            return self._func(f)
+        finally:
+            self.intr -= 1
 
     def _func(self, f: E.Func) -> str:
         name = f.name
@@ -1675,7 +1694,7 @@ class Gen:
             plan = {} if mode is not None else plan
             with self.floating(mode), self.osvs_plan(plan):
                 value = self.num(s.data["expr"])
-            return [c, *self.store_all(s, s.data["targets"], value, ind)]
+            return [c, *self.store_all(s, s.data["targets"], value, ind, s.data["expr"] if mode is None else None)]
         if k == "ARITH":
             d = s.data
             receivers = [t for t, _ in d.get("targets") or []] + [t for t, _ in d.get("giving") or []]
@@ -1934,20 +1953,31 @@ class Gen:
             out.append(ind + self.store_into(tgt, val, rounded))
         return out
 
-    def store_all(self, s: S.Stmt, targets: list, value: str, ind: str) -> list[str]:
+    def store_all(self, s: S.Stmt, targets: list, value: str, ind: str, expr=None, after=None) -> list[str]:
+        """The value of a decimal expression `expr` (None: a floating-point value) stored in each target, then
+        `after(v)`'s lines, then the SIZE ERROR phrases. libcob's NaN (a zero divisor, #4655) changes no target: a
+        lifted one is guarded; one with a division or an exponent also raises the statement's size error, which a
+        statement with ON SIZE ERROR clears first and reads after (the receivers may still change: an aligned NaN
+        is 0, 0 ** 0 is 1)."""
         out = []
         checked = "SIZE-ERROR" in s.phrases or "NOT-SIZE-ERROR" in s.phrases
         if not checked:
             v = self.tmpname("v")
             out.append(f"{ind}BigDecimal {v} = {value};")
+            nan = expr is not None and _may_nan(expr)
             for t, rounded in targets:
-                out.append(ind + self.store_into(t, v, rounded))
-            return out
+                guard = f"if (!Cobol.isNan({v})) " if nan and self.lift(t) else ""
+                out.append(ind + guard + self.store_into(t, v, rounded))
+            return out + (after(v) if after else [])
         v, err = self.tmpname("v"), self.tmpname("sizeError")
+        sized = expr is not None and _raises_size(expr)
+        if sized:
+            out.append(f"{ind}Cobol.sizeClear();")
         out.append(f"{ind}BigDecimal {v} = {value};")
-        out.append(f"{ind}boolean {err} = false;")
+        out.append(f"{ind}boolean {err} = {'Cobol.sizeRaised()' if sized else 'false'};")
         for t, rounded in targets:
             out.append(f"{ind}{err} |= Cobol.storeChecked({self.field_expr(t)}, {v}, {_b(rounded)}, CS);")
+        out += after(v) if after else []
         if "SIZE-ERROR" in s.phrases:
             out += [f"{ind}if ({err}) {{", *self.block(s.phrases["SIZE-ERROR"], ind + "    "), f"{ind}}}"]
         if "NOT-SIZE-ERROR" in s.phrases:
@@ -1978,12 +2008,17 @@ class Gen:
             plan = {} if d.get("remainder") is not None else self.plan_arith(expr, [t for t, _ in d["giving"]])
             with self.osvs_plan(plan):
                 val = self.num(expr)
-            out = self.store_all(s, d["giving"], val, ind)
+            after = None
             if d.get("remainder") is not None:
-                q = self.field_expr(d["giving"][0][0])
-                out.append(f"{ind}Cobol.store({self.field_expr(d['remainder'])}, {self.num(ops[0])}.subtract("
-                           f"Cobol.num({q}, CS).multiply({self.num(ops[1])})), false, CS);")  # fmt: skip
-            return out
+                # cob_div_remainder: from the quotient truncated to the first receiver's places (not its PICTURE's
+                # high-order digits); a zero divisor leaves the remainder unchanged (#4655)
+                q = self.resolve(d["giving"][0][0])
+
+                def after(v, q=q):
+                    rem = f"Cobol.remainder({self.num(ops[0])}, {v}, {self.num(ops[1])}, {q.scale})"
+                    return [f"{ind}Cobol.store({self.field_expr(d['remainder'])}, {rem}, false, CS);"]
+
+            return self.store_all(s, d["giving"], val, ind, expr, after)
         if len(ops) > 1:
             # cobc: the operands' sum is one expression, aligned when the first receiver is loaded (#4287)
             expr = ops[0]
@@ -2006,8 +2041,13 @@ class Gen:
             lt = self.lift(tgt)
             if lt and lt[0] in ("BIN", "NUM") and not checked:  # a lifted target: its value, the store as above
                 cur = f"BigDecimal.valueOf({lt[1]})" if lt[0] == "BIN" else lt[1]
-                val = {"+=": f"{cur}.add({tsum})", "-=": f"{cur}.subtract({tsum})", "*=": f"{tsum}.multiply({cur})",
-                       "/=": f"Cobol.divide({cur}, {tsum})"}[op]  # fmt: skip
+                if op == "/=":  # a zero divisor: libcob's NaN, the target unchanged (#4655)
+                    qv = self.tmpname("q")
+                    out.append(f"{ind}BigDecimal {qv} = Cobol.divide({cur}, {tsum});")
+                    out.append(f"{ind}if (!Cobol.isNan({qv})) {self.store_into(tgt, qv, rounded)}")
+                    continue
+                val = {"+=": f"{cur}.add({tsum})", "-=": f"{cur}.subtract({tsum})",
+                       "*=": f"{tsum}.multiply({cur})"}[op]  # fmt: skip
                 out.append(ind + self.store_into(tgt, val, rounded))
                 continue
             f = self.field_expr(tgt)
@@ -2696,6 +2736,28 @@ def _text_item(it: L.Item) -> bool:
 def _unsigned_zoned(it: L.Item) -> bool:
     """An unsigned zoned decimal item (USAGE DISPLAY): its bytes are digit characters, as an alphanumeric item's."""
     return not it.children and it.category == "NUMERIC" and it.usage == "DISPLAY" and "S" not in it.picture()
+
+
+def _may_nan(e) -> bool:
+    """An expression whose value can be libcob's NaN at run time (#4655): a division (a zero divisor), an exponent
+    (no finite result), or an operation on one. A function's value never is (cob_intr_binop gives 0)."""
+    if isinstance(e, E.Bin):
+        return e.op in ("/", "**") or _may_nan(e.left) or _may_nan(e.right)
+    if isinstance(e, E.Neg):
+        return _may_nan(e.operand)
+    return False
+
+
+def _raises_size(e) -> bool:
+    """An expression that can raise libcob's size error (#4655): a division or an exponent anywhere, a function's
+    arguments included (FUNCTION MOD / REM by zero give 0 and raise nothing)."""
+    if isinstance(e, E.Bin):
+        return e.op in ("/", "**") or _raises_size(e.left) or _raises_size(e.right)
+    if isinstance(e, E.Neg):
+        return _raises_size(e.operand)
+    if isinstance(e, E.Func):
+        return any(_raises_size(a) for a in e.args if not isinstance(a, tuple))
+    return False
 
 
 def _b(v: bool) -> str:

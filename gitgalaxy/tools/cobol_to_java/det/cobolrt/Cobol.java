@@ -133,10 +133,10 @@ public final class Cobol {
                     break;
                 }
                 boolean zoned = to.kind == Field.Kind.NUMERIC_DISPLAY && fc != NUMERIC && fc != NUM_EDITED;
-                store(to, zoned ? alnumToDisplay(from.raw(), to, cs) : source(from, fc, cs), cs);
+                store(to, zoned ? alnumToDisplay(from.raw(), to, cs) : source(from, fc, to.decimalComma, cs), cs);
                 break;
             default:
-                edit(to, source(from, fc, cs), cs);
+                edit(to, source(from, fc, to.decimalComma, cs), cs);
         }
     }
 
@@ -332,10 +332,16 @@ public final class Cobol {
 
     /** The sending item's value as a number: numeric, de-edited, or an alphanumeric read as GnuCOBOL does. */
     private static Codec.Num source(Field from, int fc, Charset cs) {
+        return source(from, fc, false, cs);
+    }
+
+    /** As source(from, fc, cs); `decimalComma` (#4462: the receiver's program declares DECIMAL-POINT IS COMMA): an
+     *  alphanumeric sender's `,` is its decimal point and `.` is ignored, as libcob reads it. */
+    private static Codec.Num source(Field from, int fc, boolean decimalComma, Charset cs) {
         switch (fc) {
             case NUMERIC: return Codec.read(from, cs);
             case NUM_EDITED: return deedit(from, cs);
-            default: return parseAlnum(from.raw(), cs);
+            default: return parseAlnum(from.raw(), cs, decimalComma);
         }
     }
 
@@ -369,7 +375,9 @@ public final class Cobol {
     private static Codec.Num alnumToDisplay(byte[] raw, Field to, Charset cs) {
         int total = to.digits;
         int scale = to.scale;
-        if (scale < 0 || scale > total) return parseAlnum(raw, cs);
+        if (scale < 0 || scale > total) return parseAlnum(raw, cs, to.decimalComma);
+        char dp = to.decimalComma ? ',' : '.';  // #4462: DECIMAL-POINT IS COMMA swaps the point and the separator
+        char sep = to.decimalComma ? '.' : ',';
         String s = new String(raw, cs);
         int n = s.length();
         int i = 0;
@@ -377,7 +385,7 @@ public final class Cobol {
         boolean neg = false;
         if (i < n && (s.charAt(i) == '+' || s.charAt(i) == '-')) neg = s.charAt(i++) == '-';
         int count = 0;
-        for (int j = i; j < n && s.charAt(j) != '.'; j++) {
+        for (int j = i; j < n && s.charAt(j) != dp; j++) {
             if (s.charAt(j) >= '0' && s.charAt(j) <= '9') count++;
         }
         int size = total - scale;
@@ -397,16 +405,19 @@ public final class Cobol {
             char c = s.charAt(i);
             if (c >= '0' && c <= '9') {
                 out[pos++] = c;
-            } else if (c == '.' && !point) {
+            } else if (c == dp && !point) {
                 point = true;
-            } else if (!(Character.isWhitespace(c) || c == ',')) {
+            } else if (!(Character.isWhitespace(c) || c == sep)) {
                 return new Codec.Num(BigInteger.ZERO, scale, false);
             }
         }
         return new Codec.Num(total == 0 ? BigInteger.ZERO : new BigInteger(new String(out)), scale, neg);
     }
 
-    private static Codec.Num parseAlnum(byte[] raw, Charset cs) {
+    /** `decimalComma` (#4462: DECIMAL-POINT IS COMMA): `,` is the decimal point and `.` the ignored separator. */
+    private static Codec.Num parseAlnum(byte[] raw, Charset cs, boolean decimalComma) {
+        char dp = decimalComma ? ',' : '.';
+        char sep = decimalComma ? '.' : ',';
         String s = new String(raw, cs);
         int i = 0;
         int n = s.length();
@@ -421,9 +432,9 @@ public final class Cobol {
             if (c >= '0' && c <= '9') {
                 digits.append(c);
                 if (point) frac++;
-            } else if (c == '.' && !point) {
+            } else if (c == dp && !point) {
                 point = true;
-            } else if (!(Character.isWhitespace(c) || c == ',')) {
+            } else if (!(Character.isWhitespace(c) || c == sep)) {
                 return new Codec.Num(BigInteger.ZERO, 0, false);
             }
         }
@@ -474,7 +485,7 @@ public final class Cobol {
         if (n.neg) v = v.negate();
         String s;
         if (to.blankWhenZero && v.signum() == 0) s = " ".repeat(to.len);
-        else s = Editing.format(to.pic, v, false, null);
+        else s = Editing.format(to.pic, v, to.decimalComma, null);
         padCopy(s.getBytes(cs), to, false, cs);
     }
 
@@ -485,7 +496,7 @@ public final class Cobol {
         switch (cat(f)) {
             case NUMERIC: return f.kind == Field.Kind.NUMERIC_DISPLAY ? Zoned.operand(f, cs) : Codec.read(f, cs).value();
             case NUM_EDITED: return deedit(f, cs).value();
-            default: return parseAlnum(f.raw(), cs).value();
+            default: return parseAlnum(f.raw(), cs, f.decimalComma).value();
         }
     }
 

@@ -180,7 +180,118 @@ PCS_PROC = [
 # (GnuCOBOL does not parse a literal alphabet followed by an EBCDIC one: EBCDIC first)
 PCS_LITERAL = ["ALPHABET LT IS 'XYZ' SPACE 'Q' ALSO 'q'", "    '9' THRU '0' 'm' THRU 'a'."]
 
+
+def _split_program(proc: list[str]) -> str:
+    """A fixed-form program for the probe items; `proc` is written as given (columns 8 and on)."""
+    data = ["01 S3 PIC S9(4)V999 VALUE -5.125.", "01 B0 PIC 9(4) COMP VALUE 579.", "01 D0 PIC 9(3) VALUE 7.",
+            "01 Q3 PIC 9V999 VALUE 3.125.", "01 D1 PIC 9(3) VALUE 3.", "01 FL PIC X VALUE 'A'."]  # fmt: skip
+    head = ["       IDENTIFICATION DIVISION.", "       PROGRAM-ID. SPLITP.", "       DATA DIVISION.",
+            "       WORKING-STORAGE SECTION."]  # fmt: skip
+    return "\n".join([*head, *("       " + d for d in data), "       PROCEDURE DIVISION.", *proc,
+                      "           STOP RUN.", ""])  # fmt: skip
+
+
 PROGRAMS = {
+    # #4674 / #4656: NOT split from its relational operator (or an AND / OR from the NOT) by a line break
+    "SPLITNOT": _split_program(
+        [
+            "           IF S3 NOT",
+            "               < 3 + B0",
+            "               DISPLAY 'Y1'",
+            "           END-IF",
+            "           IF S3 NOT",
+            "               = 3",
+            "               DISPLAY 'Y2'",
+            "           ELSE",
+            "               DISPLAY 'N2'",
+            "           END-IF",
+            "           IF D0",
+            "               NOT",
+            "               > 3",
+            "               DISPLAY 'Y3'",
+            "           END-IF",
+            "           IF D0 IS NOT",
+            "               GREATER THAN 9",
+            "               DISPLAY 'Y4'",
+            "           END-IF",
+            "           IF D0 IS",
+            "               NOT GREATER THAN 9",
+            "               DISPLAY 'Y5'",
+            "           END-IF",
+            "           IF D0 NOT",
+            "               EQUAL TO 7 OR NOT",
+            "               < 100 AND NOT",
+            "               > 5",
+            "               DISPLAY 'Y6'",
+            "           END-IF",
+            "           IF D0 > 3 AND NOT",
+            "               < 2 OR NOT",
+            "               Q3 > 4",
+            "               DISPLAY 'Y7'",
+            "           END-IF",
+            "           IF D0 NOT > 3 AND",
+            "               NOT",
+            "               < 2",
+            "               DISPLAY 'Y8'",
+            "           END-IF",
+            "           IF NOT",
+            "               D0 > 3",
+            "               DISPLAY 'Y9'",
+            "           END-IF",
+            "           IF FL NOT",
+            "               = 'B'",
+            "               DISPLAY 'Y10'",
+            "           END-IF",
+            "           IF FL NOT",
+            "               EQUAL 'B' OR 'C'",
+            "               DISPLAY 'Y11'",
+            "           END-IF",
+            "           EVALUATE TRUE",
+            "               WHEN D0 NOT",
+            "                   < 3",
+            "                   DISPLAY 'W1'",
+            "               WHEN OTHER",
+            "                   DISPLAY 'W2'",
+            "           END-EVALUATE",
+            "           PERFORM UNTIL D0 NOT",
+            "               < 3",
+            "               DISPLAY 'U'",
+            "               ADD 1 TO D0",
+            "           END-PERFORM",
+        ]
+    ),
+    # #4656: ZERO as a figurative constant inside a parenthesised arithmetic expression of a condition and of a WHEN
+    "ZEROARITH": _split_program(
+        [
+            "           IF (ZERO + 3) / 12 NOT > D0",
+            "               DISPLAY 'Z1'",
+            "           END-IF",
+            "           IF (ZERO / 12) * B0 > S3",
+            "               DISPLAY 'Z2'",
+            "           END-IF",
+            "           IF (D0 + ZERO) > D1",
+            "               DISPLAY 'Z3'",
+            "           END-IF",
+            "           IF B0 IS NOT ZERO",
+            "               DISPLAY 'Z4'",
+            "           END-IF",
+            "           IF NOT D0 IS ZERO",
+            "               DISPLAY 'Z5'",
+            "           END-IF",
+            "           EVALUATE TRUE",
+            "               WHEN D0 + ZERO > D1",
+            "                   DISPLAY 'Z6'",
+            "               WHEN OTHER",
+            "                   DISPLAY 'Z7'",
+            "           END-EVALUATE",
+            "           EVALUATE TRUE",
+            "               WHEN D0 + ZERO < D1",
+            "                   DISPLAY 'Z8'",
+            "               WHEN OTHER",
+            "                   DISPLAY 'Z9'",
+            "           END-EVALUATE",
+        ]
+    ),
     # #4539: relation conditions under a PROGRAM COLLATING SEQUENCE: EBCDIC (and HIGH-VALUE against an item, its
     # native X'FF'), a literal alphabet, STANDARD-2 (the data's byte order), and the issue's repro ('z' THRU 'a')
     "PCSEB": pcs_program(

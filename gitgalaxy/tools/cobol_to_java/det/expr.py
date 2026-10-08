@@ -121,6 +121,7 @@ FIGURATIVES = {
     "QUOTES": "QUOTES",
 }  # fmt: skip
 REL_WORDS = {"=": "=", ">": ">", "<": "<", ">=": ">=", "<=": "<=", "<>": "<>"}
+ARITH_OPS = {"+", "-", "*", "/", "**", "("}
 CLASS_WORDS = {"NUMERIC", "ALPHABETIC", "ALPHABETIC-UPPER", "ALPHABETIC-LOWER", "POSITIVE", "NEGATIVE", "ZERO"}
 RESERVED_STOP = {"AND", "OR", "NOT", "THEN", "IS", "TO", "OF", "IN", "THAN", "EQUAL", "EQUALS", "GREATER",
                  "LESS", "UNTIL", "VARYING", "FROM", "BY", "GIVING", "ROUNDED", "ON", "SIZE", "ERROR",
@@ -402,8 +403,11 @@ class Parser:
 
     def _paren_is_condition(self) -> bool:
         grp = [g.upper() for g in self._group()]
-        return any(g in REL_WORDS or g in ("AND", "OR", "NOT", "EQUAL", "GREATER", "LESS") or g in CLASS_WORDS
-                   for g in grp)  # fmt: skip
+        # #4656: ZERO is a class word after an operand (`X IS ZERO`), a figurative constant in arithmetic
+        # (`(ZERO + 3)`, `(D0 + ZERO)`): after an operator, or first in the group, it is not a condition's
+        return any(g in REL_WORDS or g in ("AND", "OR", "NOT", "EQUAL", "GREATER", "LESS")
+                   or (g in CLASS_WORDS and not (g == "ZERO" and (k == 0 or grp[k - 1] in ARITH_OPS)))
+                   for k, g in enumerate(grp))  # fmt: skip
 
     def _looks_like_object_only(self) -> bool:
         """`A = 1 OR 2`: after OR / AND comes an operand with no relation of its own before the next OR / AND."""

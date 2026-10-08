@@ -1,0 +1,150 @@
+{
+ "format": "gitgalaxy-estate-options/1",
+ "estate": "cics-async-api-credit-card-application-example",
+ "corpus": "cics-async-api-credit-card-application-example",
+ "precedence": "installation defaults < compile-step PARM < the program's CBL / PROCESS cards (IBM's order)",
+ "compiler": {
+  "product": {
+   "value": "Enterprise COBOL",
+   "source": "assumed: owner decision",
+   "note": "not in the corpus (it ships CICS bundles and COBOL source, no build JCL); the programs use EXEC CICS, so Enterprise COBOL for z/OS is assumed"
+  },
+  "version": {
+   "value": null,
+   "source": "assumed: not stated in the corpus",
+   "note": "unknown; no version-dependent option (NUMPROC(MIG)) is resolved without it"
+  },
+  "installation_defaults": {
+   "ARITH": {
+    "value": "COMPAT",
+    "source": "assumed: IBM default",
+    "note": "Enterprise COBOL for z/OS Programming Guide, Compiler options: the IBM-supplied default"
+   },
+   "INTDATE": {
+    "value": "ANSI",
+    "source": "assumed: IBM default",
+    "note": "Enterprise COBOL for z/OS Programming Guide, Compiler options: the IBM-supplied default"
+   },
+   "NUMPROC": {
+    "value": "NOPFD",
+    "source": "assumed: IBM default",
+    "note": "Enterprise COBOL for z/OS Programming Guide, Compiler options: the IBM-supplied default"
+   },
+   "TRUNC": {
+    "value": "STD",
+    "source": "assumed: IBM default",
+    "note": "Enterprise COBOL for z/OS Programming Guide, Compiler options: the IBM-supplied default"
+   },
+   "OPTIMIZE": {
+    "value": "0",
+    "source": "assumed: IBM default",
+    "note": "Enterprise COBOL for z/OS Programming Guide, Compiler options: the IBM-supplied default"
+   },
+   "NSYMBOL": {
+    "value": "NATIONAL",
+    "source": "assumed: IBM default",
+    "note": "Enterprise COBOL for z/OS Programming Guide, Compiler options: the IBM-supplied default"
+   },
+   "DISPSIGN": {
+    "value": "COMPAT",
+    "source": "assumed: IBM default",
+    "note": "Enterprise COBOL for z/OS Programming Guide, Compiler options: the IBM-supplied default"
+   },
+   "CODEPAGE": {
+    "value": "1140",
+    "source": "assumed: IBM default",
+    "note": "Enterprise COBOL for z/OS Programming Guide, Compiler options: the IBM-supplied default"
+   },
+   "NOSSRANGE": {
+    "value": "",
+    "source": "assumed: IBM default",
+    "note": "Enterprise COBOL for z/OS Programming Guide, Compiler options: the IBM-supplied default"
+   }
+  }
+ },
+ "parm": {
+  "default": [
+   {
+    "option": "CICS",
+    "value": "",
+    "source": "assumed: owner decision",
+    "note": "not in the corpus (it ships CICS bundles and COBOL source, no build JCL); CICS is required by the source"
+   }
+  ],
+  "programs": {}
+ },
+ "le": {
+  "runtime_options": {
+   "STORAGE": {
+    "value": "NONE,NONE,NONE,0K",
+    "source": "assumed: IBM default",
+    "note": "LE runtime options: no CEEOPTS / CEEUOPT / CEEDOPT in the corpus; the IBM-supplied default is assumed"
+   },
+   "TRAP": {
+    "value": "ON,SPIE",
+    "source": "assumed: IBM default",
+    "note": "LE runtime options: no CEEOPTS / CEEUOPT / CEEDOPT in the corpus; the IBM-supplied default is assumed"
+   },
+   "ABTERMENC": {
+    "value": "ABEND",
+    "source": "assumed: IBM default",
+    "note": "LE runtime options: no CEEOPTS / CEEUOPT / CEEDOPT in the corpus; the IBM-supplied default is assumed"
+   }
+  }
+ },
+ "db2": {
+  "bind": {
+   "packages": {
+    "value": "none",
+    "source": "assumed: IBM default",
+    "note": "not in the corpus (it ships CICS bundles and COBOL source, no build JCL)"
+   }
+  },
+  "format": {
+   "DATE": {
+    "value": "ISO",
+    "source": "assumed: IBM default",
+    "note": "not in the corpus; the Db2 installation (DSNHDECP) default is assumed"
+   },
+   "TIME": {
+    "value": "ISO",
+    "source": "assumed: IBM default",
+    "note": "not in the corpus; the Db2 installation (DSNHDECP) default is assumed"
+   },
+   "DEC": {
+    "value": "15",
+    "source": "assumed: IBM default",
+    "note": "not in the corpus; the Db2 installation (DSNHDECP) default is assumed"
+   },
+   "DECPT": {
+    "value": ".",
+    "source": "assumed: IBM default",
+    "note": "not in the corpus; the Db2 installation (DSNHDECP) default is assumed"
+   }
+  },
+  "ccsid": {
+   "SQLCCSID": {
+    "value": "NO",
+    "source": "assumed: IBM default",
+    "note": "not in the corpus (it ships CICS bundles and COBOL source, no build JCL)"
+   }
+  }
+ },
+ "cics": {
+  "region": {
+   "LOCALCCSID": {
+    "value": "037",
+    "source": "assumed: IBM default",
+    "note": "not in the corpus (it ships CICS bundles and COBOL source, no build JCL)"
+   }
+  },
+  "program_definition": {},
+  "translator": {
+   "options": {
+    "value": "CICS",
+    "source": "assumed: IBM default",
+    "note": "not in the corpus (it ships CICS bundles and COBOL source, no build JCL)"
+   }
+  }
+ }
+}

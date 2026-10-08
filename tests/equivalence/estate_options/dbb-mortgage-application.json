@@ -1,0 +1,205 @@
+{
+ "format": "gitgalaxy-estate-options/1",
+ "estate": "dbb-mortgage-application",
+ "corpus": "dbb-mortgage-application",
+ "precedence": "installation defaults < compile-step PARM < the program's CBL / PROCESS cards (IBM's order)",
+ "compiler": {
+  "product": {
+   "value": "Enterprise COBOL",
+   "source": "Migration/jclToZBuilder/samples/BLDMORT.jcl:22",
+   "quote": "EXEC PGM=IGYCRCTL",
+   "note": "the precedent: mortgage-mpmt's case.json `compiler` block"
+  },
+  "version": {
+   "value": "6.1",
+   "source": "Migration/jclToZBuilder/samples/BLDMORT.jcl:29",
+   "quote": "IGY.V6R1M0.SIGYCOMP",
+   "note": "Enterprise COBOL 6.1; BLDMORT.jcl sets no PARM (EPSMPMT's CBL NUMPROC(MIG) compiles as NOPFD under 6.x, oracle_assumptions.md C5)"
+  },
+  "installation_defaults": {
+   "ARITH": {
+    "value": "COMPAT",
+    "source": "assumed: IBM default",
+    "note": "Enterprise COBOL for z/OS Programming Guide, Compiler options: the IBM-supplied default"
+   },
+   "INTDATE": {
+    "value": "ANSI",
+    "source": "assumed: IBM default",
+    "note": "Enterprise COBOL for z/OS Programming Guide, Compiler options: the IBM-supplied default"
+   },
+   "NUMPROC": {
+    "value": "NOPFD",
+    "source": "assumed: IBM default",
+    "note": "Enterprise COBOL for z/OS Programming Guide, Compiler options: the IBM-supplied default"
+   },
+   "TRUNC": {
+    "value": "STD",
+    "source": "assumed: IBM default",
+    "note": "Enterprise COBOL for z/OS Programming Guide, Compiler options: the IBM-supplied default"
+   },
+   "OPTIMIZE": {
+    "value": "0",
+    "source": "assumed: IBM default",
+    "note": "Enterprise COBOL for z/OS Programming Guide, Compiler options: the IBM-supplied default"
+   },
+   "NSYMBOL": {
+    "value": "NATIONAL",
+    "source": "assumed: IBM default",
+    "note": "Enterprise COBOL for z/OS Programming Guide, Compiler options: the IBM-supplied default"
+   },
+   "DISPSIGN": {
+    "value": "COMPAT",
+    "source": "assumed: IBM default",
+    "note": "Enterprise COBOL for z/OS Programming Guide, Compiler options: the IBM-supplied default"
+   },
+   "CODEPAGE": {
+    "value": "1140",
+    "source": "assumed: IBM default",
+    "note": "Enterprise COBOL for z/OS Programming Guide, Compiler options: the IBM-supplied default"
+   },
+   "NOSSRANGE": {
+    "value": "",
+    "source": "assumed: IBM default",
+    "note": "Enterprise COBOL for z/OS Programming Guide, Compiler options: the IBM-supplied default"
+   },
+   "ZONEDATA": {
+    "value": "PFD",
+    "source": "assumed: IBM default",
+    "note": "Enterprise COBOL for z/OS Programming Guide, Compiler options: the IBM-supplied default (ZONEDATA is Enterprise COBOL 6.1+)"
+   }
+  }
+ },
+ "parm": {
+  "default": [],
+  "programs": {
+   "EPSCMORT": [
+    {
+     "option": "CICS",
+     "value": "",
+     "source": "zBuilder/LanguageConfiguration/application/config/epscmort.cbl.yaml:3",
+     "quote": "value: CICS,SQL",
+     "note": "zBuilder compileParms of epscmort.cbl"
+    },
+    {
+     "option": "SQL",
+     "value": "",
+     "source": "zBuilder/LanguageConfiguration/application/config/epscmort.cbl.yaml:3",
+     "quote": "value: CICS,SQL",
+     "note": "zBuilder compileParms of epscmort.cbl"
+    }
+   ],
+   "EPSCSMRD": [
+    {
+     "option": "CICS",
+     "value": "",
+     "source": "zBuilder/LanguageConfiguration/application/config/epscsmrd.cbl.yaml:3",
+     "quote": "value: CICS",
+     "note": "zBuilder compileParms of epscsmrd.cbl"
+    }
+   ],
+   "EPSCSMRT": [
+    {
+     "option": "CICS",
+     "value": "",
+     "source": "zBuilder/LanguageConfiguration/application/config/epscsmrt.cbl.yaml:3",
+     "quote": "value: CICS",
+     "note": "zBuilder compileParms of epscsmrt.cbl"
+    }
+   ],
+   "EPSMLIST": [
+    {
+     "option": "CICS",
+     "value": "",
+     "source": "zBuilder/LanguageConfiguration/application/config/epsmlist.cbl.yaml:3",
+     "quote": "value: CICS",
+     "note": "zBuilder compileParms of epsmlist.cbl"
+    }
+   ],
+   "EPSMPMT": [],
+   "EPSNBRVL": []
+  }
+ },
+ "le": {
+  "runtime_options": {
+   "STORAGE": {
+    "value": "NONE,NONE,NONE,0K",
+    "source": "assumed: IBM default",
+    "note": "LE runtime options: no CEEOPTS / CEEUOPT / CEEDOPT in the corpus; the IBM-supplied default is assumed"
+   },
+   "TRAP": {
+    "value": "ON,SPIE",
+    "source": "assumed: IBM default",
+    "note": "LE runtime options: no CEEOPTS / CEEUOPT / CEEDOPT in the corpus; the IBM-supplied default is assumed"
+   },
+   "ABTERMENC": {
+    "value": "ABEND",
+    "source": "assumed: IBM default",
+    "note": "LE runtime options: no CEEOPTS / CEEUOPT / CEEDOPT in the corpus; the IBM-supplied default is assumed"
+   }
+  }
+ },
+ "db2": {
+  "bind": {
+   "packages": {
+    "value": "none",
+    "source": "assumed: IBM default",
+    "note": "the corpus has no Db2 bind card for the MortgageApplication; EPSCMORT's SQL is assumed bound with IBM defaults"
+   }
+  },
+  "precompile": {
+   "coprocessor": {
+    "value": "integrated (compileParms CICS,SQL)",
+    "source": "zBuilder/LanguageConfiguration/application/config/epscmort.cbl.yaml:3",
+    "quote": "value: CICS,SQL",
+    "note": "EPSCMORT only"
+   }
+  },
+  "format": {
+   "DATE": {
+    "value": "ISO",
+    "source": "assumed: IBM default",
+    "note": "not in the corpus; the Db2 installation (DSNHDECP) default is assumed"
+   },
+   "TIME": {
+    "value": "ISO",
+    "source": "assumed: IBM default",
+    "note": "not in the corpus; the Db2 installation (DSNHDECP) default is assumed"
+   },
+   "DEC": {
+    "value": "15",
+    "source": "assumed: IBM default",
+    "note": "not in the corpus; the Db2 installation (DSNHDECP) default is assumed"
+   },
+   "DECPT": {
+    "value": ".",
+    "source": "assumed: IBM default",
+    "note": "not in the corpus; the Db2 installation (DSNHDECP) default is assumed"
+   }
+  },
+  "ccsid": {
+   "SQLCCSID": {
+    "value": "NO",
+    "source": "assumed: IBM default",
+    "note": "not in the corpus; assumed"
+   }
+  }
+ },
+ "cics": {
+  "region": {
+   "LOCALCCSID": {
+    "value": "037",
+    "source": "assumed: IBM default",
+    "note": "not in the corpus; the CICS default is assumed"
+   }
+  },
+  "program_definition": {},
+  "translator": {
+   "options": {
+    "value": "CICS",
+    "source": "zBuilder/LanguageConfiguration/application/config/epscsmrt.cbl.yaml:3",
+    "quote": "value: CICS",
+    "note": "integrated translator (compileParms)"
+   }
+  }
+ }
+}

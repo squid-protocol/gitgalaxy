@@ -1,0 +1,221 @@
+{
+ "format": "gitgalaxy-estate-options/1",
+ "estate": "cics-genapp",
+ "corpus": "cics-genapp",
+ "precedence": "installation defaults < compile-step PARM < the program's CBL / PROCESS cards (IBM's order)",
+ "compiler": {
+  "product": {
+   "value": "Enterprise COBOL",
+   "source": "base/cntl/cobol.jcl:12",
+   "quote": "PGM=IGYCRCTL",
+   "note": "IGYCRCTL, STEPLIB <COBOLHLQ>.SIGYCOMP"
+  },
+  "version": {
+   "value": "6.1",
+   "source": "base/Installation.md:85",
+   "quote": "COBOLHLQ  = 'PP.COBOL390.V610'",
+   "note": "the installer's default COBOLHLQ ends V610 = 6.1.0; a customer sets their own"
+  },
+  "installation_defaults": {
+   "ARITH": {
+    "value": "COMPAT",
+    "source": "assumed: IBM default",
+    "note": "Enterprise COBOL for z/OS Programming Guide, Compiler options: the IBM-supplied default"
+   },
+   "INTDATE": {
+    "value": "ANSI",
+    "source": "assumed: IBM default",
+    "note": "Enterprise COBOL for z/OS Programming Guide, Compiler options: the IBM-supplied default"
+   },
+   "NUMPROC": {
+    "value": "NOPFD",
+    "source": "assumed: IBM default",
+    "note": "Enterprise COBOL for z/OS Programming Guide, Compiler options: the IBM-supplied default"
+   },
+   "TRUNC": {
+    "value": "STD",
+    "source": "assumed: IBM default",
+    "note": "Enterprise COBOL for z/OS Programming Guide, Compiler options: the IBM-supplied default"
+   },
+   "OPTIMIZE": {
+    "value": "0",
+    "source": "assumed: IBM default",
+    "note": "Enterprise COBOL for z/OS Programming Guide, Compiler options: the IBM-supplied default"
+   },
+   "NSYMBOL": {
+    "value": "NATIONAL",
+    "source": "assumed: IBM default",
+    "note": "Enterprise COBOL for z/OS Programming Guide, Compiler options: the IBM-supplied default"
+   },
+   "DISPSIGN": {
+    "value": "COMPAT",
+    "source": "assumed: IBM default",
+    "note": "Enterprise COBOL for z/OS Programming Guide, Compiler options: the IBM-supplied default"
+   },
+   "CODEPAGE": {
+    "value": "1140",
+    "source": "assumed: IBM default",
+    "note": "Enterprise COBOL for z/OS Programming Guide, Compiler options: the IBM-supplied default"
+   },
+   "NOSSRANGE": {
+    "value": "",
+    "source": "assumed: IBM default",
+    "note": "Enterprise COBOL for z/OS Programming Guide, Compiler options: the IBM-supplied default"
+   },
+   "ZONEDATA": {
+    "value": "PFD",
+    "source": "assumed: IBM default",
+    "note": "Enterprise COBOL for z/OS Programming Guide, Compiler options: the IBM-supplied default (ZONEDATA is Enterprise COBOL 6.1+)"
+   }
+  }
+ },
+ "parm": {
+  "default": [
+   {
+    "option": "NODYNAM",
+    "value": "",
+    "source": "base/cntl/cobol.jcl:45",
+    "quote": "NODYNAM",
+    "note": "SYSOPTF (OPTFILE) of the compile step; PARM='OPTFILE' at cobol.jcl:12"
+   },
+   {
+    "option": "RENT",
+    "value": "",
+    "source": "base/cntl/cobol.jcl:46",
+    "quote": "RENT",
+    "note": "same OPTFILE"
+   },
+   {
+    "option": "APOST",
+    "value": "",
+    "source": "base/cntl/cobol.jcl:47",
+    "quote": "APOST",
+    "note": "same OPTFILE"
+   },
+   {
+    "option": "CICS",
+    "value": "",
+    "source": "base/cntl/cobol.jcl:48",
+    "quote": "CICS",
+    "note": "same OPTFILE"
+   },
+   {
+    "option": "CODEPAGE",
+    "value": "285",
+    "source": "base/cntl/cobol.jcl:49",
+    "quote": "CODEPAGE(<DB2CCSID>)",
+    "note": "the Db2 EBCDIC CCSID; the value is Installation.md:92 (DB2CCSID = '285')"
+   }
+  ],
+  "programs": {}
+ },
+ "le": {
+  "runtime_options": {
+   "STORAGE": {
+    "value": "NONE,NONE,NONE,0K",
+    "source": "assumed: IBM default",
+    "note": "LE runtime options: no CEEOPTS / CEEUOPT / CEEDOPT in the corpus; the IBM-supplied default is assumed"
+   },
+   "TRAP": {
+    "value": "ON,SPIE",
+    "source": "assumed: IBM default",
+    "note": "LE runtime options: no CEEOPTS / CEEUOPT / CEEDOPT in the corpus; the IBM-supplied default is assumed"
+   },
+   "ABTERMENC": {
+    "value": "ABEND",
+    "source": "assumed: IBM default",
+    "note": "LE runtime options: no CEEOPTS / CEEUOPT / CEEDOPT in the corpus; the IBM-supplied default is assumed"
+   }
+  }
+ },
+ "db2": {
+  "bind": {
+   "ISOLATION": {
+    "value": "CS",
+    "source": "base/cntl/db2bind.jcl:15",
+    "quote": "ISO(CS)",
+    "note": "BIND PACKAGE GENASA1"
+   },
+   "CURRENTDATA": {
+    "value": "NO",
+    "source": "base/cntl/db2bind.jcl:16",
+    "quote": "CURRENTDATA(NO)",
+    "note": "same bind"
+   },
+   "DYNAMICRULES": {
+    "value": "BIND",
+    "source": "base/cntl/db2bind.jcl:19",
+    "quote": "DYNAMICRULES(BIND)",
+    "note": "same bind"
+   },
+   "VALIDATE": {
+    "value": "BIND",
+    "source": "base/cntl/db2bind.jcl:26",
+    "quote": "VALIDATE(BIND)",
+    "note": "same bind"
+   }
+  },
+  "precompile": {
+   "coprocessor": {
+    "value": "integrated (SQL via the program's PROCESS SQL card)",
+    "source": "base/src/lgacdb01.cbl:1",
+    "quote": "PROCESS SQL",
+    "note": "no DSNHPC step in cobol.jcl"
+   }
+  },
+  "format": {
+   "DATE": {
+    "value": "ISO",
+    "source": "assumed: IBM default",
+    "note": "not in the corpus; the Db2 installation (DSNHDECP) default is assumed"
+   },
+   "TIME": {
+    "value": "ISO",
+    "source": "assumed: IBM default",
+    "note": "not in the corpus; the Db2 installation (DSNHDECP) default is assumed"
+   },
+   "DEC": {
+    "value": "15",
+    "source": "assumed: IBM default",
+    "note": "not in the corpus; the Db2 installation (DSNHDECP) default is assumed"
+   },
+   "DECPT": {
+    "value": ".",
+    "source": "assumed: IBM default",
+    "note": "not in the corpus; the Db2 installation (DSNHDECP) default is assumed"
+   }
+  },
+  "ccsid": {
+   "EBCDIC_CCSID": {
+    "value": "285",
+    "source": "base/Installation.md:92",
+    "quote": "DB2CCSID  = '285'",
+    "note": "the installer's default for the Db2 EBCDIC CCSID, also CODEPAGE(285)"
+   }
+  }
+ },
+ "cics": {
+  "region": {
+   "DB2CONN": {
+    "value": "YES",
+    "source": "base/Building.md:58",
+    "quote": "DB2CONN=YES",
+    "note": "SIT of the CICS region"
+   },
+   "LOCALCCSID": {
+    "value": "037",
+    "source": "assumed: IBM default",
+    "note": "not in the corpus; the CICS default (037) is assumed"
+   }
+  },
+  "program_definition": {},
+  "translator": {
+   "options": {
+    "value": "CICS via the compile OPTFILE",
+    "source": "base/cntl/cobol.jcl:48",
+    "quote": "CICS",
+    "note": "integrated translator"
+   }
+  }
+ }
+}

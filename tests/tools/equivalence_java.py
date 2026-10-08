@@ -323,7 +323,7 @@ def linked_programs(case: dict[str, Any], corpus: Path, project: Path, sources: 
         dirs += [corpus / d for d in (case.get("db2") or {}).get("include_dirs", [])]
         stub = (project / "src/main/java" / PKG_DIR / rel).read_text(encoding="utf-8")
         r = P.translate(corpus / extra["program_source"], dirs, stub, PKG, P.estate_files(project), project,
-                        options=case.get("compiler_options"))  # fmt: skip
+                        options=common.effective_options(case, program=extra["program"]).layers)  # fmt: skip
         out = work / "linked" / rel
         out.parent.mkdir(parents=True, exist_ok=True)
         out.write_text(r.java, encoding="utf-8")

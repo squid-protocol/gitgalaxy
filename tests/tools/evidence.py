@@ -79,8 +79,12 @@ ATTESTATION = ("I reviewed this evidence summary (scenarios run, coverage, unpro
                "and accept it for {purpose}.")  # fmt: skip
 
 # ---- the inputs a proof is fingerprinted against ---------------------------------------------------------------------
-INPUTS = ("port", "case", "corpus", "differences", "harness", "oracle", "generator")
-BLOCKING = ("port", "case", "corpus", "differences")  # Q1: stale here fails CI (the PR re-proves)
+INPUTS = ("port", "case", "corpus", "differences", "options", "harness", "oracle", "generator")
+# Q1: stale here fails CI (the PR re-proves). #4704: "options" is the program's resolved compile / runtime options
+# (gitgalaxy.core.estate_options.effective_options: installation defaults, the estate's PARM, the case's compiler_options,
+# LE / Db2 / CICS options), so changing what an estate compiles or runs under makes its proofs stale. The program's own
+# CBL / PROCESS cards are source: the corpus pin fixes them.
+BLOCKING = ("port", "case", "corpus", "differences", "options")
 SCHEDULED = ("harness", "oracle", "generator")  # Q1: stale here is re-proven by the scheduled job
 MUTATION_INPUTS = ("port", "case", "corpus", "harness", "oracle")  # Q3: the generator alone keeps a score
 HARNESS = ("tests/tools/equivalence.py", "tests/tools/equivalence_common.py", "tests/tools/equivalence_java.py",
@@ -243,6 +247,22 @@ def port_files(t: Target) -> list[str]:
     return _match(_files_now(), [f"{root}/**"], list(NOT_PORT))
 
 
+def options_input(t: Target) -> dict[str, Any]:
+    """#4704: the fingerprint of the program's resolved options -- read from the estate options file and the case in the
+    tree now (not from `files`: a historical commit's mutation score does not use this input). `sha256` hashes every
+    value (no provenance: a changed note is not a changed option); `semantic_sha256` only the options cobc and the det
+    port act on; `legacy_semantic_sha256` the same without the estate's file, which is what a record written before
+    this input existed was proven under (see changed)."""
+    from gitgalaxy.core.estate_options import effective_options  # noqa: PLC0415 -- the resolver, read when a record needs it
+
+    case = {} if t.kind == "crucible" else _case_json(t.case)
+    eff = effective_options(case, program=t.program)
+    fp = eff.fingerprint()
+    legacy = effective_options(case, estate={}, program=t.program)
+    return {"sha256": json_sha256(fp), "semantic_sha256": json_sha256(fp["semantic"]),
+            "legacy_semantic_sha256": json_sha256(legacy.semantic()), "estate": fp["estate"], "effective": fp}  # fmt: skip
+
+
 def compute_inputs(t: Target, differences: Optional[list[Any]] = None, files: Any = None,
                    read: Any = None) -> dict[str, Any]:  # fmt: skip
     """The fingerprints of the target's inputs in the tree now (or, with files / read, at a commit)."""
@@ -253,6 +273,7 @@ def compute_inputs(t: Target, differences: Optional[list[Any]] = None, files: An
         out[name] = {"paths": spec["paths"], "files": len(matched), "sha256": tree_sha256(matched, read)}
     out["corpus"] = {**t.corpus, "sha256": json_sha256(t.corpus)}
     out["differences"] = {"sha256": json_sha256(differences or [])}
+    out["options"] = options_input(t)
     out["digest"] = json_sha256({k: out[k]["sha256"] for k in INPUTS})
     return out
 
@@ -284,7 +305,17 @@ def inputs_at(t: Target, commit: str) -> Optional[dict[str, Any]]:
 def changed(stored: Optional[dict[str, Any]], now: dict[str, Any], names: tuple[str, ...] = INPUTS) -> list[str]:
     if not stored:
         return list(names)
-    return [n for n in names if (stored.get(n) or {}).get("sha256") != now[n]["sha256"]]
+    out = []
+    for n in names:
+        if n == "options" and not stored.get(n):
+            # #4704: a record from before this input existed was proven under the harness's own reading of the options
+            # (IBM's defaults, the case's compiler_options, the program's cards): still current while the estate's file
+            # changes no option the harness acts on. The next proof stores the full input.
+            if now[n]["semantic_sha256"] != now[n]["legacy_semantic_sha256"]:
+                out.append(n)
+        elif (stored.get(n) or {}).get("sha256") != now[n]["sha256"]:
+            out.append(n)
+    return out
 
 
 # ---- the sections tools write ----------------------------------------------------------------------------------------
@@ -755,6 +786,8 @@ def render_page(t: Target, rec: dict[str, Any]) -> str:
              f"| inputs digest | `{inp.get('digest', '-')}` |"]  # fmt: skip
     for k in INPUTS:
         v = inp.get(k) or {}
+        if k == "options" and not v:
+            continue  # #4704: proven before the options input existed
         what = f"{v['name']} @ `{v['ref']}`" if k == "corpus" else (f"{v.get('files')} files" if "files" in v else "")
         lines.append(f"| {k} | {what} `{(v.get('sha256') or '-')[:16]}` |")
     o = rec.get("oracle") or {}
@@ -869,6 +902,8 @@ def validate(rec: dict[str, Any]) -> list[str]:
         errs.append(f"kind {rec.get('kind')!r}")
     inp = rec.get("inputs") or {}
     for k in INPUTS:
+        if k == "options" and k not in inp:
+            continue  # #4704: a record proven before the options input existed; its next proof stores it
         if not _SHA.match(str((inp.get(k) or {}).get("sha256", ""))):
             errs.append(f"inputs.{k}.sha256 is not a sha256")
     if not _SHA.match(str(inp.get("digest", ""))):

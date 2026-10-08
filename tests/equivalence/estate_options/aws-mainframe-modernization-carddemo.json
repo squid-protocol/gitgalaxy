@@ -1,0 +1,561 @@
+{
+ "format": "gitgalaxy-estate-options/1",
+ "estate": "aws-mainframe-modernization-carddemo",
+ "corpus": "aws-mainframe-modernization-carddemo",
+ "precedence": "installation defaults < compile-step PARM < the program's CBL / PROCESS cards (IBM's order)",
+ "compiler": {
+  "product": {
+   "value": "Enterprise COBOL",
+   "source": "samples/proc/BUILDBAT.prc:26",
+   "quote": "COBLIB=IGY.SIGYCOMP.V63",
+   "note": "IGYCRCTL (BUILDBAT.prc:35); the samples/ build procs are the only compile JCL in the corpus"
+  },
+  "version": {
+   "value": "6.3",
+   "source": "samples/proc/BUILDBAT.prc:26",
+   "quote": "COBLIB=IGY.SIGYCOMP.V63",
+   "note": "IGY.SIGYCOMP.V63 = Enterprise COBOL 6.3 (the sample proc's default; a customer sets their own)"
+  },
+  "installation_defaults": {
+   "ARITH": {
+    "value": "COMPAT",
+    "source": "assumed: IBM default",
+    "note": "Enterprise COBOL for z/OS Programming Guide, Compiler options: the IBM-supplied default"
+   },
+   "INTDATE": {
+    "value": "ANSI",
+    "source": "assumed: IBM default",
+    "note": "Enterprise COBOL for z/OS Programming Guide, Compiler options: the IBM-supplied default"
+   },
+   "NUMPROC": {
+    "value": "NOPFD",
+    "source": "assumed: IBM default",
+    "note": "Enterprise COBOL for z/OS Programming Guide, Compiler options: the IBM-supplied default"
+   },
+   "TRUNC": {
+    "value": "STD",
+    "source": "assumed: IBM default",
+    "note": "Enterprise COBOL for z/OS Programming Guide, Compiler options: the IBM-supplied default"
+   },
+   "OPTIMIZE": {
+    "value": "0",
+    "source": "assumed: IBM default",
+    "note": "Enterprise COBOL for z/OS Programming Guide, Compiler options: the IBM-supplied default"
+   },
+   "NSYMBOL": {
+    "value": "NATIONAL",
+    "source": "assumed: IBM default",
+    "note": "Enterprise COBOL for z/OS Programming Guide, Compiler options: the IBM-supplied default"
+   },
+   "DISPSIGN": {
+    "value": "COMPAT",
+    "source": "assumed: IBM default",
+    "note": "Enterprise COBOL for z/OS Programming Guide, Compiler options: the IBM-supplied default"
+   },
+   "CODEPAGE": {
+    "value": "1140",
+    "source": "assumed: IBM default",
+    "note": "Enterprise COBOL for z/OS Programming Guide, Compiler options: the IBM-supplied default"
+   },
+   "NOSSRANGE": {
+    "value": "",
+    "source": "assumed: IBM default",
+    "note": "Enterprise COBOL for z/OS Programming Guide, Compiler options: the IBM-supplied default"
+   },
+   "ZONEDATA": {
+    "value": "PFD",
+    "source": "assumed: IBM default",
+    "note": "Enterprise COBOL for z/OS Programming Guide, Compiler options: the IBM-supplied default (ZONEDATA is Enterprise COBOL 6.1+)"
+   }
+  }
+ },
+ "parm": {
+  "default": [
+   {
+    "option": "CICS",
+    "value": "",
+    "source": "samples/proc/BUILDONL.prc:40",
+    "quote": "(CICS,NODYNAM,RENT,NOSEQ)",
+    "note": "BUILDONL: the sample CICS online compile proc (CardDemo's default; CSUTLDTC, a called utility, is assumed built the same way)"
+   },
+   {
+    "option": "NODYNAM",
+    "value": "",
+    "source": "samples/proc/BUILDONL.prc:40",
+    "quote": "CICS,NODYNAM",
+    "note": "same"
+   },
+   {
+    "option": "RENT",
+    "value": "",
+    "source": "samples/proc/BUILDONL.prc:40",
+    "quote": "NODYNAM,RENT",
+    "note": "same"
+   },
+   {
+    "option": "NOSEQ",
+    "value": "",
+    "source": "samples/proc/BUILDONL.prc:40",
+    "quote": "RENT,NOSEQ",
+    "note": "same"
+   }
+  ],
+  "programs": {
+   "CBTRN01C": [
+    {
+     "option": "APOST",
+     "value": "",
+     "source": "samples/proc/BUILDBAT.prc:36",
+     "quote": "(APOST,LIST,MAP,NUMBER,NOSEQ)",
+     "note": "BUILDBAT: the sample batch compile proc"
+    },
+    {
+     "option": "LIST",
+     "value": "",
+     "source": "samples/proc/BUILDBAT.prc:36",
+     "quote": "APOST,LIST",
+     "note": "same"
+    },
+    {
+     "option": "MAP",
+     "value": "",
+     "source": "samples/proc/BUILDBAT.prc:36",
+     "quote": "LIST,MAP",
+     "note": "same"
+    },
+    {
+     "option": "NUMBER",
+     "value": "",
+     "source": "samples/proc/BUILDBAT.prc:36",
+     "quote": "MAP,NUMBER",
+     "note": "same"
+    },
+    {
+     "option": "NOSEQ",
+     "value": "",
+     "source": "samples/proc/BUILDBAT.prc:36",
+     "quote": "NUMBER,NOSEQ",
+     "note": "same"
+    }
+   ],
+   "CBACT04C": [
+    {
+     "option": "APOST",
+     "value": "",
+     "source": "samples/proc/BUILDBAT.prc:36",
+     "quote": "(APOST,LIST,MAP,NUMBER,NOSEQ)",
+     "note": "BUILDBAT: the sample batch compile proc"
+    },
+    {
+     "option": "LIST",
+     "value": "",
+     "source": "samples/proc/BUILDBAT.prc:36",
+     "quote": "APOST,LIST",
+     "note": "same"
+    },
+    {
+     "option": "MAP",
+     "value": "",
+     "source": "samples/proc/BUILDBAT.prc:36",
+     "quote": "LIST,MAP",
+     "note": "same"
+    },
+    {
+     "option": "NUMBER",
+     "value": "",
+     "source": "samples/proc/BUILDBAT.prc:36",
+     "quote": "MAP,NUMBER",
+     "note": "same"
+    },
+    {
+     "option": "NOSEQ",
+     "value": "",
+     "source": "samples/proc/BUILDBAT.prc:36",
+     "quote": "NUMBER,NOSEQ",
+     "note": "same"
+    }
+   ],
+   "CBTRN02C": [
+    {
+     "option": "APOST",
+     "value": "",
+     "source": "samples/proc/BUILDBAT.prc:36",
+     "quote": "(APOST,LIST,MAP,NUMBER,NOSEQ)",
+     "note": "BUILDBAT: the sample batch compile proc"
+    },
+    {
+     "option": "LIST",
+     "value": "",
+     "source": "samples/proc/BUILDBAT.prc:36",
+     "quote": "APOST,LIST",
+     "note": "same"
+    },
+    {
+     "option": "MAP",
+     "value": "",
+     "source": "samples/proc/BUILDBAT.prc:36",
+     "quote": "LIST,MAP",
+     "note": "same"
+    },
+    {
+     "option": "NUMBER",
+     "value": "",
+     "source": "samples/proc/BUILDBAT.prc:36",
+     "quote": "MAP,NUMBER",
+     "note": "same"
+    },
+    {
+     "option": "NOSEQ",
+     "value": "",
+     "source": "samples/proc/BUILDBAT.prc:36",
+     "quote": "NUMBER,NOSEQ",
+     "note": "same"
+    }
+   ],
+   "CBACT01C": [
+    {
+     "option": "APOST",
+     "value": "",
+     "source": "samples/proc/BUILDBAT.prc:36",
+     "quote": "(APOST,LIST,MAP,NUMBER,NOSEQ)",
+     "note": "BUILDBAT: the sample batch compile proc"
+    },
+    {
+     "option": "LIST",
+     "value": "",
+     "source": "samples/proc/BUILDBAT.prc:36",
+     "quote": "APOST,LIST",
+     "note": "same"
+    },
+    {
+     "option": "MAP",
+     "value": "",
+     "source": "samples/proc/BUILDBAT.prc:36",
+     "quote": "LIST,MAP",
+     "note": "same"
+    },
+    {
+     "option": "NUMBER",
+     "value": "",
+     "source": "samples/proc/BUILDBAT.prc:36",
+     "quote": "MAP,NUMBER",
+     "note": "same"
+    },
+    {
+     "option": "NOSEQ",
+     "value": "",
+     "source": "samples/proc/BUILDBAT.prc:36",
+     "quote": "NUMBER,NOSEQ",
+     "note": "same"
+    }
+   ],
+   "CBACT02C": [
+    {
+     "option": "APOST",
+     "value": "",
+     "source": "samples/proc/BUILDBAT.prc:36",
+     "quote": "(APOST,LIST,MAP,NUMBER,NOSEQ)",
+     "note": "BUILDBAT: the sample batch compile proc"
+    },
+    {
+     "option": "LIST",
+     "value": "",
+     "source": "samples/proc/BUILDBAT.prc:36",
+     "quote": "APOST,LIST",
+     "note": "same"
+    },
+    {
+     "option": "MAP",
+     "value": "",
+     "source": "samples/proc/BUILDBAT.prc:36",
+     "quote": "LIST,MAP",
+     "note": "same"
+    },
+    {
+     "option": "NUMBER",
+     "value": "",
+     "source": "samples/proc/BUILDBAT.prc:36",
+     "quote": "MAP,NUMBER",
+     "note": "same"
+    },
+    {
+     "option": "NOSEQ",
+     "value": "",
+     "source": "samples/proc/BUILDBAT.prc:36",
+     "quote": "NUMBER,NOSEQ",
+     "note": "same"
+    }
+   ],
+   "CBCUS01C": [
+    {
+     "option": "APOST",
+     "value": "",
+     "source": "samples/proc/BUILDBAT.prc:36",
+     "quote": "(APOST,LIST,MAP,NUMBER,NOSEQ)",
+     "note": "BUILDBAT: the sample batch compile proc"
+    },
+    {
+     "option": "LIST",
+     "value": "",
+     "source": "samples/proc/BUILDBAT.prc:36",
+     "quote": "APOST,LIST",
+     "note": "same"
+    },
+    {
+     "option": "MAP",
+     "value": "",
+     "source": "samples/proc/BUILDBAT.prc:36",
+     "quote": "LIST,MAP",
+     "note": "same"
+    },
+    {
+     "option": "NUMBER",
+     "value": "",
+     "source": "samples/proc/BUILDBAT.prc:36",
+     "quote": "MAP,NUMBER",
+     "note": "same"
+    },
+    {
+     "option": "NOSEQ",
+     "value": "",
+     "source": "samples/proc/BUILDBAT.prc:36",
+     "quote": "NUMBER,NOSEQ",
+     "note": "same"
+    }
+   ],
+   "CBACT03C": [
+    {
+     "option": "APOST",
+     "value": "",
+     "source": "samples/proc/BUILDBAT.prc:36",
+     "quote": "(APOST,LIST,MAP,NUMBER,NOSEQ)",
+     "note": "BUILDBAT: the sample batch compile proc"
+    },
+    {
+     "option": "LIST",
+     "value": "",
+     "source": "samples/proc/BUILDBAT.prc:36",
+     "quote": "APOST,LIST",
+     "note": "same"
+    },
+    {
+     "option": "MAP",
+     "value": "",
+     "source": "samples/proc/BUILDBAT.prc:36",
+     "quote": "LIST,MAP",
+     "note": "same"
+    },
+    {
+     "option": "NUMBER",
+     "value": "",
+     "source": "samples/proc/BUILDBAT.prc:36",
+     "quote": "MAP,NUMBER",
+     "note": "same"
+    },
+    {
+     "option": "NOSEQ",
+     "value": "",
+     "source": "samples/proc/BUILDBAT.prc:36",
+     "quote": "NUMBER,NOSEQ",
+     "note": "same"
+    }
+   ],
+   "CBTRN03C": [
+    {
+     "option": "APOST",
+     "value": "",
+     "source": "samples/proc/BUILDBAT.prc:36",
+     "quote": "(APOST,LIST,MAP,NUMBER,NOSEQ)",
+     "note": "BUILDBAT: the sample batch compile proc"
+    },
+    {
+     "option": "LIST",
+     "value": "",
+     "source": "samples/proc/BUILDBAT.prc:36",
+     "quote": "APOST,LIST",
+     "note": "same"
+    },
+    {
+     "option": "MAP",
+     "value": "",
+     "source": "samples/proc/BUILDBAT.prc:36",
+     "quote": "LIST,MAP",
+     "note": "same"
+    },
+    {
+     "option": "NUMBER",
+     "value": "",
+     "source": "samples/proc/BUILDBAT.prc:36",
+     "quote": "MAP,NUMBER",
+     "note": "same"
+    },
+    {
+     "option": "NOSEQ",
+     "value": "",
+     "source": "samples/proc/BUILDBAT.prc:36",
+     "quote": "NUMBER,NOSEQ",
+     "note": "same"
+    }
+   ],
+   "COTRTLIC": [
+    {
+     "option": "RENT",
+     "value": "",
+     "source": "samples/proc/BLDCIDB2.prc:81",
+     "quote": "PARM='RENT,NODYNAM,NOSEQ'",
+     "note": "BLDCIDB2: the sample CICS+Db2 proc (DSNHPC precompile first, then compile)"
+    },
+    {
+     "option": "NODYNAM",
+     "value": "",
+     "source": "samples/proc/BLDCIDB2.prc:81",
+     "quote": "RENT,NODYNAM",
+     "note": "same"
+    },
+    {
+     "option": "NOSEQ",
+     "value": "",
+     "source": "samples/proc/BLDCIDB2.prc:81",
+     "quote": "NODYNAM,NOSEQ",
+     "note": "same"
+    }
+   ],
+   "COTRTUPC": [
+    {
+     "option": "RENT",
+     "value": "",
+     "source": "samples/proc/BLDCIDB2.prc:81",
+     "quote": "PARM='RENT,NODYNAM,NOSEQ'",
+     "note": "BLDCIDB2: the sample CICS+Db2 proc (DSNHPC precompile first, then compile)"
+    },
+    {
+     "option": "NODYNAM",
+     "value": "",
+     "source": "samples/proc/BLDCIDB2.prc:81",
+     "quote": "RENT,NODYNAM",
+     "note": "same"
+    },
+    {
+     "option": "NOSEQ",
+     "value": "",
+     "source": "samples/proc/BLDCIDB2.prc:81",
+     "quote": "NODYNAM,NOSEQ",
+     "note": "same"
+    }
+   ],
+   "COBTUPDT": [
+    {
+     "option": "RENT",
+     "value": "",
+     "source": "samples/proc/BLDCIDB2.prc:81",
+     "quote": "PARM='RENT,NODYNAM,NOSEQ'",
+     "note": "BLDCIDB2: the sample CICS+Db2 proc (DSNHPC precompile first, then compile)"
+    },
+    {
+     "option": "NODYNAM",
+     "value": "",
+     "source": "samples/proc/BLDCIDB2.prc:81",
+     "quote": "RENT,NODYNAM",
+     "note": "same"
+    },
+    {
+     "option": "NOSEQ",
+     "value": "",
+     "source": "samples/proc/BLDCIDB2.prc:81",
+     "quote": "NODYNAM,NOSEQ",
+     "note": "same"
+    }
+   ]
+  }
+ },
+ "le": {
+  "runtime_options": {
+   "STORAGE": {
+    "value": "NONE,NONE,NONE,0K",
+    "source": "assumed: IBM default",
+    "note": "LE runtime options: no CEEOPTS / CEEUOPT / CEEDOPT in the corpus; the IBM-supplied default is assumed"
+   },
+   "TRAP": {
+    "value": "ON,SPIE",
+    "source": "assumed: IBM default",
+    "note": "LE runtime options: no CEEOPTS / CEEUOPT / CEEDOPT in the corpus; the IBM-supplied default is assumed"
+   },
+   "ABTERMENC": {
+    "value": "ABEND",
+    "source": "assumed: IBM default",
+    "note": "LE runtime options: no CEEOPTS / CEEUOPT / CEEDOPT in the corpus; the IBM-supplied default is assumed"
+   }
+  }
+ },
+ "db2": {
+  "precompile": {
+   "PARM": {
+    "value": "HOST(IBMCOB),XREF,SOURCE,FLAG(I),APOST",
+    "source": "samples/proc/BLDCIDB2.prc:47",
+    "quote": "HOST(IBMCOB),XREF,SOURCE,FLAG(I),APOST",
+    "note": "DSNHPC step of BLDCIDB2 (Db2 programs only; COTRTLIC / COTRTUPC / COBTUPDT)"
+   }
+  },
+  "bind": {
+   "ISOLATION": {
+    "value": "CS",
+    "source": "samples/proc/BLDCIDB2.prc:148",
+    "quote": "ISOLATION (CS)",
+    "note": "BIND PACKAGE CARDDEMO"
+   },
+   "CURRENTDATA": {
+    "value": "YES",
+    "source": "samples/proc/BLDCIDB2.prc:149",
+    "quote": "CURRENTDATA(YES)",
+    "note": "same bind"
+   }
+  },
+  "format": {
+   "DATE": {
+    "value": "ISO",
+    "source": "assumed: IBM default",
+    "note": "not in the corpus; the Db2 installation (DSNHDECP) default is assumed"
+   },
+   "TIME": {
+    "value": "ISO",
+    "source": "assumed: IBM default",
+    "note": "not in the corpus; the Db2 installation (DSNHDECP) default is assumed"
+   },
+   "DEC": {
+    "value": "15",
+    "source": "assumed: IBM default",
+    "note": "not in the corpus; the Db2 installation (DSNHDECP) default is assumed"
+   },
+   "DECPT": {
+    "value": ".",
+    "source": "assumed: IBM default",
+    "note": "not in the corpus; the Db2 installation (DSNHDECP) default is assumed"
+   }
+  },
+  "ccsid": {
+   "SQLCCSID": {
+    "value": "NO",
+    "source": "assumed: IBM default",
+    "note": "not in the corpus; assumed"
+   }
+  }
+ },
+ "cics": {
+  "region": {
+   "LOCALCCSID": {
+    "value": "037",
+    "source": "assumed: IBM default",
+    "note": "not in the corpus (the CSDs define resources only); the CICS default is assumed"
+   }
+  },
+  "program_definition": {},
+  "translator": {
+   "options": {
+    "value": "CICS",
+    "source": "samples/proc/BUILDONL.prc:40",
+    "quote": "CICS",
+    "note": "integrated translator on the compile PARM"
+   }
+  }
+ }
+}

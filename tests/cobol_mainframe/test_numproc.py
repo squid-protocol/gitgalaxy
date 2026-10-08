@@ -141,14 +141,15 @@ public class Probe {
         try { return String.valueOf(Cobol.isNumeric(f, CS)); } catch (UnsupportedOperationException e) { return "REFUSED"; }
     }
     public static void main(String[] a) {
-        Field[] fs = {
+        for (boolean pfd : new boolean[] {false, true}) {
+            // fresh items per pass: reading a signed zoned item rewrites its sign byte as an overpunch (#4662, C11)
+            Field[] fs = {
             zoned("12C", true), zoned("12L", true), zoned("123", true), zoned("12}", true), zoned("00}", true),
             zoned("123", false), zoned("12C", false),
             packed(new int[] {0x12, 0x3C}, 3, true), packed(new int[] {0x12, 0x3D}, 3, true),
             packed(new int[] {0x12, 0x3F}, 3, true), packed(new int[] {0x00, 0x0D}, 3, true),
             packed(new int[] {0x12, 0x3F}, 3, false), packed(new int[] {0x12, 0x3C}, 3, false),
-        };
-        for (boolean pfd : new boolean[] {false, true}) {
+            };
             boolean before = Cobol.swapNumprocPfd(pfd);
             StringBuilder out = new StringBuilder(pfd ? "PFD" : "NOPFD");
             for (Field f : fs) out.append(' ').append(read(f)).append('/').append(numeric(f));
@@ -175,8 +176,10 @@ def test_the_runtime_reads_preferred_signs_and_refuses_the_rest_under_pfd(tmp_pa
                            text=True, check=True).stdout.split("\n")  # fmt: skip
     nopfd = lines[0].split()[1:]
     pfd = lines[1].split()[1:]
-    # NOPFD (IBM's default): every sign is read, as GnuCOBOL reads it
-    assert nopfd == ["123/true", "-123/true", "123/true", "-120/true", "0/true", "123/true", "123/false",
+    # NOPFD (IBM's default): every sign is read, as GnuCOBOL reads it. An overpunch letter in an UNSIGNED item is a
+    # non-digit in a digit position (register C11, #4662), read as the oracle reads it: 'C' counts 'C' - '0' = 19,
+    # so "12C" is 12 * 10 + 19 = 139 (it was 123 before #4662 modelled non-digit data)
+    assert nopfd == ["123/true", "-123/true", "123/true", "-120/true", "0/true", "123/true", "139/false",
                      "123/true", "-123/true", "123/true", "0/true", "123/true", "123/false"]  # fmt: skip
     # PFD: C, D (not on zero) signed and F unsigned are read; F signed, an overpunch unsigned, a negative zero,
     # packed F signed and C unsigned are refused; the class test refuses only F signed (Table 7)

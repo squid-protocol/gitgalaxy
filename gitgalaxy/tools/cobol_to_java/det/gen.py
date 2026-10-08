@@ -83,6 +83,10 @@ def jstr(s: str) -> str:
             out.append("\\\\")
         elif 32 <= o < 127:
             out.append(ch)
+        elif o < 256:
+            # #4690: never the u-escapes 000a / 000d / 0022 (Java translates them before lexing, cutting the literal open);
+            # a three-digit octal escape is exact and cannot swallow a following digit
+            out.append(f"\\{o:03o}")
         else:
             out.append(f"\\u{o:04x}")
     return '"' + "".join(out) + '"'

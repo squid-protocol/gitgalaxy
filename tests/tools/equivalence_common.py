@@ -768,7 +768,10 @@ def sysout_lines(data: bytes, enc: str) -> list[str]:
 def compare_sysout(cobol: bytes, java: bytes, enc: str) -> dict[str, Any]:
     """#4056: what each side DISPLAYed, line by line. Not compared (and said so) when the COBOL side DISPLAYed an
     operand ggdisplay.c does not model: GnuCOBOL's text for it is not IBM's."""
-    c, j = sysout_lines(cobol, enc), java.decode("utf-8").split("\n") if java else []
+    c, j = (
+        sysout_lines(cobol, enc),
+        java.decode(enc).split("\n") if java else [],
+    )  # #4691: the port writes record-charset bytes (a CICS task's log too: the harness passes the data charset)
     j = [x.rstrip(" \r") for x in j]
     while j and not j[-1]:
         j.pop()

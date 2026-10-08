@@ -43,7 +43,7 @@
     "tests/tools/java_target_matrix.py"
    ],
    "files": 11,
-   "sha256": "17f2c1d2cf1caec1826d9f476691fc609407d5613e72411c2128ca5babb79e11"
+   "sha256": "de7dd22623f041d8db3887c9455b0a6f5bcf9ed6ade17f94aefdb0d4b7509af8"
   },
   "oracle": {
    "paths": [
@@ -55,15 +55,15 @@
     "tests/equivalence/db2/**",
     "tests/tools/equivalence_sql.py"
    ],
-   "files": 16,
-   "sha256": "c01338417b189840c3da3fcf109428b6c3c5db987111699423026a5a2aa260eb"
+   "files": 17,
+   "sha256": "34e4374b3f771d8a11ed9471e6ec942784f1f5435a723bdd080f8567eda4171c"
   },
   "generator": {
    "paths": [
     "gitgalaxy/tools/cobol_to_java/**"
    ],
-   "files": 62,
-   "sha256": "4f86801ec17ca2a0e9b4f2ddd2877803d5acf868c28cdae9c884963c9df6db4e"
+   "files": 64,
+   "sha256": "898606f3944b30983cad254c720f4086b7f29f42c3a68113a1f2ee0b9abce487"
   },
   "corpus": {
    "name": "aws-mainframe-modernization-carddemo",
@@ -73,10 +73,10 @@
   "differences": {
    "sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
   },
-  "digest": "768bd6f4df714361c127c67a6333b47b6093d6a4181470dc5ae2a8ac0509aee0"
+  "digest": "74bd1de3c96149e853c1014db40620a5b3c67157f255768cab12c53ff223942f"
  },
  "proof": {
-  "at": "2026-10-07T19:24:08Z",
+  "at": "2026-10-08T21:53:40Z",
   "verdict": "proven",
   "runs": 15,
   "fault_runs": 2,
@@ -157,8 +157,8 @@
    "failed": [],
    "error": null
   },
-  "harness_commit": "59e0ef67f7a5d5da4c3fc1d4cef627e2b32125e7+uncommitted",
-  "inputs_digest": "768bd6f4df714361c127c67a6333b47b6093d6a4181470dc5ae2a8ac0509aee0"
+  "harness_commit": "d61db007d21658caebf24b03fb37568973396699+uncommitted",
+  "inputs_digest": "74bd1de3c96149e853c1014db40620a5b3c67157f255768cab12c53ff223942f"
  },
  "coverage": {
   "paragraphs": {
@@ -182,7 +182,7 @@
    "total": 0
   },
   "source": "the proof's own traced COBOL runs (cobol_coverage.py)",
-  "inputs_digest": "768bd6f4df714361c127c67a6333b47b6093d6a4181470dc5ae2a8ac0509aee0"
+  "inputs_digest": "74bd1de3c96149e853c1014db40620a5b3c67157f255768cab12c53ff223942f"
  },
  "reach": {
   "entry_points": [
@@ -235,7 +235,11 @@
    },
    {
     "path": "tests/equivalence/cics/ggcics.c",
-    "sha256": "03d1488e2fd6a6a8478ca7c601e1ac5be38bfe80cbc593766c0dd299743009e1"
+    "sha256": "f3fb46bc9971d8a2236611f3b211ca86778dac1e29c4809ac2dbe2240378f6fc"
+   },
+   {
+    "path": "tests/equivalence/cics/ggcics_spec.h",
+    "sha256": "38202df0a970b528faf455a8020c57b4b5c5a8b13ee55c115d370632ad6f967f"
    },
    {
     "path": "tests/equivalence/db2/SQLCA.cpy",
@@ -247,7 +251,7 @@
    },
    {
     "path": "tests/equivalence/db2/ggsql.c",
-    "sha256": "a42be2e7fa475ba5ed70209d64f78dae9ef9fe611c72e3edc2f1d1e594d29405"
+    "sha256": "979c4f9918aefe0aa8d89750137e9dd454bae3884e43b43cedc471a9bc56fb5b"
    },
    {
     "path": "tests/equivalence/db2/ggsqlrun.c",

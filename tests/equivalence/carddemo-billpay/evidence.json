@@ -26,7 +26,7 @@
     "tests/equivalence/carddemo-billpay/**"
    ],
    "files": 2,
-   "sha256": "6790dbfc07f6ecf4a4528681eaae2540f3202ace69aaf19f006b839f6d8eee0f"
+   "sha256": "2e6cd5ae196f4404fb881475b14b1ceca87de31d91f78e373fb4295219fb6f37"
   },
   "harness": {
    "paths": [
@@ -43,7 +43,7 @@
     "tests/tools/java_target_matrix.py"
    ],
    "files": 11,
-   "sha256": "833852c405f1124941a70f6ca7bfb800303a924ea51ad1551ac1bced595158ec"
+   "sha256": "de7dd22623f041d8db3887c9455b0a6f5bcf9ed6ade17f94aefdb0d4b7509af8"
   },
   "oracle": {
    "paths": [
@@ -62,8 +62,8 @@
    "paths": [
     "gitgalaxy/tools/cobol_to_java/**"
    ],
-   "files": 63,
-   "sha256": "230a1fae847df80590348b6152cbd9865f5bd8ed12751f2a523821032136c5f8"
+   "files": 64,
+   "sha256": "898606f3944b30983cad254c720f4086b7f29f42c3a68113a1f2ee0b9abce487"
   },
   "corpus": {
    "name": "aws-mainframe-modernization-carddemo",
@@ -73,12 +73,12 @@
   "differences": {
    "sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
   },
-  "digest": "ad11e101090024cc655c764a183fc0389eee0d598def263ec64c37f0494adcfc"
+  "digest": "2b2776d134a546c008421d577e1ede75cd9655e06fcf57379933b11028361277"
  },
  "proof": {
-  "at": "2026-10-08T16:43:20Z",
+  "at": "2026-10-08T21:55:41Z",
   "verdict": "proven",
-  "runs": 25,
+  "runs": 26,
   "fault_runs": 10,
   "environments": null,
   "outputs": {
@@ -181,6 +181,10 @@
    "write-duprec": {
     "equal": 4,
     "records": 4
+   },
+   "full-commarea-carried": {
+    "equal": 3,
+    "records": 3
    }
   },
   "return_code_equal": null,
@@ -189,16 +193,16 @@
   "java_failed": false,
   "facade": {
    "verdict": "proven",
-   "runs": 25,
-   "passed": 25,
+   "runs": 26,
+   "passed": 26,
    "entry_points": [
     "handleTransaction"
    ],
    "failed": [],
    "error": null
   },
-  "harness_commit": "633d626fa1beec8ce75621654b4450923ff7c36f+uncommitted",
-  "inputs_digest": "ad11e101090024cc655c764a183fc0389eee0d598def263ec64c37f0494adcfc"
+  "harness_commit": "d61db007d21658caebf24b03fb37568973396699+uncommitted",
+  "inputs_digest": "2b2776d134a546c008421d577e1ede75cd9655e06fcf57379933b11028361277"
  },
  "coverage": {
   "paragraphs": {
@@ -228,7 +232,7 @@
    "total": 0
   },
   "source": "the proof's own traced COBOL runs (cobol_coverage.py)",
-  "inputs_digest": "ad11e101090024cc655c764a183fc0389eee0d598def263ec64c37f0494adcfc"
+  "inputs_digest": "2b2776d134a546c008421d577e1ede75cd9655e06fcf57379933b11028361277"
  },
  "reach": {
   "entry_points": [

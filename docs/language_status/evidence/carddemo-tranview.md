@@ -8,15 +8,15 @@ The status above judges the record alone (policy: ported_unproven = block). Whet
 
 | | |
 |---|---|
-| proof | proven at 2026-10-07T20:33:17Z, harness `9aa771badc298ff02a6b3a35f15951ca044f095d+uncommitted` |
-| inputs digest | `2779215fd4c58966e9ab109fbce7563c2727949b3da83f257baec0909ecd5463` |
+| proof | proven at 2026-10-08T21:55:05Z, harness `d61db007d21658caebf24b03fb37568973396699+uncommitted` |
+| inputs digest | `ef32427bfd5b31f21105c344c6e02ca485ff386e5b941fb94fb598c607774580` |
 | port | 1 files `523fc5516e40dc34` |
 | case | 1 files `df7808530a414fb8` |
 | corpus | aws-mainframe-modernization-carddemo @ `59cc6c2fd7ebd7ef7925cad552a01a4b8b6e4d5e` `d0c4803872ec126e` |
 | differences |  `4f53cda18c2baa0c` |
-| harness | 11 files `17f2c1d2cf1caec1` |
-| oracle | 16 files `c01338417b189840` |
-| generator | 62 files `4f86801ec17ca2a0` |
+| harness | 11 files `de7dd22623f041d8` |
+| oracle | 17 files `34e4374b3f771d8a` |
+| generator | 64 files `898606f3944b3098` |
 | oracle run | gnucobol-models: cobc (GnuCOBOL) 3.1.2.0, image `sha256:d7e387df360c` (matches pin: True) |
 | written by | model `claude-sonnet-5-5`, attempt 1 |
 

@@ -83,6 +83,10 @@ def jstr(s: str) -> str:
             out.append("\\\\")
         elif 32 <= o < 127:
             out.append(ch)
+        elif o < 256:
+            # #4690: never the u-escapes 000a / 000d / 0022 (Java translates them before lexing, cutting the literal open);
+            # a three-digit octal escape is exact and cannot swallow a following digit
+            out.append(f"\\{o:03o}")
         else:
             out.append(f"\\u{o:04x}")
     return '"' + "".join(out) + '"'
@@ -850,6 +854,9 @@ class Gen:
         if lb and lb[0] == "X":
             return f"Cobol.compareText({name}, {lb[1]}, CS{c}) {jop} 0"
         if isinstance(b, E.Ref):
+            self.digits_as_text(a, b)
+            if self.is_numeric(b) and b.refmod is None and not _unsigned_zoned(self.resolve(b)):
+                return self.violate(it)  # compared as its digits, not its bytes (#4665): through the runtime
             flipped = {"==": "==", ">": "<", "<": ">", ">=": "<=", "<=": ">="}[jop]
             return f"Cobol.compare({self.field_expr(b)}, {name}, CS{c}) {flipped} 0"
         if isinstance(b, E.Lit) and isinstance(b.value, str):  # a literal longer than the item
@@ -1175,12 +1182,11 @@ class Gen:
         )
         c = "" if numeric else self.coll(jop, a, b)
         if isinstance(b, E.Ref):
+            self.digits_as_text(a, b)
             return f"Cobol.compare({fa}, {self.field_expr(b)}, CS{c})"
         if isinstance(b, E.Lit):
-            if isinstance(b.value, Decimal) and b.digits and not self.is_numeric(a):
-                # #4270: an integer literal against an alphanumeric item: the nonnumeric literal of its digits as
-                # written (`0000000000`, not the value's `0`)
-                return f"Cobol.compare({fa}, {jstr(b.digits)}, CS{c})"
+            if isinstance(b.value, Decimal) and (not self.is_numeric(a) or a.refmod is not None):
+                return f"Cobol.compare({fa}, {jstr(self.literal_text(b.value, a, jop))}, CS{c})"  # #4665
             if isinstance(b.value, Decimal):
                 return f"Cobol.compare({fa}, {self.const(b.value)}, CS{c})"
             return f"Cobol.compare({fa}, {self.text(b)}, CS{c})"
@@ -1193,8 +1199,64 @@ class Gen:
                 return f"Cobol.compareText(Cobol.text({fa}, CS), {self.text(b)}, CS{c})"
             return f"Cobol.compareText(Cobol.text({fa}, CS), {self.text(b)})"
         if isinstance(b, (E.Bin, E.Neg)):
+            if not self.is_numeric(a) or a.refmod is not None:  # #4665: GnuCOBOL compares it as some text
+                raise Untranslatable(f"the nonnumeric {a.name} compared with an arithmetic expression: not modelled "
+                                     f"(C13)")  # fmt: skip
             return f"Cobol.num({fa}, CS).compareTo({self.num(b)})"
         raise Untranslatable(f"comparison with {type(b).__name__}")
+
+    # ---- a numeric operand compared as a nonnumeric one (#4665) ------------------------------------------------
+    # IBM Enterprise COBOL 6.4 Language Reference, "Comparison of numeric and alphanumeric operands": against an
+    # alphanumeric, alphabetic or edited operand (a numeric-edited item is not numeric) a numeric one is compared as
+    # though moved to an alphanumeric item of as many characters as its digits -- a nonnumeric comparison, never one
+    # by value. GnuCOBOL (the oracle) compares the same characters, except where register C13 records otherwise:
+    # those are refused by name here.
+    def literal_text(self, v: Decimal, against: E.Ref | L.Item | None = None, jop: str = "<") -> str:
+        """A numeric literal as the characters it is compared as against a nonnumeric operand (`against`, in relation
+        `jop`): its digits as written (leading zeros kept, the decimal point dropped). A signed one is refused:
+        GnuCOBOL compares its sign character, IBM moves no sign (C13). A non-integer one IBM does not allow; the
+        oracle's digits are modelled (C13), except an equality with a numeric-edited item of fewer decimal places:
+        GnuCOBOL decides that one when it compiles (= false, NOT = true) whatever the item holds (C13)."""
+        spelling = getattr(v, "spelling", None)
+        if spelling is None:  # a value of no literal (DFHRESP, CVDA): its digits
+            if v < 0 or v != v.to_integral_value():
+                raise Untranslatable(f"the value {v} compared with a nonnumeric operand: not modelled (C13)")
+            return str(int(v))
+        if spelling[:1] in "+-":
+            raise Untranslatable(f"the signed numeric literal {spelling} compared with a nonnumeric operand: GnuCOBOL "
+                                 f"compares its sign character, IBM no sign (C13)")  # fmt: skip
+        if jop in ("==", "!=") and against is not None:
+            try:
+                it = self.resolve(against) if isinstance(against, E.Ref) else against
+            except Untranslatable:
+                it = None
+            exp = v.as_tuple().exponent
+            places = -exp if isinstance(exp, int) else 0
+            if it is not None and it.category == "NUMERIC-EDITED" and places > it.scale:
+                raise Untranslatable(f"the numeric literal {spelling} compared for equality with the numeric-edited "
+                                     f"{it.name}, which has fewer decimal places: GnuCOBOL decides it when it "
+                                     f"compiles, IBM rejects a non-integer (C13)")  # fmt: skip
+        return spelling.replace(".", "").replace(",", "")
+
+    def digits_as_text(self, a: E.Ref, b: E.Ref) -> None:
+        """Refuse a numeric item compared as its characters with an elementary nonnumeric one (`a` against `b`, either
+        way round) where the oracle's characters are not IBM's (C13): a SIGN SEPARATE item (GnuCOBOL compares its
+        sign character) and a P-scaled one (GnuCOBOL its stored digits)."""
+        for num, other in ((a, b), (b, a)):
+            try:
+                it, ot = self.resolve(num), self.resolve(other)
+            except Untranslatable:
+                continue
+            text = other.refmod is not None or ot.category in ("ALPHANUMERIC", "ALPHABETIC", "NUMERIC-EDITED",
+                                                               "ALPHANUMERIC-EDITED")  # fmt: skip
+            if num.refmod is not None or it.category != "NUMERIC" or not text:
+                continue
+            if it.sign_separate and it.signed:
+                raise Untranslatable(f"{num.name} (SIGN SEPARATE) compared with the nonnumeric {other.name}: GnuCOBOL "
+                                     f"compares its sign character, IBM no sign (C13)")  # fmt: skip
+            if "P" in it.picture():
+                raise Untranslatable(f"{num.name} (P-scaled) compared with the nonnumeric {other.name}: not modelled "
+                                     f"(C13)")  # fmt: skip
 
     # ---- PROGRAM COLLATING SEQUENCE (#4539) -------------------------------------------------------------------
     def coll(self, jop: str, *operands) -> str:
@@ -1341,6 +1403,8 @@ class Gen:
             if c and not (_text_item(parent) or _unsigned_zoned(parent)):
                 raise Untranslatable(f"88 {cn.name} under PROGRAM COLLATING SEQUENCE {self.program_collating}: "
                                      f"{parent.name} holds numeric or national items: not modelled")  # fmt: skip
+        if kind == "num" and parent is not None and parent.category not in ("NUMERIC", "FLOAT"):
+            return f"Cobol.compare({f}, {jstr(self.literal_text(v[1], parent, jop))}, CS{c})"  # #4665
         if kind == "num":
             return f"Cobol.compare({f}, {self.const(v[1])}, CS{c})"
         if kind == "lit":

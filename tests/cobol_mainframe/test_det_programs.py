@@ -980,6 +980,44 @@ PROGRAMS["CMPALT"] = pcs_program(
     _all_proc(_ALL_LETTERS, ["ALL 'x'", "ALL 'ab'", "ALL SPACES"]),
 )
 
+
+def dpc_program(name: str, data: list[str], proc: list[str]) -> str:
+    """#4462: a program under SPECIAL-NAMES DECIMAL-POINT IS COMMA: WORKING-STORAGE and PROCEDURE DIVISION lines from
+    column 8 (a statement indented four more)."""
+    lines = ["IDENTIFICATION DIVISION.", f"PROGRAM-ID. {name}.", "ENVIRONMENT DIVISION.", "CONFIGURATION SECTION.",
+             "SPECIAL-NAMES.", "    DECIMAL-POINT IS COMMA.", "DATA DIVISION.", "WORKING-STORAGE SECTION.", *data,
+             "PROCEDURE DIVISION.", *[f"    {x}" for x in proc], "    GOBACK."]  # fmt: skip
+    return "\n".join(f"       {x}" for x in lines) + "\n"
+
+
+# #4462: DECIMAL-POINT IS COMMA (estate-crucible DEUT ZINSBER's statements, its national-letter names spelt in ASCII):
+# numeric literals with a decimal comma in VALUE clauses and statements (`1000,00`, `0,5`, `-12,5`, a subscript
+# beside one), numeric-edited PICTUREs whose `,` is the decimal point and `.` an insertion character (zero
+# suppression, a fixed and a floating sign, check protection, BLANK WHEN ZERO), de-editing (an edited item MOVEd as
+# a number), an alphanumeric sender into a zoned, a packed and an edited item (`,` its decimal point, `.`
+# skipped, as libcob reads it) and NUMVAL / NUMVAL-C (`,` the point, `.` the separator)
+PROGRAMS["DPCOMMA"] = dpc_program(
+    "DPCOMMA",
+    ["01  WS-ZINS.", "    05  ZINS-SATZ     PIC 9V99 VALUE 1,50.", "    05  GEBUEHR       PIC 9(3)V99 VALUE 12,50.",
+     "01  BETRAEGE.", "    05  BETRAG        PIC 9(7)V99 VALUE 1000,00.", "    05  ERGEBNIS      PIC ZZZ.ZZ9,99.",
+     "    05  TABELLE       OCCURS 3 TIMES.", "        10  T-WERT    PIC 9V9.",
+     "01  S-WERT  PIC S9(3)V9 VALUE -12,5.", "01  E-SIGN  PIC -Z.ZZ9,9.", "01  E-FLOAT PIC +++.++9,99.",
+     "01  E-STAR  PIC **.**9,99.", "01  E-FIX   PIC 9(3),9(2).", "01  E-BWZ   PIC ZZ9,99 BLANK WHEN ZERO.",
+     "01  N-ZON   PIC 9(5)V99.", "01  N-PAK   PIC S9(5)V99 COMP-3.", "01  N-OUT   PIC 9(7)V99.",
+     "01  X-TXT   PIC X(10) VALUE '12,34'.", "01  X-DOT   PIC X(10) VALUE '1.234,5'."],
+    ["COMPUTE BETRAG = BETRAG * ZINS-SATZ", "MOVE 0,5 TO T-WERT (2)", "MOVE BETRAG TO ERGEBNIS", "DISPLAY ERGEBNIS",
+     "DISPLAY BETRAEGE", "MOVE S-WERT TO E-SIGN", "DISPLAY E-SIGN", "MOVE -1234,56 TO E-SIGN", "DISPLAY E-SIGN",
+     "MOVE 1234,5 TO E-FLOAT", "DISPLAY E-FLOAT", "MOVE -0,05 TO E-FLOAT", "DISPLAY E-FLOAT",
+     "MOVE 12,3 TO E-STAR", "DISPLAY E-STAR", "MOVE 12,3 TO E-FIX", "DISPLAY E-FIX", "MOVE ZERO TO E-BWZ",
+     "DISPLAY '[' E-BWZ ']'", "MOVE 7,5 TO E-BWZ", "DISPLAY E-BWZ", "MOVE ERGEBNIS TO N-ZON", "DISPLAY N-ZON",
+     "COMPUTE N-OUT = BETRAG + GEBUEHR - S-WERT", "DISPLAY N-OUT",
+     "MOVE X-TXT TO N-ZON", "DISPLAY N-ZON", "MOVE X-TXT TO N-PAK", "MOVE N-PAK TO N-OUT", "DISPLAY N-OUT",
+     "MOVE X-DOT TO N-ZON", "DISPLAY N-ZON", "MOVE X-TXT TO ERGEBNIS", "DISPLAY ERGEBNIS",
+     "COMPUTE N-ZON = FUNCTION NUMVAL('7,25')", "DISPLAY N-ZON",
+     "COMPUTE N-ZON = FUNCTION NUMVAL-C('1.234,50')", "DISPLAY N-ZON"],
+)  # fmt: skip
+
+
 FILE_DDS = {"SORTUG": ["INFILE", "OUTFILE", "M1FILE", "M2FILE", "MGFILE"]}
 
 

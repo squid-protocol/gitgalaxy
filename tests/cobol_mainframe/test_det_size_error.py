@@ -37,6 +37,52 @@ def test_a_function_argument_still_raises_the_size_error():
     assert not G._raises_size(E.parse_arith("A + B * C"))
 
 
+def _tree(*body: str):
+    from gitgalaxy.tools.cobol_to_java.det import source as SRC
+    from gitgalaxy.tools.cobol_to_java.det import stmt as ST
+
+    rows = [
+        "IDENTIFICATION DIVISION.",
+        "PROGRAM-ID. PROG.",
+        "DATA DIVISION.",
+        "WORKING-STORAGE SECTION.",
+        "01 A PIC 9.",
+        "PROCEDURE DIVISION.",
+        "P1.",
+        *body,
+        "    GOBACK.",
+    ]
+    return ST.parse(SRC.logical_lines(["       " + r for r in rows], "/x/PROG.cbl")).paragraphs[0].body
+
+
+def test_a_phrase_binds_to_the_innermost_unterminated_statement():
+    """#4676 (cobc): NOT ON SIZE ERROR after a nested, unterminated COMPUTE is the nested one's; an END-COMPUTE closes
+    the innermost COMPUTE, so what follows it stays in the nested statement's phrase."""
+    pytest.importorskip("tree_sitter_language_pack")
+    outer = _tree(
+        "COMPUTE A = 1",
+        "  ON SIZE ERROR COMPUTE A = A * A",
+        "  NOT ON SIZE ERROR COMPUTE A = A + A",
+        "END-COMPUTE",
+        "DISPLAY A.",
+    )[0]
+    assert set(outer.phrases) == {"SIZE-ERROR"}
+    inner = outer.phrases["SIZE-ERROR"][0]
+    assert set(inner.phrases) == {"NOT-SIZE-ERROR"}
+    # the END-COMPUTE closed the COMPUTE inside the inner NOT phrase; the DISPLAY after it is still in that phrase
+    assert [x.kind for x in inner.phrases["NOT-SIZE-ERROR"]] == ["COMPUTE", "DISPLAY"]
+    assert [x.kind for x in outer.phrases["SIZE-ERROR"]] == ["COMPUTE"]
+    # terminated: the NOT phrase is the outer statement's again
+    outer = _tree(
+        "COMPUTE A = 1",
+        "  ON SIZE ERROR COMPUTE A = A * A END-COMPUTE",
+        "  NOT ON SIZE ERROR DISPLAY A",
+        "END-COMPUTE.",
+    )[0]
+    assert set(outer.phrases) == {"SIZE-ERROR", "NOT-SIZE-ERROR"}
+    assert not outer.phrases["SIZE-ERROR"][0].phrases
+
+
 PROGRAM = """       IDENTIFICATION DIVISION.
        PROGRAM-ID. SIZEERR.
        DATA DIVISION.
@@ -63,6 +109,15 @@ PROGRAM = """       IDENTIFICATION DIVISION.
        01 ZZ PIC 9 VALUE 0.
        01 K  PIC 9 VALUE 0.
        01 Q  PIC 9 VALUE 0.
+       01 R3 PIC 999V99 VALUE 2.
+       01 F1 COMP-1 VALUE 5.
+       01 F2 COMP-2 VALUE 7.
+       01 FZ1 COMP-1 VALUE 0.
+       01 FZ2 COMP-2 VALUE 0.
+       01 G1 COMP-1 VALUE 1.5.
+       01 G2 COMP-2 VALUE 2.5.
+       01 E1 PIC -(5)9.99.
+       01 E2 PIC -(5)9.99.
        PROCEDURE DIVISION.
            COMPUTE R = A / Z0
            DISPLAY 'C1 ' R
@@ -197,6 +252,114 @@ PROGRAM = """       IDENTIFICATION DIVISION.
                END-COMPUTE
            END-COMPUTE
            DISPLAY 'B1 ' R ' ' R2
+           COMPUTE G1 = F1 / FZ1
+           MOVE G1 TO E1
+           DISPLAY 'H1 ' E1
+           COMPUTE G2 = F2 / Z0
+           MOVE G2 TO E2
+           DISPLAY 'H2 ' E2
+           COMPUTE R = F2 / FZ2
+           DISPLAY 'H3 ' R
+           COMPUTE G1 = F1 / FZ1
+             ON SIZE ERROR DISPLAY 'H4 Y'
+             NOT ON SIZE ERROR DISPLAY 'H4 N'
+           END-COMPUTE
+           MOVE G1 TO E1
+           DISPLAY 'H4v ' E1
+           COMPUTE G2 = F2 / FZ2
+             ON SIZE ERROR DISPLAY 'H5 Y'
+             NOT ON SIZE ERROR DISPLAY 'H5 N'
+           END-COMPUTE
+           MOVE G2 TO E2
+           DISPLAY 'H5v ' E2
+           DIVIDE FZ2 INTO G2
+           MOVE G2 TO E2
+           DISPLAY 'H6 ' E2
+           DIVIDE FZ1 INTO G1
+             ON SIZE ERROR DISPLAY 'H7 Y'
+             NOT ON SIZE ERROR DISPLAY 'H7 N'
+           END-DIVIDE
+           MOVE G1 TO E1
+           DISPLAY 'H7v ' E1
+           DIVIDE F2 BY FZ2 GIVING G2
+             ON SIZE ERROR DISPLAY 'H8 Y'
+           END-DIVIDE
+           MOVE G2 TO E2
+           DISPLAY 'H8v ' E2
+           DIVIDE F2 BY FZ2 GIVING R
+             ON SIZE ERROR DISPLAY 'H9 Y'
+           END-DIVIDE
+           DISPLAY 'H9v ' R
+           COMPUTE G2 = F2 * 3
+             ON SIZE ERROR DISPLAY 'HA Y'
+             NOT ON SIZE ERROR DISPLAY 'HA N'
+           END-COMPUTE
+           MOVE 12.34 TO R
+           COMPUTE R = F2 * 3000
+             ON SIZE ERROR DISPLAY 'HB Y'
+             NOT ON SIZE ERROR DISPLAY 'HB N'
+           END-COMPUTE
+           DISPLAY 'HBv ' R
+           MOVE 12.34 TO R
+           MOVE 1 TO R2
+           COMPUTE R = A / Z0
+             ON SIZE ERROR COMPUTE R2 = A / B * C
+             NOT ON SIZE ERROR COMPUTE R2 = A / B * 7
+           END-COMPUTE
+           DISPLAY 'U1 ' R ' ' R2
+           DISPLAY 'U1b'.
+           MOVE 1 TO R2
+           COMPUTE R = A / Z0
+             ON SIZE ERROR COMPUTE R2 = A / B * C
+               ON SIZE ERROR DISPLAY 'U2 in Y'
+               NOT ON SIZE ERROR DISPLAY 'U2 in N'
+             NOT ON SIZE ERROR COMPUTE R2 = A / B * 7
+           END-COMPUTE
+           DISPLAY 'U2 ' R ' ' R2
+           DISPLAY 'U2b'.
+           MOVE 1 TO R2
+           COMPUTE R = A / Z0
+             ON SIZE ERROR COMPUTE R2 = A / B * C
+               ON SIZE ERROR DISPLAY 'U3 in Y'
+               NOT ON SIZE ERROR DISPLAY 'U3 in N'
+             END-COMPUTE
+             NOT ON SIZE ERROR COMPUTE R2 = A / B * 7
+           END-COMPUTE
+           DISPLAY 'U3 ' R ' ' R2
+           DISPLAY 'U3b'.
+           MOVE 1 TO R2
+           COMPUTE R = A / Z0
+             ON SIZE ERROR
+               IF B > 1
+                 COMPUTE R2 = A / B * C
+                 NOT ON SIZE ERROR DISPLAY 'U4 if N'
+               END-IF
+               DISPLAY 'U4 x'
+             NOT ON SIZE ERROR DISPLAY 'U4 outer N'
+           END-COMPUTE
+           DISPLAY 'U4 ' R ' ' R2
+           DISPLAY 'U4b'.
+           MOVE 1 TO R2
+           COMPUTE R = A / B
+             ON SIZE ERROR DISPLAY 'U5 o Y'
+             NOT ON SIZE ERROR
+               COMPUTE R2 = A / Z0
+                 ON SIZE ERROR DISPLAY 'U5 i Y'
+               ADD 1 TO R3
+                 NOT ON SIZE ERROR DISPLAY 'U5 a N'
+             END-COMPUTE
+           DISPLAY 'U5 ' R ' ' R2 ' ' R3
+           DISPLAY 'U5b'.
+           ADD 1 TO R
+             ON SIZE ERROR DISPLAY 'U6 o Y'
+             NOT ON SIZE ERROR
+               MULTIPLY 2 BY R3
+               SUBTRACT 1 FROM R3 ON SIZE ERROR DISPLAY 'U6 i Y'
+               END-SUBTRACT
+               ADD A TO R2 NOT ON SIZE ERROR DISPLAY 'U6 in N'
+             END-ADD
+           DISPLAY 'U6 ' R ' ' R2 ' ' R3
+           DISPLAY 'U6b'.
            GOBACK.
 """
 
@@ -211,6 +374,10 @@ WANT = {
     "A1": "00000", "A2": "Y 00000", "E1": "Y 00100", "F0": "00714", "F1": "00000", "F2": "00000", "F3": "Y 00000",
     "N1": "01666", "N2": "NE", "N3": "NE", "N4": "EQ", "Z1": "01234", "W1": "Y 01234", "W2": "Y 01234",
     "M1": "N 00000", "M2": "N 00000", "Q1": "0 00000", "Q2": "Y 0 00000", "B1": "01234 99800",
+    "H1": "     1.50", "H2": "     2.50", "H3": "01234", "H4": "Y", "H4v": "     1.50", "H5": "Y", "H5v": "     2.50",
+    "H6": "     2.50", "H7": "Y", "H7v": "     1.50", "H8": "Y", "H8v": "     2.50", "H9": "Y", "H9v": "01234", "HA": "N",
+    "HB": "Y", "HBv": "01234",
+    "U2": "in Y", "U3": "in Y", "U4": "01234 00100", "U5": "01666 00100 00300", "U6": "01766 05100 00500",
 }  # fmt: skip
 
 

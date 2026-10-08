@@ -151,6 +151,7 @@ class Gen:
         # it (a group holding it, a REDEFINES) -- is refused by name: HFP on z/OS, IEEE on the oracle (register C6)
         self._value_use = 0  # > 0 while value_field asks
         self._init_bytes = 0  # > 0 inside INITIALIZE: a group is walked to its elementary items, never copied
+        self.float_top: int = 0  # id of the COMPUTE expression whose own division may be libcob's NaN (#4675)
         self.fmode: str | None = None  # "LONG" / "SHORT" while num() generates a floating-point expression
         self.float_extents: dict[int, list] = {}  # storage root id -> [(item, first extent, full extent, tables)]
         self.root_of: dict[int, int] = {}  # id(record) -> id(its storage root)
@@ -514,6 +515,9 @@ class Gen:
                     "bit; oracle_assumptions.md C6)"
                 )
             fn = {"+": "add", "-": "subtract", "*": "multiply", "/": "divide"}[e.op]
+            literal = isinstance(e.right, E.Lit) and isinstance(e.right.value, Decimal) and e.right.value != 0
+            if fn == "divide" and id(e) != self.float_top and not literal:
+                fn = "divideNested"  # a zero divisor inside a larger expression: refused at run time (#4675)
             return f"Hfp.{fn}({self.fnum(e.left)}, {self.fnum(e.right)}, {lng})"
         if isinstance(e, E.LengthOf):
             with self.floating(None):
@@ -1552,9 +1556,11 @@ class Gen:
                 self.float_statement(s, s.data["targets"])
             plan = self.plan_arith(s.data["expr"], [t for t, _ in s.data["targets"]])
             plan = {} if mode is not None else plan
+            self.float_top = id(s.data["expr"]) if mode is not None else 0
             with self.floating(mode), self.osvs_plan(plan):
                 value = self.num(s.data["expr"])
-            return [c, *self.store_all(s, s.data["targets"], value, ind, s.data["expr"] if mode is None else None)]
+            self.float_top = 0
+            return [c, *self.store_all(s, s.data["targets"], value, ind, s.data["expr"])]
         if k == "ARITH":
             d = s.data
             receivers = [t for t, _ in d.get("targets") or []] + [t for t, _ in d.get("giving") or []]
@@ -1772,10 +1778,8 @@ class Gen:
         raise Untranslatable(f"DISPLAY of {type(o).__name__}")
 
     def float_statement(self, s: S.Stmt, targets: list) -> None:
-        """What a floating-point statement does not model: ON SIZE ERROR (HFP exponent overflow and underflow are
-        refused by name in the runtime) and ROUNDED into a float (its precision is the rounding)."""
-        if "SIZE-ERROR" in s.phrases or "NOT-SIZE-ERROR" in s.phrases:
-            raise Untranslatable(f"ON SIZE ERROR in a floating-point statement ({FLOAT_BYTES})")
+        """What a floating-point statement does not model: ROUNDED into a float (its precision is the rounding).
+        HFP exponent overflow and underflow are refused by name in the runtime; a zero divisor is libcob's NaN (#4675)."""
         for t, rounded in targets:
             if rounded and self.float_item(t) is not None:
                 raise Untranslatable(f"ROUNDED into {t.name}, a floating-point item ({FLOAT_BYTES})")
@@ -1795,19 +1799,42 @@ class Gen:
             else:
                 fn = "multiply" if op == "*" else "divide"
                 val = f"Hfp.{fn}({self.fnum(ops[0])}, {self.fnum(ops[1])}, {lng})"
-            return self.store_all(s, d["giving"], val, ind)
+            nanx = E.Bin("/", ops[0], ops[1]) if op == "/" else None  # a zero divisor: libcob's NaN (#4675)
+            return self.store_all(s, d["giving"], val, ind, nanx)
         total = self.fnum(ops[0]) if ops else "BigDecimal.ZERO"
         for o in ops[1:]:
             total = f"Hfp.add({total}, {self.fnum(o)}, {lng})"
         tsum = self.tmpname("t")
         out = [f"{ind}BigDecimal {tsum} = {total};"]
+        checked = "SIZE-ERROR" in s.phrases or "NOT-SIZE-ERROR" in s.phrases
+        err = self.tmpname("sizeError")
+        if checked:
+            out.append(f"{ind}boolean {err} = false;")
         for tgt, rounded in d["targets"]:
             if not isinstance(tgt, E.Ref):
                 raise Untranslatable("arithmetic target is not a data item")
             cur = self.fnum(tgt)
             val = {"+=": f"Hfp.add({cur}, {tsum}, {lng})", "-=": f"Hfp.subtract({cur}, {tsum}, {lng})",
                    "*=": f"Hfp.multiply({tsum}, {cur}, {lng})", "/=": f"Hfp.divide({cur}, {tsum}, {lng})"}[op]  # fmt: skip
-            out.append(ind + self.store_into(tgt, val, rounded))
+            if checked:
+                out.append(f"{ind}{err} |= Cobol.storeChecked({self.value_field(tgt)}, {val}, {_b(rounded)}, CS);")
+            elif op == "/=":  # a zero divisor: libcob's NaN, the target unchanged (#4675)
+                qv = self.tmpname("q")
+                out += [
+                    f"{ind}BigDecimal {qv} = {val};",
+                    f"{ind}if (!Cobol.isNan({qv})) {self.store_into(tgt, qv, rounded)}",
+                ]
+            else:
+                out.append(ind + self.store_into(tgt, val, rounded))
+        if checked:
+            if "SIZE-ERROR" in s.phrases:
+                out += [f"{ind}if ({err}) {{", *self.phrase_block(s.phrases["SIZE-ERROR"], ind + "    "), f"{ind}}}"]
+            if "NOT-SIZE-ERROR" in s.phrases:
+                out += [
+                    f"{ind}if (!{err}) {{",
+                    *self.phrase_block(s.phrases["NOT-SIZE-ERROR"], ind + "    "),
+                    f"{ind}}}",
+                ]
         return out
 
     def store_all(self, s: S.Stmt, targets: list, value: str, ind: str, expr=None, after=None) -> list[str]:
@@ -1833,13 +1860,18 @@ class Gen:
         out.append(f"{ind}BigDecimal {v} = {value};")
         out.append(f"{ind}boolean {err} = {'Cobol.sizeRaised()' if sized else 'false'};")
         for t, rounded in targets:
-            out.append(f"{ind}{err} |= Cobol.storeChecked({self.field_expr(t)}, {v}, {_b(rounded)}, CS);")
+            out.append(f"{ind}{err} |= Cobol.storeChecked({self.value_field(t)}, {v}, {_b(rounded)}, CS);")
         out += after(v) if after else []
         if "SIZE-ERROR" in s.phrases:
-            out += [f"{ind}if ({err}) {{", *self.block(s.phrases["SIZE-ERROR"], ind + "    "), f"{ind}}}"]
+            out += [f"{ind}if ({err}) {{", *self.phrase_block(s.phrases["SIZE-ERROR"], ind + "    "), f"{ind}}}"]
         if "NOT-SIZE-ERROR" in s.phrases:
-            out += [f"{ind}if (!{err}) {{", *self.block(s.phrases["NOT-SIZE-ERROR"], ind + "    "), f"{ind}}}"]
+            out += [f"{ind}if (!{err}) {{", *self.phrase_block(s.phrases["NOT-SIZE-ERROR"], ind + "    "), f"{ind}}}"]
         return out
+
+    def phrase_block(self, body: list, ind: str) -> list[str]:
+        """A SIZE ERROR phrase's statements: their own arithmetic mode, never the statement's (#4675)."""
+        with self.floating(None):
+            return self.block(body, ind)
 
     def store_into(self, t: E.Ref, value: str, rounded: bool) -> str:
         """An arithmetic result (no ON SIZE ERROR) stored in a target: a lifted binary item through Cobol.binary."""
@@ -1917,9 +1949,13 @@ class Gen:
                 out.append(f"{ind}Cobol.store({f}, {val}, {_b(rounded)}, CS);")
         if checked:
             if "SIZE-ERROR" in s.phrases:
-                out += [f"{ind}if ({err}) {{", *self.block(s.phrases["SIZE-ERROR"], ind + "    "), f"{ind}}}"]
+                out += [f"{ind}if ({err}) {{", *self.phrase_block(s.phrases["SIZE-ERROR"], ind + "    "), f"{ind}}}"]
             if "NOT-SIZE-ERROR" in s.phrases:
-                out += [f"{ind}if (!{err}) {{", *self.block(s.phrases["NOT-SIZE-ERROR"], ind + "    "), f"{ind}}}"]
+                out += [
+                    f"{ind}if (!{err}) {{",
+                    *self.phrase_block(s.phrases["NOT-SIZE-ERROR"], ind + "    "),
+                    f"{ind}}}",
+                ]
         return out
 
     def evaluate(self, s: S.Stmt, ind: str) -> list[str]:

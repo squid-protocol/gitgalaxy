@@ -492,8 +492,22 @@ verdict, but it limits what the proof says about inputs outside the scenarios.
   `tests/cobol_mainframe/test_det_size_error.py` (every shape above, both port modes) and a randomized differential
   run (2026-10-07: 56 random programs with zero divisors, DIVIDE and ON SIZE ERROR / NOT ON SIZE ERROR phrases,
   every output equal to the oracle's).
-- **Not modelled.** A zero divisor in floating point (COMP-1 / COMP-2, `Hfp.divide`) still stops the run with an
-  ArithmeticException, a named stop rather than a guess.
+- **Floating point (#4675).** The oracle converts a COMP-1 / COMP-2 operand to a decimal, so a zero divisor behaves
+  as above (measured 2026-10-08): `COMPUTE G = F / FZ`, `DIVIDE FZ INTO G`, `DIVIDE F BY FZ GIVING G` (or a decimal
+  receiver) leave every receiver unchanged and raise the size error, with or without ON SIZE ERROR; ON SIZE ERROR
+  also fires for a decimal receiver too small for a float result (`R = F * 3000`). The det runtime does the same for
+  a division that is the statement's whole value (`Hfp.divide` returns the NaN and raises the size error; the float
+  statements now take ON SIZE ERROR phrases, an HFP exponent overflow is still refused by name). A zero divisor
+  inside a larger float expression is NOT modelled: the oracle's `cob_decimal_align` meets the NaN there
+  (`(F / FZ) * 3` is unchanged but `(F / FZ) * C`, `FM * (F / FZ)` store 0, `2 - (F / FZ)` stores 2) and the HFP model
+  does not replay it, so `Hfp.divideNested` stops the run with an ArithmeticException, a named stop rather than a guess.
+  z/OS leaves the result of a floating-point zero divide undefined (a floating-point exception or a program-defined
+  result), so the oracle's "unchanged" is the same kind of choice as for decimal items.
+- **Phrase scope (#4676).** A conditional phrase belongs to the innermost unterminated statement that can take it,
+  and an END-verb closes the innermost open statement of its verb (measured: `COMPUTE ... ON SIZE ERROR COMPUTE ...
+  NOT ON SIZE ERROR ...` gives the NOT phrase to the inner COMPUTE; with an inner ON/NOT pair of its own the next NOT
+  goes to the outer). `det/stmt.py` binds them that way (`_phrase_owner`, `_end_owner`). A NOT phrase after a
+  statement that already has one, or after a finished one, goes outward; cobc rejects a stray one with a syntax error.
 - **So a proof says:** for a scenario that divides by zero without ON SIZE ERROR, the port does what the oracle
   does (receivers unchanged), which z/OS does not promise: IBM leaves the result undefined and a z/OS run may
   abend. With ON SIZE ERROR both sides agree with IBM (receivers unchanged, the phrase runs), except `0 ** -n`,

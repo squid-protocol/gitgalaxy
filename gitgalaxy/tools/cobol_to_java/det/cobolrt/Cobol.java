@@ -87,7 +87,7 @@ public final class Cobol {
         return d.scale() == NAN_SCALE;
     }
 
-    private static BigDecimal nan(BigDecimal d) {
+    static BigDecimal nan(BigDecimal d) {
         return new BigDecimal(d.unscaledValue(), NAN_SCALE);
     }
 
@@ -104,7 +104,7 @@ public final class Cobol {
         return SIZE_EC.get()[0];
     }
 
-    private static void raiseSize() {
+    static void raiseSize() {
         SIZE_EC.get()[0] = true;
     }
 

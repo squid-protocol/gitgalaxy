@@ -157,6 +157,7 @@ def parse(lines: list[Line]) -> Procedure:
     paragraphs: list[Paragraph] = [Paragraph("(MAIN)", None, 0)]
     section: str | None = None
     stack: list[_Frame] = [_Frame("PARA", None, paragraphs[0].body)]
+    closed: set[int] = set()  # id of the statements an END-x has terminated (#4676)
 
     def close_all():
         del stack[1:]
@@ -289,17 +290,25 @@ def parse(lines: list[Line]) -> Procedure:
             continue
         if t in PHRASES:
             name = PHRASES[t]
-            while stack[-1].kind == "PHRASE":
-                stack.pop()
             if t == "at_end" and stack[-1].kind == "SEARCH" and not _node(stack[-1]).whens:
                 # #4462: SEARCH ... AT END (before its WHENs): the SEARCH's own phrase
                 search = _node(stack[-1])
                 stack.append(_Frame("PHRASE", search, search.phrases.setdefault(name, [])))
                 continue
-            owner = next((x for x in reversed(stack[-1].target) if x.kind not in ("HOLE",)), None)
+            # #4676: the innermost unterminated statement that can take the phrase and has not got it yet
+            hit = _phrase_owner(stack, name, closed)
+            owner: Stmt | None
+            if hit is not None:
+                k, owner = hit
+            else:  # no statement can: the old rule, the last statement of the innermost scope
+                while stack[-1].kind == "PHRASE":
+                    stack.pop()
+                k = len(stack) - 1
+                owner = next((x for x in reversed(stack[-1].target) if x.kind != "HOLE"), None)
             if owner is None:
                 stack[-1].target.append(Stmt("HOLE", origin(n), node_text(n), {"why": "phrase with no statement"}))
                 continue
+            del stack[k + 1 :]
             body = owner.phrases.setdefault(name, [])
             stack.append(_Frame("PHRASE", owner, body))
             continue
@@ -317,8 +326,14 @@ def parse(lines: list[Line]) -> Procedure:
             stack.pop()
             continue
         if t in STATEMENT_ENDS:
-            while stack[-1].kind == "PHRASE":
-                stack.pop()
+            # #4676: END-x closes the innermost unterminated statement of its verb (and the phrases it holds open)
+            end = _end_owner(stack, t[4:], closed)
+            if end is None:  # none open: the old rule, close the phrases on top
+                while stack[-1].kind == "PHRASE":
+                    stack.pop()
+            else:
+                del stack[end[0] + 1 :]
+                closed.add(id(end[1]))
             continue
         if t.endswith("_statement") or t.startswith("perform_statement"):
             s = _statement(node_text(n), origin(n))
@@ -400,6 +415,44 @@ def _parser_cache():
     if _PARSER is None:
         _PARSER = cobol_parser()
     return _PARSER
+
+
+# the statements each phrase can follow (#4676); EXCEPTION is also DISPLAY's and the JSON / XML statements'
+_PHRASE_TAKERS = {"AT-END": {"READ", "RETURN"}, "NOT-AT-END": {"READ", "RETURN"},
+                  "INVALID-KEY": {"READ", "WRITE", "REWRITE", "START"}, "NOT-INVALID-KEY": {"READ", "WRITE", "REWRITE", "START"},
+                  "SIZE-ERROR": {"COMPUTE", "ARITH"}, "NOT-SIZE-ERROR": {"COMPUTE", "ARITH"},
+                  "OVERFLOW": {"CALL", "STRING", "UNSTRING"}, "NOT-OVERFLOW": {"CALL", "STRING", "UNSTRING"},
+                  "EXCEPTION": None, "NOT-EXCEPTION": None, "AT-EOP": {"WRITE"}, "NOT-AT-EOP": {"WRITE"}}  # fmt: skip
+
+
+def _open_last(f: _Frame, closed: set[int]) -> Stmt | None:
+    """The last statement of a scope that is not a hole, and no END-x has terminated."""
+    s = next((x for x in reversed(f.target) if x.kind != "HOLE"), None)
+    return None if s is None or id(s) in closed else s
+
+
+def _phrase_owner(stack: list[_Frame], name: str, closed: set[int]) -> tuple[int, Stmt] | None:
+    """#4676: (stack index, statement) of the innermost unterminated statement that can take the phrase `name` and has
+    not got it -- the last statement of the innermost scope, else of the scope around it, and so on. cobc binds a NOT
+    ON SIZE ERROR after a nested, unterminated COMPUTE to the nested COMPUTE."""
+    takers = _PHRASE_TAKERS[name]
+    for k in range(len(stack) - 1, -1, -1):
+        s = _open_last(stack[k], closed)
+        if s is not None and name not in s.phrases and (takers is None or s.kind in takers):
+            return k, s
+    return None
+
+
+def _end_owner(stack: list[_Frame], verb: str, closed: set[int]) -> tuple[int, Stmt] | None:
+    """#4676: the innermost unterminated statement of `verb` an END-verb closes, looking through the phrases around
+    it only: an enclosing IF / PERFORM scope is not left."""
+    for k in range(len(stack) - 1, -1, -1):
+        s = _open_last(stack[k], closed)
+        if s is not None and s.text.split()[0].upper() == verb:
+            return k, s
+        if stack[k].kind != "PHRASE":
+            return None
+    return None
 
 
 def _node(f: _Frame) -> Stmt:

@@ -265,7 +265,6 @@ FLOAT_DATA = """       01 S1 COMP-1 VALUE 1.5.
         ("MOVE S1(1:2) TO X4", "the bytes of a COMP-1 item"),
         ("COMPUTE L1 = S1 ** 2", "exponentiation in a floating-point expression"),
         ("COMPUTE L1 = FUNCTION NUMVAL(X4)", "FUNCTION NUMVAL in a floating-point expression"),
-        ("COMPUTE L1 = N / 3 ON SIZE ERROR DISPLAY 'E' END-COMPUTE", "ON SIZE ERROR in a floating-point statement"),
         ("COMPUTE S1 ROUNDED = N / 3", "ROUNDED into S1"),
         ("IF S1 = 'AB' DISPLAY 'Y' END-IF", "compared with a nonnumeric operand"),
         ("IF S1 = SPACES DISPLAY 'Y' END-IF", "compared with a nonnumeric operand"),

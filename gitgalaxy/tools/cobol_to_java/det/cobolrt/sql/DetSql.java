@@ -131,6 +131,9 @@ public final class DetSql {
         put(ca, SQLSTATE, 5, "00000", cs);
     }
 
+    /** IBM JCC's client-side "invalid conversion" error code, which Db2 itself never returns to a program. */
+    private static final int JCC_BAD_CONVERSION = -4220;
+
     private static void code(Field ca, int sqlcode, String state, Charset cs) {
         putInt(ca, SQLCODE, 4, sqlcode);
         put(ca, SQLSTATE, 5, state, cs);
@@ -147,6 +150,13 @@ public final class DetSql {
     private static void failed(Field ca, RuntimeException e, Charset cs) {
         for (Throwable t = e; t != null; t = t.getCause()) {
             if (t instanceof SQLException s && s.getErrorCode() != 0) {
+                if (s.getErrorCode() == JCC_BAD_CONVERSION) {
+                    // #4658: the JDBC driver refused the host variable's bytes on the client (a date column bound to
+                    // an unset, non-date PIC X) before Db2 saw them; the embedded-SQL program, on z/OS as on Db2 LUW,
+                    // gets the server's verdict: -180, SQLSTATE 22007 (the string is not a valid datetime value).
+                    code(ca, -180, "22007", cs);
+                    return;
+                }
                 code(ca, s.getErrorCode(), s.getSQLState() == null ? "     " : s.getSQLState(), cs);
                 db2Sqlca(ca, s, cs);
                 return;

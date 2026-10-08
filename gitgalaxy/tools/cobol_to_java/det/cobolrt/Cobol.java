@@ -716,7 +716,37 @@ public final class Cobol {
             }
             return Integer.signum(cmpNum(a, cs).compareTo(cmpNum(b, cs)));
         }
-        return cmpBytes(a.raw(), b.raw(), cs, coll);
+        return cmpBytes(operand(a, b, cs), operand(b, a, cs), cs, coll);
+    }
+
+    /** `f`'s bytes as a nonnumeric comparand against `other` (#4665): a numeric item against an elementary
+     *  nonnumeric one (alphanumeric, alphabetic, edited) is its digits as characters (IBM Enterprise COBOL 6.4
+     *  Language Reference, "Comparison of numeric and alphanumeric operands": as if moved to an alphanumeric item of
+     *  as many characters as its digits; GnuCOBOL likewise): a zoned item's bytes, its overpunched sign digit
+     *  unpunched; a packed or binary item's value in its PICTURE's digits, unsigned. A sign-separate or P-scaled item
+     *  the generator refuses (register C13). Anything else (a group): its bytes. */
+    private static byte[] operand(Field f, Field other, Charset cs) {
+        if (cat(f) != NUMERIC || cat(other) == NUMERIC || cat(other) == GROUP || f.kind == Field.Kind.NUMERIC_FLOAT) {
+            return f.raw();
+        }
+        return digitsText(f, cs);
+    }
+
+    /** A numeric item's digits as characters, unsigned (see {@link #operand}). */
+    private static byte[] digitsText(Field f, Charset cs) {
+        if (f.kind == Field.Kind.NUMERIC_DISPLAY) {
+            byte[] b = f.raw();
+            if (f.signed && !f.signSeparate) {
+                int i = f.signLeading ? 0 : f.digits - 1;
+                char c = Codec.ch(b[i], cs);
+                int d = Codec.POSITIVE.indexOf(c) >= 0 ? Codec.POSITIVE.indexOf(c) : Codec.NEGATIVE.indexOf(c);
+                if (d >= 0) b[i] = String.valueOf((char) ('0' + d)).getBytes(cs)[0];
+            }
+            return b;
+        }
+        String s = num(f, cs).setScale(f.scale, java.math.RoundingMode.DOWN).unscaledValue().abs().toString();
+        s = s.length() >= f.digits ? s.substring(s.length() - f.digits) : "0".repeat(f.digits - s.length()) + s;
+        return s.getBytes(cs);
     }
 
     // ------------------------------------------------------------------------------- typed (lifted) items
@@ -816,8 +846,9 @@ public final class Cobol {
     }
 
     public static int compare(Field a, BigDecimal numericLiteral, Charset cs, Sort.Collating coll) {
-        if (cat(a) == ALNUM || cat(a) == GROUP || cat(a) == ALNUM_EDITED) {
-            // GnuCOBOL: an alphanumeric item against a numeric literal is a text comparison with the literal's digits
+        if (cat(a) != NUMERIC) {
+            // GnuCOBOL: an alphanumeric or edited item (#4665) against a numeric literal is a text comparison with the
+            // literal's digits (the generator passes the literal as written, through the String overload)
             return cmpBytes(a.raw(), numericLiteral.unscaledValue().abs().toString().getBytes(cs), cs, coll);
         }
         if (a.kind == Field.Kind.NUMERIC_FLOAT) return Integer.signum(num(a, cs).compareTo(Hfp.of(numericLiteral)));

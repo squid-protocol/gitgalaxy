@@ -162,6 +162,10 @@ static void diag(sqlca_t *c, SQLSMALLINT kind, SQLHANDLE h, SQLRETURN rc) {
         return;
     }
     if (SQLGetDiagRec(kind, h, 1, state, &native, msg, sizeof msg, &len) == SQL_SUCCESS) {
+        /* #4270 (Q10): -99999 is the CLI's own error, not Db2's (GenApp LGAPDB01's INSERT COMMERCIAL of a blank
+           CA-LASTCHANGED as REQUESTDATE: 22007 in the client). What Db2 for z/OS answers is not known here, and the
+           Java side's JDBC driver reports a client code of its own (-4220): refused by name, never compared */
+        if (rc == SQL_ERROR && native == -99999) die("statement", "the CLI failed it in the client (no Db2 SQLCODE)");
         c->sqlcode = native;
         memcpy(c->sqlstate, state, 5);
         if (rc == SQL_SUCCESS_WITH_INFO && native == 0) c->sqlcode = 0;  /* a driver note, no Db2 warning */

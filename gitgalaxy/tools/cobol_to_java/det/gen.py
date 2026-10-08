@@ -1899,9 +1899,9 @@ class Gen:
             if lt and lt[0] in ("BIN", "NUM") and not checked:  # a lifted target: its value, the store as above
                 cur = f"BigDecimal.valueOf({lt[1]})" if lt[0] == "BIN" else lt[1]
                 if op == "/=":  # a zero divisor: libcob's NaN, the target unchanged (#4655)
-                    q = self.tmpname("q")
-                    out.append(f"{ind}BigDecimal {q} = Cobol.divide({cur}, {tsum});")
-                    out.append(f"{ind}if (!Cobol.isNan({q})) {self.store_into(tgt, q, rounded)}")
+                    qv = self.tmpname("q")
+                    out.append(f"{ind}BigDecimal {qv} = Cobol.divide({cur}, {tsum});")
+                    out.append(f"{ind}if (!Cobol.isNan({qv})) {self.store_into(tgt, qv, rounded)}")
                     continue
                 val = {"+=": f"{cur}.add({tsum})", "-=": f"{cur}.subtract({tsum})",
                        "*=": f"{tsum}.multiply({cur})"}[op]  # fmt: skip

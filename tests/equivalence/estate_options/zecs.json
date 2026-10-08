@@ -1,0 +1,131 @@
+{
+ "format": "gitgalaxy-estate-options/1",
+ "estate": "zecs",
+ "corpus": "zecs",
+ "precedence": "installation defaults < compile-step PARM < the program's CBL / PROCESS cards (IBM's order)",
+ "compiler": {
+  "product": {
+   "value": "Enterprise COBOL",
+   "source": "System Requirements and Considerations.md:12",
+   "quote": "COBOL 4.2",
+   "note": "the minimum requirement; the product is stated, the compiler actually used is not"
+  },
+  "version": {
+   "value": "4.2",
+   "source": "System Requirements and Considerations.md:12",
+   "quote": "COBOL 4.2",
+   "note": "a stated minimum requirement, not a build record (assumed to be what a customer compiles with)"
+  },
+  "installation_defaults": {
+   "ARITH": {
+    "value": "COMPAT",
+    "source": "assumed: IBM default",
+    "note": "Enterprise COBOL for z/OS Programming Guide, Compiler options: the IBM-supplied default"
+   },
+   "INTDATE": {
+    "value": "ANSI",
+    "source": "assumed: IBM default",
+    "note": "Enterprise COBOL for z/OS Programming Guide, Compiler options: the IBM-supplied default"
+   },
+   "NUMPROC": {
+    "value": "NOPFD",
+    "source": "assumed: IBM default",
+    "note": "Enterprise COBOL for z/OS Programming Guide, Compiler options: the IBM-supplied default"
+   },
+   "TRUNC": {
+    "value": "STD",
+    "source": "assumed: IBM default",
+    "note": "Enterprise COBOL for z/OS Programming Guide, Compiler options: the IBM-supplied default"
+   },
+   "OPTIMIZE": {
+    "value": "0",
+    "source": "assumed: IBM default",
+    "note": "Enterprise COBOL for z/OS Programming Guide, Compiler options: the IBM-supplied default"
+   },
+   "NSYMBOL": {
+    "value": "NATIONAL",
+    "source": "assumed: IBM default",
+    "note": "Enterprise COBOL for z/OS Programming Guide, Compiler options: the IBM-supplied default"
+   },
+   "DISPSIGN": {
+    "value": "COMPAT",
+    "source": "assumed: IBM default",
+    "note": "Enterprise COBOL for z/OS Programming Guide, Compiler options: the IBM-supplied default"
+   },
+   "CODEPAGE": {
+    "value": "1140",
+    "source": "assumed: IBM default",
+    "note": "Enterprise COBOL for z/OS Programming Guide, Compiler options: the IBM-supplied default"
+   },
+   "NOSSRANGE": {
+    "value": "",
+    "source": "assumed: IBM default",
+    "note": "Enterprise COBOL for z/OS Programming Guide, Compiler options: the IBM-supplied default"
+   }
+  }
+ },
+ "parm": {
+  "default": [
+   {
+    "option": "CICS",
+    "value": "",
+    "source": "assumed: owner decision",
+    "note": "the corpus has no COBOL build JCL (its JCL assembles and defines resources); compile options are assumed; the programs use EXEC CICS"
+   }
+  ],
+  "programs": {}
+ },
+ "le": {
+  "runtime_options": {
+   "STORAGE": {
+    "value": "NONE,NONE,NONE,0K",
+    "source": "assumed: IBM default",
+    "note": "LE runtime options: no CEEOPTS / CEEUOPT / CEEDOPT in the corpus; the IBM-supplied default is assumed"
+   },
+   "TRAP": {
+    "value": "ON,SPIE",
+    "source": "assumed: IBM default",
+    "note": "LE runtime options: no CEEOPTS / CEEUOPT / CEEDOPT in the corpus; the IBM-supplied default is assumed"
+   },
+   "ABTERMENC": {
+    "value": "ABEND",
+    "source": "assumed: IBM default",
+    "note": "LE runtime options: no CEEOPTS / CEEUOPT / CEEDOPT in the corpus; the IBM-supplied default is assumed"
+   }
+  }
+ },
+ "db2": {
+  "bind": {
+   "packages": {
+    "value": "none",
+    "source": "assumed: IBM default",
+    "note": "zECS uses no Db2 (VSAM / named counters)"
+   }
+  },
+  "format": {},
+  "ccsid": {}
+ },
+ "cics": {
+  "region": {
+   "CICS_TS": {
+    "value": "4.2",
+    "source": "System Requirements and Considerations.md:13",
+    "quote": "CICS/TS 4.2",
+    "note": "minimum requirement"
+   },
+   "LOCALCCSID": {
+    "value": "037",
+    "source": "assumed: IBM default",
+    "note": "the corpus has no COBOL build JCL (its JCL assembles and defines resources); compile options are assumed"
+   }
+  },
+  "program_definition": {},
+  "translator": {
+   "options": {
+    "value": "CICS",
+    "source": "assumed: IBM default",
+    "note": "the corpus has no COBOL build JCL (its JCL assembles and defines resources); compile options are assumed"
+   }
+  }
+ }
+}

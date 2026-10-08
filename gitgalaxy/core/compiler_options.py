@@ -154,3 +154,22 @@ def effective(rows: list[dict[str, Any]]) -> dict[str, Optional[str]]:
 def intdate(rows: list[dict[str, Any]]) -> str:
     """ANSI or LILIAN: day 1 of INTEGER-OF-DATE / DATE-OF-INTEGER is 1601-01-01 or 1582-10-15."""
     return str(effective(rows).get("INTDATE") or DEFAULTS["INTDATE"]).upper()
+
+
+def rows_of(options: Any) -> list[dict[str, Any]]:
+    """Option rows of a PARM-level option list (`["INTDATE(LILIAN)", "TRUNC(BIN),NUMPROC(PFD)"]`): the compile step's
+    PARM, or an estate's layers over it (#4704). None or [] is no options."""
+    return [{"option": o, "value": v} for text in options or [] for o, v, _ in parse_options(text)]
+
+
+def effective_with_defaults(options: Any, source_text: str = "") -> dict[str, Optional[str]]:
+    """{option: value} the compiler applies to one program (#4704), IBM's precedence order, lowest first: the options
+    in force before the source (`options`: installation defaults, then the compile step's PARM -- gitgalaxy.core.
+    estate_options builds that list), then the program's own CBL / PROCESS cards (Enterprise COBOL for z/OS
+    Programming Guide, "Compiler options": "Specifying compiler options under z/OS" -- PROCESS / CBL statements
+    override the PARM, which overrides the installation defaults). An option nothing names is IBM's default
+    (DEFAULTS; #4102: TRUNC(STD)). The one place the oracle's cobc flags and the det port read their options from."""
+    eff = effective(rows_of(options) + compiler_options(source_text))
+    for option, default in DEFAULTS.items():
+        eff.setdefault(option, default)
+    return eff

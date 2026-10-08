@@ -37,6 +37,8 @@ REPO_ROOT = TOOLS.parent.parent
 sys.path.insert(0, str(TOOLS))
 sys.path.insert(0, str(REPO_ROOT))
 
+from gitgalaxy.core.estate_options import effective_options  # noqa: E402 -- #4704: the one options resolver
+
 PKG = "com.gitgalaxy.modernized"
 PROOF_TIMEOUT = 3600  # seconds per case
 PKG_DIR = PKG.replace(".", "/")
@@ -82,7 +84,7 @@ def port_case(name: str, work: Path, project: Path, corpus: Path, style: str = "
     try:
         # case.json `strict_copy` (#4486): refuse a SYSLIB collision instead of taking the first library's member
         r = P.translate(corpus / case["program_source"], dirs, stub, PKG, P.estate_files(project), project, style, typed,
-                        groups, case.get("compiler_options"), strict_copy=bool(case.get("strict_copy")))  # fmt: skip
+                        groups, effective_options(case).layers, strict_copy=bool(case.get("strict_copy")))  # fmt: skip
     except Exception as e:
         out.update({"translated": False, "error": f"{type(e).__name__}: {e}"})
         return out
@@ -93,7 +95,7 @@ def port_case(name: str, work: Path, project: Path, corpus: Path, style: str = "
         x_stub = (project / "src/main/java" / PKG_DIR / "service" / f"{x_svc}.java").read_text(encoding="utf-8")
         try:
             x = P.translate(corpus / extra["program_source"], dirs, x_stub, PKG, P.estate_files(project), project,
-                            style, typed, groups, case.get("compiler_options"),
+                            style, typed, groups, effective_options(case, program=extra["program"]).layers,
                             strict_copy=bool(case.get("strict_copy")))  # fmt: skip
         except Exception as e:
             out.update({"translated": False, "error": f"{extra['program']}: {type(e).__name__}: {e}"})

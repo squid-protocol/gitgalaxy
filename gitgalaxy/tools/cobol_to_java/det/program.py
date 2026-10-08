@@ -314,12 +314,14 @@ def translate(program: Path, copy_dirs: list[Path], stub: str, package: str,
 def trunc_std(program: Path, options: list[str] | None = None, declared: str | None = None) -> bool:
     """Whether binary items keep only their PICTURE's digits (#4102): the TRUNC option in effect -- the program's
     CBL / PROCESS cards over `options` (the compile step's PARM, as a case states it), else IBM's default, STD."""
-    from gitgalaxy.core.compiler_options import DEFAULTS, compiler_options, effective, parse_options
+    from gitgalaxy.core.compiler_options import DEFAULTS, effective_with_defaults
     from gitgalaxy.core.source_text import read_source
 
-    rows = [{"option": o, "value": v} for text in options or [] for o, v, _ in parse_options(text)]
-    rows += compiler_options(read_source(program, declared=declared).text)  # (#4462: the estate's code page)
-    return str(effective(rows).get("TRUNC") or DEFAULTS["TRUNC"]).upper() == "STD"
+    # #4704: the same resolver the oracle's cobc flags use (`options` = estate_options.effective_options(case).layers)
+    eff = effective_with_defaults(
+        options, read_source(program, declared=declared).text
+    )  # (#4462: the estate's code page)
+    return str(eff.get("TRUNC") or DEFAULTS["TRUNC"]).upper() == "STD"
 
 
 def numproc_pfd(program: Path, options: list[str] | None = None, declared: str | None = None) -> bool:
@@ -327,12 +329,14 @@ def numproc_pfd(program: Path, options: list[str] | None = None, declared: str |
     `options` (the compile step's PARM), else IBM's default, NOPFD. NUMPROC(MIG) is NOPFD: Enterprise COBOL 5 and 6 no
     longer support it and compile the default instead (Enterprise COBOL 6.4 Migration Guide, GC27-8715-03, Table 18;
     the equivalence harness refuses MIG for a case built by an earlier compiler: oracle_assumptions.md C5)."""
-    from gitgalaxy.core.compiler_options import compiler_options, effective, parse_options
+    from gitgalaxy.core.compiler_options import effective_with_defaults
     from gitgalaxy.core.source_text import read_source
 
-    rows = [{"option": o, "value": v} for text in options or [] for o, v, _ in parse_options(text)]
-    rows += compiler_options(read_source(program, declared=declared).text)  # (#4462: the estate's code page)
-    return str(effective(rows).get("NUMPROC") or "").upper() == "PFD"
+    # #4704: the same resolver the oracle's cobc flags use
+    eff = effective_with_defaults(
+        options, read_source(program, declared=declared).text
+    )  # (#4462: the estate's code page)
+    return str(eff.get("NUMPROC") or "").upper() == "PFD"
 
 
 _ENTRIES = re.compile(r"^    public (?:void runTask\(CicsTask task\)|int runBatch\(List<Dd> dds, String parm\)|"

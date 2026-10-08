@@ -46,8 +46,6 @@ public class AbndprocService {
             "AAAAAAAAAAwwMDAwICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgKzAwMDAwMDAwKzAwMDAwMDAwKzAwMDAwMDAwICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAg",
             "ICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAg",
             "ICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAg"));
-    private static final byte[] IMAGE_s_WS_ABND_KEY_LEN = Base64.getDecoder().decode(String.join("",
-            "AAAADA=="));
     private static final byte[] IMAGE_s_DB2_DATE_REFORMAT = Base64.getDecoder().decode(String.join("",
             "MDAwMCAwMCAwMA=="));
     private static final byte[] IMAGE_s_DATA_STORE_TYPE = Base64.getDecoder().decode(String.join("",
@@ -84,7 +82,6 @@ public class AbndprocService {
             "AAA="));
     private final Storage s_WS_CICS_WORK_AREA = new Storage(IMAGE_s_WS_CICS_WORK_AREA.length);
     private final Storage s_WS_ABND_AREA = new Storage(IMAGE_s_WS_ABND_AREA.length);
-    private final Storage s_WS_ABND_KEY_LEN = new Storage(IMAGE_s_WS_ABND_KEY_LEN.length);
     private final Storage s_DB2_DATE_REFORMAT = new Storage(IMAGE_s_DB2_DATE_REFORMAT.length);
     private final Storage s_DATA_STORE_TYPE = new Storage(IMAGE_s_DATA_STORE_TYPE.length);
     private final Storage s_WS_EIBTASKN12 = new Storage(IMAGE_s_WS_EIBTASKN12.length);
@@ -102,111 +99,21 @@ public class AbndprocService {
     private final Storage s_DFHEIBLK = new Storage(IMAGE_s_DFHEIBLK.length);
     private final Storage s_GG_RETURN_CODE = new Storage(IMAGE_s_GG_RETURN_CODE.length);
 
-    private Field f100_EIBSYNRB;
-    private Field f101_EIBNODAT;
-    private Field f102_EIBRESP;
-    private Field f103_EIBRESP2;
-    private Field f104_EIBRLDBK;
-    private Field f105_GG_RETURN_CODE;
-    private Field f10_ABND_DATE;
-    private Field f11_ABND_TIME;
-    private Field f12_ABND_CODE;
-    private Field f13_ABND_PROGRAM;
-    private Field f14_ABND_RESPCODE;
-    private Field f15_ABND_RESP2CODE;
-    private Field f16_ABND_SQLCODE;
-    private Field f17_ABND_FREEFORM;
-    private Field f18_WS_ABND_KEY_LEN;
-    private Field f19_DB2_DATE_REFORMAT;
-    private Field f1_WS_CICS_WORK_AREA;
-    private Field f20_DB2_DATE_REF_YR;
-    private Field f21_FILLER;
-    private Field f22_DB2_DATE_REF_MNTH;
-    private Field f23_FILLER;
-    private Field f24_DB2_DATE_REF_DAY;
-    private Field f25_DATA_STORE_TYPE;
-    private Field f26_WS_EIBTASKN12;
-    private Field f27_WS_SQLCODE_DISP;
-    private Field f28_WS_U_TIME;
-    private Field f29_WS_ORIG_DATE;
-    private Field f2_WS_CICS_RESP;
-    private Field f30_WS_ORIG_DATE_GRP;
-    private Field f31_WS_ORIG_DATE_DD;
-    private Field f32_FILLER;
-    private Field f33_WS_ORIG_DATE_MM;
-    private Field f34_FILLER;
-    private Field f35_WS_ORIG_DATE_YYYY;
-    private Field f36_WS_ORIG_DATE_GRP_X;
-    private Field f37_WS_ORIG_DATE_DD_X;
-    private Field f38_FILLER;
-    private Field f39_WS_ORIG_DATE_MM_X;
-    private Field f3_WS_CICS_RESP2;
-    private Field f40_FILLER;
-    private Field f41_WS_ORIG_DATE_YYYY_X;
-    private Field f42_WS_PASSED_DATA;
-    private Field f43_WS_TEST_KEY;
-    private Field f44_WS_SORT_CODE;
-    private Field f45_WS_CUSTOMER_RANGE;
-    private Field f46_WS_CUSTOMER_RANGE_TOP;
-    private Field f47_WS_CUSTOMER_RANGE_MIDDLE;
-    private Field f48_WS_CUSTOMER_RANGE_BOTTOM;
-    private Field f49_WS_SORT_DIV;
-    private Field f4_WS_ABND_AREA;
-    private Field f50_WS_SORT_DIV1;
-    private Field f51_WS_SORT_DIV2;
-    private Field f52_WS_SORT_DIV3;
-    private Field f53_CUSTOMER_KY;
-    private Field f54_REQUIRED_SORT_CODE;
-    private Field f55_REQUIRED_ACC_NUM;
-    private Field f56_PROCTRAN_RIDFLD;
-    private Field f57_SQLCODE_DISPLAY;
-    private Field f58_MY_ABEND_CODE;
-    private Field f59_DFHCOMMAREA;
-    private Field f5_ABND_VSAM_KEY;
-    private Field f60_COMM_VSAM_KEY;
-    private Field f61_COMM_UTIME_KEY;
-    private Field f62_COMM_TASKNO_KEY;
-    private Field f63_COMM_APPLID;
-    private Field f64_COMM_TRANID;
-    private Field f65_COMM_DATE;
-    private Field f66_COMM_TIME;
-    private Field f67_COMM_CODE;
-    private Field f68_COMM_PROGRAM;
-    private Field f69_COMM_RESPCODE;
-    private Field f6_ABND_UTIME_KEY;
-    private Field f70_COMM_RESP2CODE;
-    private Field f71_COMM_SQLCODE;
-    private Field f72_COMM_FREEFORM;
-    private Field f73_DFHEIBLK;
-    private Field f74_EIBTIME;
-    private Field f75_EIBDATE;
-    private Field f76_EIBTRNID;
-    private Field f77_EIBTASKN;
-    private Field f78_EIBTRMID;
-    private Field f79_DFHEIGDI;
-    private Field f7_ABND_TASKNO_KEY;
-    private Field f80_EIBCPOSN;
-    private Field f81_EIBCALEN;
-    private Field f82_EIBAID;
-    private Field f83_EIBFN;
-    private Field f84_EIBRCODE;
-    private Field f85_EIBDS;
-    private Field f86_EIBREQID;
-    private Field f87_EIBRSRCE;
-    private Field f88_EIBSYNC;
-    private Field f89_EIBFREE;
-    private Field f8_ABND_APPLID;
-    private Field f90_EIBRECV;
-    private Field f91_EIBSEND;
-    private Field f92_EIBATT;
-    private Field f93_EIBEOC;
-    private Field f94_EIBFMH;
-    private Field f95_EIBCOMPL;
-    private Field f96_EIBSIG;
-    private Field f97_EIBCONF;
-    private Field f98_EIBERR;
-    private Field f99_EIBERRCD;
-    private Field f9_ABND_TRANID;
+    private final Field f2_WS_CICS_RESP = Field.binary(s_WS_CICS_WORK_AREA, 0, 8, 0, true, false);
+    private final Field f3_WS_CICS_RESP2 = Field.binary(s_WS_CICS_WORK_AREA, 4, 8, 0, true, false);
+    private final Field f4_WS_ABND_AREA = Field.group(s_WS_ABND_AREA, 0, 681);
+    private final Field f5_ABND_VSAM_KEY = Field.group(s_WS_ABND_AREA, 0, 12);
+    private final Field f59_DFHCOMMAREA = Field.group(s_DFHCOMMAREA, 0, 681);
+    private final Field f74_EIBTIME = Field.packed(s_DFHEIBLK, 0, 7, 0, true);
+    private final Field f75_EIBDATE = Field.packed(s_DFHEIBLK, 4, 7, 0, true);
+    private final Field f76_EIBTRNID = Field.alphanumeric(s_DFHEIBLK, 8, 4, false);
+    private final Field f77_EIBTASKN = Field.packed(s_DFHEIBLK, 12, 7, 0, true);
+    private final Field f78_EIBTRMID = Field.alphanumeric(s_DFHEIBLK, 16, 4, false);
+    private final Field f81_EIBCALEN = Field.binary(s_DFHEIBLK, 24, 4, 0, true, false);
+    private final Field f102_EIBRESP = Field.binary(s_DFHEIBLK, 76, 8, 0, true, false);
+    private final Field f103_EIBRESP2 = Field.binary(s_DFHEIBLK, 80, 8, 0, true, false);
+    private final Field f105_GG_RETURN_CODE = Field.binary(s_GG_RETURN_CODE, 0, 4, 0, true, false);
+    private long f18_WS_ABND_KEY_LEN;  // WS-ABND-KEY-LEN PIC S9(8) BINARY
 
     private static WsAbndAreaKey id_WsAbndArea(byte[] rec) {
         Storage s = Storage.of(rec);
@@ -222,6 +129,14 @@ public class AbndprocService {
     private final java.util.Map<String, byte[]> heldKey = new java.util.HashMap<>();
     /** Writes the COMMAREA's bytes back into the object the task carries (a LINKed program's is its caller's). */
     private Runnable caBack = () -> { };
+
+    /** The program ends because of an abend: a LINKed program's COMMAREA writes stay its caller's. */
+    private Goback abended() {
+        if (task.level() > 1) {
+            caBack.run();
+        }
+        return new Goback();
+    }
 
     @SuppressWarnings("unchecked")
     private <E> DetCics.Store<E> store(String name) {
@@ -248,16 +163,26 @@ public class AbndprocService {
         return i;
     }
 
-    /** A condition the command neither returned in RESP nor ignored: its HANDLE CONDITION label, or CICS's
-     *  default action -- an abend, to this program's HANDLE ABEND exit or ending the task. */
+    /** A condition the command did not return in RESP: its HANDLE CONDITION label, or -1 (go on) when IGNOREd
+     *  (#4414); else CICS's default action -- -1 for one whose default is to ignore it (#4413: EOC); else the
+     *  ERROR label (#4502: IBM, HANDLE CONDITION: "if the default action for such a condition terminates the
+     *  task abnormally, and the condition ERROR has been specified, the action for ERROR is taken"); else an
+     *  abend, to this program's HANDLE ABEND exit or ending the task. */
     private int condition(String cond) {
         Integer h = handlers.get(cond);
         if (h != null) {
             return h;
         }
+        if (DetCics.ignoredByDefault(cond)) {
+            return -1;
+        }
+        Integer error = handlers.get("ERROR");
+        if (error != null) {
+            return error;
+        }
         String label = task.abendOnCondition(cond);
         if (label == null) {
-            throw new Goback();
+            throw abended();
         }
         return paragraph(label);
     }
@@ -266,7 +191,7 @@ public class AbndprocService {
         return task.eibcalen() == null ? whole : task.eibcalen();
     }
 
-    private void in_AbndprocAbndinfoRec(AbndprocAbndinfoRec d, Storage s, int base) {
+    private void in_AbndprocDfhcommarea(AbndprocDfhcommarea d, Storage s, int base) {
         if (d == null) {
             return;
         }
@@ -284,7 +209,7 @@ public class AbndprocService {
         Cobol.move(d.getAbndFreeform() == null ? "" : d.getAbndFreeform(), Field.alphanumeric(s, base + 81, 600, false), CS);
     }
 
-    private void fill_AbndprocAbndinfoRec(AbndprocAbndinfoRec d, Storage s, int base) {
+    private void fill_AbndprocDfhcommarea(AbndprocDfhcommarea d, Storage s, int base) {
         d.setAbndUtimeKey(Cobol.num(Field.packed(s, base + 0, 15, 0, true), CS).longValue());
         d.setAbndTasknoKey(Cobol.num(Field.zoned(s, base + 8, 4, 0, false, false, false), CS).intValue());
         d.setAbndApplid(Cobol.text(Field.alphanumeric(s, base + 12, 8, false), CS));
@@ -299,10 +224,18 @@ public class AbndprocService {
         d.setAbndFreeform(Cobol.text(Field.alphanumeric(s, base + 81, 600, false), CS));
     }
 
-    private AbndprocAbndinfoRec out_AbndprocAbndinfoRec(Storage s, int base) {
-        AbndprocAbndinfoRec d = new AbndprocAbndinfoRec();
-        fill_AbndprocAbndinfoRec(d, s, base);
+    private AbndprocDfhcommarea out_AbndprocDfhcommarea(Storage s, int base) {
+        AbndprocDfhcommarea d = new AbndprocDfhcommarea();
+        fill_AbndprocDfhcommarea(d, s, base);
         return d;
+    }
+
+    /** #4270 (X23): DFHCOMMAREA's whole record again, with what the task left in its EIBCALEN bytes. */
+    private void caWhole(byte[] whole) {
+        if (s_DFHCOMMAREA.bytes != whole) {
+            System.arraycopy(s_DFHCOMMAREA.bytes, 0, whole, 0, s_DFHCOMMAREA.bytes.length);
+            s_DFHCOMMAREA.bytes = whole;
+        }
     }
 
 
@@ -316,123 +249,12 @@ public class AbndprocService {
         this.datasets = datasets;
         this.files = files;
         this.clock = clock;
-        fields0();
     }
 
-    private void fields0() {
-        f1_WS_CICS_WORK_AREA = Field.group(s_WS_CICS_WORK_AREA, 0, 8);
-        f2_WS_CICS_RESP = Field.binary(s_WS_CICS_WORK_AREA, 0, 8, 0, true, false);
-        f3_WS_CICS_RESP2 = Field.binary(s_WS_CICS_WORK_AREA, 4, 8, 0, true, false);
-        f4_WS_ABND_AREA = Field.group(s_WS_ABND_AREA, 0, 681);
-        f5_ABND_VSAM_KEY = Field.group(s_WS_ABND_AREA, 0, 12);
-        f6_ABND_UTIME_KEY = Field.packed(s_WS_ABND_AREA, 0, 15, 0, true);
-        f7_ABND_TASKNO_KEY = Field.zoned(s_WS_ABND_AREA, 8, 4, 0, false, false, false);
-        f8_ABND_APPLID = Field.alphanumeric(s_WS_ABND_AREA, 12, 8, false);
-        f9_ABND_TRANID = Field.alphanumeric(s_WS_ABND_AREA, 20, 4, false);
-        f10_ABND_DATE = Field.alphanumeric(s_WS_ABND_AREA, 24, 10, false);
-        f11_ABND_TIME = Field.alphanumeric(s_WS_ABND_AREA, 34, 8, false);
-        f12_ABND_CODE = Field.alphanumeric(s_WS_ABND_AREA, 42, 4, false);
-        f13_ABND_PROGRAM = Field.alphanumeric(s_WS_ABND_AREA, 46, 8, false);
-        f14_ABND_RESPCODE = Field.zoned(s_WS_ABND_AREA, 54, 8, 0, true, true, true);
-        f15_ABND_RESP2CODE = Field.zoned(s_WS_ABND_AREA, 63, 8, 0, true, true, true);
-        f16_ABND_SQLCODE = Field.zoned(s_WS_ABND_AREA, 72, 8, 0, true, true, true);
-        f17_ABND_FREEFORM = Field.alphanumeric(s_WS_ABND_AREA, 81, 600, false);
-        f18_WS_ABND_KEY_LEN = Field.binary(s_WS_ABND_KEY_LEN, 0, 8, 0, true, false);
-        f19_DB2_DATE_REFORMAT = Field.group(s_DB2_DATE_REFORMAT, 0, 10);
-        f20_DB2_DATE_REF_YR = Field.zoned(s_DB2_DATE_REFORMAT, 0, 4, 0, false, false, false);
-        f21_FILLER = Field.alphanumeric(s_DB2_DATE_REFORMAT, 4, 1, false);
-        f22_DB2_DATE_REF_MNTH = Field.zoned(s_DB2_DATE_REFORMAT, 5, 2, 0, false, false, false);
-        f23_FILLER = Field.alphanumeric(s_DB2_DATE_REFORMAT, 7, 1, false);
-        f24_DB2_DATE_REF_DAY = Field.zoned(s_DB2_DATE_REFORMAT, 8, 2, 0, false, false, false);
-        f25_DATA_STORE_TYPE = Field.alphanumeric(s_DATA_STORE_TYPE, 0, 1, false);
-        f26_WS_EIBTASKN12 = Field.zoned(s_WS_EIBTASKN12, 0, 12, 0, false, false, false);
-        f27_WS_SQLCODE_DISP = Field.zoned(s_WS_SQLCODE_DISP, 0, 9, 0, false, false, false);
-        f28_WS_U_TIME = Field.packed(s_WS_U_TIME, 0, 15, 0, true);
-        f29_WS_ORIG_DATE = Field.alphanumeric(s_WS_ORIG_DATE, 0, 10, false);
-        f30_WS_ORIG_DATE_GRP = Field.group(s_WS_ORIG_DATE, 0, 10);
-        f31_WS_ORIG_DATE_DD = Field.zoned(s_WS_ORIG_DATE, 0, 2, 0, false, false, false);
-        f32_FILLER = Field.alphanumeric(s_WS_ORIG_DATE, 2, 1, false);
-        f33_WS_ORIG_DATE_MM = Field.zoned(s_WS_ORIG_DATE, 3, 2, 0, false, false, false);
-        f34_FILLER = Field.alphanumeric(s_WS_ORIG_DATE, 5, 1, false);
-        f35_WS_ORIG_DATE_YYYY = Field.zoned(s_WS_ORIG_DATE, 6, 4, 0, false, false, false);
-        f36_WS_ORIG_DATE_GRP_X = Field.group(s_WS_ORIG_DATE_GRP_X, 0, 10);
-        f37_WS_ORIG_DATE_DD_X = Field.alphanumeric(s_WS_ORIG_DATE_GRP_X, 0, 2, false);
-        f38_FILLER = Field.alphanumeric(s_WS_ORIG_DATE_GRP_X, 2, 1, false);
-        f39_WS_ORIG_DATE_MM_X = Field.alphanumeric(s_WS_ORIG_DATE_GRP_X, 3, 2, false);
-        f40_FILLER = Field.alphanumeric(s_WS_ORIG_DATE_GRP_X, 5, 1, false);
-        f41_WS_ORIG_DATE_YYYY_X = Field.alphanumeric(s_WS_ORIG_DATE_GRP_X, 6, 4, false);
-        f42_WS_PASSED_DATA = Field.group(s_WS_PASSED_DATA, 0, 13);
-        f43_WS_TEST_KEY = Field.alphanumeric(s_WS_PASSED_DATA, 0, 4, false);
-        f44_WS_SORT_CODE = Field.zoned(s_WS_PASSED_DATA, 4, 6, 0, false, false, false);
-        f45_WS_CUSTOMER_RANGE = Field.group(s_WS_PASSED_DATA, 10, 3);
-        f46_WS_CUSTOMER_RANGE_TOP = Field.alphanumeric(s_WS_PASSED_DATA, 10, 1, false);
-        f47_WS_CUSTOMER_RANGE_MIDDLE = Field.alphanumeric(s_WS_PASSED_DATA, 11, 1, false);
-        f48_WS_CUSTOMER_RANGE_BOTTOM = Field.alphanumeric(s_WS_PASSED_DATA, 12, 1, false);
-        f49_WS_SORT_DIV = Field.group(s_WS_SORT_DIV, 0, 6);
-        f50_WS_SORT_DIV1 = Field.alphanumeric(s_WS_SORT_DIV, 0, 2, false);
-        f51_WS_SORT_DIV2 = Field.alphanumeric(s_WS_SORT_DIV, 2, 2, false);
-        f52_WS_SORT_DIV3 = Field.alphanumeric(s_WS_SORT_DIV, 4, 2, false);
-        f53_CUSTOMER_KY = Field.group(s_CUSTOMER_KY, 0, 14);
-        f54_REQUIRED_SORT_CODE = Field.zoned(s_CUSTOMER_KY, 0, 6, 0, false, false, false);
-        f55_REQUIRED_ACC_NUM = Field.zoned(s_CUSTOMER_KY, 6, 8, 0, false, false, false);
-        f56_PROCTRAN_RIDFLD = Field.binary(s_PROCTRAN_RIDFLD, 0, 8, 0, true, false);
-        f57_SQLCODE_DISPLAY = Field.zoned(s_SQLCODE_DISPLAY, 0, 8, 0, true, true, true);
-        f58_MY_ABEND_CODE = Field.alphanumeric(s_MY_ABEND_CODE, 0, 4, false);
-        f59_DFHCOMMAREA = Field.group(s_DFHCOMMAREA, 0, 681);
-        f60_COMM_VSAM_KEY = Field.group(s_DFHCOMMAREA, 0, 12);
-        f61_COMM_UTIME_KEY = Field.packed(s_DFHCOMMAREA, 0, 15, 0, true);
-        f62_COMM_TASKNO_KEY = Field.zoned(s_DFHCOMMAREA, 8, 4, 0, false, false, false);
-        f63_COMM_APPLID = Field.alphanumeric(s_DFHCOMMAREA, 12, 8, false);
-        f64_COMM_TRANID = Field.alphanumeric(s_DFHCOMMAREA, 20, 4, false);
-        f65_COMM_DATE = Field.alphanumeric(s_DFHCOMMAREA, 24, 10, false);
-        f66_COMM_TIME = Field.alphanumeric(s_DFHCOMMAREA, 34, 8, false);
-        f67_COMM_CODE = Field.alphanumeric(s_DFHCOMMAREA, 42, 4, false);
-        f68_COMM_PROGRAM = Field.alphanumeric(s_DFHCOMMAREA, 46, 8, false);
-        f69_COMM_RESPCODE = Field.zoned(s_DFHCOMMAREA, 54, 8, 0, true, true, true);
-        f70_COMM_RESP2CODE = Field.zoned(s_DFHCOMMAREA, 63, 8, 0, true, true, true);
-        f71_COMM_SQLCODE = Field.zoned(s_DFHCOMMAREA, 72, 8, 0, true, true, true);
-        f72_COMM_FREEFORM = Field.alphanumeric(s_DFHCOMMAREA, 81, 600, false);
-        f73_DFHEIBLK = Field.group(s_DFHEIBLK, 0, 85);
-        f74_EIBTIME = Field.packed(s_DFHEIBLK, 0, 7, 0, true);
-        f75_EIBDATE = Field.packed(s_DFHEIBLK, 4, 7, 0, true);
-        f76_EIBTRNID = Field.alphanumeric(s_DFHEIBLK, 8, 4, false);
-        f77_EIBTASKN = Field.packed(s_DFHEIBLK, 12, 7, 0, true);
-        f78_EIBTRMID = Field.alphanumeric(s_DFHEIBLK, 16, 4, false);
-        f79_DFHEIGDI = Field.binary(s_DFHEIBLK, 20, 4, 0, true, false);
-        f80_EIBCPOSN = Field.binary(s_DFHEIBLK, 22, 4, 0, true, false);
-        f81_EIBCALEN = Field.binary(s_DFHEIBLK, 24, 4, 0, true, false);
-        f82_EIBAID = Field.alphanumeric(s_DFHEIBLK, 26, 1, false);
-        f83_EIBFN = Field.alphanumeric(s_DFHEIBLK, 27, 2, false);
-        f84_EIBRCODE = Field.alphanumeric(s_DFHEIBLK, 29, 6, false);
-        f85_EIBDS = Field.alphanumeric(s_DFHEIBLK, 35, 8, false);
-        f86_EIBREQID = Field.alphanumeric(s_DFHEIBLK, 43, 8, false);
-        f87_EIBRSRCE = Field.alphanumeric(s_DFHEIBLK, 51, 8, false);
-        f88_EIBSYNC = Field.alphanumeric(s_DFHEIBLK, 59, 1, false);
-        f89_EIBFREE = Field.alphanumeric(s_DFHEIBLK, 60, 1, false);
-        f90_EIBRECV = Field.alphanumeric(s_DFHEIBLK, 61, 1, false);
-        f91_EIBSEND = Field.alphanumeric(s_DFHEIBLK, 62, 1, false);
-        f92_EIBATT = Field.alphanumeric(s_DFHEIBLK, 63, 1, false);
-        f93_EIBEOC = Field.alphanumeric(s_DFHEIBLK, 64, 1, false);
-        f94_EIBFMH = Field.alphanumeric(s_DFHEIBLK, 65, 1, false);
-        f95_EIBCOMPL = Field.alphanumeric(s_DFHEIBLK, 66, 1, false);
-        f96_EIBSIG = Field.alphanumeric(s_DFHEIBLK, 67, 1, false);
-        f97_EIBCONF = Field.alphanumeric(s_DFHEIBLK, 68, 1, false);
-        f98_EIBERR = Field.alphanumeric(s_DFHEIBLK, 69, 1, false);
-        f99_EIBERRCD = Field.alphanumeric(s_DFHEIBLK, 70, 4, false);
-        f100_EIBSYNRB = Field.alphanumeric(s_DFHEIBLK, 74, 1, false);
-        f101_EIBNODAT = Field.alphanumeric(s_DFHEIBLK, 75, 1, false);
-        f102_EIBRESP = Field.binary(s_DFHEIBLK, 76, 8, 0, true, false);
-        f103_EIBRESP2 = Field.binary(s_DFHEIBLK, 80, 8, 0, true, false);
-        f104_EIBRLDBK = Field.alphanumeric(s_DFHEIBLK, 84, 1, false);
-        f105_GG_RETURN_CODE = Field.binary(s_GG_RETURN_CODE, 0, 4, 0, true, false);
-    }
-
-    /** The program run on its own (no JCL step, no CICS task, no caller): the PROCEDURE DIVISION from its
-     *  initial storage; RETURN-CODE. */
-    public int runProgram() {
+    /** WORKING-STORAGE (and every storage) as its VALUE clauses set it: each entry point starts from here. */
+    private void initialState() {
         System.arraycopy(IMAGE_s_WS_CICS_WORK_AREA, 0, s_WS_CICS_WORK_AREA.bytes, 0, IMAGE_s_WS_CICS_WORK_AREA.length);
         System.arraycopy(IMAGE_s_WS_ABND_AREA, 0, s_WS_ABND_AREA.bytes, 0, IMAGE_s_WS_ABND_AREA.length);
-        System.arraycopy(IMAGE_s_WS_ABND_KEY_LEN, 0, s_WS_ABND_KEY_LEN.bytes, 0, IMAGE_s_WS_ABND_KEY_LEN.length);
         System.arraycopy(IMAGE_s_DB2_DATE_REFORMAT, 0, s_DB2_DATE_REFORMAT.bytes, 0, IMAGE_s_DB2_DATE_REFORMAT.length);
         System.arraycopy(IMAGE_s_DATA_STORE_TYPE, 0, s_DATA_STORE_TYPE.bytes, 0, IMAGE_s_DATA_STORE_TYPE.length);
         System.arraycopy(IMAGE_s_WS_EIBTASKN12, 0, s_WS_EIBTASKN12.bytes, 0, IMAGE_s_WS_EIBTASKN12.length);
@@ -449,6 +271,13 @@ public class AbndprocService {
         System.arraycopy(IMAGE_s_DFHCOMMAREA, 0, s_DFHCOMMAREA.bytes, 0, IMAGE_s_DFHCOMMAREA.length);
         System.arraycopy(IMAGE_s_DFHEIBLK, 0, s_DFHEIBLK.bytes, 0, IMAGE_s_DFHEIBLK.length);
         System.arraycopy(IMAGE_s_GG_RETURN_CODE, 0, s_GG_RETURN_CODE.bytes, 0, IMAGE_s_GG_RETURN_CODE.length);
+        f18_WS_ABND_KEY_LEN = 12L;
+    }
+
+    /** The program run on its own (no JCL step, no CICS task, no caller): the PROCEDURE DIVISION from its
+     *  initial storage; RETURN-CODE. */
+    public int runProgram() {
+        initialState();
         performDepth = 0;
         try {
             perform(0, 5);
@@ -458,38 +287,19 @@ public class AbndprocService {
         return Cobol.num(f105_GG_RETURN_CODE, CS).intValue();
     }
 
-    public void executeAbndproc() {
-        runBatch(List.of(), null);
-    }
-
     /** One task of the program: the EIB and COMMAREA from the task, then the PROCEDURE DIVISION. */
     public void runTask(CicsTask task) {
         boolean truncBefore = Cobol.swapTruncBinary(true);  // TRUNC(STD)
+        boolean pfdBefore = Cobol.swapNumprocPfd(false);  // NUMPROC(NOPFD)
         try {
             this.task = task;
             caBack = () -> { };
             handlers.clear();
             heldKey.clear();
-            System.arraycopy(IMAGE_s_WS_CICS_WORK_AREA, 0, s_WS_CICS_WORK_AREA.bytes, 0, IMAGE_s_WS_CICS_WORK_AREA.length);
-            System.arraycopy(IMAGE_s_WS_ABND_AREA, 0, s_WS_ABND_AREA.bytes, 0, IMAGE_s_WS_ABND_AREA.length);
-            System.arraycopy(IMAGE_s_WS_ABND_KEY_LEN, 0, s_WS_ABND_KEY_LEN.bytes, 0, IMAGE_s_WS_ABND_KEY_LEN.length);
-            System.arraycopy(IMAGE_s_DB2_DATE_REFORMAT, 0, s_DB2_DATE_REFORMAT.bytes, 0, IMAGE_s_DB2_DATE_REFORMAT.length);
-            System.arraycopy(IMAGE_s_DATA_STORE_TYPE, 0, s_DATA_STORE_TYPE.bytes, 0, IMAGE_s_DATA_STORE_TYPE.length);
-            System.arraycopy(IMAGE_s_WS_EIBTASKN12, 0, s_WS_EIBTASKN12.bytes, 0, IMAGE_s_WS_EIBTASKN12.length);
-            System.arraycopy(IMAGE_s_WS_SQLCODE_DISP, 0, s_WS_SQLCODE_DISP.bytes, 0, IMAGE_s_WS_SQLCODE_DISP.length);
-            System.arraycopy(IMAGE_s_WS_U_TIME, 0, s_WS_U_TIME.bytes, 0, IMAGE_s_WS_U_TIME.length);
-            System.arraycopy(IMAGE_s_WS_ORIG_DATE, 0, s_WS_ORIG_DATE.bytes, 0, IMAGE_s_WS_ORIG_DATE.length);
-            System.arraycopy(IMAGE_s_WS_ORIG_DATE_GRP_X, 0, s_WS_ORIG_DATE_GRP_X.bytes, 0, IMAGE_s_WS_ORIG_DATE_GRP_X.length);
-            System.arraycopy(IMAGE_s_WS_PASSED_DATA, 0, s_WS_PASSED_DATA.bytes, 0, IMAGE_s_WS_PASSED_DATA.length);
-            System.arraycopy(IMAGE_s_WS_SORT_DIV, 0, s_WS_SORT_DIV.bytes, 0, IMAGE_s_WS_SORT_DIV.length);
-            System.arraycopy(IMAGE_s_CUSTOMER_KY, 0, s_CUSTOMER_KY.bytes, 0, IMAGE_s_CUSTOMER_KY.length);
-            System.arraycopy(IMAGE_s_PROCTRAN_RIDFLD, 0, s_PROCTRAN_RIDFLD.bytes, 0, IMAGE_s_PROCTRAN_RIDFLD.length);
-            System.arraycopy(IMAGE_s_SQLCODE_DISPLAY, 0, s_SQLCODE_DISPLAY.bytes, 0, IMAGE_s_SQLCODE_DISPLAY.length);
-            System.arraycopy(IMAGE_s_MY_ABEND_CODE, 0, s_MY_ABEND_CODE.bytes, 0, IMAGE_s_MY_ABEND_CODE.length);
-            System.arraycopy(IMAGE_s_DFHCOMMAREA, 0, s_DFHCOMMAREA.bytes, 0, IMAGE_s_DFHCOMMAREA.length);
-            System.arraycopy(IMAGE_s_DFHEIBLK, 0, s_DFHEIBLK.bytes, 0, IMAGE_s_DFHEIBLK.length);
-            System.arraycopy(IMAGE_s_GG_RETURN_CODE, 0, s_GG_RETURN_CODE.bytes, 0, IMAGE_s_GG_RETURN_CODE.length);
+            initialState();
             Cobol.move(task.transid(), f76_EIBTRNID, CS);
+            Cobol.move(task.termid() == null ? "" : task.termid(), f78_EIBTRMID, CS);
+            Cobol.store(f77_EIBTASKN, BigDecimal.valueOf(task.taskNumber()), false, CS);
             java.time.LocalDateTime now = task.now();
             Cobol.store(f75_EIBDATE, BigDecimal.valueOf((now.getYear() - 1900) * 1000L + now.getDayOfYear()), false, CS);
             Cobol.store(f74_EIBTIME, BigDecimal.valueOf(now.getHour() * 10000L + now.getMinute() * 100L + now.getSecond()), false, CS);
@@ -498,16 +308,41 @@ public class AbndprocService {
             }
             Object ca = task.hasCommarea() ? task.commarea(Object.class) : null;
             int calen = 0;
-            if (ca instanceof AbndprocAbndinfoRec x) {
-                in_AbndprocAbndinfoRec(x, s_DFHCOMMAREA, 0);
-                caBack = () -> fill_AbndprocAbndinfoRec(x, s_DFHCOMMAREA, 0);
+            if (ca instanceof AbndprocDfhcommarea x) {
+                in_AbndprocDfhcommarea(x, s_DFHCOMMAREA, 0);
+                caBack = () -> fill_AbndprocDfhcommarea(x, s_DFHCOMMAREA, 0);
                 calen = cx(task, 681);
+            }
+            byte[] raw = task.linkArea();
+            if (raw != null) {
+                System.arraycopy(raw, 0, s_DFHCOMMAREA.bytes, 0, Math.min(raw.length, s_DFHCOMMAREA.bytes.length));
+                Runnable typed = caBack;
+                caBack = () -> { typed.run(); System.arraycopy(s_DFHCOMMAREA.bytes, 0, raw, 0, Math.min(raw.length, s_DFHCOMMAREA.bytes.length)); };
+            }
+            byte[] caWhole = null;
+            if (task.exactCommarea() && calen < s_DFHCOMMAREA.bytes.length) {
+                caWhole = s_DFHCOMMAREA.bytes;
+                s_DFHCOMMAREA.bytes = java.util.Arrays.copyOf(caWhole, calen);
+                Runnable typed = caBack;
+                byte[] whole = caWhole;
+                caBack = () -> { caWhole(whole); typed.run(); };
             }
             Cobol.store(f81_EIBCALEN, BigDecimal.valueOf(calen), false, CS);
             try {
-                perform(0, 5);
-            } catch (Goback g) {
-                // RETURN / XCTL / an abend ended the program
+                try {
+                    perform(0, 5);
+                } catch (Goback g) {
+                    // RETURN / XCTL / an abend ended the program
+                }
+            } catch (IndexOutOfBoundsException e) {
+                if (caWhole == null) {
+                    throw e;
+                }
+                throw new DetCics.PastFrom("COMMAREA past EIBCALEN (" + calen + " bytes): not modelled");
+            } finally {
+                if (caWhole != null) {
+                    caWhole(caWhole);
+                }
             }
             if (!task.ended()) {
                 caBack.run();
@@ -515,11 +350,15 @@ public class AbndprocService {
             }
         } finally {
             Cobol.swapTruncBinary(truncBefore);
+            Cobol.swapNumprocPfd(pfdBefore);
         }
     }
 
-    public AbndprocAbndinfoRec handleLink(AbndprocAbndinfoRec request) {
-        throw new UnsupportedOperationException("handleLink: this port runs as runTask");
+    public AbndprocDfhcommarea handleLink(AbndprocDfhcommarea request) {
+        CicsTask.Region region = CicsTask.region();
+        CicsTask task = region.linked("ABNDPROC", request);
+        region.run(task, "ABNDPROC", this::runTask);
+        return request;
     }
 
 
@@ -539,26 +378,9 @@ public class AbndprocService {
     /** The batch entry. */
     public int runBatch(List<Dd> dds, String parm) {
         boolean truncBefore = Cobol.swapTruncBinary(true);  // TRUNC(STD)
+        boolean pfdBefore = Cobol.swapNumprocPfd(false);  // NUMPROC(NOPFD)
         try {
-            System.arraycopy(IMAGE_s_WS_CICS_WORK_AREA, 0, s_WS_CICS_WORK_AREA.bytes, 0, IMAGE_s_WS_CICS_WORK_AREA.length);
-            System.arraycopy(IMAGE_s_WS_ABND_AREA, 0, s_WS_ABND_AREA.bytes, 0, IMAGE_s_WS_ABND_AREA.length);
-            System.arraycopy(IMAGE_s_WS_ABND_KEY_LEN, 0, s_WS_ABND_KEY_LEN.bytes, 0, IMAGE_s_WS_ABND_KEY_LEN.length);
-            System.arraycopy(IMAGE_s_DB2_DATE_REFORMAT, 0, s_DB2_DATE_REFORMAT.bytes, 0, IMAGE_s_DB2_DATE_REFORMAT.length);
-            System.arraycopy(IMAGE_s_DATA_STORE_TYPE, 0, s_DATA_STORE_TYPE.bytes, 0, IMAGE_s_DATA_STORE_TYPE.length);
-            System.arraycopy(IMAGE_s_WS_EIBTASKN12, 0, s_WS_EIBTASKN12.bytes, 0, IMAGE_s_WS_EIBTASKN12.length);
-            System.arraycopy(IMAGE_s_WS_SQLCODE_DISP, 0, s_WS_SQLCODE_DISP.bytes, 0, IMAGE_s_WS_SQLCODE_DISP.length);
-            System.arraycopy(IMAGE_s_WS_U_TIME, 0, s_WS_U_TIME.bytes, 0, IMAGE_s_WS_U_TIME.length);
-            System.arraycopy(IMAGE_s_WS_ORIG_DATE, 0, s_WS_ORIG_DATE.bytes, 0, IMAGE_s_WS_ORIG_DATE.length);
-            System.arraycopy(IMAGE_s_WS_ORIG_DATE_GRP_X, 0, s_WS_ORIG_DATE_GRP_X.bytes, 0, IMAGE_s_WS_ORIG_DATE_GRP_X.length);
-            System.arraycopy(IMAGE_s_WS_PASSED_DATA, 0, s_WS_PASSED_DATA.bytes, 0, IMAGE_s_WS_PASSED_DATA.length);
-            System.arraycopy(IMAGE_s_WS_SORT_DIV, 0, s_WS_SORT_DIV.bytes, 0, IMAGE_s_WS_SORT_DIV.length);
-            System.arraycopy(IMAGE_s_CUSTOMER_KY, 0, s_CUSTOMER_KY.bytes, 0, IMAGE_s_CUSTOMER_KY.length);
-            System.arraycopy(IMAGE_s_PROCTRAN_RIDFLD, 0, s_PROCTRAN_RIDFLD.bytes, 0, IMAGE_s_PROCTRAN_RIDFLD.length);
-            System.arraycopy(IMAGE_s_SQLCODE_DISPLAY, 0, s_SQLCODE_DISPLAY.bytes, 0, IMAGE_s_SQLCODE_DISPLAY.length);
-            System.arraycopy(IMAGE_s_MY_ABEND_CODE, 0, s_MY_ABEND_CODE.bytes, 0, IMAGE_s_MY_ABEND_CODE.length);
-            System.arraycopy(IMAGE_s_DFHCOMMAREA, 0, s_DFHCOMMAREA.bytes, 0, IMAGE_s_DFHCOMMAREA.length);
-            System.arraycopy(IMAGE_s_DFHEIBLK, 0, s_DFHEIBLK.bytes, 0, IMAGE_s_DFHEIBLK.length);
-            System.arraycopy(IMAGE_s_GG_RETURN_CODE, 0, s_GG_RETURN_CODE.bytes, 0, IMAGE_s_GG_RETURN_CODE.length);
+            initialState();
             byte[] parmText = (parm == null ? "" : parm).getBytes(CS);
             s_DFHCOMMAREA.bytes[0] = (byte) (parmText.length >> 8);
             s_DFHCOMMAREA.bytes[1] = (byte) parmText.length;
@@ -571,6 +393,7 @@ public class AbndprocService {
             return Cobol.num(f105_GG_RETURN_CODE, CS).intValue();
         } finally {
             Cobol.swapTruncBinary(truncBefore);
+            Cobol.swapNumprocPfd(pfdBefore);
         }
     }
 

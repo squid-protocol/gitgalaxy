@@ -65,51 +65,21 @@ public class CobtupdtService {
     private final Storage s_WS_INPUT_REC = new Storage(IMAGE_s_WS_INPUT_REC.length);
     private final Storage s_GG_RETURN_CODE = new Storage(IMAGE_s_GG_RETURN_CODE.length);
 
-    private Field f10_SQLERRML;
-    private Field f11_SQLERRMC;
-    private Field f12_SQLERRP;
-    private Field f13_SQLERRD;
-    private Field f14_SQLWARN;
-    private Field f15_SQLWARN0;
-    private Field f16_SQLWARN1;
-    private Field f17_SQLWARN2;
-    private Field f18_SQLWARN3;
-    private Field f19_SQLWARN4;
-    private Field f1_WS_INPUT_VARS;
-    private Field f20_SQLWARN5;
-    private Field f21_SQLWARN6;
-    private Field f22_SQLWARN7;
-    private Field f23_SQLWARN8;
-    private Field f24_SQLWARN9;
-    private Field f25_SQLWARNA;
-    private Field f26_SQLSTATE;
-    private Field f27_DCLTRANSACTION_TYPE;
-    private Field f28_DCL_TR_TYPE;
-    private Field f29_DCL_TR_DESCRIPTION;
-    private Field f2_INPUT_TYPE;
-    private Field f30_DCL_TR_DESCRIPTION_LEN;
-    private Field f31_DCL_TR_DESCRIPTION_TEXT;
-    private Field f32_FLAGS;
-    private Field f33_LASTREC;
-    private Field f34_WORKING_VARIABLES;
-    private Field f35_WS_RETURN_MSG;
-    private Field f36_WS_MISC_VARS;
-    private Field f37_WS_VAR_SQLCODE;
-    private Field f38_WS_INF_STATUS;
-    private Field f39_WS_INF_STAT1;
-    private Field f3_INPUT_TR_NUMBER;
-    private Field f40_WS_INF_STAT2;
-    private Field f41_WS_INPUT_REC;
-    private Field f42_INPUT_REC_TYPE;
-    private Field f43_INPUT_REC_NUMBER;
-    private Field f44_INPUT_REC_DESC;
-    private Field f45_GG_RETURN_CODE;
-    private Field f4_INPUT_TR_DESC;
-    private Field f5_SQLCA;
-    private Field f6_SQLCAID;
-    private Field f7_SQLCABC;
-    private Field f8_SQLCODE;
-    private Field f9_SQLERRM;
+    private final Field f1_WS_INPUT_VARS = Field.group(s_WS_INPUT_VARS, 0, 53);
+    private final Field f5_SQLCA = Field.group(s_SQLCA, 0, 136);
+    private final Field f8_SQLCODE = Field.binary(s_SQLCA, 12, 9, 0, true, true);
+    private final Field f35_WS_RETURN_MSG = Field.alphanumeric(s_WORKING_VARIABLES, 0, 80, false);
+    private final Field f37_WS_VAR_SQLCODE = Field.numericEdited(s_WS_MISC_VARS, 0, 5, "----9", false);
+    private final Field f38_WS_INF_STATUS = Field.group(s_WS_INF_STATUS, 0, 2);
+    private final Field f41_WS_INPUT_REC = Field.group(s_WS_INPUT_REC, 0, 53);
+    private final Field f42_INPUT_REC_TYPE = Field.alphanumeric(s_WS_INPUT_REC, 0, 1, false);
+    private final Field f43_INPUT_REC_NUMBER = Field.alphanumeric(s_WS_INPUT_REC, 1, 2, false);
+    private final Field f44_INPUT_REC_DESC = Field.alphanumeric(s_WS_INPUT_REC, 3, 50, false);
+    private final Field f45_GG_RETURN_CODE = Field.binary(s_GG_RETURN_CODE, 0, 4, 0, true, false);
+    private String f28_DCL_TR_TYPE;  // DCL-TR-TYPE PIC X(2)
+    private long f30_DCL_TR_DESCRIPTION_LEN;  // DCL-TR-DESCRIPTION-LEN PIC S9(4) BINARY
+    private String f31_DCL_TR_DESCRIPTION_TEXT;  // DCL-TR-DESCRIPTION-TEXT PIC X(50)
+    private String f33_LASTREC;  // LASTREC PIC X(1)
 
     private DetFiles.DetFile TR_RECORD;
 
@@ -123,60 +93,10 @@ public class CobtupdtService {
         this.datasets = datasets;
         this.files = files;
         this.clock = clock;
-        fields0();
     }
 
-    private void fields0() {
-        f1_WS_INPUT_VARS = Field.group(s_WS_INPUT_VARS, 0, 53);
-        f2_INPUT_TYPE = Field.alphanumeric(s_WS_INPUT_VARS, 0, 1, false);
-        f3_INPUT_TR_NUMBER = Field.alphanumeric(s_WS_INPUT_VARS, 1, 2, false);
-        f4_INPUT_TR_DESC = Field.alphanumeric(s_WS_INPUT_VARS, 3, 50, false);
-        f5_SQLCA = Field.group(s_SQLCA, 0, 136);
-        f6_SQLCAID = Field.alphanumeric(s_SQLCA, 0, 8, false);
-        f7_SQLCABC = Field.binary(s_SQLCA, 8, 9, 0, true, true);
-        f8_SQLCODE = Field.binary(s_SQLCA, 12, 9, 0, true, true);
-        f9_SQLERRM = Field.group(s_SQLCA, 16, 72);
-        f10_SQLERRML = Field.binary(s_SQLCA, 16, 4, 0, true, true);
-        f11_SQLERRMC = Field.alphanumeric(s_SQLCA, 18, 70, false);
-        f12_SQLERRP = Field.alphanumeric(s_SQLCA, 88, 8, false);
-        f13_SQLERRD = Field.binary(s_SQLCA, 96, 9, 0, true, true);
-        f14_SQLWARN = Field.group(s_SQLCA, 120, 11);
-        f15_SQLWARN0 = Field.alphanumeric(s_SQLCA, 120, 1, false);
-        f16_SQLWARN1 = Field.alphanumeric(s_SQLCA, 121, 1, false);
-        f17_SQLWARN2 = Field.alphanumeric(s_SQLCA, 122, 1, false);
-        f18_SQLWARN3 = Field.alphanumeric(s_SQLCA, 123, 1, false);
-        f19_SQLWARN4 = Field.alphanumeric(s_SQLCA, 124, 1, false);
-        f20_SQLWARN5 = Field.alphanumeric(s_SQLCA, 125, 1, false);
-        f21_SQLWARN6 = Field.alphanumeric(s_SQLCA, 126, 1, false);
-        f22_SQLWARN7 = Field.alphanumeric(s_SQLCA, 127, 1, false);
-        f23_SQLWARN8 = Field.alphanumeric(s_SQLCA, 128, 1, false);
-        f24_SQLWARN9 = Field.alphanumeric(s_SQLCA, 129, 1, false);
-        f25_SQLWARNA = Field.alphanumeric(s_SQLCA, 130, 1, false);
-        f26_SQLSTATE = Field.alphanumeric(s_SQLCA, 131, 5, false);
-        f27_DCLTRANSACTION_TYPE = Field.group(s_DCLTRANSACTION_TYPE, 0, 54);
-        f28_DCL_TR_TYPE = Field.alphanumeric(s_DCLTRANSACTION_TYPE, 0, 2, false);
-        f29_DCL_TR_DESCRIPTION = Field.group(s_DCLTRANSACTION_TYPE, 2, 52);
-        f30_DCL_TR_DESCRIPTION_LEN = Field.binary(s_DCLTRANSACTION_TYPE, 2, 4, 0, true, false);
-        f31_DCL_TR_DESCRIPTION_TEXT = Field.alphanumeric(s_DCLTRANSACTION_TYPE, 4, 50, false);
-        f32_FLAGS = Field.group(s_FLAGS, 0, 1);
-        f33_LASTREC = Field.alphanumeric(s_FLAGS, 0, 1, false);
-        f34_WORKING_VARIABLES = Field.group(s_WORKING_VARIABLES, 0, 80);
-        f35_WS_RETURN_MSG = Field.alphanumeric(s_WORKING_VARIABLES, 0, 80, false);
-        f36_WS_MISC_VARS = Field.group(s_WS_MISC_VARS, 0, 5);
-        f37_WS_VAR_SQLCODE = Field.numericEdited(s_WS_MISC_VARS, 0, 5, "----9", false);
-        f38_WS_INF_STATUS = Field.group(s_WS_INF_STATUS, 0, 2);
-        f39_WS_INF_STAT1 = Field.alphanumeric(s_WS_INF_STATUS, 0, 1, false);
-        f40_WS_INF_STAT2 = Field.alphanumeric(s_WS_INF_STATUS, 1, 1, false);
-        f41_WS_INPUT_REC = Field.group(s_WS_INPUT_REC, 0, 53);
-        f42_INPUT_REC_TYPE = Field.alphanumeric(s_WS_INPUT_REC, 0, 1, false);
-        f43_INPUT_REC_NUMBER = Field.alphanumeric(s_WS_INPUT_REC, 1, 2, false);
-        f44_INPUT_REC_DESC = Field.alphanumeric(s_WS_INPUT_REC, 3, 50, false);
-        f45_GG_RETURN_CODE = Field.binary(s_GG_RETURN_CODE, 0, 4, 0, true, false);
-    }
-
-    /** The program run on its own (no JCL step, no CICS task, no caller): the PROCEDURE DIVISION from its
-     *  initial storage; RETURN-CODE. */
-    public int runProgram() {
+    /** WORKING-STORAGE (and every storage) as its VALUE clauses set it: each entry point starts from here. */
+    private void initialState() {
         System.arraycopy(IMAGE_s_WS_INPUT_VARS, 0, s_WS_INPUT_VARS.bytes, 0, IMAGE_s_WS_INPUT_VARS.length);
         System.arraycopy(IMAGE_s_SQLCA, 0, s_SQLCA.bytes, 0, IMAGE_s_SQLCA.length);
         System.arraycopy(IMAGE_s_DCLTRANSACTION_TYPE, 0, s_DCLTRANSACTION_TYPE.bytes, 0, IMAGE_s_DCLTRANSACTION_TYPE.length);
@@ -186,7 +106,17 @@ public class CobtupdtService {
         System.arraycopy(IMAGE_s_WS_INF_STATUS, 0, s_WS_INF_STATUS.bytes, 0, IMAGE_s_WS_INF_STATUS.length);
         System.arraycopy(IMAGE_s_WS_INPUT_REC, 0, s_WS_INPUT_REC.bytes, 0, IMAGE_s_WS_INPUT_REC.length);
         System.arraycopy(IMAGE_s_GG_RETURN_CODE, 0, s_GG_RETURN_CODE.bytes, 0, IMAGE_s_GG_RETURN_CODE.length);
+        f28_DCL_TR_TYPE = "  ";
+        f30_DCL_TR_DESCRIPTION_LEN = 0L;
+        f31_DCL_TR_DESCRIPTION_TEXT = "                                                  ";
+        f33_LASTREC = " ";
         Cobol.moveFigurative(Figurative.ZEROS, f37_WS_VAR_SQLCODE, CS);
+    }
+
+    /** The program run on its own (no JCL step, no CICS task, no caller): the PROCEDURE DIVISION from its
+     *  initial storage; RETURN-CODE. */
+    public int runProgram() {
+        initialState();
         performDepth = 0;
         try {
             perform(0, 8);
@@ -194,10 +124,6 @@ public class CobtupdtService {
             // the program ended
         }
         return Cobol.num(f45_GG_RETURN_CODE, CS).intValue();
-    }
-
-    public void executeCobtupdt() {
-        runBatch(List.of(), null);
     }
 
 
@@ -217,18 +143,10 @@ public class CobtupdtService {
     /** The batch entry. */
     public int runBatch(List<Dd> dds, String parm) {
         boolean truncBefore = Cobol.swapTruncBinary(true);  // TRUNC(STD)
+        boolean pfdBefore = Cobol.swapNumprocPfd(false);  // NUMPROC(NOPFD)
         try {
             DetSql.closeAll();  // a step's cursors are its own
-            System.arraycopy(IMAGE_s_WS_INPUT_VARS, 0, s_WS_INPUT_VARS.bytes, 0, IMAGE_s_WS_INPUT_VARS.length);
-            System.arraycopy(IMAGE_s_SQLCA, 0, s_SQLCA.bytes, 0, IMAGE_s_SQLCA.length);
-            System.arraycopy(IMAGE_s_DCLTRANSACTION_TYPE, 0, s_DCLTRANSACTION_TYPE.bytes, 0, IMAGE_s_DCLTRANSACTION_TYPE.length);
-            System.arraycopy(IMAGE_s_FLAGS, 0, s_FLAGS.bytes, 0, IMAGE_s_FLAGS.length);
-            System.arraycopy(IMAGE_s_WORKING_VARIABLES, 0, s_WORKING_VARIABLES.bytes, 0, IMAGE_s_WORKING_VARIABLES.length);
-            System.arraycopy(IMAGE_s_WS_MISC_VARS, 0, s_WS_MISC_VARS.bytes, 0, IMAGE_s_WS_MISC_VARS.length);
-            System.arraycopy(IMAGE_s_WS_INF_STATUS, 0, s_WS_INF_STATUS.bytes, 0, IMAGE_s_WS_INF_STATUS.length);
-            System.arraycopy(IMAGE_s_WS_INPUT_REC, 0, s_WS_INPUT_REC.bytes, 0, IMAGE_s_WS_INPUT_REC.length);
-            System.arraycopy(IMAGE_s_GG_RETURN_CODE, 0, s_GG_RETURN_CODE.bytes, 0, IMAGE_s_GG_RETURN_CODE.length);
-            Cobol.moveFigurative(Figurative.ZEROS, f37_WS_VAR_SQLCODE, CS);
+            initialState();
             TR_RECORD = new DetFiles.Sequential(files, "INPFILE", () -> datasets.path(dd(dds, "INPFILE")), s_WS_INPUT_VARS, 0, 53);
             try {
                 perform(0, 8);
@@ -238,6 +156,7 @@ public class CobtupdtService {
             return Cobol.num(f45_GG_RETURN_CODE, CS).intValue();
         } finally {
             Cobol.swapTruncBinary(truncBefore);
+            Cobol.swapNumprocPfd(pfdBefore);
         }
     }
 
@@ -332,7 +251,7 @@ public class CobtupdtService {
         // PERFORM 1002-READ-RECORDS
         perform(2, 2);
         // PERFORM UNTIL LASTREC = 'Y'
-        while (!(Cobol.compare(f33_LASTREC, "Y", CS) == 0)) {
+        while (!(f33_LASTREC.equals("Y"))) {
             // PERFORM 1003-TREAT-RECORD
             perform(3, 3);
             // PERFORM 1002-READ-RECORDS
@@ -356,10 +275,10 @@ public class CobtupdtService {
         }
         if (st2.equals("10")) {
             // MOVE 'Y' TO LASTREC
-            Cobol.move("Y", f33_LASTREC, CS);
+            f33_LASTREC = "Y";
         }
         // IF LASTREC NOT EQUAL TO 'Y' THEN
-        if (!(Cobol.compare(f33_LASTREC, "Y", CS) == 0)) {
+        if (!(f33_LASTREC.equals("Y"))) {
             // DISPLAY 'PROCESSING ' WS-INPUT-REC
             Sysout.display("PROCESSING   ", Cobol.displayText(f41_WS_INPUT_REC, CS));
         }
@@ -404,7 +323,7 @@ public class CobtupdtService {
         java.util.Map<String, Object> sqlParams3 = new java.util.HashMap<>();
         sqlParams3.put("inputRecNumber", DetSql.charIn(f43_INPUT_REC_NUMBER, CS));
         sqlParams3.put("inputRecDesc", DetSql.charIn(f44_INPUT_REC_DESC, CS));
-        DetSql.update(f5_SQLCA, () -> transactionTypeRepository.insertL137Cobtupdt(sqlParams3), false, CS);
+        DetSql.update(f5_SQLCA, "COBTUPDT:137", () -> transactionTypeRepository.insertL137Cobtupdt(sqlParams3), false, CS);
         // MOVE SQLCODE TO WS-VAR-SQLCODE
         Cobol.move(f8_SQLCODE, f37_WS_VAR_SQLCODE, CS);
         // EVALUATE TRUE
@@ -427,7 +346,7 @@ public class CobtupdtService {
         java.util.Map<String, Object> sqlParams4 = new java.util.HashMap<>();
         sqlParams4.put("inputRecDesc", DetSql.charIn(f44_INPUT_REC_DESC, CS));
         sqlParams4.put("inputRecNumber", DetSql.charIn(f43_INPUT_REC_NUMBER, CS));
-        DetSql.update(f5_SQLCA, () -> transactionTypeRepository.updateL171Cobtupdt(sqlParams4), true, CS);
+        DetSql.update(f5_SQLCA, "COBTUPDT:171", () -> transactionTypeRepository.updateL171Cobtupdt(sqlParams4), true, CS);
         // MOVE SQLCODE TO WS-VAR-SQLCODE
         Cobol.move(f8_SQLCODE, f37_WS_VAR_SQLCODE, CS);
         // EVALUATE TRUE
@@ -454,7 +373,7 @@ public class CobtupdtService {
         // EXEC SQL DELETE FROM CARDDEMO.TRANSACTION_TYPE WHERE TR_TYPE = :INPUT-REC-NUMBER END-EXEC
         java.util.Map<String, Object> sqlParams5 = new java.util.HashMap<>();
         sqlParams5.put("inputRecNumber", DetSql.charIn(f43_INPUT_REC_NUMBER, CS));
-        DetSql.update(f5_SQLCA, () -> transactionTypeRepository.deleteL201Cobtupdt(sqlParams5), true, CS);
+        DetSql.update(f5_SQLCA, "COBTUPDT:201", () -> transactionTypeRepository.deleteL201Cobtupdt(sqlParams5), true, CS);
         // MOVE SQLCODE TO WS-VAR-SQLCODE
         Cobol.move(f8_SQLCODE, f37_WS_VAR_SQLCODE, CS);
         // EVALUATE TRUE

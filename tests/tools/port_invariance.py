@@ -43,8 +43,13 @@ CASES = REPO_ROOT / "tests" / "equivalence"
 #   arch_io        0.871 / 0.958   arch_ipc      0.835 / 0.757
 # struct_branch re-measured after Java stopped counting a `?`/`:` inside a literal and a ternary twice (#4170):
 # it was 0.826 / 0.745 before.
+# function_count fixture floor 0.80 -> 0.70 (#4444): the fixture regenerated with the 2026-10 translator reads 0.778 (it was
+# 0.912 at the 2026-10-02 measurement). Deliberate causes, not a scanner regression: named 88-condition methods
+# (#4202: CSUTLDTC 14 -> 22 methods against 3 paragraphs), abended() for a LINKed program's COMMAREA (#4541),
+# caWhole() (#4642), less executeX() (#4342); initialState() replaced fields0()/fields1() (#4218). The ports gain
+# methods the COBOL has no paragraph for, so the rank agreement loosens; 0.70 is 0.778 less a 0.08 margin.
 CONTRACT: dict[str, tuple[str, float, float]] = {
-    "function_count": ("functions", 0.85, 0.80),
+    "function_count": ("functions", 0.85, 0.70),
     "struct_branch": ("branch", 0.75, 0.65),
     "state_flux": ("state_mutation", 0.65, 0.55),
     "arch_io": ("io", 0.75, 0.80),

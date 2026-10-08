@@ -36,16 +36,8 @@ public class Lgapvs01Service {
     private static final BigDecimal D0 = new BigDecimal("0");
     private static final BigDecimal D91 = new BigDecimal("91");
 
-    private static final byte[] IMAGE_s_WS_RESP = Base64.getDecoder().decode(String.join("",
-            "AAAAAA=="));
     private static final byte[] IMAGE_s_WS_RESP2 = Base64.getDecoder().decode(String.join("",
             "AAAAAA=="));
-    private static final byte[] IMAGE_s_WS_COMM_LEN = Base64.getDecoder().decode(String.join("",
-            "AAAAAA=="));
-    private static final byte[] IMAGE_s_WS_STARTCODE = Base64.getDecoder().decode(String.join("",
-            "ICA="));
-    private static final byte[] IMAGE_s_WS_SYSID = Base64.getDecoder().decode(String.join("",
-            "ICAgIA=="));
     private static final byte[] IMAGE_s_WS_COMMAREA_LEN = Base64.getDecoder().decode(String.join("",
             "AAA="));
     private static final byte[] IMAGE_s_WF_POLICY_INFO = Base64.getDecoder().decode(String.join("",
@@ -60,8 +52,6 @@ public class Lgapvs01Service {
             "ICAgICAgICAgICAgICAgIExHQVBWUzAxIFBOVU09ICAgICAgICAgICBDTlVNPSAgICAgICAgICAgV3JpdGUgZmlsZSBLU0RTUE9MWSBSRVNQPSAgICAgICBSRVNQMj0gICAgICA="));
     private static final byte[] IMAGE_s_CA_ERROR_MSG = Base64.getDecoder().decode(String.join("",
             "Q09NTUFSRUE9ICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAg"));
-    private static final byte[] IMAGE_s_EYECATCHER = Base64.getDecoder().decode(String.join("",
-            "UHJvZ3JhbSBMR0FQVlMwMQ=="));
     private static final byte[] IMAGE_s_DFHCOMMAREA = Base64.getDecoder().decode(String.join("",
             "ICAgICAgMDAwMDAwMDAwMDAwICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAg",
             "ICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAg",
@@ -176,11 +166,7 @@ public class Lgapvs01Service {
             "AAAADAAAAAwgICAgAAAADCAgICAAAAAAAAAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgIAAAAAAAAAAAIA=="));
     private static final byte[] IMAGE_s_GG_RETURN_CODE = Base64.getDecoder().decode(String.join("",
             "AAA="));
-    private final Storage s_WS_RESP = new Storage(IMAGE_s_WS_RESP.length);
     private final Storage s_WS_RESP2 = new Storage(IMAGE_s_WS_RESP2.length);
-    private final Storage s_WS_COMM_LEN = new Storage(IMAGE_s_WS_COMM_LEN.length);
-    private final Storage s_WS_STARTCODE = new Storage(IMAGE_s_WS_STARTCODE.length);
-    private final Storage s_WS_SYSID = new Storage(IMAGE_s_WS_SYSID.length);
     private final Storage s_WS_COMMAREA_LEN = new Storage(IMAGE_s_WS_COMMAREA_LEN.length);
     private final Storage s_WF_POLICY_INFO = new Storage(IMAGE_s_WF_POLICY_INFO.length);
     private final Storage s_WS_ABSTIME = new Storage(IMAGE_s_WS_ABSTIME.length);
@@ -188,185 +174,83 @@ public class Lgapvs01Service {
     private final Storage s_WS_DATE = new Storage(IMAGE_s_WS_DATE.length);
     private final Storage s_ERROR_MSG = new Storage(IMAGE_s_ERROR_MSG.length);
     private final Storage s_CA_ERROR_MSG = new Storage(IMAGE_s_CA_ERROR_MSG.length);
-    private final Storage s_EYECATCHER = new Storage(IMAGE_s_EYECATCHER.length);
     private final Storage s_DFHCOMMAREA = new Storage(IMAGE_s_DFHCOMMAREA.length);
     private final Storage s_DFHEIBLK = new Storage(IMAGE_s_DFHEIBLK.length);
     private final Storage s_GG_RETURN_CODE = new Storage(IMAGE_s_GG_RETURN_CODE.length);
 
-    private Field f100_CA_H_VALUE;
-    private Field f101_CA_H_HOUSE_NAME;
-    private Field f102_CA_H_HOUSE_NUMBER;
-    private Field f103_CA_H_POSTCODE;
-    private Field f104_CA_H_FILLER;
-    private Field f105_CA_MOTOR;
-    private Field f106_CA_M_MAKE;
-    private Field f107_CA_M_MODEL;
-    private Field f108_CA_M_VALUE;
-    private Field f109_CA_M_REGNUMBER;
-    private Field f10_WF_CUSTOMER_NUM;
-    private Field f110_CA_M_COLOUR;
-    private Field f111_CA_M_CC;
-    private Field f112_CA_M_MANUFACTURED;
-    private Field f113_CA_M_PREMIUM;
-    private Field f114_CA_M_ACCIDENTS;
-    private Field f115_CA_M_FILLER;
-    private Field f116_CA_COMMERCIAL;
-    private Field f117_CA_B_ADDRESS;
-    private Field f118_CA_B_POSTCODE;
-    private Field f119_CA_B_LATITUDE;
-    private Field f11_WF_POLICY_NUM;
-    private Field f120_CA_B_LONGITUDE;
-    private Field f121_CA_B_CUSTOMER;
-    private Field f122_CA_B_PROPTYPE;
-    private Field f123_CA_B_FIREPERIL;
-    private Field f124_CA_B_FIREPREMIUM;
-    private Field f125_CA_B_CRIMEPERIL;
-    private Field f126_CA_B_CRIMEPREMIUM;
-    private Field f127_CA_B_FLOODPERIL;
-    private Field f128_CA_B_FLOODPREMIUM;
-    private Field f129_CA_B_WEATHERPERIL;
-    private Field f12_WF_POLICY_DATA;
-    private Field f130_CA_B_WEATHERPREMIUM;
-    private Field f131_CA_B_STATUS;
-    private Field f132_CA_B_REJECTREASON;
-    private Field f133_CA_B_FILLER;
-    private Field f134_CA_CLAIM;
-    private Field f135_CA_C_NUM;
-    private Field f136_CA_C_DATE;
-    private Field f137_CA_C_PAID;
-    private Field f138_CA_C_VALUE;
-    private Field f139_CA_C_CAUSE;
-    private Field f13_WF_C_POLICY_DATA;
-    private Field f140_CA_C_OBSERVATIONS;
-    private Field f141_CA_C_FILLER;
-    private Field f142_DFHEIBLK;
-    private Field f143_EIBTIME;
-    private Field f144_EIBDATE;
-    private Field f145_EIBTRNID;
-    private Field f146_EIBTASKN;
-    private Field f147_EIBTRMID;
-    private Field f148_DFHEIGDI;
-    private Field f149_EIBCPOSN;
-    private Field f14_WF_B_POSTCODE;
-    private Field f150_EIBCALEN;
-    private Field f151_EIBAID;
-    private Field f152_EIBFN;
-    private Field f153_EIBRCODE;
-    private Field f154_EIBDS;
-    private Field f155_EIBREQID;
-    private Field f156_EIBRSRCE;
-    private Field f157_EIBSYNC;
-    private Field f158_EIBFREE;
-    private Field f159_EIBRECV;
-    private Field f15_WF_B_STATUS;
-    private Field f160_EIBSEND;
-    private Field f161_EIBATT;
-    private Field f162_EIBEOC;
-    private Field f163_EIBFMH;
-    private Field f164_EIBCOMPL;
-    private Field f165_EIBSIG;
-    private Field f166_EIBCONF;
-    private Field f167_EIBERR;
-    private Field f168_EIBERRCD;
-    private Field f169_EIBSYNRB;
-    private Field f16_WF_B_CUSTOMER;
-    private Field f170_EIBNODAT;
-    private Field f171_EIBRESP;
-    private Field f172_EIBRESP2;
-    private Field f173_EIBRLDBK;
-    private Field f174_GG_RETURN_CODE;
-    private Field f17_WF_E_POLICY_DATA;
-    private Field f18_WF_E_WITH_PROFITS;
-    private Field f19_WF_E_EQUITIES;
-    private Field f1_WS_RESP;
-    private Field f20_WF_E_MANAGED_FUND;
-    private Field f21_WF_E_FUND_NAME;
-    private Field f22_WF_E_LIFE_ASSURED;
-    private Field f23_WF_H_POLICY_DATA;
-    private Field f24_WF_H_PROPERTY_TYPE;
-    private Field f25_WF_H_BEDROOMS;
-    private Field f26_WF_H_VALUE;
-    private Field f27_WF_H_POSTCODE;
-    private Field f28_WF_H_HOUSE_NAME;
-    private Field f29_WF_M_POLICY_DATA;
-    private Field f2_WS_RESP2;
-    private Field f30_WF_M_MAKE;
-    private Field f31_WF_M_MODEL;
-    private Field f32_WF_M_VALUE;
-    private Field f33_WF_M_REGNUMBER;
-    private Field f34_WS_ABSTIME;
-    private Field f35_WS_TIME;
-    private Field f36_WS_DATE;
-    private Field f37_ERROR_MSG;
-    private Field f38_EM_DATE;
-    private Field f39_FILLER;
-    private Field f3_WS_COMM_LEN;
-    private Field f40_EM_TIME;
-    private Field f41_FILLER;
-    private Field f42_EM_VARIABLE;
-    private Field f43_FILLER;
-    private Field f44_EM_POLNUM;
-    private Field f45_FILLER;
-    private Field f46_EM_CUSNUM;
-    private Field f47_FILLER;
-    private Field f48_FILLER;
-    private Field f49_EM_RESPRC;
-    private Field f4_WS_STARTCODE;
-    private Field f50_FILLER;
-    private Field f51_EM_RESP2RC;
-    private Field f52_CA_ERROR_MSG;
-    private Field f53_FILLER;
-    private Field f54_CA_DATA;
-    private Field f55_EYECATCHER;
-    private Field f56_DFHCOMMAREA;
-    private Field f57_CA_REQUEST_ID;
-    private Field f58_CA_RETURN_CODE;
-    private Field f59_CA_CUSTOMER_NUM;
-    private Field f5_WS_SYSID;
-    private Field f60_CA_REQUEST_SPECIFIC;
-    private Field f61_CA_CUSTOMER_REQUEST;
-    private Field f62_CA_FIRST_NAME;
-    private Field f63_CA_LAST_NAME;
-    private Field f64_CA_DOB;
-    private Field f65_CA_HOUSE_NAME;
-    private Field f66_CA_HOUSE_NUM;
-    private Field f67_CA_POSTCODE;
-    private Field f68_CA_NUM_POLICIES;
-    private Field f69_CA_PHONE_MOBILE;
-    private Field f6_WS_COMMAREA_LEN;
-    private Field f70_CA_PHONE_HOME;
-    private Field f71_CA_EMAIL_ADDRESS;
-    private Field f72_CA_POLICY_DATA;
-    private Field f73_CA_CUSTSECR_REQUEST;
-    private Field f74_CA_CUSTSECR_PASS;
-    private Field f75_CA_CUSTSECR_COUNT;
-    private Field f76_CA_CUSTSECR_STATE;
-    private Field f77_CA_CUSTSECR_DATA;
-    private Field f78_CA_POLICY_REQUEST;
-    private Field f79_CA_POLICY_NUM;
-    private Field f7_WF_POLICY_INFO;
-    private Field f80_CA_POLICY_COMMON;
-    private Field f81_CA_ISSUE_DATE;
-    private Field f82_CA_EXPIRY_DATE;
-    private Field f83_CA_LASTCHANGED;
-    private Field f84_CA_BROKERID;
-    private Field f85_CA_BROKERSREF;
-    private Field f86_CA_PAYMENT;
-    private Field f87_CA_POLICY_SPECIFIC;
-    private Field f88_CA_ENDOWMENT;
-    private Field f89_CA_E_WITH_PROFITS;
-    private Field f8_WF_POLICY_KEY;
-    private Field f90_CA_E_EQUITIES;
-    private Field f91_CA_E_MANAGED_FUND;
-    private Field f92_CA_E_FUND_NAME;
-    private Field f93_CA_E_TERM;
-    private Field f94_CA_E_SUM_ASSURED;
-    private Field f95_CA_E_LIFE_ASSURED;
-    private Field f96_CA_E_PADDING_DATA;
-    private Field f97_CA_HOUSE;
-    private Field f98_CA_H_PROPERTY_TYPE;
-    private Field f99_CA_H_BEDROOMS;
-    private Field f9_WF_REQUEST_ID;
+    private final Field f2_WS_RESP2 = Field.binary(s_WS_RESP2, 0, 8, 0, true, false);
+    private final Field f6_WS_COMMAREA_LEN = Field.binary(s_WS_COMMAREA_LEN, 0, 4, 0, true, false);
+    private final Field f7_WF_POLICY_INFO = Field.group(s_WF_POLICY_INFO, 0, 64);
+    private final Field f8_WF_POLICY_KEY = Field.group(s_WF_POLICY_INFO, 0, 21);
+    private final Field f9_WF_REQUEST_ID = Field.alphanumeric(s_WF_POLICY_INFO, 0, 1, false);
+    private final Field f10_WF_CUSTOMER_NUM = Field.alphanumeric(s_WF_POLICY_INFO, 1, 10, false);
+    private final Field f11_WF_POLICY_NUM = Field.alphanumeric(s_WF_POLICY_INFO, 11, 10, false);
+    private final Field f12_WF_POLICY_DATA = Field.alphanumeric(s_WF_POLICY_INFO, 21, 43, false);
+    private final Field f14_WF_B_POSTCODE = Field.alphanumeric(s_WF_POLICY_INFO, 21, 8, false);
+    private final Field f15_WF_B_STATUS = Field.zoned(s_WF_POLICY_INFO, 29, 4, 0, false, false, false);
+    private final Field f16_WF_B_CUSTOMER = Field.alphanumeric(s_WF_POLICY_INFO, 33, 31, false);
+    private final Field f18_WF_E_WITH_PROFITS = Field.alphanumeric(s_WF_POLICY_INFO, 21, 1, false);
+    private final Field f19_WF_E_EQUITIES = Field.alphanumeric(s_WF_POLICY_INFO, 22, 1, false);
+    private final Field f20_WF_E_MANAGED_FUND = Field.alphanumeric(s_WF_POLICY_INFO, 23, 1, false);
+    private final Field f21_WF_E_FUND_NAME = Field.alphanumeric(s_WF_POLICY_INFO, 24, 10, false);
+    private final Field f22_WF_E_LIFE_ASSURED = Field.alphanumeric(s_WF_POLICY_INFO, 34, 30, false);
+    private final Field f24_WF_H_PROPERTY_TYPE = Field.alphanumeric(s_WF_POLICY_INFO, 21, 15, false);
+    private final Field f25_WF_H_BEDROOMS = Field.zoned(s_WF_POLICY_INFO, 36, 3, 0, false, false, false);
+    private final Field f26_WF_H_VALUE = Field.zoned(s_WF_POLICY_INFO, 39, 8, 0, false, false, false);
+    private final Field f27_WF_H_POSTCODE = Field.alphanumeric(s_WF_POLICY_INFO, 47, 8, false);
+    private final Field f28_WF_H_HOUSE_NAME = Field.alphanumeric(s_WF_POLICY_INFO, 55, 9, false);
+    private final Field f30_WF_M_MAKE = Field.alphanumeric(s_WF_POLICY_INFO, 21, 15, false);
+    private final Field f31_WF_M_MODEL = Field.alphanumeric(s_WF_POLICY_INFO, 36, 15, false);
+    private final Field f32_WF_M_VALUE = Field.zoned(s_WF_POLICY_INFO, 51, 6, 0, false, false, false);
+    private final Field f33_WF_M_REGNUMBER = Field.alphanumeric(s_WF_POLICY_INFO, 57, 7, false);
+    private final Field f34_WS_ABSTIME = Field.binary(s_WS_ABSTIME, 0, 8, 0, true, false);
+    private final Field f35_WS_TIME = Field.alphanumeric(s_WS_TIME, 0, 8, false);
+    private final Field f36_WS_DATE = Field.alphanumeric(s_WS_DATE, 0, 10, false);
+    private final Field f37_ERROR_MSG = Field.group(s_ERROR_MSG, 0, 101);
+    private final Field f38_EM_DATE = Field.alphanumeric(s_ERROR_MSG, 0, 8, false);
+    private final Field f40_EM_TIME = Field.alphanumeric(s_ERROR_MSG, 9, 6, false);
+    private final Field f44_EM_POLNUM = Field.alphanumeric(s_ERROR_MSG, 30, 10, false);
+    private final Field f46_EM_CUSNUM = Field.alphanumeric(s_ERROR_MSG, 46, 10, false);
+    private final Field f49_EM_RESPRC = Field.numericEdited(s_ERROR_MSG, 82, 6, "+99999", false);
+    private final Field f51_EM_RESP2RC = Field.numericEdited(s_ERROR_MSG, 95, 6, "+99999", false);
+    private final Field f52_CA_ERROR_MSG = Field.group(s_CA_ERROR_MSG, 0, 99);
+    private final Field f54_CA_DATA = Field.alphanumeric(s_CA_ERROR_MSG, 9, 90, false);
+    private final Field f56_DFHCOMMAREA = Field.group(s_DFHCOMMAREA, 0, 32500);
+    private final Field f57_CA_REQUEST_ID = Field.alphanumeric(s_DFHCOMMAREA, 0, 6, false);
+    private final Field f58_CA_RETURN_CODE = Field.zoned(s_DFHCOMMAREA, 6, 2, 0, false, false, false);
+    private final Field f59_CA_CUSTOMER_NUM = Field.zoned(s_DFHCOMMAREA, 8, 10, 0, false, false, false);
+    private final Field f79_CA_POLICY_NUM = Field.zoned(s_DFHCOMMAREA, 18, 10, 0, false, false, false);
+    private final Field f89_CA_E_WITH_PROFITS = Field.alphanumeric(s_DFHCOMMAREA, 100, 1, false);
+    private final Field f90_CA_E_EQUITIES = Field.alphanumeric(s_DFHCOMMAREA, 101, 1, false);
+    private final Field f91_CA_E_MANAGED_FUND = Field.alphanumeric(s_DFHCOMMAREA, 102, 1, false);
+    private final Field f92_CA_E_FUND_NAME = Field.alphanumeric(s_DFHCOMMAREA, 103, 10, false);
+    private final Field f95_CA_E_LIFE_ASSURED = Field.alphanumeric(s_DFHCOMMAREA, 121, 31, false);
+    private final Field f98_CA_H_PROPERTY_TYPE = Field.alphanumeric(s_DFHCOMMAREA, 100, 15, false);
+    private final Field f99_CA_H_BEDROOMS = Field.zoned(s_DFHCOMMAREA, 115, 3, 0, false, false, false);
+    private final Field f100_CA_H_VALUE = Field.zoned(s_DFHCOMMAREA, 118, 8, 0, false, false, false);
+    private final Field f101_CA_H_HOUSE_NAME = Field.alphanumeric(s_DFHCOMMAREA, 126, 20, false);
+    private final Field f103_CA_H_POSTCODE = Field.alphanumeric(s_DFHCOMMAREA, 150, 8, false);
+    private final Field f106_CA_M_MAKE = Field.alphanumeric(s_DFHCOMMAREA, 100, 15, false);
+    private final Field f107_CA_M_MODEL = Field.alphanumeric(s_DFHCOMMAREA, 115, 15, false);
+    private final Field f108_CA_M_VALUE = Field.zoned(s_DFHCOMMAREA, 130, 6, 0, false, false, false);
+    private final Field f109_CA_M_REGNUMBER = Field.alphanumeric(s_DFHCOMMAREA, 136, 7, false);
+    private final Field f118_CA_B_POSTCODE = Field.alphanumeric(s_DFHCOMMAREA, 355, 8, false);
+    private final Field f121_CA_B_CUSTOMER = Field.alphanumeric(s_DFHCOMMAREA, 385, 255, false);
+    private final Field f131_CA_B_STATUS = Field.zoned(s_DFHCOMMAREA, 943, 4, 0, false, false, false);
+    private final Field f143_EIBTIME = Field.packed(s_DFHEIBLK, 0, 7, 0, true);
+    private final Field f144_EIBDATE = Field.packed(s_DFHEIBLK, 4, 7, 0, true);
+    private final Field f145_EIBTRNID = Field.alphanumeric(s_DFHEIBLK, 8, 4, false);
+    private final Field f146_EIBTASKN = Field.packed(s_DFHEIBLK, 12, 7, 0, true);
+    private final Field f147_EIBTRMID = Field.alphanumeric(s_DFHEIBLK, 16, 4, false);
+    private final Field f150_EIBCALEN = Field.binary(s_DFHEIBLK, 24, 4, 0, true, false);
+    private final Field f171_EIBRESP = Field.binary(s_DFHEIBLK, 76, 8, 0, true, false);
+    private final Field f172_EIBRESP2 = Field.binary(s_DFHEIBLK, 80, 8, 0, true, false);
+    private final Field f174_GG_RETURN_CODE = Field.binary(s_GG_RETURN_CODE, 0, 4, 0, true, false);
+    private long f1_WS_RESP;  // WS-RESP PIC S9(8) BINARY
+    private long f3_WS_COMM_LEN;  // WS-COMM-LEN PIC S9(8) BINARY
+    private String f4_WS_STARTCODE;  // WS-STARTCODE PIC XX
+    private String f5_WS_SYSID;  // WS-SYSID PIC X(4)
+    private String f55_EYECATCHER;  // EYECATCHER PIC X(16)
 
     private static WfPolicyInfoKey id_WfPolicyInfo(byte[] rec) {
         Storage s = Storage.of(rec);
@@ -383,6 +267,14 @@ public class Lgapvs01Service {
     private final java.util.Map<String, byte[]> heldKey = new java.util.HashMap<>();
     /** Writes the COMMAREA's bytes back into the object the task carries (a LINKed program's is its caller's). */
     private Runnable caBack = () -> { };
+
+    /** The program ends because of an abend: a LINKed program's COMMAREA writes stay its caller's. */
+    private Goback abended() {
+        if (task.level() > 1) {
+            caBack.run();
+        }
+        return new Goback();
+    }
 
     @SuppressWarnings("unchecked")
     private <E> DetCics.Store<E> store(String name) {
@@ -406,16 +298,26 @@ public class Lgapvs01Service {
         return i;
     }
 
-    /** A condition the command neither returned in RESP nor ignored: its HANDLE CONDITION label, or CICS's
-     *  default action -- an abend, to this program's HANDLE ABEND exit or ending the task. */
+    /** A condition the command did not return in RESP: its HANDLE CONDITION label, or -1 (go on) when IGNOREd
+     *  (#4414); else CICS's default action -- -1 for one whose default is to ignore it (#4413: EOC); else the
+     *  ERROR label (#4502: IBM, HANDLE CONDITION: "if the default action for such a condition terminates the
+     *  task abnormally, and the condition ERROR has been specified, the action for ERROR is taken"); else an
+     *  abend, to this program's HANDLE ABEND exit or ending the task. */
     private int condition(String cond) {
         Integer h = handlers.get(cond);
         if (h != null) {
             return h;
         }
+        if (DetCics.ignoredByDefault(cond)) {
+            return -1;
+        }
+        Integer error = handlers.get("ERROR");
+        if (error != null) {
+            return error;
+        }
         String label = task.abendOnCondition(cond);
         if (label == null) {
-            throw new Goback();
+            throw abended();
         }
         return paragraph(label);
     }
@@ -424,20 +326,20 @@ public class Lgapvs01Service {
         return task.eibcalen() == null ? whole : task.eibcalen();
     }
 
-    private void in_Lgacdb01CaErrorMsg(Lgacdb01CaErrorMsg d, Storage s, int base) {
+    private void in_LgstsqDfhcommarea(LgstsqDfhcommarea d, Storage s, int base) {
         if (d == null) {
             return;
         }
         Cobol.move(d.getCaData() == null ? "" : d.getCaData(), Field.alphanumeric(s, base + 9, 90, false), CS);
     }
 
-    private void fill_Lgacdb01CaErrorMsg(Lgacdb01CaErrorMsg d, Storage s, int base) {
+    private void fill_LgstsqDfhcommarea(LgstsqDfhcommarea d, Storage s, int base) {
         d.setCaData(Cobol.text(Field.alphanumeric(s, base + 9, 90, false), CS));
     }
 
-    private Lgacdb01CaErrorMsg out_Lgacdb01CaErrorMsg(Storage s, int base) {
-        Lgacdb01CaErrorMsg d = new Lgacdb01CaErrorMsg();
-        fill_Lgacdb01CaErrorMsg(d, s, base);
+    private LgstsqDfhcommarea out_LgstsqDfhcommarea(Storage s, int base) {
+        LgstsqDfhcommarea d = new LgstsqDfhcommarea();
+        fill_LgstsqDfhcommarea(d, s, base);
         return d;
     }
 
@@ -464,199 +366,24 @@ public class Lgapvs01Service {
         return d;
     }
 
+    /** #4270 (X23): DFHCOMMAREA's whole record again, with what the task left in its EIBCALEN bytes. */
+    private void caWhole(byte[] whole) {
+        if (s_DFHCOMMAREA.bytes != whole) {
+            System.arraycopy(s_DFHCOMMAREA.bytes, 0, whole, 0, s_DFHCOMMAREA.bytes.length);
+            s_DFHCOMMAREA.bytes = whole;
+        }
+    }
+
 
     private final WfPolicyInfoRepository wfPolicyInfoRepository;
 
     public Lgapvs01Service(WfPolicyInfoRepository wfPolicyInfoRepository) {
         this.wfPolicyInfoRepository = wfPolicyInfoRepository;
-        fields0();
     }
 
-    private void fields0() {
-        f1_WS_RESP = Field.binary(s_WS_RESP, 0, 8, 0, true, false);
-        f2_WS_RESP2 = Field.binary(s_WS_RESP2, 0, 8, 0, true, false);
-        f3_WS_COMM_LEN = Field.binary(s_WS_COMM_LEN, 0, 8, 0, true, false);
-        f4_WS_STARTCODE = Field.alphanumeric(s_WS_STARTCODE, 0, 2, false);
-        f5_WS_SYSID = Field.alphanumeric(s_WS_SYSID, 0, 4, false);
-        f6_WS_COMMAREA_LEN = Field.binary(s_WS_COMMAREA_LEN, 0, 4, 0, true, false);
-        f7_WF_POLICY_INFO = Field.group(s_WF_POLICY_INFO, 0, 64);
-        f8_WF_POLICY_KEY = Field.group(s_WF_POLICY_INFO, 0, 21);
-        f9_WF_REQUEST_ID = Field.alphanumeric(s_WF_POLICY_INFO, 0, 1, false);
-        f10_WF_CUSTOMER_NUM = Field.alphanumeric(s_WF_POLICY_INFO, 1, 10, false);
-        f11_WF_POLICY_NUM = Field.alphanumeric(s_WF_POLICY_INFO, 11, 10, false);
-        f12_WF_POLICY_DATA = Field.alphanumeric(s_WF_POLICY_INFO, 21, 43, false);
-        f13_WF_C_POLICY_DATA = Field.group(s_WF_POLICY_INFO, 21, 43);
-        f14_WF_B_POSTCODE = Field.alphanumeric(s_WF_POLICY_INFO, 21, 8, false);
-        f15_WF_B_STATUS = Field.zoned(s_WF_POLICY_INFO, 29, 4, 0, false, false, false);
-        f16_WF_B_CUSTOMER = Field.alphanumeric(s_WF_POLICY_INFO, 33, 31, false);
-        f17_WF_E_POLICY_DATA = Field.group(s_WF_POLICY_INFO, 21, 43);
-        f18_WF_E_WITH_PROFITS = Field.alphanumeric(s_WF_POLICY_INFO, 21, 1, false);
-        f19_WF_E_EQUITIES = Field.alphanumeric(s_WF_POLICY_INFO, 22, 1, false);
-        f20_WF_E_MANAGED_FUND = Field.alphanumeric(s_WF_POLICY_INFO, 23, 1, false);
-        f21_WF_E_FUND_NAME = Field.alphanumeric(s_WF_POLICY_INFO, 24, 10, false);
-        f22_WF_E_LIFE_ASSURED = Field.alphanumeric(s_WF_POLICY_INFO, 34, 30, false);
-        f23_WF_H_POLICY_DATA = Field.group(s_WF_POLICY_INFO, 21, 43);
-        f24_WF_H_PROPERTY_TYPE = Field.alphanumeric(s_WF_POLICY_INFO, 21, 15, false);
-        f25_WF_H_BEDROOMS = Field.zoned(s_WF_POLICY_INFO, 36, 3, 0, false, false, false);
-        f26_WF_H_VALUE = Field.zoned(s_WF_POLICY_INFO, 39, 8, 0, false, false, false);
-        f27_WF_H_POSTCODE = Field.alphanumeric(s_WF_POLICY_INFO, 47, 8, false);
-        f28_WF_H_HOUSE_NAME = Field.alphanumeric(s_WF_POLICY_INFO, 55, 9, false);
-        f29_WF_M_POLICY_DATA = Field.group(s_WF_POLICY_INFO, 21, 43);
-        f30_WF_M_MAKE = Field.alphanumeric(s_WF_POLICY_INFO, 21, 15, false);
-        f31_WF_M_MODEL = Field.alphanumeric(s_WF_POLICY_INFO, 36, 15, false);
-        f32_WF_M_VALUE = Field.zoned(s_WF_POLICY_INFO, 51, 6, 0, false, false, false);
-        f33_WF_M_REGNUMBER = Field.alphanumeric(s_WF_POLICY_INFO, 57, 7, false);
-        f34_WS_ABSTIME = Field.binary(s_WS_ABSTIME, 0, 8, 0, true, false);
-        f35_WS_TIME = Field.alphanumeric(s_WS_TIME, 0, 8, false);
-        f36_WS_DATE = Field.alphanumeric(s_WS_DATE, 0, 10, false);
-        f37_ERROR_MSG = Field.group(s_ERROR_MSG, 0, 101);
-        f38_EM_DATE = Field.alphanumeric(s_ERROR_MSG, 0, 8, false);
-        f39_FILLER = Field.alphanumeric(s_ERROR_MSG, 8, 1, false);
-        f40_EM_TIME = Field.alphanumeric(s_ERROR_MSG, 9, 6, false);
-        f41_FILLER = Field.alphanumeric(s_ERROR_MSG, 15, 9, false);
-        f42_EM_VARIABLE = Field.group(s_ERROR_MSG, 24, 77);
-        f43_FILLER = Field.alphanumeric(s_ERROR_MSG, 24, 6, false);
-        f44_EM_POLNUM = Field.alphanumeric(s_ERROR_MSG, 30, 10, false);
-        f45_FILLER = Field.alphanumeric(s_ERROR_MSG, 40, 6, false);
-        f46_EM_CUSNUM = Field.alphanumeric(s_ERROR_MSG, 46, 10, false);
-        f47_FILLER = Field.alphanumeric(s_ERROR_MSG, 56, 20, false);
-        f48_FILLER = Field.alphanumeric(s_ERROR_MSG, 76, 6, false);
-        f49_EM_RESPRC = Field.numericEdited(s_ERROR_MSG, 82, 6, "+99999", false);
-        f50_FILLER = Field.alphanumeric(s_ERROR_MSG, 88, 7, false);
-        f51_EM_RESP2RC = Field.numericEdited(s_ERROR_MSG, 95, 6, "+99999", false);
-        f52_CA_ERROR_MSG = Field.group(s_CA_ERROR_MSG, 0, 99);
-        f53_FILLER = Field.alphanumeric(s_CA_ERROR_MSG, 0, 9, false);
-        f54_CA_DATA = Field.alphanumeric(s_CA_ERROR_MSG, 9, 90, false);
-        f55_EYECATCHER = Field.alphanumeric(s_EYECATCHER, 0, 16, false);
-        f56_DFHCOMMAREA = Field.group(s_DFHCOMMAREA, 0, 32500);
-        f57_CA_REQUEST_ID = Field.alphanumeric(s_DFHCOMMAREA, 0, 6, false);
-        f58_CA_RETURN_CODE = Field.zoned(s_DFHCOMMAREA, 6, 2, 0, false, false, false);
-        f59_CA_CUSTOMER_NUM = Field.zoned(s_DFHCOMMAREA, 8, 10, 0, false, false, false);
-        f60_CA_REQUEST_SPECIFIC = Field.alphanumeric(s_DFHCOMMAREA, 18, 32482, false);
-        f61_CA_CUSTOMER_REQUEST = Field.group(s_DFHCOMMAREA, 18, 32482);
-        f62_CA_FIRST_NAME = Field.alphanumeric(s_DFHCOMMAREA, 18, 10, false);
-        f63_CA_LAST_NAME = Field.alphanumeric(s_DFHCOMMAREA, 28, 20, false);
-        f64_CA_DOB = Field.alphanumeric(s_DFHCOMMAREA, 48, 10, false);
-        f65_CA_HOUSE_NAME = Field.alphanumeric(s_DFHCOMMAREA, 58, 20, false);
-        f66_CA_HOUSE_NUM = Field.alphanumeric(s_DFHCOMMAREA, 78, 4, false);
-        f67_CA_POSTCODE = Field.alphanumeric(s_DFHCOMMAREA, 82, 8, false);
-        f68_CA_NUM_POLICIES = Field.zoned(s_DFHCOMMAREA, 90, 3, 0, false, false, false);
-        f69_CA_PHONE_MOBILE = Field.alphanumeric(s_DFHCOMMAREA, 93, 20, false);
-        f70_CA_PHONE_HOME = Field.alphanumeric(s_DFHCOMMAREA, 113, 20, false);
-        f71_CA_EMAIL_ADDRESS = Field.alphanumeric(s_DFHCOMMAREA, 133, 100, false);
-        f72_CA_POLICY_DATA = Field.alphanumeric(s_DFHCOMMAREA, 233, 32267, false);
-        f73_CA_CUSTSECR_REQUEST = Field.group(s_DFHCOMMAREA, 18, 32482);
-        f74_CA_CUSTSECR_PASS = Field.alphanumeric(s_DFHCOMMAREA, 18, 32, false);
-        f75_CA_CUSTSECR_COUNT = Field.alphanumeric(s_DFHCOMMAREA, 50, 4, false);
-        f76_CA_CUSTSECR_STATE = Field.alphanumeric(s_DFHCOMMAREA, 54, 1, false);
-        f77_CA_CUSTSECR_DATA = Field.alphanumeric(s_DFHCOMMAREA, 55, 32445, false);
-        f78_CA_POLICY_REQUEST = Field.group(s_DFHCOMMAREA, 18, 32482);
-        f79_CA_POLICY_NUM = Field.zoned(s_DFHCOMMAREA, 18, 10, 0, false, false, false);
-        f80_CA_POLICY_COMMON = Field.group(s_DFHCOMMAREA, 28, 72);
-        f81_CA_ISSUE_DATE = Field.alphanumeric(s_DFHCOMMAREA, 28, 10, false);
-        f82_CA_EXPIRY_DATE = Field.alphanumeric(s_DFHCOMMAREA, 38, 10, false);
-        f83_CA_LASTCHANGED = Field.alphanumeric(s_DFHCOMMAREA, 48, 26, false);
-        f84_CA_BROKERID = Field.zoned(s_DFHCOMMAREA, 74, 10, 0, false, false, false);
-        f85_CA_BROKERSREF = Field.alphanumeric(s_DFHCOMMAREA, 84, 10, false);
-        f86_CA_PAYMENT = Field.zoned(s_DFHCOMMAREA, 94, 6, 0, false, false, false);
-        f87_CA_POLICY_SPECIFIC = Field.alphanumeric(s_DFHCOMMAREA, 100, 32400, false);
-        f88_CA_ENDOWMENT = Field.group(s_DFHCOMMAREA, 100, 32400);
-        f89_CA_E_WITH_PROFITS = Field.alphanumeric(s_DFHCOMMAREA, 100, 1, false);
-        f90_CA_E_EQUITIES = Field.alphanumeric(s_DFHCOMMAREA, 101, 1, false);
-        f91_CA_E_MANAGED_FUND = Field.alphanumeric(s_DFHCOMMAREA, 102, 1, false);
-        f92_CA_E_FUND_NAME = Field.alphanumeric(s_DFHCOMMAREA, 103, 10, false);
-        f93_CA_E_TERM = Field.zoned(s_DFHCOMMAREA, 113, 2, 0, false, false, false);
-        f94_CA_E_SUM_ASSURED = Field.zoned(s_DFHCOMMAREA, 115, 6, 0, false, false, false);
-        f95_CA_E_LIFE_ASSURED = Field.alphanumeric(s_DFHCOMMAREA, 121, 31, false);
-        f96_CA_E_PADDING_DATA = Field.alphanumeric(s_DFHCOMMAREA, 152, 32348, false);
-        f97_CA_HOUSE = Field.group(s_DFHCOMMAREA, 100, 32400);
-        f98_CA_H_PROPERTY_TYPE = Field.alphanumeric(s_DFHCOMMAREA, 100, 15, false);
-        f99_CA_H_BEDROOMS = Field.zoned(s_DFHCOMMAREA, 115, 3, 0, false, false, false);
-        f100_CA_H_VALUE = Field.zoned(s_DFHCOMMAREA, 118, 8, 0, false, false, false);
-        f101_CA_H_HOUSE_NAME = Field.alphanumeric(s_DFHCOMMAREA, 126, 20, false);
-        f102_CA_H_HOUSE_NUMBER = Field.alphanumeric(s_DFHCOMMAREA, 146, 4, false);
-        f103_CA_H_POSTCODE = Field.alphanumeric(s_DFHCOMMAREA, 150, 8, false);
-        f104_CA_H_FILLER = Field.alphanumeric(s_DFHCOMMAREA, 158, 32342, false);
-        f105_CA_MOTOR = Field.group(s_DFHCOMMAREA, 100, 32400);
-        f106_CA_M_MAKE = Field.alphanumeric(s_DFHCOMMAREA, 100, 15, false);
-        f107_CA_M_MODEL = Field.alphanumeric(s_DFHCOMMAREA, 115, 15, false);
-        f108_CA_M_VALUE = Field.zoned(s_DFHCOMMAREA, 130, 6, 0, false, false, false);
-        f109_CA_M_REGNUMBER = Field.alphanumeric(s_DFHCOMMAREA, 136, 7, false);
-        f110_CA_M_COLOUR = Field.alphanumeric(s_DFHCOMMAREA, 143, 8, false);
-        f111_CA_M_CC = Field.zoned(s_DFHCOMMAREA, 151, 4, 0, false, false, false);
-        f112_CA_M_MANUFACTURED = Field.alphanumeric(s_DFHCOMMAREA, 155, 10, false);
-        f113_CA_M_PREMIUM = Field.zoned(s_DFHCOMMAREA, 165, 6, 0, false, false, false);
-        f114_CA_M_ACCIDENTS = Field.zoned(s_DFHCOMMAREA, 171, 6, 0, false, false, false);
-        f115_CA_M_FILLER = Field.alphanumeric(s_DFHCOMMAREA, 177, 32323, false);
-        f116_CA_COMMERCIAL = Field.group(s_DFHCOMMAREA, 100, 32400);
-        f117_CA_B_ADDRESS = Field.alphanumeric(s_DFHCOMMAREA, 100, 255, false);
-        f118_CA_B_POSTCODE = Field.alphanumeric(s_DFHCOMMAREA, 355, 8, false);
-        f119_CA_B_LATITUDE = Field.alphanumeric(s_DFHCOMMAREA, 363, 11, false);
-        f120_CA_B_LONGITUDE = Field.alphanumeric(s_DFHCOMMAREA, 374, 11, false);
-        f121_CA_B_CUSTOMER = Field.alphanumeric(s_DFHCOMMAREA, 385, 255, false);
-        f122_CA_B_PROPTYPE = Field.alphanumeric(s_DFHCOMMAREA, 640, 255, false);
-        f123_CA_B_FIREPERIL = Field.zoned(s_DFHCOMMAREA, 895, 4, 0, false, false, false);
-        f124_CA_B_FIREPREMIUM = Field.zoned(s_DFHCOMMAREA, 899, 8, 0, false, false, false);
-        f125_CA_B_CRIMEPERIL = Field.zoned(s_DFHCOMMAREA, 907, 4, 0, false, false, false);
-        f126_CA_B_CRIMEPREMIUM = Field.zoned(s_DFHCOMMAREA, 911, 8, 0, false, false, false);
-        f127_CA_B_FLOODPERIL = Field.zoned(s_DFHCOMMAREA, 919, 4, 0, false, false, false);
-        f128_CA_B_FLOODPREMIUM = Field.zoned(s_DFHCOMMAREA, 923, 8, 0, false, false, false);
-        f129_CA_B_WEATHERPERIL = Field.zoned(s_DFHCOMMAREA, 931, 4, 0, false, false, false);
-        f130_CA_B_WEATHERPREMIUM = Field.zoned(s_DFHCOMMAREA, 935, 8, 0, false, false, false);
-        f131_CA_B_STATUS = Field.zoned(s_DFHCOMMAREA, 943, 4, 0, false, false, false);
-        f132_CA_B_REJECTREASON = Field.alphanumeric(s_DFHCOMMAREA, 947, 255, false);
-        f133_CA_B_FILLER = Field.alphanumeric(s_DFHCOMMAREA, 1202, 31298, false);
-        f134_CA_CLAIM = Field.group(s_DFHCOMMAREA, 100, 32400);
-        f135_CA_C_NUM = Field.zoned(s_DFHCOMMAREA, 100, 10, 0, false, false, false);
-        f136_CA_C_DATE = Field.alphanumeric(s_DFHCOMMAREA, 110, 10, false);
-        f137_CA_C_PAID = Field.zoned(s_DFHCOMMAREA, 120, 8, 0, false, false, false);
-        f138_CA_C_VALUE = Field.zoned(s_DFHCOMMAREA, 128, 8, 0, false, false, false);
-        f139_CA_C_CAUSE = Field.alphanumeric(s_DFHCOMMAREA, 136, 255, false);
-        f140_CA_C_OBSERVATIONS = Field.alphanumeric(s_DFHCOMMAREA, 391, 255, false);
-        f141_CA_C_FILLER = Field.alphanumeric(s_DFHCOMMAREA, 646, 31854, false);
-        f142_DFHEIBLK = Field.group(s_DFHEIBLK, 0, 85);
-        f143_EIBTIME = Field.packed(s_DFHEIBLK, 0, 7, 0, true);
-        f144_EIBDATE = Field.packed(s_DFHEIBLK, 4, 7, 0, true);
-        f145_EIBTRNID = Field.alphanumeric(s_DFHEIBLK, 8, 4, false);
-        f146_EIBTASKN = Field.packed(s_DFHEIBLK, 12, 7, 0, true);
-        f147_EIBTRMID = Field.alphanumeric(s_DFHEIBLK, 16, 4, false);
-        f148_DFHEIGDI = Field.binary(s_DFHEIBLK, 20, 4, 0, true, false);
-        f149_EIBCPOSN = Field.binary(s_DFHEIBLK, 22, 4, 0, true, false);
-        f150_EIBCALEN = Field.binary(s_DFHEIBLK, 24, 4, 0, true, false);
-        f151_EIBAID = Field.alphanumeric(s_DFHEIBLK, 26, 1, false);
-        f152_EIBFN = Field.alphanumeric(s_DFHEIBLK, 27, 2, false);
-        f153_EIBRCODE = Field.alphanumeric(s_DFHEIBLK, 29, 6, false);
-        f154_EIBDS = Field.alphanumeric(s_DFHEIBLK, 35, 8, false);
-        f155_EIBREQID = Field.alphanumeric(s_DFHEIBLK, 43, 8, false);
-        f156_EIBRSRCE = Field.alphanumeric(s_DFHEIBLK, 51, 8, false);
-        f157_EIBSYNC = Field.alphanumeric(s_DFHEIBLK, 59, 1, false);
-        f158_EIBFREE = Field.alphanumeric(s_DFHEIBLK, 60, 1, false);
-        f159_EIBRECV = Field.alphanumeric(s_DFHEIBLK, 61, 1, false);
-        f160_EIBSEND = Field.alphanumeric(s_DFHEIBLK, 62, 1, false);
-        f161_EIBATT = Field.alphanumeric(s_DFHEIBLK, 63, 1, false);
-        f162_EIBEOC = Field.alphanumeric(s_DFHEIBLK, 64, 1, false);
-        f163_EIBFMH = Field.alphanumeric(s_DFHEIBLK, 65, 1, false);
-        f164_EIBCOMPL = Field.alphanumeric(s_DFHEIBLK, 66, 1, false);
-        f165_EIBSIG = Field.alphanumeric(s_DFHEIBLK, 67, 1, false);
-        f166_EIBCONF = Field.alphanumeric(s_DFHEIBLK, 68, 1, false);
-        f167_EIBERR = Field.alphanumeric(s_DFHEIBLK, 69, 1, false);
-        f168_EIBERRCD = Field.alphanumeric(s_DFHEIBLK, 70, 4, false);
-        f169_EIBSYNRB = Field.alphanumeric(s_DFHEIBLK, 74, 1, false);
-        f170_EIBNODAT = Field.alphanumeric(s_DFHEIBLK, 75, 1, false);
-        f171_EIBRESP = Field.binary(s_DFHEIBLK, 76, 8, 0, true, false);
-        f172_EIBRESP2 = Field.binary(s_DFHEIBLK, 80, 8, 0, true, false);
-        f173_EIBRLDBK = Field.alphanumeric(s_DFHEIBLK, 84, 1, false);
-        f174_GG_RETURN_CODE = Field.binary(s_GG_RETURN_CODE, 0, 4, 0, true, false);
-    }
-
-    /** The program run on its own (no JCL step, no CICS task, no caller): the PROCEDURE DIVISION from its
-     *  initial storage; RETURN-CODE. */
-    public int runProgram() {
-        System.arraycopy(IMAGE_s_WS_RESP, 0, s_WS_RESP.bytes, 0, IMAGE_s_WS_RESP.length);
+    /** WORKING-STORAGE (and every storage) as its VALUE clauses set it: each entry point starts from here. */
+    private void initialState() {
         System.arraycopy(IMAGE_s_WS_RESP2, 0, s_WS_RESP2.bytes, 0, IMAGE_s_WS_RESP2.length);
-        System.arraycopy(IMAGE_s_WS_COMM_LEN, 0, s_WS_COMM_LEN.bytes, 0, IMAGE_s_WS_COMM_LEN.length);
-        System.arraycopy(IMAGE_s_WS_STARTCODE, 0, s_WS_STARTCODE.bytes, 0, IMAGE_s_WS_STARTCODE.length);
-        System.arraycopy(IMAGE_s_WS_SYSID, 0, s_WS_SYSID.bytes, 0, IMAGE_s_WS_SYSID.length);
         System.arraycopy(IMAGE_s_WS_COMMAREA_LEN, 0, s_WS_COMMAREA_LEN.bytes, 0, IMAGE_s_WS_COMMAREA_LEN.length);
         System.arraycopy(IMAGE_s_WF_POLICY_INFO, 0, s_WF_POLICY_INFO.bytes, 0, IMAGE_s_WF_POLICY_INFO.length);
         System.arraycopy(IMAGE_s_WS_ABSTIME, 0, s_WS_ABSTIME.bytes, 0, IMAGE_s_WS_ABSTIME.length);
@@ -664,12 +391,22 @@ public class Lgapvs01Service {
         System.arraycopy(IMAGE_s_WS_DATE, 0, s_WS_DATE.bytes, 0, IMAGE_s_WS_DATE.length);
         System.arraycopy(IMAGE_s_ERROR_MSG, 0, s_ERROR_MSG.bytes, 0, IMAGE_s_ERROR_MSG.length);
         System.arraycopy(IMAGE_s_CA_ERROR_MSG, 0, s_CA_ERROR_MSG.bytes, 0, IMAGE_s_CA_ERROR_MSG.length);
-        System.arraycopy(IMAGE_s_EYECATCHER, 0, s_EYECATCHER.bytes, 0, IMAGE_s_EYECATCHER.length);
         System.arraycopy(IMAGE_s_DFHCOMMAREA, 0, s_DFHCOMMAREA.bytes, 0, IMAGE_s_DFHCOMMAREA.length);
         System.arraycopy(IMAGE_s_DFHEIBLK, 0, s_DFHEIBLK.bytes, 0, IMAGE_s_DFHEIBLK.length);
         System.arraycopy(IMAGE_s_GG_RETURN_CODE, 0, s_GG_RETURN_CODE.bytes, 0, IMAGE_s_GG_RETURN_CODE.length);
+        f1_WS_RESP = 0L;
+        f3_WS_COMM_LEN = 0L;
+        f4_WS_STARTCODE = "  ";
+        f5_WS_SYSID = "    ";
+        f55_EYECATCHER = "Program LGAPVS01";
         Cobol.moveFigurative(Figurative.ZEROS, f49_EM_RESPRC, CS);
         Cobol.moveFigurative(Figurative.ZEROS, f51_EM_RESP2RC, CS);
+    }
+
+    /** The program run on its own (no JCL step, no CICS task, no caller): the PROCEDURE DIVISION from its
+     *  initial storage; RETURN-CODE. */
+    public int runProgram() {
+        initialState();
         performDepth = 0;
         try {
             perform(0, 2);
@@ -679,37 +416,19 @@ public class Lgapvs01Service {
         return Cobol.num(f174_GG_RETURN_CODE, CS).intValue();
     }
 
-    public void executeLgapvs01() {
-        // a CICS / CALLed program: see runTask / handleCall
-    }
-
     /** One task of the program: the EIB and COMMAREA from the task, then the PROCEDURE DIVISION. */
     public void runTask(CicsTask task) {
         boolean truncBefore = Cobol.swapTruncBinary(true);  // TRUNC(STD)
+        boolean pfdBefore = Cobol.swapNumprocPfd(false);  // NUMPROC(NOPFD)
         try {
             this.task = task;
             caBack = () -> { };
             handlers.clear();
             heldKey.clear();
-            System.arraycopy(IMAGE_s_WS_RESP, 0, s_WS_RESP.bytes, 0, IMAGE_s_WS_RESP.length);
-            System.arraycopy(IMAGE_s_WS_RESP2, 0, s_WS_RESP2.bytes, 0, IMAGE_s_WS_RESP2.length);
-            System.arraycopy(IMAGE_s_WS_COMM_LEN, 0, s_WS_COMM_LEN.bytes, 0, IMAGE_s_WS_COMM_LEN.length);
-            System.arraycopy(IMAGE_s_WS_STARTCODE, 0, s_WS_STARTCODE.bytes, 0, IMAGE_s_WS_STARTCODE.length);
-            System.arraycopy(IMAGE_s_WS_SYSID, 0, s_WS_SYSID.bytes, 0, IMAGE_s_WS_SYSID.length);
-            System.arraycopy(IMAGE_s_WS_COMMAREA_LEN, 0, s_WS_COMMAREA_LEN.bytes, 0, IMAGE_s_WS_COMMAREA_LEN.length);
-            System.arraycopy(IMAGE_s_WF_POLICY_INFO, 0, s_WF_POLICY_INFO.bytes, 0, IMAGE_s_WF_POLICY_INFO.length);
-            System.arraycopy(IMAGE_s_WS_ABSTIME, 0, s_WS_ABSTIME.bytes, 0, IMAGE_s_WS_ABSTIME.length);
-            System.arraycopy(IMAGE_s_WS_TIME, 0, s_WS_TIME.bytes, 0, IMAGE_s_WS_TIME.length);
-            System.arraycopy(IMAGE_s_WS_DATE, 0, s_WS_DATE.bytes, 0, IMAGE_s_WS_DATE.length);
-            System.arraycopy(IMAGE_s_ERROR_MSG, 0, s_ERROR_MSG.bytes, 0, IMAGE_s_ERROR_MSG.length);
-            System.arraycopy(IMAGE_s_CA_ERROR_MSG, 0, s_CA_ERROR_MSG.bytes, 0, IMAGE_s_CA_ERROR_MSG.length);
-            System.arraycopy(IMAGE_s_EYECATCHER, 0, s_EYECATCHER.bytes, 0, IMAGE_s_EYECATCHER.length);
-            System.arraycopy(IMAGE_s_DFHCOMMAREA, 0, s_DFHCOMMAREA.bytes, 0, IMAGE_s_DFHCOMMAREA.length);
-            System.arraycopy(IMAGE_s_DFHEIBLK, 0, s_DFHEIBLK.bytes, 0, IMAGE_s_DFHEIBLK.length);
-            System.arraycopy(IMAGE_s_GG_RETURN_CODE, 0, s_GG_RETURN_CODE.bytes, 0, IMAGE_s_GG_RETURN_CODE.length);
-            Cobol.moveFigurative(Figurative.ZEROS, f49_EM_RESPRC, CS);
-            Cobol.moveFigurative(Figurative.ZEROS, f51_EM_RESP2RC, CS);
+            initialState();
             Cobol.move(task.transid(), f145_EIBTRNID, CS);
+            Cobol.move(task.termid() == null ? "" : task.termid(), f147_EIBTRMID, CS);
+            Cobol.store(f146_EIBTASKN, BigDecimal.valueOf(task.taskNumber()), false, CS);
             java.time.LocalDateTime now = task.now();
             Cobol.store(f144_EIBDATE, BigDecimal.valueOf((now.getYear() - 1900) * 1000L + now.getDayOfYear()), false, CS);
             Cobol.store(f143_EIBTIME, BigDecimal.valueOf(now.getHour() * 10000L + now.getMinute() * 100L + now.getSecond()), false, CS);
@@ -722,16 +441,41 @@ public class Lgapvs01Service {
                 in_Lgapvs01Dfhcommarea(x, s_DFHCOMMAREA, 0);
                 caBack = () -> fill_Lgapvs01Dfhcommarea(x, s_DFHCOMMAREA, 0);
                 calen = cx(task, 32500);
-            } else if (ca instanceof Lgacdb01CaErrorMsg x) {
-                in_Lgacdb01CaErrorMsg(x, s_DFHCOMMAREA, 0);
-                caBack = () -> fill_Lgacdb01CaErrorMsg(x, s_DFHCOMMAREA, 0);
+            } else if (ca instanceof LgstsqDfhcommarea x) {
+                in_LgstsqDfhcommarea(x, s_DFHCOMMAREA, 0);
+                caBack = () -> fill_LgstsqDfhcommarea(x, s_DFHCOMMAREA, 0);
                 calen = cx(task, 99);
+            }
+            byte[] raw = task.linkArea();
+            if (raw != null) {
+                System.arraycopy(raw, 0, s_DFHCOMMAREA.bytes, 0, Math.min(raw.length, s_DFHCOMMAREA.bytes.length));
+                Runnable typed = caBack;
+                caBack = () -> { typed.run(); System.arraycopy(s_DFHCOMMAREA.bytes, 0, raw, 0, Math.min(raw.length, s_DFHCOMMAREA.bytes.length)); };
+            }
+            byte[] caWhole = null;
+            if (task.exactCommarea() && calen < s_DFHCOMMAREA.bytes.length) {
+                caWhole = s_DFHCOMMAREA.bytes;
+                s_DFHCOMMAREA.bytes = java.util.Arrays.copyOf(caWhole, calen);
+                Runnable typed = caBack;
+                byte[] whole = caWhole;
+                caBack = () -> { caWhole(whole); typed.run(); };
             }
             Cobol.store(f150_EIBCALEN, BigDecimal.valueOf(calen), false, CS);
             try {
-                perform(0, 2);
-            } catch (Goback g) {
-                // RETURN / XCTL / an abend ended the program
+                try {
+                    perform(0, 2);
+                } catch (Goback g) {
+                    // RETURN / XCTL / an abend ended the program
+                }
+            } catch (IndexOutOfBoundsException e) {
+                if (caWhole == null) {
+                    throw e;
+                }
+                throw new DetCics.PastFrom("COMMAREA past EIBCALEN (" + calen + " bytes): not modelled");
+            } finally {
+                if (caWhole != null) {
+                    caWhole(caWhole);
+                }
             }
             if (!task.ended()) {
                 caBack.run();
@@ -739,15 +483,15 @@ public class Lgapvs01Service {
             }
         } finally {
             Cobol.swapTruncBinary(truncBefore);
+            Cobol.swapNumprocPfd(pfdBefore);
         }
     }
 
-    public Lgapvs01Dfhcommarea handleTransaction(String transid, Lgapvs01Dfhcommarea request) {
-        throw new UnsupportedOperationException("handleTransaction: this port runs as runTask");
-    }
-
     public Lgapvs01Dfhcommarea handleLink(Lgapvs01Dfhcommarea request) {
-        throw new UnsupportedOperationException("handleLink: this port runs as runTask");
+        CicsTask.Region region = CicsTask.region();
+        CicsTask task = region.linked("LGAPVS01", request);
+        region.run(task, "LGAPVS01", this::runTask);
+        return request;
     }
 
 
@@ -880,9 +624,9 @@ public class Lgapvs01Service {
         int resp1 = task.write("KSDSPOLY".strip(), store("KSDSPOLY".strip()).exists(DetCics.bytes(f8_WF_POLICY_KEY)), () -> store("KSDSPOLY".strip()).store(DetCics.bytes(f7_WF_POLICY_INFO, 64)));
         Cobol.store(f171_EIBRESP, BigDecimal.valueOf(resp1), false, CS);
         Cobol.store(f172_EIBRESP2, BigDecimal.valueOf(0), false, CS);
-        Cobol.store(f1_WS_RESP, BigDecimal.valueOf(resp1), false, CS);
+        f1_WS_RESP = Cobol.binary(BigDecimal.valueOf(resp1), 8, true, false, CS);
         // If WS-RESP Not = DFHRESP(NORMAL)
-        if (!(Cobol.num(f1_WS_RESP, CS).compareTo(D0) == 0)) {
+        if (!(f1_WS_RESP == 0L)) {
             // Move EIBRESP2 To WS-RESP2
             Cobol.move(f172_EIBRESP2, f2_WS_RESP2, CS);
             // MOVE '80' TO CA-RETURN-CODE
@@ -921,16 +665,17 @@ public class Lgapvs01Service {
         // Move CA-Policy-Num To EM-POLNUM
         Cobol.move(f79_CA_POLICY_NUM, f44_EM_POLNUM, CS);
         // Move WS-RESP To EM-RespRC
-        Cobol.move(f1_WS_RESP, f49_EM_RESPRC, CS);
+        Cobol.move(BigDecimal.valueOf(f1_WS_RESP), f49_EM_RESPRC, CS);
         // Move WS-RESP2 To EM-Resp2RC
         Cobol.move(f2_WS_RESP2, f51_EM_RESP2RC, CS);
         // EXEC CICS LINK PROGRAM('LGSTSQ') COMMAREA(ERROR-MSG) LENGTH(LENGTH OF ERROR-MSG) END-EXEC
-        Lgacdb01CaErrorMsg ca3 = out_Lgacdb01CaErrorMsg(f37_ERROR_MSG.storage(), f37_ERROR_MSG.offset());
-        String lr2 = task.link("LGSTSQ".strip(), ca3, BigDecimal.valueOf(101).intValue());
-        if ("NORMAL".equals(lr2)) in_Lgacdb01CaErrorMsg(ca3, f37_ERROR_MSG.storage(), f37_ERROR_MSG.offset());
-        String exit4 = task.abendExit();
-        if (exit4 != null) return GOTO | paragraph(exit4);
-        if (task.ended()) throw new Goback();
+        Storage cw4 = Cobol.commarea(f37_ERROR_MSG, 99);
+        LgstsqDfhcommarea ca3 = out_LgstsqDfhcommarea(cw4, 0);
+        String lr2 = task.link("LGSTSQ".strip(), ca3, BigDecimal.valueOf(101).intValue(), cw4.bytes);
+        if ("NORMAL".equals(lr2)) { in_LgstsqDfhcommarea(ca3, cw4, 0); Cobol.commareaBack(cw4, f37_ERROR_MSG); }
+        String exit5 = task.abendExit();
+        if (exit5 != null) return GOTO | paragraph(exit5);
+        if (task.ended()) throw abended();
         Cobol.store(f171_EIBRESP, BigDecimal.valueOf(DetCics.resp(lr2)), false, CS);
         Cobol.store(f172_EIBRESP2, BigDecimal.valueOf(0), false, CS);
         if (DetCics.resp(lr2) != 0) {
@@ -944,32 +689,34 @@ public class Lgapvs01Service {
                 // MOVE DFHCOMMAREA(1:EIBCALEN) TO CA-DATA
                 Cobol.move(f56_DFHCOMMAREA.ref(1, Integer.valueOf(Cobol.num(f150_EIBCALEN, CS).intValue())), f54_CA_DATA, CS);
                 // EXEC CICS LINK PROGRAM('LGSTSQ') COMMAREA(CA-ERROR-MSG) LENGTH(Length Of CA-ERROR-MSG) END-EXEC
-                Lgacdb01CaErrorMsg ca6 = out_Lgacdb01CaErrorMsg(f52_CA_ERROR_MSG.storage(), f52_CA_ERROR_MSG.offset());
-                String lr5 = task.link("LGSTSQ".strip(), ca6, BigDecimal.valueOf(99).intValue());
-                if ("NORMAL".equals(lr5)) in_Lgacdb01CaErrorMsg(ca6, f52_CA_ERROR_MSG.storage(), f52_CA_ERROR_MSG.offset());
-                String exit7 = task.abendExit();
-                if (exit7 != null) return GOTO | paragraph(exit7);
-                if (task.ended()) throw new Goback();
-                Cobol.store(f171_EIBRESP, BigDecimal.valueOf(DetCics.resp(lr5)), false, CS);
+                Storage cw8 = Cobol.commarea(f52_CA_ERROR_MSG, 99);
+                LgstsqDfhcommarea ca7 = out_LgstsqDfhcommarea(cw8, 0);
+                String lr6 = task.link("LGSTSQ".strip(), ca7, BigDecimal.valueOf(99).intValue(), cw8.bytes);
+                if ("NORMAL".equals(lr6)) { in_LgstsqDfhcommarea(ca7, cw8, 0); Cobol.commareaBack(cw8, f52_CA_ERROR_MSG); }
+                String exit9 = task.abendExit();
+                if (exit9 != null) return GOTO | paragraph(exit9);
+                if (task.ended()) throw abended();
+                Cobol.store(f171_EIBRESP, BigDecimal.valueOf(DetCics.resp(lr6)), false, CS);
                 Cobol.store(f172_EIBRESP2, BigDecimal.valueOf(0), false, CS);
-                if (DetCics.resp(lr5) != 0) {
-                    int to = condition(DetCics.condition(DetCics.resp(lr5)));
+                if (DetCics.resp(lr6) != 0) {
+                    int to = condition(DetCics.condition(DetCics.resp(lr6)));
                     if (to >= 0) return GOTO | to;
                 }
             } else {
                 // MOVE DFHCOMMAREA(1:90) TO CA-DATA
                 Cobol.move(f56_DFHCOMMAREA.ref(1, Integer.valueOf(90)), f54_CA_DATA, CS);
                 // EXEC CICS LINK PROGRAM('LGSTSQ') COMMAREA(CA-ERROR-MSG) LENGTH(Length Of CA-ERROR-MSG) END-EXEC
-                Lgacdb01CaErrorMsg ca9 = out_Lgacdb01CaErrorMsg(f52_CA_ERROR_MSG.storage(), f52_CA_ERROR_MSG.offset());
-                String lr8 = task.link("LGSTSQ".strip(), ca9, BigDecimal.valueOf(99).intValue());
-                if ("NORMAL".equals(lr8)) in_Lgacdb01CaErrorMsg(ca9, f52_CA_ERROR_MSG.storage(), f52_CA_ERROR_MSG.offset());
-                String exit10 = task.abendExit();
-                if (exit10 != null) return GOTO | paragraph(exit10);
-                if (task.ended()) throw new Goback();
-                Cobol.store(f171_EIBRESP, BigDecimal.valueOf(DetCics.resp(lr8)), false, CS);
+                Storage cw12 = Cobol.commarea(f52_CA_ERROR_MSG, 99);
+                LgstsqDfhcommarea ca11 = out_LgstsqDfhcommarea(cw12, 0);
+                String lr10 = task.link("LGSTSQ".strip(), ca11, BigDecimal.valueOf(99).intValue(), cw12.bytes);
+                if ("NORMAL".equals(lr10)) { in_LgstsqDfhcommarea(ca11, cw12, 0); Cobol.commareaBack(cw12, f52_CA_ERROR_MSG); }
+                String exit13 = task.abendExit();
+                if (exit13 != null) return GOTO | paragraph(exit13);
+                if (task.ended()) throw abended();
+                Cobol.store(f171_EIBRESP, BigDecimal.valueOf(DetCics.resp(lr10)), false, CS);
                 Cobol.store(f172_EIBRESP2, BigDecimal.valueOf(0), false, CS);
-                if (DetCics.resp(lr8) != 0) {
-                    int to = condition(DetCics.condition(DetCics.resp(lr8)));
+                if (DetCics.resp(lr10) != 0) {
+                    int to = condition(DetCics.condition(DetCics.resp(lr10)));
                     if (to >= 0) return GOTO | to;
                 }
             }

@@ -1,0 +1,169 @@
+{
+ "kind": "cics",
+ "corpus": "cics-genapp",
+ "program": "LGUPOL01",
+ "program_source": "base/src/lgupol01.cbl",
+ "copy_dirs": [
+  "base/src"
+ ],
+ "transid": "LGUP",
+ "clock": "2026/10/01 10:30:15.00",
+ "programs": [
+  {
+   "program": "LGUPDB01",
+   "program_source": "base/src/lgupdb01.cbl"
+  },
+  {
+   "program": "LGUPVS01",
+   "program_source": "base/src/lgupvs01.cbl"
+  },
+  {
+   "program": "LGSTSQ",
+   "program_source": "base/src/lgstsq.cbl"
+  }
+ ],
+ "datasets": {
+  "<USRHLQ>.GENAPP.KSDSPOLY": {
+   "input": "@case/ksdspoly.txt",
+   "entity": "WfPolicyInfo",
+   "copybook": "base/src/lgupvs01.cbl",
+   "record": "WF-POLICY-INFO",
+   "vsam": {
+    "key_offset": 0,
+    "key_length": 21,
+    "reclen": 64,
+    "why": "base/cntl/adef121.jcl DEFINE2: DATA(... KEYS(21 0) RECORDSIZE(64 64)); the engine's facts do not read KEYS / RECORDSIZE inside the DATA component, so the case states them"
+   }
+  }
+ },
+ "db2": {
+  "ddl": [
+   "base/cntl/db2cre.jcl"
+  ],
+  "seed": "base/cntl/db2cre.jcl",
+  "symbols": {
+   "<DB2DBID>": "GENASA1"
+  },
+  "qualifier": "GENASA1",
+  "compare": [
+   "GENASA1.POLICY",
+   "GENASA1.ENDOWMENT",
+   "GENASA1.HOUSE",
+   "GENASA1.MOTOR"
+  ]
+ },
+ "clock_fields": {
+  "db2": [
+   "GENASA1.POLICY.LASTCHANGED"
+  ],
+  "commarea": [
+   "CA-REQUEST-SPECIFIC(31:26)"
+  ]
+ },
+ "commarea": {
+  "segments": [
+   {
+    "copybook": "base/src/lgupol01.cbl",
+    "record": "DFHCOMMAREA"
+   }
+  ]
+ },
+ "linked": true,
+ "screens": {},
+ "region": {
+  "applid": "GENAREGN",
+  "sysid": "CICA"
+ },
+ "scenarios": [
+  {
+   "name": "update-endowment",
+   "commarea": {
+    "CA-REQUEST-ID": "01UEND",
+    "CA-CUSTOMER-NUM": "8",
+    "CA-REQUEST-SPECIFIC": "00000000042026-01-012027-01-012011-08-05-10.45.19.0000000000000007REF0000001001234YNYGROWTH    25250000A. N. OTHER                    "
+   },
+   "why": "LGUPDB01's scenario update-endowment through LGUPOL01: LASTCHANGED matches: UPDATE ENDOWMENT, the positioned UPDATE POLICY (LASTCHANGED = CURRENT TIMESTAMP), its SELECT back into CA-LASTCHANGED, LINK LGUPVS01 rewrites the VSAM record; '00'"
+  },
+  {
+   "name": "update-house",
+   "commarea": {
+    "CA-REQUEST-ID": "01UHOU",
+    "CA-CUSTOMER-NUM": "4",
+    "CA-REQUEST-SPECIFIC": "00000000062026-01-012027-01-012011-09-01-22.32.42.0000000000000007REF0000001001234COTTAGE        00300425000ROSE                12  SO21 1AA"
+   },
+   "why": "LGUPDB01's scenario update-house through LGUPOL01: the house path"
+  },
+  {
+   "name": "update-motor",
+   "commarea": {
+    "CA-REQUEST-ID": "01UMOT",
+    "CA-CUSTOMER-NUM": "2",
+    "CA-REQUEST-SPECIFIC": "00000000012026-01-012027-01-012011-05-11-17.12.17.0000000000000007REF0000001001234FORD           FIESTA         009500AB12CDEBLUE    12002019-05-01000450000001"
+   },
+   "why": "LGUPDB01's scenario update-motor through LGUPOL01: the motor path"
+  },
+  {
+   "name": "stale-lastchanged",
+   "commarea": {
+    "CA-REQUEST-ID": "01UEND",
+    "CA-CUSTOMER-NUM": "8",
+    "CA-REQUEST-SPECIFIC": "00000000042026-01-012027-01-012011-08-05-10.45.18.0000000000000007REF0000001001234YNYGROWTH    25250000A. N. OTHER                    "
+   },
+   "why": "LGUPDB01's scenario stale-lastchanged through LGUPOL01: CA-LASTCHANGED differs from the row's (another update came first): '02', nothing changed"
+  },
+  {
+   "name": "house-request-for-endowment",
+   "commarea": {
+    "CA-REQUEST-ID": "01UHOU",
+    "CA-CUSTOMER-NUM": "8",
+    "CA-REQUEST-SPECIFIC": "00000000042026-01-012027-01-012011-08-05-10.45.19.0000000000000007REF0000001001234COTTAGE        00300425000ROSE                12  SO21 1AA"
+   },
+   "why": "LGUPDB01's scenario house-request-for-endowment through LGUPOL01: a house update of an endowment policy: UPDATE HOUSE finds no row (+100)"
+  },
+  {
+   "name": "no-commarea",
+   "commarea": null,
+   "why": "EIBCALEN 0: LGUPOL01 moves ' NO COMMAREA RECEIVED' to EM-VARIABLE, WRITE-ERROR-MESSAGE LINKs LGSTSQ with ERROR-MSG (TD CSMT and TS GENAERRS), IF EIBCALEN > 0 is false, then ABEND LGCA"
+  },
+  {
+   "commarea": {
+    "CA-REQUEST-ID": "01UEND",
+    "CA-CUSTOMER-NUM": "8",
+    "CA-REQUEST-SPECIFIC": "00000000042026-01-012027-01-012011-08-05-10.45.19.0000000000000007REF0000001001234YNYGROWTH    25250000A. N. OTHER                    "
+   },
+   "name": "short-commarea-end",
+   "commarea_length": 100,
+   "why": "01UEND: EIBCALEN 100 < WS-REQUIRED-CA-LEN 152: CA-RETURN-CODE '98', RETURN before the LINK"
+  },
+  {
+   "commarea": {
+    "CA-REQUEST-ID": "01UHOU",
+    "CA-CUSTOMER-NUM": "4",
+    "CA-REQUEST-SPECIFIC": "00000000062026-01-012027-01-012011-09-01-22.32.42.0000000000000007REF0000001001234COTTAGE        00300425000ROSE                12  SO21 1AA"
+   },
+   "name": "short-commarea-hou",
+   "commarea_length": 140,
+   "why": "01UHOU: EIBCALEN 140 < WS-REQUIRED-CA-LEN 158: CA-RETURN-CODE '98', RETURN before the LINK"
+  },
+  {
+   "commarea": {
+    "CA-REQUEST-ID": "01UMOT",
+    "CA-CUSTOMER-NUM": "2",
+    "CA-REQUEST-SPECIFIC": "00000000012026-01-012027-01-012011-05-11-17.12.17.0000000000000007REF0000001001234FORD           FIESTA         009500AB12CDEBLUE    12002019-05-01000450000001"
+   },
+   "name": "short-commarea-mot",
+   "commarea_length": 150,
+   "why": "01UMOT: EIBCALEN 150 < WS-REQUIRED-CA-LEN 165: CA-RETURN-CODE '98', RETURN before the LINK"
+  },
+  {
+   "commarea": {
+    "CA-REQUEST-ID": "01UCOM",
+    "CA-CUSTOMER-NUM": "4",
+    "CA-REQUEST-SPECIFIC": "00000000062026-01-012027-01-012011-09-01-22.32.42.0000000000000007REF0000001001234COTTAGE        00300425000ROSE                12  SO21 1AA"
+   },
+   "name": "unknown-request-id",
+   "why": "CA-REQUEST-ID '01UCOM' (no WHEN): CA-RETURN-CODE '99', and the EVALUATE falls through to PERFORM UPDATE-POLICY-DB2-INFO all the same: LGUPDB01 runs with the request"
+  }
+ ],
+ "notes": "GenApp's update-policy front end (LGUPOL01, LINKed with the 32500-byte LGCMAREA COMMAREA): it checks the COMMAREA and LINKs LGUPDB01 (which LINKs LGUPVS01) with it. The case runs every program of that chain in the same task (\"programs\"), LGSTSQ too (its error logger, \"region\" for its ASSIGN SYSID), with the back-end case's Db2 tables, VSAM file and data; the scenarios reuse genapp-lgupdb01's inputs (each \"why\" names its source) and add the front end's own paths: no-commarea (EIBCALEN 0: LGSTSQ, ABEND LGCA). Each request id's own length check ('98'); WHEN OTHER sets '99' and still falls through to the LINK (unknown-request-id: LGUPDB01 then fails it and LINKs LGSTSQ, judged up to X6). WRITE-ERROR-MESSAGE's IF EIBCALEN > 0 (and the IF EIBCALEN < 91 inside it) is never true: the paragraph is PERFORMed only when EIBCALEN is zero -- dead in practice, uncovered by every scenario. The SQL faults (M2) are the harness's, one per statement the tasks run. Derived from the CICS General Insurance Application (GenApp, github.com/cicsdev/cics-genapp; (C) Copyright IBM Corp. 2011, 2020), licensed under the Eclipse Public License 2.0: LICENSE here is the corpus's own, NOTICE names the source and what was derived."
+}

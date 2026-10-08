@@ -2677,7 +2677,8 @@ def _raises_size(e) -> bool:
 
 def _fits_int_literal(v: Decimal) -> bool:
     """cb_fits_int of a numeric literal: no decimal places as written (3.0 has one), within a C int."""
-    return v.as_tuple().exponent >= 0 and -(2**31) <= v <= 2**31 - 1
+    exponent = v.as_tuple().exponent
+    return isinstance(exponent, int) and exponent >= 0 and -(2**31) <= v <= 2**31 - 1
 
 
 def _b(v: bool) -> str:

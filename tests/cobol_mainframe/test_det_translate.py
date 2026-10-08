@@ -2026,7 +2026,7 @@ class _OverCics(_ChanCics):
 
     def __init__(self):
         super().__init__()
-        self.gp = type("GP", (), {"dto": lambda s, cls: type("D", (), {"size": 80})()})()
+        self.gp.dto = lambda cls: type("D", (), {"size": 80})()  # the 80-byte DTO, on the inherited generated stub
         self.dto_for = lambda area, size, program=None: "Dto"
         self.codec = lambda cls: cls
         self.g.reading = lambda: __import__("contextlib").nullcontext()

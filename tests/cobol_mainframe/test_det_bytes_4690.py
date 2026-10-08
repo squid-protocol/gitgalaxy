@@ -8,7 +8,7 @@ import os
 import shutil
 
 import pytest
-from test_det_programs import ROOT, _cobol, _java, _java_run, program  # noqa: F401
+from test_det_programs import ROOT, _cobol, _java, _java_run, _java_run_batch, program  # noqa: F401
 
 E2E = pytest.mark.skipif(os.environ.get("EQUIVALENCE_E2E") != "1" or not shutil.which("docker") or _java() is None,
                          reason="needs Docker and a JDK 17 (JAVA_HOME / JDK_17)")  # fmt: skip
@@ -53,3 +53,36 @@ def test_every_byte_hex_literal_and_display_equal_gnucobols(mode, tmp_path):
     assert isinstance(want, bytes) and want
     assert b"\xc3\xbf" not in got
     assert got == want
+
+
+def high_byte_program(name: str) -> str:
+    """One MOVE X'hh' TO R and DISPLAY per byte 0x80-0xFF (all above X'7F')."""
+    proc: list[str] = []
+    for b in range(0x80, 0x100):
+        proc += [f"MOVE X'{b:02X}' TO R", "DISPLAY R"]
+    return program(name, ["01 R PIC X."], proc)
+
+
+@E2E
+@pytest.mark.parametrize(
+    "charset",
+    [
+        "ISO-8859-1",
+        *(
+            pytest.param(c, marks=pytest.mark.xfail(strict=True, reason="#4698: hex-literal bytes do not round-trip"))
+            for c in ("IBM037", "IBM1047", "windows-1252")
+        ),
+    ],
+)
+@pytest.mark.parametrize("mode", ["bytes", "typed", "groups"])
+def test_batch_sysout_high_bytes_equal_gnucobols(charset, mode, tmp_path):
+    """#4697: the batch Sysout (not the standalone one) writes the record charset's bytes for DISPLAY of X'80'..X'FF',
+    byte for byte as cobc does, under latin-1 and under single-byte EBCDIC record charsets."""
+    pytest.importorskip("tree_sitter_language_pack")
+    src = high_byte_program("HIBATCH")
+    cob = tmp_path / "cobol"
+    cob.mkdir()
+    want = _cobol(src, cob, raw=True)
+    got = _java_run_batch("HIBATCH", src, tmp_path, [], mode != "bytes", mode == "groups", raw=True, charset=charset)
+    assert isinstance(got, bytes) and want
+    assert got == want, f"{charset}: java {got[:40]!r} != cobol {want[:40]!r}"

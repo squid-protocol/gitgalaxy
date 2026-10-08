@@ -1036,21 +1036,30 @@ def _java_run(
                           check=True).stdout  # fmt: skip
 
 
-def _batch_package(srcdir: Path) -> None:
+def _batch_package(srcdir: Path, charset: str = "ISO-8859-1") -> None:
     """The generated project's batch package (CobolFiles, DatasetResolver, Dd, MainframeClock, Sysout, CobolAbend)
     from the batch forge's own templates, without Spring: what a det port with files runs on."""
     from gitgalaxy.tools.cobol_to_java.cobol_to_java_batch_forge import _RUNTIME
 
     for cls in ("CobolFiles", "DatasetResolver", "Dd", "MainframeClock", "Sysout", "CobolAbend"):
         text = _RUNTIME[cls].replace("{pkg}", f"{PKG}.batch").replace("{zone}", "UTC")
-        text = text.replace("{record_charset}", "ISO-8859-1")
+        text = text.replace("{record_charset}", charset)
         text = re.sub(r"^import org\.springframework\..*\n|^@Component\n", "", text, flags=re.M)
         text = re.sub(r'@Value\("(?:[^"\\]|\\.)*"\)\s*', "", text)
         (srcdir / PKG / "batch" / f"{cls}.java").parent.mkdir(parents=True, exist_ok=True)
         (srcdir / PKG / "batch" / f"{cls}.java").write_text(text)
 
 
-def _java_run_batch(name: str, src: str, work: Path, dds: list[str], typed: bool = False, groups: bool = False) -> str:
+def _java_run_batch(
+    name: str,
+    src: str,
+    work: Path,
+    dds: list[str],
+    typed: bool = False,
+    groups: bool = False,
+    raw: bool = False,
+    charset: str = "ISO-8859-1",
+) -> str:
     """As _java_run, on the batch runtime (DetFiles): runBatch with one DD per dataset, each a file of its name in
     a datasets directory."""
     from gitgalaxy.tools.cobol_to_java.det import program as P
@@ -1068,11 +1077,11 @@ def _java_run_batch(name: str, src: str, work: Path, dds: list[str], typed: bool
     for rel, text in [(f"service/{r.service}.java", java), *runtime.items()]:
         (srcdir / PKG / rel).parent.mkdir(parents=True, exist_ok=True)
         (srcdir / PKG / rel).write_text(text)
-    _batch_package(srcdir)
+    _batch_package(srcdir, charset)
     rec = srcdir / PKG / "entity/vsam/CobolRecords.java"
     rec.parent.mkdir(parents=True, exist_ok=True)
     rec.write_text(f"package {PKG}.entity.vsam;\npublic final class CobolRecords {{\n    public static java.nio.charset."
-                   "Charset charset() {\n        return java.nio.charset.StandardCharsets.ISO_8859_1;\n    }\n}\n")  # fmt: skip
+                   "Charset charset() {\n        return java.nio.charset.Charset.forName(\"" + charset + "\");\n    }\n}\n")  # fmt: skip
     data = work / "datasets"
     data.mkdir()
     b = f"{PKG}.batch"
@@ -1085,7 +1094,7 @@ def _java_run_batch(name: str, src: str, work: Path, dds: list[str], typed: bool
     jdk = _java()
     files = [str(f) for f in srcdir.rglob("*.java")]
     subprocess.run([str(jdk / "javac"), "-nowarn", "-d", str(work / "classes"), *files], check=True)  # noqa: S603
-    return subprocess.run([str(jdk / "java"), "-cp", str(work / "classes"), "Main"], capture_output=True, text=True,  # noqa: S603
+    return subprocess.run([str(jdk / "java"), "-cp", str(work / "classes"), "Main"], capture_output=True, text=not raw,  # noqa: S603
                           check=True).stdout  # fmt: skip
 
 

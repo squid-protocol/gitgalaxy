@@ -754,7 +754,12 @@ class Gen:
         if name == "CURRENT-DATE":
             return "DetCics.currentDate(task.now())" if self.cics is not None else self.clock
         if name in ("NUMVAL", "NUMVAL-C", "TEST-NUMVAL", "TEST-NUMVAL-C") and len(args) == 1:
-            return f"Funcs.{_camel(name)}({self.text(args[0])})"
+            arg = self.text(args[0])
+            if any(r.decimal_comma for r in self.p.records):
+                # #4462: DECIMAL-POINT IS COMMA -- the argument's `,` is its decimal point and `.` its separator:
+                # swapped, it is the text the functions read with the standard ones (a position for a position)
+                arg = f"{arg}.replace('.', '\\u0000').replace(',', '.').replace('\\u0000', ',')"
+            return f"Funcs.{_camel(name)}({arg})"
         if name in ("INTEGER-OF-DATE", "DATE-OF-INTEGER", "INTEGER", "INTEGER-PART", "ABS") and len(args) == 1:
             return f"Funcs.{_camel(name)}({self.num(args[0])})"
         if name in ("MOD", "REM", "MIN", "MAX") and len(args) >= 2:
@@ -1176,6 +1181,12 @@ class Gen:
 
     # ---- fields -------------------------------------------------------------------------------------------------
     def factory(self, it: L.Item, storage: str, offset: str) -> str:
+        f = self._factory(it, storage, offset)
+        # #4462: DECIMAL-POINT IS COMMA -- an edited PICTURE's `,` is its decimal point, and so is an alphanumeric
+        # sender's `,` when the item receives one (the runtime's Field.decimalComma)
+        return f"{f}.decimalComma()" if it.decimal_comma else f
+
+    def _factory(self, it: L.Item, storage: str, offset: str) -> str:
         cat = it.category
         if cat == "GROUP":
             return f"Field.group({storage}, {offset}, {it.size})"

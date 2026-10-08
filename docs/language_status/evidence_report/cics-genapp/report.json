@@ -1745,7 +1745,7 @@
      },
      {
       "case": "genapp-lgtestp4",
-      "case_scenarios": 16,
+      "case_scenarios": 15,
       "db2": true,
       "det": {
        "state": "not run",
@@ -2092,7 +2092,7 @@
      },
      {
       "case": "genapp-lgtestp4",
-      "case_scenarios": 16,
+      "case_scenarios": 15,
       "db2": true,
       "det": {
        "state": "not run",
@@ -2681,7 +2681,7 @@
      },
      {
       "case": "genapp-lgtestp4",
-      "case_scenarios": 16,
+      "case_scenarios": 15,
       "db2": true,
       "det": {
        "state": "not run",
@@ -3896,7 +3896,7 @@
      },
      {
       "case": "genapp-lgtestp4",
-      "case_scenarios": 16,
+      "case_scenarios": 15,
       "db2": true,
       "det": {
        "state": "not run",
@@ -4195,7 +4195,7 @@
      },
      {
       "case": "genapp-lgtestp4",
-      "case_scenarios": 16,
+      "case_scenarios": 15,
       "db2": true,
       "det": {
        "state": "not run",
@@ -4507,7 +4507,7 @@
      },
      {
       "case": "genapp-lgtestp4",
-      "case_scenarios": 16,
+      "case_scenarios": 15,
       "db2": true,
       "det": {
        "state": "not run",
@@ -4806,7 +4806,7 @@
      },
      {
       "case": "genapp-lgtestp4",
-      "case_scenarios": 16,
+      "case_scenarios": 15,
       "db2": true,
       "det": {
        "state": "not run",
@@ -5709,7 +5709,7 @@
      },
      {
       "case": "genapp-lgtestp4",
-      "case_scenarios": 16,
+      "case_scenarios": 15,
       "db2": true,
       "det": {
        "state": "not run",
@@ -6008,7 +6008,7 @@
      },
      {
       "case": "genapp-lgtestp4",
-      "case_scenarios": 16,
+      "case_scenarios": 15,
       "db2": true,
       "det": {
        "state": "not run",
@@ -6433,7 +6433,7 @@
      },
      {
       "case": "genapp-lgtestp4",
-      "case_scenarios": 16,
+      "case_scenarios": 15,
       "db2": true,
       "det": {
        "state": "not run",
@@ -8261,7 +8261,7 @@
     "cases": [
      {
       "case": "genapp-lgtestp4",
-      "case_scenarios": 16,
+      "case_scenarios": 15,
       "db2": true,
       "det": {
        "state": "not run",
@@ -8275,7 +8275,7 @@
     ],
     "chosen": {
      "case": "genapp-lgtestp4",
-     "case_scenarios": 16,
+     "case_scenarios": 15,
      "db2": true,
      "det": {
       "state": "not run",
@@ -9246,7 +9246,7 @@
      },
      {
       "case": "genapp-lgtestp4",
-      "case_scenarios": 16,
+      "case_scenarios": 15,
       "db2": true,
       "det": {
        "state": "not run",
@@ -9679,7 +9679,7 @@
      },
      {
       "case": "genapp-lgtestp4",
-      "case_scenarios": 16,
+      "case_scenarios": 15,
       "db2": true,
       "det": {
        "state": "not run",

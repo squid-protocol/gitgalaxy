@@ -70,6 +70,7 @@ verdict, but it limits what the proof says about inputs outside the scenarios.
 | C10 | compiler | INITIALIZE / VALUE ZERO zoned items: unsigned F zone (GnuCOBOL) vs preferred C sign (z/OS) | DIFFERS (tolerated where a case declares it) | yes (CardDemo READACCT ARRYFILE) |
 | C11 | compiler | A non-digit in a numeric DISPLAY item: MOVEd from an alphanumeric item (#4049); MOVEd to a binary item (#4652) | DIFFERS (#4049: inputs kept out of the cases) / MODELLED, the oracle's arithmetic (#4652: to binary) | yes (COMEN01C option `1!`; GenApp LGTESTP4's add) |
 | C12 | compiler | FUNCTION RANDOM: the oracle's generator (glibc via GnuCOBOL), not IBM's unpublished one; a seed IBM does not allow refused | DIFFERS (the numbers) / ASSUMED (the interface) | translated, no proof yet (CBSA CRDTAGY1-5, INQCUST; GenApp LGICVS01) |
+| C13 | compiler | A numeric operand compared with a nonnumeric one (an alphanumeric, alphabetic or numeric-edited item): compared as its characters, not by value (#4665) | MATCHED (unsigned integer literals as written; zoned, packed and binary items as their digits, sign dropped; non-integer ones as the oracle's digits) / REFUSED (a signed literal, a SIGN SEPARATE or P-scaled item, an arithmetic expression, an equality with a literal of more decimal places than an edited item) | yes: CardDemo COTRTLIC (proven; an alphanumeric item against `0`); no proven program compares an edited item with a number |
 | D1 | data | Text order is ASCII (Latin-1), not EBCDIC | DIFFERS | keys: no; comparisons: not audited |
 | D2 | data | Hex literals that name EBCDIC characters (`X'40'`) | DIFFERS | no |
 | D3 | data | Zoned signs in ASCII data (`{`, `}`, A–R overpunch) | MATCHED | yes |
@@ -403,6 +404,39 @@ verdict, but it limits what the proof says about inputs outside the scenarios.
   `test_det_funcs.py`.
 - **To settle.** Only a z/OS run can give IBM's numbers; even then they would be data for a declared difference, not
   a model, since the generator is unpublished.
+
+### C13. A numeric operand compared with a nonnumeric one — MATCHED where IBM and the oracle agree, REFUSED where they do not (#4665)
+- **IBM** (Enterprise COBOL 6.4 Language Reference, relation conditions, "Comparison of numeric and alphanumeric
+  operands"; the IBM page could not be re-read when this entry was written, so the rule is ASSUMED from it): a
+  numeric-edited item belongs to the alphanumeric class, so a numeric-edited item compared with a number is a
+  nonnumeric comparison, as an alphanumeric or alphabetic item is. The numeric operand is compared as though it were
+  moved to an alphanumeric item of as many characters as its digits -- a MOVE that keeps no sign -- then character
+  by character, the shorter operand padded with spaces. The numeric operand must be an integer; IBM rejects a
+  non-integer literal or item there.
+- **The oracle** (GnuCOBOL 3.1.2 `-std=ibm`, measured 2026-10-07 with `test_det_programs` probes): `E PIC
+  ZZZ,ZZ9.99` holding 1500 (`  1,500.00`) is neither greater than `1499.99` nor `1499` -- text, not value. A literal
+  is its characters as written: `0012` is `0012`, `12` is `12` (`  12` = `12` is false), `1499.99` is `149999`,
+  `0.12` is `012`. A zoned item is its bytes with an overpunched sign unpunched; a packed or binary item its value in
+  its PICTURE's digits (`S9(4) COMP-3` 12 is `0012`); the sign is dropped (-1234 equals `1234`). ZERO against an
+  edited item is a run of `0` characters. EVALUATE subjects, THRU ranges and an 88 on an edited item compare the
+  same way.
+- **Where they differ.** A signed literal: the oracle compares its sign character (`+1234` equals `+1234`, not
+  `1234`), IBM moves no sign. A SIGN SEPARATE item: the oracle compares its sign character (`-1234`), IBM drops it.
+  A P-scaled item: the oracle compares its stored digits (`99PP` holding 1200 is `12`), IBM's characters are not
+  settled. An arithmetic expression against a nonnumeric item: the oracle compares its result as text of its own
+  making (`  12` is not `10 + 2`, `1234` is `1000 + 234`), IBM documents no such comparison. A non-integer literal or
+  item: IBM rejects the program; the oracle's digits (point dropped) are modelled, since a program IBM compiles
+  never reaches them -- except an equality (`=`, `NOT =`, an EVALUATE WHEN, an 88 VALUE) of a numeric-edited item
+  with a literal of more decimal places than the item's: cobc decides it when it compiles (`ZZ9` holding 125 is not
+  `= 12.5` and `NOT = 12.5`, yet neither `< 12.5` nor `> 12.5`; `Z99V9` holding 112.5 is `= 112.5`, not `= 11.25`),
+  so it is refused (measured 2026-10-08). A signed literal against an alphanumeric item is the same: `'12'` is not
+  `+12` nor `-12`, `'+12'` is `+12`, `'-12'` is `-12` (measured 2026-10-08).
+- **The det port.** The generator passes a numeric literal against a nonnumeric item as its written characters
+  (`expr.NumLit` keeps the spelling; `Gen.literal_text`), the runtime (`Cobol.compare(Field, Field)`) compares a
+  numeric item against an elementary nonnumeric one as its digits; the five differing shapes are holes by name
+  ("... (C13)"). A group against a numeric item is unchanged (its bytes; not measured here).
+- **Pinned** by `tests/cobol_mainframe/test_det_programs.py` (`EDCMP` against GnuCOBOL; the refusals by name).
+- **To settle.** A z/OS run of `EDCMP` (and of a signed-literal variant) would confirm IBM's characters.
 
 ### C8. DISPLAY text — MATCHED
 - **What.** GnuCOBOL writes a signed zoned item as `012-` and a binary item as `-00007`. IBM writes their external

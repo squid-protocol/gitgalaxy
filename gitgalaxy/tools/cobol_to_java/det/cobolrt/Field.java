@@ -20,9 +20,19 @@ public final class Field {
     final boolean justRight;
     final boolean blankWhenZero;
     final String pic;
+    /** #4462: the program's SPECIAL-NAMES DECIMAL-POINT IS COMMA: `,` is the decimal point of an edited PICTURE and of
+     *  the text an alphanumeric sender MOVEs into this item (GnuCOBOL's module decimal point). */
+    final boolean decimalComma;
 
     private Field(Storage st, int off, int len, Kind kind, int digits, int scale, boolean signed, boolean signLeading,
                   boolean signSeparate, boolean nativeBin, boolean justRight, boolean blankWhenZero, String pic) {
+        this(st, off, len, kind, digits, scale, signed, signLeading, signSeparate, nativeBin, justRight, blankWhenZero,
+                pic, false);
+    }
+
+    private Field(Storage st, int off, int len, Kind kind, int digits, int scale, boolean signed, boolean signLeading,
+                  boolean signSeparate, boolean nativeBin, boolean justRight, boolean blankWhenZero, String pic,
+                  boolean decimalComma) {
         this.st = st;
         this.off = off;
         this.len = len;
@@ -36,6 +46,20 @@ public final class Field {
         this.justRight = justRight;
         this.blankWhenZero = blankWhenZero;
         this.pic = pic;
+        this.decimalComma = decimalComma;
+    }
+
+    /** #4462: this item in a program that declares DECIMAL-POINT IS COMMA (an edited PICTURE's shape read with `,` as
+     *  its decimal point). */
+    public Field decimalComma() {
+        int d = digits, sc = scale;
+        if (kind == Kind.NUMERIC_EDITED) {
+            int[] shape = Editing.shape(pic, true);
+            d = shape[0] + shape[1];
+            sc = shape[1];
+        }
+        return new Field(st, off, len, kind, d, sc, signed, signLeading, signSeparate, nativeBin, justRight,
+                blankWhenZero, pic, true);
     }
 
     public static Field group(Storage s, int offset, int length) {
@@ -96,14 +120,14 @@ public final class Field {
     /** A subscript, 1-based: offset + (index - 1) * stride. */
     public Field at(int index, int stride) {
         return new Field(st, off + (index - 1) * stride, len, kind, digits, scale, signed, signLeading, signSeparate,
-                nativeBin, justRight, blankWhenZero, pic);
+                nativeBin, justRight, blankWhenZero, pic, decimalComma);
     }
 
     /** Reference modification (start 1-based; a null length means to the end): an ALPHANUMERIC view. */
     public Field ref(int start, Integer length) {
         int n = length == null ? len - (start - 1) : length;
         return new Field(st, off + start - 1, n, Kind.ALPHANUMERIC, 0, 0, false, false, false, false, false, false,
-                null);
+                null, decimalComma);
     }
 
     public Storage storage() {

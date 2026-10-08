@@ -20,6 +20,7 @@ from gitgalaxy.tools.cobol_to_java.det.source import (
     _outside_literals,
     as_fixed_rows,
     cobol_parser,
+    comma_literals,
     narrowed,
     refusal,
     unwrap,
@@ -72,11 +73,12 @@ class _Frame:
 def parse(lines: list[Line]) -> Procedure:
     parser = _parser_cache()  # first: a missing translator extra fails here, before any work
 
-    # #4462: national / DBCS text, DECIMAL-POINT IS COMMA, IDMS, several programs (each read on its own): refused by name
+    # #4462: national / DBCS text, IDMS, several programs (each read on its own): refused by name
     why = refusal(lines)  # (a survey's what-if may switch one check off: source.survey_unmask)
     if why:
         raise E.ExprError(why)
-    lines = narrowed(lines)  # #4272: a wide character in a `*>` comment / a PROCEDURE DIVISION literal
+    # #4272: a wide character in a `*>` comment / a PROCEDURE DIVISION literal; #4462: a decimal comma's literal
+    lines = comma_literals(narrowed(lines))
     text, rows = as_fixed_rows(lines)
     m = re.search(r"^ {7}\s*PROCEDURE\s+DIVISION\b[^.]*\.", text, re.I | re.M)
     if not m:

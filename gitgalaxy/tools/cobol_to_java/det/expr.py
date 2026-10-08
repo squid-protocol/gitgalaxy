@@ -32,6 +32,8 @@ class Lit:
     """A nonnumeric literal (text) or a numeric literal (Decimal)."""
 
     value: str | Decimal | bytes
+    # a numeric literal as written (its leading zeros: cobc's literal identity, det/osvs.py); not part of its value
+    text: str | None = field(default=None, compare=False, repr=False)
 
 
 @dataclass
@@ -180,10 +182,10 @@ class Parser:
             raise ExprError("NULL: pointers are not modelled")
         if _is_number(tok):
             self.i += 1
-            return Lit(Decimal(tok.replace(",", ".") if tok.count(",") == 1 and "." not in tok else tok))
+            return Lit(Decimal(tok.replace(",", ".") if tok.count(",") == 1 and "." not in tok else tok), tok)
         if u in ("+", "-") and (nxt1 := self.peek(1)) is not None and _is_number(nxt1):
             self.i += 2
-            return Lit(Decimal(u + self.t[self.i - 1]))
+            return Lit(Decimal(u + self.t[self.i - 1]), u + self.t[self.i - 1])
         if u == "FUNCTION":
             self.i += 1
             name = self.take().upper()

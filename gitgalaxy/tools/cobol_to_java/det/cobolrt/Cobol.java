@@ -75,24 +75,121 @@ public final class Cobol {
     }
 
     // ------------------------------------------------------------------------------------------ ARITHMETIC
-    /** An intermediate quotient as GnuCOBOL forms it (cob_decimal_div): the dividend shifted 38 digits, then
-     *  divided and truncated -- the receiver's own truncation or ROUNDED then applies in store. */
+    /** An intermediate quotient as GnuCOBOL forms it (cob_decimal_div): the scale a.scale - b.scale, the dividend
+     *  shifted 38 digits more (and as many again as that scale is below zero), then divided and truncated -- so the
+     *  quotient keeps 38 + max(a.scale - b.scale, 0) decimal places; a zero dividend is 0 of scale 0. The
+     *  receiver's own truncation or ROUNDED then applies in store. */
     public static BigDecimal divide(BigDecimal a, BigDecimal b) {
         if (b.signum() == 0) {
             throw new ArithmeticException("division by zero");
         }
-        int shift = 38 + Math.max(0, -a.scale());
-        int scale = Math.max(0, a.scale() + shift - b.scale());
-        return a.divide(b, scale, java.math.RoundingMode.DOWN);
+        if (a.signum() == 0) {
+            return BigDecimal.ZERO;
+        }
+        return a.divide(b, 38 + Math.max(a.scale() - b.scale(), 0), java.math.RoundingMode.DOWN);
     }
 
-    /** A ** b: exact for a whole exponent, else through double. */
-    public static BigDecimal power(BigDecimal a, BigDecimal b) {
-        if (b.signum() >= 0 && b.stripTrailingZeros().scale() <= 0 && b.compareTo(BigDecimal.valueOf(999)) <= 0) {
-            return a.pow(b.intValueExact());
+    /** ARITHMETIC-OSVS (#4287, oracle_assumptions C2): an intermediate result truncated to `scale` decimal places, as
+     *  libcob's cob_decimal_align does it where cobc -std=ibm emits it (the translator decides where, det/osvs.py).
+     *  With more places than `scale` the low-order ones are dropped (toward zero); with fewer, libcob shifts the
+     *  other way: the value loses as many low-order digits as it lacks places (579 aligned to 2 places is 500). */
+    public static BigDecimal align(BigDecimal d, int scale) {
+        if (d.scale() > scale) {
+            return d.setScale(scale, java.math.RoundingMode.DOWN);
         }
-        if (b.signum() < 0 && b.stripTrailingZeros().scale() <= 0) {
-            return divide(BigDecimal.ONE, a.pow(-b.intValueExact()));
+        if (d.scale() < scale) {
+            int k = scale - d.scale();
+            return new BigDecimal(d.unscaledValue().divide(java.math.BigInteger.TEN.pow(k)), d.scale() - k);
+        }
+        return d;
+    }
+
+    /** A numeric literal on the right of an operation in a decimal expression: libcob's decimal constant (cobc's
+     *  dc_N, one per distinct literal of the program, set once when the program starts). libcob changes its scale
+     *  in place: an ADD or SUBTRACT from an intermediate with more decimal places raises it to theirs
+     *  (align_decimal), an exponent loses its trailing zeros (cob_decimal_pow) -- and every later use of the same
+     *  literal sees the changed scale (oracle_assumptions C2, #4287). */
+    public static final class Dc {
+        private final BigDecimal initial;
+        BigDecimal v;
+
+        public Dc(String literal) {
+            initial = new BigDecimal(literal);
+            v = initial;
+        }
+
+        /** The program starts again (its initial state): the literal as written. */
+        public void reset() {
+            v = initial;
+        }
+    }
+
+    /** cob_decimal_add with a decimal constant (Dc). */
+    public static BigDecimal add(BigDecimal a, Dc c) {
+        if (a.scale() > c.v.scale()) {
+            c.v = c.v.setScale(a.scale());
+        }
+        return a.add(c.v);
+    }
+
+    /** cob_decimal_sub with a decimal constant (Dc). */
+    public static BigDecimal subtract(BigDecimal a, Dc c) {
+        if (a.scale() > c.v.scale()) {
+            c.v = c.v.setScale(a.scale());
+        }
+        return a.subtract(c.v);
+    }
+
+    /** cob_decimal_mul with a decimal constant (Dc): the constant as it is now. */
+    public static BigDecimal multiply(BigDecimal a, Dc c) {
+        return a.multiply(c.v);
+    }
+
+    /** cob_decimal_div with a decimal constant (Dc): the constant as it is now. */
+    public static BigDecimal divide(BigDecimal a, Dc c) {
+        return divide(a, c.v);
+    }
+
+    /** cob_decimal_pow with a decimal constant exponent (Dc, never negative: the translator refuses one): trimmed in
+     *  place once the base is not zero. */
+    public static BigDecimal power(BigDecimal a, Dc c) {
+        if (c.v.signum() != 0 && a.signum() != 0) {
+            c.v = trim(c.v);
+        }
+        return power(a, c.v);
+    }
+
+    /** cob_trim_decimal: trailing zeros dropped while the scale is above zero; zero is 0 of scale 0. */
+    private static BigDecimal trim(BigDecimal d) {
+        if (d.signum() == 0) {
+            return BigDecimal.ZERO;
+        }
+        while (d.scale() > 0) {
+            java.math.BigInteger[] qr = d.unscaledValue().divideAndRemainder(java.math.BigInteger.TEN);
+            if (qr[1].signum() != 0) {
+                break;
+            }
+            d = new BigDecimal(qr[0], d.scale() - 1);
+        }
+        return d;
+    }
+
+    /** A ** b as cob_decimal_pow forms it: a whole exponent exactly (base and result trimmed of trailing zeros, a
+     *  negative one through cob_decimal_div), else through double. */
+    public static BigDecimal power(BigDecimal a, BigDecimal b) {
+        boolean whole = b.stripTrailingZeros().scale() <= 0;
+        if (b.signum() == 0) {
+            return BigDecimal.ONE;
+        }
+        if (a.signum() == 0) {
+            return BigDecimal.ZERO;
+        }
+        if (whole && b.signum() > 0 && b.compareTo(BigDecimal.valueOf(999)) <= 0) {
+            int n = b.intValueExact();
+            return n == 1 ? trim(a) : trim(trim(a).pow(n));
+        }
+        if (whole && b.signum() < 0) {
+            return trim(divide(BigDecimal.ONE, trim(trim(a).pow(-b.intValueExact()))));
         }
         return new BigDecimal(Math.pow(a.doubleValue(), b.doubleValue()));
     }

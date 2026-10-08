@@ -336,6 +336,71 @@ public final class DetCics {
         return lengerr ? 22 : 0;
     }
 
+    /** #4415 slice 1: EXEC CICS BIF DEEDIT FIELD(f) LENGTH(n) (IBM CICS TS, "BIF DEEDIT"): the first `n` bytes of the
+     *  field, as the region's EBCDIC page (`region`) holds them, edited in place -- the characters other than the
+     *  digits X'F0'-X'F9' removed, the digits right-aligned and padded on the left with zeros; a field that ends in a
+     *  minus sign (X'60') or CR gets the negative zone X'D' in its rightmost byte; a rightmost byte whose zone is
+     *  X'A'-X'F' is returned unaltered ("This permits the application program to operate on a zoned numeric field");
+     *  a 1-byte field is returned unaltered. Refused by name (register X26): characters beyond 7-bit ASCII, a LENGTH
+     *  past the field, and a field in which no digit remains (IBM does not say what such a field becomes). */
+    public static void deedit(Field f, int n, Charset cs, Charset region) {
+        if (n > f.length()) {
+            throw new PastFrom("BIF DEEDIT LENGTH " + n + " > FIELD's " + f.length() + " bytes: not modelled");
+        }
+        String chars = new String(bytes(f, n), cs);
+        for (int i = 0; i < chars.length(); i++) {
+            if (chars.charAt(i) >= 0x80) {
+                throw new UnsupportedOperationException(String.format("BIF DEEDIT of U+%04X, beyond 7-bit ASCII:"
+                        + " not modelled", (int) chars.charAt(i)));
+            }
+        }
+        byte[] edited = new String(deeditEbcdic(chars.getBytes(region)), region).getBytes(cs);
+        System.arraycopy(edited, 0, f.storage().bytes, f.offset(), n);
+    }
+
+    static byte[] deeditEbcdic(byte[] e) {
+        int n = e.length;
+        if (n == 1) {
+            return e.clone();
+        }
+        boolean cr = n >= 2 && (e[n - 2] & 0xFF) == 0xC3 && (e[n - 1] & 0xFF) == 0xD9;
+        boolean negative = (e[n - 1] & 0xFF) == 0x60 || cr;
+        int end = n;
+        int kept = -1;
+        if (negative) {
+            end = n - (cr ? 2 : 1);
+        } else if ((e[n - 1] & 0xF0) >= 0xA0) {
+            kept = e[n - 1] & 0xFF;
+            end = n - 1;
+        }
+        byte[] digits = new byte[n];
+        int k = 0;
+        for (int i = 0; i < end; i++) {
+            int b = e[i] & 0xFF;
+            if (b >= 0xF0 && b <= 0xF9) {
+                digits[k++] = e[i];
+            }
+        }
+        if (k == 0 && kept < 0) {
+            throw new UnsupportedOperationException("BIF DEEDIT of a field with no digit left: IBM does not say what"
+                    + " it becomes: not modelled");
+        }
+        byte[] out = new byte[n];
+        Arrays.fill(out, (byte) 0xF0);
+        int last = n - 1;
+        if (kept >= 0) {
+            out[last] = (byte) kept;
+            last--;
+        }
+        for (int j = k - 1; j >= 0; j--, last--) {
+            out[last] = digits[j];
+        }
+        if (negative) {
+            out[n - 1] = (byte) (0xD0 | (out[n - 1] & 0x0F));
+        }
+        return out;
+    }
+
     /** #4528: the region's code page -- the one TS items are in (CicsTask: "the bytes the program wrote, in the
      *  region's code page"). `declared` is the estate's EBCDIC page for the program, else CCSID 037; the system
      *  property gitgalaxy.cics.charset names another. A deployment fact, like CobolRecords.charset(). */

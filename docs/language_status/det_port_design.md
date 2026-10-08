@@ -396,6 +396,12 @@ Only generator output, never a test case:
   det port and the stub accept it with no code and record the same SEND-TEXT event. The logical-message, printer and
   partition options are refused with a reason (register X20). SEQPNT now translates whole (47/47). Proven through
   cics-crucible gt-send-text-terminal (1) on the cobol-stub side and the det port.
+- #4415 slice 1: `EXEC CICS BIF DEEDIT` (5 programs, all CBSA) and the CVDA-valued commands INQUIRE / SET TERMINAL
+  UCTRANST (BNK1CCS, BNK1DCS). DFHVALUE(name) already translated in expressions (`MOVE DFHVALUE(..)`, comparisons) from
+  IBM's CVDA table; it was missing on the stub side (now substituted) and as the operand of SET. DEEDIT edits the field
+  in the region's page (`DetCics.deedit`, `GGCDEED`); UCTRANST is a stated fact (`withUctranst`, `$GGCICS_UCTRANST`).
+  Register X26; proven through cics-crucible hc-deedit-uctranst (3) on the cobol-stub side and the det port. Left for
+  slice 2: FORMATTIME YYDDD / DATE / MILLISECONDS, DELETEQ TS, DUMP, QUERY; INQUIRE of other resources stays refused.
 - #4463: four det ports stopped proving on 2026-10-04 and no CI ran the det sweep. carddemo-menu: a #4049 scenario
   sent option 99, which COMEN01C still uses as a subscript of its 12-entry table, 4K past the record (X8: the det
   port stops; the case now sends 12). mortgage-cmort / mlist / nbrvl: #4245 read every program of EPSCSMRD's

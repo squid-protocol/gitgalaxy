@@ -150,6 +150,7 @@ int GGCLOAD(char *area, int maxlen) {
  * the program sees whatever storage follows the area) and the task is judged up to it, as the det port refuses
  * the same reference (DetCics.PastFrom). Any other COMMAREA stays in the driver's own area (*area unchanged). */
 static void refuse(const char *what);
+static int uctranst_set = 0; /* #4415: a SET TERMINAL UCTRANST changed the task's terminal (X26) */
 #ifndef _WIN32
 static char *guard_page;
 static size_t guard_size;
@@ -952,6 +953,7 @@ int GGCDELT(gg_cics *c, char *ridfld, int keylen) {
 /* RECEIVE MAP(name1) MAPSET(name2) INTO: the scenario's recorded map input. */
 int GGCRECV(gg_cics *c, char *into, int intolen) {
     char map[9], mapset[9], path[4096], ev[128];
+    if (uctranst_set) refuse("a terminal RECEIVE after SET TERMINAL UCTRANST");
     trim(c->name1, 8, map);
     trim(c->name2, 8, mapset);
     snprintf(path, sizeof path, "%s/receive_%s.bin", dir_in(), map);
@@ -989,6 +991,7 @@ enum { EOC = DFHRESP_EOC };
 
 static int terminal_receive(gg_cics *c, char *into) {
     char path[4096], ev[96], flags[41];
+    if (uctranst_set) refuse("a terminal RECEIVE after SET TERMINAL UCTRANST");
     int max = c->len < 0 ? 0 : c->len, notruncate, lu2 = getenv("GGCICS_LU2") != NULL;
     trim(c->flags, 40, flags);
     notruncate = strstr(flags, "NOTRUNCATE") != NULL;
@@ -2052,6 +2055,107 @@ static int listed(const char *file, const char *name) {
     }
     fclose(f);
     return found;
+}
+
+/* ---- #4415 slice 1: EXEC CICS BIF DEEDIT (IBM CICS TS, "BIF DEEDIT"; register X26) ------------------------------
+ * FIELD's first LENGTH bytes, as the region's EBCDIC page (CCSID 037; ASCII_TO_EBCDIC, python's cp037 for 7-bit ASCII)
+ * holds them, edited in place: the characters other than the digits X'F0'-X'F9' are removed, the digits right-aligned
+ * and padded on the left with zeros; a field that ends in a minus sign (X'60') or CR gets the negative zone X'D' in its
+ * rightmost byte; a rightmost byte whose zone is X'A'-X'F' is returned unaltered ("This permits the application
+ * program to operate on a zoned numeric field"); a 1-byte field is returned unaltered. LENGERR if LENGTH is less than
+ * 1 (IBM lists no RESP2). Refused by name: a byte beyond 7-bit ASCII, a LENGTH past the field (flen), and a field with
+ * no digit left (IBM does not say what it becomes). c->num is LENGTH. */
+static const unsigned char ASCII_TO_EBCDIC[128] = {
+    0x00, 0x01, 0x02, 0x03, 0x37, 0x2D, 0x2E, 0x2F, 0x16, 0x05, 0x25, 0x0B, 0x0C, 0x0D, 0x0E, 0x0F,
+    0x10, 0x11, 0x12, 0x13, 0x3C, 0x3D, 0x32, 0x26, 0x18, 0x19, 0x3F, 0x27, 0x1C, 0x1D, 0x1E, 0x1F,
+    0x40, 0x5A, 0x7F, 0x7B, 0x5B, 0x6C, 0x50, 0x7D, 0x4D, 0x5D, 0x5C, 0x4E, 0x6B, 0x60, 0x4B, 0x61,
+    0xF0, 0xF1, 0xF2, 0xF3, 0xF4, 0xF5, 0xF6, 0xF7, 0xF8, 0xF9, 0x7A, 0x5E, 0x4C, 0x7E, 0x6E, 0x6F,
+    0x7C, 0xC1, 0xC2, 0xC3, 0xC4, 0xC5, 0xC6, 0xC7, 0xC8, 0xC9, 0xD1, 0xD2, 0xD3, 0xD4, 0xD5, 0xD6,
+    0xD7, 0xD8, 0xD9, 0xE2, 0xE3, 0xE4, 0xE5, 0xE6, 0xE7, 0xE8, 0xE9, 0xBA, 0xE0, 0xBB, 0xB0, 0x6D,
+    0x79, 0x81, 0x82, 0x83, 0x84, 0x85, 0x86, 0x87, 0x88, 0x89, 0x91, 0x92, 0x93, 0x94, 0x95, 0x96,
+    0x97, 0x98, 0x99, 0xA2, 0xA3, 0xA4, 0xA5, 0xA6, 0xA7, 0xA8, 0xA9, 0xC0, 0x4F, 0xD0, 0xA1, 0x07,
+};
+
+int GGCDEED(gg_cics *c, char *field, int flen) {
+    int n = c->num, i, k = 0, end, kept = -1, negative, cr, last;
+    unsigned char e[32768], digits[32768], out[32768];
+    c->resp = NORMAL;
+    c->resp2 = 0;
+    if (n < 1) { c->resp = LENGERR; return 0; }
+    if (n > flen) refuse("BIF DEEDIT LENGTH past FIELD");
+    if (n > (int)sizeof e) refuse("BIF DEEDIT LENGTH past 32768");
+    for (i = 0; i < n; i++) {
+        if ((unsigned char)field[i] >= 0x80) refuse("BIF DEEDIT of a byte beyond 7-bit ASCII");
+        e[i] = ASCII_TO_EBCDIC[(unsigned char)field[i]];
+    }
+    if (n == 1) return 0;
+    cr = e[n - 2] == 0xC3 && e[n - 1] == 0xD9;
+    negative = e[n - 1] == 0x60 || cr;
+    end = n;
+    if (negative) end = n - (cr ? 2 : 1);
+    else if ((e[n - 1] & 0xF0) >= 0xA0) { kept = e[n - 1]; end = n - 1; }
+    for (i = 0; i < end; i++)
+        if (e[i] >= 0xF0 && e[i] <= 0xF9) digits[k++] = e[i];
+    if (k == 0 && kept < 0) refuse("BIF DEEDIT of a field with no digit left");
+    memset(out, 0xF0, (size_t)n);
+    last = n - 1;
+    if (kept >= 0) { out[last] = (unsigned char)kept; last--; }
+    for (i = k - 1; i >= 0; i--, last--) out[last] = digits[i];
+    if (negative) out[n - 1] = (unsigned char)(0xD0 | (out[n - 1] & 0x0F));
+    for (i = 0; i < n; i++) {
+        int a, found = -1;
+        for (a = 0; a < 128; a++)
+            if (ASCII_TO_EBCDIC[a] == out[i]) { found = a; break; }
+        if (found < 0) refuse("BIF DEEDIT result byte beyond 7-bit ASCII");
+        field[i] = (char)found;
+    }
+    return 0;
+}
+
+/* ---- #4415 slice 1: INQUIRE / SET TERMINAL UCTRANST (IBM CICS TS, INQUIRE TERMINAL, SET TERMINAL; register X26) ----
+ * The CVDAs UCTRAN 450, NOUCTRAN 451, TRANIDONLY 452. The task's terminal ($GGCICS_FACILITY) has the UCTRANST the runner
+ * states ($GGCICS_UCTRANST: UCTRAN, NOUCTRAN or TRANIDONLY, from the TYPETERM's UCTRAN); unstated, or the UCTRANST of a
+ * terminal other than the task's, refused. A terminal terminals.cfg does not list is TERMIDERR (INQUIRE RESP2 1, SET
+ * RESP2 23); an invalid CVDA is INVREQ RESP2 43. A SET is the task's view of its terminal from then on, and a terminal
+ * RECEIVE after it is refused (IBM does not say when the change takes effect). c->num is the CVDA. */
+static int uctranst_cvda = -1;
+
+static int uctranst_terminal(gg_cics *c, int resp2) {
+    char term[9];
+    const char *own = getenv("GGCICS_FACILITY");
+    trim(c->name1, 8, term);
+    c->resp = NORMAL;
+    c->resp2 = 0;
+    if (!listed("terminals.cfg", term)) { c->resp = TERMIDERR; c->resp2 = resp2; return 0; }
+    if (!own || strcmp(own, term) != 0) refuse("UCTRANST of a terminal other than the task's");
+    return 1;
+}
+
+static void uctranst_init(void) {
+    const char *v = getenv("GGCICS_UCTRANST");
+    if (uctranst_cvda >= 0) return;
+    if (!v) refuse("INQUIRE TERMINAL UCTRANST: not stated for this task");
+    uctranst_cvda = strcmp(v, "UCTRAN") == 0 ? 450 : strcmp(v, "NOUCTRAN") == 0 ? 451
+                  : strcmp(v, "TRANIDONLY") == 0 ? 452 : 0;
+    if (!uctranst_cvda) refuse("GGCICS_UCTRANST is not UCTRAN, NOUCTRAN or TRANIDONLY");
+}
+
+int GGCINQT(gg_cics *c) {
+    if (uctranst_terminal(c, 1)) {
+        uctranst_init();
+        c->num = uctranst_cvda;
+    }
+    return 0;
+}
+
+int GGCSETT(gg_cics *c) {
+    int cvda = c->num;
+    if (uctranst_terminal(c, 23)) {
+        if (cvda != 450 && cvda != 451 && cvda != 452) { c->resp = INVREQ; c->resp2 = 43; return 0; }
+        uctranst_cvda = cvda;
+        uctranst_set = 1;
+    }
+    return 0;
 }
 
 /* This task's own STARTs with a REQID, for a CANCEL in the same task. */

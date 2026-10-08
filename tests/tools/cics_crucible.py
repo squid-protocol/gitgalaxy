@@ -907,6 +907,9 @@ class EquivalenceRunTest {
                     t.withTerminalInput(step.get("text").asText());
                 }
                 t.withEndOfChain("LUTYPE2".equals(plan.path("terminal_device").asText()));  // #4413
+                if (plan.hasNonNull("uctranst")) {
+                    t.withUctranst(plan.get("uctranst").asText());  // #4415: INQUIRE TERMINAL UCTRANST
+                }
                 if (sc.path("fault_plans").has(transid)) {  // #4049: the conditions planned for this TRANSID's tasks
                     List<String> faults = new ArrayList<>();
                     sc.get("fault_plans").get(transid).forEach(f -> faults.add(f.asText()));
@@ -1288,6 +1291,7 @@ def java_plan(case: cc.Case, src: Path) -> dict[str, Any]:
         "clock": case.data["clock"],  # #4006: the scheduler's virtual clock and terminal
         "terminal": case.data["terminal"],
         "terminal_device": terminal_device(case),  # #4413: LUTYPE2 raises EOC on RECEIVE
+        "uctranst": terminal_uctranst(case),  # #4415: INQUIRE TERMINAL UCTRANST
         "services": services,
         "screens": screens,
         "scenarios": scenarios,
@@ -1298,6 +1302,17 @@ def terminal_device(case: cc.Case) -> str:
     """#4413: the DEVICE of the case terminal's TYPETERM in the case CSD; the reference region's 3270 logical unit
     (SPEC section 2) when the CSD does not define the terminal."""
     return (case.csd.get("terminals") or {}).get(case.data["terminal"], "3270")
+
+
+# #4415 (register X26): the terminal's UCTRANST from its TYPETERM's UCTRAN, name for name (IBM, INQUIRE TERMINAL: "The
+# value comes from the UCTRAN option of the associated TYPETERM definition")
+UCTRAN_TO_UCTRANST = {"YES": "UCTRAN", "NO": "NOUCTRAN", "TRANID": "TRANIDONLY"}
+
+
+def terminal_uctranst(case: cc.Case) -> Optional[str]:
+    """The case terminal's UCTRANST, None when the case CSD does not state its TYPETERM's UCTRAN (an INQUIRE TERMINAL
+    UCTRANST is then refused by both runtimes, never answered from a guessed default)."""
+    return UCTRAN_TO_UCTRANST.get((case.csd.get("uctran") or {}).get(case.data["terminal"], ""))
 
 
 # A generated contract DTO's field comment (cobol_to_java_transaction_forge): `// WS-CA: PIC X, offset 0, 1 bytes (...)`.
@@ -2038,6 +2053,7 @@ def run_task(case: cc.Case, box: "Container", work: Path, rel: str, ts: str, tra
     box.sh(f"cd /work && {cov.trace_env(f'/work/{rel}/{cov.TRACE_NAME}')}"
            f"GGCICS_DIR=/work/{rel} GGCICS_OUT=/work/{rel}/out EIBIN=/work/{rel}/eib.in "
            f"{'GGCICS_LU2=1 ' if terminal_device(case) == 'LUTYPE2' else ''}"  # #4413: EOC on RECEIVE
+           f"{f'GGCICS_UCTRANST={terminal_uctranst(case)} ' if terminal_uctranst(case) else ''}"  # #4415
            f"{'GGCICS_RUNCHILD=1 ' if (frame.get('trigger') or {}).get('kind') == 'run' else ''}"  # #4270
            f"{f'GGCICS_STARTCODE={startcode} ' if startcode else ''}GGCICS_USERID={REGION_USERID} "  # #4270 slice 3
            f"GGCICS_FACILITY={frame.get('termid') or ''} GGCICS_SCREEN='{REGION_SCREEN[0]} {REGION_SCREEN[1]}' "

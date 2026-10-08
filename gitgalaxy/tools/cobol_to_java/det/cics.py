@@ -83,14 +83,15 @@ def command_key(words: list[str], opts: dict) -> str:
         return f"{verb} COUNTER"  # (not modelled: refused whole by Cics.command)
     if first == "SEND":
         return "SEND MAP" if "MAP" in opts else "SEND TEXT" if verb in ("SEND", "SEND TEXT") else verb
-    if verb in _FORM_OPTION and _FORM_OPTION[verb] in opts:
-        return f"{verb} {_FORM_OPTION[verb]}"
+    for form in _FORM_OPTION.get(verb, ()):
+        if form in opts:
+            return f"{verb} {form}"
     if verb in ("WRITEQ", "READQ"):  # (a TD option after the verb is refused, never read as TS)
         return f"{verb} TS"
     return verb
 
 
-_FORM_OPTION = {"RECEIVE": "MAP", "GET": "COUNTER", "INQUIRE": "PROGRAM"}
+_FORM_OPTION = {"RECEIVE": ("MAP",), "GET": ("COUNTER",), "INQUIRE": ("PROGRAM", "TERMINAL"), "SET": ("TERMINAL",)}
 
 
 def check_options(words: list[str], opts: dict) -> None:
@@ -850,6 +851,26 @@ class Cics:
             if not out:
                 raise CicsError("FORMATTIME form")
             return out
+        if key == "BIF DEEDIT":  # #4415 slice 1: IBM, EXEC CICS BIF DEEDIT (register X26)
+            fld = self.field(_arg(opts.get("FIELD")))
+            n = self.int_(_arg(opts["LENGTH"])) if opts.get("LENGTH") else f"{fld}.length()"
+            r = g.tmpname("resp")
+            self.region_used = True
+            return [f"{ind}int {r} = CicsTask.deeditResp({n});",
+                    f"{ind}if ({r} == 0) DetCics.deedit({fld}, {n}, CS, REGION);",
+                    *self.outcome(opts, r, "0", ind)]  # fmt: skip
+        if key in ("INQUIRE TERMINAL", "SET TERMINAL"):  # #4415 slice 1: the terminal's UCTRANST CVDA (register X26)
+            if "UCTRANST" not in opts:
+                raise CicsError(f"{key} without UCTRANST")
+            r = g.tmpname("term")
+            term = self.name(_arg(opts.get("TERMINAL")))
+            if key == "SET TERMINAL":
+                return [f"{ind}int[] {r} = task.setUctranst({term}, {self.int_(_arg(opts['UCTRANST']))});",
+                        *self.outcome(opts, f"{r}[0]", f"{r}[1]", ind)]  # fmt: skip
+            return [f"{ind}int[] {r} = task.inquireUctranst({term});",
+                    f"{ind}if ({r}[0] == 0) "
+                    + g.store_into(self.ref(_arg(opts["UCTRANST"])), f"BigDecimal.valueOf({r}[2])", False),
+                    *self.outcome(opts, f"{r}[0]", f"{r}[1]", ind)]  # fmt: skip
         if verb == "INQUIRE" and "PROGRAM" in opts:
             r = g.tmpname("resp")
             return [f"{ind}int {r} = task.inquireProgram({self.name(_arg(opts['PROGRAM']))});",

@@ -82,7 +82,8 @@ class CaseError(Exception):
 # ---- reading a case ------------------------------------------------------------------------
 def parse_csd(text: str) -> dict[str, Any]:
     """The DFHCSDUP input of a case: {"programs": set, "transactions": {transid: program},
-    "mapsets": set, "terminals": {termid: DEVICE of its TYPETERM}}. Comment lines start with `*`; a
+    "mapsets": set, "terminals": {termid: DEVICE of its TYPETERM}, "uctran": {termid: UCTRAN of its
+    TYPETERM, when it has one}}. Comment lines start with `*`; a
     DEFINE may continue on following lines. #4413: a TYPETERM's DEVICE (3270 when not given) says
     whether a terminal RECEIVE raises EOC (SPEC section 2: DEVICE(LUTYPE2) does)."""
     programs: set[str] = set()
@@ -90,6 +91,7 @@ def parse_csd(text: str) -> dict[str, Any]:
     transactions: dict[str, str] = {}
     devices: dict[str, str] = {}
     terminal_types: dict[str, str] = {}
+    uctrans: dict[str, str] = {}  # #4415: a TYPETERM's UCTRAN (YES / NO / TRANID), when the CSD says
     body = " ".join(ln for ln in text.splitlines() if not ln.lstrip().startswith("*"))
     for m in re.finditer(r"\bDEFINE\s+(\w+)\s*\(\s*([^)\s]+)\s*\)(.*?)(?=\bDEFINE\b|$)", body, re.I | re.S):
         kind, name, rest = m.group(1).upper(), m.group(2).upper(), m.group(3)
@@ -104,12 +106,17 @@ def parse_csd(text: str) -> dict[str, Any]:
         elif kind == "TYPETERM":
             dev = re.search(r"\bDEVICE\s*\(\s*([^)\s]+)\s*\)", rest, re.I)
             devices[name] = dev.group(1).upper() if dev else "3270"
+            uc = re.search(r"\bUCTRAN\s*\(\s*([^)\s]+)\s*\)", rest, re.I)
+            if uc:
+                uctrans[name] = uc.group(1).upper()
         elif kind == "TERMINAL":
             tt = re.search(r"\bTYPETERM\s*\(\s*([^)\s]+)\s*\)", rest, re.I)
             if tt:
                 terminal_types[name] = tt.group(1).upper()
     terminals = {t: devices.get(tt, "3270") for t, tt in terminal_types.items()}
-    return {"programs": programs, "transactions": transactions, "mapsets": mapsets, "terminals": terminals}
+    uctran = {t: uctrans[tt] for t, tt in terminal_types.items() if tt in uctrans}
+    return {"programs": programs, "transactions": transactions, "mapsets": mapsets, "terminals": terminals,
+            "uctran": uctran}  # fmt: skip
 
 
 @dataclass

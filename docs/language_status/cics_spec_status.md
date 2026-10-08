@@ -6,7 +6,7 @@ Per command the spec (`gitgalaxy/standards/cics`, design: [cics_command_spec.md]
 
 Census use is `programs (burned / non-burned)`, counts only. A spec key is the det translator's: `parse_exec` + `command_key`, then the name-only entry `whole_refusal` finds.
 
-**251 entries:** 43 full, 2 engine-only, 206 name-only.
+**253 entries:** 46 full, 2 engine-only, 205 name-only.
 
 ## Spec PRs (cics_command_spec.md section 7)
 
@@ -69,6 +69,9 @@ Census use is `programs (burned / non-burned)`, counts only. A spec key is the d
 | INQUIRE PROGRAM | full | yes (4 options) | yes | — | — | 2 (2 / 0) | — |
 | SYNCPOINT | full | yes (4 options) | yes | X3 | — | 15 (9 / 6) | — |
 | SYNCPOINT ROLLBACK | full | yes (3 options) | yes | X3 | — | 14 (14 / 0) | — |
+| BIF DEEDIT | full | yes (5 options) | yes | X26 (no row!) | — | 5 (5 / 0) | — |
+| INQUIRE TERMINAL | full | yes (5 options) | yes | X26 (no row!) | uctranst | 0 | — |
+| SET TERMINAL | full | yes (5 options) | yes | X26 (no row!) | — | 0 | — |
 | LOAD | engine-only | refused whole | refused whole | — | — | 0 | — |
 | RELEASE | engine-only | refused whole | refused whole | — | — | 0 | — |
 
@@ -80,7 +83,6 @@ Refused whole by the translator and the stub, with the entry's reason. Ranked by
 |---|---|---|
 | WEB CONVERSE | 5 (4 / 1) | — |
 | WEB OPEN | 5 (4 / 1) | — |
-| BIF DEEDIT | 5 (5 / 0) | — |
 | WEB CLOSE | 4 (4 / 0) | — |
 | WEB SEND | 3 (2 / 1) | — |
 | DOCUMENT CREATE | 3 (3 / 0) | — |

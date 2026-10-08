@@ -899,6 +899,31 @@ def test_a_whole_command_refusal_gives_the_spec_reason_and_dfhresp_is_the_spec()
     assert all(ec.CICS_RESP[c] == DFHRESP[c] for c in ec.CICS_RESP)
 
 
+def test_bif_deedit_terminal_uctranst_and_dfhvalue_become_stub_calls():
+    """#4415 slice 1 (register X26): BIF DEEDIT FIELD LENGTH -> GGCDEED (LENGTH in GG-NUM, FIELD by reference and its
+    size by value; LENGTH defaults to the field's); INQUIRE / SET TERMINAL UCTRANST -> GGCINQT / GGCSETT (the CVDA in
+    GG-NUM); DFHVALUE(name) is IBM's CVDA number, an unknown name refused by name. Other options are the spec's refusals."""
+    d = ec.translate_command("BIF DEEDIT FIELD(WS-F) LENGTH(9) RESP(R)")
+    assert d[:3] == ["MOVE 9 TO GG-NUM", "CALL 'GGCDEED' USING GG-CICS", "    BY REFERENCE WS-F"]
+    assert "MOVE LENGTH OF WS-F TO GG-NUM" in ec.translate_command("BIF DEEDIT FIELD(WS-F)")
+    inq = ec.translate_command("INQUIRE TERMINAL(EIBTRMID) UCTRANST(WS-U) RESP(R)")
+    assert inq[:3] == ["MOVE EIBTRMID TO GG-NAME1", "CALL 'GGCINQT' USING GG-CICS", "IF GG-RESP = 0"]
+    assert "    MOVE GG-NUM TO WS-U" in inq
+    st = ec.translate_command("SET TERMINAL(EIBTRMID) UCTRANST(DFHVALUE(NOUCTRAN)) RESP(R)")
+    assert st[:3] == ["MOVE EIBTRMID TO GG-NAME1", "MOVE DFHVALUE(NOUCTRAN) TO GG-NUM", "CALL 'GGCSETT' USING GG-CICS"]
+    with pytest.raises(ec.Unsupported, match="only the terminal's translation state"):
+        ec.translate_command("INQUIRE TERMINAL(EIBTRMID) NETNAME(WS-N)")
+    with pytest.raises(ec.Unsupported, match="SET TERMINAL without UCTRANST"):
+        ec.translate_command("SET TERMINAL(EIBTRMID)")
+    src = "       IDENTIFICATION DIVISION.\n       PROGRAM-ID. T.\n       DATA DIVISION.\n       WORKING-STORAGE SECTION.\n       PROCEDURE DIVISION.\n           MOVE DFHVALUE(IMMEDIATE) TO WS-A.\n           MOVE DFHVALUE(NOSUCH) TO WS-B.\n"
+    with pytest.raises(ec.Unsupported, match=r"DFHVALUE\(NOSUCH\) is not a documented CVDA"):
+        ec.translate(src)
+    assert (
+        "MOVE 2 TO WS-A" in ec.translate(src.replace("NOSUCH", "DELETE"))[0]
+        and "MOVE 292 TO WS-B" in (ec.translate(src.replace("NOSUCH", "DELETE"))[0])
+    )
+
+
 def test_the_task_number_is_the_scenarios_else_the_cases_else_zero():
     """#4270: EIBTASKN is a stated fact of the run (oracle_assumptions.md X21): a scenario's "taskn", else the
     case's, else the spec's default 0; never a value PIC S9(7) COMP-3 cannot hold."""

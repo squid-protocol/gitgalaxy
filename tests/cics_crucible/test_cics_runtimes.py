@@ -1687,6 +1687,100 @@ def test_cics_task_assign_startcode_userid_and_the_terminal_facts(tmp_path):
     assert out.splitlines() == ["[TD][CICSUSER][T001] 0 24x80", "[S ] 16", "unstated", "refused"]
 
 
+_DEED_MAIN = r"""
+#include <stdio.h>
+#include <string.h>
+typedef struct { int resp; int resp2; char name1[8]; char name2[8]; char flags[40]; int len;
+                 char qname[16]; int item; int num; int go_to; char chan[16]; int hours, mins, secs;
+                 char rtran[4], rterm[4], rqueue[8]; } gg_cics;
+int GGCDEED(gg_cics *c, char *field, int flen);
+int GGCINQT(gg_cics *c);
+int GGCSETT(gg_cics *c);
+static gg_cics c;
+int main(int argc, char **argv) {
+    char f[64];
+    if (strcmp(argv[1], "deedit") == 0) {
+        memset(f, ' ', sizeof f);
+        memcpy(f, argv[2], strlen(argv[2]));
+        c.num = argc > 4 ? atoi(argv[4]) : atoi(argv[3]);
+        GGCDEED(&c, f, atoi(argv[3]));
+        printf("%d/%d/[%.*s]\n", c.resp, c.resp2, atoi(argv[3]), f);
+        return 0;
+    }
+    memset(c.name1, ' ', 8);
+    memcpy(c.name1, argv[2], strlen(argv[2]));
+    if (strcmp(argv[1], "set") == 0) { c.num = atoi(argv[3]); GGCSETT(&c); }
+    else { c.num = -1; GGCINQT(&c); }
+    printf("%d/%d/%d\n", c.resp, c.resp2, c.num);
+    return 0;
+}
+"""
+
+
+@needs_cc
+def test_the_stub_bif_deedit_and_the_terminal_uctranst(tmp_path):
+    """#4415 slice 1 (register X26), IBM EXEC CICS BIF DEEDIT / INQUIRE TERMINAL / SET TERMINAL: DEEDIT in the region's
+    EBCDIC page (IBM's two examples, the negative zone, a zoned rightmost byte, LENGTH below 1 is LENGERR); a field with
+    no digit left or beyond 7-bit ASCII is refused. UCTRANST: the CVDA the runner states; TERMIDERR RESP2 1 / 23, INVREQ
+    RESP2 43; unstated, or another terminal's, refused."""
+    exe = _stub(tmp_path, "#include <stdlib.h>\n" + _DEED_MAIN)
+    base = {"GGCICS_DIR": str(tmp_path), "GGCICS_OUT": str(tmp_path)}
+
+    def run(env, *args):
+        return subprocess.run([str(exe), *args], env={**base, **env}, capture_output=True, text=True)  # noqa: S603
+
+    for field, n, want in (("14-6704/B", "9", "00146704B"), ("$25.68", "9", "000002568"), ("123-", "4", "012L"),
+                           ("1.5CR", "5", "0001N"), ("A", "1", "A"), ("ab12cd3C", "8", "0000123C")):  # fmt: skip
+        assert run({}, "deedit", field, n).stdout.strip() == f"0/0/[{want}]", field
+    assert run({}, "deedit", "x7", "2", "0").stdout.strip() == "22/0/[x7]"
+    for bad, why in (("abc", "no digit left"), ("\xe91", "7-bit ASCII")):
+        got = run({}, "deedit", bad, "3" if bad == "abc" else "2")
+        assert got.returncode == 98 and why in got.stdout, bad
+    terminal = {"GGCICS_FACILITY": "T001", "GGCICS_UCTRANST": "UCTRAN"}
+    assert run(terminal, "inq", "T001").stdout.strip() == "0/0/450"
+    assert run(terminal, "set", "T001", "451").stdout.strip() == "0/0/451"
+    assert run(terminal, "set", "T001", "999").stdout.strip() == "16/43/999"
+    (tmp_path / "terminals.cfg").write_text("T001\n", encoding="ascii")
+    assert run(terminal, "inq", "ZZZZ").stdout.strip() == "11/1/-1"
+    assert run(terminal, "set", "ZZZZ", "450").stdout.strip() == "11/23/450"
+    unstated = run({"GGCICS_FACILITY": "T001"}, "inq", "T001")
+    assert unstated.returncode == 98 and "UCTRANST: not stated" in unstated.stdout
+
+
+@needs_javac
+def test_cics_task_uctranst_and_deedit_as_the_stub_does(tmp_path):
+    """#4415: CicsTask's INQUIRE / SET TERMINAL UCTRANST as the stub's (above): the stated CVDA, SET changes it, INVREQ
+    RESP2 43 for a bad CVDA, TERMIDERR for a terminal the region lacks, a terminal RECEIVE after a SET refused."""
+    out = _cics_task(
+        tmp_path,
+        """
+        CicsTask t = new CicsTask("HC41", "ENTER", null, null).withTermid("T001").withUctranst("UCTRAN")
+                .withPrograms(new CicsTask.Programs() {
+                    public boolean defined(String p) { return true; }
+                    public void run(String p, CicsTask k) { }
+                    public boolean terminal(String x) { return x.equals("T001"); }
+                });
+        System.out.println(java.util.Arrays.toString(t.inquireUctranst("T001")));
+        System.out.println(java.util.Arrays.toString(t.setUctranst("T001", 451)));
+        System.out.println(java.util.Arrays.toString(t.inquireUctranst("T001")));
+        System.out.println(java.util.Arrays.toString(t.setUctranst("T001", 999)));
+        System.out.println(java.util.Arrays.toString(t.inquireUctranst("ZZZZ")) + java.util.Arrays.toString(t.setUctranst("ZZZZ", 450)));
+        try {
+            t.receiveText(8);
+        } catch (UnsupportedOperationException e) {
+            System.out.println("refused");
+        }
+        try {
+            new CicsTask("HC41", "ENTER", null, null).withTermid("T001").inquireUctranst("T001");
+        } catch (IllegalStateException e) {
+            System.out.println("unstated");
+        }
+        System.out.println(CicsTask.deeditResp(0) + " " + CicsTask.deeditResp(1));""",
+    )
+    assert out.splitlines() == ["[0, 0, 450]", "[0, 0]", "[0, 0, 451]", "[16, 43]", "[11, 1, 0][11, 23]", "refused",
+                                "unstated", "22 0"]  # fmt: skip
+
+
 def test_scheduler_states_each_tasks_startcode():
     """#4270 slice 3: a terminal step's task is STARTCODE TD; a START-triggered one S / SD by its requests' FROM, a
     group that mixes them none (refused)."""

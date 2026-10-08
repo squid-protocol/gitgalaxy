@@ -743,8 +743,15 @@ public final class Cobol {
     /** An arithmetic result stored in a binary item of `digits` (signed or not) and read back -- exactly what
      *  `store` leaves in such an item (truncation, ROUNDED, the byte width's wrap-around), through a scratch item. */
     public static long binary(BigDecimal value, int digits, boolean signed, boolean rounded, Charset cs) {
+        return binary(value, digits, signed, rounded, false, cs);
+    }
+
+    /** As {@link #binary(BigDecimal, int, boolean, boolean, Charset)}; `comp5` for a COMP-5 item, which keeps its
+     *  bytes whatever TRUNC says (#4684). */
+    public static long binary(BigDecimal value, int digits, boolean signed, boolean rounded, boolean comp5,
+                              Charset cs) {
         int bytes = digits <= 4 ? 2 : digits <= 9 ? 4 : 8;
-        Field t = Field.binary(new Storage(bytes), 0, digits, 0, signed, false);
+        Field t = Field.binary(new Storage(bytes), 0, digits, 0, signed, comp5);
         store(t, value, rounded, cs);
         return num(t, cs).longValue();
     }

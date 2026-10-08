@@ -1846,7 +1846,8 @@ class Gen:
         lt = self.lift(t)
         if lt and lt[0] == "BIN":
             it = lt[2]
-            return f"{lt[1]} = Cobol.binary({value}, {it.digits}, {_b(it.signed)}, {_b(rounded)}, CS);"
+            comp5 = ", true" if it.usage == "COMP-5" else ""  # no TRUNC truncates a COMP-5 item (#4684)
+            return f"{lt[1]} = Cobol.binary({value}, {it.digits}, {_b(it.signed)}, {_b(rounded)}{comp5}, CS);"
         if lt and lt[0] == "NUM":
             it = lt[2]
             fn = "packed" if it.usage == "PACKED" else "zoned"

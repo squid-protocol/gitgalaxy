@@ -1,0 +1,74 @@
+{
+ "kind": "cics",
+ "corpus": "cics-genapp",
+ "program": "LGIPVS01",
+ "program_source": "base/src/lgipvs01.cbl",
+ "copy_dirs": [
+  "base/src"
+ ],
+ "transid": "LGPF",
+ "clock": "2026/10/01 10:30:15.00",
+ "datasets": {
+  "<USRHLQ>.GENAPP.KSDSPOLY": {
+   "input": "@case/ksdspoly.txt",
+   "entity": "WfPolicyInfo",
+   "copybook": "base/src/lgupvs01.cbl",
+   "record": "WF-POLICY-INFO",
+   "vsam": {
+    "key_offset": 0,
+    "key_length": 21,
+    "reclen": 64,
+    "why": "base/cntl/adef121.jcl DEFINE2: DATA(... KEYS(21 0) RECORDSIZE(64 64)); the engine's facts do not read KEYS / RECORDSIZE inside the DATA component, so the case states them"
+   }
+  }
+ },
+ "linked": false,
+ "screens": {},
+ "startcode": "TD",
+ "commarea": {
+  "segments": [
+   {
+    "copybook": "base/src/lgipvs01.cbl",
+    "record": "DFHCOMMAREA"
+   }
+  ]
+ },
+ "region": {
+  "applid": "GENAPP",
+  "sysid": "CICA",
+  "why": "a deployment fact: LGIPVS01 ASSIGNs SYSID (unused afterwards); GenApp names no region in the corpus"
+ },
+ "scenarios": [
+  {
+   "name": "generic-key-on-file",
+   "terminal": "LGPF M0000000002",
+   "commarea": null,
+   "why": "the operator types LGPF M0000000002: RECEIVE gives 16 bytes, 16 - 6 = 10 key digits; READ KSDSPOLY GENERIC KEYLENGTH(11) GTEQ on 'M0000000002' reads motor policy 1 of customer 2 (NORMAL, its type is the key's): SEND TEXT 'Policy Key=M00000000020000000001' LENGTH(80)"
+  },
+  {
+   "name": "generic-next-key",
+   "terminal": "LGPF M0000000003",
+   "commarea": null,
+   "why": "no motor policy of customer 3: GTEQ reads the next key, M0000000005/0000000003 (NORMAL, still type M), and sends its key"
+  },
+  {
+   "name": "generic-other-type",
+   "terminal": "LGPF E0000000009",
+   "commarea": null,
+   "why": "no endowment policy at or after customer 9: GTEQ reads the first house policy (H0000000004...), whose type is not the key's -> 'Policy Bad=' with 13 / 13 in the numbers"
+  },
+  {
+   "name": "generic-past-the-end",
+   "terminal": "LGPF M0000000011",
+   "commarea": null,
+   "why": "no key at or after M0000000011: NOTFND -> 'Policy Bad=' with 13 / 13"
+  },
+  {
+   "name": "short-customer-number",
+   "terminal": "LGPF C000000001",
+   "commarea": null,
+   "why": "nine digits typed: 15 - 6 = 9, WS-COMMAREA(2:9) moved to PART-KEY-NUM PIC 9(10) (an alphanumeric sending item into a numeric DISPLAY one: right-aligned, a leading zero) -> commercial policy 10 of customer 1"
+  }
+ ],
+ "notes": "GenApp's VSAM policy key inquiry (LGIPVS01, transaction LGPF in the CSD: base/cntl/cdef121.jcl; a terminal transaction: no GenApp program LINKs it). It ASSIGNs SYSID, STARTCODE and INVOKINGPROG; a terminal task (STARTCODE 'TD', X19, INVOKINGPROG blank: the first program) RECEIVEs the operator's line (an unformatted RECEIVE: the scenario's terminal input), takes the policy type and the customer number after the transaction id, and EXEC CICS READ FILE('KSDSPOLY') INTO(CA-AREA) LENGTH(F64 = 64) RIDFLD(PART-KEY) KEYLENGTH(F11 = 11) GENERIC GTEQ: the first policy whose type + customer number is at or after the key's. A policy of the key's type sends 'Policy Key=' and its 21-byte key; another type, or NOTFND, 'Policy Bad=' with 13 in both numbers; SEND TEXT FROM(WRITE-MSG) LENGTH(80) ERASE WAIT FREEKB, then RETURN. Not exercised: the COMMAREA path (STARTCODE 'D...' -- a DPL, which the stub's ASSIGN STARTCODE does not state -- or a LINK from another program, which no GenApp program makes): the key then comes from DFHCOMMAREA and the answer goes back into it. Data: ksdspoly.txt is the genapp-lgupdb01 case's ten GenApp sample policies. Derived from the CICS General Insurance Application (GenApp, github.com/cicsdev/cics-genapp; (C) Copyright IBM Corp. 2011, 2020), licensed under the Eclipse Public License 2.0: LICENSE here is the corpus's own, NOTICE names the source and what was derived."
+}

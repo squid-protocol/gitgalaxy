@@ -334,6 +334,31 @@ def _counters(case: dict[str, Any], sc: dict[str, Any]) -> dict[str, int]:
     return dict(sc["counters"] if "counters" in sc else case.get("counters") or {})
 
 
+def urimaps(case: dict[str, Any], sc: dict[str, Any]) -> list[list[str]] | None:
+    """#4270 zECS (X32): the URIMAP definitions installed in the region, in the order INQUIRE URIMAP's browse returns
+    them -- the scenario's "urimaps", else the case's: [[NAME, TRANSACTION ("" for none), PATH], ...], stated on both
+    sides as the cics-crucible runner states a case CSD's (the stub's $GGCICS_URIMAPS, CicsTask.withUrimaps).
+    Unstated, None: both runtimes refuse INQUIRE URIMAP by name."""
+    defs = sc.get("urimaps", case.get("urimaps"))
+    if defs is None:
+        return None
+    ok = isinstance(defs, list) and all(
+        isinstance(d, list) and len(d) == 3 and all(isinstance(x, str) for x in d)
+        and d[0] and d[2] and not any(c.isspace() for x in d for c in x) and len(d[0]) <= 8 and len(d[1]) <= 4
+        for d in defs)  # fmt: skip
+    if not ok:
+        raise Unsupported(f'scenario {sc.get("name")}: "urimaps" lists [NAME (1-8), TRANSACTION (0-4), PATH] '
+                          "without blanks", ["INQUIRE URIMAP"])  # fmt: skip
+    return defs
+
+
+def clock_iso(case: dict[str, Any]) -> str:
+    """#4270: the case's clock ("2026/10/01 10:30:15.00") as the stub's $GGCICS_NOW (2026-10-01T10:30:15): the
+    moment a START's expiry and a CANCEL's "not expired" count from, as CicsTask counts them from the same clock."""
+    day, _, time = case["clock"].partition(" ")
+    return day.replace("/", "-") + "T" + time.split(".")[0]
+
+
 def task_number(case: dict[str, Any], sc: dict[str, Any]) -> int:
     """#4270: EIBTASKN, the task's number -- a fact of the run the harness states on both sides ($GGCICS_TASKN,
     CicsTask.withTaskNumber; oracle_assumptions.md X21): the scenario's "taskn", else the case's, else the spec's
@@ -1763,6 +1788,9 @@ def run_cobol_cics(case: dict[str, Any], corpus: Path, work: Path, files: list[d
                 for k in chan["containers"]), encoding="ascii")  # fmt: skip
         if case.get("transactions") is not None:  # #4270: the CSD's transactions (RUN TRANSID / START's TRANSIDERR)
             (d / "transactions.cfg").write_text("".join(f"{t}\n" for t in case_transactions(case)), encoding="ascii")
+        if urimaps(case, sc) is not None:  # #4270 zECS (X32): INQUIRE URIMAP's installed definitions
+            (d / "urimaps.cfg").write_text("".join(f"{n} {tr or '-'} {pa}\n" for n, tr, pa in urimaps(case, sc)),
+                                           encoding="ascii")  # fmt: skip
         if task_facts(case, sc)[1] is not None:  # #4270: what the operator typed (an unformatted RECEIVE)
             (d / "terminal.in").write_bytes(task_facts(case, sc)[1].encode(enc))
         for q, items in ts_seed(case, sc).items():  # #4270: the TS queues the task starts with
@@ -1806,7 +1834,8 @@ def run_cobol_cics(case: dict[str, Any], corpus: Path, work: Path, files: list[d
         script.append(f"set +e; {cov.trace_env(f'{rel}/{cov.TRACE_NAME}')}GGCICS_DIR={rel} GGCICS_OUT={rel}/out EIBIN={rel}/eib.in "
                       f"GGCICS_TASKN={task_number(case, sc)} LD_PRELOAD=/work/ggdisplay.so "
                       + (f"GGCICS_STARTCODE={task_facts(case, sc)[0]} " if task_facts(case, sc)[0] else "")
-                      + f"{sqlenv}COB_CURRENT_DATE='{case['clock']}' ./task > {rel}/stdout.txt 2>&1; "
+                      + (f"GGCICS_URIMAPS={rel}/urimaps.cfg " if urimaps(case, sc) is not None else "")
+                      + f"{sqlenv}COB_CURRENT_DATE='{case['clock']}' GGCICS_NOW={clock_iso(case)} ./task > {rel}/stdout.txt 2>&1; "
                       f"echo $? > {rel}/rc; set -e")  # fmt: skip
         if db2:  # what the task left in each compared table
             script.append(f"mkdir -p {rel}/db2")
@@ -1963,6 +1992,48 @@ def _cobol_ts(kv: dict[str, str], data: bytes, enc: str) -> dict[str, Any]:
             "item": int(kv.get("item", "0")) or None}  # fmt: skip
 
 
+def _cobol_start(kv: dict[str, str], data: bytes, enc: str) -> dict[str, Any]:
+    """#4270 (GenApp LGWEBST5): a START the stub logged (GGCSTRT: `interval=` or `time=` hhmmss, `protect` 0 / 1,
+    `resp` by number, `expires` from $GGCICS_NOW -- the case's clock --, `area` 1 with FROM, its bytes in the event's
+    blob) as CicsTask.start records it: {transid, termid, interval | time, reqid, protect, resp, resp2, expires,
+    from}. FROM is compared as text in the data's page, as a WRITEQ TS item is (`java_start_as_compared`)."""
+    resp = RESP_NAMES.get(int(kv.get("resp", "0")), kv.get("resp", ""))
+    when = "time" if "time" in kv else "interval"
+    out: dict[str, Any] = {"transid": kv.get("transid", ""), "termid": kv.get("termid") or None,
+                           when: kv.get(when) or None, "protect": kv.get("protect") == "1", "resp": resp,
+                           "expires": kv.get("expires") or None}  # fmt: skip
+    if kv.get("reqid"):
+        out["reqid"] = kv["reqid"]
+    if resp == "INVREQ":
+        out["resp2"] = int(kv.get("resp2", "0"))
+    for key in ("rtransid", "rtermid", "queue"):  # the data options the program named (hex of the trimmed name)
+        if key in kv:
+            out[key] = bytes.fromhex(kv[key]).decode("latin-1")
+    if kv.get("area") == "1":
+        text = common._decode_text(data, enc)
+        out["from"] = f"<undecodable {data!r} in {enc}>" if text is None else text
+    else:
+        out["from"] = None
+    return out
+
+
+def java_start_as_compared(e: dict[str, Any]) -> dict[str, Any]:
+    """#4270: CicsTask's START event as the comparison reads it: its FROM data (bytes, base64 in the JSON) in the
+    region's page, as text (java_ts_as_compared)."""
+    import base64
+
+    from gitgalaxy.tools.cobol_to_java.det.cics import REGION_PAGE
+
+    data = e.get("from")
+    if not isinstance(data, str):
+        return {**e, "from": None}
+    raw = base64.b64decode(data)
+    try:
+        return {**e, "from": raw.decode(REGION_PAGE)}
+    except UnicodeDecodeError:
+        return {**e, "from": f"<undecodable {raw!r} in {REGION_PAGE}>"}
+
+
 def java_ts_as_compared(e: dict[str, Any]) -> dict[str, Any]:
     """#4607: CicsTask's WRITEQ-TS event as the comparison reads it: its data (bytes, base64 in the JSON) in the
     region's page -- the det port writes an item there (#4528: DetCics.toRegion; CICS's default CCSID 037, the page
@@ -2091,6 +2162,8 @@ def outputs(out: Path, case: dict[str, Any], corpus: Path, ca_fields: list[dict[
             res.setdefault("ts", []).append(_cobol_ts(kv, data, enc))
         elif verb in ("READQ-TS", "RECEIVE"):  # #4270 (GenApp LGICVS01): as CicsTask records them
             res.setdefault("reads", []).append(_cobol_read(verb, kv, data, enc))
+        elif verb == "START":  # #4270 (GenApp LGWEBST5): as CicsTask records it
+            res.setdefault("starts", []).append(_cobol_start(kv, data, enc))
     res["containers"] = task_containers(out / "containers.out")  # #4270 (X24): the current channel's, at task end
     left = out / "commarea.out"  # a LINKed program's result: the COMMAREA it left (ggcics GGCAOUT)
     res["linked_commarea"] = (
@@ -2493,6 +2566,15 @@ FACADE_JAVA = """    /** #4449: a facade did not run the scenario's task the way
                 return;
             }
             Object ca = area(task);
+            if (ca == null && m.getParameterTypes()[0].getSimpleName().endsWith("ChannelIn")) {
+                // #4270 (async SEQPNT): a LINK CHANNEL to a channel program, as start() enters one -- its handleLink
+                // takes the channel as a DTO, not a task: no task facade (#4343) can carry the LINK's level, so it
+                // runs through runTask, and `entries` says so
+                entry(p, "runTask (a channel program: handleLink(" + m.getParameterTypes()[0].getSimpleName()
+                        + ") is no task facade, #4343)");
+                call(method(service, "runTask", 1), service, task);
+                return;
+            }
             if (ca != null && !m.getParameterTypes()[0].isInstance(ca)) {
                 throw new FacadeRefused("handleLink of " + p + " takes a " + m.getParameterTypes()[0].getName()
                         + ", the LINK passed a " + ca.getClass().getName());
@@ -2776,6 +2858,12 @@ class EquivalenceRunTest {{
                                 t.setPropagationBehavior(org.springframework.transaction.TransactionDefinition.PROPAGATION_REQUIRES_NEW);
                                 t.executeWithoutResult(s -> change.run());
                             }});
+            if (sc.hasNonNull("urimaps")) {{  // #4270 zECS (X32): INQUIRE URIMAP's installed definitions, as the stub's
+                java.util.List<String[]> defs = new java.util.ArrayList<>();
+                sc.get("urimaps").forEach(u -> defs.add(new String[] {{u.get(0).asText(), u.get(1).asText(),
+                        u.get(2).asText()}}));
+                task.withUrimaps(defs);
+            }}
             if (calen != null) {{
                 task.withExactCommarea();
             }}
@@ -3020,7 +3108,7 @@ def run_java_cics(case: dict[str, Any], corpus: Path, work: Path, cobol_work: Pa
                           "channel": _channel_json(case, sc),
                           "counters": _counters(case, sc), "taskn": task_number(case, sc),
                           "startcode": task_facts(case, sc)[0], "terminal": task_facts(case, sc)[1],
-                          "ts": ts_seed(case, sc)})  # fmt: skip
+                          "ts": ts_seed(case, sc), "urimaps": urimaps(case, sc)})  # fmt: skip
     (inputs / "scenarios.json").write_text(json.dumps(scenarios, indent=1), encoding="utf-8")
     props = ej.data_charset_arg(case)
     if case.get("db2"):  # the seed and the dump queries, and the harness's Db2
@@ -3105,6 +3193,8 @@ def _java_events(case: dict[str, Any], out: Path, shape: dict[str, Any],
                 e.update(java_ts_as_compared(e))
             if e.get("event") == "READQ-TS":  # #4270: the item's bytes as text
                 e.update(java_read_as_compared(e))
+            if e.get("event") == "START":  # #4270: the FROM data's bytes as text
+                e.update(java_start_as_compared(e))
             if e.get("event") == "COMMAREA" and e.get("area") is not None:  # #4765: the bytes the port left
                 e["commarea"] = java_area(e.pop("area"), ca_fields or [], enc)
             elif "commarea" in e:
@@ -3278,6 +3368,7 @@ def cobol_events(res: dict[str, Any]) -> list[dict[str, Any]]:
     queued = iter(res.get("ts", []))
     operator = iter(res.get("operator", []))
     reads = iter(res.get("reads", []))  # #4270: READQ TS / terminal RECEIVE
+    starts = iter(res.get("starts", []))  # #4270: START
     for line in res["events"]:
         verb, _, args = line.partition(" ")
         if verb == "SEND-MAP":
@@ -3298,6 +3389,8 @@ def cobol_events(res: dict[str, Any]) -> list[dict[str, Any]]:
             out.append({"event": "WRITEQ-TS", **next(queued)})
         elif verb in ("READQ-TS", "RECEIVE"):  # #4270: CicsTask records them (queue, item, resp, data)
             out.append(next(reads))
+        elif verb == "START":  # #4270 (GenApp LGWEBST5): CicsTask.start records it
+            out.append({"event": "START", **next(starts)})
         elif verb == "RECEIVE-MAP":  # #4009: CicsTask.receive records it too
             out.append({"event": "RECEIVE-MAP", "map": re.search(r"\bmap=(\S*)", args).group(1)})
         elif verb == "RETURN":
@@ -3397,6 +3490,11 @@ def compare_events(cobol: list[dict[str, Any]], java: list[dict[str, Any]]) -> d
         for key in ("map", "transid", "program", "text", "abcode", "queue", "data", "resp", "item"):
             if key in c and not _same(c[key], j.get(key)):
                 bad.append({"field": key, "cobol": c[key], "java": j.get(key)})
+        if c["event"] == "START":  # #4270: what CicsTask.start records besides the transid and RESP, both ways
+            for key in ("termid", "interval", "time", "reqid", "protect", "resp2", "expires", "from",
+                        "rtransid", "rtermid", "queue"):  # fmt: skip
+                if (key in c or key in j) and not _same(c.get(key), j.get(key)):
+                    bad.append({"field": key, "cobol": c.get(key), "java": j.get(key)})
         if c["event"] == "CONTAINERS":  # #4270 (X24): the channel's name and every container's bytes, both ways
             if c.get("channel") != j.get("channel"):
                 bad.append({"field": "channel", "cobol": c.get("channel"), "java": j.get("channel")})

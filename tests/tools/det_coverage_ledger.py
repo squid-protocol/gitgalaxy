@@ -152,7 +152,14 @@ def build(det: dict[str, dict[str, Any]], old: dict[str, dict[str, Any]]) -> dic
             continue
         nums = parse_line(row.get("coverage", ""))
         if nums is not None:
-            cases[case] = {**nums, "inputs": fingerprints(case), **({"measured_at": head} if head else {})}
+            new = {**nums, "inputs": fingerprints(case)}
+            prev = cases.get(case)
+            # Same numbers from the same inputs: the entry is kept as it is, `measured_at` included (still true: those
+            # inputs gave those numbers at that commit). Otherwise every refresh restamps every entry, the bot's own merge
+            # triggers the next refresh, and the ledger never settles (every open PR touching it goes dirty).
+            if prev is not None and {k: v for k, v in prev.items() if k != "measured_at"} == new:
+                continue
+            cases[case] = {**new, **({"measured_at": head} if head else {})}
     return dict(sorted(cases.items()))
 
 

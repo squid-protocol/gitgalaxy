@@ -73,8 +73,9 @@ Traps `--check` exists for:
     `$PY tests/tools/cics_crucible.py --cases <case> --sides cobol-stub java-ported --offline --ports P --keep W3
     --out O3`. A hole on a path no scenario runs is not proven by a passing cell.
   - A divergence is a bug report against the runtime / translator, never a reason to edit the log.
-- [ ] **Refusals registered:** a new X-number in `docs/language_status/oracle_assumptions.md` (the summary table row
-      AND the `### Xnn.` section: ASSUMED / REFUSED, what IBM says, which case proves it).
+- [ ] **Refusals registered:** a new X-number: `register.py next X` (take it when the issue is filed), then one file
+      `docs/language_status/register/Xnn.md` (front matter incl. the summary-table fields; body: ASSUMED / REFUSED, what
+      IBM says, which case proves it) and `register.py render`. Never edit `oracle_assumptions.md` by hand.
 - [ ] **After survey:** `... survey --out $SCRATCH/s --label after --verb VERB`, then
       `$PY tests/tools/cics_census.py compare $SCRATCH/s --verb VERB`: per program translated / statements before ->
       after, the holes left (deduped, line numbers stripped), "translated whole N -> M (non-burned a -> b)" and the

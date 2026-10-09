@@ -455,27 +455,12 @@ instrument). Rows for the other options of #4706 follow in its later slices.
   `test_det_programs.py` COMP5 against GnuCOBOL.
 - **Its size** for 1 or 2 digits differs too: C16.
 
-### C16. A 1- or 2-digit COMP-5 item — the oracle DIFFERS (one byte), REFUSED by name (#4751)
-- **IBM.** Binary items -- COMP, COMP-4, BINARY and COMP-5 alike -- of 1 to 4 digits occupy a halfword (2 bytes), 5
-  to 9 a fullword, 10 to 18 a doubleword (Enterprise COBOL for z/OS Language Reference, USAGE clause, "Computational
-  items"). COMP-5 holds up to the capacity of those bytes (C7), so `MOVE 99999` to a `PIC S9(2) COMP-5` leaves -31073
-  (99999 modulo 2 ** 16, signed). The det layout (`det/layout.py`, `Item.elementary_size`) sizes it so.
-- **The oracle.** GnuCOBOL 3.1.2 sizes COMP / COMP-4 / BINARY by its `binary-size` setting, which `-std=ibm` already
-  sets to `2-4-8` (`/etc/gnucobol/ibm-strict.conf`; the default dialect's is `1-2-4-8`), but COMP-5 by the PICTURE's
-  9s alone: 1 or 2 of them are one byte whatever `-fbinary-size` says (only `1--8` changes COMP-5, and only to pack
-  wider items tighter). Measured 2026-10-09 on the pinned image (`cobc -x -std=ibm -fsign=EBCDIC`, alone and with
-  `-fbinary-size=2-4-8`, `-fbinary-size=1-2-4-8`, `-fbinary-truncate`, `-fnotrunc`): `LENGTH OF` a `PIC S9(1)`,
-  `S9(2)`, `9(2)`, `S9V9` or `9PP` COMP-5 item is 1, also under a group's `USAGE COMP-5`; `S9(3)` and wider are 2,
-  4 or 8 as on z/OS; `MOVE 99999` leaves -97, `MOVE 300` to `9(2)` 44; a group of `S9(2) COMP-5`, `S9(2) COMP`,
-  `S9(4) COMP-5`, `X` is 6 bytes (z/OS and the det layout: 7). `-fbinary-size=2-4-8` changes no byte.
-- **So the oracle refuses it.** `equivalence_common.comp5_layout_guard` scans every COBOL source staged for an
-  oracle build -- the program, its copybooks, the programs it calls or links to, a crucible case's programs
-  (batch, CALL, CICS and the CICS crucible) -- and refuses the case by name when one declares such an item; a
-  proof is never loosened to tolerate the bytes. Pinned by `tests/cobol_mainframe/test_comp5_layout.py` (the
-  scanner, the det layout's halfword, and with `EQUIVALENCE_E2E=1` the oracle's one byte: if a new image lays it
-  out in a halfword, drop the guard and this entry).
-- **Reach.** None: no corpus and no case declares one (CardDemo's IMSFUNCS.cpy, the only COMP-5 in the corpora, is
-  `PIC S9(05)`; the harness's SQLCA uses `S9(4)` and `S9(9)`).
+### C8. DISPLAY text — MATCHED
+- **What.** GnuCOBOL writes a signed zoned item as `012-` and a binary item as `-00007`. IBM writes their external
+  decimal form with the sign overpunched (`01K`, `000P`). `ggdisplay.c` (LD_PRELOAD) rewrites each such operand as
+  IBM does.
+- **Refused.** An operand outside the model (floating point, more than 32 operands) writes `GGDISPLAY-NOT-MODELLED`,
+  and that run's SYSOUT is not compared.
 
 ### C9. POINTER size — DIFFERS
 - **What.** A POINTER is 8 bytes in GnuCOBOL on x86-64 and 4 on z/OS (31-bit), so every offset after one differs.
@@ -733,12 +718,27 @@ instrument). Rows for the other options of #4706 follow in its later slices.
   modules) and as the port (callees' services written by hand) and compares the output. DBB EPSCSMRT translates whole;
   its callee EPSMPMT stays refused (a COMP-1 item, C6), so no equivalence case of EPSCSMRT is possible yet.
 
-### C8. DISPLAY text — MATCHED
-- **What.** GnuCOBOL writes a signed zoned item as `012-` and a binary item as `-00007`. IBM writes their external
-  decimal form with the sign overpunched (`01K`, `000P`). `ggdisplay.c` (LD_PRELOAD) rewrites each such operand as
-  IBM does.
-- **Refused.** An operand outside the model (floating point, more than 32 operands) writes `GGDISPLAY-NOT-MODELLED`,
-  and that run's SYSOUT is not compared.
+### C16. A 1- or 2-digit COMP-5 item — the oracle DIFFERS (one byte), REFUSED by name (#4751)
+- **IBM.** Binary items -- COMP, COMP-4, BINARY and COMP-5 alike -- of 1 to 4 digits occupy a halfword (2 bytes), 5
+  to 9 a fullword, 10 to 18 a doubleword (Enterprise COBOL for z/OS Language Reference, USAGE clause, "Computational
+  items"). COMP-5 holds up to the capacity of those bytes (C7), so `MOVE 99999` to a `PIC S9(2) COMP-5` leaves -31073
+  (99999 modulo 2 ** 16, signed). The det layout (`det/layout.py`, `Item.elementary_size`) sizes it so.
+- **The oracle.** GnuCOBOL 3.1.2 sizes COMP / COMP-4 / BINARY by its `binary-size` setting, which `-std=ibm` already
+  sets to `2-4-8` (`/etc/gnucobol/ibm-strict.conf`; the default dialect's is `1-2-4-8`), but COMP-5 by the PICTURE's
+  9s alone: 1 or 2 of them are one byte whatever `-fbinary-size` says (only `1--8` changes COMP-5, and only to pack
+  wider items tighter). Measured 2026-10-09 on the pinned image (`cobc -x -std=ibm -fsign=EBCDIC`, alone and with
+  `-fbinary-size=2-4-8`, `-fbinary-size=1-2-4-8`, `-fbinary-truncate`, `-fnotrunc`): `LENGTH OF` a `PIC S9(1)`,
+  `S9(2)`, `9(2)`, `S9V9` or `9PP` COMP-5 item is 1, also under a group's `USAGE COMP-5`; `S9(3)` and wider are 2,
+  4 or 8 as on z/OS; `MOVE 99999` leaves -97, `MOVE 300` to `9(2)` 44; a group of `S9(2) COMP-5`, `S9(2) COMP`,
+  `S9(4) COMP-5`, `X` is 6 bytes (z/OS and the det layout: 7). `-fbinary-size=2-4-8` changes no byte.
+- **So the oracle refuses it.** `equivalence_common.comp5_layout_guard` scans every COBOL source staged for an
+  oracle build -- the program, its copybooks, the programs it calls or links to, a crucible case's programs
+  (batch, CALL, CICS and the CICS crucible) -- and refuses the case by name when one declares such an item; a
+  proof is never loosened to tolerate the bytes. Pinned by `tests/cobol_mainframe/test_comp5_layout.py` (the
+  scanner, the det layout's halfword, and with `EQUIVALENCE_E2E=1` the oracle's one byte: if a new image lays it
+  out in a halfword, drop the guard and this entry).
+- **Reach.** None: no corpus and no case declares one (CardDemo's IMSFUNCS.cpy, the only COMP-5 in the corpora, is
+  `PIC S9(05)`; the harness's SQLCA uses `S9(4)` and `S9(9)`).
 
 ## Data and encoding
 
@@ -1324,6 +1324,7 @@ The length READQ TS returns on ITEMERR or QIDERR is not documented, so it is not
   CA-ERROR-MSG and is judged up to X6. Pinned by
   `tests/cobol_mainframe/test_equivalence_cics.py` (the guard page, the driver, the length's checks) and
   `tests/cobol_mainframe/test_det_translate.py` (the det port's cut storage).
+
 ### X24. A task started with a channel; the containers it leaves compared — ASSUMED (#4270)
 - **What IBM documents** (CICS TS 6.x, "Scope of a channel"; RUN TRANSID CHANNEL: "the name of the channel that is
   to be passed to the child task"; FETCH CHILD CHANNEL: "the channel returned by the child task"; LINK CHANNEL: the
@@ -1353,7 +1354,6 @@ The length READQ TS returns on ITEMERR or QIDERR is not documented, so it is not
   comparison, the drop on abend).
 
 ### X25. SYNCHRONIZED slack bytes -- 8-byte binary alignment ASSUMED to be IBM's fullword (#4266)
-
 - **The rule the layout model follows.** IBM Enterprise COBOL aligns a SYNCHRONIZED binary item of up to 4 digits on a
   halfword and one of 5 to 18 digits (the 8-byte S9(10)-S9(18) included) on a fullword, COMP-1 / INDEX / pointers on a
   fullword and COMP-2 on a doubleword, counted from the start of the record, which is doubleword-aligned
@@ -1545,6 +1545,38 @@ The length READQ TS returns on ITEMERR or QIDERR is not documented, so it is not
   hand-traced) on the cobol-stub side and the det port; unit-proven on `CicsTask` and the stub C
   (tests/cics_crucible/test_cics_runtimes.py).
 
+### X31. SEND MAP / RECEIVE MAP for a map its mapset does not hold -- abend ABM0, no condition -- ASSUMED (#4270)
+- **What IBM says.** SEND MAP, MAPSET: "If this option is not specified, the name given in the MAP option is assumed to be
+  that of the mapset" (https://www.ibm.com/docs/en/cics-ts/6.x?topic=summary-send-map); the mapset "must reside in the CICS
+  program library" and "can be defined either by using RDO or by program autoinstall". SEND MAP's conditions are INVMPSZ (38,
+  no RESP2: "the specified map is too wide for the terminal") and INVREQ (16; RESP2 200 "Command not allowed for a distributed
+  program link server program"; also a map without field specifications), RECEIVE MAP's (https://www.ibm.com/docs/en/cics-ts/6.x?topic=summary-receive-map)
+  EOC, EODS, INVMPSZ, INVPARTN, INVREQ (a nonterminal task), MAPFAIL (36, "the data to be mapped has a length of zero or does not
+  contain a set-buffer-address (SBA) sequence"), PARTNFAIL, RDATT, UNEXPIN. **Neither page lists a condition for a map that
+  is not found.** The abend code reference has one: ABM0, "The map specified for a basic mapping support (BMS) request could
+  not be located"; system action "The transaction is abnormally terminated with a CICS transaction dump"; user response "Check
+  if the map has been defined. If it has, check that it has been specified correctly"
+  (https://www.ibm.com/docs/SSGMCP_6.1.0/reference-abend-codes/abend-codes/ABxx_abend_codes/ABM0.html; modules DFHMCP, DFHMCX,
+  DFHMCY). A mapset that is not defined at all: PGMIDERR, when autoinstall for programs is off (SET SYSTEM,
+  https://www.ibm.com/docs/en/cics-ts/5.5.0?topic=commands-set-system, "a program, map set, or partition set that is not
+  defined") -- not modelled.
+- **Modelled.** A map the (constant) MAP names that is not one of the maps its (constant, or defaulted) mapset holds, in an
+  estate whose BMS source defines that mapset: abend ABM0, as EXEC CICS ABEND ABCODE('ABM0') ends the task -- the first
+  active HANDLE ABEND exit from the issuing level upward gets control, else the task is terminated and its unit of work
+  backed out; the ABEND event's `cause` is `system` (cics-crucible SPEC, additive); nothing is sent or received, EIBRESP is
+  not written. Translator: `Cics.map_not_found` (`CicsTask.abendMapNotFound`); stub: `GGCSMAP` / `GGCRECV`, the mapsets and
+  their maps stated by the run in `$GGCICS_MAPSETS` (`MAPSET=MAP,MAP;...`, the cics-crucible runner takes them from the
+  case's `maps`), a mapset not stated is not checked. BNK1CCS (CBSA) names its mapset BNK1CCM as a map, with no MAPSET, and
+  now translates whole.
+- **ASSUMED.** (1) ABM0 is the abend for a map missing from a mapset that exists: IBM's text says "the map ... could not be
+  located" and does not say "in the mapset". (2) RESP / RESP2 do not turn the abend into a condition: IBM lists no condition
+  for it, so the abend is taken to be unconditional; no crucible scenario gives the command RESP. A map not found is never
+  PGMIDERR here. Refused (unchanged): a MAP / MAPSET that is not a constant, a map of no BMS source we hold in an unknown
+  mapset ("no generated screen for map"), and the mapset-undefined case.
+- **Proof.** cics-crucible `hc-map-not-in-mapset` (hand-traced; `in-mapset`, `omitted-mapset`, `receive`, `exit`): the
+  cobol-stub and the det port (java-ported) agree with the log; unit tests on both runtimes
+  (`test_det_cics_map_names_4270.py`, `test_equivalence_cics.py`).
+
 ### X32. INQUIRE URIMAP's browse, WRITE OPERATOR — ASSUMED, REFUSED where IBM is silent (#4270, zECS ZECSPLT)
 - **INQUIRE URIMAP** (https://www.ibm.com/docs/en/cics-ts/6.x?topic=commands-inquire-urimap; "Browsing resource definitions",
   https://www.ibm.com/docs/en/cics-ts/6.x?topic=commands-browsing-resource-definitions). "You can also browse through all the URIMAP
@@ -1616,6 +1648,12 @@ The length READQ TS returns on ITEMERR or QIDERR is not documented, so it is not
 - **Not compared to z/OS.** SQLSTATE subclasses, SQLERRD values beyond the row count, SQLERRP, and the dialect
   differences of other statements.
 
+### Q1a. A binary host variable takes what its bytes hold — MATCHED (#4579)
+- **What.** SELECT INTO / FETCH INTO a COMP / COMP-4 / BINARY / COMP-5 host variable gives SQLCODE -304 only for a value
+  outside its halfword / fullword / doubleword (Db2 types the host variable by its data type: S9(9) COMP is INTEGER), not
+  beyond its PICTURE's digits: 2147483647 into `S9(9) COMP` is assigned. That holds under TRUNC(STD) too; STD limits
+  COBOL's own MOVE / arithmetic (C1), not the SQL assignment. ggsql.c `num_store` and DetSql (`Cobol.storeHostChecked`) agree.
+
 ### Q1b. A datetime host variable Db2 rejects: -180 / 22007 on both sides — MATCHED (#4658)
 - **What.** An UPDATE binding an unset (non-date) PIC X host variable to a DATE column gets SQLCODE -180, SQLSTATE 22007
   ("the string representation of a datetime value is not valid") from Db2 for LUW, and the same on z/OS Db2 (-180 is the
@@ -1623,12 +1661,6 @@ The length READQ TS returns on ITEMERR or QIDERR is not documented, so it is not
   -4220 (conversion error) before Db2 sees them; that code is never a Db2 SQLCODE an embedded-SQL program meets, so
   DetSql maps it to -180 / 22007. Other driver errors pass through unchanged. SQLERRMC/SQLERRD of the mapped error stay
   empty (the DISPLAYed SQLERRD(3) is 0 on both sides).
-
-### Q1a. A binary host variable takes what its bytes hold — MATCHED (#4579)
-- **What.** SELECT INTO / FETCH INTO a COMP / COMP-4 / BINARY / COMP-5 host variable gives SQLCODE -304 only for a value
-  outside its halfword / fullword / doubleword (Db2 types the host variable by its data type: S9(9) COMP is INTEGER), not
-  beyond its PICTURE's digits: 2147483647 into `S9(9) COMP` is assigned. That holds under TRUNC(STD) too; STD limits
-  COBOL's own MOVE / arithmetic (C1), not the SQL assignment. ggsql.c `num_store` and DetSql (`Cobol.storeHostChecked`) agree.
 
 ### Q2. EXEC SQL keeps RETURN-CODE — ASSUMED
 - The precompiled CALL preserves RETURN-CODE around the stub. Whether IBM's DSNHLI call resets it is not documented.
@@ -1799,36 +1831,9 @@ Each answer becomes either a model that matches (MATCHED) or a declared differen
 - **A new model** (a stub, a shim, an LE service) adds its entry here in the same PR, with its status.
 - **A refusal or a declared difference** found in the code (`not modelled`, `Unsupported`, `UnsupportedOption`) has
   an entry here.
-- **A change of status** (a z/OS run, a new flag) edits the entry and its date. The summary table follows.
-
-### X31. SEND MAP / RECEIVE MAP for a map its mapset does not hold -- abend ABM0, no condition -- ASSUMED (#4270)
-- **What IBM says.** SEND MAP, MAPSET: "If this option is not specified, the name given in the MAP option is assumed to be
-  that of the mapset" (https://www.ibm.com/docs/en/cics-ts/6.x?topic=summary-send-map); the mapset "must reside in the CICS
-  program library" and "can be defined either by using RDO or by program autoinstall". SEND MAP's conditions are INVMPSZ (38,
-  no RESP2: "the specified map is too wide for the terminal") and INVREQ (16; RESP2 200 "Command not allowed for a distributed
-  program link server program"; also a map without field specifications), RECEIVE MAP's (https://www.ibm.com/docs/en/cics-ts/6.x?topic=summary-receive-map)
-  EOC, EODS, INVMPSZ, INVPARTN, INVREQ (a nonterminal task), MAPFAIL (36, "the data to be mapped has a length of zero or does not
-  contain a set-buffer-address (SBA) sequence"), PARTNFAIL, RDATT, UNEXPIN. **Neither page lists a condition for a map that
-  is not found.** The abend code reference has one: ABM0, "The map specified for a basic mapping support (BMS) request could
-  not be located"; system action "The transaction is abnormally terminated with a CICS transaction dump"; user response "Check
-  if the map has been defined. If it has, check that it has been specified correctly"
-  (https://www.ibm.com/docs/SSGMCP_6.1.0/reference-abend-codes/abend-codes/ABxx_abend_codes/ABM0.html; modules DFHMCP, DFHMCX,
-  DFHMCY). A mapset that is not defined at all: PGMIDERR, when autoinstall for programs is off (SET SYSTEM,
-  https://www.ibm.com/docs/en/cics-ts/5.5.0?topic=commands-set-system, "a program, map set, or partition set that is not
-  defined") -- not modelled.
-- **Modelled.** A map the (constant) MAP names that is not one of the maps its (constant, or defaulted) mapset holds, in an
-  estate whose BMS source defines that mapset: abend ABM0, as EXEC CICS ABEND ABCODE('ABM0') ends the task -- the first
-  active HANDLE ABEND exit from the issuing level upward gets control, else the task is terminated and its unit of work
-  backed out; the ABEND event's `cause` is `system` (cics-crucible SPEC, additive); nothing is sent or received, EIBRESP is
-  not written. Translator: `Cics.map_not_found` (`CicsTask.abendMapNotFound`); stub: `GGCSMAP` / `GGCRECV`, the mapsets and
-  their maps stated by the run in `$GGCICS_MAPSETS` (`MAPSET=MAP,MAP;...`, the cics-crucible runner takes them from the
-  case's `maps`), a mapset not stated is not checked. BNK1CCS (CBSA) names its mapset BNK1CCM as a map, with no MAPSET, and
-  now translates whole.
-- **ASSUMED.** (1) ABM0 is the abend for a map missing from a mapset that exists: IBM's text says "the map ... could not be
-  located" and does not say "in the mapset". (2) RESP / RESP2 do not turn the abend into a condition: IBM lists no condition
-  for it, so the abend is taken to be unconditional; no crucible scenario gives the command RESP. A map not found is never
-  PGMIDERR here. Refused (unchanged): a MAP / MAPSET that is not a constant, a map of no BMS source we hold in an unknown
-  mapset ("no generated screen for map"), and the mapset-undefined case.
-- **Proof.** cics-crucible `hc-map-not-in-mapset` (hand-traced; `in-mapset`, `omitted-mapset`, `receive`, `exit`): the
-  cobol-stub and the det port (java-ported) agree with the log; unit tests on both runtimes
-  (`test_det_cics_map_names_4270.py`, `test_equivalence_cics.py`).
+- **A change of status** (a z/OS run, a new flag) edits the entry and its date. The summary table follows (it is generated from the entries' front matter).
+- **How.** This page is generated; do not edit it. Each entry is one file, `docs/language_status/register/<ID>.md`
+  (front matter: id, family, status, title, area, summary, reached; then the entry text). Take a new ID with
+  `python tests/tools/register.py next <family>` when the issue is filed, so parallel PRs never pick the same number
+  (`new <ID>` writes a skeleton). Prose sections live in `register/_parts/`, the page order in `register/_layout.json`.
+  Then `python tests/tools/register.py render`; CI runs `register.py --check` and fails on a stale page.

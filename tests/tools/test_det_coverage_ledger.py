@@ -101,14 +101,17 @@ def test_check_fails_loudly_on_the_single_file(monkeypatch, tmp_path):
 def test_write_is_one_file_per_case_and_only_touches_what_changed(tmp_path):
     """#4789: two sweeps of different cases change different files; an unchanged entry is an unchanged file."""
     d = tmp_path / "led"
-    assert dcl.write({CASE: entry(), "cbsa-updcust": entry()}, d) == [CASE, "cbsa-updcust"]
+    changed = dcl.write({CASE: entry(), "cbsa-updcust": entry()}, d)
+    assert changed == [CASE, "cbsa-updcust"]
     assert sorted(p.name for p in d.iterdir()) == [f"{CASE}.json", "cbsa-updcust.json"]
     assert json.loads((d / f"{CASE}.json").read_text())["format"] == dcl.FORMAT
     assert dcl.load(d) == {CASE: entry(), "cbsa-updcust": entry()}  # the format key stays in the file
     before = (d / "cbsa-updcust.json").stat().st_mtime_ns
-    assert dcl.write({CASE: entry(scenarios=9), "cbsa-updcust": entry()}, d) == [CASE]
+    changed = dcl.write({CASE: entry(scenarios=9), "cbsa-updcust": entry()}, d)
+    assert changed == [CASE]
     assert (d / "cbsa-updcust.json").stat().st_mtime_ns == before
-    assert dcl.write({CASE: entry(scenarios=9)}, d) == ["cbsa-updcust"]  # #4758: a dropped entry is a deleted file
+    changed = dcl.write({CASE: entry(scenarios=9)}, d)
+    assert changed == ["cbsa-updcust"]  # #4758: a dropped entry is a deleted file
     assert dcl.load(d) == {CASE: entry(scenarios=9)}
     assert dcl.load(tmp_path / "none") == {}
 

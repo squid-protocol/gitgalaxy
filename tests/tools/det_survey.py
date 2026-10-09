@@ -222,6 +222,8 @@ def main() -> int:
             # refactor controller sys.exit()s ("No executable COBOL files found"), which silently ended the whole
             # survey with status 0 and no survey.json
             # #4735: when the corpus's COBOL-named files are saved ISPF editor screens, say so (not `SystemExit: 0`)
+            from gitgalaxy.core.cobol_source_format import ispf_screens
+
             screens = ispf_screens(corpus)
             msg = (f"generation failed: not a COBOL program: ISPF editor screen ({screens[0][0]}: {screens[0][1]})"
                    if screens else f"generation failed: {type(e).__name__}: {e}")  # fmt: skip

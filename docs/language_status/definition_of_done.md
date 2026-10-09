@@ -1,11 +1,9 @@
 ---
-description: "Charter (DRAFT for owner review, #4722): what 'done' means for a COBOL/CICS/Db2 migration here -- scope, acceptable outcomes per program, done per estate, and what 'supported' means."
+description: "Charter (#4722): what 'done' means for a COBOL/CICS/Db2 migration here -- scope, acceptable outcomes per program, done per estate, and what 'supported' means."
 ---
 # Definition of done: what a finished migration means here (#4722)
 
-> **DRAFT for owner review.** Nothing here is approved until the owner says so. Items marked **PROPOSAL** are
-> choices for the owner; they are collected under [Open decisions](#open-decisions-for-the-owner). Everything else
-> describes what the repository does today, with the page that holds the detail. Part of the readiness-scanner epic (#4721);
+> Each statement describes what the repository does today, with the page that holds the detail. Part of the readiness-scanner epic (#4721);
 > the scanner (#4723-#4725) and the [evidence report](evidence_report/README.md) measure against this page.
 
 ## 1. Scope
@@ -45,17 +43,17 @@ Exactly one of:
 
 A level marked `*` is **stale**: last measured against an earlier harness or oracle, not re-checked. It is not a regression and it is not current.
 
-**PROPOSAL (owner to decide):** promise **L3** by default for online (CICS) programs and **L4** for programs the customer marks critical; L2 is a floor for anything shipped, not a promise; L5 on request.
+**Decided:** the default promise is **L3** for online (CICS) programs and **L4** for programs the customer marks critical. L2 ships only with explicit customer agreement; L5 on request.
 
 ## 3. Per estate: "done"
 
 An estate is done when all of the following hold:
 
 1. Every program the customer wants migrated is at its promised level, or on an agreed refusal list (section 2).
-2. **Every oracle caveat the estate relies on is listed.** The register ([oracle_assumptions.md](oracle_assumptions.md)) has four statuses: MATCHED, REFUSED, DIFFERS, ASSUMED. For each program the report names the ASSUMED / DIFFERS entries its commands reach. Today the report does not measure which register entries a program *actually* reaches; it lists those its commands name. The estate's list is therefore an upper bound, and the charter says so.
-3. **Options are recorded with provenance.** Compiler and runtime options per estate come from the estate's own build files where they exist and are marked `assumed: IBM default` where they do not (`estate_options/*.json`: each value carries `source`, `quote`, `note`). The evidence report shows each program's effective options and provenance (#4708, in review as PR #4775).
+2. **Every oracle caveat the estate relies on is listed; DIFFERS entries it reaches are accepted by the customer, ASSUMED ones disclosed.** The register ([oracle_assumptions.md](oracle_assumptions.md)) has four statuses: MATCHED, REFUSED, DIFFERS, ASSUMED. For each program the report names the ASSUMED / DIFFERS entries its commands reach. Today the report does not measure which register entries a program *actually* reaches; it lists those its commands name. The estate's list is therefore an upper bound, and the charter says so.
+3. **Options are recorded with provenance, and the customer confirms every assumed one in writing (#4709).** Compiler and runtime options per estate come from the estate's own build files where they exist and are marked `assumed: IBM default` where they do not (`estate_options/*.json`: each value carries `source`, `quote`, `note`). The evidence report shows each program's effective options and provenance (#4708, in review as PR #4775).
 4. **Evidence is current at release.** The release job runs `evidence_report.py --check --live` (publish.yml); a tag fails while the committed report differs from the repo or any level is stale. The Evidence Refresh bot regenerates reports on main.
-5. **Declared differences are listed and approved.** The machinery for declaring a difference is #4051 (none exist yet; the evidence record's `differences` input is empty). Each one that exists must be listed in the estate's handover (see open decisions on who approves).
+5. **Declared differences are listed and approved.** The machinery is #4051 (none exist yet). The owner approves the difference class; each one is listed in the customer's evidence report.
 
 ## 4. Policies that define correctness
 
@@ -75,14 +73,14 @@ A COBOL / CICS / SQL feature is **supported** only if all four hold, and the sca
 
 A feature that is modelled and proven but ASSUMED is "supported, uncalibrated", not "supported".
 
-## Open decisions for the owner
+## Decisions (owner, 2026-10-09)
 
-- **Default promised level.** L3 online / L4 critical (proposed above), or something else? Is L2 ever acceptable to ship?
-- **Assumed options.** May an estate be "done" with options marked `assumed: IBM default` (the customer's build files not seen), or must the customer confirm each assumed option in writing first?
-- **Declared differences.** Does each declared difference (#4051) need customer sign-off per estate, or is owner approval of the difference class enough?
-- **Register entries.** Must every ASSUMED entry an estate reaches be accepted by the customer, or only DIFFERS? And, since "reached" is not yet measured, is the upper-bound list (entries the commands name) acceptable?
-- **Refusals.** Is a refusal acceptable only when the customer agrees in writing, or may a program on a standing refusal family (for example IDMS) be excluded from the estate's scope by default?
-- **Stale levels.** Does an estate count as done at a `*` level, or only at a current one? (The release gate says current.)
-- **Burned vs non-burned estates.** Should "done" be reported differently for estates the translator was developed against (burned) than for a customer's blind estate?
-- **Scope of "done".** Confirm that data, JCL streams, interfaces, performance, security and cutover (#4514) stay outside this charter.
-- **Coverage bars.** The paragraph and branch bars are parameters of the report; should the charter fix their values?
+1. **Default promised level.** L3 for online programs, L4 for critical programs. L2 ships only with explicit customer agreement.
+2. **Assumed options.** An estate is not "done" with options marked `assumed: IBM default`: the customer confirms each assumed option in writing (intake checklist: #4709).
+3. **Declared differences.** Owner approval of the difference class is enough; each one is listed in that customer's evidence report.
+4. **Register entries.** DIFFERS entries an estate reaches need explicit customer acceptance; ASSUMED entries are disclosed. Until "reached" is measured, the upper-bound list (entries the commands name) is acceptable.
+5. **Refusals.** Programs on a standing refusal family (for example IDMS, DL/I, national text) are excluded from an estate's scope by default and listed; any other refusal needs the customer's agreement.
+6. **Stale levels.** An estate counts as done only at current levels (no `*`), matching the release gate.
+7. **Burned vs blind.** The report labels burned estates (developed against) and blind estates; a blind-estate result is the stronger claim.
+8. **Scope.** Data, JCL streams, interfaces, performance, security and cutover (#4514) stay outside this charter.
+9. **Coverage bars.** L3 = 100% of paragraphs, L4 = 100% of branches, both net of reviewed infeasible outcomes (decided on #4601).

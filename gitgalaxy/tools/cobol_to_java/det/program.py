@@ -1042,7 +1042,7 @@ def _translate(program: Path, copy_dirs: list[Path], stub: str, package: str, es
         "@Service",
         f"public class {service} {{",
         "",
-        "    private static final Charset CS = CobolRecords.charset();",
+        "    private static final Charset CS = Cobol.recordCharset(CobolRecords.charset());",
         "    private static final int GOTO = 1 << 20;",
         *consts,
         "",

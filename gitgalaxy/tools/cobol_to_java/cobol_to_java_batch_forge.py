@@ -420,7 +420,10 @@ import java.nio.file.StandardOpenOption;
  * and the equivalence harness compares it line by line (trailing blanks aside). Written to standard output, or
  * appended to the file named by the system property gitgalaxy.sysout. #4691: the bytes are written in the record
  * charset (system property gitgalaxy.data.charset, else the target's data.record_charset), never UTF-8: a byte
- * above X'7F' leaves as that one byte, as the COBOL runtime writes it.
+ * above X'7F' leaves as that one byte, as the COBOL runtime writes it. #4698: a hexadecimal literal is exactly its
+ * bytes (IBM Enterprise COBOL Language Reference, "Hexadecimal notation for alphanumeric literals"), and the
+ * separator between lines is a plain LF in every charset: on z/OS a DISPLAY to SYSOUT writes a record (the item's
+ * bytes, no newline byte), so the separator here is the capture's framing, not data, and not the charset's "\\n".
  */
 public final class Sysout {
 
@@ -433,12 +436,12 @@ public final class Sysout {
 
     /** `DISPLAY a b c`: one line. */
     public static void display(Object... operands) {
-        write(join(operands) + "\\n");
+        write(join(operands), true);
     }
 
     /** `DISPLAY a b c WITH NO ADVANCING`: the next DISPLAY continues the line. */
     public static void displayNoAdvancing(Object... operands) {
-        write(join(operands));
+        write(join(operands), false);
     }
 
     /**
@@ -466,9 +469,30 @@ public final class Sysout {
         return b.toString();
     }
 
-    private static void write(String text) {
+
+    /** The bytes of the text in the charset, a character the charset has no byte for (the runtime's text view of a
+     *  byte the charset leaves unmapped, such as U+0081 in windows-1252) as its one latin-1 byte (#4698). */
+    private static byte[] encode(String text, Charset cs) {
+        byte[] bytes = text.getBytes(cs);
+        if (bytes.length == text.length() && !new String(bytes, cs).equals(text)) {
+            for (int i = 0; i < bytes.length; i++) {
+                char c = text.charAt(i);
+                if (c < 256 && bytes[i] == '?' && c != '?') {
+                    bytes[i] = (byte) c;
+                }
+            }
+        }
+        return bytes;
+    }
+
+    private static void write(String text, boolean endOfRecord) {
         String target = System.getProperty("gitgalaxy.sysout");
-        byte[] bytes = text.getBytes(Charset.forName(System.getProperty("gitgalaxy.data.charset", "{record_charset}")));
+        byte[] data = encode(text, Charset.forName(System.getProperty("gitgalaxy.data.charset", "{record_charset}")));
+        byte[] bytes = data;
+        if (endOfRecord) {
+            bytes = java.util.Arrays.copyOf(data, data.length + 1);
+            bytes[data.length] = '\\n';
+        }
         synchronized (LOCK) {
             if (target == null) {
                 System.out.write(bytes, 0, bytes.length);

@@ -42,7 +42,10 @@
     "tests/tools/java_target_matrix.py"
    ],
    "files": 11,
-   "sha256": "2df01dde126b29e5be6f1f90d7a4d3a5d0f1afdb3ef233f230f50155c9e22504"
+   "sha256": "2df01dde126b29e5be6f1f90d7a4d3a5d0f1afdb3ef233f230f50155c9e22504",
+   "components": {
+    "harness:core": "173803afd91838dee6482b69047e2372c79ff76b08f23c2092f52cf567a48ba3"
+   }
   },
   "oracle": {
    "paths": [
@@ -55,14 +58,26 @@
     "tests/tools/equivalence_sql.py"
    ],
    "files": 21,
-   "sha256": "baf3bfc2d245d0466d0d7e5d1a14e9bd8aa861f6b5681f44ba788e7f5af7c5ec"
+   "sha256": "baf3bfc2d245d0466d0d7e5d1a14e9bd8aa861f6b5681f44ba788e7f5af7c5ec",
+   "components": {
+    "oracle:core": "096391873ad77e887554d240e0df2b301cb4b8bcf0b50902f390f46904d4e8a6",
+    "oracle:file-io": "e74b2733865b6c48f5ccf8d292c81c28e4827e0229e7383baeb7a3a26327f501",
+    "oracle:le": "f0edcba040c849b46a2420112690eb6aaeb522a50ef9efe874594fed5d13f591"
+   }
   },
   "generator": {
    "paths": [
     "gitgalaxy/tools/cobol_to_java/**"
    ],
    "files": 66,
-   "sha256": "1e66f8dda300d3029fcc004eaf8fa2bd51220c4eee8942c6ccd459d664bc4489"
+   "sha256": "1e66f8dda300d3029fcc004eaf8fa2bd51220c4eee8942c6ccd459d664bc4489",
+   "components": {
+    "generator:cobolrt/standalone/CobolAbend.java": "81e7a898b77981baff8a9427ec3e464f080e659c9d9b8d1ceb8915e0c3c69302",
+    "generator:cobolrt/standalone/Sysout.java": "398ea058d95425209b5e81a272262719542e0cde2b5241a7291407e1717d7eb2",
+    "generator:core": "2723b6d5c35dd45b44e4ae6f71b50a3f5504adadc6b6913c914496d0e8e6000e",
+    "generator:det/__init__": "9dedbc9da92e2e4bfd260e7fd5fb78ee2e41a061466c948250d088ffaa464386",
+    "generator:det/source": "a9cc253aff9f19807fb16f10975d052798fdc6cf39249a4b42f4360c925a68c2"
+   }
   },
   "corpus": {
    "name": "aws-mainframe-modernization-carddemo",

@@ -44,7 +44,7 @@
     "tests/tools/java_target_matrix.py"
    ],
    "files": 11,
-   "sha256": "2df01dde126b29e5be6f1f90d7a4d3a5d0f1afdb3ef233f230f50155c9e22504"
+   "sha256": "1c4cdf6457fd98cfe726a6c8c6cfdfdbb51323fb6ff1e2b71b367214c4dea3f4"
   },
   "oracle": {
    "paths": [
@@ -57,14 +57,19 @@
     "tests/tools/equivalence_sql.py"
    ],
    "files": 21,
-   "sha256": "baf3bfc2d245d0466d0d7e5d1a14e9bd8aa861f6b5681f44ba788e7f5af7c5ec"
+   "sha256": "baf3bfc2d245d0466d0d7e5d1a14e9bd8aa861f6b5681f44ba788e7f5af7c5ec",
+   "components": {
+    "oracle:cics-stub": "bc775559c67aa6be495b36ee8f8c33ebb0e4f69b34aa17b27403482634712a14",
+    "oracle:core": "096391873ad77e887554d240e0df2b301cb4b8bcf0b50902f390f46904d4e8a6",
+    "oracle:le": "f0edcba040c849b46a2420112690eb6aaeb522a50ef9efe874594fed5d13f591"
+   }
   },
   "generator": {
    "paths": [
     "gitgalaxy/tools/cobol_to_java/**"
    ],
-   "files": 66,
-   "sha256": "1e66f8dda300d3029fcc004eaf8fa2bd51220c4eee8942c6ccd459d664bc4489"
+   "files": 67,
+   "sha256": "29d230032f9afe7c03b300d248173e7624e4e0392c6fc520a90690f7b353ff86"
   },
   "corpus": {
    "name": "aws-mainframe-modernization-carddemo",
@@ -146,10 +151,10 @@
     }
    }
   },
-  "digest": "fb3f72e4568b7460b9e65b427558e9a9c49253504e4e6a709096f405ce82726b"
+  "digest": "87471d4be815895259321a51984c62fbfe0690c725cc62e99b440401834d2f0b"
  },
  "proof": {
-  "at": "2026-10-09T11:51:02Z",
+  "at": "2026-10-09T16:35:21Z",
   "verdict": "proven",
   "runs": 46,
   "fault_runs": 8,
@@ -354,8 +359,8 @@
    "failed": [],
    "error": null
   },
-  "harness_commit": "8ccdaad9a51d5f88ccfc4d6e564eeb77f22748bf+uncommitted",
-  "inputs_digest": "fb3f72e4568b7460b9e65b427558e9a9c49253504e4e6a709096f405ce82726b"
+  "harness_commit": "ac3a8a2b0d34f355673c4dd569fb1c3545656b64+uncommitted",
+  "inputs_digest": "87471d4be815895259321a51984c62fbfe0690c725cc62e99b440401834d2f0b"
  },
  "coverage": {
   "paragraphs": {
@@ -391,7 +396,7 @@
    "total": 0
   },
   "source": "the proof's own traced COBOL runs (cobol_coverage.py)",
-  "inputs_digest": "fb3f72e4568b7460b9e65b427558e9a9c49253504e4e6a709096f405ce82726b"
+  "inputs_digest": "87471d4be815895259321a51984c62fbfe0690c725cc62e99b440401834d2f0b"
  },
  "reach": {
   "entry_points": [

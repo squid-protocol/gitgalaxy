@@ -15,10 +15,10 @@
    "inputs": {
     "case": "91757418376cfc30e9db683b2ada855ac31d6afa3c9943afa40231330d981904",
     "corpus": "a98b9cfe46b5f45db9305f0a997047218e09c7c36422ec0849f6af7af5dd5353",
-    "harness": "2df01dde126b29e5be6f1f90d7a4d3a5d0f1afdb3ef233f230f50155c9e22504",
+    "harness": "1c4cdf6457fd98cfe726a6c8c6cfdfdbb51323fb6ff1e2b71b367214c4dea3f4",
     "oracle": "baf3bfc2d245d0466d0d7e5d1a14e9bd8aa861f6b5681f44ba788e7f5af7c5ec"
    },
-   "measured_at": "5bc184e0e9f89377eb7b20e7537344dcb70b0e50"
+   "measured_at": "ac3a8a2b0d34f355673c4dd569fb1c3545656b64"
   },
   "asynccc-csstats2": {
    "scenarios": 3,
@@ -33,10 +33,10 @@
    "inputs": {
     "case": "2ae5f7216cdf6b58f3594aef91fce8f9de1290c1a5427ba6806b0089191ee188",
     "corpus": "a98b9cfe46b5f45db9305f0a997047218e09c7c36422ec0849f6af7af5dd5353",
-    "harness": "2df01dde126b29e5be6f1f90d7a4d3a5d0f1afdb3ef233f230f50155c9e22504",
+    "harness": "1c4cdf6457fd98cfe726a6c8c6cfdfdbb51323fb6ff1e2b71b367214c4dea3f4",
     "oracle": "baf3bfc2d245d0466d0d7e5d1a14e9bd8aa861f6b5681f44ba788e7f5af7c5ec"
    },
-   "measured_at": "5bc184e0e9f89377eb7b20e7537344dcb70b0e50"
+   "measured_at": "ac3a8a2b0d34f355673c4dd569fb1c3545656b64"
   },
   "asynccc-csstatus": {
    "scenarios": 3,
@@ -51,10 +51,10 @@
    "inputs": {
     "case": "3080576e0121cd5ea20ea47dff4371dc63e2609c9517ea2c267c6e289d17a26e",
     "corpus": "a98b9cfe46b5f45db9305f0a997047218e09c7c36422ec0849f6af7af5dd5353",
-    "harness": "2df01dde126b29e5be6f1f90d7a4d3a5d0f1afdb3ef233f230f50155c9e22504",
+    "harness": "1c4cdf6457fd98cfe726a6c8c6cfdfdbb51323fb6ff1e2b71b367214c4dea3f4",
     "oracle": "baf3bfc2d245d0466d0d7e5d1a14e9bd8aa861f6b5681f44ba788e7f5af7c5ec"
    },
-   "measured_at": "5bc184e0e9f89377eb7b20e7537344dcb70b0e50"
+   "measured_at": "ac3a8a2b0d34f355673c4dd569fb1c3545656b64"
   },
   "asynccc-getaddr": {
    "scenarios": 3,
@@ -69,10 +69,10 @@
    "inputs": {
     "case": "daaa802061c35c541cc4904b8bdb26ad4102e4590fd07d7488e894b6f4bd2dbc",
     "corpus": "a98b9cfe46b5f45db9305f0a997047218e09c7c36422ec0849f6af7af5dd5353",
-    "harness": "2df01dde126b29e5be6f1f90d7a4d3a5d0f1afdb3ef233f230f50155c9e22504",
+    "harness": "1c4cdf6457fd98cfe726a6c8c6cfdfdbb51323fb6ff1e2b71b367214c4dea3f4",
     "oracle": "baf3bfc2d245d0466d0d7e5d1a14e9bd8aa861f6b5681f44ba788e7f5af7c5ec"
    },
-   "measured_at": "5bc184e0e9f89377eb7b20e7537344dcb70b0e50"
+   "measured_at": "ac3a8a2b0d34f355673c4dd569fb1c3545656b64"
   },
   "asynccc-getname": {
    "scenarios": 3,
@@ -87,10 +87,10 @@
    "inputs": {
     "case": "f6ca718be0ee1b2d7819adce6f3bfbc7a96ec371aed930ded05416e3a4fe5cc8",
     "corpus": "a98b9cfe46b5f45db9305f0a997047218e09c7c36422ec0849f6af7af5dd5353",
-    "harness": "2df01dde126b29e5be6f1f90d7a4d3a5d0f1afdb3ef233f230f50155c9e22504",
+    "harness": "1c4cdf6457fd98cfe726a6c8c6cfdfdbb51323fb6ff1e2b71b367214c4dea3f4",
     "oracle": "baf3bfc2d245d0466d0d7e5d1a14e9bd8aa861f6b5681f44ba788e7f5af7c5ec"
    },
-   "measured_at": "5bc184e0e9f89377eb7b20e7537344dcb70b0e50"
+   "measured_at": "ac3a8a2b0d34f355673c4dd569fb1c3545656b64"
   },
   "asynccc-getpol": {
    "scenarios": 1,
@@ -105,10 +105,10 @@
    "inputs": {
     "case": "8715eb31cb1fe3d43aec7c2ce9de9d3b6e643b65113edc51fb979c8d39d43e21",
     "corpus": "a98b9cfe46b5f45db9305f0a997047218e09c7c36422ec0849f6af7af5dd5353",
-    "harness": "2df01dde126b29e5be6f1f90d7a4d3a5d0f1afdb3ef233f230f50155c9e22504",
+    "harness": "1c4cdf6457fd98cfe726a6c8c6cfdfdbb51323fb6ff1e2b71b367214c4dea3f4",
     "oracle": "baf3bfc2d245d0466d0d7e5d1a14e9bd8aa861f6b5681f44ba788e7f5af7c5ec"
    },
-   "measured_at": "5bc184e0e9f89377eb7b20e7537344dcb70b0e50"
+   "measured_at": "ac3a8a2b0d34f355673c4dd569fb1c3545656b64"
   },
   "asynccc-getspnd": {
    "scenarios": 1,
@@ -123,10 +123,10 @@
    "inputs": {
     "case": "3f15c0e7364770e323f6e9c65487c146dbfba37ff81f38d42b9aebc930125c49",
     "corpus": "a98b9cfe46b5f45db9305f0a997047218e09c7c36422ec0849f6af7af5dd5353",
-    "harness": "2df01dde126b29e5be6f1f90d7a4d3a5d0f1afdb3ef233f230f50155c9e22504",
+    "harness": "1c4cdf6457fd98cfe726a6c8c6cfdfdbb51323fb6ff1e2b71b367214c4dea3f4",
     "oracle": "baf3bfc2d245d0466d0d7e5d1a14e9bd8aa861f6b5681f44ba788e7f5af7c5ec"
    },
-   "measured_at": "5bc184e0e9f89377eb7b20e7537344dcb70b0e50"
+   "measured_at": "ac3a8a2b0d34f355673c4dd569fb1c3545656b64"
   },
   "asynccc-updcsdb": {
    "scenarios": 1,
@@ -141,10 +141,10 @@
    "inputs": {
     "case": "6f6238b16a7d8e202086190913f64017584104833d6a343623c615faa618d8ac",
     "corpus": "a98b9cfe46b5f45db9305f0a997047218e09c7c36422ec0849f6af7af5dd5353",
-    "harness": "2df01dde126b29e5be6f1f90d7a4d3a5d0f1afdb3ef233f230f50155c9e22504",
+    "harness": "1c4cdf6457fd98cfe726a6c8c6cfdfdbb51323fb6ff1e2b71b367214c4dea3f4",
     "oracle": "baf3bfc2d245d0466d0d7e5d1a14e9bd8aa861f6b5681f44ba788e7f5af7c5ec"
    },
-   "measured_at": "5bc184e0e9f89377eb7b20e7537344dcb70b0e50"
+   "measured_at": "ac3a8a2b0d34f355673c4dd569fb1c3545656b64"
   },
   "carddemo-acctupdate": {
    "scenarios": 137,
@@ -159,10 +159,10 @@
    "inputs": {
     "case": "74c40a4c7c1afe285663eaf7c8888e2e8c4b1a8ba3c026dd65ab460947b44121",
     "corpus": "d0c4803872ec126eb56a170212f76207beff5ab8c2b6507dd6df4a084cdeb919",
-    "harness": "2df01dde126b29e5be6f1f90d7a4d3a5d0f1afdb3ef233f230f50155c9e22504",
+    "harness": "1c4cdf6457fd98cfe726a6c8c6cfdfdbb51323fb6ff1e2b71b367214c4dea3f4",
     "oracle": "baf3bfc2d245d0466d0d7e5d1a14e9bd8aa861f6b5681f44ba788e7f5af7c5ec"
    },
-   "measured_at": "5bc184e0e9f89377eb7b20e7537344dcb70b0e50"
+   "measured_at": "ac3a8a2b0d34f355673c4dd569fb1c3545656b64"
   },
   "carddemo-acctview": {
    "scenarios": 20,
@@ -177,10 +177,10 @@
    "inputs": {
     "case": "148af5f69abed6acc72e8cd672a301fd075be981f27b382789fbe3c9da821e48",
     "corpus": "d0c4803872ec126eb56a170212f76207beff5ab8c2b6507dd6df4a084cdeb919",
-    "harness": "2df01dde126b29e5be6f1f90d7a4d3a5d0f1afdb3ef233f230f50155c9e22504",
+    "harness": "1c4cdf6457fd98cfe726a6c8c6cfdfdbb51323fb6ff1e2b71b367214c4dea3f4",
     "oracle": "baf3bfc2d245d0466d0d7e5d1a14e9bd8aa861f6b5681f44ba788e7f5af7c5ec"
    },
-   "measured_at": "5bc184e0e9f89377eb7b20e7537344dcb70b0e50"
+   "measured_at": "ac3a8a2b0d34f355673c4dd569fb1c3545656b64"
   },
   "carddemo-acctview-generated": {
    "scenarios": 24,
@@ -195,10 +195,10 @@
    "inputs": {
     "case": "f301f2748f2e5be2861c5f876163d8ed413c11a974694bcd5927ae1be8eed84f",
     "corpus": "d0c4803872ec126eb56a170212f76207beff5ab8c2b6507dd6df4a084cdeb919",
-    "harness": "2df01dde126b29e5be6f1f90d7a4d3a5d0f1afdb3ef233f230f50155c9e22504",
+    "harness": "1c4cdf6457fd98cfe726a6c8c6cfdfdbb51323fb6ff1e2b71b367214c4dea3f4",
     "oracle": "baf3bfc2d245d0466d0d7e5d1a14e9bd8aa861f6b5681f44ba788e7f5af7c5ec"
    },
-   "measured_at": "5bc184e0e9f89377eb7b20e7537344dcb70b0e50"
+   "measured_at": "ac3a8a2b0d34f355673c4dd569fb1c3545656b64"
   },
   "carddemo-adminmenu": {
    "scenarios": 16,
@@ -213,10 +213,10 @@
    "inputs": {
     "case": "f6d6e0043ca8d45a2ad195ece5fd6caba411960fc93a0f95249e1da6bbe0f4f5",
     "corpus": "d0c4803872ec126eb56a170212f76207beff5ab8c2b6507dd6df4a084cdeb919",
-    "harness": "2df01dde126b29e5be6f1f90d7a4d3a5d0f1afdb3ef233f230f50155c9e22504",
+    "harness": "1c4cdf6457fd98cfe726a6c8c6cfdfdbb51323fb6ff1e2b71b367214c4dea3f4",
     "oracle": "baf3bfc2d245d0466d0d7e5d1a14e9bd8aa861f6b5681f44ba788e7f5af7c5ec"
    },
-   "measured_at": "5bc184e0e9f89377eb7b20e7537344dcb70b0e50"
+   "measured_at": "ac3a8a2b0d34f355673c4dd569fb1c3545656b64"
   },
   "carddemo-billpay": {
    "scenarios": 25,
@@ -231,10 +231,10 @@
    "inputs": {
     "case": "6790dbfc07f6ecf4a4528681eaae2540f3202ace69aaf19f006b839f6d8eee0f",
     "corpus": "d0c4803872ec126eb56a170212f76207beff5ab8c2b6507dd6df4a084cdeb919",
-    "harness": "2df01dde126b29e5be6f1f90d7a4d3a5d0f1afdb3ef233f230f50155c9e22504",
+    "harness": "1c4cdf6457fd98cfe726a6c8c6cfdfdbb51323fb6ff1e2b71b367214c4dea3f4",
     "oracle": "baf3bfc2d245d0466d0d7e5d1a14e9bd8aa861f6b5681f44ba788e7f5af7c5ec"
    },
-   "measured_at": "5bc184e0e9f89377eb7b20e7537344dcb70b0e50"
+   "measured_at": "ac3a8a2b0d34f355673c4dd569fb1c3545656b64"
   },
   "carddemo-cardlist": {
    "scenarios": 45,
@@ -249,10 +249,10 @@
    "inputs": {
     "case": "41aab797f096a9ada81c3d81271755ee7eff20a7adc3209b65d8cd4eba3bc4fe",
     "corpus": "d0c4803872ec126eb56a170212f76207beff5ab8c2b6507dd6df4a084cdeb919",
-    "harness": "2df01dde126b29e5be6f1f90d7a4d3a5d0f1afdb3ef233f230f50155c9e22504",
+    "harness": "1c4cdf6457fd98cfe726a6c8c6cfdfdbb51323fb6ff1e2b71b367214c4dea3f4",
     "oracle": "baf3bfc2d245d0466d0d7e5d1a14e9bd8aa861f6b5681f44ba788e7f5af7c5ec"
    },
-   "measured_at": "5bc184e0e9f89377eb7b20e7537344dcb70b0e50"
+   "measured_at": "ac3a8a2b0d34f355673c4dd569fb1c3545656b64"
   },
   "carddemo-cardview": {
    "scenarios": 23,
@@ -267,10 +267,10 @@
    "inputs": {
     "case": "b37f0899733d7de92a4017cf0106742dd43c347fd3c0c632fa098cf5b96e5ebc",
     "corpus": "d0c4803872ec126eb56a170212f76207beff5ab8c2b6507dd6df4a084cdeb919",
-    "harness": "2df01dde126b29e5be6f1f90d7a4d3a5d0f1afdb3ef233f230f50155c9e22504",
+    "harness": "1c4cdf6457fd98cfe726a6c8c6cfdfdbb51323fb6ff1e2b71b367214c4dea3f4",
     "oracle": "baf3bfc2d245d0466d0d7e5d1a14e9bd8aa861f6b5681f44ba788e7f5af7c5ec"
    },
-   "measured_at": "5bc184e0e9f89377eb7b20e7537344dcb70b0e50"
+   "measured_at": "ac3a8a2b0d34f355673c4dd569fb1c3545656b64"
   },
   "carddemo-cotrtlic": {
    "scenarios": 27,
@@ -286,7 +286,21 @@
     "case": "0a2e4bde071d15909a45ecae9770b8a578519ddeca50aef5846966740ed76a36",
     "corpus": "d0c4803872ec126eb56a170212f76207beff5ab8c2b6507dd6df4a084cdeb919",
     "harness": "471da1a6023b0d9d8fa4455d1c515ea30a922cf5d57a8094b29d6a7dcb43c5c2",
-    "oracle": "34a717aa90b1cd8c166787b6d0fb4b64b1022f6ea52b7e73ecd1ef0d4a0c8a47"
+    "oracle": "34a717aa90b1cd8c166787b6d0fb4b64b1022f6ea52b7e73ecd1ef0d4a0c8a47",
+    "components": {
+     "harness": {
+      "harness:cics": "d9343f022b54fb2d747835e7f0a6b729ab6459021e0e7cebbd23e7b08ad35633",
+      "harness:core": "29dd5f0e0497bb1174101523cd762381b159a9fd2788daa33ecacea870873222",
+      "harness:db2": "24242ee159a28947ccf92c123d2f90a9c25c106b0589875fd6dc9a3332a801fe"
+     },
+     "oracle": {
+      "oracle:cics-stub": "734ce68def43267c4c47d9f52010c3fa50d89546d46471ad0fb8ded17fe6d93d",
+      "oracle:core": "096391873ad77e887554d240e0df2b301cb4b8bcf0b50902f390f46904d4e8a6",
+      "oracle:db2": "abbe60be09a4a5b584cb16d8dad42785bea77477d14c0fea172a672783141a95",
+      "oracle:image-db2": "f9bf98a288533e3ee12980219ecc52006e2dab05f7706dfc35238f26add8f3c5",
+      "oracle:le": "f0edcba040c849b46a2420112690eb6aaeb522a50ef9efe874594fed5d13f591"
+     }
+    }
    },
    "measured_at": "2b53e918c59de134e98e0ab795255afabd21437e"
   },
@@ -304,7 +318,21 @@
     "case": "c9136c4e3c7315197bc090d622aeac23563ff7303bb6e7789052a3a25b51049c",
     "corpus": "d0c4803872ec126eb56a170212f76207beff5ab8c2b6507dd6df4a084cdeb919",
     "harness": "471da1a6023b0d9d8fa4455d1c515ea30a922cf5d57a8094b29d6a7dcb43c5c2",
-    "oracle": "34a717aa90b1cd8c166787b6d0fb4b64b1022f6ea52b7e73ecd1ef0d4a0c8a47"
+    "oracle": "34a717aa90b1cd8c166787b6d0fb4b64b1022f6ea52b7e73ecd1ef0d4a0c8a47",
+    "components": {
+     "harness": {
+      "harness:cics": "d9343f022b54fb2d747835e7f0a6b729ab6459021e0e7cebbd23e7b08ad35633",
+      "harness:core": "29dd5f0e0497bb1174101523cd762381b159a9fd2788daa33ecacea870873222",
+      "harness:db2": "24242ee159a28947ccf92c123d2f90a9c25c106b0589875fd6dc9a3332a801fe"
+     },
+     "oracle": {
+      "oracle:cics-stub": "734ce68def43267c4c47d9f52010c3fa50d89546d46471ad0fb8ded17fe6d93d",
+      "oracle:core": "096391873ad77e887554d240e0df2b301cb4b8bcf0b50902f390f46904d4e8a6",
+      "oracle:db2": "abbe60be09a4a5b584cb16d8dad42785bea77477d14c0fea172a672783141a95",
+      "oracle:image-db2": "f9bf98a288533e3ee12980219ecc52006e2dab05f7706dfc35238f26add8f3c5",
+      "oracle:le": "f0edcba040c849b46a2420112690eb6aaeb522a50ef9efe874594fed5d13f591"
+     }
+    }
    },
    "measured_at": "2b53e918c59de134e98e0ab795255afabd21437e"
   },
@@ -321,10 +349,10 @@
    "inputs": {
     "case": "0438494a837c763cc0022729ec4d25806bf2d816126c90ad6a6d4f43357742c4",
     "corpus": "d0c4803872ec126eb56a170212f76207beff5ab8c2b6507dd6df4a084cdeb919",
-    "harness": "2df01dde126b29e5be6f1f90d7a4d3a5d0f1afdb3ef233f230f50155c9e22504",
+    "harness": "1c4cdf6457fd98cfe726a6c8c6cfdfdbb51323fb6ff1e2b71b367214c4dea3f4",
     "oracle": "baf3bfc2d245d0466d0d7e5d1a14e9bd8aa861f6b5681f44ba788e7f5af7c5ec"
    },
-   "measured_at": "5bc184e0e9f89377eb7b20e7537344dcb70b0e50"
+   "measured_at": "ac3a8a2b0d34f355673c4dd569fb1c3545656b64"
   },
   "carddemo-report": {
    "scenarios": 25,
@@ -339,10 +367,10 @@
    "inputs": {
     "case": "8a510ec12c46620c50eee6e60d38aa06906b342d505bb3e642bb192431f1807f",
     "corpus": "d0c4803872ec126eb56a170212f76207beff5ab8c2b6507dd6df4a084cdeb919",
-    "harness": "2df01dde126b29e5be6f1f90d7a4d3a5d0f1afdb3ef233f230f50155c9e22504",
+    "harness": "1c4cdf6457fd98cfe726a6c8c6cfdfdbb51323fb6ff1e2b71b367214c4dea3f4",
     "oracle": "baf3bfc2d245d0466d0d7e5d1a14e9bd8aa861f6b5681f44ba788e7f5af7c5ec"
    },
-   "measured_at": "5bc184e0e9f89377eb7b20e7537344dcb70b0e50"
+   "measured_at": "ac3a8a2b0d34f355673c4dd569fb1c3545656b64"
   },
   "carddemo-signon": {
    "scenarios": 12,
@@ -357,10 +385,10 @@
    "inputs": {
     "case": "6da932f72dab5e337afb7ca239187f663dfc6fc2f33ba85d70274f0c14b668f5",
     "corpus": "d0c4803872ec126eb56a170212f76207beff5ab8c2b6507dd6df4a084cdeb919",
-    "harness": "2df01dde126b29e5be6f1f90d7a4d3a5d0f1afdb3ef233f230f50155c9e22504",
+    "harness": "1c4cdf6457fd98cfe726a6c8c6cfdfdbb51323fb6ff1e2b71b367214c4dea3f4",
     "oracle": "baf3bfc2d245d0466d0d7e5d1a14e9bd8aa861f6b5681f44ba788e7f5af7c5ec"
    },
-   "measured_at": "5bc184e0e9f89377eb7b20e7537344dcb70b0e50"
+   "measured_at": "ac3a8a2b0d34f355673c4dd569fb1c3545656b64"
   },
   "carddemo-tranadd": {
    "scenarios": 46,
@@ -375,10 +403,10 @@
    "inputs": {
     "case": "9df37db4a0702e02d26ba7d7a796a58e66337983e82ae4b3d85ff26d603a2c97",
     "corpus": "d0c4803872ec126eb56a170212f76207beff5ab8c2b6507dd6df4a084cdeb919",
-    "harness": "2df01dde126b29e5be6f1f90d7a4d3a5d0f1afdb3ef233f230f50155c9e22504",
+    "harness": "1c4cdf6457fd98cfe726a6c8c6cfdfdbb51323fb6ff1e2b71b367214c4dea3f4",
     "oracle": "baf3bfc2d245d0466d0d7e5d1a14e9bd8aa861f6b5681f44ba788e7f5af7c5ec"
    },
-   "measured_at": "5bc184e0e9f89377eb7b20e7537344dcb70b0e50"
+   "measured_at": "ac3a8a2b0d34f355673c4dd569fb1c3545656b64"
   },
   "carddemo-tranlist": {
    "scenarios": 32,
@@ -393,10 +421,10 @@
    "inputs": {
     "case": "26d55c02be72d7e541fb1ba16200ddd216cfea867b1613f27014b5d9046dd269",
     "corpus": "d0c4803872ec126eb56a170212f76207beff5ab8c2b6507dd6df4a084cdeb919",
-    "harness": "2df01dde126b29e5be6f1f90d7a4d3a5d0f1afdb3ef233f230f50155c9e22504",
+    "harness": "1c4cdf6457fd98cfe726a6c8c6cfdfdbb51323fb6ff1e2b71b367214c4dea3f4",
     "oracle": "baf3bfc2d245d0466d0d7e5d1a14e9bd8aa861f6b5681f44ba788e7f5af7c5ec"
    },
-   "measured_at": "5bc184e0e9f89377eb7b20e7537344dcb70b0e50"
+   "measured_at": "ac3a8a2b0d34f355673c4dd569fb1c3545656b64"
   },
   "carddemo-tranview": {
    "scenarios": 15,
@@ -411,10 +439,10 @@
    "inputs": {
     "case": "686b990dfac2293199c4dc988e314d6af1862801451996285a672c8349e22b72",
     "corpus": "d0c4803872ec126eb56a170212f76207beff5ab8c2b6507dd6df4a084cdeb919",
-    "harness": "2df01dde126b29e5be6f1f90d7a4d3a5d0f1afdb3ef233f230f50155c9e22504",
+    "harness": "1c4cdf6457fd98cfe726a6c8c6cfdfdbb51323fb6ff1e2b71b367214c4dea3f4",
     "oracle": "baf3bfc2d245d0466d0d7e5d1a14e9bd8aa861f6b5681f44ba788e7f5af7c5ec"
    },
-   "measured_at": "5bc184e0e9f89377eb7b20e7537344dcb70b0e50"
+   "measured_at": "ac3a8a2b0d34f355673c4dd569fb1c3545656b64"
   },
   "carddemo-useradd": {
    "scenarios": 13,
@@ -429,10 +457,10 @@
    "inputs": {
     "case": "eeb720c9fbca47d93908d195a995bb9648b61b2771a74b868fe369923fb354b0",
     "corpus": "d0c4803872ec126eb56a170212f76207beff5ab8c2b6507dd6df4a084cdeb919",
-    "harness": "2df01dde126b29e5be6f1f90d7a4d3a5d0f1afdb3ef233f230f50155c9e22504",
+    "harness": "1c4cdf6457fd98cfe726a6c8c6cfdfdbb51323fb6ff1e2b71b367214c4dea3f4",
     "oracle": "baf3bfc2d245d0466d0d7e5d1a14e9bd8aa861f6b5681f44ba788e7f5af7c5ec"
    },
-   "measured_at": "5bc184e0e9f89377eb7b20e7537344dcb70b0e50"
+   "measured_at": "ac3a8a2b0d34f355673c4dd569fb1c3545656b64"
   },
   "carddemo-userdel": {
    "scenarios": 18,
@@ -447,10 +475,10 @@
    "inputs": {
     "case": "f0901f27a92b6d4b75715c8be41873d4812c515480a030e5e3dd49b063dcd987",
     "corpus": "d0c4803872ec126eb56a170212f76207beff5ab8c2b6507dd6df4a084cdeb919",
-    "harness": "2df01dde126b29e5be6f1f90d7a4d3a5d0f1afdb3ef233f230f50155c9e22504",
+    "harness": "1c4cdf6457fd98cfe726a6c8c6cfdfdbb51323fb6ff1e2b71b367214c4dea3f4",
     "oracle": "baf3bfc2d245d0466d0d7e5d1a14e9bd8aa861f6b5681f44ba788e7f5af7c5ec"
    },
-   "measured_at": "5bc184e0e9f89377eb7b20e7537344dcb70b0e50"
+   "measured_at": "ac3a8a2b0d34f355673c4dd569fb1c3545656b64"
   },
   "carddemo-userlist": {
    "scenarios": 32,
@@ -465,10 +493,10 @@
    "inputs": {
     "case": "ba56996a6dacc7ccc8c563aa388d6b41b4d9d737635e307d6a43dcc5ab0f1ba9",
     "corpus": "d0c4803872ec126eb56a170212f76207beff5ab8c2b6507dd6df4a084cdeb919",
-    "harness": "2df01dde126b29e5be6f1f90d7a4d3a5d0f1afdb3ef233f230f50155c9e22504",
+    "harness": "1c4cdf6457fd98cfe726a6c8c6cfdfdbb51323fb6ff1e2b71b367214c4dea3f4",
     "oracle": "baf3bfc2d245d0466d0d7e5d1a14e9bd8aa861f6b5681f44ba788e7f5af7c5ec"
    },
-   "measured_at": "5bc184e0e9f89377eb7b20e7537344dcb70b0e50"
+   "measured_at": "ac3a8a2b0d34f355673c4dd569fb1c3545656b64"
   },
   "carddemo-userupd": {
    "scenarios": 23,
@@ -483,10 +511,10 @@
    "inputs": {
     "case": "e238391fd58103ac8de1cdc28aa80e428812ecb22d4e95cfd76857bee018877d",
     "corpus": "d0c4803872ec126eb56a170212f76207beff5ab8c2b6507dd6df4a084cdeb919",
-    "harness": "2df01dde126b29e5be6f1f90d7a4d3a5d0f1afdb3ef233f230f50155c9e22504",
+    "harness": "1c4cdf6457fd98cfe726a6c8c6cfdfdbb51323fb6ff1e2b71b367214c4dea3f4",
     "oracle": "baf3bfc2d245d0466d0d7e5d1a14e9bd8aa861f6b5681f44ba788e7f5af7c5ec"
    },
-   "measured_at": "5bc184e0e9f89377eb7b20e7537344dcb70b0e50"
+   "measured_at": "ac3a8a2b0d34f355673c4dd569fb1c3545656b64"
   },
   "cbsa-abndproc": {
    "scenarios": 8,
@@ -501,10 +529,10 @@
    "inputs": {
     "case": "32bd7606058e44fc1976bab563073741b843e99ed4e8c2f2382ba46221ee0c26",
     "corpus": "7a4c86e6d6688f1516ec00cbd81941457457c861bf900e2b3a7f269c6bf9058b",
-    "harness": "2df01dde126b29e5be6f1f90d7a4d3a5d0f1afdb3ef233f230f50155c9e22504",
+    "harness": "1c4cdf6457fd98cfe726a6c8c6cfdfdbb51323fb6ff1e2b71b367214c4dea3f4",
     "oracle": "baf3bfc2d245d0466d0d7e5d1a14e9bd8aa861f6b5681f44ba788e7f5af7c5ec"
    },
-   "measured_at": "5bc184e0e9f89377eb7b20e7537344dcb70b0e50"
+   "measured_at": "ac3a8a2b0d34f355673c4dd569fb1c3545656b64"
   },
   "cbsa-custctrl": {
    "scenarios": 6,
@@ -520,7 +548,21 @@
     "case": "5abdcd4d81aa4bec7b6474e7659207b876d49926c72fd8262536ac45df3dd604",
     "corpus": "7a4c86e6d6688f1516ec00cbd81941457457c861bf900e2b3a7f269c6bf9058b",
     "harness": "471da1a6023b0d9d8fa4455d1c515ea30a922cf5d57a8094b29d6a7dcb43c5c2",
-    "oracle": "34a717aa90b1cd8c166787b6d0fb4b64b1022f6ea52b7e73ecd1ef0d4a0c8a47"
+    "oracle": "34a717aa90b1cd8c166787b6d0fb4b64b1022f6ea52b7e73ecd1ef0d4a0c8a47",
+    "components": {
+     "harness": {
+      "harness:cics": "d9343f022b54fb2d747835e7f0a6b729ab6459021e0e7cebbd23e7b08ad35633",
+      "harness:core": "29dd5f0e0497bb1174101523cd762381b159a9fd2788daa33ecacea870873222",
+      "harness:db2": "24242ee159a28947ccf92c123d2f90a9c25c106b0589875fd6dc9a3332a801fe"
+     },
+     "oracle": {
+      "oracle:cics-stub": "734ce68def43267c4c47d9f52010c3fa50d89546d46471ad0fb8ded17fe6d93d",
+      "oracle:core": "096391873ad77e887554d240e0df2b301cb4b8bcf0b50902f390f46904d4e8a6",
+      "oracle:db2": "abbe60be09a4a5b584cb16d8dad42785bea77477d14c0fea172a672783141a95",
+      "oracle:image-db2": "f9bf98a288533e3ee12980219ecc52006e2dab05f7706dfc35238f26add8f3c5",
+      "oracle:le": "f0edcba040c849b46a2420112690eb6aaeb522a50ef9efe874594fed5d13f591"
+     }
+    }
    },
    "measured_at": "2b53e918c59de134e98e0ab795255afabd21437e"
   },
@@ -538,7 +580,21 @@
     "case": "01ea326724a638ab18518bcd9da7b7701545b804756ea1e33a5204248ebdd1ae",
     "corpus": "7a4c86e6d6688f1516ec00cbd81941457457c861bf900e2b3a7f269c6bf9058b",
     "harness": "471da1a6023b0d9d8fa4455d1c515ea30a922cf5d57a8094b29d6a7dcb43c5c2",
-    "oracle": "34a717aa90b1cd8c166787b6d0fb4b64b1022f6ea52b7e73ecd1ef0d4a0c8a47"
+    "oracle": "34a717aa90b1cd8c166787b6d0fb4b64b1022f6ea52b7e73ecd1ef0d4a0c8a47",
+    "components": {
+     "harness": {
+      "harness:cics": "d9343f022b54fb2d747835e7f0a6b729ab6459021e0e7cebbd23e7b08ad35633",
+      "harness:core": "29dd5f0e0497bb1174101523cd762381b159a9fd2788daa33ecacea870873222",
+      "harness:db2": "24242ee159a28947ccf92c123d2f90a9c25c106b0589875fd6dc9a3332a801fe"
+     },
+     "oracle": {
+      "oracle:cics-stub": "734ce68def43267c4c47d9f52010c3fa50d89546d46471ad0fb8ded17fe6d93d",
+      "oracle:core": "096391873ad77e887554d240e0df2b301cb4b8bcf0b50902f390f46904d4e8a6",
+      "oracle:db2": "abbe60be09a4a5b584cb16d8dad42785bea77477d14c0fea172a672783141a95",
+      "oracle:image-db2": "f9bf98a288533e3ee12980219ecc52006e2dab05f7706dfc35238f26add8f3c5",
+      "oracle:le": "f0edcba040c849b46a2420112690eb6aaeb522a50ef9efe874594fed5d13f591"
+     }
+    }
    },
    "measured_at": "2b53e918c59de134e98e0ab795255afabd21437e"
   },
@@ -556,7 +612,21 @@
     "case": "2049daea2586d2211c74ebfb5831a707bb965c4de0ee7bbf6e08f1e30b891c4a",
     "corpus": "7a4c86e6d6688f1516ec00cbd81941457457c861bf900e2b3a7f269c6bf9058b",
     "harness": "471da1a6023b0d9d8fa4455d1c515ea30a922cf5d57a8094b29d6a7dcb43c5c2",
-    "oracle": "34a717aa90b1cd8c166787b6d0fb4b64b1022f6ea52b7e73ecd1ef0d4a0c8a47"
+    "oracle": "34a717aa90b1cd8c166787b6d0fb4b64b1022f6ea52b7e73ecd1ef0d4a0c8a47",
+    "components": {
+     "harness": {
+      "harness:cics": "d9343f022b54fb2d747835e7f0a6b729ab6459021e0e7cebbd23e7b08ad35633",
+      "harness:core": "29dd5f0e0497bb1174101523cd762381b159a9fd2788daa33ecacea870873222",
+      "harness:db2": "24242ee159a28947ccf92c123d2f90a9c25c106b0589875fd6dc9a3332a801fe"
+     },
+     "oracle": {
+      "oracle:cics-stub": "734ce68def43267c4c47d9f52010c3fa50d89546d46471ad0fb8ded17fe6d93d",
+      "oracle:core": "096391873ad77e887554d240e0df2b301cb4b8bcf0b50902f390f46904d4e8a6",
+      "oracle:db2": "abbe60be09a4a5b584cb16d8dad42785bea77477d14c0fea172a672783141a95",
+      "oracle:image-db2": "f9bf98a288533e3ee12980219ecc52006e2dab05f7706dfc35238f26add8f3c5",
+      "oracle:le": "f0edcba040c849b46a2420112690eb6aaeb522a50ef9efe874594fed5d13f591"
+     }
+    }
    },
    "measured_at": "2b53e918c59de134e98e0ab795255afabd21437e"
   },
@@ -574,7 +644,21 @@
     "case": "a39d307ace7093196d4217da06487c426d80acc673d572f5697f7a0c8d23af97",
     "corpus": "7a4c86e6d6688f1516ec00cbd81941457457c861bf900e2b3a7f269c6bf9058b",
     "harness": "471da1a6023b0d9d8fa4455d1c515ea30a922cf5d57a8094b29d6a7dcb43c5c2",
-    "oracle": "34a717aa90b1cd8c166787b6d0fb4b64b1022f6ea52b7e73ecd1ef0d4a0c8a47"
+    "oracle": "34a717aa90b1cd8c166787b6d0fb4b64b1022f6ea52b7e73ecd1ef0d4a0c8a47",
+    "components": {
+     "harness": {
+      "harness:cics": "d9343f022b54fb2d747835e7f0a6b729ab6459021e0e7cebbd23e7b08ad35633",
+      "harness:core": "29dd5f0e0497bb1174101523cd762381b159a9fd2788daa33ecacea870873222",
+      "harness:db2": "24242ee159a28947ccf92c123d2f90a9c25c106b0589875fd6dc9a3332a801fe"
+     },
+     "oracle": {
+      "oracle:cics-stub": "734ce68def43267c4c47d9f52010c3fa50d89546d46471ad0fb8ded17fe6d93d",
+      "oracle:core": "096391873ad77e887554d240e0df2b301cb4b8bcf0b50902f390f46904d4e8a6",
+      "oracle:db2": "abbe60be09a4a5b584cb16d8dad42785bea77477d14c0fea172a672783141a95",
+      "oracle:image-db2": "f9bf98a288533e3ee12980219ecc52006e2dab05f7706dfc35238f26add8f3c5",
+      "oracle:le": "f0edcba040c849b46a2420112690eb6aaeb522a50ef9efe874594fed5d13f591"
+     }
+    }
    },
    "measured_at": "2b53e918c59de134e98e0ab795255afabd21437e"
   },
@@ -592,7 +676,21 @@
     "case": "dde934faa4dddad5a722997a2e4420a87602a7a08489fbc4df0d73235a412170",
     "corpus": "7a4c86e6d6688f1516ec00cbd81941457457c861bf900e2b3a7f269c6bf9058b",
     "harness": "471da1a6023b0d9d8fa4455d1c515ea30a922cf5d57a8094b29d6a7dcb43c5c2",
-    "oracle": "34a717aa90b1cd8c166787b6d0fb4b64b1022f6ea52b7e73ecd1ef0d4a0c8a47"
+    "oracle": "34a717aa90b1cd8c166787b6d0fb4b64b1022f6ea52b7e73ecd1ef0d4a0c8a47",
+    "components": {
+     "harness": {
+      "harness:cics": "d9343f022b54fb2d747835e7f0a6b729ab6459021e0e7cebbd23e7b08ad35633",
+      "harness:core": "29dd5f0e0497bb1174101523cd762381b159a9fd2788daa33ecacea870873222",
+      "harness:db2": "24242ee159a28947ccf92c123d2f90a9c25c106b0589875fd6dc9a3332a801fe"
+     },
+     "oracle": {
+      "oracle:cics-stub": "734ce68def43267c4c47d9f52010c3fa50d89546d46471ad0fb8ded17fe6d93d",
+      "oracle:core": "096391873ad77e887554d240e0df2b301cb4b8bcf0b50902f390f46904d4e8a6",
+      "oracle:db2": "abbe60be09a4a5b584cb16d8dad42785bea77477d14c0fea172a672783141a95",
+      "oracle:image-db2": "f9bf98a288533e3ee12980219ecc52006e2dab05f7706dfc35238f26add8f3c5",
+      "oracle:le": "f0edcba040c849b46a2420112690eb6aaeb522a50ef9efe874594fed5d13f591"
+     }
+    }
    },
    "measured_at": "2b53e918c59de134e98e0ab795255afabd21437e"
   },
@@ -610,7 +708,21 @@
     "case": "d0e0d5193ee3b4c8761dd37a70edb3fe5e1d78c5a785ea583e685637a21047f3",
     "corpus": "7a4c86e6d6688f1516ec00cbd81941457457c861bf900e2b3a7f269c6bf9058b",
     "harness": "471da1a6023b0d9d8fa4455d1c515ea30a922cf5d57a8094b29d6a7dcb43c5c2",
-    "oracle": "34a717aa90b1cd8c166787b6d0fb4b64b1022f6ea52b7e73ecd1ef0d4a0c8a47"
+    "oracle": "34a717aa90b1cd8c166787b6d0fb4b64b1022f6ea52b7e73ecd1ef0d4a0c8a47",
+    "components": {
+     "harness": {
+      "harness:cics": "d9343f022b54fb2d747835e7f0a6b729ab6459021e0e7cebbd23e7b08ad35633",
+      "harness:core": "29dd5f0e0497bb1174101523cd762381b159a9fd2788daa33ecacea870873222",
+      "harness:db2": "24242ee159a28947ccf92c123d2f90a9c25c106b0589875fd6dc9a3332a801fe"
+     },
+     "oracle": {
+      "oracle:cics-stub": "734ce68def43267c4c47d9f52010c3fa50d89546d46471ad0fb8ded17fe6d93d",
+      "oracle:core": "096391873ad77e887554d240e0df2b301cb4b8bcf0b50902f390f46904d4e8a6",
+      "oracle:db2": "abbe60be09a4a5b584cb16d8dad42785bea77477d14c0fea172a672783141a95",
+      "oracle:image-db2": "f9bf98a288533e3ee12980219ecc52006e2dab05f7706dfc35238f26add8f3c5",
+      "oracle:le": "f0edcba040c849b46a2420112690eb6aaeb522a50ef9efe874594fed5d13f591"
+     }
+    }
    },
    "measured_at": "2b53e918c59de134e98e0ab795255afabd21437e"
   },
@@ -628,7 +740,21 @@
     "case": "28a4504359e22c2086f18e990f009dc5165131b6a7a0e270bb16f6325ec3c809",
     "corpus": "7a4c86e6d6688f1516ec00cbd81941457457c861bf900e2b3a7f269c6bf9058b",
     "harness": "471da1a6023b0d9d8fa4455d1c515ea30a922cf5d57a8094b29d6a7dcb43c5c2",
-    "oracle": "34a717aa90b1cd8c166787b6d0fb4b64b1022f6ea52b7e73ecd1ef0d4a0c8a47"
+    "oracle": "34a717aa90b1cd8c166787b6d0fb4b64b1022f6ea52b7e73ecd1ef0d4a0c8a47",
+    "components": {
+     "harness": {
+      "harness:cics": "d9343f022b54fb2d747835e7f0a6b729ab6459021e0e7cebbd23e7b08ad35633",
+      "harness:core": "29dd5f0e0497bb1174101523cd762381b159a9fd2788daa33ecacea870873222",
+      "harness:db2": "24242ee159a28947ccf92c123d2f90a9c25c106b0589875fd6dc9a3332a801fe"
+     },
+     "oracle": {
+      "oracle:cics-stub": "734ce68def43267c4c47d9f52010c3fa50d89546d46471ad0fb8ded17fe6d93d",
+      "oracle:core": "096391873ad77e887554d240e0df2b301cb4b8bcf0b50902f390f46904d4e8a6",
+      "oracle:db2": "abbe60be09a4a5b584cb16d8dad42785bea77477d14c0fea172a672783141a95",
+      "oracle:image-db2": "f9bf98a288533e3ee12980219ecc52006e2dab05f7706dfc35238f26add8f3c5",
+      "oracle:le": "f0edcba040c849b46a2420112690eb6aaeb522a50ef9efe874594fed5d13f591"
+     }
+    }
    },
    "measured_at": "2b53e918c59de134e98e0ab795255afabd21437e"
   },
@@ -645,10 +771,10 @@
    "inputs": {
     "case": "c9c76116b6cbd83fb929db7bd58a606bee9479b3baaeec72d146138e5f1af90b",
     "corpus": "7a4c86e6d6688f1516ec00cbd81941457457c861bf900e2b3a7f269c6bf9058b",
-    "harness": "2df01dde126b29e5be6f1f90d7a4d3a5d0f1afdb3ef233f230f50155c9e22504",
+    "harness": "1c4cdf6457fd98cfe726a6c8c6cfdfdbb51323fb6ff1e2b71b367214c4dea3f4",
     "oracle": "baf3bfc2d245d0466d0d7e5d1a14e9bd8aa861f6b5681f44ba788e7f5af7c5ec"
    },
-   "measured_at": "5bc184e0e9f89377eb7b20e7537344dcb70b0e50"
+   "measured_at": "ac3a8a2b0d34f355673c4dd569fb1c3545656b64"
   },
   "cbsa-xfrfun": {
    "scenarios": 27,
@@ -664,7 +790,21 @@
     "case": "7ffdb8e87cf7a2805e24f593a534b1869317be541532206beca022599b11b056",
     "corpus": "7a4c86e6d6688f1516ec00cbd81941457457c861bf900e2b3a7f269c6bf9058b",
     "harness": "471da1a6023b0d9d8fa4455d1c515ea30a922cf5d57a8094b29d6a7dcb43c5c2",
-    "oracle": "34a717aa90b1cd8c166787b6d0fb4b64b1022f6ea52b7e73ecd1ef0d4a0c8a47"
+    "oracle": "34a717aa90b1cd8c166787b6d0fb4b64b1022f6ea52b7e73ecd1ef0d4a0c8a47",
+    "components": {
+     "harness": {
+      "harness:cics": "d9343f022b54fb2d747835e7f0a6b729ab6459021e0e7cebbd23e7b08ad35633",
+      "harness:core": "29dd5f0e0497bb1174101523cd762381b159a9fd2788daa33ecacea870873222",
+      "harness:db2": "24242ee159a28947ccf92c123d2f90a9c25c106b0589875fd6dc9a3332a801fe"
+     },
+     "oracle": {
+      "oracle:cics-stub": "734ce68def43267c4c47d9f52010c3fa50d89546d46471ad0fb8ded17fe6d93d",
+      "oracle:core": "096391873ad77e887554d240e0df2b301cb4b8bcf0b50902f390f46904d4e8a6",
+      "oracle:db2": "abbe60be09a4a5b584cb16d8dad42785bea77477d14c0fea172a672783141a95",
+      "oracle:image-db2": "f9bf98a288533e3ee12980219ecc52006e2dab05f7706dfc35238f26add8f3c5",
+      "oracle:le": "f0edcba040c849b46a2420112690eb6aaeb522a50ef9efe874594fed5d13f591"
+     }
+    }
    },
    "measured_at": "2b53e918c59de134e98e0ab795255afabd21437e"
   },
@@ -682,7 +822,21 @@
     "case": "37cc5ef4a703e9ce68c3af911e05ff60e2b240929a74ad17ef9bdb9598516a1d",
     "corpus": "c5e4d52071fad96bed24e9ba06f30417340bfc5e998e7c1cd5f2383be73d6ff6",
     "harness": "471da1a6023b0d9d8fa4455d1c515ea30a922cf5d57a8094b29d6a7dcb43c5c2",
-    "oracle": "34a717aa90b1cd8c166787b6d0fb4b64b1022f6ea52b7e73ecd1ef0d4a0c8a47"
+    "oracle": "34a717aa90b1cd8c166787b6d0fb4b64b1022f6ea52b7e73ecd1ef0d4a0c8a47",
+    "components": {
+     "harness": {
+      "harness:cics": "d9343f022b54fb2d747835e7f0a6b729ab6459021e0e7cebbd23e7b08ad35633",
+      "harness:core": "29dd5f0e0497bb1174101523cd762381b159a9fd2788daa33ecacea870873222",
+      "harness:db2": "24242ee159a28947ccf92c123d2f90a9c25c106b0589875fd6dc9a3332a801fe"
+     },
+     "oracle": {
+      "oracle:cics-stub": "734ce68def43267c4c47d9f52010c3fa50d89546d46471ad0fb8ded17fe6d93d",
+      "oracle:core": "096391873ad77e887554d240e0df2b301cb4b8bcf0b50902f390f46904d4e8a6",
+      "oracle:db2": "abbe60be09a4a5b584cb16d8dad42785bea77477d14c0fea172a672783141a95",
+      "oracle:image-db2": "f9bf98a288533e3ee12980219ecc52006e2dab05f7706dfc35238f26add8f3c5",
+      "oracle:le": "f0edcba040c849b46a2420112690eb6aaeb522a50ef9efe874594fed5d13f591"
+     }
+    }
    },
    "measured_at": "2b53e918c59de134e98e0ab795255afabd21437e"
   },
@@ -700,7 +854,21 @@
     "case": "a3ae0bfb1c47fd295bc6814406a2d998597903c43943999916a5aefc93eebb76",
     "corpus": "c5e4d52071fad96bed24e9ba06f30417340bfc5e998e7c1cd5f2383be73d6ff6",
     "harness": "471da1a6023b0d9d8fa4455d1c515ea30a922cf5d57a8094b29d6a7dcb43c5c2",
-    "oracle": "34a717aa90b1cd8c166787b6d0fb4b64b1022f6ea52b7e73ecd1ef0d4a0c8a47"
+    "oracle": "34a717aa90b1cd8c166787b6d0fb4b64b1022f6ea52b7e73ecd1ef0d4a0c8a47",
+    "components": {
+     "harness": {
+      "harness:cics": "d9343f022b54fb2d747835e7f0a6b729ab6459021e0e7cebbd23e7b08ad35633",
+      "harness:core": "29dd5f0e0497bb1174101523cd762381b159a9fd2788daa33ecacea870873222",
+      "harness:db2": "24242ee159a28947ccf92c123d2f90a9c25c106b0589875fd6dc9a3332a801fe"
+     },
+     "oracle": {
+      "oracle:cics-stub": "734ce68def43267c4c47d9f52010c3fa50d89546d46471ad0fb8ded17fe6d93d",
+      "oracle:core": "096391873ad77e887554d240e0df2b301cb4b8bcf0b50902f390f46904d4e8a6",
+      "oracle:db2": "abbe60be09a4a5b584cb16d8dad42785bea77477d14c0fea172a672783141a95",
+      "oracle:image-db2": "f9bf98a288533e3ee12980219ecc52006e2dab05f7706dfc35238f26add8f3c5",
+      "oracle:le": "f0edcba040c849b46a2420112690eb6aaeb522a50ef9efe874594fed5d13f591"
+     }
+    }
    },
    "measured_at": "2b53e918c59de134e98e0ab795255afabd21437e"
   },
@@ -718,7 +886,21 @@
     "case": "16cdc4380ec73103a58e910c4bcf550bd8ece5fa5d2a8a6011b0ff349a134bb2",
     "corpus": "c5e4d52071fad96bed24e9ba06f30417340bfc5e998e7c1cd5f2383be73d6ff6",
     "harness": "471da1a6023b0d9d8fa4455d1c515ea30a922cf5d57a8094b29d6a7dcb43c5c2",
-    "oracle": "34a717aa90b1cd8c166787b6d0fb4b64b1022f6ea52b7e73ecd1ef0d4a0c8a47"
+    "oracle": "34a717aa90b1cd8c166787b6d0fb4b64b1022f6ea52b7e73ecd1ef0d4a0c8a47",
+    "components": {
+     "harness": {
+      "harness:cics": "d9343f022b54fb2d747835e7f0a6b729ab6459021e0e7cebbd23e7b08ad35633",
+      "harness:core": "29dd5f0e0497bb1174101523cd762381b159a9fd2788daa33ecacea870873222",
+      "harness:db2": "24242ee159a28947ccf92c123d2f90a9c25c106b0589875fd6dc9a3332a801fe"
+     },
+     "oracle": {
+      "oracle:cics-stub": "734ce68def43267c4c47d9f52010c3fa50d89546d46471ad0fb8ded17fe6d93d",
+      "oracle:core": "096391873ad77e887554d240e0df2b301cb4b8bcf0b50902f390f46904d4e8a6",
+      "oracle:db2": "abbe60be09a4a5b584cb16d8dad42785bea77477d14c0fea172a672783141a95",
+      "oracle:image-db2": "f9bf98a288533e3ee12980219ecc52006e2dab05f7706dfc35238f26add8f3c5",
+      "oracle:le": "f0edcba040c849b46a2420112690eb6aaeb522a50ef9efe874594fed5d13f591"
+     }
+    }
    },
    "measured_at": "2b53e918c59de134e98e0ab795255afabd21437e"
   },
@@ -735,10 +917,10 @@
    "inputs": {
     "case": "7a9aee118822b1c0f218acf7f1ad3553bbd5a9c1280afc739c872cc0bb62da82",
     "corpus": "c5e4d52071fad96bed24e9ba06f30417340bfc5e998e7c1cd5f2383be73d6ff6",
-    "harness": "2df01dde126b29e5be6f1f90d7a4d3a5d0f1afdb3ef233f230f50155c9e22504",
+    "harness": "1c4cdf6457fd98cfe726a6c8c6cfdfdbb51323fb6ff1e2b71b367214c4dea3f4",
     "oracle": "baf3bfc2d245d0466d0d7e5d1a14e9bd8aa861f6b5681f44ba788e7f5af7c5ec"
    },
-   "measured_at": "5bc184e0e9f89377eb7b20e7537344dcb70b0e50"
+   "measured_at": "ac3a8a2b0d34f355673c4dd569fb1c3545656b64"
   },
   "genapp-lgapdb01": {
    "scenarios": 9,
@@ -754,7 +936,21 @@
     "case": "aecc23b4f7c314678ce7199f8545341463d983410250042c3707999ebf57d568",
     "corpus": "c5e4d52071fad96bed24e9ba06f30417340bfc5e998e7c1cd5f2383be73d6ff6",
     "harness": "471da1a6023b0d9d8fa4455d1c515ea30a922cf5d57a8094b29d6a7dcb43c5c2",
-    "oracle": "34a717aa90b1cd8c166787b6d0fb4b64b1022f6ea52b7e73ecd1ef0d4a0c8a47"
+    "oracle": "34a717aa90b1cd8c166787b6d0fb4b64b1022f6ea52b7e73ecd1ef0d4a0c8a47",
+    "components": {
+     "harness": {
+      "harness:cics": "d9343f022b54fb2d747835e7f0a6b729ab6459021e0e7cebbd23e7b08ad35633",
+      "harness:core": "29dd5f0e0497bb1174101523cd762381b159a9fd2788daa33ecacea870873222",
+      "harness:db2": "24242ee159a28947ccf92c123d2f90a9c25c106b0589875fd6dc9a3332a801fe"
+     },
+     "oracle": {
+      "oracle:cics-stub": "734ce68def43267c4c47d9f52010c3fa50d89546d46471ad0fb8ded17fe6d93d",
+      "oracle:core": "096391873ad77e887554d240e0df2b301cb4b8bcf0b50902f390f46904d4e8a6",
+      "oracle:db2": "abbe60be09a4a5b584cb16d8dad42785bea77477d14c0fea172a672783141a95",
+      "oracle:image-db2": "f9bf98a288533e3ee12980219ecc52006e2dab05f7706dfc35238f26add8f3c5",
+      "oracle:le": "f0edcba040c849b46a2420112690eb6aaeb522a50ef9efe874594fed5d13f591"
+     }
+    }
    },
    "measured_at": "2b53e918c59de134e98e0ab795255afabd21437e"
   },
@@ -772,7 +968,21 @@
     "case": "ffc47517d1d74e993655996224e0b849723352d24c4dfd1599a6654ea5a26e37",
     "corpus": "c5e4d52071fad96bed24e9ba06f30417340bfc5e998e7c1cd5f2383be73d6ff6",
     "harness": "471da1a6023b0d9d8fa4455d1c515ea30a922cf5d57a8094b29d6a7dcb43c5c2",
-    "oracle": "34a717aa90b1cd8c166787b6d0fb4b64b1022f6ea52b7e73ecd1ef0d4a0c8a47"
+    "oracle": "34a717aa90b1cd8c166787b6d0fb4b64b1022f6ea52b7e73ecd1ef0d4a0c8a47",
+    "components": {
+     "harness": {
+      "harness:cics": "d9343f022b54fb2d747835e7f0a6b729ab6459021e0e7cebbd23e7b08ad35633",
+      "harness:core": "29dd5f0e0497bb1174101523cd762381b159a9fd2788daa33ecacea870873222",
+      "harness:db2": "24242ee159a28947ccf92c123d2f90a9c25c106b0589875fd6dc9a3332a801fe"
+     },
+     "oracle": {
+      "oracle:cics-stub": "734ce68def43267c4c47d9f52010c3fa50d89546d46471ad0fb8ded17fe6d93d",
+      "oracle:core": "096391873ad77e887554d240e0df2b301cb4b8bcf0b50902f390f46904d4e8a6",
+      "oracle:db2": "abbe60be09a4a5b584cb16d8dad42785bea77477d14c0fea172a672783141a95",
+      "oracle:image-db2": "f9bf98a288533e3ee12980219ecc52006e2dab05f7706dfc35238f26add8f3c5",
+      "oracle:le": "f0edcba040c849b46a2420112690eb6aaeb522a50ef9efe874594fed5d13f591"
+     }
+    }
    },
    "measured_at": "2b53e918c59de134e98e0ab795255afabd21437e"
   },
@@ -789,10 +999,10 @@
    "inputs": {
     "case": "43ffec29fa8c2a0550158fe549d117033843e9741c072eae52f4d08209b5d2a0",
     "corpus": "c5e4d52071fad96bed24e9ba06f30417340bfc5e998e7c1cd5f2383be73d6ff6",
-    "harness": "2df01dde126b29e5be6f1f90d7a4d3a5d0f1afdb3ef233f230f50155c9e22504",
+    "harness": "1c4cdf6457fd98cfe726a6c8c6cfdfdbb51323fb6ff1e2b71b367214c4dea3f4",
     "oracle": "baf3bfc2d245d0466d0d7e5d1a14e9bd8aa861f6b5681f44ba788e7f5af7c5ec"
    },
-   "measured_at": "5bc184e0e9f89377eb7b20e7537344dcb70b0e50"
+   "measured_at": "ac3a8a2b0d34f355673c4dd569fb1c3545656b64"
   },
   "genapp-lgdpdb01": {
    "scenarios": 12,
@@ -808,7 +1018,21 @@
     "case": "551cd3e514845511da462dd0e64d6542d64ae2b98d2756cd8d31e2f4c9f0c373",
     "corpus": "c5e4d52071fad96bed24e9ba06f30417340bfc5e998e7c1cd5f2383be73d6ff6",
     "harness": "471da1a6023b0d9d8fa4455d1c515ea30a922cf5d57a8094b29d6a7dcb43c5c2",
-    "oracle": "34a717aa90b1cd8c166787b6d0fb4b64b1022f6ea52b7e73ecd1ef0d4a0c8a47"
+    "oracle": "34a717aa90b1cd8c166787b6d0fb4b64b1022f6ea52b7e73ecd1ef0d4a0c8a47",
+    "components": {
+     "harness": {
+      "harness:cics": "d9343f022b54fb2d747835e7f0a6b729ab6459021e0e7cebbd23e7b08ad35633",
+      "harness:core": "29dd5f0e0497bb1174101523cd762381b159a9fd2788daa33ecacea870873222",
+      "harness:db2": "24242ee159a28947ccf92c123d2f90a9c25c106b0589875fd6dc9a3332a801fe"
+     },
+     "oracle": {
+      "oracle:cics-stub": "734ce68def43267c4c47d9f52010c3fa50d89546d46471ad0fb8ded17fe6d93d",
+      "oracle:core": "096391873ad77e887554d240e0df2b301cb4b8bcf0b50902f390f46904d4e8a6",
+      "oracle:db2": "abbe60be09a4a5b584cb16d8dad42785bea77477d14c0fea172a672783141a95",
+      "oracle:image-db2": "f9bf98a288533e3ee12980219ecc52006e2dab05f7706dfc35238f26add8f3c5",
+      "oracle:le": "f0edcba040c849b46a2420112690eb6aaeb522a50ef9efe874594fed5d13f591"
+     }
+    }
    },
    "measured_at": "2b53e918c59de134e98e0ab795255afabd21437e"
   },
@@ -826,7 +1050,21 @@
     "case": "67788f130859e7133e38afd28040067b4991bd82dd85899af68c5f83ddd087f4",
     "corpus": "c5e4d52071fad96bed24e9ba06f30417340bfc5e998e7c1cd5f2383be73d6ff6",
     "harness": "471da1a6023b0d9d8fa4455d1c515ea30a922cf5d57a8094b29d6a7dcb43c5c2",
-    "oracle": "34a717aa90b1cd8c166787b6d0fb4b64b1022f6ea52b7e73ecd1ef0d4a0c8a47"
+    "oracle": "34a717aa90b1cd8c166787b6d0fb4b64b1022f6ea52b7e73ecd1ef0d4a0c8a47",
+    "components": {
+     "harness": {
+      "harness:cics": "d9343f022b54fb2d747835e7f0a6b729ab6459021e0e7cebbd23e7b08ad35633",
+      "harness:core": "29dd5f0e0497bb1174101523cd762381b159a9fd2788daa33ecacea870873222",
+      "harness:db2": "24242ee159a28947ccf92c123d2f90a9c25c106b0589875fd6dc9a3332a801fe"
+     },
+     "oracle": {
+      "oracle:cics-stub": "734ce68def43267c4c47d9f52010c3fa50d89546d46471ad0fb8ded17fe6d93d",
+      "oracle:core": "096391873ad77e887554d240e0df2b301cb4b8bcf0b50902f390f46904d4e8a6",
+      "oracle:db2": "abbe60be09a4a5b584cb16d8dad42785bea77477d14c0fea172a672783141a95",
+      "oracle:image-db2": "f9bf98a288533e3ee12980219ecc52006e2dab05f7706dfc35238f26add8f3c5",
+      "oracle:le": "f0edcba040c849b46a2420112690eb6aaeb522a50ef9efe874594fed5d13f591"
+     }
+    }
    },
    "measured_at": "2b53e918c59de134e98e0ab795255afabd21437e"
   },
@@ -843,10 +1081,10 @@
    "inputs": {
     "case": "8a3174bea8c2259e48d9c4c15be5d32cc8dde55ad7ed1efc0e8da51b7b2f834a",
     "corpus": "c5e4d52071fad96bed24e9ba06f30417340bfc5e998e7c1cd5f2383be73d6ff6",
-    "harness": "2df01dde126b29e5be6f1f90d7a4d3a5d0f1afdb3ef233f230f50155c9e22504",
+    "harness": "1c4cdf6457fd98cfe726a6c8c6cfdfdbb51323fb6ff1e2b71b367214c4dea3f4",
     "oracle": "baf3bfc2d245d0466d0d7e5d1a14e9bd8aa861f6b5681f44ba788e7f5af7c5ec"
    },
-   "measured_at": "5bc184e0e9f89377eb7b20e7537344dcb70b0e50"
+   "measured_at": "ac3a8a2b0d34f355673c4dd569fb1c3545656b64"
   },
   "genapp-lgicdb01": {
    "scenarios": 13,
@@ -862,7 +1100,21 @@
     "case": "006fc6e96c5aa78ac54aa15f16be202c12f90beb19cc4118a6bf54ee6c29fd3a",
     "corpus": "c5e4d52071fad96bed24e9ba06f30417340bfc5e998e7c1cd5f2383be73d6ff6",
     "harness": "471da1a6023b0d9d8fa4455d1c515ea30a922cf5d57a8094b29d6a7dcb43c5c2",
-    "oracle": "34a717aa90b1cd8c166787b6d0fb4b64b1022f6ea52b7e73ecd1ef0d4a0c8a47"
+    "oracle": "34a717aa90b1cd8c166787b6d0fb4b64b1022f6ea52b7e73ecd1ef0d4a0c8a47",
+    "components": {
+     "harness": {
+      "harness:cics": "d9343f022b54fb2d747835e7f0a6b729ab6459021e0e7cebbd23e7b08ad35633",
+      "harness:core": "29dd5f0e0497bb1174101523cd762381b159a9fd2788daa33ecacea870873222",
+      "harness:db2": "24242ee159a28947ccf92c123d2f90a9c25c106b0589875fd6dc9a3332a801fe"
+     },
+     "oracle": {
+      "oracle:cics-stub": "734ce68def43267c4c47d9f52010c3fa50d89546d46471ad0fb8ded17fe6d93d",
+      "oracle:core": "096391873ad77e887554d240e0df2b301cb4b8bcf0b50902f390f46904d4e8a6",
+      "oracle:db2": "abbe60be09a4a5b584cb16d8dad42785bea77477d14c0fea172a672783141a95",
+      "oracle:image-db2": "f9bf98a288533e3ee12980219ecc52006e2dab05f7706dfc35238f26add8f3c5",
+      "oracle:le": "f0edcba040c849b46a2420112690eb6aaeb522a50ef9efe874594fed5d13f591"
+     }
+    }
    },
    "measured_at": "2b53e918c59de134e98e0ab795255afabd21437e"
   },
@@ -880,7 +1132,21 @@
     "case": "074288471e471cf90c5472bf9ea5d5596fb609263f6525077b0780f52abac6d1",
     "corpus": "c5e4d52071fad96bed24e9ba06f30417340bfc5e998e7c1cd5f2383be73d6ff6",
     "harness": "471da1a6023b0d9d8fa4455d1c515ea30a922cf5d57a8094b29d6a7dcb43c5c2",
-    "oracle": "34a717aa90b1cd8c166787b6d0fb4b64b1022f6ea52b7e73ecd1ef0d4a0c8a47"
+    "oracle": "34a717aa90b1cd8c166787b6d0fb4b64b1022f6ea52b7e73ecd1ef0d4a0c8a47",
+    "components": {
+     "harness": {
+      "harness:cics": "d9343f022b54fb2d747835e7f0a6b729ab6459021e0e7cebbd23e7b08ad35633",
+      "harness:core": "29dd5f0e0497bb1174101523cd762381b159a9fd2788daa33ecacea870873222",
+      "harness:db2": "24242ee159a28947ccf92c123d2f90a9c25c106b0589875fd6dc9a3332a801fe"
+     },
+     "oracle": {
+      "oracle:cics-stub": "734ce68def43267c4c47d9f52010c3fa50d89546d46471ad0fb8ded17fe6d93d",
+      "oracle:core": "096391873ad77e887554d240e0df2b301cb4b8bcf0b50902f390f46904d4e8a6",
+      "oracle:db2": "abbe60be09a4a5b584cb16d8dad42785bea77477d14c0fea172a672783141a95",
+      "oracle:image-db2": "f9bf98a288533e3ee12980219ecc52006e2dab05f7706dfc35238f26add8f3c5",
+      "oracle:le": "f0edcba040c849b46a2420112690eb6aaeb522a50ef9efe874594fed5d13f591"
+     }
+    }
    },
    "measured_at": "2b53e918c59de134e98e0ab795255afabd21437e"
   },
@@ -897,10 +1163,10 @@
    "inputs": {
     "case": "15a809097e6d8d3332394ed40e44b11f491a1eaefbb7cab0e600c5fff932e391",
     "corpus": "c5e4d52071fad96bed24e9ba06f30417340bfc5e998e7c1cd5f2383be73d6ff6",
-    "harness": "2df01dde126b29e5be6f1f90d7a4d3a5d0f1afdb3ef233f230f50155c9e22504",
+    "harness": "1c4cdf6457fd98cfe726a6c8c6cfdfdbb51323fb6ff1e2b71b367214c4dea3f4",
     "oracle": "baf3bfc2d245d0466d0d7e5d1a14e9bd8aa861f6b5681f44ba788e7f5af7c5ec"
    },
-   "measured_at": "5bc184e0e9f89377eb7b20e7537344dcb70b0e50"
+   "measured_at": "ac3a8a2b0d34f355673c4dd569fb1c3545656b64"
   },
   "genapp-lgipdb01": {
    "scenarios": 55,
@@ -916,7 +1182,21 @@
     "case": "ed0171d8c5324bfa7a5abd7a11613602d4192660eb6cb0045e52558a87068431",
     "corpus": "c5e4d52071fad96bed24e9ba06f30417340bfc5e998e7c1cd5f2383be73d6ff6",
     "harness": "471da1a6023b0d9d8fa4455d1c515ea30a922cf5d57a8094b29d6a7dcb43c5c2",
-    "oracle": "34a717aa90b1cd8c166787b6d0fb4b64b1022f6ea52b7e73ecd1ef0d4a0c8a47"
+    "oracle": "34a717aa90b1cd8c166787b6d0fb4b64b1022f6ea52b7e73ecd1ef0d4a0c8a47",
+    "components": {
+     "harness": {
+      "harness:cics": "d9343f022b54fb2d747835e7f0a6b729ab6459021e0e7cebbd23e7b08ad35633",
+      "harness:core": "29dd5f0e0497bb1174101523cd762381b159a9fd2788daa33ecacea870873222",
+      "harness:db2": "24242ee159a28947ccf92c123d2f90a9c25c106b0589875fd6dc9a3332a801fe"
+     },
+     "oracle": {
+      "oracle:cics-stub": "734ce68def43267c4c47d9f52010c3fa50d89546d46471ad0fb8ded17fe6d93d",
+      "oracle:core": "096391873ad77e887554d240e0df2b301cb4b8bcf0b50902f390f46904d4e8a6",
+      "oracle:db2": "abbe60be09a4a5b584cb16d8dad42785bea77477d14c0fea172a672783141a95",
+      "oracle:image-db2": "f9bf98a288533e3ee12980219ecc52006e2dab05f7706dfc35238f26add8f3c5",
+      "oracle:le": "f0edcba040c849b46a2420112690eb6aaeb522a50ef9efe874594fed5d13f591"
+     }
+    }
    },
    "measured_at": "2b53e918c59de134e98e0ab795255afabd21437e"
   },
@@ -934,7 +1214,21 @@
     "case": "3170aa8e78add78f126b840b0f53b97b972b8256152628fcaa96cd3b4cb09542",
     "corpus": "c5e4d52071fad96bed24e9ba06f30417340bfc5e998e7c1cd5f2383be73d6ff6",
     "harness": "471da1a6023b0d9d8fa4455d1c515ea30a922cf5d57a8094b29d6a7dcb43c5c2",
-    "oracle": "34a717aa90b1cd8c166787b6d0fb4b64b1022f6ea52b7e73ecd1ef0d4a0c8a47"
+    "oracle": "34a717aa90b1cd8c166787b6d0fb4b64b1022f6ea52b7e73ecd1ef0d4a0c8a47",
+    "components": {
+     "harness": {
+      "harness:cics": "d9343f022b54fb2d747835e7f0a6b729ab6459021e0e7cebbd23e7b08ad35633",
+      "harness:core": "29dd5f0e0497bb1174101523cd762381b159a9fd2788daa33ecacea870873222",
+      "harness:db2": "24242ee159a28947ccf92c123d2f90a9c25c106b0589875fd6dc9a3332a801fe"
+     },
+     "oracle": {
+      "oracle:cics-stub": "734ce68def43267c4c47d9f52010c3fa50d89546d46471ad0fb8ded17fe6d93d",
+      "oracle:core": "096391873ad77e887554d240e0df2b301cb4b8bcf0b50902f390f46904d4e8a6",
+      "oracle:db2": "abbe60be09a4a5b584cb16d8dad42785bea77477d14c0fea172a672783141a95",
+      "oracle:image-db2": "f9bf98a288533e3ee12980219ecc52006e2dab05f7706dfc35238f26add8f3c5",
+      "oracle:le": "f0edcba040c849b46a2420112690eb6aaeb522a50ef9efe874594fed5d13f591"
+     }
+    }
    },
    "measured_at": "2b53e918c59de134e98e0ab795255afabd21437e"
   },
@@ -952,7 +1246,21 @@
     "case": "279bec374666eb6c9efa433944623c1d7d27b875beaeedff3481b353029753f2",
     "corpus": "c5e4d52071fad96bed24e9ba06f30417340bfc5e998e7c1cd5f2383be73d6ff6",
     "harness": "471da1a6023b0d9d8fa4455d1c515ea30a922cf5d57a8094b29d6a7dcb43c5c2",
-    "oracle": "34a717aa90b1cd8c166787b6d0fb4b64b1022f6ea52b7e73ecd1ef0d4a0c8a47"
+    "oracle": "34a717aa90b1cd8c166787b6d0fb4b64b1022f6ea52b7e73ecd1ef0d4a0c8a47",
+    "components": {
+     "harness": {
+      "harness:cics": "d9343f022b54fb2d747835e7f0a6b729ab6459021e0e7cebbd23e7b08ad35633",
+      "harness:core": "29dd5f0e0497bb1174101523cd762381b159a9fd2788daa33ecacea870873222",
+      "harness:db2": "24242ee159a28947ccf92c123d2f90a9c25c106b0589875fd6dc9a3332a801fe"
+     },
+     "oracle": {
+      "oracle:cics-stub": "734ce68def43267c4c47d9f52010c3fa50d89546d46471ad0fb8ded17fe6d93d",
+      "oracle:core": "096391873ad77e887554d240e0df2b301cb4b8bcf0b50902f390f46904d4e8a6",
+      "oracle:db2": "abbe60be09a4a5b584cb16d8dad42785bea77477d14c0fea172a672783141a95",
+      "oracle:image-db2": "f9bf98a288533e3ee12980219ecc52006e2dab05f7706dfc35238f26add8f3c5",
+      "oracle:le": "f0edcba040c849b46a2420112690eb6aaeb522a50ef9efe874594fed5d13f591"
+     }
+    }
    },
    "measured_at": "2b53e918c59de134e98e0ab795255afabd21437e"
   },
@@ -970,7 +1278,21 @@
     "case": "ce7930ab323b0e2402f4bf45e91652c05d865f610b10e483f7bd6dd69c6e4077",
     "corpus": "c5e4d52071fad96bed24e9ba06f30417340bfc5e998e7c1cd5f2383be73d6ff6",
     "harness": "471da1a6023b0d9d8fa4455d1c515ea30a922cf5d57a8094b29d6a7dcb43c5c2",
-    "oracle": "34a717aa90b1cd8c166787b6d0fb4b64b1022f6ea52b7e73ecd1ef0d4a0c8a47"
+    "oracle": "34a717aa90b1cd8c166787b6d0fb4b64b1022f6ea52b7e73ecd1ef0d4a0c8a47",
+    "components": {
+     "harness": {
+      "harness:cics": "d9343f022b54fb2d747835e7f0a6b729ab6459021e0e7cebbd23e7b08ad35633",
+      "harness:core": "29dd5f0e0497bb1174101523cd762381b159a9fd2788daa33ecacea870873222",
+      "harness:db2": "24242ee159a28947ccf92c123d2f90a9c25c106b0589875fd6dc9a3332a801fe"
+     },
+     "oracle": {
+      "oracle:cics-stub": "734ce68def43267c4c47d9f52010c3fa50d89546d46471ad0fb8ded17fe6d93d",
+      "oracle:core": "096391873ad77e887554d240e0df2b301cb4b8bcf0b50902f390f46904d4e8a6",
+      "oracle:db2": "abbe60be09a4a5b584cb16d8dad42785bea77477d14c0fea172a672783141a95",
+      "oracle:image-db2": "f9bf98a288533e3ee12980219ecc52006e2dab05f7706dfc35238f26add8f3c5",
+      "oracle:le": "f0edcba040c849b46a2420112690eb6aaeb522a50ef9efe874594fed5d13f591"
+     }
+    }
    },
    "measured_at": "2b53e918c59de134e98e0ab795255afabd21437e"
   },
@@ -988,7 +1310,21 @@
     "case": "d03feebada23dc73a38c5d1531661b89898a25737670736cf7566ee05c35c07b",
     "corpus": "c5e4d52071fad96bed24e9ba06f30417340bfc5e998e7c1cd5f2383be73d6ff6",
     "harness": "471da1a6023b0d9d8fa4455d1c515ea30a922cf5d57a8094b29d6a7dcb43c5c2",
-    "oracle": "34a717aa90b1cd8c166787b6d0fb4b64b1022f6ea52b7e73ecd1ef0d4a0c8a47"
+    "oracle": "34a717aa90b1cd8c166787b6d0fb4b64b1022f6ea52b7e73ecd1ef0d4a0c8a47",
+    "components": {
+     "harness": {
+      "harness:cics": "d9343f022b54fb2d747835e7f0a6b729ab6459021e0e7cebbd23e7b08ad35633",
+      "harness:core": "29dd5f0e0497bb1174101523cd762381b159a9fd2788daa33ecacea870873222",
+      "harness:db2": "24242ee159a28947ccf92c123d2f90a9c25c106b0589875fd6dc9a3332a801fe"
+     },
+     "oracle": {
+      "oracle:cics-stub": "734ce68def43267c4c47d9f52010c3fa50d89546d46471ad0fb8ded17fe6d93d",
+      "oracle:core": "096391873ad77e887554d240e0df2b301cb4b8bcf0b50902f390f46904d4e8a6",
+      "oracle:db2": "abbe60be09a4a5b584cb16d8dad42785bea77477d14c0fea172a672783141a95",
+      "oracle:image-db2": "f9bf98a288533e3ee12980219ecc52006e2dab05f7706dfc35238f26add8f3c5",
+      "oracle:le": "f0edcba040c849b46a2420112690eb6aaeb522a50ef9efe874594fed5d13f591"
+     }
+    }
    },
    "measured_at": "2b53e918c59de134e98e0ab795255afabd21437e"
   },
@@ -1006,7 +1342,21 @@
     "case": "2ed102e31e3e0e02df5613652300c45c05626ba3eeae358d57f8a7ff19fb1023",
     "corpus": "c5e4d52071fad96bed24e9ba06f30417340bfc5e998e7c1cd5f2383be73d6ff6",
     "harness": "471da1a6023b0d9d8fa4455d1c515ea30a922cf5d57a8094b29d6a7dcb43c5c2",
-    "oracle": "34a717aa90b1cd8c166787b6d0fb4b64b1022f6ea52b7e73ecd1ef0d4a0c8a47"
+    "oracle": "34a717aa90b1cd8c166787b6d0fb4b64b1022f6ea52b7e73ecd1ef0d4a0c8a47",
+    "components": {
+     "harness": {
+      "harness:cics": "d9343f022b54fb2d747835e7f0a6b729ab6459021e0e7cebbd23e7b08ad35633",
+      "harness:core": "29dd5f0e0497bb1174101523cd762381b159a9fd2788daa33ecacea870873222",
+      "harness:db2": "24242ee159a28947ccf92c123d2f90a9c25c106b0589875fd6dc9a3332a801fe"
+     },
+     "oracle": {
+      "oracle:cics-stub": "734ce68def43267c4c47d9f52010c3fa50d89546d46471ad0fb8ded17fe6d93d",
+      "oracle:core": "096391873ad77e887554d240e0df2b301cb4b8bcf0b50902f390f46904d4e8a6",
+      "oracle:db2": "abbe60be09a4a5b584cb16d8dad42785bea77477d14c0fea172a672783141a95",
+      "oracle:image-db2": "f9bf98a288533e3ee12980219ecc52006e2dab05f7706dfc35238f26add8f3c5",
+      "oracle:le": "f0edcba040c849b46a2420112690eb6aaeb522a50ef9efe874594fed5d13f591"
+     }
+    }
    },
    "measured_at": "2b53e918c59de134e98e0ab795255afabd21437e"
   },
@@ -1024,7 +1374,21 @@
     "case": "d690be3b361358cb5c8ce9e490a5281f4b2aa164b023d5c18c09fec94fc4a651",
     "corpus": "c5e4d52071fad96bed24e9ba06f30417340bfc5e998e7c1cd5f2383be73d6ff6",
     "harness": "471da1a6023b0d9d8fa4455d1c515ea30a922cf5d57a8094b29d6a7dcb43c5c2",
-    "oracle": "34a717aa90b1cd8c166787b6d0fb4b64b1022f6ea52b7e73ecd1ef0d4a0c8a47"
+    "oracle": "34a717aa90b1cd8c166787b6d0fb4b64b1022f6ea52b7e73ecd1ef0d4a0c8a47",
+    "components": {
+     "harness": {
+      "harness:cics": "d9343f022b54fb2d747835e7f0a6b729ab6459021e0e7cebbd23e7b08ad35633",
+      "harness:core": "29dd5f0e0497bb1174101523cd762381b159a9fd2788daa33ecacea870873222",
+      "harness:db2": "24242ee159a28947ccf92c123d2f90a9c25c106b0589875fd6dc9a3332a801fe"
+     },
+     "oracle": {
+      "oracle:cics-stub": "734ce68def43267c4c47d9f52010c3fa50d89546d46471ad0fb8ded17fe6d93d",
+      "oracle:core": "096391873ad77e887554d240e0df2b301cb4b8bcf0b50902f390f46904d4e8a6",
+      "oracle:db2": "abbe60be09a4a5b584cb16d8dad42785bea77477d14c0fea172a672783141a95",
+      "oracle:image-db2": "f9bf98a288533e3ee12980219ecc52006e2dab05f7706dfc35238f26add8f3c5",
+      "oracle:le": "f0edcba040c849b46a2420112690eb6aaeb522a50ef9efe874594fed5d13f591"
+     }
+    }
    },
    "measured_at": "2b53e918c59de134e98e0ab795255afabd21437e"
   },
@@ -1042,7 +1406,21 @@
     "case": "b0924415e4f8a1139a9e1683cc4095d4ac68c4e29d023be30f74d871be9ffeb8",
     "corpus": "c5e4d52071fad96bed24e9ba06f30417340bfc5e998e7c1cd5f2383be73d6ff6",
     "harness": "471da1a6023b0d9d8fa4455d1c515ea30a922cf5d57a8094b29d6a7dcb43c5c2",
-    "oracle": "34a717aa90b1cd8c166787b6d0fb4b64b1022f6ea52b7e73ecd1ef0d4a0c8a47"
+    "oracle": "34a717aa90b1cd8c166787b6d0fb4b64b1022f6ea52b7e73ecd1ef0d4a0c8a47",
+    "components": {
+     "harness": {
+      "harness:cics": "d9343f022b54fb2d747835e7f0a6b729ab6459021e0e7cebbd23e7b08ad35633",
+      "harness:core": "29dd5f0e0497bb1174101523cd762381b159a9fd2788daa33ecacea870873222",
+      "harness:db2": "24242ee159a28947ccf92c123d2f90a9c25c106b0589875fd6dc9a3332a801fe"
+     },
+     "oracle": {
+      "oracle:cics-stub": "734ce68def43267c4c47d9f52010c3fa50d89546d46471ad0fb8ded17fe6d93d",
+      "oracle:core": "096391873ad77e887554d240e0df2b301cb4b8bcf0b50902f390f46904d4e8a6",
+      "oracle:db2": "abbe60be09a4a5b584cb16d8dad42785bea77477d14c0fea172a672783141a95",
+      "oracle:image-db2": "f9bf98a288533e3ee12980219ecc52006e2dab05f7706dfc35238f26add8f3c5",
+      "oracle:le": "f0edcba040c849b46a2420112690eb6aaeb522a50ef9efe874594fed5d13f591"
+     }
+    }
    },
    "measured_at": "2b53e918c59de134e98e0ab795255afabd21437e"
   },
@@ -1059,10 +1437,10 @@
    "inputs": {
     "case": "6c9fc448075615eac423f7057a1c705f03c1fd1b91eba79416f996588ddaca0f",
     "corpus": "c5e4d52071fad96bed24e9ba06f30417340bfc5e998e7c1cd5f2383be73d6ff6",
-    "harness": "2df01dde126b29e5be6f1f90d7a4d3a5d0f1afdb3ef233f230f50155c9e22504",
+    "harness": "1c4cdf6457fd98cfe726a6c8c6cfdfdbb51323fb6ff1e2b71b367214c4dea3f4",
     "oracle": "baf3bfc2d245d0466d0d7e5d1a14e9bd8aa861f6b5681f44ba788e7f5af7c5ec"
    },
-   "measured_at": "5bc184e0e9f89377eb7b20e7537344dcb70b0e50"
+   "measured_at": "ac3a8a2b0d34f355673c4dd569fb1c3545656b64"
   },
   "genapp-lgupdb01": {
    "scenarios": 12,
@@ -1078,7 +1456,21 @@
     "case": "74984f1fdb517f9a636a73d3f6c0f39a47c059c5d0f9d5042e80af4e0a808992",
     "corpus": "c5e4d52071fad96bed24e9ba06f30417340bfc5e998e7c1cd5f2383be73d6ff6",
     "harness": "471da1a6023b0d9d8fa4455d1c515ea30a922cf5d57a8094b29d6a7dcb43c5c2",
-    "oracle": "34a717aa90b1cd8c166787b6d0fb4b64b1022f6ea52b7e73ecd1ef0d4a0c8a47"
+    "oracle": "34a717aa90b1cd8c166787b6d0fb4b64b1022f6ea52b7e73ecd1ef0d4a0c8a47",
+    "components": {
+     "harness": {
+      "harness:cics": "d9343f022b54fb2d747835e7f0a6b729ab6459021e0e7cebbd23e7b08ad35633",
+      "harness:core": "29dd5f0e0497bb1174101523cd762381b159a9fd2788daa33ecacea870873222",
+      "harness:db2": "24242ee159a28947ccf92c123d2f90a9c25c106b0589875fd6dc9a3332a801fe"
+     },
+     "oracle": {
+      "oracle:cics-stub": "734ce68def43267c4c47d9f52010c3fa50d89546d46471ad0fb8ded17fe6d93d",
+      "oracle:core": "096391873ad77e887554d240e0df2b301cb4b8bcf0b50902f390f46904d4e8a6",
+      "oracle:db2": "abbe60be09a4a5b584cb16d8dad42785bea77477d14c0fea172a672783141a95",
+      "oracle:image-db2": "f9bf98a288533e3ee12980219ecc52006e2dab05f7706dfc35238f26add8f3c5",
+      "oracle:le": "f0edcba040c849b46a2420112690eb6aaeb522a50ef9efe874594fed5d13f591"
+     }
+    }
    },
    "measured_at": "2b53e918c59de134e98e0ab795255afabd21437e"
   },
@@ -1096,7 +1488,21 @@
     "case": "7d3d9ff7153e409cae28bc1c0c4e9b3c0c548d6050d7c31b378bfffaebe84bbc",
     "corpus": "c5e4d52071fad96bed24e9ba06f30417340bfc5e998e7c1cd5f2383be73d6ff6",
     "harness": "471da1a6023b0d9d8fa4455d1c515ea30a922cf5d57a8094b29d6a7dcb43c5c2",
-    "oracle": "34a717aa90b1cd8c166787b6d0fb4b64b1022f6ea52b7e73ecd1ef0d4a0c8a47"
+    "oracle": "34a717aa90b1cd8c166787b6d0fb4b64b1022f6ea52b7e73ecd1ef0d4a0c8a47",
+    "components": {
+     "harness": {
+      "harness:cics": "d9343f022b54fb2d747835e7f0a6b729ab6459021e0e7cebbd23e7b08ad35633",
+      "harness:core": "29dd5f0e0497bb1174101523cd762381b159a9fd2788daa33ecacea870873222",
+      "harness:db2": "24242ee159a28947ccf92c123d2f90a9c25c106b0589875fd6dc9a3332a801fe"
+     },
+     "oracle": {
+      "oracle:cics-stub": "734ce68def43267c4c47d9f52010c3fa50d89546d46471ad0fb8ded17fe6d93d",
+      "oracle:core": "096391873ad77e887554d240e0df2b301cb4b8bcf0b50902f390f46904d4e8a6",
+      "oracle:db2": "abbe60be09a4a5b584cb16d8dad42785bea77477d14c0fea172a672783141a95",
+      "oracle:image-db2": "f9bf98a288533e3ee12980219ecc52006e2dab05f7706dfc35238f26add8f3c5",
+      "oracle:le": "f0edcba040c849b46a2420112690eb6aaeb522a50ef9efe874594fed5d13f591"
+     }
+    }
    },
    "measured_at": "2b53e918c59de134e98e0ab795255afabd21437e"
   },
@@ -1113,10 +1519,10 @@
    "inputs": {
     "case": "c9ce6f6f6962d4c7aee349ab8ad98699a1fcc799bbe1bb91c8e7f485a68221cb",
     "corpus": "c5e4d52071fad96bed24e9ba06f30417340bfc5e998e7c1cd5f2383be73d6ff6",
-    "harness": "2df01dde126b29e5be6f1f90d7a4d3a5d0f1afdb3ef233f230f50155c9e22504",
+    "harness": "1c4cdf6457fd98cfe726a6c8c6cfdfdbb51323fb6ff1e2b71b367214c4dea3f4",
     "oracle": "baf3bfc2d245d0466d0d7e5d1a14e9bd8aa861f6b5681f44ba788e7f5af7c5ec"
    },
-   "measured_at": "5bc184e0e9f89377eb7b20e7537344dcb70b0e50"
+   "measured_at": "ac3a8a2b0d34f355673c4dd569fb1c3545656b64"
   },
   "mortgage-cmort": {
    "scenarios": 9,
@@ -1132,7 +1538,21 @@
     "case": "bd85a34c697e713b92f53b2de2fd71639c0622ffcc2b9f6fe4d2f02ed1495c9d",
     "corpus": "1143e0fef7c983b7ade463d33d49481f5572d79e8f95593a2219fdb494a1e7f2",
     "harness": "471da1a6023b0d9d8fa4455d1c515ea30a922cf5d57a8094b29d6a7dcb43c5c2",
-    "oracle": "34a717aa90b1cd8c166787b6d0fb4b64b1022f6ea52b7e73ecd1ef0d4a0c8a47"
+    "oracle": "34a717aa90b1cd8c166787b6d0fb4b64b1022f6ea52b7e73ecd1ef0d4a0c8a47",
+    "components": {
+     "harness": {
+      "harness:cics": "d9343f022b54fb2d747835e7f0a6b729ab6459021e0e7cebbd23e7b08ad35633",
+      "harness:core": "29dd5f0e0497bb1174101523cd762381b159a9fd2788daa33ecacea870873222",
+      "harness:db2": "24242ee159a28947ccf92c123d2f90a9c25c106b0589875fd6dc9a3332a801fe"
+     },
+     "oracle": {
+      "oracle:cics-stub": "734ce68def43267c4c47d9f52010c3fa50d89546d46471ad0fb8ded17fe6d93d",
+      "oracle:core": "096391873ad77e887554d240e0df2b301cb4b8bcf0b50902f390f46904d4e8a6",
+      "oracle:db2": "abbe60be09a4a5b584cb16d8dad42785bea77477d14c0fea172a672783141a95",
+      "oracle:image-db2": "f9bf98a288533e3ee12980219ecc52006e2dab05f7706dfc35238f26add8f3c5",
+      "oracle:le": "f0edcba040c849b46a2420112690eb6aaeb522a50ef9efe874594fed5d13f591"
+     }
+    }
    },
    "measured_at": "2b53e918c59de134e98e0ab795255afabd21437e"
   },
@@ -1149,10 +1569,10 @@
    "inputs": {
     "case": "1bc8cc50bfabc9561912399023b410c2636605f171281cb2178b4cb3b2a4d1d7",
     "corpus": "1143e0fef7c983b7ade463d33d49481f5572d79e8f95593a2219fdb494a1e7f2",
-    "harness": "2df01dde126b29e5be6f1f90d7a4d3a5d0f1afdb3ef233f230f50155c9e22504",
+    "harness": "1c4cdf6457fd98cfe726a6c8c6cfdfdbb51323fb6ff1e2b71b367214c4dea3f4",
     "oracle": "baf3bfc2d245d0466d0d7e5d1a14e9bd8aa861f6b5681f44ba788e7f5af7c5ec"
    },
-   "measured_at": "5bc184e0e9f89377eb7b20e7537344dcb70b0e50"
+   "measured_at": "ac3a8a2b0d34f355673c4dd569fb1c3545656b64"
   },
   "mortgage-mlist-generated": {
    "scenarios": 12,
@@ -1167,10 +1587,10 @@
    "inputs": {
     "case": "dc611e5eee78003db958b63aeccfb19b7a44339ebb8d6dd114b8788df570cef9",
     "corpus": "1143e0fef7c983b7ade463d33d49481f5572d79e8f95593a2219fdb494a1e7f2",
-    "harness": "2df01dde126b29e5be6f1f90d7a4d3a5d0f1afdb3ef233f230f50155c9e22504",
+    "harness": "1c4cdf6457fd98cfe726a6c8c6cfdfdbb51323fb6ff1e2b71b367214c4dea3f4",
     "oracle": "baf3bfc2d245d0466d0d7e5d1a14e9bd8aa861f6b5681f44ba788e7f5af7c5ec"
    },
-   "measured_at": "5bc184e0e9f89377eb7b20e7537344dcb70b0e50"
+   "measured_at": "ac3a8a2b0d34f355673c4dd569fb1c3545656b64"
   }
  }
 }

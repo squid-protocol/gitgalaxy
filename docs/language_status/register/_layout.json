@@ -1,0 +1,62 @@
+[
+ {
+  "part": "00-head.md"
+ },
+ {
+  "part": "01-the-oracle-is-pinned-and-recor.md"
+ },
+ {
+  "part": "02-the-db2-image-is-pinned-4733.md"
+ },
+ {
+  "part": "03-status-key.md"
+ },
+ {
+  "part": "04-summary.md"
+ },
+ {
+  "summary": true
+ },
+ {
+  "part": "05-compiler-gnucobol-3-1-2-std-ib.md",
+  "family": "C"
+ },
+ {
+  "part": "06-data-and-encoding.md",
+  "family": "D"
+ },
+ {
+  "part": "07-files.md",
+  "family": "F"
+ },
+ {
+  "part": "08-cics-ggcics-c.md",
+  "family": "X"
+ },
+ {
+  "part": "09-language-environment.md",
+  "family": "L"
+ },
+ {
+  "part": "10-assembler-routines.md",
+  "family": "A"
+ },
+ {
+  "part": "11-db2-equivalence-sql-py-ggsql-c.md",
+  "family": "Q"
+ },
+ {
+  "part": "12-the-java-side.md",
+  "family": "J"
+ },
+ {
+  "part": "13-method.md",
+  "family": "M"
+ },
+ {
+  "part": "14-what-would-settle-most-of-this.md"
+ },
+ {
+  "part": "15-keeping-this-page-true.md"
+ }
+]

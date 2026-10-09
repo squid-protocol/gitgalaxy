@@ -69,6 +69,7 @@ ERROR = re.compile(r"##\[error\]|^(FAILED|ERROR) |Traceback \(most recent call l
 ANSI = re.compile(r"\x1b\[[0-9;]*[A-Za-z]")
 STAMP = re.compile(r"^\d{4}-\d\d-\d\dT[\d:.]+Z ")
 FAILED_TEST = re.compile(r"^FAILED (\S+::\S+)")
+RUN_JOB = re.compile(r"/actions/runs/(\d+)/job/(\d+)")
 UNPROVEN = re.compile(r"^\s*det (\S+)\s+NOT PROVEN")
 
 Logs = Callable[[int], str]
@@ -135,7 +136,9 @@ def digest(n: int, api: pr_check.Api = pr_check.gh_api, logs: Logs = job_log) ->
         log = logs(r["id"]) if actions else ""
         ex = extract(log)
         kind = triage(r.get("conclusion") or "", log, ex["tests"], pr.get("mergeable_state"))
+        ids = RUN_JOB.search(r.get("details_url") or "")
         out.append({"check": name, "conclusion": r.get("conclusion"), "url": r.get("html_url") or r.get("details_url"),
+                    "run_id": int(ids.group(1)) if ids else None, "job_id": int(ids.group(2)) if ids else None,
                     "triage": kind, "repro": repro(name, ex, kind), **ex})  # fmt: skip
     return {"number": n, "head_sha": sha, "mergeable_state": pr.get("mergeable_state"), "failed": out}
 

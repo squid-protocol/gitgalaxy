@@ -172,3 +172,18 @@ These follow the #4048 proposal's recommendations:
   Dockerfile pin is.
 - **Q10, customer projects** (`ai_agent_jobs/ports/<KEY>/evidence.json`): not in v1.
 - **Corpus and crucible pins** count with the case, so changing them blocks the PR.
+
+**Options in the evidence report** (#4708): a result holds under the options it was produced with, so the
+[evidence report](evidence_report/README.md) shows them. `report.json` carries, per program, `options`: `values` (each
+result-changing option -- TRUNC, NUMPROC, ARITH, INTDATE, CODEPAGE, NSYMBOL -- with `value`, `origin` (program card /
+case `compiler_options` / estate options file / IBM default), `source` and `provenance`), `found` / `assumed` counts,
+`deviations` (`EffectiveOptions.deviations()`: an option the estate declares that the proof applies differently, e.g.
+TRUNC(OPT) run as TRUNC(STD)) and `record_differences` (the `kind: "option"` differences of the case's evidence record,
+`equivalence_common.option_differences`). `provenance` is `found` for a `<file>:<line>` in the corpus (the program's own
+CBL / PROCESS cards are frozen into the `measured` block as `cards`, and cite `<program>:<line>`) and `assumed` for
+`assumed: IBM default` / `owner decision` / `not stated in the corpus`. The estate-level `options` holds the compiler
+product and version, installation defaults and PARM defaults with their provenance, the found / assumed counts of the
+estate options file (`tests/equivalence/estate_options/<corpus>.json`, #4719) in total and per LE / Db2 / CICS section, and
+the programs' own found / assumed totals. The resolver is `gitgalaxy.core.estate_options.effective_options`; the same
+values are stored in a record as `inputs.options.effective`. `validate()` requires `options` only of a freshly built
+report (`strict`), so a report committed before #4708 still validates until the evidence-refresh bot regenerates it.

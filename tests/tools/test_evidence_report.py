@@ -431,3 +431,100 @@ def test_a_linked_program_never_inherits_the_cases_coverage_and_its_ledger_verdi
     assert (c["case"], c["role"], c["det"]["state"]) == (DB2_CASE, "linked", "equal")
     assert p["coverage"]["source"] is None and "LINKed" in p["next"][0]
     assert (p["level"], p["level_current"], p["stale_inputs"]) == ("L2", False, ["oracle"])
+
+
+# ---- #4708: the options a level holds under --------------------------------------------------------------------------
+def demo_estate(tmp_path, monkeypatch):
+    from gitgalaxy.core import estate_options as eo
+
+    def e(value, source, **kw):
+        return {"value": value, "source": source, "note": "n", **kw}
+
+    data = {
+        "format": eo.FORMAT, "estate": "demo", "corpus": "demo",
+        "compiler": {"product": e("Enterprise COBOL", "b/DEFAULT.jcl:7"), "version": e("6.3", "b/DEFAULT.jcl:7"),
+                     "installation_defaults": {"NUMPROC": e("NOPFD", "assumed: IBM default")}},
+        "parm": {"default": [{"option": "TRUNC", **e("OPT", "b/CICS.jcl:9", applied_value="STD", applied_note="why")}],
+                 "programs": {}},
+        "le": {"runtime_options": {"STORAGE": e("NONE", "assumed: IBM default")}}, "db2": {}, "cics": {},
+    }  # fmt: skip
+    (tmp_path / "demo.json").write_text(json.dumps(data))
+    monkeypatch.setattr(eo, "ESTATE_OPTIONS_DIR", tmp_path)
+    return data
+
+
+def test_options_show_value_origin_and_found_vs_assumed(tmp_path, monkeypatch):
+    demo_estate(tmp_path, monkeypatch)
+    cards = [{"option": "INTDATE", "value": "LILIAN", "written": "INTDATE(LILIAN)", "line": 3}]
+    o = er.program_options(None, "demo", "P.cbl", cards)
+    by = {r["option"]: r for r in o["values"]}
+    assert (by["INTDATE"]["value"], by["INTDATE"]["provenance"], by["INTDATE"]["source"]) == (
+        "LILIAN",
+        "found",
+        "P.cbl:3",
+    )
+    assert (by["TRUNC"]["value"], by["TRUNC"]["provenance"], by["TRUNC"]["source"]) == ("STD", "found", "b/CICS.jcl:9")
+    assert (by["NUMPROC"]["provenance"], by["NUMPROC"]["source"]) == ("assumed", "assumed: IBM default")
+    assert by["ARITH"]["origin"] == "IBM default" and by["ARITH"]["provenance"] == "assumed"
+    assert o["found"] == 2 and o["assumed"] == len(o["values"]) - 2
+    assert o["compiler"] == {"product": "Enterprise COBOL", "version": "6.3"}
+    # the declared difference: the estate says TRUNC(OPT), the proof ran STD
+    assert [(d["option"], d["declared"], d["applied"]) for d in o["deviations"]] == [("TRUNC", "OPT", "STD")]
+    text = "\n".join(er.options_lines(o))
+    assert "TRUNC(STD) [found at b/CICS.jcl:9]" in text and "NUMPROC(NOPFD) [assumed: IBM default]" in text
+    assert "Declared option difference:** TRUNC is OPT in the estate, applied as STD" in text
+    # a program card overrides the PARM, so the deviation disappears
+    o2 = er.program_options(
+        None, "demo", "P.cbl", [{"option": "TRUNC", "value": "BIN", "written": "TRUNC(BIN)", "line": 1}]
+    )
+    assert o2["deviations"] == [] and {r["option"]: r["value"] for r in o2["values"]}["TRUNC"] == "BIN"
+
+
+def test_options_carry_the_records_declared_differences_and_the_estate_table(tmp_path, monkeypatch):
+    demo_estate(tmp_path, monkeypatch)
+    diff = [{"kind": "option", "option": "TRUNC", "declared": "OPT", "applied": "STD", "note": "proven as STD"}]
+    o = er.program_options(None, "demo", "P.cbl", [], diff)
+    assert o["record_differences"][0]["note"] == "shown equal as STD"  # reworded to the report's vocabulary
+    est = er.estate_options("demo", [{"options": o}])
+    assert est["counts"] == {"found": 3, "assumed": 2} and est["programs_with_deviation"] == 1
+    assert est["parm_default"][0]["applied_value"] == "STD" and est["sections"]["le"] == {"found": 0, "assumed": 1}
+    md = "\n".join(er.estate_options_lines(est))
+    assert "| compiler | version: 6.3 | found | b/DEFAULT.jcl:7 |" in md
+    assert "TRUNC(OPT) (applied as STD: declared difference) | found | b/CICS.jcl:9" in md
+    assert not er._FORBIDDEN.search(md + "\n".join(er.options_lines(o)))
+
+
+def test_an_estate_without_an_options_file_is_ibm_defaults_assumed(tmp_path, monkeypatch):
+    from gitgalaxy.core import estate_options as eo
+
+    monkeypatch.setattr(eo, "ESTATE_OPTIONS_DIR", tmp_path)
+    o = er.program_options(None, "none", "P.cbl", [])
+    assert o["found"] == 0 and o["assumed"] == len(o["values"]) > 0 and not o["estate_file"]
+    est = er.estate_options("none", [{"options": o}])
+    assert est["estate_file"] is None and "IBM's default (assumed)" in "\n".join(er.estate_options_lines(est))
+
+
+def test_the_options_section_validates_and_an_older_report_still_does(tmp_path, monkeypatch):
+    demo_estate(tmp_path, monkeypatch)
+    rep = copy.deepcopy(json.loads(REPORTS[0].read_text("utf-8")))
+    for p in rep["programs"]:
+        p["options"] = er.program_options(None, "demo", p["program"], [])
+    rep["options"] = er.estate_options("demo", rep["programs"])
+    assert er.validate(rep) == []
+    bad = copy.deepcopy(rep)
+    bad["programs"][0]["options"]["values"][0]["provenance"] = "guessed"
+    assert any("provenance" in e for e in er.validate(bad))
+    del rep["options"]
+    for p in rep["programs"]:
+        del p["options"]
+    assert er.validate(rep) == []  # committed before #4708: no options until the bot regenerates it
+    assert any("options" in e for e in er.validate(rep, strict=True))
+
+
+def test_options_are_deterministic(tmp_path, monkeypatch):
+    demo_estate(tmp_path, monkeypatch)
+    cards = [{"option": "INTDATE", "value": "LILIAN", "written": "INTDATE(LILIAN)", "line": 3}]
+    a, b = (er.program_options(None, "demo", "P.cbl", cards) for _ in range(2))
+    assert json.dumps(a, sort_keys=True) == json.dumps(b, sort_keys=True)
+    assert er.estate_options("demo", [{"options": a}]) == er.estate_options("demo", [{"options": b}])
+    assert "\n".join(er.options_lines(a)) == "\n".join(er.options_lines(b))

@@ -65,7 +65,9 @@ while any level is stale; `--deltas` reports stale vs current.
 
 report.json (`gitgalaxy-evidence-report/1`): {format, estate, burned, bars, levels, oracle, not_measured, measured,
 summary, programs: [{program, level, level_current, stale_since, stale_inputs, next, translation, equivalence, coverage, oracle_backing, assumptions,
-residual}], assumptions_named, reproducibility}; validate() checks the shape.
+residual, options}], assumptions_named, reproducibility, options}; validate() checks the shape. #4708: `options`
+(per program and per estate) holds the effective compile / runtime options and where each came from (found at
+<file>:<line> vs assumed), plus the declared option differences; a report committed before it has neither.
 """
 
 from __future__ import annotations
@@ -87,6 +89,9 @@ import cics_census as cc  # noqa: E402
 import cics_spec_status as css  # noqa: E402
 import evidence as ev  # noqa: E402
 import proof_blockers as pb  # noqa: E402
+from gitgalaxy.core.compiler_options import SEMANTIC_OPTIONS, compiler_options, parse_options  # noqa: E402
+from gitgalaxy.core.estate_options import counts as estate_counts  # noqa: E402
+from gitgalaxy.core.estate_options import effective_options, load_estate  # noqa: E402
 
 FORMAT = "gitgalaxy-evidence-report/1"
 OUT = REPO / "docs" / "language_status" / "evidence_report"
@@ -201,6 +206,7 @@ def measure(
                 "source_read": text is not None,
                 "commands": sorted(css.program_keys(text)) if text is not None else [],
                 "facts": {k: sorted(v) for k, v in facts.items()},
+                "cards": compiler_options(text) if text is not None else [],  # #4708: the program's own CBL / PROCESS
             }
         )
     used = {r.case for runs in pb.equivalence_runs().values() for r in runs}
@@ -352,6 +358,9 @@ def record_summary(case: str, status: dict[str, Any] | None) -> dict[str, Any] |
         "java_failed": bool(p.get("java_failed")),
         "facade": {"runs": fc.get("runs"), "passed": fc.get("passed")} if fc else None,
         "db2": t.db2,
+        "option_differences": [
+            d for d in rec.get("differences") or [] if isinstance(d, dict) and d.get("kind") == "option"
+        ],
         "oracle_image": img.get("id"),
         "oracle_matches_pin": img.get("matches_pin"),
         "coverage": {
@@ -487,6 +496,99 @@ def level_of(p: dict[str, Any], bars: dict[str, float]) -> tuple[str, list[str]]
     return "L4", [f"every surviving mutant of the det port accounted for: {MUTATION}"]
 
 
+# ---- options (#4708) ---------------------------------------------------------------------------------------------
+# The options that change a program's RESULTS (SEMANTIC_OPTIONS: ARITH, INTDATE, NUMPROC, TRUNC, YEARWINDOW), plus the
+# ones that change how its data is read. The rest of a PARM (LIST, MAP, XREF ...) changes no result and is not listed.
+RESULT_OPTIONS = (*SEMANTIC_OPTIONS, "CODEPAGE", "DECIMAL-POINT", "NSYMBOL")
+OPTION_SECTIONS = ("le", "db2", "cics")
+
+
+def _provenance(source: str | None) -> str:
+    return "assumed" if not source or str(source).startswith("assumed:") else "found"
+
+
+def _card_text(cards: list[dict[str, Any]]) -> str:
+    """The program's CBL cards as source text (what EffectiveOptions.values / .deviations read the cards from)."""
+    return "\n".join(f"       CBL {c['written']}" for c in cards)
+
+
+def program_options(case: dict[str, Any] | None, estate: str, program: str, cards: list[dict[str, Any]],
+                    differences: list[dict[str, Any]] | None = None) -> dict[str, Any]:  # fmt: skip
+    """#4708: one program's effective options -- the resolver's answer (gitgalaxy.core.estate_options) plus its own
+    CBL / PROCESS cards -- each result-changing option with its value, origin and provenance."""
+    case = case or {"corpus": estate}
+    eff = effective_options(case, program=program)
+    text = _card_text(cards)
+    values = eff.values(text)
+    on_card = {c["option"]: c for c in cards}
+    case_opts = {o for t in case.get("compiler_options") or [] for o, _v, _w in parse_options(t)}
+    rows = []
+    for option in RESULT_OPTIONS:
+        if option not in values and option not in on_card:
+            continue
+        if option in on_card:
+            origin, source = "program card", f"{program}:{on_card[option]['line']}"
+        elif option in case_opts:
+            origin, source = "case compiler_options", "assumed: owner decision (the case's compiler_options)"
+        elif option in eff.sources:
+            origin, source = "estate options file", eff.sources[option]
+        else:
+            origin, source = "IBM default", "assumed: IBM default"
+        rows.append({"option": option, "value": values.get(option), "origin": origin, "source": source,
+                     "provenance": _provenance(source)})  # fmt: skip
+    return {
+        "estate_file": eff.estate is not None,
+        "compiler": {k: v for k, v in eff.compiler.items()},
+        "values": rows,
+        "found": sum(r["provenance"] == "found" for r in rows),
+        "assumed": sum(r["provenance"] == "assumed" for r in rows),
+        "deviations": [
+            {**d, "source": d["source"] or None, "note": "declared in the estate options file (applied_value)"}
+            for d in eff.deviations(text)
+        ],
+        "record_differences": [
+            {
+                "option": d.get("option"),
+                "declared": d.get("declared"),
+                "applied": d.get("applied"),
+                "note": neutral(d.get("note", "")),
+            }
+            for d in differences or []
+        ],  # fmt: skip
+    }
+
+
+def estate_options(estate: str, progs: list[dict[str, Any]]) -> dict[str, Any]:
+    """#4708: the estate-level options table -- compiler product / version, the PARM defaults, how many values the
+    estate options file found in the corpus vs assumed, and the same count over the programs' result-changing options."""
+    data = load_estate(estate)
+    po = [p["options"] for p in progs]
+    out: dict[str, Any] = {
+        "estate_file": f"tests/equivalence/estate_options/{estate}.json" if data else None,
+        "programs_found": sum(o["found"] for o in po),
+        "programs_assumed": sum(o["assumed"] for o in po),
+        "programs_with_deviation": sum(bool(o["deviations"] or o["record_differences"]) for o in po),
+    }
+    if not data:
+        return out | {"compiler": None, "installation_defaults": [], "parm_default": [], "parm_programs": [],
+                      "counts": None, "sections": {}}  # fmt: skip
+
+    def entry(name: str, e: dict[str, Any]) -> dict[str, Any]:
+        src = str(e.get("source"))
+        return {"option": name, "value": e.get("value"), "applied_value": e.get("applied_value"), "source": src,
+                "provenance": _provenance(src)}  # fmt: skip
+
+    comp = data.get("compiler") or {}
+    return out | {
+        "compiler": {k: entry(k, comp[k]) for k in ("product", "version") if k in comp},
+        "installation_defaults": [entry(k, v) for k, v in sorted((comp.get("installation_defaults") or {}).items())],
+        "parm_default": [entry(e["option"], e) for e in (data.get("parm") or {}).get("default") or []],
+        "parm_programs": sorted((data.get("parm") or {}).get("programs") or {}),
+        "counts": estate_counts(data),
+        "sections": {s: estate_counts({s: data.get(s) or {}}) for s in OPTION_SECTIONS},
+    }
+
+
 def build_program(m: dict[str, Any], estate: str, ctx: dict[str, Any]) -> dict[str, Any]:
     r, prog = m["row"], m["program"]
     whole = cc.whole(r)
@@ -562,6 +664,14 @@ def build_program(m: dict[str, Any], estate: str, ctx: dict[str, Any]) -> dict[s
     unstated += [f"ASSIGN {f} (no equivalence case states it)" for f in facts.get("assign_task", [])]
     if facts.get("assign_region") and not region:
         unstated.append("ASSIGN " + "/".join(facts["assign_region"]) + " (the case states no region)")
+    chosen_case = ev._case_json(chosen["case"]) if chosen else None
+    p["options"] = program_options(
+        chosen_case,
+        estate,
+        prog,
+        m.get("cards") or [],
+        (chosen["record"] or {}).get("option_differences") if chosen and chosen["record"] else None,
+    )
     p["assumptions"] = {
         "named_by_commands": [
             {"id": x, **ctx["register"].get(x, {"status": "no register row", "area": "", "entry": ""})} for x in regs
@@ -670,6 +780,7 @@ def build(measured: dict[str, Any], estate: str, bars: dict[str, float], *, live
             "source_unread": sum(not m.get("source_read") for m in measured["programs"]),
         },
         "programs": progs,
+        "options": estate_options(estate, progs),
         "assumptions_named": [
             {"id": x, **ctx["register"].get(x, {"status": "no register row", "area": "", "entry": ""})} for x in named
         ],
@@ -796,6 +907,26 @@ def validate(rep: dict[str, Any], strict: bool = False) -> list[str]:
             errs.append(f"programs[{i}]: a current level names stale inputs")
         elif not p["level_current"] and not p.get("stale_inputs"):
             errs.append(f"programs[{i}]: a stale level names no stale inputs")
+    # #4708: a report committed before the options section has none until the evidence-refresh bot regenerates it
+    if "options" not in rep:
+        if strict:
+            errs.append("missing `options`")
+    else:
+        errs += option_errors(rep["options"], "options", ("estate_file", "programs_found", "programs_assumed"))
+    for i, p in enumerate(rep.get("programs", [])):
+        if "options" not in p:
+            if strict:
+                errs.append(f"programs[{i}].options missing")
+            continue
+        errs += option_errors(p["options"], f"programs[{i}].options", ("values", "found", "assumed", "deviations"))
+        for r in p["options"].get("values", []):
+            if r.get("provenance") not in ("found", "assumed"):
+                errs.append(f"programs[{i}].options {r.get('option')}: provenance {r.get('provenance')!r}")
+            elif r["provenance"] != _provenance(r.get("source")):
+                errs.append(f"programs[{i}].options {r.get('option')}: provenance disagrees with source")
+        o = p["options"]
+        if o.get("found", 0) + o.get("assumed", 0) != len(o.get("values", [])):
+            errs.append(f"programs[{i}].options: found + assumed is not the number of values")
     for k in ("survey", "programs", "sweeps", "record_status", "det_coverage"):
         if k not in rep.get("measured", {}):
             errs.append(f"measured.{k} missing")
@@ -806,6 +937,12 @@ def validate(rep: dict[str, Any], strict: bool = False) -> list[str]:
     elif sum(hs.values()) != sum(not p.get("level_current", True) for p in rep.get("programs", [])):
         errs.append("summary.histogram_stale disagrees with the programs")
     return errs
+
+
+def option_errors(o: Any, where: str, keys: tuple[str, ...]) -> list[str]:
+    if not isinstance(o, dict):
+        return [f"{where} is not an object"]
+    return [f"{where}.{k} missing" for k in keys if k not in o]
 
 
 # ---- rendering ---------------------------------------------------------------------------------------------------
@@ -842,6 +979,73 @@ def _frac(d: dict[str, int] | None, a: str, b: str, p: float | None) -> str:
     return "not measured" if not d else f"{d[a]}/{d[b]} ({_n(p)}%)"
 
 
+def option_text(r: dict[str, Any]) -> str:
+    v = r["value"]
+    return f"{r['option']}({v})" if v not in (None, "") else str(r["option"])
+
+
+def option_marker(r: dict[str, Any]) -> str:
+    return f"found at {r['source']}" if r["provenance"] == "found" else str(r["source"])
+
+
+def options_lines(o: dict[str, Any]) -> list[str]:
+    """The per-program options line (#4708): result-changing options, each with where its value came from."""
+    comp = o.get("compiler") or {}
+    head = " ".join(str(comp[k]) for k in ("product", "version") if comp.get(k))
+    out = [
+        "- **Options in force** (compile options that change results"
+        + (f"; {head}" if head else "")
+        + f"; {o['found']} found, {o['assumed']} assumed): "
+        + ("; ".join(f"{option_text(r)} [{option_marker(r)}]" for r in o["values"]) or "none")
+    ]
+    for d in o["deviations"]:
+        out.append(
+            f"  - **Declared option difference:** {d['option']} is {d['declared']} in the estate, applied as "
+            f"{d['applied']} ({d['source'] or 'no source'})"
+        )
+    for d in o["record_differences"]:
+        out.append(
+            f"  - **Declared option difference (evidence record):** {d['option']} {d['declared']} applied as "
+            f"{d['applied']}: {d['note']}"
+        )
+    return out
+
+
+def estate_options_lines(o: dict[str, Any]) -> list[str]:
+    """The estate-level options table (#4708)."""
+    out = ["## Options the estate compiles and runs under", ""]
+    if not o["estate_file"]:
+        return out + [
+            "No estate options file: every option is IBM's default (assumed). "
+            f"Programs: {o['programs_found']} option values found, {o['programs_assumed']} assumed.",
+            "",
+        ]
+    c, comp = o["counts"], o["compiler"]
+    out += [
+        f"From `{o['estate_file']}`: {c['found']} values found in the corpus, {c['assumed']} assumed "
+        f"(IBM default, owner decision, or not stated in the corpus). Over the programs' result-changing options: "
+        f"{o['programs_found']} found, {o['programs_assumed']} assumed; programs with a declared option difference: "
+        f"{o['programs_with_deviation']}.",
+        "",
+        "| item | value | provenance | source |",
+        "|---|---|---|---|",
+    ]
+    rows = [*comp.values(), *o["installation_defaults"], *o["parm_default"]]
+    for r, kind in zip(
+        rows, ["compiler"] * len(comp) + ["installation default"] * len(o["installation_defaults"])
+        + ["PARM"] * len(o["parm_default"]), strict=True,
+    ):  # fmt: skip
+        v = option_text(r) if kind != "compiler" else f"{r['option']}: {r['value']}"
+        if r.get("applied_value") is not None:
+            v += f" (applied as {r['applied_value']}: declared difference)"
+        out.append(f"| {kind} | {v} | {r['provenance']} | {r['source']} |")
+    if o["parm_programs"]:
+        out.append(f"| programs with their own PARM | {', '.join(o['parm_programs'])} | | |")
+    out += ["", "| runtime section | found | assumed |", "|---|---|---|"]
+    out += [f"| {s.upper()} | {n['found']} | {n['assumed']} |" for s, n in o["sections"].items()]
+    return out + [""]
+
+
 def preface(rep: dict[str, Any]) -> list[str]:
     o, bars = rep["oracle"], rep["bars"]
     out = [
@@ -874,6 +1078,18 @@ def preface(rep: dict[str, Any]) -> list[str]:
             "differences or options) is not shown as stale: the level drops, as the old measurement no longer describes "
             "it. A stale level is never a current one: the summary counts them apart, and the release gate "
             "(`evidence_report.py --check --live`) fails while any program's level is stale."
+        ),
+        "",
+        (
+            "**Options.** A result holds under the compile and runtime options it was produced with, so each program "
+            "lists the options that change results (TRUNC, NUMPROC, ARITH, INTDATE, CODEPAGE ...) as the resolver "
+            "(`gitgalaxy/core/estate_options.py`) applies them: IBM defaults, overridden by the estate's compile PARM, "
+            "overridden by the program's own CBL / PROCESS cards. Each value says where it came from: `found at "
+            "<file>:<line>` in the corpus, or `assumed: IBM default` / `assumed: owner decision` / `assumed: not "
+            "stated in the corpus`. A **declared option difference** is an option the estate uses that the "
+            "proof does not run under (for example TRUNC(OPT) run as TRUNC(STD)): the level holds under the applied "
+            "option, not the declared one. The estate-level table gives the compiler product and version, the PARM "
+            "defaults, and how many values were found versus assumed."
         ),
         "",
         "| level | name | condition |",
@@ -945,6 +1161,10 @@ def render(rep: dict[str, Any]) -> str:
             f"evidence record: {s['with_record']}; record current at build: {s['records_current']}"
         ),
         "",
+    ]
+    if "options" in rep:
+        out += estate_options_lines(rep["options"])
+    out += [
         "## Programs",
         "",
         (
@@ -1037,6 +1257,8 @@ def program_section(p: dict[str, Any]) -> list[str]:
         out += [f"  - hole: {h}" for h in t["holes"]]
     if t["source_defects"]:
         out.append("  - named source defects: " + "; ".join(t["source_defects"]))
+    if "options" in p:
+        out += options_lines(p["options"])
     if not eq["cases"]:
         out.append("- **Executed equivalence:** no equivalence case runs it")
     for c in eq["cases"]:

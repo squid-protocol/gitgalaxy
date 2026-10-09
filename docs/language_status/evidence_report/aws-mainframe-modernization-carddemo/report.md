@@ -531,7 +531,7 @@ From `tests/equivalence/estate_options/aws-mainframe-modernization-carddemo.json
 
 ### app/app-transaction-type-db2/cbl/COTRTUPC.cbl -- L2*
 
-- **Stale level:** L2 is the last measurement, stale since `2b53e918c59d` (harness, oracle); not yet re-checked
+- **Stale level:** L2 is the last measurement, stale since `da4433e72b92` (harness, oracle); not yet re-checked
 
 - **Executed equivalent** on the 34 scenarios of carddemo-cotrtupc against GnuCOBOL + the gitgalaxy CICS stub (det port: Db2 det sweep, as the det-sweep coverage ledger last recorded it (tests/equivalence/det_sweep_coverage.json)), given the assumptions below
 - **Next level needs:** paragraph coverage >= 100.0 (now 98.4)

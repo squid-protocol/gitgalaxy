@@ -45,12 +45,12 @@
     "tests/tools/cics_crucible_compare.py"
    ],
    "files": 13,
-   "sha256": "db8da5a347f551ea0867f8cd399f76bcaef5fd56fb3a08a84b40ef34ec8ab9f3",
+   "sha256": "96ba7a9128f15dd85106797ec1afba5bef82f080df410f2486962347c72b015b",
    "components": {
     "harness:call": "9fc3abd81ee72d5068a139f9589fd9907ce0ae401520744d1bc6b8f02136dec3",
-    "harness:cics": "174af38d64970991776131eefc3700331a4c38b4d686d0f5d078588949f0e3d2",
-    "harness:core": "2d7439b3aae32c3d707c2e748f6a332f1eed11803dbe4ca5155ec8412da8a5cb",
-    "harness:crucible": "ece27cf6a71fa09ae2443e2afd2bb697a74e98ae095b91a51077d994610113d5",
+    "harness:cics": "d9343f022b54fb2d747835e7f0a6b729ab6459021e0e7cebbd23e7b08ad35633",
+    "harness:core": "29dd5f0e0497bb1174101523cd762381b159a9fd2788daa33ecacea870873222",
+    "harness:crucible": "c050d5c68016018d7306633cee572ec6b6a0fe9f18f99a3bbdde1f264e9494e1",
     "harness:db2": "24242ee159a28947ccf92c123d2f90a9c25c106b0589875fd6dc9a3332a801fe"
    }
   },
@@ -65,7 +65,7 @@
     "gitgalaxy/tools/cobol_to_java/**"
    ],
    "files": 66,
-   "sha256": "c62975b16125f305071dec7dd54d41505f0b46104f4260aabb21def6e3713cc0",
+   "sha256": "7128ee80b28f816e285cb358d6c72a5e953dd9e0483f03becceff7d668d87e52",
    "components": {
     "generator:cobolrt/Cobol.java": "96b2a0472a6ddde32dbda40fb3241bd1caeb2d67848a48b1c5d8d7d3a8ad425b",
     "generator:cobolrt/Codec.java": "0ad2ec6498b3e9969ac9834169f7daebebb4ee219238a38463ae314a213045cf",
@@ -85,9 +85,9 @@
     "generator:cobolrt/sql/DetSql.java": "95725d0ad31cef578bc7bb3e9a2f5697105a7f498c56138625c6b39a50e99c33",
     "generator:cobolrt/standalone/CobolAbend.java": "81e7a898b77981baff8a9427ec3e464f080e659c9d9b8d1ceb8915e0c3c69302",
     "generator:cobolrt/standalone/Sysout.java": "398ea058d95425209b5e81a272262719542e0cde2b5241a7291407e1717d7eb2",
-    "generator:core": "376c7eb7d1a9cc33b893bcb062cc038f6dfadae7948d97571b51047450da9d05",
+    "generator:core": "c8842395391d5f9b24e3191f58709cfacc6e01955765f040203e505d6b60fd38",
     "generator:det/__init__": "9dedbc9da92e2e4bfd260e7fd5fb78ee2e41a061466c948250d088ffaa464386",
-    "generator:det/cics": "f15c7d0ac7692ca1eb3690b26bda36ee870e6ec3c5dc9b659a9c9a1068bf11c1",
+    "generator:det/cics": "52aa26c06951b4b126c56db5e6580ec47c6ad57e9d5129af42b725e426b3a16a",
     "generator:det/cvda": "894dce1a06a317be4fee0935fba219b066ef141e48f783953a5fe85c16338e26",
     "generator:det/dyncall": "91756ab4ddd843a8c1458f52120b6ef33c723d5bff23edc943be62de7bd534d7",
     "generator:det/entity": "b6aa37067dc0413f6700ac83e7dd35610d8e2474aa607bdf54b5b8419ee4c7d6",
@@ -96,7 +96,7 @@
     "generator:det/hfp": "7371422d1821ad22c526f9ba0e37deaa0ffc38ed190c6ad76e7475d820df95a1",
     "generator:det/layout": "61484fb57bb9934dbce27bb44637dad425d8bccdc6f1b0fd97c838a6e3934755",
     "generator:det/osvs": "4ca3599a4d9a49bd17def291a921278d6f4f45858f65acaf75ae817c17644dd5",
-    "generator:det/program": "b44c409e9d7d087a94ca33c72da72b73a139f5ff52f8a7209784d5dc70fa5369",
+    "generator:det/program": "6e4543d108af93ad50b1390c44ab515acc1df5e7729da4eed111163b19c55282",
     "generator:det/refine": "542ea38e67d5ffdfecdd0d9319c208a2aebc3538205b4d52e0fc2134cc7a758d",
     "generator:det/source": "a9cc253aff9f19807fb16f10975d052798fdc6cf39249a4b42f4360c925a68c2",
     "generator:det/sql": "7e45e405297510ec80e92b82c55d58e861bcfb37af4bc6a26a475798795ffd45",
@@ -137,10 +137,10 @@
     }
    }
   },
-  "digest": "84af5c2c52cae320df6ea5f99aa587fc21e6657ecd23c2c7a58e58239857b140"
+  "digest": "93545ceee56134f0eea9431c1deda95ec6a7cf04b921d9825c7a524ccc89ce73"
  },
  "proof": {
-  "at": "2026-10-09T09:25:56Z",
+  "at": "2026-10-09T10:57:05Z",
   "verdict": "proven",
   "runs": 3,
   "fault_runs": 0,
@@ -166,8 +166,8 @@
   "sysout_compared": null,
   "attributes_compared": null,
   "java_failed": false,
-  "harness_commit": "a497a304f49010737210b9faf1ebd0e1d50fca19+uncommitted",
-  "inputs_digest": "84af5c2c52cae320df6ea5f99aa587fc21e6657ecd23c2c7a58e58239857b140"
+  "harness_commit": "2b53e918c59de134e98e0ab795255afabd21437e+uncommitted",
+  "inputs_digest": "93545ceee56134f0eea9431c1deda95ec6a7cf04b921d9825c7a524ccc89ce73"
  },
  "coverage": {
   "paragraphs": {
@@ -182,7 +182,7 @@
   "handler_labels": null,
   "source": "tests/cics_crucible/coverage.json#programs/ca-xctl-versions/CAXA",
   "ledger_sha256": "b041eb81e33650ada94387af852ac6f6392b6c4d12697d4f71e7365825bffc30",
-  "inputs_digest": "84af5c2c52cae320df6ea5f99aa587fc21e6657ecd23c2c7a58e58239857b140"
+  "inputs_digest": "93545ceee56134f0eea9431c1deda95ec6a7cf04b921d9825c7a524ccc89ce73"
  },
  "reach": {
   "entry_points": [

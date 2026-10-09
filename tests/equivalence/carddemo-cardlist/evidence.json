@@ -43,10 +43,10 @@
     "tests/tools/java_target_matrix.py"
    ],
    "files": 11,
-   "sha256": "a4180d0a5e85ece10f97288b0e0ddbf8b86331c752840fe6b90fc46bcb45988e",
+   "sha256": "471da1a6023b0d9d8fa4455d1c515ea30a922cf5d57a8094b29d6a7dcb43c5c2",
    "components": {
-    "harness:cics": "174af38d64970991776131eefc3700331a4c38b4d686d0f5d078588949f0e3d2",
-    "harness:core": "2d7439b3aae32c3d707c2e748f6a332f1eed11803dbe4ca5155ec8412da8a5cb"
+    "harness:cics": "d9343f022b54fb2d747835e7f0a6b729ab6459021e0e7cebbd23e7b08ad35633",
+    "harness:core": "29dd5f0e0497bb1174101523cd762381b159a9fd2788daa33ecacea870873222"
    }
   },
   "oracle": {
@@ -60,9 +60,9 @@
     "tests/tools/equivalence_sql.py"
    ],
    "files": 21,
-   "sha256": "520883d8fbd8fedd9141ef6fc275eda91ca42d54dbe16d14dac0386a0ab285b3",
+   "sha256": "34a717aa90b1cd8c166787b6d0fb4b64b1022f6ea52b7e73ecd1ef0d4a0c8a47",
    "components": {
-    "oracle:cics-stub": "92fbf8c9564fe92f792f3d5f0573411afb43d4e54b488d09ad2ce021954d41ba",
+    "oracle:cics-stub": "734ce68def43267c4c47d9f52010c3fa50d89546d46471ad0fb8ded17fe6d93d",
     "oracle:core": "096391873ad77e887554d240e0df2b301cb4b8bcf0b50902f390f46904d4e8a6",
     "oracle:le": "f0edcba040c849b46a2420112690eb6aaeb522a50ef9efe874594fed5d13f591"
    }
@@ -72,11 +72,11 @@
     "gitgalaxy/tools/cobol_to_java/**"
    ],
    "files": 66,
-   "sha256": "c62975b16125f305071dec7dd54d41505f0b46104f4260aabb21def6e3713cc0",
+   "sha256": "7128ee80b28f816e285cb358d6c72a5e953dd9e0483f03becceff7d668d87e52",
    "components": {
-    "generator:core": "376c7eb7d1a9cc33b893bcb062cc038f6dfadae7948d97571b51047450da9d05",
+    "generator:core": "c8842395391d5f9b24e3191f58709cfacc6e01955765f040203e505d6b60fd38",
     "generator:det/__init__": "9dedbc9da92e2e4bfd260e7fd5fb78ee2e41a061466c948250d088ffaa464386",
-    "generator:det/cics": "f15c7d0ac7692ca1eb3690b26bda36ee870e6ec3c5dc9b659a9c9a1068bf11c1",
+    "generator:det/cics": "52aa26c06951b4b126c56db5e6580ec47c6ad57e9d5129af42b725e426b3a16a",
     "generator:det/cvda": "894dce1a06a317be4fee0935fba219b066ef141e48f783953a5fe85c16338e26",
     "generator:det/dyncall": "91756ab4ddd843a8c1458f52120b6ef33c723d5bff23edc943be62de7bd534d7",
     "generator:det/entity": "b6aa37067dc0413f6700ac83e7dd35610d8e2474aa607bdf54b5b8419ee4c7d6",
@@ -169,10 +169,10 @@
     }
    }
   },
-  "digest": "59b2a1b5321e85a95bb1e9f162944c40deb7fb1fce7876a1ba13b703940c6bf1"
+  "digest": "3c8751889290b036a956d0004dd6dd6326b02010c3245e06692fba1eff33579a"
  },
  "proof": {
-  "at": "2026-10-09T08:52:00Z",
+  "at": "2026-10-09T10:49:38Z",
   "verdict": "proven",
   "runs": 45,
   "fault_runs": 5,
@@ -373,8 +373,8 @@
    "failed": [],
    "error": null
   },
-  "harness_commit": "a497a304f49010737210b9faf1ebd0e1d50fca19+uncommitted",
-  "inputs_digest": "59b2a1b5321e85a95bb1e9f162944c40deb7fb1fce7876a1ba13b703940c6bf1"
+  "harness_commit": "2b53e918c59de134e98e0ab795255afabd21437e",
+  "inputs_digest": "3c8751889290b036a956d0004dd6dd6326b02010c3245e06692fba1eff33579a"
  },
  "coverage": {
   "paragraphs": {
@@ -410,7 +410,7 @@
    "total": 0
   },
   "source": "the proof's own traced COBOL runs (cobol_coverage.py)",
-  "inputs_digest": "59b2a1b5321e85a95bb1e9f162944c40deb7fb1fce7876a1ba13b703940c6bf1"
+  "inputs_digest": "3c8751889290b036a956d0004dd6dd6326b02010c3245e06692fba1eff33579a"
  },
  "reach": {
   "entry_points": [
@@ -455,7 +455,7 @@
   "compiler_options": null,
   "image": {
    "name": "gitgalaxy-gnucobol:3",
-   "id": "sha256:0ac5b4464f050db803d75a329d41296ba638a5e0a6fb57ee184c443c0d6c1f1a",
+   "id": "sha256:42d04bb08a2ae202b10f8b9984965744dbc662a2b066597c536e1cf591eb8efa",
    "base": "debian:bookworm-slim@sha256:3783cc01769c7b2b1b83a5c5ad96c815348e28ed7da68e2e3687004faa906251",
    "matches_pin": true,
    "mismatches": []
@@ -475,7 +475,7 @@
    },
    {
     "path": "tests/equivalence/cics/ggcics.c",
-    "sha256": "45d8aa7c45371ebf334c768dce605a6a6506fc68277e33985f3e148c864399c8"
+    "sha256": "015a3536bdb24d59061562d3d883b076ea65b0b6e6c8b019100d78350b22fbf3"
    },
    {
     "path": "tests/equivalence/cics/ggcics_spec.h",
